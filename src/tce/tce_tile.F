@@ -1,6 +1,6 @@
       subroutine tce_tile
 c
-c $Id: tce_tile.F,v 1.2 2002-10-21 21:59:11 sohirata Exp $
+c $Id: tce_tile.F,v 1.3 2002-10-21 22:27:35 sohirata Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -67,22 +67,10 @@ c          occur.  Check shmmax by "cat /proc/sys/kernel/shmmax".
 c ====================================================================
 c
         endif
-c
-c When GA and MA share the same memory space, use half for each
-c
-        if (ga_uses_ma()) then
-          write(LuOut,9020) int(ga_dble)-available
-          write(LuOut,9030) available
-        else
-          write(LuOut,9020) int(ga_dble)
-          write(LuOut,9030) available
-        endif
       endif
  9000 format(10x,'Available GA+MA space size is ',i10,' doubles')
  9010 format(10x,'Available GA space size is    ',i10,' doubles',/,
      1       10x,'Available MA space size is    ',i10,' doubles')
- 9020 format(10x,'GA buffer size for DRA I/O is ',i10,' doubles')
- 9030 format(10x,'Local memory size is          ',i10,' doubles')
 c
 c     ========================
 c     Determine the block size
@@ -104,6 +92,11 @@ c
         size = dsqrt(dsqrt(size))
         isize = min(isize,int(size))
       else if ((model.eq."ccsd").or.(model.eq."CCSD")) then
+        size = dfloat(available)
+        size = size / 2.0d0
+        size = dsqrt(dsqrt(size))
+        isize = min(isize,int(size))
+      else if ((model.eq."lccsd").or.(model.eq."LCCSD")) then
         size = dfloat(available)
         size = size / 2.0d0
         size = dsqrt(dsqrt(size))
