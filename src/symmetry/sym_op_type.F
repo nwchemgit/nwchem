@@ -1,5 +1,5 @@
       subroutine sym_op_type(r, op_type, order, power, direction)
-C$Id: sym_op_type.F,v 1.1 1995-10-10 06:17:45 d3g681 Exp $
+C$Id: sym_op_type.F,v 1.2 1995-10-19 16:36:24 d3g681 Exp $
       implicit none
       double precision r(3,3)
       character*(*) op_type
@@ -72,6 +72,7 @@ c
          call errquit('sym_op_type: bad', 0)
  10      order = n
          power = m
+c     
       endif
 c
 c     Determine directions by projecting out fixed point
@@ -179,5 +180,16 @@ c
          sintheta=sintheta*phase
          if (sintheta .lt. -1d-6) power = -power
       endif
+c
+c     Evaluation of power is mod(order) ... thus can end
+c     up with seemingly even improper rotations
+c
+      if (op_type.eq.'improper rotation') then 
+         if (mod(power,2).eq.0) power = power + order
+         if (power .gt. order) power = 2*order - power
+      endif
+c
+*      write(6,*) ' trace, deter, op_type, order, power ',
+*     $     trace, deter, op_type, order, power 
 c
       end
