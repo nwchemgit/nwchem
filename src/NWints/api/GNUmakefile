@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.60 1997-06-26 00:36:23 d3e129 Exp $
+# $Id: GNUmakefile,v 1.61 1997-06-28 20:09:10 d3e129 Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -64,5 +64,5 @@ doc:
 	$(BINDIR)/seetex int_api_spec_misc.th                        int_api_spec.tex
 	$(BINDIR)/seetex exact_mem.F exactd_mem.F int_canon.F int_chk_init.F int_chk_sh.F            int_api_spec.tex
 	$(BINDIR)/seetex int_func_c.F int_hf1sp.F int_nint.F                                         int_api_spec.tex
-	cp integral_api.tex int_api_spec.tex ${NWCHEM_TOP}/doc/prog
+	cp integral_api.tex int_api_spec.tex ${TOPDIR}/doc/prog
 
