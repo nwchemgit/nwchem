@@ -46,7 +46,8 @@ c
         mxshq = (kshhi - kshlo + 1)*(lshhi - lshlo + 1)
         imem = 4*mxshq + 4*erilen
         if (.not. ma_push_get(MT_INT, imem, 'gblk tmp',l_tmp, k_tmp))
-     $     call errquit('moints_gblk: no memory for labels',imem)
+     $     call errquit(
+     $       'moints_gblk: no memory (stack) for labels',imem)
         k_iv = k_tmp
         k_jv = k_tmp + mxshq
         k_kv = k_tmp + 2*mxshq
@@ -218,7 +219,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.34 1997-12-14 20:20:03 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.35 1999-07-26 22:31:29 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -559,7 +560,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.34 1997-12-14 20:20:03 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.35 1999-07-26 22:31:29 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -1209,7 +1210,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.34 1997-12-14 20:20:03 d3g681 Exp $
+C$Id: moints_aux2.F,v 1.35 1999-07-26 22:31:29 d3e129 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1253,7 +1254,7 @@ C$Id: moints_aux2.F,v 1.34 1997-12-14 20:20:03 d3g681 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.34 1997-12-14 20:20:03 d3g681 Exp $
+c$$$C$Id: moints_aux2.F,v 1.35 1999-07-26 22:31:29 d3e129 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
