@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.22 1996-02-16 02:04:51 rg240 Exp $
+#$Id: GNUmakefile,v 1.23 1996-06-27 23:18:31 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -70,7 +70,7 @@ OBJ_OPTIMIZE = dlabrd.o   dlarfb.o   dlasv2.o   dormlq.o \
                dgeqrf.o   dlapy2.o   dlasr.o    dormbr.o   ilaenv.o \
                dgesvd.o   dlarf.o    dlassq.o   dorml2.o   lsamen.o \
                dgesv.o    dgetrs.o   dgetrf.o   dlaswp.o \
-               dgetf2.o \
+               dgetf2.o   dlanst.o   dlasrt.o \
                dlagtf.o   dlagts.o   dlarnv.o   dlaruv.o   dpotrf.o \
                dpotri.o   dtrtri.o   dlauum.o   dlauu2.o   dpotf2.o \
                dsyev.o    dsygst.o   dsygv.o    dsytrd.o   dorgtr.o \
