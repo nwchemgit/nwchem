@@ -1,5 +1,5 @@
 c
-c $Id: cpsd_input.F,v 1.8 2004-03-08 22:51:26 bylaska Exp $
+c $Id: cpsd_input.F,v 1.9 2004-11-10 23:05:32 bylaska Exp $
 c
       subroutine cpsd_input(rtdb)
       implicit none
@@ -436,10 +436,10 @@ c     output_wavefunction_filename = ' '
      >        rtdb_put(rtdb,'cpsd:rcut',mt_dbl,1,rcut)
       value = value.and.
      >        rtdb_put(rtdb,'cpsd:ncut',mt_int,1,ncut)
-      ind = index(exchange_correlation,' ') - 1
-      value = value.and.
-     >        rtdb_cput(rtdb,'cpsd:exchange_correlation',
-     >                    1,exchange_correlation(1:ind))
+c      ind = index(exchange_correlation,' ') - 1
+c      value = value.and.
+c     >        rtdb_cput(rtdb,'cpsd:exchange_correlation',
+c     >                    1,exchange_correlation(1:ind))
 
       value = value.and.
      >        rtdb_put(rtdb,'cpsd:mult',mt_int,1,multiplicity)

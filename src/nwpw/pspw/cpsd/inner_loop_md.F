@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.17 2004-11-08 23:37:42 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.18 2004-11-10 23:05:32 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -48,12 +48,12 @@
 *     **** local variables ****
       logical move
       integer n2ft3d,np
-      integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr
+      integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr,gga
       integer nx,ny,nz
       integer index,indext
       real*8  sum,Eold,eorbit,eion,ehartr,eke,eki,sse,ssr,sa1,sa2
       real*8  exc,exc2,pxc,pxc2,dte,dte0,scal1,scal2,dv,dt,fmass,h
-      real*8  ehsic,phsic,exsic,pxsic
+      real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
       real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
 
 
@@ -118,7 +118,9 @@ c     real*8     fion(3,natmx)
       external dplot_iteration_check
 
       logical  pspw_SIC,pspw_SIC_relaxed,control_allow_translation
+      logical  pspw_HFX,pspw_HFX_relaxed
       external pspw_SIC,pspw_SIC_relaxed,control_allow_translation
+      external pspw_HFX,pspw_HFX_relaxed
 
       call Parallel_np(np)
       call Pack_npack(0,npack0)
@@ -126,6 +128,7 @@ c     real*8     fion(3,natmx)
       n2ft3d = 2*nfft3d
       field_exist       = pspw_qmmm_found().or.pspw_charge_found()
       sic               = pspw_SIC()
+      gga               = control_gga()
       allow_translation = control_allow_translation()
 
 *     **** allocate MA local variables ****
@@ -177,6 +180,9 @@ c     real*8     fion(3,natmx)
      >        MA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       if (.not.value) 
      > call errquit('inner_loop_md:pushing stack',0, MA_ERR)
+      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
+      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xce(1)),1)
+
       call nwpw_timing_end(12)
      
       call D3dB_nx(1,nx)
@@ -306,6 +312,7 @@ c     real*8     fion(3,natmx)
      >               dcpl_mb(dng(1)),
      >               dbl_mb(fion(1)))
 
+
 *       *** long-range psp for charge systems ***
         if (control_version().eq.4) then
           call v_lr_local(dbl_mb(r_grid(1)),
@@ -316,7 +323,6 @@ c     real*8     fion(3,natmx)
      >                            dbl_mb(fion(1)))
           end if
         end if
-
 
 
 *       ************************************
@@ -332,17 +338,23 @@ c     real*8     fion(3,natmx)
 *       *************************************************
 *       **** generate exchange-correlation potential ****
 *       *************************************************
-        if (control_gga().eq.0) then
+        if (gga.eq.0) then
           call vxc(n2ft3d,ispin,dbl_mb(dnall(1)),
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)),
      >                      dcpl_mb(tmp1(1)))
-        else
+        else if (gga.eq.1) then
           call v_bwexc(n2ft3d,ispin,dbl_mb(dnall(1)),
      >                      1.0d0,1.0d0,
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))
+        else if (gga.eq.3) then
+          call v_bwexc(n2ft3d,ispin,dbl_mb(dnall(1)),
+     >                      0.75d0,1.0d0,
+     >                      dbl_mb(xcp(1)),
+     >                      dbl_mb(xce(1)))
         end if
+
      
 *       **********************************************
 *       **** generate other real-space potentials ****
@@ -384,7 +396,6 @@ c     real*8     fion(3,natmx)
      >             dbl_mb(v_field(1)),field_exist,
      >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)))
-
 
 
 *       **********************
@@ -679,6 +690,17 @@ c     real*8     fion(3,natmx)
             E(2)  = E(2) - phsic - pxsic
             E(18) = phsic
             E(19) = pxsic
+         end if
+      end if
+
+*     **** HFX corrections ****
+      if (pspw_HFX()) then
+         call pspw_energy_HFX(ispin,psi_r,ehfx,phfx)
+         E(2) = E(2) + ehfx
+         E(20) = ehfx
+         if (pspw_HFX_relaxed()) then
+            E(2)  = E(2) - phfx
+            E(21) = phfx
          end if
       end if
 

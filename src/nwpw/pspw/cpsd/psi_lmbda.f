@@ -1,11 +1,18 @@
+*
+* $Id: psi_lmbda.f,v 1.6 2004-11-10 23:05:32 bylaska Exp $
+*
+
+*     ********************************************
+*     *                                          *
+*     *                psi_lmbda                 *
+*     *                                          *
+*     ********************************************
+
       subroutine psi_lmbda(ispin,ne,nemax,npack1,
      >                     psi1,psi2,
      >                     dte,
      >                     lmbda,tmp,ierr)
 
-*
-* $Id: psi_lmbda.f,v 1.5 2004-03-04 15:12:24 bylaska Exp $
-*
       implicit none
       integer ispin,ne(2),nemax,npack1
       complex*16 psi1(npack1,nemax)
@@ -25,7 +32,8 @@
       integer index,indext,n,nn
       integer s11,s12,s21,s22,st1,st2,sa1,sa0
       integer sl(2)
-      real*8  adiff,alpha,tmp1(1000000)
+      real*8  adiff,alpha
+
 *     ::::  iteration limit and tolerence for non-liner equations  ::::
       integer itrlmd,idamax
       real*8  convg

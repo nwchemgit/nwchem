@@ -1,14 +1,14 @@
 *
-* $Id: coulomb_screened.F,v 1.13 2004-03-15 15:17:42 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.14 2004-11-10 23:05:33 bylaska Exp $
 
 
 *
       subroutine coulomb_screened_init(rcut,pp)
       implicit none 
-#include "errquit.fh"
       real*8 rcut,pp
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** common block used for coulomb.f ****
       integer vc_indx,vc_hndl

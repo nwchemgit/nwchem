@@ -1,5 +1,5 @@
 c
-c $Id: cpmd_input.F,v 1.11 2004-05-18 21:57:43 bylaska Exp $
+c $Id: cpmd_input.F,v 1.12 2004-11-10 23:05:32 bylaska Exp $
 c
 
 
@@ -529,7 +529,7 @@ c     output_wavefunction_filename = ' '
 c     input_v_wavefunction_filename = ' '
 c     output_v_wavefunction_filename = ' '
 
-      exchange_correlation = 'vosko'
+      !exchange_correlation = 'vosko'
       geometry_optimize            = .true.
       frac_coord                   = .false.
       mulliken                     = .false.
@@ -585,10 +585,10 @@ c     output_v_wavefunction_filename = ' '
      >        rtdb_cput(rtdb,'cpmd:xyz_filename',
      >                    1,xyz_filename(1:ind))
 
-      ind = index(exchange_correlation,' ') - 1
-      value = value.and.
-     >        rtdb_cput(rtdb,'cpmd:exchange_correlation',
-     >                    1,exchange_correlation(1:ind))
+c      ind = index(exchange_correlation,' ') - 1
+c      value = value.and.
+c     >        rtdb_cput(rtdb,'cpmd:exchange_correlation',
+c     >                    1,exchange_correlation(1:ind))
 
       ind = index(emotion_filename,' ') - 1
       value = value.and.

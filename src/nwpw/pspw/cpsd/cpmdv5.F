@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.43 2004-08-01 02:02:45 bylaska Exp $
+* $Id: cpmdv5.F,v 1.44 2004-11-10 23:05:32 bylaska Exp $
 *
 
 ***********************************************************************
@@ -159,9 +159,9 @@
       logical  control_out_of_time,control_new_vpsi
       external control_out_of_time,control_new_vpsi
 
-      logical  control_SA,control_Fei,pspw_SIC
+      logical  control_SA,control_Fei,pspw_SIC,pspw_HFX
       real*8   control_SA_decay
-      external control_SA,control_Fei,pspw_SIC
+      external control_SA,control_Fei,pspw_SIC,pspw_HFX
       external control_SA_decay
       integer  control_mapping
       external control_mapping
@@ -369,8 +369,10 @@
 *     **** initialize frac_occ data structure ****
       call frac_occ_init(rtdb,ispin,ne)
 
-*     **** initialize SIC ****
+*     **** initialize SIC and HFX ****
       call pspw_init_SIC(rtdb,ne)
+      call pspw_init_HFX(rtdb,ispin,ne)
+
 
 
 
@@ -395,17 +397,25 @@
          write(6,1121) control_boundry(),control_version()
          if (ispin.eq.1) write(6,1130) 'restricted'
          if (ispin.eq.2) write(6,1130) 'unrestricted'
-         IF (control_gga().eq.0) THEN
-            write(6,1131) 'Vosko et al parameterization'
+         IF (control_gga().eq.-1) THEN
+            write(6,1131) 'off'
+         ELSE IF (control_gga().eq.0) THEN
+            write(6,1131) 'LDA (Vosko et al) parameterization'
          ELSE IF (control_gga().eq.1) THEN
-            write(6,1131) 
+            write(6,1131)
      >      'PBE96 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.2) THEN
+            write(6,1131) 'Hartree-Fock'
+         ELSE IF (control_gga().eq.3) THEN
+            write(6,1131)
+     >      'PBE0 (White and Bird) parameterization'
          ELSE
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)
-         END IF   
+         END IF
          if (fractional) write(6,1132)
          call pspw_print_SIC(6)
+         call pspw_print_HFX(6)
          write(6,1140)
          do ia = 1,psp_npsp()
            write(6,1150) ia,psp_atom(ia),
@@ -942,6 +952,9 @@ c    >              dbl_mb(lmd(1)),ierr)
            write(6,1455) E(16),E(16)/n2(ispin)
            write(6,1456) E(17),E(17)/n2(ispin)
          end if
+         if (pspw_HFX()) then
+           write(6,1457) E(20),E(20)/n2(ispin)
+         end if
          write(6,1470) E(8),E(8)/ion_nion()
          write(6,1471) E(3),E(3)/n2(ispin)
          write(6,1472) ion_ke(),ion_ke()/ion_nion()
@@ -1073,6 +1086,7 @@ c    >              dbl_mb(lmd(1)),ierr)
       call psp_end()
       call ion_end_FixIon()
       call pspw_end_SIC()
+      call pspw_end_HFX()
       call pspw_qmmm_end()
       call dplot_iteration_end()
       call frac_occ_end()
@@ -1247,6 +1261,7 @@ c    >              dbl_mb(lmd(1)),ierr)
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
  1455 FORMAT( ' SIC-hartree energy  :',E19.10,' (',E15.5,'/electron)')
  1456 FORMAT( ' SIC-exc-corr energy :',E19.10,' (',E15.5,'/electron)')
+ 1457 FORMAT( ' HF exchange energy  :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1471 FORMAT(/' Kinetic energy (elc)    :',E19.10,' (',E15.5,'/elc)')

@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.6 2004-11-10 00:13:23 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.7 2004-11-10 23:05:33 bylaska Exp $
 *
 
 *     *************************
@@ -38,7 +38,7 @@
 
 *     **** get the number of HFX orbitals ****
       if (hfx_on) then
-         hfx_on = .true.
+         !hfx_on = .true.
          do ms=1,ispin
            norbs(ms) = ne(ms)
            if(.not.MA_alloc_get(mt_int,norbs(ms),
@@ -342,10 +342,12 @@
 *            **** get Ecoul energy ****
              eh = coulomb_screened_e(dbl_mb(dn(1)))
 
+
 *            **** generate Vcoul ****
              call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
              call Pack_c_unpack(0,dbl_mb(vij(1)))
              call D3dB_cr_fft3b(1,dbl_mb(vij(1)))
+        
 
 
 *          ***** free-space coulomb solver ****
@@ -375,10 +377,12 @@
      >                        dbl_mb(tmp1(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
 
+
 *          **** add -(Vij)*psi_r to Hpsi_r ***
            call D3dB_rr_Sub(1,Hpsi_r(index1),
      >                        dbl_mb(tmp1(1)),
      >                        Hpsi_r(index1))
+
 
 
            !**** include off diagonal terms ****
@@ -412,6 +416,7 @@
         if (.not. value) 
      >    call errquit('pspw_potential_HFX:popping stack memory',0,
      &       MA_ERR)
+
       end if
       return
       end
@@ -438,7 +443,7 @@
 *     **** local variables ****
       logical value
       integer i,j,n2ft3d,n1,n2,n3,ms
-      integer dn(2),vij(2),tmp1(2),index1,index2
+      integer dn(2),tmp1(2),index1,index2
       real*8  scal1,scal2,dv,eh,ph
 
 *     **** external functions ****
