@@ -1,4 +1,4 @@
-C $Id: ecp_grad_b.F,v 1.2 1996-10-18 22:05:43 mg201 Exp $
+C $Id: ecp_grad_b.F,v 1.3 1996-10-18 22:19:32 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_grad_b (l_b,n_p,n_o,n_m,n_cb,intp,intm,grad,n_a,
@@ -39,8 +39,8 @@ C $Id: ecp_grad_b.F,v 1.2 1996-10-18 22:05:43 mg201 Exp $
          write (LuOut,*) n_p,n_o,n_m
          write (LuOut,*) n_a,n_cb
       end if
-      if (debug_arrays) call ecp_matp(intp,n_p*n_cb,n_a,'l+1 integrals',
-     &    78,4)
+      if (debug_arrays) call ecp_matpr (intp,1,n_p*n_cb,1,n_a,
+     &    1,n_p*n_cb,1,n_a,'l+1 integrals','E',78,4)
 *
 *     Add contributions from derivative of exponent
 *
@@ -59,16 +59,16 @@ C $Id: ecp_grad_b.F,v 1.2 1996-10-18 22:05:43 mg201 Exp $
       end do
       if (debug_arrays) then
         do i = 1,3
-          call ecp_matp(grad(1,1,i),n_o*n_cb,n_a,'Gradient integrals',
-     &        78,4)
+          call ecp_matpr (grad(1,1,i),1,n_o*n_cb,1,n_a,
+     &        1,n_o*n_cb,1,n_a,'Gradient integrals','E',78,4)
         end do
       end if
 *
 *     Add contributions from derivative of monomial
 *
       if (n_m .eq. 0) return
-      if (debug_arrays) call ecp_matp(intm,n_m*n_cb,n_a,'l-1 integrals',
-     &    78,4)
+      if (debug_arrays) call ecp_matp(intm,1,n_m*n_cb,1,n_a,
+     &    1,n_m*n_cb,1,n_a,'l-1 integrals','E',78,4)
       ix = 0
       do i = l_b-1,0,-1
         k = l_b-i-1
@@ -86,8 +86,8 @@ C $Id: ecp_grad_b.F,v 1.2 1996-10-18 22:05:43 mg201 Exp $
       end do
       if (debug_arrays) then
         do i = 1,3
-          call ecp_matp(grad(1,1,i),n_o*n_cb,n_a,'Gradient integrals',
-     &        78,4)
+          call ecp_matpr (grad(1,1,i),1,n_o*n_cb,1,n_a,
+     &        1,n_o*n_cb,1,n_a,'Gradient integrals','E',78,4)
         end do
       end if
 *
