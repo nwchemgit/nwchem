@@ -1,5 +1,5 @@
 *
-* $Id: task_pspw.F,v 1.2 2002-01-15 01:39:56 bylaska Exp $
+* $Id: task_pspw.F,v 1.3 2002-01-18 01:54:32 bylaska Exp $
 *
 
       logical function task_pspw(rtdb)
@@ -29,7 +29,7 @@ c
      >            'v_wavefunction_initializer',
      >            'wavefunction_expander',
      >            'cell_optimize',
-     >            'pspw_dplot' /
+     >            'dplot' /
 
 c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5

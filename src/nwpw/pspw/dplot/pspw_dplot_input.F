@@ -1,5 +1,5 @@
 c
-c $Id: pspw_dplot_input.F,v 1.3 2001-10-26 21:05:08 bylaska Exp $
+c $Id: pspw_dplot_input.F,v 1.4 2002-01-18 01:54:32 bylaska Exp $
 c
       subroutine pspw_dplot_input(rtdb)
       implicit none
@@ -19,12 +19,14 @@ c
      >            'end'/
 
       integer num_dnames          ! No. of density directives
-      parameter (num_dnames = 6)
+      parameter (num_dnames = 8)
       character*22 dnames(num_dnames)
       data dnames / 'total',
      >              'diff',
      >              'alpha',
      >              'beta',
+     >              'laplacian',
+     >              'potential',
      >              'up',
      >              'down' /
 
@@ -86,8 +88,14 @@ c
 *     *** density number ****
       if (.not.inp_match(num_dnames,.false.,test,dnames,number))
      >     number = 1
-      if (number .eq. 5) number = 3 
-      if (number .eq. 6) number = 4 
+      if (number .eq. 7) number = 3 
+      if (number .eq. 8) number = 4 
+*     !*** number = 1 - total
+*     !*** number = 2 - difference
+*     !*** number = 3 - alpha
+*     !*** number = 4 - beta
+*     !*** number = 5 - laplacian
+*     !*** number = 6 - potential
 
 *     **** make density numbers negative ****
       number = -number
@@ -159,6 +167,7 @@ c
      >       'pspw_dplot_input: failed to read position tolerance', 0)
 
       goto 10
+
 
  9999 continue
 

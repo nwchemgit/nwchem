@@ -7,7 +7,7 @@
 
       subroutine v_psi_write(ispin,ne,psi2)
 *
-* $Id: v_psi_write.F,v 1.1 2001-08-30 00:33:15 edo Exp $
+* $Id: v_psi_write.F,v 1.2 2002-01-18 01:54:33 bylaska Exp $
 *
       implicit none 
       integer ispin,ne(2)
@@ -37,8 +37,8 @@ c     complex*16 tmp(*)
       external     control_output_v_psi
       double precision control_unita
       external         control_unita
-      integer  control_ngrid
-      external control_ngrid
+      integer  control_ngrid,control_version
+      external control_ngrid,control_version
 
       call Parallel_taskid(taskid)
       call D3dB_nfft3d(1,nfft3d)
@@ -49,7 +49,7 @@ c     complex*16 tmp(*)
       value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of heap memory',0)
 
-      version = 3
+      version = control_version()
       nfft(1) = control_ngrid(1)
       nfft(2) = control_ngrid(2)
       nfft(3) = control_ngrid(3)

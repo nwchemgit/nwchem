@@ -23,14 +23,14 @@
       real*8  position_tolerance
 
 *     **** external functions ****
-      logical      control_read
+      logical      control_read,ion_init
       integer      pack_nwave_all
       integer      control_ngrid,pack_nwave,control_version
       real*8       lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8       lattice_unitg
       character*12 control_boundry
 
-      external     control_read
+      external     control_read,ion_init
       external     pack_nwave_all
       external     control_ngrid,pack_nwave,control_version
       external     lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
@@ -96,12 +96,19 @@
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
 
+*     ***** Initialize double D3dB data structure ****
+      if (control_version().eq.4)
+     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3))
+
 *     **** initialize lattice and packing data structure ****
       call lattice_init()
       call G_init()
       call mask_init()
       call Pack_init()
       call Pack_npack(1,npack1)
+
+*     **** initialize ion data structure ****
+      value = ion_init(rtdb)
 
 *     ***** allocate psi2 wavefunctions ****
       call psi_get_ne(ispin,ne)
@@ -125,6 +132,11 @@
 
       if (.not. value) call errquit('pspw_dplot:out of heap memory',0)
 
+      call ke_init()
+      if (control_version().eq.3) call coulomb_init()
+      if (control_version().eq.4) call coulomb2_init()
+      call strfac_init()
+      call phafac()
 
 *                |**************************|
 ******************   summary of input data  **********************
@@ -177,6 +189,12 @@
 
 
 *     **** deallocate heap memory ****
+      call strfac_end()
+      if (control_version().eq.3) call coulomb_end()
+      if (control_version().eq.4) call coulomb2_end()
+      call ke_end()
+      call ion_write(rtdb)  !*** can also use call ion_destroy()????
+      call ion_end()
       call mask_end()
       call Pack_end()
       call G_end()
@@ -185,6 +203,8 @@
       value = value.and.MA_free_heap(dn(2))
       value = value.and.MA_free_heap(psi2(2))
       call D3dB_end(1)
+      if (control_version().eq.4) call D3dB_end(2)
+
       if (.not. value) call errquit('pspw_dplot:freeing heap memory',0)
 
 
@@ -260,7 +280,7 @@
 
       integer n2ft3d
       integer i,ms,n,count,number,ia
-      integer n1(2),n2(2)
+      integer n1(2),n2(2),nn(2)
       integer nx,ny,nz
       integer rho(2)
       real*8  scal1,scal2
@@ -272,7 +292,9 @@
 
 
 *     **** external functions ****
-      real*8 lattice_omega
+      integer  control_version
+      real*8   lattice_omega
+      external control_version
       external lattice_omega
 
       
@@ -346,7 +368,7 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
         if (number.lt.0) then
            number = -number
 
-          goto ( 710, 720, 730, 740 ) number
+          goto ( 710, 720, 730, 740, 750, 760 ) number
           call errquit(
      >      'dplot_loop: unimplemented directive', number)
        
@@ -359,7 +381,7 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
      >                  ' to filename: ',filename(1:ind)
            end if
            cube_comment = "SCF Total Density"
-           goto 750
+           goto 790
 
 *          ******************
 *          *** difference ***
@@ -370,7 +392,7 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
      >                  ' to filename: ',filename(1:ind)
            end if
            cube_comment = "SCF Spin Density"
-           goto 750
+           goto 790
 
 *          *************
 *          *** alpha ***
@@ -381,7 +403,7 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
      >                  ' to filename: ',filename(1:ind)
            end if
            cube_comment = "SCF Alpha Density"
-           goto 750
+           goto 790
 
 *          ************
 *          *** beta ***
@@ -392,8 +414,52 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
      >                  ' to filename: ',filename(1:ind)
            end if
            cube_comment = "SCF Beta Density"
-           goto 750
- 750       continue
+           goto 790
+
+*          *****************
+*          *** laplacian ***
+*          *****************
+ 750       call D3dB_r_Copy(1,dn(1,ispin),dbl_mb(rho(1)))
+           call D3dB_r_SMul(1,scal1,dbl_mb(rho(1)),dbl_mb(rho(1)))
+           call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
+           call Pack_c_pack(1,dbl_mb(rho(1)))
+           nn(1) = 1
+           nn(2) = 0
+           call ke(1,nn,dbl_mb(rho(1)),dbl_mb(rho(1)))
+           call Pack_c_unpack(1,dbl_mb(rho(1)))
+           call D3dB_cr_fft3b(1,dbl_mb(rho(1)))
+           if (taskid.eq.MASTER) then
+             write(*,*) '   writing laplacian density',
+     >                  ' to filename: ',filename(1:ind)
+           end if
+           cube_comment = "SCF Laplacian Density"
+           goto 790
+
+*          *******************************
+*          *** Electrostatic Potential ***
+*          *******************************
+ 760       call D3dB_r_Copy(1,dn(1,ispin),dbl_mb(rho(1)))
+           if (control_version().eq.3) then
+             call D3dB_r_SMul(1,scal1,dbl_mb(rho(1)),dbl_mb(rho(1)))
+             call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
+             call Pack_c_pack(0,dbl_mb(rho(1)))
+c             call pspw_add_core_dng(dbl_mb(rho(1)))
+             call coulomb_v(dbl_mb(rho(1)),dbl_mb(rho(1)))
+             call Pack_c_SMul(0,scal2,dbl_mb(rho(1)),dbl_mb(rho(1)))
+             call Pack_c_unpack(0,dbl_mb(rho(1)))
+             call D3dB_cr_fft3b(1,dbl_mb(rho(1)))
+           else
+             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(rho(1)))
+c             call pspw_add_core_pot(dbl_mb(rho(1)))
+           end if
+           if (taskid.eq.MASTER) then
+             write(*,*) '   writing electrostatic potential',
+     >                  ' to filename: ',filename(1:ind)
+           end if
+           cube_comment = "SCF Electrostatic Potential"
+           goto 790
+
+ 790       continue
            number = -number
 
 *       **** outputing wavefunction ****
@@ -452,8 +518,8 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 
 
 *     **** geometry variables ****
-      integer geom1
-      character*16 t
+c     integer geom1
+c     character*16 t
       integer nion,nion2
       real*8 q,rxyz(3)
       real*8 position_tolerance
@@ -467,8 +533,10 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       integer nfft3d,tmp1(2),tmp2(2)
 
 *     **** external functions ****
-      real*8   lattice_unita
-      external lattice_unita
+      integer  ion_nion
+      real*8   lattice_unita,ion_rion,ion_q
+      external ion_nion
+      external lattice_unita,ion_rion,ion_q
 
       call parallel_taskid(taskid)
 
@@ -485,10 +553,11 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       end if
 
 *     **** open geom ****
-      value = geom_create(geom1,'geometry')
-      value = value.and.geom_rtdb_load(rtdb,geom1,'geometry')
-      value = value.and.geom_ncent(geom1,nion)
-      if (.not. value) call errquit('opening geometry',0)
+      nion = ion_nion()
+c     value = geom_create(geom1,'geometry')
+c     value = value.and.geom_rtdb_load(rtdb,geom1,'geometry')
+c     value = value.and.geom_ncent(geom1,nion)
+c     if (.not. value) call errquit('opening geometry',0)
 
 *     **** write lattice ****
       call D3dB_nx(1,np1)
@@ -512,8 +581,11 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 
       nion2 = nion
       do i=1,nion
-         value = geom_cent_get(geom1,i,t,rxyz,q)
-         if (.not. value) call errquit('reading geometry',0)
+c        value = geom_cent_get(geom1,i,t,rxyz,q)
+c        if (.not. value) call errquit('reading geometry',0)
+         rxyz(1) = ion_rion(1,i)
+         rxyz(2) = ion_rion(2,i)
+         rxyz(3) = ion_rion(3,i)
          call special_position_count(position_tolerance,
      >                                   rxyz,nion2)
       end do
@@ -534,8 +606,12 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 
 *     **** write geometry ****
       do i=1,nion
-         value = geom_cent_get(geom1,i,t,rxyz,q)
-         if (.not. value) call errquit('reading geometry',0)
+c        value = geom_cent_get(geom1,i,t,rxyz,q)
+c        if (.not. value) call errquit('reading geometry',0)
+         rxyz(1) = ion_rion(1,i)
+         rxyz(2) = ion_rion(2,i)
+         rxyz(3) = ion_rion(3,i)
+         q       = ion_q(i)
          if (taskid.eq.MASTER) then
            WRITE(unit_id,'(I5,4F12.6)') int(q),q,rxyz
            call special_position_tolerance(position_tolerance,
@@ -569,8 +645,8 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
    
 
 *     **** close geom ****
-      value = geom_destroy(geom1)
-      if (.not. value) call errquit('closing geometry',0)
+c     value = geom_destroy(geom1)
+c     if (.not. value) call errquit('closing geometry',0)
 
 
 

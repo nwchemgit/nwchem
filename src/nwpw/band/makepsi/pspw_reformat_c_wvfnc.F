@@ -1,5 +1,5 @@
 *
-* $Id: pspw_reformat_c_wvfnc.F,v 1.4 2002-01-15 18:17:43 bylaska Exp $
+* $Id: pspw_reformat_c_wvfnc.F,v 1.5 2002-01-18 01:54:32 bylaska Exp $
 *
 
       logical function  pspw_reformat_c_wvfnc(nbrill)
@@ -28,7 +28,7 @@
 
 
       value = .false.
-      version = 3
+      version = 3  ! or 4
 
 
       wavefunction_filename = control_input_psi() 

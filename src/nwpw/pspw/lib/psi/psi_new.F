@@ -1,5 +1,5 @@
 *
-* $Id: psi_new.F,v 1.5 2001-12-06 18:16:39 bylaska Exp $
+* $Id: psi_new.F,v 1.6 2002-01-18 01:54:33 bylaska Exp $
 *
 
 *     ***********************************
@@ -43,11 +43,11 @@
       external ion_totalcharge
       logical  lcao_wvfnc
       external lcao_wvfnc
-      integer  control_rtdb
-      external control_rtdb
+      integer  control_rtdb,control_version
+      external control_rtdb,control_version
 
       filename = control_input_psi()
-      version = 3
+      version = control_version()
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)

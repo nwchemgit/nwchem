@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.11 2002-01-16 04:01:17 bylaska Exp $
+* $Id: ion.F,v 1.12 2002-01-18 01:54:32 bylaska Exp $
 *
 
 *     ***************************
@@ -129,6 +129,7 @@
       logical value
 
       value = geom_destroy(geom)
+
       return
       end
     
@@ -362,6 +363,36 @@ c     call ion_shift()
       ion_amass = mass*1822.89d0
       return
       end
+
+*     ***********************
+*     *						*
+*     *	     ion_q			*
+*     *						*
+*     ***********************
+      real*8 function ion_q(i)
+      implicit none
+      integer i
+
+#include "stdio.fh"
+#include "geom.fh"
+
+
+      integer geom
+      common / ION2/ geom
+
+*     **** local variables ****
+      real*8       rxyz(3), q
+      character*16 t
+
+      if (.not.geom_cent_get(geom,i,t,rxyz,q))
+     >  call errquit('ion_q:geom_cent_get failed ',i)
+
+      ion_q = q
+      return
+      end
+
+
+
 
 *     ***************************
 *     *				*

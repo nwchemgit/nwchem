@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.8 2002-01-15 17:27:20 edo Exp $
+* $Id: cpsi.F,v 1.9 2002-01-18 01:54:31 bylaska Exp $
 *
 
 
@@ -992,7 +992,7 @@ c      end
       integer taskid,MASTER
       parameter (MASTER=0)
       logical value
-      integer neall,n
+      integer neall,n,vers
 
 *     **** external functions ****
       logical  pspw_reformat_c_wvfnc
@@ -1004,7 +1004,8 @@ c      end
       call psi_get_ne(ispin,ne)
 
       nbrillioun = brillioun_nbrillioun()
-      if (psi_get_version().eq.3) then
+      vers = psi_get_version()
+      if ((vers.eq.3).or.(vers.eq.4)) then
         call Parallel_taskid(taskid)
         if (taskid.eq.MASTER) then
           value= pspw_reformat_c_wvfnc(nbrillioun)
