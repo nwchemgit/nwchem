@@ -158,10 +158,10 @@ c
      .     chi,rchi)
       implicit none
       integer nqsmall ! [input]
-      integer natoms 
-      integer iniz(*)
-      integer ifin(*)
-      double precision chi(nqsmall,*)
+      integer natoms  ! [input]
+      integer iniz(*) ! [input]
+      integer ifin(*) ! [input]
+      double precision chi(nqsmall,*) ! [input]
       double precision rchi(*) ! [output]
       
 c
