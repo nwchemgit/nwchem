@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.2 2001-12-12 02:42:25 bylaska Exp $
+* $Id: band_minimizer.F,v 1.3 2001-12-12 03:17:02 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -179,6 +179,10 @@
       call center_geom(cx,cy,cz)
       call center_mass(gx,gy,gz)
 
+*     **** allocate psp data structure and read in psedupotentials into it ****
+c     call cpsp_init()
+c     call cpsp_readall()
+c     if (cpsp_semicore(0)) call semicore_check()
 
 *     **** initialize ke,and coulomb data structures ****
       call c_ewald_init()
@@ -326,7 +330,7 @@
 
       
       call cphafac()
-      e(5) = c_ewald_e()
+      E(5) = c_ewald_e()
       if (taskid.eq.MASTER) then
       write(6,1470) E(5),E(5)/ion_nion()
       end if
@@ -340,6 +344,7 @@
 
 *     **** deallocate heap memory ****
       call c_ewald_end()
+c     call cpsp_end()
       call Cram_end()
       call G_end()
       call ion_end()
