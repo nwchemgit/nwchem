@@ -1,5 +1,5 @@
 *
-* $Id: dipole.F,v 1.2 2002-05-18 16:29:36 bylaska Exp $
+* $Id: dipole.F,v 1.3 2003-07-12 21:27:00 bylaska Exp $
 *
 
 *     ******************************
@@ -22,8 +22,10 @@
       logical value
       integer ii
       integer nx,ny,nz
+      integer n1,n2,n3,ncut
       real*8 GX,GY,GZ
       real*8 qGX,qGY,qGZ
+      real*8 cqGX,cqGY,cqGZ,x,y,z,r,rmax
       real*8 cdx1,cdy1,cdz1
       real*8 cdx2,cdy2,cdz2
       real*8 cdx3,cdy3,cdz3
@@ -40,14 +42,16 @@
       parameter (autoDebye=2.5416d0)
  
 *     **** external functions ****
-      integer  ion_katm,ion_nion
+      integer  ion_katm,ion_nion,control_ncut
       real*8   ion_amass,psp_zv,ion_rion,lattice_omega
-      external ion_katm,ion_nion
+      real*8   lattice_unita
+      external ion_katm,ion_nion,control_ncut
       external ion_amass,psp_zv,ion_rion,lattice_omega
+      external lattice_unita
 
       call Parallel_taskid(taskid)
 
-*     ***** calculate the center of mass and the center of ionic charge ****
+*     ***** center of mass  ****
       GX=0.0d0
       GY=0.0d0
       GZ=0.0d0
@@ -61,6 +65,73 @@
       GX=GX/tmass
       GY=GY/tmass
       GZ=GZ/tmass
+
+      !*** crystal center of ionic charge ***
+      ncut = 20
+      n1 = ncut-2
+      n2 = ncut-2
+      n3 = ncut-2
+
+      x = n1*lattice_unita(1,1)
+      y = n1*lattice_unita(2,1)
+      z = n1*lattice_unita(3,1)
+      rmax = dsqrt(x*x + y*y + z*z) 
+
+      x = n2*lattice_unita(1,2)
+      y = n2*lattice_unita(2,2)
+      z = n2*lattice_unita(3,2)
+      r = dsqrt(x*x + y*y + z*z) 
+      if (r.lt.rmax) rmax = r
+
+      x = n3*lattice_unita(1,3)
+      y = n3*lattice_unita(2,3)
+      z = n3*lattice_unita(3,3)
+      r = dsqrt(x*x + y*y + z*z) 
+      if (r.lt.rmax) rmax = r
+
+      cqGX=0.0d0
+      cqGY=0.0d0
+      cqGZ=0.0d0
+      tcharge=0.0d0
+      do ii=1,ion_nion()
+
+        do n3= -ncut, ncut
+        do n2= -ncut, ncut
+        do n1= -ncut, ncut
+          x = ion_rion(1,ii) 
+     >     + n1*lattice_unita(1,1)
+     >     + n2*lattice_unita(1,2)
+     >     + n3*lattice_unita(1,3)
+          y = ion_rion(2,ii) 
+     >     + n1*lattice_unita(2,1)
+     >     + n2*lattice_unita(2,2)
+     >     + n3*lattice_unita(2,3)
+          z = ion_rion(3,ii) 
+     >     + n1*lattice_unita(3,1)
+     >     + n2*lattice_unita(3,2)
+     >     + n3*lattice_unita(3,3)
+
+          r = dsqrt(x*x+y*y+z*z)
+
+          if (r.le.rmax) then
+            cqGX=cqGX+psp_zv(ion_katm(ii))*x
+            cqGY=cqGY+psp_zv(ion_katm(ii))*y
+            cqGZ=cqGZ+psp_zv(ion_katm(ii))*z
+            tcharge=tcharge+psp_zv(ion_katm(ii))
+          end if
+        end do
+        end do
+        end do
+      END DO
+      cqGX=cqGX/tcharge
+      cqGY=cqGY/tcharge
+      cqGZ=cqGZ/tcharge
+  
+ 
+
+
+
+      !*** molecular center of ionic charge ***
       qGX=0.0d0
       qGY=0.0d0
       qGZ=0.0d0
@@ -74,6 +145,8 @@
       qGX=qGX/tcharge
       qGY=qGY/tcharge
       qGZ=qGZ/tcharge
+
+
 
 *     **** calculate the center of density ****
       value = MA_push_get(mt_dbl,3*n2ft3d,'rgrid', rgrid(2), rgrid(1))
@@ -91,12 +164,12 @@
       call D3dB_nz(1,nz)
       dv=lattice_omega()/dble(nx*ny*nz)
       call lattice_r_grid(dbl_mb(rgrid(1)))
-      call D3dB_r_Zero(1,dbl_mb(rgx(1)))
-      call D3dB_r_Zero(1,dbl_mb(rgy(1)))
-      call D3dB_r_Zero(1,dbl_mb(rgz(1)))
       call dcopy(n2ft3d,dbl_mb(rgrid(1)+0),3,dbl_mb(rgx(1)),1)
       call dcopy(n2ft3d,dbl_mb(rgrid(1)+1),3,dbl_mb(rgy(1)),1)
       call dcopy(n2ft3d,dbl_mb(rgrid(1)+2),3,dbl_mb(rgz(1)),1)
+      call D3dB_r_Zero_Ends(1,dbl_mb(rgx(1)))
+      call D3dB_r_Zero_Ends(1,dbl_mb(rgy(1)))
+      call D3dB_r_Zero_Ends(1,dbl_mb(rgz(1)))
 
       call D3dB_rr_dot(1,dbl_mb(rgx(1)),dn(1,1),cdx1)
       call D3dB_rr_dot(1,dbl_mb(rgy(1)),dn(1,1),cdy1)
@@ -141,10 +214,24 @@
      >    WRITE(*,1220) 'spin down ',CDX2,CDY2,CDZ2
         WRITE(*,1220) '     total',CDX3,CDY3,CDZ3
         WRITE(*,1220) 'ionic     ',qGX,qGY,qGZ
+        WRITE(*,1220) 'crystal   ',cqGX,cqGY,cqGZ
       end if
 
  1200 FORMAT(//'== Center of Charge =='/)
  1220 FORMAT(A10,'  (',F10.4,',',F10.4,',',F10.4,' )')
+
+*     ***** calculate crystal dipole with respect to center of cell ****
+      pcharge   = tcharge
+      ncharge   = dble(ne(1)+ne(ispin))
+      dipole(1) = -ncharge*cdx3 + pcharge*cqGX 
+      dipole(2) = -ncharge*cdy3 + pcharge*cqGY 
+      dipole(3) = -ncharge*cdz3 + pcharge*cqGZ 
+      cdx1 = dsqrt(dipole(1)**2 + dipole(2)**2 + dipole(3)**2)
+      if (taskid.eq.MASTER) then
+         WRITE(*,1240)
+         WRITE(*,1231) dipole
+         WRITE(*,1232) cdx1,cdx1*autoDebye
+      end if
 
 *     ***** calculate dipole with respect to center of mass ****
       pcharge   = tcharge
@@ -158,9 +245,10 @@
          WRITE(*,1231) dipole
          WRITE(*,1232) cdx1,cdx1*autoDebye
       end if
- 1230 FORMAT(//'== Molecular Dipole =='/)
+ 1230 FORMAT(//'== Molecular Dipole wrt Center of Mass =='/)
  1231 FORMAT('mu   =  (',F10.4,',',F10.4,',',F10.4,' ) au')
  1232 FORMAT('|mu| = ',F10.4,' au,   ',F10.4,' Debye')
+ 1240 FORMAT(//'== Crystal Dipole =='/)
 
 *     **** pop stack memory ****
       value = value.and.MA_pop_stack(rgz(2))
