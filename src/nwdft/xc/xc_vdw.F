@@ -1,4 +1,4 @@
-c     $Id: xc_vdw.F,v 1.1 2005-03-28 22:06:58 edo Exp $
+c     $Id: xc_vdw.F,v 1.2 2005-03-28 23:45:46 edo Exp $
       subroutine xc_vdw(rtdb,geom,exc,force,what,s6)
       implicit none
       character *(*) what
@@ -151,7 +151,11 @@ c
             endif
          enddo
       enddo
-
+c
+c     fudge factor if needed
+c      
+      if(abs(s6-1d0).gt.1d-9) 
+     F     call dscal(3*n,s6,force,1)
       return
       end
       double precision function c6ij_sk(i,j,z)
@@ -225,6 +229,10 @@ c
      *           (rij)**(-6)
          enddo
       enddo
+c
+c     fudge factor if needed
+c      
+      xc_vdw_e=xc_vdw_e*s6
 !      write(0,*) ' xc_vdw in kcal/mol ',xc_vdw_e
 !      xc_vdw_e=xc_vdw_e/au2kcalmol
       return

@@ -1,7 +1,7 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive,  rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.39 2005-03-28 22:07:00 edo Exp $
+* $Id: dftg_getxc.F,v 1.40 2005-03-28 23:45:43 edo Exp $
 *
       implicit none
 c      
@@ -43,7 +43,6 @@ c
 c
       character*4 scftype
 c
-      double precision dum,vdw
       integer nproc,i
       logical grid_reopen
       external grid_reopen
@@ -76,14 +75,6 @@ c
      .     iga_dens, force, natom, oactive, 
      &     nactive, rdens_atom,  cetobfr)
       oreopen=.false.
-c     
-c     vdW bit
-c
-      if (.not.rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, vdw))
-     &   vdw=0d0
-      write(0,*) ' vdw ',vdw
-      if(vdw.ne.0d0) call xc_vdw(rtdb,geom,dum,
-     A     force,'forces',vdw)
 
 c!!! BGJ test !!!
 c

@@ -29,7 +29,7 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.16 2005-02-11 07:27:42 edo Exp $
+* $Id: dft_gradients.F,v 1.17 2005-03-28 23:45:43 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -83,6 +83,7 @@ c
       integer ipoint, itmpm,ltmpm,g_tmp(2),lenvec,maavail
       double precision charge, charge_nuc, rhffact, tol2e, onem,
      , toll
+      double precision dum,vdw
       parameter(toll=1.d-9)
       logical  oprint_force_comps
 c     
@@ -458,6 +459,13 @@ c$$$      write(LuOut,*) (int_mb(icetobfr+i),i=0,2*nat-1)
      $     log_mb(k_act), nactive, 
      $     dbl_mb(irdens_atom),  int_mb(icetobfr))
       call ga_dgop(msg_grad_xc,  dbl_mb(k_frc_xc),  lforce, '+')
+c     
+c     vdW bit
+c
+      if (.not.rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, vdw))
+     &   vdw=0d0
+      if(vdw.ne.0d0) call xc_vdw(rtdb,geom,dum,
+     A     dbl_mb(k_frc_xc), 'forces',vdw)
 c     
       status = ma_pop_stack (l_s34)
 c     
