@@ -6,7 +6,6 @@ c
 c     orestrict_3 -> Only evaluate 3 center integrals
 c
       logical orestrict_2, orestrict_3
-      integer lchunksize
-      common/cfock/orestrict_2, orestrict_3, lchunksize
+      integer lchunksize, task_chunks
+      common/cfock/orestrict_2, orestrict_3, lchunksize, task_chunks
 c
-
