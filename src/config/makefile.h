@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.50 1994-08-22 00:03:20 d3g681 Exp $
+# $Id: makefile.h,v 1.51 1994-08-22 02:17:51 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -146,11 +146,10 @@ ifeq ($(TARGET),KSR)
 
        LIBS = -L$(LIBDIR) $(LIBPATH) -L/home/d3g681/TCGMSG_DISTRIB \
               -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
-              -linput -lguess -lgeom -lbasis -lutil \
-              -lglobal -lpeigs \
+              -lguess -lglobal -lpeigs \
+	      -lutil \
 	      -lksrlapk -lksrblas -llapack2 -lblas2 \
-              -lrtdb -ldb -linp -lpstat \
-	      -lutil -lma -ltcgmsg -para -lrpc
+              -ltcgmsg -para -lrpc
 
   EXPLICITF = FALSE
 endif

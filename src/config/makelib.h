@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.4 1994-08-22 00:03:29 d3g681 Exp $
+# $Id: makelib.h,v 1.5 1994-08-22 02:18:00 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -50,15 +50,18 @@
 #$(LIBDIR)/$(LIBRARY):	$(LIBOBJ)
 #	$(RANLIB) $@
 
-
 $(LIBDIR)/$(LIBRARY):	$(OBJ)
-ifdef SUBDIRS
-	for dir in $(SUBDIRS); do \
-		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir $@ || exit 1 ;  \
-	done
-endif
 	$(AR) $(ARFLAGS) $@ $(OBJ)
 	$(RANLIB) $@
+
+ifdef SUBDIRS
+$(LIBDIR)/$(LIBRARY):	subdirs
+
+subdirs:        
+	for dir in $(SUBDIRS); do \
+		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir || exit 1 ;  \
+        done
+endif
 
 
 ifdef HEADERS
