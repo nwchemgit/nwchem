@@ -1,5 +1,5 @@
 *
-* $Id: psi_new.F,v 1.10 2004-01-28 00:08:47 bylaska Exp $
+* $Id: psi_new.F,v 1.11 2004-02-23 16:58:00 bylaska Exp $
 *
 
 *     ***********************************
@@ -19,7 +19,7 @@
 *    *** local variables ***
       logical success
       real*8  icharge,tcharge,t
-      integer mult,x
+      integer mult,x,xx
       integer ispin,ne(2)
       integer version,rtdb
       integer ngrid(3)
@@ -67,7 +67,8 @@
       tcharge = control_totalcharge()
       icharge = ion_totalcharge()
       t = icharge - tcharge       !** total number of electrons **
-      x = t
+      x = NINT(t)
+      xx = x
 
 *     **** reassign spin to agree with total number of electrons ****
       if ((mod(x,2).ne.0).and.(ispin.eq.1)) then !** odd number of electrons **
@@ -95,12 +96,12 @@
 
 *     **** assign number of up and down electrons ****
       if (ispin.eq.1) then
-         ne(1) = t/2
+         ne(1) = xx/2
          ne(2) = 0
       else
          x = mult-1
-         ne(1) = (t+x)/2
-         ne(2) = (t-x)/2
+         ne(1) = (xx+x)/2
+         ne(2) = (xx-x)/2
       end if
 
       rtdb = control_rtdb()

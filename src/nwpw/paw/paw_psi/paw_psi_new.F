@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi_new.F,v 1.2 2004-02-23 16:37:32 bylaska Exp $
+* $Id: paw_psi_new.F,v 1.3 2004-02-23 16:55:12 bylaska Exp $
 *
 
 *     ***********************************
@@ -66,7 +66,7 @@
       tcharge = control_totalcharge()
       icharge = ion_totalcharge()
       t = icharge - tcharge       !** total number of electrons **
-      x = t
+      x = NINT(t)
       xx = x
 
 
@@ -96,7 +96,7 @@
 
 *     **** assign number of up and down electrons ****
       if (ispin.eq.1) then
-         ne(1) = x/2
+         ne(1) = xx/2
          ne(2) = 0
       else
          x = mult-1
