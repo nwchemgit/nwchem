@@ -9,7 +9,7 @@ c  density
 c
 c
       subroutine mcscf_b( geom, basis, nbf, nclosed, nact, orbsym,
-     $                    dm1, dm2, oskel, tol2e, bshift, g_movecs,
+     $                    dm1, dm2, oskel, tol2e, bshift, g_vecs0,
      $                    g_ifock, g_afock, g_coul, g_exch, g_u, g_b )
       implicit none
 #include "mafdecls.fh"
@@ -22,7 +22,7 @@ c
       logical oskel                                    ! [input] Symmetry toggle
       double precision tol2e                           ! [input] AO integral tolerance
       double precision bshift                          ! [input] Shift for B-matrix
-      integer g_movecs                                 ! [input] MO vectors
+      integer g_vecs0                                  ! [input] MO vectors at alpha=0
       integer g_ifock                                  ! [input] Inactive Fock
       integer g_afock                                  ! [input] Active Fock
       integer g_coul                                   ! [input] Coulomb operator
@@ -64,7 +64,7 @@ c
 c  AO contribution
 c
       call mcscf_b_ao( geom, basis, nbf, nclosed, nact,
-     $                 oskel, tol2e, dm1, g_movecs, g_t,
+     $                 oskel, tol2e, dm1, g_vecs0, g_t,
      $                 g_b )
 c
 c  Transformed Fock contributions
@@ -135,7 +135,7 @@ c
 c  B matrix - AO integral contributions
 c
       subroutine mcscf_b_ao( geom, basis, nbf, nclosed, nact,
-     $                       oskel, tol2e, dm1, g_movecs, g_t,
+     $                       oskel, tol2e, dm1, g_vecs0, g_t,
      $                       g_b )
       implicit none
 #include "mafdecls.fh"
@@ -148,7 +148,7 @@ c
       logical oskel
       double precision tol2e
       double precision dm1(nact,nact)
-      integer g_movecs
+      integer g_vecs0
       integer g_t
       integer g_b
 c
@@ -224,12 +224,12 @@ c   dD(AO) =  C.dD .C
 c
 c
       call ga_dgemm( 'n', 't', nbf, nbf, nbf, 1.d0, g_deltadc,
-     $               g_movecs, 0.d0, g_f1 )
-      call ga_dgemm( 'n', 'n', nbf, nbf, nbf, 1.d0, g_movecs,
+     $               g_vecs0, 0.d0, g_f1 )
+      call ga_dgemm( 'n', 'n', nbf, nbf, nbf, 1.d0, g_vecs0,
      $               g_f1, 0.d0, g_d1 )
       call ga_dgemm( 'n', 't', nbf, nbf, nbf, 1.d0, g_deltad,
-     $               g_movecs, 0.d0, g_f1 )
-      call ga_dgemm( 'n', 'n', nbf, nbf, nbf, 1.d0, g_movecs,
+     $               g_vecs0, 0.d0, g_f1 )
+      call ga_dgemm( 'n', 'n', nbf, nbf, nbf, 1.d0, g_vecs0,
      $               g_f1, 0.d0, g_d2 )
 c
 c  Compute Fock matrices
@@ -249,9 +249,9 @@ c
 c      
 c  Transform to MO
 c
-      call two_index_transf(g_f1, g_movecs, g_movecs, g_d1,
+      call two_index_transf(g_f1, g_vecs0, g_vecs0, g_d1,
      $                      g_deltadc )
-      call two_index_transf(g_f2, g_movecs, g_movecs, g_d1,
+      call two_index_transf(g_f2, g_vecs0, g_vecs0, g_d1,
      $                      g_deltad )
 c
 c  B   +=  F[dD]
@@ -561,7 +561,7 @@ c   Requires a Fock build.
 c
 c
       subroutine mcscf_b_trf_ifock( geom, basis, nbf, nclosed, nact,
-     $                              oskel, tol2e, g_movecs, g_ifock,
+     $                              oskel, tol2e, g_vecs0, g_ifock,
      $                              g_u, odelta_core, g_ifock_new )
       implicit none
 #include "mafdecls.fh"
@@ -570,7 +570,7 @@ c
       integer nbf, nclosed, nact                       ! [input]  Orbital parameters
       logical oskel                                    ! [input]  Symmetry toggle
       double precision tol2e                           ! [input]  AO integral tolerance
-      integer g_movecs                                 ! [input]  New MO vectors
+      integer g_vecs0                                  ! [input]  MO vectors at alpha=0
       integer g_ifock                                  ! [input]  Inactive Fock
       integer g_u                                      ! [input]  Unitrary transformation
       logical odelta_core                              ! [input]  Toggle inactive core response (expensive!)
@@ -625,8 +625,8 @@ c                   t
 c   dD(AO) =  C.dD.C
 c
         call ga_dgemm( 'n', 't', nbf, nbf, nbf, 1.d0, g_deltadc,
-     $                 g_movecs, 0.d0, g_f1 )
-        call ga_dgemm( 'n', 'n', nbf, nbf, nbf, 1.d0, g_movecs,
+     $                 g_vecs0, 0.d0, g_f1 )
+        call ga_dgemm( 'n', 'n', nbf, nbf, nbf, 1.d0, g_vecs0,
      $                 g_f1, 0.d0, g_d1 )
 c
 c  Compute Fock matrix
@@ -640,7 +640,7 @@ c
 c     
 c  Transform to MO
 c
-        call two_index_transf( g_f1, g_movecs, g_movecs, g_d1,
+        call two_index_transf( g_f1, g_vecs0, g_vecs0, g_d1,
      $                         g_deltadc )
 c
 c  Clean up

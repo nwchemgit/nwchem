@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.33 1997-03-03 23:11:39 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.34 1997-03-05 18:27:32 rg240 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -51,7 +51,7 @@ c
        double precision occ(nbf)                       ! [input] MCSCF orbital occupation (junk until natorb)
        integer g_movecs                                ! [input/output] MO vectors
        logical oconverged                              ! [output] convergence flag
-       logical oprconv          ! [input] if true then print
+       logical oprconv                                 ! [input] if true then print
 c
        integer maxpiter
        integer maxlinsrch
@@ -65,7 +65,7 @@ c
        integer iter, vlen, pflg
        integer molo, mohi, i, iter1, nstep
        double precision tol2e, enrep, energy, lshift0
-       double precision snorm, alpha, gsscale, gnorm0
+       double precision snorm, alpha, gsscale, gnorm0, tnorm
        double precision eprec, p_acc, ndigit
        double precision eev(0:maxlinsrch), gsv(0:maxlinsrch)
        double precision av(0:maxlinsrch)
@@ -111,7 +111,7 @@ c
        if (.not. rtdb_get(rtdb,'mcscf:hessiantype',MT_INT,1,pflg))
      $   pflg = 2
        if (.not. rtdb_get(rtdb,'mcscf:e2approx',MT_LOG,1,oe2approx))
-     $   oe2approx = .false.
+     $   oe2approx = .true.
        if (.not. rtdb_get(rtdb,'mcscf:citol',MT_DBL,1,citol))
      $      citol = 1.d-8
        if (.not. rtdb_get(rtdb,'mcscf:line_search_tol',MT_DBL,
@@ -331,7 +331,7 @@ c
              call mcscf_trfJKu( nbf, nclosed, nact, g_u, g_coul,
      $                          g_exch, g_actints )
              call mcscf_b_trf_ifock( geom, basis, nbf, nclosed, nact,
-     $                               oskel, tol2e, g_newvecs, g_ifock,
+     $                               oskel, tol2e, g_movecs, g_ifock,
      $                               g_u, odelta_core, g_tmp )
              call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
      $                           nsym, orbsym, e0, orbe, g_tmp,
@@ -360,16 +360,16 @@ c   New energy and gradient
 c
          if (oe2approx) then
            call mcscf_b( geom, basis, nbf, nclosed, nact, orbsym,
-     $                   dm1, dm2, oskel, tol2e, bshift, g_newvecs,
+     $                   dm1, dm2, oskel, tol2e, bshift, g_movecs,
      $                   g_ifock, g_afock, g_coul, g_exch, g_u, g_b )
            call ga_dgemm( 't', 'n', nbf, nbf, nbf, 1.d0, g_b, g_u,
      $                    0.d0, g_tmp )
            call mcscf_gfock2grad(nbf, nclosed, nact, g_tmp, g_grad )
-c$$$           PRINT*,' Generalized Fock matrix'
-c$$$           CALL GA_PRINT_X(G_TMP)
            do i=1+ga_nodeid(),nbf,ga_nnodes()
              call ga_acc(g_u, i, i, i, i, mone, 1, 1.d0 )
            enddo
+           tnorm = ga_ddot( g_u, g_u )
+           tnorm = sqrt( tnorm )
            call ga_transpose( g_b, g_tmp )
            call ga_dadd( 1.d0, g_gfock, 1.d0, g_tmp, g_b )
            call ga_transpose( g_b, g_tmp )

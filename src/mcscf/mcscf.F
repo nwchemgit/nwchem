@@ -114,7 +114,7 @@ c
       if (.not. rtdb_get(rtdb,'mcscf:lshift',MT_DBL,1,lshift0))
      $     lshift0 = 0.1d0
       if (.not.rtdb_get(rtdb,'mcscf:e2approx',MT_LOG,1,oe2approx))
-     $     oe2approx = .false.
+     $     oe2approx = .true.
       if (.not.rtdb_get(rtdb,'mcscf:cisolve',MT_LOG,1,ocisolve))
      $     ocisolve = .true.
       if (.not.rtdb_get(rtdb,'mcscf:conjugacy',MT_LOG,1,oconj))
