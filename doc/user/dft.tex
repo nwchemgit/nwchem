@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.53 2001-11-21 02:04:35 edo Exp $ 
+% $Id: dft.tex,v 1.54 2001-12-06 02:01:56 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -80,11 +80,12 @@ the DFT module are:
                [ncydp <integer ncydp default 2>] \
                [ncyds <integer ncyds default 30>] \
                [ncysh <integer ncysh default 30>] \
-               [damp <integer ndamp default 70>] [nodamping] \
+               [damp <integer ndamp default 0>] [nodamping] \
                [diis [nfock <integer nfock default 10>]] \
                [nodiis] [lshift <real lshift default 0.5>] \
                [nolevelshifting] \
-               [hl_tol <real hl_tol default 0.1>]
+               [hl_tol <real hl_tol default 0.1>] \
+               [rabuck [n_rabuck <integer n_rabuck default 25>]]
 
 
   GRID [(xcoarse||coarse||medium||fine||xfine) default medium] \
@@ -599,13 +600,14 @@ iterations is reached or convergence is met.
               [ncydp <integer ncydp default 2>] \
               [ncyds <integer ncyds default 30>] \
               [ncysh <integer ncysh default 30>] \
-              [damp <integer ndamp default 70>] [nodamping] \
+              [damp <integer ndamp default 0>] [nodamping] \
               [diison <real diison default 0.0>] \
               [diisoff <real diisoff default 0.0>] \
               [(diis [nfock <integer nfock default 10>]) || nodiis] \
               [levlon <real levlon default 0.0>] \
               [levloff <real levloff default 0.0>] \
-              [(lshift <real lshift default 0.5>) || nolevelshifting]
+              [(lshift <real lshift default 0.5>) || nolevelshifting] \
+              [rabuck [n_rabuck <integer n_rabuck default 25>]]
 \end{verbatim}
 
 Convergence is satisfied by meeting any or all of three criteria;
@@ -673,7 +675,7 @@ The amount of damping, level-shifting, time at which level-shifting is
 automatically imposed, and Fock matrices used in the DIIS
 extrapolation can be modified by the following keywords
 \begin{verbatim}
-  CONVERGENCE  [damp <integer ndamp default 70>] \
+  CONVERGENCE  [damp <integer ndamp default 0>] \
                [diis [nfock <integer nfock default 10>]] \
                [lshift <real lshift default 0.5>] \
                [hl_tol <real hl_tol default 0.1>]]
@@ -721,6 +723,26 @@ The user has the ability to simply turn off any optimization
 procedures deemed undesirable with the obvious keywords,
 \begin{verbatim}
   CONVERGENCE [nodamping] [nodiis] [nolevelshifting]
+\end{verbatim}
+
+
+For systems where the initial guess is very poor, the user can try the
+method described in
+\footnote{A.~D.~Rabuck and G.~E.~Scuseria, J.~Chem.~Phys {\bf 110},695
+(1999)}
+that makes use of {\bf fractional occupation} of the orbital levels during
+the initial cycles of the SCF convergence. The input has the following form
+
+\begin{verbatim}
+  CONVERGENCE rabuck [n_rabuck <integer n_rabuck default 25>]]
+\end{verbatim}
+
+where the optional value {\tt n\_rabuck} determines the number of SCF
+cycles during which the method will be active. For example, to
+set equal to 30 the number of cycles where the Rabuck method is
+active, you need to use the following line
+\begin{verbatim}
+  CONVERGENCE rabuck 30
 \end{verbatim}
 
 
