@@ -113,6 +113,7 @@ c
       integer mrg_d52
       integer mrg_d53
       integer mrg_d54
+      integer mrg_d55
 c
       integer mrg_i01
       integer mrg_i02
@@ -519,3 +520,4 @@ c
       parameter(mrg_d52=msg_ftn_base-275) ! arg_props
       parameter(mrg_d53=msg_ftn_base-276) ! arg_shakep
       parameter(mrg_d54=msg_ftn_base-277) ! arg_shakep
+      parameter(mrg_d55=msg_ftn_base-278) ! arg_shakep
