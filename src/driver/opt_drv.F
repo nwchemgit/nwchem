@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.54 1998-09-11 16:37:51 mdupuis Exp $
+C$Id: opt_drv.F,v 1.55 1999-01-18 23:28:32 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -99,6 +99,7 @@ c                mxcoor=max(mxcart,mxzmat)
       data one    /1.0d+00/
       data alphmn /0.4d+00/
       data alphmx /2.5d+00/
+      data four   /4.0d+00/
 c
       hnd_optx = .false.
 c
@@ -404,9 +405,17 @@ c     ----- linear search -----
 c
       if(alpha.eq.zero) then
          if(zcoord) then
-            alpha=one
+            if(abs(gmax).lt.pt5) then
+               alpha=one
+            else
+               alpha=one/four
+            endif
          else
-            alpha=pt5
+            if(abs(gmax).lt.pt5) then
+               alpha=pt5
+            else
+               alpha=pt5/four
+            endif
          endif
       endif
       call hnd_opt_search_lin(rtdb,geom,rstart,excess)
