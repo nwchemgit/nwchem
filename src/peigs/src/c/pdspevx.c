@@ -706,7 +706,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    /*
      check to see if rescaling is required... a la lapack
    */
-
+   
    smlnum = DLAMCHS/DLAMCHE;
    bignum = 1.0/smlnum;
    eps = DLAMCHE;
@@ -717,8 +717,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    k = 0;
    for ( iii = 0; iii < msize; iii++){
      if ( mapA[iii] == me ) {
-       for ( iii = 0; iii < msize-k; iii++)
-	 anrm = max(fabs(vecQ[k][iii]), anrm);
+       for ( ii = 0; ii < msize-iii; ii++)
+	 anrm = max(fabs(vecQ[k][ii]), anrm);
        k++;
      }
    }
@@ -733,11 +733,12 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
        sigma = rmax/anrm;
      }
 
-   k = 0;
+
    isize = msize;
    if ( iscale == 1 ){
      if ( me == 0 )
        printf(" sigma = %f \n", sigma);
+     k = 0;
      for ( iii = 0; iii < msize; iii++){
        if ( mapA[iii] == me ) {
 	 isize = msize - iii;
@@ -810,12 +811,12 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       
       psgn = 1.0;
       psigma = 0.0;
-      
+
       pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol,
 		 dd, ee, dplus, lplus, mapZ, &neigval, 
 		 &nsplit, eval, iblock, isplit,
 		 d_scrat, i_scrat, &linfo);
-      
+
       /*
 	if ( me==0) {
 	for ( iii = 0; iii < msize; iii++)
@@ -952,8 +953,6 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 	      mapZ, vecZ, clustr_info, d_scrat,i_scrat, iptr, info);
     
     
-    
-    
     syncco[0] = 0.0e0;
     gsum00( (char *) syncco, 1, 5, 11, mapA[0], nn_proc, proclist, d_scrat);
     
@@ -978,7 +977,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 		&neigval, eval, iblock, &nsplit, isplit,
 		&mapZ[0], vecZ, clustr_info, d_scrat,
 		i_scrat, iptr, &linfo);
-      
+
       
 /*
       for ( iii = 0; iii < 4*msize; iii++)
@@ -1042,6 +1041,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 	mxm25 ( &msize, &msize, vecQ, mapQ, &neigval,
 		vecZ, mapZ, vecZ, i_scrat, d_scrat);
       }
+
       syncco[0] = 0.0e0;
       gsum00( (char *) syncco, 1, 5, 14, mapA[0], nn_proc, proclist, d_scrat);
 
@@ -1070,22 +1070,10 @@ END:
       */
     
     sorteig(&msize, &neigval, vecZ, mapZ, eval, i_scrat, d_scrat);
-    
+
     syncco[0] = 0.0e0;
     gsum00( (char *) syncco, 1, 5, 117, mapA[0], nn_proc, proclist, d_scrat);
 
-    /*
-      k = 0;
-      for ( iii = 0; iii < msize; iii++){
-      if ( mapZ[iii] == me ) {
-      dummy = dnrm2_( &msize, vecZ[k], IONE);
-      printf(" %d nrm2 %f ********** \n", iii, dummy);
-      dummy = 1.0/dummy;
-      dscal_( &msize, &dummy, vecZ[k], IONE);
-      k++;
-      }
-      }
-      */
 
 #ifdef PSCALE
     dummy = peigs_scale;
@@ -1134,19 +1122,18 @@ END:
     }
 */
 
-    sigma = 1.0/sigma;
+
     if ( iscale == 1 ){
+      sigma = 1.0/sigma;
       for ( iii = 0; iii < msize; iii++){
 	if ( mapA[iii] == me ) {
-	 isize = msize - iii;
-	 dscal_(&isize, &sigma, eval, IONE );
-	 k++;
+	  isize = msize - iii;
+	  dscal_(&isize, &sigma, eval, IONE );
+	  k++;
 	}
       }
     }
-
     
-
     return;
   }
 
