@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.44 1997-07-15 22:46:11 d3e129 Exp $
+c $Id: texas_face.F,v 1.45 1997-12-04 22:43:49 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -408,7 +408,7 @@ c
 *      mem_2e2c = max(mem_2e2c,l_blsize)
 c tmp fix for memory split
 c----------------------------------------------------------------------
-      iszb_2e4c = isz_2e4c*100  ! 100* max single quartet size
+      iszb_2e4c = isz_2e4c  ! use miminum of 1 quartet. 
       memb_2e4c = l_blsize
       call texas_memory (txs_static,1,txs_dynam)
       mem_2e4c = max(mem_2e4c,txs_static+txs_dynam)

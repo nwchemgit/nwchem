@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.19 1997-06-26 00:36:27 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.20 1997-12-04 22:43:47 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -103,7 +103,7 @@ c
 c
 c for NWChem blocking interface
 c
-      iszb_2e4c = 4*isz_2e4c
+      iszb_2e4c = isz_2e4c  ! one quartet minimum
       memb_2e4c = mem_2e4c + mem_2e4c/5 ! + 20 % 
 c
       if (numd_red.gt.numd_tot/33) then

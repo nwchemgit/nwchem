@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.31 1997-06-26 00:36:26 d3e129 Exp $
+c $Id: exact_mem.F,v 1.32 1997-12-04 22:43:46 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -121,7 +121,7 @@ c
 c
 c for NWChem blocking interface
 c
-      iszb_2e4c = 4*isz_2e4c   ! for integrals
+      iszb_2e4c = isz_2e4c   ! use minimum of one quartet for integrals
       memb_2e4c = mem_2e4c + mem_2e4c/10  ! +10% to me safe
 c
 #if defined(API_DEBUG)
