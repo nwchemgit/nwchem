@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: doqmtests,v 1.19 2002-02-08 23:47:35 windus Exp $
+# $Id: doqmtests,v 1.20 2002-03-22 01:56:06 sohirata Exp $
 #
 #---   small tests
 runtests.unix auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
@@ -37,6 +37,8 @@ runtests.unix pspw
 runtests.unix pspw_SiC
 runtests.unix pspw_md
 runtests.unix pspw_polarizability
+runtests.unix tddft_h2o
+runtests.unix tddft_n2+
 #---   long  may not run on workstations
 runtests.unix aump2 
 runtests.unix uoverlap
