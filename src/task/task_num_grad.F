@@ -1,6 +1,6 @@
       logical function task_num_grad(rtdb)
 *
-* $Id: task_num_grad.F,v 1.14 1997-04-06 20:59:52 d3g681 Exp $
+* $Id: task_num_grad.F,v 1.15 1997-04-11 18:33:11 d3g681 Exp $
 *
       implicit none
 #include "geom.fh"
@@ -22,7 +22,7 @@ c
       integer nvec, ivec, i, j
       integer l_vec, k_vec, l_tmp, k_tmp, l_coord, k_coord
       integer l_ncoord, k_ncoord, l_grad, k_grad, l_q, k_q, l_t, k_t
-      integer natoms, natoms3
+      integer natoms, natoms3, ecce_old_print, ecce_junk_print
       logical oprint_mode, oprint_step, oprint_info, osaved
       character*128 name, key, theory
       character*16 thetag
@@ -35,6 +35,8 @@ c
 c
       task_num_grad = .false.
       osaved = .false.
+c
+      call ecce_print_control(0, ecce_old_print) ! Disable ECCE printing
 c
       call util_print_push()
       call util_print_rtdb_load(rtdb, 'numg')
@@ -244,6 +246,8 @@ c
       if (.not. ma_pop_stack(l_vec)) call errquit('tng: ma corrupt',0)
       if (.not. geom_destroy(geom)) call errquit('tng: geom corrupt',0)
       call util_print_pop()
+c
+      call ecce_print_control(ecce_old_print, ecce_junk_print)
 c
       end
       logical function fd_step_energy(rtdb, geom, natoms, coords,

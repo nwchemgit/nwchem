@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.12 1997-04-10 02:05:57 d3g681 Exp $
+* $Id: task_gradient.F,v 1.13 1997-04-11 18:33:10 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -146,7 +146,7 @@ c
          call geom_print_rtdb_ecce(rtdb)
          call ecce_print1('total energy', mt_dbl, energy, 1)
          call ecce_print2('total gradient', mt_dbl, dbl_mb(k_grad),
-     $        3,nelem/3, 1)
+     $        3,3,nelem/3)
          gmax = 0.0d0
          gnorm = 0.0d0
          do i = 0, nelem-1
