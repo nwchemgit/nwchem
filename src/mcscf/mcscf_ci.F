@@ -29,8 +29,6 @@ c
       logical oprint
       logical ociprint
 c
-c
-c
 #ifdef OLD_DAVIDSON
       integer mxworkvec
       parameter(mxworkvec=24)
@@ -40,8 +38,7 @@ c
 #endif      
       integer nela, nelb, nactel, multip, symstate
       integer actsym(detci_maxorb), actmap(detci_maxorb)
-      integer actrmap(detci_maxorb)
-      integer guess_cfg(detci_maxelec_tot)
+      integer guess_cfg(detci_maxelec_tot*detci_maxguess_cfg)
       integer itmp(detci_maxelec_tot)
       integer nguesscfg
       double precision guess_coeff(6)
@@ -90,6 +87,9 @@ c
       if ((mod((nactel + multip - 1),2).ne.0).or.
      $    (nela.lt.0).or.(nelb.lt.0))
      $    call errquit('detci: incompatible elec and spin',0)
+      if ((nela.gt.detci_maxelec).or.(nelb.gt.detci_maxelec).or.
+     $    ((nela+nelb).gt.detci_maxelec_tot))
+     $    call errquit('mcscf_ci: too many electrons - redimension',0)
 c
 c   Retrieve symmetry stuff
 c
@@ -99,31 +99,11 @@ c
 c
 c   Remap active indices into symmetry blocks
 c
-      ii = 0
-      do j=1,nsym
-        do i=1,nact
-          if (orbsym(nclosed+i).eq.j) then
-            ii = ii + 1
-            actmap(ii) = i
-            actrmap(i) = ii
-            actsym(ii) = orbsym(nclosed+i)
-            acteps(ii) = eps(nclosed+i)
-          endif
-        enddo
+      do i=1,nact
+        actmap(i) = i
+        actsym(i) = orbsym(nclosed+i)
+        acteps(i) = eps(nclosed+i)
       enddo
-c
-C      MAXITER = 2                      ! The following removes 
-c$$$      SYMSTATE = 1                     ! symmetry mapping
-c$$$      NSYM = 1
-c$$$      DO I=1,NACT
-c$$$        ACTSYM(I) = 1
-c$$$        ACTMAP(I) = I
-c$$$        ACTRMAP(I) = I
-c$$$        ACTEPS(I) = EPS(NCLOSED+I)
-c$$$      ENDDO
-c
-c
-c
       call detci_ijmap( nact, nsym, actsym, mul, ntij, ijmap )
 c
 c   Allocate local space for 1e and 2e MO integrals
@@ -136,8 +116,7 @@ c
      $  call errquit('mcscf_cisolve: cannot allocate',0)
       call dfill(n2,0.d0,dbl_mb(k_h1),1)
       call dfill((n2*n2),0.d0,dbl_mb(k_eri),1)
-      call mcscf_getmolocal( nclosed, nact, nbf, actrmap,
-     $                       g_h, g_coul,
+      call mcscf_getmolocal( nclosed, nact, nbf, g_h, g_coul,
      $                       ntij, ijmap, dbl_mb(k_h1),
      $                       dbl_mb(k_eri) )
 c
@@ -167,7 +146,7 @@ c
       if ((hasprint.le.1).or.(.not.(civec_saved))) then
         if (rtdb_get(rtdb,'mcscf:guess',MT_INT,(nela+nelb),itmp)) then
           do i=1,(nela+nelb)
-            guess_cfg(i) = actrmap(itmp(i))
+            guess_cfg(i) = itmp(i)
           enddo
           call util_isort( nela, guess_cfg )
           call util_isort( nelb, guess_cfg(nela+1) )
@@ -220,7 +199,7 @@ c
 c   Compute MO densities
 c
       if ((omcscfprof).and.(ociprof)) call pstat_on(ps_cidens)
-      call detci_density( g_civec, actmap, dm1, dm2 )
+      call detci_density( g_civec, dm1, dm2 )
       if ((omcscfprof).and.(ociprof)) call pstat_off(ps_cidens)
 c
 c   Save CI vector for restart
@@ -249,7 +228,6 @@ c
      $  call errquit('mcscf_cisolve: cannot pop stack',0)
 c
 c
-c
       return
       end
 
@@ -258,8 +236,7 @@ c
 
 
 
-      subroutine mcscf_getmolocal( nclosed, nact, nbf, rmap,
-     $                             g_h, g_coul,
+      subroutine mcscf_getmolocal( nclosed, nact, nbf, g_h, g_coul,
      $                             ntij, ijmap, h1, eri )
       implicit none
 #include "mafdecls.fh"
@@ -267,7 +244,6 @@ c
       integer nclosed
       integer nact
       integer nbf
-      integer rmap(nact)
       integer g_h
       integer g_coul
       integer ntij
@@ -291,7 +267,7 @@ c
       do i=1,nact
         do j=1,i
           gij = ((i-1)*i)/2 + j
-          ij = ijmap(rmap(i),rmap(j))
+          ij = ijmap(i,j)
           do k=1,nact
             kk = (k-1)*nact
             klo = coff + (k-1)*nbf + 1
@@ -301,7 +277,7 @@ c
           do k=1,nact
             kk = (k-1)*nact
             do l=1,k
-              kl = ijmap(rmap(k),rmap(l))
+              kl = ijmap(k,l)
               eri(ij,kl) = dbl_mb(k_t+kk+l-1)
             enddo
           enddo

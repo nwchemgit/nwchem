@@ -38,7 +38,7 @@ c
       integer ntij, civlen
       integer ijmap(detci_maxorb*detci_maxorb)
       integer vtab((detci_maxorb+1)*(detci_maxelec+1)*(detci_maxsy))
-      integer i, j, ij
+      integer i, j, ij, ii
       integer memuse, memuse01, memuse02, memuse03
 c
 c  Reset statistics
@@ -60,10 +60,28 @@ c
       cdetci_nelb = nelb
       cdetci_nsym = nsym
       cdetci_symstate = symstate
-      do i=1,norb
-        cdetci_osym(i) = osym(i)
-        cdetci_eps(i) = eps(i)
+c
+c   Reorder orbital indices by symmetry
+c
+      ii = 0
+      do j=1,nsym
+        do i=1,norb
+          if (osym(i).eq.j) then
+            ii = ii + 1
+            cdetci_ixmap(ii) = i
+            cdetci_irmap(i) = ii
+            cdetci_osym(ii) = osym(i)
+            cdetci_eps(ii) = eps(i)
+          endif
+        enddo
       enddo
+c
+c$$$      DO I=1,NORB
+c$$$        WRITE(6,'(I5,A5,I5,5X,F10.4)') I,' ->',CDETCI_IRMAP(I),
+c$$$     $                                 CDETCI_EPS(CDETCI_IRMAP(I))
+c$$$      ENDDO
+c
+c
       do i=1,nsym
         do j=1,nsym
           ij = (i-1)*nsym + j
@@ -73,7 +91,7 @@ c
 c     
 c  Compute CI parameters
 c     
-      call detci_ijmap( norb, nsym, osym, mul, ntij, ijmap )
+      call detci_ijmap( norb, nsym, cdetci_osym, mul, ntij, ijmap )
       nexa = (norb-nela+1)*nela
       nexb = (norb-nelb+1)*nelb
       nstra = detci_binomial(norb,nela)
@@ -122,10 +140,10 @@ c
 c     
 c  Construct arc weight tables
 c     
-      call detci_vatable( norb, nela, nsym, osym, mul,
-     $                  vtab, cdetci_ataba )
-      call detci_vatable( norb, nelb, nsym, osym, mul,
-     $                  vtab, cdetci_atabb )
+      call detci_vatable( norb, nela, nsym, cdetci_osym, mul,
+     $                    vtab, cdetci_ataba )
+      call detci_vatable( norb, nelb, nsym, cdetci_osym, mul,
+     $                    vtab, cdetci_atabb )
 c     
 c  Allocate and construct excitation operator table
 c     
@@ -135,7 +153,7 @@ c
         if (.not.ma_push_get(MT_INT, (6*nexa*(nstra+1)), 'detci:exa',
      $                       l_detci_exa, k_detci_exa))
      $    call errquit('detci: cannot allocate',0)
-        call detci_excit( norb, nela, nsym, nstra, nexa, osym,
+        call detci_excit( norb, nela, nsym, nstra, nexa, cdetci_osym,
      $                    mul, ijmap, cdetci_ataba,
      $                    int_mb(k_detci_exa) )
       endif
@@ -143,7 +161,7 @@ c
         if (.not.ma_push_get(MT_INT, (6*nexb*(nstrb+1)), 'detci:exb',
      $                       l_detci_exb, k_detci_exb))
      $    call errquit('detci: cannot allocate',0)
-        call detci_excit( norb, nelb, nsym, nstrb, nexb, osym,
+        call detci_excit( norb, nelb, nsym, nstrb, nexb, cdetci_osym,
      $                    mul, ijmap, cdetci_atabb,
      $                    int_mb(k_detci_exb) )
       endif
@@ -157,12 +175,8 @@ c
       if (.not.ma_push_get( MT_DBL,(ntij*ntij),'detci: eri',
      $   l_detci_g, k_detci_g))
      $   call errquit('detci: cannot allocate',0)
-      do i=1,ntij
-        dbl_mb(k_detci_h+i-1) = h(i)
-      enddo
-      do i=1,(ntij*ntij)
-        dbl_mb(k_detci_g+i-1) = g(i)
-      enddo
+      call detci_moint_copy( norb, ntij, cdetci_ixmap, ijmap, h, g,
+     $                       dbl_mb(k_detci_h), dbl_mb(k_detci_g) )
 c
 c  Memory for scratch space should be allocated HERE!
 c
@@ -353,12 +367,17 @@ c
 
 
 
-
-
-
+c
+c  Takes a list of configurations with coefficients 
+c  and generates an initial guess CI vector that
+c  is both spin- and symmetry-adapted
+c  Check to ensure initial guess has non-zero
+c  component in requisite spin and symmetry state
+c
       subroutine detci_guess( ngs, cfggs, cgs, g_civec, g_workvec )
       implicit none
 c
+#include "global.fh"
 #include "detciP.fh"
 #include "detci.fh"
 #include "cdetci.fh"
@@ -371,7 +390,9 @@ c
 c
       integer nstra
       integer nstrb
-      double precision mxcnt
+      integer rcfg(detci_maxelec_tot*detci_maxguess_cfg)
+      integer i, j, jj
+      double precision mxcnt, xx
 c
 c
 c     
@@ -380,20 +401,31 @@ c
       nstra = detci_binomial( cdetci_norb, cdetci_nela )
       nstrb = detci_binomial( cdetci_norb, cdetci_nelb )
 c
+c  Reorder guess indices to internal convention
 c
+      do j=1,ngs
+        jj = (j-1)*(cdetci_nela+cdetci_nelb)
+        do i=1,cdetci_nela+cdetci_nelb
+          rcfg(jj+i) = cdetci_irmap(cfggs(jj+i))
+        enddo
+        call util_isort(cdetci_nela,rcfg(jj+1))
+        call util_isort(cdetci_nelb,rcfg(jj+cdetci_nela+1))
+      enddo
+c
+c  Generate normalized guess CI vector
 c
       call detci_ciguess( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                    cdetci_nelb, nstra, nstrb, cdetci_osym,
      $                    cdetci_mul, cdetci_ataba, cdetci_atabb,
-     $                    ngs, cfggs, cgs, g_civec )
+     $                    ngs, rcfg, cgs, g_civec )
 c
-c
+c  Spin adapt
 c
       if (cdetci_spinadapt) then
         call detci_spinadapt( g_civec, g_workvec )
       endif
 c
-c
+c  Symmetry adapt
 c
       if (cdetci_nsym.gt.1) then
         call detci_symmproject( cdetci_norb, cdetci_nsym,
@@ -403,10 +435,12 @@ c
      $                          cdetci_symstate, .true.,
      $                          mxcnt, g_civec )
       endif
-
 c
+c  Check for zero projected vector
 c
-c
+      xx = ga_ddot(g_civec,g_civec)
+      if (xx.lt.0.0001d0)
+     $  call errquit('detci: initial guess has wrong spin/symmetry',0)
       return
       end
 
@@ -637,7 +671,8 @@ c
 c
       call detci_civec_print( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                        cdetci_nelb, nstra, nstrb, cdetci_mul,
-     $                        cdetci_osym, cdetci_ataba, cdetci_atabb,
+     $                        cdetci_osym, cdetci_ixmap,
+     $                        cdetci_ataba, cdetci_atabb,
      $                        g_civec, thresh )
 c
 c
@@ -656,7 +691,7 @@ c
 c  Generate 1- and 2-particle density matrices
 c  for given CI vector (both RHS and LHS)
 c
-      subroutine detci_density( g_civec, map, onepdm, twopdm )
+      subroutine detci_density( g_civec, onepdm, twopdm )
       implicit none
 c
 #include "global.fh"
@@ -666,7 +701,6 @@ c
 #include "cdetci.fh"
 c
       integer g_civec
-      integer map(*)
       double precision onepdm(*)
       double precision twopdm(*)
 c
@@ -694,14 +728,16 @@ c
       call detci_onepdm( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                   cdetci_nelb, nstra, nstrb, nexa, nexb,
      $                   cdetci_osym, cdetci_mul, int_mb(k_detci_exa),
-     $                   int_mb(k_detci_exb), map, g_civec, onepdm )
+     $                   int_mb(k_detci_exb), cdetci_ixmap,
+     $                   g_civec, onepdm )
 c
 c
 c
       call detci_twopdm( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                   cdetci_nelb, nstra, nstrb, nexa, nexb,
      $                   cdetci_osym, cdetci_mul, int_mb(k_detci_exa),
-     $                   int_mb(k_detci_exb), map, g_civec, twopdm )
+     $                   int_mb(k_detci_exb), cdetci_ixmap,
+     $                   g_civec, twopdm )
 c
 c
 c
@@ -813,6 +849,45 @@ c
      $                          mxcnt, g_civec )
       endif
 
+      return
+      end
+
+
+
+
+
+
+
+
+      subroutine detci_moint_copy( norb, ntij, irmap, ijmap, h, g,
+     $                             h1, g1 )
+      implicit none
+      integer norb
+      integer ntij
+      integer irmap(norb)
+      integer ijmap(norb,norb)
+      double precision h(ntij)
+      double precision g(ntij,ntij)
+      double precision h1(ntij)
+      double precision g1(ntij,ntij)
+c      
+      integer i, j, k, l
+      integer ij, rij, kl, rkl
+c      
+      do i=1,norb
+        do j=1,i
+          ij = ijmap(i,j)
+          rij = ijmap(irmap(i),irmap(j))
+          h1(ij) = h(rij)
+          do k=1,norb
+            do l=1,k
+              kl = ijmap(k,l)
+              rkl = ijmap(irmap(k),irmap(l))
+              g1(ij,kl) = g(rij,rkl)
+            enddo
+          enddo
+        enddo
+      enddo
       return
       end
 

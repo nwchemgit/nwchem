@@ -1,5 +1,3 @@
-
-
 c
 c
 c   Generates vertex and arc tables for 
@@ -747,8 +745,9 @@ c  Print out dominant CI vector elements
 c  with corresponding configuration info
 c
       subroutine detci_civec_print( norb, nsym, nela, nelb,
-     $                            nstra, nstrb, mul, osym,
-     $                            ataba, atabb, g_x, thresh )
+     $                              nstra, nstrb, mul, osym,
+     $                              map, ataba, atabb,
+     $                              g_x, thresh )
       implicit none
 #include "global.fh"
 #include "detciP.fh"
@@ -759,14 +758,13 @@ c
       integer nstra, nstrb
       integer mul(nsym,nsym)
       integer osym(norb)
+      integer map(norb)
       integer ataba(norb,nela,nsym), atabb(norb,nelb,nsym)
       integer g_x
-c$$$      double precision c(nstrb,nstra)
       double precision thresh
 c
-c
-c
       integer elva(detci_maxelec), elvb(detci_maxelec)
+      integer iaa(detci_maxelec), ibb(detci_maxelec)
       integer i, isym, jsym, istr, jstr, ici
       double precision xx
 c
@@ -789,12 +787,18 @@ c
       jstr = detci_elv2str( norb, nelb, nsym, osym, mul, atabb, elvb )
       ici = (istr-1)*nstrb + jstr
       call ga_get(g_x,jstr,jstr,istr,istr,xx,1)
-      if (abs(xx).ge.thresh) then 
-        if (ga_nodeid().eq.0) write(6,901) ici,xx,(elva(i),i=1,nela),
-     $                                            (elvb(i),i=1,nelb)
-c$$$      if (abs(c(jstr,istr)).ge.thresh)
-c$$$     $   write(6,901) ici,c(jstr,istr),
-c$$$     $   (elva(i),i=1,nela),(elvb(i),i=1,nelb)
+      if (abs(xx).ge.thresh) then
+        do i=1,nela
+          iaa(i) = map(elva(i))
+        enddo
+        do i=1,nelb
+          ibb(i) = map(elvb(i))
+        enddo
+        call util_isort(nela,iaa)
+        call util_isort(nelb,ibb)
+        if (ga_nodeid().eq.0) write(6,901) ici,xx,
+     $                                     (iaa(i),i=1,nela),
+     $                                     (ibb(i),i=1,nelb)
  901    format(i10,5x,f15.8,8x,20i3)
       endif
 c
@@ -1190,17 +1194,10 @@ c
         enddo
         jsym = detci_elvsymm( norb, nelb, nsym, osym, mul, elvb )
         jstr = detci_elv2str( norb, nelb, nsym, osym, mul, atabb, elvb )
-c     
-c$$$      WRITE(6,911) (EA+EB),(EREF-EA-EB),
-c$$$     $             (ELVA(I),I=1,NELA),(ELVB(I),I=1,NELB)
-c$$$ 911  FORMAT(2F12.6,5X,12I3)
-c
-c
         call ga_get(g_civec,jstr,jstr,istr,istr,xx,1)
         xx = xx / (eref - ea - eb )
         call ga_put(g_civec,jstr,jstr,istr,istr,xx,1)
 c
-c$$$      civec(jstr,istr) = civec(jstr,istr)/(eref - ea - eb)
 C
 C ******* TESTING ONLY ********
 C  Deliberately introduce spin 
