@@ -1,0 +1,5 @@
+      double precision cvgopt
+      integer nptopt,inhess,linopt,modupd,moddir,modsad
+      logical oqstep
+      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
+     $     modsad,oqstep

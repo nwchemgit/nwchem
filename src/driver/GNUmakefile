@@ -1,10 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.8 1998-04-24 16:40:01 mdupuis Exp $
+# $Id: GNUmakefile,v 1.9 1999-05-24 23:38:08 d3g681 Exp $
 #
 
 LIBRARY = libdriver.a
 
-OBJ = opt_drv.o sad_drv.o lst_drv.o
+OBJ = opt_drv.o sad_drv.o lst_drv.o new.o
 
 
 include ../config/makefile.h

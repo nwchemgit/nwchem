@@ -51,10 +51,10 @@ c
 #include "util.fh"
       logical       geom_zmt_get_nizmat
       external      geom_zmt_get_nizmat
-      logical       geom_usr_get_nzfrz 
-      external      geom_usr_get_nzfrz 
-      logical       geom_usr_get_izfrz 
-      external      geom_usr_get_izfrz 
+      logical       geom_zmt_get_nzfrz 
+      external      geom_zmt_get_nzfrz 
+      logical       geom_zmt_get_izfrz 
+      external      geom_zmt_get_izfrz 
       logical       geom_lst_get_coord
       external      geom_lst_get_coord
       integer       rtdb
@@ -147,7 +147,7 @@ c     ----- frozen coordinates ? if so .... -----
 c
       status = rtdb_parallel(.false.)
       if(ga_nodeid().eq.0) then
-         if(.not.geom_usr_get_nzfrz(geom,nzfrz)) then
+         if(.not.geom_zmt_get_nzfrz(geom,nzfrz)) then
             if(dbug) then
                write(iw,*) '-nzfrz- not found in -geomP- object'
             endif
@@ -157,8 +157,8 @@ c
                write(iw,*) '-nzfrz-     found in -geomP- object',nzfrz
                write(iw,*) 'now read -izfrz-                   '
             endif
-            if(.not.geom_usr_get_izfrz(geom,izfrz,nzfrz)) then
-               call errquit('geom_input: geom_usr_get_izfrz  failed',0)
+            if(.not.geom_zmt_get_izfrz(geom,izfrz,nzfrz)) then
+               call errquit('geom_input: geom_zmt_get_izfrz  failed',0)
             endif
             if(dbug) then
                if(nzfrz.gt.0) then

@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.58 1999-05-13 16:22:45 d3g681 Exp $
+C$Id: opt_drv.F,v 1.59 1999-05-24 23:38:08 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -54,9 +54,11 @@ c
 #include "stdio.fh"
 #include "geom.fh"
 #include "util.fh"
+#include "coptopt.fh"
+#include "inp.fh"
       logical       geom_zmt_get_nizmat
-      logical       geom_usr_get_nzfrz 
-      logical       geom_usr_get_izfrz 
+      logical       geom_zmt_get_nzfrz 
+      logical       geom_zmt_get_izfrz 
       integer       rtdb
       integer       geom
       integer       idriver
@@ -75,14 +77,16 @@ c
       parameter (mxzmat=1500)
       parameter (mxcoor=1500)
 c                mxcoor=max(mxcart,mxzmat)
+c
+      logical geom_zmt_get_varinfo
+      character*8 zvarname(mxcoor),test
+      double precision zvarsign(mxcoor)
+
       common/hnd_iofile/ir,iw
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
       common/hnd_optrun/npts,nserch,nupdat,cvged
-      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
-     1                                                     modsad,
-     2                  convggm,convgg,convge,maxiter
       common/hnd_optsad/sadstp
       common/hnd_optfrz/nzfrz,izfrz(mxcoor),iatfrz(mxatom)
       common/hnd_optfun/e,eg(mxcart)
@@ -112,6 +116,15 @@ c
      $     util_print('information', print_low))  then
          write(iw,9999)
       endif
+c
+c     ----- default parameters for optimization driver -----
+c
+      do i=1,mxcoor
+         izfrz(i)=0
+      enddo
+      do i=1,mxatom
+         iatfrz(i)=0
+      enddo
 c
 c     ----- parameters for optimization driver -----
 c
@@ -156,10 +169,6 @@ c
            if(dbug) then
               write(iw,*) 'using default value of -modsad-',modsad
            endif
-      else
-           if(dbug) then
-              write(iw,*) 'using -rtdb-  value of -modsad-',modsad
-           endif
       endif
       if (.not. rtdb_get(rtdb,'driver:sadstp',mt_dbl,1,sadstp)) then
            sadstp=0.35d+00
@@ -167,12 +176,18 @@ c
               write(iw,*) 'using default value of -sadstp-',sadstp
            endif
       endif
+      if (.not. rtdb_get(rtdb,'driver:oqstep',mt_log,1,oqstep)) then
+           oqstep = .true.
+           if(dbug) then
+              write(iw,*) 'using default value of -oqstep-',oqstep
+           endif
+      endif
 c
       if (util_print('information', print_low) .and. 
      $     (ga_nodeid().eq.0.or.dbug))  then
          write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd,
      1                                       modsad,moddir,
-     2                                       sadstp
+     2                                       sadstp, oqstep
       endif
 c
       nzfrz=0
@@ -211,23 +226,11 @@ c     ----- frozen coordinates ? if so .... -----
 c
       status = rtdb_parallel(.false.)
       if(ga_nodeid().eq.0) then
-         if(.not.geom_usr_get_nzfrz(geom,nzfrz)) then
-            if(dbug) then
-               write(iw,*) '-nzfrz- not found in -geomP- object'
-            endif
+         if(.not.geom_zmt_get_nzfrz(geom,nzfrz)) then
             nzfrz=0
          else
-            if(dbug) then
-               write(iw,*) '-nzfrz-     found in -geomP- object',nzfrz
-               write(iw,*) 'now read -izfrz-                   '
-            endif
-            if(.not.geom_usr_get_izfrz(geom,izfrz,nzfrz)) then
-               call errquit('geom_input: geom_usr_get_izfrz  failed',0)
-            endif
-            if(dbug) then
-               if(nzfrz.gt.0) then
-                  write(iw,*) 'izfrz = ',(izfrz(i),i=1,nzfrz)
-               endif
+            if(.not.geom_zmt_get_izfrz(geom,izfrz,nzfrz)) then
+               call errquit('geom_input: geom_zmt_get_izfrz  failed',0)
             endif
          endif
          call ga_brdcst(24+msgint,nzfrz,mitob(1     ),0)
@@ -243,8 +246,54 @@ c
          if(nzfrz.gt.0) then
             write(iw,9993) nzfrz
             write(iw,9992) (izfrz(i),i=1,nzfrz) 
+            if (.not. oqstep) write(6,*) 'freezing of variables',
+     $           ' will not be exact since qstep is not used'
          else
             write(iw,9991)
+         endif
+         if (nzvar .gt. 0 .and. oqstep) then
+            if (.not. geom_zmt_get_varinfo(geom,zvarname,zvarsign))
+     $           call errquit('hnd_optx: varinfo?',0)
+            write(6,*)
+            write(6,*) 'names of Z-matrix variables '
+            do i = 1, nzvar, 5
+               write(6,5432) (j,zvarname(j),j=i,min(nzvar,i+4))
+ 5432          format(1x,5(i4,1x,a8,2x))
+            enddo
+            write(6,*)
+            write(6,*) 'variables with the same non-blank name',
+     $           ' are constrained to be equal'
+            write(6,*)
+            do i = 1, nzvar
+               if (zvarname(i).ne.' ') then
+                  num = 0
+                  test = zvarname(i)
+                  do j = 1, nzvar
+                     if (zvarname(j).eq.test) then 
+                        num = num + 1
+                     endif
+                  enddo
+                  if (num .gt. 1) then
+                     write(6,5433) test(1:inp_strlen(test))
+ 5433                format(1x,'    variables named ',a8,' = '$)
+                     do j = 1, nzvar
+                        if (zvarname(j).eq.test) then 
+                           if (zvarsign(j).gt.0d0) then
+                              write(6,5434) j
+                           else
+                              write(6,5434) -j
+                           endif
+ 5434                      format(i5$)
+                           zvarname(j) = ' '
+                        endif
+                     enddo
+                     write(6,*)
+                  endif
+               endif
+            enddo
+         else if (nzvar .gt. 0) then
+            write(6,*) 'constraints will be not be exact since ',
+     $           'qstep is not used'
          endif
       endif
 c
@@ -259,15 +308,7 @@ c           mcoord = 3*nat
 c
       rstart=.false.
       excess=.false.
-      zcoord=.false.
       zcoord=nzmat.gt.0
-      if(dbug)  then
-         write(iw,*) 'nzmat,zcoord = ',nzmat,zcoord    
-         write(iw,*) 'nzfrz        = ',nzfrz
-         if(nzfrz.gt.0) then
-            write(iw,*) 'izfrz = ',(izfrz(i),i=1,nzfrz)
-         endif
-      endif
       if(zcoord) then
          call geom_zmt_icoord(rtdb,geom)
          ncart =3*nat
@@ -281,10 +322,6 @@ c
          ncoord=ncart
          mcoord=ncart
       endif
-      if(dbug)  then
-         write(iw,9997) nzvar,nvar,ncart,ncoord,mcoord
-      endif
-c
 c
 c     ----- initialize hessian matrix -----
 c
@@ -329,7 +366,7 @@ c
 c     ----- energy -----
 c
          time_start=util_wallsec()
-      call hnd_opt_energy(rtdb,geom)
+         call hnd_opt_energy(rtdb,geom)
          time_end  =util_wallsec()
          energy_time=time_end-time_start
          if(out) then
@@ -341,7 +378,7 @@ c
 c     ----- gradient -----
 c
          time_start=util_wallsec()
-      call hnd_opt_gradient(rtdb,geom)
+         call hnd_opt_gradient(rtdb,geom)
          time_end  =util_wallsec()
          gradient_time=time_end-time_start
          if(out) then
@@ -374,15 +411,10 @@ c
 c     ----- search direction -----
 c
       nserch=nserch+1
-      call hnd_opt_search_dir(rtdb)
+      call hnd_opt_search_dir(rtdb,geom)
       do i=1,ncoord
          ds(i)=dx(i)
       enddo
-      if(zcoord) then
-         call hnd_opt_tfds(rtdb,geom)               
-      endif
-c
-c     ----- linear search -----
 c
       if(alpha.eq.zero) then
          if(zcoord) then
@@ -399,7 +431,14 @@ c
             endif
          endif
       endif
-      call hnd_opt_search_lin(rtdb,geom,rstart,excess)
+c
+      if(zcoord) call hnd_opt_tfds(rtdb,geom)               
+      if (zcoord .and. (ncoord.eq.nzvar) .and. oqstep) then
+         call hnd_opt_search_lin_int(rtdb,geom,rstart,excess)
+      else
+         call hnd_opt_search_lin(rtdb,geom,rstart,excess)
+      endif
+c
       if(excess) then
          if (ga_nodeid().eq.0.or.dbug)  then
             write(iw,9995) nptopt
@@ -492,7 +531,8 @@ c
      4       ' hessian update selection option       (modupd) = ',i4,/,
      5       ' optimization to saddle point          (modsad) = ',i4,/,
      6       ' initial eigen-mode followed to saddle (moddir) = ',i4,/,
-     7       ' maximum step size to saddle           (sadstp) = ',f6.2)
+     7       ' maximum step size to saddle           (sadstp) = ',f6.2/
+     8       ' line search in internals              (oqstep) =    ',l1)
  9995 format(' maximum number of energy points reached. stop',
      1       ' currently -nptopt- = ',i5)
  9994 format(/,10x,19(1h-),
@@ -504,279 +544,118 @@ c
       end
       subroutine driver_input(rtdb)
       implicit none
-#include "rtdb.fh"
-#include "global.fh"
-#include "mafdecls.fh"
-      integer  rtdb
-      logical  status
-      logical  opt_input
-      logical  dbug
-      integer  ir, iw
-      double precision cvgopt,convggm,convgg,convge
-      double precision sadstp
-      integer nptopt,inhess,linopt,modupd,moddir,modsad
-      integer maxiter
-      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
-     1                                                     modsad,
-     2                  convggm,convgg,convge,maxiter
-      common/hnd_optsad/sadstp
-      common/hnd_iofile/ir,iw
-c
-      dbug=.false.
-c
-      call hnd_opt_input(rtdb)
-c
-      if(dbug) then
-         write(iw,*) 'in driver_input, before rtdb_put'
-         write(iw,*) 'cvgopt ',cvgopt
-         write(iw,*) 'nptopt ',nptopt
-         write(iw,*) 'linopt ',linopt
-         write(iw,*) 'inhess ',inhess
-         write(iw,*) 'modupd ',modupd
-         write(iw,*) 'modsad ',modsad
-         write(iw,*) 'moddir ',moddir
-         write(iw,*) 'sadstp ',sadstp
-         write(iw,*) 'maxiter',maxiter
-         write(iw,*) 'convggm',convggm
-         write(iw,*) 'convgg ',convgg
-         write(iw,*) 'convge ',convge
-      endif
-c
-      opt_input=.true.
-      status=rtdb_put(rtdb,'opt:driver',mt_log,1,opt_input) ! This for task
-      status=status.and.
-     &    rtdb_put(rtdb,'driver:cvgopt',mt_dbl,1,cvgopt)
-      status=status.and.
-     &    rtdb_put(rtdb,'driver:nptopt',mt_int,1,nptopt)
-      status=status.and.
-     &    rtdb_put(rtdb,'driver:inhess',mt_int,1,inhess)
-      status=status.and.
-     &    rtdb_put(rtdb,'driver:linopt',mt_int,1,linopt)
-      status=status.and.
-     &    rtdb_put(rtdb,'driver:modupd',mt_int,1,modupd)
-      status=status.and.
-     &    rtdb_put(rtdb,'driver:moddir',mt_int,1,moddir)
-      status=status.and.
-     &    rtdb_put(rtdb,'driver:modsad',mt_int,1,modsad)
-      status=status.and.
-     &    rtdb_put(rtdb,'driver:sadstp',mt_dbl,1,sadstp)
-      status=status.and.
-     &    rtdb_put(rtdb,'driver:convggm',mt_dbl,1,convggm)
-      status=status.and.
-     &    rtdb_put(rtdb,'driver:convgg',mt_dbl,1,convgg)
-      status=status.and.
-     &    rtdb_put(rtdb,'driver:convge',mt_dbl,1,convge)
-      status=status.and.
-     &    rtdb_put(rtdb,'driver:maxiter',mt_int,1,maxiter)
-      if(.not.status) then
-         call errquit('driver_input : rtdb_put failed',911)
-      endif
-c
-      if(dbug) then
-         write(iw,*) 'in driver_input, after  rtdb_put'
-         write(iw,*) 'cvgopt ',cvgopt
-         write(iw,*) 'nptopt ',nptopt
-         write(iw,*) 'linopt ',linopt
-         write(iw,*) 'inhess ',inhess
-         write(iw,*) 'modupd ',modupd
-         write(iw,*) 'modsad ',modsad
-         write(iw,*) 'moddir ',moddir
-         write(iw,*) 'sadstp ',sadstp
-         write(iw,*) 'maxiter',maxiter
-         write(iw,*) 'convggm',convggm
-         write(iw,*) 'convgg ',convgg
-         write(iw,*) 'convge ',convge
-      endif
-c
-      return
-      end
-      subroutine hnd_opt_input(rtdb)
-      implicit double precision (a-h,o-z)
 #include "inp.fh"
+#include "coptopt.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
 c
       integer rtdb
+      integer mxatom, mxcart, mxzmat, mxcoor
       parameter (mxatom=500)
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=1500)
 c                mxcoor=max(mxcart,mxzmat)
       character*255 field
-      logical       ready
-      logical       dbug
-      common/hnd_iofile/ir,iw
-      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
-     1                                                     modsad,
-     2                  convggm,convgg,convge,maxiter
+c
+      double precision sadstp
       common/hnd_optsad/sadstp
+      integer nzfrz,izfrz,iatfrz
       common/hnd_optfrz/nzfrz,izfrz(mxcoor),iatfrz(mxatom)
 c
-      dbug=.false.
+c     So that task knows that driver is in control
 c
-c     ----- default parameters for optimization driver -----
-c
-      cvgopt=8.0d-04
-      nptopt=20
-      linopt=10
-      inhess=0
-      modupd=1
-      modsad=0
-      moddir=1
-      sadstp=0.35d+00
-      do i=1,mxcoor
-         izfrz(i)=0
-      enddo
-      do i=1,mxatom
-         iatfrz(i)=0
-      enddo
-c
-      convggm=cvgopt
-      convgg =1.0d-01
-      convge =1.0d-03
+      if (.not. rtdb_put(rtdb,'opt:driver',mt_log,1,.true.))
+     $     call errquit('driver_input: rtdb_put failed',0)
 c
 c     ----- read values from input -----
 c
-      ifield=inp_cur_field()
-      if(dbug) then
-         write(iw,*) 'in hnd_opt_input, ifield = ',ifield
-      endif
-      ready=.false.
+ 10   if(.not.inp_read())
+     $     call errquit('hnd_opt_input: unexpected eof',911)
+      if (.not. inp_a(field))
+     $     call errquit('hnd_opt_input: failed to read field',911)
 c
-   10 continue
-      if(.not.inp_a(field)) then
+      if(inp_compare(.false.,'end',field)) then
+         return
 c
-         if(.not.inp_read()) then
-            write(iw,*)  'unexpected eof while reading ',
-     1                   'hnd_opt_input data'
-            call errquit('hnd_opt_input: unexpected eof',911)
-         else
-            if(dbug) then
-               write(iw,*) 'new line read in hnd_opt_input'
-            endif
-            go to 10
-         endif
+      else if(inp_compare(.false.,'cvgopt',field) .or. 
+     $        inp_compare(.false.,'thresh',field)) then
+         if(.not. inp_f(cvgopt))
+     $        call errquit('hnd_opt_input: cvgopt/thresh',911)
+         if (.not. rtdb_put(rtdb,'driver:cvgopt',mt_dbl,1,cvgopt))
+     $        call errquit('driver_input: rtdb put failed',0)
 c
-      else       
-         if(dbug) then
-            write(iw,*) 'in hnd_opt_input, field = ',field
-         endif
-         if(.not.ready) then
-            if(inp_compare(.false.,'driver',field)) then
-               ready=.true.
-               go to 10
-            else
-               write(iw,*) 'un-expected value of field'
-               call errquit('hnd_opt_input: misposition',911)
-            endif
-         endif
+      else if(inp_compare(.false.,'sadstp',field)) then
+         if(.not. inp_f(sadstp)) 
+     $        call errquit('hnd_opt_input: sadstp',911)
+         if (.not. rtdb_put(rtdb,'driver:sadstp',mt_dbl,1,sadstp))
+     $        call errquit('driver_input: rtdb put failed',0)
 c
-         if(inp_compare(.false.,'end',field)) then
-            go to 100
-         else
-            if(inp_compare(.false.,'cvgopt',field)) then
-               if(inp_f(dum)) then
-                  cvgopt =dum
-                  convggm=cvgopt
-                  go to 10
-               else
-                  call errquit('hnd_opt_input: cvgopt',911)
-               endif
-            elseif(inp_compare(.false.,'convggm',field)) then
-               if(inp_f(dum)) then
-                  cvgopt =dum
-                  convggm=cvgopt
-                  go to 10
-               else
-                  call errquit('hnd_opt_input: convggm',911)
-               endif
-            elseif(inp_compare(.false.,'sadstp',field)) then
-               if(inp_f(dum)) then
-                  sadstp=dum
-                  go to 10
-               else
-                  call errquit('hnd_opt_input: sadstp',911)
-               endif
-            elseif(inp_compare(.false.,'nptopt',field)) then
-               if(inp_i(idum)) then
-                  nptopt =idum
-                  maxiter=nptopt
-                  go to 10
-               else
-                  call errquit('hnd_opt_input: nptopt',911)
-               endif
-            elseif(inp_compare(.false.,'maxiter',field)) then
-               if(inp_i(idum)) then
-                  nptopt =idum
-                  maxiter=nptopt
-                  go to 10
-               else
-                  call errquit('hnd_opt_input: maxiter',911)
-               endif
-            elseif(inp_compare(.false.,'linopt',field)) then
-               if(inp_i(idum)) then
-                  linopt=idum
-                  go to 10
-               else
-                  call errquit('hnd_opt_input: linopt',911)
-               endif
-            elseif(inp_compare(.false.,'inhess',field)) then
-               if(inp_i(idum)) then
-                  inhess=idum
-                  go to 10
-               else
-                  call errquit('hnd_opt_input: inhess',911)
-               endif
-            elseif(inp_compare(.false.,'modupd',field)) then
-               if(inp_i(idum)) then
-                  modupd=idum
-                  go to 10
-               else
-                  call errquit('hnd_opt_input: modupd',911)
-               endif
-            elseif(inp_compare(.false.,'modsad',field)) then
-               if(inp_i(idum)) then
-                  modsad=idum
-                  go to 10
-               else
-                  call errquit('hnd_opt_input: modsad',911)
-               endif
-            elseif(inp_compare(.false.,'moddir',field)) then
-               if(inp_i(idum)) then
-                  moddir=idum
-                  go to 10
-               else
-                  call errquit('hnd_opt_input: moddir',911)
-               endif
-            elseif(inp_compare(.false.,'print',field)) then
-               call util_print_input(rtdb,'driver')
-            elseif(inp_compare(.false.,'noprint',field)) then
-               call util_print_input(rtdb,'driver')
-            endif
-         endif
+      else if(inp_compare(.false.,'nptopt',field) .or. 
+     $        inp_compare(.false.,'maxiter',field)) then
+         if(.not. inp_i(nptopt))
+     $        call errquit('hnd_opt_input: nptopt/maxiter',911)
+         if (.not. rtdb_put(rtdb,'driver:nptopt',mt_int,1,nptopt))
+     $        call errquit('driver_input: rtdb put failed',0)
 c
+      else if(inp_compare(.false.,'linopt',field)) then
+         if(.not. inp_i(linopt))
+     $        call errquit('hnd_opt_input: linopt',911)
+         if (.not. rtdb_put(rtdb,'driver:linopt',mt_int,1,linopt))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if (inp_compare(.false.,'clear',field)) then
+         call driver_opt_del_hess()
+c
+      else if(inp_compare(.false.,'inhess',field)) then
+         if(.not. inp_i(inhess)) 
+     $        call errquit('hnd_opt_input: inhess',911)
+         if (.not. rtdb_put(rtdb,'driver:inhess',mt_int,1,inhess))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if(inp_compare(.false.,'modupd',field)) then
+         if(.not. inp_i(modupd))
+     $        call errquit('hnd_opt_input: modupd',911)
+         if (.not. rtdb_put(rtdb,'driver:modupd',mt_int,1,modupd))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if(inp_compare(.false.,'modsad',field)) then
+         if(.not. inp_i(modsad))
+     $        call errquit('hnd_opt_input: modsad',911)
+         if (.not. rtdb_put(rtdb,'driver:modsad',mt_int,1,modsad))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if(inp_compare(.false.,'moddir',field)) then
+         if(.not. inp_i(moddir)) 
+     $        call errquit('hnd_opt_input: moddir',911)
+         if (.not. rtdb_put(rtdb,'driver:moddir',mt_int,1,moddir))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if(inp_compare(.false.,'print',field)) then
+         call util_print_input(rtdb,'driver')
+c
+      else if(inp_compare(.false.,'noprint',field)) then
+         call util_print_input(rtdb,'driver')
+c
+      else if (inp_compare(.false.,'qstep',field)) then
+         oqstep = .true.
+         if (.not. rtdb_put(rtdb,'driver:oqstep',mt_log,1,oqstep))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if (inp_compare(.false.,'noqstep',field)) then
+         oqstep = .false.
+         if (.not. rtdb_put(rtdb,'driver:oqstep',mt_log,1,oqstep))
+     $        call errquit('driver_input: rtdb put failed',0)
       endif
 c
-  100 continue
-      if(dbug) then
-         write(iw,*) 'in hnd_opt_input, after reading the input'
-         write(iw,*) 'cvgopt ',cvgopt
-         write(iw,*) 'nptopt ',nptopt
-         write(iw,*) 'linopt ',linopt
-         write(iw,*) 'inhess ',inhess
-         write(iw,*) 'modupd ',modupd
-         write(iw,*) 'modsad ',modsad
-         write(iw,*) 'moddir ',moddir
-         write(iw,*) 'maxiter',maxiter
-         write(iw,*) 'convggm',convggm
-         write(iw,*) 'convgg ',convgg
-         write(iw,*) 'convge ',convge
-      endif
+      goto 10                   ! While loop
 c
-      return
       end
       subroutine hnd_opt_gmax(rtdb)
       implicit double precision (a-h,o-z)
       integer  rtdb
 #include "global.fh"
+#include "coptopt.fh"
       parameter (mxatom=500)
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
@@ -786,15 +665,13 @@ c
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
-      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
-     1                                                     modsad,
-     2                  convggm,convgg,convge,maxiter
       common/hnd_optfrz/nzfrz,izfrz(mxcoor),iatfrz(mxatom)
       common/hnd_optvar/zcoord,ncoord,mcoord
       common/hnd_zmtpar/nzmat,nzvar,nvar
       data zero /0.0d+00/
 c
       gmax =zero
+      gnorm=zero
       do i=1,ncoord 
          frozen=.false.
          do iz=1,nzfrz
@@ -802,13 +679,11 @@ c
          enddo
          if(.not.frozen) then
             if(abs(g(i)).gt.gmax) gmax=abs(g(i))
+**            write(6,*) i, abs(g(i)), gmax
+            gnorm=gnorm+g(i)*g(i)
          endif
       enddo
 c
-      gnorm=zero
-      do i=1,ncoord
-         gnorm=gnorm+g(i)*g(i)
-      enddo
       gnorm=sqrt(gnorm)
 c
       return
@@ -821,6 +696,7 @@ c
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "util.fh"
+#include "coptopt.fh"
       integer    rtdb
       logical    cvged
       parameter (mxatom=500)
@@ -831,9 +707,6 @@ c
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
-      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
-     1                                                     modsad,
-     2                  convggm,convgg,convge,maxiter
 c
       if((ga_nodeid().eq.0) .and.
      $     util_print('optimization',print_low)) then
@@ -876,13 +749,6 @@ c
       if((ga_nodeid().eq.0.or.dbug) .and.
      $     util_print('optimization',print_low)) then
          write(iw,9999) nserch,npts
-         if(dbug) then
-            write(iw,9996)
-            do iat=1,nat
-               write(iw,9995) iat,(c(i,iat),i=1,3)
-            enddo
-            write(iw,9997)
-         endif
          if(.not.geom_print(geom)) 
      1     call errquit('hnd_opt_energy: print error',911)
       endif
@@ -1091,6 +957,9 @@ c
       integer nzmat, nzvar, nvar
       common/hnd_zmtpar/nzmat,nzvar,nvar
 c
+      integer nzfrz, izfrz, iatfrz
+      common/hnd_optfrz/nzfrz,izfrz(mxcoor),iatfrz(mxatom)
+c
       double precision c, zan
       integer nat
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
@@ -1101,8 +970,12 @@ c
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
 c
+      logical geom_zmt_get_varinfo
+      character*8 zvarname(mxcoor),test
+      double precision zvarsign(mxcoor)
       double precision gs(mxcoor)
-      integer ibi, i_ibi, i, ncart
+      integer ibi, i_ibi, i, ncart, j, num
+      double precision sum
       double precision zero
       data zero /0.0d+00/
 c
@@ -1149,6 +1022,43 @@ c
          write(iw,*) '-gs-'
          call hnd_prsq(g,1,ncart,ncart)
       endif
+c
+c     Apply constants and constraints to the gradient before
+c     it is used for upating the Hessian.
+c
+      if (nzfrz .gt. 0) then
+         do i = 1, nzfrz
+            if (dbug) write(6,*) ' Freezing ', izfrz(i)
+            g(izfrz(i)) = 0d0
+         enddo
+      endif
+c
+      if (.not. geom_zmt_get_varinfo(geom,zvarname,zvarsign))
+     $     call errquit('hnd_opt_tfgx: varinfo?',0)
+      do i = 1, nzvar
+         if (zvarname(i).ne.' ') then
+            sum = 0d0
+            num = 0
+            test = zvarname(i)
+            do j = 1, nzvar
+               if (zvarname(j).eq.test) then 
+                  sum = sum + g(j)*zvarsign(j)
+                  num = num + 1
+               endif
+            enddo
+            if (num .gt. 1) then
+               sum = sum / dble(num)
+               do j = 1, nzvar
+                  if (zvarname(j).eq.test) then 
+                     if(dbug)write(6,77) j, test, zvarsign(j), g(j),sum
+ 77                  format(' Constraining : ',i3,2x,a,2x,f3.1,2f10.6)
+                     g(j) = sum*zvarsign(j)
+                     zvarname(j) = ' '
+                  endif
+               enddo
+            endif
+         endif
+      enddo
 c
       return
       end
@@ -1569,6 +1479,7 @@ c::   -- read  information
 #include "global.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "coptopt.fh"
 C
 C      -----        INITIALIZE THE HESSIAN MATRIX           -----
 C      ----- IF -INHESS- EQUALS 1, INPUT THE HESSIAN MATRIX -----
@@ -1593,7 +1504,6 @@ C
       CHARACTER*8   ERRMSG
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OPTFIL/OPT_HESS_FIL
-      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       DIMENSION HSS (NCOOR,*)
@@ -1650,6 +1560,9 @@ C
             WRITE(IW,9999) NAT,NCART,NZVAR,NVAR,NINT,NCOOR,NZMAT
          ENDIF
          IF(INHESS.EQ.1) THEN
+            if (ga_nodeid().eq.0 .and. 
+     $           util_print('information', print_low)) write(6,*) 
+     $           ' Reading Hessian from previous frequency calculation'
 C
 C     ----- READ CARTESIAN HESSIAN FROM FILE AND TRANSFORM -----
 C
@@ -1780,9 +1693,9 @@ C
       SUBROUTINE HND_OPT_HSS_INIT_ZMT(HSSQ,NINT,ZMAT,IZMAT,SOME)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
       PARAMETER (ZERO=0.0D+00,      ONE=1.0D+00,
-     1           QUARTR=0.25D+00,   PT5=0.5D+00,
-     2           THIRD=ONE/3.0D+00, TOHB2=6.423D-02,
-     3           TOANGS=0.52917724924D+00)
+     1     QUARTR=0.25D+00,   PT5=0.5D+00,
+     2     THIRD=ONE/3.0D+00, TOHB2=6.423D-02,
+     3     TOANGS=0.52917724924D+00)
       PARAMETER (MXATOM=500)
       LOGICAL OUT 
       LOGICAL SOME
@@ -1803,61 +1716,61 @@ C
       DIMENSION IROW(86),DPARM(6,6),APARM(6,6),RCOV(86)
       DIMENSION ERRMSG(3)
       DATA ERRMSG /'PROGRAM ','STOP IN ','-HSSGSS-'/
-C
+C     
 C     --- DATA TABLES FOR BADGER'S RULES (SEE J.C.P. 2, 128(1934)) ---
-C        A GENERALIZED BADGER'S RULE, AND THESE PARAMETERS ARE FROM
-C        D.R.HERSCHBACH, V.W.LAURIE, J.CHEM.PHYS. 35, 458-463(1961).
-C
+C     A GENERALIZED BADGER'S RULE, AND THESE PARAMETERS ARE FROM
+C     D.R.HERSCHBACH, V.W.LAURIE, J.CHEM.PHYS. 35, 458-463(1961).
+C     
       DATA IROW  /2*1,8*2,8*3,18*4,18*5,32*6/
       DATA APARM /1.26D+00,1.66D+00,1.84D+00,1.98D+00,2.03D+00,2.03D+00,
-     1            1.66D+00,1.91D+00,2.28D+00,2.35D+00,2.33D+00,2.50D+00,
-     2            1.84D+00,2.28D+00,2.41D+00,2.52D+00,2.61D+00,2.60D+00,
-     3            1.98D+00,2.35D+00,2.52D+00,2.58D+00,2.66D+00,2.75D+00,
-     4            2.03D+00,2.33D+00,2.61D+00,2.66D+00,2.85D+00,2.76D+00,
-     5            2.03D+00,2.50D+00,2.60D+00,2.75D+00,2.75D+00,3.00D+00/
+     1     1.66D+00,1.91D+00,2.28D+00,2.35D+00,2.33D+00,2.50D+00,
+     2     1.84D+00,2.28D+00,2.41D+00,2.52D+00,2.61D+00,2.60D+00,
+     3     1.98D+00,2.35D+00,2.52D+00,2.58D+00,2.66D+00,2.75D+00,
+     4     2.03D+00,2.33D+00,2.61D+00,2.66D+00,2.85D+00,2.76D+00,
+     5     2.03D+00,2.50D+00,2.60D+00,2.75D+00,2.75D+00,3.00D+00/
       DATA DPARM /2.50D-02,0.30D+00,0.38D+00,0.49D+00,0.51D+00,0.81D+00,
-     1            0.30D+00,0.68D+00,0.74D+00,0.85D+00,0.68D+00,0.97D+00,
-     2            0.38D+00,0.74D+00,1.18D+00,1.02D+00,1.28D+00,0.84D+00,
-     3            0.49D+00,0.85D+00,1.02D+00,1.41D+00,0.86D+00,1.14D+00,
-     4            0.51D+00,0.68D+00,1.28D+00,0.86D+00,1.62D+00,1.25D+00,
-     5            0.81D+00,0.97D+00,0.84D+00,1.14D+00,1.25D+00,1.83D+00/
-C
-C      COVALENT RADII FROM J.EMSLEY, "THE ELEMENTS", 2ND EDITION, 1991
-C      EXCEPT VAN DER WAALS RADII FOR HE,NE,AR,KR (SAME SOURCE),
-C      AND GUESSES FOR NA,V,CR,RB,TC,PM,EU,YB,AT,RN
-C
+     1     0.30D+00,0.68D+00,0.74D+00,0.85D+00,0.68D+00,0.97D+00,
+     2     0.38D+00,0.74D+00,1.18D+00,1.02D+00,1.28D+00,0.84D+00,
+     3     0.49D+00,0.85D+00,1.02D+00,1.41D+00,0.86D+00,1.14D+00,
+     4     0.51D+00,0.68D+00,1.28D+00,0.86D+00,1.62D+00,1.25D+00,
+     5     0.81D+00,0.97D+00,0.84D+00,1.14D+00,1.25D+00,1.83D+00/
+C     
+C     COVALENT RADII FROM J.EMSLEY, "THE ELEMENTS", 2ND EDITION, 1991
+C     EXCEPT VAN DER WAALS RADII FOR HE,NE,AR,KR (SAME SOURCE),
+C     AND GUESSES FOR NA,V,CR,RB,TC,PM,EU,YB,AT,RN
+C     
       DATA (RCOV(NUCZ),NUCZ=1,2)/0.30D+00,1.22D+00/
       DATA (RCOV(NUCZ),NUCZ=3,10)
-     1  /1.23D+00,0.89D+00,0.88D+00,0.77D+00,
-     2   0.70D+00,0.66D+00,0.58D+00,1.60D+00/
+     1     /1.23D+00,0.89D+00,0.88D+00,0.77D+00,
+     2     0.70D+00,0.66D+00,0.58D+00,1.60D+00/
       DATA (RCOV(NUCZ),NUCZ=11,18)
-     1  /1.66D+00,1.36D+00,1.25D+00,1.17D+00,
-     2   1.10D+00,1.04D+00,0.99D+00,1.91D+00/
+     1     /1.66D+00,1.36D+00,1.25D+00,1.17D+00,
+     2     1.10D+00,1.04D+00,0.99D+00,1.91D+00/
       DATA (RCOV(NUCZ),NUCZ=19,36)
-     1  /2.03D+00,1.74D+00,
-     2   1.44D+00,1.32D+00,1.22D+00,1.19D+00,1.17D+00,
-     3  1.165D+00,1.16D+00,1.15D+00,1.17D+00,1.25D+00,
-     4   1.25D+00,1.22D+00,1.21D+00,1.17D+00,1.14D+00,1.98D+00/
+     1     /2.03D+00,1.74D+00,
+     2     1.44D+00,1.32D+00,1.22D+00,1.19D+00,1.17D+00,
+     3     1.165D+00,1.16D+00,1.15D+00,1.17D+00,1.25D+00,
+     4     1.25D+00,1.22D+00,1.21D+00,1.17D+00,1.14D+00,1.98D+00/
       DATA (RCOV(NUCZ),NUCZ=37,54)
-     1  /2.22D+00,1.92D+00,
-     2   1.62D+00,1.45D+00,1.34D+00,1.29D+00,1.27D+00,
-     3   1.24D+00,1.25D+00,1.28D+00,1.34D+00,1.41D+00,
-     4   1.50D+00,1.40D+00,1.41D+00,1.37D+00,1.33D+00,2.09D+00/
+     1     /2.22D+00,1.92D+00,
+     2     1.62D+00,1.45D+00,1.34D+00,1.29D+00,1.27D+00,
+     3     1.24D+00,1.25D+00,1.28D+00,1.34D+00,1.41D+00,
+     4     1.50D+00,1.40D+00,1.41D+00,1.37D+00,1.33D+00,2.09D+00/
       DATA (RCOV(NUCZ),NUCZ=55,86)
-     1  /2.35D+00,1.98D+00,
-     2   1.69D+00,1.65D+00,1.65D+00,1.64D+00,1.65D+00,1.66D+00,1.65D+00,
-     3   1.61D+00,1.59D+00,1.59D+00,1.58D+00,1.57D+00,1.56D+00,1.56D+00,
-     4   1.56D+00,1.44D+00,1.34D+00,1.30D+00,1.28D+00,
-     5   1.26D+00,1.26D+00,1.29D+00,1.34D+00,1.44D+00,
-     6   1.55D+00,1.54D+00,1.52D+00,1.53D+00,1.50D+00,2.20D+00/
-C
+     1     /2.35D+00,1.98D+00,
+     2     1.69D+00,1.65D+00,1.65D+00,1.64D+00,1.65D+00,1.66D+00,1.65D0,
+     3     1.61D+00,1.59D+00,1.59D+00,1.58D+00,1.57D+00,1.56D+00,1.56D0,
+     4     1.56D+00,1.44D+00,1.34D+00,1.30D+00,1.28D+00,
+     5     1.26D+00,1.26D+00,1.29D+00,1.34D+00,1.44D+00,
+     6     1.55D+00,1.54D+00,1.52D+00,1.53D+00,1.50D+00,2.20D+00/
+C     
       DATA GUESS,GUESS1,GUESS2 /'GUESS   ','GUESS1  ','GUESS2  '/
-C
+C     
       DIST(IAT,JAT)=SQRT((C(1,IAT)-C(1,JAT))**2+
-     1                   (C(2,IAT)-C(2,JAT))**2+
-     1                   (C(3,IAT)-C(3,JAT))**2) * TOANGS
+     1     (C(2,IAT)-C(2,JAT))**2+
+     1     (C(3,IAT)-C(3,JAT))**2) * TOANGS
       BADZ(NUCZ) = NUCZ.LE.0.OR.NUCZ.GT.86
-C
+C     
       DBUG=.FALSE.
       OUT =.FALSE.
       OUT =OUT.OR.DBUG
@@ -1866,18 +1779,18 @@ C
          WRITE(IW,9168)
          WRITE(IW,9188) NAT,NVAR,NZVAR,NINT,NZMAT
       ENDIF
-C
+C     
 C     ----- THIS ROUTINE MAKES A DIAGONAL GUESS OF THE HESSIAN -----
-C                     IN INTERNAL COORDINATE SPACE.
-C
+C     IN INTERNAL COORDINATE SPACE.
+C     
       DO J=1,NZVAR
          DO I=1,NZVAR
             HSSQ(I,J)=ZERO
          ENDDO
       ENDDO
-C
+C     
 C     -----          INTERNAL COORDINATES                      -----
-C
+C     
 C     FOR MORE INFORMATION ON -GUESS1- OR -GUESS2- SEE
 C     H.B.SCHLEGEL, THEORET.CHIM.ACTA, 66, 333-340 (1984).
 C     T.H.FISCHER, J.ALMLOF, J.PHYS.CHEM. 96, 9786-9774 (1992).
@@ -1885,7 +1798,7 @@ C     -GUESS1- AND -GUESS2- ARE UNDOCUMENTED WAYS TO GET PURE
 C     BADGER'S RULES, OR PURE FISCHER/ALMLOF RULES.
 C     THE DEFAULT -GUESS- USES F/A FOR STRETCHES AND BENDS,
 C     BUT NOT FOR TORSIONS OR OUT-OF-PLANE BENDS.
-C
+C     
       IF(DBUG) THEN
          WRITE(IW,9208) (IZMAT(IZ),IZ=1,NZMAT)
          WRITE(IW,9128) ( ZMAT(IZ),IZ=1,NZVAR)
@@ -1894,7 +1807,7 @@ C
       IF(OUT) THEN
          WRITE(IW,9008) HGUESS
       ENDIF
-C
+C     
       IDEGEN=0
       IZ=1
       DO 190 I=1,NZVAR
@@ -1907,156 +1820,151 @@ C
          IZB = 0
          IZC = 0
          IZD = 0
-C
-C                  BOND STRETCH, B-A
-C
-         IF(ITYPE.GT.1) GO TO 120
-         IZ1 = IZMAT(IZ+1)
-         IZ2 = IZMAT(IZ+2)
-         IZA = NUC(IZ1)
-         IZB = NUC(IZ2)
-         IF(BADZ(IZA)  .OR.  BADZ(IZB)) THEN
-            HSSQ(I,I) = THIRD
-            GO TO 180
-         ENDIF
-C
-         IROWA = IROW(IZA)
-         IROWB = IROW(IZB)
-         AIJ = APARM(IROWA,IROWB)
-         DIJ = DPARM(IROWA,IROWB)
-         RRR = TOANGS*ZMAT(I)
-         HII = (AIJ-DIJ)/(RRR-DIJ)
-         HESS1 = TOHB2 * HII * HII * HII
-C
-         RAB = DIST(IZ1,IZ2)
-         CAB = RCOV(IZA) + RCOV(IZB)
-         HESS2 = 0.3601 * EXP(-1.944*(RAB - CAB))
-C
-         IF(HGUESS.EQ.GUESS ) HSSQ(I,I) = HESS2
-         IF(HGUESS.EQ.GUESS1) HSSQ(I,I) = HESS1
-         IF(HGUESS.EQ.GUESS2) HSSQ(I,I) = HESS2
-         GO TO 180
-C
-C                  ANGLE BEND, B-A-C
-C
-  120    CONTINUE
-         IF(ITYPE.GT.2) GO TO 130
-         IZ1 = IZMAT(IZ+1)
-         IZ2 = IZMAT(IZ+2)
-         IZ3 = IZMAT(IZ+3)
-         IZB = NUC(IZ1)
-         IZA = NUC(IZ2)
-         IZC = NUC(IZ3)
-         IF(BADZ(IZA)  .OR.  BADZ(IZB)  .OR.  BADZ(IZC)) THEN
-            HSSQ(I,I) = QUARTR
-            GO TO 180
-         ENDIF
-C
-         HESS1 = QUARTR
-         IF(IZB.EQ.1  .OR.  IZC.EQ.1) HESS1 = 0.16D+00
-C
-         RAB = DIST(IZ2,IZ1)
-         RAC = DIST(IZ2,IZ3)
-         CAB = RCOV(IZA) + RCOV(IZB)
-         CAC = RCOV(IZA) + RCOV(IZC)
-         HESS2 = 0.089 + 0.11 * (CAB*CAC)**0.42
-     1                   * EXP(-0.44*(RAB + RAC - CAB - CAC))
-C
-         IF(HGUESS.EQ.GUESS ) HSSQ(I,I) = HESS2
-         IF(HGUESS.EQ.GUESS1) HSSQ(I,I) = HESS1
-         IF(HGUESS.EQ.GUESS2) HSSQ(I,I) = HESS2
-         GO TO 180
-C
-C                  TORSION, D-A-B-C
-C
-  130    CONTINUE
-         IF(ITYPE.GT.3) GO TO 140
-         IZ1 = IZMAT(IZ+1)
-         IZ2 = IZMAT(IZ+2)
-         IZ3 = IZMAT(IZ+3)
-         IZ4 = IZMAT(IZ+4)
-         IZD = NUC(IZ1)
-         IZA = NUC(IZ2)
-         IZB = NUC(IZ3)
-         IZC = NUC(IZ4)
-         IF(BADZ(IZA) .OR. BADZ(IZB) .OR. BADZ(IZC) .OR. BADZ(IZD)) THEN
-            HSSQ(I,I) = QUARTR
-            GO TO 180
-         ENDIF
-C
-         HESS1 = QUARTR
-C
-C            COUNT BONDS TO ATOMS A AND B, EXCEPT FOR A-B ITSELF
-C
-         NBA = 0
-         NBB = 0
-         DO 135 J=1,NAT
-            IZJ = NUC(J)
-            IF(IZJ.LE.0) GO TO 135
-            IF(IZJ.LE.86) THEN
-               CAJ = RCOV(IZA) + RCOV(IZJ)
-               CBJ = RCOV(IZB) + RCOV(IZJ)
-            ELSE
-               CAJ = RCOV(IZA) + 1.70D+00
-               CBJ = RCOV(IZB) + 1.70D+00
+C     
+C     BOND STRETCH, B-A
+C     
+         if (itype .eq. 1) then
+            IZ1 = IZMAT(IZ+1)
+            IZ2 = IZMAT(IZ+2)
+            IZA = NUC(IZ1)
+            IZB = NUC(IZ2)
+            IF(BADZ(IZA)  .OR.  BADZ(IZB)) THEN
+               HSSQ(I,I) = THIRD
+               GO TO 180
             ENDIF
-            IF(DIST(IZ2,J)  .LT.  1.2D+00*CAJ  .AND.
-     1         J.NE.IZ2  .AND.  J.NE.IZ3) NBA = NBA+1
-            IF(DIST(IZ3,J)  .LT.  1.2D+00*CBJ  .AND.
-     1         J.NE.IZ3  .AND.  J.NE.IZ2) NBB = NBB+1
-  135    CONTINUE
-C
+C     
+            IROWA = IROW(IZA)
+            IROWB = IROW(IZB)
+            AIJ = APARM(IROWA,IROWB)
+            DIJ = DPARM(IROWA,IROWB)
+            RRR = TOANGS*ZMAT(I)
+            HII = (AIJ-DIJ)/(RRR-DIJ)
+            HESS1 = TOHB2 * HII * HII * HII
+C     
+            RAB = DIST(IZ1,IZ2)
+            CAB = RCOV(IZA) + RCOV(IZB)
+            HESS2 = 0.3601 * EXP(-1.944*(RAB - CAB))
+C     
+            IF(HGUESS.EQ.GUESS ) HSSQ(I,I) = HESS2
+            IF(HGUESS.EQ.GUESS1) HSSQ(I,I) = HESS1
+            IF(HGUESS.EQ.GUESS2) HSSQ(I,I) = HESS2
+C     
+C     ANGLE BEND, B-A-C
+C     
+         else if (itype.eq.2 .or. itype.eq.7) then
+            IZ1 = IZMAT(IZ+1)
+            IZ2 = IZMAT(IZ+2)
+            IZ3 = IZMAT(IZ+3)
+            IZB = NUC(IZ1)
+            IZA = NUC(IZ2)
+            IZC = NUC(IZ3)
+            IF(BADZ(IZA)  .OR.  BADZ(IZB)  .OR.  BADZ(IZC)) THEN
+               HSSQ(I,I) = QUARTR
+               GO TO 180
+            ENDIF
+C     
+            HESS1 = QUARTR
+            IF(IZB.EQ.1  .OR.  IZC.EQ.1) HESS1 = 0.16D+00
+C     
+            RAB = DIST(IZ2,IZ1)
+            RAC = DIST(IZ2,IZ3)
+            CAB = RCOV(IZA) + RCOV(IZB)
+            CAC = RCOV(IZA) + RCOV(IZC)
+            HESS2 = 0.089 + 0.11 * (CAB*CAC)**0.42
+     1           * EXP(-0.44*(RAB + RAC - CAB - CAC))
+C     
+            IF(HGUESS.EQ.GUESS ) HSSQ(I,I) = HESS2
+            IF(HGUESS.EQ.GUESS1) HSSQ(I,I) = HESS1
+            IF(HGUESS.EQ.GUESS2) HSSQ(I,I) = HESS2
+C     
+C     TORSION, D-A-B-C
+C     
+         else if (itype .eq. 3) then
+            IZ1 = IZMAT(IZ+1)
+            IZ2 = IZMAT(IZ+2)
+            IZ3 = IZMAT(IZ+3)
+            IZ4 = IZMAT(IZ+4)
+            IZD = NUC(IZ1)
+            IZA = NUC(IZ2)
+            IZB = NUC(IZ3)
+            IZC = NUC(IZ4)
+            IF(BADZ(IZA).OR.BADZ(IZB).OR.BADZ(IZC).OR.BADZ(IZD))THEN
+               HSSQ(I,I) = QUARTR
+               GO TO 180
+            ENDIF
+C     
+            HESS1 = QUARTR
+C     
+C     COUNT BONDS TO ATOMS A AND B, EXCEPT FOR A-B ITSELF
+C     
+            NBA = 0
+            NBB = 0
+            DO 135 J=1,NAT
+               IZJ = NUC(J)
+               IF(IZJ.LE.0) GO TO 135
+               IF(IZJ.LE.86) THEN
+                  CAJ = RCOV(IZA) + RCOV(IZJ)
+                  CBJ = RCOV(IZB) + RCOV(IZJ)
+               ELSE
+                  CAJ = RCOV(IZA) + 1.70D+00
+                  CBJ = RCOV(IZB) + 1.70D+00
+               ENDIF
+               IF(DIST(IZ2,J)  .LT.  1.2D+00*CAJ  .AND.
+     1              J.NE.IZ2  .AND.  J.NE.IZ3) NBA = NBA+1
+               IF(DIST(IZ3,J)  .LT.  1.2D+00*CBJ  .AND.
+     1              J.NE.IZ3  .AND.  J.NE.IZ2) NBB = NBB+1
+ 135        CONTINUE
+C     
 C     THE FACTOR 14.0 IN PREEXP SEEMS LARGE, SO BRACKET THE RESULT
-C
-         RAB = DIST(IZ2,IZ3)
-         CAB = RCOV(IZA) + RCOV(IZB)
-         PREEXP = 14.0 * (NBA+NBB)**0.57 / (RAB*CAB)**4
-         HESS2 = 0.0015 + PREEXP * EXP(-2.85*(RAB-CAB))
-         IF(HESS2.GT.0.30D+00) HESS2 = 0.30D+00
-         IF(HESS2.LT.0.05D+00) HESS2 = 0.05D+00
-C
-         IF(HGUESS.EQ.GUESS ) HSSQ(I,I) = HESS1
-         IF(HGUESS.EQ.GUESS1) HSSQ(I,I) = HESS1
-         IF(HGUESS.EQ.GUESS2) HSSQ(I,I) = HESS2
-         GO TO 180
-C
-C                  OUT OF PLANE BEND, X-A-B-C, X IS HOOKED TO A
-C
-  140    CONTINUE
-         IF(ITYPE.GT.4) GO TO 150
-         IZ1 = IZMAT(IZ+1)
-         IZ2 = IZMAT(IZ+2)
-         IZ3 = IZMAT(IZ+3)
-         IZ4 = IZMAT(IZ+4)
-         IZX = NUC(IZ1)
-         IZA = NUC(IZ2)
-         IZB = NUC(IZ3)
-         IZC = NUC(IZ4)
-         IF(BADZ(IZA) .OR. BADZ(IZB) .OR. BADZ(IZC) .OR. BADZ(IZX)) THEN
-            HSSQ(I,I) = QUARTR
-            GO TO 180
-         ENDIF
-C
-         HESS1 = QUARTR
-C
-         CAX = RCOV(IZA) + RCOV(IZX)
-         CAB = RCOV(IZA) + RCOV(IZB)
-         CAC = RCOV(IZA) + RCOV(IZC)
-         RAX = DIST(IZ1,IZ2)
-         PREEXP = 0.0061 * (CAB*CAC)**0.80 * (COS(ZMAT(I)))**4.00
-         HESS2 = 0.0025 + PREEXP * EXP(-3.00*(RAX-CAX))
-C
-         IF(HGUESS.EQ.GUESS ) HSSQ(I,I) = HESS1
-         IF(HGUESS.EQ.GUESS1) HSSQ(I,I) = HESS1
-         IF(HGUESS.EQ.GUESS2) HSSQ(I,I) = HESS2
-         GO TO 180
-C
-C                  ALL OTHER COORDINATE TYPES...
-C
-  150    CONTINUE
-         HSSQ(I,I)=QUARTR
-C
-  180    CONTINUE
+C     
+            RAB = DIST(IZ2,IZ3)
+            CAB = RCOV(IZA) + RCOV(IZB)
+            PREEXP = 14.0 * (NBA+NBB)**0.57 / (RAB*CAB)**4
+            HESS2 = 0.0015 + PREEXP * EXP(-2.85*(RAB-CAB))
+            IF(HESS2.GT.0.30D+00) HESS2 = 0.30D+00
+            IF(HESS2.LT.0.05D+00) HESS2 = 0.05D+00
+C     
+            IF(HGUESS.EQ.GUESS ) HSSQ(I,I) = HESS1
+            IF(HGUESS.EQ.GUESS1) HSSQ(I,I) = HESS1
+            IF(HGUESS.EQ.GUESS2) HSSQ(I,I) = HESS2
+C     
+C     OUT OF PLANE BEND, X-A-B-C, X IS HOOKED TO A
+C     
+         else if (itype .eq. 4) then
+            IZ1 = IZMAT(IZ+1)
+            IZ2 = IZMAT(IZ+2)
+            IZ3 = IZMAT(IZ+3)
+            IZ4 = IZMAT(IZ+4)
+            IZX = NUC(IZ1)
+            IZA = NUC(IZ2)
+            IZB = NUC(IZ3)
+            IZC = NUC(IZ4)
+            IF(BADZ(IZA) .OR. BADZ(IZB) .OR. BADZ(IZC) .OR. 
+     $           BADZ(IZX)) THEN
+               HSSQ(I,I) = QUARTR
+               GO TO 180
+            ENDIF
+C     
+            HESS1 = QUARTR
+C     
+            CAX = RCOV(IZA) + RCOV(IZX)
+            CAB = RCOV(IZA) + RCOV(IZB)
+            CAC = RCOV(IZA) + RCOV(IZC)
+            RAX = DIST(IZ1,IZ2)
+            PREEXP = 0.0061 * (CAB*CAC)**0.80 * (COS(ZMAT(I)))**4.00
+            HESS2 = 0.0025 + PREEXP * EXP(-3.00*(RAX-CAX))
+C     
+            IF(HGUESS.EQ.GUESS ) HSSQ(I,I) = HESS1
+            IF(HGUESS.EQ.GUESS1) HSSQ(I,I) = HESS1
+            IF(HGUESS.EQ.GUESS2) HSSQ(I,I) = HESS2
+C     
+C     ALL OTHER COORDINATE TYPES...
+C     
+         else 
+            HSSQ(I,I)=QUARTR
+         endif
+C     
+ 180     CONTINUE
          IF(ITYPE.EQ.1) IZ=IZ+3
          IF(ITYPE.EQ.2) IZ=IZ+4
          IF(ITYPE.EQ.3) IZ=IZ+5
@@ -2067,121 +1975,58 @@ C
             IF(IDEGEN.EQ.2) IDEGEN=0
          ENDIF
          IF(ITYPE.EQ.6) IZ=IZ+6
-         IF(ITYPE.EQ.7) IZ=IZ+7
+         IF(ITYPE.EQ.7) IZ=IZ+5 ! RJH WAS 7 ... only place 7 appeared????
          IF(OUT) THEN
             WRITE(IW,9148) I,ITYPE,IZ1,IZ2,IZ3,IZ4,
-     1                             IZA,IZB,IZC,IZD,HSSQ(I,I)
+     1           IZA,IZB,IZC,IZD,HSSQ(I,I)
          ENDIF
-  190 CONTINUE
-C
-c--
+ 190  CONTINUE
+C     
+c--   
 c     DO J=1,NZVAR
-c        DO I=1,NZVAR
-c           HSSQ(I,J)=ZERO
-c        ENDDO
-c        HSSQ(J,J)=0.5D+00
+c     DO I=1,NZVAR
+c     HSSQ(I,J)=ZERO
 c     ENDDO
-c--
+c     HSSQ(J,J)=0.5D+00
+c     ENDDO
+c--   
       IF(OUT) THEN
          WRITE(IW,9048)
          CALL HND_PRSQ(HSSQ,NZVAR,NZVAR,NINT)
       ENDIF
-C
+C     
       RETURN
  9208 FORMAT(' IZMAT = ',12I4)
  9188 FORMAT(' IN  OPT_HSS-INIT_ZMT ,', 
-     1       ' NAT,NVAR,NZVAR,NINT,NZMAT = ',5I4)
+     1     ' NAT,NVAR,NZVAR,NINT,NZMAT = ',5I4)
  9168 FORMAT(' IN  OPT_HSS_INIT_ZMT , GUESS INTERNAL HESSIAN ')
  9148 FORMAT(' I,ITYPE,HSSQ(I,I) = ',2I5,8I3,F12.8)
  9128 FORMAT('  ZMAT = ',5F7.3)
  9048 FORMAT(/,1X,38(1H-),
-     1       /,1X,'INITIAL -INTERN.COORD.- HESSIAN MATRIX',
-     2       /,1X,38(1H-))
+     1     /,1X,'INITIAL -INTERN.COORD.- HESSIAN MATRIX',
+     2     /,1X,38(1H-))
  9008 FORMAT(' IN  OPT_HSS_INIT_ZMT , HGUESS = ',A8) 
       END
-c$$$      logical function driver_opt_opn_hess()
-c$$$      implicit none
-c$$$#include "mafdecls.fh"
-c$$$#include "tcgmsg.fh"
-c$$$#include "msgtypesf.h"
-c$$$#include "global.fh"
-c$$$#include "rtdb.fh"
-c$$$#include "util.fh"
-c$$$
-c$$$c
-c$$$      character*255 opt_hess_fil
-c$$$      character*8   errmsg
-c$$$c      logical       status
-c$$$c
-c$$$      integer       ir
-c$$$      integer       iw
-c$$$      integer       ift
-c$$$      logical       dbug
-c$$$      common/hnd_iofile/ir,iw
-c$$$      common/hnd_optfil/opt_hess_fil
-c$$$      dimension errmsg(3)
-c$$$      data errmsg   /'program ','stop in ','opn_hess'/
-c$$$      data ift      /31/
-c$$$c
-c$$$      dbug=util_print('hess_fil', print_debug)
-c$$$c
-c$$$      call util_file_name('driver',.false.,.false.,opt_hess_fil)
-c$$$      open(unit=ift,file=opt_hess_fil,form='unformatted',
-c$$$     1     access='sequential',status='unknown',err=911)
-c$$$      if(dbug) then
-c$$$         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
-c$$$      endif
-c$$$      driver_opt_opn_hess=.true.
-c$$$      return
-c$$$c
-c$$$  911 continue
-c$$$      if(dbug) then
-c$$$         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
-c$$$      endif
-c$$$      call hnd_hnderr(3,errmsg)
-c$$$      driver_opt_opn_hess=.false.
-c$$$      return
-c$$$      end
-c$$$      logical function driver_opt_cls_hess()
-c$$$      implicit none
-c$$$#include "mafdecls.fh"
-c$$$#include "tcgmsg.fh"
-c$$$#include "msgtypesf.h"
-c$$$#include "global.fh"
-c$$$#include "rtdb.fh"
-c$$$#include "util.fh"
-c$$$c
-c$$$      character*255 opt_hess_fil
-c$$$      character*8   errmsg
-c$$$c      logical       status
-c$$$c
-c$$$      integer       ir
-c$$$      integer       iw
-c$$$      integer       ift
-c$$$      logical       dbug
-c$$$      common/hnd_iofile/ir,iw
-c$$$      common/hnd_optfil/opt_hess_fil
-c$$$      dimension errmsg(3)
-c$$$      data errmsg   /'program ','stop in ','cls_hess'/
-c$$$      data ift      /31/
-c$$$c
-c$$$      dbug=util_print('hess_fil', print_debug)
-c$$$c
-c$$$      close(unit=ift,status='keep',err=911)
-c$$$      if(dbug) then
-c$$$         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
-c$$$      endif
-c$$$      driver_opt_cls_hess=.true.
-c$$$      return
-c$$$c
-c$$$  911 continue
-c$$$      if(dbug) then
-c$$$         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
-c$$$      endif
-c$$$      call hnd_hnderr(3,errmsg)
-c$$$      driver_opt_cls_hess=.false.
-c$$$      return
-c$$$      end
+      subroutine driver_opt_del_hess()
+      implicit none
+#include "util.fh"
+c
+c     Delete the Hessian information restart file
+c     
+      character*255 opt_hess_fil
+c
+      call util_file_name('drv.hess',
+     1     .false.,.false.,opt_hess_fil)
+c
+      call util_file_unlink(opt_hess_fil)
+c
+      if (util_print('information',print_low)) then
+         write(6,*)
+         write(6,*) ' Deleted DRIVER Hessian restart file '
+         write(6,*)
+      endif
+c
+      end
       logical function driver_opt_put_hess(hess,nint,mint)   
       implicit none
 #include "mafdecls.fh"
@@ -2304,7 +2149,7 @@ c
       return
 c
       end
-      subroutine hnd_opt_search_dir(rtdb)
+      subroutine hnd_opt_search_dir(rtdb,geom)
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -2313,7 +2158,7 @@ c
 #include "geom.fh"
 #include "util.fh"
 c
-      integer    rtdb
+      integer    rtdb, geom
       logical    status
       logical    driver_opt_get_hess
       logical    driver_opt_put_hess
@@ -2479,7 +2324,7 @@ c
          else
             call hnd_opt_dir_search(ncoord,
      1      x(i10),x(i20),x(i30),x(i40),x(i50),x(i60),x(i70),
-     2      ndim1,zcoord)
+     2      ndim1,zcoord,geom)
          endif
 c
 c     ----- transform back if needed and store hessian -----
@@ -2560,7 +2405,7 @@ c
       data errmsg /'program stop in -eckart-'/
 c
       dbug=.false.
-      out =.true.
+      out =.false.
       out =out.or.dbug
 c
       ncart=3*nat
@@ -2766,6 +2611,7 @@ c
       SUBROUTINE HND_OPT_BKR_SEARCH(NVAR,
      1           HESS,HESVEC,HESST,HESEIG,HESEDM,T,IA,NDIM,ZCOORD)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "coptopt.fh"
 C
 C     ----- SELECT SEARCH DIRECTION -----
 C
@@ -2782,8 +2628,6 @@ C
      1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
-      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR,
-     1                                                     MODSAD
       COMMON/HND_OPTFRZ/NZFRZ,IZFRZ(MXCOOR),IATFRZ(MXATOM)
       DIMENSION HESS(NDIM,*),HESVEC(NDIM,*),HESST(*),HESEIG(*)
       DIMENSION HESEDM(*),T(*),IA(*)
@@ -2793,7 +2637,6 @@ C
       DATA SMALL  /1.0D-04/
       DATA DAMP1  /5.0D+00/
       DATA DAMP2  /2.0D+00/
-      DATA HUNDRD /1.0D+02/
       DATA TENM1  /1.0D-01/
 C
       DBUG=.FALSE.
@@ -2875,11 +2718,14 @@ C
  9988 FORMAT(' IN BKR_SEARCH, CURRENT GRADIENT ')
       END
       SUBROUTINE HND_OPT_DIR_SEARCH(NVAR,
-     1           HESS,HESVEC,HESST,HESEIG,HESEDM,T,IA,NDIM,ZCOORD)
+     1           HESS,HESVEC,HESST,HESEIG,HESEDM,T,IA,NDIM,ZCOORD,
+     $     geom)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "coptopt.fh"
 C
 C     ----- SELECT SEARCH DIRECTION -----
 C
+      integer geom
       LOGICAL   OUT
       LOGICAL   DBUG
       LOGICAL   CVGED
@@ -2893,9 +2739,10 @@ C
      1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
-      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR,
-     1                                                     MODSAD
       COMMON/HND_OPTFRZ/NZFRZ,IZFRZ(MXCOOR),IATFRZ(MXATOM)
+      character*8 zvarname(mxcoor),test
+      double precision zvarsign(mxcoor)
+      logical geom_zmt_get_varinfo
       DIMENSION HESS(NDIM,*),HESVEC(NDIM,*),HESST(*),HESEIG(*)
       DIMENSION HESEDM(*),T(*),IA(*)
       DATA ZERO   /0.0D+00/
@@ -2938,7 +2785,7 @@ C
                HESS(I,J)=ZERO
                HESS(J,I)=ZERO
             ENDDO
-            HESS(I,I)=HUNDRD
+            HESS(I,I)=  1d9  ! RJH ... was HUNDRD
          ENDDO
       ENDIF
 C
@@ -3051,12 +2898,52 @@ C
          DX(I)=-DUM
       ENDDO
 C
+c
+c     Apply constants and constraints to the gradient before
+c     it is used for upating the Hessian.
+c
+
       IF(NZFRZ.GT.0) THEN
          DO I=1,NZFRZ
             IZ=IZFRZ(I)
             DX(IZ)=ZERO
          ENDDO
       ENDIF
+c
+      if (.not. geom_zmt_get_varinfo(geom,zvarname,zvarsign))
+     $     call errquit('hnd_opt_tfgx: varinfo?',0)
+      if(dbug) then
+         do i = 1, nvar
+            write(6,*) ' zvarinfo ', zvarname(i),zvarsign(i)
+         enddo
+      endif
+      do i = 1, nvar
+         if (zvarname(i).ne.' ') then
+            sum = 0d0
+            num = 0
+            test = zvarname(i)
+            do j = 1, nvar
+               if (zvarname(j).eq.test) then 
+                  sum = sum + dx(j)*zvarsign(j)
+                  num = num + 1
+               endif
+            enddo
+            if (num .gt. 1) then
+               sum = sum / dble(num)
+               do j = 1, nvar
+                  if (zvarname(j).eq.test) then 
+                     if(dbug)write(6,77) j, test, zvarsign(j), sum
+ 77                  format(' XConstraining : ',i3,2x,a,2x,f3.1,f10.6)
+                     dx(j) = sum*zvarsign(j)
+                     zvarname(j) = ' '
+                  endif
+               enddo
+            endif
+         endif
+      enddo
+
+
+
 C
       IF(OUT) THEN
          WRITE(IW,9992)
@@ -3102,6 +2989,7 @@ C
 #include "rtdb.fh"
 #include "global.fh"
 #include "util.fh"
+#include "coptopt.fh"
       INTEGER   RTDB
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
@@ -3118,8 +3006,6 @@ C
      1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
-      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR,
-     1                                                     MODSAD
       COMMON/HND_OPTFRZ/NZFRZ,IZFRZ(MXCOOR),IATFRZ(MXATOM)
       COMMON/HND_OPTFUN/E,EG(MXCART)
 C
@@ -3336,7 +3222,7 @@ c
       common/hnd_iofile/ir,iw
       dimension ds(*),dx(*),bi(mx,*)
       data zero   /0.0d+00/       
-      data tenm09 /1.0d-09/
+      data tenm15 /1.0d-15/
 c
       dbug=.false.  
       out =.false.
@@ -3364,7 +3250,7 @@ c
       endif
 c
       do i=1,nx
-         if(abs(dx(i)).lt.tenm09) dx(i)=zero
+         if(abs(dx(i)).lt.tenm15) dx(i)=zero
       enddo
 c
       geom_hnd_tfds=.true.
@@ -3416,6 +3302,7 @@ c
 #include "global.fh"
 #include "geom.fh"
 #include "rtdb.fh"
+#include "coptopt.fh"
 C
 C     ----- ONE DIMENSIONAL SEARCH.  -----
 C
@@ -3446,8 +3333,6 @@ C
      1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED 
-      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR,
-     1                                                     MODSAD
       COMMON/HND_OPTFRZ/NZFRZ,IZFRZ(MXCOOR),IATFRZ(MXATOM)
       COMMON/HND_OPTFUN/E,EG(MXCART)
       COMMON/HND_OPTTIM/ENERGY_TIME,GRADIENT_TIME
@@ -3501,10 +3386,13 @@ C
       IF(OUT) THEN
          WRITE(IW,9991) ALPH
       ENDIF
+      dxnorm = 0d0
       DO I = 1,NCART 
          X(I) = X0(I)+ALPH*DX(I)
+         dxnorm = dxnorm + dx(i)*dx(i)
          C(I) = X(I)
       ENDDO
+      dxnorm = alph*sqrt(dxnorm)
       NPTS=NPTS+1
       IF(NPTS.GT.NPTOPT) THEN
          EXCESS=.TRUE.
@@ -3531,13 +3419,26 @@ C
       ENDDO
       STATUS=GEOM_CART_SET(GEOM,NAT_NW,TAGS_NW,COORDS_NW,
      1                                         CHARGE_NW)
+
+c
+c     Enforce symmetry on the geometry both inside the
+c     NWChem geometry object and the **&@$ing hondo duplicates.
+c
+      call sym_geom_project(geom, dxnorm)
+      STATUS=GEOM_CART_GET(GEOM,NAT_NW,TAGS_NW,COORDS_NW,
+     1                                         CHARGE_NW)
+
+      DO I = 1,NCART 
+         X(I) = coords_nw(i)
+         C(I) = X(I)
+      ENDDO
+
       STATUS=GEOM_RTDB_STORE(RTDB,GEOM,'geometry')
 C
       IF(OUT) THEN
          WRITE(IW,9999)
          WRITE(IW,9998) (COORDS_NW(I),I=1,NCART)
       ENDIF
-C
 C
 C     ----- CALL FUNCTION EVALUATION -----
 C
@@ -3789,6 +3690,398 @@ C
  9992 FORMAT(' IN SEARCH_LIN, ALPHA = ',F8.4)
  9991 FORMAT(' IN SEARCH_LIN, ALPH  = ',F8.4)
       END
+      SUBROUTINE HND_OPT_SEARCH_LIN_INT(RTDB,GEOM,RSTART,EXCESS)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "coptopt.fh"
+C
+C     ----- ONE DIMENSIONAL SEARCH.  -----
+c
+c     RJH ... modified so search happens in internals.
+C
+      PARAMETER (MXATOM=500)
+      PARAMETER (MXCART=3*MXATOM)
+      PARAMETER (MXZMAT=1500)
+      PARAMETER (MXCOOR=1500)
+C
+      INTEGER RTDB
+      INTEGER GEOM
+      LOGICAL STATUS
+      LOGICAL  UTIL_TEST_TIME_REMAINING
+      EXTERNAL UTIL_TEST_TIME_REMAINING
+c
+      double precision s(mxcart),news(mxcart)
+C
+      LOGICAL RSTART
+      LOGICAL EXCESS
+      LOGICAL LOWER,ILLCON,RECALC,RETRY
+      LOGICAL CVGED
+      LOGICAL DBUG
+      LOGICAL OUT
+      COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_MOLXYZ/C(MXCART),ZAN(MXATOM),NAT         
+      COMMON/HND_OPTMIZ/X0(MXCOOR),X(MXCOOR),DX(MXCOOR),
+     1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
+     2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
+      COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED 
+      COMMON/HND_OPTFRZ/NZFRZ,IZFRZ(MXCOOR),IATFRZ(MXATOM)
+      COMMON/HND_OPTFUN/E,EG(MXCART)
+      COMMON/HND_OPTTIM/ENERGY_TIME,GRADIENT_TIME
+      COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
+      DIMENSION ALP(5),FUNL(5)
+      DATA ZERO,TWO,THREE       /0.0D+00,2.0D+00,3.0D+00/
+      DATA TOLALP,TOLFUN        /1.0D-01,1.5D-01/
+      DATA FALMIN,FALNOR,FALMAX /1.0D-01,2.0D+00,5.0D+00/
+      DATA DALNOR,DALMAX        /0.9D+00,0.5D+00/
+      DATA ONEPT5               /1.5D+00/
+C
+      DBUG=.FALSE.
+      OUT =.FALSE.
+      OUT =OUT.OR.DBUG
+      IF(OUT) THEN
+         WRITE(IW,9994)
+         WRITE(IW,9992) ALPHA
+      ENDIF
+C
+      LOWER =.FALSE.
+      ILLCON=.FALSE.
+      RECALC=.FALSE.
+      RETRY =.FALSE.
+c
+*      write(6,*) ' Step in internals'
+*      call output(ds,1,nzvar,1,1,nzvar,1,1)
+      gs0 = ddot(nzvar,ds,1,g,1)
+**      write(6,*) ' HERE GS0 ', gs0
+*     rescale internal step into appropriate units
+      call geom_zmat_ico_scale(ds,nzvar,
+     $     0.52917715d0, 0.52917715d0*180d0/(4d0*atan(1d0)))
+C
+      NCART =3*NAT
+C
+C     ----- NORMAL START -----
+C
+      ALPH = ALPHA
+  100 CONTINUE
+      FUNC0 = FUNC
+      GMAX0 = GMAX 
+      DO I = 1,NCART 
+         X0(I) = X(I)
+         G0(I) =EG(I)
+         G (I) =EG(I)           ! Overwrites int. grad with cart. grad
+      ENDDO
+      DUM=ZERO
+      DO I=1,NCART 
+        DUM=DUM+G0(I)*DX(I)
+      ENDDO
+**      write(6,*) ' HERE DUM ', dum
+c$$$      GS0=DUM
+      call geom_zmt_get_zmat(geom,s,nzvar)
+c
+           NLPTS  = 1
+       ALP(NLPTS) = ZERO
+      FUNL(NLPTS) = FUNC0
+C
+C     ----- SEARCH ALONG -DX-DIRECTION. -----
+C
+  200 CONTINUE
+*      write(6,*) ' HERE alpha ', alph
+      IF(OUT) THEN
+         WRITE(IW,9991) ALPH
+      ENDIF
+*      DO I = 1,NCART 
+*         X(I) = X0(I)+ALPH*DX(I)
+*         C(I) = X(I)
+*      ENDDO
+      NPTS=NPTS+1
+      IF(NPTS.GT.NPTOPT) THEN
+         EXCESS=.TRUE.
+         goto 8080              ! return
+      ENDIF
+C
+**      do alph = -0.1d0,0.1d0,0.05d0
+      do i = 1, nzvar
+         news(i) = s(i) + alph*ds(i)
+      enddo
+      status = geom_cart_coords_set(geom,x0)
+      call opt_internal_to_cartesian(rtdb,geom,news,nzvar,nvar,ncart)
+      if (.not. GEOM_RTDB_STORE(RTDB,GEOM,'geometry'))
+     $     call errquit('line search internals: geom?',0)
+C
+C
+C     ----- CALL FUNCTION EVALUATION -----
+C
+         STATUS=UTIL_TEST_TIME_REMAINING(RTDB,INT(ENERGY_TIME*ONEPT5))
+         IF(OUT) THEN
+            WRITE(IW,*) 'ENOUGH TIME REMAINING FOR ENERGY = ? ',STATUS
+         ENDIF
+         IF(.NOT.STATUS) THEN
+            if (ga_nodeid().eq.0) 
+     $           WRITE(IW,*) 'Not enough time remaining,',
+     $           ' shutting down ... '
+            NPTOPT=NPTS-1
+            EXCESS=.TRUE.
+            goto 8080           ! return
+         ENDIF
+C
+      CALL HND_OPT_ENERGY(RTDB,GEOM)
+      FUNC=E
+**      write(6,*) ' HERE ',alph,e
+**      enddo
+**      call errquit('done',0)
+C
+      RSTART = .FALSE.
+      IF(RECALC) THEN
+         GO TO 900
+      ENDIF
+C
+C     ----- SAVE UP TO THE LAST FOUR STEPS -----
+C
+          NLPTS  = NLPTS+1
+           NPOS  = MIN0(4,NLPTS)
+       ALP(NPOS) = ALPH
+      FUNL(NPOS) = FUNC
+      LOWER      = FUNC.LT.FUNC0
+C
+C     ----- ORDER THE FUNCTION VALUES AND THEIR ALPHAS -----
+C
+      NLPOS = NPOS
+      DO I = 2,NPOS
+         J = NPOS-I+1
+         IF(FUNC.GT.FUNL(J)) THEN
+            GO TO 400
+         ELSE
+            FUNL(J+1) = FUNL(J)
+            FUNL(J  ) = FUNC
+             ALP(J+1) = ALP(J)
+             ALP(J  ) = ALPH
+            NLPOS     = J
+         ENDIF
+      ENDDO    
+C
+  400 IF(NLPTS.GT.2) GO TO 440
+C
+C     ----- FIT A PARABOLA -----      
+C
+      AQUAD = (FUNC-GS0*ALPH-FUNC0)/(ALPH*ALPH)
+      BQUAD = GS0
+      CQUAD = FUNC0
+      IF(AQUAD.LT.ZERO) THEN
+         IF(LOWER) THEN
+            GO TO 900
+         ELSE
+            IF(ILLCON) THEN
+               GO TO 900
+            ELSE
+               ILLCON=.TRUE.
+               ALPH=ALPH*FALMIN
+               GO TO 200
+            ENDIF
+         ENDIF
+      ENDIF
+      ALPHI = -BQUAD/(TWO*AQUAD)
+      FESTI =  AQUAD*ALPHI**2+BQUAD*ALPHI+CQUAD
+C
+      IF(LOWER) THEN
+         ALPHN = DALNOR*(ALPHI-ALPH)+ALPH
+      ELSE
+         ALPHN = ALPHI
+      ENDIF
+      IF(ALPHN.GT.FALNOR*ALPH) THEN
+         ALPHN = DMIN1(FALMAX*ALPH,
+     1                 DALMAX*(ALPHN-FALNOR*ALPH)+FALNOR*ALPH)
+      ENDIF
+      IF(ALPHN.LT.ZERO) THEN
+         IF(LOWER) THEN
+            GO TO 900
+         ELSE
+            IF(ILLCON) THEN
+               GO TO 900
+            ELSE
+               ILLCON=.TRUE.
+               ALPH=ALPH*FALMIN
+               GO TO 200
+            ENDIF
+         ENDIF
+      ENDIF
+      FEST = AQUAD*ALPHN**2+BQUAD*ALPHN+CQUAD
+      IF(FEST .GT. FUNL(1)) THEN
+         IF(LOWER) THEN
+            GO TO 900
+         ELSE
+            IF(ILLCON) THEN
+               GO TO 900
+            ELSE
+               ILLCON=.TRUE.
+               ALPH=ALPH*FALMIN
+               GO TO 200
+            ENDIF
+         ENDIF
+      ENDIF
+      IF(.NOT.LOWER) THEN
+         ALPH = ALPHN
+         GO TO 200
+      ENDIF
+      IF(ABS((ALPHN-ALPH)/ALPH).LT.TOLALP) THEN
+         GO TO 900
+      ENDIF
+      IF(ABS((FEST-FUNL(1))/(FUNC0-FUNL(1))).LT.TOLFUN) THEN
+         GO TO 900
+      ENDIF
+      ALPH = ALPHN
+      GO TO 200
+C
+C     --- CALCULATE THE PARABOLIC MINIMUM WITH THE LOWEST THREE POINTS ---
+C
+  440 IF(.NOT.LOWER) THEN
+         GO TO 500
+      ENDIF
+      IF(NLPOS.NE.1) THEN
+         GO TO 600
+      ENDIF
+      ALDIF1 = ALP(2)-ALP(3)
+      ALDIF2 = ALP(3)-ALP(1)
+      ALDIF3 = ALP(1)-ALP(2)
+      AQUAD  = -(FUNL(1)*ALDIF1+FUNL(2)*ALDIF2+FUNL(3)*ALDIF3)
+     1         /(ALDIF1*ALDIF2*ALDIF3)
+      BQUAD = (FUNL(1)-FUNL(2))/ALDIF3-AQUAD*(ALP(1)+ALP(2))
+      CQUAD = FUNL(1)-ALP(1)*(ALP(1)*AQUAD+BQUAD)
+      IF(AQUAD.LT.ZERO) THEN
+         GO TO 900
+      ENDIF
+C
+      ALPHI = -BQUAD/(TWO*AQUAD)
+      FESTI = (AQUAD*ALPHI+BQUAD)*ALPHI+CQUAD
+      ALPHN = DALNOR*(ALPHI-ALPH)+ALPH
+      IF(ALPHN.GT.FALNOR*ALPH) THEN
+         ALPHN = DMIN1(FALMAX*ALPH,
+     1                 DALMAX*(ALPHN-FALNOR*ALPH)+FALNOR*ALPH)
+      ENDIF
+      IF(ALPHN.LT.ZERO) THEN
+         GO TO 900
+      ENDIF
+      FEST = (AQUAD*ALPHN+BQUAD)*ALPHN+CQUAD
+      IF(FEST.GT.FUNL(1)) THEN
+         GO TO 900
+      ENDIF
+      IF(ABS((ALPHN-ALPH)/ALPH).LT.TOLALP) THEN
+         GO TO 900
+      ENDIF
+      IF(ABS((FEST-FUNL(1))/(FUNC0-FUNL(1))).LT.TOLFUN*NLPTS) THEN
+         GO TO 900
+      ENDIF
+      ALPH = ALPHN
+      GO TO 200
+C
+C     ----- IF WE ALREADY HAVE A LOWER ENERGY, TAKE IT -----
+C
+  480 IF(LOWER) THEN
+         GO TO 900
+      ENDIF
+C
+C     ----- FUNCTION IS NOT PARABOLIC ALONG SEARCH DIRECTION -----
+C
+  500 IF(ILLCON) THEN
+         GO TO 900
+      ENDIF
+      ILLCON = .TRUE.
+      ALPH   = ALPH*FALMIN
+      GO TO 200
+C
+C     ----- THE LAST POINT MUST BE RECALCULATED -----
+C
+  600 RECALC = .TRUE.
+      ALPH   = ALP(1)
+      GO TO 200
+C
+C     ----- CALCULATE THE GRADIENT FOR THE FINAL POINT -----
+C
+  900 CONTINUE
+         STATUS=UTIL_TEST_TIME_REMAINING(RTDB,INT(GRADIENT_TIME*ONEPT5))
+         IF(OUT) THEN
+            WRITE(IW,*) 'ENOUGH TIME REMAINING FOR GRADIENT = ? ',STATUS
+         ENDIF
+         IF(.NOT.STATUS) THEN
+            if (ga_nodeid().eq.0) 
+     $           WRITE(IW,*) 'Not enough time remaining,',
+     $           ' shutting down ... '
+            NPTOPT=NPTS-1
+            EXCESS=.TRUE.
+            goto 8080
+         ENDIF
+C
+      CALL HND_OPT_GRADIENT(RTDB,GEOM)
+      DO I=1,NCART 
+         G(I) =EG(I)
+      ENDDO
+      status = geom_cart_coords_get(geom,x) ! Get latest cartesians
+      status = geom_cart_coords_get(geom,c) ! 
+C
+      RSTART = .FALSE.
+C
+      ALPHA  = ALPH
+C
+      DUM=ZERO
+      DO I=1,NCART
+         DUM=DUM+G(I)*G(I)
+      ENDDO
+      GNORM= SQRT(DUM)
+      DUM=ZERO
+      DO I=1,NCART
+         DUM=DUM+G(I)*DX(I)
+      ENDDO
+      GS=DUM
+      IF((GS.GT.GS0).OR.RETRY) THEN ! Needs modifying for internal search????
+         GO TO 1000
+      ENDIF
+      RETRY = .TRUE.
+      ACUBE = (-TWO*(FUNC-FUNC0)+(GS+GS0)*ALPH)/ALPH**3
+      BCUBE = -ACUBE*ALPH+(FUNC-FUNC0-GS0*ALPH)/ALPH**2
+      DSCRM =  BCUBE*BCUBE-THREE*ACUBE*GS0
+      IF(DSCRM.LT.ZERO) THEN
+         goto 8080
+      ENDIF
+      ALPH  = (-BCUBE+ SQRT(DSCRM))/(THREE*ACUBE)
+*     RJH cannot do the following with internals (doubly so with
+*     constants/constraints) unless first transform gradient to
+*     internal space to compute gs0 ... might as well do a full 
+*     geometry optimization step.
+c$$$      IF((ALPH.LT.ALPHA).AND.(ALPH.GT.ZERO)) THEN
+c$$$         write(6,*) ' Going to 100 '
+c$$$         GO TO 100
+c$$$      ENDIF
+C
+C     ----- RETURN AFTER SUCCESSFUL SEARCH -----
+C
+ 1000 CONTINUE
+      ALPHA=ALPH
+      IF(DBUG) THEN
+         WRITE(IW,9993)
+      ENDIF
+c
+c     return statement for every exit so can unscale internal step
+c
+ 8080 continue
+*     undo rescale internal step into appropriate units
+      call geom_zmat_ico_scale(ds,nzvar,
+     $     1d0/0.52917715d0, 4d0*atan(1d0)/(0.52917715d0*180d0))
+c
+      RETURN
+c
+ 9999 FORMAT(' IN SEARCH_LIN, COORDS = ')
+ 9998 FORMAT(F12.7)
+ 9997 FORMAT(' IN SEARCH_LIN, X0 = ')
+ 9996 FORMAT(' IN SEARCH_LIN, DX = ')
+ 9995 FORMAT(' IN SEARCH_LIN, ALPH = ',F8.4,' X = ')
+ 9994 FORMAT(' STARTING SEARCH_LIN ')
+ 9993 FORMAT('   ENDING SEARCH_LIN ')
+ 9992 FORMAT(' IN SEARCH_LIN, ALPHA = ',F8.4)
+ 9991 FORMAT(' IN SEARCH_LIN, ALPH  = ',F8.4)
+      END
       SUBROUTINE HND_OPT_HSS_UPDATE(RTDB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "mafdecls.fh"
@@ -3959,6 +4252,7 @@ c
       END
       SUBROUTINE HND_OPT_HSS_UPDATE_X(HESS,HESSDX,NVAR,NDIM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "coptopt.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (MXZMAT=1500)
@@ -3971,8 +4265,6 @@ c
      1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
-      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR,
-     1                                                     MODSAD
       COMMON/HND_OPTFRZ/NZFRZ,IZFRZ(MXCOOR),IATFRZ(MXATOM)
       DIMENSION HESS(NDIM,*),HESSDX(*)
       DATA ZERO /0.0D+00/
