@@ -1,5 +1,5 @@
 /*
- $Id: util_file_copy.c,v 1.8 2000-12-02 01:39:52 edo Exp $
+ $Id: util_file_copy.c,v 1.9 2000-12-02 02:00:44 edo Exp $
  */
 
 #include <stdio.h>
@@ -26,7 +26,7 @@ void util_file_copy(const char *input, const char *output)
     FILE *fin  = fopen(input, "rb");
     FILE *fout = fopen(output, "w+b");
     char buf[8192];
-    int nread;
+    Integer nread, ndone;
 
     if (!fin) {
 	fprintf(stderr,"util_file_copy: unable to open %s\n", input);
@@ -37,7 +37,9 @@ void util_file_copy(const char *input, const char *output)
 	ga_error("util_file_copy",0);
     }
     while ((nread = fread(buf, 1, sizeof(buf), fin)) > 0)
-	if (fwrite(buf, 1, nread, fout) != nread) {
+      ndone=fwrite(buf, 1, nread, fout);
+	if (ndone != nread) {
+	    fprintf(stderr,"util_file_copy: ndone %d nread %d\n", ndone,nread);
 	    fprintf(stderr,"util_file_copy: failed writing %s\n", output);
 	    ga_error("util_file_copy",0);
 	}
@@ -61,7 +63,7 @@ void util_file_parallel_copy(const char *input, const char *output)
   */
 {
     FILE *fin=0, *fout=0;
-    int differ = strcmp(input,output);
+    Integer differ = strcmp(input,output);
 
     if (ga_nodeid_() == 0) {
       if (!(fin = fopen(input, "rb"))) {
@@ -82,7 +84,7 @@ void util_file_parallel_copy(const char *input, const char *output)
 
     while (1) {
       char buf[8192];
-      Integer nread, msgnread=44,msgbuf=45,msglen=sizeof(int),node0=0;
+      Integer nread, msgnread=44,msgbuf=45,msglen=sizeof(Integer),node0=0;
       if (ga_nodeid_() == 0)
 	nread = fread(buf, 1, sizeof(buf), fin);
       ga_brdcst_(&msgnread, &nread, &msglen, &node0);
@@ -116,7 +118,7 @@ void FATR UTIL_FILE_COPY(_fcd input, _fcd output)
     int lin  = _fcdlen(input);
     int lout = _fcdlen(output);
 #else
-void util_file_copy_(const char *input, const char *output, int lin, int lout)
+void util_file_copy_(const char *input, const char *output, Integer lin, Integer lout)
 {
 #endif
     char in[255], out[255];
