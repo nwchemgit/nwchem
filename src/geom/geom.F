@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.40 1995-11-19 19:32:19 d3g681 Exp $
+C$Id: geom.F,v 1.41 1995-11-29 01:52:36 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -1557,5 +1557,88 @@ c
       geom_set_user_units =
      $     geom_check_handle(geom, 'geom_set_user_units')
       user_units(geom) = units
+c
+      end
+      logical function geom_tag_to_default_mass(tag,mass)
+      implicit none
+c
+c this routine takes a tag matches it to the atomic number
+c and returns the default atomic mass.
+c
+      character*(*) tag      ! [input] geometry tag
+      double precision mass  ! [output] corresponding elemental default mass
+c
+      logical geom_tag_to_element
+      external geom_tag_to_element
+      logical geom_atn_to_default_mass
+      external geom_atn_to_default_mass
+c
+      character*2 tag_symbol
+      character*16 tag_element
+      integer tag_atomic_number
+c
+      geom_tag_to_default_mass = .false.
+c
+      if (.not. geom_tag_to_element(tag,tag_symbol, tag_element,
+     &    tag_atomic_number)) call errquit
+     &    ('geom_tag_to_default_mass: geom_tag_to_element failed ?',
+     &    911)
+      geom_tag_to_default_mass =
+     &    geom_atn_to_default_mass(tag_atomic_number,mass)
+      end
+      logical function geom_atn_to_default_mass(atn,mass)
+c
+c This routine returns the default atomic mass from based on the atomic
+c number.  The mass for each element comes from the book "The Elements" 
+c by John Emsley, Oxford University Press, (C) 1989, ISBN 0-19-855237-8
+c The specific mass chosen was the most abundant isotope with a known mass. 
+c When the abundance was equal the isotope with the longest half life was 
+c used.  
+c
+c RAK 11/95 PNNL/EMSL/HPCCG
+c
+      implicit none
+#include "geomP.fh"
+c
+      integer atn             ! [input] atomic number of element
+      double precision mass   ! [output] default elemental atomic mass.
+c
+      double precision masses(nelements)
+c
+      integer i
+c
+      data (masses(i),i=1,50) /
+     &  1.007825d0, 4.0026d0,    7.016d0,    9.01218d0, 11.00931d0,
+     & 12.0d0,     14.00307d0,  15.99491d0, 18.9984d0,  19.99244d0,
+     & 22.9898d0,  23.98504d0,  26.98154d0, 27.97693d0, 30.97376d0,
+     & 31.97207d0, 34.96885d0,  39.9624d0,  38.96371d0, 39.96259d0,
+     & 44.95592d0, 45.948d0,    50.9440d0,  51.9405d0,  54.9381d0,
+     & 55.9349d0,  58.9332d0,   57.9353d0,  62.9298d0,  63.9291d0,
+     & 68.9257d0,  73.9219d0,   74.9216d0,  79.9165d0,  78.9183d0,
+     & 83.912d0,   84.9117d0,   87.9056d0,  88.9054d0,  89.9043d0,
+     & 92.9060d0,  97.9055d0,   97.9072d0, 101.9037d0, 102.9048d0,
+     &105.9032d0, 106.90509d0, 113.9036d0, 114.9041d0, 117.9018d0/
+      data (masses(i),i=51,103) /
+     & 120.9038d0, 129.9067d0, 126.9004d0, 131.9042d0, 132.9051d0,
+     & 137.9050d0, 138.9061d0, 139.9053d0, 140.9074d0, 143.9099d0,
+     & 144.9128d0, 151.9195d0, 152.9209d0, 157.9241d0, 159.9250d0,
+     & 163.9288d0, 164.9303d0, 165.9304d0, 168.9344d0, 173.9390d0,
+     & 174.9409d0, 179.9468d0, 180.948d0,  183.9510d0, 186.9560d0,
+     & 189.9586d0, 192.9633d0, 194.9648d0, 196.9666d0, 201.9706d0,
+     & 204.9745d0, 207.9766d0, 208.9804d0, 209.9829d0, 210.9875d0,
+     & 222.0175d0, 223.0198d0, 226.0254d0, 227.0278d0, 232.0382d0,
+     & 231.0359d0, 238.0508d0, 237.048d0,  244.0642d0, 243.0614d0,
+     & 247.0704d0, 247.0702d0, 249.0748d0, 254.0881d0, 253.0852d0,
+     & 258.0d0,    259.0d0,    260.0/
+c
+      geom_atn_to_default_mass = .false.
+c
+      if (atn.lt.1) call errquit
+     &    ('geom_atn_to_default_mass: negative atomic number',atn)
+      if (atn.gt.nelements) call errquit
+     &    ('geom_atn_to_default_mass: atomic number too large',atn)
+c
+      mass = masses(atn)
+      geom_atn_to_default_mass = .true.
 c
       end
