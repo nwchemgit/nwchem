@@ -180,7 +180,8 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
 
   void addNodeData(){
     for(int i=0; i<16; i++){
-      nodPlot.removeSet(i);
+	nodPlot.clear(i);
+	//	try{ nodPlot.removeSet(i); } catch(exception ee){};
     };
     for(int i=0; i<17; i++){
       for(int ip=0; ip<np; ip++){
