@@ -9,7 +9,7 @@ c
       integer iter_solve
       common /info/ n, g_a
       integer nroot, heap
-      parameter (dim = 1024, nroot=3)
+      parameter (dim = 100, nroot=3)
       double precision col(dim), acc(nroot), tol, scale, sum
       double precision eval(nroot), used, junk
       double precision evals(dim)
@@ -21,7 +21,7 @@ c
       call pbeginf
       heap = max(8, (dim-1)/nnodes()+1)
       heap = dim*(heap + 2)
-      heap = heap * 1.1
+      heap = heap * 1.1 + 128*128*3
       if (.not. ma_init(MT_DBL, heap, heap)) call errquit
      $     ('test: ma_init?', 0)
       status = ma_set_auto_verify(.true.)

@@ -13,7 +13,7 @@ c
 c
       double precision gs0, gs1, e0, e1, step0, step1, ediff, ls_ratio
       double precision ls_hessian, ls_grad, ls_step, ls_step_max
-      double precision e_low, step_low
+      double precision e_low, step_low, g_low
       integer i
       double precision tcgtime
       external tcgtime
@@ -51,12 +51,14 @@ c
 c
 c     determine current lowest energy and step
 c
-      e_low = energies(1)
+      e_low    = energies(1)
       step_low = steps(1)
+      g_low    = gradients(1)
       do i = 2, nstep
          if (energies(i).lt.e_low) then
-            e_low = energies(i)
+            e_low    = energies(i)
             step_low = steps(i)
+            g_low    = gradients(i)
          endif
       enddo
 c
@@ -92,15 +94,25 @@ c
 c
 c     Now determine where we are going next
 c
-      if (((e1-e_low).gt.eacc) .and. abs(step1-step_low).gt.0.1d0) then
-c
-c     Have gone up-hill ... backtrack optimistically
-c
-         ls_step = (step_low - step1) * 0.5d0
+      if (((e1-e_low).gt.eacc)) then
+*     .and. abs(step1-step_low).gt.0.1d0) then
+c     
+c     Have gone up-hill ... backtrack optimistically making sure that
+c     we are on the downhill side of the lowest energy point
+c     
          if (oprint) then
             write(6, 4) e1 - e_low
             call util_flush(6)
  4          format(20x,'Energy increase :',f23.8,' backtrack')
+         endif
+         ls_step = (step_low - step1) * 0.5d0
+         if ((step1 - step_low + ls_step)*g_low .gt. 0) then
+            if (oprint) then
+               write(6, 41) g_low
+               call util_flush(6)
+ 41            format(20x,'On wrong side of minimum energy point ',f6.2)
+               ls_step = step_low - step1 - 0.1d0*g_low
+            endif
          endif
       else
 c

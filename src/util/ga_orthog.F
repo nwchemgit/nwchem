@@ -12,6 +12,11 @@ c     Redistribute the input matrix ... block the leading
 c     dimension, leave second dimension undistributed
 c     ... each process has a(ulo:uhi,1:ni).  If
 c
+c     nu = no. of basis functions
+c     ni = no. of vectors
+c
+c     overlap should be (nu,nu)
+c
       call ga_inquire(g_vecs, type, nu, ni)
       uchunk = max(8, (nu-1)/ga_nnodes()+1)
       ulo  = ga_nodeid()*uchunk + 1
@@ -35,14 +40,14 @@ c
       endif
       if (.not. ma_push_get(mt_dbl, ni, 'ga_orthog: sji', 
      $     l_s, k_s)) call errquit('ga_orthog: ma get failed', ni)
-      if (.not. ma_push_get(mt_dbl, nu, 'ga_orthog: sji', 
-     $     l_w, k_w)) call errquit('ga_orthog: ma get failed', ni)
+      if (.not. ma_push_get(mt_dbl, nu, 'ga_orthog: w', 
+     $     l_w, k_w)) call errquit('ga_orthog: ma get failed', nu)
 c
       call ga_sync()
       if (uhi .ge. ulo) then
          call ga_get(g_vecs, ulo, uhi, 1, ni, dbl_mb(k_tmp), ld)
          if (ometric) 
-     $        call ga_get(g_over, 1, nu, ulo, uhi, dbl_mb(k_tmp), ld)
+     $        call ga_get(g_over, 1, nu, ulo, uhi, dbl_mb(k_over), nu)
       endif
 c
 c     Do the deed
@@ -104,12 +109,10 @@ c     If have a metric then first form overlap*vec(i)
 c     
          if (ometric) then
             call dfill(nu, 0.0d0, w, 1)
-            do u = ulo, uhi
-               do v = 1, nu
-                  w(v) = w(v) + o(v,u)*vecs(u,i)
-               enddo
-            enddo
-            call dgop(12, w, nu, '+') ! Actually only need ulo:hi
+ 	    if ((uhi-ulo+1) .gt. 0) 
+     $           call dgemv('n', nu, (uhi-ulo+1), 1.0d0, o, nu,
+     $             vecs(ulo,i), 1, 0.0d0, w, 1)
+            call dgop(12, w, nu, '+') ! Actually only need ulo:hi local
          else
             do u = ulo, uhi
                w(u) = vecs(u,i)
@@ -122,8 +125,6 @@ c
          if ((uhi-ulo+1) .gt. 0) 
      $        call dgemv('t', (uhi-ulo+1), i, 1.0d0,
      $        vecs(ulo,1), ld, w(ulo), 1, 0.0d0, s(1), 1)
-c
-         call ga_dgop(11, s, i, '+')
 c
 c     Apply the rotation
 c     
@@ -158,5 +159,5 @@ c
          endif
 c     
       enddo
-c     
+c
       end

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.23 1994-11-18 19:44:01 d3g681 Exp $
+# $Id: GNUmakefile,v 1.24 1994-12-12 07:20:46 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -14,11 +14,11 @@ endif
 
    LIB_TARGETS = testsolve
 
-OBJ_OPTIMIZE= ga_orthog.o 
+#OBJ_OPTIMIZE= ga_orthog.o 
         OBJ = output.o errquit.o ffflush.o \
               print_center.o util_flush.o \
               util_hostname.o util_date.o \
-	      nxtseg.o \
+	      nxtseg.o ga_orthog.o \
               ga_iter_orthog.o ga_iter_lsolve.o ga_iter_diag.o \
               ga_maxelt.o ga_pcg_minimize.o line_search.o \
               ga_orthog_vec.o ga_ran_fill.o ga_mix.o \
