@@ -2,15 +2,15 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.19 2000-03-18 00:08:53 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.20 2000-07-27 17:47:31 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      integer arg_nint
-      external arg_nint
+      integer util_nint
+      external util_nint
 #endif
 c
       integer lfnout,msa,nsa,msb,nsb,mgrid,iwater,mwm,mwa,nwm,nwa
@@ -340,11 +340,11 @@ c
       distz=grid(3,ngrid)-xs(3,k)
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       if(abs(distx).gt.boxh(1))
-     + distx=distx-arg_nint(distx/box(1))*box(1)
+     + distx=distx-util_nint(distx/box(1))*box(1)
       if(abs(disty).gt.boxh(2))
-     + disty=disty-arg_nint(distx/box(2))*box(2)
+     + disty=disty-util_nint(distx/box(2))*box(2)
       if(abs(distz).gt.boxh(3))
-     + distz=distz-arg_nint(distx/box(3))*box(3)
+     + distz=distz-util_nint(distx/box(3))*box(3)
 #else
       if(abs(distx).gt.boxh(1)) distx=distx-nint(distx/box(1))*box(1)
       if(abs(disty).gt.boxh(2)) disty=disty-nint(distx/box(2))*box(2)
@@ -378,11 +378,11 @@ c
       distz=grid(3,ngrid)-xs(3,k)
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       if(abs(distx).gt.boxh(1))
-     + distx=distx-arg_nint(distx/box(1))*box(1)
+     + distx=distx-util_nint(distx/box(1))*box(1)
       if(abs(disty).gt.boxh(2))
-     + disty=disty-arg_nint(distx/box(2))*box(2)
+     + disty=disty-util_nint(distx/box(2))*box(2)
       if(abs(distz).gt.boxh(3))
-     + distz=distz-arg_nint(distx/box(3))*box(3)
+     + distz=distz-util_nint(distx/box(3))*box(3)
 #else
       if(abs(distx).gt.boxh(1)) distx=distx-nint(distx/box(1))*box(1)
       if(abs(disty).gt.boxh(2)) disty=disty-nint(distx/box(2))*box(2)

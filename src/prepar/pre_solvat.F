@@ -2,13 +2,13 @@
      + mwms,mwa,nwms,nwa,touch,box,iwmr,xw,vw,
      + mwm,nwm,xs,msa,nsa,xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_solvat.F,v 1.7 1999-11-30 02:59:19 d3j191 Exp $
+c $Id: pre_solvat.F,v 1.8 2000-07-27 17:48:18 d3j191 Exp $
 c
       implicit none
 c
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      integer arg_nint
-      external arg_nint
+      integer util_nint
+      external util_nint
 #endif
       integer islv,mwms,mwa,nwms,nwa,mwm,nwm,msa,nsa
       integer nwmc,mwmc
@@ -65,9 +65,9 @@ c
       dy=y-xs(2,i)
       dz=z-xs(3,i)
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      dx=dx-arg_nint(dx/box(1))*box(1)
-      dy=dy-arg_nint(dy/box(2))*box(2)
-      dz=dz-arg_nint(dz/box(3))*box(3)
+      dx=dx-util_nint(dx/box(1))*box(1)
+      dy=dy-util_nint(dy/box(2))*box(2)
+      dz=dz-util_nint(dz/box(3))*box(3)
 #else
       dx=dx-nint(dx/box(1))*box(1)
       dy=dy-nint(dy/box(2))*box(2)
@@ -82,9 +82,9 @@ c
       dy=y-xwc(2,j,i)
       dz=z-xwc(3,j,i)
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      dx=dx-arg_nint(dx/box(1))*box(1)
-      dy=dy-arg_nint(dy/box(2))*box(2)
-      dz=dz-arg_nint(dz/box(3))*box(3)
+      dx=dx-util_nint(dx/box(1))*box(1)
+      dy=dy-util_nint(dy/box(2))*box(2)
+      dz=dz-util_nint(dz/box(3))*box(3)
 #else
       dx=dx-nint(dx/box(1))*box(1)
       dy=dy-nint(dy/box(2))*box(2)
