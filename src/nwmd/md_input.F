@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.77 2003-10-21 19:02:02 d3j191 Exp $
+c $Id: md_input.F,v 1.78 2003-10-27 19:06:56 d3j191 Exp $
 c
       implicit none
 c
@@ -32,7 +32,7 @@ c
       integer itload,ihess,latom,icomm,nfanal,iport,iguide,icentr
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
       integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ,npforc
-      integer iprop,iprpmf,nfhop,ipbtyp,iradgy,idifco
+      integer iprop,iprpmf,nfhop,ipbtyp,iradgy,idifco,nfnewf
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -131,6 +131,7 @@ c
       nffet=0
       nfefld=0
       nfsfld=0
+      nfnewf=0
       ibinar=0
       iformt=1
       madbox=6
@@ -1403,7 +1404,14 @@ c
       goto 2
       endif
 c
-c     recording
+c     batch
+c
+      if(inp_compare(.false.,'batch',item)) then
+      if(.not.inp_i(nfnewf)) call md_abort('md_input: error batch',15)
+      goto 2
+      endif
+c
+c     importing
 c
       if(inp_compare(.false.,'import',item)) then
       if(.not.inp_i(impfr)) then
@@ -1839,6 +1847,8 @@ c     + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:iradgy',mt_int,1,iradgy))
      + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:idifco',mt_int,1,idifco))
+     + call md_abort('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:nfnewf',mt_int,1,nfnewf))
      + call md_abort('md_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'md:fguide',mt_dbl,1,fguide))

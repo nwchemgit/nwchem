@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.176 2003-10-21 19:02:02 d3j191 Exp $
+c $Id: md_main.F,v 1.177 2003-10-27 19:06:56 d3j191 Exp $
 c
       implicit none
 c
@@ -1078,6 +1078,8 @@ c
       lequi=.true.
       lprpmf=.false.
       do 1 iequi=kequi+1,mequi
+c
+      mdstep=mdstep+1
       lpmfc=npmf.gt.1.and.iequi.gt.npmf
       call timer_start(201)
       call md_newton()
@@ -1086,6 +1088,7 @@ c
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsmp))
       call md_server
+      stime=stime+tstep
       call timer_stop(201)
     1 continue
       lpmfc=.true.
@@ -1099,12 +1102,21 @@ c
       call timer_start(205)
       do 2 idacq=kdacq+1,mdacq
 c
+      mdstep=mdstep+1
+c
+      lxw=frequency(mdstep,nfcoor)
+      lvw=frequency(mdstep,nfvelo)
+      lfw=frequency(mdstep,nfforc)
+      lxs=frequency(mdstep,nfscoo)
+      lvs=frequency(mdstep,nfsvel)
+      lfs=frequency(mdstep,nfsfor)
+      lesp=frequency(mdstep,nfesp)
+c
       call md_timer_init()
 c
       call timer_start(201)
 c
       call md_newton()
-c
 c
       call timer_start(6)
 c
@@ -1112,19 +1124,19 @@ c
       call sp_gaputf(me,dbl_mb(i_fw),nwmloc,dbl_mb(i_fs),nsaloc)
       endif
 c
-      if(me.eq.0.and.idacq.eq.mdacq.and.(lxw.or.lvw.or.lxs.or.lvs)) then
-      if(lqmd) then
-      call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
-     + .true.,.false.,.true.,.false.,box,stime,pres,temp,tempw,temps,
-     + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
-      else
-      call sp_wrttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
-     + stime,pres,temp,tempw,temps,
-     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
-     + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
-     + dbl_mb(i_fs))
-      endif
-      endif
+c      if(me.eq.0.and.idacq.eq.mdacq.and.(lxw.or.lvw.or.lxs.or.lvs)) then
+c      if(lqmd) then
+c      call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
+c     + .true.,.false.,.true.,.false.,box,stime,pres,temp,tempw,temps,
+c     + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
+c      else
+c      call sp_wrttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
+c     + stime,pres,temp,tempw,temps,
+c     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
+c     + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
+c     + dbl_mb(i_fs))
+c      endif
+c      endif
       call timer_stop(6)
 c
       call timer_start(55)
@@ -1134,7 +1146,7 @@ c
      + filnam(1:38)
  4000 format(i2,' md',a1,i7,' + ',i7,' @',f7.2,e9.2,' ',a)
       if(frequency(mdstep,nfrest)) then
-      call md_wrtrst(lfnrst,filrst,.true.)
+      call md_wrtrst(lfnrst,rfile,.true.)
       endif
       if(frequency(mdstep,nftime)) call md_wrtime
 c
@@ -1148,15 +1160,13 @@ c
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
-      lxw=frequency(mdstep,nfcoor)
-      lvw=frequency(mdstep,nfvelo)
-      lfw=frequency(mdstep,nfforc)
-      lxs=frequency(mdstep,nfscoo)
-      lvs=frequency(mdstep,nfsvel)
-      lfs=frequency(mdstep,nfsfor)
-      lesp=frequency(mdstep,nfesp)
-c
       call timer_stop(201)
+c
+      if(frequency(mdstep,nfnewf).and.idacq.ne.mdacq) then
+      call md_fopen(.true.)
+      endif
+c
+      stime=stime+tstep
 c
       if(lstop) then
       if(me.eq.0) write(*,1000) tleft,tneed
@@ -1364,11 +1374,14 @@ c
       lprpmf=.false.
       iprpmf=0
       do 2 iequi=kequi+1,mequi
+c
+      mdstep=mdstep+1
       lpmfc=npmf.gt.1.and.iequi.gt.npmf
       call timer_start(201)
       call md_newton()
       call timer_stop(201)
       jequi=iequi
+      stime=stime+tstep
     2 continue
       lpmfc=.true.
 c
@@ -1385,6 +1398,15 @@ c
       lprpmf=.true.
       iprpmf=-1
       do 3 idacq=kdacq+1,mdacq
+c
+      mdstep=mdstep+1
+c
+      lxw=frequency(mdstep,nfcoor)
+      lvw=frequency(mdstep,nfvelo)
+      lfw=frequency(mdstep,nfforc)
+      lxs=frequency(mdstep,nfscoo)
+      lvs=frequency(mdstep,nfsvel)
+      lfs=frequency(mdstep,nfsfor)
 c
       call md_timer_init()
 c
@@ -1406,41 +1428,36 @@ c
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
-      lxw=frequency(mdstep,nfcoor)
-      lvw=frequency(mdstep,nfvelo)
-      lfw=frequency(mdstep,nfforc)
-      lxs=frequency(mdstep,nfscoo)
-      lvs=frequency(mdstep,nfsvel)
-      lfs=frequency(mdstep,nfsfor)
-c
       if(lfw.or.lfs) then
       call sp_gaputf(me,dbl_mb(i_fw),nwmloc,dbl_mb(i_fs),nsaloc)
       endif
 c
-      if(me.eq.0.and.idacq.eq.mdacq.and.(lxw.or.lvw.or.lxs.or.lvs)) then
-      if(lqmd) then
-      call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
-     + .true.,.false.,.true.,.false.,box,stime,pres,temp,tempw,temps,
-     + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
-      else
-      call sp_wrttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
-     + stime,pres,temp,tempw,temps,
-     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
-     + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
-     + dbl_mb(i_fs))
-      endif
-      endif
+c      if(me.eq.0.and.idacq.eq.mdacq.and.(lxw.or.lvw.or.lxs.or.lvs)) then
+c      if(lqmd) then
+c      call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
+c     + .true.,.false.,.true.,.false.,box,stime,pres,temp,tempw,temps,
+c     + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
+c      else
+c      call sp_wrttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
+c     + stime,pres,temp,tempw,temps,
+c     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
+c     + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
+c     + dbl_mb(i_fs))
+c      endif
+c      endif
 c
       write(projct,4000) nserie,irun,mrun,mequi,idacq,tmpext,
      + filnam(1:32)
  4000 format(i2,' ti ',i5,'/',i5,' :',i7,'+ ',i7,' @ ',f7.2,' K ',a)
-      if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
+      if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,rfile,.true.)
       if(frequency(mdstep,nftime)) call md_wrtime
 c
       call timer_stop(201)
 c
       jdacq=idacq
       if(idacq.gt.ldacq.and.done) goto 4
+c
+      stime=stime+tstep
 c
     3 continue
     4 continue
@@ -1509,9 +1526,6 @@ c
 c     start timer
 c
       call timer_start(1)
-c
-      mdstep=mdstep+1
-      stime=stime+tstep
 c
 c     debug code
 c
@@ -1646,7 +1660,7 @@ c
       if(lfw.or.lfs) then
       call sp_gaputf(me,dbl_mb(i_fw),nwmloc,dbl_mb(i_fs),nsaloc)
       call sp_wrttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
-     + stime-tstep,pres,temp,tempw,temps,
+     + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
      + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_fs))
@@ -1671,7 +1685,7 @@ c
       else
       if(.not.lfw.and..not.lfs) then
       call sp_wrttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
-     + stime-tstep,pres,temp,tempw,temps,
+     + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
      + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_fs))
@@ -2639,7 +2653,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.176 2003-10-21 19:02:02 d3j191 Exp $
+c $Id: md_main.F,v 1.177 2003-10-27 19:06:56 d3j191 Exp $
 c
       implicit none
 c

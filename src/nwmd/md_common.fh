@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.76 2003-10-21 19:02:02 d3j191 Exp $
+c $Id: md_common.fh,v 1.77 2003-10-27 19:06:56 d3j191 Exp $
 c
 c     parameters
 c
@@ -96,18 +96,20 @@ c
 c     md_nam : filenames
 c     -------------------
 c
-      character*80 filnam,fdarg,fdlog,fsum,server,projct
+      character*80 root,filnam,fdarg,fdlog,fsum,server,projct
       character*70 filday,filinp,filrst,filtop,filtrj,filprp,filfld,
      + filgib,filppd,filhis,filhbo,filsfl,filcmd,filtri,
      + filmro,filmri,filout,filmem,fildef,filpmf,filhop,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
-     + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst
+     + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
+     + rfile
       common/md_nam/
-     + filnam,filday,filinp,filrst,filtop,filtrj,filprp,filfld,
+     + root,filnam,filday,filinp,filrst,filtop,filtrj,filprp,filfld,
      + filgib,filppd,filhis,filhbo,filsfl,filcmd,filtri,
      + filmro,filmri,filout,filmem,fildef,filpmf,filhop,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
+     + rfile,
      + fdarg,fdlog,fsum,server,projct
 c
       character*80 tittop(3),titrst(3),titinp(3)
@@ -145,7 +147,7 @@ c
      + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,npmfi,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb(10),mbbreq,ioload,iprof,
      + isload,ncoll,ipopt,ilambd,mlambd,includ,iradgy,idifco,ndums,
-     + ipbtyp,inp_ptr
+     + ipbtyp,nfnewf,ibatch,inp_ptr
       common/md_inp/ptol,rshort,rlong,stime,tstep,elam,ddacq,edacq,
      + fdacq,weight,facapp,dgscl,dgref,ddgscl,ssshft,dx0sd,dxmsd,
      + dxsdmx,dx0cg,dxcgmx,tlwsha,tlssha,rrdf,rdip,rkirk,prsext,prsrlx,
@@ -176,7 +178,7 @@ c
      + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,npmfi,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb,mbbreq,ioload,iprof,
      + isload,ncoll,ipopt,ilambd,mlambd,includ,iradgy,idifco,ndums,
-     + ipbtyp,inp_ptr
+     + ipbtyp,nfnewf,ibatch,inp_ptr
 c
       logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
      + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi,lpmfc,lesp,

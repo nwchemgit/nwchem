@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.97 2003-10-27 15:25:24 d3j191 Exp $
+c $Id: prp_main.F,v 1.98 2003-10-27 19:06:56 d3j191 Exp $
 c
       implicit none
 c
@@ -625,6 +625,16 @@ c
       do 1 i=1,nprop
       psump(ixp(i))=zero
     1 continue
+c
+      return
+      end
+      subroutine prp_header()
+c
+      implicit none
+c
+#include "prp_common.fh"
+c
+      lfhdr=.false.
 c
       return
       end

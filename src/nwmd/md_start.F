@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.152 2003-10-22 17:01:02 d3j191 Exp $
+c $Id: md_start.F,v 1.153 2003-10-27 19:06:56 d3j191 Exp $
 c
       implicit none
 c
@@ -26,7 +26,7 @@ c
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,lqmd,
      + iguide,lfndbg,idebug,projct,mbbreq,nserie,isload,ireset,icntrl,
-     + nseq,i_lseq,ndums)
+     + nseq,i_lseq,ndums,nfnewf,ibatch)
       endif
 c
 c     start the analysis API
@@ -295,6 +295,7 @@ c
 c
 c     set file names
 c
+      root=filnam(1:ibl)
       filday=filnam(1:ibl)//'.day'
       filinp=filnam(1:ibl)//'.inp'
       filrst=filnam(1:ibl)//'.rst'
@@ -333,6 +334,7 @@ c
       filtri=filnam(1:ibl)//'.tri'
       filpmf=filnam(1:ibl)//'.pmf'
       filhop=filnam(1:ibl)//'.hop'
+      rfile=filrst
 c
 c     set logical file numbers
 c
@@ -555,6 +557,9 @@ c
       nfkirk=0
 c
       issscl=0
+c
+      nfnewf=0
+      ibatch=0
 c
 c     constant p
 c
@@ -934,6 +939,8 @@ c     + call md_abort('md_rtdbin: rtdb_get failed',92)
      + call md_abort('md_rtdbin: rtdb_get failed',89)
       if(.not.rtdb_get(irtdb,'md:idifco',mt_int,1,idifco))
      + call md_abort('md_rtdbin: rtdb_get failed',89)
+      if(.not.rtdb_get(irtdb,'md:nfnewf',mt_int,1,nfnewf))
+     + call md_abort('md_rtdbin: rtdb_get failed',89)
 c
       if(.not.rtdb_get(irtdb,'md:fguide',mt_dbl,1,fguide))
      + call md_abort('md_rtdbin: rtdb_get failed',100)
@@ -1259,20 +1266,10 @@ c
 c     open recording file
 c
       if(me.eq.0) then
-      if(ntype.ne.3) then
-      if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
-      open(unit=lfntrj,file=filtrj(1:index(filtrj,' ')-1),
-     + form='formatted',status='unknown')
+      if(nfnewf.gt.0) then
+      call md_fopen(.false.)
       endif
-      if(nfhop.gt.0) then
-      open(unit=lfnhop,file=filhop(1:index(filhop,' ')-1),
-     + form='formatted',status='unknown')
-      endif
-      if(nfprop.gt.0) then
-      open(unit=lfnprp,file=filprp(1:index(filprp,' ')-1),
-     + form='formatted',status='unknown')
-      endif
-      endif
+c
       if(ntype.eq.3) then
       open(unit=lfngib,file=filgib(1:index(filgib,' ')-1),
      + form='formatted',status='unknown')
@@ -1281,129 +1278,7 @@ c
       open(unit=lfntri,file=filtri(1:index(filtri,' ')-1),
      + form='formatted',status='unknown')
       endif
-      if(ntype.eq.2.and.iprpmf.ne.0) then
-      open(unit=iabs(lfnpmf),file=filpmf(1:index(filpmf,' ')-1),
-     + form='formatted',status='unknown')
-      endif
-      if(nftime.gt.0) then
-      open(unit=lfntim,file=filtim(1:index(filtim,' ')-1),
-     + form='formatted',status='unknown')
-      write(lfntim,1200) np,56
- 1200 format(2i5)
-      write(lfntim,1201)
-      write(lfntim,1202)
-      write(lfntim,1203)
-      write(lfntim,1204)
-      write(lfntim,1205)
-      write(lfntim,1206)
-      write(lfntim,1207)
-      write(lfntim,1208)
-      write(lfntim,1209)
-      write(lfntim,1210)
-      write(lfntim,1211)
-      write(lfntim,1212)
-      write(lfntim,1213)
-      write(lfntim,1214)
-      write(lfntim,1215)
-      write(lfntim,1216)
-      write(lfntim,1217)
-      write(lfntim,1218)
-      write(lfntim,1219)
-      write(lfntim,1220)
-      write(lfntim,1221)
-      write(lfntim,1222)
-      write(lfntim,1223)
-      write(lfntim,1224)
-      write(lfntim,1225)
-      write(lfntim,1226)
-      write(lfntim,1227)
-      write(lfntim,1228)
-      write(lfntim,1229)
-      write(lfntim,1230)
-      write(lfntim,1231)
-      write(lfntim,1232)
-      write(lfntim,1233)
-      write(lfntim,1234)
-      write(lfntim,1235)
-      write(lfntim,1236)
-      write(lfntim,1237)
-      write(lfntim,1238)
-      write(lfntim,1239)
-      write(lfntim,1240)
-      write(lfntim,1241)
-      write(lfntim,1242)
-      write(lfntim,1243)
-      write(lfntim,1244)
-      write(lfntim,1245)
-      write(lfntim,1246)
-      write(lfntim,1247)
-      write(lfntim,1248)
-      write(lfntim,1249)
-      write(lfntim,1250)
-      write(lfntim,1251)
-      write(lfntim,1252)
-      write(lfntim,1253)
-      write(lfntim,1254)
-      write(lfntim,1255)
-      write(lfntim,1256)
- 1201 format('  1 : Initialization velocities')
- 1202 format('  2 : Periodic Boundary Conditions')
- 1203 format('  3 : Dynamic Load Balancing')
- 1204 format('  4 : Atom Redistribution')
- 1205 format('  5 : Center of Mass Coordinates')
- 1206 format('  6 : Recording Trajectory')
- 1207 format('  7 : CAFE Initialization')
- 1208 format('  8 : QMD Forces Evaluation')
- 1209 format('  9 : Synchronization')
- 1210 format(' 10 : SPACE Initialization')
- 1211 format(' 11 : Synchronization')
- 1212 format(' 12 : Collapse Option')
- 1213 format(' 13 : External Fields')
- 1214 format(' 14 : Multiprocs Data Initialization')
- 1215 format(' 15 : Multiprocs Data Communication')
- 1216 format(' 16 : Multiprocs Data Forces Evaluation')
- 1217 format(' 17 : Restraints Data Initialization')
- 1218 format(' 18 : Restraints Data Communication')
- 1219 format(' 19 : Restraints Data Forces Evaluation')
- 1220 format(' 20 : PMF Data Initialization')
- 1221 format(' 21 : PMF Data Communication')
- 1222 format(' 22 : PMF Data Forces Evaluation')
- 1223 format(' 23 : Induced Dipoles Evaluation')
- 1224 format(' 24 : PME Initialization')
- 1225 format(' 25 : PME Charge Grid Evaluation')
- 1226 format(' 26 : PME Charge Grid Communication')
- 1227 format(' 27 : PME Charge Grid Retrieval')
- 1228 format(' 28 : PME Reverse 3D-pFFT')
- 1229 format(' 29 : PME Energy Evaluation')
- 1230 format(' 30 : PME Synchronization')
- 1231 format(' 31 : PME Forward 3D-pFFT')
- 1232 format(' 32 : PME Synchronization')
- 1233 format(' 33 : Local Coordinates Retrieval')
- 1234 format(' 34 : Local Forces Evaluation')
- 1235 format(' 35 : Local Force Accumulation')
- 1236 format(' 36 : Non-Local Coordinates Retrieval')
- 1237 format(' 37 : Non-Local Forces Evaluation')
- 1238 format(' 38 : Non-Local Force Accumulation')
- 1239 format(' 39 : PME Wait')
- 1240 format(' 40 : PME Forces Evaluation')
- 1241 format(' 41 : PME Forces Communication')
- 1242 format(' 42 : PME Node Synchronization')
- 1243 format(' 43 : PME Flag')
- 1244 format(' 44 : Synchronization')
- 1245 format(' 45 : SPACE Finalization')
- 1246 format(' 46 : QM/MM Forces Evaluation')
- 1247 format(' 47 : Forces Normalization')
- 1248 format(' 48 : Guided MD Forces')
- 1249 format(' 49 : MD Time Step')
- 1250 format(' 50 : SHAKE')
- 1251 format(' 51 : CAFE Finalization')
- 1252 format(' 52 : Center of Mass Motion Removal')
- 1253 format(' 53 : SPACE Update')
- 1254 format(' 54 : Property Evaluation')
- 1255 format(' 55 : Restart File Update')
- 1256 format(' 56 : TOTAL TIME PER STEP')
-c          
-      endif
+c
       if(itest.gt.0) then
       open(unit=lfntst,file=filtst(1:index(filtst,' ')-1),
      + form='formatted',status='unknown')
@@ -1743,7 +1618,7 @@ c
  1007 format(i5,6f12.6)
       read(lfn,1008) nfgaus,ivopt,tgauss,iseed
  1008 format(2i7,f12.6,i12)
-      read(lfn,1009) nfoutp,nfstat,nfprop
+      read(lfn,1009) nfoutp,nfstat,nfprop,nfnewf,ibatch
  1009 format(11i7)
       read(lfn,1009) ibinar,iformt
       read(lfn,1009) nfcoor,nfscoo,nfvelo,nfsvel,nfforc,nfsfor
@@ -1807,7 +1682,7 @@ c
       tmpext=tmpext1
       write(lfn,1008) nfgaus,ivopt,tgauss,iseed
  1008 format(2i7,f12.6,i12)
-      write(lfn,1009) nfoutp,nfstat,nfprop
+      write(lfn,1009) nfoutp,nfstat,nfprop,nfnewf,ibatch
  1009 format(11i7)
       write(lfn,1009) ibinar,iformt
       write(lfn,1009) nfcoor,nfscoo,nfvelo,nfsvel,nfforc,nfsfor
@@ -1826,5 +1701,186 @@ c
       write(lfn,1015) nfkirk,nkirk,rkirk
  1015 format(2i7,f12.6)
 c
+      return
+      end
+      subroutine md_fopen(lclose)
+c
+      implicit none
+c
+#include "md_common.fh"
+c
+      logical lclose
+c
+      if(nfnewf.gt.0) then
+      ibatch=ibatch+1
+      write(filtrj,1000) root(1:index(root,' ')-1),
+     + ibatch,'.trj'
+      write(filhop,1000) root(1:index(root,' ')-1),
+     + ibatch,'.hop'
+      write(filprp,1000) root(1:index(root,' ')-1),
+     + ibatch,'.prp'
+      write(filpmf,1000) root(1:index(root,' ')-1),
+     + ibatch,'.pmf'
+      write(filtim,1000) root(1:index(root,' ')-1),
+     + ibatch,'.tim'
+      write(rfile,1000) root(1:index(root,' ')-1),
+     + ibatch,'.rst'
+ 1000 format(a,i3.3,a)
+      endif
+c
+      if(ntype.ne.3) then
+      if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
+      if(lclose) close(lfntrj)
+      open(unit=lfntrj,file=filtrj(1:index(filtrj,' ')-1),
+     + form='formatted',status='unknown')
+      call cf_trjhdr(lfntrj)
+      endif
+      if(nfhop.gt.0) then
+      if(lclose) close(lfnhop)
+      open(unit=lfnhop,file=filhop(1:index(filhop,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+      if(nfprop.gt.0) then
+      if(lclose) close(lfnprp)
+      open(unit=lfnprp,file=filprp(1:index(filprp,' ')-1),
+     + form='formatted',status='unknown')
+      call prp_header()
+      endif
+      endif
+      if(ntype.eq.2.and.iprpmf.ne.0) then
+      if(lclose) close(lfnpmf)
+      open(unit=iabs(lfnpmf),file=filpmf(1:index(filpmf,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+      if(nftime.gt.0) then
+      if(lclose) close(lfntim)
+      open(unit=lfntim,file=filtim(1:index(filtim,' ')-1),
+     + form='formatted',status='unknown')
+      call md_hdrtim()
+      endif
+c
+      return
+      end
+      subroutine md_hdrtim()
+c
+      implicit none
+c
+#include "md_common.fh"
+c
+      write(lfntim,1200) np,56
+ 1200 format(2i5)
+      write(lfntim,1201)
+      write(lfntim,1202)
+      write(lfntim,1203)
+      write(lfntim,1204)
+      write(lfntim,1205)
+      write(lfntim,1206)
+      write(lfntim,1207)
+      write(lfntim,1208)
+      write(lfntim,1209)
+      write(lfntim,1210)
+      write(lfntim,1211)
+      write(lfntim,1212)
+      write(lfntim,1213)
+      write(lfntim,1214)
+      write(lfntim,1215)
+      write(lfntim,1216)
+      write(lfntim,1217)
+      write(lfntim,1218)
+      write(lfntim,1219)
+      write(lfntim,1220)
+      write(lfntim,1221)
+      write(lfntim,1222)
+      write(lfntim,1223)
+      write(lfntim,1224)
+      write(lfntim,1225)
+      write(lfntim,1226)
+      write(lfntim,1227)
+      write(lfntim,1228)
+      write(lfntim,1229)
+      write(lfntim,1230)
+      write(lfntim,1231)
+      write(lfntim,1232)
+      write(lfntim,1233)
+      write(lfntim,1234)
+      write(lfntim,1235)
+      write(lfntim,1236)
+      write(lfntim,1237)
+      write(lfntim,1238)
+      write(lfntim,1239)
+      write(lfntim,1240)
+      write(lfntim,1241)
+      write(lfntim,1242)
+      write(lfntim,1243)
+      write(lfntim,1244)
+      write(lfntim,1245)
+      write(lfntim,1246)
+      write(lfntim,1247)
+      write(lfntim,1248)
+      write(lfntim,1249)
+      write(lfntim,1250)
+      write(lfntim,1251)
+      write(lfntim,1252)
+      write(lfntim,1253)
+      write(lfntim,1254)
+      write(lfntim,1255)
+      write(lfntim,1256)
+ 1201 format('  1 : Initialization velocities')
+ 1202 format('  2 : Periodic Boundary Conditions')
+ 1203 format('  3 : Dynamic Load Balancing')
+ 1204 format('  4 : Atom Redistribution')
+ 1205 format('  5 : Center of Mass Coordinates')
+ 1206 format('  6 : Recording Trajectory')
+ 1207 format('  7 : CAFE Initialization')
+ 1208 format('  8 : QMD Forces Evaluation')
+ 1209 format('  9 : Synchronization')
+ 1210 format(' 10 : SPACE Initialization')
+ 1211 format(' 11 : Synchronization')
+ 1212 format(' 12 : Collapse Option')
+ 1213 format(' 13 : External Fields')
+ 1214 format(' 14 : Multiprocs Data Initialization')
+ 1215 format(' 15 : Multiprocs Data Communication')
+ 1216 format(' 16 : Multiprocs Data Forces Evaluation')
+ 1217 format(' 17 : Restraints Data Initialization')
+ 1218 format(' 18 : Restraints Data Communication')
+ 1219 format(' 19 : Restraints Data Forces Evaluation')
+ 1220 format(' 20 : PMF Data Initialization')
+ 1221 format(' 21 : PMF Data Communication')
+ 1222 format(' 22 : PMF Data Forces Evaluation')
+ 1223 format(' 23 : Induced Dipoles Evaluation')
+ 1224 format(' 24 : PME Initialization')
+ 1225 format(' 25 : PME Charge Grid Evaluation')
+ 1226 format(' 26 : PME Charge Grid Communication')
+ 1227 format(' 27 : PME Charge Grid Retrieval')
+ 1228 format(' 28 : PME Reverse 3D-pFFT')
+ 1229 format(' 29 : PME Energy Evaluation')
+ 1230 format(' 30 : PME Synchronization')
+ 1231 format(' 31 : PME Forward 3D-pFFT')
+ 1232 format(' 32 : PME Synchronization')
+ 1233 format(' 33 : Local Coordinates Retrieval')
+ 1234 format(' 34 : Local Forces Evaluation')
+ 1235 format(' 35 : Local Force Accumulation')
+ 1236 format(' 36 : Non-Local Coordinates Retrieval')
+ 1237 format(' 37 : Non-Local Forces Evaluation')
+ 1238 format(' 38 : Non-Local Force Accumulation')
+ 1239 format(' 39 : PME Wait')
+ 1240 format(' 40 : PME Forces Evaluation')
+ 1241 format(' 41 : PME Forces Communication')
+ 1242 format(' 42 : PME Node Synchronization')
+ 1243 format(' 43 : PME Flag')
+ 1244 format(' 44 : Synchronization')
+ 1245 format(' 45 : SPACE Finalization')
+ 1246 format(' 46 : QM/MM Forces Evaluation')
+ 1247 format(' 47 : Forces Normalization')
+ 1248 format(' 48 : Guided MD Forces')
+ 1249 format(' 49 : MD Time Step')
+ 1250 format(' 50 : SHAKE')
+ 1251 format(' 51 : CAFE Finalization')
+ 1252 format(' 52 : Center of Mass Motion Removal')
+ 1253 format(' 53 : SPACE Update')
+ 1254 format(' 54 : Property Evaluation')
+ 1255 format(' 55 : Restart File Update')
+ 1256 format(' 56 : TOTAL TIME PER STEP')
+c          
       return
       end
