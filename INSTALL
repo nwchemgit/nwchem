@@ -1,9 +1,25 @@
 
-        Guide to Installing NWChem  
-        ==========================
-        $Id: INSTALL,v 1.13 1998-09-22 23:24:45 d3e129 Exp $
+Guide to Installing NWChem  
+====================================================
+$Id: INSTALL,v 1.14 1998-10-05 20:37:24 d3e129 Exp $
+----------------------------------------------------
+
+SOURCE CODE PROTECTION:
+----------------------
+Your User agreement states that you will protect the source code from
+the general public.  You are not allowed to redistribute the software
+in any form.  Please make sure the source code is protected by issuing
+the following commands in the root NWChem directory (where this file
+lives):
+
+find . -exec chmod go-rwx "{}" ";"
+
+See the instructions below after you have built the code for
+installing the binaries and data files in a public place.
 
 
+BUILDING NWCHEM:
+---------------
   DO THESE STEPS IN ORDER OR THE BUILD WILL FAIL
                                        ----
 
@@ -116,8 +132,28 @@
 
 	$NWCHEM_TOP/bin/SP1          (executables)
         $NWCHEM_TOP/lib/SP1          (libraries)
+7) If you will be installing NWChem for general site use please also
+   build the version info to help us determine exactly which version
+   and patched version of NWChem you are using.  To do this you do the
+   following: 
+   cd $NWCHEM_TOP/src/util
+   make version
+   make
+   cd $NWCHEM_TOP/src
+   make link
+
+   Note: Some compilers cannot build the full version file due to a
+   lack of memory available to the compiler.  If the make in
+   $NWCHEM_TOP/src/util fails try instead: 
+   cd $NWCHEM_TOP/src/util
+   make smallversion
+   make
+   cd $NWCHEM_TOP/src
+   make link
 
 
+ALTERNATIVE BUILD MODE:
+----------------
    An alternative to steps 2 thru 6 is to specify all variables
    on the make command line.  This is recommended only for one
    time builds.  For instance, to build just the quantum mechanical
@@ -125,15 +161,76 @@
 
        make NWCHEM_TOP=/home/nwchem NWCHEM_TARGET=IBM NWCHEM_MODULES=qm
 
+POINT OF CONTACT USERS:
+----------------------
+   If you are the NWChem point-of-contact for a given site please
+build and use the java tool in $NWCHEM_TOP/contrib/javasupport.  The
+java class files and images are already built and available at the
+binary download site.  If you have access to the source code you also
+have access to the binary download site.  You need java 1.1.1 or
+higher to use the tool.  This form formats information and allows the
+attachment of input and output files via a simple browsing mechanism.
+Use of this tool will greatly facilitate any support you may need for
+using NWChem.
+
+
+INSTALLING NWCHEM FOR GENERAL SITE USE: 
+--------------------------------------
+   The build procedures outlined above will allow use of NWChem within
+the NWChem directory structure.  The code will look for the basis set
+library file in a default place within that directory structure.  To
+install the code in a general, public place (e.g., /usr/local/NWChem)
+you need to do the following:
+
+A) determine the local storage path for the install files. (e.g.,
+   /usr/local/NWChem).
+
+B) make directories
+   mkdir /usr/local/NWChem
+   mkdir /usr/local/NWChem/bin
+   mkdir /usr/local/NWChem/data
+
+C) cp $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem /usr/local/NWChem/bin
+   cp $NWCHEM_TOP/bin/$NWCHEM_TARGET/parallel /usr/local/NWChem/bin 
+   cd /usr/local/NWChem/bin
+   chmod 755 nwchem 
+   chmod 755 parallel
+   Note: parallel does not exist for all builds.  To learn how to use
+         parallel consult the on-line documentation at:
+         http://www.emsl.pnl.gov:2080/docs/nwchem/doc/user/index.html
+	 or read the README files in $NWCHEM_TOP/src/tcgmsg    
+
+D) cp $NWCHEM_TOP/src/basis/library /usr/local/NWChem/data
+   cd $NWCHEM/src/nwadata
+   cp -r * /usr/local/NWChem/data
+
+E) Each user will need a .nwchemrc file to point to these default data
+   files.  A global one could be put in /usr/local/NWChem/data and a
+   symbolic link made in each users $HOME directory which is probably
+   the best plan for new installs.  Users would have to issue the
+   following command prior to using NWChem:
+   ln -s /usr/local/NWChem/data/default.nwchemrc $HOME/.nwchemrc
+
+F) Contents of the default.nwchemrc file based on the above
+   information should be:
+
+   nwchem_basis_library /usr/local/NWChem/data/library
+   ffield amber
+   amber_s /usr/local/NWChem/data/nwadata/amber/amber_s/
+   spce /usr/local/NWChem/data/nwadata/solvents/spce.rst
+   charmm_s /usr/local/NWChem/data/nwadata/charmm/charmm_s/
+
+   Of course users can copy this file instead of making the symbolic
+   link described above and change these defaults at their discretion.
+
 
 NOTE TO MPI USERS:
 -----------------
 
    NWChem can be compiled to use MPI instead of TCGMSG for message
-   passing on many systems, though this is still somewhat experimental
-   and not particulary tested it can be done.  Please contact 
-   nwchem-support@emsl.pnl.gov to get assistance with this procedure.
-
-
+   passing on many systems. Although this is still somewhat
+   experimental and not particulary tested it can be done.  Please
+   contact nwchem-support@emsl.pnl.gov to get assistance with this
+   procedure.  
 
 
