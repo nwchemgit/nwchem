@@ -68,7 +68,10 @@ NB   -FE   -NP      1.57080 4.18400E+02
 NO   -FE   -NO      1.57080 0.00000E+00
 NO   -FE   -NP      1.57080 4.18400E+02
 NP   -FE   -NP      1.57080 0.00000E+00
-N2   -CA   -CT      2.09440 5.85760E+02 !taken from N2 -CA N2; RDL 07/31/00
+N2   -CA   -CT      2.09440 5.85760E+02 rdl000731 taken from N2-CA-N2
+CM   -C    -O2      2.04204 5.85760E+02 tps020326 taken from CT-C-O2 
+CB   -CT   -S       2.00189 4.18400E+02 tps020326 taken from CT-CT-S
+CB   -CT   -H1      1.91114 4.18400E+02 tps020326 taken from CM-CT-H1
 Proper dihedrals
      -NB   -FE   -        0.00000 0.00000E+02    2
      -NO   -FE   -        3.14159 0.00000E+02    2
@@ -88,6 +91,7 @@ Improper dihedrals
      -     -CB   -CY      3.14159 4.18400E+00    2
      -     -CB   -CT      3.14159 4.18400E+00    2
      -     -CD   -HC      3.14159 4.18400E+00    2
+     -     -N*   -H       3.14159 4.50240E+00    2
 Atom types
 Li        3  0    0    0  0      0  0      0      0      0
                                  0  0      0      0      0
