@@ -283,7 +283,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.9 1997-05-25 19:12:31 d3g681 Exp $
+C$Id: util_file_name.F,v 1.10 1997-05-25 21:19:53 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -458,6 +458,7 @@ c
 #include "util.fh"
 #include "eaf.fh"
 #include "cfileprefix.fh"
+#include "inp.fh"
 c
 c     Return the amount of space in Kb available in the scratch
 c     directory for this process.
