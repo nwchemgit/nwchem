@@ -3,7 +3,7 @@
      $     sym_hi_ob,num_ob,sym_lo_vb,sym_hi_vb,nir,num_va,num_vb,
      $     oseg_lo,oseg_hi,irs_a,irs_b,nva_lo_local,nva_hi_local,
      $     noa_lo,noa_hi,nob_lo,nob_hi,t_a,t_b,
-     $     tunita,tunitb,p_ij_a,p_ij_b,p_ab_a,p_ab_b,eval_a,eval_b,
+     $     tunita,tunitb,eval_a,eval_b,
      $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b)
       implicit none
 #include "global.fh"
@@ -23,11 +23,9 @@
       integer nir
       double precision zero,one,minusone,half,mhalf
       integer syma,symi,symb,symj,symia
-      integer irs_a(*),irs_b(*),b,j
+      integer irs_a(*),irs_b(*),b
       integer nva_lo_local,nva_hi_local
-      double precision p_ij_a(*),p_ab_a(*),p_ij_b(*),p_ab_b(*)
       double precision t_a(*),t_b(*)
-      double precision denom
       integer tunitptra,tunitptrb,counta,countb,ierr
       integer g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b
       integer msg_p_ij_a_sum,msg_p_ij_b_sum
@@ -37,27 +35,38 @@
       parameter(msg_p_ab_a_sum=9998)
       parameter(msg_p_ab_b_sum=9997)
       double precision eval_a(*),eval_b(*)
-c$$$      double precision eaa,eab
       integer tcounta,tcountb
       integer pijacnt,pijbcnt,pabacnt,pabbcnt
+c
+      integer k_p_ij_a,k_p_ij_b
+      integer l_p_ij_a,l_p_ij_b
+      integer k_p_ab_a,k_p_ab_b
+      integer l_p_ab_a,l_p_ab_b
+c
+      noa=noa_hi-noa_lo+1
+      nva=nva_hi-nva_lo+1
+      nob=nob_hi-nob_lo+1
+      nvb=nvb_hi-nvb_lo+1
+      if(.not.ma_push_get(mt_dbl,noa*noa,'p_ij_a',l_p_ij_a,k_p_ij_a))
+     $     call errquit('could not alloc p_ij_a',noa*noa)
+      if(.not.ma_push_get(mt_dbl,nva*nva,'p_ab_a',l_p_ab_a,k_p_ab_a))
+     $     call errquit('could not alloc p_ab_a',nva*nva)
+      if(.not.ma_push_get(mt_dbl,nob*nob,'p_ij_b',l_p_ij_b,k_p_ij_b))
+     $     call errquit('could not alloc p_ij_b',nob*nob)
+      if(.not.ma_push_get(mt_dbl,nvb*nvb,'p_ab_b',l_p_ab_b,k_p_ab_b))
+     $     call errquit('could not alloc p_ab_b',nvb*nvb)
 c     
-c$$$      eaa=0.0d0
-c$$$      eab=0.0d0
       zero=0.0d0
       one=1.0d0
       half=0.5d0
       minusone=-1.0d0
       mhalf=-0.5d0
-      noa=noa_hi-noa_lo+1
-      nva=nva_hi-nva_lo+1
-      nob=nob_hi-nob_lo+1
-      nvb=nvb_hi-nvb_lo+1
       tunitptra=1
       tunitptrb=1
-      call dfill((noa*noa),zero,p_ij_a,1)
-      call dfill((nva*nva),zero,p_ab_a,1)
-      call dfill((nob*nob),zero,p_ij_b,1)
-      call dfill((nvb*nvb),zero,p_ab_b,1)
+      call dfill((noa*noa),zero,dbl_mb(k_p_ij_a),1)
+      call dfill((nva*nva),zero,dbl_mb(k_p_ab_a),1)
+      call dfill((nob*nob),zero,dbl_mb(k_p_ij_b),1)
+      call dfill((nvb*nvb),zero,dbl_mb(k_p_ab_b),1)
       do i=oseg_lo,oseg_hi 
          symi=irs_a(i)
          do a_a=nva_lo_local,nva_hi_local 
@@ -74,12 +83,6 @@ c$$$      eab=0.0d0
                   if(ierr.ne.0)call errquit(
      $                 'problem reading t_a back in',ierr)
                   tunitptra=tunitptra+counta
-c$$$                  do j=sym_lo_oa(symj),sym_hi_oa(symj)
-c$$$                     denom=eval_a(a_a)+eval_a(b)
-c$$$     $                    -eval_a(i)-eval_a(j)
-c$$$                     eaa=eaa+t_a(tcounta+j-sym_lo_oa(symj))
-c$$$     $                    *t_a(tcounta+j-sym_lo_oa(symj))*denom
-c$$$                  enddo
                   tcounta=tcounta+counta
                endif
             enddo
@@ -95,19 +98,13 @@ c$$$                  enddo
                   if(ierr.ne.0)call errquit(
      $                 'problem reading t_b back in',ierr)
                   tunitptrb=tunitptrb+countb
-c$$$                  do j=sym_lo_ob(symj),sym_hi_ob(symj)
-c$$$                     denom=eval_a(a_a)+eval_b(b)
-c$$$     $                    -eval_a(i)-eval_b(j)
-c$$$                     eab=eab+t_b(tcountb+j-sym_lo_ob(symj))
-c$$$     $                    *t_b(tcountb+j-sym_lo_ob(symj))*denom
-c$$$                  enddo
                   tcountb=tcountb+countb
                endif
             enddo
             tcounta=1
             tcountb=1
-            pijacnt=1
-            pabacnt=1
+            pijacnt=k_p_ij_a
+            pabacnt=k_p_ab_a
             do symb=0,nir-1
                symj=ieor(symia,symb)
                if(num_oa(symj).gt.0.and.num_va(symb).gt.0)then
@@ -115,49 +112,52 @@ c$$$                  enddo
      $                 num_oa(symj),num_va(symb),mhalf,
      $                 t_a(tcounta),num_oa(symj),
      $                 t_a(tcounta),num_oa(symj),
-     $                 one,p_ij_a(pijacnt),num_oa(symj))
+     $                 one,dbl_mb(pijacnt),num_oa(symj))
                   pijacnt=pijacnt+num_oa(symi)*num_oa(symj)
                   call dgemm('t','n',num_va(symb),
      $                 num_va(symb),num_oa(symj),half,
      $                 t_a(tcounta),num_oa(symj),
      $                 t_a(tcounta),num_oa(symj),
-     $                 one,p_ab_a(pabacnt),num_va(symb))
+     $                 one,dbl_mb(pabacnt),num_va(symb))
                   tcounta=tcounta+num_oa(symj)*num_va(symb)
                   pabacnt=pabacnt+num_va(syma)*num_va(symb)
                endif
-               pijbcnt=1
-               pabbcnt=1
+               pijbcnt=k_p_ij_b
+               pabbcnt=k_p_ab_b
                if(num_ob(symj).gt.0.and.num_vb(symb).gt.0)then
                   call dgemm('n','t',num_ob(symj),
      $                 num_ob(symj),num_vb(symb),minusone,
      $                 t_b(tcountb),num_ob(symj),
      $                 t_b(tcountb),num_ob(symj),
-     $                 one,p_ij_b(pijbcnt),num_ob(symj))
+     $                 one,dbl_mb(pijbcnt),num_ob(symj))
                   pijbcnt=pijbcnt+num_ob(symi)*num_ob(symj)
                   call dgemm('t','n',num_vb(symb),
      $                 num_vb(symb),num_ob(symj),one,
      $                 t_b(tcountb),num_ob(symj),
      $                 t_b(tcountb),num_ob(symj),
-     $                 one,p_ab_b(pabbcnt),num_vb(symb))
+     $                 one,dbl_mb(pabbcnt),num_vb(symb))
                   tcountb=tcountb+num_ob(symj)*num_vb(symb)
                   pabbcnt=pabbcnt+num_vb(syma)*num_vb(symb)
                endif
             enddo
          enddo
       enddo
-c$$$      call ga_dgop(1,eaa,1,'+')
-c$$$      call ga_dgop(1,eab,1,'+')
-      call ga_dgop(msg_p_ij_a_sum,p_ij_a,noa*noa,'+')
-      call ga_dgop(msg_p_ab_a_sum,p_ab_a,nva*nva,'+')
-      call ga_dgop(msg_p_ij_b_sum,p_ij_b,nob*nob,'+')
-      call ga_dgop(msg_p_ab_b_sum,p_ab_b,nvb*nvb,'+')
+c
+      call ga_dgop(msg_p_ij_a_sum,dbl_mb(k_p_ij_a),noa*noa,'+')
+      call ga_dgop(msg_p_ab_a_sum,dbl_mb(k_p_ab_a),nva*nva,'+')
+      call ga_dgop(msg_p_ij_b_sum,dbl_mb(k_p_ij_b),nob*nob,'+')
+      call ga_dgop(msg_p_ab_b_sum,dbl_mb(k_p_ab_b),nvb*nvb,'+')
       call ga_sync()
       if(ga_nodeid().eq.0)then
-         call ga_acc(g_p_ij_a,1,noa,1,noa,p_ij_a,noa,one)
-         call ga_acc(g_p_ij_b,1,nob,1,nob,p_ij_b,nob,one)
-         call ga_acc(g_p_ab_a,1,nva,1,nva,p_ab_a,nva,one)
-         call ga_acc(g_p_ab_b,1,nvb,1,nvb,p_ab_b,nvb,one)
+         call ga_acc(g_p_ij_a,1,noa,1,noa,dbl_mb(k_p_ij_a),noa,one)
+         call ga_acc(g_p_ij_b,1,nob,1,nob,dbl_mb(k_p_ij_b),nob,one)
+         call ga_acc(g_p_ab_a,1,nva,1,nva,dbl_mb(k_p_ab_a),nva,one)
+         call ga_acc(g_p_ab_b,1,nvb,1,nvb,dbl_mb(k_p_ab_b),nvb,one)
       endif
+c
+      if (.not. ma_chop_stack(l_p_ij_a)) call errquit
+     $     ('mp2_pijab_uhf: cannot chop stack',0)
+c
       end
       
       

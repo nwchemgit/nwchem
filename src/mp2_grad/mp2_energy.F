@@ -50,14 +50,6 @@
       integer k_map_b,l_map_b
       intrinsic nint
       logical status,oblk
-      integer k_p_ij_a,k_p_ij_b
-      integer l_p_ij_a,l_p_ij_b
-      integer k_p_ab_a,k_p_ab_b
-      integer l_p_ab_a,l_p_ab_b
-      integer k_w_ij_a,k_w_ij_b
-      integer l_w_ij_a,l_w_ij_b
-      integer k_w_ab_a,k_w_ab_b
-      integer l_w_ab_a,l_w_ab_b
       integer g_p_ab_a,g_p_ab_b,g_p_ij_a,g_p_ij_b,g_lai_a,g_lai_b
       integer g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,g_w_ai_a,g_w_ai_b
 c     
@@ -245,31 +237,6 @@ c...  Two index quantities of alpha spin are denoted with a _a,
 c...  and beta spin with _b. With this in mind, naming of arrays is obvious
 c...  when Chem. Phys. Letts. 166 (1990) 275 is consulted.
 c     
-      if(.not.ma_push_get(mt_dbl,noa*noa,'p_ij_a',
-     $     l_p_ij_a,k_p_ij_a))call errquit(
-     $     'could not alloc p_ij_a',1)
-      if(.not.ma_push_get(mt_dbl,nva*nva,'p_ab_a',
-     $     l_p_ab_a,k_p_ab_a))call errquit(
-     $     'could not alloc p_ab_a',1)
-      if(.not.ma_push_get(mt_dbl,nob*nob,'p_ij_b',
-     $     l_p_ij_b,k_p_ij_b))call errquit(
-     $     'could not alloc p_ij_b',1)
-      if(.not.ma_push_get(mt_dbl,nvb*nvb,'p_ab_b',
-     $     l_p_ab_b,k_p_ab_b))call errquit(
-     $     'could not alloc p_ab_b',1)
-      if(.not.ma_push_get(mt_dbl,noa*noa,'w_ij_a',
-     $     l_w_ij_a,k_w_ij_a))call errquit(
-     $     'could not alloc w_ij_a',1)
-      if(.not.ma_push_get(mt_dbl,nva*nva,'w_ab_a',
-     $     l_w_ab_a,k_w_ab_a))call errquit(
-     $     'could not alloc w_ab_a',1)
-      if(.not.ma_push_get(mt_dbl,nob*nob,'w_ij_b',
-     $     l_w_ij_b,k_w_ij_b))call errquit(
-     $     'could not alloc w_ij_b',1)
-      if(.not.ma_push_get(mt_dbl,nvb*nvb,'w_ab_b',
-     $     l_w_ab_b,k_w_ab_b))call errquit(
-     $     'could not alloc w_ab_b',1)
-c
       if(.not.ga_create(mt_dbl,noa,noa,'g_p_ij_a',
      $     noa,1,g_p_ij_a))call errquit(
      $     'could not alloc g_p_ij_a',1)
@@ -324,10 +291,7 @@ c
      $        nvb_hi,int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,
      $        sym_hi_vb,num_ob_sym,num_vb_sym,dbl_mb(k_eval_a),
      $        dbl_mb(k_eval_b),basis,geom,tol2e,e2,nbf,task,
-     $        pass,oblk,dbl_mb(k_p_ij_a),dbl_mb(k_p_ij_b),
-     $        dbl_mb(k_p_ab_a),dbl_mb(k_p_ab_b),
-     $        dbl_mb(k_w_ij_a),dbl_mb(k_w_ij_b),
-     $        dbl_mb(k_w_ab_a),dbl_mb(k_w_ab_b),
+     $        pass,oblk,
      $        g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
      $        g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $        g_w_ai_a,g_w_ai_b,g_lai_a,g_lai_b,
@@ -339,10 +303,7 @@ c
      $        nva_hi,int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,
      $        sym_hi_va,num_oa_sym,num_va_sym,dbl_mb(k_eval_b),
      $        dbl_mb(k_eval_a),basis,geom,tol2e,e2,nbf,task,
-     $        pass,oblk,dbl_mb(k_p_ij_b),dbl_mb(k_p_ij_a),
-     $        dbl_mb(k_p_ab_b),dbl_mb(k_p_ab_a),
-     $        dbl_mb(k_w_ij_b),dbl_mb(k_w_ij_a),
-     $        dbl_mb(k_w_ab_b),dbl_mb(k_w_ab_a),
+     $        pass,oblk,
      $        g_p_ij_b,g_p_ij_a,g_p_ab_b,g_p_ab_a,
      $        g_w_ij_b,g_w_ij_a,g_w_ab_b,g_w_ab_a,
      $        g_w_ai_b,g_w_ai_a,g_lai_b,g_lai_a,

@@ -3,8 +3,7 @@
      $     num_oa,num_va,g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
      $     irs_b,sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
      $     num_ob,num_vb,eval_a,eval_b,basis,geom,tol2e,e2,nbf,
-     $     task,pass,oblk,p_ij_a,p_ij_b,p_ab_a,p_ab_b,
-     $     w_ij_a,w_ij_b,w_ab_a,w_ab_b,
+     $     task,pass,oblk,
      $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
@@ -41,7 +40,6 @@
       external sym_char_table
       integer k_v,l_v
       integer k_temp,l_temp
-      integer k_uv_ia,l_uv_ia
       integer k_jb_ia,l_jb_ia
       integer itmp,kunit
       integer nnbf,ioff
@@ -59,8 +57,6 @@
       character*8 task
       integer k_t_a_in,k_t_b_in,l_t_a_in,l_t_b_in
       integer k_t_eps_a,k_t_eps_b,l_t_eps_a,l_t_eps_b
-      double precision p_ij_a(*),p_ij_b(*),p_ab_a(*),p_ab_b(*)
-      double precision w_ij_a(*),w_ij_b(*),w_ab_a(*),w_ab_b(*)
       integer k_lai3_a,k_lai3_b
       integer l_lai3_a,l_lai3_b
       integer k_lai1_a,k_lai1_b
@@ -69,6 +65,7 @@
       integer g_wai_a,g_wai_b
       integer k_vvvo,l_vvvo
       integer k_vooo,l_vooo
+c
       integer g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b
       integer g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b
       double precision grad(3,*)
@@ -138,12 +135,6 @@ c
      $        l_v,k_v))call errquit('could not alloc k_v',1)
          call moints_getscattv(kunit,nnbf,int_mb(k_v))
 c     
-         if(.not.ma_push_get(mt_dbl,nbf*nbf,'jb_ia',l_jb_ia,k_jb_ia))
-     $        call errquit('could not alloc jb_ia',1)
-         if(.not.ma_push_get(mt_dbl,nbf*nbf,'temp',l_temp,k_temp))
-     $        call errquit('could not alloc temp',1)
-         if(.not.ma_push_get(mt_dbl,nbf*nbf,'uv_ia',l_uv_ia,k_uv_ia))
-     $        call errquit('could not alloc uv_ia',1)
          if(task.eq.'gradient')then
             call util_file_name('ta',.true.,.true.,fnameta)
             call util_file_name('tb',.true.,.true.,fnametb)
@@ -155,9 +146,8 @@ c
      $        nob_lo,nob_hi,nvb_lo,nvb_hi,sym_lo_ob,sym_hi_ob,
      $        sym_lo_vb,sym_hi_vb,num_ob,num_vb,oseg_lo,oseg_hi,
      $        irs_a,dbl_mb(k_amos),irs_b,dbl_mb(k_bmos),
-     $        dbl_mb(k_uv_ia),dbl_mb(k_jb_ia),
      $        eval_a,eval_b,int_mb(k_toff_a),int_mb(k_toff_b),
-     $        nva,noa,nvb,nob,nir,dbl_mb(k_temp),ioff,nnbf,
+     $        nva,noa,nvb,nob,nir,ioff,nnbf,
      $        int_mb(k_v),nva_lo_local,nva_hi_local,
      $        e2,task,tunita,tunitb,kunit)
 c     
@@ -175,52 +165,28 @@ c
      $           't_eps_b',l_t_eps_b,k_t_eps_b))call errquit(
      $           'could not alloc t_eps_b in grad_uhf',1)
 c     
-            if(pass.eq.1)then
-               call mp2_pijab_uhf(nva_lo,nva_hi,sym_lo_oa,
-     $              sym_hi_oa,sym_lo_va,sym_hi_va,num_oa,nvb_lo,nvb_hi,
-     $              sym_lo_ob,sym_hi_ob,num_ob,sym_lo_vb,sym_hi_vb,
-     $              nir,num_va,num_vb,oseg_lo,oseg_hi,irs_a,irs_b,
-     $              nva_lo_local,nva_hi_local,noa_lo,noa_hi,
-     $              nob_lo,nob_hi,dbl_mb(k_t_a_in),dbl_mb(k_t_b_in),
-     $              tunita,tunitb,p_ij_a,p_ij_b,p_ab_a,p_ab_b,
-     $              eval_a,eval_b,g_p_ij_a,g_p_ij_b,
-     $              g_p_ab_a,g_p_ab_b)
-               call mp2_wijab_uhf(nir,nva_lo,nva_hi,
-     $              sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,sym_lo_vb,
-     $              sym_hi_vb,nvb_lo,nvb_hi,sym_lo_ob,sym_hi_ob,
-     $              num_oa,num_ob,num_va,num_vb,
-     $              oseg_lo,oseg_hi,irs_a,irs_b,
-     $              nva_lo_local,nva_hi_local,noa_lo,noa_hi,
-     $              nob_lo,nob_hi,nbf,dbl_mb(k_t_a_in),dbl_mb(k_t_b_in),
-     $              dbl_mb(k_t_eps_a),dbl_mb(k_t_eps_b),
-     $              dbl_mb(k_temp),tunita,tunitb,
-     $              w_ij_a,w_ab_a,w_ij_b,w_ab_b,
-     $              p_ij_a,p_ab_a,p_ij_b,p_ab_b,eval_a,eval_b, ! ?????????
-     $              g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b)
-            endif
-            if(pass.eq.2)then
-               call mp2_pijab_uhf(nva_lo,nva_hi,sym_lo_oa,
-     $              sym_hi_oa,sym_lo_va,sym_hi_va,num_oa,nvb_lo,nvb_hi,
-     $              sym_lo_ob,sym_hi_ob,num_ob,sym_lo_vb,sym_hi_vb,
-     $              nir,num_va,num_vb,oseg_lo,oseg_hi,irs_a,irs_b,
-     $              nva_lo_local,nva_hi_local,noa_lo,noa_hi,
-     $              nob_lo,nob_hi,dbl_mb(k_t_a_in),dbl_mb(k_t_b_in),
-     $              tunita,tunitb,p_ij_a,p_ij_b,p_ab_a,p_ab_b,
-     $              eval_a,eval_b,g_p_ij_a,g_p_ij_b,
-     $              g_p_ab_a,g_p_ab_b)
-               call mp2_wijab_uhf(nir,nva_lo,nva_hi,
-     $              sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,sym_lo_vb,
-     $              sym_hi_vb,nvb_lo,nvb_hi,sym_lo_ob,sym_hi_ob,
-     $              num_oa,num_ob,num_va,num_vb,
-     $              oseg_lo,oseg_hi,irs_a,irs_b,
-     $              nva_lo_local,nva_hi_local,noa_lo,noa_hi,
-     $              nob_lo,nob_hi,nbf,dbl_mb(k_t_a_in),dbl_mb(k_t_b_in),
-     $              dbl_mb(k_t_eps_a),dbl_mb(k_t_eps_b),
-     $              dbl_mb(k_temp),tunita,tunitb,
-     $              w_ij_a,w_ab_a,w_ij_b,w_ab_b,
-     $              p_ij_a,p_ab_b,p_ij_a,p_ab_b,eval_a,eval_b, ! ????????????
-     $              g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b)
-            endif
+            call mp2_pijab_uhf(nva_lo,nva_hi,sym_lo_oa,
+     $           sym_hi_oa,sym_lo_va,sym_hi_va,num_oa,nvb_lo,nvb_hi,
+     $           sym_lo_ob,sym_hi_ob,num_ob,sym_lo_vb,sym_hi_vb,
+     $           nir,num_va,num_vb,oseg_lo,oseg_hi,irs_a,irs_b,
+     $           nva_lo_local,nva_hi_local,noa_lo,noa_hi,
+     $           nob_lo,nob_hi,dbl_mb(k_t_a_in),dbl_mb(k_t_b_in),
+     $           tunita,tunitb,
+     $           eval_a,eval_b,g_p_ij_a,g_p_ij_b,
+     $           g_p_ab_a,g_p_ab_b)
+            call mp2_wijab_uhf(nir,nva_lo,nva_hi,
+     $           sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,sym_lo_vb,
+     $           sym_hi_vb,nvb_lo,nvb_hi,sym_lo_ob,sym_hi_ob,
+     $           num_oa,num_ob,num_va,num_vb,
+     $           oseg_lo,oseg_hi,irs_a,irs_b,
+     $           nva_lo_local,nva_hi_local,noa_lo,noa_hi,
+     $           nob_lo,nob_hi,nbf,dbl_mb(k_t_a_in),dbl_mb(k_t_b_in),
+     $           dbl_mb(k_t_eps_a),dbl_mb(k_t_eps_b),
+     $           tunita,tunitb,eval_a, eval_b,
+     $           g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b)
+c
+c...  Form the terms in the Lagrangian which are not Fock builds:
+c     
             if(.not.ma_push_get(mt_dbl,nbf*nbf,'vvvo',l_vvvo,k_vvvo))
      $           call errquit('could not alloc vvvo',1)
             if(.not.ma_push_get(mt_dbl,nbf*nbf,'vooo',l_vooo,k_vooo))
@@ -237,9 +203,11 @@ c
             if(.not.ma_push_get(mt_dbl,nob*nvb,'lai1_b',
      $           l_lai1_b,k_lai1_b))call errquit(
      $           'could not alloc lai1_b',1)
-c     
-c...  Form the terms in the Lagrangian which are not Fock builds:
-c     
+            if(.not.ma_push_get(mt_dbl,nbf*nbf,'jb_ia',l_jb_ia,k_jb_ia))
+     $           call errquit('could not alloc jb_ia',1)
+            if(.not.ma_push_get(mt_dbl,nbf*nbf,'temp',l_temp,k_temp))
+     $           call errquit('could not alloc temp',1)
+c
             call mp2_lai_uhf(nva_lo,nva_hi,sym_lo_oa,sym_hi_oa,
      $           sym_lo_va,sym_hi_va,num_oa,nvb_lo,nvb_hi,
      $           sym_lo_ob,sym_hi_ob,num_ob,sym_lo_vb,sym_hi_vb,
@@ -252,7 +220,10 @@ c
      $           dbl_mb(k_jb_ia),dbl_mb(k_temp),
      $           tunita,tunitb,dbl_mb(k_lai3_a),dbl_mb(k_lai3_b),
      $           dbl_mb(k_lai1_a),dbl_mb(k_lai1_b),
-     $           g_lai_a,g_lai_b,g_wai_a,g_wai_b)
+     $           g_lai_a,g_lai_b,g_wai_a,g_wai_b,kunit)
+c
+            if(.not. ma_chop_stack(l_vvvo))
+     $           call errquit('mp2_grad_doit: failed chopping vvvo',0)
 c     
             call waclose(kunit,ierr)
             if(ierr.ne.0)call errquit('problem closing kunit', ierr)

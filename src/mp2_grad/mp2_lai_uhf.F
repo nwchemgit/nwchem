@@ -7,7 +7,7 @@
      $     nob_lo,nob_hi,nva,nvb,
      $     noa,nob,t_a,t_b,ia_cb,ia_jk,ia_uv,tmp,tunita,tunitb,
      $     l_ai3_a,l_ai3_b,l_ai1_a,l_ai1_b,g_lai_a,g_lai_b,
-     $     g_wai_a,g_wai_b)
+     $     g_wai_a,g_wai_b,kunit)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -22,7 +22,6 @@
       integer num_ob(0:*),num_vb(0:*)
       integer indx_v(*)
       integer nbf,nnbf,ioff,kunit
-      parameter(kunit=11)
       integer noa,nva,nob,nvb
       integer nir
       integer a_a

@@ -2,9 +2,9 @@
      $     sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,num_oa,num_va,
      $     nob_lo,nob_hi,nvb_lo,nvb_hi, sym_lo_ob,sym_hi_ob,
      $     sym_lo_vb,sym_hi_vb,num_ob,num_vb,   
-     $     oseg_lo,oseg_hi,irs_a,c_a,irs_b,c_b,ia_uv,ia_jb,
+     $     oseg_lo,oseg_hi,irs_a,c_a,irs_b,c_b,
      $     eval_a,eval_b,toff_a,toff_b,nva,noa,nvb,nob,nir,
-     $     tmp,ioff,nnbf,indx_v,nva_lo_local,nva_hi_local,
+     $     ioff,nnbf,indx_v,nva_lo_local,nva_hi_local,
      $     e2,task,tunita,tunitb,kunit)
       implicit none
 #include "global.fh"
@@ -35,8 +35,9 @@
       integer indx_v(*)
       integer nnbf,ioff,kunit
       integer nva_lo_local,nva_hi_local,jb
-      double precision tmp(*),ia_uv(*),ia_jb(*)
       double precision eval_a(*),eval_b(*)
+c
+      integer l_ia_uv, k_ia_uv, l_tmp, k_tmp, l_ia_jb, k_ia_jb
 c     
       eaa=0.0d0
       eab=0.0d0
@@ -45,6 +46,15 @@ c
       nva=nva_hi-nva_lo+1
       nob=nob_hi-nob_lo+1
       nvb=nvb_hi-nvb_lo+1
+c
+      if (.not. ma_push_get(mt_dbl, nbf*nbf, 'tmp', l_tmp, k_tmp))
+     $     call errquit('mp2_make_t: no room for tmp', nbf*nbf)
+      if (.not. ma_push_get(mt_dbl, nbf*nbf, 'ia_uv', l_ia_uv, k_ia_uv))
+     $     call errquit('mp2_make_t: no room for ia_uv', nbf*nbf)
+      if (.not. ma_push_get(mt_dbl, max(noa*nva,nob*nvb), 'ia_jb', 
+     $     l_ia_jb, k_ia_jb)) call errquit
+     $     ('mp2_make_t: no room for ia_jb', max(noa*nva,nob*nvb))
+c
       if(.not.ga_create(mt_dbl,noa*nva,nva,'T_a',(noa*nva),1,g_t_a))
      $     call errquit('could not alloc ga for T_a',1)
       if(.not.ga_create(mt_dbl,nob*nvb,nva,'T_b',(nob*nvb),1,g_t_b))
@@ -82,47 +92,49 @@ c
             syma=irs_a(a_a)
             symi=irs_a(i)
             symia=ieor(syma,symi)
-            call dfill((nbf*nbf),0.0d0,tmp,1)
+            call dfill((nbf*nbf),0.0d0,dbl_mb(k_tmp),1)
             call moints_rdhfint(kunit,nva_lo_local,nva_hi_local,
-     $           i_batch,a_a,nnbf,ioff,ia_uv)
-            call scatter(nnbf,tmp,indx_v,ia_uv)
-            call dfill((nbf*nbf),0.0d0,ia_uv,1)
-            call upper2square(nbf,tmp,ia_uv)
+     $           i_batch,a_a,nnbf,ioff,dbl_mb(k_ia_uv))
+            call scatter(nnbf,dbl_mb(k_tmp),indx_v,dbl_mb(k_ia_uv))
+            call dfill((nbf*nbf),0.0d0,dbl_mb(k_ia_uv),1)
+            call upper2square(nbf,dbl_mb(k_tmp),dbl_mb(k_ia_uv))
             do symb=0,nir-1
                symj=ieor(symia,symb)
                if(num_oa(symj).gt.0.and.num_va(symb).gt.0)then
                   call dgemm('n','n',nbf,num_oa(symj),nbf,1.0d0,
-     $                 ia_uv,nbf,c_a(1,sym_lo_oa(symj)),nbf,
-     $                 0.0d0,tmp,nbf)
+     $                 dbl_mb(k_ia_uv),nbf,c_a(1,sym_lo_oa(symj)),nbf,
+     $                 0.0d0,dbl_mb(k_tmp),nbf)
                   call dgemm('t','n',num_oa(symj),num_va(symb),
-     $                 nbf,1.0d0,tmp,nbf,c_a(1,sym_lo_va(symb)),
-     $                 nbf,0.0d0,ia_jb,num_oa(symj))
+     $                 nbf,1.0d0,dbl_mb(k_tmp),nbf,
+     $                 c_a(1,sym_lo_va(symb)),
+     $                 nbf,0.0d0,dbl_mb(k_ia_jb),num_oa(symj))
                   jb=1
                   do b=sym_lo_va(symb),sym_hi_va(symb)
                      call ga_acc(g_t_a,toff_a(b,syma)+1,
      $                    toff_a(b,syma)+num_oa(symj),
      $                    a_a-nva_lo+1,a_a-nva_lo+1,
-     $                    ia_jb(jb),1,1.0d0)
+     $                    dbl_mb(k_ia_jb-1+jb),1,1.0d0)
                      call ga_acc(g_t_a,toff_a(a_a,symb)+1,
      $                    toff_a(a_a,symb)+num_oa(symj),
      $                    b-nva_lo+1,b-nva_lo+1,
-     $                    ia_jb(jb),1,minusone)
+     $                    dbl_mb(k_ia_jb-1+jb),1,minusone)
                      jb=jb+num_oa(symj)
                   enddo
                endif
                if(num_ob(symj).gt.0.and.num_vb(symb).gt.0)then
                   call dgemm('n','n',nbf,num_ob(symj),nbf,1.0d0,
-     $                 ia_uv,nbf,c_b(1,sym_lo_ob(symj)),nbf,
-     $                 0.0d0,tmp,nbf)
+     $                 dbl_mb(k_ia_uv),nbf,c_b(1,sym_lo_ob(symj)),nbf,
+     $                 0.0d0,dbl_mb(k_tmp),nbf)
                   call dgemm('t','n',num_ob(symj),num_vb(symb),
-     $                 nbf,1.0d0,tmp,nbf,c_b(1,sym_lo_vb(symb)),
-     $                 nbf,0.0d0,ia_jb,num_ob(symj))
+     $                 nbf,1.0d0,dbl_mb(k_tmp),nbf,
+     $                 c_b(1,sym_lo_vb(symb)),
+     $                 nbf,0.0d0,dbl_mb(k_ia_jb),num_ob(symj))
                   jb=1
                   do b=sym_lo_vb(symb),sym_hi_vb(symb)
                      call ga_put(g_t_b,toff_b(b,syma)+1,
      $                    toff_b(b,syma)+num_ob(symj),
      $                    a_a-nva_lo+1,a_a-nva_lo+1,
-     $                    ia_jb(jb),1)
+     $                    dbl_mb(k_ia_jb-1+jb),1)
                      jb=jb+num_ob(symj)
                   enddo
                endif
@@ -138,17 +150,18 @@ c
                   call ga_get(g_t_a,toff_a(b,syma)+1,
      $                 toff_a(b,syma)+num_oa(symj),
      $                 a_a-nva_lo+1,a_a-nva_lo+1,
-     $                 ia_jb(sym_lo_oa(symj)),1)
+     $                 dbl_mb(k_ia_jb-1+sym_lo_oa(symj)),1)
                   do j=sym_lo_oa(symj),sym_hi_oa(symj)
                      denom=eval_a(a_a)+eval_a(b)
      $                    -eval_a(i)-eval_a(j)
-                     t=ia_jb(j)/denom
+                     t=dbl_mb(k_ia_jb-1+j)/denom
                      eaa=eaa+t*t*denom
-                     ia_jb(j)=t
+                     dbl_mb(k_ia_jb-1+j)=t
                   enddo
                   if(task.eq.'gradient')then
                      counta=sym_hi_oa(symj)-sym_lo_oa(symj)+1
-                     call putwa(tunita,ia_jb(sym_lo_oa(symj)),
+                     call putwa(tunita,
+     $                    dbl_mb(k_ia_jb-1+sym_lo_oa(symj)),
      $                    tunitptra,counta,ierr)
                      if(ierr.ne.0)call errquit(
      $                    'problem with writing t_a in make_t',ierr)
@@ -164,18 +177,19 @@ c
                   call ga_get(g_t_b,toff_b(b,syma)+1,
      $                 toff_b(b,syma)+num_ob(symj),
      $                 a_a-nva_lo+1,a_a-nva_lo+1,
-     $                 ia_jb(sym_lo_ob(symj)),1)
+     $                 dbl_mb(k_ia_jb-1+sym_lo_ob(symj)),1)
                   do j=sym_lo_ob(symj),sym_hi_ob(symj)
                      denom=eval_a(a_a)+eval_b(b)
      $                    -eval_a(i)-eval_b(j)
-                     t=ia_jb(j)/denom
+                     t=dbl_mb(k_ia_jb-1+j)/denom
                      if(abs(t).lt.1d-12)t=0.0d0
                      eab=eab+t*t*denom
-                     ia_jb(j)=t
+                     dbl_mb(k_ia_jb-1+j)=t
                   enddo
                   if(task.eq.'gradient')then
                      countb=sym_hi_ob(symj)-sym_lo_ob(symj)+1
-                     call putwa(tunitb,ia_jb(sym_lo_ob(symj)),
+                     call putwa(tunitb,
+     $                    dbl_mb(k_ia_jb-1+sym_lo_ob(symj)),
      $                    tunitptrb,countb,ierr)
                      if(ierr.ne.0)call errquit(
      $                    'problem with writing t_b in make_t',ierr)
@@ -192,7 +206,12 @@ c
      $     'could not destroy t_b handle',1)
       if(.not.ga_destroy(g_t_a))call errquit(
      $     'could not destroy t_a handle',1)
+c
+      if (.not. ma_chop_stack(l_tmp)) call errquit
+     $     ('mp2_make_t: failed chopping stack', 0)
+c
       call ga_sync()
+c
       end
       
       

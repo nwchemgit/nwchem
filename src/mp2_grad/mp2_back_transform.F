@@ -585,7 +585,6 @@ c
       integer nat, idatom, lengd, lenscrd, l_gd, k_gd, iat, icart, 
      $     k_scrd, l_scrd, idum, geom, idum2
       dimension idatom(4)
-      double precision dE
       logical status
       double precision ddot
       external ddot
