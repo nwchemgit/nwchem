@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      ,     nmat, g_dens, g_xc,scftype)
 c
-c     $Id: fock_xc.F,v 1.10 2000-08-25 20:07:12 edo Exp $
+c     $Id: fock_xc.F,v 1.11 2000-09-19 21:55:37 bjohnson Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -73,7 +73,6 @@ c
       endif
       if (bgj_print() .gt. 0)
      &     write(*,*)'fock_xc: calc_type =',calc_type
-
 c
 c     Set up local copies of density matrix handles
 c
@@ -123,7 +122,6 @@ c
      &                   l_cntobfr, k_cntobfr, l_cetobfr, k_cetobfr,
      &                   l_rdens_atom, k_rdens_atom)
 c
-c
 c     check if we can get the grid from a file
 c         
       grid_written=grid_reopen(rtdb,geom)
@@ -133,7 +131,6 @@ c
      &     rho_n_dum, Exc_dum,
      &     nmat, calc_type ,tdum)
       else
-        write(0,*) ' call xc_quadv0'
       call xc_quadv0_gen(rtdb, nExc_dum, g_xc, int_mb(k_g_dens_local),
      &     g_wght_dum, g_xyz_dum, g_nq_dum, wght_GA_dum, Exc_dum,
      &     rho_n_dum, dbl_mb(k_rdens_atom), 
