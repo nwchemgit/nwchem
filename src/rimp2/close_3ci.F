@@ -1,5 +1,5 @@
       Logical function Close_3ci_file( LU, Stat,actualname)
-C$Id: close_3ci.F,v 1.6 2003-10-17 22:58:10 carlfahl Exp $
+C$Id: close_3ci.F,v 1.7 2003-10-25 16:33:22 edo Exp $
       Implicit NONE
 #include "errquit.fh"
       Integer LU
@@ -66,7 +66,7 @@ C
 C
  8000 Continue
       Write (LuErr, *) 'Close_3cI_File: Error closing file: ', Code
-      Call ERRquit('Close_3cI_File',code)
+      Call ERRquit('Close_3cI_File',code,0)
 C
       Close_3ci_File = .FALSE.
 C
