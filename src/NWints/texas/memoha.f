@@ -50,7 +50,8 @@ c     call memo1_int(maxqrt  , nsymm  )  ! for symm(maxqrt)
 c--------------------------------------------------
       end
 c********
-      subroutine memo4a(nbls, l11,l12,mem2,igmcnt)
+      subroutine memo4a(bl, nbls, l11,l12,mem2,igmcnt)
+      double precision bl(*)
 c nmr deriv
       character*11 scftype
       character*4 where
@@ -170,8 +171,8 @@ c gen.contr.
 c
 ccccc if(where.ne.'shif' .and. where.ne.'forc') then
       if(where.eq.'buff') then
-        call getmem(nblsg*lnijkl,ibuf)  ! for buf(nbls,lnijkl)
-        call getmem(nblsg*mem0,ibuf2)  ! for buf2(nbls,lnij,lnkl)
+        call getmem_zero(bl,nblsg*lnijkl,ibuf)  ! for buf(nbls,lnijkl)    ZERO
+        call getmem_zero(bl,nblsg*mem0,ibuf2)  ! for buf2(nbls,lnij,lnkl) ZERO
       endif
       if(where.eq.'shif') then
 c     - for nmr derivatives -
@@ -253,15 +254,15 @@ c
           endif
 c
           if(lshellt.gt.1) then
-            call getmem(mbfij12,ibfij1)  ! for bfij1
-            call getmem(mbfij12,ibfij2)  ! for bfij2
-            call getmem(mbfkl12,ibfkl1)  ! for bfkl1
-            call getmem(mbfkl12,ibfkl2)  ! for bfkl2
+            call getmem_zero(bl,mbfij12,ibfij1)  ! for bfij1 ZERO
+            call getmem_zero(bl,mbfij12,ibfij2)  ! for bfij2 ZERO
+            call getmem_zero(bl,mbfkl12,ibfkl1)  ! for bfkl1 ZERO
+            call getmem_zero(bl,mbfkl12,ibfkl2)  ! for bfkl2 ZERO
             igmcnt=igmcnt+4
           else
-            call getmem(mbfij12,ibfij1)  ! for bfij1
+            call getmem_zero(bl,mbfij12,ibfij1)  ! for bfij1 ZERO
             ibfij2=ibfij1
-            call getmem(mbfkl12,ibfkl1)  ! for bfkl1
+            call getmem_zero(bl,mbfkl12,ibfkl1)  ! for bfkl1 ZERO
             ibfkl2=ibfkl1
             igmcnt=igmcnt+2
           endif
@@ -288,21 +289,21 @@ c
           endif
 c
           if(lshellt.gt.2) then
-            call getmem(mbf2l,ibf2l1)   ! for bf2l1
-            call getmem(mbf2l,ibf2l2)   ! for bf2l2
-            call getmem(mbf2l,ibf2l3)   ! for bf2l3
-            call getmem(mbf2l,ibf2l4)   ! for bf2l4
+            call getmem_zero(bl,mbf2l,ibf2l1)   ! for bf2l1 ZERO
+            call getmem_zero(bl,mbf2l,ibf2l2)   ! for bf2l2 ZERO
+            call getmem_zero(bl,mbf2l,ibf2l3)   ! for bf2l3 ZERO
+            call getmem_zero(bl,mbf2l,ibf2l4)   ! for bf2l4 ZERO
             igmcnt=igmcnt+4
           else
-            call getmem(mbf2l,ibf2l1)   ! for bf2l1
+            call getmem_zero(bl,mbf2l,ibf2l1)   ! for bf2l1 ZERO
             ibf2l2=ibf2l1
-            call getmem(mbf2l,ibf2l3)   ! for bf2l3
+            call getmem_zero(bl,mbf2l,ibf2l3)   ! for bf2l3 ZERO
             ibf2l4=ibf2l3
             igmcnt=igmcnt+2
           endif
 c
-            call getmem(mbfij3,ibfij3)  ! for bfij3
-            call getmem(mbfkl3,ibfkl3)  ! for bfkl3
+            call getmem_zero(bl,mbfij3,ibfij3)  ! for bfij3 ZERO
+            call getmem_zero(bl,mbfkl3,ibfkl3)  ! for bfkl3 ZERO
             igmcnt=igmcnt+2
 c
         IF( LSHELLT.GT.2 ) THEN
@@ -344,7 +345,7 @@ c
             i4s =4*16*nbls + 10*nbls
           endif
 c
-            call getmem(i4s  ,issss)  ! for ssss
+           call getmem_zero(bl,i4s  ,issss)  ! for ssss ZERO
 c
             igmcnt=igmcnt+1
         ENDIF
@@ -399,9 +400,9 @@ c
    11   continue
       endif
 c
-      call getmem(nbls*mem0,iwt0)   ! for wt0(nbls,lnij,lnkl)
-      call getmem(nbls*mem1,iwt1)   ! for wt1(l11,nbls,l12)
-      call getmem(nbls*mem2,iwt2)      ! for wt2(nbls,mem2)
+      call getmem_zero(bl,nbls*mem0,iwt0)   ! for wt0(nbls,lnij,lnkl) ZERO
+      call getmem_zero(bl,nbls*mem1,iwt1)   ! for wt1(l11,nbls,l12) ZERO
+      call getmem_zero(bl,nbls*mem2,iwt2)      ! for wt2(nbls,mem2) ZERO
 c
       igmcnt=igmcnt+3
 c
@@ -409,7 +410,8 @@ c
       end
 c
 c********
-      subroutine memo4b(nbls,igmcnt)
+      subroutine memo4b(bl,nbls,igmcnt)
+      double precision bl(*)
 c nmr deriv
       character*11 scftype
       character*4 where
@@ -478,7 +480,7 @@ c
 c---new----
 c
             call getmem(mwij,iwij)    ! for wij
-            call getmem(mxij,ixij)    ! for xij
+            call getmem_zero(bl,mxij,ixij)    ! for xij ZERO
 c
 c  count calls of getmem :
 c
@@ -1000,7 +1002,8 @@ c
 c------------------------------------------
       end
 c================================================================
-      subroutine memo5c_1(nbls,mmax1,npij,npkl,nfha,nfumax)
+      subroutine memo5c_1(bl,nbls,mmax1,npij,npkl,nfha,nfumax)
+      double precision bl(*)
       common /cpu/ intsize,iacc,icache,memreal
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
 c------------------------------------------
@@ -1062,7 +1065,7 @@ c
       call getmem(nbls,irys)     ! for rys(nbls)      21
 c
       call getmem(nfha*3,ihabcd) !                    22
-      call getmem(nbls3*nfumax,ihabcdx)  !            23
+      call getmem_zero(bl,nbls3*nfumax,ihabcdx)  !            23 ZERO
 c
 c------------------------------------------
 c for general contraction
