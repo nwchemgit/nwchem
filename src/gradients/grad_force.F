@@ -1,5 +1,5 @@
       subroutine grad_force ( rtdb, basis, geom, movecs )
-c$Id: grad_force.F,v 1.3 1995-12-07 23:03:19 vg038 Exp $
+c$Id: grad_force.F,v 1.4 1996-03-19 22:00:42 vg038 Exp $
 C calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C         ___                 ___                         ___
@@ -319,7 +319,7 @@ C  blocks of density matrix:
 
 C  define threshold for Schwarz screening (same as in SCF)
       status = rtdb_get(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)
-      if (.not.status) tol2e = 1.0d-6
+      if (.not.status) tol2e = 1.0d-9
 
 #ifdef OLDTIMERS
 #ifdef SUN
