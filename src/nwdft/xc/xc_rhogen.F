@@ -1,4 +1,4 @@
-      Subroutine xc_rhogen(TOLL,
+      Subroutine xc_rhogen(tol_rho,
      &     basis,g_dens,
      &     max_at_bf,natoms,ipol,nq,nbf,mbf,
      &     ldelley,GRAD,
@@ -7,7 +7,7 @@
      &     rho,delrho,
      &     rhoat)
 c
-c$Id: xc_rhogen.F,v 1.8 1996-10-18 21:50:20 d3h449 Exp $
+c$Id: xc_rhogen.F,v 1.9 1997-02-14 06:13:06 gutowski Exp $
 c
       implicit none
 #include "bas.fh"
@@ -25,7 +25,7 @@ c
       integer ibf(mbf)     ! 
       integer iniz(natoms) !
       integer ifin(natoms) !
-      double precision TOLL ! accuracy for rho evaluation [input]
+      double precision tol_rho ! accuracy for rho evaluation [input]
       double precision chi(nq,mbf)     ! function values [input]
       double precision delchi(3,nq,mbf)! function gradients [input]
 
@@ -58,7 +58,7 @@ c
 c
 c     tolerance setting
 c
-      rho_tol0=TOLL*.1d0
+      rho_tol0=tol_rho*.1d0
       rho_tol1=0.5D0*rho_tol0
 
       i0=ipol-1

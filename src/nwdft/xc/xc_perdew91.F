@@ -1,7 +1,7 @@
       Subroutine xc_perdew91(tol_rho,cfac,lcfac,nlcfac,
      *     rho,delrho,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.18 1996-10-23 01:15:56 gutowski Exp $
+C     $Id: xc_perdew91.F,v 1.19 1997-02-14 06:13:03 gutowski Exp $
       Implicit none
 
       double precision TOLL,EXPTOL
@@ -148,7 +148,7 @@ c
               facl = cfac(1)
              lfacl = lcfac(1)
             nlfacl = nlcfac(1)
-            call xc_vwn(facl,lfacl,nlfacl,rhoval,dp81drho,
+            call xc_vwn_5(facl,lfacl,nlfacl,rhoval,dp81drho,
      &                  lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
@@ -173,7 +173,7 @@ c
               facl = cfac(7)
              lfacl = lcfac(7)
             nlfacl = nlcfac(7)
-            call xc_vwnrpa(facl,lfacl,nlfacl,rhoval,dp81drho,
+            call xc_vwn_1_rpa(facl,lfacl,nlfacl,rhoval,dp81drho,
      &                     lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
@@ -361,7 +361,7 @@ c
               facl = cfac(1)
              lfacl = lcfac(1)
             nlfacl = nlcfac(1)
-            call xc_vwn(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+            call xc_vwn_5(facl,lfacl,nlfacl,rho(1,n),dp81drho,
      &                  lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
@@ -386,7 +386,7 @@ c
               facl = cfac(7)
              lfacl = lcfac(7)
             nlfacl = nlcfac(7)
-            call xc_vwnrpa(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+            call xc_vwn_1_rpa(facl,lfacl,nlfacl,rho(1,n),dp81drho,
      &                     lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
