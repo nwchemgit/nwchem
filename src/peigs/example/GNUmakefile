@@ -1,7 +1,7 @@
 include ../../config/makefile.h
 include ../DEFS
 
-peigs_LIBS = $(peigs_PEIGSLIB) $(peigs_LAPACKLIB) $(peigs_BLASLIB) $(peigs_MATHLIB) $(peigs_COMMLIB)
+peigs_LIBS = $(peigs_PEIGSLIB) $(peigs_LAPACKLIB) $(peigs_BLASLIB) $(peigs_MATHLIB) $(peigs_COMMLIB) -lblas
 #
 # Do not use -lkmath on delta, it occasionally causes 
 # erroneous results (e.g. with tri_test.c with robert_tri as input
@@ -23,13 +23,11 @@ tsterr:		gendrv.o tsterr.o
 
 geneig:		gendrv.o geneig2.o tim_com.o
 		$(peigs_LINK) $(peigs_FOPT) -o geneig gendrv.o \
-		geneig2.o tim_com.o $(peigs_LIBS) \
-		-lpeigs -llapack -lblas -ltcgmsg -lsci
+		geneig2.o tim_com.o $(peigs_LIBS)
 
 wilk:		gendrv.o wilk2.o tim_com.o
 		$(peigs_LINK) $(peigs_FOPT) -o wilk gendrv.o wilk2.o \
-		 tim_com.o  \
-		-lpeigs -llapack -lblas -ltcgmsg -lsci
+		 tim_com.o  $(peigs_LIBS)
 
 tritest:	gendrv.o tri_test.o tim_com.o
 		$(peigs_LINK) $(peigs_FOPT) -o tritest gendrv.o tri_test.o tim_com.o $(peigs_LIBS)
