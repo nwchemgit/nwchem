@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.20 2005-01-30 07:16:16 bylaska Exp $
+! $Id: paw_basis_data.F,v 1.21 2005-02-10 00:24:25 bylaska Exp $
 
 !**************************************************
 !
@@ -177,7 +177,7 @@ c     *** local variables ***
       call Parallel_np(np)
       call Parallel_taskid(taskid)
       tmp = dble(tot_nr)/dble(np)
-      nr = FLOOR(tmp)
+      nr = dint(tmp)
 
       i_start = 1 + taskid*nr
 
