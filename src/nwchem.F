@@ -15,7 +15,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.43 1995-02-07 00:03:32 d3g681 Exp $
+c     $Id: nwchem.F,v 1.44 1995-02-24 00:54:46 mg141 Exp $
 c
       character*255 input_filename
 c
@@ -171,12 +171,26 @@ c
       logical status 
       logical scf
       external scf
-      parameter (ntasks = 16)
+      parameter (ntasks = 17)
       character*10 task_list(ntasks)
-      data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf',
-     $   'debtest', 'gradients', 'optscf','atwtest', 'rimp2',
-     &    'riscf', 'checksum', 'dft','md', 'dftgrad','optdft',
-     $    'direct_mp2'/
+      data task_list /'rjhtest',
+     $                'raktest',
+     $                'rtdbprint',
+     $                'scf',
+     $                'debtest',
+     $                'gradients',
+     $                'optscf',
+     $                'atwtest',
+     $                'rimp2',
+     $                'riscf',
+     $                'checksum',
+     $                'dft',
+     $                'md',
+     $                'dftgrad',
+     $                'optdft',
+     $                'direct_mp2',
+     $                'mjdtest'
+     $               /
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
 c
@@ -187,7 +201,7 @@ c
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
          goto (10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130,
-     &         140, 150, 160)
+     &         140, 150, 160, 170)
      $   ind
 c
          write(6,*) ' Unimplemented task ', 
@@ -277,6 +291,12 @@ c
 c     conventional direct MP2 (requires moints module)
 c
   160    call direct_mp2(rtdb)
+         goto 1000
+
+c
+c     Miles' test crap
+c
+  170    call mjdtest(rtdb)
          goto 1000
 
       else
