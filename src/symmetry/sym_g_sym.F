@@ -1,5 +1,5 @@
       subroutine sym_grad_symmetrize(geom, grad)
-C     $Id: sym_g_sym.F,v 1.1 1995-12-13 01:28:13 d3g681 Exp $
+C     $Id: sym_g_sym.F,v 1.2 1997-10-20 20:20:32 d3g681 Exp $
       implicit none
 #include "sym.fh"
 #include "mafdecls.fh"
@@ -52,3 +52,127 @@ c
       if (.not.ma_pop_stack(l_tmp)) call errquit('s_g_s: ma?',0)
 c
       end
+      subroutine sym_hess_symmetrize(geom, h)
+C     $Id: sym_g_sym.F,v 1.2 1997-10-20 20:20:32 d3g681 Exp $
+      implicit none
+#include "sym.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "geom.fh"
+      integer geom
+      integer ldh
+      double precision h(*)     ! Assumed (3*nat,3*nat)
+c     
+c     Apply a projection operator to the hessian
+c     so that it posesses the symmetry of the group
+c     to machine precision.
+c     
+      integer iat, jat, op, iatnew, jatnew
+      integer nops, nat, l_tmp, k_tmp
+      double precision hold(3,3), hnew(3,3)
+      integer nat3
+c
+      nops = sym_number_ops(geom)
+c     
+      if (.not. geom_ncent(geom, nat)) call errquit('s_g_s: geom?',0)
+      nat3 = nat*3
+      if (ldh .lt. nat3) call errquit('s_h_s: ldh?',0)
+      if (.not. ma_push_get(mt_dbl, (nat3)**2, 'htmp', l_tmp, k_tmp))
+     $     call errquit('sym_hess_sym: scratch space', (nat3)**2)
+c     
+      if (util_print('sym_hess_sym', print_debug)) then
+         write(6,*) ' sym_hess_sym: Input hessian'
+         call output(h, 1, nat3, 1, nat3, nat3, nat3, 1)
+      endif
+c
+      call dcopy(nat3**2, h, 1, dbl_mb(k_tmp), 1)
+c
+      do iat = 1, nat
+         do jat = 1, nat
+            call sym_copy_h_block(iat,jat,nat,h,hold)
+            do op = 1, nops
+               iatnew = sym_center_map(geom, iat, op)
+               jatnew = sym_center_map(geom, jat, op)
+               call sym_apply_hess_op(geom, op, hold, hnew)
+               call sym_add_h_block(iat, jat, nat,
+     $              dbl_mb(k_tmp + (iatnew-1)*3 + (jatnew-1)*nat3),
+     $              hnew)
+            enddo
+         end do
+      end do
+c     
+      call dscal(nat3**2, 1.0d0/dble(nops+1), dbl_mb(k_tmp), 1)
+c
+      call dcopy(nat3**2, dbl_mb(k_tmp), 1, h, 1)
+c
+      if (util_print('sym_hess_sym', print_debug)) then
+         write(6,*) ' sym_hess_sym: Output hessian'
+         call output(h, 1, nat3, 1, nat3, nat3, nat3, 1)
+      endif
+c
+      if (.not.ma_pop_stack(l_tmp)) call errquit('s_h_s: ma?',0)
+c
+      end
+      subroutine sym_apply_hess_op(geom, opnum, h, h1)
+      implicit none
+c
+#include "geomP.fh"
+c
+      integer geom, opnum
+      double precision h(3,3), h1(3,3)
+      integer i, j, k, l
+c
+c     Apply operators to atom block of Hessian ... R*H*RT
+c
+c     Hik =  sum(jl) Rij hjl  Rkl
+c
+c     THIS HAS ONLY BE DESIGNED WITH MOLECULAR SYSTEM IN MIND
+c     .... TRANSLATION TERMS NEED ADDING FOR PERIODIC
+c
+c     stupid 3**4 version for easy debugging
+c
+      do i = 1, 3
+         do k = 1, 3
+            h1(i,k) = 0.0d0
+            do j = 1, 3
+               do l = 1, 3
+                  h1(i,k) = h(i,k) + 
+     $                 sym_ops((opnum-1)*3+i,j,geom)*
+     $                 sym_ops((opnum-1)*3+k,l,geom)*h(j,l)
+               enddo
+            enddo
+         enddo
+      enddo
+c
+      end
+      subroutine sym_copy_h_block(iat,jat,nat,h,hold)
+      implicit none
+      integer iat, jat, nat
+      double precision h(3,nat,3,nat)
+      double precision hold(3,3)
+c
+      integer i, j
+c
+      do i = 1, 3
+         do j = 1, 3
+            hold(i,j) = h(i,iat,j,jat)
+         enddo
+      enddo
+c
+      end
+      subroutine sym_add_h_block(iat,jat,nat,h,hnew)
+      implicit none
+      integer iat, jat, nat
+      double precision h(3,nat,3,nat)
+      double precision hnew(3,3)
+c
+      integer i, j
+c
+      do i = 1, 3
+         do j = 1, 3
+             h(i,iat,j,jat) =  h(i,iat,j,jat) + hnew(i,j)
+         enddo
+      enddo
+c
+      end
+
