@@ -21,10 +21,10 @@
       call util_print_push
       call util_print_rtdb_load(rtdb,'mp2_grad')
       eval_e2=.true.
-      eval_grad=.false.
+      eval_grad=.true.
       status=rtdb_get(rtdb,'scf:converged',mt_log,1,converged)
-      if(.not.(status .and. converged)) call errquit
-     $     ('mp2_grad: no converged scf wavefunction available',0)
+      if(.not.(status.and.converged))call errquit(
+     $     'mp2_grad: no converged scf wavefunction available',0)
       if(.not.rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
       if(.not.geom_create(geom, 'geometry'))
@@ -35,31 +35,33 @@
      $     call errquit('gradients: bas_create?', 0)
       if(.not.bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      $     call errquit('gradients: no ao basis ', 0)
-      if (ga_nodeid().eq.0) then
-         if (util_print('information',print_low)) then
+      if(ga_nodeid().eq.0)then
+         if(util_print('information',print_low))then
             call util_print_centered(6,
      $           'NWCHEM MP2 semi-direct energy/gradient module',
      $           40,.true.)
             write(6,*)
             write(6,*)
-            if (title .ne. ' ') then
+            if(title.ne.' ')then
                call util_print_centered(6, title, 40, .false.)
                write(6,*)
                write(6,*)
             endif
             call util_flush(6)
          endif
-         if (util_print('geometry',print_high)) then
-            if (.not. geom_print(geom)) 
+         if(util_print('geometry',print_high))then
+            if(.not.geom_print(geom)) 
      $           call errquit('mp2_grad: geom_print ?',0)
             call util_flush(6)
          endif
-         if (util_print('basis',print_high)) then
-            if (.not. bas_print(basis)) 
+         if(util_print('basis',print_high))then
+            if(.not.bas_print(basis)) 
      $           call errquit('mp2_grad: bas_print ?',0)
             call util_flush(6)
          endif
       endif
+c      call util_file_prefix('movecs',movecs_in)
+      call int_init(rtdb,1,basis)
       call util_file_name('movecs', .false.,.false.,movecs_in)
       call int_normalize(basis)
       call int_init(rtdb,1,basis)
@@ -67,11 +69,11 @@
       call mp2_energy(rtdb,geom,basis,movecs_in,eval_e2,eval_grad)
       call schwarz_tidy()
       if(.not.((bas_destroy(basis)).and.(geom_destroy(geom))))
-     &    call errquit
-     &    ('mp2_grad:error destroying geom and basis handles',0)
+     $    call errquit
+     $    ('mp2_grad:error destroying geom and basis handles',0)
       call int_terminate()
       call util_print_pop
-      if(.not. context_pop('mp2_grad')) 
+      if(.not.context_pop('mp2_grad')) 
      $     call errquit('context_pop failed',0)
       end
 
