@@ -1,5 +1,5 @@
 *
-* $Id: v_psi_new.F,v 1.2 2003-07-29 20:55:36 bylaska Exp $
+* $Id: v_psi_new.F,v 1.3 2003-07-31 00:19:50 bylaska Exp $
 *
 
 *     ***********************************
@@ -76,6 +76,7 @@
       integer taskid,MASTER
       parameter (MASTER=0)
 
+      logical      found
       integer      l
       character*30  filename
       character*34  filename2
@@ -102,13 +103,16 @@
      >                    .false.,
      >                    full_filename2)
 
-         write(*,109) filename2
-         write(*,110) filename 
-  109    format(' vmovecs filename moved to: ',A)
-  110    format(' vmovecs deleted          : ',A)
+         inquire(file=full_filename,exist=found)
+         if (found) then
+           write(*,109) filename2
+           write(*,110) filename 
+  109      format(' vmovecs filename moved to: ',A)
+  110      format(' vmovecs deleted          : ',A)
 
-         call util_file_copy(full_filename,full_filename2)
-         call util_file_unlink(full_filename)
+           call util_file_copy(full_filename,full_filename2)
+           call util_file_unlink(full_filename)
+         end if
       end if
 
       return

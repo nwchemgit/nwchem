@@ -6,21 +6,33 @@
 *     ***************************
       subroutine molecular_init(rtdb)
 *
-* $Id: molecular.F,v 1.2 2001-10-17 23:48:11 bylaska Exp $
+* $Id: molecular.F,v 1.3 2003-07-31 00:19:50 bylaska Exp $
 *
       implicit none 
       integer   rtdb
 
 #include "rtdb.fh"
 
+*     ***** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      logical found
+      integer       i,j,l
+      integer a,b,m,msize
+      integer na,nb,cyclic,indxa(20)
+      double precision blist(20)
+
       character*30 filename
-      character*255 full_filename
-      integer       l
+      character*255 full_filename,string
+
 
       logical value
       common /pspw_molecular/ value
 
+      call Parallel_taskid(taskid)
 
+      !**** SHAKE data file exists ****
       value = rtdb_cget(rtdb,'pspw:molecular_filename',1,filename)
       if (value) then
 
@@ -28,10 +40,67 @@
      >                                .false.,
      >                                full_filename)
           l = index(full_filename,' ') - 1
+          if (taskid.eq.MASTER) then
           write(*,*) "Molecular Constraint File:",full_filename(1:l)
           write(*,*)
+          end if
           call pspw_molecule_read(full_filename,l)
+
+
+      !**** input via rtdb ****
+      else
+        value = rtdb_cget(rtdb,'nwpw:shake_constraint',1,string)
+        if (value) then
+          call util_file_name_noprefix('SHAKE',.false.,
+     >                                .false.,
+     >                                full_filename)
+          l = index(full_filename,' ') - 1
+
+          !*** create SHAKE data file ****
+          if (taskid.eq.MASTER) then
+
+          inquire(file=full_filename,exist=found)         !*** delete shake file ***
+          if (found) call util_file_unlink(full_filename)
+         
+          !*** create new shake file ***
+          open(unit=49,file=full_filename,form='formatted',
+     >          status='new')
+          write(49,*) string
+          close(49)
+
+          write(*,*) "Molecular Constraint File:",full_filename(1:l)
+          write(*,*)
+          end if
+
+          call ga_sync() 
+          call pspw_molecule_read(full_filename,l)
+        end if
       end if
+
+      if (value) then
+         call pspw_molecule_msize(msize)
+         do m=1,msize
+            call pspw_molecule_data(m,na,indxa,blist,cyclic)
+            if (taskid.eq.MASTER) then
+            if (cyclic.eq.1) then
+               write(*,'(A,A,10(A,I3,I3,A,F6.3,A))') 
+     >         "Cyclic Constraint:",
+     >         "  fixed bonds -", 
+     >     (" ( atoms:",indxa(i),indxa(i+1)," dist:",blist(i)," )", 
+     >          i=1,(na-1)),
+     >      " ( atoms:",indxa(na),indxa(1)," dist:",blist(na)," )" 
+            else
+               write(*,'(A,A,10(A,I3,I3,A,F6.3,A))') 
+     >         "Linear Constraint:",
+     >         "  fixed bonds -", 
+     >     (" ( atoms:",indxa(i),indxa(i+1)," dist:",blist(i)," )", 
+     >          i=1,(na-1))
+            end if
+            end if
+         end do
+
+      end if
+
 
       return
       end
