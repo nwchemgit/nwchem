@@ -1,7 +1,7 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive,  rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.32 2000-08-25 20:49:20 edo Exp $
+* $Id: dftg_getxc.F,v 1.33 2001-12-23 01:45:32 edo Exp $
 *
       implicit none
 c      
@@ -72,6 +72,8 @@ c
          grid_written=grid_reopen(rtdb,geom)
       endif
       if(grid_on_file.and.grid_written) then
+         call grid_setquad(rtdb)
+         call grid_packing_info
          call dftg_gridv0(rtdb, geom,ao_bas_han,ipol,nbf_ao,
      .        iga_dens, force, natom, oactive, 
      &                    nactive, rdens_atom,  cetobfr)
