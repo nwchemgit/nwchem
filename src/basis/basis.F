@@ -1,5 +1,5 @@
       block data basis_data
-c $Id: basis.F,v 1.6 1994-04-04 20:20:24 d3e129 Exp $
+c $Id: basis.F,v 1.7 1994-04-08 15:57:46 d3e129 Exp $
 c
 c Block data structure to initialize the common block variables in the
 c  internal basis set object data structures
@@ -770,7 +770,7 @@ c note angular_bs(*) initialized in block data function
 c
       do 00800 i = 1, ncont_tot_gb(basis)
         iu_cont = ibs_cn2ucn(i,basis)
-        myang   = infbs_cont(CONT_TYPE,iu_cont,basis)
+        myang   = abs(infbs_cont(CONT_TYPE,iu_cont,basis))
         angular_bs(basis) = max(angular_bs(basis),myang)
 00800 continue
       return
@@ -897,7 +897,7 @@ c  high_angular [output]  ! high angular momentum of basis
 c
       integer basisin, high_angular
 c:local
-      integer basis, myucont, i
+      integer basis, myucont, i, myang
 c
       bas_high_angular = bas_check_handle(basisin,"bas_high_angular")
       if (.not. bas_high_angular ) then
@@ -916,7 +916,8 @@ c
       high_angular = -565
 c
       do 00100 i = 1,myucont
-        high_angular = max(high_angular, infbs_cont(CONT_TYPE,i,basis))
+        myang = abs(infbs_cont(CONT_TYPE,i,basis))
+        high_angular = max(high_angular, myang)
 00100 continue
 c
       angular_bs(basis) = high_angular
