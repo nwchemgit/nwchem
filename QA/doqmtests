@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: doqmtests,v 1.47 2004-10-29 21:32:32 edo Exp $
+# $Id: doqmtests,v 1.48 2004-12-17 01:54:05 bert Exp $
 #
 #---   small tests
 set np = 1
@@ -11,7 +11,7 @@ endif
 ./runtests.unix procs $np geom_zmatrix rimp2_ne  scf_feco5 small_intchk tagcheck testtab
 ./runtests.unix procs $np h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
 ./runtests.unix procs $np cosmo_trichloroethene esp esp_uhf dft_bsse
-./runtests.unix procs $np dplot dft_meta
+./runtests.unix procs $np dplot dft_meta pro_uhf_h2o
 ./runtests.unix procs $np et_zn_dimer vectors_rotate sad_ch3hf
 
 #---   small tests that should fail!
