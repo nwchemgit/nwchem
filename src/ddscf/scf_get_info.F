@@ -162,13 +162,13 @@ c
 c     Fill in the SCF convergence info
 c     
       call scf_get_conv_info(rtdb)
-      call scf_get_fock_param(rtdb)
+      call scf_get_fock_param(rtdb, tol2e)
 c
       oinitialized = .true.
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.7 1995-05-24 16:12:06 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.8 1995-05-29 18:58:18 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -203,7 +203,7 @@ c
       if (shifts(6) .eq. -1.0d0) shifts(6) = 0.0d0
 c
       end
-      subroutine scf_get_fock_param(rtdb)
+      subroutine scf_get_fock_param(rtdb, tol2e)
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -211,6 +211,7 @@ c
 #include "global.fh"
 #include "util.fh"
       integer rtdb
+      double precision tol2e
 c
       integer chunktmp
       character*255 filename
@@ -241,7 +242,8 @@ c
          owritefile = .true.
          if (.not. rtdb_cget(rtdb, 'int2e:filename', 1, filename)) 
      $        call util_file_prefix('aoints',filename)
-         if (.not. int2e_file_open(filename, memsize, filesize))
+         if (.not. int2e_file_open(filename, memsize, filesize,
+     $        tol2e*0.1d0))
      $        call errquit('get_fock_param: opening aoints?', 0)
       endif
 c

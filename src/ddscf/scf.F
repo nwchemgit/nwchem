@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.28 1995-05-24 17:46:27 vg038 Exp $
+C$Id: scf.F,v 1.29 1995-05-29 18:58:17 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -25,7 +25,7 @@ c
       logical status
       double precision energy
       logical oprint
-      character*255 name
+      character*255 name, trans
 c
       integer natoms, Nff
       logical rohf, uhf, riscf_init
@@ -65,15 +65,25 @@ c
          if (.not. geom_ncent(geom, natoms)) call errquit
      $        ('scf: geom_ncent failed', 0)
 c
-         if ( nriscf.eq.0 ) then
-           write(6,1) trans(1:inp_strlen(trans)), nbf, natoms,
-     $          nclosed, nopen, nelec, nalpha, nbeta, charge,
-     $          scftype,
-     $          movecs_in(1:inp_strlen(movecs_in)),
-     $          movecs_out(1:inp_strlen(movecs_out)), oskel
- 1         format(/
+         write(6,1) trans(1:inp_strlen(trans)), nbf
+ 1       format(/
      $        '  ao basis        = "',a,'"'/
-     $        '  functions       = ', i5/
+     $        '  functions       = ', i5)
+         if (nriscf .ne. 0) then
+            status = bas_numbf (riscf_basis, Nff)
+            if (.not. bas_name(riscf_basis, name, trans))
+     $           call errquit('scf: bas_name?', 0)
+            write(6,11) trans(1:inp_strlen(trans)), nff
+ 11         format(
+     $           '  ri basis        = "',a,'"'/
+     $           '  ri functions    = ', i5)
+         endif
+         write(6,12) natoms,
+     $        nclosed, nopen, nelec, nalpha, nbeta, charge,
+     $        scftype,
+     $        movecs_in(1:inp_strlen(movecs_in)),
+     $        movecs_out(1:inp_strlen(movecs_out)), oskel
+ 12      format(
      $        '  atoms           = ', i5/
      $        '  closed shells   = ', i5/
      $        '  open shells     = ', i5/
@@ -85,29 +95,6 @@ c
      $        '  input vectors   = ', a/
      $        '  output vectors  = ', a/
      $        '  use symmetry    = ', l1/)
-         else
-           status = bas_numbf (riscf_basis, Nff)
-           write(6,2) trans(1:inp_strlen(trans)), nbf, Nff, natoms,
-     $          nclosed, nopen, nelec, nalpha, nbeta, charge,
-     $          scftype,
-     $          movecs_in(1:inp_strlen(movecs_in)),
-     $          movecs_out(1:inp_strlen(movecs_out))
- 2         format(/
-     $        '  ao basis        = "',a,'"'/
-     $        '  functions       = ', i5//
-     $        '  riscf basis',       /
-     $        '  functions       = ', i5//
-     $        '  atoms           = ', i5/
-     $        '  closed shells   = ', i5/
-     $        '  open shells     = ', i5/
-     $        '  total electrons = ', i5/
-     $        '  alpha electrons = ', i5/
-     $        '  beta  electrons = ', i5/
-     $        '  charge          = ', f6.2//
-     $        '  wavefunction    = ', a/
-     $        '  input vectors   = ', a/
-     $        '  output vectors  = ', a)
-         endif
          call util_flush(6)
       endif
 c
