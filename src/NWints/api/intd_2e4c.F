@@ -1,6 +1,6 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.17 2000-04-07 19:03:31 edo Exp $
+c $Id: intd_2e4c.F,v 1.18 2000-06-08 18:15:51 mg201 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -297,19 +297,19 @@ c
         if (status_rel) then
           call rel_2e4cd_sf (
      &        coords(1,iatom,ab_geom),dbl_mb(mb_exndcf(iexp,bra)),
-     &        dbl_mb(mb_exndcf(icf,bra)),dbl_mb(mb_exndcf(icfs,bra)),
+     &        dbl_mb(mb_exndcf(icf,bra)),dbl_mb(mb_exndcf(icfs,bras)),
      &        inp,igen,itype,iatom,
 c     
      &        coords(1,jatom,ab_geom),dbl_mb(mb_exndcf(jexp,bra)),
-     &        dbl_mb(mb_exndcf(jcf,bra)),dbl_mb(mb_exndcf(jcfs,bra)),
+     &        dbl_mb(mb_exndcf(jcf,bra)),dbl_mb(mb_exndcf(jcfs,bras)),
      &        jnp,jgen,jtype,jatom,
 c
      &        coords(1,katom,cd_geom),dbl_mb(mb_exndcf(kexp,ket)),
-     &        dbl_mb(mb_exndcf(kcf,ket)),dbl_mb(mb_exndcf(kcfs,ket)),
+     &        dbl_mb(mb_exndcf(kcf,ket)),dbl_mb(mb_exndcf(kcfs,kets)),
      &        knp,kgen,ktype,katom,
 c
      &        coords(1,latom,cd_geom),dbl_mb(mb_exndcf(lexp,ket)),
-     &        dbl_mb(mb_exndcf(lcf,ket)),dbl_mb(mb_exndcf(lcfs,ket)),
+     &        dbl_mb(mb_exndcf(lcf,ket)),dbl_mb(mb_exndcf(lcfs,kets)),
      &        lnp,lgen,ltype,latom,
 c
      &        eri,nint_ck,.false.,.false.,.false.,.false.,
@@ -442,6 +442,9 @@ c     as a block of 4.
         k_nbf = int_nbf_x(Kt)
         l_nbf = int_nbf_x(Lt)
         nint_x = i_nbf*j_nbf*k_nbf*l_nbf
+C should be
+C        nint_x = i_nbf*j_nbf*k_nbf*l_nbf*ig*jg*kg*lg
+C ?
         if (nint_ck.ne.nint_x) call errquit
      &      ('intd_2ec2s: nint_ck.ne.nint_x diff=',(nint_ck-nint_x))
         if(bra_sph) then
@@ -454,6 +457,9 @@ c     as a block of 4.
      &              j_nbf,i_nbf,j_nbf_s,i_nbf_s,
      &              Jt, It, jg, ig,
      &              (k_nbf*l_nbf),.false.)
+C should be
+C     &              (k_nbf*l_nbf*kg*lg),.false.)
+C ?
               enddo
             endif
           enddo
@@ -470,6 +476,9 @@ c     as a block of 4.
      &              l_nbf,k_nbf,l_nbf_s,k_nbf_s,
      &              Lt, Kt, lg, kg,
      &              (i_nbf*j_nbf),.false.)
+C should be
+C     &              (i_nbf*j_nbf*ig*jg),.false.)
+C ?
               enddo
             endif
           enddo
