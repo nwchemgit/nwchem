@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.49 2000-08-23 17:52:01 mdupuis Exp $
+c     $Id: grad_force.F,v 1.50 2000-09-19 21:40:04 mdupuis Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C             ___                 ___                         ___
@@ -488,10 +488,17 @@ c
             if(odbug) then
                write(luout,*) '-cosmo- ... found and .true. ',
      $                        ocosmo,ga_nodeid()
+               write(luout,*) 'calling -cosder- ...'
             endif
 c
 c     .....
 c
+            call grad_hnd_cos( dbl_mb(k_buf), lbuf, dbl_mb(k_scr), 
+     $           lscratch,
+     $           dbl_mb(k_dens), dbl_mb(k_wdens), dbl_mb(k_frc_nuc),
+     $           dbl_mb(k_frc_kin), dbl_mb(k_frc_wgh), g_force,
+     $           g_dens, g_wdens, basis, geom, nproc, nat, max_at_bf,
+     $           rtdb, oskel)
          else
             if(odbug) then
                write(luout,*) '-cosmo- ... found but .false.',

@@ -2,7 +2,7 @@
      $                   frc_kin, frc_wgh, g_force,
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
      $                   max_at_bf, rtdb, oskel )
-c$Id: grad1.F,v 1.14 1997-06-24 15:56:20 d3g681 Exp $
+c$Id: grad1.F,v 1.15 2000-09-19 21:40:02 mdupuis Exp $
 
 C     one electron contribution to RHF, ROHF and UHF gradients
 C     now also UMP2
@@ -183,6 +183,168 @@ C               no forces between point charges (for John Nicholas)
                 frc_nuc(3,iat2) = frc_nuc(3,iat2) - dE
               endif
             endif
+
+            next = nxtask(nproc,task_size)
+          endif
+
+ 80     continue
+ 90   continue
+      next = nxtask(-nproc,task_size)
+
+      return
+      end
+      subroutine grad_hnd_cos ( H, lbuf, scr, lscr, 
+     $                   dens, wdens, frc_nuc,
+     $                   frc_kin, frc_wgh, g_force,
+     $                   g_dens, g_wdens, basis, geom, nproc, nat, 
+     $                   max_at_bf, rtdb, oskel )
+c$Id: grad1.F,v 1.15 2000-09-19 21:40:02 mdupuis Exp $
+
+C     one electron contribution to RHF, ROHF and UHF gradients
+C     now also UMP2
+
+      implicit none
+
+#include "mafdecls.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "bas.fh"
+#include "rtdb.fh"
+#include "sym.fh"
+#include "stdio.fh"
+
+C-------------------------parameters--------------------------------
+      integer lbuf, lscr,
+     $     g_dens,        ! density matrix (summed if ROHF, UHF)
+     $     g_wdens,       ! weighted density (Lagrangian)
+     $     g_force,       ! global force array
+     $     basis, geom, nproc, nat, max_at_bf, rtdb
+
+      double precision H, ! integral derivatives
+     $     scr, 
+     $     dens,          ! local density block
+     $     wdens,         ! local weighted density block
+     $     frc_nuc, frc_kin, frc_wgh   ! forces arrays
+
+      dimension H ( lbuf ), frc_nuc(3, nat), frc_kin(3, nat),
+     $          frc_wgh(3, nat), scr(lscr),
+     $          dens(max_at_bf,max_at_bf), wdens(max_at_bf,max_at_bf)
+
+      logical oskel   ! symmetry?
+
+C-------------------------local variables--------------------------
+
+      integer ijatom, next, iat1, iat2, iat3, ish1, ish2,
+     $     iab1f, iab1l, iab2f, iab2l, iac1f, iac1l, iac2f, iac2l,
+     $     if1, il1, if2, il2,
+     $     icart, ic, nint, ip1, ip2
+
+      double precision dE, qfac
+
+      logical status, pointforce
+
+      integer nxtask, task_size
+      external nxtask
+
+c     ---- -cosmo- gradient term -----
+      logical odbug
+
+      odbug=.true.
+      if(odbug) then
+         write(Luout,*) 'in -grad1_hnd_cos- ...'
+      endif
+c
+
+      task_size = 1
+      status = rtdb_parallel(.true.) ! Broadcast reads to all processes
+
+      pointforce = geom_include_bqbq(geom)
+
+      call hf_print_set(1)
+
+      ijatom = -1
+      next = nxtask(nproc,task_size)
+      do 90, iat1 = 1, nat
+        do 80, iat2 = 1, iat1
+
+          ijatom = ijatom + 1
+          if ( ijatom .eq. next ) then
+
+            status = bas_ce2bfr(basis,iat1,iab1f,iab1l)
+            status = bas_ce2bfr(basis,iat2,iab2f,iab2l)
+
+            if (iab1f.le.0 .or. iab2f.le.0) then
+c     
+c     At least one center has no functions on it ... next atom
+c
+              goto 1010
+            endif
+
+            if (oskel) then
+               if (.not. sym_atom_pair(geom, iat1, iat2, qfac))
+     $              goto 1010
+            else
+               qfac = 1.0d0
+            endif
+
+            status = bas_ce2cnr(basis,iat1,iac1f,iac1l)
+            status = bas_ce2cnr(basis,iat2,iac2f,iac2l)
+
+            call ga_get (g_dens, iab1f,iab1l,iab2f,iab2l,dens,max_at_bf)
+            call ga_get(g_wdens,iab1f,iab1l,iab2f,iab2l,wdens,max_at_bf)
+
+            do 70, ish1 = iac1f, iac1l
+              if ( iat1.eq.iat2 ) iac2l = ish1
+              do 60, ish2 = iac2f, iac2l
+
+C               shell block in atomic (D/Dw)-matrix block
+                status = bas_cn2bfr(basis,ish1,if1,il1)
+                if1 = if1 - iab1f + 1
+                il1 = il1 - iab1f + 1
+                status = bas_cn2bfr(basis,ish2,if2,il2)
+                if2 = if2 - iab2f + 1
+                il2 = il2 - iab2f + 1
+
+                nint = ( il1 - if1 + 1 ) * ( il2 - if2 + 1 )
+
+                ic=1
+                do iat3 = 1, nat
+                  do icart = 1, 3
+                    do ip1 = if1, il1
+                      do ip2 = if2, il2
+                        H(ic)=0.D0
+                        ic = ic + 1
+                      enddo
+                    enddo
+                  enddo
+                enddo
+
+C               1el. -cosmo- derivatives
+c-              call intd_1eh1(basis,ish1,basis,ish2,lscr,scr,
+c-   &               lbuf,H)
+
+C     D x H
+
+                ic=1
+                do 50, iat3 = 1, nat
+                  do 40, icart = 1, 3
+                    dE = 0.D0
+                    do 31, ip1 = if1, il1
+                      do 30, ip2 = if2, il2
+                        dE = dE + dens(ip1,ip2) * H(ic)
+                        ic = ic + 1
+ 30                   continue
+ 31                 continue
+                    if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
+                    dE = dE * qfac
+                    frc_kin(icart,iat3) = frc_kin(icart,iat3) + dE
+ 40               continue
+ 50             continue
+
+ 60           continue
+ 70         continue
+
+ 1010       continue
 
             next = nxtask(nproc,task_size)
           endif
