@@ -4,7 +4,6 @@
 #include "mafdecls.fh"
       integer iat, jat
       double precision value
-      integer itri, i, j
 #include "itri.fh"
 c
       call comp4_extract(int_mb(k_cat), itri(iat,jat), value, nb_per_i)

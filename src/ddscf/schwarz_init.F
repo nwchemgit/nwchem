@@ -28,7 +28,6 @@ c
       logical status, odebug
       integer nxtval, next
       external nxtval
-      integer itri, i, j
 #include "itri.fh"
 c
       odebug = .false.
