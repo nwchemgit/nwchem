@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.44 1996-01-07 19:08:06 d3g681 Exp $
+C$Id: geom.F,v 1.45 1996-01-17 22:06:01 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -1659,12 +1659,16 @@ c
 c
       geom_atn_to_default_mass = .false.
 c
-      if (atn.lt.1) call errquit
+      if (atn.lt.0) call errquit
      &    ('geom_atn_to_default_mass: negative atomic number',atn)
       if (atn.gt.nelements) call errquit
      &    ('geom_atn_to_default_mass: atomic number too large',atn)
 c
-      mass = def_masses(atn)
+      if (atn.eq.0) then
+        mass = 0.0d00  ! Bq centers have no mass
+      else
+        mass = def_masses(atn)
+      endif
       geom_atn_to_default_mass = .true.
 c
       end
