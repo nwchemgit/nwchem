@@ -8,7 +8,8 @@ c
       integer rtdb              ! [input]
       integer nbofile
       logical status
-
+      logical  scf_property
+      external scf_property
 #include "context.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -20,7 +21,11 @@ c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
       if(ga_nodeid().eq.0)
      $     call util_print_centered(LUout,'Properties',40,.true.)
-
+c
+c     hondo property calculation routines 
+c
+      status = scf_property(rtdb)
+c
       if (rtdb_get(rtdb,'prop:nbofile',MT_INT, 1, nbofile)) then
         if(nbofile.eq.1)call wnbofile(rtdb)
       endif 

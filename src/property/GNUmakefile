@@ -1,5 +1,5 @@
 
-   OBJ = prop.o wnbofile.o prop_input.o
+   OBJ = prop.o wnbofile.o prop_input.o scf_property.o prp.o
 
    LIBRARY = libproperty.a
    LIB_DEFINES = 
