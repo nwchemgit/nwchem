@@ -1,5 +1,5 @@
-      logical function int_ecp_init(ecpidin)
-* $Id: int_ecp.F,v 1.4 1996-10-16 22:42:34 d3e129 Exp $
+      logical function int_ecp_init(ecpidin,indx_grad)
+* $Id: int_ecp.F,v 1.5 1996-10-20 06:10:07 d3e129 Exp $
       implicit none
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
@@ -22,6 +22,7 @@
 #include "int_nbf.fh"
 *::passed
       integer ecpidin   ! [input] ecp basis handle
+      integer indx_grad ! [input] gradient level 0=energy 1=grad 2=hess
 *::local
 c
       integer ecpid                 ! lexical index for ecp basis handle
@@ -185,6 +186,12 @@ c... allocate space for l_C
      &    'ecp l_C',
      &    h_ecp_l_c, k_ecp_l_c)) call errquit
      &    (' int_ecp: ecp l_c ma failed ',911)
+c... allocate space for ecp center pointer list
+      if (.not.ma_alloc_get(mt_int,
+     &    n_ecp,
+     &    'ecp lexical indeces for ecp centers',
+     &    h_ecp_lip, k_ecp_lip)) call errquit
+     &    (' int_ecp: ecp_lip ma failed',911)
 c
       call int_ecp_build_ecp_ptrs(ecpidin,
      &    ncenters,
@@ -196,6 +203,7 @@ c
      &    int_mb(k_ecp_ind_c),
      &    int_mb(k_ecp_ntot_c),
      &    int_mb(k_ecp_l_c),
+     &    int_mb(k_ecp_lip),
      &    dbl_mb(k_ecp_e),
      &    dbl_mb(k_ecp_c) )
 c
@@ -209,7 +217,7 @@ c l_ecp currently has Lmax for ecp basis
       if (.not.bas_high_angular(basis_handle,l_bas)) call errquit
      &      ('int_ecp_init: bas_high_angular failed for ao handle',
      &      911)
-      lmax_both = l_ecp + l_bas
+      lmax_both = l_ecp + l_bas + 2 
       call ecp_init_c2s(lmax_both,dpdum,dpdum,idum,1,1,.true.,mem_c2s)
       if (.not.ma_alloc_get(mt_dbl,
      &      mem_c2s,
@@ -242,7 +250,7 @@ c
         icf = infbs_cont(cont_icfp,iuc,bas_id)
         inp = infbs_cont(cont_nprim,iuc,bas_id)
         ing = infbs_cont(cont_ngen,iuc,bas_id)
-        il  = infbs_cont(cont_type,iuc,bas_id)
+        il  = infbs_cont(cont_type,iuc,bas_id) + indx_grad ! for grads
         do j_cont = 1,basis_ncont
 *          if (.not.bas_print(basis_handle)) stop ' error'
 *          if (.not.gbs_map_print(basis_handle)) stop ' error '
@@ -252,7 +260,7 @@ c
           jcf = infbs_cont(cont_icfp,juc,bas_id)
           jnp = infbs_cont(cont_nprim,juc,bas_id)
           jng = infbs_cont(cont_ngen,juc,bas_id)
-          jl  = infbs_cont(cont_type,juc,bas_id)
+          jl  = infbs_cont(cont_type,juc,bas_id) + indx_grad  ! one for grads
           nV  = int_nbf_x(il)*int_nbf_x(jl)
           lecp_mem = 90000
           call int_ecp_hf1(
@@ -297,6 +305,7 @@ c
       status = status .and. MA_free_heap(h_ecp_ind_c)
       status = status .and. MA_free_heap(h_ecp_l_c)
       status = status .and. MA_free_heap(h_ecp_c2s)
+      status = status .and. MA_free_heap(h_ecp_lip)
       h_xyzecp      = 0
       k_xyzecp      = 0
       h_ecp_e       = 0
@@ -315,6 +324,8 @@ c
       k_ecp_l_c     = 0
       h_ecp_c2s     = 0
       k_ecp_c2s     = 0
+      h_ecp_lip     = 0
+      k_ecp_lip     = 0
       n_zeta_c      = 0
       l_ecp         = 0
       n_ecp         = 0
@@ -436,6 +447,7 @@ c
      &    ind_C,
      &    n_tot_C,
      &    l_C,
+     &    i_cent_C,
      &    c_exp,
      &    c_coef)
       implicit none
@@ -457,6 +469,7 @@ c
       integer ind_C(-1:l_ecp,n_ecp)        ! [output] 
       integer n_tot_C(n_ecp)                  ! [output] 
       integer l_C(n_ecp)                      ! [output] 
+      integer i_cent_C(n_ecp)                 ! [output]
       double precision c_exp(nz_ecp)          ! [output] 
       double precision c_coef(nz_ecp)         ! [output] 
 c
@@ -497,6 +510,7 @@ c
       do icent=1,ncenters
         if (oecpcent(icent,geom)) then
           num_ecp = num_ecp + 1
+          i_cent_C(num_ecp) = icent
           iucent = sf_ibs_ce2uce(icent,ecpid)
           F_cont = infbs_tags(TAG_FCONT,iucent,ecpid)
           L_cont = infbs_tags(TAG_LCONT,iucent,ecpid)
@@ -682,6 +696,8 @@ c
       data k_ecp_l_c     /0/       ! MA index  for l_C (see ecp_integral)
       data h_ecp_c2s     /0/       ! MA handle for c2s routines
       data k_ecp_c2s     /0/       ! MA index  for c2s routines
+      data h_ecp_lip     /0/       ! MA handle for ecp center index
+      data k_ecp_lip     /0/       ! MA index for ecp center index
       data n_zeta_c      /0/       ! length of ecp exp/coef array
       data l_ecp         /0/       ! high ang for ecp basis
       data n_ecp         /0/       ! number of ecp centers (from API)
@@ -729,6 +745,54 @@ c
      &      0,
      &      dbl_mb(k_ecp_c2s),mem_c2s,
      &      ecp_ints,sz_ints,
+     &      dryrun,scr,lscr,
+     &      0)  ! ibug
+*
+      end
+      subroutine intd_ecp_hf1(
+     &    xyza,expa,coefa,a_nprim,a_ngen,La,ictra,
+     &    xyzb,expb,coefb,b_nprim,b_ngen,Lb,ictrb,
+     &    ecp_grad,sz_grad,nat,scr,lscr,dryrun)
+      implicit none
+#include "mafdecls.fh"
+#include "ecp_nwc.fh"
+*
+      integer a_nprim, a_ngen, La, ictra
+      integer b_nprim, b_ngen, Lb, ictrb
+      integer nat
+      double precision expa(a_nprim), expb(b_nprim)
+      double precision coefa(a_nprim,a_ngen), coefb(b_nprim,b_ngen)
+      integer sz_grad  ! [input] buffer size for ecp_grad
+      integer lscr     ! [input] length of scratch array
+      double precision xyza(3), xyzb(3)  ! [input] a and b center coords.
+      double precision ecp_grad(sz_grad,3,nat) ! [output] ecp integrals
+      double precision scr(lscr)         ! [scratch] array
+      logical dryrun   ! [input] compute vs calculate memory requirements.
+*
+*      write(6,*)' lscr IN ecp_hf1:',lscr
+c
+      call ecp_gradient(
+     &      xyza,
+     &      expa,
+     &      coefa,
+     &      a_nprim,a_ngen,La,ictra,
+     &      xyzb,
+     &      expb,
+     &      coefb,
+     &      b_nprim,b_ngen,Lb,ictrb,
+     &      dbl_mb(k_xyzecp),
+     &      dbl_mb(k_ecp_e),dbl_mb(k_ecp_c),
+     &      int_mb(k_ecp_nprim_c),
+     &      int_mb(k_ecp_ncoef_c),
+     &      int_mb(k_ecp_ind_c),
+     &      int_mb(k_ecp_ntot_c),
+     &      n_zeta_c,
+     &      int_mb(k_ecp_l_c),
+     &      int_mb(k_ecp_lip), 
+     &      n_ecp,l_ecp,
+     &      0,
+     &      dbl_mb(k_ecp_c2s),mem_c2s,
+     &      ecp_grad,sz_grad,nat,
      &      dryrun,scr,lscr,
      &      0)  ! ibug
 *

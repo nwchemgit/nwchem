@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.6 1996-10-07 16:50:42 d3e129 Exp $
+C $Id: intd_1eh1.F,v 1.7 1996-10-20 06:10:05 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -88,6 +88,8 @@ c
       subroutine intd_1eh1P(i_basis,ish,j_basis,jsh,lscr,scr,
      &       nint,H1a,Ta)
       implicit none
+#include "apiP.fh"
+#include "int_nbf.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -113,6 +115,9 @@ c::local
       integer ucont
       integer ibas,iatom,inp,igen,iexp,icf,itype,igeom
       integer jbas,jatom,jnp,jgen,jexp,jcf,jtype,jgeom
+      integer nat
+      integer nintV
+      integer offset
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
@@ -176,6 +181,35 @@ c if needed add in Ta derivative integrals
       if (doT) then
         call daxpy(nint*3,1.0d00,Ta(1,1,1),1,H1a(1,1,iatom),1)
         call daxpy(nint*3,1.0d00,Ta(1,1,2),1,H1a(1,1,jatom),1)
+      endif
+c
+c check for ecp
+c
+      if (any_ecp) then
+        nat = ncenter(igeom)
+        nintV = int_nbf_x(itype)*int_nbf_x(jtype)
+        offset = nintV*3*nat + 1
+*       write(6,*)' lscr to ecp_hf1:',(lscr-nintV)
+*       call dcopy(nintV*3*nat,0.0d00,0,scr,1) buffer zeroed in ecp_gradient
+        call intd_ecp_hf1(
+     &      coords(1,iatom,igeom),
+     &      dbl_mb(mb_exndcf(iexp,ibas)),
+     &      dbl_mb(mb_exndcf(icf,ibas)),
+     &      inp,igen,itype,iatom,
+c
+     &      coords(1,jatom,jgeom),
+     &      dbl_mb(mb_exndcf(jexp,jbas)),
+     &      dbl_mb(mb_exndcf(jcf,jbas)),
+     &      jnp,jgen,jtype,jatom,
+c
+     &      scr,nintV,nat,
+     &      scr(offset),(lscr-offset-1),
+     &      .false.)
+        
+c
+c 
+*... sum ecp into derivative H1 block
+        call daxpy(nintV*3*nat,1.0d00,scr,1,H1a,1)
       endif
       end
       

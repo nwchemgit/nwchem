@@ -17,6 +17,8 @@ c
       integer k_ecp_l_c             ! MA index  for l_C (see ecp_integral)
       integer h_ecp_c2s             ! MA handle for c2s routines
       integer k_ecp_c2s             ! MA index  for c2s routines
+      integer h_ecp_lip             ! MA handle for ecp center index
+      integer k_ecp_lip             ! MA index for ecp center index
       integer n_zeta_c              ! length of ecp exp/coef array
       integer l_ecp                 ! high ang for ecp basis
       integer n_ecp                 ! number of ecp centers (from API)
@@ -27,5 +29,6 @@ c
      &    k_ecp_c, h_ecp_nprim_c, k_ecp_nprim_c, h_ecp_ncoef_c,
      &    k_ecp_ncoef_c, h_ecp_ntot_c, k_ecp_ntot_c, h_ecp_ind_c,
      &    k_ecp_ind_c, h_ecp_l_c, k_ecp_l_c, h_ecp_c2s, k_ecp_c2s,
+     &    h_ecp_lip, k_ecp_lip,
      &    n_zeta_c, l_ecp, n_ecp, mem_c2s, init_ecp_init
 

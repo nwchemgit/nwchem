@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.28 1996-10-07 16:50:25 d3e129 Exp $
+c $Id: int_init.F,v 1.29 1996-10-20 06:10:05 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsubsection{int\_init}
@@ -185,7 +185,7 @@ c
       if (any_ecp) then
         if (.not.ecp_check_handle(ecp_bsh,'int_init')) call errquit
      &        ('int_init: ecp handle is invalid fatal error',911)
-        if (.not.int_ecp_init(ecp_bsh)) call errquit
+        if (.not.int_ecp_init(ecp_bsh,0)) call errquit
      &        ('int_init: int_ecp_init failed ',911)
       endif
       init_int = 1

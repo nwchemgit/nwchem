@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.11 1996-10-07 16:49:47 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.12 1996-10-20 06:10:04 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -55,6 +55,10 @@ c.... 1e
 *debug:          write(luout,*)' mem_1e  : ',mem_1e
 00200   continue
 00100 continue
+c
+c tmp for ecp derivatives
+c
+      mem_1e = mem_1e * 3
 c
 c.. need extra memory for H1 call externalized by int_mem_h1 (Ta)
 c

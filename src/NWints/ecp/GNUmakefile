@@ -54,7 +54,7 @@ OBJ_ENERGY = \
 
 OBJ =  
 
-OBJ_OPTIMIZE = $(OBJ_ENERGY) 
+OBJ_OPTIMIZE = $(OBJ_ENERGY) $(OBJ_GRAD)
 
 USES_BLAS = ecp_cart_xpd.f \
       ecp_cstrans.f  \

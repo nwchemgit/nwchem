@@ -1,5 +1,5 @@
       subroutine intd_init(rtdb,nbas,bases)
-c $Id: intd_init.F,v 1.6 1996-07-11 22:21:19 d3e129 Exp $
+c $Id: intd_init.F,v 1.7 1996-10-20 06:10:06 d3e129 Exp $
 c
 c Initializes integral derivative code 
 c
@@ -9,6 +9,9 @@ c
 #include "bas.fh"
 #include "apiP.fh"
 #include "rtdb.fh"
+c::functions
+      logical int_ecp_init
+      external int_ecp_init
 c::passed
       integer rtdb        ! run time data base handle
       integer nbas        ! number of basis sets to be used
@@ -69,6 +72,24 @@ c
       call exactd_mem(bases,nbas)
       call sp_der_init(nbas,bases)
       call int_acc_std()
+c
+c See if any basis has an attached ECP
+c
+      any_ecp = .false.
+      ecp_bsh = 0
+      do ibas = 1,nbas
+        if (bas_get_ecp_handle(bases(ibas),ecp_bsh)) then
+          any_ecp = .true.
+          goto 00001
+        endif
+      enddo
+00001 continue
+      if (any_ecp) then
+        if (.not.ecp_check_handle(ecp_bsh,'intd_init')) call errquit
+     &        ('intd_init: ecp handle is invalid fatal error',911)
+        if (.not.int_ecp_init(ecp_bsh,1)) call errquit
+     &        ('intd_init: int_ecp_init failed ',911)
+      endif
       init_int = 1
       init_intd = 1
       end

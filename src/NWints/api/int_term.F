@@ -1,5 +1,5 @@
       subroutine int_terminate()
-c $Id: int_term.F,v 1.5 1996-10-01 18:46:04 d3e129 Exp $
+c $Id: int_term.F,v 1.6 1996-10-20 06:10:05 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 #include "candoP.fh"
@@ -67,4 +67,12 @@ c.. parameters for int derivative (hf2d)
 c
       call sp_terminate()
 c
+      if (any_ecp) then
+        call int_ecp_terminate()
+        ecp_bsh = 0
+      endif
+c
       end
+
+
+
