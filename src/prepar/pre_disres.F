@@ -1,35 +1,58 @@
-      logical function pre_disres(card,isgm,csa,msa,nsa,inoe,dnoe,mnoe,
-     + nnoe)
+      logical function pre_disres(card,card2,isegm,csa,msa,nsa,
+     + inoe,dnoe,mnoe,nnoe)
 c
-c $Id: pre_disres.F,v 1.2 1998-04-29 18:35:14 d3j191 Exp $
+c $Id: pre_disres.F,v 1.3 1999-09-21 22:01:40 d3j191 Exp $
 c
       implicit none
 c
+#include "inp.fh"
+c
+      logical str_replace
+      external str_replace
+c
       integer mnoe,nnoe,msa,nsa
-      integer isgm(msa),inoe(2,mnoe),is1,is2
+      integer isegm(msa),inoe(2,mnoe),is1,is2
       real*8 dnoe(5,mnoe),rval(5)
       character*16 csa(msa)
       character*4 nm1,nm2
-      character*80 card
-      integer i
+      character*80 card,card2
+      integer i,ifr,ito
+      character*255 target,atomi,atomj
+      integer ndx,iatom,jatom,isgm,jsgm
 c
-      read(card,1000,end=9999,err=9999) is1,nm1,is2,nm2,rval
- 1000 format(6x,i5,a4,i5,a4,3f12.6,2e12.5)
-      if(is1.eq.0.or.is2.eq.0.or.nm1.eq.'    '.or.nm2.eq.'    ')
-     + goto 9999
+      card=card(8:80)
+c
+      ifr=0
+      if(.not.inp_strtok(card,' ',ifr,ito))
+     + call errquit('Unable to find atom',9999)
+      target=card(ifr:ito)//' '
+      ndx=index(target,':')
+      read(target(1:ndx-1),*) isgm
+      atomi=target(ndx+1:index(target,' ')-1)//'      '
+      if(.not.str_replace(atomi,'_',' '))
+     + call errquit('str_replace',9999)
+      if(.not.inp_strtok(card,' ',ifr,ito))
+     + call errquit('Unable to find atom',9999)
+      target=card(ifr:ito)//' '
+      ndx=index(target,':')
+      read(target(1:ndx-1),*) jsgm
+      atomj=target(ndx+1:index(target,' ')-1)//'      '
+      if(.not.str_replace(atomj,'_',' '))
+     + call errquit('str_replace',9999)
+      iatom=0
+      jatom=0
+      do 1 i=1,nsa
+      if(isgm.eq.isegm(i).and.atomi(1:4).eq.csa(i)(11:14)) iatom=i
+      if(jsgm.eq.isegm(i).and.atomj(1:4).eq.csa(i)(11:14)) jatom=i
+    1 continue
+      if(iatom.eq.0.or.jatom.eq.0)
+     + call errquit('pre_disres error',9999)
       nnoe=nnoe+1
       if(nnoe.gt.mnoe) call errquit('Increase mnoe',9999)
-      inoe(1,nnoe)=0
-      inoe(2,nnoe)=0
-      do 1 i=1,nsa
-      if(is1.eq.isgm(i).and.nm1.eq.csa(i)(11:14)) inoe(1,nnoe)=i
-      if(is2.eq.isgm(i).and.nm2.eq.csa(i)(11:14)) inoe(2,nnoe)=i
-    1 continue
-      if(inoe(1,nnoe).eq.0.or.inoe(2,nnoe).eq.0)
-     + call errquit('pre_disres error',9999)
-      do 2 i=1,5
-      dnoe(i,nnoe)=rval(i)
-    2 continue
+      inoe(1,nnoe)=iatom
+      inoe(2,nnoe)=jatom
+      read(card2,1000) (dnoe(i,nnoe),i=1,5)
+ 1000 format(3f12.6,2e12.5)
 c
       pre_disres=.true.
       return

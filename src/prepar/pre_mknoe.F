@@ -1,19 +1,19 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
-     + lfnnoe,filnoe,mnoe)
+     + lfnnoe,filnoe,mnoe,lfnpmf,filpmf)
 c
-c $Id: pre_mknoe.F,v 1.1 1999-09-13 14:35:25 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.2 1999-09-21 22:01:41 d3j191 Exp $
 c
       implicit none
 c
 #include "mafdecls.fh"
 #include "util.fh"
 c
-      logical pre_topsiz,pre_toprd,pre_disres
-      external pre_topsiz,pre_toprd,pre_disres
+      logical pre_topsiz,pre_toprd,pre_disres,pre_select
+      external pre_topsiz,pre_toprd,pre_disres,pre_select
 c
-      integer lfnout,lfntop,lfncmd,lfnnoe
-      character*255 filtop,filcmd,filnoe
-      character*80 card
+      integer lfnout,lfntop,lfncmd,lfnnoe,lfnpmf
+      character*255 filtop,filcmd,filnoe,filpmf
+      character*80 card,card2
 c
       integer nsa,nwa,noe
       integer mat,msa,mwa,mnoe,msm,nsm,msb,nsb
@@ -24,6 +24,21 @@ c
       integer l_inoe,i_inoe,l_dnoe,i_dnoe,l_qu,i_qu
       integer l_qwa,i_qwa
       integer l_isb,i_isb,l_csb,i_csb
+c
+      integer maxgrp,maxatm,maxpmf
+      parameter(maxgrp=4)
+      parameter(maxatm=20)
+      parameter(maxpmf=4)
+c
+      integer igroup(maxgrp,maxatm),lgroup(maxgrp)
+      integer numpmf,ipmf(maxpmf,5),rpmf(maxpmf,4)
+c
+      integer i
+c
+      do 2 i=1,maxgrp
+      lgroup(i)=0
+    2 continue
+      numpmf=0
 c
       if(util_print('where',print_debug)) then
       write(lfnout,1000)
@@ -115,6 +130,8 @@ c     ---------------------
 c
       open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
      + form='formatted',status='old',err=999)
+      rewind(lfncmd)
+      print*,'opened:',filcmd
 c
     1 continue
 c
@@ -130,15 +147,46 @@ c     read distance restraints
 c     ========================
 c
       if(card(1:6).eq.'disres') then
-      if(.not.pre_disres(card,int_mb(i_sgm),byte_mb(i_csa),msa,nsa,
-     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,nnoe))
+      read(lfncmd,1101,end=9,err=9997) card2
+      if(.not.pre_disres(card,card2,int_mb(i_sgm),byte_mb(i_csa),msa,
+     + nsa,int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,nnoe))
      + call errquit('pre_disres failed',9999)
+      endif
+c
+c     read group selection
+c     ====================
+c
+      if(card(1:6).eq.'select') then
+      if(.not.pre_select(card,int_mb(i_sgm),byte_mb(i_csa),msa,
+     + nsa,maxgrp,maxatm,igroup,lgroup))
+     + call errquit('pre_select failed',9999)
+      endif
+c
+c     read pmf
+c     ========
+c
+      if(card(1:3).eq.'pmf') then
+      numpmf=numpmf+1
+      if(numpmf.gt.maxpmf) call errquit('Increase maxpmf',maxpmf)
+      ipmf(numpmf,1)=0
+      if(card(5:8).eq.'dist') ipmf(numpmf,1)=1
+      if(card(5:8).eq.'angl') ipmf(numpmf,1)=2
+      if(card(5:8).eq.'tors') ipmf(numpmf,1)=3
+      read(card(9:76),'(4i5,2f12.6,2e12.5)')
+     + (ipmf(numpmf,i),i=2,5),(rpmf(numpmf,i),i=1,4)
       endif
 c
       if(card(1:3).ne.'end') goto 1
 c
     9 continue
       close(unit=lfncmd,err=999)
+c
+      if(nnoe.gt.0) call pre_wrtnoe(lfnnoe,filnoe,mnoe,nnoe,
+     + int_mb(i_inoe),dbl_mb(i_dnoe))
+c
+      if(numpmf.gt.0) call pre_wrtpmf(lfnpmf,filpmf,numpmf,
+     + maxpmf,ipmf,rpmf,maxgrp,maxatm,igroup,lgroup)
+c
   999 continue
 c
 c     deallocate memory

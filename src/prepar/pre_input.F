@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.29 1999-07-16 20:56:19 d3j191 Exp $
+c $Id: pre_input.F,v 1.30 1999-09-21 22:01:41 d3j191 Exp $
 c
       implicit none
 c
@@ -22,12 +22,13 @@ c
       integer len,numcmd,nummod,mgrid,mnoe,inoe(2),maxscf,num,mset
       integer isgm,icyren,model,nxlnk
       real*8 touch,xpndw,rgrid,edge,edges(3),dnoe(5),qscale,charge
-      real*8 polar,value,forcon
+      real*8 polar,value,forcon,forc2
       character*4  cnoe(2)
       character*11 cfix
       real*8 rfix
       character*1 altloc,chain
-      integer ires,jres,i,ignore
+      integer ires,jres,i,ignore,igroup,jgroup,kgroup,lgroup
+      real*8 value1,value2
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo
 c
@@ -569,22 +570,67 @@ c     noe's
 c     -----
 c
       if(inp_compare(.false.,'noe',item)) then
-      if(.not.inp_i(inoe(1))) call errquit('pre_input: noe',9999)
-      if(.not.inp_a(cnoe(1))) call errquit('pre_input: noe',9999)
-      if(.not.inp_i(inoe(2))) call errquit('pre_input: noe',9999)
-      if(.not.inp_a(cnoe(2))) call errquit('pre_input: noe',9999)
+      if(.not.inp_a(atomi)) call errquit('pre_input: noe',9999)
+      if(.not.inp_a(atomj)) call errquit('pre_input: noe',9999)
       if(.not.inp_f(dnoe(1))) call errquit('pre_input: noe',9999)
       if(.not.inp_f(dnoe(2))) call errquit('pre_input: noe',9999)
       if(.not.inp_f(dnoe(3))) call errquit('pre_input: noe',9999)
       if(.not.inp_f(dnoe(4))) call errquit('pre_input: noe',9999)
       if(.not.inp_f(dnoe(5))) call errquit('pre_input: noe',9999)
       mnoe=mnoe+1
-      write(68,6820) inoe,cnoe,dnoe
- 6820 format('disres',2i5,2a4,3f12.6,2e12.5)
+      write(68,6820) atomi(1:index(atomi,' ')-1),
+     + atomj(1:index(atomj,' ')-1),dnoe
+ 6820 format('disres',1x,a,1x,a,/,3f12.6,2e12.5)
       numcmd=numcmd+1
       goto 2
       endif
 c
+c     select
+c     ------
+c
+      if(inp_compare(.false.,'select',item)) then
+      if(.not.inp_i(igroup)) call errquit('pre_input: select',9999)
+      if(.not.inp_a(atomi)) call errquit('pre_input: noe',9999)
+ 6830 continue
+      write(68,6831) igroup,atomi(1:index(atomi,' ')-1)
+ 6831 format('select',i5,1x,a)
+      numcmd=numcmd+1
+      if(.not.inp_a(atomi)) goto 1
+      goto 6830
+      endif
+c
+c     pmf
+c     ---
+c
+      if(inp_compare(.false.,'pmf',item)) then
+      if(.not.inp_a(type)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_i(igroup)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_i(jgroup)) call errquit('pre_input: pmf',9999)
+      if(type(1:5).eq.'angle') then
+      if(.not.inp_i(kgroup)) call errquit('pre_input: pmf',9999)
+      endif
+      if(type(1:7).eq.'torsion') then
+      if(.not.inp_i(kgroup)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_i(lgroup)) call errquit('pre_input: pmf',9999)
+      endif
+      if(.not.inp_f(value1)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_f(value2)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_f(forcon)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_f(forc2)) call errquit('pre_input: pmf',9999)
+      if(type(1:8).eq.'distance') then
+      write(68,6840) igroup,jgroup,value1,value2,forcon,forc2
+ 6840 format('pmf dist',2i5,10x,2f12.6,2e12.5)
+      elseif(type(1:5).eq.'angle') then
+      write(68,6842) igroup,jgroup,kgroup,value1,value2,forcon,forc2
+ 6842 format('pmf angl',3i5,5x,2f12.6,2e12.5)
+      elseif(type(1:7).eq.'torsion') then
+      write(68,6843) igroup,jgroup,kgroup,lgroup,value1,value2,
+     + forcon,forc2
+ 6843 format('pmf tors',4i5,2f12.6,2e12.5)
+      endif
+      goto 2
+      endif
+cc
 c     touch
 c     -----
 c

@@ -1,22 +1,21 @@
       logical function pre_wrtrst(lfnout,lfnrst,filrst,
      + npbtyp,nbxtyp,box,
      + iwmr,xw,vw,mwm,mwa,nwm,nwa,iwmrc,xwc,vwc,mwmc,nwmc,
-     + isar,xs,vs,msa,nsa,
-     + inoe,dnoe,mnoe,noe,msm,nsm)
+     + isar,xs,vs,msa,nsa,msm,nsm)
 c
-c $Id: pre_wrtrst.F,v 1.9 1999-05-10 22:38:09 d3j191 Exp $
+c $Id: pre_wrtrst.F,v 1.10 1999-09-21 22:01:41 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
       integer lfnout,lfnrst
-      integer mwm,mwa,nwm,nwa,msa,nsa,mnoe,noe,msm,nsm,mwmc,nwmc
+      integer mwm,mwa,nwm,nwa,msa,nsa,msm,nsm,mwmc,nwmc
       integer npbtyp,nbxtyp
       character*255 filrst
       real*8 xw(3,mwa,mwm),xs(3,msa),vw(3,mwa,mwm),vs(3,msa),box(3)
-      real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),dnoe(5,mnoe)
-      integer iwmrc(mwmc),iwmr(mwm),isar(msa),inoe(2,mnoe)
+      real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc)
+      integer iwmrc(mwmc),iwmr(mwm),isar(msa)
 c
       integer i,j,k,length
       character*10 rstdat,rsttim
@@ -30,6 +29,12 @@ c
 c
       call swatch(rstdat,rsttim)
 c
+      if(npbtyp.eq.0) then
+      if(box(1).lt.1.0e-6) box(1)=max(box(1),box(2),box(3))
+      if(box(2).lt.1.0e-6) box(2)=max(box(1),box(2),box(3))
+      if(box(3).lt.1.0e-6) box(3)=max(box(1),box(2),box(3))
+      endif
+c
       write(lfnrst,1001) 3.3,rstdat,rsttim
  1001 format('This is an automatically generated restart file',/,
      + ' ',/,' ',/,f12.6,2a10)
@@ -40,7 +45,7 @@ c
  1003 format(e12.5)
       write(lfnrst,1004) 0.0d0,0.0d0,0.0d0
  1004 format(3f12.6)
-      write(lfnrst,1005) nwmc+nwm,nwa,nsm,nsa,nwmc,0,0,0,noe
+      write(lfnrst,1005) nwmc+nwm,nwa,nsm,nsa,nwmc,0,0,0
  1005 format(7i10,2i5)
 c
 c     check wich version
@@ -68,15 +73,6 @@ c
       if(nsm.gt.0) then
       write(lfnrst,1011) ((0.0d0,k=1,3),i=1,nsm)
  1011 format(6f13.8)
-      endif
-c
-c     write solute NOE restraints
-c
-      if(noe.gt.0) then
-      write(lfnrst,1014)
-     + ((inoe(i,j),i=1,2),(dnoe(i,j),i=1,3),1.0d0/(dnoe(2,j)**3),
-     + (dnoe(i,j),i=4,5),j=1,noe)
- 1014 format(2i10,4f12.6,/,20x,2e12.5)
       endif
 c
       close(unit=lfnrst)

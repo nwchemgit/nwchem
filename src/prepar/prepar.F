@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.29 1999-09-13 14:35:26 d3j191 Exp $
+c $Id: prepar.F,v 1.30 1999-09-21 22:01:41 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -41,7 +41,7 @@ c
       integer irtdb0,irtdb,itask
 c
       character*255 filpdb,filseq,filtop,filrst,filpar,filtmp,filcmd
-      character*255 filmod,prefix,filxyz,filqqq,filnoe
+      character*255 filmod,prefix,filxyz,filqqq,filnoe,filpmf
       character*255 dir_s,dir_x,dir_u,dir_t
       character*80 sysnam,calc,ffield
       character*10 slvmdl
@@ -50,7 +50,7 @@ c
       character*1 altloc,chain
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
-      integer lfnxyz,lfnqqq,lfnnoe
+      integer lfnxyz,lfnqqq,lfnnoe,lfnpmf
       integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod,nxlnk,mdold
       integer newtop,newseq,newrst,mgrid,mnoe,maxscf,icount,icyren,model
       integer ignore
@@ -82,6 +82,7 @@ c
       lfnxyz=23
       lfnqqq=24
       lfnnoe=25
+      lfnpmf=26
 c
 c     node 0 only please
 c     ------------------
@@ -142,9 +143,12 @@ c
       lenc=index(calc,' ')-1
       lend=index(dir_t,' ')-1
       filpdb=sysnam(1:len)//'.pdb '
+      if(source.ne.'geometry'.and.source.ne.'pdb'.and.
+     + source(1:1).ne.' ') lfnpdb=source
       filxyz=sysnam(1:len)//'.xyz '
       filqqq=sysnam(1:len)//'.q '
-      filnoe=sysnam(1:len)//'.noe '
+      filnoe=sysnam(1:len)//'.drs '
+      filpmf=sysnam(1:len)//'.pmf '
       filtop=sysnam(1:len)//'.top '
       filrst=sysnam(1:len)//'_'//calc(1:lenc)//'.rst '
       filseq=dir_t(1:lend)//sysnam(1:len)//'.seq '
@@ -293,7 +297,7 @@ c     handle other commands
 c     ---------------------
 c
       if(.not.pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
-     + lfnnoe,filnoe,mnoe))
+     + lfnnoe,filnoe,mnoe,lfnpmf,filpmf))
      + call errquit('re_mknoe failed',9999)
 c
 c     remove temporary files if they exist

@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.33 1999-07-16 16:34:06 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.34 1999-09-21 22:01:41 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,7 @@ c
       character*255 filxyz,filqqq
       character*10 slvmdl
       character*3 slvnam
-      character*80 source,card,cfix
+      character*80 source,card,card2,cfix
       character*1 altloc,chain
 c
       integer nsa,nwa,nwm,nmis,npbtyp,nbxtyp,noe,nwms,nwas,mwmc,nwmc
@@ -308,8 +308,7 @@ c
       if(.not.pre_wrtrst(lfnout,lfnrst,filrst,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
-     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
-     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
+     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,msm,nsm))
      + call errquit('pre_wrtrst failed',9999)
       endif
       goto 9
@@ -331,9 +330,12 @@ c     read distance restraints
 c     ========================
 c
       if(card(1:6).eq.'disres') then
-      if(.not.pre_disres(card,int_mb(i_sgm),byte_mb(i_csa),msa,nsa,
-     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,nnoe))
+      read(lfncmd,1101,end=9,err=9997) card2
+      if(mdold.gt.0) then
+      if(.not.pre_disres(card,card2,int_mb(i_sgm),byte_mb(i_csa),msa,
+     + nsa,int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,nnoe))
      + call errquit('pre_disres failed',9999)
+      endif
       endif
 c
 c     read solvent coordinates
@@ -648,8 +650,7 @@ c
       if(.not.pre_wrtrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
-     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
-     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
+     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,msm,nsm))
      + call errquit('pre_wrtrst failed',9999)
       endif
       endif

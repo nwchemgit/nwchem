@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.18 1999-09-13 14:35:20 d3j191 Exp $
+# $Id: GNUmakefile,v 1.19 1999-09-21 22:01:40 d3j191 Exp $
 #
 
 include ../config/makefile.h
@@ -61,6 +61,7 @@ OBJ_OPTIMIZE=prepar.o\
              pre_rstsiz.o\
              pre_rtdbin.o\
              pre_rtdbsq.o\
+             pre_select.o\
              pre_seqsiz.o\
              pre_sgmfil.o\
              pre_sgmndx.o\
@@ -78,7 +79,9 @@ OBJ_OPTIMIZE=prepar.o\
              pre_topsiz.o\
              pre_torang.o\
              pre_wrtnam.o\
+             pre_wrtnoe.o\
              pre_wrtpdb.o\
+             pre_wrtpmf.o\
              pre_wrtrst.o\
              pre_wrtseq.o\
              pre_wrtsgm.o\
