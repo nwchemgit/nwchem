@@ -1,15 +1,17 @@
-      logical function pre_wrttop(ffield,lfntop,filtop,
+      logical function pre_wrttop(lfnout,ffield,lfntop,filtop,
      + releps,q14fac,lseq,cseq,mseq,nseq,
      + latt,lats,catt,patt,ratt,matt,natt,nats,latm,catm,qatm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.13 1998-06-24 20:06:39 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.14 1998-08-28 16:07:44 d3j191 Exp $
 c
       implicit none
 c
-      integer lfntop
+#include "util.fh"
+c
+      integer lfnout,lfntop
       character*80 ffield
       character*255 filtop
       real*8 releps,q14fac
@@ -45,9 +47,10 @@ c
       integer natmt,nbndt,nangt,ndiht,nimpt,n3rdt
       real*8 wcorr(3)
 c
-      integer i,j,k,l,length,nd,ifrac,imol,iq
+      integer i,j,k,l,length,nd,ifrac,imol,iq,isgm
       character*10 topdat,toptim
-      real*8 qq(3,6)
+      real*8 qq(3,6),qsum(3),qtot(3)
+      logical lprt
 c
       length=index(filtop,' ')-1
       open(unit=lfntop,file=filtop(1:length),form='formatted',
@@ -169,6 +172,18 @@ c
       endif
 c
       ifrac=1
+      isgm=0
+      lprt=.false.
+      qsum(1)=0.0d0
+      qsum(2)=0.0d0
+      qsum(3)=0.0d0
+      qtot(1)=0.0d0
+      qtot(2)=0.0d0
+      qtot(3)=0.0d0
+      if(util_print('files',print_default)) then
+      write(lfnout,2000)
+ 2000 format(' Segment charges',t25,7x,'set 1',7x,'set 2',7x,'set 3',/)
+      endif
       do 10 i=1,natm
       imol=latm(6,i)
       if(imol.lt.0) then
@@ -206,7 +221,31 @@ c
       write(lfntop,1011) (qq(2,j),j=1,6)
       write(lfntop,1011) (qq(3,j),j=1,6)
       endif
+      qtot(1)=qtot(1)+qatm(1,i)
+      qtot(2)=qtot(2)+qatm(3,i)
+      qtot(3)=qtot(3)+qatm(5,i)
+      if(isgm.ne.lseq(1,latm(5,i))) then
+      if(isgm.ne.0) then
+      if(util_print('files',print_default)) then
+      write(lfnout,2001) lseq(1,latm(5,i-1)),cseq(latm(5,i-1)),qsum
+ 2001 format(i7,1x,a10,t25,3f12.6)
+      endif
+      endif
+      isgm=lseq(1,latm(5,i))
+      qsum(1)=0.0d0
+      qsum(2)=0.0d0
+      qsum(3)=0.0d0
+      endif
+      qsum(1)=qsum(1)+qatm(1,i)
+      qsum(2)=qsum(2)+qatm(3,i)
+      qsum(3)=qsum(3)+qatm(5,i)
    10 continue
+      if(util_print('files',print_default)) then
+      write(lfnout,2001) lseq(1,latm(5,natm)),cseq(latm(5,natm)),qsum
+      write(lfnout,2002) qtot
+ 2002 format(t25,'------------------------------------',/,
+     + ' Total charge',t25,3f12.6,/)
+      endif
 c
       do 11 i=1,nbnd
       if(lbnd(4,i).eq.0) then

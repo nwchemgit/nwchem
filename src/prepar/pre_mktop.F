@@ -2,7 +2,7 @@
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t)
 c
-c $Id: pre_mktop.F,v 1.11 1998-08-24 17:28:15 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.12 1998-08-28 16:07:44 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -443,7 +443,7 @@ c
 c     write the topology file
 c     -----------------------
 c
-      if(.not.pre_wrttop(ffield,lfntop,filtop,releps,q14fac,
+      if(.not.pre_wrttop(lfnout,ffield,lfntop,filtop,releps,q14fac,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latt),int_mb(i_lats),byte_mb(i_catt),dbl_mb(i_patt),
      + dbl_mb(i_ratt),matt,natt,nats,int_mb(i_latm),byte_mb(i_catm),
