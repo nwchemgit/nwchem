@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.29 2002-01-19 01:05:02 windus Exp $
+C $Id: hess_init.F,v 1.30 2002-01-19 06:13:29 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -297,6 +297,7 @@ c
        integer geomnew
        double precision uthresh, ithresh
        logical whatever,grid_file_close
+       character*15 gridtype
        external grid_file_close
 c
 c  Get theory type
@@ -353,12 +354,25 @@ c
      $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
         endif
       endif
+      if(theory.eq.'dft') then
 c
+c     set grid to fine or leave the user to set it to xfine
+c
+         if (rtdb_cget(rtdb, 'dft:gridtype', 1, gridtype)) then
+            if(gridtype.eq.'coarse'.or.gridtype.eq.'xcoarse'.
+     .           or.gridtype.eq.'medium') gridtype='fine'
+         else
+            gridtype='fine'
+         endif
+         if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
+     .        call errquit('hessinit:rtdbcput failed',0)
+c     
 c     kill symmetry for XC grid build
-c
-        if (.not. rtdb_put(rtdb, 'dft:gridsym',
-     $       MT_LOG, 1, .false.)) call errquit(
+c     
+         if (.not. rtdb_put(rtdb, 'dft:gridsym',
+     $        MT_LOG, 1, .false.)) call errquit(
      $        ' task_hessian: rtdb_put failed',0)
-        whatever=grid_file_close(.false.)
+         whatever=grid_file_close(.false.)
+      endif
       return
       end
