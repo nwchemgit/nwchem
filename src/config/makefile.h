@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.479 2004-09-21 00:52:42 edo Exp $
+# $Id: makefile.h,v 1.480 2004-09-24 15:55:45 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1578,7 +1578,7 @@ endif # end of ia32 bit
         endif
         FOPTIMIZE = -O3 -prefetch  -unroll 
         FOPTIMIZE +=  -tpp7 -xW -ip
-        LDOPTIONS += -g  -static
+        LDOPTIONS += 
       endif	
 
       
