@@ -183,14 +183,12 @@ C
          DO 103 I=3,IDO,2
             IC = IDP2-I
             DO 1003 M=1,MP
-            CH(M,I,1,K) = CC(M,I,K,1)+(WA1(I-2)*CC(M,I,K,2)-
-     1       WA1(I-1)*CC(M,I-1,K,2))
-            CH(M,IC,2,K) = (WA1(I-2)*CC(M,I,K,2)-WA1(I-1)*
-     1       CC(M,I-1,K,2))-CC(M,I,K,1)
-            CH(M,I-1,1,K) = CC(M,I-1,K,1)+(WA1(I-2)*CC(M,I-1,K,2)+
-     1       WA1(I-1)*CC(M,I,K,2))
-            CH(M,IC-1,2,K) = CC(M,I-1,K,1)-(WA1(I-2)*CC(M,I-1,K,2)+
-     1       WA1(I-1)*CC(M,I,K,2))
+               cc1 = (WA1(I-2)*CC(M,I,K,2)-WA1(I-1)*CC(M,I-1,K,2))
+               CH(M,I,1,K) = CC(M,I,K,1) + cc1 
+               CH(M,IC,2,K) = cc1 - CC(M,I,K,1)
+               cc2 = (WA1(I-2)*CC(M,I-1,K,2)+WA1(I-1)*CC(M,I,K,2))
+               CH(M,I-1,1,K) = CC(M,I-1,K,1) + cc2
+               CH(M,IC-1,2,K) = CC(M,I-1,K,1)- cc2
  1003       CONTINUE
   103    CONTINUE
   104 CONTINUE
@@ -205,57 +203,49 @@ C
       END
       SUBROUTINE VRADF3 (MP,IDO,L1,CC,CH,MDIMC,WA1,WA2)
       implicit double precision (a-h, o-z)
-C
+C     
 C     VRFFTPK, VERSION 1, AUGUST 1985
-C
+C     
       DIMENSION   CH(MDIMC,IDO,3,L1)  ,CC(MDIMC,IDO,L1,3)     ,
-     1                WA1(IDO)     ,WA2(IDO)
+     1     WA1(IDO)     ,WA2(IDO)
       ARG=2.d0*PIMACH(1.0d0)/3.d0
       TAUR=COS(ARG)
       TAUI=SIN(ARG)
       DO 101 K=1,L1
          DO 1001 M=1,MP
-         CH(M,1,1,K) = CC(M,1,K,1)+(CC(M,1,K,2)+CC(M,1,K,3))
-         CH(M,1,3,K) = TAUI*(CC(M,1,K,3)-CC(M,1,K,2))
-         CH(M,IDO,2,K) = CC(M,1,K,1)+TAUR*
-     1      (CC(M,1,K,2)+CC(M,1,K,3))
+            cc23 = (CC(M,1,K,2)+CC(M,1,K,3))
+            CH(M,1,1,K) = CC(M,1,K,1)+cc23
+            CH(M,1,3,K) = TAUI*(CC(M,1,K,3)-CC(M,1,K,2))
+            CH(M,IDO,2,K) = CC(M,1,K,1)+TAUR*cc23
  1001    CONTINUE
-  101 CONTINUE
+ 101  CONTINUE
       IF (IDO .EQ. 1) RETURN
       IDP2 = IDO+2
-      DO 103 K=1,L1
-         DO 102 I=3,IDO,2
+      DO K=1,L1
+         DO I=3,IDO,2
             IC = IDP2-I
-            DO 1002 M=1,MP
-            CH(M,I-1,1,K) = CC(M,I-1,K,1)+((WA1(I-2)*CC(M,I-1,K,2)+
-     1       WA1(I-1)*CC(M,I,K,2))+(WA2(I-2)*CC(M,I-1,K,3)+WA2(I-1)*
-     1       CC(M,I,K,3)))
-            CH(M,I,1,K) = CC(M,I,K,1)+((WA1(I-2)*CC(M,I,K,2)-WA1(I-1)*
-     1       CC(M,I-1,K,2))+(WA2(I-2)*CC(M,I,K,3)-WA2(I-1)*
-     1       CC(M,I-1,K,3)))
-            CH(M,I-1,3,K) = (CC(M,I-1,K,1)+TAUR*((WA1(I-2)*
-     1       CC(M,I-1,K,2)+WA1(I-1)*CC(M,I,K,2))+(WA2(I-2)*
-     1       CC(M,I-1,K,3)+WA2(I-1)*CC(M,I,K,3))))+(TAUI*((WA1(I-2)*
-     1       CC(M,I,K,2)-WA1(I-1)*CC(M,I-1,K,2))-(WA2(I-2)*
-     1       CC(M,I,K,3)-WA2(I-1)*CC(M,I-1,K,3))))
-            CH(M,IC-1,2,K) = (CC(M,I-1,K,1)+TAUR*((WA1(I-2)*
-     1       CC(M,I-1,K,2)+WA1(I-1)*CC(M,I,K,2))+(WA2(I-2)*
-     1       CC(M,I-1,K,3)+WA2(I-1)*CC(M,I,K,3))))-(TAUI*((WA1(I-2)*
-     1       CC(M,I,K,2)-WA1(I-1)*CC(M,I-1,K,2))-(WA2(I-2)*
-     1       CC(M,I,K,3)-WA2(I-1)*CC(M,I-1,K,3))))
-            CH(M,I,3,K) = (CC(M,I,K,1)+TAUR*((WA1(I-2)*CC(M,I,K,2)-
-     1       WA1(I-1)*CC(M,I-1,K,2))+(WA2(I-2)*CC(M,I,K,3)-WA2(I-1)*
-     1       CC(M,I-1,K,3))))+(TAUI*((WA2(I-2)*CC(M,I-1,K,3)+WA2(I-1)*
-     1       CC(M,I,K,3))-(WA1(I-2)*CC(M,I-1,K,2)+WA1(I-1)*
-     1       CC(M,I,K,2))))
-            CH(M,IC,2,K) = (TAUI*((WA2(I-2)*CC(M,I-1,K,3)+WA2(I-1)*
-     1       CC(M,I,K,3))-(WA1(I-2)*CC(M,I-1,K,2)+WA1(I-1)*
-     1       CC(M,I,K,2))))-(CC(M,I,K,1)+TAUR*((WA1(I-2)*CC(M,I,K,2)-
-     1       WA1(I-1)*CC(M,I-1,K,2))+(WA2(I-2)*CC(M,I,K,3)-WA2(I-1)*
-     1       CC(M,I-1,K,3))))
- 1002       CONTINUE
-  102    CONTINUE
-  103 CONTINUE
+            DO M=1,MP
+               p1 = WA1(I-1)*CC(M,I,K,2) + WA1(I-2)*CC(M,I-1,K,2)
+               p2 = WA2(I-1)*CC(M,I,K,3) + WA2(I-2)*CC(M,I-1,K,3)
+               p3 = WA1(I-2)*CC(M,I,K,2) - WA1(I-1)*CC(M,I-1,K,2)
+               p4 = WA2(I-2)*CC(M,I,K,3) - WA2(I-1)*CC(M,I-1,K,3)
+               p1pp2 = p1 + p2
+               p3pp4 = p3 + p4
+               tp1pp2 = taur*p1pp2
+               tp3pp4 = TAUR*p3pp4
+               tp3mp4 = TAUI*(p3-p4)
+               tp2mp1 = TAUI*(p2-p1)
+               cc12 = CC(M,I-1,K,1)+tp1pp2
+               cc34 = CC(M,I,K,1)+tp3pp4
+               CH(M,I-1,1,K)  = CC(M,I-1,K,1)+p1pp2
+               CH(M,I,1,K)    = CC(M,I,K,1)+p3pp4
+               CH(M,I-1,3,K)  = cc12+tp3mp4
+               CH(M,IC-1,2,K) = cc12-tp3mp4
+               CH(M,I,3,K)    = cc34+tp2mp1
+               CH(M,IC,2,K)   = tp2mp1-cc34
+            enddo
+         enddo
+      enddo
       RETURN
       END
       SUBROUTINE VRADF4 (MP,IDO,L1,CC,CH,MDIMC,WA1,WA2,WA3)
@@ -273,7 +263,7 @@ C
          CH(M,IDO,4,K) = (CC(M,1,K,1)+CC(M,1,K,3))
      1      -(CC(M,1,K,2)+CC(M,1,K,4))
          CH(M,IDO,2,K) = CC(M,1,K,1)-CC(M,1,K,3)
-         CH(M,1,3,K) = CC(M,1,K,4)-CC(M,1,K,2)
+         CH(M,1,3,K) =   CC(M,1,K,4)-CC(M,1,K,2)
  1001    CONTINUE
   101 CONTINUE
       IF (IDO-2) 107,105,102
@@ -282,38 +272,28 @@ C
          DO 103 I=3,IDO,2
             IC = IDP2-I
             DO 1003 M=1,MP
-            CH(M,I-1,1,K) = ((WA1(I-2)*CC(M,I-1,K,2)+WA1(I-1)*
-     1       CC(M,I,K,2))+(WA3(I-2)*CC(M,I-1,K,4)+WA3(I-1)*
-     1       CC(M,I,K,4)))+(CC(M,I-1,K,1)+(WA2(I-2)*CC(M,I-1,K,3)+
-     1       WA2(I-1)*CC(M,I,K,3)))
-            CH(M,IC-1,4,K) = (CC(M,I-1,K,1)+(WA2(I-2)*CC(M,I-1,K,3)+
-     1       WA2(I-1)*CC(M,I,K,3)))-((WA1(I-2)*CC(M,I-1,K,2)+
-     1       WA1(I-1)*CC(M,I,K,2))+(WA3(I-2)*CC(M,I-1,K,4)+
-     1       WA3(I-1)*CC(M,I,K,4)))
-            CH(M,I,1,K) = ((WA1(I-2)*CC(M,I,K,2)-WA1(I-1)*
-     1       CC(M,I-1,K,2))+(WA3(I-2)*CC(M,I,K,4)-WA3(I-1)*
-     1       CC(M,I-1,K,4)))+(CC(M,I,K,1)+(WA2(I-2)*CC(M,I,K,3)-
-     1       WA2(I-1)*CC(M,I-1,K,3)))
-            CH(M,IC,4,K) = ((WA1(I-2)*CC(M,I,K,2)-WA1(I-1)*
-     1       CC(M,I-1,K,2))+(WA3(I-2)*CC(M,I,K,4)-WA3(I-1)*
-     1       CC(M,I-1,K,4)))-(CC(M,I,K,1)+(WA2(I-2)*CC(M,I,K,3)-
-     1       WA2(I-1)*CC(M,I-1,K,3)))
-            CH(M,I-1,3,K) = ((WA1(I-2)*CC(M,I,K,2)-WA1(I-1)*
-     1       CC(M,I-1,K,2))-(WA3(I-2)*CC(M,I,K,4)-WA3(I-1)*
-     1       CC(M,I-1,K,4)))+(CC(M,I-1,K,1)-(WA2(I-2)*CC(M,I-1,K,3)+
-     1       WA2(I-1)*CC(M,I,K,3)))
-            CH(M,IC-1,2,K) = (CC(M,I-1,K,1)-(WA2(I-2)*CC(M,I-1,K,3)+
-     1       WA2(I-1)*CC(M,I,K,3)))-((WA1(I-2)*CC(M,I,K,2)-WA1(I-1)*
-     1       CC(M,I-1,K,2))-(WA3(I-2)*CC(M,I,K,4)-WA3(I-1)*
-     1       CC(M,I-1,K,4)))
-            CH(M,I,3,K) = ((WA3(I-2)*CC(M,I-1,K,4)+WA3(I-1)*
-     1       CC(M,I,K,4))-(WA1(I-2)*CC(M,I-1,K,2)+WA1(I-1)*
-     1       CC(M,I,K,2)))+(CC(M,I,K,1)-(WA2(I-2)*CC(M,I,K,3)-
-     1       WA2(I-1)*CC(M,I-1,K,3)))
-            CH(M,IC,2,K) = ((WA3(I-2)*CC(M,I-1,K,4)+WA3(I-1)*
-     1       CC(M,I,K,4))-(WA1(I-2)*CC(M,I-1,K,2)+WA1(I-1)*
-     1       CC(M,I,K,2)))-(CC(M,I,K,1)-(WA2(I-2)*CC(M,I,K,3)-WA2(I-1)*
-     1       CC(M,I-1,K,3)))
+               p1 = WA1(I-1)*CC(M,I,K,2) + WA1(I-2)*CC(M,I-1,K,2)
+               p2 = WA1(I-2)*CC(M,I,K,2) - WA1(I-1)*CC(M,I-1,K,2)
+               p3 = WA3(I-2)*CC(M,I,K,4) - WA3(I-1)*CC(M,I-1,K,4)
+               p4 = WA3(I-1)*CC(M,I,K,4) + WA3(I-2)*CC(M,I-1,K,4)
+               p5 = WA2(I-1)*CC(M,I,K,3) + WA2(I-2)*CC(M,I-1,K,3)
+               p6 = WA2(I-2)*CC(M,I,K,3) - WA2(I-1)*CC(M,I-1,K,3)
+               p4pp1 = p4 + p1
+               p4mp1 = p4 - p1
+               p2pp3 = p2 + p3
+               p2mp3 = p2 - p3
+               cc5 = CC(M,I-1,K,1)+p5
+               cc5m= CC(M,I-1,K,1)-p5
+               cc6 = CC(M,I,K,1)+p6
+               cc6m= CC(M,I,K,1)-p6
+               CH(M,I-1,1,K) = p4pp1+cc5
+            CH(M,IC-1,4,K) = cc5-p4pp1
+            CH(M,I,1,K) = p2pp3+cc6
+            CH(M,IC,4,K) = p2pp3-cc6
+            CH(M,I-1,3,K) = p2mp3+cc5m
+            CH(M,IC-1,2,K) = cc5m-p2mp3
+            CH(M,I,3,K) = p4mp1+cc6m
+            CH(M,IC,2,K) = p4mp1-cc6m
  1003       CONTINUE
   103    CONTINUE
   104 CONTINUE
@@ -335,11 +315,11 @@ C
       END
       SUBROUTINE VRADF5 (MP,IDO,L1,CC,CH,MDIMC,WA1,WA2,WA3,WA4)
       implicit double precision (a-h, o-z)
-C
+C     
 C     VRFFTPK, VERSION 1, AUGUST 1985
-C
+C     
       DIMENSION  CC(MDIMC,IDO,L1,5)    ,CH(MDIMC,IDO,5,L1)     ,
-     1           WA1(IDO)     ,WA2(IDO)     ,WA3(IDO)     ,WA4(IDO)
+     1     WA1(IDO)     ,WA2(IDO)     ,WA3(IDO)     ,WA4(IDO)
       ARG=2.d0*PIMACH(1.0d0)/5.d0
       TR11=COS(ARG)
       TI11=SIN(ARG)
@@ -347,108 +327,59 @@ C
       TI12=SIN(2.d0*ARG)
       DO 101 K=1,L1
          DO 1001 M=1,MP
-         CH(M,1,1,K) = CC(M,1,K,1)+(CC(M,1,K,5)+CC(M,1,K,2))+
-     1    (CC(M,1,K,4)+CC(M,1,K,3))
-         CH(M,IDO,2,K) = CC(M,1,K,1)+TR11*(CC(M,1,K,5)+CC(M,1,K,2))+
-     1    TR12*(CC(M,1,K,4)+CC(M,1,K,3))
-         CH(M,1,3,K) = TI11*(CC(M,1,K,5)-CC(M,1,K,2))+TI12*
-     1    (CC(M,1,K,4)-CC(M,1,K,3))
-         CH(M,IDO,4,K) = CC(M,1,K,1)+TR12*(CC(M,1,K,5)+CC(M,1,K,2))+
-     1    TR11*(CC(M,1,K,4)+CC(M,1,K,3))
-         CH(M,1,5,K) = TI12*(CC(M,1,K,5)-CC(M,1,K,2))-TI11*
-     1    (CC(M,1,K,4)-CC(M,1,K,3))
+            CH(M,1,1,K) = CC(M,1,K,1)+(CC(M,1,K,5)+CC(M,1,K,2))+
+     1           (CC(M,1,K,4)+CC(M,1,K,3))
+            CH(M,IDO,2,K) = CC(M,1,K,1)+TR11*(CC(M,1,K,5)+CC(M,1,K,2))+
+     1           TR12*(CC(M,1,K,4)+CC(M,1,K,3))
+            CH(M,1,3,K) = TI11*(CC(M,1,K,5)-CC(M,1,K,2))+TI12*
+     1           (CC(M,1,K,4)-CC(M,1,K,3))
+            CH(M,IDO,4,K) = CC(M,1,K,1)+TR12*(CC(M,1,K,5)+CC(M,1,K,2))+
+     1           TR11*(CC(M,1,K,4)+CC(M,1,K,3))
+            CH(M,1,5,K) = TI12*(CC(M,1,K,5)-CC(M,1,K,2))-TI11*
+     1           (CC(M,1,K,4)-CC(M,1,K,3))
  1001    CONTINUE
-  101 CONTINUE
+ 101  CONTINUE
       IF (IDO .EQ. 1) RETURN
       IDP2 = IDO+2
       DO 103 K=1,L1
          DO 102 I=3,IDO,2
             IC = IDP2-I
             DO 1002 M=1,MP
-            CH(M,I-1,1,K) = CC(M,I-1,K,1)+((WA1(I-2)*CC(M,I-1,K,2)+
-     1       WA1(I-1)*CC(M,I,K,2))+(WA4(I-2)*CC(M,I-1,K,5)+WA4(I-1)*
-     1       CC(M,I,K,5)))+((WA2(I-2)*CC(M,I-1,K,3)+WA2(I-1)*
-     1       CC(M,I,K,3))+(WA3(I-2)*CC(M,I-1,K,4)+WA3(I-1)*CC(M,I,K,4)))
-            CH(M,I,1,K) = CC(M,I,K,1)+((WA1(I-2)*CC(M,I,K,2)-WA1(I-1)*
-     1       CC(M,I-1,K,2))+(WA4(I-2)*CC(M,I,K,5)-WA4(I-1)*
-     1       CC(M,I-1,K,5)))+((WA2(I-2)*CC(M,I,K,3)-WA2(I-1)*
-     1       CC(M,I-1,K,3))+(WA3(I-2)*CC(M,I,K,4)-WA3(I-1)*
-     1       CC(M,I-1,K,4)))
-            CH(M,I-1,3,K) = CC(M,I-1,K,1)+TR11*
-     1      ( WA1(I-2)*CC(M,I-1,K,2)+WA1(I-1)*CC(M,I,K,2)
-     1       +WA4(I-2)*CC(M,I-1,K,5)+WA4(I-1)*CC(M,I,K,5))+TR12*
-     1      ( WA2(I-2)*CC(M,I-1,K,3)+WA2(I-1)*CC(M,I,K,3)
-     1       +WA3(I-2)*CC(M,I-1,K,4)+WA3(I-1)*CC(M,I,K,4))+TI11*
-     1      ( WA1(I-2)*CC(M,I,K,2)-WA1(I-1)*CC(M,I-1,K,2)
-     1       -(WA4(I-2)*CC(M,I,K,5)-WA4(I-1)*CC(M,I-1,K,5)))+TI12*
-     1      ( WA2(I-2)*CC(M,I,K,3)-WA2(I-1)*CC(M,I-1,K,3)
-     1       -(WA3(I-2)*CC(M,I,K,4)-WA3(I-1)*CC(M,I-1,K,4)))
-            CH(M,IC-1,2,K) = CC(M,I-1,K,1)+TR11*
-     1      ( WA1(I-2)*CC(M,I-1,K,2)+WA1(I-1)*CC(M,I,K,2)
-     1       +WA4(I-2)*CC(M,I-1,K,5)+WA4(I-1)*CC(M,I,K,5))+TR12*
-     1     ( WA2(I-2)*CC(M,I-1,K,3)+WA2(I-1)*CC(M,I,K,3)
-     1      +WA3(I-2)*CC(M,I-1,K,4)+WA3(I-1)*CC(M,I,K,4))-(TI11*
-     1      ( WA1(I-2)*CC(M,I,K,2)-WA1(I-1)*CC(M,I-1,K,2)
-     1       -(WA4(I-2)*CC(M,I,K,5)-WA4(I-1)*CC(M,I-1,K,5)))+TI12*
-     1      ( WA2(I-2)*CC(M,I,K,3)-WA2(I-1)*CC(M,I-1,K,3)
-     1       -(WA3(I-2)*CC(M,I,K,4)-WA3(I-1)*CC(M,I-1,K,4))))
-            CH(M,I,3,K) = (CC(M,I,K,1)+TR11*((WA1(I-2)*CC(M,I,K,2)-
-     1       WA1(I-1)*CC(M,I-1,K,2))+(WA4(I-2)*CC(M,I,K,5)-WA4(I-1)*
-     1       CC(M,I-1,K,5)))+TR12*((WA2(I-2)*CC(M,I,K,3)-WA2(I-1)*
-     1       CC(M,I-1,K,3))+(WA3(I-2)*CC(M,I,K,4)-WA3(I-1)*
-     1       CC(M,I-1,K,4))))+(TI11*((WA4(I-2)*CC(M,I-1,K,5)+
-     1       WA4(I-1)*CC(M,I,K,5))-(WA1(I-2)*CC(M,I-1,K,2)+WA1(I-1)*
-     1       CC(M,I,K,2)))+TI12*((WA3(I-2)*CC(M,I-1,K,4)+WA3(I-1)*
-     1       CC(M,I,K,4))-(WA2(I-2)*CC(M,I-1,K,3)+WA2(I-1)*
-     1       CC(M,I,K,3))))
-            CH(M,IC,2,K) = (TI11*((WA4(I-2)*CC(M,I-1,K,5)+WA4(I-1)*
-     1       CC(M,I,K,5))-(WA1(I-2)*CC(M,I-1,K,2)+WA1(I-1)*
-     1       CC(M,I,K,2)))+TI12*((WA3(I-2)*CC(M,I-1,K,4)+WA3(I-1)*
-     1       CC(M,I,K,4))-(WA2(I-2)*CC(M,I-1,K,3)+WA2(I-1)*
-     1       CC(M,I,K,3))))-(CC(M,I,K,1)+TR11*((WA1(I-2)*CC(M,I,K,2)-
-     1       WA1(I-1)*CC(M,I-1,K,2))+(WA4(I-2)*CC(M,I,K,5)-WA4(I-1)*
-     1       CC(M,I-1,K,5)))+TR12*((WA2(I-2)*CC(M,I,K,3)-WA2(I-1)*
-     1       CC(M,I-1,K,3))+(WA3(I-2)*CC(M,I,K,4)-WA3(I-1)*
-     1       CC(M,I-1,K,4))))
-            CH(M,I-1,5,K) = (CC(M,I-1,K,1)+TR12*((WA1(I-2)*
-     1       CC(M,I-1,K,2)+WA1(I-1)*CC(M,I,K,2))+(WA4(I-2)*
-     1       CC(M,I-1,K,5)+WA4(I-1)*CC(M,I,K,5)))+TR11*((WA2(I-2)*
-     1       CC(M,I-1,K,3)+WA2(I-1)*CC(M,I,K,3))+(WA3(I-2)*
-     1       CC(M,I-1,K,4)+WA3(I-1)*CC(M,I,K,4))))+(TI12*((WA1(I-2)*
-     1       CC(M,I,K,2)-WA1(I-1)*CC(M,I-1,K,2))-(WA4(I-2)*CC(M,I,K,5)-
-     1       WA4(I-1)*CC(M,I-1,K,5)))-TI11*((WA2(I-2)*CC(M,I,K,3)-
-     1       WA2(I-1)*CC(M,I-1,K,3))-(WA3(I-2)*CC(M,I,K,4)-WA3(I-1)*
-     1       CC(M,I-1,K,4))))
-            CH(M,IC-1,4,K) = (CC(M,I-1,K,1)+TR12*((WA1(I-2)*
-     1       CC(M,I-1,K,2)+WA1(I-1)*CC(M,I,K,2))+(WA4(I-2)*
-     1       CC(M,I-1,K,5)+WA4(I-1)*CC(M,I,K,5)))+TR11*((WA2(I-2)*
-     1       CC(M,I-1,K,3)+WA2(I-1)*CC(M,I,K,3))+(WA3(I-2)*
-     1       CC(M,I-1,K,4)+WA3(I-1)*CC(M,I,K,4))))-(TI12*((WA1(I-2)*
-     1       CC(M,I,K,2)-WA1(I-1)*CC(M,I-1,K,2))-(WA4(I-2)*CC(M,I,K,5)-
-     1       WA4(I-1)*CC(M,I-1,K,5)))-TI11*((WA2(I-2)*CC(M,I,K,3)-
-     1       WA2(I-1)*CC(M,I-1,K,3))-(WA3(I-2)*CC(M,I,K,4)-WA3(I-1)*
-     1       CC(M,I-1,K,4))))
-            CH(M,I,5,K) = (CC(M,I,K,1)+TR12*((WA1(I-2)*CC(M,I,K,2)-
-     1       WA1(I-1)*CC(M,I-1,K,2))+(WA4(I-2)*CC(M,I,K,5)-WA4(I-1)*
-     1       CC(M,I-1,K,5)))+TR11*((WA2(I-2)*CC(M,I,K,3)-WA2(I-1)*
-     1       CC(M,I-1,K,3))+(WA3(I-2)*CC(M,I,K,4)-WA3(I-1)*
-     1       CC(M,I-1,K,4))))+(TI12*((WA4(I-2)*CC(M,I-1,K,5)+
-     1       WA4(I-1)*CC(M,I,K,5))-(WA1(I-2)*CC(M,I-1,K,2)+WA1(I-1)*
-     1       CC(M,I,K,2)))-TI11*((WA3(I-2)*CC(M,I-1,K,4)+WA3(I-1)*
-     1       CC(M,I,K,4))-(WA2(I-2)*CC(M,I-1,K,3)+WA2(I-1)*
-     1       CC(M,I,K,3))))
-            CH(M,IC,4,K) = (TI12*((WA4(I-2)*CC(M,I-1,K,5)+WA4(I-1)*
-     1       CC(M,I,K,5))-(WA1(I-2)*CC(M,I-1,K,2)+WA1(I-1)*
-     1       CC(M,I,K,2)))-TI11*((WA3(I-2)*CC(M,I-1,K,4)+WA3(I-1)*
-     1       CC(M,I,K,4))-(WA2(I-2)*CC(M,I-1,K,3)+WA2(I-1)*
-     1       CC(M,I,K,3))))-(CC(M,I,K,1)+TR12*((WA1(I-2)*CC(M,I,K,2)-
-     1       WA1(I-1)*CC(M,I-1,K,2))+(WA4(I-2)*CC(M,I,K,5)-WA4(I-1)*
-     1       CC(M,I-1,K,5)))+TR11*((WA2(I-2)*CC(M,I,K,3)-WA2(I-1)*
-     1       CC(M,I-1,K,3))+(WA3(I-2)*CC(M,I,K,4)-WA3(I-1)*
-     1       CC(M,I-1,K,4))))
+               p1 = WA1(I-1)*CC(M,I,K,2) + WA1(I-2)*CC(M,I-1,K,2)
+               p2 = WA4(I-2)*CC(M,I-1,K,5) + WA4(I-1)*CC(M,I,K,5)
+               p3 = WA2(I-1)*CC(M,I,K,3) + WA2(I-2)*CC(M,I-1,K,3)
+               p4 = WA3(I-2)*CC(M,I-1,K,4) + WA3(I-1)*CC(M,I,K,4)
+               p5 = WA2(I-2)*CC(M,I,K,3) - WA2(I-1)*CC(M,I-1,K,3)
+               p6 = WA3(I-2)*CC(M,I,K,4) - WA3(I-1)*CC(M,I-1,K,4)
+               p7 = WA1(I-2)*CC(M,I,K,2) - WA1(I-1)*CC(M,I-1,K,2)
+               p8 = WA4(I-2)*CC(M,I,K,5) - WA4(I-1)*CC(M,I-1,K,5)
+c
+               p1pp2 = p1 + p2
+               p3pp4 = p3 + p4
+               p7pp8 = p7 + p8
+               p5pp6 = p5 + p6
+               cc7 = TI12*(p5-p6) + TI11*(p7-p8)
+               CH(M,I-1,1,K) = CC(M,I-1,K,1)+p1pp2+p3pp4
+               CH(M,I,1,K)   = CC(M,I,K,1)+p7pp8+p5pp6
+               CH(M,I-1,3,K) = CC(M,I-1,K,1)+TR11*p1pp2+TR12*p3pp4+
+     $              cc7
+               CH(M,IC-1,2,K) = CC(M,I-1,K,1)+TR11*p1pp2+
+     $              TR12*p3pp4-cc7
+               cc5 = CC(M,I,K,1)+TR11*p7pp8+TR12*p5pp6
+               cc6 = TI11*(p2-p1)+TI12*(p4-p3)
+               CH(M,I,3,K) = cc5 + cc6
+               CH(M,IC,2,K) = cc6 - cc5
+               cc3 = CC(M,I-1,K,1)+TR12*p1pp2+TR11*p3pp4
+               cc4 = TI12*(p7-p8)-TI11*(p5-p6)
+               CH(M,I-1,5,K)  = cc3 + cc4
+               CH(M,IC-1,4,K) = cc3 - cc4
+               cc1 = CC(M,I,K,1)+TR12*p7pp8+TR11*p5pp6
+               cc2 = TI12*(p2-p1)-TI11*(p4-p3)
+               CH(M,I,5,K)  = cc1 + cc2
+               CH(M,IC,4,K) = cc2 - cc1
  1002       CONTINUE
-  102    CONTINUE
-  103 CONTINUE
+ 102     CONTINUE
+ 103  CONTINUE
       RETURN
       END
       SUBROUTINE VRADFG (MP,IDO,IP,L1,IDL1,CC,C1,C2,CH,CH2,MDIMC,WA)
