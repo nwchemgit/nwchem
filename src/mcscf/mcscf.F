@@ -135,7 +135,7 @@ c
        endif
        if (.not.rtdb_get(rtdb,'mcscf:conjugacy',MT_LOG,1,oconj))
      $      oconj = .true.
-       if (.not.rtdb_get(rtdb,'mcscf:stepci',MT_LOG,1,ostepci))
+       if (.not.rtdb_get(rtdb,'mcscf:microci',MT_LOG,1,ostepci))
      $      ostepci = .true.
        if (.not.rtdb_get(rtdb,'mcscf:citol',MT_DBL,1,citol))
      $      citol = 1.d-8
