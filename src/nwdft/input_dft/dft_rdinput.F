@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.75 2000-03-27 19:17:12 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.76 2000-05-03 01:15:13 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -615,7 +615,7 @@ c
      &   call errquit('rdinput: bas_create?',102)
       CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
       if (CDFIT)then
-         if (.not. int_norm_2c(CD_bas_han))
+         if (.not. int_norm_2c(rtdb,CD_bas_han))
      &      call errquit('rdinput: int_norm_2c failed', 208)
          if (.not. bas_numbf(CD_bas_han, nbf_cd))
      &      call errquit('rdinput: basis set error:', 86)
