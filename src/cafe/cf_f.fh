@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.23 2000-05-31 18:19:43 d3j191 Exp $
 c
       implicit none
 c
@@ -509,7 +509,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.23 2000-05-31 18:19:43 d3j191 Exp $
 c
       implicit none
 c
@@ -1212,7 +1212,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.23 2000-05-31 18:19:43 d3j191 Exp $
 c
       implicit none
 c
@@ -2125,9 +2125,10 @@ c
       return
       end
       subroutine cf_fsb(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
-     + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,lupden)
+     + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
+     + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.23 2000-05-31 18:19:43 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -2172,6 +2173,7 @@ c
       integer indexl(nbonds)
 c
       logical lpbc,lpbcs,lupden
+      real*8 dera(5,nsatot)
 c
       integer natoms,ndim
       integer igan(ndim),imol(ndim),idyn(ndim),ichg(ndim)
@@ -2360,6 +2362,10 @@ c
       if(ith(18)) then
       dercon=dbond*(half*dbond*bnd(isb,2,4)-for*bnd(isb,1,4))
       deriv(18,1)=deriv(18,1)+dercon
+      if(npgdec.gt.1) then
+      dera(5,ibnd(isb,1))=dera(5,ibnd(isb,1))+half*dercon
+      dera(5,ibnd(isb,2))=dera(5,ibnd(isb,2))+half*dercon
+      endif
       endif
 c
       endif
@@ -2398,9 +2404,10 @@ c
       return
       end
       subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
-     + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,lupden)
+     + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
+     + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.23 2000-05-31 18:19:43 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2455,6 +2462,7 @@ c
       real*8 xs(ndim,3),fs(ndim,3),ess(msf,msf,mpe,2)
 c
       logical lpbc,lpbcs,lupden
+      real*8 dera(5,nsatot)
 c
 c     declaration of local variables
 c     ------------------------------
@@ -2613,6 +2621,11 @@ c
       if(ith(20)) then
       dercon=dangle*(half*dangle*ang(ish,2,4)-for*ang(ish,1,4))
       deriv(20,1)=deriv(20,1)+dercon
+      if(npgdec.gt.1) then
+      dera(5,iang(ish,1))=dera(5,iang(ish,1))+third*dercon
+      dera(5,iang(ish,2))=dera(5,iang(ish,2))+third*dercon
+      dera(5,iang(ish,3))=dera(5,iang(ish,3))+third*dercon
+      endif
       endif
 c
 c     particle-mesh Ewald correction energy and forces
@@ -2657,9 +2670,10 @@ c
       return
       end
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
-     + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden)
+     + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
+     + dera)
 c
-c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.23 2000-05-31 18:19:43 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -2711,6 +2725,7 @@ c
       real*8 xs(ndim,3),fs(ndim,3),ess(msf,msf,mpe,2)
 c
       logical lpbc,lpbcs,lupden
+      real*8 dera(5,nsatot)
 c
 c     declaration of local variables
 c     ------------------------------
@@ -2975,6 +2990,12 @@ c
       dercon=(one+cos(rpa))*dih(isd,3,4)
      + -for*sin(rpa)*(phi*dih(isd,1,4)-dih(isd,2,4))
       deriv(21,1)=deriv(21,1)+dercon
+      if(npgdec.gt.1) then
+      dera(5,idih(isd,1))=dera(5,idih(isd,1))+fourth*dercon
+      dera(5,idih(isd,2))=dera(5,idih(isd,2))+fourth*dercon
+      dera(5,idih(isd,3))=dera(5,idih(isd,3))+fourth*dercon
+      dera(5,idih(isd,4))=dera(5,idih(isd,4))+fourth*dercon
+      endif
       endif
 c
     1 continue
@@ -2982,9 +3003,10 @@ c
       return
       end
       subroutine cf_fso(nimprs,indexl,mso,msp,iimp,dimp,rimp,
-     + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden)
+     + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
+     + dera)
 c
-c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.23 2000-05-31 18:19:43 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3036,6 +3058,7 @@ c
       real*8 xs(ndim,3),fs(ndim,3),ess(msf,msf,mpe,2)
 c
       logical lpbc,lpbcs,lupden
+      real*8 dera(5,nsatot)
 c
 c     declaration of local variables
 c     -----------------------------
@@ -3285,6 +3308,12 @@ c
       if(ith(22)) then
       dercon=dang*(half*dang*dimp(iso,3,4)-for*dimp(iso,2,4))
       deriv(22,1)=deriv(22,1)+dercon
+      if(npgdec.gt.1) then
+      dera(5,iimp(iso,1))=dera(5,iimp(iso,1))+fourth*dercon
+      dera(5,iimp(iso,2))=dera(5,iimp(iso,2))+fourth*dercon
+      dera(5,iimp(iso,3))=dera(5,iimp(iso,3))+fourth*dercon
+      dera(5,iimp(iso,4))=dera(5,iimp(iso,4))+fourth*dercon
+      endif
       endif
 c
     1 continue
@@ -3294,7 +3323,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera)
 c
-c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.23 2000-05-31 18:19:43 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3626,7 +3655,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.23 2000-05-31 18:19:43 d3j191 Exp $
 c
       implicit none
 c

@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi)
-c $Id: cf_init.F,v 1.46 2000-05-31 03:47:47 d3j191 Exp $
+c $Id: cf_init.F,v 1.47 2000-05-31 18:19:43 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -906,8 +906,9 @@ c
       if(id.eq.1) then
       call cf_icopy(idx,jdx,n,int_mb(i_itrd(id)),mtt(id))
       else
+c      call cf_jcopy(idx,jdx,n,int_mb(i_itrd(id)),mtt(id))
+c      call cf_index(int_mb(i_itrd(id)),mtt(id))
       call cf_ncopy(idx,jdx,n,int_mb(i_itrd(id)),mtt(id))
-cx      call cf_index(int_mb(i_itrd(id)),mtt(id))
       endif
 c
       return
@@ -927,8 +928,9 @@ c
       if(id.eq.1) then
       call cf_icopy(idx,jdx,n,int_mb(i_ixcl(id)),mxt(id))
       else
+c      call cf_jcopy(idx,jdx,n,int_mb(i_ixcl(id)),mxt(id))
+c      call cf_index(int_mb(i_ixcl(id)),mxt(id))
       call cf_ncopy(idx,jdx,n,int_mb(i_ixcl(id)),mxt(id))
-cx      call cf_index(int_mb(i_ixcl(id)),mxt(id))
       endif
 c
       return
@@ -1005,14 +1007,15 @@ c
 c
       integer i
 c
-      do 1 i=0,n
+      do 1 i=0,nip
       ip(i,1)=0
+      ip(i,2)=0
     1 continue
       do 2 i=1,n
       ip(idx(i),1)=i
       ip(i,2)=jdx(i)
     2 continue
-      do 3 i=1,n
+      do 3 i=1,nip
       if(ip(i,1).eq.0) ip(i,1)=ip(i-1,1)
     3 continue
 c
