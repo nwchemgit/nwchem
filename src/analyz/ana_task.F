@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.7 2000-01-24 23:16:27 d3j191 Exp $
+c $Id: ana_task.F,v 1.8 2000-01-25 19:53:35 d3j191 Exp $
 c
       implicit none
 c
@@ -55,6 +55,8 @@ c
       active=.false.
 c
       nave=0
+      time=0.0d0
+      timr=0.0d0
 c
       if(me.eq.0) then
       if(.not.rtdb_cget(irtdb,'ana:filcmd',1,filcmd))
@@ -282,7 +284,8 @@ c
       if(me.eq.0) then
       open(unit=lfncop,file=filcop(1:index(filcop,' ')-1),
      + form='formatted',status='unknown',err=9999)
-      print*,'filcop=',filcop(1:index(filcop,' ')-1)
+      write(*,3333) filcop(1:index(filcop,' ')-1)
+ 3333 format(/,' Opening scn file ',a)
       endif
 c
       nread=0
@@ -309,6 +312,7 @@ c
 c
       if(me.eq.0) then
       close(unit=lfncop)
+      write(*,'(a)') ' Closing trj file '
       write(*,'(/,a,i10,a,a)') ' Scanned ',nwrit,' frames to ',
      + filcop(1:index(filcop,' ')-1)
       endif

@@ -1,6 +1,6 @@
       real*8 function ana_torsion(x,nx,i,j,k,l)
 c
-c $Id: ana_torsion.F,v 1.1 2000-01-24 23:16:27 d3j191 Exp $
+c $Id: ana_torsion.F,v 1.2 2000-01-25 19:53:35 d3j191 Exp $
 c
       implicit none
 c
@@ -48,12 +48,6 @@ c
       if(s.lt.0.0d0) phi=-phi
 c
       ana_torsion=phi
-c
-      write(*,'(a)') ' '
-      write(*,'(i5,4f12.6)') i,x(i,1),x(i,2),x(i,3)
-      write(*,'(i5,4f12.6)') j,x(j,1),x(j,2),x(j,3)
-      write(*,'(i5,4f12.6)') k,x(k,1),x(k,2),x(k,3)
-      write(*,'(i5,4f12.6)') l,x(l,1),x(l,2),x(l,3),phi
 c
       return
       end
