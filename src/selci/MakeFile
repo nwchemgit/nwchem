@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.10 2003-04-08 00:27:43 windus Exp $	
+#	$Id: MakeFile,v 1.11 2003-04-08 00:46:28 windus Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -11,7 +11,7 @@ UOBJ =         $(OBJDIR)\iprtri.obj \
                $(OBJDIR)\input.obj \
                $(OBJDIR)\selci_icopy.obj \
                $(OBJDIR)\selci_output.obj \
-               $(OBJDIR)\yacobi.obj \
+               $(OBJDIR)\selci_yacobi.obj \
                $(OBJDIR)\tred1.obj \
                $(OBJDIR)\tqlrat.obj \
                $(OBJDIR)\loadw.obj \
