@@ -12,6 +12,9 @@ include ../config/makefile.h
 ifeq ($(TARGET),SUN)
        PRECISION = double
 endif
+ifeq ($(TARGET),SGITFP)
+       PRECISION = double
+endif
 ifeq ($(TARGET),IBM)
        PRECISION = double
 endif
