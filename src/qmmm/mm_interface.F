@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.16 2004-09-11 01:22:51 marat Exp $
+c $Id: mm_interface.F,v 1.17 2004-09-13 22:30:44 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -206,6 +206,7 @@ c
       integer nt
       integer ind(nt)
       
+      write(*,*) "qmmm nqa mm_get_solute_quant_link_ind"
       call mm_get_solute_ind_gen(nt,mm_quant_link,ind)
       end
 
@@ -219,6 +220,8 @@ c
 #include "msgids.fh"
       integer nt
       integer ind(nt)
+
+      write(*,*) "qmmm nqa mm_get_solute_link_ind"
       
       call mm_get_solute_ind_gen(nt,mm_link,ind)
       end
@@ -233,7 +236,8 @@ c
 #include "msgids.fh"
       integer nt
       integer ind(nt)
-      
+
+      write(*,*) "qmmm nqa mm_get_solute_bq_ind"
       call mm_get_solute_ind_gen(nt,mm_bqzone,ind)
       end
 
@@ -248,6 +252,7 @@ c
       integer nt
       integer ind(nt)
       
+      write(*,*) "qmmm nqa mm_get_solute_quant_ind"
       call mm_get_solute_ind_gen(nt,mm_quant,ind)
       end
 
@@ -291,7 +296,7 @@ c
 c     accumulate offsets
 c     ------------------
       me = ga_nodeid()
-      call mm_get_nqm(nqa)
+      call mm_get_solute_na_gen(nqa,mm_type)
       do i=me+1,np
         int_mb(i_ioff+i-1)=nqa
       end do    
