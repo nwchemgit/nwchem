@@ -1,8 +1,9 @@
+cedo#define USE_VEC 1
       Subroutine grid_ssw(xyzw, xyz, Rij, rq, p, ictr, 
      &                     nctrs_pruned, nq, 
      &                     iscr, indx, whichfunc)
 c
-C$Id: grid_ssw.F,v 1.25 2004-09-15 20:41:14 edo Exp $
+C$Id: grid_ssw.F,v 1.26 2004-12-30 23:52:59 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -142,40 +143,73 @@ c
       parameter(leps=1d-4,toll_scr=1d-10)
 #include "xc_erftab.fh"
 c
+#ifdef USE_VEC
+      call dfill(nctrs_pruned,1.d0,p,1)
+      do  i = 1, nctrs_pruned
+#else
       call dcopy(nctrs_pruned,1.d0,0,p,1)
       do  i = 2, nctrs_pruned
+#endif
          ij = (i*(i-1))/2
          rag=rq(n,i)
-         
+#ifdef USE_VEC
+CDIR$IVDEP
+         do  j = 1, nctrs_pruned
+            if(i.ne.j) then
+               if(j.lt.i) then
+                  ij=(i*(i-1))/2+j
+               else
+                  ij=(j*(j-1))/2+i
+               endif
+#else         
          do  j = 1, i-1
             ij=ij+1
-           if(abs(p(i)).ge.toll_scr.or.
+#endif
+               if(
+#ifndef USE_VEC
+     .           abs(p(i)).ge.toll_scr.or.
+#endif
      .           abs(p(j)).ge.toll_scr) then
             mu = (rag - rq(n,j))*rij(ij)
+#ifdef USE_VEC
+                  if (mu.lt.-ass) then
+                     p(j)=0.d0
+                  elseif(mu.lt.ass) then
+#else
             if (mu.gt.ass) then
                p(i)=0.d0
             elseif (mu.lt.-ass) then
                p(j)=0.d0
             else
+#endif
 c     
 c     use interpolation for erfs
 c
                if(abs(mu).lt.leps) then
                   sk=-1.88063178008d0*mu+0.5d0
+#ifndef USE_VEC
                   p(i) = p(i)*sk
+#endif
                   p(j) = p(j)*(1d0 - sk)
                else
                   sk=erf1c(mu)
                   if(mu.lt.0d0) then
                      p(j) = p(j)*sk
+#ifndef USE_VEC
                      p(i) = p(i)*(1d0 - sk)
+#endif
                   else
+#ifndef USE_VEC
                      p(i) = p(i)*sk
+#endif
                      p(j) = p(j)*(1d0 - sk)
                   endif
                endif
             endif
         endif
+#ifdef USE_VEC
+        endif
+#endif
       enddo                     ! end loop over j
       enddo                     ! end loop over i
 
