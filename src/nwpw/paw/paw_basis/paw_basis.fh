@@ -37,6 +37,10 @@
       double precision paw_basis_log_amesh
       external paw_basis_log_amesh
 
+      double precision paw_basis_core_kin_energy
+      external paw_basis_core_kin_energy
+
+
       double precision paw_basis_sigma
       external paw_basis_sigma
 

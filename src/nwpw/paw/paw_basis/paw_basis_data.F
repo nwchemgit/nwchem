@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.17 2003-02-21 18:39:38 marat Exp $
+! $Id: paw_basis_data.F,v 1.18 2003-02-23 21:01:26 marat Exp $
 
 !**************************************************
 !
@@ -783,11 +783,10 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
      
 
  
-
 !**************************************************
 !
 !	Name: paw_basis_i_core_kin_energy
-!y
+!
 !	Purpose 
 !
 !	Created:	7/9/2002
@@ -799,6 +798,26 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 #include "paw_basis_data.fh"
 
       paw_basis_i_core_kin_energy = core_kin_energy(1) +  it-1
+      return
+      END 
+
+
+!**************************************************
+!
+!	Name: paw_basis_core_kin_energy
+!
+!	Purpose 
+!
+!	Created:	7/9/2002
+!**************************************************
+      double precision  FUNCTION  paw_basis_core_kin_energy(it)
+      implicit none
+      integer it
+    
+#include "paw_basis_data.fh"
+#include "mafdecls.fh"
+
+      paw_basis_core_kin_energy = dbl_mb(core_kin_energy(1) +  it-1)
       return
       END 
 
