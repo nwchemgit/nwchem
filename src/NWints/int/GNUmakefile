@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.22 1996-07-22 05:53:08 d3e129 Exp $
+# $Id: GNUmakefile,v 1.23 1996-07-26 16:19:18 d3g681 Exp $
 
     OBJ          = hf3PEabc.o hf3mkr.o hf3pot.o 
     OBJ_OPTIMIZE = hfmkr_9.o hfmkr_8.o hfmkr_7.o \
@@ -45,14 +45,8 @@ doc:	3ctrpot.tex
 	ghostview 3ctrpot.ps
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(defNxyz.o):	 ./sh_order.fh 
-$(LIBRARY_PATH)(getNxyz.o):	 ./sh_order.fh 
-$(LIBRARY_PATH)(hf1.o):	 $(INCDIR)/pstat.fh $(INCDIR)/int_tim.fh 
-$(LIBRARY_PATH)(hf1_tran.o):	 $(INCDIR)/stdio.fh 
-$(LIBRARY_PATH)(hf1set3.o):	 $(INCDIR)/apiP.fh 
-$(LIBRARY_PATH)(hf3pot.o):	 $(INCDIR)/stdio.fh 
-$(LIBRARY_PATH)(hfmke.o):	 $(INCDIR)/pstat.fh $(INCDIR)/int_tim.fh 
-$(LIBRARY_PATH)(hfmkr.o):	 $(INCDIR)/pstat.fh $(INCDIR)/int_tim.fh 
-$(LIBRARY_PATH)(hfset.o):	 $(INCDIR)/apiP.fh 
-$(LIBRARY_PATH)(igamma.o):	 $(INCDIR)/pstat.fh $(INCDIR)/int_tim.fh 
-$(LIBRARY_PATH)(matchNxyz.o):	 ./sh_order.fh 
+$(LIBRARY_PATH)(hf1.o):	$(INCDIR)/mafdecls.fh 
+$(LIBRARY_PATH)(hfset.o):	$(INCDIR)/apiP.fh 
+$(LIBRARY_PATH)(hf3pot.o):	$(INCDIR)/stdio.fh 
+$(LIBRARY_PATH)(hf1set3.o):	$(INCDIR)/apiP.fh 
+$(LIBRARY_PATH)(hf1_tran.o):	$(INCDIR)/stdio.fh 
