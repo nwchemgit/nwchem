@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.22 2000-04-11 15:39:26 hvd Exp $
+c     $Id: dft_input.F,v 1.23 2000-04-28 17:56:26 jolguin Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -21,7 +21,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 21)
+      parameter (num_dirs = 22)
       character*12 dirs(num_dirs)
       character*255 test
       integer idecomp, mult, iterations, ipol, noio,
@@ -31,7 +31,8 @@ c
       data dirs /'convergence', 'decomp', 'dft', 'direct', 'ecp', 
      $           'grid', 'vectors', 'incore', 'iterations', 'max_ovl', 
      $           'mulliken', 'mult', 'noio', 'noprint', 'odft', 
-     $           'print', 'tolerances', 'xc', 'sym', 'adapt', 'end'/
+     $           'print', 'tolerances', 'xc', 'sym', 'adapt', 'sic', 
+     &           'end'/
 c
 c     Any DFT input causes calculation to be marked as not converged
 c
@@ -46,7 +47,7 @@ c
 c     
       goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
      $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
-     $     1900, 2000, 2100, 9999) ind
+     $     1900, 2000, 2100, 2200, 9999) ind
       call errquit('dft_input: unimplemented directive', ind)
 c
 c     convergence;
@@ -211,10 +212,14 @@ c
       if (.not. rtdb_put(rtdb,'dft:adapt', MT_LOG, 1, status))
      &   call errquit('dft_input: rtdb_put failed', 2000)
       goto 10
+c
+ 2100 call sic_input(rtdb, 'dft')
+c
+      goto 10
 c             
 c     end;
 c             
- 2100 continue
+ 2200 continue
  9999 continue
       return 
 c       

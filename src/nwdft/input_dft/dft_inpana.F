@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.48 2000-04-11 15:39:26 hvd Exp $
+c     $Id: dft_inpana.F,v 1.49 2000-04-28 17:56:01 jolguin Exp $
 c
 c*********************************************************************
 c     
@@ -28,7 +28,7 @@ c
       Integer rtdb              !  runtime database handle
       integer me,ichg,nel
       integer noc1
-      integer n, na, nb
+      integer n, na, nb, test_sic
       integer nshells
       integer ictr
       double precision bsr, radang
@@ -36,7 +36,7 @@ c
       double precision ictr_coord(3), ictr_chg
       character*3 on_off_1, on_off_2
       logical oprint_general, oprint_grid, oprint_xc, 
-     &     oprint_convergence, oprint_tolerances
+     &     oprint_convergence, oprint_tolerances, oprint_sic
       character*9 local_c, nonlocal_c, nineb_c
       character*10 start_10c, NA_10c, asap_10c
       character*10 strng1, strng2, strng3, strng4, strng5, strng6
@@ -55,6 +55,7 @@ c
      &                                print_default)
       oprint_tolerances = util_print('screening tolerance information',
      &                               print_default)
+      oprint_sic = util_print('sic information',print_default)
 c     
 c     Figure out the number of electrons from the required total
 c     charge and the sum of nuclear charges
@@ -421,6 +422,23 @@ c
             endif
             call util_flush(LuOut)
          endif
+         if (oprint_sic) then
+           if (.not. rtdb_get(rtdb, 'dft:test_sic', mt_int, 1,
+     &     test_sic))test_sic = 0
+           if (test_sic.eq.1) then
+             write(LuOut,'(/,14x,"SIC perturbative approximation")')
+           else
+             if (test_sic.eq.2) then
+               write(LuOut,'(/,14x,
+     &                       "SIC/OEP without localized orbitals")')
+             else
+               if (test_sic.eq.4) then
+                 write(LuOut,'(/,14x,
+     &                         "SIC/OEP with localized orbitals")')
+               end if
+             end if
+           end if
+         end if
          if (oprint_grid)then     
             write(LuOut,*)
             call util_print_centered

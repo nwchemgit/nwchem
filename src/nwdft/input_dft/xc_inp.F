@@ -1030,3 +1030,83 @@ c
       call errquit('xc_input: invalid format', 0)
 c     
       end
+      subroutine sic_input(rtdb, module)
+      implicit none
+#include "inp.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+      integer rtdb
+      character*(*) module
+c     
+c     Parse the sic directive which specifies how to construct the
+c     sic/oep approach is used.
+c     
+c     Possible variables are:
+c
+c     perturbative
+c     oep
+c     oep-loc
+c     
+      integer num_dirs, ind, mlen, test_sic
+      parameter (num_dirs = 3)
+      character*12 dirs(num_dirs)
+      character*255 test
+c
+c
+      data dirs /'perturbative', 'oep', 'oep-loc'/
+c     
+      mlen = inp_strlen(module)
+      test_sic = 1
+c     
+ 10   if (.not.inp_a(test)) goto 1999
+c     
+      if (.not. inp_match(num_dirs, .false., test, dirs, ind)) then
+c     
+c        Does not match a keyword ... 
+c     
+         goto 10000
+      endif
+c
+      goto (100, 200, 300, 1999) ind
+      call errquit('sic_inp: unimplemented directive', ind)
+c     
+  100 if (.not.inp_a(test)) then
+        test_sic = 1
+      else
+        goto 10000
+      end if            
+c
+      goto 10
+  200 if (.not.inp_a(test)) then
+        test_sic = 2
+      else
+        goto 10000
+      end if
+c
+      goto 10
+  300 if (.not.inp_a(test)) then
+        test_sic = 4
+      else
+        goto 10000
+      end if
+c
+      goto 10
+c             
+ 1999 continue
+c
+      if (.not. rtdb_put(rtdb, 'dft:test_sic', mt_int, 1,test_sic))
+     &     call errquit('sic_inp: rtdb_put failed', 1)
+c     
+      return
+c     
+10000 write(LuOut,10001)
+
+10001 format(/,' sic [[perturbative], [oep], [oep-loc]]')
+      call util_flush(LuOut)
+      call errquit('sic_input: invalid format', 0)
+c     
+      end
+
+
+
