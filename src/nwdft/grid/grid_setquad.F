@@ -1,6 +1,6 @@
       Subroutine grid_setquad(rtdb)
 c
-c$Id: grid_setquad.F,v 1.4 1999-06-15 00:35:46 d3h449 Exp $
+c$Id: grid_setquad.F,v 1.5 1999-07-13 01:16:22 edo Exp $
 c
       implicit none
       logical oprint, grid_on_file
@@ -69,7 +69,9 @@ c
          grid_on_file = .false.
       endif
       if (grid_on_file)then
+         call int_init(rtdb, 1, AO_bas_han)
          call grid_rchi(rtdb)
+         call int_terminate
       endif
       call ga_sync()
 c
