@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.144 2001-06-29 17:01:24 d3h449 Exp $
+# $Id: make_nwchem_config,v 1.145 2001-06-29 23:16:29 edo Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -127,6 +127,7 @@ MODULES := $(patsubst selci,selci moints,$(MODULES) )
 MODULES := $(patsubst mp2_grad,mp2_grad moints cphf gradients,$(MODULES) )
 MODULES := $(patsubst ccsd,ccsd cphf mp2_grad moints ddscf,$(MODULES) )
 MODULES := $(patsubst mcscf,mcscf moints ddscf,$(MODULES) )
+MODULES := $(patsubst mcstep,mcstep mcscf moints ddscf,$(MODULES) )
 MODULES := $(patsubst moints,moints ddscf NWints,$(MODULES) )
 MODULES := $(patsubst cphf,cphf ddscf,$(MODULES) )
 MODULES := $(patsubst scfaux,scfaux ddscf,$(MODULES) )
@@ -250,6 +251,7 @@ STUBROUTINES := $(patsubst nbo,task_nbo nbo_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vscf,task_vscf vscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst pspw,pspw task_pspw pspw_input pspw_energy pspw_gradient,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst uccsdt,uccsdt moints_screen,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst mcstep,mcstep mcstep_main,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
 STUBROUTINES := $(sort $(STUBROUTINES))
 
