@@ -1,23 +1,30 @@
-# $Id: GNUmakefile,v 1.59 1996-08-19 15:28:57 d3g681 Exp $
+# $Id: GNUmakefile,v 1.60 1996-09-19 01:26:02 d3g681 Exp $
 
 include ../config/makefile.h
+
+   LIB_DEFINES = -DSCRATCH_DEF_DIR=$(SCRATCH_DEF_DIR) \
+                 -DPERM_DEF_DIR=$(PERM_DEF_DIR)
 
 ifeq ($(TARGET),SOLARIS)
   EXTRA_OBJ = ieeetrap.o
   SPEECH = YES
+  LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
 endif
 
 ifeq ($(TARGET),SUN)
   EXTRA_OBJ = ieeetrap.o
   SPEECH = YES
+  LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
 endif
 
 ifeq ($(TARGET),SP1)
   EXTRA_OBJ = ibm_cputime.o
+  LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
 endif
 
 ifeq ($(TARGET),IBM)
   EXTRA_OBJ = ibm_cputime.o
+  LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
 endif
 
 ifeq ($(TARGET),LINUX)
@@ -35,8 +42,6 @@ endif
        BLAS = dfill.o ifill.o rsg.o
 
    LIB_TARGETS = testsolve
-   LIB_DEFINES = -DSCRATCH_DEF_DIR=$(SCRATCH_DEF_DIR) \
-                 -DPERM_DEF_DIR=$(PERM_DEF_DIR)
 
  OBJ_OPTIMIZE =  ga_matpow.o util_pack.o dabssum.o dabsmax.o $(BLAS)
 
@@ -63,7 +68,7 @@ endif
               icopy.o util_legal.o \
               util_file_name.o \
               util_speak.o util_rtdb_speak.o util_file_copy.o \
-              util_file_unlink.o util_system.o \
+              util_file_unlink.o util_system.o util_sleep.o \
               $(EXTRA_OBJ) 
 
     LIBRARY = libutil.a

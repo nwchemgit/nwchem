@@ -1,3 +1,30 @@
+#ifdef HAVE_FORTRAN_INTEGER2
+      subroutine util_pack_16(nunpacked, packed, unpacked)
+      implicit none
+      integer nunpacked
+      integer*2 packed(*), unpacked(2,*)
+c
+      integer i
+c
+      do i = 1, nunpacked
+         packed(i) = unpacked(2,i)
+      enddo
+c
+      end
+      subroutine util_unpack_16(nunpacked, packed, unpacked)
+      implicit none
+      integer nunpacked
+      integer*2 packed(*), unpacked(2,*)
+c
+      integer i
+c
+      do i = 1, nunpacked
+         unpacked(1,i) = 0
+         unpacked(2,i) = packed(i)
+      enddo
+c
+      end
+#else
       subroutine util_pack_16(nunpacked, packed, unpacked)
       implicit none
 #include "mafdecls.fh"
@@ -70,6 +97,39 @@ c
       endif
 c
       end
+#endif
+#ifdef HAVE_FORTRAN_BYTE
+      subroutine util_pack_8(nunpacked, packed, unpacked)
+      implicit none
+      integer nunpacked
+      byte unpacked(4,*)
+      byte packed(*)
+c
+      integer i
+c
+      do i = 1, nunpacked
+         packed(i) = unpacked(4,i)
+      enddo
+c
+      end
+      subroutine util_unpack_8(nunpacked, packed, unpacked)
+      implicit none
+      integer nunpacked
+      byte packed(*), unpacked(4,*)
+c
+      integer i, ilo, ihi, ndo
+c
+      do ilo = 1, nunpacked, 4096       ! 16 K cache
+         ihi = min(nunpacked, ilo+4096-1)
+         ndo = ihi - ilo + 1
+         call ifill(ndo, 0, unpacked(1,ilo), 1)
+         do i = ilo, ihi
+            unpacked(4,i) = packed(i)
+         enddo
+      enddo
+c
+      end
+#else
       subroutine util_pack_8(nunpacked, packed, unpacked)
       implicit none
 #include "mafdecls.fh"
@@ -159,3 +219,4 @@ c
       endif
 c
       end
+#endif
