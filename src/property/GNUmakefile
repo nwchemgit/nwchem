@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.14 1998-11-23 17:12:10 mdupuis Exp $
+# $Id: GNUmakefile,v 1.15 1998-12-03 16:16:29 d3j191 Exp $
 #
 
 
@@ -9,7 +9,7 @@
    LIB_DEFINES = 
    LIB_INCLUDES = -I../include
 
-USES_BLAS = wnbofile.F
+USES_BLAS = wnbofile.F gia3.F
 
 include ../config/makefile.h
 include ../config/makelib.h
