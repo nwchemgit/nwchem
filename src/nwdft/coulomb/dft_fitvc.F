@@ -1,7 +1,7 @@
       Subroutine dft_fitvc(CD_coef, i3c_ERI, Ecoul2, rtdb, g_vc, 
      &                     g_2ceri, n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC)
-c     $Id: dft_fitvc.F,v 1.19 1997-10-31 23:20:34 d3h449 Exp $
+c     $Id: dft_fitvc.F,v 1.20 1997-11-14 01:14:16 d3h449 Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -42,7 +42,6 @@ c     Compute the fitted Coulomb potential. The fitting coefficients are
 c     obtained by solving the normal equations for a standard linear least
 c     squares problem.
 c
-      integer MXshbf_ao,nshells_ao,nshells_cd,MXshbf_cd
       integer me,nproc,i1,ishp,ishbf,lshbf,lmiss,ischw1,ischw2,
      ,     icount,Nao2,i,nERI,maxg,mscratch_2e3c,nscr,
      ,     n1,n2,ishc,ifirstc,ilastc,nshbfc,ishd,ifirstd,ilastd,
@@ -68,26 +67,9 @@ c
       call dft_second(ts1)
 #endif
       oprint_ioinfo = util_print('io info',print_debug)
+c
       THRESHOLD=10.d0**(-itol2e)
 c      
-c     Determine the characteristics of the AO and CD Gaussian basis sets.
-c      
-      if( .not. bas_nbf_cn_max(AO_bas_han,MXshbf_ao) )then
-        call errquit('Exiting in fitvcoul.',1)
-      end if
-      
-      if( .not. bas_numcont(AO_bas_han,nshells_ao) )then
-        call errquit('Exiting in fitvcoul.',2)
-      end if
-      
-      if( .not. bas_numcont(CD_bas_han,nshells_cd) )then
-        call errquit('Exiting in fitvcoul.',3)
-      end if
-      
-      if( .not. bas_nbf_cn_max(CD_bas_han,MXshbf_cd) )then
-        call errquit('Exiting in fitvcoul.',4)
-      end if
-      
       me=ga_nodeid()
       nproc  = ga_nnodes()
       call ga_sync
@@ -100,7 +82,7 @@ c
      &  lcd_shell,icd_shell))
      &  call errquit('dft_fitvc: cannot allocate CD shell max',0)
 c      
-      if(.not.MA_Push_Get(MT_Dbl,MXshbf_cd,'gvec',lgvec,igvec))
+      if(.not.MA_Push_Get(MT_Dbl,nbf_cd_mxnbf_cn,'gvec',lgvec,igvec))
      &  call errquit('dft_fitvc: cannot allocate gvec',0)
 c      
 c     Determine the largest magnitude of the CD expansion coefficients in
@@ -154,12 +136,12 @@ c
 c      call dft_tstamp(' In dft_fitvc 1          ')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
-      Nao2 = MXshbf_ao**2
+      Nao2 = nbf_ao_mxnbf_cn**2
       if(.not.MA_Push_Get(MT_Dbl,Nao2,'isvec',lsvec,isvec))
      &  call errquit('dft_fitvc: cannot allocate isvec',0)
       if(.not.MA_Push_Get(MT_Dbl,Nao2,'isvec2',lsvec2,isvec2))
      &  call errquit('dft_fitvc: cannot allocate isvec2',0)
-      nERI    = Nao2*MXshbf_cd
+      nERI    = Nao2*nbf_cd_mxnbf_cn
       if(.not.MA_Push_Get(MT_Dbl,nERI,'ERI',lERI,iERI))
      &  call errquit('dft_fitvc: cannot allocate ERI',0)
 c

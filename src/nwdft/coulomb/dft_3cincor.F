@@ -1,7 +1,7 @@
       Subroutine dft_3cincor(rtdb, n_batch, n_bmax, iwhat, i3c_ERI, 
      &      n3c_dbl, iwhat_max, n_semi_bufs, fd)
 c 
-C$Id: dft_3cincor.F,v 1.10 1997-10-31 23:20:33 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.11 1997-11-14 01:14:15 d3h449 Exp $
 c
       implicit none
 c    
@@ -29,8 +29,7 @@ c
 c     Compute the 3-center integrals and store as many of them 
 c     as possible in-core.
 c
-      integer MXshbf_ao, nshells_ao, nshells_cd, MXshbf_cd
-      integer me, nproc, ishp, icount, Nao2, nERI, maxg, 
+      integer me, nproc, ishp, icount, Nao2, maxg, 
      &        mscratch_2e3c, nscr, n1, n2, ishc, ifirstc,
      &        ilastc, nshbfc, ishd, ifirstd, ilastd,
      &        nshbfd, ifirstp, ilastp, nintegrals,
@@ -102,24 +101,6 @@ c         if (availkb*1024 .gt. (2*n3c_b + other_stuff))then
          endif
       endif
 c      
-c     Determine the characteristics of the AO and CD Gaussian basis sets.
-c      
-      if( .not. bas_nbf_cn_max(AO_bas_han,MXshbf_ao) )then
-        call errquit('Exiting in dft_3cincor.',1)
-      end if
-c      
-      if( .not. bas_numcont(AO_bas_han,nshells_ao) )then
-        call errquit('Exiting in dft_3cincor.',2)
-      end if
-c      
-      if( .not. bas_numcont(CD_bas_han,nshells_cd) )then
-        call errquit('Exiting in dft_3cincor.',3)
-      end if
-c      
-      if( .not. bas_nbf_cn_max(CD_bas_han,MXshbf_cd) )then
-        call errquit('Exiting in dft_3cincor.',4)
-      end if
-c      
       me=ga_nodeid()
       nproc  = ga_nnodes()
 c      
@@ -132,16 +113,16 @@ c
       icount = max(icount,1)
       if(nproc.eq.1)icount = 1
 c      
-      nao2_max = MXshbf_ao**2
+      nao2_max = nbf_ao_mxnbf_cn**2
       batch_max = nao2_max*nbf_cd*icount
 c
-      nERI_max = Nao2_max*MXshbf_cd
+      nERI_max = Nao2_max*nbf_cd_mxnbf_cn
 c
 c      write(LuOut,*)' me, rtdb, geom, AO_bas_han, CD_bas_han: ',
 c     &                me, rtdb, geom, AO_bas_han, CD_bas_han
 c      call util_flush(LuOut)
-c      write(LuOut,*)' me, mxshbf_ao, mxshbf_cd, nbf_cd: ',
-c     &                me, mxshbf_ao, mxshbf_cd, nbf_cd
+c      write(LuOut,*)' me, nbf_ao_mxnbf_cn, nbf_cd_mxnbf_cn, nbf_cd: ',
+c     &                me, nbf_ao_mxnbf_cn, nbf_cd_mxnbf_cn, nbf_cd
 c      call util_flush(LuOut)
 c      write(LuOut,*)' me, icount, nao2_max, batch_max, neri_max: ',
 c     &                me, icount, nao2_max, batch_max, neri_max
@@ -436,7 +417,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: dft_3cincor.F,v 1.10 1997-10-31 23:20:33 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.11 1997-11-14 01:14:15 d3h449 Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k

@@ -1,6 +1,6 @@
       Subroutine a_dist(xyz, Rij, nctrs)
 c
-C$Id: a_dist.F,v 1.10 1997-07-10 16:35:17 d3h449 Exp $
+C$Id: a_dist.F,v 1.11 1997-11-14 01:14:32 d3h449 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c     Internuclear Distances
 c
       double precision Rij((nctrs*(nctrs+1))/2)
 c
-      integer i, i_a, j, ij
+      integer i, j, ij
 c
 c     Evaluate the distance between each pair of centers.
 c

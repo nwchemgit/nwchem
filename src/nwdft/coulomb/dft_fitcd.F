@@ -2,7 +2,7 @@
      &                     g_dens, nTotEl, n_batch, n_bmax, iwhat,
      &                     n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC)
 *
-* $Id: dft_fitcd.F,v 1.21 1997-10-31 23:20:33 d3h449 Exp $
+* $Id: dft_fitcd.F,v 1.22 1997-11-14 01:14:16 d3h449 Exp $
 *
       implicit none
 c
@@ -42,23 +42,23 @@ c
       double precision offset
       double precision length, q1
       double precision F(2)
-      double precision fac,THRESHOLD,Pmat_max,ERI_est,Q,AZ,alpha,
-     ,     rho_int
-      integer nproc,me,MXnshbf_ao,MXnshbf_cd,nshells_ao,
-     ,     nshells_cd,ischw1,icount,Nao2,n1,n2,ishc,ifirstc,ilastc,
-     ,     nshbfc,ishd,ifirstd, ilastd,nshbfd,istart,
-     ,     ishp,ifirstp,ilastp,nshbfp,Nintegrals,nscr,
-     ,     max1e,nscr1e,j,next,i,mscratch_2e3c,
-     ,     ifirst,ilast,nshbf,maxg,ish,lmiss
-      integer iTvec,lTvec,lgvec,igvec,lERI,iERI,lcgtf,icgtf,
-     ,     lscr,iscr,iqatom,lqatom,iqshell_cd,lqshell_cd,natoms,
-     ,     iqshell_lab,lqshell_lab,lqshtyp_cd,iqshtyp_cd
-      logical oprint,dowork,oprint_ioinfo,lresult
+      double precision fac, THRESHOLD, Pmat_max, ERI_est, Q, AZ, alpha,
+     &                 rho_int
+      integer nproc, me, 
+     &        ischw1, icount, Nao2, n1, n2, ishc, ifirstc, ilastc,
+     &        nshbfc, ishd, ifirstd,  ilastd, nshbfd, istart,
+     &        ishp, ifirstp, ilastp, nshbfp, Nintegrals, nscr,
+     &        max1e, nscr1e, j, next, i, mscratch_2e3c,
+     &        ifirst, ilast, nshbf, maxg, ish, lmiss
+      integer iTvec, lTvec, lgvec, igvec, lERI, iERI, lcgtf, icgtf,
+     &     lscr, iscr, iqatom, lqatom, iqshell_cd, lqshell_cd, natoms,
+     &     iqshell_lab, lqshell_lab, lqshtyp_cd, iqshtyp_cd
+      logical oprint, dowork, oprint_ioinfo
       integer nlast, ntasks
       integer ishc_be, ishd_be
-      integer ndone,ipoint
+      integer ndone, ipoint
       character*(nw_max_path_len) cdfit_filename
-      double precision dabsmax, val
+      double precision dabsmax
       integer nxtask
       external dabsmax,nxtask
       
@@ -67,15 +67,10 @@ c
       double precision schw1
 #include "timer.fh"
 #endif
-      
 c     
 c     Fit electronic charge density. The fitting coefficients are obtained by 
 c     solving the normal equations for a standard linear least squares problem.
-c     
-c******************************************************************************
-      
-
- 
+c      
 #if defined(DFT_TIMER)
       call ga_sync
       call t_stat(10,-1)
@@ -85,33 +80,13 @@ c******************************************************************************
       oprint_ioinfo = util_print('io info',print_debug)
       nproc  = ga_nnodes()
       me = ga_nodeid()
-      
-      THRESHOLD=10.d0**(-itol2e)
-      
-c     Determine the characteristics of the AO and CD Gaussian basis sets.
-      
-      if( .not. bas_numbf(AO_bas_han,nbf_ao) )then
-        call errquit('Exiting in fitcd.',0)
-      end if
-      if( .not. bas_nbf_cn_max(AO_bas_han,MXnshbf_ao) )then
-        call errquit('Exiting in fitcd.',1)
-      end if
-      if( .not. bas_nbf_cn_max(CD_bas_han,MXnshbf_cd) )then
-        call errquit('Exiting in fitcd.',2)
-      end if
-      
-      if( .not. bas_numcont(AO_bas_han,nshells_ao) )then
-        call errquit('Exiting in fitcd.',3)
-      end if
-      
-      if( .not. bas_numcont(CD_bas_han,nshells_cd) )then
-        call errquit('Exiting in fitcd.',4)
-      end if
+c      
+      THRESHOLD = 10.d0**(-itol2e)
 c      
 c     Project the Coulomb potential onto each of the CD fitting functions.
 c
 c     Allocate scratch space.
-      
+c      
       if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'Tvec',lTvec,iTvec))
      &  call errquit('dft_fitcd: cannot allocate Tvec',0)
 c      call ga_sync
@@ -126,11 +101,11 @@ c
       call ga_sync
       icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
       icount = max(1,icount)
-      
-      Nao2 = MXnshbf_ao*MXnshbf_ao
+c      
+      Nao2 = nbf_ao_mxnbf_cn*nbf_ao_mxnbf_cn
       if(.not.MA_Push_Get(MT_Dbl,Nao2,'gather vector',lgvec,igvec))
      &  call errquit('dft_fitcd: cannot allocate gather vector',0)
-
+c
       call int_mem_2e3c(maxg, mscratch_2e3c)
       if(.not.MA_Push_Get(MT_Dbl,maxg*nshells_cd,'ERI',lERI,iERI))
      &  call errquit('dft_fitcd: cannot allocate ERI',0)
@@ -156,8 +131,8 @@ c      call ga_sync
 c
 c     Exhaust in-core 3c 2e- buffers first.
 c
-      ndone=1
-      ipoint=1
+      ndone = 1
+      ipoint = 1
       if(ndone.gt.n_batch)goto 25
 c
 c     check for semi-direct, if so, load 1st buffer
@@ -184,15 +159,14 @@ c        temp stop
 c
 c         call errquit(' temp stop in dft_3cincor ',0)
       endif
-         
 c
       do 24 ishc = 1,nshells_ao
         if (.not. bas_cn2bfr( AO_bas_han, ishc, ifirstc, ilastc)) 
      &       call errquit('Exiting in dft_fitcd',111)
-        nshbfc=ilastc-ifirstc+1
+        nshbfc = ilastc-ifirstc+1
 c
         do 23 ishd = 1,ishc
-          dowork=iwhat(ndone).eq.((ishc*(ishc-1))/2 + ishd-1)
+          dowork = iwhat(ndone).eq.((ishc*(ishc-1))/2 + ishd-1)
           if(dowork) then
 c
 c            write(LuOut,*)
@@ -202,8 +176,8 @@ c            call util_flush(LuOut)
 c
             if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, ilastd)) 
      &         call errquit('Exiting in dft_fitcd',1111)
-            nshbfd=ilastd-ifirstd+1
-            Nao2=nshbfd*nshbfc
+            nshbfd = ilastd-ifirstd+1
+            Nao2 = nshbfd*nshbfc
 c
 c           Gather the needed density matrix elements.
 c
@@ -216,20 +190,20 @@ c
 c            
 c           Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
 c
-            ERI_est=schwarz_shell(ishc,ishd)
+            ERI_est = schwarz_shell(ishc,ishd)
 c            
             if( Pmat_max*ERI_est.gt.THRESHOLD )then
 c              
               ischw1 = ischw1 + nshells_cd
 c              
-              istart=iERI
-              fac=2.0d0
-              if(ishc.eq.ishd) fac=1.d0
+              istart = iERI
+              fac = 2.0d0
+              if(ishc.eq.ishd) fac = 1.d0
               call dgemv('T',Nao2,nbf_cd,fac,i3c_ERI(ipoint),Nao2,
      &             Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
             end if
 c
-            ndone=ndone+1
+            ndone = ndone+1
 c            write(6,*)' ndone, n_batch ',ndone,n_batch
             if(ndone.gt.n_batch)then
 c
@@ -238,9 +212,7 @@ c             start "direct"
 c
               if(n_semi_bufs.eq.0)goto 25
 c
-c
 c             Finished processing this batch of integrals, either get
-
 c
               if (current_nbuf .eq. n_semi_bufs)goto 25
               current_nbuf = current_nbuf + 1
@@ -251,9 +223,9 @@ c
               n_batch_read = nint(i3c_eri(n3c_dbl))
 c              write(6,*)' n_batch_read = ',n_batch_read
               n_batch = n_batch + n_batch_read
-              ipoint=1
+              ipoint = 1
             else
-              ipoint=ipoint+Nao2*nbf_cd
+              ipoint = ipoint+Nao2*nbf_cd
             endif
 c
 c            write(LuOut,*)' Done with: ishc, ishd, n_batch, ndone: ',
@@ -311,10 +283,10 @@ c
       do 240 ishc = ishc_be, nshells_ao
         if (.not. bas_cn2bfr( AO_bas_han, ishc, ifirstc, ilastc)) 
      &       call errquit('Exiting in dft_fitcd',111)
-        nshbfc=ilastc-ifirstc+1
+        nshbfc = ilastc-ifirstc+1
 c
         do 230 ishd = ishd_be, ishc
-          dowork=n1.eq.n2
+          dowork = n1.eq.n2
           if(dowork) then
 c
 c            write(LuOut,*)'me,ishc,ishd,n1,n2', me,ishc,ishd,n1,n2
@@ -322,8 +294,8 @@ c            call util_flush(LuOut)
 c
             if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, ilastd)) 
      &         call errquit('Exiting in dft_fitcd',1111)
-            nshbfd=ilastd-ifirstd+1
-            Nao2=nshbfd*nshbfc
+            nshbfd = ilastd-ifirstd+1
+            Nao2 = nshbfd*nshbfc
 c
 c           Gather the needed density matrix elements.
 c
@@ -336,25 +308,25 @@ c
 c            
 c           Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
 c
-            ERI_est=schwarz_shell(ishc,ishd)
+            ERI_est = schwarz_shell(ishc,ishd)
 c            
             if( Pmat_max*ERI_est.gt.THRESHOLD )then
 c              
               ischw1 = ischw1 + nshells_cd
 c              
-              istart=iERI
-              fac=2.0d0
-              if(ishc.eq.ishd) fac=1.d0
+              istart = iERI
+              fac = 2.0d0
+              if(ishc.eq.ishd) fac = 1.d0
               do 220 ishp = 1,nshells_cd
 c                  
 c               Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
 c                  
                 if (.not. bas_cn2bfr( CD_bas_han,ishp,ifirstp,ilastp))
      &               call errquit('Exiting in fitcd.',5)
-                nshbfp=ilastp-ifirstp+1
+                nshbfp = ilastp-ifirstp+1
 c                  
                 Nintegrals = nshbfp*Nao2
-                nscr=mscratch_2e3c
+                nscr = mscratch_2e3c
 c
 c               check for use of symmetry
 c
@@ -371,7 +343,7 @@ c
      &             ishd,nscr,Dbl_MB(iscr),Nintegrals,Dbl_MB(istart))
                 endif                   
 c
-                istart=istart+Nintegrals
+                istart = istart+Nintegrals
 c
   220         continue
 c               
@@ -404,7 +376,7 @@ c
 c
 #if defined(DFT_TIMER)
       call dft_second(ts2)
-      subsect(1)='  Tvec    '
+      subsect(1) = '  Tvec    '
       call tcllct(t_sub(1,1),ts2,ts1)
       call dft_second(ts1)
 #endif
@@ -423,7 +395,7 @@ c
 c
 #if defined(DFT_TIMER)
       call dft_second(ts2)
-      subsect(2)='  DGOP    '
+      subsect(2) = '  DGOP    '
       call tcllct(t_sub(1,2),ts2,ts1)
       call dft_second(ts1)
 #endif
@@ -453,7 +425,7 @@ c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
         if (.not. bas_cn2bfr( CD_bas_han,ish,
      &                       ifirst,ilast))
      &      call errquit('Exiting in fitcd.',44)
-                nshbf=ilast-ifirst+1
+                nshbf = ilast-ifirst+1
         call int_1cg( CD_bas_han, ish, nscr, Dbl_MB(iscr), 
      &              nshbf, Dbl_MB(icgtf+ifirst-1) )
       enddo 
@@ -467,7 +439,7 @@ c
 #if defined(DFT_TIMER)
       call ga_sync
       call dft_second(ts2)
-      subsect(3)='  Int_cgtf'
+      subsect(3) = '  Int_cgtf'
       call tcllct(t_sub(1,3),ts2,ts1)
       call dft_second(ts1)
 #endif
@@ -495,26 +467,26 @@ c     &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
 #if defined(DFT_TIMER)
       call ga_sync
       call dft_second(ts2)
-      subsect(4)='  RD CDinv'
+      subsect(4) = '  RD CDinv'
       call tcllct(t_sub(1,4),ts2,ts1)
       call dft_second(ts1)
 #endif
       call ga_sync
 c      call dft_tstamp(' in dft_cdfit before f1f2')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
-      F(1)=0.D0
-      F(2)=0.D0
-      next=nxtval(nproc)+1
-      do j=1,nbf_cd
+      F(1) = 0.D0
+      F(2) = 0.D0
+      next = nxtval(nproc)+1
+      do j = 1,nbf_cd
         if (j.eq.next) then
-          next=nxtval(nproc)+1
+          next = nxtval(nproc)+1
           call get_col(g_cdinv,nbf_cd,j,Dbl_MB(iscr))
-          AZ=ddot(nbf_cd,DBL_mb(iscr),1,DBL_MB(icgtf),1)
-          F(1)=F(1)+AZ*DBL_MB(iTvec+j-1)
-          F(2)=F(2)+AZ*DBL_MB(icgtf+j-1)
+          AZ = ddot(nbf_cd,DBL_mb(iscr),1,DBL_MB(icgtf),1)
+          F(1) = F(1)+AZ*DBL_MB(iTvec+j-1)
+          F(2) = F(2)+AZ*DBL_MB(icgtf+j-1)
         endif
       enddo
-      next=nxtval(-nproc)
+      next = nxtval(-nproc)
       call ga_sync
       call ga_dgop(Msg_Lagrange,F,2,'+')
       call ga_sync
@@ -535,7 +507,7 @@ c
 c      call dft_tstamp(' in dft_cdfit before cdco')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
-      next=nxtval(nproc)+1
+      next = nxtval(nproc)+1
       do j = 1,nbf_cd
         if (j.eq.next) then
           next = nxtval(nproc) + 1
@@ -544,7 +516,7 @@ c
           call daxpy(nbf_cd,AZ,DBL_MB(iscr),1,CD_Coef,1)
         endif
       enddo
-      next=nxtval(-nproc)
+      next = nxtval(-nproc)
       call ga_dgop(Msg_CD_coef,CD_coef,nbf_cd,'+')
       call ga_sync 
 c      call dft_tstamp(' in dft_cdfit before writ')
@@ -610,7 +582,7 @@ c      if(IOLGC) call gadest(g_cdinv)
 c
 c     calculation of Ecoul1
 c
-      Ecoul1=ddot(nbf_cd,DBL_mb(iTvec),1,CD_coef,1)
+      Ecoul1 = ddot(nbf_cd,DBL_mb(iTvec),1,CD_coef,1)
 c      
 c     Compute the integrated electron density from the fit.
 c      
@@ -630,7 +602,7 @@ c         write(*,*)' CD_coef = ',(CD_coef(i),i=1,nbf_cd)
       
 #if defined(DFT_TIMER)
       call dft_second(ts2)
-      subsect(5)='  cd_coef '
+      subsect(5) = '  cd_coef '
       call tcllct(t_sub(1,5),ts2,ts1)
 #endif
       

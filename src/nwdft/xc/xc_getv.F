@@ -1,17 +1,21 @@
       Subroutine xc_getv(rtdb, Exc, nExc, iVxc_opt, g_xcinv,
      &                   g_dens, g_vxc, IOLGC, g_wght, g_xyz, 
-     &                   wght_GA, rho_n)
+     &                   wght_GA, rho_n, rdens_atom, cntoce,
+     &                   cntobfr, cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.14 1997-10-31 23:20:41 d3h449 Exp $
+C$Id: xc_getv.F,v 1.15 1997-11-14 01:14:33 d3h449 Exp $
 c
       implicit none
 c      
       integer nExc
       integer iVxc_opt
-      integer g_xcinv,g_dens(*),g_vxc(*),g_wght,g_xyz
-      Logical IOLGC,wght_GA
+      integer g_xcinv, g_dens(2), g_vxc(4), g_wght, g_xyz
+      integer natoms
+      logical IOLGC, wght_GA
       integer rtdb
-      double precision rho_n
+      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
+     &        cetobfr(2,natoms)
+      double precision rho_n, rdens_atom(ipol*natoms*natoms)
 c
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -30,7 +34,7 @@ c
 c
 c--> XC Energy
 c
-      double precision Exc(nExc)
+      double precision Exc(2)
 c
 c This driver routine solves for the XC energy and potential (Vxc) via 
 c numerical quadrature methods. The results are obtained either by direct 
@@ -145,12 +149,10 @@ c
 c        Compute the exact exchange energy.
 c       
          if (ipol.eq.1)then
-            Exc(1) = Exc(1)+0.5d0*
-     &               ga_ddot(g_dens(1),g_vxc(1))
+            Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
          else
-            Exc(1) = Exc(1)+0.5d0*
-     &               (ga_ddot(g_dens(1),g_vxc(1))+
-     &               ga_ddot(g_dens(2),g_vxc(2)))
+            Exc(1) = Exc(1)+0.5d0*(ga_ddot(g_dens(1),g_vxc(1)) +
+     &                             ga_ddot(g_dens(2),g_vxc(2)))
          end if
       endif
 c
@@ -165,8 +167,9 @@ c
 c           Option A:  Compute via direct numerical quadrature.
 c         
             if (oprint_time)call dft_tstamp('Before call to xc_quadv0.')
-            call xc_quadv0(rtdb, nExc, g_vxc, g_dens,
-     &                     g_wght, g_xyz, wght_GA, Exc, rho_n)
+            call xc_quadv0(rtdb, nExc, g_vxc, g_dens, g_wght, g_xyz, 
+     &                     wght_GA, Exc, rho_n, rdens_atom, cntoce,
+     &                     cntobfr, cetobfr, natoms)
             if (oprint_time)call dft_tstamp(' After call to xc_quadv0.')
 c
 c           Symmetrize Vxc?
@@ -200,7 +203,8 @@ c
 c
             if (oprint_time)call dft_tstamp('Before call to xc_quadv1.')
             call xc_quadv1(rtdb, Dbl_MB(iTmat), nExc, g_dens, Exc, 
-     &                     rho_n)
+     &                     rho_n, rdens_atom, cntoce, cntobfr, cetobfr, 
+     &                     natoms)
             if (oprint_time)call dft_tstamp(' After call to xc_quadv1.')
 c
 c           symmetrize the "T" vector

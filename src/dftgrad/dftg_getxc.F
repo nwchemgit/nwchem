@@ -1,7 +1,8 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
-     &                      nactive, s34)
+     &                      nactive, s34, rdens_atom, cntoce,
+     &                      cntobfr, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.10 1997-11-04 10:12:14 d3e129 Exp $
+* $Id: dftg_getxc.F,v 1.11 1997-11-14 01:15:14 d3h449 Exp $
 *
       implicit none
 c      
@@ -13,6 +14,9 @@ c
       double precision force(3*natom), s34(natom)
       integer nactive
       logical oactive(natom)
+      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
+     &        cetobfr(2,natom)
+      double precision rdens_atom(ipol*natom*natom)
 c
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -115,7 +119,8 @@ c
 c        Compute via direct numerical quadrature.
 c     
          call dftg_quadv0(rtdb, iga_dens, force, natom, oactive, 
-     &                    nactive) 
+     &                    nactive, rdens_atom, cntoce,
+     &                    cntobfr, cetobfr)
       endif
 c
       return

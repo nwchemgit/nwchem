@@ -3,7 +3,7 @@
      &                     n_bmax, iwhat, n3c_dbl, iwhat_max, 
      &                     n_semi_bufs, fd, IOLGC)
 
-C$Id: dft_getvc.F,v 1.14 1997-10-31 23:20:35 d3h449 Exp $
+C$Id: dft_getvc.F,v 1.15 1997-11-14 01:14:17 d3h449 Exp $
       implicit none
 c
 #include "bas.fh"
@@ -19,7 +19,7 @@ c
       integer g_vc
       integer iVcoul_opt
       integer g_2ceri
-      integer g_dens(*)
+      integer g_dens(2)
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax  ! max no. batches
       integer iwhat(n_bmax) ! what batches have been computed [out]

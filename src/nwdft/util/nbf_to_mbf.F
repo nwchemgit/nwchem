@@ -1,7 +1,7 @@
       Subroutine nbf_to_mbf(geom_hand, basis_hand, rq0, mbf, mcenters, 
-     &                      iniz, ifin, zprim, nzprim,acc_gauss)
+     &                      iniz, ifin, zprim, nzprim, acc_gauss)
 c
-C$Id: nbf_to_mbf.F,v 1.9 1997-07-10 16:35:15 d3h449 Exp $
+C$Id: nbf_to_mbf.F,v 1.10 1997-11-14 01:14:29 d3h449 Exp $
 c
       implicit none
 c      
@@ -10,8 +10,6 @@ c
       integer nzprim ! [input]
       double precision acc_gauss ! [input]
       integer mbf  ! [input/output]
-c
-      Logical LResult
 c
 #include "bas.fh"
 c
@@ -110,6 +108,7 @@ c
 c
   400 continue
 c
+c      write(*,*) ' from nbf_to_mbf: n1 = ',n1
       mbf = n1
 c
       return

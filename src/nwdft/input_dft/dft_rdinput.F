@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.49 1997-10-31 23:20:36 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.50 1997-11-14 01:14:25 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -39,6 +39,8 @@ c
       External int_normalize
       External int_norm_2c
       External atom_tag_check
+      Logical bas_ncontr_cn_max
+      External bas_ncontr_cn_max
 c
       do iline=1,15
           xfac(iline)=0.d0
@@ -572,18 +574,27 @@ c
 c     Define the contracted Gaussian functions for the AO basis set.
 c
       if (.not. bas_create(AO_bas_han, 'ao basis'))
-     &     call errquit('rdinput: bas_create?',80)
-
+     &   call errquit('rdinput: bas_create?', 86)
       if (.not. bas_rtdb_load(rtdb, geom, AO_bas_han, 'ao basis'))
-     &     call errquit('rdinput: no ao basis ',82)
-
+     &   call errquit('rdinput: no ao basis ', 86)
       if (.not. int_normalize(AO_bas_han))
-     &     call errquit('rdinput: int_normalize failed', 200)
-
-
+     &   call errquit('rdinput: int_normalize failed', 86)
       if (.not. bas_numbf(AO_bas_han, nbf))
-     &     call errquit('rdinput:rdinput:',86)
+     &   call errquit('rdinput: basis set error:', 86)
       nbf_ao = nbf
+      if (.not. bas_nprim_cn_max(AO_bas_han,nbf_ao_mxprim))
+     &   call errquit('rdinput: basis set error:', 86)
+      if (.not. bas_high_angular(AO_bas_han,nbf_ao_mxang))
+     &   call errquit('rdinput: basis set error:', 86)
+      nbf_ao_mxang=((nbf_ao_mxang+2)*(nbf_ao_mxang+1))/2
+      if (.not. bas_ncontr_cn_max(AO_bas_han,nbf_ao_mxcont))
+     &   call errquit('rdinput: basis set error:', 86)
+      if (.not. bas_nbf_cn_max(AO_bas_han,nbf_ao_mxnbf_cn))
+     &   call errquit('rdinput: basis set error:', 86)
+      if (.not. bas_nbf_ce_max(AO_bas_han,nbf_ao_mxnbf_ce))
+     &   call errquit('rdinput: basis set error:', 86)
+      if (.not. bas_numcont(AO_bas_han,nshells_ao))
+     &   call errquit('rdinput: basis set error:', 86)
 c
 c     Define the contracted Gaussian functions for the CD basis set.
 c
@@ -591,15 +602,34 @@ c
      &   call errquit('rdinput: bas_create?',102)
       CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
       if (CDFIT)then
-        if (.not. int_norm_2c(CD_bas_han))
-     &     call errquit('rdinput: int_norm_2c failed', 208)
-        if (.not. bas_numbf(CD_bas_han, nbf_cd))
-     &     call errquit('rdinput:rdinput:',86)
+         if (.not. int_norm_2c(CD_bas_han))
+     &      call errquit('rdinput: int_norm_2c failed', 208)
+         if (.not. bas_numbf(CD_bas_han, nbf_cd))
+     &      call errquit('rdinput: basis set error:', 86)
+         if (.not. bas_nprim_cn_max(CD_bas_han,nbf_cd_mxprim))
+     &      call errquit('rdinput: basis set error:', 86)
+         if (.not. bas_high_angular(CD_bas_han,nbf_cd_mxang))
+     &      call errquit('rdinput: basis set error:', 86)
+         nbf_cd_mxang=((nbf_cd_mxang+2)*(nbf_cd_mxang+1))/2
+         if (.not. bas_ncontr_cn_max(CD_bas_han,nbf_cd_mxcont))
+     &      call errquit('rdinput: basis set error:', 86)
+         if (.not. bas_nbf_cn_max(CD_bas_han,nbf_cd_mxnbf_cn))
+     &      call errquit('rdinput: basis set error:', 86)
+         if (.not. bas_nbf_ce_max(CD_bas_han,nbf_cd_mxnbf_ce))
+     &      call errquit('rdinput: basis set error:', 86)
+         if (.not. bas_numcont(CD_bas_han,nshells_cd))
+     &      call errquit('rdinput: basis set error:', 86)
       else
-        if (.not. bas_destroy(CD_bas_han))
-     &     call errquit('rdinput:not able to destroy CD_bas:',86)
-        CD_bas_han=-99999
-        nbf_cd=0
+         if (.not. bas_destroy(CD_bas_han))
+     &      call errquit('rdinput:not able to destroy CD_bas:',86)
+         CD_bas_han=-99999
+         nbf_cd = 0
+         nbf_cd_mxprim = 0
+         nbf_cd_mxang = 0
+         nbf_cd_mxcont = 0
+         nbf_cd_mxnbf_cn = 0
+         nbf_cd_mxnbf_ce = 0
+         nshells_cd = 0
       endif
 c
 c     Define the contracted Gaussian functions for the XC basis set.
@@ -608,15 +638,34 @@ c
      &   call errquit('rdinput: bas_create?',124)
       XCFIT=bas_rtdb_load(rtdb, geom, XC_bas_han, 'xc basis')
       if (XCFIT)then
-        if (.not. int_normalize(XC_bas_han))
-     &     call errquit('rdinput: int_normalize failed', 208)
-        if (.not. bas_numbf(XC_bas_han, nbf_xc))
-     &     call errquit('rdinput:rdinput:',86)
+         if (.not. int_normalize(XC_bas_han))
+     &      call errquit('rdinput: int_normalize failed', 208)
+         if (.not. bas_numbf(XC_bas_han, nbf_xc))
+     &      call errquit('rdinput: basis set error:', 86)
+         if (.not. bas_nprim_cn_max(XC_bas_han,nbf_xc_mxprim))
+     &      call errquit('rdinput: basis set error:', 86)
+         if (.not. bas_high_angular(XC_bas_han,nbf_xc_mxang))
+     &      call errquit('rdinput: basis set error:', 86)
+         nbf_xc_mxang=((nbf_xc_mxang+2)*(nbf_xc_mxang+1))/2
+         if (.not. bas_ncontr_cn_max(XC_bas_han,nbf_xc_mxcont))
+     &      call errquit('rdinput: basis set error:', 86)
+         if (.not. bas_nbf_cn_max(XC_bas_han,nbf_xc_mxnbf_cn))
+     &      call errquit('rdinput: basis set error:', 86)
+         if (.not. bas_nbf_ce_max(XC_bas_han,nbf_xc_mxnbf_ce))
+     &      call errquit('rdinput: basis set error:', 86)
+         if (.not. bas_numcont(XC_bas_han,nshells_xc))
+     &      call errquit('rdinput: basis set error:', 86)
       else
-        if (.not. bas_destroy(XC_bas_han))
-     &     call errquit('rdinput:not able to destroy XC_bas:',88)
-        XC_bas_han=-99999
-        nbf_xc=0
+         if (.not. bas_destroy(XC_bas_han))
+     &      call errquit('rdinput:not able to destroy XC_bas:',88)
+         XC_bas_han=-99999
+         nbf_xc = 0
+         nbf_xc_mxprim = 0
+         nbf_xc_mxang = 0
+         nbf_xc_mxcont = 0
+         nbf_xc_mxnbf_cn = 0
+         nbf_xc_mxnbf_ce = 0
+         nshells_xc = 0
       endif
 c
 c     Set the switch to rotate the quadrature points.

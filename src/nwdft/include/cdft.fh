@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.17 1997-11-04 22:34:15 d3h449 Exp $
+C$Id: cdft.fh,v 1.18 1997-11-14 01:14:24 d3h449 Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -28,7 +28,12 @@ c
      &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
      &     ncyds, idirect, noio, ndamp, idecomp, nagrid, nquad_task,
      &     nrinc, nrmax, geom, ncenters, nbf, nradpts, nang_leb_pts, 
-     &     nbf_ao, nbf_cd, nbf_xc, 
+     &     nbf_ao, nbf_ao_mxprim, nbf_ao_mxang, nbf_ao_mxcont, 
+     &     nbf_ao_mxnbf_cn, nbf_ao_mxnbf_ce, nshells_ao,
+     &     nbf_cd, nbf_cd_mxprim, nbf_cd_mxang, nbf_cd_mxcont, 
+     &     nbf_cd_mxnbf_cn, nbf_cd_mxnbf_ce, nshells_cd,
+     &     nbf_xc, nbf_xc_mxprim, nbf_xc_mxang, nbf_xc_mxcont, 
+     &     nbf_xc_mxnbf_cn, nbf_xc_mxnbf_ce, nshells_xc,
 c
 c     old common handles 
 c
@@ -57,7 +62,12 @@ c
      &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
      &     ncyds, idirect, noio, ndamp, idecomp, nagrid, nquad_task,
      &     nrinc, nrmax, geom, ncenters, nbf, nradpts, nang_leb_pts, 
-     &     nbf_ao, nbf_cd, nbf_xc, 
+     &     nbf_ao, nbf_ao_mxprim, nbf_ao_mxang, nbf_ao_mxcont, 
+     &     nbf_ao_mxnbf_cn, nbf_ao_mxnbf_ce, nshells_ao,
+     &     nbf_cd, nbf_cd_mxprim, nbf_cd_mxang, nbf_cd_mxcont, 
+     &     nbf_cd_mxnbf_cn, nbf_cd_mxnbf_ce, nshells_cd,
+     &     nbf_xc, nbf_xc_mxprim, nbf_xc_mxang, nbf_xc_mxcont, 
+     &     nbf_xc_mxnbf_cn, nbf_xc_mxnbf_ce, nshells_xc,
 c
 c     old common handles 
 c
@@ -88,8 +98,8 @@ c
       logical 
      &     iatype_pt_chg
       integer 
-     &     iqshell, nqshells, nrad, nang, ntheta, nphi, iatype, iqrot,
-     &     ntypes
+     &     iqshell, nqshells, nqmax, nrad, nang, ntheta, nphi, 
+     &     iatype, iqrot, ntypes
 c
       integer MX_l_ang, IAC_MAX, MAX_CHUNK
 c
@@ -118,7 +128,7 @@ c
 c
 c     Integers
 c
-     & iqshell(4,MXqshells), nqshells, 
+     & iqshell(4,MXqshells), nqshells, nqmax, 
      & nrad(dft_ntags_bsmx), nang(dft_ntags_bsmx), 
      & ntheta(MXagrid), nphi(MXagrid), iatype(dft_max_cent), iqrot, 
      & ntypes

@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.89 1997-10-31 23:20:39 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.90 1997-11-14 01:14:28 d3h449 Exp $
 c     
       implicit none
 c
@@ -12,11 +12,10 @@ c
       integer iVcoul_opt
       integer iVxc_opt
       integer iter
-      integer g_dens(*), g_movecs(*), g_vxc(*), 
+      integer g_dens(2), g_movecs(2), g_vxc(4), 
      &        g_fock, g_svecs, isvals, 
      &        g_cdinv, g_xcinv, g_2ceri, g_scr
-      integer g_scr2, g_scr3, ltmpm, itmpm
-      double precision sum, rho_n
+      double precision rho_n
 c     
 #include "bas.fh"
 #include "geom.fh"
@@ -39,7 +38,6 @@ c
 c
       logical oprint, oprint_sym
       double precision Exc(2), rms(2), derr(2), n3c_dbl_r, availm_r
-      double precision energy
       integer noc(2), nmo(2), icall(2)
       integer n3c_dbl, n3c_int, n_batch
       integer avail, availm
@@ -51,7 +49,6 @@ c
       external dft_n3cdbl
       Integer l_eval
       integer k_eval(2)
-      Double Precision rmoments(3) ! dipole
       integer lmax              ! CMM
       integer finest            ! CMM
       integer natoms, nTotEl
@@ -59,15 +56,18 @@ c
       integer i, j, iw
       integer me, nproc
       integer g_tmp, g_fockt, g_s, g_wght, g_xyz
-      integer nheap, nsets, nstack
-      integer ispin, nxang, idone
+      integer nheap, nstack
+      integer ispin, idone
       integer nexc
       integer iswitc
       integer itol_max, iaoacc_max
-      integer mxshbf_ao, nao2_max, batch_max, nshells_ao, icount
-      integer idmtot, nshells, nprint
+      integer nao2_max, batch_max, icount
+      integer idmtot, nprint
       integer leneval, lcd_coef, icd_coef
-      double precision ecoul, ecore, aaz
+      integer lcntoce, icntoce, lcntobfr, icntobfr,
+     &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
+     &        nscr, lscr, iscr, max_component
+      double precision ecoul, ecore
       double precision pp, delta
       double precision anucl_charg, anel
       double precision anoca, anocb, onempp
@@ -84,7 +84,7 @@ c     for the entire convergence sequence.
 c     
       logical diising, damping, levelshifting
       logical keep_damp_on,keep_levl_on, keep_diis_on
-      Logical LResult, IOLGC, mulliken, do_gradients, lSPM
+      Logical LResult, IOLGC, mulliken, lSPM
       logical converged, wght_GA
       logical oprint_parm, oprint_conv, oprint_vecs, 
      &        oprint_eval, oprint_syma, oprint_time, 
@@ -141,18 +141,33 @@ c
          check_shift = .false.      
       endif
 c     
-c     Determine the characteristics of the AO and CD Gaussian basis sets.
-c     (from NWdft data structures, not the nwchem objects)
-c     
-      if (.not. bas_numbf(ao_bas_han,nbf_ao))then
-         call errquit('Exiting from dft_scf',1)
-      endif 
       if (.not. geom_ncent(geom, natoms))
      &   call errquit('dft_scf: geom_ncent failed',73)     
       if (.not. geom_nuc_charge(geom, anucl_charg))
      &   call errquit('dft_scf: geom_nuc_charge failed', 0)
 c     
       anel = int(anucl_charg) - rcharge
+c
+c     Pre-compute mapping vectors
+c 
+      if (.not.ma_push_get
+     &   (mt_int,nshells_ao,'cntoce map',lcntoce,icntoce))
+     &   call errquit('dft_scf:push_get failed', 13)
+      if (.not.ma_push_get
+     &   (mt_int,nshells_ao*2,'cntoce map',lcntobfr,icntobfr))
+     &   call errquit('dft_scf:push_get failed', 13)
+      if (.not.ma_push_get
+     &   (mt_int,natoms*2,'cntoce map',lcetobfr,icetobfr))
+     &   call errquit('dft_scf:push_get failed', 13)
+c     
+      call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
+     &                int_mb(icetobfr), natoms, nshells_ao)
+c
+c     Set aside some memory for reduced density matrix
+c
+      if (.not.MA_Push_Get(MT_Dbl,ipol*natoms*natoms,'rdens_atom',
+     &   lrdens_atom,irdens_atom))
+     &   call errquit('dft_scf: cannot allocate rdens_atom',0)
 c     
 c     determine pattern of orbitals' occupancy
 c     
@@ -202,11 +217,6 @@ c     Determine whether to fit the electronic charge density.
 c     
       CDFIT = .FALSE.
       if (iVcoul_opt.eq.1)CDFIT = .TRUE.
-      if (CDFIT)then
-         if (.not. bas_numbf(CD_bas_han,nbf_cd))then
-            call errquit('Exiting from dft_scf',1)
-         endif 
-      endif
       XCFIT = .FALSE.
       if (iVxc_opt.eq.1)XCFIT = .TRUE.
 c     
@@ -240,12 +250,26 @@ c         avail = MA_inquire_stack(mt_dbl)
          avail = MA_inquire_avail(mt_dbl)
          call ga_igop(msg_min_stack_avail, avail, 1, 'min')
 c     
-c        subtract off a few bits for later use, e.g., quadrature
+c        estimate and subtract off amount needed for DIIS
+c
+         availm = avail - ((nfock+4)*nbf_ao*nbf_ao)/nproc
+c
+c        estimate and subtract off amount needed for XC numerical integration
 c     
-c         availm = avail - ipol*(nbf_ao + nbf_cd + nbf_xc) - 125000
-c     
-         availm = avail - ipol*(nbf_ao + nbf_cd + nbf_xc) - 
-     &                    ((nfock+4)*nbf_ao*nbf_ao)/nproc - 1250000
+         max_component = (nbf_ao_mxang+1)*(nbf_ao_mxang+2)/2 
+         if (nbf_ao_mxang .eq. 0)then
+            max_elem_ang_scr = max_component * 3
+         elseif (nbf_ao_mxang .le. 3)then
+            max_elem_ang_scr = max_component * 9
+         else ! general case
+            max_elem_ang_scr = max_component * 28
+         endif 
+c
+         nscr = 3*nq*nbf_ao_mxcont + 
+     &          max(3*nq*nbf_ao_mxprim,nq*max_elem_ang_scr) + 1
+c
+         availm = availm - ipol*(nbf_ao + nbf_cd + nbf_xc) - nscr
+     &                   - 100000
 c
          availm_r = dble(availm)
          availm_r = min(availm_r,n3c_dbl_r)
@@ -256,18 +280,12 @@ c
 c        Loops are parallelized over the products of AO shells
 c        (check for zero ... must be at least 1).
 c     
-         if (.not. bas_nbf_cn_max(AO_bas_han,mxshbf_ao))then
-            call errquit('Exiting in dft_scf.',1)
-         endif
-         if (.not. bas_numcont(AO_bas_han,nshells_ao))then
-            call errquit('Exiting in dft_scf.',2)
-         endif
 c     
          icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
          icount = max(icount,1)
          if (nproc.eq.1)icount = 1
 c     
-         nao2_max = mxshbf_ao**2
+         nao2_max = nbf_ao_mxnbf_cn**2
 c
 c        compute size of largest block of integrals computed
 c
@@ -403,7 +421,7 @@ c
 c     
 c     Dump DFT parameters (if debugging) to see if they make sense
 c     
-      if (me.eq.0.and.oprint_info)call dft_dump_info
+      if (me.eq.0.and.oprint_info)call dft_dump_info(me)
 c     
 c     Get initial density.
 c     
@@ -593,6 +611,18 @@ c        Note that g_dens(1) now contains the alpha density
 c        matrix and g_dens(2) contains the beta
 c     
       endif
+c
+c     Pre-compute reduced density matrices over atoms
+c 
+      call dfill(ipol*natoms*natoms, 0.0d0, dbl_mb(irdens_atom), 1)
+      nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
+      if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
+     &   call errquit('dft_scf: cannot allocate scr',0)
+      call util_ga_mat_reduce(nbf_ao, natoms, int_mb(icetobfr), g_dens, 
+     &                        ipol, dbl_mb(irdens_atom), 'rms', 
+     &                        dbl_mb(iscr), nbf_ao_mxnbf_ce)
+      if (.not.ma_pop_stack(lscr))
+     &   call errquit('dft_scf: cannot pop stack',0)
 c     
 c     Compute the XC potential and energy.
 c     
@@ -602,7 +632,9 @@ c
       if (ipol.eq.2)call ga_zero(g_vxc(2))
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
       call xc_getv(rtdb, Exc, nExc, iVxc_opt, g_xcinv, g_dens, 
-     &             g_vxc, IOLGC, g_wght, g_xyz, wght_GA, rho_n)
+     &             g_vxc, IOLGC, g_wght, g_xyz, wght_GA, rho_n,
+     &             dbl_mb(irdens_atom), int_mb(icntoce), 
+     &             int_mb(icntobfr), int_mb(icetobfr), natoms)
       call ga_sync
       call ga_dadd(1.d0, g_vxc(1), 1.d0, g_fock, g_fock)
       if (ipol.gt.1)then
@@ -956,16 +988,15 @@ c     computation of <S2> for open shell
 c     
       if ((ipol.gt.1).and.(oprint_interm_S2)) then
 
-         call dft_s2_value(geom,AO_bas_han,.false.,noc(1),noc(2),
-     &        nbf_ao,g_dens(1),g_dens(2))
-
+         call dft_s2_value(geom, AO_bas_han, .false., noc(1), noc(2),
+     &                     nbf_ao, g_dens(1), g_dens(2))
       endif
 c     
 c     
 c     Form the total density matrix.
 c     
       if (ipol.eq.2)then
-         call ga_dadd(one,g_dens(1),one,g_dens(2),g_dens(1))
+         call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
       endif
       call ga_sync
 c     
@@ -1225,10 +1256,7 @@ c
 c     print stolen for uhf.F
 c     
       if (util_print('schwarz',print_high).and.(.not.CDFIT))then
-         if (.NOT. bas_numcont(AO_bas_han, nshells))
-     &      Call ErrQuit
-     &      ('dft_scf: problem with call to bas_numcont', AO_bas_han)
-         call schwarz_print(natoms, nshells)
+         call schwarz_print(natoms, nshells_ao)
       endif
 c     
       if (me .eq. 0)then
@@ -1352,11 +1380,16 @@ c
       endif
       if (.not.ma_pop_stack(l_occ))
      &   call errquit('dft_scf: cannot pop stack',0)
-c     
-c     temp set converged to do multiple grid cks w/ 1 iter 
+      if (.not.ma_pop_stack(lrdens_atom))
+     &   call errquit('dft_scf: cannot pop stack',0)
+      if (.not.ma_pop_stack(lcetobfr))
+     &   call errquit('dft_scf: cannot pop stack',0)
+      if (.not.ma_pop_stack(lcntobfr))
+     &   call errquit('dft_scf: cannot pop stack',0)
+      if (.not.ma_pop_stack(lcntoce))
+     &   call errquit('dft_scf: cannot pop stack',0)
 c
-      dft_scf = .true.
-c      dft_scf = converged
+      dft_scf = converged
 c
       return
 c     
@@ -1364,11 +1397,160 @@ c
 c     
       end
 
+      subroutine build_maps(basis, cntoce, cntobfr, cetobfr, natoms, 
+     &                      nshells)
+      implicit none
+      integer basis, natoms, nshells
+      integer cntoce(nshells), cntobfr(2,nshells), cetobfr(2,natoms)
+c      
+#include "bas.fh"
+c
+      integer ish, iat
+c     
+c     Build maps (for speed).
+c     
+      do ish = 1, nshells
+         if (.not. bas_cn2ce(basis, ish, cntoce(ish)))
+     &        call errquit('build_maps: bad basis', 0)
+      end do
+c
+      do ish = 1, nshells
+         if (.not. bas_cn2bfr(basis,ish,cntobfr(1,ish),cntobfr(2,ish)))
+     &        call errquit('build_maps: bad basis', 0)
+      end do
+c
+      do iat = 1, natoms
+         if (.not. bas_ce2bfr(basis,iat,cetobfr(1,iat),cetobfr(2,iat)))
+     &        call errquit('build_maps: bad basis', 0)
+      end do
+c
+      return
+      end
+      subroutine util_ga_mat_reduce(n, nr, map, g_a, n_a, r, op,
+     &                              scr, mxmap)
+      implicit none
+c     
+      integer n                         ! Original size [input]
+      integer nr                        ! Reduced size  [input]
+      integer map(2,nr)                 ! map(1,*)=lo, map(2,*)=hi [input]
+      integer n_a                       ! number of GAs to reduce
+      integer g_a(n_a)                  ! Original GA handle(s) [input]
+      double precision r(nr,nr,n_a)     ! Reduced matrix [output]
+      integer mxmap                     ! max size of map vector
+      double precision scr(mxmap,mxmap) ! scratch
+      character*(*) op                  ! Reduction operation
+c     
+c     R(i,j) <= R(i,j) op A(map(1,i):map(2,i),map(1,j):map(2,j))
+c     
+c     where op is one of 'abssum', 'absmax', 'rms' (extend as necessary)
+c     
+      integer ir, jr, i, j, k, ielems, jelems
+      double precision sum
+c     
+      do k = 1, n_a
+c
+c         write(6,*) ' util_mat_reduce: input matrix '
+c         call ga_print(g_a(k))
+c     
+         do jr = 1, nr
+            do ir = 1, nr
+               sum = 0.0d0
+               ielems = map(2,ir) - map(1,ir) + 1
+               jelems = map(2,jr) - map(1,jr) + 1
+               call ga_get(g_a(k), map(1,ir), map(2,ir), map(1,jr), 
+     &                     map(2,jr), scr, mxmap)
+               if (op .eq. 'abssum') then
+                  do j = 1, jelems
+                     do i = 1, ielems
+                        sum = sum + abs(scr(i,j))
+                     end do
+                  end do
+               else if (op .eq. 'absmax') then
+                  do j = 1, jelems
+                     do i = 1, ielems
+                        sum = max(sum, abs(scr(i,j)))
+                     end do
+                  end do
+               else if (op .eq. 'rms') then
+                  do j = 1, jelems
+                     do i = 1, ielems
+                        sum = sum + scr(i,j)*scr(i,j)
+                     end do
+                  enddo
+                  sum = sqrt(sum)
+               else
+                  call errquit('util_ga_mat_reduce: unknown op', 0)
+               end if
+               r(ir,jr,k) = max(r(ir,jr,k),sum)
+            end do
+         end do
+c         write(6,*) ' util_mat_reduce: reduced matrix '
+c         call output(r(1,1,k), 1, nr, 1, nr, nr, nr, 1)
+      enddo
+c     
+      end
+      subroutine util_irreg_mat_reduce(n_row, n_col, nr_row, nr_col, 
+     &                                 row_map, col_map, a, r, op)
+      implicit none
+c     
+      integer n_row                      ! Original row size [input]
+      integer n_col                      ! Original col size [input]
+      integer nr_row                     ! Reduced row size  [input]
+      integer nr_col                     ! Reduced col size  [input]
+      integer row_map(2,nr_row)          ! map(1,*)=lo, map(2,*)=hi [input]
+      integer col_map(2,nr_col)          ! map(1,*)=lo, map(2,*)=hi [input]
+      double precision a(n_row, n_col)   ! Original matrix [input]
+      double precision r(nr_row, nr_col) ! Reduced matrix [output]
+      character*(*) op                   ! Reduction operation
+c     
+c     R(i,j) <= R(i,j) op A(map(1,i):map(2,i),map(1,j):map(2,j))
+c     
+c     where op is one of 'abssum', 'absmax', 'rms' (extend as necessary)
+c     
+      integer ir, jr, i, j
+      double precision sum
+c     
+c      write(6,*) ' util_mat_reduce: input matrix '
+c      call output(a, 1, n_row, 1, n_col, n_row, n_col, 1)
+c     
+      do jr = 1, nr_col
+         do ir = 1, nr_row
+            sum = 0.0d0
+            if (op .eq. 'abssum') then
+               do j = col_map(1,jr), col_map(2,jr)
+                  do i = row_map(1,ir), row_map(2,ir)
+                     sum = sum + abs(a(i,j))
+                  end do
+               end do
+            else if (op .eq. 'absmax') then
+               do j = col_map(1,jr), col_map(2,jr)
+                  do i = row_map(1,ir), row_map(2,ir)
+                     sum = max(sum, abs(a(i,j)))
+                  end do
+               end do
+            else if (op .eq. 'rms') then
+               do j = col_map(1,jr), col_map(2,jr)
+                  do i = row_map(1,ir), row_map(2,ir)
+                     sum = sum + a(i,j)*a(i,j)
+                  end do
+               enddo
+               sum = sqrt(sum)
+            else
+               call errquit('util_mat_reduce: unknown op', 0)
+            end if
+            r(ir,jr) = max(r(ir,jr),sum)
+         end do
+      end do
+c     
+c      write(6,*) ' util_mat_reduce: reduced matrix '
+c      call output(r, 1, nr_row, 1, nr_col, nr_row, nr_col, 1)
+      end
       subroutine dft_dump_info(me)
       implicit none
       integer i, me
 c      
 #include "cdft.fh"
+c
       write(*,*)' me = ',me
 c
 c     Logicals
