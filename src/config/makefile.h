@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.70 1994-10-07 21:00:51 d3g681 Exp $
+# $Id: makefile.h,v 1.71 1994-10-11 19:35:44 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -218,6 +218,7 @@ ifeq ($(TARGET),PARAGON)
   FOPTIONS = -Knoieee
   COPTIONS = -Knoieee
  FOPTIMIZE = -O2 -Minline=1000
+FVECTORIZE = -O2 -Minline=1000 -Mvect
  COPTIMIZE = -O2
 
 #
@@ -247,20 +248,21 @@ ifeq ($(TARGET),DELTA)
 #
 # DELTA/IPSC running NX
 #
-    SUBDIRS_EXTRA = blas lapack
-
+    SUBDIRS_EXTRA = lapack
+# blas
         FC = if77
         CC = icc
        CPP = /usr/lib/cpp
         AR = ar860
     RANLIB = @echo
 
-   INSTALL = rcp $@ delta1:
+   INSTALL = "strip860 nwchem; rcp nwchem delta1: &"
  MAKEFLAGS = -j2 
 
   FOPTIONS = -Knoieee
   COPTIONS = -Knoieee
  FOPTIMIZE = -O2 -Minline=1000
+FVECTORIZE = -O2 -Miniline=1000 -Mvect
  COPTIMIZE = -O2
 
    DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
@@ -268,7 +270,7 @@ ifeq ($(TARGET),DELTA)
              -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
 	     -lstepper -lmoints \
              -lguess -lglobal -lutil \
-             -lglobal -lpeigs -ltcgmsg $(LIBDIR)/liblapack.a -llapack -lkmath -node
+             -lglobal -lpeigs_delta -ltcgmsg $(LIBDIR)/liblapack.a -llapack -lkmath -node
 
  EXPLICITF = FALSE
 endif

@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.13 1994-10-06 00:19:26 d3g681 Exp $
+# $Id: makelib.h,v 1.14 1994-10-11 19:35:46 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -37,10 +37,13 @@
 #
 # B)  To modify the optimization being used specify on the command
 #     line C/FDEBUG or C/FOPTIMIZE to override the flags for the 
-#     OBJ and OBJ_OPTIMIZE files respectively
+#     OBJ and OBJ_OPTIMIZE files respectively.
 #
 #         e.g.  make FDEBUG="-g -O1"
 #               make FOPTIMIZE="-O3 -Superfast -bugs" FDEBUG="-O2"
+#
+# C)  The makelib.h defines the macro LIBRARY_PATH to be the full
+#     path of the library being built.
 #
 #
 # Sample makefile
