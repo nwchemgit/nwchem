@@ -72,7 +72,9 @@ c
       endif
 c
       else
-      if(ipmf(i,1).eq.7) then
+      if(ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) then
+      nump=nump+lgroup(ipmf(i,2))
+      elseif(ipmf(i,1).eq.7) then
       nump=nump+3
       else
       nump=nump+1
@@ -198,8 +200,8 @@ c
      + (rpmf(i,j),j=1,4),1,lgroup(ipmf(i,2))
       if(lgroup(ipmf(i,2)).le.0)
      + call errquit('No atoms selected in group',ipmf(i,2))
-      write(lfntop,1002) igroup(ipmf(i,2),k)+io
-      write(lfntop,1002) (igroup(ipmf(i,2),j)+io,j=1,lgroup(ipmf(i,2)))
+      write(lfntop,1002) igroup(ipmf(i,2),k)
+      write(lfntop,1002) (igroup(ipmf(i,2),j),j=1,lgroup(ipmf(i,2)))
     8 continue
       else
       natoms=0

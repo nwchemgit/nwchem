@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam)
 c
-c $Id: pre_mknoe.F,v 1.26 2001-11-06 06:15:20 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.27 2001-11-21 06:20:08 d3j191 Exp $
 c
       implicit none
 c
@@ -13,7 +13,7 @@ c
 c
       integer lfnout,lfntop,lfncmd,lfnnoe,lfnpmf
       character*255 filtop,filcmd,filnoe,filpmf
-      character*80 card,card2
+      character*255 card,card2
 c
       integer nsa,nwa,noe
       integer mat,msa,mwa,mnoe,msm,nsm,msb,nsb
