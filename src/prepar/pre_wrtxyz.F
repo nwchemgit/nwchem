@@ -1,7 +1,7 @@
       logical function pre_wrtxyz(lfnout,lfnxyz,filxyz,lfnqqq,filqqq,
      + num,mat,isat,xs,qsa,msa,nsa)
 c
-c $Id: pre_wrtxyz.F,v 1.1 1999-07-16 16:34:06 d3j191 Exp $
+c $Id: pre_wrtxyz.F,v 1.2 2000-01-10 19:27:14 d3j191 Exp $
 c
       implicit none
 c
@@ -43,7 +43,7 @@ c
       filqqq=filxyz
       i=index(filxyz,'.xyz')
       if(i.gt.1) then
-      filqqq(i:i+2)='.q '
+      filqqq(i:i+5)='.xyzq '
       else
       filqqq=filxyz(1:length)//'_q'
       endif

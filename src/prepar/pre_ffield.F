@@ -4,7 +4,7 @@
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)
 c
-c $Id: pre_ffield.F,v 1.14 1999-05-10 22:38:02 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.15 2000-01-10 19:27:14 d3j191 Exp $
 c
       implicit none
 c
@@ -53,6 +53,7 @@ c
     1 continue
       read(lfnpar,1000,err=9999,end=999) card
  1000 format(a)
+      if(card(1:1).eq.'#') goto 1
     2 continue
 c
 c     1-4 electrostatic scaling
@@ -101,6 +102,7 @@ c
       atyp2(6:6)=' '
     3 continue
       read(lfnpar,1000,end=999) card
+      if(card(1:1).eq.'#') goto 3
       if(card(1:5).eq.'Cross') goto 2
       if(card(1:5).eq.'Bonds') goto 2
       if(card(1:6).eq.'Angles') goto 2
@@ -167,6 +169,7 @@ c
       atyp2(6:6)=' '
     6 continue
       read(lfnpar,1000,end=999) card
+      if(card(1:1).eq.'#') goto 6
       if(card(1:5).eq.'Atoms') goto 2
       if(card(1:5).eq.'Bonds') goto 2
       if(card(1:6).eq.'Angles') goto 2
@@ -218,6 +221,7 @@ c
       btyp2(6:6)=' '
     9 continue
       read(lfnpar,1000,end=999) card
+      if(card(1:1).eq.'#') goto 9
       if(card(1:5).eq.'Atoms') goto 2
       if(card(1:5).eq.'Cross') goto 2
       if(card(1:6).eq.'Angles') goto 2
@@ -257,6 +261,7 @@ c
       btyp3(6:6)=' '
    12 continue
       read(lfnpar,1000,end=999) card
+      if(card(1:1).eq.'#') goto 12
       if(card(1:5).eq.'Atoms') goto 2
       if(card(1:5).eq.'Cross') goto 2
       if(card(1:5).eq.'Bonds') goto 2
@@ -301,6 +306,7 @@ c
       nd=0
    15 continue
       read(lfnpar,1000,end=999) card
+      if(card(1:1).eq.'#') goto 15
       if(card(1:5).eq.'Atoms') goto 2
       if(card(1:5).eq.'Cross') goto 2
       if(card(1:5).eq.'Bonds') goto 2
@@ -354,6 +360,7 @@ c
       btyp4(6:6)=' '
    18 continue
       read(lfnpar,1000,end=999) card
+      if(card(1:1).eq.'#') goto 18
       if(card(1:5).eq.'Atoms') goto 2
       if(card(1:5).eq.'Cross') goto 2
       if(card(1:5).eq.'Bonds') goto 2
