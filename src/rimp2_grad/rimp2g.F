@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.2 1998-04-21 17:35:26 gg502 Exp $
+C$Id: rimp2g.F,v 1.3 1998-04-26 18:58:41 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -44,6 +44,7 @@ C
       Integer AOBas, FitBas, Bases(2), Geom
       Integer NAOBF, TopSpin, NFit, RefNAO, NFrzOcc, NFrzVir
       Integer ALo(MaxSpin), AHi(MaxSpin), ILo(MaxSpin), IHi(MaxSpin)
+      Integer NFrz(MaxSpin)
       Integer I, Me
       Integer H_Contrib, Contrib_Idx
       Double precision Thresh, CorEner, RefEner, TotEner, MinEVal
@@ -69,6 +70,8 @@ C
       Logical PrInfo
 C
       Integer MaxDASiz, TotDASiz, Size, SizeB
+C
+      Data NFrz/0, 0/
 C
 C     Initialize this module
 C
@@ -293,7 +296,8 @@ C     * Energy calculation *
 C     **********************
 C
       Status = Status .AND.
-     $   RIMP2_Driver_EG( D_Int, FNInt, TopSpin, NCorBF, IHi, AHi, NFit,
+     $   RIMP2_Driver_EG( D_Int, FNInt, TopSpin, NCorBF,
+     $     NFrz, IHi, AHi, NFit,
      $   FitBas, Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx),
      $   CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2))
 C
