@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.19 1995-04-10 01:39:29 gg502 Exp $
+C$Id: rimp2.F,v 1.20 1995-04-19 22:14:07 gg502 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -15,8 +15,10 @@ C
 #include "numerical_constants.fh"
 #include "util.fh"
 C
-      Logical MOVecs_Read_Header, MOVecs_Read, Int_Normalize
-      External MOVecs_Read_Header, MOVecs_Read, Int_Normalize
+      Logical MOVecs_Read_Header, MOVecs_Read, MOVecs_Gather,
+     $   Int_Normalize
+      External MOVecs_Read_Header, MOVecs_Read, MOVecs_Gather,
+     $   Int_Normalize
 C
       Integer LNBlnk
       External LNBlnk
@@ -185,6 +187,8 @@ C
 C
 C     Create the mapping functions
 C
+c$$$      Call Mk_Correl_Map(RTDB, MxNMO, TopSpin, NMO, NCorBF,
+c$$$     $   Int_MB(I_CorMap), FullRef )
       Call Mk_Correl_Map(RTDB, MxNMO, TopSpin, NMO, Dbl_MB(I_Full_Occ),
      $   Dbl_MB(I_Full_Eval), NCorBF, Int_MB(I_CorMap), FullRef )
 C
@@ -213,12 +217,11 @@ C     Form the new occupation, eigenvalues, and orbitals for
 C     the correlated calculation
 C
       Do I = 1, TopSpin
-         Call Drop_Orbitals(
-     $      Dbl_MB(I_Full_Occ + MxNMO * (I-1) ),
-     $      Dbl_MB(I_Full_Eval + MxNMO * (I-1) ), G_Full_AOXF(I),
-     $      NCorBF(I), Int_MB(I_CorMap + MxNMO * (I-1) ),
+         If ( .NOT. MOVecs_Gather( FNVec, I, NCorBF(I),
+     $      Int_MB(I_CorMap + MxNMO * (I-1) ),
      $      Dbl_MB(I_Occ + MxNCorBF * (I-1) ),
-     $      Dbl_MB(I_Eval + MxNCorBF * (I-1) ), G_AOXF(I) )
+     $      Dbl_MB(I_Eval + MxNCorBF * (I-1) ), G_AOXF(I) ) )
+     $      Call ErrQuit('RIMP2: Unable to read reference', I)
       EndDo
 C
 C     Determine ranges to transform.  We also determine the info for 
