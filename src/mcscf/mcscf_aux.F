@@ -427,27 +427,31 @@ c$$$     $   call errquit('mcscf_getmovecs: failed pop stack',0)
 c
 c  Import MO vectors if file exist
 c
-       inquire(file='vecs',exist=ovecs)
-       if (ovecs) then
-         if (util_print('information',print_default)) then
-           if (ga_nodeid().eq.0) write(6,670)
- 670       format(' Importing MO vectors from external file')
+      if (ga_nodeid() .eq. 0) then
+         inquire(file='vecs',exist=ovecs)
+         if (ovecs) then
+            if (util_print('information',print_default)) then
+               if (ga_nodeid().eq.0) write(6,670)
+ 670           format(' Importing MO vectors from external file')
+            endif
+            if (.not.ma_push_get(MT_DBL, nbf,'ophase', l_v, k_v))
+     $           call errquit('mcscf_getmovecs: cannot allocate',0)
+            open(unit=19,file='vecs',status='old',form='formatted')
+            read(19,*) nn
+            do i=1,nbf
+               do j1=1,nbf,6
+                  j2 = min(nbf,(j1+5))
+                  read(19,913) (dbl_mb(k_v+j-1),j=j1,j2)
+ 913              format(6e20.11)
+               enddo
+               call ga_put(g_movecs,1,nbf,i,i,dbl_mb(k_v),nbf)
+            enddo
+            close(19)
+            if (.not.ma_pop_stack(l_v))
+     $           call errquit('mcscf_getmovecs: failed pop stack',0)
          endif
-         if (.not.ma_push_get(MT_DBL, nbf,'ophase', l_v, k_v))
-     $     call errquit('mcscf_getmovecs: cannot allocate',0)
-         open(unit=19,file='vecs',status='old',form='formatted')
-         read(19,*) nn
-         do i=1,nbf
-           do j1=1,nbf,6
-             j2 = min(nbf,(j1+5))
-             read(19,913) (dbl_mb(k_v+j-1),j=j1,j2)
- 913         format(6e20.11)
-           enddo
-           call ga_put(g_movecs,1,nbf,i,i,dbl_mb(k_v),nbf)
-         enddo
-         if (.not.ma_pop_stack(l_v))
-     $     call errquit('mcscf_getmovecs: failed pop stack',0)
-       endif
+      endif
+      call ga_sync()
 c
 c     Orthogonalize all input/guess vectors ... don't mix the occupied
 c     with the virtuals.
@@ -629,7 +633,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.13 1996-07-17 16:32:37 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.14 1996-08-29 17:19:14 d3g681 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -720,7 +724,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.13 1996-07-17 16:32:37 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.14 1996-08-29 17:19:14 d3g681 Exp $
 c
 c   Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c   partially occupied orbitals (trivially)

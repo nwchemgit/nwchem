@@ -45,12 +45,12 @@ include ../config/makelib.h
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(mcscf_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
 $(LIBRARY_PATH)(mcscf_aux.o):	$(INCDIR)/util.fh $(INCDIR)/sym.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(mcscf.o):	$(INCDIR)/util.fh $(INCDIR)/sym.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh ./mcscfprof.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(mcscf_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(mcscf_orb.o):	$(INCDIR)/util.fh $(INCDIR)/sym.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh ./mcscfprof.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(mcscf.o):	$(INCDIR)/util.fh $(INCDIR)/sym.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh ./mcscfprof.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(mcscf_b.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(mcscf_prcnd.o):	$(INCDIR)/sym.fh $(INCDIR)/rtdb.fh ./mcscfprof.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(mcscf_orb.o):	$(INCDIR)/util.fh $(INCDIR)/sym.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh ./mcscfprof.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(mcscf_ohvmo.o):	./mcscfprof.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(mcscf_ohvao.o):	./mcscfprof.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(mcscf_ohv2e.o):	./mcscfprof.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 

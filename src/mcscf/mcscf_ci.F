@@ -144,7 +144,9 @@ c   otherwise generate guess via Aufbau rules with correct
 c   symmetry. Automatic
 c
       call util_file_name('civec', .false.,.false.,civec_in)
-      inquire(file=civec_in,exist=civec_saved)
+      if (ga_nodeid() .eq. 0) inquire(file=civec_in,exist=civec_saved)
+      call ga_brdcst(666, civec_saved, ma_sizeof(mt_log, 1, mt_byte), 0)
+c
       if ((ociread).and.(civec_saved)) then
         if (.not.(file_read_ga(civec_in,g_civec)))
      $    call errquit('mcscf_ci: cannot read CI vector',0)
