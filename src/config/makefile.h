@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.1.1.1 1994-03-29 06:44:24 d3g681 Exp $
+# $Id: makefile.h,v 1.2 1994-03-30 03:04:49 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -10,7 +10,7 @@
 # Set TOPDIR to point to your top-level directory that contains
 # src, lib, config, ... (SRCDIR, etc., are derived from TOPDIR)
 #
-     TOPDIR = /msrc/home/d3g681/allnew
+     TOPDIR = /msrc/home/d3g681/nwchem
      SRCDIR = $(TOPDIR)/src
      LIBDIR = $(TOPDIR)/lib
      BINDIR = $(TOPDIR)/bin
