@@ -35,14 +35,15 @@ LIBRARY   = libpfft.a
 ifeq ($(NWCHEM_TARGET),SP1)
   ifeq ($(USE_ESSL),NO) 
      LIB_DEFINES = -DEMSLFFT
-     OBJ = nwfft3d.o
+     OBJ_OPTIMIZE = nwfft3d.o
   else
      LIB_DEFINES = -DESSLFFT
-     OBJ = nwfft3d.o iessl.o
+     OBJ_OPTIMIZE = nwfft3d.o 
+     OBJ = iessl.o
   endif
 else
   LIB_DEFINES = -DEMSLFFT
-  OBJ = nwfft3d.o
+  OBJ_OPTIMIZE = nwfft3d.o
 endif
 
 include $(NWCHEM_TOP)/src/config/makefile.h
