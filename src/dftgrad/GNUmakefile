@@ -3,7 +3,7 @@
          grad_dft.o      quaddexc0.o     \
          get_coul_den.o  grad_e_xc.o
 
-   USES_BLAS = force_dft.F
+   USES_BLAS = force_dft.F grad_e_xc.F
 
    LIBRARY = libdftgrad.a
 
