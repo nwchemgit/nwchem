@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.78 2000-05-05 23:23:54 edo Exp $
+# $Id: GNUmakefile,v 1.79 2000-08-11 10:32:23 bjohnson Exp $
 TARGET = $(NWCHEM_TARGET)
 include ./tools/armci/config/makecoms.h  
 include ./tools/armci/config/makemp.h  
@@ -40,7 +40,7 @@ endif
 #
 
 PFLAGS = -messages=first -leaks-at-exit=yes -follow-child-processes=yes \
-	 -windows=no
+	 -windows=no -cache-dir=/tmp/purify/cache -best-effort
 #PURIFY = purify $(PFLAGS)
 
 link nwchem_link:    
