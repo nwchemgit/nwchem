@@ -2,7 +2,7 @@
       logical function sym_char_table(zname, nop, nir, iclass_dim,
      +     zir, zclass, chars)
 c     
-C$Id: sym_char_tab.F,v 1.2 1998-06-15 22:15:49 d3g681 Exp $
+C$Id: sym_char_tab.F,v 1.3 1999-03-20 02:12:47 d3g681 Exp $
       implicit double precision (a-h,p-w),integer (i-n),logical (o)
       implicit character *8 (z),character *1 (x)
       implicit character *4 (y)
@@ -424,7 +424,7 @@ c
 c     
       data ic1h/2,2,1,1
      +     ,1,2/
-      data yrc1h/'a''','a'''''/
+      data yrc1h/'a''','a"'/
       data yc1h/'e','si.h'/
       data chc1h/
      +     1.000, 1.000,
@@ -669,7 +669,7 @@ c
 c     
       data ics/2,2,1,1
      +     ,1,2/
-      data yrcs/'a''','a'''''/
+      data yrcs/'a''','a"'/
       data ycs/'e','si.h'/
       data chcs/
      +     1.000, 1.000,
@@ -771,7 +771,7 @@ c
      +     ,1,3,2,9,10,7,5,6,13,14/
       data yrd4h/'a1g','a1u','a2g','a2u','b1g','b1u','b2g','b2u',
      +     'eg','eu'/
-      data yd4h/'e','c2','c4','c2''','c2''''','i','si.h','s4',
+      data yd4h/'e','c2','c4','c2''','c2"','i','si.h','s4',
      +     'si.v','si.d'/
       data chd4h/
      +     1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 
@@ -862,7 +862,7 @@ c
      +     ,1,4,3,2,13,16,10,7,8,9,22,19/
       data yrd6h/'a1g','a1u','a2g','a2u','b1g','b1u','b2g',
      +     'b2u','e1g','e1u','e2g','e2u'/
-      data yd6h/'e','c2','c3','c6','c2''','c2''''','i','si.h',
+      data yd6h/'e','c2','c3','c6','c2''','c2"','i','si.h',
      +     's6','s3','si.d','si.v'/
       data chd6h/
      +     1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 

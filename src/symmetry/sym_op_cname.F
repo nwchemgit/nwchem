@@ -1,6 +1,6 @@
       subroutine sym_op_class_name(op_type, order, power, direction,
      $     group_name, class)
-C$Id: sym_op_cname.F,v 1.3 1998-06-15 22:16:22 d3g681 Exp $
+C$Id: sym_op_cname.F,v 1.4 1999-03-20 02:12:47 d3g681 Exp $
       implicit none
 #include "inp.fh"
 c     
@@ -65,7 +65,7 @@ c
      $                 (abs(direction(2)-1.0d0) .lt. 1d-6)) then
                   class = 'c2'''
                else
-                  class = 'c2'''''
+                  class = 'c2"'
                endif
             else if (group_name.eq.'D2d' .or. group_name.eq.'D4d' .or. 
      $              group_name.eq.'D6d') then
@@ -84,7 +84,7 @@ c
      $                 abs(direction(2)+0.9659).lt.1d-3) then
                   class = 'c2'''
                else
-                  class = 'c2'''''
+                  class = 'c2"'
                endif
             else if (group_name(1:1).eq.'O') then
 c     
