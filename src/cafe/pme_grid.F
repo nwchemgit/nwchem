@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.16 2000-08-15 18:05:23 d3j191 Exp $
+c $Id: pme_grid.F,v 1.17 2000-08-28 17:00:23 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -24,8 +24,6 @@ c
 c
       epme=ecorr(ipset)
       call timer_stop(12)
-c
-      call pme_flag(0,0,me)
 c
       if(lpnode) then
 c
@@ -182,6 +180,7 @@ c     replaced by a ga_sync() at loss of performance
 c
       call pme_flag(1,-1,-1)
       if(lpnode) call pme_wait(1,np)
+cx      call ga_sync()
 c
 c     retrieve local slab from global array space
 c
@@ -378,16 +377,37 @@ c
       implicit none
 c
 #include "pme_common.fh"
+#include "msgids.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      real*8 timer_wall
+      external timer_wall
 c
       integer iflag,icolor
       integer il,ih,jl,jh,icolr
 c
+      real*8 ftimes(200)
+c
 c     wait until flag color on this node is icolor
 c
+      do 2 il=1,np
+      ftimes(il)=0.0d0
+    2 continue
+c
+      call timer_start(30)
       call ga_distribution(ga_flg,me,il,ih,jl,jh)
     1 continue
       call ga_get(ga_flg,il,ih,jl+iflag,jl+iflag,icolr,1)
       if(icolr.ne.icolor) goto 1
+      call timer_stop(30)
+      ftimes(me+1)=timer_wall(30)
+      call ga_dgop(mrg_d45,ftimes,np,'+')
+c
+c      if(me.eq.0) then
+c      write(*,1000) iflag,(ftimes(il),il=1,np)
+c 1000 format('flag',i5,/,(t10,8f12.6))
+c      endif
 c
       return
       end

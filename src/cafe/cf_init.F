@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg)
-c $Id: cf_init.F,v 1.52 2000-07-14 19:54:15 d3j191 Exp $
+c $Id: cf_init.F,v 1.53 2000-08-28 17:00:22 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1368,6 +1368,13 @@ c
       call cf_binit(dbl_mb(i_rang(2)),numh(2),2)
       call cf_binit(dbl_mb(i_rdih(2)),numd(2),2)
       call cf_binit(dbl_mb(i_rimp(2)),numi(2),2)
+c
+c     initialize pme flags
+c
+      if(ipme.gt.0) then
+      call pme_flag(0,0,me)
+      call pme_flag(1,0,me)
+      endif
 c
       return
       end
