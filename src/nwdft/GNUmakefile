@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.4 1994-10-26 08:48:32 og845 Exp $
+# $Id: GNUmakefile,v 1.5 1994-11-07 06:24:51 og845 Exp $
 
    OBJ = nwdft.o
 
@@ -14,7 +14,6 @@
       include/types.fh \
       include/quad.fh  \
       include/dimensions.fh  \
-      include/stdio.fh    \
       include/bas_new.fh
 
 
@@ -34,5 +33,4 @@ nwdft.o:  \
       include/io.fh    \
       include/types.fh \
       include/quad.fh  \
-      include/dimensions.fh  \
-      include/stdio.fh
+      include/dimensions.fh  
