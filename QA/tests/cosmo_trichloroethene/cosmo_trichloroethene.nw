@@ -1,0 +1,39 @@
+title "Trichloroethene BLYP/DZVP2 solvated (UA Radii)"
+
+start trichloro
+
+charge 0
+
+geometry  nocenter noautosym
+C                      -0.432708   -0.106760   -0.000110
+C                       0.651851   -0.916931    0.000102
+Cl                     -2.050484   -0.814197   -0.000276
+Cl                     -0.368033    1.642387   -0.000113
+Cl                      2.309119   -0.349158    0.000383
+H                       0.544897   -2.001406    0.000149
+end
+
+basis "ao basis" print
+H  library "DZVP2 (DFT Orbital)"
+C  library "DZVP2 (DFT Orbital)"
+Cl library "DZVP2 (DFT Orbital)"
+end
+
+dft
+   mult 1
+   xc becke88 lyp
+   convergence lshift 0.05
+   iterations 5000
+end
+cosmo
+  lineq  0
+  radius 1.962
+         2.178
+         2.376
+         2.376
+         2.376
+         0.000
+end
+task dft energy
+
+
