@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(card)
 c
-c $Id: ana_pltgrd.F,v 1.4 2000-01-04 19:07:53 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.5 2000-01-05 00:45:02 d3j191 Exp $
 c
       implicit none
 c
@@ -9,7 +9,6 @@ c
 c
       integer mgrd,i
       character*80 card,string
-      real*8 rcut
 c
       print*,card
       string=card(8:80)
