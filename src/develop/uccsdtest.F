@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.8 2000-04-26 00:34:13 d3h449 Exp $
+*     $Id: uccsdtest.F,v 1.9 2000-04-28 00:25:58 mg201 Exp $
 *
       implicit none
 #include "global.fh"
@@ -2324,7 +2324,7 @@ c
      $                          - t2ab(b,c,j,m)*iab(a+noa,m,i,k)
      $                          + t2ab(a,c,j,m)*iab(b+noa,m,i,k)
                         end do
-                        v = w +
+                        v = w 
      $                       + t1b(c,k)*iaa(i,j,a+noa,b+noa)
      $                       + t1a(a,i)*iab(j,k,b+noa,c+nob)
      $                       - t1a(b,i)*iab(j,k,a+noa,c+nob)
