@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.118 1999-06-29 01:43:27 d3g681 Exp $
+C     $Id: geom_input.F,v 1.119 1999-06-29 20:01:00 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -5500,7 +5500,7 @@ c
          endif
          if (err .lt. 1d-6) goto 100
       enddo
-      if (ga_nodeid() .eq. 0) then
+      if (ga_nodeid().eq.0 .and. util_print('warnings',print_low))then
          write(6,44) err
  44      format(/,'!! warning, imposition of constraints did not',
      $        ' converge.  dqmax=',1p,d8.1)

@@ -1,6 +1,6 @@
       logical function ga_iter_lsolve(n, maxiter, maxsub, tol,
      $     precond, product, ostall, oprint, g_b, g_soln, acc, iter)
-C$Id: ga_it_lsolve.F,v 1.10 1999-06-16 00:10:28 d3e129 Exp $
+C$Id: ga_it_lsolve.F,v 1.11 1999-06-29 20:01:15 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -79,8 +79,11 @@ c
       integer temp(maxdim), info ! For dgesv
       integer i, j, nsub
       logical odebug
+      logical owarn
 c
       odebug = util_print('debug lsolve',print_never)
+      owarn  = util_print('warnings',print_low) .and.
+     $     (ga_nodeid() .eq. 0)
 c
       if (maxsub .gt. maxdim) call errquit
      $     ('ga_iter_lsolve: maxsub > maxdim', maxdim)
@@ -235,7 +238,7 @@ c
          end if
          if (converged) goto 1000
          if (iter.eq.maxiter) then
-            if (ga_nodeid() .eq. 0) then
+            if (owarn) then
                write(6,*) ' ga_iter_lsolve: exceeded max iters ... ',
      $              'aborting solve'
                call util_flush(6)
@@ -247,7 +250,7 @@ c     If things are converging very slowly punt back to
 c     the caller for he/she to decide what should happen
 c
          if (ostall .and. convg_ratio .gt. 0.91d0) then
-            if (ga_nodeid() .eq. 0) then
+            if (owarn) then
                write(6,*) ' ga_iter_lsolve: convergence stagnant ... ',
      $              'aborting solve'
                call util_flush(6)
