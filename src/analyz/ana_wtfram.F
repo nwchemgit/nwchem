@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag)
 c
-c $Id: ana_wtfram.F,v 1.16 2000-07-06 17:32:49 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.17 2000-07-06 18:46:58 d3j191 Exp $
 c
       implicit none
 c
@@ -30,8 +30,8 @@ c
 c
       real*8 ana_atrad
       integer pre_atnum
-      character*255 ana_atcol
-      external ana_atrad,pre_atnum,ana_atcol
+      character*255 atom_color
+      external ana_atrad,pre_atnum,atom_color
 c
       if(me.eq.0) then
 c
@@ -236,9 +236,9 @@ c
       do 10 i=1,nsa
       if(isel(i).ne.0) then
       k=pre_atnum(sgmnam(i)(6:7))
-      color=ana_atcol(k)
+      color=atom_color(k)
       if(tag(i,2)(1:1).ne.' ') color=tag(i,2)
-      if(tag(i,2)(1:5).eq.'atom ') color=ana_atcol(k) 
+      if(tag(i,2)(1:5).eq.'atom ') color=atom_color(k) 
       if(k.gt.0) then
       if(tag(i,1)(1:3).eq.'cpk') then
       write(iunit,8001) (scale*x(i,j),j=1,3),scale*cpk*ana_atrad(k),
@@ -267,9 +267,9 @@ c
       xh(3)=0.5d0*(x(ib,3)+x(jb,3))
       if(tag(ib,1)(1:3).ne.'cpk') then
       k=pre_atnum(sgmnam(ib)(6:7))
-      color=ana_atcol(k)
+      color=atom_color(k)
       if(tag(ib,2)(1:1).ne.' ') color=tag(ib,2)
-      if(tag(ib,2)(1:5).eq.'atom ') color=ana_atcol(k) 
+      if(tag(ib,2)(1:5).eq.'atom ') color=atom_color(k) 
       write(iunit,8002) (scale*x(ib,j),j=1,3),
      + (scale*xh(j),j=1,3),scale*cpk*ana_atrad(1),
      + color(1:index(color,' ')-1)
@@ -279,9 +279,9 @@ c
       endif
       if(tag(jb,1)(1:3).ne.'cpk') then
       k=pre_atnum(sgmnam(jb)(6:7))
-      color=ana_atcol(k)
+      color=atom_color(k)
       if(tag(jb,2)(1:1).ne.' ') color=tag(jb,2)
-      if(tag(jb,2)(1:5).eq.'atom ') color=ana_atcol(k) 
+      if(tag(jb,2)(1:5).eq.'atom ') color=atom_color(k) 
       write(iunit,8002) (scale*x(jb,j),j=1,3),
      + (scale*xh(j),j=1,3),scale*cpk*ana_atrad(1),
      + color(1:index(color,' ')-1)

@@ -1,6 +1,6 @@
       real*8 function ana_atrad(number)
 c
-c $Id: ana_atrad.F,v 1.2 2000-06-30 19:02:47 d3j191 Exp $
+c $Id: ana_atrad.F,v 1.3 2000-07-06 18:46:58 d3j191 Exp $
 c
       implicit none
       integer number
@@ -21,38 +21,6 @@ c
      + 1.37, 1.36, 1.34, 1.30, 1.30 /
 c
       ana_atrad=1.1d-01*radius(number)
-c
-      return
-      end
-      character*255 function ana_atcol(number)
-      implicit none
-      integer number
-c
-      integer indexc(0:105)
-c
-      data indexc / 1,
-     + 8, 1, 1, 1, 1, 5, 3, 2, 1, 1,
-     + 9, 1, 1, 1, 7, 6, 1, 1, 1, 9,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1 /
-c
-      ana_atcol='white '
-      if(indexc(number).eq.1) ana_atcol='White '
-      if(indexc(number).eq.2) ana_atcol='Red '
-      if(indexc(number).eq.3) ana_atcol='Blue '
-      if(indexc(number).eq.4) ana_atcol='Green '
-      if(indexc(number).eq.5) ana_atcol='Gray '
-      if(indexc(number).eq.6) ana_atcol='Yellow '
-      if(indexc(number).eq.7) ana_atcol='Orange '
-      if(indexc(number).eq.8) ana_atcol='LightBlue '
-      if(indexc(number).eq.9) ana_atcol='Goldenrod '
 c
       return
       end
