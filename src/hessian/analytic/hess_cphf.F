@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.33 2001-12-26 21:16:43 windus Exp $
+C $Id: hess_cphf.F,v 1.34 2001-12-27 22:54:59 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -26,7 +26,7 @@ c
       integer g_aa(nw_max_atom*3)
       integer g_tmp, g_tmp2, g_sol
 c temp variables
-      integer g_rhs_x(200), alo(3), ahi(3), blo(2), bhi(2)
+      integer alo(3), ahi(3), blo(2), bhi(2)
 c
       character*256 cphf_rhs, cphf_sol
       character*255 movecs
@@ -229,99 +229,30 @@ c
      $                  num, ocphfprint)
       if (.not.ga_destroy(g_tmp))
      $  call errquit('hess_cphf: cannot destroy g_tmp',555)
-      
 c
-c     This is temporary until I can get the code working with multiple
-c     dimensional GAs: copy g_rhs into g_rhs_x which is an array of two-
-c     dimensional GAs.
-c
-      alo(2) = 1
-      ahi(2) = nbf
-      alo(3) = 1
-      ahi(3) = nbf
-      blo(1) = 1
-      bhi(1) = nbf
-      blo(2) = 1
-      bhi(2) = nbf
-      j = 0
-      do i = 1, ncent
-         j = j + 1
-         alo(1) = j
-         ahi(1) = j
-         g_rhs_x(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test a x')
-         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
-         j = j + 1
-         alo(1) = j
-         ahi(1) = j
-         g_rhs_x(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test a y')
-         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
-         j = j + 1
-         alo(1) = j
-         ahi(1) = j
-         g_rhs_x(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test a z')
-         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
-      enddo
-      if (ndens.eq.2) then
-      do i = 1, ncent
-         j = j + 1
-         alo(1) = j
-         ahi(1) = j
-         g_rhs_x(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test b x')
-         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
-         j = j + 1
-         alo(1) = j
-         ahi(1) = j
-         g_rhs_x(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test b y')
-         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
-         j = j + 1
-         alo(1) = j
-         ahi(1) = j
-         g_rhs_x(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test b z')
-         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
-      enddo
-      endif
-c
-c     call hess_moootoao(g_rhs_x, g_vecs, g_modx,
-c    $          oprint, ocphfprint,
-c    $          nocc, nvirt, ndens, n3xyz, num)
-c     call hess_modfock(g_rhs_x, g_vecs, g_modx, ndens, n3xyz,
-c    $                  tol2e, rtdb, geom, basis, jfac, kfac,
-c    $                  num, ocphfprint)
-      call hess_aotomo(g_rhs_x, g_vecs, g_modx,
+      call hess_aotomo2(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, num)
 c
 c Now form the Wax and Aa contributions
 c
-      call hess_fxwaxaa(g_rhs_x, g_wax, g_aa, nocc, nvirt,
+      call hess_fxwaxaa2(g_rhs, g_wax, g_aa, nocc, nvirt,
      $                  ndens, n3xyz)
 c
 c Transform ds/dx term into MO basis and scale by -0.5.
 c
       write(LuOut,*) 'Getting Ta again'
-      call sx_read_orig(g_rhs_x,nc,num,sx_dra_handle)
+      call sx_read(g_rhs,nc,num,sx_dra_handle)
 c
-      call hess_aotomo(g_rhs_x, g_vecs, g_modx,
+      call hess_aotomo2(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, num)
-      ind = 0
-      do ndns = 1, ndens
-       do in =1,nc
-         ind = ind + 1
-         call ga_dscal(g_rhs_x(ind),-pt5)
-         if (ocphfprint) then
-           if(ga_nodeid().eq.0)write(LuOut,*)
-           if(ga_nodeid().eq.0)write(LuOut,*) 'Ta after scaling',ind
-           call ga_print(g_rhs_x(ind))
-         endif
-       enddo
-      enddo
+      call ga_dscal(g_rhs,-pt5)
+      if (ocphfprint) then
+        if(ga_nodeid().eq.0)write(LuOut,*)
+        if(ga_nodeid().eq.0)write(LuOut,*) 'Ta after scaling'
+        call ga_print(g_rhs)
+      endif
 c
 c Print out intermediate results
 c
@@ -344,17 +275,80 @@ c
         write(LuOut,*)
         write(LuOut,*) 'g_rhs after fock contribution'
         endif
-        do ind = 1, nc
-          call ga_print(g_rhs_x(ind))
-        enddo
+        call ga_print(g_rhs)
       endif
 c
 c Do wxy = wxy + sum(i)sum(j){Ta([i-1]*nocc+j,x)*AA([i-1]*nocc+j,y) +
 c Ta([i-1]*nocc+j,y)*AA([i-1]*nocc+j,x)
 c
       if (oprint) write(LuOut,*) 'HESS: Ta and AA contributions'
-      call hess_taaa(dbl_mb(k_exy),g_rhs_x, g_aa, nocc, 
+      call hess_taaa2(dbl_mb(k_exy),g_rhs, g_aa, nocc, 
      $               ndens, n3xyz)
+c
+c We can now get rid of the RHS memory
+c
+      if (.not.ga_destroy(g_rhs))
+     $  call errquit('hess_cphf: problem destroying g_rhs',555)
+c
+c     This is temporary until I can get the code working with multiple
+c     dimensional GAs: copy g_rhs into g_rhs_x which is an array of two-
+c     dimensional GAs.
+c
+c     alo(2) = 1
+c     ahi(2) = nbf
+c     alo(3) = 1
+c     ahi(3) = nbf
+c     blo(1) = 1
+c     bhi(1) = nbf
+c     blo(2) = 1
+c     bhi(2) = nbf
+c     j = 0
+c     do i = 1, ncent
+c        j = j + 1
+c        alo(1) = j
+c        ahi(1) = j
+c        g_rhs_x(j) = ga_create_atom_blocked
+c    &        (geom, basis, 'CPKS RHS test a x')
+c        call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
+c        j = j + 1
+c        alo(1) = j
+c        ahi(1) = j
+c        g_rhs_x(j) = ga_create_atom_blocked
+c    &        (geom, basis, 'CPKS RHS test a y')
+c        call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
+c        j = j + 1
+c        alo(1) = j
+c        ahi(1) = j
+c        g_rhs_x(j) = ga_create_atom_blocked
+c    &        (geom, basis, 'CPKS RHS test a z')
+c        call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
+c     enddo
+c     if (ndens.eq.2) then
+c     do i = 1, ncent
+c        j = j + 1
+c        alo(1) = j
+c        ahi(1) = j
+c        g_rhs_x(j) = ga_create_atom_blocked
+c    &        (geom, basis, 'CPKS RHS test b x')
+c        call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
+c        j = j + 1
+c        alo(1) = j
+c        ahi(1) = j
+c        g_rhs_x(j) = ga_create_atom_blocked
+c    &        (geom, basis, 'CPKS RHS test b y')
+c        call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
+c        j = j + 1
+c        alo(1) = j
+c        ahi(1) = j
+c        g_rhs_x(j) = ga_create_atom_blocked
+c    &        (geom, basis, 'CPKS RHS test b z')
+c        call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
+c     enddo
+c     endif
+c     do ind = 1, nc*ndens
+c       if (.not.ga_destroy(g_rhs_x(ind))) call errquit
+c    $    ('cannot destroy g_rhs ',ind)
+c     enddo
 c
 c Print intermediate result
 c
@@ -371,8 +365,6 @@ c
       do ind = 1, nc*ndens
         if (.not.ga_destroy(g_aa(ind))) call errquit
      $    ('cannot destroy g_aa ',ind)
-        if (.not.ga_destroy(g_rhs_x(ind))) call errquit
-     $    ('cannot destroy g_rhs ',ind)
       enddo
 c
 c Now actually set up the CPHF matrices 
@@ -932,6 +924,53 @@ c
       return
       end
 c
+      subroutine hess_taaa2(exy,g_rhs, g_aa, nocc, 
+     $                     ndens, n3xyz)
+c
+      implicit none
+c
+#include "global.fh"
+c
+c Do exy = exy + sum(i)sum(j){Ta([i-1]*nocc+j,x)*AA([i-1]*nocc+j,y) +
+c Ta([i-1]*nocc+j,y)*AA([i-1]*nocc+j,x)
+c
+      integer ndens, n3xyz, nocc(ndens)
+      integer g_rhs, g_aa(200)
+      double precision exy(n3xyz,n3xyz)
+      integer ndns, jnd, ind
+      integer alo(2), ahi(2), blo1(3), bhi1(3), blo2(3), bhi2(3)
+c
+      alo(1) = 1
+      alo(2) = 1
+      blo1(2) = 1
+      blo1(3) = 1
+      blo2(2) = 1
+      blo2(3) = 1
+      do ndns = 1, ndens
+      ahi(1) = nocc(ndns)
+      ahi(2) = nocc(ndns)
+      bhi1(2) = nocc(ndns)
+      bhi1(3) = nocc(ndns)
+      bhi2(2) = nocc(ndns)
+      bhi2(3) = nocc(ndns)
+      do jnd = 1, n3xyz
+        blo2(1) = jnd
+        bhi2(1) = jnd
+        do ind = 1, n3xyz
+          blo1(1) = ind
+          bhi1(1) = ind
+          exy(ind, jnd) = 
+     $      exy(ind, jnd) +
+     $      nga_ddot_patch(g_rhs,'N',blo1,bhi1,
+     $                    g_aa(jnd), 'N',alo,ahi) +
+     $      nga_ddot_patch(g_rhs,'N',blo2,bhi2,
+     $                    g_aa(ind), 'N',alo,ahi)
+        enddo
+      enddo
+      enddo
+c
+      return
+      end
       subroutine hess_modfock(g_rhs_x, g_vecs, g_modx, ndens, n3xyz,
      $                        tol2e, rtdb, geom, basis, jfac, kfac,
      $                        num, ocphfprint)
@@ -1190,6 +1229,63 @@ c
      $                    one,g_rhs_x(ind),1,nocc(ndns),1,nocc(ndns),
      $                        g_aa(ind), 1,nocc(ndns),1,nocc(ndns))
       enddo
+      enddo
+c
+      return
+      end
+c
+      subroutine hess_fxwaxaa2(g_rhs, g_wax, g_aa, nocc, nvirt,
+     $                        ndens, n3xyz)
+c
+      implicit none
+c
+#include "global.fh"
+c
+c Now form the Wax and Aa contributions
+c
+      integer ndens, n3xyz
+      integer g_rhs, g_wax(200), g_aa(200) 
+      integer nocc(ndens), nvirt(ndens)
+      integer ind, ndns, in
+      integer alo1(2), ahi1(2), blo1(3), bhi1(3)
+      integer alo2(2), ahi2(2), blo2(3), bhi2(3)
+      double precision one, two
+      data one,two         /1.0d+00, 2.0d+00/
+c
+c  Set up some arrays
+c
+      alo1(1) = 1
+      alo1(2) = 1
+      alo2(1) = 1
+      alo2(2) = 1
+      blo1(2) = 1
+      blo2(2) = 1
+      blo2(3) = 1
+      ind = 0
+      do ndns = 1, ndens
+       ahi1(1) = nocc(ndns)
+       ahi1(2) = nvirt(ndns)
+       ahi2(1) = nocc(ndns)
+       ahi2(2) = nocc(ndns)
+       blo1(3) = nocc(ndns) + 1
+       bhi1(2) = nocc(ndns)
+       bhi1(3) = nocc(ndns) + nvirt(ndns)
+       bhi2(2) = nocc(ndns)
+       bhi2(3) = nocc(ndns)
+       do in = 1, n3xyz
+        ind = ind+1
+        blo1(1) = ind
+        bhi1(1) = ind 
+        blo2(1) = ind
+        bhi2(1) = ind
+        call nga_add_patch(one,g_wax(ind),alo1,ahi1,
+     $                     two,g_rhs,blo1,bhi1,
+     $                         g_wax(ind),alo1,ahi1)
+
+        call nga_add_patch(one,g_aa(ind),alo2,ahi2,
+     $                     one,g_rhs,blo2,bhi2,
+     $                         g_aa(ind),alo2,ahi2)
+       enddo
       enddo
 c
       return

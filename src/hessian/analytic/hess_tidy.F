@@ -1,5 +1,5 @@
 C
-C $Id: hess_tidy.F,v 1.8 2001-12-19 22:41:56 windus Exp $
+C $Id: hess_tidy.F,v 1.9 2001-12-27 22:54:59 windus Exp $
 C
       subroutine hess_tidy()
 c
@@ -38,8 +38,6 @@ c  Release the global fock derivative matrices (Qs or RHS).
 c
       if (.not.ga_destroy(g_rhs_xc)) 
      *  call errquit('hess_tidy: problem destroying g_rhs_xc',1)
-      if (.not.ga_destroy(g_rhs)) 
-     *  call errquit('hess_tidy: problem destroying g_rhs',1)
 c
 c  Get rid of temporary DRAs and terminate DRA interface
 c
@@ -52,7 +50,6 @@ c
 c
       return
       end
-c
 c
       subroutine hess_energytidy(rtdb)
       implicit none
