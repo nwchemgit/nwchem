@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.24 2001-11-16 02:12:41 edo Exp $
+C$Id: grid_quadv0.F,v 1.25 2001-11-21 01:57:04 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -119,8 +119,8 @@ c
          len_Amat2 = n_per_rec*NCOL_AMAT2
          len_Cmat2 = n_per_rec*NCOL_CMAT2
       endif
-      if (.not. geom_ncent(geom, nctrs))
-     &   call errquit('grid_den: geom_ncent failed',73)     
+      if (.not. geom_ncent(geom, nctrs)) 
+     &   call errquit('grid_den: geom_ncent failed',geom)     
       nxyz = 3*nctrs
       if (.not.MA_Alloc_Get(MT_Dbl,nxyz,'xyz',lxyz,ixyz))
      &   call errquit('grid_den: cannot allocate xyz',0)

@@ -38,7 +38,7 @@ c     cpbe96
 c     xpbe96
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs = 39,numfunc=30)
+      parameter (num_dirs = 40,numfunc=30)
       character*15 dirs(num_dirs)
       character*255 test
 c
@@ -60,7 +60,7 @@ c
      ,     'xhcth','xbecke97','xbecke97-1',
      ,     'chcth','cbecke97','cbecke97-1','hcth120','hcth147',
      ,     'becke98','pbe0','becke97gga1','hcth407','hcthp14',
-     ,     'optx','optc'/
+     ,     'optx','optc','becke97-2'/
 c
 c     Only these few arrays are initialized (not defaults).
 c
@@ -89,7 +89,7 @@ c
      &      1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
      ,      2100,2200,2300, 2400, 
      ,     2500, 2600, 2700, 2510, 2610, 2710,1812,1847,2800,2900,
-     , 3000, 3100,3200,3300,3400,
+     , 3000, 3100,3200,3300,3400,3500,
      ,     1999) ind
       call errquit('xc_inp: unimplemented directive', ind)
 c     
@@ -853,6 +853,27 @@ c
         cfac(15) = 1.d0
        lcfac(15) = .true.
       nlcfac(15) = .true.
+c
+      goto 10
+c     
+c     becke97-2; Becke 1997 Hybrid functional
+c            AD Becke JCP 107, 8554 (1997)
+c     parameters re-fitted by
+c     Wilson Bradley & Tozer JCP 115, 9233 (2001)
+c            c*Ex(HF) + Exc
+c            
+c            c=0.2100
+c             
+ 3500 xccomb(14) = .true.
+        xfac(1) = 0.2100d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+        xfac(17) = 1.d0
+       lxfac(17) = .true.
+      nlxfac(17) = .true.
+        cfac(23) = 1.d0
+       lcfac(23) = .true.
+      nlcfac(23) = .true.
 c
       goto 10
 c     
