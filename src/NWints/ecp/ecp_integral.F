@@ -1,6 +1,26 @@
-C $Id: ecp_integral.F,v 1.15 1999-04-28 21:38:20 edo Exp $
+C $Id: ecp_integral.F,v 1.16 2000-06-08 23:59:46 mg201 Exp $
 ************************************************************************
 *                                                                      *
+c:tex-% this is part of the API Standard Integral routines.
+c:tex-\subsection{ecp\_integral}
+c:tex-this routine computes the scalar and spin-orbit ECP integrals. The 
+c:tex-ECPs are defined by
+c:tex-\begin{eqnarray*}
+c:tex-U^{AREP} = U^{AREP}_L + \sum_{l=0}^{L-1} U^{AREP}_\ell 
+c:tex-\sum_{m=-\ell}^\ell | \ell m \rangle \langle \ell m | \\
+c:tex-U^{so} = \sum_{\ell=1}^L \frac1{\ell} \frac{2}{2\ell+1} 
+C:tex-\Delta U^{so}_\ell 
+c:tex-\sum_{m=-\ell}^\ell \sum_{m'=-\ell}^\ell | \ell m \rangle 
+c:tex-\langle \ell m | -i\hat\ell | \ell m' \rangle \langle \ell m' |
+c:tex-\end{eqnarray*}
+c:tex-Note that the spin-orbit operator is over $-i\ell$ and that the
+c:tex-scalar product with $\sigma$ not {\bf s} should be taken.
+c:tex-Note also that the integrals come out in the order z,y,x. 
+c:tex-
+c:tex-
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine ecp_integral (
      &    xyz_A,zeta_A,coef_A,n_prim_A,n_cont_A,l_A,i_c_A,
      &    xyz_B,zeta_B,coef_B,n_prim_B,n_cont_B,l_B,i_c_B,
@@ -10,8 +30,9 @@ C $Id: ecp_integral.F,v 1.15 1999-04-28 21:38:20 edo Exp $
      &    sphcart,csco,lcsco,
      &    ecp_ints,n_int,n_blk,
      &    DryRun,scr,lscr,ibug)
+c:tex-\end{verbatim}
 *                                                                      *
-*   Calculate ecp integrals.                                           *
+*   Calculate scalar and spin-orbit ecp integrals.                     *
 *                                                                      *
 *   Argument (status) - description                                    *
 *                                                                      *
@@ -57,6 +78,7 @@ C $Id: ecp_integral.F,v 1.15 1999-04-28 21:38:20 edo Exp $
 *   n_int (inp) - number of ECP integrals. Should be equal to          *
 *                 NCA*NCB*[(La+1)*(La+2)/2]*[(Lb+1)*(Lb+2)/2]          *
 *   n_blk (inp) - 1 for scalar only, 3 for s-o only, 4 for both        *
+*                 s-o integrals come out in the order z,y,x.           *
 *   DryRun (inp) - logical for dry run. If true, routine only returns  *
 *                  maximum scratch space needed, if false, integrals   *
 *                  are returned.                                       *
@@ -217,21 +239,20 @@ C        end if
 *
           if (debug_gen) write (LuOut,*) 'One-centre case'
           if ((n_colc_C(-1,i) .gt. 0)) then
-c          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0)) 
-          if ((n_blk .ne. 3)) 
-     &        call ecp_local0 (mem,DryRun,
-     &        l_B,n_prim_B,n_cont_B,coef_B,zeta_B,n_cart_b,
-     &        l_A,n_prim_A,n_cont_A,coef_A,zeta_A,n_cart_a,
-     &        n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &        zeta_c(i_zeta),coef_c(i_coef),0,2,
-     &        tol,sphcart,scr(i_scr),memscr,
-     &        csco,lcsco,
-     &        scr,ibug/10)
-          if (debug_arrays .and. .not.DryRun) 
-     &        call ecp_matpr (scr,1,n_all_b,1,n_all_a,1,n_all_b,
-     &        1,n_all_a,'Local ECP integrals','E',78,4)
-          if (DryRun) max_type0 = max(mem,max_type0)
-          endif
+            if ((n_blk .ne. 3)) 
+     &          call ecp_local0 (mem,DryRun,
+     &          l_B,n_prim_B,n_cont_B,coef_B,zeta_B,n_cart_b,
+     &          l_A,n_prim_A,n_cont_A,coef_A,zeta_A,n_cart_a,
+     &          n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &          zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &          tol,sphcart,scr(i_scr),memscr,
+     &          csco,lcsco,
+     &          scr,ibug/10)
+            if (debug_arrays .and. .not.DryRun) 
+     &          call ecp_matpr (scr,1,n_all_b,1,n_all_a,1,n_all_b,
+     &          1,n_all_a,'Local ECP integrals','E',78,4)
+            if (DryRun) max_type0 = max(mem,max_type0)
+          end if
           call ecp_int0 (mem,DryRun,
      &        l_B,n_prim_B,n_cont_B,coef_B,zeta_B,n_cart_b,
      &        l_A,n_prim_A,n_cont_A,coef_A,zeta_A,n_cart_a,
@@ -247,21 +268,20 @@ c          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0))
 *
           if (debug_gen) write (LuOut,*) 'Two-centre case A=C'
           if ((n_colc_C(-1,i) .gt. 0)) then
-c          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0))
-          if ((n_blk .ne. 3))
-     &        call ecp_local1 (mem,DryRun,
-     &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
-     &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
-     &        n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &        zeta_c(i_zeta),coef_c(i_coef),0,2,
-     &        tol,sphcart,scr(i_scr),memscr,
-     &        csco,lcsco,
-     &        scr,n_intt,.false.,ibug/10)
-          if (debug_arrays .and. .not.DryRun) 
-     &        call ecp_matpr (scr,1,n_all_b,1,n_all_a,1,n_all_b,
-     &        1,n_all_a,'Local ECP integrals','E',78,4)
-          if (DryRun) max_type1 = max(mem,max_type1)
-          endif
+            if ((n_blk .ne. 3))
+     &          call ecp_local1 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
+     &          n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &          zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &          tol,sphcart,scr(i_scr),memscr,
+     &          csco,lcsco,
+     &          scr,n_intt,.false.,ibug/10)
+            if (debug_arrays .and. .not.DryRun) 
+     &          call ecp_matpr (scr,1,n_all_b,1,n_all_a,1,n_all_b,
+     &          1,n_all_a,'Local ECP integrals','E',78,4)
+            if (DryRun) max_type1 = max(mem,max_type1)
+          end if
           call ecp_int1 (mem,DryRun,
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
@@ -277,21 +297,20 @@ c          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0))
 *
           if (debug_gen) write (LuOut,*) 'Two-centre case B=C'
           if ((n_colc_C(-1,i) .gt. 0)) then
-c          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0))
-          if ((n_blk .ne. 3))
-     &        call ecp_local1 (mem,DryRun,
-     &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
-     &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
-     &        n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &        zeta_c(i_zeta),coef_c(i_coef),0,2,
-     &        tol,sphcart,scr(i_scr),memscr,
-     &        csco,lcsco,
-     &        scr,n_intt,.true.,ibug/10)
-          if (debug_arrays .and..not.DryRun) 
-     &        call ecp_matpr (scr,1,n_all_b,1,n_all_a,1,n_all_b,
-     &        1,n_all_a,'Local ECP integrals','E',78,4)
-          if (DryRun) max_type1 = max(mem,max_type1)
-          endif
+            if ((n_blk .ne. 3))
+     &          call ecp_local1 (mem,DryRun,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
+     &          n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &          zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &          tol,sphcart,scr(i_scr),memscr,
+     &          csco,lcsco,
+     &          scr,n_intt,.true.,ibug/10)
+            if (debug_arrays .and..not.DryRun) 
+     &          call ecp_matpr (scr,1,n_all_b,1,n_all_a,1,n_all_b,
+     &          1,n_all_a,'Local ECP integrals','E',78,4)
+            if (DryRun) max_type1 = max(mem,max_type1)
+          end if
           call ecp_int1 (mem,DryRun,
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
@@ -307,21 +326,20 @@ c          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0))
 *
           if (debug_gen) write (LuOut,*) 'Three-centre case'
           if ((n_colc_C(-1,i) .gt. 0))then
-c          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0))
-          if ((n_blk .ne. 3))
-     &        call ecp_local2 (mem,DryRun,
-     &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
-     &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
-     &        n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &        zeta_C(i_zeta),coef_C(i_coef),0,2,
-     &        tol,sphcart,scr(i_scr),memscr,
-     &        csco,lcsco,
-     &        scr,n_intt,ibug/10)
-          if (debug_arrays .and..not.DryRun) 
-     &        call ecp_matpr (scr,1,n_all_b,1,n_all_a,1,n_all_b,
-     &        1,n_all_a,'Local ECP integrals','E',78,4)
-          if (DryRun) max_type2 = max(mem,max_type2)
-          endif
+            if ((n_blk .ne. 3))
+     &          call ecp_local2 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
+     &          n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &          zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &          tol,sphcart,scr(i_scr),memscr,
+     &          csco,lcsco,
+     &          scr,n_intt,ibug/10)
+            if (debug_arrays .and..not.DryRun) 
+     &          call ecp_matpr (scr,1,n_all_b,1,n_all_a,1,n_all_b,
+     &          1,n_all_a,'Local ECP integrals','E',78,4)
+            if (DryRun) max_type2 = max(mem,max_type2)
+          end if
           call ecp_int2 (mem,DryRun,
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
