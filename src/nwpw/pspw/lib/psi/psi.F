@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.37 2003-07-20 16:47:01 bylaska Exp $
+* $Id: psi.F,v 1.38 2003-07-21 22:06:28 bylaska Exp $
 *
 
 
@@ -51,7 +51,7 @@
  2        call psi_KS_update_f_orb(maxit_orb,
      >                               maxerror,
      >                               0.001d0,ii,error_out,e0)
-          write(*,*) "e0:",ii,l,e0,error_out
+          !write(*,*) "e0:",ii,l,e0,error_out
           l = l+1
           if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
 
