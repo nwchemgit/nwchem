@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.16 2001-04-05 22:25:06 windus Exp $
+C $Id: hess_init.F,v 1.17 2001-05-23 17:44:43 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -254,15 +254,15 @@ c
       if (oprint) write(LuOut,*) 'HESS: getting dra_handles'
       call util_file_name('sxmatrices',.true.,.false.,sx_name)
       call util_file_name('fxmatrices',.true.,.false.,fx_name)
-      nbsize = ma_sizeof(mt_dbl,ncent*3*nbf*nbf,mt_byte)
+      nbsize = ma_sizeof(mt_dbl,ndens*ncent*3*nbf*nbf,mt_byte)
 c     if (dra_init(1,nbsize,nbsize,-1).ne.0) call errquit
 c    &    ('hess_init: Failed to initialize DRA interface',555)
       if (dra_init(2,nbsize,2*nbsize,-1).ne.0) call errquit
      &    ('hess_init: Failed to initialize DRA interface',555)
-      if (dra_create(mt_dbl,nbf*ncent*3,nbf,'Sx matrices',sx_name,
+      if (dra_create(mt_dbl,ndens*nbf*ncent*3,nbf,'Sx matrices',sx_name,
      &    DRA_RW,nbf,nbf,sx_dra_handle).ne.0) call errquit
      &   ('hess_init: Failed to create sx DRA',555)
-      if (dra_create(mt_dbl,nbf*ncent*3,nbf,'Fx matrices',fx_name,
+      if (dra_create(mt_dbl,ndens*nbf*ncent*3,nbf,'Fx matrices',fx_name,
      &    DRA_RW,nbf,nbf,fx_dra_handle).ne.0) call errquit
      &   ('hess_init: Failed to create fx DRA',555)
 

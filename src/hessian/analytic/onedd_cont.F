@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.17 2001-04-11 18:01:09 edo Exp $
+C $Id: onedd_cont.F,v 1.18 2001-05-23 17:44:43 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -40,7 +40,6 @@ c
       oprint = util_print('hess_follow',print_high)
       oprint = oprint .and. (ga_nodeid().eq.0)
       oneprint = util_print('onedd_cont',print_debug)
-!      oneprint = oneprint .and. (ga_nodeid().eq.0)
 c
 c Get memory for the integral buffers
 c
@@ -53,14 +52,14 @@ c
      *  mscratch_1e)
 c
 c Need to form the weighted density matrix to multiply by the S 
-c second derivative integrals.
+c second derivative integrals.  Need set up some memory to go into
+c grad_dens.
 c
       g_wdens = ga_create_atom_blocked(geom, basis, 'weighted density')
       nbf2 = nbf
       if (scftype .eq. 'UHF') nbf2 = nbf + nbf
-C     eigenvalue diagonal matrix for forming energy weighted density
       nocc = nopen + nclosed
-
+c     eigenvalue diagonal matrix for forming energy weighted density
       if (.not. ga_create(MT_DBL, nocc, nocc,'eigen_diag', 0, nocc,
      $  g_eigen_diag)) call errquit('onedd_cont: ga diags?',nocc*nocc)
       call ga_zero(g_eigen_diag)                                                
@@ -76,7 +75,7 @@ c
       if (.not.rtdb_get(rtdb, 'dft:fractional_occup', mt_log, 1,
      & frac_occ  )) frac_occ=.false.
       omp2 = .false.
-      k_pdm2 = 1
+      k_pdm2 = 1  ! dummy variables to pass to grad_dens
       k_coeff = 1
 c
 c get MO vectors
@@ -120,6 +119,8 @@ c
         endif
       endif
 c
+c Set up some local memory to hold pieces of the density and weighted density
+c
       if (.not. bas_nbf_ce_max(basis,matb))
      *  call errquit('onedd_cont: could not get matb',555)
       lsqatom = matb * matb
@@ -138,22 +139,22 @@ c
         write(LuOut,*) 'g_rhs before going into onedd_calc'
         write(LuOut,*) 'These values should all be zero'
         endif
-        do i = 1, ncent*3
+        do i = 1, n3xyz*ndens
           if(ga_nodeid().eq.0)write(LuOut,*) 'ndisplacement ', i
           call ga_print(g_rhs(i))
           if(ga_nodeid().eq.0)write(LuOut,*)
         enddo
       endif
       if (oprint.and.(ga_nodeid().eq.0)) 
-     .     write(LuOut,*) 'HESS: before the onedd_calc call'
+     *     write(LuOut,*) 'HESS: before the onedd_calc call'
 c
       doS = .true. 
       doV = .true.
       doT = .true.
 c
-c  Call the actual routine to add the S, V and T contributions
+c  Call the actual routine to add the second derivative S, V and T contributions
 c
-      call onedd_calc(dbl_mb(k_exy),ncent*3,dbl_mb(k_buf),
+      call onedd_calc(dbl_mb(k_exy),n3xyz,dbl_mb(k_buf),
      *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
      *  doS,doT,doV,g_wdens,g_dens,geom,basis,ncent,ndens,
      *  dbl_mb(k_dens),dbl_mb(k_wdens),matb)
@@ -181,15 +182,15 @@ c
       doS = .true.
       doV = .false.
       doT = .false.
-      call oned_calc(ncent*3,g_rhs,dbl_mb(k_buf),
+      call oned_calc(n3xyz,g_rhs,dbl_mb(k_buf),
      *  max1e,dbl_mb(k_scr),mscratch_1e,.false.,
 !     *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
      *  doS,doT,doV,geom,basis,ncent)
 c
       if (oneprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
-        if(ga_nodeid().eq.0)write(LuOut,*) 'g_rhs for Sx term'
-        do i = 1, ncent*3
+        if(ga_nodeid().eq.0)write(LuOut,*) 'Sx term'
+        do i = 1, n3xyz
           if(ga_nodeid().eq.0)write(LuOut,*) 'ndisplacement ', i
           call ga_print(g_rhs(i))
           if(ga_nodeid().eq.0)write(LuOut,*)
@@ -198,11 +199,11 @@ c
 c
 c write out Sx terms to disk
 c
-      call sx_write(g_rhs,ncent*3,nbf,sx_dra_handle)
+      call sx_write(g_rhs,n3xyz,nbf,sx_dra_handle)
 c
 c Clear g_rhs again
 c
-      do i = 1, ncent*3
+      do i = 1, n3xyz
         call ga_zero(g_rhs(i))
       enddo
 c
@@ -210,18 +211,21 @@ c
       doS = .false.
       doV = .true.
       doT = .true.
-      call oned_calc(ncent*3,g_rhs,dbl_mb(k_buf),
+      call oned_calc(n3xyz,g_rhs,dbl_mb(k_buf),
 !     *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
      *  max1e,dbl_mb(k_scr),mscratch_1e,.false.,
      *  doS,doT,doV,geom,basis,ncent)
+      if (ndens.gt.1) then
+        do i = 1, n3xyz
+          call ga_copy(g_rhs(i), g_rhs(n3xyz+i))
+        enddo
+      endif
 c  first print out the rhs values 
       if (oneprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
-        if(ga_nodeid().eq.0)write(LuOut,*) 'g_rhs for Hx term'
-        do i = 1, ncent*3
-          if(ga_nodeid().eq.0)write(LuOut,*) 'ndisplacement ', i
+        if(ga_nodeid().eq.0)write(LuOut,*) 'g_rhs'
+        do i = 1, n3xyz*ndens
           call ga_print(g_rhs(i))
-          if(ga_nodeid().eq.0)write(LuOut,*)
         enddo
       endif
 c

@@ -1,5 +1,5 @@
 C
-C $Id: hess_restart.F,v 1.3 2001-05-17 23:28:26 windus Exp $
+C $Id: hess_restart.F,v 1.4 2001-05-23 17:44:43 windus Exp $
 C
       subroutine hess_restart(rtdb, restr)
 c
@@ -41,7 +41,7 @@ c
         write(LuOut,*) 'The Fock derivatives :'
       endif
       if (oprint) then
-        do i = 1, n3xyz
+        do i = 1, n3xyz*ndens
           call ga_print(g_rhs(i))
         enddo
       endif
@@ -56,7 +56,7 @@ c
 c
 c  Write out fock derivatives to disk
 c
-      call sx_write(g_rhs,n3xyz,nbf,fx_dra_handle)
+      call sx_write(g_rhs,n3xyz*ndens,nbf,fx_dra_handle)
 c
 c  Write out restr to the database
 c

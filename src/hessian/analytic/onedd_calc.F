@@ -1,5 +1,5 @@
 c
-c $Id: onedd_calc.F,v 1.10 2000-08-24 17:33:45 windus Exp $
+c $Id: onedd_calc.F,v 1.11 2001-05-23 17:44:43 windus Exp $
 c
       subroutine onedd_calc(Hxy,nxyz,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,
@@ -28,7 +28,7 @@ c
       integer geom                 ! [input] the current geometry handle
       integer basis                ! [input] the current basis handle
       integer matb                 ! [input] max. atom buffer space needed
-      double precision dens(ndens,matb,matb)  ! [input] scratch for density blocks
+      double precision dens(matb,matb,ndens)  ! [input] scratch for density blocks
       double precision wdens(matb,matb) ! [input] scratch for wdensity blocks
       
 c
@@ -78,8 +78,8 @@ c
      *                   dens,matb)
             if (ndens.eq.2) then
                call ga_get (g_dens(2), iab1f,iab1l,iab2f,iab2l,
-     *                      dens(2,1,1),matb)
-               call daxpy(matb*matb,1.0d+00,dens(2,1,1),1,dens,1)
+     *                      dens(1,1,2),matb)
+               call daxpy(matb*matb,1.0d+00,dens(1,1,2),1,dens,1)
             endif
             call ga_get(g_wdens,iab1f,iab1l,iab2f,iab2l,wdens,matb)
 
@@ -154,7 +154,7 @@ c
                       dE = 0.0D0
                       do ip1 = if1, il1
                         do ip2 = if2, il2
-                          dE = dE + dens(1,ip1,ip2)*Ibuf(ic)
+                          dE = dE + dens(ip1,ip2,1)*Ibuf(ic)
                           ic = ic + 1
                         enddo
                       enddo
@@ -181,8 +181,8 @@ c
                     dE = 0.D0
                     do 31 ip1 = if1, il1
                       do 30 ip2 = if2, il2
-                        dE = dE + dens(1,ip1,ip2) * Ibuf(ic)
-c                       write(6,*) 'dens and int ',dens(1,ip1,ip2),
+                        dE = dE + dens(ip1,ip2,1) * Ibuf(ic)
+c                       write(6,*) 'dens and int ',dens(ip1,ip2,1),
 c    *                     Ibuf(ic)
                         ic = ic + 1
  30                   continue
@@ -217,7 +217,7 @@ c
                     dE = 0.D0
                     do ip1 = if1, il1
                       do ip2 = if2, il2
-                        dE = dE + dens(1,ip1,ip2) * Ibuf(ic)
+                        dE = dE + dens(ip1,ip2,1) * Ibuf(ic)
                         ic = ic + 1
                       enddo
                     enddo

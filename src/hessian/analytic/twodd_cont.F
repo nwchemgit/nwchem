@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.19 2001-05-22 17:48:28 windus Exp $
+C $Id: twodd_cont.F,v 1.20 2001-05-23 17:44:43 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -81,13 +81,13 @@ c  I will add the results into the actual "permanent" storage for now so
 c  the rest of the code will work properly.
 c
       if (oprint.and.(ga_nodeid().eq.0)) 
-     .     write (LuOut,*) 'HESS: DFT contribution'
+     *     write (LuOut,*) 'HESS: DFT contribution'
       if (theory.eq.'dft') then
         call xc_hessian(geom,rtdb,nbf,basis,
-     ,       g_dens, nactive, log_mb(k_act), 
+     *       g_dens, nactive, log_mb(k_act), 
      *     dbl_mb(k_hess_xc),scftype)
         call xc_cpks_rhs(geom,rtdb,nbf,basis,
-     ,       g_dens,  nactive, log_mb(k_act),g_rhs_xc,scftype)
+     *       g_dens,  nactive, log_mb(k_act),g_rhs_xc,scftype)
         if (ocdfit) call j_cpks_rhs(g_dens, log_mb(k_act), nactive,
      *     g_rhs_xc)
       if (otwoprint) then
@@ -186,7 +186,7 @@ c    $     call errquit('twodd_cont: could not allocate l_act',ncent)
 c
 c  Take care of the first derivative contributions to the rhs
 c
-      call shell_fock_build (geom, basis, n3xyz, ndens, jfac, kfac,
+      call shell_fock_build (geom, basis, 1, n3xyz, ndens, jfac, kfac,
      *   tol2e, g_dens, g_rhs, log_mb(k_act))
       if (otwoprint) then
          if(ga_nodeid().eq.0) then
@@ -299,9 +299,7 @@ c
 c     max2e = max(max2e,1296*100)          ! 100 D quartets
       lbuf = max(max1e, max2e)
       lscratch = 4*max(mscratch_1e, mscratch_2e)
-C     one-electron contribution
-C     buffers for one electron integral derivatives
- 
+c
 c probably need the 12 to be 78  CHECK
 c     if (.not. ma_push_get(mt_dbl,12*lbuf,'deriv buffer',l_buf,
       if (.not. ma_push_get(mt_dbl,78*lbuf,'deriv buffer',l_buf,

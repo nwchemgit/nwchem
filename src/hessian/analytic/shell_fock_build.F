@@ -1,14 +1,14 @@
 c
-c $Id: shell_fock_build.F,v 1.6 2001-05-22 17:48:28 windus Exp $
+c $Id: shell_fock_build.F,v 1.7 2001-05-23 17:44:43 windus Exp $
 c
-      subroutine shell_fock_build(geom, basis, nder, nfock, jfac, 
-     $     kfac, tol2e, g_dens, g_fock, oactive)
+      subroutine shell_fock_build(geom, basis, nder, ndens, nfock, 
+     $     jfac, kfac, tol2e, g_dens, g_fock, oactive)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
-      integer geom, basis, nder, nfock 
-      integer g_dens(nfock), g_fock(nder,nfock)
+      integer geom, basis, nder, ndens, nfock 
+      integer g_dens(ndens), g_fock(ndens,nfock)
       double precision jfac(*), kfac(*), tol2e
       logical oactive(*)        ! [input] T if atom is active
 c
@@ -40,9 +40,6 @@ c
 c
       write(6,*) 'inside of shell_fock_build'
 c
-c     if (nfock .ne. 1) call errquit('NFOCK', nfock)
-c     call dscal(nfock, 0.5d0, kfac, 1)
-c      
       if (.not. bas_numbf(basis,nbf))
      $     call errquit('new_fock: could not get nbf',0)
       if (.not. bas_numcont(basis,nsh))
@@ -68,7 +65,7 @@ c
       if (.not. ma_push_get(mt_dbl, lend, 'd_jl', l_d_jl, k_d_jl)) 
      $     call errquit('new_fock: d_jl', lend)
 c
-      lend = lend*nder
+      lend = lend*ndens
       if (.not. ma_push_get(mt_dbl, lend, 'f_ij', l_f_ij, k_f_ij)) 
      $     call errquit('new_fock: f_ij', lend)
       if (.not. ma_push_get(mt_dbl, lend, 'f_kl', l_f_kl, k_f_kl)) 
@@ -132,14 +129,14 @@ c
       do j = 1, nfock
          call ga_reorder(g_dens(j), .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
-        do i = 1, nder
+        do i = 1, ndens
           call ga_reorder(g_fock(i,j), .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
         enddo
       end do
 c
       call newfock(
-     $     basis, geom, nder, nfock,
+     $     basis, geom, nder, ndens, nfock,
      $     g_dens, g_fock,
      $     dbl_mb(k_d_ij), dbl_mb(k_d_kl), dbl_mb(k_d_ik),  
      $     dbl_mb(k_d_jl), dbl_mb(k_d_il), dbl_mb(k_d_jk), 
@@ -158,17 +155,12 @@ c
       do j = 1, nfock
          call ga_reorder(g_dens(j), .true., int_mb(k_bfmap),
      $        .true., int_mb(k_bfmap))
-         do i = 1, nder
+         do i = 1, ndens
            call ga_reorder(g_fock(i,j), .true., int_mb(k_bfmap),
      $        .true., int_mb(k_bfmap))
+           call ga_symmetrize(g_fock(i,j))
          enddo
       end do
-c
-      do j = 1, nfock
-      do i = 1, nder
-         call ga_symmetrize(g_fock(i,j))
-      enddo
-      enddo
 c
 c  Clean up memory allocated in this routine
 c
@@ -178,7 +170,7 @@ c
       end
 c
       subroutine newfock(
-     $     basis, geom, nder, nfock,
+     $     basis, geom, nder, ndens, nfock,
      $     g_dens, g_fock,
      $     d_ij,  d_kl,  d_ik,  d_jl,  d_il,  d_jk, 
      $     f_ij,  f_kl,  f_ik,  f_jl,  f_il,  f_jk, 
@@ -196,7 +188,8 @@ c
 #include "bas.fh"
 c
       integer basis, geom       ! [input] familiar handles
-      integer nder              ! [input] No. of derivatives (1 = energy)
+      integer nder              ! [input] No. of derivatives (0 = energy)
+      integer ndens             ! [input] No. of density matrices (for UHF)
       integer nfock             ! [input] No. of fock matrices
       integer g_dens, g_fock
       integer blen              ! [input] max dimension of density block
@@ -205,9 +198,9 @@ c
      $     d_ik(nfock,blen,blen),  d_jl(nfock,blen,blen),  
      $     d_il(nfock,blen,blen),  d_jk(nfock,blen,blen)
       double precision          ! [scratch] 6 blocks per possible fock
-     $     f_ij(nder,nfock,blen,blen),  f_kl(nder,nfock,blen,blen),  
-     $     f_ik(nder,nfock,blen,blen),  f_jl(nder,nfock,blen,blen),  
-     $     f_il(nder,nfock,blen,blen),  f_jk(nder,nfock,blen,blen)
+     $     f_ij(ndens,nfock,blen,blen),  f_kl(ndens,nfock,blen,blen),  
+     $     f_ik(ndens,nfock,blen,blen),  f_jl(ndens,nfock,blen,blen),  
+     $     f_il(ndens,nfock,blen,blen),  f_jk(ndens,nfock,blen,blen)
 c     
       integer lscr              ! [input] Size of scratch for integrals
       double precision scr(lscr) ![scratch] Scratch space for integrals
@@ -317,12 +310,12 @@ c
                      if (.not. ma_verify_allocator_stuff())
      $                    call errquit(' ',0)
 c
-                     call dfill(nder*nfock*blen*blen, 0d0, f_ij, 1)
-                     call dfill(nder*nfock*blen*blen, 0d0, f_kl, 1)
-                     call dfill(nder*nfock*blen*blen, 0d0, f_ik, 1)
-                     call dfill(nder*nfock*blen*blen, 0d0, f_jl, 1)
-                     call dfill(nder*nfock*blen*blen, 0d0, f_il, 1)
-                     call dfill(nder*nfock*blen*blen, 0d0, f_jk, 1)
+                     call dfill(ndens*nfock*blen*blen, 0d0, f_ij, 1)
+                     call dfill(ndens*nfock*blen*blen, 0d0, f_kl, 1)
+                     call dfill(ndens*nfock*blen*blen, 0d0, f_ik, 1)
+                     call dfill(ndens*nfock*blen*blen, 0d0, f_jl, 1)
+                     call dfill(ndens*nfock*blen*blen, 0d0, f_il, 1)
+                     call dfill(ndens*nfock*blen*blen, 0d0, f_jk, 1)
                      if (.not. ma_verify_allocator_stuff())
      $                    call errquit(' ',0)
 c     
@@ -371,7 +364,7 @@ c
                                  sijkl = sij*schwarz_shell(ksh,lsh)
 c     
                                  if (sijkl*8d0 .lt. tol2e) goto 200 ! next llsh
-                                 if (nder.gt.1) then
+                                 if (nder.gt.0) then
                                    if (.not. (
      $                                oactive(atoms(1)) .or.
      $                                oactive(atoms(2)) .or.
@@ -405,7 +398,7 @@ c
  100                    end do  ! next jjsh
                      end do
 c
-                     if (nder.eq.1) then
+                     if (nder.eq.0) then
                        if (.not. intb_init4c(
      $                    basis, list(1,1), list(1,2),
      $                    basis, list(1,3), list(1,4),
@@ -424,7 +417,7 @@ c                    if (.not. ma_verify_allocator_stuff())
 c    $                    call errquit(' ',0)
 c     
  10                  continue
-                     if (nder.eq.1) then
+                     if (nder.eq.0) then
                        omore = intb_2e4c(
      $                    basis, list(1,1), list(1,2),
      $                    basis, list(1,3), list(1,4),
@@ -448,18 +441,18 @@ c                    if (.not. ma_verify_allocator_stuff())
 c    $                    call errquit(' ',0)
 c     
                      if (nint .gt. 0) then
-                       if (nder.eq.1) then
+                       if (nder.eq.0) then
                           call new_fock_doit(nint,labels,leri,eri,tol2e,
      $                    d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $                    f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
-     $                    nder, nfock, blen, rbfmap,
+     $                    ndens, nfock, blen, rbfmap,
      $                    ibflo, jbflo, kbflo, lbflo)
                         else
                           call new_fock_doit_der(nint,labels,leri,
      $                    eri,tol2e,
      $                    d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $                    f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
-     $                    nder, nfock, blen, rbfmap, bftoat,
+     $                    ndens, nfock, blen, rbfmap, bftoat,
      $                    ibflo, jbflo, kbflo, lbflo)
 c                                      
                         endif
@@ -470,17 +463,17 @@ c
 
                      if (omore) goto 10
 c                                      
-                     call new_acc_fock_block(g_fock, nder, nfock, 
+                     call new_acc_fock_block(g_fock, ndens, nfock, 
      $                 blen, ibflo, ibfhi, jbflo, jbfhi, f_ij)
-                     call new_acc_fock_block(g_fock, nder, nfock, 
+                     call new_acc_fock_block(g_fock, ndens, nfock, 
      $                 blen, kbflo, kbfhi, lbflo, lbfhi, f_kl)
-                     call new_acc_fock_block(g_fock, nder, nfock, 
+                     call new_acc_fock_block(g_fock, ndens, nfock, 
      $                 blen, ibflo, ibfhi, kbflo, kbfhi, f_ik)
-                     call new_acc_fock_block(g_fock, nder, nfock, 
+                     call new_acc_fock_block(g_fock, ndens, nfock, 
      $                 blen, jbflo, jbfhi, lbflo, lbfhi, f_jl)
-                     call new_acc_fock_block(g_fock, nder, nfock, 
+                     call new_acc_fock_block(g_fock, ndens, nfock, 
      $                 blen, ibflo, ibfhi, lbflo, lbfhi, f_il)
-                     call new_acc_fock_block(g_fock, nder, nfock, 
+                     call new_acc_fock_block(g_fock, ndens, nfock, 
      $                 blen, jbflo, jbfhi, kbflo, kbfhi, f_jk)
 c                    if (.not. ma_verify_allocator_stuff())
 c    $                    call errquit(' ',0)
@@ -537,9 +530,9 @@ c        call dscal(blen2, fac(ifock), buf((ifock-1)*blen2+1), nfock)
 c
       end
       subroutine new_acc_fock_block(
-     $   g_fock, nder, nfock, blen, ibflo, ibfhi, jbflo, jbfhi, buf)
+     $   g_fock, ndens, nfock, blen, ibflo, ibfhi, jbflo, jbfhi, buf)
       implicit none
-      integer nder, nfock, g_fock(nder,nfock), blen 
+      integer ndens, nfock, g_fock(ndens,nfock), blen 
       integer ibflo, ibfhi, jbflo, jbfhi
       double precision buf(*)
 c
@@ -548,7 +541,7 @@ c
       blen2 = blen * blen
       index = 1
       do j = 1, nfock
-      do i = 1, nder
+      do i = 1, ndens
         call ga_acc(g_fock(i,j),ibflo,ibfhi,jbflo,jbfhi,buf(index),
      $              blen,1d0)
         index = index + blen2
@@ -560,10 +553,10 @@ C NEED TO FIX FOR ORDER blen,blen,nfock
       subroutine new_fock_doit(nint,labels,leri,eri,tol2e,
      $     d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $     f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
-     $     nder, nfock, blen, rbfmap, ibflo, jbflo, kbflo, lbflo)
+     $     ndens, nfock, blen, rbfmap, ibflo, jbflo, kbflo, lbflo)
       implicit none
 c
-      integer nder, nfock, blen
+      integer ndens, nfock, blen
       integer nint
       integer leri
       integer labels(leri,4)
@@ -610,11 +603,11 @@ c
       subroutine new_fock_doit_der(nint,labels,leri,eri,tol2e,
      $     d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $     f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
-     $     nder, nfock, blen, rbfmap, bftoat, 
+     $     ndens, nfock, blen, rbfmap, bftoat, 
      $     ibflo, jbflo, kbflo, lbflo)
       implicit none
 c
-      integer nder, nfock, blen
+      integer ndens, nfock, blen
       integer nint
       integer leri
       integer labels(leri,4)
@@ -625,9 +618,9 @@ c
      $     d_ik(nfock,blen,blen), d_jl(nfock,blen,blen), 
      $     d_il(nfock,blen,blen), d_jk(nfock,blen,blen)
       double precision
-     $     f_ij(blen,blen,nder,nfock), f_kl(blen,blen,nder,nfock), 
-     $     f_ik(blen,blen,nder,nfock), f_jl(blen,blen,nder,nfock), 
-     $     f_il(blen,blen,nder,nfock), f_jk(blen,blen,nder,nfock)
+     $     f_ij(blen,blen,ndens,nfock), f_kl(blen,blen,ndens,nfock), 
+     $     f_ik(blen,blen,ndens,nfock), f_jl(blen,blen,ndens,nfock), 
+     $     f_il(blen,blen,ndens,nfock), f_jk(blen,blen,ndens,nfock)
       integer rbfmap(*)
       integer bftoat(*)       ! [input] Map from old basis func to atom
       integer ibflo, jbflo, kbflo, lbflo
