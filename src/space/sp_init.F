@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.78 2000-11-07 18:15:49 d3j191 Exp $
+c $Id: sp_init.F,v 1.79 2000-11-10 22:47:55 d3j191 Exp $
 c
       implicit none
 c
@@ -317,16 +317,22 @@ c
       if(nbxin.eq.0) then
       if(nbx.gt.npx.and.mod(nbx,npx).gt.0) then
       nbx=(nbx/npx)*npx
+      write(*,2000)
+ 2000 format(' Reduced number of sub-boxes in x-dimension')
       endif
       endif
       if(nbyin.eq.0) then
       if(nby.gt.npy.and.mod(nby,npy).gt.0) then
       nby=(nby/npy)*npy
+      write(*,2001)
+ 2001 format(' Reduced number of sub-boxes in y-dimension')
       endif
       endif
       if(nbzin.eq.0) then
       if(nbz.gt.npz.and.mod(nbz,npz).gt.0) then
       nbz=(nbz/npz)*npz
+      write(*,2002)
+ 2002 format(' Reduced number of sub-boxes in z-dimension')
       endif
       endif
 c
