@@ -1,0 +1,38 @@
+# A test for TCE's CCSD, CCSDT, CCSDTQ Lambda equation
+# and 1-particle density matrices for dipole moments.
+# Reference data from an independent (POLYMER) program:
+# CCSD   : 0.622313 a.u.
+# CCSDT  : 0.623246 a.u.
+# CCSDTQ : 0.623152 a.u.
+
+start tce_h2o_dipole
+
+echo
+
+geometry units angstrom
+symmetry c1
+H 0.0   0.5711156805885   0.7803306218431
+O 0.0   0.0   0.0
+H 0.0   0.5711156805885  -0.7803306218431
+end
+
+basis cartesian
+* library sto-3g
+end
+
+scf
+tol2e 0e-10
+thresh 1e-14
+singlet
+rhf
+end
+
+ucc
+thresh 1.0d-12
+end
+
+task uccsd energy
+
+task uccsdt energy
+
+task uccsdtq energy
