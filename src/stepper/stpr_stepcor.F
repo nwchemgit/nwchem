@@ -1,7 +1,7 @@
       SUBROUTINE stpr_stepcor(A,INEED,G,C,ETOT,NATD,
      &    CONVGE,CONVGG,CONVGGM,
      &    cnvgrd, rtdb, step_number)
-c $Id: stpr_stepcor.F,v 1.6 1998-04-21 06:57:31 mdupuis Exp $
+c $Id: stpr_stepcor.F,v 1.7 1998-09-28 18:44:26 windus Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
 #include "cstprfiles.fh"
@@ -159,7 +159,7 @@ C
 C     Close open files and return.
 C
       CLOSE (UNIT=ITAP41, STATUS='KEEP')
-      CLOSE (UNIT=ITAP44, STATUS='DELETE') ! Was keep (RJH)
+      CLOSE (UNIT=ITAP44, STATUS='KEEP') 
       CLOSE (UNIT=ITAP45, STATUS='DELETE')
       ELAST = ENERGY
       E2PRED = E2NEW
