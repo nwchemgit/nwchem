@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.47 1997-11-14 00:19:24 d3g681 Exp $
+C$Id: uhf.F,v 1.48 1998-07-13 22:53:21 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -206,7 +206,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.47 1997-11-14 00:19:24 d3g681 Exp $
+C     $Id: uhf.F,v 1.48 1998-07-13 22:53:21 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -503,7 +503,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.47 1997-11-14 00:19:24 d3g681 Exp $
+C$Id: uhf.F,v 1.48 1998-07-13 22:53:21 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -594,7 +594,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.47 1997-11-14 00:19:24 d3g681 Exp $
+c     $Id: uhf.F,v 1.48 1998-07-13 22:53:21 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -882,7 +882,7 @@ c
 c
       call ga_maxelt(g_grad, max_grad)
       gnorm = sqrt(ga_ddot(g_grad, g_grad))
-      eprec = max(gnorm*0.01d0, tol2e*100.0d0) ! Approx precision available
+      eprec = max(1d-7,gnorm*0.01d0, tol2e*100.0d0) ! Approx precision available
 c
 c     Determine shift necessary to make the preconditioner
 c     positive definite
@@ -1080,7 +1080,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.47 1997-11-14 00:19:24 d3g681 Exp $
+C$Id: uhf.F,v 1.48 1998-07-13 22:53:21 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

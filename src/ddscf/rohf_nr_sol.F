@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.19 1998-03-13 01:57:20 d3g681 Exp $
+c     $Id: rohf_nr_sol.F,v 1.20 1998-07-13 22:52:42 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -118,7 +118,7 @@ c
          endif
       endif
       gnorm = 0.0d0             ! So is not undefined
-      eprec_tol = 100.0d0*tol2e     ! To avoid noise in line search
+      eprec_tol = max(1d-7,100.0d0*tol2e)     ! To avoid noise in line search
       eprec = eprec_tol
 c     
 c     PCG iterative loop
@@ -198,7 +198,7 @@ c
                endif
             else
 c     Reset eprec AFTER we have got a new start at the revised tolerance
-               eprec_tol = 100.0d0*tol2e ! To avoid noise in line search
+               eprec_tol = max(1d-7,100.0d0*tol2e) ! To avoid noise in line search
             endif
             if ((iter.le.maxiter).and.(.not. converged)) then
                if (mod(iter,5).eq.0) 
