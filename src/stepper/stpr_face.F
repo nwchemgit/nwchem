@@ -4,7 +4,7 @@
      &       CONVGG, NATD, NMODE,
      &       TRACK, BCKSTP, RPATH , rtdb)
 c
-c $Id: stpr_face.F,v 1.1 1994-07-28 15:52:57 d3e129 Exp $
+c $Id: stpr_face.F,v 1.2 1994-07-29 22:39:59 d3e129 Exp $
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       integer rtdb, him, kim
@@ -614,7 +614,6 @@ c
       convgg = dbl_mb((kdbl +  5)) 
       convge = dbl_mb((kdbl +  6)) 
 c
-00001 continue
 c.... free heap memory
         if(.not.MA_free_heap(hdbl))
      &      call errquit
@@ -623,6 +622,8 @@ c
         if(.not.MA_free_heap(hlog))
      &      call errquit
      &      ('stpr_load_rtdb: error freeing hlog',911)
+c
+00001 continue
 c
       end
 

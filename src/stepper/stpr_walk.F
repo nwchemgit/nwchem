@@ -1,5 +1,5 @@
       logical function stpr_walk(rtdb)
-c $Id: stpr_walk.F,v 1.2 1994-07-28 15:52:04 d3e129 Exp $
+c $Id: stpr_walk.F,v 1.3 1994-07-29 22:40:01 d3e129 Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -34,6 +34,7 @@ c
 c.................................... set broadcast off
       status = rtdb_parallel(.false.) 
 c
+*rak:      status = rtdb_print(rtdb,.true.)
       if (ga_nodeid().eq.0)  then
         if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $      title = ' '
