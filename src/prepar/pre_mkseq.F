@@ -1,4 +1,4 @@
-      logical function pre_mkseq(lfnout,lprint,ffield,
+      logical function pre_mkseq(irtdb,lfnout,lprint,source,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,
      + lfnfrg,lfnsgm,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl)
 c
@@ -19,10 +19,12 @@ c
       implicit none
 c
 #include "mafdecls.fh"
+#include "geom.fh"
 c
-      logical pre_pdbsiz,pre_pdbseq
+      integer irtdb
+      logical pre_pdbsiz,pre_pdbseq,pre_rtdbsq
       logical pre_namamb,pre_sgmnum,pre_sgmndx,pre_gensgm
-      external pre_pdbsiz,pre_pdbseq
+      external pre_pdbsiz,pre_pdbseq,pre_rtdbsq
       external pre_namamb,pre_sgmnum,pre_sgmndx,pre_gensgm
       logical pre_mkfrg,pre_namiup,pre_links,pre_wrtseq
       external pre_mkfrg,pre_namiup,pre_links,pre_wrtseq
@@ -40,16 +42,32 @@ c
       character*255 dir_s,dir_x,dir_u,dir_t
       character*80 ffield
       character*3 slvnam
+      character*80 source
       character*10 slvmdl
 c
       integer lfnpdb,lfnout,lfnfrg,lfnpar,lfnseq,lfnsgm
+      integer igeom
 c
       if(lprint.ge.5) write(lfnout,1000)
  1000 format('SEQUENCE GENERATION')
 c
+      if(source(1:3).eq.'pdb') then
       if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,lprint,0,
      + natm,nseq,nssb,nlnk,slvnam))
      + call errquit('pre_pdbsiz failed',9999)
+      else
+      if(source(1:1).eq.' ') source='geometry'
+      if(source(1:4).eq.'rtdb') source='geometry'
+      if(.not.geom_create(igeom,source))
+     + call errquit('pre_mkseq: geom_create failed',0)
+      if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
+     + call errquit('pre_mkseq: geom_rtdb_load failed',0)
+      if(.not.geom_ncent(igeom,natm))
+     + call errquit('pre_mkseq: geom_ncent failed',0)
+      nseq=1
+      nssb=0
+      nlnk=0
+      endif
 c
 c     set dimensions
 c     --------------
@@ -130,12 +148,19 @@ c
 c     read the sequence and atom list from the pdb file
 c     -------------------------------------------------
 c
+      if(source(1:3).eq.'pdb') then
       if(.not.pre_pdbseq(lfnpdb,filpdb,lfnout,lprint,0,slvnam,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_xatm),matm,natm,
      + int_mb(i_lssb),mssb,nssb,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk))
      + call errquit('pre_pdbseq failed',9999)
+      else
+      if(.not.pre_rtdbsq(irtdb,igeom,lfnout,lprint,
+     + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
+     + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_xatm),matm,natm))
+     + call errquit('pre_rtdbsq failed',9999)
+      endif
 c
 c     comply with iupac atom names
 c     ----------------------------
@@ -259,7 +284,7 @@ c
 c
 c     generate fragment files for missing segments in dir_t
 c
-      if(.not.pre_mkfrg(lfnfrg,lfnpar,filpar,
+      if(.not.pre_mkfrg(source,lfnfrg,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t,lfnout,lprint,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm,int_mb(i_latm),

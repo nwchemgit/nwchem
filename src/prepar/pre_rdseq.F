@@ -96,6 +96,7 @@ c     -2 : integral molecule
 c     >0 : C-terminus
 c
       if(lseq(2,1).eq.0) lseq(2,1)=-1
+      if(iseq.eq.1) lseq(2,1)=-2
       if(lseq(2,iseq).eq.0) lseq(2,iseq)=1
       do 2 i=2,iseq
       if(lseq(2,i).eq.0.and.lseq(2,i-1).gt.0) lseq(2,i)=-1

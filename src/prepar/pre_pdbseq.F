@@ -252,6 +252,12 @@ c     since mseq>nseq lseq(3,nseq+1) can hold natm+1
 c
       lseq(3,nseq+1)=natm+1
 c
+      do 23 i=1,natm
+      xatm(1,i)=1.0d-01*xatm(1,i)
+      xatm(2,i)=1.0d-01*xatm(2,i)
+      xatm(3,i)=1.0d-01*xatm(3,i)
+   23 continue
+c
       pre_pdbseq=.true.
       return
 c

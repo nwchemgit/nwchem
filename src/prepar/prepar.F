@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.8 1998-04-20 20:01:41 d3j191 Exp $
+c $Id: prepar.F,v 1.9 1998-04-21 15:18:21 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -42,6 +42,7 @@ c
       character*80 sysnam,ffield
       character*10 slvmdl
       character*3 slvnam
+      character*80 source
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnpar
       integer len,lend,lprint
@@ -71,8 +72,8 @@ c
 c     get info from rtdb
 c     ------------------
 c
-      if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,sysnam,
-     + slvnam,slvmdl,newtop,newseq))
+      if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,source,
+     + sysnam,slvnam,slvmdl,newtop,newseq))
      + call errquit('pre_rtdbin failed',9999)
 c
 c     construct file names
@@ -145,7 +146,7 @@ c
 c     generate sequence & segments from coordinates
 c     ---------------------------------------------
 c
-      if(.not.pre_mkseq(lfnout,lprint,ffield,
+      if(.not.pre_mkseq(irtdb,lfnout,lprint,source,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,
      + lfnfrg,lfnsgm,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl))
      + call errquit('pre_mkseq failed',9999)

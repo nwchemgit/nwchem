@@ -11,8 +11,9 @@ c
       character*255 item
 c
       character*3 slvnam
+      character*80 source
       character*10 slvmdl
-      character*80 ffield,project,sysnam
+      character*80 ffield,project,sysnam,string
       character*255 calc,dir_s,dir_x,dir_u,dir_t
       character*255 filnam,home,card
       integer newtop,newseq
@@ -40,6 +41,7 @@ c
       slvmdl='spce      '
       newtop=0
       newseq=0
+      source='pdb'
 c
 c     read the prepare input block
 c     ----------------------------
@@ -113,6 +115,14 @@ c     ------
 c
       if(inp_compare(.false.,'system',item)) then
       if(.not.inp_a(sysnam)) call errquit('pre_input: error sysnam',0)
+      goto 2
+      endif
+c
+c     source
+c     ------
+c
+      if(inp_compare(.false.,'source',item)) then
+      if(.not.inp_a(source)) call errquit('pre_input: error sysnam',0)
       goto 2
       endif
 c
@@ -222,6 +232,9 @@ c
      + call errquit('pre_input: rtdb_put failed',0)
 c
       if(.not.rtdb_cput(irtdb,'prep:sysnam',1,sysnam))
+     + call errquit('pre_input: rtdb_put failed',0)
+c
+      if(.not.rtdb_cput(irtdb,'prep:source',1,source))
      + call errquit('pre_input: rtdb_put failed',0)
 c
       if(.not.rtdb_cput(irtdb,'prep:slvnam',1,slvnam))

@@ -2,7 +2,7 @@
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t)
 c
-c $Id: pre_mktop.F,v 1.5 1998-04-16 19:04:29 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.6 1998-04-21 15:18:19 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -81,7 +81,7 @@ c
       mlnk=nlnk
 c
       if(lprint.ge.5) write(lfnout,1001) nseq
- 1001 format('sequence lenght is',i10)
+ 1001 format('sequence length is',i10)
 c
 c     allocate memory for sequence
 c     ----------------------------

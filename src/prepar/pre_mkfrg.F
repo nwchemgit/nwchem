@@ -1,4 +1,4 @@
-      logical function pre_mkfrg(iunit,lfnpar,filpar,
+      logical function pre_mkfrg(source,iunit,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t,
      + lfnout,lprint,
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
@@ -24,6 +24,10 @@ c
 c
 #include "mafdecls.fh"
 c
+      logical pre_hnames
+      external pre_hnames
+c
+      character*80 source
       integer mring
       parameter (mring=100)
       integer lring(6,mring)
@@ -114,9 +118,17 @@ c
 c     complete the list of bonds for the fragment
 c     -------------------------------------------
 c
+      write(*,'(2i5)') jlo,jhi
       nbnd=0
       if(.not.pre_bnd(xatm,latm,matm,jlo,jhi,lbnd,mbnd,nbnd))
      + call errquit('pre_bnd failed',9999)
+c
+c     redetermine hydrogen names
+c     --------------------------
+      if(source(1:3).ne.'pdb') then
+      if(.not.pre_hnames(latm,catm,matm,natm,lbnd,mbnd,nbnd))
+     + call errquit('pre_hnames failed',9999)
+      endif
 c
 c     complete the list of angles for the fragment
 c     --------------------------------------------

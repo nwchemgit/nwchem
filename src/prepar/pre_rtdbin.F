@@ -1,5 +1,6 @@
       logical function pre_rtdbin(irtdb,ffield,
-     + dir_s,dir_x,dir_u,dir_t,sysnam,slvnam,slvmdl,newtop,newseq)
+     + dir_s,dir_x,dir_u,dir_t,source,sysnam,slvnam,slvmdl,
+     + newtop,newseq)
 c
 c     function to read input for prepare module from rtdb
 c
@@ -10,6 +11,7 @@ c
 c
       integer irtdb
       character*3 slvnam
+      character*80 source
       character*80 ffield,sysnam
       character*10 slvmdl
       character*255 dir_s,dir_x,dir_u,dir_t
@@ -28,6 +30,9 @@ c
      + call errquit('rtdb_get failed on dir_t',9999)
 c
       if(.not.rtdb_cget(irtdb,'prep:sysnam',1,sysnam))
+     + call errquit('rtdb_get failed on sysnam',9999)
+c
+      if(.not.rtdb_cget(irtdb,'prep:source',1,source))
      + call errquit('rtdb_get failed on sysnam',9999)
 c
       if(.not.rtdb_cget(irtdb,'prep:slvnam',1,slvnam))

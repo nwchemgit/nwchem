@@ -10,3 +10,6 @@ Apr 17 1998	 Generalize ring identification to 3,4,5 and 6 membered rings
 		 Allow force field atom type file in dir_s, dir_x, dir_u and dir_t
 Apr 20 1998	 Consolidate par and typ files
 		 Corrections in improper dihedral center determination
+Apr 21 1998	 Coordinates in nm
+		 List missing parameters only once
+		 Read coordinates from rtdb
