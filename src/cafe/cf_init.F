@@ -6,7 +6,7 @@
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi,
      + mropti,incl)
-c $Id: cf_init.F,v 1.75 2002-04-17 21:39:42 d3j191 Exp $
+c $Id: cf_init.F,v 1.76 2002-04-17 23:40:19 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1334,6 +1334,27 @@ c
 c
       call cf_lfree()
       call cf_sfree()
+c
+      return
+      end
+      subroutine cf_setbox(vl)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      real*8 vl(3,3)
+c
+      integer i,j
+c
+      do 1 i=1,3
+      box(i)=vl(i,i)
+      boxh(i)=half*box(i)
+      do 2 j=1,3
+      vlat(i,j)=vl(i,j)
+    2 continue
+    1 continue
+      volume=box(1)*box(2)*box(3)
 c
       return
       end

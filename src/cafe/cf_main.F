@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.136 2002-04-04 15:19:20 d3j191 Exp $
+c $Id: cf_main.F,v 1.137 2002-04-17 23:40:19 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1041,7 +1041,7 @@ c
       real*8 esk(msf)
 c
       integer i,j,k
-      real*8 w,vv(4)
+      real*8 w
 c
       do 11 i=1,msf
       esk(i)=zero
@@ -2322,13 +2322,16 @@ c
      + byte_mb(i_snam))
 c
       if(numh(2).gt.0) call cf_pr_angles(lfnout,numh(2),mht(2),mhp(2),
-     + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)))
+     + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)),
+     + byte_mb(i_snam))
 c
       if(numd(2).gt.0) call cf_pr_dihes(lfnout,numd(2),mdt(2),mdp(2),
-     + int_mb(i_idih(2)),dbl_mb(i_dih(2)),dbl_mb(i_rdih(2)))
+     + int_mb(i_idih(2)),dbl_mb(i_dih(2)),dbl_mb(i_rdih(2)),
+     + byte_mb(i_snam))
 c
       if(numi(2).gt.0) call cf_pr_imprs(lfnout,numi(2),mit(2),mip(2),
-     + int_mb(i_iimp(2)),dbl_mb(i_imp(2)),dbl_mb(i_rimp(2)))
+     + int_mb(i_iimp(2)),dbl_mb(i_imp(2)),dbl_mb(i_rimp(2)),
+     + byte_mb(i_snam))
 c
       return
       end
@@ -2352,7 +2355,8 @@ c
 c
       write(lfnout,1000)
  1000 format(/,' Solute bonds',/,
-     + '      i      j      c     b_0        C          b          U',/)
+     + '      i      j     atom_i           atom_j        ',
+     + ' c        b_0        C          b          U',/)
 c
       do 1 i=1,nsb
       if(ibnd(i,3).eq.0) then
@@ -2370,7 +2374,7 @@ c
 c
       return
       end
-      subroutine cf_pr_angles(lfnout,nsh,msh,msp,iang,ang,rang)
+      subroutine cf_pr_angles(lfnout,nsh,msh,msp,iang,ang,rang,snam)
 c
       implicit none
 c
@@ -2381,6 +2385,7 @@ c
       integer lfnout,nsh,msh,msp
       integer iang(msh,4)
       real*8 ang(msh,msp,6),rang(msh,2)
+      character*16 snam(nsatot)
 c
       integer i,j
 c
@@ -2389,18 +2394,19 @@ c
 c
       write(lfnout,1000)
  1000 format(/,' Solute angles',/,
-     + '      i      j      k      c    th_0   ',
-     + '     C         th          U',/)
+     + '      i      j      k     atom_i           atom_j           ',
+     + 'atom_k            c     th_0       C          th         U',/)
 c
       do 1 i=1,nsh
-      write(lfnout,1001) (iang(i,j),j=1,4),(ang(i,j,iset),j=1,2),
-     + (rang(i,j),j=1,2)
- 1001 format(4i7,f10.5,e12.5,f10.5,f12.6)
+      write(lfnout,1001) (iang(i,j),j=1,3),
+     + (snam(iang(i,j))(12:16)//':'//snam(iang(i,j))(1:11),j=1,3),
+     + iang(i,4),(ang(i,j,iset),j=1,2),(rang(i,j),j=1,2)
+ 1001 format(3i7,3a17,i7,f10.5,e12.5,f10.5,f12.6)
     1 continue
 c
       return
       end
-      subroutine cf_pr_dihes(lfnout,nsd,msd,msp,idih,dih,rdih)
+      subroutine cf_pr_dihes(lfnout,nsd,msd,msp,idih,dih,rdih,snam)
 c
       implicit none
 c
@@ -2411,6 +2417,7 @@ c
       integer lfnout,nsd,msd,msp
       integer idih(msd,5)
       real*8 dih(msd,msp,6),rdih(msd,2)
+      character*16 snam(nsatot)
 c
       integer i,j
 c
@@ -2419,18 +2426,20 @@ c
 c
       write(lfnout,1000)
  1000 format(/,' Solute torsions',/,
-     + '      i      j      k      l      c  mul   phi_0   ',
-     + '     C        phi          U',/)
+     + '      i      j      k      l     atom_i           ',
+     + 'atom_j           atom_k           atom_l           ',
+     + ' c  mul     phi_0      C          phi          U',/)
 c
       do 1 i=1,nsd
-      write(lfnout,1001) (idih(i,j),j=1,5),(dih(i,j,iset),j=1,3),
-     + (rdih(i,j),j=1,2)
- 1001 format(5i7,f5.1,f10.5,e12.5,f10.5,f12.6)
+      write(lfnout,1001) (idih(i,j),j=1,4),
+     + (snam(idih(i,j))(12:16)//':'//snam(idih(i,j))(1:11),j=1,4),
+     + idih(i,5),(dih(i,j,iset),j=1,3),(rdih(i,j),j=1,2)
+ 1001 format(4i7,4a17,i7,f5.1,f10.5,e12.5,f10.5,f12.6)
     1 continue
 c
       return
       end
-      subroutine cf_pr_imprs(lfnout,nso,mso,msp,ioop,oop,roop)
+      subroutine cf_pr_imprs(lfnout,nso,mso,msp,ioop,oop,roop,snam)
 c
       implicit none
 c
@@ -2441,6 +2450,7 @@ c
       integer lfnout,nso,mso,msp
       integer ioop(mso,5)
       real*8 oop(mso,msp,6),roop(mso,2)
+      character*16 snam(nsatot)
 c
       integer i,j
 c
@@ -2449,13 +2459,15 @@ c
 c
       write(lfnout,1000)
  1000 format(/,' Solute out of plane torsions',/,
-     + '      i      j      k      l      c  mul theta_0   ',
-     + '     C      theta          U',/)
+     + '      i      j      k      l     atom_i           ',
+     + 'atom_j           atom_k           atom_l           ',     
+     + ' c  mul    theta_0     C         theta         U',/)
 c
       do 1 i=1,nso
-      write(lfnout,1001) (ioop(i,j),j=1,5),(oop(i,j,iset),j=1,3),
-     + (roop(i,j),j=1,2)
- 1001 format(5i7,f5.1,f10.5,e12.5,f10.5,f12.6)
+      write(lfnout,1001) (ioop(i,j),j=1,4),
+     + (snam(ioop(i,j))(12:16)//':'//snam(ioop(i,j))(1:11),j=1,4),
+     + ioop(i,5),(oop(i,j,iset),j=1,3),(roop(i,j),j=1,2)
+ 1001 format(4i7,4a17,i7,f5.1,f10.5,e12.5,f10.5,f12.6)
     1 continue
 c
       return
