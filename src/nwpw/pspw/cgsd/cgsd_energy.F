@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.27 2002-06-25 19:51:25 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.28 2002-06-26 19:26:54 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -192,6 +192,10 @@ c#include "rtdb.fh"
          write(luout,1440) E(2),E(2)/neall
          write(luout,1450) E(3),E(3)/neall
          write(luout,1460) E(4),E(4)/neall
+         if (pspw_SIC()) then
+           write(luout,1455) E(22),E(22)/neall
+           write(luout,1456) E(23),E(23)/neall
+         end if
          write(luout,1470) E(5),E(5)/ion_nion()
 
          write(luout,1480) E(6),E(6)/neall
@@ -203,6 +207,10 @@ c#include "rtdb.fh"
          write(luout,1495) E(8),E(8)/neall
          write(luout,1496) E(9),E(9)/neall
          write(luout,1497) E(10),E(10)/neall
+         if (pspw_SIC())  then
+           write(luout,1499) E(24),E(24)/neall
+           write(luout,1501) E(25),E(25)/neall
+         end if
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1498) virial
 
@@ -308,6 +316,8 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1433 FORMAT( ' total  QM energy    :',E19.10,' (',E15.5,'/ion)')
  1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
+ 1455 FORMAT( ' SIC-hartree energy  :',E19.10,' (',E15.5,'/electron)')
+ 1456 FORMAT( ' SIC-exc-corr energy :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1480 FORMAT(/' K.S. kinetic energy :',E19.10,' (',E15.5,'/electron)')
@@ -317,6 +327,10 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1496 FORMAT( ' K.S. V_Hart energy  :',E19.10,' (',E15.5,'/electron)')
  1497 FORMAT( ' K.S. V_xc energy    :',E19.10,' (',E15.5,'/electron)')
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
+ 1499 FORMAT( ' K.S. SIC-hartree energy  :',E19.10,
+     >        ' (',E15.5,'/electron)')
+ 1501 FORMAT( ' K.S. SIC-exc-corr energy :',E19.10,
+     >        ' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
 
@@ -343,9 +357,9 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
       end
 
 *     *******************************
-*     *								*
-*     *	    cgsd_energy_gradient	*
-*     *								*
+*     *				    *
+*     *	    cgsd_energy_gradient    *
+*     *				    *
 *     *******************************
 
       subroutine cgsd_energy_gradient(G1)

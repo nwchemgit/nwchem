@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.11 2002-06-25 21:38:26 bylaska Exp $
+* $Id: electron.F,v 1.12 2002-06-26 19:26:54 bylaska Exp $
 *
 
 
@@ -228,7 +228,7 @@
       integer n2ft3d
       integer ii,ms,n1(2),n2(2),nx,ny,nz
       real*8  sum,eorbit,ehartr,exc,pxc,exc2,pxc2,dv
-      real*8  total_energy,ehsic,exsic,phsic,pxsic
+      real*8  total_energy
 
 *     **** external functions *****
       logical  pspw_SIC,pspw_SIC_relaxed
@@ -522,6 +522,26 @@
       return
       end
 
+
+*     ***********************************
+*     *					*
+*     *	    electron_SIC_energies	*
+*     *					*
+*     ***********************************
+      
+      subroutine electron_SIC_energies(ehsic0,phsic0,exsic0,pxsic0)
+      implicit none
+      real*8 ehsic0,phsic0
+      real*8 exsic0,pxsic0
+
+#include "electron_common.fh"
+
+      ehsic0 = ehsic
+      exsic0 = exsic
+      phsic0 = phsic
+      pxsic0 = pxsic
+      return
+      end
 
  
 
