@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.41 2001-08-10 15:05:29 d3j191 Exp $
+c $Id: md_input.F,v 1.42 2001-08-10 17:51:49 d3j191 Exp $
 c
       implicit none
 c
@@ -30,12 +30,12 @@ c
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
       integer itload,ihess,latom,icomm,nfanal,iport,iguide,icentr
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
-      integer ifidi
+      integer ifidi,ncoll
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
       real*8 rrdf,xfield,xfvect(3),xffreq,weight,rqmmm,dielec,ealpha
-      real*8 frgaus,rbox,disrlx,drsscl,eqm,tguide,fguide,rfix
+      real*8 frgaus,rbox,disrlx,drsscl,eqm,tguide,fguide,rfix,fcoll
       character*12 afix
 c
       integer i,mtimes,len
@@ -165,6 +165,8 @@ c      iunfix=0
       iguide=0
       nopack=0
       istart=0
+      ncoll=0
+      fcoll=1.0d0
 c
       server=' '
 c
@@ -590,6 +592,26 @@ c
       if(inp_compare(.false.,'constraint',item)) then
       npmf=2
       if(.not.inp_a(item)) goto 1
+      endif
+      goto 2
+      endif
+c
+c     collapse
+c
+      if(inp_compare(.false.,'collapse',item)) then
+      ncoll=3
+      fcoll=1.0d+01
+  278 continue
+      if(.not.inp_f(fcoll)) then
+      if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'z',item)) then
+      ncoll=1
+      goto 278
+      endif
+      if(inp_compare(.false.,'xy',item)) then
+      ncoll=2
+      goto 278
+      endif
       endif
       goto 2
       endif
@@ -1538,6 +1560,8 @@ c     + call errquit('md_input: rtdb_put failed',0)
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:numcmd',mt_int,1,numcmd))
      + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:ncoll',mt_int,1,ncoll))
+     + call errquit('md_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'md:fguide',mt_dbl,1,fguide))
      + call errquit('md_input: rtdb_put failed',0)
@@ -1618,6 +1642,8 @@ c
       if(.not.rtdb_put(irtdb,'md:drsscl',mt_dbl,1,drsscl))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:uqmatm',mt_dbl,1,eqm))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:fcoll',mt_dbl,1,fcoll))
      + call errquit('md_input: rtdb_put failed',0)
 c
       close(unit=lfncmd)

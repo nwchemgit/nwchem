@@ -1,6 +1,6 @@
       logical function nwmd(irtdb0)
 c
-c $Id: nwmd.F,v 1.8 2001-05-09 17:51:23 d3j191 Exp $
+c $Id: nwmd.F,v 1.9 2001-08-10 17:51:49 d3j191 Exp $
 c
       implicit none
 c
@@ -8,7 +8,7 @@ c
 #include "mafdecls.fh"
 #include "md_common.fh"
 c
-      integer irtdb0,mdold
+      integer irtdb0
 c
       irtdb=irtdb0
 c

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.109 2001-07-31 17:58:26 d3j191 Exp $
+c $Id: md_main.F,v 1.110 2001-08-10 17:51:49 d3j191 Exp $
 c
       implicit none
 c
@@ -1519,6 +1519,10 @@ c
       call ga_sync()
 c
       call timer_start(10)
+      if(ncoll.gt.0) call cf_collapse(ncoll,fcoll,nsaloc,nwmloc,
+     + isl(1,lsmol),
+     + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_fs),
+     + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_fw))
       if(ifield.gt.0) call cf_extern(stime,nsaloc,dbl_mb(i_fs),
      + isl(1,lsct1),nwmloc,dbl_mb(i_fw))
       call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
@@ -2144,7 +2148,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.109 2001-07-31 17:58:26 d3j191 Exp $
+c $Id: md_main.F,v 1.110 2001-08-10 17:51:49 d3j191 Exp $
 c
       implicit none
 c

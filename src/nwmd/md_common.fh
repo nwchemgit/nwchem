@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.44 2001-07-31 17:58:26 d3j191 Exp $
+c $Id: md_common.fh,v 1.45 2001-08-10 17:51:49 d3j191 Exp $
 c
 c     parameters
 c
@@ -118,7 +118,8 @@ c
      + compr,tmpext,tmprlx,tmsrlx,tgauss,dielec,field,factld,sil,
      + urlow,hbdis1,hbdis2,hbang1,hbang2,verinp,shift0(6),shift1(6),
      + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
-     + xfvect(3),xffreq,xfield,drdf,uqmatm,fguide,tguide,factgf,factgg
+     + xfvect(3),xffreq,xfield,drdf,uqmatm,fguide,tguide,factgf,factgg,
+     + fcoll
       integer nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
      + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
      + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,
@@ -139,7 +140,7 @@ c
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
      + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb(10),mbbreq,ioload,iprof,
-     + isload,inp_ptr
+     + isload,ncoll,inp_ptr
       common/md_inp/ptol,rshort,rlong,stime,tstep,elam,ddacq,edacq,
      + fdacq,weight,facapp,dgscl,dgref,ddgscl,ssshft,dx0sd,dxmsd,
      + dxsdmx,dx0cg,dxcgmx,tlwsha,tlssha,rrdf,rdip,rkirk,prsext,prsrlx,
@@ -147,6 +148,7 @@ c
      + urlow,hbdis1,hbdis2,hbang1,hbang2,verinp,shift0,shift1,
      + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
      + xfvect,xffreq,xfield,drdf,uqmatm,fguide,tguide,factgf,factgg,
+     + fcoll,
      + nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
      + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
      + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,
@@ -167,7 +169,7 @@ c
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
      + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb,mbbreq,ioload,iprof,
-     + isload,inp_ptr
+     + isload,ncoll,inp_ptr
 c
       logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
      + lpert2,lpert3,lxw,lvw,lxs,lvs,lpack,lequi

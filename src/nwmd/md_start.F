@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.96 2001-08-10 15:05:29 d3j191 Exp $
+c $Id: md_start.F,v 1.97 2001-08-10 17:51:49 d3j191 Exp $
 c
       implicit none
 c
@@ -863,6 +863,8 @@ c     + call errquit('md_rtdbin: rtdb_get failed',92)
      + call errquit('md_rtdbin: rtdb_get failed',99)
       if(.not.rtdb_get(irtdb,'md:iprof',mt_int,1,iprof))
      + call errquit('md_rtdbin: rtdb_get failed',99)
+      if(.not.rtdb_get(irtdb,'md:ncoll',mt_int,1,ncoll))
+     + call errquit('md_rtdbin: rtdb_get failed',89)
 c
       if(.not.rtdb_get(irtdb,'md:fguide',mt_dbl,1,fguide))
      + call errquit('md_rtdbin: rtdb_get failed',100)
@@ -944,6 +946,8 @@ c
      + call errquit('md_rtdbin: rtdb_get failed',136)
       if(.not.rtdb_get(irtdb,'md:pmetol',mt_dbl,1,pmetol))
      + pmetol=1.0d-05
+      if(.not.rtdb_get(irtdb,'md:fcoll',mt_dbl,1,fcoll))
+     + fcoll=1.0d+01
 c
       if(.not.rtdb_cget(irtdb,'task:theory',1,theory))
      + call errquit('md_rtdbin: rtdg_cget failed',137)

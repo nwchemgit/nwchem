@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.104 2001-08-10 15:05:37 d3j191 Exp $
+c $Id: cf_main.F,v 1.105 2001-08-10 17:52:04 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1249,6 +1249,40 @@ c
 c
       fnorm=sqrt(fnorm)
       fmax=sqrt(fmax)
+c
+      return
+      end
+      subroutine cf_collapse(ncoll,fcoll,nums,numw,ismol,
+     + xs,xsm,fs,xwm,xw,fw)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer ncoll,numw,nums
+      integer ismol(msa)
+      real*8 fcoll
+      real*8 xsm(msm,3),xs(msa,3),fs(msa,3)
+      real*8 xwm(mwm,3),xw(mwm,3,mwa),fw(mwm,3,mwa)
+c
+      integer i,j,k,ki,kf
+c
+      ki=1
+      kf=3
+      if(ncoll.eq.1) ki=3
+      if(ncoll.eq.2) kf=2
+c
+      do 1 k=ki,kf
+      do 2 i=1,nums
+      fs(i,k)=fs(i,k)-fcoll*xsm(ismol(i),k)
+    2 continue
+      do 3 j=1,nwa
+      do 4 i=1,numw
+      fw(i,k,j)=fw(i,k,j)-fcoll*xwm(i,k)
+    4 continue
+    3 continue
+    1 continue
 c
       return
       end
