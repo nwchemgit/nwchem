@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.89 2002-08-08 21:41:46 d3j191 Exp $
+c $Id: ana_task.F,v 1.90 2002-10-18 17:56:21 d3j191 Exp $
 c
       implicit none
 c
@@ -383,7 +383,7 @@ c
 c
       endif
       nframe=nframe+1
-      if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 20
+      if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 20
       endif
       if(me.eq.0) then
       close(unit=lfntrj)
@@ -755,7 +755,7 @@ c
       indx=indx+1
       endif
       nframe=nframe+1
-      if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 2
+      if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 2
       endif
       if(me.eq.0) then
       close(unit=lfntrj)
@@ -806,7 +806,7 @@ c
       indx=indx+1
       endif
       nframe=nframe+1
-      if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 3
+      if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 3
       endif
       if(me.eq.0) then
       close(unit=lfntrj)
@@ -1011,7 +1011,7 @@ c
 c
       endif
       nframe=nframe+1
-      if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 10
+      if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 10
       endif
 c
       if(ldist.gt.0) then
@@ -1120,7 +1120,7 @@ c
 c
       endif
       nframe=nframe+1
-      if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 4
+      if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 4
       endif
 c
       if(me.eq.0) then
@@ -1191,7 +1191,7 @@ c
 c
       endif
       nframe=nframe+1
-      if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 5
+      if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 5
       endif
 c
       call ga_sync()
@@ -1309,7 +1309,7 @@ c
 c
       endif
       nframe=nframe+1
-      if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 6
+      if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 6
       endif
       if(me.eq.0) then
       open(unit=lfnvec,file=filvec(1:index(filvec,' ')-1),
