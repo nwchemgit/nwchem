@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.52 1996-10-22 08:37:08 d3g681 Exp $
+C$Id: mointdriver.F,v 1.53 1996-10-23 20:34:51 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -253,6 +253,7 @@ c
          write(6,*)
          call util_flush(6)
        endif
+       goto 333    ! skip direct MP2 section
 c
 c Clear 4-index statistics
 c
@@ -345,6 +346,7 @@ c
        call ga_sync()
 c
 c
+ 333   continue
        if (ocoul) status = ga_destroy(g_coul)
        if (oexch) status = ga_destroy(g_exch)
 C       goto 444          !skip semi-direct code
@@ -369,22 +371,24 @@ c
        gmem = (ga_memory_avail() - lmemreq)*ga_nnodes()
        mxrlen=maxbfsh*maxbfsh*ga_nnodes()*10
        seg_incr = gmem/(nvir*mxrlen)
-       seg_incr = min(max(seg_incr,1),nact)
+       seg_incr = min(max(seg_incr,1),nocc_correl)
 
        IF (GA_NODEID().EQ.0) THEN
          WRITE(6,738) LMEMREQ, GMEM, MXRLEN, SEG_INCR
  738     FORMAT(' Local memory required:',2x,i20,/,
      $          ' Global memory remaining:',i20,/,
-     $          ' Record length:',20x,i20,/,
-     $          ' Occupied segment length:',i20)
+     $          ' Record length:',10x,i20,/,
+     $        ' Occupied segment length:',i20)
        ENDIF
 
-       if (ga_nodeid().eq.0) write(6,978) seg_incr
- 978   format(//,10x,25('='),
-     $         /,10x,'Test semi-direct MP2 code'
-     $         /,10x,25('='),
-     $         //, 'Segment length = ',I5)
-c
+       if (ga_nodeid().eq.0) then
+         write(6,978) seg_incr
+ 978     format(//,10x,25('='),
+     $           /,10x,'Test semi-direct MP2 code'
+     $           /,10x,25('='),
+     $        //, 'Segment length = ',I5)
+         call util_flush(6)
+       endif
  222   continue
        tpass = tcgtime()
        ipass = ipass + 1
@@ -405,8 +409,11 @@ c
      $                          dbl_mb(k_evals) )
        status = ma_pop_stack(l_x)
        tpass = tcgtime() - tpass
-       if (ga_nodeid().eq.0) write(6,332) ipass,oseg_lo,oseg_hi,tpass
- 332   format('Pass:',i3,5x,'Segment:',i3,'-',i3,5x,f12.2)
+       if (ga_nodeid().eq.0) then
+         write(6,332) ipass,oseg_lo,oseg_hi,tpass
+ 332     format('Pass:',i3,5x,'Segment:',i3,'-',i3,5x,f12.2)
+         call util_flush(6)
+       endif
        if (oseg_hi.lt.occ_hi) goto 222
 c
 c  Sum pair energies       
@@ -414,7 +421,7 @@ c
        emp2 = 0.d0
        do i=occ_lo,occ_hi
          do j=occ_lo,i
-           ij = ((i-occ_lo+1)*(i-occ_lo))/2 + j
+           ij = ((i-occ_lo+1)*(i-occ_lo))/2 + j - occ_lo + 1
            call ga_get(g_epair,1,1,ij,ij,e2pair,1)
            emp2 = emp2 + e2pair
          enddo
