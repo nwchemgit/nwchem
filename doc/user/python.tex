@@ -16,7 +16,7 @@ for a full manual and lots of useful code and resources.
 
 \section{How to input and run a Python program inside NWChem}
 
-A Python program in input into NWChem inside a Python compound directive.
+A Python program is input into NWChem inside a Python compound directive.
 \begin{verbatim}
   python [print|noprint]
     ...
@@ -225,7 +225,7 @@ the above task easier.
        return task_energy('scf')
 
     exponent = 0.1
-    while exponent <= 2.0:
+    while exponent <= 2.01:
        energy = energy_at_exponent(exponent)
        if (ga_nodeid() == 0):
           print ' exponent = ', exponent, ' energy = ', energy
@@ -636,9 +636,9 @@ This indicates that NWChem thinks that a line is less indented than
 the first line.  If this is not the case then perhaps there is a tab
 in your input which NWChem treats as a single space character but
 appears to you as more spaces. Try running \verb+untabify+ in Emacs.
-It could also be the \verb+END+ directive that terminates the
+The problem could also be the \verb+END+ directive that terminates the
 \verb+PYTHON+ compound directive --- since Python also has an
-\verb+end+ statement then to avoid confusion the \verb+END+ directive
+\verb+end+ statement.  To avoid confusion the \verb+END+ directive
 for NWChem {\em must} be at the start of the line.
 
 \item Your program hangs or deadlocks --- most likely you have a piece
