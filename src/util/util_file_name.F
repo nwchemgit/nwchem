@@ -80,13 +80,13 @@ c
       if (oscratch) then
          if (.not. util_file_parse_dir(scratch_dir, dir)) then
             if (.not. util_file_parse_dir(
-     $SCRATCH_DEF_DIR
+     $ SCRATCH_DEF_DIR
      $           , dir)) dir = ' ' ! Final default is blank
          endif
       else
          if (.not. util_file_parse_dir(permanent_dir, dir)) then
             if (.not. util_file_parse_dir(
-     $PERM_DEF_DIR
+     $ PERM_DEF_DIR
      $           , dir)) dir = ' ' ! Final default is blank
          endif
       endif
@@ -236,7 +236,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup)
-C$Id: util_file_name.F,v 1.1 1996-07-17 16:37:58 d3g681 Exp $
+C$Id: util_file_name.F,v 1.2 1996-07-17 18:32:58 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
