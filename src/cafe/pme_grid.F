@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.13 2000-07-18 00:10:26 d3j191 Exp $
+c $Id: pme_grid.F,v 1.14 2000-07-18 17:42:40 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -25,7 +25,9 @@ c
       epme=ecorr(ipset)
       call timer_stop(12)
 c
-      if(.not.lpnode) return
+      call pme_flag(0,0,me)
+c
+      if(lpnode) then
 c
       call timer_start(13)
 c
@@ -53,17 +55,23 @@ c
 c
       call pme_putgrd(dbl_mb(i_grd2))
 c
+c     synchronize pme nodes
+c
+      call pme_sync(nodpme,int_mb(i_nodp))
+c
 c     set flag on all nodes to indicate that potential
 c     grid calculation has completed
 c
-      call pme_flag(1,-1)
+      call pme_flag(0,1,-1)
 c
       call timer_stop(16)
+c
+      endif
 c
       return
       end
       subroutine pme_energy(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.13 2000-07-18 00:10:26 d3j191 Exp $
+c
       implicit none
 c
 #include "pme_common.fh"
@@ -168,8 +176,13 @@ c     pmenodes should wait until all nodes have finished contributions to the gr
 c
       call timer_stop(11)
       call timer_start(12)
-      call ga_sync()
-cx      call pme_sync(nodpme,nodep)
+c
+c     the following pme_flag/pme_wait/pme_flag combination may be
+c     replaced by a ga_sync() at loss of performance
+c
+      call pme_flag(1,-1,-1)
+      if(lpnode) call pme_wait(1,np)
+      call pme_flag(1,0,me)
 c
 c     retrieve local slab from global array space
 c
@@ -261,7 +274,7 @@ c
 c     wait until potential grid is available
 c
       call timer_start(24)
-      call pme_wait(1)
+      call pme_wait(0,1)
       call timer_stop(24)
       call timer_start(25)
 c
@@ -319,16 +332,16 @@ c
 c
       return
       end
-      subroutine pme_flag(icolor,inode)
+      subroutine pme_flag(iflag,icolor,inode)
 c
       implicit none
 c
 #include "pme_common.fh"
 c
-      integer icolor,inode
+      integer iflag,icolor,inode
       integer il,ih,jl,jh,node,icolr
 c
-c     set flag on node:
+c     set flag iflag on node inode to color icolor:
 c
 c     icolor>=0 set flag to icolor
 c     icolor<0  accumulate iabs(icolor) to flag
@@ -342,9 +355,9 @@ c
       do 1 node=0,np-1
       call ga_distribution(ga_flg,node,il,ih,jl,jh)
       if(icolor.ge.0) then
-      call ga_put(ga_flg,il,ih,jl,jh,icolr,1)
+      call ga_put(ga_flg,il,ih,jl+iflag,jl+iflag,icolr,1)
       else
-      call ga_acc(ga_flg,il,ih,jl,jh,icolr,1,1)
+      call ga_acc(ga_flg,il,ih,jl+iflag,jl+iflag,icolr,1,1)
       endif
     1 continue
       else
@@ -353,30 +366,29 @@ c     set flag on single node
 c
       call ga_distribution(ga_flg,inode,il,ih,jl,jh)
       if(icolor.ge.0) then
-      call ga_put(ga_flg,il,ih,jl,jh,icolr,1)
+      call ga_put(ga_flg,il,ih,jl+iflag,jl+iflag,icolr,1)
       else
-      call ga_acc(ga_flg,il,ih,jl,jh,icolr,1,1)
+      call ga_acc(ga_flg,il,ih,jl+iflag,jl+iflag,icolr,1,1)
       endif
       endif
 c
       return
       end
-      subroutine pme_wait(icolor)
+      subroutine pme_wait(iflag,icolor)
 c
       implicit none
 c
 #include "pme_common.fh"
 c
-      integer icolor
+      integer iflag,icolor
       integer il,ih,jl,jh,icolr
 c
 c     wait until flag color on this node is icolor
 c
       call ga_distribution(ga_flg,me,il,ih,jl,jh)
     1 continue
-      call ga_get(ga_flg,il,ih,jl,jh,icolr,1)
+      call ga_get(ga_flg,il,ih,jl+iflag,jl+iflag,icolr,1)
       if(icolr.ne.icolor) goto 1
 c
       return
       end
-

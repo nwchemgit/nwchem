@@ -1,5 +1,5 @@
       subroutine pme_start(a,m,imffti,nodpmi,ngxi,ngyi,ngzi,nwm,nwa,nsa)
-c $Id: pme_init.F,v 1.13 2000-05-12 17:25:44 d3j191 Exp $
+c $Id: pme_init.F,v 1.14 2000-07-18 17:42:40 d3j191 Exp $
       implicit none
 c
       integer nodpmi,ngxi,ngyi,ngzi,imffti,nwm,nwa,nsa,m
@@ -91,9 +91,10 @@ c
 c
 c     create the flag array
 c
-      if(.not.ga_create(mt_int,np,1,'flg',1,1,ga_flg))
+      if(.not.ga_create(mt_int,np,5,'flg',1,5,ga_flg))
      + call errquit('Failed to allocate global array flg',0)
-      call pme_flag(0,me)
+      call pme_flag(0,0,me)
+      call pme_flag(1,0,me)
 c
 c     select the fft
 c
