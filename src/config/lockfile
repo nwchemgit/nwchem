@@ -1,0 +1,57 @@
+#!/bin/csh
+
+#
+# lockfile filename
+#
+# Simluate a lock by creating and writing the specified file.
+# The lock may be released by deleting the file.
+#
+# On sucess exits with status zero and access to the lock
+#
+# All other conditions exit with status one and undefined lock state.
+#
+# Some race conditions exist but deadlock is avoided by exiting
+# if the lock is not acquired in TIMEOUT*SECS seconds
+#
+# SECS is the time in seconds to sleep between tries to get the lock
+# TIMEOUT*SECS is the time in seconds before waiting is abandonned.
+#
+
+set TIMEOUT = 20
+set SECS = 5
+
+if ($#argv != 1) then
+  echo usage: lockfile filename
+  exit 1
+endif
+
+set file = $1
+
+set nspin = 0
+
+wait:
+while (-e $file)
+  if ($nspin >= $TIMEOUT) then
+    echo lockfile: have been waiting for $file for too long ... \
+                   consider deleting it!
+    exit 1
+  endif
+  @ nspin ++
+  echo lockfile: waiting for $file
+  sleep 2
+end
+
+echo $$ " " > $file
+set id = "`cat $file`"
+
+if ($id[1] != $$) then
+  echo lockfile: not fast enough on $file
+  goto wait
+endif
+
+echo Got lock on $file
+
+exit 0
+
+
+
