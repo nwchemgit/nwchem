@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.11 2000-05-07 00:22:04 zzhang Exp $
+c     $Id: dft_scf_so.F,v 1.12 2000-06-02 20:45:25 zzhang Exp $
 c     
       implicit none
 c     
@@ -570,7 +570,6 @@ c
       call ga_zero(g_densso(1))
       call ga_zero(g_densso(2))
       spinor = .false. 
-      oskel = .false.
       if (rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
      &     spinor=spinor_guess(movecs_in)
       if(.not.spinor)then 
@@ -630,20 +629,23 @@ c
      $           movecs_read_so(movecs_in, dbl_mb(k_occ),
      $           dbl_mb(k_eval(1)), g_moso)
          endif
-c         call ga_print(g_moso(1))
-c         call ga_print(g_moso(2))
 c     
          if (.not.status)then
             write(6,*)'dft_scf_so movecs output = ',movecs_in
             call errquit('dft_scf_so: could not read mo vectors',917)
          endif
+c     
+         call movecs_swap_so(rtdb,'dft',scftype,g_moso,
+     &        dbl_mb(k_occ),dbl_mb(k_eval(1)))
       endif
-
+c
       if (oadapt)then 
          call scf_sym_adapt_so(ao_bas_han, g_moso,
      &        oprint_syma, 2*nbf_ao, name,
      &        .true., 
      &        int_mb(k_ir))
+c         call ga_print(g_moso(1))
+c         call ga_print(g_moso(2))
       endif      
       
  1212 continue 
@@ -689,9 +691,6 @@ c
       call ga_zero(g_dens(1))
       call ga_zero(g_dens(2))
       call ga_dens_sf(g_dens, g_densso(1), nbf_ao)
-
-c      call ga_symmetrize(g_dens(1))
-c      call ga_symmetrize(g_dens(2))
 c     
 c     Tidy up SCF
 c     
@@ -710,7 +709,7 @@ c
          levelshifting = .true.
       else
          levelshifting = .false.
-c     levelshifting = .true.
+c         levelshifting = .true.
 c     rlshift = 2.0
       endif
       iswitc = 0
@@ -819,30 +818,12 @@ c     compute core energy
 c     
       call ga_zero(g_fock)
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'kinetic', oskel)
-      call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'potential', oskel)
 
-      call ga_fock_sf(g_fock, g_fockso(1), nbf_ao) 
-cso   Re(Dsf)=Re(Daa)+Re(Dbb)=g_dens(1) 
-cso   <Hsf> = Re(Dsf) dot T+Vsf 
-      Ecore = ga_ddot(g_dens(1), g_fock)
-c      write(*,*)"Ecore: fock", Ecore 
-c      call ga_summarize(.true.)
-      call ga_zero(g_so(1))
-      call ga_zero(g_so(2))
-      call ga_zero(g_so(3))
-cso  
-cso   Accumulate s.o. contribution to fock matrix 
-cso   
-      noso=Ecore 
-      call int_1e_oldga(ao_bas_han, ao_bas_han, g_so, 'so', oskel)
-       call ga_scale(g_so(1),dble(0.5d0))
-      call ga_scale(g_so(2),dble(0.5d0))
-      call ga_scale(g_so(3),dble(0.5d0))
-c
 c      tot=0
+c      write(*,*)"overlap"
 c      do i = 1,nbf_ao
 c         do j = 1, i
-c            call ga_get(g_so(1),i,i,j,j,vso,1)
+c            call ga_get(g_s,i,i,j,j,vso,1)
 c            if(abs(vso(1,1)).gt.1.0e-8)then 
 c               tot=tot+1
 c               write(*,'("i,j,",i4,i4,f10.5)')i,j,vso(1,1)
@@ -851,10 +832,50 @@ c         enddo
 c      enddo
 c      write(*,'("i,j,",i10)')tot
 
-c      call ga_print(g_so(1))
-c      call ga_print(g_so(2))
-c      call ga_print(g_so(3))
-c
+c      tot=0
+c      write(*,*)"kinetic"
+c      do i = 1,nbf_ao
+c         do j = 1, i
+c            call ga_get(g_fock,i,i,j,j,vso,1)
+c            if(abs(vso(1,1)).gt.1.0e-8)then 
+c               tot=tot+1
+c               write(*,'("i,j,",i4,i4,f10.5)')i,j,vso(1,1)
+c            endif
+c         enddo
+c      enddo
+c      write(*,'("i,j,",i10)')tot
+
+      call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'potential', oskel)
+
+      call ga_fock_sf(g_fock, g_fockso(1), nbf_ao) 
+cso   Re(Dsf)=Re(Daa)+Re(Dbb)=g_dens(1) 
+cso   <Hsf> = Re(Dsf) dot T+Vsf 
+      Ecore = ga_ddot(g_dens(1), g_fock)
+      write(*,*)"Ecore=", ecore
+      call ga_zero(g_so(1))
+      call ga_zero(g_so(2))
+      call ga_zero(g_so(3))
+cso  
+cso   Accumulate s.o. contribution to fock matrix 
+cso   
+      noso=Ecore 
+      call int_1e_oldga(ao_bas_han, ao_bas_han, g_so, 'so', oskel)
+      call ga_scale(g_so(1),dble(0.5d0))
+      call ga_scale(g_so(2),dble(0.5d0))
+      call ga_scale(g_so(3),dble(0.5d0))
+
+c      tot=0
+c      write(*,*)"spin-orbit"
+c      do i = 1,nbf_ao
+c         do j = 1, i
+c            call ga_get(g_so(1),i,i,j,j,vso,1)
+c            if(abs(vso(1,1)).gt.1.0e-8)then 
+c               tot=tot+1
+c               write(*,'("i,j,",i4,i4,f10.5)')i,j,2*vso(1,1)
+c            endif
+c         enddo
+c      enddo
+
        call ga_fock_so(g_so, g_fockso, nbf_ao)
 cso  
 cso   Accumulate z-component s.o. contribution
@@ -864,8 +885,7 @@ cso
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'z') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(1)) 
-c      write(*,*)"Ecore: z", Ecore 
-
+      write(*,*)"Ecore=", ecore
 cso  
 cso   Accumulate y-component s.o. contribution 
 cso   Re(Dy)=Re(Dab)-Re(Dba) 
@@ -874,7 +894,7 @@ cso
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'y') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(2)) 
-c      write(*,*)"Ecore: y", Ecore 
+      write(*,*)"Ecore=", ecore
 cso  
 cso   Accumulate x-component s.o. contribution 
 cso   Re(Dx)=-Im(Dab)-Im(Dba) 
@@ -882,8 +902,8 @@ cso   <Hx>=Re(Dx) dot Vx
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'x') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(3))
+      write(*,*)"Ecore=", ecore
       noso = Ecore-noso 
-c      write(*,*)"Ecore: x", Ecore, noso
 c     
 c     Perform SPM analysis
 c     
@@ -908,6 +928,8 @@ c
       call util_ga_mat_reduce(nbf_ao, natoms, int_mb(icetobfr), g_dens, 
      &                        ipol, dbl_mb(irdens_atom), 'rms', 
      &                        dbl_mb(iscr), nbf_ao_mxnbf_ce)
+c      write(*,'("irdens",5f10.7)')
+c     &     (dbl_mb(irdens_atom+i),i=0,ipol*natoms*natoms-1)
       if (.not.ma_pop_stack(lscr))
      &   call errquit('dft_scf: cannot pop stack:lscr',0)
 c
@@ -992,6 +1014,7 @@ c
      &     (rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &     g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
      &     dbl_mb(irdens_atom), int_mb(icetobfr), natoms)
+      write(*,*)"Ecoul, Exc(1)", Ecoul, Exc(1)
       call ga_sync
       call ga_dadd_patch( 1.d0, g_fockso(1), 1, nbf_ao, 
      &                                     1, nbf_ao, 
@@ -1094,9 +1117,6 @@ c
 c     
 c     map s-1/2 to the nbf_mo by nbf_mo g_scr2 
 c    
-      if(me.eq.0)then 
-c        call ga_print(g_scr) 
-      endif  
       if(.not.ga_create(mt_dbl, 2*nbf, 2*nbf,'scr2', 0, 0, g_scr2))
      &     call errquit('dft_scf_so: error creating scr2',0)
       call ga_zero(g_scr2)
@@ -1104,7 +1124,6 @@ c        call ga_print(g_scr)
 c     
 c     Transform Fock matrix.
 c     
-c      write(*,*)"fock before transform"
       call ga_zero(g_tmp_ri)   
       call ga_dgemm('T', 'N', nbf_mo, nbf_mo, nbf_mo, one, 
      &                 g_scr2, g_fockso(1), zero, g_tmp_ri)
@@ -1491,7 +1510,6 @@ c     Form the total density matrix.
 c     
       call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
       call ga_sync
-c      write(*,*)"electrons", ga_ddot(g_s, g_dens(1))
 c     
 c     Check for SCF convergence.
 c     
@@ -1859,8 +1877,6 @@ c     &     write(*,*)"converged=", converged
 c
 c     output energies and eigenvectors to disk
 c     
-c      call ga_print(g_moso(1))
-c      call ga_print(g_moso(2))
       if (.not.movecs_write_so
      $     (rtdb, ao_bas_han, movecs_out, 'sodft', title,
      &     nbf_mo, dbl_mb(k_occ), dbl_mb(k_eval(1)), g_moso))

@@ -1,7 +1,7 @@
       logical function movecs_read_header_so
      $    (filename, title, basis_name, 
      $     scftype, nbf)
-C$Id: vectors_so.F,v 1.1 2000-04-17 21:46:09 zzhang Exp $
+C$Id: vectors_so.F,v 1.2 2000-06-02 20:44:52 zzhang Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -415,7 +415,7 @@ c
 #include "inp.fh"
 c
       character*(*) scftype
-      integer rtdb, g_vecs(*)
+      integer rtdb, g_vecs(2)
       double precision occ(*), eval(*)
       character*(*) module
 c
@@ -438,84 +438,71 @@ c
       oprint = util_print('mo guess', print_default)
       mlen = inp_strlen(module)
 c
-      if (scftype .eq. 'UHF') then
-         nset = 2
-      else
-         nset = 1
-      endif
+      name = ' '
+      write(name,'(a,a)') module(1:mlen),':swap'
+      text = 'sodft'
+      if (.not. rtdb_ma_get(rtdb, name, type, nelem, 
+     $     handle)) goto 1000
+      if (.not. ma_get_index(handle,index)) call errquit
+     $     ('movecs_swap_so: get index failed', handle)
+      if (mod(nelem,2).ne.0 .or. type.ne.mt_int) call errquit
+     $     ('movecs_swap_so: invalid list of pairs',nelem)
 c
-      do set = 1, nset
-         name = ' '
-         if (scftype .eq. 'UHF') then
-            if (set.eq.1) then
-               write(name,'(a,a)') module(1:mlen),':swap alpha'
-               text = 'alpha'
-            else
-               write(name,'(a,a)') module(1:mlen),':swap beta'
-               text = 'beta'
-            endif
-         else
-            write(name,'(a,a)') module(1:mlen),':swap'
-            text = scftype
-         endif
-         if (.not. rtdb_ma_get(rtdb, name, type, nelem, 
-     $        handle)) goto 1000
-         if (.not. ma_get_index(handle,index)) call errquit
-     $        ('movecs_swap_so: get index failed', handle)
-         if (mod(nelem,2).ne.0 .or. type.ne.mt_int) call errquit
-     $        ('movecs_swap_so: invalid list of pairs',nelem)
-c
-         call ga_sync()
-         call ga_inquire(g_vecs, type, dim1, dim2)
-         if (ga_nodeid() .eq. 0) then
-            if (oprint) write(6,*)
-            if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_veci, k_veci))
-     $           call errquit('movecs_swap_so: no scratch space', dim1)
-            if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_vecj, k_vecj))
-     $           call errquit('movecs_swap_so: no scratch space', dim1)
-            do pair = 1, nelem, 2
-               i = int_mb(index+pair-1)
-               j = int_mb(index+pair  )
-               if (oprint) write(6,1) text(1:inp_strlen(text)), i, j
- 1             format(' Swapping ',a,' orbitals ', 2i5)
-               if (i.lt.0 .or. i.gt.dim2) call errquit
-     $              ('movecs_swap_so: invalid vector ', i)
-               if (j.lt.0 .or. j.gt.dim2) call errquit
-     $              ('movecs_swap_so: invalid vector ', j)
-c     
-               call ga_get(g_vecs(set), 1, dim1, i, i, dbl_mb(k_veci),1)
-               call ga_get(g_vecs(set), 1, dim1, j, j, dbl_mb(k_vecj),1)
-               call ga_put(g_vecs(set), 1, dim1, i, i, dbl_mb(k_vecj),1)
-               call ga_put(g_vecs(set), 1, dim1, j, j, dbl_mb(k_veci),1)
-c
-            enddo
-            if (oprint) call util_flush(6)
-            if (.not. ma_pop_stack(l_vecj)) call errquit('ms:ma?', 0)
-            if (.not. ma_pop_stack(l_veci)) call errquit('ms:ma?', 0)
-         endif
-c
+      call ga_sync()
+      call ga_inquire(g_vecs(1), type, dim1, dim2)
+      if (ga_nodeid() .eq. 0) then
+         if (oprint) write(6,*)
+         if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_veci, k_veci))
+     $        call errquit('movecs_swap_so: no scratch space', dim1)
+         if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_vecj, k_vecj))
+     $        call errquit('movecs_swap_so: no scratch space', dim1)
          do pair = 1, nelem, 2
-           i = int_mb(index+pair-1)
-           j = int_mb(index+pair  )
-           ioff = i + (set-1)*dim1
-           joff = j + (set-1)*dim1
-           tmp = occ(ioff)
-           occ(ioff) = occ(joff)
-           occ(joff) = tmp
-           tmp = eval(ioff)
-           eval(ioff) = eval(joff)
-           eval(joff) = tmp
+            i = int_mb(index+pair-1)
+            j = int_mb(index+pair  )
+            if (oprint) write(6,1) text(1:inp_strlen(text)), i, j
+ 1          format(' Swapping ',a,' orbitals ', 2i5)
+            if (i.lt.0 .or. i.gt.dim2) call errquit
+     $           ('movecs_swap_so: invalid vector ', i)
+            if (j.lt.0 .or. j.gt.dim2) call errquit
+     $           ('movecs_swap_so: invalid vector ', j)
+c     
+            call ga_get(g_vecs(1), 1, dim1, i, i, dbl_mb(k_veci),1)
+            call ga_get(g_vecs(1), 1, dim1, j, j, dbl_mb(k_vecj),1)
+            call ga_put(g_vecs(1), 1, dim1, i, i, dbl_mb(k_vecj),1)
+            call ga_put(g_vecs(1), 1, dim1, j, j, dbl_mb(k_veci),1)
+c     
+            call ga_get(g_vecs(2), 1, dim1, i, i, dbl_mb(k_veci),1)
+            call ga_get(g_vecs(2), 1, dim1, j, j, dbl_mb(k_vecj),1)
+            call ga_put(g_vecs(2), 1, dim1, i, i, dbl_mb(k_vecj),1)
+            call ga_put(g_vecs(2), 1, dim1, j, j, dbl_mb(k_veci),1)
+c     
          enddo
-c
-         call ga_sync
-c
-         if (.not. rtdb_delete(rtdb, name)) call errquit
-     $        ('movecs_swap_so: delete of swap entry failed', 0)
-c
-         if (.not. ma_free_heap(handle)) call errquit('ms:ma?', 0)
- 1000    continue
+         if (oprint) call util_flush(6)
+         if (.not. ma_pop_stack(l_vecj)) call errquit('ms:ma?', 0)
+         if (.not. ma_pop_stack(l_veci)) call errquit('ms:ma?', 0)
+      endif
+c     
+      do pair = 1, nelem, 2
+         i = int_mb(index+pair-1)
+         j = int_mb(index+pair  )
+         ioff = i 
+         joff = j 
+         tmp = occ(ioff)
+         occ(ioff) = occ(joff)
+         occ(joff) = tmp
+         tmp = eval(ioff)
+         eval(ioff) = eval(joff)
+         eval(joff) = tmp
       enddo
-c
+c     
+      call ga_sync
+c     
+      if (.not. rtdb_delete(rtdb, name)) call errquit
+     $     ('movecs_swap_so: delete of swap entry failed', 0)
+c     
+      if (.not. ma_free_heap(handle)) call errquit('ms:ma?', 0)
+ 1000 continue
+c     
       end
       logical function file_write_ga_so(fname, g_a)
       implicit none
@@ -826,7 +813,7 @@ c
 c
       end
       logical function spinor_guess(filename)
-C$Id: vectors_so.F,v 1.1 2000-04-17 21:46:09 zzhang Exp $
+C$Id: vectors_so.F,v 1.2 2000-06-02 20:44:52 zzhang Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
