@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge_matrix.F,v 1.1 2003-01-30 20:50:39 bylaska Exp $
+* $Id: paw_comp_charge_matrix.F,v 1.2 2003-02-04 01:33:42 marat Exp $
 *
 !**************************************************
 !
@@ -21,10 +21,10 @@
 
       !*** local variables ***
       logical ok
-      integer it,tot_ntype,nb2
+      integer it,tot_ntype
       integer mult_l
       integer nbasis
-      integer matr_size, base_index, matr_index
+      integer matr_size, matr_index
 
       tot_ntype = paw_basis_tot_ntype()
       ok = my_alloc(mt_int,tot_ntype,"i_comp_charge_matrix",
@@ -110,9 +110,9 @@
 
       !*** local variables ***
       logical  ok
-      integer  i,j
+      integer  i,j,ii
       integer  la
-      integer  power_r,power_f
+      integer  power_r
       integer  i_f,l_f
       double precision tmp
 
@@ -125,12 +125,14 @@
       do i=1,nbasis
         do j=1,i
 
-          dbl_mb(i_f:i_f+ic-1) = phi_ae(1:ic,i)*phi_ae(1:ic,j) 
-     >                         - phi_ps(1:ic,i)*phi_ps(1:ic,j)
+          do ii=1,ic
+          dbl_mb(i_f+ii-1) = phi_ae(ii,i)*phi_ae(ii,j) 
+     >                         - phi_ps(ii,i)*phi_ps(ii,j)
+          end do
 
           do la=0,mult_l
 
-            tmp = def_integr(2*la+2,dbl_mb(i_f),la,r(1:ic),log_amesh,ic)
+            tmp = def_integr(2*la+2,dbl_mb(i_f),la,r,log_amesh,ic)
 
             matrix(i,j,la+1) = tmp
             matrix(j,i,la+1) = tmp
