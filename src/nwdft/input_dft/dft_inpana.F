@@ -5,7 +5,7 @@ c     Analyze input to deduce nature of system, and set key flags.
 c
 c***********************************************************************
       subroutine dft_inpana(rtdb)
-C$Id: dft_inpana.F,v 1.13 1996-10-22 01:32:08 d3h449 Exp $
+C$Id: dft_inpana.F,v 1.14 1996-10-23 01:18:40 gutowski Exp $
       implicit none
       logical even, cksetd
       integer noc(2)
@@ -91,7 +91,7 @@ c
 c     Check if user has specified some type of functional,
 c     if so, do not set defaults.
 c
-      do n = 1, 10
+      do n = 1, 15
         if(lcfac(n).or.nlcfac(n).or.lxfac(n).or.nlxfac(n))
      &    cksetd = .false.
       enddo
@@ -106,13 +106,13 @@ c
 c
 c       Update rtdb.
 c
-        if (.not. rtdb_put(rtdb, 'dft:cfac', mt_dbl, 10, cfac))
+        if (.not. rtdb_put(rtdb, 'dft:cfac', mt_dbl, 15, cfac))
      $     call errquit('dft_input: rtdb_put failed', 210)
-        if (.not. rtdb_put(rtdb, 'dft:xfac', mt_dbl, 10, xfac))
+        if (.not. rtdb_put(rtdb, 'dft:xfac', mt_dbl, 15, xfac))
      $     call errquit('dft_input: rtdb_put failed', 211)
-        if (.not. rtdb_put(rtdb, 'dft:lcfac', mt_log, 10, lcfac ))
+        if (.not. rtdb_put(rtdb, 'dft:lcfac', mt_log, 15, lcfac ))
      $     call errquit('dft_input: rtdb_put failed', 9)
-        if (.not. rtdb_put(rtdb, 'dft:lxfac', mt_log, 10, lxfac ))
+        if (.not. rtdb_put(rtdb, 'dft:lxfac', mt_log, 15, lxfac ))
      $     call errquit('dft_input: rtdb_put failed', 11)
       endif
       if(me.eq.0) then
@@ -154,7 +154,7 @@ c
            local_c = 'local    '
         nonlocal_c = 'non-local'
            nineb_c = '         '
-        do n = 1, 10
+        do n = 1, 15
           if(xccomb(n))write(LuOut,9223) xcname(n)
         enddo
 c
@@ -162,7 +162,7 @@ c       Do exact exchange differently.
 c
         if(lxfac(1).or.nlxfac(1))
      &    write(LuOut,9224) xname(1), xfac(1), nineb_c
-        do n = 2, 10
+        do n = 2, 15
           if(lxfac(n).and.nlxfac(n))then
             write(LuOut,9224) xname(n), xfac(n), nineb_c
           elseif(lxfac(n).and.(.not.nlxfac(n)))then
@@ -171,7 +171,7 @@ c
             write(LuOut,9224) xname(n), xfac(n), nonlocal_c
           endif
         enddo
-        do n = 1, 10
+        do n = 1, 15
           if(lcfac(n).and.nlcfac(n))then
             write(LuOut,9224) cname(n), cfac(n), nineb_c
           elseif(lcfac(n).and.(.not.nlcfac(n)))then
@@ -185,7 +185,7 @@ c       Check XC coefficients to make sure appropriate components
 c       sum to 1.0
 c        
         ckfac = 0.0d0
-        do n = 1, 10
+        do n = 1, 15
           if(lcfac(n))ckfac = ckfac + cfac(n)
         enddo
         if(abs(ckfac-1.0d0).gt.1.d-8)then
@@ -193,7 +193,7 @@ c
           write(LuOut,*)' Sum of components do not equal unity. '
         endif
         ckfac = 0.0d0
-        do n = 1, 10
+        do n = 1, 15
           if(nlcfac(n))ckfac = ckfac + cfac(n)
         enddo
         if(abs(ckfac-1.0d0).gt.1.d-8.and.abs(ckfac).gt.1.d-8)then
@@ -202,7 +202,7 @@ c
           write(LuOut,*)' Sum of components do not equal unity or 0. '
         endif
         ckfac = 0.0d0
-        do n = 1, 10
+        do n = 1, 15
           if(lxfac(n))ckfac = ckfac + xfac(n)
         enddo
         if(abs(ckfac-1.0d0).gt.1.d-8)then
@@ -210,7 +210,7 @@ c
           write(LuOut,*)' Sum of components do not equal unity. '
         endif
         ckfac = 0.0d0
-        do n = 1, 10
+        do n = 1, 15
           if(nlxfac(n))ckfac = ckfac + xfac(n)
         enddo
         if(abs(ckfac-1.0d0).gt.1.d-8.and.abs(ckfac).gt.1.d-8)then
