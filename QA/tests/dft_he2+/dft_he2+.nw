@@ -1,0 +1,39 @@
+echo
+
+title; he2+ hcth functional
+
+
+start he2+
+
+geometry units angstrom print
+he 0.   0.58 0.
+symmetry c2v
+end
+
+basis "ao basis"
+he library "DZVP (DFT Orbital)"
+he p
+ 0.183 1.
+end
+
+basis "cd basis"
+he library DGauss_A2_DFT_Coulomb_Fitting
+end
+
+charge +1.0
+
+dft
+mult 2
+grid lebedev 100 8
+XC hcth
+end
+
+task dft gradient
+
+title; he2+ Becke 1997 functional
+dft
+XC becke97-1
+end
+
+task dft gradient
+

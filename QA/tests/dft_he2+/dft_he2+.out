@@ -1,0 +1,1211 @@
+ argument  1 = dft_he2+.nw
+ 
+
+
+============================== echo of input deck ==============================
+echo
+
+title; he2+ hcth functional
+
+
+start he2+
+
+geometry units angstrom print
+he 0.   0.58 0.
+symmetry c2v
+end
+
+basis "ao basis"
+he library "DZVP (DFT Orbital)"
+he p
+ 0.183 1.
+end
+
+basis "cd basis"
+he library DGauss_A2_DFT_Coulomb_Fitting
+end
+
+charge +1.0
+
+dft
+mult 2
+grid lebedev 100 8
+XC hcth
+end
+
+task dft gradient
+
+title; he2+ Becke 1997 functional
+dft
+XC becke97-1
+end
+
+task dft gradient
+
+================================================================================
+
+
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 3.3
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                                         
+                                         
+ 
+ 
+                      COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+ 
+                            >>> All Rights Reserved <<<
+ 
+ 
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+              Job information
+              ---------------
+
+    hostname      = et3203.nwmpp1.emsl.pnl.gov
+    program       = /u1/edo/nwchem.bin/LAPI/nwchem
+    date          = Thu Jun 17 18:51:42 1999
+
+    compiled      = Thu Jun 17 16:07:07 PDT 1999
+    source        = /dfs/home/edo//nwchem
+    nwchem branch = Development
+    input         = dft_he2+.nw
+    prefix        = he2+.
+    data base     = ./he2+.db
+    status        = startup
+    nproc         =    4
+    time left     =     -1s
+
+
+
+            Memory information
+            ------------------
+
+    heap      =   44236801 doubles =    353.9 Mbytes
+    stack     =   14745601 doubles =    118.0 Mbytes
+    global    =   58982411 doubles =    471.9 Mbytes (within heap+stack)
+    total     =   58982402 doubles =    471.9 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = .
+ 
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+                               he2+ hcth functional
+                               --------------------
+ 
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =   .529177249)
+
+
+          ------
+          auto-z
+          ------
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 he                   2.0000      .00000000      .58000000      .00000000
+    2 he                   2.0000      .00000000     -.58000000      .00000000
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      he                 4.002600
+ 
+
+ Effective nuclear repulsion energy (a.u.)       1.8247491345
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+      .0000000000      .0000000000      .0000000000
+ 
+      Symmetry information
+      --------------------
+ 
+ Group name             C2v       
+ Group number             16
+ Group order               4
+ No. of unique centers     1
+ 
+      Symmetry unique atoms
+ 
+     1
+ 
+
+
+                                Z-matrix (autoz)
+                                -------- 
+ 
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       1.16000
+ 
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 he               |   1 he               |     2.19208  |     1.16000
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          1
+ ==============================================================================
+
+
+
+  library name resolved from: environment
+  library file name is: </u1/edo/nwchem.library/library>
+  
+                      Basis "ao basis" -> "" (cartesian)
+                      -----
+  he (Helium)
+  -----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S      221.388030   .002749
+  1 S       33.261966   .020866
+  1 S        7.561655   .097059
+  1 S        2.085599   .280729
+  1 S         .614339   .474222
+ 
+  2 S         .182921  1.000000
+ 
+  3 P         .183000  1.000000
+ 
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ he               modified:DZVP (DFT Orbital)        3        5   2s1p
+
+
+  library name resolved from: environment
+  library file name is: </u1/edo/nwchem.library/library>
+  
+                      Basis "cd basis" -> "" (cartesian)
+                      -----
+  he (Helium)
+  -----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S       54.000000  1.000000
+ 
+  2 S        9.000000  1.000000
+ 
+  3 S         .360000  1.000000
+ 
+  4 S        1.800000  1.000000
+ 
+  5 P        1.800000  1.000000
+ 
+  6 D        1.800000  1.000000
+ 
+
+
+ Summary of "cd basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ he               DGauss_A2_DFT_Coulomb_Fitting      6       13   4s1p1d
+
+
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+                               he2+ hcth functional
+ 
+ 
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  spin polarized.
+          No. of atoms     :     2
+          No. of electrons :     3
+           Alpha electrons :     2
+            Beta electrons :     1
+          Charge           :     1
+          Spin multiplicity:     2
+          Use of symmetry is: on ; symmetry adaption is: on 
+          Maximum number of iterations:  30
+          AO basis - number of functions:    10
+                     number of shells:     6
+          A Charge density fitting basis will be used.
+          CD basis - number of functions:    26
+                     number of shells:    12
+          Convergence on energy requested:  .10D-05
+          Convergence on density requested:  .10D-04
+          Convergence on gradient requested:  .50D-03
+ 
+              XC Information
+              --------------
+                    HCTH  Exchange-Corr Functional   1.00          
+  WARNING: Sum of local correlation is  0.000000000000000000E+00
+  Sum of components do not equal unity. 
+ 
+             Grid Information
+             ----------------
+          Grid used for XC integration:  lebedev   
+          Radial quadrature: Euler-MacLaurin. 
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          he                   .35      100           6.0      770
+          Grid pruning is: on 
+          Number of quadrature shells:    81
+          Spatial weights used: Becke. 
+          Parallel task size associated with evaluation of 
+          grid based components has been modified to:  6
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  .50D-01
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping(70%)  Levelshifting( .5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  .10D-09
+          AO Gaussian exp screening on grid/accAOfunc:  20
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  .10D-09
+          Spatial weight screening/radius(au):  .25D+02
+
+  int_init: cando_txs set to always be  F
+ 
+      3 Center 2 Electron Integral Information
+      ----------------------------------------
+          Maximum number of 3-center 2e- integrals is:           2600.
+            This is reduced with Schwarz screening to:           1586.
+            Incore requires a per proc buffer size of:           2590.
+                  The minimum integral buffer size is:           1170.
+          Minimum dble words available (all nodes) is:        58981030
+                   This is reduced (for later use) to:        58498664
+                             Suggested buffer size is:            2591
+
+            .003 MW buffer allocated for incore 3-center 
+          2e- integral storage on stack. 
+          The percent of 3c 2e- integrals held in-core is: 100.00
+
+  Skipping SCF linear dependence check. 
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:          -5.72112150
+
+ Renormalizing density from     4.00 to    3
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =      -4.625399
+ 1-e energy   =      -8.548265
+ 2-e energy   =       2.098116
+ HOMO         =      -1.163870
+ LUMO         =       -.036107
+ 
+ 
+   Symmetry analysis of molecular orbitals - initial alpha
+   -------------------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1          2 a2          3 b1          4 b2      
+ 
+  Orbital symmetries:
+ 
+     1 a1          2 b2          3 a1          4 b1          5 a1      
+     6 b2          7 a2          8 b2          9 a1         10 b2      
+ 
+ 
+   Symmetry analysis of molecular orbitals - initial beta
+   ------------------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1          2 a2          3 b1          4 b2      
+ 
+  Orbital symmetries:
+ 
+     1 a1          2 b2          3 a1          4 b1          5 a1      
+     6 b2          7 a2          8 b2          9 a1         10 b2      
+ 
+   Time prior to 1st pass:      5.4
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       44.23            44234046
+          Stack Space remaining (MW):       14.74            14742846
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d=70,ls= .0,diis     1     -5.0318717786 -6.86D+00  3.41D-02  2.63D-02     7.3
+                                                     3.75D-03  1.46D-03
+ d=70,ls= .0,diis     2     -5.0344902430 -2.62D-03  2.13D-02  1.17D-02     9.2
+                                                     1.47D-03  4.62D-04
+ d= 0,ls= .0,diis     3     -5.0361558475 -1.67D-03  1.43D-02  5.76D-03    11.1
+                                                     7.49D-04  1.88D-04
+ d= 0,ls= .0,diis     4     -5.0398123958 -3.66D-03  4.13D-04  5.27D-06    13.1
+                                                     1.34D-04  3.42D-06
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls= .0,diis     5     -5.0398123193  7.65D-08  3.23D-04  9.50D-07    15.1
+                                                     9.22D-05  3.58D-07
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls= .0,diis     6     -5.0403551905 -5.43D-04  3.55D-05  3.86D-05    17.3
+                                                     1.81D-05  1.33D-05
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls= .0,diis     7     -5.0403547598  4.31D-07  1.20D-04  4.08D-05    19.4
+                                                     3.85D-06  1.23D-05
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls= .0,diis     8     -5.0403541989  5.61D-07  5.97D-04  4.17D-05    21.5
+                                                     3.72D-04  1.25D-05
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls= .0,diis     9     -5.0403451987  9.00D-06  3.92D-04  7.14D-05    23.6
+                                                     1.19D-05  7.89D-08
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls= .0,diis    10     -5.0403572020 -1.20D-05  1.58D-04  4.17D-05    25.8
+                                                     5.34D-05  8.04D-08
+ d= 0,ls= .0,diis    11     -5.0403595208 -2.32D-06  2.08D-04  3.60D-05    27.9
+                                                     1.53D-05  4.58D-08
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls= .0,diis    12     -5.0403626941 -3.17D-06  1.93D-03  2.84D-05    30.0
+                                                     9.59D-08  2.33D-12
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls= .0,diis    13     -5.0403748486 -1.22D-05  6.59D-05  5.77D-09    32.0
+                                                     9.29D-07  1.91D-07
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls= .0,diis    14     -5.0403748166  3.19D-08  7.76D-06  8.32D-08    34.1
+                                                     7.55D-07  1.52D-07
+
+
+         Total DFT energy =     -5.040374822131
+      One electron energy =     -8.751400814970
+           Coulomb energy =      3.570262763706
+    Exchange-Corr. energy =     -1.683985905348
+ Nuclear repulsion energy =      1.824749134482
+
+ Numeric. integr. density =      3.000000002195
+
+     Total iterative time =     30.5s
+
+
+ 
+                    DFT Final Alpha Molecular Orbital Analysis
+                    ------------------------------------------
+ 
+ Vector    1  Occ=1.000000D+00  E=-1.373903D+00  Symmetry=a1
+              MO Center=  1.0D-16, -1.7D-15,  1.1D-11, r^2= 5.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      -.601464  2 He s                  1      -.601464  1 He s          
+ 
+ Vector    2  Occ=1.000000D+00  E=-1.119140D+00  Symmetry=b2
+              MO Center=  1.5D-16,  1.9D-15,  7.9D-12, r^2= 6.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      -.696262  1 He s                  6       .696262  2 He s          
+ 
+ Vector    3  Occ=0.000000D+00  E=-1.623772D-01  Symmetry=a1
+              MO Center= -6.1D-23, -7.3D-17,  2.6D-11, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      -.551445  2 He pz                 5      -.551445  1 He pz         
+ 
+ Vector    4  Occ=0.000000D+00  E=-1.623772D-01  Symmetry=b1
+              MO Center= -3.9D-16, -5.6D-16, -9.3D-28, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      -.551445  2 He px                 3      -.551445  1 He px         
+ 
+ Vector    5  Occ=0.000000D+00  E=-4.712780D-02  Symmetry=a1
+              MO Center=  2.2D-16, -2.4D-14, -3.6D-11, r^2= 3.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9       .681447  2 He py                 4      -.681447  1 He py         
+     2      -.636173  1 He s                  7      -.636173  2 He s          
+     6       .276010  2 He s                  1       .276010  1 He s          
+ 
+ Vector    6  Occ=0.000000D+00  E=-2.082428D-02  Symmetry=b2
+              MO Center= -2.9D-16,  2.3D-14,  1.4D-10, r^2= 3.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7     -1.650198  2 He s                  2      1.650198  1 He s          
+     4     -1.612241  1 He py                 9     -1.612241  2 He py         
+     1       .330340  1 He s                  6      -.330340  2 He s          
+ 
+ Vector    7  Occ=0.000000D+00  E= 7.618398D-02  Symmetry=b2
+              MO Center= -4.8D-23,  2.6D-16, -1.5D-10, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5     -1.185520  1 He pz                10      1.185520  2 He pz         
+ 
+ Vector    8  Occ=0.000000D+00  E= 7.618398D-02  Symmetry=a2
+              MO Center=  3.1D-16,  2.6D-16, -9.6D-29, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3     -1.185520  1 He px                 8      1.185520  2 He px         
+ 
+ Vector    9  Occ=0.000000D+00  E= 1.811795D-01  Symmetry=a1
+              MO Center=  7.2D-17, -1.0D-16, -1.4D-13, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      -.684454  1 He s                  6      -.684454  2 He s          
+     9       .527280  2 He py                 4      -.527280  1 He py         
+     7       .479902  2 He s                  2       .479902  1 He s          
+ 
+ Vector   10  Occ=0.000000D+00  E= 6.173945D-01  Symmetry=b2
+              MO Center= -1.6D-16, -1.2D-16,  1.1D-12, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7     -6.287894  2 He s                  2      6.287894  1 He s          
+     4     -3.083480  1 He py                 9     -3.083480  2 He py         
+     1      -.699079  1 He s                  6       .699079  2 He s          
+ 
+ 
+                     DFT Final Beta Molecular Orbital Analysis
+                     -----------------------------------------
+ 
+ Vector    1  Occ=1.000000D+00  E=-1.264598D+00  Symmetry=a1
+              MO Center=  6.2D-17,  1.2D-15,  1.2D-11, r^2= 5.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      -.569008  1 He s                  6      -.569008  2 He s          
+ 
+ Vector    2  Occ=0.000000D+00  E=-9.860388D-01  Symmetry=b2
+              MO Center=  1.4D-16, -1.4D-15,  8.8D-12, r^2= 6.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6       .664969  2 He s                  1      -.664969  1 He s          
+     2      -.268142  1 He s                  7       .268142  2 He s          
+ 
+ Vector    3  Occ=0.000000D+00  E=-1.493086D-01  Symmetry=b1
+              MO Center= -5.1D-16,  1.1D-17, -2.1D-26, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      -.551445  1 He px                 8      -.551445  2 He px         
+ 
+ Vector    4  Occ=0.000000D+00  E=-1.493086D-01  Symmetry=a1
+              MO Center= -1.2D-21, -1.4D-16,  2.9D-11, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      -.551445  2 He pz                 5      -.551445  1 He pz         
+ 
+ Vector    5  Occ=0.000000D+00  E=-4.250282D-03  Symmetry=a1
+              MO Center=  3.3D-16,  7.9D-15, -3.8D-11, r^2= 3.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      -.697672  1 He py                 9       .697672  2 He py         
+     7      -.619961  2 He s                  2      -.619961  1 He s          
+     1       .263501  1 He s                  6       .263501  2 He s          
+ 
+ Vector    6  Occ=0.000000D+00  E= 3.903871D-02  Symmetry=b2
+              MO Center= -1.6D-30, -7.0D-15,  2.8D-10, r^2= 3.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      1.558829  2 He py                 4      1.558829  1 He py         
+     2     -1.547560  1 He s                  7      1.547560  2 He s          
+     6       .365562  2 He s                  1      -.365562  1 He s          
+ 
+ Vector    7  Occ=0.000000D+00  E= 1.022216D-01  Symmetry=b2
+              MO Center=  2.1D-21,  2.6D-16, -2.9D-10, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      1.185520  1 He pz                10     -1.185520  2 He pz         
+ 
+ Vector    8  Occ=0.000000D+00  E= 1.022216D-01  Symmetry=a2
+              MO Center=  1.2D-17,  3.8D-17,  8.5D-29, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3     -1.185520  1 He px                 8      1.185520  2 He px         
+ 
+ Vector    9  Occ=0.000000D+00  E= 2.234403D-01  Symmetry=a1
+              MO Center=  1.2D-16, -2.1D-15, -3.5D-12, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6       .716391  2 He s                  1       .716391  1 He s          
+     9      -.505137  2 He py                 4       .505137  1 He py         
+     7      -.495996  2 He s                  2      -.495996  1 He s          
+ 
+ Vector   10  Occ=0.000000D+00  E= 6.705486D-01  Symmetry=b2
+              MO Center= -1.5D-16,  1.7D-15,  6.2D-13, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      6.309964  1 He s                  7     -6.309964  2 He s          
+     9     -3.110670  2 He py                 4     -3.110670  1 He py         
+     1      -.711896  1 He s                  6       .711896  2 He s          
+ 
+
+   alpha - beta orbital overlaps 
+   ----------------------------- 
+
+
+   alpha      1      2      3      4      5      6      7      8      9     10
+    beta      1      2      4      3      5      6      7      8      9     10
+ overlap    .999   .999  1.000  1.000   .999   .999  1.000  1.000   .999   .999
+
+
+     --------------------------
+     Expectation value of S2:  
+     --------------------------
+      <S2> =       .7519 (Exact =      .7500)
+ 
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0      1.000000     -2.000000     -1.000000      4.000000
+ 
+     1   1 0 0       .000000       .000000       .000000       .000000
+     1   0 1 0       .000000       .000000       .000000       .000000
+     1   0 0 1       .000000       .000000       .000000       .000000
+ 
+     2   2 0 0      -.946317      -.593471      -.352847       .000000
+     2   1 1 0       .000000       .000000       .000000       .000000
+     2   1 0 1       .000000       .000000       .000000       .000000
+     2   0 2 0       .416551     -3.068097     -1.320576      4.805224
+     2   0 1 1       .000000       .000000       .000000       .000000
+     2   0 0 2      -.946317      -.593471      -.352847       .000000
+ 
+  int_init: cando_txs set to always be  F
+  intd_init: cando_txs set to always be  F
+ 
+ 
+                            NWChem DFT Gradient Module
+                            --------------------------
+ 
+ 
+                               he2+ hcth functional
+ 
+ 
+
+  charge          =   1.00
+  wavefunction    = open shell
+
+
+ Read molecular orbitals from ./he2+.movecs
+
+
+ Read molecular orbitals from ./he2+.movecs
+
+  Using symmetry
+
+ Read molecular orbitals from ./he2+.movecs
+
+
+ Read molecular orbitals from ./he2+.movecs
+
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 he       .000000   1.096041    .000000     .000000   -.016929    .000000
+   2 he       .000000  -1.096041    .000000     .000000    .016929    .000000
+ 
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |        .00   |        .00   |
+                 ----------------------------------------
+                 |  WALL  |        .00   |        .00   |
+                 ----------------------------------------
+
+ Task  times  cpu:       33.7s     wall:       39.6s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+                            he2+ Becke 1997 functional
+                            --------------------------
+ 
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+                            he2+ Becke 1997 functional
+ 
+ 
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  spin polarized.
+          No. of atoms     :     2
+          No. of electrons :     3
+           Alpha electrons :     2
+            Beta electrons :     1
+          Charge           :     1
+          Spin multiplicity:     2
+          Use of symmetry is: on ; symmetry adaption is: on 
+          Maximum number of iterations:  30
+          AO basis - number of functions:    10
+                     number of shells:     6
+          A Charge density fitting basis will be used.
+          CD basis - number of functions:    26
+                     number of shells:    12
+          Convergence on energy requested:  .10D-05
+          Convergence on density requested:  .10D-04
+          Convergence on gradient requested:  .50D-03
+ 
+              XC Information
+              --------------
+                  Becke 1997-1 Method XC Potential
+                     Hartree-Fock (Exact) Exchange    .21          
+                                                     1.00          
+  WARNING: Sum of local correlation is  0.000000000000000000E+00
+  Sum of components do not equal unity. 
+  WARNING: Sum of local exchange is  1.20999999999999996
+  Sum of components do not equal unity. 
+  WARNING: Sum of nonlocal exchange is  1.20999999999999996
+  Sum of components do not equal unity or 0. 
+ 
+             Grid Information
+             ----------------
+          Grid used for XC integration:  lebedev   
+          Radial quadrature: Euler-MacLaurin. 
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          he                   .35      100           6.0      770
+          Grid pruning is: on 
+          Number of quadrature shells:    81
+          Spatial weights used: Becke. 
+          Parallel task size associated with evaluation of 
+          grid based components has been modified to:  6
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  .50D-01
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping(70%)  Levelshifting( .5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  .10D-09
+          AO Gaussian exp screening on grid/accAOfunc:  20
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  .10D-09
+          Spatial weight screening/radius(au):  .25D+02
+
+  int_init: cando_txs set to always be  F
+ 
+      3 Center 2 Electron Integral Information
+      ----------------------------------------
+          Maximum number of 3-center 2e- integrals is:           2600.
+            This is reduced with Schwarz screening to:           1586.
+            Incore requires a per proc buffer size of:           2590.
+                  The minimum integral buffer size is:           1170.
+          Minimum dble words available (all nodes) is:        58981030
+                   This is reduced (for later use) to:        58498664
+                             Suggested buffer size is:            2591
+
+            .003 MW buffer allocated for incore 3-center 
+          2e- integral storage on stack. 
+          The percent of 3c 2e- integrals held in-core is: 100.00
+
+  Skipping SCF linear dependence check. 
+
+ Read molecular orbitals from ./he2+.movecs
+
+
+ Read molecular orbitals from ./he2+.movecs
+
+
+ Loading old vectors from job with title :
+
+he2+ hcth functional
+
+ 
+   Symmetry analysis of molecular orbitals - initial alpha
+   -------------------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1          2 a2          3 b1          4 b2      
+ 
+  Orbital symmetries:
+ 
+     1 a1          2 b2          3 a1          4 b1          5 a1      
+     6 b2          7 b2          8 a2          9 a1         10 b2      
+ 
+ 
+   Symmetry analysis of molecular orbitals - initial beta
+   ------------------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1          2 a2          3 b1          4 b2      
+ 
+  Orbital symmetries:
+ 
+     1 a1          2 b2          3 b1          4 a1          5 a1      
+     6 b2          7 b2          8 a2          9 a1         10 b2      
+ 
+   Time prior to 1st pass:     38.9
+
+ #quartets = 1.560D+02 #integrals = 4.020D+02 #direct =   .0% #cached =100.0%
+
+
+ Integral file          = ./he2+.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  21844
+ Max. records in memory =      2        Max. records in file   = 631219
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       44.17            44168500
+          Stack Space remaining (MW):       14.74            14742846
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d=70,ls= .5,diis     1     -5.0143505420 -6.84D+00  1.59D-03  2.06D-05    40.5
+                                                     1.58D-03  5.68D-04
+ d=70,ls= .0,diis     2     -5.0144043616 -5.38D-05  1.41D-03  1.44D-05    42.1
+                                                     1.74D-03  3.51D-04
+ d= 0,ls= .0,diis     3     -5.0144469011 -4.25D-05  9.50D-04  7.36D-06    43.6
+                                                     1.23D-03  1.74D-04
+ d= 0,ls= .0,diis     4     -5.0145545840 -1.08D-04  1.70D-06  2.76D-11    45.2
+                                                     8.97D-06  2.66D-08
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls= .0,diis     5     -5.0145545928 -8.80D-09  1.81D-06  1.04D-10    46.9
+                                                     6.67D-06  4.82D-09
+
+
+         Total DFT energy =     -5.014554595481
+      One electron energy =     -8.747883224411
+           Coulomb energy =      3.563756878072
+    Exchange-Corr. energy =     -1.655177383623
+ Nuclear repulsion energy =      1.824749134482
+
+ Numeric. integr. density =      3.000000002222
+
+     Total iterative time =      9.2s
+
+
+ 
+                    DFT Final Alpha Molecular Orbital Analysis
+                    ------------------------------------------
+ 
+ Vector    1  Occ=1.000000D+00  E=-1.466803D+00  Symmetry=a1
+              MO Center=  3.5D-17,  1.6D-15,  8.5D-12, r^2= 5.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1       .602248  1 He s                  6       .602248  2 He s          
+ 
+ Vector    2  Occ=1.000000D+00  E=-1.202992D+00  Symmetry=b2
+              MO Center=  1.1D-31, -1.5D-15,  6.0D-12, r^2= 6.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      -.697147  2 He s                  1       .697147  1 He s          
+     7      -.153927  2 He s                  2       .153927  1 He s          
+ 
+ Vector    3  Occ=0.000000D+00  E=-1.318001D-01  Symmetry=b1
+              MO Center=  5.3D-16, -3.6D-16, -3.5D-27, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      -.551445  2 He px                 3      -.551445  1 He px         
+ 
+ Vector    4  Occ=0.000000D+00  E=-1.318001D-01  Symmetry=a1
+              MO Center=  3.0D-22, -1.4D-16,  4.5D-11, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      -.551445  2 He pz                 5      -.551445  1 He pz         
+ 
+ Vector    5  Occ=0.000000D+00  E=-1.228311D-02  Symmetry=a1
+              MO Center= -5.2D-16,  8.5D-17, -3.6D-11, r^2= 3.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      -.689576  1 He py                 9       .689576  2 He py         
+     7      -.628650  2 He s                  2      -.628650  1 He s          
+     1       .264955  1 He s                  6       .264955  2 He s          
+ 
+ Vector    6  Occ=0.000000D+00  E= 1.508788D-02  Symmetry=b2
+              MO Center= -4.5D-16,  1.3D-15,  1.4D-10, r^2= 3.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      1.668741  2 He s                  2     -1.668741  1 He s          
+     9      1.621559  2 He py                 4      1.621559  1 He py         
+     1      -.326028  1 He s                  6       .326028  2 He s          
+ 
+ Vector    7  Occ=0.000000D+00  E= 1.112327D-01  Symmetry=a2
+              MO Center=  7.3D-16,  3.8D-17,  1.1D-26, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3     -1.185520  1 He px                 8      1.185520  2 He px         
+ 
+ Vector    8  Occ=0.000000D+00  E= 1.112327D-01  Symmetry=b2
+              MO Center=  2.1D-21,  3.8D-17, -1.4D-10, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      1.185520  1 He pz                10     -1.185520  2 He pz         
+ 
+ Vector    9  Occ=0.000000D+00  E= 2.144719D-01  Symmetry=a1
+              MO Center= -4.5D-17, -1.7D-15, -1.8D-11, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      -.688124  2 He s                  1      -.688124  1 He s          
+     9       .516607  2 He py                 4      -.516607  1 He py         
+     7       .489822  2 He s                  2       .489822  1 He s          
+ 
+ Vector   10  Occ=0.000000D+00  E= 6.579821D-01  Symmetry=b2
+              MO Center= -2.8D-16,  3.9D-16, -2.6D-12, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2     -6.282841  1 He s                  7      6.282841  2 He s          
+     4      3.078587  1 He py                 9      3.078587  2 He py         
+     1       .700220  1 He s                  6      -.700220  2 He s          
+ 
+ 
+                     DFT Final Beta Molecular Orbital Analysis
+                     -----------------------------------------
+ 
+ Vector    1  Occ=1.000000D+00  E=-1.309580D+00  Symmetry=a1
+              MO Center= -1.2D-17,  1.3D-15,  1.0D-11, r^2= 5.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      -.560423  1 He s                  6      -.560423  2 He s          
+ 
+ Vector    2  Occ=0.000000D+00  E=-9.332006D-01  Symmetry=b2
+              MO Center=  1.3D-16, -1.4D-15,  7.7D-12, r^2= 7.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6       .651853  2 He s                  1      -.651853  1 He s          
+     2      -.321838  1 He s                  7       .321838  2 He s          
+ 
+ Vector    3  Occ=0.000000D+00  E=-1.204705D-01  Symmetry=b1
+              MO Center=  6.0D-16, -2.0D-16, -1.0D-26, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      -.551445  2 He px                 3      -.551445  1 He px         
+ 
+ Vector    4  Occ=0.000000D+00  E=-1.204705D-01  Symmetry=a1
+              MO Center=  3.8D-22, -2.8D-16,  2.3D-11, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      -.551445  2 He pz                 5      -.551445  1 He pz         
+ 
+ Vector    5  Occ=0.000000D+00  E= 3.755668D-02  Symmetry=a1
+              MO Center= -3.1D-16,  2.0D-14, -2.2D-11, r^2= 3.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      -.708718  1 He py                 9       .708718  2 He py         
+     7      -.608722  2 He s                  2      -.608722  1 He s          
+     1       .248193  1 He s                  6       .248193  2 He s          
+ 
+ Vector    6  Occ=0.000000D+00  E= 8.411678D-02  Symmetry=b2
+              MO Center=  4.1D-16, -2.0D-14,  2.2D-10, r^2= 3.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2     -1.650383  1 He s                  7      1.650383  2 He s          
+     9      1.608070  2 He py                 4      1.608070  1 He py         
+     6       .362671  2 He s                  1      -.362671  1 He s          
+ 
+ Vector    7  Occ=0.000000D+00  E= 1.376281D-01  Symmetry=a2
+              MO Center= -2.5D-16,  2.6D-16, -5.6D-28, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3     -1.185520  1 He px                 8      1.185520  2 He px         
+ 
+ Vector    8  Occ=0.000000D+00  E= 1.376281D-01  Symmetry=b2
+              MO Center=  5.2D-22,  3.8D-17, -2.3D-10, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      1.185520  1 He pz                10     -1.185520  2 He pz         
+ 
+ Vector    9  Occ=0.000000D+00  E= 2.694355D-01  Symmetry=a1
+              MO Center= -2.7D-16,  2.8D-16, -1.1D-11, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      -.728523  2 He s                  1      -.728523  1 He s          
+     2       .508485  1 He s                  7       .508485  2 He s          
+     4      -.489211  1 He py                 9       .489211  2 He py         
+ 
+ Vector   10  Occ=0.000000D+00  E= 7.133715D-01  Symmetry=b2
+              MO Center= -2.9D-16, -4.8D-15, -2.4D-12, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2     -6.281333  1 He s                  7      6.281333  2 He s          
+     9      3.085297  2 He py                 4      3.085297  1 He py         
+     1       .725378  1 He s                  6      -.725378  2 He s          
+ 
+
+   alpha - beta orbital overlaps 
+   ----------------------------- 
+
+
+   alpha      1      2      3      4      5      6      7      8      9     10
+    beta      1      2      3      4      5      6      7      8      9     10
+ overlap    .998   .998  1.000  1.000   .999   .999  1.000  1.000   .998   .999
+
+
+     --------------------------
+     Expectation value of S2:  
+     --------------------------
+      <S2> =       .7531 (Exact =      .7500)
+ 
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0      1.000000     -2.000000     -1.000000      4.000000
+ 
+     1   1 0 0       .000000       .000000       .000000       .000000
+     1   0 1 0       .000000       .000000       .000000       .000000
+     1   0 0 1       .000000       .000000       .000000       .000000
+ 
+     2   2 0 0      -.955405      -.591326      -.364080       .000000
+     2   1 1 0       .000000       .000000       .000000       .000000
+     2   1 0 1       .000000       .000000       .000000       .000000
+     2   0 2 0       .430544     -3.060663     -1.314017      4.805224
+     2   0 1 1       .000000       .000000       .000000       .000000
+     2   0 0 2      -.955405      -.591326      -.364080       .000000
+ 
+
+ Parallel integral file used       4 records with       0 large values
+
+  int_init: cando_txs set to always be  F
+  intd_init: cando_txs set to always be  F
+ 
+ 
+                            NWChem DFT Gradient Module
+                            --------------------------
+ 
+ 
+                            he2+ Becke 1997 functional
+ 
+ 
+
+  charge          =   1.00
+  wavefunction    = open shell
+
+
+ Read molecular orbitals from ./he2+.movecs
+
+
+ Read molecular orbitals from ./he2+.movecs
+
+  Using symmetry
+
+ Read molecular orbitals from ./he2+.movecs
+
+
+ Read molecular orbitals from ./he2+.movecs
+
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 he       .000000   1.096041    .000000     .000000   -.007330    .000000
+   2 he       .000000  -1.096041    .000000     .000000    .007330    .000000
+ 
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |        .01   |        .04   |
+                 ----------------------------------------
+                 |  WALL  |        .00   |        .04   |
+                 ----------------------------------------
+
+ Task  times  cpu:       11.8s     wall:       15.3s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+
+ Summary of allocated global arrays 
+ ----------------------------------
+
+   No active global arrays
+  
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:  947      947     6394     3398     2498        4        0        0     
+bytes total:             1.68e+06 1.18e+06 6.53e+05 4.80e+01 0.00e+00 0.00e+00
+bytes remote:            1.99e+05 3.91e+05 1.07e+05 1.60e+01 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 24800 bytes
+Number of requests serviced: 6876
+ 
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        38	        40
+	current total bytes		         0	         0
+	maximum total bytes		    553836	  15690908
+	maximum total K-bytes		       554	     15691
+	maximum total M-bytes		         1	        16
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 3.2.1" (1998), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+            Please use the following citation when publishing results
+            obtained with NWChem:
+
+            Anchell, J.; Apra, E.; Bernholdt, D.; Borowski, P.; Clark, T.; 
+            Clerc, D.; Dachsel, H.; Deegan, M.; Dupuis, M.;Dyall, K.; 
+            Fann, G.; Fruchtl, H.; Gutowski, M.; Harrison, R.; Hess, A.;
+            Jaffe, J.; Kendall, R.; Kobayashi, R.; Kutteh, R.; Lin, Z.; 
+            Littlefield, R.; Long, X.; Meng, B.; Nichols, J.; Nieplocha, J.; 
+            Rendall, A.; Stave, M.; Straatsma, T.;Taylor, H.; Thomas, G.; 
+            Wolinski, K.; Wong, A.; "NWChem, A Computational Chemistry 
+            Package for Parallel Computers, Version 3.2.1" (1998),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+                                    REFERENCES
+                                    ----------
+
+            Where appropriate, please cite the following reference(s) 
+            when publishing results obtained with NWChem:
+
+
+     1. D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, R. J. Harrison, 
+        R. A. Kendall, R. A. Kutteh, X. Long, J. B. Nicholas, J. A. Nichols, 
+        H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield and J. Nieplocha,
+        "Parallel Computational Chemistry Made Easier: The Development of NWChem,"
+        Int. J. Quantum Chem. Symposium  29, 475-483 (1995).
+
+
+
+ Total times  cpu:       50.8s     wall:       73.3s
