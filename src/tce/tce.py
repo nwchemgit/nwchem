@@ -1,6 +1,6 @@
 # Tensor Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: tce.py,v 1.12 2003-01-08 22:59:12 sohirata Exp $
+# $Id: tce.py,v 1.13 2003-01-28 23:05:07 sohirata Exp $
 
 import string
 import types
@@ -1807,6 +1807,8 @@ class TensorContraction:
             if (verbose):
                print " ... ", ibreakdown + 1, breakdowns[ibreakdown]
             tensorone = self.tensors[breakdowns[ibreakdown][0]-1]
+            if ((tensorone.type != 'f') and (tensorone.type != 'v')):
+               continue
             # The triplets are the exponents of N, O, V
             maxoperationcost = [0,0,0]
             maxmemorycost = [0,0,0]
@@ -1841,8 +1843,8 @@ class TensorContraction:
                aggmemorycost[0] = aggmemorycost[0] + memorycost[0]
                aggmemorycost[1] = aggmemorycost[1] + memorycost[1]
                aggmemorycost[2] = aggmemorycost[2] + memorycost[2]
-               if (verbose):
-                  print " ...... ",tensorone.show(), tensortwo.show(), operationcost, memorycost
+               # if (verbose):
+               #    print " ...... ",tensorone.show(), tensortwo.show(), operationcost, memorycost
                tensorone = tensorone.contracts(tensortwo,0)
                if (operationcost[0]+operationcost[1]+operationcost[2] > maxoperationcost[0]+maxoperationcost[1]+maxoperationcost[2]):
                   maxoperationcost = operationcost
@@ -1860,34 +1862,48 @@ class TensorContraction:
                   elif (memorycost[0] == maxmemorycost[0]):
                      if (memorycost[2] > maxmemorycost[2]):
                         maxmemorycost = memorycost
+            if (verbose):
+               print " ...... ", maxoperationcost, maxmemorycost, aggoperationcost, aggmemorycost
             if (maxoperationcost[0]+maxoperationcost[1]+maxoperationcost[2] < minoperationcost[0]+minoperationcost[1]+minoperationcost[2]):
                minoperationcost = maxoperationcost
                minmemorycost = maxmemorycost
+               minaggoperationcost = aggoperationcost
+               minaggmemorycost = aggmemorycost
                ibest = ibreakdown
             elif (maxoperationcost[0]+maxoperationcost[1]+maxoperationcost[2] == minoperationcost[0]+minoperationcost[1]+minoperationcost[2]):
                if (maxoperationcost[0] < minoperationcost[0]):
                   minoperationcost = maxoperationcost
                   minmemorycost = maxmemorycost
+                  minaggoperationcost = aggoperationcost
+                  minaggmemorycost = aggmemorycost
                   ibest = ibreakdown
                elif (maxoperationcost[0] == minoperationcost[0]):
                   if (maxoperationcost[2] < minoperationcost[2]):
                      minoperationcost = maxoperationcost
                      minmemorycost = maxmemorycost
+                     minaggoperationcost = aggoperationcost
+                     minaggmemorycost = aggmemorycost
                      ibest = ibreakdown
                   elif (maxoperationcost[2] == minoperationcost[2]):
                      if (maxmemorycost[0]+maxmemorycost[1]+maxmemorycost[2] < minmemorycost[0]+minmemorycost[1]+minmemorycost[2]):
                         minoperationcost = maxoperationcost
                         minmemorycost = maxmemorycost
+                        minaggoperationcost = aggoperationcost
+                        minaggmemorycost = aggmemorycost
                         ibest = ibreakdown
                      elif (maxmemorycost[0]+maxmemorycost[1]+maxmemorycost[2] == minmemorycost[0]+minmemorycost[1]+minmemorycost[2]):
                         if (maxmemorycost[0] < minmemorycost[0]):
                            minoperationcost = maxoperationcost
                            minmemorycost = maxmemorycost
+                           minaggoperationcost = aggoperationcost
+                           minaggmemorycost = aggmemorycost
                            ibest = ibreakdown
                         elif (maxmemorycost[0] == minmemorycost[0]):
                            if (maxmemorycost[2] < minmemorycost[2]):
                               minoperationcost = maxoperationcost
                               minmemorycost = maxmemorycost
+                              minaggoperationcost = aggoperationcost
+                              minaggmemorycost = aggmemorycost
                               ibest = ibreakdown
                            elif (aggoperationcost[0]+aggoperationcost[1]+aggoperationcost[2] < minaggoperationcost[0]+minaggoperationcost[1]+minaggoperationcost[2]):
                               minaggoperationcost = aggoperationcost
@@ -1918,6 +1934,8 @@ class TensorContraction:
                                              minaggoperationcost = aggoperationcost
                                              minaggmemorycost = aggmemorycost
                                              ibest = ibreakdown
+            if (verbose):
+               print " ...... ", minoperationcost, minmemorycost, minaggoperationcost, minaggmemorycost
 
       print " ... the best breakdown is %s with operationcost=N%d O%d V%d, memorycost=N%d O%d V%d " % (breakdowns[ibest], \
       minoperationcost[0], minoperationcost[1], minoperationcost[2], minmemorycost[0], minmemorycost[1], minmemorycost[2])
@@ -7634,7 +7652,7 @@ class Code:
          return "Unknown language"
 
       # Standard headers
-      newline = "!$Id: tce.py,v 1.12 2003-01-08 22:59:12 sohirata Exp $"
+      newline = "!$Id: tce.py,v 1.13 2003-01-28 23:05:07 sohirata Exp $"
       self.headers.append(newline)
       newline = "!This is a " + self.language + " program generated by Tensor Contraction Engine v.1.0"
       self.headers.append(newline)
