@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.46 2002-01-08 17:36:45 d3j191 Exp $
+c $Id: prepar.F,v 1.47 2002-04-17 19:09:30 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -108,6 +108,11 @@ c
      + call errquit('pre_task failed',9999)
       if(itask.eq.0) then
       lstate=rtdb_parallel(.true.)
+c
+c     reset print
+c     -----------
+c
+      call util_print_pop
       return
       endif
       goto 100
@@ -371,11 +376,6 @@ c     + form='formatted',status='old',err=13)
 c      close(unit=lfntmp,status='delete')
 c   13 continue
 c
-c     reset print
-c     -----------
-c
-      call util_print_pop
-c
 c     signal other nodes to return
 c     ----------------------------
 c
@@ -384,6 +384,11 @@ c
      + call errquit('pre_task failed',9999)
 c
       lstate=rtdb_parallel(.true.)
+c
+c     reset print
+c     -----------
+c
+      call util_print_pop
 c
       prepar=.true.
       return
