@@ -4,7 +4,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb,
      + rdist,scale,cpk)
 c
-c $Id: pre_wrtpov.F,v 1.1 2000-07-06 18:48:57 d3j191 Exp $
+c $Id: pre_wrtpov.F,v 1.2 2000-07-06 19:54:13 d3j191 Exp $
 c
       implicit none
 c
@@ -42,7 +42,6 @@ c
 c
       real*8 xbmax,xbmin,ybmax,ybmin,zbmax,zbmin
 c
-      if(scale.le.0.0d0) then
       xbmax=xs(1,1)
       xbmin=xs(1,1)
       ybmax=xs(2,1)
@@ -57,9 +56,16 @@ c
       zbmax=max(zbmax,xs(3,i))
       zbmin=min(zbmin,xs(3,i))
     1 continue
-      xbmax=max(xbmax-xbmin,ybmax-ybmin,zbmax-zbmin)
-      scale=2.0d0/xbmax
+      if(scale.le.0.0d0) then
+      scale=2.0d0/max(xbmax-xbmin,ybmax-ybmin,zbmax-zbmin)
+      xbmax=scale*xbmax
+      xbmin=scale*xbmin
+      ybmax=scale*ybmax
+      ybmin=scale*ybmin
+      zbmax=scale*zbmax
+      zbmin=scale*zbmin
       endif
+      call povinc(lfnpov,xbmin,xbmax,ybmin,ybmax,zbmin,zbmax)
 c
 c     open POV file
 c

@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag)
 c
-c $Id: ana_wtfram.F,v 1.17 2000-07-06 18:46:58 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.18 2000-07-06 19:53:57 d3j191 Exp $
 c
       implicit none
 c
@@ -206,7 +206,6 @@ c
       endif
 c
       if(fmt.eq.'pov') then
-      if(scale.le.0.0d0) then
       xbmax=x(1,1)
       xbmin=x(1,1)
       ybmax=x(1,2)
@@ -221,11 +220,18 @@ c
       zbmax=max(zbmax,x(i,3))
       zbmin=min(zbmin,x(i,3))
   234 continue
-      xbmax=max(xbmax-xbmin,ybmax-ybmin,zbmax-zbmin)
-      scale=2.0d0/xbmax
+      if(scale.le.0.0d0) then
+      scale=2.0d0/max(xbmax-xbmin,ybmax-ybmin,zbmax-zbmin)
+      xbmax=scale*xbmax
+      xbmin=scale*xbmin
+      ybmax=scale*ybmax
+      ybmin=scale*ybmin
+      zbmax=scale*zbmax
+      zbmin=scale*zbmin
       if(me.eq.0) write(*,3333) scale
  3333 format(' Scaling set to ',f12.6)
       endif
+      call povinc(iunit,xbmin,xbmax,ybmin,ybmax,zbmin,zbmax)
       npov=npov+1
       write(fname,'(a,i3.3,a)') filpov(1:index(filpov,'.pov')-1),
      + npov,'.pov '
