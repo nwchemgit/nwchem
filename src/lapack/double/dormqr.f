@@ -96,7 +96,11 @@
 *
 *     .. Parameters ..
       INTEGER            NBMAX, LDT
-      PARAMETER          ( NBMAX = 64, LDT = NBMAX+1 )
+*
+* RJH: reduce system stack requirements
+*
+*     PARAMETER          ( NBMAX = 64, LDT = NBMAX+1 )
+      PARAMETER          ( NBMAX = 32, LDT = NBMAX+1 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            LEFT, NOTRAN
