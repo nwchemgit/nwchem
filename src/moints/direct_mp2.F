@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.28 1996-10-21 22:42:50 rg240 Exp $
+C$Id: direct_mp2.F,v 1.29 1996-10-22 08:37:43 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -379,7 +379,7 @@ c
        status = geom_destroy(geom)
        call int_terminate()
        if (.not.bas_destroy(basis))
-     $   call errquit('cannot free basis handle',0)
+     $   call errquit('direct_mp2: cannot free basis handle',0)
 c
        call util_print_pop()
 c
