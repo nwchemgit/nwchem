@@ -1,11 +1,12 @@
       logical function pre_select(card,isegm,ismol,csa,msa,nsa,
      + maxgrp,maxatm,igroup,lgroup,mgroup)
 c
-c $Id: pre_select.F,v 1.11 2002-02-27 02:46:58 d3j191 Exp $
+c $Id: pre_select.F,v 1.12 2002-06-27 23:32:36 d3j191 Exp $
 c
       implicit none
 c
 #include "inp.fh"
+#include "mafdecls.fh"
 c
       logical str_replace
       external str_replace
@@ -23,6 +24,7 @@ c
       character*255 target,atomi
       integer ndx,iatom,isgm
       character*4 trgt
+      integer i_list,l_list
 c
       card=card(7:80)
 c
@@ -34,49 +36,18 @@ c
 c
       card=card(7:80)
 c
-c     read atom name
+      ndx=index(card,' ')
+      target=card(1:ndx-1)
 c
-      ifr=0
-      if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find group number',9999)
-      target=card(ifr:ito)//' '
-      ndx=index(target,':')
-      if(ndx.eq.0) then
-      read(target,*,err=5) isgm
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      atomi(1:1)='?'
-      atomi(2:2)='?'
-      atomi(3:3)='?'
-      atomi(4:4)='?'
-#else
-#if defined(LAPI) || defined(IBM)
-      atomi=4H????
-#else
-      atomi='????'
-#endif
-#endif
-      goto 6
-    5 continue
-      isgm=0
-      ndx=1
-      atomi=target(1:4)
-      if(.not.str_replace(atomi,'_',' '))
-     + call errquit('str_replace',9999)
-    6 continue
-      else
-      read(target(1:ndx-1),*,err=9999) isgm
-      atomi=target(ndx+1:index(target,' ')-1)//'      '
-      if(.not.str_replace(atomi,'_',' '))
-     + call errquit('str_replace',9999)
-      endif
+      if(.not.ma_push_get(mt_int,nsa,'list',l_list,i_list))
+     + call errquit('Failed to allocate list',0)
+c
+      call atom_selection(csa,isegm,nsa,card,int_mb(i_list))
+c
+c
       iatom=0
       do 1 i=1,nsa
-      trgt=csa(i)(11:14)
-      do 4 j=1,4
-      if(atomi(j:j).eq.'?') trgt(j:j)='?'
-    4 continue
-      if((isgm.eq.0.or.isgm.eq.isegm(i)).and.
-     + (ndx.eq.0.or.atomi(1:4).eq.trgt)) then
+      if(int_mb(i_list-1+i).eq.1) then
       iatom=iatom+1
       lgroup(igrp)=lgroup(igrp)+1
       if(iatom.eq.1) mgroup(igrp)=ismol(i)
@@ -85,17 +56,138 @@ c
      + call errquit('Increase group maxatm',maxatm)
       igroup(igrp,lgroup(igrp))=i
       endif
-    1 continue
-      if(iatom.eq.0) then
-      write(*,3) igrp,isgm,atomi(1:4)
-    3 format(' Unable to find in select',i5,' atom ',i4,':',a4)
-      call errquit('Atom in select not found:',isgm)
-      endif
+ 1    continue
+c
+      write(*,'(a,i5,a,i5,a)') ' Selection group',igrp,' contains',
+     + lgroup(igrp),' atoms'
+c
+      if(.not.ma_pop_stack(l_list))
+     + call errquit('Failed to deallocate list',0)
 c
       pre_select=.true.
-      return
+c
+      stop
+c      return
 c
  9999 continue
       pre_select=.false.
+c
+      stop
+c      return
+      end
+      subroutine atom_selection(atomname,isegment,natoms,target,list)
+c
+      implicit none
+c
+      integer natoms
+      character*16 atomname(natoms)
+      integer isegment(natoms)
+      character*255 target
+      character*10 string,aname
+      integer list(natoms)
+c
+      integer i,j,ip,ndxcol,length,isgmfr,isgmto
+      logical lsgm,latm
+c
+c
+      do 1 i=1,natoms
+      list(i)=0
+ 1    continue
+c
+      length=index(target,' ')-1
+      ndxcol=index(target,':')
+      lsgm=ndxcol.gt.0
+      latm=ndxcol.gt.0
+      if(ndxcol.eq.0) then
+      latm=.false.
+      do 2 i=1,length
+      lsgm=.false.
+      if(target(i:i).eq.'1') lsgm=.true.
+      if(target(i:i).eq.'2') lsgm=.true.
+      if(target(i:i).eq.'3') lsgm=.true.
+      if(target(i:i).eq.'4') lsgm=.true.
+      if(target(i:i).eq.'5') lsgm=.true.
+      if(target(i:i).eq.'6') lsgm=.true.
+      if(target(i:i).eq.'7') lsgm=.true.
+      if(target(i:i).eq.'8') lsgm=.true.
+      if(target(i:i).eq.'9') lsgm=.true.
+      if(target(i:i).eq.'0') lsgm=.true.
+      if(target(i:i).eq.',') lsgm=.true.
+      if(target(i:i).eq.'-') lsgm=.true.
+      if(.not.lsgm) latm=.true.
+      if(latm) goto 3
+ 2    continue
+ 3    continue
+      if(lsgm) then
+      ndxcol=length+1
+      else
+      ndxcol=0
+      endif
+      endif
+c
+      if(lsgm) then
+      string='          '
+      isgmto=0
+      isgmfr=0
+      ip=1
+      do 4 i=1,ndxcol
+      if(target(i:i).eq.','.or.i.eq.ndxcol) then
+      string(10+ip-i:10)=target(ip:i-1)
+      read(string,'(i10)') isgmto
+      string='          '
+      ip=i+1
+      if(isgmfr.eq.0) isgmfr=isgmto
+      elseif(target(i:i).eq.'-') then
+      string(10+ip-i:10)=target(ip:i-1)
+      read(string,'(i10)') isgmfr
+      string='          '
+      ip=i+1
+      endif
+      if(isgmto.gt.0) then
+      do 5 j=1,natoms
+      if(isegment(j).ge.isgmfr.and.isegment(j).le.isgmto) list(j)=-1
+ 5    continue
+      isgmto=0
+      isgmfr=0
+      endif
+ 4    continue
+      else
+      if(latm) then
+      do 6 j=1,natoms
+      list(j)=-1
+ 6    continue
+      else
+      do 7 j=1,natoms
+      list(j)=1
+ 7    continue
+      endif
+      endif
+c
+      if(latm) then
+      string='          '
+      ip=1
+      do 8 i=ndxcol+1,length+1
+      if(target(i:i).eq.','.or.i.eq.length+1) then
+      do 9 j=1,natoms
+      if(list(j).eq.-1) then
+      aname(1:6)=atomname(j)(11:16)
+      if(string(1:1).eq.'_') aname(1:1)='_'
+      if(string(2:2).eq.'?') aname(2:2)='?'
+      if(string(3:3).eq.'?') aname(3:3)='?'
+      if(string(4:4).eq.'?') aname(4:4)='?'
+      if(string(5:5).eq.'?') aname(5:5)='?'
+      if(string(6:6).eq.'?') aname(6:6)='?'
+      if(string(1:6).eq.aname(1:6)) list(j)=1
+      endif
+ 9    continue
+      string='          '
+      ip=1
+      else
+      string(ip:ip)=target(i:i)
+      ip=ip+1
+      endif
+ 8    continue
+      endif
+c
       return
       end
