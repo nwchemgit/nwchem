@@ -506,50 +506,50 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
 
    for (i = 0; i < msize; i++ )
      work[i] = d[i];
-     
    
    for (i = 0; i < msize; i++ )
      work[msize + i] = e[i];
    
-   /*
-     peigs_dlasq2a( msize, &work[0], &e[0], &eval[0], &work[2*msize], info );
-   */
-   
+   *info = 0;
    dsterf_( &msize, &work[0], &work[msize+1], info);
+   if ( *info != 0 ){
+     if ( me == 0 )
+       printf(" error from dlasq2a %d \n", *info );
+     xstop_(info);
+   }
    
-   if (*info != 0 )
-     {
-       printf(" error from dsterf %d \n", *info );
-     }
    leig = work[0];
    for (i = 0; i < msize; i++ )
      eval[i] = work[i];
    
    if ( *info != 0 ) {
-   fil_int_lst(*n, (Integer *) isplit, 0);
-   
-   il = 1;
-   iu = msize;
-   range = 3;
-   order = 1;
-   m = 0;
-   *info = 0;
- 
-   dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
-	     &m, nsplit, eval, iblock, isplit, work,
-	     i_work, info);
+     fil_int_lst(*n, (Integer *) isplit, 0);
+     
+     il = 1;
+     iu = msize;
+     range = 3;
+     order = 1;
+     m = 0;
+     *info = 0;
+     
+     dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
+	       &m, nsplit, eval, iblock, isplit, work,
+	       i_work, info);
    }
    
    if ( *info != 0 ) {
-     printf(" error in dstebz3 %d info %d leig %g  \n", me, *info, leig);
-      xstop_(info);
-/*
-if ( me == 0 ) {
+     if ( me == 0 )
+       printf(" error in dstebz3 %d info %d leig %g  \n", me, *info, leig);
+     
+     xstop_(info);
+     
+     /*
+       if ( me == 0 ) {
        printf("  n %d \n", msize);
        for ( il = 0; il < msize; il++ ) {
-	 printf(" %d  %20.16g %20.16g  \n", il, d[il], e[il]);
+       printf(" %d  %20.16g %20.16g  \n", il, d[il], e[il]);
        }
-}
+       }
      */
    }
    
