@@ -6,7 +6,7 @@
      + limp,kimp,rimp,mimp,nimp,
      + wcorr,npar,ipardef,itopol)
 c
-c $Id: pre_rdsgm.F,v 1.17 2003-08-07 21:47:55 d3j191 Exp $
+c $Id: pre_rdsgm.F,v 1.18 2003-09-09 23:26:31 d3j191 Exp $
 c
       implicit none
 c
@@ -233,10 +233,10 @@ c
       endif
 c
       l=0
-      do 8 j=1,nparms
+      do 8 j=1,npar
       if(md(j).ge.0) l=l+1
     8 continue
-      if(l.eq.nparms) then
+      if(l.eq.npar) then
       ndih=ndih+1
       do 9 j=1,nparms
       nfdih(j,ndih)=1
@@ -245,7 +245,7 @@ c
       ldih(j,ndih)=ld(j)
    10 continue
       else
-      do 11 j=1,nparms
+      do 11 j=1,npar
       if(md(j).lt.0) nfdih(j,ndih)=nfdih(j,ndih)+1
    11 continue
       endif
