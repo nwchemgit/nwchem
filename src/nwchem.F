@@ -15,7 +15,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.41 1995-02-02 23:08:18 d3g681 Exp $
+c     $Id: nwchem.F,v 1.42 1995-02-03 00:28:14 d3g681 Exp $
 c
       character*255 input_filename
 c
@@ -361,7 +361,7 @@ c
 c
       compiled = COMPILATION_DATE
       srcdir   = 
-     $COMPILATION_DIR
+     $ COMPILATION_DIR
       call util_print_centered(6, 'Job information', 20, .true.)
       write(6,2) 
      $     hostname(1:inp_strlen(hostname)),
