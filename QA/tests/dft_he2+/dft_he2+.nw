@@ -53,3 +53,10 @@ end
 
 task dft gradient
 
+title "XC pbe96 "
+dft
+XC b3lyp
+end
+
+task dft gradient
+
