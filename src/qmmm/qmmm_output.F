@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.1 2004-10-13 23:38:43 marat Exp $
+c $Id: qmmm_output.F,v 1.2 2004-10-14 23:24:04 marat Exp $
 c
 c
       subroutine qmmm_print_header(irtdb)
@@ -123,6 +123,56 @@ c
 20    FORMAT(A,T24,A,T46,F12.6)
 21    FORMAT(A,T24,A,T46,L3)
 22    FORMAT(A,T24,A,T46,A)
+
+
+      end
+
+      subroutine qmmm_print_energy(irtdb)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_data.fh"
+#include "qmmm_params.fh"
+#include "rtdb.fh"
+
+      integer irtdb
+c
+      character*32 pname
+      double precision energy, mm_energy, qm_energy,eatoms
+
+      
+      pname = "qmmm_print_energy:"
+
+
+      if (.not.rtdb_get(irtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
+     $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)
+
+      if (.not. rtdb_get(irtdb,'qmmm:qm_energy',mt_dbl,1,qm_energy))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+
+      if (.not. rtdb_get(irtdb,'qmmm:mm_energy',mt_dbl,1,mm_energy))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+
+      if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+
+c      call util_print_centered(6,"QM/MM Energy",0,.true.)
+      write(*,19) 
+      write(*,21) "QM/MM Energy"
+      write(*,19) 
+      write(*,21) "quantum energy", qm_energy, qm_energy*cau2kj
+      write(*,21) "quantum energy adjusted", qm_energy-eatoms,
+     >            (qm_energy-eatoms)*cau2kj
+      write(*,21) "classical energy", mm_energy,
+     >            mm_energy*cau2kj
+      write(*,21) "total qmmm energy", energy, energy*cau2kj
+      write(*,19) 
+
+      write(*,*) 
+19    FORMAT(72("-"))
+20    FORMAT(1X,A,T34,F12.6)
+21    FORMAT(1X,A,T34,F12.6," (",E12.6,2X, "kjoule/mol)")
 
 
       end

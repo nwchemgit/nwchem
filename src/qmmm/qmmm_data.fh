@@ -1,6 +1,7 @@
 c
-c $Id: qmmm_data.fh,v 1.10 2004-09-09 00:10:45 marat Exp $
+c $Id: qmmm_data.fh,v 1.11 2004-10-14 23:24:04 marat Exp $
 c
+      logical master
       integer nqm,nlink
       integer i_ai,h_ai
       integer i_c,h_c
@@ -28,6 +29,7 @@ c
      &                 i_num,h_num,
      &                 i_g,h_g,
      &                 i_gmm,h_gmm,
-     &                 link_atom
+     &                 link_atom,
+     &                 master
 
 

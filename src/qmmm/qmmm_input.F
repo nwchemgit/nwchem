@@ -126,6 +126,20 @@ c
         endif
       endif
 c
+      if(token.eq.'link_ecp') then
+        if(.not.inp_a(token)) then
+         write(*,*) "please provide an option for link-ecp"
+         call errquit('qmmm_input: optimize',0,
+     &         INPUT_ERR)
+        end if
+        tag="qmmm:link_ecp"
+          if (.not.rtdb_cput(rtdb,tag,1,token)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+          goto 2
+      endif
+c
+c
       if(token.eq.'optimize') then
         if(.not.inp_a(token)) then
          write(*,*) "please provide an option for optimize"
@@ -142,7 +156,7 @@ c
         elseif(token.eq.'mm') then
           optimize='mm'
           tag="qmmm:optimize"
-          if (.not.rtdb_cput(rtdb,mt_int,1,optimize)) 
+          if (.not.rtdb_cput(rtdb,tag,1,optimize)) 
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
           goto 2
@@ -206,7 +220,10 @@ cc
       endif
 c
       if (token.eq.'end') then
-c      if(optimize.eq."mm") interface="mm"
+      if(optimize.eq."mm") interface="mm"
+       if (.not.rtdb_cput(rtdb,'qmmm:interface',1,interface))
+     + call errquit('qmmm_input: failed to store qmmm:interface',
+     &       0,RTDB_ERR)
 c      if (.not.rtdb_put(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
 c     + call errquit('qmmm_input: failed to store qmmm:uqmatm',0,
 c     &       RTDB_ERR)
@@ -234,10 +251,7 @@ c     &       0,RTDB_ERR)
 c       if (.not.rtdb_cput(rtdb,'qmmm:optimize',1,optimize))
 c     + call errquit('qmmm_input: failed to store qmmm:optimize',
 c     &       0,RTDB_ERR)
-c       if (.not.rtdb_cput(rtdb,'qmmm:interface',1,interface))
-c     + call errquit('qmmm_input: failed to store qmmm:interface',
-c     &       0,RTDB_ERR)
-         return
+        return
       endif
 c
       write(luout,*)' unrecognized token in qmmm input:',

@@ -6,6 +6,7 @@ c
 #include "qmmm_data.fh"
 #include "qmmm_params.fh"
 #include "rtdb.fh"
+#include "global.fh"
 
       integer irtdb
 c
@@ -18,6 +19,9 @@ c
       integer linkatm,bq_exclude
 
       pname = "qmmm_data_init: "
+
+      master = ga_nodeid().eq.0
+
       eatoms = 0.0d0
       fixlinks = .false.
       fixqm = .false.
@@ -26,8 +30,6 @@ c
       optimize='qm'
       interface='qm'
 c
-      call util_print_centered(6,"QMMM Parameters",32,.true.)
-
 c     initialize rtdb parameters
       tag = "qmmm:uqmatm"
       if (.not.rtdb_get(irtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) then
@@ -39,7 +41,6 @@ c     initialize rtdb parameters
       end if
 
       tag = "qmmm:fixlinks"
-      write(*,*) "doing "//tag
       if (.not.rtdb_get(irtdb,tag,mt_log,1,fixlinks)) then
         if (.not.rtdb_put(irtdb,tag,mt_log,1,fixlinks)) 
      >      call errquit(pname//'failed to store fixlinks',0,
@@ -48,7 +49,6 @@ c     initialize rtdb parameters
        end if
 
       tag = "qmmm:xyz"
-      write(*,*) "doing "//tag
       if (.not.rtdb_get(irtdb,tag,mt_log,1,xyz)) then
         if (.not.rtdb_put(irtdb,tag,mt_log,1,xyz)) 
      >      call errquit(pname//'failed to store xyz',0,
@@ -57,7 +57,6 @@ c     initialize rtdb parameters
        end if
 
       tag = "qmmm:xyzq"
-      write(*,*) "doing "//tag
       if (.not.rtdb_get(irtdb,tag,mt_log,1,xyzq)) then
         if (.not.rtdb_put(irtdb,tag,mt_log,1,xyzq)) 
      >      call errquit(pname//'failed to store xyzq',0,
@@ -66,7 +65,6 @@ c     initialize rtdb parameters
        end if
 
       tag ="qmmm:fixqm" 
-      write(*,*) "doing "//tag
       if (.not.rtdb_get(irtdb,tag,mt_log,1,fixqm)) then
         if (.not.rtdb_put(irtdb,tag,mt_log,1,fixqm)) 
      >      call errquit(pname//'failed to store fixqm',0,
@@ -75,7 +73,6 @@ c     initialize rtdb parameters
        end if
 
       tag ="qmmm:bq_exclude" 
-      write(*,*) "doing "//tag
       if (.not.rtdb_get(irtdb,tag,mt_int,1,bq_exclude)) then
         if (.not.rtdb_put(irtdb,tag,mt_int,1,bq_exclude)) 
      >      call errquit(pname//'failed to store bq_exclude',0,
@@ -84,7 +81,6 @@ c     initialize rtdb parameters
        end if
 
       tag ="qmmm:linkatm" 
-      write(*,*) "doing "//tag
       if (.not.rtdb_get(irtdb,tag,mt_int,1,linkatm)) then
         if (.not.rtdb_put(irtdb,tag,mt_int,1,linkatm)) 
      >      call errquit(pname//'failed to store'//tag,0,
@@ -93,7 +89,6 @@ c     initialize rtdb parameters
        end if
      
       tag ="qmmm:interface"
-      write(*,*) "doing "//tag
       if (.not.rtdb_cget(irtdb,tag,1,interface)) then
         if (.not.rtdb_cput(irtdb,tag,1,interface)) 
      >      call errquit(pname//'failed to store'//tag,0,
@@ -102,16 +97,12 @@ c     initialize rtdb parameters
        end if
 
       tag ="qmmm:optimize"
-      write(*,*) "doing "//tag
       if (.not.rtdb_cget(irtdb,tag,1,optimize)) then
         if (.not.rtdb_cput(irtdb,tag,1,optimize)) 
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
 
        end if
-
-20    FORMAT(A32,A16,F12.6)
-21    FORMAT(A32,A16,L2)
 
       call mm_get_tot_nqm(nqm)
       call mm_get_tot_nlink(nlink)
@@ -356,6 +347,17 @@ c     -------------------
       logical qmmm_h_link
 
       qmmm_h_link=link_atom.eq.qmmm_hydrogen
+
+      end 
+
+      function qmmm_master()
+      implicit none
+#include "qmmm_data.fh"
+#include "qmmm_params.fh"
+
+      logical qmmm_master
+
+      qmmm_master = master
 
       end 
 

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.25 2004-10-13 23:38:43 marat Exp $
+c $Id: qmmm.F,v 1.26 2004-10-14 23:24:04 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -93,6 +93,7 @@ c
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm_params.fh"
+#include "qmmm.fh"
 c
       integer rtdb
       logical qmmm_energy
@@ -100,6 +101,7 @@ c     local variables
       logical status
       character*255 theory
       double precision energy
+      double precision qm_energy
       double precision mm_energy
       double precision eatoms
 c     external functions
@@ -120,19 +122,28 @@ c     external functions
 
 c     QM energy calculation
 c     --------------------
-      status = task_energy_doit(rtdb,theory,energy)
-      energy = energy-eatoms
+      status = task_energy_doit(rtdb,theory,qm_energy)
+c
       call qmmm_geom_finish(rtdb)
- 
 
 c     combine QM and MM energies
 c     -------------------------
       if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,mm_energy))
      $     call errquit('qmmm: failed getting  md energy', 0, RTDB_ERR)
-      energy = energy + mm_energy/cau2kj
+      mm_energy = mm_energy/cau2kj
+      energy = qm_energy + mm_energy-eatoms
+
+      if (.not. rtdb_put(rtdb,'qmmm:qm_energy',mt_dbl,1,qm_energy))
+     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb,'qmmm:mm_energy',mt_dbl,1,mm_energy))
+     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
 
       if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
+
+
+      call qmmm_print_energy(rtdb)
 
       qmmm_energy=status
 
@@ -159,6 +170,7 @@ c
       character*255 theory
       double precision energy
       double precision mm_energy
+      double precision qm_energy
       integer i_g,h_g 
       integer i_gmm,h_gmm 
       integer i_ai
@@ -202,8 +214,7 @@ c
      &      nqm, MA_ERR)
       call dfill(3*nqm,0,dbl_mb(i_gmm),1)
 
-      status = task_gradient_doit(rtdb,theory,energy,dbl_mb(i_g))
-      energy = energy-eatoms
+      status = task_gradient_doit(rtdb,theory,qm_energy,dbl_mb(i_g))
 
       call mm_get_solute_force_quant(nqm,
      &                     link,
@@ -219,7 +230,15 @@ c
       if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,mm_energy))
      $     call errquit('qmmm: failed getting  md energy',0,RTDB_ERR)
 
-      energy = energy + mm_energy/cau2kj
+      mm_energy = mm_energy/cau2kj
+      energy = qm_energy + mm_energy-eatoms
+
+      if (.not. rtdb_put(rtdb,'qmmm:qm_energy',mt_dbl,1,qm_energy))
+     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb,'qmmm:mm_energy',mt_dbl,1,mm_energy))
+     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
+
       if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
 
@@ -229,96 +248,11 @@ c
       if(.not.ma_free_heap(h_g))
      & call errquit('qmmm g: Failed to deallocate heap',nqm,
      &       MA_ERR)
+
+      call qmmm_print_energy(rtdb)
  
       qmmm_gradient=status
       call qmmm_geom_finish(rtdb)
 
       end
-c
-c      subroutine qmmm_print_header(irtdb)
-c      implicit none
-cc
-c#include "mafdecls.fh"
-c#include "errquit.fh"
-c#include "qmmm_data.fh"
-c#include "qmmm_params.fh"
-c#include "rtdb.fh"
-c
-c      integer irtdb
-cc
-c      character*32 tag
-c      character*32 pname
-c      character*32 optimize
-c      character*32 interface
-c      real*8 eatoms,qatoms
-c      logical xyz,xyzq,fixlinks,fixqm
-c      integer linkatm,bq_exclude
-c
-c      
-c      pname = "qmmm_print_header:"
-c      call util_print_centered(6,"QM/MM Interface Parameters",32,.true.)
-c
-c      tag = "qmmm:uqmatm"
-c      if (.not.rtdb_get(irtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) then
-c           call errquit(pname//'failed to get '//tag,0,
-c     >       RTDB_ERR)
-c      end if
-c      write(6,20) "reference energy",tag,eatoms
-c
-c      tag = "qmmm:fixlinks"
-c      if (.not.rtdb_get(irtdb,tag,mt_log,1,fixlinks)) then
-c           call errquit(pname//'failed to get '//tag,0,
-c     >       RTDB_ERR)
-c      end if
-c      write(6,21) "fixed link bonds",tag,fixlinks
-c
-c
-c      tag ="qmmm:fixqm" 
-c      if (.not.rtdb_get(irtdb,tag,mt_log,1,fixqm)) then
-c           call errquit(pname//'failed to store fixqm',0,
-c     >       RTDB_ERR)
-c       end if
-c      write(6,21) "fixed qm region",tag,fixqm
-c
-c      tag ="qmmm:bq_exclude" 
-c      if (.not.rtdb_get(irtdb,tag,mt_int,1,bq_exclude)) then
-c           call errquit(pname//'failed to store bq_exclude',0,
-c     >       RTDB_ERR)
-c      end if
-c      if(bq_exclude.eq.qmmm_hydrogen) then
-c        write(6,22) "excluded bq's",tag,"hydrogens bonded to link atoms"
-c      else if(bq_exclude.eq.qmmm_all_atoms) then
-c        write(6,22) "excluded bq's",tag,"all"
-c      else if(bq_exclude.eq.qmmm_no_atoms) then
-c        write(6,22) "excluded bq's",tag,"none"
-c      else
-c        call errquit(pname//'invalid bq_exclude',0,RTDB_ERR)
-c      end if
-c      
-c      tag ="qmmm:linkatm" 
-c      if (.not.rtdb_get(irtdb,tag,mt_int,1,linkatm)) then
-c           call errquit(pname//'failed to store'//tag,0,
-c     >       RTDB_ERR)
-c       end if
-c      if(linkatm.eq.qmmm_hydrogen) then
-c        write(6,22) "link atom type",tag,"hydrogens"
-c      else if(linkatm.eq.qmmm_halogen) then
-c        write(6,22) "link atom type",tag,"halogens"
-c      else
-c        call errquit(pname//'invalid link atom type',0,RTDB_ERR)
-c      end if
-c
-c      tag ="qmmm:optimize"
-c      if (.not.rtdb_cget(irtdb,tag,1,optimize)) then
-c           call errquit(pname//'failed to store'//tag,0,
-c     >       RTDB_ERR)
-c      end if
-c      write(6,22) "optimization region",tag,optimize
-c
-c20    FORMAT(A,T24,A,T46,F12.6)
-c21    FORMAT(A,T24,A,T46,L3)
-c22    FORMAT(A,T24,A,T46,A)
-c
-c
-c      end
-c
+
