@@ -1,4 +1,4 @@
-C $Id: ecp_gradient.F,v 1.12 1999-03-09 20:19:27 mg201 Exp $
+C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_gradient (
@@ -161,7 +161,6 @@ C $Id: ecp_gradient.F,v 1.12 1999-03-09 20:19:27 mg201 Exp $
         write (LuOut,*) 'i_lp,i_lm',i_lp,i_lm
         write (LuOut,*) 'i_scr',i_scr
       end if
-      write (LuOut,*) 'ecp_gradient test'
 *
 *   Set up coefficients multiplied by exponents
 *
@@ -224,7 +223,6 @@ C $Id: ecp_gradient.F,v 1.12 1999-03-09 20:19:27 mg201 Exp $
 *       Derivatives wrt centre B
 *       ========================
 *
-        write (LuOut,*) i_c_A,i_c_B,i_c_C
         if (i_c_B .ne. i_c_C) then
 *
 *         Increment angular momentum on centre B
