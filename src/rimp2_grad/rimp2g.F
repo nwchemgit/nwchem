@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.13 1998-10-06 18:36:46 bernhold Exp $
+C$Id: rimp2g.F,v 1.14 1998-10-09 21:20:57 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -301,6 +301,15 @@ C
      $         MxEBatch
          EndIf
          Write (LuOut, *)
+C
+C        Quick sanity check
+C
+         Do I = 1, TopSpin
+            If ( NAct(i) .eq. 0 ) Call ErrQuit(
+     $           'rimp2g: no active orbitals to correlate', i)
+            If ( NVir(i) .eq. 0 ) Call ErrQuit(
+     $           'rimp2g: no virtual orbitals to correlate into', i)
+         EndDo
 C
 C        File information
 C
