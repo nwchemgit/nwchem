@@ -1,10 +1,11 @@
       subroutine ga_chol_seq(g_a, g_s,info)
-C$Id: ga_chol_seq.F,v 1.5 1995-04-26 18:11:56 og845 Exp $
+C$Id: ga_chol_seq.F,v 1.6 1995-06-28 04:42:44 og845 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgids.fh"
+#include "stdio.fh"
       integer g_a ! input matrix
       integer g_s ! output matrix
       integer l_a_in, i_a_in ! ma handle and pointer
@@ -74,7 +75,7 @@ c****   cholesky factorize
 c****
         call dpotrf( 'L', n, Dbl_MB(i_a_in), n, info )
         if ( info .ne. 0) then
-          write (6,*)
+          write (LuOut,*)
      &       'WARNING:  ga_chol_seq: LAPACK routine dpotrf returns ',
      &       info
         endif 

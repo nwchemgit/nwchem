@@ -1,9 +1,10 @@
       subroutine gacrea(geom,basis,n,m,name,ihand,how)
-C$Id: gacrea.F,v 1.4 1995-02-02 23:19:55 d3g681 Exp $
+C$Id: gacrea.F,v 1.5 1995-06-28 04:42:45 og845 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
 #include "tcgmsg.fh"
+#include "stdio.fh"
 c
 #if defined(DFT_GASTAT)
 #include "gastat.fh"
@@ -102,14 +103,14 @@ c
 #include "gastat.fh"
 c
       integer i, j, ic
-      write(6,*)'                GA_STATS                    '
-      write(6,*)' At the highwater mark of: ',highest,' MT_DBLs, '
-      write(6,*)' the following global arrays were allocated: '
+      write(LuOut,*)'                GA_STATS                    '
+      write(LuOut,*)' At the highwater mark of: ',highest,' MT_DBLs,'
+      write(LuOut,*)' the following global arrays were allocated: '
       ic = 0
       do i = 1, itab
         if(table(i,5).eq.2)then
           ic = ic + 1
-          write(6,*)ic,names(i),table(i,2),table(i,3)
+          write(LuOut,*)ic,names(i),table(i,2),table(i,3)
         endif
       enddo
 #endif

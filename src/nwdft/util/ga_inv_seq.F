@@ -1,9 +1,10 @@
       subroutine ga_inv_seq(g_a, g_s)
-C$Id: ga_inv_seq.F,v 1.5 1995-04-26 18:11:59 og845 Exp $
+C$Id: ga_inv_seq.F,v 1.6 1995-06-28 04:42:44 og845 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
 #include "tcgmsg.fh"
+#include "stdio.fh"
       integer g_a               ! input matrix
       integer g_s               ! output matrix
 c
@@ -76,12 +77,10 @@ c****
 
         call dpotri( 'L', n, Dbl_MB(i_a_in), n, info )
         if ( info .ne. 0) then
-          write (6,*)
+          write (LuOut,*)
      &       'WARNING:  ga_inv_seq: LAPACK routine dpotri returns ',
      &       info
         endif 
-c****        write (6,*) "ga_inv_seq: output matrix"
-c       call matout(Dbl_MB(i_a_in),n,n,n)
 c****
 c****   store back to global array
 c****
