@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
+c $Id: cf_f.fh,v 1.33 2000-10-31 18:40:46 d3j191 Exp $
 c
       implicit none
 c
@@ -45,10 +45,11 @@ c
 c      integer nax2,ipset
       real*8 qai,qaj,pai,paj,pix,piy,piz,pjx,pjy,pjz
       real*8 ri3,rmi,rmj,fri,fmi,fmj,rmm,qfaci
-      real*8 rx,ry,rz,ri1,ri2
+      real*8 rx,ry,rz,ri1,ri2,ewwpsm,etermp
 #else
-      real*8 ewwqsm,ferfc,fderfc
+      real*8 ferfc,fderfc
 #endif
+      real*8 ewwqsm
 c
       integer iwfr,ipww,number,iwm,iwpm,nax
       integer iwmn,lwwptr,iwa,iax,jwa,iptr,jptr,iwpj
@@ -189,40 +190,6 @@ c
       rwi1(iax)=sqrt(rwi2(iax))
    15 continue
 c
-#if !defined(CAFE_POLARIZATION)
-c
-c     electrostatic contribution
-c     --------------------------
-c
-      if(q.ne.zero) then
-      ewwqsm=zero
-      if(ipme.eq.0) then
-      do 16 iax=1,nax
-      ewwqsm=ewwqsm+facu(iax)*rwi1(iax)
-      f(iax)=f(iax)+q*rwi1(iax)*rwi2(iax)
-   16 continue
-      else
-      do 17 iax=1,nax
-      ferfc=erfc(ealpha/rwi1(iax))
-      fderfc=ealpha*derfc(ealpha/rwi1(iax))
-      ewwqsm=ewwqsm+facu(iax)*ferfc*rwi1(iax)
-      f(iax)=f(iax)+q*rwi2(iax)*(ferfc*rwi1(iax)-fderfc)
-   17 continue
-      endif
-      etermq=q*ewwqsm
-      eww(8,ipww)=eww(8,ipww)+etermq
-c
-c     reaction field contribution
-c     ---------------------------
-c
-      if(ireact.ne.0) then
-      do 19 iax=1,nax
-      eww(8,ipww)=eww(8,ipww)+facu(iax)*q*rffww/rwi2(iax)
-      f(iax)=f(iax)-two*q*rffww
-   19 continue
-      endif
-      endif
-#endif
 c
 c     van der Waals contribution
 c     --------------------------
@@ -247,6 +214,39 @@ c
       eterml=c12*ewwl12-c6*ewwl6
       eww(7,ipww)=eww(7,ipww)+eterml
       endif
+c
+#if !defined(CAFE_POLARIZATION)
+c
+c     electrostatic contribution
+c     --------------------------
+c
+      if(q.ne.zero) then
+      ewwqsm=zero
+      if(ipme.eq.0) then
+      do 16 iax=1,nax
+      ewwqsm=ewwqsm+facu(iax)*rwi1(iax)
+      f(iax)=f(iax)+q*rwi1(iax)*rwi2(iax)
+   16 continue
+      else
+      do 17 iax=1,nax
+      ferfc=erfc(ealpha/rwi1(iax))
+      fderfc=ealpha*derfc(ealpha/rwi1(iax))
+      ewwqsm=ewwqsm+facu(iax)*ferfc*rwi1(iax)
+      f(iax)=f(iax)+q*rwi2(iax)*(ferfc*rwi1(iax)-fderfc)
+   17 continue
+      endif
+c
+c     reaction field contribution
+c     ---------------------------
+c
+      if(ireact.ne.0) then
+      do 19 iax=1,nax
+      eww(8,ipww)=eww(8,ipww)+facu(iax)*q*rffww/rwi2(iax)
+      f(iax)=f(iax)-two*q*rffww
+   19 continue
+      endif
+      endif
+#endif
 c
 c     force vectors
 c     -------------
@@ -286,9 +286,11 @@ c
 c
 #if defined(CAFE_POLARIZATION)
 c
-c     polarization contribution
-c     -------------------------
+c     electrostatic and polarization contribution
+c     -------------------------------------------
 c
+      ewwqsm=zero
+      ewwpsm=zero
       do 117 iax=1,nax
       pix=pai*pl(iax,1,iwa)
       piy=pai*pl(iax,2,iwa)
@@ -320,9 +322,17 @@ c
       fj(iax,1,jwa)=fj(iax,1,jwa)-(fri*rx+fmi*pix+fmj*pjx)
       fj(iax,2,jwa)=fj(iax,2,jwa)-(fri*ry+fmi*piy+fmj*pjy)
       fj(iax,3,jwa)=fj(iax,3,jwa)-(fri*rz+fmi*piz+fmj*pjz)
+      zw(1,ipww)=zw(1,ipww)-(fri*rx+fmi*pix+fmj*pjx)*rwc(iax,1)
+      zw(2,ipww)=zw(2,ipww)-(fri*ry+fmi*piy+fmj*pjy)*rwc(iax,2)
+      zw(3,ipww)=zw(3,ipww)-(fri*rz+fmi*piz+fmj*pjz)*rwc(iax,3)
+      ewwpsm=ewwpsm+facu(iax)*(qai*rmj-qaj*rmi)*ri1
+      ewwqsm=ewwqsm+facu(iax)*ri1
   117 continue
-c
+      etermp=-qfac*qfac*ewwpsm/three
+      eww(8,ipww)=eww(8,ipww)+etermp
 #endif
+      etermq=q*ewwqsm
+      eww(8,ipww)=eww(8,ipww)+etermq
 c
 c     Radial distribution functions
 c
@@ -509,7 +519,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
+c $Id: cf_f.fh,v 1.33 2000-10-31 18:40:46 d3j191 Exp $
 c
       implicit none
 c
@@ -553,13 +563,20 @@ c
       integer isfr,iwm,ipsw,number,isa,ispm,isf,nax,ism
       integer ispj,ismn,lswptr,iwa,iax,iwatmi,ix
       integer iwatyp
-      real*8 c6,cf6,c12,cf12,sumen,qwas,ferfc,fderfc
-      real*8 q,c64,c124,dercon,qj,qj4,derco1,derco2
+      real*8 c6,cf6,c12,cf12,sumen
+      real*8 c64,c124,dercon,qj,qj4,derco1,derco2
       real*8 drvco1,drvco2,derco3,drvco3,c6p,c12p,etermq,eterml
+#if defined(CAFE_FORCES)
+      real*8 q,qwas,ferfc,fderfc
+#endif
+#if defined(CAFE_POLARIZATION)
+      real*8 qi,qai,qaj,pai,paj,pix,piy,piz,pjx,pjy,pjz
+      real*8 rx,ry,rz,ri1,ri2,ri3,rmi,rmj,fri,fmi,fmj,rmm,zx,zy,zz
+      real*8 eswqsm,eswpsm,qfaci
+#endif
 c
 #include "cf_funcs_sfn.fh"
 #include "bitops_funcs.fh"
-c
 c
 c     this subroutine evaluates the solute-solvent forces for nums
 c     solute atoms starting from isfrom. the interacting solvent
@@ -572,6 +589,10 @@ c
       rtos(iwm)=zero
     1 continue
       endif
+c
+#if defined(CAFE_POLARIZATION)
+      qfaci=one/qfac
+#endif
 c
       do 2 ipsw=1,lpsw
 c
@@ -749,6 +770,9 @@ c      endif
       if(isrx(iax).gt.0) rwi2(iax)=one/(one/rwi2(iax)+shift0(1))
       if(isrx(iax).lt.0) rwi2(iax)=one/(one/rwi2(iax)+shift1(1))
    27 continue
+c
+c     Lennard-Jones interactions
+c
       iwatmi=iwatm(iwa)
       eterml=zero
       do 28 iax=1,nax
@@ -767,6 +791,8 @@ c      endif
       f(iax)=f(iax)+(cf12*rwi6(iax)-cf6)*rwi6(iax)*rwi2(iax)
    28 continue
       esw(isf,5,ipsw)=esw(isf,5,ipsw)+eterml
+c
+#if !defined(CAFE_POLARIZATION)
 c
 c     electrostatic interactions
 c
@@ -828,6 +854,91 @@ c
       endif
    33 continue
       endif
+#else
+      qj=chg(iwq(iwa),1,iset)
+      qaj=qfaci*qj
+c      dqj=qwa(iwa,4)
+c      dqaj=qfaci*dqj
+      paj=chg(iwq(iwa),2,iset)
+c      dpaj=pwa(iwa,4)
+      eswqsm=zero
+      eswpsm=zero
+c      dswqsm=zero
+c      dswqws=zero
+c      dswqps=zero
+c      dswpss=zero
+c      dswpws=zero
+      do 21 iax=1,nax
+      isa=isal(iax)
+      qi=chg(isq1(isa),1,iset)
+c      dqi=qsa(isa,4,1)
+      qai=qfaci*qi
+c      dqai=qfaci*dqi
+      pai=chg(isq1(isa),2,iset)
+c      dpai=psa(isa,4)
+      pix=pai*pl(iax,1)
+      piy=pai*pl(iax,2)
+      piz=pai*pl(iax,3)
+      pjx=paj*pj(iax,1,iwa)
+      pjy=paj*pj(iax,2,iwa)
+      pjz=paj*pj(iax,3,iwa)
+      rwx(iax,1)=xi(iax,1)-xj(iax,1,iwa)
+      rwx(iax,2)=xi(iax,2)-xj(iax,2,iwa)
+      rwx(iax,3)=xi(iax,3)-xj(iax,3,iwa)
+      rx=-rwx(iax,1)
+      ry=-rwx(iax,2)
+      rz=-rwx(iax,3)
+      rwi2(iax)=one/(rx**2+ry**2+rz**2)
+      rwi1(iax)=sqrt(rwi2(iax))
+      ri1=rwi1(iax)
+      ri2=rwi2(iax)
+      ri3=qfac*qfac*ri1*ri2
+      rmi=three*(rx*pix+ry*piy+rz*piz)*ri2
+      rmj=three*(rx*pjx+ry*pjy+rz*pjz)*ri2
+      if(ipolt.eq.1) then
+      fri=((-qai)*qaj+qai*rmj-qaj*rmi)*ri3
+      fmi=(qaj)*ri3
+      fmj=(-qai)*ri3
+      else
+      rmm=three*(pix*pjx+piy*pjy+piz*pjz)*ri2
+      fri=((-qai)*qaj+qai*rmj-qaj*rmi+5.0*rmi*rmj/three-rmm)*ri3
+      fmi=(qaj-rmj)*ri3
+      fmj=((-qai)-rmi)*ri3
+      endif
+      fi(iax,1,1)=fi(iax,1,1)+fri*rx+fmi*pix+fmj*pjx
+      fi(iax,2,1)=fi(iax,2,1)+fri*ry+fmi*piy+fmj*pjy
+      fi(iax,3,1)=fi(iax,3,1)+fri*rz+fmi*piz+fmj*pjz
+      fj(iax,1,iwa)=fj(iax,1,iwa)-(fri*rx+fmi*pix+fmj*pjx)
+      fj(iax,2,iwa)=fj(iax,2,iwa)-(fri*ry+fmi*piy+fmj*pjy)
+      fj(iax,3,iwa)=fj(iax,3,iwa)-(fri*rz+fmi*piz+fmj*pjz)
+      eswqsm=eswqsm+qi*facu(iax)*ri1
+      eswpsm=eswpsm+facu(iax)*(qai*rmj-qaj*rmi)*ri1  
+c      if(ithint.ne.0) then
+c      dpix=dpai*pl(iax,1)
+c      dpiy=dpai*pl(iax,2)
+c      dpiz=dpai*pl(iax,3)
+c      dpjx=dpaj*pj(iax,1,jwa)
+c      dpjy=dpaj*pj(iax,2,jwa)
+c      dpjz=dpaj*pj(iax,3,jwa)
+c      drmi=three*(rx*dpix+ry*dpiy+rz*dpiz)*ri2
+c      drmj=three*(rx*dpjx+ry*dpjy+rz*dpjz)*ri2
+c      dswqsm=dswqsm+dqi*facu(iax)*ri1
+c      dswqws=dswqws+drmj*ri1
+c      dswqps=dswqps+dqai*rmj*ri1
+c      dswpss=dswpss-drmi*ri1
+c      dswpws=dswpws+qai*drmj*ri1
+c      endif
+      zx=(-half)*(fri*rx+fmi*pix+fmj*pjx)*rwc(iax,1)
+      zy=(-half)*(fri*ry+fmi*piy+fmj*pjy)*rwc(iax,2)
+      zz=(-half)*(fri*rz+fmi*piz+fmj*pjz)*rwc(iax,3)
+      zw(1,ipsw)=zw(1,ipsw)+zx
+      zw(2,ipsw)=zw(2,ipsw)+zy
+      zw(3,ipsw)=zw(3,ipsw)+zz
+      zs(isf,1,ipsw)=zs(isf,1,ipsw)+zx
+      zs(isf,2,ipsw)=zs(isf,2,ipsw)+zy
+      zs(isf,3,ipsw)=zs(isf,3,ipsw)+zz
+   21 continue
+#endif
 c
       do 35 iax=1,nax
       fi(iax,1,1)=fi(iax,1,1)+f(iax)*rwx(iax,1)
@@ -1240,7 +1351,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
+c $Id: cf_f.fh,v 1.33 2000-10-31 18:40:46 d3j191 Exp $
 c
       implicit none
 c
@@ -1257,7 +1368,7 @@ c
 c
       real*8 xi(mscr,3),xj(mscr,3),rwx(mscr,3),rwi1(mscr)
       real*8 rwi2(mscr),rwi6(mscr),rwc(mscr,3),rw(mscr)
-      real*8 f(mscr),fi(mscr,3,mwa),fj(mscr,3,mwa)
+      real*8 f(mscr),fi(mscr,3),fj(mscr,3)
       real*8 qsa2(mscr),qsa3(mscr)
       integer isal(mscr),jsal(mscr),jmal(mscr),jfal(mscr),isrx(mscr)
       integer lssj(*)
@@ -1279,16 +1390,28 @@ c
       integer ipss,number,isslen,nax,jsaptr
       integer jnum,lssptr,iax
       real*8 dercon
-      real*8 c6,c12,cf6,cf12,q
+      real*8 c6,c12,cf6,cf12
       real*8 c64,c124
-      real*8 q14,sumen,sumen1,sumen2,sumen3,ferfc,fderfc
+      real*8 q14,sumen,sumen1,sumen2,sumen3
       real*8 etermq,eterml
       integer istt,jstt
+#if defined(CAFE_FORCES)
+      real*8 q,ferfc,fderfc
+#endif
+#if defined(CAFE_POLARIZATION)
+      real*8 qfaci,qi,qj,pai,paj,qai,qaj,rx,ry,rz,ri1,ri2,ri3
+      real*8 pix,piy,piz,pjx,pjy,pjz,rmi,rmj,fri,fmi,fmj,rmm
+      real*8 zx,zy,zz,etermp
+#endif
 c
 #include "cf_funcs_dec.fh"
 #include "bitops_decls.fh"
 #include "cf_funcs_sfn.fh"
 #include "bitops_funcs.fh"
+c
+#if defined(CAFE_POLARIZATION)
+      qfaci=one/qfac
+#endif
 c
       do 112 i=1,msa
       if(isq2(i).le.0.or.isq3(i).le.0.or.
@@ -1476,6 +1599,8 @@ c
       nax=nax+lssin(isa,ipss)
    14 continue
 c
+#if !defined(CAFE_POLARIZATION)
+c
 c     evaluate electrostatic energies and forces
 c
       etermq=zero
@@ -1578,6 +1703,118 @@ c
       ess(isf,jsf,6,ipss)=ess(isf,jsf,6,ipss)+sumen
       etermq=etermq+sumen
    27 continue
+#endif
+c
+#if defined(CAFE_POLARIZATION)
+c
+c     evaluate electrostatic energies and forces
+c
+c      dssq=zero
+c      dssqp=zero
+c      dssp=zero
+      do 24 iax=1,nax
+      if(isf.ne.jfal(iax)) then
+      qi=chg(isq2(isal(iax)),1,iset)
+      qj=chg(isq2(jsal(iax)),1,iset)
+      pai=chg(isq2(isal(iax)),2,iset)
+      paj=chg(isq2(jsal(iax)),2,iset)
+      else
+      qi=chg(isq3(isal(iax)),1,iset)
+      qj=chg(isq3(jsal(iax)),1,iset)
+      pai=chg(isq3(isal(iax)),2,iset)
+      paj=chg(isq3(jsal(iax)),2,iset)
+      endif
+      qai=qfaci*qi
+      qaj=qfaci*qj
+      rwx(iax,1)=xi(iax,1)-xj(iax,1)
+      rwx(iax,2)=xi(iax,2)-xj(iax,2)
+      rwx(iax,3)=xi(iax,3)-xj(iax,3)
+      rx=-rwx(iax,1)
+      ry=-rwx(iax,2)
+      rz=-rwx(iax,3)
+      ri2=one/(rx*rx+ry*ry+rz*rz)
+      ri1=sqrt(ri2)
+      ri3=qfac*qfac*ri1*ri2
+      rwi2(iax)=ri2
+      rwi1(iax)=ri1
+      pix=pai*pl(iax,1)
+      piy=pai*pl(iax,2)
+      piz=pai*pl(iax,3)
+      pjx=paj*pj(iax,1)
+      pjy=paj*pj(iax,2)
+      pjz=paj*pj(iax,3)
+      rmi=three*(rx*pix+ry*piy+rz*piz)*ri2
+      rmj=three*(rx*pjx+ry*pjy+rz*pjz)*ri2
+      if(ipolt.eq.1) then
+      fri=((-qai)*qaj+qai*rmj-qaj*rmi)*ri3
+      fmi=(qaj)*ri3
+      fmj=(-qai)*ri3
+      else
+      rmm=three*(pix*pjx+piy*pjy+piz*pjz)*ri2
+      fri=((-qai)*qaj+qai*rmj-qaj*rmi+5.0*rmi*rmj/three-rmm)*ri3
+      fmi=(qaj-rmj)*ri3
+      fmj=((-qai)-rmi)*ri3
+      endif
+      fi(iax,1)=fri*rx+fmi*pix+fmj*pjx
+      fi(iax,2)=fri*ry+fmi*piy+fmj*pjy
+      fi(iax,3)=fri*rz+fmi*piz+fmj*pjz
+      fj(iax,1)=(fri*rx+fmi*pix+fmj*pjx)
+      fj(iax,2)=(fri*ry+fmi*piy+fmj*pjy)
+      fj(iax,3)=(fri*rz+fmi*piz+fmj*pjz)
+      jsf=jfal(iax)
+      if(isf.ne.jsf) then
+      zx=(-half)*(fri*rx+fmi*pix+fmj*pjx)*rwc(iax,1)
+      zy=(-half)*(fri*ry+fmi*piy+fmj*pjy)*rwc(iax,2)
+      zz=(-half)*(fri*rz+fmi*piz+fmj*pjz)*rwc(iax,3)
+      zs(isf,1,ipss)=zs(isf,1,ipss)+zx
+      zs(isf,2,ipss)=zs(isf,2,ipss)+zy
+      zs(isf,3,ipss)=zs(isf,3,ipss)+zz
+      zs(jsf,1,ipss)=zs(jsf,1,ipss)+zx
+      zs(jsf,2,ipss)=zs(jsf,2,ipss)+zy
+      zs(jsf,3,ipss)=zs(jsf,3,ipss)+zz
+      endif
+      etermp=facu(iax)*(qi*qj-qfac*qfac*(qai*rmj-qaj*rmi))*ri1
+      if(npener.ne.0) then
+      esa(isga(isal(iax)))=esa(isga(isal(iax)))+half*etermp
+      esa(isga(jsal(iax)))=esa(isga(jsal(iax)))+half*etermp
+      endif
+      ess(isf,jsf,6,ipss)=ess(isf,jsf,6,ipss)+etermp
+c
+      
+c      essa(isf,jsf,ipss)=essa(isf,jsf,ipss)+
+c     + facu(iax)*((-half)*qfac*qfac*(qai*rmj-qaj*rmi))*ri1
+c      essq(isf,jsf,ipss)=essq(isf,jsf,ipss)+
+c     + facu(iax)*(qi*qj-half*qfac*qfac*(qai*rmj-qaj*rmi))*ri1
+c      if(ithint.ne.0) then
+c      dqi=qsa(isa,4,isq)
+c      dqai=qfaci*qi
+c      dpai=psa(isa,4)
+c      dqj=qsa(jsa,4,isq)
+c      dqaj=qfaci*qj
+c      dpaj=psa(jsa,4)
+c      dpix=dpai*pl(iax,1)
+c      dpiy=dpai*pl(iax,2)
+c      dpiz=dpai*pl(iax,3)
+c      dpjx=dpaj*pj(iax,1)
+c      dpjy=dpaj*pj(iax,2)
+c      dpjz=dpaj*pj(iax,3)
+c      drmi=three*(rx*dpix+ry*dpiy+rz*dpiz)*ri2
+c      drmj=three*(rx*dpjx+ry*dpjy+rz*dpjz)*ri2
+c      dssq=dssq+facu(iax)*(qi*dqj+dqi*qj)*ri1
+c      dssqp=dssqp+facu(iax)*(dqai*rmj-dqaj*rmi)*ri1
+c      dssp=dssp+facu(iax)*(qai*drmj-qaj*drmi)*ri1
+c      endif
+   24 continue
+c
+c      if(ithint.ne.0) then
+c      if(ith(16).ne.0) then
+c      deriv(16,ipss)=deriv(16,ipss)+dssq-half*qfac*qfac*dssqp/three
+c      endif
+c      if(ith(23).ne.0) then
+c      deriv(23,ipss)=deriv(23,ipss)-half*qfac*qfac*dssp/three
+c      endif
+c      endif
+#endif
 c
 c     Lennard-Jones energies and forces
 c     =================================
@@ -1680,6 +1917,14 @@ c
       fs(lssptr,1,ipss)=fs(lssptr,1,ipss)-f(nax+jnum)*rwx(nax+jnum,1)
       fs(lssptr,2,ipss)=fs(lssptr,2,ipss)-f(nax+jnum)*rwx(nax+jnum,2)
       fs(lssptr,3,ipss)=fs(lssptr,3,ipss)-f(nax+jnum)*rwx(nax+jnum,3)
+#if defined(CAFE_POLARIZATION)
+      fs(isfr+isa,1,ipss)=fs(isfr+isa,1,ipss)+fi(nax+jnum,1)
+      fs(isfr+isa,2,ipss)=fs(isfr+isa,2,ipss)+fi(nax+jnum,2)
+      fs(isfr+isa,3,ipss)=fs(isfr+isa,3,ipss)+fi(nax+jnum,3)
+      fs(lssptr,1,ipss)=fs(lssptr,1,ipss)+fj(nax+jnum,1)
+      fs(lssptr,2,ipss)=fs(lssptr,2,ipss)+fj(nax+jnum,2)
+      fs(lssptr,3,ipss)=fs(lssptr,3,ipss)+fj(nax+jnum,3)
+#endif
    37 continue
 cx      if(ihess.gt.0) then
 cx      do 137 jnum=1,lssin(isa,ipss)
@@ -2193,7 +2438,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
+c $Id: cf_f.fh,v 1.33 2000-10-31 18:40:46 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -2472,7 +2717,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
+c $Id: cf_f.fh,v 1.33 2000-10-31 18:40:46 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2738,7 +2983,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
+c $Id: cf_f.fh,v 1.33 2000-10-31 18:40:46 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -3071,7 +3316,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
+c $Id: cf_f.fh,v 1.33 2000-10-31 18:40:46 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3388,7 +3633,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa)
 c
-c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
+c $Id: cf_f.fh,v 1.33 2000-10-31 18:40:46 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3732,7 +3977,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
+c $Id: cf_f.fh,v 1.33 2000-10-31 18:40:46 d3j191 Exp $
 c
       implicit none
 c

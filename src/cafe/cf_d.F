@@ -1,7 +1,7 @@
       subroutine cf_dww(xw,xwm,pw,pwp,iwfrom,nlocw,lpbc,chg,iwq,
      + lwwndx,lwwjpt,lwwin,lwwj,rwc,xi,xj,rwx,pl,pj,fi,fj)
 c
-c $Id: cf_d.F,v 1.3 1999-04-27 17:48:34 d3j191 Exp $
+c $Id: cf_d.F,v 1.4 2000-10-31 18:40:46 d3j191 Exp $
 c
       implicit none
 c
@@ -296,7 +296,7 @@ c
      + xw,xwm,pw,pwp,iwq,lpbc,chg,lswndx,lswjpt,lswin,lswj,
      + rwc,xi,xj,rwx,pl,pj,fi,fj,isal)
 c
-c $Id: cf_d.F,v 1.3 1999-04-27 17:48:34 d3j191 Exp $
+c $Id: cf_d.F,v 1.4 2000-10-31 18:40:46 d3j191 Exp $
 c
       implicit none
 c
@@ -387,7 +387,7 @@ c
 c
 c     collect solute coordinates and atomic polarization fields
 c
-      if(iand(isdt(isfr+isa),mdynam).eq.ldynam) then
+c      if(iand(isdt(isfr+isa),mdynam).eq.ldynam) then
       do 7 ismn=1,lswin(isa,ipsw)
       lswptr=lswj(ispj+ismn)
       xi(nax+ismn,1)=xs(isfr+isa,1)
@@ -398,22 +398,33 @@ c
       pl(nax+ismn,3)=ps(isfr+isa,3,2)
       isal(nax+ismn)=isfr+isa
     7 continue
-      else
-      do 8 ismn=1,lswin(isa,ipsw)
-      lswptr=lswj(ispj+ismn)
-      xi(nax+ismn,1)=xs(isfr+isa,1)
-      xi(nax+ismn,2)=xs(isfr+isa,2)
-      xi(nax+ismn,3)=xs(isfr+isa,3)
-      pl(nax+ismn,1)=ps(isfr+isa,1,2)
-      pl(nax+ismn,2)=ps(isfr+isa,2,2)
-      pl(nax+ismn,3)=ps(isfr+isa,3,2)
-      isal(nax+ismn)=isfr+isa
-    8 continue
-      endif
+c      else
+c      do 8 ismn=1,lswin(isa,ipsw)
+c      lswptr=lswj(ispj+ismn)
+c      xi(nax+ismn,1)=xs(isfr+isa,1)
+c      xi(nax+ismn,2)=xs(isfr+isa,2)
+c      xi(nax+ismn,3)=xs(isfr+isa,3)
+c      pl(nax+ismn,1)=ps(isfr+isa,1,2)
+c      pl(nax+ismn,2)=ps(isfr+isa,2,2)
+c      pl(nax+ismn,3)=ps(isfr+isa,3,2)
+c      isal(nax+ismn)=isfr+isa
+c    8 continue
+c      endif
 c
 c     collect solvent coordinates and atomic polarization fields
 c
-      do 9 jwa=1,mwa
+      do 8 jwa=1,mwa
+      if(lpbc) then
+      do 9 ismn=1,lswin(isa,ipsw)
+      lswptr=lswj(ispj+ismn)
+      xj(nax+ismn,1,jwa)=xw(lswptr,1,jwa)+rwx(ismn,1)
+      xj(nax+ismn,2,jwa)=xw(lswptr,2,jwa)+rwx(ismn,2)
+      xj(nax+ismn,3,jwa)=xw(lswptr,3,jwa)+rwx(ismn,3)
+      pj(nax+ismn,1,jwa)=pw(lswptr,1,jwa,2)
+      pj(nax+ismn,2,jwa)=pw(lswptr,2,jwa,2)
+      pj(nax+ismn,3,jwa)=pw(lswptr,3,jwa,2)
+    9 continue
+      else
       do 10 ismn=1,lswin(isa,ipsw)
       lswptr=lswj(ispj+ismn)
       xj(nax+ismn,1,jwa)=xw(lswptr,1,jwa)
@@ -423,7 +434,8 @@ c
       pj(nax+ismn,2,jwa)=pw(lswptr,2,jwa,2)
       pj(nax+ismn,3,jwa)=pw(lswptr,3,jwa,2)
    10 continue
-    9 continue
+      endif
+    8 continue
       nax=nax+lswin(isa,ipsw)
     4 continue
 c      else
@@ -678,10 +690,10 @@ c
       return
       end
       subroutine cf_dss(xs,xsm,ps,psp,ismf,isml,isq2,isq3,isfrom,nums,
-     + lpbc,chg,lssndx,lssjpt,lssin,lssj,xi,xj,rwx,rwi1,rwi2,rwi6,
-     + rwc,rw,f,fi,fj,isal,jsal,jmal,jfal,pl,pj)
+     + lpbc,chg,lssndx,lssjpt,lssin,lssj,xi,xj,rwc,rwi1,rwi2,rwi6,
+     + rwx,rw,fi,fj,f,isal,jsal,jmal,jfal,pl,pj)
 c
-c $Id: cf_d.F,v 1.3 1999-04-27 17:48:34 d3j191 Exp $
+c $Id: cf_d.F,v 1.4 2000-10-31 18:40:46 d3j191 Exp $
 c
       implicit none
 c
@@ -821,9 +833,9 @@ c      if(npbtyp.eq.0) then
       xi(nax+jnum,1)=xs(isfr+isa,1)
       xi(nax+jnum,2)=xs(isfr+isa,2)
       xi(nax+jnum,3)=xs(isfr+isa,3)
-      xj(nax+jnum,1)=xs(lssptr,1)
-      xj(nax+jnum,2)=xs(lssptr,2)
-      xj(nax+jnum,3)=xs(lssptr,3)
+      xj(nax+jnum,1)=xs(lssptr,1)+rwx(jnum,1)
+      xj(nax+jnum,2)=xs(lssptr,2)+rwx(jnum,2)
+      xj(nax+jnum,3)=xs(lssptr,3)+rwx(jnum,3)
       pl(nax+jnum,1)=ps(isfr+isa,1,2)
       pl(nax+jnum,2)=ps(isfr+isa,2,2)
       pl(nax+jnum,3)=ps(isfr+isa,3,2)

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.99 2000-10-26 21:16:23 d3j191 Exp $
+c $Id: md_main.F,v 1.100 2000-10-31 18:41:07 d3j191 Exp $
 c
       implicit none
 c
@@ -1872,6 +1872,7 @@ c
      + lpair,int_mb(i_iwz),int_mb(i_isz))
 c
    22 continue
+      lpair=.false.
 c
       if(np.gt.0) call ga_sync()
 c
@@ -1935,7 +1936,7 @@ c     + (pw(i,j,1,1),j=1,3),(pw(i,j,1,2),j=1,3)
 c      endif
 c  333 continue
 c
-      if(pmax.gt.ptol.and.npolit.le.mpolit) goto 11
+      if(pmax.gt.ptol.and.npolit.le.mpolit.and.ipolt.gt.1) goto 11
 c
 c     copy current fields into local global array
 c     -------------------------------------------
@@ -2128,7 +2129,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.99 2000-10-26 21:16:23 d3j191 Exp $
+c $Id: md_main.F,v 1.100 2000-10-31 18:41:07 d3j191 Exp $
 c
       implicit none
 c

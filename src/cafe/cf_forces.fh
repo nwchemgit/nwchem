@@ -1,4 +1,4 @@
-c $Id: cf_forces.fh,v 1.15 2000-07-14 19:54:15 d3j191 Exp $
+c $Id: cf_forces.fh,v 1.16 2000-10-31 18:40:46 d3j191 Exp $
 #if defined(CAFE_POLARIZATION)
       subroutine forcep(lself,lpbcs,
      + xw,xwm,fw,pw,pwp,zwi,rtos,iwdt,iwz,
@@ -221,7 +221,7 @@ c
 #if defined(CAFE_POLARIZATION)
       call cf_fpsw(xs,xsm,fs,zs,ps,psp,isga,isat,isdt,ismf,isml,isss,
      + isq1,jsfr,nsnon,
-     + xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,esa,
+     + xw,xwm,fw,pw,pwp,rtos,iwdt,lpbc,lpbcs,esw,esa,
      + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
      + int_mb(i_ias),int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nsnon),int_mb(lptr+1+4*nsnon),
