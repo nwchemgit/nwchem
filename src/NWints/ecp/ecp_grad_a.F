@@ -1,4 +1,4 @@
-C $Id: ecp_grad_a.F,v 1.1 1996-10-15 18:32:49 mg201 Exp $
+C $Id: ecp_grad_a.F,v 1.2 1996-10-18 22:07:32 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_grad_a (l_a,n_p,n_o,n_m,n_ca,intp,intm,grad,n_b,
@@ -25,7 +25,8 @@ C $Id: ecp_grad_a.F,v 1.1 1996-10-15 18:32:49 mg201 Exp $
 ************************************************************************
       implicit none
 #include "stdio.fh"
-      integer i,j,k,m,ix,iy,iz,l_a,n_p,n_o,n_m,n_ca,n_b
+      integer i,j,k,m,ix,iy,iz,l_a,n_p,n_o,n_m,n_ca,n_b,ibug
+      logical debug_gen,debug_addresses,debug_arrays
       double precision wi,wj,wk,two,
      &    intp(n_b,n_p,n_ca),
      &    intm(n_b,n_m,n_ca),
