@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.6 2002-08-21 22:02:50 bylaska Exp $
+* $Id: psp.F,v 1.7 2003-06-07 17:04:17 bylaska Exp $
 *
 
 #define TCGMSG
@@ -579,8 +579,8 @@ c     parameter (c6=0.00004306380d0)
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
 
       call D3dB_nx(1,np1)
-      call D3dB_nx(1,np2)
-      call D3dB_nx(1,np3)
+      call D3dB_ny(1,np2)
+      call D3dB_nz(1,np3)
       dv = lattice_omega()/dble(np1*np2*np3)
 
       do j=1,ion_nion()
