@@ -42,8 +42,6 @@ c
 
       if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
      &    oqmmm = .false.
-         if(ga_nodeid())
-     > write(*,*) "cons_init 1:oqmmm",oqmmm
 
 
       if(.not.cons_activate(namespace,rtdb)) then
@@ -126,6 +124,10 @@ c     --------------------
         if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
      &    'cons_init: unable to free h_tmp_id',
      &    0, MA_ERR)
+        if (.not.ma_free_heap(h_act)) call errquit(
+     &    'cons_init: unable to free actlist',
+     &    0, MA_ERR)
+
 
       end if
 
@@ -135,15 +137,10 @@ c     --------------------
 
       if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
      &    oqmmm = .false.
-         if(ga_nodeid())
-     > write(*,*) "cons_init 2:oqmmm",oqmmm
-
 
       call cons_load_fixed_atoms(namespace,rtdb)
       if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
      &    oqmmm = .false.
-         if(ga_nodeid())
-     > write(*,*) "cons_init 3:oqmmm",oqmmm
 
       call cons_print_gen_info(rtdb)
 c
@@ -154,8 +151,6 @@ c
 
       if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
      &    oqmmm = .false.
-         if(ga_nodeid())
-     > write(*,*) "cons_init 4:oqmmm",oqmmm
 
 
       return
@@ -213,7 +208,6 @@ c
 #include "cons.fh"
 
       integer h_c
-      write(*,*) " unloading geometry"
       h_c = cons_get_h_c()
       if ( .not. ma_free_heap(h_c)) call errquit(
      &      'input_set: unable to deallocate cons coord',
@@ -293,7 +287,6 @@ c
 c
 c     load harmonic constraints
 c
-      write(*,*) 'cons_load_hbonds:namespace',namespace
       status=rtdb_get(rtdb,tag_n,mt_int,1,nhb)
       if(.not.status .or. nhb.eq.0) call errquit(
      >     'cons_load_hbonds: unable to get number of harm bonds:',
@@ -539,7 +532,6 @@ c
 c
       call cons_load_geom(rtdb)
       call cons_get_namespace(namespace)
-      write(*,*) "cons_add_egrad:namespace=",namespace
       call cons_load_hbonds(namespace,rtdb)
       call cons_get_hbond_nhb(nhb)
       if(nhb .gt. 0 ) then
@@ -570,10 +562,7 @@ c
       else if (.not.status) then
         return
       end if
-      call util_print_centered(6,
-     >     "NWChem Constraints Module",
-     >     36,.true.)
-c
+
       call cons_load_geom(rtdb)
       call cons_get_namespace(namespace)
       call cons_load_hbonds(namespace,rtdb)
@@ -633,11 +622,11 @@ c
      >         r,
      >         enb)
 
-c       if(oprint) then
+       if(oprint) then
         write(6,*)"adding spring # ",inb
         write(6,*)"  spring parameters (i,j,k,r0):",iat,jat,k,r0
         write(6,*)"  spring length and energy    :",r,enb
-c       end if
+       end if
        e=e+enb
       end do
       if(rtdb_get(rtdb, 'cons:simulate', mt_log, 1, status)) then
@@ -771,7 +760,6 @@ c
 c
       call cons_load_geom(rtdb)
       call cons_get_namespace(namespace)
-      write(*,*)"cons_print_summary:namespace",namespace
       call cons_load_hbonds(namespace,rtdb)
 c
       call cons_get_hbond_nhb(nhb)
@@ -806,11 +794,12 @@ c
       if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, energy))
      $        call errquit('driver: could not get energy',0, RTDB_ERR)
 
-
+      if(master) then
       write(6,*)" Total energy with constraints        :",energy
       write(6,*)" Energy contribution from constraints :",etot
       write(6,*)" Total energy without constraints  :",energy-etot
       write(6,*)" -----------------------------------"
+      end if
       call cons_unload_hbonds(rtdb)
       call cons_unload_geom()
 
