@@ -134,8 +134,8 @@ c
       call ga_sync()
 c
       call ga_dgop(1, dbl_mb(k_tmp2), nmo*nmo, '+')
+      call moints_scr3(nmo, dbl_mb(k_tmp2), occlo, occhi)
       if (ga_nodeid() .eq. 0) then
-         call moints_scr3(nmo, dbl_mb(k_tmp2), occlo, occhi)
          call ga_put(g_mosc, 1, nmo, 1, nmo, dbl_mb(k_tmp2), nmo)
       endif
       call ga_sync()
@@ -150,6 +150,7 @@ c
       end
       subroutine moints_scr3(nmo, tmp, occlo, occhi)
       implicit none
+#include "global.fh"
       integer nmo, occlo, occhi
       double precision tmp(nmo, nmo)
 c
@@ -157,7 +158,7 @@ c     On input tmp contains (ij|ij) which needs to be symmetrized
 c     On output it contains sqrt(|(ij|ij)|).
 c     Also bin the values for easy interpretation of the sparsity.
 c
-      integer i, j, a, b, c, bb
+      integer i, j, a, b, c, bb, me, nproc, count
       double precision nabic, tci, tabci
       double precision bins(-15:3)
 c
@@ -178,52 +179,66 @@ c
          end do
       end do
 c
-      write(6,11) 
- 11   format(//,'log10 bins for MO schwarz screening pairs ',//)
-      write(6,1) (b, bins(b), b=-15,3)
- 1    format(i4,2x,1pd9.1)
+      if (ga_nodeid() .eq. 0) then
+         write(6,11) 
+ 11      format(//,'log10 bins for MO schwarz screening pairs ',//)
+         write(6,1) (b, bins(b), b=-15,3)
+ 1       format(i4,2x,1pd9.1)
+      endif 
 c
 c     Now count how many 3-x integrals we think there are
 c     according to Schwarz screening.  (ab|ci)
 c
+      me = ga_nodeid()
+      nproc = ga_nnodes()
+      count = 0
+c
       do i = -15,3
          bins(i) = 0.0d0
       enddo
+c
       nabic = 0.0d0
       do i = occlo, occhi
          do c = occhi+1,nmo
-            tci = tmp(c,i)
-            do a = occhi+1,nmo
-               do b = occhi+1,nmo
-                  tabci = tmp(b,a)*tci
-                  if (tabci .le. 1d-15) then
-                     bins(-15) = bins(-15) + 1
-                  else
-                     bb = min(max(-15,nint(log10(tabci))),3)
-                     bins(bb) = bins(bb) + 1
-                  end if
-                  nabic = nabic + 1.0d0
+            if (mod(count,nproc) .eq. me) then
+               tci = tmp(c,i)
+               do a = occhi+1,nmo
+                  do b = occhi+1,nmo
+                     tabci = tmp(b,a)*tci
+                     if (tabci .le. 1d-15) then
+                        bins(-15) = bins(-15) + 1
+                     else
+                        bb = min(max(-15,nint(log10(tabci))),3)
+                        bins(bb) = bins(bb) + 1
+                     end if
+                     nabic = nabic + 1.0d0
+                  end do
                end do
-            end do
+            endif
+            count = count + 1
          end do
       end do
-      write(6,12) 
- 12   format(//,'log10 bins for 3-x integrals',//)
-      write(6,1) (b, bins(b), b=-15,3)
+      call ga_dgop(5,bins,19,'+')
+      if (ga_nodeid() .eq. 0) then
+         write(6,12) 
+ 12      format(//,'log10 bins for 3-x integrals',//)
+         write(6,1) (b, bins(b), b=-15,3)
 c
-      do i = 2,-15,-1
-         bins(i) = bins(i) + bins(i+1)
-      end do
-      write(6,13) 
- 13   format(//,'cumulative log10 bins for 3-x integrals',//)
-      write(6,1) (b, bins(b), b=-15,3)
-c
-      do i = 3,-15,-1
-         bins(i) = bins(i)/nabic
-      end do
-      write(6,14) 
- 14   format(//,'scaled cumulative log10 bins for 3-x integrals',//)
-      write(6,1) (b, bins(b), b=-15,3)
+         do i = 2,-15,-1
+            bins(i) = bins(i) + bins(i+1)
+         end do
+         write(6,13) 
+ 13      format(//,'cumulative log10 bins for 3-x integrals',//)
+         write(6,1) (b, bins(b), b=-15,3)
+c     
+         do i = 3,-15,-1
+            bins(i) = bins(i)/nabic
+         end do
+         write(6,14) 
+ 14      format(//,'scaled cumulative log10 bins for 3-x integrals',//)
+         write(6,1) (b, bins(b), b=-15,3)
+      end if
+      call ga_sync()
 c
       end
       subroutine moints_scr2(ilo,ihi,jlo,jhi,klo,khi,llo,lhi,

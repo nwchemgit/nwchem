@@ -582,7 +582,7 @@ c
      $                       blo, bhi, g_t2)) call errquit
      $                       ('write of all failed',0)
                         if (.not. ga_destroy(g_t2)) call errquit
-     $                       ('ga???',0)
+     $                       ('ga?',0)
                         endif
                      end do
                   end if
@@ -671,7 +671,7 @@ c
                               end do
                            end do
                            if (.not. ga_destroy(g_t2)) call errquit
-     $                          ('ga2???',0)
+     $                          ('ga2?',0)
                            end if
                         end do
                         endif
@@ -927,7 +927,7 @@ c
      $                       ('write of all failed',0)
 c
                         if (.not. ga_destroy(g_t2)) call errquit
-     $                       ('ga???',0)
+     $                       ('ga?',0)
                         endif
                      end do
                   end if
@@ -1242,7 +1242,7 @@ c
                         endif
 c
                         if (.not. ga_destroy(g_t2)) call errquit
-     $                       ('ga???',0)
+     $                       ('ga?',0)
                         endif
                      end do
                   end if
