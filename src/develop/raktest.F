@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.33 1995-02-07 00:48:29 d3e129 Exp $
+c $Id: raktest.F,v 1.34 1995-02-08 22:28:08 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -3878,6 +3878,7 @@ c free memory
 c
       integer rtdb
       integer geom
+      integer mx1e, mxg, mxs1, mxs2
 c
 c
       integer nbas, bases(6)
@@ -3905,6 +3906,12 @@ c
      &      call errquit('raktest4: bas_rtdb_load choked',911)
 00200 continue
       call intd_init(rtdb,nbasis_rtdb,bases)
+c
+      call int_mem(mx1e, mxg, mxs1, mxs2)
+      write(6,*)' one electron buffer size        :',mx1e
+      write(6,*)' two electron buffer size        :',mxg
+      write(6,*)' one electron scratch buffer size:',mxs1
+      write(6,*)' two electron scratch buffer size:',mxs2
 c
       end
 
