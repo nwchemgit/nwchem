@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.39 1998-02-26 01:30:05 mdupuis Exp $
+C$Id: opt_drv.F,v 1.40 1998-03-04 23:18:42 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -50,15 +50,20 @@ c
 #include "msgtypesf.h"
 #include "global.fh"
 #include "mafdecls.fh"
+#include "stdio.fh"
 #include "geom.fh"
 #include "util.fh"
       logical       geom_zmt_get_nizmat
+      logical       geom_usr_get_nzfrz 
+      logical       geom_usr_get_izfrz 
       integer       rtdb
       integer       geom
       integer       idriver
       logical       hnd_sadx
       logical       some
+      logical       out
       logical       dbug
+      logical       status
       logical       cvged
       logical       zcoord
       logical       rstart
@@ -68,7 +73,6 @@ c
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=1500)
-      PARAMETER (MXBFN=3072)
 c                mxcoor=max(mxcart,mxzmat)
       common/hnd_iofile/ir,iw
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
@@ -77,10 +81,12 @@ c                mxcoor=max(mxcart,mxzmat)
       common/hnd_optrun/npts,nserch,nupdat,cvged
       common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
      1                                                     modsad
-      common/hnd_optfrz/icfrz(mxcoor),iatfrz(mxatom)
+      common/hnd_optsad/sadstp
+      common/hnd_optfrz/nzfrz,izfrz(mxcoor),iatfrz(mxatom)
       common/hnd_optfun/e,eg(mxcart)
       common/hnd_optvar/zcoord,ncoord,mcoord
       common/hnd_optfil/opt_hess_fil
+      common/hnd_opttim/energy_time,gradient_time
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_molxyz/c(mxcart),zan(mxatom),nat
       character*16 atmlab
@@ -95,21 +101,15 @@ c
       hnd_optx = .false.
 c
       dbug=.false.
+      out =.false.
+      out =out.or.dbug
       some=.false.
-      some=some.or.dbug
+      some=some.or.out
       if (ga_nodeid().eq.0.or.some)  then
          write(iw,9999)
       endif
 c
 c     ----- parameters for optimization driver -----
-c     user input with defaults
-c
-      do i=1,mxcoor             ! These are presently unused
-         icfrz(i)=0
-      enddo
-      do i=1,mxatom
-         iatfrz(i)=0
-      enddo
 c
       if (.not. rtdb_get(rtdb,'driver:cvgopt',mt_dbl,1,cvgopt)) then
            cvgopt=8.0d-04
@@ -157,11 +157,26 @@ c
               write(iw,*) 'using -rtdb-  value of -modsad-',modsad
            endif
       endif
+      if (.not. rtdb_get(rtdb,'driver:sadstp',mt_dbl,1,sadstp)) then
+           sadstp=0.35d+00
+           if(dbug) then
+              write(iw,*) 'using default value of -sadstp-',sadstp
+           endif
+      endif
 c
       if (ga_nodeid().eq.0.or.dbug)  then
          write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd,
-     1                                       modsad,moddir
+     1                                       modsad,moddir,
+     2                                       sadstp
       endif
+c
+      nzfrz=0
+      do i=1,mxcoor           
+         izfrz(i)=0
+      enddo
+      do i=1,mxatom
+         iatfrz(i)=0
+      enddo
 c
 c     ----- branch to transition state search if demanded -----
 c
@@ -184,7 +199,49 @@ c
      &       call errquit('hnd_opt: geom_get ', 911)
        nat = ncent
       if(.not.geom_zmt_get_nizmat(geom,nzmat))
-     1       call errquit('geom_input: geom_zmt_get_nizmat failed',0)
+     &       call errquit('geom_input: geom_zmt_get_nizmat failed',0)
+c
+c     ----- frozen coordinates ? if so .... -----
+c
+      status = rtdb_parallel(.false.)
+      if(ga_nodeid().eq.0) then
+         if(.not.geom_usr_get_nzfrz(geom,nzfrz)) then
+            if(dbug) then
+               write(iw,*) '-nzfrz- not found in -geomP- object'
+            endif
+            nzfrz=0
+         else
+            if(dbug) then
+               write(iw,*) '-nzfrz-     found in -geomP- object',nzfrz
+               write(iw,*) 'now read -izfrz-                   '
+            endif
+            if(.not.geom_usr_get_izfrz(geom,izfrz,nzfrz)) then
+               call errquit('geom_input: geom_usr_get_izfrz  failed',0)
+            endif
+            if(dbug) then
+               if(nzfrz.gt.0) then
+                  write(iw,*) 'izfrz = ',(izfrz(i),i=1,nzfrz)
+               endif
+            endif
+         endif
+         call ga_brdcst(24+msgint,nzfrz,mitob(1     ),0)
+         call ga_brdcst(25+msgint,izfrz,mitob(mxcoor),0)
+      else
+         call ga_brdcst(24+msgint,nzfrz,mitob(1     ),0)
+         call ga_brdcst(25+msgint,izfrz,mitob(mxcoor),0)
+      endif
+      call ga_sync()
+      status = rtdb_parallel(.true.)
+      if (ga_nodeid().eq.0.or.dbug)  then
+         if(nzfrz.gt.0) then
+            write(iw,9993) nzfrz
+            write(iw,9992) (izfrz(i),i=1,nzfrz) 
+         else
+            write(iw,9991)
+         endif
+      endif
+c
+c     ----- get ready to start now -----
 c
       rstart=.false.
       excess=.false.
@@ -192,6 +249,10 @@ c
       zcoord=nzmat.gt.0
       if(dbug)  then
          write(iw,*) 'nzmat,zcoord = ',nzmat,zcoord    
+         write(iw,*) 'nzfrz        = ',nzfrz
+         if(nzfrz.gt.0) then
+            write(iw,*) 'izfrz = ',(izfrz(i),i=1,nzfrz)
+         endif
       endif
       if(zcoord) then
          call geom_zmt_icoord(rtdb,geom)
@@ -246,11 +307,23 @@ c
          x(i)=c(i)
       enddo
 c
+         time_start=util_wallsec()
       call hnd_opt_energy(rtdb,geom)
+         time_end  =util_wallsec()
+         energy_time=time_end-time_start
+         if(out) then
+            write(iw,*) 'energy_time = ',energy_time
+         endif
 c
       func=e
 c
+         time_start=util_wallsec()
       call hnd_opt_gradient(rtdb,geom)
+         time_end  =util_wallsec()
+         gradient_time=time_end-time_start
+         if(out) then
+            write(iw,*) 'gradient_time = ',gradient_time
+         endif
 c
       do i=1,ncart
          g(i)=eg(i)
@@ -400,15 +473,19 @@ c
  9996 format(' optimization convergence threshold    (cvgopt) = ',f10.6,
      1     /,' maximum number of energy evaluations  (nptopt) = ',i4,/,
      2       ' max.num. of points in linear search   (linopt) = ',i4,/,
-     1       ' initial guess option for opt.hessian  (inhess) = ',i4,/,
+     3       ' initial guess option for opt.hessian  (inhess) = ',i4,/,
      4       ' hessian update selection option       (modupd) = ',i4,/,
-     2       ' optimization to saddle point          (modsad) = ',i4,/,
-     6       ' initial eigen-mode followed to saddle (moddir) = ',i4)
+     5       ' optimization to saddle point          (modsad) = ',i4,/,
+     6       ' initial eigen-mode followed to saddle (moddir) = ',i4,/,
+     7       ' maximum step size to saddle           (sadstp) = ',f6.2)
  9995 format(' maximum number of energy points reached. stop',
      1       ' currently -nptopt- = ',i5)
  9994 format(/,10x,19(1h-),
      1       /,10x,'Energy Minimization',
      2       /,10x,19(1h-),/)
+ 9993 format(' number of frozen internal coordinates = ',i4)
+ 9992 format('           frozen internal coordinates = ',12i4)
+ 9991 format('        no frozen internal coordinates.')
       end
       subroutine driver_input(rtdb)
       implicit none
@@ -421,9 +498,11 @@ c
       logical  dbug
       integer  ir, iw
       double precision cvgopt
+      double precision sadstp
       integer nptopt,inhess,linopt,modupd,moddir,modsad
       common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
      1                                                     modsad
+      common/hnd_optsad/sadstp
       common/hnd_iofile/ir,iw
 c
       dbug=.false.
@@ -439,6 +518,7 @@ c
          write(iw,*) 'modupd',modupd
          write(iw,*) 'modsad',modsad
          write(iw,*) 'moddir',moddir
+         write(iw,*) 'sadstp',sadstp
       endif
 c
       opt_input=.true.
@@ -457,6 +537,8 @@ c
      &    rtdb_put(rtdb,'driver:moddir',mt_int,1,moddir)
       status=status.and.
      &    rtdb_put(rtdb,'driver:modsad',mt_int,1,modsad)
+      status=status.and.
+     &    rtdb_put(rtdb,'driver:sadstp',mt_dbl,1,sadstp)
       if(.not.status) then
          call errquit('driver_input : rtdb_put failed',911)
       endif
@@ -470,6 +552,7 @@ c
          write(iw,*) 'modupd',modupd
          write(iw,*) 'modsad',modsad
          write(iw,*) 'moddir',moddir
+         write(iw,*) 'sadstp',sadstp
       endif
 c
       return
@@ -490,7 +573,8 @@ c                mxcoor=max(mxcart,mxzmat)
       common/hnd_iofile/ir,iw
       common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
      1                                                     modsad
-      common/hnd_optfrz/icfrz(mxcoor),iatfrz(mxatom)
+      common/hnd_optsad/sadstp
+      common/hnd_optfrz/nzfrz,izfrz(mxcoor),iatfrz(mxatom)
 c
       dbug=.false.
 c
@@ -503,8 +587,9 @@ c
       modupd=1
       modsad=0
       moddir=1
+      sadstp=0.35d+00
       do i=1,mxcoor
-         icfrz(i)=0
+         izfrz(i)=0
       enddo
       do i=1,mxatom
          iatfrz(i)=0
@@ -555,6 +640,13 @@ c
                   go to 10
                else
                   call errquit('hnd_opt_input: cvgopt',911)
+               endif
+            elseif(inp_compare(.false.,'sadstp',field)) then
+               if(inp_f(dum)) then
+                  sadstp=dum
+                  go to 10
+               else
+                  call errquit('hnd_opt_input: sadstp',911)
                endif
             elseif(inp_compare(.false.,'nptopt',field)) then
                if(inp_i(idum)) then
@@ -630,19 +722,24 @@ c
       parameter (mxzmat=1500)
       parameter (mxcoor=1500)
       logical    zcoord
+      logical    frozen
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
       common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
      1                                                     modsad
-      common/hnd_optfrz/icfrz(mxcoor),iatfrz(mxatom)
+      common/hnd_optfrz/nzfrz,izfrz(mxcoor),iatfrz(mxatom)
       common/hnd_optvar/zcoord,ncoord,mcoord
       common/hnd_zmtpar/nzmat,nzvar,nvar
       data zero /0.0d+00/
 c
       gmax =zero
       do i=1,ncoord 
-         if(icfrz(i).eq.0) then
+         frozen=.false.
+         do iz=1,nzfrz
+            frozen=frozen.or.(i.eq.izfrz(iz))
+         enddo
+         if(.not.frozen) then
             if(abs(g(i)).gt.gmax) gmax=abs(g(i))
          endif
       enddo
@@ -713,11 +810,13 @@ c
 c
       if( ga_nodeid().eq.0.or.dbug) then
          write(iw,9999) nserch,npts
-c        write(iw,9996)
-c        do iat=1,nat
-c           write(iw,9995) iat,(c(i,iat),i=1,3)
-c        enddo
-c        write(iw,9997)
+         if(dbug) then
+            write(iw,9996)
+            do iat=1,nat
+               write(iw,9995) iat,(c(i,iat),i=1,3)
+            enddo
+            write(iw,9997)
+         endif
          if(.not.geom_print(geom)) 
      1     call errquit('hnd_opt_energy: print error',911)
       endif
@@ -908,8 +1007,6 @@ c
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
       double precision d(mxcoor)
-c      dimension z(mxzmat) ! never used
-c      dimension t(mxzmat) ! never used
       integer ncart, i, i_ibi, ibi
       double precision zero, tol
       data zero /0.0D+00/
@@ -1051,7 +1148,6 @@ c
 c
       integer     rtdb
       integer     geom
-c      logical     status ! never used
 c
 c parameters read from rtdb
 c prefix:energy (later) rohf and uhf
@@ -1075,7 +1171,6 @@ c      integer h_v    , k_v       ! MA handle/index
 c      integer h_ia   , k_ia      ! MA handle/index
 c      integer h_last , k_last    ! MA handle/index of last  mem location
 c
-c      logical geom_zmt_get_binv
       logical geom_zmt_get_zmat
       logical geom_zmt_get_zsym
       logical geom_zmt_get_izmat
@@ -1397,9 +1492,6 @@ C
       LOGICAL SOME
       LOGICAL DBUG
       LOGICAL BADZ
-c      LOGICAL NATURL 
-c      LOGICAL SYMTRC
-c      LOGICAL INDEP
       CHARACTER*8 HGUESS
       CHARACTER*8 GUESS
       CHARACTER*8 GUESS1
@@ -1686,6 +1778,14 @@ C
          ENDIF
   190 CONTINUE
 C
+c--
+c     DO J=1,NZVAR
+c        DO I=1,NZVAR
+c           HSSQ(I,J)=ZERO
+c        ENDDO
+c        HSSQ(J,J)=0.5D+00
+c     ENDDO
+c--
       IF(OUT) THEN
          WRITE(IW,9048)
          CALL HND_PRSQ(HSSQ,NZVAR,NZVAR,NINT)
@@ -1927,9 +2027,11 @@ c
       double precision zero
       data zero /0.0d+00/
 c
-      dbug = util_print('search dir debug',print_debug)
-      out  = util_print('search dir out', print_debug)
-      out  = out.or.dbug
+      dbug =.false.
+      dbug = dbug.or.util_print('search dir debug',print_debug)
+      out  =.false.
+      out  = out .or.util_print('search dir out', print_debug)
+      out  = out .or.dbug
 c
       baker=.false.
 c
@@ -2122,7 +2224,7 @@ C
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
       COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR,
      1                                                     MODSAD
-      COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
+      COMMON/HND_OPTFRZ/NZFRZ,IZFRZ(MXCOOR),IATFRZ(MXATOM)
       DIMENSION HESS(NDIM,*),HESVEC(NDIM,*),HESST(*),HESEIG(*)
       DIMENSION HESEDM(*),T(*),IA(*)
       DATA ZERO   /0.0D+00/
@@ -2233,7 +2335,7 @@ C
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
       COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR,
      1                                                     MODSAD
-      COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
+      COMMON/HND_OPTFRZ/NZFRZ,IZFRZ(MXCOOR),IATFRZ(MXATOM)
       DIMENSION HESS(NDIM,*),HESVEC(NDIM,*),HESST(*),HESEIG(*)
       DIMENSION HESEDM(*),T(*),IA(*)
       DATA ZERO   /0.0D+00/
@@ -2263,6 +2365,19 @@ C
          WRITE(IW,9988)
          DO J=1,NVAR
             WRITE(IW,9995) J,G(J)                 
+         ENDDO
+      ENDIF
+C
+C     ----- DAMP OUT FROZEN COORDINATES -----
+C
+      IF(NZFRZ.GT.0) THEN
+         DO IZ=1,NZFRZ
+            I=IZFRZ(IZ)
+            DO J=1,NVAR
+               HESS(I,J)=ZERO
+               HESS(J,I)=ZERO
+            ENDDO
+            HESS(I,I)=HUNDRD
          ENDDO
       ENDIF
 C
@@ -2366,12 +2481,16 @@ C
          DO K=1,NVAR
             DUM=DUM+HESS(I,K)*G(K)
          ENDDO
-         IF(ICFRZ(I).NE.0) THEN
-            DX(I)=ZERO
-         ELSE
-            DX(I)=-DUM
-         ENDIF
+         DX(I)=-DUM
       ENDDO
+C
+      IF(NZFRZ.GT.0) THEN
+         DO I=1,NZFRZ
+            IZ=IZFRZ(I)
+            DX(IZ)=ZERO
+         ENDDO
+      ENDIF
+C
       IF(OUT) THEN
          WRITE(IW,9992)
          DO I=1,NVAR
@@ -2417,7 +2536,6 @@ C
 #include "rtdb.fh"
 #include "global.fh"
       INTEGER   RTDB
-      PARAMETER (MXBFN=3072)
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (MXZMAT=1500)
@@ -2435,7 +2553,7 @@ C
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
       COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR,
      1                                                     MODSAD
-      COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
+      COMMON/HND_OPTFRZ/NZFRZ,IZFRZ(MXCOOR),IATFRZ(MXATOM)
       COMMON/HND_OPTFUN/E,EG(MXCART)
 C
       DBUG=.FALSE.
@@ -2684,6 +2802,7 @@ C
       INTEGER RTDB
       INTEGER GEOM
       LOGICAL STATUS
+      LOGICAL UTIL_TEST_TIME_REMAINING
       CHARACTER*16 TAGS_NW
       DIMENSION COORDS_NW(MXCART)
       DIMENSION CHARGE_NW(MXATOM)
@@ -2703,14 +2822,16 @@ C
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED 
       COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR,
      1                                                     MODSAD
-      COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
+      COMMON/HND_OPTFRZ/NZFRZ,IZFRZ(MXCOOR),IATFRZ(MXATOM)
       COMMON/HND_OPTFUN/E,EG(MXCART)
+      COMMON/HND_OPTTIM/ENERGY_TIME,GRADIENT_TIME
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
       DIMENSION ALP(5),FUNL(5)
       DATA ZERO,TWO,THREE       /0.0D+00,2.0D+00,3.0D+00/
       DATA TOLALP,TOLFUN        /1.0D-01,1.5D-01/
       DATA FALMIN,FALNOR,FALMAX /1.0D-01,2.0D+00,5.0D+00/
       DATA DALNOR,DALMAX        /0.9D+00,0.5D+00/
+      DATA ONEPT5               /1.5D+00/
 C
       DBUG=.FALSE.
       OUT =.FALSE.
@@ -2793,6 +2914,17 @@ C
 C
 C
 C     ----- CALL FUNCTION EVALUATION -----
+C
+c        STATUS=UTIL_TEST_TIME_REMAINING(RTDB,ENERGY_TIME*ONEPT5)
+c        IF(OUT) THEN
+c           WRITE(IW,*) 'ENOUGH TIME REMAINING FOR ENERGY = ',STATUS
+c        ENDIF
+c        IF(.NOT.STATUS) THEN
+c           WRITE(IW,*) 'NOT ENOUGH TIME REMAINING, SHUTTING DOWN ... '
+c           NPTOPT=NPTS-1
+c           EXCESS=.TRUE.
+c           RETURN
+c        ENDIF
 C
       CALL HND_OPT_ENERGY(RTDB,GEOM)
       FUNC=E
@@ -2964,6 +3096,17 @@ C
 C     ----- CALCULATE THE GRADIENT FOR THE FINAL POINT -----
 C
   900 CONTINUE
+c        STATUS=UTIL_TEST_TIME_REMAINING(RTDB,GRADIENT_TIME*ONEPT5)
+c        IF(OUT) THEN
+c           WRITE(IW,*) 'ENOUGH TIME REMAINING FOR GRADIENT = ',STATUS
+c        ENDIF
+c        IF(.NOT.STATUS) THEN
+c           WRITE(IW,*) 'NOT ENOUGH TIME REMAINING, SHUTTING DOWN ... '
+c           NPTOPT=NPTS-1
+c           EXCESS=.TRUE.
+c           RETURN
+c        ENDIF
+C
       CALL HND_OPT_GRADIENT(RTDB,GEOM)
       DO I=1,NCART 
          G(I) =EG(I)
@@ -3201,7 +3344,7 @@ c
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
       COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR,
      1                                                     MODSAD
-      COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
+      COMMON/HND_OPTFRZ/NZFRZ,IZFRZ(MXCOOR),IATFRZ(MXATOM)
       DIMENSION HESS(NDIM,*),HESSDX(*)
       DATA ZERO /0.0D+00/
       DATA TOL  /1.0D-08/
@@ -3226,14 +3369,13 @@ C
 C
 C     ----- DAMP OUT FROZEN COORDINATES -----
 C
-      DO I=1,NVAR
-         IF(ICFRZ(I).NE.0) THEN      
-            G(I)=G0(I)
-            DO J=1,NVAR
-               HESS(I,J)=ZERO
-               HESS(J,I)=ZERO
-            ENDDO
-         ENDIF
+      DO IZ=1,NZFRZ
+         I=IZFRZ(IZ)     
+         G(I)=G0(I)
+         DO J=1,NVAR
+            HESS(I,J)=ZERO
+            HESS(J,I)=ZERO
+         ENDDO
       ENDDO    
 C
       DO I=1,NVAR
