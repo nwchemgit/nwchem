@@ -2,7 +2,7 @@
      &    HESS,HESST,COORD,ATMASS,ZAN,OLDLBLAT,IZMAT,NELS,
      &    PROJEC,ZEROPE,HESOUT,INTERN,
      &    rtdb)
-* $Id: vib_rdinp.F,v 1.3 1995-11-15 00:53:47 d3g681 Exp $
+* $Id: vib_rdinp.F,v 1.4 1996-02-15 22:12:06 d3e129 Exp $
 C
 C This routine reads the user input and the hessian matrix from
 C      the appropriate place.  The default is to use the "default"
@@ -196,20 +196,25 @@ c
 *        oldlblat(1,iii) = symbol(1:1)
 *        oldlblat(2,iii) = symbol(2:2)
       enddo
+*
+*rak:      IF (SETMAS) THEN ! if default masses for all atoms set up here
+*rak:        WRITE(6,'(/A/)')
+*rak:     +      ' Default masses from atomic number (charge) used'
+*rak:        DO 00200 III = 1,NATOM ! loop over atoms
+*rak:             IDUM        = INT(ZAN(III))  ! atomic charge =?= atomic number
+*rak:             if (idum.gt.36.or.idum.lt.1)
+*rak:     &           call errquit
+*rak:     &           ('vib_rdinp: error setting masses',911)
+*rak:             ATMASS(III) = AMS(IDUM)      ! get mass of atom
+*rak:00200     CONTINUE
+*rak:      ENDIF
+      SETMAS = .true.   ! only place to set mass is in geometry object
+      setmas = geom_masses_get(geom,natom,atmass)
+      if (.not.setmas)
+     &    call errquit
+     &    ('vib_rdinp: geom_masses_get failed',911)
       if (.not.geom_destroy(geom)) call errquit
      &    ('vib_rdinp: geom_destroy failed',911)
-*
-      IF (SETMAS) THEN ! if default masses for all atoms set up here
-        WRITE(6,'(/A/)')
-     +      ' Default masses from atomic number (charge) used'
-        DO 00200 III = 1,NATOM ! loop over atoms
-             IDUM        = INT(ZAN(III))  ! atomic charge =?= atomic number
-             if (idum.gt.36.or.idum.lt.1)
-     &           call errquit
-     &           ('vib_rdinp: error setting masses',911)
-             ATMASS(III) = AMS(IDUM)      ! get mass of atom
-00200     CONTINUE
-      ENDIF
 C
 C Write out atom information read here
 C

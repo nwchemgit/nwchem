@@ -1,7 +1,7 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.3 1995-10-21 09:16:31 d3e129 Exp $
-*:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995n      
+* $Id: vib_vib.F,v 1.4 1996-02-15 22:12:07 d3e129 Exp $
+*:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
 *utah:C        constant matrix to get the harmonic frequencies.  The program
