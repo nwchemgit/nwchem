@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct)
 c
 c
-c $Id: sp_init.F,v 1.57 2000-02-01 00:56:00 d3j191 Exp $
+c $Id: sp_init.F,v 1.58 2000-02-16 19:38:31 d3j191 Exp $
 c
       implicit none
 c
@@ -2193,8 +2193,8 @@ c
       if(me.eq.0) then
       write(lfn,1000)
  1000 format('restart space')
-      write(lfn,1001) np,mbbl
- 1001 format(2i7)
+      write(lfn,1001) np,mbbl,npx,npy,npz,nbx,nby,nbz
+ 1001 format(8i7)
       endif
 c
       do 1 i=1,np
@@ -2265,21 +2265,28 @@ c
       integer lbbl(mbbl,mbb2),ltemp(mdim,mbb2)
 c
       integer i,j,k,node,npp,nbl,mbblp,nbytes
+      integer npxp,npyp,npzp,nbxp,nbyp,nbzp
       character*13 string
 c
       if(me.eq.0) then
       open(unit=lfn,file=fil(1:index(fil,' ')-1),
      + status='old',form='formatted',err=9999)
       rewind(lfn)
-
+c
     1 continue
       npp=0
       read(lfn,1000,end=9997) string
  1000 format(a13)
       if(string.ne.'restart space') goto 1
-      read(lfn,1001) npp,mbblp
- 1001 format(2i7)
+      read(lfn,1001) npp,mbblp,npxp,npyp,npzp,nbxp,nbyp,nbzp
+ 1001 format(8i7)
       if(mbbl.ne.mbblp) npp=0
+      if(npxp.ne.npx) npp=0
+      if(npyp.ne.npy) npp=0
+      if(npzp.ne.npz) npp=0
+      if(nbxp.ne.nbx) npp=0
+      if(nbyp.ne.nby) npp=0
+      if(nbzp.ne.nbz) npp=0
  9997 continue
       do 2 i=1,mbb2
       ltemp(1,i)=0
@@ -2322,6 +2329,8 @@ c
       sp_rrest=.true.
       return
  9998 continue
+      if(me.eq.0) write(*,8000)
+ 8000 format(/,' Unable to pickup previous box pair list')
       sp_rrest=.false.
       return
  9999 continue
