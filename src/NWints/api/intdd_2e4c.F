@@ -1,6 +1,6 @@
       subroutine intdd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intdd_2e4c.F,v 1.2 1998-09-25 18:58:54 d3e129 Exp $
+c $Id: intdd_2e4c.F,v 1.3 1998-09-28 16:53:44 d3e129 Exp $
       implicit none
 c
 * basic api routine to generate 4 center two electron 
@@ -99,10 +99,10 @@ c
 c::local
       integer nint, ucont
       integer bra, ket, ab_geom, cd_geom
-      integer inp, igen, iexp, icf, itype, iatom
-      integer jnp, jgen, jexp, jcf, jtype, jatom
-      integer knp, kgen, kexp, kcf, ktype, katom
-      integer lnp, lgen, lexp, lcf, ltype, latom
+      integer iatom
+      integer jatom
+      integer katom
+      integer latom
 ckw
       double precision roff(3)
       integer txs_i, txs_j, txs_k, txs_l
@@ -110,8 +110,6 @@ ckw
       logical dum_log
       integer nintzero, num_quart, dummy_lab
       double precision q4
-      integer momentum
-      integer scr_ptr
 ckw
 c
       logical used_nw
@@ -129,10 +127,10 @@ c
 c
 c  check if spherical/gencon/sp shell
 c
-      call int_nogencont_check(brain,'intdd_2e4c:bra')
-      call int_nogencont_check(ketin,'intdd_2e4c:ket')
-      call int_nospshell_check(brain,'intdd_2e4c:bra')
-      call int_nospshell_check(ketin,'intdd_2e4c:ket')
+*      call int_nogencont_check(brain,'intdd_2e4c:bra')
+*      call int_nogencont_check(ketin,'intdd_2e4c:ket')
+*      call int_nospshell_check(brain,'intdd_2e4c:bra')
+*      call int_nospshell_check(ketin,'intdd_2e4c:ket')
 c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
@@ -202,7 +200,7 @@ c...............gen labs .. more_integrals
         endif
 c
       else
-        write(luout,*)'intdd_2e4c: could not use either texas '
+        write(luout,*)'intdd_2e4c: could not use the texas '
         write(luout,*)'           integral second derivatives'
         write(luout,*)' Please notify nwchem-support@emsl.pnl.gov with'
         write(luout,*)'        the input deck and output available'
