@@ -1,7 +1,11 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
+#if defined(CRAY)
+void CPUTM(ai)
+#else
 void cputm_(ai)
+#endif
 int *ai;
 {
 struct timeval tp;

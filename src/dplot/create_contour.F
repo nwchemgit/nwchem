@@ -348,8 +348,8 @@
 *---- Local variables
       Integer jFrom,g_From,iPoint
       Logical DeBug
-      Double Precision DDot
-      External DDot
+      Double Precision ddot
+      External ddot
 *
 ************************************************************************
 *

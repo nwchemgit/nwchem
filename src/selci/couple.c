@@ -536,7 +536,11 @@ static void ReadArguments(argc, argv, ns, multi, print)
 
 typedef long Integer;		/*  FORTRAN integer */
 
+#if defined(CRAY)
+void SELCI_COUPLE(Integer *pmulti, Integer *pns, Integer *pprint, char *pfilename, int flen)
+#else
 void selci_couple_(Integer *pmulti, Integer *pns, Integer *pprint, char *pfilename, int flen)
+#endif
 /*
   Generate the one particle coupling coefficients between two orbital
   occupancies including all spin couplings. The spin functions are
