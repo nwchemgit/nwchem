@@ -1,4 +1,4 @@
-C $Id: ecp_sph_tens.f,v 1.2 1996-10-11 16:47:54 d3e129 Exp $
+C $Id: ecp_sph_tens.f,v 1.3 1996-10-12 00:56:28 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_sph_tens (l,n_n,n_t,R,X,Y,Z,xn,yn,zn,tmp,G_kq,
@@ -57,19 +57,13 @@ Cold     &    c_to_s,s_to_c,ldt,lstart)
             tmp(ind_c) = xn(i)*yn(j)*zn(k)
           end do
         end do
-C        call ecp_matp(tmp,1,ind_c,'Cartesian tensor',81,5)
 *
 *     Transform cartesians to sphericals
 *
         mmc = (m+1)*(m+2)/2
         mms = 2*m+1
-Cnew
         call ecp_cstrans (m,mmc,1,m,m,k,tmp,mmc,G_kq(ind_s),mms,
      &      csco,lcsco,csco,1,-1,1)
-C        call ecp_matp(G_kq(ind_s),1,mms,'Spherical tensor',81,5)
-Cold
-C        call ecp_cartsph (m,mmc,1,tmp,m,m,mms,G_kq(ind_s),1,-1,1)
-Cend
         ind_s = ind_s+mms
       end do
 *
