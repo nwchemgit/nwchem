@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.55 2001-01-15 22:55:16 d3j191 Exp $
+c $Id: ana_task.F,v 1.56 2001-01-18 21:31:45 d3j191 Exp $
 c
       implicit none
 c
@@ -9,6 +9,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "msgids.fh"
+#include "util.fh"
 c
       logical ignore
 c
@@ -970,8 +971,12 @@ c
       call ga_sync()
       call ga_scale(ga_cov,1.0d0/dble(nave))
 c
-c      call ga_sync()
-c      call ga_print(ga_cov)
+      if(me.eq.0) then
+      if(util_print('frames_read',print_debug)) then
+      write(*,'(/,a)') ' Covariance matrix generation completed'
+      endif
+      endif
+c
       call ga_sync()
       call ga_diag_std(ga_cov,ga_vec,dbl_mb(i_cov))
 c
