@@ -1,7 +1,7 @@
       subroutine selci_anal(irange, roots, ept, ptnorm, enew, ncinew,
      &           ptnorm_mp, ept_mp)
 *
-* $Id: anal.F,v 1.5 1998-03-14 01:45:12 d3g681 Exp $
+* $Id: anal.F,v 1.6 2003-04-16 23:08:03 bert Exp $
 *
 #include "implicit.fh"
 #include "ciinfo.fh"
@@ -65,6 +65,6 @@ c
      $     '           ------------------------- '//
      $ '   ci energy      pt correction     ci+pt energy'/
      $ ' ---------------  ---------------  ---------------'/
-     $ 20(:f15.8,2x,f15.8,2x,f15.8,2x,f9.6/))
+     $ 20(:f15.8,2x,f15.8,2x,f15.8/))
 c
       end

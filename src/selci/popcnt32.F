@@ -1,6 +1,6 @@
       integer function selci_popcnt32(i)
 *
-* $Id: popcnt32.F,v 1.9 2003-04-16 17:57:46 bert Exp $
+* $Id: popcnt32.F,v 1.10 2003-04-16 23:08:03 bert Exp $
 *
 #if defined(CRAY_T3D) || defined(CRAY_T3E) 
       integer i
@@ -94,7 +94,7 @@ c
       INTEGER_1 i(8)
 c     
       integer longw
-      integer*2 shortw(8)
+      integer*2 shortw(4)
       equivalence (longw,shortw)
       logical olittleendian
 c     
@@ -299,8 +299,8 @@ c
 c     initialise lookup arrays for faster pop-count and leading zero co
 c
       call util_pack_info(bytes_per_int, obigendian)
-      if (bytes_per_int .ne. 8) call errquit
-     $     ('sorry ... this selected CI has been ported to 64 bit',0)
+      if (bytes_per_int .ne. 4) call errquit
+     $     ('sorry ... this selected CI has been ported to 32 bit',0)
 c
       i = 0
       do 10 mm = -128,127,1
