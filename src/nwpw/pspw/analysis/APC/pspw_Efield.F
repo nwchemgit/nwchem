@@ -31,7 +31,7 @@
       logical value,doefield
       integer ii,i,j,k,l,n,npack0,nfft3d,n2ft3d,nion
       integer nx,ny,nxh,np1,np2,np3
-      integer Gx,Gy,Gz
+      integer Gx(2),Gy(2),Gz(2)
       integer tmp1(2),G(3),E1(2),Ea(2),Ee(2),vc(2)
       integer tmpx(2),tmpy(2),tmpz(2)
       real*8  coef,x,gg,fourpi,omega,scal1,scal2
@@ -67,6 +67,9 @@
      >                               'tmpz',tmpz(2),tmpz(1))
        value = value.and.MA_push_get(mt_dcpl,nfft3d,
      >                               'tmp1',tmp1(2),tmp1(1))
+       value = value.and.MA_push_get(mt_dbl,nfft3d,'Gx',Gx(2),Gx(1))
+       value = value.and.MA_push_get(mt_dbl,nfft3d,'Gy',Gy(2),Gy(1))
+       value = value.and.MA_push_get(mt_dbl,nfft3d,'Gz',Gz(2),Gz(1))
        value = value.and.MA_push_get(mt_dbl,(3*nion),'E1',E1(2),E1(1))
        value = value.and.MA_push_get(mt_dbl,(3*nion),'Ea',Ea(2),Ea(1))
        value = value.and.MA_push_get(mt_dbl,(3*nion),'Ee',Ee(2),Ee(1))
@@ -100,26 +103,33 @@
        call dcopy(3*nion,0.0d0,0,dbl_mb(Ee(1)),1)
 
 *      **** Efield at mesh points ****
-       Gx= G_indx(1)
-       Gy= G_indx(2)
-       Gz= G_indx(3)
-       call Pack_itc_Mul(1,dbl_mb(Gx),dcpl_mb(vc(1)),dcpl_mb(tmpx(1)))
-       call Pack_itc_Mul(1,dbl_mb(Gy),dcpl_mb(vc(1)),dcpl_mb(tmpy(1)))
-       call Pack_itc_Mul(1,dbl_mb(Gz),dcpl_mb(vc(1)),dcpl_mb(tmpz(1)))
+       call phafac()
+      call D3dB_t_Copy(1,dbl_mb(G_indx(1)),dbl_mb(Gx(1)))
+      call D3dB_t_Copy(1,dbl_mb(G_indx(2)),dbl_mb(Gy(1)))
+      call D3dB_t_Copy(1,dbl_mb(G_indx(3)),dbl_mb(Gz(1)))
+      call Pack_t_pack(0,dbl_mb(Gx(1)))
+      call Pack_t_pack(0,dbl_mb(Gy(1)))
+      call Pack_t_pack(0,dbl_mb(Gz(1)))
+
+      call Pack_itc_Mul(1,dbl_mb(Gx(1)),dcpl_mb(vc(1)),dcpl_mb(tmpx(1)))
+      call Pack_itc_Mul(1,dbl_mb(Gy(1)),dcpl_mb(vc(1)),dcpl_mb(tmpy(1)))
+      call Pack_itc_Mul(1,dbl_mb(Gz(1)),dcpl_mb(vc(1)),dcpl_mb(tmpz(1)))
        do ii=1,nion
-        p(1) = ion_rion(1,ii)
-        p(2) = ion_rion(2,ii)
-        p(3) = ion_rion(3,ii)
-        do l=1,nfft3d
-          w = dbl_mb(Gx+l-1)*p(1)
-     >      + dbl_mb(Gy+l-1)*p(2)
-     >      + dbl_mb(Gz+l-1)*p(3)
-          dcpl_mb(tmp1(1)+l-1)=dcmplx(dcos(w),-dsin(w))
-        end do
-        call Pack_c_pack(0,dcpl_mb(tmp1(1)))
+c       p(1) = ion_rion(1,ii)
+c       p(2) = ion_rion(2,ii)
+c       p(3) = ion_rion(3,ii)
+c        do l=1,nfft3d
+c          w = dbl_mb(Gx+l-1)*p(1)
+c     >      + dbl_mb(Gy+l-1)*p(2)
+c     >      + dbl_mb(Gz+l-1)*p(3)
+c          dcpl_mb(tmp1(1)+l-1)=dcmplx(dcos(w),-dsin(w))
+c        end do
+c        call Pack_c_pack(0,dcpl_mb(tmp1(1)))
+        call strfac_pack(0,ii,dcpl_mb(tmp1(1)))
+       
         call Pack_cc_dot(0,dcpl_mb(tmp1(1)),dcpl_mb(tmpx(1)),wx)
-        call Pack_cc_dot(0,dcpl_mb(tmp1(1)),dcpl_mb(tmpx(1)),wy)
-        call Pack_cc_dot(0,dcpl_mb(tmp1(1)),dcpl_mb(tmpx(1)),wz)
+        call Pack_cc_dot(0,dcpl_mb(tmp1(1)),dcpl_mb(tmpy(1)),wy)
+        call Pack_cc_dot(0,dcpl_mb(tmp1(1)),dcpl_mb(tmpz(1)),wz)
         dbl_mb(Ee(1)+     (ii-1)*3) = wx
         dbl_mb(Ee(1)+ 1 + (ii-1)*3) = wy
         dbl_mb(Ee(1)+ 2 + (ii-1)*3) = wz
@@ -156,6 +166,9 @@
        value =           MA_pop_stack(Ee(2))
        value = value.and.MA_pop_stack(Ea(2))
        value = value.and.MA_pop_stack(E1(2))
+       value = value.and.MA_pop_stack(Gz(2))
+       value = value.and.MA_pop_stack(Gy(2))
+       value = value.and.MA_pop_stack(Gx(2))
        value = value.and.MA_pop_stack(tmp1(2))
        value = value.and.MA_pop_stack(tmpz(2))
        value = value.and.MA_pop_stack(tmpy(2))
