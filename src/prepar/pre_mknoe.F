@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf)
 c
-c $Id: pre_mknoe.F,v 1.14 2000-06-27 18:07:44 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.15 2000-07-10 20:05:29 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,7 @@ c
 c
       integer maxgrp,maxatm,maxpmf
       parameter(maxgrp=500)
-      parameter(maxatm=50)
+      parameter(maxatm=100)
       parameter(maxpmf=500)
 c
       integer igroup(maxgrp,maxatm),lgroup(maxgrp)

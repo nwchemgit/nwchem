@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.60 2000-07-06 20:41:00 d3j191 Exp $
+c $Id: pre_input.F,v 1.61 2000-07-10 20:05:29 d3j191 Exp $
 c
       implicit none
 c
@@ -32,13 +32,14 @@ c
       character*11 cfix
       real*8 rfix
       character*1 altloc,chain
-      integer ires,jres,kres,i,ignore,igroup,jgroup,kgroup,lgroup
+      integer ires,jres,kres,i,j,k,ignore,igroup,jgroup,kgroup,lgroup
       integer nxrep,nyrep,nzrep,itran,jtran,j,nkeepw
       real*8 rrep,rdist,xtran(3)
       real*8 value1,value2
       character*4 scount(mcount)
       real*8 xrmin,xrmax,yrmin,yrmax,zrmin,zrmax
       real*8 scale,cpk
+      integer irepeat,nrepeat
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo
 c
@@ -88,6 +89,7 @@ c
       rdist=0.0d0
       scale=-1.0d0
       cpk=-1.0d0
+      nrepeat=0
 c
       touch=0.25d0
       xpnd(1)=0.00d0
@@ -730,6 +732,19 @@ c
       goto 2
       endif
 c
+c     repeat selections
+c     -----------------
+c
+      if(inp_compare(.false.,'select_repeat',item)) then
+      if(.not.inp_i(nrepeat)) then
+      nrepeat=0
+      irepeat=0
+      goto 2
+      endif
+      if(.not.inp_i(irepeat)) call errquit('pre_input: sel_rep',9999)
+      goto 2
+      endif
+c
 c     select
 c     ------
 c
@@ -740,6 +755,17 @@ c
       write(68,6831) igroup,atomi(1:index(atomi,' ')-1)
  6831 format('select',i5,1x,a)
       numcmd=numcmd+1
+      if(nrepeat.gt.1) then
+      if(index(atomi,':').gt.1) then
+      read(atomi(1:index(atomi,':')-1),'(i)') k
+      do 6832 i=2,nrepeat
+      j=(i-1)*irepeat-1
+      write(atomj,'(i5,a,a)')
+     + k+j,atomi(index(atomi,':'):index(atomi,' ')),' ;'
+      write(68,6831) igroup,atomj(1:index(atomj,';')-1)
+ 6832 continue
+      endif
+      endif
       if(.not.inp_a(atomi)) goto 1
       goto 6830
       endif
