@@ -43,6 +43,7 @@ as many operations as a spin-adapted restricted CCSD for a closed-shell system),
 \item Dynamic load balancing (local index sort and matrix multiplications) parallelism,
 \item Multiple parallel I/O schemes including fully incore algorithm using Global Arrays,
 \item Frozen core and virtual approximation.
+\item DIIS extrapolation and Jacobi update of excitation amplitudes
 \end{itemize}
 
 This extensible module is designed such that an existing or new model of many-electron
@@ -118,6 +119,7 @@ that details the calculations:
     [THRESH <double thresh default 1e-6>]
     [MAXITER <integer maxiter default 100>]
     [IO (fortran||c||ga||sf||replicated) default ga]
+    [DIIS <integer diis default 5>]
     [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
              [virtual <integer nfzv default 0>]]
     [PRINT (none||low||medium||high||debug)
@@ -321,6 +323,16 @@ Whenever data coherency is required, a file reconcilation process will take plac
 and output data identical throughout the nodes.  This algorithm, while requiring redundant data space on
 local disk, performs reasonably efficiently in parallel.  For sequential execution, this reduces 
 to the C low-level unbuffered scheme.
+
+\subsection{{\tt DIIS} --- the convergence acceleration}
+
+It sets the number iterations in which a DIIS extrapolation is performed to accelerate
+the convergence of excitation amplitudes.  The default value is 5, which means in every
+five iteration, one DIIS extrapolation is performed (and in the rest of the iterations,
+Jacobi rotation is used).  When zero or negative value is specified, the DIIS is turned
+off.  It is not recommended to perform DIIS every iteration, whereas setting a large 
+value for this parameter necessitates a large memory (disk) space to keep the excitation
+amplitudes of previous iterations.
 
 \subsection{{\tt FREEZE} --- the frozen core/virtual approximation}
 
