@@ -1,5 +1,5 @@
 c
-c $Id: pspw_dplot_input.F,v 1.4 2002-01-18 01:54:32 bylaska Exp $
+c $Id: pspw_dplot_input.F,v 1.5 2002-06-29 12:42:57 bylaska Exp $
 c
       subroutine pspw_dplot_input(rtdb)
       implicit none
@@ -10,12 +10,13 @@ c
       integer rtdb
 c
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 5)
+      parameter (num_dirs = 6)
       character*22 dirs(num_dirs)
       data dirs / 'vectors',
      >            'density',
      >            'orbital',
      >            'position_tolerance',
+     >            'elf',
      >            'end'/
 
       integer num_dnames          ! No. of density directives
@@ -29,6 +30,14 @@ c
      >              'potential',
      >              'up',
      >              'down' /
+      integer num_enames          ! No. of ELF directives
+      parameter (num_enames = 5)
+      character*22 enames(num_enames)
+      data enames / 'restricted',
+     >              'up',
+     >              'down',
+     >              'alpha',
+     >              'beta'   /
 
       logical value
       integer ind               ! Index of matched directive
@@ -63,7 +72,7 @@ c
      >           'pspw_dplot_input: unknown directive', 0)
 
 
-      goto ( 100,  200, 300, 400,
+      goto ( 100,  200, 300, 400, 500,
      >      9999) ind
       call errquit(
      >      'pspw_dplot_input: unimplemented directive', ind)
@@ -96,6 +105,7 @@ c
 *     !*** number = 4 - beta
 *     !*** number = 5 - laplacian
 *     !*** number = 6 - potential
+*     !*** number = 7 - ELF
 
 *     **** make density numbers negative ****
       number = -number
@@ -168,6 +178,48 @@ c
 
       goto 10
 
+c    
+c ELF
+c     
+ 500  if (.not. inp_a(test))
+     >   call errquit(
+     >       'pspw_dplot_input: failed to read ELF keyword', 0)
+
+*     *** ELF number ****
+      if (.not.inp_match(num_enames,.false.,test,enames,number))
+     >     number = -7
+      if (number .eq. 1) number = -7 
+      if (number .eq. 2) number = -7
+      if (number .eq. 3) number = -8
+      if (number .eq. 4) number = -7
+      if (number .eq. 5) number = -8
+*     !*** number = -7 - ELF up
+*     !*** number = -8 - ELF down
+
+*      *** read ELF filename ****  
+      if (.not. inp_a(filename))
+     >   filename = test
+
+*     **** define name  - not very elegent and could break if ****
+*     ****                      count becomes very large      ****
+      count = count + 1
+      name1 = 'pspw_dplot:filename'//CHAR(count-1+ia)
+      name2 = 'pspw_dplot:number'//CHAR(count-1+ia)
+      name1_len = index(name1,' ') - 1
+      name2_len = index(name2,' ') - 1
+
+      ind = index(filename,' ') - 1
+      value = rtdb_cput(rtdb,name1(1:name1_len),1,filename(1:ind))
+      value = value.and.rtdb_put(rtdb,name2(1:name2_len),
+     >                           mt_int,1,number)
+      value = value.and.rtdb_put(rtdb,'pspw_dplot:count',
+     >                           mt_int,1,count)
+      if (.not.value)
+     >     call errquit(
+     >     'pspw_dplot_input: rtdb_put failed for ELF', 0)
+
+
+      goto 10
 
  9999 continue
 

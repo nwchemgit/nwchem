@@ -1,5 +1,5 @@
 *
-* $Id: pspw_dplot.F,v 1.8 2002-02-13 20:02:07 edo Exp $
+* $Id: pspw_dplot.F,v 1.9 2002-06-29 12:42:57 bylaska Exp $
 *
       logical function pspw_dplot(rtdb)
       implicit none
@@ -328,7 +328,7 @@
       do ms=1,ispin
          do n=n1(ms),n2(ms)
             do i=1,n2ft3d
-c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
+c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
                dn(i,ms) = dn(i,ms) + (psi_r(i,n)**2)
             end do
          end do
@@ -436,7 +436,7 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
         if (number.lt.0) then
            number = -number
 
-          goto ( 710, 720, 730, 740, 750, 760 ) number
+          goto ( 710, 720, 730, 740, 750, 760, 770, 780 ) number
           call errquit(
      >      'dplot_loop: unimplemented directive', number)
        
@@ -541,6 +541,32 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
            cube_comment = "SCF Electrostatic Potential"
            goto 790
 
+*          ********************
+*          ***      ELF     ***
+*          ********************
+ 770       call generate_ELF(npack1,ne(1),
+     >                       psi,dn,dbl_mb(rho(1)))
+           if (.not.add_tag) then
+           if (taskid.eq.MASTER) then
+             write(*,*) '   writing restricted/up spin ELF',
+     >                  ' to filename: ',filename(1:ind)
+           end if
+           end if
+           cube_comment = "SCF ELF"
+           goto 790
+
+ 780       call generate_ELF(npack1,ne(2),
+     >                       psi(1,ne(1)+1),dn(1,2),dbl_mb(rho(1)))
+           if (.not.add_tag) then
+           if (taskid.eq.MASTER) then
+             write(*,*) '   writing down spin ELF',
+     >                  ' to filename: ',filename(1:ind)
+           end if
+           end if
+           cube_comment = "SCF ELF"
+           goto 790
+
+
  790       continue
            number = -number
 
@@ -621,7 +647,7 @@ c     character*16 t
       integer nfft3d,tmp1(2),tmp2(2)
 
 *     **** external functions ****
-      integer  ion_nion
+      integer  ion_nion      
       real*8   lattice_unita,ion_rion,ion_q
       external ion_nion
       external lattice_unita,ion_rion,ion_q
@@ -740,7 +766,7 @@ c     if (.not. value) call errquit('closing geometry',0)
 
 *     **** CLOSE cube FILE ****
       if (taskid.eq.MASTER) then
-         CLOSE(unit_id)
+         CLOSE(unit_id)     
       end if
 
       return
