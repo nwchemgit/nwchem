@@ -83,16 +83,21 @@ c
 c
        mo_indx_lo = 1
        mo_indx_hi = nocc
-       mo_indx2_lo = nocc + 1
+C       mo_indx2_lo = nocc + 1
+C       mo_indx2_hi = nbf
+       mo_indx2_lo = 1
        mo_indx2_hi = nbf
        nmo2 = mo_indx2_hi - mo_indx2_lo + 1
+       noper = mo_indx_hi - mo_indx_lo + 1
 c
 c
 c
        call util_print_centered(6,'Four-index Transformation',40,.true.)
-       write(6,966) mo_indx_lo,mo_indx_hi,nbf
- 966   format(10x,'Superscript MO index range:',6x,i3,1x,'-',i3,/,
-     $        10x,'Number of basis functions:',10x,i5,/)
+       write(6,966) nbf,mo_indx_lo,mo_indx_hi,mo_indx2_lo,mo_indx2_hi
+ 966   format(10x,'Number of basis functions:',10x,i5,/,
+     $        10x,'Superscript MO index range:',6x,i3,1x,'-',i3,/,
+     $        10x,'Subscript MO index range:',8x,i3,1x,'-',i3)
+
 c
 c
 c
@@ -111,19 +116,17 @@ c
 c
 c
 c
-       noper = mo_indx_hi - mo_indx_lo + 1
-       nmo2 = nbf
-       g_coul = ga_create_moblocked(noper,nmo2,'Coulomb operator')
+C       g_coul = ga_create_moblocked(noper,nmo2,'Coulomb operator')
        g_exch = ga_create_moblocked(noper,nmo2,'exchange operator')
 c
 c
 c       
-       call moints_build_JK_a(rtdb,basis,mo_indx_lo,mo_indx_hi,
-     $                        g_vecs,g_coul,.true.,g_exch,.true.)
-C       call moints_build_JK(rtdb,basis,
-C     $                      mo_indx_lo,mo_indx_hi,
-C     $                      mo_indx2_lo,mo_indx2_hi,
-C     $                      g_vecs,g_coul,.true.,g_exch,.true.)
+C       call moints_build_JK_a(rtdb,basis,mo_indx_lo,mo_indx_hi,
+C     $                        g_vecs,g_coul,.true.,g_exch,.true.)
+       call moints_build_JK(rtdb,basis,
+     $                      mo_indx_lo,mo_indx_hi,
+     $                      mo_indx2_lo,mo_indx2_hi,
+     $                      g_vecs,g_coul,.false.,g_exch,.true.)
 c
 c
 c
