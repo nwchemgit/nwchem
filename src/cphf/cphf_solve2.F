@@ -1,6 +1,6 @@
       subroutine cphf_solve2(rtdb)
 *
-* $Id: cphf_solve2.F,v 1.8 2003-10-17 22:54:30 carlfahl Exp $
+* $Id: cphf_solve2.F,v 1.9 2004-07-21 16:27:54 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -14,6 +14,7 @@
 #include "sym.fh"
 #include "util.fh"
 #include "cscf.fh"
+#include "crohf.fh"
 #include "stdio.fh"
 c!!! BGJ
 #include "bgj.fh"
@@ -259,10 +260,18 @@ c$$$     $        max_precond_sub, precond_tol,
 c$$$     $        rohf_hessv_precond, rohf_hessv, .false., oprint_solve, 
 c$$$     $        g_grad, g_work, precond_acc,precond_iter))
 c$$$     $        call errquit('cphf did not converge', precond_iter)
+c
+c        For property related CPHF. NMR has imaginary perturbation
+c        which makes matrices skew symmetric. Setting noskew to .false.
+c        enforces that.
+c
+         if (.not. rtdb_get(rtdb, 'cphf:skew', mt_log, 1, 
+     $        noskew)) noskew = .true.
          call ga_copy(g_grad, g_work)
          call rohf_hessv_precond(g_work,0.0d0)
          call ga_lkain(g_work, g_grad, rohf_hessv2, rohf_hessv_precond,
      $        precond_tol, 10*nvec, 20, .false., oprint_solve)
+         noskew = .true.
       endif
 c !!! BGJ
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
