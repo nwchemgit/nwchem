@@ -1,6 +1,6 @@
       logical function jvltest2(rtdb)
 *     
-*     $Id: rjhtrans.F,v 1.4 1999-06-16 00:10:15 d3e129 Exp $
+*     $Id: rjhtrans.F,v 1.5 1999-06-28 20:02:05 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -316,13 +316,15 @@ c
       implicit none
 #include "mafdecls.fh"
 #include "rjhfileinfo.fh"
+      integer k_all, norb
+      common /c_all/norb, k_all
 c
       integer rtdb, basis
       integer nmo, nalpha, nbeta, nbf
       double precision mos_t(nmo,nbf,2), evals(nmo,2)
 c
-c     <ba||ek>
-c     Write the next 6 as file(b,k,a,e)
+c     <ba||ek> = <ba|ek> - <ba|ke>
+c     Write the next 6 as file(b,k,e,a)
 c
 c     1.  <ba||ek>           b=a=e=k=alpha         baek = 1111
 c     2.  <ba||ek>           b=a=e=k=beta          baek = 2222
@@ -358,12 +360,26 @@ c
       virta = nmo-occa
       virtb = nmo-occb
 c
-      lenfull = max(occa,occb)*max(virta,virtb)**3
+*      lenfull = max(occa,occb)*max(virta,virtb)**3
+      lenfull = nmo**4
 c
 c     Slowly move to have the following using Joop-like spin cases.
 c
       if (.not. ma_push_get(mt_dbl,lenfull,'full',l_full, k_full))
      $     call errquit('ma full', lenfull)
+
+*      call rjh_full_transform(rtdb, basis,
+*     $     nmo, nmo, nmo, nmo,
+*     $     nmo, nmo, nmo, nmo,
+*     $     mos_t(1,1,1), mos_t(1,1,1), 
+*     $     mos_t(1,1,1), mos_t(1,1,1),
+*     $     dbl_mb(k_full), 'Chargecloud')
+*      k_all = k_full
+*      norb = nmo
+
+      if (.not. ma_push_get(mt_dbl,lenfull,'full',l_full, k_full))
+     $     call errquit('ma full', lenfull)
+
 c
 c     1. <ba||ek>           b=a=e=k=alpha         baek = 1111
 c
@@ -412,7 +428,7 @@ c
 c     5. <ba|ke> = (bk|ae)  b=k=alpha, a=e=beta   baek = 1221 sign=-1
 c
       call rjh_full_transform(rtdb, basis,
-     $     virta, occa, virtb, occb,
+     $     virta, occa, virtb, virtb,
      $     nmo, nmo, nmo, nmo,
      $     mos_t(occa+1,1,1), mos_t(1,1,1), 
      $     mos_t(occb+1,1,2), mos_t(occb+1,1,2),
@@ -423,7 +439,7 @@ c
 c     6. <ba|ke> = (bk|ae)  b=k=beta,  a=e=alpha  baek = 2112 sign=-1
 c
       call rjh_full_transform(rtdb, basis,
-     $     virtb, occb, virta, occa,
+     $     virtb, occb, virta, virta,
      $     nmo, nmo, nmo, nmo,
      $     mos_t(occb+1,1,2), mos_t(1,1,2), 
      $     mos_t(occa+1,1,1), mos_t(occa+1,1,1),
@@ -647,6 +663,10 @@ c
 #include "cct_table_uhf.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
+
+      integer k_all, norb
+      common /c_all/norb, k_all
+
 c
       integer g_a, i1i2_lo, i1i2_hi, i1_spin, i2_spin,
      $     i3_lo, i3_hi, i3_spin, i4_lo, i4_hi, i4_spin
@@ -681,7 +701,7 @@ c
      $     reclen, i1, i2, i3, i4, i3i4, ierr
       integer i1_occ, i2_occ, i3_occ, i4_occ, ind, l_buff, k_buff
       integer i1_top, i3_base, i4_base
-      double precision offset
+      double precision offset, xxx, test
 c     
 c     0) determine which physical file
 c     1) determine order of indices in file on disk
@@ -792,6 +812,54 @@ c
          enddo
       endif
 c
+      if (i1_spin .eq. 2) then
+         i1_lo = i1_lo - norb
+         i1_hi = i1_hi - norb
+      endif
+      if (i2_spin .eq. 2) then
+         i2_lo = i2_lo - norb
+         i2_hi = i2_hi - norb
+      endif
+c$$$      if (type .eq. '<ba||ek>(bkea)' ) then
+c$$$         write(6,*) ' SPINS ', i1_spin, i2_spin, i3_spin, i4_spin
+c$$$         write(6,*) ' LOS ', i1_lo, i2_lo, i3_lo_spatial, 
+c$$$     $        i4_lo_spatial
+c$$$         write(6,*) ' HIS ', i1_hi, i2_hi, i3_hi_spatial, i4_hi_spatial
+c$$$         do i4 = i4_lo_spatial, i4_hi_spatial
+c$$$            do i3 = i3_lo_spatial, i3_hi_spatial
+c$$$               i3i4 = 1 + i3-i3_lo_spatial + 
+c$$$     $              (i3_hi-i3_lo+1)*(i4-i4_lo_spatial)
+c$$$               ind = 1
+c$$$               do i2 = i2_lo, i2_hi
+c$$$                  i1_top = i1_hi
+c$$$                  if (order .eq. '1<=234') i1_top = i2
+c$$$                  do i1 = i1_lo, i1_top
+c$$$                     call ga_get(g_a,ind,ind,i3i4,i3i4,xxx,1)
+c$$$                     ind = ind + 1
+c$$$c     
+c$$$c     XXX should be <i1 i4||i3 i2> = (i1 i3|i4 i2) - (i1 i2|i4 i3)
+c$$$c     .              b  a   e  k   =  b  e  a  k      b  k  a  e
+c$$$c
+c$$$                     test = 0.0d0
+c$$$                     if (i1_spin .eq. i3_spin) test = test + 
+c$$$     $                    dbl_mb(k_all + 
+c$$$     $                    i1-1+norb*(i3-1+norb*(i2-1+norb*(i4-1))))
+c$$$                     if (i1_spin .eq. i2_spin) test = test -
+c$$$     $                    dbl_mb(k_all + 
+c$$$     $                    i1-1+norb*(i2-1+norb*(i4-1+norb*(i3-1))))
+c$$$                     if (abs(test-xxx).gt.1d-8) then
+c$$$                        write(6,1) i1,i2,i3,i4, test, xxx
+c$$$ 1                      format(4i5,2f12.8)
+c$$$                     else if (abs(test).gt.1d-8) then
+c$$$                        write(6,2) i1,i2,i3,i4
+c$$$ 2                      format(4i5,'  ok')
+c$$$                     endif
+c$$$                  enddo
+c$$$               enddo
+c$$$            enddo
+c$$$         enddo
+c$$$      endif
+c
       if (.not. ma_pop_stack(l_buff)) call errquit
      $     ('get_cct: ma corrupted', 0)
 c
@@ -829,6 +897,7 @@ c
          if (fds(i) .ne. -1) then
             if (stub(1:ls).eq.stubs(i)(1:ls)) then
                filenum = i
+*               write(6,*) stub, ' -> ', i, filenames(i)
                return
             endif
          endif
@@ -889,6 +958,7 @@ C
       integer nsh, maxbfsh, lenhalf, lenthird, geom
       integer l_half, k_half, l_third, k_third
       integer lsh, ksh, llo, lhi, klo, khi
+      integer p, q, r, s
       logical ochargecloud, oasym
       character*8 side
 c
@@ -967,6 +1037,17 @@ c
       end do
 c
       if (oasym) call rjh_asym_trans(full,n1,n2,n3,n4,side)
+c
+      do s = 1, n4
+         do r = 1, n3
+            do q = 1, n2
+               do p = 1, n1
+                  if (abs(full(p,q,r,s)).lt.1d-10)
+     $                 full(p,q,r,s) = 0.0d0
+               end do
+            end do
+         end do
+      end do
 c
       if (.not. ma_pop_stack(l_third)) call errquit('ma third',0)
       if (.not. ma_pop_stack(l_half)) call errquit('ma half',0)
