@@ -238,13 +238,15 @@ c
 c     t(a,b,i,j) = <ab||ij> / (eps(i)+eps(j)-eps(a)-eps(b))
 c
       integer spina, spinc, spini, spink, spine, spinm, list
+      logical oasym
 c
       spina = asuper_spin
       spinc = csuper_spin
       spini = spina
       spink = spini
+      oasym = spina .eq. spinc
 c
-      if (spina .ne. spinc) call errquit('dummy_amplitudes: no mixed',0)
+cccccccc      if (spina .ne. spinc) call errquit('dummy_amplitudes: no mixed',0)
 c
 c     14.  t(e,c,i,k) spin(e)=spin(a) mixed
 c
@@ -256,7 +258,7 @@ c
      $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
      $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
      $     dbl_mb(k_moint), nbf,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, .false.)
+     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, oasym)
 c
 c     15.  t(e,a,i,j) spin(e)=spin(a) pure
 c
@@ -292,7 +294,7 @@ c
      $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
      $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
      $     dbl_mb(k_moint), nbf,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, .false.)
+     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, oasym)
 c
 c     18.  t(e,b,k,i) spin(e)=spin(c) mixed
 c
@@ -304,7 +306,7 @@ c
      $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
      $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
      $     dbl_mb(k_moint), nbf,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, .false.)
+     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, oasym)
 c
 c     19.  t(m,i,a,b) spin(m)=spin(a) pure
 c
@@ -328,7 +330,7 @@ c
      $     nablock, ablock,  eps(1,spina),
      $     ncblock, cblock,  eps(1,spinc),
      $     dbl_mb(k_moint), nbf,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, .false.)
+     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
 c
 c     21.  t(m,k,b,c) spin(m)=spin(a) mixed
 c
@@ -340,7 +342,7 @@ c
      $     nbblock, bblock,  eps(1,spina),
      $     ncblock, cblock,  eps(1,spinc),
      $     dbl_mb(k_moint), nbf,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, .false.)
+     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
 c
 c     22.  t(m,i,c,a) spin(m)=spin(c) mixed
 c
@@ -352,7 +354,7 @@ c
      $     ncblock, cblock,  eps(1,spinc),
      $     nablock, ablock,  eps(1,spina),
      $     dbl_mb(k_moint), nbf,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, .false.)
+     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
 c
 c     23.  t(m,i,c,b) spin(m)=spin(c) mixed
 c
@@ -364,7 +366,7 @@ c
      $     ncblock, cblock,  eps(1,spinc),
      $     nbblock, bblock,  eps(1,spina),
      $     dbl_mb(k_moint), nbf,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, .false.)
+     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
 c
       end
       subroutine uccsdt_do_triples_dummy_amplitudes(
@@ -575,8 +577,8 @@ c
 c     Must also ensure that there are not so many sub-blocks as
 c     to overflow the dimensions of the adressing arrays.
 c
-      oblock_max = 3
-      vblock_max = 5
+      oblock_max = 2
+      vblock_max = 3
 c
 c     Sub-block the 'a' super-block ... sub-blocks will be restricted
 c     to orbitals of the same symmetry whereas super-blocks can contain
@@ -1176,7 +1178,7 @@ c     arrays for block-sorted results.
 c
       integer ushlo, ushhi, ush, vsh, ushblocksize, junk, list
       integer ublocklo, ublockhi, ublockdim
-      parameter (ushblocksize=5) ! FOR DEBUG
+      parameter (ushblocksize=50) ! FOR DEBUG
       integer g_ai, g_bi, g_ck
       integer spini, spink, spine, spinm
       integer ilo, ihi, klo, khi, vlo, vhi, ulo, uhi, elo, ehi, mlo, mhi
@@ -2126,7 +2128,7 @@ c
 c     Consider switching to texas 93 since this will give larger
 c     blocks than 95.
 c
-      nsh_block = 6
+      nsh_block = 30
       do wshlo = 1, nsh, nsh_block
          wshhi = min(wshlo+nsh_block-1,nsh)
          if (.not. bas_cn2bfr(basis, wshlo, wlo, junk))

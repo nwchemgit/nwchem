@@ -45,7 +45,6 @@ c
       integer nbblock, bblock(1:3,nw_max_nbf)
       integer ncblock, cblock(1:3,nw_max_nbf)
       integer noblock(1:2), oblock(1:3,nw_max_nbf,1:2)
-      integer nvblock(1:2), vblock(1:3,nw_max_nbf,1:2) ! Ditto for virtuals
       integer oblock_max, vblock_max ! Maximum size of any occ/virt block
 c
 c     1 = length of pointer array = #block triplets/quartets
@@ -74,8 +73,8 @@ c
 c
      $     asuper, bsuper, csuper, 
      $     asuper_spin, bsuper_spin, csuper_spin,
-     $     nablock, nbblock, ncblock, noblock, nvblock,
-     $     ablock, bblock, cblock, oblock, vblock,
+     $     nablock, nbblock, ncblock, noblock,
+     $     ablock, bblock, cblock, oblock,
      $     oblock_max, vblock_max, 
      $     listinfo
 c
