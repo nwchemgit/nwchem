@@ -1,4 +1,4 @@
-c $Id: int_2e4c.F,v 1.32 1999-07-14 00:28:39 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.33 2000-01-25 20:12:26 mg201 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e4c}
@@ -19,6 +19,7 @@ c eri = <bra_g(ish).bra_g(jsh) | ket_g(ksh).ket_g(lsh)>
 c
 #include "bas.fh"
 #include "nwc_const.fh"
+#include "apiP.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -28,6 +29,7 @@ c
 #include "bas_ibs_dec.fh"
 #include "int_nbf.fh"
 #include "stdio.fh"
+#include "rel_nwc.fh"
 c
 c::external subroutines used
 c errquit
@@ -61,10 +63,10 @@ c:tex-\end{verbatim}
 c:: local
       integer bra, ket 
       integer ab_geom, cd_geom, ucont
-      integer La, a_prim, a_gen, a_iexp, a_icfp, a_cent
-      integer Lb, b_prim, b_gen, b_iexp, b_icfp, b_cent
-      integer Lc, c_prim, c_gen, c_iexp, c_icfp, c_cent
-      integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_cent
+      integer La, a_prim, a_gen, a_iexp, a_icfp, a_cent, a_icfps
+      integer Lb, b_prim, b_gen, b_iexp, b_icfp, b_cent, b_icfps
+      integer Lc, c_prim, c_gen, c_iexp, c_icfp, c_cent, c_icfps
+      integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_cent, d_icfps
 c.txs
       integer num_quart, dummy_lab(2)
       integer txs_i,txs_j,txs_k,txs_l
@@ -74,6 +76,11 @@ c.txs
       logical dum_log
       logical status_sp, status_nw, status_txs, status_gen
       integer texas_ang_limit
+c.rel-dmd
+      logical status_rel, bra_rel, ket_rel
+      logical i_rel, j_rel, k_rel, l_rel
+      integer rel_dbg, rel_typ
+      integer sbas, abas, bras, kets
 c
       logical any_spherical
       integer a_nbf,   b_nbf,   c_nbf,   d_nbf
@@ -111,6 +118,8 @@ c
 *
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
+      bras = bra
+      kets = ket
       ab_geom = ibs_geom(bra)
       cd_geom = ibs_geom(ket)
 #if defined(PERF_NORMAL)
@@ -167,6 +176,40 @@ c... stat texas
 c... stat nw
       status_nw  = cando_nw(brain,ish,jsh).and.cando_nw(ketin,ksh,lsh)
       status_nw  = status_nw.and. (.not. status_gen)
+c... stat rel
+      status_rel = dyall_mod_dir .and. .not.nesc_1e_approx
+     &    .and. (brain .eq. ketin) .and. (brain .eq. ao_bsh)
+      if (status_rel) then
+c
+c     get basis set handles; relativistic integral option valid
+c     if bra or ket are the ao basis and bra and ket have both
+c     functions relativistic
+c
+        bra_rel = .false.
+        ket_rel = .false.
+        sbas = sc_bsh + BASIS_HANDLE_OFFSET
+        abas = ao_bsh + BASIS_HANDLE_OFFSET
+        bras = sbas
+        kets = sbas
+        bra_rel = bra .eq. abas
+        if (bra_rel) then
+          ucont = sf_ibs_cn2ucn(ish,bra)
+          i_rel = infbs_cont(CONT_RELLS ,ucont,bra) .ne. 0
+          ucont = sf_ibs_cn2ucn(jsh,bra)
+          j_rel = infbs_cont(CONT_RELLS ,ucont,bra) .ne. 0
+          bra_rel = bra_rel .and. i_rel .and. j_rel
+        end if
+        ket_rel = ket .eq. abas
+        if (ket_rel) then
+          ucont = sf_ibs_cn2ucn(ksh,ket)
+          k_rel = infbs_cont(CONT_RELLS ,ucont,ket) .ne. 0
+          ucont = sf_ibs_cn2ucn(lsh,ket)
+          l_rel = infbs_cont(CONT_RELLS ,ucont,ket) .ne. 0
+          ket_rel = ket_rel .and. k_rel .and. l_rel
+        end if
+        status_rel = status_rel .and. (bra_rel .or. ket_rel)
+      end if
+c
       if (status_sp) then
 c
         call genr70(
@@ -176,7 +219,7 @@ c
      &               lsh,coords(1,d_cent,cd_geom),
      &         eri)
 c        
-      elseif(status_txs)  then
+      elseif(status_txs .and. .not.status_rel)  then
         num_quart = 1
         dummy_lab(1) = 0
         dummy_lab(2) = 0
@@ -215,6 +258,8 @@ c
         a_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
         a_iexp  = infbs_cont(CONT_IEXP ,ucont,bra)
         a_icfp  = infbs_cont(CONT_ICFP ,ucont,bra)
+        if (i_rel) ucont = ao_to_ls(ucont)
+        a_icfps = infbs_cont(CONT_ICFP ,ucont,bras)
 c
         ucont   = (sf_ibs_cn2ucn(jsh,bra))
         Lb      = infbs_cont(CONT_TYPE ,ucont,bra)
@@ -222,6 +267,8 @@ c
         b_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
         b_iexp  = infbs_cont(CONT_IEXP ,ucont,bra)
         b_icfp  = infbs_cont(CONT_ICFP ,ucont,bra)
+        if (j_rel) ucont = ao_to_ls(ucont)
+        b_icfps = infbs_cont(CONT_ICFP ,ucont,bras)
 c      
         ucont   = (sf_ibs_cn2ucn(ksh,ket))
         Lc      = infbs_cont(CONT_TYPE ,ucont,ket)
@@ -229,6 +276,8 @@ c
         c_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
         c_iexp  = infbs_cont(CONT_IEXP ,ucont,ket)
         c_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
+        if (k_rel) ucont = ao_to_ls(ucont)
+        c_icfps = infbs_cont(CONT_ICFP ,ucont,kets)
 c
         ucont   = (sf_ibs_cn2ucn(lsh,ket))
         Ld      = infbs_cont(CONT_TYPE ,ucont,ket)
@@ -236,20 +285,39 @@ c
         d_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
         d_iexp  = infbs_cont(CONT_IEXP ,ucont,ket)
         d_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
-c      
-        call hf2(
-     &         coords(1,a_cent,ab_geom), dbl_mb(mb_exndcf(a_iexp,bra)),
-     &         dbl_mb(mb_exndcf(a_icfp,bra)), a_prim, a_gen, La,
-     &         coords(1,b_cent,ab_geom), dbl_mb(mb_exndcf(b_iexp,bra)),
-     &         dbl_mb(mb_exndcf(b_icfp,bra)), b_prim, b_gen, Lb,
-     &         coords(1,c_cent,cd_geom), dbl_mb(mb_exndcf(c_iexp,ket)),
-     &         dbl_mb(mb_exndcf(c_icfp,ket)), c_prim, c_gen, Lc,
-     &         coords(1,d_cent,cd_geom), dbl_mb(mb_exndcf(d_iexp,ket)),
-     &         dbl_mb(mb_exndcf(d_icfp,ket)), d_prim,d_gen,Ld,
-c....................... canAB    canCD    canPQ
-     &         eri, leri, .false., .false., .false.,
-c............ dryrun
-     &         .false., scr, lscr)
+        if (l_rel) ucont = ao_to_ls(ucont)
+        d_icfps = infbs_cont(CONT_ICFP ,ucont,kets)
+c
+        if (status_rel) then
+          call rel_2e4c_sf (
+     &        coords(1,a_cent,ab_geom), dbl_mb(mb_exndcf(a_iexp,bra)),
+     &        dbl_mb(mb_exndcf(a_icfp,bra)),
+     &        dbl_mb(mb_exndcf(a_icfps,bra)), a_prim,a_gen,La,a_cent,
+     &        coords(1,b_cent,ab_geom), dbl_mb(mb_exndcf(b_iexp,bra)),
+     &        dbl_mb(mb_exndcf(b_icfp,bra)), 
+     &        dbl_mb(mb_exndcf(b_icfps,bra)), b_prim,b_gen,Lb,b_cent,
+     &        coords(1,c_cent,cd_geom), dbl_mb(mb_exndcf(c_iexp,ket)),
+     &        dbl_mb(mb_exndcf(c_icfp,ket)), 
+     &        dbl_mb(mb_exndcf(c_icfps,ket)), c_prim,c_gen,Lc,c_cent,
+     &        coords(1,d_cent,cd_geom), dbl_mb(mb_exndcf(d_iexp,ket)),
+     &        dbl_mb(mb_exndcf(d_icfp,ket)), 
+     &        dbl_mb(mb_exndcf(d_icfps,ket)), d_prim,d_gen,Ld,d_cent,
+c...................... canAB   canCD   canPQ   DryRun
+     &        eri,leri,.false.,.false.,.false.,.false.,scr,lscr,
+     &        bra_rel,ket_rel,ss_one_cent,rel_dbg)
+        else
+          call hf2(
+     &        coords(1,a_cent,ab_geom), dbl_mb(mb_exndcf(a_iexp,bra)),
+     &        dbl_mb(mb_exndcf(a_icfp,bra)), a_prim, a_gen, La,
+     &        coords(1,b_cent,ab_geom), dbl_mb(mb_exndcf(b_iexp,bra)),
+     &        dbl_mb(mb_exndcf(b_icfp,bra)), b_prim, b_gen, Lb,
+     &        coords(1,c_cent,cd_geom), dbl_mb(mb_exndcf(c_iexp,ket)),
+     &        dbl_mb(mb_exndcf(c_icfp,ket)), c_prim, c_gen, Lc,
+     &        coords(1,d_cent,cd_geom), dbl_mb(mb_exndcf(d_iexp,ket)),
+     &        dbl_mb(mb_exndcf(d_icfp,ket)), d_prim,d_gen,Ld,
+c....................... canAB    canCD   canPQ   dryrun
+     &        eri, leri, .false.,.false.,.false.,.false., scr, lscr)
+        end if
 c
 c
 c eri has cartesian block of integrals (llo:lhi,klo:khi,jlo:jhi,ilo:ihi)
