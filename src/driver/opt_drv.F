@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.61 1999-05-25 18:57:52 d3e129 Exp $
+C$Id: opt_drv.F,v 1.62 1999-05-25 19:02:41 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -275,7 +275,7 @@ c
                   enddo
                   if (num .gt. 1) then
                      write(6,5433) test(1:inp_strlen(test))
- 5433                format(1x,'    variables named ',a8,' = '$)
+ 5433                format(1x,'    variables named ',a8,' = ',$)
                      do j = 1, nzvar
                         if (zvarname(j).eq.test) then 
                            if (zvarsign(j).gt.0d0) then
