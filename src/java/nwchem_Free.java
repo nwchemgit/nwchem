@@ -64,30 +64,6 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 	addButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
 		    chooser.showOpenDialog(dialogFrame);
-		    /*
-		      try{
-		      setnumber++;
-		      BufferedReader br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
-		      String card;
-		      card=br.readLine();
-		      int np = Integer.parseInt(card.substring(1,5).trim());
-		      boolean first=true;
-		      while((card=br.readLine()) != null){
-		      card=br.readLine();
-		      type=Integer.parseInt(card.substring(1,5).trim());
-		      time=Double.valueOf(card.substring(6,17)).doubleValue();
-		      synt=Double.valueOf(card.substring(18,29)).doubleValue();
-		      stpt=Double.valueOf(card.substring(30,41)).doubleValue();
-		      gibPlot.addData(setnumber,time,synt,!first,true);
-		      cnvPlot.addData(setnumber,time,stpt,!first,true); first=false;
-		      if(type==1){card=br.readLine();};
-		      for(int i=0; i<np; i++) {card=br.readLine();};
-		      };
-		      gibPlot.fillPlot();
-		      cnvPlot.fillPlot();
-		      br.close();
-		      } catch(Exception ee) {ee.printStackTrace();};
-		    */
 		}});
 	
 	setLocation(25,225);	
@@ -161,7 +137,7 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 		lambda=lambda+dlambda;
 		gibPlot.addData(0,lambda,free,!first,false);
 		card=br.readLine();
-		for(int i=0; i<nsa; i=i+4){ card=br.readLine(); };
+		for(int i=0; i<5*nsa; i=i+4){ card=br.readLine(); };
 	    };
 	    gibPlot.fillPlot();
 	    br.close();
