@@ -535,8 +535,18 @@ guided [<real fguide default 0.2> [<real tguide default 0.2>]]
 \end{verbatim}
 specifies the use of the guided molecular dynamics simulation
 technique. Variable $fguide$ defines the fraction of the averaged
-forces to be added to the current forces. Variable $tguide$ defines
-the length of the averaging. The current implementation is still under 
+forces $g$ to be added to the forces $f^{f}$ evaluated using the force
+field functions to obtain the forces $f$ used to advance the coordinates.
+\begin{equation}
+f_i=f^{f}_i+fguide * g_{i-1}
+\end{equation}
+Variable $tguide$ defines the length of the averaging relative to the
+timestep $\Delta t$.
+\begin{equation}
+g_i = {\Delta t\over tguide} f_i + \left(1- {\Delta t\over tguide}\right)
+g_{i-1}
+\end{equation}
+The current implementation is still under 
 development.
 
 \item
