@@ -1,12 +1,31 @@
 #!/usr/local/bin/perl5
 #
-# $Id: jobtime.pl,v 1.5 2000-01-04 22:16:23 windus Exp $
+# $Id: jobtime.pl,v 1.6 2002-01-24 02:50:40 edo Exp $
 #
 
 # ON THE IBM SP DETERMINE THE TIME LEFT TO A LL BATCH JOB
 
 # PRINT THE TIME LEFT IN SEC ON STDOUT AND EXIT(0)
 # ON FAILURE EXIT(1) AND PRINT NON-INTEGER MESSAGE.
+
+
+sub walltosec {
+
+    use integer;
+ $date = shift(@_); 
+    @fields = split(/[ +:]/,$date);
+    $walltosec = $fields[0]*3600+$fields[1]*60+$fields[2]; 
+}
+sub wallcheck {
+
+    use integer;
+ $date = shift(@_); 
+    @fields = split(/[ +:]/,$date);
+    $wallcheck=0;
+    if($fields[4] eq 'seconds)') {
+      $wallcheck=1;
+    }
+}
 
 sub datetosec {
 
@@ -98,13 +117,17 @@ $now = `date`;
 chop($now);
 
 #print("now = $now\n");
-
 $used = &datetosec($now) - &datetosec($dispatch);
-
+#check if walllimit is in the new sintax (ll 3.x and above?)
+$wcheck = &wallcheck($walllimit) ;
 $left = $walllimit - $used;
+if ($wcheck eq "1") {
+$wsec = &walltosec($walllimit) ;
+#print "wsec = $wsec\n";
+$left = $wsec - $used;
+}
 
 #print "The job has been running for $used seconds and has $left seconds remaining.\n";
 
 print "$left\n"
-
 
