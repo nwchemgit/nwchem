@@ -3,9 +3,9 @@
      + newtop,newseq,newrst,mcount,ncount,icount,mgrid,gdist,mnoe,
      + maxscf,qscale,
      + altloc,chain,icyren,iconst,model,nxlnk,mdold,ignore,scount,
-     + mfract,nfract,ifract,scale,cpk,his)
+     + mfract,nfract,ifract,scale,cpk)
 c
-c $Id: pre_rtdbin.F,v 1.24 2000-09-21 16:57:14 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.25 2000-10-17 22:29:23 edo Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -28,7 +28,7 @@ c
       integer mfract,nfract,iconst
       integer ifract(mfract)
       real*8 gdist,qscale
-      character*1 altloc,chain,his
+      character*1 altloc,chain
       character*4 scount(mcount)
       real*8 scale,cpk
 c
@@ -98,7 +98,6 @@ c
 c
       if(.not.rtdb_cget(irtdb,'prep:altloc',1,altloc)) altloc='A'
       if(.not.rtdb_cget(irtdb,'prep:chain',1,chain)) chain='A'
-      if(.not.rtdb_cget(irtdb,'prep:his',1,his)) his=' '
 c
       if(.not.rtdb_get(irtdb,'prep:model',mt_int,1,model)) model=0
 c
@@ -127,41 +126,30 @@ c
       if(ffield(1:1).eq.' ') then
       key='ffield '
       if(util_nwchemrc_get(key,value)) then
-      ffield=value(1:index(value,' ')-1)
+      ffield=value
       endif
       endif
       if(dir_s(1:1).eq.' ') then
       key=ffield(1:index(ffield,' ')-1)//'_s '
       if(util_nwchemrc_get(key,value))
-     + dir_s=value(1:index(value,' '))
+     + dir_s=value
       endif
       if(dir_x(1:1).eq.' ') then
       key=ffield(1:index(ffield,' ')-1)//'_x '
       if(util_nwchemrc_get(key,value))
-     + dir_x=value(1:index(value,' '))
+     + dir_x=value
       endif
       if(dir_u(1:1).eq.' ') then
       key=ffield(1:index(ffield,' ')-1)//'_u '
       if(util_nwchemrc_get(key,value))
-     + dir_u=value(1:index(value,' '))
+     + dir_u=value
       endif
       if(dir_t(1:1).eq.' ') then
       key=ffield(1:index(ffield,' ')-1)//'_t '
       if(util_nwchemrc_get(key,value))
-     + dir_t=value(1:index(value,' '))
+     + dir_t=value
       endif
       if(dir_t(1:1).eq.' ') dir_t='./ '
-c
-      key='histidine'
-      if(his.eq.' ') then
-      if(util_nwchemrc_get(key,value)) then
-      if(value(1:3).eq.'HID') his='D'
-      if(value(1:3).eq.'HIE') his='E'
-      if(value(1:3).eq.'HIP') his='P'
-      else
-      his='E'
-      endif
-      endif
 c
       pre_rtdbin=.true.
       return

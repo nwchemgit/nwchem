@@ -14,7 +14,7 @@
 c
       implicit none
 c
-c $Id: util_nwchemrc.F,v 1.4 1998-05-18 21:28:07 d3j191 Exp $
+c $Id: util_nwchemrc.F,v 1.5 2000-10-17 22:29:20 edo Exp $
 c
 c Eventually these routines should use the inp modules
 c Currently these are (key,value) but later may have to be extended
@@ -54,12 +54,14 @@ c
       logical function util_nwchemrc_get(key,value)
 c
       implicit none
+#include "inp.fh"
 
 c
       character*(*) key,value
 c
-      character*255 home,nwchrc,card
-      integer indexv,lenkey,lencrd
+      character*255 home,nwchrc,card,rightcard
+      integer indexv,lenkey,lencrd,istart,util_getblnk
+      external util_getblnk
       logical found
 c
       lenkey=index(key,' ')-1
@@ -68,26 +70,62 @@ c
       nwchrc=home(1:index(home,' ')-1)//'/.nwchemrc '
       open(unit=69,file=nwchrc(1:index(nwchrc,' ')-1),form='formatted',
      + status='old',err=9999)
+      write(6,*) ' key ',key
       rewind(unit=69)
       found=.false.
     1 continue
       read(69,6900,end=9,err=9) card
  6900 format(a)
-      lencrd=index(card,' ')-1
-      if(lencrd.eq.lenkey.and.card(1:lencrd).eq.key(1:lenkey)) then
-      indexv=index(card,' ')+1
-      value=card(indexv:indexv+index(card(indexv:255),' '))
+c
+c     get beginning of key after white spaces
+c
+      istart=util_getblnk(card,255)
+      lencrd=index(card(istart:255),' ')-1
+      if(lencrd.eq.lenkey.and.card(istart:lencrd+istart).eq.
+     .     key(1:lenkey)) then
+      indexv=lencrd+istart+1
+      rightcard=card(indexv:255)
+      istart=util_getblnk(rightcard,255)
+      lencrd=index(rightcard(istart:255),' ')-1
+      value=rightcard(istart:lencrd+istart)
       found=.true.
       endif
       goto 1
     9 continue
       close(unit=69)
 c
-      if(.not.found) goto 9999
+      if(.not.found) goto 99999
       util_nwchemrc_get=.true.
+c
+c     clean up blank spaces
+c
       return
 c
- 9999 continue
+ 9999 write(6,*) ' .nwchemrc not found !!'
+      
+99999 continue
+      write(6,*) ' value not found !!',value,card
       util_nwchemrc_get=.false.
+      return
+      end
+      integer function util_getblnk(card,mxlgth)
+      implicit none 
+      integer mxlgth
+      character*(*) card
+c
+      integer i
+      logical ois_ws            ! Inline funtion  
+      character*1 xtest
+c
+      ois_ws(xtest) = (xtest.eq.' ')
+c
+      util_getblnk=0
+      do i=1,mxlgth
+         if(.not.ois_ws(card(i:i))) then
+            util_getblnk=i
+            write(0,*) ' bb ',i
+            return
+         endif
+      enddo
       return
       end
