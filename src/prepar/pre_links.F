@@ -2,7 +2,7 @@
      + xatm,catm,latm,matm,lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,nlnkf)
 c
-c $Id: pre_links.F,v 1.13 2000-03-21 23:58:04 d3j191 Exp $
+c $Id: pre_links.F,v 1.14 2001-06-11 22:01:06 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -17,7 +17,8 @@ c
 #include "util.fh"
 c
       logical pre_short,pre_protein,pre_nucleic
-      external pre_short,pre_protein,pre_nucleic
+      integer pre_shorts
+      external pre_short,pre_protein,pre_nucleic,pre_shorts
 c
       integer lfnout,matm,mseq,nseq,mlnk,nlnk,nlnkf,lfnmod
       character*255 filmod
@@ -29,10 +30,10 @@ c
       integer lseq(4,mseq),llnk(4,mlnk)
       character*5 cseq(2,mseq)
       character*4 clnk(2,mlnk)
-      integer ishort,jshort
-      real*8 rshort
+      integer nshort,ishort(10),jshort(10)
+      real*8 rshort(10)
 c
-      integer i,j,iu,k,l,nlnko,nlnkp
+      integer i,j,iu,k,l,m,nlnko,nlnkp
       integer link1,link2,link3,mol
 c
       if(util_print('where',print_debug)) then
@@ -105,17 +106,19 @@ c
       mol=mol+1
       if(i.eq.1) lseq(4,i)=mol
       lseq(4,i+1)=mol+1
-      if(pre_short(xatm,latm,matm,
+      nshort=pre_shorts(xatm,latm,matm,
      + lseq(3,i),lseq(3,i+1)-1,lseq(3,i+1),lseq(3,i+2)-1,
-     + ishort,jshort,rshort)) then
+     + ishort,jshort,rshort)
+      if(nshort.gt.0) then
+      do 101 j=1,nshort
       lseq(4,i+1)=lseq(4,i)
-      if(latm(5,ishort).eq.0.or.latm(5,ishort).eq.2) then
-      latm(5,ishort)=2
+      if(latm(5,ishort(j)).eq.0.or.latm(5,ishort(j)).gt.1) then
+      latm(5,ishort(j))=2
       else
       call errquit('inconsistent links',9999)
       endif
-      if(latm(5,jshort).eq.0.or.latm(5,jshort).eq.1) then
-      latm(5,jshort)=1
+      if(latm(5,jshort(j)).eq.0.or.latm(5,jshort(j)).gt.1) then
+      latm(5,jshort(j))=1
       else
       call errquit('inconsistent links',9999)
       endif
@@ -125,11 +128,12 @@ c
       if(nlnk.gt.mlnk) call errquit('increase mlnk',9999)
       llnk(1,nlnk)=i
       llnk(2,nlnk)=i+1
-      llnk(3,nlnk)=ishort
-      llnk(4,nlnk)=jshort
-      clnk(1,nlnk)=catm(2,ishort)(1:4)
-      clnk(2,nlnk)=catm(2,jshort)(1:4)
+      llnk(3,nlnk)=ishort(j)
+      llnk(4,nlnk)=jshort(j)
+      clnk(1,nlnk)=catm(2,ishort(j))(1:4)
+      clnk(2,nlnk)=catm(2,jshort(j))(1:4)
       endif
+  101 continue
       endif
     1 continue
 c
@@ -138,23 +142,26 @@ c     ----------------------
 c
       do 2 i=1,nseq-2
       do 3 j=i+2,nseq
-      if(pre_short(xatm,latm,matm,
+      nshort=pre_shorts(xatm,latm,matm,
      + lseq(3,i),lseq(3,i+1)-1,lseq(3,j),lseq(3,j+1)-1,
-     + ishort,jshort,rshort)) then
-      if(latm(5,ishort).eq.0) latm(5,ishort)=3
-      if(latm(5,jshort).eq.0) latm(5,jshort)=3
+     + ishort,jshort,rshort)
+      if(nshort.gt.0) then
+      do 102 k=1,nshort
+      if(latm(5,ishort(k)).eq.0) latm(5,ishort(k))=3
+      if(latm(5,jshort(k)).eq.0) latm(5,jshort(k))=3
       nlnk=nlnk+1
       if(nlnk.gt.mlnk) call errquit('increase mlnk',9999)
       llnk(1,nlnk)=i
       llnk(2,nlnk)=j
-      llnk(3,nlnk)=ishort
-      llnk(4,nlnk)=jshort
-      clnk(1,nlnk)=catm(2,ishort)(1:4)
-      clnk(2,nlnk)=catm(2,jshort)(1:4)
+      llnk(3,nlnk)=ishort(k)
+      llnk(4,nlnk)=jshort(k)
+      clnk(1,nlnk)=catm(2,ishort(k))(1:4)
+      clnk(2,nlnk)=catm(2,jshort(k))(1:4)
       l=lseq(4,j)
-      do 4 k=1,nseq
-      if(lseq(4,k).eq.l) lseq(4,k)=lseq(4,i)
+      do 4 m=1,nseq
+      if(lseq(4,m).eq.l) lseq(4,m)=lseq(4,i)
     4 continue
+  102 continue
       endif
     3 continue
     2 continue
