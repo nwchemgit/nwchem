@@ -29,6 +29,7 @@ C
       Integer Msg_Stpr_Walk, Msg_RI_dens
       Integer Msg_ChkJK
       Integer Msg_RAK
+      Integer Msg_SeqOut_Ctrl, Msg_SeqOut_Text
 C-----------------------------------------------------------------------
       Parameter (Msg_PrSum = MSG_Ftn_Base -  1) ! Sum_Pairs
 C
@@ -78,3 +79,5 @@ C
 C
       Parameter (Msg_RAK  = MSG_Ftn_Base - 32)     ! reserved for raktest
 C
+      Parameter (Msg_SeqOut_Ctrl = MSG_Ftn_Base - 33) ! Sequential output
+      Parameter (Msg_SeqOut_Text = MSG_Ftn_Base - 34) 
