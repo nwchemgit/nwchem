@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.72 1998-09-29 20:33:58 bjohnson Exp $
+# $Id: GNUmakefile,v 1.73 1999-06-01 20:47:48 d3h325 Exp $
 
 include config/makefile.h
 
@@ -51,26 +51,6 @@ endif
 #	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 
-#link with lapi version of GA on the SP
-#
-ifeq ($(TARGET),SP1)
-lapi_link:
-	@echo "Lapi_link is dead; use NWCHEM_TARGET LAPI and make or make link"
-#	@/bin/rm -f nwchem.o stubs.o
-#	$(MAKE) nwchem.o stubs.o
-#	mpcc_r -lc_r -lxlf90_r -lxlf -lm_r -qEXTNAME -qnosave -g \
-#		-o $(BINDIR)/nwchem.lapi nwchem.o stubs.o -ltask \
-#		-L../lib/LAPI -L../lib/SP1 $(LIBS)
-endif
-ifeq ($(TARGET),LAPI)
-lapi_link:
-	@echo "Lapi_link is dead; use NWCHEM_TARGET LAPI and make or make link"
-#	@/bin/rm -f nwchem.o stubs.o
-#	$(MAKE) nwchem.o stubs.o
-#	mpcc_r -lc_r -lxlf90_r -lxlf -lm_r -qEXTNAME -qnosave -g \
-#		-o $(BINDIR)/nwchem.lapi nwchem.o stubs.o -ltask \
-#		-L../lib/LAPI -L../lib/SP1 $(LIBS) -bloadmap:nwmap
-endif
         
 #
 # This for linking version with profiling

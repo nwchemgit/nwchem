@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.280 1999-05-27 16:41:24 d3h325 Exp $
+# $Id: makefile.h,v 1.281 1999-06-01 20:48:05 d3h325 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -47,7 +47,7 @@ endif
 #                  SGI_N32      NWCHEM_TARGET_CPU : R8000 or R10000
 #                  SGITFP       NWCHEM_TARGET_CPU : R8000 or R10000
 #                  SOLARIS
-#                  SP1          NWCHEM_TARGET_CPU : P2SC
+#                  SP           NWCHEM_TARGET_CPU : P2SC
 #                      (uses non-thread safe libraries and MPL)
 #                  LAPI      NWCHEM_TARGET_CPU : P2SC
 #                      (uses thread safe libraries and LAPI)
@@ -63,6 +63,11 @@ error2:
 	@echo     setenv NWCHEM_TARGET SUN
 	@echo Known targets are SUN, DELTA, ...
 	@exit 1
+endif
+
+#JN SP1 name is obsolete 
+ifeq ($(NWCHEM_TARGET),SP1)
+    NWCHEM_TARGET = SP
 endif
 
      TARGET := $(NWCHEM_TARGET)
@@ -94,6 +99,7 @@ endif
 # e.g. LIBPATH = -L/msrc/proj/mss/lib
 #
     LIBPATH = 
+    LIBPATH = -L$(NWCHEM_TOP)/src/tools/lib/$(TARGET)
 
 #
 # Define INCPATH to be directories to get includes for
@@ -101,6 +107,7 @@ endif
 # will be searched AFTER anything you are building now.
 #
     INCPATH = 
+    INCPATH = -I$(NWCHEM_TOP)/src/tools/include
 
 # These subdirectories will build the core, or supporting libraries
 # that are required by all NWChem modules.  The include directory is
@@ -111,13 +118,12 @@ endif
 # specified below.  Use of MPI requires substituting the tcgmsg-mpi
 # wrapper for the normal tcgmsg library.
 
-ifdef USE_MPI
-NW_CORE_SUBDIRS = include basis geom global inp input chemio \
-	ma pstat rtdb tcgmsg-mpi task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
-else
-NW_CORE_SUBDIRS = include basis geom global inp input chemio \
-	ma pstat rtdb tcgmsg task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
-endif
+#JN: under the new structure, tools should be listed first as
+# their header files are needed for dependency analysis of
+# other NWChem modules
+
+NW_CORE_SUBDIRS = tools include basis geom inp input  \
+	pstat rtdb task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
 
 # Include the modules to build defined by 'make nwchem_config' at top level
 
@@ -211,7 +217,7 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
 # platforms:
 #
 #        NWCHEM_TARGET                NWCHEM_TARGET_CPU          
-#           SP1                          P2SC
+#           SP                           P2SC
 #           LAPI                         P2SC
 #           SGITFP                       R10000/R8000
 #           SGI_N32                      R10000/R8000
@@ -394,7 +400,7 @@ ifeq ($(TARGET),CRAY-T3D)
               DEFINES = -DCRAY_T3D -DPARALLEL_DIAG
 
 #               LINK.f = /mpp/bin/mppldr $(LDOPTIONS)
-               LINK.f = mppldr $(LDOPTIONS)
+               LINK.f = mppldr $(LDFLAGS)
 
             CORE_LIBS =  -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas 
 
@@ -423,11 +429,11 @@ ifeq ($(TARGET),CRAY-T3E)
 #
 # to debug code you must remove the -s flag unless you know assembler
 #
-            LDOPTIONS = -L$(LIBDIR) -Wl"-s" -Xm  -lmfastv
+            LDOPTIONS = -Wl"-s" -Xm  -lmfastv
 
               DEFINES = -DCRAY_T3E -DCRAY_T3D -D__F90__ -DPARALLEL_DIAG
 
-               LINK.f = f90 $(LDOPTIONS)
+               LINK.f = f90 $(LDFLAGS)
 
             CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
 #
@@ -714,8 +720,8 @@ ifeq ($(TARGET),HPUX)
 # CC = gcc
   CC = cc
   FC = f77
-  LDOPTIONS = -g  -L$(LIBDIR)  -L/usr/lib
-  LINK.f = fort77   $(LDOPTIONS)
+  LDOPTIONS = -g -L/usr/lib
+  LINK.f = fort77   $(LDFLAGS)
   CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -ltcgmsg -llapack -lblas -lU77 -lM -lm
   CDEBUG =
   FDEBUG = -g
@@ -860,7 +866,7 @@ endif
 endif
 
 
-ifeq ($(TARGET),SP1)
+ifeq ($(TARGET),SP)
 #
     CORE_SUBDIRS_EXTRA = lapack blas
          FC = mpxlf -qnohpf
@@ -874,12 +880,12 @@ ifeq ($(TARGET),SP1)
 
 LARGE_FILES = YES
 
-  LDOPTIONS = -lc -lm -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem_map -L$(LIBDIR) 
+  LDOPTIONS = -lc -lm -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem_map
 ifeq ($(NWCHEM_TARGET_CPU),604)
-  LDOPTIONS = -lxlf90 -lm -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem_map -L$(LIBDIR) 
+  LDOPTIONS = -lxlf90 -lm -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem_map
 endif
 
-   LINK.f   = mpxlf -qnohpf $(LDOPTIONS)
+   LINK.f   = mpxlf -qnohpf $(LDFLAGS)
    FOPTIONS = -qEXTNAME -qnosave
 # -qinitauto=7F # note that grad_force breaks with this option
    COPTIONS = 
@@ -981,11 +987,11 @@ ifeq ($(TARGET),LAPI)
 LARGE_FILES = YES
 
 ifeq ($(NWCHEM_TARGET_CPU),604)
-  LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map -L$(LIBDIR) 
-   LINK.f   = mpxlf_r   $(LDOPTIONS)
+  LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map
+   LINK.f   = mpxlf_r   $(LDFLAGS)
 else
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map -L$(LIBDIR)
-   LINK.f   = mpcc_r   $(LDOPTIONS)
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map
+   LINK.f   = mpcc_r   $(LDFLAGS)
 endif
    FOPTIONS = -qEXTNAME -qnosave
 # -qinitauto=7F # note that grad_force breaks with this option

@@ -1,5 +1,5 @@
 /*
- $Id: ecce_print.c,v 1.12 1998-08-15 23:33:28 d3e129 Exp $
+ $Id: ecce_print.c,v 1.13 1999-06-01 20:48:40 d3h325 Exp $
  */
 
 #include <stdio.h>
@@ -8,7 +8,7 @@
 #if defined(CRAY) || defined(CRAY_T3D)
 #include <fortran.h>
 #endif
-#include "types.f2c.h"
+#include "typesf2c.h"
 #include "ecce_print.h"
 #include "macommon.h"
 

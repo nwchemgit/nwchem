@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.42 1999-02-01 16:43:23 d3j191 Exp $
+# $Id: makelib.h,v 1.43 1999-06-01 20:48:07 d3h325 Exp $
 
 #
 # A makefile for a library should
@@ -330,7 +330,7 @@ $(BINDIR)/depend.x:
 	( cd $(CNFDIR); $(MAKE) $@ ; )
 
 dependencies:	$(wildcard *.c) $(wildcard *.F) $(BINDIR)/depend.x
-	$(BINDIR)/depend.x $(LIB_INCLUDES) > dependencies
+	$(BINDIR)/depend.x $(LIB_INCLUDES) $(INCPATH) > dependencies
 
 
 include dependencies

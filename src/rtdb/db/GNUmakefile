@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.1 1995-03-31 01:55:25 d3g681 Exp $
+#$Id: GNUmakefile,v 1.2 1999-06-01 20:48:37 d3h325 Exp $
 
 include ../../config/makefile.h
 
@@ -19,7 +19,7 @@ include ../../config/makefile.h
 ifeq ($(TARGET),IBM)
   EXTRA = realloc.o
 endif
-ifeq ($(TARGET),SP1)
+ifeq ($(TARGET),SP)
   EXTRA = realloc.o
 endif
 ifeq ($(TARGET),SGI)

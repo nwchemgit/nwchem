@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "types.f2c.h"
+#include "typesf2c.h"
 
 #if defined(CRAY) || defined(CRAY_T3D) || defined(CRAY_T3E)
 #define util_batch_job_time_remaining_ UTIL_BATCH_JOB_TIME_REMAINING

@@ -1,8 +1,8 @@
 /*
- $Id: c_inp.c,v 1.4 1997-11-04 10:02:28 d3e129 Exp $
+ $Id: c_inp.c,v 1.5 1999-06-01 20:48:19 d3h325 Exp $
  */
 
-#include "types.f2c.h"
+#include "typesf2c.h"
 /* routine to convert a fortran string to a C string: */
 /* Fortran callable version of f2cstring in global directory */
 

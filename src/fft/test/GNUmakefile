@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 1997-11-04 10:07:53 d3e129 Exp $
+# $Id: GNUmakefile,v 1.6 1999-06-01 20:48:15 d3h325 Exp $
 #
 #======================================================================
 #
@@ -59,10 +59,10 @@ endif
 
 
 DO_ESSL = YES
-ifeq ($(NWCHEM_TARGET),SP1)
+ifeq ($(NWCHEM_TARGET),SP)
   LIB_INC = -I../../include -I/usr/lpp/ppe.poe/include
   LIBDIRS = -L/usr/lpp/ppe.poe/lib -L/usr/lib -L$(HOME)/pfft1.0/lib  \
-          -L../../..//lib/SP1
+          -L../../../lib/SP
   ifeq ($(FFTTYPE),EMSLFFT)
      DO_ESSL = NO
   endif

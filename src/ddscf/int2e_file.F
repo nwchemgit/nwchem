@@ -1,6 +1,6 @@
       block data cint2efdata
 *
-* $Id: int2e_file.F,v 1.49 1998-12-03 01:42:02 d3g681 Exp $
+* $Id: int2e_file.F,v 1.50 1999-06-01 20:48:09 d3h325 Exp $
 *
       implicit none
 #include "cint2efile.fh"
@@ -1103,7 +1103,8 @@ c
       else if (nint_per_dbl .eq. 1) then
          ind = 1
          mask  = lshift(1,32)-1  ! 2^32 - 1
-         two31 = lshift(1,31)-1
+         two31 = lshift(1,31)
+         two31 = two31-1
          do i = 1, n_per_rec/2
             v1 = iand(rshift(ibuf(i),32),mask) - two31
             v2 = iand(ibuf(i),mask) - two31
@@ -1149,7 +1150,8 @@ c
          end do
       else if (nint_per_dbl .eq. 1) then
          ind = 1
-         two31 = lshift(1,31)-1
+         two31 = lshift(1,31)
+         two31 = two31-1
          do i = 1, n_per_rec/2
             v1 = nint(values(ind  )*scale) + two31
             v2 = nint(values(ind+1)*scale) + two31

@@ -313,7 +313,7 @@ peigs_COMM =TCGMSG
 #peigs_LAPACKLIB       = -llapack
 endif
 
-ifeq ($(peigs_TARGET),SP1)
+ifeq ($(peigs_TARGET),SP)
 ## IBM SP-1, sp-2 or cluster of rs6000 wt tcgmsg ( using xlf instead of mpxlf )
 peigs_COMM =TCGMSG
 peigs_CPU = RS6000
@@ -342,6 +342,7 @@ peigs_FC += -qarch=604 -qtune=604
 peigs_CC += -qarch=ppc -qtune=604
 endif
 endif
+
 
 ifeq ($(peigs_TARGET),LAPI)
 ## IBM SP-1, sp-2 or cluster of rs6000 wt tcgmsg ( using xlf instead of mpxlf )

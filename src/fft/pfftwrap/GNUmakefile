@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 1997-11-04 10:07:51 d3e129 Exp $
+# $Id: GNUmakefile,v 1.7 1999-06-01 20:48:14 d3h325 Exp $
 #
 #======================================================================
 #
@@ -35,7 +35,7 @@
 
 LIBRARY   = libpfft.a
 
-ifeq ($(NWCHEM_TARGET),SP1)
+ifeq ($(NWCHEM_TARGET),SP)
   ifeq ($(USE_ESSL),NO) 
      LIB_DEFINES = -DEMSLFFT
      OBJ_OPTIMIZE = nwfft3d.o

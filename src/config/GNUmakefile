@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.8 1998-05-07 18:13:55 d3e129 Exp $
+# $Id: GNUmakefile,v 1.9 1999-06-01 20:48:04 d3h325 Exp $
 #
 
 include makefile.h
@@ -11,13 +11,13 @@ ifeq ($(TARGET),CRAY-T3D)
   DEPENDCFLAGS = -Tcray-ymp 
 endif
 
-ifeq ($(TARGET),SP1)
+ifeq ($(TARGET),SP)
 # Must use plain cc not mpcc
   CC = cc
 endif
 
 ifeq ($(TARGET),LAPI)
-# LAPI different from SP1 now
+# LAPI different from SP now
 # Must use plain cc not mpcc
   CC = cc
 endif
