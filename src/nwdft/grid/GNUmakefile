@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.40 2002-07-30 22:43:06 edo Exp $
+# $Id: GNUmakefile,v 1.41 2003-01-09 22:16:48 edo Exp $
 
       OBJ_OPTIMIZE= \
         grid_pscreen.o \
@@ -25,7 +25,6 @@
 	grid_sic.o \
 	grid_checks.o \
         grid_balance.o \
-	grid_daul.o \
 	grid_rtrunc.o \
 	grid_atom_type_info.o \
 	grid_setquad.o \
