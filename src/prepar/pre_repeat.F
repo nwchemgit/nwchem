@@ -2,7 +2,7 @@
      + csa,isat,isgm,xs,vs,msa,nsa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_repeat.F,v 1.3 1999-11-04 22:53:08 d3j191 Exp $
+c $Id: pre_repeat.F,v 1.4 2000-01-26 19:40:11 d3j191 Exp $
 c
       implicit none
 c
@@ -32,6 +32,9 @@ c
     2 continue
       dx(k)=xmax-xmin+1.5d0*touch
     1 continue
+c
+      write(*,1000)
+ 1000 format(/,' Convergence',/,15x,'x',11x,'y',11x,'z',/)
 c
    10 continue
 c 
@@ -73,16 +76,14 @@ c
       if(ddx(k).gt.0.01) done=.false.
     9 continue
 c
-      write(*,'(a,3f12.6)') ' Convergence ',ddx
+      write(*,1001) ddx
+ 1001 format(10x,3f12.6)
 c
       if(.not.done) goto 10
 c
-      write(*,'(a,3f12.6)') 'x ',(dx(k),k=1,3)
       do 8 k=1,3
-c      drep(k)=abs(xs(k,jmin(k))-xs(k,imin(k))+dx(k))
       drep(k)=dx(k)
     8 continue
-      write(*,'(a,3f12.6)') 'd ',(drep(k),k=1,3)
 c
       pre_repeat=.true.
       return

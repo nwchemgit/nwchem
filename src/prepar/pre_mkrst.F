@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.39 1999-12-01 00:47:39 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.40 2000-01-26 19:40:10 d3j191 Exp $
 c
       implicit none
 c
@@ -939,16 +939,16 @@ c     repeat
 c     ======
 c
       if(card(1:6).eq.'repeat') then
-      write(*,'(a)') card
       read(card(8:12),'(i5)') nxrep
       read(card(13:17),'(i5)') nyrep
       read(card(18:22),'(i5)') nzrep
+      write(*,1019) nxrep,nyrep,nzrep
+ 1019 format(/,' Repeating ',3i5,/)
       if(.not.pre_repeat(card,drep,
      + byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),dbl_mb(i_xs),
      + dbl_mb(i_vs),msa,nsa,dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc))
      + call errquit('pre_repeat failed',9999)
-      write(*,'(3f12.6)') drep
       endif
 c
 c     end
