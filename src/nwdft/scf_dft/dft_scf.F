@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.19 1995-12-20 02:16:10 og845 Exp $
+C$Id: dft_scf.F,v 1.20 1995-12-23 01:39:45 og845 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -53,7 +53,7 @@ c**** patches for SC95,  ECCE' parsing
       integer lmax   ! CMM
       integer finest ! CMM
       character*255 filename
-      logical int2e_file_open
+      logical int2e_file_open,int2e_test_mem
 
       integer natoms,nTotEl
       integer l_occ,k_occ
@@ -222,22 +222,10 @@ c
 c     check if you want to cache ints to disk
 c
       tol2e=10.d0**(-itol_max)
-      if (.not. rtdb_get(rtdb, 'int2e:filesize',
-     $     MT_INT, 1, filesize)) filesize = 0
-      if (.not. rtdb_get(rtdb, 'int2e:memsize',
-     $     MT_INT, 1, memsize)) memsize = 0
 c
-      oreadfile = .false.
-      owritefile= .false.
+c     get info for int2e_
 c
-      if (filesize.gt.0 .or. memsize.gt.0) then
-         owritefile = .true.
-         if (.not. rtdb_cget(rtdb, 'int2e:filename', 1, filename)) 
-     $        call util_file_prefix('aoints',filename)
-         if (.not. int2e_file_open(filename, memsize, filesize,
-     $        tol2e*0.01d0,.false.))
-     $        call errquit('get_fock_param: opening aoints?', 0)
-      endif
+      call scf_get_fock_param(rtdb, tol2e)
       mulliken=.false.
       if(imull.eq.1) mulliken=.true.
       itrscf  = iconst(8)
@@ -346,7 +334,7 @@ c****
 c
 c     Apply any swaps of orbitals
 c
-            scftype=' '
+            scftype='RHF'
             if(ipol.eq.2) scftype='UHF'
             call movecs_swap(rtdb, scftype, g_evecs,
      $           dbl_mb(k_occ), dbl_mb(Isbn2(1)))
@@ -366,11 +354,6 @@ c
         iswitc=1
         if(me.eq.0)  
      &     write(LuOut,*) ' read movecs file as starting guess '
-        call gacrea(geom,AO_bas_han,
-     &       nbf_ao,nbf_ao,'ovl ',g_s,'atom')
-        call ga_zero(g_s)
-        call int_1e_ga(AO_bas_han,AO_bas_han,
-     &       g_s,'overlap',.false.)
         
 c       
 c       Form the total density matrix.
@@ -382,6 +365,11 @@ c
 c       call to Mulliken Pop Ananlysis
 c       
         if (mulliken) then
+          call gacrea(geom,AO_bas_han,
+     &         nbf_ao,nbf_ao,'ovl ',g_s,'atom')
+          call ga_zero(g_s)
+          call int_1e_ga(AO_bas_han,AO_bas_han,
+     &         g_s,'overlap',.false.)
           if(me.eq.0) call dft_header(
      &         ' Total Density - Mulliken Population Analysis')
           call mull_pop(geom,AO_bas_han,g_dens(1),g_s)
@@ -390,8 +378,8 @@ c
      &           ' Beta Density - Mulliken Population Analysis')
             call mull_pop(geom,AO_bas_han,g_dens(2),g_s)
           endif
+          call gadest(g_s)
         endif
-        call gadest(g_s)
       endif
 
  1000 continue
