@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.61 1996-01-27 02:04:27 d3g681 Exp $
+c     $Id: nwchem.F,v 1.62 1996-01-27 02:06:32 d3g681 Exp $
 c
       character*255 input_filename
       double precision total_wall, total_cpu
@@ -436,7 +436,7 @@ c
       write(6,*)
       write(6,*)
       call util_print_centered(6,
-     $     'North-west Computational Chemisty Package (NWChem)',
+     $     'Northwest Computational Chemisty Package (NWChem)',
      $     40, .true.)
       write(6,*)
       write(6,*)
