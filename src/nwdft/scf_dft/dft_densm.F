@@ -2,7 +2,7 @@
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,mult)
-C$Id: dft_densm.F,v 1.7 1999-06-22 01:21:19 edo Exp $
+C$Id: dft_densm.F,v 1.8 1999-06-22 19:20:21 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -57,8 +57,9 @@ c      nproc=1
 c
 c     check degener
 c
-      if (dft_checkdg(evals,nbf,ntotel,focc,noc,ipol,me,mult)) then
-      if(ga_nodeid().eq.0) write(6,*) ' DEGEGEG'
+      if (ipol.eq.2.and.
+     .     dft_checkdg(evals,nbf,ntotel,focc,noc,ipol,me,mult)) then
+c      if(ga_nodeid().eq.0) write(6,*) ' DEGEGEG'
           do isp=1,ipol
              call dft_focdm(focc(1+(isp-1)*nbf),noc,geom,
      ,            AO_bas_han,nbf,
