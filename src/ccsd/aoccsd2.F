@@ -3,7 +3,7 @@
      &                  g_ncoul, g_nexch, RefEner,
      $   CC_Theory, rtdb, mxvec, geom, Tol2e, occd, oconverged)
       implicit none
-C     $Id: aoccsd2.F,v 2.27 2003-04-07 17:46:52 bert Exp $
+C     $Id: aoccsd2.F,v 2.28 2003-04-09 16:15:49 bert Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -529,7 +529,7 @@ c
       if (iam .eq. 0) then
          write(6,1101) nkpass, nvpass,memdrv,memtrn,mem_avail
  1101    format('nkpass=',i2,'; nvpass=',i3,'; memdrv=',i8,
-     $        '; memtrn=',i8,'; memavail=',i8)
+     $        '; memtrn=',i8,'; memavail=',i15)
          call util_flush(6)
       endif
 c
@@ -557,7 +557,7 @@ c
 c
       if (iam.eq.0)write(*,845)mem_avail,nvir,vchunk,nvpass,
      $     kchunk,nkpass
-  845 format(' memory available/node                ',i8,/,
+  845 format(' memory available/node                ',i15,/,
      &       ' total number of virtual orbitals     ',i5,/,
      &       ' number of virtuals per integral pass ',i5,/,
      &       ' number of integral evaluations       ',i5,/,
