@@ -7,7 +7,7 @@
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,lfnhop,filhop,
      + ndumsi,ipbtpi)
-c $Id: cf_init.F,v 1.91 2003-08-08 15:11:43 d3j191 Exp $
+c $Id: cf_init.F,v 1.92 2003-08-18 15:54:23 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1500,6 +1500,15 @@ c      real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),vs(msa,3),vst(msa,3)
 c
       integer i,j,k,l,m
 c
+c     initialize pme flags
+c
+      if(ipme.gt.0) then
+      call pme_flag(0,0,me)
+      call pme_flag(1,0,me)
+      endif
+c
+      entry cf_init2(lp,llng,bx,vl,vli,zwi,zs,eww,esw,ess,fss,esa)
+c
       lpair=lp
       llong=llng
 c
@@ -1610,13 +1619,6 @@ c
       call cf_binit(dbl_mb(i_rang(2)),numh(2),2)
       call cf_binit(dbl_mb(i_rdih(2)),numd(2),2)
       call cf_binit(dbl_mb(i_rimp(2)),numi(2),2)
-c
-c     initialize pme flags
-c
-      if(ipme.gt.0) then
-      call pme_flag(0,0,me)
-      call pme_flag(1,0,me)
-      endif
 c
       return
       end

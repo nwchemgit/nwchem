@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.167 2003-08-12 20:43:48 d3j191 Exp $
+c $Id: md_main.F,v 1.168 2003-08-18 15:54:21 d3j191 Exp $
 c
       implicit none
 c
@@ -2197,11 +2197,6 @@ c
 c
     1 continue
 c
-      if(lpme.and.llong) then
-      call pme_forces(fw(1,1,1,2),nwmloc,fs(1,1,2),
-     + isl(1,lsct1),isl(1,lssgm),nsaloc)
-      endif
-c
       if(.not.ldone) then
       if(cf_hopping(isl(1,lssgm),isl(1,lsgan),isl(1,lshop),xs,nsaloc))
      + then
@@ -2218,10 +2213,15 @@ c
 c      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
 c     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
 c     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
-      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
+      call cf_init2(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
      + dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esa))
       goto 100
       endif
+      endif
+c
+      if(lpme.and.llong) then
+      call pme_forces(fw(1,1,1,2),nwmloc,fs(1,1,2),
+     + isl(1,lsct1),isl(1,lssgm),nsaloc)
       endif
 c
       return
@@ -2598,7 +2598,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.167 2003-08-12 20:43:48 d3j191 Exp $
+c $Id: md_main.F,v 1.168 2003-08-18 15:54:21 d3j191 Exp $
 c
       implicit none
 c
