@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.12 2000-02-01 21:51:00 d3j191 Exp $
+c $Id: ana_input.F,v 1.13 2000-03-16 20:27:41 d3j191 Exp $
 c
       implicit none
 c
@@ -13,7 +13,7 @@ c
 c
       character*255 item,prefix,atom,tag,atomi,atomj,atomk,atoml
       character*255 filcmd,filchg,filplt,filxyz,filref,filtrj,filcop
-      integer lfncmd,numcmd,len,ivec,nspac,itors
+      integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,itag,iatag,jatag
       real*8 timoff,rsel,rtag,rcut
       logical lref,lfil
@@ -195,6 +195,38 @@ c
       goto 2
       endif
 c
+c     define bonds
+c     ------------
+c
+      if(inp_compare(.false.,'bond',item)) then
+      if(.not.inp_i(ibond)) call errquit('Error in bond',0)
+      if(.not.inp_a(atomi)) call errquit('Error in bond',0)
+      if(.not.inp_a(atomj)) call errquit('Error in bond',0)
+      write(lfncmd,1012) ibond
+ 1012 format('bond   ',i5)
+      write(lfncmd,1013) atomi(1:index(atomi,' ')-1)
+      write(lfncmd,1013) atomj(1:index(atomj,' ')-1)
+ 1013 format(a)
+      goto 2
+      endif
+
+c
+c     define angles
+c     -------------
+c
+      if(inp_compare(.false.,'angle',item)) then
+      if(.not.inp_i(iangl)) call errquit('Error in angle',0)
+      if(.not.inp_a(atomi)) call errquit('Error in angle',0)
+      if(.not.inp_a(atomj)) call errquit('Error in angle',0)
+      if(.not.inp_a(atomk)) call errquit('Error in angle',0)
+      write(lfncmd,1014) iangl
+ 1014 format('angle  ',i5)
+      write(lfncmd,1013) atomi(1:index(atomi,' ')-1)
+      write(lfncmd,1013) atomj(1:index(atomj,' ')-1)
+      write(lfncmd,1013) atomk(1:index(atomk,' ')-1)
+      goto 2
+      endif
+c
 c     define torsions
 c     ---------------
 c
@@ -204,13 +236,30 @@ c
       if(.not.inp_a(atomj)) call errquit('Error in torsion',0)
       if(.not.inp_a(atomk)) call errquit('Error in torsion',0)
       if(.not.inp_a(atoml)) call errquit('Error in torsion',0)
-      write(lfncmd,1012) itors
- 1012 format('torsio ',i5)
+      write(lfncmd,1015) itors
+ 1015 format('torsio ',i5)
       write(lfncmd,1013) atomi(1:index(atomi,' ')-1)
       write(lfncmd,1013) atomj(1:index(atomj,' ')-1)
       write(lfncmd,1013) atomk(1:index(atomk,' ')-1)
       write(lfncmd,1013) atoml(1:index(atoml,' ')-1)
- 1013 format(a)
+      goto 2
+      endif
+c
+c     define impropers
+c     ----------------
+c
+      if(inp_compare(.false.,'improper',item)) then
+      if(.not.inp_i(iplan)) call errquit('Error in improper',0)
+      if(.not.inp_a(atomi)) call errquit('Error in improper',0)
+      if(.not.inp_a(atomj)) call errquit('Error in improper',0)
+      if(.not.inp_a(atomk)) call errquit('Error in improper',0)
+      if(.not.inp_a(atoml)) call errquit('Error in improper',0)
+      write(lfncmd,1017) iplan
+ 1017 format('improp ',i5)
+      write(lfncmd,1013) atomi(1:index(atomi,' ')-1)
+      write(lfncmd,1013) atomj(1:index(atomj,' ')-1)
+      write(lfncmd,1013) atomk(1:index(atomk,' ')-1)
+      write(lfncmd,1013) atoml(1:index(atoml,' ')-1)
       goto 2
       endif
 c

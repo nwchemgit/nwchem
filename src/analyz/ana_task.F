@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.10 2000-02-01 21:51:01 d3j191 Exp $
+c $Id: ana_task.F,v 1.11 2000-03-16 20:27:41 d3j191 Exp $
 c
       implicit none
 c
@@ -24,8 +24,9 @@ c
 c
       logical ana_rdfram
       integer ana_index
-      real*8 ana_torsion
-      external ana_rdfram,ana_index,ana_torsion
+      real*8 ana_bond,ana_angle,ana_torsion
+      external ana_rdfram,ana_index
+      external ana_bond,ana_angle,ana_torsion
 c
 c
 c     set sequential access to rtdb
@@ -49,7 +50,10 @@ c
       ifrst=0
       ilast=0
 c
+      nbnds=0
+      nangs=0
       ntors=0
+      nimps=0
 c
       lsel=.false.
       active=.false.
@@ -147,6 +151,38 @@ c
       goto 1
       endif
 c
+c     bond specification
+c     ------------------
+c
+      if(card(1:6).eq.'bond  ') then
+      read(card(8:12),'(i5)') it
+      if(it.eq.nbnds+1) nbnds=nbnds+1
+      if(it.gt.nbnds) call errquit('Bond index too large',it)
+      if(it.gt.mxbnds) call errquit('Bond index too large',it)
+      do 7 i=1,2
+      read(lfncmd,1000,end=9999) card
+      ibnds(it,i)=ana_index(card,byte_mb(i_snam))
+    7 continue
+      write(*,'(2i5)') (ibnds(it,i),i=1,2)
+      goto 1
+      endif
+c
+c     angle specification
+c     -------------------
+c
+      if(card(1:5).eq.'angle') then
+      read(card(8:12),'(i5)') it
+      if(it.eq.nangs+1) nangs=nangs+1
+      if(it.gt.nangs) call errquit('Angle index too large',it)
+      if(it.gt.mxangs) call errquit('Angle index too large',it)
+      do 8 i=1,3
+      read(lfncmd,1000,end=9999) card
+      iangs(it,i)=ana_index(card,byte_mb(i_snam))
+    8 continue
+      write(*,'(3i5)') (iangs(it,i),i=1,3)
+      goto 1
+      endif
+c
 c     torsion specification
 c     ---------------------
 c
@@ -155,11 +191,27 @@ c
       if(it.eq.ntors+1) ntors=ntors+1
       if(it.gt.ntors) call errquit('Torsion index too large',it)
       if(it.gt.mxtors) call errquit('Torsion index too large',it)
-      do 7 i=1,4
+      do 9 i=1,4
       read(lfncmd,1000,end=9999) card
       itors(it,i)=ana_index(card,byte_mb(i_snam))
-    7 continue
+    9 continue
       write(*,'(4i5)') (itors(it,i),i=1,4)
+      goto 1
+      endif
+c
+c     improper specification
+c     ----------------------
+c
+      if(card(1:6).eq.'improp') then
+      read(card(8:12),'(i5)') it
+      if(it.eq.nimps+1) nimps=nimps+1
+      if(it.gt.nimps) call errquit('Improper index too large',it)
+      if(it.gt.mximps) call errquit('Improper index too large',it)
+      do 12 i=1,4
+      read(lfncmd,1000,end=9999) card
+      iimps(it,i)=ana_index(card,byte_mb(i_snam))
+   12 continue
+      write(*,'(4i5)') (iimps(it,i),i=1,4)
       goto 1
       endif
 c
@@ -276,6 +328,7 @@ c
       read(card(8:80),'(a)') filcop
       i=index(filcop,'.')
       fmt=filcop(i+1:i+3)
+      time=0.0d0
 c
 c     read file header
 c
@@ -286,6 +339,8 @@ c
      + form='formatted',status='unknown',err=9999)
       write(*,3333) filcop(1:index(filcop,' ')-1)
  3333 format(/,' Opening scn file ',a)
+      write(lfncop,2324) nbnds,nangs,ntors,nimps
+ 2324 format(4i10)
       endif
 c
       nread=0
@@ -296,11 +351,20 @@ c
       nread=nread+1
       if(nread.lt.ifrfr) goto 10
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
-      do 11 i=1,ntors
+      do 11 i=1,nbnds
+      rbnds(i)=ana_bond(dbl_mb(i_xdat),msa,
+     + ibnds(i,1),ibnds(i,2))
+   11 continue
+      do 13 i=1,nangs
+      rangs(i)=ana_angle(dbl_mb(i_xdat),msa,
+     + iangs(i,1),iangs(i,2),iangs(i,3))
+   13 continue
+      do 14 i=1,ntors
       rtors(i)=ana_torsion(dbl_mb(i_xdat),msa,
      + itors(i,1),itors(i,2),itors(i,3),itors(i,4))
-   11 continue
-      write(lfncop,2323) time,(rtors(i),i=1,ntors)
+   14 continue
+      write(lfncop,2323) time,(rbnds(i),i=1,nbnds),(rangs(i),i=1,nangs),
+     + (rtors(i),i=1,ntors)
  2323 format(5f12.6)
       nwrit=nwrit+1
       endif
@@ -316,6 +380,11 @@ c
       write(*,'(/,a,i10,a,a)') ' Scanned ',nwrit,' frames to ',
      + filcop(1:index(filcop,' ')-1)
       endif
+c
+      nbnds=0
+      nangs=0
+      ntors=0
+      nimps=0
 c
       goto 1
       endif
