@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.73 2002-10-23 22:46:24 sohirata Exp $
+C     $Id: input_parse.F,v 1.74 2003-01-29 17:51:55 sohirata Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -156,6 +156,90 @@ c
             else if (inp_compare(.false.,test,'tddft')) then
                call tddft_input(rtdb)
             else if (inp_compare(.false.,test,'tce')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'tce'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               if (.not.rtdb_cput(rtdb,'tce:model',1,'ccsd'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'ucc')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'ucc'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'uci')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'uci'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'ump')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'umbpt'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'umbpt')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'umbpt'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'uccd')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'uccd'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'ulccd')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'ulccd'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'uccsd')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'uccsd'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'ulccsd')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'ulccsd'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'uqcisd')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'uqcisd'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'uccsdt')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'uccsdt'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'uccsdtq')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'uccsdtq'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'ucisd')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'ucisd'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'ucisdt')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'ucisdt'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'ucisdtq')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'ucisdtq'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'ump2')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'umbpt2'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'ump3')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'umbpt3'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'ump4')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'umbpt4'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'umbpt2')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'umbpt2'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'umbpt3')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'umbpt3'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
+               call tce_input(rtdb)
+            else if (inp_compare(.false.,test,'umbpt4')) then
+               if (.not.rtdb_cput(rtdb,'tce:module',1,'umbpt4'))
+     1         call errquit('input_parse: failed writing to rtdb',0)
                call tce_input(rtdb)
 c
 c     INSERT NEW ELSE IF CLAUSES ABOVE HERE
