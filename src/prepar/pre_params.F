@@ -5,7 +5,7 @@
      + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + latt,lats,catt,patt,ratt,matt,natt,nats)
 c
-c $Id: pre_params.F,v 1.6 1998-04-29 18:35:20 d3j191 Exp $
+c $Id: pre_params.F,v 1.7 1998-04-30 14:50:43 d3j191 Exp $
 c
       implicit none
 c
@@ -126,7 +126,7 @@ c
 c     check if all required parameters have been found
 c     ------------------------------------------------
 c
-      if(.not.pre_check(lfnout,lprint,
+      if(.not.pre_check(lfnout,lprint,ffield,
      + latt,catt,matt,natt,catm,matm,natm,lbnd,mbnd,nbnd,
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp))
      + call errquit('pre_check failed',9999)

@@ -1,8 +1,8 @@
-      logical function pre_check(lfnout,lprint,
+      logical function pre_check(lfnout,lprint,ffield,
      + latt,catt,matt,natt,catm,matm,natm,lbnd,mbnd,nbnd,
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp)
 c
-c $Id: pre_check.F,v 1.7 1998-04-29 18:35:13 d3j191 Exp $
+c $Id: pre_check.F,v 1.8 1998-04-30 14:50:43 d3j191 Exp $
 c
       implicit none
 c
@@ -11,6 +11,7 @@ c
       integer latt(3,matt),lbnd(4,mbnd),lang(5,mang),ldih(9,mdih)
       integer limp(9,mimp)
       character*6 catt(2,matt),catm(4,matm)
+      character*80 ffield
 c
       integer i,j,k,ii,jj,kk
 c
@@ -182,8 +183,13 @@ c
    18 continue
       if(lprint.ge.1) then
       if(pre_check) write(lfnout,1000)
+      if(ffield(1:5).eq.'amber') then
+      write(lfnout,1005) catm(1+j,limp(2,i)),
+     + catm(1+j,limp(3,i)),catm(1+j,limp(1,i)),catm(1+j,limp(4,i))
+      else
       write(lfnout,1005) catm(1+j,limp(1,i)),
      + catm(1+j,limp(2,i)),catm(1+j,limp(3,i)),catm(1+j,limp(4,i))
+      endif
  1005 format('Parameters could not be found for improper type ',
      + a6,'-',a6,'-',a6,'-',a6)
       endif
