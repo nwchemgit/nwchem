@@ -4,12 +4,13 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.23 1999-11-17 00:47:11 d3g681 Exp $
+* $Id: task_num_grad.F,v 1.24 1999-12-13 20:58:30 gg502 Exp $
 *
+#include "inp.fh"
       logical analytic
       logical task_energy, num_grad
       external task_energy, num_grad
-      character*128 theory, key
+      character*128 theory, ename, gname
 c
 c check for analytic user input 
 c
@@ -28,9 +29,14 @@ c
       if ((theory.eq.'ccsd(t)') .or. (theory.eq.'ccsd+t(ccsd)'))
      $     theory = 'ccsd'
 c
-      task_num_grad = num_grad(rtdb, 
-     $     task_energy, 'task:energy', 'task:gradient', 
-     $     theory, .false.)
+C     Construct the names for the energy and gradietn RTDB entries
+C
+      write(ename,'(a,'':energy'')') theory(1:inp_strlen(theory))
+      write(gname,'(a,'':gradient'')') theory(1:inp_strlen(theory))
+C
+      task_num_grad = num_grad(rtdb, task_energy,
+     $   ename(1:inp_strlen(ename)), gname(1:inp_strlen(gname)),
+     $   theory(1:inp_strlen(theory)), .false.)
 c
       end
       logical function num_grad(rtdb, func, ename, gname, theory,
@@ -47,6 +53,7 @@ c
       external func
       character *(*) ename      ! [input]
       character *(*) gname      ! [input]
+      character *(*) theory      ! [input]
       logical osavestate        ! [input]
 c
 c     Compute derivatives of function(rtdb) w.r.t. nuclear displacements
@@ -69,7 +76,7 @@ c
       integer natoms, natoms3, ecce_old_print, ecce_junk_print
       logical oprint_mode, oprint_step, oprint_info, osaved
       logical ofivept
-      character*128 name, key, theory, tmp
+      character*128 name, key, tmp
       character*16 thetag
       double precision eref, eplus, eminus, grad, crd(3), q
       double precision eplus2, eminus2, grad3
