@@ -3,9 +3,9 @@
      + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,npstti,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbci,nbiasi,
-     + nodpme)
+     + nodpme,nipmf)
 c
-c $Id: prp_init.F,v 1.56 2002-06-17 18:03:58 d3j191 Exp $
+c $Id: prp_init.F,v 1.57 2002-08-13 19:00:27 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
       integer nseri,ntyp,lfn,iout,iprp,igib,iprf,ndistr,nbiasi,nftri
       integer nwmtot,msfi,nsfi,nsai,mpei,nf1,nf2,nf3,npenrg,npstti
       integer mdacq,mrn,ipset,isetp1,isetp2,msmi,nsmi,npmf,nodpme
-      integer ipropi
+      integer ipropi,nipmf
       logical lcf,lsp,ltwn,lpol,lpme,llpener,llpstep,lpbci
       real*8 tstp,ddi,edi
       character*255 fil
@@ -54,6 +54,7 @@ c
       nsa=nsai
       nbias=nbiasi
       npstat=npstti
+      npmfi=nipmf
 c
       iset=ipset
       ipset1=isetp1
@@ -415,6 +416,17 @@ c
    88 continue
       endif
 c
+      endif
+c
+      if(npmfi.gt.0) then
+      if(it+npmfi.gt.maxpro)
+     + call errquit('Increase dimension maxpro',0)
+      do 43 i=1,npmfi
+      it=it+1
+      pronam(it)='Energy pmf                                  kJ/mol'
+      write(pronam(it)(12:16),'(i5)') i
+      lp(it)=.true.
+   43 continue
       endif
 c
       if(iprof.eq.1) then

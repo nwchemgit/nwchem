@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.86 2002-08-12 15:06:35 d3j191 Exp $
+c $Id: prp_main.F,v 1.87 2002-08-13 19:00:27 d3j191 Exp $
 c
       implicit none
 c
@@ -51,7 +51,7 @@ c
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,npolit
       real*8 dwr,dsr(msm),gsm(msm,4,2),esa(nsa,2)
       real*8 prest(3,3),virt(3,3),ekct(3,3),ep2m,ep3m
-      real*8 xsm(msm,3),dx(3)
+      real*8 xsm(msm,3),dx(3),upmf(100)
 c
       integer i,j,k,it
 c
@@ -108,7 +108,7 @@ c
       if(lcafe) then
       call cf_proper(volume,temp,tempw,temps,pres,tmpscl,tmsscl,prsscl,
      + ewk,nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,
-     + ep2,ep3,ep2m,ep3m,edrs,epmf,virial,prest,virt,ekct,ubias)
+     + ep2,ep3,ep2m,ep3m,edrs,epmf,virial,prest,virt,ekct,ubias,upmf)
       endif
 c
 c     if using space get properties from it
@@ -308,6 +308,13 @@ c
   155 continue
       endif
 c
+      endif
+c
+      if(npmfi.gt.0) then
+      do 356 i=1,npmfi
+      it=it+1
+      p(it)=upmf(i)
+  356 continue
       endif
 c
       if(iprof.eq.1) then

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.148 2002-08-09 22:16:13 d3j191 Exp $
+c $Id: cf_main.F,v 1.149 2002-08-13 19:00:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1169,15 +1169,16 @@ c
       end
       subroutine cf_proper(vol,tmp,tmpw,tmps,prs,tsw,tss,psc,
      + ewkin,nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs,ept2,ept3,
-     + ep2m,ep3m,edistr,epomef,vir,prest,virt,ekct,ubiasi)
+     + ep2m,ep3m,edistr,epomef,vir,prest,virt,ekct,ubiasi,pmfu)
 c
       implicit none
 c
 #include "cf_common.fh"
+#include "mafdecls.fh"
 c
       real*8 vol,tmp,tmpw,tmps,prs,tsw,tss,psc,ewkin,ept2,ept3
       real*8 edistr,epomef,vir,ubiasi,ep2m,ep3m
-      real*8 prest(3,3),virt(3,3),ekct(3,3)
+      real*8 prest(3,3),virt(3,3),ekct(3,3),pmfu(100)
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs
 c
       integer i,j
@@ -1221,6 +1222,12 @@ c
       ekct(i,j)=ekc(i,j)
     2 continue
     1 continue
+c
+      if(npmfi.gt.0) then
+      do 3 i=1,npmfi
+      pmfu(i)=dbl_mb(i_upmf+i-1)
+    3 continue
+      endif
 c
       return
       end
@@ -2505,27 +2512,16 @@ c
       integer lfnout,ipmf(numpmf,8)
       real*8 upmf(numpmf)
 c
-      integer i,j,nup
-      real*8 up
+      integer i
 c
       if(me.eq.0) then
       write(lfnout,1000)
  1000 format(/,'Solute potentials of mean force',//,
      + '     i     U',/)
-      do 1 i=1,numpmf
-      up=zero
-      nup=0
-      do 2 j=1,numpmf
-      if(ipmf(j,8).eq.i) then
-      up=up+upmf(j)
-      nup=nup+1
-      endif
-    2 continue
-      if(nup.eq.0) goto 3
-      write(lfnout,1001) i,up
+      do 1 i=1,npmfi
+      write(lfnout,1001) i,upmf(i)
  1001 format(i7,e12.5)
     1 continue
-    3 continue
       endif
       return
       end

@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.65 2002-07-17 14:25:20 d3j191 Exp $
+c $Id: md_common.fh,v 1.66 2002-08-13 19:00:27 d3j191 Exp $
 c
 c     parameters
 c
@@ -139,7 +139,7 @@ c
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
      + nfefld,icomm,latom,ihess,itload,nfdrss,nftime,itime,ifidi,iprpmf,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
-     + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,icentr,
+     + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,npmfi,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb(10),mbbreq,ioload,iprof,
      + isload,ncoll,ipopt,ilambd,mlambd,includ,inp_ptr
       common/md_inp/ptol,rshort,rlong,stime,tstep,elam,ddacq,edacq,
@@ -169,7 +169,7 @@ c
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
      + nfefld,icomm,latom,ihess,itload,nfdrss,nftime,itime,ifidi,iprpmf,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
-     + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,icentr,
+     + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,npmfi,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb,mbbreq,ioload,iprof,
      + isload,ncoll,ipopt,ilambd,mlambd,includ,inp_ptr
 c

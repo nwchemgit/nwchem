@@ -1,4 +1,4 @@
-      subroutine cf_start(irtdbi,logqmd,lfntop,filtop,ndistr,npmf,
+      subroutine cf_start(irtdbi,logqmd,lfntop,filtop,ndistr,npmf,nipmf,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
@@ -6,7 +6,7 @@
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi,
      + mropti,incl,ltwn)
-c $Id: cf_init.F,v 1.81 2002-08-13 02:54:31 d3j191 Exp $
+c $Id: cf_init.F,v 1.82 2002-08-13 19:00:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -17,7 +17,7 @@ c
       integer lfntop,irtdbi
       character*(*) filtop
       integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
-      integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf,npgi
+      integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf,nipmf,npgi
       real*8 spmet,step,tols,bx(3),fldi,fvec(3),ffrq,sclq
       integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal,ictrl,incl
       real*8 rcs,rcl,rqm,compr,delta
@@ -316,6 +316,7 @@ c
       nsfi=nsf
       nbiasi=nbias
       mropt=mropti
+      nipmf=npmfi
 c
       return
 
@@ -373,6 +374,7 @@ c
       lenlog=ma_sizeof(mt_log,1,mt_byte)
 c
       nbias=0
+      npmfi=0
       if(me.eq.0) then
       do 1 i=1,numpmf
       read(lfntop,1000) ipmf(i,1),ipmf(i,6),ipmf(i,7),
@@ -430,6 +432,11 @@ c
       call ga_brdcst(mcf_61,jpmf,4*numpmf*npmfa*lenint,0)
       call ga_brdcst(mcf_62,rpmf,18*numpmf*lendbl,0)
       if(ithint) call ga_brdcst(mcf_30,ith,24*lenlog,0)
+c
+      npmfi=0
+      do 7 i=1,numpmf
+      npmfi=max(npmfi,ipmf(i,8))
+    7 continue
 c
       return
       end

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.135 2002-07-17 22:32:52 d3j191 Exp $
+c $Id: md_start.F,v 1.136 2002-08-13 19:00:27 d3j191 Exp $
 c
       implicit none
 c
@@ -36,7 +36,7 @@ c
 c     start the classical forces API
 c     ------------------------------
 c
-      call cf_start(irtdb,lqmd,lfntop,filtop,ndistr,npmf,
+      call cf_start(irtdb,lqmd,lfntop,filtop,ndistr,npmf,npmfi,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + mdalgo,npbtyp,nbxtyp,rshort,rlong,rqmmm,box,
      + ipme,morder,ngx,ngy,ngz,nodpme,pmetol,
@@ -67,7 +67,7 @@ c
      + .true.,.true.,ltwin,ipolt.ne.0,ipme.ne.0,
      + npstep.ne.0,npener.ne.0,npstat,
      + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm,
-     + nsa,ddacq,edacq,iprof,npmf,npener,ndistr,lpbc,nbias,nodpme)
+     + nsa,ddacq,edacq,iprof,npmf,npener,ndistr,lpbc,nbias,nodpme,npmfi)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
