@@ -1,6 +1,9 @@
 *
-* $Id: paw_cpmd.F,v 1.1 2003-09-25 23:46:23 bylaska Exp $
+* $Id: paw_cpmd.F,v 1.2 2003-09-26 01:16:48 bylaska Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.1  2003/09/25 23:46:23  bylaska
+* PAW Car-Parrinello added...EJB
+*
 
 
 ***********************************************************************
@@ -1259,7 +1262,7 @@ c    .   ' (',F6.3,' smooth)')
  1300 FORMAT(//)
  1305 FORMAT(10X,'============ Car-Parrinello iteration ==============')
  1309 FORMAT(I8,2E19.10,2E14.5,2F9.1)
- 1310 FORMAT(I8,E20.10,3E15.5)
+ 1310 FORMAT(I8,2E19.10,2E14.5)
  1311 format(100e19.10)
  1312 format(e14.6,i3)
  1313 format(3i4)
