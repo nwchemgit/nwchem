@@ -10,7 +10,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
 c:tex-No formal arguments
 c:tex-
-c $Id: int_term.F,v 1.14 1999-04-28 22:47:22 windus Exp $
+c $Id: int_term.F,v 1.15 1999-10-26 22:26:29 mg201 Exp $
       implicit none
 #include "apiP.fh"
 #include "candoP.fh"
@@ -41,6 +41,13 @@ c
         call int_ecp_terminate()
         ecp_bsh = 0
       endif
+c
+c   Terminate relativistic integrals. This is an unconditional call
+c   because the call to int_rel_init is also unconditional, and the
+c   flag init_rel_int must be set to .false.
+c
+      if (any_rel) call int_rel_term
+c
       end
 c:tex-
 c:tex-%API Initialization and Termination Routines
@@ -93,6 +100,8 @@ c
         ecp_bsh = 0
       endif
 c
+      if (any_rel) call int_rel_term
+c
       end
 c:tex-
 c:tex-%API Initialization and Termination Routines
@@ -141,6 +150,3 @@ c
       endif
 c
       end
-
-
-
