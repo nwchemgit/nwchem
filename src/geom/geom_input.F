@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.67 1998-02-27 23:43:22 mdupuis Exp $
+C     $Id: geom_input.F,v 1.68 1998-03-02 19:13:08 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -530,10 +530,14 @@ c
       if(ga_nodeid().eq.0) then
 c
          call hnd_autoz_input(ijbond,ijkang,ijklto,
-     1                        ijklop,ijklnb,max_zcoord)
+     1                        ijklop,ijklnb,max_zcoord,
+     2                        cvr_scaling)
 c
          zcoord_input=.true.
          status=rtdb_put(rtdb,'autoz:zcoord',mt_log,1,zcoord_input)
+         status=status.or.
+     1          rtdb_put(rtdb,'autoz:cvr_scaling',mt_dbl,1,  
+     2                                                   cvr_scaling)
          status=status.or.
      1          rtdb_put(rtdb,'autoz:ijbond',mt_int,2*max_zcoord,  
      2                                                    ijbond)
@@ -557,7 +561,8 @@ c
       return
       end
       subroutine hnd_autoz_input(ijbond,ijkang,ijklto,
-     1                           ijklop,ijklnb,max_zcoord)
+     1                           ijklop,ijklnb,max_zcoord,
+     2                           cvr_scaling)
       implicit double precision (a-h,o-z)
 #include "inp.fh"
 c
@@ -566,6 +571,7 @@ c
       parameter (mxzmat=1500)
       parameter (mxcoor=1500)
 c                mxcoor=max(mxcart,mxzmat)
+      parameter (cvr_factor=1.2d+00)
       character*255 field
       logical       ready
       logical       dbug
@@ -581,6 +587,7 @@ c
       out =.false.
       out =out.or.dbug
 c
+      cvr_scaling=cvr_factor
       nbond=0
       nangl=0
       ntors=0
@@ -647,8 +654,22 @@ c
      1      inp_compare(.false.,'end',field)     ) then
             go to 100
          else
-   20       continue
-            if(inp_compare(.false.,'ijbond',field)) then
+            if(inp_compare(.false.,'cvr_scaling',field)) then
+   20          continue
+               if(inp_f(dum)) then
+                  cvr_scaling=dum
+                  go to 10
+               else
+                  if(.not.inp_read()) then
+                     write(iw,*)  'unexpected eof while reading ',
+     1                            'cvr_scaling input'
+                     call errquit
+     1                    ('hnd_autoz_input: unexpected eof',911)
+                  else
+                     go to 20
+                  endif
+               endif
+            elseif(inp_compare(.false.,'ijbond',field)) then
    30          continue
                if(inp_i(idum)) then
    40             continue
@@ -857,6 +878,7 @@ c
   100 continue
       if(out) then
          write(iw,*) 'zcoord input :'
+         write(iw,*) 'cvr_scaling', cvr_scaling
          if(nbond.gt.0) then
             do mbond=1,nbond
                write(iw,*) 'ijbond',
@@ -5031,10 +5053,10 @@ c
       PARAMETER (MXLINB= 8*MXATOM)
       PARAMETER (MXLNBA=10       )
       PARAMETER (MXSEG=64)
-      PARAMETER (CVFAC=1.2D+00)
       LOGICAL SOME,OUT,DBUG
       LOGICAL DBUG1
       LOGICAL BADZ
+      LOGICAL REMOVE
       LOGICAL NUBOND
       LOGICAL MODBND
       LOGICAL MODANG
@@ -5116,7 +5138,7 @@ C
 C
       DBUG1=.FALSE.
       DBUG =.FALSE.
-      OUT  =.FALSE. 
+      OUT  =.FALSE.
       OUT  =OUT.OR.DBUG
       SOME =.TRUE.
       SOME =SOME.OR.OUT
@@ -5176,9 +5198,12 @@ C     ----- READ IMPOSED BONDS, ANGLES, TORSIONS -----
 C     ----- O-O-PLANE, LINEAR BENDS, ... IF ANY  -----
 C
 c           read in zcoord data from -rtdb-
-c          IJBOND,IJKANG,IJKLTO,IJKLOP,IJKLNB
+c    CVR_SCALING,IJBOND,IJKANG,IJKLTO,IJKLOP,IJKLNB
 c
       status=rtdb_get(rtdb,'autoz:zcoord',mt_log,1,zcoord_input)
+      status=status.or.        
+     1       rtdb_get(rtdb,'autoz:cvr_scaling',mt_dbl,1,  
+     2                                                cvr_scaling)
       status=status.or.        
      1       rtdb_get(rtdb,'autoz:ijbond',mt_int,2*max_zcoord,  
      2                                                 ijbond)
@@ -5203,7 +5228,15 @@ c
             write(iw,*) 'no zcoord data found on rtdb'
          endif
       endif
+      if(dbug) then
+         write(iw,*) 'in hnd-zmtmak, cvr_scaling value = ',cvr_scaling
+      endif
 c
+      CVFAC=CVR_SCALING
+      IF(DBUG) THEN
+         WRITE(IW,*) 'CVFAC = ',CVFAC
+      ENDIF
+C
       NUMBND=0
       DO MBOND=1,MXBOND
          ICON=IJBOND(1,MBOND)
@@ -5350,6 +5383,9 @@ C
                   IJBNDS(2,MBNDS)=IJBOND(1,MBOND)
                   NUBOND=.TRUE.
                ENDIF
+               IF(NUBOND.AND.DBUG) THEN
+                  WRITE(IW,9975) MBNDS,IJBNDS(1,MBNDS),IJBNDS(2,MBNDS)
+               ENDIF
 C
 C     ----- CHECK FOR DUPLICATES AND ELIMINATE -----
 C
@@ -5389,19 +5425,29 @@ C
                   IJBNDS(2,MBNDS)=JAT
                   NUBOND=.TRUE.
                   IF(DBUG1) THEN
-                     WRITE(IW,9992) IAT,JAT,IZ,JZ,RIJ,RCV,MBNDS
+                     WRITE(IW,9992) IAT,JAT,IZ,JZ,RIJ,RCV,MBNDS,
+     1                              IJBNDS(1,MBNDS),IJBNDS(2,MBNDS),NUBOND
                   ENDIF
 C
 C     ----- CHECK FOR DUPLICATES AND ELIMINATE -----
 C
                   IF(NUBOND.AND.MBNDS.GT.1) THEN
+                     REMOVE=.FALSE.
                      M=MBNDS-1
                      DO I=1,M
                         IF(IJBNDS(1,I).EQ.IJBNDS(1,MBNDS).AND.
      1                     IJBNDS(2,I).EQ.IJBNDS(2,MBNDS)     ) THEN
-                           MBNDS=MBNDS-1
+                           IF(DBUG) THEN
+                              WRITE(IW,9974) MBNDS,I
+                           ENDIF
+                           REMOVE=.TRUE.
                         ENDIF
                      ENDDO
+                     IF(REMOVE) THEN
+                        IJBNDS(1,MBNDS)=0
+                        IJBNDS(2,MBNDS)=0
+                        MBNDS=MBNDS-1
+                     ENDIF
                   ENDIF
                ENDIF
             ENDIF
@@ -5752,7 +5798,7 @@ C
  9994 FORMAT(6(1H(,I4,1H,,I4,1H)))
  9993 FORMAT(' NO COVALENT RADIUS SPECIFIED FOR ONE OF THESE ATOMS = ',
      1       2I5)
- 9992 FORMAT(' IAT,JAT,IZ,JZ,RIJ,RCV,MBNDS= ',2I4,2I4,2F10.3,I5)
+ 9992 FORMAT(' IAT,JAT,IZ,JZ,RIJ,RCV,MBNDS= ',2I4,2I4,2F10.3,3I5,L4)
  9991 FORMAT(/,' PASS NUM. = ',I3,' OUT OF ',I3,' PASS(ES) ')
  9990 FORMAT(/,' SEARCHING FOR A SINGLE RING ...')
  9989 FORMAT(/,' ILLEGAL -MXCONN- HERE, -MXCONN- = ',I3,' . STOP.')
@@ -5775,6 +5821,8 @@ C
      2         ' TO ATOM ',I4,' . STOP.')
  9977 FORMAT(' INCORRECT DATA IN NAMELIST -COORDI- . STOP .')
  9976 FORMAT(2I5,3F10.6)
+ 9975 FORMAT(' FORCED BOND INSERTED = ',3I5)
+ 9974 FORMAT(' BOND REMOVED = ',I5,' EQUIVALENT TO = ',I5)
  8888 FORMAT(/,10X,6(1H-),/,10X,'AUTO-Z',/,10X,6(1H-))
  8887 FORMAT(' SOME IMPOSED BONDS           IN -ZMTMAK- ')
  8886 FORMAT('   NO IMPOSED BONDS           IN -ZMTMAK- ')
