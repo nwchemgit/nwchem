@@ -84,6 +84,7 @@ c
       master = ga_nodeid().eq.0
       fixlinks = .false.
 
+      bqzone = 6.0
       eatoms = 0.0d0
       linkatm=qmmm_halogen
       bq_exclude=qmmm_hydrogen

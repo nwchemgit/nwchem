@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.29 2004-10-22 23:43:08 marat Exp $
+c $Id: qmmm_geom.F,v 1.30 2004-10-27 21:48:16 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -132,6 +132,12 @@ c
         call cons_activate(namespace,irtdb)
       end if
 
+       call qmmm_print_pdb(nqm,"-qm.pdb",
+     >                    dbl_mb(i_c),
+     >                    dbl_mb(i_q),
+     >                    byte_mb(i_t))
+
+
       end
 
       subroutine qmmm_get_all_coord_qm(irtdb)
@@ -208,6 +214,8 @@ c     ------------------
 #include "rtdb.fh"
 #include "qmmm.fh"
 #include "global.fh"
+#include "util.fh"
+#include "inp.fh"
       integer irtdb
 c     local variables
       integer i
@@ -230,6 +238,7 @@ c     local variables
       integer i_m_all,h_m_all
       logical nobq
       double precision charge
+      character*32 filename
       character*32 pname
 
       pname = "qmmm_create_bq_geom"
@@ -327,7 +336,9 @@ c    --------------------------------------
      >                    dbl_mb(i_cbq),
      >                    dbl_mb(i_qbq))
 
-       call qmmm_print_pdb(ntot,"test",
+       call util_file_prefix("",filename)
+       filename = filename(1:inp_strlen(filename)-1)//"-full.pdb"
+       call qmmm_print_pdb(ntot,"-full.pdb",
      >                    dbl_mb(i_c_all),
      >                    dbl_mb(i_q_all),
      >                    byte_mb(i_t_all))
@@ -503,17 +514,19 @@ c     -----------------------------
       double precision q(nt)
       character*16 t(nt)
       character*(*) myname
+      character*(nw_max_path_len) filename
 
       integer i
       integer n
-      character*(nw_max_path_len) filename
+      integer nf
+      integer ns
 
-c      n=inp_strlen(myname)
-c      call util_file_name(myname(1:n), .false.,
-c     >               .false., filename)
-      open(unit=46,status="unknown",form="formatted",file=myname)
+      call util_file_prefix("",filename)
+      nf=inp_strlen(filename)-1
+      ns=inp_strlen(myname)
+      filename = filename(1:nf)//myname(1:ns)
 
-      write(*,*) "pdb file ",myname
+      open(unit=46,status="unknown",form="formatted",file=filename)
 
       do i=1,nt
        write(46,FMT=9000)
