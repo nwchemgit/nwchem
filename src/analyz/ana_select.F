@@ -1,6 +1,6 @@
-      subroutine ana_select(card,sgmnam,isel,wt,x)
+      subroutine ana_select(card,sgmnam,isel,wt,x,numsel)
 c
-c $Id: ana_select.F,v 1.10 2002-07-21 18:01:20 d3j191 Exp $
+c $Id: ana_select.F,v 1.11 2003-04-30 21:42:43 d3j191 Exp $
 c
       implicit none
 c
@@ -14,6 +14,7 @@ c
       real*8 wt(nsa)
       integer isel(nsa)
       real*8 x(nsa,3)
+      integer numsel
 c
       integer i,j
       real*8 rtag,rtag2,r2
@@ -56,16 +57,16 @@ c
       call ga_brdcst(mag_d06,isel,nsa*ma_sizeof(mt_int,1,mt_byte),0)
       endif
 c
-      nsel=0
+      numsel=0
       do 6 i=1,nsa
       wt(i)=1.0d0
       if(isel(i).eq.0) wt(i)=0.0d0
-      nsel=nsel+isel(i)
+      numsel=numsel+isel(i)
     6 continue
 c
       return
       end
-      subroutine ana_all(isel,ival,wt)
+      subroutine ana_all(isel,ival,wt,numsel)
 c
       implicit none
 c
@@ -77,14 +78,14 @@ c
 c
       integer isel(nsa)
       real*8 wt(nsa)
-      integer i,ival
+      integer i,ival,numsel
 c
       do 1 i=1,nsa
       isel(i)=ival
     1 continue
 c
-      nsel=0
-      if(ival.ne.0) nsel=nsa
+      numsel=0
+      if(ival.ne.0) numsel=nsa
       do 2 i=1,nsa
       wt(i)=1.0d0
       if(isel(i).eq.0) wt(i)=0.0d0

@@ -1,6 +1,6 @@
       subroutine ana_init(nsai,msai,ltask)
 c
-c $Id: ana_init.F,v 1.15 2002-07-20 19:17:38 d3j191 Exp $
+c $Id: ana_init.F,v 1.16 2003-04-30 21:42:43 d3j191 Exp $
 c
       implicit none
 c
@@ -55,6 +55,8 @@ c
      + call errquit('Failed to allocate memory for isel',me)
       if(.not.ma_push_get(mt_int,nsa,'ssel',l_ssel,i_ssel))
      + call errquit('Failed to allocate memory for ssel',me)
+      if(.not.ma_push_get(mt_int,nsa,'osel',l_osel,i_osel))
+     + call errquit('Failed to allocate memory for osel',me)
 c
       if(.not.ma_push_get(mt_byte,48*nsa,'tag',l_tag,i_tag))
      + call errquit('Failed to allocate memory for tag',me)
@@ -69,6 +71,8 @@ c
      + call errquit('Failed to allocate memory for wt',me)
       if(.not.ma_push_get(mt_dbl,nsa,'swt',l_swt,i_swt))
      + call errquit('Failed to allocate memory for swt',me)
+      if(.not.ma_push_get(mt_dbl,nsa,'owt',l_owt,i_owt))
+     + call errquit('Failed to allocate memory for owt',me)
 c
 c     initialize rms and wt arrays
 c

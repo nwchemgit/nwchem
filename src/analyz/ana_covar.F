@@ -1,6 +1,6 @@
       subroutine ana_edinit()
 c
-c $Id: ana_covar.F,v 1.11 2002-05-03 14:19:42 d3j191 Exp $
+c $Id: ana_covar.F,v 1.12 2003-04-30 21:42:43 d3j191 Exp $
 c
       implicit none
 c
@@ -112,7 +112,7 @@ c
       call ga_sync()
       return
       end
-      subroutine ana_projec(ndx,vct,isel,x,xa,val,xp)
+      subroutine ana_projec(ndx,vct,isel,x,xa,mx,val,xp)
 c
       implicit none
 c
@@ -120,9 +120,10 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 c
+      integer mx
       integer ndx(nsel)
       real*8 vct(nsel),val,pnorm,vval
-      real*8 x(nsa,3),xa(nsa,3),xp(nsa,3)
+      real*8 x(mx,3),xa(mx,3),xp(nsa,3)
       integer isel(nsa)
 c
       integer i,j,k

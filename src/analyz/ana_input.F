@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.64 2002-09-20 20:06:52 d3j191 Exp $
+c $Id: ana_input.F,v 1.65 2003-04-30 21:42:43 d3j191 Exp $
 c
       implicit none
 c
@@ -19,7 +19,7 @@ c
       integer itag,iatag,jatag,ipbc
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax,rang
       real*8 arota
-      logical lref,lfil,lsol,lsuper
+      logical lref,lfil,lsol,lsuper,lselo
       integer iesppb,lent,idpdb,indx,icent,jcent,nwhb
       character*8 option
 c
@@ -300,11 +300,18 @@ c     ------------
 c
       if(inp_compare(.false.,'select',item)) then
       lsuper=.false.
+      lselo=.false.
       rsel=0.0d0
  1255 continue
       if(.not.inp_a(atom)) call errquit('Error in select',0)
       if(atom(1:5).eq.'super') then
       lsuper=.true.
+      lselo=.false.
+      goto 1255
+      endif
+      if(atom(1:6).eq.'output') then
+      lsuper=.false.
+      lselo=.true.
       goto 1255
       endif
       if(atom(1:5).eq.'range') then
@@ -347,6 +354,9 @@ c
       if(lsuper) then
       write(lfncmd,1056) rsel,atom(1:index(atom,' ')-1)
  1056 format('selecs ',f12.6,a)
+      elseif(lselo) then
+      write(lfncmd,1057) rsel,atom(1:index(atom,' ')-1)
+ 1057 format('seleco ',f12.6,a)
       else
       write(lfncmd,1006) rsel,atom(1:index(atom,' ')-1)
  1006 format('select ',f12.6,a)

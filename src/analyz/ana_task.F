@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.91 2002-12-13 18:24:03 d3j191 Exp $
+c $Id: ana_task.F,v 1.92 2003-04-30 21:42:43 d3j191 Exp $
 c
       implicit none
 c
@@ -40,6 +40,7 @@ c
       lfncmd=69
       lfnloc=70
       lfnhba=71
+      lfnecc=72
       lfnref=76
       lfntrj=77
       lfncop=78
@@ -95,6 +96,7 @@ c
 c
       lsel=.false.
       lsels=.false.
+      lselo=.false.
       active=.false.
       lrms=.false.
       lana=.false.
@@ -183,7 +185,7 @@ c
       num=ito-ifr+1
       endif
 c
-      call ana_all(int_mb(i_ssel),1,dbl_mb(i_swt))
+      call ana_all(int_mb(i_ssel),1,dbl_mb(i_swt),nsel)
       lsel=.false.
 c
       if(me.eq.0) then
@@ -239,7 +241,7 @@ c
       write(*,'(a)') ' Closing trj file '
       endif
 c
-      call ana_all(int_mb(i_isel),1,dbl_mb(i_wt))
+      call ana_all(int_mb(i_isel),1,dbl_mb(i_wt),nsel)
       call ana_wall(int_mb(i_wsel),1,int_mb(i_ndxw))
       lsel=.false.
 c
@@ -270,11 +272,11 @@ c     --------------
 c
       if(card(1:6).eq.'select') then
       if(.not.lsel) then
-      call ana_all(int_mb(i_isel),0,dbl_mb(i_wt))
+      call ana_all(int_mb(i_isel),0,dbl_mb(i_wt),nsel)
       lsel=.true.
       endif
       call ana_select(card,byte_mb(i_snam),int_mb(i_isel),dbl_mb(i_wt),
-     + dbl_mb(i_xref))
+     + dbl_mb(i_xref),nsel)
       if(me.eq.0) then
       write(*,3003) nsel,nsa
  3003 format(' Selected',i5,' out of',i5,' atoms')
@@ -283,14 +285,27 @@ c
       endif
       if(card(1:6).eq.'selecs') then
       if(.not.lsels) then
-      call ana_all(int_mb(i_ssel),0,dbl_mb(i_swt))
+      call ana_all(int_mb(i_ssel),0,dbl_mb(i_swt),nsel)
       lsels=.true.
       endif
       call ana_select(card,byte_mb(i_snam),int_mb(i_ssel),dbl_mb(i_swt),
-     + dbl_mb(i_xref))
+     + dbl_mb(i_xref),nsel)
       if(me.eq.0) then
       write(*,3533) nsel,nsa
  3533 format(' Selected',i5,' out of',i5,' atoms for superposition')
+      endif
+      goto 1
+      endif
+      if(card(1:6).eq.'seleco') then
+      if(.not.lselo) then
+      call ana_all(int_mb(i_osel),0,dbl_mb(i_owt),nselo)
+      lselo=.true.
+      endif
+      call ana_select(card,byte_mb(i_snam),int_mb(i_osel),dbl_mb(i_owt),
+     + dbl_mb(i_xref),nselo)
+      if(me.eq.0) then
+      write(*,3633) nselo,nsa
+ 3633 format(' Selected',i5,' out of',i5,' atoms for output')
       endif
       goto 1
       endif
@@ -390,7 +405,7 @@ c
       write(*,'(a)') ' Closing trj file '
 c
       call ana_wcount(int_mb(i_wsel),int_mb(i_ndxw))
-      call ana_all(int_mb(i_isel),1,dbl_mb(i_wt))
+      call ana_all(int_mb(i_isel),1,dbl_mb(i_wt),nsel)
       lsel=.false.
       write(*,3303) nwsel,nwm
  3303 format(/,' Selected',i5,' out of',i5,' solvent molecules')
@@ -1246,6 +1261,7 @@ c
       filprj=fil(1:index(fil,' ')-1)//'.trj'
       filval=fil(1:index(fil,' ')-1)//'.val'
       filvec=fil(1:index(fil,' ')-1)//'.vec'
+      filecc=fil(1:index(fil,' ')-1)//'.ecce.out'
       filmin=fil(1:index(fil,' ')-1)//'_min.pdb'
       filmax=fil(1:index(fil,' ')-1)//'_max.pdb'
       else
@@ -1253,6 +1269,7 @@ c
       fmt=filprj(i+1:i+3)
       filval=fil(1:i-1)//'.val'
       filvec=fil(1:i-1)//'.vec'
+      filecc=fil(1:i-1)//'.ecce.out'
       filmin=fil(1:i-1)//'_min.pdb'
       filmax=fil(1:i-1)//'_max.pdb'
       endif
@@ -1293,7 +1310,7 @@ c
       if(np.gt.1) call ana_update(dbl_mb(i_xdat),msa,ifr,ifr+num-1)
 c
       call ana_projec(int_mb(i_ndx),dbl_mb(i_cov),int_mb(i_isel),
-     + dbl_mb(i_xdat),dbl_mb(i_xadat),val,
+     + dbl_mb(i_xdat),dbl_mb(i_xadat),msa,val,
      + dbl_mb(i_xp))
 c
       lxw=.false.
@@ -1314,6 +1331,8 @@ c
       if(me.eq.0) then
       open(unit=lfnvec,file=filvec(1:index(filvec,' ')-1),
      + form='formatted',status='unknown',err=9999)
+      open(unit=lfnecc,file=filecc(1:index(filecc,' ')-1),
+     + form='formatted',status='unknown',err=9999)
       k=0
       do 15 i=1,nsel
       value=0.0d0
@@ -1323,7 +1342,56 @@ c
    16 continue
       write(lfnvec,'(i5,f12.6)') i,sqrt(value)
    15 continue
+c
+      write(lfnecc,3013)
+ 3013 format('%begin%input file%1%char',/,
+     + 'geometry noautosym units nm')
+      do 314 i=1,nsa
+      if(int_mb(i_osel+i-1).eq.1) then
+      if(byte_mb(i_snam+(i-1)*16+5).eq.'2'.or.
+     + byte_mb(i_snam+(i-1)*16+5).eq.'3'.or.
+     + byte_mb(i_snam+(i-1)*16+5).eq.'4') then
+      write(lfnecc,3014) ' ',byte_mb(i_snam+(i-1)*16+6),
+     + (dbl_mb(i_xadat+i-1+j*msa),j=0,2)
+      else
+      write(lfnecc,3014) (byte_mb(i_snam+(i-1)*16+j),j=5,6),
+     + (dbl_mb(i_xadat+i-1+j*msa),j=0,2)
+      endif
+ 3014 format(2a1,1x,3f12.6)
+      endif
+  314 continue
+      write(lfnecc,3012) nselo
+ 3012 format('end',/,'basis "ao basis" spherical print',/,
+     + ' C library "6-31+G*"',/,
+     + ' N library "6-31+G*"',/,
+     + ' O library "6-31+G*"',/,
+     + ' H library "6-31+G*"',/,
+     + ' S library "6-31+G*"',/,
+     + ' P library "6-31+G*"',/,
+     + ' Ca library "6-31+G*"',/,
+     + ' Na library "6-31+G*"',/,
+     + 'end',/,
+     + 'task scf gradient',/,
+     + '%end%input file%1%char',/,
+     + 'task_gradient%begin%total gradient%3 ',i7,'%double')
+c
+      k=0
+      do 315 i=1,nsa
+      if(int_mb(i_osel+i-1).eq.1) then
+      if(int_mb(i_isel+i-1).eq.0) then
+      write(lfnecc,3015) 0.0d0,0.0d0,0.0d0
+ 3015 format(3f12.6)
+      else
+      write(lfnecc,3015) (dbl_mb(i_cov+k+j),j=0,2)
+      k=k+3
+      endif
+      endif
+  315 continue
+      write(lfnecc,3011) nselo
+ 3011 format('task_gradient%end%total gradient%3 ',i7,'%double')
+c
       close(unit=lfnvec)
+      close(unit=lfnecc)
       close(unit=lfnval)
       close(unit=lfnprj)
       write(*,'(/,a,i5,a,a)') ' Projection of vector ',ivec,
