@@ -51,6 +51,7 @@ OBJ_ENERGY = \
       ecp_t2_p1pow.o \
       ecp_up_k.o     \
       ecp_local.o    \
+      ecp_ind_var.o  \
       int_ecp.o      
 
 OBJ = ecp_sph_tens.o
