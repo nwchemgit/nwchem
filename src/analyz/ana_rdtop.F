@@ -1,4 +1,4 @@
-      subroutine ana_rdtop(sgmnam,qs,iram)
+      subroutine ana_rdtop(sgmnam,qs,iram,imol)
 c
       implicit none
 c
@@ -9,7 +9,7 @@ c
 c
       character*16 sgmnam(msa)
       real*8 qs(msa)
-      integer iram(msgm,7)
+      integer iram(msgm,7),imol(msa)
 c
       character*1 cdummy
       integer i,j,nat,naq,i_tmp,l_tmp,i_itmp,l_itmp
@@ -88,8 +88,8 @@ c
       if(.not.ma_push_get(mt_int,nas,'itmp',l_itmp,i_itmp))
      + call errquit('Failed to allocate itmp',0)
       do 6 i=1,nas
-      read(lfntop,1005) sname,aname,num,j
- 1005 format(a5,5x,a5,11x,i5,15x,i5)
+      read(lfntop,1005) sname,aname,imol(i),num,j
+ 1005 format(a5,5x,a5,6x,2i5,15x,i5)
       write(44,2004) sname,aname,num
       write(sgmnam(i),2004) sname,aname,num
       qs(i)=dbl_mb(i_tmp-1+j)

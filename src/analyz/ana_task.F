@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.52 2000-10-06 07:37:24 d3j191 Exp $
+c $Id: ana_task.F,v 1.53 2000-10-11 21:38:08 d3j191 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
       integer idpdb
       logical lsuper
 c
-      integer i_iram,l_iram
+      integer i_iram,l_iram,i_imol,l_imol
 c
 c     set sequential access to rtdb
 c     and ignore current state
@@ -178,7 +178,10 @@ c
       if(ltop) then
       if(.not.ma_push_get(mt_int,7*msgm,'iram',l_iram,i_iram))
      + call errquit('Could not allocate iram',0)
-      call ana_rdtop(byte_mb(i_snam),dbl_mb(i_qdat),int_mb(i_iram))
+      if(.not.ma_push_get(mt_int,msa,'imol',l_imol,i_imol))
+     + call errquit('Could not allocate imol',0)
+      call ana_rdtop(byte_mb(i_snam),dbl_mb(i_qdat),int_mb(i_iram),
+     + int_mb(i_imol))
       endif
 c
       if(me.eq.0) then
@@ -341,9 +344,9 @@ c
 c     atom groups directives
 c     ----------------------
 c
-      if(card(1:6).eq.'groups') then
-      call ana_groups(card,byte_mb(i_snam),int_mb(i_isel),dbl_mb(i_wt),
-     + dbl_mb(i_xref))
+      if(card(1:6).eq.'group ') then
+      call ana_groups(card,byte_mb(i_snam),int_mb(i_imol),
+     + int_mb(i_isel),dbl_mb(i_wt),dbl_mb(i_xref))
       goto 1
       endif
 c
@@ -765,8 +768,8 @@ c
       if(ngroup.gt.0) then
       do 3301 i=1,ngroup
       if(igroup(i,3).eq.1)
-     + call ana_grpdis(byte_mb(i_snam),int_mb(i_isel),dbl_mb(i_wt),
-     + dbl_mb(i_xdat),i)
+     + call ana_grpdis(byte_mb(i_snam),int_mb(i_imol),int_mb(i_isel),
+     + dbl_mb(i_wt),dbl_mb(i_xdat),i)
  3301 continue
       endif
 c
@@ -1075,6 +1078,8 @@ c
       if(active) call ana_edfinal()
 c
       if(ltop) then
+      if(.not.ma_pop_stack(l_imol))
+     + call errquit('Could not deallocate imol',0)
       if(.not.ma_pop_stack(l_iram))
      + call errquit('Could not deallocate iram',0)
       endif

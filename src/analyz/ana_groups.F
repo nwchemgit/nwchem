@@ -1,6 +1,6 @@
-      subroutine ana_groups(card,sgmnam,isel,wt,x)
+      subroutine ana_groups(card,sgmnam,imol,isel,wt,x)
 c
-c $Id: ana_groups.F,v 1.3 2000-10-06 07:09:25 d3j191 Exp $
+c $Id: ana_groups.F,v 1.4 2000-10-11 21:38:08 d3j191 Exp $
 c
       implicit none
 c
@@ -13,7 +13,7 @@ c
       character*80 card
       character*16 sgmnam(nsa)
       real*8 wt(nsa)
-      integer isel(nsa)
+      integer isel(nsa),imol(msa)
       real*8 x(nsa,3)
 c
       integer i
@@ -29,14 +29,15 @@ c
       if(filgrp(1:1).ne.' ') then
       open(unit=lfngrp,file=filgrp(1:index(filgrp,' ')-1),
      + form='formatted',status='unknown')
-      if(igroup(ngroup,3).eq.1) call ana_grpdis(sgmnam,isel,wt,x,ngroup)
+      if(igroup(ngroup,3).eq.1)
+     + call ana_grpdis(sgmnam,imol,isel,wt,x,ngroup)
       ngroup=ngroup-1
       close(unit=lfngrp)
       endif
 c
       return
       end
-      subroutine ana_grpdis(sgmnam,isel,wt,x,igr)
+      subroutine ana_grpdis(sgmnam,imol,isel,wt,x,igr)
 c
       implicit none
 c
@@ -47,7 +48,7 @@ c
 c
       character*16 sgmnam(nsa)
       real*8 wt(nsa)
-      integer isel(nsa),igr
+      integer isel(nsa),igr,imol(msa)
       real*8 x(nsa,3)
 c
       integer igrp,jgrp
@@ -88,9 +89,9 @@ c
       dist=sqrt(dx*dx+dy*dy+dz*dz)
       if(dist.ge.rgroup(igr,1).and.dist.le.rgroup(igr,2)) then
       write(lfngrp,1001)
-     + sgmnam(ia)(11:16),sgmnam(ia)(1:5),sgmnam(ia)(6:10),
-     + sgmnam(ja)(11:16),sgmnam(ja)(1:5),sgmnam(ja)(6:10),dist
- 1001 format(2(a6,' ',a5,':',a5,' '),f12.6)
+     + imol(ia),sgmnam(ia)(11:16),sgmnam(ia)(1:5),sgmnam(ia)(6:10),
+     + imol(ja),sgmnam(ja)(11:16),sgmnam(ja)(1:5),sgmnam(ja)(6:10),dist
+ 1001 format(2(i5,a6,' ',a5,':',a5,' '),f12.6)
       number=number+1
       endif
     2 continue
@@ -133,3 +134,6 @@ c
 c
       return
       end      
+
+
+
