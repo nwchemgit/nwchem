@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.64 2004-12-18 20:01:52 bylaska Exp $
+* $Id: control.F,v 1.65 2004-12-21 16:58:35 bylaska Exp $
 *
 
 *     ***********************************
@@ -2509,6 +2509,36 @@ c      end
       control_zero_forces = value
       return
       end
+
+
+
+*     ********************************
+*     *                              *
+*     *  control_dos_grid_structure  *
+*     *                              *
+*     ********************************
+      subroutine control_dos_grid_structure(grid)
+      implicit none
+      integer grid(3)
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if (.not.rtdb_get(rtdb,'band:dos-grid',mt_int,3,grid)) then
+        grid(1) = 1
+        grid(2) = 1
+        grid(3) = 1
+      end if
+
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *					*

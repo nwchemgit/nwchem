@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.25 2004-12-06 20:03:23 bylaska Exp $
+c $Id: nwpw_input.F,v 1.26 2004-12-21 16:58:34 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 66)
+      parameter (num_dirs = 67)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -73,6 +73,7 @@ c
      >            'monkhorst-pack',
      >            'zone_name',
      >            'zone_structure_name',
+     >            'dos-grid',
      >            'dos_filename',
      >            'efield',
      >            'occupations',
@@ -129,7 +130,7 @@ c
      >       2500,2600,2700,2800,2900,3000,3100,3200,
      >       3300,3400,3500,3400,3500,3600,3000,
      >       1900,2200,2300,2400,2500,2600,2700,2800,
-     >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,
+     >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
      >       4100,4200,4300,4400,4500,4600,4700,4800,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
@@ -294,6 +295,40 @@ c
      >       'nwpw_input: error writing to rtdb', 1806, RTDB_ERR)
 
       goto 10
+
+c
+c DOS-Grid
+c
+ 1808 if (.not. inp_i(cell_expand(1))) cell_expand(1) = 2
+      if (.not. inp_i(cell_expand(2))) cell_expand(2) = 2
+      if (.not. inp_i(cell_expand(3))) cell_expand(3) = 2
+      if (.not. inp_a(zone_name)) zone_name    = 'structure_default'
+
+      call dos_states_set(rtdb,zone_name,cell_expand(1), 
+     >                                   cell_expand(2),
+     >                                   cell_expand(3))
+      value = rtdb_put(rtdb,'band:dos-grid',mt_int,3,cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 1808, RTDB_ERR)
+      goto 10
+
+cc
+cc DOS-structure
+cc
+c 1809 value = rtdb_put(rtdb,'band:dos-structure',mt_log,1,.true.)
+c      if (.not.value)
+c     >  call errquit(
+c     >       'nwpw_input: error writing to rtdb', 1809, RTDB_ERR)
+c      goto 10
+cc
+cc band-structure
+cc
+c 1810 value = rtdb_put(rtdb,'band:dos-structure',mt_log,1,.false.)
+c      if (.not.value)
+c     >  call errquit(
+c     >       'nwpw_input: error writing to rtdb', 1809, RTDB_ERR)
+c      goto 10
 
 
 

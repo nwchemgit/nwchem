@@ -1,5 +1,5 @@
 *
-* $Id: task_band.F,v 1.3 2004-11-29 16:05:16 bylaska Exp $
+* $Id: task_band.F,v 1.4 2004-12-21 16:58:35 bylaska Exp $
 *
 
       logical function task_band(rtdb)
@@ -18,10 +18,11 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 4)
+      parameter (num_dirs = 5)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'structure',
+     >            'dos',
      >            'noit_energy',
      >            'stress',
      >            'cell_optimize' /
@@ -42,7 +43,7 @@ c
 c
 c
 c
-      goto ( 100, 200, 300, 400 ) ind
+      goto ( 100, 110, 200, 300, 400 ) ind
       call errquit('task band: unimplemented directive', ind, INPUT_ERR)
 
 
@@ -55,9 +56,23 @@ c
         write(*,*)  ">>>> BAND parallel Module - band_structure <<<<"  
       end if
       value = rtdb_parallel(.true.)
-      value = band_structure(rtdb)
+      value = band_structure(rtdb,0)
       call ga_sync()
       goto 9999
+
+c
+c  DOS calculation
+c
+ 110  value = .true.
+
+      if (ga_nodeid().eq.MASTER) then
+        write(*,*)  ">>>> BAND parallel Module - dos <<<<"
+      end if
+      value = rtdb_parallel(.true.)
+      value = band_structure(rtdb,1)
+      call ga_sync()
+      goto 9999
+
 c
 c  noit_energy - debug
 c

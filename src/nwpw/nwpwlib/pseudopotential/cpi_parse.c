@@ -1,5 +1,5 @@
 /*
- $Id: cpi_parse.c,v 1.1 2004-05-24 13:43:18 bylaska Exp $
+ $Id: cpi_parse.c,v 1.2 2004-12-21 16:58:35 bylaska Exp $
 */
 
 #include <math.h>
@@ -288,7 +288,7 @@ Integer	*n3;
    /* read semi-core */
    r_semicore = 0.0;
    value = fscanf(fp,"%lf   %lf %lf %lf", &r,&ul,&vl,&dum1);
-   if (value) 
+   if (value!=EOF) 
    {
      r_semicore =  99.99; /* not known?? */
      rgrid[0]  = r; sc_rho[0] = ul; sc_drho[0] = vl;

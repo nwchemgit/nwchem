@@ -1,9 +1,14 @@
 *
-* $Id: psi.F,v 1.57 2004-12-06 20:03:25 bylaska Exp $
+* $Id: psi.F,v 1.58 2004-12-21 16:58:35 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.57  2004/12/06 20:03:25  bylaska
+* RMM-DIIS diagonalizer added to pspw.
+* nwpw_list updated to handle multiple lists.
+* ....EJB
+*
 * Revision 1.56  2004/11/29 16:05:21  bylaska
 * Finite difference stresses added to PSPW, BAND, and PAW modules.
 *    - This is currently the default for BAND and PAW
@@ -5080,7 +5085,7 @@ c     end if
 
 *     ***********************
 *     *                     *
-*     *     epsi_DOS         *
+*     *     epsi_DOS        *
 *     *                     *
 *     ***********************
 

@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.6 2004-11-29 16:05:17 bylaska Exp $
+* $Id: band_structure.F,v 1.7 2004-12-21 16:58:35 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -11,9 +11,10 @@
 *                                                                     *
 ***********************************************************************
 
-      logical function band_structure(rtdb)
+      logical function band_structure(rtdb,flag)
       implicit none
       integer rtdb
+      integer flag
 
 
 #include "global.fh"
@@ -42,6 +43,8 @@
       real*8  dipole(3)
       real*8  stress(3,3)
 
+      integer eigs_dos(2),dosgrid(3)
+
 *     **** gradient variables ****
       integer fion(2)
 
@@ -54,7 +57,7 @@
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
       real*8  pathlength,dist,kold(3)
-      integer i,k,ia,nion,vers,nbrillioun,icharge
+      integer i,k,ia,nion,vers,nbrillioun,icharge,isize,indx
       integer mapping
       character*255 full_filename
 
@@ -420,6 +423,17 @@
       end if
 
 
+*     **** DOS calculation ****
+      if (flag.eq.1) then
+        if (taskid.eq.MASTER) write(luout,*) "DOS of states calculation"
+        call control_dos_grid_structure(dosgrid)
+
+
+*     **** band structure calculation ****
+      else
+       if (taskid.eq.MASTER) write(luout,*) "band structure calculation"
+      end if
+
 
       call control_reset_band_structure()
       do k=1,control_num_kvectors_structure()
@@ -473,6 +487,18 @@
         end if
       end if
       value = cpsi_initialize(ortho)
+
+
+*     **** allocate eigs_dos if first iteration ****
+      if ((flag.eq.1).and.(k.eq.1).and.(taskid.eq.MASTER)) then
+        isize = dosgrid(1)*dosgrid(2)*dosgrid(3)*(cpsi_ne(1)+cpsi_ne(2))
+        value = MA_alloc_get(mt_dbl,isize,
+     >                       'eigs_dos',eigs_dos(2),eigs_dos(1))
+        if (.not. value)
+     >   call errquit('band_structure:out of heap memory',0, MA_ERR)
+      end if
+
+
 
 *     **** electron and geodesic data structures ****
       call c_electron_init()
@@ -532,6 +558,21 @@
      >      write(59,'(1000E14.6)') pathlength,
      >          (cpsi_eigenvalue(nb,2,i),i=1,cpsi_ne(2))
          
+           if (flag.eq.1) then
+            do i=1,cpsi_ne(1)
+             indx = eigs_dos(1) 
+     >            + (k-1) 
+     >            + (i-1)*dosgrid(1)*dosgrid(2)*dosgrid(3)
+             dbl_mb(indx) = cpsi_eigenvalue(nb,1,i)
+            end do
+            do i=1,cpsi_ne(2)
+             indx = eigs_dos(1) 
+     >            + (k-1) 
+     >            + (i-1+cpsi_ne(1))*dosgrid(1)*dosgrid(2)*dosgrid(3)
+             dbl_mb(indx) = cpsi_eigenvalue(nb,2,i)
+            end do
+           end if
+                  
       end if
 
 
@@ -566,7 +607,11 @@
       
 
 *     **** deallocate heap memory ****
-      value = MA_free_heap(vall(2))
+
+      value = MA_free_heap(vall(2)) 
+      if ((flag.eq.1).and.(taskid.eq.MASTER))      ! deallocate eigs_dos
+     >  value = value.and.MA_free_heap(eigs_dos(2)) 
+      
       call ion_end()
       call C3dB_end(1)
       IF (control_gga().eq.1) THEN
