@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf)
 c
-c $Id: pre_mknoe.F,v 1.7 2000-03-29 18:41:22 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.8 2000-03-30 01:01:00 d3j191 Exp $
 c
       implicit none
 c
@@ -131,7 +131,6 @@ c
       open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
      + form='formatted',status='old',err=999)
       rewind(lfncmd)
-      print*,'opened:',filcmd
 c
     1 continue
 c
