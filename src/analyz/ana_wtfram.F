@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,iwsel)
 c
-c $Id: ana_wtfram.F,v 1.22 2000-07-27 15:46:50 bjohnson Exp $
+c $Id: ana_wtfram.F,v 1.23 2000-07-27 20:16:03 d3j191 Exp $
 c
       implicit none
 c
@@ -139,14 +139,25 @@ c
       endif
 c
       if(fmt.eq.'amb') then
+      if(lxw.and..not.lsonly) then
+      write(iunit,3000) ((1.0d1*(x(i,j)+0.5d0*box(j)),j=1,3),i=1,nsa),
+     + (((1.0d1*(w(i,j,k)+0.5d0*box(k)),k=1,3),j=1,nwa),i=1,nwm)
+      else
       write(iunit,3000) ((1.0d1*(x(i,j)+0.5d0*box(j)),j=1,3),i=1,nsa)
+      endif
 c      write(iunit,3000) (1.0d1*box(j),j=1,3)
  3000 format(10f8.3)
       endif
 c
       if(fmt.eq.'bam') then
+      if(lxw.and..not.lsonly) then
+      write(iunit) ((real(1.0d1*(x(i,j)+0.5d0*box(j))),j=1,3),i=1,nsa),
+     + (((1.0d1*(w(i,j,k)+0.5d0*box(k)),k=1,3),j=1,nwa),i=1,nwm),
+     + (real(1.0d1*box(j)),j=1,3)
+      else
       write(iunit) ((real(1.0d1*(x(i,j)+0.5d0*box(j))),j=1,3),i=1,nsa),
      + (real(1.0d1*box(j)),j=1,3)
+      endif
       endif
 c
       if(fmt.eq.'eci') then
