@@ -1,9 +1,12 @@
-# $Id: INSTALL,v 1.1 1998-07-28 19:53:40 d3e129 Exp $
+# $Id: INSTALL,v 1.2 1999-08-02 18:16:28 d3e129 Exp $
 
-To run the java support tool you need to have java 1.1 since the tool
+To run the java support tool you need to have java 1.1.X since the tool
 is based on that version of the java.awt event handling.  This tool
 allows users to attach input, output, and one other file (e.g., error
 file on an IBM SP) without "cutting and pasting"
+
+The tool also works with java 1.2 but we still see bugs in this 
+environment regarding color maps and window positions (but it works).
 
 put all the *.class and *.gif files in the distribution in the
 appropriate place on your system e.g., /usr/local/lib/classes

@@ -1,4 +1,4 @@
-// $Id: NWChem.java,v 1.4 1998-07-28 19:17:50 d3e129 Exp $
+// $Id: NWChem.java,v 1.5 1999-08-02 18:15:13 d3e129 Exp $
 
 import java.net.Socket;
 import java.io.*;
@@ -6,6 +6,7 @@ import java.net.*;
 import java.util.*;
 import java.lang.*;
 import java.awt.*;
+import java.awt.Color;
 import java.awt.event.*;
 import java.awt.image.*;
 
@@ -561,11 +562,11 @@ public void clickedButton1()
 
 ////////sends the courtesy copies if textfields have been filled
 	if (edit3.getText().length() > 0)
-	{	support.addMailTo(edit3.getText()); 	}
+	{	support.setMailCC(edit3.getText()); 	}
 	if (edit7.getText().length() > 0)
-	{	support.addMailTo(edit7.getText());	}
+	{	support.setMailCC(edit7.getText());	}
 	if (edit8.getText().length() > 0)
-	{ 	support.addMailTo(edit8.getText());	}
+	{ 	support.setMailCC(edit8.getText());	}
 
 ////////subject is set to text from textfield edit2
 	String subject = edit2.getText().toString();
@@ -591,23 +592,23 @@ public void clickedButton1()
 	if (group1.getSelectedCheckbox() == check2 )
 	{
 	String receipt = "X-Special: Receipt";
-	support.addMailMessage(receipt);
+	support.setMailHeader(receipt);
 	}
 ////////all other flags
 	String bug = "X-Bug: " + choice2.getSelectedItem();
-	support.addMailMessage(bug);
+	support.setMailHeader(bug);
 
 	String Module = "X-Module: " + choice3.getSelectedItem();
-	support.addMailMessage(Module);
+	support.setMailHeader(Module);
 
 	String Operation = "X-Operation: " + choice4.getSelectedItem();
-	support.addMailMessage(Operation);
+	support.setMailHeader(Operation);
 
 	String Platform = "X-Platform: " + choice5.getSelectedItem();
-	support.addMailMessage(Platform);
+	support.setMailHeader(Platform);
 
 	String Priority = "X-Priority: " + choice1.getSelectedItem();
-	support.addMailMessage(Priority);
+	support.setMailHeader(Priority);
 	
     	String message = "--- QMH Annotations ---";
 //    	support.addMailMessage(message);
@@ -691,22 +692,42 @@ public void clickedButton1()
 			String message18 = File2.readLine();
 			support.addMailMessage(message18);}}
 
+/*
 ////////if all has been entered correctly, dialog box reading "You're message has been submitted" appears
 ////////and screen is reset
 
 	if  (support.sendMail() == true) {
 		waiting2.setVisible(false);
-        	submitted thesubmitted = new submitted();
+        submitted thesubmitted = new submitted();
 		thesubmitted.setVisible(true);
-        	clickedButton2();
-    		}
-
-	else if (support.sendMail() == false) 
-	{
+        clickedButton2();
+    }else if (support.sendMail() == false) {
 		waiting2.setVisible(false);
 		notsent notsentyet = new notsent();
 //		notsentyet.setVisible(true);
-}	
+}	*/
+	
+/**
+ * Modification by Chris Parkinson  26th March 1999
+ * Bug fixing old Email classes. The Email class has now
+ * been split into 2 : a Email class that just stores the
+ * contents of an Email; and a SendMail class that sends
+ * a single Email object. 
+ * To accomodare these changes the following code change has been made
+ */
+
+//Send the Email
+	SendMail sendMail = new SendMail(null);
+	sendMail.setEmail(support);
+	sendMail.start(); 	    //Start the mailing process
+	waiting2.setVisible(false);
+
+	//Did this get sent successfully
+	if (sendMail.isCancelled()==false) {
+	  	submitted thesubmitted = new submitted();
+		thesubmitted.setVisible(true);
+        clickedButton2();
+	}
 
 } catch (IOException e) {System.out.println("Error:" + e.toString());}
 		
@@ -737,7 +758,6 @@ try {
     	choice1.select("user_priority");
     	choice2.select("Problem?");
     	choice3.select("Module/Theory?");
-//    	choice3.select("Module/Theory?");
     	choice4.select("Operation?");
     	choice5.select("Platform?");
 
