@@ -1,7 +1,7 @@
       logical function pre_sgmfil(sgmnam,lfnsgm,filsgm,
      + dir_s,dir_x,dir_u,dir_t)
 c
-c $Id: pre_sgmfil.F,v 1.3 1998-04-29 18:35:24 d3j191 Exp $
+c $Id: pre_sgmfil.F,v 1.4 1998-04-29 22:46:53 d3j191 Exp $
 c
       implicit none
 c
@@ -73,7 +73,7 @@ c
       lend=index(dir_s,' ')-1
       if(lend.le.0) goto 4
 c
-      filsgm=dir_x(1:lend)//sgmnam(1:lens)//'.sgm '
+      filsgm=dir_s(1:lend)//sgmnam(1:lens)//'.sgm '
       lenf=index(filsgm,' ')-1
 c
       open(unit=lfnsgm,file=filsgm(1:lenf),form='formatted',
