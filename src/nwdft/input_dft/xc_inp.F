@@ -43,7 +43,7 @@ c     cpkzb99 => 3650
 
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs = 47,numfunc=30)
+      parameter (num_dirs = 48,numfunc=30)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -68,7 +68,7 @@ c
      ,     'becke98','pbe0','becke97gga1','hcth407','hcthp14',
      ,     'optx','optc','becke97-2','mpw91',
      ,     'ft97','xft97','cft97',
-     &     'xpkzb99','mpw1k', 'cpkzb99' /
+     &     'xpkzb99','mpw1k', 'cpkzb99','hcth407p'/
 
 c
 c     Only these few arrays are initialized (not defaults).
@@ -99,7 +99,7 @@ c
      ,      2100,2200,2300, 2400, 
      ,     2500, 2600, 2700, 2510, 2610, 2710,1812,1847,2800,2900,
      , 3000, 3100,3200,3300,3400,3500,3700,3800,3810,3820,
-     &  3600,4000, 3650,
+     &  3600,4000, 3650, 3110,
      ,     1999) ind
       call errquit('xc_inp: unimplemented directive', ind)
 c     
@@ -337,6 +337,21 @@ c
          lcfac(20) = .true.
          nlcfac(20) = .true.
          cfac(20) = 1.0d0
+       goto 10
+c     
+c     HCTH407p by Boese
+c     
+ 3110  continue
+c
+c        assume total wanted
+c     
+       xccomb(17) = .true.
+         lxfac(20) = .true.
+         nlxfac(20) = .true.
+         xfac(20)= 1.0d0
+         lcfac(26) = .true.
+         nlcfac(26) = .true.
+         cfac(26) = 1.0d0
        goto 10
 c     
 c     HCTHP14 by Tozer
@@ -1311,7 +1326,8 @@ c
      &       /,' [xft97]',
      &       /,' [cft97]',
      &       /,' [xpkzb99]',
-     &       /,' [cpkzb99]')
+     &       /,' [cpkzb99]',
+     &       /,' [hcth407p]')
  
       call util_flush(LuOut)
       call errquit('xc_input: invalid format', 0)
