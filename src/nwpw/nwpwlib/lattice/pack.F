@@ -1,3 +1,6 @@
+*
+* $Id: pack.F,v 1.3 2001-12-12 02:42:27 bylaska Exp $
+*
 
 
 *     ***********************************
@@ -37,6 +40,7 @@
       integer nb
       integer nx,ny,nz,nq
       integer nxh,nyh,nzh      
+      integer nwave_in(0:1),nwave_out(0:1)
 
 
 
@@ -138,10 +142,15 @@
 
       end do
 
-      call Balance_Init(2,nida,nidb,nidb2)
+      nwave_in(0) = nida(0) + nidb(0)
+      nwave_in(1) = nida(1) + nidb(1)
+      call Balance_Init(2,nwave_in,nwave_out)
+      nidb2(0) = nidb(0) + (nwave_out(0)-nwave_in(0))
+      nidb2(1) = nidb(1) + (nwave_out(1)-nwave_in(1))
 
       nwave_all(0) = nida(0) + nidb(0)
       nwave_all(1) = nida(1) + nidb(1)
+
       call D3dB_ISumAll(nwave_all(0))
       call D3dB_ISumAll(nwave_all(1)) 
 
@@ -236,7 +245,7 @@
       if (.not.value) call errquit('error popping stack',0)
 
 
-      call Pack_c_balance(nb,A)
+      call Balance_c_balance(nb,A)
 
       call current_second(tim2)
       times(9) = times(9) + (tim2-tim1)
@@ -300,7 +309,7 @@
       value = MA_pop_stack(tmp1(2))
       if (.not.value) call errquit('error popping stack',0)
 
-      call Pack_t_balance(nb,A)
+      call Balance_t_balance(nb,A)
 
       call current_second(tim2)
       times(9) = times(9) + (tim2-tim1)
@@ -354,7 +363,7 @@ c      integer indx1,indx2
       call current_second(tim1)
 
 
-      call Pack_c_unbalance(nb,A)
+      call Balance_c_unbalance(nb,A)
 
       call D3dB_nfft3d(1,nfft3d)
       

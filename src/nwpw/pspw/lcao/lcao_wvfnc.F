@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.7 2001-12-06 18:16:39 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.8 2001-12-12 02:42:27 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint,it_max,
      >                      wavefunction_filename,
@@ -274,7 +274,7 @@ c     call lcao_diis_init(5,ispin,nbasis)
      >                 hmatrix(ms))
    
 *          **** diagonalize spin hamiltonian ****
-           call ga_diag_reuse(it,
+           call ga_diag(
      >                  hmatrix(ms),
      >                  smatrix,
      >                  psimatrix(ms),

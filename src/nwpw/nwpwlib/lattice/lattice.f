@@ -1,8 +1,8 @@
+*
+* $Id: lattice.f,v 1.2 2001-12-12 02:42:27 bylaska Exp $
+*
 
       real*8 function lattice_wcut()
-*
-* $Id: lattice.f,v 1.1 2001-08-30 18:31:38 bylaska Exp $
-*
       implicit none
 
 *     **** common block ****
@@ -109,7 +109,9 @@
       real*8  ecut0,wcut0
 
 *     **** external functions ****
+      integer  control_ngrid
       real*8   control_unita,control_ecut,control_wcut
+      external control_ngrid
       external control_unita,control_ecut,control_wcut
         
       ecut0 = control_ecut()
@@ -127,9 +129,12 @@
 
 
 *     *** set the ecut variable ***
-      call D3dB_nx(1,nx)
-      call D3dB_ny(1,ny)
-      call D3dB_nz(1,nz)
+c     call D3dB_nx(1,nx)
+c     call D3dB_ny(1,ny)
+c     call D3dB_nz(1,nz)
+      nx = control_ngrid(1)
+      ny = control_ngrid(2)
+      nz = control_ngrid(3)
       nxh = nx/2
       nyh = ny/2
       nzh = nz/2

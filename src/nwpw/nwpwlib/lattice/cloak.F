@@ -1,5 +1,5 @@
 *
-* $Id: cloak.F,v 1.3 2001-12-08 01:06:38 bylaska Exp $
+* $Id: cloak.F,v 1.4 2001-12-12 02:42:26 bylaska Exp $
 *
 
 *     *******************************
@@ -225,3 +225,20 @@
       cloak_nwave_all = nwave_all
       return
       end
+
+*     *******************************
+*     *								*
+*     *	        cloak_masker     *
+*     *								*
+*     *******************************
+      logical function cloak_masker(i)
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+#include "cloak_common.fh"
+
+      cloak_masker = log_mb(masker(1)+i-1) 
+      return
+      end
+

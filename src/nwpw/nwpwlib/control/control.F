@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.8 2001-12-06 18:16:38 bylaska Exp $
+* $Id: control.F,v 1.9 2001-12-12 02:42:26 bylaska Exp $
 *
 
 *     ***********************************
@@ -292,6 +292,8 @@
      >        rtdb_get(rtdb,'band:rcut',mt_dbl,1,rcut)     
       value = value.and.
      >        rtdb_get(rtdb,'band:ncut',mt_int,1,ncut)
+
+
 
 *     **** unknown code type ****
 
@@ -1098,13 +1100,13 @@
 
 *     ****************************
 *     *                	 		 *
-*     *      control_kvector	 *
+*     *      control_ksvector	 *
 *     *                 	 	 *
 *     ****************************
-      subroutine control_kvector(i,kv)
+      subroutine control_ksvector(i,ks)
       implicit none
       integer i
-      real*8 kv(3)
+      real*8 ks(3)
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -1127,9 +1129,14 @@
       num_kvectors = control_num_kvectors()
       value = MA_push_get(mt_dbl,(3*num_kvectors),
      >        'kvs',kvs(2),kvs(1))
+      if (.not. value)
+     >  call errquit('control_ksvector: failed to get zone name', 0)
 
       value = value.and.
      >        rtdb_cget(rtdb,'band:zone_name',1,zone_name)
+      if (.not. value)
+     >  call errquit('control_ksvector: failed to get zone name', 0)
+
       l = index(zone_name,' ') -1
       rtdb_name = zone_name(1:l)//':kvectors'
       value = value.and.
@@ -1137,14 +1144,49 @@
      >                   (3*num_kvectors),
      >                    dbl_mb(kvs(1)))
 
-      kv(1) = dbl_mb(kvs(1)+3*(i-1))
-      kv(2) = dbl_mb(kvs(1)+3*(i-1)+1)
-      kv(3) = dbl_mb(kvs(1)+3*(i-1)+2)
+      if (.not. value)
+     >  call errquit('control_ksvector: failed to get kvs', 0)
 
-      value = value.and.MA_free_heap(kvs(2))
+      ks(1) = dbl_mb(kvs(1)+3*(i-1))
+      ks(2) = dbl_mb(kvs(1)+3*(i-1)+1)
+      ks(3) = dbl_mb(kvs(1)+3*(i-1)+2)
+
+      value = value.and.MA_pop_stack(kvs(2))
 
       if (.not. value)
-     >  call errquit('control_kvector: failed', 0)
+     >  call errquit('control_ksvector: failed to free stack', 0)
+      return
+      end
+
+*     ****************************
+*     *                	 		 *
+*     *      control_kvector	 *
+*     *                 	 	 *
+*     ****************************
+      subroutine control_kvector(i,kv)
+      implicit none
+      integer i
+      real*8  kv(3)
+
+*     **** local variables ****
+      real*8 ks(3)
+
+*     **** external functions ****
+      real*8   lattice_unitg
+      external lattice_unitg
+
+      call control_ksvector(i,ks)
+
+      kv(1) = ks(1)*lattice_unitg(1,1)
+     >      + ks(2)*lattice_unitg(1,2)
+     >      + ks(3)*lattice_unitg(1,3)
+      kv(2) = ks(1)*lattice_unitg(2,1)
+     >      + ks(2)*lattice_unitg(2,2)
+     >      + ks(3)*lattice_unitg(2,3)
+      kv(3) = ks(1)*lattice_unitg(3,1)
+     >      + ks(2)*lattice_unitg(3,2)
+     >      + ks(3)*lattice_unitg(3,3)
+
       return
       end
 

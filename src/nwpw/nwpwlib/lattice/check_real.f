@@ -1,3 +1,8 @@
+*
+* $Id: check_real.f,v 1.2 2001-12-12 02:42:26 bylaska Exp $
+*
+
+
       subroutine Check_Real(nx,ny,nz,nfft3d,A)
       implicit none
       integer nx,ny,nz,nfft3d

@@ -1,8 +1,8 @@
+*
+* $Id: mask_init.F,v 1.2 2001-12-12 02:42:27 bylaska Exp $
+*
 
       subroutine mask_end()
-*
-* $Id: mask_init.F,v 1.1 2001-08-30 18:31:38 bylaska Exp $
-*
       implicit none
 
 #include "mafdecls.fh"

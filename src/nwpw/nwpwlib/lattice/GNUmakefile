@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2001-12-08 01:06:38 bylaska Exp $
+# $Id: GNUmakefile,v 1.5 2001-12-12 02:42:26 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -7,9 +7,11 @@
 			mask_init.o \
             pack.o \
 			cloak.o \
+			cram.o \
 			balance.o \
 			G_init.o \
 			strfac.o \
+			cstrfac.o \
             dipole.o
 
 

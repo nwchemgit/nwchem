@@ -1,14 +1,14 @@
 *
-* $Id: strfac.F,v 1.2 2001-12-12 02:42:27 bylaska Exp $
+* $Id: cstrfac.F,v 1.1 2001-12-12 02:42:26 bylaska Exp $
 *
 
 *     ***********************************
 *     *					*
-*     *		strfac_init		*
+*     *		cstrfac_init		*
 *     *					*
 *     ***********************************
 
-      subroutine strfac_init()
+      subroutine cstrfac_init()
       implicit none
 
 #include	"mafdecls.fh"
@@ -18,7 +18,7 @@ c     complex*16 ex1(0:nfft1-1,natmx)
 c     complex*16 ex2(0:nfft2-1,natmx)
 c     complex*16 ex3(0:nfft3-1,natmx)
       integer ex1(2),ex2(2),ex3(2)
-      common / strfac_block / ex1,ex2,ex3
+      common / cstrfac_block / ex1,ex2,ex3
 
       integer nion,nx,ny,nz
       logical value
@@ -28,9 +28,9 @@ c     complex*16 ex3(0:nfft3-1,natmx)
       external ion_nion
 
       nion = ion_nion()
-      call D3dB_nx(1,nx)
-      call D3dB_ny(1,ny)
-      call D3dB_nz(1,nz)
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
        
 
       value = MA_alloc_get(mt_dcpl,(nx*nion),'ex1',ex1(2),ex1(1))
@@ -45,11 +45,11 @@ c     complex*16 ex3(0:nfft3-1,natmx)
 
 C     ***********************************
 C     *					*
-C     *		strfac_end 		*
+C     *		cstrfac_end 		*
 C     *					*
 C     ***********************************
 
-      subroutine strfac_end()
+      subroutine cstrfac_end()
       implicit none
 
 #include "mafdecls.fh"
@@ -59,7 +59,7 @@ c     complex*16 ex1(0:nfft1-1,natmx)
 c     complex*16 ex2(0:nfft2-1,natmx)
 c     complex*16 ex3(0:nfft3-1,natmx)
       integer ex1(2),ex2(2),ex3(2)
-      common / strfac_block / ex1,ex2,ex3
+      common / cstrfac_block / ex1,ex2,ex3
 
       logical value
 
@@ -72,7 +72,7 @@ c     complex*16 ex3(0:nfft3-1,natmx)
 
 C     ***********************************
 C     *					*
-C     *		PHAFAC			*
+C     *		CPHAFAC			*
 C     *					*
 C     ***********************************
 C
@@ -84,7 +84,7 @@ C	Exit -
 C
 C  	Uses - ion data structure
 C
-      subroutine phafac()
+      subroutine cphafac()
       implicit none
 
 #include	"mafdecls.fh"
@@ -94,7 +94,7 @@ c     complex*16 ex1(0:nfft1-1,natmx)
 c     complex*16 ex2(0:nfft2-1,natmx)
 c     complex*16 ex3(0:nfft3-1,natmx)
       integer ex1(2),ex2(2),ex3(2)
-      common / strfac_block / ex1,ex2,ex3
+      common / cstrfac_block / ex1,ex2,ex3
 
 
 
@@ -128,9 +128,9 @@ c     complex*16 ex3(0:nfft3-1,natmx)
 
       pi = 4.0d0*datan(1.0d0)
 
-      call D3dB_nx(1,nx)
-      call D3dB_ny(1,ny)
-      call D3dB_nz(1,nz)
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
 
 *::::::::::::::::::  phase factor of ion positions  :::::::::::::::::::
       do i=1,ion_nion()
@@ -203,7 +203,7 @@ C .. End PhaFac ....
 
 C      **********************************
 C      *				*
-C      *	STRFAC 			*
+C      *	CSTRFAC 			*
 C      *				*
 C      **********************************
 C
@@ -214,7 +214,7 @@ C	Entry - II: the Ion index
 C	Exit  - EXI: the structure factor
 C
 C
-      subroutine strfac(II,exi)
+      subroutine cstrfac(II,exi)
       implicit none
       integer    II
       complex*16 exi(*)
@@ -226,7 +226,7 @@ c     complex*16 ex1(0:nfft1-1,natmx)
 c     complex*16 ex2(0:nfft2-1,natmx)
 c     complex*16 ex3(0:nfft3-1,natmx)
       integer ex1(2),ex2(2),ex3(2)
-      common / strfac_block / ex1,ex2,ex3
+      common / cstrfac_block / ex1,ex2,ex3
 
 
 *     1 - fft_time
@@ -253,19 +253,19 @@ c     complex*16 ex3(0:nfft3-1,natmx)
       call current_second(tim1)
 
       call Parallel_taskid(taskid)
-      call D3dB_nx(1,nx)
-      call D3dB_ny(1,ny)
-      call D3dB_nz(1,nz)
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
       nxh=nx/2
 
 *::::::::::::::::  structure factor ::::::::::::::::::::::::::::::::
       do k=0,nz-1
-         call D3dB_ktoqp(1,(k+1),q,p)
+         call C3dB_ktoqp(1,(k+1),q,p)
          if (p.eq.taskid) then
             do j=0,ny-1
-            do i=0,nxh
-                index = (q-1)*(nxh+1)*ny
-     >                + j*(nxh+1)
+            do i=0,nx-1
+                index = (q-1)*(nx)*ny
+     >                + j*(nx)
      >                + i+1
                 exi(index) = dcpl_mb(ex1(1)+i+(II-1)*nx)
      >                     * dcpl_mb(ex2(1)+j+(II-1)*ny)

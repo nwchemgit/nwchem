@@ -1,13 +1,17 @@
+*
+* $Id: balance.F,v 1.3 2001-12-12 02:42:26 bylaska Exp $
+*
+
 *     ***********************************
 *     *               			*
 *     *           Balance_Init 	        *
 *     *                 		*
 *     ***********************************
 
-      subroutine Balance_Init(maxsize0,nida,nidb,nidb_out)
+      subroutine Balance_Init(maxsize0,nidb,nidb_out)
       implicit none
       integer maxsize0
-      integer nida(0:maxsize0-1),nidb(0:maxsize0-1)
+      integer nidb(0:maxsize0-1)
       integer nidb_out(0:maxsize0-1)
 
 #include "mafdecls.fh"
@@ -95,7 +99,7 @@
 
 
       do nb=0,maxsize-1
-         nwave = nida(nb)+nidb(nb)
+         nwave = nidb(nb)
          call Balance_Init_a(nwave,np,taskid,nwave_out,
      >      int_mb(npacket_list(1) +nb),
      >      log_mb(receiver_list(1)+nb),
@@ -106,7 +110,6 @@
      >      int_mb(int_mb(indx_start_list(1) +2*nb)))
 
          nidb_out(nb) = nidb(nb) + (nwave_out-nwave)
-
       end do
 
       return
@@ -371,7 +374,7 @@ c        ave = ave + nwave2(i)
       end 
 
 
-      subroutine Pack_c_balance(nb,A)
+      subroutine Balance_c_balance(nb,A)
       implicit none
       integer nb
       complex*16 A(*)
@@ -425,7 +428,7 @@ c            recieve data....
 
 
 
-      subroutine Pack_t_balance(nb,A)
+      subroutine Balance_t_balance(nb,A)
       implicit none
       integer nb
       real*8 A(*)
@@ -480,7 +483,7 @@ c            recieve data....
 
 
 
-      subroutine Pack_c_unbalance(nb,A)
+      subroutine Balance_c_unbalance(nb,A)
       implicit none
       integer nb
       complex*16 A(*)

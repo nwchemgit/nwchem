@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.1 2001-11-19 17:54:01 bylaska Exp $
+* $Id: band_minimizer.F,v 1.2 2001-12-12 02:42:25 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -48,7 +48,7 @@
 
 *     **** lattice variables ****
       integer ngrid(3),nwave,nfft3d,n2ft3d
-    
+      real*8 ks(3),kv(3)
 
 *     ***** energy variables ****
       real*8  E(10)
@@ -94,6 +94,16 @@
       character*12 control_boundry
       external     control_boundry
 
+      integer  control_num_kvectors
+      external control_num_kvectors
+
+      integer  Cram_nwave_all,Cram_nwave
+      external Cram_nwave_all,Cram_nwave
+
+      integer  c_ewald_ncut
+      real*8   c_ewald_rcut,c_ewald_mandelung,c_ewald_e
+      external c_ewald_ncut
+      external c_ewald_rcut,c_ewald_mandelung,c_ewald_e
 
 
 
@@ -160,8 +170,7 @@
 *     **** initialize lattice data structure ****
       call lattice_init()
       call G_init()
-c     call mask_init()
-c     call Pack_init()
+      call Cram_init()
 
 
 
@@ -171,8 +180,8 @@ c     call Pack_init()
       call center_mass(gx,gy,gz)
 
 
-
-*     **** initialize G,mask,ke,and coulomb data structures ****
+*     **** initialize ke,and coulomb data structures ****
+      call c_ewald_init()
 
 
 
@@ -180,6 +189,7 @@ c     call Pack_init()
 ******************   summary of input data  **********************
 *                |**************************|
 
+      value = rtdb_parallel(.false.)
       if (taskid.eq.MASTER) then
          write(6,1111) np
          write(6,1115)
@@ -222,12 +232,34 @@ c     call Pack_init()
      >                 lattice_unitg(2,3),
      >                 lattice_unitg(3,3)
          write(6,1231) lattice_omega()
+         write(6,1260) c_ewald_rcut(),c_ewald_ncut()
+         write(6,1261) c_ewald_mandelung()
+
+         ia = control_num_kvectors()
+         write(6,1255)
+         write(6,1256) ia
+         do i=1,ia
+           call control_ksvector(i,ks)
+           call control_kvector(i,kv)
+           write(6,1257) ks,kv
+         end do
+
+         write(6,1249)
+         write(6,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
+     >                 Cram_nwave_all(0),Cram_nwave(0)
+         do i=1,ia
+           write(6,1251) i,lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
+     >                 Cram_nwave_all(i),Cram_nwave(i)
+         end do
+
+
          write(6,1270)
          write(6,1280) control_time_step(),control_fake_mass()
          write(6,1290) control_tole(),control_tolc(),control_tolr()
          write(6,1300)
          call util_flush(6)
       end if
+      value = rtdb_parallel(.true.)
 
 
 
@@ -292,8 +324,14 @@ c     call Pack_init()
 ******************         Epilogue          **********************
 *                |***************************|
 
-*     **** calculate Mulliken Populations ***
+      
+      call cphafac()
+      e(5) = c_ewald_e()
+      if (taskid.eq.MASTER) then
+      write(6,1470) E(5),E(5)/ion_nion()
+      end if
 
+*     **** calculate Mulliken Populations ***
 
 *     **** write geometry to rtdb ****
       call ion_write(rtdb)
@@ -301,6 +339,8 @@ c     call Pack_init()
 *     **** write wavefunctions to file and finalize psi ****
 
 *     **** deallocate heap memory ****
+      call c_ewald_end()
+      call Cram_end()
       call G_end()
       call ion_end()
       call C3dB_end(1)
@@ -391,13 +431,20 @@ c    >                     linesearch_count(),' line searches)'
  1245 FORMAT(5x,'          b2=<',3f8.3,' >')
  1246 FORMAT(5x,'          b3=<',3f8.3,' >')
 
- 1250 FORMAT(5X,' density cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
+ 1249 FORMAT(/' computation grids:')
+ 1250 FORMAT(5X,' density     cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
- 1251 FORMAT(5X,' wavefnc cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
+ 1251 FORMAT(5X,' wavefnc ',I3,' cutoff=',F7.3,
+     &        '  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
   
+ 1255 FORMAT(/' brillouin zone:')
+ 1256 FORMAT(5x,'number of zone points:',I3)
+ 1257 FORMAT(5x,'   ks=<',3f8.3,' >, k=<',3f8.3,'>')
+
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   mandelung=',f11.8)
+ 
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictacious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,

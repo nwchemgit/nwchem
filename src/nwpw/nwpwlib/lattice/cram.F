@@ -1,132 +1,167 @@
 *
-* $Id: cram.F,v 1.2 2001-12-11 19:02:40 bylaska Exp $
+* $Id: cram.F,v 1.3 2001-12-12 02:42:26 bylaska Exp $
 *
 
 *     ***********************************
-*     *					*
-*     *	          Cram_Init		*	
-*     *					*
+*     *									*
+*     *	          Cram_Init				*	
+*     *									*
 *     ***********************************
-
-      subroutine Cram_Init(maxsize0)
+  
+      subroutine Cram_Init()
       implicit none
-      integer maxsize0
 
 #include "mafdecls.fh"
 #include "cram_common.fh"
 
 
 *     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
       logical value
-      
-      maxsize = maxsize0
-
-
-      value = MA_alloc_get(mt_int,maxsize,
-     >                     'nida_list',
-     >                     nida_list(2),
-     >                     nida_list(1))
-      value = value.and.
-     >        MA_alloc_get(mt_int,maxsize,
-     >                     'nidb_list',
-     >                     nidb_list(2),
-     >                     nidb_list(1))
-      value = value.and.
-     >        MA_alloc_get(mt_int,maxsize,
-     >                     'nidb_list',
-     >                     nidb_list(2),
-     >                     nidb_list(1))
-      value = value.and.
-     >        MA_alloc_get(mt_int,maxsize,
-     >                     'nidb2_list',
-     >                     nidb2_list(2),
-     >                     nidb2_list(1))
-      value = value.and.
-     >        MA_alloc_get(mt_int,maxsize,
-     >                     'nwaveall_list',
-     >                     nwaveall_list(2),
-     >                     nwaveall_list(1))
-      value = value.and.
-     >        MA_alloc_get(mt_int,maxsize,
-     >                     'pack_list',
-     >                     pack_list(2),
-     >                     pack_list(1))
-      value = value.and.
-     >        MA_alloc_get(mt_int,maxsize,
-     >                     'pack_tag',
-     >                     pack_tag(2),
-     >                     pack_tag(1))
-      if (.not. value) call errquit('Cram_init: out of heap memory',0)
-
-      call cloak_init()
-       
-      return 
-      end
-
-*     ***********************************
-*     *					*
-*     *	          Cram_start		*	
-*     *					*
-*     ***********************************
-
-      subroutine Cram_start(nb,kvector,ecut)
-      implicit none
-      integer nb
-      real*8  kvector(3)
-      real*8  ecut
-
-#include "mafdecls.fh"
-#include "cram_common.fh"
-
-
-*     **** local variables ****
-      logical value
-      integer taskid,nfft3d
+      integer nfft3d
       integer i,j,k
       integer k1,k2,k3
       integer q,p,indx
       integer nb
-      integer nx,ny,nz,nq
+      integer nx,ny,nz
       integer nxh,nyh,nzh      
-      integer pack(2)
+      integer pack(2),nidb
+      real*8  kv(3),ecut
 
-*     **** allocate pack memory ****
+*     **** external functions ****
+      logical  cloak_masker
+      integer  control_num_kvectors
+      real*8   lattice_ecut,lattice_wcut
+      external cloak_masker
+      external control_num_kvectors
+      external lattice_ecut,lattice_wcut
+      
+      maxsize = control_num_kvectors()+1
+
+      value = MA_alloc_get(mt_int,maxsize,
+     >                     'nidb_list',
+     >                      nidb_list(2),
+     >                      nidb_list(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,maxsize,
+     >                     'nidb2_list',
+     >                      nidb2_list(2),
+     >                      nidb2_list(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,maxsize,
+     >                     'nwaveall_list',
+     >                      nwaveall_list(2),
+     >                      nwaveall_list(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,2*maxsize,
+     >                     'pack_list',
+     >                      pack_list(2),
+     >                      pack_list(1))
+      if (.not. value) call errquit('Cram_init: out of heap memory',0)
+
+
+      call cloak_init()
+      call Parallel_taskid(taskid)
       call C3dB_nfft3d(1,nfft3d)
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
+      nxh = nx/2
+      nyh = ny/2
+      nzh = nz/2
 
-      value = MA_alloc_get(mt_int,nfft3d,
+      do nb=0,maxsize-1
+         value = MA_alloc_get(mt_int,nfft3d,
      >                     'pack',pack(2),pack(1))
-      if (.not. value) call errquit('Cram_start: out of heap memory',0)
+          if (.not. value) 
+     >     call errquit('Cram_init: out of heap memory',0)
 
-      int_mb(pack_list(1) + nb) = pack(1)
-      int_mb(pack_tag(1)  + nb) = pack(2)
+         int_mb(pack_list(1)+ 2*nb)   = pack(1)
+         int_mb(pack_list(1)+ 2*nb+1) = pack(2)
 
-      call cloak_set(kvector,ecut)
+         if (nb.eq.0) then
+            ecut = lattice_ecut()
+            kv(1) = 0.0d0
+            kv(2) = 0.0d0
+            kv(3) = 0.0d0
+         else
+            ecut = lattice_wcut()
+            call control_kvector(nb,kv)
+         end if
+         call cloak_set(kv,ecut)
 
+         nidb = 0
 
+*        **** k=(k1,k2,k3) **** 
+         do k=(-nzh+1),(nzh-1)
+         do j=(-nyh+1),(nyh-1)
+         do i=(-nxh+1),(nxh-1)
+            k1=i
+            k2=j
+            k3=k
+            if (k1.lt.0) k1 = k1 + nx
+            if (k2.lt.0) k2 = k2 + ny
+            if (k3.lt.0) k3 = k3 + nz
 
-      return
+            call C3dB_ktoqp(1,k3+1,q,p)
+            if (p.eq.taskid) then
+               indx = (q-1)*(nx)*ny + k2*(nx) + k1 + 1
+               if (.not.cloak_masker(indx)) then
+                  nidb = nidb + 1
+                  int_mb(pack(1)+nidb-1) = indx
+               end if
+            end if
+         end do
+         end do
+         end do
+
+         int_mb(nidb_list(1)+nb) = nidb
+      end do
+
+      call Balance_Init(maxsize,
+     >                  int_mb(nidb_list(1)),
+     >                  int_mb(nidb2_list(1)))
+
+      do nb=0,maxsize-1
+        int_mb(nwaveall_list(1)+nb) = int_mb(nidb_list(1)+nb)
+        call C3dB_ISumAll(int_mb(nwaveall_list(1)+nb))
+      end do
+
+      return 
       end
 
+
 *     ***********************************
-*     *					*
-*     *	          Cram_end		*	
-*     *					*
+*     *									*
+*     *	          Cram_end				*	
+*     *									*
 *     ***********************************
 
       subroutine Cram_end()
       implicit none
 
 #include "mafdecls.fh"
-#include "cram_block.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       logical value
-      integer 
+      integer dum2,nb
 
-      value = MA_free_heap(pack(2,0))
-      value = value.and.
-     >        MA_free_heap(pack(2,1))
-      if (.not. value) call errquit('error freeing heap memory',0)
+      value = .true.
+      do nb=0,maxsize-1
+         dum2 = int_mb(pack_list(1)+2*nb+1)
+         value = value.and.MA_free_heap(dum2)
+      end do
+      value = value.and.MA_free_heap(nidb_list(2))
+      value = value.and.MA_free_heap(nidb2_list(2))
+      value = value.and.MA_free_heap(nwaveall_list(2))
+      value = value.and.MA_free_heap(pack_list(2))
+
+      if (.not. value) 
+     >  call errquit('Cram_end:error freeing heap memory',0)
+
       call Balance_End()
       call cloak_end()
       return
@@ -136,29 +171,24 @@
 
 *     ***********************************
 *     *					*
-*     *	          Pack_c_pack		*	
+*     *	          Cram_c_pack		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_c_pack(nb,A)
+      subroutine Cram_c_pack(nb,A)
       implicit none
       integer    nb
       complex*16 A(*)
 
-#include "mafdecls.fh"
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb2(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb2
-      integer nidb(0:1)
-      common / pack2_blk / nidb
+#include "mafdecls.fh"  
+#include "cram_common.fh"
 
       
 *     **** local variables ****
       logical value
       integer i,nfft3d
       integer tmp1(2)
+      integer nidb,pack
 
 *     ***** timing variables *****
 *     1 - fft_time
@@ -177,23 +207,24 @@
       call current_second(tim1)
 
 
+      nidb = int_mb(nidb_list(1)+nb)
+      pack = int_mb(pack_list(1)+2*nb)
 
-      call D3dB_nfft3d(1,nfft3d)
+      call C3dB_nfft3d(1,nfft3d)
       value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) call errquit('out of stack memory',0)
 
       call dcopy(2*nfft3d,A,1,dcpl_mb(tmp1(1)),1)
       call dcopy(2*nfft3d,0.0d0,0,A,1)
 
-      do i=1,(nida(nb)+nidb(nb))
-        A(i) = dcpl_mb(tmp1(1) + int_mb(pack(1,nb)+i-1)-1)
+      do i=1,(nidb)
+        A(i) = dcpl_mb(tmp1(1) + int_mb(pack+i-1) - 1)
       end do
 
       value = MA_pop_stack(tmp1(2))
-      if (.not.value) call errquit('error popping stack',0)
+      if (.not.value) call errquit('Cram_c_pack:error popping stack',0)
 
-
-      call Pack_c_balance(nb,A)
+      call Balance_c_balance(nb,A)
 
       call current_second(tim2)
       times(9) = times(9) + (tim2-tim1)
@@ -202,30 +233,25 @@
       end
 
 *     ***********************************
-*     *					*
-*     *	          Pack_t_pack		*	
-*     *					*
+*     *									*
+*     *	          Cram_r_pack			*	
+*     *									*
 *     ***********************************
 
-      subroutine Pack_t_pack(nb,A)
+      subroutine Cram_r_pack(nb,A)
       implicit none
       integer nb
       real*8  A(*)
 
 #include "mafdecls.fh"
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb2(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb2
-      integer nidb(0:1)
-      common / pack2_blk / nidb
+#include "cram_common.fh"
 
       
 *     **** local variables ****
       logical value
       integer i,nfft3d
       integer tmp1(2)
+      integer nidb,pack
 
 *     ***** timing variables *****
 *     1 - fft_time
@@ -243,21 +269,25 @@
 
       call current_second(tim1)
 
+      nidb = int_mb(nidb_list(1)+nb)
+      pack = int_mb(pack_list(1)+2*nb)
 
-      call D3dB_nfft3d(1,nfft3d)
+      call C3dB_nfft3d(1,nfft3d)
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      if (.not.value) call errquit('out of stack memory',0)
+      if (.not.value) 
+     >  call errquit('Cram_r_pack:out of stack memory',0)
 
       call dcopy(nfft3d,A,1,dbl_mb(tmp1(1)),1)
       call dcopy(nfft3d,0.0d0,0,A,1)
-      do i=1,(nida(nb)+nidb(nb))
-        A(i) = dbl_mb(tmp1(1) + int_mb(pack(1,nb)+i-1) - 1)
+      do i=1,(nidb)
+        A(i) = dbl_mb(tmp1(1) + int_mb(pack+i-1) - 1)
       end do
 
       value = MA_pop_stack(tmp1(2))
-      if (.not.value) call errquit('error popping stack',0)
+      if (.not.value) 
+     >  call errquit('Cram_r_pack:error popping stack',0)
 
-      call Pack_t_balance(nb,A)
+      call Balance_t_balance(nb,A)
 
       call current_second(tim2)
       times(9) = times(9) + (tim2-tim1)
@@ -268,31 +298,24 @@
 
 *     ***********************************
 *     *					*
-*     *	          Pack_c_unpack		*	
+*     *	          Cram_c_unpack		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_c_unpack(nb,A)
+      subroutine Cram_c_unpack(nb,A)
       implicit none
       integer    nb
       complex*16 A(*)
 
 #include "mafdecls.fh"
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb2(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb2
-      integer nidb(0:1)
-      common / pack2_blk / nidb
+#include "cram_common.fh"
 
 
 *     **** local variables ****
       logical value
-      integer i,nfft3d,ny,nq
+      integer i,nfft3d
       integer tmp1(2)
-      integer tmp2(2)
-c      integer indx1,indx2
+      integer nidb,pack
 
 *     ***** timing variables *****
 *     1 - fft_time
@@ -311,40 +334,28 @@ c      integer indx1,indx2
       call current_second(tim1)
 
 
-      call Pack_c_unbalance(nb,A)
+      nidb = int_mb(nidb_list(1)+nb)
+      pack = int_mb(pack_list(1)+2*nb)
 
-      call D3dB_nfft3d(1,nfft3d)
+      call Balance_c_unbalance(nb,A)
+
+      call C3dB_nfft3d(1,nfft3d)
       
-      value = MA_push_get(mt_dcpl,(nida(nb)+nidb(nb)),
+      value = MA_push_get(mt_dcpl,(nidb),
      >                    'tmp1',tmp1(2),tmp1(1))
-      if (.not.value) call errquit('out of stack memory',0)
+      if (.not.value) 
+     >  call errquit('Cram_c_unpack:out of stack memory',0)
 
-      call dcopy(2*(nida(nb)+nidb(nb)),A,1,dcpl_mb(tmp1(1)),1)
+      call dcopy(2*(nidb),A,1,dcpl_mb(tmp1(1)),1)
       call dcopy(2*nfft3d,0.0d0,0,A,1)
-      do i=1,(nida(nb)+nidb(nb))
-        A(int_mb(pack(1,nb)+i-1)) = dcpl_mb(tmp1(1)+i-1)
+      do i=1,(nidb)
+        A(int_mb(pack+i-1)) = dcpl_mb(tmp1(1)+i-1)
       end do
       value = MA_pop_stack(tmp1(2))
-      if (.not.value) call errquit('error popping stack',0)
+      if (.not.value) 
+     >  call errquit('Cram_c_unpack:error popping stack',0)
 
 
-*     **** make the kx=0 plane complete **** 
-      call D3dB_ny(1,ny)
-      call D3dB_nq(1,nq)
-      value = MA_push_get(mt_dcpl,(ny*nq),'tmp1',tmp1(2),tmp1(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,(ny*nq),'tmp2',tmp2(2),tmp2(1))
-
-      call D3dB_c_timereverse(1,A,dcpl_mb(tmp1(1)),dcpl_mb(tmp2(1)))
-
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.
-     >        MA_pop_stack(tmp1(2))
-      if (.not.value) call errquit('error popping stack',0)
-
-c     call D3dB_nx(1,nx)
-c     call D3dB_nz(1,nz)
-c     call Check_Real(nx,ny,nz,nfft3d,A)
 
       call current_second(tim2)
       times(9) = times(9) + (tim2-tim1)
@@ -356,77 +367,68 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_npack		*	
+*     *	         Cram_npack		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_npack(nb,npack)
+      subroutine Cram_npack(nb,npack)
       implicit none
       integer nb
       integer npack
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
-      npack = nida(nb)+nidb(nb)
+
+      npack = int_mb(nidb2_list(1)+nb)
       return
       end
 
 *     ***********************************
 *     *					*
-*     *	         Pack_nwave		*	
+*     *	         Cram_nwave		*	
 *     *					*
 *     ***********************************
 
-      integer function Pack_nwave(nb)
+      integer function Cram_nwave(nb)
       implicit none
       integer nb
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
-      Pack_nwave = nida(nb)+nidb(nb)
+      Cram_nwave =  int_mb(nidb2_list(1)+nb)
       return
       end
 
 *     ***********************************
 *     *					*
-*     *	         Pack_nwave_all		*	
+*     *	         Cram_nwave_all		*	
 *     *					*
 *     ***********************************
 
-      integer function Pack_nwave_all(nb)
+      integer function Cram_nwave_all(nb)
       implicit none
       integer nb
 
-*     **** common block for pack ****
-      integer nwave_all(0:1)
-      common / pack_blk3x / nwave_all
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
-      Pack_nwave_all = nwave_all(nb)
+      Cram_nwave_all = int_mb(nwaveall_list(1)+nb)
       return
       end
 
 
 *     ***********************************
 *     *					*
-*     *	         Pack_zero		*	
+*     *	         Cram_zero		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_zero(nb,zero,pzero) 
+      subroutine Cram_zero(nb,zero,pzero) 
       implicit none
       integer  nb
       integer zero,pzero
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
 
       integer qzero
 
@@ -435,7 +437,7 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 *     *********************************************************
 *     index = (qzero-1)*(nx/2+1)*ny + (j-1)*(nx/2+1) + i 
       zero = 1
-      call D3dB_ktoqp(1,1,qzero,pzero)
+      call C3dB_ktoqp(1,1,qzero,pzero)
 
       return
       end
@@ -444,11 +446,11 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_cc_ndot		*	
+*     *	         Cram_cc_ndot		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_cc_ndot(nb,ne,A,B,sum)
+      subroutine Cram_cc_ndot(nb,ne,A,B,sum)
       implicit none
       integer    nb
       integer    ne
@@ -456,11 +458,8 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
       complex*16 B(*)
       real*8     sum(*)
 
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer n,np
@@ -488,18 +487,17 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 
 
       call Parallel_np(np)
-      npack= nida(nb)+nidb(nb)
+      npack=  int_mb(nidb2_list(1)+nb)
 
       do n=1,ne
         shift = (n-1)*npack
 
-        sum(n) = ddot(2*nida(nb),A(1+shift),1,B,1)
-        sum(n) = sum(n) + 2*ddot(2*nidb(nb),
-     >                           A(nida(nb)+1+shift),1,
-     >                           B(nida(nb)+1),      1)
+        sum(n) = sum(n) + ddot(2*int_mb(nidb2_list(1)+nb),
+     >                         A(1+shift),1,
+     >                         B(1),      1)
       end do
 
-      if (np.gt.1) call D3dB_Vector_SumAll(ne,sum)
+      if (np.gt.1) call C3dB_Vector_SumAll(ne,sum)
 
 
       call current_second(tim2)
@@ -511,21 +509,20 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_cc_idot		*	
+*     *	         Cram_cc_idot		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_cc_idot(nb,A,B,sum)
+      subroutine Cram_cc_idot(nb,A,B,sum)
       implicit none
       integer    nb
       complex*16 A(*)
       complex*16 B(*)
       real*8     sum
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
 
 *     **** local variables ****
       integer np
@@ -553,10 +550,9 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 
       call Parallel_np(np)
 
-      sum = ddot(2*nida(nb),A,1,B,1)
-      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
+      sum = ddot(2*int_mb(nidb2_list(1)+nb),A(1),1,B(1),1)
 
-c     if (np.gt.1) call D3dB_SumAll(sum)
+c     if (np.gt.1) call C3dB_SumAll(sum)
 
       call current_second(tim2)
       times(2) = times(2) + (tim2-tim1)
@@ -569,21 +565,19 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_cc_dot		*	
+*     *	         Cram_cc_dot		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_cc_dot(nb,A,B,sum)
+      subroutine Cram_cc_dot(nb,A,B,sum)
       implicit none
       integer    nb
       complex*16 A(*)
       complex*16 B(*)
       real*8     sum
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer np
@@ -611,10 +605,9 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
       call Parallel_np(np)
 
-      sum = ddot(2*nida(nb),A,1,B,1)
-      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
+      sum = ddot(2*int_mb(nidb2_list(1)+nb),A(1),1,B(1),1)
 
-      if (np.gt.1) call D3dB_SumAll(sum)
+      if (np.gt.1) call C3dB_SumAll(sum)
 
       call current_second(tim2)
       times(2) = times(2) + (tim2-tim1)
@@ -624,22 +617,19 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_tt_idot		*	
+*     *	         Cram_tt_idot		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_tt_idot(nb,A,B,sum)
+      subroutine Cram_tt_idot(nb,A,B,sum)
       implicit none
       integer    nb
       real*8  A(*)
       real*8  B(*)
       real*8  sum
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
-
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** external functions ****
       real*8   ddot
@@ -662,9 +652,7 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
       call current_second(tim1)
 
 
-
-      sum =         ddot(nida(nb),A,1,B,1)
-      sum = sum + 2*ddot(nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
+      sum = ddot(int_mb(nidb2_list(1)+nb),A(1),1,B(1),1)
 
 
       call current_second(tim2)
@@ -678,21 +666,19 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_tt_dot		*	
+*     *	         Cram_tt_dot		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_tt_dot(nb,A,B,sum)
+      subroutine Cram_tt_dot(nb,A,B,sum)
       implicit none
       integer nb
       real*8  A(*)
       real*8  B(*)
       real*8  sum
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer np
@@ -720,10 +706,9 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
       call Parallel_np(np)
 
-      sum =         ddot(nida(nb),A,1,B,1)
-      sum = sum + 2*ddot(nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
+      sum = ddot(int_mb(nidb2_list(1)+nb),A(1),1,B(1),1)
 
-      if (np.gt.1) call D3dB_SumAll(sum)
+      if (np.gt.1) call C3dB_SumAll(sum)
 
       call current_second(tim2)
       times(2) = times(2) + (tim2-tim1)
@@ -733,20 +718,18 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_t_dsum		*	
+*     *	         Cram_t_dsum		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_t_dsum(nb,A,sum)
+      subroutine Cram_t_dsum(nb,A,sum)
       implicit none
       integer nb
       real*8  A(*)
       real*8  sum
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer np
@@ -774,10 +757,9 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
       call Parallel_np(np)
 
-      sum =         dsum(nida(nb),A,1)
-      sum = sum + 2*dsum(nidb(nb),A(nida(nb)+1),1)
+      sum = dsum(int_mb(nidb2_list(1)+nb),A(1),1)
 
-      if (np.gt.1) call D3dB_SumAll(sum)
+      if (np.gt.1) call C3dB_SumAll(sum)
 
       call current_second(tim2)
       times(2) = times(2) + (tim2-tim1)
@@ -788,70 +770,59 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_c_Copy		*	
+*     *	         Cram_c_Copy		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_c_Copy(nb,A,B)
+      subroutine Cram_c_Copy(nb,A,B)
       implicit none
       integer    nb
       complex*16 A(*)
       complex*16 B(*)
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
-
-      call dcopy(2*(nida(nb)+nidb(nb)),A,1,B,1)
+      call dcopy(2*(int_mb(nidb2_list(1)+nb)),A,1,B,1)
 
       return
       end
 
 *     ***********************************
 *     *					*
-*     *	         Pack_t_Copy		*	
+*     *	         Cram_t_Copy		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_t_Copy(nb,A,B)
+      subroutine Cram_t_Copy(nb,A,B)
       implicit none
       integer nb
       real*8 A(*)
       real*8 B(*)
 
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
-
-
-      call dcopy((nida(nb)+nidb(nb)),A,1,B,1)
+      call dcopy((int_mb(nidb2_list(1)+nb)),A,1,B,1)
 
       return
       end
 
 *     ***********************************
 *     *					*
-*     *	         Pack_c_Zero		*	
+*     *	         Cram_c_Zero		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_c_Zero(nb,A)
+      subroutine Cram_c_Zero(nb,A)
       implicit none
       integer    nb
       complex*16 A(*)
 
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
-
-
-      call dcopy(2*(nida(nb)+nidb(nb)),0.0d0,0,A,1)
+      call dcopy(2*(int_mb(nidb2_list(1)+nb)),0.0d0,0,A,1)
 
       return
       end
@@ -860,27 +831,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_cc_Sum		*	
+*     *	         Cram_cc_Sum		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_cc_Sum(nb,A,B,C)
+      subroutine Cram_cc_Sum(nb,A,B,C)
       implicit none
       integer    nb
       complex*16 A(*)
       complex*16 B(*)
       complex*16 C(*)
 
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = A(i) + B(i)
       end do
 
@@ -889,26 +857,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_tt_Sum		*	
+*     *	         Cram_tt_Sum		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_tt_Sum(nb,A,B,C)
+      subroutine Cram_tt_Sum(nb,A,B,C)
       implicit none
       integer  nb
       real*8 A(*)
       real*8 B(*)
       real*8 C(*)
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = A(i) + B(i)
       end do
 
@@ -919,27 +885,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_cc_Sub		*	
+*     *	         Cram_cc_Sub		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_cc_Sub(nb,A,B,C)
+      subroutine Cram_cc_Sub(nb,A,B,C)
       implicit none
       integer    nb
       complex*16 A(*)
       complex*16 B(*)
       complex*16 C(*)
 
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = A(i) - B(i)
       end do
 
@@ -948,26 +911,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_tt_Sub		*	
+*     *	         Cram_tt_Sub		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_tt_Sub(nb,A,B,C)
+      subroutine Cram_tt_Sub(nb,A,B,C)
       implicit none
       integer    nb
       real*8 A(*)
       real*8 B(*)
       real*8 C(*)
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = A(i) - B(i)
       end do
 
@@ -976,25 +937,23 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *									*
-*     *	         Pack_tt_Sqrt			*	
+*     *	         Cram_tt_Sqrt			*	
 *     *									*
 *     ***********************************
 
-      subroutine Pack_tt_Sqrt(nb,A,C)
+      subroutine Cram_tt_Sqrt(nb,A,C)
       implicit none
       integer  nb
       real*8   A(*)
       real*8   C(*)
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = dsqrt(A(i))
       end do
 
@@ -1005,25 +964,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_ct_Sqr		*	
+*     *	         Cram_ct_Sqr		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_ct_Sqr(nb,A,C)
+      subroutine Cram_ct_Sqr(nb,A,C)
       implicit none
       integer    nb
       complex*16 A(*)
       real*8     C(*)
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = dble(A(i))**2 + dimag(A(i))**2
       end do
 
@@ -1034,27 +992,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_c_SMul		*	
+*     *	         Cram_c_SMul		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_c_SMul(nb,alpha,A,C)
+      subroutine Cram_c_SMul(nb,alpha,A,C)
       implicit none
       integer    nb
       real*8     alpha
       complex*16 A(*)
       complex*16 C(*)
 
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = alpha*A(i)
       end do
 
@@ -1063,27 +1018,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_c_ZMul		*	
+*     *	         Cram_c_ZMul		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_c_ZMul(nb,alpha,A,C)
+      subroutine Cram_c_ZMul(nb,alpha,A,C)
       implicit none
       integer    nb
       complex*16 alpha
       complex*16 A(*)
       complex*16 C(*)
 
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = alpha*A(i)
       end do
 
@@ -1094,27 +1046,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_t_SMul		*	
+*     *	         Cram_t_SMul		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_t_SMul(nb,alpha,A,C)
+      subroutine Cram_t_SMul(nb,alpha,A,C)
       implicit none
       integer    nb
       real*8 alpha
       real*8 A(*)
       real*8 C(*)
 
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = alpha*A(i)
       end do
 
@@ -1125,25 +1074,21 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_cc_daxpy		*	
+*     *	         Cram_cc_daxpy		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_cc_daxpy(nb,alpha,A,B)
+      subroutine Cram_cc_daxpy(nb,alpha,A,B)
       implicit none
       integer    nb
       real*8     alpha
       complex*16 A(*)
       complex*16 B(*)
 
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
-
-
-      call daxpy(2*(nida(nb)+nidb(nb)),alpha,A,1,B,1)
+      call daxpy(2*(int_mb(nidb2_list(1)+nb)),alpha,A,1,B,1)
 
       return
       end
@@ -1152,27 +1097,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_tt_daxpy		*	
+*     *	         Cram_tt_daxpy		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_tt_daxpy(nb,alpha,A,C)
+      subroutine Cram_tt_daxpy(nb,alpha,A,C)
       implicit none
       integer    nb
       real*8 alpha
       real*8 A(*)
       real*8 C(*)
 
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = C(i) + alpha*A(i)
       end do
 
@@ -1183,27 +1125,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_cc_zaxpy		*	
+*     *	         Cram_cc_zaxpy		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_cc_zaxpy(nb,alpha,A,C)
+      subroutine Cram_cc_zaxpy(nb,alpha,A,C)
       implicit none
       integer    nb
       complex*16 alpha
       complex*16 A(*)
       complex*16 C(*)
 
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = C(i) + alpha*A(i)
       end do
 
@@ -1213,27 +1152,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *									*
-*     *	         Pack_tc_Mul            *
+*     *	         Cram_tc_Mul            *
 *     *									*
 *     ***********************************
 
-      subroutine Pack_tc_Mul(nb,A,B,C)
+      subroutine Cram_tc_Mul(nb,A,B,C)
       implicit none
       integer    nb
       real*8     A(*)
       complex*16 B(*)
       complex*16 C(*)
 
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,( int_mb(nidb2_list(1)+nb))
         C(i) = A(i)*B(i)
       end do
 
@@ -1242,27 +1178,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *									*
-*     *	         Pack_itc_Mul           *
+*     *	         Cram_itc_Mul           *
 *     *									*
 *     ***********************************
 
-      subroutine Pack_itc_Mul(nb,A,B,C)
+      subroutine Cram_itc_Mul(nb,A,B,C)
       implicit none
       integer    nb
       real*8     A(*)
       complex*16 B(*)
       complex*16 C(*)
 
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = A(i) * dcmplx(-dimag(B(i)),dble(B(i)))
       end do
 
@@ -1275,27 +1208,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *                 *
-*     *          Pack_cc_Mul            *
+*     *          Cram_cc_Mul            *
 *     *                 *
 *     ***********************************
 
-      subroutine Pack_cc_Mul(nb,A,B,C)
+      subroutine Cram_cc_Mul(nb,A,B,C)
       implicit none
       integer    nb
       complex*16 A(*)
       complex*16 B(*)
       complex*16 C(*)
 
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = A(i)*B(i)
       end do
 
@@ -1304,25 +1234,23 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *									*
-*     *	         Pack_cct_conjgMul		*	
+*     *	         Cram_cct_conjgMul		*	
 *     *									*
 *     ***********************************
-      subroutine Pack_cct_conjgMul(nb,A,B,C)
+      subroutine Cram_cct_conjgMul(nb,A,B,C)
       implicit none
       integer    nb
       complex*16 A(*)
       complex*16 B(*)
       real*8     C(*)
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,( int_mb(nidb2_list(1)+nb))
         C(i) = dble(dconjg(A(i))*B(i))
       end do
 
@@ -1332,27 +1260,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *                				    *
-*     *          Pack_cc_conjgMul       *
+*     *          Cram_cc_conjgMul       *
 *     *                                 *
 *     ***********************************
 
-      subroutine Pack_cc_conjgMul(nb,A,B,C)
+      subroutine Cram_cc_conjgMul(nb,A,B,C)
       implicit none
       integer    nb
       complex*16 A(*)
       complex*16 B(*)
       complex*16 C(*)
 
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = dconjg(A(i))*B(i)
       end do
 
@@ -1364,27 +1289,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_tc_iMul            *
+*     *	         Cram_tc_iMul            *
 *     *					*
 *     ***********************************
 
-      subroutine Pack_tc_iMul(nb,A,B,C)
+      subroutine Cram_tc_iMul(nb,A,B,C)
       implicit none
       integer    nb
       real*8     A(*)
       complex*16 B(*)
       complex*16 C(*)
 
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = dcmplx(0.0d0,A(i)) * B(i)
       end do
 
@@ -1395,27 +1317,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_tt_Mul            *
+*     *	         Cram_tt_Mul            *
 *     *					*
 *     ***********************************
 
-      subroutine Pack_tt_Mul(nb,A,B,C)
+      subroutine Cram_tt_Mul(nb,A,B,C)
       implicit none
       integer    nb
       real*8     A(*)
       real*8     B(*)
       real*8     C(*)
 
-
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
+      do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = A(i)*B(i)
       end do
 
