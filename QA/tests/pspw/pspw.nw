@@ -110,7 +110,7 @@ PSPW
                0 0 0     0
                1 0 0    -1
                0 1 0    -1
-      wavefunction_filename: Si2.movecs
+      wavefunction_filename: Si2.elc00
       cell_name: small
    END
 END
