@@ -103,6 +103,9 @@ c
       spinb = spinj
 csh
       if (odebug) then
+      write(*,*) 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+      write(*,*) 'X The addressing of k_c must be wrong for sym=on X'
+      write(*,*) 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
       write(*,*) 'no = ',no(1),no(2)
       write(*,*) 'nv = ',nv(1),nv(2)
       write(*,*) 'no_sym = ',(no_sym(i,1),i=0,7),(no_sym(i,2),i=0,7)
@@ -176,7 +179,7 @@ csh
 c
 c     Allocate g_uv_p and g_uv_m for t(u,b,i,j) and t[+/-](u,v,i,j)
 c
-      if (.not.ga_create(mt_dbl,maxlenuv,lenij,'sopair', 
+      if (.not.ga_create(mt_dbl,maxlenuv,lenij,'sopair -', 
      $ maxlenuv,-1,g_uv_m)) call errquit
      $ ('uccsdt_tosopair: room for g_uv_m?',maxlenuv*lenij)
 csh
@@ -184,7 +187,7 @@ csh
      $call ga_fill(g_uv_m,9.9999d0)
 csh
       if (spini .ne. spinj) then
-       if (.not.ga_create(mt_dbl,maxlenuv,lenij,'sopair', 
+       if (.not.ga_create(mt_dbl,maxlenuv,lenij,'sopair +', 
      $  maxlenuv,-1,g_uv_p)) call errquit
      $  ('uccsdt_tosopair: room for g_uv_p?',maxlenuv*lenij)
 csh
@@ -418,6 +421,7 @@ c
 csh
        if (odebug)
      $ write(*,*) 'spini .NEQ. spinj ... antisymmetrize'
+       if (odebug) call ga_print(g_uv_m)
 csh
        call ga_copy(g_uv_m,g_uv_p)
        call ga_distribution(g_uv_m,ga_nodeid(),ijlo,ijhi,dummy,dummy)
@@ -436,6 +440,8 @@ c
 c     symu >= symv to avoid referencing the already altered blocks
 c
              if (symu .ge. symv) then
+              if (odebug) write(*,*) 'symij,symj,j,i,symv,symu = ',
+     $        symij,symj,j,i,symv,symu
               lenu = bf_per_ir(symu)
               lenv = bf_per_ir(symv)
               lenuv = lenu * lenv
@@ -458,22 +464,35 @@ c
                if (.not. ma_push_get(mt_dbl, 
      $          lenuv, 'minus', l_m2, k_m2)) 
      $          call errquit('ma? lenuv',lenuv)
+               if (odebug) write(*,*) 'getting range ... ',
+     $         symvoff(symu,symuv)+1,'~',symvoff(symu,symuv)+lenuv,
+     $          ij,'~',ij
                call ga_get(g_uv_m,
      $          symvoff(symu,symuv)+1,symvoff(symu,symuv)+lenuv,
      $          ij,ij,dbl_mb(k_tmp),lenv)
+               if (odebug) call ma_print(dbl_mb(k_tmp),lenv,lenu,'VU')
+               if (odebug) write(*,*) 'getting range ... ',
+     $         symvoff(symv,symuv)+1,'~',symvoff(symv,symuv)+lenuv,
+     $          ij,'~',ij
                call ga_get(g_uv_m,
      $          symvoff(symv,symuv)+1,symvoff(symv,symuv)+lenuv,
      $          ij,ij,dbl_mb(k_buf),lenu)
+               if (odebug) call ma_print(dbl_mb(k_buf),lenu,lenv,'UV')
                do v = 1,lenv
                 do u = 1,lenu
-                 x = dbl_mb(k_buf+(v-1)*lenu+u-1)
-                 y = dbl_mb(k_buf+(u-1)*lenv+v-1)
+                 x = dbl_mb(k_tmp+(u-1)*lenv+v-1)
+                 y = dbl_mb(k_buf+(v-1)*lenu+u-1)
+                 if (odebug) write(*,*) 'U,V, and X,Y = ',u,v,x,y
                  dbl_mb(k_p1+(v-1)*lenu+u-1) = 0.5d0*(x+y)
                  dbl_mb(k_m1+(v-1)*lenu+u-1) = 0.5d0*(x-y)
                  dbl_mb(k_p2+(u-1)*lenv+v-1) = 0.5d0*(x+y)
                  dbl_mb(k_m2+(u-1)*lenv+v-1) = 0.5d0*(x-y)
                 end do
                end do
+               if (odebug) call ma_print(dbl_mb(k_p1),lenu,lenv,'UV+')
+               if (odebug) call ma_print(dbl_mb(k_m1),lenu,lenv,'UV-')
+               if (odebug) call ma_print(dbl_mb(k_p2),lenv,lenu,'VU+')
+               if (odebug) call ma_print(dbl_mb(k_m2),lenv,lenu,'VU-')
 c
 c     we fill the whole g_uv_p and g_uv_m, since the u>=v restriction
 c     in the contraction step is based on tiling rather than sym blocks
@@ -510,6 +529,8 @@ c
          end do
         end do
        end do
+       if (odebug) call ga_print(g_uv_p)
+       if (odebug) call ga_print(g_uv_m)
       end if
 c
       return
@@ -582,6 +603,9 @@ csh
       call int_init(rtdb,1,basis)
       call schwarz_init(geom,basis)
 csh   call sym_abelian_bas_info???? SO MANY ARGUMENTS!!!!!!
+      if (odebug) write(*,*) '******************************'
+      if (odebug) write(*,*) '* What about wl <= uv ?????? *'
+      if (odebug) write(*,*) '******************************'
 csh
 c
 c     Addressing & sizes
@@ -807,7 +831,7 @@ csh
      $            symjoff(symj,symij)+1,symjoff(symj,symij)+lenij,
      $            dbl_mb(k_t),lenwl)
 csh
-         if (odebug) call ma_print(dbl_mb(k_t),lenwl,lenij,'SO t-amp')
+         if (odebug) call ma_print(dbl_mb(k_t),lenwl,lenij,'SO t-amp -')
 csh
                   if (.not. ma_push_get(mt_dbl, 
      $             lenuv*lenwl, 'minus', l_m, k_m)) 
@@ -830,11 +854,52 @@ csh
 csh
        if (odebug) write(*,*) 'lenuv,lenwl = ',lenuv, lenwl
        if (odebug) call ma_print(dbl_mb(k_m),lenuv,lenwl,'SO int')
+       if (odebug) call ma_print(dbl_mb(k_t),lenwl,lenij,'t (-)')
 csh
                   call dgemm('n','n',lenuv,lenij,lenwl,
      $             1.0d0,dbl_mb(k_m),lenuv,
      $             dbl_mb(k_t),lenwl,
      $             0.0d0,dbl_mb(k_omega),lenuv)
+      if (odebug) call ma_print(dbl_mb(k_omega),lenuv,lenij,'UVIJ -')
+                  if (.not. ma_pop_stack(l_m))
+     $             call errquit('ma_pop? l_m',l_m)
+c
+c     Mixed spin
+c
+                  if (spini .ne. spinj) then
+                   call ga_get(g_uv_p,
+     $             symvoff(syml,symwl)+1,symvoff(syml,symwl)+lenwl,
+     $             symjoff(symj,symij)+1,symjoff(symj,symij)+lenij,
+     $             dbl_mb(k_t),lenwl)
+csh
+         if (odebug) call ma_print(dbl_mb(k_t),lenwl,lenij,'SO t-amp +')
+csh
+                   if (.not. ma_push_get(mt_dbl, 
+     $              lenuv*lenwl, 'plus', l_p, k_p)) 
+     $              call errquit('ma? lenuv*lenwl',lenuv*lenwl)
+                   uvwl = 0
+                   do l = lrange(1,syml), lrange(2,syml)
+                    do w = wrange(1,symw), wrange(2,symw)
+                     do v = vrange(1,symv), vrange(2,symv)
+                      do u = urange(1,symu), urange(2,symu)
+                       uvwl = uvwl + 1
+                       dbl_mb(k_p+uvwl-1) = 
+     $                 dbl_mb(k_gx+loff1(l)+voff1(v,symlv)
+     $                  +woff1(w,symwu)+uoff1(u,symwu)-1)
+     $                 +dbl_mb(k_gy+woff2(w)+voff2(v,symwv)
+     $                  +loff2(l,symlu)+uoff2(u,symlu)-1)
+                      end do
+                     end do
+                    end do
+                   end do
+                   call dgemm('n','n',lenuv,lenij,lenwl,
+     $              1.0d0,dbl_mb(k_p),lenuv,
+     $              dbl_mb(k_t),lenwl,
+     $              1.0d0,dbl_mb(k_omega),lenuv)
+      if (odebug)  call ma_print(dbl_mb(k_omega),lenuv,lenwl,'UVIJ +-')
+                   if (.not. ma_pop_stack(l_p))
+     $              call errquit('ma_pop? l_p',l_p)
+                  end if
 csh
        if (odebug) call ma_print(dbl_mb(k_omega),lenuv,lenij,'Omega')
 csh
@@ -857,49 +922,6 @@ csh
      $             symvoff(symu,symuv)+1,symvoff(symu,symuv)+lenuv,
      $             symjoff(symj,symij)+1,symjoff(symj,symij)+lenij,
      $             dbl_mb(k_omega),lenuv,1.0d0)
-                  end if
-                  if (.not. ma_pop_stack(l_m))
-     $             call errquit('ma_pop? l_m',l_m)
-                  if (spini .ne. spinj) then
-                   if (.not. ma_push_get(mt_dbl, 
-     $              lenuv*lenwl, 'plus', l_p, k_p)) 
-     $              call errquit('ma? lenuv*lenwl',lenuv*lenwl)
-                   uvwl = 0
-                   do l = lrange(1,syml), lrange(2,syml)
-                    do w = wrange(1,symw), wrange(2,symw)
-                     do v = vrange(1,symv), vrange(2,symv)
-                      do u = urange(1,symu), urange(2,symu)
-                       uvwl = uvwl + 1
-                       dbl_mb(k_p+uvwl-1) = 
-     $                 dbl_mb(k_gx+loff1(l)+voff1(v,symlv)
-     $                  +woff1(w,symwu)+uoff1(u,symwu)-1)
-     $                 +dbl_mb(k_gy+woff2(w)+voff2(v,symwv)
-     $                  +loff2(l,symlu)+uoff2(u,symlu)-1)
-                      end do
-                     end do
-                    end do
-                   end do
-                   call dgemm('n','n',lenuv,lenij,lenwl,
-     $              1.0d0,dbl_mb(k_p),lenuv,
-     $              dbl_mb(k_t),lenwl,
-     $              0.0d0,dbl_mb(k_omega),lenuv)
-                   if (symu .eq. symv) then
-                    call ga_acc(g_omega,
-     $              symvoff(symv,symuv)+1,symvoff(symv,symuv)+lenuv,
-     $              symjoff(symj,symij)+1,symjoff(symj,symij)+lenij,
-     $              dbl_mb(k_omega),lenuv,0.5d0)
-                   else
-                    call ga_acc(g_omega,
-     $              symvoff(symv,symuv)+1,symvoff(symv,symuv)+lenuv,
-     $              symjoff(symj,symij)+1,symjoff(symj,symij)+lenij,
-     $              dbl_mb(k_omega),lenuv,1.0d0)
-                    call ga_acc(g_omega,
-     $              symvoff(symu,symuv)+1,symvoff(symu,symuv)+lenuv,
-     $              symjoff(symj,symij)+1,symjoff(symj,symij)+lenij,
-     $              dbl_mb(k_omega),lenuv,1.0d0)
-                   end if
-                   if (.not. ma_pop_stack(l_p))
-     $              call errquit('ma_pop? l_p',l_p)
                   end if
                   if (.not. ma_pop_stack(l_t))
      $             call errquit('ma_pop? l_t',l_t)
@@ -929,7 +951,6 @@ c     Barrier
 c
       next = nxtask(-nproc,task_size)
       call ga_sync()
-      if (spini .ne. spinj) call ga_scale(g_omega,0.5d0)
 c
 csh
       call int_terminate()

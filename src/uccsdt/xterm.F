@@ -328,7 +328,7 @@ csh
 c
 c     Write one symmetry block of X to disk
 c
-         call ga_scale(g_x,2.0d0)
+         if (spini.eq.spinj) call ga_scale(g_x,2.0d0)
          if (odebug) call ga_print(g_x)
          call sh_put_x(g_x,syml,symjl,spini,spinj,g_x_big)
 csh      if (.not. uccsdt_ampfile_write_t2(d_x, 

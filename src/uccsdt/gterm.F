@@ -183,7 +183,6 @@ c
 csh   if (.not. uccsdt_ampfile_add_t1(d_g, spini, g_g))
 csh  $ call errquit('write_t1 failed',0)
       if (.not. ga_destroy(g_g)) call errquit('GA 999',0)
-      if (spini.ne.spinj) call ga_scale(g_g_big,0.5d0)
       if (odebug) call ga_print(g_g_big)
 c
       return
