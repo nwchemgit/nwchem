@@ -17,7 +17,7 @@ c
 c
        call ga_sync()
        call ga_distribution(g_a, ga_nodeid(), ilo, ihi, jlo, jhi)
-       if (ihi.gt.0 .and. ihi.ge.ilo) then
+       if (ihi.gt.0 .and. jhi.gt.0) then
           idim = ihi - ilo + 1
           jdim = jhi - jlo + 1
           call ga_access(g_a, ilo, ihi, jlo, jhi, ind, ld)
