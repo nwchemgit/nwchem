@@ -1,6 +1,6 @@
       double precision function util_random(iseed)
       implicit none
-c $Id: util_random.F,v 1.17 2000-06-09 23:33:12 edo Exp $
+c $Id: util_random.F,v 1.18 2000-06-09 23:39:49 edo Exp $
 c
 c routine to give a random number [0,1]
 c
@@ -46,11 +46,10 @@ c
       util_random=linux_rand()
 #else
 #define SET_RANDOM
-      integer*4 iseed
+      integer iseed
       double precision drand
       external drand
-      if (iseed.gt.0) call srand(iseed)
-      util_random = drand(0)
+      util_random = drand(iseed)
 #endif
 #if !defined(SET_RANDOM)
       integer iseed
