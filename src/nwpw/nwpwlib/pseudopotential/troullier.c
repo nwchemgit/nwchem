@@ -259,8 +259,19 @@ double	*pc_psp;
       /*****************************/
       match            = rint(log(rcut_psp[l]/r[0])/al);
       ldpsi_match      = ul_prime[match]/ul[match];
-   
+	  
 
+	  /* make sure that wavefunctions are non-negative at the matching point */
+	  if (ul[match]<0.0)
+	  {
+	     nu0 = -1.0;
+	     for (i=0; i<Ngrid; ++i)
+	     {
+	        ul[i] = ul[i]*nu0;
+		    ul_prime[i] = ul_prime[i]*nu0;
+		 }
+	  }
+   
       /**************************************/
       /* generate troullier pseudopotential */
       /**************************************/
