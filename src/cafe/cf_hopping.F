@@ -1,6 +1,6 @@
       logical function cf_hopping(issgm,isgan,ishop,xs,nsaloc)
 c
-c $Id: cf_hopping.F,v 1.4 2003-08-07 04:01:28 d3j191 Exp $
+c $Id: cf_hopping.F,v 1.5 2003-08-07 20:33:05 d3j191 Exp $
 c
       implicit none
 c
@@ -231,7 +231,6 @@ c
       endif
       endif
       if(lda(6,i).eq.isgan(j)) then
-      write(*,'(6f8.3)') (xs(j,k),k=1,3),(rda(k,i),k=1,3)
       xs(j,1)=rda(1,i)
       xs(j,2)=rda(2,i)
       xs(j,3)=rda(3,i)
