@@ -13,8 +13,9 @@ c
 c
       character*255 token
       character*32 optimize
+      character*32 interface
       real*8 eatoms,qatoms
-      logical xyz,xyzq,fixlinks
+      logical xyz,xyzq,fixlinks,fixqm
       integer linkatm,bq_exclude
 c
       call inp_set_field(0)
@@ -23,9 +24,11 @@ c**** default values for parameters
       xyz  = .false.
       xyzq = .false.
       fixlinks = .false.
+      fixqm = .false.
       linkatm=qmmm_halogen
       bq_exclude=qmmm_hydrogen
       optimize='qm'
+      interface='qm'
 c
       if (.not.inp_a(token))
      + call errquit('qmmm_input: no input available',0, INPUT_ERR)
@@ -51,8 +54,18 @@ c
        write(*,*) " found xyz",xyz
        goto 2 
       end if
-      if (token.eq.'fixlinks') then
-       fixlinks = .true.
+      if (token.eq.'fix') then
+        if(.not.inp_a(token)) call errquit(' no fix option',0,
+     &         INPUT_ERR)
+        if(token.eq.'linkbonds') then
+          fixlinks=.true.
+          goto 2
+        elseif(token.eq.'qmregion') then
+          fixqm=.true.
+          goto 2
+        else
+          call errquit('qmmm_input: invalid link atom',0, INPUT_ERR)
+        endif
        goto 2 
       end if
       if (token.eq.'xyzq') then
@@ -102,6 +115,23 @@ c
         endif
       endif
 c
+      if(token.eq.'interface') then
+        if(.not.inp_a(token)) then
+         write(*,*) "please provide an option for optimize"
+         call errquit('qmmm_input: optimize',0,
+     &         INPUT_ERR)
+        end if
+        if(token.eq.'qm') then
+          interface='qm'
+          goto 2
+        elseif(token.eq.'mm') then
+          interface='mm'
+          goto 2
+        else
+          call errquit('qmmm_input: invalid option',0, INPUT_ERR)
+        endif
+      endif
+cc
       if(token.eq.'bq_exclude') then
       if(.not.inp_a(token)) call errquit('qmmm_input:  bq_exclude ',0,
      &       INPUT_ERR)
@@ -142,10 +172,16 @@ c
       if (.not.rtdb_put(rtdb,'qmmm:fixlinks',mt_log,1,fixlinks))
      + call errquit('qmmm_input: failed to store qmmm:fixlinks',
      &       0,RTDB_ERR)
-      if (.not.rtdb_cput(rtdb,'qmmm:optimize',1,optimize))
+      if (.not.rtdb_put(rtdb,'qmmm:fixqm',mt_log,1,fixqm))
+     + call errquit('qmmm_input: failed to store qmmm:fixqm',
+     &       0,RTDB_ERR)
+       if (.not.rtdb_cput(rtdb,'qmmm:optimize',1,optimize))
      + call errquit('qmmm_input: failed to store qmmm:optimize',
      &       0,RTDB_ERR)
-        return
+       if (.not.rtdb_cput(rtdb,'qmmm:interface',1,interface))
+     + call errquit('qmmm_input: failed to store qmmm:interface',
+     &       0,RTDB_ERR)
+         return
       endif
 c
       write(luout,*)' unrecognized token in qmmm input:',
