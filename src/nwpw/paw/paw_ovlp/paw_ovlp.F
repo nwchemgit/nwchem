@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.30 2003-02-15 01:18:54 marat Exp $
+* $Id: paw_ovlp.F,v 1.31 2003-02-16 21:28:38 marat Exp $
 *
 
 !**************************************************
@@ -26,7 +26,6 @@
       integer ii,ia,nlm,nlmii,n,m,mabs
       integer nbasis,i2,i1,isgn,nion
       integer paw_ovlp_w_size
-      integer paw_ovlp_w_d_size
       integer in,li,lj,mi,mj,i,j
 
 
@@ -53,24 +52,7 @@ c     !*** calculate the size and indexing for weight coefficients  ***
       end do
 
 
-c     !*** calculate the size for diagonal weight coefficients  ***
-      paw_ovlp_w_d_size = 0
-      do in=1,nion
-        ia = ion_katm(in)
-        nbasis = paw_basis_nbasis(ia)
-       do i=1,nbasis
-          li = paw_basis_orb_l(i,ia)
-          do mi=-li,li
-            do j=1,nbasis
-              lj = paw_basis_orb_l(j,ia)
-                do mj=-lj,lj
-                if (mi.eq.mj) paw_ovlp_w_d_size = paw_ovlp_w_d_size + 1
-                end do
-             end do
-           end do   
-        end do
-      end do
- 
+
 c     !*** allocate storage for paw_ovlp arrays*** 
 c     !-- total number of electron states
       neall = ne(1) + ne(2)
@@ -88,8 +70,6 @@ c     !-- total number of electron states
       value = value.and.my_alloc(mt_dcpl,paw_ovlp_w_size,
      >                           "paw_ovlp_w",paw_ovlp_w)
 
-      value = value.and.my_alloc(mt_dcpl,paw_ovlp_w_d_size,
-     >                           "paw_ovlp_w_d",paw_ovlp_w_d)
       if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
 
 
@@ -154,7 +134,6 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
       value = value.and.MA_free_heap(sgn(2))
       value = value.and.MA_free_heap(paw_ovlp_w(2))
       value = value.and.my_dealloc(i_paw_ovlp_w)
-      value = value.and.my_dealloc(paw_ovlp_w_d)
       if (.not.value) call errquit('paw_ovlp_end: dealloc heap',0)
       return
       end
@@ -330,30 +309,7 @@ c           write(*,*) "paw_ovlp:w",w_tmp
         i_nbasis = i_nbasis + nbasis
       end do
       
-c     *** calculate diagonal weights mi=mj***     
-c      ii1 = 0
-c      ii = 0
-c      do in=1,ion_nion()
-c        ia = ion_katm(in)
-c        nbasis = paw_basis_nbasis(ia)
-c        do i=1,nbasis
-c          li = paw_basis_orb_l(i,ia)
-c          do mi=-li,li
-c            do j=1,nbasis
-c              lj = paw_basis_orb_l(j,ia)
-c                do mj=-lj,lj
-c                if(mi.eq.mj) then
-c                  dcpl_mb(paw_ovlp_w_d(1)+ii1)= 
-c     >            dcpl_mb(paw_ovlp_w(1)+ii)
-c                  ii1 = ii1 + 1
-c                end if
-c                ii =ii +1
-c                end do
-c             end do
-c           end do   
-c         end do
-c      end do
- 
+
       write(*,*) " paw weights"
       ii = 0
       nilm = 0
