@@ -2,7 +2,7 @@
      $     lshlo, lshhi, schw_ij, tol2e,
      $     max2e, eri, mem2, iscr, ilen,
      $     jlen, kblo, kbhi, lblo, lbhi, ssbb, osym )
-C     $Id: moints_aux2.F,v 1.14 1996-01-26 23:57:25 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.15 1996-02-02 01:55:56 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -520,7 +520,7 @@ c
       integer i,j
 
       do i=1,n
-        do j=1,i-1
+        do j=1,i
           b(j,i) = a(j,i)
           b(i,j) = a(j,i)
         enddo
@@ -536,7 +536,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.14 1996-01-26 23:57:25 rg240 Exp $
+C$Id: moints_aux2.F,v 1.15 1996-02-02 01:55:56 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -580,7 +580,7 @@ C$Id: moints_aux2.F,v 1.14 1996-01-26 23:57:25 rg240 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.14 1996-01-26 23:57:25 rg240 Exp $
+c$$$C$Id: moints_aux2.F,v 1.15 1996-02-02 01:55:56 rg240 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
