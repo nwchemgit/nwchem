@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.41 1997-06-23 21:37:05 pg481 Exp $
+c $Id: texas_face.F,v 1.42 1997-06-24 21:57:52 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -1367,7 +1367,9 @@ c                    maximum screatch size
 c----------------------------------------------------------------------
 c maxme1 - max. memory needed for one block - calculated in blocin2
 c maxme2 - max. memory needed in texas_setup (without uniq_pairs)
-c maxme3 - max. memory needed in uniq_pairs
+c maxme3 - max. memory needed in uniq_pairs when called from blockint
+c maxme4 - max. memory needed in make_map2uniq & copy_block 
+c                                both   called from blockint
 c
 c maxme2=4*nquartets_pnl + 2*nbl2 + 4*nbl4 + ngcd*size_ijkl
 c
@@ -1408,26 +1410,32 @@ c
       nolab4=nolab**4
 c
       maxme2=4*nquarts + 2*nbl2 + 4*nbl4 + nolab4
+      maxme2= maxme2/intsize + 11   ! 11 allocations
 c
 c dynamic memory :
 c
       maxme2_dyna=4*nquarts
-c
-c rescale memory estimate to integer :
-c
-      maxme2= maxme2/intsize + 11   ! 11 allocations
-c
       maxme2_dyna= maxme2_dyna/intsize + 4
 c------------------------------------------------
 c memory reserved in uniq_pairs: two allocations
 c
       maxme3=2*(maxpar/intsize + 1)
 c------------------------------------------------
+c memory needed in make_map2uniq: two allocations
+c               &  copy_block   : one allocation
+c
+      maxme4=3*nquarts
+      maxme4= maxme4/intsize + 3    ! 3 allocations
+c
+c dynamic memory :
+c
+      maxme4_dyna=maxme4
+c------------------------------------------------
 c final memory estimate :
 c
 c here:
 c
-      maxmem_scr = maxme1+maxme2+maxme3
+      maxmem_scr = maxme1+maxme2+maxme3+maxme4
 c
 c total:
 c
@@ -1437,7 +1445,7 @@ c
 c
 c minimum memory (1-ij,1-kl,1-ijkl at the time)
 c
-      minmem_scr = max_111+maxme2+maxme3
+      minmem_scr = max_111+maxme2+maxme3+maxme4
       minmem_tot = minmem_scr + maxmem_bl
 c
 c------------------------------------------------
@@ -1445,7 +1453,7 @@ c Separate memory indepent of the size of the PNL request
 c
 c dynamic (request dependent) :
 c
-      mem_dyna= maxme2_dyna 
+      mem_dyna= maxme2_dyna + maxme4_dyna
 c
 c static (basis set dependent, request independent) :
 c
@@ -1463,6 +1471,7 @@ c
         write(8,*)' memory perdicted for blockin4 :',maxme1
         write(8,*)' memory perdicted for txs_setup:',maxme2
         write(8,*)' memory perdicted for uniq_pair:',maxme3
+        write(8,*)' memory perdicted for map2uniq :',maxme4
         write(8,*)' MEMORY ESTIMATION FOR SCRATCH2:',maxmem_scr
         write(8,*)' '
         write(8,*)' -------------------------------------------'

@@ -152,16 +152,25 @@ c
 c
 c-----------------------------------------------------
 c total memory allowed for texas (limxmem) should be
-c decreased here by an amount needed latter in txs_setup
-c (roughly = 2*nbl2 + 4*nbl4 + 4*nqrt_pnl_request)
+c decreased here by an amount needed latter in 
+c (1) txs_setup : roughly = 2*nbl2 + 4*nbl4 + 4*nqrt_pnl_request
+c (2) blockint  :         = 3*nqrt_pnl_request 
+c     this includes alloc. for isbl_copy,map_ij,map_kl
+c     (see blockint in the spec_calcint.f file)
+c     
+c
+c nqrt_pnl_request .le. 10 000  is max size of PNL request
 c
       nbl4=nbl2*(nbl2+1)/2
-      mem_txsetup= 4*10000+2*nbl2+4*nbl4 
+      mem_txsetup= 4*10000+2*nbl2+4*nbl4   
+      mem_blockin= 3*10000
+c
       mem_txsetup=mem_txsetup/intsize + 11   ! 11 allocations
+      mem_blockin=mem_blockin/intsize + 3    !  3 allocations
 c
-      limxmem_here=limxmem - mem_txsetup
+      limxmem_here=limxmem - mem_txsetup - mem_blockin
 c
-      if(limxmem.le.0) then
+      if(limxmem_here.le.0) then
         write(6,*)'memory limit for texas will be more likely exceeded'
         limxmem_here=limxmem
       endif
@@ -467,23 +476,23 @@ C     *                           + nquart_mem*memor4
 C      endif
 c-------------------------------------------------
 c
-C      if(maxpair.lt.npairs_mem) then
-Cc        in this case increase number of quart/block 
-Cc        recalculate number of quarts that will fit in memory
-Cc        with number of pairs restricted to maxpair
-Cc
-C         x=dble(limxmem_here-memor_const-maxpair*(memor2ij+memor2kl))
-C         x=x/dble(memor4)
-C         if(x.le.0.d0) x=1.d0
-Cc
-C         ijpar_mem =maxpair  
-C         klpar_mem =maxpair  
-C         npairs_mem=maxpair
-C         nquart_mem=int(x) 
-C         memory_mem= memor_const + ijpar_mem*memor2ij
-C     *                           + klpar_mem*memor2kl
-C     *                           + nquart_mem*memor4
-C      endif
+      if(maxpair.lt.npairs_mem) then
+c        in this case INCREASE number of quart/block 
+c        recalculate number of quarts that will fit in memory
+c        with number of pairs restricted to maxpair
+c
+         x=dble(limxmem_here-memor_const-maxpair*(memor2ij+memor2kl))
+         x=x/dble(memor4)
+         if(x.le.0.d0) x=1.d0
+c
+         ijpar_mem =maxpair  
+         klpar_mem =maxpair  
+         npairs_mem=maxpair
+         nquart_mem=int(x) 
+c        memory_mem= memor_const + ijpar_mem*memor2ij
+c    *                           + klpar_mem*memor2kl
+c    *                           + nquart_mem*memor4
+      endif
 C
 c-------------------------------------------------
 c
@@ -496,16 +505,23 @@ c
       mxpair(nbl12)=npairs
       mxsize(nbl12)=nquart
 c
-c for memory,however, use min(nquart_all,nquart) & min(npairs_all,npairs)
+c for memory,however,use min(nquart_all,nquart) & min(npairs_all,npairs)
 c
-CC    npairs_4_mem=min(npairs_all,npairs)
-CC    nquart_4_mem=min(nquart_all,nquart)
+      npairs_4_mem=min(npairs_all,npairs)
+      nquart_4_mem=min(nquart_all,nquart)
 c
-CC    memory=memor_const + npairs_4_mem*(memor2ij + memor2kl)
-CC   *                   + nquart_4_mem*memor4
+      memory_mem=memor_const + npairs_4_mem*(memor2ij + memor2kl)
+     *                   + nquart_4_mem*memor4
 c
-c temprorarly :
-c
+ctest if(nbl12.eq.902) then
+ctest    write(8,*)'block=902 ; pairs: all,mem & 4_mem=',
+ctest*              npairs_all,npairs,npairs_4_mem
+ctest    write(8,*)'block=902 ; quart: all,mem & 4_mem=',
+ctest*              nquart_all,nquart,nquart_4_mem
+ctest    write(8,*)'block=902 ; memor: mem & 4_mem=',
+ctest*              memory_mem,memory_xxx
+ctest endif
+c-------------------------------------------------
       memory=memory_mem
 c-------------------------------------------------
       if(nquart.le.0) then
@@ -563,8 +579,9 @@ c
       npairs=ncs*(ncs+1)/2
       pairs=dble(npairs)
       quart=pairs*(pairs+1)/2
-      nsize_txs=int(  quart/xblks_txs  )
-      write(8,497) nbl12,quart,nsize_txs,
+      nsize_lim=int(  quart/xblks_txs  )
+      nsize_txs=int(  quart/dble(nbl12))
+      write(8,497) nbl12,quart,nsize_lim,nsize_txs,
      *             maxqrt,
 c>>  *             minqrt,
      *             maxpar,
@@ -577,6 +594,7 @@ c
   497 format(/'  number of Blocks of Contracted Quartets =',i15/
      *        '  number of contracted shell quartets     =',f16.0/
      *        '  average texas-block-size (with limits)  =',i15/
+     *        '  average texas-block-size (w/o  limits)  =',i15/
 c    *        '  ...........................................'/ 
 c    *        '  maximum quart/block=',i7,'  in S-block =',i6/ 
 c    *        '  minimum quart/block=',i7,'  in S-block =',i6/ 
@@ -901,6 +919,11 @@ c
 c proportional to the number of pairs :
       memprij=3+14*lcij
       memprkl=3+14*lckl
+c
+      if(ifor.eq.3 .or. ifor.eq.4) then
+         memprij=memprij+lci+lcj
+         memprkl=memprkl+lck
+      endif
 c
 c constat part (not proportional to pairs):
 c
