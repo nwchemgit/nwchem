@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.161 2003-03-20 19:53:05 edo Exp $
+# $Id: GNUmakefile,v 1.162 2003-03-20 20:45:30 edo Exp $
 
 include ../config/makefile.h
 
@@ -168,7 +168,7 @@ endif
               util_dra_test.o util_eaf_test.o util_sf_test.o \
               $(EXTRA_OBJ)
 ifndef USE_MLIB
-              OBJ += icopy.o dsum.o
+              OBJ += icopy.o dsum.o dgefa.o
 endif
 #nxtval_ga.o 
 
