@@ -8,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl)
 c
 c
-c $Id: sp_init.F,v 1.109 2002-07-11 04:01:36 d3j191 Exp $
+c $Id: sp_init.F,v 1.110 2002-07-12 16:57:05 d3j191 Exp $
 c
       implicit none
 c
@@ -108,7 +108,6 @@ c
       if(ireset.eq.0) then
       ignore=sp_rdrest(lfnrst,filrst,dbl_mb(i_boxs))
       endif
-
       if(np.gt.1) then
       call ga_brdcst(msp_02,nsm,ma_sizeof(mt_int,1,mt_byte),0)
       endif
@@ -290,7 +289,7 @@ c
  1005 format(6i10)
       close(unit=lfnrst,status='keep')
 c
-      bsize=1.05d0*max(rshort,half*rlong,rbox)
+      bsize=max(rshort+half*rsgm,half*(rlong+half*rsgm),rbox)
 c
       if(nbx*nby*nbz.lt.np) then
       nbx=int(box(1)/bsize)
@@ -301,37 +300,6 @@ c
       nbx=max(1,nbx,npx)
       nby=max(1,nby,npy)
       nbz=max(1,nbz,npz)
-c
-c      if(nbx.eq.0) nbx=1
-c      if(nby.eq.0) nby=1
-c      if(nbz.eq.0) nbz=1
-c
-c      bsize=
-c     + min(bsize,box(1)/dble(nbx),box(2)/dble(nby),box(3)/dble(nbz))
-c
-cx      bxmin=bsize
-cx      bymin=bsize
-cx      bzmin=bsize
-c
-c      
-c      if(nbx.lt.npx) then
-c      i=npx/nbx
-c      if(mod(npx,nbx).gt.0) i=i+1
-c      bxmin=min(bsize,box(1)/dble(i))
-c      nbx=npx
-c      endif
-c      if(nby.lt.npy) then
-c      i=npy/nby
-c      if(mod(npy,nby).gt.0) i=i+1
-c      bymin=min(bsize,box(2)/dble(i))
-c      nby=npy
-c      endif
-c      if(nbz.lt.npz) then
-c      i=npz/nbz
-c      if(mod(npz,nbz).gt.0) i=i+1
-c      bzmin=min(bsize,box(3)/dble(i))
-c      nbz=npz
-c      endif
 c
       if(nbxin.eq.0) then
       nred(1)=0
