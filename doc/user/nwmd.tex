@@ -1079,8 +1079,7 @@ For the combined load balancing, \verb+ldpair+ is the number of successive pair
 redistribution load balancing steps in which the accumulated synchronization
 time increases, before a resizing load balancing step will be attempted.
 Load balancing is only performed in molecular dynamics steps in which the
-pair-list is updated. The default is not to use load balancing. In most
-cases, effective load balancing is obtained with\\
+pair-list is updated. The default load balancing is equivalent to specifying\\
 \begin{verbatim}
 load pairs 10 size 0.75
 \end{verbatim}
