@@ -1,4 +1,4 @@
-C $Id: ecp_int1.F,v 1.9 2000-04-13 20:34:23 mg201 Exp $
+C $Id: ecp_int1.F,v 1.10 2000-10-10 16:29:51 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int1 (mem_max,DryRun,
@@ -229,6 +229,8 @@ C $Id: ecp_int1.F,v 1.9 2000-04-13 20:34:23 mg201 Exp $
         ll = min(l_a,l_c)
         n_abc = n_ab*n_co_max
         n_rad = (ll+1)*(l_a+1)-ll*(ll+1)/2
+        if (debug_addresses) write (LuOut,*) 
+     &      'l_a,l_c,ll,n_rad',l_a,l_c,ll,n_rad
         if (sphcart .eq. 0) then
           m_count = (l_a+l_b)/2
           ll = max(l_a-l_c,0)
@@ -287,6 +289,8 @@ C        write (LuOut,*) 'm_count',m_count
                   tmp(i_ai+i) = one/(two*R_ac*zeta_a(i_a))
                   log_prefactor = tmp(i_alp+i)**2-zeta_a(i_a)*R_ac**2
                   tmp(i_pre+i) = exp(log_prefactor)
+                  if (debug_arrays) write (LuOut,*) i,tmp(i_gam+i),
+     &                tmp(i_alp+i),tmp(i_ai+i),tmp(i_pre+i)
                   i = i+1
                 end do
               end do
@@ -301,10 +305,13 @@ C        write (LuOut,*) 'm_count',m_count
             call ecp_radint1 (p_min,p_max,
      &          l_lo,l_min,l_max,m_count,m_skip,
      &          n_prim_a,n_cont_a,coef_a,n_prim_b,n_cont_b,coef_b,
-     &          n_co,n_prim_c(p_min,l_c,1,1),n_cont_c,tmp(i_coef),
-     &          tmp(i_ai),tmp(i_gam),tmp(i_alp),tmp(i_pre),tol,sphcart,
+     &          n_co,n_prim_c(p_min,l_c,1,i_cont_c),n_cont_c,
+     &          tmp(i_coef),tmp(i_ai),tmp(i_gam),tmp(i_alp),tmp(i_pre),
+     &          tol,sphcart,
      &          n_ab,nc_ab,n_abc,n_rad,tmp(i_tmp),tmp(i_ind),tmp(i_wrk),
      &          tmp(i_Qabc),tmp(i_Qa),tmp(i_x),transpose,ibug/10)
+            if (debug_arrays) call ecp_matpr(tmp(i_x),1,ncab,1,n_rad,
+     &          1,ncab,1,n_rad,'Radial integrals','E',78,4)
             i_t = i_t+1
             i_x = i_x+ncab*n_rad
           end do
