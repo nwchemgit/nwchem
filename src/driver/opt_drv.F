@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.21 1997-04-18 17:31:58 d3g681 Exp $
+C$Id: opt_drv.F,v 1.22 1997-04-18 22:00:44 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -73,6 +73,8 @@ c                mxcoor=max(mxcart,mxzmat)
       common/hnd_optfil/opt_hess_fil
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_molxyz/c(mxcart),zan(mxatom),nat
+      character*16 atmlab
+      common/hnd_mollab/atmlab(mxatom)
       dimension t0(mxcoor)
       data zero   /0.0d+00/
       data pt5    /0.5d+00/
@@ -154,23 +156,10 @@ c
      &       call errquit('hnd_opt: geom_create?', 911)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      &       call errquit('hnd_opt: no geometry ', 911)
-      if (ga_nodeid().eq.0)  then
-         if(.not.geom_zmt_get_nizmat(geom,nzmat))
-     1   call errquit('geom_input: geom_zmt_get_nizmat failed',0)
-         call ga_brdcst(11+msgint,nzmat ,mitob(1     ),0)
-         call ga_brdcst(12+msgint,nzvar ,mitob(1     ),0)
-         call ga_brdcst(13+msgint,nvar  ,mitob(1     ),0)
-         call ga_brdcst(14+msgint,nat   ,mitob(1     ),0)
-         call ga_brdcst(15+msgdbl,c     ,mdtob(mxcart),0)
-         call ga_brdcst(16+msgdbl,zan   ,mdtob(mxatom),0)
-      else
-         call ga_brdcst(11+msgint,nzmat ,mitob(1     ),0)
-         call ga_brdcst(12+msgint,nzvar ,mitob(1     ),0)
-         call ga_brdcst(13+msgint,nvar  ,mitob(1     ),0)
-         call ga_brdcst(14+msgint,nat   ,mitob(1     ),0)
-         call ga_brdcst(15+msgdbl,c     ,mdtob(mxcart),0)
-         call ga_brdcst(16+msgdbl,zan   ,mdtob(mxatom),0)
-      endif
+      if (.not. geom_cart_get(geom, ncent, atmlab, c, zan))
+     &       call errquit('hnd_opt: geom_get ', 911)
+      if(.not.geom_zmt_get_nizmat(geom,nzmat))
+     1       call errquit('geom_input: geom_zmt_get_nizmat failed',0)
 c
       rstart=.false.
       excess=.false.
@@ -1214,16 +1203,14 @@ C
 C
 C     ----- SAVE INITIAL HESSIAN -----
 C
-      STATUS=DRIVER_OPT_OPN_HESS()
-      IF(.NOT.STATUS) THEN
-         CALL ERRQUIT('HSS_INIT_X:OPN_HESS?',911)
-      ENDIF
-      STATUS=RTDB_PARALLEL(.FALSE.)
       IF( GA_NODEID().EQ.0) THEN
+         STATUS=DRIVER_OPT_OPN_HESS()
+         IF(.NOT.STATUS) THEN
+            CALL ERRQUIT('HSS_INIT_X:OPN_HESS?',911)
+         ENDIF
          STATUS=DRIVER_OPT_PUT_HESS(HSS,NCOOR,NCOOR)
       ENDIF
       CALL GA_SYNC()
-      STATUS=RTDB_PARALLEL(.TRUE.)
 C
       RETURN
  9999 FORMAT(/,' IN  OPT_HSS-INIT_X , ', 
