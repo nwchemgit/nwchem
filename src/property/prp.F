@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.41 1999-07-14 00:29:05 d3e129 Exp $
+* $Id: prp.F,v 1.42 1999-07-27 17:46:49 d3e129 Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -292,7 +292,8 @@ C
 C     ----- ALLOCATE MEMORY BLOCK -----
 C
       NEED = L2+L2+L2+L2+L2+L3+L3
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED,'MEM INIT',I_INIT,INIT))
+      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED,'MEM INIT:prp:hnd_dipole:1',
+     &    I_INIT,INIT))
      & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911)
 C
       DO I=1,NEED
@@ -1183,7 +1184,8 @@ C
 C     ----- ALLOCATE MEMORY BLOCK -----
 C
       NEED = L2+L2+L2+L2+L2+L2+L2+L2+L3+L3
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT',I_INIT,INIT))
+      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT:prp:hnd_qdpole:2',
+     &    I_INIT,INIT))
      & CALL ERRQUIT('HND_QDPOLE, MALLOC OF INIT  FAILED',911)
 
       DO I=1,NEED
@@ -1948,7 +1950,8 @@ C
 C     ----- ALLOCATE MEMORY BLOCK -----
 C
       NEED = L2+L2+L2+L2+L2+L2+L2+L2+L2+L2+L2+L2+L3+L3
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT',I_INIT,INIT))
+      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT:prp:hnd_otpole:3',
+     &    I_INIT,INIT))
      & CALL ERRQUIT('HND_OTPOLE, MALLOC OF INIT  FAILED',911)
 
       DO I=1,NEED
@@ -2868,7 +2871,8 @@ C
      &       L3+NAT*NAT+NAT+NAT+L3+NAT+NAT  +
      &       L3+L3+L3+L3
 C
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT',I_INIT,INIT))
+      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT:prp:hnd_mulken:4',
+     &    I_INIT,INIT))
      & CALL ERRQUIT('HND_MULKEN, MALLOC OF INIT  FAILED',911)
 C
       status=MA_verify_allocator_stuff()
@@ -4449,7 +4453,8 @@ C     NEED= LAST   - 1
 C
 C     ----- ALLOCATE MEMORY BLOCK -----
 C
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT',I_INIT,INIT))
+      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT:prp:hnd_elpmap:5',
+     &    I_INIT,INIT))
      & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911)
 
       DO I=1,NEED
@@ -4985,7 +4990,8 @@ C
 C
 C     ----- ALLOCATE MEMORY BLOCK -----
 C
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT',I_INIT,INIT))
+      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT:prp:hnd_elfmap:6',
+     &    I_INIT,INIT))
      & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911)
 
       DO I=1,NEED
@@ -5475,7 +5481,8 @@ C
 C
 C     ----- ALLOCATE MEMORY BLOCK -----
 C
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT',I_INIT,INIT))
+      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT:prp:hnd_efgmap:7',
+     &    I_INIT,INIT))
      & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911)
 
       DO I=1,NEED
@@ -6196,7 +6203,8 @@ C
 C
 C     ----- ALLOCATE MEMORY BLOCK -----
 C
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT',I_INIT,INIT))
+      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT:prp:hnd_eldmap:8',
+     &    I_INIT,INIT))
      & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911)
 
       DO I=1,NEED
@@ -10994,7 +11002,9 @@ c
 c
 c     allocate memory block
 c
-      if(.not.ma_push_get(mt_dbl,need , 'mem init',i_init,init))
+      if(.not.ma_push_get(mt_dbl,need ,
+     &    'mem init:prp:hnd_get_eigens:9',
+     &    i_init,init))
      & call errquit('hnd_get_eigens, malloc of init  failed',911)
 c
       i00=init
