@@ -126,25 +126,22 @@ c
 c
 c                    check for use of symmetry
 c
-c                     if (oskel) then
-c                        if (sym_shell(cd_bas_han, ishd, q1))then
-c
-c                           call intd_2e3c(CD_bas_han, ishd, 
-c     &                                    AO_bas_han, ishp, ishq,
-c     &                                    lscr, scr, lbuf, buf, idatom)
-c
-c                           call dscal(Nintegrals, q1, buf, 1)
-c                        else
-c                           call dzero(buf, Nintegrals)
-c                        endif
-c                     else
-c
+                     if (oskel) then
+                        q1 = 0.d0
+                        if (sym_shell(cd_bas_han, ishd, q1))then
+                           call intd_2e3c(CD_bas_han, ishd, 
+     &                                    AO_bas_han, ishp, ishq,
+     &                                    lscr, scr, lbuf, buf, idatom)
+                        endif
+                     else
+                        q1 = 1.0d0
                         call intd_2e3c(CD_bas_han, ishd, 
      &                                 AO_bas_han, ishp, ishq,
      &                                 lscr, scr, lbuf, buf, idatom)
 c
-c                     endif                   
+                     endif                   
 c
+                     if(q1.eq.0.d0)goto 204
                      icount = 1
                      do iat = 1, 4
 c
@@ -156,9 +153,6 @@ c
      &                                   buf(icount), Nao2,
      &                                   CD_coef(ifirstd), 1, 
      &                                   0.D0, vec, 1)
-c
-c                             would symmetry work if vec was symmetrized here?
-c                             how to do this?
 c
                               icount = icount + Nintegrals
                               dE = 0.d0
@@ -173,13 +167,14 @@ c
                               if (ishp.ne.ishq)dE = dE + dE
 c
                               force(icart,idatom(iat)) = 
-     &                        force(icart,idatom(iat)) + dE
+     &                        force(icart,idatom(iat)) + dE * q1
 c
                            enddo
                         else
                            icount = icount + 3*Nintegrals
                         endif
                      enddo
+  204                continue
                   enddo
                endif
             enddo
