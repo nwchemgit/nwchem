@@ -1,13 +1,13 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.26 1999-07-08 19:10:48 d3e129 Exp $
+c $Id: int_spcart.F,v 1.27 1999-07-27 17:25:31 windus Exp $
 *::cr::7
-*------------------------------------------------*
-* COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
-*         Pacific Northwest National Laboratory, * 
-*         Battelle Memorial Institute.           *
-*------------------------------------------------*
-*------------> All Rights Reserved <-------------*
-*------------------------------------------------*
+*--------------------------------------------------*
+* COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999 *
+*         Pacific Northwest National Laboratory,   * 
+*         Battelle Memorial Institute.             *
+*--------------------------------------------------*
+*------------> All Rights Reserved <---------------*
+*--------------------------------------------------*
 * 
 * initialization of spherical to cartesean tranformation array
 *... stored on heap.  
