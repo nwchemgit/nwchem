@@ -67,7 +67,7 @@ c
       x2(i)=x1(i)
     2 continue
 c
-      lrwrk=max(2*ngx*ngy*ngz/np,65536)+np+200
+      lrwrk=21*ngx*ngy*ngz/(10*np)+1
       if(.not.ma_push_get(mt_dbl,lrwrk,'rwork',l_rwrk,i_rwrk))
      + call errquit('Failed to allocate rwork',0)
       liwrk=2*np+100
@@ -76,8 +76,6 @@ c
 c
       if(.not.ma_verify_allocator_stuff()) then
       call errquit('FFT buffer problems after',me)
-      else
-      print*,'OK before fft'
       endif
 c
       call pfft3d(isign,nd1,nd2,nd3,x2,map1,map2,
