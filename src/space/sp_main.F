@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.43 2000-02-16 17:10:08 d3j191 Exp $
+c $Id: sp_main.F,v 1.44 2000-02-16 17:19:37 d3j191 Exp $
 c
       implicit none
 c
@@ -1938,7 +1938,7 @@ c
       logical lself,local,lpp
 c
       integer i,j,ibox,jbox,jnode,il,ih,jl,jh,ndx,nwnon,nsnon
-      character*255 string
+      character*80 string
 c
       if(ibbl.le.0.or.ibbl.gt.nbbl)
      + call errquit('Index to lbbl out of range',ibbl)
@@ -1967,7 +1967,7 @@ c
       write(*,1000) me,(ipl(30+i,1),i=1,ipl(1,1))
  1000 format(/,'Boxes on node',i5,':',t20,20i5,/,(t20,20i5))
       write(string,1001) ibox,me
- 1001 format('SP0001: Could not find box',i5,' on node',i5)
+ 1001 format('SP0001: Could not find local ibox',i5,' on node',i5)
       call errquit(string,me)
       endif
 c
@@ -1988,7 +1988,8 @@ c
 c
       if(ndx.eq.0) then
       write(*,1000) me,(ipl(30+i,1),i=1,ipl(1,1))
-      write(string,1001) jbox,me
+      write(string,1002) jbox,me
+ 1002 format('SP0001: Could not find local jbox',i5,' on node',i5)
       call errquit(string,me)
       endif
 c
@@ -2021,10 +2022,10 @@ c
       call util_flush(lfndbg)
       endif
 c
-      write(*,1002) jnode,(jpl(30+i,1),i=1,jpl(1,1))
- 1002 format(/,'Boxes on node',i5,':',t20,20i5,/,(t20,20i5))
-      write(string,1003) jbox,jnode
- 1003 format('SP0002: Could not find box',i5,' on node',i5)
+      write(*,1003) jnode,(jpl(30+i,1),i=1,jpl(1,1))
+ 1003 format(/,'Boxes on node',i5,':',t20,20i5,/,(t20,20i5))
+      write(string,1004) jbox,jnode
+ 1004 format('SP0002: Could not find remote jbox',i5,' on node',i5)
       call errquit(string,me)
 c
       endif
