@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.29 2000-02-18 07:02:30 d3j191 Exp $
+c $Id: cf_main.F,v 1.30 2000-02-23 18:53:26 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1644,18 +1644,19 @@ c
 c
       return
       end
-      subroutine cf_center(xw,numw,xs,nums)
+      subroutine cf_center(xw,numw,isfrc,xs,nums,idscb,nscb)
 c
       implicit none
 c
 #include "cf_common.fh"
 #include "msgids.fh"
 c
-      integer numw,nums
+      integer numw,nums,nscb
+      integer isfrc(msa),idscb(nscb)
       real*8 xw(mwm,3,mwa),xs(msa,3)
 c
-      real*8 xb(3)
-      integer i,isa,iwm,iwa
+      real*8 xb(4)
+      integer i,isa,iwm,iwa,j,n
 c
       if(nsa.le.0) return
 c
@@ -1663,31 +1664,39 @@ c
       xb(i)=zero
     1 continue
 c
-      do 2 i=1,3
-      do 3 isa=1,nums
+      n=0
+      do 2 isa=1,nums
+      do 3 j=1,nscb
+      if(idscb(j).eq.isfrc(isa)) then
+      n=n+1
+      do 4 i=1,3
       xb(i)=xb(i)+xs(isa,i)
+    4 continue
+      endif
     3 continue
     2 continue
 c
-      call ga_dgop(mcf_49,xb,3,'+')
+      xb(4)=dble(n)
 c
-      do 4 i=1,3
-      xb(i)=xb(i)/dble(nsa)
-    4 continue
+      call ga_dgop(mcf_49,xb,4,'+')
 c
       do 5 i=1,3
-      do 6 isa=1,nums
-      xs(isa,i)=xs(isa,i)-xb(i)
-    6 continue
+      xb(i)=xb(i)/xb(4)
     5 continue
 c
-      do 7 i=1,3
-      do 8 iwa=1,nwa
-      do 9 iwm=1,numw
+      do 6 i=1,3
+      do 7 isa=1,nums
+      xs(isa,i)=xs(isa,i)-xb(i)
+    7 continue
+    6 continue
+c
+      do 8 i=1,3
+      do 9 iwa=1,nwa
+      do 10 iwm=1,numw
       xw(iwm,i,iwa)=xw(iwm,i,iwa)-xb(i)
+   10 continue
     9 continue
     8 continue
-    7 continue
 c
       return
       end
