@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.61 2002-06-18 15:28:42 d3j191 Exp $
+c $Id: md_common.fh,v 1.62 2002-06-26 20:06:11 d3j191 Exp $
 c
 c     parameters
 c
@@ -96,13 +96,13 @@ c
       character*80 filnam,fdarg,fdlog,fsum,server,projct
       character*70 filday,filinp,filrst,filtop,filtrj,filprp,filfld,
      + filgib,filppd,filhis,filhbo,filsfl,filcmd,filtri,
-     + filmro,filmri,filout,filmem,fildef,
+     + filmro,filmri,filout,filmem,fildef,filpmf,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst
       common/md_nam/
      + filnam,filday,filinp,filrst,filtop,filtrj,filprp,filfld,
      + filgib,filppd,filhis,filhbo,filsfl,filcmd,filtri,
-     + filmro,filmri,filout,filmem,fildef,
+     + filmro,filmri,filout,filmem,fildef,filpmf,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
      + fdarg,fdlog,fsum,server,projct
@@ -137,7 +137,7 @@ c
      + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,
      + ngx,ngy,ngz,ipme,ireset,loadb,nffet,keepr,nfanal,nodpme,
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
-     + nfefld,icomm,latom,ihess,itload,nfdrss,nftime,itime,ifidi,
+     + nfefld,icomm,latom,ihess,itload,nfdrss,nftime,itime,ifidi,lprpmf,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
      + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb(10),mbbreq,ioload,iprof,
@@ -167,7 +167,7 @@ c
      + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,
      + ngx,ngy,ngz,ipme,ireset,loadb,nffet,keepr,nfanal,nodpme,
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
-     + nfefld,icomm,latom,ihess,itload,nfdrss,nftime,itime,ifidi,
+     + nfefld,icomm,latom,ihess,itload,nfdrss,nftime,itime,ifidi,lprpmf,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
      + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb,mbbreq,ioload,iprof,

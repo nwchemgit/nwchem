@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.63 2002-06-05 00:38:51 d3j191 Exp $
+c $Id: md_input.F,v 1.64 2002-06-26 20:06:11 d3j191 Exp $
 c
       implicit none
 c
@@ -32,7 +32,7 @@ c
       integer itload,ihess,latom,icomm,nfanal,iport,iguide,icentr
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
       integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ,npforc
-      integer iprop
+      integer iprop,lprpmf
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -159,6 +159,7 @@ c      iunfix=0
       memlim=0
       isolvo=0
       lfout6=0
+      lprpmf=0
       imfft=1
       mwmreq=0
       msareq=0
@@ -1086,6 +1087,10 @@ c
       lfout6=1
       goto 500
       endif
+      if(inp_compare(.false.,'pmf',item)) then
+      lprpmf=1
+      goto 500
+      endif
       if(inp_compare(.false.,'extra',item)) then
       npstep=1
       goto 500
@@ -1689,6 +1694,8 @@ c     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:isolvo',mt_int,1,isolvo))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:lfout6',mt_int,1,lfout6))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:lprpmf',mt_int,1,lprpmf))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:imfft',mt_int,1,imfft))
      + call errquit('md_input: rtdb_put failed',0)

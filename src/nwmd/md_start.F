@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.128 2002-06-18 15:28:45 d3j191 Exp $
+c $Id: md_start.F,v 1.129 2002-06-26 20:06:11 d3j191 Exp $
 c
       implicit none
 c
@@ -328,6 +328,7 @@ c
       filtst=filnam(1:ibl)//'.tst'
       filcmd=filnam(1:ibl)//'.cmd'
       filtri=filnam(1:ibl)//'.tri'
+      filpmf=filnam(1:ibl)//'.pmf'
 c
 c     set logical file numbers
 c
@@ -858,6 +859,8 @@ c     + call errquit('md_rtdbin: rtdb_get failed',72)
      + call errquit('md_rtdbin: rtdb_get failed',81)
       if(.not.rtdb_get(irtdb,'md:lfout6',mt_int,1,lfout6))
      + call errquit('md_rtdbin: rtdb_get failed',82)
+      if(.not.rtdb_get(irtdb,'md:lprpmf',mt_int,1,lprpmf))
+     + call errquit('md_rtdbin: rtdb_get failed',82)
       if(.not.rtdb_get(irtdb,'md:imfft',mt_int,1,imfft))
      + call errquit('md_rtdbin: rtdb_get failed',83)
       if(.not.rtdb_get(irtdb,'md:mwmreq',mt_int,1,mwmreq))
@@ -1248,6 +1251,10 @@ c
       endif
       if(ntype.eq.0.and.nftri.gt.0) then
       open(unit=lfntri,file=filtri(1:index(filtri,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+      if(ntype.eq.2.and.lprpmf.ne.0) then
+      open(unit=lfnpmf,file=filpmf(1:index(filpmf,' ')-1),
      + form='formatted',status='unknown')
       endif
       if(nftime.gt.0) then
