@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.31 2000-07-28 21:35:00 d3j191 Exp $
+c $Id: ana_task.F,v 1.32 2000-07-31 15:35:27 d3j191 Exp $
 c
       implicit none
 c
@@ -27,6 +27,7 @@ c
       external ana_rdfram
       external ana_bond,ana_angle,ana_torsion
       integer idpdb
+      logical lsuper
 c
 c     set sequential access to rtdb
 c     and ignore current state
@@ -52,6 +53,7 @@ c
       lfntop=91
       lfnhis=92
       lsonly=.false.
+      lsuper=.false.
 c
       ifrfr=1
       ifrto=1
@@ -369,10 +371,11 @@ c
 c     write pdb
 c     ---------
 c
-      if(card(1:6).eq.'wrtpdb'.or.card(1:6).eq.'wtspdb') then
-      lsonly=card(1:6).eq.'wtspdb'
+      if(card(1:6).eq.'wrtpdb') then
+      lsuper=card(15:17).eq.'sup'
+      lsonly=card(19:21).eq.'sol'
       read(card(7:14),'(i8)') idpdb
-      read(card(15:80),'(a)') filcop
+      read(card(23:80),'(a)') filcop
       i=index(filcop,'.')
       fmt=filcop(i+1:i+3)
 c
@@ -385,8 +388,14 @@ c
       if(ana_rdfram(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))) then
       nread=nread+1
       if(nread.lt.ifrfr) goto 222
+      if(lsuper) call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
+     + num,msa,dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,
+     + .true.,rms0,rms1)
       if(fmt.eq.'pdb') then
       call ana_wrtpdb(lfncop,filcop,byte_mb(i_snam),int_mb(i_isel),
+     + dbl_mb(i_xdat),int_mb(i_wsel),dbl_mb(i_wdat),.false.,.not.lsonly)
+      elseif(fmt.eq.'xyz') then
+      call ana_wrtxyz(lfncop,filcop,byte_mb(i_snam),int_mb(i_isel),
      + dbl_mb(i_xdat),int_mb(i_wsel),dbl_mb(i_wdat),.false.,.not.lsonly)
       else
       call errquit('Illegal file format specified',0)

@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.25 2000-07-28 21:35:00 d3j191 Exp $
+c $Id: ana_input.F,v 1.26 2000-07-31 15:35:27 d3j191 Exp $
 c
       implicit none
 c
@@ -16,8 +16,9 @@ c
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,itag,iatag,jatag
       real*8 timoff,rsel,rtag,rcut,scale,cpk
-      logical lref,lfil,lsol
+      logical lref,lfil,lsol,lsuper
       integer iesppb,lent,idpdb
+      character*8 option
 c
       if(ga_nodeid().eq.0) then
       call util_print_centered(6,'Analysis Input Module',40,.true.)
@@ -163,26 +164,31 @@ c
       goto 2
       endif
 c
-c     write pdb file
+c     write pdb file of selected frame
+c     --------------------------------
 c
       if(inp_compare(.false.,'write',item)) then
       if(.not.inp_i(idpdb)) idpdb=0
-      if(.not.inp_a(filcop)) call errquit('Error in copy',0)
       lsol=.false.
+      lsuper=.false.
+ 3301 continue
+      if(.not.inp_a(filcop)) call errquit('Error in copy',0)
       if(filcop(1:6).eq.'solute') then
-      if(.not.inp_a(filcop)) call errquit('Error in super',0)
       lsol=.true.
+      goto 3301
       endif
+      if(filcop(1:6).eq.'super') then
+      lsuper=.true.
+      goto 3301
+      endif
+      option='        '
+      if(lsuper) option='sup     '
+      if(lsol) option=option(1:3)//' sol '
       if(index(filcop,'.').le.0)
      + filcop=filcop(1:index(filcop,' ')-1)//'.pdb '
       if(filcop.eq.filtrj) call errquit('File name conflict',0)
-      if(lsol) then
-      write(lfncmd,3004) idpdb,filcop(1:index(filcop,' ')-1)
- 3004 format('wtspdb',i8,a)
-      else
-      write(lfncmd,3024) idpdb,filcop(1:index(filcop,' ')-1)
- 3024 format('wrtpdb',i8,a)
-      endif
+      write(lfncmd,3004) idpdb,option,filcop(1:index(filcop,' ')-1)
+ 3004 format('wrtpdb',i8,a8,a)
       numcmd=numcmd+1
       goto 2
       endif
