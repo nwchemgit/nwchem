@@ -3,7 +3,7 @@
      + csa,qsa,msa,nsa,nsm,
      + idsb,cdsb,msb,nsb,qu,nqu,slvnam,mseq,nseq,lseq,ihop,istat)
 c
-c $Id: pre_toprd.F,v 1.21 2003-10-31 17:12:51 d3j191 Exp $
+c $Id: pre_toprd.F,v 1.22 2003-11-04 04:06:44 d3j191 Exp $
 c
       implicit none
 c
@@ -58,7 +58,7 @@ c
     6 continue
       do 77 i=1,nseq
       read(lfntop,1334) lseq(i)
- 1334 format(40x,i5)
+ 1334 format(48x,i5)
       if(lseq(i).eq.0) lseq(i)=1
    77 continue
       read(lfntop,1003) nwa,nwb,nwh,nwd,nwo,nwt,nwn
