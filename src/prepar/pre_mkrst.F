@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.40 2000-01-26 19:40:10 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.41 2000-01-28 20:42:17 d3j191 Exp $
 c
       implicit none
 c
@@ -512,6 +512,64 @@ c
      + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
      + call errquit('pre_rdrst failed',9999)
       endif
+      endif
+c
+c     read restart file
+c     ------------------
+c
+      if(card(1:6).eq.'rd_old') then
+      filnam=card(8:80)
+      length=index(filnam,' ')-1
+      if(length.eq.0) filnam=filrst
+      if(.not.pre_rstsz(lfnrst,filnam,nnwm,nnwa,nnsa,nnwmc))
+     + call errquit('pre_rstsiz failed',9999)
+      if(nnwm.gt.mwm) then
+      if(lsolva) then
+      if(.not.ma_free_heap(l_xw))
+     + call errquit('ma_free_heap failed on l_xw',9999)
+      if(.not.ma_free_heap(l_vw))
+     + call errquit('ma_free_heap failed on l_vw',9999)
+      if(.not.ma_free_heap(l_iwmr))
+     + call errquit('ma_free_heap failed on l_iwmr',9999)
+      lsolva=.false.
+      endif
+      mwm=nnwm
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,'xw',l_xw,i_xw))
+     + call errquit('ma_alloc_get failed for xw',9999)
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,'vw',l_vw,i_vw))
+     + call errquit('ma_alloc_get failed for vw',9999)
+      if(.not.ma_alloc_get(mt_int,mwm,'iwmr',l_iwmr,i_iwmr))
+     + call errquit('ma_alloc_get failed for iwmr',9999)
+      lsolva=.true.
+      endif
+      if(lcryst) then
+      if(.not.ma_free_heap(l_xwc))
+     + call errquit('ma_free_heap failed on l_xwc',9999)
+      if(.not.ma_free_heap(l_vwc))
+     + call errquit('ma_free_heap failed on l_vwc',9999)
+      if(.not.ma_free_heap(l_wfnd))
+     + call errquit('ma_free_heap failed on l_wfnd',9999)
+      if(.not.ma_free_heap(l_wcmr))
+     + call errquit('ma_free_heap failed on l_wcmr',9999)
+      lcryst=.false.
+      endif
+      nwmc=0
+      mwmc=nnwmc
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,'xwc',l_xwc,i_xwc))
+     + call errquit('ma_alloc_get failed for xwc',9999)
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,'vwc',l_vwc,i_vwc))
+     + call errquit('ma_alloc_get failed for vwc',9999)
+      if(.not.ma_alloc_get(mt_int,mwmc,'wfnd',l_wfnd,i_wfnd))
+     + call errquit('ma_alloc_get failed for wfnd',9999)
+      if(.not.ma_alloc_get(mt_int,mwmc,'wcmr',l_wcmr,i_wcmr))
+     + call errquit('ma_alloc_get failed for wcmr',9999)
+      lcryst=.true.
+      if(.not.pre_rrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
+     + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
+     + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
+     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
+     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
+     + call errquit('pre_rdrst failed',9999)
       endif
 c
 c     write pdb file

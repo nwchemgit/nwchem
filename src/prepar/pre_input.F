@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.34 1999-11-04 22:53:08 d3j191 Exp $
+c $Id: pre_input.F,v 1.35 2000-01-28 20:42:16 d3j191 Exp $
 c
       implicit none
 c
@@ -861,6 +861,12 @@ c
       if(numcmd.eq.0) rewind(68)
       write(68,6810) item(1:index(item,' ')-1)
  6810 format('rd_rst ',a)
+      lrdcoo=.true.
+      elseif(inp_compare(.false.,'rst_old',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: read',9999)
+      if(numcmd.eq.0) rewind(68)
+      write(68,6825) item(1:index(item,' ')-1)
+ 6825 format('rd_old ',a)
       lrdcoo=.true.
       endif
       endif
