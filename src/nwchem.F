@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.78 1996-06-05 20:54:19 ng716 Exp $
+c     $Id: nwchem.F,v 1.79 1996-07-02 19:23:17 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -258,6 +258,10 @@ c
 c     Extract any high level print options
 c
       call util_print_rtdb_load(rtdb,' ')
+c
+c     Enable speech if requested
+c
+      call util_rtdb_speak(rtdb)
 c
 c     Done
 c
