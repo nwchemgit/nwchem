@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.61 2004-11-29 16:05:18 bylaska Exp $
+* $Id: control.F,v 1.62 2004-12-02 15:07:34 bylaska Exp $
 *
 
 *     ***********************************
@@ -722,22 +722,22 @@ c
 
 c     **** Figure input/output MO vectors ****
 c
-      if (rtdb_cget(rtdb,'wannier:input vectors',
+      if (.not.rtdb_cget(rtdb,'wannier:input vectors',
      >                  1,input_wavefunction_filename)) then
       if (.not. rtdb_cget(rtdb, 'pspw:input vectors',
      >                    1,input_wavefunction_filename))
      >  input_wavefunction_filename = 'atomic'
       end if
 
-      if (rtdb_cget(rtdb,'wannier:output vectors',
+      if (.not.rtdb_cget(rtdb,'wannier:output vectors',
      >                  1,output_wavefunction_filename)) then
       if (.not. rtdb_cget(rtdb, 'pspw:output vectors',
      >                    1,output_wavefunction_filename))
      >     output_wavefunction_filename = ' '
+
       if (output_wavefunction_filename.eq.' ')then
          if (input_wavefunction_filename.eq.'atomic')then
-            call util_file_name('movecs', .false.,.false.,
-     >                          output_wavefunction_filename)
+            call util_file_prefix('movecs',output_wavefunction_filename)
          else
             output_wavefunction_filename = input_wavefunction_filename
          endif
@@ -753,7 +753,6 @@ c     >                  1,input_wavefunction_filename)
 c         value = value.and.
 c     >           rtdb_cget(rtdb,'wannier:output_wavefunction_filename',
 c     >                  1,output_wavefunction_filename)
-
 
          call psi_get_header(i,ngrid,unita,ispin0,ne)
          if (i.eq.3) boundry = 'periodic'
