@@ -372,6 +372,7 @@ We know this is NOT the correct Becke perscribed implementation which
 requires the XC potential in the energy expression.  But this is what
 is currently implemented as an approximation to it.
 
+\clearpage
 
 
 The keyword \verb+acm+ specifies that the exchange-correlation energy
@@ -703,8 +704,9 @@ phi points per center (or 64000 points per center before pruning).
 A second quadrature available for the numerical integration is an
 Euler-Mac\-Laurin scheme for the radial components and a Lebedev
 scheme for the angular components\footnote{The subroutine 
-for the Lebedev grid was supplied by M.~Caus\`a of the University of
-Torino.}.  Within this numerical integration procedure various levels 
+for the Lebedev grid was derived from a routine supplied by M.~Caus\`a
+of the University of Torino.}.  
+Within this numerical integration procedure various levels 
 of accuracy have also been defined and are available to the user.  
 The input for this type of grid takes the form,
 \begin{verbatim}
@@ -714,14 +716,14 @@ In this context the variable iangquad specifies a certain number of
 angular points as indicated by the table below.
 
 \begin{center}
-  \begin{tabular}[right]{|l|r r r r r r r|} \hline
-$IANGQUAD$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\ \hline
-$N_{angular}$ & 38 & 50 & 110 & 194 & 266 & 302 & 434 \\  \hline
-  \end{tabular}
+\begin{tabular}[right]{|l|r r r r r r r r r r |} \hline
+$IANGQUAD$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\ \hline
+$N_{angular}$ & 38 & 50 & 110 & 194 & 302 & 434 & 590 & 770 & 974 & 1202\\ \hline
+\end{tabular}
 \end{center}
 
 Therefore the user can specify any number of radial points along with
-the level of angular quadrature (1-7).
+the level of angular quadrature (1-10).
 
 %       [store_wght] [nquad_task <integer nquad_task default 1>] \
 %{\bf JEFF: store\_weight and nquad\_task need explaining}
