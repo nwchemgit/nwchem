@@ -1,32 +1,33 @@
-      Subroutine xc_getv( rtdb, geom, AO_bas_han, 
-     &     XC_bas_han, Exc,ipol,nExc,
+      Subroutine xc_getv( rtdb, 
+     &     Exc,nExc,
      &     iVxc_opt,g_xcinv,
-     &     g_dens,g_vxc,IOLGC,iAOacc,
+     &     g_dens,g_vxc,IOLGC,
      &     g_wght,g_xyz,wght_GA)
-C$Id: xc_getv.F,v 1.5 1996-07-08 23:10:08 d3h449 Exp $
+C$Id: xc_getv.F,v 1.6 1996-10-05 00:52:26 d3h449 Exp $
       implicit none
       
-      integer ipol,nExc
+      integer nExc
       integer iVxc_opt
       integer g_xcinv,g_dens(*),g_vxc(*),g_wght,g_xyz
-      integer iAOacc ! [input]
+c      integer iAOacc ! [input]
 
       Logical LResult,IOLGC,wght_GA
 c****
 c**** nwchem handles
 c****
-      integer rtdb, geom, AO_bas_han,  XC_bas_han
+c      integer rtdb, geom, AO_bas_han,  XC_bas_han
+      integer rtdb
 c**** 
-
-
 c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "bas.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
-
-      double precision jfac(4),kfac(4),xfac(10),cfac(10)
+#include "cdft.fh"
+c
+c      double precision jfac(4),kfac(4),xfac(10),cfac(10)
+      double precision jfac(4),kfac(4)
       integer d(4),f(4)
 c
 c--> XC Energy
@@ -54,8 +55,10 @@ c
 c           nTcols = ipol 
 c
 c
-      integer g_scr,me,nproc,i,nTrows,nbf_xc,nbf_ao,nTcols
-      integer lTmat,iTmat,itol2e
+c      integer g_scr,me,nproc,i,nTrows,nbf_xc,nbf_ao,nTcols
+      integer g_scr,me,nproc,i,nTrows,nTcols
+c      integer lTmat,iTmat,itol2e
+      integer lTmat,iTmat
       double precision zero,one,onem
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
       double precision tol2e,tot
@@ -67,21 +70,11 @@ c
       Exc(2)=0.d0
       me=ga_nodeid()
       nproc=ga_nnodes()
-      if (.not. rtdb_get(rtdb, 'dft:cfac', mt_dbl, 10, cfac))
-     $     call errquit('xc_getv: rtdb_put failed', 0)
-      if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, 10, xfac))
-     $     call errquit('xc_getv:rtdb_put failed', 0)
-      if( .not. bas_numbf(AO_bas_han,nbf_ao) )then
-        call errquit('Exiting in getvxc.',1)
-      end if
-
+c
       if( abs(xfac(1)).gt.1e-8 )then
-        
 c       
 c       Compute the exact exchange potential (as in Hartree-Fock calculations).
 c       
-        if (.not. rtdb_get(rtdb, 'dft:itol2e', mt_int, 1, itol2e))
-     $       call errquit('fitcd: rtdb_get failed', 0)
         tol2e=10.d0**(-itol2e)
         if(ipol.eq.1) then
           jfac(1)=0.
@@ -143,9 +136,9 @@ c
 c         
 c         Option A:  Compute via direct numerical quadrature.
 c         
-          call xc_quadv0(rtdb,geom, AO_bas_han, 
-     &         ipol,nExc,
-     &     g_vxc,g_dens,iAOacc,
+          call xc_quadv0(rtdb,
+     &         nExc,
+     &     g_vxc,g_dens,
      &     g_wght,g_xyz,wght_GA,
      &     Exc)
  
@@ -167,9 +160,9 @@ c         Allocate scratch space for the "T" matrix.
 c         
           if(.not.ma_push_get(MT_Dbl,nTrows*nTcols,'Tmat',lTmat,iTmat))
      &      call errquit('xc_getv: cannot allocate Tmat',0)
-          call xc_quadv1(rtdb,geom, AO_bas_han, XC_bas_han,
-     &         Dbl_MB(iTmat),nbf_xc,ipol,nExc,
-     &         g_dens,Exc,iAOacc)
+          call xc_quadv1(rtdb,
+     &         Dbl_MB(iTmat),nExc,
+     &         g_dens,Exc)
           call xc_fitv(AO_bas_han, XC_bas_han,geom,
      &         Dbl_MB(iTmat),nTrows,nTcols,
      &         1,g_vxc,g_xcinv,IOLGC)

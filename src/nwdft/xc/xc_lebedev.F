@@ -1,16 +1,16 @@
-      subroutine xc_lebedev(iacc,nang,oprint)
+      subroutine xc_lebedev(nang,oprint)
       implicit none
-
-C$Id: xc_lebedev.F,v 1.4 1996-05-01 23:31:28 og845 Exp $
-
-#include "quad.fh"
+c
+C$Id: xc_lebedev.F,v 1.5 1996-10-05 00:52:26 d3h449 Exp $
+c
+#include "cdft.fh"
 #include "stdio.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
-C
-C     routine for Lebedev weights, supplied by Mauro Causa`
-C
-      integer iacc  ! [input]
+c
+c     Routine for Lebedev weights, supplied by Mauro Causa`
+c
+c      integer iacc  ! [input]
       integer MAXN,i
       parameter(MAXN=61)
       logical oprint
@@ -221,7 +221,7 @@ c
       fasf(2)=1.d0/sqrt(2.d0)
       fasf(3)=1.d0/sqrt(3.d0)
 
-      do ia=1,iacc
+      do ia=1,iangquad
 
       if(ia.le.0) then
         nang=1

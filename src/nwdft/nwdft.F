@@ -2,9 +2,8 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.25 1996-08-19 15:19:53 d3g681 Exp $
+C$Id: nwdft.F,v 1.26 1996-10-05 00:52:00 d3h449 Exp $
       implicit none
-      logical CDFIT,XCFIT
 c****
 c**** nwchem handles
 c****
@@ -33,7 +32,6 @@ c
 #ifdef DFT_TIMER
       character*(nw_max_path_len) timings
 #endif
-      character*255 title
       integer iproc,itype,ncent,ickcon,lckcon
       logical LResult,oprint
 c>>>  
@@ -41,6 +39,10 @@ c
 
       iproc  = ga_nodeid()
 c
+c
+c     Make sure database is parallel, push context down to DFT.
+c
+      LResult = rtdb_parallel(.true.)
       call util_print_push
       call util_print_rtdb_load(rtdb, 'dft')
 #ifdef DFT_TIMER
@@ -66,38 +68,23 @@ c     only process 0 will write to it
         endif
       endif
 c
-c-->  Allocate memory for checkpoint file constants.
-c
-      if(.not.MA_Push_Get(MT_Int,200,'pdft10 const',lckcon,ickcon))
-     &  call errquit('nwdft: cannot allocate pdft10 const',0)
-c
 c-->  Gather input from all available resources e.g. input unit,
 c     old checkpoint files, etc.
 c
-      call dft_rdinput(rtdb, 
-     &             Int_MB(ickcon), 200)
+      call dft_rdinput(rtdb)
 c     
 c--> determine system type (molecule, polymer,surface,crystal)
 c    if no system type exists in db --> default = molecular case     
 c
+x
       if(.not. geom_systype_get(geom,itype))
      &    itype = 0
 c
       if(itype.eq.0) then
-        call dft_main0d(rtdb, 
-     &       Int_MB(ickcon), 200)
-cMG      elseif(itype.eq.3) then
-cMG        if(.not. geom_ncent(geom,ncent))
-cMG     &     call errquit('nwdft: ncent get failed',0)
-cMG        call main3d(geom,rtdb,ncent,AO_bas_han,CD_bas_han,XC_bas_han)
+        call dft_main0d(rtdb)
       else
         call errquit('nwdft: problem with system type',0)
       endif
-c
-c--> Clean-up memory.
-c
-      if(.not.ma_pop_stack(lckcon))
-     &  call errquit('nwdft: cannot pop stack',0)
 c     
 c     terminate integrals 
 c     
@@ -105,7 +92,6 @@ c
 c     
 c     destroy BS handles and geom object
 c
-
       XCFIT    = .TRUE.
       if( XC_bas_han.eq.-99999 ) XCFIT = .FALSE.
       CDFIT    = .TRUE.

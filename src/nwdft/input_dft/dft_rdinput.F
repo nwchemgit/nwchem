@@ -1,11 +1,10 @@
-      Subroutine dft_rdinput( rtdb, iconst, nconst )
-
-C$Id: dft_rdinput.F,v 1.14 1996-10-01 21:22:53 d3h449 Exp $
+      Subroutine dft_rdinput(rtdb)
+c
+C$Id: dft_rdinput.F,v 1.15 1996-10-05 00:52:18 d3h449 Exp $
       implicit none
-      
+c      
       integer rtdb                               ! [input] database handle
-      integer nconst
-      integer  iconst(nconst)
+c
 #include "global.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -14,59 +13,27 @@ C$Id: dft_rdinput.F,v 1.14 1996-10-01 21:22:53 d3h449 Exp $
 #include "msgids.fh"
 #include "sym.fh"
 #include "tcgmsg.fh"
-
 #include "mafdecls.fh"
-#include "quad.fh"
 #include "stdio.fh"
 c
       integer bases(3)
-      character*255 title
-      character*10 gridtype
-      integer ncenters,iproc,ichg,iscfcon,iguess,mult,ipol,
-     ,     igcon,nfock,idirect,noio,
-     ,     ndamp,idecomp,nagrid,nrinc,nrmax,
-     ,     itype,numgrp,numset,itrscf,
-     ,     icenter,jcenter,iEx,iEc,i3,
-     &     igeotype, 
-     &     iAOacc,iXCacc,irqmax,itol2e,imull,iangquad,
-     &     ncydp, ncysh, ncyds
-      double precision rlshift
-      double precision dampon, dampoff, levlon, levloff, 
-     &                 diison, diisoff
-      integer nbf,nshells_cd,nbf_xc,nshells_xc,nshells
+      integer iproc,ichg,itype,
+     &     icenter,jcenter,iEx,iEc,i3
+      integer nshells_cd,nshells_xc,nshells
       integer lcoord,icoord,lcharge,icharge,ltags,itags,
-     ,     lznuc,iznuc,lratom,iratom
-      double precision rcharge,rm,rscale
-      double precision cdist(3), cang(3)
-      logical nodamping, nolevelshifting, nodiis
-      logical ltight, lmaxov, incore
-      Logical LResult, lnewtype, XCFIT, CDFIT, oskel
+     &     lznuc,iznuc,lratom,iratom
+      Logical LResult, lnewtype, oskel
       Logical int_normalize
+      Logical int_norm_2c
 c     
 c     XC functionals coefficients
 c     
-      character*50 xname,cname
-      double precision cfac(10),xfac(10)
       External int_normalize
-      Logical int_norm_2c
       External int_norm_2c
 c
-
 c******************************************************************************
 
       iproc  = ga_nodeid()
-c****
-c**** recover logical parameters from rtdb
-c****
-C      if (.not.rtdb_get(rtdb, 'dft:skeleton',MT_LOG, 1, oskel)) then
-C        write (6,*) "dft_rdinput: did not find dft:skeleton"
-C        oskel = sym_number_ops(geom) .gt. 0
-C        if (.not.rtdb_put(rtdb, 'dft:skeleton',MT_LOG, 1, oskel))
-C     &       call errquit('rdinput: rtdb_put failed',88) 
-C      else 
-C        write (6,*) "dft_rdinput: found dft:skeleton"
-C        write (6,*) "oskel: ",oskel
-C      endif 
 c****
 c**** recover charge from rtdb
 c****
@@ -89,6 +56,10 @@ c
      $     call errquit('dft_input: rtdb_get failed', 5)
       if(.not. rtdb_get(rtdb, 'dft:max_ovl', mt_log, 1,lmaxov ))
      $     call errquit('dft_input: rtdb_get failed', 6)
+      if(.not. rtdb_get(rtdb, 'dft:store_wght', mt_log, 1,store_wght ))
+     $     call errquit('dft_input: rtdb_get failed', 7)
+      if(.not. rtdb_get(rtdb, 'dft:delley', mt_log, 1,ldelley ))
+     $     call errquit('dft_input: rtdb_get failed', 8)
 c     
 c>>>  Get integer parameters from rtdb.
 c     
@@ -132,8 +103,8 @@ c     $     call errquit('dft_input: rtdb_get failed', 22)
      $     call errquit('dft_input: rtdb_get failed', 25)
       if (.not. rtdb_get(rtdb, 'dft:idecomp', mt_int, 1, idecomp))
      $     call errquit('dft_input: rtdb_get failed', 26)
-      if (.not. rtdb_get(rtdb, 'dft:nrad', mt_int, ntags_bsmx, nrad))
-     $     call errquit('dft_input: rtdb_get failed', 27)
+      if (.not. rtdb_get(rtdb, 'dft:nrad', mt_int, dft_ntags_bsmx, 
+     $     nrad))call errquit('dft_input: rtdb_get failed', 27)
       if (.not. rtdb_get(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
      $     call errquit('dft_input: rtdb_get failed', 28)
       if (.not. rtdb_get(rtdb, 'dft:iqrot', mt_int, 1, iqrot))
@@ -146,8 +117,8 @@ c     $     call errquit('dft_input: rtdb_get failed', 22)
      $     call errquit('dft_input: rtdb_get failed', 32)
       if (.not. rtdb_get(rtdb, 'dft:numgrp', mt_int, 1, numgrp))
      $     call errquit('dft_input: rtdb_get failed', 33)
-      if (.not. rtdb_get(rtdb, 'dft:numset', mt_int, 1, numset))
-     $     call errquit('dft_input: rtdb_get failed', 34)
+      if (.not. rtdb_get(rtdb, 'dft:nquad_task', mt_int, 1,nquad_task))
+     $     call errquit('dft_input: rtdb_get failed', 35)
 c     
 c>>>  Get real parameters from rtdb.
 c     
@@ -190,71 +161,20 @@ c     $     call errquit('dft_input: rtdb_get failed', 47)
      $     call errquit('dft_input: rtdb_get failed', 52)
       if (.not. rtdb_get(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
      $     call errquit('dft_input: rtdb_get failed', 53)
-c     
-c     recover rdcalc integer parameters from rtdb
-c     
-c      if (.not. rtdb_get(rtdb, 'dft:itrscf', mt_int, 1, itrscf))
-c     &     call errquit('rdinput: rtdb_get failed',2) 
-c      if (.not. rtdb_get(rtdb, 'dft:iscfcon', mt_int, 1, iscfcon))
-c     &     call errquit('rdinput: rtdb_get failed',4) 
-c      if (.not. rtdb_get(rtdb, 'dft:iguess', mt_int, 1, iguess))
-c     &     call errquit('rdinput: rtdb_get failed',6) 
-c      if (.not. rtdb_get(rtdb, 'dft:mult', mt_int, 1, mult))
-c     &     call errquit('rdinput: rtdb_get failed',10)
-c      if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
-c     &     call errquit('rdinput: rtdb_get failed',14)
-c      if (.not. rtdb_get(rtdb, 'dft:igcon', mt_int, 1, igcon))
-c     &     call errquit('rdinput: rtdb_get failed',16)
-c      if (.not. rtdb_get(rtdb, 'dft:icvgtyp', mt_int, 1, icvgtyp))
-c     &     call errquit('rdinput: rtdb_get failed',18)
-c      if (.not. rtdb_get(rtdb, 'dft:nfock', mt_int, 1, nfock))
-c     &     call errquit('rdinput: rtdb_get failed',20)
-c      if (.not. rtdb_get(rtdb, 'dft:ncysh', mt_int, 1, ncysh))
-c     &     call errquit('rdinput: rtdb_get failed',20)
-c      if (.not. rtdb_get(rtdb, 'dft:idirect', mt_int, 1, idirect))
-c     &     call errquit('rdinput: rtdb_get failed',22)
-c      if (.not. rtdb_get(rtdb, 'dft:idisoff', mt_int, 1, idisoff))
-c     &     call errquit('rdinput: rtdb_get failed',24)
-c      if (.not. rtdb_get(rtdb, 'dft:noio', mt_int, 1, noio))
-c     &     call errquit('rdinput: rtdb_get failed',32)
-c      if (.not. rtdb_get(rtdb, 'dft:lshift', mt_dbl, 1,rlshift))
-c     &     call errquit('rdinput: rtdb_get failed',34)
-c      if (.not. rtdb_get(rtdb, 'dft:ndamp', mt_int, 1, ndamp))
-c     &     call errquit('rdinput: rtdb_get failed',36)
-c      if (.not. rtdb_get(rtdb, 'dft:idecomp', mt_int, 1, idecomp))
-c     &     call errquit('rdinput: rtdb_get failed',38)
-c      if (.not. rtdb_get(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
-c     &     call errquit('rdinput: rtdb_get failed',40)
-c      if (.not. rtdb_get(rtdb, 'dft:iqrot', mt_int, 1, iqrot))
-c     &     call errquit('rdinput: rtdb_get failed',42)
-c      if (.not. rtdb_get(rtdb, 'dft:nrinc', mt_int, 1, nrinc))
-c     &     call errquit('rdinput: rtdb_get failed',44)
-c      if (.not. rtdb_get(rtdb, 'dft:nrmax', mt_int, 1, nrmax))
-c     &     call errquit('rdinput: rtdb_get failed',46)
-c     
-c     recover real parameters from rtdb
-c     
-      if (.not. rtdb_get(rtdb, 'dft:rm', mt_dbl, 1, rm))
-     &     rm=2.d0
-      if (.not. rtdb_get(rtdb, 'dft:rscale', mt_dbl, 1, rscale))
-     &     call errquit('rdinput: rtdb_get failed',56)
-c     
-c     Read property evaluation options.
-
-        iconst(39) = idecomp  ! only action in rdprop other than read in
-c        iconst(40) = idisoff
-
-c     
+      if (.not. rtdb_get(rtdb, 'dft:radius', mt_dbl, 1,radius))
+     $     call errquit('dft_input: rtdb_get failed', 53)
+      if (.not. rtdb_get(rtdb, 'dft:tol_rho', mt_dbl, 1,TOLL))
+     $     call errquit('dft_input: rtdb_get failed', 54)
+      if (.not. rtdb_get(rtdb, 'dft:rm', mt_dbl, 1,rm))
+     $     call errquit('dft_input: rtdb_get failed', 55)
+c
       if (.not. geom_create(geom, 'geometry'))
      &     call errquit('rdinput: geom_create?',70)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      &     call errquit('rdinput: no geometry ',72)
-
+c
       itype = 1
       numgrp = 1
-      iconst(44) = itype      
-      iconst(45) = numgrp      
-      iconst(46) = numset     
 c****
 c**** get number of atomic centers from geometry object
 c****
@@ -263,30 +183,26 @@ c****
 c****
 c**** allocate space for atomic coordinates and charges
 c****
-      LResult = Ma_Push_Get(MT_Dbl,ncenters*3,'coordinates',lcoord,
-     &     icoord)
-      LResult = Ma_Push_Get(MT_Dbl,ncenters,'charges',lcharge,
-     &     icharge)
-      LResult = Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
-     &                       ltags, itags)
+      if ( .not. Ma_Push_Get(MT_Dbl,ncenters*3,'coordinates',lcoord,
+     &   icoord))call errquit('dft_rdinput: failed to alloc 
+     &   coordinates',0)
+      if ( .not. Ma_Push_Get(MT_Dbl,ncenters,'charges',lcharge,
+     &   icharge))call errquit('dft_rdinput: failed to alloc 
+     &   charges',0)
+      if ( .not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
+     &   ltags, itags))call errquit('dft_rdinput: failed to alloc 
+     &   center tags',0)
 c     
       if (.not. geom_cart_get(geom, ncenters, Byte_MB(itags),
      &                        Dbl_MB(icoord), Dbl_MB(icharge)))
      &     call errquit('rdinput: geom_cart_get failed',74)
 c
-c     
-c
-      if (.not. rtdb_get(rtdb, 'dft:nrad', mt_int, ntags_bsmx, nrad))
-     &     call errquit('rdinput: rtdb_get failed',76)
-c
 c     Extract high level info from the data-base setting defaults
 c
-c     
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      &     title = ' '
 c
 c     end lines from ddscf/scf
-c
 c     
       if (.not. bas_create(AO_bas_han, 'ao basis'))
      &     call errquit('rdinput: bas_create?',80)
@@ -300,89 +216,73 @@ c
 
       if (.not. bas_numbf(AO_bas_han, nbf))
      &     call errquit('rdinput:rdinput:',86)
+      nbf_ao = nbf
 c**** 
-
-
-c
 c       
 c     Broadcast AO basis set to all nodes.
 c****
 c     Define the contracted Gaussian functions for the CD basis set.
 
-
       if (.not. bas_create(CD_bas_han, 'cd basis'))
-     &     call errquit('rdinput: bas_create?',102)
+     &   call errquit('rdinput: bas_create?',102)
       CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
       if(CDFIT) then
         if (.not. int_norm_2c(CD_bas_han))
-     &       call errquit('rdinput: int_norm_2c failed', 208)
-
-        
-      if (.not. bas_numbf(CD_bas_han, nbf_cd))
+     &     call errquit('rdinput: int_norm_2c failed', 208)
+        if (.not. bas_numbf(CD_bas_han, nbf_cd))
      &     call errquit('rdinput:rdinput:',86)
-          if (.not. bas_numcont(CD_bas_han, nshells_cd))
-     &         call errquit('rdinput:rdinput:',87)
+        if (.not. bas_numcont(CD_bas_han, nshells_cd))
+     &     call errquit('rdinput:rdinput:',87)
       else
         if (.not. bas_destroy(CD_bas_han))
-     &       call errquit('rdinput:not able to destroy CD_bas:',86)
+     &     call errquit('rdinput:not able to destroy CD_bas:',86)
         CD_bas_han=-99999
         nbf_cd=0
       endif
-
 c       
-        
-        if (.not. bas_create(XC_bas_han, 'xc basis'))
-     &       call errquit('rdinput: bas_create?',124)
-        XCFIT=bas_rtdb_load(rtdb, geom, XC_bas_han, 'xc basis')
-        if(XCFIT) then
-          if (.not. int_normalize(XC_bas_han))
-     &         call errquit('rdinput: int_normalize failed', 208)
-
-
-      if (.not. bas_numbf(XC_bas_han, nbf_xc))
+      if (.not. bas_create(XC_bas_han, 'xc basis'))
+     &   call errquit('rdinput: bas_create?',124)
+      XCFIT=bas_rtdb_load(rtdb, geom, XC_bas_han, 'xc basis')
+      if(XCFIT) then
+        if (.not. int_normalize(XC_bas_han))
+     &     call errquit('rdinput: int_normalize failed', 208)
+        if (.not. bas_numbf(XC_bas_han, nbf_xc))
      &     call errquit('rdinput:rdinput:',86)
-
-          if (.not. bas_numcont(XC_bas_han, nshells_xc))
-     &         call errquit('rdinput:rdinput:',88)
-        else
-          if (.not. bas_destroy(XC_bas_han))
-     &         call errquit('rdinput:not able to destroy XC_bas:',88)
-          XC_bas_han=-99999
-          nbf_xc=0
-        endif
+        if (.not. bas_numcont(XC_bas_han, nshells_xc))
+     &     call errquit('rdinput:rdinput:',88)
+      else
+        if (.not. bas_destroy(XC_bas_han))
+     &     call errquit('rdinput:not able to destroy XC_bas:',88)
+        XC_bas_han=-99999
+        nbf_xc=0
+      endif
 c****   
 c****   Read the numerical quadrature input parameters.
 c****   
-        if( iproc.eq.0 )then
-
-          rscale = 0.0d0
-
-          if( nrmax.gt.MXrad )then
-            write(LuOut,*) 
-     *           'RDINPUT:  Too many radial quadrature points.'
-            call errquit(' rdinput: raise MXrad',1)
-          end if
-
-          if( nagrid.gt.MXagrid )then
-            write(LuOut,*) 
-     *           'RDINPUT:  Too many angular quadrature grids.'
-            call errquit(' rdinput: raise MXagrid',3)
-          end if
-
+      if(iproc.eq.0)then
+        rscale = 0.0d0
+        if(nrmax.gt.MXrad)then
+          write(LuOut,*)'RDINPUT: Too many radial quadrature points.'
+          call errquit(' rdinput: raise MXrad',1)
         end if
-        call ga_sync
+        if(nagrid.gt.MXagrid)then
+          write(LuOut,*)'RDINPUT: Too many angular quadrature grids.'
+          call errquit(' rdinput: raise MXagrid',3)
+        end if
+      end if
+      call ga_sync
 c****   
 c****   generate number of atom types and atom type array iatype(icenter) 
 c****   
-        ntypes = 0
-        do icenter = 1,ncenters
+      ntypes = 0
+      do icenter = 1,ncenters
 c****     
 c****     is this a new type of atom?
 c****     
-          lnewtype = .true.
-          do jcenter = 1,icenter-1
-            if ( Dbl_MB(icharge+icenter-1) .eq.
-     &           Dbl_MB(icharge+jcenter-1) ) then   ! same atom type
+        lnewtype = .true.
+        do jcenter = 1,icenter-1
+          if ( Dbl_MB(icharge+icenter-1) .eq.
+     &      Dbl_MB(icharge+jcenter-1) ) then   ! same atom type
             lnewtype = .false.
             iatype(icenter)=iatype(jcenter)
             goto 8
@@ -394,14 +294,15 @@ c****
           iatype(icenter)=ntypes
         endif 
       enddo 
-          if( ntypes.gt.ntags_bsmx )then
-            write(LuOut,*) 'RDINPUT:  Too many types of atoms.'
-            call errquit(' rdinput: raise ntags_bsmx',2)
-          end if
+      if( ntypes.gt.dft_ntags_bsmx )then
+        write(LuOut,*) 'RDINPUT:  Too many types of atoms.'
+        call errquit(' rdinput: raise dft_ntags_bsmx',2)
+      end if
 c****
 c**** set up type-indexed znuc array
 c****
-      LResult = Ma_Push_Get(MT_Dbl,ntypes,'nuc charge',lznuc,iznuc)
+      if ( .not. Ma_Push_Get(MT_Dbl,ntypes,'nuc charge',lznuc,iznuc))
+     &   call errquit('dft_rdinput: failed to alloc nuc charge',0)
 c****
 c**** for each type, place the nuclear charge in znuc array
 c****
@@ -417,79 +318,35 @@ c****       center icenter is of type itype; assign charge
       enddo 
 
       if ( .not. Ma_Push_Get(MT_Dbl,ntypes,'ratom',lratom,iratom))
-     &     call errquit('rdinput: failed to alloc ratom',101)
-
-
+     &     call errquit('dft_rdinput: failed to alloc ratom',0)
       nqshells = MXqshells
-
-      call xc_setquad(rtdb,Dbl_MB(iznuc),Dbl_MB(iratom),dbl_mb(icoord),
-     &     ncenters,
-     &     rm,nrinc,nrmax,
-     &     nagrid)
-
-
-      LResult = MA_Pop_Stack(lratom)
-      LResult = MA_Pop_Stack(lznuc)
-      LResult = MA_Pop_Stack(ltags)
-      LResult = MA_Pop_Stack(lcharge)
-      LResult = MA_Pop_Stack(lcoord)
-
-
 c
-c     Write constant array to checkpoint file.
-c     NEED TO LOSE THIS  (HT)
-
-c     (These constants should be accessed through an integral API routine
-c     when they are needed. I define these elements of the constant array
-c     only to keep "old" routines working. Use of this constant array
-c     should be eliminated at least for these Gaussian basis set parameters.)
-
-      iconst( 8) = itrscf 
-      iconst( 9) = iscfcon
-      iconst(11) = ipol   
-      iconst(18) = igcon  
-c      iconst(36) = icvgtyp
-      iconst(37) = nfock
-      iconst(38) = idirect
-      iconst(49) = noio
-C      iconst(50) = lshift
-      iconst(51) = ndamp
-      iconst(52) = ncysh
-
-      iconst(12)  =  ichg  
-      iconst(13)  =  mult  
-
+      call xc_setquad(rtdb,Dbl_MB(iznuc),Dbl_MB(iratom),dbl_mb(icoord))
+c
+      if ( .not. MA_Pop_Stack(lratom))
+     &   call errquit('dft_rdinput: pop stack failed.',0)
+      if ( .not. MA_Pop_Stack(lznuc))
+     &   call errquit('dft_rdinput: pop stack failed.',0)
+      if ( .not. MA_Pop_Stack(ltags))
+     &   call errquit('dft_rdinput: pop stack failed.',0)
+      if ( .not. MA_Pop_Stack(lcharge))
+     &   call errquit('dft_rdinput: pop stack failed.',0)
+      if ( .not. MA_Pop_Stack(lcoord))
+     &   call errquit('dft_rdinput: pop stack failed.',0)
+c
       if (.not. bas_numcont(AO_bas_han, nshells))
      &     call errquit('rdinput:rdinput:',86)
-
-
+c
 c     Check the user supplied input for any inconsistencies.
-
-        call dft_inpana(geom,rtdb,iconst,nconst,ncenters,
-     &       itrscf,iscfcon,igcon,ipol,idirect,
-     &       nbf_xc,nbf_cd,iEx,iEc) 
 c
-c       inpana could have modified ipol
+      call dft_inpana(rtdb)
 c
-        ipol=iconst(11)
-
+c     inpana could have modified ipol
+c
+      if (.not. rtdb_put(rtdb, 'dft:ipol', MT_INT, 1, ipol ))
+     $     call errquit('inpana: dft:ipol put failed', 0)
+c
       if( iproc.eq.0 )then
-c        if(nfock.ne.0) then
-c          write(LuOut,'(3x,A,i2,A)') 
-c     &         '       ',nfock,' Fock matrices are used in DIIS'
-c          write(LuOut,*)
-c        endif
-c        if(abs(rlshift).gt.1.d-5) then
-c          write(LuOut,'(3x,A,f4.2,A,i4,A)') 
-c     &         '       Fock Matrix Level Shifted by ',rlshift,
-c     &         ' hartree for ',ncysh,' cycles'
-c          write(LuOut,*)
-c        endif
-c        if(ndamp.ne.0) then
-c          write(LuOut,'(3x,A,i2,A)') 
-c     &         '       Density Matrix Damping by ',ndamp,'%'
-c          write(LuOut,*)
-c        endif
         write(LuOut,*)
         write(LuOut,1) 
      &       '       AO basis - No. of functions:   ',nbf,
@@ -511,12 +368,6 @@ c        endif
         call flush(LuOut)
       endif
       call ga_sync
-
-
-
-      call ga_brdcst(Msg_iconst,iconst,mitob(nconst),0)
-
-
 c****
 c**** initialize the integral object
 c****
@@ -537,10 +388,8 @@ c****
         i3 = 1
         bases(1) = AO_bas_han
       endif
-
+c
       call int_init(rtdb, i3, bases)
-
-
+c
       return
       end
-

@@ -1,5 +1,5 @@
       subroutine dft_input(rtdb)
-c     $Id: dft_input.F,v 1.3 1996-10-01 21:22:51 d3h449 Exp $
+c     $Id: dft_input.F,v 1.4 1996-10-05 00:52:17 d3h449 Exp $
       implicit none
 #include "rtdb.fh"
 #include "geom.fh"
@@ -10,8 +10,6 @@ c
 c>>>  added for constant ntags_bsmx
 c     
 #include "bas_staticP.fh"
-c     
-c     
 c     
 c     read input for DFT calculation.  All input is of the form:
 c     <keyword>  or   <keyword> <value>  or   <keyword> <value><units>
@@ -42,14 +40,16 @@ c
      &     ndamp, iscfcon, igcon, idirect, nfock, ifield,
      &     numset, igeotype, numgrp,
      &     iAOacc,iXCacc,irqmax,itol2e,imull,iangquad,
-     &     ncydp, ncysh, ncyds
-      double precision rlshift
+     &     ncydp, ncysh, ncyds,
+     &     nquad_task
+      double precision rlshift, TOLL, radius, rm
       double precision dampon, dampoff, levlon, levloff, 
      &                 diison, diisoff
       integer nfield, iline
       logical pseudo
       logical nodamping, nolevelshifting, nodiis
       logical ltight, lmaxov, incore
+      logical store_wght, ldelley
       integer nrad(ntags_bsmx)
       double precision rscale,  cdist(3), cang(3)
 c     
@@ -113,6 +113,12 @@ C
       itol2e=12
       imull=0
       iangquad=0
+      rm = 2.0d0
+      TOLL=1.D-15
+      radius=16.d0
+      nquad_task = 1
+      ldelley = .false.
+      store_wght = .false.
       do iline=1,10
         xfac(iline)=0.d0
         cfac(iline)=0.d0
@@ -779,20 +785,70 @@ c
 c             
 c>>>          do Mulliken pop analysis
 c             
-c             
               imull=1
             elseif ( inp_compare(.false., 'gausleg', test)) then
 c             
 c>>>          use Gauss-Legendre for angular quadr (Handy)
-c             
 c             
               iangquad=0
             elseif ( inp_compare(.false., 'lebedev', test)) then
 c             
 c>>>          use Lebedev angular quadrature
 c             
-c             
               if ( .not. inp_i(iangquad) ) iangquad=4
+c
+c a few not very well know options which were buried in the XC subs
+c
+            elseif ( inp_compare(.false., 'store_wght', test)) then
+c             
+              store_wght = .true.
+c
+            elseif ( inp_compare(.false., 'delley', test)) then
+c             
+              ldelley = .true.
+c
+            elseif ( inp_compare(.false., 'nquad_task', test)) then
+c             
+              if ( .not. inp_i(nquad_task) ) then
+                write(6,*)
+     &               ' dft_input: nquad_task value not found; ',
+     &               ' defaulting to 1 '
+                nquad_task = 1
+              endif            
+c
+            elseif ( inp_compare(.false., 'tol_rho', test)) then
+c             
+c>>>          TOLL
+c             
+              if ( .not. inp_f(TOLL) ) then
+                write(6,*)
+     &               ' dft_input: tol_rho value not found; defaulting ',
+     &               ' to 1.d-15 '
+                TOLL=1.D-15
+              endif            
+c
+            elseif ( inp_compare(.false., 'rm', test)) then
+c             
+c>>>          rm
+c             
+              if ( .not. inp_f(rm) ) then
+                write(6,*)
+     &               ' dft_input: rm value not found; defaulting ',
+     &               ' to 2.0d0 '
+                rm = 2.0d0
+              endif            
+c
+            elseif ( inp_compare(.false., 'radius', test)) then
+c             
+c>>>          radius
+c             
+              if ( .not. inp_f(radius) ) then
+                write(6,*)
+     &               ' dft_input: radius value not found; defaulting ',
+     &               ' to 16.d0 '
+                radius=16.d0
+              endif            
+c
             else if (inp_compare(.false.,'print',test)) then
               call util_print_input(rtdb, 'dft')
             else if (inp_compare(.false.,'noprint',test)) then
@@ -841,107 +897,118 @@ c
      $     call errquit('dft_input: rtdb_put failed', 5)
       if(.not. rtdb_put(rtdb, 'dft:max_ovl', mt_log, 1,lmaxov ))
      $     call errquit('dft_input: rtdb_put failed', 6)
+      if(.not. rtdb_put(rtdb, 'dft:store_wght', mt_log, 1,store_wght ))
+     $     call errquit('dft_input: rtdb_put failed', 7)
+      if(.not. rtdb_put(rtdb, 'dft:delley', mt_log, 1,ldelley ))
+     $     call errquit('dft_input: rtdb_put failed', 8)
 c     
 c>>>  place integer parameters in rtdb
 c     
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     $     call errquit('dft_input: rtdb_put failed', 7) 
-      if (.not. rtdb_cput(rtdb, 'dft:cname', 1, cname))
-     $     call errquit('dft_input: rtdb_put failed', 8) 
-      if (.not. rtdb_cput(rtdb, 'dft:xname', 1, xname))
      $     call errquit('dft_input: rtdb_put failed', 9) 
-      if (.not. rtdb_put(rtdb, 'dft:itrscf', mt_int, 1, itrscf))
+      if (.not. rtdb_cput(rtdb, 'dft:cname', 1, cname))
      $     call errquit('dft_input: rtdb_put failed', 10) 
+      if (.not. rtdb_cput(rtdb, 'dft:xname', 1, xname))
+     $     call errquit('dft_input: rtdb_put failed', 11) 
+      if (.not. rtdb_put(rtdb, 'dft:itrscf', mt_int, 1, itrscf))
+     $     call errquit('dft_input: rtdb_put failed', 12) 
       if (.not. rtdb_put(rtdb, 'dft:iscfcon', mt_int, 1, iscfcon))
-     $     call errquit('dft_input: rtdb_put failed', 11)
-      if (.not. rtdb_put(rtdb, 'dft:iguess', mt_int, 1, iguess))
-     $     call errquit('dft_input: rtdb_put failed', 12)
-      if (.not. rtdb_put(rtdb, 'dft:mult', mt_int, 1, mult))
      $     call errquit('dft_input: rtdb_put failed', 13)
-      if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
+      if (.not. rtdb_put(rtdb, 'dft:iguess', mt_int, 1, iguess))
      $     call errquit('dft_input: rtdb_put failed', 14)
-      if (.not. rtdb_put(rtdb, 'dft:igcon', mt_int, 1, igcon))
+      if (.not. rtdb_put(rtdb, 'dft:mult', mt_int, 1, mult))
      $     call errquit('dft_input: rtdb_put failed', 15)
+      if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
+     $     call errquit('dft_input: rtdb_put failed', 16)
+      if (.not. rtdb_put(rtdb, 'dft:igcon', mt_int, 1, igcon))
+     $     call errquit('dft_input: rtdb_put failed', 17)
 c      if (.not. rtdb_put(rtdb, 'dft:icvgtyp', mt_int, 1, icvgtyp))
 c     $     call errquit('dft_input: rtdb_put failed', 16)
       if (.not. rtdb_put(rtdb, 'dft:nfock', mt_int, 1, nfock))
-     $     call errquit('dft_input: rtdb_put failed', 17)
-      if (.not. rtdb_put(rtdb, 'dft:ncydp', mt_int, 1, ncydp))
      $     call errquit('dft_input: rtdb_put failed', 18)
-      if (.not. rtdb_put(rtdb, 'dft:ncysh', mt_int, 1, ncysh))
+      if (.not. rtdb_put(rtdb, 'dft:ncydp', mt_int, 1, ncydp))
      $     call errquit('dft_input: rtdb_put failed', 19)
-      if (.not. rtdb_put(rtdb, 'dft:ncyds', mt_int, 1, ncyds))
+      if (.not. rtdb_put(rtdb, 'dft:ncysh', mt_int, 1, ncysh))
      $     call errquit('dft_input: rtdb_put failed', 20)
-      if (.not. rtdb_put(rtdb, 'dft:idirect', mt_int, 1, idirect))
+      if (.not. rtdb_put(rtdb, 'dft:ncyds', mt_int, 1, ncyds))
      $     call errquit('dft_input: rtdb_put failed', 21)
+      if (.not. rtdb_put(rtdb, 'dft:idirect', mt_int, 1, idirect))
+     $     call errquit('dft_input: rtdb_put failed', 22)
 c      if (.not. rtdb_put(rtdb, 'dft:idisoff', mt_int, 1, idisoff))
 c     $     call errquit('dft_input: rtdb_put failed', 22)
       if (.not. rtdb_put(rtdb, 'dft:noio', mt_int, 1, noio))
      $     call errquit('dft_input: rtdb_put failed', 23)
-      if (.not. rtdb_put(rtdb, 'dft:lshift', mt_dbl, 1,rlshift))
-     $     call errquit('dft_input: rtdb_put failed', 24)
       if (.not. rtdb_put(rtdb, 'dft:ndamp', mt_int, 1, ndamp))
-     $     call errquit('dft_input: rtdb_put failed', 25)
+     $     call errquit('dft_input: rtdb_put failed', 24)
       if (.not. rtdb_put(rtdb, 'dft:idecomp', mt_int, 1, idecomp))
-     $     call errquit('dft_input: rtdb_put failed', 26)
+     $     call errquit('dft_input: rtdb_put failed', 25)
       if (.not. rtdb_put(rtdb, 'dft:nrad', mt_int, ntags_bsmx, nrad))
-     $     call errquit('dft_input: rtdb_put failed', 27)
+     $     call errquit('dft_input: rtdb_put failed', 26)
       if (.not. rtdb_put(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
-     $     call errquit('dft_input: rtdb_put failed', 28)
+     $     call errquit('dft_input: rtdb_put failed', 27)
       if (.not. rtdb_put(rtdb, 'dft:iqrot', mt_int, 1, iqrot))
-     $     call errquit('dft_input: rtdb_put failed', 29)
+     $     call errquit('dft_input: rtdb_put failed', 28)
       if (.not. rtdb_put(rtdb, 'dft:nrinc', mt_int, 1, nrinc))
-     $     call errquit('dft_input: rtdb_put failed', 30)
+     $     call errquit('dft_input: rtdb_put failed', 29)
       if (.not. rtdb_put(rtdb, 'dft:nrmax', mt_int, 1, nrmax))
-     $     call errquit('dft_input: rtdb_put failed', 31)
+     $     call errquit('dft_input: rtdb_put failed', 30)
       if (.not. rtdb_put(rtdb, 'dft:igeotype', mt_int, 1, igeotype))
-     $     call errquit('dft_input: rtdb_put failed', 32)
+     $     call errquit('dft_input: rtdb_put failed', 31)
       if (.not. rtdb_put(rtdb, 'dft:numgrp', mt_int, 1, numgrp))
-     $     call errquit('dft_input: rtdb_put failed', 33)
+     $     call errquit('dft_input: rtdb_put failed', 32)
       if (.not. rtdb_put(rtdb, 'dft:numset', mt_int, 1, numset))
+     $     call errquit('dft_input: rtdb_put failed', 33)
+      if (.not. rtdb_put(rtdb, 'dft:nquad_task', mt_int, 1,nquad_task))
      $     call errquit('dft_input: rtdb_put failed', 34)
+      if (.not. rtdb_put(rtdb, 'dft:iAOacc', mt_int, 1, iAOacc))
+     $     call errquit('dft_input: rtdb_put failed', 35)
+      if (.not. rtdb_put(rtdb, 'dft:iXCacc', mt_int, 1, iXCacc))
+     $     call errquit('dft_input: rtdb_put failed', 36)
+      if (.not. rtdb_put(rtdb, 'dft:irqmax', mt_int, 1, irqmax))
+     $     call errquit('dft_input: rtdb_put failed', 37)
+      if (.not. rtdb_put(rtdb, 'dft:itol2e', mt_int, 1, itol2e))
+     $     call errquit('dft_input: rtdb_put failed', 38)
+      if (.not. rtdb_put(rtdb, 'dft:imull', mt_int, 1, imull))
+     $     call errquit('dft_input: rtdb_put failed', 39)
+      if (.not. rtdb_put(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
+     $     call errquit('dft_input: rtdb_put failed', 40)
 c     
 c>>>  store real parameters in rtdb
 c     
       if (.not. rtdb_put(rtdb, 'dft:dampon', mt_dbl, 1, dampon))
-     $     call errquit('dft_input: rtdb_put failed', 35)
-      if (.not. rtdb_put(rtdb, 'dft:dampoff', mt_dbl, 1, dampoff))
-     $     call errquit('dft_input: rtdb_put failed', 36)
-      if (.not. rtdb_put(rtdb, 'dft:levlon', mt_dbl, 1, levlon))
-     $     call errquit('dft_input: rtdb_put failed', 37)
-      if (.not. rtdb_put(rtdb, 'dft:levloff', mt_dbl, 1, levloff))
-     $     call errquit('dft_input: rtdb_put failed', 38)
-      if (.not. rtdb_put(rtdb, 'dft:diison', mt_dbl, 1, diison))
-     $     call errquit('dft_input: rtdb_put failed', 39)
-      if (.not. rtdb_put(rtdb, 'dft:diisoff', mt_dbl, 1, diisoff))
-     $     call errquit('dft_input: rtdb_put failed', 40)
-      if (.not. rtdb_put(rtdb, 'dft:rscale', mt_dbl, 1, rscale))
      $     call errquit('dft_input: rtdb_put failed', 41)
-      if (.not. rtdb_put(rtdb, 'dft:cang', mt_dbl, 3, cang))
+      if (.not. rtdb_put(rtdb, 'dft:dampoff', mt_dbl, 1, dampoff))
      $     call errquit('dft_input: rtdb_put failed', 42)
-      if (.not. rtdb_put(rtdb, 'dft:cdist', mt_dbl, 3, cdist))
+      if (.not. rtdb_put(rtdb, 'dft:levlon', mt_dbl, 1, levlon))
      $     call errquit('dft_input: rtdb_put failed', 43)
-c>>>  
-      if (.not. rtdb_put(rtdb, 'dft:cfac', mt_dbl, 10, cfac))
+      if (.not. rtdb_put(rtdb, 'dft:levloff', mt_dbl, 1, levloff))
      $     call errquit('dft_input: rtdb_put failed', 44)
-      if (.not. rtdb_put(rtdb, 'dft:xfac', mt_dbl, 10, xfac))
+      if (.not. rtdb_put(rtdb, 'dft:diison', mt_dbl, 1, diison))
      $     call errquit('dft_input: rtdb_put failed', 45)
+      if (.not. rtdb_put(rtdb, 'dft:diisoff', mt_dbl, 1, diisoff))
+     $     call errquit('dft_input: rtdb_put failed', 46)
+      if (.not. rtdb_put(rtdb, 'dft:rscale', mt_dbl, 1, rscale))
+     $     call errquit('dft_input: rtdb_put failed', 47)
+      if (.not. rtdb_put(rtdb, 'dft:cang', mt_dbl, 3, cang))
+     $     call errquit('dft_input: rtdb_put failed', 48)
+      if (.not. rtdb_put(rtdb, 'dft:cdist', mt_dbl, 3, cdist))
+     $     call errquit('dft_input: rtdb_put failed', 49)
+      if (.not. rtdb_put(rtdb, 'dft:cfac', mt_dbl, 10, cfac))
+     $     call errquit('dft_input: rtdb_put failed', 50)
+      if (.not. rtdb_put(rtdb, 'dft:xfac', mt_dbl, 10, xfac))
+     $     call errquit('dft_input: rtdb_put failed', 51)
+      if (.not. rtdb_put(rtdb, 'dft:lshift', mt_dbl, 1,rlshift))
+     $     call errquit('dft_input: rtdb_put failed', 52)
+      if (.not. rtdb_put(rtdb, 'dft:radius', mt_dbl, 1,radius))
+     $     call errquit('dft_input: rtdb_put failed', 53)
+      if (.not. rtdb_put(rtdb, 'dft:tol_rho', mt_dbl, 1,TOLL))
+     $     call errquit('dft_input: rtdb_put failed', 54)
+      if (.not. rtdb_put(rtdb, 'dft:rm', mt_dbl, 1,rm))
+     $     call errquit('dft_input: rtdb_put failed', 55)
 c     if (.not. rtdb_put(rtdb, 'dft:iEx', mt_int, 1, iEx))
 c     $     call errquit('dft_input: rtdb_put failed', 46)
 c     if (.not. rtdb_put(rtdb, 'dft:iEc', mt_int, 1, iEc))
 c     $     call errquit('dft_input: rtdb_put failed', 47)
-      if (.not. rtdb_put(rtdb, 'dft:iAOacc', mt_int, 1, iAOacc))
-     $     call errquit('dft_input: rtdb_put failed', 48)
-      if (.not. rtdb_put(rtdb, 'dft:iXCacc', mt_int, 1, iXCacc))
-     $     call errquit('dft_input: rtdb_put failed', 49)
-      if (.not. rtdb_put(rtdb, 'dft:irqmax', mt_int, 1, irqmax))
-     $     call errquit('dft_input: rtdb_put failed', 50)
-      if (.not. rtdb_put(rtdb, 'dft:itol2e', mt_int, 1, itol2e))
-     $     call errquit('dft_input: rtdb_put failed', 51)
-      if (.not. rtdb_put(rtdb, 'dft:imull', mt_int, 1, imull))
-     $     call errquit('dft_input: rtdb_put failed', 52)
-      if (.not. rtdb_put(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
-     $     call errquit('dft_input: rtdb_put failed', 53)
 c
       return
 c       

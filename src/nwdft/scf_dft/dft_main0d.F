@@ -1,20 +1,14 @@
-      Subroutine dft_main0d( rtdb,
-     &                      iconst, nconst )
-
-C$Id: dft_main0d.F,v 1.10 1996-10-01 21:31:01 d3h449 Exp $
+      Subroutine dft_main0d( rtdb )
+c
+C$Id: dft_main0d.F,v 1.11 1996-10-05 00:52:22 d3h449 Exp $
+c
       implicit none
       integer rtdb  ! rtdb handle [input]
-      integer nconst
-      integer iconst(*)
-
-      Logical LResult,CDFIT,XCFIT,IOLGC,oprint_time
-
-c**** 
-
+      Logical LResult,IOLGC,oprint_time
+c
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "cdft.fh"
@@ -23,39 +17,35 @@ c****
 #include "tcgmsg.fh"
 #include "schwarz.fh"
 #include "msgids.fh"
-
+c
 #if defined(DFT_TIMER)
 #include "timer.fh"
 #endif
-
+c
       integer g_dens(2),g_evecs(2),g_vxc(4)
       integer g_svecs,g_xcinv,g_oi,g_2ceri,g_cdinv
       integer g_s,g_fock,g_tmpb,g_tmp
-      integer nbf_xc,nvxc
+      integer nvxc
       integer me,nproc,info
       double precision Enuc,Etold
-      integer iter,itrscf,iscfcon,ipol,igcon
-      integer nfock,nExc,lshift,ncysh,ndamp
+      integer iter
+      integer nExc,lshift
       integer iVxc_opt,lmiss,ivcoul_opt
       integer isvals,lsvals,iw,idum,i
       double precision toll_s
       parameter(toll_s=1.e-5)
-
-
-c*****************************************************************************
-
+c
 #if defined(DFT_TIMER)
       call t_stat(10,-2)
       call dft_second(tp1)
 #endif
-
+c
       me = ga_nodeid()
       nproc = ga_nnodes()
       oprint_time=util_print('dft timings',print_high)
       call schwarz_init(geom,AO_bas_han)
       IOLGC=.TRUE.
-      if(iconst(49).eq.1) IOLGC=.FALSE.
-
+      if(noio.eq.1) IOLGC=.FALSE.
 c     
 c     Evaluate the nuclear replusion energy.
 c     
@@ -70,17 +60,6 @@ c
 c     
       iter = 0
       Etold = 0.D0
-c     
-      itrscf  = iconst(8)
-      iscfcon = iconst(9)
-      ipol    = iconst(11)
-      igcon   = iconst(18)
-      nfock   = iconst(37)
-      nExc    = iconst(39) + 1
-      lshift  = iconst(50)
-      ncysh   = iconst(52)
-      ndamp   = iconst(51)
-
 c     
 c     Select method to compute the XC potential.
 c     
@@ -316,8 +295,8 @@ c
       if(CDFIT)call gadest(g_s)
 
       call dft_scf(rtdb,
-     &     ipol,Etold,Enuc,iVcoul_opt,iVxc_opt,
-     &     iconst,nconst,iter,
+     &     Etold,Enuc,iVcoul_opt,iVxc_opt,
+     &     iter,
      &     g_dens,g_evecs,g_vxc,
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)

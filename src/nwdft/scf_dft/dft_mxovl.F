@@ -1,6 +1,6 @@
       Subroutine dft_mxovl(basis, evals, g_evecs, g_oevecs,g_tmp)
 
-C$Id: dft_mxovl.F,v 1.4 1996-10-01 21:31:02 d3h449 Exp $
+C$Id: dft_mxovl.F,v 1.5 1996-10-05 00:52:22 d3h449 Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap       [input] overwritten!
@@ -19,7 +19,8 @@ c
 c     local
 c
       integer me,nproc
-      integer nbf,i,j,ix
+c      integer nbf,i,j,ix
+      integer i,j,ix
       integer k_ord,l_ord,k_tmp,l_tmp,k_scr,l_scr
       
       

@@ -1,14 +1,102 @@
 c
-C$Id: cdft.fh,v 1.2 1995-10-25 20:46:47 og845 Exp $
+C$Id: cdft.fh,v 1.3 1996-10-05 00:52:15 d3h449 Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
-c     geom       = Geometry handle
-c     AO_bas_han      = AO Basis handle
-c     CD_bas_han      = CD Basis handle
-c     XC_bas_han      = XC Basis handle
-      integer geom
-      integer AO_bas_han,CD_bas_han,XC_bas_han
-      integer nbf_ao,nbf_cd
-      common /cdft/AO_bas_han,CD_bas_han,XC_bas_han,
-     $     geom
+c
+      character*255 title
+      character*10 gridtype
+      character*50 xname, cname
+      double precision
+     &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
+     &     rcharge, rscale, cdist, cang, cfac, xfac,
+     &     TOLL, radius, rm
+      logical
+     &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
+     &     XCFIT, CDFIT, store_wght, ldelley
+      integer
+     &     iAOacc, iXCacc, irqmax, itol2e, imull, iangquad, itrscf, 
+     &     iscfcon, iguess, mult, ipol, igcon, nfock, ncydp, ncysh, 
+     &     ncyds, idirect, noio, ndamp, idecomp, nagrid, nquad_task,
+     &     nrinc, nrmax, igeotype, numgrp, numset, geom, ncenters, nbf,
+     &     nbf_ao, nbf_cd, nbf_xc, 
+c
+c     old common handles 
+c
+     &     AO_bas_han, CD_bas_han, XC_bas_han
+c
+      common /cdft/
+c
+c     Doubles
+c
+     &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
+     &     rcharge, rscale, cdist(3), cang(3), cfac(10), xfac(10),
+     &     TOLL, radius, rm,
+c
+c     Logicals
+c
+     &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
+     &     XCFIT, CDFIT, store_wght, ldelley,
+c
+c     Integers
+c
+     &     iAOacc, iXCacc, irqmax, itol2e, imull, iangquad, itrscf, 
+     &     iscfcon, iguess, mult, ipol, igcon, nfock, ncydp, ncysh, 
+     &     ncyds, idirect, noio, ndamp, idecomp, nagrid, nquad_task,
+     &     nrinc, nrmax, igeotype, numgrp, numset, geom, ncenters, nbf,
+     &     nbf_ao, nbf_cd, nbf_xc, 
+c
+c     old common handles 
+c
+     &     AO_bas_han, CD_bas_han, XC_bas_han
+c
+c     Characters
+c
+      common /ccdft/ 
+     &     title, gridtype, xname, cname
+c
+c-->  old dimensions.fh
+c
+      integer MXqshells, MXrad, MXagrid, MXtheta, MXphi
+C
+      Parameter (MXqshells=15000,MXrad=480)
+      Parameter (MXagrid=24,MXtheta=2*MXagrid,MXphi=2*MXtheta)
+c
+c-->  old quad.fh; Quadrature Points & Weights
+c
+c     MXnang = Lebedev max no. of pts
+c     IAC_MAX = Lebedev max accuracy
+c     MAX_CHUNK = max value for nquad_task
+c
+      double precision 
+     &     rpts, rwghts, aratio, costheta, sintheta, cosphi, sinphi,
+     &     awghts, qrot, wa_leb, za_leb
+      integer 
+     &     iqshell, nqshells, nrad, ntheta, nphi, iatype, iqrot, ntypes
+c
+      integer MXnang, IAC_MAX, MAX_CHUNK
+c
+      parameter(MXnang=434,IAC_MAX=7,MAX_CHUNK=20)
+c
+c     The following parameters must match those in geomP.fh and 
+c     bas_staticP.fh e.g., dft_max_cent = max_cent, and 
+c     dft_ntags_bsmx = ntags_bsmx
+c
+      integer dft_ntags_bsmx, dft_max_cent
+      parameter (dft_ntags_bsmx = 20, dft_max_cent = 500)
+c
+      Common /quad/
+c
+c     Doubles
+c
+     & rpts(MXrad*dft_ntags_bsmx), rwghts(MXrad*dft_ntags_bsmx),
+     & aratio(dft_ntags_bsmx,dft_ntags_bsmx), costheta(MXtheta,MXagrid),
+     & sintheta(MXtheta,MXagrid), cosphi(MXphi,MXagrid),
+     & sinphi(MXphi,MXagrid), awghts(MXtheta,MXagrid), qrot(3,3),
+     & wa_leb(MXnang,IAC_MAX), za_leb(3,MXnang,IAC_MAX),
+c
+c     Integers
+c
+     & iqshell(4,MXqshells), nqshells, nrad(dft_ntags_bsmx), 
+     & ntheta(MXagrid), nphi(MXagrid), iatype(dft_max_cent), iqrot, 
+     & ntypes

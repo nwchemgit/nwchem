@@ -1,28 +1,27 @@
       Subroutine dft_scf(rtdb,
-     &     ipol,Etold,Enuc,iVcoul_opt,iVxc_opt,
-     &     iconst,nconst,iter,
+     &     Etold,Enuc,iVcoul_opt,iVxc_opt,
+     &     iter,
      &     g_dens,g_movecs,g_vxc,
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
-
-C$Id: dft_scf.F,v 1.34 1996-10-01 21:31:03 d3h449 Exp $
+c
+C$Id: dft_scf.F,v 1.35 1996-10-05 00:52:23 d3h449 Exp $
+c
       implicit none
       integer rtdb ! [input]
-      integer ipol
       double precision Etold,Enuc
       integer iVcoul_opt
       integer iVxc_opt
-      integer iconst(*),nconst,iter
+      integer iter
       integer g_dens(*),g_movecs(*),g_vxc(*),
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri
-      
+c      
 c**** patches for SC95,  ECCE' parsing
 ***** #define SC95
-
+c
 #include "bas.fh"
 #include "geom.fh"
-
 #include "mafdecls.fh"
 #include "util.fh"
 #include "stdio.fh"
@@ -30,7 +29,7 @@ c**** patches for SC95,  ECCE' parsing
 #include "cdft.fh"
 #include "global.fh"
 #include "msgids.fh"
-
+c
 #if defined(DFT_TIMER)
 #include "timer.fh"
 #endif
@@ -41,11 +40,9 @@ c**** patches for SC95,  ECCE' parsing
       integer noc(2),nmo(2),nmo_read(2),icall(2)
       integer n3c_dbl,n3c_int,n_batch
       integer avail
-      logical incore
       integer l_3cwhat,k_3cwhat,l_3cERI,k_3cERI
       integer dft_n3cdbl,dft_n3cint
       external dft_n3cdbl,dft_n3cint
-
       Integer l_eval,Type
       integer g_rmovecs(2)
       integer k_eval(2)
@@ -53,12 +50,10 @@ c**** patches for SC95,  ECCE' parsing
       character*255 title_vecs, basis_vecs
       Character*255 name, trans 
       Double Precision rmoments(3)  ! dipole
-      logical ltight ! if TRUE always tight computing tolerances
       integer lmax   ! CMM
       integer finest ! CMM
       character*255 filename
       logical int2e_file_open,int2e_test_mem,int2e_file_close
-
       integer natoms,nTotEl
       integer l_occ,k_occ
       integer n_full,n_empty
@@ -68,26 +63,23 @@ c**** patches for SC95,  ECCE' parsing
       integer g_tmp,g_fockt,g_s,g_wght,g_xyz
       integer nheap,nsets,nstack
       integer nbf_vecs,ispin,nxang,idone
-      integer itrscf
-      integer igcon,idisoff,ielem
-      integer nexc,nfock,itol2e
+      integer idisoff,ielem
+      integer nexc
       integer l_afshift,n_afshift,i_afshift
       integer l_bfshift,n_bfshift,i_bfshift
-      integer iaoacc,iswitc
+      integer iswitc
       integer itol_max,iaoacc_max
-      integer imull,iguess,idmtot,nshells,nprint
+      integer idmtot,nshells,nprint
       integer leneval,lcd_coef,icd_coef
       double precision ecoul,rb,facto,ecore,afact,anps,aaz
       double precision pp,bb,delta
-      double precision anucl_charg,rcharge,anel,anew_nel
+      double precision anucl_charg,anel,anew_nel
       double precision anoca,anocb,onempp
       double precision etnew,tol2e,fock_el
 c convergence declarations
-      double precision dampon,levlon,diison
-      double precision dampoff,levloff,diisoff
-      double precision rlshift,rlshift_input,rlshift_def
-      integer ndamp,ndamp_input,ndamp_def
-      integer ncydp,ncysh,ncyds,nc
+      double precision rlshift_input,rlshift_def
+      integer ndamp_input,ndamp_def
+      integer nc
       character*10 start_10c, NA_10c, asap_10c
       character*10 strng1,strng2,strng3,strng4,strng5,strng6
 c
@@ -98,16 +90,13 @@ c     nolevelshifting, and nodiis are specified and held
 c     for the entire convergence sequence.
 c
       logical diis, damping, levelshifting
-      logical nodamping, nolevelshifting, nodiis
       logical keep_damp_on,keep_levl_on,keep_diis_on
-c
-c
-      Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
-      logical converged,XCFIT,wght_GA
-      logical lfocka,lfockb,lmaxov
+      Logical LResult,IOLGC,mulliken,do_gradients,lSPM
+      logical converged,wght_GA
+      logical lfocka,lfockb
       logical oprint_parm,oprint_conv,oprint_vecs,
      ,     oprint_eval ,oprint_syma,oprint_time
-      integer itol_min,iAOacc_min,iscfcon
+      integer itol_min,iAOacc_min
       double precision scfcon
       double precision zero,onem,one
       parameter(zero=0.d0,one=1.d0,onem=-one)
@@ -146,8 +135,7 @@ c
      &     call errquit('dft_scf: geom_ncent failed',73)      
       if (.not. geom_nuc_charge(geom, anucl_charg))
      $     call errquit('scf: geom_nuc_charge failed', 0)
-      if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, rcharge)) 
-     %     rcharge = 0.0d0
+c
       anel = int(anucl_charg) - rcharge
 C
 C     determine pattern of orbitals' occupancy
@@ -226,28 +214,13 @@ c
       endif
       XCFIT = .FALSE.
       if( iVxc_opt.eq.1 ) XCFIT = .TRUE.
-
-
 c     
 c     Define various constants.
 c     
       iDMtot = (ipol*(ipol+1))/2
 c     
-      if (.not. rtdb_get(rtdb, 'dft:tight', mt_log, 1, ltight))
-     $     ltight=.false.
-      if (.not. rtdb_get(rtdb, 'dft:iguess', mt_int, 1, iguess))
-     &     call errquit('dftscf: rtdb_get failed',1) 
-      if (.not. rtdb_get(rtdb, 'dft:imull', mt_int, 1, imull))
-     $     call errquit('dftscf: rtdb_get failed', 2)
-      if (.not. rtdb_get(rtdb, 'dft:itol2e', mt_int, 1, itol_max))
-     $     call errquit('dftscf: rtdb_get failed', 0)
-      if (.not. rtdb_get(rtdb, 'dft:iAOacc', mt_int, 1, iAOacc_max))
-     $     call errquit('dftscf: rtdb_get failed', 0)
-      if (.not. rtdb_get(rtdb, 'dft:lshift', mt_dbl, 1,rlshift))
-     &     call errquit('dftscf: rtdb_get failed',34)
-
-      if(.not.rtdb_get(rtdb,'dft:incore', mt_log, 1, incore)) 
-     .     incore=.true.
+      itol_max = itol2e
+      iaoacc_max = iaoacc
       if(CDFIT.and.incore) then
 C
 C       try in-core Coulomb calculation
@@ -311,25 +284,17 @@ c
       call scf_get_fock_param(rtdb, tol2e*100.)
       mulliken=.false.
       if(imull.eq.1) mulliken=.true.
-      itrscf  = iconst(8)
-      iscfcon = iconst(9)
-      igcon   = iconst(18)
-      nfock   = iconst(37)
-      idisoff = iconst(40)
-      ncysh=iconst(52)
-      ndamp=iconst(51)
       IOLGC=.TRUE.
-      if(iconst(49).eq.1) IOLGC=.FALSE.
+      if(noio.eq.1) IOLGC=.FALSE.
 c     
 c     Energy decomposition switch
 c     
-      nExc    = iconst(39) + 1
+      nExc    = idecomp + 1
       Etnew=0.d0
 C
 C     start timer
 C
       dft_time=-util_cpusec()
-
 c     
 c     SCF energy convergence criterion. 
 c     
@@ -341,14 +306,11 @@ c
      &       nbf_ao,nbf_ao,'fock tr',g_fockt,'atom')
       endif
 c
-c     Set up convergence parameters
+c     Set up local convergence parameters
 c
       diis = .false.
       damping = .true.
       levelshifting = .false.
-      nodamping = .false.
-      nolevelshifting = .false.
-      nodiis = .false.
       keep_damp_on = .false.
       keep_levl_on = .false.
       keep_diis_on = .false.
@@ -359,73 +321,11 @@ c
       ndamp = ndamp_input
       rlshift = rlshift_def
 c
-c     Note new input parameters are: nodamping, nolevelshifting, nodiis (old),
-c     lshift (old), ndamp (old), dampon, dampoff, levlon, levloff, diison,
-c     diisoff, ncydp, ncysh (old), ncyds
-c
-c     Energetic default will be damping until energy converged to < 10-1, 
+c     Energetic defaults should be damping until energy converged to < 10-1, 
 c     then damping turned off, followed by level shifting and DIIS 
 c     until energy converged to < 10-3, then level shifting turned 
 c     off, followed by DIIS only.
 c 
-      if (.not. rtdb_get(rtdb, 'dft:dampon', mt_dbl, 1, dampon))then
-         dampon = 1.0d+8
-         write(*,*)' Dampon not found, set to default. ',dampon
-      endif    
-      if (.not. rtdb_get(rtdb, 'dft:dampoff', mt_dbl, 1, dampoff))then
-         dampoff = 1.0d-1
-         write(*,*)' Dampoff not found, set to default. ',dampoff
-      endif    
-c
-      if (.not. rtdb_get(rtdb, 'dft:levlon', mt_dbl, 1, levlon))then
-         levlon = 1.0d-1
-         write(*,*)' Levlon not found, set to default. ',levlon
-      endif    
-      if (.not. rtdb_get(rtdb, 'dft:levloff', mt_dbl, 1, levloff))then
-         levloff = 1.0d-4
-         write(*,*)' Levloff not found, set to default. ',levloff
-      endif    
-c
-      if (.not. rtdb_get(rtdb, 'dft:diison', mt_dbl, 1, diison))then
-         diison = 0.0d-1
-         write(*,*)' Diison not found, set to default. ',diison
-      endif    
-      if (.not. rtdb_get(rtdb, 'dft:diisoff', mt_dbl, 1, diisoff))then
-         diisoff = 0.0d0
-         write(*,*)' Diisoff not found, set to default. ',diisoff
-      endif    
-c
-      if (.not. rtdb_get(rtdb, 'dft:ncydp', mt_int, 1, ncydp))then
-         ncydp = 0
-         write(*,*)' Ncydp not found, set to default. ',ncydp
-      endif    
-c
-      if (.not. rtdb_get(rtdb, 'dft:ncysh', mt_int, 1, ncysh))then
-         ncysh = 0
-         write(*,*)' Ncysh not found, set to default. ',ncysh
-      endif    
-c
-      if (.not. rtdb_get(rtdb, 'dft:ncyds', mt_int, 1, ncyds))then
-         ncyds = 0
-         write(*,*)' Ncyds not found, set to default. ',ncyds
-      endif    
-c
-      if(.not.rtdb_get(rtdb,'dft:nodamping',mt_log,1,nodamping))then
-         nodamping = .false.
-         write(*,*)' Nodamping not found, set to default. ',nodamping
-      endif    
-c
-      if(.not.rtdb_get(rtdb,'dft:nolevelshifting',mt_log,1,
-     &   nolevelshifting))then
-         nolevelshifting = .false.
-         write(*,*)' Nolevelshifting not found, set to default. ',
-     &   nolevelshifting
-      endif    
-c
-      if(.not.rtdb_get(rtdb,'dft:nodiis',mt_log,1,nodiis))then
-         nodiis = .false.
-         write(*,*)' Nodiis not found, set to default. ',nodiis
-      endif    
       if(nodamping)then
         ncydp = 0
         ndamp = 0
@@ -541,10 +441,13 @@ c****
         k_eval(2) = k_eval(1) + nbf_ao
       endif 
 c
+c     Dump DFT parameters to see if they make sense
+c
+c      call dft_dump_info
+c
 c     Get initial density.
 c
-      call dft_init_guess(rtdb,ipol,iconst,nconst,
-     &  g_dens,g_movecs,g_fock)
+      call dft_init_guess(rtdb, g_dens, g_movecs, g_fock)
       iter = 1
 c
 c     Figure input/output MO vectors 
@@ -655,10 +558,10 @@ c
       call ga_zero(g_vxc(1))
       if(ipol.eq.2)call ga_zero(g_vxc(2))
       if(oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
-      call xc_getv(rtdb,geom,ao_bas_han,XC_bas_han,
-     &  Exc,ipol,nExc,
+      call xc_getv(rtdb,
+     &  Exc,nExc,
      &  iVxc_opt,g_xcinv,
-     &  g_dens,g_vxc,IOLGC,iAOacc,
+     &  g_dens,g_vxc,IOLGC,
      &  g_wght,g_xyz,wght_GA)
       call ga_sync
       call ga_dadd(1.d0,g_vxc(1),1.d0,g_fock,g_fock)
@@ -804,8 +707,7 @@ c       of maximum overlap with previous iteration.
 c       Note, do this after MOs have settled down a
 c       few iterations.
 c       
-        if(rtdb_get(rtdb, 'dft:max_ovl', mt_log, 1,lmaxov ).and.
-     &    (delta.lt.0.01)) then
+        if(lmaxov.and.(delta.lt.0.01)) then
           call dft_mxovl(ao_bas_han, dbl_mb(k_eval(ispin)),
      &      g_fock, g_movecs(ispin),g_tmp)
         else
@@ -1032,8 +934,13 @@ c
             write(LuOut,*)
           endif
           dft_time=dft_time+util_cpusec()
-          write(LuOut,222)  etnew+enuc, ecore, Ecoul,Exc(1), enuc, 
-     $                     dft_time
+          if(nexc.le.1)then
+            write(LuOut,222) etnew+enuc, ecore, Ecoul,Exc(1), enuc, 
+     $                       dft_time
+          else
+            write(LuOut,223) etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
+     $                        enuc, dft_time
+          endif
  222      format(//
      $        '          Final results '/
      $        '       ------------------ '//
@@ -1041,6 +948,16 @@ c
      $        '      One electron energy =', f20.12/
      $        '           Coulomb energy =', f20.12/
      $        '    Exchange-Corr. energy =', f20.12/
+     $        ' Nuclear repulsion energy =', f20.12//
+     $        '        Time for solution =', f9.1,'s'//)
+ 223      format(//
+     $        '          Final results '/
+     $        '       ------------------ '//
+     $        '         Total DFT energy =', f20.12/
+     $        '      One electron energy =', f20.12/
+     $        '           Coulomb energy =', f20.12/
+     $        '          Exchange energy =', f20.12/
+     $        '       Correlation energy =', f20.12/
      $        ' Nuclear repulsion energy =', f20.12//
      $        '        Time for solution =', f9.1,'s'//)
           call util_flush(LuOut)
@@ -1085,12 +1002,8 @@ c****
 c****     Save the mo vectors (this code from ddscf, generalized for
 c****     spin-unrestricted case)
 c****     
-c****     
 c****     collect the eigenvectors from global storage; output
 c****     to disk, allowing for RHF and UHF cases
-c****     
-
-
 c****     
 c****     logical function movecs_write(filename, title, basis_name, 
 c****     $     nbf_ao, nsets, nmo, occ, ldocc, evals, ldevals, g_vecs)
@@ -1194,8 +1107,6 @@ c
      $       'dft_scf: Unable to free MA handle', l_afshift)
         endif
 c
-c
-c
         call fock_2e_tidy(rtdb)
 c
 *      if (filesize.gt.0 .or. memsize.gt.0) then
@@ -1226,15 +1137,10 @@ C         Restore alpha and beta densities.
      &     nbf_ao,g_dens(1),g_dens(2))
 
         endif
-
-c
-c
-c
 c**** 
 c**** this is the final section of the ddscf routine rhf()
 c**** have substituted SCF with DFT
 c**** 
-c     
 c     Store energy and convergence status ... not sure if better to
 c     do this here or have each wavefunction type do it
 c     
@@ -1324,3 +1230,106 @@ c
 c     
       end
 
+      subroutine dft_dump_info
+      implicit none
+      integer i
+c      
+#include "cdft.fh"
+c
+c     Logicals
+c
+      write(*,*)' LOGICALS '
+      write(*,*)' nodamping = ', nodamping
+      write(*,*)' nolevelshifting = ', nolevelshifting
+      write(*,*)' nodiis = ', nodiis
+      write(*,*)' ltight = ', ltight
+      write(*,*)' lmaxov = ', lmaxov
+      write(*,*)' incore = ', incore
+      write(*,*)' ldelley = ', ldelley
+      write(*,*)' store_wght = ', store_wght
+      write(*,*)' XCFIT = ', XCFIT
+      write(*,*)' CDFIT = ', CDFIT
+c
+c     Integers
+c
+      write(*,*)' INTEGERS '
+      write(*,*)' iAOacc = ', iAOacc
+      write(*,*)' iXCacc = ', iXCacc
+      write(*,*)' irqmax = ', irqmax
+      write(*,*)' itol2e = ', itol2e
+      write(*,*)' imull = ', imull
+      write(*,*)' iangquad = ', iangquad
+      write(*,*)' itrscf = ', itrscf
+      write(*,*)' iscfcon = ', iscfcon
+      write(*,*)' iguess = ', iguess
+      write(*,*)' mult = ', mult
+      write(*,*)' ipol = ', ipol
+      write(*,*)' igcon = ', igcon
+      write(*,*)' nfock = ', nfock
+      write(*,*)' ncydp = ', ncydp
+      write(*,*)' ncysh = ', ncysh
+      write(*,*)' ncyds = ', ncyds
+      write(*,*)' idirect = ', idirect
+      write(*,*)' noio = ', noio
+      write(*,*)' ndamp = ', ndamp
+      write(*,*)' idecomp = ', idecomp
+      write(*,*)' nagrid = ', nagrid
+      write(*,*)' nrinc = ', nrinc
+      write(*,*)' nrmax = ', nrmax
+      write(*,*)' igeotype = ', igeotype
+      write(*,*)' numgrp = ', numgrp
+      write(*,*)' numset = ', numset
+      write(*,*)' geom = ', geom
+      write(*,*)' ncenters = ', ncenters
+      write(*,*)' nbf = ', nbf
+      write(*,*)' nbf_ao = ', nbf_ao
+      write(*,*)' nbf_cd = ', nbf_cd
+      write(*,*)' nbf_xc = ', nbf_xc
+      write(*,*)' MXqshells = ', MXqshells
+      write(*,*)' MXrad = ', MXrad
+      write(*,*)' MXagrid = ', MXagrid
+      write(*,*)' MXtheta = ', MXtheta
+      write(*,*)' MXphi = ', MXphi
+      write(*,*)' MXnang = ', MXnang
+      write(*,*)' IAC_MAX = ', IAC_MAX
+      write(*,*)' MAX_CHUNK = ', MAX_CHUNK
+      write(*,*)' nqshells = ', nqshells
+      write(*,*)' iqrot = ', iqrot
+      write(*,*)' ntypes = ', ntypes
+      write(*,*)' nquad_task = ', nquad_task
+      write(*,*)' dft_ntags_bsmx = ', dft_ntags_bsmx
+      write(*,*)' dft_max_cent = ', dft_max_cent
+      write(*,*)' AO_bas_han = ', AO_bas_han
+      write(*,*)' CD_bas_han = ', CD_bas_han
+      write(*,*)' XC_bas_han = ', XC_bas_han
+c
+c     Doubles
+c
+      write(*,*)' DOUBLES '
+      write(*,*)' rlshift = ', rlshift
+      write(*,*)' dampon = ', dampon
+      write(*,*)' dampoff = ', dampoff
+      write(*,*)' levlon = ', levlon
+      write(*,*)' levloff = ', levloff
+      write(*,*)' diison = ', diison
+      write(*,*)' diisoff = ', diisoff
+      write(*,*)' rcharge = ', rcharge
+      write(*,*)' rm = ', rm
+      write(*,*)' TOLL = ', TOLL
+      write(*,*)' radius = ', radius
+      write(*,*)' rscale = ', rscale
+      write(*,*)' cdist = ', (cdist(i),i=1,3)
+      write(*,*)' cang =', (cang(i),i=1,3)
+      write(*,*)' cfac = ', (cfac(i),i=1,10)
+      write(*,*)' xfac =', (xfac(i),i=1,10)
+c
+c     Characters
+c
+      write(*,*)' CHARACTERS '
+      write(*,*)' title = ', title
+      write(*,*)' gridtype = ', gridtype
+      write(*,*)' xname = ', xname
+      write(*,*)' cname = ', cname
+c
+      return
+      end
