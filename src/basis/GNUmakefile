@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.44 2001-12-14 19:24:56 bert Exp $
+#$Id: GNUmakefile,v 1.45 2002-02-01 00:50:49 windus Exp $
 TARGET = $(NWCHEM_TARGET)
 include ../tools/armci/config/makecoms.h
 include ../tools/armci/config/makemp.h
@@ -39,7 +39,7 @@ else
 endif
 endif
 
-     USES_BLAS = bas_blas.F bas_blasP.F
+     USES_BLAS = bas_blas.F bas_blasP.F basis.F
 
 include ../config/makelib.h
 
