@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.45 2002-01-15 22:53:15 windus Exp $
+C $Id: hess_cphf.F,v 1.46 2002-01-15 23:16:28 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -159,8 +159,6 @@ c
      $          oprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, num)
       call ga_dscal(g_rhs,four)
-      write(Luout,*) 'after scale by four'
-      call ga_print(g_rhs)
       call ga_zero(g_wax)
       call ga_zero(g_aa)
       call hess_getaawax(g_rhs, g_aa, g_wax, nocc, nvirt,
@@ -681,7 +679,7 @@ c
       integer ndens, n3xyz, nocc(ndens)
       integer g_rhs, g_aa
       double precision exy(n3xyz,n3xyz)
-      integer ndns, jnd, ind
+      integer ndns, jnd, ind, jindex, index
       integer alo1(3), ahi1(3), alo2(3), ahi2(3)
       integer blo1(3), bhi1(3), blo2(3), bhi2(3)
 c
@@ -702,16 +700,20 @@ c
       bhi1(3) = nocc(ndns)
       bhi2(2) = nocc(ndns)
       bhi2(3) = nocc(ndns)
+      jindex = (ndns-1)*n3xyz
       do jnd = 1, n3xyz
-        alo2(1) = jnd
-        ahi2(1) = jnd
-        blo2(1) = jnd
-        bhi2(1) = jnd
+        jindex = jindex + 1
+        alo2(1) = jindex
+        ahi2(1) = jindex
+        blo2(1) = jindex
+        bhi2(1) = jindex
+        index = (ndns-1)*n3xyz
         do ind = 1, n3xyz
-          alo1(1) = ind
-          ahi1(1) = ind
-          blo1(1) = ind
-          bhi1(1) = ind
+          index = index + 1
+          alo1(1) = index
+          ahi1(1) = index
+          blo1(1) = index
+          bhi1(1) = index
           exy(ind, jnd) = 
      $      exy(ind, jnd) +
      $      nga_ddot_patch(g_rhs,'N',blo1,bhi1,
