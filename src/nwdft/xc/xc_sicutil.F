@@ -1,14 +1,14 @@
       subroutine xc_sicinit(rtdb, test_sic, condfukui, exact_pot,
-     &                      l_degen, i_degen, noc)
+     &                      l_degen, i_degen, noc, act_levels)
       implicit none
 c     
-c     $Id: xc_sicutil.F,v 1.4 2000-04-28 17:55:11 jolguin Exp $
+c     $Id: xc_sicutil.F,v 1.5 2000-05-18 18:16:05 jolguin Exp $
 c     
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
-      integer l_degen, i_degen(2), noc(2), tot_oc
+      integer l_degen, i_degen(2), noc(2), tot_oc, act_levels
       integer rtdb ! [in]
       integer test_sic,condfukui,exact_pot ! [out]
 c
@@ -19,7 +19,9 @@ c
      &   condfukui)) condfukui = 0
       if (.not. rtdb_get(rtdb, 'dft:exact_pot', mt_int, 1,
      &   exact_pot)) exact_pot = 0
-      if (test_sic.eq.2.or.test_sic.eq.4) then
+      if (test_sic.ne.0) then
+        if (.not. rtdb_get(rtdb, 'dft:act_levels', mt_int, 1,
+     &      act_levels)) act_levels = 10000
         tot_oc = noc(1) + noc(2)
         if (.not.MA_Push_Get(MT_Int, tot_oc, 'degen_homo',
      &     l_degen, i_degen(1)))
@@ -27,29 +29,42 @@ c
       end if
       return
       end
-      subroutine xc_sicdeg(i_degen, evals, noc)
+      subroutine xc_sicdeg(i_degen, evals, noc, n_levels, act_levels)
       implicit none
 #include "mafdecls.fh"
 #include "cdft.fh"
 c
-      integer i_degen(2), evals(2)
+      integer i_degen(2), evals(2), n_levels(2)
       integer noc(*) ! [in]
 c
-      integer isp, j
-      double precision homo_test,start
+      integer isp, j, aux_levels, n_orbitals, act_levels
+      double precision start
       do isp=1,ipol
          if (isp.eq.2) i_degen(2) = i_degen(1) + noc(1)
          if (noc(isp).ne.0) then
-            homo_test = dbl_mb(evals(isp) + noc(isp) - 1)
-            do j = 1,noc(isp)
-               start = dbl_mb(evals(isp) + j - 1)
-               if (dabs(start-homo_test).le.1.0d-04) then
-                  Int_MB(i_degen(isp) + j - 1) = 1
-               else
-                  Int_MB(i_degen(isp) + j -1) = 0
-               end if
-            end do
+           aux_levels = 1
+           n_orbitals = 1
+           Int_MB(i_degen(isp) + aux_levels - 1) = n_orbitals
+           do j = noc(isp),2,-1
+             start = (dbl_mb(evals(isp) + j - 1) -
+     &                dbl_mb(evals(isp) + j - 2))
+             if (start.le.1.0d-04) then
+               n_orbitals = n_orbitals + 1
+             else
+               n_orbitals = 1
+               aux_levels = aux_levels + 1
+             end if
+             Int_MB(i_degen(isp) + aux_levels - 1) = n_orbitals
+           end do
+           n_levels(isp) = aux_levels
+         else
+           n_levels(isp) = 0
          end if
+      end do
+      do isp = 1, ipol
+        if (n_levels(isp).ne.0) then
+          if(n_levels(isp).gt.act_levels) n_levels(isp) = act_levels
+        end if
       end do
       return
       end

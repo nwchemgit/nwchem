@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.160 2000-04-25 09:24:35 jolguin Exp $
+c     $Id: dft_scf.F,v 1.161 2000-05-18 18:13:47 jolguin Exp $
 c     
       implicit none
 c
@@ -49,7 +49,7 @@ c     Variables used to obtain the exact exchange-correlation potential
 c
       integer g_rho_exact(2), g_tmp_exact(2), g_addit_exact(2),
      &        g_movecs_aux(2)
-      integer incre, exact_pot, split
+      integer incre, exact_pot, split, n_levels(2), act_levels
       double precision lamda, p_lamda, dif_lamda, lamda_old,
      &                 Ecoul_aux(2)
 c
@@ -250,7 +250,7 @@ c
 c
 c    Jorge Garza/Begin
       call xc_sicinit(rtdb, test_sic, condfukui, exact_pot,
-     &                l_degen, i_degen, noc)
+     &                l_degen, i_degen, noc, act_levels)
 c     Jorge Garza/End
 c
       if (ipol .eq. 1)then
@@ -577,7 +577,7 @@ c
      ,     iter, ecore, ecoul,exc,noc,rho_n,ldmix,
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
-     ,     oprint_time)
+     ,     n_levels, act_levels, oprint_time)
 c     
 c     Calculate the total electronic energy.
 c     
@@ -1000,12 +1000,13 @@ c
 c
 c     Jorge Garza / Begin
       if (test_sic.eq.1) then
-         call localize_sic(g_movecs, noc)
+         call xc_sicdeg(i_degen, k_eval, noc, n_levels,act_levels)
+         call localize_sic(g_movecs, noc, k_eval)
          call xc_sic_pert(rtdb, nExc, iVxc_opt,
      &                    g_wght, g_xyz, g_nq,
      &                    wght_GA, dbl_mb(irdens_atom),
      &                    int_mb(icetobfr), natoms,
-     &                    g_movecs, noc, totsic)
+     &                    g_movecs, noc, totsic, i_degen, n_levels)
          if (me.eq.0.and.oprint_sic)then
             write(LuOut,*) ' SIC after localization',totsic
          endif
