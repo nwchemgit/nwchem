@@ -96,6 +96,9 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
+      logical frequency
+      external frequency
+c
       real*8 epot,edif,epsd,dx,dxf,dxmax
       character*1 cqrs
 c
@@ -134,8 +137,8 @@ c
 c
       isdit=isdit+1
 c
-      lpair=mod(isdit,nfpair).eq.0
-      llong=(mod(isdit,nflong).eq.0.or.lpair).and.ltwin
+      lpair=frequency(isdit,nfpair)
+      llong=(frequency(isdit,nflong).or.lpair).and.ltwin
 c
 c     initialize cf
 c
@@ -166,7 +169,7 @@ c
       epsd=epot
 c
       cqrs=' '
-      if(mod(isdit,nfqrs).eq.0) then
+      if(frequency(isdit,nfqrs)) then
       call sp_wrtrst(lfnqrs,filqrs,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
@@ -226,6 +229,9 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
+      logical frequency
+      external frequency
+c
       integer iequi
 c
 c     equilibration
@@ -244,7 +250,7 @@ c
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme)
 c
-      if(mod(mdstep,nfrest).eq.0)
+      if(frequency(mdstep,nfrest))
      + call sp_wrtrst(lfnrst,filrst,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
@@ -270,6 +276,9 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
+      logical frequency
+      external frequency
+c
       external timer_wall
       real*8 timer_wall
 c
@@ -283,8 +292,8 @@ c
 c     if(mod(mdstep,nfgaus).eq.0)
 c    + call cf_gauss(nwmloc,nsaloc,vw,vs,tgaus)
 c
-      lpair=mdstep.eq.1.or.mod(mdstep,nfpair).eq.0
-      llong=(mdstep.eq.1.or.mod(mdstep,nflong).eq.0.or.lpair).and.ltwin
+      lpair=mdstep.eq.1.or.frequency(mdstep,nfpair)
+      llong=(mdstep.eq.1.or.frequency(mdstep,nflong).or.lpair).and.ltwin
 c
       if(lpair) then
 c
