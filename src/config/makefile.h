@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.145 1996-03-20 18:15:31 d3h325 Exp $
+# $Id: makefile.h,v 1.146 1996-03-20 18:32:54 d3h325 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -562,9 +562,6 @@ ifeq ($(TARGET),SP1)
    LIBPATH += -L/usr/lib -L/sphome/harrison/peigs2.0
   CORE_LIBS = -lglobal -lutil -lpeigs -llapack
 
-ifdef MPI
-   LIBPATH += -L$(MPI_LOC)/rs6000/ch_eui
-endif
 ifdef USE_ESSL
    DEFINES += -DESSL
  CORE_LIBS += -lessl \
