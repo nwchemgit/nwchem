@@ -1,5 +1,5 @@
       logical function stpr_walk(flag,rtdb)
-c $Id: stpr_walk.F,v 1.18 1995-11-28 20:50:25 hltaylor Exp $
+c $Id: stpr_walk.F,v 1.19 1996-01-29 19:42:49 hltaylor Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -218,8 +218,8 @@ c
      &      call errquit
      &      ('stpr_walk: geom_rtdb_store (of copy) failed',911)
 c
-#define SC95
-#if defined(SC95)
+C**** #define ECCE
+#if defined(ECCE)
         write(luout,*)'<stepper updated geometry> start '
         if(.not. geom_print(geom)) call errquit
      &      ('stpr_walk:geom print failed ',911)
