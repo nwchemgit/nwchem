@@ -1,4 +1,4 @@
-c $Id: cf_forces.fh,v 1.11 2000-05-31 18:19:43 d3j191 Exp $
+c $Id: cf_forces.fh,v 1.12 2000-06-08 15:33:42 d3j191 Exp $
 #if defined(CAFE_POLARIZATION)
       subroutine forcep(lself,lpbcs,
      + xw,xwm,fw,pw,pwp,zwi,rtos,iwdt,iwz,
@@ -185,7 +185,17 @@ c     solute-solvent forces
 c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
-#if defined(CAFE_POLARIZATION)   
+#if defined(CAFE_POLARIZATION)
+      call cf_fpsw(xs,xsm,fs,zs,ps,psp,isga,isat,isdt,ismf,isml,isss,
+     + isq1,isfr,nsloc,
+     + xw,xwm,fw,pw,pwp,rtos,iwdt,lpbc,lpbcs,esw,
+     + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
+     + int_mb(i_ias),int_mb(i_s2i1),
+     + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
+     + dbl_mb(i_smr1),dbl_mb(i_smr2),dbl_mb(i_s3r1),dbl_mb(i_s1r1),
+     + dbl_mb(i_s1r2),dbl_mb(i_s1r3),dbl_mb(i_s3r2),dbl_mb(i_s1r4),
+     + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_s1r5),dbl_mb(i_s1r6),
+     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3),dbl_mb(i_sti))   
 #elif defined(CAFE_FORCES)
       call cf_fsw(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
      + isq1,isfr,nsloc,
@@ -207,7 +217,17 @@ c     solvent-solute forces
 c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
-#if defined(CAFE_POLARIZATION)   
+#if defined(CAFE_POLARIZATION)
+      call cf_fsw(xs,xsm,fs,zs,ps,psp,isga,isat,isdt,ismf,isml,isss,
+     + isq1,jsfr,nsnon,
+     + xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,
+     + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
+     + int_mb(i_ias),int_mb(i_s2i1),
+     + int_mb(lptr+1),int_mb(lptr+1+2*nsnon),int_mb(lptr+1+4*nsnon),
+     + dbl_mb(i_smr1),dbl_mb(i_smr2),dbl_mb(i_s3r1),dbl_mb(i_s1r1),
+     + dbl_mb(i_s1r2),dbl_mb(i_s1r3),dbl_mb(i_s3r2),dbl_mb(i_s1r4),
+     + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_s1r5),dbl_mb(i_s1r6),
+     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3),dbl_mb(i_sti))   
 #elif defined(CAFE_FORCES)
       call cf_fsw(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
      + isq1,jsfr,nsnon,
@@ -229,7 +249,17 @@ c     solute-solute forces
 c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
-#if defined(CAFE_POLARIZATION)   
+#if defined(CAFE_POLARIZATION)
+      call cf_fss(xs,xsm,fs,zs,ps,psp,isga,isat,isdt,ismf,isml,isss,
+     + isq2,isq3,isfr,nsloc,lpbc,lpbcs,ess,
+     + dbl_mb(i_vdw),dbl_mb(i_chg),
+     + int_mb(i_ias),int_mb(i_s2i1),
+     + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
+     + dbl_mb(i_smr1),dbl_mb(i_smr2),dbl_mb(i_s3r1),dbl_mb(i_s1r1),
+     + dbl_mb(i_s1r2),dbl_mb(i_s1r3),dbl_mb(i_s3r2),dbl_mb(i_s1r4),
+     + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_s1r5),dbl_mb(i_s1r6),
+     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3),int_mb(i_s1i4),
+     + int_mb(i_s1i5),dbl_mb(i_smr5),dbl_mb(i_smr6),dbl_mb(i_sti))   
 #elif defined(CAFE_FORCES)
       call cf_fss(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
      + isq2,isq3,isfr,nsloc,lpbc,lpbcs,ess,

@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.25 2000-05-31 20:42:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.26 2000-06-08 15:33:42 d3j191 Exp $
 c
       implicit none
 c
@@ -492,12 +492,12 @@ c
       return
       end
 #if defined(CAFE_POLARIZATION)
-      subroutine cf_fpsw(xs,xsm,fs,zs,
+      subroutine cf_fpsw(xs,xsm,fs,zs,ps,psp,
      + isga,isat,isdt,ismf,isml,isss,isq1,
-     + isfrom,nums,xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,
+     + isfrom,nums,xw,xwm,fw,pw,pwp,rtos,iwdt,lpbc,lpbcs,esw,
      + vdw,chg,iwatm,iwq,iass,lswndx,lswjpt,lswin,lswj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
-     + rw,isal,isrx,list)
+     + rw,isal,isrx,list,pl,pj)
 #elif defined(CAFE_FORCES)
       subroutine cf_fsw(xs,xsm,fs,zs,
      + isga,isat,isdt,ismf,isml,isss,isq1,
@@ -509,7 +509,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.25 2000-05-31 20:42:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.26 2000-06-08 15:33:42 d3j191 Exp $
 c
       implicit none
 c
@@ -541,6 +541,11 @@ c
 c
 #if defined(CAFE_FORCES)
       real*8 dera(5,nsatot)
+#endif
+#if defined(CAFE_POLARIZATION)
+      real*8 ps(msa,3,2),psp(msa,3,2,2)
+      real*8 pw(mwm,3,mwa,2),pwp(mwm,3,mwa,2,2)
+      real*8 pl(mscr,3),pj(mscr,3,mwa)
 #endif
 c
       integer isatm,nswlen(2)
@@ -645,6 +650,11 @@ c
       xi(nax+ismn,1)=xs(isfr+isa,1)
       xi(nax+ismn,2)=xs(isfr+isa,2)
       xi(nax+ismn,3)=xs(isfr+isa,3)
+#if defined(CAFE_POLARIZATION)
+      pl(nax+ismn,1)=ps(isfr+isa,1,1)
+      pl(nax+ismn,2)=ps(isfr+isa,2,1)
+      pl(nax+ismn,3)=ps(isfr+isa,3,1)
+#endif
       isal(nax+ismn)=isfr+isa
       if(iand(iwdt(lswptr),mdynam).ne.ldynam) then
       facu(nax+ismn)=half
@@ -658,6 +668,11 @@ c
       xi(nax+ismn,1)=xs(isfr+isa,1)
       xi(nax+ismn,2)=xs(isfr+isa,2)
       xi(nax+ismn,3)=xs(isfr+isa,3)
+#if defined(CAFE_POLARIZATION)
+      pl(nax+ismn,1)=ps(isfr+isa,1,1)
+      pl(nax+ismn,2)=ps(isfr+isa,2,1)
+      pl(nax+ismn,3)=ps(isfr+isa,3,1)
+#endif
       isal(nax+ismn)=isfr+isa
       if(iand(iwdt(lswptr),mdynam).eq.ldynam) then
       facu(nax+ismn)=half
@@ -674,6 +689,11 @@ c
       xj(nax+ismn,1,iwa)=xw(lswptr,1,iwa)
       xj(nax+ismn,2,iwa)=xw(lswptr,2,iwa)
       xj(nax+ismn,3,iwa)=xw(lswptr,3,iwa)
+#if defined(CAFE_POLARIZATION)
+      pj(nax+ismn,1,iwa)=pw(lswptr,1,iwa,1)
+      pj(nax+ismn,2,iwa)=pw(lswptr,2,iwa,1)
+      pj(nax+ismn,3,iwa)=pw(lswptr,3,iwa,1)
+#endif
    14 continue
    13 continue
       else
@@ -688,6 +708,11 @@ c
       xj(nax+ismn,1,iwa)=xw(lswptr,1,iwa)+rwx(ismn,1)
       xj(nax+ismn,2,iwa)=xw(lswptr,2,iwa)+rwx(ismn,2)
       xj(nax+ismn,3,iwa)=xw(lswptr,3,iwa)+rwx(ismn,3)
+#if defined(CAFE_POLARIZATION)
+      pj(nax+ismn,1,iwa)=pw(lswptr,1,iwa,1)
+      pj(nax+ismn,2,iwa)=pw(lswptr,2,iwa,1)
+      pj(nax+ismn,3,iwa)=pw(lswptr,3,iwa,1)
+#endif
    17 continue
    16 continue
       endif
@@ -1195,7 +1220,7 @@ c
       return
       end
 #if defined(CAFE_POLARIZATION)
-      subroutine cf_fpss(xs,xsm,fs,zs,
+      subroutine cf_fpss(xs,xsm,fs,zs,ps,psp,
      + isga,isat,isdt,ismf,isml,isss,isq2,isq3,
      + isfrom,nums,lpbc,lpbcs,ess,
      + vdw,chg,iass,
@@ -1214,7 +1239,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.25 2000-05-31 20:42:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.26 2000-06-08 15:33:42 d3j191 Exp $
 c
       implicit none
 c
@@ -1241,6 +1266,10 @@ c
 c
 #if defined(CAFE_FORCES)
       real*8 dera(5,nsatot)
+#endif
+#if defined(CAFE_POLARIZATION)
+      real*8 ps(msa,3,2),psp(msa,3,2,2)
+      real*8 pl(mscr,3),pj(mscr,3)
 #endif
 c
       integer isa,jsa,i,isf,jsf
@@ -1406,6 +1435,14 @@ c
       xj(nax+jnum,1)=xs(lssptr,1)
       xj(nax+jnum,2)=xs(lssptr,2)
       xj(nax+jnum,3)=xs(lssptr,3)
+#if defined(CAFE_POLARIZATION)
+      pl(nax+jnum,1)=ps(isfr+isa,1,1)
+      pl(nax+jnum,2)=ps(isfr+isa,2,1)
+      pl(nax+jnum,3)=ps(isfr+isa,3,1)
+      pj(nax+jnum,1)=ps(lssptr,1,1)
+      pj(nax+jnum,2)=ps(lssptr,2,1)
+      pj(nax+jnum,3)=ps(lssptr,3,1)
+#endif
       isal(nax+jnum)=isfr+isa
       jsal(nax+jnum)=lssptr
    18 continue
@@ -1421,6 +1458,14 @@ c
       xj(nax+jnum,1)=xs(lssptr,1)+rwx(jnum,1)
       xj(nax+jnum,2)=xs(lssptr,2)+rwx(jnum,2)
       xj(nax+jnum,3)=xs(lssptr,3)+rwx(jnum,3)
+#if defined(CAFE_POLARIZATION)
+      pl(nax+jnum,1)=ps(isfr+isa,1,1)
+      pl(nax+jnum,2)=ps(isfr+isa,2,1)
+      pl(nax+jnum,3)=ps(isfr+isa,3,1)
+      pj(nax+jnum,1)=ps(lssptr,1,1)
+      pj(nax+jnum,2)=ps(lssptr,2,1)
+      pj(nax+jnum,3)=ps(lssptr,3,1)
+#endif
       isal(nax+jnum)=isfr+isa
       jsal(nax+jnum)=lssptr
    19 continue
@@ -2134,7 +2179,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.25 2000-05-31 20:42:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.26 2000-06-08 15:33:42 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -2413,7 +2458,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.25 2000-05-31 20:42:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.26 2000-06-08 15:33:42 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2679,7 +2724,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.25 2000-05-31 20:42:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.26 2000-06-08 15:33:42 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -3012,7 +3057,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.25 2000-05-31 20:42:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.26 2000-06-08 15:33:42 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3329,7 +3374,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera)
 c
-c $Id: cf_f.fh,v 1.25 2000-05-31 20:42:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.26 2000-06-08 15:33:42 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3661,7 +3706,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.25 2000-05-31 20:42:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.26 2000-06-08 15:33:42 d3j191 Exp $
 c
       implicit none
 c
