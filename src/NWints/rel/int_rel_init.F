@@ -1,4 +1,4 @@
-c $Id: int_rel_init.F,v 1.2 1999-12-30 22:00:32 mg201 Exp $
+c $Id: int_rel_init.F,v 1.3 2000-02-04 01:02:21 mg201 Exp $
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_rel\_init}
 c:tex-This routine initializes the relativistic integrals.
@@ -133,7 +133,7 @@ c
           end if
         end if
    11 continue
-      odum = int_normalize(sc_bsh)
+      odum = int_normalize(sc_bsh,rtdb)
 c
 c     get large component basis set
 c
@@ -187,7 +187,7 @@ c
      &          'Large and small component bases do not match',99) 
           end do
         end do
-        odum = int_normalize(lc_bsh)
+        odum = int_normalize(lc_bsh,rtdb)
       end if
 c
       level_SSSS = 0
@@ -205,11 +205,13 @@ c
 #include "apiP.fh"
 #include "rel_nwc.fh"
 c
-      if (lc_bsh .ne. -1) then
-        if (.not. bas_destroy(lc_bsh)) call errquit(
-     &      'int_rel_terminate: failed to destroy large component basis'
-     &      ,0)
-        lc_bsh = -1
+      if (nesc_1e_approx) then
+        if (lc_bsh .ne. -1) then
+          if (.not. bas_destroy(lc_bsh)) call errquit(
+     &        'int_rel_terminate: failed to destroy' // 
+     &        'large component basis',0)
+          lc_bsh = -1
+        end if
       end if
       if (sc_bsh .ne. -1) then
         if (.not. bas_destroy(sc_bsh)) call errquit(
