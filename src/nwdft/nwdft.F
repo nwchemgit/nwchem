@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.55 2001-10-18 20:10:17 edo Exp $
+C$Id: nwdft.F,v 1.56 2001-11-26 23:12:15 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -67,9 +67,9 @@ c
       logical LResult, oprint, converged
       logical dyall_mod_dir  ! do modified Dirac calculation
 c
-      logical dft_main0d, movecs_converged
-      external dft_main0d, movecs_converged
-      logical ocosmo
+      logical dft_main0d, movecs_converged,grid_reopen,xc_gotxc  
+      external dft_main0d, movecs_converged,grid_reopen,xc_gotxc  
+      logical ocosmo,grid_ok
       integer necp
       character*80 theory
 c     
@@ -146,8 +146,16 @@ c
          if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
      $        call errquit('dft: theory not specified',0)
          if(theory .eq. 'dft')then 
-            if (movecs_converged(rtdb, ao_bas_han, 'dft', movecs_in))
-     &           then
+            if(.not.xc_gotxc()) then
+               grid_ok=.true.
+            else
+               grid_ok=grid_reopen(rtdb,geom)
+            endif
+            if (movecs_converged(rtdb, ao_bas_han, 'dft', movecs_in).
+     &      and.grid_ok)     then
+c
+c     check if we can get the grid from a file
+c         
                if (.not. rtdb_get(rtdb, 'dft:energy', mt_dbl, 1, 
      &              energy)) call errquit(
      .              'dft_scf: failed getting converged energy',0)
