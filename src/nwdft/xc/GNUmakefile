@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.46 1998-09-15 19:03:56 d3e129 Exp $
+# $Id: GNUmakefile,v 1.47 1998-10-16 00:54:06 og845 Exp $
 ifeq ($(TARGET),SGITFP)
 	OBJ = xc_getv.o xc_quadv0.o xc_quadv0_a.o xc_quadv1.o xc_fitv.o xc_get2oi.o qpts.o gat_mat.o	xc_beckew.o setACmat.o xc_neighb.o 
 	OBJ_OPTIMIZE = xc_tabcd.o  xc_rhogen.o\
@@ -9,7 +9,7 @@ ifeq ($(TARGET),SGITFP)
 	qpts.o		gausquad.o			   \
 	a_dist.o	qdist.o		 xc_delleyw.o xc_lebedev.o \
         xc_vwn_1_rpa.o xc_vwn_1.o xc_vwn_2.o xc_vwn_3.o xc_vwn_4.o \
-	xc_eval_fnl.o
+	xc_eval_fnl.o xc_pbe96.o xc_hcth.o xc_chkgrad.o
 else
 #      OBJ = xc_getv.o  xc_quadv1.o  qpts.o  xc_quadv0.o xc_quadv0_a.o xc_perdew91.o 
 #
@@ -60,14 +60,14 @@ else
 	xc_vwn_3.o \
 	xc_vwn_4.o \
 	xc_vwn_5.o \
-	xc_eval_fnl.o
+	xc_eval_fnl.o xc_pbe96.o xc_hcth.o  xc_chkgrad.o
 
 endif
 
      LIBRARY = libnwdft.a
 
 # LIB_DEFINES = -DDFT_TIMER
- LIB_DEFINES =
+# LIB_DEFINES = -DQUADV0_REVERT
 
 LIB_INCLUDES = -I../include
 
