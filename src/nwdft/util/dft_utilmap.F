@@ -172,15 +172,13 @@ c
         if(iniz(iat).eq.0) then
           rchi(iat)=0d0
         else
-          mxsum=0d0
-          do jf=iniz(iat),ifin(iat)
-            sum=0d0
-            do q=1,nqsmall
-              sum=sum+chi(q,jf)*chi(q,jf)
-            enddo
-            mxsum=max(mxsum,sqrt(sum))
-          enddo
-          rchi(iat)=mxsum
+           sum=0d0
+           do jf=iniz(iat),ifin(iat)
+              do q=1,nqsmall
+                 sum=sum+chi(q,jf)*chi(q,jf)
+              enddo
+           enddo
+           rchi(iat)=max(mxsum,sqrt(sum))
         endif
       enddo
       return
