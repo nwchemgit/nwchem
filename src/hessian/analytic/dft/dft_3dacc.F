@@ -1,9 +1,9 @@
-      subroutine dft_3dacc(g_fock,buf,imat,
+      subroutine dft_3dacc(g_fock,buf,imat,imat2,
      ,     ifirst,ilast,jfirst,jlast,ldin)
-C$Id: dft_3dacc.F,v 1.2 2002-01-14 20:40:53 edo Exp $
+C$Id: dft_3dacc.F,v 1.3 2002-02-22 20:04:11 edo Exp $
       implicit none
       integer g_fock
-      integer imat
+      integer imat,imat2
       integer ldin
       integer ifirst,ilast,jfirst,jlast
       double precision buf(*)
@@ -11,10 +11,10 @@ c
       integer lo(3)  !array of starting indices for ga   [input]
       integer hi(3)  !  array of ending indices for ga     [input]
       integer ld(2) !array specifying leading dimensions for buffer 
-      ld(1)=1  
+      ld(1)=imat2-imat+1
       ld(2)=ldin
       lo(1)=imat
-      hi(1)=imat
+      hi(1)=imat2
       lo(2)=ifirst
       hi(2)=ilast
       lo(3)=jfirst

@@ -1,6 +1,6 @@
       Subroutine scat_mat(TT,T,Ni,Nj,mi,mj,ifirst,jfirst,ibf,jbf)
 
-C$Id: scat_mat.F,v 1.6 2001-11-16 02:12:42 edo Exp $
+C$Id: scat_mat.F,v 1.7 2002-02-22 20:04:11 edo Exp $
       implicit none
       integer mi,mj,Ni,Nj
       integer ifirst,jfirst
@@ -54,3 +54,50 @@ c
       return
       end
 C
+      Subroutine scat_mat3(n3d,i3d,
+     .     TT,T,Ni,Nj,mi,mj,ifirst,jfirst,ibf,jbf)
+      implicit none
+      integer n3d,i3d
+      integer mi,mj,Ni,Nj
+      integer ifirst,jfirst
+      integer ibf(mi),jbf(mj)
+      double precision T(mi,mj),TT(n3d,Ni,Nj)
+c
+      integer i,j,jj
+
+c
+c     scatter into matrix
+c     
+      do j = 1,mj
+        jj=jbf(j)-jfirst+1
+        do i =1,mi
+          TT(i3d,(ibf(i)-ifirst+1),jj)=T(i,j)
+        enddo
+      enddo
+      
+      return
+      end
+      Subroutine transp_mat3(n3d,TT,T,Ni,Nj)
+
+      implicit none
+      integer n3d
+      integer Ni,Nj
+      double precision T(n3d,Nj,Ni),TT(n3d,Ni,Nj)
+c
+      integer jj,ii,i3d
+
+c
+c     transpose a matrix 
+c     input TT
+c     output T
+c     
+      do jj=1,Ni
+        do ii=1,Nj
+           do i3d=1,n3d
+              T(i3d,ii,jj)=TT(i3d,jj,ii)
+           enddo
+        enddo
+      enddo
+      
+      return
+      end

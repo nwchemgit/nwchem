@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.8 2001-05-05 05:20:31 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.9 2002-02-22 20:04:05 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.8 2001-05-05 05:20:31 edo Exp $
+c $Id: dftg_gridv0.F,v 1.9 2002-02-22 20:04:05 edo Exp $
 c     
       implicit none      
 c
@@ -66,7 +66,7 @@ c
 c
       integer cetobfr(2,natoms)
       double precision rdens_atom(ipol*natoms*natoms)
-      logical LResult, GRAD, GRADCHI, HESSCHI, DER3CHI
+      logical GRAD, GRADCHI, HESSCHI, DER3CHI
       logical xc_chkgrad
       external xc_chkgrad
       
@@ -96,6 +96,7 @@ c
       integer nscr,icrad,iprad,iang
       integer llmax, MXcont, max_elem_ang_scr,nxang
       integer nbf_ao_mxnbf_ce
+      integer lgthpmat
       integer nxtask
       external nxtask
 c     
@@ -162,8 +163,9 @@ c
       if (.not.MA_Push_Get(MT_Byte,natoms*16,'tags',ltags,itags))
      &   call errquit('dftg_gridv0: cannot allocate tags',0)
 c
-      LResult = geom_cart_get(geom, natoms, byte_mb(itags), 
-     &          dbl_mb(ixyz), dbl_mb(icharge))
+      if(.not.geom_cart_get(geom, natoms, byte_mb(itags), 
+     &          dbl_mb(ixyz), dbl_mb(icharge)))
+     &     call errquit('dftg_gridv0: geomcartget failed',0)
 c
       if (.not.ma_pop_stack(ltags))
      &   call errquit('dftg_gridv0: cannot pop stack',0)
@@ -227,10 +229,16 @@ c
       ncoef_max = nbf_max * NXprim
       if (.not.MA_Push_Get(MT_Dbl,ncoef_max,'coef',lcoef,icoef))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
-      if (.not.MA_Push_Get(mt_dbl,max_at_bf2,'DENSF',lFmat,iFmat))
+      lgthpmat=max_at_bf2
+      if (do_cpks_r)  lgthpmat= lgthpmat*3
+      if (.not.MA_Push_Get(mt_dbl,lgthpmat,'DENSF',lFmat,iFmat))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
-      if (.not.MA_Push_Get(mt_dbl,max_at_bf2,'DENS',lPmat,iPmat))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
+c
+c this for a single nfock pass in xc_tabcd
+c      if(do_cpks_r) lgthpmat=lgthpmat*3*natoms
+c
+      if (.not.MA_Push_Get(mt_dbl,lgthpmat,'DENS',lPmat,iPmat))
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',17)
       if (.not.MA_Push_Get(MT_Dbl,npol*n_per_rec,'rho',lrho,irho))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
 c
@@ -260,7 +268,6 @@ c
          len_Dmat = 0
       endif
 c
-c     !!! Appears that this array is never used !!! ask Jeff !!!
       if (.not.MA_Push_Get(mt_dbl,3*n_per_rec,'hess scratch',lhh,ihh))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',32)
 c
