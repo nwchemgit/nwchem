@@ -1,11 +1,11 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.170 2004-04-29 03:13:31 edo Exp $
+C     $Id: geom_input.F,v 1.171 2004-04-29 03:31:14 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
 #include "inp.fh"
 #include "geom.fh"
-#include "tcgmsg.fh"
+#include "global.fh"
 #include "rtdb.fh"
 #include "nwc_const.fh"
 #include "mafdecls.fh"
@@ -59,7 +59,7 @@ c     to the rtdb.
 c     
 c     current input line should begin 'geometry ...'
 c     
-      if (nodeid() .ne. 0) return
+      if (ga_nodeid() .ne. 0) return
 c     
 c     Check that this is indeed a geometry line
 c     

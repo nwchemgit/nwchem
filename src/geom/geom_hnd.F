@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.44 2003-10-28 19:54:48 edo Exp $
+* $Id: geom_hnd.F,v 1.45 2004-04-29 03:31:14 edo Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -4784,7 +4784,6 @@ c
       logical function geom_hnd_check_data(name,n)
       implicit none
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "geomhnd.fh"
 #include "mafdecls.fh"
       character*(*) name
@@ -4862,10 +4861,10 @@ c
       implicit none
 #include "errquit.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "util.fh"
 #include "geomhnd.fh"
 #include "stdio.fh"
+#include "mafdecls.fh"
 c
       character*(*) name
       integer n
@@ -4891,7 +4890,8 @@ c
          close(32)
          if (odebug) call doutput(a,1,n,1,1,n,1,1)
       endif
-      if (parallel) call ga_brdcst(32, a, mdtob(n), 0)
+      if (parallel) call ga_brdcst(32, a, 
+     $  ma_sizeof(MT_DBL,n,MT_BYTE), 0)
 c
       return
 c
