@@ -1,4 +1,4 @@
-      subroutine icopy(n,src,ix,dest,iy)
+      Subroutine icopy(n,src,ix,dest,iy)
       implicit none
       integer n, src(*), ix, dest(*), iy
       integer i,ii,jj
