@@ -1,5 +1,5 @@
 *
-* $Id: paw_nonlocal.F,v 1.2 2003-02-26 02:47:55 bylaska Exp $
+* $Id: paw_nonlocal.F,v 1.3 2003-02-26 23:50:39 bylaska Exp $
 *
 
 !**************************************************
@@ -25,6 +25,8 @@
 *     **** local variables ****
       logical value
       integer ii,ia,nion
+      integer i,li,mi,j,lj,mj,il,jl,indx_m
+      integer basis_nbasis
 
       nion = ion_nion()
 
@@ -63,8 +65,38 @@
      >                           "paw_Gop_u",paw_Gop_u)
       value = value.and.my_alloc(mt_dcpl,paw_Gop_size,
      >                           "paw_Gop_d",paw_Gop_d)
+      value = value.and.my_alloc(mt_dcpl,paw_Gop_size,
+     >                           "paw_Gop_static",paw_Gop_static)
       if (.not.value) call errquit('paw_nonlocal_init: alloc heap',1)
 
+
+      !*** set the static part of the nonlocal operator ****
+      indx_m = 0
+      do ii=1,nion
+         ia           = ion_katm(ii)
+         basis_nbasis = paw_basis_nbasis(ia)
+
+         jl = 0
+         do j=1,basis_nbasis
+           lj = paw_basis_orb_l(j,ia)
+           do mj=-lj,lj
+
+             il = 0
+             do i=1,basis_nbasis
+               li = paw_basis_orb_l(i,ia)
+               do mi=-li,li
+              
+c                dcpl_mb(paw_Gop_static(1)) 
+c    >               = 
+
+                 indx_m = indx_m + 1
+               end do !*mi*
+             end do !*i*
+
+           end do !*mj*
+         end do !*j*
+
+      end do !*ii*
 
       return
       end
@@ -90,6 +122,7 @@
       value = value.and.my_dealloc(i_paw_Gop)
       value = value.and.my_dealloc(paw_Gop_u)
       value = value.and.my_dealloc(paw_Gop_d)
+      value = value.and.my_dealloc(paw_Gop_static)
       value = value.and.my_dealloc(paw_nl_coeff)
       if (.not.value) call errquit('paw_nonlocal_end: dealloc heap',0)
       return
@@ -108,7 +141,6 @@
       implicit none      
 
 #include "mafdecls.fh"
-#include "paw_ma.fh" 
 #include "paw_nonlocal_data.fh"
 #include "paw_proj.fh"
 #include "paw_basis.fh" 
@@ -120,6 +152,12 @@
       integer coeff_ptr
 
 
+      !**** add up Gop ****
+
+
+
+
+      !**** paw_nl_coeff(alpha,ii) = Sum(ii,beta) Gop(alpha,beta,ii)*coeff(beta,ii) ****
       nion = ion_nion()
       call paw_ovlp_coeff_ptr(coeff_ptr)
       call dcopy(total_nbasis*neall,0.0d0,0,
