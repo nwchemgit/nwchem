@@ -1,10 +1,10 @@
 
-# $Id: GNUmakefile,v 1.1 2001-08-30 00:25:12 edo Exp $
+# $Id: GNUmakefile,v 1.2 2001-11-11 01:29:08 bylaska Exp $
 #
 # intf and aux break on IBM SP xlhpf with optimization ... why? 
  OBJ_OPTIMIZE = \
-                cpsd_input.o \
-                cpmd_input.o \
+				cpsd_input.o \
+				cpmd_input.o \
                 cpsdv5.o \
                 cpmdv5.o \
                 inner_loop.o \

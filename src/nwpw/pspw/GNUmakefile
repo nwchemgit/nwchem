@@ -1,12 +1,11 @@
 #
-# $Id: GNUmakefile,v 1.4 2001-10-26 02:28:24 bylaska Exp $
+# $Id: GNUmakefile,v 1.5 2001-11-11 01:29:07 bylaska Exp $
 #
-      SUBDIRS = lib kbpp makepsi cpsd cgsd fractional analysis \
+      SUBDIRS = lib kbpp makepsi cpsd cgsd analysis \
                 cell_optimize qmmm dplot
 
 
-          OBJ = task_pspw.o \
-                pspw_input.o 
+          OBJ = task_pspw.o
 
 
       LIBRARY =	libpspw.a

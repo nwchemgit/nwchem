@@ -1,18 +1,17 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-08-30 00:25:09 edo Exp $
+# $Id: GNUmakefile,v 1.2 2001-11-11 01:29:07 bylaska Exp $
 #
-# intf and aux break on IBM SP xlhpf with optimization ... why? 
      SUBDIRS = APC
 
 
  OBJ_OPTIMIZE = \
+				analysis_input.o \
+				analysis_expansion_coef.o \
 				analysis.o \
                 orb_pop.o \
                 orb.o \
-                pspw_Lubin_water_analysis.o \
-                analysis_input.o
+                pspw_Lubin_water_analysis.o 
 
-	  OBJ = 
 
       LIBRARY = libpspw.a
 

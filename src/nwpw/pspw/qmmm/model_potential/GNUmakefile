@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2001-11-01 16:37:08 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2001-11-11 01:29:09 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
                 model_potential.o 
@@ -7,7 +7,7 @@
 	  OBJ = 
 
 
-      LIBRARY = libpspw.a
+      LIBRARY = libnwpwlib.a
 
     USES_BLAS = model_potential.F
                 

@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.1 2001-08-30 16:58:37 bylaska Exp $
+ $Id: pspsolve.c,v 1.2 2001-11-11 01:29:06 bylaska Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -88,6 +88,7 @@ Integer	*n2;
    outfile[m0+m2+1] = '\0';
    
    over_fourpi = 1.0/(16.0*atan(1.0));
+
 
    init_Atom(infile);
    solve_Atom();

@@ -1,9 +1,8 @@
 
-# $Id: GNUmakefile,v 1.1 2001-08-30 00:25:11 edo Exp $
+# $Id: GNUmakefile,v 1.2 2001-11-11 01:29:07 bylaska Exp $
 #
-# intf and aux break on IBM SP xlhpf with optimization ... why? 
  OBJ_OPTIMIZE = \
-                cell_optimize_input.o \
+				cell_optimize_input.o \
                 cell_optimize.o \
                 update_unitcell.o
 

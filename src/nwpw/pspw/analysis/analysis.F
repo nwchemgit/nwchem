@@ -34,12 +34,12 @@
 
 *     **** local variables ****
       integer i,k,l,n,ms,l1,l2
-      integer ll,spin
+      integer ll,spin,ind
       real*8  ttl1,ttl2,subttl
 
       logical value
       character*28 DD
-      character*255 id
+      character*255 id,test
       integer npsp,nion,nemax
       integer lorb(2)    ! integer lorb(npsp)
       integer b0(2)      ! real*8 b0(0:5,npsp)
@@ -91,15 +91,41 @@
 *     ****************************************
       do k=1,npsp
           id = 'analysis:lorb'//psp_atom(k)
-          if (.not. rtdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1)))
+          if (.not. rtdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1))) then
+            DD = '                          '
+            DD = psp_atom(k)
+            ind = index(DD,' ') - 1
+            test = DD(1:ind)//'.psp'
+
+            write(*,*) "test:",test,ind
+            value = rtdb_parallel(.false.)
+            if (taskid.eq.MASTER) then
+            ind = index(test,' ') - 1
+            write(*,*) "test:",test,ind
+            call analysis_expansion_coef(test,-1,rtdb)
+            end if
+            value = rtdb_parallel(.true.)
+            call ga_sync()
+
+            if (.not. rtdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1))) 
      >        call errquit(
      >        'analysis: rtdb_get lorb failed', 0)
+          end if
 
           id = 'analysis:expansion'//psp_atom(k)
           if (.not. rtdb_get(rtdb,id,mt_dbl,(int_mb(lorb(1)+k-1)+1),
-     >                                       dbl_mb(b0(1)+(k-1)*6)))
-     >        call errquit(
-     >        'analysis_input: rtdb_put failed', 0)
+     >                                  dbl_mb(b0(1)+(k-1)*6))) then
+            DD = '                          '
+            DD = psp_atom(k)
+            ind = index(DD,' ') -1
+            test = DD(1:ind)//'.psp'
+            call analysis_expansion_coef(test,-1,rtdb)
+
+            if (.not. rtdb_get(rtdb,id,mt_dbl,(int_mb(lorb(1)+k-1)+1),
+     >                                       dbl_mb(b0(1)+(k-1)*6))) 
+     >       call errquit(
+     >       'analysis: rtdb_get failed', 0)
+          end if
       end do
 
 

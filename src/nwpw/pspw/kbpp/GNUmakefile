@@ -1,11 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-08-30 00:38:58 edo Exp $
+# $Id: GNUmakefile,v 1.2 2001-11-11 01:29:08 bylaska Exp $
 #
-# intf and aux break on IBM SP xlhpf with optimization ... why? 
  OBJ_OPTIMIZE = \
+                psp_formatter_input.o \
                 psp_formatter.o \
                 psp_stress_formatter.o \
-                psp_formatter_input.o \
 	      		kbppv3.o \
 	      		kbppv3-stress.o \
                 setup_kbpp.o \
@@ -15,7 +14,7 @@
 
 	  OBJ = 
 
-      LIBRARY = libpspw.a
+      LIBRARY = libnwpwlib.a
 
     USES_BLAS = setup_kbpp.f integrate_kbppv3.f
 

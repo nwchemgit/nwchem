@@ -1,14 +1,14 @@
 #
-# $Id: GNUmakefile,v 1.2 2001-11-11 01:29:08 bylaska Exp $
+# $Id: GNUmakefile,v 1.1 2001-11-11 01:29:06 bylaska Exp $
 #
+
  OBJ_OPTIMIZE = \
-				pspw_dplot_input.o \
-				pspw_dplot.o
+            nwpw_mapping.o
 
 
 	  OBJ = 
 
-      LIBRARY = libpspw.a
+      LIBRARY = libnwpwlib.a
 
     USES_BLAS = 
 

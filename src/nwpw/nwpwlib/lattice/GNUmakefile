@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2001-08-30 18:42:35 bylaska Exp $
+# $Id: GNUmakefile,v 1.3 2001-11-11 01:29:06 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -15,7 +15,7 @@
 
 	  OBJ = 
 
-      LIBRARY = libpspw.a
+      LIBRARY = libnwpwlib.a
 
     USES_BLAS = lattice.f pack.F G_init.F dipole.F
 

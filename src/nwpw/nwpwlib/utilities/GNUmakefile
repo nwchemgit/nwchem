@@ -1,7 +1,6 @@
 #
-# $Id: GNUmakefile,v 1.2 2001-08-30 18:42:35 bylaska Exp $
+# $Id: GNUmakefile,v 1.3 2001-11-11 01:29:07 bylaska Exp $
 #
-# intf and aux break on IBM SP xlhpf with optimization ... why? 
 
  OBJ_OPTIMIZE = \
             cpmd_properties.o \
@@ -12,7 +11,7 @@
 
 	  OBJ = 
 
-      LIBRARY = libpspw.a
+      LIBRARY = libnwpwlib.a
 
     USES_BLAS = auto_corr.F
 

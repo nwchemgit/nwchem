@@ -1,15 +1,16 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-08-30 00:39:46 edo Exp $
+# $Id: GNUmakefile,v 1.2 2001-11-11 01:29:09 bylaska Exp $
 #
 # intf and aux break on IBM SP xlhpf with optimization ... why? 
  OBJ_OPTIMIZE = \
-                wvfnc_init_input.o getfilling.o \
+                wvfnc_init_input.o \
                 wvfnc_init.o \
                 wvfnc_expander_input.o \
                 wvfnc_expander.o \
                 wvfnc_reformat.o \
                 v_wvfnc_init_input.o \
-                v_wvfnc_init.o
+                v_wvfnc_init.o \
+				getfilling.o
 
 
 	  OBJ = 

@@ -1,0 +1,19 @@
+c
+c $Id: nwpw_mapping.fh,v 1.1 2001-11-11 01:29:06 bylaska Exp $
+c
+
+*     **** nwpw_mapping_block ****
+      integer mem_nq(2),mem_n1(2),mem_n2(2),mem_n3(2)
+      common    / nwpw_mapping / mem_nq,
+     >                           mem_n1,
+     >                           mem_n2,
+     >                           mem_n3
+
+*     **** nwpw_mapping_block 2 ****
+      integer mem_qmap1(2),mem_qmap2(2)
+      integer mem_pmap1(2),mem_pmap2(2)
+      integer mem_kmap1(2),mem_kmap2(2)
+      common  / nwpw_mapping2 / mem_qmap1,mem_qmap2,
+     >                          mem_pmap1,mem_pmap2,
+     >                          mem_kmap1,mem_kmap2
+

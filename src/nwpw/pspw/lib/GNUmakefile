@@ -1,18 +1,15 @@
 #
-# $Id: GNUmakefile,v 1.5 2001-08-30 18:31:41 bylaska Exp $
+# $Id: GNUmakefile,v 1.6 2001-11-11 01:29:08 bylaska Exp $
 #
  SUBDIRS = psi electron ke coulomb exchange-correlation thermostats sic
 
- OBJ_OPTIMIZE = \
-	      	dsum.o \
-			matrix.o
-
+ OBJ_OPTIMIZE =
 
 	  OBJ = 
 
-      LIBRARY = libpspw.a
+      LIBRARY = 
 
-    USES_BLAS = matrix.f
+    USES_BLAS =
 
   LIB_DEFINES = 
 

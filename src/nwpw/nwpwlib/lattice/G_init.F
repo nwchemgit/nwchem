@@ -1,8 +1,8 @@
+c
+c $Id: G_init.F,v 1.2 2001-11-11 01:29:06 bylaska Exp $
+c
 
       integer function G_indx(i)
-*
-* $Id: G_init.F,v 1.1 2001-08-30 18:31:37 bylaska Exp $
-*
       implicit none 
       integer i
 
@@ -15,6 +15,8 @@
       G_indx = G(i)
       return
       end
+
+
 
       subroutine G_init()
       implicit none 

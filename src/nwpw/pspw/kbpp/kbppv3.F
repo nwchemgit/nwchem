@@ -8,7 +8,7 @@
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax,rlocal)
 *
-* $Id: kbppv3.F,v 1.2 2001-10-26 21:05:08 bylaska Exp $
+* $Id: kbppv3.F,v 1.3 2001-11-11 01:29:08 bylaska Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -94,7 +94,8 @@
       if (lmax.lt.0)     lmax = lmax0
 
 *     **** set the local potential ****
-      if (locp.lt.0) locp=lmax
+      if (locp.gt.lmax) locp = lmax
+      if (locp.lt.0)    locp = lmax
 
       
 
