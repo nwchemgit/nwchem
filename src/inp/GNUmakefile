@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.16 1995-11-28 20:43:29 gg502 Exp $
+# $Id: GNUmakefile,v 1.17 1996-05-14 18:01:34 d3g681 Exp $
 
       LIBRARY = libutil.a
  OBJ_OPTIMIZE = inp.o inp_irange.o
@@ -19,9 +19,9 @@ test:	test.o inp.o inp_irange.o inp_ilist.o
 	$(FC) $(FFLAGS) -o $@ $^ $(LIBS)
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(c_inp.o):	 $(INCDIR)/types.f2c.h 
-$(LIBRARY_PATH)(inp.o):	 ./inpP.fh ./inp.fh 
-$(LIBRARY_PATH)(inp_ilist.o):	 ./inpP.fh 
-$(LIBRARY_PATH)(inp_irange.o):	 ./inpP.fh 
-$(LIBRARY_PATH)(test.o):	 ./inp.fh 
-$(LIBRARY_PATH)(test_ilist.o):	 ./inp.fh 
+$(LIBRARY_PATH)(inp.o):	./inpP.fh ./inp.fh 
+$(LIBRARY_PATH)(c_inp.o):	$(INCDIR)/types.f2c.h 
+$(LIBRARY_PATH)(test_ilist.o):	./inp.fh 
+$(LIBRARY_PATH)(test.o):	./inp.fh 
+$(LIBRARY_PATH)(inp_irange.o):	./inpP.fh 
+$(LIBRARY_PATH)(inp_ilist.o):	./inpP.fh 

@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.21 1996-02-08 08:45:00 d3g681 Exp $
+C$Id: inp.F,v 1.22 1996-05-14 18:01:33 d3g681 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -712,6 +712,11 @@ c
       equivalence (idata(1),jrec)
       equivalence (fdata(1),iread)
 c
+#ifdef SOLARIS
+c     Needed with -stackvar compilation option
+      save cdata, idata, fdata
+#endif
+c
       do i = 1, 3*max_width+80+6
          csave(i) = cdata(i)
       enddo
@@ -734,6 +739,10 @@ c
       equivalence (cdata(1),ia)
       equivalence (idata(1),jrec)
       equivalence (fdata(1),iread)
+#ifdef SOLARIS
+c     Needed with -stackvar compilation option
+      save cdata, idata, fdata
+#endif
 c
       do i = 1, 3*max_width+80+6
          cdata(i) = csave(i)
