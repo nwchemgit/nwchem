@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.19 2002-03-05 03:47:34 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.20 2002-04-24 01:16:27 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -530,11 +530,11 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 
 *     **** xc energy component : dE_xc/dhuv ****
       call dcopy(9,0.0d0,0,tstress,1)
-      write(*,*) " xc 0"
-      call write_stress(tstress)
+c      write(*,*) " xc 0"
+c      call write_stress(tstress)
       call rho_1exc_stress(tstress)
-      write(*,*) " xc a"
-      call write_stress(tstress)
+c      write(*,*) " xc a"
+c      call write_stress(tstress)
 
       call daxpy(9,1.0d0,tstress,1,stress,1)
       write(*,*) " xc"

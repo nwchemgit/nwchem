@@ -8,7 +8,7 @@
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax,rlocal)
 *
-* $Id: kbppv3-stress.F,v 1.3 2002-02-13 20:02:07 edo Exp $
+* $Id: kbppv3-stress.F,v 1.4 2002-04-24 01:16:27 bylaska Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -233,6 +233,8 @@
       write(*,*)
       call openfile(2,full_filename,l,'w',l)     
          call iwrite(2,version,1)
+         call iwrite(2,ngrid,3)
+         call dwrite(2,unita,9)
          call dwrite(2,dbl_mb(vl_indx),nsize)
          call dwrite(2,dbl_mb(vnl_indx),nsize*lmmax*3)
       call closefile(2)

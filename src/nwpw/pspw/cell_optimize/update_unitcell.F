@@ -1,6 +1,6 @@
       logical function update_unitcell(rtdb)
 *
-* $Id: update_unitcell.F,v 1.2 2002-01-15 19:43:41 bylaska Exp $
+* $Id: update_unitcell.F,v 1.3 2002-04-24 01:16:26 bylaska Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -26,6 +26,10 @@
       rtdb_unita = cell_name(1:l)//':unita'
       value = value.and.
      >        rtdb_get(rtdb,rtdb_unita,mt_dbl,9,unita)
+
+*     **** check unita for defaults ****
+      call check_unita_for_default(rtdb,unita)
+
 
 
       write(*,*) " -------------------- "

@@ -44,7 +44,7 @@ c
 
 
 *     ***** initializations ****
-      cell_name             = ' '
+      cell_name             = 'cell_default'
 
       optimize_strategy = 0  ! 0-lattice_vectors, 1-lattice
       cycles            = 10

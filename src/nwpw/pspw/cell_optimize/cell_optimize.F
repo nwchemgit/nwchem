@@ -78,14 +78,14 @@
 
       call ga_sync()
 
-*      **** reformat pseudopotentials ****
-       value = psp_formatter(rtdb)
-       if(.not. value) call errquit(
-     >    'cell_optimize: error reformatting pseudopotentials',0)
-
-       value = psp_stress_formatter(rtdb)
-       if(.not. value) call errquit(
-     >   'cell_optimize: error reformatting stress pseudopotentials',0)
+c*      **** reformat pseudopotentials ****
+c       value = psp_formatter(rtdb)
+c       if(.not. value) call errquit(
+c     >    'cell_optimize: error reformatting pseudopotentials',0)
+c
+c       value = psp_stress_formatter(rtdb)
+c       if(.not. value) call errquit(
+c     >   'cell_optimize: error reformatting stress pseudopotentials',0)
 
 *     **** start optimization loop ***
       do i=1,cycles
@@ -104,14 +104,14 @@
      >       'cell_optimize: error reformatting unit cell',0)
 
 
-*         **** reformat pseudopotentials ****
-          value = psp_formatter(rtdb)
-          if(.not. value) call errquit(
-     >       'cell_optimize: error reformatting pseudopotentials',0)
+c*         **** reformat pseudopotentials ****
+c          value = psp_formatter(rtdb)
+c          if(.not. value) call errquit(
+c     >       'cell_optimize: error reformatting pseudopotentials',0)
 
-          value = psp_stress_formatter(rtdb)
-          if(.not. value) call errquit(
-     >  'cell_optimize: error reformatting stress pseudopotentials',0)
+c          value = psp_stress_formatter(rtdb)
+c          if(.not. value) call errquit(
+c     >  'cell_optimize: error reformatting stress pseudopotentials',0)
 
 *         **** reformat wavefunctions ****
           value2 = rtdb_parallel(.false.)

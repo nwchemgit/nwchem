@@ -2,7 +2,7 @@
 
       subroutine psp_stress_init()      
 *
-* $Id: psp_stress.F,v 1.3 2002-02-13 19:10:32 edo Exp $
+* $Id: psp_stress.F,v 1.4 2002-04-24 01:16:27 bylaska Exp $
 *
       implicit none
 
@@ -215,6 +215,7 @@
          end do
       end do
       end do
+      call dscal(9,-1.0d0,euv,1)
 
 
       call nwpw_timing_end(5)
@@ -452,6 +453,7 @@
 
       subroutine psp_stress_read(fname,
      >                       version,
+     >                       nfft,unita,
      >                       npack0,dvl,
      >                       npack1,lmmax,dvnl,
      >                       tmp,tmp2,
@@ -459,6 +461,8 @@
       implicit none 
       character*20 fname
       integer version
+      integer nfft(3)
+      real*8  unita(3,3)
       integer npack0
       real*8 dvl(*)
       integer npack1,lmmax
@@ -494,6 +498,8 @@
          l = index(full_filename,' ') - 1
          call openfile(5,full_filename,l,'r',l)
          call iread(5,version,1)
+         call iread(5,nfft,3)
+         call dread(5,unita,9)
       end if
 
 
@@ -502,10 +508,20 @@
       msglen = 1
       call MPI_BCAST(version,msglen,MPI_INTEGER,
      >               MASTER,MPI_COMM_WORLD,mpierr)
+      msglen = 3
+      call MPI_BCAST(nfft,msglen,MPI_INTEGER,
+     >               MASTER,MPI_COMM_WORLD,mpierr)
+      msglen = 9
+      call MPI_BCAST(unita,msglen,MPI_DOUBLE_PRECISION,
+     >               MASTER,MPI_COMM_WORLD,mpierr)
 #endif
 #ifdef TCGMSG
       msglen = 1
       call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
+      msglen = 3
+      call BRDCST(9+MSGINT,nfft,mitob(msglen),MASTER)
+      msglen = 9
+      call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
 #endif
 
  
@@ -557,11 +573,13 @@ c       close(11)
 
 
 *     **** local variables ****
+      integer ngp(3)
+      real*8  unita(3,3)
       integer version,nfft3d,npack1,npack0
       integer ia,l,lmmax
       character*12 boundry
       integer tmp(2),tmp2(2),ierr
-      logical value,found
+      logical value,found,correct_box
       character*4  element
       character*20 fname
 
@@ -603,16 +621,15 @@ c       close(11)
          element = ion_atom(ia)
          l = index(element,' ') - 1
          fname = element(1:l)//'.vpp2'
-         write(*,*) "controlname:",fname
          lmmax = psp_lmmax(ia)
 
 *        **** not finished ****
-
          found = .false.
          do while (.not. found)
          if (nwpw_filefind(fname)) then
             call psp_stress_read(fname,
      >                  version,
+     >                  ngp,unita,
      >                  npack0,
      >                  dbl_mb(dvl(1) + (ia-1)*npack0),
      >                  npack1,lmmax,
@@ -621,23 +638,47 @@ c       close(11)
      >                  ierr)
 
 
-            if (ierr.gt.0) go to 9000
-            found = .true.
-           end if
-           
+           if (ierr.gt.0) go to 9000
            boundry = control_boundry()
            l =index(boundry,' ') - 1
- 
            if ((boundry(1:l).ne.'periodic') .or. (version.ne.3)) then
               if (taskid.eq.MASTER) then
                  write(6,*) 
      >             "Error reading formatted pseudoptental stress file:"
-
                  write(6,*) "Formatted pseudopotential was not",
-     >                      " generated with periodic boundry condtions"
+     >                   " generated with periodic boundary condtions"
               end if
- 
            end if
+
+           correct_box = .true.
+           if ( (ngp(1).ne.control_ngrid(1)) .or.
+     >       (ngp(2).ne.control_ngrid(2)) .or.
+     >       (ngp(3).ne.control_ngrid(3)) .or.
+     >       (unita(1,1).ne.control_unita(1,1)) .or.
+     >       (unita(2,1).ne.control_unita(2,1)) .or.
+     >       (unita(3,1).ne.control_unita(3,1)) .or.
+     >       (unita(1,2).ne.control_unita(1,2)) .or.
+     >       (unita(2,2).ne.control_unita(2,2)) .or.
+     >       (unita(3,2).ne.control_unita(3,2)) .or.
+     >       (unita(1,3).ne.control_unita(1,3)) .or.
+     >       (unita(2,3).ne.control_unita(2,3)) .or.
+     >       (unita(3,3).ne.control_unita(3,3)) .or.
+     >       ((boundry(1:l).eq.'periodic').and.(version.ne.3)).or.
+     >       ((boundry(1:l).eq.'aperiodic').and.(version.ne.4))) then
+              correct_box = .false.
+              if (taskid.eq.MASTER) then
+              write(6,*) "pseudopotential is not correctly formatted:",
+     >                    fname
+              end if
+           end if
+           if (correct_box) found = .true.
+         end if
+
+*        **** generate formatted pseudopotential atom.vpp2 *****
+         if (.not.found) then
+             call psp_stress_formatter_auto(ion_atom(ia))
+         end if
+
          end do !*** do while ****
  
       end do
