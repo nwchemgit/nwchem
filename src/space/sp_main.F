@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
-     + isl,xs,vs,gs,numsa)
+     + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.33 1999-12-16 15:52:31 d3j191 Exp $
+c $Id: sp_main.F,v 1.34 1999-12-16 16:55:22 d3j191 Exp $
 c
       implicit none
 c
@@ -13,6 +13,7 @@ c
       real*8 xw(mwm,3,mwa),xs(msa,3),xwcr(mwm,3)
       real*8 vw(mwm,3,mwa),vs(msa,3)
       real*8 gw(mwm,3,mwa),gs(msa,3)
+      logical lpack
 c
       integer i_qlst,l_qlst
       integer i,j,k
@@ -47,7 +48,7 @@ c
     4 continue
       endif
 c
-      call sp_pack_init(isl,numsa,iwl,numwm)
+      if(lpack) call sp_pack_init(isl,numsa,iwl,numwm)
 c
       return
       end
