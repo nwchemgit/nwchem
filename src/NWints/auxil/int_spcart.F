@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.6 1996-03-11 18:17:40 d3e129 Exp $
+c $Id: int_spcart.F,v 1.7 1996-03-11 19:02:41 d3e129 Exp $
 * 
 * initialization of spherical to cartesean tranformation array
 *... stored on heap.  
@@ -1462,6 +1462,8 @@ c
       double precision scr(*) ! [scratch] use to hold half transformed block
       logical print           ! [input} print integrals at each stage of the
 *.............................!   transformation (cart/half/spherical)
+*::local
+      integer count, iket, jr, ir
 c
       if (type_j.lt.2.and.type_i.lt.2) then
 c.................................. neither i or j need to be transformed 
