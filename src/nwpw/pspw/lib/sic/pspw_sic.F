@@ -268,6 +268,7 @@
       external control_gga
       external lattice_omega,coulomb_screened_e
 
+
       if ((norbs.ne.0).and.(.not.relaxed)) then
         e_sic = 0.0d0
         p_sic = 0.0d0
@@ -378,6 +379,7 @@
       logical function pspw_SIC_relaxed()
       implicit none
 
+#include "mafdecls.fh"
 #include "pspw_sic.fh"
 
       pspw_SIC_relaxed = relaxed
