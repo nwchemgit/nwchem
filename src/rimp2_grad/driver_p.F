@@ -3,13 +3,13 @@ C NAME
 C     RIMP2_Driver_P -- Master routine for RI-MP2 density evaluation
 C
 C REVISION
-C     $Id: driver_p.F,v 1.3 1998-10-09 21:23:43 bernhold Exp $
+C     $Id: driver_p.F,v 1.4 1999-05-28 16:03:51 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_P(RTDB, Geom, AOBas, NAO,
      $     MaxSpin, TopSpin, NMO, NFrzO, NAct, NVir, FitBas,
-     $     FN_Int, FN_Gam, BraKetSame, g_P2, g_W2, Eig, LDEig, g_AOXF,
-     $     Tol2e_Fock, JobTitle)
+     $     g_P2, g_W2, Eig, LDEig, g_AOXF,
+     $     Tol2e_Fock, JobTitle, D_Int, D_Gam)
       Implicit NONE
 C
       Integer RTDB          ![in]
@@ -23,9 +23,6 @@ C
       Integer NAct(TopSpin) ![in]
       Integer NVir(TopSpin) ![in]
       Integer FitBas        ![in]
-      Character*(*) FN_Int(MaxSpin, 2, 2) ![in]
-      Character*(*) FN_Gam(TopSpin) ![in]
-      Logical BraKetSame    ![in]
       Integer g_P2(TopSpin) ![in]
       Integer g_W2(TopSpin) ![in]
       Integer LDEig ![in]
@@ -33,6 +30,8 @@ C
       Integer g_AOXF(TopSpin) ![in]
       Double precision Tol2e_Fock ![in]
       Character*(*) JobTitle ![in]
+      Integer D_Int(MaxSpin, 2, 2)
+      Integer D_Gam(MaxSpin)
 C
 C EXTERNAL ROUTINES
       Logical  File_Write_GA, File_Read_GA, CPHF
@@ -59,7 +58,6 @@ C LOCAL VARIABLES
       Integer g_L(MyMaxspin), g_RHS
       Logical PrInfo, PrPrgRpt
       Character*256 String1, FN_CPHF_RHS, FN_CPHF_Sol
-      Integer D_Int(MyMaxSpin, 2, 2), D_Gam(MyMaxSpin)
 C
 C STATEMENT FUNCTIONS
       Character*1 SpinItoA
@@ -85,42 +83,7 @@ C
       If ( (PrInfo .AND. GA_NodeID() .eq. 0) .or. PrPrgRpt ) then
          Write (LuOut, 9000) 
       EndIf
- 9000 Format(/1X, 'Gradient evaluation')
-C
-C     **************
-C     * Open files *
-C     **************
-C     Open both bra and ket files if they are distinct, otherwise
-C     simply duplicate the bra handle.
-C
-      Do ISpin = 1, TopSpin
-C
-C        Integrals
-C
-         If ( DRA_Open(
-     $        FN_Int(ISpin, 1, 1)(:Inp_StrLen(FN_Int(ISpin, 1, 1))),
-     $        DRA_R, D_Int(ISpin, 1, 1) ) .ne. 0) Call ErrQuit(
-     $        'RIMP2_Driver_P:  can''t open integral file for spin ',
-     $        ISpin)
-         If ( BraKetSame ) then
-            D_Int(ISpin, 2, 1) = D_Int(ISpin, 1, 1)
-         Else
-            If ( DRA_Open(
-     $           FN_Int(ISpin, 2, 1)(:Inp_StrLen(FN_Int(ISpin, 2, 1))),
-     $           DRA_R, D_Int(ISpin, 2, 1) ) .ne. 0) Call ErrQuit(
-     $        'RIMP2_Driver_P:  can''t open integral file for spin ',
-     $        ISpin)
-         EndIf
-         If ( DRA_Open(
-     $        FN_Int(ISpin, 1, 2)(:Inp_StrLen(FN_Int(ISpin, 1, 2))),
-     $        DRA_R, D_Int(ISpin, 1, 2) ) .ne. 0) Call ErrQuit(
-     $        'RIMP2_Driver_P:  can''t open integral file for spin ',
-     $        ISpin)
-         If ( DRA_Open(FN_Gam(ISpin)(:Inp_StrLen(FN_Gam(ISpin))),
-     $        DRA_R, D_Gam(ISpin) ) .ne. 0) Call ErrQuit(
-     $        'RIMP2_Driver_P:  can''t open gamma file for spin ',
-     $        ISpin)
-      EndDo                     ! ISpin
+ 9000 Format(/1X, 'Density matrix evaluation')
 C
 C     ****************************
 C     * Compute Lagrangian terms *
@@ -207,23 +170,6 @@ C
      $     g_P2(1), g_P2(TopSpin), g_AOXF(1), g_AOXF(TopSpin),
      $     String1, Max(NFrzO(1), NFrzO(TopSpin)),
      $     JobTitle(:Inp_StrLen(JobTitle) ) )
-C
-C     ************************
-C     * Close & delete files *
-C     ************************
-C
-      Do ISpin = 1, TopSpin
-         If ( DRA_Delete(D_Int(ISpin, 1, 1)) .ne. 0) Call ErrQuit(
-     $        'RIMP2_Driver_E: can''t delete integral file', ISpin)
-         If ( .NOT. BraKetSame ) then
-            If ( DRA_Delete(D_Int(ISpin, 2, 1)) .ne. 0) Call ErrQuit(
-     $           'RIMP2_Driver_E: can''t delete integral file', ISpin)
-         EndIf
-         If ( DRA_Delete(D_Int(ISpin, 1, 2)) .ne. 0) Call ErrQuit(
-     $        'RIMP2_Driver_E: can''t delete integral file', ISpin)
-         If ( DRA_Delete(D_Gam(ISpin)) .ne. 0) Call ErrQuit(
-     $        'RIMP2_Driver_E: can''t delete gamma file', ISpin)
-      EndDo    ! ISpin
 C
       Return
       End

@@ -3,7 +3,7 @@ C NAME
 C     rimp2_p2am -- Solve CPHF eqns for relaxed part of density
 C
 C REVISION
-C     $Id: p2am.F,v 1.5 1998-10-09 21:26:11 bernhold Exp $
+C     $Id: p2am.F,v 1.6 1999-05-28 16:04:01 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_P2am(RTDB, TopSpin, NFrzO, NAct, NVir, g_L, g_P2)
@@ -122,6 +122,11 @@ C     Free temporary memory
 C
       If ( .NOT. GA_Destroy( g_RHS) ) Call ErrQuit(
      $     'RIMP2_P2am: can''t destroy CPHF RHS GA', 0)
+C
+C     Clean up files
+C
+      If ( GA_NodeID() .eq. 0) Call Util_File_Unlink(FN_CPHF_RHS)
+      If ( GA_NodeID() .eq. 0) Call Util_File_Unlink(FN_CPHF_sol)
 C
       Return
       End

@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.17 1998-12-08 16:47:19 bernhold Exp $
+C$Id: rimp2g.F,v 1.18 1999-05-28 16:04:09 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -55,6 +55,7 @@ C LOCAL VARIABLES
      $     NFrzV(MaxSpin)
       Integer I, P, Me
       Integer H_Contrib, Contrib_Idx
+      Integer NCent, H_Grad, I_Grad
       Double precision Thresh, CorEner, RefEner, TotEner, MinEVal
       Character*(80) FNInt, Approx, FNGam3
       Character*(255) AOName, AONameT, FitName, FitNameT, JobTitle
@@ -89,7 +90,7 @@ C
 C
 C     Print controls
 C
-      Logical PrInfo
+      Logical PrInfo, PrPrgRpt
 C
       Double precision MaxDASiz, TotDASiz
       Integer NrDA
@@ -116,14 +117,19 @@ C
      $     DoDens) ) DoDens = .FALSE.
       If ( .NOT. RTDB_Get(RTDB, 'mp2:rimp2 gradient', MT_Log, 1,
      $     DoGrad) ) DoGrad = .FALSE.
+C
+C     Current gradients require breaking bra-ket symmetry, but
+C     anything short of that will still work.
+C
       If ( .NOT. RTDB_Get(RTDB, 'mp2:rimp2 braketsame', MT_Log, 1,
-     $     BraKetSame) ) BraKetSame = .TRUE.
+     $     BraKetSame) ) BraKetSame = .NOT. DoGrad
       Write (LuOut, *) 'DoDens, DoGrad, BraKetSame = ',
      $     DoDens, DoGrad, BraKetSame
 C
       If (.NOT. RTDB_CGet(RTDB, 'title', 1, JobTitle)) JobTitle = ' '
 C
       PrInfo = Util_Print('information', Print_Low) .AND. (Me .eq. 0)
+      PrPrgRpt = Util_Print('progress reports', Print_Default)
 C
 C     *************************************************
 C     * Start creating & initializing data structures *
@@ -153,7 +159,10 @@ C
       if (.not. RTDB_CGet(rtdb, 'mp2:mo 3-center gamma file',
      $     1, FNGam3)) FNGam3 = Def_Gam3
 C
-C     Get some info about the basis sets for later use
+C     Get some info about the system & basis sets for later use
+C
+      If (.NOT. Geom_NCent( Geom, NCent) ) Call ErrQuit(
+     $     'RIMP2g: geom_ncent failed', Geom)
 C
       Status = Status .AND. Bas_NumBF( AOBas, NAOBF)
       Status = Status .AND. Bas_NumBF( FitBas, NFit)
@@ -382,6 +391,11 @@ C
       If (DRA_Init(NrDA, MaxDASiz, TotDASiz, -1) .ne. 0)
      $   Call ErrQuit('RIMP2G: DRA_Init failed', 0)
 C
+C     Create all necessary DRAs (assumes no per-DRA memory cost)
+C
+      Call RIMP2_Create_DRA(MaxSpin, TopSpin, NFit, BraKetSame, 
+     $     FN_Int, FN_Gam, IntRange, GamRange, D_Int, D_Gam)
+C
 C     Initialize integrals
 C
       Bases(1) = AOBas
@@ -394,7 +408,7 @@ C
      $   RIMP2_Driver_XF( RTDB, Geom, AOBas, FitBas, TopSpin,
      $     MaxSpin, D_Int, NFrzO, NAct, NVir, NFrzV, KeepFrz,
      $     ALo, AHi, ILo, IHi, MxTBatch, Thresh, MinEVal, Approx,
-     $     G_AOXF, FN_Int, BraKetSame, DoDens .OR. DoGrad,
+     $     G_AOXF, BraKetSame, DoDens .OR. DoGrad,
      $     IntRange)
 C
 C     If we're not doing gradients, we can clean up some stuff now
@@ -433,7 +447,7 @@ C     something in case of later failure.
 C
       Status = .TRUE.
       Status = Status .AND.
-     $   RIMP2_Driver_E( MaxSpin, BraKetSame, FN_Int, D_Int, FN_Gam,
+     $   RIMP2_Driver_E( MaxSpin, BraKetSame, D_Int, 
      $     D_Gam, TopSpin, NMO, NFrzO, NAct, NVir, NFit,
      $     FitBas, Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx),
      $     CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2),
@@ -489,9 +503,9 @@ C
          Call RIMP2_Driver_P(RTDB, Geom, AOBas, NAOBF,
      $        MaxSpin, TopSpin, NMO, 
      $        NFrzO, NAct, NVir,
-     $        FitBas, FN_Int, FN_Gam, BraKetSame, g_P2, g_W2,
+     $        FitBas, g_P2, g_W2,
      $        Dbl_MB(I_Eval), MxNCorBF, g_AOXF, Tol2e_Fock,
-     $        JobTitle(:Inp_StrLen(JobTitle)) )
+     $        JobTitle(:Inp_StrLen(JobTitle)), D_Int, D_Gam )
       EndIf
 C
 C     ************
@@ -499,12 +513,14 @@ C     * Gradient *
 C     ************
 C
       If ( DoGrad ) then
+C
          Call RIMP2_Driver_G(RTDB, Geom, AOBas, NAOBF,
      $        MaxSpin, TopSpin, NMO, 
      $        NFrzO, NAct, NVir,
-     $        FitBas, FN_Int, FN_Gam, BraKetSame, g_P2, g_W2,
+     $        FitBas, BraKetSame, g_P2, g_W2,
      $        Dbl_MB(I_Eval), MxNCorBF, g_AOXF, Tol2e_Fock,
-     $        JobTitle(:Inp_StrLen(JobTitle)) )
+     $        JobTitle(:Inp_StrLen(JobTitle)), D_Int, D_Gam, NCent)
+C
       EndIf
 C
 C     ***********
@@ -527,6 +543,9 @@ C
          EndDo
       EndIf
 C
+C     Close, delete, and terminate DRAs
+C
+      Call RIMP2_Delete_DRA(MaxSpin, TopSpin, BraKetSame, D_Int, D_Gam)
       If ( DRA_Terminate() .ne. 0) Call ErrQuit(
      $   'RIMP2G: DRA_Terminate failed', 0)
 C

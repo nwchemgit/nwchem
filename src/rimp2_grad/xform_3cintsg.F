@@ -3,7 +3,7 @@ C NAME
 C     Xform_3cintsG -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cintsg.F,v 1.2 1998-10-09 21:19:39 bernhold Exp $
+C     $Id: xform_3cintsg.F,v 1.3 1999-05-28 16:04:11 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function Xform_3cintsG(RTDB, Geom, Type3ci, AOBas, FitBas,
@@ -315,7 +315,7 @@ c$$$                  Write (LuErr, 9030) JLo, JHi, JLo, JHi, ILo, IHi
 c$$$                  Xform_3cintsG = .FALSE.
 c$$$                  Return
 c$$$               EndIf
-                  If ( DRA_Write_Section(.FALSE., G_Out, 1,
+                  If ( DRA_Write_Section(.FALSE., G_Int, 1,
      $                 NA*(JHi-JLo+1), 1, NFit, IntFil,
      $                 1+NA*(JLo-ILo), NA*(JHi-ILo+1), 1, NFit, Req)
      $                 .ne. 0) Call ErrQuit(
@@ -327,8 +327,13 @@ C
                Call PStat_Off( PS_Wr_3ci)
             EndIf
 C
-            If ( Util_Print('mo ints', Print_Debug) )
-     $         Call GA_Print(G_Out)
+            If ( Util_Print('mo ints', Print_Debug) ) then
+               If ( TransFit ) then
+                  Call GA_Print(G_Out)
+               Else
+                  Call GA_Print(G_Int)
+               EndIf
+            EndIf
 C
          EndIf
  9030    Format( 1X, 'Xform_3cintsG: Error occurred in output block ',

@@ -3,14 +3,14 @@ C NAME
 C     RIMP2_Driver_XF -- Three-center integral transformation driver for RI-MP2
 C
 C REVISION
-C     $Id: driver_xf.F,v 1.5 1998-10-09 21:24:59 bernhold Exp $
+C     $Id: driver_xf.F,v 1.6 1999-05-28 16:03:53 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_XF(RTDB, Geom, AOBas,
      $     FitBas,  TopSpin, MaxSpin, D_Int,
      $     NFrzO, NAct, NVir, NFrzV, KeepFrz,
      $     ALo, AHi, ILo, IHi, 
-     $   NILimit, Neglect, MinEVal, Approx, G_C, FN_Int,
+     $   NILimit, Neglect, MinEVal, Approx, G_C,
      $     BraKetSame, DoGrad, IntRange)
       Implicit NONE
       Integer RTDB, Geom, AOBas, FitBas, TopSpin, NILimit
@@ -18,7 +18,6 @@ C SYNOPSIS
       Double precision Neglect, MinEVal
       Character*(*) Approx
       Integer G_C(TopSpin), MaxSpin, D_Int(MaxSpin, 2, 2)
-      Character*(*) FN_Int(MaxSpin, 2, 2)
       Logical BraKetSame
       Logical DoGrad
       Integer NFrzO ![in]
@@ -335,17 +334,6 @@ C
      $                 'RIMP2_Driver_XF: Failed to allocate g_out',
      $                 ISpin)
 C
-C                 Create output DRA
-C
-                  If ( DRA_Create(MT_Dbl, N1*N2, FitLen,
-     $                 'MO 3-center integrals',
-     $                 FN_Int(ISpin, BraKet, Class)(:
-     $                 Inp_StrLen(FN_Int(ISpin, BraKet, Class))),
-     $                 DRA_W, N1, FitLen, D_Int(ISpin, BraKet, Class) )
-     $                 .ne. 0) Call ErrQuit(
-     $                 'RIMP2_Driver_XF: can''t open integral file',
-     $                 ISpin)
-C
 C                 Do the transformation.  Note that for the S
 C                 approximation, there is an arbitrary choice to make
 C                 the bra side the ERI and the ket side the overlap.
@@ -394,10 +382,6 @@ C
      $                 'RIMP2_Driver_XF: Can''t free global array',
      $                 ISpin)
 C
-                  If ( DRA_Close(D_Int(ISpin, BraKet, Class) ) .ne. 0)
-     $                 Call ErrQuit(
-     $                 'RIMP2_Driver_XF: can''t close integral file',
-     $                 ISpin)
                EndIf            ! Transformation must be done
             EndDo               ! ISpin
          EndDo                  ! BraKet

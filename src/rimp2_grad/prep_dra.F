@@ -3,7 +3,7 @@ C NAME
 C     rimp2_prep_dra -- Setup DRA sizes and names
 C
 C REVISION
-C     $Id: prep_dra.F,v 1.3 1998-11-09 17:43:10 bernhold Exp $
+C     $Id: prep_dra.F,v 1.4 1999-05-28 16:04:05 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Prep_DRA(MaxSpin, TopSpin, NFrzO, NAct, NVir,
@@ -33,30 +33,25 @@ C
 C DESCRIPTION
 C     Prepare names, sizes, and transformation limits for DRAs
 C
-C     BraKetSame   DoGrad   D_Int()   Integrals
+C                    Value of BraKetSame/DoGrad
+C     D_Int()     T/F       F/F       T/T       F/T
 C
-C     T            F        *, 1, 1   (ai|D')
-C                           *, 2, 1      -
-C                           *, 1, 2      -
-C                           *, 2, 2      -
+C     *, 1, 1   (ai|D')   (ai|D)    (ap|D')   (ap|D) 
+C     *, 2, 1      -      (ai|D")      -      (ap|D")    
+C     *, 1, 2      -         -      (mi|D')   (mi|D) 
+C     *, 2, 2      -         -         -      (mi|D")    
 C
-C     F            F        *, 1, 1   (ai|D)
-C                           *, 2, 1   (ai|D")
-C                           *, 1, 2      -
-C                           *, 2, 2      -
+C     D_Gam()   Gamma
+C     *         (ai|D)
 C
-C     T            T        *, 1, 1   (ap|D')
-C                           *, 2, 1      -
-C                           *, 1, 2   (mi|D')   (m = C+A)
-C                           *, 2, 2      -
-C
-C     F            T        *, 1, 1   (ap|D)
-C                           *, 2, 1   (ap|D")
-C                           *, 1, 2   (mi|D)    (m = C+A)
-C                           *, 2, 2   (mi|D")   (m = C+A)
-C
-C                           D_Gam()   Gamma
-C                           *         (ai|D)
+C     Key:
+C     D  = fitting basis, untransformed
+C     D' = fitting basis with symmetric transformation
+C     D" = fitting basis with asymmetric transformation
+C     i  = A (active)
+C     a  = V (virtual)
+C     m  = C+A (core + active)
+C     p  = C+A+V
 C
 C EXTERNAL ROUTINES
 C
