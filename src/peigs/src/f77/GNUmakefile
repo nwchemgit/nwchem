@@ -1,3 +1,4 @@
+include ../../../config/makefile.h
 include ../../DEFS
 
 ifeq ($(peigs_CODEOBJ),DBLE)

@@ -31,14 +31,12 @@
 #
 # set the path to the "peigs" directory
 
-include $(NWCHEM_TOP)/src/config/makefile.h
-
-peigs_SRC		= $(NWCHEM_TOP)/src
+peigs_SRC		= $(TOPDIR)/src
 peigs_TARGET		= $(NWCHEM_TARGET)
 peigs_CPU_TYPE          = $(NWCHEM_TARGET_CPU)
 
 peigs_DIR	= $(peigs_SRC)/peigs
-peigs_LIB	= $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libpeigs.a
+peigs_LIB	= $(TOPDIR)/lib/$(NWCHEM_TARGET)/libpeigs.a
 
 SHELL		= /bin/sh
 
@@ -48,7 +46,7 @@ peigs_CSRC	 = $(peigs_DIR)/src/c
 peigs_F77SRC	 = $(peigs_DIR)/src/f77
 peigs_COMMDIR	 = $(peigs_DIR)/comm
 peigs_FTOC	 = $(peigs_DIR)/ctof
-peigs_EXAMPLE_LIB = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -lpeigs -lglobal -lesslp2 -llapack -lblas -lutil -ltcgmsg
+peigs_EXAMPLE_LIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -lpeigs -lglobal -lesslp2 -llapack -lblas -lutil -ltcgmsg
 
 #==================================================
 #  Machine specific definitions.
@@ -181,7 +179,7 @@ peigs_CODEOBJ = DBLE
 peigs_CC += -DSTD_DBL -DSTD_INT
 peigs_FC += -dalign
 peigs_CPP += -DSTD_INT -DSTD_DBL
-peigs_COMMLIB = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -ltcgmsg
+peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 #
 #	this is the worst to find for any machine
 #	for the SUN we have c calling fortran library
@@ -202,7 +200,7 @@ peigs_CODEOBJ = DBLE
 peigs_CC += -DSTD_DBL -DSTD_INT
 peigs_FC += -align64
 peigs_CPP += -DSTD_INT -DSTD_DBL
-peigs_COMMLIB = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -ltcgmsg
+peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
 endif  
 
@@ -213,7 +211,7 @@ peigs_CODEOBJ = DBLE
 peigs_CC += -DSTD_DBL -DSTD_INT
 peigs_FC += -align64
 peigs_CPP += -DSTD_INT -DSTD_DBL
-peigs_COMMLIB = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -ltcgmsg
+peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
 endif  
 
@@ -227,7 +225,7 @@ peigs_CODEOBJ = DBLE
 peigs_CC += -DSTD_DBL -64 -IPA -Ofast=ip21 -LNO:pf2=ON:prefetch=2
 peigs_FC += -align64  -64 -IPA -Ofast=ip21 -LNO:pf2=ON:prefetch=2
 peigs_CPP += -DSTD_INT -DSTD_DBL
-peigs_COMMLIB = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -ltcgmsg
+peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
 peigs_FOPT = -O3 -WK,-so=5,-ro=3,-o=5,-ur=12,-ur2=200,-inline=daxpy:dscal:ddot:dcopy
 peigs_COPT = -O3
@@ -242,7 +240,7 @@ peigs_CODEOBJ = DBLE
 peigs_CC += -DSTD_DBL -64 
 peigs_FC += -align64  -64 -IPA -LNO:pf2=ON:prefetch=2
 peigs_CPP += -DSTD_INT -DSTD_DBL
-peigs_COMMLIB = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -ltcgmsg
+peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
 peigs_FOPT = -O3 -WK,-so=5,-ro=3,-o=5,-ur=12,-ur2=200,-inline=daxpy:dscal:ddot:dcopy
 peigs_COPT = -O3

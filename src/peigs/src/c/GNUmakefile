@@ -1,3 +1,4 @@
+include ../../../config/makefile.h
 include ../../DEFS
 
 COBJ  =  b_ortho.o \
