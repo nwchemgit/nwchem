@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.60 2000-05-31 18:19:43 d3j191 Exp $
+c $Id: cf_main.F,v 1.61 2000-06-01 02:11:30 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2437,14 +2437,14 @@ c
 c
       write(lfnout,1000) number
  1000 format(//,' Solute MCTI derivatives from last',i8,' steps',//,
-     + '    Atom',13x,'Solvent     Solvent      Solute      Solute',
+     + '     Atom',13x,'Solvent     Solvent      Solute      Solute',
      + 6x,'Solute',/,
-     + 20x,'v.d.Waals   electrost   v.d.Waals   electrost',6x,
+     + 21x,'v.d.Waals   electrost   v.d.Waals   electrost',6x,
      + 'bonded',/)
 c
       do 1 i=1,nsatot
       write(lfnout,1001) snam(i),(dera(j,i)/dble(number),j=1,5)
- 1001 format(a16,5f12.3)
+ 1001 format(1x,a16,5f12.3)
     1 continue
 c
       endif
@@ -2643,13 +2643,13 @@ c
 c
       write(lfnout,1001)
  1001 format(//,' SOLUTE DECOMPOSITION THERMODYNAMIC INTEGRATION',//,
-     + '    Atom',13x,'Solvent     Solvent      Solute      Solute',
+     + '     Atom',13x,'Solvent     Solvent      Solute      Solute',
      + 6x,'Solute',/,
-     + 20x,'v.d.Waals   electrost   v.d.Waals   electrost',6x,
+     + 21x,'v.d.Waals   electrost   v.d.Waals   electrost',6x,
      + 'bonded',/)
       do 1 i=1,nsatot
       write(lfnout,1009) snam(i),(dec(j,i),j=1,5)
- 1009 format(a16,5f12.3)
+ 1009 format(1x,a16,5f12.3)
     1 continue
 c
       return
