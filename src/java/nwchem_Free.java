@@ -77,12 +77,10 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 			 GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	    gibPlot.init();
 	    gibPlot.resize(500,300);
-	    gibPlot.setNumSets(5);
 	    gibPlot.setTitle("Free Energy");
 	    gibPlot.setXLabel("Lambda");
 	    cnvPlot.init();
 	    cnvPlot.resize(500,300);
-	    cnvPlot.setNumSets(5);
 	    cnvPlot.setTitle("Free Energy");
 	    cnvPlot.setXLabel("Time");
 	    validate();

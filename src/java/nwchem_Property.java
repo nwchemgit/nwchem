@@ -7,48 +7,45 @@ import javax.swing.event.*;
 
 class nwchem_Property extends JFrame implements ActionListener, ChangeListener, WindowListener, MouseListener {
   
-  Font defaultFont;
-  int setnumber=0;
-  JFileChooser chooser;
-  ExtensionFilter properFilter;
-  JFrame dialogFrame;
-  
-  BufferedReader br;
-  String card;
-  int numprop=0;
-  int numframes=0;
-  Vector frames = new Vector(10,5);
-  double data[];
-  
-  DefaultListModel propList = new DefaultListModel();
-
-  JList pList = new JList(propList);
-  JScrollPane propPane = new JScrollPane(pList);
-  boolean selectx = true;
-  JLabel xLabel = new JLabel("x:                                   ");
-  JLabel yLabel = new JLabel("y:                                   ");
-  int xIndex=0, yIndex=0;
-  Graph prp_plot = new Graph();
-  JLabel systemLabel = new JLabel();
-  JLabel sizeLabel = new JLabel("Number of frames is       ");
-  JButton plotButton = new JButton("plot");
-  JButton plotpButton = new JButton("plot+");
-  JButton addButton = new JButton("add");
-  JButton addpButton = new JButton("add+");
-  JButton doneButton = new JButton("done");
-
-  int type = 0;
-  double time;
-  double synt;
-  double stpt;
-  Graph synPlot = new Graph();
-  Graph timPlot = new Graph();
-
-  double offstep = 0.0;
-  double offtime = 0.0;
-
-  public nwchem_Property(){
-
+    Font defaultFont;
+    int setnumber=0;
+    JFileChooser chooser;
+    ExtensionFilter properFilter;
+    JFrame dialogFrame;
+    
+    BufferedReader br;
+    String card;
+    int numprop=0;
+    int numframes=0;
+    Vector frames = new Vector(10,5);
+    double data[];
+    
+    DefaultListModel propList = new DefaultListModel();
+    
+    JList pList = new JList(propList);
+    JScrollPane propPane = new JScrollPane(pList);
+    boolean selectx = true;
+    JLabel xLabel = new JLabel("x:                                   ");
+    JLabel yLabel = new JLabel("y:                                   ");
+    int xIndex=0, yIndex=0;
+    Graph prp_plot = new Graph();
+    JLabel systemLabel = new JLabel();
+    JLabel sizeLabel = new JLabel("Number of frames is       ");
+    JButton clearButton = new JButton("clear");
+    JButton plotButton = new JButton("plot");
+    JButton plotpButton = new JButton("plot+");
+    JButton newButton = new JButton("new");
+    JButton appendButton = new JButton("append");
+    JButton doneButton = new JButton("done");
+    
+    int plotnum = 10;
+    int plotcur = 0;
+    
+    double offstep = 0.0;
+    double offtime = 0.0;
+    
+    public nwchem_Property(){
+	
     super("Property Viewer");
 
     defaultFont = new Font("Dialog", Font.BOLD,12);
@@ -74,38 +71,42 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
 		 GridBagConstraints.NONE,GridBagConstraints.WEST);
 
     JLabel systemLabel = new JLabel(chooser.getSelectedFile().toString());
-    addComponent(header,systemLabel,0,0,1,1,1,1,
-    		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
-    systemLabel.setForeground(Color.black);
 
-    addComponent(header,xLabel,0,1,2,1,1,1,
+    addComponent(header,systemLabel,0,0,8,1,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
-    addComponent(header,yLabel,0,2,2,1,1,1,
+    systemLabel.setForeground(Color.black);
+    addComponent(header,sizeLabel,0,1,6,1,1,1,
+    		 GridBagConstraints.NONE,GridBagConstraints.WEST);
+
+    addComponent(header,xLabel,0,2,4,1,1,1,
+    		 GridBagConstraints.NONE,GridBagConstraints.WEST);
+    addComponent(header,yLabel,0,3,4,1,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
     xLabel.setBackground(Color.yellow);
+
+    addComponent(header,prp_plot,0,5,4,4,10,10,
+    		 GridBagConstraints.NONE,GridBagConstraints.WEST);
     
-    addComponent(header,propPane,0,3,1,1,10,10,
+    addComponent(header,propPane,4,5,4,4,10,10,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
     pList.addMouseListener(this);
 
-    addComponent(header,sizeLabel,2,0,6,1,1,1,
+    addComponent(header,plotButton,4,3,1,1,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
-    addComponent(header,plotButton,2,1,1,1,1,1,
+    addComponent(header,plotpButton,5,3,1,1,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
-    addComponent(header,plotpButton,3,1,1,1,1,1,
+    addComponent(header,clearButton,6,3,1,1,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
-    addComponent(header,addButton,4,1,1,1,1,1,
+    addComponent(header,appendButton,4,2,1,1,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
-    addComponent(header,addpButton,5,1,1,1,1,1,
+    addComponent(header,newButton,5,2,1,1,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
-    addComponent(header,doneButton,6,1,1,1,1,1,
+    addComponent(header,doneButton,6,2,1,1,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
+
     doneButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){ 
 	setVisible(false); }});
-
-    addComponent(header,prp_plot,2,2,5,2,10,10,
-    		 GridBagConstraints.NONE,GridBagConstraints.WEST);
 
     prp_plot.init();
     prp_plot.resize(500,500);
@@ -113,10 +114,18 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
 
     plotButton.addActionListener(this);
     plotpButton.addActionListener(this);
+    clearButton.addActionListener(this);
 
-    addButton.addActionListener(new ActionListener(){
+    appendButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){ 
 	chooser.showOpenDialog(dialogFrame);
+	appendData(chooser.getSelectedFile().toString());
+      }});
+
+    newButton.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){ 
+	chooser.showOpenDialog(dialogFrame);
+        numframes=0; propList.removeAllElements();
 	appendData(chooser.getSelectedFile().toString());
       }});
 
@@ -162,6 +171,7 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
       offstep=data[0];
       offtime=data[1];
       sizeLabel.setText("Number of frames is "+frames.size());
+      systemLabel.setText(dataFile);
     } catch(Exception e) {e.printStackTrace();};
   }
 
@@ -198,11 +208,17 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
   }
 
   public void actionPerformed(ActionEvent e) {
+      if(e.getSource()==clearButton){
+	  prp_plot.clear(true);
+	  //	  for(int i=0; i<plotnum; i++){
+	  //	      try{  prp_plot.clear(i); prp_plot.removeSet(i);} catch (Exception ee){};
+	  //	  };  
+	  prp_plot.fillPlot();
+	  plotcur=0;
+	  plotnum=0;
+      };
     if(e.getSource()==plotButton||e.getSource()==plotpButton){
-      //     e.getSource()==addButton||e.getSource()==addpButton){
-      boolean running = (e.getSource()==plotpButton||e.getSource()==addpButton);
-      //    boolean adddata = (e.getSource()==addButton||e.getSource()==addpButton);
-      boolean adddata=false;
+      boolean running = (e.getSource()==plotpButton);
       if(xIndex>0&&yIndex>0) {
 	int ix1 = propList.getElementAt(xIndex-1).toString().indexOf("    ");
 	int ix2 = propList.getElementAt(xIndex-1).toString().lastIndexOf("    ")+3;
@@ -231,20 +247,21 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
 	  pLab=propList.getElementAt(yIndex-1).toString();
 	};
 	prp_plot.setYLabel(pLab);
-	if(!adddata) { try{ prp_plot.removeSet(0); prp_plot.removeSet(1);} catch (Exception ee){}; };
 	boolean first=true;
         double yave, ysum=0.0;
 	for(int i=0; i<numframes; i++){
 	  data = new double[numprop];
 	  data=(double[])frames.elementAt(i);
-	  prp_plot.addData(0,data[xIndex-1],data[yIndex-1],!first,false);
+	  prp_plot.addData(plotcur,data[xIndex-1],data[yIndex-1],!first,false);
 	  if(running){
 	    ysum=ysum+data[yIndex-1];
 	    yave=ysum/(i+1);
-	    prp_plot.addData(1,data[xIndex-1],yave,!first,false);
+	    prp_plot.addData(plotcur+1,data[xIndex-1],yave,!first,false);
 	  };
 	  first=false;
 	};
+	plotcur++; if(running){plotcur++;};
+	plotnum++; if(running){plotnum++;};
 	prp_plot.fillPlot();
 	//	prp_plot.drawPlot(prp_plot.getGraphics(),true);
       };    

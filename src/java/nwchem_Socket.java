@@ -91,25 +91,21 @@ class nwchem_Socket extends JFrame implements ActionListener, ChangeListener, Wi
       
       tmpPlot.init();
       tmpPlot.resize(100,100);
-      tmpPlot.setNumSets(1);
       tmpPlot.setTitle("Temperature");
       tmpPlot.setXLabel("Time");
       
       prsPlot.init();
       prsPlot.resize(100,100);
-      prsPlot.setNumSets(1);
       prsPlot.setTitle("Pressure");
       prsPlot.setXLabel("Time");
       
       volPlot.init();
       volPlot.resize(100,100);
-      volPlot.setNumSets(1);
       volPlot.setTitle("Volume");
       volPlot.setXLabel("Time");
       
       enePlot.init();
       enePlot.resize(100,100);
-      enePlot.setNumSets(1);
       enePlot.setTitle("Energy");
       enePlot.setXLabel("Time");
       

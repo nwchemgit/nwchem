@@ -121,14 +121,12 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
     		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
       nodPlot.init();
       nodPlot.resize(700,300);
-      nodPlot.setNumSets(17);
       nodPlot.setTitle("Wall Clock Time Decomposition per Processor");
       nodPlot.setXLabel("Processor");
       nodPlot.setBars(1.1,0.0);
       nodPlot.setMarksStyle("none");
       accPlot.init();
       accPlot.resize(700,300);
-      accPlot.setNumSets(17);
       accPlot.setTitle("Wall Clock Time Decomposition Accumulated");
       accPlot.setXLabel("Time");
       //      accPlot.setBars(1.1,0.0);
