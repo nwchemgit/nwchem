@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.17 2003-10-22 21:59:37 bylaska Exp $
+* $Id: geodesic.F,v 1.18 2003-10-25 22:11:14 bylaska Exp $
 *
 
 *     ***********************************
@@ -270,7 +270,7 @@ c         end do
 
 *     **** local variables ****
       logical value
-      integer i,ierr
+      integer i,j,ierr
       integer tmp1(2),tmp2(2)
 c     real*8 sum1,sumv
 
@@ -315,13 +315,21 @@ c     real*8 sum1,sumv
       end do
       call D3dB_Vector_SumAll(ne,dbl_mb(tmp2(1)))
       
+c     do i=1,ne
+c        dbl_mb(tmp2(1)+i-1) = 1.0d0/dsqrt(dbl_mb(tmp2(1)+i-1))
+c        call Pack_c_SMul(1,dbl_mb(tmp2(1)+i-1),
+c    >                    U(1,i),U(1,i))
+c
+c     end do
       do i=1,ne
          dbl_mb(tmp2(1)+i-1) = 1.0d0/dsqrt(dbl_mb(tmp2(1)+i-1))
-
-         call Pack_c_SMul(1,dbl_mb(tmp2(1)+i-1),
-     >                    U(1,i),U(1,i))
- 
       end do
+
+      do i=1,ne
+         call dscal(2*npack,dbl_mb(tmp2(1)+i-1),U(1,i),1)
+      end do
+
+
       do i=1,ne
         if (S(i).lt.0.0d0) S(i) = dabs(S(i))
         S(i) = dsqrt(S(i))
@@ -338,10 +346,8 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
 
 
 
-      value = value.and.
-     >        MA_pop_stack(tmp2(2))
-      value = value.and.
-     >        MA_pop_stack(tmp1(2))
+      value = value.and.MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('error popping stack memory',0, MA_ERR)
        
@@ -379,6 +385,7 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
       real*8     scal1,scal2
       real*8     zero,one
       integer    tmp1(2),tmp2(2),tmp3(2)
+      integer    tmpC(2),tmpS(2)
       real*8     sum1,sum2
 
       integer    taskid, MASTER
@@ -403,6 +410,12 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
       value = value.and.
      >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp3',
      >                    tmp3(2),tmp3(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(nemax),'tmpC',
+     >                    tmpC(2),tmpC(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(nemax),'tmpS',
+     >                    tmpS(2),tmpS(1))
       if (.not. value) 
      >   call errquit('out of stack memory',0, MA_ERR)
 
@@ -413,18 +426,23 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
         shift1 = (ms-1)*psi_ne(1)
         shift2 = (ms-1)*psi_ne(1)*psi_ne(1)
 
-        do j=1,n
-          scal1 = dcos(dbl_mb(S(1)+j-1+shift1)*t)
-          scal2 = dsin(dbl_mb(S(1)+j-1+shift1)*t)
-
-!DIR$ ivdep
-          do k=1,n
-           shift = j-1 + (k-1)*n + shift2
-           dbl_mb(tmp1(1)+shift) = scal1 * dbl_mb(Vt(1)+shift)
-           dbl_mb(tmp3(1)+shift) = scal2 * dbl_mb(Vt(1)+shift)
-          end do
-
-        end do
+c        do j=1,n
+c          scal1 = dcos(dbl_mb(S(1)+j-1+shift1)*t)
+c          scal2 = dsin(dbl_mb(S(1)+j-1+shift1)*t)
+c
+c          do k=1,n
+c           shift = j-1 + (k-1)*n + shift2
+c           dbl_mb(tmp1(1)+shift) = scal1 * dbl_mb(Vt(1)+shift)
+c           dbl_mb(tmp3(1)+shift) = scal2 * dbl_mb(Vt(1)+shift)
+c          end do
+c
+c        end do
+        call SCtimesVtrans(t,n,dbl_mb(S(1)),
+     >                    dbl_mb(Vt(1)+shift2),
+     >                    dbl_mb(tmp1(1)+shift2),
+     >                    dbl_mb(tmp3(1)+shift2),
+     >                    dbl_mb(tmpC(1)),
+     >                    dbl_mb(tmpS(1)))
 
         call DGEMM('T','N',n,n,n,one,
      >              dbl_mb(  Vt(1)+shift2),n,
@@ -488,11 +506,11 @@ c     end if
 
 
 *     **** deallocate tmp space ****     
-      value = MA_pop_stack(tmp3(2))
-      value = value.and.
-     >        MA_pop_stack(tmp2(2))
-      value = value.and.
-     >        MA_pop_stack(tmp1(2))
+      value = MA_pop_stack(tmpS(2))
+      value = value.and.MA_pop_stack(tmpC(2))
+      value = value.and.MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('error popping stack memory',0, MA_ERR)
 
@@ -500,6 +518,38 @@ c     end if
 
       return
       end
+
+*     ***********************************
+*     *					*
+*     *		SCtimesVtrans		*
+*     *					*
+*     ***********************************
+
+      subroutine SCtimesVtrans(t,n,S,Vt,A,B,scal1,scal2)
+      implicit none
+      real*8 t
+      integer n
+      real*8  S(n),Vt(n,n)
+      real*8  A(n,n),B(n,n)
+      real*8 scal1(n),scal2(n)
+
+      integer j,k
+
+      do j=1,n
+        scal1(j) = dcos(S(j)*t)
+        scal2(j) = dsin(S(j)*t)
+      end do
+
+      do k=1,n
+      do j=1,n
+          A(j,k) = scal1(j)*Vt(j,k)
+          B(j,k) = scal2(j)*Vt(j,k)
+      end do
+      end do
+
+      return
+      end
+
 
 *     ***********************************
 *     *					*
@@ -532,6 +582,7 @@ c     end if
       real*8     zero,one
       real*8     scal1,scal3
       integer    tmp1(2),tmp2(2),tmp3(2)
+      integer    tmpC(2),tmpS(2)
 
 *     **** external functions ****
       integer  psi_ispin,psi_ne
@@ -553,6 +604,12 @@ c     end if
       value = value.and.
      >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp3',
      >                    tmp3(2),tmp3(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(nemax),'tmpC',
+     >                    tmpC(2),tmpC(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(nemax),'tmpS',
+     >                    tmpS(2),tmpS(1))
       if (.not. value) 
      >   call errquit('out of stack memory',0, MA_ERR)
 
@@ -563,19 +620,26 @@ c     end if
         shift1 = (ms-1)*psi_ne(1)
         shift2 = (ms-1)*psi_ne(1)*psi_ne(1)
 
-        do j=1,n
-          scal1 = dbl_mb(S(1)+j-1+shift1)
-     >            *dsin(dbl_mb(S(1)+j-1+shift1)*t)
-          scal3 = dbl_mb(S(1)+j-1+shift1)
-     >            *dcos(dbl_mb(S(1)+j-1+shift1)*t)
+c       do j=1,n
+c         scal1 = dbl_mb(S(1)+j-1+shift1)
+c    >            *dsin(dbl_mb(S(1)+j-1+shift1)*t)
+c         scal3 = dbl_mb(S(1)+j-1+shift1)
+c    >            *dcos(dbl_mb(S(1)+j-1+shift1)*t)
+c
+c         do k=1,n
+c          shift = j-1 + (k-1)*n + shift2
+c          dbl_mb(tmp1(1)+shift) = scal1*dbl_mb(Vt(1)+shift)
+c          dbl_mb(tmp3(1)+shift) = scal3*dbl_mb(Vt(1)+shift)
+c         end do
+c       end do
+        call SCtimesVtrans2(t,n,dbl_mb(S(1)),
+     >                    dbl_mb(Vt(1)+shift2),
+     >                    dbl_mb(tmp1(1)+shift2),
+     >                    dbl_mb(tmp3(1)+shift2),
+     >                    dbl_mb(tmpC(1)),
+     >                    dbl_mb(tmpS(1)))
 
-!DIR$ ivdep
-          do k=1,n
-           shift = j-1 + (k-1)*n + shift2
-           dbl_mb(tmp1(1)+shift) = scal1*dbl_mb(Vt(1)+shift)
-           dbl_mb(tmp3(1)+shift) = scal3*dbl_mb(Vt(1)+shift)
-          end do
-        end do
+
 
         call DGEMM('T','N',n,n,n,one,
      >              dbl_mb(  Vt(1)+shift2), n,
@@ -619,11 +683,11 @@ c       end do
       end do
 
 *     **** deallocate tmp space ****     
-      value = MA_pop_stack(tmp3(2))
-      value = value.and.
-     >        MA_pop_stack(tmp2(2))
-      value = value.and.
-     >        MA_pop_stack(tmp1(2))
+      value = MA_pop_stack(tmpS(2))
+      value = value.and.MA_pop_stack(tmpC(2))
+      value = value.and.MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('error popping stack memory',0, MA_ERR)
 
@@ -631,6 +695,40 @@ c       end do
 
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *         SCtimesVtrans2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine SCtimesVtrans2(t,n,S,Vt,A,B,scal1,scal2)
+      implicit none
+      real*8 t
+      integer n
+      real*8  S(n),Vt(n,n)
+      real*8  A(n,n),B(n,n)
+      real*8 scal1(n),scal2(n)
+
+      integer j,k
+
+      do j=1,n
+        scal1(j) = S(j)*dsin(S(j)*t)
+        scal2(j) = S(j)*dcos(S(j)*t)
+      end do
+
+      do k=1,n
+      do j=1,n
+          A(j,k) = scal1(j)*Vt(j,k)
+          B(j,k) = scal2(j)*Vt(j,k)
+      end do
+      end do
+
+      return
+      end
+
+
+
 
 
 *     ***********************************
@@ -665,6 +763,7 @@ c       end do
       real*8     zero,one
       real*8     scal1,scal3
       integer    tmp1(2),tmp2(2),tmp3(2)
+      integer    tmpC(2),tmpS(2)
 
 *     **** external functions ****
       integer  psi_ispin,psi_ne
@@ -686,6 +785,12 @@ c       end do
       value = value.and.
      >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp3',
      >                    tmp3(2),tmp3(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(nemax),'tmpC',
+     >                    tmpC(2),tmpC(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(nemax),'tmpS',
+     >                    tmpS(2),tmpS(1))
       if (.not. value) 
      >   call errquit('out of stack memory',0, MA_ERR)
 
@@ -695,34 +800,33 @@ c       end do
         shift1 = (ms-1)*psi_ne(1)
         shift2 = (ms-1)*psi_ne(1)*psi_ne(1)
 
-c       call Grsm_ggm_dot(npack1,n,
-c    >             dcpl_mb(U(1)+shift1*npack1),
-c    >             tG(1+shift1*npack1),
-c    >             dbl_mb(tmp1(1)+shift2))
         call Pack_ccm_dot(1,n,
      >             dcpl_mb(U(1)+shift1*npack1),
      >             tG(1+shift1*npack1),
-     >             dbl_mb(tmp1(1)+shift2))
+     >             dbl_mb(tmp2(1)+shift2))
 
-c       call Grsm_ggm_dot(npack1,n,
-c    >            dcpl_mb(U(1)+shift1*npack1),
-c    >            tG(1+shift1*npack1),
-c    >            dbl_mb(tmp3(1)+shift2))
-        call dcopy(n*n,dbl_mb(tmp1(1)+shift2),1,
-     >                 dbl_mb(tmp3(1)+shift2),1)
+c       call dcopy(n*n,dbl_mb(tmp1(1)+shift2),1,
+c    >                 dbl_mb(tmp3(1)+shift2),1)
+c
+c       do j=1,n
+c         scal1 =       dsin(dbl_mb(S(1)+j-1+shift1)*t)
+c         scal3 = 1.0d0-dcos(dbl_mb(S(1)+j-1+shift1)*t)
+c
+c         do k=1,n
+c          dbl_mb(tmp1(1)+j-1+(k-1)*n+shift2) 
+c    >        = scal1 * dbl_mb(tmp1(1)+j-1+(k-1)*n + shift2)
+c          dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2) 
+c    >        = scal3 * dbl_mb(tmp3(1)+j-1+(k-1)*n + shift2)
+c         end do
+c       end do
+        call SCtimesVtrans3(t,n,dbl_mb(S(1)),
+     >                    dbl_mb(tmp2(1)+shift2),
+     >                    dbl_mb(tmp1(1)+shift2),
+     >                    dbl_mb(tmp3(1)+shift2),
+     >                    dbl_mb(tmpC(1)),
+     >                    dbl_mb(tmpS(1)))
 
-        do j=1,n
-          scal1 =       dsin(dbl_mb(S(1)+j-1+shift1)*t)
-          scal3 = 1.0d0-dcos(dbl_mb(S(1)+j-1+shift1)*t)
 
-          do k=1,n
-           dbl_mb(tmp1(1)+j-1+(k-1)*n+shift2) 
-     >        = scal1 * dbl_mb(tmp1(1)+j-1+(k-1)*n + shift2)
-           dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2) 
-     >        = scal3 * dbl_mb(tmp3(1)+j-1+(k-1)*n + shift2)
-          end do
-        end do
-        
         call DGEMM('T','N',n,n,n,one,
      >              dbl_mb(  Vt(1)+shift2), n,
      >              dbl_mb(tmp1(1)+shift2), n,
@@ -762,11 +866,11 @@ c       end do
       end do !*** ms ***
 
 *     **** deallocate tmp space ****     
-      value = MA_pop_stack(tmp3(2))
-      value = value.and.
-     >        MA_pop_stack(tmp2(2))
-      value = value.and.
-     >        MA_pop_stack(tmp1(2))
+      value = MA_pop_stack(tmpS(2))
+      value = value.and.MA_pop_stack(tmpC(2))
+      value = value.and.MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('error popping stack memory',0, MA_ERR)
 
@@ -774,3 +878,38 @@ c       end do
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *         SCtimesVtrans3	        *
+*     *                                 *
+*     ***********************************
+
+      subroutine SCtimesVtrans3(t,n,S,Vt,A,B,scal1,scal2)
+      implicit none
+      real*8 t
+      integer n
+      real*8  S(n),Vt(n,n)
+      real*8  A(n,n),B(n,n)
+      real*8  scal1(n),scal2(n)
+
+      integer j,k
+
+      do j=1,n
+        scal1(j) = dsin(S(j)*t)
+        scal2(j) = 1.0d0-dcos(S(j)*t)
+      end do
+
+      do k=1,n
+      do j=1,n
+          A(j,k) = scal1(j)*Vt(j,k)
+          B(j,k) = scal2(j)*Vt(j,k)
+      end do
+      end do
+
+      return
+      end
+
+
+
