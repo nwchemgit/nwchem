@@ -12,7 +12,7 @@
 The working assumption in documenting the NWChem code is that the
 developers will be relatively sophisticated hackers, used to deciphering
 C and Fortran source code and makefile scripts.  The steps for building
-an executable version of the code are as automated as possible, with
+an executable version of the code are as automated as is practical, with
 upward of a hundred individual makefiles in the source code directory
 tree.  The developer is advised to look carefully at the top-level
 makefile
@@ -45,10 +45,10 @@ development).  Only those routines which are performance hot spots are
 optimized.  This helps avoid stupid compiler bugs which, by empirical
 observation, are more likely to show up on things other than
 hard-working number crunching.  Each makefile contains an {\tt OBJ\_OPTIMIZE}
-macro which should name those routines that {\tt should} be built with
+macro which should name those routines that {\em should} be built with
 optimization.  All the rest should be listed in the OBJ macro.  The
 extra arguments used when compiling optimized code are the
-platform-dependent [FC]OPTIMIZE macros in config/makefile.h.  If you
+platform-dependent [FC]OPTIMIZE macros in \verb+config/makefile.h+.  If you
 want to turn off all optimization, change these and rebuild.
 
 At present, the package is almost entirely self-contained.  The only

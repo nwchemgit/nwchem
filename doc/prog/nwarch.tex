@@ -22,7 +22,7 @@ The fourth tier is
 the {\em Software
 Development Toolkit}, which is the basic foundation of the code.
 The fifth tier provides the {\em Utility Functions} needed by nearly all modules
-in the code.  These include such functionality as printing 
+in the code.  These include such functionality as input processing, output processing,
 and timing.
 
 In addition to using a modular approach for the design, NWChem is built 
@@ -52,6 +52,26 @@ the various modules, tools, and "objects" are described in detail.
 \subsection{Object Oriented Design}
 \label{sec:ood}
 
+The basic principles of object-oriented software development are abstraction, 
+hierarchy, encapsulation, and modularity.  {\em Abstraction} is the separation of the
+problem to be solved from the process used to solve it, which facilitates the
+introduction of new methods as programming tools and hardware capabilities
+evolve.  In complex systems, abstraction can be carried out on many levels,
+resulting in a hierarchy that allows connections between many different components
+and the development of further abstractions. {\em Encapsulation} is the creation
+of isolated data structures or other objects in such a way that they can be
+manipulated only in carefully controlled and well-defined ways, which helps to
+reduce the problems due to unexpected interactions between components that are
+supposed to be independent.  {\em Modularity}, which is the use of relatively
+small program units having well-defined functionality, can also help reduce
+interaction problems.  It can also aid overall code efficiency, if the modules
+are written to be easily reused.
+ 
+In an object oriented language such as C++, this methodology can be a feature
+of the actual coding of the program.  NWChem is written in a mixture of C and
+Fortran, however, and uses object oriented ideas at the design stage.
+This requires some self-discipline on the part of the developers, but the
+effort is well rewarded in improved implementation and easier code maintenance.
 In a programming language such as Fortran77, which is not object oriented by
 design, the concept of objects can be simulated  by developing a
 well defined interface

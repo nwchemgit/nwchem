@@ -1,4 +1,4 @@
-% $Id: prog.tex,v 1.8 1998-10-01 05:15:41 windus Exp $
+% $Id: prog.tex,v 1.9 1998-12-11 18:59:46 d35162 Exp $
 \documentstyle[fullpage,12pt,fleqn]{book}
 \setlength{\parskip}{6pt}
 
@@ -66,15 +66,18 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Software Development Toolkit}
-\input{rtdb}
-\section{Non-Uniform Memory Allocation (NUMA)}
+%\section{Non-Uniform Memory Allocation (NUMA)}
 \input{numa}
+\subsection{Message Passing}
+\input{tcgmsg}
 \subsection{Memory Allocator (MA)}
 \input{ma}
 \subsection{Global Arrays (GA)}
 \input{ga}
 \subsection{ChemI/O}
 \input{ChemIO}
+\section{The Run Time Data Base (RTDB)}
+\input{rtdb}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

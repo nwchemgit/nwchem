@@ -12,16 +12,15 @@ structure and organization of new code.  Activities that require documentation
 fall into three broad categories;
 
 \begin{enumerate}
-\item development of a new molecular calculation module
-\item modification or enhancement of an existing molecular calculation module
-\item modification or enhancement of elements of any of the toolkits 
-(i.e., the molecular modeling
-tools, the software development toolkit, or the utilities)
+\item development of a new capability (such as a new molecular calculation 
+module) within any of the architecture levels,
+\item development of a new subroutine or function,
+\item modification or enhancement of an existing molecular calculation module,
+API,object or subroutine
 \end{enumerate}
 
-The following subsections present guidelines and templates 
-to help the developer produce useful documentation for work in each of
-these categories.  The basic philosophy of documentation in NWChem 
+Basically, whenever functionality is added or modified in the program, it
+must be documented.  The basic philosophy of documentation in NWChem 
 is to have as much of the documentation as possible in the source code itself.
 This is where one most likely would be looking when most in
 need of guidance.  This approach also holds forth the shining hope that
@@ -31,11 +30,37 @@ this manual.  However, for the high level modules in the code, the level
 of detail required for the documentation to be useful will generally
 result in too much verbage to be readily included in the the source code as
 comment lines.  So some
-additional documentation will always be necessary.
+additional documentation may always be necessary.
 
-\section{Documentation of a New Molecular Calculation Module}
+There are two seperate issues that must be discussed for documentation.
+The first is the content of the documentation.  The second is the
+way the documentation must be formatted (i.e. a style guide).  Both of
+these will be discussed in the following sections.
+
+\section{Content of the Documentation}
 \label{sec:standalone}
 
+The level of documentation is, by necessity, different for molecular
+calculation modules,
+modeling or development tools,
+and subroutines or functions.
+The molecular calculation modules represent a high level of functionality
+and can be considered as requiring the highest level of documentation.
+These modules in general require documentation of the underlying theory 
+and overall solution
+method, as well as details of the implementation of the algorithm.
+The modeling or development tools are used by various modules and may also use
+other modules.  These tools also require a relatively high level of documentation.
+The documentation must describe the use and function of the
+tool and give detailed information on the abstract programming interfaces.
+Individual subroutines or functions that are not in themselves main modules or
+tools in general require only descriptive documentation.  This usually consists
+of, at  minimum, their input and output, and some
+description of their purpose. 
+The following subsections delineate the information that should be 
+documented at each level.
+
+\subsection{Documentation of a Molecular Calculation Module}
 The documentation of a new molecular calculation module for NWChem will generally
 require creating a stand-alone Latex document.  This document should reside
 in the directory containing the source code for the module (or in a subdirectory
@@ -47,19 +72,15 @@ LaTex document, put the documentation directly in the main subroutine of
 the module.  Whichever approach is used, however, the documentation should
 conform to the following template.
 
-\subsection{Template for Documentation of a Molecular Calculation Module}
-
-This template shows the required format for documentation of a molecular
-calculation module for NWChem.  This template can be used for in-source
-documentation, or in a stand-alone Latex document.  If the developer chooses to write
-a stand-alone LaTex document, the file should reside in the same directory as
-the source code, and the name of the file should be given the suffix
-{\tt .doc}.  Chapter \ref{sec:modules} contains documentation of existing
+Chapter \ref{sec:modules} contains documentation of existing
 molecular calculation modules in the code, and can be refered to for guidance
-on style and appropriate level of detail.  (However, developers are encouraged
+on style and appropriate level of detail when developing the documentation
+for a new module.  In its current form (as of 11/10/98), this documentation is
+relatively sparse and incomplete, and should not be looked upon as
+an ideal to be emulated.  Developers are encouraged
 to write in their own unique style, so long as the necessary information is
-communicated in a clear and concise manner.  {\em "A foolish consistency is the bugaboo 
-of small minds."})
+communicated in a clear and concise manner.  ({\em "A foolish consistency is 
+the hobgoblin of small minds."})
 
 \subsubsection{Module Documentation Template}
 
@@ -89,7 +110,8 @@ NWChem.
 \item Describe the numerical solution used by the module, including how it interfaces
 with the NUMA model for memory management used by NWChem.
 \item If the new module calls other modules in the code, describe in detail how
-this interface occurs (e.g., what does it write to the runtime data base?).
+this interface occurs (e.g., is there a specific calling order that the
+module relies on?).
 \end{itemize}
 
 \item Performance Evaluation
@@ -108,24 +130,28 @@ When modifying or enhancing an existing module, the documentation should also be
 updated to match the new form of the module.  If by chance the module does not
 yet have adequate documentation, 
 this is an opportunity for you to gain merit (in this world
-{\em and} the next) by providing the missing information as well as supplying the
+{\em and} the next) by providing the missing information, 
+in addition to supplying the
 documentation for the new coding.
 
-\section{Documentation of New Modeling or Development Tools}
+\subsection{Documentation of Modeling or Development Tools}
 
-In-source documentation generally makes the most sense for new modeling tools
-or development tools, but the developer is free to write as much as he or she
-wishes.  Stand-alone LaTex documents will not be spurned.  However, the
-in-source documentation should also be done for modules at this level, since
+This section
+presents a content template for documentation of new modeling or 
+development tools.  The template can be used for in-source documentation,
+or as the outline for a separate LaTeX document.
+In-source documentation generally makes the most sense for modeling tools
+or development tools. The developer is also free to write a 
+stand-alone LaTex document, as these will not be spurned.  However, the
+in-source documentation is the prefered method of documentation
+for modules at this level, since
 this is perhaps the only way to stack the odds in favor of continual updating
-of the documentation as the coding is changed.  The following subsections
-present a template for documentation of new modeling tools, and the
-required syntax for in-source documentation on the level of subroutines and
-functions.
+of the documentation as the code is changed.  Any documentation separate from
+the source code
+should reside in the same directory as the source code, to keep from losing it
+in the forest of the NWChem directory tree.
 
-\subsection{Template for Documentation of New Modeling Tools}
-
-This template is based on the structure of the in-source documentation
+The template is based on the structure of the in-source documentation
 developed by Ricky Kendall for the Integral API.  The format
 is general enough, however, to be applicable to almost any 
 feature that might be added to the Molecular Modeling Toolkit or
@@ -137,7 +163,7 @@ and functions.
 
 
 Documentation of a code or module can be thought of as a dialogue between the
-developer and future developers or users of the code in which the original developer
+developer and future developers or users of the code, in which the original developer
 must guess the questions the other person will ask.  Fortunately, this is 
 not all that difficult.  If the documentation is written to answer these 
 questions, then it is quite likely that the next person to pick up the
@@ -166,13 +192,14 @@ bibliography (if available); note any significant geneological information, if r
 the code does, and how it does it.  Describe how it interacts with the rest of
 NWChem.  If there are any special requirements or limitations on the use of the
 feature(s) of this coding, this is the place to
-mention them.
+mention them.  If there is an order in which certain subroutines should be
+called (i.e. initialize, modify and delete), this should be listed here also.
 \end{itemize}
 
 \item Modifications
 
 \begin{itemize}
-\item Can this coding be changed?  (Describe any special considerations for
+\item Can this code be changed?  (Describe any special considerations for
 modifying the code, especially if there are hidden repercussions of choices made
 at this level in the code.  Note any compatibility problems with other modules
 in the code.)
@@ -181,57 +208,74 @@ in the code.)
 \item Annotated List of All Subroutines and Functions
 
 \begin{itemize}
+\item Instead of the list, there may instead be a pointer to a more complete
+description of the subroutines and functions in another document or an appendix.
+This list may also be automatically generated from the in-source documentation 
+of routines (listed below).
 \item How many subroutines/functions are there in this element?  (Note the number; if
 it is large, try to organize them into some sort of logical groupings, for ease of
-reference and to clarify the structure of the coding.  If there is no obvious structure,
+reference and to clarify the structure of the code.  If there is no obvious structure,
 present them in alphabetical order.)
 \item What are the subroutines/functions in this element?  (For each subroutine
-or function,
-
-\begin{itemize}
-\item write a terse description of what it is for and what it does
-\item reproduce the header line verbatim
-\item construct a list of all arguments in the call list, and give
-each argument with a concise (but informative) definition
-\item identify each argument as input or output
-\item note the return value(s) of the function itself, in addition to
-the argument list
-\end{itemize}
+or function, include the information specified in Section \ref{sec:content}.)
 
 \end{itemize}
 
 \end{itemize}
 
-\subsection{Syntax for In-Source Documentation of Routines}
+\subsection{Content for In-Source Documentation of Routines}
+\label{sec:content}
 
 This is the base level of documentation, and is the one level that is almost
 guaranteed to actually be read by a new developer.  Therefore, it is very
 important that the documentation at this level be as clear and complete as
 possible.  At the very minimum, the in-source documentation should consist of
-comment lines
-containing
-the following information:
+lines containing the following information:
 
+{\bf Required:}
 \begin{itemize}
-\item a verbatim reproduction of the routine header line
+\item a verbatim reproduction of the function or subroutine statement
 \item a list of all arguments, identifying for each argument
 \begin{itemize}
 \item its data type
-\item its status as input or output data
+\item its status as input, output, or input/output data.  If the argument is a
+      handle to an object, the status of the handle as well as the object should
+      be noted by handle\_status(object\_status).  For example, if the handle
+      and the data in an object will be created in a subroutine, use the notation
+      \verb+output(output)+.
 \item a concise (but informative) definition
 \end{itemize}
 \item a terse description of what the routine does
 \item a description of the return value(s) of the function itself (if any)
+\item a description of the calling protocol for the subroutine; that is, whether
+\begin{itemize}
+\item it can be called by node 0 (master) only,
+\item it must be called collectively (collective),
+\item it may be called by any node,
+      in a noncollective manner (noncollective - note that this is the default)
+\end{itemize}
+\item a description of the status of the subroutine as private/public to an API or object
+\end{itemize}
+
+{\bf Strongly Suggested:}
+\begin{itemize}
 \item a description of action on detecting an error condition
 \item a terse description of input and output parameters the function
 gets from or gives to an API
+\item a description of any side effects to file, common blocks or the RTDB
+\item a description of any dependencies that the subroutine has, such as
+      certain subroutines must be called before or after calling the current 
+      subroutine
+\item a list of available print levels (We are working on a script to pull this information
+"automagically" out of the code.)
 \end{itemize}
 
 Examples of nicely documented routines can be found in some directories of
 the NWChem source tree.  (There are also many poor examples, so please follow
 the above template and do not rely
 on the form of existing code for guidance.)  Some examples are reproduced
-here, to illustrate good to adequate documentation.  (There are no really
+here, to illustrate the current state of in-source documentation in the code.  
+(There are no 
 outstandingly excellent examples in the code, as yet.  Think of it as your
 opportunity to shine.)
 
@@ -241,14 +285,18 @@ Example 1: in-source documentation of function {\tt rtdb\_parallel}
 \begin{verbatim}
   logical function rtdb_parallel(mode)
   logical mode              [input]
-\end{verbatim}
-This function sets the parallel access mode of all databases to {\tt mode} and returns the
-previous setting. If {\tt mode} is true then accesses are in parallel, otherwise they are
-sequential.
 
-{\em Comment:} This function comes close to meeting the requirements of the
-desired level of documentation.  It is lacking only a definition of the argument {\tt mode},
-and it could be argued that in this case the definition is obvious.
+c  This function sets the parallel access mode of all databases to {\tt mode} 
+c  and returns the previous setting. If {\tt mode} is true then accesses are 
+c  in parallel, otherwise they are sequential.
+\end{verbatim}
+
+{\em Comment:} This function meets about half of the requirements of the
+desired level of documentation.  It lacks a definition of the argument {\tt mode}
+(although it could be argued that in this case the definition is obvious).
+It does not provide a definition
+of the "colectiveness" of the call to the function, nor a definition of
+private/public routine to the rtdb module.
 
 
 Example 2: in-source documentation of function {\tt task\_energy}
@@ -276,8 +324,8 @@ c
 \end{verbatim}
 
 
-{\em Comment:} This is also a fairly good example.  It is a little terse for the non-telepathic
-perhaps, but contains the essential information (or most of it, anyway) on the
+{\em Comment:} This is also a fairly typical example.  It is a little terse for the non-telepathic
+perhaps, but contains most of the essential information on the
 {\tt task} that executes the operation {\tt energy}.
 
 
@@ -290,23 +338,24 @@ Example 3: in-source documentation of routine {\tt sym\_symmetrize}
   integer basis      ! [input] Basis handle
   integer g_a        ! [input] Global array to be symmetrized
   logical odensity   ! [input] true=density, false=hamiltonian
-\end{verbatim}
-Symmetrize a skeleton AO matrix (in global array with handle
-\verb+g_a+) in the given basis set.  This is nothing more than
-applying the projection operator for the totally symmetric
-representation.
-\begin{verbatim}
-   B = (1/2h) * sum(R) [RT * (A + AT) * R]
-\end{verbatim}
-where \verb+R+ runs over all operators in the group (including
-identity) and \verb+h+ is the order of the group.
 
-Note that density matrices tranform according to slightly different
-rules to Hamiltonian matrices if components of a shell (e.g.,
-cartesian d's) are not orthonormal.  (see Dupuis and King, IJQC 11,
-613-625, 1977).  Hence, specify \verb+odensity+ as \TRUE\ for
-density-like matrices and \FALSE\ for all other totally symmetric
-Hamiltonian-like operators.
+c  Symmetrize a skeleton AO matrix (in global array with handle g_a)
+c  in the given basis set.  This is nothing more than applying the
+c  projection operator for the totally symmetric representation,
+c  
+c     B = (1/2h) * sum(R) [RT * (A + AT) * R]
+c
+c  where R runs over all operators in the group (including identity),
+c  and h is the order of the group.
+c  
+c  Note that density matrices tranform according to slightly different
+c  rules to Hamiltonian matrices if components of a shell (e.g.,
+c  cartesian d's) are not orthonormal.  (see Dupuis and King, IJQC 11,
+c  613-625, 1977).  Hence, specify \verb+odensity+ as \TRUE\ for
+c  density-like matrices and \FALSE\ for all other totally symmetric
+c  Hamiltonian-like operators.
+c  
+\end{verbatim}
 
 
 {\em Comment:} This is about as good as it gets.

@@ -1,25 +1,11 @@
-% intro to this chapter
-\label{sec:sdt}
-
-The Software Development Toolkit is the foundation of the functional architecture
-in NWChem.  It provides the means for interfacing between the calculation modules
-of the code and the system hardware.  The runtime data base 
-stores the information needed to run particular calculations, and allows 
-different modules to have access to the same information.  The memory 
-management routines enable efficient execution in parallel environments.
-
-This chapter describes the elements of the Software Development Toolkit
-in detail.
-
-\section{The RunTime DataBase (RTDB)}
-
 \label{sec:rtdb}
 
-NWchem consists of independent modules (e.g., input, SCF, RIMP2) that
-communicate through a database (similar in spirit to the GAMESS
-dumpfile or the Gaussian checkpoint file).  The only way modules can
-share data is via the database, or via files whose names are stored in
-the database (which may have default values).  Information is stored
+The run time data base is the parameter and information repository for
+the independent modules (e.g., SCF, RIMP2) comprising NWChem.
+This approach is similar in spirit to the GAMESS
+dumpfile or the Gaussian checkpoint file.  The only way modules can
+share data is via the database or via files, the names of which are stored in
+the database (and may have default values).  Information is stored
 directly in the database as typed arrays, each of which is described by
 \begin{enumerate}
 \item a name, which is a simple string of ASCII characters (e.g., 
@@ -46,14 +32,12 @@ that
   of provided arrays
 \end{itemize}
 
-Alternatively, database operations can occur sequentially, meaning
+Alternatively, database operations can occur sequentially.  This means
 that
-\begin{itemize}
-\item only process zero can read/write the database and this happens
-  with no communication or synchronization with other processes
-\item read/write operations by any other process than process zero is
-  an error
-\end{itemize}
+only process zero can read/write the database, and this happens
+  with no communication or synchronization with other processes.
+Any read/write operations by any process other than process zero is
+  an error.
 
 Usually, all processes will want the same data at the same time from
 the database, and all processes will want to know of the success or
@@ -74,14 +58,19 @@ following parameters
 \item {\tt rtdb\_max\_file} --- an integer parameter that defines the maximum
   length of a file name
 \end{itemize}
-The Fortran routines return logical values; \TRUE on success, \FALSE 
+The Fortran routines return logical values; \TRUE  on success, \FALSE 
 on failure.  The C routines return integers; 1 on success, or 0 on failure.
 All \verb+rtdb_*+ functions are also mirrored by routines \verb+rtdb_par_*+
 in which process 0 performs the operation and all other processes
 are broadcast the result of a read and discard writes.
 
+\subsection{Functions to Control Access to the Runtime Database}
 
-\subsection{{\tt rtdb\_parallel}}
+The functions that control opening, closing, writing to and reading information
+from the runtime database are described in this section.
+
+
+\subsubsection{{\tt rtdb\_parallel}}
 
 C routine:
 
@@ -100,7 +89,7 @@ This function sets the parallel access mode of all databases to {\tt mode} and r
 previous setting. If {\tt mode} is true then accesses are in parallel, otherwise they are
 sequential.
 
-\subsection{{\tt rtdb\_open}}
+\subsubsection{{\tt rtdb\_open}}
 
 C routine:
 
@@ -134,7 +123,7 @@ This function opens a database.  It requires the following arguments:
   references to the database
 \end{itemize}
 
-\subsection{{\tt rtdb\_close}}
+\subsubsection{{\tt rtdb\_close}}
 
 C routine:
 
@@ -164,7 +153,7 @@ When closing a database file that has been opened with the {\tt rtdb\_open} argu
 {\tt rtdb\_close} is automatically set to {\tt delete}.  Database files needed for
 restart must not be opened as {\tt scratch} files.
 
-\subsection{{\tt rtdb\_put}}
+\subsubsection{{\tt rtdb\_put}}
 
 C routine:
 
@@ -196,7 +185,7 @@ It requires the following arguments:
 \item {\tt array} --- array of length {\tt nelem} containing data to be inserted
 \end{itemize}
 
-\subsection{{\tt rtdb\_get}}
+\subsubsection{{\tt rtdb\_get}}
 
 C routine:
 
@@ -227,7 +216,7 @@ This function gets an entry from the data base. It requires the following argume
 \item {\tt array} --- buffer of length {\tt nelem} defined by calling routine to store the returned data
 \end{itemize}
 
-\subsection{{\tt rtdb\_cput} and {\tt rtdb\_cget}}
+\subsubsection{{\tt rtdb\_cput} and {\tt rtdb\_cget}}
 
 \begin{verbatim}
   logical function rtdb_cput(handle, name, nelem, buf)
@@ -252,7 +241,7 @@ variables.  The functions have identical argument lists, the only difference bet
 buffer in calling routine to store returned character data (for {\tt rtdb\_cget}.
 \end{itemize}
 
-\subsection{{\tt rtdb\_ma\_get}}
+\subsubsection{{\tt rtdb\_ma\_get}}
 
 C routine:
 
@@ -286,7 +275,7 @@ the following arguments:
 \end{itemize}
 
 
-\subsection{{\tt rtdb\_get\_info}}
+\subsubsection{{\tt rtdb\_get\_info}}
 
 C routine:
 
@@ -322,7 +311,7 @@ It requires the following arguments:
   character string or FORTRAN character variable)
 \end{itemize}
 
-\subsection{{\tt rtdb\_first} and {\tt rtdb\_next}}
+\subsubsection{{\tt rtdb\_first} and {\tt rtdb\_next}}
 
 C routines:
 
@@ -376,7 +365,7 @@ entries  in the database.  The coding for this can be implemented as follows;
     printf("entry %d has name '%s'\n", n, name);
 \end{verbatim}
 
-\subsection{{\tt rtdb\_delete}}
+\subsubsection{{\tt rtdb\_delete}}
 
 C routine:
 
@@ -404,7 +393,7 @@ success or failure of the delete operation.  The function returns as
 \item 0 if key was not present, or if an error occured
 \end{itemize}
 
-\subsection{{\tt rtdb\_print}}
+\subsubsection{{\tt rtdb\_print}}
 
 C routine:
 

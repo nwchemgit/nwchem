@@ -17,16 +17,17 @@ inconsistent data, or failure to converge)
 \end{itemize}
 \item Printing of specific quantities can be directly enabled or
   disabled from the input using already existing input routines
-\item Modules operate independently and printing will eventually be
+\item Modules operate independently and printing is
    controllable via context
 \end{enumerate}
 
-This is an example of how it works. Inside the SCF input
+The following example shows how it works. Inside the SCF input,
+ include the directive
 \begin{verbatim}
   print low basis "final eigenvectors"
   noprint title
 \end{verbatim}
-This sets the overall SCF printlevel to low, forces printing of the
+This sets the overall SCF print level to low, forces printing of the
 final eigenvectors and basis, and disables printing of the title.
 
 The implementation is very simple.  Each module defines (using
@@ -85,7 +86,7 @@ At the end of a module, the output file can be invoked by the call,
 
 \fussy
 
- An examle of this usage is as follows;
+ An example of this usage is as follows;
 \begin{verbatim}
 #include "util.fh"
 
@@ -126,12 +127,13 @@ and to declare \verb+util_print+ as an external logical valued function.
   character*(*) name   [input]
   integer level        [input]
 \end{verbatim}
-If \verb+level+ is less than or equal to the current print level
-(which is set by either \verb+util_print_rtdb_load+, or
-\verb+util_print_set_level+), or the printing of \verb+name+ was
-explicitly enabled, and the printing of \verb+name+ has not been
-explicitly disabled, then \TRUE is returned.  Otherwise
+The value \TRUE is returned if \verb+level+ is less than or equal to the current print level
+or the printing of \verb+name+ was
+explicitly enabled and the printing of \verb+name+ has not been
+explicitly disabled.  Otherwise
 \FALSE is returned.
+The current print level is set by either \verb+util_print_rtdb_load+ or
+\verb+util_print_set_level+.
 
 \fussy
 
@@ -159,8 +161,7 @@ A call to this routine is usually immediately followed by a call to
     subroutine util_print_pop
 \end{verbatim}
 Call this routine immediately before exit from a module to pop the
-print stack to the previous context.  Once context is properly
-functioning the push/pop routines may disappear.
+print stack to the previous context.
 
 \subsubsection{{\tt util\_print\_rtdb\_load}}
 \begin{verbatim}
