@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.42 2004-01-31 16:09:19 d3j191 Exp $
+c $Id: util_md.F,v 1.43 2004-05-07 21:40:02 d3j191 Exp $
 c
       implicit none
 c
@@ -1510,7 +1510,7 @@ c
       integer icode
       if(ga_nodeid().eq.0) then
       write(luout,1000) 0,string,icode
- 1000 format(/,1x,102('*'),/,' * ',i3,': ',a,i5,t102,' *',/,1x,102('*'))
+ 1000 format(/,1x,10('*'),/,' * ',i3,': ',a,i5,/,1x,10('*'))
       card=' '
       else
       write(card,1000) ga_nodeid(),string,icode
