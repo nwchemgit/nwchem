@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.2 1994-03-30 03:04:49 d3g681 Exp $
+# $Id: makefile.h,v 1.3 1994-04-01 22:35:28 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -28,7 +28,8 @@
 # The include directory should be first so that the include
 # files are all present and correct before any compilation
 #
-    SUBDIRS = include global db rtdb basis inp util geom input ma tcgmsg
+    SUBDIRS = include global db ints_sp rtdb basis inp util \
+              geom input ma tcgmsg
 
 #
 # Define LIBPATH to be paths for libraries that you are linking in
@@ -82,6 +83,7 @@ ifeq ($(TARGET),SUN)
     ARFLAGS = rcv
 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
+              -lspints \
               -linput -lgeom -lbasis -lutil -lglobal -lrtdb -ldb -linp \
 	      -lutil -lma -ltcgmsg
 
