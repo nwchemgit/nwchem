@@ -1,5 +1,5 @@
       subroutine get_input_filename(input_filename)
-C     $Id: get_inp_file.F,v 1.8 2000-05-25 20:53:40 edo Exp $
+C     $Id: get_inp_file.F,v 1.9 2000-08-02 01:26:00 bjohnson Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -44,6 +44,10 @@ c
       else
          input_filename = 'nwchem.nw'
       endif
+c
+#if defined(CYGNUS) || defined(WIN32)
+      call fix_windows_path(input_filename)
+#endif
 c
       open(LuIn,file=input_filename,status='old',err=10)
       close(LuIn)
