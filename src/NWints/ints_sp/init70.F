@@ -1,5 +1,5 @@
       subroutine init70
-c $Id: init70.F,v 1.2 1994-06-24 23:34:31 d3g681 Exp $
+c $Id: init70.F,v 1.3 1994-08-15 04:47:55 d3e129 Exp $
       implicit none
 c
 c     called once by genr70 to initialize internal data
@@ -24,7 +24,7 @@ c     Error2 and error1 control the accuracy of 2-e integrals.
 c     For use in energy expressions 10^-11 is appropriate.
 c     For use in the Schwarz() screening 10^-22 is required.
 c     
-c     The routine int_sp_acc has bee provided so that this
+c     The routine int_sp_acc has been provided so that this
 c     value can be changed according to circumstances.
 c     
       error2 = 1.0d-22
@@ -34,7 +34,7 @@ c
 c
       end
       subroutine int_sp_acc(tol)
-c $Id: init70.F,v 1.2 1994-06-24 23:34:31 d3g681 Exp $
+c $Id: init70.F,v 1.3 1994-08-15 04:47:55 d3e129 Exp $
       implicit none
 #include "maxc.fh"
       double precision tol
