@@ -504,6 +504,7 @@ c
 c
       symjb = 1
       do spinb = 1, 2
+         spinj = spinb
          if (.not. uccsdt_ampfile_read_t1(d_amp, spinb, g_t1, 
      $        .true.)) call errquit('read of t1 failed',0)
          jb = 0
@@ -593,6 +594,7 @@ c     them back in a different order and in smaller pieces.
 c
       symjb = 1
       do spinb = 1, 2
+         spinj = spinb
          if (.not. uccsdt_ampfile_read_t1(d_amp, spinb, g_t1, 
      $        .true.)) call errquit('read of t1 failed',0)
          jb = 0
