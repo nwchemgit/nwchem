@@ -1,5 +1,5 @@
 c
-c $Id: sp_common.fh,v 1.24 2000-06-09 17:18:31 d3j191 Exp $
+c $Id: sp_common.fh,v 1.25 2000-10-25 17:29:44 d3j191 Exp $
 c
 c     conversion factors
 c
@@ -23,7 +23,7 @@ c
 c
       integer mip2,miw2,mis2,mbb2
       parameter(mip2=7)
-      parameter(miw2=5)
+      parameter(miw2=4)
       parameter(mis2=14)
       parameter(mbb2=4)
 c
