@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.1 1998-04-17 21:15:36 gg502 Exp $
+C$Id: rimp2g.F,v 1.2 1998-04-21 17:35:26 gg502 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -21,8 +21,8 @@ C
       External MOVecs_Read_Header, MOVecs_Read, MOVecs_Gather,
      $   Int_Normalize
 C
-      Logical RIMP2G_XF_Driver, RIMP2G_V_E2
-      External RIMP2G_XF_Driver, RIMP2G_V_E2
+      Logical RIMP2G_XF_Driver, RIMP2_Driver_EG
+      External RIMP2G_XF_Driver, RIMP2_Driver_EG
 C
       Integer MaxSpin
       Parameter (MaxSpin = 2)
@@ -293,7 +293,7 @@ C     * Energy calculation *
 C     **********************
 C
       Status = Status .AND.
-     $   RIMP2G_V_E2( D_Int, FNInt, TopSpin, NCorBF, IHi, AHi, NFit,
+     $   RIMP2_Driver_EG( D_Int, FNInt, TopSpin, NCorBF, IHi, AHi, NFit,
      $   FitBas, Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx),
      $   CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2))
 C
