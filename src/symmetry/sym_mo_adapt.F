@@ -1,5 +1,5 @@
       subroutine sym_movecs_adapt(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt.F,v 1.13 1997-05-30 19:09:26 d3g681 Exp $
+C$Id: sym_mo_adapt.F,v 1.14 1998-03-21 00:45:15 d3h449 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -252,7 +252,7 @@ c     is wrong then linear dependence will result.
 c
 *     call errquit('sym_movecs_adapt: unable to assign MO'//
 *     $          ' irrep - try restarting from another geometry',0)
-          if (mod(i,2).eq.0) i1 = i2
+c          if (mod(i,2).eq.0) i1 = i2
        endif
 c     
 c     Have found the irrep
