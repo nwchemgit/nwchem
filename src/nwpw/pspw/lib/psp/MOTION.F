@@ -1,13 +1,13 @@
+*
+* $Id: MOTION.F,v 1.2 2002-02-16 21:33:33 bylaska Exp $
 
+*
 *     ***************************
 *     *				*
 *     *		MOTION_init	*
 *     *				*
 *     ***************************
       subroutine MOTION_init(rtdb)
-*
-* $Id: MOTION.F,v 1.1 2002-01-14 21:06:28 bylaska Exp $
-*
       implicit none 
       integer   rtdb
 

@@ -1,9 +1,10 @@
+*
+* $Id: psp.F,v 1.2 2002-02-16 21:33:33 bylaska Exp $
+*
+
 #define TCGMSG
 
       subroutine psp_init()      
-*
-* $Id: psp.F,v 1.1 2002-01-14 21:06:28 bylaska Exp $
-*
       implicit none
 
 #include "mafdecls.fh"
