@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.39 1994-07-29 12:57:14 gg502 Exp $
+# $Id: makefile.h,v 1.40 1994-07-29 23:50:15 vg038 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -141,7 +141,7 @@ ifeq ($(TARGET),KSR)
     ARFLAGS = rcv
 
        LIBS = -L$(LIBDIR) $(LIBPATH) -L/home/d3g681/TCGMSG_DISTRIB \
-              -ltest -lddscf -lrimp2 -lnwints -lgradients -lstepper -lmoints \
+              -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
               -linput -lguess -lgeom -lbasis -lutil \
               -lglobal -lpeigs -lksrlapk -lksrblas -llapack2 -lblas2 \
               -lrtdb -ldb -linp -lpstat \
