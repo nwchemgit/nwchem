@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.75 1994-11-05 03:41:51 og845 Exp $
+# $Id: makefile.h,v 1.76 1994-11-10 17:59:38 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -16,7 +16,7 @@ ifndef NWCHEM_TOP
 error1:
 	@echo You must define NWCHEM_TOP in your environment to be the path
 	@echo of the top level nwchem directory ... something like
-	@echo     setenv NWCHEM_TOP /msrc/home/bill_clinton/nwchem
+	@echo     setenv NWCHEM_TOP /msrc/home/orrin_hatch/nwchem
 	@exit 1
 endif
 
@@ -159,7 +159,7 @@ ifeq ($(TARGET),SUN)
   MAKEFLAGS = -j2
     INSTALL = @echo $@ is built
 
-   FOPTIONS = -Nl99
+   FOPTIONS = -Nl199
    COPTIONS = -Wall
   FOPTIMIZE = -O3
   COPTIMIZE = -g -O2
@@ -168,7 +168,7 @@ ifeq ($(TARGET),SUN)
 
        LIBS = -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lutil -lnwints \
               -lstepper -lmoints \
-              -lguess -lglobal -lutil -lglobal \
+              -lguess -lglobal -lutil -lnwints  -lglobal \
 	      -ltcgmsg -llapack -lblas
 
   EXPLICITF = FALSE
