@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.63 2001-11-14 23:54:05 edo Exp $
+c $Id: texas_face.F,v 1.64 2001-12-27 22:54:17 windus Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -1272,6 +1272,7 @@ c=================================================================
       common /intgop/ ncache,maxprice,iprint,iblock
       common /intlim/ limxmem,limblks,limpair
       common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
+      common /mem_max_min/ ispblx,maxmem1,max_111,iforwhat
       common /route/ iroute
 cccc  common /limit_lost/ lost_limit
       common /allow_lost/ lost_allow   
@@ -1408,6 +1409,7 @@ c       a basis set.
         write(6,*)
      &      'texas_input: guess for limxmem failed:using:',limxmem
       endif
+      if (iforwhat.eq.4) limxmem=10 000 000
 *debug:s
 *      write(6,*)'texas_input: texas_max_ang_val :',texas_max_ang_val
 *      write(6,*)'texas_input: guess for limxmem :',limxmem
