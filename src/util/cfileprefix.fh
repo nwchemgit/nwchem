@@ -1,5 +1,5 @@
 *
-* $Id: cfileprefix.fh,v 1.3 1997-10-31 20:45:31 d3e129 Exp $
+* $Id: cfileprefix.fh,v 1.4 2002-08-30 00:57:53 edo Exp $
 *
 c
 c     file_prefix ... used to prefix default names of all permanent filenames
@@ -7,8 +7,8 @@ c                 ... set by start/restart directive
 c
 c     scratch_dir   ... input line from scratch_dir directive ... util_filename
 c     permanent_dir ... input line from permanent_dir directive.. util_filename
-c     SCRATCH_DEF_DIR ... default scratch dir .. cpp macro in makefile.h
-c     PERM_DEF_DIR ... default permanent dir ... cpp macro in makefile.h
+c     SCRATCH\_DEF\_DIR ... default scratch dir .. cpp macro in makefile.h
+c     PERM\_DEF\_DIR ... default permanent dir ... cpp macro in makefile.h
 c
       character*255 file_prefix
       character*1024 scratch_dir, permanent_dir
