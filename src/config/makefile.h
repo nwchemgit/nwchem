@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.204 1997-02-17 21:42:30 d3e129 Exp $
+# $Id: makefile.h,v 1.205 1997-02-18 06:37:42 d3h449 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -654,62 +654,61 @@ endif
 
        LIBPATH += -L/usr/lib -L/msrc/apps/lib
 
-       CORE_LIBS = -lglobal -lchemio -lutil -llapack -lblas
-#	      -brename:.daxpy_,.daxpy \
-#	      -brename:.dcopy_,.dcopy \
-#	      -brename:.ddot_,.ddot \
-#	      -brename:.dgemm_,.dgemm \
-#	      -brename:.dgemv_,.dgemv \
-#	      -brename:.dgesv_,.dgesv \
-#	      -brename:.dgetrf_,.dgetrf \
-#	      -brename:.dgetrs_,.dgetrs \
-#	      -brename:.dlaset_,.dlaset \
-#	      -brename:.dpotrf_,.dpotrf \
-#	      -brename:.dpotri_,.dpotri \
-#	      -brename:.dscal_,.dscal \
-#	      -brename:.dspsvx_,.dspsvx \
-#	      -brename:.idamax_,.idamax \
-#	      -brename:.dswap_,.dswap \
-#	      -brename:.dger_,.dger \
-#	      -brename:.dtrsm_,.dtrsm \
-#              -brename:.dnrm2_,.dnrm2 \
-#              -brename:.dtrmm_,.dtrmm \
-#              -brename:.drot_,.drot \
-#              -brename:.dasum_,.dasum \
-#              -brename:.dtrmv_,.dtrmv \
-#              -brename:.dspmv_,.dspmv \
-#              -brename:.dspr_,.dspr \
-#              -brename:.dsyrk_,.dsyrk \
-#              -brename:.dsymm_,.dsymm \
-#              -brename:.dsyr2k_,.dsyr2k \
-#              -brename:.dsyr2_,.dsyr2 \
-#              -brename:.dtrsv_,.dtrsv \
-#              -brename:.dsymv_,.dsymv \
-#              -brename:.dznrm2_,.dznrm2 \
-#              -brename:.zaxpy_,.zaxpy \
-#              -brename:.zcopy_,.zcopy \
-#              -brename:.zdotc_,.zdotc \
-#              -brename:.zdscal_,.zdscal \
-#              -brename:.zgemm_,.zgemm \
-#              -brename:.zgemv_,.zgemv \
-#              -brename:.zgerc_,.zgerc \
-#              -brename:.zhemm_,.zhemm \
-#              -brename:.zhemv_,.zhemv \
-#              -brename:.zher2_,.zher2 \
-#              -brename:.zher2k_,.zher2k \
-#              -brename:.zherk_,.zherk \
-#              -brename:.zscal_,.zscal \
-#              -brename:.zswap_,.zswap \
-#              -brename:.ztrmm_,.ztrmm \
-#              -brename:.ztrmv_,.ztrmv \
-#              -brename:.ztrsm_,.ztrsm \
-#              -brename:.ztrsv_,.ztrsv 
-## times should no longer ever be needed
-##              -brename:.times_,.times
-#comment out from dtrmm_ inclusive
-ifdef USE_ESSL
-       CORE_LIBS += -lessl
-endif
+       CORE_LIBS = -lglobal -lchemio -lutil -llapack -lblas -lpfft -lpeigs\
+	      -brename:.daxpy_,.daxpy \
+	      -brename:.dcopy_,.dcopy \
+	      -brename:.ddot_,.ddot \
+	      -brename:.dgemm_,.dgemm \
+	      -brename:.dgemv_,.dgemv \
+	      -brename:.dgesv_,.dgesv \
+	      -brename:.dgetrf_,.dgetrf \
+	      -brename:.dgetrs_,.dgetrs \
+	      -brename:.dlaset_,.dlaset \
+	      -brename:.dpotrf_,.dpotrf \
+	      -brename:.dpotri_,.dpotri \
+	      -brename:.dscal_,.dscal \
+	      -brename:.dspsvx_,.dspsvx \
+	      -brename:.idamax_,.idamax \
+	      -brename:.dswap_,.dswap \
+	      -brename:.dger_,.dger \
+	      -brename:.dtrsm_,.dtrsm \
+              -brename:.dnrm2_,.dnrm2 \
+              -brename:.dtrmm_,.dtrmm \
+              -brename:.drot_,.drot \
+              -brename:.dasum_,.dasum \
+              -brename:.dtrmv_,.dtrmv \
+              -brename:.dspmv_,.dspmv \
+              -brename:.dspr_,.dspr \
+              -brename:.dsyrk_,.dsyrk \
+              -brename:.dsymm_,.dsymm \
+              -brename:.dsyr2k_,.dsyr2k \
+              -brename:.dsyr2_,.dsyr2 \
+              -brename:.dtrsv_,.dtrsv \
+              -brename:.dsymv_,.dsymv \
+              -brename:.dznrm2_,.dznrm2 \
+              -brename:.zaxpy_,.zaxpy \
+              -brename:.zcopy_,.zcopy \
+              -brename:.zdotc_,.zdotc \
+              -brename:.zdscal_,.zdscal \
+              -brename:.zgemm_,.zgemm \
+              -brename:.zgemv_,.zgemv \
+              -brename:.zgerc_,.zgerc \
+              -brename:.zhemm_,.zhemm \
+              -brename:.zhemv_,.zhemv \
+              -brename:.zher2_,.zher2 \
+              -brename:.zher2k_,.zher2k \
+              -brename:.zherk_,.zherk \
+              -brename:.zscal_,.zscal \
+              -brename:.zswap_,.zswap \
+              -brename:.ztrmm_,.ztrmm \
+              -brename:.ztrmv_,.ztrmv \
+              -brename:.ztrsm_,.ztrsm \
+              -brename:.xerbla_,.xerbla \
+              -brename:.ztrsv_,.ztrsv 
+##comment out from dtrmm_ inclusive
+#ifdef USE_ESSL
+#       CORE_LIBS += -lessl
+#endif
 
  EXPLICITF = TRUE
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
