@@ -2,7 +2,7 @@
      &                       Amat, Cmat, nq, ipol, Ec, qwght, 
      ,     ldew, ffunc)
 c
-c     $Id: xc_perdew91.F,v 1.24 1998-10-21 15:41:29 og845 Exp $
+c     $Id: xc_perdew91.F,v 1.25 1999-01-29 01:05:15 edo Exp $
 c
       Implicit none
 c
@@ -494,7 +494,8 @@ c
      &                     aden1*2.d0*t*dtdgamma*A1p2At2*
      &                     (ONE - alognd*A)
                gaa = 2.d0*(dH0dgamma + dH1dgamma)*rhoval*fac
-               gbb = gaa*fac
+               gbb = gaa
+c               gbb = gaa*fac
                Cmat(n,1,1) = Cmat(n,1,1) + gaa*(delrho(n,1,1) + 
      &                                          delrho(n,1,2))
                Cmat(n,2,1) = Cmat(n,2,1) + gaa*(delrho(n,2,1) + 
