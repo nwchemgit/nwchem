@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.8 2005-01-25 22:32:03 bylaska Exp $
+* $Id: band_structure.F,v 1.9 2005-02-01 02:50:06 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -510,7 +510,7 @@
 
 *     **** diagonalize hamiltonian and rotate psi ****
       call c_electron_set_vall(dcpl_mb(vall(1)))
-      call cpsi_KS_minimize(1,.false.,control_tole())
+      call cpsi_KS_minimize(1,.false.,control_tole(),control_tolc())
       call cpsi_check_indx(k)
 
 

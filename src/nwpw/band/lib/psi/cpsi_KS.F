@@ -1,7 +1,52 @@
-* $Id: cpsi_KS.F,v 1.3 2004-11-14 23:31:50 bylaska Exp $
+* $Id: cpsi_KS.F,v 1.4 2005-02-01 02:50:06 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.3  2004/11/14 23:31:50  bylaska
+* Band structure plotting code has been added to the BAND module.  The code the following task is used to run the code,
+*
+* task band structure
+*
+* The line traversed thru the Brillouin zone is defined by setting structure_zone_name to a previously
+* defined zone_name,i.e.
+*
+* nwpw
+*    ...
+*    #define path in Brillouin zone
+*    brillouin_zone
+*      zone_name path1
+*      kvector 0.00 0.00 0.0
+*      kvector 0.10 0.00 0.0
+*      kvector 0.20 0.00 0.0
+*      kvector 0.30 0.00 0.0
+*      kvector 0.40 0.00 0.0
+*      kvector 0.50 0.00 0.0
+*      kvector 0.40 0.00 0.0
+*      kvector 0.30 0.00 0.0
+*      kvector 0.20 0.00 0.0
+*      kvector 0.10 0.00 0.0
+*      kvector 0.00 0.00 0.0
+*      ...
+*    end
+*    ...
+*    structure_zone_name path1
+*    ...
+* end
+*
+*
+* This code uses results from a task band energy calculation, i.e. the following sequence needs to be run for a reasonable band structure plot to be generated.
+*
+*      task band energy
+*      task band structure
+*
+*
+*   - This code has not been fully tested, but for silicon-carbide.
+*   - The zone weights are ignored in a band structure plotting calculation
+*   - kp extensions not yet added.
+*   - automatic brillouin zone generation for band structure plotting  not yet added.
+*
+* ....EJB
+*
 * Revision 1.2  2004/11/13 02:22:05  bylaska
 * Band-by-band minimizer implemented into BAND.
 *   - works for Gamma point
@@ -100,11 +145,13 @@
 
 *    This routine (approximately) diagonalizes the KS matrix.
 *
-      subroutine cpsi_KS_minimize(psi_number,precondition,maxerror)
+      subroutine cpsi_KS_minimize(psi_number,precondition,
+     >                            maxerror,maxpsi_error)
       implicit none
       integer psi_number
       logical precondition
       real*8 maxerror
+      real*8 maxpsi_error
 
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
@@ -112,7 +159,7 @@
 *     **** local variables ****
       logical done
       integer nb,i,j,neall,maxit_orb,maxit_orbs,shiftb
-      real*8 error_out,e0,sum
+      real*8 error_out,psi_error_out,e0,sum
 
 *     **** external functions ****
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
@@ -148,10 +195,12 @@
             !**** minimize orbital ****
             j = 0
  2          call cpsi_KS_minimize_orb(psi_number,precondition,maxit_orb,
-     >                           maxerror,
-     >                           0.001d0,nb,i,error_out,e0)
+     >                       maxerror,maxpsi_error,0.001d0,
+     >                       nb,i,error_out,psi_error_out,e0)
             j = j+1
-            if ((error_out.gt.maxerror).and.(j.le.4)) go to 2
+            if (((error_out.gt.maxerror).or.
+     >           (psi_error_out.gt.maxpsi_error))
+     >          .and.(j.le.24)) go to 2
 
             dbl_mb(eig(1)+(i-1)+(nb-1)*(ne(1)+ne(2))) = e0
 
@@ -613,15 +662,15 @@ c     >           theta
 *
       subroutine cpsi_KS_minimize_orb(psi_number,
      >                             precondition,maxiteration,
-     >                             maxerror,perror,nb,i,
-     >                             error_out,e0)
+     >                             maxerror,maxpsi_error,perror,nb,i,
+     >                             error_out,psi_error,e0)
       implicit none
       integer psi_number
       logical precondition
       integer maxiteration
-      real*8  maxerror,perror
+      real*8  maxerror,maxpsi_error,perror
       integer nb,i
-      real*8 error_out
+      real*8 error_out,psi_error
       real*8 e0
 
 #include "mafdecls.fh"
@@ -662,6 +711,7 @@ c     >           theta
       e0 = 0.0d0
       theta = -3.14159d0/600.0d0
       it = 0
+      psi_error = 10.0d0
  2    continue
 
          it = it + 1
@@ -676,7 +726,8 @@ c     >           theta
 
          done = ((it.gt.maxiteration)
      >           .or.
-     >           (dabs(e0-eold).lt.maxerror))
+     >           ((dabs(e0-eold).lt.maxerror).and.
+     >           (psi_error.lt.maxpsi_error)))
 
          if (done) go to 4
 
@@ -737,7 +788,7 @@ c         end if
          de0 = -2.0d0*de0
          call cpsi_linesearch_minimize(psi_number,nb,i,
      >                              theta,e0,de0,
-     >                              dcpl_mb(t(1)))
+     >                              dcpl_mb(t(1)),psi_error)
 
       go to 2
 
@@ -771,13 +822,14 @@ c     >           theta
 *  de0 = 2*<t|g>
 *
       subroutine cpsi_linesearch_minimize(psi_number,nb,i,theta,e0,de0,
-     >                                    t)
+     >                                    t,psi_error)
       implicit none
       integer psi_number
       integer nb,i
       real*8  theta
       real*8  e0,de0
       complex*16 t(*)     !search direction
+      real*8     psi_error
 
 
 #include "mafdecls.fh"
@@ -844,6 +896,10 @@ c     >           theta
       call Cram_cc_daxpy(nb,y,
      >                   t,
      >                   dcpl_mb(psi_ptr))
+
+*     **** calculated psi_error = <(orb-psi)|(orb-psi)>  ****
+      call Cram_cc_daxpy(nb,(-1.0d0),dcpl_mb(psi_ptr),dcpl_mb(orb(1)))
+      call Cram_cc_dot(nb,dcpl_mb(orb(1)),dcpl_mb(orb(1)),psi_error)
 
 
 *     **** release stack memory ****

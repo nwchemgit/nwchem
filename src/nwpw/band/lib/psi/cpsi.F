@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.18 2004-11-29 16:05:17 bylaska Exp $
+* $Id: cpsi.F,v 1.19 2005-02-01 02:50:06 bylaska Exp $
 *
 
 
@@ -1084,7 +1084,7 @@ c      end
       logical value,psi_nogrid
       integer neall,n,vers
       integer hversion,hnfft(3),hispin,hne(2)
-      real*8 hunita(3,3)
+      real*8 hunita(3,3),p
       integer rtdb,ind
       integer  control_rtdb,control_ngrid
       external control_rtdb,control_ngrid
@@ -1097,8 +1097,10 @@ c      end
 *     **** external functions ****
       logical  pspw_reformat_c_wvfnc
       integer  brillioun_nbrillioun,psi_get_version
+      double precision util_random
       external pspw_reformat_c_wvfnc
       external brillioun_nbrillioun,psi_get_version
+      external         util_random
 
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne(ispin,ne)
@@ -1210,6 +1212,16 @@ c      end
 
 *     *****  read initial wavefunctions into psi1  ****
       call cpsi_read(ispin,ne,nbrillioun,dcpl_mb(psi1(1)))
+
+c*    ***??? ***
+c      p = util_random(88291999)
+c      do n =1,((ne(1)+ne(2))*nbrillioun*npack1)
+c        dcpl_mb(psi1(1)+n-1) = dcpl_mb(psi1(1)+n-1) 
+c     >           + dcmplx((0.5d0-util_random(0)),
+c     >                    (0.5d0-util_random(0)))
+c     >              /(dble(npack1))
+c        
+c      end do
 
 
 *     **** Ortho Check ****
