@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.64 1997-03-25 17:10:17 d3e129 Exp $
+c $Id: raktest.F,v 1.65 1997-03-25 20:13:08 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -1868,8 +1868,8 @@ c******************************************************************************
 *        call hf_print('hf1: b shell',bxyz,bprims,bcoefs,npb,ncb,lb)
 *      endif
       MXD = 0
-      if (KEI) KEI = .false.
-      if (O2I) O2I = .false.
+      if (KEI) call errquit('hf1tmp: only for pot ints',911)
+      if (O2I) call errquit('hf1tmp: only for pot ints',911)
 
 c Determine whether general or segmented contraction is used.
 

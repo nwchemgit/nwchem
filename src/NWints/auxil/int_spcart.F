@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.14 1996-09-24 21:37:58 d3e129 Exp $
+c $Id: int_spcart.F,v 1.15 1997-03-25 20:13:03 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, *
@@ -206,34 +206,34 @@ c
 *      call spcart_print_both(D,ld)
       end
 *.......................................................................
-      subroutine xlm_ptrs_phase(Dp,l2p,lp)
-      implicit none
-      integer l2p, lp
-      double precision Dp(l2p,-lp:lp)
-      integer lc, ls
-      logical scale_it
-      double precision dmaxval
-      integer dmaxindx
-c
-      do ls = -lp,lp
-        scale_it = .false.
-        dmaxval  = abs(Dp(1,ls))
-        dmaxindx = 1
-        do lc = 2,l2p
-          if (dmaxval.lt.abs(Dp(lc,ls))) then
-            dmaxval = abs(Dp(lc,ls))
-            dmaxindx = lc
-          endif
-        enddo
-        if (Dp(dmaxindx,ls).lt.0.0d00) scale_it = .true.
-c
-        if (scale_it) then
-          do lc = 1,l2p
-            Dp(lc,ls) = -1.0d00*Dp(lc,ls)
-          enddo
-        endif
-      enddo
-      end
+*rak:      subroutine xlm_ptrs_phase(Dp,l2p,lp)
+*rak:      implicit none
+*rak:      integer l2p, lp
+*rak:      double precision Dp(l2p,-lp:lp)
+*rak:      integer lc, ls
+*rak:      logical scale_it
+*rak:      double precision dmaxval
+*rak:      integer dmaxindx
+*rak:c
+*rak:      do ls = -lp,lp
+*rak:        scale_it = .false.
+*rak:        dmaxval  = abs(Dp(1,ls))
+*rak:        dmaxindx = 1
+*rak:        do lc = 2,l2p
+*rak:          if (dmaxval.lt.abs(Dp(lc,ls))) then
+*rak:            dmaxval = abs(Dp(lc,ls))
+*rak:            dmaxindx = lc
+*rak:          endif
+*rak:        enddo
+*rak:        if (Dp(dmaxindx,ls).lt.0.0d00) scale_it = .true.
+*rak:c
+*rak:        if (scale_it) then
+*rak:          do lc = 1,l2p
+*rak:            Dp(lc,ls) = -1.0d00*Dp(lc,ls)
+*rak:          enddo
+*rak:        endif
+*rak:      enddo
+*rak:      end
 *.......................................................................
       subroutine xlm_ptrs_fix_p(Dp,l2p,lp)
       implicit none
@@ -264,35 +264,35 @@ c
 c
       end
 *.......................................................................
-      subroutine spcart_print_both(D,ld)
-      implicit none
-#include "mafdecls.fh"
-#include "spcartP.fh"
-      integer ld
-      double precision D((((Ld+1)*(Ld+2))/2),-Ld:Ld,0:Ld) ! [input] transformation matrix
-c
-      integer lval,l2s, ic, is
-      double precision diff
-c::statement function ----- start
-      integer iic,iis,iil
-      double precision Dtrans
-      Dtrans(iic,iis,iil) =
-     &    dbl_mb((int_mb(k_sp2c_lindx+iil))+
-     &           ((iis+iil)*(iil+1)*(iil+2)/2)
-     &           + iic - 1)
-c::statement function ----- end
-c
-      do lval = 0,ld
-        write(6,*)' d matrix '
-        l2s = (lval+1)*(lval+2)/2
-        do is = -lval,lval
-          do ic = 1,l2s
-            diff = D(ic,is,lval)-Dtrans(ic,is,lval)
-            write(6,*) lval,is,ic,D(ic,is,lval),Dtrans(ic,is,lval),diff
-          enddo
-        enddo
-      enddo
-      end
+*rak:      subroutine spcart_print_both(D,ld)
+*rak:      implicit none
+*rak:#include "mafdecls.fh"
+*rak:#include "spcartP.fh"
+*rak:      integer ld
+*rak:      double precision D((((Ld+1)*(Ld+2))/2),-Ld:Ld,0:Ld) ! [input] transformation matrix
+*rak:c
+*rak:      integer lval,l2s, ic, is
+*rak:      double precision diff
+*rak:c::statement function ----- start
+*rak:      integer iic,iis,iil
+*rak:      double precision Dtrans
+*rak:      Dtrans(iic,iis,iil) =
+*rak:     &    dbl_mb((int_mb(k_sp2c_lindx+iil))+
+*rak:     &           ((iis+iil)*(iil+1)*(iil+2)/2)
+*rak:     &           + iic - 1)
+*rak:c::statement function ----- end
+*rak:c
+*rak:      do lval = 0,ld
+*rak:        write(6,*)' d matrix '
+*rak:        l2s = (lval+1)*(lval+2)/2
+*rak:        do is = -lval,lval
+*rak:          do ic = 1,l2s
+*rak:            diff = D(ic,is,lval)-Dtrans(ic,is,lval)
+*rak:            write(6,*) lval,is,ic,D(ic,is,lval),Dtrans(ic,is,lval),diff
+*rak:          enddo
+*rak:        enddo
+*rak:      enddo
+*rak:      end
 *.......................................................................
       subroutine spcart_print_dtrans(ld)
       implicit none
@@ -2196,129 +2196,129 @@ c
 c
       end
 *.......................................................................
-      subroutine spcart_all(blockin, blockout,li,lj,lk,ll,ni,nj,nk,nl)
-      implicit none
-c
-c  transforms a block of integrals with loop level crap 
-c
-#include "mafdecls.fh"
-#include "spcartP.fh"
-c: functions
-c: passed
-      integer li, lj, lk, ll
-      integer di, dj, dk, dl
-      integer L2i, L2j, L2k, L2l
-      integer ni, nj, nk, nl
-      double precision blockin(
-     &    ((ll+1)*(ll+2)/2)*nl,
-     &    ((lk+1)*(lk+2)/2)*nk,
-     &    ((lj+1)*(lj+2)/2)*nj,
-     &    ((li+1)*(li+2)/2)*ni)
-      double precision blockout(
-     &    (2*ll+1)*nl,
-     &    (2*lk+1)*nk,
-     &    (2*lj+1)*nj,
-     &    (2*li+1)*ni)
+*rak:      subroutine spcart_all(blockin, blockout,li,lj,lk,ll,ni,nj,nk,nl)
+*rak:      implicit none
+*rak:c
+*rak:c  transforms a block of integrals with loop level crap 
+*rak:c
+*rak:#include "mafdecls.fh"
+*rak:#include "spcartP.fh"
+*rak:c: functions
+*rak:c: passed
+*rak:      integer li, lj, lk, ll
+*rak:      integer di, dj, dk, dl
+*rak:      integer L2i, L2j, L2k, L2l
+*rak:      integer ni, nj, nk, nl
 *rak:      double precision blockin(
-*rak:     &    ((ll+1)*(ll+2)/2),nl,
-*rak:     &    ((lk+1)*(lk+2)/2),nk,
-*rak:     &    ((lj+1)*(lj+2)/2),nj,
-*rak:     &    ((li+1)*(li+2)/2),ni)
+*rak:     &    ((ll+1)*(ll+2)/2)*nl,
+*rak:     &    ((lk+1)*(lk+2)/2)*nk,
+*rak:     &    ((lj+1)*(lj+2)/2)*nj,
+*rak:     &    ((li+1)*(li+2)/2)*ni)
 *rak:      double precision blockout(
-*rak:     &    -ll:ll,nl,
-*rak:     &    -lk:lk,nk,
-*rak:     &    -lj:lj,nj,
-*rak:     &    -li:li,ni)
-      integer i,j,k,l,ig,jg,kg,lg,is,js,ks,ls
-      integer in_x_i,in_x_j,in_x_k,in_x_l
-      integer in_s_i,in_s_j,in_s_k,in_s_l
-      integer sizeblocks
-c
-      double precision sum, sumadd
-c
-c::statement function ----- start
-      integer iic,iis,iil
-      integer sfi,sfj,sfll
-      integer sf_indx, sf_inds
-      double precision Dtrans
-      Dtrans(iic,iis,iil) =
-     &    dbl_mb((int_mb(k_sp2c_lindx+iil))+
-     &           ((iis+iil)*(iil+1)*(iil+2)/2)
-     &           + iic - 1)
-      sf_indx(sfi,sfj,sfll) = (sfj-1)*(sfll+1)*(sfll+2)/2 + sfi
-      sf_inds(sfi,sfj,sfll) = (sfj-1)*(2*sfll+1) + sfi + sfll + 1
-c::statement function ----- end
-*rak:      ls=4
-*rak:      write(6,*)'a_s,(ndima,l2s) ndima = ',ndima,'   ls = ',ls
-*rak:      write(6,*)' trans matrix used '
-*rak:      call output(dbl_mb((int_mb(k_sp2c_lindx+ls))),1,
-*rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
-*rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
-c
-      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
-     &    ('spcart_a_sg_b: spcart not initialized properly',
-     &    sph_cart_init)
-c
-c
-      write(6,*)' *** Li *** ',Li
-      call spcart_print_dtrans(Li)
-      write(6,*)' *** Lj *** ',Lj
-      call spcart_print_dtrans(Lj)
-      write(6,*)' *** Lk *** ',Lk
-      call spcart_print_dtrans(Lk)
-      write(6,*)' *** Ll *** ',Ll
-      call spcart_print_dtrans(Ll)
-      sizeblocks = ni*(2*li+1)
-      sizeblocks = sizeblocks*nj*(2*lj+1)
-      sizeblocks = sizeblocks*nk*(2*lk+1)
-      sizeblocks = sizeblocks*nl*(2*ll+1)
-      call dfill(sizeblocks,0.0d00,blockout,1)
-      l2i = (li+1)*(li+2)/2
-      l2j = (lj+1)*(lj+2)/2
-      l2k = (lk+1)*(lk+2)/2
-      l2l = (lj+1)*(lj+2)/2
-      do ig = 1,ni
-        do jg = 1,nj
-          do kg = 1,nk
-            do lg = 1,nk
-              do is = -li,li
-                do js = -lj,lj
-                  do ks = -lk,lk
-                    do ls = -ll,ll
-                      sum = 0.0d00
-                      do i = 1,l2i
-                        di = Dtrans(i,is,Li)
-                        do j = 1,l2j
-                          dj = Dtrans(j,js,Lj)
-                          do k = 1,l2k
-                            dk = Dtrans(k,ks,Lk)
-                            do l = 1,l2l
-                              dl = Dtrans(l,ls,Ll)
-*                              sumadd = di*dj*dk*dl*
-*     &                            blockin(l,lg,k,kg,j,jg,i,ig)
-                              in_x_l = sf_indx(l,lg,Ll)
-                              in_x_k = sf_indx(k,kg,Lk)
-                              in_x_j = sf_indx(j,jg,Lj)
-                              in_x_i = sf_indx(i,ig,Li)
-                              sumadd = di*dj*dk*dl*
-     &                            blockin(in_x_l,in_x_k,in_x_j,in_x_i)
-                              sum = sum + sumadd
-                            enddo
-                          enddo
-                        enddo
-                      enddo
-*                      blockout(ls,lg,ks,kg,js,jg,is,ig) = sum
-                      in_s_l = sf_inds(ls,lg,Ll)
-                      in_s_k = sf_inds(ks,kg,Lk)
-                      in_s_j = sf_inds(js,jg,Lj)
-                      in_s_i = sf_inds(is,ig,Li)
-                      blockout(in_s_l,in_s_k,in_s_j,in_s_i) = sum
-                    enddo
-                  enddo
-                enddo
-              enddo
-            enddo
-          enddo
-        enddo
-      enddo
-      end
+*rak:     &    (2*ll+1)*nl,
+*rak:     &    (2*lk+1)*nk,
+*rak:     &    (2*lj+1)*nj,
+*rak:     &    (2*li+1)*ni)
+*rak:*rak:      double precision blockin(
+*rak:*rak:     &    ((ll+1)*(ll+2)/2),nl,
+*rak:*rak:     &    ((lk+1)*(lk+2)/2),nk,
+*rak:*rak:     &    ((lj+1)*(lj+2)/2),nj,
+*rak:*rak:     &    ((li+1)*(li+2)/2),ni)
+*rak:*rak:      double precision blockout(
+*rak:*rak:     &    -ll:ll,nl,
+*rak:*rak:     &    -lk:lk,nk,
+*rak:*rak:     &    -lj:lj,nj,
+*rak:*rak:     &    -li:li,ni)
+*rak:      integer i,j,k,l,ig,jg,kg,lg,is,js,ks,ls
+*rak:      integer in_x_i,in_x_j,in_x_k,in_x_l
+*rak:      integer in_s_i,in_s_j,in_s_k,in_s_l
+*rak:      integer sizeblocks
+*rak:c
+*rak:      double precision sum, sumadd
+*rak:c
+*rak:c::statement function ----- start
+*rak:      integer iic,iis,iil
+*rak:      integer sfi,sfj,sfll
+*rak:      integer sf_indx, sf_inds
+*rak:      double precision Dtrans
+*rak:      Dtrans(iic,iis,iil) =
+*rak:     &    dbl_mb((int_mb(k_sp2c_lindx+iil))+
+*rak:     &           ((iis+iil)*(iil+1)*(iil+2)/2)
+*rak:     &           + iic - 1)
+*rak:      sf_indx(sfi,sfj,sfll) = (sfj-1)*(sfll+1)*(sfll+2)/2 + sfi
+*rak:      sf_inds(sfi,sfj,sfll) = (sfj-1)*(2*sfll+1) + sfi + sfll + 1
+*rak:c::statement function ----- end
+*rak:*rak:      ls=4
+*rak:*rak:      write(6,*)'a_s,(ndima,l2s) ndima = ',ndima,'   ls = ',ls
+*rak:*rak:      write(6,*)' trans matrix used '
+*rak:*rak:      call output(dbl_mb((int_mb(k_sp2c_lindx+ls))),1,
+*rak:*rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
+*rak:*rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
+*rak:c
+*rak:      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+*rak:     &    ('spcart_a_sg_b: spcart not initialized properly',
+*rak:     &    sph_cart_init)
+*rak:c
+*rak:c
+*rak:      write(6,*)' *** Li *** ',Li
+*rak:      call spcart_print_dtrans(Li)
+*rak:      write(6,*)' *** Lj *** ',Lj
+*rak:      call spcart_print_dtrans(Lj)
+*rak:      write(6,*)' *** Lk *** ',Lk
+*rak:      call spcart_print_dtrans(Lk)
+*rak:      write(6,*)' *** Ll *** ',Ll
+*rak:      call spcart_print_dtrans(Ll)
+*rak:      sizeblocks = ni*(2*li+1)
+*rak:      sizeblocks = sizeblocks*nj*(2*lj+1)
+*rak:      sizeblocks = sizeblocks*nk*(2*lk+1)
+*rak:      sizeblocks = sizeblocks*nl*(2*ll+1)
+*rak:      call dfill(sizeblocks,0.0d00,blockout,1)
+*rak:      l2i = (li+1)*(li+2)/2
+*rak:      l2j = (lj+1)*(lj+2)/2
+*rak:      l2k = (lk+1)*(lk+2)/2
+*rak:      l2l = (lj+1)*(lj+2)/2
+*rak:      do ig = 1,ni
+*rak:        do jg = 1,nj
+*rak:          do kg = 1,nk
+*rak:            do lg = 1,nk
+*rak:              do is = -li,li
+*rak:                do js = -lj,lj
+*rak:                  do ks = -lk,lk
+*rak:                    do ls = -ll,ll
+*rak:                      sum = 0.0d00
+*rak:                      do i = 1,l2i
+*rak:                        di = Dtrans(i,is,Li)
+*rak:                        do j = 1,l2j
+*rak:                          dj = Dtrans(j,js,Lj)
+*rak:                          do k = 1,l2k
+*rak:                            dk = Dtrans(k,ks,Lk)
+*rak:                            do l = 1,l2l
+*rak:                              dl = Dtrans(l,ls,Ll)
+*rak:*                              sumadd = di*dj*dk*dl*
+*rak:*     &                            blockin(l,lg,k,kg,j,jg,i,ig)
+*rak:                              in_x_l = sf_indx(l,lg,Ll)
+*rak:                              in_x_k = sf_indx(k,kg,Lk)
+*rak:                              in_x_j = sf_indx(j,jg,Lj)
+*rak:                              in_x_i = sf_indx(i,ig,Li)
+*rak:                              sumadd = di*dj*dk*dl*
+*rak:     &                            blockin(in_x_l,in_x_k,in_x_j,in_x_i)
+*rak:                              sum = sum + sumadd
+*rak:                            enddo
+*rak:                          enddo
+*rak:                        enddo
+*rak:                      enddo
+*rak:*                      blockout(ls,lg,ks,kg,js,jg,is,ig) = sum
+*rak:                      in_s_l = sf_inds(ls,lg,Ll)
+*rak:                      in_s_k = sf_inds(ks,kg,Lk)
+*rak:                      in_s_j = sf_inds(js,jg,Lj)
+*rak:                      in_s_i = sf_inds(is,ig,Li)
+*rak:                      blockout(in_s_l,in_s_k,in_s_j,in_s_i) = sum
+*rak:                    enddo
+*rak:                  enddo
+*rak:                enddo
+*rak:              enddo
+*rak:            enddo
+*rak:          enddo
+*rak:        enddo
+*rak:      enddo
+*rak:      end
