@@ -1082,6 +1082,15 @@ small.
 
 \item
 \begin{verbatim}
+mbb <integer mbbreq>
+\end{verbatim}
+sets the maximum number of sub-box pairs \verb+<mbbreq>+ per node,
+allowing increased memory to be allocated for the sub-box pair lists. 
+This option can be used if execution aborted because \verb+mbbl+ was too
+small.
+
+\item
+\begin{verbatim}
 memory <integer memlim>
 \end{verbatim}
 sets a limit \verb+<memlim>+ in kB on the allocated amount of memory used by 
