@@ -149,10 +149,10 @@ c
       logical status 
       logical scf
       external scf
-      parameter (ntasks = 8)
+      parameter (ntasks = 9)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf',
-     $   'debtest', 'gradients', 'optscf','atwtest'/
+     $   'debtest', 'gradients', 'optscf','atwtest', 'rimp2'/
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
 c
@@ -162,7 +162,7 @@ c
       endif
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
-         goto (10, 20, 30, 40, 50, 60, 70, 80) ind
+         goto (10, 20, 30, 40, 50, 60, 70, 80, 90) ind
 c
          write(6,*) ' Unimplemented task ', 
      $        task_name(1:inp_strlen(task_name))
@@ -189,7 +189,7 @@ c
  40      status = scf(rtdb)
          goto 1000
 C
-C     debtest ... I want my own task!
+C     debtest ... I want my own task! (SCF + RI-MP2 at the moment)
 C
  50      call debtest(rtdb)
          goto 1000
@@ -207,6 +207,11 @@ c
 c     atwtest (4-index)
 c
  80      call atwtest(rtdb)
+         goto 1000
+c
+C        RI-MP2 energy (SCF must be done separately first)
+c
+ 90      call rimp2(rtdb)
          goto 1000
       else
 c
