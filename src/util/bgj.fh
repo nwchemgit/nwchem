@@ -1,5 +1,5 @@
 c
-c     $Id: bgj.fh,v 1.3 1999-05-08 13:00:40 bjohnson Exp $
+c     $Id: bgj.fh,v 1.4 2000-05-25 17:20:19 bjohnson Exp $
 c
 c     Information-hiding routines used by BGJ
 c
@@ -14,6 +14,9 @@ c
 c
       external bgj_have_xc
       logical bgj_have_xc
+c
+      external bgj_kfac
+      double precision bgj_kfac
 c
       external bgj_have_j_fit
       logical bgj_have_j_fit

@@ -4,7 +4,7 @@ c     Some will evolve into generally useful routines
 c
 c     BGJ - 8/98
 c
-c     $Id: bgj.F,v 1.3 1999-05-08 13:00:40 bjohnson Exp $
+c     $Id: bgj.F,v 1.4 2000-05-25 17:20:19 bjohnson Exp $
 c
 
 c
@@ -84,7 +84,7 @@ c
       end
 
 c
-c     Returns whether there is an XC contribution is this calculation
+c     Returns whether there is an XC contribution in this calculation
 c
       function bgj_have_xc()
 c
@@ -106,6 +106,28 @@ c
       end
 
 c
+c     Returns coefficient of HF exchange for the current job
+c
+      function bgj_kfac()
+c
+      implicit none
+      double precision bgj_kfac
+c
+#include "../nwdft/include/cdft.fh"
+c
+      external bgj_have_xc
+      logical bgj_have_xc
+c
+      if (bgj_have_xc()) then
+         bgj_kfac = xfac(1)
+      else
+         bgj_kfac = 1.d0
+      endif
+c
+      return
+      end
+
+c
 c     Returns whether J fitting is involved is this calculation
 c
       function bgj_have_j_fit()
@@ -122,7 +144,6 @@ c
       if (bgj_have_j_fit) then
          bgj_have_j_fit = CDFIT
       endif
-c      write(*,*)'*** bgj_have_j_fit called: ',name,' ',bgj_have_j_fit
 c
       return
       end
