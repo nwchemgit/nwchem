@@ -1,3 +1,4 @@
+c $Id: hnd_set_acc.F,v 1.2 1999-01-22 19:01:17 windus Exp $
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : Set HONDO integral tolerance based on that of NWChem

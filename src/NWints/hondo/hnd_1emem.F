@@ -1,3 +1,4 @@
+c $Id: hnd_1emem.F,v 1.3 1999-01-22 19:01:16 windus Exp $
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : 1e- memory routine
