@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.35 1998-08-18 00:37:14 d3h449 Exp $
+C$Id: nwdft.F,v 1.36 1998-08-19 17:26:46 d3h449 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -119,10 +119,18 @@ c
 c     Check if any spherical basis has been requested ... if so, abort in
 c     a friendly fashion
 c    
-      if (bas_is_spherical(AO_bas_han).or.
-     &    bas_is_spherical(CD_bas_han).or.
-     &    bas_is_spherical(XC_bas_han))
+      if (bas_is_spherical(AO_bas_han))
      &   call errquit('nwdft: No current support for spherical bases',0)
+      if (CDFIT)then
+         if (bas_is_spherical(CD_bas_han))
+     &      call errquit
+     &      ('nwdft: No current support for spherical bases',0)
+      endif
+      if (XCFIT)then
+         if (bas_is_spherical(XC_bas_han))
+     &      call errquit
+     &      ('nwdft: No current support for spherical bases',0)
+      endif
 c
       call int_app_set_no_texas(rtdb)
       call int_init(rtdb, i3, bases)
