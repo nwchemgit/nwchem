@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.10 1996-01-26 23:57:24 rg240 Exp $
+c  $Id: moints_6x.F,v 1.11 1996-02-02 01:59:50 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -114,7 +114,6 @@ c     Symmetry adapt the MOs and renumber irreps to start at zero
 c     
        osym = (ousesym.and.(sym_number_ops(geom).gt.0))
        if (osym) then
-          PRINT*,' SYMMETRY USED'
           if (.not. ma_push_get(MT_INT, nbf, 'movec syms',l_sym, k_sym))
      $         call errquit('moints_6x: no memory for syms?',0)
           call sym_movecs_adapt(basis, 1d-8, g_movecs, int_mb(k_sym),

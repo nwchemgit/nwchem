@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.41 1996-01-26 23:57:54 rg240 Exp $
+C$Id: mointdriver.F,v 1.42 1996-02-02 01:59:48 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -25,10 +25,11 @@ c
        integer nbf_vecs, nsets
        integer k_occ, l_occ, k_evals, l_evals, g_vecs
        integer k_epair, l_epair
+       integer g_k2
        integer k_x, l_x
        integer npairs
        integer nbf, nsh, maxbfsh, nelec
-       integer nact, nocc, nopen, nvir, nocc_correl
+       integer nact, nocc, nopen, nocc_correl
        integer occ_frozen, occ_lo, occ_hi
        integer vir_frozen, vir_lo, vir_hi, nmo, nmo2
        integer noper, oseg_lo, oseg_hi, npass, blen, max_noper, nocct
@@ -145,14 +146,12 @@ c Set index ranges
 c
        occ_lo = occ_frozen + 1
        occ_hi = nocc
-       nocc_correl = occ_hi - occ_lo + 1
        vir_lo = nocc + 1
        vir_hi = nbf - vir_frozen 
 c$$$       vir_lo = 1
 c$$$       vir_hi = nbf
-       nvir = nbf - nocc
        nmo2 = vir_hi - vir_lo + 1
-       noper = occ_hi - occ_lo + 1
+       nocc_correl = occ_hi - occ_lo + 1
 c
 c Get Block-length
 c
@@ -275,7 +274,7 @@ c
 c
 c Evaluate and store pair energies
 c
-       call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nvir,
+       call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nmo2,
      $                     nmo2, nbf, g_exch, dbl_mb(k_evals),
      $                     g_epair )
 c
@@ -333,7 +332,6 @@ c
        call ga_sync()
 c
 c
-c
        if (ocoul) status = ga_destroy(g_coul)
        if (oexch) status = ga_destroy(g_exch)
 c
@@ -347,6 +345,10 @@ c
        oexch = .true.
        oseg_hi = occ_lo - 1
        ipass = 0
+       if (ga_nodeid().eq.0) write(6,978) 
+ 978   format(//,10x,25('='),
+     $         /,10x,'Test semi-direct MP2 code'
+     $         /,10x,25('='))
 c
  222   continue
        tpass = tcgtime()

@@ -93,7 +93,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.14 1996-02-01 00:54:57 rg240 Exp $
+c  $Id: moints_semi.F,v 1.15 1996-02-02 01:59:55 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -434,8 +434,8 @@ c
        nmo1 = oseghi - oseglo + 1
        nmo2 = vhi - vlo + 1
 c
-       WRITE(6,221) GA_NODEID(),PVLO,PVHI,POLO,POHI
- 221   FORMAT('ME:',I5,5X,' V RANGE:',2I5,5X,' O RANGE:',2I5)
+c$$$       WRITE(6,221) GA_NODEID(),PVLO,PVHI,POLO,POHI
+c$$$ 221   FORMAT('ME:',I5,5X,' V-RANGE:',2I3,5X,' O-RANGE:',2I3)
 c
 c  Local MO coefficients
 c
@@ -937,10 +937,9 @@ c
           call scatter( nnbf, dbl_mb(k_x), int_mb(k_v), dbl_mb(k_t) )
           call upper2square( nbf, dbl_mb(k_x), dbl_mb(k_x) )
 
-c$$$            WRITE(6,900) O,V,PVLO,PVHI
-c$$$ 900        FORMAT(5X,' READ [O,V]:',2I5,5X,'VRANGE:',2I5)
-c$$$            CALL MOINTS_MATPRINT(NBF,NBF,DBL_MB(K_X))
-c$$$            CALL UTIL_FLUSH(6)
+c$$$          WRITE(6,900) O,V,PVLO,PVHI
+c$$$ 900      FORMAT(5X,' READ [O,V]:',2I5,5X,'VRANGE:',2I5)
+c$$$          CALL MOINTS_MATPRINT(NBF,NBF,DBL_MB(K_X))
 
           call dgemm( 'n', 'n', nbf, nocc, nbf, 1.d0, dbl_mb(k_x),
      $               nbf, c(1,olo), nbf, 0.d0, dbl_mb(k_t), nbf )
@@ -978,7 +977,7 @@ c$$$
 	    
 c$$$            WRITE(6,922) GA_NODEID(),O,J,XX
 c$$$ 922        FORMAT(I3,' %%%%%% ',2I5,5X,F16.10)
-c$$$	    CALL UTIL_FLUSH(6)
+c$$$	        CALL UTIL_FLUSH(6)
 
           endif
 c$$$          CALL GA_SYNC()
