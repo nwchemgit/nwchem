@@ -1,6 +1,6 @@
       subroutine int_2e3c(brain, ish, ketin, jsh, ksh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e3c.F,v 1.9 1996-09-03 06:02:46 d3e129 Exp $
+c $Id: int_2e3c.F,v 1.10 1996-09-19 01:03:49 d3g681 Exp $
       implicit none
 c
 c basic api routine to generate a block of 3 center two electron integrals
@@ -152,7 +152,7 @@ c
      &        ketin,txs_j,txs_k,num_quart,
      &        q4,.false.,roff,roff,roff,roff,.false.,
      &        eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
-     &        nint, .false., dum_log, scr, lscr)
+     &        nint, .false., dum_log, scr, lscr, 0.0d0)
 
 #endif
       else if(status_nw) then

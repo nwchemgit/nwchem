@@ -1,6 +1,6 @@
       subroutine int_2e2c(brain, ish, ketin, jsh, 
      &       lscr, scr, leri, eri)
-c $Id: int_2e2c.F,v 1.9 1996-09-03 06:02:43 d3e129 Exp $
+c $Id: int_2e2c.F,v 1.10 1996-09-19 01:03:46 d3g681 Exp $
       implicit none
 c
 c basic api routine to generate a block of 2 center two electron integrals
@@ -143,7 +143,7 @@ c
      &      ketin,txs_j,txs_d2,num_quart,
      &      q4,.false.,roff,roff,roff,roff,.false.,
      &      eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
-     &      nint, .false., dum_log, scr, lscr)
+     &      nint, .false., dum_log, scr, lscr, 0.0d0)
 
 #endif
 c

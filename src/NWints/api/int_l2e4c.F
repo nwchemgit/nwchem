@@ -1,7 +1,7 @@
       subroutine int_l2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       zerotol, canonicalize, leri, eri, nint, ilab, jlab, klab,
      &       llab, lscr, scr)
-c $Id: int_l2e4c.F,v 1.15 1996-07-18 23:58:18 d3e129 Exp $
+c $Id: int_l2e4c.F,v 1.16 1996-09-19 01:03:51 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -80,7 +80,7 @@ c
      &      roff, roff, roff, roff, dum_log_f,
      &      eri, leri,
      &      ilab, jlab, klab, llab, nint, dum_log_t,
-     &      dum_log_f, scr, lscr)
+     &      dum_log_f, scr, lscr, 0.0d0)
 #if defined(INT_LIMIT_CHECK)
         braket = brain.eq.ketin
         allshl = isym2(ish,jsh) .eq. isym2(ksh,lsh)

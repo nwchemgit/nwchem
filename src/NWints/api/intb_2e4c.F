@@ -2,7 +2,7 @@
      &    num_q, q4, use_q4, zerotol, canonicalize,
      &    ilab, jlab, klab, llab, eri,
      &    l_erilab, nint, lscr, scr)
-* $Id: intb_2e4c.F,v 1.11 1996-09-03 06:02:49 d3e129 Exp $
+* $Id: intb_2e4c.F,v 1.12 1996-09-19 01:03:52 d3g681 Exp $
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
@@ -57,7 +57,7 @@ c
      &    q4,use_q4,
      &    roff,roff,roff,roff,.false.,
      &    eri,l_erilab, ilab, jlab, klab, llab, nint, .true.,
-     &    more_ints_txs, scr, lscr)
+     &    more_ints_txs, scr, lscr, zerotol)
       if (nint.gt.l_erilab) then
         write(luout,*)' memory trashed.'
         write(luout,*)' number of integrals from texas   :',nint
@@ -102,7 +102,8 @@ c
      &        nint_for_q,
      &        ilab(ip_int), jlab(ip_int), klab(ip_int), llab(ip_int),
      &        lscr, scr)
-          if (use_q4) call dscal(nint_for_q,q4(i_q),eri(ip_int),1)
+          if (use_q4 .and. nint_for_q.gt.0)
+     $          call dscal(nint_for_q,q4(i_q),eri(ip_int),1)
           i_q_done = i_q_done + 1
           ip_int = ip_int + nint_for_q
           leri_left = leri_left - nint_for_q

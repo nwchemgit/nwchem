@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.23 1996-09-03 06:02:48 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.24 1996-09-19 01:03:50 d3g681 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -178,7 +178,7 @@ c............................... use roff set false
      &        roff,roff,roff,roff,.false.,
      &        eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
 c............... gen labs .. more_integrals
-     &        nint, .false., dum_log, scr, lscr)
+     &        nint, .false., dum_log, scr, lscr, 0.0d0)
 
       elseif(status_nw) then
 c
