@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.127 2001-04-13 22:25:21 edo Exp $
+# $Id: GNUmakefile,v 1.128 2001-04-24 01:26:34 edo Exp $
 
 include ../config/makefile.h
 
@@ -92,6 +92,10 @@ ifeq ($(TARGET),KSR)
   EXTRA_OBJ = ksr_cputime.o
 endif
 
+ifeq ($(TARGET),DECOSF32)
+  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
+  EXTRA_OBJ = dec_fpe.o
+endif
 ifeq ($(TARGET),DECOSF)
   LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
   EXTRA_OBJ = dec_fpe.o
