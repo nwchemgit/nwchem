@@ -288,3 +288,53 @@ c
 c
       return
       end
+      logical function prp_mcti(ida)
+c
+      implicit none
+c
+#include "prp_common.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "global.fh"
+c
+      integer ida
+c
+      real*8 fdata(26)
+      real*8 aver,drift,stderr,corerr,ratio
+c
+      call cf_mcti(fdata)
+c
+      call ga_dgop(mrg_d44,fdata,26,'+')
+c
+      if(me.eq.0) call prp_mcti_acc(ida,dbl_mb(i_dfr),fdata,
+     + aver,drift,stderr,corerr,ratio)
+c
+      prp_mcti=.false.
+c
+      return
+      end
+      subroutine prp_mcti_acc(ida,dfr,fdata,
+     + aver,drift,stderr,corerr,ratio)
+c
+      implicit none
+c
+#include "prp_common.fh"
+c
+      integer ida
+      real*8 dfr(mda),fdata(26)
+      real*8 aver,drift,stderr,corerr,ratio
+c
+      integer i
+      real*8 dfree
+c
+      dfree=zero
+      do 1 i=1,24
+      dfree=dfree+fdata(i)
+    1 continue
+c
+      dfr(ida)=dfree
+c
+      call error(0,dfr,ida,aver,drift,stderr,corerr,ratio)
+c
+      return
+      end

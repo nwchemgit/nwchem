@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.1 1999-03-15 21:22:24 d3j191 Exp $
+c $Id: md_input.F,v 1.2 1999-04-30 19:59:15 d3j191 Exp $
 c
       implicit none
 c
@@ -323,7 +323,7 @@ c
 c     reverse mcti
 c
       if(inp_compare(.false.,'reverse',item)) then
-      iforw=0
+      iforw=-1
       if(inp_i(mrun)) then
       maxlam=mrun
       if(.not.inp_a(item)) goto 1

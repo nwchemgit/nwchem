@@ -230,7 +230,6 @@ c
       logical frequency
       external frequency
 c
-      integer iequi,idacq
       logical lxw,lvw,lxs,lvs
 c
 c     equilibration
@@ -275,8 +274,8 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
-      logical frequency
-      external frequency
+      logical frequency,prp_mcti
+      external frequency,prp_mcti
 c
       do 1 irun=krun+1,mrun
 c
@@ -286,7 +285,7 @@ cx      call rdmri
 c
 c     initialize parameters
 c
-      call cf_lambda(irun)
+      call cf_lambda(lamtyp,irun,maxlam,elam)
 c
 c     equilibration
 c
@@ -309,6 +308,8 @@ c
      + dbl_mb(i_ess),dbl_mb(i_esk),epme)
 c
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst)
+c
+      call prp_mcti(idacq)
 c
       call timer_stop(1)
     3 continue

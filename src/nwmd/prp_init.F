@@ -1,13 +1,15 @@
-      subroutine prp_start(nserie,ntype,lfn,fil,iout,iprp,nf1,nf2,nf3,
+      subroutine prp_start(nserie,ntyp,lfn,fil,iout,iprp,nf1,nf2,nf3,
      + lcf,lsp,ltwn,lpol,lpme,
-     + nwm,msfi,nsfi,mpei)
+     + nwm,msfi,nsfi,mpei,mdacq)
 c
       implicit none
 c
 #include "prp_common.fh"
+#include "mafdecls.fh"
 #include "global.fh"
 c
-      integer nserie,ntype,lfn,iout,iprp,nwm,msfi,nsfi,mpei,nf1,nf2,nf3
+      integer nserie,ntyp,lfn,iout,iprp,nwm,msfi,nsfi,mpei,nf1,nf2,nf3
+      integer mdacq
       logical lcf,lsp,ltwn,lpol,lpme
       character*255 fil
 c
@@ -15,6 +17,8 @@ c
 c
       me=ga_nodeid()
       np=ga_nnodes()
+c
+      ntype=ntyp
 c
       lfnout=iout
       lfnprp=iprp
@@ -267,6 +271,12 @@ c
       lhdr=.false.
       lfhdr=.false.
 c
+      mda=mdacq
+      if(ntype.eq.3.and.me.eq.0) then
+      if(.not.ma_push_get(mt_dbl,mda,'dfr',l_dfr,i_dfr))
+     + call errquit('Failed to allocate memory for dfr',0)
+      endif
+c
       if(nserie.gt.0) call prp_rdrest(lfn,fil)
 c
       return
@@ -340,5 +350,19 @@ c
       return
  9999 continue
       call errquit('Unable to open restart file',me)
+      return
+      end
+      subroutine prp_finish()
+c
+      implicit none
+c
+#include "prp_common.fh"
+#include "mafdecls.fh"
+c
+      if(ntype.eq.3.and.me.eq.0) then
+      if(.not.ma_pop_stack(l_dfr))
+     + call errquit('Failed to deallocate dfr',me)
+      endif
+c
       return
       end

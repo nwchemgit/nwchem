@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.6 1999-04-27 23:13:11 d3j191 Exp $
+c $Id: md_common.fh,v 1.7 1999-04-30 19:59:09 d3j191 Exp $
 c
 c     parameters
 c
@@ -125,7 +125,7 @@ c
      + iseed,ireact,ifield,nprint,ibinar,icbw,icbs,irr,idipol,
      + iwarn,irlow,idebug,iumbr,igmass,lowmcr,noone,nwarn,nform,
      + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,
-     + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,iforw,mdalgo,
+     + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,
      + ngx,ngy,ngz,iewald,ireset,loadb,nffet,keepr,nfanal,nodpme,
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
      + nfefld,maxpro,icomm,latom,ihess,itload,nfdrss,nftime,itime,
@@ -153,7 +153,7 @@ c
      + iseed,ireact,ifield,nprint,ibinar,icbw,icbs,irr,idipol,
      + iwarn,irlow,idebug,iumbr,igmass,lowmcr,noone,nwarn,nform,
      + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,
-     + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,iforw,mdalgo,
+     + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,
      + ngx,ngy,ngz,iewald,ireset,loadb,nffet,keepr,nfanal,nodpme,
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
      + nfefld,maxpro,icomm,latom,ihess,itload,nfdrss,nftime,itime,

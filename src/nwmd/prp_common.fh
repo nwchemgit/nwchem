@@ -5,9 +5,13 @@ c
       parameter(one=1.0d0)
 c
       integer me,np,lfnout,lfnprp,nsf,msf,mpe,nfoutp,nfstat,nfprop,maxp
+      integer mda
 c
       common/prp_dim/me,np,lfnout,lfnprp,nsf,msf,mpe,nfoutp,nfstat,
-     + nfprop,maxp
+     + nfprop,maxp,mda
+c
+      integer i_dfr,l_dfr
+      common/prp_ptr/i_dfr,l_dfr
 c
       logical lcafe,lspac,ltwin,lhdr,lfhdr
       common/prp_log/lcafe,lspac,ltwin,lhdr,lfhdr
@@ -18,11 +22,11 @@ c
       real*8 p(250),psum(250),p2sum(250),psumt(250),p2sumt(250)
       real*8 pslop(250),pslopt(250)
       real*8 tsum,t2sum,tsumt,t2sumt
-      integer nprop,isprop,ixp(250),nsum,nsumt
+      integer ntype,nprop,isprop,ixp(250),nsum,nsumt
       logical lp(250)
       common/prp_pro/p,psum,psumt,p2sum,p2sumt,pslop,pslopt,
      + tsum,t2sum,tsumt,t2sumt,
-     + ixp,nprop,isprop,nsum,nsumt,lp
+     + ixp,ntype,nprop,isprop,nsum,nsumt,lp
 c
       real*8 volume,temp,pres,tmpscl,tmsscl,prsscl
       common/prp_prp/volume,temp,pres,tmpscl,tmsscl,prsscl

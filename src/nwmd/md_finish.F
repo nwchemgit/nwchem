@@ -55,6 +55,8 @@ c
       if(.not.ma_pop_stack(l_iw))
      + call errquit('Failed to deallocate memory for iw',0)
 c
+      call prp_finish()
+c
       call cf_finish()
 c
       call sp_finish()

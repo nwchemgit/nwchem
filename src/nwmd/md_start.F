@@ -51,7 +51,7 @@ c
       call prp_start(nserie,ntype,lfnrst,filrst,lfnout,lfnprp,
      + nfoutp,nfstat,nfprop,
      + .true.,.true.,ltwin,ipolt.ne.0,
-     + iewald.ne.0,nwm,msf,nsf,mpe)
+     + iewald.ne.0,nwm,msf,nsf,mpe,mdacq)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -558,7 +558,7 @@ c
      + call errquit('md_rtdbin: rtdb_get failed',9)
       if(.not.rtdb_get(irtdb,'md:isetp2',mt_int,1,isetp2))
      + call errquit('md_rtdbin: rtdb_get failed',10)
-      if(.not.rtdb_get(irtdb,'md:iforw',mt_int,1,iforw))
+      if(.not.rtdb_get(irtdb,'md:iforw',mt_int,1,lamtyp))
      + call errquit('md_rtdbin: rtdb_get failed',11)
       if(.not.rtdb_get(irtdb,'md:msdit',mt_int,1,msdit))
      + call errquit('md_rtdbin: rtdb_get failed',12)
@@ -869,8 +869,6 @@ c
 c
       if(operat.eq.'thermodynamics'.or.operat.eq.'THERMODYNAMICS') then
       ntype=3
-      mdtype=7
-      if(iforw.eq.0) mdtype=10
       endif
 c
       ssshft=delta
