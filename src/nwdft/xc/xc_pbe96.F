@@ -2,7 +2,7 @@
      &                    Amat, Cmat, nq, ipol, Ec, qwght,
      &                    ldew,ffunc)     
 c
-c     $$
+c$Id: xc_pbe96.F,v 1.2 1998-03-24 22:46:32 d3h449 Exp $
 c
       Implicit none
 c
