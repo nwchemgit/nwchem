@@ -1,4 +1,4 @@
-C $Id: rel_onel.F,v 1.7 1999-10-26 19:41:32 mg201 Exp $
+C $Id: rel_onel.F,v 1.8 2000-01-25 19:53:23 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_onel}
 c:tex-This routine generates the modified one-electron integrals for
@@ -21,10 +21,10 @@ c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine rel_onel (
-     &    Axyz,zeta_A,coefL_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
-     &    Bxyz,zeta_B,coefL_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &    Cxyz,zan,exinv,nat,S,T,V,lstv,doStil,doTtil,doVtil,canAB,
-     &    nonrel,DryRun,scr,lscr,msg,ibug,ntyp)
+     &    Axyz,zeta_A,coefL_A,coefS_A,n_prim_A,n_cont_A,l_A,
+     &    Bxyz,zeta_B,coefL_B,coefS_B,n_prim_B,n_cont_B,l_B,
+     &    Cxyz,zan,exinv,nat,S,T,V,lstv,doStil,doTtil,doVtil,
+     &    canAB,do_nw,do_hnd,nonrel,DryRun,scr,lscr,ibug,ntyp)
 c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
@@ -35,11 +35,9 @@ c:tex-\begin{verbatim}
       integer n_prim_A ! [input] num. prims in shell A
       integer n_cont_A ! [input] num general conts in shell A
       integer l_A      ! [input] angular momentum of shell A
-      integer ictr_A   ! [input] lexical atom index for shell A
       integer n_prim_B ! [input] num. prims in shell B
       integer n_cont_B ! [input] num general conts in shell B
       integer l_B      ! [input] angular momentum of shell B 
-      integer ictr_B   ! [input] lexical atom index for shell B
       integer nat      ! [input] number of atoms
       integer lscr     ! [input] size of scratch array
       integer lstv     ! [input] size of any integral buffer
@@ -64,14 +62,12 @@ c:tex-\begin{verbatim}
       logical doTtil  ! [input] compute modified kinetic (True/False)
       logical doVtil  ! [input] compute modified potential (True/False)
       logical canAB   ! [input] compute only canonical ints (false only)
+      logical do_nw   ! [input] can do NW integrals
+      logical do_hnd  ! [input] can do HONDO integrals
       logical nonrel  ! [input] true if either centre is nonrelativistic
       logical DryRun  ! [input] true means only compute required memory
-      character*(*) msg ![input] calling func. identification message
 c:tex-\end{verbatim}
 c:tex-See rel_pot for a description of the allowed values of ibug and ntyp
-c:tex-Note that in the current version of this routine, the call to rel_pot 
-c:tex-uses a dummy ntyp=1. It is kept in the input so that in future, the 
-c:tex-spin-orbit integrals can also be obtained with a call to this routine.
 c:tex-
 c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy 
 *
@@ -118,16 +114,21 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
       debug_arrays = (mod(ibug,10)/2 .eq. 1) .and. .not.DryRun
       max_mem = 0
 *
+      if (.not.(do_nw .or. do_hnd)) call errquit
+     &    ('rel_onel: can''t do NW or HONDO integrals',99)
+*
       if (debug_gen) then
         write (LuOut,*) 'l_A',l_A
         write (LuOut,*) 'n_prim_A',n_prim_A
         write (LuOut,*) 'n_cont_A',n_cont_A
-        write (LuOut,*) 'ictr_A',ictr_A
         write (LuOut,*) 'l_B',l_B
         write (LuOut,*) 'n_prim_B',n_prim_B
         write (LuOut,*) 'n_cont_B',n_cont_B
-        write (LuOut,*) 'ictr_B',ictr_B
-        write (LuOut,*) 'msg ',msg
+        if (do_hnd) then
+          write (LuOut,*) 'Using HONDO integrals'
+        else if (do_nw) then
+          write (LuOut,*) 'Using NWChem integrals'
+        end if
       end if
 *
       n_cart_a = (l_a+1)*(l_a+2)/2
@@ -166,18 +167,18 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
       doT = doTtil.and.nonrel
       doV = doVtil
       memscr = lscr
-C maybe change to this to enable sp shells.
-C      call hf1(
-C     &      Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,
-C     &      Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,
-C     &      Cxyz,zan,exinv,nat,S,T,V,n_Ab,doS,doT,doV,canAB,
-C     &      DryRun,scr,lscr)
-C
-      call int_hf1sp(
-     &       Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,ictr_A,
-     &       Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &       Cxyz,zan,exinv,nat,S,T,V,n_ab,doS,doT,doV,canAB,
-     &       DryRun,scr,memscr,msg)
+      if (do_hnd) then
+        call hnd_stvint(
+     &      Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,
+     &      Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,
+     &      Cxyz,zan,nat,S,T,V,n_ab,doS,doT,doV,scr,memscr)
+      else if (do_nw) then
+        call hf1(
+     &      Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,
+     &      Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,
+     &      Cxyz,zan,exinv,nat,S,T,V,n_ab,doS,doT,doV,canAB,
+     &      DryRun,scr,memscr)
+      end if
       if (debug_arrays) then
         if (doS) call ecp_matpr(S,1,n_all_b,1,n_all_a,
      &      1,n_all_b,1,n_all_a,'LL overlap','E',120,6)
@@ -196,20 +197,37 @@ C
         doT = .true.
         doV = .false.
         memscr = lscr-n_ab
-        call int_hf1sp(
-     &      Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,ictr_A,
-     &      Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &      Cxyz,zan,exinv,nat,S,T,V,n_ab,doS,doT,doV,canAB,
-     &      DryRun,scr(n_ab+1),memscr,msg)
-        if (debug_arrays) call ecp_matpr (T,1,n_all_b,1,n_all_a,
-     &      1,n_all_b,1,n_all_a,'LS kinetic','E',120,6)
-        if (DryRun) max_mem = max(max_mem,memscr)
+        if (do_hnd) then
+          call hnd_stvint(
+     &        Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,
+     &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,
+     &        Cxyz,zan,nat,S,T,V,n_ab,doS,doT,doV,scr(n_ab+1),memscr)
+        else if (do_nw) then
+          call hf1(
+     &        Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,
+     &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,
+     &        Cxyz,zan,exinv,nat,S,T,V,n_ab,doS,doT,doV,canAB,
+     &        DryRun,scr(n_ab+1),memscr)
+        end if
+        if (DryRun) then
+          max_mem = max(max_mem,memscr)
+        else if (debug_arrays) then
+          call ecp_matpr (T,1,n_all_b,1,n_all_a,
+     &        1,n_all_b,1,n_all_a,'LS kinetic','E',120,6)
+        end if
         memscr = lscr-n_ab
-        call int_hf1sp(
-     &      Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
-     &      Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &      Cxyz,zan,exinv,nat,S,scr,V,n_ab,doS,doT,doV,canAB,
-     &      DryRun,scr(n_ab+1),memscr,msg)
+        if (do_hnd) then
+          call hnd_stvint(
+     &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,
+     &        Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,
+     &        Cxyz,zan,nat,S,scr,V,n_ab,doS,doT,doV,scr(n_ab+1),memscr)
+        else if (do_nw) then
+          call hf1(
+     &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,
+     &        Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,
+     &        Cxyz,zan,exinv,nat,S,scr,V,n_ab,doS,doT,doV,canAB,
+     &        DryRun,scr(n_ab+1),memscr)
+        end if
         if (DryRun) then
           max_mem = max(max_mem,memscr+n_ab)
         else
@@ -225,11 +243,18 @@ C
         doT = .true.
         doV = .false.
         memscr = lscr-n_ab
-        call int_hf1sp(
-     &      Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
-     &      Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &      Cxyz,zan,exinv,nat,S,scr,V,n_ab,doS,doT,doV,canAB,
-     &      DryRun,scr(n_ab+1),memscr,msg)
+        if (do_hnd) then
+          call hnd_stvint(
+     &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,
+     &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,
+     &        Cxyz,zan,nat,S,scr,V,n_ab,doS,doT,doV,scr(n_ab+1),memscr)
+        else if (do_nw) then
+          call hf1(
+     &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,
+     &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,
+     &        Cxyz,zan,exinv,nat,S,scr,V,n_ab,doS,doT,doV,canAB,
+     &        DryRun,scr(n_ab+1),memscr)
+        end if
         if (DryRun) then
           max_mem = max(max_mem,memscr+n_ab)
         else
@@ -266,11 +291,11 @@ C
       n_intmm = n_cartm_a*n_cartm_b*n_cont_ab
       i_xca = 1
       i_xcb = i_xca+n_prim_A*n_cont_A
-      i_pp = max(i_xca+n_ab,i_xcb+n_prim_B*n_cont_B)
+      i_pp = i_xcb+n_prim_B*n_cont_B
       i_pm = i_pp+n_intpp
       i_mp = i_pm+n_intpm
       i_mm = i_mp+n_intmp
-      i_scr = i_mm+n_intmm
+      i_scr = max(i_xca+n_ab*ntyp,i_mm+n_intmm)
 *
       if (debug_addresses) then
         write (LuOut,*) 'n_cartp_a',n_cartp_a
@@ -313,12 +338,21 @@ C
 *
 *         Calculate integrals for l_A+1, l_B+1
 *
-      call int_hf1sp(
-     &    Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,ictr_A,
-     &    Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,ictr_B,
-     &    Cxyz,zan,exinv,nat,S,T,scr(i_pp),n_intpp,doS,doT,doV,
-     &    canAB,DryRun,scr(i_scr),memscr,msg)
+      if (do_hnd) then
+        call hnd_stvint(
+     &      Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,
+     &      Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,
+     &      Cxyz,zan,nat,S,T,scr(i_pp),n_intpp,doS,doT,doV,
+     &      scr(i_scr),memscr)
+      else if (do_nw) then
+        call hf1(
+     &      Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,
+     &      Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,
+     &      Cxyz,zan,exinv,nat,S,T,scr(i_pp),n_intpp,doS,doT,doV,
+     &      canAB,DryRun,scr(i_scr),memscr)
+      end if
       if (DryRun) then
+        if (debug_addresses) write (luout,*) '++:max_mem = ',max_mem
         max_mem = max(max_mem,i_scr+memscr-1)
         memscr = lscr-i_scr+1
       end if
@@ -326,12 +360,21 @@ C
 *         Calculate integrals for l_A-1, l_B+1
 *
       if (l_A .gt. 0) then
-        call int_hf1sp(
-     &      Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,ictr_A,
-     &      Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,ictr_B,
-     &      Cxyz,zan,exinv,nat,S,T,scr(i_pm),n_intpm,doS,doT,doV,
-     &      canAB,DryRun,scr(i_scr),memscr,msg)
+        if (do_hnd) then
+          call hnd_stvint(
+     &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,
+     &        Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,
+     &        Cxyz,zan,nat,S,T,scr(i_pm),n_intpp,doS,doT,doV,
+     &        scr(i_scr),memscr)
+        else if (do_nw) then
+          call hf1(
+     &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,
+     &        Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,
+     &        Cxyz,zan,exinv,nat,S,T,scr(i_pm),n_intpm,doS,doT,doV,
+     &        canAB,DryRun,scr(i_scr),memscr)
+        end if
         if (DryRun) then
+          if (debug_addresses) write (luout,*) '-+:max_mem = ',max_mem
           max_mem = max(max_mem,i_scr+memscr-1)
           memscr = lscr-i_scr+1
         end if
@@ -340,12 +383,21 @@ C
 *         Calculate integrals for l_A+1, l_B-1
 *
       if (l_B .gt. 0) then
-        call int_hf1sp(
-     &      Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,ictr_A,
-     &      Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,ictr_B,
-     &      Cxyz,zan,exinv,nat,S,T,scr(i_mp),n_intmp,doS,doT,doV,
-     &      canAB,DryRun,scr(i_scr),memscr,msg)
+        if (do_hnd) then
+          call hnd_stvint(
+     &        Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,
+     &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,
+     &        Cxyz,zan,nat,S,T,scr(i_mp),n_intmp,doS,doT,doV,
+     &        scr(i_scr),memscr)
+        else if (do_nw) then
+          call hf1(
+     &        Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,
+     &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,
+     &        Cxyz,zan,exinv,nat,S,T,scr(i_mp),n_intmp,doS,doT,doV,
+     &        canAB,DryRun,scr(i_scr),memscr)
+        end if
         if (DryRun) then
+          if (debug_addresses) write (luout,*) '+-:max_mem = ',max_mem
           max_mem = max(max_mem,i_scr+memscr-1)
           memscr = lscr-i_scr+1
         end if
@@ -353,12 +405,21 @@ C
 *         Calculate integrals for l_A-1, l_B-1
 *
         if (l_A .gt. 0) then
-          call int_hf1sp(
-     &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,ictr_A,
-     &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,ictr_B,
-     &        Cxyz,zan,exinv,nat,S,T,scr(i_mm),n_intmm,doS,doT,doV,
-     &        canAB,DryRun,scr(i_scr),memscr,msg)
+          if (do_hnd) then
+            call hnd_stvint(
+     &          Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,
+     &          Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,
+     &          Cxyz,zan,nat,S,T,scr(i_mm),n_intmm,doS,doT,doV,
+     &          scr(i_scr),memscr)
+          else if (do_nw) then
+            call hf1(
+     &          Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,
+     &          Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,
+     &          Cxyz,zan,exinv,nat,S,T,scr(i_mm),n_intmm,doS,doT,doV,
+     &          canAB,DryRun,scr(i_scr),memscr)
+          end if
           if (DryRun) then
+            if (debug_addresses) write (luout,*) '--:max_mem = ',max_mem
             max_mem = max(max_mem,i_scr+memscr-1)
             memscr = lscr-i_scr+1
           end if
@@ -373,8 +434,11 @@ C
      &    l_B,n_cartp_b,n_cart_b,n_cartm_b,n_cont_B,
      &    DryRun,scr(i_scr),memscr,ibug/10)
       if (DryRun) then
+        if (debug_addresses) write (luout,*) 'rel_pot:max_mem = ',
+     &      max_mem
         max_mem = max(max_mem,i_scr+memscr-1)
         lscr = max_mem
+        if (debug_addresses) write (luout,*) 'max_mem = ',max_mem
       else
         i = 1
         do j = 1,ntyp
