@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop_md.F,v 1.1 2003-09-25 23:46:24 bylaska Exp $
+* $Id: paw_inner_loop_md.F,v 1.2 2003-09-26 16:37:32 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.1  2003/09/25 23:46:24  bylaska
+* PAW Car-Parrinello added...EJB
+*
 *
 
       subroutine paw_inner_loop_md(verlet,
@@ -48,7 +51,7 @@
       integer nx,ny,nz
       integer index,indext
       double precision evloc_pw,evloc_atom
-      real*8  sum,Eold,eorbit,ehartr_pw,eke,enlocal
+      real*8  sum,Eold,eorbit,ehartr_pw,enlocal
       real*8  eke,eki,sse,ssr
       real*8  exc,exc2,pxc,pxc2,dte,dte0,scal1,scal2,dv,dt,h
       real*8  deltamm,vzero,fmass
