@@ -35,7 +35,7 @@ c
       integer ncart, nx1, nq1, nd1, nz1, natzmt
       logical geom_hnd_check_data, geom_zmt_get_nzvar,
      $     geom_zmt_get_nizmat
-      external geom_hnd_check_data, geom_zmt_get_nzvar
+      external geom_hnd_check_data, geom_zmt_get_nzvar,
      $     geom_zmt_get_nizmat
 c     
       status = geom_ncent(geom, nat)
