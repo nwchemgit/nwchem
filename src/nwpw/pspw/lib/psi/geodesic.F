@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.20 2004-01-28 00:08:47 bylaska Exp $
+* $Id: geodesic.F,v 1.21 2004-08-01 02:02:46 bylaska Exp $
 *
 
 *     ***********************************
@@ -129,6 +129,7 @@
 c      integer ierr
       integer shift1,shift2
       integer tmp1(2),tmp2(2),V(2)
+      integer indx1,indx2,indx3
 
 *     **** external functions **** 
       integer  psi_ispin,psi_ne
@@ -224,12 +225,13 @@ c         end do
          end do
 
 *        *** calculate Vt ***
-         do i=1,n
-         do j=1,n
-             dbl_mb(Vt(1)+j-1+(i-1)*n + shift2) 
-     >     =  dbl_mb(V(1)+i-1+(j-1)*n + shift2) 
-         end do
-         end do
+c        do i=1,n
+c        do j=1,n
+c            dbl_mb(Vt(1)+j-1+(i-1)*n + shift2) 
+c    >     =  dbl_mb(V(1)+i-1+(j-1)*n + shift2) 
+c        end do
+c        end do
+         call pspw_calc_Vt(n,dbl_mb(Vt(1)+shift2),dbl_mb(V(1)+shift2))
 
   30     continue         
       end do
@@ -252,6 +254,21 @@ c         end do
       return
       end
 
+      subroutine pspw_calc_Vt(n,A,B)
+      implicit none
+      integer n
+      real*8 A(n,n)
+      real*8 B(n,n)
+      integer i,j
+
+      do j=1,n
+      do i=1,n
+        A(i,j) = B(j,i)
+      end do
+      end do
+
+      return
+      end
 
 *     ***********************************
 *     *                                 *

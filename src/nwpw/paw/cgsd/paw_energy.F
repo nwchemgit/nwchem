@@ -1,12 +1,11 @@
-c     $Id: paw_energy.F,v 1.1 2004-07-31 21:54:30 bylaska Exp $
+c     $Id: paw_energy.F,v 1.2 2004-08-01 02:02:44 bylaska Exp $
       logical function paw_energy(rtdb)
       implicit none
       integer rtdb
 
-      !logical  paw_cgsd
-      !external paw_cgsd
+      logical  paw_minimizer
+      external paw_minimizer
 
-      !paw_energy = paw_cgsd(rtdb,0)
-      paw_energy = .true.
+      paw_energy = paw_minimizer(rtdb,0)
       return
       end

@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.15 2004-03-16 05:05:27 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.16 2004-08-01 02:02:45 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -58,7 +58,7 @@
 
 
 *     **** MA local variables ****
-      logical value,nose,field_exist,sic
+      logical value,nose,field_exist,sic,allow_translation
 *     real*8     tmp_L(8*nemax*nemax)
 *     complex*16 tmp1(nfft3d)
 *     complex*16 tmp2(nfft3d)
@@ -117,15 +117,16 @@ c     real*8     fion(3,natmx)
       logical  dplot_iteration_check
       external dplot_iteration_check
 
-      logical  pspw_SIC,pspw_SIC_relaxed
-      external pspw_SIC,pspw_SIC_relaxed
+      logical  pspw_SIC,pspw_SIC_relaxed,control_allow_translation
+      external pspw_SIC,pspw_SIC_relaxed,control_allow_translation
 
       call Parallel_np(np)
       call Pack_npack(0,npack0)
 
       n2ft3d = 2*nfft3d
-      field_exist = pspw_qmmm_found().or.pspw_charge_found()
-      sic         = pspw_SIC()
+      field_exist       = pspw_qmmm_found().or.pspw_charge_found()
+      sic               = pspw_SIC()
+      allow_translation = control_allow_translation()
 
 *     **** allocate MA local variables ****
       call nwpw_timing_start(12)
@@ -406,6 +407,11 @@ c     real*8     fion(3,natmx)
 *       *****************************************
         call ion_FixIon(dbl_mb(fion(1)))
 
+        !**** center of mass constraint ****
+        if (.not.allow_translation) then
+          call remove_center_F_mass(dbl_mb(fion(1)))
+        end if
+
 *       **************************
 *       **** do a verlet step ****
 *       **************************
@@ -468,6 +474,8 @@ c     real*8     fion(3,natmx)
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
+
+        !**** orthoganality constraint ****
         dte0 = dte
         if (nose) dte0 = dte*sse
         if (fractional) then
@@ -481,6 +489,11 @@ c     real*8     fion(3,natmx)
         call psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte0,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
         end if
+
+        !**** center of mass constraint ****
+
+        !**** total angular momentum constraint ****
+
 
 *       **************************
 *       *** update thermostats ***

@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.42 2004-06-16 18:01:10 bylaska Exp $
+* $Id: cpmdv5.F,v 1.43 2004-08-01 02:02:45 bylaska Exp $
 *
 
 ***********************************************************************
@@ -214,91 +214,6 @@
       ngrid(3) = control_ngrid(3)
       nwave = 0
       mapping = control_mapping()
-
-
-
-      !**** Make sure ngrid is consistent with mapping ***
-      ierr = 0
-      if (mapping.eq.1) then
-        if ((np.gt.ngrid(3)).or.(ngrid(2).ne.ngrid(3))) then
-          if (taskid.eq.MASTER) then
-            write(6,*) 'Error: the number of processors must ',
-     >                 ' be in the range ( 1 ...ngrid(3)=',
-     >                   ngrid(3),')'
-           write(6,*) ' and ngrid(2) == ngrid(3), ',
-     >                ' ngrid(2)=',ngrid(2),
-     >                ' ngrid(3)=',ngrid(3)
-          end if
-          ierr=100
-          value = .false.
-          go to 9000
-        end if
-        if (mod(ngrid(1),2).ne.0) then
-          if (taskid.eq.MASTER) then
-           write(6,*)
-     >      'Error: ngrid(1) must be even (ngrid(1) mod 2 == 0)'
-           write(6,*) 'Error: ngrid(1)=',ngrid(1)
-          end if
-          ierr=100
-          value = .false.
-          go to 9000
-        end if
-      end if
-      if (mapping.eq.2) then
-        if (np.gt.(ngrid(2)*ngrid(3))) then
-          if (taskid.eq.MASTER) then
-           write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
-     >                ' (ngrid(1)/2+1)*ngrid(2),',
-     >                ' (ngrid(1)/2+1)*ngrid(3))'
-           write(6,*) 'Error: np > ngrid(2)*ngrid(3)'
-           write(6,*) 'Error: the number of processors must ',
-     >                 ' be in the range ( 1 ...',
-     >                   ngrid(2)*ngrid(3),')'
-          end if
-          ierr=100
-          value = .false.
-          go to 9000
-        end if
-        if (np.gt.((ngrid(1)/2+1)*ngrid(2))) then
-          if (taskid.eq.MASTER) then
-           write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
-     >                ' (ngrid(1)/2+1)*ngrid(2),',
-     >                ' (ngrid(1)/2+1)*ngrid(3))'
-           write(6,*) 'Error: np > (ngrid(1)/2+1)*ngrid(2)'
-           write(6,*) 'Error: the number of processors must ',
-     >                 ' be in the range ( 1 ...',
-     >                   (ngrid(1)/2+1)*ngrid(2),')'
-          end if
-          ierr=100
-          value = .false.
-          go to 9000
-        end if
-        if (np.gt.((ngrid(1)/2+1)*ngrid(3))) then
-          if (taskid.eq.MASTER) then
-           write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
-     >                ' (ngrid(1)/2+1)*ngrid(2),',
-     >                ' (ngrid(1)/2+1)*ngrid(3))'
-           write(6,*) 'Error: np > (ngrid(1)/2+1)*ngrid(3)'
-           write(6,*) 'Error: the number of processors must ',
-     >                 ' be in the range ( 1 ...',
-     >                   (ngrid(1)/2+1)*ngrid(3),')'
-          end if
-          ierr=100
-          value = .false.
-          go to 9000
-        end if
-        if (mod(ngrid(1),2).ne.0) then
-          if (taskid.eq.MASTER) then
-           write(6,*)
-     >      'Error: ngrid(1) must be even (ngrid(1) mod 2 == 0)'
-           write(6,*) 'Error: ngrid(1)=',ngrid(1)
-          end if
-          ierr=100
-          value = .false.
-          go to 9000
-        end if
-
-      end if
 
 
 *     **** initialize D3dB data structure ****
@@ -731,7 +646,8 @@
              write(6,1309) icount*it_in,E(1),E(2),E(3),E(4),
      >                     Te_new,Tr_new
            else
-             write(6,1310) icount*it_in,E(1),E(2),E(3),E(4)
+             write(6,1310) icount*it_in,E(1),E(2),E(3),E(4),
+     >                     ion_Temperature()
            end if
            call util_flush(6)
 
@@ -743,12 +659,12 @@
              write(31,1311) icount*it_in*dt + emotion_time_shift,
      >                    e(1),e(2),e(3),e(4),e(5),e(6),
      >                    e(7),e(8),e(9),e(10),
-     >                    eave,evar
+     >                    eave,evar,ion_Temperature()
            else
              write(31,1311) icount*it_in*dt + emotion_time_shift,
      >                    e(1),e(2),e(3),e(4),e(5),e(6),
      >                    e(7),e(8),
-     >                    eave,evar
+     >                    eave,evar,ion_Temperature()
            end if
            call util_flush(31)
 
@@ -1308,7 +1224,7 @@ c    >              dbl_mb(lmd(1)),ierr)
  1300 FORMAT(//)
  1305 FORMAT(10X,'============ Car-Parrinello iteration ==============')
  1309 FORMAT(I8,2E19.10,2E14.5,2F9.1)
- 1310 FORMAT(I8,2E19.10,2E14.5)
+ 1310 FORMAT(I8,2E19.10,2E14.5,F14.2)
  1311 format(100e19.10)
  1312 format(e14.6,i3)
  1313 format(3i4)

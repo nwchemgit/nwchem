@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.31 2004-06-19 19:51:20 bylaska Exp $
+* $Id: ion.F,v 1.32 2004-08-01 02:02:44 bylaska Exp $
 *
 
 *     ***************************
@@ -1325,6 +1325,33 @@ c         eki1=0.5d0*eki1
       return
       end
 
+*     ***********************************
+*     *					*
+*     *    ion_angular_momentum_lmbda	*
+*     *					*
+*     ***********************************
+      subroutine ion_angular_momentum_lmbda()
+      implicit none
+
+#include "mafdecls.fh"
+#include "ion.fh"
+
+
+*     **** local variables ****
+      integer i
+      double precision scale,dt,h
+      double precision vgx,vgy,vgz,smr
+      real*8 lmb12,lmb13,lmb23
+
+*     *** external functions ****
+      double precision ion_amass
+      external         ion_amass
+
+
+ 
+
+      return
+      end
 
 
 *     ***************************

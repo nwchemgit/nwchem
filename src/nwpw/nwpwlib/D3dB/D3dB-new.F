@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.33 2004-07-29 00:33:05 bylaska Exp $
+* $Id: D3dB-new.F,v 1.34 2004-08-01 02:02:44 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -597,6 +597,89 @@ c     p = p_map(k)
       integer map_in
 
 #include "D3dB.fh"
+
+      !**** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
+      integer taskid,np
+
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+
+
+      !**** Make sure ngrid is consistent with mapping ***
+      if (map_in.eq.1) then
+        if ((np.gt.nz_in).or.(ny_in.ne.nz_in)) then
+          if (taskid.eq.MASTER) then
+            write(6,*) 'Error: for slab decomposition the',
+     >                 ' number of processors must ',
+     >                 ' be in the range ( 1 ...ngrid(3)=',
+     >                   nz_in,')'
+           write(6,*) ' and ngrid(2) == ngrid(3), ',
+     >                ' ngrid(2)=',ny_in,
+     >                ' ngrid(3)=',nz_in
+          end if
+          call errquit('D3dB_Init: mapping error',0,0)
+        end if
+        if (mod(nx_in,2).ne.0) then
+          if (taskid.eq.MASTER) then
+           write(6,*)
+     >      'Error: ngrid(1) must be even (ngrid(1) mod 2 == 0)'
+           write(6,*) 'Error: ngrid(1)=',nx_in
+          end if
+          call errquit('D3dB_Init: slab mapping error',0,0)
+        end if
+      end if
+
+      if (mapping.eq.2) then
+        if (np.gt.(ny_in*nz_in)) then
+          if (taskid.eq.MASTER) then
+           write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
+     >                ' (ngrid(1)/2+1)*ngrid(2),',
+     >                ' (ngrid(1)/2+1)*ngrid(3))'
+           write(6,*) 'Error: np > ngrid(2)*ngrid(3)'
+           write(6,*) 'Error: for the Hilbert decomposition the',
+     >                 ' the number of processors must ',
+     >                 ' be in the range ( 1 ...',
+     >                   ny_in*nz_in,')'
+          end if
+          call errquit('D3dB_Init: Hilbert mapping error',0,0)
+        end if
+        if (np.gt.((nx_in/2+1)*ny_in)) then
+          if (taskid.eq.MASTER) then
+           write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
+     >                ' (ngrid(1)/2+1)*ngrid(2),',
+     >                ' (ngrid(1)/2+1)*ngrid(3))'
+           write(6,*) 'Error: np > (ngrid(1)/2+1)*ngrid(2)'
+           write(6,*) 'Error: for the Hilbert decomposition the',
+     >                 ' the number of processors must ',
+     >                 ' be in the range ( 1 ...',
+     >                   (nx_in/2+1)*ny_in,')'
+          end if
+          call errquit('D3dB_Init: Hilbert mapping error',0,0)
+        end if
+        if (np.gt.((nx_in/2+1)*nz_in)) then
+          if (taskid.eq.MASTER) then
+           write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
+     >                ' (ngrid(1)/2+1)*ngrid(2),',
+     >                ' (ngrid(1)/2+1)*ngrid(3))'
+           write(6,*) 'Error: np > (ngrid(1)/2+1)*ngrid(3)'
+           write(6,*) 'Error: for the Hilbert decomposition the', 
+     >                 ' the number of processors must ',
+     >                 ' be in the range ( 1 ...',
+     >                   (nx_in/2+1)*nz_in,')'
+          end if
+          call errquit('D3dB_Init: Hilbert mapping error',0,0)
+        end if
+        if (mod(nx_in,2).ne.0) then
+          if (taskid.eq.MASTER) then
+           write(6,*)
+     >      'Error: ngrid(1) must be even (ngrid(1) mod 2 == 0)'
+           write(6,*) 'Error: ngrid(1)=',nx_in
+          end if
+          call errquit('D3dB_Init: Hilbert mapping error',0,0)
+        end if
+      end if
 
 
 *     ***** initialize D3dB common block *****

@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_message.F,v 1.5 2003-03-19 00:45:58 bylaska Exp $
+* $Id: nwpw_message.F,v 1.6 2004-08-01 02:02:44 bylaska Exp $
 *
 
       SUBROUTINE nwpw_MESSAGE(N)
@@ -33,10 +33,10 @@
  1001 FORMAT(4x,'iter.',11x,'Energy ',7x,' DeltaE',7x,'DeltaRho '/
      >     4x,'------------------------------------------------------')
  1002 FORMAT(4x,'iter.',9x,'KE+Energy',13x,'Energy',8x,'KE_psi',
-     >     8x,'KE_ion',/
+     >     8x,'KE_ion', 3x,'Temperature'/
      >     4x, 
      > '-------------------------------------------------------------',
-     > '---------')
+     > '-----------------------')
  1003 FORMAT(4x,'iter.',11x,'Energy ',7x,' DeltaE',7x,'DeltaRho ',
      >                                             7x,'DeltaV  '/
      >     4x,'------------------------------------------------------',

@@ -1,11 +1,11 @@
 c
-c     $Id: paw_gradient.F,v 1.1 2004-07-31 21:54:30 bylaska Exp $
+c     $Id: paw_gradient.F,v 1.2 2004-08-01 02:02:44 bylaska Exp $
 c
       logical function paw_gradient(rtdb)
       implicit none
       integer rtdb
-      !logical  paw_cgsd
-      !external paw_cgsd
+      logical  paw_minimizer
+      external paw_minimizer
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -18,14 +18,13 @@ c
 
 *     **** only calculate atom gradients ****
       if (.not.includestress) then
-         !value = paw_cgsd(rtdb,1)
+         value = paw_minimizer(rtdb,1)
 
 *     **** include stress calculation ****
       else
-         !value = paw_cgsd(rtdb,3)
+         value = paw_minimizer(rtdb,3)
       end if
 
-      value = .true.
       paw_gradient = value
       return
       end

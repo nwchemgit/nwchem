@@ -1,5 +1,5 @@
 *
-* $Id: center.f,v 1.3 2001-10-26 02:28:22 bylaska Exp $
+* $Id: center.f,v 1.4 2004-08-01 02:02:44 bylaska Exp $
 *
 
       subroutine center_geom(cx,cy,cz)
@@ -180,3 +180,63 @@
 
       return 
       end
+
+      subroutine remove_center_F_mass(F)
+      implicit none
+      real*8   F(3,*)
+
+*     **** local variables ****
+      integer nion
+      integer i,i1
+      real*8 am
+      real*8   gx,gy,gz
+
+*     **** external functions ****
+      logical  pspw_qmmm_found
+      integer  pspw_qmmm_nion
+      integer  ion_nion
+      real*8   ion_amass,pspw_qmmm_amass
+      external pspw_qmmm_found
+      external pspw_qmmm_nion
+      external ion_nion
+      external ion_amass,pspw_qmmm_amass
+
+      nion = ion_nion()
+      gx=0.0d0
+      gy=0.0d0
+      gz=0.0d0
+      am=0.0d0
+      do i=1,nion
+        gx=gx+ion_amass(i)*F(1,i)
+        gy=gy+ion_amass(i)*F(2,i)
+        gz=gz+ion_amass(i)*F(3,i)
+        am=am+ion_amass(i)
+      end do
+      if (pspw_qmmm_found()) then
+         do i=1,pspw_qmmm_nion()
+            i1 = nion + i
+            gx = gx + pspw_qmmm_amass(i)*F(1,i1)
+            gy = gy + pspw_qmmm_amass(i)*F(2,i1)
+            gz = gz + pspw_qmmm_amass(i)*F(3,i1)
+            am=am+pspw_qmmm_amass(i)
+
+         end do
+      end if
+      gx=gx/am
+      gy=gy/am
+      gz=gz/am
+
+      !**** remove center of mass motion ***
+      nion = ion_nion()
+      if (pspw_qmmm_found()) nion = nion + pspw_qmmm_nion()
+      do i=1,nion
+         F(1,i) = F(1,i) - gx
+         F(2,i) = F(2,i) - gy
+         F(3,i) = F(3,i) - gz
+      end do
+
+      return 
+      end
+
+
+

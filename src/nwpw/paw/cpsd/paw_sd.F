@@ -1,7 +1,12 @@
 *
-* $Id: paw_sd.F,v 1.71 2004-07-29 15:55:36 bylaska Exp $
+* $Id: paw_sd.F,v 1.72 2004-08-01 02:02:45 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.71  2004/07/29 15:55:36  bylaska
+* Temporary array for Gaunt coefficients added.  Speeds up the program considerably, but it is extrememely memory intensive.  Also added timing routines to multipole calculations and fixed the initial total charge calculation.
+*
+*  ...EJB
+*
 * Revision 1.70  2004/05/05 19:33:50  bylaska
 * hilbert mapping added....EJB
 *
@@ -137,7 +142,6 @@
 
       logical function paw_sd(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "global.fh"
@@ -145,6 +149,7 @@
 #include "rtdb.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"
+#include "errquit.fh"
       
       logical value
 
@@ -327,18 +332,6 @@
       ngrid(3) = control_ngrid(3)
       nwave = 0
       mapping = control_mapping()
-
-
-      ierr = 0 
-      if ((np.gt.(control_ngrid(3)))) then
-        if (taskid.eq.MASTER)
-     >     write(6,*) 'Error: the number of processors must ',
-     >                 ' be in the range ( 1 ...',
-     >                   control_ngrid(3),')'
-        ierr=100
-        value = .false.
-        go to 9000
-      end if
 
 
 *     **** initialize D3dB data structure ****

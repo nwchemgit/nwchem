@@ -1,8 +1,9 @@
-# $Id: GNUmakefile,v 1.1 2004-07-31 21:54:30 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2004-08-01 02:02:44 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
 		paw_energy.o \
-		paw_gradient.o
+		paw_gradient.o \
+		paw_minimizer.o
 
 
 	  OBJ = 
@@ -15,6 +16,8 @@
                 
 
   LIB_DEFINES =
+  LIB_INCLUDES = -I../../nwpwlib/include
+
 
 
 include ../../../config/makefile.h
