@@ -93,7 +93,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.10 1996-01-15 20:55:27 gg502 Exp $
+c  $Id: moints_semi.F,v 1.11 1996-01-19 07:31:52 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -158,13 +158,13 @@ c
        character*256 fnameK, fnameJ
        integer junit, kunit
        parameter (junit=10,kunit=11)
-       data blksiz/16/                              ! Affects performance only
-       data osym/.false./
 c
        integer moints_numgr
        integer moints_lmem
        external moints_numgr
        external moints_lmem
+       data blksiz/16/                              ! Affects performance only
+       data osym/.false./
 c
 c  General info
 c  Compare definition for nseg      : batch range
