@@ -1,4 +1,4 @@
-c $Id: int_1edk_ga.F,v 1.21 1999-12-14 22:37:32 bert Exp $
+c $Id: int_1edk_ga.F,v 1.22 1999-12-22 18:12:31 bert Exp $
 c:tex-\subsection{int\_1edk\_ga}
 c:tex-This routine computes the Douglas-Kroll(-Hess) integrals for  
 c:tex-a given basis set and stores them in a global array. 
@@ -488,6 +488,11 @@ c
       call ga_scale_rh(tmpg_a,dbl_mb(EIm_a))
       call ga_dadd(1.0d0,DKg_a,0.5d0,tmpg_a,DKg_a)
 c
+      if (.not. ga_destroy(Vdg_a))
+     $     call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
+      if (.not. ga_destroy(Vg_a))
+     $     call errquit('int_1edk_ga: ga_destroy Vg_a',0)
+c
 c     At this point we have the basic integrals for the external potential projection
 c     operators without the pxVp type terms. These remaining pxVp terms come from 
 c     are needed for the full Douglas-Kroll set of integrals. If we neglect these 
@@ -496,10 +501,6 @@ c     (CPL, 199, 491, 1992) denoted vn2.
 c     Skip and construct final integrals if dk_form_type=2 (see header).
 c 
       if (dk_form_type .eq. 2) then
-         if (.not. ga_destroy(Vdg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
-         if (.not. ga_destroy(Vg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
          if (.not. ma_pop_stack(tempm_a))
      $       call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
          goto 100
