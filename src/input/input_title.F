@@ -1,5 +1,5 @@
       subroutine input_title(rtdb)
-C$Id: input_title.F,v 1.4 1996-07-17 16:32:18 d3g681 Exp $
+C$Id: input_title.F,v 1.5 2000-01-19 17:21:15 windus Exp $
       implicit none
 #include "rtdb.fh"
 #include "inp.fh"
@@ -12,9 +12,11 @@ c
 c
 c     Detect extraneous input after title directive ... probable error
 c
-      if (inp_n_field() .gt. 1) goto 1000
-      if (.not. inp_read()) goto 1000
-      if (.not. inp_line(title)) goto 1000
+      call inp_set_field(0)
+      if (inp_n_field() .gt. 2) goto 1000
+      if (.not. inp_a(title)) call errquit
+     *      ('input_title: title is not set',555)
+      if (.not. inp_a(title)) goto 1000
 c
 c     Shuffle title down to remove leading blanks
 c
@@ -47,5 +49,5 @@ c
 c
       return
 c
- 1000 call errquit('input_title: title ; <title>', 0)
+ 1000 call errquit('input_title: title <string title>', 0)
       end
