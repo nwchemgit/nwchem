@@ -71,6 +71,7 @@ c
 #include "mafdecls.fh"
 #include "cconf.fh"
 #include "cselcifiles.fh"
+#include "bitops.fh"
       integer rtdb
       character*80 title
       integer irefo(nrefmx)
