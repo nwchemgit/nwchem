@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.15 1996-05-01 23:37:05 og845 Exp $
+# $Id: GNUmakefile,v 1.16 1996-05-01 23:39:05 og845 Exp $
 ifeq ($(TARGET),SGITFP)
       OBJ_OPTIMIZE = dft_getvc.o dft_n3c.o
       OBJ =  dft_3cincor.o\
@@ -26,10 +26,8 @@ include ../../config/makelib.h
 $(LIBRARY_PATH)(dft_3cincor.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(dft_fitcd.o):	$(INCDIR)/util.fh ../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(dft_getvc.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(dft_vc_solve_init.o):	$(INCDIR)/tcgmsg.fh 
 $(LIBRARY_PATH)(dft_genspm.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(dft_fitvc.o):	../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh $(INCDIR)/global.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(dft_n3c.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(dft_vc_solve.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(dft_getspm.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh 
 $(LIBRARY_PATH)(dft_get2eri.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
