@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.36 1997-07-02 20:21:56 mdupuis Exp $
+C$Id: opt_drv.F,v 1.37 1997-11-13 23:48:43 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -17,7 +17,7 @@ c
       call util_print_push
       call util_print_rtdb_load(rtdb, 'driver')
       call ecce_print_module_entry('driver')
-      if (util_print("brdcst", print_never)) call setdbg(1)
+      if (util_print('brdcst', print_never)) call setdbg(1)
 c
       dbug=.false.
       some=.false.
@@ -40,7 +40,7 @@ c
          call ecce_print_module_exit('driver', 'failed')
       endif
 c
-      if (util_print("brdcst", print_never)) call setdbg(0)
+      if (util_print('brdcst', print_never)) call setdbg(0)
       call util_print_pop
 c
       end
@@ -1738,7 +1738,7 @@ c
       call util_file_name('driver',.false.,.false.,opt_hess_fil)
       open(unit=ift, file=opt_hess_fil, form='unformatted',
      1     access='sequential', status='unknown', err=911)
-      dbug=util_print("hess_fil", print_debug)
+      dbug=util_print('hess_fil', print_debug)
 c
       if(dbug) then
          write(iw,*) ' _put_hess ', opt_hess_fil
@@ -1784,7 +1784,7 @@ c
       call util_file_name('driver',.false.,.false.,opt_hess_fil)
       open(unit=ift, file=opt_hess_fil, form='unformatted',
      1     access='sequential', status='unknown', err=911)
-      dbug=util_print("hess_fil", print_debug)
+      dbug=util_print('hess_fil', print_debug)
 c
       rewind ift
       read(ift) hess
@@ -1851,8 +1851,8 @@ c
       double precision zero
       data zero /0.0d+00/
 c
-      dbug = util_print("search dir debug",print_debug)
-      out  = util_print("search dir out", print_debug)
+      dbug = util_print('search dir debug',print_debug)
+      out  = util_print('search dir out', print_debug)
       out  = out.or.dbug
 c
       baker=.false.

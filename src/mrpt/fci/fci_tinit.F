@@ -9,20 +9,20 @@ c
          times(i) = 0.0d0
       enddo
 c
-      names(1)  = "couple1"
-      names(2)  = "couple2"
-      names(3)  = "couple3"
-      names(4)  = "davidson"
-      names(5)  = "diags"
-      names(6)  = "make_eaj "
-      names(7)  = "setup"
-      names(8)  = "sigma"
-      names(9)  = "solve"
-      names(10) = "spnfrc"
-      names(11) = "cntone"
-      names(12) = "hami1"
-      names(13) = "hami2"
-      names(14) = "symfrc"
+      names(1)  = 'couple1'
+      names(2)  = 'couple2'
+      names(3)  = 'couple3'
+      names(4)  = 'davidson'
+      names(5)  = 'diags'
+      names(6)  = 'make_eaj '
+      names(7)  = 'setup'
+      names(8)  = 'sigma'
+      names(9)  = 'solve'
+      names(10) = 'spnfrc'
+      names(11) = 'cntone'
+      names(12) = 'hami1'
+      names(13) = 'hami2'
+      names(14) = 'symfrc'
 c
       end
       subroutine fci_tstart(i,oprint)
