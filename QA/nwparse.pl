@@ -1,5 +1,5 @@
 #
-# $Id: nwparse.pl,v 1.15 2002-10-25 22:42:52 sohirata Exp $
+# $Id: nwparse.pl,v 1.16 2002-11-16 07:12:09 sohirata Exp $
 #
 #
 # perl script to parse nwchem output files
@@ -269,7 +269,7 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 	}
 	if (/total/ && /energy/) {
-	    if (/MBPT(2)/ || /LCCD/ || /CCD/ || /LCCSD/ || /CCSD/ || /CCSDT/ || /CCSDTQ/ ) {
+	    if ( /MBPT/ || /LCCD/ || /CCD/ || /LCCSD/ || /CCSD/ || /CCSDT/ || /CCSDTQ/ || /QCISD/ || /CISD/ || /CISDT/ || /CISDTQ/ ) {
 		if ($debug) {print "\ndebug: $_";}
 		@line_tokens = split(' ');
 		$num_line_tokens = @line_tokens;
