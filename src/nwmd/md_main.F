@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.135 2002-06-25 23:16:41 d3j191 Exp $
+c $Id: md_main.F,v 1.136 2002-06-26 15:00:58 d3j191 Exp $
 c
       implicit none
 c
@@ -1150,7 +1150,8 @@ c
 #include "msgids.fh"
 c
       logical frequency,prp_mcti_step,prp_rdmri,sp_rdmri
-      external frequency,prp_mcti_step,prp_rdmri,sp_rdmri
+      integer prp_dfr
+      external frequency,prp_mcti_step,prp_rdmri,sp_rdmri,prp_dfr
 c
       logical done
       integer npp,i,irunp,jequi,jdacq,ndec,ndum
@@ -1247,8 +1248,18 @@ c
       if(me.eq.0) then
       read(lfnmri) irunp,kequi,kdacq
       if(irunp.ne.irun) call errquit('Number of run changed',irunp)
-      if(kequi.lt.mequi) kdacq=0
       if(.not.prp_rdmri(lfnmri,ndec)) call errquit('Error in mri',0)
+      if(kequi+kdacq.lt.mequi) then
+      kequi=kequi+kdacq
+      kdacq=0
+      elseif(kequi.lt.mequi) then
+      if(kdacq+kequi-mequi.gt.0) then
+      kdacq=prp_dfr(kdacq+kequi-mequi)
+      else
+      kdacq=0
+      endif
+      kequi=mequi
+      endif
       endif
       if(.not.sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
@@ -2451,7 +2462,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.135 2002-06-25 23:16:41 d3j191 Exp $
+c $Id: md_main.F,v 1.136 2002-06-26 15:00:58 d3j191 Exp $
 c
       implicit none
 c

@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.82 2002-06-17 18:03:58 d3j191 Exp $
+c $Id: prp_main.F,v 1.83 2002-06-26 15:00:59 d3j191 Exp $
 c
       implicit none
 c
@@ -1061,4 +1061,42 @@ c
       prp_rmri=.false.
       return
       end
-
+      integer function prp_dfr(ncopy)
+c
+      implicit none
+c
+#include "prp_common.fh"
+#include "mafdecls.fh"
+c
+      integer prp_dfr_copy
+      external prp_dfr_copy
+c
+      integer ncopy
+c
+      prp_dfr=prp_dfr_copy(ncopy,dbl_mb(i_dfr),dbl_mb(i_dfrm))
+c
+      return
+      end
+      integer function prp_dfr_copy(ncopy,dfr,dfrm)
+c
+      implicit none
+c
+#include "prp_common.fh"
+c
+      integer ncopy
+      real*8 dfr(mda),dfrm(mda)
+c
+      integer i,ioff
+c
+      if(ncopy.lt.nda) then
+      ioff=nda-ncopy
+      do 1 i=1,ncopy
+      dfr(i)=dfr(i+ioff)
+      dfrm(i)=dfrm(i+ioff)
+    1 continue
+      nda=ncopy
+      endif
+c
+      prp_dfr_copy=nda
+      return
+      end
