@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.35 2003-02-06 00:25:00 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.36 2003-03-19 00:33:52 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -62,9 +62,9 @@ c#include "rtdb.fh"
 
 *     :::::::::::  begin electron iteration  :::::::::::::::::::::::
       if (taskid.eq.MASTER) then
-         write(luout,1300)
+         !write(luout,1300)
          write(luout,1301)
-         write(luout,1302)
+         !write(luout,1302)
          write(luout,1304)
          if (minimizer.eq.1) write(luout,1305)
          if (minimizer.eq.2) write(luout,1306)
@@ -83,7 +83,14 @@ c#include "rtdb.fh"
       tole   = control_tole()
       tolc   = control_tolc()
       E(1)=0.0d0
-      if (taskid.eq.MASTER) call nwpw_message(2)
+      if (taskid.eq.MASTER) then
+        if (minimizer.eq.5) then
+          call nwpw_message(7)
+        else
+          call nwpw_message(2)
+        end if
+      end if
+
       if (taskid.eq.MASTER) call util_flush(luout)
       if (newpsi) call sdminimize(15)
       if (minimizer.gt.1) call pspw_Grsm_list_start()
@@ -296,7 +303,7 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1300 FORMAT(//'======================')
- 1301 FORMAT(  '= energy calculation =')
+ 1301 FORMAT(//'== Energy Calculation ==')
  1302 FORMAT(  '======================')
  1304 FORMAT(/)
  1305 FORMAT(10X,'====== Grassmann conjugate gradient iteration ======')
@@ -316,7 +323,8 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1380 FORMAT(' ''',a,'''',I4)
  1390 FORMAT(I3)
  1400 FORMAT(I3,3E18.8/3X,3E18.8)
- 1410 FORMAT(10X,'=============  summary of results  =================')
+c1410 FORMAT(10X,'=============  summary of results  =================')
+ 1410 FORMAT('==  Summary Of Results  ==')
  1420 FORMAT( ' final position of ions:')
  1430 FORMAT(/' total     energy    :',E19.10,' (',E15.5,'/ion)')
  1431 FORMAT(/' QM Energies')
@@ -444,9 +452,9 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
 
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
-        write(luout,1300)
+        !write(luout,1300)
         write(luout,1301)
-        write(luout,1302)
+        !write(luout,1302)
         write(luout,1304)
         if (.not.allow_translation) write(luout,1400) fmx,fmy,fmz
         write(luout,1304)
@@ -523,7 +531,7 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
  1191 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - fixed')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1300 FORMAT(//'========================')
- 1301 FORMAT(  '= Gradient calculation =')
+ 1301 FORMAT(//'== Gradient Calculation ==')
  1302 FORMAT(  '========================')
  1304 FORMAT(/)
  1400 FORMAT('Translation force removed: (',3F11.5,')')

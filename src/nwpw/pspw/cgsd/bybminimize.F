@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.3 2003-01-24 02:06:52 bylaska Exp $                       
+c     $Id: bybminimize.F,v 1.4 2003-03-19 00:33:52 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -29,6 +29,8 @@ c
        
       integer vall_in(2),vall_out(2),vall_junk(2)
       real*8  E0,dE0,deltae_old,Ein
+      real*8  ks_deltae,deltav,dV
+      integer nx,ny,nz
 
 
       real*8     sum0,sum1,sum3,scale,tole,tolc
@@ -50,7 +52,7 @@ c
       integer  control_it_in,control_it_out,psi_ne,control_version
       real*8   control_tole,control_tolc,control_ks_alpha
       real*8   rho_error,psi_1energy,psi_error
-      real*8   dng_1ehartree
+      real*8   dng_1ehartree,lattice_omega
       real*8   psi_1ke
       real*8   psi_1vl,psi_1v_field
       real*8   psi_1vnl
@@ -58,12 +60,13 @@ c
       real*8   rho_1pxc
       real*8   ewald_e,ion_ion_e
       real*8   psi_1eorbit
+      real*8   ddot
    
       external control_ispin
       external control_it_in,control_it_out,psi_ne,control_version
       external control_tole,control_tolc,control_ks_alpha
       external rho_error,psi_1energy,psi_error
-      external dng_1ehartree
+      external dng_1ehartree,lattice_omega
       external psi_1ke
       external psi_1vl,psi_1v_field
       external psi_1vnl
@@ -71,6 +74,7 @@ c
       external rho_1pxc
       external ewald_e,ion_ion_e
       external psi_1eorbit
+      external ddot
 
 *     ***** QM/MM external functions ****
       logical  pspw_qmmm_found
@@ -102,8 +106,13 @@ c
       Ein = E(1)
       call Parallel_taskid(taskid)
 
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      dV = lattice_omega()/dble(nx*ny*nz)
       it_in = control_it_in()*control_it_out()
       tole  = control_tole()
+      tolc  = control_tolc()
       precondition = control_precondition()
       ispin = control_ispin()
       call D3dB_n2ft3d(1,n2ft3d)
@@ -135,19 +144,21 @@ c
       if (current_iteration.eq.1) then
          Enew   = psi_1energy()
          alpha = control_ks_alpha()
-         deltae = 9232323299.0d0
+         deltae = -9232323299.0d0
+         ks_deltae = tole
          call electron_gen_vall()
          call electron_get_vall(dbl_mb(vall_out(1))) !call psi_get_density(1,dbl_mb(vall_out(1)))
-         call psi_1gen_hml()
-         call psi_diagonalize_hml()
-         call psi_1rotate2()
-         call psi_2to1()
+c        call psi_1gen_hml()
+c        call psi_diagonalize_hml()
+c        call psi_1rotate2()
+c        call psi_2to1()
       else
          call electron_get_vall(dbl_mb(vall_out(1))) !call psi_get_density(1,dbl_mb(vall_out(1)))
       end if
   
 *     **** iniitialize DIIS ****    
-      call nwpw_diis_init(10,ispin*n2ft3d,dbl_mb(vall_out(1)))
+      call nwpw_diis_init(15,ispin*n2ft3d,dbl_mb(vall_out(1)))
+      !call nwpw_kain_init(10,ispin*n2ft3d,dbl_mb(vall_out(1)))
 
 
 *     ***** diis loop ****
@@ -155,7 +166,14 @@ c
  2    it   = it + 1
       
 *     **** diaganolize KS matrix ****
-      call psi_KS_update(1,precondition,tole)
+      call psi_1gen_hml()
+      call psi_diagonalize_hml()
+      call psi_1rotate2()
+      call psi_2to1()
+
+      call psi_KS_update(1,precondition,ks_deltae)
+
+      call rho_1to2()
       Eold = Enew
       Enew = psi_1energy()
 
@@ -167,11 +185,24 @@ c
       call electron_gen_vall()
       call electron_get_vall(dbl_mb(vall_in(1))) !call psi_get_density(1,dbl_mb(vall_in(1)))
 
-      if (dabs(deltae).lt.1.0d-2) then
-        call nwpw_diis(dbl_mb(vall_in(1)),dbl_mb(vall_out(1)))
+      if (dabs(deltae).lt.1.0d-3) then
+        call nwpw_diis(dbl_mb(vall_in(1)),dbl_mb(vall_out(1)),deltav)
+        !call nwpw_kain(dbl_mb(vall_in(1)),dbl_mb(vall_out(1)))
 
       else
-         !call nwpw_diis(dbl_mb(vall_in(1)),dbl_mb(vall_junk(1)))
+         call dcopy(ispin*n2ft3d,
+     >              dbl_mb(vall_in(1)),1,
+     >              dbl_mb(vall_junk(1)),1)
+         call daxpy(ispin*n2ft3d,
+     >              (-1.0d0),
+     >              dbl_mb(vall_out(1)),1,
+     >              dbl_mb(vall_junk(1)),1)
+         deltav = ddot(ispin*n2ft3d,
+     >                 dbl_mb(vall_junk(1)),1,
+     >                 dbl_mb(vall_junk(1)),1)
+         call D3dB_SumAll(deltav)
+
+         call nwpw_diis_reset(dbl_mb(vall_in(1)))
          call dscal(2*n2ft3d,(1.0d0-alpha),dbl_mb(vall_out(1)),1)
          call daxpy(2*n2ft3d,alpha,dbl_mb(vall_in(1)),1,
      >                              dbl_mb(vall_out(1)),1)
@@ -180,19 +211,31 @@ c
           
 *     **** tolerance checks ****
       deltae = Enew-Eold   
-      deltac = 0.0d0
+      deltac = rho_error()
+      deltav = deltav*dV
       E(1)   = Enew+eion
 
       if (taskid.eq.MASTER) then 
-        write(luout,1310) it,E(1),deltae,deltac
+        write(luout,1310) it,E(1),deltae,deltac,deltav
         call util_flush(luout)
       end if
  1310 FORMAT(I8,E20.10,3E15.5)
 
 
-      done = (dabs(deltae).lt.tole)
-     >       .or. (it.ge.it_in)
+      !**** set ks_deltae ****
+      ks_deltae = 0.001*dabs(deltae)
+      if (ks_deltae.lt.tole) ks_deltae = tole
+
+      precondition = precondition.and.(dabs(deltae).gt.100*tole)
+
+      done = ( (    (dabs(deltae).lt.tole)
+     >         .and.(deltae.lt.0.0d0)
+     >         .and.(deltac      .lt.tolc))
+     >       .or. (it.ge.it_in))
+
       if (.not.done) go to 2
+
+
 
 *     **** free memory ****
       call nwpw_list_end()
@@ -204,10 +247,8 @@ c
 
       call psi_check()
 
-*     *****************************
-*     **** set return energies **** - This is duplicate code
-*     *****************************
 
+*     **** set return energies **** - This is duplicate code
       !Enew     = psi_1energy()
       eorbit   = psi_1eorbit()
       ehartree = dng_1ehartree()

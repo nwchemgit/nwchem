@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.14 2002-08-13 23:24:14 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.15 2003-03-19 00:33:52 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -189,7 +189,7 @@ c         deltat = 1.0d0  !** debug **
          Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
-     >                        0.5d0,tmin,deltae,2)
+     >                        0.50d0,tmin,deltae,2)
          call psi_geodesic_final(tmin)
          deltac = rho_error()
 
@@ -213,8 +213,14 @@ c         deltat = 1.0d0  !** debug **
          end if
 
 
+
 *        **** make psi1 <--- psi2(tmin) ****
          call psi_2to1()
+
+         !****DEBUG ****  check to see if S0 is orthogonal to psi1
+         !call psi_1check_Tangent(dcpl_mb(S0(1)))
+         !****DEBUG ****  
+
 c        call rho_2to1()
 c        call dng_2to1()
 
@@ -234,7 +240,7 @@ c      Eold = psi_geodesic_energy(0.0d0)
       Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
-     >                        0.5d0,tmin,deltae,2)
+     >                        0.50d0,tmin,deltae,2)
       call psi_geodesic_final(tmin)
       deltac = rho_error()
 
