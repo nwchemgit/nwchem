@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.49 2002-02-06 01:11:16 windus Exp $
+C $Id: hess_cphf.F,v 1.50 2002-02-06 17:41:18 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -228,8 +228,13 @@ c
       call hess_moootoao(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, num)
-      if (.not. ga_duplicate (g_rhs, g_tmp,'Temporary g_rhs'))
-     $  call errquit('hess_cphf: could not duplicate g_rhs',555)
+      if (.not. ga_duplicate (g_rhs, g_tmp,'Temporary g_rhs')) then
+        if (ga_nodeid().eq.0) then
+          write(LuOut,*) 'Could not duplicate g_rhs'
+          write(LuOut,*) 'The most likely reason is not enough memory'
+        endif
+        call errquit('hess_cphf: could not duplicate g_rhs',555)
+      endif
       call hess_modfock(g_rhs, g_vecs, g_tmp, ndens, n3xyz,
      $                  tol2e, rtdb, geom, basis, jfac, kfac,
      $                  num, ocphfprint)
