@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.13 1994-12-02 23:00:53 og845 Exp $
+# $Id: GNUmakefile,v 1.14 1994-12-11 07:29:32 og845 Exp $
 ifeq ($(NWCHEM_TARGET),SGITFP)
 	OBJ = bas_ncontr_cn_max.o 	nbf_to_mbf.o \
 	int_eval_gbsets.o 
@@ -14,7 +14,6 @@ ifeq ($(NWCHEM_TARGET),SGITFP)
 	pertbl.o	\
 	sca_lab_mat.o	scatter.o	\
 	second.o	\
-	tmpfiles.o	\
 	tstamp.o	\
 	ga_chol_seq.o	\
 	ga_inv_seq.o 	\
@@ -32,7 +31,6 @@ else
 	pertbl.o	\
 	sca_lab_mat.o	scatter.o	\
 	second.o	\
-	tmpfiles.o	\
 	tstamp.o	\
 	int_eval_gbsets.o \
 	bas_ncontr_cn_max.o		ga_chol_seq.o	\
