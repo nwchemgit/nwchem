@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.300 1999-10-13 00:21:09 nwchem Exp $
+# $Id: makefile.h,v 1.301 1999-10-19 15:49:32 d3g681 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -826,7 +826,7 @@ ifeq ($(TARGET),IBM)
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
-   FOPTIONS = -qEXTNAME -qnosave # -qalign=4k 
+   FOPTIONS = -qEXTNAME -qnosave -qalign=4k 
 # -qinitauto=FF
    COPTIONS = 
 # -qstrict required with -O3 (according to Edo)
@@ -933,7 +933,7 @@ ifeq ($(NWCHEM_TARGET_CPU),604)
 endif
 
    LINK.f   = mpxlf -qnohpf $(LDFLAGS)
-   FOPTIONS = -qEXTNAME -qnosave
+   FOPTIONS = -qEXTNAME -qnosave -qalign=4k
 # -qinitauto=7F # note that grad_force breaks with this option
    COPTIONS = 
   FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
@@ -1034,13 +1034,13 @@ ifeq ($(TARGET),LAPI)
 LARGE_FILES = YES
 
 ifeq ($(NWCHEM_TARGET_CPU),604)
-  LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map
+  LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map
    LINK.f   = mpxlf_r   $(LDFLAGS)
 else
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map
    LINK.f   = mpcc_r   $(LDFLAGS)
 endif
-   FOPTIONS = -qEXTNAME -qnosave
+   FOPTIONS = -qEXTNAME -qnosave -qalign=4k 
 # -qinitauto=7F # note that grad_force breaks with this option
    COPTIONS = 
   FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
