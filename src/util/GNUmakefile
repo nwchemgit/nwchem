@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.3 1994-04-22 15:16:48 d3g681 Exp $
+# $Id: GNUmakefile,v 1.4 1994-04-26 04:54:52 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -8,8 +8,7 @@ else
   EXTRA_OBJ = 
 endif
 
-       BLAS = dfill.o ifill.o ddot.o dcopy.o rsg.o idamax.o dgemm.o dscal.o \
-              xerbla.o lsame.o
+       BLAS = dfill.o ifill.o rsg.o
 
         OBJ = output.o errquit.o ffflush.o \
               print_center.o util_flush.o $(BLAS) $(EXTRA_OBJ) 
