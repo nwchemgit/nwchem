@@ -2,7 +2,7 @@
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
      + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model)
 c
-c $Id: pre_rdpdb.F,v 1.12 1999-01-05 16:27:24 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.13 1999-01-05 23:45:22 d3j191 Exp $
 c
       implicit none
 c
@@ -107,7 +107,7 @@ c     END and ENDMDL
 c
       if(card(1:6).eq.'ENDMDL') then
       if(model.eq.mdl) goto 9
-      goto 1
+      goto 100
       endif
       if(card(1:6).eq.'END   ') goto 9
 c
