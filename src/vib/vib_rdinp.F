@@ -2,7 +2,7 @@
      &    HESS,HESST,COORD,ATMASS,ZAN,OLDLBLAT,IZMAT,NELS,
      &    PROJEC,ZEROPE,HESOUT,INTERN,
      &    rtdb,first_pass)
-* $Id: vib_rdinp.F,v 1.7 1999-07-08 19:11:02 d3e129 Exp $
+* $Id: vib_rdinp.F,v 1.8 2000-08-22 19:07:28 d3e129 Exp $
 C
 C This routine reads the user input and the hessian matrix from
 C      the appropriate place.  The default is to use the "default"
@@ -13,14 +13,13 @@ C
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "geom.fh"
-*      CHARACTER*7 UNITNM,NAME
-*      CHARACTER*6 USEROP         ! user input option
-      CHARACTER*10 ULABEL        ! label to locate program input
+#include "bas.fh"
       INTEGER NELS
-      LOGICAL UPDATE,SETMAS,PROJEC,ZEROPE,HESOUT,INTERN
+      LOGICAL SETMAS,PROJEC,ZEROPE,HESOUT,INTERN
       logical dum_log
       integer natom, nat3, nhess, nhesst
       logical first_pass
+      logical o_new_masses
       DOUBLE PRECISION HESS(NAT3,NAT3)  ! Hessian matrix
       DOUBLE PRECISION HESST(NHESST)    ! Lower triangle of hessian matrix
       DOUBLE PRECISION COORD(3,NATOM)   ! Atom x,y,z coordinates
@@ -28,6 +27,11 @@ C
       DOUBLE PRECISION ZAN(NATOM)       ! Nuclear charge (i.e. atomic number)
       INTEGER OLDLBLAT(2,NATOM)     ! Atom character labels
       INTEGER IZMAT(NELS)
+      integer num_new_masses
+      integer geom_index
+      double precision new_mass
+      character*32 mass_rtdb_id
+      character*16 mass_tag
       character*16 tag
       character*22 element
       character*2 symbol
@@ -39,95 +43,13 @@ C
       COMMON /cvib_SETCON/ AMS(36),WAVE,NUMANS     ! setup parameters
 c
       integer h_lblb, i_lblb, geom
-      integer il_cnt, iii, ijunk
+      integer il_cnt, iii, ijunk, jjj
 c
       integer rtdb
-*rak:      DATA ITAP11 /11/
-      DATA ULABEL/'U:VIB  '/   ! program input locator label
-      DATA SETMAS/.TRUE./         ! logical USE default masses
-      UPDATE = .FALSE.            ! logical READ update Hessian
       HESOUT = .FALSE.            ! do not write Hessian to tape 10
-*rak:C
-*rak:      CALL UTOPEN (5,'OLD')
-*rak:C
-*rak:      IERROR = 0                   ! set no errors
-*rak:      CALL LOCATE(5,ULABEL,IERROR) ! set pointer to input for this module
-*rak:      WRITE(6,*)'IERROR:',IERROR
-*rak:*rak input options
-*rak:      IF( IERROR .NE. 0) THEN      ! no input found for this module
-*rak:          WRITE(6,*)' Default input used '
-*rak:          UPDATE = .FALSE.          ! analytic Hessian used
-*rak:          SETMAS = .TRUE.          ! default masses used
-*rak:          PROJEC = .FALSE.
-*rak:          ZEROPE = .FALSE.
-*rak:          HESOUT = .FALSE.
-*rak:          INTERN = .FALSE.
-*rak:      ELSE ! input found for this module
-*rak:* rak change to rtdb reads        
-*rak:00001     CONTINUE
-*rak:          READ(5,'(A6)',ERR=00003,END=00002)USEROP  ! read option
-*rak:          WRITE(6,'('' option label '',A6,'' found'')')USEROP  !
-*rak:          IF(USEROP.EQ.'UPDATE')THEN       ! read updated Hessian
-*rak:             UPDATE = .TRUE.
-*rak:             GOTO 00001
-*rak:          ELSEIF(USEROP.EQ.'ANALYT')THEN   ! read analytic Hessian
-*rak:             UPDATE = .FALSE.
-*rak:             GOTO 00001
-*rak:          ELSEIF(USEROP(1:4).EQ.'MASS')THEN ! use input masses
-*rak:             WRITE(6,*)' atomic number and masses read from unit 5'
-*rak:             DO 00100 III = 1,NATOM     ! loop over atoms
-*rak:                READ(5,*,ERR=99900,END=99900)IREAD,ATMASS(III)
-*rak:                IF(ATMASS(III).EQ.0.0D00) THEN  ! zero mass => use default
-*rak:                   IF(IREAD.GT.NUMANS)THEN ! check if default mass available
-*rak:                      WRITE(6,*)' ATOMIC NUMBER OUT OF RANGE'
-*rak:                      WRITE(6,*)' MASSES FOR ATOMIC NUMBERS .LE. ',
-*rak:     +                            NUMANS,' ONLY'
-*rak:                      WRITE(6,*)' YOU MUST INPUT THE MASS '
-*rak:*
-*rak:                      CALL errquit('error in rdinp',911) ! if not then kill program execution
-*rak:                   ENDIF
-*rak:                   ATMASS(III) = AMS(IREAD) ! use default mass
-*rak:                ENDIF
-*rak:00100        CONTINUE
-*rak:             SETMAS = .FALSE.  ! do not reset masses
-*rak:             GOTO 00001
-*rak:          ELSEIF(USEROP.EQ.'PROJEC')THEN  ! project out translations,rotations
-*rak:             PROJEC = .TRUE.
-*rak:             GOTO 00001
-*rak:          ELSEIF(USEROP.EQ.'ZEROPE')THEN  ! Calculate Zero Point Energy
-*rak:             PROJEC = .TRUE.
-*rak:             ZEROPE = .TRUE.
-*rak:             GOTO 00001
-*rak:          ELSEIF(USEROP.EQ.'HESOUT')THEN  ! write out Hessian to tape 10
-*rak:             HESOUT = .TRUE.
-*rak:             GOTO 00001
-*rak:          ELSEIF(USEROP.EQ.'INTERN')THEN  ! Calculate Hessian and normal modes
-*rak:             INTERN = .TRUE.              ! in internal coordinates.
-*rak:             CALL ZMATIN(IZMAT,NELS)
-*rak:          ELSEIF(USEROP(1:2).EQ.'U:')THEN  ! new module input so leave
-*rak:             GOTO 00002
-*rak:          ELSE
-*rak:             WRITE(6,'('' Unrecognizable user input ==>  '',A6)')
-*rak:     &             USEROP
-*rak:          ENDIF
-*rak:      ENDIF
-*rak:      GOTO 00002
-*rak:00003 CONTINUE   ! error reading input file use default settings
-*rak:      UPDATE = .FALSE.
-*rak:      SETMAS = .TRUE.
-*rak:00002 CONTINUE
-*rak:C
-*rak:      IPCHG =  IP10( 1)         ! tape10 pointer to atom charges
-*rak:      IPLBL =  IP10(19)         ! tape10 pointer to atom labels
-*rak:      IPC   =  IP10(42)         ! tape10 pointer to atom coordinates
-*rak:C
-*rak:*rak: zan not really needed map integer to atomic number instead of charges?
-*rak:      CALL WREADW(ITAP10,ZAN,INTOWP(NATOM),IPCHG,IJUNK)  ! read charges
-*rak:      CALL WREADW(ITAP10,OLDLBLAT,2*NATOM,IPLBL,IJUNK)      ! read labels
-*rak:      CALL WREADW(ITAP10,COORD,INTOWP(NAT3),IPC,IJUNK)   ! read coordinates
+      o_new_masses = .false.
+*
       if (first_pass) WRITE(luout,*)' Vib: Default input used '
-      UPDATE = .FALSE. ! analytic Hessian used
-      SETMAS = .TRUE. ! default masses used
       PROJEC = .FALSE.
       ZEROPE = .FALSE.
       HESOUT = .FALSE.
@@ -151,37 +73,9 @@ c
         projec = .true.
         zerope = .true.
       endif
-*.. hessian read in vib_vib hess and hesst set there
-*rak:      IF (UPDATE) THEN  ! read updated Hessian
-*rak:        WRITE(luout,*)' Updated Hessian read from unit 11 '
-*rak:        call errquit('vib_rdinp should never be here',911)
-*rak:          NAME=UNITNM(11)
-*rak:          OPEN (UNIT=ITAP11, FORM='FORMATTED', ACCESS='SEQUENTIAL',
-*rak:     +          STATUS='OLD',FILE=NAME)
-*rak:          REWIND ITAP11
-*rak:          READ (ITAP11,*,END=99901,ERR=99901) ! Skip record #1
-*rak:          READ (ITAP11,*,END=99901,ERR=99901) ! Skip record #2
-*rak:          READ (ITAP11,*,END=99901,ERR=99901) ! Skip record #3
-*rak:          READ (ITAP11,*,END=99901,ERR=99901) ! Skip record #4
-*rak:          READ (ITAP11,*,END=99901,ERR=99901) (HESST(I),I=1,NHESST)
-*rak:          CLOSE(UNIT=ITAP11,STATUS='KEEP')
-*rak:          CALL DSQUAR(HESST,HESS,NAT3,NAT3)   ! make the square Hessian
-*rak:C          WRITE(6,'(//A/)')
-*rak:C     +    '  ---   Nuclear Hessian (Hartree/Bohr/Bohr)  ---'
-*rak:          WRITE(6,9000)
-*rak:          CALL PRNTPD(HESST,NHESST,NAT3,6)
-*rak:      ELSE ! read analytic Hessian
-*rak:          WRITE(6,*)' Analytic Hessian read from tape 10'
-*rak:          IPH = IP10(57) ! pointer to Hessian
-*rak:          CALL WREADW(ITAP10,HESS,INTOWP(NAT3*NAT3),IPH,IJUNK) ! read it
-*rak:          CALL CHKHESS(HESS,NAT3) ! check to make sure it is symmetric
-*rak:          CALL DTRNGL(HESS,HESST,NAT3,NAT3) ! for[Am lower-triangle
-*rak:          WRITE(6,9000)
-*rak:c          CALL PRDATA(HESS,DUM,NAT3,NAT3,NAT3,NAT3,.FALSE.,NPRI)
-*rak:          CALL PRNTPD(HESST,NHESST,NAT3,6)
-*rak: ENDIF
+*.. hessian read in vib_vib hess and hesst set there check it here
       call vib_chkhess(hess,nat3,first_pass)
-* set labels, zan and coords information
+* set labels, zan and coords information and mass information
 c
       if (.not.ma_push_get(MT_BYTE,(2*natom),' labels for vib',
      &    h_lblb,i_lblb))
@@ -190,6 +84,16 @@ c
      &    ('vib_rdinp: error creating geometry',911)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
      &    ('vib_rdinp: error loading geometry',911)
+c
+c see if ANY mass is overwritten by freq/vib input block
+c
+      if (rtdb_get
+     &    (rtdb,'vib:remass:count',mt_int,1,num_new_masses)) then
+        o_new_masses = .true.
+      else
+        num_new_masses = 0
+        o_new_masses = .false.
+      endif
       il_cnt = 0
       do iii = 1,natom
         if(.not.geom_cent_get(geom,iii,tag,xyz,q))
@@ -206,26 +110,60 @@ c
         il_cnt = il_cnt+1
         byte_mb(il_cnt+i_lblb) = symbol(2:2)
         il_cnt = il_cnt+1
-*        oldlblat(1,iii) = symbol(1:1)
-*        oldlblat(2,iii) = symbol(2:2)
       enddo
 *
-*rak:      IF (SETMAS) THEN ! if default masses for all atoms set up here
-*rak:        WRITE(6,'(/A/)')
-*rak:     +      ' Default masses from atomic number (charge) used'
-*rak:        DO 00200 III = 1,NATOM ! loop over atoms
-*rak:             IDUM        = INT(ZAN(III))  ! atomic charge =?= atomic number
-*rak:             if (idum.gt.36.or.idum.lt.1)
-*rak:     &           call errquit
-*rak:     &           ('vib_rdinp: error setting masses',911)
-*rak:             ATMASS(III) = AMS(IDUM)      ! get mass of atom
-*rak:00200     CONTINUE
-*rak:      ENDIF
-      SETMAS = .true.   ! only place to set mass is in geometry object
+* this loop structure separated out to do one pass over data in rtdb.
+* set the incore geometry with any mass information from the freq/vib
+* input.
+*
+      if (o_new_masses) then
+        do jjj = 1,num_new_masses
+          write(mass_rtdb_id,11111)jjj          ! lexical index
+          if (rtdb_get(rtdb,mass_rtdb_id,mt_int,1,geom_index)) then
+            write(mass_rtdb_id,11113)jjj
+            if (.not.rtdb_get(rtdb,mass_rtdb_id,mt_dbl,1,new_mass))
+     &          call errquit
+     &          ('vib_rdinp: rtdb get failed for mass',911)
+            if (.not.geom_mass_set(geom,geom_index,new_mass))
+     &          call errquit
+     &          ('vib_rdinp: geom_mass_set failed for mass',911)
+          else  ! check for tag input 
+            write(mass_rtdb_id,11112)jjj
+            if (rtdb_cget(rtdb,mass_rtdb_id,1,mass_tag)) then 
+              write(mass_rtdb_id,11113)jjj
+              if (.not.rtdb_get(rtdb,mass_rtdb_id,mt_dbl,1,new_mass))
+     &            call errquit
+     &            ('vib_rdinp: rtdb get failed for mass',911)
+* tag input found loop over all geometry atoms for a possible match
+              do iii = 1,natom
+                if(.not.geom_cent_get(geom,iii,tag,xyz,q))
+     &              call errquit('vib_rdinp: geom_cent_get failed',911)
+                if (bas_do_tags_match(mass_tag,tag)) then
+                  if (.not.geom_mass_set(geom,iii,new_mass))
+     &                call errquit
+     &                ('vib_rdinp: geom_mass_set failed for mass',911)
+                endif
+              enddo
+            else
+              if(.not.rtdb_print(rtdb,.true.)) call errquit('911',911)
+              write(luout,*)' expected mass input for index ',jjj
+              write(luout,*)' It was neither index or tag based '
+              call errquit
+     &            ('vib_rdinp: fatal error for mass informaition',911)
+            endif
+          endif
+        enddo
+      endif
+*
+* best place to set mass is in geometry object
+* modified in-core geometry object with new masses from
+* vibrational/freq input now reset's masses.
+*
       setmas = geom_masses_get(geom,natom,atmass)
       if (.not.setmas)
      &    call errquit
      &    ('vib_rdinp: geom_masses_get failed',911)
+*      
       if (.not.geom_destroy(geom)) call errquit
      &    ('vib_rdinp: geom_destroy failed',911)
 C
@@ -249,17 +187,13 @@ C
       if (.not.ma_pop_stack(h_lblb)) call errquit
      &    ('vib_rdinp ma_pop failed',911)
       RETURN ! leave routine
-10001 FORMAT(4x,a1,a1,3x,I5,4(1PD15.7))
-10002 FORMAT(1X,74('-')///)
-C
- 9000 FORMAT(/,10X,'-----------------------------------',/,10X,
-     &             'NUCLEAR HESSIAN (Hartree/Bohr/Bohr)',/,10X,
-     &             '-----------------------------------',//)
 10000 FORMAT(//,1X,28('-'),' Atom information ',28('-'),/,
      +5X,'atom',4X,'#',8X,'X',14X,'Y',14X,'Z',12X,'mass',/,
      +1X,74('-'))
-99900 WRITE(6,*)' ERROR READING MASSES FROM UNIT 5'
-      CALL errquit('rdinp error',911)
-99901 WRITE(6,*)' ERROR READING TAPE 11 '
-      CALL errquit('rdinp error',911)
+10001 FORMAT(4x,a1,a1,3x,I5,4(1PD15.7))
+10002 FORMAT(1X,74('-')///)
+11111 format('vib:remass:',i4,':lexi:')
+11112 format('vib:remass:',i4,':tags:')
+11113 format('vib:remass:',i4,':mass:')
+C
       END

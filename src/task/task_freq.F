@@ -22,7 +22,7 @@ c     task:cputime
 c     task:walltime
 c
 *
-* $Id: task_freq.F,v 1.16 1998-08-26 00:27:52 d3e129 Exp $
+* $Id: task_freq.F,v 1.17 2000-08-22 19:07:13 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -30,6 +30,7 @@ c
 #include "geom.fh"
 #include "stdio.fh"
 #include "global.fh"
+#include "inp.fh"
 #include "util.fh"
 c
       logical task_hessian
@@ -44,6 +45,7 @@ c
       double precision cpu, wall
 c 
       logical      ignore
+      logical o_reuse
 c    
       call ecce_print_module_entry('task frequencies')
       cpu  = util_cpusec()
@@ -60,15 +62,39 @@ c
      $      40,.true.)
         write(6,*)
       endif
-
-      status = task_hessian(rtdb)
-      if (.not.status) call errquit
-     &    ('task_freq: task_hessian failed',911)
+*
+      if (rtdb_get(rtdb,'vib:reuse',mt_log,1,ignore)) then
+        o_reuse = ignore
+      else
+        o_reuse = .false.
+      endif
+*
+      if (.not.(o_reuse)) then
+        status = task_hessian(rtdb)
+        if (.not.status) call errquit
+     &      ('task_freq: task_hessian failed',911)
+      else
+        call util_print_centered(6,
+     &      'reusing previously generated Hessian',
+     &      40,.true.)
+        status = .true.
+      endif
+*
       ignore = rtdb_parallel(.false.)
       if ((ga_nodeid()).eq.0) then
-        if (.not. rtdb_cget(rtdb, 'task:hessian file name', 1,
-     $      filehess)) call errquit
-     $      ('task_freq: failed reading hessian filename from rtdb',0)
+        if (o_reuse) then
+          if (rtdb_cget(rtdb,'vib:reuse_hessian_file',1,filehess)) then
+            write(6,*)' re-using hessian in file ',
+     &          filehess(1:inp_strlen(filehess))
+          else
+* in case of manual restart and renaming of hess file
+            call util_file_name('hess',  .false., .false.,filehess)
+          endif
+        else
+          if (.not. rtdb_cget(rtdb, 'task:hessian file name', 1,
+     $        filehess)) call errquit
+     $        ('task_freq: failed reading hessian filename from rtdb',0)
+        endif
 c
 c     create/load reference geometry
 c

@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.102 2000-08-01 19:51:27 d3g681 Exp $
+c $Id: basis.F,v 1.103 2000-08-22 19:06:49 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -4747,4 +4747,164 @@ c
 c
       bas_rel_high_ang = .true.
       return
+      end
+      logical function bas_do_tags_match(tag_one,tag_two)
+      implicit none
+*
+* This routine matches two input tags using the geometry/basis set 
+* tags matching mechanism, in such a way that "H34" matches "H" or 
+* "hydrogen" or "h" if "H34" is one of the tags.  "H" will however 
+* not match "h" i.e., case sensitivity is preserved.
+*
+c::includes
+#include "stdio.fh"
+#include "inp.fh"
+#include "nwc_const.fh"
+c::functions
+      logical geom_tag_to_element
+      external geom_tag_to_element
+c::passed
+      character*(*) tag_one   ! [input] geometry/basis tag
+      character*(*) tag_two   ! [input] geometry/basis tag
+*     bas_do_tags_match       ! [output] true if they match
+c::local
+      character*16 one16      ! geometry or basis tags can only be *16
+      character*16 two16      ! geometry or basis tags can only be *16
+      integer lnotalpha       ! string index to non alpha character
+      integer i               ! loop counter
+      integer ind             ! dummy counter
+      logical status          ! dummy storage
+      integer len_one         ! length of tag one or substring of tag
+      integer len_one_old     ! length of tag one
+      integer len_two         ! length of tag two or substring of tag
+      integer len_two_old     ! length of tag two
+      character*2 one_sym     ! tag one -> symbol name
+      character*16 one_elem   ! tag one -> element name
+      integer one_atn         ! tag one -> atomic number
+      character*2 two_sym     ! tag two -> symbol name
+      character*16 two_elem   ! tag two -> element name
+      integer two_atn         ! tag two -> atomic number
+      logical debug           ! true for extra output
+c
+      integer na2z
+      parameter (na2z = 26)
+      character*1 a2z(na2z)
+      data a2z /'a','b','c','d','e','f','g','h','i','j',
+     &          'k','l','m','n','o','p','q','r','s','t',
+     &          'u','v','w','x','y','z'/
+c      
+      debug = .true.
+c
+      bas_do_tags_match = .false.
+c
+      one16 = tag_one              !  copy tag to work on it
+      two16 = tag_two              !  copy tag to work on it
+c
+* remove bq ghost info if it exists
+c
+      if (one16(1:4).eq.'bqgh') then
+        one16 = one16(5:)
+      endif
+      if (two16(1:4).eq.'bqgh') then
+        two16 = two16(5:)
+      endif
+c
+c... first match full geometry tag to full basis tag list 
+c          did the user specifically assign a tag ?
+
+      if (one16.eq.two16) then
+        bas_do_tags_match = .true.
+        goto 00009
+      endif
+c
+c... Now check to see if either tag has non alpha chracters. 
+c...  the substring prior to the first non-alpha character is the users idea
+c...  of the "name" of the tag.  
+c
+      len_one = inp_strlen(one16)
+      len_one_old = len_one
+      lnotalpha = len_one+1
+      do i = 1,len_one
+        if (.not.(inp_match(na2z,.false.,
+     &      one16(i:i),a2z,ind))) then ! compare character to alpha (case-less test)
+          lnotalpha = i
+          goto 00001
+        endif
+      enddo
+00001 continue
+      do i = lnotalpha,len_one
+        one16(i:i) = ' '
+      enddo
+      if (debug) write(luout,*)' the string:', tag_one,
+     &    'has the user substring of ',one16
+
+      len_two = inp_strlen(two16)
+      len_two_old = len_two
+      lnotalpha = len_two+1
+      do i = 1,len_two
+        if (.not.(inp_match(na2z,.false.,
+     &      two16(i:i),a2z,ind))) then ! compare character to alpha (case-less test)
+          lnotalpha = i
+          goto 00002
+        endif
+      enddo
+00002 continue
+      do i = lnotalpha,len_two
+        two16(i:i) = ' '
+      enddo
+      if (debug) write(luout,*)' the string:', tag_two,
+     &    'has the user substring of ',two16
+c
+c... match user substrings 
+      len_one = inp_strlen(one16)
+      len_two = inp_strlen(two16)
+      if ((len_one_old.gt.len_one).or.(len_two_old.gt.len_two)) then
+        if (one16.eq.two16) then
+          bas_do_tags_match = .true.
+          goto 00009
+        endif
+      endif
+c
+c... now get symbol and element names for each tag and match those
+c    use the substring for each tag to match these
+c... bq's with basis functions must match from the above rules!
+c
+      status = geom_tag_to_element(one16,one_sym,one_elem,one_atn)
+      if (.not.status)then
+        if (.not.(one_sym.eq.'bq')) then
+          write(luout,*)'tag <',one16,
+     &        '> could not be matched to an element symbol'
+          call errquit('bas_do_tags_match: fatal error ',911)
+        endif
+      endif
+      if (one_sym.eq.'bq') goto 00009   ! bq labels with basis functions must match from above
+      status = geom_tag_to_element(two16,two_sym,two_elem,two_atn)
+      if (.not.status)then
+        if (.not.(two_sym.eq.'bq')) then
+          write(luout,*)'tag <',two16,
+     &        '> could not be matched to an element symbol'
+          call errquit('bas_do_tags_match: fatal error ',911)
+        endif
+      endif
+      if (two_sym.eq.'bq') goto 00009   ! bq labels with basis functions must match from above
+*
+      if (one_elem.eq.two_elem) then
+        bas_do_tags_match = .true.
+        goto 00009
+      else if (one_sym.eq.two_sym) then
+        bas_do_tags_match = .true.
+        goto 00009
+      endif
+      if (debug)
+     &    write(luout,*)'bas_do_tags_match:debug: no match for tags <',
+     &    tag_one,'> and <',tag_two,'>'
+      return  ! no match
+c
+00009 continue
+      if (debug) then
+        write(luout,10000)tag_one,tag_two
+      endif
+      return
+10000 format('bas_do_tags_match:debug: tag ',a16,
+     &    ' matched this tag ',a16)
       end
