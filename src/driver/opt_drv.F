@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.1 1996-09-25 22:17:15 mdupuis Exp $
+C$Id: opt_drv.F,v 1.2 1996-09-26 22:20:20 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -11,7 +11,7 @@ C$Id: opt_drv.F,v 1.1 1996-09-25 22:17:15 mdupuis Exp $
       integer  ir, iw, ip
       logical  some, dbug
       common/inp_file/iread,iwrite
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/ir,iw
 c
       dbug=.false.
       some=.false.
@@ -41,7 +41,7 @@ c
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=max(mxcart,mxzmat))
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/ir,iw
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
@@ -277,7 +277,7 @@ c
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=max(mxcart,mxzmat))
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/ir,iw
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
@@ -307,7 +307,7 @@ c
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=max(mxcart,mxzmat))
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/ir,iw
       common/hnd_optrun/npts,nserch,nupdat,cvged
       common/hnd_optfun/e,eg(mxcart)
       common/hnd_molxyz/c(mxcart),zan(mxatom),nat
@@ -350,7 +350,7 @@ c
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=max(mxcart,mxzmat))
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/ir,iw
       common/hnd_optfun/e,eg(mxcart)
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
@@ -388,7 +388,7 @@ c
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=max(mxcart,mxzmat))
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/ir,iw
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
@@ -438,7 +438,7 @@ c
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=max(mxcart,mxzmat))
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/ir,iw
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
@@ -497,7 +497,7 @@ c
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=max(mxcart,mxzmat))
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/ir,iw
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
@@ -590,7 +590,7 @@ c
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)     
       parameter (mxcoor=max(mxcart,mxzmat))
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/ir,iw
       common/hnd_optvar/ncoord
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
@@ -774,7 +774,7 @@ C
       CHARACTER*8 ERRMSG
       LOGICAL OUT
       LOGICAL SOME
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       DIMENSION HSSX(NCART,*),HSSQ(NINT,*)       
@@ -1233,7 +1233,7 @@ c
       integer iw
       integer ip
       logical dbug
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/ir,iw
       double precision hess(mint,*)  
 c
       dbug=.false.
@@ -1264,7 +1264,7 @@ c
       integer iw
       integer ip
       logical dbug
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/ir,iw
       double precision hess(mint,*) 
 c
       dbug=.false.
@@ -1305,7 +1305,7 @@ c
       logical dbug
       logical baker
 c
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/ir,iw
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_optvar/ncoord
@@ -1396,7 +1396,7 @@ C
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (MXZMAT=1500)
       PARAMETER (MXCOOR=MAX(MXCART,MXZMAT))
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OPTMIZ/X0(MXCOOR),X(MXCOOR),DX(MXCOOR),
      1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
@@ -1519,7 +1519,7 @@ C
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (MXZMAT=1500)
       PARAMETER (MXCOOR=MAX(MXCART,MXZMAT))
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OPTMIZ/X0(MXCOOR),X(MXCOOR),DX(MXCOOR),
      1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
@@ -1758,7 +1758,7 @@ C
       implicit double precision (a-h,o-z)
       logical out
       logical dbug
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/ir,iw
       dimension gs(*),gx(*),bi(mx,*)
       data zero /0.0d+00/       
 c
@@ -1795,7 +1795,7 @@ c
       implicit double precision (a-h,o-z)
       logical out
       logical dbug
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/ir,iw
       dimension ds(*),dx(*),bi(mx,*)
       data zero /0.0d+00/       
 c
@@ -1832,7 +1832,7 @@ c
       implicit double precision (a-h,o-z)
       logical out
       logical dbug
-      common/hnd_iofile/ir,iw,ip
+      common/hnd_iofile/ir,iw
       dimension ds(*),dx(*),b(mx,*)
       data zero /0.0d+00/       
 c
@@ -1896,7 +1896,7 @@ C
       LOGICAL LOWER,ILLCON,RECALC,RETRY
       LOGICAL CVGED
       LOGICAL DBUG
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/RESTAR/NREST
       COMMON/HND_MOLXYZ/C(MXCART),ZAN(MXATOM),NAT         
       COMMON/HND_OPTMIZ/X0(MXCOOR),X(MXCOOR),DX(MXCOOR),
@@ -2270,7 +2270,7 @@ C
       PARAMETER (MXCOOR=MAX(MXCART,MXZMAT))
       LOGICAL DBUG
       LOGICAL CVGED
-      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OPTMIZ/X0(MXCOOR),X(MXCOOR),DX(MXCOOR),
      1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
