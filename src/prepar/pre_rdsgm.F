@@ -1,4 +1,4 @@
-      logical function pre_rdsgm(lfnout,ffield,nparms,mparms,
+      logical function pre_rdsgm(lfnout,nparms,mparms,
      + imol,isgm,igrp,
      + ipgrp,lfnsgm,filsgm,lfnmat,filmat,
      + latm,catm,qatm,matm,natm,lbnd,rbnd,mbnd,nbnd,
@@ -6,18 +6,18 @@
      + limp,kimp,rimp,mimp,nimp,
      + wcorr,npar,ipardef,itopol)
 c
-c $Id: pre_rdsgm.F,v 1.14 2003-07-17 19:38:57 d3j191 Exp $
+c $Id: pre_rdsgm.F,v 1.15 2003-07-23 02:38:46 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
+#include "pre_common.fh"
 c
       external loc
       integer loc
 c
       integer lfnout,lfnsgm,imol,isgm,igrp,ipgrp,lfnmat,nparms,mparms
       character*255 filsgm,filmat
-      character*80 ffield
       integer matm,natm,itopol
       integer latm(11,matm)
       character*6 catm(mparms,matm)

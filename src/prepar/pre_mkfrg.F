@@ -1,13 +1,11 @@
       logical function pre_mkfrg(irtdb,source,iunit,lfnpar,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + par_s,par_x,par_q,par_u,par_t,par_c,
      + lfnout,iconst,
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
      + natm,lato,cato,xato,qato,mato,nato,lbnd,mbnd,lbndt,mbndt,
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_mkfrg.F,v 1.39 2003-07-17 19:38:56 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.40 2003-07-23 02:38:46 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -28,6 +26,7 @@ c
 c
 #include "mafdecls.fh"
 #include "util.fh"
+#include "pre_common.fh"
 c
       logical pre_hnames,pre_hybrid
       external pre_hnames,pre_hybrid
@@ -58,13 +57,11 @@ c
       integer lbnd(2,mbnd),lang(3,mang),ldih(4,mdih),limp(4,mimp)
       integer lbndt(2,mbndt)
       character*255 filnam
-      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
-      character*255 par_s,par_x,par_q,par_u,par_t,par_c
       integer mlnk,nlnk
       integer llnk(4,mlnk)
       character*4 clnk(2,mlnk)
 c
-      integer len_c,length,len_f
+      integer lentmp,length,len_f
 c
       integer mtyp,i_ltyp,l_ltyp
       integer nring3,nring4,nring5,nring6
@@ -82,7 +79,7 @@ c
  2000 format(/,'pre_mkfrg ')
       endif
 c
-      len_c=index(dir_c,' ')-1
+      lentmp=index(dirpar(mdirpar),' ')-1
       ilist=0
 c
       nbndt=0
@@ -219,8 +216,6 @@ c     determine atom types
 c     --------------------
 c
       if(.not.pre_atype(lfnout,lfnpar,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + par_s,par_x,par_q,par_u,par_t,par_c,
      + lato,cato,mato,lbnd,mbnd,nbnd,
      + 1,1,nato,nato,int_mb(i_ltyp),mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6,
@@ -249,15 +244,11 @@ c     --------------------------
 c
       if(found) then
       if(.not.pre_charge(irtdb,lfnout,lfnpar,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + par_s,par_x,par_q,par_u,par_t,par_c,
      + source,jlo,ilo,ihi,jhi,
      + lato,cato,xato,qato,mato,nato,lbnd,mbnd,nbnd,maxscf,qscale))
      + call errquit('pre_charge failed',9999)
       else
       if(.not.pre_charge(irtdb,lfnout,lfnpar,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + par_s,par_x,par_q,par_u,par_t,par_c,
      + source,jlo,ilo,ihi,jhi,
      + lato,cato,xato,qato,mato,nato,lbnd,mbnd,nbnd,0,qscale))
      + call errquit('pre_charge failed',9999)
@@ -268,7 +259,7 @@ c     -----------------------
 c
       length=index(csgm(i),' ')-1
       if(length.le.0) length=5
-      filnam=dir_c(1:len_c)//csgm(i)(1:length)//'.frg '
+      filnam=dirpar(mdirpar)(1:lentmp)//csgm(i)(1:length)//'.frg '
       len_f=index(filnam,' ')-1
       if(.not.found) filnam=filnam(1:len_f)//'_TMP'
       len_f=index(filnam,' ')-1

@@ -1,18 +1,19 @@
-      logical function pre_rename(lfnout,ffield,lfnmod,filmod,
+      logical function pre_rename(lfnout,lfnmod,filmod,
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
      + llnk,clnk,mlnk,nlnk,icyren,his)
 c
-c $Id: pre_rename.F,v 1.19 2003-07-17 19:38:57 d3j191 Exp $
+c $Id: pre_rename.F,v 1.20 2003-07-23 02:38:47 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
       implicit none
 c
 #include "util.fh"
+#include "pre_common.fh"
 c
       integer lfnout,lfnmod
       character*255 filmod
-      character*80 ffield,card
+      character*80 card
       integer mseq,nseq,matm,natm,mlnk,nlnk,icyren
       integer lseq(6,mseq),latm(5,matm)
       character*5 cseq(2,mseq),string

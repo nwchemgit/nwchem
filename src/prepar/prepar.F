@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.49 2003-07-17 19:38:58 d3j191 Exp $
+c $Id: prepar.F,v 1.50 2003-07-23 02:38:47 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -33,6 +33,8 @@ c
 #include "inp.fh"
 #include "msgids.fh"
 c
+#include "pre_common.fh"
+c
       logical pre_rtdbin,pre_mkseq,pre_mktop,pre_task,pre_mkrst
       logical pre_mknoe
       external pre_rtdbin,pre_mkseq,pre_mktop,pre_task,pre_mkrst
@@ -45,12 +47,10 @@ c
       integer mfract
       parameter(mfract=250)
 c
-      character*255 filpdb,filseq,filtop,filrst,filpar,filtmp,filcmd
+      character*255 filpdb,filseq,filtop,filrst,filep,filtmp,filcmd
       character*255 filmod,prefix,filxyz,filqqq,filnoe,filpmf,filpov
       character*255 filhop,filmrg(100)
-      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
-      character*255 par_s,par_x,par_q,par_u,par_t,par_c
-      character*80 sysnam,calc,ffield
+      character*80 sysnam,calc
       character*80 title(2,3)
       character*10 slvmdl
       character*3 slvnam
@@ -72,7 +72,7 @@ c
       logical lstate
       real*8 scale,cpk
 c
-      integer nparms,mparms
+      integer nparms,mparms,i,j
 c
 c     nparms is the number of parameters sets written to the topology file
 c     this number is initially set to 1 but may be increased in pre_dimens
@@ -143,9 +143,7 @@ c
 c     get info from rtdb
 c     ------------------
 c
-      if(.not.pre_rtdbin(irtdb,title,ffield,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + par_s,par_x,par_q,par_u,par_t,par_c,
+      if(.not.pre_rtdbin(irtdb,title,
      + source,
      + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,mcount,ncount,
      + icount,mgrid,nrgrid,iogrid,rogrid,
@@ -163,13 +161,13 @@ c     construct file names
 c     --------------------
 c
       len=index(ffield,' ')-1
-      lend=index(dir_s,' ')-1
-      filpar=ffield(1:len)//'.par '
+      filep=ffield(1:len)//'.par '
 c
       len=index(sysnam,' ')-1
       lenc=index(calc,' ')-1
-      lend=index(dir_c,' ')-1
+      lend=index(dirpar(mdirpar),' ')-1
       filpdb=sysnam(1:len)//'.pdb '
+      write(*,'(a,a)') 'filpdb=',filpdb(1:index(filpdb,' ')-1)
       filpov=sysnam(1:len)//'.pov '
       if(source.ne.'geometry'.and.source.ne.'pdb'.and.
      + source(1:1).ne.' ') filpdb=source
@@ -180,7 +178,7 @@ c
       filtop=sysnam(1:len)//'.top '
       filhop=sysnam(1:len)//'.hop '
       filrst=sysnam(1:len)//'_'//calc(1:lenc)//'.rst '
-      filseq=dir_c(1:lend)//sysnam(1:len)//'.seq '
+      filseq=dirpar(mdirpar)(1:lend)//sysnam(1:len)//'.seq '
       filtmp=sysnam(1:len)//'.nam '
       nmerge=0
 c
@@ -189,49 +187,29 @@ c
       filcmd=prefix(1:index(prefix,' ')-1)//'.cmd '
       filmod=prefix(1:index(prefix,' ')-1)//'.mod '
 c
-      if(par_s(1:1).eq.' '.and.dir_s(1:1).ne.' ') par_s=filpar
-      if(par_x(1:1).eq.' '.and.dir_x(1:1).ne.' ') par_x=filpar
-      if(par_q(1:1).eq.' '.and.dir_q(1:1).ne.' ') par_q=filpar
-      if(par_u(1:1).eq.' '.and.dir_u(1:1).ne.' ') par_u=filpar
-      if(par_t(1:1).eq.' '.and.dir_t(1:1).ne.' ') par_t=filpar
-      if(par_c(1:1).eq.' '.and.dir_c(1:1).ne.' ') par_c=filpar
-c
 c     directories
 c     -----------
 c
       if(util_print('files',print_default)) then
       write(lfnout,2000) ffield(1:index(ffield,' ')-1)
-      if(dir_s(1:1).ne.' ')
-     + write(lfnout,2001) dir_s(1:index(dir_s,' ')-1),
-     + par_s(1:index(par_s,' ')-1)
-      if(dir_x(1:1).ne.' ')
-     + write(lfnout,2002) dir_x(1:index(dir_x,' ')-1),
-     + par_x(1:index(par_x,' ')-1)
-      if(dir_q(1:1).ne.' ')
-     + write(lfnout,2003) dir_q(1:index(dir_q,' ')-1),
-     + par_q(1:index(par_q,' ')-1)
-      if(dir_u(1:1).ne.' ')
-     + write(lfnout,2004) dir_u(1:index(dir_u,' ')-1),
-     + par_u(1:index(par_u,' ')-1)
-      if(dir_t(1:1).ne.' ')
-     + write(lfnout,2005) dir_t(1:index(dir_t,' ')-1),
-     + par_t(1:index(par_t,' ')-1)
-      if(dir_c(1:1).ne.' ')
-     + write(lfnout,2006) dir_c(1:index(dir_c,' ')-1),
-     + par_c(1:index(par_c,' ')-1)
+      write(lfnout,2001)
+      do 455 i=1,mdirpar
+      if(nfilpar(i).gt.0)
+     + write(lfnout,2002) dirpar(i)(1:index(dirpar(i),' ')-1)
+  455 continue
+      write(lfnout,2003)
+      do 456 i=1,mdirpar
+      if(nfilpar(i).gt.0)
+     + write(lfnout,2004) (dirpar(i)(1:index(dirpar(i),' ')-1),
+     + filpar(i,j)(1:index( filpar(i,j),' ')-1),j=1,nfilpar(i))
+  456 continue
+c
  2000 format(/,' Force field',t40,a,/)
- 2001 format(' Directory standard files',t40,a,/,
-     + ' File name standard parameters',t40,a,/)
- 2002 format(' Directory extensions files',t40,a,/,
-     + ' File name extensions parameters',t40,a,/)
- 2003 format(' Directory contributed files',t40,a,/,
-     + ' File name contributed parameters',t40,a,/)
- 2004 format(' Directory user preferences files',t40,a,/,
-     + ' File name user preference parameters',t40,a,/)
- 2005 format(' Directory temporary files',t40,a,/,
-     + ' File name temporary parameters',t40,a,/)
- 2006 format(' Directory current files',t40,a,/,
-     + ' File name current parameters',t40,a,//)
+ 2001 format(/,' Directories used for fragment and segment files',/)
+ 2002 format(t40,a)
+ 2003 format(/,
+     + ' Parameter files used to resolve force field parameters',/)
+ 2004 format(t40,a,a)
       endif
 c
 c     check if the source file exists
@@ -298,11 +276,10 @@ c
 c     generate sequence & segments from coordinates
 c     ---------------------------------------------
 c
-      if(.not.pre_mkseq(irtdb,lfnout,source,ffield,sysnam,
+      write(*,'(a,a)') 'filpdb=',filpdb(1:index(filpdb,' ')-1)
+      if(.not.pre_mkseq(irtdb,lfnout,source,sysnam,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,lfnmod,filmod,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + par_s,par_x,par_q,par_u,par_t,par_c,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst,his))
      + call errquit('pre_mkseq failed',9999)
@@ -316,11 +293,9 @@ c
 c     generate topology
 c     -----------------
 c
-      if(.not.pre_mktop(lfnout,title,ffield,nparms,mparms,
+      if(.not.pre_mktop(lfnout,title,nparms,mparms,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,lfnmod,filmod,lfnmat,
-     + lfnhdb,lfnhop,filhop,dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + par_s,par_x,par_q,par_u,par_t,par_c,
-     + ignore,slvnam,itopol))
+     + lfnhdb,lfnhop,filhop,ignore,slvnam,itopol))
      + call errquit('pre_mktop failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2010) filtop(1:index(filtop,' ')-1)

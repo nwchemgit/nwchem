@@ -1,9 +1,11 @@
-      logical function pre_dihsel(ffield,catm,matm,natm,
+      logical function pre_dihsel(catm,matm,natm,
      + ldih,mdih,ndih)
 c
-c $Id: pre_dihsel.F,v 1.2 1998-04-29 18:35:14 d3j191 Exp $
+c $Id: pre_dihsel.F,v 1.3 2003-07-23 02:38:46 d3j191 Exp $
 c
       implicit none
+c
+#include "pre_common.fh"
 c
       integer pre_atnum
       external pre_atnum
@@ -11,7 +13,6 @@ c
       integer matm,natm,mdih,ndih
       integer ldih(4,mdih)
       character*6 catm(2,matm)
-      character*80 ffield
 c
       integer i,j,nd
 c

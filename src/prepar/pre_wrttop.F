@@ -1,4 +1,4 @@
-      logical function pre_wrttop(lfnout,title,ffield,lfntop,filtop,
+      logical function pre_wrttop(lfnout,title,lfntop,filtop,
      + lfnhdb,lfnhop,filhop,releps,q14fac,nparms,mparms,
      + lseq,cseq,mseq,nseq,
      + mqu,latt,lats,catt,patt,ratt,matt,natt,mats,nats,latm,catm,qatm,
@@ -9,14 +9,15 @@
      + l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol)
 c
-c $Id: pre_wrttop.F,v 1.41 2003-07-18 18:56:11 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.42 2003-07-23 02:38:47 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
+#include "pre_common.fh"
 c
       integer lfnout,lfntop,nparms,mparms,lfnhdb,lfnhop,itopol
-      character*80 ffield,title(2,3)
+      character*80 title(2,3)
       character*255 filtop,filhop
       real*8 releps,q14fac
       integer mseq,nseq,mqu

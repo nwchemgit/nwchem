@@ -1,16 +1,11 @@
       logical function pre_sgmndx(iunit,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + lfnout,lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,mato)
 c
-c $Id: pre_sgmndx.F,v 1.13 2003-07-17 19:38:57 d3j191 Exp $
+c $Id: pre_sgmndx.F,v 1.14 2003-07-23 02:38:47 d3j191 Exp $
 c
 c     function to scan database directories for segments in sequence
 c
 c     in  : iunit        = dbase logical file number
-c           dir_s        = standard dbase directory
-c           dir_x        = extensions dbase directory
-c           dir_u        = user preferences dbase directory
-c           dir_t        = temporary dbase directory
 c           lfnout       = output file logical file number
 c           lseq(1,mseq) = segment number
 c           lseq(2,mseq) = index to segment list
@@ -32,21 +27,15 @@ c
       implicit none
 c
 #include "util.fh"
+#include "pre_common.fh"
 c
       integer iunit,lfnout,mseq,nseq,msgm,nsgm,mato
       integer lseq(6,mseq),lsgm(3,msgm)
       character*5 cseq(2,mseq),csgm(msgm)
-      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,filnam
+      character*255 filnam
 c
-      integer len_s,len_x,len_q,len_u,len_t,len_c,length
-      integer i
-c
-      len_s=index(dir_s,' ')-1
-      len_x=index(dir_x,' ')-1
-      len_q=index(dir_q,' ')-1
-      len_u=index(dir_u,' ')-1
-      len_t=index(dir_t,' ')-1
-      len_c=index(dir_c,' ')-1
+      integer length
+      integer i,j
 c
       if(util_print('sequence',print_high)) then
       write(lfnout,2000)
@@ -88,144 +77,38 @@ c
 c
 c     check the temporary dbase directory
 c
-      if(len_c.gt.0) then
-      filnam=dir_c(1:len_c)//csgm(i)(1:length)//'.sgm '
-      open(iunit,file=filnam(1:index(filnam,' ')-1),form='formatted',
-     + status='old',err=4)
-      lsgm(2,i)=6
-      close(iunit)
-      goto 15
-    4 continue
-      filnam=dir_c(1:len_c)//csgm(i)(1:length)//'.frg '
+      do 4 j=mdirpar,1,-1
+      if(nfilpar(j).gt.0) then
+      filnam=
+     + dirpar(j)(1:index(dirpar(j),' ')-1)//csgm(i)(1:length)//'.sgm '
       open(iunit,file=filnam(1:index(filnam,' ')-1),form='formatted',
      + status='old',err=5)
-      lsgm(2,i)=-6
+      lsgm(2,i)=j
       close(iunit)
-      goto 15
-      endif
+      goto 6
     5 continue
-c
-      if(len_t.gt.0) then
-      filnam=dir_t(1:len_t)//csgm(i)(1:length)//'.sgm '
+      filnam=
+     + dirpar(j)(1:index(dirpar(j),' ')-1)//csgm(i)(1:length)//'.frg '
       open(iunit,file=filnam(1:index(filnam,' ')-1),form='formatted',
-     + status='old',err=6)
-      lsgm(2,i)=5
+     + status='old',err=4)
+      lsgm(2,i)=-j
       close(iunit)
-      goto 15
+      goto 6
+      endif
+    4 continue
     6 continue
-      filnam=dir_t(1:len_t)//csgm(i)(1:length)//'.frg '
-      open(iunit,file=filnam(1:index(filnam,' ')-1),form='formatted',
-     + status='old',err=7)
-      lsgm(2,i)=-5
-      close(iunit)
-      goto 15
-      endif
-    7 continue
-c
-c     check the user preferences dbase directory
-c
-      if(len_u.gt.0) then
-      filnam=dir_u(1:len_u)//csgm(i)(1:length)//'.sgm '
-      open(iunit,file=filnam(1:index(filnam,' ')-1),form='formatted',
-     + status='old',err=8)
-      lsgm(2,i)=4
-      close(iunit)
-      goto 15
-    8 continue
-      filnam=dir_u(1:len_u)//csgm(i)(1:length)//'.frg '
-      open(iunit,file=filnam(1:index(filnam,' ')-1),form='formatted',
-     + status='old',err=9)
-      lsgm(2,i)=-4
-      close(iunit)
-      goto 15
-      endif
-    9 continue
-c
-c     check the contributed dbase directory
-c
-      if(len_q.gt.0) then
-      filnam=dir_q(1:len_q)//csgm(i)(1:length)//'.sgm '
-      open(iunit,file=filnam(1:index(filnam,' ')-1),form='formatted',
-     + status='old',err=10)
-      lsgm(2,i)=3
-      close(iunit)
-      goto 15
-   10 continue
-      filnam=dir_q(1:len_q)//csgm(i)(1:length)//'.frg '
-      open(iunit,file=filnam(1:index(filnam,' ')-1),form='formatted',
-     + status='old',err=11)
-      lsgm(2,i)=-3
-      close(iunit)
-      goto 15
-      endif
-   11 continue
-c
-c     check the extensions dbase directory
-c
-      if(len_x.gt.0) then
-      filnam=dir_x(1:len_x)//csgm(i)(1:length)//'.sgm '
-      open(iunit,file=filnam(1:index(filnam,' ')-1),form='formatted',
-     + status='old',err=12)
-      lsgm(2,i)=2
-      close(iunit)
-      goto 15
-   12 continue
-      filnam=dir_x(1:len_x)//csgm(i)(1:length)//'.frg '
-      open(iunit,file=filnam(1:index(filnam,' ')-1),form='formatted',
-     + status='old',err=13)
-      lsgm(2,i)=-2
-      close(iunit)
-      goto 15
-      endif
-   13 continue
-c
-c     check the standard dbase directory
-c
-      if(len_s.gt.0) then
-      filnam=dir_s(1:len_s)//csgm(i)(1:length)//'.sgm '
-      open(iunit,file=filnam(1:index(filnam,' ')-1),form='formatted',
-     + status='old',err=14)
-      lsgm(2,i)=1
-      close(iunit)
-      goto 15
-   14 continue
-      filnam=dir_s(1:len_s)//csgm(i)(1:length)//'.frg '
-      open(iunit,file=filnam(1:index(filnam,' ')-1),form='formatted',
-     + status='old',err=15)
-      lsgm(2,i)=-1
-      close(iunit)
-      goto 15
-      endif
-c
-   15 continue
 c
       if(lsgm(2,i).eq.0) pre_sgmndx=.false.
 c
       if(util_print('sequence',print_high)) then
-      if(lsgm(2,i).eq.-1) write(lfnout,1001) i,csgm(i),lsgm(1,i),
-     + lsgm(2,i),dir_s(1:len_s)//csgm(i)(1:length)//'.frg '
-      if(lsgm(2,i).eq.1) write(lfnout,1001) i,csgm(i),lsgm(1,i),
-     + lsgm(2,i),dir_s(1:len_s)//csgm(i)(1:length)//'.sgm '
-      if(lsgm(2,i).eq.-2) write(lfnout,1001) i,csgm(i),lsgm(1,i),
-     + lsgm(2,i),dir_x(1:len_x)//csgm(i)(1:length)//'.frg '
-      if(lsgm(2,i).eq.2) write(lfnout,1001) i,csgm(i),lsgm(1,i),
-     + lsgm(2,i),dir_x(1:len_x)//csgm(i)(1:length)//'.sgm '
-      if(lsgm(2,i).eq.-3) write(lfnout,1001) i,csgm(i),lsgm(1,i),
-     + lsgm(2,i),dir_q(1:len_q)//csgm(i)(1:length)//'.frg '
-      if(lsgm(2,i).eq.3) write(lfnout,1001) i,csgm(i),lsgm(1,i),
-     + lsgm(2,i),dir_q(1:len_q)//csgm(i)(1:length)//'.sgm '
-      if(lsgm(2,i).eq.-4) write(lfnout,1001) i,csgm(i),lsgm(1,i),
-     + lsgm(2,i),dir_u(1:len_u)//csgm(i)(1:length)//'.frg '
-      if(lsgm(2,i).eq.4) write(lfnout,1001) i,csgm(i),lsgm(1,i),
-     + lsgm(2,i),dir_u(1:len_u)//csgm(i)(1:length)//'.sgm '
-      if(lsgm(2,i).eq.-5) write(lfnout,1001) i,csgm(i),lsgm(1,i),
-     + lsgm(2,i),dir_t(1:len_t)//csgm(i)(1:length)//'.frg '
-      if(lsgm(2,i).eq.5) write(lfnout,1001) i,csgm(i),lsgm(1,i),
-     + lsgm(2,i),dir_t(1:len_t)//csgm(i)(1:length)//'.sgm '
-      if(lsgm(2,i).eq.-6) write(lfnout,1001) i,csgm(i),lsgm(1,i),
-     + lsgm(2,i),dir_c(1:len_c)//csgm(i)(1:length)//'.frg '
-      if(lsgm(2,i).eq.5) write(lfnout,1001) i,csgm(i),lsgm(1,i),
-     + lsgm(2,i),dir_c(1:len_c)//csgm(i)(1:length)//'.sgm '
+      if(lsgm(2,i).lt.0)
+     + write(lfnout,1001) i,csgm(i),lsgm(1,i),lsgm(2,i),
+     + dirpar(-lsgm(2,i))(1:index(dirpar(-lsgm(2,i)),' ')-1)//
+     + csgm(i)(1:length)//'.frg '
+      if(lsgm(2,i).gt.0)
+     + write(lfnout,1001) i,csgm(i),lsgm(1,i),lsgm(2,i),
+     + dirpar(lsgm(2,i))(1:index(dirpar(lsgm(2,i)),' ')-1)//
+     + csgm(i)(1:length)//'.sgm '
  1001 format(i5,2x,a5,i5,2x,i5,1x,a) 
       if(lsgm(2,i).eq.0)write(lfnout,1002) i,csgm(i),lsgm(1,i),
      + lsgm(2,i)

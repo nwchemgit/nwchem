@@ -1,13 +1,13 @@
-      logical function pre_imp(ffield,latm,matm,natm,lbnd,mbnd,nbnd,
+      logical function pre_imp(latm,matm,natm,lbnd,mbnd,nbnd,
      + limp,mimp,nimp)
 c
-c $Id: pre_imp.F,v 1.5 1998-04-29 18:35:16 d3j191 Exp $
+c $Id: pre_imp.F,v 1.6 2003-07-23 02:38:46 d3j191 Exp $
 c
       implicit none
+#include "pre_common.fh"
 c
       integer matm,natm,mbnd,nbnd,mimp,nimp
       integer latm(5,matm),lbnd(2,mbnd),limp(4,mimp)
-      character*80 ffield
 c
       integer i,j,k,l,ltemp,na
       integer ia(10),nia(10)

@@ -1,11 +1,12 @@
-      logical function pre_protein(ffield,sgmnam)
+      logical function pre_protein(sgmnam)
 c
-c $Id: pre_protein.F,v 1.1 1998-07-14 15:47:29 d3j191 Exp $
+c $Id: pre_protein.F,v 1.2 2003-07-23 02:38:46 d3j191 Exp $
 c
       implicit none
 c
+#include "pre_common.fh"
+c
       character*5 sgmnam
-      character*80 ffield
 c
       pre_protein=.true.
 c

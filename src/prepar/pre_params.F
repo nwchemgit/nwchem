@@ -1,27 +1,23 @@
       logical function pre_params(lfnpar,lfnout,nparms,mparms,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + par_s,par_x,par_q,par_u,par_t,par_c,
-     + ffield,releps,q14fac,ignore,
+     + releps,q14fac,ignore,
      + latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
      + ldih,nfdih,kdih,rdih,mdih,ndih,limp,kimp,rimp,mimp,nimp,
      + latt,lats,catt,patt,ratt,matt,natt,mats,nats,
      + lseq,cseq,mseq,nseq)
 c
-c $Id: pre_params.F,v 1.16 2003-07-17 19:38:57 d3j191 Exp $
+c $Id: pre_params.F,v 1.17 2003-07-23 02:38:46 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 #include "mafdecls.fh"
+#include "pre_common.fh"
 c
       logical pre_ffield,pre_parcnv,pre_check,pre_dummy,pre_multip
       external pre_ffield,pre_parcnv,pre_check,pre_dummy,pre_multip
 c
       integer lfnpar,lfnout,ignore,nparms,mparms
-      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
-      character*255 par_s,par_x,par_q,par_u,par_t,par_c
-      character*80 ffield
       integer matm,natm
       integer latm(11,matm)
       character*6 catm(mparms,matm)
@@ -45,7 +41,7 @@ c
       integer lseq(6,mseq)
       character*10 cseq(mseq)
 c
-      integer i,j,k,kk,lp,ld,icomb
+      integer i,j,k,kk,lp,ld,icomb,len
       character*255 filnam
       real*8 releps,q14fac
 c
@@ -93,72 +89,20 @@ c     substitute parameters parameter files
 c     -------------------------------------
 c
       icomb=0
-      lp=index(par_s,' ')
-      ld=index(dir_s,' ')-1
-      if(ld.gt.0) then
-      filnam=dir_s(1:ld)//par_s(1:lp)
+c
+      do 544 i=1,mdirpar
+      do 545 j=1,nfilpar(i)
+      write(filnam,'(a,a)') dirpar(i)(1:index(dirpar(i),' ')-1),
+     + filpar(i,j)(1:index(filpar(i,j),' '))
+      len=index(filnam,' ')-1
       if(.not.pre_ffield(1,lfnpar,filnam,lfnout,q14fac,releps,
-     + ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
+     + icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
      + ldih,nfdih,kdih,rdih,mdih,ndih,
      + limp,kimp,rimp,mimp,nimp,nparms,mparms)) then
       endif
-      endif
-      lp=index(par_x,' ')
-      ld=index(dir_x,' ')-1
-      if(ld.gt.0) then
-      filnam=dir_x(1:ld)//par_x(1:lp)
-      if(.not.pre_ffield(2,lfnpar,filnam,lfnout,q14fac,releps,
-     +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
-     + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
-     + ldih,nfdih,kdih,rdih,mdih,ndih,
-     + limp,kimp,rimp,mimp,nimp,nparms,mparms)) then
-      endif
-      endif
-      lp=index(par_q,' ')
-      ld=index(dir_q,' ')-1
-      if(ld.gt.0) then
-      filnam=dir_q(1:ld)//par_q(1:lp)
-      if(.not.pre_ffield(2,lfnpar,filnam,lfnout,q14fac,releps,
-     +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
-     + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
-     + ldih,nfdih,kdih,rdih,mdih,ndih,
-     + limp,kimp,rimp,mimp,nimp,nparms,mparms)) then
-      endif
-      endif
-      lp=index(par_u,' ')
-      ld=index(dir_u,' ')-1
-      if(ld.gt.0) then
-      filnam=dir_u(1:ld)//par_u(1:lp)
-      if(.not.pre_ffield(3,lfnpar,filnam,lfnout,q14fac,releps,
-     +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
-     + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
-     + ldih,nfdih,kdih,rdih,mdih,ndih,
-     + limp,kimp,rimp,mimp,nimp,nparms,mparms)) then
-      endif
-      endif
-      lp=index(par_t,' ')
-      ld=index(dir_t,' ')-1
-      if(ld.gt.0) then
-      filnam=dir_t(1:ld)//par_t(1:lp)
-      if(.not.pre_ffield(4,lfnpar,filnam,lfnout,q14fac,releps,
-     +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
-     + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
-     + ldih,nfdih,kdih,rdih,mdih,ndih,
-     + limp,kimp,rimp,mimp,nimp,nparms,mparms)) then
-      endif
-      endif
-      lp=index(par_c,' ')
-      ld=index(dir_c,' ')-1
-      if(ld.gt.0) then
-      filnam=dir_c(1:ld)//par_c(1:lp)
-      if(.not.pre_ffield(4,lfnpar,filnam,lfnout,q14fac,releps,
-     +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
-     + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
-     + ldih,nfdih,kdih,rdih,mdih,ndih,
-     + limp,kimp,rimp,mimp,nimp,nparms,mparms)) then
-      endif
-      endif
+  545 continue
+  544 continue
 c
       if(util_print('topology',print_default)) then
       write(lfnout,1000)
@@ -183,7 +127,7 @@ c
 c     check if all required parameters have been found
 c     ------------------------------------------------
 c
-      if(.not.pre_check(lfnout,ffield,nparms,mparms,ignore,
+      if(.not.pre_check(lfnout,nparms,mparms,ignore,
      + latt,catt,matt,natt,catm,latm,matm,natm,lbnd,mbnd,nbnd,
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp,
      + lseq,cseq,mseq,nseq))

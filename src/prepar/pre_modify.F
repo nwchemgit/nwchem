@@ -1,21 +1,21 @@
-      logical function pre_modify(iwhich,lfnout,lfnmod,filmod,ffield,
+      logical function pre_modify(iwhich,lfnout,lfnmod,filmod,
      + nparms,mparms,latm,catm,qatm,matm,natm,lseq,cseq,mseq,nseq,
      + lbnd,rbnd,mbnd,nbnd,nbndt,lang,rang,mang,nang,nangt,
      + ldih,nfdih,kdih,rdih,mdih,ndih,ndiht,limp,kimp,rimp,mimp,nimp,
      + nimpt,lupdat)
 c
-c     $Id: pre_modify.F,v 1.15 2003-07-17 19:38:57 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.16 2003-07-23 02:38:46 d3j191 Exp $
 c
       implicit none
 c
 #include "inp.fh"
 #include "util.fh"
+#include "pre_common.fh"
 c
       logical str_replace
       external str_replace
 c
       integer iwhich,lfnout,lfnmod,matm,natm,mseq,nseq,nparms,mparms
-      character*80 ffield
       character*255 filmod
       integer latm(11,matm)
       character*6 catm(mparms,matm)

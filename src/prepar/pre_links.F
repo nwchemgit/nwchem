@@ -1,8 +1,8 @@
-      logical function pre_links(lfnout,ffield,lfnmod,filmod,
+      logical function pre_links(lfnout,lfnmod,filmod,
      + xatm,catm,latm,matm,lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,nlnkf)
 c
-c $Id: pre_links.F,v 1.16 2003-07-17 19:38:56 d3j191 Exp $
+c $Id: pre_links.F,v 1.17 2003-07-23 02:38:46 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -15,6 +15,8 @@ c
       implicit none
 c
 #include "util.fh"
+#include "pre_common.fh"
+c
 c
       logical pre_short,pre_protein,pre_nucleic
       integer pre_shorts
@@ -26,7 +28,6 @@ c
       real*8 xatm(3,matm)
       integer latm(5,matm)
       character*6 catm(3,matm)
-      character*80 ffield
       integer lseq(6,mseq),llnk(4,mlnk)
       character*5 cseq(2,mseq)
       character*4 clnk(2,mlnk)

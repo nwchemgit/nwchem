@@ -1,20 +1,20 @@
-      logical function pre_check(lfnout,ffield,nparms,mparms,ignore,
+      logical function pre_check(lfnout,nparms,mparms,ignore,
      + latt,catt,matt,natt,catm,latm,matm,natm,lbnd,mbnd,nbnd,
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp,
      + lseq,cseq,mseq,nseq)
 c
-c $Id: pre_check.F,v 1.15 2003-07-17 19:38:56 d3j191 Exp $
+c $Id: pre_check.F,v 1.16 2003-07-23 02:38:46 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
+#include "pre_common.fh"
 c
       integer lfnout,matm,natm,nparms,mparms,ignore
       integer matt,natt,mbnd,nbnd,mang,nang,mdih,ndih,mimp,nimp
       integer latt(3,matt),lbnd(4,mbnd),lang(5,mang),ldih(6,mdih)
       integer limp(6,mimp),latm(11,matm)
       character*6 catt(2,matt),catm(mparms,matm)
-      character*80 ffield
       integer mseq,nseq
       integer lseq(6,mseq)
       character*10 cseq(mseq)

@@ -1,20 +1,21 @@
-      logical function pre_ffield(idir,lfnpar,filpar,lfnout,
-     + q14fac,releps,ffield,
+      logical function pre_ffield(idir,lfnpar,filep,lfnout,
+     + q14fac,releps,
      + icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
      + ldih,nfdih,kdih,rdih,mdih,ndih,
      + limp,kimp,rimp,mimp,nimp,nparms,mparms)
 c
-c $Id: pre_ffield.F,v 1.20 2003-07-17 19:38:56 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.21 2003-07-23 02:38:46 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
+#include "pre_common.fh"
+c
 c
       integer idir,lfnpar,lfnout,nparms,mparms
-      character*255 filpar
+      character*255 filep
       real*8 q14fac,releps
-      character*80 ffield
       integer matt,natt,icomb
       integer latt(3,matt)
       character*6 catt(2,matt)
@@ -47,12 +48,12 @@ c
       mask(2)=2
       mask(3)=1
 c
-      length=index(filpar,' ')-1
-      open(unit=lfnpar,file=filpar(1:length),form='formatted',
+      length=index(filep,' ')-1
+      open(unit=lfnpar,file=filep(1:length),form='formatted',
      + status='old',err=9999)
 c
       if(util_print('files',print_default)) then
-      write(lfnout,1111) filpar(1:length)
+      write(lfnout,1111) filep(1:length)
  1111 format(' Parameter file',t40,a)
       endif
 c
@@ -496,6 +497,10 @@ c
       close(unit=lfnpar)
 c
       pre_ffield=.true.
+      if(util_print('where',print_debug)) then
+      write(lfnout,2006)
+ 2006 format(/,'pre_ffield done')
+      endif
       return
  9999 continue
       pre_ffield=.false.

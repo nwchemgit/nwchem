@@ -1,7 +1,6 @@
-      logical function pre_mksgm(lfnout,ffield,
-     + lfnfrg,filfrg,lfnsgm,filsgm)
+      logical function pre_mksgm(lfnout,lfnfrg,filfrg,lfnsgm,filsgm)
 c
-c $Id: pre_mksgm.F,v 1.12 2000-09-16 02:38:42 d3j191 Exp $
+c $Id: pre_mksgm.F,v 1.13 2003-07-23 02:38:46 d3j191 Exp $
 c
 c     function to make segment file
 c
@@ -13,6 +12,7 @@ c
 c
 #include "mafdecls.fh"
 #include "util.fh"
+#include "pre_common.fh"
 c
       logical pre_frgsiz,pre_frgrd,pre_ang,pre_dih,pre_imp
       logical pre_dihsel,pre_dihimp,pre_wrtsgm
@@ -20,7 +20,6 @@ c
       external pre_dihsel,pre_dihimp,pre_wrtsgm
 c
       integer lfnout,lfnfrg,lfnsgm
-      character*80 ffield
       character*255 filfrg,filsgm
 c
       integer length
@@ -152,7 +151,7 @@ c
 c     write segment file
 c     ------------------
 c
-      if(.not.pre_wrtsgm(lfnout,ffield,lfnsgm,filsgm,
+      if(.not.pre_wrtsgm(lfnout,lfnsgm,filsgm,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_bnd),mbnd,nbnd,int_mb(i_ang),mang,nang,
      + int_mb(i_dih),mdih,ndih,int_mb(i_imp),mimp,nimp,

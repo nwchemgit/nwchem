@@ -1,31 +1,25 @@
-      logical function pre_mkseq(irtdb,lfnout,source,ffield,sysnam,
+      logical function pre_mkseq(irtdb,lfnout,source,sysnam,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,lfnmod,filmod,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + par_s,par_x,par_q,par_u,par_t,par_c,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst,his)
 c
-c $Id: pre_mkseq.F,v 1.39 2003-07-17 19:38:57 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.40 2003-07-23 02:38:46 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
-c          char*80 ffield    = force field from [amber]
 c          integer lfnpdb    = logical file number for pdb file
 c          char*80 filpdb    = file name of pdb file
 c          integer lfnseq    = logical file number for seq file
 c          char*80 filseq    = file name of seq file
 c          integer lfnpar    = logical file number for typ file
 c          integer lfnfrg    = logical file number for frg file
-c          char*80 dir_s     = directory standard ffield files
-c          char*80 dir_x     = directory extensions ffield files
-c          char*80 dir_u     = directory user preferences ffield files
-c          char*80 dir_t     = directory temporary ffield files
 c
       implicit none
 c
 #include "mafdecls.fh"
 #include "util.fh"
 #include "geom.fh"
+#include "pre_common.fh"
 c
       integer irtdb
       logical pre_pdbsiz,pre_pdbseq,pre_rtdbsq,pre_wrtnam
@@ -51,9 +45,6 @@ c
       real*8 qscale
 c
       character*255 filpdb,filseq,filtmp,filmod
-      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
-      character*255 par_s,par_x,par_q,par_u,par_t,par_c
-      character*80 ffield
       character*80 sysnam
       character*3 slvnam
       character*80 source
@@ -189,7 +180,7 @@ c
 c     comply with iupac atom names
 c     ----------------------------
 c
-      if(.not.pre_namiup(lfnout,ffield,
+      if(.not.pre_namiup(lfnout,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),matm,natm))
      + call errquit('pre_namiup failed',9999)
@@ -225,7 +216,7 @@ c
 c     check segment links
 c     -------------------
 c
-      if(.not.pre_links(lfnout,ffield,lfnmod,filmod,
+      if(.not.pre_links(lfnout,lfnmod,filmod,
      + dbl_mb(i_xatm),byte_mb(i_catm),int_mb(i_latm),
      + matm,int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,int_mb(i_llnk),
      + byte_mb(i_clnk),mlnk,nlnk,nlnkf))
@@ -234,7 +225,7 @@ c
 c     comply with force field segment names
 c     -------------------------------------
 c
-      if(.not.pre_rename(lfnout,ffield,lfnmod,filmod,
+      if(.not.pre_rename(lfnout,lfnmod,filmod,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),matm,natm,int_mb(i_llnk),
      + byte_mb(i_clnk),mlnk,nlnk,icyren,his))
@@ -277,8 +268,7 @@ c
 c     scan the database directories for segment files
 c     -----------------------------------------------
 c
-      if(.not.pre_sgmndx(lfnfrg,dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + lfnout,
+      if(.not.pre_sgmndx(lfnfrg,lfnout,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm,mato)) then
 c
@@ -336,8 +326,6 @@ c
 c     generate fragment files for missing segments in dir_t
 c
       if(.not.pre_mkfrg(irtdb,source,lfnfrg,lfnpar,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + par_s,par_x,par_q,par_u,par_t,par_c,
      + lfnout,iconst,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm,int_mb(i_latm),
@@ -376,7 +364,6 @@ c     generate segment files
 c     ----------------------
 c
       if(.not.pre_gensgm(lfnout,lfnfrg,lfnsgm,
-     + ffield,dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm))
      + call errquit('pre_gensgm failed',9999)
 c

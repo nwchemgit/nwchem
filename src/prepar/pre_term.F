@@ -1,8 +1,7 @@
       logical function pre_term(lfnout,lfnsgm,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_term.F,v 1.12 2003-07-17 19:38:57 d3j191 Exp $
+c $Id: pre_term.F,v 1.13 2003-07-23 02:38:47 d3j191 Exp $
 c
 c     function to determine the terminal segments
 c
@@ -17,7 +16,6 @@ c
       integer lseq(6,mseq),llnk(3,mlnk)
       character*10 cseq(mseq)
       character*4 clnk(2,mlnk)
-      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
 c
       character*255 filsgm
       integer i,isgm,j,jsgm,num,link
@@ -40,8 +38,7 @@ c
  1000 format(' Link ',i5,':',a4,4x,i5,':',a4)
       endif
 c
-      if(.not.pre_sgmfil(cseq(isgm),lfnsgm,filsgm,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c)) then
+      if(.not.pre_sgmfil(cseq(isgm),lfnsgm,filsgm)) then
       write(lfnout,1001) filsgm(1:index(filsgm,' ')-1)
  1001 format('Segment ',a,' not found')
       call errquit('pre_sgmfil failed',9999)
@@ -65,8 +62,7 @@ cx      if(lseq(2,isgm).eq.0)  call errquit('multiple links',9999)
       if(lseq(2,isgm).gt.0) lseq(2,isgm)=0
       endif
 c
-      if(.not.pre_sgmfil(cseq(jsgm),lfnsgm,filsgm,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c)) then
+      if(.not.pre_sgmfil(cseq(jsgm),lfnsgm,filsgm)) then
       write(lfnout,1001) filsgm(1:index(filsgm,' ')-1)
       call errquit('pre_sgmfil failed',9999)
       endif

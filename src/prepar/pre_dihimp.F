@@ -1,13 +1,14 @@
-      logical function pre_dihimp(ffield,latm,matm,natm,lang,mang,nang,
+      logical function pre_dihimp(latm,matm,natm,lang,mang,nang,
      + ldih,mdih,ndih,limp,mimp,nimp)
 c
-c $Id: pre_dihimp.F,v 1.4 1998-04-29 18:35:14 d3j191 Exp $
+c $Id: pre_dihimp.F,v 1.5 2003-07-23 02:38:46 d3j191 Exp $
 c
       implicit none
 c
+#include "pre_common.fh"
+c
       integer matm,natm,mang,nang,mdih,ndih,mimp,nimp
       integer latm(5,matm),lang(3,mang),ldih(4,mdih),limp(4,mimp)
-      character*80 ffield
 c
       integer i,j,k,no
 c

@@ -1,10 +1,8 @@
       logical function pre_charge(irtdb,lfnout,lfnpar,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + par_s,par_x,par_q,par_u,par_t,par_c,
      + source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.26 2001-11-06 06:15:20 d3j191 Exp $
+c $Id: pre_charge.F,v 1.27 2003-07-23 02:38:46 d3j191 Exp $
 c
       implicit none
 c
@@ -13,6 +11,7 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "pre_common.fh"
 c
       logical pre_task
       external pre_task
@@ -34,8 +33,6 @@ c     out : qatm(matm)        = guestimated atomic partial charges
 c
       character*80 source
       integer irtdb,lfnout,lfnpar,jlo,ilo,ihi,jhi
-      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
-      character*255 par_s,par_x,par_q,par_u,par_t,par_c
       integer matm,natm,maxscf
       integer latm(5,matm)
       character*6 catm(3,matm)
@@ -274,8 +271,6 @@ c
      + call errquit('Failed to allocate qb',0)
 c
       call pre_quick_charge(lfnout,lfnpar,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + par_s,par_x,par_q,par_u,par_t,par_c,
      + ilo,ihi,
      + latm,catm,qatm,matm,natm,
      + lbnd,dbl_mb(i_qb),mbnd,nbnd)
@@ -379,18 +374,15 @@ c
       return
       end
       subroutine pre_quick_charge(lfnout,lfnpar,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + par_s,par_x,par_q,par_u,par_t,par_c,
      + ilo,ihi,
      + latm,catm,qatm,matm,natm,lbnd,qbnd,mbnd,nbnd)
 c
       implicit none
 c
 #include "util.fh"
+#include "pre_common.fh"
 c
       integer lfnout,lfnpar
-      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
-      character*255 par_s,par_x,par_q,par_u,par_t,par_c
       integer matm,natm,mbnd,nbnd,ilo,ihi
       character*255 filnam
       integer latm(5,matm)
@@ -400,55 +392,25 @@ c
       real*8 qbnd(mbnd)
       character*100 card
 c
-      integer i,j,l,lt,ld
+      integer i,j,k,l,lt,ld,len
       real*8 q
 c
       do 1 i=1,nbnd
       qbnd(i)=0.0d0
     1 continue
 c
-      lt=index(par_s,' ')-1
-      ld=index(dir_s,' ')-1
-      l=ld+lt
-      filnam=dir_s(1:ld)//par_s(1:lt)
-      do 7 j=1,6
-      if(j.eq.2) then
-      lt=index(par_x,' ')-1
-      ld=index(dir_x,' ')-1
-      l=ld+lt
-      filnam=dir_x(1:ld)//par_x(1:lt)
-      endif
-      if(j.eq.3) then
-      lt=index(par_q,' ')-1
-      ld=index(dir_q,' ')-1
-      l=ld+lt
-      filnam=dir_q(1:ld)//par_q(1:lt)
-      endif
-      if(j.eq.4) then
-      lt=index(par_u,' ')-1
-      ld=index(dir_u,' ')-1
-      l=ld+lt
-      filnam=dir_u(1:ld)//par_u(1:lt)
-      endif
-      if(j.eq.5) then
-      lt=index(par_t,' ')-1
-      ld=index(dir_t,' ')-1
-      l=ld+lt
-      filnam=dir_t(1:ld)//par_t(1:lt)
-      endif
-      if(j.eq.6) then
-      lt=index(par_c,' ')-1
-      ld=index(dir_c,' ')-1
-      l=ld+lt
-      filnam=dir_c(1:ld)//par_c(1:lt)
-      endif
-      open(unit=lfnpar,file=filnam(1:l),status='old',form='formatted',
+      do 7 j=1,mdirpar
+      do 77 k=1,nfilpar(j)
+      write(filnam,'(a,a)') dirpar(i)(1:index(dirpar(i),' ')-1),
+     + filpar(i,j)(1:index(filpar(i,j),' '))
+      len=index(filnam,' ')-1
+      open(unit=lfnpar,file=filnam(1:len),status='old',form='formatted',
      + err=2)
     3 continue
       read(lfnpar,1000,end=4,err=9999) card
       if(card(1:5).ne.'Bonds') goto 3
       if(util_print('files',print_medium)) then
-      write(lfnout,2000) filnam(1:l)
+      write(lfnout,2000) filnam(1:len)
  2000 format(' Bond charge definitions',t40,a)
       endif
     5 continue
@@ -467,9 +429,10 @@ c
     4 continue
       close(unit=lfnpar)
       if(util_print('where',print_debug)) then
-      write(lfnout,'(a,a)') filnam(1:l),' closed' 
+      write(lfnout,'(a,a)') filnam(1:len),' closed' 
       endif
     2 continue
+   77 continue
     7 continue
 c
       do 8 i=1,nbnd

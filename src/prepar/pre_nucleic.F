@@ -1,11 +1,12 @@
-      logical function pre_nucleic(ffield,sgmnam)
+      logical function pre_nucleic(sgmnam)
 c
-c $Id: pre_nucleic.F,v 1.1 1999-06-16 23:56:59 d3j191 Exp $
+c $Id: pre_nucleic.F,v 1.2 2003-07-23 02:38:46 d3j191 Exp $
 c
       implicit none
 c
+#include "pre_common.fh"
+c
       character*5 sgmnam
-      character*80 ffield
 c
       pre_nucleic=.true.
 c

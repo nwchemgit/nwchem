@@ -1,11 +1,9 @@
-      logical function pre_mktop(lfnout,title,ffield,nparms,mparms,
+      logical function pre_mktop(lfnout,title,nparms,mparms,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,
      + lfnmod,filmod,lfnmat,lfnhdb,lfnhop,filhop,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + par_s,par_x,par_q,par_u,par_t,par_c,
      + ignore,slvnam,itopol)
 c
-c $Id: pre_mktop.F,v 1.32 2003-07-17 19:38:57 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.33 2003-07-23 02:38:46 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -14,15 +12,12 @@ c          char*80 filseq    = file name of seq file
 c          integer lfntop    = logical file number for top file
 c          char*80 filtop    = file name of top file
 c          integer lfnsgm    = logical file number for sgm file
-c          char*80 dir_s     = directory standard ffield files
-c          char*80 dir_x     = directory extensions ffield files
-c          char*80 dir_u     = directory user preferences ffield files
-c          char*80 dir_t     = directory temporary ffield files
 c
       implicit none
 c
 #include "mafdecls.fh"
 #include "util.fh"
+#include "pre_common.fh"
 c
       logical pre_seqsiz,pre_rdseq,pre_term,pre_dimens,pre_mklist
       external pre_seqsiz,pre_rdseq,pre_term,pre_dimens,pre_mklist
@@ -34,10 +29,8 @@ c
       integer lfnout,lfnseq,lfntop,lfnsgm,lfnpar,lfnmod,ignore,lfnmat
       integer lfnhdb,lfnhop
       integer nparms,mparms,itopol
-      character*80 ffield,title(2,3)
+      character*80 title(2,3)
       character*255 filseq,filtop,filmod,filhop
-      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
-      character*255 par_s,par_x,par_q,par_u,par_t,par_c
       character*3 slvnam
 c
       integer mseq,nseq
@@ -154,7 +147,6 @@ c     determine termini
 c     -----------------
 c
       if(.not.pre_term(lfnout,lfnsgm,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk))
      + call errquit('pre_term failed',9999)
@@ -168,7 +160,6 @@ c     determine array dimensions
 c     --------------------------
 c
       if(.not.pre_dimens(lfnout,lfnsgm,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + natm,nbnd,nang,ndih,nimp,nparms))
      + call errquit('pre_dimens failed',9999)
@@ -301,7 +292,6 @@ c
       if(.not.ma_push_get(mt_dbl,nval,'rval',l_rval,i_rval))
      + call errquit('Memory allocation failed for rval',9999)
       if(.not.pre_mklist(lfnout,lfnsgm,lfnmat,nparms,mparms,
-     + ffield,dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
@@ -327,7 +317,7 @@ c
 c
 c     apply topology modifications to atom types
 c     ------------------------------------------
-      if(.not.pre_modify(1,lfnout,lfnmod,filmod,ffield,nparms,mparms,
+      if(.not.pre_modify(1,lfnout,lfnmod,filmod,nparms,mparms,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbnd,nbndt,
@@ -370,9 +360,7 @@ c     substitute force field parameters
 c     ---------------------------------
 c
       if(.not.pre_params(lfnpar,lfnout,nparms,mparms,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + par_s,par_x,par_q,par_u,par_t,par_c,
-     + ffield,releps,q14fac,ignore,
+     + releps,q14fac,ignore,
      + int_mb(i_latm),byte_mb(i_catm),matm,natmt,
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbndt,
      + int_mb(i_lang),dbl_mb(i_rang),mang,nangt,
@@ -483,7 +471,7 @@ c
 c     apply topology modifications to bonded parameters
 c     -------------------------------------------------
 c
-      if(.not.pre_modify(2,lfnout,lfnmod,filmod,ffield,nparms,mparms,
+      if(.not.pre_modify(2,lfnout,lfnmod,filmod,nparms,mparms,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbnd,nbndt,
@@ -497,7 +485,7 @@ c
 c     write the topology file
 c     -----------------------
 c
-      if(.not.pre_wrttop(lfnout,title,ffield,lfntop,filtop,lfnhdb,
+      if(.not.pre_wrttop(lfnout,title,lfntop,filtop,lfnhdb,
      + lfnhop,filhop,releps,q14fac,
      + nparms,mparms,int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,mqu,
      + int_mb(i_latt),int_mb(i_lats),byte_mb(i_catt),dbl_mb(i_patt),

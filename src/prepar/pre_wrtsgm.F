@@ -1,12 +1,13 @@
-      logical function pre_wrtsgm(lfnout,ffield,lfnsgm,filsgm,
+      logical function pre_wrtsgm(lfnout,lfnsgm,filsgm,
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,lang,mang,nang,
      + ldih,mdih,ndih,limp,mimp,nimp,izmat,zmat,mzmat,nzmat)
 c
-c $Id: pre_wrtsgm.F,v 1.12 2003-07-17 19:38:58 d3j191 Exp $
+c $Id: pre_wrtsgm.F,v 1.13 2003-07-23 02:38:47 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
+#include "pre_common.fh"
 c
       integer lfnout,lfnsgm
       integer matm,natm,mbnd,nbnd,mang,nang,mdih,ndih,mimp,nimp
@@ -18,7 +19,6 @@ c
       integer izmat(mzmat,4)
       real*8 zmat(mzmat,3)
       character*255 filsgm
-      character*80 ffield
 c
       integer i,j,length
 c

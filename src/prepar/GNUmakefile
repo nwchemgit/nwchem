@@ -1,8 +1,6 @@
 #
-# $Id: GNUmakefile,v 1.33 2003-07-17 19:38:56 d3j191 Exp $
+# $Id: GNUmakefile,v 1.34 2003-07-23 02:38:45 d3j191 Exp $
 #
-
-include ../config/makefile.h
 
 OBJ_OPTIMIZE=prepar.o\
              pre_align.o\
@@ -59,6 +57,8 @@ OBJ_OPTIMIZE=prepar.o\
              pre_orient.o\
              pre_params.o\
              pre_parcnv.o\
+             pre_paths.o\
+             pre_paths2.o\
              pre_pdbseq.o\
              pre_pdbsiz.o\
              pre_protein.o\
@@ -111,6 +111,7 @@ HEADERS=
 
 USES_BLAS=
 
+include ../config/makefile.h
 include ../config/makelib.h
 
 # DO NOT DELETE

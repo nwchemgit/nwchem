@@ -1,5 +1,4 @@
       logical function pre_mklist(lfnout,lfnsgm,lfnmat,nparms,mparms,
-     + ffield,dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,
      + latm,catm,qatm,matm,natm,
@@ -10,19 +9,18 @@
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr,
      + nval,ival,rval,ndx,itopol)
 c
-c $Id: pre_mklist.F,v 1.27 2003-07-17 19:38:57 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.28 2003-07-23 02:38:46 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
+#include "pre_common.fh"
 c
       logical pre_sgmfil,pre_rdsgm
       integer pre_atnum
       external pre_sgmfil,pre_rdsgm,pre_atnum
 c
       integer lfnout,lfnsgm,lfnmat,nparms,mparms,itopol
-      character*80 ffield
-      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
       integer mseq,nseq
       integer lseq(6,mseq)
       character*10 cseq(mseq)
@@ -80,14 +78,14 @@ c
 c     generate segment filename
 c     -------------------------
 c
-      if(.not.pre_sgmfil(cseq(i),lfnsgm,filsgm,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c))
-     + call errquit('pre_sgmfil failed',9999)
+      print*,'cseq=',cseq(i)
+      if(.not.pre_sgmfil(cseq(i),lfnsgm,filsgm))
+     + call errquit('pre_sgmfil failed',9998)
 c
 c     append the atom and bonded lists
 c     --------------------------------
 c
-      if(.not.pre_rdsgm(lfnout,ffield,nparms,mparms,
+      if(.not.pre_rdsgm(lfnout,nparms,mparms,
      + lseq(4,i),i,igrp,ipgrp,
      + lfnsgm,filsgm,lfnmat,filmat,
      + latm,catm,qatm,matm,natm,
@@ -933,10 +931,9 @@ c
       if(cseq(nseq+1)(1:1).ne.' ') then
       filmat=cseq(i)(1:index(cseq(nseq+1),' ')-1)//'.mat '
       lseq(3,nseq+1)=natm+1
-      if(.not.pre_sgmfil(cseq(nseq+1),lfnsgm,filsgm,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c))
+      if(.not.pre_sgmfil(cseq(nseq+1),lfnsgm,filsgm))
      + call errquit('pre_sgmfil failed',9999)
-      if(.not.pre_rdsgm(lfnout,ffield,nparms,mparms,
+      if(.not.pre_rdsgm(lfnout,nparms,mparms,
      + 0,0,igrp,ipgrp,lfnsgm,
      + filsgm,lfnmat,filmat,latm,catm,qatm,matm,natmt,
      + lbnd,rbnd,mbnd,nbndt,lang,rang,mang,nangt,

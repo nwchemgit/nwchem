@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.106 2003-07-17 19:38:56 d3j191 Exp $
+c $Id: pre_input.F,v 1.107 2003-07-23 02:38:46 d3j191 Exp $
 c
       implicit none
 c
@@ -21,9 +21,9 @@ c
       character*80 source
       character*10 slvmdl
       character*80 ffield,sysnam
-      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
       character*255 commnd,modify,title(2,3)
-      character*80 card
+      character*255 dirs(9)
+      character*80 card,string
       integer newtop,newseq,newrst,icount(10),multip,ncount
       integer nfract,ifract(mfract)
 c
@@ -71,12 +71,10 @@ c
       ntitle=-1
 c
       ffield=' '
-      dir_s=' '
-      dir_x=' '
-      dir_q=' '
-      dir_u=' '
-      dir_t=' '
-      dir_c=' '
+      do 313 i=1,9
+      dirs(i)=' '
+  313 continue
+c
       sysnam=' '
       slvnam='HOH'
       slvmdl='spce      '
@@ -267,30 +265,16 @@ c
 c     directories
 c     -----------
 c
-      if(inp_compare(.false.,'standard',item)) then
-      if(.not.inp_a(dir_s)) call errquit('pre_input: error dir_s',0)
+      do 314 i=1,9
+      write(string,'(a,i1)') 'directory_',i
+      if(inp_compare(.false.,string,item)) then
+      if(.not.inp_a(dirs(i))) call errquit('pre_input: error dirs',i)
+      len=index(dirs(i),' ')-1
+      if(len.gt.0.and.dirs(i)(len:len).ne.'/'.and.
+     + dirs(i)(len-3:len).ne.'.par') dirs(i)(len+1:len+2)='/ '
       goto 2
       endif
-      if(inp_compare(.false.,'extensions',item)) then
-      if(.not.inp_a(dir_x)) call errquit('pre_input: error dir_x',0)
-      goto 2
-      endif
-      if(inp_compare(.false.,'contributed',item)) then
-      if(.not.inp_a(dir_q)) call errquit('pre_input: error dir_q',0)
-      goto 2
-      endif
-      if(inp_compare(.false.,'user',item)) then
-      if(.not.inp_a(dir_u)) call errquit('pre_input: error dir_u',0)
-      goto 2
-      endif
-      if(inp_compare(.false.,'temporary',item)) then
-      if(.not.inp_a(dir_t)) call errquit('pre_input: error dir_t',0)
-      goto 2
-      endif
-      if(inp_compare(.false.,'current',item)) then
-      if(.not.inp_a(dir_c)) call errquit('pre_input: error dir_c',0)
-      goto 2
-      endif
+  314 continue
 c
 c     sysnam
 c     ------
@@ -1722,25 +1706,6 @@ c     ---
 c
     9 continue
 c
-      len=index(dir_s,' ')-1
-      if(len.gt.0.and.dir_s(len:len).ne.'/'.and.
-     + dir_s(len-3:len).ne.'.par') dir_s(len+1:len+2)='/ '
-      len=index(dir_x,' ')-1
-      if(len.gt.0.and.dir_x(len:len).ne.'/'.and.
-     + dir_x(len-3:len).ne.'.par') dir_x(len+1:len+2)='/ '
-      len=index(dir_q,' ')-1
-      if(len.gt.0.and.dir_q(len:len).ne.'/'.and.
-     + dir_q(len-3:len).ne.'.par') dir_q(len+1:len+2)='/ '
-      len=index(dir_u,' ')-1
-      if(len.gt.0.and.dir_u(len:len).ne.'/'.and.
-     + dir_u(len-3:len).ne.'.par') dir_u(len+1:len+2)='/ '
-      len=index(dir_t,' ')-1
-      if(len.gt.0.and.dir_t(len:len).ne.'/'.and.
-     + dir_t(len-3:len).ne.'.par') dir_t(len+1:len+2)='/ '
-      len=index(dir_c,' ')-1
-      if(len.gt.0.and.dir_c(len:len).ne.'/'.and.
-     + dir_c(len-3:len).ne.'.par') dir_c(len+1:len+2)='/ '
-c
 c     put on rtdb
 c     -----------
 c
@@ -1752,30 +1717,13 @@ c
      + call errquit('pre_input: rtdb_put failed',0)
       endif
 c
-      if(dir_s(1:1).ne.' ') then
-      if(.not.rtdb_cput(irtdb,'prep:dir_s',1,dir_s))
+      do 316 i=1,9
+      if(dirs(i)(1:1).ne.' ') then
+      write(string,'(a,i1)') 'prep:dir_',i
+      if(.not.rtdb_cput(irtdb,string,1,dirs(i)))
      + call errquit('pre_input: rtdb_put failed',0)
       endif
-      if(dir_x(1:1).ne.' ') then
-      if(.not.rtdb_cput(irtdb,'prep:dir_x',1,dir_x))
-     + call errquit('pre_input: rtdb_put failed',0)
-      endif
-      if(dir_q(1:1).ne.' ') then
-      if(.not.rtdb_cput(irtdb,'prep:dir_q',1,dir_q))
-     + call errquit('pre_input: rtdb_put failed',0)
-      endif
-      if(dir_u(1:1).ne.' ') then
-      if(.not.rtdb_cput(irtdb,'prep:dir_u',1,dir_u))
-     + call errquit('pre_input: rtdb_put failed',0)
-      endif
-      if(dir_t(1:1).ne.' ') then
-      if(.not.rtdb_cput(irtdb,'prep:dir_t',1,dir_t))
-     + call errquit('pre_input: rtdb_put failed',0)
-      endif
-      if(dir_c(1:1).ne.' ') then
-      if(.not.rtdb_cput(irtdb,'prep:dir_c',1,dir_c))
-     + call errquit('pre_input: rtdb_put failed',0)
-      endif
+  316 continue
 c
       if(sysnam(1:1).ne.' ') then
       if(.not.rtdb_cput(irtdb,'prep:sysnam',1,sysnam))
