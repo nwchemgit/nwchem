@@ -1,27 +1,12 @@
       Subroutine dft_rdinput( rtdb, 
      &                     iconst, nconst )
 
-C$Id: dft_rdinput.F,v 1.8 1995-10-25 20:35:08 og845 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
-
-c
-      Logical int_normalize
-      External int_normalize
-      Logical int_norm_2c
-      External int_norm_2c
-c
-c     new stuff
-      integer rtdb                                    ! [input] database handle
-      integer bases(3)
-      character*255 title
-      integer ncenters
-c     end new stuff
-
-      Logical LResult, lnewtype, XCFIT, CDFIT, oskel
-c     
-c     nwchem includes
-c     
+C$Id: dft_rdinput.F,v 1.9 1995-12-20 02:16:48 og845 Exp $
+      implicit none
+      
+      integer rtdb                               ! [input] database handle
+      integer nconst
+      integer  iconst(nconst)
 #include "global.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -30,12 +15,29 @@ c
 #include "context.fh"
 #include "msgids.fh"
 #include "sym.fh"
+#include "tcgmsg.fh"
 
 #include "mafdecls.fh"
 #include "quad.fh"
 #include "stdio.fh"
-
-      Dimension iconst(nconst)
+c
+      integer bases(3)
+      character*255 title
+      integer ncenters,iproc,ichg,itscf,iscfcon,iguess,mult,ipol,
+     ,     igcon,icvgtyp,nfock,ncysh,idirect,idisoff,noio,
+     ,     lshift,ndamp,idecomp,nagrid,nrinc,nrmax,
+     ,     itype,numgrp,numset,itrscf,
+     ,     icenter,jcenter,iEx,iEc,i3
+      integer nbf,nshells_cd,nbf_xc,nshells_xc,nshells
+      integer lcoord,icoord,lcharge,icharge,ltags,itags,
+     ,     lznuc,iznuc,lratom,iratom
+      double precision rcharge,rm,rscale
+      Logical LResult, lnewtype, XCFIT, CDFIT, oskel
+      Logical int_normalize
+      External int_normalize
+      Logical int_norm_2c
+      External int_norm_2c
+c
 
 c******************************************************************************
 
@@ -68,10 +70,6 @@ c
      &     call errquit('rdinput: rtdb_get failed',4) 
       if (.not. rtdb_get(rtdb, 'dft:iguess', mt_int, 1, iguess))
      &     call errquit('rdinput: rtdb_get failed',6) 
-
-c**** if (.not. rtdb_get(rtdb, 'dft:ichg', mt_int, 1, ichg))
-c**** &     call errquit('rdinput: rtdb_get failed',8)
-
       if (.not. rtdb_get(rtdb, 'dft:mult', mt_int, 1, mult))
      &     call errquit('rdinput: rtdb_get failed',10)
       if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
@@ -104,10 +102,6 @@ c**** &     call errquit('rdinput: rtdb_get failed',8)
      &     call errquit('rdinput: rtdb_get failed',44)
       if (.not. rtdb_get(rtdb, 'dft:nrmax', mt_int, 1, nrmax))
      &     call errquit('rdinput: rtdb_get failed',46)
-c      if (.not. rtdb_get(rtdb, 'dft:iEx', mt_int, 1, iEx))
-c     $     call errquit('rdinput: rtdb_get failed', 147)
-c      if (.not. rtdb_get(rtdb, 'dft:iEc', mt_int, 1, iEc))
-c     $     call errquit('rdinput: rtdb_get failed', 148)
 c     
 c     recover real parameters from rtdb
 c     
@@ -166,11 +160,11 @@ c
 c     end lines from ddscf/scf
 c
 c     
-      if (.not. bas_create(AO_bas_han, 'AO_basis'))
+      if (.not. bas_create(AO_bas_han, 'ao basis'))
      &     call errquit('rdinput: bas_create?',80)
 
-      if (.not. bas_rtdb_load(rtdb, geom, AO_bas_han, 'AO_basis'))
-     &     call errquit('rdinput: no AO_basis ',82)
+      if (.not. bas_rtdb_load(rtdb, geom, AO_bas_han, 'ao basis'))
+     &     call errquit('rdinput: no ao basis ',82)
 
       if (.not. int_normalize(AO_bas_han))
      &     call errquit('rdinput: int_normalize failed', 200)
@@ -188,9 +182,9 @@ c****
 c     Define the contracted Gaussian functions for the CD basis set.
 
 
-      if (.not. bas_create(CD_bas_han, 'CD_basis'))
+      if (.not. bas_create(CD_bas_han, 'cd basis'))
      &     call errquit('rdinput: bas_create?',102)
-      CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'CD_basis')
+      CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
       if(CDFIT) then
         if (.not. int_norm_2c(CD_bas_han))
      &       call errquit('rdinput: int_norm_2c failed', 208)
@@ -209,9 +203,9 @@ c     Define the contracted Gaussian functions for the CD basis set.
 
 c       
         
-        if (.not. bas_create(XC_bas_han, 'XC_basis'))
+        if (.not. bas_create(XC_bas_han, 'xc basis'))
      &       call errquit('rdinput: bas_create?',124)
-        XCFIT=bas_rtdb_load(rtdb, geom, XC_bas_han, 'XC_basis')
+        XCFIT=bas_rtdb_load(rtdb, geom, XC_bas_han, 'xc basis')
         if(XCFIT) then
           if (.not. int_normalize(XC_bas_han))
      &         call errquit('rdinput: int_normalize failed', 208)
