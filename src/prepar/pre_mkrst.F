@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.72 2002-01-30 20:26:45 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.73 2002-01-30 20:40:50 d3j191 Exp $
 c
       implicit none
 c
@@ -58,7 +58,7 @@ c
       integer length,len,islv,idum1,idum2,idum3,idum4,iwater,irenum
       integer nxrep,nyrep,nzrep,itran,jtran,i,j,k,irot,jrot,mlang
       real*8 xtran(3),xrot(3),arot
-      real*8 zdist,xr(3,2)
+      real*8 zdist,xr(3,2),boxmax
 c
       integer iskip(3,100),nskip
 c
@@ -1158,6 +1158,20 @@ c
       if(util_print('restart',print_medium)) then
       write(lfnout,1033) box
  1033 format(/,' Boxsize determined to ',t40,3f12.6,/)
+      endif
+      endif
+c
+c     set cubic box
+c     -------------
+c
+      if(card(1:5).eq.'cubic') then
+      boxmax=max(box(1),box(2),box(3))
+      box(1)=boxmax
+      box(2)=boxmax
+      box(3)=boxmax
+      if(util_print('restart',print_medium)) then
+      write(lfnout,1034) box
+ 1034 format(/,' Boxsize set to ',t40,3f12.6,/)
       endif
       endif
 c

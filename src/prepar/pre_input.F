@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.92 2002-01-08 17:36:45 d3j191 Exp $
+c $Id: pre_input.F,v 1.93 2002-01-30 20:40:50 d3j191 Exp $
 c
       implicit none
 c
@@ -922,6 +922,16 @@ c
       write(68,6801) touch
  6801 format('touch ',f12.6)
       ltouch=.true.
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     cubic
+c     -----
+c
+      if(inp_compare(.false.,'cube',item)) then
+      write(68,6875)
+ 6875 format('boxsiz ',/,'cubic  ')
       numcmd=numcmd+1
       goto 2
       endif
