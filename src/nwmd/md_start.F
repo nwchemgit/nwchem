@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.133 2002-07-17 14:25:20 d3j191 Exp $
+c $Id: md_start.F,v 1.134 2002-07-17 15:30:15 d3j191 Exp $
 c
       implicit none
 c
@@ -1240,6 +1240,7 @@ c
 c     open recording file
 c
       if(me.eq.0) then
+      if(ntype.ne.3) then
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
       open(unit=lfntrj,file=filtrj(1:index(filtrj,' ')-1),
      + form='formatted',status='unknown')
@@ -1247,6 +1248,7 @@ c
       if(nfprop.gt.0) then
       open(unit=lfnprp,file=filprp(1:index(filprp,' ')-1),
      + form='formatted',status='unknown')
+      endif
       endif
       if(ntype.eq.3) then
       open(unit=lfngib,file=filgib(1:index(filgib,' ')-1),

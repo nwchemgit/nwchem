@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.142 2002-07-17 14:25:20 d3j191 Exp $
+c $Id: md_main.F,v 1.143 2002-07-17 15:30:15 d3j191 Exp $
 c
       implicit none
 c
@@ -1160,6 +1160,7 @@ c
       logical done
       integer npp,i,irunp,jequi,jdacq,ndec,ndum
       real*8 rdum
+      character*256 filrun
 c
       if(me.eq.0) then
       if(nserie.eq.0) then
@@ -1233,6 +1234,19 @@ c
       call ga_brdcst(mrg_d30,krun,ma_sizeof(mt_int,1,mt_byte),0)
 c
       do 1 irun=krun+1,mrun
+c
+      if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
+      write(filrun,'(a,a,i5.5,a)') filtrj(1:index(filtrj,'.trj')-1),'-',
+     + irun,'.trj '
+      open(unit=lfntrj,file=filrun(1:index(filrun,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+      if(nfprop.gt.0) then
+      write(filrun,'(a,a,i5.5,a)') filprp(1:index(filprp,'.prp')-1),'-',
+     + irun,'.prp '
+      open(unit=lfnprp,file=filrun(1:index(filrun,' ')-1),
+     + form='formatted',status='unknown')
+      endif
 c
       if(irun.eq.1.and.iand(ivopt,2).eq.2) nfgaus=ivreas
       if(irun.eq.maxlam.and.iand(ivopt,4).eq.4) nfgaus=ivreas
@@ -1380,6 +1394,13 @@ c
       call prp_mcti_run(rlambd,dlambd,ndec)
 c
       if(ndec.gt.2) call cf_print_dera(lfnout,ndec)
+c
+      if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
+      close(unit=lfntrj,status='keep')
+      endif
+      if(nfprop.gt.0) then
+      close(unit=lfnprp,status='keep')
+      endif
 c
     1 continue
 c
@@ -2341,7 +2362,8 @@ c
      + form='formatted',status='unknown',err=9999)
       else
       write(cdr,'(i7.7)') keepr
-      open(unit=lfn,file=fil(1:index(fil,' ')-1)//cdr,
+      open(unit=lfn,
+     + file=fil(1:index(fil,'.rst')-1)//'-'//cdr//'.rst',
      + form='formatted',status='unknown',err=9999)
       endif
       endif
@@ -2472,7 +2494,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.142 2002-07-17 14:25:20 d3j191 Exp $
+c $Id: md_main.F,v 1.143 2002-07-17 15:30:15 d3j191 Exp $
 c
       implicit none
 c
