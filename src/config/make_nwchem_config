@@ -7,10 +7,13 @@
 #	obtained by including makefile.h.
 #
 #	NWCHEM_MODULES	normally set by the invoker of this makefile.
+# These should be used eventually, but they don't work as we would
+# want them to now -- NWCHEM_TOP has to be set for makefile.h to
+# _find_ the include file that it would be read from.
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.1 1994-11-16 22:31:07 gg502 Exp $
+# $Id: make_nwchem_config,v 1.2 1994-11-18 19:57:09 gg502 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -121,15 +124,10 @@ nwchem_config.h:
 	echo "NW_MODULE_SUBDIRS = $$(filter $(MODULES),$$(KNOWN_MODULE_SUBDIRS))" >> $@
 	echo "NW_MODULE_LIBS = $$(filter $(MOD_LIBS),$$(KNOWN_MODULE_LIBS))" >> $@
 	echo "EXCLUDED_SUBDIRS = $(EXCLUDED_SUBDIRS)" >> $@
-	echo "NWCHEM_TOP = $(NWCHEM_TOP)" >> $@
-	echo "NWCHEM_TARGET = $(NWCHEM_TARGET)" >> $@
 
 NWCHEM_CONFIG:
 	echo \# This configuration generated automatically on \
 	     `hostname` at `date` > $@
-	echo This tree is rooted at: $(NWCHEM_TOP) >> $@
-	echo and will be built for the $(NWCHEM_TARGET) >> $@ 
-	echo >> $@ 
 	echo The following subdirectories are built: >> $@ 
 	echo $(MODULES) >> $@ 
 	echo corresponding to these libraries: >> $@ 
