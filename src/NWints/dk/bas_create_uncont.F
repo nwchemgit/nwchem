@@ -1,5 +1,5 @@
       subroutine bas_create_uncont(usertdb,basis_in,name,basis_out)
-c $Id: bas_create_uncont.F,v 1.11 2000-02-04 19:30:53 mg201 Exp $
+c $Id: bas_create_uncont.F,v 1.12 2000-05-18 17:34:44 bert Exp $
       implicit none
 #include "nwc_const.fh"
 #include "mafdecls.fh"
@@ -278,8 +278,8 @@ c
    15    continue
       endif
 c
-      spheri = .false.
-      if (cartsph.eq.1) spheri = .true.
+      if (.not. bas_get_spherical(basis_in,spheri))
+     $     call errquit('bas_create_uncont: bas_get_spherical',0)
       if (.not. bas_set_spherical(basis_out,spheri))
      $     call errquit('bas_create_uncont: bas_set_spherical',0)
 c
