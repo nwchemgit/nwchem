@@ -37,14 +37,14 @@ the distribution of memory requirements and computational work with
 minimal communication.
 
 In the spacial decomposition approach, the physical simulation
-volume is divided into rectangular boxes, each of which is
+volume is divided into rectangular cells, each of which is
 assigned to a processor. Depending on the conditions of the 
 calculation and the number of available processors, each processor 
-contains one or more of these spacially grouped boxes.
+contains one or more of these spacially grouped cells.
 The most important aspects of this decomposition are the dependence 
-of the box sizes and communication cost on the number of processors 
-and the shape of the boxes, the frequent reassignment of atoms to 
-boxes leading to a fluctuating number of atoms per box, and the 
+of the cell sizes and communication cost on the number of processors 
+and the shape of the cells, the frequent reassignment of atoms to 
+cells leading to a fluctuating number of atoms per cell, and the 
 locality of communication which is the main reason for the efficiency 
 of this approach for very large molecular systems.
 
@@ -56,12 +56,12 @@ crossing node boundaries.  Solute molecules are broken up into
 segments, with each segment assigned to a processor based on its
 center of geometry.  This limits the number of solute bonded
 interactions that cross node boundaries.  The processor to which a
-particular box is assigned is responsible for the calculation of all
-interactions between atoms within that box.  For the calculation of
-forces and energies in which atoms in boxes assigned to different
+particular cell is assigned is responsible for the calculation of all
+interactions between atoms within that cell.  For the calculation of
+forces and energies in which atoms in cells assigned to different
 processors are involved, data are exchanged between processors. The
-number of neighboring boxes is determined by the size and shape of the
-boxes and the range of interaction. The data exchange that takes place
+number of neighboring cells is determined by the size and shape of the
+cells and the range of interaction. The data exchange that takes place
 every simulation time step represents the main communication
 requirements.  Consequently, one of the main efforts is to design
 algorithms and data structures to minimize the cost of this
@@ -74,20 +74,20 @@ shift algorithm which reduces the number of communication calls
 for the same amount of communicated data.
 
 For inhomogeneous systems, the computational load of evaluating 
-atomic interactions will generally differ between box pairs. 
+atomic interactions will generally differ between cell pairs. 
 This will lead to load imbalance between processors.
 Two algorithms have been implemented that allow for dynamically 
 balancing the workload of each processor.
-One method is the dynamic resizing of boxes such that boxes gradually
+One method is the dynamic resizing of cells such that cells gradually
 become smaller on the busiest node, thereby reducing the computational
 load of that node. Disadvantages of this method are that the 
 efficiency depends on the solute distribution in the simulation volume
 and the redistribution of work depends on the number of nodes which
 could lead to results that depend on the number of nodes used.
 The second method is based on the dynamic redistribution of intra-node
-box-box interactions. This method represents a more coarse load
-balancing scheme, but does not have the disadvantages of the box
-resizing algorithm. For most molecular systems the box pair
+cell-cell interactions. This method represents a more coarse load
+balancing scheme, but does not have the disadvantages of the cell
+resizing algorithm. For most molecular systems the cell pair
 redistribution is the more efficient and preferred  method.
 
 The description of a molecular system consists of static and dynamic
@@ -1069,10 +1069,10 @@ load [reset] ( none | size [<real factld>] | pairs |
 \end{verbatim}
 determines the type of dynamic load balancing performed,
 where the default is {\tt none}. Load balancing option {\tt size}
-is resizing boxes on a node, and {\tt pairs} redistributes the
-box-box interactions over nodes. Keyword \verb+reset+ will reset the
-load balancing read from the restart file. The level of box resizing
-can be influenced with $factld$. The boxes on the busiest node are
+is resizing cells on a node, and {\tt pairs} redistributes the
+cell-cell interactions over nodes. Keyword \verb+reset+ will reset the
+load balancing read from the restart file. The level of cell resizing
+can be influenced with $factld$. The cells on the busiest node are
 resized with a factor
 \begin{equation}
 \left( 1 - factld * { {T_{sync} \over n_p} - t^{min}_{sync} \over t_{wall}}
@@ -1109,30 +1109,30 @@ the following optional input option is provided.
 
 \item
 \begin{verbatim}
-boxes <integer nbx> <integer nby> <integer nbz>
+cells <integer nbx> <integer nby> <integer nbz>
 \end{verbatim}
-specifies the distribution of boxes,
+specifies the distribution of cells,
 where \verb+<nbx>+, \verb+<nby>+ and \verb+<nbz>+ are the number of
-boxes in x, y and z direction, respectively.
-The molecular system is decomposed into boxes that form the smallest
+cells in x, y and z direction, respectively.
+The molecular system is decomposed into cells that form the smallest
 unit for communication of atomic data between nodes. The size of the
-boxes is per default set to the short-range cutoff radius. If
-long-range cutoff radii  are used the box size is set to half the
+cells is per default set to the short-range cutoff radius. If
+long-range cutoff radii  are used the cell size is set to half the
 long-range cutoff radius if it is larger than the short-range cutoff.
-If the number of boxes in a dimension is less than the number of
-processors in that dimension, the number of boxes is set to the number
+If the number of cells in a dimension is less than the number of
+processors in that dimension, the number of cells is set to the number
 of processors.
 
 \item
 \begin{verbatim}
 extra <integer madbox>
 \end{verbatim}
-sets the number of additional boxes for which memory is allocated.
+sets the number of additional cells for which memory is allocated.
 In rare events the amount of memory set aside per node is insufficient
 to hold all atomic coordinates assigned to that node. This leads to 
 execution which aborts with the message that {\tt mwm} or {\tt msa} is too
 small. Jobs may be restarted with additional space allocated by
-where \verb+<madbox>+ is the number of additional boxes that are allocated
+where \verb+<madbox>+ is the number of additional cells that are allocated
 on each node. The default for \verb+<madbox>+ is 6. 
 In some cases \verb+<madbox>+ can be reduced to 4 if memory usage is a
 concern. Values of 2 or less will almost certainly result in memory 
@@ -1158,10 +1158,10 @@ small.
 
 \item
 \begin{verbatim}
-mbb <integer mbbreq>
+mcells <integer mbbreq>
 \end{verbatim}
-sets the maximum number of sub-box pairs \verb+<mbbreq>+ per node,
-allowing increased memory to be allocated for the sub-box pair lists. 
+sets the maximum number of cell pairs \verb+<mbbreq>+ per node,
+allowing increased memory to be allocated for the cell pair lists. 
 This option can be used if execution aborted because \verb+mbbl+ was too
 small.
 
