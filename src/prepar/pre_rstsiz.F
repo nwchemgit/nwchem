@@ -1,6 +1,6 @@
       logical function pre_rstsz(lfnrst,filrst,nwm,nwa,nsa,nwmc)
 c
-c $Id: pre_rstsiz.F,v 1.4 1999-05-12 18:39:22 d3j191 Exp $
+c $Id: pre_rstsiz.F,v 1.5 1999-07-26 17:37:35 d3j191 Exp $
 c
       implicit none
 c
@@ -34,6 +34,8 @@ c
 c
       close(unit=lfnrst)
 c
+      nwm=nwm-nwmc
+c
       pre_rstsz=.true.
       return
 c
@@ -43,7 +45,7 @@ c
       end
       logical function pre_rstsiz(lfnrst,filrst,nwm,nwa,nsa,nwmc)
 c
-c $Id: pre_rstsiz.F,v 1.4 1999-05-12 18:39:22 d3j191 Exp $
+c $Id: pre_rstsiz.F,v 1.5 1999-07-26 17:37:35 d3j191 Exp $
 c
       implicit none
 c
@@ -72,6 +74,8 @@ c
  1005 format(7i10,2i5)
 c
       close(unit=lfnrst)
+c
+      nwm=nwm-nwmc
 c
       pre_rstsiz=.true.
       return

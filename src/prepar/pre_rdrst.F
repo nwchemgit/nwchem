@@ -4,7 +4,7 @@
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.8 1999-05-26 05:36:50 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.9 1999-07-26 17:37:35 d3j191 Exp $
 c
       implicit none
 c
@@ -159,6 +159,8 @@ c
 c
       close(unit=lfnrst)
 c
+      nwm=nwm-nwmc
+c
       if(util_print('where',print_default)) then
       write(lfnout,3000) filrst(1:length)
  3000 format(' Read restart',t40,a,/)
@@ -177,7 +179,7 @@ c
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.8 1999-05-26 05:36:50 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.9 1999-07-26 17:37:35 d3j191 Exp $
 c
       implicit none
 c
@@ -284,6 +286,8 @@ c 1014 format(2i10,4f12.6,/,20x,2e12.5)
 c      endif
 c
       close(unit=lfnrst)
+c
+      nwm=nwm-nwmc
 c
       if(util_print('where',print_default)) then
       write(lfnout,3000) filrst(1:length)
