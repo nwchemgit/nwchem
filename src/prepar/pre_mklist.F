@@ -10,7 +10,7 @@
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr,
      + nval,ival,rval,ndx)
 c
-c $Id: pre_mklist.F,v 1.22 2000-06-15 06:48:16 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.23 2000-06-15 07:16:25 d3j191 Exp $
 c
       implicit none
 c
@@ -498,6 +498,7 @@ c
 c     sort the bond list
 c     ------------------
 c
+      if(nbnd.gt.0) then
       do 34 i=1,nbnd
       if(lbnd(1,i).gt.lbnd(2,i)) then
       ltemp=lbnd(1,i)
@@ -567,10 +568,12 @@ c
       rbnd(k,i)=rval(ndx(i))
    44 continue
    42 continue
+      endif
 c
 c     sort the angle lists
 c     --------------------
 c
+      if(nang.gt.0) then
       do 45 i=1,nang
       if(lang(1,i).gt.lang(3,i)) then
       ltemp=lang(1,i)
@@ -646,10 +649,12 @@ c
       rang(k,i)=rval(ndx(i))
    56 continue
    54 continue
+      endif
 c
 c     sort dihedral list
 c     ------------------
 c
+      if(ndih.gt.0) then
       do 57 i=1,ndih
       if(ldih(2,i).gt.ldih(3,i)) then
       ltemp=ldih(2,i)
@@ -745,11 +750,13 @@ c
    71 continue
    69 continue
    65 continue
+      endif
 c
 c
 c     sort improper list
 c     ------------------
 c
+      if(nimp.gt.0) then
       do 72 i=1,nimp-1
       do 73 j=i+1,nimp
       if(limp(1,i).gt.limp(1,j).or.
@@ -771,6 +778,7 @@ c
       endif
    73 continue
    72 continue
+      endif
 c
 c     check number of segments involved in angles
 c     -------------------------------------------

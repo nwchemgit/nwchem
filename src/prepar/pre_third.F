@@ -1,7 +1,7 @@
       logical function pre_third(lbnd,mbnd,nbnd,lang,mang,nang,
      + l3rd,m3rd,n3rd,ib,ia,i3,nval,ival,ndx)
 c
-c $Id: pre_third.F,v 1.4 2000-06-15 06:48:17 d3j191 Exp $
+c $Id: pre_third.F,v 1.5 2000-06-15 07:16:25 d3j191 Exp $
 c
       implicit none
 c
@@ -59,6 +59,7 @@ c
     2 continue
     1 continue
 c
+      if(n3rd.gt.0) then
       do 6 i=1,n3rd
       ndx(i)=i
     6 continue
@@ -112,6 +113,7 @@ c
       l3rd(k,i)=ival(ndx(i))
    12 continue
    10 continue
+      endif
 c
       pre_third=.true.
       return

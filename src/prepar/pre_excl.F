@@ -1,7 +1,7 @@
       logical function pre_excl(l3rd,m3rd,n3rd,lbnd,mbnd,nbnd,
      + lang,mang,nang,lexc,mexc,nexc,nval,ival,ndx)
 c
-c $Id: pre_excl.F,v 1.4 2000-06-15 06:48:16 d3j191 Exp $
+c $Id: pre_excl.F,v 1.5 2000-06-15 07:16:25 d3j191 Exp $
 c
       implicit none
 c
@@ -39,6 +39,7 @@ c
       lexc(2,nexc)=lang(3,i)
     4 continue
 c
+      if(nexc.gt.0) then
       do 6 i=1,nexc
       ndx(i)=i
     6 continue
@@ -92,6 +93,7 @@ c
       lexc(k,i)=ival(ndx(i))
    12 continue
    10 continue
+      endif
 c
       pre_excl=.true.
       return
