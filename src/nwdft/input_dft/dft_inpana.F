@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb, ratom)
 c
-c     $Id: dft_inpana.F,v 1.39 1999-01-29 21:05:02 d3h449 Exp $
+c     $Id: dft_inpana.F,v 1.40 1999-03-13 01:57:10 edo Exp $
 c
 c*********************************************************************
 c     
@@ -437,8 +437,8 @@ c
                enddo
    40          continue
                bsr = ratom(n)*AUTOANG
+               radang = dble(nint(autoang*dble(rad_cutoff(1,n))))
                if (iangquad.eq.0)then
-                  radang = dble(nint(autoang*dble(rad_cutoff(1,n))))
                   write(LuOut,9137)tag,bsr,nrad(n),radang,
      &                nang(n),2*nang(n)
                else
