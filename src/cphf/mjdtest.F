@@ -52,10 +52,10 @@ c
      $     call errquit('get_db_handles: geom_create?', 0)
        if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      $     call errquit('get_db_handles: no geometry ', 0)
-       if (.not. bas_create(basis, 'mo basis'))
+       if (.not. bas_create(basis, 'ao basis'))
      $     call errquit('get_db_handles: bas_create?', 0)
-       if (.not. bas_rtdb_load(rtdb, geom, basis, 'mo basis'))
-     $     call errquit('get_db_handles: no mo basis ', 0)
+       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
+     $     call errquit('get_db_handles: no ao basis ', 0)
        if (.not. context_rtdb_match(rtdb, 'input mo vector file',
      $     movecs_in)) movecs_in = 'movecs'
 c

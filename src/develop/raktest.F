@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.34 1995-02-08 22:28:08 d3e129 Exp $
+c $Id: raktest.F,v 1.35 1995-03-31 01:38:43 d3g681 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -137,8 +137,8 @@ c
       integer hxyz,ixyz,nbuf,nscr,hscr,iscr,hbuf,ibuf
       logical status
 c
-      if (.not.context_rtdb_match(rtdb,'mo basis',mo_basis))
-     &    mo_basis = 'mo basis'
+      if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
+     &    mo_basis = 'ao basis'
       if (.not.context_rtdb_match(rtdb,'geometry',geom_name))
      &    geom_name = 'geometry'
 c
@@ -381,8 +381,8 @@ c
       integer hxyz,ixyz,nbuf,nscr,hscr,iscr,hbuf,ibuf
       logical status
 c
-      if (.not.context_rtdb_match(rtdb,'mo basis',mo_basis))
-     &    mo_basis = 'mo basis'
+      if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
+     &    mo_basis = 'ao basis'
       if (.not.context_rtdb_match(rtdb,'geometry',geom_name))
      &    geom_name = 'geometry'
 c
@@ -709,8 +709,8 @@ c.. copy reference geometry and store on rtdb
 c
 c.. determine what fd basis name is
 c
-        if (.not.context_rtdb_match(rtdb,'mo basis',mo_basis))
-     &      mo_basis = 'mo basis'
+        if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
+     &      mo_basis = 'ao basis'
         mo_basis_ref = mo_basis
         if (.not.context_rtdb_match(rtdb,'fd basis',fd_basis))
      &      fd_basis = 'fd basis'
@@ -726,8 +726,8 @@ c...  if fd basis not defined use current mo_basis
           fd_basis = mo_basis
         endif
 c
-c set "mo basis" to point to "fd basis"
-        if (.not.rtdb_cput(rtdb,'mo basis',1,fd_basis)) call errquit
+c set "ao basis" to point to "fd basis"
+        if (.not.rtdb_cput(rtdb,'ao basis',1,fd_basis)) call errquit
      &      ('gen_apphess_at: rtdb_cpu failed?',8)
 c
         if (.not.(bas_destroy(basis))) call errquit
@@ -835,8 +835,8 @@ c
         call wrt_fd_from_sq(dbl_mb(k_hess),rank_hess,'hess_ascii')
         write(6,*)' triangle hessian written to hess_ascii'
         
-c.. redefine mo basis to it's original setting
-        if (.not.rtdb_cput(rtdb,'mo basis',1,mo_basis_ref))
+c.. redefine ao basis to it's original setting
+        if (.not.rtdb_cput(rtdb,'ao basis',1,mo_basis_ref))
      &      call errquit
      &      ('gen_apphess_at: rtdb_cpu failed?',22)
 c set "geometry" to "geometry"
@@ -951,8 +951,8 @@ c.. copy reference geometry and store on rtdb
 c
 c.. determine what fd basis name is
 c
-        if (.not.context_rtdb_match(rtdb,'mo basis',mo_basis))
-     &      mo_basis = 'mo basis'
+        if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
+     &      mo_basis = 'ao basis'
         mo_basis_ref = mo_basis
         if (.not.context_rtdb_match(rtdb,'fd basis',fd_basis))
      &      fd_basis = 'fd basis'
@@ -966,12 +966,12 @@ c.. create basis handle
         else
 c...  if fd basis not defined use current mo_basis
           fd_basis = mo_basis
-          write(6,*) ' fd basis is the mo basis This will be expensive'
+          write(6,*) ' fd basis is the ao basis This will be expensive'
           call util_flush(6)
         endif
 c
-c.. set "mo basis" to point to "fd basis"
-        if (.not.rtdb_cput(rtdb,'mo basis',1,fd_basis)) call errquit
+c.. set "ao basis" to point to "fd basis"
+        if (.not.rtdb_cput(rtdb,'ao basis',1,fd_basis)) call errquit
      &      ('gen_apphess_at: rtdb_cpu failed?',8)
 c... destroty basis and geom handles
         if (.not.(bas_destroy(basis))) call errquit
@@ -998,8 +998,8 @@ c
 c.. reset stepper so it knows to restart the calculation
       call stpr_walk_reset
       ignore_status = rtdb_parallel(.false.)
-c.. set "mo basis" to point to %val<mo_basis_ref
-      if (.not.rtdb_cput(rtdb,'mo basis',1,mo_basis_ref))
+c.. set "ao basis" to point to %val<mo_basis_ref
+      if (.not.rtdb_cput(rtdb,'ao basis',1,mo_basis_ref))
      &    call errquit ('gen_apphess_opt: rtdb_cput failed?',8)
 c
 c... reset input vectors option here to original guess if appropriate

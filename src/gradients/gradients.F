@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.11 1995-02-03 01:01:53 vg038 Exp $
+c$Id: gradients.F,v 1.12 1995-03-31 01:39:31 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -50,10 +50,10 @@ c
      $     call errquit('gradients: geom_create?', 0)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      $     call errquit('gradients: no geometry ', 0)
-      if (.not. bas_create(basis, 'mo basis'))
+      if (.not. bas_create(basis, 'ao basis'))
      $     call errquit('gradients: bas_create?', 0)
-      if (.not. bas_rtdb_load(rtdb, geom, basis, 'mo basis'))
-     $     call errquit('gradients: no mo basis ', 0)
+      if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
+     $     call errquit('gradients: no ao basis ', 0)
       if(.not. int_normalize(basis))
      $     call errquit('gradients: normalization failed',911)
 

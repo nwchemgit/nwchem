@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.6 1995-03-17 06:52:41 rg240 Exp $
+C$Id: direct_mp2.F,v 1.7 1995-03-31 01:42:13 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -75,10 +75,10 @@ c
      $      call errquit('direct_mp2: geom_create?', 0)
        if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      $      call errquit('direct_mp2: no geometry ', 0)
-       if (.not. bas_create(basis, 'mo basis'))
+       if (.not. bas_create(basis, 'ao basis'))
      $      call errquit('direct_mp2: bas_create?', 0)
-       if (.not. bas_rtdb_load(rtdb, geom, basis, 'mo basis'))
-     $      call errquit('direct_mp2: no mo basis ', 0)
+       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
+     $      call errquit('direct_mp2: no ao basis ', 0)
        if (.not. rtdb_cget(rtdb, 'input mo vector file', 1,
      $      movecs_in)) call util_file_prefix('movecs',movecs_in)
        if (.not. geom_nuc_charge(geom, nuclear_charge))

@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.17 1995-03-29 06:05:45 gg502 Exp $
+C$Id: rimp2.F,v 1.18 1995-03-31 01:42:57 d3g681 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -34,7 +34,7 @@ C
       Character*(*) Def_Int, Def_MOVec
       Parameter (Def_Int = 'mo3cint', Def_MOVec = 'movecs')
       Character*(*) Geom_Name, AOBasName, FitBasName
-      Parameter (Geom_Name = 'geometry', AOBasName = 'mo basis',
+      Parameter (Geom_Name = 'geometry', AOBasName = 'ao basis',
      $   FitBasName = 'ri-mp2 basis')
 C
       Character*(*) My_Ctx

@@ -1,5 +1,5 @@
        subroutine atwtest(rtdb)
-C$Id: atwtest.F,v 1.2 1995-02-02 23:18:36 d3g681 Exp $
+C$Id: atwtest.F,v 1.3 1995-03-31 01:42:11 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -33,10 +33,10 @@ c
      $     call errquit('scf: geom_create?', 0)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      $     call errquit('scf: no geometry ', 0)
-      if (.not. bas_create(basis, 'mo basis'))
+      if (.not. bas_create(basis, 'ao basis'))
      $     call errquit('scf: bas_create?', 0)
-      if (.not. bas_rtdb_load(rtdb, geom, basis, 'mo basis'))
-     $     call errquit('scf: no mo basis ', 0)
+      if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
+     $     call errquit('scf: no ao basis ', 0)
       movecs = 'movecs'
       if (.not. context_rtdb_match(rtdb, 'input mo vector file',
      $     movecs_in)) movecs_in = movecs
