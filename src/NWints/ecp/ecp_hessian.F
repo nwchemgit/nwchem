@@ -1,4 +1,4 @@
-C $Id: ecp_hessian.F,v 1.9 2002-06-17 22:30:40 bert Exp $
+C $Id: ecp_hessian.F,v 1.10 2003-02-20 03:35:28 edo Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_hessian (
@@ -113,7 +113,6 @@ C $Id: ecp_hessian.F,v 1.9 2002-06-17 22:30:40 bert Exp $
       data dbyd/'d/dx','d/dy','d/dz'/
       data printhead/'          U_ab  '/
 *
-      write (LuOut,*) ibug
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
       debug_arrays = mod(ibug,10)/2 .eq. 1
