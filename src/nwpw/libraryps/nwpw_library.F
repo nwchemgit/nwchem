@@ -1,6 +1,6 @@
 
 c
-c $Id: nwpw_library.F,v 1.6 2003-12-03 21:56:53 bylaska Exp $
+c $Id: nwpw_library.F,v 1.7 2004-05-24 13:47:07 bylaska Exp $
 c
 	subroutine nwpw_libgeninp(element,filename)
 	implicit none
@@ -43,6 +43,9 @@ c
 	call nwpw_libparse(unitrc,unitrc+1)
 	close(unitrc)
 	close(unitrc+1)
+
+        call util_file_copy(elem_fname,filename)
+
 	return
  98	continue
 	write(luout,*) 'problems opening library file ',elem_fname

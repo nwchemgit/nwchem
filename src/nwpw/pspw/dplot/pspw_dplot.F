@@ -1,5 +1,5 @@
 *
-* $Id: pspw_dplot.F,v 1.15 2004-03-15 15:17:42 bylaska Exp $
+* $Id: pspw_dplot.F,v 1.16 2004-05-24 13:47:08 bylaska Exp $
 *
       logical function pspw_dplot(rtdb)
       implicit none
@@ -20,7 +20,7 @@
 
       integer count
       integer ngrid(3)
-      integer nfft3d,n2ft3d,npack1
+      integer nfft3d,n2ft3d,npack1,mapping
       integer ispin,ne(2),nemax
       integer psi2(2),dn(2),psir(2)
       real*8  cpu1,cpu2
@@ -29,14 +29,14 @@
 
 *     **** external functions ****
       logical      control_read,ion_init
-      integer      pack_nwave_all
+      integer      pack_nwave_all,control_mapping
       integer      control_ngrid,pack_nwave,control_version
       real*8       lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8       lattice_unitg
       character*12 control_boundry
 
       external     control_read,ion_init
-      external     pack_nwave_all
+      external     pack_nwave_all,control_mapping
       external     control_ngrid,pack_nwave,control_version
       external     lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external     lattice_unitg
@@ -94,6 +94,8 @@
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
+      mapping   = control_mapping()
+
 
 
       if ((np.gt.(control_ngrid(3)))) then
@@ -106,7 +108,7 @@
       end if
 
 *     **** initialize D3dB data structure ****
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),1)
+      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
 

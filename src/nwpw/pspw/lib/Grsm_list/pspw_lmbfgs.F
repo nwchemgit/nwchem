@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_lmbfgs.F,v 1.12 2003-10-24 18:56:59 marat Exp $                       
+*     $Id: pspw_lmbfgs.F,v 1.13 2004-05-24 13:47:08 bylaska Exp $                       
 *
 
       subroutine pspw_lmbfgs_init(max_m0,g)
@@ -88,6 +88,9 @@
      >                   dbl_mb(yy(1)),
      >                   dbl_mb(ss(1)),
      >                   sum)
+      !*** exit if dividing by small number ***
+      if (dabs(sum).lt.1.0d-15) go to 211
+
       rho(m) = 1.0d0/sum
       call Grsm_gg_trace(npack1,neall,
      >                   dbl_mb(ss(1)),
@@ -163,11 +166,9 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
          end do
       end if
 
-      !call Grsm_gg_dScale(npack1,neall,(-1.0d0),s,s)
       call dscal(ngras,(-1.0d0),s,1)
-      call pspw_Grsm_list_store(2*m-1,g)
+ 211  call pspw_Grsm_list_store(2*m-1,g)
       call pspw_Grsm_list_store(2*m,s)
-      !call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
       call dscal(ngras, (-1.0d0),g,1)
 
       if (ondisk) then

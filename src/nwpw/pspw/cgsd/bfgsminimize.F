@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.17 2003-10-20 16:40:00 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.18 2004-05-24 13:47:08 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -41,7 +41,7 @@ c
 
       integer it,it_in
       real*8 deltat
-      real*8 max_sigma,dt
+      real*8 max_sigma,dt,kappa
 
       logical value
       integer neall,npack1
@@ -167,6 +167,18 @@ c     dte = 1.0d0
            call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
          end if
       end if
+
+*     ***** set to gradient if direction is assending *****
+      call Grsm_gg_trace(npack1,neall,
+     >                   dcpl_mb(S0(1)),
+     >                   dcpl_mb(S0(1)),
+     >                   kappa)
+      !write(*,*) "KAPPA=",kappa
+      if (kappa.le.1.0d-10) call Grsm_gg_Copy(npack1,neall,
+     >                                      dcpl_mb(G0(1)),
+     >                                      dcpl_mb(S0(1)))
+
+
      
 
 *     ******************************************
@@ -214,6 +226,15 @@ c         deltat = 1.0d0  !** debug **
          else
            call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
          end if
+
+*        ***** set to gradient if direction is assending *****
+         call Grsm_gg_trace(npack1,neall,
+     >                      dcpl_mb(S0(1)),
+     >                      dcpl_mb(S0(1)),kappa)
+      !write(*,*) "KAPPA=",kappa
+         if (kappa.le.1.0d-10) call Grsm_gg_Copy(npack1,neall,
+     >                                         dcpl_mb(G0(1)),
+     >                                         dcpl_mb(S0(1)))
 
 
 

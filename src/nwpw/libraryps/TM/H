@@ -8,6 +8,6 @@ H
 <end>
 <solver>          pauli         <end>
 <pseudopotential> troullier-martins    <end>
-<rcut> 0 0.500
-       1 0.500
+<rcut> 0 1.250
+       1 1.250
 <end>

@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.27 2004-05-12 20:19:02 edo Exp $
+* $Id: pspw_sic.F,v 1.28 2004-05-24 13:47:08 bylaska Exp $
 *
 
 *     *************************
@@ -19,11 +19,11 @@
 *     **** local variables ****
       logical value,sic_on
       integer ma_type
-      integer n1,n2,n3
+      integer n1,n2,n3,mapping
 
 *     **** external functions ****
-      integer  control_version,psi_ne
-      external control_version,psi_ne
+      integer  control_version,psi_ne,control_mapping
+      external control_version,psi_ne,control_mapping
 
       norbs = 0
       e_sic = 0.0d0
@@ -99,7 +99,8 @@
                call D3dB_nx(1,n1)
                call D3dB_ny(1,n2)
                call D3dB_nz(1,n3)
-               call D3dB_Init(2,2*n1,2*n2,2*n3,1)
+               mapping = control_mapping()
+               call D3dB_Init(2,2*n1,2*n2,2*n3,mapping)
                call coulomb2_init()
             end if
 
