@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.182 1996-10-15 23:59:25 d3e129 Exp $
+# $Id: makefile.h,v 1.183 1996-10-16 19:41:42 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -319,8 +319,10 @@ ifeq ($(TARGET),CRAY-T3D)
               INSTALL = @echo $@ is built
         OUTPUT_OPTION = 
 
-                   FC = /mpp/bin/cf77 
-                  CPP = /mpp/lib/cpp -P  -N
+                   FC = cf77 
+                  CPP = cpp -P  -N
+#                   FC = /mpp/bin/cf77 
+#                  CPP = /mpp/lib/cpp -P  -N
 # gpp does not eat elif
 #                 CPP = /usr/lib/gpp -P  -F
 # need jump since with all modules code is too big for branches
@@ -346,7 +348,8 @@ ifeq ($(TARGET),CRAY-T3D)
 # Compilation also depends on compilers defining CRAY
               DEFINES = -DCRAY_T3D -DPARALLEL_DIAG
 
-               LINK.f = /mpp/bin/mppldr $(LDOPTIONS)
+#               LINK.f = /mpp/bin/mppldr $(LDOPTIONS)
+               LINK.f = mppldr $(LDOPTIONS)
 
             CORE_LIBS =  -lutil -lchemio -lglobal -lpeigs -llapack -lblas
 
