@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.182 2003-12-09 02:07:27 d3j191 Exp $
+c $Id: md_main.F,v 1.183 2003-12-09 15:52:41 d3j191 Exp $
 c
       implicit none
 c
@@ -238,7 +238,7 @@ c
       if(imembr.gt.0) then
       if(.not.ma_push_get(mt_int,2*msa,'mm',l_mm,i_mm))
      + call md_abort('Failed to allocate memory for mm',me)
-      if(.not.ma_push_get(mt_int,7*msm,'fm',l_fm,i_fm))
+      if(.not.ma_push_get(mt_dbl,7*msm,'fm',l_fm,i_fm))
      + call md_abort('Failed to allocate memory for fm',me)
       endif
 c
@@ -377,12 +377,13 @@ c
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),fs(msa,3)
       real*8 ww(mwa),ws(msa),xsm(msm,3),fm(msm,7)
 c
-      integer i,j,k
+      integer i,j,k,numg
       logical ldone
       real*8 edif,epsd,epsdw,epsdsw,epsds
       real*8 dk,dx,dxf,dxmax,factor,dxstep,eqrs
       character*1 cqrs
 c
+      numg=0
       if(imembr.gt.0) then
       do 11 i=1,msm
       mm(i,1)=0
@@ -407,13 +408,13 @@ c
       endif
    14 continue
       mm(i,2)=k
-      if(me.eq.0) then
-      write(lfnout,2000) i,ismol(i),k
- 2000 format(' Grouping atom ',i5,' of molecule ',i5,
-     + ' with molecule ',i5)
-      endif
+      numg=numg+1
       endif
    13 continue
+      if(numg.gt.0.and.me.eq.0) then
+      write(*,2000) numg
+ 2000 format(' Regrouping of',i5,' atoms',/)
+      endif
       endif
 c
       if(me.eq.0) write(lfnout,1000)
@@ -518,10 +519,11 @@ c
    17 continue
       if(np.gt.1) call ga_dgop(mrg_d50,fm,2*msm,'+')
       do 18 i=1,nsaloc
+c      write(*,'(2i5,e12.5)') i,mm(i,2)
       if(iand(isdt(i),mfixed).ne.lfixed) then
-      dxstep=dxf*fm(mm(i,1),1)
+      dxstep=dxf*fm(mm(i,2),1)
       xs(i,1)=xs(i,1)+dxstep
-      dxstep=dxf*fm(mm(i,1),2)
+      dxstep=dxf*fm(mm(i,2),2)
       xs(i,2)=xs(i,2)+dxstep
       endif
    18 continue
@@ -2756,7 +2758,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.182 2003-12-09 02:07:27 d3j191 Exp $
+c $Id: md_main.F,v 1.183 2003-12-09 15:52:41 d3j191 Exp $
 c
       implicit none
 c
