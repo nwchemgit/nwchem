@@ -1,4 +1,4 @@
-% $Id: interface.tex,v 1.8 2001-04-24 20:41:52 windus Exp $
+% $Id: interface.tex,v 1.9 2001-04-25 20:25:28 windus Exp $
 \label{sec:interface}
 
 NWChem has interfaces to several different packages which are listed below.
@@ -336,9 +336,9 @@ The Path section has the format:
     SSAVE is a variable keyword that indicates the numerical step
               size (in bohrs) for saving the Hessian grid. At each
               save point the potential and its first and second
-              derivatives are recalculated and written to the fort.30
+              derivatives are recalculated and written to the .file30
               file. For example, if SSTEP=0.01 and SSAVE=0.1, then the
-              potential information is written to fort.30 every 10
+              potential information is written to .file30 every 10
               steps along the gradient grid.
 
     SHESS is a variable keyword that indicates the numerical step
