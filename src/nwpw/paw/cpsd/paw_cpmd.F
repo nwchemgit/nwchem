@@ -1,6 +1,10 @@
 *
-* $Id: paw_cpmd.F,v 1.12 2005-01-31 02:09:12 bylaska Exp $
+* $Id: paw_cpmd.F,v 1.13 2005-01-31 03:58:32 bylaska Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.12  2005/01/31 02:09:12  bylaska
+* Large nested loops in PAW  parallelized using an openMP-like strategy.
+* ...EJB
+*
 * Revision 1.11  2004/09/04 17:56:21  bylaska
 * Added local potential to the projector file (.jpp).
 * More updates to constraint force.
@@ -1255,7 +1259,7 @@ c      call paw_vloc_end()
  1113 FORMAT( ' parallel mapping         : hilbert')
  1115 FORMAT(/' options:')
  1120 FORMAT(5X,' ionic motion         = ',A)
- 1121 FORMAT(5X,' boundary conditions   = ',A,'(version', I1,')')
+ 1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')

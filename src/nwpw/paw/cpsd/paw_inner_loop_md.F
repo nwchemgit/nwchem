@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop_md.F,v 1.7 2005-01-31 03:28:37 bylaska Exp $
+* $Id: paw_inner_loop_md.F,v 1.8 2005-01-31 03:58:32 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.7  2005/01/31 03:28:37  bylaska
+* Thermostat bug fix in PAW-CPMD...EJB
+*
 * Revision 1.6  2005/01/25 22:32:04  bylaska
 * Various bug fixes for release, containing band-DOS and input fixes.
 * Also, center of rotation constrained added to pspw-cpmd and paw-cpmd (not in release).
@@ -199,17 +202,13 @@
 
       if (control_version().eq.4) then
        value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'vcomp',vcomp(2),vcomp(1))
+     >        MA_push_get(mt_dcpl,(nfft3d),'vcomp',vcomp(2),vcomp(1))
        value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'vh',vh(2),vh(1))
+     >        MA_push_get(mt_dcpl,(nfft3d),'vh',vh(2),vh(1))
        value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
+     >        MA_push_get(mt_dcpl,(npack0),'vc',vc(2),vc(1))
       end if
 
-      if (control_version().eq.4) then
-       value = value.and.
-     >    MA_push_get(mt_dbl,(3*n2ft3d),'r_grid',r_grid(2),r_grid(1))
-      end if
 
       value = value.and.
      >        MA_push_get(mt_dcpl,(npack0),'vloc', vl(2), vl(1))
@@ -259,9 +258,6 @@
       scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
       dv    = scal1*lattice_omega()
-
-      if ((control_version().eq.4).or.(field_exist))
-     >   call lattice_r_grid(dbl_mb(r_grid(1)))
 
 
 
@@ -328,6 +324,13 @@
            call D3dB_r_Zero_Ends(1,dn(1,ms))
         end do
 
+*       ********************
+*       **** call dplot ****
+*       ********************
+        if (dplot_iteration_check(it+it_sum)) then
+         call dplot_iteration((it+it_sum),ispin,ne,psi1,dn,psi_r)
+        end if
+
 
 *       **********************
 *       **** generate dng ****
@@ -390,8 +393,48 @@
         end if
 
         if (control_version().eq.4) then
-           write(*,*) "Multipole interaction not done for aperiodic"
-           call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+
+           call Pack_cc_Sub(0,
+     >                      dcpl_mb(tmp1(1)),
+     >                      dn_cmp_smooth,
+     >                      dcpl_mb(tmp2(1))) !** tmp2 = dn_cmp - dn_cmp_smooth
+           call Pack_cc_Sum(0,
+     >                      dn_cmp_smooth,
+     >                      dcpl_mb(dng(1)),
+     >                      dcpl_mb(tmp1(1))) !** tmp1 = dng+dn_cmp_smooth **
+
+           call Pack_c_unpack(0,dcpl_mb(tmp1(1)))
+           call D3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
+           call D3dB_r_Zero_Ends(1,dcpl_mb(tmp1(1)))
+
+           call coulomb2_v(dcpl_mb(tmp1(1)),dcpl_mb(vh(1)))
+
+           call D3dB_rc_fft3f(1,dcpl_mb(vh(1)))
+           call D3dB_r_SMul(1,scal1,dcpl_mb(vh(1)),dcpl_mb(vh(1)))
+           call Pack_c_pack(0,dcpl_mb(vh(1)))
+
+
+           call Pack_c_unpack(0,dcpl_mb(tmp2(1)))
+           call D3dB_cr_fft3b(1,dcpl_mb(tmp2(1)))
+           call D3dB_r_Zero_Ends(1,dcpl_mb(tmp2(1)))
+
+           call coulomb2_v(dcpl_mb(tmp2(1)),dcpl_mb(vcomp(1)))
+
+           call D3dB_rc_fft3f(1,dcpl_mb(vcomp(1)))
+           call D3dB_r_SMul(1,scal1,dcpl_mb(vcomp(1)),dcpl_mb(vcomp(1)))
+           call Pack_c_pack(0,dcpl_mb(vcomp(1)))
+
+           call paw_mult_vzero(vzero)
+           call Pack_c_setzero(0,vzero,dcpl_mb(vcomp(1)))
+
+           call paw_mult_coeff_set(dcpl_mb(vh(1)),dcpl_mb(vcomp(1)))
+
+           call Pack_cc_Sum(0,
+     >                      dcpl_mb(vh(1)),
+     >                      dcpl_mb(vcomp(1)),
+     >                      dcpl_mb(vc(1)))
+
+
         end if
 
 
@@ -448,18 +491,10 @@
 *       **** get Hpsi ****
 *       ******************
         call nwpw_timing_start(13)
-        if (control_version().eq.3) 
-     >     call paw_psi_H(ispin,ne,psi1,psi_r,
+        call paw_psi_H(ispin,ne,psi1,psi_r,
      >             dcpl_mb(vl(1)),
      >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)))
- 
-        if (control_version().eq.4) 
-     >     call paw_psi_Hv4(ispin,ne,psi1,psi_r,
-     >             dcpl_mb(vl(1)),
-     >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
-     >             move,dbl_mb(fion(1)))
-
         call nwpw_timing_end(13)
         
 
@@ -608,13 +643,6 @@
           end if
         end if
 
-*       ********************
-*       **** call dplot ****
-*       ********************
-        if (dplot_iteration_check(it+it_sum)) then
-         call dplot_iteration((it+it_sum),ispin,ne,psi1,dn,psi_r)
-        end if
-
 
       end do
 *     ******************************************************
@@ -666,28 +694,22 @@
 
     
 *     **** get coulomb energy ****
-      if (control_version().eq.3) then
-        call Pack_cc_Sum(0,
-     >                   dcpl_mb(dng(1)),
-     >                   dn_cmp_smooth,
-     >                   dcpl_mb(tmp1(1)))
-        call Pack_c_Copy(0,
-     >                   dcpl_mb(vcomp(1)),
-     >                   dcpl_mb(tmp2(1)))
-        call Pack_cc_daxpy(0,0.5d0,
-     >                   dcpl_mb(vh(1)),
-     >                   dcpl_mb(tmp2(1)))
-        call Pack_cc_dot(0,
-     >                  dcpl_mb(tmp1(1)),
-     >                  dcpl_mb(tmp2(1)),
-     >                  ehartr_pw)
-        ehartr_pw = ehartr_pw*lattice_omega()
-      end if
+      call Pack_cc_Sum(0,
+     >                 dcpl_mb(dng(1)),
+     >                 dn_cmp_smooth,
+     >                 dcpl_mb(tmp1(1)))
+      call Pack_c_Copy(0,
+     >                 dcpl_mb(vcomp(1)),
+     >                 dcpl_mb(tmp2(1)))
+      call Pack_cc_daxpy(0,0.5d0,
+     >                 dcpl_mb(vh(1)),
+     >                 dcpl_mb(tmp2(1)))
+      call Pack_cc_dot(0,
+     >                dcpl_mb(tmp1(1)),
+     >                dcpl_mb(tmp2(1)),
+     >                ehartr_pw)
+      ehartr_pw = ehartr_pw*lattice_omega()
 
-      if (control_version().eq.4) then
-         call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr_pw)
-         ehartr_pw = 0.5d0*ehartr_pw*dv
-      end if
         
 
 *     **** get exchange-correlation energy ****
@@ -809,8 +831,6 @@ c        h = 1.0d0/(2.0d0*dt)
       value = MA_pop_stack(rho(2))
       value = MA_pop_stack(vl(2))
 
-      if ((control_version().eq.4).or.(field_exist))
-     >  value = value.and.MA_pop_stack(r_grid(2))
 
 
       value = MA_pop_stack(vc(2))
