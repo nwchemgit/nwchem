@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.24 1994-06-09 05:31:23 d3g681 Exp $
+# $Id: makefile.h,v 1.25 1994-06-14 22:00:36 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -53,7 +53,7 @@ endif
 #
 
     SUBDIRS = include ddscf develop global db NWints rtdb basis inp util \
-              atomscf geom input ma tcgmsg $(SUBDIRS_EXTRA)
+              atomscf geom input ma tcgmsg $(SUBDIRS_EXTRA) rimp2
 
 #
 # Define LIBPATH to be paths for libraries that you are linking in
@@ -110,7 +110,7 @@ ifeq ($(TARGET),SUN)
     ARFLAGS = rcv
 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lddscf -lnwints \
+              -ltest -lrimp2 -lddscf -lnwints \
               -linput -lguess -lgeom -lbasis -lutil -lglobal -lrtdb -ldb \
               -linp \
 	      -lutil -lma -ltcgmsg -llapack -lblas
@@ -148,7 +148,7 @@ ifeq ($(TARGET),KSR)
     ARFLAGS = rcv
 
        LIBS = -L$(LIBDIR) $(LIBPATH) -L/home/d3g681/TCGMSG_DISTRIB \
-              -ltest -lddscf -lnwints \
+              -ltest -lrimp2 -lddscf -lnwints \
               -linput -lguess -lgeom -lbasis -lutil \
               -lglobal -lpeigs -llapack2 -lblas2 \
               -lrtdb -ldb -linp \
