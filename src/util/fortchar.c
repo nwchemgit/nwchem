@@ -1,4 +1,4 @@
-/*$Id: fortchar.c,v 1.4 1995-05-27 20:35:18 gg502 Exp $*/
+/*$Id: fortchar.c,v 1.5 1995-10-17 05:53:19 d3g681 Exp $*/
 /* Name munging to handle the various conventions for Fortran-C interfacing */
 #if (defined(CRAY_T3D) || defined(ARDENT))
 #   define FCSND_  FCSND
@@ -16,7 +16,7 @@
 #define FC_MAXLEN 256 /* Length of message buffer.  Longer Fortran string
 			 are sent in several messages. */
 
-#include "sndrcv.h"  /* TCGMSG send & receive function prototypes */
+#include "sndrcv.h"
 #include <string.h>
 #ifdef CRAY_T3D
 #include <fortran.h> /* Required for Fortran-C string interface on Crays */
