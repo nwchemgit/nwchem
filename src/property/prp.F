@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.51 2000-10-23 23:37:49 windus Exp $
+* $Id: prp.F,v 1.52 2001-11-08 23:58:39 bert Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -11677,9 +11677,17 @@ c
       endif
       if (.not. bas_numcont(basis, nshell)) call errquit
      $     ('hnd_prp_init: bas_numcont failed for basis', basis)
+      if (nshell .gt. mxshel) then
+        write(iw,*) 'Property code not able to handle this problem size'
+        call errquit('hnd_prp_init: nshell beyond mxshel limit', nshell)
+      endif
 
       if (.not. bas_numbf(basis, num)) call errquit
      $     ('hnd_prp_init: bas_numbf failed for basis', basis)
+      if (num .gt. mxnbf) then
+        write(iw,*) 'Property code not able to handle this problem size'
+        call errquit('hnd_prp_init: num beyond mxnbf limit', num)
+      endif
       if(dbug) then
          write(iw,*) ' ... nshell = ', nshell
          write(iw,*) ' ... num    = ', num
@@ -11720,6 +11728,12 @@ c
 c
 c     ----- loop over primitives in shells -----
 c
+            if ((istart+ngi) .gt. mxprim) then
+              write(iw,*) 
+     &             'Property code not able to handle this problem size'
+              call errquit
+     &             ('hnd_prp_init: nprim beyond mxprim limit', nprim)
+            endif
             do ig=1,ngi
                ex(ig+istart-1)=zero
                cs(ig+istart-1)=zero
