@@ -1,7 +1,7 @@
 
         Guide to Installing NWChem  
         ==========================
-        $Id: INSTALL,v 1.8 1996-09-19 17:57:44 d3g681 Exp $
+        $Id: INSTALL,v 1.9 1997-02-17 21:08:46 d3g681 Exp $
 
 
   DO THESE STEPS IN ORDER OR THE BUILD WILL FAIL
@@ -77,11 +77,7 @@
 
        % make dbl_to_sngl
 
-6) Make any missing directories
-
-       % make directories
-
-7) Finally, compile and link:
+6) Finally, compile and link:
 
        % make >& make.log
 
@@ -92,6 +88,15 @@
 
 	$NWCHEM_TOP/bin/PARAGON          (executables)
         $NWCHEM_TOP/lib/PARAGON          (libraries)
+
+
+   An alternative to steps 2 thru 6 is to specify all variables
+   on the make command line.  This is recommended only for one
+   time builds.  For instance, to build just the quantum mechanical
+   codes on an IBM workstation
+
+       make NWCHEM_TOP=/home/nwchem NWCHEM_TARGET=IBM NWCHEM_MODULES=qm
+
 
 NOTE TO MPI USERS:
 -----------------
