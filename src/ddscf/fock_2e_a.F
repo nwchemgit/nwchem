@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.16 1995-11-27 02:14:01 d3g681 Exp $
+c$Id: fock_2e_a.F,v 1.17 1995-12-01 16:58:09 d3g681 Exp $
 c
 #include "cfock.fh"
       data task_bf/-1/          ! Chunking of funstions per task
@@ -20,7 +20,7 @@ c     see scf_init for input of task_chunks etc.
      $     blocks, nblock)
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.16 1995-11-27 02:14:01 d3g681 Exp $
+c     $Id: fock_2e_a.F,v 1.17 1995-12-01 16:58:09 d3g681 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -67,6 +67,7 @@ c
 c     
       integer nxtask
       external nxtask
+      external cfock_data ! For T3D linker
 c
 c     How many atoms are there?
 c     

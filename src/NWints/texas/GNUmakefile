@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.13 1995-11-29 02:13:44 d3e129 Exp $
+# $Id: GNUmakefile,v 1.14 1995-12-01 16:57:46 d3g681 Exp $
  
 ifeq ($(USE_TEXAS),YEP)
       LIB_DEFINES = -DUSE_TEXAS
@@ -44,5 +44,5 @@ removeobj:
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 $(LIBRARY_PATH)(precalc2.o):	 $(INCDIR)/mafdecls.fh 
-$(LIBRARY_PATH)(texas_face.o):	 $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(texas_face.o):	 $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh $(INCDIR)/apiP.fh 
 $(LIBRARY_PATH)(texas_hf.o):	 $(INCDIR)/mafdecls.fh 

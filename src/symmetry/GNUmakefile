@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.16 1995-11-27 02:19:33 d3g681 Exp $
+#$Id: GNUmakefile,v 1.17 1995-12-01 16:58:48 d3g681 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
@@ -45,6 +45,17 @@ OBJ =     dosymops.o \
 
 include ../config/makefile.h
 include ../config/makelib.h
+
+ifeq ($(TARGET),CRAY-T3D)
+  FNOOPT = -dp -Ccray-t3d -Wf"-o noscalar,jump,noieeedivide"
+$(LIBRARY_PATH)(dosymops.o):  dosymops.f
+	$(FC) -c $(FNOOPT) $^
+$(LIBRARY_PATH)(sym_movecs_apply_op.o):  sym_movecs_apply_op.F
+	$(FCONVERT)
+	$(FC) -c $(FNOOPT) sym_movecs_apply_op.f
+	@/bin/rm -f sym_movecs_apply_op.f
+endif
+             
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 $(LIBRARY_PATH)(sym_apply_cart_op.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 

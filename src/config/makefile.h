@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.131 1995-11-27 21:20:22 og845 Exp $
+# $Id: makefile.h,v 1.132 1995-12-01 16:57:57 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -222,32 +222,38 @@ ifeq ($(TARGET),CRAY-T3D)
 #
    CORE_SUBDIRS_EXTRA =	blas lapack # Only a couple of routines not in scilib
                RANLIB = echo
-            MAKEFLAGS = -j 2 --no-print-directory
+            MAKEFLAGS = -j 4 --no-print-directory
               INSTALL = @echo $@ is built
         OUTPUT_OPTION = 
 
                    FC = /mpp/bin/cf77 
                   CPP = /mpp/lib/cpp -P  -N
-             FOPTIONS = -Wf"-dp" -Ccray-t3d 
-             COPTIONS = -Tcray-t3d
-            FOPTIMIZE = -O scalar3
+# gpp does not eat elif
+#                 CPP = /usr/lib/gpp -P  -F
+# need jump since with all modules code is too big for branches
+# ieeedivide seems safe and should be faster
+             FOPTIONS = -dp -Ccray-t3d 
+             COPTIONS = -Tcray-t3d -hjump
+# To make executable smaller use scalar optimization and no -g on all code.
+# symmetry/(dosymops.F,sym_movecs_apply_op) break with scalar
+# (it is handled separately in symmetry/makefile)
+# !! Note that -O option disables any -Wf"-o options" but we need
+# !! jump so cannot use -O.
+               FDEBUG = -Wf"-o scalar,jump,noieeedivide"
+# Note sure yet if these are fully safe ... aggress,unroll
+            FOPTIMIZE = -Wf"-o scalar,jump,noieeedivide,aggress,unroll"
+               CDEBUG = -O 1
             COPTIMIZE = -O
-            LDOPTIONS = -Drdahead=on
+# -s eliminates symbol tables to make executable smaller (remove -s
+# if you want to debug) ... the T3 does load the symbol table (stupid!)
+# No need for forcing of block data here as long as each one is
+# referenced by an external statement in the code.
+            LDOPTIONS = -s -Drdahead=on -L$(LIBDIR) 
 
+# Compilation also depends on compilers defining CRAY
               DEFINES = -DCRAY_T3D -DPARALLEL_DIAG
 
-               LINK.f = /mpp/bin/mppldr $(LDOPTIONS) \
-			-Dbin=NWints/api/int_init.o \
-			-Dbin=NWints/int/defNxyz.o \
-			-Dbin=basis/basis.o \
-			-Dbin=basis/basisP.o \
-			-Dbin=ddscf/fock_2e_a.o \
-			-Dbin=ddscf/scf_pstat.o \
-			-Dbin=geom/geom.o \
-			-Dbin=inp/inp.o \
-			-Dbin=util/ga_iter_project.o \
-			-Dbin=util/file_prefix.o \
-			-L$(LIBDIR) 
+               LINK.f = /mpp/bin/mppldr $(LDOPTIONS)
 
             CORE_LIBS = -lglobal \
 			-lpeigs \
@@ -621,3 +627,35 @@ ifdef EXPLICITF
 	@echo Converting $*.F '->' $*.f
 	@$(FCONVERT)
 endif
+# 
+# More explicit rules to avoid infinite recursion, to get dependencies, and
+# for efficiency.  CRAY does not like -o with -c.
+
+(%.o):	%.F
+ifdef EXPLICITF
+	@echo Converting $< '->' $*.f
+	@$(FCONVERT)
+ifeq ($(TARGET),CRAY-T3D)
+	$(FC) -c $(FFLAGS) $*.f
+else
+	$(FC) -c $(FFLAGS) -o $% $*.f
+endif
+	@/bin/rm -f $*.f
+else
+	$(FC) -c $(FFLAGS) $(CPPFLAGS) $<
+endif
+
+(%.o):	%.f
+ifeq ($(TARGET),CRAY-T3D)
+	$(FC) -c $(FFLAGS) $<
+else
+	$(FC) -c $(FFLAGS) -o $% $<
+endif
+
+(%.o):	%.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $% $<
+
+(%.o):  %.o
+	
+# Preceding line has a tab to make an empty rule
+

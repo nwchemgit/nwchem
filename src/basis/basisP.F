@@ -1,6 +1,6 @@
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
      $     expnt, coeffs, ldc)
-c $Id: basisP.F,v 1.12 1995-01-05 04:18:04 og845 Exp $
+c $Id: basisP.F,v 1.13 1995-12-01 16:57:49 d3g681 Exp $
       implicit none
 #include "basdeclsP.fh"
 #include "basP.fh"
@@ -22,6 +22,7 @@ c
 c
       logical bas_check_handle
       external bas_check_handle
+      external basis_data  ! This for the T3D linker
 c
 c     adds a new general contraction on the specified tag.  If the
 c     tag is not present it will also add that by calling bas_add_utag

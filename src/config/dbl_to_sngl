@@ -5,12 +5,22 @@ set sed_script2 = {$NWCHEM_TOP}/src/config/dbl_to_sngl.2.sed
 
 set sufx = .dbl
 
+set JOB_LIMIT = 4
+if (`hostname` == circus) set JOB_LIMIT = 20
+@ njob = 0
+
 foreach file ($argv)
 
    echo converting $file to single precision
    (sed -f $sed_script  < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file;\
     sed -f $sed_script2 < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file)&
 
+   @ njob ++
+   if ($njob >= $JOB_LIMIT) then
+     wait
+     @ njob = 0
+   endif
+
 end
 
-wait
+if ($njob > 0) wait

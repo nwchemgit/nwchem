@@ -9,6 +9,7 @@ c
       integer iiibit, jjjbit
 #endif
 #ifdef CRAY
-      integer arg1,arg2
-      integer lshift,rshift
-#endif 
+      integer lshift, rshift, shiftr, shiftL
+      intrinsic shiftr, shiftl
+      integer iiibit, jjjbit
+#endif

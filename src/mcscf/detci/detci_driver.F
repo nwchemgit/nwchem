@@ -2,6 +2,7 @@
       implicit none
 #include "detciP.fh"
 #include "detci.fh"
+#include "util.fh"
       integer norb, nela, nelb, nsym
       integer ntij
       integer civlen
@@ -37,8 +38,6 @@ c
 c
 c
 c     
-      real dtime, etime
-      external dtime, etime
       DOUBLE PRECISION DRAND
       EXTERNAL DRAND
       external detci_sigma, detci_ciprecon
@@ -113,10 +112,10 @@ C$$$      CALL DETCI_CIPRECON( CIVEC )
 c
 c Time one sigma product
 c     
-      TX = ETIME(T2)
+      TX = util_cpusec()
       CALL DETCI_SIGMA( CIVEC, WORK(1,1) )
 C      CALL DETCI_PRINT( WORK(1,1), 1.0D-3 )
-      TX = ETIME(T2) - TX
+      TX = util_cpusec() - TX
       WRITE(6,933) TX
  933  FORMAT(/,'Time for single CI vector product:',f12.3,/)
 c

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.37 1995-11-28 20:43:32 gg502 Exp $
+#$Id: GNUmakefile,v 1.38 1995-12-01 16:58:41 d3g681 Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
 ifneq ($(TARGET),SGITFP)
 ifeq ($(TARGET),CRAY-T3D)
@@ -89,6 +89,7 @@ $(LIBRARY_PATH)(ga_inv_seq.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)
 $(LIBRARY_PATH)(ga_inverse.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(gacrea.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(int_eval_gbsets.o):	 $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(movecs_to_logfile.o):	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/cscfps.fh 
 $(LIBRARY_PATH)(nbf_to_mbf.o):	 $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(new_eval_gbsets.o):	 ../include/dimensions.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(sca_lab_mat.o):	 $(INCDIR)/bas.fh 

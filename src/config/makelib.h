@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.27 1995-11-21 19:33:49 gg502 Exp $
+# $Id: makelib.h,v 1.28 1995-12-01 16:57:59 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -139,28 +139,11 @@ update_archive:
 		echo ranlib $(LIBRARY_PATH) ; $(RANLIB) $(LIBRARY_PATH) ; \
 	  fi; )
 
-# Explicit rules to avoid infinite recursion, to get dependencies, and
-# for efficiency
-
-(%.o):	%.F
-ifdef EXPLICITF
-	@echo Converting $< '->' $*.f
-	@$(FCONVERT)
-	$(FC) -c $(FFLAGS) -o $% $*.f
-	/bin/rm -f $*.f
-else
-	$(FC) -c $(FFLAGS) $(CPPFLAGS) $<
-endif
-
-(%.o):	%.f
-	$(FC) -c $(FFLAGS) -o $% $<
-
-(%.o):	%.c
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $% $<
-
-(%.o):  %.o
-	
-# Preceding line has a tab to make an empty rule
+#
+# The explict rules for (%.o), .o, .f and .F have been moved
+# back into makefile.h since there is machine dependence generated
+# at least by the T3D
+#
 
 ####################################################################
 #

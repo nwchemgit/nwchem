@@ -1,6 +1,6 @@
       double precision function util_cpusec()
       implicit none
-c $Id: util_cpusec.F,v 1.5 1995-11-29 22:21:24 rg240 Exp $
+c $Id: util_cpusec.F,v 1.6 1995-12-01 16:59:01 d3g681 Exp $
 *
 * routine to give cpu seconds since start of execution
 *  delta times are handled by all applications
@@ -22,8 +22,8 @@ c
 #endif
 #if defined(SUN) || defined(SGI) || defined(SGITFP)|| defined(__PARAGON__) || defined(DECOSF)
 #define __UTIL_CPUSEC__
-      real tarray(2)
-      real etime
+      real*4 tarray(2)
+      real*4 etime
       external etime
 c
       util_cpusec = dble(etime(tarray))
@@ -50,6 +50,22 @@ c
       external linux_cputime
 c
       util_cpusec = linux_cputime()
+#endif
+#if defined(CRAY)
+#define __UTIL_CPUSEC__
+      double precision secondr
+      external secondr
+      double precision first
+      logical ofirst
+      save first, ofirst
+      data ofirst /.true./
+c
+      if (ofirst) then
+	first = secondr()
+	ofirst = .false.
+      endif
+c
+      util_cpusec = secondr() - first ! Actually wall time
 #endif
 *
 #if !defined(__UTIL_CPUSEC__)

@@ -11,6 +11,6 @@ c
       ieor(iiibit,jjjbit)=xor(iiibit,jjjbit)
 #endif
 #ifdef CRAY
-      lshift(arg1,arg2)=shiftl(arg1,arg2)
-      rshift(arg1,arg2)=shiftr(arg1,arg2)
+      lshift(iiibit,jjjbit)=shiftl(iiibit,jjjbit)
+      rshift(iiibit,jjjbit)=shiftr(iiibit,jjjbit)
 #endif

@@ -5,6 +5,7 @@
 c::passed
       integer rtdb, nat
       integer selbuf(3,nat)
+      external stpr_data ! For T3D linker
 c
       if (.not.rtdb_get(rtdb,'stepper:select',MT_INT,(3*nat),selbuf))
      &    call errquit
@@ -16,7 +17,7 @@ c
      &     CONVGG, NATD, NMODE,
      &     TRACK, BCKSTP, RPATH , rtdb, step_number)
 c     
-c     $Id: stpr_face.F,v 1.10 1995-11-03 20:43:42 d3g681 Exp $
+c     $Id: stpr_face.F,v 1.11 1995-12-01 16:58:45 d3g681 Exp $
 c     
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"

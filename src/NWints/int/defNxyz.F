@@ -1,5 +1,5 @@
       Subroutine defNxyz(lambda)
-c $Id: defNxyz.F,v 1.1 1994-09-28 17:56:57 d3e129 Exp $
+c $Id: defNxyz.F,v 1.2 1995-12-01 16:57:42 d3g681 Exp $
       implicit none
 
       integer lambda
@@ -7,6 +7,7 @@ c $Id: defNxyz.F,v 1.1 1994-09-28 17:56:57 d3e129 Exp $
 #include "sh_order.fh"
 
       integer l0, l1, l2, lr, nc
+      external bdIxyz
 c
 c Initialize the "Ixyz" data structure up through 4 times the given angular 
 c momentum. This is necessary to calculate a 4-center ERI comprising four

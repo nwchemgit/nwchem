@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.41 1995-11-29 01:52:36 d3e129 Exp $
+C$Id: geom.F,v 1.42 1995-12-01 16:58:17 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -697,6 +697,7 @@ c
       character*(*) name        ! [input]
 c
       integer i,j
+      external geom_data  ! This for T3D linker
 c
 c     Assign the next free slot for a geometry
 c

@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.19 1995-11-07 09:19:34 apsmith Exp $
+C$Id: inp.F,v 1.20 1995-12-01 16:58:23 d3g681 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -30,6 +30,7 @@ c
       implicit none
 #include "inpP.fh"
       integer ir, iw
+      external inp_data  ! For T3D linker
 c     
       iread = ir
       iwrite = iw

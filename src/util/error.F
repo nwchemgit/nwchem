@@ -1,5 +1,5 @@
       block data error_data
-C$Id: error.F,v 1.6 1995-02-02 18:09:21 d3g681 Exp $
+C$Id: error.F,v 1.7 1995-12-01 16:58:59 d3g681 Exp $
       implicit none
 #include "errorP.h"
 c
@@ -12,6 +12,7 @@ c
       integer level             ! [input]
       character*(*) message     ! [input]
       integer status            ! [input]
+      external error_data
 c
 c     Central error handling facility
 c

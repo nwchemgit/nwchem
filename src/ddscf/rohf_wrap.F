@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.2 1995-03-31 17:31:43 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.3 1995-12-01 16:58:12 d3g681 Exp $
 c     
 c     Invalidate data
 c     
@@ -19,10 +19,11 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.2 1995-03-31 17:31:43 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.3 1995-12-01 16:58:12 d3g681 Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
+      external crohf_data ! For T3D linker
 c     
       if (crohf_init_flag.gt.0)
      $     call errquit('rohf internals already initialised?',0)
@@ -58,7 +59,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.2 1995-03-31 17:31:43 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.3 1995-12-01 16:58:12 d3g681 Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -86,7 +87,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.2 1995-03-31 17:31:43 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.3 1995-12-01 16:58:12 d3g681 Exp $
 c
       integer g_vecs
       double precision energy
@@ -122,7 +123,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.2 1995-03-31 17:31:43 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.3 1995-12-01 16:58:12 d3g681 Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -156,7 +157,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.2 1995-03-31 17:31:43 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.3 1995-12-01 16:58:12 d3g681 Exp $
 c
       integer g_x
       double precision solveshift

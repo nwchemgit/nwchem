@@ -25,6 +25,7 @@ c
       double precision nuclear_charge
       character*255 name
       integer len_occ
+      external cscfdata ! For T3D linker
 c     
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
@@ -182,7 +183,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.16 1995-11-27 02:14:18 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.17 1995-12-01 16:58:13 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
