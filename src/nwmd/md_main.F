@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.41 1999-10-13 20:10:47 d3j191 Exp $
+c $Id: md_main.F,v 1.42 1999-10-22 15:30:27 d3j191 Exp $
 c
       implicit none
 c
@@ -1492,11 +1492,18 @@ c
 c
       integer lfn
       character*255 fil
+      character*7 cdr
       logical lveloc
 c
       if(me.eq.0) then
+      if(keepr.eq.0) then
       open(unit=lfn,file=fil(1:index(fil,' ')-1),
      + form='formatted',status='unknown',err=9999)
+      else
+      write(cdr,'(i7.7)') keepr
+      open(unit=lfn,file=fil(1:index(fil,' ')-1)//cdr,
+     + form='formatted',status='unknown',err=9999)
+      endif
       endif
 c
       call sp_wrtrst(lfn,fil,lveloc,pres,temp,tempw,temps,
@@ -1512,6 +1519,8 @@ c
       if(me.eq.0) then
       close(unit=lfn)
       endif
+c
+      if(keepr.gt.0) keepr=keepr+1
 c
       return
 c

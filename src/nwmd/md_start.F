@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.33 1999-10-21 20:02:52 d3j191 Exp $
+c $Id: md_start.F,v 1.34 1999-10-22 15:30:28 d3j191 Exp $
 c
       implicit none
 c
@@ -1316,7 +1316,7 @@ c
       read(lfn,1001,end=9998,err=9998) ntype,mdtype
  1001 format(11i7)
       read(lfn,1001) nfpair,nflong
-      read(lfn,1001) lwtype,lstype,nfrest
+      read(lfn,1001) lwtype,lstype,nfrest,keepr
       if(nserie.eq.1) then
       read(lfn,1002) krun,kequi,kdacq,mrun,mequi,mdacq,ldacq
  1002 format(7i7)
@@ -1382,7 +1382,7 @@ c
       write(lfn,1001) ntype,mdtype
  1001 format(11i7)
       write(lfn,1001) nfpair,nflong
-      write(lfn,1001) lwtype,lstype,nfrest
+      write(lfn,1001) lwtype,lstype,nfrest,keepr
       write(lfn,1002) irun,iequi,idacq,mrun,mequi,mdacq,ldacq
  1002 format(11i7)
       write(lfn,1003) stime,tstep
