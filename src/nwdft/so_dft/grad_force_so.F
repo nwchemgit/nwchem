@@ -1,5 +1,5 @@
       subroutine grad_force_so(rtdb, basis, geom)
-c     $Id: grad_force_so.F,v 1.13 2001-06-12 20:55:55 edo Exp $
+c     $Id: grad_force_so.F,v 1.14 2001-06-13 01:46:22 edo Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -142,17 +142,14 @@ c
 c    
 c     Stuff for Douglas-Kroll
 c
-      logical dkdiv_energy, num_grad, file_write_ga  ! Three data blocks needed
-      external dkdiv_energy, num_grad, file_write_ga ! for the possible addition
-      integer l_dkdivfrc, k_dkdivfrc                 ! of Douglas-Kroll contribution
-      character*(nw_max_path_len) dkdiv_name
-      character*128 mytheory
+      logical num_grad, file_write_ga  ! Three data blocks needed
+      external  num_grad, file_write_ga ! for the possible addition
 c
 *     Stuff for DFT
 
       integer ipol, numfunc, noc(2)
       parameter (numfunc = 30)
-      logical oskel, omp2, odft, ocdfit, status,frac_occ, exso 
+      logical oskel, omp2, odft, ocdfit, status, exso 
       double precision xfac(numfunc), jfac, kfac
 
       nproc = ga_nnodes()

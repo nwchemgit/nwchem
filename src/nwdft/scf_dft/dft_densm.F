@@ -3,7 +3,7 @@
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon)
-C$Id: dft_densm.F,v 1.26 2001-06-13 01:31:25 edo Exp $
+C$Id: dft_densm.F,v 1.27 2001-06-13 01:46:22 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -52,18 +52,13 @@ c
       nproc=ga_nnodes()
       rhfuhf=2d0
       if(ipol.eq.2) rhfuhf=1d0
-c      me=0
-c      nproc=1
-!      if (check_deg) then
-!         ssmear=1d-4
-!      endif
       if(ssmear.lt.toll.or.iter.lt.-1) then
 c
 c     check degener
 c     
          if (fon) then
             if(dft_checkdg(nmo_fon,nel_fon,
-     .           evals,nbf,ntotel,focc,noc,ipol,me)) then
+     .          nbf,ntotel,focc,noc,ipol,me)) then
                 do isp=1,ipol
                    call dft_focdm(focc(1+(isp-1)*nbf),noc(isp),geom,
      ,                 AO_bas_han,nbf,
@@ -358,38 +353,25 @@ c      call dfill(noc, rhfuhf, focc, 1)
          return
          end
       logical function dft_checkdg(nmo_fon,nel_fon,
-     .     evals,nbf,ntotel,focc,noc,ipol,
+     .     nbf,ntotel,focc,noc,ipol,
      , me)
       implicit none
 #include "global.fh"
 #include "stdio.fh"
       integer ipol
       integer nbf
-      double precision evals(ipol*nbf)
       double precision focc(nbf,ipol)
       integer ntotel
       integer noc(2)
-      integer me,mult
+      integer me
 c
-      integer i,isp,nup,ndown
-      integer neldeg
-      integer nlevdeg,nnintg
-      double precision rhfuhf,nck,ehomo
-      double precision deps,fracc,eee,fnoc(2)
+      integer i
       double precision avg_fon
       integer nmo_fon(2),nel_fon(2),ispin
       double precision ncheck
-      nmo_fon(1)=0
-      nmo_fon(2)=0
-      nel_fon(1)=0
-      nel_fon(2)=0
 c
 c  assignments      
 c
-      nmo_fon(1)=2
-      nel_fon(1)=1
-!      nmo_fon(2)=5
-!      nel_fon(2)=1
       ncheck=0d0
       do ispin=1,ipol
          avg_fon = dble(nel_fon(ispin))/dble(nmo_fon(ispin)) 
