@@ -31,7 +31,7 @@ c
       end
       
 
-c  $Id: moints_trp.F,v 2.12 1999-07-29 01:01:56 d3g681 Exp $
+c  $Id: moints_trp.F,v 2.13 2003-02-28 23:28:02 bert Exp $
 c
 c
 c     No-one knows what this stuff is doing ... are the next comments correct?
@@ -150,6 +150,10 @@ c
  888        format(16i3)
           endif
        endif
+c
+c Check if point group is abelian, if not turn off symmetry
+c
+       osym = (sym_number_ops(geom).gt.0).and.sym_abelian_group(geom)
 c
 c  Integrals allocation
 c
@@ -423,7 +427,7 @@ c  Clean up
 c
        if (.not. ma_pop_stack(l_hlp))
      $     call errquit('moints: failed to pop', l_hlp)
-       if (osym) then
+       if (sym_number_ops(geom).gt.0) then
           if (.not. ma_pop_stack(l_sym))
      $         call errquit('moints_trp: memory corrupt',0)
        endif
