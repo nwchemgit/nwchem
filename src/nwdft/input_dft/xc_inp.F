@@ -38,7 +38,8 @@ c     cpbe96
 c     xpbe96
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs = 42,numfunc=30)
+cedo      parameter (num_dirs = 42,numfunc=30)
+      parameter (num_dirs = 40,numfunc=30)
       character*15 dirs(num_dirs)
       character*255 test
 c
@@ -60,7 +61,8 @@ c
      ,     'xhcth','xbecke97','xbecke97-1',
      ,     'chcth','cbecke97','cbecke97-1','hcth120','hcth147',
      ,     'becke98','pbe0','becke97gga1','hcth407','hcthp14',
-     ,     'optx','optc','becke97-2','lb94','casidaac'/
+     ,     'optx','optc','becke97-2'/
+cedo     ,     'optx','optc','becke97-2','lb94','casidaac'/
 c
 c     Only these few arrays are initialized (not defaults).
 c
@@ -889,8 +891,8 @@ c
        lcfac(1) = .true.
       nlcfac(1) = .false.
         xfac(18) = 1.d0
-       lxfac(18) = .false.
-      nlxfac(18) = .true.
+!       lxfac(18) = .false.
+!      nlxfac(18) = .true.
 c
       goto 10
 c     
