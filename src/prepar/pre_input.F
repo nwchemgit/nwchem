@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.27 1999-07-12 20:23:53 d3j191 Exp $
+c $Id: pre_input.F,v 1.28 1999-07-16 16:34:05 d3j191 Exp $
 c
       implicit none
 c
@@ -721,13 +721,22 @@ c
       if(.not.inp_a(item)) call errquit('pre_input: write',9999)
       if(inp_compare(.false.,'solute',item)) then
       if(.not.inp_a(item)) call errquit('pre_input: write',9999)
-      if(.not.inp_compare(.false.,'pdb',item))
-     + call errquit('pre_input: write solute',9999)
+      if(inp_compare(.false.,'pdb',item)) then
       if(.not.inp_a(item)) then
       write(68,6806) ' '
       else
       write(68,6806) item(1:index(item,' ')-1)
  6806 format('wr_pdb solute ',a)
+      endif
+      elseif(inp_compare(.false.,'xyz',item)) then
+      if(.not.inp_a(item)) then
+      write(68,6824) ' '
+      else
+      write(68,6824) item(1:index(item,' ')-1)
+ 6824 format('wr_xyz solute ',a)
+      endif
+      else
+      call errquit('pre_input: write solute',9999)
       endif
       elseif(inp_compare(.false.,'pdb',item)) then
       if(.not.inp_a(item)) then
@@ -742,6 +751,14 @@ c
       else
       write(68,6808) item(1:index(item,' ')-1)
  6808 format('wr_rst ',a)
+      lwrcoo=.true.
+      endif
+      elseif(inp_compare(.false.,'xyz',item)) then
+      if(.not.inp_a(item)) then
+      write(68,6823) ' '
+      else
+      write(68,6823) item(1:index(item,' ')-1)
+ 6823 format('wr_xyz ',a)
       lwrcoo=.true.
       endif
       endif

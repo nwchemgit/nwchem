@@ -1,9 +1,9 @@
       logical function pre_mkrst(irtdb,mdold,source,lfnout,
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
-     + chain,model)
+     + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.32 1999-06-16 23:37:46 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.33 1999-07-16 16:34:06 d3j191 Exp $
 c
       implicit none
 c
@@ -18,12 +18,13 @@ c
       external pre_pdbsiz,pre_solvat,pre_boxsiz,pre_misfit,pre_wrtpdb
       logical pre_rdrst,pre_disres,pre_fix,pre_rstsiz,pre_wtrst
       external pre_rdrst,pre_disres,pre_fix,pre_rstsiz,pre_wtrst
-      logical util_nwchemrc_get,pre_rrst,pre_rstsz
-      external util_nwchemrc_get,pre_rrst,pre_rstsz
+      logical util_nwchemrc_get,pre_rrst,pre_rstsz,pre_wrtxyz
+      external util_nwchemrc_get,pre_rrst,pre_rstsz,pre_wrtxyz
 c
       integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd
-      integer lfnslv,model,mdold
+      integer lfnslv,model,mdold,lfnxyz,lfnqqq
       character*255 filtop,filpdb,filrst,filtmp,filcmd,filnam,filslv
+      character*255 filxyz,filqqq
       character*10 slvmdl
       character*3 slvnam
       character*80 source,card,cfix
@@ -651,6 +652,25 @@ c
      + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
      + call errquit('pre_wrtrst failed',9999)
       endif
+      endif
+c
+c
+c     write xyz file
+c     --------------
+c
+      if(card(1:6).eq.'wr_xyz') then
+      if(card(8:13).eq.'solute') then
+      filnam=card(15:80)
+      else
+      filnam=card(8:80)
+      endif
+      length=index(filnam,' ')-1
+      if(length.eq.0) filnam=filxyz
+      filxyz=filnam
+      if(.not.pre_wrtxyz(lfnout,lfnxyz,filxyz,lfnqqq,filqqq,
+     + int_mb(i_num),mat,
+     + int_mb(i_sat),dbl_mb(i_xs),dbl_mb(i_qsa),msa,nsa))
+     + call errquit('pre_wrtxyz failed',9999)
       endif
 c
 c     center solute

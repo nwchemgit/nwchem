@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.27 1999-07-12 20:23:54 d3j191 Exp $
+c $Id: prepar.F,v 1.28 1999-07-16 16:34:06 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -39,7 +39,7 @@ c
       integer irtdb0,irtdb,itask
 c
       character*255 filpdb,filseq,filtop,filrst,filpar,filtmp,filcmd
-      character*255 filmod,prefix
+      character*255 filmod,prefix,filxyz,filqqq
       character*255 dir_s,dir_x,dir_u,dir_t
       character*80 sysnam,calc,ffield
       character*10 slvmdl
@@ -48,6 +48,7 @@ c
       character*1 altloc,chain
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
+      integer lfnxyz,lfnqqq
       integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod,nxlnk,mdold
       integer newtop,newseq,newrst,mgrid,mnoe,maxscf,icount,icyren,model
       integer ignore
@@ -76,6 +77,8 @@ c
       lfncmd=20
       lfnslv=21
       lfnmod=22
+      lfnxyz=23
+      lfnqqq=24
 c
 c     node 0 only please
 c     ------------------
@@ -136,6 +139,8 @@ c
       lenc=index(calc,' ')-1
       lend=index(dir_t,' ')-1
       filpdb=sysnam(1:len)//'.pdb '
+      filxyz=sysnam(1:len)//'.xyz '
+      filqqq=sysnam(1:len)//'.q '
       filtop=sysnam(1:len)//'.top '
       filrst=sysnam(1:len)//'_'//calc(1:lenc)//'.rst '
       filseq=dir_t(1:lend)//sysnam(1:len)//'.seq '
@@ -274,7 +279,8 @@ c     ---------------------
 c
       if(.not.pre_mkrst(irtdb,mdold,source,lfnout,lfntop,filtop,
      + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd,
-     + lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,chain,model))
+     + lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,chain,model,
+     + lfnxyz,filxyz,lfnqqq,filqqq))
      + call errquit('pre_mkrst failed',9999)
 c
     6 continue
