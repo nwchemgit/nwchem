@@ -27,6 +27,7 @@ c
       integer vtxtab(0:norb,0:nel,nsym)
       integer arctab(norb,nel,nsym)
 c
+#include "symmdef.fh"
       integer iorb, ello, el, weight, offset, iel
       integer isym, jsym, ksym
 #include "bitops.fh"
@@ -119,6 +120,7 @@ c
       integer arctab(norb,nel,nsym)
       integer elv(nel)
       integer isym, iel, iorb, wght
+#include "symmdef.fh"
 #include "bitops.fh"
 #include "symmmul.fh"
 
@@ -153,6 +155,7 @@ c
       integer arctab(norb,nel,nsym)
       integer occ(norb)
       integer isym, iel, iorb, wght
+#include "symmdef.fh"
 #include "bitops.fh"
 #include "symmmul.fh"
 
@@ -273,6 +276,7 @@ c
       integer osym(norb)
       integer elv(nel)
       integer i
+#include "symmdef.fh"
 #include "bitops.fh"
 #include "symmmul.fh"
 
@@ -294,6 +298,7 @@ c
       integer osym(norb)
       integer occ(norb)
       integer i
+#include "symmdef.fh"
 #include "bitops.fh"
 #include "symmmul.fh"
 
@@ -640,6 +645,34 @@ c      double precision x(n,m)
 
 
 
+
+
+c
+c Column gather on CI matrix no phase
+c
+      subroutine detci_cigather0(n,m,nv,g_x,iv,y)
+      implicit none
+#include "global.fh"
+      integer n,m,nv
+      integer g_x
+      integer iv(nv)
+      double precision y(n,*)
+      integer i,j,ii,iq
+
+      do i=1,nv
+        ii = iv(i)
+        call ga_get(g_x,1,n,ii,ii,y(1,i),1)
+      enddo
+      return
+      end
+
+
+
+
+
+
+
+
 c
 c Dot product
 c
@@ -958,6 +991,7 @@ c
       integer jx(2*detci_maxorb)
       integer i,j,ii,jj,nopen,noorb,isym
       double precision elow, xx
+#include "symmdef.fh"
 #include "bitops.fh"
 #include "symmmul.fh"
 c
@@ -1253,10 +1287,12 @@ c
       integer myid, rlo, rhi, cilo, cihi
       integer k_ci, ldc
 c
+#include "symmdef.fh"
 #include "bitops.fh"
 #include "symmmul.fh"
 c
       mxcnt = 0.d0
+      myid = ga_nodeid()
       call ga_distribution( g_civec, myid, rlo, rhi, cilo, cihi )
       do asym=1,nsym
         call detci_symstrr( norb, nsym, nela, nstra, ataba, asym,
@@ -1278,7 +1314,10 @@ c
           endif
         enddo
       enddo
+      call ga_sync()
 
       return
       end
+
+
 
