@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.3 2000-11-25 15:42:42 bjohnson Exp $	
+#	$Id: MakeFile,v 1.4 2001-08-19 21:23:26 bjohnson Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -35,12 +35,14 @@ OBJ_OPTIMIZE = $(OBJDIR)\texas_face.obj \
                $(OBJDIR)\gencon.obj \
                $(OBJDIR)\derivat.obj \
                $(OBJDIR)\convert.obj \
-               $(OBJDIR)\test_calc2.obj
+               $(OBJDIR)\test_calc2.obj \
+               $(OBJDIR)\screened_op.obj
 !ELSE
 OBJ =          $(OBJDIR)\texas_stubs.obj
 !ENDIF
 
 LIBRARY = nwints.lib
+HEADERS = screened_op.fh
 
 !INCLUDE ..\..\config\NTmakefile.h
 !INCLUDE ..\..\config\NTmakelib.h

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.43 1999-06-01 20:47:59 d3h325 Exp $
+# $Id: GNUmakefile,v 1.44 2001-08-19 21:23:26 bjohnson Exp $
  
 include ../../config/makefile.h
 
@@ -44,7 +44,8 @@ endif
                  gencon.o \
                  derivat.o \
                  convert.o \
-                 test_calc2.o 
+                 test_calc2.o \
+                 screened_op.o
 else
       OBJ = texas_stubs.o 
       OBJ_OPTIMIZE = 
@@ -55,6 +56,7 @@ endif
                   trobsa.f 
 
        LIBRARY = libnwints.a
+       HEADERS = screened_op.fh
 
 include ../../config/makelib.h
 
