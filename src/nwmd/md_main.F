@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.40 1999-10-08 19:21:59 d3j191 Exp $
+c $Id: md_main.F,v 1.41 1999-10-13 20:10:47 d3j191 Exp $
 c
       implicit none
 c
@@ -62,8 +62,8 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(0,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
-     + volume)
+     + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + epot,epotw,epotsw,epots,volume)
 c
       call prp_print()
 c
@@ -175,8 +175,8 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
-     + volume)
+     + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + epot,epotw,epotsw,epots,volume)
 c
       epsd=epot
       epsdw=epotw
@@ -257,8 +257,8 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
-     + volume)
+     + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + epot,epotw,epotsw,epots,volume)
 c
 c     if energy goes up restore coordinates and forces
 c
@@ -353,8 +353,8 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
-     + volume)
+     + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + epot,epotw,epotsw,epots,volume)
 c
       ecgnew=epot
       eqrs=epot
@@ -580,8 +580,8 @@ c
       call ga_dgop(mrg_d11,ypb,1,'+')
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
-     + volume)
+     + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + epot,epotw,epotsw,epots,volume)
 c
       ecg2=epot
       epcgw=epotw
@@ -655,8 +655,8 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
-     + volume)
+     + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + epot,epotw,epotsw,epots,volume)
 c
       dxmax=zero
       dxwmax=zero
@@ -801,8 +801,8 @@ c
       do 1 iequi=kequi+1,mequi
       call md_newton()
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
-     + volume)
+     + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + epot,epotw,epotsw,epots,volume)
       call md_server
     1 continue
 c
@@ -814,8 +814,8 @@ c
       call md_newton()
 c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
-     + volume)
+     + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + epot,epotw,epotsw,epots,volume)
       call md_server
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
@@ -917,8 +917,8 @@ c
       done=prp_mcti_step(idacq)
 c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
-     + volume)
+     + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + epot,epotw,epotsw,epots,volume)
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
