@@ -1,0 +1,125 @@
+NWChem Version 4.0 Release Notes
+(Also available at http://www.emsl.pnl.gov/pub/docs/nwchem/support/release.4.0.html)
+
+NOTE: These release notes are not a substitute for reading the User Manual!
+They are meant to give a thumbnail sketch of the new capabilities and bug
+fixes that are available in NWChem Version 4.0. When there is a conflict
+between the release notes and the User Manual, the User Manual takes
+precedence. 
+
+Several new major capabilities are available in NWChem, including several new
+modules. The new modules are: 
+
+  o 
+
+For each of these capabilities, the user is referred to the User Manual for more
+information. 
+
+Additional major additions to the capabilities include: 
+
+  o 
+
+Again, for each of these capabilities, the user is referred to the User Manual for
+more information. 
+
+Listed below are the other major and many minor changes for each module
+with significant changes. These descriptions are somewhat terse and more
+information is generally available in the User Manual. 
+
+Task level directives: 
+
+  o 
+
+Initial orbital Guess: 
+
+  o 
+
+Basis Sets: 
+
+  o Basis set library has been updated to include all new basis sets at the EMSL
+    Gaussian Basis Set Order Form page of David Feller 
+    (http://www.emsl.pnl.gov:2080/forms/basisform.html)
+
+Geometry: 
+
+  o 
+
+DFT: 
+
+  o 
+
+SCF: 
+
+  o 
+
+Driver: 
+
+  o 
+
+Properties: 
+
+  o 
+
+MP2: 
+
+  o 
+
+Hessian and Frequencies: 
+
+  o 
+
+ESP: 
+
+  o 
+
+Prepare module: 
+
+  o 
+
+MD: 
+
+  o 
+
+Integral changes: 
+
+  o 
+
+Tests, manuals and misc script changes: 
+
+  o Updated User's Manual to reflect new and modified functionality in
+    NWChem. 
+  o QA tests have been updated to reflect the new functionality in NWChem. 
+  o 
+  o Updates in the Programmer's Manual (much more is still left to come!). 
+
+Installation availability: 
+
+The current tested platforms and O/S versions are: 
+
+  o IBM SP with P2SC nodes, AIX 4.2.1, and PSSP 2.3 
+  o IBM SP with silver nodes (SMP nodes with two 604e processors), AIX
+    4.3.2, and PSSP 3.1. 
+  o IBM RS6000 workstation, AIX 3.2, 4.1. and 4.3 
+  o Cray T3E, 2.0.4.61 UNICOSMK 
+  o SGI R8000/10000, IRIX 6.2, 6.5 
+  o SGI R4000, IRIX 5.3 
+  o SUN workstations, SunOS 4.1.3 and Solaris 5.5 
+  o Compaq DEC alpha workstion (600 MHz EV6), Digital UNIX V4.0E Rev.
+    1091, DEC C V5.8-009, Digital Fortran V5.2 
+  o Linux. Since there are at least 8 popular distributions of the Linux
+    operating system and numerous others in existence, including
+    downloading everything and building your own Linux OS, it is impossible
+    to test all possible versions of Linux with NWChem. NWChem Release 4.0
+    has been tested on Slackware 3.4, 3.5, 4.0, RedHat 5.1, 5.2, and 6.0,
+    Mandrake based on RedHat 6.0, and RedHat 6.0 for the Power PC
+    Macintosh. These all use the EGCS compilers at different levels. Those
+    distributed from Slackware are somewhat different than those distributed
+    from RedHat but the code is configured to run on all of them. The Linux
+    Alpha version 5.2 from Red Hat fails to compile the code as well as the beta
+    release of the Digital Fortran compiler for Linux based Alpha systems. 
+
+A general FAQ is available at 
+http://www.emsl.pnl.gov:2080/docs/nwchem/support/NWChem_FAQ.html
+
+A list of Known Bugs is available at
+http://www.emsl.pnl.gov:2080/docs/nwchem/support/known_bugs.4.0.html
