@@ -130,8 +130,8 @@ c
       character*255 task_name
       integer ntasks, ind
       logical status 
-      logical scf, gradients, stpr_walk
-      external scf, gradients, stpr_walk
+      logical scf
+      external scf
       parameter (ntasks = 8)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf',
