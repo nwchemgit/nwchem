@@ -6,7 +6,7 @@
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_c.F,v 1.6 1995-12-01 23:34:38 rg240 Exp $
+c     $Id: fock_2e_c.F,v 1.7 1995-12-04 22:28:58 rg240 Exp $
 
       implicit none
 c     
@@ -80,7 +80,7 @@ c
 c
 c  Special code for nfock=1
 c
-      subroutine fock_2e_1c( tol2e, q4_shell, eri,
+      subroutine fock_2e_c1( tol2e, q4_shell, eri,
      $                       islo, ishi, jslo, jshi,
      $                       kslo, kshi, lslo, lshi,
      $                       ialo, iahi, jalo, jahi,
@@ -88,7 +88,7 @@ c
      $                       dij, dik, dli, djk, dlj, dlk, 
      $                       fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_c.F,v 1.6 1995-12-01 23:34:38 rg240 Exp $
+c     $Id: fock_2e_c.F,v 1.7 1995-12-04 22:28:58 rg240 Exp $
 
       implicit none
 c     
