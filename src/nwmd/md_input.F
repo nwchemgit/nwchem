@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.86 2004-04-13 09:46:02 d3j191 Exp $
+c $Id: md_input.F,v 1.87 2004-04-13 15:23:12 d3j191 Exp $
 c
       implicit none
 c
@@ -950,8 +950,8 @@ c
 c
       if(inp_compare(.false.,'select',item)) then
       if(.not.inp_a(item)) call md_abort('md_input fix select',14)
-      write(lfncmd,1006) 0.0d0,item
- 1006 format('fix S ',22x,f12.6,a)
+      write(lfncmd,1006) ifix,0.0d0,item
+ 1006 format('fix S ',i2,20x,f12.6,a)
       numfix=numfix+1
       goto 2
       endif

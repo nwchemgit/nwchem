@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.170 2004-04-13 09:46:04 d3j191 Exp $
+c $Id: cf_main.F,v 1.171 2004-04-13 15:23:15 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2985,19 +2985,17 @@ c
 c
 c     selection
 c
-      write(*,'(a,a)') 'FIX STRING IS ',string
       if(string(5:5).eq.'S') then
       target=string(41:80)
-      write(*,'(a,a)') 'FIX SELECT TARGET IS ',target
 c
       do 55 i=1,nsatot
       itemp(i)=0
    55 continue
 c
-      icolon=index(target,':')
-c
 c     for the residues
 c
+  140 continue
+      icolon=index(target,':')
       if(icolon.gt.0) then
       token='                '
       icomma=index(target(1:icolon-1),',')
@@ -3007,7 +3005,6 @@ c
       length=icolon-1
       endif
       token(1:length)=target(1:length)
-      write(*,'(a,a)') 'FIX SELECT TOKEN IS ',token(1:length)
       do 57 i=1,length
       lnumber=.false.
       if(token(i:i).eq.'1') lnumber=.true.
@@ -3031,7 +3028,7 @@ c     range numbered residues
       tag(18-idash:16)=token(1:idash-1)
       read(tag,'(i16)') jfr
       tag='                '
-      tag(16+idash-length:16)=token(idash+1:length)
+      tag(17+idash-length:16)=token(idash+1:length)
       read(tag,'(i16)') jto
       else
 c     single numbered residue
@@ -3051,20 +3048,56 @@ c     single named residue
       if(snam(i)(1:length).eq.token(1:length)) itemp(i)=1
   141 continue
    59 continue
+      if(icomma.gt.0) then
+      target=target(icomma+1:80)
+      goto 140
+      else
+      target=target(icolon+1:80)
+      endif
       else
       do 56 i=1,nsatot
       itemp(i)=1
    56 continue
       endif
 c
-c
-      j=0
-      do 66 i=1,nsatot
-      if(itemp(i).eq.1) j=j+1
-   66 continue
-      write(*,'(a,i5)') 'Number of selected atoms is ',j
-c
 c     for the atoms
+c
+      if(index(target,' ')-1.eq.0) then
+      do 145 i=1,nsatot
+      itemp(i)=itemp(i)+1
+  145 continue
+      goto 144
+      endif
+c
+  142 continue
+      icomma=index(target,',')
+      if(icomma.gt.0) then
+      length=icomma-1
+      else
+      length=index(target,' ')-1
+      endif
+      do 147 i=1,length
+      if(target(i:i).eq.'_') target(i:i)=' '
+  147 continue
+      do 143 i=1,nsatot
+      token(1:length)=snam(i)(6:5+length)
+      do 146 j=1,length
+      if(target(j:j).eq.'?') token(j:j)='?'
+  146 continue
+      if(token(1:length).eq.target(1:length)) itemp(i)=itemp(i)+1
+  143 continue
+      if(icomma.gt.0) then
+      target=target(icomma+1:80)
+      goto 142
+      endif
+c
+  144 continue
+      do 66 i=1,nums
+      if(itemp(isgan(i)).gt.1) then
+      if(ifix.eq.0) isdt(i)=iand(isdt(i),not(mfixed))
+      if(ifix.eq.1) isdt(i)=ior(isdt(i),lfixed)
+      endif
+   66 continue
 c
       endif
 c
