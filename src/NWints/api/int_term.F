@@ -10,7 +10,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
 c:tex-No formal arguments
 c:tex-
-c $Id: int_term.F,v 1.17 1999-12-09 23:56:10 bert Exp $
+c $Id: int_term.F,v 1.18 1999-12-10 01:38:00 bert Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -74,6 +74,7 @@ c:tex-\end{verbatim}
 c:tex-No formal arguments
 c:tex-
       implicit none
+#include "bas.fh"
 #include "stdio.fh"
 #include "apiP.fh"
 #include "candoP.fh"
@@ -112,6 +113,16 @@ c
       endif
 c
       if (any_rel) call int_rel_term
+c
+c   Terminate Douglas-Kroll integrals. The fitting basis set will
+c   be destroyed and the handle put to -1.
+c
+      if (doug_kroll) then
+       if (.not. bas_destroy(dk_fitbas)) call errquit(
+     &   'int_terminate: failed to destroy Douglas-Kroll fitting basis'
+     &   ,0)
+       dk_fitbas = -1
+      endif
 c
       end
 c:tex-
