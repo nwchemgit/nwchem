@@ -3,12 +3,12 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.19 1995-06-20 20:12:37 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.20 1995-06-28 17:39:54 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
      $   NOcc, NVir, NFit, FitBas, Eig, LDEig, Contrib, E2,
-     $   IBlock, JBlock)
+     $   Mem_Opt, IBlock, JBlock)
       Implicit NONE
 C
       Character*(*) FNInt
@@ -16,6 +16,7 @@ C
       Integer NOcc(TopSpin), NVir(TopSpin)
       Double precision Eig(LDEig, TopSpin), Contrib(TopSpin, TopSpin)
       Double precision E2
+      Character*(*) Mem_Opt
 C
 C ARGUMENTS
 C     FNInt    File name for MO basis 3-center integrals [IN]
@@ -29,6 +30,9 @@ C     Eig      Eigenvalues of reference Fock matrix [IN]
 C     Contrib  E(2) broken down by spin case. (The ba, or 2,1 element
 C              is always zero) [OUT]
 C     E2       The second order MBPT energy [OUT]
+C     Mem_Opt  Memory allocation optimization mode [IN]
+C     IBlock   User-requested blocksize [IN]
+C     JBlock   User-requested blocksize [IN]
 C
 C RETURN VALUE
 C     .TRUE.   If calculation completed successfully.
@@ -179,7 +183,8 @@ C     ***************************
 C     * Determine loop blocking *
 C     ***************************
 C
-      Call RIMP2_E_Mem(TopSpin, NOcc, NVir, FitBas, NewIBlk, NewJBlk)
+      Call RIMP2_E_Mem(TopSpin, NOcc, NVir, FitBas, Mem_Opt,
+     $   NewIBlk, NewJBlk)
       If ( IBlock .le. 0) then
          IBlock = NewIBlk
       Else

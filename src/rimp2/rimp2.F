@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.23 1995-06-19 18:31:31 gg502 Exp $
+C$Id: rimp2.F,v 1.24 1995-06-28 17:39:42 gg502 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -54,6 +54,7 @@ C
       Character*(80) Title, SCFBasNam, FNVec, FNInt, String, Approx
       Character*(255) AOName, AONameT, FitName, FitNameT, JobTitle
       Logical Status
+      Character*(1) Mem_Opt
 C
 C     Handles and indices to for the "correlated" basis
 C
@@ -111,8 +112,8 @@ C
 C
 C     Get other controls -- threshold for neglect of integrals, etc.
 C
-      Call RIMP2_Get_Param( RTDB, Thresh, MxTBatch, MxEBatch, Approx,
-     $   TopSpin, SpinMap, MaxSpin)
+      Call RIMP2_Get_Param( RTDB, Thresh, MxTBatch, Mem_Opt, MxEBatch,
+     $   Approx, TopSpin, SpinMap, MaxSpin)
 C
 C     Figure out file names
 C
@@ -459,7 +460,7 @@ C
       Status = Status .AND.
      $   RIMP2_V_E2( FNInt, TopSpin, NCorBF, IHi, AHi, NFit, FitBas,
      $   Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx), CorEner,
-     $   MxEBatch(1), MxEBatch(2))
+     $   Mem_Opt, MxEBatch(1), MxEBatch(2))
 C
 C     Also get the SCF energy so we can report the total energy
 C
