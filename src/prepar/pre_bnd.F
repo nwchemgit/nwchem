@@ -2,7 +2,7 @@
      + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf,
      + llnk,clnk,mlnk,nlnk,iconst)
 c
-c $Id: pre_bnd.F,v 1.9 2000-04-26 20:32:17 d3j191 Exp $
+c $Id: pre_bnd.F,v 1.10 2000-04-26 20:32:55 d3j191 Exp $
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
@@ -40,7 +40,6 @@ c
 c
       nato=0
       do 1 i=ilo,ihi
-      write(*,'(5i5)') (latm(j,i),j=1,5)
       neigh=0
       if(latm(2,i).gt.0) then
       nn=0
