@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.8 1998-04-29 18:35:17 d3j191 Exp $
+c $Id: pre_input.F,v 1.9 1998-05-05 22:09:21 d3j191 Exp $
 c
       implicit none
 c
@@ -19,7 +19,7 @@ c
       character*255 dir_s,dir_x,dir_u,dir_t,commnd
       integer newtop,newseq,newrst
 c
-      integer len,number,mgrid,mnoe,inoe(2),maxscf
+      integer len,number,mgrid,mnoe,inoe(2),maxscf,num
       real*8 touch,xpndw,rgrid,edge,edges(3),dnoe(5),qscale
       character*4  cnoe(2)
 c
@@ -164,15 +164,20 @@ c     slvnam & slvmdl
 c     ---------------
 c
       if(inp_compare(.false.,'solvent',item)) then
+      num=0
    20 continue
       if(.not.inp_a(item)) call errquit('pre_input: solvent',9999)
       if(inp_compare(.false.,'name',item)) then
       if(.not.inp_a(item)) call errquit('pre_input: solvent',9999)
       slvnam=item(1:3)
+      if(num.eq.2) goto 2
+      num=1
       goto 20
       else
       if(inp_compare(.false.,'model',item)) then
       if(.not.inp_a(slvmdl)) call errquit('pre_input: solvent',9999)
+      if(num.eq.1) goto 2
+      num=2
       goto 20
       endif
       endif

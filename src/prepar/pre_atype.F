@@ -3,7 +3,7 @@
      + jlo,ilo,ihi,jhi,ltyp,mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6)
 c
-c $Id: pre_atype.F,v 1.7 1998-04-29 18:35:12 d3j191 Exp $
+c $Id: pre_atype.F,v 1.8 1998-05-05 22:09:21 d3j191 Exp $
 c
       implicit none
 c
@@ -227,6 +227,7 @@ c
       goto 16
    17 continue
       close(unit=lfnpar)
+      if(lprint.ge.5) write(lfnout,'(a,a)') filnam(1:l),' closed' 
 c
   901 continue
       lt=index(filpar,' ')-1
@@ -245,10 +246,13 @@ c
       if(card(1:1).eq.'#') goto 116
       ntype=ntype+1
       if(ntype.gt.maty) call errquit('increase maty',9999)
-      read(card,1001) atype(ntype),(itype(i,ntype),i=1,20)
+      read(card,1001) atype(ntype),(itype(i,ntype),i=1,10)
+      read(lfnpar,1002) (itype(i,ntype),i=11,15)
+      read(lfnpar,1002) (itype(i,ntype),i=16,20)
       goto 116
   117 continue
       close(unit=lfnpar)
+      if(lprint.ge.5) write(lfnout,'(a,a)') filnam(1:l),' closed' 
 c
   902 continue
       lt=index(filpar,' ')-1
@@ -267,10 +271,13 @@ c
       if(card(1:1).eq.'#') goto 216
       ntype=ntype+1
       if(ntype.gt.maty) call errquit('increase maty',9999)
-      read(card,1001) atype(ntype),(itype(i,ntype),i=1,20)
+      read(card,1001) atype(ntype),(itype(i,ntype),i=1,10)
+      read(lfnpar,1002) (itype(i,ntype),i=11,15)
+      read(lfnpar,1002) (itype(i,ntype),i=16,20)
       goto 216
   217 continue
       close(unit=lfnpar)
+      if(lprint.ge.5) write(lfnout,'(a,a)') filnam(1:l),' closed' 
 c
   903 continue
       lt=index(filpar,' ')-1
@@ -289,10 +296,13 @@ c
       if(card(1:1).eq.'#') goto 316
       ntype=ntype+1
       if(ntype.gt.maty) call errquit('increase maty',9999)
-      read(card,1001) atype(ntype),(itype(i,ntype),i=1,20)
+      read(card,1001) atype(ntype),(itype(i,ntype),i=1,10)
+      read(lfnpar,1002) (itype(i,ntype),i=11,15)
+      read(lfnpar,1002) (itype(i,ntype),i=16,20)
       goto 316
   317 continue
       close(unit=lfnpar)
+      if(lprint.ge.5) write(lfnout,'(a,a)') filnam(1:l),' closed' 
   904 continue
 c
 c     determine the atom types

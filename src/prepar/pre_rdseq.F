@@ -1,7 +1,7 @@
       logical function pre_rdseq(lfnout,lprint,lfnseq,filseq,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_rdseq.F,v 1.7 1998-04-29 18:35:22 d3j191 Exp $
+c $Id: pre_rdseq.F,v 1.8 1998-05-05 22:09:22 d3j191 Exp $
 c
 c     function to read the sequence file
 c
@@ -98,6 +98,7 @@ c     -2 : integral molecule
 c     >0 : C-terminus
 c
       if(lseq(2,1).eq.0) lseq(2,1)=-1
+      if(lseq(2,1).eq.2) lseq(2,1)=-2
       if(iseq.eq.1) lseq(2,1)=-2
       if(lseq(2,iseq).eq.0) lseq(2,iseq)=1
       do 2 i=2,iseq

@@ -1,6 +1,6 @@
       logical function pre_wrtnam(lfntmp,filtmp,catm,matm,natm)
 c
-c $Id: pre_wrtnam.F,v 1.3 1998-04-29 18:35:30 d3j191 Exp $
+c $Id: pre_wrtnam.F,v 1.4 1998-05-05 22:09:23 d3j191 Exp $
 c
       implicit none
 c
@@ -11,7 +11,7 @@ c
       integer i
 c
       open(unit=lfntmp,file=filtmp(1:index(filtmp,' ')-1),
-     + form='formatted',status='new',err=9999)
+     + form='formatted',status='unknown',err=9999)
 c
       do 1 i=1,natm
       write(lfntmp,1000) catm(1,i),catm(2,i)

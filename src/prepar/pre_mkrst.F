@@ -2,7 +2,7 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
-c $Id: pre_mkrst.F,v 1.7 1998-05-01 17:37:04 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.8 1998-05-05 22:09:22 d3j191 Exp $
 c
       implicit none
 c
@@ -274,7 +274,7 @@ c     =======================================
 c
     1 continue
 c
-      read(lfncmd,1001,end=9,err=9999) card
+      read(lfncmd,1001,end=9,err=9997) card
  1001 format(a)
 c
 c     read distance restraints
@@ -316,7 +316,7 @@ c     check if solvent restart file exists
 c     ------------------------------------
 c
       open(unit=lfnslv,file=filslv(1:index(filslv,' ')-1),
-     + status='old',err=9999)
+     + status='old',err=9998)
       close(unit=lfnslv)
 c
 c     get dimensions from solvent restart file
@@ -782,6 +782,18 @@ c
       endif
 c
       pre_mkrst=.true.
+      return
+c
+ 9997 continue
+      write(lfnout,'(a,a)') 'Error reading command file ',
+     + filcmd(1:index(filcmd,' ')-1)
+      pre_mkrst=.false.
+      return
+c
+ 9998 continue
+      write(lfnout,'(a,a)') 'Error reading solvent file ',
+     + filslv(1:index(filslv,' ')-1)
+      pre_mkrst=.false.
       return
 c
  9999 continue

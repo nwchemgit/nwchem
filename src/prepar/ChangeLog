@@ -29,3 +29,5 @@ Apr 29 1998      Bug fixes and Id's in all files
 Apr 30 1998	 Report missing impropers for amber in correct order
 May 01 1998	 Fix bug for pdb starting with residue number larger than 1
 	         Properly deallocate heap memory
+		 Correction handling single atom first molecule
+May 05 1998	 Minor changes and bug fixes
