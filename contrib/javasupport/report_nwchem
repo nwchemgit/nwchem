@@ -1,0 +1,35 @@
+#!/bin/csh 
+#
+# $Id: report_nwchem,v 1.1 1998-07-28 19:53:41 d3e129 Exp $
+#
+if (!($?DISPLAY)) then
+    echo " DISPLAY is not set and you need X capability to use the java report tool"
+    exit 911
+endif
+if (!(-e $HOME/nwchemsupport)) then
+   echo " you can have the java support tool automatically pick up your"
+   echo " preferred/chosen email address by putting that email address"
+   echo " in the file nwchemsupport which must be in your home directory."
+   echo " "
+   echo " Note: The email address should be the only thing in this file."
+   echo " "
+   sleep 3
+endif
+# set the appropriate class path
+# it should be something like this where the first element
+# is where you installed the NWChem classes
+#
+setenv CLASSPATH /msrc/proj/nwchem/share/classes:/dfs/lapps/java-1.1.3lib:.
+# set the appropriate path
+# where are the right java binary files
+set path = (/dfs/lapps/bin/java $path)
+rehash
+which java
+java NWChem
+@ mystatus = $status
+if ($mystatus) then
+   echo " there may have been an error check the queue to make sure you message is there"
+else
+   echo "Thanks for reporting your NWChem problems."
+endif
+exit 0

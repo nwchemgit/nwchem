@@ -1,0 +1,32 @@
+# $Id: INSTALL,v 1.1 1998-07-28 19:53:40 d3e129 Exp $
+
+To run the java support tool you need to have java 1.1 since the tool
+is based on that version of the java.awt event handling.  This tool
+allows users to attach input, output, and one other file (e.g., error
+file on an IBM SP) without "cutting and pasting"
+
+put all the *.class and *.gif files in the distribution in the
+appropriate place on your system e.g., /usr/local/lib/classes
+
+Add this path to your CLASSPATH; 
+e.g., setenv CLASSPATH /usr/local/lib/classes:${CLASSPATH}
+
+run it via java:  e.g., java NWChem
+
+You can have a file $HOME/nwchemsupport that contains your preferred
+email address if you already have a $HOME/.forward you can link to
+this file using: ln -s $HOME/.forward $HOME/nwchemsupport With these
+settings the java tool will automatically fill in the "From:" field on
+the form when it comes up.
+
+
+Enclosed in this distribution is a csh wrapper that can be used as
+well, "report_nwchem" which when properly configured will allow the
+user to exist in a non-java environement but still get access to the
+form, i.e., report_nwchem sets up the java environement, runs the java
+application and then exits.
+
+If you have problems with this please contact via normal email:
+nwchem-support@emsl.pnl.gov
+
+RAK 1998-07-28
