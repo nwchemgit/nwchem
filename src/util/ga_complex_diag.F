@@ -13,8 +13,8 @@ c
 c     solve the complex symmetric eigenvalue problem 
 c     for a hermitian complex matrix mapping it to
 c     a real one in the following way
-c     ( AR  -AC)  (VR VR)  = (VR VR) (E  )
-c     ( AC   AR)  (VC VC)  = (VC VC) (  E)
+c     ( AR  AC)  (VR VR)  = (VR VR) (E  )
+c     ( AC  -AR)  (VC VC)  = (VC VC) (  E)
 c     returning
 c     all eigenvectors and values in ascending order
 c
@@ -58,7 +58,7 @@ c
       integer dimA1, dimA2, typeA
       integer dimV1, dimV2, typeV
 c
-      integer Elem
+      integer Elem, ll
       Elem(istart,iend,n)=((iend-istart+1)*(2*n-istart-iend+2))/2
 c
 c
@@ -178,7 +178,7 @@ c
 c
 c***     load the fock (A) matrix
 c        [ AR    ]
-c        [ AC  AR] 
+c        [ AC  -AR] 
 c
          istart = 0
          do k = 1, n
@@ -193,10 +193,14 @@ c
                 k1=k-nn
                 call ga_get(
      *           g_ar,k1,nn,k1,k1,dbl_mb(adra+istart),1)
-              endif
-               istart = istart + myelem
-            endif
-         enddo
+                do ll = 0, nn - k1
+                   dbl_mb(adra + istart+ll) =
+     $                  -dbl_mb(adra + istart+ll)
+                enddo
+             endif
+             istart = istart + myelem
+          endif
+       enddo
 c     
 c***     allocate some memory for compl eigensolver 
 c
@@ -334,9 +338,9 @@ c
          do j=1,n
           write(0,*) j,dbl_mb(adre-1+j),int_mb(adrj+j-1)
          enddo
-         endif
-         call ga_sync
-         call ga_error('ga_diag_compl: failed to reduce eigenvec', 1)
+      endif
+      call ga_sync
+      call ga_error('ga_diag_compl: failed to reduce eigenvec', 1)
          endif
             eval(k1)=dbl_mb(adre+k-1)
 c
