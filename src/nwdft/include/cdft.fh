@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.55 2002-02-15 00:44:22 edo Exp $
+C$Id: cdft.fh,v 1.56 2002-04-08 19:51:36 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -11,10 +11,10 @@ c     variables related to "tolerances" input,
 c     variables related to "grid" input, and
 c     other misc variables.
 c
-      character*255 title
+      character*256 title
       character*16 grtagin
       character*10 gridtype
-      character*4 whichssw
+      character*8 whichssw
       character*40 xname, cname, xcname
       double precision
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
