@@ -1,7 +1,7 @@
       subroutine ccsd_sortmo(ncor,nocc,nvir,nact,nbf,scra,scrb,
      $                       g_coul,g_exch,g_ncoul,g_nexch,
      $                       iprt)
-C     $Id: ccsd_sortmo.F,v 2.5 1997-05-29 16:42:54 gg502 Exp $
+C     $Id: ccsd_sortmo.F,v 2.6 1997-09-19 17:52:17 rg240 Exp $
       implicit none
       integer ncor,nocc,nvir,nact,nbf,g_coul,g_exch,
      $        g_ncoul,g_nexch,iprt
@@ -25,33 +25,50 @@ c
           if (ij.ge.ilo.and.ij.le.ihi)then
             ad1=(i-1)*nact
             ad2=(j-1)*nact
-            call ga_get(g_coul,1,nbf*nbf,ij,ij,scra,nbf*nbf)
-            do a=1,nact
-            do b=1,nact
-            ad3=(ncor+b-1)*nbf+ncor+a
-            ad4=(b-1)*nact+a
-            scrb(ad4)=scra(ad3)
-            enddo
-            enddo
+
+c$$$            call ga_get(g_coul,1,nbf*nbf,ij,ij,scra,nbf*nbf)
+c$$$            do a=1,nact
+c$$$            do b=1,nact
+c$$$            ad3=(ncor+b-1)*nbf+ncor+a
+c$$$            ad4=(b-1)*nact+a
+c$$$            scrb(ad4)=scra(ad3)
+c$$$            enddo
+c$$$            enddo
+c$$$            call ga_put(g_ncoul,ad2+1,ad2+nact,ad1+1,ad1+nact,
+c$$$     &                  scrb,nact)
+c$$$            call mxtrn(scrb,scra,nact,nact)
+c$$$            call ga_put(g_ncoul,ad1+1,ad1+nact,ad2+1,ad2+nact,
+c$$$     &                  scra,nact)
+
+            call ga_get(g_coul,1,nact*nact,ij,ij,scra,1)
             call ga_put(g_ncoul,ad2+1,ad2+nact,ad1+1,ad1+nact,
-     &                  scrb,nact)
-            call mxtrn(scrb,scra,nact,nact)
+     &                  scra,nact)
+            call mxtrn(scra,scrb,nact,nact)
             call ga_put(g_ncoul,ad1+1,ad1+nact,ad2+1,ad2+nact,
-     &                  scra,nact)
-c
-            call ga_get(g_exch,1,nbf*nbf,ij,ij,scra,nbf*nbf)
-            do a=1,nact
-            do b=1,nact
-            ad3=(ncor+b-1)*nbf+ncor+a
-            ad4=(b-1)*nact+a
-            scrb(ad4)=scra(ad3)
-            enddo
-            enddo
-            call ga_put(g_nexch,ad2+1,ad2+nact,ad1+1,ad1+nact,
      &                  scrb,nact)
-            call mxtrn(scrb,scra,nact,nact)
-            call ga_put(g_nexch,ad1+1,ad1+nact,ad2+1,ad2+nact,
+
+c
+c$$$            call ga_get(g_exch,1,nbf*nbf,ij,ij,scra,nbf*nbf)
+c$$$            do a=1,nact
+c$$$            do b=1,nact
+c$$$            ad3=(ncor+b-1)*nbf+ncor+a
+c$$$            ad4=(b-1)*nact+a
+c$$$            scrb(ad4)=scra(ad3)
+c$$$            enddo
+c$$$            enddo
+c$$$            call ga_put(g_nexch,ad2+1,ad2+nact,ad1+1,ad1+nact,
+c$$$     &                  scrb,nact)
+c$$$            call mxtrn(scrb,scra,nact,nact)
+c$$$            call ga_put(g_nexch,ad1+1,ad1+nact,ad2+1,ad2+nact,
+c$$$     &                  scra,nact)
+
+            call ga_get(g_exch,1,nact*nact,ij,ij,scra,1)
+            call ga_put(g_nexch,ad2+1,ad2+nact,ad1+1,ad1+nact,
      &                  scra,nact)
+            call mxtrn(scra,scrb,nact,nact)
+            call ga_put(g_nexch,ad1+1,ad1+nact,ad2+1,ad2+nact,
+     &                  scrb,nact)
+            
           endif
         enddo
       enddo
