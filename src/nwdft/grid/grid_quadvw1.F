@@ -16,7 +16,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     l3d,triplet, tau, kske,Mmat)
 c
-c$Id: grid_quadvw1.F,v 1.16 2003-10-13 21:15:51 pollack Exp $
+c$Id: grid_quadvw1.F,v 1.17 2004-03-19 03:25:15 edo Exp $
 c
       implicit none
 #define USE_BP
@@ -64,35 +64,17 @@ c
       ictr = qsh(2,iqsh)
       iang = qsh(3,iqsh)
       nq = npts_per_ang
-c     
-c     Generate all angular quadrature points for this radial shell
-c     and keep only those inside cube
-c     
-      if(dosympts) then
-         call grid_sympts(dosympts,
-     .        rad_sh,xyz(1,ictr), ictr, 
+c
+      call grid_finpts(dosympts,
+     .        rad_sh,xyz, ictr, 
      .        irsh, iang, iang_done,nq_left,
      ,        aqbuf, nq, fnxyz,nxyz,
      ,        gridscr,nops,symops,gops,
-     .        iscr_loc)
-      else
-         call grid_qpts(rad_sh,xyz(1,ictr), ictr, 
-     ,        irsh, iang, 
-     .        aqbuf, nq, 
-     *        fnxyz,nxyz)
-      endif
-c     
-c     modify the weight to include the spatial weight (and symmetry factor)
-c     
-      if(ncenters.gt.1) then
-         call grid_setspac(xyz, aqbuf,
-     ,        rij, 
-     &        rq, bp, ictr, nq,
-     ,        expo, rad_sh)
-      endif
+     .        iscr_loc,
+     .     ncenters, rij,
+     .     rq,bp,expo,
+     .     oskel,symfact)
       if(nq.ne.0) then
-         if(oskel) call dscal(
-     /        nq, symfact, aqbuf(4,1), 4)
 c     
 c     copy to buffer for XC stuff and compute if needed
 c     

@@ -10,7 +10,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     l3d,triplet,tau,Mmat)
 c
-c$Id: grid_quadv0a.F,v 1.38 2003-10-17 22:55:37 carlfahl Exp $
+c$Id: grid_quadv0a.F,v 1.39 2004-03-19 03:25:15 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -141,10 +141,6 @@ c
       enddo
  200  continue
 c
-      if (.not.MA_Pop_Stack(ldocset)) 
-     .    call errquit('grid_quadv0a: pop stack failed.',3, MA_ERR)
-      if (.not.MA_Pop_Stack(l_iscratch)) 
-     .    call errquit('grid_quadv0a: pop stack failed.',3, MA_ERR)
       if (.not.ma_chop_stack(lbas_cent_info))
      &     call errquit('grid_quadv0a: pop stack failed.',1, MA_ERR)
  100  continue

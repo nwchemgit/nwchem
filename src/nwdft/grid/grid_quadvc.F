@@ -12,7 +12,7 @@
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     l3d,triplet, tau, kske,Mmat)
-C$Id: grid_quadvc.F,v 1.22 2003-10-17 22:55:37 carlfahl Exp $
+C$Id: grid_quadvc.F,v 1.23 2004-03-19 03:25:15 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "cdft.fh"
@@ -124,13 +124,12 @@ c
          ntot_cube=ntot_cube+1
          if(cube_done) then
             nwrbuf=nwrbuf+1
-cedo            nwrbuf=1
             goto 100
          endif
          if(buffwrite) then
             nwrbuf=1
+            nq_out=0
          endif
-         nq_out=0
       endif
       n=n+1
       nwrbuf=nwrbuf+1

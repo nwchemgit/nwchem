@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.41 2003-10-21 23:53:59 edo Exp $
+C$Id: grid_quadv0.F,v 1.42 2004-03-19 03:25:15 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -64,7 +64,7 @@ c
      ,     noc(2),nelec
       integer libf_ao,iibf_ao,irqbuf,lrqbuf,lbp,ibp,
      .     irchi_atom,irdelchi_atom,lrchi_atom,lrdelchi_atom
-      integer iqs,lqs,nqlen,mxnrad,nq_list,
+      integer iqs,lqs,nqlen,mxnrad,
      , laqbuf, iaqbuf,lRij,iRij,ndbl,l_qat,k_qat,irqlen
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2
       integer len_rho, len_delrho, len_Amat2, len_Cmat2
@@ -330,10 +330,6 @@ c
      &        lqs,iqs))
      &        call errquit('gridv0: cannot allocate shell list',0,
      &       MA_ERR)
-c
-c     get list of grid pts
-c     
-         call grid_list(rtdb, int_mb(iqs), nqlen, nq_list)
          if (.not.MA_Push_get(MT_dbl, 4*nqmax,
      &        'ang quad pts buffer', laqbuf, iaqbuf))
      &        call errquit('gridv0: cant allocate quad pt', 0, MA_ERR)
@@ -343,7 +339,7 @@ c
          if (.not.MA_Push_get(mt_int,nqshells,'qshat',l_qat,k_qat))
      &        call errquit('gridv0: cannot allocate qat',5, MA_ERR)
          call grid_quadvw(rtdb,
-     ,     int_mb(iqs),nq_list,dbl_mb(iaqbuf),
+     ,     int_mb(iqs),dbl_mb(iaqbuf),
      ,        dbl_mb(irij),int_mb(k_qat),
      ,     g_dens,ncoef_max,nctrs,rho_int,nqtot, 
      &        int_mb(iniz), int_mb(ifin), 
