@@ -1,4 +1,4 @@
-c $Id: cf_forces.fh,v 1.7 1999-07-29 00:57:12 d3e129 Exp $
+c $Id: cf_forces.fh,v 1.8 1999-11-02 19:32:55 d3j191 Exp $
 #if defined(CAFE_POLARIZATION)
       subroutine forcep(lself,xw,xwm,fw,pw,pwp,zwi,rtos,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,fs,ps,psp,zs,
@@ -303,7 +303,7 @@ c
       if(npairs.gt.0) then
       call cf_fst(npairs,int_mb(lptr+1),mtt(2),int_mb(i_itrd(2)),
      + dbl_mb(i_vdw),dbl_mb(i_chg),
-     + max(isto,jsto),msa,isat,isga,isml,isdt,isq3,
+     + max(isto,jsto),msa,isat,isga,ismf,isdt,isq3,
      + xs,fs,ess,lpbc)
       lptr=lptr+1+npairs
       else
