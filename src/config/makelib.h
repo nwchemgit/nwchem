@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.16 1994-11-10 23:46:42 gg502 Exp $
+# $Id: makelib.h,v 1.17 1994-12-18 07:45:07 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -88,7 +88,7 @@ OBJECTS := $(OBJ) $(OBJ_OPTIMIZE)
 
  LIBOBJ := $(patsubst %,$(LIBRARY_PATH)(%),$(OBJECTS))
 
-$(LIBRARY_PATH):   $(LIBOBJ) $(OBJECTS) include_stamp
+$(LIBRARY_PATH):   include_stamp $(LIBOBJ) $(OBJECTS)
 ifneq ($(strip $(OBJECTS)),)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)
 	$(RANLIB) $@
