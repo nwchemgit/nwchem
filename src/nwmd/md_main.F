@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.128 2002-05-02 19:39:31 d3j191 Exp $
+c $Id: md_main.F,v 1.129 2002-05-14 19:01:42 d3j191 Exp $
 c
       implicit none
 c
@@ -1141,13 +1141,15 @@ c
 #include "global.fh"
 #include "msgids.fh"
 c
-      logical frequency,prp_mcti_step
-      external frequency,prp_mcti_step
+      logical frequency,prp_mcti_step,prp_rdmri,sp_rdmri
+      external frequency,prp_mcti_step,prp_rdmri,sp_rdmri
 c
       logical done
-      integer npp,irunp,jequi,jdacq,ndec
+      integer npp,i,irunp,jequi,jdacq,ndec,ndum
+      real*8 rdum
 c
       if(me.eq.0) then
+      if(nserie.eq.0) then
       if(mropt.ge.2) then
       open(unit=lfnmri,file=filmri(1:index(filmri,' ')-1),
      + form='unformatted',status='unknown',err=9999)
@@ -1158,9 +1160,70 @@ c
       open(unit=lfnmro,file=filmro(1:index(filmro,' ')-1),
      + form='unformatted',status='unknown',err=9999)
       write(lfnmro) np,mrun,mequi,mdacq
+      else
+c
+      open(unit=lfnmro,file=filmro(1:index(filmro,' ')-1),
+     + form='unformatted',status='unknown',err=9999)
+      read(lfnmro) npp,mrun,mequi,mdacq
+      if(npp.ne.np) call errquit('Number of nodes changed',npp)
+      krun=0
+      do 11 irun=1,mrun
+      read(lfnmro,end=12,err=12) irunp,kequi,kdacq
+      print*,'MRO IRUNP=',irunp
+      if(.not.prp_rdmri(lfnmro,ndec)) goto 12
+      if(.not.sp_rdmri(lfnmro,stime,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))) goto 12
+      krun=irun
+   11 continue
+   12 continue
+c
+      open(unit=lfnmri,file=filmri(1:index(filmri,' ')-1),
+     + form='unformatted',status='unknown',err=9999)
+      read(lfnmri) npp
+      if(npp.ne.np) call errquit('Number of nodes changed',npp)
+      rewind(lfnmro)
+      read(lfnmro) npp,mrun,mequi,mdacq
+      if(npp.ne.np) call errquit('Number of nodes changed',npp)
+      rewind(lfngib)
+c
+      do 13 irun=1,mrun
+      read(lfnmri) irunp,kequi,kdacq
+      print*,'MRI IRUNP=',irunp
+      if(.not.prp_rdmri(lfnmri,ndec))
+     + call errquit('Error in mri file',0)
+      if(.not.sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))) 
+     + call errquit('Error in mri file',0)
+      read(lfnmro) irunp,kequi,kdacq
+      print*,'MRO IRUNP=',irunp
+      if(.not.prp_rdmri(lfnmro,ndec))
+     + call errquit('Error in mro file',0)
+      if(.not.sp_rdmri(lfnmro,stime,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))) 
+     + call errquit('Error in mro file',0)
+      read(lfngib,2000) ndum
+ 2000 format(7x,i7)
+      read(lfngib,2001) (rdum,i=1,24)
+ 2001 format(4e20.12)
+      read(lfngib,2001) (rdum,i=1,ndum)
+      read(lfngib,2001) (rdum,i=1,ndum)
+      read(lfngib,2002) ndum
+ 2002 format(i10)
+      read(lfngib,2003) rdum
+      read(lfngib,2003) rdum
+ 2003 format(e20.12)
+      if(ndec.gt.0) read(lfngib,2001) (rdum,i=1,nsa)
+   13 continue
+c
+      endif
       endif
       call ga_brdcst(mrg_d30,krun,ma_sizeof(mt_int,1,mt_byte),0)
 c
+      mrun=21
+      print*,'KRUN,MRUN=',krun,mrun
       do 1 irun=krun+1,mrun
 c
       if(irun.eq.1.and.iand(ivopt,2).eq.2) nfgaus=ivreas
@@ -1182,11 +1245,12 @@ c
       read(lfnmri) irunp,kequi,kdacq
       if(irunp.ne.irun) call errquit('Number of run changed',irunp)
       if(kequi.lt.mequi) kdacq=0
-      call prp_rdmri(lfnmri,ndec)
+      if(.not.prp_rdmri(lfnmri,ndec)) call errquit('Error in mri',0)
       endif
-      call sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
+      if(.not.sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs)))
+     + call errquit('Error reading mri in sp_rdmri',0)
       call ga_brdcst(mrg_d31,kequi,ma_sizeof(mt_int,1,mt_byte),0)
       call ga_brdcst(mrg_d32,kdacq,ma_sizeof(mt_int,1,mt_byte),0)
       endif
@@ -2361,7 +2425,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.128 2002-05-02 19:39:31 d3j191 Exp $
+c $Id: md_main.F,v 1.129 2002-05-14 19:01:42 d3j191 Exp $
 c
       implicit none
 c

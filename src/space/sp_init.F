@@ -8,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.104 2002-04-17 23:43:15 d3j191 Exp $
+c $Id: sp_init.F,v 1.105 2002-05-14 19:01:47 d3j191 Exp $
 c
       implicit none
 c
@@ -3356,7 +3356,7 @@ c
 c
       return
       end
-      subroutine sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
+      logical function sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
      + iwl,xw,vw,xwcr,isl,xs,vs)
 c
       implicit none
@@ -3365,19 +3365,22 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
+      logical sp_rmri
+      external sp_rmri
+c
       integer lfnmri
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 stime,pres,temp,tempw,temps
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
       real*8 xs(msa,3),vs(msa,3)
 c
-      call sp_rmri(lfnmri,stime,pres,temp,tempw,temps,
+      sp_rdmri=sp_rmri(lfnmri,stime,pres,temp,tempw,temps,
      + iwl,int_mb(i_packw),xw,vw,xwcr,isl,int_mb(i_pack),xs,vs,
      + int_mb(i_ipl))
 c
       return
       end
-      subroutine sp_rmri(lfnmri,stime,pres,temp,tempw,temps,
+      logical function sp_rmri(lfnmri,stime,pres,temp,tempw,temps,
      + iwl,iwlp,xw,vw,xwcr,isl,islp,xs,vs,ipl)
 c
       implicit none
@@ -3401,17 +3404,17 @@ c
       real*8 rtemp(12)
 c
       if(me.eq.0) then
-      read(lfnmri) ltemp,rtemp
+      read(lfnmri,err=9,end=9) ltemp,rtemp
       do 1 node=np-1,0,-1
-      read(lfnmri) ((ipl(j,k),j=1,mbox),k=1,mip2)
+      read(lfnmri,err=9) ((ipl(j,k),j=1,mbox),k=1,mip2)
       nwmn=ipl(1,2)
       nsan=ipl(2,2)
       call ga_distribution(ga_ip,node,ilp,ihp,jlp,jhp)
       call ga_put(ga_ip,ilp,ihp,jlp,jhp,ipl,mbox)
       if(nwmn.gt.0) then
-      read(lfnmri) ((iwl(j,k),j=1,nwmn),k=1,miw2)
-      read(lfnmri) (((xw(j,k,l),j=1,nwmn),k=1,3),l=1,nwa)
-      read(lfnmri) (((vw(j,k,l),j=1,nwmn),k=1,3),l=1,nwa)
+      read(lfnmri,err=9) ((iwl(j,k),j=1,nwmn),k=1,miw2)
+      read(lfnmri,err=9) (((xw(j,k,l),j=1,nwmn),k=1,3),l=1,nwa)
+      read(lfnmri,err=9) (((vw(j,k,l),j=1,nwmn),k=1,3),l=1,nwa)
       call ga_distribution(ga_iw,node,ili,ihi,jli,jhi)
       if(npackw.eq.0) then
       call ga_put(ga_iw,ili,ili+nwmn-1,jli,jhi,iwl,mwm)
@@ -3424,9 +3427,9 @@ c
       call ga_put(ga_w,ilw,ilw+nwmn-1,jlw+3*mwa,jlw+6*mwa-1,vw,mwm)
       endif
       if(nsan.gt.0) then
-      read(lfnmri) ((isl(j,k),j=1,nsan),k=1,mis2)
-      read(lfnmri) ((xs(j,k),j=1,nsan),k=1,3)
-      read(lfnmri) ((vs(j,k),j=1,nsan),k=1,3)
+      read(lfnmri,err=9) ((isl(j,k),j=1,nsan),k=1,mis2)
+      read(lfnmri,err=9) ((xs(j,k),j=1,nsan),k=1,3)
+      read(lfnmri,err=9) ((vs(j,k),j=1,nsan),k=1,3)
       call ga_distribution(ga_is,node,ili,ihi,jli,jhi)
       if(npack.eq.0) then
       call ga_put(ga_is,ili,ili+nsan-1,jli,jhi,isl,msa)
@@ -3485,6 +3488,11 @@ c
       call ga_get(ga_s,ils,ils+nsaloc-1,jls+3,jls+5,vs,msa)
       endif
 c
+      sp_rmri=.true.
+      return
+c
+    9 continue
+      sp_rmri=.false.
       return
       end
       subroutine sp_fix()

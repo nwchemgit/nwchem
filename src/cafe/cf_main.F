@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.140 2002-05-02 22:37:50 d3j191 Exp $
+c $Id: cf_main.F,v 1.141 2002-05-14 19:01:45 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -3376,22 +3376,25 @@ c
 c
       return
       end
-      subroutine cf_rdmri(lfnmri)
+      logical function cf_rdmri(lfnmri)
 c
       implicit none
 c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
+      logical cf_rmri
+      external cf_rmri
+c
       integer lfnmri
 c
       if(npgdec.eq.0) call errquit('rdmri error',0)
 c
-      call cf_rmri(lfnmri,dbl_mb(i_sti))
+      cf_rdmri=cf_rmri(lfnmri,dbl_mb(i_sti))
 c
       return
       end
-      subroutine cf_rmri(lfnmri,dera)
+      logical function cf_rmri(lfnmri,dera)
 c
       implicit none
 c
@@ -3403,7 +3406,7 @@ c
       integer i,j
 c
       if(me.eq.0) then
-      read(lfnmri) ((dera(i,j),i=1,6),j=1,nsatot)
+      read(lfnmri,err=9,end=9) ((dera(i,j),i=1,6),j=1,nsatot)
       else
       do 1 i=1,nsatot
       do 2 j=1,6
@@ -3412,6 +3415,11 @@ c
     1 continue
       endif
 c
+      cf_rmri=.true.
+      return
+c
+    9 continue
+      cf_rmri=.false.
       return
       end
       subroutine cf_wrtgib(lfngib)
