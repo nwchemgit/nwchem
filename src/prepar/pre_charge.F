@@ -2,7 +2,7 @@
      + source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.29 2003-10-19 03:30:58 d3j191 Exp $
+c $Id: pre_charge.F,v 1.30 2004-04-07 19:39:03 d3j191 Exp $
 c
       implicit none
 c
@@ -403,8 +403,8 @@ c
 c
       do 7 j=1,mdirpar
       do 77 k=1,nfilpar(j)
-      write(filnam,'(a,a)') dirpar(i)(1:index(dirpar(i),' ')-1),
-     + filpar(i,j)(1:index(filpar(i,j),' '))
+      write(filnam,'(a,a)') dirpar(j)(1:index(dirpar(j),' ')-1),
+     + filpar(j,k)(1:index(filpar(j,k),' '))
       len=index(filnam,' ')-1
       open(unit=lfnpar,file=filnam(1:len),status='old',form='formatted',
      + err=2)
