@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.20 1997-12-04 22:43:47 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.21 1998-08-19 21:40:51 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -16,6 +16,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "mafdecls.fh"
+#include "global.fh"
 #include "rtdb.fh"
 #include "bas.fh"
 #include "apiP.fh"
@@ -107,9 +108,14 @@ c
       memb_2e4c = mem_2e4c + mem_2e4c/5 ! + 20 % 
 c
       if (numd_red.gt.numd_tot/33) then
-        write(luout,*)' integral derivatives have > 33% split blocks'
-        write(luout,*)' insert the following into your input deck'
-        write(luout,*)' set "intd:approxmem" integer 9000000'
+        if (ga_nodeid().eq.0) then
+          write(luout,*)
+     &        ' integral derivatives have > 33% split blocks'
+          write(luout,*)
+     &        ' insert the following into your input deck'
+          write(luout,*)
+     &        ' set "intd:approxmem" integer 9000000'
+        endif
       endif
 c
       end
