@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.168 2000-07-21 22:42:14 edo Exp $
+c     $Id: dft_scf.F,v 1.169 2000-07-27 22:24:19 edo Exp $
 c     
       implicit none
 c
@@ -1485,10 +1485,6 @@ c
      &   call errquit('dft_scf: cannot chop stack',99)
 c
       dft_scf = converged
-      if(iter.gt.1) then
-         if(.not.grid_dump_write(.true.)) call 
-     .     errquit(' dftscf: grdumpwrite failed ',0)
-      endif
 c
 c !!! BGJ
       if (.not. rtdb_get(rtdb, 'bgj:poliz', mt_log,

@@ -12,7 +12,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadvw.F,v 1.19 2000-07-18 01:12:45 edo Exp $
+c$Id: grid_quadvw.F,v 1.20 2000-07-27 22:24:19 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -99,7 +99,7 @@ c
       if (filesize.gt.0 .or. memsize.gt.0) then
          if(.not.geom_nuc_rep_energy(geom, enuc)) 
      .        call errquit(' gridquad: enucrep failed ',0)
-         if (.not. grid_file_open(.false.,enuc,
+         if (.not. grid_file_open(enuc,
      .        gridfilename, memsize, filesize))
      $        call errquit('grid_tasks: opening gridpts?', 0)
       endif

@@ -1,5 +1,5 @@
 *
-* $Id: cgridfile.fh,v 1.19 2000-07-18 01:12:45 edo Exp $
+* $Id: cgridfile.fh,v 1.20 2000-07-27 22:24:18 edo Exp $
 *
 c
 c     Internal common for grid routines
@@ -46,6 +46,7 @@ c
       integer ntot_sub ! cumulative nsubb
       integer cur_cub ! current cube
       logical grid_written
+      logical oreopen ! true in only grad calculations (see dftg_getxc)
 c
 c
 #ifdef CRAY_T3D
@@ -95,7 +96,8 @@ c     logicals
      $     filedump_opened,
      $     oasyncio,
      $     oiopending,
-     $     aioreq
+     $     aioreq,
+     $     oreopen
 c     doubles
 c     .     radsub
 c

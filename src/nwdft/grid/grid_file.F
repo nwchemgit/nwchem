@@ -1,14 +1,15 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.27 2000-07-27 18:07:13 edo Exp $
+* $Id: grid_file.F,v 1.28 2000-07-27 22:24:18 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
       data file_opened /.false./
       data filedump_opened /.false./
+      data oreopen /.false./
       data l_cache /-1/
       end
-      logical function grid_file_open(oreopen,enuc_in,
+      logical function grid_file_open(enuc_in,
      $     filename,
      $     cachesize, filesize)
       implicit none
@@ -27,12 +28,11 @@
 c
       double precision enuc_in ! [in]
       double precision enuc
-      logical oreopen ! [in]
       integer availkb, sdlen
       character*20 fstype
       character*255 grinfo
       character*(nw_max_path_len) scratchdir
-      integer util_scratch_dir_avail_for_me,me,ioserr
+      integer util_scratch_dir_avail_for_me,me,ioserr,ierr
       external util_scratch_dir_avail_for_me
       logical grid_file_rewind
       external grid_file_rewind
@@ -157,18 +157,15 @@ c
          grid_file_open=.true.
          if (.not. grid_file_rewind())
      $        call errquit('grfile: rewinding gridpts?',1)
-         if(file_opened) then
-            write(0,*) ' got to open filepts'
-            file_opened=.false.
-            filedump_opened=.false.
-            if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
-     $           call errquit('grid_file_open: eaf_open failed', 0)
-            file_opened = .true.
-          endif
+         file_opened=.false.
+         filedump_opened=.false.
+         ierr=eaf_open(actualname, eaf_rw, fd)
+         if (ierr .ne. 0)
+     $        call errquit('grid_file_open: eaf_open failed', ierr)
+         file_opened = .true.
       endif
       return
  199  continue
-cedo  write(0,*) ' cannot open grinfo ioerr',ioserr
       return
 c
 c
@@ -189,8 +186,8 @@ c
          if (oinfo .or. (util_print('iostats',print_high)
      $           .and.ga_nodeid().eq.0)) 
      $        call eaf_print_stats(fd)
-         if (eaf_close(fd) .ne. 0) call errquit
-     $        ('grid_file_close: eaf_close failed',0)
+!         if (eaf_close(fd) .ne. 0) call errquit
+!     $        ('grid_file_close: eaf_close failed',0)
          if (.not. okeep) then
             if (eaf_delete(actualname) .ne. 0) call errquit
      $           ('grid_file_close: delete failed', 0)
@@ -329,6 +326,11 @@ c
       end if
 c
  10   continue
+         if (.not. file_opened) then
+            if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
+     $           call errquit('grid_file_open: eaf_open failed', 0)
+            file_opened = .true.
+         endif
        if (cur_rec .le. max_cache_rec) then
          if (l_cache .eq. -1) then
             if (.not. ma_alloc_get(MT_DBL, max_cache_rec*rec_len_in_dbl, 
@@ -341,16 +343,25 @@ c
          end if
          call dcopy(rec_len_in_dbl, buf, 1, 
      $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1)
+c     
+c     dump cache to disk
+c
+               offset = 8.0d0*rec_len_in_dbl*(cur_rec-1)
+               ierr = eaf_write(fd, offset, dbl_mb(k_cache+
+     +              (cur_rec-1)*rec_len_in_dbl),
+     .              8*rec_len_in_dbl)
+               if (ierr .ne. 0) then
+                  call eaf_errmsg(ierr, errmsg)
+                  write(LuOut,*) ' IO offset ', offset
+                  write(LuOut,*) ' IO error message ',
+     $                 errmsg(1:inp_strlen(errmsg))
+                  call errquit('grid_packed_buf_write: write failed',0)
+               endif
       else
-         if (.not. file_opened) then
-            if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
-     $           call errquit('grid_file_open: eaf_open failed', 0)
-            file_opened = .true.
-         end if
 c
 c     Should really detect failures in writing and return false
 c
-         offset = 8.0d0*rec_len_in_dbl*(cur_rec-max_cache_rec-1)
+         offset = 8.0d0*rec_len_in_dbl*(cur_rec-1)
          ierr = eaf_write(fd, offset, buf, 8*rec_len_in_dbl)
          if (ierr .ne. 0) then
             call eaf_errmsg(ierr, errmsg)
@@ -429,7 +440,8 @@ cedo         end if
       end if
 c
       grid_packed_buf_read = .true.
-      if (cur_rec .le. max_cache_rec) then
+      if (cur_rec .le. max_cache_rec.and.(.not.oreopen)) then
+!      if (.false.) then
 c
 c     Record is cached in memory
 c
@@ -440,7 +452,7 @@ c
 c
 c     Record is on disk
 c
-         offset = 8.0d0*rec_len_in_dbl*(cur_rec-max_cache_rec-1)
+         offset = 8.0d0*rec_len_in_dbl*(cur_rec-1)
 c
          if ((.not. oasyncio) .or. (.not. oiopending)) then
 c
@@ -473,7 +485,8 @@ c
 c
 c     Post a read for the next record
 c
-            offset = 8.0d0*rec_len_in_dbl*(cur_rec-max_cache_rec)
+!            offset = 8.0d0*rec_len_in_dbl*(cur_rec-max_cache_rec)
+            offset = 8.0d0*rec_len_in_dbl*(cur_rec)
             ierr = eaf_aread(fd, offset, buf2, 8*rec_len_in_dbl, aioreq)
             oiopending = .true.
             if (ierr.ne.0) then
@@ -660,7 +673,7 @@ c
       if (localmemsize.gt.0 .or. filesize.ge.0) then
          if(.not.geom_nuc_rep_energy(geom, enuc)) 
      .        call errquit(' gridtestmem: enucrep failed ',0)
-         if (.not. grid_file_open(.false.,enuc,gridfilename, 
+         if (.not. grid_file_open(enuc,gridfilename, 
      $        localmemsize, filesize))
      $        call errquit('grid_test_mem: grid_file_open failed',0)
          grid_test_mem = .true.
@@ -718,10 +731,7 @@ c
      .     ((n_in_rec+nqpts.gt.n_per_rec)
 c     to avoid excessive fragmentation of a single cube
      .     .and.(n_in_rec.gt.n_per_rec*3/4)
-     .     )
-!     .     .or.(cur_cub.ne.ncube.and.ncube.ne.-99)
-     .     ) then
-!         write(LuOut,*) '0bufw',n_in_rec
+     .     )) then
          grid_file_write = grid_buf_write(.false.)
          cur_rec_ctr = nctr
          if (nctr.eq.0)nctr =  n_rec_in_file
@@ -857,139 +867,5 @@ c
       enddo
       grid_getnsubb=.true.
 
-      return
-      end
-      logical function grid_dump_write(oend)
-      implicit none
-#include "cgridfile.fh"
-#include "mafdecls.fh"
-#include "inp.fh"
-#include "eaf.fh"
-#include "stdio.fh"
-#include "global.fh"
-      logical oend           ! [input]
-c
-c     Write the grid_pts buffer to disk.  For all but the
-c     end record it is called with oend=.false. meaning
-c     that size constraints should be enforced leaving
-c     room for the end record.  The last record is output with
-c     oend=.true. meaning just write it.
-c
-      double precision offset
-      integer ierr,ii,istep
-      character*80 errmsg
-c
-c     test for overflowing the file and memory cache
-c
-      grid_dump_write = .true.
-      if (file_opened) return
-      if ((.not. oend) .and. (cur_rec .gt. 
-     .     max_cache_rec + max_file_rec)) then
-         grid_dump_write = .false.
-         if (otrace) then
-            write(LuOut,12) cur_rec
- 12         format(' grid_file: file full at record ',i8)
-            call util_flush(LuOut)
-         end if
-         return
-      endif
-c
-c     Opening of file, allocation of buffer and writing of
-c     info message are all now deferred until the first
-c     write operation
-c
-c
-      if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
-     $     call errquit('grid_file_open: eaf_open failed', 0)
-c
-c     Should really detect failures in writing and return false
-c
-      offset=0d0
-      istep=0
-      do ii=1,n_rec_in_file
-         call dcopy(rec_len_in_dbl, dbl_mb(k_cache+istep), 1,buf, 1)
-         ierr = eaf_write(fd, offset, buf, 8*rec_len_in_dbl)
-         istep=istep+rec_len_in_dbl
-         offset=offset+istep*8d0
-         if (ierr .ne. 0) then
-            call eaf_errmsg(ierr, errmsg)
-            write(LuOut,*) ' IO offset ', offset
-            write(LuOut,*) ' IO error message ',
-     $           errmsg(1:inp_strlen(errmsg))
-            call errquit('grid_packed_buf_write: write failed',0)
-         endif
-      enddo
-c
-      call grid_buf_clear
-      grid_dump_write = .true.
-c
-      end
-      logical function grid_dump_read(oend)
-      implicit none
-#include "cgridfile.fh"
-#include "mafdecls.fh"
-#include "inp.fh"
-#include "eaf.fh"
-#include "stdio.fh"
-#include "global.fh"
-      logical oend           ! [input]
-c
-c     Read the grid_pts buffer to disk.  For all but the
-c     end record it is called with oend=.false. meaning
-c     that size constraints should be enforced leaving
-c     room for the end record.  The last record is output with
-c     oend=.true. meaning just read it.
-c
-      integer maxrec
-      double precision offset
-      integer ierr,ii,istep
-      character*80 errmsg
-c
-c     test for overflowing the file and memory cache
-c
-      grid_dump_read = .true.
-      if (file_opened) return
-      maxrec = max_cache_rec + max_file_rec
-      if ((.not. oend) .and. (cur_rec .gt. maxrec)) then
-         grid_dump_read = .false.
-         if (otrace) then
-            write(LuOut,12) cur_rec
- 12         format(' grid_file: file full at record ',i8)
-            call util_flush(LuOut)
-         end if
-         return
-      endif
-c
-c     Opening of file, allocation of buffer and writing of
-c     info message are all now deferred until the first
-c     read operation
-c
-c
-      if (.not. file_opened) then
-         if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
-     $        call errquit('grid_file_open: eaf_open failed', 0)
-      end if
-c
-c     Should really detect failures in writing and return false
-c
-      offset=0d0
-      if (.not. ma_alloc_get(MT_DBL, max_cache_rec*rec_len_in_dbl, 
-     $     'grid', l_cache, k_cache)) call errquit(
-     . ' grid_dumpr: Failed to allocate cache ',0)
-      istep=0
-      do ii=1,n_rec_in_file
-         ierr = eaf_read(fd, offset, buf, 8*rec_len_in_dbl)
-         call dcopy(rec_len_in_dbl, buf, 1, 
-     $        dbl_mb(k_cache+istep), 1)
-         istep=istep+rec_len_in_dbl
-         offset=offset+istep*8d0
-      if (ierr .ne. 0) then
-         call eaf_errmsg(ierr, errmsg)
-         write(LuOut,*) ' IO offset ', offset
-         write(LuOut,*) ' IO error message ',
-     $        errmsg(1:inp_strlen(errmsg))
-         call errquit('grid_packed_buf_read: read failed',0)
-      endif
-      enddo
       return
       end

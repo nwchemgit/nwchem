@@ -1,7 +1,7 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive,  rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.25 2000-07-26 01:48:20 edo Exp $
+* $Id: dftg_getxc.F,v 1.26 2000-07-27 22:24:20 edo Exp $
 *
       implicit none
 c      
@@ -72,15 +72,10 @@ c
          if(.not.geom_nuc_rep_energy(geom, Enuc)) 
      .        call errquit(' gridquad: enucrep failed ',0)
          if(rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) then
+            oreopen=.true.
             grid_written=
-     .           grid_file_open(.true.,enuc,
+     .           grid_file_open(enuc,
      .           gridfilename, memsize, filesize)
-            if(grid_written) then
-               if(filedump_opened) then
-                  if(.not.grid_dump_read(.true.)) call errquit(
-     /     ' dftgetxc: grdumpread failed ',0)
-               endif
-            endif
          endif
       endif
       if(grid_on_file.and.grid_written) then
@@ -90,7 +85,7 @@ c
          call dftg_quadv0(rtdb, iga_dens, force, natom, oactive, 
      &                    nactive, rdens_atom, cetobfr)
       endif
-      call ga_sync
+      oreopen=.false.
 
 c!!! BGJ test !!!
 c

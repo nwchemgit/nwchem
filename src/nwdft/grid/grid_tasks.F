@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, xyz, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.34 2000-07-18 01:12:45 edo Exp $
+c$Id: grid_tasks.F,v 1.35 2000-07-27 22:24:19 edo Exp $
 c
       implicit none
 c
@@ -79,7 +79,7 @@ c
       if (filesize.gt.0 .or. memsize.gt.0) then
          if(.not.geom_nuc_rep_energy(geom, Enuc)) 
      .        call errquit(' gridquad: enucrep failed ',0)
-         if (.not. grid_file_open(.false.,enuc,
+         if (.not. grid_file_open(enuc,
      .        gridfilename, memsize, filesize))
      $        call errquit('grid_tasks: opening gridpts?', 0)
       endif
