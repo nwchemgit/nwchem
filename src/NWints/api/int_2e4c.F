@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.3 1994-04-04 20:27:31 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.4 1994-04-07 18:56:49 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -11,26 +11,34 @@ c
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
+c
+c::external subroutines used
+c errquit
 c::functions
+      logical cando_nw
+      logical cando_sp
       logical int_chk_sh
-      external int_chk_sh
       logical int_chk_init
+      external cando_nw
+      external cando_sp
+      external int_chk_sh
       external int_chk_init
 c:: passed
       integer brain, ketin, lscr, leri
-      integer ish,jsh,ksh,lsh, i,j
+      integer ish,jsh,ksh,lsh
       double precision scr(lscr), eri(leri)
 c:: local
-      logical status
-      integer bra, ket, ijsh, klsh
+      logical shells_ok
+      integer bra, ket 
       integer ab_geom, cd_geom, ucont
-      integer La, a_prim, a_gen, a_iexp, a_icfp, a_ucent
-      integer Lb, b_prim, b_gen, b_iexp, b_icfp, b_ucent
-      integer Lc, c_prim, c_gen, c_iexp, c_icfp, c_ucent
-      integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_ucent
-      integer isym2
-c:statement function
-      isym2(i,j)=(max(i,j)*(max(i,j)-1))/2 + min(i,j)
+      integer La, a_prim, a_gen, a_iexp, a_icfp, a_cent
+      integer Lb, b_prim, b_gen, b_iexp, b_icfp, b_cent
+      integer Lc, c_prim, c_gen, c_iexp, c_icfp, c_cent
+      integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_cent
+c
+      integer WarnP
+      data WarnP /0/
+      save WarnP
 c
 c check initialization
 c
@@ -39,97 +47,93 @@ c
 c
 c     check input shell ranges
 c
-      status = int_chk_sh(brain,ish)
-      status = status .and. int_chk_sh(brain,jsh)
-      status = status .and. int_chk_sh(ketin,ksh)
-      status = status .and. int_chk_sh(ketin,lsh)
-      if (.not.status) then
-        write(6,*)'int_2e4c: invalid shell input '
-        stop 'error'
-      endif
-c
-c   check canonicalizations of input shells
-c      
-      status = ish.gt.jsh
-      status = status .and. ksh.gt.lsh
-      ijsh = isym2(ish,jsh)
-      klsh = isym2(ksh,lsh)
-      if (brain.eq.ketin) status = status .and. ijsh.gt.klsh
-      if (.not.status) then
-        write(6,*)'int_2e4c: shells not canonical on input '
-        write(6,*)'bra basis set handle:',brain
-        write(6,*)'ket basis set handle:',ketin
-        write(6,*)'                 ish:',ish
-        write(6,*)'                 jsh:',jsh
-        write(6,*)'                 ksh:',ksh
-        write(6,*)'                 lsh:',lsh
-        if (brain.eq.ketin) then
-          write(6,*)'                ijsh:',ijsh
-          write(6,*)'                klsh:',klsh
-        endif
-        call errquit('int_2e4c: shells not in canonical order',0)
-      endif
+      shells_ok = int_chk_sh(brain,ish)
+      shells_ok = shells_ok .and. int_chk_sh(brain,jsh)
+      shells_ok = shells_ok .and. int_chk_sh(ketin,ksh)
+      shells_ok = shells_ok .and. int_chk_sh(ketin,lsh)
+      if (.not.shells_ok)
+     &       call errquit('int_l2e4c: invalid contraction/shell',0)
 c
 c     define center information required 
 c
       bra = brain + BASIS_HANDLE_OFFSET
-c
-      ab_geom = ibs_geom(bra)
-c
-      ucont   = ibs_cn2ucn(ish,bra)
-      La      = infbs_cont(CONT_TYPE ,ucont,bra)
-      a_prim  = infbs_cont(CONT_NPRIM,ucont,bra)
-      a_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
-      a_iexp  = infbs_cont(CONT_IEXP ,ucont,bra)
-      a_icfp  = infbs_cont(CONT_ICFP ,ucont,bra)
-      a_ucent = ibs_ce2uce(ibs_cn2ce(ish,bra),bra)
-c
-      ucont   = ibs_cn2ucn(jsh,bra)
-      Lb      = infbs_cont(CONT_TYPE ,ucont,bra)
-      b_prim  = infbs_cont(CONT_NPRIM,ucont,bra)
-      b_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
-      b_iexp  = infbs_cont(CONT_IEXP ,ucont,bra)
-      b_icfp  = infbs_cont(CONT_ICFP ,ucont,bra)
-      b_ucent = ibs_ce2uce(ibs_cn2ce(jsh,bra),bra)
-c      
       ket = ketin + BASIS_HANDLE_OFFSET
-c
+      ab_geom = ibs_geom(bra)
       cd_geom = ibs_geom(ket)
 c
-      ucont   = ibs_cn2ucn(ksh,ket)
-      Lc      = infbs_cont(CONT_TYPE ,ucont,ket)
-      c_prim  = infbs_cont(CONT_NPRIM,ucont,ket)
-      c_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
-      c_iexp  = infbs_cont(CONT_IEXP ,ucont,ket)
-      c_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
-      c_ucent = ibs_ce2uce(ibs_cn2ce(ksh,ket),ket)
-c
-      ucont   = ibs_cn2ucn(lsh,ket)
-      Ld      = infbs_cont(CONT_TYPE ,ucont,ket)
-      d_prim  = infbs_cont(CONT_NPRIM,ucont,ket)
-      d_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
-      d_iexp  = infbs_cont(CONT_IEXP ,ucont,ket)
-      d_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
-      d_ucent = ibs_ce2uce(ibs_cn2ce(lsh,ket),ket)
-c      
-      if (ab_geom.ne.cd_geom) then
+      if (ab_geom.ne.cd_geom.and.WarnP.eq.0) then
         write(6,*)'int_2e4c: WARNING: possible geometry inconsistency'
         write(6,*)'bra geometry handle:',ab_geom
         write(6,*)'ket geometry handle:',cd_geom
+        WarnP = 1
       endif
 c
-      call hf2(
-     &       coords(1,a_ucent,ab_geom), exndcf(a_iexp,bra),
-     &       exndcf(a_icfp,bra), a_prim, a_gen, La,
-     &       coords(1,b_ucent,ab_geom), exndcf(b_iexp,bra),
-     &       exndcf(b_icfp,bra), b_prim, b_gen, Lb,
-     &       coords(1,c_ucent,cd_geom), exndcf(c_iexp,ket),
-     &       exndcf(c_icfp,ket), c_prim, c_gen, Lc,
-     &       coords(1,d_ucent,cd_geom), exndcf(d_iexp,ket),
-     &       exndcf(d_icfp,ket), d_prim,d_gen,Ld,
-c....................... canAB    canCD    canPQ
-     &       eri, leri, .false., .false., .false.,
-c............ dryrun
-     &       .false., scr, lscr)
+      a_cent  = ibs_cn2ce(ish,bra)
+      b_cent  = ibs_cn2ce(jsh,bra)
+      c_cent  = ibs_cn2ce(ksh,ket)
+      d_cent  = ibs_cn2ce(lsh,ket)
 c
+      if (cando_sp(brain,ish,jsh).and.cando_sp(ketin,ksh,lsh)) then
+c
+        call genr70(
+     &         brain,ish,coords(1,a_cent,bra),
+     &               jsh,coords(1,b_cent,bra),
+     &         ketin,ksh,coords(1,c_cent,ket),
+     &               lsh,coords(1,d_cent,ket),
+     &         eri)
+c        
+      elseif(cando_nw(brain,ish,jsh).and.cando_nw(ketin,ksh,lsh)) then
+c
+        ucont   = ibs_cn2ucn(ish,bra)
+        La      = infbs_cont(CONT_TYPE ,ucont,bra)
+        a_prim  = infbs_cont(CONT_NPRIM,ucont,bra)
+        a_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
+        a_iexp  = infbs_cont(CONT_IEXP ,ucont,bra)
+        a_icfp  = infbs_cont(CONT_ICFP ,ucont,bra)
+c
+        ucont   = ibs_cn2ucn(jsh,bra)
+        Lb      = infbs_cont(CONT_TYPE ,ucont,bra)
+        b_prim  = infbs_cont(CONT_NPRIM,ucont,bra)
+        b_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
+        b_iexp  = infbs_cont(CONT_IEXP ,ucont,bra)
+        b_icfp  = infbs_cont(CONT_ICFP ,ucont,bra)
+c      
+        ucont   = ibs_cn2ucn(ksh,ket)
+        Lc      = infbs_cont(CONT_TYPE ,ucont,ket)
+        c_prim  = infbs_cont(CONT_NPRIM,ucont,ket)
+        c_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
+        c_iexp  = infbs_cont(CONT_IEXP ,ucont,ket)
+        c_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
+c
+        ucont   = ibs_cn2ucn(lsh,ket)
+        Ld      = infbs_cont(CONT_TYPE ,ucont,ket)
+        d_prim  = infbs_cont(CONT_NPRIM,ucont,ket)
+        d_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
+        d_iexp  = infbs_cont(CONT_IEXP ,ucont,ket)
+        d_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
+c      
+        call hf2(
+     &         coords(1,a_cent,ab_geom), exndcf(a_iexp,bra),
+     &         exndcf(a_icfp,bra), a_prim, a_gen, La,
+     &         coords(1,b_cent,ab_geom), exndcf(b_iexp,bra),
+     &         exndcf(b_icfp,bra), b_prim, b_gen, Lb,
+     &         coords(1,c_cent,cd_geom), exndcf(c_iexp,ket),
+     &         exndcf(c_icfp,ket), c_prim, c_gen, Lc,
+     &         coords(1,d_cent,cd_geom), exndcf(d_iexp,ket),
+     &         exndcf(d_icfp,ket), d_prim,d_gen,Ld,
+c....................... canAB    canCD    canPQ
+     &         eri, leri, .false., .false., .false.,
+c............ dryrun
+     &         .false., scr, lscr)
+c
+      else
+        write(6,*)'int_2e4c: could not do sp or nw integrals'
+        write(6,*)' brain :',brain
+        write(6,*)' ketin :',ketin
+        write(6,*)' ish   :',ish
+        write(6,*)' jsh   :',jsh
+        write(6,*)' ksh   :',ksh
+        write(6,*)' lsh   :',lsh
+        call errquit('int_2e4c: fatal error ',0)
+      endif
       end

@@ -1,45 +1,67 @@
       subroutine int_mem(max1e, maxg, mscratch_1e, mscratch_2e)
-c $Id: int_mem.F,v 1.2 1994-04-04 20:27:40 d3e129 Exp $
+c $Id: int_mem.F,v 1.3 1994-04-07 18:56:55 d3e129 Exp $
       implicit none
 #include "apiP.fh"
+c::functions
+      logical int_chk_init
+      external int_chk_init
 c::passed
       integer max1e, maxg, mscratch_1e, mscratch_2e
 c
-      if (init_int.ne.0) then
+      if (int_chk_init('int_mem')) then
         max1e       = isz_1e
         maxg        = isz_2e4c
         mscratch_1e = mem_1e
         mscratch_2e = mem_2e4c
       else
-        write(6,*)'int_mem: int_init not called '
-        stop ' error '
+        call errquit('int_mem: int_init was not called' ,0)
       endif
       end
       subroutine int_mem_1e(max1e, mscratch_1e)
       implicit none
 #include "apiP.fh"
+c::functions
+      logical int_chk_init
+      external int_chk_init
 c::passed
       integer max1e, mscratch_1e
 c
-      if (init_int.ne.0) then
+      if (int_chk_init('int_mem_1e')) then
         max1e       = isz_1e
         mscratch_1e = mem_1e
       else
-        write(6,*)'int_mem_1e: int_init not called '
-        stop ' error '
+        call errquit('int_mem_1e: int_init was not called' ,0)
       endif
       end
       subroutine int_mem_2e4c(maxg, mscratch_2e)
       implicit none
 #include "apiP.fh"
+c::functions
+      logical int_chk_init
+      external int_chk_init
 c::passed
       integer maxg, mscratch_2e
 c
-      if (init_int.ne.0) then
+      if (int_chk_init('int_mem_2e4c')) then
         maxg        = isz_2e4c
         mscratch_2e = mem_2e4c
       else
-        write(6,*)'int_mem_2e4c: int_init not called '
-        stop ' error '
+        call errquit('int_mem_2e4c: int_init was not called' ,0)
+      endif
+      end
+      subroutine int_mem_h1(maxh1, mscratch_h1)
+      implicit none
+#include "apiP.fh"
+c::functions
+      logical int_chk_init
+      external int_chk_init
+c::passed
+      integer maxh1, mscratch_h1
+c
+      if (int_chk_init('int_mem_h1')) then
+        maxh1       = isz_1e
+        mscratch_h1 = mem_1e_h1
+      else
+        call errquit('int_mem_h1: int_init was not called' ,0)
       endif
       end

@@ -1,25 +1,29 @@
-      subroutine int_l2e4c(bra_basis, ish, jsh, ket_basis, ksh, lsh,
+      subroutine int_l2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       zerotol, canonicalize, leri, eri, nint, ilab, jlab, klab,
      &       llab, scr, lscr)
-c $Id: int_l2e4c.F,v 1.2 1994-04-04 20:27:38 d3e129 Exp $
+c $Id: int_l2e4c.F,v 1.3 1994-04-07 18:56:53 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
-c::externals used
+c
+c::external subroutines used
 c dcopy
+c errquit
 c::functions
       logical int_chk_init
       external int_chk_init
+      logical int_chk_sh
+      external int_chk_sh
 c::passed
-      integer bra_basis, ish, jsh, ket_basis, ksh, lsh, leri, lscr
+      integer brain, ish, jsh, ketin, ksh, lsh, leri, lscr
       double precision zerotol, eri(leri), scr(lscr)
       integer ilab(leri), jlab(leri), klab(leri), llab(leri), nint
       logical canonicalize
 c::local
-      logical braket, allshl, ignore_ij_kl
+      logical braket, allshl, ignore_ij_kl, shells_ok, ijsh, klsh
       integer isym2
       integer i,j,k,l,bra,ket,icount,ij,kl
 c
@@ -27,17 +31,44 @@ c:statement function
 c
       isym2(i,j)=(max(i,j)*(max(i,j)-1))/2 + min(i,j)
 c
-c check initialization
+c check initialization and shells 
 c
       if (.not.int_chk_init('int_l2e4c'))
      &       call errquit('int_l2e4c: int_init was not called' ,0)
-
+      shells_ok = int_chk_sh(brain,ish)
+      shells_ok = shells_ok .and. int_chk_sh(brain,jsh)
+      shells_ok = shells_ok .and. int_chk_sh(ketin,ksh)
+      shells_ok = shells_ok .and. int_chk_sh(ketin,lsh)
+      if (.not.shells_ok)
+     &       call errquit('int_l2e4c: invalid contraction/shell',0)
+c
+c   check canonicalizations of input shells
+c      
+      shells_ok = ish.gt.jsh
+      shells_ok = shells_ok .and. ksh.gt.lsh
+      ijsh = isym2(ish,jsh)
+      klsh = isym2(ksh,lsh)
+      if (brain.eq.ketin) shells_ok = shells_ok .and. ijsh.gt.klsh
+      if (.not.shells_ok) then
+        write(6,*)'int_2e4c: shells not canonical on input '
+        write(6,*)'bra basis set handle:',brain
+        write(6,*)'ket basis set handle:',ketin
+        write(6,*)'                 ish:',ish
+        write(6,*)'                 jsh:',jsh
+        write(6,*)'                 ksh:',ksh
+        write(6,*)'                 lsh:',lsh
+        if (brain.eq.ketin) then
+          write(6,*)'                ijsh:',ijsh
+          write(6,*)'                klsh:',klsh
+        endif
+        call errquit('int_l2e4c: shells not in canonical order',0)
+      endif
 c
 c copy eri's to scr
       call dcopy(leri,eri,1,scr,1)
 c
-      bra = bra_basis + BASIS_HANDLE_OFFSET
-      ket = ket_basis + BASIS_HANDLE_OFFSET
+      bra = brain + BASIS_HANDLE_OFFSET
+      ket = ketin + BASIS_HANDLE_OFFSET
       braket = bra .eq. ket
       allshl = isym2(ish,jsh) .eq. isym2(ksh,lsh)
       ignore_ij_kl = (.not.braket) .or. (.not.allshl)

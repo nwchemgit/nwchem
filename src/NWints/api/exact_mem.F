@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.2 1994-04-04 20:27:29 d3e129 Exp $
+c $Id: exact_mem.F,v 1.3 1994-04-07 18:56:42 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 c
@@ -28,6 +28,10 @@ c.... 1e
           isz_1e = max(isz_1e, lsz_1e)
 00200   continue
 00100 continue
+c
+c.. need extra memory for H1 call externalized by int_mem_h1
+c
+      mem_1e_h1 = mem_1e + isz_1e
       end
       subroutine emem_1e(brain, ketin, max1e, memsize)
       implicit none

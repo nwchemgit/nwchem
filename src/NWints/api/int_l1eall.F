@@ -1,12 +1,17 @@
       subroutine int_l1eall(i_basis, j_basis, ish, jsh, zerotol,
      &       ilab, jlab, lstv, S, T, V, lscr, scr, numstv) 
-c $Id: int_l1eall.F,v 1.1 1994-04-04 20:27:37 d3e129 Exp $
+c $Id: int_l1eall.F,v 1.2 1994-04-07 18:56:52 d3e129 Exp $
 #include "basP.fh"
 #include "geobasmapP.fh"
       implicit none
+c::external subroutines used
+c dcopy
+c errquit
 c::function
       logical int_chk_init
       external int_chk_init
+      logical int_chk_sh
+      external int_chk_sh
 c::passed
       integer i_basis, j_basis, ish, jsh, lstv, numstv, lscr
       integer ilab(lstv),jlab(lstv)
@@ -14,13 +19,28 @@ c::passed
       double precision S(lstv), T(lstv), V(lstv)
 c::local
       integer ibas, jbas, iscrS, iscrT, iscrV, icount, i, j
-      logical ijbas
+      logical ijbas, shells_ok
       logical nonzero
 c
-c check initialization
+c check initialization and shells
 c
-      if (.not.int_chk_init('int_1eall'))
-     &       call errquit('int_1eall: int_init was not called' ,0)
+      if (.not.int_chk_init('int_l1eall'))
+     &       call errquit('int_l1eall: int_init was not called' ,0)
+c
+      shells_ok = int_chk_sh(i_basis,ish)
+      shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
+      if (.not.shells_ok)
+     &       call errquit('int_l1eall: invalid contraction/shell',0)
+c
+c check canoncialization of shells
+c
+      ijbas = i_basis .eq. j_basis
+      if (.not.(ijbas.and.ish.ge.jsh)) then
+        write(6,*)' shells not in canonical order '
+        write(6,*)' ish = ',ish
+        write(6,*)' jsh = ',jsh
+        call errquit('int_l1eall: canonical error',0)
+      endif
 c
       if ((3*lstv).gt.lscr) then
         write(6,*)'int_l1eall: need more scratch space '
@@ -31,7 +51,6 @@ c
 c
       ibas  = i_basis + BASIS_HANDLE_OFFSET
       jbas  = j_basis + BASIS_HANDLE_OFFSET
-      ijbas = ibas .eq. jbas
 c
       iscrS = 1
       call dcopy(lstv,S,1,scr(iscrS),1)

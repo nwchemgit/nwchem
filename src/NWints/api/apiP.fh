@@ -1,10 +1,14 @@
 c
-c $Id: apiP.fh,v 1.2 1994-04-04 20:27:28 d3e129 Exp $
+c $Id: apiP.fh,v 1.3 1994-04-07 18:56:40 d3e129 Exp $
 c
 c common block that holds memory information
 c
-      integer mem_2e4c, mem_1e
+      integer mem_2e4c, mem_1e, mem_1e_h1
       integer isz_2e4c, isz_1e
       integer init_int
-      common /capi/ init_int,mem_2e4c, mem_1e, isz_2e4c, isz_1e
+      common /capi/ init_int,mem_2e4c, mem_1e, isz_2e4c, isz_1e,
+     &       mem_1e_h1
+      double precision DCexp, DCcoeff
+      common /capidc/ DCexp, DCcoeff
 c
+      

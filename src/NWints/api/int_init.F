@@ -1,5 +1,5 @@
       subroutine int_init(nbas, bases)
-c $Id: int_init.F,v 1.2 1994-04-04 20:27:36 d3e129 Exp $
+c $Id: int_init.F,v 1.3 1994-04-07 18:56:51 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -41,12 +41,13 @@ c
       implicit none
 #include "apiP.fh"
 c     
-      data init_int /0/
-      data mem_2e4c /0/
-      data mem_1e   /0/
-      data isz_2e4c /0/
-      data isz_1e   /0/
-
-c     
+      data mem_2e4c  /0/
+      data init_int  /0/
+      data mem_1e    /0/
+      data isz_2e4c  /0/
+      data isz_1e    /0/
+      data mem_1e_h1 /0/
+      data DCexp     /1.0000000000D00/
+      data DCcoeff   /1.0000000000D00/
       end
-      
+c
