@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.18 1996-01-26 23:57:52 rg240 Exp $
+C$Id: direct_mp2.F,v 1.19 1996-02-16 06:37:52 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -354,6 +354,8 @@ c
        status = ga_destroy(g_vecs)
        status = geom_destroy(geom)
        call int_terminate()
+       if (.not.bas_destroy(basis))
+     $   call errquit('cannot free basis handle',0)
 c
 c Pop context
 c
