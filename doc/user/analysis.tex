@@ -134,12 +134,12 @@ can be specified, which will be carried out in the order in which
 they appear in the input deck. \verb+rotate off+ cancels all
 previously defined \verb+rotate+ directives.
 
-To set hydrogen bond criteria:
+To perform a hydrogen bond analysis:
 
 \begin{verbatim}
 hbond [distance [[<real rhbmin default 0.0>] <real rhbmin>]] \
-      [donorangle [<real hbdmin> [ <real hbdmax default pi>]]] \
-      [acceptorangle [<real hbamin> [ <real hbamax default pi>]]]
+      [angle [<real hbdmin> [ <real hbdmax default pi>]]] \
+      [solvent [<integer numwhb>]]
 \end{verbatim}
 
 \section{Selection}
@@ -148,14 +148,12 @@ Analyses can be applied to a selection of solute atoms and solvent molecules.
 The selection is determined by
 
 \begin{verbatim}
-select ( [ super ] [ <integer isgm> [ <integer jsgm> ]] [ { <string atom> } ] |
+select ( [ super ] [ { <string atomlist> } ] |
 	solvent <real range> | save <string filename> | read <string filename> )
 \end{verbatim}
 
-where {\rm isgm} is the first segment number, {\rm jsgm} is the last 
-segment number in the selection, and {\rm \{atom\}} is the set of atom
-names selected from the specified residues. By default all solute
-atoms are selected. When keyword \verb+super+ is specified the selecion
+where {\rm \{atomlist\}} is the set of atom names selected from the specified residues. 
+By default all solute atoms are selected. When keyword \verb+super+ is specified the selecion
 applies to the superimposition option.
 
 \par
