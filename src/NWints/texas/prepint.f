@@ -1,4 +1,4 @@
-c $Id: prepint.f,v 1.7 1996-07-12 18:25:46 pg481 Exp $
+c $Id: prepint.f,v 1.8 1996-10-22 16:15:39 d3g681 Exp $
       subroutine prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
      *                    lcore,nsym,maxprice,scftype,iret_limit)
 c---------------------------------------------------------------
@@ -14,11 +14,11 @@ c     parameter (lpar1=18,lpar2= 969,lpar3= 816,lpar4=6,lpar5=17)
 c up to hh,hh :
 c     parameter (lpar1=22,lpar2=1771,lpar3=1540,lpar4=7,lpar5=21)
 c up to ii,ii :
-c     parameter (lpar1=26,lpar2=2925,lpar3=2600,lpar4=8,lpar5=25)
+      parameter (lpar1=26,lpar2=2925,lpar3=2600,lpar4=8,lpar5=25)
 c up to jj,jj :
 c     parameter (lpar1=30,lpar2=4495,lpar3=4060,lpar4=9,lpar5=29)
 c up to kk,kk (which is ii,ii + 2 )
-      parameter (lpar1=34,lpar2=6545,lpar3=5984,lpar4=10,lpar5=33)
+c     parameter (lpar1=34,lpar2=6545,lpar3=5984,lpar4=10,lpar5=33)
 c up to ll,ll :
 c     parameter (lpar1=38,lpar2=9139,lpar3=8436,lpar4=11,lpar5=37)
 c up to mm,mm :
