@@ -9,12 +9,15 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.20 2001-03-07 22:41:13 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.21 2001-03-11 17:10:45 bjohnson Exp $
 c
       implicit none
 c
 #include "cdft.fh"
 #include "dft2drv.fh"
+#ifdef BETTIS
+#include "bettis.fh"
+#endif
 c
       integer nq
       double precision rho(*), delrho(*)
@@ -38,6 +41,10 @@ c
          if (GRAD) call dfill(nq*NCOL_CMAT2, 0.d0, Cmat2, 1)
       endif
       if (ldew) call dfill(nq, 0.d0, func, 1)
+#ifdef BETTIS
+c     Update quantities that help in determining screening constant
+      call bettis_average(rho, qwght, nq, ipol, 1)
+#endif
 c
 c     warning!! xc_dirac has to be called before all the other
 c     XC routines
@@ -208,6 +215,18 @@ c
       endif
 c     
       if (abs(cfac(6)).gt.eps)then
+#ifdef BETTIS
+c        Hijack this functional to mean screened LDA exchange for Bettis
+         if (.not. do_2nd) then
+            call xc_dirac_screened(tol_rho, cfac(6), lcfac(6),
+     &           nlcfac(6), rho, Amat, nq, ipol, Ex, bettis_Ks(),
+     &           qwght, ldew, func)
+         else
+            call xc_dirac_screened_d2(tol_rho, cfac(6), lcfac(6),
+     &           nlcfac(6), rho, Amat, Amat2, nq, ipol, Ex, bettis_Ks(),
+     &           qwght, ldew, func)
+         endif
+#else
          if (.not. do_2nd) then
             call xc_pw91lda(tol_rho, cfac(6), lcfac(6), nlcfac(6), 
      &           rho, Amat, nq, ipol, Ec, 
@@ -217,6 +236,7 @@ c
      &           rho, Amat, Amat2, nq, ipol, Ec, qwght, 
      &           ldew, func)
          endif
+#endif
       endif
 c     
       if (abs(cfac(2)).gt.eps)then
