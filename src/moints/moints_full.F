@@ -1,5 +1,5 @@
       logical function moints_full(rtdb)
-C     $Id: moints_full.F,v 1.27 2002-01-19 02:58:41 zzhang Exp $
+C     $Id: moints_full.F,v 1.28 2003-04-11 00:25:55 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -947,34 +947,48 @@ c
       subroutine moints_wrt_buf(moints_unit, n, buf, labels)
       implicit none
 #include "cmointsbuf.fh"
+#include "mafdecls.fh"
       integer moints_unit
-      integer n
+      integer n,k
       double precision buf(*)
       integer labels(*)
 c
-c     SWRITE CALL ASSUMES 32 BIT INTEGER
+c     SWRITE CALL ASSUMES 32 or 64 BIT INTEGER
 c
+      k = ma_sizeof(mt_int, 1, mt_byte)
       call dcopy(n, buf, 1, fbuf, 1)
-      if (n.gt.0) call util_pack_8(4*n, plab, labels)
+      if (n.gt.0) then
+         if (k.eq.4) then
+            call util_pack_8(4*n, plab, labels)
+         else
+            call util_pack_16(4*n, plab, labels)
+         endif
+      endif
       n_in_rec = n
-      call swrite(moints_unit, fbuf, buflen+buflen/2+1)
+      call swrite(moints_unit, fbuf, buflen+buflen*k/8+1)
 c
       end
       subroutine moints_read_buf(moints_unit, n, buf, labels)
       implicit none
 #include "cmointsbuf.fh"
+#include "mafdecls.fh"
       integer moints_unit
-      integer n
+      integer n,k
       double precision buf(*)
       integer labels(*)
 c
-c     SWRITE CALL ASSUMES 32 BIT INTEGER
+c     SWRITE CALL ASSUMES 32 or 64 BIT INTEGER
 c
-      call sread(moints_unit, fbuf, buflen+buflen/2+1)
+      k = ma_sizeof(mt_int, 1, mt_byte)
+      call sread(moints_unit, fbuf, buflen+buflen*k/8+1)
       n = n_in_rec
-      if (n.gt.0) call util_unpack_8(4*buflen, plab, labels)
-      if (n.gt.0) call dcopy(n, fbuf, 1, buf, 1)
+      if (n.gt.0) then
+         if (k.eq.4) then
+             call util_unpack_8(4*buflen, plab, labels)
+         else
+             call util_unpack_16(4*buflen, plab, labels)
+         endif
+         call dcopy(n, fbuf, 1, buf, 1)
+      endif
 c
       end
-
-      
