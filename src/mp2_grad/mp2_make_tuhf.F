@@ -2,10 +2,10 @@
      $     sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,num_oa,num_va,
      $     nob_lo,nob_hi,nvb_lo,nvb_hi, sym_lo_ob,sym_hi_ob,
      $     sym_lo_vb,sym_hi_vb,num_ob,num_vb,   
-     $     oseg_lo,oseg_hi,basis,irs_a,c_a,irs_b,c_b,ia_uv,ia_jb,
+     $     oseg_lo,oseg_hi,irs_a,c_a,irs_b,c_b,ia_uv,ia_jb,
      $     eval_a,eval_b,toff_a,toff_b,nva,noa,nvb,nob,nir,
      $     tmp,ioff,nnbf,indx_v,nva_lo_local,nva_hi_local,
-     $     e2,eval_e2,eval_grad,tunita,tunitb)
+     $     e2,eval_e2,tunita,tunitb)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -19,7 +19,7 @@
       integer sym_lo_ob(0:*),sym_hi_ob(0:*)
       integer sym_lo_vb(0:*),sym_hi_vb(0:*)
       integer num_ob(0:*),num_vb(0:*)
-      integer noa,nva,nob,nvb,g_t_a,g_t_b,counter
+      integer noa,nva,nob,nvb,counter,g_t_a,g_t_b
       integer a_a,tunita,tunitb,tunitptra,tunitptrb,counta,countb,ierr
       integer oseg_lo,oseg_hi
       integer nir
@@ -31,12 +31,12 @@
       integer syma,symi,symb,symj,symia
       integer irs_a(*),irs_b(*),b,j
       integer indx_v(*)
-      integer basis,nnbf,ioff,kunit
-      parameter (kunit=11)
+      integer nnbf,ioff,kunit
+      parameter(kunit=11)
       integer nva_lo_local,nva_hi_local,jb
       double precision tmp(*),ia_uv(*),ia_jb(*)
       double precision eval_a(*),eval_b(*)
-      logical eval_e2,eval_grad
+      logical eval_e2
       integer num_al_ints,num_be_ints
 c     
       eaa=0.0d0
@@ -48,6 +48,9 @@ c
       nva=nva_hi-nva_lo+1
       nob=nob_hi-nob_lo+1
       nvb=nvb_hi-nvb_lo+1
+c$$$      write(6,*) 'in make_t'
+c$$$      write(6,*) 'noa,nva,nob,nvb',
+c$$$     $     noa,nva,nob,nvb
       if(.not.ga_create(mt_dbl,noa*nva,nva,'T_a',(noa*nva),1,g_t_a))
      $     call errquit('could not alloc ga for T_a',1)
       if(.not.ga_create(mt_dbl,nob*nvb,nva,'T_b',(nob*nvb),1,g_t_b))
@@ -81,7 +84,7 @@ c
             enddo
          enddo
          i_batch=i-oseg_lo+1
-         do a_a=nva_lo_local,nva_hi_local !loop thru local a's
+         do a_a=nva_lo_local,nva_hi_local 
             syma=irs_a(a_a)
             symi=irs_a(i)
             symia=ieor(syma,symi)
@@ -159,6 +162,7 @@ c
                      tunitptra=tunitptra+counta
                   endif
                enddo
+c               write(6,*) 'num_al_ints in make_t',num_al_ints
                do b=nvb_lo,nvb_hi
                   symb=irs_b(b)
                   syma=irs_a(a_a)
@@ -187,16 +191,16 @@ c
             enddo
          endif
       enddo
- 999  continue
       call ga_dgop(1,eaa,1,'+')
       call ga_dgop(1,eab,1,'+')
+      write(6,*) 'eaa at end of make_tuhf',eaa
+      write(6,*) 'eab at end of make_tuhf',eab
       e2=e2-0.25d0*eaa-0.5d0*eab
       if(.not.ga_destroy(g_t_b))call errquit(
      $     'could not destroy t_b handle',1)
       if(.not.ga_destroy(g_t_a))call errquit(
      $     'could not destroy t_a handle',1)
       call ga_sync()
-      return
       end
       
       
