@@ -274,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.23 2002-10-13 06:40:42 edo Exp $
+C$Id: util_file_name.F,v 1.24 2002-10-15 22:16:16 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -540,6 +540,8 @@ c
 #include "eaf.fh"
 #include "cfileprefix.fh"
 #include "inp.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
 c
 c     Return the amount of space in Kb available in the scratch
 c     directory for this process.
@@ -558,9 +560,15 @@ c
       integer me, nproc, you, ierr
       character*(nw_max_path_len) mine, yours
       integer avail, nuse
+      integer avail0,avail1
+      integer fd
       character*8 fstype
-      logical util_file_parse_dir
+      integer l1megabyte,i_k,l_k
+      parameter(l1megabyte=1000000)
+      logical util_file_parse_dir,oprint
       external util_file_parse_dir
+c
+      oprint=util_print('available disk',print_high)
 c
 c     Construct a name in the scratch directory of the current 
 c     process and inquire how much space is available
@@ -568,28 +576,35 @@ c
       me = ga_nodeid()
       nproc = ga_nnodes()
       call util_file_name('junk',.true.,.true.,mine)
-      ierr = eaf_stat(mine, avail, fstype)
+      ierr=eaf_delete(mine)
+      ierr=eaf_open(mine, eaf_rw, fd)
+      if(ierr.ne.0) call errquit('utilscratchavail: eaf_open',ierr)
+      call ga_sync()
+      ierr = eaf_stat(mine, avail0, fstype)
+c
+c     now write 1k of doubles
+c
+      if (.not.ma_push_get(MT_Dbl,l1megabyte,'cc',l_k,i_k))
+     &   call errquit('utilfname: cannot allocate ',0)
+      call dfill(l1megabyte,0d0,dbl_mb(i_k),1)
+      ierr = eaf_write(fd, 0, dbl_mb(i_k),8*l1megabyte)
+      if (.not.ma_pop_stack(l_k))
+     &   call errquit('utilfname: cannot deallocate ',0)
+      call ga_sync()
+      ierr=eaf_close(fd)
+      ierr = eaf_stat(mine, avail1, fstype)
+      if (ierr .ne. 0) call errquit('util_scratch_avail: eaf_stat',ierr)
+      ierr=eaf_delete(mine)
+      nuse=nint((avail0-avail1)/8d0)
+      if(oprint) then
+         write(luout,11) ga_nodeid(),nuse,avail0/nuse
+ 11      format(i4,': nuse =',i4,' available disk =',i10,'Mb')
+      endif
 c
 c     now eaf_stat returns Mb instead of kb
 c
-      avail=avail*1024
-      if (ierr .ne. 0) call errquit('util_scratch_avail: eaf_stat',ierr)
-c
-c     Now get the name of my scratch directory
-c
-      call util_directory_name(mine, .true., me)
-c
-      nuse = ga_cluster_nprocs(-1)
-c
-      if (nuse .eq. 0) then
-c     
-c     Count other processes using this directory
-c     
-         do you = 0, nproc-1
-            call util_directory_name(yours, .true., you)
-            if (yours .eq. mine) nuse = nuse + 1
-         enddo
-      endif
+      avail=avail0*1024
+
 c     
       util_scratch_dir_avail_for_me = avail / nuse
 c
