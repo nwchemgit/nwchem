@@ -1,4 +1,4 @@
-C $Id: rel_SSSSd.F,v 1.1 2000-02-03 19:38:33 mg201 Exp $
+C $Id: rel_SSSSd.F,v 1.2 2000-05-27 20:41:02 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_SSSSd}
 c:tex-This routine generates the SSSS-type two-electron derivative integrals
@@ -162,8 +162,8 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       n_intmp = n_cartp_a*n_cartm_b*n_cont_ab*n_cd
       n_intmm = n_cartm_a*n_cartm_b*n_cont_ab*n_cd
       i_xca = 1
-      i_xcb = i_xca+NPC*NCC
-      i_pp = i_xcb+NPD*NCD
+      i_xcb = i_xca+NPA*NCA
+      i_pp = i_xcb+NPB*NCB
       i_pm = i_pp+n_intpp*12
       i_mp = i_pm+n_intpm*12
       i_mm = i_mp+n_intmp*12
