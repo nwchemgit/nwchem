@@ -14,7 +14,7 @@ c Non-destructive interface (see below).
 c ------------------------------------------------------------------------
       SUBROUTINE nwfft3d(nd1,nd2,nd3,isign,
      .                   x1,x2,map1,map2,doMap,
-     .                   rwrklen,rwrk,iwrklen,iwrk,jstatus)
+     .                   iwrklen,iwrk,rwrklen,rwrk,jstatus)
       implicit none
       INTEGER nd1,nd2,nd3, isign, jstatus
       INTEGER map1(*), map2(*)
@@ -101,7 +101,7 @@ c     ** fft x1(nd1,nd2,*)
          jstatus = initESSL(icontext)
          if (jstatus.LT.0) then
            call blacs_abort(icontext,1)
-           call errquit('nwfft3d: ESSL initialization failed',me)
+           call errquit('nwfft3d: ESSL initialization failed',0)
          endif
       endif
 #endif
@@ -129,10 +129,10 @@ c free previous space if present
         endif
         nwords = MA_inquire_heap(MT_DBL)
         if (nwords.LT.nrealscr) then
-          call errquit('nwfft3d: insufficient heap for dscratch',me)
+          call errquit('nwfft3d: insufficient heap for dscratch',0)
         else 
            if(.NOT.MA_alloc_get(MT_DBL,nrealscr,'fftdbl',dblh,idbl))then
-            call errquit('nwfft3d: insufficient heap for dscratch',me)
+            call errquit('nwfft3d: insufficient heap for dscratch',0)
            endif
         endif
         ma_nrealscr = nrealscr
@@ -144,11 +144,11 @@ c it will not change during the course of a run. (see pfft1.0/pfft/chk3d.F)
         ma_nintscr = 2*nproc+1
         nwords = MA_inquire_heap(MT_INT)
         if (nwords.LT.ma_nintscr) then
-           call errquit('nwfft3d: insufficient heap for iscratch',me)
+           call errquit('nwfft3d: insufficient heap for iscratch',0)
         else 
           if (.NOT.MA_alloc_get(MT_INT,ma_nintscr,
      .                         'fftint',inth,iint)) then
-           call errquit('nwfft3d: insufficient heap for iscratch',me)
+           call errquit('nwfft3d: insufficient heap for iscratch',0)
           endif
         endif
         initSCRATCH = 1
@@ -159,7 +159,7 @@ c it will not change during the course of a run. (see pfft1.0/pfft/chk3d.F)
 c determine map if necessary (required once) for EMSL routine
 #ifdef EMSLFFT
       if (blksz.LE.0) then
-        call errquit('nwfft3d:: internal error: bad blocksize',blksz)
+       call errquit('nwfft3d:: internal error: bad blocksize',0)
       endif
       if (doMap.EQ.1 .OR. computedMap.EQ.0) then
         owner = 0
@@ -201,7 +201,7 @@ c    .            isize,work,isize,iwork,jstatus)
 c status check
       if (jstatus.NE.0) then
 #ifdef EMSLFFT
-        call errquit('nwfft3d: pfft3d() error return',me)
+        call errquit('nwfft3d: pfft3d() error return',0)
 #endif 
 #ifdef FFTDEBUG
         print*,me,'WARNING: forward fft status = ',jstatus,nd1,nd2,nd3
