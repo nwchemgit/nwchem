@@ -85,6 +85,7 @@
 #include "globalp.c.h"
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define ffabs(a) ((a) > (0.) ? (a) : (-a))
 
 #define R_ZERO (DoublePrecision) 0.0e0
@@ -217,8 +218,6 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
   num_all_cls = I_ZERO;
   *nacluster = I_ZERO;
   max_clustr_size = I_ZERO;
-  sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
-  sepfine = onenrm*DLAMCHE;
   
   /*
       Compute reorthogonalization criterion.  
@@ -243,7 +242,9 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
   }
       
   ortol = onenrm * (DoublePrecision ) 1.e-3 ;
-      
+  sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
+  sepfine = sepfine*MAX(ortol, 1.);
+  
   c_ptr = iscratch;
   nn_proc = reduce_list2( num_eig, mapZ, c_ptr);
   
@@ -485,6 +486,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
             num_all_cls++;
             *nacluster = num_all_cls;
 
+
 #ifdef DEBUG1
 	    fprintf(stderr, " out of 4 me = %d \n", me );
 #endif
@@ -508,9 +510,9 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	    *(c_ptr++) = bn;
 	    num_cls++;
 	    max_clustr_size = MAX( (end_of_block -clustrptr + 1), max_clustr_size);
-
 #ifdef DEBUG1
-	    fprintf(stderr, " out of 5 me = %d \n", me );
+	    fprintf(stderr, " out of 5 me = %d cbeg %d cend %d b1 %d bn %d \n",me,
+		    clustrptr, end_of_block, b1, bn );
 #endif
 	  }
 
@@ -562,10 +564,13 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
   c_ptr = clustr_info;
   *num_clustr = num_cls;
 
-  /*
-    for ( ii = 0; ii < 4* *num_clustr; ii++ )
+  
+/*
+  for ( ii = 0; ii < 4* *num_clustr; ii++ )
     printf("me = %d clustr_info[%d] =  %d \n", me, ii, *(c_ptr++));
-    
+*/
+  
+  /*
     for ( ii = 0; ii < num_eig ; ii++ )
     printf("me = %d mapZ[%d] =  %d \n", me, ii, mapZ[ii]);
     
