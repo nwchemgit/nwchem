@@ -1,6 +1,6 @@
       subroutine esp_rtdbin
 c
-c $Id: esp_rtdbin.F,v 1.15 2003-10-19 06:07:32 d3j191 Exp $
+c $Id: esp_rtdbin.F,v 1.16 2003-10-19 06:14:28 d3j191 Exp $
 c
       implicit none
 c
@@ -43,8 +43,7 @@ c
      + call md_abort('esp: bas_numbf failed',me)
 c     
       if(bas_is_spherical(ibasis)) 
-     + call md_abort('esp does not work with spherical basis ',me,
-     &       BASIS_ERR)
+     + call md_abort('esp does not work with spherical basis ',me)
 c
 c     get cutoff radius and gridspacing
 c
