@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.19 2002-11-21 01:11:57 sohirata Exp $
+c $Id: tce_init.F,v 1.20 2002-12-16 21:13:38 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -458,7 +458,7 @@ c
           call errquit('tce_init: unknown I/O scheme',ioalg)
         endif
       endif
-      call util_flush(LuOut)
+      if (nodezero) call util_flush(LuOut)
  9200 format(3x,'        Number of nodes :',2x,i4)
  9000 format(3x,'       Calculation type : ',a)
  9010 format(3x,'      Wavefunction type : ',a)

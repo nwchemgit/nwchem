@@ -1,6 +1,6 @@
       subroutine put_block(d_file,array,size,offset)
 c
-c $Id: put_block.F,v 1.9 2002-11-14 02:05:52 sohirata Exp $
+c $Id: put_block.F,v 1.10 2002-12-16 21:13:38 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -45,7 +45,6 @@ c
           write(d_file,rec=offset+i) array(i)
         enddo
         if (parallel) then
-          call flush(d_file)
           close(d_file)
           call ga_unlock(0)
         endif
