@@ -42,6 +42,10 @@
       Logical LResult, DeBug
       Integer Inp_StrLen
       External Inp_StrLen
+c     
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+c
 *
 ************************************************************************
 *     
@@ -295,13 +299,19 @@
       End If
 *
 *---- Create global array for MOs and the density matrix
-      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Vec1',g_Vec(1),'atom')
-      If (nSet.eq.2)
-     &   Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Vec1',g_Vec(2),'atom')
+c      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Vec1',g_Vec(1),'atom')
+      g_Vec(1) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Vec1')
+      If (nSet.eq.2)then
+c     &   Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Vec1',g_Vec(2),'atom')
+         g_Vec(2) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Vec2')
+      endif
       If (What.ne.'VIEW') Then
-         Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dns1',g_Dns(1),'atom')
-         If (nSet.eq.2)
-     &      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dns2',g_Dns(2),'atom')
+c         Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dns1',g_Dns(1),'atom')
+         g_Dns(1) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Dns1')
+         If (nSet.eq.2)then
+c     &      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dns2',g_Dns(2),'atom')
+             g_Dns(2) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Dns2')
+         endif
       End If
 *
       If (What.ne.'VIEW') Then
@@ -336,23 +346,42 @@
          If (nBF2.ne.nBF . or . nSet2.ne.nSet)
      &      Call ErrQuit('DPlot: Orbital files do not match',0)
 *------- Create global array for density matrix
-         Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dn1',g_Dns2(1),'atom')
-         If (nSet.eq.2)
-     &      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dn2',g_Dns2(2),'atom')
+c         Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dn1',g_Dns2(1),'atom')
+         g_Dns2(1) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Dn1')
+         If (nSet.eq.2)then
+c     &      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dn2',g_Dns2(2),'atom')
+            g_Dns2(2) = ga_create_atom_blocked(Geom, AO_Bas_Han, 'Dn2')
+         endif
 *------- Get the density matrix for the second orbital file
          Call Get_Dens(Geom,AO_Bas_Han,nSet,nBF,g_Vec,g_Dns2,
      &                 Spin,File_Vec2,nOrb,k_Orb,iProc)
 *------- Form the final density
          Call GA_dAdd(1.d0,g_Dns(1),-1.d0,g_Dns2(1),g_Dns(1))
 *------- Deallocate memory
-         If (nSet.eq.2) Call GADest(g_Dns2(2))
-         Call GADest(g_Dns2(1))
+c         If (nSet.eq.2) Call GADest(g_Dns2(2))
+         If (nSet.eq.2)then
+            if (.not. ga_destroy(g_Dns(2))) call errquit
+     &         ('dplot: could not destroy g_Dns(2)', 0)
+         endif
+c         Call GADest(g_Dns2(1))
+         if (.not. ga_destroy(g_Dns(1))) call errquit
+     &      ('dplot: could not destroy g_Dns(1)', 0)
       End If
 *
 *---- Get the values of the density at the grid points
       LResult = MA_Push_Get(MT_Dbl,nPoint,'Vls',l_Vls,k_Vls)
       Call ErrMem(LResult,'DPlot: Failed to allocate values',0)
-      Call GACrea(Geom,AO_Bas_Han,nPoint,1,'Vls',g_Vls,'column')
+c      Call GACrea(Geom,AO_Bas_Han,nPoint,1,'Vls',g_Vls,'column')
+c
+c      this call seems stupid but this is the proper translation 
+c      of gacrea.F to ga_create (JAN).
+c
+      if (.not. ga_create(mt_dbl, nPoint, 1, 'Vls', 
+     &                    1, 1, g_Vls)) 
+c
+c     
+c
+     &   call errquit('dplot: error creating g_Vls',0)
       If (What.ne.'CHARGES') Then
          Call Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nPoint,
      &                       nSet,nSetTri,g_Dns(1),g_Vec(1),
@@ -447,13 +476,27 @@
       End If
 *
 *---- Destroy global arrays
-      Call GADest(g_Vls)
+c      Call GADest(g_Vls)
+      if (.not. ga_destroy(g_Vls)) call errquit
+     &   ('dplot: could not destroy g_Vls', 0)
       If (What.eq.'DENSITY') Then
-         If (nSet.eq.2) Call GADest(g_Dns(2))
-         Call GADest(g_Dns(1))
+c         If (nSet.eq.2) Call GADest(g_Dns(2))
+         If (nSet.eq.2)then
+            if (.not. ga_destroy(g_Dns(2))) call errquit
+     &         ('dplot: could not destroy g_Dns(2)', 0)
+         endif
+c         Call GADest(g_Dns(1))
+         if (.not. ga_destroy(g_Dns(1))) call errquit
+     &      ('dplot: could not destroy g_Dns(1)', 0)
       End If
-      If (nSet.eq.2) Call GADest(g_Vec(2))
-      Call GADest(g_Vec(1))
+c      If (nSet.eq.2) Call GADest(g_Vec(2))
+      If (nSet.eq.2)then
+         if (.not. ga_destroy(g_Vec(2))) call errquit
+     &      ('dplot: could not destroy g_Vec(2)', 0)
+      endif
+c      Call GADest(g_Vec(1))
+      if (.not. ga_destroy(g_Vec(1))) call errquit
+     &   ('dplot: could not destroy g_Vec(1)', 0)
 *
 *---- Close the output file
       If (iProc.eq.0 . and . Where.ne.'NUCLEI' . and .

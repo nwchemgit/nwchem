@@ -16,6 +16,10 @@
 *---- Local variables
       Integer iProc,iLo,iHi,jLo,jHi,lthi,lthj
       Integer g_Scr,k_Scr,l_Scr,iCol
+c     
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+c
       Double Precision Scale
       Logical LResult,DeBug
 *
@@ -25,7 +29,8 @@
       iProc = ga_nodeid()
 *
 *---- Allocate the global array
-      Call GACrea(Geom,Basis,nBF,nBF,'Scr',g_Scr,'atom')
+c      Call GACrea(Geom,Basis,nBF,nBF,'Scr',g_Scr,'atom')
+      g_Scr = ga_create_atom_blocked(Geom, Basis, 'Scr')
       Call GA_Copy(g_Vec,g_Scr)
       Call GA_Sync
 *
@@ -61,7 +66,9 @@
       Call GA_Sync
       Call GA_Dgemm('N','T',nBF,nBF,nBF,1.d0,g_Vec,g_Scr,0.d0,g_Dns)
 *
-      Call GADest(g_Scr)
+c      Call GADest(g_Scr)
+      if (.not. ga_destroy(g_Scr)) call errquit
+     &   ('dmat: could not destroy g_Scr', 0)
 *
 *---- Normal termination
       Return
