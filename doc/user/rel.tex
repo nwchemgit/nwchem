@@ -122,19 +122,30 @@ The use of these approximations can be invoked with the use of the
 The syntax is as follows.
 
 \begin{verbatim}
-  DYALL-MOD-DIRAC [<string (ON||OFF) default ON> ] 
-                  [<string (NESC1E||NESC2E [<string SS1CENT>]) \
-                    default NESC1E>]
+  DYALL-MOD-DIRAC [ (ON || OFF) default ON ] 
+                  [ (NESC1E || NESC2E) default NESC1E ]
 
 \end{verbatim}
 
-The one-electron approximation is the default, and is available with
-gradients. The two-electron approximation specified by \verb+NESC2E+ has as
-a sub-option the capability to limit the two-electron corrections to those
-in which the small components in any density must be on the same center.
-This reduces the $(LL|SS)$ contributions to at most three-center integrals
-and the $(SS|SS)$ contributions to two centers. For a case with only one
-relativistic atom this option is redundant. 
+Both one- and two-electron approximations are available, and both have
+analytic gradients. The one-electron approximation is the default.
+The two-electron approximation specified by \verb+NESC2E+ has some sub
+options, with the following syntax:
+
+\begin{verbatim}
+  NESC2E [ (SS1CENT [ (ON || OFF) default ON ] || SSALL) default SSALL ]
+	 [ (SSSS [ (ON || OFF) default ON ] || NOSSSS) default SSSS ]
+
+\end{verbatim}
+
+The first sub-option gives the capability to limit the two-electron
+corrections to those in which the small components in any density must be on
+the same center.  This reduces the $(LL|SS)$ contributions to at most
+three-center integrals and the $(SS|SS)$ contributions to two centers. For a
+case with only one relativistic atom this option is redundant. The second
+controls the inclusion of the $(SS|SS)$ integrals which are of order
+$\alpha^4$. For light atoms they may safely be neglected, but for heavy
+atoms they should be included. 
 
 In addition to the selection of this keyword in the \verb+RELATIVISTIC+
 directive block, it is necessary to supply basis sets in addition to the
