@@ -241,24 +241,28 @@ to the default threshold.
 \subsection{RI}
 
 \begin{verbatim}
-   RI <hessian | preconverge> <disk | memory>
+   RI <hessian | preconverge | full> <disk | memory | auto>
 \end{verbatim}
 
 This directive requests the RI approximation being used for the Fock matrix.
 The RI-SCF method is especially suggested for small molecules with
 expensive basis sets.
 
-Without an additional keyword it is used for all Fock builds, which is
+If called with the \verb+full+ keyword (default)  it is used for all
+Fock builds, which is 
 fastest but results in an approximate energy.. The \verb+Hessian+ keyword
-causes only means only the hessian is calculated with an approximated Fock matrix, and
+means only the hessian is calculated with an approximated Fock matrix, and
 \verb+preconverge+ requests an ''exact'' direct SCF (with RI hessian, which
 does not change the result) after convergence of the
 RI approximated calculation.
 
 \verb+Disk+ indicates storage of 3-center integrals on disk. This only
-works where the ''disk array'' library is implemented. Default is
-\verb+memory+, requesting in-core storage of the integrals. This
+works where the ''Disk Resident Array'' library is implemented. \verb+Memory+,
+requests in-core storage of the integrals. This
 significantly reduces the maximum problem size that can be handled.
+Default is \verb+auto+, which lets the program determine if there is
+enough memory for the in-core version, otherwise the disk based
+algorithm is used (if available).
 
 An expansion basis named ''riscf basis'' has to be present in the input deck.
 
