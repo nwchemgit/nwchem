@@ -33,9 +33,14 @@ information is generally available in the User Manual.
 
 Top level directives:
 
-  o The continue directive is no longer supported.
+  o The TITLE directive has different syntax.  This change is incompatible
+    between with previous versions of the directive so the user will need to change
+    the TITLE directive in any current input files.
+  o The CONTINUE directive is no longer supported.
   o Addition of RELATIVISTIC directive to control evaluation of relativistic integrals.
   o BUG FIX: Task shell is now working under Linux.
+  o BUG FIX: The words start and restart in the TITLE directive no longer cause
+    problems.
 
 Initial orbital Guess: 
 
