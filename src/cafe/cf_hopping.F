@@ -1,7 +1,7 @@
       logical function cf_hopping(stime,issgm,isgan,ishop,
      + xs,nsaloc,lfnhop)
 c
-c $Id: cf_hopping.F,v 1.7 2003-08-18 17:35:31 d3j191 Exp $
+c $Id: cf_hopping.F,v 1.8 2003-08-25 23:01:24 d3j191 Exp $
 c
       implicit none
 c
@@ -67,7 +67,7 @@ c
       integer lfnhop
       real*8 rda(5,*)
 c
-      integer i,j,ioff
+      integer i,j,k,m,ioff
 c
       do 1 i=1,np
       nhopl(i)=0
@@ -120,6 +120,21 @@ c
       call ga_igop(mcf_77,lda,10*nldat,'+')
       call ga_dgop(mcf_78,rda,5*nldat,'+')
 c
+      nlda=0
+      do 12 i=1,nldat
+      do 13 j=1,nlda
+      if(lda(1,i).eq.lda(1,j).and.lda(6,i).eq.lda(6,j)) goto 12
+   13 continue
+      nlda=nlda+1
+      do 14 j=1,10
+      lda(j,nlda)=lda(j,i)
+   14 continue
+      do 15 j=1,5
+      rda(j,nlda)=rda(j,i)
+   15 continue
+   12 continue
+      nldat=nlda
+c
 ctest
 c      if(me.eq.0) then
 c      print*,'Number of donor-acceptor pairs is ',nldat
@@ -162,7 +177,7 @@ c
      + '     pre-hop energies        post-hop energies  ',/,
      + ' numb atom  res prot atom  res prot',
      + '    donor      acceptor     donor      acceptor ',
-     + '     angle?  probability',/)
+     + '     angle   probability',/)
       endif
       do 1 i=1,nldat
       call qhop_prob(lda(1,i),lda(3,i),lseq(lda(3,i)),
