@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.34 1995-11-19 19:42:32 d3g681 Exp $
+#$Id: GNUmakefile,v 1.35 1995-11-26 00:49:07 og845 Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
 ifneq ($(NWCHEM_TARGET),SGITFP)
 ifeq ($(NWCHEM_TARGET),CRAY-T3D)
@@ -74,14 +74,14 @@ include ../../config/makelib.h
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 $(LIBRARY_PATH)(bas_ncontr_cn_max.o):	 $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(dft_eval_basis.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/dimensions.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(dft_eval_funs.o):	 $(INCDIR)/dimensions.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(dft_eval_grad.o):	 $(INCDIR)/dimensions.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(dft_eval_hess.o):	 $(INCDIR)/dimensions.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(dft_eval_basis.o):	 $(INCDIR)/mafdecls.fh ../include/dimensions.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(dft_eval_funs.o):	 ../include/dimensions.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(dft_eval_grad.o):	 ../include/dimensions.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(dft_eval_hess.o):	 ../include/dimensions.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(dft_header.o):	 $(INCDIR)/stdio.fh 
 $(LIBRARY_PATH)(dft_invio.o):	 $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh 
 $(LIBRARY_PATH)(dft_mpole.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(dft_second.o):	 $(INCDIR)/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(dft_second.o):	 ../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(dft_tstamp.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ga_chol.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ga_chol_seq.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
@@ -90,5 +90,5 @@ $(LIBRARY_PATH)(ga_inverse.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCD
 $(LIBRARY_PATH)(gacrea.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(int_eval_gbsets.o):	 $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(nbf_to_mbf.o):	 $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(new_eval_gbsets.o):	 $(INCDIR)/dimensions.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(new_eval_gbsets.o):	 ../include/dimensions.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(sca_lab_mat.o):	 $(INCDIR)/bas.fh 
