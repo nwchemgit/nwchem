@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.13 1994-07-28 15:26:20 d3e129 Exp $
+# $Id: GNUmakefile,v 1.14 1994-08-15 03:19:43 gg502 Exp $
 
 LIBRARY = libnwints.a
 
@@ -15,13 +15,16 @@ API_OBJ = ./api/int_init.o ./api/exact_mem.o ./api/int_mem.o \
           ./api/int_l2e2c.o ./api/int_1e3ov.o ./api/int_l1e3ov.o \
           ./api/int_hf1sp.o ./api/int_nint.o \
           ./api/intd_1eov.o ./api/intd_1eh1.o ./api/intd_2e4c.o \
-          ./api/intd_init.o ./api/exactd_mem.o
+          ./api/intd_init.o ./api/exactd_mem.o ./api/int_acc.o
 
 INT_OBJ = ./int/defNxyz.o ./int/getNxyz.o ./int/hf1.o ./int/hf1mke3.o \
           ./int/hf1mkr.o ./int/hf1set3.o ./int/hf2.o ./int/hf2mkr.o \
           ./int/hf2oi.o ./int/hf3OIs.o ./int/hfabc.o ./int/hfctr3.o \
           ./int/hferi.o ./int/hfkei.o ./int/hfmke.o ./int/hfmkr.o \
-          ./int/hfnai.o ./int/hfset.o ./int/igamma.o ./int/hf_print.o 
+          ./int/hfnai.o ./int/hfset.o ./int/igamma.o ./int/hf_print.o \
+          ./int/hfmkr_1.o ./int/hfmkr_2.o ./int/hfmkr_3.o \
+          ./int/hfmkr_4.o ./int/hfmkr_5.o ./int/hfmkr_6.o \
+          ./int/hfmkr_7.o ./int/hfmkr_8.o ./int/hfmkr_9.o
 
 INTSP_OBJ = ./ints_sp/genr70.o ./ints_sp/init70.o ./ints_sp/qout70.o \
             ./ints_sp/sinfo.o ./ints_sp/sp0000.o ./ints_sp/sp0001.o \
