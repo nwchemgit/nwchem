@@ -598,138 +598,138 @@ c--------------------------------------------------------------------
           RETURN
 c--------------------------------------------------------------------
 c
-       do 1234 iii=1,10
-       do 1234 i=1,3
-       do 1234 jjj=1,10
-       do 1234 j=1,3
-       atom_pairs(iii,i ,jjj,j)=0.d0
- 1234  continue
-c
-c atoms iat,iat
-       atom_pairs(iat,1,iat,1)=atom_pairs(iat,1,iat,1)+axax
-       atom_pairs(iat,1,iat,2)=atom_pairs(iat,1,iat,2)+axay
-       atom_pairs(iat,1,iat,3)=atom_pairs(iat,1,iat,3)+axaz
-c
-       atom_pairs(iat,2,iat,1)=atom_pairs(iat,2,iat,1)+axay
-       atom_pairs(iat,2,iat,2)=atom_pairs(iat,2,iat,2)+ayay
-       atom_pairs(iat,2,iat,3)=atom_pairs(iat,2,iat,3)+ayaz
-c
-       atom_pairs(iat,3,iat,1)=atom_pairs(iat,3,iat,1)+axaz
-       atom_pairs(iat,3,iat,2)=atom_pairs(iat,3,iat,2)+ayaz
-       atom_pairs(iat,3,iat,3)=atom_pairs(iat,3,iat,3)+azaz
-c atoms jat,jat
-       atom_pairs(jat,1,jat,1)=atom_pairs(jat,1,jat,1)+bxbx
-       atom_pairs(jat,1,jat,2)=atom_pairs(jat,1,jat,2)+bxby
-       atom_pairs(jat,1,jat,3)=atom_pairs(jat,1,jat,3)+bxbz
-c
-       atom_pairs(jat,2,jat,1)=atom_pairs(jat,2,jat,1)+bxby
-       atom_pairs(jat,2,jat,2)=atom_pairs(jat,2,jat,2)+byby
-       atom_pairs(jat,2,jat,3)=atom_pairs(jat,2,jat,3)+bybz
-c
-       atom_pairs(jat,3,jat,1)=atom_pairs(jat,3,jat,1)+bxbz
-       atom_pairs(jat,3,jat,2)=atom_pairs(jat,3,jat,2)+bybz
-       atom_pairs(jat,3,jat,3)=atom_pairs(jat,3,jat,3)+bzbz
-c atoms kat,kat
-       atom_pairs(kat,1,kat,1)=atom_pairs(kat,1,kat,1)+cxcx
-       atom_pairs(kat,1,kat,2)=atom_pairs(kat,1,kat,2)+cxcy
-       atom_pairs(kat,1,kat,3)=atom_pairs(kat,1,kat,3)+cxcz
-c
-       atom_pairs(kat,2,kat,1)=atom_pairs(kat,2,kat,1)+cxcy
-       atom_pairs(kat,2,kat,2)=atom_pairs(kat,2,kat,2)+cycy
-       atom_pairs(kat,2,kat,3)=atom_pairs(kat,2,kat,3)+cycz
-c
-       atom_pairs(kat,3,kat,1)=atom_pairs(kat,3,kat,1)+cxcz
-       atom_pairs(kat,3,kat,2)=atom_pairs(kat,3,kat,2)+cycz
-       atom_pairs(kat,3,kat,3)=atom_pairs(kat,3,kat,3)+czcz
-c atoms lat,lat
-       atom_pairs(lat,1,lat,1)=atom_pairs(lat,1,lat,1)+dxdx
-       atom_pairs(lat,1,lat,2)=atom_pairs(lat,1,lat,2)+dxdy
-       atom_pairs(lat,1,lat,3)=atom_pairs(lat,1,lat,3)+dxdz
-c
-       atom_pairs(lat,2,lat,1)=atom_pairs(lat,2,lat,1)+dxdy
-       atom_pairs(lat,2,lat,2)=atom_pairs(lat,2,lat,2)+dydy
-       atom_pairs(lat,2,lat,3)=atom_pairs(lat,2,lat,3)+dydz
-c
-       atom_pairs(lat,3,lat,1)=atom_pairs(lat,3,lat,1)+dxdz
-       atom_pairs(lat,3,lat,2)=atom_pairs(lat,3,lat,2)+dydz
-       atom_pairs(lat,3,lat,3)=atom_pairs(lat,3,lat,3)+dzdz
-c
-c atoms iat,jat:
-       atom_pairs(iat,1,jat,1)=atom_pairs(iat,1,jat,1)+axbx
-       atom_pairs(iat,1,jat,2)=atom_pairs(iat,1,jat,2)+axby
-       atom_pairs(iat,1,jat,3)=atom_pairs(iat,1,jat,3)+axbz
-c
-       atom_pairs(iat,2,jat,1)=atom_pairs(iat,2,jat,1)+aybx
-       atom_pairs(iat,2,jat,2)=atom_pairs(iat,2,jat,2)+ayby
-       atom_pairs(iat,2,jat,3)=atom_pairs(iat,2,jat,3)+aybz
-c
-       atom_pairs(iat,3,jat,1)=atom_pairs(iat,3,jat,1)+azbx
-       atom_pairs(iat,3,jat,2)=atom_pairs(iat,3,jat,2)+azby
-       atom_pairs(iat,3,jat,3)=atom_pairs(iat,3,jat,3)+azbz
-                   iatom=iat
-cccc               write(6,*)' atoms: iat,iat=',iat,iat
-                   do icart=1,3
-                   do jcart=1,3
-                      deriv=atom_pairs(iatom,icart,iatom,jcart)
-                      if(abs(deriv).gt.1d-9) then
-                              write(6,111) 
-     $                             iatom,icart, iatom,jcart,
-     $                             iix(1),iix(2),iix(3),iix(4),
-     $                             deriv
-                      endif
-                   enddo
-                   enddo
-c------------------
-c               if(jat.ne.iat) then
-c                  iatom=jat
-c                  write(6,*)' atoms: jat,jat=',jat,jat
-c                  do icart=1,3
-c                  do jcart=1,3
-c                     deriv=atom_pairs(iatom,icart,iatom,jcart)
-c                     if(abs(deriv).gt.1d-9) then
-c                             write(6,111) 
-c    $                             iatom,icart, iatom,jcart,
-c    $                             iix(1),iix(2),iix(3),iix(4),
-c    $                             deriv
-c                     endif
-c                  enddo
-c                  enddo
-c               endif
-c------------------
-c               if(kat.ne.iat .and. kat.ne.jat) then
-c                  iatom=kat
-c                  write(6,*)' atoms: kat,kat=',kat,kat
-c                  do icart=1,3
-c                  do jcart=1,3
-c                     deriv=atom_pairs(iatom,icart,iatom,jcart)
-c                     if(abs(deriv).gt.1d-9) then
-c                             write(6,111) 
-c    $                             iatom,icart, iatom,jcart,
-c    $                             iix(1),iix(2),iix(3),iix(4),
-c    $                             deriv
-c                     endif
-c                  enddo
-c                  enddo
-c               endif
-c------------------
-c               if(lat.ne.iat .and. lat.ne.jat .and. lat.ne.iat) then
-c                  iatom=lat
-c                  write(6,*)' atoms: lat,lat=',lat,lat
-c                  do icart=1,3
-c                  do jcart=1,3
-c                     deriv=atom_pairs(iatom,icart,iatom,jcart)
-c                     if(abs(deriv).gt.1d-9) then
-c                             write(6,111) 
-c    $                             iatom,icart, iatom,jcart,
-c    $                             iix(1),iix(2),iix(3),iix(4),
-c    $                             deriv
-c                     endif
-c                  enddo
-c                  enddo
-c               endif
-c------------------
- 111  format('atom=',i2,', xyz=',i2,' atom=',i2,' xyz=',i2,
-     $        ' ijkl=',4i3,', d2(ij|kl)/dpdq=',f12.7   )
+c$$$       do 1234 iii=1,10
+c$$$       do 1234 i=1,3
+c$$$       do 1234 jjj=1,10
+c$$$       do 1234 j=1,3
+c$$$       atom_pairs(iii,i ,jjj,j)=0.d0
+c$$$ 1234  continue
+c$$$c
+c$$$c atoms iat,iat
+c$$$       atom_pairs(iat,1,iat,1)=atom_pairs(iat,1,iat,1)+axax
+c$$$       atom_pairs(iat,1,iat,2)=atom_pairs(iat,1,iat,2)+axay
+c$$$       atom_pairs(iat,1,iat,3)=atom_pairs(iat,1,iat,3)+axaz
+c$$$c
+c$$$       atom_pairs(iat,2,iat,1)=atom_pairs(iat,2,iat,1)+axay
+c$$$       atom_pairs(iat,2,iat,2)=atom_pairs(iat,2,iat,2)+ayay
+c$$$       atom_pairs(iat,2,iat,3)=atom_pairs(iat,2,iat,3)+ayaz
+c$$$c
+c$$$       atom_pairs(iat,3,iat,1)=atom_pairs(iat,3,iat,1)+axaz
+c$$$       atom_pairs(iat,3,iat,2)=atom_pairs(iat,3,iat,2)+ayaz
+c$$$       atom_pairs(iat,3,iat,3)=atom_pairs(iat,3,iat,3)+azaz
+c$$$c atoms jat,jat
+c$$$       atom_pairs(jat,1,jat,1)=atom_pairs(jat,1,jat,1)+bxbx
+c$$$       atom_pairs(jat,1,jat,2)=atom_pairs(jat,1,jat,2)+bxby
+c$$$       atom_pairs(jat,1,jat,3)=atom_pairs(jat,1,jat,3)+bxbz
+c$$$c
+c$$$       atom_pairs(jat,2,jat,1)=atom_pairs(jat,2,jat,1)+bxby
+c$$$       atom_pairs(jat,2,jat,2)=atom_pairs(jat,2,jat,2)+byby
+c$$$       atom_pairs(jat,2,jat,3)=atom_pairs(jat,2,jat,3)+bybz
+c$$$c
+c$$$       atom_pairs(jat,3,jat,1)=atom_pairs(jat,3,jat,1)+bxbz
+c$$$       atom_pairs(jat,3,jat,2)=atom_pairs(jat,3,jat,2)+bybz
+c$$$       atom_pairs(jat,3,jat,3)=atom_pairs(jat,3,jat,3)+bzbz
+c$$$c atoms kat,kat
+c$$$       atom_pairs(kat,1,kat,1)=atom_pairs(kat,1,kat,1)+cxcx
+c$$$       atom_pairs(kat,1,kat,2)=atom_pairs(kat,1,kat,2)+cxcy
+c$$$       atom_pairs(kat,1,kat,3)=atom_pairs(kat,1,kat,3)+cxcz
+c$$$c
+c$$$       atom_pairs(kat,2,kat,1)=atom_pairs(kat,2,kat,1)+cxcy
+c$$$       atom_pairs(kat,2,kat,2)=atom_pairs(kat,2,kat,2)+cycy
+c$$$       atom_pairs(kat,2,kat,3)=atom_pairs(kat,2,kat,3)+cycz
+c$$$c
+c$$$       atom_pairs(kat,3,kat,1)=atom_pairs(kat,3,kat,1)+cxcz
+c$$$       atom_pairs(kat,3,kat,2)=atom_pairs(kat,3,kat,2)+cycz
+c$$$       atom_pairs(kat,3,kat,3)=atom_pairs(kat,3,kat,3)+czcz
+c$$$c atoms lat,lat
+c$$$       atom_pairs(lat,1,lat,1)=atom_pairs(lat,1,lat,1)+dxdx
+c$$$       atom_pairs(lat,1,lat,2)=atom_pairs(lat,1,lat,2)+dxdy
+c$$$       atom_pairs(lat,1,lat,3)=atom_pairs(lat,1,lat,3)+dxdz
+c$$$c
+c$$$       atom_pairs(lat,2,lat,1)=atom_pairs(lat,2,lat,1)+dxdy
+c$$$       atom_pairs(lat,2,lat,2)=atom_pairs(lat,2,lat,2)+dydy
+c$$$       atom_pairs(lat,2,lat,3)=atom_pairs(lat,2,lat,3)+dydz
+c$$$c
+c$$$       atom_pairs(lat,3,lat,1)=atom_pairs(lat,3,lat,1)+dxdz
+c$$$       atom_pairs(lat,3,lat,2)=atom_pairs(lat,3,lat,2)+dydz
+c$$$       atom_pairs(lat,3,lat,3)=atom_pairs(lat,3,lat,3)+dzdz
+c$$$c
+c$$$c atoms iat,jat:
+c$$$       atom_pairs(iat,1,jat,1)=atom_pairs(iat,1,jat,1)+axbx
+c$$$       atom_pairs(iat,1,jat,2)=atom_pairs(iat,1,jat,2)+axby
+c$$$       atom_pairs(iat,1,jat,3)=atom_pairs(iat,1,jat,3)+axbz
+c$$$c
+c$$$       atom_pairs(iat,2,jat,1)=atom_pairs(iat,2,jat,1)+aybx
+c$$$       atom_pairs(iat,2,jat,2)=atom_pairs(iat,2,jat,2)+ayby
+c$$$       atom_pairs(iat,2,jat,3)=atom_pairs(iat,2,jat,3)+aybz
+c$$$c
+c$$$       atom_pairs(iat,3,jat,1)=atom_pairs(iat,3,jat,1)+azbx
+c$$$       atom_pairs(iat,3,jat,2)=atom_pairs(iat,3,jat,2)+azby
+c$$$       atom_pairs(iat,3,jat,3)=atom_pairs(iat,3,jat,3)+azbz
+c$$$                   iatom=iat
+c$$$cccc               write(6,*)' atoms: iat,iat=',iat,iat
+c$$$                   do icart=1,3
+c$$$                   do jcart=1,3
+c$$$                      deriv=atom_pairs(iatom,icart,iatom,jcart)
+c$$$                      if(abs(deriv).gt.1d-9) then
+c$$$                              write(6,111) 
+c$$$     $                             iatom,icart, iatom,jcart,
+c$$$     $                             iix(1),iix(2),iix(3),iix(4),
+c$$$     $                             deriv
+c$$$                      endif
+c$$$                   enddo
+c$$$                   enddo
+c$$$c------------------
+c$$$c               if(jat.ne.iat) then
+c$$$c                  iatom=jat
+c$$$c                  write(6,*)' atoms: jat,jat=',jat,jat
+c$$$c                  do icart=1,3
+c$$$c                  do jcart=1,3
+c$$$c                     deriv=atom_pairs(iatom,icart,iatom,jcart)
+c$$$c                     if(abs(deriv).gt.1d-9) then
+c$$$c                             write(6,111) 
+c$$$c    $                             iatom,icart, iatom,jcart,
+c$$$c    $                             iix(1),iix(2),iix(3),iix(4),
+c$$$c    $                             deriv
+c$$$c                     endif
+c$$$c                  enddo
+c$$$c                  enddo
+c$$$c               endif
+c$$$c------------------
+c$$$c               if(kat.ne.iat .and. kat.ne.jat) then
+c$$$c                  iatom=kat
+c$$$c                  write(6,*)' atoms: kat,kat=',kat,kat
+c$$$c                  do icart=1,3
+c$$$c                  do jcart=1,3
+c$$$c                     deriv=atom_pairs(iatom,icart,iatom,jcart)
+c$$$c                     if(abs(deriv).gt.1d-9) then
+c$$$c                             write(6,111) 
+c$$$c    $                             iatom,icart, iatom,jcart,
+c$$$c    $                             iix(1),iix(2),iix(3),iix(4),
+c$$$c    $                             deriv
+c$$$c                     endif
+c$$$c                  enddo
+c$$$c                  enddo
+c$$$c               endif
+c$$$c------------------
+c$$$c               if(lat.ne.iat .and. lat.ne.jat .and. lat.ne.iat) then
+c$$$c                  iatom=lat
+c$$$c                  write(6,*)' atoms: lat,lat=',lat,lat
+c$$$c                  do icart=1,3
+c$$$c                  do jcart=1,3
+c$$$c                     deriv=atom_pairs(iatom,icart,iatom,jcart)
+c$$$c                     if(abs(deriv).gt.1d-9) then
+c$$$c                             write(6,111) 
+c$$$c    $                             iatom,icart, iatom,jcart,
+c$$$c    $                             iix(1),iix(2),iix(3),iix(4),
+c$$$c    $                             deriv
+c$$$c                     endif
+c$$$c                  enddo
+c$$$c                  enddo
+c$$$c               endif
+c$$$c------------------
+c$$$ 111  format('atom=',i2,', xyz=',i2,' atom=',i2,' xyz=',i2,
+c$$$     $        ' ijkl=',4i3,', d2(ij|kl)/dpdq=',f12.7   )
 c
 c-----test print only : end      -----------------------------
 c
@@ -1288,49 +1288,49 @@ c--------------------------------------------------------------------
          RETURN
 c--------------------------------------------------------------------
 c
-                   do icart=1,3
-                      if(abs( at_der(icart,iat)) .gt.1d-9) then
-                              write(6,111) 
-     $                             iat       , icart, 
-     $                             iix(1),iix(2),iix(3),iix(4),
-     $                             at_der(icart,iat)
-                      endif
-                   enddo
-                if(jat.ne.iat) then
-                   do icart=1,3
-                      if(abs( at_der(icart,jat)) .gt.1d-9) then
-                              write(6,111) 
-     $                             jat       , icart, 
-cccc $                             icf,jcf,kcf,lcf,
-     $                             iix(1),iix(2),iix(3),iix(4),
-     $                             at_der(icart,jat)
-                      endif
-                   enddo
-                endif
-                if(kat.ne.iat .and. kat.ne.jat) then
-                   do icart=1,3
-                      if(abs( at_der(icart,kat)) .gt.1d-9) then
-                              write(6,111) 
-     $                             kat       , icart, 
-ccc  $                             icf,jcf,kcf,lcf,
-     $                             iix(1),iix(2),iix(3),iix(4),
-     $                             at_der(icart,kat)
-                      endif
-                   enddo
-                endif
-                if(lat.ne.iat .and. lat.ne.jat .and. lat.ne.kat) then
-                   do icart=1,3
-                      if(abs( at_der(icart,lat)) .gt.1d-9) then
-                              write(6,111) 
-     $                             lat       , icart, 
-ccc  $                             icf,jcf,kcf,lcf,
-     $                             iix(1),iix(2),iix(3),iix(4),
-     $                             at_der(icart,lat)
-                      endif
-                   enddo
-                endif
- 111                          format(' atom=',i2,', xyz=',i2,', ijkl=',
-     $                             4i3,', d(ij|kl)/dq=',f12.7   )
+c$$$                   do icart=1,3
+c$$$                      if(abs( at_der(icart,iat)) .gt.1d-9) then
+c$$$                              write(6,111) 
+c$$$     $                             iat       , icart, 
+c$$$     $                             iix(1),iix(2),iix(3),iix(4),
+c$$$     $                             at_der(icart,iat)
+c$$$                      endif
+c$$$                   enddo
+c$$$                if(jat.ne.iat) then
+c$$$                   do icart=1,3
+c$$$                      if(abs( at_der(icart,jat)) .gt.1d-9) then
+c$$$                              write(6,111) 
+c$$$     $                             jat       , icart, 
+c$$$cccc $                             icf,jcf,kcf,lcf,
+c$$$     $                             iix(1),iix(2),iix(3),iix(4),
+c$$$     $                             at_der(icart,jat)
+c$$$                      endif
+c$$$                   enddo
+c$$$                endif
+c$$$                if(kat.ne.iat .and. kat.ne.jat) then
+c$$$                   do icart=1,3
+c$$$                      if(abs( at_der(icart,kat)) .gt.1d-9) then
+c$$$                              write(6,111) 
+c$$$     $                             kat       , icart, 
+c$$$ccc  $                             icf,jcf,kcf,lcf,
+c$$$     $                             iix(1),iix(2),iix(3),iix(4),
+c$$$     $                             at_der(icart,kat)
+c$$$                      endif
+c$$$                   enddo
+c$$$                endif
+c$$$                if(lat.ne.iat .and. lat.ne.jat .and. lat.ne.kat) then
+c$$$                   do icart=1,3
+c$$$                      if(abs( at_der(icart,lat)) .gt.1d-9) then
+c$$$                              write(6,111) 
+c$$$     $                             lat       , icart, 
+c$$$ccc  $                             icf,jcf,kcf,lcf,
+c$$$     $                             iix(1),iix(2),iix(3),iix(4),
+c$$$     $                             at_der(icart,lat)
+c$$$                      endif
+c$$$                   enddo
+c$$$                endif
+c$$$ 111                          format(' atom=',i2,', xyz=',i2,', ijkl=',
+c$$$     $                             4i3,', d(ij|kl)/dq=',f12.7   )
 c
 c-----test print only : end      -----------------------------
 c

@@ -1460,12 +1460,6 @@ c
 c
 cpnl
       nbloks=ikbl
-      if(nbloks.ne.1) then
-         write(6,*)'number of small blocks in a super-block MUST be 1'
-         write(6,*)'but it is ',nbloks,' in super-block=',isbl     
-         stop      ' execution stopped in blockqur routine'
-      endif
-c
       maxqrt=nqrt(1) 
 c------------------------------------------------------------------
       end

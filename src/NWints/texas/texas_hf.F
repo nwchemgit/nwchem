@@ -173,7 +173,7 @@ c=================================================================
 #include "mafdecls.fh"
       logical use_q4,use_r,labels,more_int
       double precision ra(3), rb(3), rc(3), rd(3)
-      common /index/ maxsh,ifp,inx(1)
+      common /ctxs_index/ maxsh,ifp,inx(1)
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
 c----------------------------------------------------------------
@@ -1433,7 +1433,7 @@ c
    66 format('                   Texas integral program '/
      *       ' has been initialized only for :',a27/
      *       ' and can not be executed for   :',a27)
-         stop 'program stopped in requested_task subroutine'
+      call errquit('texas program stopped in requested_task',0)
       endif
 c
       end

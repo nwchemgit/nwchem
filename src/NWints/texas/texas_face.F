@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.35 1997-06-06 21:12:25 pg481 Exp $
+c $Id: texas_face.F,v 1.36 1997-06-06 22:08:37 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -310,7 +310,7 @@ c
          if(ibasis.eq.4) then
             write(6,*) ' too many basis sets : allowed=3, passed=4'
             write(6,*) ' execution stopped in texas_init'
-            STOP       ' execution stopped in texas_init'
+            call errquit('texas_face: execution stopped in texasinit',0)
          endif
   100 continue
 c----------------------------------------------------------------------
@@ -440,7 +440,7 @@ c the common block /big/ bl(lcx) has been repleaced by pnl scratch
 c-----------------------------------------------------------------
       parameter(mxsh= 50 000)
 c------------------------------------
-      common /index/ maxsh,ifp,inx(mxsh)
+      common /ctxs_index/ maxsh,ifp,inx(mxsh)
       common /inde1/ inxx
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
@@ -502,7 +502,7 @@ c
       logical cart_2_sphe
       logical spcart_init
       external spcart_init
-      common /index/ maxsh,ifp,inx(1)
+      common /ctxs_index/ maxsh,ifp,inx(1)
       common /inde1/ inxx
       dimension datbas(13,*)
 c---------------------------------------------------------------
@@ -668,7 +668,7 @@ c
 #include "basP.fh"
       integer bas,basis
       logical cart_2_sphe
-      common /index/ maxsh,ifp,inx(1)
+      common /ctxs_index/ maxsh,ifp,inx(1)
       common /inde1/ inxx
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
@@ -760,7 +760,7 @@ cccc  common /big/ bl(1) repleaced by pnl dbl_mb(ntxs_bl_scr) .
 c
       common /bl_txs_add/ ntxs_bl_scr 
 c----------------------------------------
-      common /index/ maxsh,ifp,inx(1)
+      common /ctxs_index/ maxsh,ifp,inx(1)
       common /inde1/ inxx
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
@@ -1020,7 +1020,7 @@ c------------------------------------
       common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
      1i,acc
       common /ganz/ lcore,iov,last,nganz(67)
-      common /index/ maxsh,ifp,inx(1)
+      common /ctxs_index/ maxsh,ifp,inx(1)
 c------------------------------------
 c for the case of several calls of texas_init()
 c
@@ -1247,7 +1247,7 @@ c
       iblock=0      ! option name is IBLO  not used
 c                   ! option name is LIMI (3 numbers)
 c...
-      limxmem=1 000 000 ! limit for memory/block
+      limxmem=2 000 000 ! limit for memory/block
       limblks=    5 000 ! limit for quartet-block-size
       limpair=      500 ! limit for pair-block-size
 c
@@ -1509,7 +1509,7 @@ c
       common /bl_txs_add/ ntxs_bl_scr 
       common /pnl002/ ncshell,ncfunct,nblock2,integ_n0
 c--------------------------------------------------------
-      common /index/ maxsh,ifp,inx(1)
+      common /ctxs_index/ maxsh,ifp,inx(1)
       common /inde1/ inxx
 c--------------------------------------------------------
       common /max_cost/ most_expensive
@@ -1554,7 +1554,7 @@ c==================================================================
 c------------------------------------------------------------------
 c This routine adds one uncontracted s-orbital to the basis set:
 c------------------------------------------------------------------
-      common /index/ maxsh,ifp,inx(1)    
+      common /ctxs_index/ maxsh,ifp,inx(1)    
       common /inde1/ inxx
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
@@ -1687,7 +1687,7 @@ c
 c==================================================================
       subroutine print_inx_nuc_bas(nbas,datnuc,datbas)
       implicit real*8 (a-h,o-z)
-      common /index/ maxsh,ifp,inx(1)    
+      common /ctxs_index/ maxsh,ifp,inx(1)    
       common /inde1/ inxx
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
@@ -1803,7 +1803,7 @@ c
       if(iforwhat.eq.0) then
          write(6,*)'From texas_init (requested_task) '
          write(6,*)'int_type is undefined'
-         stop 'texas integral program cannot be initialized'
+         call errquit('texas integral program cannot be initialized',0)
       else
 c        write(6,*)'Texas integral program has been initialized'
 c        write(6,*)'for ',int_type,' integrals i.e. where=',where
