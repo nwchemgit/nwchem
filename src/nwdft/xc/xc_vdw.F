@@ -1,4 +1,4 @@
-c     $Id: xc_vdw.F,v 1.2 2005-03-28 23:45:46 edo Exp $
+c     $Id: xc_vdw.F,v 1.3 2005-04-04 20:29:50 edo Exp $
       subroutine xc_vdw(rtdb,geom,exc,force,what,s6)
       implicit none
       character *(*) what
@@ -64,7 +64,7 @@ c
       if (.not.MA_push_get(MT_Dbl,n*3,'xyz',l_fvdw,i_fvdw))
      &   call errquit('xcvdw: cannot allocate forcev',0, MA_ERR)
          call xc_vdw_der(s6,n,dbl_mb(i_xyz),int_mb(iz),
-     D     dbl_mb(i_fvdw),scalea)
+     D     dbl_mb(i_fvdw))
          if(oprinth.and.ga_nodeid().eq.0) then
              write(luout,*) ' vdW contrib '
              do i=1,n
@@ -162,12 +162,12 @@ c
       implicit none
       integer i,j
       integer z(*)
-#include "xc_vdw.fh"
 c     
       integer zi,zj
       double precision ni,nj
       external xc_neff
       double precision xc_neff,ci,cj
+#include "xc_vdw.fh"
 c
       zi=z(i)
       zj=z(j)
@@ -207,7 +207,6 @@ c     U. Zimmerli, M Parrinello and P. Koumoutsakos, JCP. 120, 2694 (2004)
 c     Q. Wu and W. Yang, JCP. 116, 515 (2002)
 c
       implicit none
-#include "xc_vdw.fh"
       double precision s6
       integer n
       double precision x(3,*)
@@ -216,6 +215,7 @@ c
       integer i,j
       double precision c6ij_sk,rij
       external c6ij_sk
+#include "xc_vdw.fh"
 c
       xc_vdw_e=0d0
       do i=1,n-1
@@ -240,9 +240,9 @@ c
       logical function xc_vdw_init(angs2au)
       implicit none
       double precision angs2au
-#include "xc_vdw.fh"
 c
       integer i
+#include "xc_vdw.fh"
 c
       do i=1,120
          c6(i)=-1
