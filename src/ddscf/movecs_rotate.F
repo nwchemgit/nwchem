@@ -1,6 +1,6 @@
       subroutine movecs_rotate(rtdb, geom, basis, nset, g_vecs,
      .     evals, foccs)
-C$Id: movecs_rotate.F,v 1.10 2002-12-18 02:04:45 edo Exp $
+C$Id: movecs_rotate.F,v 1.11 2002-12-18 23:58:48 d3k958 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -20,18 +20,18 @@ c
       integer iset, nset ! [in] 1 = rhf, 2 = uhf (2 sets_
       integer file_nbf, nbf, i, j, nmo, nsets
       character*80 geomname, basisname, filename, title
-      character*80 rotate(2) !max_geom=100 
+      character*80 rotate(2) 
       character*20 scftype
       character*16 atom_tags
-      double precision cold(3,1000), cact(3,1000) ! max # atoms
-      double precision x1(1000), y1(1000), z1(1000)
-      double precision x2(1000), y2(1000), z2(1000)
+      double precision x1, y1, z1
+      double precision x2, y2, z2
       double precision c(4,4), v(4,4), rot(3,3), q(4), d(4)
       double precision xxyx,xxyy,xxyz
       double precision xyyx,xyyy,xyyz
       double precision xzyx,xzyy,xzyz
       double precision xmid, ymid, zmid, norm
-      double precision zan(1000) ! max # atoms
+      integer lact, lold, lcharge, ltags
+      integer iact, iold, icharge, itags
       integer l_a, k_a, l_b, k_b
       integer oldgeom, nat,iptr
       logical movecs_read_header, movecs_read
@@ -60,16 +60,41 @@ c
      $        ' input vectors geometry    = ',a/)
          call util_flush(luout)
       endif
-
+c
+c     -------------------------------------------------
+c     allocate space for atomic coordinates and charges
+c     -------------------------------------------------
+c
+      if (.not. geom_ncent(geom, nat))
+     &     call errquit('movecs_rotate: geom_ncent failed',73)
+c
+      if (.not. ma_push_get(mt_dbl,nat*3,'coordinates',lact,
+     &   iact))call errquit(
+     &     'movecs_rotate: failed to alloc coordinates',0)
+c
+      if (.not. ma_push_get(mt_dbl,nat*3,'coordinates',lold,
+     &   iold))call errquit(
+     &     'movecs_rotate: failed to alloc coordinates',0)
+c
+      if (.not. ma_push_get(mt_dbl,nat,'charges',lcharge,
+     &   icharge))call errquit(
+     &     'movecs_rotate: failed to alloc charges',0)
+c
+      if (.not. ma_push_get(mt_byte, nat*16, 'center tags',
+     &   ltags, itags))call errquit(
+     &     'movecs_rotate: failed to alloc center tags',0)
+c
 c     -------------------------------------------------
 c     get cartesian coordinates for the active geometry
 c     -------------------------------------------------
-       if (.not.geom_cart_get(geom,nat,atom_tags,cact,zan))
-     $     call errquit('movecs_rotate: geom_cart_get', 0)
 c
-c     ----------------------------------------------
-c     get cartesian coordinates for the old geometry
-c     ----------------------------------------------
+      if (.not. geom_cart_get(geom, nat, byte_mb(itags),
+     &                        dbl_mb(iact), dbl_mb(icharge)))
+     &     call errquit('movecs_rotate: geom_cart_get failed',74)
+c
+c     -------------------------------------------------------
+c     load and get cartesian coordinates for the old geometry
+c     -------------------------------------------------------
 c
       if (.not. geom_create(oldgeom, geomname))
      $     call errquit('movecs_rotate: cant create oldgeom', 0)
@@ -77,26 +102,18 @@ c
       if (.not.geom_rtdb_load(rtdb, oldgeom, geomname))
      $     call errquit('movecs_rotate: cant load geometry', 0)
 c
-      if (.not.geom_cart_get(oldgeom,nat,atom_tags,cold,zan))
-     $     call errquit('movecs_rotate: geom_cart_get', 0)
+      if (.not. geom_cart_get(oldgeom, nat, byte_mb(itags),
+     &                        dbl_mb(iold), dbl_mb(icharge)))
+     &     call errquit('movecs_rotate: geom_cart_get failed',74)
+c
+      if (.not. ma_pop_stack(ltags))
+     &     call errquit('movecs_rotate:cant pop stack',0)
+c
+      if (.not. ma_pop_stack(lcharge))
+     &     call errquit('movecs_rotate:cant pop stack',0)
 c
       if (.not. geom_destroy(oldgeom))
      $     call errquit('movecs_rotate: cant destroy oldgeom', 0)
-c
-!       if (ga_nodeid().eq.0) then
-c
-         do i = 1,nat
-           x1(i) = cold(1,i)
-           y1(i) = cold(2,i)
-           z1(i) = cold(3,i)
-         enddo
-c
-         do i = 1,nat
-           x2(i) = cact(1,i)
-           y2(i) = cact(2,i)
-           z2(i) = cact(3,i)
-         enddo
-c
 c
 c     ----------------------------------------------------------
 c     calculate the 3x3 rotation matrix which transforms the old
@@ -109,24 +126,24 @@ c     ----------------------------------------------------------
 c
 c     Find the centroid of the old and active geometries
 c     and translate it to the origin.
-c
+c 
         xmid = 0.0d0
         ymid = 0.0d0
         zmid = 0.0d0
         norm = 0.0d0
         do i = 1, nat
-           xmid = xmid + x2(i)
-           ymid = ymid + y2(i)
-           zmid = zmid + z2(i)
+           xmid = xmid + dbl_mb(iact+3*(i-1)+0)
+           ymid = ymid + dbl_mb(iact+3*(i-1)+1)
+           zmid = zmid + dbl_mb(iact+3*(i-1)+2)
            norm = norm + 1.0d0
         end do
         xmid = xmid / norm
         ymid = ymid / norm
         zmid = zmid / norm
         do i = 1, nat
-           x2(i) = x2(i) - xmid
-           y2(i) = y2(i) - ymid
-           z2(i) = z2(i) - zmid
+           dbl_mb(iact+3*(i-1)+0) = dbl_mb(iact+3*(i-1)+0) - xmid
+           dbl_mb(iact+3*(i-1)+1) = dbl_mb(iact+3*(i-1)+1) - ymid
+           dbl_mb(iact+3*(i-1)+2) = dbl_mb(iact+3*(i-1)+2) - zmid
         end do
 c
 c     Repeat for the first structure.
@@ -137,21 +154,21 @@ c
         zmid = 0.0d0
         norm = 0.0d0
         do i = 1, nat
-           xmid = xmid + x1(i)
-           ymid = ymid + y1(i)
-           zmid = zmid + z1(i)
+           xmid = xmid + dbl_mb(iold+3*(i-1)+0)
+           ymid = ymid + dbl_mb(iold+3*(i-1)+1)
+           zmid = zmid + dbl_mb(iold+3*(i-1)+2)
            norm = norm + 1.0d0
         end do
         xmid = xmid / norm
         ymid = ymid / norm
         zmid = zmid / norm
         do i = 1, nat
-           x1(i) = x1(i) - xmid
-           y1(i) = y1(i) - ymid
-           z1(i) = z1(i) - zmid
+           dbl_mb(iold+3*(i-1)+0) = dbl_mb(iold+3*(i-1)+0) - xmid
+           dbl_mb(iold+3*(i-1)+1) = dbl_mb(iold+3*(i-1)+1) - ymid
+           dbl_mb(iold+3*(i-1)+2) = dbl_mb(iold+3*(i-1)+2) - zmid
         end do
 c
-c     Use the quaternion-based method to achieve the best fit
+c Use the quaternion - based method to achieve the best fit
 c     superposition of the two sets of coordinates.
 c
         xxyx = 0.0d0
@@ -164,15 +181,21 @@ c
         xzyy = 0.0d0
         xzyz = 0.0d0
         do i = 1, nat
-           xxyx = xxyx + x1(i)*x2(i)
-           xxyy = xxyy + y1(i)*x2(i)
-           xxyz = xxyz + z1(i)*x2(i)
-           xyyx = xyyx + x1(i)*y2(i)
-           xyyy = xyyy + y1(i)*y2(i)
-           xyyz = xyyz + z1(i)*y2(i)
-           xzyx = xzyx + x1(i)*z2(i)
-           xzyy = xzyy + y1(i)*z2(i)
-           xzyz = xzyz + z1(i)*z2(i)
+           x1 = dbl_mb(iact+3*(i-1)+0)
+           y1 = dbl_mb(iact+3*(i-1)+1)
+           z1 = dbl_mb(iact+3*(i-1)+2)
+           x2 = dbl_mb(iold+3*(i-1)+0)
+           y2 = dbl_mb(iold+3*(i-1)+1)
+           z2 = dbl_mb(iold+3*(i-1)+2)
+           xxyx = xxyx + x1*x2
+           xxyy = xxyy + y1*x2
+           xxyz = xxyz + z1*x2
+           xyyx = xyyx + x1*y2
+           xyyy = xyyy + y1*y2
+           xyyz = xyyz + z1*y2
+           xzyx = xzyx + x1*z2
+           xzyy = xzyy + y1*z2
+           xzyz = xzyz + z1*z2
         end do
         c(1,1) = xxyx + xyyy + xzyz
         c(1,2) = xzyy - xyyz
@@ -184,7 +207,12 @@ c
         c(2,4) = xzyx + xxyz
         c(3,4) = xyyz + xzyy
         c(4,4) = xzyz - xxyx - xyyy
-!      endif   ! ga_nodeid().eq.0
+        c(2,1) = c(1,2)
+        c(3,1) = c(1,3)
+        c(3,2) = c(2,3)
+        c(4,1) = c(1,4)
+        c(4,2) = c(2,4)
+        c(4,3) = c(3,4)
 c
 c     diagonalize the quadratic form matrix
 c
@@ -202,7 +230,7 @@ c
         rot(2,1) = 2.0d0 * (q(2) * q(3) - q(1) * q(4))
         rot(3,1) = 2.0d0 * (q(2) * q(4) + q(1) * q(3))
         rot(1,2) = 2.0d0 * (q(3) * q(2) + q(1) * q(4))
-        rot(2,2) = q(1)**2.0d0 - q(2)**2.0d0 + q(3)**2.0d0 - q(4)**2.0d0
+        rot(2,2) = q(1)*q(1) - q(2)*q(2) + q(3)*q(3) - q(4)*q(4)
         rot(3,2) = 2.0d0 * (q(3) * q(4) - q(1) * q(2))
         rot(1,3) = 2.0d0 * (q(4) * q(2) - q(1) * q(3))
         rot(2,3) = 2.0d0 * (q(4) * q(3) + q(1) * q(2))
@@ -215,9 +243,16 @@ c
           do i = 1,3
             write(luout,4) rot(i,1), rot(i,2), rot(i,3)
           enddo
+          write(luout,*)
           call util_flush(luout)
       endif
       call ga_sync()
+c
+      if (.not. ma_pop_stack(lold))
+     &     call errquit('movecs_rotate:cant pop stack',0)
+c
+      if (.not. ma_pop_stack(lact))
+     &     call errquit('movecs_rotate:cant pop stack',0)
 c
 c     ---------------------------------------------
 c     Read in vectors calculated at the old geometry.
@@ -287,7 +322,7 @@ c
 c
 c
       subroutine sym_movecs_apply_rot(basis, matrix, v, t)
-C$Id: movecs_rotate.F,v 1.10 2002-12-18 02:04:45 edo Exp $
+C$Id: movecs_rotate.F,v 1.11 2002-12-18 23:58:48 d3k958 Exp $
       implicit none
 #include "geom.fh"
 #include "sym.fh"
@@ -312,7 +347,7 @@ c
       integer type, ngen, nprim, sphcart
       logical do_spherical
 c
-c     Get basis and geom info
+c     get basis and geom info
 c     
       if (.not. bas_geom(basis, geom)) call errquit
      $     ('sym_movecs_apply_rot: no geometry from basis?', basis)
@@ -323,12 +358,12 @@ c
       if (.not. geom_ncent(geom, ncent)) call errquit
      $     ('sym_bas_irreps: geom_ncent ?', geom)
 c     
-c     Get the transformation matrices for shells
+c     get the transformation matrices for shells
 c
       do_spherical = bas_is_spherical(basis)
       maxf = ((ang_max+1)*(ang_max+2))/2 ! Size of largest cart. shell
       maxr = (ang_max+1)*maxf*maxf ! Size of transformation matrices
-      if (.not. ma_push_get(MT_DBL, maxr, 'r', l_r, k_r))
+      if (.not. ma_push_get(mt_DBL, maxr, 'r', l_r, k_r))
      $     call errquit('sym_movecs_apply_rot: ma failed', maxr)
 c
       call sym_bas_rot
@@ -406,7 +441,7 @@ c
       end
       subroutine sym_bas_rot(geom, matrix, r, maxf, ang_max,
      &    otransform)
-C$Id: movecs_rotate.F,v 1.10 2002-12-18 02:04:45 edo Exp $
+C$Id: movecs_rotate.F,v 1.11 2002-12-18 23:58:48 d3k958 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -415,7 +450,7 @@ c
       integer geom         ! [input]  geometry handle
       double precision matrix(3,3) ! [input]  Desired operator
       integer maxf         ! [input]  Leading dimension of r
-      integer ang_max      ! [input]  Max. ang. momentum of shell
+      integer ang_max      ! [input]  max. ang. momentum of shell
       logical otransform   ! [input]  transform to spherical basis
 c     
 c     Return the transformation matrices for basis functions
