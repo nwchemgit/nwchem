@@ -899,7 +899,7 @@ record wcoor <integer nfwcoo>
 \end{verbatim}
 specifies the frequency \verb+<nfcoor>+ in molecular dynamics steps
 of writing solvent coordinates to the trajectory file. This keyword
-takes precedent over \verb+nfcoor+. This directive redefines
+takes precedent over \verb+record coord+. This directive redefines
 previous \verb+record coord+, \verb+record wcoor+ and \verb+record scoor+
 directives. 
 The default is not to record.
@@ -910,7 +910,7 @@ record scoor <integer nfscoo>
 \end{verbatim}
 specifies the frequency \verb+<nfscoo>+ in molecular dynamics steps
 of writing solute coordinates to the trajectory file. This keyword
-takes precedent over \verb+nfcoor+. This directive redefines
+takes precedent over \verb+record coord+. This directive redefines
 previous \verb+record coord+, \verb+record wcoor+ and \verb+record scoor+
 directives. 
 The default is not to record.
@@ -931,7 +931,7 @@ record wvelo <integer nfwvel>
 \end{verbatim}
 specifies the frequency \verb+<nfvelo>+ in molecular dynamics steps
 of writing solvent velocitiesto the trajectory file. This keyword
-takes precedent over \verb+nfvelo+. This directive redefines
+takes precedent over \verb+record veloc+. This directive redefines
 previous \verb+record veloc+, \verb+record wvelo+ and \verb+record svelo+
 directives. 
 The default is not to record.
@@ -942,7 +942,7 @@ record svelo <integer nfsvel>
 \end{verbatim}
 specifies the frequency \verb+<nfsvel>+ in molecular dynamics steps
 of writing solute velocities to the trajectory file. This keyword
-takes precedent over \verb+nfvelo+. This directive redefines
+takes precedent over \verb+record veloc+. This directive redefines
 previous \verb+record veloc+, \verb+record wvelo+ and \verb+record svelo+
 directives. 
 The default is not to record.
