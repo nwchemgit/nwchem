@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_default.F,v 1.6 2002-01-15 19:43:40 bylaska Exp $
+c $Id: nwpw_default.F,v 1.7 2003-01-09 22:26:33 bylaska Exp $
 c
       subroutine nwpw_default(rtdb)
       implicit none
@@ -112,6 +112,12 @@ c
      >                    1,output_wavefunction_filename(1:ind))
       value = value.and.
      >        rtdb_cput(rtdb,'band:output_wavefunction_filename',
+     >                    1,output_wavefunction_filename(1:ind))
+      value = value.and.
+     >        rtdb_cput(rtdb,'pspw:output vectors',
+     >                    1,output_wavefunction_filename(1:ind))
+      value = value.and.
+     >        rtdb_cput(rtdb,'band:output vectors',
      >                    1,output_wavefunction_filename(1:ind))
 
       value = value.and.
