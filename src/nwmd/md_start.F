@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.109 2002-01-28 21:17:25 d3j191 Exp $
+c $Id: md_start.F,v 1.110 2002-01-31 06:40:22 d3j191 Exp $
 c
       implicit none
 c
@@ -244,7 +244,7 @@ c
       character*32 theory
       logical lstate,lstart,lrstrt,lcont
       integer igt,igr,nbytes,ibl,iun
-      integer niperw,nbperw,i,istart
+      integer niperw,nbperw,istart
 c
 c     set process id and number of processes
 c     --------------------------------------
