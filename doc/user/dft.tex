@@ -610,8 +610,8 @@ accuracy.  Note, differing atom types in a given molecular system will
 most likely have differing associated numerical grids.  The intent is
 to generate the desired energy accuracy.
 
+\begin{table}[h]
 \begin{center}
-\begin{table}[htb]
 \caption{Number of radial and angular shells required for Row 1 atoms
   (Li $\rightarrow$ F) to reach the desired accuracies.}
 
@@ -625,11 +625,11 @@ Keyword & {\tt Radial} & {\tt Theta} & {\tt phi} \\ \hline
 {\tt fine}    &100 & 24 & 48  \\ \hline
 {\tt xfine}   &140 & 34 & 68  \\ \hline
   \end{tabular} \\
-\end{table}
 \end{center}
+\end{table}
 
+\begin{table}[h]
 \begin{center}
-\begin{table}[htb]
 \caption{Number of radial and angular shells required for Row 2 atoms
   (Na $\rightarrow$ Cl) to reach the desired accuracies.}
 
@@ -643,11 +643,11 @@ Keyword & {\tt Radial} & {\tt Theta} & {\tt phi} \\ \hline
 {\tt fine}    &125 & 30 & 60  \\ \hline
 {\tt xfine}   &175 & 44 & 88  \\ \hline
   \end{tabular} \\
-\end{table}
 \end{center}
+\end{table}
 
+\begin{table}[h]
 \begin{center}
-\begin{table}[htb]
 \caption{Number of radial and angular shells required for Row 3 atoms
   (K $\rightarrow$ Br) to reach the desired accuracies.}
 
@@ -661,11 +661,11 @@ Keyword & {\tt Radial} & {\tt Theta} & {\tt phi} \\ \hline
 {\tt fine}    &160 & 34 & 68  \\ \hline
 {\tt xfine}   &210 & 38 & 76  \\ \hline
   \end{tabular} \\
-\end{table}
 \end{center}
+\end{table}
 
+\begin{table}[h]
 \begin{center}
-\begin{table}[htb]
 \caption{Number of radial and angular shells required for Row 4 atoms
   (Rb $\rightarrow$ I) to reach the desired accuracies.}
 
@@ -679,8 +679,8 @@ Keyword & {\tt Radial} & {\tt Theta} & {\tt phi} \\ \hline
 {\tt fine}    &205 & 44 & 88  \\ \hline
 {\tt xfine}   &235 & 48 & 96  \\ \hline
   \end{tabular} \\
-\end{table}
 \end{center}
+\end{table}
 
 
 In addition to the simple keyword specifying the desired accuracy as
@@ -713,12 +713,12 @@ The input for this type of grid takes the form,
 In this context the variable iangquad specifies a certain number of
 angular points as indicated by the table below.
 
-{\center
+\begin{center}
   \begin{tabular}[right]{|l|r r r r r r r|} \hline
 $IANGQUAD$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\ \hline
 $N_{angular}$ & 38 & 50 & 110 & 194 & 266 & 302 & 434 \\  \hline
   \end{tabular}
-}
+\end{center}
 
 Therefore the user can specify any number of radial points along with
 the level of angular quadrature (1-7).
