@@ -1,12 +1,13 @@
-      subroutine ccsd_sortmo(ncor,nocc,nvir,nbf,aint,ndima,scr,
-     $                       lnobj,g_objv,g_coul,g_exch,g_aint,iprt)
+      subroutine ccsd_sortmo(ncor,nocc,nvir,nbf,scr,
+     $                       lnobj,g_objv,g_coul,g_exch,g_ncoul,g_nexch,
+     $                       iprt)
       implicit none
-      integer nocc,nvir,nbf,g_objv,g_coul,g_exch,g_aint,iprt,ndima,
+      integer nocc,nvir,nbf,g_objv,g_coul,g_exch,g_ncoul,g_nexch,iprt,
      $        lnobj,ncor
-      double precision aint(ndima),scr(lnobj)
+      double precision scr(2*lnobj)
 c
       integer iam,ga_nodeid
-      integer ihi,ilo,jhi,jlo,icnt,ij,kl,i,j,k,l,a,b,av
+      integer ihi,ilo,jhi,jlo,icnt,ij,kl,i,j,k,l,a,b,av,ad1,ad2
       double precision xx
       double precision zip
       data zip/0.0d00/
@@ -16,27 +17,7 @@ c      call ga_summarize(.true.)
 c      call ga_print(g_coul)
 c      call ga_print(g_exch)
 c
-      write(6,*)'ndima,lnobj',ndima,lnobj
-      write(6,*)'(ncor+nocc)*nbf',(ncor+nocc)*nbf
       iam = ga_nodeid()
-      call ga_distribution(g_coul,iam,jlo,jhi,ilo,ihi)
-crk   ndima=nocc*nocc*nocc*(nocc+1)/2
-      call dfill(ndima,zip,aint,1)
-      do ij=1,nocc*(nocc+1)/2
-       if (ij.ge.ilo.and.ij.le.ihi)then
-        call ga_get(g_exch,1,(ncor+nocc)*nbf,ij,ij,scr,(ncor+nocc)*nbf)
-        icnt=(ij-1)*nocc*nocc
-        do k=ncor+1,ncor+nocc
-         do l=ncor+1,ncor+nocc
-          icnt=icnt+1
-          aint(icnt)=scr((k-1)*nbf+l)
-crk       write(6,*)'icnt,aint',icnt,aint(icnt)
-         enddo
-        enddo
-       endif
-      enddo
-      call ga_dgop(804,aint,ndima, '+')
-      call ga_put(g_aint,1,ndima,1,1,aint,ndima)
 c
       call ga_distribution(g_objv,iam,jlo,jhi,ilo,ihi)
       av=0
@@ -44,24 +25,7 @@ c
        av=av+1
        if (av.ge.ilo.and.av.le.ihi)then
         icnt=0
-c cint
-CRK     do b=ncor+nocc+1,ncor+nocc+nvir
-CRK      do i=1,nocc
-CRK       do j=1,nocc
-CRK        icnt=icnt+1
-CRK        if (i.ge.j)then
-CRK         ij = i*(i-1)/2+j
-CRK         kl = (a-1)*nbf+b
-CRK        else
-CRK         ij = j*(j-1)/2+i
-CRK         kl = (b-1)*nbf+a
-CRK        endif
-CRK        call ga_get(g_coul,kl,kl,ij,ij,xx,1)
-CRK        scr(icnt)=xx
-crk       write(6,*)'icnt,cint',icnt,scr(icnt)
-CRK       enddo
-CRK      enddo
-CRK     enddo
+c
 c dint
         do b=ncor+nocc+1,ncor+nocc+nvir
          do i=1,nocc
@@ -108,6 +72,30 @@ c
        endif
       enddo
 c
+      call ga_distribution(g_coul,iam,jlo,jhi,ilo,ihi)
+      ij=0
+      do i=1,nocc
+        do j=1,i
+          ij=ij+1
+          if (ij.ge.ilo.and.ij.le.ihi)then
+            ad1=(i-1)*nbf
+            ad2=(j-1)*nbf
+            call ga_get(g_coul,1,nbf*nbf,ij,ij,scr,nbf*nbf)
+            call ga_put(g_ncoul,ad2+1,ad2+nbf,ad1+1,ad1+nbf,
+     &                  scr,nbf)
+            call mxtrn(scr,scr(lnobj+1),nbf,nbf)
+            call ga_put(g_ncoul,ad1+1,ad1+nbf,ad2+1,ad2+nbf,
+     &                  scr(lnobj+1),nbf)
+c
+            call ga_get(g_exch,1,nbf*nbf,ij,ij,scr,nbf*nbf)
+            call ga_put(g_nexch,ad2+1,ad2+nbf,ad1+1,ad1+nbf,
+     &                  scr,nbf)
+            call mxtrn(scr,scr(lnobj+1),nbf,nbf)
+            call ga_put(g_nexch,ad1+1,ad1+nbf,ad2+1,ad2+nbf,
+     &                  scr(lnobj+1),nbf)
+          endif
+        enddo
+      enddo
       return
       end
 

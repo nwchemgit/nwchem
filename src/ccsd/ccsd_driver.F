@@ -7,54 +7,71 @@
 #include "geom.fh"
 #include "rtdb.fh"
 #include "schwarz.fh"
+#include "context.fh"
+c
+c
 c
        integer rtdb                        ! [input] database handle
        integer geom, basis
        character*255 movecs_in
 c
+c
+c
        character*255 title_vecs, basis_vecs
-       double precision nuclear_charge, charge, energy
+       double precision nuclear_charge, charge
        integer nbf_vecs, nsets
        integer k_occ, l_occ, k_evals, l_evals, g_vecs
        integer k_epair, l_epair
        integer npairs
        integer nbf, nsh, nelec, nact, nocc, nopen, nvir, nocc_correl,
-     &         nvir_correl
+     &         nvir_correl, lnof
        integer occ_frozen, occ_lo, occ_hi, nmo_lo
        integer vir_frozen, vir_lo, vir_hi, nmo_hi, nmo, nmo2
        integer noper, oseg_lo, oseg_hi, npass, blen, max_noper, nocct
-       integer g_coul, g_exch, g_int1t, g_epair, g_aint
+       integer noper_core
+       integer g_coul, g_exch, g_epair, g_ncoul, g_nexch
        integer i,j,ij
        integer ii
-       logical oexch,ocoul,oprint,status
+       logical oexch,ocoul,oprint,status,ohalf
        double precision emp2, e2pair
        double precision tpass
        character*7 algo
 capr
-      integer lnoo,lnov,lnvv,lnoov,lnooo,ndima,lnobj,lnovv,n_ssnn
-      common/len/lnoo,lnov,lnvv,lnoov,lnooo,ndima,lnobj,lnovv,n_ssnn
+      integer lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
+      common/len/lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
 c
        integer maxit,convi,iprt,irstrt,ncor,ndel,l_mo,k_mo,g_objv,
-     &         l_aint,k_aint,l_scr,k_scr
+     &         l_scr,k_scr
 capr
 c
+c
+c
+       data g_coul,g_exch/-1,-1/
+       data oexch,ocoul/.true.,.true./
+       data oprint/.true./
+       data ohalf/.true./
+capr
+       data algo/'twofold'/
+capr
+       data charge/0.d0/
        double precision zip,one,two
+       data zip/0.0d00/,one/1.0d00/,two/2.0d00/
+c
+c
+c
 c
        logical movecs_read_header, movecs_read, movecs_write
        external movecs_read_header, movecs_read, movecs_write
        integer ga_create_atom_blocked
        external ga_create_atom_blocked
-       integer ga_create_JKblocked
-       external ga_create_JKblocked
+       integer ga_create_Jblocked,ga_create_Kblocked
+       external ga_create_Jblocked,ga_create_Kblocked
        integer moints_numoper
        external moints_numoper
        integer moints_occrange
        external moints_occrange
-       data zip/0.0d00/,one/1.0d00/,two/2.0d00/
-       data g_coul,g_exch,g_int1t/-1,-1,-1/
-       data oexch,ocoul/.true.,.true./
-       data oprint/.true./
-       data charge/0.d0/
+c
+c
 c
        status = ma_set_hard_fail(.true.)
        status = ma_set_auto_verify(.true.)
@@ -108,21 +125,21 @@ c
        g_vecs = ga_create_atom_blocked(geom,basis,'Molecular orbital')
        if (.not. movecs_read_header(movecs_in, title_vecs,
      $    basis_vecs, nbf_vecs, nsets, nmo, 2))
-     $    call errquit('mointdriver: cannot read MO vectors header',0)
+     $    call errquit('ccsddriver: cannot read MO vectors header',0)
        if (nbf.ne.nbf_vecs)
      $    call errquit(
-     $    'mointdriver: number of basis fun does not match input',0)
+     $    'ccsddriver: number of basis fun does not match input',0)
        status = MA_push_get(MT_DBL, nbf, 'Evals', l_evals, k_evals)
        if (.not. movecs_read(movecs_in, 1, dbl_mb(k_occ),
      $                       dbl_mb(k_evals), g_vecs)) call
-     $      errquit('mointdriver: cannot read MO vectors',0)
+     $      errquit('ccsddriver: cannot read MO vectors',0)
 c
 c Get frozen core & virtual offsets
 c
-       if (.not.rtdb_get(rtdb,'fourindex:occ_frozen',MT_INT,1,
-     $      occ_frozen)) occ_frozen = 0
-       if (.not.rtdb_get(rtdb,'fourindex:vir_frozen',MT_INT,1,
-     $      vir_frozen)) vir_frozen = 0
+       if (.not.rtdb_get(rtdb,'occ_frozen',MT_INT,1,occ_frozen))
+     $      occ_frozen = 0
+       if (.not.rtdb_get(rtdb,'vir_frozen',MT_INT,1,vir_frozen))
+     $      vir_frozen = 0
 c
 c Set index ranges
 c
@@ -130,7 +147,6 @@ c$$$       vir_lo = nocc + 1
 c$$$       vir_hi = nbf - vir_frozen
        occ_lo = occ_frozen + 1
        occ_hi = nocc
-       write(6,*)'occ_lo,occ_hi',occ_lo,occ_hi
        nocc_correl = occ_hi - occ_lo + 1
        vir_lo = nocc + 1
        vir_hi = nbf - vir_frozen
@@ -143,7 +159,7 @@ c$$$       vir_hi = nbf - vir_frozen
 c
 c Get Block-length
 c
-       if (.not.rtdb_get(rtdb,'fourindex:block',MT_INT,1,blen))
+       if (.not.rtdb_get(rtdb,'block',MT_INT,1,blen))
      $      blen = 10
 c
 c Initialise integrals and screening
@@ -158,10 +174,22 @@ c
        if ((ocoul).and.(oexch)) nocct = 2*nocct
        max_noper = moints_numoper( basis, algo, nbf, nocc, nmo2,
      $                             blen, .false.)
-       if (max_noper.lt.nocct)
-     $   call errquit('cannot hold J and K in core ',0)
-       noper =  (nocc_correl*(nocc_correl+1))/2
-       if ((ocoul).and.(oexch)) noper = noper*2
+C       MAX_NOPER = 10
+capr change gt to ge
+       if (max_noper.ge.nocct) then
+         noper =  (nocc_correl*(nocc_correl+1))/2
+       else
+capr
+         call errquit('cannot hold J and K in core ',0)
+capr
+         if ((ocoul).and.(oexch)) then
+           noper = max_noper/2
+         else
+           noper = max_noper
+         endif
+       endif
+       noper_core = noper
+       if ((ocoul).and.(oexch)) noper_core = noper*2
 capr
       lnoo=nocc_correl*nocc_correl
       lnov=nocc_correl*nvir_correl
@@ -170,16 +198,30 @@ capr
       lnooo=lnoo*nocc_correl
       lnovv=lnvv*nocc_correl
 capr
+      lnof=nbf*nocc
+      lnobj=max(lnoov+lnoov+lnoov,nmo2*lnoo)
+      lnobj=max(lnoov+lnoov+lnooo,lnobj)
+      lnobj=max(lnobj,nbf*nocc)
+      if (.not.ga_create(MT_DBL,lnobj,nvir_correl+1,'objv',lnobj,1,
+     &                   g_objv))
+     &     call errquit('ga_create g_objv failed',0)
+      if (.not.ga_create(MT_DBL,lnof,lnof,'ncoul',
+     &                   nbf,nbf,g_ncoul))
+     &     call errquit('ga_create g_ncoul failed',0)
+      if (.not.ga_create(MT_DBL,lnof,lnof,'nexch',
+     &                   nbf,nbf,g_nexch))
+     &     call errquit('ga_create g_nexch failed',0)
 c
 c Allocate operator matrices
 c
        if (ocoul)
-     $      g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb oper')
+     $      g_coul = ga_create_Jblocked(noper,nbf,'Coulomb oper')
        if (oexch) then
-         g_exch = ga_create_JKblocked(noper,nbf,nbf,'X oper')
-         if (.not.ga_create(MT_DBL,lnoov+lnooo,nbf+1,'int1t',
-     &        lnoov+lnooo,1,g_int1t))
-     &         call errquit('ga_create g_int1t failed',0)
+         if ((algo.eq.'twofold').and.(.not.(ohalf))) then
+           g_exch = ga_create_Kblocked(noper,nbf,nmo2,'X oper')
+         else
+           g_exch = ga_create_Kblocked(noper,nbf,nbf,'X oper')
+         endif
        endif
 c
 c Allocate pair energy array
@@ -196,7 +238,7 @@ c
          call util_print_centered(6,'Four-Index Transformation',
      $                            30,.true.)
          write(6,966) nbf,nsh,nocc,nocc_correl,blen,occ_lo,occ_hi,
-     $                nmo_lo,nmo_hi,movecs_in, noper
+     $                nmo_lo,nmo_hi,movecs_in, noper_core
  966     format(10x,'Number of basis functions:',10x,i5,/,
      $        10x,'Number of shells:',19x,i5,/,
      $        10x,'Number of occupied orbitals:',8x,i5,/,
@@ -207,9 +249,19 @@ c
      $        10x,'MO coefficients read from:',2x,a25,/,
      $        10x,'Number of operator matrices in core:',i5)
          call util_flush(6)
-         write(6,957) 
- 957     format(10x,'Half-transformed integrals produced')
+         if (ohalf) then
+           write(6,957) 
+ 957       format(10x,'Half-transformed integrals produced')
+         else
+           write(6,958)
+ 958       format(10x,'Half-transformed integrals not produced')
+         endif
        endif
+c
+c Clear 4-index statistics
+c
+       call moints_stats_clear()
+
 c
 c Loop over segments of occupied orbitals
 c
@@ -224,19 +276,25 @@ c
 c
 c  J & K build routines
 c
-       call moints_build_2xz( basis, occ_lo, oseg_lo, oseg_hi,
+       if (algo.eq.'sixfold') then
+         call moints_build_6x(basis,  occ_lo, oseg_lo, oseg_hi,
      $                        nmo_lo, nmo_hi, g_vecs,
      $                        g_coul, ocoul, g_exch, oexch,
-     $                        g_int1t, blen )
+     $                        blen )
+       else
+         call moints_build_2x(basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
+     $                        vir_lo, vir_hi, g_vecs,
+     $                        g_coul, ocoul, g_exch, oexch,
+     $                        blen )
+       endif
 c
 c
 c Evaluate and store pair energies
 c
 capr insert oexch
-       if (oexch) then
+       if (oexch)then
         call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nvir,
-     $                      nbf, nbf, g_exch, dbl_mb(k_evals),
-     $                      g_epair )
+     $                      g_exch, dbl_mb(k_evals), g_epair )
        endif
 c
 c
@@ -248,6 +306,8 @@ c
        if (oseg_hi.lt.occ_hi) goto 22
 c
 c End multipass loop
+c
+C       call moints_stats_print(algo)
 c
 c Evaluate mp2 correction from pair energies
 c
@@ -290,34 +350,35 @@ c
 c Start CCSD part here
 c
 c
-      ndima=lnoo*nocc_correl*(nocc_correl+1)/2
-      lnobj=max(lnoov+lnoov+lnoov,nmo2*lnoo)
-      lnobj=max(lnoov+lnoov+lnooo,lnobj)
-      lnobj=max(lnobj,nbf*nocc)
-
-      if (.not.ga_create(MT_DBL,lnobj,nvir_correl+1,'objv',lnobj,1,
-     &                   g_objv))
-     &     call errquit('ga_create g_objv failed',0)
+CRK   lnof=nbf*nocc
+CRK   lnobj=max(lnoov+lnoov+lnoov,nmo2*lnoo)
+CRK   lnobj=max(lnoov+lnoov+lnooo,lnobj)
+CRK   lnobj=max(lnobj,nbf*nocc)
+c
+CRK   if (.not.ga_create(MT_DBL,lnobj,nvir_correl+1,'objv',lnobj,1,
+CRK  &                   g_objv))
+CRK  &     call errquit('ga_create g_objv failed',0)
+CRK   if (.not.ga_create(MT_DBL,lnof,lnof,'ncoul',
+CRK  &                   nbf,nbf,g_ncoul))
+CRK  &     call errquit('ga_create g_ncoul failed',0)
+CRK   if (.not.ga_create(MT_DBL,lnof,lnof,'nexch',
+CRK  &                   nbf,nbf,g_nexch))
+CRK  &     call errquit('ga_create g_nexch failed',0)
 c
       call ccsd_get_param(rtdb,maxit,convi,iprt)
       irstrt=0
       ncor=occ_frozen
       ndel=vir_frozen
 c
-      lnobj=lnoo*nbf
+      lnobj=max(lnoo*nbf,nbf*nbf)
 c
-      if (.not.ga_create(MT_DBL,ndima,1,'aint',
-     &    ndima,1,g_aint))
-     &    call errquit('ga_create aint failed',0)
-c
-      status=status.and.ma_push_get(MT_DBL,ndima,'aint',l_aint,k_aint)
       status=status.and.ma_push_get(MT_DBL,2*lnobj,'scr',l_scr,k_scr)
       if (.not.status)call errquit('error before ccsd_sortmo',0)
-      call ccsd_sortmo(ncor,nocc_correl,nvir_correl,nbf,dbl_mb(k_aint),
-     $                 ndima,dbl_mb(k_scr),lnobj,g_objv,g_coul,
-     $                 g_exch,g_aint,iprt)
-      status=status.and.ga_destroy(g_coul)
-      status=status.and.ga_destroy(g_exch)
+      call ccsd_sortmo(ncor,nocc_correl,nvir_correl,nbf,
+     $                 dbl_mb(k_scr),lnobj,g_objv,g_coul,
+     $                 g_exch,g_ncoul,g_nexch,iprt)
+          status=status.and.ga_destroy(g_coul)
+          status=status.and.ga_destroy(g_exch)
       status=status.and.ma_pop_stack(l_scr)
       if (.not.status) call errquit('error after ccsd_sortmo',0)
       call rddcom()
@@ -326,18 +387,19 @@ c
       call ga_get(g_vecs,1,nbf,1,nbf,dbl_mb(k_mo),nbf)
       call aoccsd(basis,ncor,nocc_correl,nvir_correl,ndel,nbf,nmo2,
      &            maxit,convi,iprt,
-     &            dbl_mb(k_mo),dbl_mb(k_evals),dbl_mb(k_aint),
-     &            blen,g_objv,g_int1t,g_aint, energy)
-c
-      if (.not. rtdb_put(rtdb,'ccsd:energy', mt_dbl, 1, energy)) 
-     $     call errquit('ccsd: failed storing energy',0)
-c
+     &            dbl_mb(k_mo),dbl_mb(k_evals),
+     &            blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch)
       status = ma_pop_stack(l_mo)
-      status = status.and.ma_pop_stack(l_aint)
-      status=status.and.ga_destroy(g_aint)
-      status=status.and.ga_destroy(g_int1t)
+      if (.not.ga_destroy(g_nexch))
+     &    call errquit('ga_dest g_nexch fail',0)
+      if (.not.ga_destroy(g_ncoul))
+     &    call errquit('ga_dest g_ncoul fail',0)
       status=status.and.ga_destroy(g_objv)
       if (.not.status)call errquit('deallocate after aoccsd',0)
+c
+CRK   status=status.and.ga_destroy(g_coul)
+CRK   status=status.and.ga_destroy(g_exch)
+      if (.not.status) call errquit('error after aoccsd',0)
 capr
 capr       if (ocoul) status = ga_destroy(g_coul)
 capr       if (oexch) status = ga_destroy(g_exch)
@@ -349,6 +411,9 @@ c
       status = status.and.ma_pop_stack(l_occ)
       if (.not.status) call errquit('moints: cannot pop stack?',0)
       status = ga_destroy(g_vecs)
+      if (ga_nodeid().eq.0) then
+        call MA_summarize_allocated_blocks()
+      endif
       call int_terminate()
       call ga_sync()
 c

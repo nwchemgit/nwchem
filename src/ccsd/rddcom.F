@@ -14,11 +14,11 @@ c      read(56,*)dos
 c      read(56,*)dod
 c      close(unit=56)
       do i=1,15
-       doa(i)=1
-       dob(i)=1
+       doa(i)=2
+       dob(i)=2
        dog(i)=1
        doh(i)=1
-       dojk(i)=1
+       dojk(i)=2
        dos(i)=1
        dod(i)=1
       enddo
