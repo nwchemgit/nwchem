@@ -2,7 +2,7 @@
      &                    Volume,Out_Unit,iProc,Where,
      &                    nAtom,XYZ,What)
 *
-* $Id: get_grid.F,v 1.4 1997-11-04 10:10:39 d3e129 Exp $
+* $Id: get_grid.F,v 1.5 1998-05-06 08:08:21 d3e129 Exp $
 *
       Implicit None
 *
@@ -29,6 +29,7 @@
 *
       DeBug = .False.
 *
+      nRejected = 0
       Volume = 1.0d0
       Scale  = 1.8897265d0
       Do i = 1, 3
@@ -70,7 +71,6 @@
       End If
 *
       If (What.eq.'CHARGES') GoTo 2345   ! ***** temporary *****
-      nRejected = 0
       iGrid = 0
       Do iZ = 0, nGridXYZ(3)
          Do iY = 0, nGridXYZ(2)
