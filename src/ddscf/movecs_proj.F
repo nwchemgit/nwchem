@@ -1,5 +1,5 @@
       subroutine movecs_project(rtdb, geom, basis, g_vecs)
-C$Id: movecs_proj.F,v 1.6 1997-07-25 17:50:45 d3g681 Exp $
+C$Id: movecs_proj.F,v 1.7 1999-01-26 02:50:21 edo Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -79,7 +79,7 @@ c
      $     call errquit('movecs_project: int_normalize failed', 0)
       if (.not. movecs_read_header(old_filename, old_title,
      $     basis_name_from_file, old_scftype, 
-     $     file_nbf, old_nsets, old_nmo, 1)) 
+     $     file_nbf, old_nsets, old_nmo, 2)) 
      $     call errquit
      $     ('movecs_project: failed to read old header', 0)
 c
