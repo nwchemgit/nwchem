@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.43 1999-10-12 05:05:40 mdupuis Exp $
+* $Id: prp.F,v 1.44 1999-11-30 01:21:03 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -11083,8 +11083,6 @@ c
 
            dhnd(inw_to_hnd(i),j)=
      &     dnwc(i,j)/(fac_nwthnd(i))
-c*         dhnd(i,inw_to_hnd(j))=
-c*   &     dnwc(i,j)/(fac_nwthnd(j))
 
         enddo
       enddo
