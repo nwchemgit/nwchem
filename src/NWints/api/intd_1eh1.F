@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.15 1999-09-21 21:34:53 windus Exp $
+C $Id: intd_1eh1.F,v 1.16 1999-10-26 22:18:54 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -122,17 +122,20 @@ c                       ! NOTE: nint*3 integral derivatives returned per unique 
 c::local
       logical doT
       integer ucont
-      integer ibas,iatom,inp,igen,iexp,icf,itype,igeom
-      integer jbas,jatom,jnp,jgen,jexp,jcf,jtype,jgeom
+      integer ibas,iatom,inp,igen,iexp,icf,itype,igeom,isbas,icfS
+      integer jbas,jatom,jnp,jgen,jexp,jcf,jtype,jgeom,jsbas,jcfS
       integer nat
       integer nintV
       integer offset
 c
       logical any_spherical
+      logical orel, oirel, ojrel, oNR
       integer i_nbf_x, j_nbf_x
       integer i_nbf_s, j_nbf_s
       integer nint_x, nint_s
       integer zatom, zyx
+      integer lbas, sbas
+      integer rel_dbg, rel_typ
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
@@ -146,6 +149,37 @@ c
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
+      isbas = ibas
+      jsbas = jbas
+      oNR = .true.
+      oirel = .false.
+      ojrel = .false.
+c
+      if (any_rel) then
+C        write (LuOut,*) 'int_1eke .............'
+        lbas = lc_bsh + BASIS_HANDLE_OFFSET
+        sbas = sc_bsh + BASIS_HANDLE_OFFSET
+        oirel = (ish.le.ncont_tot_gb(sbas))
+        ojrel = (jsh.le.ncont_tot_gb(sbas))
+        oNR = .not.(oirel.and.ojrel)
+c
+c     relativistic integral options. rel_typ selects scalar (1),
+c     spin-orbit (3) or both (4). Should be passed when spin-orbit 
+c     integrals are needed, or included in a common block.
+c
+        rel_dbg = 0
+        rel_typ = 1
+c
+        if (oirel) then
+          if (any_large) ibas = lbas
+          isbas = sbas
+        end if
+        if (ojrel) then
+          if (any_large) jbas = lbas
+          jsbas = sbas
+        end if
+      end if
+      orel = oirel.or.ojrel
 c
       ucont = (sf_ibs_cn2ucn(ish,ibas))
       inp   = infbs_cont(CONT_NPRIM,ucont,ibas)
@@ -155,6 +189,7 @@ c
       itype = infbs_cont(CONT_TYPE,ucont,ibas) 
       igeom = ibs_geom(ibas)
       iatom = (sf_ibs_cn2ce(ish,ibas))
+      icfS  = infbs_cont(CONT_ICFP ,ucont,isbas)
 c
       ucont = (sf_ibs_cn2ucn(jsh,jbas))
       jnp   = infbs_cont(CONT_NPRIM,ucont,jbas)
@@ -164,6 +199,7 @@ c
       jtype = infbs_cont(CONT_TYPE,ucont,jbas) 
       jgeom = ibs_geom(jbas)
       jatom = (sf_ibs_cn2ce(jsh,jbas))
+      jcfS  = infbs_cont(CONT_ICFP ,ucont,jsbas)
 c
       if (igeom.ne.jgeom) then
         write(luout,*)'intd_1eh1P.F: two different geometries for',
@@ -179,7 +215,24 @@ c
         
        if (cando_nw(i_basis,ish,0).and.
      &          cando_nw(j_basis,jsh,0)) then
-        call hf1d(
+        if (orel) then
+          call rel_oneld (
+     &        coords(1,iatom,igeom),
+     &        dbl_mb(mb_exndcf(iexp,ibas)),
+     &        dbl_mb(mb_exndcf(icf,ibas)),
+     &        dbl_mb(mb_exndcf(icfS,isbas)),inp,igen,itype,iatom,
+     &        coords(1,jatom,jgeom),
+     &        dbl_mb(mb_exndcf(jexp,jbas)),
+     &        dbl_mb(mb_exndcf(jcf,jbas)),
+     &        dbl_mb(mb_exndcf(jcfS,jsbas)),jnp,jgen,jtype,jatom,
+     &        coords(1,1,igeom),charge(1,igeom),
+     &        geom_invnucexp(1,igeom),ncenter(igeom),
+c........................       doS   doT    doV    canAB  nonrel   
+     &        scr,Ta,H1a,nint,.false.,doT,.true.,.false.,oNR,
+c............. dryrun
+     &        .false.,scr,lscr,rel_dbg,rel_typ)
+        else
+          call hf1d(
      &         coords(1,iatom,igeom),
      &         dbl_mb(mb_exndcf(iexp,ibas)),
      &         dbl_mb(mb_exndcf(icf,ibas)),
@@ -190,13 +243,15 @@ c
      &         dbl_mb(mb_exndcf(jcf,jbas)),
      &         jnp,jgen,jtype,jatom,
 c
-     &         coords(1,1,igeom),charge(1,igeom),ncenter(igeom),
+     &         coords(1,1,igeom),charge(1,igeom),
+     &         geom_invnucexp(1,igeom),ncenter(igeom),
      &         scr,Ta,H1a,nint,
 c..............overlap, k-e,  pot-e,  canab,   dryrun
      &         .false., doT, .true., .false., .false.,
      &         scr,lscr)
+        end if
       elseif (cando_hnd_1e(i_basis,ish,0).and.
-     &  cando_hnd_1e(j_basis,jsh,0)) then
+     &  cando_hnd_1e(j_basis,jsh,0).and. .not.any_rel) then
         call hnd_stvintd(
      &       coords(1,iatom,igeom),
      &       dbl_mb(mb_exndcf(iexp,ibas)),

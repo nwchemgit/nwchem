@@ -1,6 +1,6 @@
       subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intd_1eov.F,v 1.12 1999-09-21 21:34:53 windus Exp $
+c $Id: intd_1eov.F,v 1.13 1999-10-26 22:18:54 mg201 Exp $
       implicit none
 #include "stdio.fh"
 c::functions
@@ -75,6 +75,7 @@ c
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
 #include "int_nbf.fh"
+#include "apiP.fh"
 c::external subroutines used
 c... errquit
 c::functions
@@ -125,13 +126,16 @@ c
       double precision Ova(nint,3,2) ! [output] derivative integrals
 c::local
       integer ucont
-      integer ibas,iatom,inp,igen,iexp,icf,itype,igeom
-      integer jbas,jatom,jnp,jgen,jexp,jcf,jtype,jgeom
+      integer ibas,iatom,inp,igen,iexp,icf,itype,igeom,isbas,icfS
+      integer jbas,jatom,jnp,jgen,jexp,jcf,jtype,jgeom,jsbas,jcfS
       logical any_spherical
+      logical orel, oirel, ojrel, oNR
       integer i_nbf_x, j_nbf_x
       integer i_nbf_s, j_nbf_s
       integer nint_x, nint_s
       integer zatom, zyx
+      integer lbas, sbas
+      integer rel_dbg, rel_typ
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
@@ -146,6 +150,11 @@ c
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
+      isbas = ibas
+      jsbas = jbas
+      oNR = .true.
+      oirel = .false.
+      ojrel = .false.
 c
       iatom = (sf_ibs_cn2ce(ish,ibas))
       jatom = (sf_ibs_cn2ce(jsh,jbas))
@@ -158,6 +167,31 @@ c
       idatom(1) = iatom
       idatom(2) = jatom
 c
+      if (any_rel) then
+C        write (LuOut,*) 'int_1eke .............'
+        lbas = lc_bsh + BASIS_HANDLE_OFFSET
+        sbas = sc_bsh + BASIS_HANDLE_OFFSET
+        oirel = (ish.le.ncont_tot_gb(sbas))
+        ojrel = (jsh.le.ncont_tot_gb(sbas))
+        oNR = .not.(oirel.and.ojrel)
+c
+c     relativistic integral options. rel_typ selects scalar (1),
+c     spin-orbit (3) or both (4). Should be passed when spin-orbit 
+c     integrals are needed, or included in a common block.
+c
+        rel_dbg = 0
+        rel_typ = 1
+        if (oirel) then
+          if (any_large) ibas = lbas
+          isbas = sbas
+        end if
+        if (ojrel) then
+          if (any_large) jbas = lbas
+          jsbas = sbas
+        end if
+      end if
+      orel = oirel.or.ojrel
+c
       ucont = (sf_ibs_cn2ucn(ish,ibas))
       inp   = infbs_cont(CONT_NPRIM,ucont,ibas)
       igen  = infbs_cont(CONT_NGEN,ucont,ibas)
@@ -165,6 +199,7 @@ c
       icf   = infbs_cont(CONT_ICFP,ucont,ibas)
       itype = infbs_cont(CONT_TYPE,ucont,ibas) 
       igeom = ibs_geom(ibas)
+      icfS  = infbs_cont(CONT_ICFP ,ucont,isbas)
 c
       ucont = (sf_ibs_cn2ucn(jsh,jbas))
       jnp   = infbs_cont(CONT_NPRIM,ucont,jbas)
@@ -173,6 +208,7 @@ c
       jcf   = infbs_cont(CONT_ICFP,ucont,jbas)
       jtype = infbs_cont(CONT_TYPE,ucont,jbas) 
       jgeom = ibs_geom(jbas)
+      jcfS  = infbs_cont(CONT_ICFP ,ucont,jsbas)
 c
       if (igeom.ne.jgeom) then
         write(luout,*)'intd_1eovP: two different geometries for',
@@ -182,24 +218,43 @@ c
 c
       if (cando_nw(i_basis,ish,0).and.
      &        cando_nw(j_basis,jsh,0)) then
-        call hf1d(
-     &       coords(1,iatom,igeom),
-     &       dbl_mb(mb_exndcf(iexp,ibas)),
-     &       dbl_mb(mb_exndcf(icf,ibas)),
-     &       inp,igen,itype,iatom,
+        if (orel) then
+          call rel_oneld (
+     &        coords(1,iatom,igeom),
+     &        dbl_mb(mb_exndcf(iexp,ibas)),
+     &        dbl_mb(mb_exndcf(icf,ibas)),
+     &        dbl_mb(mb_exndcf(icfS,isbas)),inp,igen,itype,iatom,
+     &        coords(1,jatom,jgeom),
+     &        dbl_mb(mb_exndcf(jexp,jbas)),
+     &        dbl_mb(mb_exndcf(jcf,jbas)),
+     &        dbl_mb(mb_exndcf(jcfS,jsbas)),jnp,jgen,jtype,jatom,
+     &        coords(1,1,igeom),charge(1,igeom),
+     &        geom_invnucexp(1,igeom),ncenter(igeom),
+c........................       doS   doT    doV    canAB  nonrel   
+     &        Ova,scr,scr,nint,.true.,.false.,.false.,.false.,oNR,
+c............. dryrun
+     &        .false.,scr,lscr,rel_dbg,rel_typ)
+        else
+          call hf1d(
+     &        coords(1,iatom,igeom),
+     &        dbl_mb(mb_exndcf(iexp,ibas)),
+     &        dbl_mb(mb_exndcf(icf,ibas)),
+     &        inp,igen,itype,iatom,
 c
-     &       coords(1,jatom,jgeom),
-     &       dbl_mb(mb_exndcf(jexp,jbas)),
-     &       dbl_mb(mb_exndcf(jcf,jbas)),
-     &       jnp,jgen,jtype,jatom,
+     &        coords(1,jatom,jgeom),
+     &        dbl_mb(mb_exndcf(jexp,jbas)),
+     &        dbl_mb(mb_exndcf(jcf,jbas)),
+     &        jnp,jgen,jtype,jatom,
 c
-     &       coords(1,1,igeom),charge(1,igeom),ncenter(igeom),
-     &       Ova,scr,scr,nint,
-c............overlap, k-e,     pot-e,    canab,  dryrun
-     &       .true.,  .false., .false., .false., .false.,
-     &       scr,lscr)
+     &        coords(1,1,igeom),charge(1,igeom),
+     &        geom_invnucexp(1,igeom),ncenter(igeom),
+     &        Ova,scr,scr,nint,
+c.............overlap, k-e,     pot-e,    canab,  dryrun
+     &        .true.,  .false., .false., .false., .false.,
+     &        scr,lscr)
+        end if
       elseif (cando_hnd_1e(i_basis,ish,0).and.
-     &  cando_hnd_1e(j_basis,jsh,0)) then
+     &  cando_hnd_1e(j_basis,jsh,0).and. .not.any_rel) then
         call hnd_stvintd(
      &       coords(1,iatom,igeom),
      &       dbl_mb(mb_exndcf(iexp,ibas)),
