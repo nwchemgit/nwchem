@@ -1,5 +1,5 @@
 %
-% $Id: driver.tex,v 1.13 2004-04-22 04:50:28 edo Exp $
+% $Id: driver.tex,v 1.14 2004-05-18 20:28:11 yuri Exp $
 %
 \label{sec:driver}
 
@@ -52,6 +52,13 @@ directive,
     NOXYZ
 
   END
+\end{verbatim}
+
+On each optimization step a line search is performed. 
+To speed up calculations (up to two times), it may be beneficial 
+to turn off the line search using following directive:
+\begin{verbatim}
+set driver:linopt 0
 \end{verbatim}
 
 \sloppy
