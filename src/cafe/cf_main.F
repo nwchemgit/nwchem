@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.125 2002-02-07 00:13:27 d3j191 Exp $
+c $Id: cf_main.F,v 1.126 2002-02-08 15:46:17 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1872,7 +1872,7 @@ c
       if(numw.gt.0) then
       facdof=rgas*tgauss
       do 1 iwa=1,nwa
-      tdev=sqrt(facdof/wgt(iwat(iwa),iset))
+      if(facdof.lt.zero) tdev=sqrt(facdof/wgt(iwat(iwa),iset))
       do 2 iwm=1,numw
       if(iwdt(iwm).ne.0) then
       vw(iwm,1,iwa)=zero
@@ -1884,7 +1884,11 @@ c
       do 4 iran=1,12
       rran=rran+util_random(0)
     4 continue
+      if(facdof.gt.zero) then
       vw(iwm,ix,iwa)=(one-frgaus)*vw(iwm,ix,iwa)+frgaus*(rran-six)*tdev
+      else
+      vw(iwm,ix,iwa)=zero
+      endif
     3 continue
       endif
     2 continue
@@ -1904,8 +1908,12 @@ c
       do 7 iran=1,12
       rran=rran+util_random(0)
     7 continue
+      if(facdof.lt.zero) then
       vs(isa,ix)=(one-frgaus)*vs(isa,ix)+
      + frgaus*(rran-six)*sqrt(facdof/wgt(isat(isa),iset))
+      else
+      vs(isa,ix)=zero
+      endif
     6 continue
       endif
     5 continue
