@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.8 1996-10-22 01:32:12 d3h449 Exp $
+c     $Id: dft_input.F,v 1.9 1996-10-23 01:19:33 gutowski Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -60,19 +60,19 @@ c
 c     Define logical flags for local (l) and nonlocal (nl)
 c     parts of exchange-correlation functionals.
 c
-      logical  lcfac(10),  lxfac(10)
-      logical nlcfac(10), nlxfac(10)
-      logical xccomb(10)
+      logical  lcfac(15),  lxfac(15)
+      logical nlcfac(15), nlxfac(15)
+      logical xccomb(15)
 c
       integer nrad(dft_ntags_bsmx)
 c     
 c     XC functionals coefficients
 c     
-      double precision cfac(10),xfac(10)
+      double precision cfac(15),xfac(15)
 c
 c     Only these few arrays are initialized (not defaults).
 c
-      do iline=1,10
+      do iline=1,15
           xfac(iline)=0.d0
           cfac(iline)=0.d0
          lcfac(iline)=.false.
@@ -734,6 +734,154 @@ c     &          ' dft_input: vwnrpa multiplicative factor not found.'
                 cfac(7) = 1.0d0
               endif            
 c
+            elseif ( inp_compare(.false., 'vwn_1', test)) then
+c             
+c>>>          VWN_1 f for Corr
+c             
+              if ( inp_a(test) ) then
+                if ( inp_compare(.false.,'local', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: vwn_1 local descriptor found.'
+                  lcfac(8) = .true.
+                elseif ( inp_compare(.false.,'nonlocal', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: vwn_1 nonlocal descriptor found.'
+                  write(6,*)' vwn_1 is a local functional;',
+     &                      ' "nonlocal" descriptor is ignored. '                   
+                  nlcfac(8) = .false.
+                else
+c
+c                 assume total wanted
+c
+                  lcfac(8) = .true.
+                  nlcfac(8) = .false.
+                  call inp_prev_field()
+                endif
+              else
+c
+c               assume total wanted
+c
+                lcfac(8) = .true.
+                nlcfac(8) = .false.
+                call inp_prev_field()
+              endif
+              if ( .not. inp_f(cfac(8)) ) then
+c                write(6,*)
+c     &          ' dft_input: vwnrpa multiplicative factor not found.'
+                cfac(8) = 1.0d0
+              endif            
+c
+            elseif ( inp_compare(.false., 'vwn_2', test)) then
+c             
+c>>>          VWN_2 f for Corr
+c             
+              if ( inp_a(test) ) then
+                if ( inp_compare(.false.,'local', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: vwn_2 local descriptor found.'
+                  lcfac(9) = .true.
+                elseif ( inp_compare(.false.,'nonlocal', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: vwn_2 nonlocal descriptor found.'
+                  write(6,*)' vwn_2 is a local functional;',
+     &                      ' "nonlocal" descriptor is ignored. '                   
+                  nlcfac(9) = .false.
+                else
+c
+c                 assume total wanted
+c
+                  lcfac(9) = .true.
+                  nlcfac(9) = .false.
+                  call inp_prev_field()
+                endif
+              else
+c
+c               assume total wanted
+c
+                lcfac(9) = .true.
+                nlcfac(9) = .false.
+                call inp_prev_field()
+              endif
+              if ( .not. inp_f(cfac(9)) ) then
+c                write(6,*)
+c     &          ' dft_input: vwnrpa multiplicative factor not found.'
+                cfac(9) = 1.0d0
+              endif            
+c
+            elseif ( inp_compare(.false., 'vwn_3', test)) then
+c             
+c>>>          VWN_3 f for Corr
+c             
+              if ( inp_a(test) ) then
+                if ( inp_compare(.false.,'local', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: vwn_3 local descriptor found.'
+                  lcfac(10) = .true.
+                elseif ( inp_compare(.false.,'nonlocal', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: vwn_3 nonlocal descriptor found.'
+                  write(6,*)' vwn_3 is a local functional;',
+     &                      ' "nonlocal" descriptor is ignored. '                   
+                  nlcfac(10) = .false.
+                else
+c
+c                 assume total wanted
+c
+                  lcfac(10) = .true.
+                  nlcfac(10) = .false.
+                  call inp_prev_field()
+                endif
+              else
+c
+c               assume total wanted
+c
+                lcfac(10) = .true.
+                nlcfac(10) = .false.
+                call inp_prev_field()
+              endif
+              if ( .not. inp_f(cfac(10)) ) then
+c                write(6,*)
+c     &          ' dft_input: vwnrpa multiplicative factor not found.'
+                cfac(10) = 1.0d0
+              endif    
+c
+            elseif ( inp_compare(.false., 'vwn_4', test)) then
+c             
+c>>>          VWN_4 f for Corr
+c             
+              if ( inp_a(test) ) then
+                if ( inp_compare(.false.,'local', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: vwn_4 local descriptor found.'
+                  lcfac(11) = .true.
+                elseif ( inp_compare(.false.,'nonlocal', test) ) then
+c                  write(6,*)
+c     &            ' dft_input: vwn_4 nonlocal descriptor found.'
+                  write(6,*)' vwn_4 is a local functional;',
+     &                      ' "nonlocal" descriptor is ignored. '                   
+                  nlcfac(11) = .false.
+                else
+c
+c                 assume total wanted
+c
+                  lcfac(11) = .true.
+                  nlcfac(11) = .false.
+                  call inp_prev_field()
+                endif
+              else
+c
+c               assume total wanted
+c
+                lcfac(11) = .true.
+                nlcfac(11) = .false.
+                call inp_prev_field()
+              endif
+              if ( .not. inp_f(cfac(11)) ) then
+c                write(6,*)
+c     &          ' dft_input: vwnrpa multiplicative factor not found.'
+                cfac(11) = 1.0d0
+              endif    
+c
 c  Input for exchange functionals read here.
 c
             elseif ( inp_compare(.false., 'HFexch', test)) then
@@ -1125,28 +1273,28 @@ c
 c>>>  place logical XC parameters in rtdb
 c     
       if(.not. rtdb_put(rtdb, 'dft:lcfac',
-     &   mt_log, 10, lcfac ))
+     &   mt_log, 15, lcfac ))
      &   call errquit('dft_input: rtdb_put failed', 9)
       if(.not. rtdb_put(rtdb, 'dft:nlcfac',
-     &   mt_log, 10, nlcfac ))
+     &   mt_log, 15, nlcfac ))
      &   call errquit('dft_input: rtdb_put failed', 10)
       if(.not. rtdb_put(rtdb, 'dft:lxfac',
-     &   mt_log, 10, lxfac ))
+     &   mt_log, 15, lxfac ))
      &   call errquit('dft_input: rtdb_put failed', 11)
       if(.not. rtdb_put(rtdb, 'dft:nlxfac',
-     &   mt_log, 10, nlxfac ))
+     &   mt_log, 15, nlxfac ))
      &   call errquit('dft_input: rtdb_put failed', 12)
       if(.not. rtdb_put(rtdb, 'dft:xccomb',
-     &   mt_log, 10, xccomb ))
+     &   mt_log, 15, xccomb ))
      &   call errquit('dft_input: rtdb_put failed', 13)
 c     
 c>>>  place real XC parameters in rtdb
 c     
       if (.not. rtdb_put(rtdb, 'dft:cfac',
-     &   mt_dbl, 10, cfac))
+     &   mt_dbl, 15, cfac))
      &   call errquit('dft_input: rtdb_put failed', 210)
       if (.not. rtdb_put(rtdb, 'dft:xfac',
-     &   mt_dbl, 10, xfac))
+     &   mt_dbl, 15, xfac))
      &   call errquit('dft_input: rtdb_put failed', 211)
       return
 c       

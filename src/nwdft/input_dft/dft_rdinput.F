@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.19 1996-10-22 06:00:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.20 1996-10-23 01:19:35 gutowski Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -40,7 +40,7 @@ c
 c******************************************************************************
 c     
       iproc  = ga_nodeid()
-      do iline=1,10
+      do iline=1,15
           xfac(iline)=0.d0
           cfac(iline)=0.d0
          lcfac(iline)=.false.
@@ -411,59 +411,59 @@ c
 c
 c     Get/set/put XC info.
 c
-      if (.not. rtdb_get(rtdb, 'dft:cfac', mt_dbl, 10,
+      if (.not. rtdb_get(rtdb, 'dft:cfac', mt_dbl, 15,
      &   cfac))then
          if (.not. rtdb_put(rtdb, 'dft:cfac',
-     &      mt_dbl, 10, cfac))
+     &      mt_dbl, 15, cfac))
      &      call errquit('dft_input: rtdb_put failed', 210)
       endif
 c
-      if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, 10,
+      if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, 15,
      &   xfac))then
          if (.not. rtdb_put(rtdb, 'dft:xfac',
-     &      mt_dbl, 10, xfac))
+     &      mt_dbl, 15, xfac))
      &      call errquit('dft_input: rtdb_put failed', 211)
       endif
 c
-      if(.not. rtdb_get(rtdb, 'dft:lcfac', mt_log, 10,
+      if(.not. rtdb_get(rtdb, 'dft:lcfac', mt_log, 15,
      &   lcfac ))then
          if(.not. rtdb_put(rtdb, 'dft:lcfac',
-     &      mt_log, 10, lcfac ))
+     &      mt_log, 15, lcfac ))
      &      call errquit('dft_input: rtdb_put failed', 9)
       endif
 c
-      if(.not. rtdb_get(rtdb, 'dft:nlcfac', mt_log, 10,
+      if(.not. rtdb_get(rtdb, 'dft:nlcfac', mt_log, 15,
      &   nlcfac ))then
          if(.not. rtdb_put(rtdb, 'dft:nlcfac',
-     &      mt_log, 10, nlcfac ))
+     &      mt_log, 15, nlcfac ))
      &      call errquit('dft_input: rtdb_put failed', 10)
       endif
 c
-      if(.not. rtdb_get(rtdb, 'dft:lxfac', mt_log, 10,
+      if(.not. rtdb_get(rtdb, 'dft:lxfac', mt_log, 15,
      &   lxfac ))then
          if(.not. rtdb_put(rtdb, 'dft:lxfac',
-     &      mt_log, 10, lxfac ))
+     &      mt_log, 15, lxfac ))
      &      call errquit('dft_input: rtdb_put failed', 11)
       endif
 c
-      if(.not. rtdb_get(rtdb, 'dft:nlxfac', mt_log, 10,
+      if(.not. rtdb_get(rtdb, 'dft:nlxfac', mt_log, 15,
      &   nlxfac ))then
          if(.not. rtdb_put(rtdb, 'dft:nlxfac',
-     &      mt_log, 10, nlxfac ))
+     &      mt_log, 15, nlxfac ))
      &      call errquit('dft_input: rtdb_put failed', 12)
       endif
 c
-      if(.not. rtdb_get(rtdb, 'dft:xccomb', mt_log, 10,
+      if(.not. rtdb_get(rtdb, 'dft:xccomb', mt_log, 15,
      &   xccomb ))then
          if(.not. rtdb_put(rtdb, 'dft:xccomb',
-     &      mt_log, 10, xccomb ))
+     &      mt_log, 15, xccomb ))
      &      call errquit('dft_input: rtdb_put failed', 13)
       endif
 c
 c     Put XC names in rtdb.
 c
       blank_40c = '                                        '
-      do iline=1,10
+      do iline=1,15
          cname(iline)=blank_40c
          xname(iline)=blank_40c
         xcname(iline)=blank_40c
@@ -478,6 +478,10 @@ c
       cname(5)='      Perdew 1991 Correlation Functional'
       cname(6)='  Perdew 1991 LDA Correlation Functional'
       cname(7)='          VWN RPA Correlation Functional'
+      cname(8)='            VWN I Correlation Functional'
+      cname(9)='           VWN II Correlation Functional'
+      cname(10)='          VWN III Correlation Functional'
+      cname(11)='           VWN IV Correlation Functional'
 c
 c     Exchange functional name defaults.
 c
@@ -494,13 +498,13 @@ c
 c>>>  place character XC parameters in rtdb
 c     
       if (.not. rtdb_cput(rtdb, 'dft:cname', 
-     &   10, cname))
+     &   15, cname))
      &   call errquit('dft_input: rtdb_put failed', 302) 
       if (.not. rtdb_cput(rtdb, 'dft:xname', 
-     &   10, xname))
+     &   15, xname))
      &   call errquit('dft_input: rtdb_put failed', 303) 
       if (.not. rtdb_cput(rtdb, 'dft:xcname', 
-     &   10, xcname))
+     &   15, xcname))
      &   call errquit('dft_input: rtdb_put failed', 304) 
 c
       if (.not. geom_create(geom, 'geometry'))

@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.41 1996-10-22 06:00:55 d3h449 Exp $
+C$Id: dft_scf.F,v 1.42 1996-10-23 01:21:43 gutowski Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -1282,8 +1282,8 @@ c
       write(*,*)' TOLL = ', TOLL
       write(*,*)' radius = ', radius
       write(*,*)' rscale = ', rscale
-      write(*,*)' cfac = ', (cfac(i),i=1,10)
-      write(*,*)' xfac =', (xfac(i),i=1,10)
+      write(*,*)' cfac = ', (cfac(i),i=1,15)
+      write(*,*)' xfac =', (xfac(i),i=1,15)
 c
 c     Characters
 c
