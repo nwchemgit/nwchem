@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.13 1995-03-01 23:00:57 og845 Exp $
+C$Id: nwdft.F,v 1.14 1995-03-01 23:09:08 d3e863 Exp $
       implicit real*8 (a-h,o-z)
       logical LResult,converged
       logical ok,CDFIT,XCFIT
@@ -67,7 +67,7 @@ c
       elseif(itype.eq.3) then
         if(.not. geom_ncent(geom,ncent))
      &     call errquit('nwdft: ncent get failed',0)
-        call main3d(geom,rtdt,ncent)
+           call main3d(geom,rtdt,ncent,AO_bas_han,CD_bas_han,XC_bas_han)
       else
         call errquit('nwdft: problem with system type',0)
       endif
@@ -114,3 +114,12 @@ c
       return
       end
  
+
+
+
+
+
+
+
+
+
