@@ -3,6 +3,9 @@
 !
 
 
+      integer          paw_basis_i_cut
+      external         paw_basis_i_cut
+
       integer          paw_basis_orb_l
       external         paw_basis_orb_l
 

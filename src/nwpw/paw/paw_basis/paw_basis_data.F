@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.13 2003-02-08 23:05:14 bylaska Exp $
+! $Id: paw_basis_data.F,v 1.14 2003-02-16 21:00:15 marat Exp $
 
 !**************************************************
 !
@@ -31,7 +31,7 @@
       do it = 1, tot_ntype
         tot_nbasis     = tot_nbasis     + nb(it)
         tot_ngridbasis = tot_ngridbasis + nb(it)*ng(it)
-        tot_ngrid       = tot_ngrid     + ng(it)
+        tot_ngrid      = tot_ngrid     + ng(it)
       end do
 
       ok = MA_set_auto_verify(.TRUE.)
@@ -348,6 +348,25 @@
       paw_basis_i_rmax = rmax(1) +  it-1
       return
       END 
+!**************************************************
+!
+!	Name: paw_basis_i_cut
+!
+!	Purpose 
+!
+!	Created:	7/9/2002
+!**************************************************
+      INTEGER FUNCTION  paw_basis_i_cut(it)
+      implicit none
+      integer it
+    
+#include "paw_basis_data.fh"
+#include "mafdecls.fh"
+
+      paw_basis_i_cut = int_mb(i_cut(1) +  it-1)
+      return
+      END 
+
 
 !**************************************************
 !
