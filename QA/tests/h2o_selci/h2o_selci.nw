@@ -1,24 +1,62 @@
 echo
- 
-start h2o_sels
 
-  geometry; symmetry c2v
-    O 0 0 0; H 0 1.43042809 -1.10715266
-  end
-  basis
-    H library aug-cc-pvtz; O library aug-cc-pvtz
-  end
+# Selected CI with perturbation correction (1 frozen core) geometry
+# optimization of the second 1A1 state of H2O in a 6-31g* basis in C2v.
+# (the final geometry is linear, one component of a linear 1PI state)
 
-  task scf 
+# There are two tasks.  The first defines the CI+PT wavefunction at the
+# initial geometry.  The second performs the optimization.
 
-  scf; thresh 1d-8; end
+# Because only totally symmetric modes have non-zero gradients and the
+# CI+PT also uses symmetry, the speed-up from using symmetry with numerical
+# derivatives is proportional to the square of the number of irreducible
+# representations.
 
-#The following input restarts from the SCF to perform 
-#a sequence of selected CI calculations with the specified tolerances, 
-#starting with the SCF reference.
+# There is no print control in the CI so you'll get LOTS of output
 
-  set fourindex:occ_frozen 1
-  set "selci:selection thresholds" \
-      0.001 0.001 0.0001 0.0001 0.00001 0.00001 0.000001
-  task selci 
+start h2o_selci
 
+title; Water CI+PT geometry optimization
+
+geometry
+ symmetry c2v
+ O 0       0        0.738
+ H 0       1.430   -0.369
+end
+
+set "ao basis" 6-31g*
+
+basis 6-31g* nosegment noprint
+  O library 6-31g*
+  H library 6-31g*
+end
+
+scf; thresh 1e-6; end
+stepper; print low; trust 0.5; end
+
+# First form initial CI reference space starting from all
+# single excitations from the SCF and then perturbation selecting
+# using a threshold of 0.0001 three times -- after this the
+# reference should be self consistent.  Compute the first three
+# roots to have some confidence that we have the real second root.
+
+set fourindex:occ_frozen  1
+set selci:exci 1
+set selci:mode select
+set "selci:selection thresholds" 0.0001 0.0001 0.0001
+set selci:nroot 3
+
+title; case c2: energy with selected CI module
+task selci
+
+# Now optimize using the CI+PT energy of the second root
+# Need to lock the SCF orbitals and CI reference space
+# and force regeneration of the MO integrals at each step
+
+set selci:nroot 2
+set selci:update  .false.
+set "selci:moints:force" true
+scf; print low; lock; end
+
+title; case c3: optimization with selected CI+PT energy
+task selci optimize      # This will be with numerical derivatives
