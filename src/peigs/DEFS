@@ -35,6 +35,7 @@ include $(NWCHEM_TOP)/src/config/makefile.h
 
 peigs_SRC		= $(NWCHEM_TOP)/src
 peigs_TARGET		= $(NWCHEM_TARGET)
+peigs_CPU_TYPE          = $(NWCHEM_TARGET_CPU)
 
 peigs_DIR	= $(peigs_SRC)/peigs
 peigs_LIB	= $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libpeigs.a
@@ -212,7 +213,8 @@ endif
 
 
 ifeq ($(peigs_TARGET),SGITFP)
-#SGI/TCGMSG, r8000 cpu
+#SGI/TCGMSG, r10000 cpu 7.x compilers
+ifeq ($(peigs_CPU_TYPE),R10000)
 peigs_CPU = MIPS
 peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
@@ -225,6 +227,22 @@ peigs_FOPT = -O3 -WK,-so=5,-ro=3,-o=5,-ur=12,-ur2=200,-inline=daxpy:dscal:ddot:d
 peigs_COPT = -O3
 peigs_COMM        = TCGMSG
 peigs_CTOFLIB         = -lftn -lm -lc /usr/lib/crtn.o
+endif
+ifeq ($(peigs_CPU_TYPE),R8000)
+#SGI/TCGMSG, r8000 cpu 6.x compilers
+peigs_CPU = MIPS
+peigs_COMM = TCGMSG
+peigs_CODEOBJ = DBLE
+peigs_CC += -DSTD_DBL -64 
+peigs_FC += -align64  -64 -IPA -LNO:pf2=ON:prefetch=2
+peigs_CPP += -DSTD_INT -DSTD_DBL
+peigs_COMMLIB = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -ltcgmsg
+peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
+peigs_FOPT = -O3 -WK,-so=5,-ro=3,-o=5,-ur=12,-ur2=200,-inline=daxpy:dscal:ddot:dcopy
+peigs_COPT = -O3
+peigs_COMM        = TCGMSG
+peigs_CTOFLIB         = -lftn -lm -lc /usr/lib/crtn.o
+endif
 endif
 
 ifeq ($(peigs_TARGET),CONVEX-SPP)

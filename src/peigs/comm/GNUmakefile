@@ -29,17 +29,17 @@ realclean:
 
 mxbrod.o:	mxbrod.cpp
 		-rm -f mxbrod.f
-		$(peigs_CPP) < mxbrod.cpp > mxbrod.f
+		$(peigs_CPP) < mxbrod.cpp | sed '/^\#/D' > mxbrod.f
 		$(peigs_FC) $(peigs_FOPT) -c mxbrod.f
 
 mxsubs.o:	mxsubs.cpp
 		-rm -f mxsubs.f
-		$(peigs_CPP) < mxsubs.cpp > mxsubs.f
+		$(peigs_CPP) < mxsubs.cpp | sed '/^\#/D' > mxsubs.f
 		$(peigs_FC) $(peigs_FOPT) -c mxsubs.f
 
 mxcombv1.o:	mxcombv1.cpp
 		-rm -f mxcombv1.f
-		$(peigs_CPP) < mxcombv1.cpp > mxcombv1.f
+		$(peigs_CPP) < mxcombv1.cpp | sed '/^\#/D' > mxcombv1.f
 		$(peigs_FC) $(peigs_FOPT) -c mxcombv1.f
 
 
