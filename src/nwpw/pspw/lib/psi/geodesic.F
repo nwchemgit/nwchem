@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.16 2003-10-22 19:45:52 bylaska Exp $
+* $Id: geodesic.F,v 1.17 2003-10-22 21:59:37 bylaska Exp $
 *
 
 *     ***********************************
@@ -417,6 +417,7 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
           scal1 = dcos(dbl_mb(S(1)+j-1+shift1)*t)
           scal2 = dsin(dbl_mb(S(1)+j-1+shift1)*t)
 
+!DIR$ ivdep
           do k=1,n
            shift = j-1 + (k-1)*n + shift2
            dbl_mb(tmp1(1)+shift) = scal1 * dbl_mb(Vt(1)+shift)
@@ -568,6 +569,7 @@ c     end if
           scal3 = dbl_mb(S(1)+j-1+shift1)
      >            *dcos(dbl_mb(S(1)+j-1+shift1)*t)
 
+!DIR$ ivdep
           do k=1,n
            shift = j-1 + (k-1)*n + shift2
            dbl_mb(tmp1(1)+shift) = scal1*dbl_mb(Vt(1)+shift)
@@ -712,6 +714,7 @@ c    >            dbl_mb(tmp3(1)+shift2))
         do j=1,n
           scal1 =       dsin(dbl_mb(S(1)+j-1+shift1)*t)
           scal3 = 1.0d0-dcos(dbl_mb(S(1)+j-1+shift1)*t)
+
           do k=1,n
            dbl_mb(tmp1(1)+j-1+(k-1)*n+shift2) 
      >        = scal1 * dbl_mb(tmp1(1)+j-1+(k-1)*n + shift2)
