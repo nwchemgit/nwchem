@@ -1,68 +1,228 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.20 1994-09-09 18:18:26 d3e129 Exp $
+c $Id: raktest.F,v 1.21 1994-09-13 05:14:16 d3e129 Exp $
 #include "global.fh"
       integer rtdb
+c::functions
+      logical gen_apphess_at
+      external gen_apphess_at
 c
-      logical scf
-      logical gradients
-      logical stpr_walk
+      integer i
+      double precision delta
+c
       real etime,tarray(2)
       real t1
-      external scf
-      external gradients
-      external stpr_walk
       external etime
 c
 c      logical status
 c
       if(ga_nodeid().eq.0) then
         write(6,*) ' rak test'
-*rak:      call size_integ(rtdb,'geometry', 'mo basis')
-        write(6,*)'==================================================='
-        write(6,*)' acc = high ,1.0d-20'
       endif
-      t1 = etime(tarray)
-      call dointsum(rtdb,'geometry', 'mo basis',1.0d-20)
-      t1 = etime(tarray) - t1 
-      if(ga_nodeid().eq.0) then
-        write(6,'(a,f10.3)')' dointsum time: ',t1
-        write(6,*)'==================================================='
+      delta = 0.1d00
+      do 00100 i = 1,5
+        t1 = etime(tarray)
+        if(.not.gen_apphess_at(rtdb,delta)) call errquit
+     &      ('raktest:gen_apphess_at failed',911)
+        t1 = etime(tarray) - t1 
+        delta = delta*0.1d00
+        if(ga_nodeid().eq.0) then
+          write(6,'(1x,a,f8.2)')
+     &        'time for rak test',t1
+        endif
+00100 continue
+      end
+      logical function gen_apphess_at(rtdb,delta)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "bas.fh"
+#include "rtdb.fh"
+#include "context.fh"
+c::functions
+      logical geom_create_copy
+      logical geom_rtdb_store
+      external geom_create_copy
+      external geom_rtdb_store
+c::passed
+      integer rtdb
+      double precision delta
+c::local
+      integer whoiam,printnode
+      integer geom,geom_ref, geom_delta
+      integer nat, rank_hess
+      integer basis
+      integer h_grad0, k_grad0 ! handle/index for central gradient
+      integer h_gradp, k_gradp ! handle/index for delta gradient
+      integer h_hess, k_hess ! handle/index for hessian matrix
+      integer iatom, ixyz
+      double precision xyz(3), chg
+      character*16 tag_name
+      character*255 mo_basis, fd_basis
+c
+      whoiam = ga_nodeid()
+      printnode = 0
+c
+c.. create/load reference geometry
+      if (.not.geom_create(geom,'geometry')) call errquit
+     &    ('gen_apphess_at:geom_create failed?',1)
+      if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+     &    ('gen_apphess_at:geom_rtdb_load failed?',2)
+*:debug      if (whoiam.eq.printnode) then
+*:debug        if (.not.geom_print(geom)) call errquit
+*:debug     &      ('gen_apphess_at:geom_print failed?',911)
+*:debug      endif
+c..  get the number of atoms
+      if (.not. geom_ncent(geom,nat)) call errquit
+     &    ('gen_apphess_at:geom_ncent failed?',3)
+c
+c.. copy reference geometry and store on rtdb
+      if (.not.geom_create_copy(geom,geom_ref,'reference'))
+     &    call errquit
+     &    ('gen_apphess_at:geom_create_copy failed?',4)
+      if (.not.
+     &    geom_rtdb_store(rtdb,geom_ref,'reference'))
+     &    call errquit('gen_apphess_at: geom_rtdb_store failed',5)
+*:debug      if (whoiam.eq.printnode) then
+*:debug        if (.not.geom_print(geom_ref)) call errquit
+*:debug     &      ('gen_apphess_at:geom_print failed?',911)
+*:debug      endif
+c.. destroy incore copy of reference geometry
+c
+      if(.not.geom_destroy(geom_ref)) call errquit
+     &    ('gen_apphess_at: geom_destroy failed?',6)
+c
+c.. try to load "fd basis"
+c.. create basis hangle
+      if(.not.bas_create(basis,'fd basis')) call errquit
+     &    ('gen_apphess_at: bas_create failed?',7)
+      if(bas_rtdb_load(rtdb,geom,basis,'fd basis')) then
+        continue
+      else
+        write(6,*)' fd basis not defined.  Default -> sto3g'
+        stop ' tmp stop '
       endif
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-*rak:      write(6,*)'====================================================='
-*rak:      write(6,*)' acc = std 1.0d-10'
-*rak:      t1 = etime(tarray)
-*rak:      call dointsum(rtdb,'geometry', 'mo basis',1.0d-10)
-*rak:      t1 = etime(tarray) - t1 
-*rak:      write(6,'(a,f10.3)')' dointsum time: ',t1
-*rak:      write(6,*)'====================================================='
-*rak:      write(6,*)'====================================================='
-*rak:      write(6,*)' acc = 1.0d-06 '
-*rak:      t1 = etime(tarray)
-*rak:      call dointsum(rtdb,'geometry', 'mo basis',1.0d-06)
-*rak:      t1 = etime(tarray) - t1 
-*rak:      write(6,'(a,f10.3)')' dointsum time: ',t1
-*rak:      write(6,*)'====================================================='
-*rak:      write(6,*)'====================================================='
-*rak:      write(6,*)' acc = 1.0d-03 '
-*rak:      t1 = etime(tarray)
-*rak:      call dointsum(rtdb,'geometry', 'mo basis', 1.0d-03)
-*rak:      t1 = etime(tarray) - t1 
-*rak:      write(6,'(a,f10.3)')' dointsum time: ',t1
-*rak:      write(6,*)'====================================================='
-*rak:      call derivtest(rtdb,'geometry', 'mo basis')
-*rak:00001 continue
-*rak:      status = .false.
-*rak:      status = scf(rtdb)
-*rak:      write(6,*)' status of scf is ',status
-*rak:      status = gradients(rtdb)
-*rak:      write(6,*)' status of scf gradients is ',status
-*rak:      status = stpr_walk(rtdb)
-*rak:      write(6,*)' status of step is ',status
-*rak:     if (.not.status) goto 00001
+c
+      if (.not.context_rtdb_match(rtdb,'mo basis',mo_basis))
+     &    mo_basis = 'mo basis'
+      if (.not.context_rtdb_match(rtdb,'fd basis',fd_basis))
+     &    fd_basis = 'fd basis'
+      if (.not.rtdb_cput(rtdb,'mo basis',1,fd_basis)) call errquit
+     &    ('gen_apphess_at: rtdb_cpu failed?',8)
+c
+      if (.not.(bas_destroy(basis).and.
+     &    geom_destroy(geom))) call errquit
+     &    ('gen_apphess_at: {geom,bas}_destroy failed?',9)
+      call scf_gradient(rtdb)
+      rank_hess = 3*nat
+      if (.not. MA_Push_Get(MT_DBL,rank_hess,
+     &    'cent nuclear gradient vector',
+     &    h_grad0,k_grad0)) call errquit
+     &    ('gen_apphess_at: ma_push_get failed?',10)
+      if (.not. MA_Push_Get(MT_DBL,rank_hess,
+     &    'delta nuclear gradient vector',
+     &    h_gradp,k_gradp)) call errquit
+     &    ('gen_apphess_at: ma_push_get failed?',11)
+      if (.not. MA_Push_Get(MT_DBL,(rank_hess*rank_hess),
+     &    'nuclear hessian matrix',
+     &    h_hess,k_hess)) call errquit
+     &    ('gen_apphess_at: ma_push_get failed?',12)
+c
+      call dfill((rank_hess*rank_hess),0.0d00,
+     &    dbl_mb(k_hess),1)
+c
+c.. get central gradient
+      if(.not. rtdb_get(rtdb,'scf:gradients',MT_DBL,
+     &    rank_hess,dbl_mb(k_grad0)))
+     &    call errquit('gen_apphess_at: rtdb_get failed',13)
+c
+      do 00100 iatom = 1,nat
+        do 00200 ixyz = 1,3
+          if (.not.geom_create(geom_ref,'reference')) call errquit
+     &        ('gen_apphess_at:geom_create failed?',14)
+          if (.not.geom_rtdb_load(rtdb,geom_ref,'reference'))
+     &        call errquit
+     &        ('gen_apphess_at:geom_rtdb_load failed?',15)
+          if (.not.geom_cent_get(geom_ref,iatom,tag_name,xyz,chg))
+     &        call errquit
+     &        ('gen_apphess_at:geom_cent_get failed?',16)
+          xyz(ixyz) = xyz(ixyz) + delta
+          if (.not.geom_cent_set(geom_ref,iatom,tag_name,xyz,chg))
+     &        call errquit
+     &        ('gen_apphess_at:geom_cent_get failed?',17)
+c.. copy modified geometry and store on rtdb
+          if (.not.geom_create_copy(geom_ref,geom_delta,'geometry'))
+     &        call errquit
+     &        ('gen_apphess_at:geom_create_copy failed?',18)
+          if (.not.
+     &        geom_rtdb_store(rtdb,geom_delta,'geometry'))
+     &        call errquit('gen_apphess_at: geom_rtdb_store failed',19)
+          if (.not.geom_destroy(geom_ref))
+     &        call errquit('gen_apphess_at: geom_destroy failed?',20)
+          if (.not.geom_destroy(geom_delta))
+     &        call errquit('gen_apphess_at: geom_destroy failed?',20)
+          call scf_gradient(rtdb)
+          if(.not. rtdb_get(rtdb,'scf:gradients',MT_DBL,
+     &        rank_hess,dbl_mb(k_gradp)))
+     &        call errquit('gen_apphess_at: rtdb_get failed',21)
+          call fd_cdupd_hess(dbl_mb(k_hess),dbl_mb(k_grad0),
+     &        dbl_mb(k_gradp),delta,nat,iatom,ixyz)
+00200   continue
+00100 continue
+c
+      write(6,*)' finite difference hessian delta = ',delta
+      call output(dbl_mb(k_hess),1,rank_hess,1,rank_hess,
+     &    rank_hess,rank_hess,1)
+c
+c.. redefine mo basis to it's original setting
+      if (.not.rtdb_cput(rtdb,'mo basis',1,mo_basis)) call errquit
+     &    ('gen_apphess_at: rtdb_cpu failed?',22)
+c.. reinstate reference geometry as current geometry
+      if (.not.geom_create(geom_ref,'reference')) call errquit
+     &    ('gen_apphess_at:geom_create failed?',23)
+      if (.not.geom_rtdb_load(rtdb,geom_ref,'reference')) call errquit
+     &    ('gen_apphess_at:geom_rtdb_load failed?',24)
+c.. copy reference geometry and store on rtdb
+      if (.not.geom_create_copy(geom_ref,geom,'geometry'))
+     &    call errquit
+     &    ('gen_apphess_at:geom_create_copy failed?',25)
+      if (.not.
+     &    geom_rtdb_store(rtdb,geom,'geometry'))
+     &    call errquit('gen_apphess_at: geom_rtdb_store failed',26)
+c.. destroy incore copy of reference and geometry geometries
+c
+      if(.not.geom_destroy(geom))
+     &    call errquit('gen_apphess_at: geom_destroy failed?',27)
+      if(.not.geom_destroy(geom_ref))
+     &    call errquit('gen_apphess_at: geom_destroy failed?',27)
+      gen_apphess_at = .true.
+      end
+      subroutine fd_cdupd_hess(hess,grad0,gradp,delta,nat,
+     &    iatom_t,ixyz_t)
+      implicit none
+c::passed
+      integer nat
+      integer iatom_t, ixyz_t
+      double precision hess(3,nat,3,nat)
+      double precision grad0(3,nat)
+      double precision gradp(3,nat)
+      double precision delta
+c::local
+      integer iatom,ixyz
+      double precision rdelta, value
+c
+c central difference [f(x+delta) - f(x)]/delta
+c
+      rdelta = 1.0d00/delta
+      do 00100 iatom = 1,nat
+        do 00200 ixyz = 1,3
+          value = rdelta*(gradp(ixyz,iatom)-grad0(ixyz,iatom))
+          hess(ixyz_t,iatom_t,ixyz,iatom) = value
+          hess(ixyz,iatom,ixyz_t,iatom_t) = value
+00200   continue
+00100 continue
+c
       end
 *rak:      subroutine size_integ(rtdb,geom_name, basis_name)
 *rak:      implicit none
@@ -130,75 +290,6 @@ c
 *rak:     &       call errquit('rak:error destroying gbs pair',0)
 *rak:c
 *rak:      end
-      subroutine dointsum(rtdb,geom_name, basis_name, tol2e)
-      implicit none
-#include "geom.fh"
-#include "bas.fh"
-#include "mafdecls.fh"
-#include "global.fh"
-#include "rtdb.fh"
-c
-      integer rtdb
-      integer basis, geom
-      double precision tol2e
-      character*(*) geom_name, basis_name
-c
-      logical int_normalize
-      double precision ddot
-      external int_normalize
-      external ddot
-c
-      call hf_print_set(0)
-c
-      write(6,*)' rtdb      :',rtdb
-      write(6,*)' geom_name : <',geom_name,'>'
-      write(6,*)' basis_name: <',basis_name,'>'
-c
-      if (.not.rtdb_parallel(1))
-     &     call errquit('dointsum: rtdb_parallel failed?', 0)
-      if (.not. geom_create(geom, geom_name))
-     $     call errquit('dointsum: geom_create failed?', 0)
-      if (.not. geom_rtdb_load(rtdb, geom, geom_name))
-     $     call errquit('dointsum: geom_load failed', 0)
-      if (.not. bas_create(basis, basis_name))
-     $     call errquit('dointsum: basis create failed', 0)
-      if (.not. bas_rtdb_load(rtdb, geom, basis, basis_name))
-     $      call errquit('dointsum: basis load failed', 0)
-
-      if (ga_nodeid().eq.0) then
-        if (.not. geom_print(geom))
-     $      call errquit('dointsum: geom_print failed', 0)
-        if (.not. bas_print(basis))
-     $      call errquit('dointsum: basis print failed', 0)
-        if (.not. gbs_map_print(basis))
-     $      call errquit('dointsum: gbs_map_print failed', 0)
-      endif
-c
-c normalize basis set
-c
-      if (.not.int_normalize(basis))
-     &       call errquit('dointsum: basis norm. failed', 0)
-*      write(6,*)' after normalization'
-*      if (.not. bas_print(basis))
-*     $      call errquit('dointsum: basis print failed', 0)
-c
-c      write(6,*)' with integrals  printed '
-c      call int_chk_sum(basis,.true.)
-      call int_init(1,basis)
-      call int_acc_set(tol2e)
-      call int_terminate()
-      call intd_init(1,basis)
-*      write(6,*)' without integrals  printed '
-      call int_chk_sum(basis,.false.)
-c
-      call int_terminate()
-      if (.not.(
-     &       (bas_destroy(basis)).and.(geom_destroy(geom))
-     &       ))
-     &       call errquit('rak:error destroying gbs pair',0)
-      if (ga_nodeid().eq.0) call MA_summarize_allocated_blocks()
-c
-      end
 *rak:      subroutine derivtest(rtdb,geom_name, basis_name)
 *rak:      implicit none
 *rak:#include "geom.fh"
