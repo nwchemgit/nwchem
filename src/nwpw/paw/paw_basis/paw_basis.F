@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.23 2003-03-25 00:44:45 edo Exp $
+* $Id: paw_basis.F,v 1.24 2003-03-25 02:59:29 edo Exp $
 *
 
 !**************************************************
@@ -185,8 +185,8 @@ c     !*** set core charges ***
       close(fp)
       endif
       msglen = 1
-      call BRDCST(9+MSGDBL,ng,             mdtob(msglen),MASTER)
-      call BRDCST(9+MSGDBL,nb,           mdtob(msglen),MASTER)
+      call BRDCST(9+MSGINT,ng,             mitob(msglen),MASTER)
+      call BRDCST(9+MSGINT,nb,           mitob(msglen),MASTER)
       return
       end
 
