@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.19 1999-07-29 01:03:13 d3e129 Exp $
+# $Id: GNUmakefile,v 1.20 2000-08-02 01:33:36 bjohnson Exp $
 
 include ../config/makefile.h
 
@@ -7,10 +7,12 @@ include ../config/makefile.h
 
     OBJ_OPTIMIZE = rtdb_f2c.o rtdb.o rtdb_seq.o \
                    context.o context_f2c.o
+# BEGIN_WIN32_IGNORE
 ifeq ($(TARGET),LINUX)
     OBJ = rtdb_seq.o
     OBJ_OPTIMIZE = rtdb_f2c.o rtdb.o context.o context_f2c.o
 endif
+# END_WIN32_IGNORE
          HEADERS = context.h rtdb.h rtdb.fh context.fh rtdb.cray.h
 
      LIB_TARGETS = test test.o rtdbtest rtdbtest.o interact context davetest \
@@ -27,9 +29,11 @@ ifdef USE_HDBM
      LIB_DEFINES = -DUSE_HDBM
          SUBDIRS = hdbm
 else
+# BEGIN_WIN32_IGNORE
     LIB_INCLUDES = -I./db
      LIB_DEFINES = -DUSE_DB
          SUBDIRS = db
+# END_WIN32_IGNORE
 endif
 
 include ../config/makelib.h

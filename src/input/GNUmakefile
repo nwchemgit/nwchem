@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.46 2000-05-10 22:11:13 edo Exp $
+#$Id: GNUmakefile,v 1.47 2000-08-02 01:25:17 bjohnson Exp $
 
 # Put into task library so that it occurs at the front of the link path
 
@@ -13,6 +13,8 @@
 #     HEADERS = ../global/src/types.f2c.h
 
 include ../config/makefile.h
+
+# BEGIN_WIN32_IGNORE
 
 HOSTNAME := $(shell hostname)
 
@@ -29,5 +31,6 @@ ifeq ($(HOSTSUFFIX),nwmpp1.emsl.pnl.gov)
   LIB_DEFINES += -DDFLT_TOT_MEM=50331648
 endif
 
+# END_WIN32_IGNORE
 
 include ../config/makelib.h

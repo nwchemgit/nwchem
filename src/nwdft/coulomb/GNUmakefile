@@ -1,9 +1,11 @@
-# $Id: GNUmakefile,v 1.29 2000-03-31 01:33:20 edo Exp $
+# $Id: GNUmakefile,v 1.30 2000-08-02 01:29:59 bjohnson Exp $
 ifeq ($(TARGET),SGITFP)
+# BEGIN_WIN32_IGNORE
       OBJ_OPTIMIZE = dft_getvc.o dft_n3c.o
       OBJ =  dft_3cincor.o dft_mem3c.o\
 	dft_fitcd.o				   dft_fitvc.o	\
 	dft_get2eri.o		dft_genspm.o dft_getspm.o 
+# END_WIN32_IGNORE
 else
 #      OBJ = dft_genspm.o dft_getspm.o 
 #      OBJ_OPTIMIZE = dft_fitcd.o dft_3cincor.o dft_n3c.o \
