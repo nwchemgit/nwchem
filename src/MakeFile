@@ -49,8 +49,7 @@ pre_build:
 	-@nmake -nologo TARGET_DIR=tools subdir_target
 
 link: $(BINDIR) $(OBJDIR) $(OBJ)
-	$(FC) /Fe"$(WIN32_EXE)" $(OBJ) /link \
-        /stack:2000000 \
+	$(FC) /Fe"$(WIN32_EXE)" $(OBJ) /link /stack:5000000 \
 	/debug:full /debugtype:cv /pdb:none /libpath:"$(LIB_DISTRIB)" \
 	/libpath:"$(SRCDIR)\tools\lib\win32" /libpath:"$(MPI_LIB)" \
         $(LIBS) $(PYTHON_SYSLIB)
