@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.85 1998-03-17 00:14:46 bernhold Exp $
+# $Id: GNUmakefile,v 1.86 1998-04-23 23:20:47 d3j191 Exp $
 
 include ../config/makefile.h
 
@@ -93,6 +93,7 @@ endif
               util_file_unlink.o util_system.o util_sleep.o \
               util_rtdb_state.o ecce_print.o \
               util_random.o util_job.o util_getenv.o\
+              util_nwchemrc.o\
 	      dgewr.o atoi.o indint.o util_wall_remain.o \
 		ga_normf.o corr_mk_ref.o \
               $(EXTRA_OBJ)
