@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.40 2000-02-25 00:40:53 windus Exp $
+* $Id: task.F,v 1.41 2000-03-21 21:30:21 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -32,7 +32,7 @@ c
       logical oprint_task_times, odebug
 c
       logical rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf,
-     $     jantest
+     $     jantest, uccsdtest
       logical nwargos, property, dplot, gapss, task_shell, moints_full
       logical analyz,esp,prepar,nwmd, kgdtest, jvltest, jvltest2
       logical task_energy, task_gradient, task_optimize, task_freq
@@ -42,7 +42,7 @@ c
       logical task_pspw
       logical task_drdy
 c
-      external jantest
+      external jantest, uccsdtest
       external rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       external nwargos, property, dplot, gapss, task_shell, moints_full
       external analyz,esp,prepar,nwmd
@@ -103,6 +103,8 @@ c
             status = rjhtest(rtdb)
          else if (inp_compare(.false.,'jantest', theory)) then
             status = jantest(rtdb)
+         else if (inp_compare(.false.,'uccsdtest', theory)) then
+            status = uccsdtest(rtdb)
          else if (inp_compare(.false.,'jvltest', theory)) then
             status = jvltest(rtdb)
          else if (inp_compare(.false.,'marga', theory)) then
