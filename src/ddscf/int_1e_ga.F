@@ -39,7 +39,7 @@ c
       if (oskel) then
          if (ibas.ne.jbas) call errquit
      $        ('int_1e_ga: use of symmetry requires ibas=jbas', ibas)
-      endif
+      end if
 c     
       if (inp_compare(.false., integ_type, 'kinetic')) then
          type = 1
@@ -50,7 +50,7 @@ c
       else
          write(6,*) ' integ_type = ', integ_type
          call errquit('int_1e_ga: unknown integ_type', 0)
-      endif
+      end if
 c     
 c     Get info about the basis sets
 c     
@@ -82,7 +82,7 @@ c
       q2 = 1.0d0
       do jshell = 1, nshell_j
          do ishell = 1, nshell_i
-            if (mod(ijshell/16, nproc) .eq. iproc) then
+            if (mod(ijshell, nproc) .eq. iproc) then
                if (oskel) 
      $              odoit = sym_shell_pair(ibas, ishell, jshell, q2)
 c
@@ -106,18 +106,17 @@ c
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                   else
                      call errquit('int_1e_ga: invalid type?', type)
-                  endif
+                  end if
 c     
 c     Add the integrals into the global array
 c     
                   call ga_acc(g, ilo, ihi, jlo, jhi, dbl_mb(k_buf),
      $                 idim, q2)
-               endif
-            endif
+               end if
+            end if
             ijshell = ijshell + 1
-            call ga_sync()
-         enddo
-      enddo
+         end do
+      end do
 c     
 c     chop stack at first item allocated
 c     
