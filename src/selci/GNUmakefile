@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.22 2000-10-20 20:24:15 edo Exp $
+# $Id: GNUmakefile,v 1.23 2002-01-19 02:55:45 zzhang Exp $
 #
 
 
@@ -34,9 +34,11 @@ eijkl.o		putinb.o	inicij.o	ointer.o	oeq.o
 SELOBJ = \
 select.o        selci.o         ptidy.o         anal.o          mkindx.o \
 slect.o         tester.o        mkdele.o        mkvc.o          e0mp2.o \
-mpdele.o	stool.o 	restk.o		restin.o        orbanal.o
+mpdele.o	stool.o 	restk.o		restin.o        orbanal.o \
+selci_hpp.o
 
 OBJ_OPTIMIZE = $(UOBJ) $(DVOBJ) $(CIOBJ) $(SELOBJ) $(BLAS)
+#OBJ = $(UOBJ) $(DVOBJ) $(CIOBJ) $(SELOBJ) $(BLAS)
 
 USES_BLAS = davids.F fcidim.F makeh.F makehs.F makhdb.F tester.F
 
