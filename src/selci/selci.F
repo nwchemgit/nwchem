@@ -1,6 +1,6 @@
       logical function selci(rtdb)
 *
-* $Id: selci.F,v 1.12 2003-10-17 22:58:17 carlfahl Exp $
+* $Id: selci.F,v 1.13 2004-05-17 20:27:47 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -139,7 +139,7 @@ c
       else
          call util_pname(ctmp, hamil)
       endif
-      write(*,*)"hamiltonian matrices changed to permanant"
+C      write(*,*)"hamiltonian matrices changed to permanant"
 c
 c     Should we delete the existing ciconf file?  (not checking this now). 
 c     If it does not exisit then generate a default.
