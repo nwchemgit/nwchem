@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.185 2001-06-27 01:49:44 edo Exp $
+c     $Id: dft_scf.F,v 1.186 2001-08-19 21:32:13 bjohnson Exp $
 c     
       implicit none
 c
@@ -25,6 +25,9 @@ c
 #include "global.fh"
 #include "msgids.fh"
 #include "util.fh"
+#ifdef BETTIS
+#include "screened_op.fh"
+#endif
 c     
 #if defined(DFT_TIMER)
 #include "timer.fh"
@@ -523,6 +526,13 @@ c
 c     Restore SCF parameters
 c
       call scf_get_fock_param(rtdb, tol2e)
+#ifdef BETTIS
+c     Screened exchange works only with direct SCF
+      if (screened_exchange()) then
+         write(*,*)'Forcing direct SCF for screened exchange'
+         call fock_force_direct(rtdb)
+      endif
+#endif
 c     
 c     If open shell put the total density matrix in g_dens(1)
 c
