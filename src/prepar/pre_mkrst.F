@@ -5,7 +5,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg,fcount,lfnmod,filmod,itopol)
 c
-c $Id: pre_mkrst.F,v 1.88 2003-07-17 19:38:57 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.89 2003-07-17 22:17:41 d3j191 Exp $
 c
       implicit none
 c
@@ -318,7 +318,6 @@ c
       if(nmis.gt.0.or.iwater.gt.0) then
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
-      print*,'call 1'
       if(.not.pre_misfit(lfnout,lfnmat,int_mb(i_sfnd),dbl_mb(i_xs),
      + byte_mb(i_csa),dbl_mb(i_qsa),int_mb(i_sgm),msa,nsa,
      + int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
@@ -550,7 +549,6 @@ c
       if(nmis.gt.0.or.iwater.gt.0) then
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
-      print*,'call 2'
       if(.not.pre_misfit(lfnout,lfnmat,int_mb(i_sfnd),dbl_mb(i_xs),
      + byte_mb(i_csa),dbl_mb(i_qsa),int_mb(i_sgm),msa,nsa,
      + int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
@@ -860,7 +858,6 @@ c
       endif
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
-      print*,'call 3'
       if(.not.pre_misfit(lfnout,lfnmat,int_mb(i_sfnd),dbl_mb(i_xs),
      + byte_mb(i_csa),dbl_mb(i_qsa),int_mb(i_sgm),msa,nsa,
      + int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
