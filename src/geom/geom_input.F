@@ -14,7 +14,7 @@ c
       logical oprint
       integer max_center        ! parameter for local array dimension
       double precision scale    ! For unit conversion
-      parameter (max_center = 1000)
+      parameter (max_center = 500)
       double precision coords(3,max_center)
       double precision charge(max_center)
       character*16 tags(max_center)

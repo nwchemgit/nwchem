@@ -79,7 +79,7 @@ c
       double precision prod_acc
       logical converged
       integer maxdim
-      parameter (maxdim = 105)   ! Maximum size of iterative subspace
+      parameter (maxdim = 10)   ! Maximum size of iterative subspace
       double precision aa(maxdim,maxdim), ss(maxdim,maxdim),
      $     yy(maxdim,maxdim), ee(maxdim), fv1(maxdim), fv2(maxdim)
       double precision xnorm
