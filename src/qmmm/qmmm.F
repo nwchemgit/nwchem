@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.32 2004-10-21 20:21:42 marat Exp $
+c $Id: qmmm.F,v 1.33 2004-10-22 19:02:19 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -40,10 +40,11 @@ c     --------------------------------------------
       if (.not. rtdb_put(irtdb,'qmmm:init',mt_log,1,.true.))
      $     call errquit('qmmm: failed qmmm:init', 0, RTDB_ERR)
 
-c      call qmmm_print_params(irtdb)
 
       if(qmmm_print_debug()) 
      >  write(*,*) ga_nodeid(),"out "//pname
+
+      call util_print_pop() 
 
       return
       end
@@ -90,7 +91,6 @@ c
       call qmmm_data_release()
       call qmmm_bq_data_dealloc()
 
-      call util_print_pop() 
       qmmm_end = .true.
       return
       end
@@ -118,6 +118,9 @@ c     local variables
 c     external functions
       logical  task_energy_doit
       external task_energy_doit
+
+      call util_print_push() 
+      call util_print_rtdb_load(rtdb, 'qmmm')
       
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
@@ -158,6 +161,8 @@ c     -------------------------
 
       qmmm_energy=status
 
+      call util_print_pop()
+
       end
 
       function qmmm_gradient(rtdb)
@@ -191,6 +196,8 @@ c
       integer ntot
       integer i
 
+      call util_print_push() 
+      call util_print_rtdb_load(rtdb, 'qmmm')
 
       link = .not.qmmm_h_link()
 
@@ -264,6 +271,8 @@ c
  
       qmmm_gradient=status
       call qmmm_geom_finish(rtdb)
+
+      call util_print_pop()
 
       end
 

@@ -684,6 +684,8 @@ c
       oprint = util_print("debug_info", print_debug)
 
       qmmm_print_debug = oprint .and. (ga_nodeid().eq.0)
+      write(*,*) "qmmm_print_debug",qmmm_print_debug,
+     >           ga_nodeid()
 
       end 
 

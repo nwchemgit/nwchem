@@ -64,7 +64,7 @@ c     -------------------------------------------
      >                       dbl_mb(i_cbq+3*nbqs),
      >                       dbl_mb(i_qbq+nbqs))
       end if
-     
+    
       end
 
       subroutine qmmm_bq_data_alloc()

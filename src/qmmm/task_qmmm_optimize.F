@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.3 2004-10-19 20:01:49 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.4 2004-10-22 19:02:19 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -20,6 +20,9 @@ c
 c     
       logical   driver
       external  driver
+
+      call util_print_push() 
+      call util_print_rtdb_load(rtdb, 'qmmm')
 c
       pname = "task_qmmm_optimize"
 c
@@ -63,6 +66,8 @@ c
      &       RTDB_ERR)
 c     
       task_qmmm_optimize = status
+c
+      call util_print_pop()
 c     
       end
 
