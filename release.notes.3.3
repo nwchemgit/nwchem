@@ -1,11 +1,13 @@
-NWChem Version 3.3 Release Notes
+NWChem Version 3.3 and 3.3.1 Release Notes
 (Also available at http://www.emsl.pnl.gov/pub/docs/nwchem/support/release.3.3.html)
 
 NOTE: These release notes are not a substitute for reading the User Manual!
 They are meant to give a thumbnail sketch of the new capabilities and bug
-fixes that are available in NWChem Version 3.3. When there is a conflict
-between the release notes and the User Manual, the User Manual takes
-precedence. 
+fixes that are available in NWChem Version 3.3 and 3.3.1. When there
+is a conflictbetween the release notes and the User Manual, the User
+Manual takes precedence. 
+
+The changes for version 3.3.1 are listed at the bottom of this file.
 
 Several new major capabilities are available in NWChem, including several new
 modules. The new modules are: 
@@ -270,3 +272,42 @@ http://www.emsl.pnl.gov:2080/docs/nwchem/support/NWChem_FAQ.html
 
 A list of Known Bugs is available at
 http://www.emsl.pnl.gov:2080/docs/nwchem/support/known_bugs.3.3.html
+
+List of Release 3.3.1 changes in the source and binary download files:
+
+ o Fix for message passing with Linux.  This fixes a known
+    performance problem.
+ o Modifications in the GA tools which were causing performance
+    problems between workstations.
+ o Fix for the passing of character strings in the PSPW code.
+ o Fix for the T3E makefile so that the make works cleanly.
+ o Fix tools makefiles to allow for larger than 2 GB files on the
+    SP and to fix a diagonalization problem which was causing problems
+    with the scalability of DFT.
+ o Work arounds to LAPI problems that have been identified on
+    the SP.  The symptoms generally showed up as jobs that
+    would hang.
+ o The periodic boundary conditions for an MD run now checks
+    for images more than one cell away.
+ o Fix in the PREPARE module so that some solvents that were
+    not being written out correctly in the PDB file now are.
+ o Additional printing of information in the ecce.out file to
+    be compatible with Ecce 1.5.
+ o Slightly looser value of EPREC in DRIVER for DFT
+    calculations. (5e-6 instead of 1e-7)
+ o Improved screening on the grid for DFT which only effects large
+    calculations (usually those that have molecules that are "spread
+    out").
+ o Dramatically improved parallel efficiency of the Lagrange
+    multipliers and the non-local pseudopotentials on high-latency 
+    parallel platforms in the PSPW code.
+ o Improved persistence of tolerance changes when linear
+    dependence is found.  This had caused some convergence
+    problems.
+ o The TIGHT option has replaced AOTOL and MOTOL in MP2 (undocumented
+    feature of version 3.3).
+ o Fix in the CCSD calculation to add some synchronization which
+    provided more stability.
+ o The examples directory has been updated and the tests 
+    directory has been deleted because the input files were
+    obsolete.
