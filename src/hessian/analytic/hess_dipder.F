@@ -1,5 +1,5 @@
 C
-C  $Id: hess_dipder.F,v 1.3 2002-02-06 01:11:16 windus Exp $
+C  $Id: hess_dipder.F,v 1.4 2002-02-14 20:49:24 windus Exp $
 C
       subroutine hess_dipder(geom,basis,dder,g_dens,n3xyz,ncent)
       implicit none
@@ -44,6 +44,9 @@ c
      &     ('hess_dipder: bas_nbf_cn_max failed',555)
       if (.not. geom_center_of_mass(geom, center)) call errquit
      *     ('hess_dipder: geom_center_of_mass failed',555)
+c     center (1) = 0.0d00
+c     center (2) = 0.0d00
+c     center (3) = 0.0d00
 c
 c  Get integral buffers
 c
@@ -187,7 +190,13 @@ c
 c
       integer ndns, offset1, offset2, ind, i, j, k, nxyz
       integer alo(3), ahi(3), blo(3), bhi(3)
+      double precision factor
 c
+      if (ndens.eq.1) then
+        factor = 2.0d00
+      else
+        factor = 1.0d00
+      endif
       nxyz = n3xyz/3
       alo(2) = 1
       alo(3) = 1
@@ -208,7 +217,7 @@ c
           do i = 1, 3
             blo(1) = offset2 + i
             bhi(1) = offset2 + i
-            dder(i, j, k) = dder(i, j, k) + 2.0d00*
+            dder(i, j, k) = dder(i, j, k) + factor *
      *                     nga_ddot_patch(g_sx, 'N', alo, ahi,
      *                                    g_dip, 'N', blo, bhi)
           enddo
@@ -242,7 +251,13 @@ c
 c
       integer ndns, offset, ind, i, j, k, nxyz
       integer alo(2), ahi(2), blo(3), bhi(3)
+      double precision factor
 c
+      if (ndens.eq.1) then
+        factor = 4.0d00
+      else
+        factor = 2.0d00
+      endif
       nxyz = n3xyz/3
       ahi(1) = 0    ! initialize
       do ndns = 1, ndens
@@ -262,7 +277,7 @@ c
           do i = 1, 3
             blo(1) = offset + i
             bhi(1) = offset + i
-            dder(i, j, k) = dder(i, j, k) + 4.0d00 *
+            dder(i, j, k) = dder(i, j, k) + factor *
      *                     nga_ddot_patch(g_res, 'N', alo, ahi,
      *                                    g_dip, 'T', blo, bhi)
           enddo
@@ -274,7 +289,7 @@ c
       return
       end
 c
-      subroutine hess_dipint(rtdb,geom,basis,g_dip)
+      subroutine hess_dipint(rtdb,geom,basis,g_dip,ndens,num)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -289,6 +304,8 @@ c
       integer geom            ! [input] geometry handle
       integer basis           ! [input] basis handle
       integer g_dip           ! [output] dipole integrals
+      integer ndens           ! [input] number of density matrices
+      integer num             ! [input] number of basis functions
 c
       integer nshell, nbf_max
       integer l_scr, k_scr, l_buf, k_buf
@@ -296,6 +313,7 @@ c
       integer me, nproc, ishell, jshell, ilo, ihi, jlo, jhi
       integer ijshell, idim, jdim, nint, numint, offset, i
       integer lo(3), hi(3), ld(2)
+      integer blo(3), bhi(3)
       double precision center(3)
 c
       lmax = 1
@@ -307,6 +325,9 @@ c
      &     ('hess_dipder: bas_nbf_cn_max failed',555)
       if (.not. geom_center_of_mass(geom, center)) call errquit
      *     ('hess_dipder: geom_center_of_mass failed',555)
+c     center (1) = 0.0d00
+c     center (2) = 0.0d00
+c     center (3) = 0.0d00
 c
 c  Get integral buffers
 c
@@ -367,6 +388,25 @@ c
 c  Terminate integral api
 c
       call int_terminate()
+c
+c  Now copy the integrals to the beta block if UHF
+c
+      if (ndens.eq.2) then
+        lo(1) = 1
+        hi(1) = 3
+        lo(2) = 1
+        hi(2) = num
+        lo(3) = 1
+        hi(3) = num
+        blo(1) = 4
+        bhi(1) = 6
+        blo(2) = 1
+        bhi(2) = num
+        blo(3) = 1
+        bhi(3) = num
+        call nga_copy_patch('N', g_dip, lo, hi,
+     *      g_dip, blo, bhi)
+      endif
 c
       return
       end

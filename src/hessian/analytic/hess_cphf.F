@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.50 2002-02-06 17:41:18 windus Exp $
+C $Id: hess_cphf.F,v 1.51 2002-02-14 20:49:24 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -274,7 +274,7 @@ c
      &     g_dip))
      &   call errquit('hess_cphf: could not allocate g_dip',555)
       call ga_zero(g_dip)
-      call hess_dipint(rtdb, geom, basis, g_dip)
+      call hess_dipint(rtdb, geom, basis, g_dip, ndens, num)
       ndip = 3
       call hess_aotomo(g_dip, g_vecs, g_modx, oprint,
      $          ocphfprint, nocc, nvirt, ndens, ndip, num)
