@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.15 2000-08-12 00:51:02 bjohnson Exp $
+C$Id: grid_quadv0.F,v 1.16 2000-08-25 20:27:45 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(4)
@@ -79,7 +79,7 @@ c
       me = ga_nodeid()
       nproc = ga_nnodes()
       oprint = util_print('quadrature', print_high)
-      grad=xc_chkgrad(xfac,cfac)
+      grad=xc_chkgrad()
 c
       npol = (ipol*(ipol+1))/2
       if (.not. rtdb_get(rtdb, 'dft:oldway', mt_log, 1, oldway))

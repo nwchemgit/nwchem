@@ -12,7 +12,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadvw.F,v 1.21 2000-08-01 20:11:54 edo Exp $
+c$Id: grid_quadvw.F,v 1.22 2000-08-25 20:27:45 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -71,7 +71,7 @@ C
 c
 c     see if any Gradient Corrected Functional is not null
 c
-      grad=xc_chkgrad(xfac,cfac)
+      grad=xc_chkgrad()
       npts_per_ang=nqmax
  2001 continue
       nsubb_curr=0
