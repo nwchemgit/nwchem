@@ -164,8 +164,8 @@ C
      $   msg_cc_term3, msg_cc_term4, msg_cc_term5, msg_cc_term6,
      $   msg_cc_t1a, msg_cc_t1b
 c
-      integer msg_qmmm_node, msg_qmmm_nat, msg_qmmm_solute,
-     &    msg_qmmm_solvent
+      integer msg_qmmm_node, msg_qmmm_nat1, msg_qmmm_nat2,
+     &    msg_qmmm_solute, msg_qmmm_solvent
 c
       integer mrp_000
       integer mrp_d01
@@ -449,9 +449,10 @@ c
       parameter (msg_cc_t1b    = msg_ftn_base - 220) ! ccsd
 c
       parameter (msg_qmmm_node    = msg_ftn_base - 221) ! nwargos/qmmm
-      parameter (msg_qmmm_nat     = msg_ftn_base - 222) ! nwargos/qmmm
-      parameter (msg_qmmm_solute  = msg_ftn_base - 223) ! nwargos/qmmm
-      parameter (msg_qmmm_solvent = msg_ftn_base - 224) ! nwargos/qmmm
+      parameter (msg_qmmm_nat1    = msg_ftn_base - 222) ! nwargos/qmmm
+      parameter (msg_qmmm_nat2    = msg_ftn_base - 223) ! nwargos/qmmm
+      parameter (msg_qmmm_solute  = msg_ftn_base - 224) ! nwargos/qmmm
+      parameter (msg_qmmm_solvent = msg_ftn_base - 225) ! nwargos/qmmm
 c
 c     pme
 c
