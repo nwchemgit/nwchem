@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.36 2000-05-08 19:29:25 d3j191 Exp $
+c $Id: prp_main.F,v 1.37 2000-05-09 17:48:04 d3j191 Exp $
 c
       implicit none
 c
@@ -191,6 +191,12 @@ c
       if(me.eq.0) then
       p(it+16)=esk(i)
       endif
+      p(it+17)=ess(i,i,6,1)+ess(i,i,5,1)+ess(i,i,1,1)+ess(i,i,2,1)+
+     + ess(i,i,3,1)+ess(i,i,4,1)+half*(esw(i,6,1)+esw(i,5,1))
+      do 34 j=i+1,nsf
+      p(it+17)=p(it+17)+half*(ess(i,j,6,1)+ess(j,i,6,1)+
+     + ess(i,j,5,1)+ess(j,i,5,1))
+   34 continue
    33 continue
       it=it+27
       if(nsf.gt.1) then

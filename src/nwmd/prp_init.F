@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,ddi,edi)
 c
-c $Id: prp_init.F,v 1.23 2000-05-08 19:29:25 d3j191 Exp $
+c $Id: prp_init.F,v 1.24 2000-05-09 17:48:04 d3j191 Exp $
 c
       implicit none
 c
@@ -242,6 +242,7 @@ c
       pronam(it+16)='Energy solute     kinetic                   kJ/mol'
       lp(it+16)=.true.
       pronam(it+17)='Energy solute     potential                 kJ/mol'
+      lp(it+17)=.true.
       pronam(it+18)='Energy solute     total                     kJ/mol'
       pronam(it+19)='Virial solute                               kJ/mol'
       pronam(it+20)='Mean square displacement solute     /6       nm**2'

@@ -1,10 +1,11 @@
 c
-c $Id: prp_common.fh,v 1.17 2000-05-08 19:29:25 d3j191 Exp $
+c $Id: prp_common.fh,v 1.18 2000-05-09 17:48:03 d3j191 Exp $
 c
 c
-      real*8 zero,tiny,one
+      real*8 zero,tiny,half,one
       parameter(zero=0.0d0)
       parameter(tiny=1.0d-10)
+      parameter(half=0.5d0)
       parameter(one=1.0d0)
 c
       real*8 rgas
