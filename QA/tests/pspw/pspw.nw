@@ -4,7 +4,7 @@ start Si2
 
 memory global 55 mb 
 
-geometry units angstroms
+geometry units angstroms noautosym
 Si  1.1230000000 0.00000000  0.00000000
 Si -1.1230000000 0.00000000 0.00000000
 end
