@@ -3,7 +3,7 @@ c  Create and save ROHF Lagrangian
 c  for gradient module
 c
       subroutine rohf_lagr
-C$Id: rohf_lagr.F,v 1.2 1995-11-02 02:12:55 rg240 Exp $
+C$Id: rohf_lagr.F,v 1.3 1995-11-02 22:59:17 rg240 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -21,7 +21,7 @@ c
      $     g_lagr)) call errquit('rohf_lagr: ga_create failed', 0)
       call ga_zero(g_lagr)
       call ga_copy_patch('n', crohf_g_fcv, 1, nclosed, 1, nbf,
-     $                        g_lagr, 1, nclosed, 1, nbf, )
+     $                        g_lagr, 1, nclosed, 1, nbf )
       if (nopen.gt.0) then
         call ga_copy_patch('n',
      $           crohf_g_fpv, nclosed+1, nclosed+nopen, 1, nbf,
