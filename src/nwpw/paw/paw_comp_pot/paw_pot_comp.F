@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_comp.F,v 1.4 2003-02-15 01:33:52 bylaska Exp $
+c $Id: paw_pot_comp.F,v 1.5 2003-02-16 01:17:19 marat Exp $
 c
 
 !**************************************************
@@ -35,7 +35,7 @@ c     !*** calculate the size and indexing ***
          int_mb(i_paw_pot_comp(1) + in - 1) = paw_pot_comp_size
          ia = ion_katm(in)
          paw_pot_comp_size = paw_pot_comp_size
-     >                + paw_proj_nbasis(ia)**2*ion_natm(ia)
+     >                + paw_proj_nbasis(ia)**2
       end do
 
 
@@ -140,7 +140,7 @@ c     !*** calculate the size and indexing ***
      >               dcpl_mb(paw_qlm(1) + i_qlm)
 
                   dcpl_mb(paw_pot_comp(1)+i_cp) = 
-     >                  dcpl_mb(paw_pot_comp(1)+i_cp)+
+     >                  dcpl_mb(paw_pot_comp(1)+i_cp)-
      >                  tmp_comp_pot
 
 
@@ -175,7 +175,7 @@ c     !*** calculate the size and indexing ***
                  i_cp  = i_cp0-1+(njlm+lj+mj+1)+
      >                   (nilm+li+mi)*paw_proj_nbasis(ia)
 
-                  write(*,*) i,mi,j,mj,dcpl_mb(paw_pot_comp(1)+i_cp),
+                  write(*,*) i,mi,j,mj,in,dcpl_mb(paw_pot_comp(1)+i_cp),
      >                     i_cp
                 end do
                 njlm=njlm + 2*lj+1
@@ -185,5 +185,6 @@ c     !*** calculate the size and indexing ***
          end do
       end do
        
+      write(*,*) "done"
       return
       end 
