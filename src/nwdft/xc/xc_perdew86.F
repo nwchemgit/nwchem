@@ -1,7 +1,7 @@
       Subroutine xc_perdew86(tol_rho,fac,lfac,nlfac,rho,delrho,Amat,
      &           Cmat,nq,ipol,Ec,qwght)
 c
-C     $Id: xc_perdew86.F,v 1.11 1997-02-15 01:34:17 gutowski Exp $
+C     $Id: xc_perdew86.F,v 1.12 1997-02-19 20:05:29 mdupuis Exp $
 c
       implicit none
 
@@ -128,7 +128,7 @@ c       ======> SPIN-UNRESTRICTED <======
 
         do 20 n = 1,nq
           rhoval = rho(1,n)
-          if(abs(rhoval).lt.tol_rho) goto 10
+          if(abs(rhoval).lt.tol_rho) goto 20
           arho=1.d0/rhoval
           rho13  = rhoval**ONETHIRD
           rho43  = rhoval*rho13
