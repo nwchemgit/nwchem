@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.71 2002-05-23 01:00:57 edo Exp $
+#$Id: GNUmakefile,v 1.72 2003-01-24 20:46:25 edo Exp $
 
 include ../config/makefile.h
         OBJ = atwtest.o \
@@ -17,11 +17,10 @@ include ../config/makefile.h
 OBJ_OPTIMIZE = \
 	      moints_cutil.o \
               moints_aodisk.o \
+              moints_2x.o \
+              moints_6x.o \
 	      moints_semi.o \
               moints_aux2.o  
-
-   OBJ_OPTIMIZE += moints_2x.o moints_6x.o 
-
 
     LIBRARY = libmoints.a
 
