@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.100 1999-06-01 20:48:41 d3h325 Exp $
+# $Id: GNUmakefile,v 1.101 1999-06-22 23:05:23 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -107,7 +107,7 @@ endif
 	      dgewr.o atoi.o indint.o util_wall_remain.o \
 		ga_normf.o corr_mk_ref.o \
               nw_inp_from_file.o \
-              bgj.o \
+              bgj.o movecs_ecce.o\
               get_density.o moeig_read.o\
               $(EXTRA_OBJ)
 
