@@ -1,20 +1,17 @@
       subroutine selci_rdhead(title,type)
 #include "implicit.fh"
 #include "ciinfo.fh"
+#include "cselcifiles.fh"
       character*(*) type
       character*80 title, dtitle(10)
-      character*80 civecs, hamil, hamdg, ciconf, wmatrx
-c
-      call selci_getnam('civecs',civecs)
-      call selci_getnam('hamil',hamil)
-      call selci_getnam('hamdg',hamdg)
-      call selci_getnam('ciconf',ciconf)
-      wmatrx = 'wmatrix'
 c
 c     open these here for tidiness
 c
-      open(iflham,form='unformatted',status='unknown',file=hamil)
-      open(iflhdg,form='unformatted',status='unknown',file=hamdg)
+      if (type .eq. 'ci') then
+c     closed in makeh
+         open(iflham,form='unformatted',status='unknown',file=hamil)
+         open(iflhdg,form='unformatted',status='unknown',file=hamdg)
+      endif
 c
 c     open and read info from the CICONF file header
 c
@@ -26,13 +23,14 @@ c
 c
 c     open and read info from the MOINTS file header
 c
-      call selci_rdhint(iflint,ntitle,dtitle,repnuc,nnorbs,inttyp)
+      call selci_rdhint(iflint,ntitle,dtitle,repnuc,nnorbs,inttyp,
+     $     moints)
 c
 c     make, open and read info from the WMATRX file header
 c 
       nsmax = nsneed(2)
       if (type.eq.'select') nsmax=nsneed(3)
-      call couple(multi,nsmax)
+      call selci_couple(multi,nsmax,0,wmatrx)
       open(iflwmt, form='formatted',status='old',file=wmatrx)
       call selci_rdhwmt(iflwmt,mmulti, nsmax, nf, nfmax, nfmax2)
 c

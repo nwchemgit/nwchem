@@ -20,9 +20,6 @@ c
       iflciv = 8
       ifleig = 79
 c
-c     initialise the input routines
-c
-      call setinp(5, ifllog)
 c
 c     initialise bit handling routines on sun
 c

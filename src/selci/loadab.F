@@ -75,6 +75,6 @@ c         write(6,*) i,j,gg
       goto 10
 30    continue
 c
-c     fall out here when have read everything in
+      close(iflint,status='keep')
 c
       end

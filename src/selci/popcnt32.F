@@ -25,16 +25,14 @@ c
       implicit integer(a-z)
 #include "cbits.fh"
 c
-      byte input(4,*)
+      byte input(*)
       dimension output(*)
 c
+      i4 = 1
       do 10 i = 1,n
-         ind1 = input(1,i)
-         ind2 = input(2,i)
-         ind3 = input(3,i)
-         ind4 = input(4,i)
-         output(i) = ipopcb(ind1) + ipopcb(ind2) +
-     $        ipopcb(ind3) + ipopcb(ind4)
+         output(i) = ipopcb(input(  i4)) + ipopcb(input(1+i4)) +
+     $               ipopcb(input(2+i4)) + ipopcb(input(3+i4))
+         i4 = i4 + 4
  10   continue
 c
       end

@@ -67,11 +67,7 @@ c
  19      format(' nuclear replusion energy is ',f20.12)
          goto 10
       endif
-*mdc*if debug
-*      write(6,*) ' twoint: ',dasum(numint, g, 1)
-*      write(6,*) ' oneint: ',dasum(nnorbs, h, 1)
-*mdc*endif
 c
-c     fall out here when have read everything in
+      close(iflint,status='keep')
 c
       end

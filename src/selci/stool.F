@@ -27,7 +27,7 @@ c
 *mdc*if unix
       parameter(istde=0,istdo=6)
 *mdc*endif
-#include "cstool.fh"
+#include "cselcifiles.fh"
       integer icall
       data icall/0/
 c      data names /'selci.r.1','selci.r.2'/

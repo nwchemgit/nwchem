@@ -1,4 +1,5 @@
-      subroutine selci_rdhint(iflint,ntitle,dtitle,repnuc,nnorbs,inttyp)
+      subroutine selci_rdhint(iflint,ntitle,dtitle,repnuc,nnorbs,
+     $     inttyp, moints)
 #include "implicit.fh"
 c
 c     common needed for gamess stuff
@@ -10,7 +11,8 @@ c
 *     *     mapcie(maxorb),ilifc(maxorb),nval,mapaie(maxorb),
 *     $     ilifa(maxorb),iqsec,jdsec
 c
-      character*80 dtitle(*), moints
+      character*80 dtitle(*)
+      character *(*) moints
       dimension nbpsy(8)
       real*8 repnuc
 c
@@ -36,16 +38,21 @@ c
 c
 c     ascii list of integrals
 c
-         call selci_getnam('moints',moints)
          open(iflint, form='formatted',status='old',file=moints)
-         repnuc = 0.0d0
-         ntitle = 0
+         read(iflint,'(a)') dtitle(1)
+         read(iflint,'(i)') nnorbs
+         read(iflint,*)         ! map
+         read(iflint,*)         ! syms
+         read(iflint,*)         ! eigenvalues
+         read(iflint,*)         ! occupations
+         read(iflint,*) repnuc,i,j,k,l 
+         if (i.ne.0) call errquit('rdhint: ascii list repnuc?',0)
+         ntitle = 1
          nnorbs = 255
       else if (inttyp.eq.3) then
 c
 c     binary version of ascii list of integrals
 c
-         call selci_getnam('moints',moints)
          open(iflint, form='unformatted',status='old',file=moints)
          repnuc = 0.0d0
          ntitle = 0
@@ -54,7 +61,6 @@ c
 c
 c     columbus integrals
 c
-         call selci_getnam('moints',moints)
          open(iflint, form='unformatted',status='old',file=moints)
          read(iflint) ntitle,(dtitle(i),i=1,ntitle),repnuc,nnorbs,nsym,
      &        (nbpsy(i),i=1,nsym)

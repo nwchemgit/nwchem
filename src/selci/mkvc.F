@@ -18,14 +18,19 @@ c     block of the hamiltonian involving the test configuration
 c
       dimension indbar(255), lists(255), listd(255),
      $     ind(4)
+      logical omadef
 c
       iwork2 = selci_mptr(nfmax*nfmax)
       iwork3 = selci_mptr(nfmax*nfmax)
       if = selci_mptr(nnorbs)
 c
       call selci_mkindb(norbs, iocc, indbar, listd, lists, ns, nd)
-      call selci_makef(q(if), h, g, int12, int34, iocc, listd, lists,
-     $     ns, nd)
+c
+c     Now defer making f until we know if it is for single excitations
+c     or diagonals (in which case we need much less).
+c
+      omadef = .false.
+c
       numf = nf(ns)
 c
       call dfill(nfmax*nroot,0.0d0,vc,1)
@@ -35,7 +40,6 @@ c
 c
       do 10 jconf = iconf,ncold
 c
-***   iexcit = selci_iodiff(ipack, ioconf(1,jconf), nintpo)
          iexcit = iexv(jconf-iconf+1)
          if (iexcit .gt. 4) goto 10
 c
@@ -45,6 +49,11 @@ c
             call selci_prtcon(ifllog, norbs, ipack, nintpo, nbitpi)
             call errquit('mkvc: iexcit=0 ... screw up',jconf)
          else  if (iexcit.eq.2) then
+            if (.not. omadef) then
+               omadef = .true.
+               call selci_makef(q(if), h, g, int12, int34, iocc,
+     $              listd, lists, ns, nd, .false.)
+            endif
             call selci_getij(i,j,ipack,ioconf(1,jconf),
      $           nintpo,nbitpi,iocc)
             call selci_makehs(work1,i,j,ns,indbar,iocc,lists,
@@ -65,6 +74,8 @@ c     *        ci(jbase,1), nci, 1.0d0, vc, nfmax )
      $        vc, 1, nfmax, numf, numf2, nroot)
  10   continue
 c
+      if (.not. omadef) call selci_makef(q(if), h, g, int12, int34,
+     $     iocc, listd, lists, ns, nd, .true.)
       call selci_makehd(work1,.true.,
      $     ns,nd,indbar,iocc,lists,listd,w1,w2,
      $     q(iwork2),q(iwork3),q(if),h,g,int12,int34,numf)

@@ -32,11 +32,9 @@ c     no. of elements in I/O buffer
       niinb = 0
       nrec = 0
       nval = 0
-*mdc*if parallel
       me = nodeid()
       nproc = nnodes()
       icount = -1
-*mdc*endif
       call dfill(nci, 0.0d0, hd, 1)
 c     
 c     loop through I occupancies
@@ -48,44 +46,23 @@ c
          call selci_upkcon(norbs, iocc, ioconf(1,iconf), nintpo, nbitpi)
          call selci_mkindb(norbs, iocc, indbar, listd, lists, ns, nd)
          call selci_makef(f, h, g, int12, int34, iocc, listd, lists,
-     $        ns, nd)
+     $        ns, nd, .false.)
          ibase = indxci(iconf)
-*mdc*if debug
-*        write(ifllog,*) ' makeh: configuration i ', iconf
-*        call selci_wrtcon(ifllog,iocc,norbs)
-*        write(ifllog,*) ' makeh: indbar'
-*        write(ifflog,1101) (indbar(iqiq),iqiq=1,norbs)
-*1101    format(20i4)
-*        write(ifllog,*) ' makeh: f'
-*        write(ifllog,1102) (f(iqiq),iqiq=1,norbs)
-*1102    format(5d16.8)
-*mdc* endif
 c     
          do 20 jconf = iconf,noconf
-*mdc*if parallel
             icount = icount + 1
             if (mod(icount, nproc) .ne. me) goto 20
-*mdc*endif
 c     
 c     locate interacting J occupancies
 c     all this can be vectorised at a later date
 c     
             iexcit = selci_iodiff(ioconf(1,iconf), ioconf(1,jconf), 
      $           nintpo)
-*mdc*if debug
-*            write(ifllog,*) ' makeh: configuration j ',jconf
-*            call selci_prtcon(ifllog, norbs, ioconf(1,jconf), 
-*     &        nintpo, nbitpi)
-*            write(6,*) ' makeh: iexcit = ',iexcit
-*mdc*endif
             if (iexcit .gt. 4) goto 20
 c     
 c     jconf interacts with iconf
 c     
             if (iexcit.eq.0) then
-*               write(6,*)' icount,who,iconf ',icount,nodeid(),me,
-*     &                   nproc,iconf
-               call flush(6)
                call selci_makehd(work1,.false.,
      $              ns,nd,indbar,iocc,lists,listd,w1,w2,
      $              work2,work3,f,h,
@@ -127,32 +104,17 @@ c    zero the upper half and diagonal of work1 to simplify putinb
 c     
       call selci_putinb(iflham,-1,0,hbuf,0,jbuf,0)
 c     if running in parallel need to get all the diags together
-*mdc*if parallel
-c      call dgop (99, hd, nci, '+', work1)
-*      write(6,*)' before hd(1)   = ',hd(1),nodeid()
-*      write(6,*)' before hd(782) = ',hd(782),nodeid()
       call dgop (99, hd, nci, '+')
-*      write(6,*)' after  hd(1)   = ',hd(1),nodeid()
-*      write(6,*)' after  hd(782) = ',hd(782),nodeid()
       if (me .eq. 0) then
-*mdc*endif
         rewind iflhdg
         call selci_swrite(iflhdg,hd,nci)
         close(iflhdg, status='keep')
-*mdc*if parallel
       endif
-      write(ifllog, 99) me, nrec, nval
-c 99   format(/' process number              ',i3/
-c     $        ' no. of hamiltonian records  ',i9/
-c     $        ' no. of hamiltonian elements ',i9/)
- 99   format(/' n_proc ',i3,
-     $        '| n_recs ',i9,
-     $        '| n_eles ',i9,'|')
-*mdc*else
-*        write(ifllog,99) nrec,nval
-* 99     format(/' no. of hamiltonian records  ',i9/
-*     $          ' no. of hamiltonian elements ',i9/)
-*mdc*endif
+      call igop(991, nrec, 1, '+')
+      call igop(992, nval, 1, '+')
+      write(6,99) nrec,nval
+ 99   format(/' total no. of hamiltonian records  ',i9/
+     $     ' total no. of hamiltonian elements ',i9/)
       close(iflham, status='keep')
 c
       end

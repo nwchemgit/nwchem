@@ -3,7 +3,7 @@
       parameter(irest1 = 69,irest2=70, istde=0,istdo=6)
       integer idum(7)
 c     
-#include "cstool.fh"
+#include "cselcifiles.fh"
 c     
       do 00100 i = 1,7
          idum(i) = -i

@@ -16,7 +16,7 @@ c
       parameter(istde=0,istdo=6)
 *mdc*endif
       logical doesit
-#include "cstool.fh"
+#include "cselcifiles.fh"
       me = nodeid()
       master = 0
       if (me.ne.master) goto 90000

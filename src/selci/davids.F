@@ -1,52 +1,26 @@
-      program davids
-c
-#include "implicit.fh"
-#include "mptr.fh"
-c
-      parameter (lword = 1250000,iqoff=1)
-      dimension q(lword)
-c
-      call pbeginf()
-      call selci_gettim(startc, startw)
-      junk = selci_minit(lword)
-c
-      call selci_david(q(iqoff+1), lword)
-c
-      if (nodeid() .eq. 0) then
-         junk = selci_mstats(0)
-         call selci_gettim(endc, endw)
-         write(6,1) 'DAVIDS', endc-startc, endw-startw
- 1       format(/1x,a,': Total cpu',f10.1,' : Total wall',f10.1)
-         call flush(6)
-      endif
-c
-      call pend()
-c
-      end
-      subroutine selci_david(q, lword)
+      subroutine selci_davids(q, lword, nroot, thresh)
 #include "implicit.fh"
 #include "cbuff.fh"
 #include "mptr.fh"
+#include "cselcifiles.fh"
       parameter (iflham = 1, iflhdg=2, iflcon=3, iflciv=4, maxvec = 5)
 c
       dimension q(lword)
 c
       dimension nbpsy(8), isym(255), nsneed(3)
 **      character*10 carg
-      character*80 title,hamil,hamdg,ciconf,civecs
+      character*80 title
 c
 c     diagonalize the hamiltonian. Off diagonal elements are
 c     stored on file hamil, the diagonals on hamdg.
 c
 c     open files and read header info
 c
+      call selci_gettim(startc, startw)
+      junk = selci_minit(lword)
       me = nodeid()
       nproc = nnodes()
       if (me.eq.0) then
-        call selci_getnam('hamil',hamil)
-        call selci_getnam('hamdg',hamdg)
-        call selci_getnam('ciconf',ciconf)
-        call selci_getnam('civecs',civecs)
         open(iflham,status='old',form='unformatted',file=hamil)
         open(iflhdg,status='old',form='unformatted',file=hamdg)
         open(iflcon,status='old',form='unformatted',file=ciconf)
@@ -57,7 +31,6 @@ c
         read (iflham) nci
         if (nci.ne.nnci) call errquit('nci diff hamil,ciconf',nci)
       else
-        call selci_pfname('hamil', hamil)
         open(iflham,status='old',form='unformatted',file=hamil)
       endif
       call brdcst(1, nnci, mitob(1), 0)
@@ -67,9 +40,9 @@ c
       call brdcst(5, nbitpi,  mitob(1), 0)
       call inibit
 c
-c     how many roots are wanted and what threshold?
+c     how many roots are wanted and what threshold? ... now from 
+c     arguments ... historically process zero read them in from disk
 c
-      if (me.eq.0) call selci_rdargs(nroot, thresh)
       call brdcst(10, nroot, mitob(1), 0)
       call brdcst(11, thresh, mdtob(1), 0)
 c
@@ -112,6 +85,17 @@ c
       call selci_ddavid(q(iwork), q(iroots), q(ihd),q(ialpha),q(iredh),
      $     q(iconv), q(ide), q(ici), q(isi), q(indxci), q(ioconf),
      $     nroot, nci, noconf, nintpo, norbs, nbitpi, thresh)
+c
+      close(iflham,status='keep')
+      if (nodeid() .eq. 0) then
+         close(iflciv,status='keep')
+         junk = selci_mstats(0)
+         call selci_gettim(endc, endw)
+         write(6,1) 'DAVIDS', endc-startc, endw-startw
+ 1       format(/1x,a,': Total cpu',f10.1,' : Total wall',f10.1)
+         call flush(6)
+      endif
+      call synch(12345)
 c
       end
       subroutine selci_ddavid(work, roots, hd, alpha, redh,
@@ -559,52 +543,5 @@ c
          write(6,2) c,iconf,ispin,d,(list(i),iocc(i),i=1,igot)
  2       format(1x,f12.6,2x,i6,2x,i4,2x,f12.6,4x,11(i3'(',i1,')':))
       endif
-c
-      end
-      subroutine selci_rdargs(nroot, thresh)
-      implicit double precision (a-h, o-z)
-c
-c     get info from arglist or from file
-c
-*mdc*if arguments
-*      character*80 carg
-*      if (iargc().eq.0) then
-*        nroot = 1
-*        thresh = 1.0d-3
-*      else if (iargc().eq.1) then
-*        call getarg(1,carg)
-*        read(carg,'(i)') nroot
-*        thresh = 1.0d-3
-*      else if (iargc().eq.2) then
-*        call getarg(1,carg)
-*        read(carg,'(i)') nroot
-*        call getarg(2,carg)
-*        read(carg,'(f)') thresh
-*      else
-*        call errquit(' usage: david [nroot [thresh]]',iargc())
-*      endif
-*mdc*else
-      character*4 ytest
-      character*80 davin
-      call selci_getnam('davin',davin)
-      open(5, file=davin,status='old',form='formatted')
-      call setinp(5,6)
-      nroot = 1
-      thresh = 1.0d-3
-c
-10    call input
-      call inpa4(ytest)
-      if (ytest .eq. 'nroo') then
-        call inpi(nroot)
-      else if (ytest .eq. 'thre') then
-        call inpf(thresh)
-      else if (ytest .eq. 'ente') then
-	close(5)
-        return
-      else
-        call errquit('RDARGS: invalid directive ',-1)
-      endif
-      goto 10
-*mdc*endif
 c
       end

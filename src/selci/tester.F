@@ -37,6 +37,7 @@ c
 c
 c     got a brand new configuration ... make vc = <test|H|ci roots>
 c     and <test|H|test> (returned in work1). numf is returned.
+c     (note now only get the diag of <test|H|test>).
 c
       iwork1 = selci_mptr(nfmax*nfmax)
       ide = selci_mptr(nroot)

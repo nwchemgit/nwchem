@@ -1,8 +1,7 @@
       logical function selci_ointer(noconf,ioconf,joconf,nintpo)
       integer ioconf(nintpo*noconf),joconf(nintpo)
 c     
-c     ivl set so can use short vector lengths ... if vector
-c     length is too long we have redundant computation
+c     if vector length is too long we have redundant computation
 c     (32 bit integer, 16 orbs per integer, 16 integers
 c     needed for 255 orbs)
 c     
@@ -50,6 +49,20 @@ c
          call selci_vpop32(ndo2,iwrk1,iwrk2)
          do i = 1, ndo2, 2
             if ((iwrk2(i)+iwrk2(i+1)).le.4) return
+         enddo
+      else if (nintpo .eq. 3) then
+         ndo3 = ndo + ndo + ndo
+         itest1 = joconf(1)
+         itest2 = joconf(2)
+         itest3 = joconf(3)
+         do i = 1,ndo3,3
+            iwrk1(i  ) = ieor(itest1,ioconf(ioff+i  ))
+            iwrk1(i+1) = ieor(itest2,ioconf(ioff+i+1))
+            iwrk1(i+2) = ieor(itest3,ioconf(ioff+i+2))
+         enddo
+         call selci_vpop32(ndo3,iwrk1,iwrk2)
+         do i = 1, ndo3,3
+            if ((iwrk2(i)+iwrk2(i+1)+iwrk2(i+2)).le.4) return
          enddo
       else
          k = 0

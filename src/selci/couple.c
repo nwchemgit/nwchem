@@ -1,8 +1,9 @@
-
 #include <math.h>
 #include <stdio.h>
 #include <strings.h>
+
 char *malloc();
+extern int fortchar_to_string();
 
 /* Maximum number of open shells */
 #define nsmax 14
@@ -13,11 +14,13 @@ static void Error(string, integer)
      char *string;
      int integer;
 {
+/*
   (void) fflush(stdout);
   (void) fprintf(stderr,"\n\nError was called.\n");
   (void) fprintf(stderr,string);
   (void) fprintf(stderr," %d (%#x).\n",integer,integer);
-  exit(1);
+  exit(1); */
+    ga_error(string, (long) integer);
 }
 
 
@@ -144,8 +147,8 @@ static void PrintMatrix(u, mcol, mrow, ncol, nrow)
   }
 }
 
-static void MakeBranchingDiagram(bd, ns, multi, order)
-     int bd[nsmax+3][nsmax+3], ns, multi;
+static void MakeBranchingDiagram(bd, ns, multi, order, info)
+     int bd[nsmax+3][nsmax+3], ns, multi, info;
 /*
   Form the branching diagram weights
   bd[m][n] = weight of node with multiplicty m and n electrons
@@ -189,32 +192,35 @@ static void MakeBranchingDiagram(bd, ns, multi, order)
     return;
 #endif
 
-  if (order == 0)
-    (void) printf("\nBranching diagram weights.\n\n");
-  else
-    (void) printf("\nReversed branching diagram weights.\n\n");
-
-  
-  for (j=ns+1; j>=1; j--) {
-    wrote = 0;
-    for (i=0; i<=ns; i++)
-      if (bd[j][i])
-	wrote=1;
-    if (wrote) {
-      for (i=0; i<=ns; i++) {
-	if (bd[j][i])
-	  (void) printf("%4d",bd[j][i]);
-	else
-	  (void) printf("    ");
+  if (info) {
+      if (order == 0)
+	  (void) printf("\nBranching diagram weights.\n\n");
+      else
+	  (void) printf("\nReversed branching diagram weights.\n\n");
+      
+      
+      for (j=ns+1; j>=1; j--) {
+	  wrote = 0;
+	  for (i=0; i<=ns; i++)
+	      if (bd[j][i])
+		  wrote=1;
+	  if (wrote) {
+	      for (i=0; i<=ns; i++) {
+		  if (bd[j][i])
+		      (void) printf("%4d",bd[j][i]);
+		  else
+		      (void) printf("    ");
+	      }
+	      (void) printf("\n");
+	  }
       }
       (void) printf("\n");
-    }
   }
-  (void) printf("\n");
 }
 
-static void MakeSpinFunctions(bd, ns, multi, f, nf, order)
+static void MakeSpinFunctions(bd, ns, multi, f, nf, order, info)
      int bd[nsmax+3][nsmax+3], ns, multi, f[nsmax+1][nfmax+1], order;
+     int info;
 /*
   Form the ordered spin functions as an array of 1s and 2s.
   bd = branching diagram (reversed if want dictionary ordered functions)
@@ -283,22 +289,24 @@ static void MakeSpinFunctions(bd, ns, multi, f, nf, order)
     }
   }
 
-  (void) printf("\nSpin functions\n\n");
-
-  test = 0;
-  for (i=1; i<=nf; i++) {
-    test += printf("%4d [",i);
-    for (j=1; j<=ns; j++)
-      test += printf("%1d",f[j][i]);
-    if (test > (71-ns)) {
+  if (info) {
+      (void) printf("\nSpin functions\n\n");
+      
       test = 0;
-      (void) printf("]\n");
-    }
-    else
-      test += printf("] ");
+      for (i=1; i<=nf; i++) {
+	  test += printf("%4d [",i);
+	  for (j=1; j<=ns; j++)
+	      test += printf("%1d",f[j][i]);
+	  if (test > (71-ns)) {
+	      test = 0;
+	      (void) printf("]\n");
+	  }
+	  else
+	      test += printf("] ");
+      }
+      if (test)
+	  (void) printf("\n");
   }
-  if (test)
-    (void) printf("\n");
 }
 
 
@@ -535,8 +543,10 @@ static void ReadArguments(argc, argv, ns, multi, print)
      char **argv;
      */
 
-void couple_(pmulti, pns)
-   long *pmulti, *pns;
+void selci_couple_(pmulti, pns, pprint, pfilename, flen)
+   long *pmulti, *pns, *pprint;
+   char *pfilename;
+   int flen;
 /*
   Generate the one particle coupling coefficients between two orbital
   occupancies including all spin couplings. The spin functions are
@@ -587,38 +597,48 @@ void couple_(pmulti, pns)
   int order = 1;
   static int bd[nsmax+3][nsmax+3], rbd[nsmax+3][nsmax+3];
   static int d[nsmax][nfmax+1], f[nsmax+1][nfmax+1];
-  int ns, multi, nf, nf2, print;
+  int ns, multi, nf, nf2, print, info;
   static int perm[nsmax][nfmax+1], i, j, k, kk;
   static double p[nsmax][nfmax+1], g[nsmax][nfmax+1], *u, *uu, *temp, *ttemp;
   FILE *wmatrix;
+  char filename[255];
 
   /*ReadArguments(argc, argv, &ns, &multi, &print);*/
 
   ns = *pns;
   multi = *pmulti;
-  print = 0;
+  if (!fortchar_to_string(pfilename, flen, filename, sizeof filename))
+      Error("couple: failed to convert fortran filename", 0);
+  info = *pprint;		/*  Information output */
+  print = 0;			/*  Debug output */
 
-  (void) printf("\n");
-  (void) printf("      Symmetric Group Coupling Coefficient Generation Program (8/9/89)\n");
-  (void) printf("      ----------------------------------------------------------------\n\n");
+  if (info) {
+      (void) printf("\n");
+      (void) printf("      Symmetric Group Coupling Coefficient Generation Program (8/9/89)\n");
+      (void) printf("      ----------------------------------------------------------------\n\n");
+      
+      (void) printf("Maximum dimension of open shell  %2d\n",ns);
+  }
 
-  (void) printf("Maximum dimension of open shell  %2d\n",ns);
   if (ns < 0 || ns > nsmax)
     Error("ns is invalid",ns);
 
-  (void) printf("Multiplicity of electronic state %2d\n",multi);
-  if ( (multi<1) || (multi>ns+1) || (((multi+ns)%2) != 1) )
-    Error("multiplicity invalid or not consistent with ns",multi);
-
-  if (order == 0)
-    (void) printf("Spin functions will be in reverse dictionary order\n");
-  else
-    (void) printf("Spin functions will be in dictionary order\n");
+  if (info) {
+      (void) printf("Multiplicity of electronic state %2d\n",multi);
+      
+      if (order == 0)
+	  (void) printf("Spin functions will be in reverse dictionary order\n");
+      else
+	  (void) printf("Spin functions will be in dictionary order\n");
+  }
   
   if (print)
     (void) printf("High level print requested\n");
 
-  MakeBranchingDiagram(bd, ns, multi, 0);
+  if ( (multi<1) || (multi>ns+1) || (((multi+ns)%2) != 1) )
+    Error("multiplicity invalid or not consistent with ns",multi);
+
+  MakeBranchingDiagram(bd, ns, multi, 0, info);
 
 
   nf = bd[multi][ns];
@@ -632,7 +652,7 @@ void couple_(pmulti, pns)
 
 /* open the file for coupling coefficients and write header info */
 
-  if ( (wmatrix = fopen("wmatrix", "w")) == (FILE *) NULL)
+  if ( (wmatrix = fopen(filename, "w")) == (FILE *) NULL)
     Error("failed to open file wmatrix for write",0);
   
   (void) fprintf(wmatrix,"%d\n%d\n",multi,ns);
@@ -659,10 +679,10 @@ void couple_(pmulti, pns)
     }
 
     if (order == 0)
-      MakeSpinFunctions(bd, i, multi, f, nf, 0);
+      MakeSpinFunctions(bd, i, multi, f, nf, 0, info);
     else {
       MakeBranchingDiagram(rbd, i, multi, 1);
-      MakeSpinFunctions(rbd, i, multi, f, nf, 1);
+      MakeSpinFunctions(rbd, i, multi, f, nf, 1, info);
     }
 
     MakeAxialDistances(i, f, nf, d, p, g);

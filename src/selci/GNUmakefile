@@ -1,28 +1,27 @@
 
 
 LIBRARY = libselci.a
-LIB_TARGETS = ci select davids conf
+LIB_TARGETS = conf
 
-BLAS     = mxma.o ddot.o dnrm2.o dcopy.o dscal.o daxpy.o
+BLAS     = mxma.o
 
 UOBJ = \
-error.o		ifill.o		iprtri.o	prtri.o  \
+iprtri.o	prtri.o  \
 input.o		icopy.o		output.o	yacobi.o \
 tred1.o		tqlrat.o	loadw.o		rdhint.o 	rdhcon.o \
 rdhwmt.o	rdconf.o	upkcon.o	prtcon.o	wrtcon.o \
 iodiff.o	bserch.o	popcnt32.o	readh.o  \
-renorm.o	sread.o		swrite.o	getnam.o	pkcon.o  \
+renorm.o	sread.o		swrite.o	pkcon.o  \
 wthcon.o	wtconf.o	vadd.o		idmin.o	\
-isum.o		rd1.o		fcidim.o        pfname.o \
+isum.o		rd1.o		fcidim.o        \
 axb.o		axbt.o		gettim.o	cputm.o \
 minit.o		ieeetrap.o \
-idamax.o	\
-dfill.o         dasum.o         mxmb.o 
+mxmb.o  check.o
 
-DVOBJ = sigma.o sigsav.o
+DVOBJ = davids.o sigma.o sigsav.o
 
 CIOBJ = \
-initci.o	rdhead.o 	load.o   	loada.o  \
+ci.o            initci.o	rdhead.o 	load.o   	loada.o  \
 mkinta.o	pconls.o	makeh.o		mkindb.o	eij.o    \
 eijeji.o	makehd.o	makef.o 	loadg.o \
 getij.o		makehs.o	eirerj.o 	loadab.o        couple.o \
@@ -30,9 +29,9 @@ gtijkl.o	eijkj.o		makhdb.o	eijil.o         mknsneed.o \
 eijkl.o		putinb.o	inicij.o	ointer.o	oeq.o 
 
 SELOBJ = \
-mselct.o        ptidy.o         anal.o          mkindx.o \
+select.o        selci.o         ptidy.o         anal.o          mkindx.o \
 slect.o         tester.o        mkdele.o        mkvc.o          e0mp2.o \
-mpdele.o	stool.o 	restk.o		restin.o
+mpdele.o	stool.o 	restk.o		restin.o        orbanal.o
 
 OBJ_OPTIMIZE = $(UOBJ) $(DVOBJ) $(CIOBJ) $(SELOBJ) $(BLAS)
 
@@ -41,18 +40,6 @@ include ../config/makelib.h
 
  LIBS = $(LIBRARY_PATH) $(LIBDIR)/libtcgmsg.a
 
-all:	select conf ci davids
-	@echo Finished making all.
-
-select:	select.o $(LIBRARY_PATH)
-	$(FC) $(LDFLAGS) -o $@ $^ $(LIBS)
-
-davids:	davids.o $(LIBRARY_PATH)
-	$(FC) $(LDFLAGS) -o $@ $^ $(LIBS)
-
-ci:	ci.o $(LIBRARY_PATH)
-	$(FC) $(LDFLAGS) -o $@ $^ $(LIBS)
-
 conf:	conf.o $(LIBRARY_PATH)
 	$(FC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
@@ -60,7 +47,7 @@ conf:	conf.o $(LIBRARY_PATH)
 $(LIBRARY_PATH)(anal.o):	 ./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(ci.o):	 ./mptr.fh ./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(conf.o):	 ./mptr.fh ./implicit.fh ./cconf.fh ./bitops.fh 
-$(LIBRARY_PATH)(davids.o):	 ./mptr.fh ./implicit.fh ./cbuff.fh 
+$(LIBRARY_PATH)(davids.o):	 ./mptr.fh ./implicit.fh ./cselcifiles.fh ./cbuff.fh 
 $(LIBRARY_PATH)(e0mp2.o):	 ./implicit.fh ./cmp2.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(eij.o):	 ./implicit.fh ./ciinfo.fh ./ceij.fh 
 $(LIBRARY_PATH)(eijeji.o):	 ./implicit.fh ./ciinfo.fh 
@@ -92,7 +79,6 @@ $(LIBRARY_PATH)(mkinta.o):	 ./implicit.fh ./ciinfo.fh ./bitops.fh
 $(LIBRARY_PATH)(mknsneed.o):	 ./implicit.fh 
 $(LIBRARY_PATH)(mkvc.o):	 ./mptr.fh ./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(mpdele.o):	 ./implicit.fh 
-$(LIBRARY_PATH)(mselct.o):	 ./mptr.fh ./implicit.fh ./cstool.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(ointer.o):	 ./bitops.fh 
 $(LIBRARY_PATH)(ointer.mod.o):	 ./bitops.fh 
 $(LIBRARY_PATH)(pconls.o):	 ./implicit.fh ./ciinfo.fh 
@@ -101,15 +87,16 @@ $(LIBRARY_PATH)(popcnt32.o):	 ./cbits.fh ./bitops.fh
 $(LIBRARY_PATH)(prtri.o):	 ./implicit.fh 
 $(LIBRARY_PATH)(ptidy.o):	 ./implicit.fh 
 $(LIBRARY_PATH)(putinb.o):	 ./implicit.fh ./cbuff.fh 
-$(LIBRARY_PATH)(rdhead.o):	 ./implicit.fh ./ciinfo.fh 
+$(LIBRARY_PATH)(rdhead.o):	 ./implicit.fh ./cselcifiles.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(rdhint.o):	 ./implicit.fh 
 $(LIBRARY_PATH)(readh.o):	 ./implicit.fh 
-$(LIBRARY_PATH)(restin.o):	 ./cstool.fh 
-$(LIBRARY_PATH)(restk.o):	 ./cstool.fh 
-$(LIBRARY_PATH)(select.o):	 ./mptr.fh ./implicit.fh 
+$(LIBRARY_PATH)(restin.o):	 ./cselcifiles.fh 
+$(LIBRARY_PATH)(restk.o):	 ./cselcifiles.fh 
+$(LIBRARY_PATH)(selci.o):	 $(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cselcifiles.fh $(INCDIR)/context.fh 
+$(LIBRARY_PATH)(select.o):	 ./mptr.fh ./implicit.fh ./cselcifiles.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(sigma.o):	 ./cbuff.fh 
 $(LIBRARY_PATH)(sigsav.o):	 ./cbuff.fh 
 $(LIBRARY_PATH)(slect.o):	 ./mptr.fh ./implicit.fh ./ciinfo.fh ./bitops.fh 
-$(LIBRARY_PATH)(stool.o):	 ./cstool.fh 
+$(LIBRARY_PATH)(stool.o):	 ./cselcifiles.fh 
 $(LIBRARY_PATH)(tester.o):	 ./mptr.fh ./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(upkcon.o):	 ./bitops.fh 

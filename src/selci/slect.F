@@ -135,7 +135,7 @@ c
      $                         ioconf, indxci, roots, ci, nconmx, 
      $                         thresh, ept, enew, iconf, ncold, 
      $                         q(ivc), iocc, itemp, irange, ptnorm,
-     &                         ptnorm_mp,ept_mp,roots_mp)
+     $                         ptnorm_mp,ept_mp,roots_mp)
 c     
                           iocc(l) = lold
  70                    continue

@@ -10,6 +10,7 @@ c
 c     load the symmetry packed integrals in core
 c     later will be able to include re-ordering vector here.
 c
+      call dfill(nnorbs, 0.0d0, h, 1)
       call dfill(numint, 0.0d0, g, 1)
       if (inttyp.eq.1) then
 c

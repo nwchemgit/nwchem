@@ -1,29 +1,4 @@
-      program ci
-c
-#include "implicit.fh"
-#include "mptr.fh"
-c
-      parameter (lword = 1250000,iqoff=1)
-      dimension q(lword)
-c
-      call pbeginf()
-      call selci_gettim(startc, startw)
-      junk = selci_minit(lword)
-c
-      call selci_cimain(q(iqoff+1), lword)
-c
-      if (nodeid() .eq. 0) then
-         junk = selci_mstats(0)
-         call selci_gettim(endc, endw)
-         write(6,1) 'CI', endc-startc, endw-startw
- 1       format(/1x,a,': Total cpu',f10.1,' : Total wall',f10.1)
-         call flush(6)
-      endif
-c
-      call pend()
-c
-      end
-      subroutine selci_cimain(q, lword)
+      subroutine selci_ci(q, lword)
 #include "implicit.fh"
 #include "ciinfo.fh"
 #include "mptr.fh"
@@ -33,7 +8,9 @@ c
 c
 c     data initialization
 c
-      call ieeetrap
+      junk = selci_minit(lword)
+      call selci_gettim(startc, startw)
+c
       lencib = mitob(lencii) + mdtob(lencir)
       me = nodeid()
       if (me.eq.0) then
@@ -41,7 +18,6 @@ c
         write (iflham) nci
       else
         iflham = 4
-        call selci_pfname('hamil', hamil)
         open(iflham,form='unformatted',status='unknown',file=hamil)
         call inibit
       endif
@@ -69,8 +45,11 @@ c     get in the coupling coefficient arrays
 c
       iw1 = selci_mptr(nfmax*nfmax*nsmax)
       iw2 = selci_mptr(nfmax2*nfmax*(nsmax-1))
-      if (me.eq.0) call selci_loadw(iflwmt,q(iw1),q(iw2),
-     $     nfmax,nfmax2,nsmax)
+      if (me.eq.0) then
+         call selci_loadw(iflwmt,q(iw1),q(iw2),
+     $        nfmax,nfmax2,nsmax)
+         close(iflwmt,status='delete')
+      endif
       call brdcst(5,q(iw1),mdtob(nfmax*nfmax*nsmax),0)
       call brdcst(6,q(iw2),mdtob(nfmax2*nfmax*(nsmax-1)),0)
       call selci_inicij(q(iw1),q(iw2))
@@ -80,8 +59,11 @@ c     the index vector, then read them off the ciconf file
 c
       ioconf = selci_mptr(mitod(nintpo*noconf))
       indxci = selci_mptr(mitod(noconf))
-      if (me.eq.0) call selci_rdconf(iflcon,q(ioconf),q(indxci),
-     $     nintpo,noconf)
+      if (me.eq.0) then
+         call selci_rdconf(iflcon,q(ioconf),q(indxci),
+     $        nintpo,noconf)
+         close(iflcon,status='keep')
+      endif
       call brdcst(7,q(ioconf),mitob(nintpo*noconf),0)
       call brdcst(8,q(indxci),mitob(noconf),0)
 c      call selci_pconls(q(ioconf))
@@ -97,5 +79,15 @@ c
       call selci_makeh(q(ih), q(ig), q(int12), q(int34), q(iw1), q(iw2),
      $     q(ioconf), q(indxci), q(ihd), q(iwork1), q(iwork2),
      $     q(iwork3), q(if))
+c
+      if (nodeid() .eq. 0) then
+         junk = selci_mstats(0)
+         call selci_gettim(endc, endw)
+         write(6,1) 'CI', endc-startc, endw-startw
+ 1       format(/1x,a,': Total cpu',f10.1,' : Total wall',f10.1)
+         call flush(6)
+      endif
+c
+      call synch(1234)
 c
       end

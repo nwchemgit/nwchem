@@ -36,8 +36,8 @@ c
 c
       if (nodeid().ne.0) goto 99999
 c
-      call selci_getnam('confin',confin)
-      call selci_getnam('ciconf',ciconf)
+      confin = 'confin'
+      ciconf = 'ciconf'
 c
 c     Leave a quarter of the space for excit to function
 c     (we could be more intelligent but I have a bad cold so
@@ -446,15 +446,15 @@ c     the number of spin functions for each number of open shells
 c     
       call selci_mknsneed(irefo,nref,nintpo,nbitpi,norbs,nsneed)
       call flush(6)
-      call couple(multi,nsneed(1))
+      wmatrx = 'wmatrix'
+      call selci_couple(multi,nsneed(1),0,wmatrx)
 c
 c     read the info off the wmatrix file
 c
-      wmatrx = 'wmatrix'
       call ifill(33,0,nf,1)
       open(2,form='formatted',status='old',file=wmatrx)
       call selci_rdhwmt(2,mmulti, nsmax, nf, nfmax, nfmax2)
-      close(2)
+      close(2,status='delete')
       if (multi.ne.mmulti)
      $     call errquit('conf: multi of wmatrx incorrect',mmulti)
       write(6,7) (nf(i),i=mod(nsmax,2),nsmax,2)
