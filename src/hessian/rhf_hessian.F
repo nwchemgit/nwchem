@@ -1,6 +1,6 @@
 c**********************************************************************
 c     sunbroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.15 1998-06-05 16:55:22 d3j191 Exp $
+c $Id: rhf_hessian.F,v 1.16 1998-06-15 17:59:00 mdupuis Exp $
 c**********************************************************************
       subroutine hnd_der_init(geom,basis)
       implicit double precision (a-h,o-z)
@@ -11529,8 +11529,8 @@ c$$$C
       COMMON/HND_DSHPRT/OUT
       COMMON/HND_DSHINT/IST,JST,KST,LST
       COMMON/HND_SYMTRY/INVT(48),NT,NTMAX,NTWD,NOSYM
-      COMMON/SYMSHL/MAPSHL(MXSHEL,48),MAPCTR(MXATOM,48)
-      COMMON/ISOPAC/INDIN(48),INDOUT(24)
+      COMMON/HND_SYMSHL/MAPSHL(MXSHEL,48),MAPCTR(MXATOM,48)
+      COMMON/HND_ISOPAC/INDIN(48),INDOUT(24)
       COMMON/HND_GRAD12/DE(3,MXATOM)
       DIMENSION MI(48)
       DIMENSION ISO(512,24)
