@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.103 1997-10-22 16:41:59 d3g681 Exp $
+c     $Id: nwchem.F,v 1.104 1997-11-14 00:03:48 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997           *
 *         Pacific Northwest National Laboratory, * 
@@ -376,7 +376,8 @@ c
      $     file_prefix(1:inp_strlen(file_prefix)),
      $     rtdb_name(1:inp_strlen(rtdb_name)),
      $     cstart(1:inp_strlen(cstart)),
-     $     nproc
+     $     nproc,
+     $     util_batch_job_time_remaining()
  2    format(/
      $     '    hostname  = ', a/
      $     '    program   = ', a/
@@ -387,7 +388,8 @@ c
      $     '    prefix    = ', a/
      $     '    data base = ', a/
      $     '    status    = ', a/
-     $     '    nproc     = ', i4//)
+     $     '    nproc     = ', i4/,
+     $     '    time left = ', i6,'s'//)
 c
 c     Determine, without altering, setting of memory verification
 c     and hardfail.
@@ -433,9 +435,9 @@ C
       If ( .NOT. GA_Uses_MA() ) Total = Total + Global
 C
       If ( GA_Uses_MA() ) then
-         GStatus = '(allocated from within heap+stack)'
+         GStatus = '(within heap+stack)'
       Else
-         GStatus = '(allocated separately from heap & stack)'
+         GStatus = '(distinct from heap & stack)'
       EndIf
 c
       call util_print_centered(6, 'Memory information', 20, .true.)
@@ -453,16 +455,16 @@ c
      &    heap,((dble(heap)*8.0d-06)),
      &    stack,((dble(stack)*8.0d-06)),
      &    global,((dble(global)*8.0d-06)),
-     &    GStatus,
+     &    GStatus(1:inp_strlen(gstatus)),
      &    total,((dble(total)*8.0d-06)),
      &    cstatus,
      &    fstatus
  3    format(/
-     $     '    heap      = ', i10,' doubles',' = ',f10.1,' Mbytes',/,
-     $     '    stack     = ', i10,' doubles',' = ',f10.1,' Mbytes',/,
-     $     '    global    = ', i10,' doubles',' = ',f10.1,' Mbytes',/,
-     &     '       ------------> ',A,/,
-     $     '    total     = ', i10,' doubles',' = ',f10.1,' Mbytes',/,
+     $     '    heap      = ', i10,' doubles',' = ',f8.1,' Mbytes',/,
+     $     '    stack     = ', i10,' doubles',' = ',f8.1,' Mbytes',/,
+     $     '    global    = ', i10,' doubles',' = ',f8.1,' Mbytes',
+     &     ' ',A,/,
+     $     '    total     = ', i10,' doubles',' = ',f8.1,' Mbytes',/,
      $     '    verify    = ', a3,/,
      $     '    hardfail  = ', a3,//)
 c
