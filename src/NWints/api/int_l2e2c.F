@@ -1,7 +1,7 @@
       subroutine int_l2e2c(brain, ish, ketin, jsh, 
      &       zerotol, leri, eri, nint, ilab, jlab, 
      &       lscr, scr)
-c $Id: int_l2e2c.F,v 1.5 1995-05-09 18:00:55 d3e129 Exp $
+c $Id: int_l2e2c.F,v 1.6 1995-12-22 01:39:04 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -10,7 +10,6 @@ c $Id: int_l2e2c.F,v 1.5 1995-05-09 18:00:55 d3e129 Exp $
 #include "geobasmapP.fh"
 c
 c::external subroutines used
-c dcopy
 c errquit
 c::functions
       logical int_chk_sh
@@ -53,9 +52,6 @@ c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
 c
-c copy eri's to scr
-*      call dcopy(leri,eri,1,scr,1)
-*
 c compute eris into scr instead of copying them
 c
 c 

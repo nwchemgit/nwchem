@@ -1,13 +1,15 @@
       logical function intb_2e4c(brain, icl, jcl, ketin, kcl, lcl,
-     &    num_q, zerotol, canonicalize, ilab, jlab, klab, llab, eri,
+     &    num_q, q4, use_q4, zerotol, canonicalize,
+     &    ilab, jlab, klab, llab, eri,
      &    l_erilab, nint, lscr, scr)
-* $Id: intb_2e4c.F,v 1.3 1995-10-31 09:25:59 d3e129 Exp $
+* $Id: intb_2e4c.F,v 1.4 1995-12-22 01:39:09 d3e129 Exp $
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
 #include "stdio.fh"
+#include "mafdecls.fh"
 c::functions
       logical cando_txs
       external cando_txs
@@ -19,6 +21,9 @@ c:: passed
       integer jcl(num_q) ! [input]  j-contraction quartet labels
       integer kcl(num_q) ! [input]  k-contraction quartet labels
       integer lcl(num_q) ! [input]  l-contraction quartet labels
+      logical use_q4     ! [input]  logical stating whether to use q4
+      double precision q4(num_q) ! [input] symmetry prefactors for integrals
+*
       integer l_erilab   ! [input]  length of eri and integral label arrays
       integer ilab(l_erilab) ! [output] integral labels for "i" gaussian
       integer jlab(l_erilab) ! [output] integral labels for "j" gaussian
@@ -58,8 +63,9 @@ c
 *rak:      enddo
       call dfill(3,0.0d00,roff,1)
       call texas_hf2_m(brain,icl,jcl,ketin,kcl,lcl,num_q,
-     $     roff,roff,roff,roff,.false.,
-     $     eri,l_erilab, ilab, jlab, klab, llab, nint, .true.,
+     &    q4,use_q4,
+     &    roff,roff,roff,roff,.false.,
+     &    eri,l_erilab, ilab, jlab, klab, llab, nint, .true.,
      &    more_ints_txs, scr, lscr)
       if (nint.gt.l_erilab) then
         write(luout,*)' memory trashed.'
@@ -101,6 +107,7 @@ c
      &        nint_for_q,
      &        ilab(ip_int), jlab(ip_int), klab(ip_int), llab(ip_int),
      &        lscr, scr)
+          if (use_q4) call dscal(nint_for_q,q4(i_q),eri(ip_int),1)
           i_q_done = i_q_done + 1
           ip_int = ip_int + nint_for_q
           leri_left = leri_left - nint_for_q

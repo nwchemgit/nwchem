@@ -1,5 +1,5 @@
       subroutine intp_txyz(n_cent, n_geom, R, xyz_new)
-c $Id: intp_txyz.F,v 1.2 1995-01-19 20:44:48 d3e129 Exp $
+c $Id: intp_txyz.F,v 1.3 1995-12-22 01:39:11 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c::external subroutines used
@@ -28,7 +28,7 @@ c... compute j translated fractional coordinates
 c.........  xyz_frac = xyz_frac + R
 c
       do 00100 ixyz=1,3
-        xyz_frac(ixyz) = xyz_frac(ixyz) + R(ixyz)
+          xyz_frac(ixyz) = xyz_frac(ixyz) + R(ixyz)
 00100 continue
 c
 c... computer j translated cart. coordinates.

@@ -1,6 +1,6 @@
       subroutine int_pgen1e(msg, i_basis, ish, j_basis, jsh, 
      &       ilab, jlab, l1e, Gen1e, print_level)
-c $Id: int_pgen1e.F,v 1.5 1994-09-22 13:34:15 d3e129 Exp $
+c $Id: int_pgen1e.F,v 1.6 1995-12-22 01:39:08 d3e129 Exp $
       implicit none
 c
 c generic one electron printing routine
@@ -11,7 +11,6 @@ c
 #include "geobasmapP.fh"
 c
 c::external subroutines used
-c dcopy
 c errquit
 c::function
       logical int_chk_sh

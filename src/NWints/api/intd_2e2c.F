@@ -1,6 +1,6 @@
       subroutine intd_2e2c(brain, ish, ketin, jsh, 
      &       lscr, scr, leri, eri, idatom2)
-c $Id: intd_2e2c.F,v 1.1 1994-11-06 12:54:32 d3e129 Exp $
+c $Id: intd_2e2c.F,v 1.2 1995-12-22 01:39:10 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -17,6 +17,8 @@ c
 *:need to fix:#endif
 c
 c::external subroutines used
+c dcopy
+c daxpy
 c errquit
 c::functions
       integer int_nint

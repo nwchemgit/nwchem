@@ -1,7 +1,7 @@
       subroutine int_l2e3c(brain, ish, ketin, jsh, ksh,
      &       zerotol, canket, leri, eri, nint, ilab, jlab, klab,
      &       lscr, scr)
-c $Id: int_l2e3c.F,v 1.6 1995-05-09 18:00:57 d3e129 Exp $
+c $Id: int_l2e3c.F,v 1.7 1995-12-22 01:39:05 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -10,7 +10,6 @@ c $Id: int_l2e3c.F,v 1.6 1995-05-09 18:00:57 d3e129 Exp $
 #include "geobasmapP.fh"
 c
 c::external subroutines used
-c dcopy
 c errquit
 c::functions
       logical int_chk_sh
@@ -50,9 +49,6 @@ c
       ket = ketin + BASIS_HANDLE_OFFSET
 c
 c
-c copy eri's to scr
-*      call dcopy(leri,eri,1,scr,1)
-*
 c compute eri's (instead of copy) in front of scr()
 c
       numint =         ibs_cn2bfr(2,ish,bra)-ibs_cn2bfr(1,ish,bra)+1

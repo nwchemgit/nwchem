@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.16 1995-10-31 09:22:58 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.17 1995-12-22 01:38:58 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -47,6 +47,7 @@ c:: local
 c.txs
       integer num_quart, dummy_lab(2)
       double precision roff(3)
+      double precision q4
       integer nint
       logical dum_log
       logical status_sp, status_nw, status_txs
@@ -149,7 +150,10 @@ c
         roff(2) = 0.0d00
         roff(3) = 0.0d00
         dum_log = .false.
+*...check symmetry here
+        q4 = 1.0d00
         call texas_hf2_m(brain,ish,jsh,ketin,ksh,lsh,num_quart,
+     &      q4,.false.,
 c............................... use roff set false
      &      roff,roff,roff,roff,.false.,
      &      eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,

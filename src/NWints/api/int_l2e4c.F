@@ -1,7 +1,7 @@
       subroutine int_l2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       zerotol, canonicalize, leri, eri, nint, ilab, jlab, klab,
      &       llab, lscr, scr)
-c $Id: int_l2e4c.F,v 1.11 1995-10-31 09:25:58 d3e129 Exp $
+c $Id: int_l2e4c.F,v 1.12 1995-12-22 01:39:07 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -10,7 +10,6 @@ c $Id: int_l2e4c.F,v 1.11 1995-10-31 09:25:58 d3e129 Exp $
 #include "geobasmapP.fh"
 c
 c::external subroutines used
-c dcopy
 c errquit
 c::functions
       logical  cando_sp, cando_nw, cando_txs
@@ -34,7 +33,7 @@ c::local
       integer numint, newlscr
       logical dum_log_f, dum_log_t
       integer num_quart, intp 
-      double precision roff(3), val
+      double precision roff(3), val, q4
 
 c
 c:statement function
@@ -85,7 +84,9 @@ c
         num_quart = 1
         dum_log_f = .false.
         dum_log_t = .true.
+        q4 = 1.0d00
         call texas_hf2_m (brain, ish, jsh, ketin, ksh, lsh, num_quart,
+     &      q4, dum_log_f,
      &      roff, roff, roff, roff, dum_log_f,
      &      eri, leri,
      &      ilab, jlab, klab, llab, nint, dum_log_t,

@@ -1,11 +1,10 @@
       subroutine int_l1eall(i_basis, ish, j_basis, jsh, zerotol,
      &       ilab, jlab, lstv, S, T, V, lscr, scr, numstv) 
-c $Id: int_l1eall.F,v 1.8 1995-05-09 18:00:49 d3e129 Exp $
+c $Id: int_l1eall.F,v 1.9 1995-12-22 01:39:00 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
 c::external subroutines used
-c dcopy
 c errquit
 c::function
       logical int_chk_sh
@@ -47,14 +46,6 @@ c
 c
       ibas  = i_basis + BASIS_HANDLE_OFFSET
       jbas  = j_basis + BASIS_HANDLE_OFFSET
-c
-c copy integrals to scratch
-*      iscrS = 1
-*      call dcopy(lstv,S,1,scr(iscrS),1)
-*      iscrT = iscrS + lstv
-*      call dcopy(lstv,T,1,scr(iscrT),1)
-*      iscrV = iscrT + lstv
-*      call dcopy(lstv,V,1,scr(iscrV),1)
 c
       numint =         ibs_cn2bfr(2,ish,ibas)-ibs_cn2bfr(1,ish,ibas)+1
       numint = numint*(ibs_cn2bfr(2,jsh,jbas)-ibs_cn2bfr(1,jsh,jbas)+1)

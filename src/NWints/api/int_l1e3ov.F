@@ -3,13 +3,12 @@
 c
 c routine to calculate labels for 3 center overlap integrals 
 c
-C$Id: int_l1e3ov.F,v 1.5 1995-05-09 18:00:47 d3e129 Exp $
+C$Id: int_l1e3ov.F,v 1.6 1995-12-22 01:38:59 d3e129 Exp $
       implicit none 
 #include "basP.fh"
 #include "geobasmapP.fh"
 c
 c::external subroutines used
-c..  dcopy
 c..  errquit
 c::function
       logical int_chk_sh
@@ -57,11 +56,6 @@ c
       ikbas  = ibas.eq.kbas
       allbas = ijbas .and. jkbas
 c
-c.. copy vector to scratch array
-c
-*      if (lov3.gt.lscr)
-*     &       call errquit('int_l1e3ov: scratch array too small',lov3)
-*      call dcopy(lov3,OV3,1,scr,1)
       numint =         ibs_cn2bfr(2,ish,ibas)-ibs_cn2bfr(1,ish,ibas)+1
       numint = numint*(ibs_cn2bfr(2,jsh,jbas)-ibs_cn2bfr(1,jsh,jbas)+1)
       numint = numint*(ibs_cn2bfr(2,ksh,kbas)-ibs_cn2bfr(1,ksh,kbas)+1)

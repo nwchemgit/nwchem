@@ -1,12 +1,11 @@
       subroutine int_l1eke(i_basis, ish, j_basis, jsh, zerotol,
      &       ilab, jlab, lke, Ke, lscr, scr, numgen) 
-c $Id: int_l1eke.F,v 1.1 1995-05-09 18:00:51 d3e129 Exp $
+c $Id: int_l1eke.F,v 1.2 1995-12-22 01:39:02 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
 c
 c::external subroutines used
-c dcopy
 c errquit
 c::function
       logical int_chk_sh
