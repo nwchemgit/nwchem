@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.83 1998-07-29 22:04:46 d3g681 Exp $
+C     $Id: geom_input.F,v 1.84 1998-07-29 22:32:41 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -9103,7 +9103,6 @@ c
       integer      ncenter
       integer      nuc
       integer      nat
-      logical      odone
       logical      dbug 
       logical      some 
       double precision threquiv
@@ -9123,6 +9122,7 @@ c
       dimension charge(  *)
       dimension   tags(  *)
       dimension errmsg(3)
+      logical odone
       data errmsg /'program ','stop in ','-autsym-'/
 c
       dbug=.false.
@@ -9171,16 +9171,11 @@ c
          coords(3,i)=c(3,i)
       enddo
 c
-      if(.not.odone) then
-         write(iw,9996)
-      endif
-c
       return
  9999 format(' in -geom_auto_sym- ')
  9998 format(1x,i5,f5.1,3f10.6,2x,a16)
  9997 format(1x,i5,i5,3f10.6,f10.3)
- 9996 format(' -autsym- has failed to detect a symmetry group.',/,
-     1  ' program will continue without changing symmetry data.')
+c
       end
       SUBROUTINE HND_AUTSYM(ODONE,RTDB,THREQUIV,groupname)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -9219,6 +9214,7 @@ C
       SOME=SOME.OR.OUT
 C
       NT=1
+      NTMAX = 1                 ! Never seems to be set
       IF(NT.GT.1.OR.NTMAX.GT.1) THEN
          ODONE=.TRUE.
          RETURN
