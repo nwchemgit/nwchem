@@ -11,7 +11,7 @@ c
      &                       ipol, nq, GRAD, xform_Cmat)
 #endif
 c
-C$Id: setACmat.F,v 1.15 2003-10-13 21:17:19 pollack Exp $
+C$Id: setACmat.F,v 1.16 2004-01-19 18:25:18 edo Exp $
 c
       implicit none
 c
@@ -45,26 +45,6 @@ c
 c
       integer ii, jj
 c
-#if 0
-      if (bgj_print() .gt. 1) then
-      write(LuOut,*) ' setACmat: AMAT in'
-      call output(amat, 1, nq, 1, ipol, nq, ipol, 1)
-      if (grad) then
-         write(LuOut,*) ' setACmat: CMAT in'
-         call output(cmat, 1, nq, 1, 3, nq, 3, 1)
-      endif
-#ifdef SECOND_DERIV
-      write(LuOut,*) ' setACmat_d2: AMAT2 in'
-      call output(amat2, 1, nq, 1, NCOL_AMAT2, nq, NCOL_AMAT2, 1)
-      if (grad) then
-         write(LuOut,*) ' setACmat_d2: CMAT2 in'
-         call output(cmat2, 1, nq, 1, NCOL_CMAT2, nq, NCOL_CMAT2, 1)
-      endif
-#endif
-      write(LuOut,*) ' setACmat: qwght'
-      call output(qwght, 1, nq, 1, 1, nq, 1, 1)
-      endif
-#endif
 c
 c     Transform derivatives of functional with respect to gammas
 c     to derivatives of functional with respect to density gradient
@@ -75,6 +55,9 @@ c
 c
 c     Combine derivatives of functional with quadrature weights
 c
+#ifdef SECOND_DERIV
+      kske=.false.
+#endif
       if (GRAD)then
          if (xform_Cmat) then
             do ii = 1, ipol
