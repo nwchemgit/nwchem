@@ -2709,7 +2709,7 @@ c
       PARAMETER (MXZMAT=1500)    
       PARAMETER (MXCOOR=1500)    
       PARAMETER (MXIZMT=6000)
-      PARAMETER (MXBOND= 64)
+      PARAMETER (MXBOND= 384)   ! For specifying additional bonds
       PARAMETER (MXBNDS= 8*MXATOM)
       PARAMETER (MXANGS= 8*MXATOM)
       PARAMETER (MXTORS= 8*MXATOM)
@@ -2748,7 +2748,7 @@ c
       DIMENSION IJKLOP(4,MXOOPA)
       DIMENSION IJKLNB(4,MXLINB)
       DIMENSION IJBNDS(2,MXBNDS)
-      DIMENSION IJMODS(2,MXBNDS)
+      DIMENSION IJMODS(2,MXBNDS), IJXTRA(2,MXBOND)
       DIMENSION NIBOND(MXATOM),IIBOND(MXATOM)
       DIMENSION NIMODS(MXATOM),IIMODS(MXATOM)
       DIMENSION ENDATM(MXATOM)
@@ -2812,6 +2812,12 @@ c
       IF(SOME .and. oprint) THEN
          WRITE(IW,8888)
       ENDIF
+c
+c     These bonds are used to join disconnected
+c     clusters in addition to the user defined bonds
+c
+      numijxtra = 0
+      call ifill(2*mxbond, 0, ijxtra, 1)
 c
       ncvrpass = 0
 10101 ncvrpass = ncvrpass + 1
@@ -2896,6 +2902,7 @@ C
             CALL HND_HNDERR(3,ERRMSG)
          ENDIF
       ENDDO
+c
       MODBND=NUMBND.NE.0
       IF(DBUG) THEN
          IF(MODBND) THEN
@@ -3016,7 +3023,37 @@ C
 C
 C     ----- FIRST CHECK FORCED BONDS -----
 C
-         IF(MODBND) THEN
+            DO MBOND=1,numijxtra ! These forced by connection of clusters
+               NUBOND=.FALSE.
+               IF(IJxtra(1,MBOND).EQ.IAT) THEN
+                  MBNDS=MBNDS+1
+                  IJBNDS(1,MBNDS)=IAT
+                  IJBNDS(2,MBNDS)=IJxtra(2,MBOND)
+                  NUBOND=.TRUE.
+               ELSEIF(IJxtra(2,MBOND).EQ.IAT) THEN
+                  MBNDS=MBNDS+1
+                  IJBNDS(1,MBNDS)=IAT
+                  IJBNDS(2,MBNDS)=IJxtra(1,MBOND)
+                  NUBOND=.TRUE.
+               ENDIF
+               IF(NUBOND.AND.DBUG) THEN
+                  WRITE(IW,9975) MBNDS,IJBNDS(1,MBNDS),IJBNDS(2,MBNDS)
+               ENDIF
+C
+C     ----- CHECK FOR DUPLICATES AND ELIMINATE -----
+C
+               IF(NUBOND.AND.MBNDS.GT.1) THEN
+                  M=MBNDS-1
+                  DO I=1,M
+                     IF(IJBNDS(1,I).EQ.IJBNDS(1,MBNDS).AND.
+     1                  IJBNDS(2,I).EQ.IJBNDS(2,MBNDS)     ) THEN
+                        MBNDS=MBNDS-1
+                     ENDIF
+                  ENDDO
+               ENDIF
+            ENDDO
+c
+         IF(MODBND) THEN        ! These forced by the user
             DO MBOND=1,MXBOND
                NUBOND=.FALSE.
                IF(IJBOND(1,MBOND).EQ.IAT) THEN
@@ -3107,12 +3144,12 @@ C
             if (nibond(iat).gt.6) write(6,30304) nibond(iat),iat
 30304       format(1x,'     Warning. AUTOZ generated',i5,
      $           ' bonds for atom',i5)
-         ELSE if (nibond(iat).eq.1) then
+         ELSE 
             ENDATM(IAT)=.TRUE.
-         else if (nibond(iat).le.0) then ! Check for unconnected atoms
-            write(6,30303) iat
-30303       format(1x,'      AUTOZ did not connect atom ',i5)
-            goto 55555
+c$$$         else if (nibond(iat).le.0) then ! Check for unconnected atoms
+c$$$            write(6,30303) iat
+c$$$30303       format(1x,'      AUTOZ did not connect atom ',i5)
+c$$$            goto 55555
          ENDIF
       ENDDO
       NBNDS=MBNDS
@@ -3253,8 +3290,17 @@ C
             NIMODS(IAT)=NIBOND(IAT)
          ENDDO
 c
-         call geom_check_all_connected(nat,nbnds,ijmods,okay)
-***         if (.not. okay) goto 55555
+         call geom_check_all_connected(nat,nbnds,ijmods,
+     $        c, numijxtra, ijxtra, mxbond, 2d0*cvfac, okay)
+
+         if (.not. okay) then
+            if (numijxtra .eq. 0) then
+               goto 55555       ! Reconnection failed
+            else
+               write(6,*) ' Regenerating connections with new bonds'
+               goto 10101       ! Should work now
+            endif
+         endif
 c
          CALL HND_ZMTBLD(ZDONE,NZVAR,NIZMAT,IZMAT,mxizmt,C,
      1                   NAT,NBNDS,IJMODS,IIMODS,NIMODS,NUMBND,
@@ -3461,6 +3507,8 @@ c
  9876    format(1x,i5,' AUTOZ failed with cvr_scaling =',f4.1,
      $        ' changing to',f4.1)
          cvfac = cvfac + 0.1d0
+         numijxtra = 0          ! Redefine extra bonds
+         call ifill(2*mxbond, 0, ijxtra, 1)
          goto 10101
       else
          zdone = .false.
@@ -3837,7 +3885,8 @@ C
                      CALL HND_HNDERR(3,ERRMSG)
                   ENDIF
                   KAT=KCON
-                  IF(KAT.NE.IAT) THEN
+                  IF(KAT.LT.IAT) THEN ! RJH to avoid duplicates at outset
+*                  IF(KAT.NE.IAT) THEN
                      IF(NANG.EQ.MXANGS) THEN
                         WRITE(IW,*) 'TOO MANY BOND ANGLES',
      1                              ' NANG,MXANG = ',NANG,MXANGS
@@ -4061,18 +4110,18 @@ C
                            ENDIF
                            LAT=LCON
                            IF(LAT.NE.JAT) THEN
+                              if ( iat.ne.jat .and. ! RJH from (h2o)5 test
+     $                             iat.ne.kat .and. 
+     $                             iat.gt.lat .and. ! Was .ne.
+     $                             jat.ne.kat .and.
+     $                             jat.ne.lat .and.
+     $                             kat.ne.lat) then
                               IF(NTOR.EQ.MXTORS) THEN
                                  WRITE(IW,*) 'TOO MANY TORSIONS',
      1                                       ' NTOR, MXTORS = ',NTOR,
      2                                       MXTORS
                                  CALL HND_HNDERR(3,ERRMSG)
                               ENDIF
-                              if ( iat.ne.jat .and. ! RJH from (h2o)5 test
-     $                             iat.ne.kat .and. 
-     $                             iat.ne.lat .and.
-     $                             jat.ne.kat .and.
-     $                             jat.ne.lat .and.
-     $                             kat.ne.lat) then
                                  NTOR=NTOR+1
                                  IJKLTO(1,NTOR)=IAT
                                  IJKLTO(2,NTOR)=JAT
@@ -5948,41 +5997,61 @@ C
   560 CONTINUE
       RETURN
       END
-      subroutine geom_check_all_connected(nat,nbnds,ijmods,okay)
+      subroutine geom_check_all_connected(nat,nbnds,ijmods,
+     $     c, numijxtra, ijxtra, mxbond, close, okay)
       implicit none
 #include "mafdecls.fh"
 #include "util.fh"
-      integer nat, nbnds
-      integer ijmods(2,nbnds)
+      integer nat, nbnds, numijxtra, mxbond
+      integer ijmods(2,nbnds), ijxtra(2,mxbond)
+      double precision c(3,nat), close
       logical okay              ! return true if all connected
-c
+c     
 c     Examine the connectivity generated by autoz and ensure
 c     that it connects everything.  If it does not then
-c     whine to the user and return false.
-c 
+c     whine to the user, attempt to add extra bonds to 
+c     connect the clusters and return not okay.
+c
+c     Returns
+c     
+c     okay=.true. and numijxtra as on input ... ijmods is good
+c
+c     okay=.false. and numijxtra non-zero ... ijmods is not good
+c     .           rerun connection algorithm with extra bonds
+c
+c     okay=.false. and numijxtra=0 ... ijmods is not good and
+c     .           too many extra bonds ... modify cvr_scaling
+c     .           or some other parameter.
+c     
       logical oprint
       integer i, j, k, k_m, l_m, k_clus, l_clus, ibig, test, nclus
-      integer ninclus
-      integer ind
+      integer ninclus, iclus, jclus
+      integer ind, imin, jmin, nnew
+      double precision toangs, r, dist, rmin
+      parameter (toangs=0.52917724924d+00)
+      double precision dist
       ind(i,j) = k_m + (i-1) + (j-1)*nat
-c
+      dist(i,j)=sqrt((c(1,i)-c(1,j))**2+
+     1     (c(2,i)-c(2,j))**2+
+     2     (c(3,i)-c(3,j))**2) * toangs
+c     
       oprint = util_print("warnings",print_low)
       if (nbnds .eq. 0) then
          okay = nat .eq. 1
          return
       endif
-c
+c     
       if (.not. ma_push_get(mt_int, nat*nat,'check all',l_m, k_m))
      $     call errquit('geom_check_all_connected: ma?',nat*nat)
       if (.not. ma_push_get(mt_int, nat,'check all',l_clus, k_clus))
      $     call errquit('geom_check_all_connected: ma?',nat)
-c
+c     
       ibig = 99999999
       call ifill(nat*nat, ibig, int_mb(k_m), 1)
-c
+c     
 c     Run Floyd's algorithm to find minimal path from each
 c     node to any other
-c
+c     
       do k = 1, nbnds
          i = ijmods(1,k)
          j = ijmods(2,k)
@@ -5992,7 +6061,7 @@ c
       do i = 1, nat
          int_mb(ind(i,i)) = 0
       enddo
-c
+c     
       do k = 1, nat
          do i = 1, nat
             do j = 1, nat
@@ -6002,7 +6071,7 @@ c
             enddo
          enddo
       enddo
-c
+c     
       okay = .true.
       do j = 1, nat
          do i = 1, nat
@@ -6012,7 +6081,7 @@ c
             endif
          enddo
       enddo
-c
+c     
       if (util_print('connection matrix',print_debug)) then
          write(6,*) ' No. of bonds between each pair of atoms'
          do j = 1, nat
@@ -6020,61 +6089,102 @@ c
  1          format(1x,150i3)
          enddo
       endif
-c
-c     First identify connected fragments ... print them out
-c     if there are more than one.
-c
-      if (oprint) then
-         call ifill(nat, 0, int_mb(k_clus), 1)
-         nclus = 0
-         do j = 1, nat
-            if (int_mb(k_clus+j-1) .eq. 0) then
-               nclus = nclus + 1
-               do i = j, nat
-                  if (int_mb(k_clus+i-1) .eq. 0) then
-                     if (int_mb(ind(i,j)).ne.-1) then
-                        int_mb(k_clus+i-1) = 1
+c     
+      if (okay) goto 10000      ! Hurray!
+c     
+c     First identify the connected fragments
+c     
+      if (oprint) write(6,*) ' The atoms group into disjoint clusters'
+      call ifill(nat, 0, int_mb(k_clus), 1)
+      nclus = 0
+      do j = 1, nat
+         if (int_mb(k_clus+j-1) .eq. 0) then
+            nclus = nclus + 1
+            ninclus = 0
+            if (oprint) write(6,2) nclus
+ 2          format(' cluster ',i3,':'$)
+            do i = j, nat
+               if (int_mb(k_clus+i-1) .eq. 0) then
+                  if (int_mb(ind(i,j)).ne.-1) then
+                     ninclus = ninclus + 1
+                     int_mb(k_clus+i-1) = nclus
+                     if (oprint) write(6,3) i
+ 3                   format(i5$)
+                     if (ninclus .gt. 10) then
+                        if (oprint) write(6,*)
+                        if (oprint) write(6,22)
+ 22                     format('             '$)
+                        ninclus = 0
                      endif
                   endif
-               enddo
-            endif
-         enddo
+               endif
+            enddo
+            if (oprint) write(6,*)
+         endif
+      enddo
 c
-         if (nclus .gt. 1) then
-            write(6,*) ' The atoms group into disjoint clusters'
-            call ifill(nat, 0, int_mb(k_clus), 1)
-            nclus = 0
-            do j = 1, nat
-               if (int_mb(k_clus+j-1) .eq. 0) then
-                  nclus = nclus + 1
-                  ninclus = 0
-                  write(6,2) nclus
- 2                format(' cluster ',i3,':'$)
-                  do i = j, nat
-                     if (int_mb(k_clus+i-1) .eq. 0) then
-                        if (int_mb(ind(i,j)).ne.-1) then
-                           ninclus = ninclus + 1
-                           int_mb(k_clus+i-1) = 1
-                           write(6,3) i
- 3                         format(i5$)
-                           if (ninclus .gt. 10) then
-                              write(6,*)
-                              write(6,22)
- 22                           format('             '$)
-                              ninclus = 0
-                           endif
+      write(6,*) ' close = ', close
+c     
+c     Now have identified the clusters.  Loop thru pairs
+c     of clusters and find the closest atoms.  If this
+c     distance is less than close then attempt to join
+c     the clusters via this pair of atoms.
+c     
+c     If we have too many extra bonds then return with
+c     no extra bonds at all and the outer code will
+c     increase cvr_scaling to attempt to compensate.
+c     
+      nnew = 0
+      do iclus = 1, nclus
+         do jclus = iclus+1, nclus
+            rmin = 1d300
+            do i = 1, nat
+               if (int_mb(k_clus+i-1).eq.iclus) then
+                  do j = 1, nat
+                     if (int_mb(k_clus+j-1).eq.jclus) then
+                        r = dist(i,j)
+                        if (r .lt. rmin) then
+                           imin = i
+                           jmin = j
+                           rmin = r
                         endif
                      endif
                   enddo
-                  write(6,*)
                endif
             enddo
-         endif
-      endif
-c      
-      if (.not. ma_chop_stack(l_m)) 
-     $     call errquit('geom_check_all_connected: ma pop?',nat)
+            if (rmin .le. close) then
+               if (numijxtra .eq. mxbond) then
+                  numijxtra = 0
+                  okay = .false.
+                  return
+               endif
+               if (oprint) write(6,44) iclus, jclus, imin, jmin, rmin
+ 44            format(' Connecting clusters',2i4,' via atoms',
+     $              2i5,' r =',f5.2)
+               numijxtra = numijxtra + 1
+               ijxtra(1,numijxtra) = imin
+               ijxtra(2,numijxtra) = jmin
+               nnew = nnew + 1
+            else
+*               if (oprint) write(6,45) iclus, jclus, imin, jmin, rmin
+* 45            format(' Clusters',2i4,' closest atoms are',
+*     $              2i5,' r =',f5.2, ' ... too long?')
+               continue
+            endif
+         enddo
+      enddo
 c
+      if (nnew .eq. 0) then
+c     Something is wrong but we did not make new bonds
+         okay = .false.
+         numijxtra = 0
+      else
+         okay = .false.
+      endif
+c     
+10000 if (.not. ma_chop_stack(l_m)) 
+     $     call errquit('geom_check_all_connected: ma pop?',nat)
+c     
       end
 
          
