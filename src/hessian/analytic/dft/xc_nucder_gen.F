@@ -1,6 +1,6 @@
       subroutine xc_hessian(g_dens, oactive, nactive, hess)
 c
-c     $Id: xc_nucder_gen.F,v 1.1 1998-09-09 13:21:15 bjohnson Exp $
+c     $Id: xc_nucder_gen.F,v 1.2 1998-09-15 18:29:06 bjohnson Exp $
 c
 c     Wrapper routine for XC hessian without fitting
 c
@@ -20,7 +20,7 @@ c
 c
       subroutine xc_cpks_rhs(g_dens, oactive, nactive, g_rhs)
 c
-c     $Id: xc_nucder_gen.F,v 1.1 1998-09-09 13:21:15 bjohnson Exp $
+c     $Id: xc_nucder_gen.F,v 1.2 1998-09-15 18:29:06 bjohnson Exp $
 c
 c     Wrapper routine for XC CPKS RHS without fitting
 c
@@ -41,7 +41,7 @@ c
       subroutine xc_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
      &                        calc_type)
 c
-c     $Id: xc_nucder_gen.F,v 1.1 1998-09-09 13:21:15 bjohnson Exp $
+c     $Id: xc_nucder_gen.F,v 1.2 1998-09-15 18:29:06 bjohnson Exp $
 c
 c     General routine for XC hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -75,6 +75,9 @@ c
       integer l_cntoce, k_cntoce, l_cntobfr, k_cntobfr,
      &        l_cetobfr, k_cetobfr, l_rdens_atom, k_rdens_atom,
      &        nscr, l_scr, k_scr, i
+c !!! BGJ test
+      integer j, ioff
+c !!! BGJ test
       character*3 name
 c
       if (bgj_print() .gt. 0)
@@ -123,13 +126,54 @@ c
          if (do_hess) then
             write(6,*) 'xc_deriv_gen: xc hessian'
             call output(hess,1,3*natoms,1,3*natoms,3*natoms,3*natoms,1)
+c
+c     TI check
+c
+            call hessti(hess,natoms)
          else if (do_cpks_r) then
             do i = 1, ipol*3*nactive
                write(*,*)'*** xc cpks rhs matrix',i
                call ga_print(g_rhs(i))
+            enddo
+c
+c     TI check
+c
+            do i = 2, nactive
+               ioff = ipol*3*(i-1)
+               do j = 1, ipol*3
+                  call ga_add(1d0, g_rhs(j+ioff), 1d0, g_rhs(j),
+     &                 g_rhs(j))
+               enddo
+            enddo
+            do j = 1, ipol*3
+               write(*,*)'*** TI check',j
+               call ga_print(g_rhs(j))
             enddo
          endif
          write(*,*)'--------Leaving xc_deriv_gen-------------'
       endif
       return
       end
+c !!! BGJ test
+      subroutine hessti(hess, natoms)
+c
+c     Tests hessian TI by summing rows
+c
+      implicit none
+c
+      integer natoms
+      double precision hess(3,natoms,3*natoms)
+      integer i, j
+      do i = 2, natoms
+         do j = 1, 3*natoms
+            hess(1,1,j) = hess(1,1,j) + hess(1,i,j)
+            hess(2,1,j) = hess(2,1,j) + hess(2,i,j)
+            hess(3,1,j) = hess(3,1,j) + hess(3,i,j)
+         enddo
+      enddo
+      write(*,*)'*** TI check'
+c      call output(hess,1,3*natoms,1,3*natoms,3*natoms,3*natoms,1)
+      call output(hess,1,3,1,3*natoms,3*natoms,3*natoms,1)
+      return
+      end
+c !!! BGJ test
