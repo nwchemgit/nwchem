@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.21 2003-07-19 20:46:31 bylaska Exp $
+* $Id: pspw_sic.F,v 1.22 2003-07-20 00:56:17 bylaska Exp $
 *
 
 *     *************************
@@ -813,9 +813,33 @@ c    >                        Hpsi_k(index2))
      >                       v_oep((ms-1)*n2ft3d+1),
      >                       pxc)
           index = (i-1) 
-          dbl_mb(b(1)+index) = (exc-pxc)*dv
+          dbl_mb(b(1)+index) = (pxc-exc)*dv
         end do
         end do
+
+*       ***** Check M and b *****
+        write(*,*)
+        write(*,*)
+        do ms=1,ispin
+        do j=1,ne(ms)
+          pxc = 0.0d0
+          do i=1,ne(ms)
+           index = (i-1) + (j-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
+           pxc = pxc + dbl_mb(M(1)+index)
+          end do
+          write(*,*) "Sum M:",ms,j,pxc
+        end do
+        end do
+        write(*,*)
+        do ms=1,ispin
+          pxc = 0.0d0
+          do i=n1(ms),n2(ms)
+           pxc = pxc + dbl_mb(b(1)+i-1)
+          end do
+          write(*,*) "Sum b:",ms,pxc
+        end do
+        write(*,*)
+        write(*,*)
 
 
         !*** solve Ax = b ***
