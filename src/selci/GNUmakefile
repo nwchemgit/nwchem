@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.19 2000-08-01 19:45:48 d3g681 Exp $
+# $Id: GNUmakefile,v 1.20 2000-08-01 20:59:54 d3g681 Exp $
 #
 
 
@@ -45,10 +45,12 @@ include ../config/makelib.h
 
 LIB_DEFINES = -DINTEGER_1=byte
 ifeq ($(TARGET),SOLARIS)
+#change to 'integer*1' for f90
 LIB_DEFINES = -DINTEGER_1=byte
 endif
 ifeq ($(TARGET),SOLARIS64)
-LIB_DEFINES = -DINTEGER_1='integer*1'
+#change to 'integer*1' for f90
+LIB_DEFINES = -DINTEGER_1=byte
 endif
 
 ifeq ($(TARGET),CRAY-T3E)

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.119 2000-08-01 19:58:42 d3g681 Exp $
+# $Id: GNUmakefile,v 1.120 2000-08-01 21:00:00 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -21,18 +21,19 @@ endif
 # (though some machines may be faster doing the shifts).
 
 ifeq ($(TARGET),SOLARIS64)
-# This assumes f90 ... use -DINTEGER_1=byte for f77
+# This assumes f77 ... use -DINTEGER_1='integer*1' for f90
   EXTRA_OBJ = ieeetrap.o
-  LIB_DEFINES += -DINTEGER_1='integer*1' -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 endif
 ifeq ($(TARGET),SOLARIS)
+# This assumes f77 ... use -DINTEGER_1='integer*1' for f90
   EXTRA_OBJ = ieeetrap.o
-  LIB_DEFINES += -DINTEGER_1='byte' -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 endif
 
 ifeq ($(TARGET),SUN)
   EXTRA_OBJ = ieeetrap.o
-  LIB_DEFINES += -DINTEGER_1='byte' -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 endif
 
 ifeq ($(TARGET),SP)
