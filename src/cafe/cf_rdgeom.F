@@ -1,5 +1,5 @@
       subroutine cf_rdgeom(snam)
-c $Id: cf_rdgeom.F,v 1.7 2000-08-07 22:54:42 d3j191 Exp $
+c $Id: cf_rdgeom.F,v 1.8 2002-02-02 04:28:26 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -54,7 +54,7 @@ c
      + call errquit('cf_rdgeom: geom_cent_get failed',i)
       if(.not.geom_mass_get(igeom,i,w))
      + call errquit('cf_rdgeom: geom_mass_get failed',i)
-      snam(i)=tag
+      snam(i)='      '//tag(1:10)
       do 2 j=1,3
       cdata(j)=tag(1:6)
       rdata(j)=w
