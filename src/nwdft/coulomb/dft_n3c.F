@@ -1,6 +1,6 @@
       double precision function dft_n3cdbl( AO_bas_han, CD_bas_han,
      &     itol2e)
-C$Id: dft_n3c.F,v 1.9 1999-06-22 01:20:43 edo Exp $
+C$Id: dft_n3c.F,v 1.10 1999-07-14 22:58:49 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -104,7 +104,8 @@ c
 c     Redefine dft_n3cdbl=buffer size of 3 center 2e- integrals per 
 c     processor and allow for some load-unbalance, e.g., 1.5
 c
-      dft_n3cdbl = dft_n3cdbl/dble(nproc) + dble(batch_max) + 4096.0d0
+      dft_n3cdbl = dft_n3cdbl/dble(nproc) + 4d0*dble(batch_max) +
+     + 4096.0d0
 c      dft_n3cdbl = dft_n3cdbl/dble(nproc) + dble(batch_max) + 1024.0d0
 c
 c     cannot be smaller than mxsh*mxsh*nbf_cd*icount
@@ -126,7 +127,7 @@ c
       end
       integer function dft_n3cint(AO_bas_han, CD_bas_han, 
      &      itol2e)
-C$Id: dft_n3c.F,v 1.9 1999-06-22 01:20:43 edo Exp $
+C$Id: dft_n3c.F,v 1.10 1999-07-14 22:58:49 edo Exp $
       implicit none
             
 c****
