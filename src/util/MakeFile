@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.23 2003-10-28 18:23:27 edo Exp $	
+#	$Id: MakeFile,v 1.24 2003-10-28 22:14:36 edo Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -109,6 +109,17 @@ OBJ =          $(OBJDIR)\output.obj \
                $(OBJDIR)\util_erf.obj \
                $(OBJDIR)\bead_list.obj \
                $(OBJDIR)\ga_extra.obj \
+               $(OBJDIR)\util_test.obj \
+               $(OBJDIR)\util_ga_test.obj \
+               $(OBJDIR)\util_patch_test.obj \
+               $(OBJDIR)\util_test_eig.obj \
+               $(OBJDIR)\util_ndim_test.obj \
+               $(OBJDIR)\util_dra_test.obj \
+               $(OBJDIR)\util_sf_test.obj \
+               $(OBJDIR)\util_eaf_test.obj \
+               $(OBJDIR)\util_perf_test.obj \
+               $(OBJDIR)\util_test_lu.obj \
+               $(OBJDIR)\util.obj \
                $(EXTRA_OBJ)
 
 HEADERS =      util.fh \
