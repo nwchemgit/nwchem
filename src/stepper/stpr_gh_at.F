@@ -1,7 +1,7 @@
       logical function stpr_gen_hess_at(rtdb,delta)
       implicit none
 *     
-*     $Id: stpr_gh_at.F,v 1.11 1997-07-03 00:15:52 d3e129 Exp $
+*     $Id: stpr_gh_at.F,v 1.12 1997-10-22 20:37:00 d3e129 Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -17,6 +17,7 @@
 #include "stdio.fh"
 #include "util.fh"
 #include "cstprfiles.fh"
+#include "sym.fh"
 c::   functions
       logical stpr_check_genat_restart
       external stpr_check_genat_restart
@@ -45,6 +46,7 @@ c::   local
       character*255 tmpname
       character*16 tag_name
       character*40 new_geom_name
+      double precision q1
       logical task_gradient, task_save_state, task_restore_state,
      $     task_delete_state, task_energy
       external task_gradient, task_save_state, task_restore_state,
@@ -231,243 +233,267 @@ c     all nodes doing work here
 c     
       call ga_sync()
       if(.not.restart) then
-         iatom_start = 1
-         xyz_pass    = .true.
+        iatom_start = 1
+        xyz_pass    = .true.
       else
-         xyz_pass = .false.
+        xyz_pass = .false.
 #if defined(DEBUG_GHAT)
-         call ga_sync()
-         write(6,*)' going false 5',whoiam
-         call util_flush(6)
+        call ga_sync()
+        write(6,*)' going false 5',whoiam
+        call util_flush(6)
 #endif
-         call ga_sync()
-         ignore_status = rtdb_parallel(.false.)
-         if (whoiam.eq.master) then
-           if (util_print('restart', print_low)) then
-             write(luout,*)' **** gen_hess restart ****'
-             write(luout,*)' iatom_start = ',iatom_start
-             write(luout,*)' ixyz_start  = ',ixyz_start
-             call util_flush(luout)
-           endif
-         endif
-         ignore_status = rtdb_parallel(.true.)
-         call ga_sync()
+        call ga_sync()
+        ignore_status = rtdb_parallel(.false.)
+        if (whoiam.eq.master) then
+          if (util_print('restart', print_low)) then
+            write(luout,*)' **** gen_hess restart ****'
+            write(luout,*)' iatom_start = ',iatom_start
+            write(luout,*)' ixyz_start  = ',ixyz_start
+            call util_flush(luout)
+          endif
+        endif
+        ignore_status = rtdb_parallel(.true.)
+        call ga_sync()
 #if defined(DEBUG_GHAT)
-         write(6,*)' gone true 5',whoiam
-         call util_flush(6)
-         call ga_sync()
+        write(6,*)' gone true 5',whoiam
+        call util_flush(6)
+        call ga_sync()
 #endif
       endif
+      call ga_sync()
       do 00100 iatom = iatom_start,nat
-         if (.not.all_atom) then
-            skip_atom = .true.
-            do iat_test = 0,(nat_active-1)
-               if (iatom.eq.int_mb(i_active+iat_test))
-     $              skip_atom = .false.
-            enddo
-         else
-            skip_atom = .false.
-         endif
-         if (skip_atom) goto 00201
-         if (xyz_pass) then
-            ixyz_start = 1
-         else
-            xyz_pass = .true.
-         endif
-         do 00200 ixyz = ixyz_start,3
-            if (ixyz.eq.1 .and. no_x) goto 00199
-            if (ixyz.eq.2 .and. no_y) goto 00199
-            if (ixyz.eq.3 .and. no_z) goto 00199
+        if (.not.all_atom) then
+          skip_atom = .true.
+          do iat_test = 0,(nat_active-1)
+            if (iatom.eq.int_mb(i_active+iat_test))
+     $          skip_atom = .false.
+          enddo
+        else
+          if (.not.geom_create(geom,'reference')) call errquit
+     $        ('stpr_gen_hess_at:geom_create failed?',9)
+          if (.not.geom_rtdb_load(rtdb,geom,'reference')) call errquit
+     $        ('stpr_gen_hess_at:geom_rtdb_load failed?',10)
+          skip_atom = .not.(sym_atom(geom,iatom,q1))
+          if (.not.geom_destroy(geom)) call errquit
+     $           ('stpr_gen_hess_at: geom_destroy failed?',12)
+        endif
+        if (skip_atom) goto 00201
+        call stpr_ghat_set_active(rtdb,iatom)
+        if (xyz_pass) then
+          ixyz_start = 1
+        else
+          xyz_pass = .true.
+        endif
+        do 00200 ixyz = ixyz_start,3
+          if (ixyz.eq.1 .and. no_x) goto 00199
+          if (ixyz.eq.2 .and. no_y) goto 00199
+          if (ixyz.eq.3 .and. no_z) goto 00199
 #if defined(DEBUG_GHAT)
-            call ga_sync()
-            write(6,*)' going false 6',whoiam
-            call util_flush(6)
+          call ga_sync()
+          write(6,*)' going false 6',whoiam
+          call util_flush(6)
 #endif
-            call ga_sync()
-            ignore_status = rtdb_parallel(.false.)
-            if(whoiam.eq.master) then
-              if (util_print('directions', print_medium)) then
-                write(luout,*)' iatom = ',iatom, ' ixyz = ',
-     $               ixyz,' plus '
-                call util_flush(luout)
-              endif
+          call ga_sync()
+          ignore_status = rtdb_parallel(.false.)
+          if(whoiam.eq.master) then
+            if (util_print('directions', print_medium)) then
+              write(luout,*)' iatom = ',iatom, ' ixyz = ',
+     $            ixyz,' plus '
+              call util_flush(luout)
+            endif
 c     
 c     master node only
 c     
-               if (.not.geom_create(geom,'reference')) call errquit
-     $              ('stpr_gen_hess_at:geom_create failed?',17)
-               if (.not.geom_rtdb_load(rtdb,geom,'reference'))
-     $              call errquit
-     $              ('stpr_gen_hess_at:geom_rtdb_load failed?',18)
-               if (.not.geom_cent_get(geom,iatom,tag_name,xyz,chg))
-     $              call errquit
-     $              ('stpr_gen_hess_at:geom_cent_get failed?',19)
-               xyz(ixyz) = xyz(ixyz) + delta
-               if (.not.geom_cent_set(geom,iatom,tag_name,xyz,chg))
-     $              call errquit
-     $              ('stpr_gen_hess_at:geom_cent_get failed?',20)
+            if (.not.geom_create(geom,'reference')) call errquit
+     $          ('stpr_gen_hess_at:geom_create failed?',17)
+            if (.not.geom_rtdb_load(rtdb,geom,'reference'))
+     $          call errquit
+     $          ('stpr_gen_hess_at:geom_rtdb_load failed?',18)
+            if (.not.geom_cent_get(geom,iatom,tag_name,xyz,chg))
+     $          call errquit
+     $          ('stpr_gen_hess_at:geom_cent_get failed?',19)
+            xyz(ixyz) = xyz(ixyz) + delta
+            if (.not.geom_cent_set(geom,iatom,tag_name,xyz,chg))
+     $          call errquit
+     $          ('stpr_gen_hess_at:geom_cent_get failed?',20)
 c     
 c     copy modified geometry and store on rtdb
 c     
-               write(tmpname,'(i3,1x,i1,1x,a5)')iatom,ixyz,'plus'
-               new_geom_name = 'reference '//tmpname(1:11)
-               if (.not.
-     $              geom_rtdb_store(rtdb,geom,new_geom_name))
-     $              call errquit
-     $              ('stpr_gen_hess_at: geom_rtdb_store failed',21)
-               if (.not.geom_destroy(geom))
-     $              call errquit
-     $              ('stpr_gen_hess_at: geom_destroy failed?',22)
+            write(tmpname,'(i3,1x,i1,1x,a5)')iatom,ixyz,'plus'
+            new_geom_name = 'reference '//tmpname(1:11)
+            if (.not.geom_strip_sym(geom)) call errquit
+     &          ('stpr_gen_hess_at:1: geom_strip_sym failed',911)
+            if (.not.
+     $          geom_rtdb_store(rtdb,geom,new_geom_name))
+     $          call errquit
+     $          ('stpr_gen_hess_at: geom_rtdb_store failed',21)
+            if (.not.geom_destroy(geom))
+     $          call errquit
+     $          ('stpr_gen_hess_at: geom_destroy failed?',22)
 c     
 c     set "geometry" to "reference atom/xyz"
 c     
-               if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
-     $              call errquit
-     $              ('stpr_gen_hess_at: rtdb_cput failed ?',23)
-            endif
-            ignore_status = rtdb_parallel(.true.)
-            call ga_sync()
+            if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
+     $          call errquit
+     $          ('stpr_gen_hess_at: rtdb_cput failed ?',23)
+          endif
+          ignore_status = rtdb_parallel(.true.)
+          call ga_sync()
 #if defined(DEBUG_GHAT)
-            write(6,*)' gone true 6',whoiam
-            call util_flush(6)
-            call ga_sync()
+          write(6,*)' gone true 6',whoiam
+          call util_flush(6)
+          call ga_sync()
 #endif
 c
 c     restore starting information for central point
 c     
-            if (.not. task_restore_state(rtdb,'hess')) call errquit
-     $          ('stpr_gen_hess_at: failed to restore central point',
-     &          24)
+          if (.not. task_restore_state(rtdb,'hess')) call errquit
+     $        ('stpr_gen_hess_at: failed to restore central point',
+     &        24)
 c     
-            if (.not. task_gradient(rtdb)) call errquit
-     $           ('stpr_gen_hess_at: energy+grad failed',25)
+          if (.not. task_gradient(rtdb)) call errquit
+     $        ('stpr_gen_hess_at: energy+grad failed',25)
 c     
 #if defined(DEBUG_GHAT)
-            call ga_sync()
-            write(6,*)' going false 7',whoiam
-            call util_flush(6)
+          call ga_sync()
+          write(6,*)' going false 7',whoiam
+          call util_flush(6)
 #endif
-            call ga_sync()
-            ignore_status = rtdb_parallel(.false.)
-            if (whoiam.eq.master) then
-               if (.not. geom_rtdb_delete(rtdb,new_geom_name))
-     $              call errquit
-     $              ('stpr_gen_hess_at: geom_rtdb_delete failed',26)
-               if(.not. rtdb_get(rtdb,'task:gradient',MT_DBL,
-     $              rank_hess,dbl_mb(k_gradp)))
-     $              call errquit('stpr_gen_hess_at: rtdb_get failed',27)
-               if(.not. rtdb_get(rtdb,'task:dipole',mt_dbl,
-     &             3,pdipole)) dipole_okay = .false.
+          call ga_sync()
+          ignore_status = rtdb_parallel(.false.)
+          if (whoiam.eq.master) then
+            if (.not. geom_rtdb_delete(rtdb,new_geom_name))
+     $          call errquit
+     $          ('stpr_gen_hess_at: geom_rtdb_delete failed',26)
+            if(.not. rtdb_get(rtdb,'task:gradient',MT_DBL,
+     $          rank_hess,dbl_mb(k_gradp)))
+     $          call errquit('stpr_gen_hess_at: rtdb_get failed',27)
+            if(.not. rtdb_get(rtdb,'task:dipole',mt_dbl,
+     &          3,pdipole)) dipole_okay = .false.
 c     
-               if (util_print('directions', print_medium)) then
-                 write(luout,*)
-     $                ' iatom = ',iatom, ' ixyz = ',ixyz,' minus'
-                 call util_flush(luout)
-               endif
+            if (util_print('directions', print_medium)) then
+              write(luout,*)
+     $            ' iatom = ',iatom, ' ixyz = ',ixyz,' minus'
+              call util_flush(luout)
+            endif
 c
 c     master node only
 c     
-               if (.not.geom_create(geom,'reference')) call errquit
-     $              ('stpr_gen_hess_at:geom_create failed?',28)
-               if (.not.geom_rtdb_load(rtdb,geom,'reference'))
-     $              call errquit
-     $              ('stpr_gen_hess_at:geom_rtdb_load failed?',29)
-               if (.not.geom_cent_get(geom,iatom,tag_name,xyz,chg))
-     $              call errquit
-     $              ('stpr_gen_hess_at:geom_cent_get failed?',30)
-               xyz(ixyz) = xyz(ixyz) - delta
-               if (.not.geom_cent_set(geom,iatom,tag_name,xyz,chg))
-     $              call errquit
-     $              ('stpr_gen_hess_at:geom_cent_get failed?',31)
+            if (.not.geom_create(geom,'reference')) call errquit
+     $          ('stpr_gen_hess_at:geom_create failed?',28)
+            if (.not.geom_rtdb_load(rtdb,geom,'reference'))
+     $          call errquit
+     $          ('stpr_gen_hess_at:geom_rtdb_load failed?',29)
+            if (.not.geom_cent_get(geom,iatom,tag_name,xyz,chg))
+     $          call errquit
+     $          ('stpr_gen_hess_at:geom_cent_get failed?',30)
+            xyz(ixyz) = xyz(ixyz) - delta
+            if (.not.geom_cent_set(geom,iatom,tag_name,xyz,chg))
+     $          call errquit
+     $          ('stpr_gen_hess_at:geom_cent_get failed?',31)
 c     
 c     copy modified geometry and store on rtdb
 c     
-               write(tmpname,'(i3,1x,i1,1x,a5)')iatom,ixyz,'minus'
-               new_geom_name = 'reference '//tmpname(1:11)
-               if (.not.
-     $              geom_rtdb_store(rtdb,geom,new_geom_name))
-     $              call errquit
-     $              ('stpr_gen_hess_at: geom_rtdb_store failed',32)
-               if (.not.geom_destroy(geom))
-     $              call errquit
-     $              ('stpr_gen_hess_at: geom_destroy failed?',33)
+            write(tmpname,'(i3,1x,i1,1x,a5)')iatom,ixyz,'minus'
+            new_geom_name = 'reference '//tmpname(1:11)
+            if (.not.geom_strip_sym(geom)) call errquit
+     &          ('stpr_gen_hess_at:2: geom_strip_sym failed',911)
+            if (.not.
+     $          geom_rtdb_store(rtdb,geom,new_geom_name))
+     $          call errquit
+     $          ('stpr_gen_hess_at: geom_rtdb_store failed',32)
+            if (.not.geom_destroy(geom))
+     $          call errquit
+     $          ('stpr_gen_hess_at: geom_destroy failed?',33)
 c     
 c     set "geometry" to "reference atom/xyz"
 c     
-               if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
-     $              call errquit
-     $              ('stpr_gen_hess_at: rtdb_cput failed ?',34)
-            endif
-            ignore_status = rtdb_parallel(.true.)
-            call ga_sync()
+            if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
+     $          call errquit
+     $          ('stpr_gen_hess_at: rtdb_cput failed ?',34)
+          endif
+          ignore_status = rtdb_parallel(.true.)
+          call ga_sync()
 #if defined(DEBUG_GHAT)
-            write(6,*)' gone true 7',whoiam
-            call util_flush(6)
-            call ga_sync()
+          write(6,*)' gone true 7',whoiam
+          call util_flush(6)
+          call ga_sync()
 #endif
 c
 c     restore starting information from central point
 c     
-            if (.not. task_restore_state(rtdb,'hess')) call errquit
-     $          ('stpr_gen_hess_at: failed to restore central point',
-     &          35)
+          if (.not. task_restore_state(rtdb,'hess')) call errquit
+     $        ('stpr_gen_hess_at: failed to restore central point',
+     &        35)
 c     
-            if (.not. task_gradient(rtdb))
-     $          call errquit('stpr_gen_hess_at: energy+grad failed',
-     &          36)
+          if (.not. task_gradient(rtdb))
+     $        call errquit('stpr_gen_hess_at: energy+grad failed',
+     &        36)
 c     
 #if defined(DEBUG_GHAT)
-            call ga_sync()
-            write(6,*)' going false 8',whoiam
-            call util_flush(6)
+          call ga_sync()
+          write(6,*)' going false 8',whoiam
+          call util_flush(6)
 #endif
-            call ga_sync()
-            ignore_status = rtdb_parallel(.false.)
-            if (whoiam.eq.master) then
-               if (.not. geom_rtdb_delete(rtdb,new_geom_name))
-     $            call errquit
-     $            ('stpr_gen_hess_at: geom_rtdb_delete (2) failed',37)
-               if(.not. rtdb_get(rtdb,'task:gradient',MT_DBL,
-     $             rank_hess,dbl_mb(k_gradm)))
-     $             call errquit('stpr_gen_hess_at: rtdb_get failed',38)
+          call ga_sync()
+          ignore_status = rtdb_parallel(.false.)
+          if (whoiam.eq.master) then
+            if (.not. geom_rtdb_delete(rtdb,new_geom_name))
+     $          call errquit
+     $          ('stpr_gen_hess_at: geom_rtdb_delete (2) failed',37)
+            if(.not. rtdb_get(rtdb,'task:gradient',MT_DBL,
+     $          rank_hess,dbl_mb(k_gradm)))
+     $          call errquit('stpr_gen_hess_at: rtdb_get failed',38)
 c
-               if(.not. rtdb_get(rtdb,'task:dipole',mt_dbl,
-     &             3,mdipole)) dipole_okay = .false.
+            if(.not. rtdb_get(rtdb,'task:dipole',mt_dbl,
+     &          3,mdipole)) dipole_okay = .false.
 c     
-               call stpr_fd_upd_hess(dbl_mb(k_hess),dbl_mb(k_gradm),
-     $              dbl_mb(k_gradp),2.0d00,delta,nat,iatom,ixyz)
-               if (dipole_okay)
-     &             call stpr_fd_upd_dipole(dbl_mb(k_ddipole),
-     &             mdipole,pdipole,2.0d00,delta,nat,iatom,ixyz)
-            endif
-            ignore_status = rtdb_parallel(.true.)
-            call ga_sync()
+            call stpr_fd_upd_hess(rtdb,
+     &          dbl_mb(k_hess),dbl_mb(k_gradm),
+     $          dbl_mb(k_gradp),2.0d00,delta,nat,iatom,ixyz)
+            if (dipole_okay)
+     &          call stpr_fd_upd_dipole(dbl_mb(k_ddipole),
+     &          mdipole,pdipole,2.0d00,delta,nat,iatom,ixyz,q1)
+          endif
+          ignore_status = rtdb_parallel(.true.)
+          call ga_sync()
 #if defined(DEBUG_GHAT)
-            write(6,*)' gone true 8',whoiam
-            call util_flush(6)
-            call ga_sync()
+          write(6,*)' gone true 8',whoiam
+          call util_flush(6)
+          call ga_sync()
 #endif
-00199       continue
+00199     continue
 #if defined(DEBUG_GHAT)
-            call ga_sync()
-            write(6,*)' going false 9',whoiam
-            call util_flush(6)
+          call ga_sync()
+          write(6,*)' going false 9',whoiam
+          call util_flush(6)
 #endif
-            call ga_sync()
-            ignore_status = rtdb_parallel(.false.)
-            if (whoiam.eq.master) then
-               call stpr_put_genat_restart(rank_hess,dbl_mb(k_hess),
-     $              dbl_mb(k_gradm),iatom,ixyz,nat,.false.)
-            endif
-            ignore_status = rtdb_parallel(.true.)
-            call ga_sync()
+          call ga_sync()
+          ignore_status = rtdb_parallel(.false.)
+          if (whoiam.eq.master) then
+            call stpr_put_genat_restart(rank_hess,dbl_mb(k_hess),
+     $          dbl_mb(k_gradm),iatom,ixyz,nat,.false.)
+          endif
+          ignore_status = rtdb_parallel(.true.)
+          call ga_sync()
 #if defined(DEBUG_GHAT)
-            write(6,*)' gone true 9',whoiam
-            call util_flush(6)
-            call ga_sync()
+          write(6,*)' gone true 9',whoiam
+          call util_flush(6)
+          call ga_sync()
+          write(6,*)'@----------------------- iatom,ixyz,nodeid ',
+     &        iatom,ixyz,whoiam
+          call util_flush(6)
+          call ga_sync()
 #endif
-00200    continue
-00201    continue
+00200   continue
+00201   continue
+#if defined(DEBUG_GHAT)
+          call ga_sync()
+          write(6,*)'@----------------------- iatom,nodeid ',
+     &        iatom,whoiam
+          call util_flush(6)
+          call ga_sync()
+#endif
 00100 continue
 c     
 #if defined(DEBUG_GHAT)
@@ -478,50 +504,60 @@ c
       call ga_sync()
       ignore_status = rtdb_parallel(.false.)
       if (whoiam.eq.master) then
-         if (all_atom) then
+        if (.not.geom_create(geom,'reference')) call errquit
+     $      ('stpr_gen_hess_at:geom_create failed?',1)
+        if (.not.geom_rtdb_load(rtdb,geom,'reference')) call errquit
+     $      ('stpr_gen_hess_at:geom_rtdb_load failed?',2)
+        call sym_hess_symmetrize(geom,dbl_mb(k_hess))
+        if (dipole_okay) 
+     $      call sym_der_dip_symmetrize(geom, dbl_mb(k_ddipole))
+        if (.not.geom_destroy(geom))
+     $      call errquit
+     $      ('stpr_gen_hess_at: geom_destroy failed?',33)
+        if (all_atom) then
 c     
 c     average contributions from finite diff hess since they "should"
 c     be the same
 c     
-            call stpr_gen_hess_foldave(dbl_mb(k_hess),rank_hess)
-         else
-            call stpr_gen_hess_fold(dbl_mb(k_hess),rank_hess)
+          call stpr_gen_hess_foldave(dbl_mb(k_hess),rank_hess)
+        else
+          call stpr_gen_hess_fold(dbl_mb(k_hess),rank_hess)
 c     
 c     assumes zeroed hessian prior to fd computations
 c     
-            call stpr_gen_set_diag(dbl_mb(k_hess),rank_hess)  
-         endif
-         if (util_print('hessian', print_low)) then
-           write(luout,*)' '
-           write(luout,*)' finite difference hessian delta = ',delta
-           call output(dbl_mb(k_hess),1,rank_hess,1,rank_hess,
-     $          rank_hess,rank_hess,1)
-           write(luout,*)' '
-         endif
-         if (dipole_okay.and.
-     &       util_print('derivative dipole',print_low)) then
-           write(tmpname,*)
-     &         ' finite difference derivative dipole; delta = ',delta
-           call stpr_print_ddipole(dbl_mb(k_ddipole),
-     &         tmpname, nat)
-         endif
-         call stpr_wrt_fd_from_sq(dbl_mb(k_hess),rank_hess,FILEHESS)
-         if (dipole_okay)
-     &       call stpr_wrt_fd_dipole(dbl_mb(k_ddipole),nat,FILEDDIPOLE)
-         if (util_print('inforamation', print_medium)) then
-           write(luout,*)' triangle hessian written to ',
-     $          FILEHESS(1:inp_strlen(FILEHESS))
-           if (dipole_okay)
-     &         write(luout,*)' derivative dipole written to ',
-     &         FILEDDIPOLE(1:inp_strlen(FILEDDIPOLE))
-         endif
+          call stpr_gen_set_diag(dbl_mb(k_hess),rank_hess)  
+        endif
+        if (util_print('hessian', print_low)) then
+          write(luout,*)' '
+          write(luout,*)' finite difference hessian delta = ',delta
+          call output(dbl_mb(k_hess),1,rank_hess,1,rank_hess,
+     $        rank_hess,rank_hess,1)
+          write(luout,*)' '
+        endif
+        if (dipole_okay.and.
+     &      util_print('derivative dipole',print_low)) then
+          write(tmpname,*)
+     &        ' finite difference derivative dipole; delta = ',delta
+          call stpr_print_ddipole(dbl_mb(k_ddipole),
+     &        tmpname, nat)
+        endif
+        call stpr_wrt_fd_from_sq(dbl_mb(k_hess),rank_hess,FILEHESS)
+        if (dipole_okay)
+     &      call stpr_wrt_fd_dipole(dbl_mb(k_ddipole),nat,FILEDDIPOLE)
+        if (util_print('information', print_medium)) then
+          write(luout,*)' triangle hessian written to ',
+     $        FILEHESS(1:inp_strlen(FILEHESS))
+          if (dipole_okay)
+     &        write(luout,*)' derivative dipole written to ',
+     &        FILEDDIPOLE(1:inp_strlen(FILEDDIPOLE))
+        endif
 c     
 c     set "geometry" to "geometry"
 c     
-         if(.not.rtdb_cput(rtdb,'geometry',1,'geometry'))
-     $        call errquit
-     $        ('stpr_gen_hess_at: rtdb_cput failed ?',39)
-       endif
+        if(.not.rtdb_cput(rtdb,'geometry',1,'geometry'))
+     $      call errquit
+     $      ('stpr_gen_hess_at: rtdb_cput failed ?',39)
+      endif
       ignore_status = rtdb_parallel(.true.)
       call ga_sync()
 #if defined(DEBUG_GHAT)
@@ -535,7 +571,7 @@ c
       if (.not. task_restore_state(rtdb, 'hess')) call errquit
      $    ('stpr_gen_hess_at: failed to restore central point',40)
       if (.not. task_delete_state(rtdb, 'hess')) call errquit
-     $        ('stpr_gen_hess_at: failed to restore central point',41)
+     $    ('stpr_gen_hess_at: failed to restore central point',41)
 #if defined(DEBUG_GHAT)
       call ga_sync()
       write(6,*)' going false 11',whoiam
@@ -547,15 +583,15 @@ c
 c     
 c     free memory
 c     
-         
-         if(.not.ma_pop_stack(h_hess)) call errquit
-     $        ('stpr_gen_hess_at: ma_pop_stack(h_hess) failed?',42)
-         if(.not.ma_pop_stack(h_ddipole)) call errquit
-     $        ('stpr_gen_hess_at: ma_pop_stack(h_ddipole) failed?',43)
-         if(.not.ma_pop_stack(h_gradp)) call errquit
-     $        ('stpr_gen_hess_at: ma_pop_stack(h_gradp) failed?',44)
-         if(.not.ma_pop_stack(h_gradm)) call errquit
-     $        ('stpr_gen_hess_at: ma_pop_stack(h_gradm) failed?',45)
+        
+        if(.not.ma_pop_stack(h_hess)) call errquit
+     $      ('stpr_gen_hess_at: ma_pop_stack(h_hess) failed?',42)
+        if(.not.ma_pop_stack(h_ddipole)) call errquit
+     $      ('stpr_gen_hess_at: ma_pop_stack(h_ddipole) failed?',43)
+        if(.not.ma_pop_stack(h_gradp)) call errquit
+     $      ('stpr_gen_hess_at: ma_pop_stack(h_gradp) failed?',44)
+        if(.not.ma_pop_stack(h_gradm)) call errquit
+     $      ('stpr_gen_hess_at: ma_pop_stack(h_gradm) failed?',45)
       endif
       ignore_status = rtdb_parallel(.true.)
       call ga_sync()
@@ -565,12 +601,84 @@ c
       call ga_sync()
 #endif
       if(.not.all_atom) then
-         if (.not.ma_free_heap(h_active)) call errquit
-     $        ('stpr_gen_hess_at: ma_free_heap(h_active) failed?',46)
+        if (.not.ma_free_heap(h_active)) call errquit
+     $      ('stpr_gen_hess_at: ma_free_heap(h_active) failed?',46)
       endif
 #if defined(DEBUG_GHAT)
       write(6,*)' out of stpr_gen_hess_at ',whoiam
 #endif
       stpr_gen_hess_at = .true.
       call ga_sync()
+      end
+      subroutine stpr_ghat_set_active(rtdb,iatom)
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "global.fh"
+#include "sym.fh"
+#include "geom.fh"
+#include "util.fh"
+*::passed
+      integer rtdb   ! [input] the rtdb handle
+      integer iatom  ! [input] the current loop atom
+*::local
+      logical current_rtdb_status, ignore_status
+      double precision q2
+      integer sga_act
+      integer geom
+      integer iiiat
+      integer nat
+      integer h_sga, k_sga
+      logical odebug_print
+*::code
+      odebug_print = util_print('information',print_debug)
+      odebug_print = odebug_print .and. (ga_nodeid().eq.0)
+*
+      current_rtdb_status = rtdb_parallel(.false.)
+      call ga_sync()
+*
+      if (ga_nodeid().eq.0) then
+*
+* generate active atom list based on symmetry for theory+gradients 
+* this is orthoginal to user defined list for hessian generation.
+*
+        if (.not.geom_create(geom,'reference')) call errquit
+     &      ('stpr_ghat_set_active:geom_create failed?',17)
+        if (.not.geom_rtdb_load(rtdb,geom,'reference'))
+     &      call errquit
+     &      ('stpr_ghat_set_active:geom_rtdb_load failed?',18)
+        if (.not. geom_ncent(geom,nat)) call errquit
+     &      ('stpr_ghat_set_active:geom_ncent failed?',3)
+        if (.not.ma_push_get
+     &      (mt_int,nat,'stpr:geom:actlist',h_sga,k_sga))
+     &      call errquit
+     &      ('stpr_ghat_set_active:ma for geom actlist failed',911)
+        sga_act = 0
+        do iiiat=1,iatom
+          if (sym_atom_pair(geom,iatom,iiiat,q2)) then
+            int_mb(k_sga+sga_act) = iiiat
+            sga_act = sga_act + 1
+            if (odebug_print)
+     &          write(6,*)'debug:T:',iatom,iiiat
+          else
+            if (odebug_print)
+     &          write(6,*)'debug:F:',iatom,iiiat
+          endif
+        enddo
+        if (sga_act.gt.0) then
+          if (.not.rtdb_put(rtdb,'geometry:actlist',mt_int,
+     &        sga_act, int_mb(k_sga))) call errquit
+     &        ('stpr_ghat_set_active: rtdb put of actlist failed',911)
+        endif
+        if (odebug_print)
+     &      write(6,*)'debug: active atom list: ',sga_act,':',
+     &      (int_mb(k_sga+iiiat),iiiat=0,(sga_act-1))
+        if (.not.geom_destroy(geom))
+     &      call errquit
+     &      ('stpr_ghat_set_active: geom_destroy failed?',22)
+        if (.not.ma_pop_stack(h_sga)) call errquit
+     &      ('stpr_ghat_set_active: ma_pop k_sga failed?',22)
+      endif
+      call ga_sync()
+      ignore_status = rtdb_parallel(current_rtdb_status)
       end

@@ -1,5 +1,5 @@
 *
-* $Id: stpr_gen_aux.F,v 1.8 1997-08-20 17:07:39 rg240 Exp $
+* $Id: stpr_gen_aux.F,v 1.9 1997-10-22 20:37:00 d3e129 Exp $
 * 
 * this file contains auxilary routines to stpr_gen functions
 *
@@ -16,7 +16,7 @@
 *
 c
       subroutine stpr_fd_upd_dipole(ddipole,mdipole,pdipole,
-     &    s_delta,delta,nat,iatom,ixyz)
+     &    s_delta,delta,nat,iatom,ixyz,q1)
       implicit none
 c
 c::passed
@@ -28,6 +28,7 @@ c::passed
       double precision mdipole(3)
       double precision pdipole(3)
       double precision ddipole(3,3,nat)
+      double precision q1
 c:local
       integer moment
       double precision rdelta
@@ -35,16 +36,20 @@ c:local
 c
       rdelta = 1.0d00/(s_delta*delta)
       do moment = 1,3
-        value = rdelta*(pdipole(moment)-mdipole(moment))
+        value = rdelta*(pdipole(moment)-mdipole(moment)) * q1
         ddipole(moment,ixyz,iatom) = value
       enddo
 c
       end
-      subroutine stpr_fd_upd_hess(hess,gradm,gradp,s_delta,delta,nat,
+      subroutine stpr_fd_upd_hess(rtdb,
+     &    hess,gradm,gradp,s_delta,delta,nat,
      &    iatom_t,ixyz_t)
       implicit none
 #include "stdio.fh"
+#include "geom.fh"
+#include "sym.fh"
 c::passed
+      integer rtdb
       integer nat
       integer iatom_t, ixyz_t
       double precision hess(3,nat,3,nat)
@@ -52,23 +57,37 @@ c::passed
       double precision gradp(3,nat)
       double precision delta, s_delta
 c::local
+      integer geom
       integer iatom,ixyz
       double precision rdelta, value
+      double precision q2
 c
+      if (.not.geom_create(geom,'reference')) call errquit
+     $    ('stpr_fd_upd_hess:geom_create failed?',1)
+      if (.not.geom_rtdb_load(rtdb,geom,'reference')) call errquit
+     $        ('stpr_fd_upd_hess:geom_rtdb_load failed?',2)
 c 
 c finite difference  [g(x+delta) - g(x-delta)]/(s_delta*delta) (s_delta = 2.0)
 c central difference [g(x+delta) - g(x)]/(s_delta*delta) (s_delta = 1.0)
 c 
 c
       rdelta = 1.0d00/(s_delta*delta)
-      do 00100 iatom = 1,nat
-        do 00200 ixyz = 1,3
-          value = rdelta*(gradp(ixyz,iatom)-gradm(ixyz,iatom))
-          hess(ixyz_t,iatom_t,ixyz,iatom) = value
-          hess(ixyz,iatom,ixyz_t,iatom_t) = value
-00200   continue
+      do 00100 iatom = 1,iatom_t
+        if (sym_atom_pair(geom,iatom_t,iatom,q2)) then
+**           write(6,*) ' iatom_t iatom q2 ', iatom_t, iatom, q2
+           if (iatom.ne.iatom_t) q2 = q2 + q2
+          do 00200 ixyz = 1,3
+            value = rdelta*(gradp(ixyz,iatom)-gradm(ixyz,iatom))
+            value = q2*value
+            hess(ixyz_t,iatom_t,ixyz,iatom) = value
+**            hess(ixyz,iatom,ixyz_t,iatom_t) = value
+00200     continue
+        endif
 00100 continue
 c
+      if (.not.geom_destroy(geom))
+     $    call errquit
+     $    ('stpr_fd_upd_hess: geom_destroy failed?',33)
       end
       subroutine stpr_wrt_fd_dipole(ddipole,nat,filename)
       implicit none
@@ -184,12 +203,9 @@ c assume not a restart
             close(unit=69,status='keep')
             int_restart = 1
           else
-            write(luout,*)'*** Warning restart called for but no   ***'
+            write(luout,*)'*** Warning continue called for but no   ***'
             write(luout,*)'*** fd restart file for nuclear hessian ***'
             write(luout,*)'*** starting from scratch so to speak   ***'
-            iatom_start = 1
-            ixyz_start  = 1
-            int_restart = 0
           endif
         endif
       else
@@ -207,7 +223,8 @@ c
         stpr_check_genat_restart = .false.
       else
         write(luout,*)' invalid int_restart value ', ga_nodeid()
-        call errquit(' stpr_check_genat_restart: error ',int_restart)
+        call errquit(' stpr_check_genat_restart: fatal error ',
+     &      int_restart)
       endif
       end
       subroutine stpr_get_genat_restart(rank_in,hess,grad0,get_grad0)
