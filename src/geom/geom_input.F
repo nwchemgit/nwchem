@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.68 1998-03-02 19:13:08 mdupuis Exp $
+C     $Id: geom_input.F,v 1.69 1998-03-04 23:17:45 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -940,6 +940,8 @@ c
       integer      nzmat
       integer      nzvar
       integer      nvar
+      integer      izfrz
+      integer      nzfrz
       integer      nat
       integer      nuc
       integer      ir
@@ -959,6 +961,8 @@ c
       logical      geom_zmt_put_nizmat          
       logical      geom_usr_put_izmat          
       logical      geom_usr_put_nizmat          
+      logical      geom_usr_put_izfrz          
+      logical      geom_usr_put_nzfrz           
       logical      dbug 
       logical      some 
       double precision zmat
@@ -971,6 +975,7 @@ c
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
+      common/hnd_zmtfrz/izfrz(mxcoor),nzfrz
       double precision coords(3,*)
       double precision charge(*)
       double precision   mass(*)
@@ -995,7 +1000,7 @@ c
 c     ----- call routine to read z-matrix data -----
 c
       call geom_zmt_geo(coords,charge,tags,ncenter,
-     1                  nizmat,izmat,nzvar)
+     1                  nizmat,izmat,nzvar,izfrz,nzfrz)
 c
 c     -----    set parameters for -nwchem-     -----
 c
@@ -1021,11 +1026,22 @@ c
      1   call errquit('geom_input: geom_usr_put_nizmat failed', 0)
       if(.not.geom_usr_put_izmat(geom,izmat,nizmat))
      1   call errquit('geom_input: geom_usr_put_izmat failed', 0)
+      if(.not.geom_usr_put_nzfrz(geom,nzfrz))
+     1   call errquit('geom_input: geom_usr_put_nzfrz failed', 0)
+      if(.not.geom_usr_put_izfrz(geom,izfrz,nzfrz))
+     1   call errquit('geom_input: geom_usr_put_izfrz failed', 0)
       if(dbug) then
          write(iw,9994)
          write(iw,9997)
          write(iw,9996) (izmat(i),i=1,nizmat)
          write(iw,9995)
+         write(iw,9990) nzfrz
+         if(nzfrz.gt.0) then
+            write(iw,9992)
+            write(iw,9991)
+            write(iw,9996) (izfrz(i),i=1,nzfrz)
+            write(iw,9995)
+         endif
       endif
 c
       nat=ncenter
@@ -1059,6 +1075,9 @@ c
  9995 format(' $end ')
  9994 format(' storing -izmat- via - geom_zmt_put_izmat - ')
  9993 format(1x,i5,i5,3f10.6)
+ 9992 format(' storing -izfrz- via - geom-zmt-put-izfrz - ')
+ 9991 format(' $opt  izfrz = ')
+ 9990 format(' nzfrz = ',i5)
       end
       logical function geom_zmt_put_nizmat(geom,nizmat)
       implicit none
@@ -1224,6 +1243,100 @@ c
       end do
 c
       geom_usr_get_izmat=.true.
+      return
+      end
+      logical function geom_usr_put_izfrz(geom,
+     1                                    izfrz,nzfrz)
+      implicit none
+#include "geomP.fh"
+c
+      integer geom
+      integer nzfrz 
+      integer izfrz
+      integer i
+      dimension izfrz(*)
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_usr_put_izfrz = geom_check_handle(geom, 'geom_us_p_iz')
+      if (.not. geom_usr_put_izfrz) return
+c
+      do i = 1, max_coor
+         usr_izfrz(i,geom) = 0 
+      enddo
+c
+      if(nzfrz.gt.0) then
+         do i = 1, nzfrz
+            usr_izfrz(i,geom) = izfrz(i)
+         enddo
+      endif
+c
+      geom_usr_put_izfrz=.true.
+      return
+      end
+      logical function geom_usr_get_izfrz(geom,
+     1                                    izfrz,nzfrz)
+      implicit none
+#include "geomP.fh"
+c
+      integer geom
+      integer nzfrz
+      integer izfrz
+      integer i
+      dimension izfrz(*)
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_usr_get_izfrz = geom_check_handle(geom, 'geom_us_g_iz')
+      if (.not. geom_usr_get_izfrz) return
+c
+      do i = 1, max_coor
+         izfrz(i) = 0 
+      enddo
+c
+      if(nzfrz.gt.0) then
+         do i = 1, nzfrz
+            izfrz(i) = usr_izfrz(i,geom)
+         enddo
+      endif
+c
+      geom_usr_get_izfrz=.true.
+      return
+      end
+      logical function geom_usr_put_nzfrz(geom,nzfrz)
+      implicit none
+#include "geomP.fh"
+c
+      integer geom
+      integer nzfrz
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_usr_put_nzfrz = geom_check_handle(geom, 'geom_us_p_nz')
+      if (.not. geom_usr_put_nzfrz) return
+c
+c
+      usr_nzfrz(geom) = nzfrz
+c
+      geom_usr_put_nzfrz=.true.
+      return
+      end
+      logical function geom_usr_get_nzfrz(geom,nzfrz)
+      implicit none
+#include "geomP.fh"
+c
+      integer geom
+      integer nzfrz 
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_usr_get_nzfrz = geom_check_handle(geom, 'geom_us_g_nz')
+      if (.not. geom_usr_get_nzfrz) return
+c
+c
+      nzfrz = usr_nzfrz(geom)
+c
+      geom_usr_get_nzfrz=.true.
       return
       end
       logical function geom_zmt_put_zmat(geom,zmat,nzmat)          
@@ -3394,7 +3507,7 @@ C
       DATA ZERO   /0.0D+00/
       DATA FOUR   /4.0D+00/
 C
-      DBUG  =.FALSE. 
+      DBUG  =.FALSE.
       OUT   =.FALSE. 
       OUT   =OUT.OR.DBUG
       OUT   =OUT.OR.NPRINT.EQ.1
@@ -3687,8 +3800,8 @@ C     ----- GET THE ( NON-REDUNDANT + REDUNDANT ) COORDINATES -----
 C
       CALL HND_DIAGIV(G,V,E,IA,NZVAR,NZVAR,NDIM) 
 C
-C     -----  WE WORKED WITH ( - B(T) * B ) TO GET THE RIGHT ORDER  -----
-C           FOR THE VECTORS. WE NEED TO CHANGE THE SIGN OF THE Es
+C     -----  WE WORKED WITH ( - B(T) * B ) TO GET THE CORRECT ORDER  -----
+C           FOR THE VECTORS. WE NEED TO CHANGE THE SIGN OF THE E's
 C
       DO I=1,NZVAR
          E(I)=-E(I)
@@ -3739,7 +3852,19 @@ C
          WRITE(IW,9989) NINDEP,NREDUN,NZVAR,NVAR
       ENDIF
 C
-      IF(SYMTRC) THEN
+C     IF NREDUN.EQ.0 , WE CAN WORK WITH NATURAL COORDINATES -----
+C
+      IF(NREDUN.EQ.0) THEN
+         NATZMT=0
+         NATURL=NATZMT.EQ.0
+         SYMTRC=NATZMT.EQ.1
+         INDEP =NATZMT.EQ.2              
+         IF(OUT) THEN
+            WRITE(IW,9979)
+         ENDIF
+      ENDIF
+C
+      IF(NATURL.OR.SYMTRC) THEN
          DO J=1,NZVAR
             DO I=1,NZVAR
                S(I,J)=ZERO
@@ -3956,6 +4081,7 @@ C
  9982 FORMAT(/,' -Bi(T) = B * ( G**(-1) )(T)')
  9981 FORMAT(/,' K * K(T) PROJECTOR ')         
  9980 FORMAT(/,' -ZIND- FROM NATURAL TO (INDEP+DEP) COORDINATES')
+ 9979 FORMAT(/,' COORDINATE BASIS CHANGED BACK TO -NATURAL-')
       END
       SUBROUTINE HND_BANDZ(GEOM,NAT,C,Z)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -6686,7 +6812,7 @@ C
  9991 FORMAT(' LINEAR-BENDS NOT SET UP CURRENTLY . STOP . ')
       END
       SUBROUTINE GEOM_ZMT_GEO(COORDS,CHARGE,TAGS,NCENTER,
-     1                        IZ,IZMAT,NZMOD)
+     1                        IZ,IZMAT,NZMOD,ICFRZ,NCFRZ)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
 C     -----  PARAMETERS DEFINING MAXIMUM VALUES -----
@@ -6711,6 +6837,7 @@ C      ZVAL        =  DISTANCE, ANGLE AND TORSION ANGLE VALUE
 C       ZMT        =  I, J, K, L INDICES
 C
       PARAMETER     (MXATOM=500)
+      PARAMETER     (MXCOOR=1500)
       PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=256)
       PARAMETER     (MAXPRM=100)
       PARAMETER     (MXIZMT=6000)
@@ -6721,17 +6848,17 @@ C
       LOGICAL       LST
       LOGICAL       NEWFIL
       CHARACTER*255 STRING
-      INTEGER     FLGWRD
-      INTEGER     FLGZMT
-      INTEGER     FLGVAR
-      INTEGER     ZMTCHR
-      INTEGER     VARCHR
+      INTEGER       FLGWRD
+      INTEGER       FLGZMT
+      INTEGER       FLGVAR
+      INTEGER       ZMTCHR
+      INTEGER       VARCHR
       CHARACTER*80  PRSWRD
       CHARACTER*80  PRSZMT
       CHARACTER*80  PRSVAR
       CHARACTER*80  WORD
       CHARACTER*80  TITLE
-      INTEGER     ZMT
+      INTEGER       ZMT
       CHARACTER*8   CHREND
       LOGICAL       IZFRZ
       LOGICAL       CART0
@@ -6780,8 +6907,8 @@ C
       DIMENSION CHARGE(  *)
       DIMENSION   TAGS(  *)
       DIMENSION  IZMAT(  *)   
-      DIMENSION  IZFRZ(MXIZMT)
-      DIMENSION  ICFRZ(MXIZMT)
+      DIMENSION  ICFRZ(  *)    
+      DIMENSION  IZFRZ(MXCOOR)
       DIMENSION  CART0(MAXGEO)
       DIMENSION  XXLST(MAXGEO,MAXLST)
       DIMENSION  YYLST(MAXGEO,MAXLST)
@@ -6901,7 +7028,7 @@ C
       DO I=1,MAXVAR
          FRZVAR(I)=.FALSE.
       ENDDO
-      DO I=1,MXIZMT
+      DO I=1,MXCOOR
          IZFRZ(I)=.FALSE.
          ICFRZ(I)=0
       ENDDO

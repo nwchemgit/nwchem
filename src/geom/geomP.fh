@@ -1,5 +1,5 @@
 *
-* $Id: geomP.fh,v 1.22 1997-11-04 10:04:22 d3e129 Exp $
+* $Id: geomP.fh,v 1.23 1998-03-04 23:17:43 mdupuis Exp $
 *
 c
 c     Private fortran include file for the geometry routines
@@ -103,9 +103,9 @@ c     lenr(1:max_geom_rtdb) = length of names_rtdb(geom) ...
 c     symbols(1:nelements) = symbols for elements
 c     elements(1:nelements) = names of elements
 c     
-      integer max_geom, max_cent, max_geom_rtdb, nelements,
+      integer  max_geom, max_cent, max_geom_rtdb, nelements,
      $                   max_sym_ops
-      integer  max_izmat
+      integer  max_izmat, max_coor
 c
       parameter (max_sym_ops   = 192)
       parameter (max_geom      =   3)
@@ -113,13 +113,16 @@ c
       parameter (nelements     = 103)
       parameter (max_cent      = 500)
       parameter (max_izmat     =6000)
+      parameter (max_coor      =1500)
 c
       logical active, operiodic, oefield, include_bqbq, oecpcent
       integer ngeom_rtdb, ncenter, lenn, lent, lenr, group_number,
      $     ncenter_unique, isystype, setting_number, unique_cent,
      $     sym_op_inv, sym_num_ops, sym_center_map_handle,
      $     sym_center_map_index,
-     $     zmt_izmat,zmt_nizmat,usr_izmat,usr_nizmat
+     $     zmt_izmat,zmt_nizmat,
+     $     usr_izmat,usr_nizmat,
+     $     usr_izfrz,usr_nzfrz  
       double precision coords, charge, efield, latvec, ndipole, erep,
      $     lattice_vectors, lattice_angles, amatrix, amatrix_inv,
      $     volume_direct, metric_matrix, recip_lat_vectors, 
@@ -166,7 +169,9 @@ c
      $     zmt_izmat(max_izmat,max_geom),
      $     zmt_nizmat(max_geom),
      $     usr_izmat(max_izmat,max_geom),
-     $     usr_nizmat(max_geom)
+     $     usr_nizmat(max_geom),
+     $     usr_izfrz(max_coor,max_geom),
+     $     usr_nzfrz(max_geom)
 c
       character*256 names, names_rtdb, trans
       character*16 tags
