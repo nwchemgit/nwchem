@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.141 2001-03-22 01:00:25 windus Exp $
+C     $Id: geom_input.F,v 1.142 2001-04-07 05:31:21 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -2898,7 +2898,7 @@ c
 c
 c     ----- call auto_sym -----
 c
-      call hnd_autsym(odone,rtdb,threquiv,groupname)
+      call hnd_autsym(odone,rtdb,threquiv,groupname,geom)
 c
       group = groupname
 c
@@ -2914,10 +2914,11 @@ c
  9997 format(1x,i5,i5,3f10.6,f10.3)
 c
       end
-      SUBROUTINE HND_AUTSYM(ODONE,RTDB,THREQUIV,groupname)
+      SUBROUTINE HND_AUTSYM(ODONE,RTDB,THREQUIV,groupname,geom)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "nwc_const.fh"
       INTEGER     RTDB
+      integer geom
       LOGICAL     ODONE
       PARAMETER   (MXATOM=nw_max_atom)
       PARAMETER   (MXSYM =120)
@@ -2934,7 +2935,6 @@ c
       DIMENSION   C3(3,MXATOM)
       DIMENSION   AXS(3,3),EIG(3)
       DIMENSION   RT(3,3)
-      DIMENSION   TR(3)
 C
       DBUG=.FALSE.
       OUT =.FALSE. 
@@ -2963,7 +2963,13 @@ C
 C
 C     ----- GET MOMENTS OF INERTIA -----                
 C
-      CALL HND_MOLINR(C,C1,NAT,CI,AI,TR)
+cedo      CALL HND_MOLINR(C,C1,NAT,CI,AI,TR)
+      CALL geom_momint0(geom,C,NAT,CI,AI,.false.)
+      DO IAT=1,NAT
+         DO I=1,3
+            C1(I,IAT)=C(I,IAT)-CI(I) 
+         ENDDO    
+      ENDDO
 C
 C     ----- GET PRINCIPAL AXES -----
 C
@@ -2976,7 +2982,7 @@ C
 C     ----- IDENTIFY SYMMETRY OPERATIONS -----
 C
       CALL HND_MOLOPS(C,C1,C2,C3,NAT,AXS,EIG,RT,TR,ODONE,THREQUIV,
-     $     groupname)
+     $     groupname,geom)
 C
 C     ----- CREATE ATOM AND SHELL MAPPINGS -----
 C
@@ -3009,7 +3015,7 @@ C
  9996 FORMAT(/)
       END
       SUBROUTINE HND_MOLOPS(C,C1,C2,C3,NAT,AXS,EIG,RT,TR,ODONE,
-     $     THREQUIV,groupname)
+     $     THREQUIV,groupname,geom)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
 C     ----- ROUTINE DETECTS MOLECULAR SYMMETRY OPERATIONS -----
@@ -3021,6 +3027,7 @@ C
 #include "util.fh"
 #include "nwc_const.fh"
 #include "stdio.fh"
+      integer     geom
       LOGICAL     ODONE
       PARAMETER   (MXORDR=24)
       PARAMETER   (MXATOM=nw_max_atom)
@@ -3086,12 +3093,14 @@ C
       DIMENSION C1(3,*)
       DIMENSION C2(3,*)
       DIMENSION C3(3,*)
-      DIMENSION CM(3),AM(3,3),TM(3)
+      DIMENSION CM(3),AM(3,3)
       DIMENSION AXM(3,3)
       DIMENSION C2AXS(3)
       DIMENSION C4AXS(3)
       DIMENSION S4AXS(3)
       DIMENSION ERRMSG(3)
+      double precision big
+      parameter (big=1d3)
       EQUIVALENCE (DEGNR3,CUBIC)
       DATA ERRMSG /'PROGRAM ','STOP IN ','-MOLOPS-'/
       DATA ZERO   /0.0D+00/
@@ -3266,7 +3275,13 @@ C
                         C2(I,IAT)=C1(I,IAT)*EPS
                         C2(I,JAT)=C1(I,JAT)*EPS
                      ENDDO
-                     CALL HND_MOLINR(C2,C3,NAT,CM,AM,TM)
+cedo                     CALL HND_MOLINR(C2,C3,NAT,CM,AM,TM)
+                     CALL geom_momint0(geom,C2,NAT,CM,AM,.false.)
+                     DO KAT=1,NAT
+                        DO I=1,3
+                           C3(I,KAT)=C2(I,KAT)-CM(I) 
+                        ENDDO    
+                     ENDDO
                      CALL HND_MOLAXS(AM,AXS,EIG,3,3,3)
                      IF(OUT) THEN
                         WRITE(IW,*) 'PRINCIPAL AXES OF ',
@@ -3599,17 +3614,17 @@ C
             if (.not.stopordrx) then
              QDUMX=(CMPLX(C2(2,IAT),C2(3,IAT)))**IORDR
              QX(IORDR)=QX(IORDR)+QDUMX
-             if (abs(qx(iordr)).gt.one) stopordrx = .true.
+             if (abs(qx(iordr)).gt.big) stopordrx = .true.
             endif
             if (.not.stopordry) then
              QDUMY=(CMPLX(C2(1,IAT),C2(3,IAT)))**IORDR
              QY(IORDR)=QY(IORDR)+QDUMY
-             if (abs(qy(iordr)).gt.one) stopordry = .true.
+             if (abs(qy(iordr)).gt.big) stopordry = .true.
             endif
             if (.not.stopordrz) then
              QDUMZ=(CMPLX(C2(1,IAT),C2(2,IAT)))**IORDR
              QZ(IORDR)=QZ(IORDR)+QDUMZ
-             if (abs(qz(iordr)).gt.one) stopordrz = .true.
+             if (abs(qz(iordr)).gt.big) stopordrz = .true.
             endif
             IF(MUCH) THEN
                WRITE(IW,9996) IORDR,IAT
@@ -4583,148 +4598,6 @@ C
    90 CONTINUE
       RETURN
  9999 FORMAT(/,' -DIAAXS- DIAGONALIZATION ONLY SET UP FOR 3X3 MATRIX')
-      END
-      SUBROUTINE HND_MOLINR(C,C1,NAT,CI,AI,TR)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-C
-C     ----- CENTER AND MOMENTS OF INERTIA ----- 
-C
-#include "nwc_const.fh"
-      PARAMETER (MXATOM=nw_max_atom)
-      PARAMETER (ZERO=0.0D+00)
-      LOGICAL OUT
-      COMMON/HND_IOFILE/IR,IW
-      DIMENSION AM(MXATOM)
-      DIMENSION C(3,*),C1(3,*)
-      DIMENSION CI(3),AI(3,3)
-      DIMENSION TR(3)
-C
-      OUT=.FALSE.
-C
-C     -----                GET ATOMIC MASSES                -----
-C     ----- CALCULATE CENTRE OF MASS AND MOMENTS OF INERTIA -----
-C
-      CALL HND_MOLAMS(AM,OUT)
-C
-      DO J=1,3
-         CI(J)=ZERO
-         DO I=1,3
-            AI(J,I)=ZERO
-         ENDDO
-      ENDDO
-      AMASS=ZERO
-      DO IAT=1,NAT
-         AMASS=AMASS+AM(IAT)
-         DO I=1,3
-            CI(I)=CI(I)+AM(IAT)*C(I,IAT)
-         ENDDO
-      ENDDO
-      DO I=1,3
-         CI(I)=CI(I)/AMASS
-         TR(I)=CI(I)
-      ENDDO    
-      DO IAT=1,NAT
-         DO I=1,3
-            C1(I,IAT)=C(I,IAT)-TR(I) 
-         ENDDO    
-      ENDDO
-C
-      DO IAT=1,NAT
-         WT=AM(IAT)
-         X =C1(1,IAT)
-         Y =C1(2,IAT)
-         Z =C1(3,IAT)
-         AI(1,1)=AI(1,1)+WT*(Y*Y+Z*Z)
-         AI(2,1)=AI(2,1)-WT* X*Y
-         AI(1,2)=AI(2,1)
-         AI(3,1)=AI(3,1)-WT* X*Z
-         AI(1,3)=AI(3,1)
-         AI(2,2)=AI(2,2)+WT*(X*X+Z*Z)
-         AI(3,2)=AI(3,2)-WT* Y*Z
-         AI(2,3)=AI(3,2)
-         AI(3,3)=AI(3,3)+WT*(X*X+Y*Y)
-      ENDDO
-      IF(OUT) THEN
-         WRITE(IW,9999)
-         WRITE(IW,9998) (CI(I),I=1,3)
-         WRITE(IW,9997)
-         CALL HND_PRSQ(AI,3,3,3)
-      ENDIF
-C
-      RETURN
- 9999 FORMAT(/,1X,'CENTER OF MASS',/,1X,14(1H-))
- 9998 FORMAT(' X = ',F12.8,' Y = ',F12.8,' Z = ',F12.8)
- 9997 FORMAT(/,1X,'MOMENTS OF INERTIA',/,1X,18(1H-))
-      END
-      SUBROUTINE HND_MOLAMS(BMASS,SOME)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-#include "nwc_const.fh"
-      PARAMETER   (MXATOM=nw_max_atom)
-      LOGICAL     SOME
-      CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_MOLNUC/NUC(MXATOM)
-      COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
-      DIMENSION   AMASS(MXATOM)
-      DIMENSION   BMASS(*)
-      DIMENSION   AMS(105)
-      DIMENSION   ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-MOLAMS-'/
-      DATA (AMS(I),I=1,54)  /
-     1   1.007825D+00,  4.002600D+00,  7.016000D+00,  9.012180D+00,
-     2  11.009310D+00, 12.000000D+00, 14.003070D+00, 15.994910D+00,
-     3  18.998400D+00, 19.992440D+00, 22.989800D+00, 23.985040D+00,
-     4  26.981530D+00, 27.976930D+00, 30.973760D+00, 31.972070D+00,
-     5  34.968850D+00, 39.948000D+00, 38.963710D+00, 39.962590D+00,
-     6  44.955920D+00, 47.900000D+00, 50.944000D+00, 51.940500D+00,
-     7  54.938100D+00, 55.934900D+00, 58.933200D+00, 57.935300D+00,
-     8  62.929800D+00, 63.929100D+00, 68.925700D+00, 73.921900D+00,
-     9  74.921600D+00, 79.916500D+00, 78.918300D+00, 83.911500D+00,
-     1  84.911700D+00, 87.905600D+00, 89.905400D+00, 89.904300D+00,
-     2  92.906000D+00, 97.905500D+00, 97.000000D+00,101.903700D+00,
-     3 102.904800D+00,105.903200D+00,106.904100D+00,113.903600D+00,
-     4 114.904100D+00,119.902200D+00,120.903800D+00,129.906700D+00,
-     5 126.904400D+00,131.904200D+00/
-      DATA (AMS(I),I=55,105)  /
-     1   132.9054D+00,137.9052D+00,138.9063D+00,139.9054D+00,
-     2   140.9076D+00,141.9077D+00,144.9127D+00,151.9197D+00,
-     3   152.9212D+00,157.9241D+00,158.9253D+00,163.9292D+00,
-     4   164.9303D+00,165.9303D+00,168.9342D+00,173.9389D+00,
-     5   174.9408D+00,179.9465D+00,180.9480D+00,183.9509D+00,
-     6   186.9557D+00,191.9615D+00,192.9629D+00,194.9648D+00,
-     7   196.9665D+00,201.9706D+00,204.9744D+00,207.9766D+00,
-     8   208.9804D+00,208.9824D+00,209.9871D+00,222.0176D+00,
-     9   223.0197D+00,226.0254D+00,227.0278D+00,232.0381D+00,
-     1   231.0359D+00,238.0508D+00,237.0482D+00,244.0642D+00,
-     2   243.0614D+00,247.0703D+00,247.0703D+00,251.0796D+00,
-     3   252.0829D+00,257.0751D+00,258.0986D+00,259.1009D+00,
-     4   260.1053D+00,  0.0000D+00,  0.0000D+00/
-      DATA ZERO /0.0D+00/
-C
-      DO IAT=1,NAT
-         NUCZ=NUC(IAT)
-         IF(NUCZ.GT.103) THEN
-            WRITE(IW,9996)
-            CALL HND_HNDERR(3,ERRMSG)
-         ENDIF
-         IF(NUCZ.EQ.0) ZNUC=ZERO
-         IF(NUCZ.GT.0) ZNUC=AMS(NUCZ)
-         AMASS(IAT)=ZNUC
-      ENDDO
-      DO IAT=1,NAT
-         BMASS(IAT)= ABS(AMASS(IAT))
-      ENDDO
-      IF(SOME) THEN
-         WRITE(IW,9998)
-         DO IAT=1,NAT
-            WRITE(IW,9997) IAT,BMASS(IAT)
-         ENDDO
-      ENDIF
-      RETURN
- 9998 FORMAT(/,10X,21(1H-),/,10X,'ATOMIC WEIGHTS (A.U.)',
-     1       /,10X,21(1H-),/)
- 9997 FORMAT(I5,5X,F15.5)
- 9996 FORMAT(' NO ATOMIC MASS TABULATED FOR  -NUCZ.GT.103-  . STOP')
       END
       SUBROUTINE HND_MOLGRP(XPT0,YPT0,ZPT0,XPT1,YPT1,ZPT1,         
      1                      XPT2,YPT2,ZPT2,XPT3,YPT3,ZPT3)

@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.109 2001-04-07 01:02:11 edo Exp $
+C$Id: geom.F,v 1.110 2001-04-07 05:31:20 edo Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -5051,7 +5051,6 @@ C
       double precision ci(3),ai(3,3) ! [out] ctr of mass and inertua tensor
       logical oprint
 c
-      double precision tr(3)
       integer iat,i,j
       double precision amass,mass,x,y,z
 c
@@ -5073,15 +5072,14 @@ c
       enddo
       do i=1,3
          ci(i)=ci(i)/amass
-         tr(i)=ci(i)
       enddo    
 c
       do iat=1,natoms
          if(.not.geom_mass_get(geom, iat, mass)) call
      .        errquit(' mass_get  failed ',iat)
-         x =coord(1,iat) - tr(1)
-         y =coord(2,iat) - tr(2)
-         z =coord(3,iat) - tr(3)
+         x =coord(1,iat) - ci(1)
+         y =coord(2,iat) - ci(2)
+         z =coord(3,iat) - ci(3)
          ai(1,1)=ai(1,1)+mass*(y*y+z*z)
          ai(2,1)=ai(2,1)-mass* x*y
          ai(1,2)=ai(2,1)
