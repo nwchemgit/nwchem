@@ -1,6 +1,6 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa)
 c
-c $Id: sp_main.F,v 1.24 1999-10-08 18:29:34 d3j191 Exp $
+c $Id: sp_main.F,v 1.25 1999-10-08 19:22:36 d3j191 Exp $
 c
       implicit none
 c
@@ -98,6 +98,35 @@ c
       if(me.eq.node) then
       nwmloc=numwm
       nsaloc=numsa
+      endif
+c
+      return
+      end
+      subroutine sp_putp(node,pw,pwp,numwm,ps,psp,numsa,lpp)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+c
+      integer node,numwm,numsa
+      real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
+      real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
+      logical lpp
+      integer il,ih,jl,jh
+c
+      if(numwm.gt.0) then
+      call ga_distribution(ga_w,node,il,ih,jl,jh)
+      ih=il+numwm-1
+      call ga_put(ga_w,il,ih,jl+12*mwa+3,jl+15*mwa+2,pw,mwm)
+      if(lpp) call ga_put(ga_w,il,ih,jl+15*mwa+3,jl+21*mwa+2,pwp,mwm)
+      endif
+c
+      if(numsa.gt.0) then
+      call ga_distribution(ga_s,node,il,ih,jl,jh)
+      ih=il+numsa-1
+      call ga_put(ga_s,il,ih,jl+12,jl+14,ps,msa)
+      if(lpp) call ga_put(ga_s,il,ih,jl+15,jl+20,psp,msa)
       endif
 c
       return
@@ -1352,11 +1381,10 @@ c
       real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
       logical lself,local
 c
-      call errquit('Retrieval of p not done',0)
-c
-      call sp_gtxbl(ibbl,lhandl,local,
-     + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
-     + int_mb(i_bb),int_mb(i_ipl),int_mb(i_jpl),lself)
+      call sp_gtxpbl(ibbl,lhandl,local,
+     + iwl,xw,pw,pwp,iwfr,iwto,jwfr,jwto,
+     + isl,xs,ps,psp,isfr,isto,jsfr,jsto,
+     + int_mb(i_bb),int_mb(i_ipl),int_mb(i_jpl),lself,.true.)
 c
       return
       end
@@ -1373,16 +1401,19 @@ c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xs(msa,3)
       logical lself,local
+      real*8 pw(2),pwp(2),ps(2),psp(2)
 c
-      call sp_gtxbl(ibbl,lhandl,local,
-     + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
-     + int_mb(i_bb),int_mb(i_ipl),int_mb(i_jpl),lself)
+      call sp_gtxpbl(ibbl,lhandl,local,
+     + iwl,xw,pw,pwp,iwfr,iwto,jwfr,jwto,
+     + isl,xs,ps,psp,isfr,isto,jsfr,jsto,
+     + int_mb(i_bb),int_mb(i_ipl),int_mb(i_jpl),lself,.false.)
 c
       return
       end
-      subroutine sp_gtxbl(ibbl,lhandl,local,
-     + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
-     + lbbl,ipl,jpl,lself)
+      subroutine sp_gtxpbl(ibbl,lhandl,local,
+     + iwl,xw,pw,pwp,iwfr,iwto,jwfr,jwto,
+     + isl,xs,ps,psp,isfr,isto,jsfr,jsto,
+     + lbbl,ipl,jpl,lself,lpp)
 c
       implicit none
 c
@@ -1392,9 +1423,11 @@ c
       integer ibbl,lhandl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xs(msa,3)
+      real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
+      real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
       integer lbbl(mbbl,mbb2)
       integer ipl(mbox,mip2),jpl(mbox,mip2)
-      logical lself,local
+      logical lself,local,lpp
 c
       integer i,ibox,jbox,jnode,il,ih,jl,jh,ndx,nwnon,nsnon
 c
@@ -1471,6 +1504,12 @@ c
       call ga_distribution(ga_w,jnode,il,ih,jl,jh)
       call ga_get(ga_w,il+jwfr-1,il+jwto-1,jl,jl+3*mwa-1,
      + xw(nwmloc+1,1,1),mwm)
+      if(lpp) then
+      call ga_get(ga_w,il+jwfr-1,il+jwto-1,jl+6*mwa+3,jl+9*mwa+2,
+     + pw(nwmloc+1,1,1,1),mwm)
+      if(lfree) call ga_get(ga_w,il+jwfr-1,il+jwto-1,
+     + jl+9*mwa+3,jl+15*mwa+2,pwp(nwmloc+1,1,1,1,1),mwm)
+      endif
       jwfr=nwmloc+1
       jwto=nwmloc+1+jpl(ndx,3)-jpl(ndx,2)
       endif
@@ -1483,6 +1522,12 @@ c
       call ga_distribution(ga_s,jnode,il,ih,jl,jh)
       call ga_get(ga_s,il+jsfr-1,il+jsto-1,jl,jl+2,
      + xs(nsaloc+1,1),msa)
+      if(lpp) then
+      call ga_get(ga_s,il+jsfr-1,il+jsto-1,jl+6,jl+8,
+     + ps(nsaloc+1,1,1),msa)
+      if(lfree) call ga_get(ga_s,il+jsfr-1,il+jsto-1,jl+9,jl+14,
+     + psp(nsaloc+1,1,1,1),msa)
+      endif
       jsfr=nsaloc+1
       jsto=nsaloc+1+jpl(ndx,5)-jpl(ndx,4)
       endif
@@ -1505,9 +1550,98 @@ c
       logical lpair
       integer iwz(mwm),isz(msa)
 c
-      call errquit('Accumulation p not implemented',0)
-c      call sp_acfbl(ibbl,lhandl,fw,fs,int_mb(i_bb),int_mb(i_jpl),
-c     + lpair,iwz,isz)
+      call sp_acpbl(ibbl,lhandl,pw,pwp,ps,psp,int_mb(i_bb),
+     + int_mb(i_jpl))
+c
+      return
+      end
+      subroutine sp_acpbl(ibbl,lhandl,pw,pwp,ps,psp,lbbl,jpl)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+c
+      integer ibbl,lhandl
+      real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
+      real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
+      integer lbbl(mbbl,mbb2)
+      integer jpl(mbox,mip2)
+c
+      integer i,j,k,l,m,ibox,jbox,jnode,il,ih,jl,jh,ndx,nwnon,nsnon
+      integer jwfr,jwto,jsfr,jsto
+c
+      if(ibbl.le.0.or.ibbl.gt.nbbl)
+     + call errquit('Index to lbbl out of range',ibbl)
+c
+      jnode=lbbl(ibbl,1)
+      jbox=lbbl(ibbl,2)
+      ibox=lbbl(ibbl,3)
+      lbbl(ibbl,4)=lhandl
+c
+      if(jnode.eq.me) return
+      if(ibbl.lt.nbbl) then
+      if(lbbl(ibbl+1,1).eq.jnode.and.lbbl(ibbl+1,2).eq.jbox) return
+      endif
+c
+      ndx=0
+      do 3 i=1,jpl(1,1)
+      if(jpl(30+i,1).eq.jbox) ndx=30+i
+    3 continue
+      if(ndx.eq.0) call errquit('Remote node box not found',0)
+      jwfr=jpl(ndx,2)
+      jwto=jpl(ndx,3)
+      jsfr=jpl(ndx,4)
+      jsto=jpl(ndx,5)
+      if(jwfr.gt.0) then
+      nwnon=jwto-jwfr+1
+      if(nwmloc+nwnon.gt.mwm)
+     + call errquit('Dimension mwm too small',nwmloc+nwnon)
+      call ga_distribution(ga_w,jnode,il,ih,jl,jh)
+      call ga_acc(ga_w,il+jwfr-1,il+jwto-1,jl+12*mwa+3,jl+15*mwa+2,
+     + pw(nwmloc+1,1,1,1),mwm,one)
+      if(lfree) call ga_acc(ga_w,il+jwfr-1,il+jwto-1,jl+15*mwa+3,
+     + jl+21*mwa+2,pwp(nwmloc+1,1,1,1,1),mwm,one)
+c      if(llong) call ga_acc(ga_w,il+jwfr-1,il+jwto-1,jl+9*mwa+3,
+c     + jl+12*mwa+2,fw(nwmloc+1,1,1,2),mwm,one)
+c      if(lpair) then
+c      call ga_distribution(ga_iwz,jnode,il,ih,jl,jh)
+c      call ga_acc(ga_iwz,il+jwfr-1,il+jwto-1,jl,jl,iwz(nwmloc+1),mwm,1)
+c      endif
+      endif
+      if(jsfr.gt.0) then
+      nsnon=jsto-jsfr+1
+      if(nsaloc+nsnon.gt.msa)
+     + call errquit('Dimension msa too small',nsaloc+nsnon)
+      call ga_distribution(ga_s,jnode,il,ih,jl,jh)
+      call ga_acc(ga_s,il+jsfr-1,il+jsto-1,jl+12,jl+14,
+     + ps(nsaloc+1,1,1),msa,one)
+      if(lfree) call ga_acc(ga_s,il+jsfr-1,il+jsto-1,jl+15,jl+20,
+     + psp(nsaloc+1,1,1,1),msa,one)
+c      if(lpair) then
+c      call ga_distribution(ga_isz,jnode,il,ih,jl,jh)
+c      call ga_acc(ga_isz,il+jsfr-1,il+jsto-1,jl,jl,isz(nsaloc+1),msa,1)
+c      endif
+      endif
+c
+      m=1
+      if(llong) m=2
+c
+      do 9 l=1,m
+      do 4 k=1,mwa
+      do 5 j=1,3
+      do 6 i=nwmloc+1,mwm
+      pw(i,j,k,l)=zero
+    6 continue
+    5 continue
+    4 continue
+c
+      do 7 j=1,3
+      do 8 i=nsaloc+1,msa
+      ps(i,j,l)=zero
+    8 continue
+    7 continue
+    9 continue
 c
       return
       end
@@ -1645,7 +1779,7 @@ c
 c
       return
       end
-      subroutine sp_balanc(stime,syntim,waltim)
+      subroutine sp_balanc(stime,syntim,waltim,lpsyn)
 c
       implicit none
 c
@@ -1656,6 +1790,7 @@ c
       external sp_diffbb
 c
       real*8 stime,syntim,waltim
+      logical lpsyn
 c
       integer l_dlb,i_dlb,i_nod,l_nod,i_nen,l_nen,i_lst,l_lst
 c
@@ -1675,7 +1810,7 @@ c
      + call errquit('Problems in sp_balanc at 2',me)
 c
       call sp_dldbal(stime,syntim,waltim,int_mb(i_nod),int_mb(i_lst),
-     + int_mb(i_nen),int_mb(i_bb),dbl_mb(i_dlb))
+     + int_mb(i_nen),int_mb(i_bb),dbl_mb(i_dlb),lpsyn)
       if(.not.ma_verify_allocator_stuff())
      + call errquit('Problems in sp_balanc at 3',me)
 c
@@ -1699,7 +1834,8 @@ c
 c
       return
       end
-      subroutine sp_dldbal(stime,syntim,waltim,nod,nlst,nen,lbbl,dlb)
+      subroutine sp_dldbal(stime,syntim,waltim,nod,nlst,nen,lbbl,dlb,
+     + lpsyn)
 c
       implicit none
 c
@@ -1710,6 +1846,7 @@ c
       integer nod(np),nlst(np,2),nen(np,mbbl)
       integer lbbl(mbbl,mbb2)
       real*8 stime,syntim,synsum,waltim,dlb(np),factor,facx,facy,facz
+      logical lpsyn
 c
       integer i,j,k,n,ibusy
 c
@@ -1771,7 +1908,7 @@ c
       factor=(1.0d0-factld*(synsum/dble(np)-dlb(ibusy))/synsum)**third
       call sp_resize(ibusy-1,int_mb(i_iown),dbl_mb(i_boxs),factor,
      + facx,facy,facz)
-      if(me.eq.0) then
+      if(me.eq.0.and.lpsyn) then
       write(lfnsyn,3000) 1,stime,synsum,waltim,ibusy-1,
      + factor,facx,facy,facz,nldup,lpipo
  3000 format('synchronization',/,i5,3f12.6,/,i5,4f12.6,i3,1x,l1)
@@ -1845,7 +1982,7 @@ c
       nen(nod(i)+1,1)=nlst(i,1)
    14 continue
 c
-      if(me.eq.0) then
+      if(me.eq.0.and.lpsyn) then
       write(lfnsyn,3002) 2,stime,synsum,waltim
  3002 format('synchronization',/,i5,3f12.6)
       do 15 i=1,np
