@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.57 2002-01-15 19:04:39 edo Exp $
+c $Id: bas_input.F,v 1.58 2002-01-15 19:17:44 edo Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -897,9 +897,7 @@ c
 c     Open the library file and try to locate the basis
 c
       if (filename .eq. ' ') filename = 'library'
-      write(6,*) ' trying to open!',filestring,'!'
       open(33, file=filestring, status='old', err=1000)
-      write(0,*) ' opened'
 
       call inp_save_state()     ! Save state for unit 5.
 
