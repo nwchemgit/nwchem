@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.78 2002-11-14 16:07:57 d3j191 Exp $
+c $Id: sp_main.F,v 1.79 2002-11-14 18:04:28 d3j191 Exp $
 c
       implicit none
 c
@@ -2621,7 +2621,7 @@ c
      + call errquit('Problems in sp_balanc at 1',me)
       if(.not.ma_push_get(mt_int,np,'nod',l_nod,i_nod))
      + call errquit('Failed to allocate nod',me)
-      if(.not.ma_push_get(mt_int,2*np,'lst',l_lst,i_lst))
+      if(.not.ma_push_get(mt_int,2*(np+1),'lst',l_lst,i_lst))
      + call errquit('Failed to allocate lst',me)
       if(.not.ma_push_get(mt_int,mbbl*np,'nen',l_nen,i_nen))
      + call errquit('Failed to allocate nen',me)
@@ -2632,7 +2632,7 @@ c
 c
       call sp_dldbal(stime,syntim,waltim,int_mb(i_nod),int_mb(i_lst),
      + int_mb(i_nen),int_mb(i_bb),dbl_mb(i_dlb),lpsyn,int_mb(i_bindex),
-     + int_mb(i_buren))
+     + int_mb(i_buren),np+1)
       if(.not.ma_verify_allocator_stuff())
      + call errquit('Problems in sp_balanc at 3',me)
 c
@@ -2657,7 +2657,7 @@ c
       return
       end
       subroutine sp_dldbal(stime,syntim,waltim,nod,nlst,nen,lbbl,dlb,
-     + lpsyn,ibindx,iburen)
+     + lpsyn,ibindx,iburen,npp)
 c
       implicit none
 c
@@ -2668,7 +2668,8 @@ c
       integer sp_btop
       external sp_btop
 c
-      integer nod(np),nlst(np,2),nen(np,mbbl)
+      integer npp
+      integer nod(np),nlst(npp,2),nen(np,mbbl)
       integer lbbl(mbbl,mbb2)
       real*8 stime,syntim,synsum,waltim,dlb(*),factor,facx,facy,facz
       logical lpsyn
@@ -2691,6 +2692,8 @@ c
       nod(i)=i-1
     1 continue
       nlst(me+1,1)=int(1.0d6*syntim)
+      nlst(npp,1)=int(1.0d6*waltim)
+      nlst(npp,2)=0
 c
       do 2 i=1,nbbl
       iproc=lbbl(i,1)
@@ -2705,7 +2708,7 @@ c
       intsiz=8*ma_sizeof(mt_int,1,mt_byte)
 c
 c      if(intsiz.le.32) then
-      call ga_igop(msp_14,nlst,2*np,'+')
+      call ga_igop(msp_14,nlst,2*npp,'+')
 c      else
 c      do 3 i=1,np
 c      nlst(i,1)=lshift(nlst(i,1),32)+nlst(i,2)
@@ -2722,8 +2725,9 @@ c
       dlb(i)=dble(nlst(i,1))*1.0d-6
       synsum=synsum+dlb(i)
     5 continue
+      waltim=dble(nlst(npp,1))*1.0d-6
 c
-      if(nldup.le.0) then
+      if(nldup.lt.0) then
       tslow=synsum
       nldup=0
       else
@@ -2774,7 +2778,7 @@ c     2. if busiest processor has no off-processor cell-cell pairs (lbsize true)
 c     3. if busiest alternates between two processors (lpipo true)
 c
       if(loadb.eq.1.or.(loadb.eq.3.and.(lbsize.or.lpipo))) then
-      factor=(1.0d0-factld*(synsum/dble(np)-dlb(ibusy))/synsum)**third
+      factor=(1.0d0-factld*(synsum/dble(np)-dlb(ibusy))/waltim)**third
       facx=1.0d0
       facy=1.0d0
       facz=1.0d0
