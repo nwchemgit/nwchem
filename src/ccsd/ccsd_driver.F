@@ -1,6 +1,6 @@
       subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.42 2003-12-19 18:38:00 edo Exp $
+C     $Id: ccsd_driver.F,v 2.43 2004-04-27 20:50:04 bert Exp $
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -190,6 +190,7 @@ c
       lnooo=lnoo*nocc_correl
       lnovv=lnvv*nocc_correl
 c
+      CC_Theory = ""
       call ccsd_get_param(rtdb,maxit,convi,iprt, CC_Theory, MaxVec,
      $     Tol2E, occd)
       do_trip =  Inp_Compare(.FALSE., 'ccsd(t)', CC_Theory)
