@@ -1,5 +1,5 @@
 #
-#	$Id: NTmakelib.h,v 1.6 2000-08-08 23:36:32 bjohnson Exp $
+#	$Id: NTmakelib.h,v 1.7 2000-08-13 19:39:36 bjohnson Exp $
 #
 
 LIBRARY_PATH = $(LIB_DISTRIB)\$(LIBRARY)
@@ -65,10 +65,15 @@ WIN32.stamp: $(HEADERS)
 !ENDIF
 
 "$(LIB_DISTRIB)" :
-	@if not exist "$(LIB_DISTRIB)/$(NULL)" mkdir "$(LIB_DISTRIB)"
+	@if not exist "$(TOPDIR)\lib\$(NULL)" mkdir "$(TOPDIR)\lib"
+	@if not exist "$(LIB_DISTRIB)\$(NULL)" mkdir "$(LIB_DISTRIB)"
+
+"$(BINDIR)" :
+	@if not exist "$(TOPDIR)\bin\$(NULL)" mkdir "$(TOPDIR)\bin"
+	@if not exist "$(BINDIR)\$(NULL)" mkdir "$(BINDIR)"
 
 "$(OBJDIR)" :
-	@if not exist "$(OBJDIR)/$(NULL)" mkdir "$(OBJDIR)"
+	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
 
 clean: $(SUBDIRS)
 !IFDEF SUBDIRS
