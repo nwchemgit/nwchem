@@ -2,7 +2,7 @@
      &                    Amat, Cmat, nq, ipol, Ec, qwght,
      &                    ldew,ffunc)     
 c
-c$Id: xc_pbe96.F,v 1.9 2001-07-09 20:37:38 edo Exp $
+c$Id: xc_pbe96.F,v 1.10 2001-12-11 18:41:57 edo Exp $
 c
       Implicit none
 c
@@ -194,6 +194,7 @@ c
             dtdrhoa = -t*arho*SEV6
             dtdgamma = 0.5d0*t/gammaval
             dexpo1 = twoab2*(egas*arho)
+            if(abs(egas).lt.tol_rho*tol_rho) goto 10
             if(abs(dexpo1).gt.tol_rho) then
             if (dexpo1.gt.EXPTOL)then
                expo1 = 0.d0
@@ -345,6 +346,7 @@ c
      &                       dp81drho,lnq,ipol,egas,lqwght,
      &                       .false.,dummy)
             endif
+            if(abs(egas).lt.tol_rho*tol_rho) goto 20
 c
             degasda = arho*(dp81drho(1) - egas*arho)
             degasdb = arho*(dp81drho(2) - egas*arho)
@@ -377,7 +379,7 @@ c
             dexpo1 = twoab2*(egas*arho)/g3
 c
             expo1 = TOLL
-            if (dexpo1.lt.EXPTOL)expo1 = exp(-dexpo1)
+            if (abs(dexpo1).lt.EXPTOL)expo1 = exp(-dexpo1)
 c
             A = twoab/(expo1-ONE)
             A1p2At2 = ONE+2.d0*A*t2
