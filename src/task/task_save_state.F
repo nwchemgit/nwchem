@@ -31,77 +31,102 @@ c
       logical status
       character*20 theory
       character*(nw_max_path_len) vectors, name
+      logical oexist, oprint
 c     
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task_save_state: theory not specified',0)
-c     
-      if ( (theory .eq. 'scf') .or.
-     $     (theory .eq. 'dft') .or.
-     $     (theory .eq. 'mcscf') ) then
+      oprint = util_print('task_save_state',print_default)
 c
-         if (ga_nodeid() .eq. 0) then
-            status = rtdb_parallel(.false.)
+      if (ga_nodeid() .eq. 0) then
+         status = rtdb_parallel(.false.)
+         if (oprint) then
+            write(6,1) theory(1:inp_strlen(theory)), suffix
+ 1          format(/' Saving state for ',a, ' with suffix ', a)
+            call util_flush(6)
+         endif
 c     
 c     Get the name of the input MO vector file ... look for 
 c     "theory:input vectors" otherwise use the default
 c     
-            name = ' '
-            write(name,'(a,'':input vectors'')') 
-     $           theory(1:inp_strlen(theory))
-            if (rtdb_cget(rtdb,name,1,vectors)) then
+         name = ' '
+         write(name,'(a,'':input vectors'')') 
+     $        theory(1:inp_strlen(theory))
+         if (rtdb_cget(rtdb,name,1,vectors)) then
 c     
 c     Default is overriden ... save the filename in the database as 
 c     "theory:vectors <suffix>"
 c     
-               name = ' '
-               write(name,'(a,'':vectors '',a)') 
-     $              theory(1:inp_strlen(theory)),
-     $              suffix(1:inp_strlen(suffix))
-               if (.not. rtdb_cput(rtdb,name,1,vectors)) call errquit
-     $              ('task_save_state: rtdb corrupt',0)
-            else
-               call util_file_name('movecs',.false.,.false.,vectors)
-            endif
+            name = ' '
+            write(name,'(a,'':vectors '',a)') 
+     $           theory(1:inp_strlen(theory)),
+     $           suffix(1:inp_strlen(suffix))
+            if (.not. rtdb_cput(rtdb,name,1,vectors)) call errquit
+     $           ('task_save_state: rtdb corrupt',0)
+         else
+            call util_file_name('movecs',.false.,.false.,vectors)
+         endif
 c     
 c     Copy the file to <filename>.<suffix>
 c     
-            name = ' '
-            write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
-     $           suffix(1:inp_strlen(suffix))
-            call util_file_copy(vectors, name)
+         name = ' '
+         write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
+     $        suffix(1:inp_strlen(suffix))
+         call util_file_copy(vectors, name)
+c     
+         if (oprint) then
+            write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+            call util_flush(6)
+         endif
 c
-            if (util_print('task_save_state',print_default)) then
-               write(6,1) theory(1:inp_strlen(theory)),
-     $              vectors(1:inp_strlen(vectors)),
-     $              name(1:inp_strlen(name))
- 1             format(/' Saving state for ',a/
-     $              ' Original vectors = ',a/
-     $              ' Backup vectors   = ',a//)
-               call util_flush(6)
-            endif
-            if (theory .eq. 'mcscf') then
+         if (theory.eq.'mcscf' .or. theory.eq.'selci') then
 c     
-c     Also need to save the CI vectors for MCSCF
+c     Also need to save the CI vectors for MCSCF.  Don't know if
+c     the selci used SCF or MCSCF.
 c     
-               call util_file_name('civec',.false.,.false.,vectors)
+            call util_file_name('civec',.false.,.false.,vectors)
+            inquire(file=vectors,exist=oexist)
+            if (oexist) then
                name = ' '
                write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
      $              suffix(1:inp_strlen(suffix))
                call util_file_copy(vectors, name)
-               if (util_print('task_save_state',print_default)) then
-                  write(6,1) theory(1:inp_strlen(theory)),
-     $                 vectors(1:inp_strlen(vectors)),
-     $                 name(1:inp_strlen(name))
+               if (oprint) then
+                  write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
                   call util_flush(6)
                endif
-               status = rtdb_parallel(.true.)
             endif
          endif
-      else if (ga_nodeid() .eq. 0) then
-         write(6,*) ' task_save_state: ', 
-     $        theory(1:inp_strlen(theory)),
-     $        suffix(1:inp_strlen(suffix))
-         call errquit('task_save_state: unknown theory',0)
+c
+         if (theory .eq. 'selci') then
+c     
+c     Also need to save the CI vectors, and ciconf file (moints?)
+c     
+            call util_file_name('civecs',.false.,.false.,vectors)
+            name = ' '
+            write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
+     $           suffix(1:inp_strlen(suffix))
+            call util_file_copy(vectors, name)
+            if (oprint) then
+               write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+               call util_flush(6)
+            endif
+c
+            call util_file_name('ciconf',.false.,.false.,vectors)
+            name = ' '
+            write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
+     $           suffix(1:inp_strlen(suffix))
+            call util_file_copy(vectors, name)
+            if (oprint) then
+               write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+               call util_flush(6)
+            endif
+         endif
+c
+         if (oprint) then
+            write(6,*)
+            call util_flush(6)
+         endif
+         status = rtdb_parallel(.true.)
       endif
 c
       call ga_sync()
@@ -123,77 +148,102 @@ c
       logical status
       character*20 theory
       character*(nw_max_path_len) vectors, name
+      logical oexist, oprint
 c     
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task_restore_state: theory not specified',0)
+      oprint = util_print('task_restore_state',print_high)
 c     
-      if ( (theory .eq. 'scf') .or.
-     $     (theory .eq. 'dft') .or.
-     $     (theory .eq. 'mcscf') ) then
-         if (ga_nodeid() .eq. 0) then
-            status = rtdb_parallel(.false.)
+      if (ga_nodeid() .eq. 0) then
+         status = rtdb_parallel(.false.)
+         if (oprint) then
+            write(6,1) theory(1:inp_strlen(theory)), suffix
+ 1          format(/' Restoring state for ',a, ' with suffix ', a)
+            call util_flush(6)
+         endif
 c     
-c     Get original name from the database entry "theory:vectors <suffix>"
-c     or use the default if this is not present.
+c     Get original MOvecs name from the database entry 
+c     "theory:vectors <suffix>" or use the default if this is not present.
+c     
+         name = ' '
+         write(name,'(a,'':vectors '',a)') 
+     $        theory(1:inp_strlen(theory)),
+     $        suffix(1:inp_strlen(suffix))
+         if (rtdb_cget(rtdb,name,1,vectors)) then
+c     
+c     Set the entry in the database for the input vectors since it was
+c     set when we saved state and is therefore probably not the default
 c     
             name = ' '
-            write(name,'(a,'':vectors '',a)') 
-     $           theory(1:inp_strlen(theory)),
-     $           suffix(1:inp_strlen(suffix))
-            if (rtdb_cget(rtdb,name,1,vectors)) then
-c
-c     Set the entry in the database for the input vectors since
-c     it was set when we saved state and is therefore probably not the default
-c
-               name = ' '
-               write(name,'(a,'':input vectors'')') 
-     $              theory(1:inp_strlen(theory))
-               if (.not. rtdb_cput(rtdb,name,1,vectors)) call errquit
-     $              ('task_restore_state: rtdb corrupt',0)
-            else
-               call util_file_name('movecs',.false.,.false.,vectors)
-            endif
+            write(name,'(a,'':input vectors'')') 
+     $           theory(1:inp_strlen(theory))
+            if (.not. rtdb_cput(rtdb,name,1,vectors)) call errquit
+     $           ('task_restore_state: rtdb corrupt',0)
+         else
+            call util_file_name('movecs',.false.,.false.,vectors)
+         endif
 c     
 c     Now make the name of the backup file and copy back to the original
 c     
-            name = ' '
-            write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
-     $           suffix(1:inp_strlen(suffix))
-            call util_file_copy(name, vectors)
-c
-            if (util_print('task_state',print_high)) then
-               write(6,1) theory(1:inp_strlen(theory)),
-     $              vectors(1:inp_strlen(vectors)),
-     $              name(1:inp_strlen(name))
- 1             format(/' Restoring state for ',a/
-     $              ' Original vectors = ',a/
-     $              ' Backup vectors   = ',a//)
-               call util_flush(6)
-            endif
-            status = rtdb_parallel(.true.)
+         name = ' '
+         write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
+     $        suffix(1:inp_strlen(suffix))
+         call util_file_copy(name, vectors)
+c     
+         if (oprint) then
+            write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+            call util_flush(6)
          endif
 c
-         if (theory .eq. 'mcscf') then
-c
-c     Also need to restore the CI vectors for MCSCF
-c
+         if (theory.eq.'mcscf' .or. theory.eq.'selci') then
+c     
+c     Also need to restore the CI vectors for MCSCF.  Don't know if
+c     the selci used SCF or MCSCF so just copy the file if it exists.
+c     
             call util_file_name('civec',.false.,.false.,vectors)
             name = ' '
             write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
      $           suffix(1:inp_strlen(suffix))
-            call util_file_copy(name,vectors)
-            if (util_print('task_state',print_high)) then
-               write(6,1) theory(1:inp_strlen(theory)),
-     $              vectors(1:inp_strlen(vectors)),
-     $              name(1:inp_strlen(name))
+            inquire(file=name,exist=oexist)
+            if (oexist) then
+               call util_file_copy(name,vectors)
+               if (oprint) then
+                  write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+                  call util_flush(6)
+               endif
+            endif
+         endif
+c
+         if (theory .eq. 'selci') then
+c     
+c     Also need to restore the CI vectors, and ciconf file (moints?)
+c     
+            call util_file_name('civecs',.false.,.false.,vectors)
+            name = ' '
+            write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
+     $           suffix(1:inp_strlen(suffix))
+            call util_file_copy(name, vectors)
+            if (oprint) then
+               write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+               call util_flush(6)
+            endif
+c
+            call util_file_name('ciconf',.false.,.false.,vectors)
+            name = ' '
+            write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
+     $           suffix(1:inp_strlen(suffix))
+            call util_file_copy(name, vectors)
+            if (oprint) then
+               write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
                call util_flush(6)
             endif
          endif
-      else if (ga_nodeid() .eq. 0) then
-         write(6,*) ' task_restore_state: ', 
-     $        theory(1:inp_strlen(theory)),
-     $        suffix(1:inp_strlen(suffix))
-         call errquit('task_restore_state: unknown theory',0)
+c
+         if (oprint) then
+            write(6,*)
+            call util_flush(6)
+         endif
+         status = rtdb_parallel(.true.)
       endif
 c     
       call ga_sync()
@@ -215,74 +265,95 @@ c
       logical status
       character*20 theory
       character*(nw_max_path_len) vectors, name
+      logical oexist, oprint
 c     
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task_delete_state: theory not specified',0)
+      oprint = util_print('task_delete_state',print_default)
 c     
-      if ( (theory .eq. 'scf') .or.
-     $     (theory .eq. 'dft') .or.
-     $     (theory .eq. 'mcscf') ) then
-c
-         if (ga_nodeid() .eq. 0) then
-            status = rtdb_parallel(.false.)
+      if (ga_nodeid() .eq. 0) then
+         status = rtdb_parallel(.false.)
+         if (oprint) then
+            write(6,1) theory(1:inp_strlen(theory)), suffix
+ 1          format(/' Deleting state for ',a, ' with suffix ', a)
+            call util_flush(6)
+         endif
 c     
 c     Get original name from the database entry "theory:vectors <suffix>"
 c     or use the default if this is not present
 c     
-            name = ' '
-            write(name,'(a,'':vectors '',a)') 
-     $           theory(1:inp_strlen(theory)),
-     $           suffix(1:inp_strlen(suffix))
-            if (rtdb_cget(rtdb,name,1,vectors)) then
+         name = ' '
+         write(name,'(a,'':vectors '',a)') 
+     $        theory(1:inp_strlen(theory)),
+     $        suffix(1:inp_strlen(suffix))
+         if (rtdb_cget(rtdb,name,1,vectors)) then
 c     Delete the database entry
-               if (.not. rtdb_delete(rtdb, name)) call errquit
-     $              ('task_delete_state: rtdb corrupt',0)
-            else
-               call util_file_name('movecs',.false.,.false.,vectors)
-            endif
+            if (.not. rtdb_delete(rtdb, name)) call errquit
+     $           ('task_delete_state: rtdb corrupt',0)
+         else
+            call util_file_name('movecs',.false.,.false.,vectors)
+         endif
 c     
 c     Now delete the backup file
 c     
+         name = ' '
+         write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
+     $        suffix(1:inp_strlen(suffix))
+         call util_file_unlink(name)
+c     
+         if (oprint) then
+            write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+            call util_flush(6)
+         endif
+c     
+         if (theory.eq.'mcscf' .or. theory.eq.'selci') then
+c     
+c     Delete the MCSCF CI vectors
+c     
+            call util_file_name('civec',.false.,.false.,vectors)
+            name = ' '
+            write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
+     $           suffix(1:inp_strlen(suffix))
+            inquire(file=name,exist=oexist)
+            if (oexist) then
+               call util_file_unlink(name)
+               if (oprint) then
+                  write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+                  call util_flush(6)
+               endif
+            endif
+         endif
+c
+         if (theory .eq. 'selci') then
+c     
+c     Delete the selected ci files ciconf and civecs
+c     
+            call util_file_name('civecs',.false.,.false.,vectors)
             name = ' '
             write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
      $           suffix(1:inp_strlen(suffix))
             call util_file_unlink(name)
-c     
-            if (util_print('task_state',print_default)) then
-               write(6,1) theory(1:inp_strlen(theory)),
-     $              vectors(1:inp_strlen(vectors)),
-     $              name(1:inp_strlen(name))
- 1             format(/' Deleting saved state for ',a/
-     $              ' Original vectors = ',a/
-     $              ' Backup vectors   = ',a//)
+            if (oprint) then
+               write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
                call util_flush(6)
             endif
 c
-            if (theory .eq. 'mcscf') then
-c
-c     Also need to delete the saved CI vector
-c
-               call util_file_name('civec',.false.,.false.,vectors)
-               name = ' '
-               write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
-     $              suffix(1:inp_strlen(suffix))
-               call util_file_unlink(name)
-c     
-               if (util_print('task_state',print_default)) then
-                  write(6,1) theory(1:inp_strlen(theory)),
-     $                 vectors(1:inp_strlen(vectors)),
-     $                 name(1:inp_strlen(name))
-                  call util_flush(6)
-               endif
+            call util_file_name('ciconf',.false.,.false.,vectors)
+            name = ' '
+            write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
+     $           suffix(1:inp_strlen(suffix))
+            call util_file_unlink(name)
+            if (oprint) then
+               write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+               call util_flush(6)
             endif
-c
-            status = rtdb_parallel(.true.)
          endif
-      else if (ga_nodeid() .eq. 0) then
-         write(6,*) ' task_delete_state: ', 
-     $        theory(1:inp_strlen(theory)),
-     $        suffix(1:inp_strlen(suffix))
-         call errquit('task_delete_state: unknown theory',0)
+c     
+         if (oprint) then
+            write(6,*)
+            call util_flush(6)
+         endif
+         status = rtdb_parallel(.true.)
       endif
 c     
       call ga_sync()

@@ -135,7 +135,7 @@ c
          if (.not. fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
      $        dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
      $        dbl_mb(k_grad), dbl_mb(k_q),
-     $        byte_mb(k_t), delta, ivec, eplus)) goto 100
+     $        byte_mb(k_t), delta, eplus)) goto 100
          if (oprint_step) then
             write(6,13) ivec, eplus
  13         format(' step ', i5,' energy ',f20.8)
@@ -144,7 +144,7 @@ c
          if (.not. fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
      $        dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
      $        dbl_mb(k_grad), dbl_mb(k_q),
-     $        byte_mb(k_t),-delta, ivec, eminus)) goto 100
+     $        byte_mb(k_t),-delta, eminus)) goto 100
          if (oprint_step) then
             write(6,13) -ivec, eminus
             call util_flush(6)
@@ -224,7 +224,7 @@ c
 c
       end
       logical function fd_step_energy(rtdb, geom, natoms, coords,
-     $     ncoords, vec, grad, q, tags, delta, ivec, energy)
+     $     ncoords, vec, grad, q, tags, delta, energy)
       implicit none
 #include "geom.fh"
 #include "rtdb.fh"
@@ -234,11 +234,9 @@ c
       double precision coords(*),ncoords(*),vec(*), grad(*), q(*)
       character*16 tags(*)
       double precision delta
-      integer ivec
       double precision energy   ! [output]
 c
       integer i, natoms3
-      character*128 name
       logical task_energy
       external task_energy
 c
@@ -252,11 +250,9 @@ c
 c
       if (.not. geom_cart_set(geom, natoms, tags, ncoords, q))
      $     call errquit('task_num_grad: bad geom',0)
-      name = ' '
-      write(name, '(a,i4)') 'numg geometry ',ivec
-      if (.not. geom_rtdb_store(rtdb, geom, name)) 
+      if (.not. geom_rtdb_store(rtdb, geom, 'num. grad. geometry')) 
      $     call errquit('task_num_grad: store of geom failed',0)
-      if (.not. rtdb_cput(rtdb, 'geometry', 1, name))
+      if (.not. rtdb_cput(rtdb, 'geometry', 1, 'num. grad. geometry'))
      $     call errquit('task_num_grad: rtdb corrupt',0)
 c
       call task_restore_state(rtdb,'numg')
@@ -264,9 +260,9 @@ c
 c
       if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, energy))
      $     call errquit('task_num_grad: no energy in database',0)
-      if (.not. geom_rtdb_delete(rtdb,name))
-     $     call errquit('task_num_grad: rtdb corrupt (geom) ',0)
 c
+      if (.not. geom_rtdb_delete(rtdb, 'num. grad. geometry'))
+     $     call errquit('task_num_grad: rtdb corrupt (geom) ',0)
       if (.not. rtdb_delete(rtdb,'geometry'))
      $     call errquit('task_num_grad: rtdb corrupt',0)
 c

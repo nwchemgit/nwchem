@@ -85,9 +85,9 @@ c
       else if (theory .eq. 'ccsd') then
          status = .false.       ! No numerical derivatives yet
       else if (theory .eq. 'mcscf') then
-         status = .false.       ! No numerical derivatives yet
+         status = task_num_grad(rtdb)
       else if (theory .eq. 'selci') then
-         status = .false.       ! No numerical derivatives yet
+         status = task_num_grad(rtdb)
       else
          call errquit('task_gradient: unknown theory',0)
       endif
