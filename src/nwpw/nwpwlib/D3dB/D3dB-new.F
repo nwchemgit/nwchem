@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.28 2004-04-22 14:20:35 bylaska Exp $
+* $Id: D3dB-new.F,v 1.29 2004-04-24 21:07:10 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -74,7 +74,7 @@ ccccccccccc  #define TCGMSG
 #include "D3dB.fh"
 
 
-      integer k,q,p
+      integer j,k,q,p
 *     integer kn
       integer taskid,np
       logical value
@@ -188,6 +188,15 @@ c           k_map(q_map(k)) = k
       call hilbert2d_map(nz(nb),(nx(nb)/2+1),int_mb(p_map2(1,nb)))
       call hilbert2d_map((nx(nb)/2+1),ny(nb),int_mb(p_map3(1,nb)))
 
+c      !***** DEBUG *****
+c      !*** processor map ***
+c      write(*,*) "hilbert map:"
+c      do j=1,ny(nb)
+c        write(*,'(8I5)') 
+c     >    (int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb)),k=1,nz(nb))
+c      end do
+c      !***** DEBUG *****
+
       call generate_map_indexes(taskid,np,
      >                          ny(nb),nz(nb),
      >                          int_mb(p_map1(1,nb)),
@@ -208,6 +217,25 @@ c           k_map(q_map(k)) = k
       if ((ny(nb)*nq2(nb)).gt.nfft3d(nb)) nfft3d(nb) = ny(nb)*nq2(nb)
       if ((nz(nb)*nq3(nb)).gt.nfft3d(nb)) nfft3d(nb) = nz(nb)*nq3(nb)
       n2ft3d(nb) = 2*nfft3d(nb)
+
+
+c      !***** DEBUG *****
+c      !*** processor map ***
+c      write(*,*) "processor map:"
+c      do j=1,ny(nb)
+c        write(*,'(8I5)') 
+c     >   (int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb)),k=1,nz(nb))
+c      end do
+c      write(*,*) 
+c      write(*,*) 
+c      write(*,*) "q map:"
+c      do j=1,ny(nb)
+c        write(*,'(8I5)') 
+c     >    (int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb)),k=1,nz(nb))
+c      end do
+c
+c      !***** DEBUG *****
+      
       end if
 
  
@@ -420,7 +448,7 @@ c     p = p_map(k)
       else
       q = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
       p = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-
+      
       indx = i + (q-1)*(nx(nb)+2)
       end if
 
@@ -541,6 +569,22 @@ c     p = p_map(k)
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *         D3dB_zplane_size        *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_zplane_size(nb,zplane_sizetmp)
+      implicit none
+      integer nb
+      integer zplane_sizetmp
+
+#include "D3dB.fh"
+
+      zplane_sizetmp = zplane_size(nb)
+      return
+      end
 
 *     ***********************************
 *     *					*
@@ -571,7 +615,7 @@ c     p = p_map(k)
       call D3dB_channel_init(nb)
       call D3dB_c_timereverse_init(nb)
       call D3dB_fft_init(nb)
-
+      
       return
       end
 
@@ -1968,6 +2012,7 @@ c      end
       !**** hilbert mapping ****
       !*************************
       else
+      
 *     **** master node reads from file and distributes ****
       if (taskid.eq.MASTER) then
          do k=1,nz(nb)
@@ -2011,6 +2056,7 @@ c      end
          end do
          end do
       end if
+      
 
 *     **** allocate temporary space  ****
       value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
@@ -2260,7 +2306,7 @@ c      end
          do k=1,nz(nb)
          do j=1,ny(nb)
 
-            call dread(iunit,tmp,(nx(nb)+2))
+            call dread(iunit,tmp,(nx(nb)/2+1))
 
             q    = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             p_to = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
@@ -4577,10 +4623,10 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
         do k=1,nz(nb)
         do j=1,ny(nb)
 
-         call D3dB_ijktoindex2p(nx(nb)+1,j,k,index,p)
+         call D3dB_ijktoindex2p(nb,(nx(nb)+1),j,k,index,p)
          if (p.eq.taskid) A(index) = 0.0d0
 
-         call D3dB_ijktoindex2p(nx(nb)+2,j,k,index,p)
+         call D3dB_ijktoindex2p(nb,(nx(nb)+2),j,k,index,p)
          if (p.eq.taskid) A(index) = 0.0d0
 
         end do
@@ -5183,6 +5229,107 @@ c      end
       return
       end
 
+*     ***********************************
+*     *					*
+*     *	   D3dB_timereverse_size	*
+*     *					*
+*     ***********************************
+
+      integer function D3dB_timereverse_size(nb)
+      implicit none
+      integer nb
+
+#include "D3dB.fh"
+
+*     **** local variables ****
+      integer proc_to,proc_from
+      integer pto,qto,np,taskid
+      integer pfrom,qfrom
+      integer phere,qhere,itmp,itmp2
+      integer index1,index2
+      integer it,size
+      integer i2,j2,k2
+      integer i3,j3,k3
+      integer nyh,nzh
+
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+
+      nyh = ny(nb)/2
+      nzh = nz(nb)/2
+
+      index1 = 1
+      index2 = 1
+      do it=0,np-1
+         proc_to   = mod(taskid+it,np)
+         proc_from = mod(taskid-it+np,np)
+
+*        *********************
+*        **** K=(0,0,k3)  ****
+*        *********************
+         do k3=1,(nzh-1)
+            i3 =  k3
+            j3 = -k3
+            if (i3.lt.0) i3 = i3 + nz(nb)
+            if (j3.lt.0) j3 = j3 + nz(nb)
+            i2 = 1
+            i3 = i3 + 1
+            j2 = 1
+            j3 = j3 + 1
+
+*           **** packing scheme ****
+            call D3dB_ijktoindexp(nb,1,1,i3,itmp,phere)
+            call D3dB_ijktoindexp(nb,1,1,j3,itmp2,pto)
+            if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
+               index1 = index1 + 1
+            end if
+
+*           **** unpacking scheme ****
+            if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
+               index2 = index2 + 1
+            end if
+
+         end do
+
+*        *********************
+*        **** k=(0,k2,k3) ****
+*        *********************
+         do k3=(-nzh+1),(nzh-1)
+         do k2=1,(nyh-1)
+            i2 =  k2
+            i3 =  k3
+            j2 = -k2
+            j3 = -k3
+            if (i2.lt.0) i2 = i2 + ny(nb)
+            if (i3.lt.0) i3 = i3 + nz(nb)
+            if (j2.lt.0) j2 = j2 + ny(nb)
+            if (j3.lt.0) j3 = j3 + nz(nb)
+            i2 = i2 + 1
+            i3 = i3 + 1
+            j2 = j2 + 1
+            j3 = j3 + 1
+
+*           **** packing scheme ****
+            call D3dB_ijktoindexp(nb,1,i2,i3,itmp,phere)
+            call D3dB_ijktoindexp(nb,1,j2,j3,itmp2,pto)
+            if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
+               index1 = index1 + 1
+            end if
+
+*           **** unpacking scheme ****
+            if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
+               index2 = index2 + 1
+            end if
+         end do
+         end do
+
+      end do
+      size = index1
+      if (size.lt.index2) size = index2
+
+      D3dB_timereverse_size = size
+      return
+      end
 
 *     ***********************************
 *     *					*
@@ -5218,17 +5365,27 @@ c     integer i2_start(NFFT3+1)
       integer it
       integer i2,j2,k2
       integer i3,j3,k3
-      integer nyh,nzh
+      integer nyh,nzh,indx_size
       logical value
+
+      !**** external functions ****
+      integer  D3dB_timereverse_size
+      external D3dB_timereverse_size
 
       call Parallel_taskid(taskid)
       call Parallel_np(np)
 
+      nyh = ny(nb)/2
+      nzh = nz(nb)/2
+
+*     **** set zplane_size ****
+      zplane_size(nb) = D3dB_timereverse_size(nb)
+      
 *     **** allocate timereverse_blk common block ****
-      value = MA_alloc_get(mt_int,(2*ny(nb)*nq(nb)),
+      value = MA_alloc_get(mt_int,zplane_size(nb),
      >                     'iq_to_i1',iq_to_i1(2,nb),iq_to_i1(1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(2*ny(nb)*nq(nb)),
+     >        MA_alloc_get(mt_int,zplane_size(nb),
      >                     'iq_to_i2',iq_to_i2(2,nb),iq_to_i2(1,nb))
 
       value = value.and.
@@ -5241,8 +5398,6 @@ c     integer i2_start(NFFT3+1)
 
 
   
-      nyh = ny(nb)/2
-      nzh = nz(nb)/2
 
       index1 = 1 
       index2 = 1

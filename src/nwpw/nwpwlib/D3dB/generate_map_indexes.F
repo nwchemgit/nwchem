@@ -1,6 +1,6 @@
 
 *
-* $Id: generate_map_indexes.F,v 1.2 2004-04-20 22:02:35 edo Exp $
+* $Id: generate_map_indexes.F,v 1.3 2004-04-24 21:07:11 bylaska Exp $
 *
 
 *     ***********************************
@@ -61,7 +61,7 @@
 
       do k=1,nz
       do j=1,ny
-        i = p_map(j+(k-1)*ny)
+        i = p_map(j+(k-1)*ny)+1
         p = int_mb(indx_proc(1)+i-1)
         q = int_mb(indx_q(1)+i-1)
         p_map(j+(k-1)*ny) = p

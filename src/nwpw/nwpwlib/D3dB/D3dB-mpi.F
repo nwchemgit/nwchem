@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.4 2004-04-21 22:10:31 bylaska Exp $
+* $Id: D3dB-mpi.F,v 1.5 2004-04-24 21:07:10 bylaska Exp $
 *
 
 #ifdef MPI
@@ -191,6 +191,7 @@ c     integer i2_start(NFFT3+1)
       call Parallel_taskid(taskid)
       call Parallel_np(np)
 
+
 *     **** pack A(i) array ****
 !DIR$ ivdep
       do index1=int_mb(i1_start(1,nb)+1-1),
@@ -260,6 +261,7 @@ c     integer i2_start(NFFT3+1)
      >         (int_mb(i2_start(1,nb)+np+1-1)-1)
         A(int_mb(iq_to_i2(1,nb)+index2-1))=dconjg(tmp2(index2))
       end do
+
 
       return
       end
@@ -467,6 +469,7 @@ c     integer msgid
       call Parallel_taskid(taskid)
       call Parallel_np(np)
 
+      
 
 *     **** pack A(i) array ****
       if ((op.eq.1).or.(op.eq.5)) nnfft3d = (nx(nb)/2+1)*nq1(nb)

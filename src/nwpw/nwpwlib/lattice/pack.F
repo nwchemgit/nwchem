@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.17 2004-03-15 15:17:41 bylaska Exp $
+* $Id: pack.F,v 1.18 2004-04-24 21:08:46 bylaska Exp $
 *
 
 *     ***********************************
@@ -35,7 +35,7 @@
       integer k1,k2,k3
       integer q,p,indx
       integer nb
-      integer nx,ny,nz,nq
+      integer nx,ny,nz
       integer nxh,nyh,nzh      
       integer nwave_in(0:1),nwave_out(0:1)
 
@@ -57,7 +57,6 @@
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
-      call D3dB_nq(1,nq)
       nxh = nx/2
       nyh = ny/2
       nzh = nz/2
@@ -369,7 +368,7 @@
 
 *     **** local variables ****
       logical value
-      integer i,nfft3d,ny,nq
+      integer i,nfft3d,zplane_size
       integer tmp1(2)
       integer tmp2(2)
 c      integer indx1,indx2
@@ -394,11 +393,12 @@ c      integer indx1,indx2
 
 
 *     **** make the kx=0 plane complete **** 
-      call D3dB_ny(1,ny)
-      call D3dB_nq(1,nq)
-      value = MA_push_get(mt_dcpl,(ny*nq),'tmp1',tmp1(2),tmp1(1))
+      !call D3dB_ny(1,ny)
+      !call D3dB_nq(1,nq)
+      call D3dB_zplane_size(1,zplane_size)
+      value = MA_push_get(mt_dcpl,(zplane_size),'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(ny*nq),'tmp2',tmp2(2),tmp2(1))
+     >        MA_push_get(mt_dcpl,(zplane_size),'tmp2',tmp2(2),tmp2(1))
 
       call D3dB_c_timereverse(1,A,dcpl_mb(tmp1(1)),dcpl_mb(tmp2(1)))
 
