@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.8 1994-12-02 22:54:06 og845 Exp $
+# $Id: GNUmakefile,v 1.9 1994-12-29 06:36:07 og845 Exp $
 ifeq ($(NWCHEM_TARGET),SGITFP)
 	OBJ = getvxc.o quadvxc0.o quadvxc1.o fitvxc.o gaget2oi.o
 	OBJ_OPTIMIZE = \
@@ -11,7 +11,7 @@ ifeq ($(NWCHEM_TARGET),SGITFP)
 	qpts.o		gausquad.o			   \
 	a_dist.o	qdist.o		getvxc.o 
 else
-      OBJ = getvxc.o
+      OBJ = getvxc.o 
       OBJ_OPTIMIZE = \
 	a_dist.o			   becke.o	\
 	becke88.o			   \
