@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c 
-c$Id: grid_rtrunc.F,v 1.36 2000-06-09 01:53:42 edo Exp $
+c$Id: grid_rtrunc.F,v 1.37 2001-05-16 01:50:46 edo Exp $
 c
       implicit none
 c      
@@ -368,7 +368,7 @@ c
          if (.not.bas_ce2cnr(ao_bas_han,iat,ic1,ic2))
      &        call errquit('Exiting in radtur.',11)
          if(ic2.lt.0) call errquit(
-     .        'gridrtunc: no basis on ghost atom?',ic2)
+     .        'gridrtunc: no basis on ghost atom?',iat)
          range_max=0d0
          do icset = ic1,ic2
             min_exp=1d20

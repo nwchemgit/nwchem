@@ -12,7 +12,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf)
 c
-c$Id: grid_quadvw.F,v 1.25 2001-05-05 05:20:15 edo Exp $
+c$Id: grid_quadvw.F,v 1.26 2001-05-16 01:50:46 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -110,7 +110,9 @@ c
       call grid_buckinit(rtdb)
       nqtotc=0
       ncubenz=0
-      dosympts=leb.and.oskel
+      if (.not. rtdb_get(rtdb, 'dft:gridsym',
+     $     MT_LOG, 1, dosympts)) dosympts=oskel
+      dosympts=dosympts.and.leb
 c
 c     parallel loop init
 c

@@ -33,7 +33,7 @@ c
       integer num_dirs, ind, mlen
       integer atn
       character*2 symbol
-      parameter (num_dirs = 22)
+      parameter (num_dirs = 24)
       character*10 dirs(num_dirs)
       character*16 test,element
       logical lbecke
@@ -44,7 +44,7 @@ C     .            'euler','mura','treutler','lindh',
      .            'euler','mura','treutler','xxxx',
      .            'ssf','erf1','erf2',
      &            'store_wght', 'nquad_task', 'rm',
-     .     'old','new'/
+     .     'old','new','nosymm','symm'/
 c     
       ngridin=0
 c
@@ -63,7 +63,7 @@ c
 c     
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 
      .     2001,2100,2200,2300,1700, 1800,1900,1100, 
-     &      1200, 1300, 1400,1500, 1999) ind
+     &      1200, 1300, 1400,1500, 1600, 1650,1999) ind
       call errquit('grid_inp: unimplemented directive', ind)
 c     
 c     delley; use delley spatial weights
@@ -301,6 +301,22 @@ c     new grid schem
 c
       if(.not.rtdb_put(rtdb,'dft:grid_on_file',mt_log,1,.true.))
      &   call errquit('grid_inp: rtdb_put failed', 1400)
+c
+      goto 10
+ 1600 continue
+c
+c     symm off (lebedev)
+c
+      if(.not.rtdb_put(rtdb,'dft:gridsym',mt_log,1,.false.))
+     &   call errquit('grid_inp: rtdb_put failed', 1600)
+c
+      goto 10
+ 1650 continue
+c
+c     symm on (lebedev)
+c
+      if(.not.rtdb_put(rtdb,'dft:gridsym',mt_log,1,.true.))
+     &   call errquit('grid_inp: rtdb_put failed', 1700)
 c
       goto 10
  1999 continue
