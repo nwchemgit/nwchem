@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.19 1997-12-10 23:56:16 d3e129 Exp $
+c $Id: int_spcart.F,v 1.20 1998-03-23 21:57:09 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997           *
 *         Pacific Northwest National Laboratory, *
@@ -1929,6 +1929,167 @@ c
           enddo
         enddo
       enddo
+      end
+*.......................................................................
+      subroutine spcart_3ctran(buf,scr,
+     &    nbfxi,nbfsi,typei,ngeni,trani,
+     &    nbfxj,nbfsj,typej,ngenj,tranj,
+     &    nbfxk,nbfsk,typek,ngenk,trank,
+     &    printit)
+      implicit none
+#include "stdio.fh"
+*
+* routine to transform a 1e or 2e 3 center block of integrals
+* block(klo:khi,jlo:jhi,:ilo:ihi) 
+* 
+      double precision buf(*), scr(*)
+      integer nbfxi,nbfsi,typei,ngeni
+      integer nbfxj,nbfsj,typej,ngenj
+      integer nbfxk,nbfsk,typek,ngenk
+      logical trani,tranj,trank
+      logical printit
+*::local
+      integer dimkj, dimji, dimijk
+      integer dimk, dimi
+      logical problem_sp
+      logical FF, FT
+      FF = .false.
+      FT = .true.
+      problem_sp =
+     &    (typei.eq.-1).and.(ngeni.gt.1)
+      problem_sp = problem_sp.and.
+     &    (typej.eq.-1).and.(ngenj.gt.1)
+      problem_sp = problem_sp.and.
+     &    (typek.eq.-1).and.(ngenk.gt.1)
+      if (problem_sp) then
+        write(luout,*)' spcart_3ctran: sp function error '
+        write(luout,*)' sp function block passed with more ',
+     &      'than one genereal contraction: ',
+     &      'this is not allowed in NWChem'
+        write(luout,*)' type i ',typei
+        write(luout,*)' ngen i ',ngeni
+        write(luout,*)' type j ',typej
+        write(luout,*)' ngen j ',ngenj
+        write(luout,*)' type k ',typek
+        write(luout,*)' ngen k ',ngenk
+        call errquit('spcart_3ctran: fatal error',911)
+      endif
+* do not transform i block
+      if (.not.trani) then
+        if (nbfxi.ne.nbfsi) then
+          write(luout,*)' i block is not transformed but arguments ',
+     &        'say it should be?'
+          write(luout,*)' nbfxi: ',nbfxi
+          write(luout,*)' nbfsi: ',nbfsi
+          call errquit('spcart_3ctran: fatal error',911)
+        endif
+      endif
+* do not transform j block
+      if (.not.tranj) then
+        if (nbfxj.ne.nbfsj) then
+          write(luout,*)' j block is not transformed but arguments ',
+     &        'say it should be?'
+          write(luout,*)' nbfxj: ',nbfxj
+          write(luout,*)' nbfsj: ',nbfsj
+          call errquit('spcart_3ctran: fatal error',911)
+        endif
+      endif
+* do not transform k block
+      if (.not.trank) then
+        if (nbfxk.ne.nbfsk) then
+          write(luout,*)' k block is not transformed but arguments ',
+     &        'say it should be?'
+          write(luout,*)' nbfxk: ',nbfxk
+          write(luout,*)' nbfsk: ',nbfsk
+          call errquit('spcart_3ctran: fatal error',911)
+        endif
+      endif
+*
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      if (trani.and.tranj.and.trank) then
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+* buf(cartk,cartj,carti) --> scr(cartk,cartj,sphri)
+        dimkj = nbfxk*ngenk*nbfxj*ngenj
+        call spcart_a_s(buf,scr,dimkj,typei,ngeni,FF,printit)
+* scr(cartk,cartj,sphri) --> buf(sphrk,cartj,sphri)
+        dimji = nbfxj*ngenj*nbfsi*ngeni
+        call spcart_s_a(scr,buf,dimji,typek,ngenk,FF,printit)
+* buf(sphrk,cartj,sphri) --> scr(sphrk,sphrj,sphri)
+        dimk = nbfsk*ngenk
+        dimi = nbfsi*ngeni
+        call spcart_a_s_b(buf,scr,dimk,dimi,typej,ngenj,FF,printit)
+* scr(sphrk,sphrj,sphri) --> buf(sphrk,sphrj,sphri)
+        dimijk = nbfsk*ngenk * nbfsj*ngenj * nbfsi*ngeni
+        call dcopy(dimijk,scr,1,buf,1)
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      elseif (trani.and.trank) then
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+* buf(cartk,cartj,carti) --> scr(cartk,cartj,sphri)
+        dimkj = nbfxk*ngenk*nbfxj*ngenj
+        call spcart_a_s(buf,scr,dimkj,typei,ngeni,FF,printit)
+* scr(cartk,cartj,sphri) --> buf(sphrk,cartj,sphri)
+        dimji = nbfxj*ngenj*nbfsi*ngeni
+        call spcart_s_a(scr,buf,dimji,typek,ngenk,FF,printit)
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      elseif (trani.and.tranj) then
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+* buf(cartk,cartj,carti) --> scr(cartk,cartj,sphri)
+        dimkj = nbfxk*ngenk*nbfxj*ngenj
+        call spcart_a_s(buf,scr,dimkj,typei,ngeni,FF,printit)
+* scr(cartk,cartj,sphri) --> buf(cartk,sphrj,sphri)
+        dimk = nbfxk*ngenk
+        dimi = nbfsi*ngeni
+        call spcart_a_s_b(scr,buf,dimk,dimi,typej,ngenj,FF,printit)
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      elseif (tranj.and.trank) then
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+* buf(cartk,cartj,carti) --> scr(sphrk,cartj,carti)
+        dimji = nbfxi*ngeni*nbfxj*ngenj
+        call spcart_s_a(buf,scr,dimji,typek,ngenk,FF,printit)
+* scr(sphrk,cartj,carti) --> buf(sphrk,sphrj,carti)
+        dimk = nbfsk*ngenk
+        dimi = nbfxi*ngeni
+        call spcart_a_s_b(buf,scr,dimk,dimi,typej,ngenj,FF,printit)
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      elseif (trani) then
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+* buf(cartk,cartj,carti) --> scr(cartk,cartj,sphri)
+        dimkj = nbfxk*ngenk*nbfxj*ngenj
+        call spcart_a_s(buf,scr,dimkj,typei,ngeni,FF,printit)
+* scr(cartk,cartj,sphri) --> buf(cartk,cartj,sphri)
+        dimijk = nbfxk*ngenk * nbfxj*ngenj * nbfsi*ngeni
+        call dcopy(dimijk,scr,1,buf,1)
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      elseif (tranj) then
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+* buf(cartk,cartj,carti) --> scr(cartk,sphrj,carti)
+        dimk = nbfxk*ngenk
+        dimi = nbfxi*ngeni
+        call spcart_a_s_b(buf,scr,dimk,dimi,typej,ngenj,FF,printit)
+* scr(cartk,sphrj,carti) --> buf(cartk,sphrj,carti)
+        dimijk = nbfxk*ngenk * nbfsj*ngenj * nbfxi*ngeni
+        call dcopy(dimijk,scr,1,buf,1)
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      elseif (trank) then
+* buf(cartk,cartj,carti) --> scr(sphrk,cartj,carti)
+        dimk = nbfxk*ngenk
+        dimi = nbfxi*ngeni
+        call spcart_a_s_b(buf,scr,dimk,dimi,typej,ngenj,FF,printit)
+* scr(sphrk,cartj,carti) --> buf(sphrk,cartj,carti)
+        dimijk = nbfsk*ngenk * nbfxj*ngenj * nbfxi*ngeni
+        call dcopy(dimijk,scr,1,buf,1)
+      else
+        write(luout,*)' no basis sets need to be transformed '
+        call errquit('spcart_3ctran: fatal error ',911)
+      endif
+*
       end
 *.......................................................................
       subroutine spcart_tran1e(
