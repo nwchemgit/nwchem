@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.55 2002-02-25 03:46:11 d3j191 Exp $
+c $Id: md_input.F,v 1.56 2002-02-28 23:38:17 d3j191 Exp $
 c
       implicit none
 c
@@ -31,7 +31,7 @@ c
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
       integer itload,ihess,latom,icomm,nfanal,iport,iguide,icentr
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
-      integer ifidi,ncoll,ipopt,ivopt
+      integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -65,6 +65,8 @@ c
       isetp1=0
       isetp2=0
       iforw=1
+      ilambd=0
+      mlambd=0
       msdit=100
       mcgit=0
       ncgcy=10
@@ -322,6 +324,12 @@ c
       goto 2
       endif
 c
+      if(inp_compare(.false.,'lambda',item)) then
+      if(.not.inp_i(ilambd)) call errquit('md_input: error lambda',0)
+      if(.not.inp_i(mlambd)) call errquit('md_input: error lambda',0)
+      goto 2
+      endif
+c
       if(inp_compare(.false.,'numerical',item)) then
       ifidi=1
       goto 2
@@ -519,7 +527,7 @@ c
 c
 c     constant pressure
 c
-c     isobar [<pres_ext>] [trelax <prsrlx>] [compres <compr>]
+c     isobar [<pres_ext>] [trelax <prsrlx>] [compress <compr>]
 c
       if(inp_compare(.false.,'isobar',item)) then
       ipscal=1
@@ -531,8 +539,8 @@ c
      + call errquit('md_input: error p_trelax',12)
       goto 250
       endif
-      if(inp_compare(.false.,'compres',item)) then
-      if(.not.inp_f(compr)) call errquit('md_input: error compres',13)
+      if(inp_compare(.false.,'compress',item)) then
+      if(.not.inp_f(compr)) call errquit('md_input: error compress',13)
       goto 250
       endif
       if(inp_compare(.false.,'anisotropic',item)) then
@@ -1658,6 +1666,10 @@ c     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:numcmd',mt_int,1,numcmd))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ncoll',mt_int,1,ncoll))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:ilambd',mt_int,1,ilambd))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:mlambd',mt_int,1,mlambd))
      + call errquit('md_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'md:fguide',mt_dbl,1,fguide))

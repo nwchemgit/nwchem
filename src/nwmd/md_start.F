@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.116 2002-02-25 03:46:11 d3j191 Exp $
+c $Id: md_start.F,v 1.117 2002-02-28 23:38:18 d3j191 Exp $
 c
       implicit none
 c
@@ -46,6 +46,10 @@ c
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
      + npener,icntrl,nbias,mropt)
+c
+      if(mlambd.gt.0.and.ilambd.gt.0.and.ilambd.le.mlambd)
+     + call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
+     + rlambd,dlambd,filnam)
 c
 c     print topology information
 c     --------------------------
@@ -881,6 +885,10 @@ c     + call errquit('md_rtdbin: rtdb_get failed',92)
       if(.not.rtdb_get(irtdb,'md:iprof',mt_int,1,iprof))
      + call errquit('md_rtdbin: rtdb_get failed',99)
       if(.not.rtdb_get(irtdb,'md:ncoll',mt_int,1,ncoll))
+     + call errquit('md_rtdbin: rtdb_get failed',89)
+      if(.not.rtdb_get(irtdb,'md:ilambd',mt_int,1,ilambd))
+     + call errquit('md_rtdbin: rtdb_get failed',89)
+      if(.not.rtdb_get(irtdb,'md:mlambd',mt_int,1,mlambd))
      + call errquit('md_rtdbin: rtdb_get failed',89)
 c
       if(.not.rtdb_get(irtdb,'md:fguide',mt_dbl,1,fguide))
