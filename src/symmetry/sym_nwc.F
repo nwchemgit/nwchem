@@ -22,7 +22,7 @@ c                 Interfaces to NWCHEM     A.C.H. 10/10/94 + RJH
 c  
 c***********************************************************************
       subroutine sym_nwc(geom,rtdb,nata,oprint,scale,threquiv)
-C$Id: sym_nwc.F,v 1.17 2000-10-27 00:11:56 bert Exp $
+C$Id: sym_nwc.F,v 1.18 2000-11-04 23:50:32 d3g681 Exp $
       implicit real*8 (a-h,o-z)
       parameter(maxops=192)
       Parameter (EPS=1.D-14)
@@ -73,7 +73,8 @@ c
      $     .and. lresult
       if (.not. lresult) call errquit('sym_nwc: dosymops ma failed', 0)
 c
-      call dosymops(sym_ops(1,1,geom),nops,coords(1,1,geom),tags,nata,
+      call dosymops(sym_ops(1,1,geom),nops,coords(1,1,geom),
+     $     tags(1,geom),nata,
      &     itype,Byte_MB(iatags),Dbl_MB(icoord),nareal,nata*(nops+1),
      $     cdist,cang,Int_MB(idatom), 
      $     charge(1,geom), charge_new, geom_mass(1,geom),
