@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.287 1999-06-26 00:10:12 d3g270 Exp $
+# $Id: makefile.h,v 1.288 1999-06-27 05:07:14 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1136,7 +1136,7 @@ ifeq ($(TARGET),LINUX)
     CORE_SUBDIRS_EXTRA = blas lapack
          CC = gcc
      RANLIB = ranlib
-  MAKEFLAGS = -j 1 --no-print-directory
+  MAKEFLAGS = -j 2 --no-print-directory
     INSTALL = @echo $@ is built
 
 ifeq ($(BUILDING_PYTHON),python)
