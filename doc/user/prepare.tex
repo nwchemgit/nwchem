@@ -619,7 +619,8 @@ The \verb+align+ directive orients the system such that
 in the x=y plane.
 
 \begin{verbatim}
-repeat <integer nx> <integer ny> <integer nz> [<real dist>] [<real zdist>]
+repeat [chains | molecules | fractions ] \
+ <integer nx> <integer ny> <integer nz> [<real dist>] [<real zdist>]
 \end{verbatim}
 
 The \verb+repeat+ directive causes a subsequent \verb+write pdb+
@@ -631,3 +632,6 @@ copy is placed in the z direction, with a separation of \verb+zdist+ nm.
 If \verb+dist+ is negative, the box dimensions will be used. 
 For systems with solvent, this directive should be used with a negative 
 \verb+dist+.
+Optional keywords \verb+chains+, \verb+molecules+ and \verb+fractions+
+specify to write each repeating solute unit as a chain, to repeat
+each solute molecule, or each solute fraction separately.
