@@ -46,7 +46,8 @@ c
      $          1,nbf,g_dens(1),1,nbf,1,nbf)
         if (nopen(1) .gt. 0) then
            do iopen = 1, nopen(1)
-             call ga_matmul_patch('n','t',occ(nclosed+iopen,1),1.0d0,
+             call ga_matmul_patch(
+     $             'n','t',occ(nclosed(1)+iopen,1),1.d0,
      $       vectors(1),1,nbf,nclosed(1)+iopen,nclosed(1)+iopen,
      $       vectors(1),nclosed(1)+iopen,nclosed(1)+iopen,1,nbf,
      $       g_dens(1),1,nbf,1,nbf)

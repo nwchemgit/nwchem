@@ -1,6 +1,6 @@
       subroutine hnd_eldmap(rtdb,basis,geom)
 c
-c $Id: hnd_eldmap.F,v 1.1 2004-07-21 17:28:27 bert Exp $
+c $Id: hnd_eldmap.F,v 1.2 2004-07-22 17:26:45 edo Exp $
 c
 c     This routine calculates the electron density and spin
 c     density for a given density at the atomic positions.
@@ -26,7 +26,7 @@ c
       double precision xp, yp, zp
       logical spindens
 c
-      logical ga_create_atom_blocked
+      integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
 c     Initialize integrals

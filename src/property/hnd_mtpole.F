@@ -1,6 +1,6 @@
       subroutine hnd_mtpole(rtdb,basis,geom,mpole)
 c
-c $Id: hnd_mtpole.F,v 1.1 2004-07-22 16:55:00 bert Exp $
+c $Id: hnd_mtpole.F,v 1.2 2004-07-22 17:26:45 edo Exp $
 c
 c     This routine calculates the multipole moments around
 c     choosen center of expansion
@@ -415,8 +415,6 @@ c
 c
       integer i, i_expan
       double precision scale
-      logical geom_get_user_scale
-      external geom_get_user_scale
 c
 c     Read in point of expansion
 c
