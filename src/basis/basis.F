@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.112 2002-01-24 21:57:17 bert Exp $
+c $Id: basis.F,v 1.113 2002-01-24 22:16:57 bert Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1325,8 +1325,8 @@ c
          tmp(lentmp:) = ' ' 
          tmp(lentmp:) = ':exps and coeffs'
          rtdb_status = rtdb_status .and.
-        &       rtdb_get(
-        &       rtdb, tmp, mt_dbl, nexcf, dbl_mb(mb_exndcf(1,basis)))
+     &       rtdb_get(
+     &       rtdb, tmp, mt_dbl, nexcf, dbl_mb(mb_exndcf(1,basis)))
       endif
 c
       tmp(lentmp:) = ' ' 
