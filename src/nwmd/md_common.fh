@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.7 1999-04-30 19:59:09 d3j191 Exp $
+c $Id: md_common.fh,v 1.8 1999-05-04 19:36:10 d3j191 Exp $
 c
 c     parameters
 c
@@ -162,17 +162,17 @@ c
      + irun,iequi,idacq,
      + inp_ptr
 c
-      logical llong,ltwin,lpbc,lpair
-      common/md_log/llong,ltwin,lpbc,lpair
+      logical lfirst,llong,ltwin,lpbc,lpair
+      common/md_log/lfirst,llong,ltwin,lpbc,lpair
 c
       integer mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,msf,nsf
       common/md_dim/mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,
      + msf,nsf
 c
       real*8 temps,tempw,temp,pres,epme,eww(mpe,2),zw(3,2),fmax,fnorm,
-     + vlat(3,3),vlati(3,3),box(3)
+     + vlat(3,3),vlati(3,3),box(3),rlambd,dlambd
       common/md_pro/temps,tempw,temp,pres,epme,eww,zw,fmax,fnorm,
-     + vlat,vlati,box
+     + vlat,vlati,box,rlambd,dlambd
 c
       integer i_esk,l_esk,i_ess,l_ess,i_esw,l_esw,i_rtos,l_rtos,
      + i_iw,l_iw,i_is,l_is,i_xw,l_xw,i_xs,l_xs,i_fw,l_fw,i_fs,l_fs,

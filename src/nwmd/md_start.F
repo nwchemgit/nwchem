@@ -49,9 +49,9 @@ c
 c     start the property API
 c
       call prp_start(nserie,ntype,lfnrst,filrst,lfnout,lfnprp,
-     + nfoutp,nfstat,nfprop,
+     + lfngib,nfoutp,nfstat,nfprop,
      + .true.,.true.,ltwin,ipolt.ne.0,
-     + iewald.ne.0,nwm,msf,nsf,mpe,mdacq)
+     + iewald.ne.0,nwm,msf,nsf,mpe,mdacq,mrun)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -1023,7 +1023,7 @@ c
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       nbytes=8*nbytes
 #endif
-      call ga_brdcst(mrg_d23,ptol,nbytes,0)
+      call ga_brdcst(mrg_d36,ptol,nbytes,0)
       endif
 c
       ltwin=rlong.gt.rshort
@@ -1037,6 +1037,10 @@ c
       endif
       if(nfprop.gt.0) then
       open(unit=lfnprp,file=filprp(1:index(filprp,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+      if(ntype.eq.3) then
+      open(unit=lfngib,file=filgib(1:index(filgib,' ')-1),
      + form='formatted',status='unknown')
       endif
       endif

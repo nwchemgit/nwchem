@@ -1,6 +1,7 @@
-      subroutine prp_start(nserie,ntyp,lfn,fil,iout,iprp,nf1,nf2,nf3,
+      subroutine prp_start(nserie,ntyp,lfn,fil,iout,iprp,igib,
+     + nf1,nf2,nf3,
      + lcf,lsp,ltwn,lpol,lpme,
-     + nwm,msfi,nsfi,mpei,mdacq)
+     + nwm,msfi,nsfi,mpei,mdacq,mrn)
 c
       implicit none
 c
@@ -8,8 +9,9 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
-      integer nserie,ntyp,lfn,iout,iprp,nwm,msfi,nsfi,mpei,nf1,nf2,nf3
-      integer mdacq
+      integer nserie,ntyp,lfn,iout,iprp,igib
+      integer nwm,msfi,nsfi,mpei,nf1,nf2,nf3
+      integer mdacq,mrn
       logical lcf,lsp,ltwn,lpol,lpme
       character*255 fil
 c
@@ -22,6 +24,7 @@ c
 c
       lfnout=iout
       lfnprp=iprp
+      lfngib=igib
       lcafe=lcf
       lspac=lsp
       ltwin=ltwn
@@ -31,6 +34,7 @@ c
       nfoutp=nf1
       nfstat=nf2
       nfprop=nf3
+      mrun=mrn
 c
       do 1 i=1,250
       lp(i)=.false.
@@ -104,6 +108,7 @@ c
       pronam( 38)='Free energy perturbation 1                  kJ/mol'
       pronam( 39)='Free energy perturbation 2                  kJ/mol'
       pronam( 40)='Derivative free energy wrt lambda           kJ/mol'
+      lp(40)=ntype.eq.3
       pronam( 41)='H*dH/dL                                (kJ/mol)**2'
       pronam( 42)='Boltzmann probability factor                      '
       pronam( 43)='System dipole moment                       e30 C m'
@@ -167,8 +172,10 @@ c
       pronam( 94)='Kinetic energy element (2,3)                kJ/mol'
       pronam( 95)='Kinetic energy element (3,3)                kJ/mol'
       pronam( 96)='Energy distance restraints                  kJ/mol'
+      pronam( 97)='Synchronization time                             s'
+      lp(97)=ntype.ge.1
 c
-      isprop=96
+      isprop=97
       if(nsf.gt.0) then
       do 3 i=1,nsf
       it=isprop+(i-1)*27
@@ -253,23 +260,7 @@ c
       endif
     2 continue
 c
-      nsum=0
-      nsumt=0
-      do 7 i=1,250
-      psum(i)=zero
-      p2sum(i)=zero
-      pslop(i)=zero
-      psumt(i)=zero
-      p2sumt(i)=zero
-      pslopt(i)=zero
-    7 continue
-      tsum=zero
-      t2sum=zero
-      tsumt=zero
-      t2sumt=zero
-c
-      lhdr=.false.
-      lfhdr=.false.
+      call prp_init()
 c
       mda=mdacq
       if(ntype.eq.3.and.me.eq.0) then
@@ -278,6 +269,40 @@ c
       endif
 c
       if(nserie.gt.0) call prp_rdrest(lfn,fil)
+c
+      return
+      end
+      subroutine prp_init()
+c
+      implicit none
+c
+#include "prp_common.fh"
+c
+      integer i
+c
+      nsum=0
+      nsumt=0
+      do 1 i=1,250
+      psum(i)=zero
+      p2sum(i)=zero
+      pslop(i)=zero
+      psumt(i)=zero
+      p2sumt(i)=zero
+      pslopt(i)=zero
+    1 continue
+      tsum=zero
+      t2sum=zero
+      tsumt=zero
+      t2sumt=zero
+c
+      nderiv=0
+      dfree=zero
+      do 2 i=1,24
+      deriv(i)=zero
+    2 continue
+c
+      lhdr=.false.
+      lfhdr=.false.
 c
       return
       end

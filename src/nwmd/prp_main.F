@@ -25,6 +25,9 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
+      external timer_wall
+      real*8 timer_wall
+c
       integer mdstep
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme,epot
       real*8 eq,el,ep,ek,et,ewp
@@ -132,6 +135,7 @@ c
       p(25)=el
       p(26)=ep
       p(32)=p(32)+ep
+      if(me.eq.0) p(40)=dfree
       p(54)=eww(6,1)+eww(8,1)
       p(55)=eww(5,1)
       p(56)=eww(1,1)
@@ -140,8 +144,8 @@ c
       p(59)=eww(4,1)
       p(66)=ewp
       p(67)=p(67)+ewp
+      p(97)=timer_wall(2)
 c
-      isprop=96
       maxp=isprop
       if(nsf.gt.0) then
       do 33 i=1,nsf
@@ -288,7 +292,7 @@ c
 c
       return
       end
-      logical function prp_mcti(ida)
+      logical function prp_mcti_step(ida)
 c
       implicit none
 c
@@ -302,6 +306,8 @@ c
       real*8 fdata(26)
       real*8 aver,drift,stderr,corerr,ratio
 c
+      integer i
+c
       call cf_mcti(fdata)
 c
       call ga_dgop(mrg_d44,fdata,26,'+')
@@ -309,7 +315,7 @@ c
       if(me.eq.0) call prp_mcti_acc(ida,dbl_mb(i_dfr),fdata,
      + aver,drift,stderr,corerr,ratio)
 c
-      prp_mcti=.false.
+      prp_mcti_step=.false.
 c
       return
       end
@@ -330,11 +336,191 @@ c
       dfree=zero
       do 1 i=1,24
       dfree=dfree+fdata(i)
+      deriv(i)=deriv(i)+fdata(i)
     1 continue
+      nderiv=nderiv+1
 c
       dfr(ida)=dfree
+      nda=ida
 c
       call error(0,dfr,ida,aver,drift,stderr,corerr,ratio)
+c
+      return
+      end
+      subroutine prp_mcti_run(rlambd,dlambd)
+c
+      implicit none
+c
+#include "prp_common.fh"
+#include "mafdecls.fh"
+c
+      real*8 rlambd,dlambd
+c
+      call prp_mcti_r(rlambd,dlambd,dbl_mb(i_dfr))
+c
+      return
+      end
+      subroutine prp_mcti_r(rlambd,dlambd,dfr)
+c
+      implicit none
+c
+#include "prp_common.fh"
+c
+      real*8 rlambd,dlambd,dfr(mda)
+      integer i
+c
+      if(me.eq.0) then
+      write(lfngib,1000) nderiv,nda,rlambd,dlambd
+ 1000 format(2i7,2f12.6)
+      write(lfngib,1001) deriv
+ 1001 format(4e20.12)
+      write(lfngib,1002) (dfr(i),i=1,nda)
+ 1002 format(4e20.12)
+      endif
+c
+      return
+      end
+      subroutine prp_mcti()
+c
+      implicit none
+c
+#include "prp_common.fh"
+#include "mafdecls.fh"
+c
+      call prp_mcti_s(dbl_mb(i_dfr))
+c
+      return
+      end
+      subroutine prp_mcti_s(dfr)
+c
+      implicit none
+c
+#include "prp_common.fh"
+#include "mafdecls.fh"
+c
+      real*8 dfr(mda)
+c
+      character*10 pdate,ptime
+      integer i,j
+      real*8 rlambd,dlambd,ddrft,dsterr,dcerr,ratio
+      real*8 freeti,errti,drftti
+c
+      if(me.eq.0) then
+      call swatch(pdate,ptime)
+      write(lfnout,1000) pdate,ptime
+ 1000 format(/' MULTICONFIGURATION THERMODYNAMIC INTEGRATION',
+     + t110,2a10,//,
+     + ' Run Lambda   Size',
+     + '  Derivative  Derivative  Derivative',
+     + ' Free Energy Free Energy Free Energy  Sampling',/,18x,
+     + '     Average       Error       Drift',
+     + ' Accumulated       Error       Drift     Ratio',/,18x,
+     + '      kJ/mol      kJ/mol      kJ/mol',
+     + '      kJ/mol      kJ/mol      kJ/mol',/)
+c
+      rewind(lfngib)
+c
+      freeti=zero
+      errti=zero
+      drftti=zero
+      do 1 i=1,mrun
+      read(lfngib,2000) nderiv,nda,rlambd,dlambd
+ 2000 format(2i7,2f12.6)
+      read(lfngib,2001) deriv
+ 2001 format(4e20.12)
+      read(lfngib,2002) (dfr(j),j=1,nda)
+ 2002 format(4e20.12)
+c
+      call error(2,dfr,nda,dfree,ddrft,dsterr,dcerr,ratio)
+c
+      freeti=freeti+dfree*dlambd
+      errti=errti+(dcerr*dlambd)**2
+      drftti=drftti+ddrft*dlambd
+c
+      write(lfnout,1001) i,rlambd,nderiv,dfree,dcerr,ddrft,
+     + freeti,sqrt(errti),drftti,ratio
+ 1001 format(i4,f7.3,i7,2(f12.3,2f12.6),f10.5)
+c
+    1 continue
+c
+      close(unit=lfngib)
+c
+      endif
+c
+      return
+      end
+      subroutine prp_wrtmro(lfnmro)
+c
+      implicit none
+c
+#include "prp_common.fh"
+#include "mafdecls.fh"
+c
+      integer lfnmro
+c
+      call prp_wtmro(lfnmro,dbl_mb(i_dfr))
+c
+      return
+      end
+      subroutine prp_rdmri(lfnmri)
+c
+      implicit none
+c
+#include "prp_common.fh"
+#include "mafdecls.fh"
+c
+      integer lfnmri
+c
+      call prp_rmri(lfnmri,dbl_mb(i_dfr))
+c
+      return
+      end
+      subroutine prp_wtmro(lfnmro,dfr)
+c
+      implicit none
+c
+#include "prp_common.fh"
+c
+      integer lfnmro
+      real*8 dfr(mda)
+c
+      integer i
+c
+      write(lfnmro) nderiv,nda,nprop,nsum,nsumt
+      write(lfnmro) deriv
+      write(lfnmro) (dfr(i),i=1,nda)
+      write(lfnmro) tsum,t2sum,tsumt,t2sumt
+      write(lfnmro) (psum(i),i=1,nprop)
+      write(lfnmro) (p2sum(i),i=1,nprop)
+      write(lfnmro) (pslop(i),i=1,nprop)
+      write(lfnmro) (psumt(i),i=1,nprop)
+      write(lfnmro) (p2sumt(i),i=1,nprop)
+      write(lfnmro) (pslopt(i),i=1,nprop)
+c
+      return
+      end
+      subroutine prp_rmri(lfnmri,dfr)
+c
+      implicit none
+c
+#include "prp_common.fh"
+c
+      integer lfnmri
+      real*8 dfr(mda)
+c
+      integer i,nprp
+c
+      read(lfnmri) nderiv,nda,nprp,nsum,nsumt
+      if(nprop.ne.nprp) call errquit('Number of properties changed',0)
+      read(lfnmri) deriv
+      read(lfnmri) (dfr(i),i=1,nda)
+      read(lfnmri) tsum,t2sum,tsumt,t2sumt
+      read(lfnmri) (psum(i),i=1,nprop)
+      read(lfnmri) (p2sum(i),i=1,nprop)
+      read(lfnmri) (pslop(i),i=1,nprop)
+      read(lfnmri) (psumt(i),i=1,nprop)
+      read(lfnmri) (p2sumt(i),i=1,nprop)
+      read(lfnmri) (pslopt(i),i=1,nprop)
 c
       return
       end

@@ -232,6 +232,8 @@ c
 c
       logical lxw,lvw,lxs,lvs
 c
+      lfirst=.true.
+c
 c     equilibration
 c
       do 1 iequi=kequi+1,mequi
@@ -273,19 +275,54 @@ c
 c
 #include "md_common.fh"
 #include "mafdecls.fh"
+#include "global.fh"
+#include "msgids.fh"
 c
-      logical frequency,prp_mcti
-      external frequency,prp_mcti
+      logical frequency,prp_mcti_step
+      external frequency,prp_mcti_step
+c
+      logical done
+      integer npp,irunp,kdata(3)
+c
+      if(me.eq.0) then
+      if(mropt.ge.2) then
+      open(unit=lfnmri,file=filmri(1:index(filmri,' ')-1),
+     + form='unformatted',status='unknown',err=9999)
+      read(lfnmri) npp
+      if(npp.ne.np) call errquit('Number of nodes changed',npp)
+      krun=0
+      endif
+      open(unit=lfnmro,file=filmro(1:index(filmro,' ')-1),
+     + form='unformatted',status='unknown',err=9999)
+      write(lfnmro) np,mrun,mequi,mdacq
+      endif
+      call ga_brdcst(mrg_d30,krun,ma_sizeof(mt_int,1,mt_byte),0)
 c
       do 1 irun=krun+1,mrun
 c
-c     read mri
-c
-cx      call rdmri
+      lfirst=.true.
 c
 c     initialize parameters
 c
-      call cf_lambda(lamtyp,irun,maxlam,elam)
+      call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,rlambd,dlambd)
+c
+c     property initialization
+c
+      call prp_init()
+c
+      if(mropt.ge.2) then
+      if(me.eq.0) then
+      read(lfnmri) irunp,kequi,kdacq
+      if(irunp.ne.irun) call errquit('Number of run changed',irunp)
+      if(kequi.lt.mequi) kdacq=0
+      call prp_rdmri(lfnmri)
+      endif
+      call sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+      call ga_brdcst(mrg_d31,kequi,ma_sizeof(mt_int,1,mt_byte),0)
+      call ga_brdcst(mrg_d32,kdacq,ma_sizeof(mt_int,1,mt_byte),0)
+      endif
 c
 c     equilibration
 c
@@ -293,16 +330,18 @@ c
       call md_newton()
     2 continue
 c
-c     property initialization
-c
-cx    call prp_init
-c
 c     data gathering
 c
+      mdstep=kdacq
+      if(kdacq.eq.0) stime=zero
+c
       do 3 idacq=kdacq+1,mdacq
+c
       call timer_start(1)
 c
       call md_newton()
+c
+      done=prp_mcti_step(idacq)
 c
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme)
@@ -311,13 +350,29 @@ c
 c
       call timer_stop(1)
 c
-      if(prp_mcti(idacq)) goto 4
+      if(done) goto 4
 c
     3 continue
     4 continue
 c
+      if(me.eq.0) then
+      write(lfnmro) irun,mequi,mdacq
+      call prp_wrtmro(lfnmro)
+      call sp_wrtmro(lfnmro,stime,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+      endif
+c
+      call prp_mcti_run(rlambd,dlambd)
+c
     1 continue
 c
+      call prp_mcti()
+c
+      return
+c
+ 9999 continue
+      call errquit('Failed to open file mro',0)
       return
       end
       subroutine md_newton()
@@ -346,8 +401,8 @@ c
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa))
       endif
 c
-      lpair=mdstep.eq.1.or.frequency(mdstep,nfpair)
-      llong=(mdstep.eq.1.or.frequency(mdstep,nflong).or.lpair).and.ltwin
+      lpair=lfirst.or.frequency(mdstep,nfpair)
+      llong=(lfirst.or.frequency(mdstep,nflong).or.lpair).and.ltwin
 c
       if(lpair) then
 c
@@ -427,6 +482,8 @@ c
       call sp_update(me,vlat,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_xwcr),dbl_mb(i_vw),nwmloc,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),nsaloc)
+c
+      lfirst=.false.
 c
       return
       end
