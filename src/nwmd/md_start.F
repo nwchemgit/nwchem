@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.162 2004-03-26 23:40:22 d3j191 Exp $
+c $Id: md_start.F,v 1.163 2004-04-20 15:08:35 d3j191 Exp $
 c
       implicit none
 c
@@ -194,7 +194,7 @@ c     initialize packing
 c     ------------------
 c
       if(lpack)
-     + call sp_pack_init(int_mb(i_is),nsaloc,int_mb(i_iw),nwmloc,lfnout)
+     + call sp_pack_init(int_mb(i_is),nsaloc,int_mb(i_iw),nwmloc)
 c
 c     spacial decomposition
 c     ---------------------
@@ -240,7 +240,7 @@ c
 c     print decomposition information
 c     -------------------------------
 c
-      if(.not.lqmd) call sp_print(lfnout)
+      if(.not.lqmd) call sp_print()
 c
       call prp_setup(wbox)
 c

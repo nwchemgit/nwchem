@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.192 2004-03-26 23:40:22 d3j191 Exp $
+c $Id: md_main.F,v 1.193 2004-04-20 15:08:35 d3j191 Exp $
 c
       implicit none
 c
@@ -99,7 +99,7 @@ c     print energies
 c
       call cf_print_energy(lfnout)
 c
-      call sp_printf(lfnout,filtop,lfntop,
+      call sp_printf(filtop,lfntop,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs),npener,dbl_mb(i_esa))
 c
       if(ifidi.ne.0) then
@@ -196,7 +196,7 @@ c
 c      if(me.eq.0.and.frequency(import,nfprop)) call prp_record()
 c
       if(me.eq.0.and.frequency(import,npforc))
-     +  call sp_printf(lfnout,filtop,lfntop,
+     +  call sp_printf(filtop,lfntop,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs),npener,dbl_mb(i_esa))
 c
       if(ifidi.ne.0) then
@@ -269,7 +269,7 @@ c
 c
       call cf_print_energy(lfnout)
 c
-      call sp_printf(lfnout,filtop,lfntop,
+      call sp_printf(filtop,lfntop,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs),npener,dbl_mb(i_esa))
 c
       return
@@ -2771,7 +2771,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.192 2004-03-26 23:40:22 d3j191 Exp $
+c $Id: md_main.F,v 1.193 2004-04-20 15:08:35 d3j191 Exp $
 c
       implicit none
 c

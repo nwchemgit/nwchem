@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.91 2004-03-26 23:40:24 d3j191 Exp $
+c $Id: sp_main.F,v 1.92 2004-04-20 15:08:37 d3j191 Exp $
 c
       implicit none
 c
@@ -77,7 +77,7 @@ c
 c
       return
       end
-      subroutine sp_pack_init(isl,numsa,iwl,numwm,lfnout)
+      subroutine sp_pack_init(isl,numsa,iwl,numwm)
 c
       implicit none
 c
@@ -86,7 +86,7 @@ c
 #include "msgids.fh"
 #include "bitops.fh"
 c
-      integer isl(msa,mis2),numsa,iwl(mwm,miw2),numwm,lfnout
+      integer isl(msa,mis2),numsa,iwl(mwm,miw2),numwm
 c
       integer i,j,k,intsiz
 c

@@ -1,4 +1,4 @@
-      subroutine sp_start(lfnout,lfntop,filtop,lfnrst,filrst,
+      subroutine sp_start(lout,lfntop,filtop,lfnrst,filrst,
      + lsyn,filsyn,nsyn,
      + rsht,rlng,rinp,rsgmi,
      + npxi,npyi,npzi,nbxi,nbyi,nbzi,
@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi,nbgeti,madbxi)
 c
 c
-c $Id: sp_init.F,v 1.132 2004-03-26 23:40:24 d3j191 Exp $
+c $Id: sp_init.F,v 1.133 2004-04-20 15:08:37 d3j191 Exp $
 c
       implicit none
 c
@@ -21,7 +21,7 @@ c
       logical sp_rdrest,sp_diffbb
       external sp_rdrest,sp_diffbb
 c
-      integer lfntop,lfnrst,lsyn,nsyn,ldbg,idbg,lfnout
+      integer lfntop,lfnrst,lsyn,nsyn,ldbg,idbg,lout
       character*255 filtop,filrst,filsyn
       real*8 rsht,rlng,rinp,boxt(3),vlatt(3,3),rtemp(3)
       real*8 temp,tempw,temps,fld,rsgmi
@@ -47,6 +47,7 @@ c
       idebug=idbg
       lfndbg=ldbg
       icntrl=ictrl
+      lfnout=lout
 c
       lfnsyn=lsyn
       nfsync=nsyn
@@ -161,7 +162,7 @@ c
       call md_abort('ERROR IN MEMORY USE BEFORE RDRST IN SP_START',0)
       endif
 c
-      call sp_rdrst(lfnout,lfnrst,filrst,lfntop,filtop,
+      call sp_rdrst(lfnrst,filrst,lfntop,filtop,
      + temp,tempw,temps,int_mb(i_ipl),
      + dbl_mb(i_x),dbl_mb(i_v),dbl_mb(i_f),dbl_mb(i_r),int_mb(i_i),
      + dbl_mb(i_x),dbl_mb(i_v),dbl_mb(i_f),dbl_mb(i_xscr),int_mb(i_i),
@@ -273,6 +274,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "geom.fh"
+#include "util.fh"
 c
       integer lfnrst
       character*255 filrst
@@ -319,6 +321,15 @@ c
 c
       bsize=max(rshort+half*rsgm,half*(rlong+half*rsgm),rbox)
 c
+      if(util_print('distribution',print_debug)) then
+      write(lfnout,2001)
+ 2001 format(/,' Distribution information',/)
+      write(lfnout,2002) rshort,rsgm,rlong,rbox
+ 2002 format(' Short range cutoff',t35,f12.6,/,
+     + ' Segment size',t35,f12.6,/,' Long range cutoff',t35,f12.6,/,
+     + ' Box size rbox',t35,//,' Initial cell size',t35,f12.6,/)
+      endif
+c
       if(nbx*nby*nbz.lt.np) then
       nbx=int(box(1)/bsize)
       nby=int(box(2)/bsize)
@@ -328,6 +339,11 @@ c
       nbx=max(1,nbx,npx)
       nby=max(1,nby,npy)
       nbz=max(1,nbz,npz)
+c
+      if(util_print('distribution',print_debug)) then
+      write(lfnout,2003) nbx,nby,nbz
+ 2003 format(' Initial cell distribution',t35,3i5)
+      endif
 c
       if(nbxin.eq.0) then
       nred(1)=0
@@ -351,9 +367,19 @@ c
       endif
       endif
 c
+      if(util_print('distribution',print_debug)) then
+      write(lfnout,2004) nbx,nby,nbz
+ 2004 format(' Final cell distribution',t35,3i5,/)
+      endif
+c
       bxmin=bsize/dble(int((dble(nbx)*bsize)/box(1))+1)
       bymin=bsize/dble(int((dble(nby)*bsize)/box(2))+1)
       bzmin=bsize/dble(int((dble(nbz)*bsize)/box(3))+1)
+c
+      if(util_print('distribution',print_debug)) then
+      write(lfnout,2005) bxmin,bymin,bzmin
+ 2005 format(' Minimum cell size',t35,3f12.6)
+      endif
 c
       endif
 c
@@ -564,7 +590,7 @@ c
 c
       return
       end
-      subroutine sp_rdrst(lfnout,lfnrst,filrst,lfntop,filtop,
+      subroutine sp_rdrst(lfnrst,filrst,lfntop,filtop,
      + temp,tempw,temps,ipl,xw,vw,fw,xwcr,iwl,xs,vs,fs,xscr,isl,
      + bxw,bvw,bfw,brw,ibw,nw,bxs,bvs,bfs,ibs,ns,ndx,
      + ibownr,boxsiz,lseq,isndx)
@@ -578,7 +604,7 @@ c
       integer sp_btop
       external sp_btop
 c
-      integer lfnrst,lfntop,lfnout
+      integer lfnrst,lfntop
       character*255 filrst,filtop
       integer nw,ns
       integer ibownr(maxbox,3)
@@ -2329,14 +2355,12 @@ c
       call md_abort('Failed to open restart file',me)
       return
       end
-      subroutine sp_print(lfnout)
+      subroutine sp_print()
 c
       implicit none
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
-c
-      integer lfnout
 c
       integer i_lcnt,l_lcnt
 c
@@ -2378,14 +2402,14 @@ c
       if(.not.ma_push_get(mt_int,3*np,'lcnt',l_lcnt,i_lcnt))
      + call md_abort('Failed to allocate memory for lcnt',0)
 c
-      call sp_prtcnt(lfnout,int_mb(i_lcnt))
+      call sp_prtcnt(int_mb(i_lcnt))
 c
       if(.not.ma_pop_stack(l_lcnt))
      + call md_abort('Failed to deallocate lcnt',0)
 c
       return
       end
-      subroutine sp_prtcnt(lfnout,lcnt)
+      subroutine sp_prtcnt(lcnt)
 c
       implicit none
 c
@@ -2393,7 +2417,7 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
-      integer lfnout,lcnt(np,3)
+      integer lcnt(np,3)
 c
       integer i,j
 c
@@ -2421,7 +2445,7 @@ c
 c
       return
       end
-      subroutine sp_printf(lfnout,filtop,lfntop,isl,xs,fs,
+      subroutine sp_printf(filtop,lfntop,isl,xs,fs,
      + npener,esa)
 c
       implicit none
@@ -2431,7 +2455,7 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
-      integer lfnout,lfntop
+      integer lfntop
       character*70 filtop
       integer isl(msa,mis2),npener
       real*8 xs(msa,3),fs(msa,3,2),esa(nsa,2)
@@ -2452,7 +2476,7 @@ c
       if(.not.ma_push_get(mt_int,lenscr,'n',l_n,i_n))
      + call md_abort('Failed to allocate n',0)
 c
-      call sp_prt_s(lfnout,filtop,lfntop,
+      call sp_prt_s(filtop,lfntop,
      + int_mb(i_ipl),isl,int_mb(i_pack),xs,fs,
      + lenscr,int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv),
      + npener,esa)
@@ -2470,7 +2494,7 @@ c
 c
       return
       end
-      subroutine sp_prt_s(lfnout,filtop,lfntop,
+      subroutine sp_prt_s(filtop,lfntop,
      + ipl,isl,islp,xs,fs,nb,ibs,bxs,bfs,
      + npener,esa)
 c
@@ -2480,7 +2504,7 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
-      integer lfnout,lfntop,nb,npener
+      integer lfntop,nb,npener
       character*70 filtop
       integer ipl(mbox,mip2),isl(msa,mis2),islp(msa,npack),ibs(nb)
       real*8 xs(msa,3),fs(msa,3)
