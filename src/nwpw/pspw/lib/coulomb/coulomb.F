@@ -1,7 +1,7 @@
 
       subroutine coulomb_init()
 *
-* $Id: coulomb.F,v 1.3 2002-01-14 23:13:31 bylaska Exp $
+* $Id: coulomb.F,v 1.4 2003-02-20 01:51:58 bylaska Exp $
 *
       implicit none 
 
@@ -114,6 +114,34 @@ c     real*8 vc(nfft3d)
       end
 
 
+      subroutine coulomb_v_newzero(vzero,dng,vc_out)
+      implicit none
+      real*8 vzero
+      complex*16 dng(*)
+      complex*16 vc_out(*)
+
+#include "mafdecls.fh"
+
+*     ***** local variables ****
+      integer p,q,taskid
+
+*     **** common block used for coulomb.f ****
+      integer vc_indx,vc_hndl
+      common / vc_block / vc_indx,vc_hndl
+
+      call Parallel_taskid(taskid)
+      call D3dB_ktoqp(1,1,q,p)
+
+      call nwpw_timing_start(7)
+      if (p.eq.taskid) dbl_mb(vc_indx) = vzero
+      call Pack_tc_Mul(0,dbl_mb(vc_indx),dng,vc_out)
+      if (p.eq.taskid) dbl_mb(vc_indx) = 0.0d0
+      call nwpw_timing_end(7)
+
+      return 
+      end
+
+
 
       real*8 function coulomb_e(dng)
       implicit none
@@ -163,7 +191,7 @@ c     real*8  tmp1(*)
 
       subroutine coulomb_euv(dng,euv)
 *
-* $Id: coulomb.F,v 1.3 2002-01-14 23:13:31 bylaska Exp $
+* $Id: coulomb.F,v 1.4 2003-02-20 01:51:58 bylaska Exp $
 *
       implicit none 
       complex*16 dng(*)
