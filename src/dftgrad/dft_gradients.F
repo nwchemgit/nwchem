@@ -427,13 +427,18 @@ c
       if (.not. rtdb_get(rtdb, 'bgj:j_hessian', mt_log,
      &     1, status)) status = .false.
       if (status) then
-
          call schwarz_tidy()
          call intd_terminate()
          call int_init(rtdb, 1, ao_bas_han)
          call schwarz_init (geom, ao_bas_han)
          call int_terminate()
-         call intdd_init(rtdb,1,ao_bas_han)
+         if (CDFIT) then
+           nmo(1) = ao_bas_han
+           nmo(2) = cd_bas_han
+           call intdd_init(rtdb,2,nmo)
+         else
+           call intdd_init(rtdb,1,ao_bas_han)
+         endif
 
          status = MA_push_get(MT_DBL, 3*nat*3*nat,
      &        'j hessian', l_hess, k_hess)
@@ -467,7 +472,13 @@ c
          call int_init(rtdb, 1, ao_bas_han)
          call schwarz_init (geom, ao_bas_han)
          call int_terminate()
-         call intd_init(rtdb,1,ao_bas_han)
+         if (CDFIT) then
+           nmo(1) = ao_bas_han
+           nmo(2) = cd_bas_han
+           call intd_init(rtdb,2,nmo)
+         else
+           call intd_init(rtdb,1,ao_bas_han)
+         endif
 c        !!! Do this to be consistent with DFT gradient
 c!!!         call int_app_set_no_texas(rtdb)
 c
