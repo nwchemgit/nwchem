@@ -14,7 +14,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi, jfac, kfac)
-c     $Id: twodd_coul_ex.F,v 1.13 2003-10-17 22:55:13 carlfahl Exp $
+c     $Id: twodd_coul_ex.F,v 1.14 2004-02-02 23:22:22 edo Exp $
 c
 c  This routine was essentially stolen from gradients/grad2.F.  I will work
 c  to make these routines one after I get things working.
@@ -253,14 +253,14 @@ c
                                  sijkl = sij*schwarz_shell(ksh,lsh)
                                  if(oprint) then
                write(luout,*) 'sijkl, q4max and tol2e',sijkl,q4max,tol2e
-               call flush(luout)
+               call util_flush(luout)
                                  endif
 C     
                                  if (sijkl*q4max .lt. tol2e) goto 200 ! next llsh
                                  scale = 1.0d0
                                  if(oprint) then
                write(luout,*) 'before the oskel test'
-               call flush(luout)
+               call util_flush(luout)
                endif
                                  if (oskel) then
                                     if (.not. sym_atom_quartet(geom,
@@ -269,7 +269,7 @@ C
                                  endif
                                  if(oprint) then
                write(luout,*) 'before the oactive test'
-               call flush(luout)
+               call util_flush(luout)
                endif
                                  if (.not. (
      $                                oactive(atoms(1)) .or.
@@ -279,7 +279,7 @@ C
                                  if (oprint) then
                write(luout,*) 'before the atoms test ',atoms(1),
      $           atoms(2),atoms(3),atoms(4)
-               call flush(luout)
+               call util_flush(luout)
                endif
                                  if (
      $                                atoms(1).eq.atoms(2) .and.
@@ -287,7 +287,7 @@ C
      $                                atoms(3).eq.atoms(4)) goto 200
                                  if (oprint) then
                write(luout,*) 'after the atoms test'
-               call flush(luout)
+               call util_flush(luout)
                endif
 c     
 c     Scale according to permutation symmetry of the shell labels
@@ -328,7 +328,7 @@ c
                                  sijkl = sijkl*psum*scale
                                  if (oprint) then
         write(luout,*) 'sijkl,psum,scale ',sijkl,psum,scale
-        call flush(luout)
+        call util_flush(luout)
         endif
                                  if (sijkl .gt. tol2e) then
                                     nq = nq + 1
@@ -417,7 +417,7 @@ c                             if (iat2.eq.iat1) itemp = icart2
       write(luout,*) 'p and eri is ',p,eri(ibuf),ibuf
       write(luout,*) 'val is ',val
       write(luout,*) 'icart1,iat1,icart2,iat2 ',icart1,iat1,icart2,iat2
-      call flush(luout)
+      call util_flush(luout)
       endif
       endif
                               Hxy(icart1,iat1,icart2,iat2) =  
@@ -435,7 +435,7 @@ c                             if (iat2.eq.iat1) itemp = icart2
       if (abs(val).gt. 1.0d+00) then
       write(luout,*) 'p and eri is ',p,eri(ibuf),ibuf
       write(luout,*) 'val is ',val
-      call flush(luout)
+      call util_flush(luout)
       endif
       endif
                              Hxy(1,iat1,1,iat1) = Hxy(1,iat1,1,iat1)
@@ -445,7 +445,7 @@ c                             if (iat2.eq.iat1) itemp = icart2
       if (abs(val).gt. 1.0d+00) then
       write(luout,*) 'p and eri is ',p,eri(ibuf),ibuf
       write(luout,*) 'val is ',val
-      call flush(luout)
+      call util_flush(luout)
       endif
       endif
                              Hxy(1,iat1,2,iat1) = Hxy(1,iat1,2,iat1)
@@ -457,7 +457,7 @@ c                             if (iat2.eq.iat1) itemp = icart2
       if (abs(val).gt. 1.0d+00) then
       write(luout,*) 'p and eri is ',p,eri(ibuf),ibuf
       write(luout,*) 'val is ',val
-      call flush(luout)
+      call util_flush(luout)
       endif
       endif
                              Hxy(1,iat1,3,iat1) = Hxy(1,iat1,3,iat1)
@@ -469,7 +469,7 @@ c                             if (iat2.eq.iat1) itemp = icart2
       if (abs(val).gt. 1.0d+00) then
       write(luout,*) 'p and eri is ',p,eri(ibuf),ibuf
       write(luout,*) 'val is ',val
-      call flush(luout)
+      call util_flush(luout)
       endif
       endif
                              Hxy(2,iat1,2,iat1) = Hxy(2,iat1,2,iat1)
@@ -479,7 +479,7 @@ c                             if (iat2.eq.iat1) itemp = icart2
       if (abs(val).gt. 1.0d+00) then
       write(luout,*) 'p and eri is ',p,eri(ibuf),ibuf
       write(luout,*) 'val is ',val
-      call flush(luout)
+      call util_flush(luout)
       endif
       endif
                              Hxy(2,iat1,3,iat1) = Hxy(2,iat1,3,iat1)
@@ -491,7 +491,7 @@ c                             if (iat2.eq.iat1) itemp = icart2
       if (abs(val).gt. 1.0d+00) then
       write(luout,*) 'p and eri is ',p,eri(ibuf),ibuf
       write(luout,*) 'val is ',val
-      call flush(luout)
+      call util_flush(luout)
       endif
       endif
                              Hxy(3,iat1,3,iat1) = Hxy(3,iat1,3,iat1)
@@ -504,7 +504,7 @@ c                             if (iat2.eq.iat1) itemp = icart2
                      end if
                      if (oprint) then
                  if (omore) write(luout,*) 'going back for more ints'
-                     call flush(luout)
+                     call util_flush(luout)
                      endif
                      if (omore) goto 10
 c     
