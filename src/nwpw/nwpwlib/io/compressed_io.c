@@ -1,5 +1,5 @@
 /*
- $Id: compressed_io.c,v 1.2 2004-05-04 22:01:53 edo Exp $
+ $Id: compressed_io.c,v 1.3 2004-05-05 02:20:33 edo Exp $
 *************************************************************************
 *									*
 * compressed_io.c							*
@@ -30,14 +30,14 @@
 #include <string.h>
 #include "typesf2c.h"
 
-#if defined(CRAY) || defined(CRAY_T3D)
-#include <fortran.h>
 #if !defined(__crayx1)
+
+#if defined(CRAY) || defined(CRAY_T3D) 
+#include <fortran.h>
 #define USE_FCD
 #endif
-#endif
 
-#if defined(CRAY) || defined(CRAY_T3D) || defined(WIN32) &&!defined(__crayx1)
+#if defined(CRAY) || defined(CRAY_T3D) || defined(WIN32)
 #define cwrite_ CWRITE
 #define cread_  CREAD
 #define iwrite_ IWRITE
@@ -48,7 +48,7 @@
 #define closefile_ CLOSEFILE
 #endif
 
-
+#endif
 
 
 #define MAX_UNIT	10
