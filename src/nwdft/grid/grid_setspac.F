@@ -1,7 +1,7 @@
       subroutine grid_setspac(rtdb, xyz, xyzw, Rij, rq, p, ictr, nq,
      ,     lssw, whichf, expo, rad)
 c
-c$Id: grid_setspac.F,v 1.3 1999-05-01 17:28:11 edo Exp $
+c$Id: grid_setspac.F,v 1.4 1999-05-10 22:44:27 edo Exp $
 c
       implicit none
       integer rtdb
@@ -57,7 +57,7 @@ c     call to ssw routine
 c
          call grid_signf(AO_bas_han,  nbf_ao, ncenters_scr, 
      &        xyz,dbl_mb(ixyzm),ictr_scr,
-     &        rad, expo, int_mb(iscr))
+     &        rad, expo, int_mb(iscr),iatype_pt_chg)
          call grid_ssw(xyzw, dbl_mb(ixyzm),rij, rq, 
      &        p, ictr_scr, ncenters_scr, nq,
      ,        int_mb(iscr),whichf)

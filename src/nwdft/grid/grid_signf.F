@@ -1,8 +1,8 @@
       subroutine grid_signf(basis, nbf, mcenters, 
      &                      xyz,xyzm,ctr_quad, rad_quad,
-     &                       zprim, iandex)
+     &                       zprim, iandex,iatype_pt_chg)
 c
-C$Id: grid_signf.F,v 1.2 1999-05-05 00:38:48 edo Exp $
+C$Id: grid_signf.F,v 1.3 1999-05-10 22:44:27 edo Exp $
 c
       implicit none
 c      
@@ -12,6 +12,7 @@ c
       double precision xyzm(3,*) ! [input/output]
       double precision rad_quad ! [input]
       integer nbf  ! [input/output]
+      logical iatype_pt_chg(*) ! [input]
       integer iandex(*) ! [scratch]
     
 c
@@ -40,6 +41,7 @@ c
       mcenters_scr = 0
 c
       do ictr=1,mcenters
+        if(iatype_pt_chg(ictr)) goto 2001
         if (ictr.eq.ctr_quad) then
           mcenters_scr=mcenters_scr+1
          iandex(mcenters_scr)=ictr
@@ -47,6 +49,14 @@ c
         endif
         if (.not.bas_ce2cnr(basis,ictr,ic1,ic2))
      &       call errquit('Exiting in xc_signf.',11)
+c
+c     no bf on center ie but we keep grid
+c
+        if(ic1.eq.0) then
+           mcenters_scr=mcenters_scr+1
+           iandex(mcenters_scr)=ictr
+           goto 2001
+        endif
 
         x = xyz(1,ctr_quad) - xyz(1,ictr)
         y = xyz(2,ctr_quad) - xyz(2,ictr)
