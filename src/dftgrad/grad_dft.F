@@ -126,7 +126,11 @@ c     (e.g., preserve the memory available to other modules!!)
 c
       if(CDFIT)then
         if (.not. bas_destroy(cd_bas_han))
-     &     call errquit('dft_grad:not able to destroy CD_bas:',86)
+     &     call errquit('grad_dft:not able to destroy CD_bas:',86)
+      endif
+      if(XCFIT)then
+        if (.not.bas_destroy(XC_bas_han))
+     &     call errquit('grad_dft:not able to destroy XC_bas:',86)
       endif
       if (.not.((bas_destroy(ao_bas_han)) .and. (geom_destroy(geom)) ) )
      &   call errquit
