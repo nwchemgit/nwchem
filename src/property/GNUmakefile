@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.18 2000-08-08 23:51:58 bjohnson Exp $
+# $Id: GNUmakefile,v 1.19 2003-01-30 01:00:16 bert Exp $
 #
 
 
@@ -10,6 +10,8 @@
    LIB_INCLUDES = -I../nwdft/include
 
 USES_BLAS = wnbofile.F gia3.F
+
+HEADERS = prop.fh
 
 include ../config/makefile.h
 include ../config/makelib.h
