@@ -7,21 +7,21 @@ memory global 22 mb stack 22 mb heap 25 mb
 #geometry units au noautosym noprint
 geometry units au center autosym print
   system crystal 
-    lat_a 8.277
-    lat_b 8.277
-    lat_c 8.277
-    alpha 90.0 
-    beta  90.0
-    gamma 90.0
+    lat_a 8.277d0
+    lat_b 8.277d0
+    lat_c 8.277d0
+    alpha 90.0d0
+    beta  90.0d0
+    gamma 90.0d0
   end
-Si    -0.50000  -0.50000  -0.50000
-Si     0.00000   0.00000  -0.50000
-Si     0.00000  -0.50000   0.00000
-Si    -0.50000   0.00000   0.00000
-C     -0.25000  -0.25000  -0.25000
-C      0.25000   0.25000  -0.25000
-C      0.25000  -0.25000   0.25000
-C     -0.25000   0.25000   0.25000
+Si    -0.50000d0  -0.50000d0  -0.50000d0
+Si     0.00000d0   0.00000d0  -0.50000d0
+Si     0.00000d0  -0.50000d0   0.00000d0
+Si    -0.50000d0   0.00000d0   0.00000d0
+C     -0.25000d0  -0.25000d0  -0.25000d0
+C      0.25000d0   0.25000d0  -0.25000d0
+C      0.25000d0  -0.25000d0   0.25000d0
+C     -0.25000d0   0.25000d0   0.25000d0
 end
 #geometry units au 
 #Si    -2.69003   -2.69003   -2.69003
@@ -44,19 +44,19 @@ PSPW
                                         # generated
 
       element: Si                       # label used for the carbon atom
-      charge: 14.0                       # nuclear charge of carbon atom
-      mass_number: 28.0                 # mass (a.u.) of carbon atom
+      charge: 14.0d0                       # nuclear charge of carbon atom
+      mass_number: 28.0d0                 # mass (a.u.) of carbon atom
       solver_type: pauli                # Pauli or Schrodinger op
       pseudopotential_type: hamann      # Hamann and Troullier-Martins options 
       #exchange_type: pbe96              # dirac and pbe96 options
       #correlation_type: pbe96           # vosko and pbe96 options
 
       atomic_filling: 3 2   # Ncore and Nvalence states
-        1 s 2.0             # core state  1s^2
-        2 s 2.0             # coren state 2s^2
-        2 p 6.0             # coren state 2p^2
-        3 s 2.0             # valence state 3s^2
-        3 p 2.0             # valence state 3p^2
+        1 s 2.0d0             # core state  1s^2
+        2 s 2.0d0             # coren state 2s^2
+        2 p 6.0d0             # coren state 2p^2
+        3 s 2.0d0             # valence state 3s^2
+        3 p 2.0d0             # valence state 3p^2
    END
 END
 #******* Generate a Pseudopotential for Carbon  **********************
@@ -66,21 +66,21 @@ PSPW
                                         # generated
 
       element: C                        # label used for the carbon atom
-      charge: 6.0                      # nuclear charge of carbon atom
-      mass_number: 12.0                 # mass (a.u.) of carbon atom
+      charge: 6.0d0                      # nuclear charge of carbon atom
+      mass_number: 12.0d0                 # mass (a.u.) of carbon atom
       solver_type: pauli                # Pauli or Schrodinger op
       pseudopotential_type: hamann      # Hamann and Troullier-Martins options 
       #exchange_type: pbe96              # dirac and pbe96 options
       #correlation_type: pbe96           # vosko and pbe96 options
 
       atomic_filling: 1 2   # Ncore and Nvalence states
-        1 s 2.0             # core state    1s^2
-        2 s 2.0             # valence state 2s^2
-        2 p 2.0             # valence state 2p^2
+        1 s 2.0d0             # core state    1s^2
+        2 s 2.0d0             # valence state 2s^2
+        2 p 2.0d0             # valence state 2p^2
       cutoff: 3   # number of cutoff values
-         s 0.80   # cutoff value for Vs
-         p 0.85   # cutoff value for Vp
-         d 0.85   # cutoff value for Vd
+         s 0.80d0   # cutoff value for Vs
+         p 0.85d0   # cutoff value for Vp
+         d 0.85d0   # cutoff value for Vd
 
    END
 END
@@ -92,9 +92,9 @@ PSPW
       cell_name: small
       boundry_conditions: periodic
       lattice_vectors:
-         8.277  0.000  0.0 00
-         0.000  8.277  0.000
-         0.000  0.000  8.277
+         8.277d0  0.000d0  0.0d0 
+         0.000d0  8.277d0  0.000d0
+         0.000d0  0.000d0  8.277d0
       ngrid: 6 6 6
    END
    #FRACTIONAL_TO_CARTESIAN: small
