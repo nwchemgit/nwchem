@@ -86,7 +86,7 @@ c
      $        call errquit('scf_movecs_lock: read failed',0)
 c
          call movecs_lock(geom, basis, g_old, g_movecs(iset), 
-     $        dbl_mb(k_eval+nbf*(iset-1)))
+     $        dbl_mb(k_eval+nbf*(iset-1)), dbl_mb(k_occ+nbf*(iset-1)))
       enddo
 c
       if (.not. ma_pop_stack(l_o))call errquit('scf_movecs_lock: ma?',0)

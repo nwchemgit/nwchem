@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.90 1996-10-23 05:48:36 d3g681 Exp $
+# $Id: GNUmakefile,v 1.91 1996-11-07 00:12:04 d3g681 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -18,7 +18,7 @@
         ao_fock_2e.o              movecs_lock.o \
 	fock_2e.o                 fock_2e_et.o \
 	fock_2e_a.o               print_aoints.o \
-	fock_2e_b.o               \
+	fock_2e_b.o               movecs_ecce.o \
 	fock_upd_blk.o       fock_2e_cdf.o \
 	fock_get_blk.o      scf_vec_guess.o \
         rohf.o                   rohf_nr_sol.o     \

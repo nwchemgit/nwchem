@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.43 1996-11-02 07:05:03 d3g681 Exp $
+C$Id: scf.F,v 1.44 1996-11-07 00:12:05 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -204,6 +204,19 @@ c
       if (.not. rtdb_put(rtdb, 'scf:converged', MT_LOG, 1, converged)) 
      $     call errquit
      $     ('scf: failed to store converged in rtdb', 0)
+c
+      if (scftype .eq. 'UHF') then
+         call movecs_ecce(nbf, nmo, 1, nmo, dbl_mb(k_eval),
+     $        dbl_mb(k_occ), int_mb(k_irs), 
+     $        g_movecs(1), scftype, 'alpha')
+         call movecs_ecce(nbf, nmo, 1, nmo, dbl_mb(k_eval+nbf),
+     $        dbl_mb(k_occ+nbf), int_mb(k_irs+nmo),
+     $        g_movecs(2), scftype, 'beta')
+      else
+         call movecs_ecce(nbf, nmo, 1, nmo, dbl_mb(k_eval),
+     $        dbl_mb(k_occ), int_mb(k_irs),
+     $        g_movecs(1), scftype, ' ')
+      endif
 c
 c     terminate integrals 
 c
