@@ -1,6 +1,7 @@
-      logical function pre_bonds(xatm,latm,matm,ilo,ihi,lbnd,mbnd,nbnd)
+      logical function pre_bonds(xatm,latm,matm,ilo,ihi,lbnd,mbnd,nbnd,
+     + llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_bonds.F,v 1.1 1999-12-16 23:55:44 d3j191 Exp $
+c $Id: pre_bonds.F,v 1.2 2000-03-21 23:58:04 d3j191 Exp $
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
@@ -28,6 +29,10 @@ c
       integer ilo,ihi
       integer i,j
       real*8 dist
+      integer mlnk,nlnk
+      integer llnk(4,mlnk)
+      character*4 clnk(2,mlnk)
+      integer ilnk,jlnk
 c
       pre_bonds=.false.
 c
@@ -49,7 +54,38 @@ c
       endif
     2 continue
       endif
-    1 continue 
+    1 continue
+c
+      do 3 i=1,nlnk
+      ilnk=llnk(3,i)
+      jlnk=llnk(4,i)
+      if(ilnk.gt.jlnk) then
+      j=ilnk
+      ilnk=jlnk
+      jlnk=j
+      endif
+      if(ilnk.ge.ilo.and.jlnk.le.ihi) then
+      do 4 j=1,nbnd
+      if(ilnk.eq.lbnd(1,j).and.jlnk.eq.lbnd(2,j)) goto 3
+    4 continue
+      nbnd=nbnd+1
+      lbnd(1,nbnd)=ilnk
+      lbnd(2,nbnd)=jlnk
+      endif
+    3 continue
+c
+      do 5 i=1,nbnd-1
+      do 6 j=i+1,nbnd
+      if(lbnd(1,i).gt.lbnd(1,j)) then
+      ilnk=lbnd(1,i)
+      lbnd(1,i)=lbnd(1,j)
+      lbnd(1,j)=ilnk
+      ilnk=lbnd(2,i)
+      lbnd(2,i)=lbnd(2,j)
+      lbnd(2,j)=ilnk
+      endif
+    6 continue
+    5 continue
 c
       pre_bonds=.true. 
       return

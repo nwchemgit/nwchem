@@ -2,7 +2,7 @@
      + xatm,catm,latm,matm,lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,nlnkf)
 c
-c $Id: pre_links.F,v 1.12 1999-07-14 22:16:16 d3j191 Exp $
+c $Id: pre_links.F,v 1.13 2000-03-21 23:58:04 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -151,8 +151,6 @@ c
       llnk(4,nlnk)=jshort
       clnk(1,nlnk)=catm(2,ishort)(1:4)
       clnk(2,nlnk)=catm(2,jshort)(1:4)
-cx      write(*,'(5i5,2a4)')
-cx     +  nlnk,i,j,ishort,jshort,clnk(1,nlnk),clnk(2,nlnk)
       l=lseq(4,j)
       do 4 k=1,nseq
       if(lseq(4,k).eq.l) lseq(4,k)=lseq(4,i)
@@ -186,6 +184,12 @@ c
       clnk(2,nlnk)=clnk(2,i)
       if(i.le.nlnkp) nlnkf=nlnk
     5 continue
+      do 55 i=1,nlnk
+      if(llnk(1,i).ne.llnk(2,i)) then
+      if(latm(5,llnk(3,i)).eq.0) latm(5,llnk(3,i))=1
+      if(latm(5,llnk(4,i)).eq.0) latm(5,llnk(4,i))=2
+      endif
+   55 continue
       endif
 c
       do 7 i=1,nseq
@@ -260,6 +264,22 @@ c
       endif
       endif
    11 continue
+c
+c     adjust molecule number based on explicit links
+c     ----------------------------------------------
+c
+      do 18 i=1,nlnk
+      if(lseq(4,llnk(1,i)).ne.lseq(4,llnk(2,i))) then
+      j=lseq(4,llnk(2,i))
+      do 19 k=1,nseq
+      if(lseq(4,k).eq.j) then
+      lseq(4,k)=lseq(4,llnk(1,i))
+      elseif(lseq(4,k).gt.j) then
+      lseq(4,k)=lseq(4,k)-1
+      endif
+   19 continue
+      endif
+   18 continue
 c
 c     assign molecule number
 c     ----------------------

@@ -4,9 +4,9 @@
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
      + natm,lato,cato,xato,qato,mato,nato,lbnd,mbnd,lbndt,mbndt,
      + lang,mang,ldih,mdih,limp,mimp,
-     + maxscf,qscale)
+     + maxscf,qscale,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_mkfrg.F,v 1.29 2000-03-17 17:22:56 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.30 2000-03-21 23:58:04 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -58,6 +58,9 @@ c
       integer lbndt(2,mbndt)
       character*255 filpar,filnam
       character*255 dir_s,dir_x,dir_u,dir_t
+      integer mlnk,nlnk
+      integer llnk(4,mlnk)
+      character*4 clnk(2,mlnk)
 c
       integer len_t,length,len_f
 c
@@ -79,10 +82,10 @@ c
       ilist=0
 c
       nbndt=0
-      if(.not.pre_bonds(xatm,latm,matm,1,natm,lbndt,mbndt,nbndt))
-     + call errquit('Error in pre_bonds',0)
+      if(.not.pre_bonds(xatm,latm,matm,1,natm,lbndt,mbndt,nbndt,
+     + llnk,clnk,mlnk,nlnk)) call errquit('Error in pre_bonds',0)
 c
-      if(.not.pre_hybrid(xatm,latm,matm,natm))
+      if(.not.pre_hybrid(xatm,latm,matm,natm,lbndt,mbndt,nbndt))
      + call errquit('Error in pre_hybrid',0)
 c
       do 1 i=1,nsgm
@@ -145,7 +148,8 @@ c     -------------------------------------------
 c
       nbnd=0
       if(.not.pre_bnd(xatm,latm,catm,matm,natm,ilo,ihi,
-     + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf))
+     + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf,
+     + llnk,clnk,mlnk,nlnk))
      + call errquit('pre_bnd failed',9999)
 c
 c     redetermine hydrogen names

@@ -1,6 +1,6 @@
-      logical function pre_hybrid(xatm,latm,matm,natm)
+      logical function pre_hybrid(xatm,latm,matm,natm,lbnd,mbnd,nbnd)
 c
-c $Id: pre_hybrid.F,v 1.6 2000-02-22 20:38:27 d3j191 Exp $
+c $Id: pre_hybrid.F,v 1.7 2000-03-21 23:58:04 d3j191 Exp $
 c
 c     in  : xatm(3,matm) = atomic coordinates
 c         : latm(2,matm) = atomic numbers
@@ -15,6 +15,8 @@ c
       integer matm,natm
       real*8 xatm(3,matm)
       integer latm(5,matm)
+      integer mbnd,nbnd
+      integer lbnd(2,mbnd)
 c
       integer i,j,k,l,m,nn,nl(100),ia,ib,ic,id,ie,ig
       real*8 dist,angle1,angle2,angle3,angle4,angle5,angle6
@@ -24,14 +26,15 @@ c
       nn=0
       do 2 j=1,natm
       if(latm(2,j).gt.0.and.i.ne.j) then
-      dist=sqrt((xatm(1,j)-xatm(1,i))*(xatm(1,j)-xatm(1,i))+
-     + (xatm(2,j)-xatm(2,i))*(xatm(2,j)-xatm(2,i))+
-     + (xatm(3,j)-xatm(3,i))*(xatm(3,j)-xatm(3,i)))
-      if(dist.gt.0.05d0.and.
-     + dist.le.pre_atrad(latm(2,j))+pre_atrad(latm(2,i))) then
+      if(i.eq.j) goto 2
+      do 6 k=1,nbnd
+      if((lbnd(1,k).eq.i.and.lbnd(2,k).eq.j).or.
+     + (lbnd(1,k).eq.j.and.lbnd(2,k).eq.i)) then
       nn=nn+1
       nl(nn)=j
+      goto 2
       endif
+    6 continue
       endif
     2 continue
       latm(3,i)=0
@@ -121,14 +124,15 @@ c
       if(latm(2,i).gt.0) then
       do 4 j=1,natm
       if(latm(2,j).gt.0.and.i.ne.j) then
-      dist=sqrt((xatm(1,j)-xatm(1,i))*(xatm(1,j)-xatm(1,i))+
-     + (xatm(2,j)-xatm(2,i))*(xatm(2,j)-xatm(2,i))+
-     + (xatm(3,j)-xatm(3,i))*(xatm(3,j)-xatm(3,i)))
-      if(dist.gt.0.05d0.and.
-     + dist.le.pre_atrad(latm(2,j))+pre_atrad(latm(2,i))) then
+      if(i.eq.j) goto 2
+      do 7 k=1,nbnd
+      if((lbnd(1,k).eq.i.and.lbnd(2,k).eq.j).or.
+     + (lbnd(1,k).eq.j.and.lbnd(2,k).eq.i)) then
       nn=nn+1
       nl(nn)=j
+      goto 4
       endif
+    7 continue
       endif
     4 continue
       endif
@@ -168,10 +172,3 @@ c
       pre_hybrid=.true.
       return
       end
-
-
-
-
-
-
-

@@ -1,7 +1,8 @@
       logical function pre_bnd(xatm,latm,catm,matm,natm,ilo,ihi,
-     + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf)
+     + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf,
+     + llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_bnd.F,v 1.7 1999-12-17 05:07:39 d3j191 Exp $
+c $Id: pre_bnd.F,v 1.8 2000-03-21 23:58:03 d3j191 Exp $
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
@@ -29,7 +30,11 @@ c
       character*6 catm(3,matm),cato(3,mato)
       integer ilo,ihi
       integer i,j,k,nn,nl(10),nadd,ndx,neigh
+      integer mlnk,nlnk
+      integer llnk(4,mlnk)
+      character*4 clnk(2,mlnk)
       real*8 dist
+      logical linker
 c
       pre_bnd=.false.
 c
@@ -43,8 +48,13 @@ c
       dist=sqrt((xatm(1,j)-xatm(1,i))*(xatm(1,j)-xatm(1,i))+
      + (xatm(2,j)-xatm(2,i))*(xatm(2,j)-xatm(2,i))+
      + (xatm(3,j)-xatm(3,i))*(xatm(3,j)-xatm(3,i)))
-      if(dist.gt.0.05d0.and.
-     + dist.le.pre_atrad(latm(2,j))+pre_atrad(latm(2,i))) then
+      linker=.false.
+      do 13 k=1,nlnk
+      if(i.eq.llnk(3,k).and.j.eq.llnk(4,k)) linker=.true.
+      if(j.eq.llnk(3,k).and.i.eq.llnk(4,k)) linker=.true.
+   13 continue
+      if(linker.or.(dist.gt.0.05d0.and.
+     + dist.le.pre_atrad(latm(2,j))+pre_atrad(latm(2,i)))) then
       nn=nn+1
       nl(nn)=j
       if(j.gt.i.and.j.le.ihi) then

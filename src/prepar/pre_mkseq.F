@@ -4,7 +4,7 @@
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + icount,scount)
 c
-c $Id: pre_mkseq.F,v 1.31 2000-02-21 07:05:44 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.32 2000-03-21 23:58:04 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -336,7 +336,8 @@ c
      + int_mb(i_lato),byte_mb(i_cato),dbl_mb(i_xato),dbl_mb(i_qato),
      + mato,nato,int_mb(i_frb),mfrb,
      + int_mb(i_bnd),mbnd,int_mb(i_ang),mang,int_mb(i_dih),mdih,
-     + int_mb(i_imp),mimp,maxscf,qscale))
+     + int_mb(i_imp),mimp,maxscf,qscale,
+     + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk))
      + call errquit('pre_mkfrg failed',9999)
 c
 c     deallocate memory
