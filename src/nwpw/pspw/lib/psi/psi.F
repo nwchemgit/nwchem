@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.40 2003-07-31 01:15:33 bylaska Exp $
+* $Id: psi.F,v 1.41 2003-07-31 23:58:16 bylaska Exp $
 *
 
 
@@ -3164,14 +3164,18 @@ c    >                            dcpl_mb(dng1(1)))
       implicit none
       real*8 stress(3,3)
 
+#include "mafdecls.fh"
+#include "psi.fh"
 
 *     ***** local variables ****
       integer u,v
       real*8 exc,pxc
-      real*8 pi,scal,hm(3,3)
+      real*8 pi,scal,hm(3,3),tstress(3,3)
 
 *     **** external functions ****
+      integer  control_gga
       real*8   rho_1exc,rho_1pxc,lattice_unitg,lattice_omega
+      external control_gga
       external rho_1exc,rho_1pxc,lattice_unitg,lattice_omega
 
 *     *** define hm ****
@@ -3196,7 +3200,15 @@ c    >                            dcpl_mb(dng1(1)))
       !write(*,*) "D:",stress(1,1)
 
 *     **** GGA part ****
-*     **** not finished ****
+*     **** not finished  -unrestricted not done ****
+      if (control_gga().ne.0) then
+       call v_bwexc_euv(2*nfft3d,ispin,dbl_mb(rho1(1)),tstress)
+       do v=1,3
+       do u=1,3
+          stress(u,v) = stress(u,v) + tstress(u,v)
+       end do
+       end do
+      end if 
 
       return
       end
