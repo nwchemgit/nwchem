@@ -1,4 +1,4 @@
-C $Id: nwc_gen.F,v 1.3 2001-02-01 17:42:48 windus Exp $
+C $Id: nwc_gen.F,v 1.4 2001-02-06 22:30:42 bjohnson Exp $
       Subroutine nwc_gen (x,v,dx,fmat,hess,xs,natom,n3,n3tm,ndbar,op)
 C
 C  Run NWChem task to get potential and first and second derivatives
@@ -139,8 +139,8 @@ C
 C  Get transformation matrix (rotation matrix amat) from the gaussian
 C     standard orientation (xs) to the original orientation (x)
       if (op.ge.DRDY_CODE_GRADIENT) then
-        call drdy_rotmat(x,xs,amat,rr,rrs,rri,natom,n3,ndima)
-        call drdy_rotg(dx,amat,rr,natom,n3,ndima)
+        call drdy_rotmat(x,xs,amat,rr,rrs,rri,natom,ndima)
+        call drdy_rotg(dx,amat,rr,natom,ndima)
       endif
 C
       if (op.eq.DRDY_CODE_HESSIAN) then
@@ -154,7 +154,7 @@ C
         enddo
 C  Transform hessian matrix from gaussian standard orientation to the
 C     original orientation
-        call drdy_rotf(fmat,amat,rr,natom,n3,ndima,n3tm)
+        call drdy_rotf(fmat,amat,rr,natom,ndima,n3tm)
       endif
 *
       return
