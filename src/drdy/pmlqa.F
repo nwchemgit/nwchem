@@ -42,7 +42,7 @@ C Construct u0(transpose)*vec0 and put into vec1, and scale xlam by xnorm
 C      write (6,669) (vec1(i),i=1,n3)
 C Integrate expression that relates s to t
       delt = 0.2d00*dels
-      t = 0.0d00
+      t = 1.0d10
       ts = 1.0d00
       ic1 = 0
 C Loop over step size for integration (delt) until converged or maximum
