@@ -48,7 +48,7 @@
 *  Only to be called internally from PFFT routines.
 *
 *-----------------------------------------------------------------------
-      INCLUDE 'datasize.h'
+#include "datasize.h"
 
       INTEGER           NAPROC, ME, LINFO, IPROC, NPROC, IIWORK, NDIFF,
      $                  M2

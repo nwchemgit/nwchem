@@ -275,7 +275,7 @@ c     5-2     1-3     2-4     3-5     4-1
 c     4-3     5-4     1-5     2-1     3-2
 c
 *-----------------------------------------------------------------------
-      INCLUDE          'datasize.h'
+#include          "datasize.h"
 
       INTEGER          NAPROC, ME, NGROUP, IG, IP, NVECS,
      $                 NVECST, NELE, IVAL

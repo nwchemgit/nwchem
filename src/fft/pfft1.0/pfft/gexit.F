@@ -83,7 +83,7 @@
 *
 *-----------------------------------------------------------------------
 
-      INCLUDE           'datasize.h'
+#include           "datasize.h"
 
       INTEGER            ME, JFLAG, IVAL
 
