@@ -115,8 +115,7 @@ c
 c
       norm = dabsmax(ng,GG)
 c
- 1111 format (a31,1x,4F16.12)
-       return
-       end
+      return
+      end
 
 

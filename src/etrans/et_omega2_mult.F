@@ -50,9 +50,7 @@ c
 c
              ng = ng + 1
 c
-             omega2 = omega2 + gJ(l,k,j,i)*G(ng)
-             if (dabs(gJ(l,k,j,i)*G(ng)).lt.1.0d-16) then
-             endif
+               omega2 = omega2 + gJ(l,k,j,i)*G(ng)
 c
                enddo
             enddo

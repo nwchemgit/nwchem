@@ -1,10 +1,10 @@
-c $Id: et_calc.F,v 1.9 2002-03-06 15:59:59 d3k958 Exp $
+c $Id: et_calc.F,v 1.10 2002-03-15 15:55:37 d3k958 Exp $
       logical function et_calc(rtdb,Vba)
       implicit none
 c
 c     This function actually calculates Vba
 *
-* $Id: et_calc.F,v 1.9 2002-03-06 15:59:59 d3k958 Exp $
+* $Id: et_calc.F,v 1.10 2002-03-15 15:55:37 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -101,8 +101,8 @@ c     initialize the API
 c     ------------------
 c
       call int_init(rtdb, 1, basis)
-      call schwarz_init(geom, basis)  
-      call int_acc_set(1.0d-09)
+      call int_acc_std()
+c      call int_acc_set(1.0d-09)
       call int_normalize(rtdb,basis)
 c
 c     calculate the overlap integrals
@@ -564,7 +564,7 @@ c
 c
 c       call et_fock(rtdb,nbf,basis,geom,mem2,max2e,
 c     &     nocc,g_ahandle(1),g_phandle(1),g_phandle(2))
-       call et_2e(nbf,basis,geom,max2e,mem2
+       call et_2e(rtdb,nbf,basis,geom,max2e,mem2
      &           ,g_phandle(1),g_phandle(2),omega2)
 c
 c       write(6,*)'omega2',omega2
@@ -623,8 +623,11 @@ c
 c
       call util_print_pop
 c
-c      call schwarz_tidy()  
-c      call fock_2e_tidy(rtdb)   
+         if (.not. geom_destroy(geom)) call errquit
+     $        ('et_calc: geom destroy failed', 0)
+         if (.not. bas_destroy(basis)) call errquit
+     $        ('et_calc: basis destroy failed',0)
+c
       call int_terminate()
 c
 c
