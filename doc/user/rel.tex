@@ -1,0 +1,61 @@
+\label{sec:rel}
+
+General introduction all-electron relativistic effects.
+
+The currently implemented all-electron relativistic approximations are Douglas-Kroll and Ken's approx. They can be used at all levels of theory. The derivatives are implemented allowing them to be used for geometry optimizations and frequency calculations.
+
+The \verb+RELATIVISTIC+ directive provides input for the implemented relativistic 
+approximations and is a compound directive that encloses additional directives 
+specific to the approximations:
+
+\begin{verbatim}
+  RELATIVISTIC
+    ...
+  END
+\end{verbatim}
+
+A general option which is currently only used by the Douglas-Kroll 
+approximation is the definition of the speed of light:
+
+\begin{verbatim}
+  CLIGHT <real clight default 137.0359895>
+\end{verbatim}
+
+\section{Douglas-Kroll approximation}
+\label{sec:douglas-kroll}
+
+The (spin-free) one-electron Douglas-Kroll approximation\footnote{B.A.~Hess, 
+Phys.~Rev.~A~{\bf 32}, 756 (1985) and B.A.~Hess, Phys.~Rev.~A~{\bf 33}, 3742 
+(1986)} has been implemented. The use of relativistic effects from this 
+Douglas-Kroll approximation can be invoked by 
+specifying:
+
+\begin{verbatim}
+  DOUGLAS-KROLL [<string (ON||OFF) default ON> \
+                 <string (FPP||DKH||DKFULL) default DKH>]
+
+\end{verbatim}
+
+The \verb+FPP+ is the approximation based on free-particle projection 
+operators\footnote{B.A.~Hess, Phys.~Rev.~A~{\bf 32}, 756 (1985)} whereas the 
+\verb+DKH+ and \verb+DKFULL+ approximations are based on external-field 
+projection operators\footnote{B.A.~Hess, Phys.~Rev.~A~{\bf 33}, 3742 (1986)}.
+The latter two are considerably better approximations then the former. \verb+DKH+ 
+is the Douglas-Kroll-Hess approach and is the approach that is generally 
+implemented in quantum chemistry codes. \verb+DKFULL+ includes certain 
+cross-product integral terms ignored in the \verb+DKH+ approach (see for example 
+H\"{a}berlen and R\"{o}sch\footnote{O.D.~H\"{a}berlen, N.~R\"{o}sch, 
+Chem.~Phys.~Lett.~{\bf 199}, 491 (1992)}).
+
+In order to compute the integrals needed for the Douglas-Kroll approximation 
+Douglas-Kroll makes use of a fitting basis set (see literature given above 
+for details). The current code will create this fitting basis set based on 
+the given {\tt "ao basis"} by simply uncontracting that basis. This again what is 
+commonly implemented in quantum chemistry codes that include Douglas-Kroll.
+Additional flexibility is available to the user having by explicitly specifying
+a Douglas-Kroll fitting basis set. This basis set must be named {\tt "D-K basis"}
+(see Chapter \ref{sec:basis}).
+
+\section{Ken's approx section}
+\label{sec:ken's approx section}
+
