@@ -1,5 +1,5 @@
 *
-* $Id: fei_output.F,v 1.1 2002-10-09 21:08:00 bylaska Exp $
+* $Id: fei_output.F,v 1.2 2002-10-09 22:17:05 bylaska Exp $
 *
       subroutine fei_init()
       implicit none
@@ -46,7 +46,6 @@
       subroutine fei_output(E,ion_fion)
       implicit none
       real*8 E
-      integer nion
       real*8  ion_fion(3,*)
 
 *     **** local variables ****
