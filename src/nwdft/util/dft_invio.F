@@ -1,30 +1,34 @@
       Subroutine dft_invio(name,iga_inv,nbf,ioop,lmiss)
 
-C     $Id: dft_invio.F,v 1.7 1996-10-18 21:50:12 d3h449 Exp $
+C     $Id: dft_invio.F,v 1.8 1997-02-26 19:47:12 d3h449 Exp $
       implicit none
       
       character*(*) name        ! [input] name of file
       character*(*) ioop        ! [input] operation READ/WRITE/KILL
       integer lmiss             ! [output] 0=success, 1=failure
       integer iunit,j,nbf,iga_inv,istart,i
-      integer iinv,linv
+      integer iinv,linv,me
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "global.fh"
       character*(nw_max_path_len) fname
+      logical oprint_ioinfo
 c     
 c     Hacked by RJH to close files after all operations and to 
 c     use only one unit number ... old values left in comments
 c     
+      me=ga_nodeid()
+      oprint_ioinfo = util_print('io info',print_debug)
       iunit = 77
       if (name.eq.'XC') then
          call util_file_name('xc', .true., .false., fname)
 *         iunit=78
       elseif (name.eq.'CD') then
-         call util_file_name('cdfit', .true., .false., fname)
+         call util_file_name('2ceri', .true., .false., fname)
 *         iunit=76
       elseif (name.eq.'CDI') then
-         call util_file_name('cdinv', .true., .false., fname)
+         call util_file_name('2ceri_inv', .true., .false., fname)
 *         iunit=77
       elseif (name.eq.'FK') then
          call util_file_name('fock', .true., .false., fname)
@@ -33,6 +37,8 @@ c
 c     
       if(ioop.eq.'KILL') then
          call util_file_unlink(fname)
+         if(me.eq.0.and.oprint_ioinfo)
+     &   write(LuOut,*) ' KILL file ', fname, ' lmiss = ',lmiss
          lmiss = 0
          return
       endif
@@ -50,16 +56,19 @@ c
      &           nbf)
             call put_col(iga_inv,nbf,j,Dbl_MB(istart))
          enddo
-         write(LuOut,*) ' READ file ', fname
          close(iunit)
          lmiss=0
          if(.not.ma_pop_stack(linv))
      &        call errquit('dft_invio: cannot pop stack',0)
+         if(me.eq.0.and.oprint_ioinfo)
+     &   write(LuOut,*) ' READ file ', fname, ' lmiss = ',lmiss
          return
  27      lmiss=1
          if(.not.ma_pop_stack(linv))
      &        call errquit('dft_invio: cannot pop stack',0)
          close(iunit)
+         if(me.eq.0.and.oprint_ioinfo)
+     &   write(LuOut,*) ' READ file ', fname, ' lmiss = ',lmiss
          return
       else
          istart=iinv
@@ -71,6 +80,8 @@ c
          if(.not.ma_pop_stack(linv))
      &        call errquit('dft_invio: cannot pop stack',0)
          close(iunit)
+         if(me.eq.0.and.oprint_ioinfo)
+     &   write(LuOut,*) ' WRITE file ', fname, ' lmiss = ',lmiss
          return
       endif
       END

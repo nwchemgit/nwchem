@@ -49,7 +49,7 @@ c****
      ,     ifirst,ilast,nshbf,maxg,ish,lmiss
       integer iTvec,lTvec,lgvec,igvec,lERI,iERI,lcgtf,icgtf,
      ,     lscr,iscr
-      logical oprint,dowork
+      logical oprint,dowork,oprint_ioinfo
       integer iwhat_max, nlast, ntasks
       integer ishc_be, ishd_be
       integer ndone,ipoint
@@ -78,6 +78,7 @@ c******************************************************************************
       call dft_second(ts1)
 #endif
       oprint = util_print('coulomb fit', print_high)
+      oprint_ioinfo = util_print('io info',print_debug)
       nproc  = ga_nnodes()
       me = ga_nodeid()
       
@@ -407,9 +408,17 @@ c
       if(IOLGC) then
         call gacrea(geom,CD_bas_han,
      &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
-        if(me.eq.0)
-     &       call dft_invio('CDI',g_cdinv,nbf_cd,'READ',lmiss)
+        if (me.eq.0)then
+           lmiss = 0
+           call dft_invio('CDI',g_cdinv,nbf_cd,'READ',lmiss)
+           if(lmiss.ne.0)call errquit
+     &     (' dft_fitcd; dft_invio - abnormal read of CDI ',0)
+        endif
         call ga_sync
+        if(me.eq.0.and.oprint_ioinfo)then
+          write(6,*)' g_cdinv = ', g_cdinv
+          call ga_print(g_cdinv)
+        endif
       endif
 #if defined(DFT_TIMER)
       call ga_sync

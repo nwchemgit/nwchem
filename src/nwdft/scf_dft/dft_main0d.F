@@ -1,10 +1,10 @@
       logical function dft_main0d( rtdb )
 c     
-C     $Id: dft_main0d.F,v 1.13 1997-02-13 01:07:38 d3g681 Exp $
+C     $Id: dft_main0d.F,v 1.14 1997-02-26 19:47:09 d3h449 Exp $
 c     
       implicit none
       integer rtdb              ! rtdb handle [input]
-      Logical LResult,IOLGC,oprint_time
+      Logical LResult,IOLGC,oprint_time,oprint_ioinfo
 c     
 #include "bas.fh"
 #include "geom.fh"
@@ -47,6 +47,7 @@ c
       me = ga_nodeid()
       nproc = ga_nnodes()
       oprint_time=util_print('dft timings',print_high)
+      oprint_ioinfo = util_print('io info',print_debug)
       call schwarz_init(geom,AO_bas_han)
       IOLGC=.TRUE.
       if(noio.eq.1) IOLGC=.FALSE.
@@ -87,7 +88,14 @@ c
             call gacrea(
      $           geom,XC_bas_han,nbf_xc,nbf_xc,'XCinv',g_xcinv,'row')
             if(me.eq.0) then
+c
+c              try to read old XC matrix on disk; use if appropriate
+c
                call dft_invio('XC',g_xcinv,nbf_xc,'READ',lmiss)
+               if (lmiss.ne.0)then
+                  if(oprint_ioinfo)write(6,*)
+     &            ' old XC READ miss; constructing new matrix. '
+               endif
             endif
             call ga_sync
             call ga_brdcst(Msg_XC_Ex,lmiss,mitob(1),0)
@@ -126,7 +134,10 @@ c
             call ga_sync
             call gadest(g_oi)
             if (me.eq.0.and.IOLGC) then
+               lmiss = 0
                call dft_invio('XC',g_xcinv,nbf_xc,'WRITE',lmiss)
+               if(lmiss.ne.0)call errquit
+     &         (' dft_main0d; dft_invio - abnormal write of XC ',0)
             end if
          endif
          call ga_sync
@@ -168,8 +179,15 @@ c
          call gacrea(geom,CD_bas_han,
      $        nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
          lmiss=1
-         if( me.eq.0.and.IOLGC)then
+         if (me.eq.0.and.IOLGC)then
+c
+c           try to read old CDI matrix on disk; use if appropriate
+c
             call dft_invio('CDI',g_cdinv,nbf_cd,'READ',lmiss)
+            if (lmiss.ne.0)then
+               if(oprint_ioinfo)write(6,*)
+     &         ' old CDI READ miss; constructing new matrix. '
+            endif
          endif
          call ga_brdcst(Msg_CD_Ex,lmiss,mitob(1),0)
          if(lmiss.eq.1) then
@@ -199,8 +217,22 @@ c
                call dft_invdiag(geom,CD_bas_han,g_2ceri,g_cdinv,nbf_cd)
             endif
             if(IOLGC.and.(me.eq.0)) then
+               lmiss = 0
                call dft_invio('CDI',g_cdinv,nbf_cd,'WRITE',lmiss)
+               if(lmiss.ne.0)call errquit
+     &         (' dft_main0d; dft_invio - abnormal write of CDI ',0)
+               if(oprint_ioinfo)then
+                 write(6,*)' g_cdinv = ', g_cdinv
+                 call ga_print(g_cdinv)
+               endif
+               lmiss = 0
                call dft_invio('CD',g_2ceri,nbf_cd,'WRITE',lmiss)
+               if(lmiss.ne.0)call errquit
+     &         (' dft_main0d; dft_invio - abnormal write of CD ',0)
+               if(oprint_ioinfo)then
+                 write(6,*)' g_2ceri = ', g_2ceri
+                 call ga_print(g_2ceri)
+               endif
             endif
             call ga_sync
          endif

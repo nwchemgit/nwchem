@@ -1,7 +1,7 @@
       Subroutine dft_fitvc(rtdb, geom, AO_bas_han, CD_bas_han, CD_coef, 
      &     g_vc, Ecoul2, nbf_cd, g_2ceri,IOLGC,itol2e,incore,
      &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,iwhat_max)
-C     $Id: dft_fitvc.F,v 1.11 1996-11-22 19:08:25 d3h449 Exp $
+C     $Id: dft_fitvc.F,v 1.12 1997-02-26 19:46:57 d3h449 Exp $
       implicit none
       
 c**** 
@@ -35,6 +35,7 @@ c
 #include "tcgmsg.fh"
 #include "msgids.fh"
 #include "schwarz.fh"
+#include "util.fh"
 
 #if defined(DFT_TIMER)
 #include "timer.fh"
@@ -57,15 +58,16 @@ c
       integer iwhat_max, ishc_be, ishd_be, nlast
       integer nxtask
       logical dowork
+      logical oprint_ioinfo
       integer ndone,ipoint,ipoint2
-      double precision ddot
-      external ddot,nxtask
+      external nxtask
 c
 #if defined(DFT_TIMER)
       call ga_sync
       call t_stat(10,-1)
       call dft_second(ts1)
 #endif
+      oprint_ioinfo = util_print('io info',print_debug)
       THRESHOLD=10.d0**(-itol2e)
 c      
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
@@ -119,9 +121,17 @@ c
       if(IOLGC) then
         call gacrea(geom,CD_bas_han,
      &       nbf_cd,nbf_cd,'CD 2cERI',g_2ceri,'row')
-        if(me.eq.0)
-     &       call dft_invio('CD',g_2ceri,nbf_cd,'READ',lmiss)
+        if (me.eq.0)then
+           lmiss = 0
+           call dft_invio('CD',g_2ceri,nbf_cd,'READ',lmiss)
+           if(lmiss.ne.0)call errquit
+     &     (' dft_fitvc; dft_invio - abnormal read of CD ',0)
+        endif
         call ga_sync
+        if(me.eq.0.and.oprint_ioinfo)then
+          write(6,*)' g_2ceri = ', g_2ceri
+          call ga_print(g_2ceri)
+        endif
       endif
 c      
 c     Parallelize the loop over the products of AO shells.

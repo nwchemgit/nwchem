@@ -1,15 +1,12 @@
-      Subroutine dft_3cincor(rtdb, geom, AO_bas_han, CD_bas_han, 
-     &      nbf_cd, itol2e,n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,
-     &      iwhat_max)
-C$Id: dft_3cincor.F,v 1.5 1996-11-27 23:48:17 d3h449 Exp $
+      Subroutine dft_3cincor(rtdb, n_batch, n_bmax, iwhat, i3c_ERI, 
+     &      n3c_dbl, iwhat_max, n_semi_bufs)
+C$Id: dft_3cincor.F,v 1.6 1997-02-26 19:46:54 d3h449 Exp $
       implicit none
             
 c****
 c**** nwchem handles
 c****
-      integer rtdb, geom, AO_bas_han, CD_bas_han
-      integer nbf_cd    ! no. CD functions [input]
-      integer itol2e ! bi-el int tolerance [input]
+      integer rtdb
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax  ! max no. batches [in]
       integer iwhat(n_bmax) ! what batches have been computed [out]
@@ -17,6 +14,7 @@ c****
       double precision i3c_ERI(n3c_dbl) ! int values [out]
 c**** 
 #include "bas.fh"
+#include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -24,6 +22,9 @@ c****
 #include "msgids.fh"
 #include "schwarz.fh"
 #include "stdio.fh"
+#include "cdft.fh"
+#include "eaf.fh"
+#include "util.fh"
 c     
 c     Compute the 3-center integrals and store as many of them 
 c     as possible in-core.
@@ -34,15 +35,48 @@ c
      ,     n1,n2,ishc,ifirstc,ilastc,nshbfc,ishd,ifirstd,ilastd,
      ,     nshbfd,ifirstp,ilastp,nint,
      ,     nshbf_cd,ndone
-      integer lscr,iscr
+      integer lscr,iscr, n_semi_bufs
       integer nlast, ntasks, nxtbuf, nbufs
       integer iwhat_max, nao2_max, batch_max, neri_max
+      integer availkb
+      character*20 fstype
+      character*255 filename, actualname
+      logical oprint_semi_file
       double precision THRESHOLD, ERI_est, ratio
       integer nxtask
       external nxtask
 C      write(0,*) ' in 3CINCO',itol2e
 c
       THRESHOLD=10.d0**(-itol2e)
+      oprint_semi_file = util_print('semi-direct info', print_default)
+c
+c     Check whether of not to enable semi-direct; check direct & noio
+c
+c
+c     temp set n_semi_bufs = 10
+c
+      n_semi_bufs = 10
+c
+      write(6,*)' direct, noio = ',direct, noio
+      if(n_semi_bufs.gt.1)then
+        if((.not.direct).and.(noio.ne.1))then
+c
+c         inquire of available disk space
+c
+          filename = 'dft_3c2e'           
+          call util_pname(filename, actualname)
+c
+          if(oprint_semi_file.and.(ga_nodeid().eq.0))then
+            write(6,*) ' dft_3cincor: opening ',
+     &      actualname(1:inp_strlen(actualname))
+            call util_flush(6)
+          endif
+          if (eaf_stat(actualname, availkb, fstype) .ne. 0) 
+     &       call errquit('dft_3cincor: unable to get disk info',0)
+c         max_file_rec = nint((0.95*1024.0d0*availkb) / 
+c     $        (8.0d0*rec_len_in_dbl))
+        endif
+      endif
 c      
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
 c      
@@ -176,6 +210,14 @@ c
                 call nxtask_nleft (nproc, icount, n1, nbufs)
 c                n1 = nxtask(nproc,icount)
               else
+c
+c               The most simplest of semi-direct implementations.
+c               When this semi-incore memory buffer is full, dump it
+c               and start over.
+c
+c               if I/O allowed, sync (so that all procs have similar size buffers
+c               to process later), write out buffer and continue.
+c
                 go to 241
               endif
 c
@@ -274,7 +316,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: dft_3cincor.F,v 1.5 1996-11-27 23:48:17 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.6 1997-02-26 19:46:54 d3h449 Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k

@@ -5,7 +5,7 @@
      $     g_fock,g_svecs,isvals,
      $     g_cdinv,g_xcinv,g_2ceri)
 c     
-C     $Id: dft_scf.F,v 1.59 1997-02-18 01:29:55 d3h449 Exp $
+C     $Id: dft_scf.F,v 1.60 1997-02-26 19:47:10 d3h449 Exp $
 c     
       implicit none
       integer rtdb              ! [input]
@@ -40,7 +40,7 @@ c
       integer avail, availm
       integer iwhat_max
       integer l_3cwhat,k_3cwhat,l_3cERI,k_3cERI
-      integer dft_n3cint
+      integer dft_n3cint, n_semi_bufs
       external dft_n3cint
       double precision dft_n3cdbl
       external dft_n3cdbl
@@ -236,12 +236,22 @@ c
          if(nproc.eq.1)icount = 1
 c     
          nao2_max = mxshbf_ao**2
+c
+c        compute size of largest block of integrals computed
+c
          batch_max = nao2_max*nbf_cd*icount
 c     
          if((n3c_dbl.lt.batch_max).or.direct)then
             incore = .false.
             n3c_dbl = 1
             n3c_int = 1
+         endif
+         if(availm_r.lt.n3c_dbl_r)then
+c
+c          cannot all be done incore, compute number of buffers 
+c          required if semi-direct (I/O)
+c
+           n_semi_bufs = nint(n3c_dbl_r/availm_r) + 1
          endif
          if( .not.MA_Push_Get(
      $        MT_Dbl,n3c_dbl,'3c ERI space',l_3cERI,k_3cERI))
@@ -254,10 +264,9 @@ c
          if(incore)then
             if(me.eq.0 .and. oprint_parm)
      $           write(LuOut,3229)n3c_dbl*1.d-6
-            call dft_3cincor(rtdb, geom, AO_bas_han, CD_bas_han, 
-     $           nbf_cd, itol_max,n_batch,n3c_int,
-     $           int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl,
-     $           iwhat_max)
+            call dft_3cincor(rtdb, n_batch, n3c_int,
+     $           int_mb(k_3cwhat), dbl_mb(k_3cERI), n3c_dbl,
+     $           iwhat_max, n_semi_bufs)
          else
             if(me.eq.0 .and. oprint_parm)write(LuOut,3230)
          endif

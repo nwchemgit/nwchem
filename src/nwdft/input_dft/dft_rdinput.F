@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.33 1997-02-22 22:28:49 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.34 1997-02-26 19:47:07 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -209,7 +209,7 @@ c
 c
       if (.not. rtdb_get(rtdb, 'dft:noio', mt_int, 1,
      &   noio))then
-         noio=1
+         noio=0
          if (.not. rtdb_put(rtdb, 'dft:noio',
      &      mt_int, 1, noio))
      &      call errquit('dft_input: rtdb_put failed', 112)
