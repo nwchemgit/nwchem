@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.236 1997-05-29 16:01:44 d3j191 Exp $
+# $Id: makefile.h,v 1.237 1997-06-21 18:35:20 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -8,6 +8,17 @@
 # TOPDIR points to your top-level directory that contains 
 # src, lib, config, ... (SRCDIR, etc., are derived from TOPDIR)
 # Do a setenv for NWCHEM_TOP to be the top level directory
+#
+# RELEASE is empty for the development branch of NWChem and is the
+# version number for releases.  If RELEASE is not empty and if NWCHEM_TOP 
+# does not already contain the value of RELEASE, it is appended with 
+# a hypehn to NWCHEM_TOP in order to derive the directory path TOPDIR.
+
+# For development tree 
+RELEASE := 
+# For current release tree
+#RELEASE := 3.0
+
 #
 
 ifndef NWCHEM_TOP
@@ -49,14 +60,25 @@ error2:
 	@exit 1
 endif
 
-     TARGET = $(NWCHEM_TARGET)
-     TOPDIR = $(NWCHEM_TOP)
+     TARGET := $(NWCHEM_TARGET)
+ifeq (,$(RELEASE))
+     TOPDIR := $(NWCHEM_TOP)
+else
+ifeq (,$(findstring $(RELEASE),$(NWCHEM_TOP)))
+     TOPDIR := $(NWCHEM_TOP)-$(RELEASE)
+else
+     TOPDIR := $(NWCHEM_TOP)
+endif
+endif
 
-     SRCDIR = $(TOPDIR)/src
-     LIBDIR = $(TOPDIR)/lib/$(TARGET)
-     BINDIR = $(TOPDIR)/bin/$(TARGET)
-     INCDIR = $(TOPDIR)/src/include
-     CNFDIR = $(TOPDIR)/src/config
+#dummy:
+#	echo NWCHEM_TOP=$(NWCHEM_TOP) RELEASE=$(RELEASE) TOPDIR=$(TOPDIR)
+
+     SRCDIR := $(TOPDIR)/src
+     LIBDIR := $(TOPDIR)/lib/$(TARGET)
+     BINDIR := $(TOPDIR)/bin/$(TARGET)
+     INCDIR := $(TOPDIR)/src/include
+     CNFDIR := $(TOPDIR)/src/config
 
 #
 # Define LIBPATH to be paths for libraries that you are linking in
