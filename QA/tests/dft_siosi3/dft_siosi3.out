@@ -1,139 +1,21 @@
-TERM=dumb
-SHELL=/usr/bin/csh
-HOME=/u/d3h449
-LOGNAME=d3h449
-PATH=.:/u/d3h449/bin:/usr/local/bin:/usr/lpp/LoadL/nfs/bin:/usr/bin:/etc:/usr/sbin:/usr/ucb:/usr/bin/X11:/sbin:/usr/lpp/ssp/bin:/usr/lpp/ssp/kerberos/bin:/usr/afsws/bin
-TZ=PST8PDT
-LANG=En_US
-LOCPATH=/usr/lib/nls/loc
-NLSPATH=/usr/lib/nls/msg/%L/%N:/usr/lib/nls/msg/%L/%N.cat
-LC__FASTMSG=true
-ODMDIR=/etc/objrepos
-AUTHSTATE=compat
-USER=d3h449
-MANPATH=.:/usr/man:/source/local/man:/u/khoros/man
-LOGIN=d3h449
-NWCHEM_TOP=/u/d3h449/nwchem
-NWCHEM_TARGET=SP1
-MAKEHOSTS=et0101 et0201 et0301 et0401 et0501 et0601 et0701 et0801 et0901 et1001 et1101 et1201 et1301 et1501 et1601
-MAKESERV=/u/d3h449/bin/makeserver
-MPATH=.:/usr/man:/source/local/man:/u/khoros/man
-WORKSHOP=/source/local/etc/httpd/htdocs/training/workshop
-WWW_HOME=/source/local/etc/httpd/htdocs/mhpcc.html
-NNTPSERVER=makapu.mhpcc.edu
-SP_NAME=ce0ws1-atm.nwmpp1.emsl.pnl.gov
-TARGET=SP1
-MPI_LOC=/s/pd/msg_pass/mpich
-MP_INFOLEVEL=1
-MP_EUILIB=us
-MP_RESD=YES
-MP_EUIDEVICE=css0
-MP_CSS_INTERRUPT=YES
-MP_STDINMODE=0
-MP_PULSE=0
-MP_SINGLE_THREAD=yes
-PWD=/u/d3h449/examples/siosi
-LOADLBATCH=yes
-LOADL_ACTIVE=1.3.0.+
-LOADL_STEP_ID=sw1411.nwmpp1.emsl.pnl.gov.315.0
-LOADL_JOB_NAME=sw1411.nwmpp1.emsl.pnl.gov.315
-LOADL_STEP_NAME=0
-LOADL_STEP_OWNER=d3h449
-LOADL_STEP_COMMAND=/u/d3h449/examples/siosi/siosi3_64.job
-LOADL_STEP_ARGS=
-LOADL_STEP_IN=/dev/null
-LOADL_STEP_OUT=/u/d3h449/examples/siosi/siosi3_64.out
-LOADL_STEP_ERR=/u/d3h449/examples/siosi/siosi3_64.err
-LOADL_STEP_INITDIR=/u/d3h449/examples/siosi
-LOADL_STEP_CLASS=mss_large
-LOADL_STEP_ACCT=
-LOADL_STEP_GROUP=d3h449
-LOADL_STEP_TYPE=PARALLEL
-LOADL_STARTD_PORT=9611
-LOADL_STEP_NICE=0
-LOADL_PROCESSOR_LIST=sw0608.nwmpp1.emsl.pnl.gov sw0914.nwmpp1.emsl.pnl.gov sw1002.nwmpp1.emsl.pnl.gov sw1313.nwmpp1.emsl.pnl.gov sw0316.nwmpp1.emsl.pnl.gov sw0509.nwmpp1.emsl.pnl.gov sw0215.nwmpp1.emsl.pnl.gov sw0410.nwmpp1.emsl.pnl.gov sw1310.nwmpp1.emsl.pnl.gov sw1202.nwmpp1.emsl.pnl.gov sw0309.nwmpp1.emsl.pnl.gov sw0808.nwmpp1.emsl.pnl.gov sw0816.nwmpp1.emsl.pnl.gov sw0515.nwmpp1.emsl.pnl.gov sw1316.nwmpp1.emsl.pnl.gov sw1006.nwmpp1.emsl.pnl.gov sw2912.nwmpp1.emsl.pnl.gov sw0313.nwmpp1.emsl.pnl.gov sw1903.nwmpp1.emsl.pnl.gov sw2410.nwmpp1.emsl.pnl.gov sw0307.nwmpp1.emsl.pnl.gov sw1008.nwmpp1.emsl.pnl.gov sw2709.nwmpp1.emsl.pnl.gov sw3104.nwmpp1.emsl.pnl.gov sw0505.nwmpp1.emsl.pnl.gov sw0403.nwmpp1.emsl.pnl.gov sw0607.nwmpp1.emsl.pnl.gov sw1015.nwmpp1.emsl.pnl.gov sw0109.nwmpp1.emsl.pnl.gov sw0503.nwmpp1.emsl.pnl.gov sw2415.nwmpp1.emsl.pnl.gov sw1607.nwmpp1.emsl.pnl.gov sw2209.nwmpp1.emsl.pnl.gov sw0616.nwmpp1.emsl.pnl.gov sw0716.nwmpp1.emsl.pnl.gov sw0406.nwmpp1.emsl.pnl.gov sw0910.nwmpp1.emsl.pnl.gov sw2916.nwmpp1.emsl.pnl.gov sw0702.nwmpp1.emsl.pnl.gov sw1111.nwmpp1.emsl.pnl.gov sw1003.nwmpp1.emsl.pnl.gov sw1016.nwmpp1.emsl.pnl.gov sw0605.nwmpp1.emsl.pnl.gov sw2109.nwmpp1.emsl.pnl.gov sw0614.nwmpp1.emsl.pnl.gov sw2106.nwmpp1.emsl.pnl.gov sw0103.nwmpp1.emsl.pnl.gov sw0502.nwmpp1.emsl.pnl.gov sw0510.nwmpp1.emsl.pnl.gov sw0810.nwmpp1.emsl.pnl.gov sw0114.nwmpp1.emsl.pnl.gov sw1112.nwmpp1.emsl.pnl.gov sw1602.nwmpp1.emsl.pnl.gov sw1703.nwmpp1.emsl.pnl.gov sw2211.nwmpp1.emsl.pnl.gov sw2716.nwmpp1.emsl.pnl.gov sw0714.nwmpp1.emsl.pnl.gov sw2712.nwmpp1.emsl.pnl.gov sw0905.nwmpp1.emsl.pnl.gov sw0909.nwmpp1.emsl.pnl.gov sw2404.nwmpp1.emsl.pnl.gov sw2907.nwmpp1.emsl.pnl.gov sw2802.nwmpp1.emsl.pnl.gov sw0511.nwmpp1.emsl.pnl.gov 
-/scratch 
-Mon Apr 28 03:40:29 PDT 1997
  
 Processor list
  
-sw0608
-sw0914
+sw0915
 sw1002
-sw1313
-sw0316
-sw0509
-sw0215
-sw0410
-sw1310
-sw1202
-sw0309
-sw0808
-sw0816
-sw0515
-sw1316
-sw1006
-sw2912
-sw0313
-sw1903
-sw2410
-sw0307
-sw1008
-sw2709
-sw3104
-sw0505
-sw0403
-sw0607
-sw1015
-sw0109
-sw0503
-sw2415
-sw1607
-sw2209
-sw0616
-sw0716
-sw0406
-sw0910
-sw2916
-sw0702
-sw1111
 sw1003
-sw1016
-sw0605
-sw2109
-sw0614
-sw2106
-sw0103
-sw0502
-sw0510
-sw0810
-sw0114
-sw1112
-sw1602
-sw1703
-sw2211
-sw2716
-sw0714
-sw2712
-sw0905
-sw0909
-sw2404
-sw2907
-sw2802
-sw0511
+sw0910
 
  
-Mon Apr 28 03:40:29 PDT 1997
- Broadcast /u/d3h449/nwchem/bin/SP1/nwchem to /scratch/nwchem.11252 ... OK
-Mon Apr 28 03:40:43 PDT 1997
- 
- argument  1 = /u/d3h449/examples/siosi/siosi3_64.nw
+Fri Jul 31 17:03:38 PDT 1998
+copyexe used 0.732 seconds
+ argument  1 = /piofs3/windus/tests/dft_siosi3/dft_siosi3.nw
                                          
                                          
  
  
-              Northwest Computational Chemistry Package (NWChem) 2.1
-              ------------------------------------------------------
+             Northwest Computational Chemistry Package (NWChem) 3.2.1
+             --------------------------------------------------------
  
  
                     Environmental Molecular Sciences Laboratory
@@ -144,7 +26,7 @@ Mon Apr 28 03:40:43 PDT 1997
                                          
  
  
-                           COPYRIGHT (C) 1994, 1995, 1996,
+                         COPYRIGHT (C) 1994, 1995, 1996, 1997
                         Pacific Northwest National Laboratory,
                              Battelle Memorial Institute.
  
@@ -200,26 +82,27 @@ Mon Apr 28 03:40:43 PDT 1997
               Job information
               ---------------
 
-    hostname  = et0608.nwmpp1.emsl.pnl.gov
-    program   = /scratch/nwchem.11252
-    date      = Mon Apr 28 03:41:10 1997
+    hostname  = et0915.nwmpp1.emsl.pnl.gov
+    program   = /scratch/nwchem
+    date      = Fri Jul 31 17:04:50 1998
 
-    compiled  = Sun Apr 27 09:51:04 PDT 1997
-    source    = /u/d3h449/nwchem
-    input     = /u/d3h449/examples/siosi/siosi3_64.nw
+    compiled  = Thu Jul 30 02:02:10 PDT 1998
+    source    = /u2/nwchem/sp-3.2.1
+    input     = /piofs3/windus/tests/dft_siosi3/dft_siosi3.nw
     prefix    = siosi3_64.
-    data base = /piofs/d3h449/siosi3/n64/siosi3_64.db
+    data base = ./siosi3_64.db
     status    = startup
-    nproc     =   64
+    nproc     =    4
+    time left =   7082s
 
 
             Memory information
             ------------------
 
-    heap      =    8847361 doubles
-    stack     =    2949121 doubles
-    global    =   11796491 doubles (allocated from within heap+stack)      
-    total     =   11796482 doubles
+    heap      =    8847361 doubles =     70.8 Mbytes
+    stack     =    2949121 doubles =     23.6 Mbytes
+    global    =   11796491 doubles =     94.4 Mbytes (within heap+stack)
+    total     =   11796482 doubles =     94.4 Mbytes
     verify    = yes
     hardfail  = no 
 
@@ -227,12 +110,12 @@ Mon Apr 28 03:40:43 PDT 1997
            Directory information
            ---------------------
  
-  0 permanent = /piofs/d3h449/siosi3/n64
-  0 scratch   = /scratch
+  0 permanent = .
+  0 scratch   = .
  
  
  
-                                NWCHEM Input Module
+                                NWChem Input Module
                                 -------------------
  
  
@@ -479,7 +362,7 @@ Mon Apr 28 03:40:43 PDT 1997
  H                       user specified              6       13   4s1p1d
 
 
-                                 NWCHEM DFT Module
+                                 NWChem DFT Module
                                  -----------------
  
  
@@ -505,8 +388,8 @@ Mon Apr 28 03:40:43 PDT 1997
           CD basis - number of functions:   832
                      number of shells:   335
           Convergence on energy requested:  .10D-05
-          Convergence on density requested:  .10D-03
-          Convergence on gradient requested:  .10D-02
+          Convergence on density requested:  .10D-04
+          Convergence on gradient requested:  .50D-03
  
               XC Information
               --------------
@@ -516,10 +399,15 @@ Mon Apr 28 03:40:43 PDT 1997
              Grid Information
              ----------------
           Grid used for XC integration:  medium    
-          Radial quadrature: Euler-MacLaurin, 
-          Angular quadrature: Gauss-Legendre, with 
-            50 radial points,  10 theta points, and  20 phi points.
-          Number of quadrature shells:  1439
+          Radial quadrature: Euler-MacLaurin. 
+          Angular quadrature: Gauss-Legendre. 
+          Tag              B.-S. Rad. Rad. Pts. Ang. Pts.
+          ---              ---------- --------- ---------
+          O                    .60       70      18 * 36
+          Si                  1.10       95      24 * 48
+          H                    .35       70      18 * 36
+          Grid pruning is: on 
+          Number of quadrature shells:  1940
           Spatial weights used: Becke. 
  
           Convergence Information
@@ -539,330 +427,1818 @@ Mon Apr 28 03:40:43 PDT 1997
  
       Screening Tolerance Information
       -------------------------------
-          Density screening/tol_rho:  .10D-14
+          Density screening/tol_rho:  .10D-09
           AO Gaussian exp screening on grid/accAOfunc:  20
-          CD Gaussian exp screening on grid/accCoul:  12
-          Schwarz screening/accCoul:  .10D-11
+          CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
-          Max radial quadrature (shell size)/accQrad:  .40D+02
-          Spatial weight screening/radius:  .16D+02
+          Schwarz screening/accCoul:  .10D-09
+          Max radial quadrature (shell size)/accQrad(au):  .12D+02
+          Spatial weight screening/radius(au):  .25D+02
 
   int_init: cando_txs set to always be  F
 
 
      <<<<<<    Before call to DFT_SCF.    >>>>>>
-     <<<<<< date:  Apr 28  time: 03:41:23 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:05:58 >>>>>>
 
 
 
      <<<<<<    Before 3c-2e initialize.   >>>>>>
-     <<<<<< date:  Apr 28  time: 03:41:23 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:05:58 >>>>>>
 
  
       3 Center 2 Electron Integral Information
       ----------------------------------------
           Maximum number of 3-center 2e- integrals is:      100180288.
-            This is reduced with Schwarz screening to:       39782080.
-            Incore requires a per proc buffer size of:         652571.
-                  The minimum integral buffer size is:          29952.
-          Minimum dble words available (all nodes) is:        11755528
-                   This is reduced (for later use) to:        10728010
-                             Suggested buffer size is:          652571
+            This is reduced with Schwarz screening to:       34780928.
+            Incore requires a per proc buffer size of:        9295296.
+                  The minimum integral buffer size is:         599040.
+          Minimum dble words available (all nodes) is:        11282014
+                   This is reduced (for later use) to:         9016692
+                             Suggested buffer size is:         3000000
 
-            .653 MW buffer allocated for incore 3-center 
+           3.000 MW buffer allocated for incore 3-center 
           2e- integral storage on stack. 
-          The percent of 3c 2e- integrals held in-core is: 100.00
+          The percent of 3c 2e- integrals held in-core is:  19.01
 
 
 
      <<<<<<    Before call to DFT_INIT.   >>>>>>
-     <<<<<< date:  Apr 28  time: 03:41:28 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:06:18 >>>>>>
 
-  movecs_read_header: failed to open /piofs/d3h449/siosi3/n64/siosi3_64.movecs
+  Skipping SCF linear dependence check. 
  
       Superposition of Atomic Density Guess
       -------------------------------------
  
  Sum of atomic energies:       -2842.55896057
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =   -2848.608584
+ 1-e energy   =   -8548.884484
+ 2-e energy   =    3387.033522
+ HOMO         =       -.373365
+ LUMO         =       -.027117
+ 
+   Time prior to 1st pass:    165.5
 
 
      <<<<<<      Before SCF iter loop.    >>>>>>
-     <<<<<< date:  Apr 28  time: 03:41:28 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:07:58 >>>>>>
 
 
 
      <<<<<<    Before call to FITCD.      >>>>>>
-     <<<<<< date:  Apr 28  time: 03:41:28 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:08:03 >>>>>>
 
 
 
      <<<<<<    Before call to GETVCOUL.   >>>>>>
-     <<<<<< date:  Apr 28  time: 03:41:29 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:08:30 >>>>>>
 
 
 
      <<<<<<    Before call to GETVXC.     >>>>>>
-     <<<<<< date:  Apr 28  time: 03:41:29 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:09:08 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:09:08 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:09:08 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:09:08 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:09:08 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:12:23 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:12:23 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:12:23 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:12:23 >>>>>>
 
 
 
      <<<<<<    End of parallel region.    >>>>>>
-     <<<<<< date:  Apr 28  time: 03:41:38 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:12:23 >>>>>>
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):        8.77             8771404
-          Stack Space remaining (MW):        2.30             2295229
+           Heap Space remaining (MW):        7.73             7732862
+          Stack Space remaining (MW):         .00                   0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls= .0,diis     1  -2842.8839048215 -5.16D+03  1.83D-02  1.76D+02    26.0
+ d= 0,ls= .0,diis     1  -2840.3332118701 -5.15D+03  9.86D-03  6.29D+00   430.9
 
 
      <<<<<<    Before call to FITCD.      >>>>>>
-     <<<<<< date:  Apr 28  time: 03:41:41 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:12:52 >>>>>>
 
 
 
      <<<<<<    Before call to GETVCOUL.   >>>>>>
-     <<<<<< date:  Apr 28  time: 03:41:41 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:13:21 >>>>>>
 
 
 
      <<<<<<    Before call to GETVXC.     >>>>>>
-     <<<<<< date:  Apr 28  time: 03:41:41 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:13:59 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:13:59 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:13:59 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:13:59 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:13:59 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:17:11 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:17:11 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:17:11 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:17:11 >>>>>>
 
 
 
      <<<<<<    End of parallel region.    >>>>>>
-     <<<<<< date:  Apr 28  time: 03:41:51 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:17:11 >>>>>>
 
- d= 0,ls= .0,diis     2  -2840.0766018065  2.81D+00  1.20D-02  6.66D+00    38.6
+ d= 0,ls= .0,diis     2  -2839.6811924041  6.52D-01  6.68D-03  1.08D+01   698.0
 
 
      <<<<<<    Before call to FITCD.      >>>>>>
-     <<<<<< date:  Apr 28  time: 03:41:54 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:17:42 >>>>>>
 
 
 
      <<<<<<    Before call to GETVCOUL.   >>>>>>
-     <<<<<< date:  Apr 28  time: 03:41:54 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:18:10 >>>>>>
 
 
 
      <<<<<<    Before call to GETVXC.     >>>>>>
-     <<<<<< date:  Apr 28  time: 03:41:54 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:18:49 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:18:49 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:18:49 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:18:49 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:18:49 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:22:00 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:22:00 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:22:00 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:22:00 >>>>>>
 
 
 
      <<<<<<    End of parallel region.    >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:04 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:22:00 >>>>>>
 
- d= 0,ls= .0,diis     3  -2838.1018509160  1.97D+00  8.96D-03  2.69D+01    51.5
+ d= 0,ls= .0,diis     3  -2840.6214903431 -9.40D-01  2.05D-03  9.98D-01   963.4
 
 
      <<<<<<    Before call to FITCD.      >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:07 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:22:28 >>>>>>
 
 
 
      <<<<<<    Before call to GETVCOUL.   >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:07 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:22:56 >>>>>>
 
 
 
      <<<<<<    Before call to GETVXC.     >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:07 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:23:34 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:23:34 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:23:34 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:23:34 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:23:34 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:26:45 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:26:45 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:26:45 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:26:45 >>>>>>
 
 
 
      <<<<<<    End of parallel region.    >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:17 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:26:45 >>>>>>
 
- d= 0,ls= .0,diis     4  -2840.7024418921 -2.60D+00  1.48D-03  1.32D-01    64.3
+ d= 0,ls= .0,diis     4  -2840.7153425390 -9.39D-02  6.66D-04  6.30D-02  1228.1
 
 
      <<<<<<    Before call to FITCD.      >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:20 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:26:53 >>>>>>
 
 
 
      <<<<<<    Before call to GETVCOUL.   >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:20 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:27:22 >>>>>>
 
 
 
      <<<<<<    Before call to GETVXC.     >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:21 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:27:59 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:27:59 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:27:59 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:27:59 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:27:59 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:31:11 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:31:11 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:31:11 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:31:11 >>>>>>
 
 
 
      <<<<<<    End of parallel region.    >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:30 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:31:11 >>>>>>
 
- d= 0,ls= .0,diis     5  -2840.7179247331 -1.55D-02  4.30D-04  4.67D-02    77.1
+ d= 0,ls= .0,diis     5  -2840.7228239970 -7.48D-03  2.06D-04  9.84D-03  1493.0
 
 
      <<<<<<    Before call to FITCD.      >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:33 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:31:19 >>>>>>
 
 
 
      <<<<<<    Before call to GETVCOUL.   >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:34 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:31:47 >>>>>>
 
 
 
      <<<<<<    Before call to GETVXC.     >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:34 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:32:26 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:32:26 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:32:26 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:32:26 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:32:26 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:35:37 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:35:37 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:35:37 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:35:37 >>>>>>
 
 
 
      <<<<<<    End of parallel region.    >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:43 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:35:37 >>>>>>
 
- d= 0,ls= .0,diis     6  -2840.7217069850 -3.78D-03  1.97D-04  9.03D-03    90.1
+ d= 0,ls= .0,diis     6  -2840.7236282622 -8.04D-04  7.44D-05  7.85D-04  1757.8
 
 
      <<<<<<    Before call to FITCD.      >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:46 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:36:06 >>>>>>
 
 
 
      <<<<<<    Before call to GETVCOUL.   >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:47 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:36:45 >>>>>>
 
 
 
      <<<<<<    Before call to GETVXC.     >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:47 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:37:32 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:37:32 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:37:32 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:37:32 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:37:32 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:42:01 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:42:01 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:42:01 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:42:01 >>>>>>
 
 
 
      <<<<<<    End of parallel region.    >>>>>>
-     <<<<<< date:  Apr 28  time: 03:42:56 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:42:01 >>>>>>
 
- d= 0,ls= .0,diis     7  -2840.7226732173 -9.66D-04  3.45D-05  2.09D-04   102.9
+ d= 0,ls= .0,diis     7  -2840.7236764177 -4.82D-05  1.52D-05  1.52D-05  2120.2
 
 
      <<<<<<    Before call to FITCD.      >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:00 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:42:29 >>>>>>
 
 
 
      <<<<<<    Before call to GETVCOUL.   >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:00 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:43:08 >>>>>>
 
 
 
      <<<<<<    Before call to GETVXC.     >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:00 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:43:55 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:43:55 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:43:55 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:43:55 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:43:55 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:48:23 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:48:24 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:48:24 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:48:24 >>>>>>
 
 
 
      <<<<<<    End of parallel region.    >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:09 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:48:24 >>>>>>
 
- d= 0,ls= .0,diis     8  -2840.7226924176 -1.92D-05  8.29D-06  8.52D-06   115.7
+ d= 0,ls= .0,diis     8  -2840.7236778209 -1.40D-06  6.45D-06  4.97D-06  2482.7
 
 
      <<<<<<    Before call to FITCD.      >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:13 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:48:53 >>>>>>
 
 
 
      <<<<<<    Before call to GETVCOUL.   >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:13 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:49:32 >>>>>>
 
 
 
      <<<<<<    Before call to GETVXC.     >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:13 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:50:19 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:50:19 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:50:19 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:50:19 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:50:19 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:54:47 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:54:47 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:54:47 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:54:47 >>>>>>
 
 
 
      <<<<<<    End of parallel region.    >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:24 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:54:47 >>>>>>
 
- d= 0,ls= .0,diis     9  -2840.7226978778 -5.46D-06  3.04D-06  3.48D-06   130.6
+ d= 0,ls= .0,diis     9  -2840.7236782733 -4.52D-07  4.92D-06  5.74D-07  2845.1
 
 
      <<<<<<    Before call to FITCD.      >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:28 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:55:16 >>>>>>
 
 
 
      <<<<<<    Before call to GETVCOUL.   >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:28 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:55:55 >>>>>>
 
 
 
      <<<<<<    Before call to GETVXC.     >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:28 >>>>>>
+     <<<<<< date:  Jul 31  time: 17:56:42 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:56:42 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 17:56:42 >>>>>>
+
+
+
+     <<<<<<   Before call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 17:56:42 >>>>>>
+
+
+
+     <<<<<<   Entering xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 17:56:42 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0_a.F      >>>>>>
+     <<<<<< date:  Jul 31  time: 18:01:11 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0a   >>>>>>
+     <<<<<< date:  Jul 31  time: 18:01:11 >>>>>>
+
+
+
+     <<<<<<   Leaving  xc_quadv0.F        >>>>>>
+     <<<<<< date:  Jul 31  time: 18:01:11 >>>>>>
+
+
+
+     <<<<<<    After call to xc_quadv0.   >>>>>>
+     <<<<<< date:  Jul 31  time: 18:01:11 >>>>>>
 
 
 
      <<<<<<    End of parallel region.    >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:40 >>>>>>
-
- d= 0,ls= .0,diis    10  -2840.7226981844 -3.07D-07  1.17D-06  1.58D-07   145.7
-
-          Done. Constructing final Fock matrix, orbitals and orbital energies.
+     <<<<<< date:  Jul 31  time: 18:01:11 >>>>>>
 
 
 
-     <<<<<<    Before call to FITCD.      >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:43 >>>>>>
-
-
-
-     <<<<<<    Before call to GETVCOUL.   >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:44 >>>>>>
-
-
-
-     <<<<<<    Before call to GETVXC.     >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:44 >>>>>>
-
-
-
-     <<<<<<    End of parallel region.    >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:55 >>>>>>
-
-
-                Constructing final total energies.
-
-
-
-     <<<<<<    Before call to FITCD.      >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:58 >>>>>>
-
-
-
-     <<<<<<    Before call to GETVCOUL.   >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:58 >>>>>>
-
-
-
-     <<<<<<    Before call to GETVXC.     >>>>>>
-     <<<<<< date:  Apr 28  time: 03:43:58 >>>>>>
-
-
-
-     <<<<<<    End of parallel region.    >>>>>>
-     <<<<<< date:  Apr 28  time: 03:44:09 >>>>>>
-
-
-
-         Total DFT energy =  -2840.722698206168
-      One electron energy =  -8561.210913741796
-           Coulomb energy =   3628.172451575656
-    Exchange-Corr. energy =   -220.926612813429
+         Total DFT energy =  -2840.723678306375
+      One electron energy =  -8561.195514687435
+           Coulomb energy =   3628.155790477686
+    Exchange-Corr. energy =   -220.926330870027
  Nuclear repulsion energy =   2313.242376773401
 
-        Time for solution =    157.8s
+ Numeric. integr. density =    186.000034802732
+
+     Total iterative time =   3038.2s
 
 
+ 
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+ 
+ Vector   48  Occ=2.000000D+00  E=-9.739538D-01
+              MO Center= -4.2D-02,  1.4D-01, -2.3D-02, r^2= 4.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2       .234921   1 O  s                85       .192932   6 O  s         
+   115       .192929   8 O  s                 3      -.183575   1 O  s         
+    18      -.182497   2 Si s                37      -.182493   3 Si s         
+    86      -.157398   6 O  s               116      -.157395   8 O  s         
+    55       .152311   4 O  s               100       .152304   7 O  s         
+ 
+ Vector   49  Occ=2.000000D+00  E=-9.598144D-01
+              MO Center=  2.5D-02, -7.7D-02,  1.3D-01, r^2= 6.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   115      -.239794   8 O  s                85       .239784   6 O  s         
+   116       .197938   8 O  s                86      -.197931   6 O  s         
+   100      -.172616   7 O  s                55       .172615   4 O  s         
+    70       .153209   5 O  s               130      -.153209   9 O  s         
+    37       .151893   3 Si s                18      -.151888   2 Si s         
+ 
+ Vector   50  Occ=2.000000D+00  E=-9.282910D-01
+              MO Center=  1.0D-01, -3.2D-01,  3.3D-01, r^2= 5.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    85       .287079   6 O  s               115       .287040   8 O  s         
+    86      -.199707   6 O  s               116      -.199678   8 O  s         
+    55      -.174707   4 O  s               100      -.174679   7 O  s         
+ 
+ Vector   51  Occ=2.000000D+00  E=-9.264361D-01
+              MO Center=  8.0D-02, -2.7D-01, -2.0D-02, r^2= 6.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   115       .252573   8 O  s                85      -.252533   6 O  s         
+   100      -.217763   7 O  s                55       .217745   4 O  s         
+   116      -.180725   8 O  s                86       .180698   6 O  s         
+   101       .164223   7 O  s                56      -.164209   4 O  s         
+ 
+ Vector   52  Occ=2.000000D+00  E=-9.205027D-01
+              MO Center= -1.8D-01,  5.9D-01, -6.8D-01, r^2= 7.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    70       .262544   5 O  s               130       .262012   9 O  s         
+    55      -.237350   4 O  s               100      -.236962   7 O  s         
+    71      -.185215   5 O  s               131      -.184839   9 O  s         
+    56       .161797   4 O  s               101       .161518   7 O  s         
+ 
+ Vector   53  Occ=2.000000D+00  E=-9.199154D-01
+              MO Center= -2.5D-01,  7.9D-01, -5.7D-01, r^2= 7.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   130      -.286931   9 O  s                70       .286452   5 O  s         
+   100       .212025   7 O  s                55      -.211583   4 O  s         
+   131       .203309   9 O  s                71      -.202970   5 O  s         
+   101      -.152467   7 O  s                56       .152165   4 O  s         
+ 
+ Vector   54  Occ=2.000000D+00  E=-9.117183D-01
+              MO Center= -2.1D-01,  6.8D-01, -2.8D-01, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      -.420848   1 O  s                 3       .278597   1 O  s         
+     1       .191939   1 O  s               130       .165123   9 O  s         
+    70       .165108   5 O  s         
+ 
+ Vector   55  Occ=2.000000D+00  E=-6.103185D-01
+              MO Center= -5.4D-02,  1.7D-01, -6.1D-02, r^2= 6.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18       .328819   2 Si s                37      -.328815   3 Si s         
+     4       .238545   1 O  px              119       .168869   8 O  pz        
+    89      -.167002   6 O  pz              132      -.154602   9 O  px        
+    17       .153924   2 Si s                36      -.153923   3 Si s         
+ 
+ Vector   56  Occ=2.000000D+00  E=-5.832325D-01
+              MO Center=  6.6D-02, -2.1D-01,  1.5D-01, r^2= 7.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    37       .258565   3 Si s                18       .258561   2 Si s         
+   119      -.227771   8 O  pz               89      -.225772   6 O  pz        
+   222      -.190010  14 Si s               184      -.190005  12 Si s         
+    59       .150056   4 O  pz        
+ 
+ Vector   57  Occ=2.000000D+00  E=-5.434827D-01
+              MO Center=  7.6D-02, -2.5D-01,  1.1D-01, r^2= 8.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      -.239235   2 Si pz               44      -.237631   3 Si pz        
+   184      -.213264  12 Si s               222      -.213231  14 Si s         
+   119      -.210615   8 O  pz               89      -.207894   6 O  pz        
+   103      -.176300   7 O  py              146       .171683  10 Si s         
+   241       .171668  15 Si s         
+ 
+ Vector   58  Occ=2.000000D+00  E=-5.416082D-01
+              MO Center=  8.5D-02, -2.4D-01,  6.9D-01, r^2= 8.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   119       .260503   8 O  pz               89      -.257737   6 O  pz        
+   222       .256409  14 Si s               184      -.256384  12 Si s         
+    44       .213912   3 Si pz               25      -.213046   2 Si pz        
+    43      -.168655   3 Si py              118      -.162368   8 O  py        
+    24       .153228   2 Si py        
+ 
+ Vector   59  Occ=2.000000D+00  E=-5.284204D-01
+              MO Center= -2.4D-01,  7.6D-01, -6.2D-01, r^2= 1.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   132      -.260365   9 O  px              165       .240103  11 Si s         
+   203       .240022  13 Si s                73       .234923   5 O  py        
+    24       .213958   2 Si py              146      -.186706  10 Si s         
+   241      -.186600  15 Si s                43       .173297   3 Si py        
+    72       .157525   5 O  px               59       .155264   4 O  pz        
+ 
+ Vector   60  Occ=2.000000D+00  E=-5.266268D-01
+              MO Center= -6.1D-02,  1.4D-01, -1.0D+00, r^2= 9.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   241       .242865  15 Si s               146      -.242783  10 Si s         
+   132       .208604   9 O  px               43      -.202942   3 Si py        
+    59       .201002   4 O  pz              103      -.199594   7 O  py        
+   104      -.198454   7 O  pz              203      -.188506  13 Si s         
+   165       .188403  11 Si s                24       .187613   2 Si py        
+ 
+ Vector   61  Occ=2.000000D+00  E=-4.883162D-01
+              MO Center= -2.5D-01,  8.4D-01, -1.0D-01, r^2= 5.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      -.476026   1 O  px               23      -.326392   2 Si px        
+    42      -.290852   3 Si px              203       .175810  13 Si s         
+   165      -.175807  11 Si s                73      -.161057   5 O  py        
+    43      -.152350   3 Si py        
+ 
+ Vector   62  Occ=2.000000D+00  E=-4.286503D-01
+              MO Center=  9.3D-02, -2.5D-01,  9.9D-01, r^2= 1.6D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   184      -.170993  12 Si s               222      -.170971  14 Si s         
+ 
+ Vector   63  Occ=2.000000D+00  E=-4.267874D-01
+              MO Center=  9.7D-02, -2.8D-01,  8.0D-01, r^2= 1.5D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   222       .157407  14 Si s               184      -.157382  12 Si s         
+ 
+ Vector   64  Occ=2.000000D+00  E=-4.203780D-01
+              MO Center=  1.1D-01, -4.1D-01, -6.9D-01, r^2= 1.3D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+ 
+ Vector   65  Occ=2.000000D+00  E=-4.166909D-01
+              MO Center=  1.4D-01, -4.2D-01,  6.1D-01, r^2= 1.5D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    87       .160670   6 O  px              229       .151477  14 Si pz        
+   191       .150667  12 Si pz        
+ 
+ Vector   66  Occ=2.000000D+00  E=-4.135873D-01
+              MO Center=  1.9D-01, -6.7D-01, -9.0D-01, r^2= 1.3D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    59      -.189075   4 O  pz              104       .187741   7 O  pz        
+   247       .175959  15 Si py               88       .170556   6 O  py        
+   118      -.157283   8 O  py              241       .150375  15 Si s         
+   146      -.150368  10 Si s         
+ 
+ Vector   67  Occ=2.000000D+00  E=-4.105293D-01
+              MO Center=  1.4D-02,  4.9D-03,  9.3D-01, r^2= 1.7D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   229       .157004  14 Si pz              191      -.155005  12 Si pz        
+ 
+ Vector   68  Occ=2.000000D+00  E=-3.952062D-01
+              MO Center=  3.5D-02, -1.0D-01,  2.4D-01, r^2= 9.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    87       .266631   6 O  px              117      -.240574   8 O  px        
+    57       .173600   4 O  px                3       .154537   1 O  s         
+ 
+ Vector   69  Occ=2.000000D+00  E=-3.842062D-01
+              MO Center=  2.1D-02, -6.4D-02,  6.9D-02, r^2= 9.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    88       .256670   6 O  py              117      -.213272   8 O  px        
+    57      -.198879   4 O  px              118       .165455   8 O  py        
+   102       .159120   7 O  px              134       .156579   9 O  pz        
+    74       .153619   5 O  pz        
+ 
+ Vector   70  Occ=2.000000D+00  E=-3.808870D-01
+              MO Center=  9.1D-02, -3.0D-01, -6.7D-03, r^2= 1.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   118       .256442   8 O  py               88      -.250669   6 O  py        
+   103       .211032   7 O  py               58      -.165917   4 O  py        
+ 
+ Vector   71  Occ=2.000000D+00  E=-3.803847D-01
+              MO Center= -2.6D-02,  5.6D-02, -5.6D-01, r^2= 9.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   102      -.262810   7 O  px               58       .248403   4 O  py        
+    72       .183621   5 O  px              132      -.178996   9 O  px        
+    57       .150576   4 O  px        
+ 
+ Vector   72  Occ=2.000000D+00  E=-3.764978D-01
+              MO Center= -2.1D-02,  8.9D-02,  3.5D-01, r^2= 1.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    87       .274285   6 O  px              117       .261950   8 O  px        
+   134      -.227473   9 O  pz               74       .226581   5 O  pz        
+ 
+ Vector   73  Occ=2.000000D+00  E=-3.709178D-01
+              MO Center= -3.7D-02,  9.9D-02, -4.4D-01, r^2= 9.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   104       .250378   7 O  pz               59       .248962   4 O  pz        
+     6       .223905   1 O  pz               74       .220774   5 O  pz        
+   134       .219777   9 O  pz               89       .174019   6 O  pz        
+   119       .172917   8 O  pz        
+ 
+ Vector   74  Occ=2.000000D+00  E=-3.692338D-01
+              MO Center= -7.8D-02,  2.4D-01, -3.0D-01, r^2= 1.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   102      -.246366   7 O  px               57      -.206987   4 O  px        
+     4      -.202238   1 O  px              132      -.197574   9 O  px        
+    72      -.193077   5 O  px              117      -.160583   8 O  px        
+    87      -.156542   6 O  px        
+ 
+ Vector   75  Occ=2.000000D+00  E=-3.680297D-01
+              MO Center= -3.3D-01,  1.1D+00, -1.7D-01, r^2= 8.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   133       .322649   9 O  py                5       .290368   1 O  py        
+    72      -.238878   5 O  px               73       .228522   5 O  py        
+   209      -.154087  13 Si py        
+ 
+ Vector   76  Occ=2.000000D+00  E=-3.559606D-01
+              MO Center=  1.2D-01, -4.0D-01, -4.0D-01, r^2= 1.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    57       .234404   4 O  px              117      -.196308   8 O  px        
+    87      -.191495   6 O  px              102       .175177   7 O  px        
+   104      -.174578   7 O  pz               59       .167874   4 O  pz        
+   103       .150617   7 O  py        
+ 
+ Vector   77  Occ=2.000000D+00  E=-3.524734D-01
+              MO Center= -2.8D-01,  9.0D-01, -4.1D-01, r^2= 1.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   133       .292420   9 O  py               72       .279684   5 O  px        
+   102      -.195718   7 O  px              209      -.187193  13 Si py        
+    57      -.166160   4 O  px               73      -.165192   5 O  py        
+   171       .153384  11 Si py        
+ 
+ Vector   78  Occ=2.000000D+00  E=-3.448005D-01
+              MO Center= -6.3D-02,  2.0D-01, -1.3D-01, r^2= 1.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    74       .249350   5 O  pz              134       .249228   9 O  pz        
+    58       .189362   4 O  py               88      -.175704   6 O  py        
+   103       .166405   7 O  py              118      -.150470   8 O  py        
+ 
+ Vector   79  Occ=2.000000D+00  E=-3.434284D-01
+              MO Center= -5.7D-02,  1.8D-01, -1.6D-01, r^2= 1.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    74       .244572   5 O  pz              134      -.244279   9 O  pz        
+    58       .204423   4 O  py               88      -.177465   6 O  py        
+   103      -.159283   7 O  py        
+ 
+ Vector   80  Occ=2.000000D+00  E=-3.267472D-01
+              MO Center= -1.3D-01,  4.3D-01,  2.1D-01, r^2= 8.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      -.468756   1 O  py                8      -.240447   1 O  py        
+     6       .160666   1 O  pz               72      -.150030   5 O  px        
+ 
+ Vector   81  Occ=2.000000D+00  E=-3.235770D-01
+              MO Center= -1.0D-02,  1.5D-02, -3.6D-01, r^2= 8.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6       .514173   1 O  pz                9       .277224   1 O  pz        
+ 
+ Vector   82  Occ=2.000000D+00  E=-2.903005D-01
+              MO Center=  1.3D-02, -4.9D-03,  7.1D-01, r^2= 1.9D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   227      -.183468  14 Si px              117      -.169501   8 O  px        
+    87       .154452   6 O  px              189       .153474  12 Si px        
+   209      -.153078  13 Si py              329      -.150313  30 H  s         
+   284      -.150295  21 H  s         
+ 
+ Vector   83  Occ=2.000000D+00  E=-2.882346D-01
+              MO Center=  2.5D-01, -7.6D-01,  9.0D-01, r^2= 1.6D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   190       .175795  12 Si py              228       .174593  14 Si py        
+ 
+ Vector   84  Occ=2.000000D+00  E=-2.881664D-01
+              MO Center=  2.3D-02, -2.3D-02,  1.2D+00, r^2= 1.8D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   227       .198749  14 Si px              117       .169811   8 O  px        
+   190       .153517  12 Si py              284      -.151841  21 H  s         
+   329       .151830  30 H  s         
+ 
+ Vector   85  Occ=2.000000D+00  E=-2.856825D-01
+              MO Center=  2.2D-01, -6.7D-01,  1.1D+00, r^2= 1.6D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   228      -.180709  14 Si py              319       .162195  28 H  s         
+   274      -.162165  19 H  s         
+ 
+ Vector   86  Occ=2.000000D+00  E=-2.847567D-01
+              MO Center=  1.3D-01, -4.9D-01, -9.2D-01, r^2= 1.7D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   259      -.168081  16 H  s               304      -.168039  25 H  s         
+   102       .150562   7 O  px        
+ 
+ Vector   87  Occ=2.000000D+00  E=-2.819329D-01
+              MO Center=  1.1D-01, -4.1D-01, -8.4D-01, r^2= 1.8D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   246      -.161227  15 Si px              304       .156707  25 H  s         
+   259      -.156667  16 H  s         
+ 
+ Vector   88  Occ=2.000000D+00  E=-2.760386D-01
+              MO Center=  1.6D-01, -5.3D-01, -2.5D-01, r^2= 1.7D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   117      -.166966   8 O  px               87      -.156959   6 O  px        
+ 
+ Vector   89  Occ=2.000000D+00  E=-2.725415D-01
+              MO Center= -2.0D-01,  6.4D-01, -6.9D-01, r^2= 1.9D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   133       .220766   9 O  py               72       .184870   5 O  px        
+   102      -.171443   7 O  px              209       .167635  13 Si py        
+   299      -.153446  24 H  s               344       .153439  33 H  s         
+ 
+ Vector   90  Occ=2.000000D+00  E=-2.720800D-01
+              MO Center=  1.3D-01, -4.4D-01,  4.6D-02, r^2= 1.4D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6       .221561   1 O  pz               87       .201575   6 O  px        
+   117      -.168629   8 O  px        
+ 
+ Vector   91  Occ=2.000000D+00  E=-2.706009D-01
+              MO Center= -1.9D-01,  6.5D-01,  3.9D-01, r^2= 1.7D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    88      -.176520   6 O  py              134       .175220   9 O  pz        
+    74       .173095   5 O  pz              133      -.152916   9 O  py        
+ 
+ Vector   92  Occ=2.000000D+00  E=-2.684044D-01
+              MO Center=  3.9D-02, -1.2D-01,  2.2D-01, r^2= 1.6D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    74      -.211724   5 O  pz              134       .210672   9 O  pz        
+    88       .162877   6 O  py               58      -.159520   4 O  py        
+ 
+ Vector   93  Occ=2.000000D+00  E=-2.674581D-01
+              MO Center= -1.3D-01,  4.0D-01, -6.1D-01, r^2= 1.6D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   102       .231319   7 O  px               57      -.177410   4 O  px        
+    74      -.173839   5 O  pz               72       .170883   5 O  px        
+   134      -.169491   9 O  pz              133      -.163421   9 O  py        
+     5       .160723   1 O  py               58      -.150458   4 O  py        
+ 
+ Vector   94  Occ=0.000000D+00  E=-5.203425D-02
+              MO Center=  1.5D-01, -4.9D-01,  3.9D-01, r^2= 1.7D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   232       .330108  14 Si pz              194       .325206  12 Si pz        
+    86       .322473   6 O  s               116       .322471   8 O  s         
+    56       .253890   4 O  s               101       .253886   7 O  s         
+   211      -.252143  13 Si px              250      -.248672  15 Si py        
+   174       .242504  11 Si py               71       .225434   5 O  s         
+ 
+ Vector   95  Occ=0.000000D+00  E=-3.552911D-02
+              MO Center=  2.0D-02, -3.8D-02,  5.1D-01, r^2= 2.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      -.430746   2 Si s                38       .430740   3 Si s         
+   232       .375268  14 Si pz              194      -.374499  12 Si pz        
+   211      -.348224  13 Si px              174      -.294090  11 Si py        
+   116       .257163   8 O  s                86      -.257158   6 O  s         
+   131       .226533   9 O  s                71      -.226527   5 O  s         
+ 
+ Vector   96  Occ=0.000000D+00  E=-1.833212D-02
+              MO Center=  4.7D-01, -1.6D+00, -3.8D-01, r^2= 1.7D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   250      -.487592  15 Si py              154       .405679  10 Si px        
+    56       .338358   4 O  s               101       .338354   7 O  s         
+   192      -.338046  12 Si px              232      -.319786  14 Si pz        
+   155      -.313205  10 Si py              194      -.310945  12 Si pz        
+   231       .288854  14 Si py               86      -.244708   6 O  s         
+ 
+ Vector   97  Occ=0.000000D+00  E=-1.213243D-02
+              MO Center= -3.8D-01,  1.3D+00,  5.1D-01, r^2= 2.3D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   211      -.612154  13 Si px              173       .460594  11 Si px        
+   174       .423010  11 Si py               71       .364193   5 O  s         
+   131       .364158   9 O  s               230       .251997  14 Si px        
+   208       .243078  13 Si px              232      -.232219  14 Si pz        
+   194      -.224635  12 Si pz              192      -.213693  12 Si px        
+ 
+ Vector   98  Occ=0.000000D+00  E=-8.115563D-03
+              MO Center= -9.7D-02,  2.9D-01, -5.0D-01, r^2= 2.5D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   211      -.573529  13 Si px              174      -.462990  11 Si py        
+   156      -.404349  10 Si pz              251       .401726  15 Si pz        
+   173      -.385331  11 Si px              250       .366218  15 Si py        
+    27      -.336406   2 Si py              155      -.317481  10 Si py        
+   131       .308064   9 O  s                71      -.308027   5 O  s         
+ 
+ Vector   99  Occ=0.000000D+00  E=-6.338195D-03
+              MO Center=  3.5D-01, -1.1D+00,  6.1D-01, r^2= 2.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   232      -.541172  14 Si pz              194       .536278  12 Si pz        
+   250      -.438185  15 Si py              155       .373349  10 Si py        
+   116      -.330751   8 O  s                86       .330748   6 O  s         
+   231       .315476  14 Si py              101       .306798   7 O  s         
+    56      -.306794   4 O  s               192       .239663  12 Si px        
+ 
+ Vector  100  Occ=0.000000D+00  E= 1.595613D-02
+              MO Center=  4.0D-01, -1.2D+00,  1.9D+00, r^2= 1.4D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   284       .684235  21 H  s               329       .684215  30 H  s         
+   230       .519158  14 Si px              194       .473607  12 Si pz        
+   232       .458254  14 Si pz              185      -.429934  12 Si s         
+   223      -.429905  14 Si s               192      -.418103  12 Si px        
+   174      -.324648  11 Si py              212      -.286962  13 Si py        
+ 
+ Vector  101  Occ=0.000000D+00  E= 1.905147D-02
+              MO Center=  1.8D-01, -6.3D-01, -3.0D-01, r^2= 1.9D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   264      -.555668  17 H  s               309      -.555665  26 H  s         
+   249      -.453356  15 Si px              193      -.410145  12 Si py        
+   147       .362207  10 Si s               242       .362201  15 Si s         
+   155       .346642  10 Si py              289      -.327036  22 H  s         
+   334      -.327025  31 H  s               154       .322695  10 Si px        
+ 
+ Vector  102  Occ=0.000000D+00  E= 2.064341D-02
+              MO Center=  2.4D-01, -7.7D-01,  6.0D-01, r^2= 2.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   231       .598884  14 Si py              193      -.542474  12 Si py        
+   319      -.510811  28 H  s               274       .510808  19 H  s         
+   250       .372389  15 Si py              269       .371895  18 H  s         
+   314      -.371888  27 H  s               154       .348834  10 Si px        
+   279      -.333366  20 H  s               324       .333364  29 H  s         
+ 
+ Vector  103  Occ=0.000000D+00  E= 2.144107D-02
+              MO Center=  6.8D-02, -1.7D-01,  1.1D+00, r^2= 2.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   185      -.464903  12 Si s               223       .464890  14 Si s         
+    45       .461672   3 Si px              279       .457703  20 H  s         
+   324      -.457690  29 H  s               230       .431768  14 Si px        
+   289       .414871  22 H  s               334      -.414853  31 H  s         
+    26       .409359   2 Si px              192       .403453  12 Si px        
+ 
+ Vector  104  Occ=0.000000D+00  E= 2.526607D-02
+              MO Center=  2.0D-01, -6.4D-01,  5.5D-01, r^2= 1.9D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   251      -.442381  15 Si pz              156      -.436501  10 Si pz        
+   334      -.393179  31 H  s               289      -.393152  22 H  s         
+   223       .358144  14 Si s               185       .358116  12 Si s         
+   222       .352532  14 Si s               184       .352514  12 Si s         
+   324      -.341216  29 H  s               279      -.341189  20 H  s         
+ 
+ Vector  105  Occ=0.000000D+00  E= 2.917481D-02
+              MO Center=  2.6D-01, -8.7D-01, -3.9D-01, r^2= 2.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   231      -.470288  14 Si py              193      -.439731  12 Si py        
+   147      -.426138  10 Si s               242      -.426095  15 Si s         
+   319       .412916  28 H  s               274       .412912  19 H  s         
+   269       .390098  18 H  s               314       .390076  27 H  s         
+   155      -.341231  10 Si py              264       .325774  17 H  s         
+ 
+ Vector  106  Occ=0.000000D+00  E= 3.438030D-02
+              MO Center= -6.7D-02,  1.7D-01, -1.0D+00, r^2= 2.3D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   166      -.587872  11 Si s               204       .587793  13 Si s         
+   304      -.574405  25 H  s               259       .574372  16 H  s         
+   294       .539106  23 H  s               339      -.539084  32 H  s         
+    45       .462906   3 Si px               26       .453603   2 Si px        
+   249       .438792  15 Si px              242       .430798  15 Si s         
+ 
+ Vector  107  Occ=0.000000D+00  E= 3.760893D-02
+              MO Center=  3.5D-02, -1.8D-01, -1.3D+00, r^2= 1.9D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   259       .657425  16 H  s               304       .657395  25 H  s         
+   294       .478289  23 H  s               339       .478282  32 H  s         
+   249      -.429740  15 Si px              175      -.392825  11 Si pz        
+   213      -.390518  13 Si pz              155       .386153  10 Si py        
+   147      -.341071  10 Si s               242      -.341037  15 Si s         
+ 
+ Vector  108  Occ=0.000000D+00  E= 4.057548D-02
+              MO Center= -2.5D-01,  8.1D-01, -3.1D-01, r^2= 2.4D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    45      1.037834   3 Si px              166      -.853195  11 Si s         
+   204       .852928  13 Si s                26       .768491   2 Si px        
+    27       .725711   2 Si py              299       .675855  24 H  s         
+   344      -.675610  33 H  s               212      -.660787  13 Si py        
+   174       .635897  11 Si py              259      -.505491  16 H  s         
+ 
+ Vector  109  Occ=0.000000D+00  E= 4.289879D-02
+              MO Center= -3.3D-01,  1.1D+00,  9.9D-02, r^2= 2.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   204       .774764  13 Si s               166       .774441  11 Si s         
+   344      -.652518  33 H  s               299      -.652346  24 H  s         
+    45       .509728   3 Si px              212      -.472384  13 Si py        
+   174      -.450359  11 Si py               27      -.433882   2 Si py        
+   339      -.430232  32 H  s               294      -.430004  23 H  s         
+ 
+ Vector  110  Occ=0.000000D+00  E= 4.605504D-02
+              MO Center= -4.1D-01,  1.3D+00, -4.9D-02, r^2= 2.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26       .724170   2 Si px              175       .678838  11 Si pz        
+   213      -.671200  13 Si pz              294      -.627336  23 H  s         
+   339       .627302  32 H  s                45       .543599   3 Si px        
+   242       .537035  15 Si s               147      -.537013  10 Si s         
+    46       .510129   3 Si py              344      -.444483  33 H  s         
+ 
+ Vector  111  Occ=0.000000D+00  E= 4.953143D-02
+              MO Center=  3.5D-01, -1.1D+00,  3.3D-01, r^2= 1.9D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   185       .669051  12 Si s               223      -.669037  14 Si s         
+   319       .591418  28 H  s               274      -.591280  19 H  s         
+   314      -.568748  27 H  s               269       .568698  18 H  s         
+   242       .453420  15 Si s               147      -.453177  10 Si s         
+   329       .397948  30 H  s               284      -.397925  21 H  s         
+ 
+ Vector  112  Occ=0.000000D+00  E= 4.986787D-02
+              MO Center= -3.9D-01,  1.3D+00,  2.1D-03, r^2= 2.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   175       .598200  11 Si pz              213       .586224  13 Si pz        
+   344       .556411  33 H  s               299       .556357  24 H  s         
+   294      -.513725  23 H  s               339      -.513587  32 H  s         
+   173      -.430175  11 Si px              304       .403393  25 H  s         
+   259       .403365  16 H  s               212       .366045  13 Si py        
+ 
+ Vector  113  Occ=0.000000D+00  E= 5.554217D-02
+              MO Center=  1.8D-01, -5.5D-01,  1.1D+00, r^2= 1.5D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   274       .498307  19 H  s               319       .498299  28 H  s         
+   223      -.469119  14 Si s               185      -.469100  12 Si s         
+   279       .425407  20 H  s               324       .425375  29 H  s         
+   212       .351394  13 Si py              259       .319386  16 H  s         
+   304       .319375  25 H  s               191       .305097  12 Si pz        
+ 
+ Vector  114  Occ=0.000000D+00  E= 6.148385D-02
+              MO Center=  1.9D-01, -5.9D-01,  6.9D-01, r^2= 1.6D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    45      -.908782   3 Si px               26      -.806151   2 Si px        
+   329       .553096  30 H  s               284      -.553078  21 H  s         
+   230       .470470  14 Si px              227      -.469062  14 Si px        
+    27      -.423921   2 Si py              192       .393148  12 Si px        
+   173      -.392652  11 Si px              189      -.381969  12 Si px        
+ 
+ Vector  115  Occ=0.000000D+00  E= 6.602005D-02
+              MO Center=  1.7D-01, -5.5D-01, -4.1D-02, r^2= 1.7D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   314       .546042  27 H  s               269       .546015  18 H  s         
+   274      -.461067  19 H  s               319      -.461056  28 H  s         
+   194       .414417  12 Si pz                3      -.412522   1 O  s         
+   232       .409971  14 Si pz               38       .388514   3 Si s         
+    19       .388506   2 Si s               251       .365963  15 Si pz        
+ 
+ Vector  116  Occ=0.000000D+00  E= 6.930752D-02
+              MO Center= -7.2D-02,  2.6D-01,  3.2D-01, r^2= 2.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   289       .586760  22 H  s               334      -.586756  31 H  s         
+   279      -.523807  20 H  s               324       .523800  29 H  s         
+   231       .440301  14 Si py              223      -.388331  14 Si s         
+   185       .388305  12 Si s               212       .376866  13 Si py        
+   193      -.374936  12 Si py              309       .367717  26 H  s         
+ 
+ Vector  117  Occ=0.000000D+00  E= 7.637663D-02
+              MO Center=  1.2D-01, -4.1D-01, -2.9D-02, r^2= 1.8D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19       .702800   2 Si s                38       .702791   3 Si s         
+   231      -.477376  14 Si py              289       .435606  22 H  s         
+   334       .435605  31 H  s               193      -.433442  12 Si py        
+   279      -.419461  20 H  s               324      -.419460  29 H  s         
+    27      -.371680   2 Si py              269      -.332134  18 H  s         
+ 
+ Vector  118  Occ=0.000000D+00  E= 7.787178D-02
+              MO Center= -6.5D-02,  2.4D-01,  4.2D-01, r^2= 1.6D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      -.558070   2 Si py               46      -.508727   3 Si py        
+   190      -.422261  12 Si py              228      -.384526  14 Si py        
+   213      -.371188  13 Si pz               19      -.365906   2 Si s         
+    38      -.365903   3 Si s               175      -.364088  11 Si pz        
+     3       .348140   1 O  s               324       .343131  29 H  s         
+ 
+ Vector  119  Occ=0.000000D+00  E= 7.932768D-02
+              MO Center=  3.9D-01, -1.3D+00, -7.6D-01, r^2= 1.5D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   264       .738997  17 H  s               309      -.738966  26 H  s         
+   154      -.586171  10 Si px              249      -.491229  15 Si px        
+   151       .421109  10 Si px              246       .399980  15 Si px        
+    47      -.392959   3 Si pz               28       .385556   2 Si pz        
+   329       .373916  30 H  s               284      -.373905  21 H  s         
+ 
+ Vector  120  Occ=0.000000D+00  E= 8.996664D-02
+              MO Center= -6.7D-02,  1.6D-01, -1.1D+00, r^2= 1.4D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    47       .774505   3 Si pz               28       .773976   2 Si pz        
+    38      -.639138   3 Si s                19      -.639051   2 Si s         
+     3       .408374   1 O  s               156       .348485  10 Si pz        
+   251       .345558  15 Si pz              101       .274652   7 O  s         
+    56       .274635   4 O  s               250       .262975  15 Si py        
+ 
+ Vector  121  Occ=0.000000D+00  E= 9.205397D-02
+              MO Center= -2.8D-02,  1.1D-01,  2.4D-01, r^2= 2.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19       .831799   2 Si s                38      -.831626   3 Si s         
+    26       .649424   2 Si px               45       .608050   3 Si px        
+   192       .468167  12 Si px              334       .464978  31 H  s         
+   289      -.464971  22 H  s               230       .429366  14 Si px        
+   329       .421488  30 H  s               284      -.421472  21 H  s         
+ 
+ Vector  122  Occ=0.000000D+00  E= 9.832821D-02
+              MO Center= -5.5D-02,  1.9D-01,  2.2D-01, r^2= 1.5D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28       .764566   2 Si pz               47      -.759709   3 Si pz        
+   194       .449774  12 Si pz              232      -.446974  14 Si pz        
+   175       .363362  11 Si pz              213      -.360479  13 Si pz        
+    44       .330096   3 Si pz               25      -.328304   2 Si pz        
+   227       .305490  14 Si px              251      -.288782  15 Si pz        
+ 
+ Vector  123  Occ=0.000000D+00  E= 9.850369D-02
+              MO Center= -1.1D-01,  3.7D-01,  8.7D-02, r^2= 1.9D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19     -1.596618   2 Si s                38     -1.596429   3 Si s         
+   211       .457983  13 Si px                3       .430104   1 O  s         
+    71       .373137   5 O  s               131       .373132   9 O  s         
+    45       .367059   3 Si px              173      -.353323  11 Si px        
+    26      -.346877   2 Si px              334       .320210  31 H  s         
+ 
+ Vector  124  Occ=0.000000D+00  E= 1.124288D-01
+              MO Center= -2.8D-01,  9.3D-01, -8.7D-02, r^2= 1.9D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27       .875300   2 Si py               45       .849691   3 Si px        
+   174       .689535  11 Si py              212      -.543575  13 Si py        
+    46      -.486166   3 Si py               26       .437986   2 Si px        
+   211       .425934  13 Si px              131       .344006   9 O  s         
+    71      -.344004   5 O  s                38      -.319568   3 Si s         
+ 
+ Vector  125  Occ=0.000000D+00  E= 1.231312D-01
+              MO Center= -2.3D-02,  6.7D-02, -1.4D-01, r^2= 2.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      -.629188   2 Si py               46      -.568619   3 Si py        
+   156      -.437697  10 Si pz              251      -.436024  15 Si pz        
+   248      -.381023  15 Si pz              228       .379591  14 Si py        
+   153      -.377221  10 Si pz              190       .353785  12 Si py        
+   174      -.351940  11 Si py              209      -.330417  13 Si py        
+ 
+ Vector  126  Occ=0.000000D+00  E= 1.303289D-01
+              MO Center=  1.2D-01, -3.7D-01,  6.4D-01, r^2= 1.9D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   227      -.525525  14 Si px              189       .493310  12 Si px        
+   172       .404292  11 Si pz              210       .404171  13 Si pz        
+    38      -.387922   3 Si s                19      -.387909   2 Si s         
+   246       .361319  15 Si px              152      -.343750  10 Si py        
+   175       .325914  11 Si pz              213       .323474  13 Si pz        
+ 
+ Vector  127  Occ=0.000000D+00  E= 1.340322D-01
+              MO Center= -1.6D-01,  5.3D-01,  2.1D-01, r^2= 2.3D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    45     -1.000641   3 Si px               26      -.900111   2 Si px        
+   212       .630674  13 Si py              174      -.567840  11 Si py        
+   209       .495858  13 Si py               27      -.473832   2 Si py        
+   249       .448700  15 Si px              193       .440047  12 Si py        
+    47       .389831   3 Si pz              228      -.375376  14 Si py        
+ 
+ Vector  128  Occ=0.000000D+00  E= 1.432711D-01
+              MO Center= -1.4D-01,  4.4D-01, -5.9D-01, r^2= 1.6D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   242      -.529656  15 Si s               147      -.529649  10 Si s         
+    38      -.520137   3 Si s                19      -.520134   2 Si s         
+   212      -.491339  13 Si py               37       .436814   3 Si s         
+    18       .436813   2 Si s               170       .403328  11 Si px        
+   204      -.399030  13 Si s               166      -.399022  11 Si s         
+ 
+ Vector  129  Occ=0.000000D+00  E= 1.507966D-01
+              MO Center= -7.7D-02,  2.4D-01, -2.1D-01, r^2= 1.8D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26       .850359   2 Si px               47      -.736045   3 Si pz        
+    28       .712178   2 Si pz               38       .625270   3 Si s         
+    19      -.625229   2 Si s                45       .608861   3 Si px        
+    46       .580755   3 Si py              223       .528155  14 Si s         
+   185      -.528155  12 Si s               230      -.510812  14 Si px        
+ 
+ Vector  130  Occ=0.000000D+00  E= 1.519750D-01
+              MO Center=  1.4D-01, -4.8D-01, -3.8D-01, r^2= 1.6D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    45      -.915753   3 Si px               26       .907566   2 Si px        
+    19       .695084   2 Si s                38       .695037   3 Si s         
+   246       .453140  15 Si px              249       .435925  15 Si px        
+   174       .378227  11 Si py              152      -.375387  10 Si py        
+   155      -.354719  10 Si py              166      -.347701  11 Si s         
+ 
+ Vector  131  Occ=0.000000D+00  E= 1.545395D-01
+              MO Center=  5.7D-03, -2.6D-02, -1.3D-01, r^2= 2.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    46      1.273885   3 Si py               26      1.147372   2 Si px        
+    27      -.761463   2 Si py              251       .665840  15 Si pz        
+   156      -.657876  10 Si pz               45       .548284   3 Si px        
+    28      -.500942   2 Si pz               47       .473166   3 Si pz        
+   173      -.401720  11 Si px              194       .389949  12 Si pz        
+ 
+ Vector  132  Occ=0.000000D+00  E= 1.589618D-01
+              MO Center=  2.0D-01, -6.5D-01,  4.0D-01, r^2= 2.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   231       .792968  14 Si py              193       .757049  12 Si py        
+   156       .505383  10 Si pz              251       .504679  15 Si pz        
+   175      -.438032  11 Si pz              213      -.436268  13 Si pz        
+   228       .423354  14 Si py              155      -.420348  10 Si py        
+   250      -.407426  15 Si py              190       .394830  12 Si py        
+ 
+ Vector  133  Occ=0.000000D+00  E= 1.628520D-01
+              MO Center= -2.0D-01,  6.7D-01,  1.2D-01, r^2= 2.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28       .751278   2 Si pz               47       .744300   3 Si pz        
+   175      -.557162  11 Si pz              213      -.547130  13 Si pz        
+   154      -.437712  10 Si px              172      -.415639  11 Si pz        
+   210      -.406618  13 Si pz              173       .365858  11 Si px        
+   170       .346556  11 Si px              209      -.339144  13 Si py        
+ 
+ Vector  134  Occ=0.000000D+00  E= 1.684223D-01
+              MO Center=  7.9D-02, -2.9D-01, -4.6D-01, r^2= 2.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   249      -.660261  15 Si px              155      -.610887  10 Si py        
+    38      -.526682   3 Si s                19       .526628   2 Si s         
+   242       .428087  15 Si s               147      -.428028  10 Si s         
+   246      -.413111  15 Si px              154      -.378263  10 Si px        
+   175      -.371260  11 Si pz              152      -.368973  10 Si py        
+ 
+ Vector  135  Occ=0.000000D+00  E= 1.704953D-01
+              MO Center= -1.9D-01,  6.3D-01, -1.8D-02, r^2= 1.8D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   223      -.805233  14 Si s               185      -.805231  12 Si s         
+    46      -.707817   3 Si py              212       .654389  13 Si py        
+    27      -.614456   2 Si py              174       .582163  11 Si py        
+   171       .430646  11 Si py              209       .400977  13 Si py        
+    47       .389208   3 Si pz               28       .384187   2 Si pz        
+ 
+ Vector  136  Occ=0.000000D+00  E= 1.753153D-01
+              MO Center=  8.1D-02, -2.7D-01,  5.5D-02, r^2= 1.8D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38     -2.159825   3 Si s                19      2.159804   2 Si s         
+    45     -1.882711   3 Si px               26     -1.802661   2 Si px        
+    27      -.672872   2 Si py              192       .650822  12 Si px        
+   230       .642422  14 Si px                7      -.619552   1 O  px        
+   249       .511978  15 Si px              116       .471378   8 O  s         
+ 
+ Vector  137  Occ=0.000000D+00  E= 1.843948D-01
+              MO Center=  3.1D-01, -1.0D+00, -1.5D-01, r^2= 2.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   154       .888758  10 Si px              249       .824860  15 Si px        
+   231      -.779012  14 Si py              193       .719836  12 Si py        
+   251      -.649529  15 Si pz              156       .621494  10 Si pz        
+    19      -.605395   2 Si s                38       .605382   3 Si s         
+   190       .386932  12 Si py              228      -.383990  14 Si py        
+ 
+ Vector  138  Occ=0.000000D+00  E= 1.907446D-01
+              MO Center=  1.8D-01, -5.5D-01,  9.6D-01, r^2= 2.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   230      1.182555  14 Si px               38      1.145548   3 Si s         
+    19     -1.145537   2 Si s               192       .976808  12 Si px        
+   193       .652169  12 Si py              154      -.598858  10 Si px        
+   227       .491924  14 Si px              249      -.475337  15 Si px        
+   189       .404647  12 Si px              212      -.403522  13 Si py        
+ 
+ Vector  139  Occ=0.000000D+00  E= 2.139960D-01
+              MO Center=  3.7D-01, -1.2D+00, -3.6D-01, r^2= 1.6D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   147     -1.311445  10 Si s               242     -1.311432  15 Si s         
+   229       .488744  14 Si pz              247       .488388  15 Si py        
+   191       .483319  12 Si pz              269       .414817  18 H  s         
+   314       .414814  27 H  s                43       .387673   3 Si py        
+   232       .377769  14 Si pz              194       .373922  12 Si pz        
+ 
+ Vector  140  Occ=0.000000D+00  E= 2.236212D-01
+              MO Center= -2.9D-01,  9.6D-01, -1.8D-01, r^2= 2.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   166     -1.342130  11 Si s               204     -1.341865  13 Si s         
+   242       .636661  15 Si s               147       .636624  10 Si s         
+   208       .555404  13 Si px              170      -.424860  11 Si px        
+   211       .418062  13 Si px              289       .408909  22 H  s         
+   334       .408834  31 H  s               174      -.393983  11 Si py        
+ 
+ Vector  141  Occ=0.000000D+00  E= 2.245853D-01
+              MO Center= -1.2D-01,  3.9D-01, -2.7D-02, r^2= 1.4D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      -.904965   2 Si py               45      -.849448   3 Si px        
+    42      -.745101   3 Si px               23      -.618989   2 Si px        
+    46       .524613   3 Si py              204       .476852  13 Si s         
+   166      -.476193  11 Si s               230       .468273  14 Si px        
+    19       .466756   2 Si s                38      -.466683   3 Si s         
+ 
+ Vector  142  Occ=0.000000D+00  E= 2.281409D-01
+              MO Center=  3.3D-01, -9.8D-01,  1.7D+00, r^2= 1.5D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   185      1.874610  12 Si s               223      1.874582  14 Si s         
+   147       .776616  10 Si s               242       .776612  15 Si s         
+    38      -.710739   3 Si s                19      -.710652   2 Si s         
+   229       .520876  14 Si pz              191       .509718  12 Si pz        
+   184      -.477228  12 Si s               222      -.477205  14 Si s         
+ 
+ Vector  143  Occ=0.000000D+00  E= 2.352019D-01
+              MO Center= -4.5D-01,  1.5D+00, -8.1D-01, r^2= 1.7D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    47       .990743   3 Si pz               28      -.968513   2 Si pz        
+    26      -.904386   2 Si px               46      -.896511   3 Si py        
+    19       .737324   2 Si s                38      -.737312   3 Si s         
+   208      -.616096  13 Si px              174      -.587870  11 Si py        
+   211      -.534173  13 Si px               27       .485808   2 Si py        
+ 
+ Vector  144  Occ=0.000000D+00  E= 2.453881D-01
+              MO Center=  3.9D-01, -1.2D+00,  1.4D+00, r^2= 1.5D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   223      -.929425  14 Si s               185       .929397  12 Si s         
+   194       .702053  12 Si pz              232      -.694876  14 Si pz        
+   229      -.606709  14 Si pz              191       .604858  12 Si pz        
+   147      -.504683  10 Si s               242       .504679  15 Si s         
+   193      -.392274  12 Si py              155       .391927  10 Si py        
+ 
+ Vector  145  Occ=0.000000D+00  E= 2.543794D-01
+              MO Center=  2.5D-01, -8.6D-01, -5.6D-01, r^2= 1.6D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   223      -.909953  14 Si s               185       .909861  12 Si s         
+   147       .874136  10 Si s               242      -.874026  15 Si s         
+    26       .714976   2 Si px               45       .626477   3 Si px        
+   249      -.593955  15 Si px              155      -.583417  10 Si py        
+    18      -.495642   2 Si s                37       .495633   3 Si s         
+ 
+ Vector  146  Occ=0.000000D+00  E= 2.564390D-01
+              MO Center= -9.5D-02,  3.1D-01, -9.1D-02, r^2= 1.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25       .675056   2 Si pz               44       .661233   3 Si pz        
+   242      -.552382  15 Si s               147      -.552230  10 Si s         
+    23      -.510111   2 Si px               43       .453538   3 Si py        
+    26      -.452929   2 Si px              204       .409543  13 Si s         
+   166       .409535  11 Si s                45       .371112   3 Si px        
+ 
+ Vector  147  Occ=0.000000D+00  E= 2.626042D-01
+              MO Center=  3.7D-02, -1.2D-01,  3.5D-02, r^2= 1.3D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   185     -1.066417  12 Si s               223     -1.066383  14 Si s         
+    24       .678470   2 Si py              242       .620350  15 Si s         
+   147       .620304  10 Si s                42      -.593081   3 Si px        
+    45      -.584256   3 Si px               27       .561155   2 Si py        
+   184       .490692  12 Si s               222       .490668  14 Si s         
+ 
+ Vector  148  Occ=0.000000D+00  E= 2.726517D-01
+              MO Center= -1.7D-01,  6.0D-01,  7.5D-01, r^2= 1.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28     -1.206199   2 Si pz               47      1.184733   3 Si pz        
+    26       .747528   2 Si px               19      -.676742   2 Si s         
+    38       .676732   3 Si s                44       .638288   3 Si pz        
+    25      -.635086   2 Si pz               46       .565731   3 Si py        
+    45       .564541   3 Si px              166      -.525808  11 Si s         
+ 
+ Vector  149  Occ=0.000000D+00  E= 2.925351D-01
+              MO Center= -1.3D-01,  4.1D-01, -3.0D-01, r^2= 1.5D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      1.040966   2 Si s                38      1.040899   3 Si s         
+   147      -.927622  10 Si s               242      -.927538  15 Si s         
+    26       .880708   2 Si px               45      -.795992   3 Si px        
+   166      -.714093  11 Si s               204      -.713993  13 Si s         
+    23       .559499   2 Si px               42      -.550482   3 Si px        
+ 
+ Vector  150  Occ=0.000000D+00  E= 2.961996D-01
+              MO Center=  2.7D-01, -9.1D-01, -5.7D-01, r^2= 1.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38     -1.516913   3 Si s                19      1.516897   2 Si s         
+    27     -1.388375   2 Si py               45     -1.309525   3 Si px        
+    46       .793213   3 Si py               26      -.659879   2 Si px        
+   223      -.459092  14 Si s               185       .459073  12 Si s         
+    37       .458909   3 Si s                18      -.458904   2 Si s         
+ 
+ Vector  151  Occ=0.000000D+00  E= 3.093021D-01
+              MO Center= -1.1D-01,  3.7D-01, -1.7D-01, r^2= 1.5D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      1.645566   2 Si px              204      1.645365  13 Si s         
+   166     -1.645358  11 Si s                45      1.471720   3 Si px        
+   242       .995416  15 Si s               147      -.995312  10 Si s         
+   223       .992330  14 Si s               185      -.992301  12 Si s         
+    46       .721786   3 Si py               47      -.708616   3 Si pz        
+ 
+ Vector  152  Occ=0.000000D+00  E= 3.266784D-01
+              MO Center=  3.6D-02, -1.6D-01, -6.7D-01, r^2= 1.5D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   147      1.858491  10 Si s               242      1.858452  15 Si s         
+   204     -1.386420  13 Si s               166     -1.386382  11 Si s         
+   146      -.847256  10 Si s               241      -.847238  15 Si s         
+    47       .699585   3 Si pz               28       .692506   2 Si pz        
+   223      -.665820  14 Si s               185      -.665797  12 Si s         
+ 
+ Vector  153  Occ=0.000000D+00  E= 3.647169D-01
+              MO Center=  2.1D-01, -6.6D-01,  3.9D-01, r^2= 1.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19     -1.821305   2 Si s                38     -1.821275   3 Si s         
+   185      1.775558  12 Si s               223      1.775528  14 Si s         
+    18       .755355   2 Si s                37       .755345   3 Si s         
+   184      -.640004  12 Si s               222      -.639990  14 Si s         
+   147       .577704  10 Si s               242       .577700  15 Si s         
+ 
+ Vector  154  Occ=0.000000D+00  E= 3.721588D-01
+              MO Center= -2.9D-01,  9.6D-01, -1.8D-01, r^2= 1.6D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   166      2.458134  11 Si s               204      2.457634  13 Si s         
+    19     -1.943038   2 Si s                38     -1.942933   3 Si s         
+   242      1.076954  15 Si s               147      1.076667  10 Si s         
+   165      -.960968  11 Si s               203      -.960775  13 Si s         
+   223      -.783758  14 Si s               185      -.783646  12 Si s         
+ 
+ Vector  155  Occ=0.000000D+00  E= 3.755625D-01
+              MO Center= -1.3D-01,  4.3D-01,  2.7D-02, r^2= 1.6D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   204      2.380841  13 Si s               166     -2.380341  11 Si s         
+   147      1.472939  10 Si s               242     -1.472723  15 Si s         
+    27      1.435003   2 Si py               45      1.076028   3 Si px        
+    46      -.999826   3 Si py              203      -.922947  13 Si s         
+   165       .922751  11 Si s                47      -.749123   3 Si pz        
+ 
+ Vector  156  Occ=0.000000D+00  E= 4.207145D-01
+              MO Center=  1.5D-01, -5.1D-01,  1.1D-02, r^2= 1.4D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38      2.216230   3 Si s                19     -2.216225   2 Si s         
+   223     -2.202055  14 Si s               185      2.202040  12 Si s         
+   204      1.074073  13 Si s               166     -1.074072  11 Si s         
+    27      1.042914   2 Si py              147       .964371  10 Si s         
+   242      -.964370  15 Si s                45       .918287   3 Si px        
+ 
+ Vector  157  Occ=0.000000D+00  E= 4.390251D-01
+              MO Center= -1.3D-01,  4.1D-01, -1.6D-01, r^2= 1.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   178      -.357309  11 Si dxz             216       .316718  13 Si dxz       
+   120      -.313145   8 O  px               77       .282250   5 O  pz        
+   137       .281799   9 O  pz              105       .278357   7 O  px        
+   134      -.277595   9 O  pz               74      -.276698   5 O  pz        
+    60      -.269014   4 O  px               57       .264751   4 O  px        
+ 
+ Vector  158  Occ=0.000000D+00  E= 4.429918D-01
+              MO Center= -2.4D-02,  3.7D-02, -7.9D-01, r^2= 1.5D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   242     -1.711502  15 Si s               147      1.711490  10 Si s         
+    38      1.251498   3 Si s                19     -1.251492   2 Si s         
+   223       .901250  14 Si s               185      -.901221  12 Si s         
+    47      -.741563   3 Si pz               28       .732155   2 Si pz        
+   241       .584280  15 Si s               146      -.584266  10 Si s         
+ 
+ Vector  159  Occ=0.000000D+00  E= 4.460887D-01
+              MO Center=  1.1D-01, -4.1D-01, -8.3D-01, r^2= 8.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   158      -.408137  10 Si dxy             253       .351223  15 Si dxy       
+    62      -.342922   4 O  pz              107      -.342439   7 O  pz        
+    90      -.293723   6 O  px              185      -.281140  12 Si s         
+   223      -.281073  14 Si s                 6      -.254431   1 O  pz        
+    50       .253393   3 Si dxz               3       .241886   1 O  s         
+ 
+ Vector  160  Occ=0.000000D+00  E= 4.482217D-01
+              MO Center=  1.1D-01, -3.4D-01,  4.6D-01, r^2= 1.3D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38     -1.413854   3 Si s                19      1.413840   2 Si s         
+   242       .983229  15 Si s               147      -.983202  10 Si s         
+   204       .592923  13 Si s               166      -.592885  11 Si s         
+   235       .524117  14 Si dxz              50       .468081   3 Si dxz       
+   199       .440757  12 Si dyz              47       .407419   3 Si pz        
+ 
+ Vector  161  Occ=0.000000D+00  E= 4.532888D-01
+              MO Center= -1.4D-01,  4.4D-01, -3.6D-01, r^2= 1.3D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   166       .572295  11 Si s               204       .572028  13 Si s         
+    76      -.507509   5 O  py              135       .488390   9 O  px        
+   147      -.479394  10 Si s               242      -.479286  15 Si s         
+   215      -.449682  13 Si dxy               8       .376950   1 O  py        
+   161      -.374273  10 Si dyz             106      -.320089   7 O  py        
+ 
+ Vector  162  Occ=0.000000D+00  E= 4.535704D-01
+              MO Center= -1.6D-01,  5.0D-01, -3.9D-01, r^2= 1.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38       .824111   3 Si s                19      -.824078   2 Si s         
+   204      -.798318  13 Si s               166       .798158  11 Si s         
+     7       .747063   1 O  px              242       .590022  15 Si s         
+   147      -.589883  10 Si s               216       .484543  13 Si dxz       
+    46       .472799   3 Si py              223      -.448318  14 Si s         
+ 
+ Vector  163  Occ=0.000000D+00  E= 4.565929D-01
+              MO Center=  1.8D-01, -5.3D-01,  1.1D+00, r^2= 1.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   235       .629801  14 Si dxz             199      -.539892  12 Si dyz       
+   166      -.444996  11 Si s               204      -.444952  13 Si s         
+   185       .428573  12 Si s               223       .428558  14 Si s         
+   197      -.381419  12 Si dxz              92      -.356241   6 O  pz        
+   122      -.353567   8 O  pz               50       .334764   3 Si dxz       
+ 
+ Vector  164  Occ=0.000000D+00  E= 4.615488D-01
+              MO Center= -4.6D-02,  1.8D-01,  5.7D-01, r^2= 1.5D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   204      1.148783  13 Si s               166     -1.148757  11 Si s         
+   147      -.976893  10 Si s               242       .976865  15 Si s         
+    19       .908629   2 Si s                38      -.908614   3 Si s         
+   223      -.875520  14 Si s               185       .875514  12 Si s         
+    76       .491813   5 O  py               28      -.431047   2 Si pz        
+ 
+ Vector  165  Occ=0.000000D+00  E= 4.650342D-01
+              MO Center=  2.6D-02, -2.3D-02,  1.2D+00, r^2= 1.3D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   196      -.543878  12 Si dxy             216      -.456066  13 Si dxz       
+   178       .343639  11 Si dxz             234       .326949  14 Si dxy       
+   236       .326410  14 Si dyy             180       .318452  11 Si dyz       
+   199      -.270547  12 Si dyz             242      -.262138  15 Si s         
+   147      -.262019  10 Si s               121       .261625   8 O  py        
+ 
+ Vector  166  Occ=0.000000D+00  E= 4.845459D-01
+              MO Center=  8.8D-02, -2.8D-01,  2.2D-01, r^2= 1.3D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   147     -1.215234  10 Si s               242      1.215219  15 Si s         
+    19      1.155016   2 Si s                38     -1.154944   3 Si s         
+   166      -.999056  11 Si s               204       .999047  13 Si s         
+   223      -.491660  14 Si s               185       .491610  12 Si s         
+   241      -.453727  15 Si s               146       .453726  10 Si s         
+ 
+ Vector  167  Occ=0.000000D+00  E= 4.894624D-01
+              MO Center= -6.0D-02,  1.9D-01, -8.7D-02, r^2= 1.4D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38       .879506   3 Si s                19       .879442   2 Si s         
+   185      -.644901  12 Si s               223      -.644832  14 Si s         
+   216      -.494135  13 Si dxz              47       .478203   3 Si pz        
+    28       .475551   2 Si pz              178       .378345  11 Si dxz       
+   196       .355817  12 Si dxy             180       .345766  11 Si dyz       
+ 
+ Vector  168  Occ=0.000000D+00  E= 5.023027D-01
+              MO Center=  2.3D-02, -6.3D-02,  2.4D-01, r^2= 9.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      1.873809   2 Si s                38     -1.873802   3 Si s         
+   185      -.981207  12 Si s               223       .981202  14 Si s         
+    45      -.559230   3 Si px               50       .522178   3 Si dxz       
+    31       .424394   2 Si dxz               7      -.411403   1 O  px        
+    26      -.410610   2 Si px               27      -.389098   2 Si py        
+ 
  
      Multipole analysis of the density
      ---------------------------------
@@ -871,128 +2247,22 @@ Mon Apr 28 03:40:43 PDT 1997
      -   - - -        -----         -----         ----         -------
      0   0 0 0       .000000    -93.000000    -93.000000    186.000000
  
-     1   1 0 0       .149194       .074597       .074597       .000000
-     1   0 1 0      -.472335      -.236168      -.236168       .000000
-     1   0 0 1       .393953       .196977       .196977       .000000
+     1   1 0 0       .148274       .074137       .074137       .000000
+     1   0 1 0      -.469266      -.234633      -.234633       .000000
+     1   0 0 1       .394453       .197227       .197227       .000000
  
-     2   2 0 0   -108.745159  -2040.695345  -2040.695345   3972.645531
-     2   1 1 0      1.242690   -362.606871   -362.606871    726.456432
-     2   1 0 1      -.495385     49.145248     49.145248    -98.785882
-     2   0 2 0   -112.394710   -956.339167   -956.339167   1800.283624
-     2   0 1 1      1.456606    -95.017400    -95.017400    191.491406
-     2   0 0 2   -111.738839   -902.137767   -902.137767   1692.536694
+     2   2 0 0   -108.795282  -2040.720407  -2040.720407   3972.645531
+     2   1 1 0      1.219073   -362.618679   -362.618679    726.456432
+     2   1 0 1      -.494357     49.145762     49.145762    -98.785882
+     2   0 2 0   -112.373859   -956.328742   -956.328742   1800.283624
+     2   0 1 1      1.456131    -95.017638    -95.017638    191.491406
+     2   0 0 2   -111.742054   -902.139374   -902.139374   1692.536694
  
-          Final alpha eigenvalues
-      (all occupied plus 10 virtual)
-      ------------------------------
 
-              1      
-    1  -65.2156
-    2  -65.2156
-    3  -65.1810
-    4  -65.1810
-    5  -65.1765
-    6  -65.1765
-    7  -65.1737
-    8  -65.1737
-    9  -18.6287
-   10  -18.6287
-   11  -18.6202
-   12  -18.6202
-   13  -18.6191
-   14  -18.6191
-   15  -18.6173
-   16   -5.0996
-   17   -5.0996
-   18   -5.0652
-   19   -5.0652
-   20   -5.0605
-   21   -5.0605
-   22   -5.0580
-   23   -5.0580
-   24   -3.5420
-   25   -3.5420
-   26   -3.5415
-   27   -3.5415
-   28   -3.5411
-   29   -3.5411
-   30   -3.5092
-   31   -3.5092
-   32   -3.5057
-   33   -3.5057
-   34   -3.5056
-   35   -3.5056
-   36   -3.5045
-   37   -3.5045
-   38   -3.5019
-   39   -3.5019
-   40   -3.5012
-   41   -3.5012
-   42   -3.5010
-   43   -3.5010
-   44   -3.4986
-   45   -3.4986
-   46   -3.4986
-   47   -3.4986
-   48    -.9739
-   49    -.9598
-   50    -.9283
-   51    -.9264
-   52    -.9205
-   53    -.9199
-   54    -.9117
-   55    -.6102
-   56    -.5832
-   57    -.5434
-   58    -.5415
-   59    -.5283
-   60    -.5265
-   61    -.4883
-   62    -.4285
-   63    -.4267
-   64    -.4203
-   65    -.4166
-   66    -.4135
-   67    -.4104
-   68    -.3952
-   69    -.3841
-   70    -.3808
-   71    -.3803
-   72    -.3764
-   73    -.3709
-   74    -.3692
-   75    -.3680
-   76    -.3559
-   77    -.3524
-   78    -.3447
-   79    -.3433
-   80    -.3266
-   81    -.3236
-   82    -.2902
-   83    -.2880
-   84    -.2880
-   85    -.2855
-   86    -.2847
-   87    -.2818
-   88    -.2759
-   89    -.2724
-   90    -.2720
-   91    -.2705
-   92    -.2683
-   93    -.2674
-   94    -.0518
-   95    -.0355
-   96    -.0180
-   97    -.0120
-   98    -.0081
-   99    -.0062
-  100     .0160
-  101     .0192
-  102     .0208
-  103     .0215
+ Task  times  cpu:     3212.3s     wall:     3368.6s
  
  
-                                NWCHEM Input Module
+                                NWChem Input Module
                                 -------------------
  
  
@@ -1007,11 +2277,11 @@ Mon Apr 28 03:40:43 PDT 1997
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  149      149     7.68e+04 1154     1.14e+05    0        0        0     
-bytes total:             1.19e+08 8.36e+06 1.30e+08 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            1.11e+08 5.57e+06 1.24e+08 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 890584 bytes
-Number of requests serviced: 242945
+calls:  133      133     1.12e+06 1.28e+04 1.24e+06    0        0        0     
+bytes total:             1.58e+09 9.13e+07 1.44e+09 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            1.06e+09 5.19e+07 9.67e+08 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 13712056 bytes
+Number of requests serviced: 1364042
  
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -1021,12 +2291,24 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        27	        27
+	maximum number of blocks	        31	        37
 	current total bytes		         0	         0
-	maximum total bytes		    909868	   8928084
-	maximum total K-bytes		       910	      8929
-	maximum total M-bytes		         1	         9
+	maximum total bytes		  13731980	  37085124
+	maximum total K-bytes		     13732	     37086
+	maximum total M-bytes		        14	        38
 
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 3.1" (1997), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
 
 
                                      CITATION
@@ -1035,13 +2317,33 @@ MA usage statistics:
             Please use the following citation when publishing results
             obtained with NWChem:
 
-            High Performance Computational Chemistry Group, "NWChem, A
-            Computational Chemistry Package for Parallel Computers, 
-            Version 2.1" (1997), Pacific Northwest National Laboratory,
-            Richland, Washington 99352-0999, USA.
+            Anchell, J.; Apra, E.; Bernholdt, D.; Borowski, P.; Clark, T.; 
+            Clerc, D.; Dachsel, H.; Deegan, M.; Dupuis, M.;Dyall, K.; 
+            Fann, G.; Fruchtl, H.; Gutowski, M.; Harrison, R.; Hess, A.;
+            Jaffe, J.; Kendall, R.; Kobayashi, R.; Kutteh, R.; Lin, Z.; 
+            Littlefield, R.; Long, X.; Meng, B.; Nichols, J.; Nieplocha, J.; 
+            Rendall, A.; Stave, M.; Straatsma, T.;Taylor, H.; Thomas, G.; 
+            Wolinski, K.; Wong, A.; "NWChem, A Computational Chemistry 
+            Package for Parallel Computers, Version 3.1" (1997),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+                                    REFERENCES
+                                    ----------
+
+            Where appropriate, please cite the following reference(s) 
+            when publishing results obtained with NWChem:
+
+
+     1. D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, R. J. Harrison, 
+        R. A. Kendall, R. A. Kutteh, X. Long, J. B. Nicholas, J. A. Nichols, 
+        H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield and J. Nieplocha,
+        "Parallel Computational Chemistry Made Easier: The Development of NWChem,"
+        Int. J. Quantum Chem. Symposium  29, 475-483 (1995).
 
 
 
- Total times  cpu:      171.7s     wall:      205.0s
-1.2u 0.4s 3:49 0% 118+408k 0+0io 79pf+0w
-Mon Apr 28 03:44:39 PDT 1997
+ Total times  cpu:     3213.0s     wall:     3391.8s
+0.6u 7.6s 57:44 0% 12+42k 0+0io 76pf+0w
+Fri Jul 31 18:01:23 PDT 1998
