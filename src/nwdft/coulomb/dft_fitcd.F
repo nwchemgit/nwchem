@@ -1,9 +1,10 @@
       Subroutine dft_fitcd(CD_coef, i3c_ERI, Ecoul1, rtdb, g_cdinv,
      &                     g_dens, nTotEl, n_batch, n_bmax, iwhat,
      &                     n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC,
-     &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms)
+     &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms,
+     &                     derfit, nfit, Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.26 1998-12-22 02:08:26 edo Exp $
+* $Id: dft_fitcd.F,v 1.27 1999-05-08 13:35:19 bjohnson Exp $
 *
       implicit none
 c
@@ -27,7 +28,8 @@ c
       double precision rdens_atom(natoms,natoms,ipol)
       integer rtdb
       integer g_cdinv
-      integer g_dens         ! GA DM handle
+      integer nfit           ! number of different fits to perform
+      integer g_dens(nfit)   ! GA DM handles
       integer nTotEl
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax         ! max no. batches
@@ -37,11 +39,12 @@ c
       integer n_semi_bufs
       integer fd
 c
-      double precision CD_coef(nbf_cd)
+      double precision CD_coef(nbf_cd,nfit)
       double precision i3c_ERI(n3c_dbl)
       double precision Ecoul1
+      double precision Tvec(nbf_cd,nfit)
 c
-      Logical IOLGC
+      Logical IOLGC, derfit, have_Tvec
 c
       integer current_nbuf, n3c_b, n_batch_read
       double precision offset
@@ -54,10 +57,11 @@ c
      &        nshbfc, ishd, ifirstd,  ilastd, nshbfd, istart,
      &        ishp, ifirstp, ilastp, nshbfp, Nintegrals, nscr,
      &        max1e, nscr1e, j, next, i, mscratch_2e3c,
-     &        ifirst, ilast, nshbf, maxg, ish, lmiss
+     &        ifirst, ilast, nshbf, maxg, ish, lmiss, ifit
       integer iTvec, lTvec, lgvec, igvec, lERI, iERI, lcgtf, icgtf,
      &     lscr, iscr, iqatom, lqatom, iqshell_cd, lqshell_cd, 
-     &     iqshell_lab, lqshell_lab, lqshtyp_cd, iqshtyp_cd
+     &     iqshell_lab, lqshell_lab, lqshtyp_cd, iqshtyp_cd,
+     &     lTcgtf, iTcgtf
       logical oprint, dowork, oprint_ioinfo
       integer nlast, ntasks
       integer ishc_be, ishd_be
@@ -83,6 +87,9 @@ c
       call t_stat(10,-1)
       call dft_second(ts1)
 #endif
+      if (.not.derfit .and. nfit.ne.1) then
+         call errquit('dft_fitcd: nfit must be 1 for regular fits',0)
+      endif
       oprint = util_print('coulomb fit', print_high)
       oprint_ioinfo = util_print('io info',print_debug)
       nproc  = ga_nnodes()
@@ -95,12 +102,21 @@ c
 c     Allocate scratch space.
 c      
       spherical=bas_is_spherical(CD_bas_han)
-      if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'Tvec',lTvec,iTvec))
+      if(.not.MA_Push_Get(MT_Dbl,nbf_cd*nfit,'Tvec',lTvec,iTvec))
      &  call errquit('dft_fitcd: cannot allocate Tvec',0)
-      
+c
 c     Initialize the T vector.
-      
-      call dfill(nbf_cd,0.D0,Dbl_MB(iTvec),1)
+c
+      if (have_Tvec) then
+         call dcopy(nbf_cd*nfit, Tvec, 1, dbl_mb(iTvec), 1)
+      else
+         call dfill(nbf_cd*nfit, 0.D0, Dbl_MB(iTvec), 1)
+      endif
+c
+c     If we already have the right side vectors for the fit, skip right
+c     to the determination of the fit coefficients
+c
+      if (have_Tvec) goto 500
 c      
 c     Parallelize the loop over the products of AO shells.
 c      
@@ -110,7 +126,7 @@ c
       icount = max(1,icount)
 c      
       Nao2 = nbf_ao_mxnbf_cn*nbf_ao_mxnbf_cn
-      if(.not.MA_Push_Get(MT_Dbl,Nao2,'gather vector',lgvec,igvec))
+      if(.not.MA_Push_Get(MT_Dbl,Nao2*nfit,'gather vector',lgvec,igvec))
      &  call errquit('dft_fitcd: cannot allocate gather vector',0)
 c
       call int_mem_2e3c(maxg, mscratch_2e3c)
@@ -188,12 +204,14 @@ c
 c
 c           Gather the needed density matrix elements.
 c
-            call ga_get(g_dens, ifirstd, ilastd, ifirstc, ilastc,
-     &           dbl_mb(igvec), nshbfd)
+            do ifit = 1, nfit
+               call ga_get(g_dens(ifit), ifirstd, ilastd, ifirstc,
+     &                     ilastc, dbl_mb(igvec+(ifit-1)*Nao2), nshbfd)
+            enddo
 c            
 c           Determine the maximum density matrix element for this product of AO shells.
 c
-            Pmat_max = dabsmax(Nao2,DBL_MB(igvec))
+            Pmat_max = dabsmax(Nao2*nfit,DBL_MB(igvec))
 c            
 c           Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
 c
@@ -206,8 +224,18 @@ c
               istart = iERI
               fac = 2.0d0
               if(ishc.eq.ishd) fac = 1.d0
-              call dgemv('T',Nao2,nbf_cd,fac,i3c_ERI(ipoint),Nao2,
-     &             Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
+c
+c             Use dgemv for case of 1 fit (more efficient), else use dgemm
+c
+              if (nfit.eq.1) then
+                 call dgemv('T',Nao2,nbf_cd,fac,i3c_ERI(ipoint),Nao2,
+     &                Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
+              else
+                 call dgemm('T','N',nbf_cd,nfit,Nao2,fac,
+     &                i3c_ERI(ipoint),Nao2,dbl_mb(igvec),nbf_cd,
+     &                1d0,dbl_mb(iTvec),nbf_cd)
+                 call errquit('not impl in dft_fitcd',0)
+              endif
             end if
 c
             ndone = ndone+1
@@ -306,12 +334,14 @@ c
 c
 c           Gather the needed density matrix elements.
 c
-            call ga_get(g_dens, ifirstd, ilastd, ifirstc, ilastc,
-     &           dbl_mb(igvec), nshbfd)
+            do ifit = 1, nfit
+               call ga_get(g_dens(ifit), ifirstd, ilastd, ifirstc,
+     &              ilastc, dbl_mb(igvec+(ifit-1)*Nao2), nshbfd)
+            enddo
 c            
 c           Determine the maximum density matrix element for this product of AO shells.
 c
-            Pmat_max = dabsmax(Nao2,DBL_MB(igvec))
+            Pmat_max = dabsmax(Nao2*nfit,DBL_MB(igvec))
 c            
 c           Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
 c
@@ -337,7 +367,10 @@ c
 c
 c               check for use of symmetry
 c
-                if (oskel) then
+c     Must turn symmetry off for derivative fits since derivative
+c     densities will not be totally symmetric in general
+c
+                if (oskel .and. .not.derfit) then
                    if (sym_shell(cd_bas_han, ishp, q1))then
                       call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
      &                ishd,nscr,Dbl_MB(iscr),Nintegrals,Dbl_MB(istart))
@@ -356,8 +389,12 @@ c
 c               
 c             Multiply the matrix of 3-ctr ERIs by the density matrix elements.
 c               
-              call dgemv('T',Nao2,nbf_cd,fac,Dbl_MB(iERI),Nao2,
-     &             Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
+              if (nfit.eq.1) then
+                 call dgemv('T',Nao2,nbf_cd,fac,Dbl_MB(iERI),Nao2,
+     &                Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
+              else
+                 call errquit('dft_fitcd: not impl',1)
+              endif
             end if
 c
 c            write(LuOut,*)' Done with: ishc,ishd; n1,n2 ',
@@ -398,7 +435,7 @@ c
       if(.not.ma_pop_stack(lgvec))
      &  call errquit('dft_fitcd: cannot pop stack',0)
 c
-      call ga_dgop(Msg_gop_Tvec,Dbl_MB(iTvec),nbf_cd,'+')
+      call ga_dgop(Msg_gop_Tvec,Dbl_MB(iTvec),nbf_cd*nfit,'+')
 c
 #if defined(DFT_TIMER)
       call dft_second(ts2)
@@ -407,8 +444,14 @@ c
       call dft_second(ts1)
 #endif
 c
-      if (oskel)
-     &   call sym_vec_symmetrize(geom, cd_bas_han,  Dbl_MB(iTvec))
+      if (oskel .and. .not.derfit) then
+         do ifit = 1, nfit
+            call sym_vec_symmetrize(geom, cd_bas_han,
+     &           Dbl_MB(iTvec+(ifit-1)*nbf_cd))
+         enddo
+      endif
+c
+ 500  continue
 c      
 c     Compute the CD expansion coefficients.
 c     
@@ -432,7 +475,6 @@ c
      &     call errquit('dft_fitcd: cannot allocate cgtf',0)
       nscr = max(nscr1e, nbf_cd)
 c
-
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &  call errquit('dft_fitcd: cannot allocate scr',0)
 c      
@@ -460,7 +502,11 @@ c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
 c     Compute the orbital integrated electron density.
 c
-      Q = Dble(nTotEl)
+      if (derfit) then
+         Q = 0d0
+      else
+         Q = Dble(nTotEl)
+      endif
 c      call dft_tstamp(' in dft_cdfit before alph')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c      
@@ -471,9 +517,6 @@ c
       call tcllct(t_sub(1,3),ts2,ts1)
       call dft_second(ts1)
 #endif
-c
-c     Compute the Lagrange Multiplier, alpha.
-c     
       if (IOLGC)then
 c         call gacrea(geom,CD_bas_han,
 c     &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
@@ -502,6 +545,10 @@ c     &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
       call ga_sync
 c      call dft_tstamp(' in dft_cdfit before f1f2')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
+#if 0
+c
+c     Compute the Lagrange Multiplier, alpha.
+c     
       F(1) = 0.D0
       F(2) = 0.D0
       next = nxtval(nproc)+1
@@ -519,6 +566,7 @@ c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
       call ga_dgop(Msg_Lagrange,F,2,'+')
       call ga_sync
       alpha = (Q - F(1))/F(2)
+c         write(*,*)'F alpha',f(1),f(2),alpha
       call ga_sync
 c      call dft_tstamp(' in dft_cdfit before qfrc')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
@@ -546,31 +594,106 @@ c
       enddo
       next = nxtval(-nproc)
       call ga_dgop(Msg_CD_coef,CD_coef,nbf_cd,'+')
-      call ga_sync 
+      call ga_sync
+#else
+c
+c     Multiply T and cgtf by S**(-1) and store
+c
+c     CD_coef is initially used to store S**(-1) * T, the values
+c     the coefficients would have without the charge constraint
+c
+      call dfill(nbf_cd*nfit,0.D0,CD_coef,1)
+c
+c     Need another temp array to store S**(-1) * cgtf
+c
+      if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'Tcgtf',lTcgtf,iTcgtf))
+     &     call errquit('dft_fitcd: cannot allocate Tcgtf',0)
+      call dfill(nbf_cd,0.D0,dbl_mb(iTcgtf),1)
+c
+      next = nxtval(nproc)+1
+      do j = 1,nbf_cd
+        if (j.eq.next) then
+          next = nxtval(nproc)+1
+          call get_col(g_cdinv,nbf_cd,j,Dbl_MB(iscr))
+          AZ = ddot(nbf_cd,DBL_mb(iscr),1,DBL_MB(icgtf),1)
+          dbl_mb(iTcgtf+j-1) = dbl_mb(iTcgtf+j-1) + AZ
+          do ifit = 1, nfit
+             AZ = ddot(nbf_cd,DBL_mb(iscr),1,
+     &            DBL_MB(iTvec+(ifit-1)*nbf_cd),1)
+             CD_coef(j,ifit) = CD_coef(j,ifit) + AZ
+          enddo
+        endif
+      enddo
+      next = nxtval(-nproc)
+      call ga_sync
+      call ga_dgop(Msg_CD_coef,CD_coef,nbf_cd*nfit,'+')
+c!!! What Msg should be here? !!!
+      call ga_dgop(Msg_Tcgtf,dbl_mb(iTcgtf),nbf_cd,'+')
+      call ga_sync
+c
+c     Apply constraint correction to fits
+c
+      F(2) = ddot(nbf_cd,DBL_mb(icgtf),1,DBL_MB(iTcgtf),1)
+c
+      do ifit = 1, nfit
+c
+c        Compute Lagrange multiplier, alpha
+c
+         F(1) = ddot(nbf_cd,DBL_mb(icgtf),1,CD_coef(1,ifit),1)
+         alpha = (Q - F(1))/F(2)
+c         write(*,*)'F alpha',f(1),f(2),alpha
+c
+c        Correct unconstrained coefficients by alpha*S**(-1)*cgtf
+c
+         do j = 1,nbf_cd
+            CD_coef(j,ifit) = CD_coef(j,ifit)
+     &                      + alpha*DBL_MB(iTcgtf+j-1)
+         enddo
+      enddo
+c
+      if (.not.ma_pop_stack(lTcgtf))
+     &   call errquit('dft_fitcd: cannot pop stack',0)
+#endif
 c      call dft_tstamp(' in dft_cdfit before writ')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
       if(me.eq.0) then
-         call util_file_name('cdfit', .true., .false., cdfit_filename)
+         if (derfit) then
+            call util_file_name('cdfit_deriv', .true., .false.,
+     &           cdfit_filename)
+         else
+            call util_file_name('cdfit', .true., .false.,
+     &           cdfit_filename)
+         endif
          open(unit=79,file=cdfit_filename,access='sequential',
      &         form='unformatted',status='unknown')
-         write(79) (CD_coef(i),i=1,nbf_cd)
+c         do ifit = 1, nfit
+c            write(79) (CD_coef(i,ifit),i=1,nbf_cd)
+c         enddo
          close(79)
       endif
 c      
 c     Compute the integrated electron density from the fit.
 c      
-      rho_int = ddot(nbf_cd,CD_coef,1,Dbl_MB(icgtf),1)
-      if (dabs(rho_int-ntotel).gt.0.01d0)then
-         write(*,*)' rho_int 1 = ',rho_int
-         call errquit('dft_fitcd: problem w/fitted density',911)
-c         write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)
-c         write(*,*)' CD_coef = ',(CD_coef(i),i=1,nbf_cd)
-      endif
+      do ifit = 1, nfit
+         rho_int = ddot(nbf_cd,CD_coef(1,ifit),1,Dbl_MB(icgtf),1)
+         if (dabs(rho_int-Q).gt.0.001d0)then
+            write(*,*)' rho_int check 1, density',ifit,' = ',rho_int
+            call errquit('dft_fitcd: problem w/fitted density',911)
+c     write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)
+c     write(*,*)' CD_coef = ',(CD_coef(i,ifit),i=1,nbf_cd)
+         endif
+      enddo
       call ga_sync
+c      if (derfit) then
+c         write(*,*)'Fit coefficients:'
+c         call output(cd_coef, 1, nbf_cd, 1, nfit, nbf_cd, nfit, 1)
+c      endif
 c      call dft_tstamp(' in dft_cdfit before mull')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
 c     Get mulliken population analysis of charge density fit
+c
+      if (.not.derfit) then
 c
       if (.not. geom_ncent(geom, natoms))
      &     call errquit('dft_fitcd: geom_ncent failed',73)      
@@ -601,6 +724,8 @@ c
 c
       call ga_sync
 c      call dft_tstamp(' in dft_cdfit after  mull')
+      endif                     ! .not.derfit
+c
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c      if(IOLGC) call gadest(g_cdinv)
       if (IOLGC)then
@@ -610,17 +735,21 @@ c      if(IOLGC) call gadest(g_cdinv)
 c
 c     calculation of Ecoul1
 c
-      Ecoul1 = ddot(nbf_cd,DBL_mb(iTvec),1,CD_coef,1)
+      if (.not.derfit) then
+         Ecoul1 = ddot(nbf_cd,DBL_mb(iTvec),1,CD_coef,1)
+      endif
 c      
 c     Compute the integrated electron density from the fit.
 c      
-      rho_int = ddot(nbf_cd,CD_coef,1,Dbl_MB(icgtf),1)
-      if (dabs(rho_int-ntotel).gt.0.01d0)then
-         write(*,*)' rho_int 2 = ',rho_int
-         call errquit('dft_fitcd: problem w/fitted density',911)
-c         write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)
-c         write(*,*)' CD_coef = ',(CD_coef(i),i=1,nbf_cd)
-      endif
+      do ifit = 1, nfit
+         rho_int = ddot(nbf_cd,CD_coef(1,ifit),1,Dbl_MB(icgtf),1)
+         if (dabs(rho_int-Q).gt.0.001d0) then
+            write(*,*)' rho_int check 2, density',ifit,' = ',rho_int
+            call errquit('dft_fitcd: problem w/fitted density',911)
+c     write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)
+c     write(*,*)' CD_coef = ',(CD_coef(i,ifit),i=1,nbf_cd)
+         endif
+      enddo
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_fitcd: cannot pop stack',4)
       if(.not.ma_pop_stack(lcgtf))
@@ -634,7 +763,7 @@ c         write(*,*)' CD_coef = ',(CD_coef(i),i=1,nbf_cd)
       call tcllct(t_sub(1,5),ts2,ts1)
 #endif
       
-      if(oprint.and.me.eq.0 )then
+      if(oprint.and.me.eq.0.and..not.derfit )then
         write(LuOut,*)
         write(LuOut,'(a,f14.6,a,1pe13.6)')
      &       '   CD fit integrated density:',rho_int,
