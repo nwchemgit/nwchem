@@ -87,6 +87,11 @@ c
             movecs_out = movecs_in
          endif
       endif
+c
+c  Dump lagrangian?
+c
+      if (.not.rtdb_get(rtdb, 'scf:lagrangian',MT_LOG, 1, olagr))
+     $   olagr = .false.
 c     
 c     Figure out the number of electrons from the required total
 c     charge and the sum of nuclear charges
@@ -177,7 +182,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.11 1995-10-10 06:11:14 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.12 1995-11-02 01:52:18 rg240 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

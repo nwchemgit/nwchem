@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.42 1995-10-25 23:18:17 og845 Exp $
+# $Id: GNUmakefile,v 1.43 1995-11-02 01:52:14 rg240 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -35,7 +35,7 @@
         riscf_trans_int.o \
         uhf.o                   fock_2e_report.o fock_2e_task.o \
         print_integ_list.o \
-        do_ri.o
+        do_ri.o rohf_lagr.o 
 
 
 
