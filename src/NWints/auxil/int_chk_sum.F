@@ -1,11 +1,13 @@
-      subroutine int_chk_sum(basisin)
-c $Id: int_chk_sum.F,v 1.2 1994-04-26 19:40:30 d3g681 Exp $
+      subroutine int_chk_sum(basisin,print_ints)
+c $Id: int_chk_sum.F,v 1.3 1994-05-05 00:03:20 d3e129 Exp $
       implicit none
 #include "mafdecls.h"
 #include "bas.fh"
 c::passed
-      integer basisin
+      integer basisin    ! [input] basis set handle 
+      logical print_ints ! [input] also print integral and label values 
 c::local
+      logical debug
       logical MAstatus
       integer max1bf, maxg, mscr1, mscr2
 c
@@ -21,6 +23,15 @@ c
       integer h_stats, i_stats
 c
       integer ncont
+      integer plevel
+c
+      data debug /.false./
+      data plevel /0/
+c 
+c
+c if debugging then up print level
+c
+      if (debug) plevel = 1
 c
 c get number of contractions (shells) ncont
 c
@@ -75,9 +86,10 @@ c
           call int_lgen1e(basisin,basisin,i,j,1.0d-08,
      &           int_mb(i_ilab),int_mb(i_jlab),memb,
      &           dbl_mb(imemb),mems,dbl_mb(imems),numleft)
-          call int_pgen1e('overlap',basisin,basisin,i,j,
+          if(print_ints)
+     &      call int_pgen1e('overlap',basisin,basisin,i,j,
      &           int_mb(i_ilab),int_mb(i_jlab),numleft,
-     &           dbl_mb(imemb))
+     &           dbl_mb(imemb),plevel)
           call stsum1(numleft,numtot,
      &           dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
      &           dbl_mb(i_stats))
@@ -96,9 +108,10 @@ c
           call int_lgen1e(basisin,basisin,i,j,1.0d-08,
      &           int_mb(i_ilab),int_mb(i_jlab),memb,
      &           dbl_mb(imemb),mems,dbl_mb(imems),numleft)
-          call int_pgen1e('kinetic energy',basisin,basisin,i,j,
+          if(print_ints)
+     &      call int_pgen1e('kinetic energy',basisin,basisin,i,j,
      &           int_mb(i_ilab),int_mb(i_jlab),numleft,
-     &           dbl_mb(imemb))
+     &           dbl_mb(imemb),plevel)
           call stsum1(numleft,numtot,
      &           dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
      &           dbl_mb(i_stats))
@@ -117,9 +130,10 @@ c
           call int_lgen1e(basisin,basisin,i,j,1.0d-08,
      &           int_mb(i_ilab),int_mb(i_jlab),memb,
      &           dbl_mb(imemb),mems,dbl_mb(imems),numleft)
-          call int_pgen1e('pot. energy',basisin,basisin,i,j,
+          if(print_ints)
+     &      call int_pgen1e('pot. energy',basisin,basisin,i,j,
      &           int_mb(i_ilab),int_mb(i_jlab),numleft,
-     &           dbl_mb(imemb))
+     &           dbl_mb(imemb),plevel)
           call stsum1(numleft,numtot,
      &           dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
      &           dbl_mb(i_stats))
@@ -138,9 +152,10 @@ c
           call int_lgen1e(basisin,basisin,i,j,1.0d-08,
      &           int_mb(i_ilab),int_mb(i_jlab),memb,
      &           dbl_mb(imemb),mems,dbl_mb(imems),numleft)
-          call int_pgen1e('h1',basisin,basisin,i,j,
+          if(print_ints)
+     &      call int_pgen1e('h1',basisin,basisin,i,j,
      &           int_mb(i_ilab),int_mb(i_jlab),numleft,
-     &           dbl_mb(imemb))
+     &           dbl_mb(imemb),plevel)
           call stsum1(numleft,numtot,
      &           dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
      &           dbl_mb(i_stats))
@@ -169,7 +184,7 @@ c
      &               dbl_mb(imemb),
      &               int_mb(i_ilab),int_mb(i_jlab),
      &               int_mb(i_klab),int_mb(i_llab),
-     &               dbl_mb(i_stats),.true.)
+     &               dbl_mb(i_stats),print_ints)
 04000       continue
 03000     continue
 02000   continue
