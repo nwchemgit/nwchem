@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.3 1996-03-12 22:43:18 d3g681 Exp $
+* $Id: util_legal.F,v 1.4 1996-11-03 19:12:04 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -137,7 +137,7 @@ c
      &     1x, 
      &     '   A Computational Chemistry Package for Parallel'/
      &     1x, 
-     &     '   Computers, Version 1.2," (1995), Pacific Northwest'/
+     &     '   Computers, Version 2.1," (1995), Pacific Northwest'/
      &     1x, 
      &     '   National Laboratory, Richland, Washington 99352, USA.'//)
 c
