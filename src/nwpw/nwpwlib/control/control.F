@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.11 2001-12-14 20:02:46 bylaska Exp $
+* $Id: control.F,v 1.12 2001-12-21 16:50:29 bylaska Exp $
 *
 
 *     ***********************************
@@ -1215,6 +1215,7 @@
       if (.not.rtdb_get(rtdb,'charge',mt_dbl,1,charge)) then
          charge = 0.0d0 
       end if
+
       control_TotalCharge = charge
       return
       end
@@ -1233,6 +1234,31 @@
       common / control_rtdb1 / trtdb
 
       control_rtdb = trtdb
+      return
+      end
+
+*     *****************************
+*     *                	 		  *
+*     *    	control_minimizer     *
+*     *                 	 	  *
+*     *****************************
+      integer function control_minimizer()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer minimizer
+
+      if (.not.rtdb_get(rtdb,'nwpw:minimizer',mt_int,1,minimizer)) then
+         minimizer = 1
+      end if
+
+      control_minimizer = minimizer
       return
       end
 

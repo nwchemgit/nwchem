@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.4 2001-12-20 00:30:51 bylaska Exp $
+* $Id: c_electron.F,v 1.5 2001-12-21 16:50:28 bylaska Exp $
 *
 
 *     ***********************************
@@ -882,9 +882,9 @@ c     >                    dbl_mb(xce(1)))
 
 
 *     ***********************************
-*     *					*
-*     *   c_electron_psi_vnl_ave	*
-*     *					*
+*     *									*
+*     *   c_electron_psi_vnl_ave 		*
+*     *									*
 *     ***********************************
 
       real*8 function c_electron_psi_vnl_ave(psi1)
@@ -898,7 +898,7 @@ c     >                    dbl_mb(xce(1)))
 *     **** local variables ****
       logical value
       integer n,ms,n1(2),n2(2),np,nb
-      integer nee(2),neall,indx
+      integer neall,indx
       real*8 enlocal,sum,weight
       integer tmp1(2),tmp2(2)
 
@@ -908,34 +908,36 @@ c     >                    dbl_mb(xce(1)))
 
       call Parallel_np(np)
 
-      value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit(
-     >            'electron_psi_vl_ave: out of stack memory',0)
-
       n1(1) = 1
       n2(1) = ne(1)
       n1(2) = ne(1) + 1
       n2(2) = ne(1) + ne(2)
       neall = ne(1) + ne(2)
 
+      value = MA_push_get(mt_dcpl,(nfft3d*neall*nbrill),
+     >                    'tmp1',tmp1(2),tmp1(1)) 
+      value = value.and.
+     >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) call errquit(
+     >            'electron_psi_vl_ave: out of stack memory',0)
+
+
 *     **** average Kohn-Sham v_nonlocal energy ****
-      nee(1) = 1
-      nee(2) = 0
+      call Stfl_g_Zero(ispin,ne,nfft3d,neall,nbrill,dcpl_mb(tmp1(1)))
+      call cpsp_v_nonlocal(ispin,ne,
+     >                     psi1,
+     >                     dcpl_mb(tmp1(1)),
+     >                    .false.,dcpl_mb(tmp2(1)))
+
       enlocal = 0.0d0
       do nb=1,nbrill
          weight = brillioun_weight(nb)
          do ms=1,ispin
          do n=n1(ms),n2(ms)
-            indx = (n-1)*nfft3d + (nb-1)*nfft3d*neall
-            call C3dB_c_Zero(1,dcpl_mb(tmp1(1)))
-            call cpsp_v_nonlocal(ispin,nee,
-     >                      psi1(1+indx),
-     >                      dcpl_mb(tmp1(1)),
-     >                      .false.,dcpl_mb(tmp2(1)))
+         indx = (n-1)*nfft3d + (nb-1)*nfft3d*neall
+
             call Cram_cc_idot(nb,psi1(1+indx),
-     >                         dcpl_mb(tmp1(1)),
+     >                         dcpl_mb(tmp1(1)+indx),
      >                         sum)
             enlocal = enlocal - sum*weight
          end do

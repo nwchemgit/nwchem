@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_lmbfgs.F,v 1.1 2001-12-21 01:49:30 bylaska Exp $                       
+*     $Id: pspw_lmbfgs.F,v 1.2 2001-12-21 16:50:29 bylaska Exp $                       
 *
 
       subroutine pspw_lmbfgs_init(max_m0,g)
@@ -56,7 +56,9 @@
       call pspw_Grsm_list_load(m,dcpl_mb(yy(1)),dcpl_mb(ss(1)))
       call psi_1geodesic_Gtransport(tmin,dcpl_mb(yy(1)))
       call psi_1geodesic_transport(tmin,dcpl_mb(ss(1)))
-      call Grsm_gg_Sub(npack1,neall,g,dcpl_mb(yy(1)),dcpl_mb(yy(1)))
+      call Grsm_ggg_Sub(npack1,neall,g,dcpl_mb(yy(1)),dcpl_mb(yy(1)))
+      call pspw_Grsm_list_store(m,dcpl_mb(yy(1)),dcpl_mb(ss(1)))
+
       call Grsm_gg_trace(npack1,neall,
      >                   dcpl_mb(yy(1)),
      >                   dcpl_mb(ss(1)),
@@ -71,16 +73,16 @@
       call Grsm_gg_daxpy(npack1,neall,-alpha(m),dcpl_mb(yy(1)),s)
 
       do k=(m-1),1, -1
-         call pspw_Grsm_list_store(k+1,dcpl_mb(yy(1)),dcpl_mb(ss(1)))
          call pspw_Grsm_list_load(k,dcpl_mb(yy(1)),dcpl_mb(ss(1)))
          call psi_1geodesic_Gtransport(tmin,dcpl_mb(yy(1)))
          call psi_1geodesic_Gtransport(tmin,dcpl_mb(ss(1)))
+         call pspw_Grsm_list_store(k,dcpl_mb(yy(1)),dcpl_mb(ss(1)))
          call Grsm_gg_trace(npack1,neall,
      >                   dcpl_mb(ss(1)),
      >                   s,
      >                   sum)
          alpha(k) = rho(k)*sum
-         call Grsm_gg_daxpy(npack1,neall,-alpha(k),dcpl_mb(yy(1)),s)
+         call Grsm_gg_daxpy(npack1,neall,alpha(k),dcpl_mb(yy(1)),s)
       end do
 
       do k=1,(m-1)
@@ -99,6 +101,7 @@
      >                sum)
       beta = rho(m)*sum
       sum = alpha(m) - beta
+      sum = beta-alpha(m)
       call Grsm_gg_daxpy(npack1,neall,sum,dcpl_mb(ss(1)),s)
 
       if (m.lt.max_m) then

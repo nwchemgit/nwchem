@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.6 2001-11-28 21:09:18 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.7 2001-12-21 16:50:29 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -13,8 +13,9 @@ c     $Id: cgsd_energy.F,v 1.6 2001-11-28 21:09:18 bylaska Exp $
 
       logical stalled
       integer taskid
+      integer minimizer
       integer i,k,neall,NN
-      integer it_in,it_out,icount
+      integer it_in,it_out,icount,bfgscount
       real*8  EV,virial
       real*8  tole,tolc,deltae,deltac,deltae_old
       real*8  cx,cy,cz
@@ -25,19 +26,22 @@ c     $Id: cgsd_energy.F,v 1.6 2001-11-28 21:09:18 bylaska Exp $
 *     **** external functions ****
       logical     psp_semicore,pspw_qmmm_found
       character*2 ion_aname
-      integer     control_it_in, control_it_out
+      integer     control_it_in, control_it_out,control_minimizer
       integer     ion_nion,ion_katm,psi_ne,psi_ispin
       real*8      control_tole,control_tolc
       real*8      ion_rion,psi_eigenvalue,ion_amass
       external psp_semicore,pspw_qmmm_found
       external ion_aname
-      external control_it_in, control_it_out
+      external control_it_in, control_it_out,control_minimizer
       external ion_nion,ion_katm,psi_ne,psi_ispin
       external control_tole,control_tolc
       external ion_rion,psi_eigenvalue,ion_amass
 
 
       call Parallel_taskid(taskid)
+
+*     **** set the minimizer ****
+      minimizer = control_minimizer()
 
 *     **** generate phaze factors and local psp and core density ****
       call phafac()
@@ -51,13 +55,15 @@ c     $Id: cgsd_energy.F,v 1.6 2001-11-28 21:09:18 bylaska Exp $
          write(6,1301)
          write(6,1302)
          write(6,1304)
-         write(6,1305)
+         if (minimizer.eq.1) write(6,1305)
+         if (minimizer.eq.2) write(6,1306)
          call util_flush(6)
       end if
 
       stalled = .false.
       deltae  = -1.0d-03
       icount=0
+      bfgscount=0
       it_in  = control_it_in()
       it_out = control_it_out()
       tole   = control_tole()
@@ -68,10 +74,18 @@ c     $Id: cgsd_energy.F,v 1.6 2001-11-28 21:09:18 bylaska Exp $
       if (newpsi) call sdminimize(5)
    2  continue
          icount = icount + 1
-         if (stalled) call sdminimize(0)
+         if (stalled) then
+           call sdminimize(0)
+           bfgscount = 0 
+         end if
 
          deltae_old = deltae
-         call cgminimize(E,deltae,deltac)
+         if (minimizer.eq.1) then
+           call cgminimize(E,deltae,deltac)
+         else if (minimizer.eq.2) then
+           bfgscount = bfgscount + 1
+           call bfgsminimize(E,deltae,deltac,bfgscount)
+         end if
 
          if ((dabs(deltae).gt.dabs(deltae_old)).or.
      >       (dabs(deltae).gt.1.0d-3)) then
@@ -192,7 +206,8 @@ c     $Id: cgsd_energy.F,v 1.6 2001-11-28 21:09:18 bylaska Exp $
  1301 FORMAT(  '= energy calculation =')
  1302 FORMAT(  '======================')
  1304 FORMAT(/)
- 1305 FORMAT(10X,'============ electron iteration ====================')
+ 1305 FORMAT(10X,'========== conjugate gradient iteration ============')
+ 1306 FORMAT(10X,'============== lmbfgs iteration ====================')
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')

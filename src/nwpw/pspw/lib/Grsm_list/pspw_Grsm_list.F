@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_Grsm_list.F,v 1.1 2001-12-21 01:49:30 bylaska Exp $                       
+*     $Id: pspw_Grsm_list.F,v 1.2 2001-12-21 16:50:29 bylaska Exp $                       
 *
 
       subroutine pspw_Grsm_list_init(tag,size_list0,nsize0)
@@ -18,8 +18,8 @@
       l = index(tag,' ') - 1
       do i=1,size_list
         indx(i) = i
-        tag_list(i)  = tag(1:l)//'1'//CHAR(ICHAR('a')+i-1)
-        tag_list2(i) = tag(1:l)//'2'//CHAR(ICHAR('a')+i-1)
+        tag_list(i)  = tag//'1'//CHAR(ICHAR('a')+i-1)
+        tag_list2(i) = tag//'2'//CHAR(ICHAR('a')+i-1)
       end do
  
       return

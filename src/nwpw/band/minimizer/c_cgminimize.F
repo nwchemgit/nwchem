@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.2 2001-12-20 00:30:52 bylaska Exp $                       
+*     $Id: c_cgminimize.F,v 1.3 2001-12-21 16:50:29 bylaska Exp $                       
 *
 
 
@@ -86,13 +86,13 @@ c      complex*16 G1(nfft3d,nemax)
 
 
 *     **** allocate H0, G0, and G1 ****
-      value = MA_alloc_get(mt_dcpl,nfft3d*neall*nbrill,
+      value = MA_push_get(mt_dcpl,nfft3d*neall*nbrill,
      >                     'H0',H0(2),H0(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d*neall*nbrill,
+     >        MA_push_get(mt_dcpl,nfft3d*neall*nbrill,
      >                     'G0',G0(2),G0(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d*neall*nbrill,
+     >        MA_push_get(mt_dcpl,nfft3d*neall*nbrill,
      >                     'G1',G1(2),G1(1))
       if (.not. value) call errquit('c_cgminimize:out of heap memory',0)
 
@@ -235,10 +235,17 @@ c     tmin = 0.0d0
       call cpsi_geodesic_final(tmin)
       deltac = c_rho_error()
 
+*     **** free memory ****
+      value = MA_pop_stack(G1(2))
+      value = value.and.MA_pop_stack(G0(2))
+      value = value.and.MA_pop_stack(H0(2))
+      if (.not. value) 
+     >  call errquit('c_cgminimize:error freeing stack memory',0)
+
  30   call cpsi_2to1()
       call cpsi_1toelectron() 
-c     call rho_2to1()
-c     call dng_2to1()
+c     call c_rho_2to1()
+c     call c_dng_2to1()
       call cpsi_check()
 
       eion = c_ewald_e()
@@ -258,12 +265,6 @@ c     call dng_2to1()
       E(8)  = cpsi_1vnl()
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
-
-      value = MA_free_heap(G1(2))
-      value = value.and.MA_free_heap(G0(2))
-      value = value.and.MA_free_heap(H0(2))
-      if (.not. value) 
-     >  call errquit('c_cgminimize:error freeing heap memory',0)
 
   
       return
