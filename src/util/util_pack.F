@@ -1,7 +1,7 @@
 #ifdef HAVE_FORTRAN_INTEGER2
       subroutine util_pack_16(nunpacked, packed, unpacked)
 *
-* $Id: util_pack.F,v 1.13 1999-08-06 22:02:50 d3g681 Exp $
+* $Id: util_pack.F,v 1.14 1999-08-07 23:34:28 d3g681 Exp $
 *
       implicit none
       integer nunpacked
@@ -121,6 +121,10 @@ c
       byte packed(*), unpacked(4,*)
 c
       integer i, ilo, ihi, ndo
+c
+c     This routine has been tweaked for IBM P2SC for which
+c     the slow clock and high memory bandwidth does not
+c     favour bit operations in the inner loop.
 c
       do ilo = 1, nunpacked, 32768       ! 128 K cache
          ihi = min(nunpacked, ilo+32768-1)

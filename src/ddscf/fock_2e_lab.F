@@ -37,7 +37,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -143,7 +143,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -215,7 +215,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -295,7 +295,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -381,7 +381,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -481,7 +481,7 @@ c!!
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -568,7 +568,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -628,7 +628,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -696,7 +696,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -770,7 +770,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -848,7 +848,7 @@ c
       subroutine fock_2e_rep_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -932,7 +932,7 @@ c
       subroutine fock_2e_rep_1_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1016,7 +1016,7 @@ c
       subroutine fock_2e_rep_2_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1079,7 +1079,7 @@ c
       subroutine fock_2e_rep_3_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1151,7 +1151,7 @@ c
       subroutine fock_2e_rep_4_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1232,7 +1232,7 @@ c
       subroutine fock_2e_rep_mod_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1313,9 +1313,6 @@ c
       end
       subroutine fock_2e_rep_mod_1_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
-c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
-c     
       implicit none
 #include "cfockmul.fh"
 c     
@@ -1331,6 +1328,8 @@ c
       integer ij, ik, jk, kl, il, jl
       double precision g, gk, gj, fij, fkl, fik, fil, fjl, fjk
 c
+#ifdef SOLARIS
+*     Overwrite logic seems slower on UltraSparc
       do ind = 1, neri
          g = eri(ind)
          if (abs(g) .gt. tol2e) then
@@ -1340,11 +1339,30 @@ c
             j = labels(2,ind)
             k = labels(3,ind)
             l = labels(4,ind)
-*     debug
-*            if (i.lt.0 .or. i.ge.nbf) call errquit(' i bad', i)
-*            if (j.lt.0 .or. j.ge.nbf) call errquit(' j bad', j)
-*            if (l.lt.0 .or. l.ge.nbf) call errquit(' l bad', l)
-*            if (k.lt.0 .or. k.ge.nbf) call errquit(' k bad', k)
+            ij = im(i) + j
+            kl = im(k) + l
+            ik = im(i) + k
+            il = im(i) + l
+            jl = im(j) + l
+            jk = im(j) + k
+            fock(ij) = fock(ij) + gj*dens(kl)
+            fock(kl) = fock(kl) + gj*dens(ij)
+            fock(ik) = fock(ik) + gk*dens(jl)
+            fock(il) = fock(il) + gk*dens(jk)
+            fock(jl) = fock(jl) + gk*dens(ik)
+            fock(jk) = fock(jk) + gk*dens(il)
+         end if
+      end do
+#else
+      do ind = 1, neri
+         g = eri(ind)
+         if (abs(g) .gt. tol2e) then
+            gj = g*jfac
+            gk = g*kfac
+            i = labels(1,ind)
+            j = labels(2,ind)
+            k = labels(3,ind)
+            l = labels(4,ind)
 c
 c     Logic behind this choice is that indices vary mostly with
 c     i>=j and k>=l with kl varying fastest ... improved cache hits?
@@ -1362,14 +1380,11 @@ c
             if (i .eq. j) gk = gk + gk
             fock(ij) = fij
             fock(kl) = fkl
-c
             if (k .eq. l) gk = gk + gk
-c
             ik = im(i) + k
             il = im(i) + l
             jl = im(j) + l
             jk = im(j) + k
-
             fik = fock(ik) + gk*dens(jl)
             fil = fock(il) + gk*dens(jk)
             fjk = fock(jk) + gk*dens(il)
@@ -1378,23 +1393,95 @@ c
             fock(il) = fil
             fock(jl) = fjl
             fock(jk) = fjk
-c
-c     Code without overwrite logic
-c
-c$$$            fock(ij) = fock(ij) + gj*dens(kl)
-c$$$            fock(kl) = fock(kl) + gj*dens(ij)
-c$$$            fock(ik) = fock(ik) + gk*dens(jl)
-c$$$            fock(il) = fock(il) + gk*dens(jk)
-c$$$            fock(jl) = fock(jl) + gk*dens(ik)
-c$$$            fock(jk) = fock(jk) + gk*dens(il)
          end if
       end do
+#endif
 c     
       end
+c$$$      subroutine fock_2e_rep_mod_1_label(nfock, nbf, jfac, kfac, tol2e,
+c$$$     $     neri, labels, eri, dens, fock)
+c$$$c     
+c$$$c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c$$$c     
+c$$$      implicit none
+c$$$#include "cfockmul.fh"
+c$$$c     
+c$$$      integer nfock, nbf
+c$$$      double precision tol2e
+c$$$      integer neri
+c$$$      integer labels(4,neri)
+c$$$      double precision eri(neri)
+c$$$      double precision fock(0:*), dens(0:*)
+c$$$      double precision jfac, kfac
+c$$$c     
+c$$$      integer i, j, k, l, ind
+c$$$      integer ij, ik, jk, kl, il, jl
+c$$$      double precision g, gk, gj, fij, fkl, fik, fil, fjl, fjk
+c$$$c
+c$$$      do ind = 1, neri
+c$$$         g = eri(ind)
+c$$$         if (abs(g) .gt. tol2e) then
+c$$$            gj = g*jfac
+c$$$            gk = g*kfac
+c$$$            i = labels(1,ind)
+c$$$            j = labels(2,ind)
+c$$$            k = labels(3,ind)
+c$$$            l = labels(4,ind)
+c$$$*     debug
+c$$$*            if (i.lt.0 .or. i.ge.nbf) call errquit(' i bad', i)
+c$$$*            if (j.lt.0 .or. j.ge.nbf) call errquit(' j bad', j)
+c$$$*            if (l.lt.0 .or. l.ge.nbf) call errquit(' l bad', l)
+c$$$*            if (k.lt.0 .or. k.ge.nbf) call errquit(' k bad', k)
+c$$$c
+c$$$c     Logic behind this choice is that indices vary mostly with
+c$$$c     i>=j and k>=l with kl varying fastest ... improved cache hits?
+c$$$c     If change this mapping must change overwrite logic below
+c$$$c
+c$$$            ij = im(i) + j      ! NOT im1 since go from 0
+c$$$            kl = im(k) + l
+c$$$            if (ij .eq. kl) gj = gj + gj
+c$$$c
+c$$$c     Using overwrite logic ... separates stores/loads, and enables
+c$$$c     partial pipelining of */+ pairs ... at least in principle
+c$$$c
+c$$$            fij = fock(ij) + gj*dens(kl)
+c$$$            fkl = fock(kl) + gj*dens(ij)
+c$$$            if (i .eq. j) gk = gk + gk
+c$$$            fock(ij) = fij
+c$$$            fock(kl) = fkl
+c$$$c
+c$$$            if (k .eq. l) gk = gk + gk
+c$$$c
+c$$$            ik = im(i) + k
+c$$$            il = im(i) + l
+c$$$            jl = im(j) + l
+c$$$            jk = im(j) + k
+c$$$
+c$$$            fik = fock(ik) + gk*dens(jl)
+c$$$            fil = fock(il) + gk*dens(jk)
+c$$$            fjk = fock(jk) + gk*dens(il)
+c$$$            fjl = fock(jl) + gk*dens(ik)
+c$$$            fock(ik) = fik
+c$$$            fock(il) = fil
+c$$$            fock(jl) = fjl
+c$$$            fock(jk) = fjk
+c$$$c
+c$$$c     Code without overwrite logic
+c$$$c
+c$$$c$$$            fock(ij) = fock(ij) + gj*dens(kl)
+c$$$c$$$            fock(kl) = fock(kl) + gj*dens(ij)
+c$$$c$$$            fock(ik) = fock(ik) + gk*dens(jl)
+c$$$c$$$            fock(il) = fock(il) + gk*dens(jk)
+c$$$c$$$            fock(jl) = fock(jl) + gk*dens(ik)
+c$$$c$$$            fock(jk) = fock(jk) + gk*dens(il)
+c$$$         end if
+c$$$      end do
+c$$$c     
+c$$$      end
       subroutine fock_2e_rep_mod_2_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1450,7 +1537,7 @@ c
       subroutine fock_2e_rep_mod_3_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1516,7 +1603,7 @@ c
      $     (nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1695,7 +1782,7 @@ c
      $     (nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1854,7 +1941,7 @@ c
      $     (nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
