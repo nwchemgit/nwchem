@@ -1,6 +1,6 @@
       subroutine esp_wrtinp
 c
-c $Id: esp_wrtinp.F,v 1.3 1998-04-21 21:45:17 d3j191 Exp $
+c $Id: esp_wrtinp.F,v 1.4 1998-06-08 21:31:58 d3j191 Exp $
 c
       implicit none
 c
@@ -44,7 +44,7 @@ c
       jcon=jcon+1
       lcon=icon(jcon)
       write(lfnout,608) rcon(i),(icon(jcon+j),j=1,lcon)
-  608 format(' Constraint charge',f12.6,' on atoms',10i5)
+  608 format(' Constraint charge',f12.6,' on atoms',10i5,/,(39x,10i5))
       jcon=jcon+lcon
     1 continue
       endif

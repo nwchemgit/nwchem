@@ -1,6 +1,6 @@
       logical function esp(irtdb0)
 c
-c $Id: esp.F,v 1.4 1998-04-21 21:45:16 d3j191 Exp $
+c $Id: esp.F,v 1.5 1998-06-08 21:31:57 d3j191 Exp $
 c
       implicit none
 c
@@ -25,19 +25,20 @@ c
       irtdb=irtdb0
       lfnout=6
 c
-c
 c     read input from rtdb
 c
       call esp_rtdbin
 c
       if(util_print('output',print_medium)) then
       if(me.eq.0) then
+      if(util_print('information',print_default)) then
       write(lfnout,*)
       write(lfnout,*)
       call util_print_centered(6,
      + 'NWChem Electrostatic Potential Fit Module',40,.true.)
       write(lfnout,*)
       write(lfnout,*)
+      endif
       call ecce_print_module_entry('nwesp')
       endif
       endif
