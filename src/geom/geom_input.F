@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.171 2004-04-29 03:31:14 edo Exp $
+C     $Id: geom_input.F,v 1.172 2004-05-11 23:39:02 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -2981,7 +2981,7 @@ C
 C
 C     ----- GET MOMENTS OF INERTIA -----                
 C
-      CALL geom_momint0(geom,C,NAT,CI,AI,.false.,.false.)
+      CALL geom_momint0(geom,C,NAT,CI,AI,.false.,.false.,.true.)
       DO IAT=1,NAT
          DO I=1,3
             C1(I,IAT)=C(I,IAT)-CI(I) 

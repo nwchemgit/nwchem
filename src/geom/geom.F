@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.126 2004-04-29 03:13:31 edo Exp $
+C$Id: geom.F,v 1.127 2004-05-11 23:39:02 edo Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -3245,7 +3245,7 @@ c
         write(luout,*)' distance ac ',ac
         write(luout,*)' distance bc ',bc
         write(luout,*)' please report this data to:'
-        write(luout,*)'         nwchem-support@emsl.pnl.gov'
+        write(luout,*)'         nwchem-users@emsl.pnl.gov'
         geom_calc_angle = .false.
         angle = -565.6589d00
         return
@@ -3312,7 +3312,7 @@ c
         write(luout,*)' angle   abd ',abd
         write(luout,*)' angle   acd ',acd
         write(luout,*)' please report this data to:'
-        write(luout,*)'         nwchem-support@emsl.pnl.gov'
+        write(luout,*)'         nwchem-users@emsl.pnl.gov'
         call util_flush(luout)
         call errquit
      &    ('geom_calc_dihedral: fatal angle error',1, GEOM_ERR)
@@ -3390,7 +3390,7 @@ c
         write(luout,*)' angle   abd ',abd
         write(luout,*)' angle   acd ',acd
         write(luout,*)' please report this data to:'
-        write(luout,*)'         nwchem-support@emsl.pnl.gov'
+        write(luout,*)'         nwchem-users@emsl.pnl.gov'
         call util_flush(luout)
         geom_calc_dihedral = .false.
         return
@@ -5346,7 +5346,7 @@ c
       return
       end
       subroutine geom_momint0(geom,coord,natoms,ci,AI,oprint,
-     ,     considerbq)
+     ,     considerbq,lautosym)
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -5359,13 +5359,17 @@ C
       integer natoms ! [in]
       double precision coord(3,*) ! [in]
       double precision ci(3),ai(3,3) ! [out] ctr of mass and inertua tensor
-      logical oprint, considerbq
+      logical oprint, considerbq,lautosym
       character*16 element
       character*16 tag
       character*2 symbol
 c
       integer iat,i,j
       double precision mass,x,y,z
+      integer ibq,maxbqtype,mybq,lll
+      parameter(maxbqtype=20)
+      character*6 tagbq(maxbqtype)
+      logical lisbq
 c
 c
       do j=1,3
@@ -5373,6 +5377,10 @@ c
             ai(j,i)=0d0
          enddo
       enddo
+      do j=1,maxbqtype
+         tagbq(j)=' '
+      enddo
+      ibq=0
 c
       if (.not.geom_center_of_mass(geom,ci)) call errquit
      &   ('geom_momint0: could not get center of mass',555, GEOM_ERR)
@@ -5380,7 +5388,8 @@ c
       do iat=1,natoms
          if (.not. geom_cent_tag(geom,iat,tag)) call 
      &        errquit(' momint0 hosed ',0, GEOM_ERR)
-         if (considerbq.and.inp_compare(.false.,tag(1:2),'bq')) then 
+         lisbq=inp_compare(.false.,tag(1:2),'bq')
+         if (considerbq.and.lisbq) then 
 c
 c     ahah bq
 c
@@ -5389,6 +5398,27 @@ c
          else  
             if(.not.geom_mass_get(geom, iat, mass)) call
      &           errquit(' mass_get  failed ',iat, GEOM_ERR)
+c
+c     assign some mass to bqs
+c
+            if(mass.eq.0d0.and.lisbq.and.lautosym) then
+c
+c     check if we alreayd have this bq
+c
+               lll=inp_strlen(tag)
+               do j=1,ibq
+                  if(tagbq(j).eq.tag(3:lll)) then
+                     mybq=j
+                     goto 123
+                  endif
+               enddo
+               ibq=ibq+1
+               if(ibq.gt.maxbqtype) call errquit(
+     *              ' momint0: maxbqtype too small ',ibq,0)
+               tagbq(ibq)=tag(3:lll)
+               mybq=ibq
+ 123           mass=mybq*1d0
+            endif
          endif
          x =coord(1,iat) - ci(1)
          y =coord(2,iat) - ci(2)
@@ -5451,7 +5481,7 @@ c
      $     call errquit('uhf_analyze: pop failed', 0,
      &       MA_ERR)
       call geom_momint0(geom,dbl_mb(k_coord),natoms,ci,AI,oprint,
-     &  .false.)
+     &  .false.,.false.)
       if (.not. ma_chop_stack(l_coord))
      $     call errquit('uhf_analyze: pop failed', 0,
      &       MA_ERR)
