@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.24 2002-06-05 00:38:51 d3j191 Exp $
+c $Id: md_finish.F,v 1.25 2002-06-05 02:56:55 d3j191 Exp $
 c
       implicit none
 c
@@ -144,7 +144,7 @@ c
      + timer_cpu_average(5)
  2001 format(' FFT',t20,i10,t40,f12.3,t55,f12.3)
       endif
-      close(unit=-lfnout,status='keep')
+      close(unit=lfnout,status='keep')
       endif
 c
       return
