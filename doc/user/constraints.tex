@@ -1,0 +1,87 @@
+\label{sec:constraints}
+
+The constraints directive  allows the user to specify which constraints
+should be imposed on the system during the geometry optimization. Currently
+such constraints are limited to fixed atom positions and 
+harmonic restraints (spings) on the distance between the two atoms. The
+general form of constraints directive is presented below: 
+\begin{verbatim}
+  CONSTRAINTS [string name ] \
+           [clear] \
+           [enable||disable] \
+           [disable] \
+           [fix atom <integer list>] \
+           [spring bond <integer atom1> <integer atom2> <real k> <real r0> ]
+  END
+          
+\end{verbatim}
+The keywords are described below 
+\begin{itemize}
+\item name -- optional keyword that associates a name with a given set of
+constraints. Any unnamed set of constraints will be given a name ''default''
+and will be automatically loaded prior to a calculation. Any constraints
+with the name other than ''default''  will have to be loaded manually using
+SET\ directive. For example,
+\end{itemize}
+
+\begin{verbatim}
+  CONSTRAINTS one
+    spring bond 1 3 5.0 1.3
+    fix atom 1
+  END
+   
+  #the above constraints can be loaded using set directive
+  set constraints one
+  ....
+  task ....
+\end{verbatim}
+
+\begin{itemize}
+\item clear -- destroys any prior constraint information.  This may be
+useful when the same constraints have to be redefined or completely removed from
+the runtime database.
+
+\item enable||disable -- enables or
+disables particular set of constraints without actually removing the
+information from the runtime database.
+
+\item fix atom -- fixes atom positions during geometry optimization. This
+directive requires an integer list that specifies which atoms are to be
+fixed. This directive can be repeated with a given constraints block. Let us
+consider a case where atoms 1, 3, 4, 5, 6 need to be fixed. There are several
+ways to enter this particular constraint. 
+There is a straightforward way which requires the most typing
+
+\begin{verbatim}
+  constraints
+    fix atom 1 3 4 5 6
+  end
+\end{verbatim}
+
+Second method uses list input
+\begin{verbatim}
+  constraints
+    fix atom 1 3:6
+  end
+\end{verbatim}
+
+Third approach uses multiple fix atom directives
+\begin{verbatim}
+  constraints
+    fix atom 1
+    fix atom 3:6
+  end
+\end{verbatim}
+
+\item spring bond <$i j  k r_0$> -- places a spring with a spring constant $k$ and equilibrium length $r_0$
+between atoms $i$ and $j$. Note that this type of constraint adds an additional term to 
+the total energy expression
+\[
+E=E_{total}+\frac{1}{2}k(r_{ij}-r_0)^2
+\]
+This additional term forces the distance between atoms $i$ and $j$ to be in the vicinity of $r_0$ but never exactly that. In general
+the spring energy term will always have some nonzero residual value, and this has to be accounted for when comparing total
+energies. The spring bond directive can be repeated within a given constraints block. If the spring between the same pair of atoms
+is defined more than once, it will be replaced by the latest specification in the order it appears in the input block.
+\end{itemize}
+
