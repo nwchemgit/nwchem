@@ -1,6 +1,6 @@
-      logical function  pre_merge(iunit,filnam,lfnout,lfnpdb,namslv)
+      integer function  pre_merge(iunit,filnam,lfnout,lfnpdb,namslv)
 c
-c $Id: pre_merge.F,v 1.1 2001-08-06 23:40:27 d3j191 Exp $
+c $Id: pre_merge.F,v 1.2 2001-08-07 17:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -76,7 +76,7 @@ c
       if(.not.lslvnt) natm=natm+1
       read(card(23:26),1003) i
  1003 format(i4)
-      isgm=i
+      isgm=max(isgm,i)
       if(lslvnt) then
       numslv=numslv+1
       else
@@ -98,7 +98,7 @@ c
       if(.not.lslvnt) natm=natm+1
       read(card(23:26),1004) i
  1004 format(i4)
-      isgm=i
+      isgm=max(isgm,i)
       if(lslvnt) then
       numslv=numslv+1
       else
@@ -109,43 +109,15 @@ c
       goto 1
       endif
 c
-c     TER
-c
-      if(card(1:6).eq.'TER   ') then
-      nchain=0
-      endif
-c
       goto 1
 c
   999 continue
-c
-      if(util_print('where',print_high)) then
-      write(lfnout,2004)
- 2004 format('PDB EOF encountered')
-      endif
 c
     9 continue
 c
       close(iunit)
 c
-      if(nsgm.gt.nseq) then
-      nseq=nsgm
-      if(util_print('where',print_debug)) then
-      write(lfnout,2008)
- 2008 format(10x,'number of segments read from ATOM cards')
-      endif
-      endif
-c
-      if(util_print('where',print_high)) then
-      write(lfnout,2002) filnam(1:length),natm,nseq,nssb,numslv
- 2002 format(' PDB file',t40,a,/,
-     + ' Number of atoms',t40,i10,/,
-     + ' Number of segments',t40,i10,/,
-     + ' Number of SS-bonds',t40,i10,/,
-     + ' Number of solvent molecules',t40,i10,/)
-      endif
-c
-      pre_merge=.true.
+      pre_merge=isgm
       return
 c
  9999 continue
@@ -155,6 +127,6 @@ c
  2003 format('PDB ERROR ',a)
       endif
 c
-      pre_merge=.false.
+      pre_merge=-1
       return
       end

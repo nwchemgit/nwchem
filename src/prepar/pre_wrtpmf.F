@@ -1,5 +1,6 @@
-      subroutine pre_wrtpmf(lfntop,filtop,numpmf,maxpmf,ipmf,rpmf,
-     + maxgrp,maxatm,igroup,lgroup,npmfr,ipmfr,nsarep,msa,nsa,isegm,csa)
+      subroutine pre_wrtpmf(lfntop,filtop,numpmf,maxpmf,ipmf,rpmf,iopt,
+     + maxgrp,maxatm,igroup,lgroup,mgroup,npmfr,ipmfr,
+     + nsarep,msa,nsa,isegm,csa,iequi,msm,nsm)
 c
       implicit none
 c
@@ -10,33 +11,51 @@ c
       external pre_atom_index,pre_base
 c
       integer numpmf,maxpmf,maxgrp,maxatm,npmfr,ipmfr,nsarep,msa,nsa
-      integer ipmf(maxpmf,5),rpmf(maxpmf,4)
-      integer igroup(maxgrp,maxatm),lgroup(maxgrp)
-      integer isegm(msa)
+      integer msm,nsm
+      integer ipmf(maxpmf,5),iopt(maxpmf)
+      real*8 rpmf(maxpmf,4)
+      integer igroup(maxgrp,maxatm),lgroup(maxgrp),mgroup(maxgrp)
+      integer isegm(msa),iequi(msm,4)
       character*16 csa(msa)
       character*80 target
 c
-      integer i,j,k,l,m,n,io,ibase,jbase,idatom,nump
+      integer i,j,k,l,m,n,io,ibase,jbase,idatom,nump,im
       character*3 string
 c
       if(npmfr.le.0) npmfr=1
       if(ipmfr.le.0) ipmfr=0
 c
+c     ipmf(i,1) : type of function in pmf i
+c     ipmf(i,n) : group(s) involved in pmf i
+c
       m=0
       k=0
       nump=0
       do 5 i=1,numpmf
+      if(iopt(i).eq.1) then
+c
+c     alignments in more than one equivalent molecule
+c
+      if(ipmf(i,1).eq.5.and.mgroup(ipmf(i,2)).gt.0) then
+      l=iequi(mgroup(ipmf(i,2)),3)
+      if(l.ne.0) call errquit('pmf not on first equivalent molecule',0)
       nump=nump+1
+      do 51 j=1,nsm
+      if(iequi(j,3).eq.mgroup(ipmf(i,2))) nump=nump+1
+   51 continue
+      endif
+c
+      else
+      nump=nump+1
+      if(ipmf(i,1).eq.7) nump=nump+2
+      endif
       n=-1
       if(ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) n=0
       if(ipmf(i,1).eq.1) n=1
       if(ipmf(i,1).eq.2) n=2
       if(ipmf(i,1).eq.3) n=3
       if(ipmf(i,1).eq.4) n=3
-      if(ipmf(i,1).eq.7) then
-      m=max(m,1)
-      nump=nump+2
-      endif
+      if(ipmf(i,1).eq.7) m=max(m,1)
       if(n.ge.0) then
       do 6 j=2,n+2
       m=max(m,lgroup(ipmf(i,j)))
@@ -61,8 +80,9 @@ c
    11 continue
       write(lfntop,1000) npmfr*(nump+k),m
  1000 format(2i5)
-      do 12 l=1,npmfr
-      io=(l-1)*nsarep
+c      do 12 l=1,npmfr
+      l=1
+      io=0
       do 1 i=1,numpmf
       if(i.le.ipmfr.or.l.eq.1) then
       if(ipmf(i,1).eq.0) call errquit('Unknown pmf type',ipmf(i,1))
@@ -116,13 +136,24 @@ c
 c     alignment pmf
 c
       if(ipmf(i,1).eq.5) then
-      do 7 k=1,lgroup(ipmf(i,2))
-      write(lfntop,1001) 5,(rpmf(i,j),j=1,4),1,lgroup(ipmf(i,2))
       if(lgroup(ipmf(i,2)).le.0)
      + call errquit('No atoms selected in group',ipmf(i,2))
+      do 71 im=1,nsm
+      if(im.eq.1) then
+      io=0
+      elseif(iequi(im,3).eq.mgroup(ipmf(i,2))) then
+      io=iequi(im,4)-iequi(mgroup(ipmf(i,2)),4)
+      else
+      goto 71
+      endif
+      do 7 k=1,lgroup(ipmf(i,2))
+      write(lfntop,1001) 5,(rpmf(i,j),j=1,4),1,lgroup(ipmf(i,2))
       write(lfntop,1002) igroup(ipmf(i,2),k)+io
       write(lfntop,1002) (igroup(ipmf(i,2),j)+io,j=1,lgroup(ipmf(i,2)))
     7 continue
+      if(iopt(i).ne.1) goto 711
+   71 continue
+  711 continue
       endif
 c
 c     planar  pmf
@@ -228,7 +259,7 @@ c
 c
       endif
     1 continue
-   12 continue
+c   12 continue
 c
       close(unit=lfntop)
       endif

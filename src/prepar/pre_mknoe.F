@@ -1,15 +1,15 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam)
 c
-c $Id: pre_mknoe.F,v 1.19 2000-12-13 19:52:26 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.20 2001-08-07 17:30:59 d3j191 Exp $
 c
       implicit none
 c
 #include "mafdecls.fh"
 #include "util.fh"
 c
-      logical pre_topsiz,pre_toprd,pre_disres,pre_select
-      external pre_topsiz,pre_toprd,pre_disres,pre_select
+      logical pre_topsiz,pre_toprd,pre_disres,pre_select,pre_equiv
+      external pre_topsiz,pre_toprd,pre_disres,pre_select,pre_equiv
 c
       integer lfnout,lfntop,lfncmd,lfnnoe,lfnpmf
       character*255 filtop,filcmd,filnoe,filpmf
@@ -24,15 +24,15 @@ c
       integer l_csa,i_csa,l_sgm,i_sgm,l_sml,i_sml,l_qsa,i_qsa
       integer l_inoe,i_inoe,l_dnoe,i_dnoe,l_qu,i_qu
       integer l_qwa,i_qwa,l_wat,i_wat,l_sfr,i_sfr
-      integer l_isb,i_isb,l_csb,i_csb
+      integer l_isb,i_isb,l_csb,i_csb,l_eq,i_eq
 c
       integer maxgrp,maxatm,maxpmf
       parameter(maxgrp=500)
       parameter(maxatm=500)
       parameter(maxpmf=500)
 c
-      integer igroup(maxgrp,maxatm),lgroup(maxgrp)
-      integer numpmf,ipmf(maxpmf,5),rpmf(maxpmf,4)
+      integer igroup(maxgrp,maxatm),lgroup(maxgrp),mgroup(maxgrp)
+      integer numpmf,ipmf(maxpmf,5),rpmf(maxpmf,4),iopt(maxpmf)
       integer npmfr,ipmfr,nsarep
 c
       integer i
@@ -42,6 +42,7 @@ c
 c
       do 2 i=1,maxgrp
       lgroup(i)=0
+      mgroup(i)=0
     2 continue
       numpmf=0
 c
@@ -138,6 +139,16 @@ c
 c
       msm=nsm
 c
+      if(.not.ma_push_get(mt_int,4*msm,'eq',l_eq,i_eq))
+     + call errquit('Memory allocation failed for eq',9999)
+c
+c     determine equivalent solute molecules
+c     -------------------------------------
+c
+      if(.not.pre_equiv(byte_mb(i_csa),int_mb(i_sml),int_mb(i_sgm),
+     + msa,nsa,int_mb(i_eq),msm,nsm))
+     + call errquit('Solute molecule equivalent test failed',0)
+c
 c     open the command file
 c     ---------------------
 c
@@ -177,8 +188,9 @@ c     read group selection
 c     ====================
 c
       if(card(1:6).eq.'select') then
-      if(.not.pre_select(card,int_mb(i_sgm),byte_mb(i_csa),msa,
-     + nsa,maxgrp,maxatm,igroup,lgroup))
+      if(.not.pre_select(card,int_mb(i_sgm),int_mb(i_sml),
+     + byte_mb(i_csa),msa,
+     + nsa,maxgrp,maxatm,igroup,lgroup,mgroup))
      + call errquit('pre_select failed',9999)
       endif
 c
@@ -196,8 +208,8 @@ c
       if(card(5:8).eq.'line') ipmf(numpmf,1)=5
       if(card(5:8).eq.'plan') ipmf(numpmf,1)=6
       if(card(5:8).eq.'base') ipmf(numpmf,1)=7
-      read(card(9:76),'(4i5,2f12.6,2e12.5)')
-     + (ipmf(numpmf,i),i=2,5),(rpmf(numpmf,i),i=1,4)
+      read(card(9:76),'(5i5,2f12.6,2e12.5)')
+     + iopt(numpmf),(ipmf(numpmf,i),i=2,5),(rpmf(numpmf,i),i=1,4)
       endif
 c
       if(card(1:3).ne.'end') goto 1
@@ -214,8 +226,9 @@ c
 c
       if(numpmf.gt.0) then
       call pre_wrtpmf(lfntop,filtop,numpmf,
-     + maxpmf,ipmf,rpmf,maxgrp,maxatm,igroup,lgroup,npmfr,ipmfr,
-     + nsarep,msa,nsa,int_mb(i_sgm),byte_mb(i_csa))
+     + maxpmf,ipmf,rpmf,iopt,maxgrp,maxatm,igroup,lgroup,mgroup,npmfr,
+     + ipmfr,nsarep,msa,nsa,int_mb(i_sgm),byte_mb(i_csa),int_mb(i_eq),
+     + msm,nsm)
       write(lfnout,1005)
  1005 format(/,' Potential of mean force appended to topology')
       endif
@@ -225,6 +238,8 @@ c
 c     deallocate memory
 c     -----------------
 c
+      if(.not.ma_pop_stack(l_eq))
+     + call errquit('Memory deallocation failed for eq',9999)
       if(.not.ma_pop_stack(l_csb))
      + call errquit('Memory deallocation failed for cdsb',9999)
       if(.not.ma_pop_stack(l_isb))

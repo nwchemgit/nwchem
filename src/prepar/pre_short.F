@@ -1,7 +1,7 @@
       logical function pre_short(xatm,latm,matm,ilo,ihi,jlo,jhi,
      + ishort,jshort,rshort)
 c
-c $Id: pre_short.F,v 1.8 2001-06-11 22:01:06 d3j191 Exp $
+c $Id: pre_short.F,v 1.9 2001-08-07 17:30:59 d3j191 Exp $
 c
 c     function to find atom ishort in [ilo:ihi] and jshort in [jlo,jhi]
 c              with the shortest distance rshort in nm 
@@ -61,7 +61,7 @@ c
       integer function pre_shorts(xatm,latm,matm,ilo,ihi,jlo,jhi,
      + ishort,jshort,rshort)
 c
-c $Id: pre_short.F,v 1.8 2001-06-11 22:01:06 d3j191 Exp $
+c $Id: pre_short.F,v 1.9 2001-08-07 17:30:59 d3j191 Exp $
 c
 c     function to find atom ishort in [ilo:ihi] and jshort in [jlo,jhi]
 c              with the shortest distance rshort in nm 
@@ -96,6 +96,7 @@ c
 c
       do 1 l=1,10
       ishrt=0
+      jshrt=0
       short=0.0d0
       do 2 i=ilo,ihi
       do 3 j=jlo,jhi

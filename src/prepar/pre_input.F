@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.82 2001-08-06 23:40:27 d3j191 Exp $
+c $Id: pre_input.F,v 1.83 2001-08-07 17:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -792,7 +792,17 @@ c     pmf
 c     ---
 c
       if(inp_compare(.false.,'pmf',item)) then
+      iopt=0
+ 6883 continue
       if(.not.inp_a(type)) call errquit('pre_input: pmf',9999)
+      if(inp_compare(.false.,'all',type)) then
+      iopt=1
+      goto 6883
+      endif
+      if(inp_compare(.false.,'combine',type)) then
+      iopt=2
+      goto 6883
+      endif
       if(.not.inp_i(igroup)) call errquit('pre_input: pmf',9999)
       if(type(1:8).eq.'distance'.or.type(1:8).eq.'basepair') then
       if(.not.inp_i(jgroup)) call errquit('pre_input: pmf',9999)
@@ -831,34 +841,35 @@ c
       if(.not.inp_f(forc2)) call errquit('pre_input: pmf',9999)
       endif
       if(type(1:6).eq.'zalign') then
-      write(68,6844) igroup,forcon,forc2
- 6844 format('pmf line',i5,15x,24x,2e12.5)
+      write(68,6844) iopt,igroup,forcon,forc2
+ 6844 format('pmf line',2i5,15x,24x,2e12.5)
       numcmd=numcmd+1
       elseif(type(1:7).eq.'xyplane') then
-      write(68,6845) igroup,forcon,forc2
- 6845 format('pmf plan',i5,15x,24x,2e12.5)
+      write(68,6845) iopt,igroup,forcon,forc2
+ 6845 format('pmf plan',2i5,15x,24x,2e12.5)
       numcmd=numcmd+1
       elseif(type(1:8).eq.'distance') then
-      write(68,6840) igroup,jgroup,value1,value2,forcon,forc2
- 6840 format('pmf dist',2i5,10x,2f12.6,2e12.5)
+      write(68,6840) iopt,igroup,jgroup,value1,value2,forcon,forc2
+ 6840 format('pmf dist',3i5,10x,2f12.6,2e12.5)
       numcmd=numcmd+1
       elseif(type(1:5).eq.'angle') then
-      write(68,6842) igroup,jgroup,kgroup,value1,value2,forcon,forc2
- 6842 format('pmf angl',3i5,5x,2f12.6,2e12.5)
+      write(68,6842) iopt,igroup,jgroup,kgroup,value1,value2,forcon,
+     + forc2
+ 6842 format('pmf angl',4i5,5x,2f12.6,2e12.5)
       numcmd=numcmd+1
       elseif(type(1:7).eq.'torsion') then
-      write(68,6843) igroup,jgroup,kgroup,lgroup,value1,value2,
+      write(68,6843) iopt,igroup,jgroup,kgroup,lgroup,value1,value2,
      + forcon,forc2
- 6843 format('pmf tors',4i5,2f12.6,2e12.5)
+ 6843 format('pmf tors',5i5,2f12.6,2e12.5)
       numcmd=numcmd+1
       elseif(type(1:8).eq.'improper') then
-      write(68,6847) igroup,jgroup,kgroup,lgroup,value1,value2,
+      write(68,6847) iopt,igroup,jgroup,kgroup,lgroup,value1,value2,
      + forcon,forc2
- 6847 format('pmf impr',4i5,2f12.6,2e12.5)
+ 6847 format('pmf impr',5i5,2f12.6,2e12.5)
       numcmd=numcmd+1
       elseif(type(1:8).eq.'basepair') then
-      write(68,6858) igroup,jgroup,value1,value2,forcon,forc2
- 6858 format('pmf base',2i5,10x,2f12.6,2e12.5)
+      write(68,6858) iopt,igroup,jgroup,value1,value2,forcon,forc2
+ 6858 format('pmf base',3i5,10x,2f12.6,2e12.5)
       numcmd=numcmd+1
       endif
       goto 2

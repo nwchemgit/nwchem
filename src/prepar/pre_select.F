@@ -1,7 +1,7 @@
-      logical function pre_select(card,isegm,csa,msa,nsa,
-     + maxgrp,maxatm,igroup,lgroup)
+      logical function pre_select(card,isegm,ismol,csa,msa,nsa,
+     + maxgrp,maxatm,igroup,lgroup,mgroup)
 c
-c $Id: pre_select.F,v 1.9 2001-05-14 21:23:48 windus Exp $
+c $Id: pre_select.F,v 1.10 2001-08-07 17:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -11,10 +11,10 @@ c
       external str_replace
 c
       integer maxgrp,maxatm
-      integer igroup(maxgrp,maxatm),lgroup(maxgrp)
+      integer igroup(maxgrp,maxatm),lgroup(maxgrp),mgroup(maxgrp)
 c
       integer msa,nsa
-      integer isegm(msa)
+      integer isegm(msa),ismol(msa)
       character*16 csa(msa)
       character*80 card
 c
@@ -72,6 +72,8 @@ c
      + (ndx.eq.0.or.atomi(1:4).eq.trgt)) then
       iatom=iatom+1
       lgroup(igrp)=lgroup(igrp)+1
+      if(iatom.eq.1) mgroup(igrp)=ismol(i)
+      if(mgroup(igrp).ne.ismol(i)) mgroup(igrp)=0
       if(lgroup(igrp).gt.maxatm)
      + call errquit('Increase group maxatm',maxatm)
       igroup(igrp,lgroup(igrp))=i

@@ -1,6 +1,6 @@
       integer function pre_atom_index(card,isegm,csa,msa,nsa)
 c
-c $Id: pre_atom_index.F,v 1.1 2000-12-13 19:52:26 d3j191 Exp $
+c $Id: pre_atom_index.F,v 1.2 2001-08-07 17:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -14,13 +14,14 @@ c
       character*16 csa(msa)
       character*80 card
 c
-      integer i,ifr,ito,igrp
+      integer i,ifr,ito
       character*255 target,atomi
       integer ndx,iatom,isgm
 c
 c     read atom name
 c
       ifr=0
+      iatom=0
       if(.not.inp_strtok(card,' ',ifr,ito))
      + call errquit('Unable to find group number',9999)
       target=card(ifr:ito)//' '
