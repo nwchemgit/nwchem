@@ -694,22 +694,23 @@ to generate the desired energy accuracy (with utter disregard for speed).
 {\bf Important note to users.}  We clearly understand that the default
 (Euler-MacLaurin/Gauss-Legendre) grids are large and result in slow
 construction of the numerical components of the Kohn-Sham equations.
-Alternatively, we have provided access to two-dimensional Lebedev angular 
-quadratures which can be used in many
-cases to substantially reduce the number of grid points per atom while
-keeping good accuracy.  We have not yet had the opportunity to benchmark
-the Lebedev angular quadratures to the same extent that we have for
-the Gauss-Legendre.  We therefore do not have recommended Lebedev
-quadratures for specific target accuracy for all elements of the
-periodic table.  If the user wants to significantly decrease CPU time
-to solution it is suggested that a few prototype benchmark
-calculations be done using various Lebedev quadratures (which we describe
-below) while
-monitoring the numerically integrated density and total energies for
-the molecular systems of interest.  For many examples we have observed
-speed-ups of two or more for the same numerical 
-accuracy when using Lebedev rather than the default Gauss-Legendre 
-quadrature.  
+Alternatively, we have provided access to two-dimensional Lebedev
+angular quadratures which can be used in many cases to substantially
+reduce the number of grid points per atom while keeping good accuracy.
+We have not yet had the opportunity to benchmark the Lebedev angular
+quadratures to the same extent that we have for the Gauss-Legendre.
+We therefore do not have default Lebedev quadratures for specific
+target accuracy for all elements of the periodic table.  If the user
+wants to significantly decrease CPU time to solution it is suggested
+that a few prototype benchmark calculations be done using various
+Lebedev quadratures (which we describe below) while monitoring the
+numerically integrated density and total energies for the molecular
+systems of interest.  For many examples we have observed speed-ups of
+two or more for the same numerical accuracy when using Lebedev rather
+than the default Gauss-Legendre quadrature.  In addition, we have
+observed that with Lebedev angular quadratures a reduction in the
+number of radial shells (perhaps by as much as 30\%) might be possible
+while continuing to provide the same level of accuracy.
 
 
 \begin{table}[h]
