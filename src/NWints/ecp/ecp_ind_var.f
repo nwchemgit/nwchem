@@ -1,4 +1,4 @@
-C $Id: ecp_ind_var.f,v 1.2 2000-05-30 20:55:07 mg201 Exp $
+C $Id: ecp_ind_var.f,v 1.3 2000-06-09 00:07:06 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_ind_var (l_c,n_blk,n_co1,n_co2,i_co1,i_co2,
@@ -24,7 +24,8 @@ C $Id: ecp_ind_var.f,v 1.2 2000-05-30 20:55:07 mg201 Exp $
 *   n_co_tot (out) - total number of coefficients for one pass of the  *
 *                    radial integrals                                  *
 *   n_co_max (out) - maximum length of ECP contraction                 *
-*   i_off (out) - offset of actual data in the final ECP integral array*
+*   i_off (out) - offset of actual data in the final index of the ECP  *
+*                 integral array                                       * 
 *   n_pass (out) - number of passes of the radial integrals            *
 *   i_cont_c (out) - address of first ECP contraction                  *
 *   n_cont_c (out) - number of ECP contractions                        *
@@ -88,12 +89,19 @@ C $Id: ecp_ind_var.f,v 1.2 2000-05-30 20:55:07 mg201 Exp $
       else
 *
 *     Either spin-free or spin-orbit integrals requested.
-*     These are assumed to be the FIRST set in each case.
 *
-        skip = (i_co1 .eq. 0) .or. (n_co1 .eq. 0)
-        if (n_blk .eq. 3) skip = skip .or. (l_c .eq. 0)
+        if (n_blk .eq. 3) then
+          skip = (l_c .eq. 0) .or.
+     &        (i_co2 .eq. 0) .or. (n_co2 .eq. 0)
+          i_cont_c = 2
+          n_co_tot = n_co2
+          n_co_max = n_co2
+        else
+          skip = (i_co1 .eq. 0) .or. (n_co1 .eq. 0)
+        end if
         n_x = n_blk
       end if
+      call util_flush(6)
 *
       return
       end
