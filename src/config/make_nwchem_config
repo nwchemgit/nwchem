@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.24 1995-11-07 09:13:44 apsmith Exp $
+# $Id: make_nwchem_config,v 1.25 1996-01-30 22:38:50 d3e129 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -127,7 +127,7 @@ STUBROUTINES := $(patsubst develop,rjhtest raktest debtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gradients,scf_gradient scf_optimize scf_freq,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ccsd,ccsd,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mcscf,mcscf,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst moints,atwtest direct_mp2,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst moints,atwtest direct_mp2 moints_full,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwdft,nwdft dft_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rimp2,rimp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst riscf,ri_scf,$(STUBROUTINES) )
