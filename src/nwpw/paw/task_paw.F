@@ -1,5 +1,5 @@
 *
-* $Id: task_paw.F,v 1.6 2002-08-01 21:27:26 bylaska Exp $
+* $Id: task_paw.F,v 1.7 2003-09-25 23:46:23 bylaska Exp $
 *
 
       logical function task_paw(rtdb)
@@ -24,8 +24,8 @@ c
      >            'Car-Parrinello' /
 
 c     *** define external functions ****
-      logical  paw_sd
-      external paw_sd
+      logical  paw_sd,paw_cpmd
+      external paw_sd,paw_cpmd
 c
 c
       value = .false.
@@ -59,8 +59,10 @@ c  Car-Parrinello
 c
  200  if (ga_nodeid().eq.MASTER) then
         write(*,*)  ">>>> PAW Parallel Module - Car-Parrinello <<<<"
-        write(*,*) "not finished!"
       end if
+      value = .true.
+      value = rtdb_parallel(.true.)
+      value = paw_cpmd(rtdb)
       call ga_sync()
       goto 9999
 

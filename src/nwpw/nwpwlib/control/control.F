@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.42 2003-08-03 18:19:37 bylaska Exp $
+* $Id: control.F,v 1.43 2003-09-25 23:45:59 bylaska Exp $
 *
 
 *     ***********************************
@@ -219,15 +219,15 @@ c
 
 *     **** set ks_alpha ***
       if (.not. rtdb_get(rtdb,'cgsd:ks_alpha',mt_dbl,1,ks_alpha))
-     >   ks_alpha = 1.00d0
+     >   ks_alpha = 0.05d0
 
 *     **** set maxit_orb maxit_orbs ***
       if (.not.rtdb_get(rtdb,
      >      'nwpw:ks_maxit_orb',mt_int,1,maxit_orb))
-     >  maxit_orb = 3
+     >  maxit_orb = 5
       if (.not.rtdb_get(rtdb,
      >      'nwpw:ks_maxit_orbs',mt_int,1,maxit_orbs))
-     >  maxit_orbs = 2
+     >  maxit_orbs = 0
 
 
       value = value.and.
@@ -411,8 +411,86 @@ c
      >        rtdb_get(rtdb,'cgsd:ispin',mt_int,1,ispin)
 
 
-*     **** paw_cp: stuff ****
+*     **** paw_cpmd: stuff ****
       else if (code.eq.7) then
+
+      value = value.and.
+     >        rtdb_cget(rtdb,'cpmd:cell_name',1,cell_name)
+      value = value.and.
+     >        rtdb_cget(rtdb,'cpmd:input_wavefunction_filename',
+     >                  1,input_wavefunction_filename)
+      value = value.and.
+     >        rtdb_cget(rtdb,'cpmd:output_wavefunction_filename',
+     >                  1,output_wavefunction_filename)
+      value = value.and.
+     >        rtdb_cget(rtdb,'cpmd:input_v_wavefunction_filename',
+     >                  1,input_v_wavefunction_filename)
+      value = value.and.
+     >        rtdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
+     >                  1,output_v_wavefunction_filename)
+
+      value = value.and.
+     >        rtdb_cget(rtdb,'cpmd:xyz_filename',
+     >                  1,xyz_filename)
+
+      value = value.and.
+     >        rtdb_cget(rtdb,'cpmd:exchange_correlation',
+     >                  1,exchange_correlation)
+      if (exchange_correlation.eq.'vosko') then
+         gga = 0
+      else
+         gga = 1
+      end if
+
+      value = value.and.
+     >        rtdb_get(rtdb,'cpmd:geometry_optimize',mt_log,1,move)
+      value = value.and.
+     >        rtdb_get(rtdb,'cpmd:fractional_coordinates',
+     >                 mt_log,1,frac_coord)
+      value = value.and.
+     >        rtdb_get(rtdb,'cpmd:npsp',mt_int,1,npsp)
+      value = value.and.
+     >        rtdb_get(rtdb,'cpmd:fake_mass',mt_dbl,1,fake_mass)
+      value = value.and.
+     >        rtdb_get(rtdb,'cpmd:time_step',mt_dbl,1,time_step)
+      value = value.and.
+     >        rtdb_get(rtdb,'cpmd:loop',mt_int,2,loop)
+      value = value.and.
+     >        rtdb_get(rtdb,'cpmd:scaling',mt_dbl,2,scaling)
+      tolerances(1) = 0.0d0
+      tolerances(2) = 0.0d0
+      tolerances(3) = 0.0d0
+      value = value.and.
+     >        rtdb_get(rtdb,'cpmd:ecut',mt_dbl,1,ecut)
+      value = value.and.
+     >        rtdb_get(rtdb,'cpmd:wcut',mt_dbl,1,wcut)
+
+      value = value.and.
+     >        rtdb_get(rtdb,'cpmd:rcut',mt_dbl,1,rcut)
+      value = value.and.
+     >        rtdb_get(rtdb,'cpmd:ncut',mt_int,1,ncut)
+
+      SA = .true.
+      if (.not.rtdb_get(rtdb,'cpmd:sa_decay',mt_dbl,2,sa_decay)) then
+        SA = .false.
+        sa_decay(1) = 1.0d0
+        sa_decay(2) = 1.0d0
+      end if
+
+      if (.not.rtdb_get(rtdb,'cpmd:fei',mt_log,1,fei))
+     >  fei = .false.
+
+      if (.not.rtdb_get(rtdb,'cpmd:fei_quench',mt_log,1,fei_quench))
+     >  fei_quench = .false.
+
+*     **** get thermostat information ****
+      value = value .and. rtdb_get(rtdb,'cpmd:nose',mt_log,1,nose)
+      value = value .and. rtdb_get(rtdb,'cpmd:Pe',mt_dbl,1,Pe)
+      value = value .and. rtdb_get(rtdb,'cpmd:Te',mt_dbl,1,Te)
+      value = value .and. rtdb_get(rtdb,'cpmd:Pr',mt_dbl,1,Pr)
+      value = value .and. rtdb_get(rtdb,'cpmd:Tr',mt_dbl,1,Tr)
+
+
 
 *     **** paw: stuff ****
       else if (code.eq.8) then
@@ -1357,11 +1435,13 @@ c      end
      >        call errquit(
      >        'control_mulliken: rtdb_get mulliken failed', 0)
       end if
-      if (code.eq.2) then
+      if ((code.eq.2).or.(code.eq.7)) then
         if (.not.rtdb_get(rtdb,'cpmd:mulliken',mt_log,1,value))
      >        call errquit(
      >        'control_mulliken: rtdb_get mulliken failed', 0)
       end if
+
+
       if (code.eq.3) then
         if (.not.rtdb_get(rtdb,'cgsd:mulliken',mt_log,1,value))
      >        call errquit(
