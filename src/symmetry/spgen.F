@@ -14,7 +14,7 @@ c***********************************************************************
      $     group_name,max_gen,s_vec,oprint)
 c
 c--->Note: array "gens" in gensym.f = arrray "symops" in spgen.f
-C$Id: spgen.F,v 1.2 1996-07-15 22:03:20 gutowski Exp $
+C$Id: spgen.F,v 1.3 1996-08-06 22:40:37 gutowski Exp $
       implicit real*8 (a-h,o-z)
       character*10 spgnam(230),lyrnam(80),linenam(99),molname(46)
       dimension gens(18,4)
@@ -120,7 +120,7 @@ c
      &'    P4/mmm','    P4/nbm','    P4/mbm','    P4/nmm','        P3',
      &'       P-3','      P312','      P321','      P3m1','      P31m',
      &'     P-31m','     P-3m1','        P6','       P-6','      P6/m',
-     &'      P622','      P6mm','     P-6m2','     P-62m','     P6/mmm'/
+     &'      P622','      P6mm','     P-6m2','     P-62m','    P6/mmm'/
 c
 cdgc--> names of the 1-dimensional line groups (z direction)
 c
@@ -149,7 +149,7 @@ c
      &'    P6_222','    P6_422','    P6_322','      P6mm',
      &'      P6cc','    P6_3cm','    P6_3mc','     P-6m2',
      &'     P-6c2','     P-62m','     P-62c','    P6/mmm',
-     &'    P6/mcc','  P6_3/mcm','    P6_3/mmc'/
+     &'    P6/mcc','  P6_3/mcm','  P6_3/mmc'/
 c
 cdgc--> names of the molecular point groups
 c
