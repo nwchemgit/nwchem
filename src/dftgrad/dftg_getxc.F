@@ -1,7 +1,7 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive, s34, rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.23 2000-07-18 01:13:20 edo Exp $
+* $Id: dftg_getxc.F,v 1.24 2000-07-25 21:26:38 edo Exp $
 *
       implicit none
 c      
@@ -79,8 +79,6 @@ c
                if(filedump_opened) then
                   if(.not.grid_dump_read(.true.)) call errquit(
      /     ' dftgetxc: grdumpread failed ',0)
-               else
-                  file_opened=.false.
                endif
             endif
          endif
