@@ -1,8 +1,14 @@
 *
-* $Id: paw_inner_loop.F,v 1.35 2003-03-22 02:30:01 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.36 2003-03-25 19:43:31 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.35  2003/03/22 02:30:01  bylaska
+* paw cpsd program finished....
+* The nwpw directory structure is ready to be checked into 4.5 release tree.
+*
+* ....EJB
+*
 * Revision 1.34  2003/03/21 23:41:13  bylaska
 *
 * paw updates ...EJB
@@ -141,7 +147,7 @@
       external paw_mult_energy_atom_mult
 
 
-
+      call Parallel_np(np)
       call Pack_npack(0,npack0)
       n2ft3d = 2*nfft3d
       deltamm = 0.0d0
@@ -614,7 +620,6 @@ c          write(*,*)
 *     ***** total energy calculation ******
 *     *************************************
       call nwpw_timing_start(10)
-      call Parallel_np(np)
 
       !if (move) call phafac() !*** reset phase factors to r1 ***
 
