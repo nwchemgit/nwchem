@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.110 2001-10-24 23:52:19 d3j191 Exp $
+c $Id: cf_main.F,v 1.111 2001-10-25 19:45:56 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -702,6 +702,7 @@ c
       integer i,j,k
       real*8 prssc3,rdata(4),xwcd,xscd,eskin,ekinc
       real*8 pscx(3)
+      real*8 pbuff(4,3,3)
 c
       call cf_vw(xw,yw,vw,vwt,numw,int_mb(i_iwa),dbl_mb(i_mas))
       call cf_vs(xs,ys,vs,vst,esk,nums,isat,ismol,isfrc,dbl_mb(i_mas))
@@ -762,10 +763,31 @@ c
       ekc(1,3)=ewkc(1,3)+eskc(1,3)
       ekc(2,3)=ewkc(2,3)+eskc(2,3)
       ekc(3,3)=ewkc(3,3)+eskc(3,3)
-      call ga_dgop(mcf_38,z,9,'+')
-      call ga_dgop(mcf_70,ekc,9,'+')
-      call ga_dgop(mcf_71,ewkc,9,'+')
-      call ga_dgop(mcf_72,eskc,9,'+')
+c
+      do 18 i=1,3
+      do 19 j=1,3
+      pbuff(1,i,j)=z(i,j)
+      pbuff(2,i,j)=ekc(i,j)
+      pbuff(3,i,j)=ewkc(i,j)
+      pbuff(4,i,j)=eskc(i,j)
+   19 continue
+   18 continue
+c
+      call ga_dgop(mcf_38,pbuff,36,'+')
+c
+      do 20 i=1,3
+      do 21 j=1,3
+      z(i,j)=pbuff(1,i,j)
+      ekc(i,j)=pbuff(2,i,j)
+      ewkc(i,j)=pbuff(3,i,j)
+      eskc(i,j)=pbuff(4,i,j)
+   21 continue
+   20 continue
+c
+c      call ga_dgop(mcf_38,z,9,'+')
+c      call ga_dgop(mcf_70,ekc,9,'+')
+c      call ga_dgop(mcf_71,ewkc,9,'+')
+c      call ga_dgop(mcf_72,eskc,9,'+')
 c
       volume=box(1)*box(2)*box(3)
 c
