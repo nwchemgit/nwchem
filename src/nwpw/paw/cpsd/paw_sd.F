@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.19 2003-01-31 19:05:04 marat Exp $
+* $Id: paw_sd.F,v 1.20 2003-02-08 03:38:53 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -547,6 +547,14 @@
       call dealloc_paw_basis_data()
       call paw_proj_end()
       call paw_ovlp_end()
+      call end_paw_kin_matrix()
+      call end_paw_vloc_matrix()
+      call end_paw_ion_matrix()
+      call end_paw_overlap_matrix()
+      call end_paw_hartree_matrix()
+      call end_paw_core_matrix()
+      call end_paw_comp_pot_matrix()
+      call end_paw_comp_charge_matrix()
 
 
       value = MA_free_heap(psir(2))
