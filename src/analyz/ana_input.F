@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.39 2000-10-06 07:37:24 d3j191 Exp $
+c $Id: ana_input.F,v 1.40 2000-10-12 20:25:27 d3j191 Exp $
 c
       implicit none
 c
@@ -613,7 +613,7 @@ c
       if(.not.inp_a(filplt)) filplt=' '
       endif
       else
-      filplt=item
+      filchg=item
       if(.not.inp_a(filplt)) filplt=' '
       endif
       endif
