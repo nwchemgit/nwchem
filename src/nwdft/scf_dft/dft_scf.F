@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.208 2001-12-15 01:05:23 edo Exp $
+c     $Id: dft_scf.F,v 1.209 2001-12-15 01:11:07 edo Exp $
 c     
       implicit none
 c
@@ -165,7 +165,7 @@ c
       integer g_focks(2)
       integer nel_fon(2),nmo_fon(2),g_movad,
      ,     ncanorg,g_gmovecs(2)
-      double precision gotsmear
+      logical gotsmear
       gotsmear(ss)=abs(ss).gt.1d-9
       s_rabuck(nn,ss,nss,delta)=min(ss*exp((1d0/(nss-1d0))*
      *     log(1d-10/ss)*(nn-1d0)),delta*5d-4)
