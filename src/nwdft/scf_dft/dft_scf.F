@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.25 1996-05-01 23:52:20 og845 Exp $
+C$Id: dft_scf.F,v 1.26 1996-05-08 23:49:11 og845 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -100,8 +100,7 @@ c**** patches for SC95,  ECCE' parsing
       parameter(itol_min=6,iAOacc_min=15)
       character*3 scftype
       double precision dft_dencvg,dabssum,dft_time
-      integer dft_n3c
-      external dft_dencvg,dabssum,dft_n3c
+      external dft_dencvg,dabssum
 #if defined(SC95)
       double precision homo_lumo_gap
       logical movecs_to_logfile
@@ -246,7 +245,7 @@ C          write(0,*) ' n3c_dbl ',n3c_dbl,ga_nodeid()
 C          write(0,*) ' n3c_int ',n3c_int,ga_nodeid()
 C        endif
         avail = MA_inquire_avail(mt_dbl)
-        if (ga_uses_ma()) avail = avail - ga_memory_avail()
+C        if (ga_uses_ma()) avail = avail - ga_memory_avail()
         call ga_igop(msg_int2e_file, avail, 1, 'min')
         if(avail.lt.n3c_dbl) then
           incore=.false.
