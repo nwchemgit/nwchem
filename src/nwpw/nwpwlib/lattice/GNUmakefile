@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 2002-01-14 21:06:26 bylaska Exp $
+# $Id: GNUmakefile,v 1.7 2002-02-11 18:27:10 edo Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -19,7 +19,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = lattice.f pack.F G_init.F
+    USES_BLAS = lattice.f pack.F G_init.F cram.F
 
   LIB_DEFINES = 
 

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2001-12-28 23:17:54 bylaska Exp $
+# $Id: GNUmakefile,v 1.3 2002-02-11 18:27:12 edo Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -13,7 +13,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = 
+    USES_BLAS = pspw_diis.F
 
   LIB_DEFINES = 
 

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-12-13 03:53:31 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2002-02-11 18:27:11 edo Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -13,7 +13,7 @@
 
       LIBRARY = libband.a
 
-    USES_BLAS = cpsp.F
+    USES_BLAS = cpsp.F c_semicore.F
 
   LIB_DEFINES = 
 
