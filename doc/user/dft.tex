@@ -482,7 +482,7 @@ Keyword    & X & C & GCA    &  Hybrid & Ref.\\
            &          &             &        &         &         \\
 \hline
  slater     & $\star$    &            &         &         &[1]\\
-\hline							
+\hline                                                  
 vwn\_1     &          &   $\star$     &         &        &[2]     \\
 vwn\_2     &          &   $\star$     &         &        &[2]    \\
 vwn\_3     &          &   $\star$     &         &        &[2]     \\
@@ -491,21 +491,21 @@ vwn\_5     &          &   $\star$     &         &        &[2]     \\
 vwn\_1\_rpa&          &   $\star$     &         &        &[2]     \\
 perdew81   &          &   $\star$     &         &        &[3]     \\
 pw91lda    &          &   $\star$     &         &        &[4]\\
-\hline							
+\hline                                                  
 becke88    & $\star$    &             &  $\star$  &        &[5]\\
 xperdew91  & $\star$    &             &  $\star$  &        &[6]\\
 xpbe96     & $\star$    &             &  $\star$  &        &[7]\\
 gill96     & $\star$    &             &  $\star$  &        &[8]\\
-\hline							
+\hline                                                  
 perdew86   &          &   $\star$     &  $\star$  &        &[9]\\
 lyp        &          &   $\star$     &  $\star$  &        &[10]\\
 perdew91   &          &   $\star$     &  $\star$  &        &[6]\\
 cpbe96     &          &   $\star$     &  $\star$  &        &[7]\\
-\hline							
+\hline                                                  
 hcth       & $\star$    &   $\star$     &  $\star$  &        &[11]\\
 h120       & $\star$    &   $\star$     &  $\star$  &        &[12]\\
 h147       & $\star$    &   $\star$     &  $\star$  &        &[12]\\
-\hline							
+\hline                                                  
 beckehandh & $\star$    &   $\star$     &           & $\star$  &[13]\\
 b3lyp      & $\star$    &   $\star$     &  $\star$  & $\star$  &[14]\\
 acm        & $\star$    &   $\star$     &  $\star$  & $\star$  &[14]\\
@@ -710,7 +710,7 @@ procedures deemed undesirable with the obvious keywords,
 
 
 \section{GRID --- Numerical Integration of the XC Potential}
-
+\label{grgrid}
 \begin{verbatim}
   GRID [(xcoarse||coarse||medium||fine||xfine) default medium] \
        [(gausleg <integer radpts default 50> 
@@ -1165,6 +1165,45 @@ The keywords \verb+DFT||ODFT+ were originally intended to specify
 closed or open shell and are really unnecessary except in the context
 of forcing a closed-shell system to be computed as an open shell
 system (i.e., using a spin-unrestricted wavefunction).
+\section{SIC --- Self-Interaction Correction}
+
+\begin{verbatim}
+sic [perturbative || oep || oep-loc <default perturbative>]
+\end{verbatim}
+
+The Perdew and Zunger (see J. P. Perdew and A. Zunger, Phys. Rev. B 23,
+5048 (1981)) method to remove the self-interaction contained in many
+exchange-correlation functionals has been implemented with the
+Optimized Effective Potential method 
+(see R. T. Sharp and G. K. Horton, Phys. Rev. 90, 317 (1953),
+J. D. Talman and W. F. Shadwick, Phys. Rev. A 14, 36 (1976)). 
+Three variants of these methods are included in NWChem:
+\begin{itemize}
+\item{\bf sic perturbative} This is the default option for the sic
+directive. After a self-consistent calculation, the Kohn-Sham
+orbitals are localized with the Foster-Boys algorithm (see section
+\ref{orbloc}) and the self-interaction energy is added to the total energy. 
+All exchange-correlation functionals implemented in the NWChem can be
+used with this option.
+\item{\bf sic oep} With this option the optimized effective potential is
+built in each step of the self-consistent process. Because the electrostatic
+potential generated for each orbital involves a numerical
+integration, this method can be expensive.
+\item{\bf sic oep-loc} This option is similar to the oep option with the
+addition of localization of the Kohn-Sham orbitals in each step of the 
+self-consistent process.
+\end{itemize}
+With oep and oep-loc options a {\bf xfine grid} (see section \ref{grgrid})
+must be used in order to avoid numerical noise, furthermore the hybrid 
+functionals can not be used with these options.  More details of the
+implementation of this method can be found in 
+J. Garza, J. A. Nichols and D. A. Dixon, J. Chem. Phys. 112, 7880 (2000). 
+The components of the sic energy can be printed out using:
+
+\begin{verbatim}
+print "SIC information"
+\end{verbatim}
+
 
 \section{MULLIKEN --- Mulliken analysis}
 \begin{verbatim}
