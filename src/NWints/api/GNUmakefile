@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.20 1995-01-09 08:48:46 d3e129 Exp $
+# $Id: GNUmakefile,v 1.21 1995-01-09 08:50:41 d3e129 Exp $
 
     OBJ = int_init.o exact_mem.o int_mem.o \
           int_terminate.o int_chk_sh.o int_2e4c.o \
@@ -21,7 +21,7 @@
  USES_BLAS = int_hf1sp.F   int_l1e3ov.F   int_l1eall.F \
              int_l2e2c.F   int_l2e3c.F    int_l2e4c.F \
              int_lgen1e.F  int_pgen1e.F   intd_1eh1.F \
-             intd_2e4c.F   intp_txyz.F    intd_2e2c.F
+             intd_2e4c.F   intp_txyz.F    intd_2e2c.F \
              intp_1eke.F   intp_1eov.F
 
 include ../../config/makefile.h
