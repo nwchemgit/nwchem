@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvint.F,v 1.3 2000-01-04 00:15:39 windus Exp $
+c $Id: hnd_stvint.F,v 1.4 2000-01-18 23:47:08 windus Exp $
 c
 c Taken from HONDO
 c
@@ -113,9 +113,9 @@ c
          call errquit('hnd_stvint: angular momentum too high',555)
       endif
 c
-      call dfill(lstv,zero,s,1)
-      call dfill(lstv,zero,ti,1)
-      call dfill(lstv,zero,vi,1)
+      if (doS) call dfill(lstv,zero,s,1)
+      if (doT) call dfill(lstv,zero,ti,1)
+      if (doV) call dfill(lstv,zero,vi,1)
 c
 c     ----- i primitive -----
 c
