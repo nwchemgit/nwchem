@@ -42,6 +42,7 @@ c
          max_at_bf = max(max_at_bf, ihi-ilo+1)
       enddo
       maxd = max_at_bf**2
+*      write(6,*) ' maxd ', ga_nodeid(), maxd, max_at_bf
 c     
       status = ma_push_get(MT_DBL, maxd, 'dij', l_dij, k_dij)
       status = ma_push_get(MT_DBL, maxd, 'dik', l_dik, k_dik)

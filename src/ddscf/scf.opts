@@ -1,0 +1,114 @@
+SCF input parameters
+
+Convergence threshold
+
+    THRESH tol
+
+    The convergence criterion is on the maximum value of the gradient
+    vector.  The default value is 10^-6.
+
+
+Maximum number of iterations
+
+    MAXITER n
+
+    default is 5 ... usually only 3 are needed.
+
+    e.g.
+
+        maxiter 10
+
+
+Input/output MO vectors
+
+    VECTORS [input] <atomic|hcore|filename> [output <filename>]
+
+     output vectors default to either the same filename as the
+     input vectors if they were read from a file or to the
+     filename movecs (which is searched for by the application).
+
+     E.g.
+
+     These two are equivalent and implement the default
+
+         vectors atomic output movecs
+
+         vectors input atomic output movecs
+
+     This gets input vectors from one file and outputs final
+     vectors back to the same file
+
+         vectors h2o.movecs
+
+     This gets input vectors from one file and outputs final
+     vectors to another file
+
+        vectors input h2o.guess output h2o.final
+
+
+
+SCF level shifting
+
+    LEVEL [pcg initial [tol final]] [nr initial [tol final]]
+
+    Both the 1-electron preconditioned conjgugate gradient (PCG) and
+    the Newton-Raphson (NR) use level shifting to stabilize convergence
+    (by making the preconditioning matices more positive definite and
+    diagonally dominate).  For both you can specify an initial level
+    shift, a gradient value at which to change shifts, and a final
+    level shift.  The defaults
+
+       pcg initial = 10.0
+       pcg change shift at max. gradient = 0.5
+       pcg final = 0.0
+       nr  initial = 10.0
+       nr  change shift at max. gradient = 0.5
+       nr  final = 0.0
+
+    are almost always acceptable because the program will increase
+    the level shift if convergence problems are encountered with the
+    preconditioning.  However, some cases do require increased level
+    shifts to speed convergence
+
+    e.g.
+
+      This enables the default options
+
+      level nr 0 0 0 pcg 10 .5 0
+
+
+Controlling use of newton-raphson quadratically convergent algorithm
+
+    NR tol
+
+    The QC algorithm (use of exact hessian preconditioner) is enabled
+    by default when the maximum element of the orbital gradient falls
+    below 0.1.  This value can be changed using this directive
+
+    e.g.
+
+       This enables the default
+
+       NR 0.1
+
+       This disables the QCSCF entirely
+
+       NR 0.0
+
+
+Atomic guess shift (subject to change)
+
+     SET "scf:atom shift" real value
+
+     The atomic guess routines form a density matrix (D) from a superposition
+     of the atomic density matrices.  Vectors are obtained from diagonalizing
+     the matrix
+
+        Fock(D) - shift * SDS
+
+     If the density matrix was idempotent then this is equivalent to 
+     standard level shifting.  The default value of shift is 0.0 which seems
+     best for 'normal' molecules.  Values of 1-2 can help with transition metals.
+     There is no special input for this parameter so U have to use the generic
+     set directive.  
+

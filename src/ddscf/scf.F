@@ -6,6 +6,7 @@
 #include "geom.fh"
 #include "rtdb.fh"
 #include "context.fh"
+#include "inp.fh"
 c
 c     RHF module.
 c
@@ -124,13 +125,21 @@ c
      $     call errquit('scf: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'mo basis'))
      $     call errquit('scf: no mo basis ', 0)
-*      if (.not. context_rtdb_match(rtdb, 'mo vector file', movecs))
-*     $     movecs = file_prefix_name('movecs')
-      movecs = 'movecs'
-      if (.not. context_rtdb_match(rtdb, 'input mo vector file',
-     $     movecs_in)) movecs_in = movecs
-      if (.not. context_rtdb_match(rtdb, 'output mo vector file',
-     $     movecs_in)) movecs_out = movecs_in
+c
+c     Figure output input/output MO vectors ... all this should be
+c     context sensitive but that design is incomplete.
+c
+      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
+     $     movecs_in = 'atomic'
+      if (.not. rtdb_cget(rtdb, 'scf:output vectors', 1, movecs_out))
+     $     movecs_out = ' '
+      if (movecs_out.eq.' ') then
+         if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore') then
+            movecs_out = 'movecs'
+         else
+            movecs_out = movecs_in
+         endif
+      endif
 c
 c     Figure out the numer of electrons from the required total
 c     charge and the sum of nuclear charges
@@ -153,12 +162,16 @@ c
             write(6,*)
             write(6,*)
          endif
-         if (.not. geom_print(geom)) call errquit('scf: geom_print ?',0)
-         write(6,1) charge, 'rhf'
+*     if (.not. geom_print(geom)) call errquit('scf: geom_print ?',0)
+*     if (.not. bas_print(basis)) call errquit('scf: bas_print ?',0)
+         write(6,1) charge, 'rhf',
+     $        movecs_in(1:inp_strlen(movecs_in)),
+     $        movecs_out(1:inp_strlen(movecs_out))
  1       format(/
      $        '  charge          = ', f6.2/
-     $        '  wavefunction    = ', a/)
-         if (.not. bas_print(basis)) call errquit('scf: bas_print ?',0)
+     $        '  wavefunction    = ', a/
+     $        '  input vectors   = ', a/
+     $        '  output vectors  = ', a/)
          call util_flush(6)
       endif
 c     
@@ -184,28 +197,17 @@ c
      $     ('scf: context_prefix failed', 0)
       if (.not. rtdb_put(rtdb, name, MT_LOG, 1, converged)) call errquit
      $     ('scf: failed to store converged in rtdb', 0)
-
-c:rak
-c:rak ...  this should be re done in gradients module no need to pass handles
-c:rak
-c:rakC
-c:rakC    store basis and geometry handle for gradients (are they already somewhere?)
-c:rakC
-c:rak      status = rtdb_put(rtdb, 'basis', MT_INT, 1, basis)
-c:rak      if (.not.status) call errquit('scf: error storing basis handle',0)
-c:rak      status = rtdb_put(rtdb, 'geom', MT_INT, 1, geom)
-c:rak      if (.not.status) call errquit('scf: error storing geom handle', 0)
 c
-c SCF is done destroy basis and geomtry handles  
-c (e.g., preserve the memory available to other modules!!)
+c     Overwrite the input movecs option with where the final movecs
+c     ended up so that a restart automatically picks them up
 c
-      if (.not.(
-     &    (bas_destroy(basis))
-     &    .and.
-     &    (geom_destroy(geom))
-     &    ))
-     &    call errquit
-     &    ('scf:error destroying geom and basis handles',911)
+      if (.not. rtdb_cput(rtdb, 'scf:input vectors', 1, movecs_out))
+     $     call errquit('scf:rtdb_cput failed scf:input vectors',0)
+c
+c     SCF is done destroy basis and geomtry handles  
+c
+      if (.not.(bas_destroy(basis) .and. geom_destroy(geom)))
+     $     call errquit ('scf:destroying geom and basis handles',0)
 c
 c     Nothing else for now ... return convergence status
 c
