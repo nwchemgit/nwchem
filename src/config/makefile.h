@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.317 2000-05-02 17:20:53 nwchem Exp $
+# $Id: makefile.h,v 1.318 2000-05-02 20:55:04 nwchem Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -890,9 +890,6 @@ endif
               -brename:.xerbla_,.xerbla \
               -brename:.zgemm_,.zgemm \
               -brename:.dsyr2_,.dsyr2 \
-#              -brename:.dtrsv_,.dtrsv \
-#              -brename:.ztrsv_,.ztrsv 
-#              -brename:.dsymm_,.dsymm \
               -brename:.dznrm2_,.dznrm2 \
               -brename:.zaxpy_,.zaxpy \
               -brename:.zcopy_,.zcopy \
@@ -900,16 +897,19 @@ endif
               -brename:.zdscal_,.zdscal \
               -brename:.zgemv_,.zgemv \
               -brename:.zgerc_,.zgerc \
-#              -brename:.zhemm_,.zhemm \
               -brename:.zhemv_,.zhemv \
               -brename:.zher2_,.zher2 \
               -brename:.zher2k_,.zher2k \
-#              -brename:.zherk_,.zherk \
               -brename:.zscal_,.zscal \
               -brename:.zswap_,.zswap \
               -brename:.ztrmm_,.ztrmm \
-              -brename:.ztrmv_,.ztrmv \
+              -brename:.ztrmv_,.ztrmv 
+#              -brename:.zherk_,.zherk \
+#              -brename:.zhemm_,.zhemm \
 #              -brename:.ztrsm_,.ztrsm \
+#              -brename:.dtrsv_,.dtrsv \
+#              -brename:.ztrsv_,.ztrsv 
+#              -brename:.dsymm_,.dsymm \
 #
 
 ##comment out from dtrmm_ inclusive
