@@ -1,4 +1,4 @@
-C $Id: ecp_int0.F,v 1.4 1997-08-20 18:30:07 mg201 Exp $
+C $Id: ecp_int0.F,v 1.5 1997-10-01 18:24:00 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int0 (mem_max,DryRun,
@@ -130,8 +130,8 @@ C      write (LuOut,*) 'Starting l_c loop'
         n_c = n_coef_c(l_c)
         i_Q_int = 1
         i_tmp = i_Q_int+ncab*n_cont_c
-        i_prm = i_tmp+n_ab*n_c
-        i_wrk = i_prm+n_ab
+        i_prm = i_tmp+n_ab
+        i_wrk = i_prm+n_ab*n_c
         i_free = i_wrk+nc_ab
         if (debug_addresses) write (LuOut,*) 'i_Q_int,i_tmp,i_prm,',
      &      'i_wrk,i_free,mem_max',
@@ -253,8 +253,12 @@ C      write (LuOut,*) 'Starting l_c loop'
         end if
    10   continue
       end do
-      if (debug_arrays) call ecp_matpr (ecp_ints,1,n_all_b,1,n_all_a,
-     &    1,n_all_b,1,n_all_a,'ECP integrals','E',78,4)
+      if (debug_arrays) then
+        do j = 1,n_blk
+          call ecp_matpr (ecp_ints(1,1,1,1,j),1,n_all_b,1,n_all_a,
+     &        1,n_all_b,1,n_all_a,'ECP integrals','E',78,4)
+        end do
+      end if
       if (debug_gen) write (LuOut,*) 'Exiting ecp_int0'
 *
       return
