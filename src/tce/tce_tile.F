@@ -1,6 +1,6 @@
       subroutine tce_tile
 c
-c $Id: tce_tile.F,v 1.5 2002-10-23 01:38:53 sohirata Exp $
+c $Id: tce_tile.F,v 1.6 2002-10-23 22:44:33 sohirata Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -21,7 +21,6 @@ c
 c
       double precision ga_dble
       double precision ma_dble
-      integer available
       integer isize
       double precision size
       integer sym
