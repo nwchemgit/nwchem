@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.4 2002-08-01 21:27:27 bylaska Exp $
+* $Id: paw_sd.F,v 1.5 2002-08-06 18:07:26 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -211,7 +211,8 @@
       call init_paw_vloc_matrix()
       call init_paw_core_matrix()
       call paw_proj_init()
-      call dealloc_paw_basis_data()
+      !call dealloc_paw_basis_data()
+      !call paw_proj_end()
 
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
@@ -518,7 +519,10 @@
       call Pack_end()
       call G_end()
       call ion_end()
-      call psp_end()
+     
+      call dealloc_paw_basis_data()
+      call paw_proj_end()
+
 
       value = MA_free_heap(psir(2))
       value = MA_free_heap(Hpsi(2))
