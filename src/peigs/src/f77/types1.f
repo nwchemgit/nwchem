@@ -1,5 +1,5 @@
 *
-* $Id: types1.f,v 1.2 1999-07-28 00:39:51 d3e129 Exp $
+* $Id: types1.f,v 1.3 2000-10-24 18:41:40 d3g270 Exp $
 *
       subroutine types1(a,b,alpha,beta,q,e,NIN,NDIM)
 C
@@ -12,13 +12,10 @@ C-----------------------------------------------------------------------
 C
       integer          NDIM,NIN
       double precision a(*),alpha(*),b(*),beta(*),e(*),q(*)
-      character        record*48
 C
       double precision zero
       parameter        (zero=0.0d0)
       integer          i,j
-      double precision shift
-      character        matrix*24,string*24
 C
       intrinsic        sqrt
 C

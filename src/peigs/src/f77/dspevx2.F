@@ -1,5 +1,5 @@
 *
-* $Id: dspevx2.F,v 1.5 1999-07-28 00:39:49 d3e129 Exp $
+* $Id: dspevx2.F,v 1.6 2000-10-24 18:41:40 d3g270 Exp $
 *
 #include "blas_lapackf.h"
 *======================================================================
@@ -178,7 +178,7 @@
 *     .. Local Scalars ..
       LOGICAL            ALLEIG, INDEIG, VALEIG, WANTZ
       CHARACTER          ORDER
-      INTEGER            I, IINFO, IMAX, INDD, INDE, INDEE, INDIBL,
+      INTEGER            I, IINFO, IMAX, INDD, INDE, INDIBL,
      $                   INDISP, INDIWO, INDTAU, INDWRK, ISCALE, ITMP1,
      $                   J, JJ, NSPLIT
       DOUBLE PRECISION   ABSTLL, ANRM, BIGNUM, EPS, RMAX, RMIN, SAFMIN,

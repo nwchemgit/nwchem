@@ -1,5 +1,5 @@
 *
-* $Id: dgetavec.F,v 1.16 1999-07-28 00:39:45 d3e129 Exp $
+* $Id: dgetavec.F,v 1.17 2000-10-24 18:41:39 d3g270 Exp $
 *
 #include "blas_lapackf.h"
 c      
@@ -71,7 +71,6 @@ c
 *     ..
 *     .. Local Scalars ..
       INTEGER            I
-      DOUBLE PRECISION   TMP, EPS
 *     ..
 *     .. External Functions ..
 *     ..
@@ -222,7 +221,7 @@ c            LPLUS( I ) = LD( I ) /DPLUS( I )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I
-      DOUBLE PRECISION   TMP, EPS, dummy
+      DOUBLE PRECISION   tmp
 *     ..
 *     .. External Functions ..
 *     ..
@@ -240,7 +239,7 @@ c            LPLUS( I ) = LD( I ) /DPLUS( I )
       DO I = BN-1, B1, -1
          DMINUS( I+1 ) = ( LLD( I ) + P( I+1 ) ) - DELTA
          if ( dminus(i+1) .lt. DLAMCHU ) then
-            TMP = D( I ) / (DMINUS( I+1 )+DLAMCHS)
+            TMP = D( I )/(DMINUS( I+1 )+DLAMCHS)
          else
             TMP = D( I ) / DMINUS( I+1 )
          endif
@@ -565,7 +564,7 @@ C
 *     ..
 *     .. Local Scalars ..
       INTEGER            I
-      DOUBLE PRECISION   znrm, dummy, dummy1, dummy2
+      DOUBLE PRECISION   dummy, dummy1, dummy2
 *     ..
 *     .. External Functions ..
       INTEGER            idamax
@@ -582,9 +581,7 @@ c
 *     .. Executable Statements ..
 *      
       INTEGER I1, I2, kk
-      LOGICAL L1, L2, L3, L4, L5, L6
       INTEGER I3, I4
-      LOGICAL L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18
       ZBEGIN = B1
       ZEND = BN
 

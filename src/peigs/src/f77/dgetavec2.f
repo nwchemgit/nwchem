@@ -1,5 +1,5 @@
 *
-* $Id: dgetavec2.f,v 1.2 1999-07-28 00:39:45 d3e129 Exp $
+* $Id: dgetavec2.f,v 1.3 2000-10-24 18:41:39 d3g270 Exp $
 *
       SUBROUTINE DGETAVEC2( iii, LAMBDA, DELTA, N,
      $     B1, BN, L, D, LD,
@@ -12,8 +12,7 @@
 *
 *     .. Scalar Arguments ..
       integer iii
-      INTEGER            N, B1, BN, K, ZBEGIN, ZEND, vecno, index(*),
-     $     iseed(4)
+      INTEGER            N, B1, BN, K, ZBEGIN, ZEND, vecno, index(*)
       DOUBLE PRECISION   DELTA, LAMBDA, ZTZ
 *     ..
 *     .. Array Arguments ..
@@ -108,7 +107,6 @@
 *     ..
 *     .. Local Scalars ..
       INTEGER            I
-      DOUBLE PRECISION   znrm
 *     ..
 *     .. External Functions ..
       INTEGER            IDAMAX
@@ -123,7 +121,6 @@ c
       
       integer            doprnt1,doprnt2
       common             doprnt1,doprnt2
-      save               iseed
 *     ..
 *     .. Executable Statements ..
 *     
