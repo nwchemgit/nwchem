@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi.F,v 1.3 2003-02-12 21:38:18 bylaska Exp $
+* $Id: paw_psi.F,v 1.4 2003-03-11 17:56:38 bylaska Exp $
 *
 
 
@@ -96,17 +96,16 @@
       parameter (MASTER=0)
 
 *     **** local variables ****
+      logical failed
       integer taskid
       integer n1(2),n2(2)
-      integer i,j,ii,jj,ms,it
-      integer index,indext,n,nn
-      integer s11,s12,s21,s22,st1,st2,sa1,sa0
+      integer i,j,ii,jj,ms
+      integer n,nn,index
+      integer st1,st2
+      integer A,B,C,U,D,Ba,Bs,fnm
       integer sl(2)
-      real*8  adiff,alpha
-*     ::::  iteration limit and tolerence for non-liner equations  ::::
-      integer itrlmd,idamax
-      real*8  convg
-      parameter (itrlmd=20, convg=1.0d-15)
+      real*8  alpha
+
 
 
       call nwpw_timing_start(3)
@@ -116,14 +115,17 @@
       n    = ne(1)
       nn   = n**2
       
-      s11  = 0*nn + 1
-      s12  = 1*nn + 1
-      s21  = 2*nn + 1
-      s22  = 3*nn + 1
-      sa0  = 4*nn + 1
-      sa1  = 5*nn + 1
+      A    = 0*nn + 1
+      B    = 1*nn + 1
+      C    = 2*nn + 1
+      Ba   = 3*nn + 1
+      Bs   = 4*nn + 1
+      fnm  = 5*nn + 1
       st1  = 6*nn + 1
-      st2  = 7*nn + 1
+      D    = 7*nn + 1
+
+      U    = Bs
+      st2  = B
 
       call dcopy(8*nn,0.0d0,0,tmp,1)
 
@@ -136,107 +138,253 @@
       n1(2)=ne(1)+1
       n2(2)=ne(1)+ne(2)
       
-*::::::::::::::::::::::  Lagrangian multipliers  ::::::::::::::::::::::
-      DO 640 ms=1,ispin
-        IF(ne(ms).le.0) GO TO 640
+
+      do ms=1,ispin
+        IF(ne(ms).le.0) go to 640
 
 *       ***** compute the overlap matrices ****
         call paw_overlap_matrix_gen(n,ne(ms),
      >                          psi2(1,n1(ms)),
      >                          psi2(1,n1(ms)),
-     >                          tmp(s22))
-        call paw_overlap_matrix_gen(n,ne(ms),
-     >                          psi2(1,n1(ms)),
-     >                          psi1(1,n1(ms)),
-     >                          tmp(s21))
+     >                          tmp(A))
         call paw_overlap_matrix_gen(n,ne(ms),
      >                          psi1(1,n1(ms)),
      >                          psi2(1,n1(ms)),
-     >                          tmp(s12))
+     >                          tmp(B))
         call paw_overlap_matrix_gen(n,ne(ms),
      >                          psi1(1,n1(ms)),
      >                          psi1(1,n1(ms)),
-     >                          tmp(s11))
+     >                          tmp(C))
 
 
-*       ***** scale the overlap matrices ****
-        do i=1,ne(ms)
-          index = (i-1) + (i-1)*n
-      
-          tmp(s22+index)=(1.0d0-tmp(s22+index))*0.5d0/dte
-          tmp(s21+index)=(1.0d0-tmp(s21+index))*0.5d0
-          tmp(s12+index)=(1.0d0-tmp(s12+index))*0.5d0
-          tmp(s11+index)= (-tmp(s11+index))*0.5d0*dte
-          
-           do j=i+1,ne(ms)
-             index  = (i-1) + (j-1)*n
-             indext = (j-1) + (i-1)*n
-   
-             tmp(s22+index)= (-tmp(s22+index))*0.5d0/dte
-             tmp(s21+index)= (-tmp(s21+index))*0.5d0
-             tmp(s12+index)= (-tmp(s12+index))*0.5d0
-             tmp(s11+index)= (-tmp(s11+index))*0.5d0*dte
+        call paw_psi_gen_Ba_Bs(n,ne(ms),tmp(B),tmp(Bs),tmp(Ba))
+        call paw_psi_gen_UD(n,ne(ms),tmp(Bs),tmp(D))
 
-             tmp(s22+indext)=tmp(s22+index)
-             tmp(s21+indext)=tmp(s12+index)
-             tmp(s12+indext)=tmp(s21+index)
-             tmp(s11+indext)=tmp(s11+index)
-          end do
-        end do
 
-        call dcopy(nn,tmp(s22),1,tmp(sa0),1)
+        call paw_psi_gen_X(n,ne(ms),tmp(st1),tmp(st2),
+     >                     tmp(A),tmp(Ba),tmp(C),
+     >                     tmp(U),tmp(D),tmp(fnm),
+     >                     failed)
 
-        do it=1,itrlmd
-          CALL dcopy(nn,tmp(s22),1,tmp(sa1),1)
-          CALL DMMUL(n,ne(MS), tmp(s21), tmp(sa0), tmp(st1))
-          CALL DMMUL(n,ne(MS), tmp(sa0), tmp(s12), tmp(st2))
-          CALL DMADD(n,ne(MS), tmp(st1), tmp(st2), tmp(st1))
-          CALL DMADD(n,ne(MS), tmp(st1), tmp(sa1), tmp(sa1))
-          CALL DMMUL(n,ne(MS), tmp(s11), tmp(sa0), tmp(st1))
-          CALL DMMUL(n,ne(MS), tmp(sa0), tmp(st1), tmp(st2))
-          CALL DMADD(n,ne(MS), tmp(st2), tmp(sa1), tmp(sa1))
-          CALL DMSUB(n,ne(MS), tmp(sa1), tmp(sa0), tmp(st1))
-          adiff=tmp(st1 - 1 + (idamax(n*ne(ms),tmp(st1),1)))
-          if(adiff.lt.convg) GO TO 630
-          call dcopy(n*ne(ms),tmp(sa1),1,tmp(sa0),1)
-        end do
+        if (failed) then 
+          if (taskid.eq.MASTER) then
+            write(6,*) 
+     >     'Warning: Lagrange Multiplier generation failed.'
+            write(6,*) '        +Try using a smaller time step'
+            write(6,*) '        +Gram-Schmidt being performed, spin:',ms
+          end if
+          call paw_psi_MakeOrtho(npack1,ne(ms),psi2(1,n1(ms)))
+        else
+          call dcopy(n*ne(ms),tmp(st1),1,lmbda(sl(ms)),1)
+          call dscal(n*ne(ms),(1.0d0/dte),lmbda(sl(ms)),1)
 
-        ierr=10
-        if (taskid.eq.MASTER) then
-          WRITE(6,*) 
-     >     'Warning: Lagrange Multiplier tolerance too high:',adiff
-          WRITE(6,*) '        +Try using a smaller time step'
-          WRITE(6,*) '        +Gram-Schmidt being performed, spin:',ms
+
+*         ****  correction due to the constraint ****
+          do ii=n1(ms),n2(ms)
+             i=ii-n1(ms)+1
+
+             do jj=n1(ms),n2(ms)
+                j=jj-n1(ms)+1
+
+                index = (i-1) + (j-1)*n
+                !alpha = dte*lmbda(sl(ms) + index)
+                alpha = tmp(st1 + index)
+
+                call Pack_cc_daxpy(1,alpha,psi1(1,jj),psi2(1,ii))
+             end do
+            end do
         end if
-        call paw_psi_MakeOrtho(npack1,ne(ms),psi2(1,n1(ms)))
-
-C       return
-  630   continue
-        call dcopy(n*ne(ms),tmp(sa1),1,lmbda(sl(ms)),1)
-  640 continue
-
-*:::::::::::::::::  correction due to the constraint  :::::::::::::::::
-      do ms=1,ispin
-
-        do ii=n1(ms),n2(ms)
-           i=ii-n1(ms)+1
-
-           do jj=n1(ms),n2(ms)
-              j=jj-n1(ms)+1
-
-              index = (i-1) + (j-1)*n
-              alpha = dte*lmbda(sl(ms) + index)
-
-c             do k=1,nfft3d
-c                psi2(k,ii) = psi2(k,ii)  + alpha*psi1(k,jj)
-c             end do
-              call Pack_cc_daxpy(1,alpha,psi1(1,jj),psi2(1,ii))
-           end do
-        end do
-      end do
-
+  640   continue
+      end do !*ms*
       call nwpw_timing_end(3)
 
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *        paw_psi_gen_Ba_Bs        *
+*     *                                 *
+*     ***********************************
+      subroutine paw_psi_gen_Ba_Bs(n_max,n,B,Bs,Ba)
+      implicit none
+      integer n_max,n
+      real*8 B(n_max,n)
+      real*8 Bs(n_max,n)
+      real*8 Ba(n_max,n)
+
+      !*** local variables ***
+      integer i,j
+
+      do i=1,n
+      do j=1,n
+         Bs(i,j) = 0.5d0*(B(i,j)+B(j,i))
+         Ba(i,j) = 0.5d0*(B(i,j)-B(j,i))
+      end do
+      end do
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *        paw_psi_gen_UD           *
+*     *                                 *
+*     ***********************************
+      subroutine paw_psi_gen_UD(n_max,n,Bs,D)
+      implicit none
+      integer n_max,n
+      real*8 Bs(n_max,n)
+      real*8 D(n_max,n)
+
+      call eigen(n_max,n,Bs,D,D(1,2))
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *        paw_psi_gen_X            *
+*     *                                 *
+*     ***********************************
+      subroutine paw_psi_gen_X(n_max,n,
+     >                     X1,tmp,
+     >                     A,Ba,C,
+     >                     U,D,fnm,
+     >                     failed)
+     > 
+      implicit none
+      integer n_max,n
+      real*8 X1(n_max,n)
+      real*8 tmp(*)
+      real*8 A(n_max,n)
+      real*8 Ba(n_max,n)
+      real*8 C(n_max,n)
+      real*8 U(n_max,n)
+      real*8 D(n_max,n)
+      real*8 fnm(n_max,n)
+      logical failed
+
+      !**** local variables ****
+      integer itrlmd
+      real*8  convg
+      parameter (itrlmd=20, convg=1.0d-15)
+
+      integer i,it
+      real*8  adiff
+
+      !**** external functions ****
+      integer  idamax
+      external idamax
+
+
+      !**** A = I-A ***
+      call dscal(n_max*n,(-1.0d0),A,1)
+      do i=1,n
+         A(i,i) = A(i,i) + 1.0d0
+      end do
+
+      !*** fnm = I-A ****
+      call dcopy(n_max*n,A,1,fnm,1)
+
+      !*** solve U*D*Ut*X + X*U*D*Ut = fnm for X ***
+      call paw_psi_fnm_to_X(n_max,n,fnm,U,D,tmp)
+      call dcopy(n_max*n,fnm,1,X1,1)
+
+
+      it     = 0
+      failed = .true.
+      do while (failed .and. (it.lt.itrlmd))
+        it = it + 1
+
+        !*** fnm = X*C*X ***
+        call DMMUL(n_max,n,C,X1,tmp)
+        call DMMUL(n_max,n,X1,tmp,fnm)
+
+
+        !*** fnm = Ba*X - X*C*X ***
+        call DMMUL(n_max,n,Ba,X1,tmp)
+        call DMSUB(n_max,n,tmp,fnm,fnm)
+
+
+        !*** fnm = Ba*X - X*Ba - X*C*X ***
+        call DMMUL(n_max,n,X1,Ba,tmp)
+        call DMSUB(n_max,n,fnm,tmp,fnm)
+
+        !*** fnm = I-A + Ba*X - X*Ba - X*C*X ***
+        call DMADD(n_max,n,fnm,A,fnm)
+
+
+        !*** solve U*D*Ut*X + X*U*D*Ut = fnm for X ***
+        call paw_psi_fnm_to_X(n_max,n,fnm,U,D,tmp)
+
+        call DMSUB(n_max,n,fnm,X1,tmp)
+        adiff = tmp(idamax(n_max*n,tmp,1))
+        call dcopy(n_max*n,fnm,1,X1,1)
+
+        adiff = dabs(adiff)
+
+        if (adiff.lt.convg) failed = .false.
+      end do
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *        paw_psi_fnm_to_X         *
+*     *                                 *
+*     ***********************************
+      subroutine paw_psi_fnm_to_X(n_max,n,
+     >                            fnm,U,D,tmp)
+      implicit none
+      integer n_max,n
+      real*8 fnm(n_max,n)
+      real*8 U(n_max,n)
+      real*8 D(n_max,n)
+      real*8 tmp(n_max,n)
+
+      !**** local variables ****
+      integer i,j
+      real*8  d2
+
+
+      !**** fnm = Ut*fnm*U ***
+      call DGEMM('N','N',n,n,n,1.0d0,
+     >           fnm,n_max,
+     >           U,n_max,
+     >           0.0d0,
+     >           tmp,n_max)
+      call DGEMM('T','N',n,n,n,1.0d0,
+     >           U,n_max,
+     >           tmp,n_max,
+     >           0.0d0,
+     >           fnm,n_max)
+
+
+      !**** fnm = (Ut*fnm*U)_nm/(d_n+d_m) ***
+      do j=1,n
+      do i=1,n
+        d2 = D(i,1)+D(j,1)
+        fnm(i,j) = fnm(i,j)/d2
+      end do
+      end do
+
+      !**** fnm = X = U*{(Ut*fnm*U)_nm/(d_n+d_m)}*Ut ***
+      call DGEMM('N','N',n,n,n,1.0d0,
+     >           U,n_max,
+     >           fnm,n_max,
+     >           0.0d0,
+     >           tmp,n_max)
+      call DGEMM('N','T',n,n,n,1.0d0,
+     >           tmp,n_max,
+     >           U,n_max,
+     >           0.0d0,
+     >           fnm,n_max)
+
+      return
+      end 
