@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.153 1996-06-05 17:07:48 ng716 Exp $
+# $Id: makefile.h,v 1.154 1996-06-05 17:17:21 ng716 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -81,12 +81,7 @@ endif
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos \
-<<<<<<< makefile.h
-	plane_wave selci dplot mp2_grad property
-=======
-	plane_wave selci dplot mp2_grad nwaprep oimp2
->>>>>>> 1.152
-
+	plane_wave selci dplot mp2_grad nwaprep oimp2 property 
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -95,13 +90,8 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints  \
                     -lstepper -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lddscf -lguess \
-<<<<<<< makefile.h
                     -lvib -lutil -lrimp2 -lnwints -lideaz -lnwargos -ldplot \
-                    -lproperty
-=======
-                    -lvib -lutil -lnwints -lideaz -lnwargos -ldplot -lnwaprep \
-		    -loimp2
->>>>>>> 1.152
+                    -lnwaprep -loimp2 -lproperty
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
