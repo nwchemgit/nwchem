@@ -35,6 +35,7 @@ c
       double precision dbl_tmp
       integer nat, geom
       logical status
+      logical numerical
       character*(nw_max_path_len) filehess
 c     
       double precision cpu, wall
@@ -66,17 +67,20 @@ c
 c
 c     Analytic rhf_hessian or finite difference hessian
 c  
+      if (.not. rtdb_get(rtdb,'task:numerical',mt_log,1,numerical))
+     &    numerical = .false.
+
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:frequency: theory not specified',0)
 
-      if (theory.eq.'scf') then
+      if (.not.numerical.and.theory.eq.'scf') then
        if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
      $     call errquit('scf:scftype not defined',0)
        call inp_ucase(scftype)
       endif
 c
 
-      if (theory.eq.'scf'.and.scftype.eq.'RHF') then 
+      if (.not.numerical.and.theory.eq.'scf'.and.scftype.eq.'RHF') then 
          hess_analy = .true.
 
         if (ga_nodeid().eq.0 .and.
