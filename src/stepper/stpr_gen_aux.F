@@ -1,5 +1,5 @@
 *
-* $Id: stpr_gen_aux.F,v 1.10 1997-10-23 16:49:35 d3g681 Exp $
+* $Id: stpr_gen_aux.F,v 1.11 1997-10-24 16:07:04 d3e129 Exp $
 * 
 * this file contains auxilary routines to stpr_gen functions
 *
@@ -257,7 +257,7 @@ c
      &      access='sequential',
      &      status='old')
         read(69)ijunk1,ijunk2,rank,iflag_grad0,dipole_there
-        if (dipole_there) then
+        if (dipole_there.eq.1) then
           dipole_okay = .true.
         else
           dipole_okay = .false.
