@@ -1,13 +1,13 @@
       program spherical
-* $Id: spherical.F,v 1.5 1999-02-01 23:13:54 d3g681 Exp $
+* $Id: spherical.F,v 1.6 2004-07-21 16:15:42 bert Exp $
       implicit none
       integer memgot
-      parameter (memgot=5000)
+      parameter (memgot=10000)
       double precision dd(memgot)
       integer lmax
       integer memused
 c      
-      lmax = 5
+      lmax = 8
       memused = (((lmax+1)*(lmax+2))/2)*(2*lmax+1)*(lmax+1)
       write(6,*)' memused = ',memused
       if (memused.gt.memgot) then
@@ -19,7 +19,7 @@ c
       call xlmcoeff_test(lmax,dd,.true.)
       end
       subroutine xlmcoeff_test(lmax, d, normalize)
-* $Id: spherical.F,v 1.5 1999-02-01 23:13:54 d3g681 Exp $
+* $Id: spherical.F,v 1.6 2004-07-21 16:15:42 bert Exp $
 * 
 * Note that the routine assumes that d is dimensioned in a
 * very specific fashion that actually consumes twice as

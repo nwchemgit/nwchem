@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.33 2003-10-17 22:53:46 carlfahl Exp $
+c $Id: int_spcart.F,v 1.34 2004-07-21 16:15:42 bert Exp $
 *::cr::7
 *--------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999 *
@@ -674,6 +674,10 @@ c
         call spcart_a_sg(blockin,blockout,ndima,ngls,
      &      in_place,print_info)
         return
+      else if (ls.eq.5) then
+        call spcart_a_sh(blockin,blockout,ndima,ngls,
+     &      in_place,print_info)
+        return
       endif
 c
 c
@@ -891,6 +895,10 @@ c
         return
       else if (ls.eq.4) then
         call spcart_a_sg_b(blockin,blockout,ndima,ndimb,ngls,
+     &      in_place,print_info)
+        return
+      else if (ls.eq.5) then
+        call spcart_a_sh_b(blockin,blockout,ndima,ndimb,ngls,
      &      in_place,print_info)
         return
       endif
@@ -1957,6 +1965,359 @@ c
             blockout(i, 3,g,j) = bin3*dt3_3   + bin8*dt8_3
             blockout(i, 4,g,j) = bin1*dt1_4   + bin4*dt4_4    +
      &                           bin11*dt11_4
+          enddo
+        enddo
+      enddo
+      end
+*.......................................................................
+      subroutine spcart_sh_a(blockin, blockout, ndima, ngls,
+     &    in_place, print_info)
+      implicit none
+c
+c  transforms a block of integrals where the h function is the fastest dimension
+c  e.g., blockin(21,ndima) and blockout(11,ndima)
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "spcartP.fh"
+c
+c: passed
+      integer ndima  ! [input] leading dimension of block
+      integer ngls   ! [input] general contraction length of ls block
+      double precision blockin (21,ngls,ndima)   ! [input] matrix 
+      double precision blockout(-5:5,ngls,ndima) ! [output] matrix 
+      logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical print_info ! [input] print info
+c: local
+      integer i,g
+      double precision dt2_m5, dt7_m5, dt16_m5, dt5_m4, dt12_m4, dt2_m3
+      double precision dt7_m3, dt9_m3, dt16_m3, dt18_m3, dt5_m2, dt12_m2
+      double precision dt14_m2, dt2_m1, dt7_m1, dt9_m1, dt16_m1, dt18_m1
+      double precision dt20_m1, dt3_0, dt8_0, dt10_0, dt17_0, dt19_0
+      double precision dt21_0, dt1_1, dt4_1, dt6_1, dt11_1, dt13_1 
+      double precision dt15_1, dt3_2, dt10_2, dt17_2, dt19_2, dt1_3
+      double precision dt4_3, dt6_3, dt11_3, dt13_3, dt3_4, dt8_4
+      double precision dt17_4, dt1_5, dt4_5, dt11_5
+      double precision bin1, bin2, bin3, bin4, bin5, bin6 
+      double precision bin7, bin8, bin9, bin10
+      double precision bin11, bin12, bin13, bin14, bin15
+      double precision bin16, bin17, bin18, bin19, bin20, bin21
+*rak:      integer ls     ! [fixed at 5] angular momentum of block
+c::statement function ----- start
+      integer iic,iis,iil
+      double precision Dtrans
+      Dtrans(iic,iis,iil) =
+     &    dbl_mb((int_mb(k_sp2c_lindx+iil))+
+     &           ((iis+iil)*(iil+1)*(iil+2)/2)
+     &           + iic - 1)
+c::statement function ----- end
+c
+*rak:      ls=5
+*rak:      write(6,*)'a_s,(ndima,l2s) ndima = ',ndima,'   ls = ',ls
+*rak:      write(6,*)' trans matrix used '
+*rak:      call output(dbl_mb((int_mb(k_sp2c_lindx+ls))),1,
+*rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
+*rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
+c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_sh_a: spcart not initialized properly',
+     &    sph_cart_init, UNKNOWN_ERR)
+c
+      if (in_place) then
+        write (6,*)' in place transformations are not ready yet '
+      endif
+c
+c  spint(-5) = cint(2)*dtrans(2,-5,5) + cint(7)*dtrans(7,-5,5) + cint(16)*dtrans(16,-5,5)
+c  spint(-4) = cint(5)*dtrans(5,-4,5) + cint(12)*dtrans(12,-4,5)
+c  spint(-3) = cint(2)*dtrans(2,-3,5) + cint(7)*dtrans(7,-3,5) + cint(9)*dtrans(9,-3,5)
+c            + cint(16)*dtrans(16,-3,5) + cint(18)*dtrans(18,-3,5)
+c  spint(-2) = cint(5)*dtrans(5,-2,5) + cint(12)*dtrans(12,-2,5) + cint(14)*dtrans(14,-2,5)
+c  spint(-1) = cint(2)*dtrans(2,-1,5) + cint(7)*dtrans(7,-1,5) + cint(9)*dtrans(9,-1,5)
+c            + cint(16)*dtrans(16,-1,5) + cint(18)*dtrans(18,-1,5) + cint(20)*dtrans(20,-1,5) 
+c  spint( 0) = cint(3)*dtrans(3,0,5) + cint(8)*dtrans(8,0,5) + cint(10)*dtrans(10,0,5)
+c            + cint(17)*dtrans(17,0,5) + cint(19)*dtrans(19,0,5) + cint(21)*dtrans(21,0,5) 
+c  spint( 1) = cint(1)*dtrans(1,1,5)   + cint(4)*dtrans(4,1,5)   + cint(6)*dtrans(6,1,5)
+c            + cint(11)*dtrans(11,1,5) + cint(13)*dtrans(13,1,5) + cint(15)*dtrans(15,1,5)
+c  spint( 2) = cint(3)*dtrans(3,2,5) + cint(10)*dtrans(10,2,5) + cint(17)*dtrans(17,2,5)
+c            + cint(19)*dtrans(19,2,5)
+c  spint( 3) = cint(1)*dtrans(1,3,5) + cint(4)*dtrans(4,3,5) + cint(6)*dtrans(6,3,5)
+c            + cint(11)*dtrans(11,3,5) + cint(13)*dtrans(13,3,5)
+c  spint( 4) = cint(3)*dtrans(3,4,5) + cint(8)*dtrans(8,4,5) + cint(17)*dtrans(17,4,5)
+c  spint( 5) = cint(1)*dtrans(1,4,5) + cint(4)*dtrans(4,4,5) + cint(11)*dtrans(11,4,5)
+c
+      dt2_m5  = dtrans(2,-5,5)
+      dt7_m5  = dtrans(7,-5,5)
+      dt16_m5 = dtrans(16,-5,5)
+      dt5_m4  = dtrans(5,-4,5)     
+      dt12_m4 = dtrans(12,-4,5)    
+      dt2_m3  = dtrans(2,-3,5)     
+      dt7_m3  = dtrans(7,-3,5)     
+      dt9_m3  = dtrans(9,-3,5)     
+      dt16_m3 = dtrans(16,-3,5)
+      dt18_m3 = dtrans(18,-3,5)
+      dt5_m2  = dtrans(5,-2,5)     
+      dt12_m2 = dtrans(12,-2,5)    
+      dt14_m2 = dtrans(14,-2,5)    
+      dt2_m1  = dtrans(2,-1,5)
+      dt7_m1  = dtrans(7,-1,5)
+      dt9_m1  = dtrans(9,-1,5)
+      dt16_m1 = dtrans(16,-1,5)
+      dt18_m1 = dtrans(18,-1,5)
+      dt20_m1 = dtrans(20,-1,5)
+      dt3_0   = dtrans(3,0,5)      
+      dt8_0   = dtrans(8,0,5)      
+      dt10_0  = dtrans(10,0,5)     
+      dt17_0  = dtrans(17,0,5)     
+      dt19_0  = dtrans(19,0,5)     
+      dt21_0  = dtrans(21,0,5)     
+      dt1_1   = dtrans(1,1,5)      
+      dt4_1   = dtrans(4,1,5)      
+      dt6_1   = dtrans(6,1,5)      
+      dt11_1  = dtrans(11,1,5)     
+      dt13_1  = dtrans(13,1,5)     
+      dt15_1  = dtrans(15,1,5)     
+      dt3_2   = dtrans(3,2,5)      
+      dt10_2  = dtrans(10,2,5)     
+      dt17_2  = dtrans(17,2,5)     
+      dt19_2  = dtrans(19,2,5)     
+      dt1_3   = dtrans(1,3,5)      
+      dt4_3   = dtrans(4,3,5)      
+      dt6_3   = dtrans(6,3,5)      
+      dt11_3  = dtrans(11,3,5)     
+      dt13_3  = dtrans(13,3,5)                 
+      dt3_4   = dtrans(3,4,5)      
+      dt8_4   = dtrans(8,4,5)      
+      dt17_4  = dtrans(17,4,5)      
+      dt1_5   = dtrans(1,5,5)      
+      dt4_5   = dtrans(4,5,5)      
+      dt11_5  = dtrans(11,5,5)     
+      do i=1,ndima
+        do g=1,ngls
+          bin1  = blockin( 1,g,i)
+          bin2  = blockin( 2,g,i)
+          bin3  = blockin( 3,g,i)
+          bin4  = blockin( 4,g,i)
+          bin5  = blockin( 5,g,i)
+          bin6  = blockin( 6,g,i)
+          bin7  = blockin( 7,g,i)
+          bin8  = blockin( 8,g,i)
+          bin9  = blockin( 9,g,i)
+          bin10 = blockin(10,g,i)
+          bin11 = blockin(11,g,i)
+          bin12 = blockin(12,g,i)
+          bin13 = blockin(13,g,i)
+          bin14 = blockin(14,g,i)
+          bin15 = blockin(15,g,i)
+          bin16 = blockin(16,g,i)
+          bin17 = blockin(17,g,i)
+          bin18 = blockin(18,g,i)
+          bin19 = blockin(19,g,i)
+          bin20 = blockin(20,g,i)
+          bin21 = blockin(21,g,i)
+c
+          blockout(-5,g,i) = bin2*dt2_m5  + bin7*dt7_m5   +
+     &                       bin16*dt16_m5
+          blockout(-4,g,i) = bin5*dt5_m4  + bin12*dt12_m4 
+          blockout(-3,g,i) = bin2*dt2_m3  + bin7*dt7_m3   +
+     &                       bin9*dt9_m3  + bin16*dt16_m3 +
+     &                       bin18*dt18_m3
+          blockout(-2,g,i) = bin5*dt5_m2  + bin12*dt12_m2 +
+     &                       bin14*dt14_m2
+          blockout(-1,g,i) = bin2*dt2_m1  + bin7*dt7_m1   +
+     &                       bin9*dt9_m1  + bin16*dt16_m1 +
+     &                       bin18*dt18_m1+ bin20*dt20_m1
+          blockout( 0,g,i) = bin3*dt3_0   + bin8*dt8_0    +
+     &                       bin10*dt10_0 + bin17*dt17_0  +
+     &                       bin19*dt19_0 + bin21*dt21_0
+          blockout( 1,g,i) = bin1*dt1_1   + bin4*dt4_1    +
+     &                       bin6*dt6_1   + bin11*dt11_1  +
+     &                       bin13*dt13_1 + bin15*dt15_1
+          blockout( 2,g,i) = bin3*dt3_2   + bin10*dt10_2  +
+     &                       bin17*dt17_2 + bin19*dt19_2
+          blockout( 3,g,i) = bin1*dt1_3   + bin4*dt4_3    +
+     &                       bin6*dt6_3   + bin11*dt11_3  +
+     &                       bin13*dt13_3
+          blockout( 4,g,i) = bin3*dt3_4   + bin8*dt8_4    +
+     &                       bin17*dt17_4
+          blockout( 5,g,i) = bin1*dt1_5   + bin4*dt4_5    +
+     &                       bin11*dt11_5
+        enddo
+      enddo
+      end
+*.......................................................................
+      subroutine spcart_a_sh_b(blockin, blockout,
+     &    ndima, ndimb, ngls, in_place, print_info)
+      implicit none
+c
+c  transforms a block of integrals where the g function is the middle dimension
+c  e.g., blockin(ndima,21,ndimb) and blockout(ndima,11,ndimb)
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "spcartP.fh"
+c
+c: passed
+      integer ndima  ! [input] leading dimension of block
+      integer ndimb  ! [input] trailing dimension of block
+      integer ngls   ! [input] general contraction length of ls block
+      double precision blockin (ndima,21,ngls,ndimb)   ! [input] matrix 
+      double precision blockout(ndima,-5:5,ngls,ndimb) ! [output] matrix 
+      logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical print_info ! [input] print info
+c: local
+      integer i,j,g
+      double precision dt2_m5, dt7_m5, dt16_m5, dt5_m4, dt12_m4, dt2_m3
+      double precision dt7_m3, dt9_m3, dt16_m3, dt18_m3, dt5_m2, dt12_m2
+      double precision dt14_m2, dt2_m1, dt7_m1, dt9_m1, dt16_m1, dt18_m1
+      double precision dt20_m1, dt3_0, dt8_0, dt10_0, dt17_0, dt19_0
+      double precision dt21_0, dt1_1, dt4_1, dt6_1, dt11_1, dt13_1 
+      double precision dt15_1, dt3_2, dt10_2, dt17_2, dt19_2, dt1_3
+      double precision dt4_3, dt6_3, dt11_3, dt13_3, dt3_4, dt8_4
+      double precision dt17_4, dt1_5, dt4_5, dt11_5
+      double precision bin1, bin2, bin3, bin4, bin5, bin6 
+      double precision bin7, bin8, bin9, bin10
+      double precision bin11, bin12, bin13, bin14, bin15
+      double precision bin16, bin17, bin18, bin19, bin20, bin21
+*rak:      integer ls     ! [fixed at 5] angular momentum of block
+c::statement function ----- start
+      integer iic,iis,iil
+      double precision Dtrans
+      Dtrans(iic,iis,iil) =
+     &    dbl_mb((int_mb(k_sp2c_lindx+iil))+
+     &           ((iis+iil)*(iil+1)*(iil+2)/2)
+     &           + iic - 1)
+c::statement function ----- end
+c
+*rak:      ls=5
+*rak:      write(6,*)'a_s,(ndima,l2s) ndima = ',ndima,'   ls = ',ls
+*rak:      write(6,*)' trans matrix used '
+*rak:      call output(dbl_mb((int_mb(k_sp2c_lindx+ls))),1,
+*rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
+*rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
+c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_a_sh_b: spcart not initialized properly',
+     &    sph_cart_init, UNKNOWN_ERR)
+c
+      if (in_place) then
+        write (6,*)' in place transformations are not ready yet '
+      endif
+c
+c  spint(-5) = cint(2)*dtrans(2,-5,5) + cint(7)*dtrans(7,-5,5) + cint(16)*dtrans(16,-5,5)
+c  spint(-4) = cint(5)*dtrans(5,-4,5) + cint(12)*dtrans(12,-4,5)
+c  spint(-3) = cint(2)*dtrans(2,-3,5) + cint(7)*dtrans(7,-3,5) + cint(9)*dtrans(9,-3,5)
+c            + cint(16)*dtrans(16,-3,5) + cint(18)*dtrans(18,-3,5)
+c  spint(-2) = cint(5)*dtrans(5,-2,5) + cint(12)*dtrans(12,-2,5) + cint(14)*dtrans(14,-2,5)
+c  spint(-1) = cint(2)*dtrans(2,-1,5) + cint(7)*dtrans(7,-1,5) + cint(9)*dtrans(9,-1,5)
+c            + cint(16)*dtrans(16,-1,5) + cint(18)*dtrans(18,-1,5) + cint(20)*dtrans(20,-1,5) 
+c  spint( 0) = cint(3)*dtrans(3,0,5) + cint(8)*dtrans(8,0,5) + cint(10)*dtrans(10,0,5)
+c            + cint(17)*dtrans(17,0,5) + cint(19)*dtrans(19,0,5) + cint(21)*dtrans(21,0,5) 
+c  spint( 1) = cint(1)*dtrans(1,1,5)   + cint(4)*dtrans(4,1,5)   + cint(6)*dtrans(6,1,5)
+c            + cint(11)*dtrans(11,1,5) + cint(13)*dtrans(13,1,5) + cint(15)*dtrans(15,1,5)
+c  spint( 2) = cint(3)*dtrans(3,2,5) + cint(10)*dtrans(10,2,5) + cint(17)*dtrans(17,2,5)
+c            + cint(19)*dtrans(19,2,5)
+c  spint( 3) = cint(1)*dtrans(1,3,5) + cint(4)*dtrans(4,3,5) + cint(6)*dtrans(6,3,5)
+c            + cint(11)*dtrans(11,3,5) + cint(13)*dtrans(13,3,5)
+c  spint( 4) = cint(3)*dtrans(3,4,5) + cint(8)*dtrans(8,4,5) + cint(17)*dtrans(17,4,5)
+c  spint( 5) = cint(1)*dtrans(1,4,5) + cint(4)*dtrans(4,4,5) + cint(11)*dtrans(11,4,5)
+c
+      dt2_m5  = dtrans(2,-5,5)     
+      dt7_m5  = dtrans(7,-5,5)     
+      dt16_m5 = dtrans(16,-5,5)
+      dt5_m4  = dtrans(5,-4,5)     
+      dt12_m4 = dtrans(12,-4,5)    
+      dt2_m3  = dtrans(2,-3,5)     
+      dt7_m3  = dtrans(7,-3,5)     
+      dt9_m3  = dtrans(9,-3,5)     
+      dt16_m3 = dtrans(16,-3,5)
+      dt18_m3 = dtrans(18,-3,5)
+      dt5_m2  = dtrans(5,-2,5)     
+      dt12_m2 = dtrans(12,-2,5)    
+      dt14_m2 = dtrans(14,-2,5)    
+      dt2_m1  = dtrans(2,-1,5)
+      dt7_m1  = dtrans(7,-1,5)
+      dt9_m1  = dtrans(9,-1,5)
+      dt16_m1 = dtrans(16,-1,5)
+      dt18_m1 = dtrans(18,-1,5)
+      dt20_m1 = dtrans(20,-1,5)
+      dt3_0   = dtrans(3,0,5)      
+      dt8_0   = dtrans(8,0,5)      
+      dt10_0  = dtrans(10,0,5)     
+      dt17_0  = dtrans(17,0,5)     
+      dt19_0  = dtrans(19,0,5)     
+      dt21_0  = dtrans(21,0,5)     
+      dt1_1   = dtrans(1,1,5)      
+      dt4_1   = dtrans(4,1,5)      
+      dt6_1   = dtrans(6,1,5)      
+      dt11_1  = dtrans(11,1,5)     
+      dt13_1  = dtrans(13,1,5)     
+      dt15_1  = dtrans(15,1,5)     
+      dt3_2   = dtrans(3,2,5)      
+      dt10_2  = dtrans(10,2,5)     
+      dt17_2  = dtrans(17,2,5)     
+      dt19_2  = dtrans(19,2,5)     
+      dt1_3   = dtrans(1,3,5)      
+      dt4_3   = dtrans(4,3,5)      
+      dt6_3   = dtrans(6,3,5)      
+      dt11_3  = dtrans(11,3,5)     
+      dt13_3  = dtrans(13,3,5)                 
+      dt3_4   = dtrans(3,4,5)      
+      dt8_4   = dtrans(8,4,5)      
+      dt17_4  = dtrans(17,4,5)      
+      dt1_5   = dtrans(1,5,5)      
+      dt4_5   = dtrans(4,5,5)      
+      dt11_5  = dtrans(11,5,5)     
+      do j=1,ndimb
+        do g=1,ngls
+          do i=1,ndima
+            bin1  = blockin(i, 1,g,j)
+            bin2  = blockin(i, 2,g,j)
+            bin3  = blockin(i, 3,g,j)
+            bin4  = blockin(i, 4,g,j)
+            bin5  = blockin(i, 5,g,j)
+            bin6  = blockin(i, 6,g,j)
+            bin7  = blockin(i, 7,g,j)
+            bin8  = blockin(i, 8,g,j)
+            bin9  = blockin(i, 9,g,j)
+            bin10 = blockin(i,10,g,j)
+            bin11 = blockin(i,11,g,j)
+            bin12 = blockin(i,12,g,j)
+            bin13 = blockin(i,13,g,j)
+            bin14 = blockin(i,14,g,j)
+            bin15 = blockin(i,15,g,j)
+            bin16 = blockin(i,16,g,j)
+            bin17 = blockin(i,17,g,j)
+            bin18 = blockin(i,18,g,j)
+            bin19 = blockin(i,19,g,j)
+            bin20 = blockin(i,20,g,j)
+            bin21 = blockin(i,21,g,j)
+c
+            blockout(i,-5,g,j) = bin2*dt2_m5  + bin7*dt7_m5   +
+     &                           bin16*dt16_m5
+            blockout(i,-4,g,j) = bin5*dt5_m4  + bin12*dt12_m4 
+            blockout(i,-3,g,j) = bin2*dt2_m3  + bin7*dt7_m3   +
+     &                           bin9*dt9_m3  + bin16*dt16_m3 +
+     &                           bin18*dt18_m3
+            blockout(i,-2,g,j) = bin5*dt5_m2  + bin12*dt12_m2 +
+     &                           bin14*dt14_m2
+            blockout(i,-1,g,j) = bin2*dt2_m1  + bin7*dt7_m1   +
+     &                           bin9*dt9_m1  + bin16*dt16_m1 +
+     &                           bin18*dt18_m1+ bin20*dt20_m1
+            blockout(i, 0,g,j) = bin3*dt3_0   + bin8*dt8_0    +
+     &                           bin10*dt10_0 + bin17*dt17_0  +
+     &                           bin19*dt19_0 + bin21*dt21_0
+            blockout(i, 1,g,j) = bin1*dt1_1   + bin4*dt4_1    +
+     &                           bin6*dt6_1   + bin11*dt11_1  +
+     &                           bin13*dt13_1 + bin15*dt15_1
+            blockout(i, 2,g,j) = bin3*dt3_2   + bin10*dt10_2  +
+     &                           bin17*dt17_2 + bin19*dt19_2
+            blockout(i, 3,g,j) = bin1*dt1_3   + bin4*dt4_3    +
+     &                           bin6*dt6_3   + bin11*dt11_3  +
+     &                           bin13*dt13_3
+            blockout(i, 4,g,j) = bin3*dt3_4   + bin8*dt8_4    +
+     &                           bin17*dt17_4
+            blockout(i, 5,g,j) = bin1*dt1_5   + bin4*dt4_5    +
+     &                           bin11*dt11_5
           enddo
         enddo
       enddo
