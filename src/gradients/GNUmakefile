@@ -1,15 +1,14 @@
-# $Id: GNUmakefile,v 1.28 1997-03-25 21:21:56 d3e129 Exp $
+# $Id: GNUmakefile,v 1.29 1997-06-24 15:56:24 d3g681 Exp $
 
- OBJ = gradients.o grad_force.o grad1.o scf_gradient.o grad_getdens.o \
-       grad_dens.o grad_store.o grad_inp.o
- OBJ_OPTIMIZE = 
+ OBJ = gradients.o grad_force.o grad1.o scf_gradient.o  \
+       grad_dens.o grad_inp.o ga_reorder.o
+ OBJ_OPTIMIZE = grad2.o grad_getdens.o
 
-ifeq ($(TARGET),SGITFP)
- OBJ += grad2.o
-else
+#ifeq ($(TARGET),SGITFP)
+# OBJ += grad2.o
+#else
 # OBJ_OPTIMIZE += grad2.
- OBJ += grad2.o
-endif
+#endif
 
    USES_BLAS = grad2.F
 

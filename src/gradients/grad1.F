@@ -2,7 +2,7 @@
      $                   frc_kin, frc_wgh, g_force,
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
      $                   max_at_bf, rtdb, oskel )
-c$Id: grad1.F,v 1.13 1996-09-19 16:58:05 vg038 Exp $
+c$Id: grad1.F,v 1.14 1997-06-24 15:56:20 d3g681 Exp $
 
 C     one electron contribution to RHF, ROHF and UHF gradients
 C     now also UMP2
@@ -40,7 +40,7 @@ C-------------------------local variables--------------------------
       integer ijatom, next, iat1, iat2, iat3, ish1, ish2,
      $     iab1f, iab1l, iab2f, iab2l, iac1f, iac1l, iac2f, iac2l,
      $     if1, il1, if2, il2,
-     $     icart, ic, nint, ip1, ip2, i, j
+     $     icart, ic, nint, ip1, ip2
 
       double precision crd1, crd2 ! atomic coordinates
       dimension crd1(3), crd2(3)

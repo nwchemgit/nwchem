@@ -1,544 +1,351 @@
-      subroutine grad2(d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
-     $  d_ij2, d_kl2, d_ik2, d_jl2, d_il2, d_jk2, 
-     $  d_ij3, d_kl3, d_ik3, d_jl3, d_il3, d_jk3, 
-     $  d_ij4, d_kl4, d_ik4, d_jl4, d_il4, d_jk4, 
-     $  frc, g_dens, g_force, ldim,
-     $  rtdb, geom, basis, 
-     $  nproc, nat, scr, lscr, buf, lbuf, tol2e,
-     $  s34, oactive, oskel, scftype, omp2,
-     $  pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,maxsh,nopen,nbf)
-c     $Id: grad2.F,v 1.22 1997-03-21 02:00:48 d3g681 Exp $
-
+      subroutine grad2(
+     $     d_ij,  d_kl,  d_ik,  d_jl,  d_il,  d_jk, 
+     $     d_ij2, d_kl2, d_ik2, d_jl2, d_il2, d_jk2, 
+     $     d_ij3, d_kl3, d_ik3, d_jl3, d_il3, d_jk3, 
+     $     d_ij4, d_kl4, d_ik4, d_jl4, d_il4, d_jk4, 
+     $     frc, g_dens, g_force, blen, geom, basis, 
+     $     nproc, nat, lscr, scr, leri, eri, labels, 
+     $     maxq, list, q4, tol2e,
+     $     nsh, oactive, oskel, scftype, omp2,
+     $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
+     $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
+     $     bftoat, shbflo, shbfhi)
+c     $Id: grad2.F,v 1.23 1997-06-24 15:56:21 d3g681 Exp $
       implicit none
-c     
-c     NOTE FOR EMACS USERS ... due to the deep nesting of do/if
-c     in this routine indent it using identation variables
-c     IF=1, DO=1, CONTINUATION=2
-c     
-
 #include "sym.fh"
-#include "mafdecls.fh"
 #include "global.fh"
-#include "bas.fh"
 #include "schwarz.fh"
-#include "rtdb.fh"
 #include "util.fh"
-
+#include "bas.fh"
 C-----------------------parameters---------------------------------
-      integer ldim,             ! max dimension of density block
-     $  g_dens(3),              ! array of global density handles
-     $  g_force,                ! total gradients(global)
-     $  rtdb, basis, geom,      ! handles
-     $  nproc, nat, lscr, lbuf
-
-c     FOR MCSCF ONLY
-      integer nopen, maxsh, nbf
-      double precision pdm2(nopen,nopen,nopen,nopen)
-      double precision pdm2a(nopen,nopen,nopen,maxsh)
-      double precision pdm2b(nopen,nopen,maxsh,maxsh)
-      double precision pdm2c(nopen,maxsh,maxsh,maxsh)
-
-c     FOR EVERYONE
-      double precision pdm2d(maxsh*maxsh*maxsh*maxsh)
-      double precision coeff(nbf,nopen)
+      double precision          ! [scratch] 6 blocks per possible density
+     $     d_ij(blen,blen),  d_kl(blen,blen),  d_ik(blen,blen),
+     $     d_jl(blen,blen),  d_il(blen,blen),  d_jk(blen,blen),
+     $     d_ij2(blen,blen), d_kl2(blen,blen), d_ik2(blen,blen), 
+     $     d_jl2(blen,blen), d_il2(blen,blen), d_jk2(blen,blen),
+     $     d_ij3(blen,blen), d_kl3(blen,blen), d_ik3(blen,blen), 
+     $     d_jl3(blen,blen), d_il3(blen,blen), d_jk3(blen,blen),
+     $     d_ij4(blen,blen), d_kl4(blen,blen), d_ik4(blen,blen), 
+     $     d_jl4(blen,blen), d_il4(blen,blen), d_jk4(blen,blen)
 c     
-
-      double precision tol2e
-
-      double precision scr(lscr), buf(lbuf), frc(3, nat), s34(nat),
-     $  d_ij(ldim,ldim),d_kl(ldim,ldim),d_ik(ldim,ldim),
-     $  d_jl(ldim,ldim),d_il(ldim,ldim),d_jk(ldim,ldim),
-     $  d_ij2(ldim,ldim), d_kl2(ldim,ldim),
-     $  d_ik2(ldim,ldim), d_jl2(ldim,ldim),
-     $  d_il2(ldim,ldim), d_jk2(ldim,ldim),
-     $  d_ij3(ldim,ldim), d_kl3(ldim,ldim),
-     $  d_ik3(ldim,ldim), d_jl3(ldim,ldim),
-     $  d_il3(ldim,ldim), d_jk3(ldim,ldim),
-     $  d_ij4(ldim,ldim), d_kl4(ldim,ldim),
-     $  d_ik4(ldim,ldim), d_jl4(ldim,ldim),
-     $  d_il4(ldim,ldim), d_jk4(ldim,ldim)
-
-
-      logical oactive(nat), oskel, omp2
-
-      double precision scale
-
-      character*(*) scftype
-
+      integer nat               ! [input] no. of atoms
+      double precision frc(3, nat) ! [input/output] 2-e piece of gradient
+      integer g_dens(*)         ! [input] array of global density handles
+      integer g_force           ! [input] handle to total gradients (global)
+      integer blen              ! [input] max dimension of density block
+      integer basis, geom       ! [input] familiar handles
+      integer nproc             ! [input] No. of processors
+      integer lscr              ! [input] Size of scratch for integrals
+      double precision scr(lscr) ![scratch] Scratch space for integrals
+      integer leri              ! [input] Size of eri buffer
+      double precision eri(3,4,leri) ! [scratch] Derivative integral buffer
+      integer labels(leri,4)    ! [scratch] Labels for integrals
+      integer maxq              ! [input] Max. no. of shell quartets
+      integer list(maxq,4)      ! [scratch] Buffer for shell labels
+      double precision q4(maxq) ! [scratch] Buffer for quartet prefactors
+      double precision tol2e    ! [input] Integral screening threshold
+      integer nsh               ! [input] Number of shells
+      logical oactive(*)        ! [input] T if atom is active
+      logical oskel             ! [input] T is using petite list symmetry
+      character*(*) scftype     ! [input] SCF wavefunction uhf/rohf/rhf/mcscf
+      logical omp2              ! [input] T if doing MP2
+      integer nopen             ! [input] No. of MCSCF active orbitals
+      integer nbf               ! [input] No. of basis functions (MCSCF)
+      double precision pdm2(nopen,nopen,nopen,nopen) ! [scratch] MCSCF buffer
+      double precision pdm2a(nopen,nopen,nopen,blen) ! [scratch] MCSCF buffer
+      double precision pdm2b(nopen,nopen,blen,blen) ! [scratch] MCSCF buffer
+      double precision pdm2c(nopen,blen,blen,blen) ! [scratch] MCSCF buffer
+      double precision coeff(nbf,nopen) ! [input] MCSCF active space MOs
+      double precision pdm2d(blen,blen,blen,blen) ! [scratch] AO 2-pdm
+      integer nshblocks         ! [input] No. of shell blocks
+      integer shmap(nsh)        ! [input] Map from new to old shell order
+      integer shglo(nshblocks)  ! [input] First new shell in block
+      integer shghi(nshblocks)  ! [input] Last new shell in block
+      integer bfglo(nshblocks)  ! [input] First new basis func in block
+      integer bfghi(nshblocks)  ! [input] Last new basis func in block
+      integer bfmap(nbf)        ! [input] Map from new to old basis func order
+      integer rbfmap(nbf)       ! [input] Map from old to new basis func order
+      integer bftoat(nbf)       ! [input] Map from old basis func to atom
+      integer shbflo(nsh)       ! [input] First new bf in new shell
+      integer shbfhi(nsh)       ! [input] Last new bf in new shell
 C-------------------------local variables-----------------------------
-      integer i, ijatom, next, icart, idatom(4), icount,
-     $  iat1, iat2, iat3, iat4, ihi4, ish1, ish2, ish3, ish4,
-     $  iab1f, iab1l, iab2f, iab2l, iab3f, iab3l, iab4f, iab4l, 
-     $  iac1f, iac1l, iac2f, iac2l, iac3f, iac3l, iac4f, iac4l,
-     $  itop3, itop4, if1, il1, if2, il2, if3, il3, if4, il4,
-     $  ip1, ip2, ip3, ip4, nshbfp, nshbfq, Nint,
-     $  chktime, ndone
-      integer id1, id2, id3, id4
+      integer  next, nint, ijklblock
+      double precision scale, q4max
 
       integer nxtask, task_size
       external nxtask
 
-      double precision dE, den2, q4, q2, s12, half, quart, eigh, sixh
-      double precision s1234, psum
-
-      logical status, oij, okl, oikjl, oschwarz12, osym, ouhf, orohf,
-     $  ochkpt, oskip, ofinish, grad_restart, omcscf
-      external grad_restart
-
-      parameter(half = 0.5D0,
-     $  quart= 0.25D0,
-     $  eigh = 0.125D0,
-     $  sixh = 0.0625D0)
-
+      double precision psum
+      integer i, j, k, l
+      integer iilo, jjlo, kklo, lllo
+      integer iihi, jjhi, kkhi, llhi
+      integer ish, jsh, ksh, lsh, idim, jdim, kdim, ldim
+      integer ibflo, ibfhi, jbflo, jbfhi, kbflo, kbfhi, lbflo, lbfhi
+      integer ishlo, ishhi, jshlo, jshhi, kshlo, kshhi, lshlo, lshhi
+      integer lblockhi, jshtop, kshtop, lshtop
+      integer ishblock, jshblock, kshblock, lshblock
+      integer iish, jjsh, kksh, llsh, iiat, iat
+      integer nq, integ, atoms(4), numq
+      double precision q4max, smax, sij, sijkl, block_eff, p
       
-#if defined(REPORT_LOOP)
-      logical reportit
-      character*26 date_string
-#endif
+      integer ibflo_prev, jbflo_prev, kbflo_prev ! for caching
+      
+      logical oij, okl, oikjl, ouhf, orohf, omcscf, omore, odoit
+      logical intbd_init4c, intbd_2e4c
+      external intbd_init4c, intbd_2e4c
+c
+      smax  = schwarz_max()
+      q4max = 8.0d0*(sym_number_ops(geom) + 1)*100.0d0 ! 100 for max(psum)
 
-      if (.not. bas_geom(basis, geom)) 
-     $  call errquit('grad2: bad basis',0)
+      ibflo_prev = -1
+      jbflo_prev = -1
+      kbflo_prev = -1
 
 c     MCSCF is the same as RHF except for the 2pdm piece
+
+      numq = 0
 
       omcscf= (scftype .eq. 'MCSCF')
       ouhf  = (scftype .eq. 'UHF')
       orohf = (scftype .eq. 'ROHF')
 
-      q4 = 1.0d0                ! If not using symmetry
-
-      call fock_2e_est_task(geom, oskel, tol2e, task_size)
-
-C     is this a restart run?
-      oskip = grad_restart(rtdb, geom, basis, nat, ndone, frc, 
-     $  g_force)
-
-C     checkpointing requested?
-      ochkpt = rtdb_get(rtdb, 'gradients:checkpoint', mt_int, 1, 
-     $  chktime)
-
-      if (ochkpt) then
-C     convert to seconds
-       chktime = chktime * 60
-       ofinish = .false.
-       call grad_store(rtdb, geom, g_force, chktime, nat, 0, frc, 
-     $   .true., ofinish, oactive, oskel, omp2)
-      end if
-
-      if (ochkpt .or. oskip) then
-C     at the moment checkpointing works only with task_size == 1
-C     override fock_2e_est_task
-       task_size = 1
-      end if
-
-      ijatom = -1
-      next = nxtask(nproc,task_size)
-      do iat3 = nat, 1, -1
-#if defined(REPORT_LOOP)
-       if (ga_nodeid().eq.0) then
-        reportit = mod(iat3,10).eq.0
-        reportit = reportit.or.(iat3.eq.1)
-        reportit = reportit.or.(iat3.eq.nat)
-        if (reportit) then
-         call util_date(date_string)
-         write(6,*) 'grad2: atom =',iat3,' ',date_string
-         call util_flush(6)
-        end if
-       end if
-#endif
-       do iat4 = 1, iat3
-        s34(iat4) = schwarz_atom(iat3,iat4) ! Precompute
-       end do
-       
-       do iat1 = nat, iat3, -1  ! Want canonical atom list for symmetry
-        do iat2 = iat1, 1, -1
-
-         s12 = schwarz_atom(iat1,iat2)
-         oschwarz12 = (s12*schwarz_max().ge.tol2e)
-C     
-         if (oschwarz12 .and. oskel) then
-          oschwarz12 = sym_atom_pair(geom, iat1, iat2, q2)
-         end if
-c     
-         if (oschwarz12) then
-          ihi4 = iat3
-          if (iat1.eq.iat3) ihi4 = iat2
-          do iat4 = 1, ihi4
-
-C     check if all atoms are inactive
-           if (.not.oactive(iat1) .and. .not.oactive(iat2) .and.
-     $       .not.oactive(iat3) .and. .not.oactive(iat4))
-     $       goto 1020
-
-           if (s12 * s34(iat4) .lt. tol2e) goto 1020
-
-           if (oskel) then
-            osym = sym_atom_quartet(geom,
-     $        iat1, iat2, iat3, iat4, q4)
-            if (.not. osym) goto 1020
-           end if
-
-           status = bas_ce2bfr(basis,iat1,iab1f,iab1l)
-           if (.not.status) 
-     $       call errquit('grad2: error with bas_ce2bfr',0)
-           status = bas_ce2bfr(basis,iat2,iab2f,iab2l)
-           if (.not.status) 
-     $       call errquit('grad2: error with bas_ce2bfr',0)
-           status = bas_ce2bfr(basis,iat3,iab3f,iab3l)
-           if (.not.status) 
-     $       call errquit('grad2: error with bas_ce2bfr',0)
-           status = bas_ce2bfr(basis,iat4,iab4f,iab4l)
-           if (.not.status) 
-     $       call errquit('grad2: error with bas_ce2bfr',0)
-
-           if (iab1f.le.0 .or. iab2f.le.0 .or. iab3f.le.0 .or.
-     $       iab4f.le.0) then
-c     
-c     At least one center has no functions on it ... next atom
-c     
-            goto 1020
-           end if
-
-           status = bas_ce2cnr(basis,iat1,iac1f,iac1l)
-           if (.not.status) 
-     $       call errquit('grad2: error with bas_ce2cnr',0)
-           status = bas_ce2cnr(basis,iat2,iac2f,iac2l)
-           if (.not.status) 
-     $       call errquit('grad2: error with bas_ce2cnr',0)
-           status = bas_ce2cnr(basis,iat3,iac3f,iac3l)
-           if (.not.status) 
-     $       call errquit('grad2: error with bas_ce2cnr',0)
-           status = bas_ce2cnr(basis,iat4,iac4f,iac4l)
-           if (.not.status) 
-     $       call errquit('grad2: error with bas_ce2cnr',0)
-
-           ijatom = ijatom + 1
-C     in case of restart skip loop until last calculated atom quadruple
-           if (oskip) then
-            if (ijatom .eq. ndone) then
-             oskip = .false.
-             ijatom = -1        ! nxtval(or nxtask) starts with 0
-C     compensate for ijatom starting with 0
-             ndone = ndone + 1
-            end if
-            goto 1020
-           end if
-
-           if (next .eq. ijatom) then
-
-C     get density matrix blocks
-            if (.not. omp2) then
-             if (ouhf) then
-              call grad_get_dens_uhf(d_ij, d_kl, d_ik, 
-     $          d_jl, d_il, d_jk,
-     $          d_ik2, d_jl2, d_il2, d_jk2, ldim, 
-     $          iab1f, iab1l, iab2f, iab2l, 
-     $          iab3f, iab3l, iab4f, iab4l,
-     $          g_dens)
-             else if (orohf) then
-              call grad_get_dens_rohf(d_ij, d_kl, d_ik, 
-     $          d_jl, d_il, d_jk,
-     $          d_ij2, d_kl2, d_ik2, 
-     $          d_jl2, d_il2, d_jk2, ldim, 
-     $          iab1f, iab1l, iab2f, iab2l, 
-     $          iab3f, iab3l, iab4f, iab4l,
-     $          g_dens)
-             else
-              call grad_get_dens(d_ij, d_kl, d_ik, 
-     $          d_jl, d_il, d_jk, ldim,
-     $          iab1f, iab1l, iab2f, iab2l, 
-     $          iab3f, iab3l, iab4f, iab4l,
-     $          g_dens(1))
-             end if
-
-            else                ! MP2
-
-             if (ouhf) then
-              call grad_get_dens_ump2(d_ij, d_kl, d_ik, 
-     $          d_jl, d_il, d_jk,
-     $          d_ij2, d_kl2, d_ik2, 
-     $          d_jl2, d_il2, d_jk2, 
-     $          d_ij3, d_kl3, d_ik3, 
-     $          d_jl3, d_il3, d_jk3, 
-     $          d_ij4, d_kl4, d_ik4, 
-     $          d_jl4, d_il4, d_jk4, 
-     $          ldim,
-     $          iab1f, iab1l, iab2f, iab2l, 
-     $          iab3f, iab3l, iab4f, iab4l,
-     $          g_dens)
-             else if (orohf) then
-              call errquit('no RMP2 gradients yet', 0)
-             else               ! rmp2
-              call grad_get_dens_rmp2(d_ij, d_kl, d_ik, 
-     $          d_jl, d_il, d_jk,
-     $          d_ij2, d_kl2, d_ik2, 
-     $          d_jl2, d_il2, d_jk2, 
-     $          ldim,
-     $          iab1f, iab1l, iab2f, iab2l, 
-     $          iab3f, iab3l, iab4f, iab4l,
-     $          g_dens)
-             end if
-
-            end if
-
-            oij = iat1.eq.iat2
-            okl = iat3.eq.iat4
-            oikjl = iat1.eq.iat3 .and. iat2.eq.iat4
-            do ish1 = iac1f, iac1l
-             status = bas_cn2bfr(basis,ish1,if1,il1)
-             if (omcscf) call grad_mcscf_a
-     $         (nbf,nopen,maxsh,if1,il1,coeff,pdm2,pdm2a)
-             if1 = if1 - iab1f + 1
-             il1 = il1 - iab1f + 1
-             id1 = il1 - if1   + 1
-c     
-             if (oij) iac2l = ish1
-             do ish2 = iac2f, iac2l
-              if (schwarz_shell(ish1,ish2)*schwarz_max()*q4
-     $          .ge. tol2e) then
-               status = bas_cn2bfr(basis,ish2,if2,il2)
-               if (omcscf) call grad_mcscf_b
-     $           (nbf,nopen,maxsh,id1,if2,il2,coeff,
-     $           pdm2a,pdm2b)
-               if2 = if2 - iab2f + 1
-               il2 = il2 - iab2f + 1
-               id2 = il2 - if2   + 1
-               itop3 = iac3l
-               if (iat1.eq.iat3 .and. iat2.eq.iat4) 
-     $           itop3 = ish1
-               do ish3 = iac3f, itop3
-                status = bas_cn2bfr(basis,ish3,if3,il3)
-                if (omcscf) call grad_mcscf_c
-     $            (nbf,nopen,maxsh,id1,id2,if3,il3,coeff,
-     $            pdm2b,pdm2c)
-                if3 = if3 - iab3f + 1
-                il3 = il3 - iab3f + 1
-                id3 = il3 - if3   + 1
-                itop4 = iac4l
-                if (okl) itop4 = ish3
-                if (oikjl .and. ish1.eq.ish3) itop4 = ish2
-                do ish4 = iac4f, itop4
-
-                 scale = 1.0d0
-                 if (.not.oij .or. ish1.ne.ish2) scale = scale*2.0d0
-                 if (.not.okl .or. ish3.ne.ish4) scale = scale*2.0d0
-                 if (.not.oikjl .or. ish1.ne.ish3 .or. 
-     $             ish2.ne.ish4) scale = scale*2.0d0
-
-                 s1234 = schwarz_shell(ish1,ish2)
-     $             * schwarz_shell(ish3,ish4) * q4 * scale
-
-                 if (s1234 .ge. tol2e) then
-                  status = bas_cn2bfr(basis,ish4,if4,il4)
-                  id4 = il4 - if4   + 1
-                  if (omcscf) call grad_mcscf_d
-     $              (nbf,nopen,maxsh,id1,id2,id3,id4,
-     $              if4,il4,coeff,pdm2c,pdm2d)
-                  if4 = if4 - iab4f + 1
-                  il4 = il4 - iab4f + 1
-
-C---------------------------------------------------------------------
-
-c     Compute the shell block of the 2-pdm
-
-                  icount = 1
-                  if (omp2) then  
-                   if (ouhf) then ! UHF + MP2
-                    do ip1 = if1, il1
-                     do ip2 = if2, il2
-                      do ip3 = if3, il3
-                       do ip4 = if4, il4
-                        den2 = quart *(
-     $                    (d_ij(ip1,ip2)  + d_ij2(ip1,ip2))
-     $                    *(d_kl3(ip3,ip4) + d_kl4(ip3,ip4))
-     $                    +(d_ij3(ip1,ip2) + d_ij4(ip1,ip2))
-     $                    *(d_kl(ip3,ip4) + d_kl2(ip3,ip4)))
-     $                    - eigh *(d_il(ip1,ip4) * d_jk3(ip2,ip3) 
-     $                    + d_jk(ip2,ip3) * d_il3(ip1,ip4)
-     $                    + d_jl(ip2,ip4) * d_ik3(ip1,ip3)
-     $                    + d_ik(ip1,ip3) * d_jl3(ip2,ip4)
-     $                    + d_il2(ip1,ip4) * d_jk4(ip2,ip3) 
-     $                    + d_jk2(ip2,ip3) * d_il4(ip1,ip4)
-     $                    + d_jl2(ip2,ip4) * d_ik4(ip1,ip3)
-     $                    + d_ik2(ip1,ip3) * d_jl4(ip2,ip4))
-                        pdm2d(icount) = den2
-                        icount = icount + 1
-                       end do
-                      end do
-                     end do
-                    end do
-                   else if (orohf) then
-                    call errquit('only RHF or UMP2 grads available',110)
-                   else         ! RHF + MP2
-                    do ip1 = if1, il1
-                     do ip2 = if2, il2
-                      do ip3 = if3, il3
-                       do ip4 = if4, il4
-                        den2 = quart*(d_ij(ip1,ip2)*d_kl2(ip3,ip4)
-     $                    +  d_ij2(ip1,ip2) * d_kl(ip3,ip4))
-     $                    - sixh *(d_il(ip1,ip4) * d_jk2(ip2,ip3) 
-     $                    + d_jk(ip2,ip3) * d_il2(ip1,ip4)
-     $                    + d_jl(ip2,ip4) * d_ik2(ip1,ip3)
-     $                    + d_ik(ip1,ip3) * d_jl2(ip2,ip4))
-                        pdm2d(icount) = den2
-                        icount = icount + 1
-                       end do
-                      end do
-                     end do
-                    end do
-                   end if
-                  else
-                   if (ouhf) then ! UHF
-                    do ip1 = if1, il1
-                     do ip2 = if2, il2
-                      do ip3 = if3, il3
-                       do ip4 = if4, il4
-                        den2 = half *(d_ij(ip1,ip2) * d_kl(ip3,ip4))
-     $                    - eigh  *(d_ik(ip1,ip3) * d_jl(ip2,ip4)
-     $                    +  d_il(ip1,ip4) * d_jk(ip2,ip3)
-     $                    +  d_ik2(ip1,ip3) * d_jl2(ip2,ip4)
-     $                    +  d_il2(ip1,ip4) * d_jk2(ip2,ip3))
-                        pdm2d(icount) = den2
-                        icount = icount + 1
-                       end do
-                      end do
-                     end do
-                    end do
-                   else if (orohf) then ! ROHF
-                    do ip1 = if1, il1
-                     do ip2 = if2, il2
-                      do ip3 = if3, il3
-                       do ip4 = if4, il4
-                        den2 = half *(d_ij(ip1,ip2) * d_kl(ip3,ip4))
-     $                    + quart *(d_ij(ip1,ip2) * d_kl2(ip3,ip4)
-     $                    +  d_ij2(ip1,ip2) * d_kl(ip3,ip4))
-     $                    + eigh *(d_ij2(ip1,ip2) * d_kl2(ip3,ip4))
-     $                    - eigh *(d_ik(ip1,ip3) * d_jl(ip2,ip4)
-     $                    +  d_il(ip1,ip4) * d_jk(ip2,ip3))
-     $                    - sixh *(d_ik(ip1,ip3) * d_jl2(ip2,ip4)
-     $                    +  d_il2(ip1,ip4) * d_jk(ip2,ip3)
-     $                    +  d_ik2(ip1,ip3) * d_jl(ip2,ip4)
-     $                    +  d_il(ip1,ip4) * d_jk2(ip2,ip3)
-     $                    +  d_ik2(ip1,ip3) * d_jl2(ip2,ip4)
-     $                    +  d_il2(ip1,ip4) * d_jk2(ip2,ip3))
-                        pdm2d(icount) = den2
-                        icount = icount + 1
-                       end do
-                      end do
-                     end do
-                    end do
-                   else if (omcscf) then ! MCSCF
-                    do ip1 = if1, il1
-                     do ip2 = if2, il2
-                      do ip3 = if3, il3
-                       do ip4 = if4, il4
-                        den2 = half *(d_ij(ip1,ip2)*d_kl(ip3,ip4))
-     $                    - eigh * (d_ik(ip1,ip3) * d_jl(ip2,ip4)
-     $                    +  d_il(ip1,ip4) * d_jk(ip2,ip3))
-     $                    + 0.5d0*pdm2d(icount)
-                        pdm2d(icount) = den2
-                        icount = icount + 1
-                       end do
-                      end do
-                     end do
-                    end do
-                   else         ! RHF
-                    do ip1 = if1, il1
-                     do ip2 = if2, il2
-                      do ip3 = if3, il3
-                       do ip4 = if4, il4
-                        den2 = half *(d_ij(ip1,ip2)*d_kl(ip3,ip4))
-     $                    - eigh *(d_ik(ip1,ip3) * d_jl(ip2,ip4)
-     $                    +  d_il(ip1,ip4) * d_jk(ip2,ip3))
-                        pdm2d(icount) = den2
-                        icount = icount + 1
-                       end do
-                      end do
-                     end do
-                    end do
-                   end if
-                  endif
-
-c     Determine the number of ERIs in this block of integrals.
-
-                  nshbfp = id1*id2
-                  nshbfq = id3*id4
-                  Nint = nshbfp*nshbfq
-
-c     Sparsity test using magnitude of the density matrix
-
-                  psum = 0.0d0
-                  do icount = 1, nint
-                   psum = psum + pdm2d(icount)*pdm2d(icount)
-                  enddo
-                  psum = sqrt(psum)
+      task_size = nshblocks*(nshblocks+1)/2
+      task_size = task_size*(task_size+1)/2
+      task_size = max(1,task_size/(20*nproc))
 c
-                  if (psum*s1234 .gt. tol2e) then
+c     Parallel loop over quartets of reordered shell blocks
+c
+      ijklblock = 0
+      next = nxtask(nproc,task_size)
+      do ishblock = nshblocks, 1, -1
+         ishlo = shglo(ishblock)
+         ishhi = shghi(ishblock)
+         ibflo = bfglo(ishblock)
+         ibfhi = bfghi(ishblock)
+         idim  = ibfhi - ibflo + 1
+         if (omcscf) call grad_mcscf_a
+     $        (nbf,nopen,blen,ibflo,ibfhi,coeff,pdm2,pdm2a)
+         do jshblock = 1, ishblock
+            jshlo = shglo(jshblock)
+            jshhi = shghi(jshblock)
+            jbflo = bfglo(jshblock)
+            jbfhi = bfghi(jshblock)
+            jdim  = jbfhi - jbflo + 1
+            if (omcscf) call grad_mcscf_b
+     $           (nbf,nopen,blen,idim,jbflo,jbfhi,coeff,pdm2a,pdm2b)
+            do kshblock = ishblock, 1, -1
+               kshlo = shglo(kshblock)
+               kshhi = shghi(kshblock)
+               kbflo = bfglo(kshblock)
+               kbfhi = bfghi(kshblock)
+               kdim  = kbfhi - kbflo + 1
+               if (omcscf) call grad_mcscf_c
+     $              (nbf,nopen,blen,idim,jdim,kbflo,kbfhi,
+     $              coeff,pdm2b,pdm2c)
+               lblockhi = kshblock
+               if (ishblock .eq. kshblock) lblockhi = jshblock
+               do lshblock = 1, lblockhi
+                  lshlo = shglo(lshblock)
+                  lshhi = shghi(lshblock)
+                  lbflo = bfglo(lshblock)
+                  lbfhi = bfghi(lshblock)
+                  ldim  = lbfhi - lbflo + 1
+                  if (next .eq. ijklblock) then
+                     if (omcscf) call grad_mcscf_d
+     $                    (nbf,nopen,blen,idim,jdim,kdim,ldim,
+     $                    lbflo,lbfhi,coeff,pdm2c,pdm2d)
+c     
+c     Get blocks of the one-particle densities
+c     
+                     call grad_get_dens_all(omp2,ouhf,orohf,
+     $                    d_ij,  d_kl,  d_ik,  d_jl,  d_il,  d_jk,
+     $                    d_ij2, d_kl2, d_ik2, d_jl2, d_il2, d_jk2, 
+     $                    d_ij3, d_kl3, d_ik3, d_jl3, d_il3, d_jk3, 
+     $                    d_ij4, d_kl4, d_ik4, d_jl4, d_il4, d_jk4, 
+     $                    blen, 
+     $                    ibflo, ibfhi, jbflo, jbfhi, 
+     $                    kbflo, kbfhi, lbflo, lbfhi, 
+     $                    ibflo_prev, jbflo_prev, kbflo_prev,
+     $                    g_dens)
+c     
+c     Build the list of integral shell quartets in NWChem shell labelling
+c     
+                     oij = ishblock.eq.jshblock
+                     okl = kshblock.eq.lshblock
+                     oikjl = ishblock.eq.kshblock .and. 
+     $                    jshblock.eq.lshblock
+c     
+                     nq = 0
+c
+                     do iish = ishlo, ishhi
+                        atoms(1)=bftoat(bfmap(shbflo(iish)))
+                        iilo = shbflo(iish)-ibflo+1
+                        iihi = shbfhi(iish)-ibflo+1
+                        ish = shmap(iish)
+                        jshtop = jshhi
+                        if (oij) jshtop = iish
+                        do jjsh = jshlo, jshtop
+                           atoms(2)=bftoat(bfmap(shbflo(jjsh)))
+                           jjlo = shbflo(jjsh)-jbflo+1
+                           jjhi = shbfhi(jjsh)-jbflo+1
+                           jsh = shmap(jjsh)
+                           sij = schwarz_shell(ish,jsh)
+                           if (sij*smax*q4max .ge. tol2e) then
+                              kshtop = kshhi
+                              if (oikjl) kshtop = iish
+                              do kksh = kshlo, kshtop
+                                 atoms(3)=bftoat(bfmap(shbflo(kksh)))
+                                 kklo = shbflo(kksh)-kbflo+1
+                                 kkhi = shbfhi(kksh)-kbflo+1
+                                 ksh = shmap(kksh)
+                                 lshtop = lshhi
+                                 if (okl) lshtop = kksh
+                                 if (oikjl .and. iish.eq.kksh) 
+     $                                lshtop = jjsh
+                                 do llsh = lshlo, lshtop
+                                    atoms(4)=bftoat(bfmap(shbflo(llsh)))
+                                    lllo = shbflo(llsh)-lbflo+1
+                                    llhi = shbfhi(llsh)-lbflo+1
+                                    lsh = shmap(llsh)
+c     
+c     Check on sparsity, symmetry and active list
+c
+                                    sijkl = sij*schwarz_shell(ksh,lsh)
+c
+                                    scale = 1.0d0
+                                    odoit = (sijkl*q4max .gt. tol2e)
+                                    if (odoit .and. oskel) then
+                                       odoit = sym_atom_quartet(geom,
+     $                                      atoms(1), atoms(2),
+     $                                      atoms(3), atoms(4), scale)
+                                    end if
+                                    if (odoit) then
+                                       odoit =
+     $                                      oactive(atoms(1)) .or.
+     $                                      oactive(atoms(2)) .or.
+     $                                      oactive(atoms(3)) .or.
+     $                                      oactive(atoms(4))
+                                    end if
+                                    if (odoit) then
+                                       if (.not.oij .or. ish.ne.jsh) 
+     $                                      scale = scale*2.0d0
+                                       if (.not.okl .or. ksh.ne.lsh) 
+     $                                      scale = scale*2.0d0
+                                       if (.not.oikjl .or. ish.ne.ksh 
+     $                                      .or. jsh.ne.lsh) 
+     $                                      scale = scale*2.0d0
+c
+c     Make the twopdm just for the current shell block.  Note that
+c     pdm2d will have holes with junk in it for quartets we did not
+c     compute ... cannot zero this since it will be too expensive.
+c     
+                                       call grad_make_twopdm(
+     $                                      omp2,ouhf,orohf,omcscf,
+     $                                      d_ij,  d_kl,  d_ik,  
+     $                                      d_jl,  d_il,  d_jk,
+     $                                      d_ij2, d_kl2, d_ik2,
+     $                                      d_jl2, d_il2, d_jk2, 
+     $                                      d_ij3, d_kl3, d_ik3, 
+     $                                      d_jl3, d_il3, d_jk3, 
+     $                                      d_ij4, d_kl4, d_ik4,
+     $                                      d_jl4, d_il4, d_jk4, 
+     $                                      blen, 
+     $                                      iilo, jjlo, kklo, lllo,
+     $                                      iihi, jjhi, kkhi, llhi,
+     $                                      pdm2d, psum)
+c
+c     Final screening including magnitude of the density
+c
+                                       sijkl = sijkl*psum*scale
+                                       if (sijkl .gt. tol2e) then
+                                          nq = nq + 1
+                                          q4(nq) = scale
+                                          list(nq,1) = ish
+                                          list(nq,2) = jsh
+                                          list(nq,3) = ksh
+                                          list(nq,4) = lsh
+                                       end if
+                                    end if
+                                 end do
+                              end do
+                           end if
+                        end do
+                     end do
 
-                   call intd_2e4c(basis, ish1, ish2, basis, ish3, ish4,
-     &               lscr, scr, lbuf, buf, idatom)
-                   
-                   icount = 1
-                   do i = 1, 4
-                    if (idatom(i).ge.1) then
-                     do icart = 1, 3
-                      dE = ddot(nint,pdm2d,1,buf(icount),1)
-                      frc(icart,idatom(i)) = frc(icart,idatom(i)) + 
-     $                  dE * q4 * scale
-                      icount = icount + nint
-                     enddo
-                    else        ! idatom
-                     icount = icount + 3 * Nint
-                    end if
-                   end do       ! i (1:4 derivative center on integral)
-                  endif         ! Sparsity test with density
+                     numq = numq + nq
 
-C---------------------------------------------------------------------
-                 end if         !schwarz(1234)
-                end do          ! ish4
-               end do           ! ish3
-              end if            !schwarz(12)
-             end do             ! ish2
-            end do              ! ish1
-            
-
-            if (ochkpt) then
-
-             call grad_store(rtdb, geom, g_force, chktime, nat, 
-     $         ijatom+ndone, frc, .false., ofinish, oactive,
-     $         oskel, omp2)
-             if (ofinish) goto 100
-            end if
-            
-            next = nxtask(nproc,task_size)
-           end if               ! next
-
- 1020      continue             ! Jump here for inactive/zero
-          end do                ! iat4
-         end if
-        end do                  ! iat2
-       end do                   ! iat1
-      end do                    ! iat3
-
-C     final assembly of the forces
-      ofinish = .true.
-      call grad_store(rtdb, geom, g_force, chktime, nat, 
-     $  ijatom+ndone+1, frc, .false., ofinish, oactive, oskel, omp2)
- 100  continue
-
+c     
+                     if (.not. intbd_init4c(
+     $                    basis, list(1,1), list(1,2),
+     $                    basis, list(1,3), list(1,4),
+     $                    nq, q4, .true., lscr, scr, leri, 
+     $                    block_eff)) call errquit('grad2:txs init?',nq)
+c     
+ 10                  omore = intbd_2e4c(
+     $                    basis, list(1,1), list(1,2),
+     $                    basis, list(1,3), list(1,4),
+     $                    nq, q4, .true., tol2e, .false.,
+     $                    labels(1,1),labels(1,2), 
+     $                    labels(1,3), labels(1,4), 
+     $                    eri, leri, nint, lscr, scr)
+c
+*                     write(6,*) ' nint ', nint, omore
+c     
+                     if (nint .gt. 0) then
+                        do integ = 1, nint
+                           i = labels(integ,1)
+                           j = labels(integ,2)
+                           k = labels(integ,3)
+                           l = labels(integ,4)
+*                           write(6,*) ' b ' ,i,j,k,l
+                           atoms(1) = bftoat(i)
+                           atoms(2) = bftoat(j)
+                           atoms(3) = bftoat(k)
+                           atoms(4) = bftoat(l)
+*                           write(6,*) ' a ' ,atoms
+                           i = rbfmap(i) - ibflo + 1
+                           j = rbfmap(j) - jbflo + 1
+                           k = rbfmap(k) - kbflo + 1
+                           l = rbfmap(l) - lbflo + 1
+*                           write(6,*) ' c ', i,j,k,l
+                           p = pdm2d(l,k,j,i)
+*                           write(6,*) ' p ', p
+                           do iiat = 1, 4
+                              iat = atoms(iiat)
+                              frc(1,iat) =  frc(1,iat) + 
+     $                             p*eri(1,iiat,integ)
+                              frc(2,iat) =  frc(2,iat) + 
+     $                             p*eri(2,iiat,integ)
+                              frc(3,iat) =  frc(3,iat) + 
+     $                             p*eri(3,iiat,integ)
+                           end do
+                        end do
+                     end if
+                     if (omore) goto 10
+c
+                     next = nxtask(nproc,task_size)
+                  end if
+c     
+                  ijklblock = ijklblock + 1
+c     
+               end do
+            end do
+         end do
+      end do
       next = nxtask(-nproc,task_size)
-      return
+      call ga_sync()
+c
+      write(6,*) ' numq ', numq
+c     
       end
-
-
-      subroutine  grad_mcscf_a
-     $     (nbf,nopen,maxsh,plo,phi,coeff,pdm2,pdm2a)
+      subroutine grad_mcscf_a
+     $     (nbf,nopen,blen,plo,phi,coeff,pdm2,pdm2a)
       implicit none
-      integer nbf, nopen, maxsh
+      integer nbf, nopen, blen
       integer plo, phi
       double precision coeff(nbf,nopen)
       double precision pdm2(nopen,nopen,nopen,nopen)
-      double precision pdm2a(nopen,nopen,nopen,maxsh)
+      double precision pdm2a(nopen,nopen,nopen,blen)
 c     
 c     pdm2a(l,k,j,p) = sum(i) C(p,i) pdm2(l,k,j,i)
 c     
@@ -561,27 +368,28 @@ c
       do i = 1, nopen
          do p =  1,(phi-plo+1)
             cpi = coeff(p+plo-1,i)
-            do j = 1, nopen
-               do k = 1, nopen
-                  do l = 1, nopen
-                     pdm2a(l,k,j,p) = pdm2a(l,k,j,p) + 
-     $                    pdm2(l,k,j,i)*cpi
+            if (abs(cpi) .gt. 1d-10) then
+               do j = 1, nopen
+                  do k = 1, nopen
+                     do l = 1, nopen
+                        pdm2a(l,k,j,p) = pdm2a(l,k,j,p) + 
+     $                       pdm2(l,k,j,i)*cpi
+                     end do
                   end do
                end do
-            end do
+            end if
          end do
       end do
 c     
       end
-
       subroutine  grad_mcscf_b
-     $     (nbf,nopen,maxsh,pdim,qlo,qhi,coeff,pdm2a,pdm2b)
+     $     (nbf,nopen,blen,pdim,qlo,qhi,coeff,pdm2a,pdm2b)
       implicit none
-      integer nbf, nopen, maxsh
+      integer nbf, nopen, blen
       integer pdim,qlo, qhi
       double precision coeff(nbf,nopen)
-      double precision pdm2a(nopen,nopen,nopen,maxsh)
-      double precision pdm2b(nopen,nopen,maxsh,maxsh)
+      double precision pdm2a(nopen,nopen,nopen,blen)
+      double precision pdm2b(nopen,nopen,blen,blen)
 c     
 c     pdm2b(l,k,q,p) = sum(j) C(q,j) pdm2a(l,k,j,p)
 c     
@@ -605,26 +413,27 @@ c
          do q = 1,(qhi-qlo+1)
             do j = 1, nopen
                cqj = coeff(q+qlo-1,j)
-               do k = 1, nopen
-                  do l = 1, nopen
-                     pdm2b(l,k,q,p) = pdm2b(l,k,q,p) + 
-     $                    pdm2a(l,k,j,p)*cqj
+               if (abs(cqj) .gt. 1d-10) then
+                  do k = 1, nopen
+                     do l = 1, nopen
+                        pdm2b(l,k,q,p) = pdm2b(l,k,q,p) + 
+     $                       pdm2a(l,k,j,p)*cqj
+                     end do
                   end do
-               end do
+               end if
             end do
          end do
       end do
 c     
       end
-
       subroutine  grad_mcscf_c
-     $     (nbf,nopen,maxsh,pdim,qdim,rlo,rhi,coeff,pdm2b,pdm2c)
+     $     (nbf,nopen,blen,pdim,qdim,rlo,rhi,coeff,pdm2b,pdm2c)
       implicit none
-      integer nbf, nopen, maxsh
+      integer nbf, nopen, blen
       integer pdim,qdim,rlo,rhi
       double precision coeff(nbf,nopen)
-      double precision pdm2b(nopen,nopen,maxsh,maxsh)
-      double precision pdm2c(nopen,maxsh,maxsh,maxsh)
+      double precision pdm2b(nopen,nopen,blen,blen)
+      double precision pdm2c(nopen,blen,blen,blen)
 c     
 c     pdm2c(l,r,q,p) = sum(k) C(r,k) pdm2b(l,k,q,p)
 c     
@@ -649,27 +458,27 @@ c
             do r = 1,(rhi-rlo+1)
                do k = 1, nopen
                   crk = coeff(r+rlo-1,k)
-                  do l = 1, nopen
-                     pdm2c(l,r,q,p) = pdm2c(l,r,q,p) + 
-     $                    pdm2b(l,k,q,p)*crk
-                  end do
+                  if (abs(crk) .gt. 1d-10) then
+                     do l = 1, nopen
+                        pdm2c(l,r,q,p) = pdm2c(l,r,q,p) + 
+     $                       pdm2b(l,k,q,p)*crk
+                     end do
+                  end if
                end do
             end do
          end do
       end do
 c     
       end
-
-
       subroutine  grad_mcscf_d
-     $     (nbf,nopen,maxsh,pdim,qdim,rdim,sdim,slo,shi,
+     $     (nbf,nopen,blen,pdim,qdim,rdim,sdim,slo,shi,
      $     coeff,pdm2c,pdm2d)
       implicit none
-      integer nbf, nopen, maxsh
+      integer nbf, nopen, blen
       integer pdim,qdim,rdim,sdim,slo,shi
       double precision coeff(nbf,nopen)
-      double precision pdm2c(nopen,maxsh,maxsh,maxsh)
-      double precision pdm2d(sdim,rdim,qdim,pdim)
+      double precision pdm2c(nopen,blen,blen,blen)
+      double precision pdm2d(blen,blen,blen,blen)
 c     
 c     pdm2d(s,r,q,p) = sum(l) C(s,l) pdm2c(l,r,q,p)
 c     
@@ -684,17 +493,189 @@ c
             do r = 1, rdim
                do s = 1, sdim
                   pdm2d(s,r,q,p) = 0.0d0
-               enddo
+               end do
                do l = 1, nopen
                   pdm2clrqp = pdm2c(l,r,q,p)
-                  do s = 1, sdim
-                     pdm2d(s,r,q,p) = pdm2d(s,r,q,p) + 
-     $                    pdm2clrqp*coeff(s+slo-1,l)
-                  end do
+                  if (abs(pdm2clrqp) .gt. 1d-10) then
+                     do s = 1, sdim
+                        pdm2d(s,r,q,p) = pdm2d(s,r,q,p) + 
+     $                       pdm2clrqp*coeff(s+slo-1,l)
+                     end do
+                  end if
                end do
             end do
          end do
       end do
 c     
       end
-
+      subroutine grad_make_twopdm(omp2,ouhf,orohf,omcscf,
+     $     d_ij,  d_kl,  d_ik,  d_jl,  d_il,  d_jk,
+     $     d_ij2, d_kl2, d_ik2, d_jl2, d_il2, d_jk2, 
+     $     d_ij3, d_kl3, d_ik3, d_jl3, d_il3, d_jk3, 
+     $     d_ij4, d_kl4, d_ik4, d_jl4, d_il4, d_jk4, 
+     $     blen, ilo, jlo, klo, llo, ihi, jhi, khi, lhi, pdm2d, psum)
+      implicit none
+      logical omp2,ouhf,orohf,omcscf   ! [input] Wavefunction info
+      double precision          ! [input] AO density blocks
+     $     d_ij(blen,blen),d_kl(blen,blen),d_ik(blen,blen),
+     $     d_jl(blen,blen),d_il(blen,blen),d_jk(blen,blen),
+     $     d_ij2(blen,blen), d_kl2(blen,blen),
+     $     d_ik2(blen,blen), d_jl2(blen,blen),
+     $     d_il2(blen,blen), d_jk2(blen,blen),
+     $     d_ij3(blen,blen), d_kl3(blen,blen),
+     $     d_ik3(blen,blen), d_jl3(blen,blen),
+     $     d_il3(blen,blen), d_jk3(blen,blen),
+     $     d_ij4(blen,blen), d_kl4(blen,blen),
+     $     d_ik4(blen,blen), d_jl4(blen,blen),
+     $     d_il4(blen,blen), d_jk4(blen,blen)
+      double precision pdm2d(blen,blen,blen,blen) ! [output] 2pdm
+      double precision psum     ! [output] Norm of this block of twopdm
+      integer blen
+      integer ilo, jlo, klo, llo, ihi, jhi, khi, lhi
+c
+      double precision den2
+      integer i, j, k, l
+      double precision half, quarter, eigth, sixteenth
+      parameter(half = 0.5D0, quarter= 0.25D0, eigth = 0.125D0,
+     $     sixteenth = 0.0625D0)
+c     
+c     Compute the shell block of the 2-pdm
+c     
+      if (omp2) then  
+         if (ouhf) then         ! UHF + MP2
+            do i = ilo, ihi
+               do j = jlo, jhi
+                  do k = klo, khi
+                     do l = llo, lhi
+                        den2 = quarter *(
+     $                       (d_ij(i,j)  + d_ij2(i,j))
+     $                       *(d_kl3(k,l) + d_kl4(k,l))
+     $                       +(d_ij3(i,j) + d_ij4(i,j))
+     $                       *(d_kl(k,l) + d_kl2(k,l)))
+     $                       - eigth *(d_il(i,l) * d_jk3(j,k) 
+     $                       + d_jk(j,k) * d_il3(i,l)
+     $                       + d_jl(j,l) * d_ik3(i,k)
+     $                       + d_ik(i,k) * d_jl3(j,l)
+     $                       + d_il2(i,l) * d_jk4(j,k) 
+     $                       + d_jk2(j,k) * d_il4(i,l)
+     $                       + d_jl2(j,l) * d_ik4(i,k)
+     $                       + d_ik2(i,k) * d_jl4(j,l))
+                        pdm2d(l,k,j,i) = den2
+                     end do
+                  end do
+               end do
+            end do
+         else if (orohf) then
+            call errquit('only RHF or UMP2 grads available',110)
+         else                   ! RHF + MP2
+            do i = ilo, ihi
+               do j = jlo, jhi
+                  do k = klo, khi
+                     do l = llo, lhi
+                        den2 = quarter*(d_ij(i,j)*d_kl2(k,l)
+     $                       +  d_ij2(i,j) * d_kl(k,l))
+     $                       - sixteenth *(d_il(i,l) * d_jk2(j,k) 
+     $                       + d_jk(j,k) * d_il2(i,l)
+     $                       + d_jl(j,l) * d_ik2(i,k)
+     $                       + d_ik(i,k) * d_jl2(j,l))
+                        pdm2d(l,k,j,i) = den2
+                     end do
+                  end do
+               end do
+            end do
+         end if
+      else
+         if (ouhf) then         ! UHF
+            do i = ilo, ihi
+               do j = jlo, jhi
+                  do k = klo, khi
+                     do l = llo, lhi
+                        den2 = half *(d_ij(i,j) * d_kl(k,l))
+     $                       - eigth  *(d_ik(i,k) * d_jl(j,l)
+     $                       +  d_il(i,l) * d_jk(j,k)
+     $                       +  d_ik2(i,k) * d_jl2(j,l)
+     $                       +  d_il2(i,l) * d_jk2(j,k))
+                        pdm2d(l,k,j,i) = den2
+                     end do
+                  end do
+               end do
+            end do
+         else if (orohf) then   ! ROHF
+            do i = ilo, ihi
+               do j = jlo, jhi
+                  do k = klo, khi
+                     do l = llo, lhi
+                        den2 = half *(d_ij(i,j) * d_kl(k,l))
+     $                       + quarter *(d_ij(i,j) * d_kl2(k,l)
+     $                       +  d_ij2(i,j) * d_kl(k,l))
+     $                       + eigth *(d_ij2(i,j) * d_kl2(k,l))
+     $                       - eigth *(d_ik(i,k) * d_jl(j,l)
+     $                       +  d_il(i,l) * d_jk(j,k))
+     $                       - sixteenth *(d_ik(i,k) * d_jl2(j,l)
+     $                       +  d_il2(i,l) * d_jk(j,k)
+     $                       +  d_ik2(i,k) * d_jl(j,l)
+     $                       +  d_il(i,l) * d_jk2(j,k)
+     $                       +  d_ik2(i,k) * d_jl2(j,l)
+     $                       +  d_il2(i,l) * d_jk2(j,k))
+                        pdm2d(l,k,j,i) = den2
+                     end do
+                  end do
+               end do
+            end do
+         else if (omcscf) then  ! MCSCF
+            do i = ilo, ihi
+               do j = jlo, jhi
+                  do k = klo, khi
+                     do l = llo, lhi
+                        den2 = half *(d_ij(i,j)*d_kl(k,l))
+     $                       - eigth * (d_ik(i,k) * d_jl(j,l)
+     $                       +  d_il(i,l) * d_jk(j,k))
+     $                       + 0.5d0*pdm2d(l,k,j,i)
+                        pdm2d(l,k,j,i) = den2
+                     end do
+                  end do
+               end do
+            end do
+         else                   ! RHF
+c$$$            write(6,*) ' DIJ ',id1,id2
+c$$$            call output(d_ij,1,id1,1,id2,blen,blen,1)
+c$$$            write(6,*) ' DKL ',id3,id4
+c$$$            call output(d_kl,1,id3,1,id4,blen,blen,1)
+c$$$            write(6,*) ' DIK ',id1,id3
+c$$$            call output(d_ik,1,id1,1,id3,blen,blen,1)
+c$$$            write(6,*) ' DIL ',id1,id4
+c$$$            call output(d_il,1,id1,1,id4,blen,blen,1)
+c$$$            write(6,*) ' DJK ',id2,id3
+c$$$            call output(d_jk,1,id2,1,id3,blen,blen,1)
+c$$$            write(6,*) ' DJL ',id2,id4
+c$$$            call output(d_jl,1,id2,1,id4,blen,blen,1)
+            do i = ilo, ihi
+               do j = jlo, jhi
+                  do k = klo, khi
+                     do l = llo, lhi
+                        den2 = half *(d_ij(i,j)*d_kl(k,l))
+     $                       - eigth *(d_ik(i,k) * d_jl(j,l)
+     $                       +  d_il(i,l) * d_jk(j,k))
+*                        write(6,*) ' PDM2 ',l,k,j,i,den2
+                        pdm2d(l,k,j,i) = den2
+                     end do
+                  end do
+               end do
+            end do
+         end if
+      end if
+c
+      psum = 0.0d0
+      do i = ilo, ihi
+         do j = jlo, jhi
+            do k = klo, khi
+               do l = llo, lhi
+                  psum = psum + pdm2d(l,k,j,i)**2
+               end do
+            end do
+         end do
+      end do
+      psum = sqrt(psum)
+*      write(6,*) ' PSUM ', psum
+c
+      end
