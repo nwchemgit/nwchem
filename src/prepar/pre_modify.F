@@ -3,7 +3,7 @@
      + lbnd,rbnd,mbnd,nbnd,nbndt,lang,rang,mang,nang,nangt,
      + ldih,kdih,rdih,mdih,ndih,ndiht,limp,rimp,mimp,nimp,nimpt)
 c
-c     $Id: pre_modify.F,v 1.7 2000-01-26 19:41:15 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.8 2000-05-23 19:06:16 d3j191 Exp $
 c
       implicit none
 c
@@ -208,6 +208,81 @@ c
       endif
    18 continue
       endif
+      endif
+c
+      if(card(1:6).eq.'update') then
+      do 50 j=1,3
+      n=0
+      m=0
+      do 51 i=1,nbndt
+      if(catm(j+1,lbnd(1,i))(6:6).ne.'Q'.or.
+     + catm(j+1,lbnd(2,i))(6:6).ne.'Q') then
+      n=n+1
+      do 52 k=1,6
+      if(k.le.4) lbnd(k,n)=lbnd(k,i)
+      rbnd(k,n)=rbnd(k,i)
+   52 continue
+      if(i.le.nbnd) m=n
+      endif
+   51 continue
+      nbnd=m
+      nbndt=n
+      n=0
+      m=0
+      do 53 i=1,nangt
+      if(catm(j+1,lang(1,i))(6:6).ne.'Q'.or.
+     + catm(j+1,lang(2,i))(6:6).ne.'Q'.or.
+     + catm(j+1,lang(3,i))(6:6).ne.'Q') then
+      n=n+1
+      do 54 k=1,6
+      if(k.le.5) lang(k,n)=lang(k,i)
+      rang(k,n)=rang(k,i)
+   54 continue
+      if(i.le.nang) m=n
+      endif
+   53 continue
+      nang=m
+      nangt=n
+      n=0
+      m=0
+      do 55 i=1,ndiht
+      if(catm(j+1,ldih(1,i))(6:6).ne.'Q'.or.
+     + catm(j+1,ldih(2,i))(6:6).ne.'Q'.or.
+     + catm(j+1,ldih(3,i))(6:6).ne.'Q'.or.
+     + catm(j+1,ldih(4,i))(6:6).ne.'Q') then
+      n=n+1
+      do 56 k=1,9
+      ldih(k,n)=ldih(k,i)
+      if(k.le.6) then
+      do 57 l=1,6
+      kdih(k,l,n)=rdih(k,l,i)
+      if(l.le.3) rdih(k,l,n)=rdih(k,l,i)
+   57 continue
+      endif
+   56 continue
+      if(i.le.ndih) m=n
+      endif
+   55 continue
+      ndih=m
+      ndiht=n
+      n=0
+      m=0
+      do 58 i=1,nimpt
+      if(catm(j+1,limp(1,i))(6:6).ne.'Q'.or.
+     + catm(j+1,limp(2,i))(6:6).ne.'Q'.or.
+     + catm(j+1,limp(3,i))(6:6).ne.'Q'.or.
+     + catm(j+1,limp(4,i))(6:6).ne.'Q') then
+      n=n+1
+      do 59 k=1,9
+      limp(k,n)=limp(k,i)
+      if(k.le.6) rimp(k,n)=rimp(k,i)
+   59 continue
+      if(i.le.nimp) m=n
+      endif
+   58 continue
+      nimp=m
+      nimpt=n
+   50 continue
       endif
 c
       endif
@@ -508,81 +583,6 @@ c
       endif
       endif
 c
-c
-      if(card(1:6).eq.'update') then
-      do 50 j=1,3
-      n=0
-      m=0
-      do 51 i=1,nbndt
-      if(catm(j+1,lbnd(1,i))(6:6).ne.'Q'.or.
-     + catm(j+1,lbnd(2,i))(6:6).ne.'Q') then
-      n=n+1
-      do 52 k=1,6
-      if(k.le.4) lbnd(k,n)=lbnd(k,i)
-      rbnd(k,n)=rbnd(k,i)
-   52 continue
-      if(i.le.nbnd) m=n
-      endif
-   51 continue
-      nbnd=m
-      nbndt=n
-      n=0
-      m=0
-      do 53 i=1,nangt
-      if(catm(j+1,lang(1,i))(6:6).ne.'Q'.or.
-     + catm(j+1,lang(2,i))(6:6).ne.'Q'.or.
-     + catm(j+1,lang(3,i))(6:6).ne.'Q') then
-      n=n+1
-      do 54 k=1,6
-      if(k.le.5) lang(k,n)=lang(k,i)
-      rang(k,n)=rang(k,i)
-   54 continue
-      if(i.le.nang) m=n
-      endif
-   53 continue
-      nang=m
-      nangt=n
-      n=0
-      m=0
-      do 55 i=1,ndiht
-      if(catm(j+1,ldih(1,i))(6:6).ne.'Q'.or.
-     + catm(j+1,ldih(2,i))(6:6).ne.'Q'.or.
-     + catm(j+1,ldih(3,i))(6:6).ne.'Q'.or.
-     + catm(j+1,ldih(4,i))(6:6).ne.'Q') then
-      n=n+1
-      do 56 k=1,9
-      ldih(k,n)=ldih(k,i)
-      if(k.le.6) then
-      do 57 l=1,6
-      kdih(k,l,n)=rdih(k,l,i)
-      if(l.le.3) rdih(k,l,n)=rdih(k,l,i)
-   57 continue
-      endif
-   56 continue
-      if(i.le.ndih) m=n
-      endif
-   55 continue
-      ndih=m
-      ndiht=n
-      n=0
-      m=0
-      do 58 i=1,nimpt
-      if(catm(j+1,limp(1,i))(6:6).ne.'Q'.or.
-     + catm(j+1,limp(2,i))(6:6).ne.'Q'.or.
-     + catm(j+1,limp(3,i))(6:6).ne.'Q'.or.
-     + catm(j+1,limp(4,i))(6:6).ne.'Q') then
-      n=n+1
-      do 59 k=1,9
-      limp(k,n)=limp(k,i)
-      if(k.le.6) rimp(k,n)=rimp(k,i)
-   59 continue
-      if(i.le.nimp) m=n
-      endif
-   58 continue
-      nimp=m
-      nimpt=n
-   50 continue
-      endif
 c
       endif
 c
