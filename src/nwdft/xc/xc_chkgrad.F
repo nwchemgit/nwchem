@@ -1,6 +1,6 @@
       logical function xc_chkgrad()
 *
-* $Id: xc_chkgrad.F,v 1.12 2001-03-06 00:17:36 edo Exp $
+* $Id: xc_chkgrad.F,v 1.13 2001-03-07 22:41:13 edo Exp $
 *
       implicit none
 #include "cdft.fh"
@@ -12,7 +12,7 @@ c
       parameter(eps=1.d-10)
       tot = xfac(3) + xfac(4) + xfac(5) + xfac(6) + xfac(7) +
      + xfac(8) + xfac(9) + xfac(10) + xfac(11) +xfac(12)+ xfac(13)+
-     + xfac(14)+xfac(15)+
+     + xfac(14)+xfac(15)+xfac(16)+
      +     cfac(2) + cfac(4) + cfac(5) +cfac(12)+cfac(13)+
      +     cfac(13)+cfac(14)+cfac(15) +cfac(16) + cfac(17)+cfac(18)+
      + cfac(19) + cfac(20)+cfac(21)

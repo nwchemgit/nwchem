@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.19 2001-03-06 00:17:37 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.20 2001-03-07 22:41:13 edo Exp $
 c
       implicit none
 c
@@ -63,6 +63,11 @@ c
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ex, qwght,ldew,func)
          endif
+      endif
+      if (abs(xfac(16)).gt.eps)then
+         call xc_optx(tol_rho, xfac(16), 2,
+     &        rho, delrho, Amat, Cmat, nq, ipol, 
+     &        Ex, qwght,ldew,func)
       endif
 C
 C     hcth , becke97s functionals
