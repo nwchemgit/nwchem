@@ -1,13 +1,15 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.12 1998-04-29 07:28:34 d3e129 Exp $
+* $Id: int_ecp.F,v 1.13 1998-09-03 23:56:56 d3e129 Exp $
       implicit none
+*::cr::7
 *------------------------------------------------*
-* COPYRIGHT (C) 1994, 1995, 1996, 1997           *
-*         Pacific Northwest National Laboratory, *
+* COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
+*         Pacific Northwest National Laboratory, * 
 *         Battelle Memorial Institute.           *
 *------------------------------------------------*
 *------------> All Rights Reserved <-------------*
 *------------------------------------------------*
+*
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "basP.fh"

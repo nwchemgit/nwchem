@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $id: msgids.fh,v 1.25 1996/02/07 00:37:11 vg038 exp $
+c     $Id: msgids.fh,v 1.95 1998-09-03 23:57:35 d3e129 Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum

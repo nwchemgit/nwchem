@@ -1,8 +1,9 @@
 *
-* $Id: ecpso_decP.fh,v 1.1 1998-04-29 07:29:54 d3e129 Exp $
+* $Id: ecpso_decP.fh,v 1.2 1998-09-03 23:57:08 d3e129 Exp $
+*::cr::7
 *------------------------------------------------*
-* COPYRIGHT (C) 1994, 1995, 1996, 1997           *
-*         Pacific Northwest National Laboratory, *
+* COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
+*         Pacific Northwest National Laboratory, * 
 *         Battelle Memorial Institute.           *
 *------------------------------------------------*
 *------------> All Rights Reserved <-------------*
