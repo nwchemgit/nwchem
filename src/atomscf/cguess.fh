@@ -2,10 +2,10 @@ c
 c     common used by guess routines for storing info and passing arguments
 c
       integer nb                ! Maximum no. of primitives on any atom
-C$Id: cguess.fh,v 1.7 2000-06-09 23:18:56 mg201 Exp $
+C$Id: cguess.fh,v 1.8 2000-06-14 16:42:36 edo Exp $
       integer no                ! Maximum no. of orbitals on any atom ?
       integer maxatsym          ! Maximum no. of syms (s/p/d/f)
-      parameter (nb=1000, no=100, maxatsym=4)
+      parameter (nb=400, no=60, maxatsym=4)
 c
       integer nsym              ! highest l-quantum no. used in atomic calc
       integer nbas              ! No. of primitives of each sym
