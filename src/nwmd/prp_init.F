@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc,nbiasi)
 c
-c $Id: prp_init.F,v 1.49 2002-04-30 23:52:16 d3j191 Exp $
+c $Id: prp_init.F,v 1.50 2002-05-01 00:02:24 d3j191 Exp $
 c
       implicit none
 c
@@ -272,7 +272,7 @@ c
       if(nsf.gt.0) then
       it=0
       do 3 i=1,nsf
-      it=isprop+(i-1)*27
+      it=isprop+(i-1)*29
       if(it+27.gt.maxpro) call errquit('Increase dimension maxpro',0)
       pronam(it+1)='Energy solute     intra-polarization        kJ/mol'
       pronam(it+2)='Energy solute     intra-electrostatic       kJ/mol'
@@ -294,13 +294,13 @@ c
       lp(it+10)=.true.
       pronam(it+11)='Energy solute     external field            kJ/mol'
       pronam(it+12)='Energy solute     reaction field            kJ/mol'
-      pronam(it+13)='Energy solute     electrostatic 3rd         kJ/mol'
+      pronam(it+13)='Energy solute     van der Waals 3rd         kJ/mol'
       lp(it+13)=.true.
-      pronam(it+14)='Energy solute     van der Waals 3rd         kJ/mol'
+      pronam(it+14)='Energy solute     electrostatic 3rd         kJ/mol'
       lp(it+14)=.true.
-      pronam(it+15)='Energy solute     electrostatic nb          kJ/mol'
+      pronam(it+15)='Energy solute     van der Waals nb          kJ/mol'
       lp(it+15)=.true.
-      pronam(it+16)='Energy solute     van der Waals nb          kJ/mol'
+      pronam(it+16)='Energy solute     electrostatic nb          kJ/mol'
       lp(it+16)=.true.
       pronam(it+17)='Energy solute     kinetic translations      kJ/mol'
       pronam(it+18)='Energy solute     kinetic                   kJ/mol'
