@@ -6,7 +6,7 @@
      &                       Pmat, rq, rq0, rdens_atom, cntoce,
      &                       cntobfr, cetobfr, Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0a.F,v 1.3 1999-07-14 22:59:20 edo Exp $
+c$Id: grid_quadv0a.F,v 1.4 1999-08-11 18:57:32 edo Exp $
 c
       implicit none
 c
@@ -50,8 +50,6 @@ c
       integer lrchi_atom, irchi_atom, 
      &        lrdelchi_atom, irdelchi_atom
       integer nat_tot,nat_scr
-      integer nxtask
-      external nxtask
       integer nqpts_per_buf, nqpts, ictr_buf
       integer lrqbuf, irqbuf,ldmat,idmat
       logical grid_file_rewind
@@ -106,6 +104,7 @@ c     Define the current range of radial shells and integration center.
 c     
          call grid_file_read(nqpts_per_buf, nqpts, ictr_buf, 
      &        rad,dbl_mb(irqbuf))
+        if(nqpts.eq.0) goto 200
 
 c     
 c        temp put buf into currently used arrays qxyz and qwght

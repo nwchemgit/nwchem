@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.9 1999-08-11 00:56:06 edo Exp $
+* $Id: grid_file.F,v 1.10 1999-08-11 18:57:32 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -354,11 +354,12 @@ c
       call grid_buf_clear
       if (cur_rec .gt. n_rec_in_file) then
          grid_packed_buf_read = .false.
-         if (otrace) then
+cedo         if (otrace) then
             write(6,1) cur_rec, n_rec_in_file
  1          format(' grid_file: EOF at record',i5,' of ',i5,'?')
 cedo            call util_flush(6)
-         end if
+cedo         end if
+            call errquit(' grid_packed_buf_read: EOF reached ',0)
          return
       end if
 c

@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.11 1999-07-21 22:57:53 edo Exp $
+c$Id: grid_tasks.F,v 1.12 1999-08-11 18:57:32 edo Exp $
 c
       implicit none
 c
@@ -9,7 +9,7 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-*****************8#include "tcgmsg.fh"
+#include "tcgmsg.fh"
 c
       integer rtdb, qsh, nqlen, npts_per_ang, nq_tot
       integer lrij, irij, lrq, irq, lp, ip, lexpo, iexpo
@@ -25,9 +25,7 @@ c
       character*4 whichf
 c
       integer iqsh, irsh, ictr, iang, npts_iqsh
-      integer nq,n1,n2,nproc
-      integer nxtask
-      external nxtask
+      integer nq,nproc,me
       logical lssw,trunc_neigh
       logical grid_file_open
       external grid_file_open
@@ -96,14 +94,12 @@ C      call a_dist(coord, Dbl_MB(iRij), ncenters)
      &   call errquit('grid_tasks: cannot allocate rq',4)
 c      
       nproc=ga_nnodes()
+      me=ga_nodeid()
 c
       if (.not.rtdb_get(rtdb, 'dft:trunc_neigh', mt_log, 1,
      &   trunc_neigh))trunc_neigh=.true.
-      n1 = 0
-      n2 = nxtask(nproc,1)
-      do 100 iqsh = 1, nqshells
+      do 100 iqsh = 1+me, nqshells,nproc
 c
-         if (n1.eq.n2 )then
 
          irsh = qsh(1,iqsh)         
          ictr = qsh(2,iqsh)
@@ -125,8 +121,6 @@ c
      ,        lssw, whichf, dbl_mb(iexpo), rad, trunc_neigh)
 
          if (npts_iqsh.eq.0) then
-            n1 = n1 + 1
-            n2 = nxtask(nproc,1)
             go to 100
          endif
          
@@ -140,17 +134,10 @@ c        now pack this aqbuf into the write buffer (write and update task counte
 c
          call grid_file_write(npts_iqsh, ictr, rad, aqbuf)
 c
-         n1 = n1 + 1
-         n2 = nxtask(nproc,1)
-c     
-      else
-c     
-         n1 = n1 + 1
-c     
-      endif
+
   100 continue
 
-      n1 = nxtask(-nproc,1)
+
 c
 c     Write last buffer of grid pts and close file     
 c

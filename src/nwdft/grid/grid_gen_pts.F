@@ -1,6 +1,6 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.8 1999-07-14 15:28:09 edo Exp $
+c$Id: grid_gen_pts.F,v 1.9 1999-08-11 18:57:32 edo Exp $
 c
       implicit none
 c      
@@ -76,7 +76,7 @@ c
 c
 c        try to balance the number of tasks on each node
 c
-         call grid_file_balance()
+cedo         call grid_file_balance()
 c
       endif
       if (.not. MA_Pop_Stack(laqbuf))
