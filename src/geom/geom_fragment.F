@@ -1,6 +1,6 @@
       subroutine geom_fragment(rtdb,nfrags_return)
 c
-c $Id: geom_fragment.F,v 1.3 2004-03-17 23:22:54 sohirata Exp $
+c $Id: geom_fragment.F,v 1.4 2004-03-23 21:19:27 sohirata Exp $
 c
 c     Subroutines and functions in this file are to help
 c     perform almost automatically the fragment MO for 
@@ -31,6 +31,11 @@ c
       integer ifrag
       logical nodezero
       double precision thresh
+      double precision truncate
+      integer l_map2, k_map2
+      integer nfrags2
+      double precision a, ax, ay, az
+      double precision b, bx, by, bz, r
 c
       nodezero = (ga_nodeid().eq.0)
       if (.not.geom_create(geom,'geometry'))
@@ -46,6 +51,8 @@ c    1  call errquit('geom_fragment: geom_print',0,GEOM_ERR)
      1  call errquit('geom_fragment: geom_cart_get',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'fragment:thresh',mt_dbl,1,thresh))
      1  thresh = geom_thresh
+      if (.not.rtdb_get(rtdb,'fragment:truncate',mt_dbl,1,truncate))
+     1  truncate = 1.0d99
 c
 c     Determine fragments
 c
@@ -80,6 +87,65 @@ c
         if (.not.doneb) goto 20
       endif
       if (.not.done) goto 10
+      if (nfrags.ge.2) then
+        if (.not.ma_push_get(mt_int,ncent,'truncated fragments',
+     1    l_map2,k_map2)) call errquit
+     2    ('geom_fragment: failed to allocate truncate',0,MA_ERR)
+        ax = 0.0d0
+        ay = 0.0d0
+        az = 0.0d0
+        a  = 0.0d0
+        do iatom = 1, ncent
+          if (f_map(iatom).eq.1) then
+            ax = ax + charges(iatom) * coords(1,iatom)
+            ay = ay + charges(iatom) * coords(2,iatom)
+            az = az + charges(iatom) * coords(3,iatom)
+            a  = a  + charges(iatom)
+          endif
+        enddo
+        ax = ax / a
+        ay = ay / a
+        az = az / a
+        nfrags2 = 1
+        do iatom = 1, ncent
+          if (f_map(iatom).eq.1) int_mb(k_map2+iatom-1)=nfrags2
+        enddo
+        do ifrag = 2, nfrags
+          bx = 0.0d0
+          by = 0.0d0
+          bz = 0.0d0
+          b  = 0.0d0
+          do iatom = 1, ncent
+            if (f_map(iatom).eq.ifrag) then
+              bx = bx + charges(iatom) * coords(1,iatom)
+              by = by + charges(iatom) * coords(2,iatom)
+              bz = bz + charges(iatom) * coords(3,iatom)
+              b  = b  + charges(iatom)
+            endif
+          enddo
+          bx = bx / b
+          by = by / b
+          bz = bz / b
+          r = dsqrt((ax-bx)**2+(ay-by)**2+(az-bz)**2)
+          if (r.le.truncate) then
+            nfrags2 = nfrags2 + 1
+            do iatom = 1, ncent
+              if (f_map(iatom).eq.ifrag) int_mb(k_map2+iatom-1)=nfrags2
+            enddo
+          else
+            do iatom = 1, ncent
+              if (f_map(iatom).eq.ifrag) int_mb(k_map2+iatom-1)=0
+            enddo
+          endif
+        enddo
+        nfrags = nfrags2
+        do iatom = 1, ncent
+          f_map(iatom) = int_mb(k_map2+iatom-1)
+        enddo
+        if (.not.ma_pop_stack(l_map2))
+     1    call errquit("geom_fragment: MA problem",1,MA_ERR)
+      endif
+       
       if (.not.geom_destroy(geom))
      1  call errquit('geom_fragment: geom_destroy failed',0,GEOM_ERR)
       if (nodezero) write(LuOut,*)
@@ -107,7 +173,7 @@ c
 
       subroutine select_fragment(rtdb,ifrag,dipole)
 c
-c $Id: geom_fragment.F,v 1.3 2004-03-17 23:22:54 sohirata Exp $
+c $Id: geom_fragment.F,v 1.4 2004-03-23 21:19:27 sohirata Exp $
 c
 c     Overwrite the main geometry entry in RTDB by that of a fragment.
 c
@@ -210,7 +276,7 @@ c
  
       subroutine select_fragmentpair(rtdb,ifrag,jfrag,dipole,r)
 c
-c $Id: geom_fragment.F,v 1.3 2004-03-17 23:22:54 sohirata Exp $
+c $Id: geom_fragment.F,v 1.4 2004-03-23 21:19:27 sohirata Exp $
 c
 c     Overwrite the main geometry entry in RTDB by that of a fragment pair.
 c
