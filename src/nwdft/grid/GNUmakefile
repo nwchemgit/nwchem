@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.7 1999-06-15 18:24:22 edo Exp $
+# $Id: GNUmakefile,v 1.8 1999-06-25 21:49:30 edo Exp $
 
       OBJ = \
 	grid_atom_type_info.o \
@@ -26,7 +26,8 @@
 	grid_ssw.o \
 	grid_sym.o \
 	grid_cleanup.o \
-	grid_balance.o \
+	grid_quadv0.o \
+	grid_quadv0a.o \
 	grid_utils.o
 
      LIBRARY = libnwdft.a
