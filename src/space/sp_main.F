@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.46 2000-02-23 18:53:51 d3j191 Exp $
+c $Id: sp_main.F,v 1.47 2000-03-18 00:01:14 d3j191 Exp $
 c
       implicit none
 c
@@ -84,7 +84,7 @@ c
       misl(lsbox)=nbtot
       misl(lsnod)=np
 c
-      call ga_dgop(msp_24,misl,mis2,'max')
+      call ga_igop(msp_24,misl,mis2,'max')
 c
       do 4 i=1,mis2
       k=misl(i)
@@ -128,7 +128,7 @@ c
       miwl(lwbox)=nbtot
       miwl(lwnod)=np
 c
-      call ga_dgop(msp_25,miwl,miw2,'max')
+      call ga_igop(msp_25,miwl,miw2,'max')
 c
       do 11 i=1,miw2
       k=miwl(i)
