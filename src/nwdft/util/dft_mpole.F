@@ -1,6 +1,6 @@
       subroutine dft_mpole( geom, i_basis, j_basis, lmax_pole, 
      &     iga_dens, ndens, rmoments, len_rmoments)
-C     $Id: dft_mpole.F,v 1.4 1995-05-05 23:50:06 og845 Exp $
+C     $Id: dft_mpole.F,v 1.5 1995-05-08 19:46:44 og845 Exp $
       implicit none
 
 #include "mafdecls.h"
@@ -12,6 +12,8 @@ C     $Id: dft_mpole.F,v 1.4 1995-05-05 23:50:06 og845 Exp $
 #include "stdio.fh"
       double precision au2Debye
       parameter(au2Debye=2.541d0)
+      double precision ZERO
+      parameter(ZERO=0.d0)
 C     
       Integer NxTask ! From TCGMSG
       External NxTask
@@ -64,7 +66,7 @@ c
       Integer isphere, jsphere, nshbf_j, nprimo_i, l_i, k_mp
       Integer nbf_shell_i,  nbf_shell_j
       Integer l_mp, nprimo_j, l_j, ioff
-      Integer idens, zero, n_ij_pairs, nshbf_i
+      Integer idens, n_ij_pairs, nshbf_i
       Integer lmpint, k_mp_reord
       Integer mscratch_3ov
       Integer maxbuf 

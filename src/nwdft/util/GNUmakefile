@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.24 1995-04-28 19:22:32 pg511 Exp $
+#$Id: GNUmakefile,v 1.25 1995-05-08 19:46:45 og845 Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
 ifneq ($(NWCHEM_TARGET),SGITFP)
 ifeq ($(NWCHEM_TARGET),CRAY-T3D)
@@ -58,7 +58,7 @@ endif
      LIBRARY = libnwdft.a
 
    USES_BLAS = int_eval_gbsets.F new_eval_gbsets.F dft_second.F \
-               ga_chol_seq.F ga_inv_seq.F
+               ga_chol_seq.F ga_inv_seq.F dft_mpole.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
