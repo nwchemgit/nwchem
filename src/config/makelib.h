@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.9 1994-08-27 13:35:29 d3g681 Exp $
+# $Id: makelib.h,v 1.10 1994-08-27 20:01:16 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -187,7 +187,7 @@ clean:
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
-	/bin/rm -f *.o *.a core include_stamp $(LIB_TARGETS)
+	-/bin/rm -f *.o *.a core include_stamp $(LIB_TARGETS)
 
 
 .PHONY:	realclean
@@ -195,5 +195,5 @@ realclean:	clean
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
-	/bin/rm -f *~ \#*\#
+	-/bin/rm -f *~ \#*\#
 

@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.55 1994-08-27 13:35:28 d3g681 Exp $
+# $Id: makefile.h,v 1.56 1994-08-27 20:01:14 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -88,8 +88,7 @@ endif
 #         AR = path to archive builder (ar)
 #        CPP = path to ANSI-like C preprocessor (cpp)
 #     RANLIB = path to ranlib or something harmless if not required
-#      SHELL = path to the Bourne Shell (should always define this because
-#              SHELL is commonly defined in the environment).
+#      SHELL = path to the Bourne Shell
 #       MAKE = DON'T define this ... it will break the passing of command
 #              arguments.  Simply use the correct path to GNU make on the 
 #              command line and all will work just dandy.
@@ -108,6 +107,12 @@ endif
 #              line to change the optimization level for routines normally 
 #              compiled with them.
 #
+#  LDOPTIONS = additional options to be passed to the linker (LDFLAGS is
+#              built from this and the library path info).  LDOPTIONS is
+#              the best way to add to the link command.
+#
+#    ARFLAGS = options for AR (ru)
+#
 #    DEFINES = C preprocessor defines for both C and Fortran
 #
 #       LIBS = List of libraries and paths for libraries in addition 
@@ -119,11 +124,6 @@ endif
 #
 # The following are defined for all machines at the bottom of this file
 #
-#     C/FOPT = Used by C/FFLAGS to incorporate optimization information.
-#              By default C/FOPT are assigned the values of C/FDEBUG
-#              respectively. This default setting is used in makelib.h.
-#              C/FOPT can be overriden on the command line to change the
-#              optimization level for ALL files.
 #   C/FFLAGS = all options to the C/Fortran compilers (note CPPFLAGS are 
 #              separate).  These comprise C/FOPTIONS and C/FOPT.
 #   INCLUDES = C preprocessor include paths for both C and Fortran.
@@ -134,6 +134,20 @@ endif
 #              LIBPATH.
 #
 
+
+#
+# Establish some required defaults which may need overriding
+# for some machines
+
+      SHELL = /bin/sh
+    ARFLAGS = ru
+     FDEBUG = -g
+     CDEBUG = -g
+
+#
+# Machine specific stuff
+#
+
 ifeq ($(TARGET),SUN)
 #
 # Sun running SunOS
@@ -141,16 +155,12 @@ ifeq ($(TARGET),SUN)
 
     SUBDIRS_EXTRA = blas lapack
          CC = gcc
-      SHELL = /bin/sh
      RANLIB = ranlib
   MAKEFLAGS = -j2
     INSTALL = @echo $@ is built
 
    FOPTIONS = -Nl99 -dalign
    COPTIONS = -Wall
-#-Wshadow -Wcast-qual -Wwrite-strings -Wpointer-arith
-     FDEBUG = -g
-     CDEBUG = -g
   FOPTIMIZE = -O3
   COPTIMIZE = -g -O2
 
@@ -168,15 +178,12 @@ ifeq ($(TARGET),KSR)
 # KSR running OSF
 #
     SUBDIRS_EXTRA = 
-      SHELL = /bin/sh
      RANLIB = @echo
   MAKEFLAGS = -j20 
     INSTALL = @echo $@ is built
 
    FOPTIONS = -r8
    COPTIONS = 
-     FDEBUG = -g
-     CDEBUG = -g
   FOPTIMIZE = -xfpu3 -O1
   COPTIMIZE = -xfpu3 -O1
 
@@ -201,15 +208,12 @@ ifeq ($(TARGET),PARAGON)
          CC = icc
          AR = ar860
      RANLIB = @echo
-      SHELL = /bin/sh
 
   MAKEFLAGS = -j4 
     INSTALL = @echo $@ is built
 
   FOPTIONS = -Knoieee
   COPTIONS = -Knoieee
-    FDEBUG = -g
-    CDEBUG = -g
  FOPTIMIZE = -O2 -Minline=1000
  COPTIMIZE = -O2
 
@@ -245,19 +249,14 @@ ifeq ($(TARGET),DELTA)
        CPP = /usr/lib/cpp
         AR = ar860
     RANLIB = @echo
-     SHELL = /bin/sh
 
    INSTALL = rcp $@ delta1:
  MAKEFLAGS = -j2 
 
   FOPTIONS = -Knoieee
   COPTIONS = -Knoieee
-    FDEBUG = -g
-    CDEBUG = -g
  FOPTIMIZE = -O2 -Minline=1000
  COPTIMIZE = -O2
-
-   LDFLAGS = -node
 
    DEFINES = -DNX -DIPSC -DNO_BCOPY  -D__IPSC__
       LIBS = -L/home/delilah11/gifann/lib \
@@ -277,18 +276,16 @@ ifeq ($(TARGET),IBM)
 
     SUBDIRS_EXTRA = lapack blas
          FC = xlf
-         CC = cc
-         AR = ar
-     RANLIB = ranlib
-      SHELL = /bin/sh
-  MAKEFLAGS = -j1 
+    ARFLAGS = urs
+     RANLIB = echo
+  MAKEFLAGS = -j2
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
-   FOPTIONS = -qEXTNAME 
-   COPTIONS = 
-     FDEBUG = -g
-     CDEBUG = -g
+   FOPTIONS = -qEXTNAME
+   COPTIONS =
+  FOPTIMIZE = -O3
+  COPTIMIZE = -O
 
     DEFINES = -DIBM -DEXTNAM
 
@@ -317,8 +314,7 @@ else
 endif
   INCLUDES = -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
   CPPFLAGS = $(INCLUDES) $(DEFINES) $(LIB_DEFINES)
-   LDFLAGS = -L$(LIBDIR) $(LIBPATH)
-   ARFLAGS = ru
+   LDFLAGS = $(LDOPTIONS) -L$(LIBDIR) $(LIBPATH)
 
 
 #
@@ -342,9 +338,12 @@ ifeq ($(EXPLICITF),TRUE)
 	/bin/rm -f $*.f
 
 .F.f:	
-#IBM	$(CPP) $(INCLUDES) $(DEFINES) $*.F > $*.f
-#other	$(CPP) $(INCLUDES) $(DEFINES) < $*.F | sed '/^#/D' | sed '/^[a-zA-Z].*:$/D' > $*.f
-	$(CPP) $(INCLUDES) $(DEFINES) $*.F > $*.f
+ifeq ($(TARGET),IBM)
+	$(CPP) $(CPPFLAGS) $*.F > $*.f
+else
+	$(CPP) $(CPPFLAGS) < $*.F | sed '/^#/D' | sed '/^[a-zA-Z].*:$/D' > $*.f
+endif
+
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $*.c
 endif
