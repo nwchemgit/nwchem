@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, oskel)
-c $Id: int_1edk_ga.F,v 1.6 1999-11-02 23:21:53 bert Exp $
+c $Id: int_1edk_ga.F,v 1.7 1999-11-03 00:35:33 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -81,7 +81,6 @@ c
 c
 c     Re-initialize integrals so that pVp integral memory requirement is set
 c
-      print*,'doing douglas-kroll',form_type
       call int_terminate
       basis_array(1) = basis_in
       basis_array(2) = usebasis
@@ -118,7 +117,7 @@ c
       if (.not. ga_create(MT_DBL,nbf,nbf,'Tmatrix',1,1,Tg_a))
      $     call errquit('int_1edk_ga: ga_create failed Tmatrix',0)
       call ga_zero(Tg_a)
-      call int_1e_ga(usebasis,usebasis,Tg_a,'kinetic',oskel)
+      call int_1e_oldga(usebasis,usebasis,Tg_a,'kinetic',oskel)
 c
 c     Diagonalize T in the orthogonal basis, using the overlap S as metric to get XU
 c
@@ -126,7 +125,7 @@ c     Put eigenvalues in p2g_a and multiply by 2.0 to get p^2,
 c     destroy T because we don't need that one anymore
 c
       call ga_zero(tempg_a)
-      call int_1e_ga(usebasis,usebasis,tempg_a,'overlap',oskel)
+      call int_1e_oldga(usebasis,usebasis,tempg_a,'overlap',oskel)
       if (.not. ma_push_get(MT_DBL,nbf,'psquared',p2m_a,p2Im_a))
      $     call errquit('int_1edk_ga: ma_push_get failed psquared',0)
       call ga_diag(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
@@ -182,7 +181,7 @@ c
       if (.not. ga_create(MT_DBL,nbf,nbf,'Vmatrix',1,1,Vg_a))
      $     call errquit('int_1edk_ga: ga_create failed Vmatrix',0)
       call ga_zero(Vg_a)
-      call int_1e_ga(usebasis,usebasis,Vg_a,'potential',oskel)
+      call int_1e_oldga(usebasis,usebasis,Vg_a,'potential',oskel)
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,Vg_a,0.0d0,tempg_a)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,Vg_a)
@@ -206,7 +205,7 @@ c
 c     get p.Vp integrals and put them in Vdg_a
 c
       call ga_zero(Vdg_a)
-      call int_1e_ga(usebasis,usebasis,Vdg_a,'pVp',oskel)
+      call int_1e_oldga(usebasis,usebasis,Vdg_a,'pVp',oskel)
 c
 c     Do U^t Vdg_a U to transform to momentum space
 c
@@ -496,7 +495,7 @@ c
 c     Get pxVp (in Vdg_a) and transform to U^tVU and scale with 1/(Ep+Ep') for W terms
 c
       call ga_zero(Vdg_a)
-      call int_1e_ga(usebasis,usebasis,Vdg_a,'pxVp',oskel)
+      call int_1e_oldga(usebasis,usebasis,Vdg_a,'pxVp',oskel)
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,Vdg_a,0.0d0,tempg_a)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,Vdg_a)
@@ -565,7 +564,7 @@ c     Get overlap and multiply with Ug_a to get SXU
 c
       call ga_zero(tempg_a)
       call ga_zero(tmpg_a)
-      call int_1e_ga(usebasis, usebasis, tempg_a, 'overlap', .false.)
+      call int_1e_oldga(usebasis, usebasis, tempg_a, 'overlap', .false.)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,
      $              tmpg_a)
 c
@@ -587,7 +586,7 @@ c
      $     call errquit('int_1edk_ga: ma_pop_stack Em_a',0)
       if (.not. ma_pop_stack(p2m_a))
      $     call errquit('int_1edk_ga: ma_pop_stack p2m_a',0)
-      if (type .lt. 1) then
+      if (type .gt. 1) then
          if (.not. ga_destroy(Vdg_a))
      $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
          if (.not. ga_destroy(Vg_a))
@@ -624,12 +623,12 @@ c
 c     Create mixed overlap between basis_in and usebasis
 c
       call ga_zero(Mixg_a)
-      call int_1e_ga(usebasis,basis_in, Mixg_a, 'overlap', .false.)
+      call int_1e_oldga(usebasis,basis_in,Mixg_a,'overlap',.false.)
 c
 c     Create overlap matrix usebasis, invert to S^-1 and multiply with Mixg_a
 c
       call ga_zero(tempg_a)
-      call int_1e_ga(usebasis, usebasis,tempg_a, 'overlap', .false.)
+      call int_1e_oldga(usebasis,usebasis,tempg_a,'overlap',.false.)
       call ga_matpow(tempg_a, -1.0d0, 0.0d0)
       call ga_dgemm('n','n',nbf,nbf_in,nbf,1.0d0,tempg_a,Mixg_a,
      $              0.0d0,tmpg_a)
@@ -658,6 +657,11 @@ c
      $     call errquit('int_1edk_ga: ga_destroy Mixg_a',0)
       if (.not. ga_destroy(DKg_a))
      $     call errquit('int_1edk_ga: ga_destroy DKg_a',0)
+c
+c     We don't need the uncontracted basis anymore, destroy it also
+c
+      if (.not. bas_destroy(usebasis))
+     $   call errquit('int_1edk_ga: bas_destroy usebasis failed',0)
 c
       return
 c
