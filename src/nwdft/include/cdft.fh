@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.33 1999-08-10 21:21:03 jolguin Exp $
+C$Id: cdft.fh,v 1.34 1999-11-02 02:43:56 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -43,7 +43,7 @@ c
      ,     g_cdinv, g_2ceri, sic_orb_spin, sic_orb_occ, sic_orb_index,
      ,     g_sic_dens(2)
 c
-      parameter(numfunc=16)
+      parameter(numfunc=19)
       character*255 movecs_in, movecs_out
       character*8 movecs_guess
       common /cdft/
@@ -85,7 +85,8 @@ c
 c     Characters
 c
       common /ccdft/ 
-     &     title, gridtype, xname(15), cname(15), xcname(15),
+     &     title, gridtype, xname(numfunc), cname(numfunc), 
+     .     xcname(numfunc),
      &     movecs_in, movecs_out, movecs_guess
 c
 c-->  old dimensions.fh
@@ -126,6 +127,11 @@ c
 #include "nwc_const.fh"
       integer dft_ntags_bsmx, dft_max_cent
       parameter (dft_ntags_bsmx = 20, dft_max_cent = nw_max_atom)
+      integer mxpt_rect
+      integer ncubes_type
+      integer l_nxyz,k_nxyz ! MA handler
+      double precision l_rect
+      parameter (mxpt_rect=800,l_rect=4d0)
 c
       Common /quad/
 c
@@ -137,6 +143,7 @@ c
      & sintheta(MXtheta,MXagrid), cosphi(MXphi,MXagrid),
      & sinphi(MXphi,MXagrid), awghts(MXtheta,MXagrid), qrot(3,3),
      & wa_leb(MX_l_ang,IAC_MAX), za_leb(3,MX_l_ang,IAC_MAX),
+     .     ncubes_type(nw_max_atom),
 c
 c     Logicals
 c
@@ -151,5 +158,6 @@ c
      & rad_cutoff(2,dft_max_cent),task_list(2,MXqshells),n_tot_tasks,
      & red_iqsh(MXqshells,MAX_CHUNK),
      & nradin(dft_ntags_bsmx), nangin(dft_ntags_bsmx), 
-     & accqrin(dft_ntags_bsmx),grtagin(dft_ntags_bsmx),ngridin
+     & accqrin(dft_ntags_bsmx),grtagin(dft_ntags_bsmx),ngridin,
+     . l_nxyz,k_nxyz
 
