@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.35 2000-03-29 17:47:05 d3j191 Exp $
+c $Id: cf_main.F,v 1.36 2000-04-01 01:56:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -706,6 +706,10 @@ c
       z(3,3)=z(3,3)+zs(i,3,1)
     5 continue
 c
+      z(1,1)=z(1,1)+half*vpme(1)
+      z(2,2)=z(2,2)+half*vpme(4)
+      z(3,3)=z(3,3)+half*vpme(6)
+c
       ekc(1)=ewkc(1)+eskc(1)
       ekc(2)=ewkc(2)+eskc(2)
       ekc(3)=ewkc(3)+eskc(3)
@@ -714,9 +718,6 @@ c
 c
       volume=box(1)*box(2)*box(3)
 c
-      z(1,1)=z(1,1)+half*vpme(1)
-      z(2,2)=z(2,2)+half*vpme(4)
-      z(3,3)=z(3,3)+half*vpme(6)
       virial=z(1,1)+z(2,2)+z(3,3)
       ekinc=ekc(1)+ekc(2)+ekc(3)
 c
