@@ -2,7 +2,7 @@
      &                     n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.30 2000-04-26 19:03:05 edo Exp $
+c     $Id: dft_fitvc.F,v 1.31 2000-10-11 22:06:04 edo Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -256,7 +256,8 @@ c
               do imat = 1, nmat
                  call sca_lab_mat(AO_bas_han,ishc,ishd,
      &                nshbfc,nshbfd,g_vc(imat),
-     &                DBL_MB(isvec+(imat-1)*Nao2),dbl_mb(isvec2))
+     &                DBL_MB(isvec+(imat-1)*Nao2),dbl_mb(isvec2),
+     .                'put')
               enddo
 c
             endif
@@ -421,7 +422,8 @@ c
               do imat = 1, nmat
                  call sca_lab_mat(AO_bas_han,ishc,ishd,
      &                nshbfc,nshbfd,g_vc(imat),
-     &                DBL_MB(isvec+(imat-1)*Nao2),dbl_mb(isvec2))
+     &                DBL_MB(isvec+(imat-1)*Nao2),dbl_mb(isvec2),
+     .                'put')
               enddo
             endif
 c            

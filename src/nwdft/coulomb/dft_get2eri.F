@@ -1,6 +1,6 @@
       Subroutine dft_get2eri(CD_bas_han, g_2ceri)
 c
-C$Id: dft_get2eri.F,v 1.10 2000-05-03 22:45:09 edo Exp $
+C$Id: dft_get2eri.F,v 1.11 2000-10-11 22:06:04 edo Exp $
 c
       implicit none
       integer CD_bas_han
@@ -79,7 +79,8 @@ c
 c              Re-order.  
 c
                call sca_lab_mat(CD_bas_han, ishp, ishq, nshp, nshq,
-     &                          g_2ceri, DBL_MB(ibuf), DBL_MB(ivec))
+     &                          g_2ceri, DBL_MB(ibuf), DBL_MB(ivec),
+     .              'put')
 c
                n1 = nxtask(nproc,icount)
 c

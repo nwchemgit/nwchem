@@ -1,6 +1,6 @@
       Subroutine xc_fitv(Tmat, nTrows, nTcols, g_vxc, g_xcinv, IOLGC)
 c
-C$Id: xc_fitv.F,v 1.14 2000-04-19 23:46:54 edo Exp $
+C$Id: xc_fitv.F,v 1.15 2000-10-11 22:06:05 edo Exp $
 c
       implicit none
 c
@@ -275,7 +275,7 @@ c
                do 220 k = 1, nTcols
                   call sca_lab_mat(AO_bas_han, ishb, ishc, nshbfb, 
      &                 nshbfc, g_vxc(k), DBL_MB(ivvxc+(k-1)*Nao2),
-     &                 dbl_mb(ivec2))
+     &                 dbl_mb(ivec2),'acc')
   220          continue
 c              
                n1 = nxtval(nproc)
