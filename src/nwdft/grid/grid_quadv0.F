@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.40 2003-10-17 22:55:37 carlfahl Exp $
+C$Id: grid_quadv0.F,v 1.41 2003-10-21 23:53:59 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -243,7 +243,7 @@ c
 
       if (.not.MA_Push_Get(
      .     mt_dbl,len_mmat,'Mmat',lmmat,immat))
-     &   call errquit('grid_quadv0: cannot allocate Mmat',0)
+     &   call errquit('grid_quadv0: cannot allocate Mmat',0, MA_ERR)
 
 
 c
