@@ -22,10 +22,10 @@ end
 #      TESTING HARM BONDS          #
 ####################################
 
-#one harm bond
+#one spring bond
 constraints 
-  harm bond 1 3 5.0 1.30 
-  fix pos 1:2
+  spring bond 1 3 5.0 1.30 
+  fix atom 1:2
 end
 
 task dft optimize
@@ -34,11 +34,11 @@ constraints
 clear
 end
 
-#two harm bonds
+#two spring bonds
 constraints 
-  harm bond 1 3 5.0 1.30 
-  harm bond 1 2 5.0 1.70 
-  fix pos 1
+  spring bond 1 3 5.0 1.30 
+  spring bond 1 2 5.0 1.70 
+  fix atom 1
 end
 task dft optimize
 
@@ -54,14 +54,14 @@ geometry noautoz noautosym nocenter units au
 end
 
 constraints 
-  harm bond 1 3 5.0 1.30 
-  fix pos 1:2
+  spring bond 1 3 5.0 1.30 
+  fix atom 1:2
 end
 task dft optimize
 
 constraints 
-  harm bond 1 2 5.0 1.70 
-  unfix pos 2
+  spring bond 1 2 5.0 1.70 
+  unfix atom 2
 end
 task dft optimize
 
@@ -77,14 +77,14 @@ geometry noautoz noautosym nocenter units au
 end
 
 constraints one
-  harm bond 1 3 5.0 1.30 
-  fix pos 1:2
+  spring bond 1 3 5.0 1.30 
+  fix atom 1:2
 end
 
 constraints two
-  harm bond 1 3 5.0 1.30 
-  harm bond 1 2 5.0 1.70 
-  fix pos 1
+  spring bond 1 3 5.0 1.30 
+  spring bond 1 2 5.0 1.70 
+  fix atom 1
 end
 
 set constraints one
