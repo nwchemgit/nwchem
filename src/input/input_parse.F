@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.68 2002-01-19 04:28:30 zzhang Exp $
+C     $Id: input_parse.F,v 1.69 2002-01-19 04:52:32 zzhang Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -150,7 +150,7 @@ c
             else if (inp_compare(.false.,test,'hessian')) then
                call hess_input(rtdb)
             else if (inp_compare(.false.,test,'cckohn')) then
-               call cckohn_input(rtdb)
+c               call cckohn_input(rtdb)
 c
 c     INSERT NEW ELSE IF CLAUSES ABOVE HERE
 c
