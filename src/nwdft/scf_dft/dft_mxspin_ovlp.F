@@ -1,6 +1,6 @@
       Subroutine dft_mxspin_ovlp(basis, noc, g_alpha, g_beta, g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.7 2002-01-04 18:10:05 d3k958 Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.8 2002-01-07 18:22:57 d3k958 Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap
@@ -23,13 +23,14 @@ c
       integer i,j,jbig,n,ichunks,nbe,nend
       integer k_tmpr1, l_tmpr1, k_tmpr2, l_tmpr2, k_tmpi1, l_tmpi1
       integer g_ss, g_vt, g_u, g_t, k_vals, l_vals, noc(2), g_alphaT
-      integer nalp, g_ualpha, k_unp, l_unp
+      integer nalp, g_ualpha, k_unp, l_unp, l_part, k_part
+      integer nct, l_non, k_non, ind, g_a
 c     
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
 c
       double precision prodbig, prodtmp
-      double precision alp_thresh, eval
+      double precision alp_thresh, eval, ovlmax, ovl, absovl
 c
       me=ga_nodeid()
       nproc=ga_nnodes()
@@ -47,6 +48,7 @@ c
       if(.not.MA_Push_Get(MT_Int,nbf,'int_tmp1',l_tmpi1, k_tmpi1))
      &     call errquit('dft_mxspin_ovlp: cannot allocate int_tmp1',0)
 c
+      call ga_sync()
       call ga_zero(g_s)
       call int_1e_ga(basis,basis,g_s,'overlap',.false.)
 c
@@ -57,23 +59,114 @@ c
 c
 c
 c-----------------------------------------------------------------
-c Corresponding Orbital Tansformation
+c Find alpha orbital which best overlaps with each beta
+c orbital, then the remaining alpha orbitals are the un-partnered
+c ones:
 c
-c COT diagonalizes Sab*SabT (the S' calculated above). 
-c After COT, the overlap is maximized and it is clear which
+      if(.not.MA_Push_Get(MT_int,noc(2),'partners',l_part, k_part))
+     &    call errquit('dft_mxspin_ovlp: cannot allocate values',0)
+c
+c find alpha partners for the beta orbitals:
+c
+      do j = 1,noc(2)
+        ovlmax = 0.0d0
+      do i = 1,noc(1)
+        call ga_get(g_s,i,i,j,j,ovl,1)
+        absovl = dabs(ovl)
+        if (absovl.ge.ovlmax) then
+          ovlmax = absovl
+          int_mb(k_part+j-1) = i
+        endif
+      enddo !i
+      enddo !j
+c
+      if(me.eq.0) then
+      write(6,*)'ALPHA/BETA PARTNERS'
+      endif
+c
+      call ga_sync()
+      if(me.eq.0) then
+        ichunks = noc(2)/10
+        if(ichunks*10.lt.noc(2))ichunks = ichunks +1
+        do i = 1, ichunks
+          nbe = 10*(i-1) + 1
+          nend = nbe + 9
+          if(nend.gt.noc(2))nend = noc(2)
+          write(LuOut,9997)(n,n=nbe,nend)
+          write(LuOut,9998)(int_mb(k_part+n-1),n=nbe,nend) 
+        enddo
+        write(6,*)
+      endif
+c
+c determine which alpha orbitals are left over:
+c
+      if(.not.MA_Push_Get(MT_int,noc(1)-noc(2),'non',l_non, k_non))
+     &    call errquit('dft_mxspin_ovlp: cannot allocate values',0)
+      call ga_sync()
+c
+      nct=1
+      do 160 i = 1,noc(1)
+      do 150 j = 1,noc(2)
+        if(int_mb(k_part+j-1).EQ.i) goto 160
+        int_mb(k_non+nct-1) = i
+  150 continue    
+        nct = nct + 1
+  160 continue
+      if(me.eq.0) then
+      if (nct.GT.1) then
+         write(6,9995) (int_mb(k_non+n-1),n=1,nct-1)
+      endif 
+      endif
+c
+ 9995 format(/,1X,'UN-PARTNERED ALPHA ORBITALS :',20I4)  
+c
+c print the un-partnered alpha orbitals
+c
+      call ga_sync()
+      if(.not.ga_create(mt_dbl,nbf,nct,'unp alpha',0,0,g_a))
+     $        call errquit('ga_create failed', g_a)
+c
+      nct=nct-1
+      do i = 1,nct
+       ind = int_mb(k_non+i-1)
+       call ga_copy_patch('N',g_alpha,1,nbf,ind,ind
+     &         ,g_a,1,nbf,i,i)
+      enddo
+c
+      call ga_sync()
+       call movecs_print_anal(basis, 1, nct, 0.15d0, g_a,
+     & 'Alpha Orbitals without Beta Partners', 
+     &   .false., 0.0 ,.false., 0 , .false., 0 )
+c
+      if (.not. ga_destroy(g_a)) call errquit
+     &   ('dft_mxspin_ovlp: could not destroy g_a', 0)
+c
+      if(.not.MA_Pop_Stack(l_non))
+     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
+c
+      if(.not.MA_Pop_Stack(l_part))
+     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
+c
+c-----------------------------------------------------------------
+c Overlap Diagonalization
+c
+c SVD diagonalizes Sab*SabT (Sab is the S' calculated above). 
+c Following diagonalization, it is clearer which
 c alpha orbitals do not have beta partners. For alpha orbitals
-c with partners, the overlap is 1.0 (or very nearly). For
+c with partners, the overlap is very nearly 1.0. For
 c un-partnered orbitals, the overlap is zero.
 c See J. Chem. Phys. (1967) 47, 1936.
 c
 c
 c calculate Sab*SabT
 c 
+      call ga_sync()
       if(.not.ga_create(mt_dbl,noc(1),noc(1),'SS',0,0,g_ss))
      $        call errquit('ga_create failed', g_ss)
 c
       call ga_dgemm('N','T',noc(1),noc(1),noc(2),1.d0,g_s,g_s,0.d0,g_ss)
 c
+c      call ga_print(g_ss)
 c create arrays needed for SVD
 c
       if(.not.ga_create(mt_dbl,noc(1),noc(1),'u',0,0,g_u))
@@ -84,18 +177,24 @@ c
 c
       if(.not.MA_Push_Get(MT_dbl,noc(1),'values',l_vals, k_vals))
      &     call errquit('dft_mxspin_ovlp: cannot allocate values',0)
+      call ga_sync()
 c
 c perform SVD on Sab*SabT to determine unpaired alpha MO's
 c
       call ga_svd_seq(g_ss,g_u,g_vt,dbl_mb(k_vals))   
+c
+c      call ga_print(g_u)
+c      call ga_print(g_vt)
 c
       if (.not. ga_destroy(g_vt)) call errquit
      &   ('dft_mxspin_ovlp: could not destroy g_vt', 0)
       if (.not. ga_destroy(g_ss)) call errquit
      &   ('dft_mxspin_ovlp: could not destroy g_ss', 0)
 c
+      call ga_sync()
 c      write(6,*)'SVD eigenvalues'
 c      write(6,*) (dbl_mb(k_vals+i),i=0,noc(1)-1)
+c      call ga_sync()
 c
 c calculate transformed alpha vectors, alphaT
 c
@@ -104,9 +203,11 @@ c
 c
       call ga_zero(g_t)
 c
+      call ga_sync()
       do i = 1,noc(1)
        call ga_put(g_t,i,i,i,i,dbl_mb(k_vals+i-1),k_vals)
       enddo
+      call ga_sync()
 c
 c      call ga_print(g_t)
 c
@@ -116,6 +217,7 @@ c
       call ga_dgemm('N','N',nbf,noc(1),noc(1),1.d0
      &     ,g_alpha,g_u,0.d0,g_alphaT)
 c
+c      call ga_print(g_alpha)
       if (.not. ga_destroy(g_u)) call errquit
      &   ('dft_mxspin_ovlp: could not destroy g_u', 0)
 c
@@ -127,6 +229,7 @@ c
 c     create array containing only alpha MO's which don't
 c     have beta partners
 c
+      call ga_sync()
       nalp = 0
       alp_thresh = 1.0d-10
 c
@@ -146,6 +249,7 @@ c
 c      write(6,*) 'paired/unpaired alpha orbitals'
 c      write(6,*) (int_mb(k_unp+i-1),i=1,noc(1))
 c
+      call ga_sync()
       if(.not.ga_create(mt_dbl,nbf,nalp,'unp alphaT',0,0,g_ualpha))
      $        call errquit('ga_create failed', g_ualpha)
 c
@@ -157,6 +261,7 @@ c
      &         ,g_ualpha,1,nbf,nalp,nalp)
         endif
       enddo
+      call ga_sync()
 c
       if (.not. ga_destroy(g_alphaT)) call errquit
      &   ('dft_mxspin_ovlp: could not destroy g_alphaT', 0)
@@ -168,6 +273,7 @@ c
 c  
       if(.not.MA_Pop_Stack(l_vals))
      & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
+      call ga_sync()
 c
 c  resulting orbitals are printed after the alpha/beta overlap 
 c
@@ -215,10 +321,11 @@ c
 c
 c -------------------------------------------------------------
 c  print alpha orbitals without beta partners which resulted
-c  from COT above
+c  from diagonalization above
 c
-       call movecs_print_anal(basis, 1, nalp, 0.10d0, g_ualpha,
-     & 'Alpha Orbitals without Beta Partners (after COT) ', 
+      call ga_sync()
+       call movecs_print_anal(basis, 1, nalp, 0.15d0, g_ualpha,
+     &'Alpha Orbitals without Beta Partners (after maximizing overlap)', 
      &   .false., 0.0 ,.false., 0 , .false., 0 )
 c
       if (.not. ga_destroy(g_ualpha)) call errquit
