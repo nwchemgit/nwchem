@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.169 2000-07-27 22:24:19 edo Exp $
+c     $Id: dft_scf.F,v 1.170 2000-07-28 15:35:05 edo Exp $
 c     
       implicit none
 c
@@ -133,8 +133,8 @@ c
       logical dft_mem3c
       external dft_mem3c
 c !!! BGJ
-      logical cphf_poliz, do_poliz,grid_dump_write
-      external cphf_poliz,grid_dump_write
+      logical cphf_poliz, do_poliz
+      external cphf_poliz
 c !!! BGJ
 c
 c     ----- cosmo -----
