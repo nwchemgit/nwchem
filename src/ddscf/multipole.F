@@ -175,6 +175,8 @@ c
       logical bqbq, isatom
       character*2 symbol
       character*20 element
+      double precision pow_multi
+      external pow_multi
 c     
       if (.not. geom_ncent(geom, ncenter)) 
      $     call errquit('geom_nuc_mpole: bad geometry',0)
@@ -200,10 +202,13 @@ c
                      xl = dble(l)
                      xm = dble(m)
                      ind = ind + 1
-                     moments(ind) = moments(ind) + q*(
-     $                    (coord(1)-center(1))**xk *
-     $                    (coord(2)-center(2))**xl * 
-     $                    (coord(3)-center(3))**xm)
+c
+c     On Fujitsu 0**0 is not 1
+c
+                     moments(ind) = moments(ind) + q*
+     $                    pow_multi((coord(1)-center(1)),xk) *
+     $                    pow_multi((coord(2)-center(2)),xl) * 
+     $                    pow_multi((coord(3)-center(3)),xm)
                   end do
                end do
             end do
@@ -211,6 +216,17 @@ c
       end do
 c
       end 
+      double precision function pow_multi(a,b)
+      double precision a, b
+c
+c     On Fujitsu 0**0 is not 1
+c
+      if (b .eq. 0.0d0) then
+         pow_multi = 1.0d0
+      else
+         pow_multi = a**b
+      endif
+      end
 
 
 
