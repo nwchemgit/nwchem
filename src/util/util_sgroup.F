@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.6 2004-12-01 18:00:57 edo Exp $
+C$Id: util_sgroup.F,v 1.7 2004-12-01 18:27:38 edo Exp $
       logical function util_sgstart(rtdb)
       implicit none
 #include "stdio.fh"
@@ -61,10 +61,10 @@ c
          luout=90+mygroup
          write(0,*) mygroup,'new value for luout',luout
          if(ga_nodeid().eq.0) then
-            inquire(luout, exist=lstatus)
+            inquire(luout, exist=lstatus,iostat=errout)
             if(lstatus) then
-               open(luout,  status='old')
-               close(luout, status='delete')
+               open(luout,  status='old',iostat=errout)
+               if(errout.eq.0)close(luout, status='delete')
             else
                write(0,*) ' fort.9x not there'
             endif
