@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.193 1997-01-14 22:55:55 twclark Exp $
+# $Id: makefile.h,v 1.194 1997-01-15 17:47:09 d3j191 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -543,7 +543,7 @@ FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
  COPTIMIZE = -O
 
     DEFINES = -DSGI -DSGITFP -DEXT_INT -DHAVE_LOC
-  CORE_LIBS = -lutil -lpeigs -pfft -lchemio -lglobal -llapack -lblas
+  CORE_LIBS = -lutil -lpeigs -lpfft -lchemio -lglobal -llapack -lblas
 endif
 
 
