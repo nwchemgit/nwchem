@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.19 1996-07-18 23:57:25 d3e129 Exp $
+c $Id: cando_sp.F,v 1.20 1996-07-26 17:02:55 pg481 Exp $
 c
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -257,13 +257,13 @@ c   this will change once texas can do 2 and 3 center integrals
 c
 c once available change .le. to .lt.
 c
-      if (ish.le.0 .or. ish.gt.ncont_tot_gb(basis))
+      if (ish.lt.0 .or. ish.gt.ncont_tot_gb(basis))
      $     call errquit('cando_txs: ish bad', ish)
-      if (jsh.le.0 .or. jsh.gt.ncont_tot_gb(basis))
+      if (jsh.lt.0 .or. jsh.gt.ncont_tot_gb(basis))
      $     call errquit('cando_txs: jsh bad', jsh)
 c
 c check for spherical false until spherical debuged in texas
-      cando_txs = cando_txs .and. (.not.bas_spherical(basis))
+*      cando_txs = cando_txs .and. (.not.bas_spherical(basis))
       if (ish.gt.0) then
         mytype = infbs_cont(CONT_TYPE,sf_ibs_cn2ucn(ish,basis),basis)
         cando_txs = cando_txs.and. (mytype.ge.-1)

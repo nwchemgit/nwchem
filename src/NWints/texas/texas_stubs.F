@@ -3,7 +3,8 @@ C these routines are only called by various api routines
 C 
 C RA Kendall 11/95 PNNL
 C
-* $Id: texas_stubs.F,v 1.3 1995-11-29 02:14:49 d3e129 Exp $
+* $Id: texas_stubs.F,v 1.4 1996-07-26 17:03:26 pg481 Exp $
+#define USE_TEXAS
 #if defined(USE_TEXAS)
       subroutine texas_using_it4pnl()
       end

@@ -1,5 +1,5 @@
       subroutine prec2ij(ibl, bl,inx,npar,nbl2, iis,jjs,ijbl)
-c $Id: precalc2.F,v 1.11 1996-07-10 00:34:11 rg240 Exp $
+c $Id: precalc2.F,v 1.12 1996-07-26 17:03:13 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
@@ -249,10 +249,24 @@ c
         ja=inx(1,jcs)+1
         je=inx(5,jcs)
         jat=inx(2,jcs)
-        xab=datnuc(2,iat)-datnuc(2,jat)
-        yab=datnuc(3,iat)-datnuc(3,jat)
-        zab=datnuc(4,iat)-datnuc(4,jat)
+c
+c center23 (atom number 0 is the one with s-orbital/zero-exp.)
+c
+        if(iat.eq.0) iat=jat
+        if(jat.eq.0) jat=iat
+c
+        if(iat.eq.0 .and. jat.eq.0) then
+           xab=zero
+           yab=zero
+           zab=zero
+        else
+           xab=datnuc(2,iat)-datnuc(2,jat)
+           yab=datnuc(3,iat)-datnuc(3,jat)
+           zab=datnuc(4,iat)-datnuc(4,jat)
+        endif
+c
         rr=xab*xab+yab*yab+zab*zab
+c
         ij=0
            do 200 is=ia,ie
            aa=datbas(1,is)
@@ -274,20 +288,23 @@ c
              else
 c center23:
                 if(aa.le.zero .and. bb.gt.zero) then
-                   write(8,*)' exp_a=zero ; ics=',ics
+c>>>>>>>>>         write(8,*)' exp_a=zero ; ics=',ics
                    apb=aa+bb
                    apb1=one/apb
                    abprim(ijpar,ij,1)=apb
                    abprim(ijpar,ij,2)=apb1
-                   abprim(ijpar,ij,3)=sqrt(half*sqrt(bb)) ! sqrt(Sbb)
+c>>*a-3/4          abprim(ijpar,ij,3)=     sqrt(bb)             !Sbb
+                   abprim(ijpar,ij,3)=one/sqrt(sqrt(bb))   !sqrt(Sbb)
                 endif
                 if(aa.gt.zero .and. bb.le.zero) then
-                   write(8,*)' exp_b=zero ; jcs=',jcs
-                   apb=aa+bb
+c>>>>>>>>>         write(8,*)' exp_b=zero ; jcs=',jcs
+c>>>>>>>>>         apb=aa+bb
                    apb1=one/apb
                    abprim(ijpar,ij,1)=apb
                    abprim(ijpar,ij,2)=apb1
-                   abprim(ijpar,ij,3)=sqrt(half*sqrt(aa)) ! sqrt(Saa)
+c>>>>>>>>>>>>      abprim(ijpar,ij,3)=sqrt(sqrt(aa)) ! sqrt(Saa)
+c>>*a-3/4          abprim(ijpar,ij,3)=     sqrt(aa)             !Saa
+                   abprim(ijpar,ij,3)=one/sqrt(sqrt(aa))   !sqrt(Saa)
                 endif
                 if(aa.le.zero .and. bb.le.zero) then
                    abprim(ijpar,ij,1)=zero
@@ -1393,10 +1410,24 @@ c
         ja=inx(1,jcs)+1
         je=inx(5,jcs)
         jat=inx(2,jcs)
-        xab=datnuc(2,iat)-datnuc(2,jat)
-        yab=datnuc(3,iat)-datnuc(3,jat)
-        zab=datnuc(4,iat)-datnuc(4,jat)
+c
+c center23 (atom number 0 is the one with s-orbital/zero-exp.)
+c
+        if(iat.eq.0) iat=jat
+        if(jat.eq.0) jat=iat
+c
+        if(iat.eq.0 .and. jat.eq.0) then
+           xab=zero
+           yab=zero
+           zab=zero
+        else
+           xab=datnuc(2,iat)-datnuc(2,jat)
+           yab=datnuc(3,iat)-datnuc(3,jat)
+           zab=datnuc(4,iat)-datnuc(4,jat)
+        endif
+c
         rr=xab*xab+yab*yab+zab*zab
+c
            ij=0
            do 200 is=ia,ie
            aa=datbas(1,is)
@@ -1423,30 +1454,31 @@ cnew            if(ijpar.eq.1) then
              else
 c center23:
                 if(aa.le.zero .and. bb.gt.zero) then
-                   write(8,*)' exp_a=zero ; ics=',ics
-cnew               if(ijpar.eq.1) then
+c>>>>>>>>>         write(8,*)' exp_a=zero ; ics=',ics
                    if(ij_u .eq.1) then
                       apb(ij)=aa+bb
                       rapb(ij)=one/apb(ij)
-                      sqrtx(ij)=sqrt(half*sqrt(bb)) ! sqrt(Sbb)
+c>>*b-3/4             sqrtx(ij)=     sqrt(bb)       ! Sbb 
+                      sqrtx(ij)=one/sqrt(sqrt(bb))  ! sqrt(Sbb)
                       sqrt3=sqrtx(ij)
                    else
                       sqrt3=sqrtx(ij)
                    endif
-                   sab(ijpar,ij)=sqrt3                ! sqrt(Sbb)
+                   sab(ijpar,ij)=sqrt3               ! Sbb
                 endif
                 if(aa.gt.zero .and. bb.le.zero) then
-                   write(8,*)' exp_b=zero ; jcs=',jcs
+c>>>>>>>           write(8,*)' exp_b=zero ; jcs=',jcs
 cnew               if(ijpar.eq.1) then
                    if(ij_u .eq.1) then
                       apb(ij)=aa+bb
                       rapb(ij)=one/apb(ij)
-                      sqrtx(ij)=sqrt(half*sqrt(aa)) ! sqrt(Saa)
+c>>>*a-3/4            sqrtx(ij)=     sqrt(aa)       ! Saa 
+                      sqrtx(ij)=one/sqrt(sqrt(aa))  ! sqrt(Saa)
                       sqrt3=sqrtx(ij)
                    else
                       sqrt3=sqrtx(ij)
                    endif
-                   sab(ijpar,ij)=sqrt3              ! sqrt(Saa)
+                   sab(ijpar,ij)=sqrt3              ! Saa
                 endif
                 if(aa.le.zero .and. bb.le.zero) then
                    apb(ij)=zero

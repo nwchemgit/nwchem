@@ -1,6 +1,6 @@
       subroutine int_2e3c(brain, ish, ketin, jsh, ksh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e3c.F,v 1.7 1996-07-18 23:57:49 d3e129 Exp $
+c $Id: int_2e3c.F,v 1.8 1996-07-26 17:02:57 pg481 Exp $
       implicit none
 c
 c basic api routine to generate a block of 3 center two electron integrals
@@ -25,6 +25,7 @@ c::functions
       external cando_nw
       external int_chk_sh
       external int_chk_init
+#define USE_TEXAS
 #if defined(USE_TEXAS)
       logical cando_txs
       external cando_txs
@@ -80,7 +81,6 @@ c
       status_nw = cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,ksh)
 #if defined(USE_TEXAS)
       status_txs = cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,ksh)
-      status_txs = .false.
 #endif
 c
 c     define center information required 
@@ -102,6 +102,10 @@ c
       d_cent  = (sf_ibs_cn2ce(ksh,ket))
 c
 #if defined(USE_TEXAS)
+c---kw--
+c     write(6,*) ' status_txs ', status_txs
+c     status_txs= .true.
+c---kw--
       if (status_txs) then
         num_quart = 1
         dummy_lab(1) = 0

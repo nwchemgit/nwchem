@@ -160,7 +160,7 @@ c==============================================================
       subroutine destbul(ikbl,nbls,nblok1,iis,jjs,ncs,inx,buf,
      *     buffer, icfx,jcfx,kcfx,lcfx, q4, use_q4,
      *     icfg,jcfg,kcfg,lcfg,ngcd,lnijkl,indxp,ipres,iqorder,
-     $     map_txs_pnl)
+     *     map_txs_pnl)
 c----------------------------------------------------------------
 c     This is called for PNL-requested set of contracted shell quartets.
 c     Only non-zero Integrals return WITH labels and they do not have 
@@ -169,7 +169,7 @@ c
 c     buf           - in-comming integrals
 c     
 c     buffer        - outgoing integrals
-c     icfx()-lcfx() - corresponding TEXAS labels
+c     icfx()-lcfx() - corresponding labels (PNL)
 c----------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       integer map_txs_pnl(*)        ! txs to pnl basis map = ncfunct
@@ -192,6 +192,13 @@ c
       dimension ipres(*), iqorder(*)
       dimension indxp(*)
       dimension q4(*)
+c TEST --------------------------
+c
+c      IF( max(ilen,jlen,klen,llen).ge.5) then
+c      write(6,*) ' BLOCK=',ikbl,' shell-size=',ilen,jlen,klen,llen
+c      ENDIF
+c
+c TEST --------------------------
 c--------------------------------
       data zero,half /0.d0,0.5d0/
 c----------------------------
@@ -199,7 +206,6 @@ c     do not zero out integ_n0 here
 c----------------------------
 c     loop over quartets belonging to the block IKBL :
 c     
-c-----symmetry is used---------------------------
 c     
       do 10  ijklp=1,nbls
          ijkl=indxp(ijklp)
@@ -244,6 +250,31 @@ c
             jcff=map_txs_pnl(jcff+1)-1
             kcff=map_txs_pnl(kcff+1)-1
             lcff=map_txs_pnl(lcff+1)-1
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+CTEST
+c-----test print only : begining -----------------------------
+c      IF( max(ilen,jlen,klen,llen).ge.5) then
+c              integ=ijklp + (iqu-1)*nbls*lnijkl
+c              do icf=icff+1,icff+ilen
+c                 do jcf=jcff+1,jcff+jlen
+c                    do kcf=kcff+1,kcff+klen
+c                       do lcf=lcff+1,lcff+llen
+c                          xint0=buf(integ)
+cccccccccccc-----------    if(abs(xint0).gt. eps ) then
+cccccccccccc-----------       integ_n0=integ_n0+1
+cccccccccccc-----------       buffer(integ_n0)=xint0*symfact
+cccccccccccc-----------    endif
+c                          write(6,66) icf,jcf,kcf,lcf,xint0
+c  66 format(4(i3,1x),2(f12.7,1x))
+c                          integ=integ+nbls
+c                       enddo
+c                    enddo
+c                 enddo
+c              enddo
+c      ENDIF
+c-----test print only : end      -----------------------------
+CTEST
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     
 c     Indices and integrals in the quartet ijkl :
 c     

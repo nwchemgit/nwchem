@@ -1,6 +1,6 @@
       subroutine int_2e2c(brain, ish, ketin, jsh, 
      &       lscr, scr, leri, eri)
-c $Id: int_2e2c.F,v 1.7 1996-07-18 23:57:47 d3e129 Exp $
+c $Id: int_2e2c.F,v 1.8 1996-07-26 17:02:56 pg481 Exp $
       implicit none
 c
 c basic api routine to generate a block of 2 center two electron integrals
@@ -25,6 +25,7 @@ c::functions
       external cando_nw
       external int_chk_sh
       external int_chk_init
+#define USE_TEXAS
 #if defined(USE_TEXAS)
       logical cando_txs
       external cando_txs
@@ -79,7 +80,6 @@ c
       status_nw = cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,0)
 #if defined(USE_TEXAS)
       status_txs = cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,0)
-      status_txs = .false.
 #endif
 
 c

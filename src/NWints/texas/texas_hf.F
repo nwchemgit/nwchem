@@ -1,4 +1,4 @@
-c $Id: texas_hf.F,v 1.13 1996-07-12 18:25:49 pg481 Exp $
+c $Id: texas_hf.F,v 1.14 1996-07-26 17:03:24 pg481 Exp $
 c=================================================================
       subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
@@ -39,29 +39,79 @@ c----------------------------------------------------------------------
       integer basis_init
       common /c_basis_init/ basis_init
 c----------------------------------------------------------------------
+      integer num_bas_1,num_bas_2,num_bas_3
+      integer ncs_bas_1,ncs_bas_2,ncs_bas_3
+      integer nps_bas_1,nps_bas_2,nps_bas_3
+      integer nat_bas_1,nat_bas_2,nat_bas_3
+      integer ncf_bas_1,ncf_bas_2,ncf_bas_3
+      common /multi_basis/ num_bas_1,num_bas_2,num_bas_3, ! Basis set handle
+     *                     ncs_bas_1,ncs_bas_2,ncs_bas_3, ! Cummulative #shells
+     *                     nps_bas_1,nps_bas_2,nps_bas_3, ! Cummulative #prims unused
+     *                     nat_bas_1,nat_bas_2,nat_bas_3, ! Cummulative #atoms unused
+     *                     ncf_bas_1,ncf_bas_2,ncf_bas_3  ! Cummulative #basis functions
 c
+c to see if any of these first shells from this request are ZERO
+c
+      integer ish_first,jsh_first,ksh_first,lsh_first
+c----------------------------------------------------------------------
 c... check for consistency the input basis is what was initialized.
-      if (.not.
-     &    ((ij_basis.eq.basis_init).and.
-     &     (kl_basis.eq.basis_init))) then
-        write(6,*)' basis_init handle :',basis_init
-        write(6,*)' ij_basis   handle :',ij_basis
-        write(6,*)' kl_basis   handle :',kl_basis
-        call errquit
-     &   ('texas_hf2_m: called with different basis set handle',911)
-      endif
-c--------------------------------------------------------
-c switch from txs bl() to pnl blscr()
 c
       if(.not.more_int) then
-ccccc    call switch_scr(blscr,l_blscr)
+c     ----------------------------------------------
+         if(ij_basis.eq.num_bas_1) go to 1001
+         if(ij_basis.eq.num_bas_2) go to 1001
+         if(ij_basis.eq.num_bas_3) go to 1001
+c
+         write(6,*)' basis sets initialized :'
+         if(num_bas_1.gt.0) write(6,*) num_bas_1
+         if(num_bas_2.gt.0) write(6,*) num_bas_2
+         if(num_bas_3.gt.0) write(6,*) num_bas_3
+         write(6,*)' ij_basis   handle :',ij_basis
+         call errquit
+     &   ('texas_hf2_m: called with different basis set handle',911)
+ 1001    continue
+c     ----------------------------------------------
+         if(kl_basis.eq.num_bas_1) go to 1002
+         if(kl_basis.eq.num_bas_2) go to 1002
+         if(kl_basis.eq.num_bas_3) go to 1002
+c
+         write(6,*)' basis sets initialized :'
+         if(num_bas_1.gt.0) write(6,*) num_bas_1
+         if(num_bas_2.gt.0) write(6,*) num_bas_2
+         if(num_bas_3.gt.0) write(6,*) num_bas_3
+         write(6,*)' kl_basis   handle :',kl_basis
+         call errquit
+     &   ('texas_hf2_m: called with different basis set handle',911)
+ 1002    continue
+c        --------------------------------------------------------------
+c        remember the first shells in this request(if ZERO or not)
+         ish_first=ish(1)
+         jsh_first=jsh(1)
+         ksh_first=ksh(1)
+         lsh_first=lsh(1)
+c        --------------------------------------------------------------
+c        Check what basis sets are involved and what type of integrals
+c        is requested (4-c , 3-c or 2-c ; c=center)
+c
+         call request_update(ish,jsh,ksh,lsh,nquart,ij_basis,kl_basis )
+c        --------------------------------------------------------------
+c        switch from txs bl() to pnl blscr()
+c
          call switch_scr(dbl_mb(ntxs_bl_scr),blscr,l_blscr)
+c        --------------------------------------------------------------
       endif
-c--------------------------------------------------------
-       call mul_quart(ish,jsh,ksh,lsh,nquart, q4,use_q4,
-     *                ra,rb,rc,rd,use_r, blscr,l_blscr,eri,leri,
-     *                icf,jcf,kcf,lcf,integ_n0,labels, more_int)
-c--------------------------------------------------------
+c----------------------------------------------------------------------
+      call mul_quart(ish,jsh,ksh,lsh,nquart, q4,use_q4,
+     *               ra,rb,rc,rd,use_r, blscr,l_blscr,eri,leri,
+     *               icf,jcf,kcf,lcf,integ_n0,labels, more_int)
+c----------------------------------------------------------------------
+c In the case of different basis sets update the label's arrays
+c
+      if(labels) then
+         call labels_update(icf,jcf,kcf,lcf,integ_n0,ij_basis,kl_basis,
+     *                      ish_first,jsh_first,ksh_first,lsh_first)
+      endif
+c----------------------------------------------------------------------
       end
 c=================================================================
       subroutine mul_quart(icspnl,jcspnl,kcspnl,lcspnl,nquart,q4,use_q4,
@@ -96,7 +146,8 @@ c requested quartets of shells :
 c returning integrals and indeces :
       dimension eri(leri)
       dimension icf(*),jcf(*),kcf(*),lcf(*)
-c
+c----------------------------------------------------------------
+c eri - PNL buffer for returning integrals 
 c----------------------------------------------------------------
              call txs_second(tim_beg)
 c----------------------------------------------------------------
@@ -118,8 +169,6 @@ c----------------------------------------------------------------
       nqrts_pnl=nqrts_pnl+nquart
 ctest
 c      write(6,*)' call no=',ncall_pnl,' scratch size=',l_blscr
-c----------------------------------------------------------------
-c eri - PNL buffer for returning integrals 
 c----------------------------------------------------------------
       iforwhat=1
 c----------------------------------------------------------------
@@ -1082,6 +1131,274 @@ c
       if(nalloc_bl.gt.nall_peak) nall_peak=nalloc_bl
       if(nmark_bl .gt.mark_peak) mark_peak=nmark_bl 
       if(maxmem_bl.gt. mem_peak) mem_peak=maxmem_bl
+c
+      end
+c=====================================================================
+      subroutine request_update(icspnl,jcspnl,kcspnl,lcspnl,nquart,
+     *                          num_bas_ij,num_bas_kl)
+c
+c---------------------------------------------------------------------
+c I,J shells might belong to different basis set than K,L shells
+c---------------------------------------------------------------------
+c num_bas_ij , num_bas_kl = basis sets for IJ,KL .
+c For 4-center (ordinary) two-electron integrals ALL four vectors are
+c non-zero (just numbers of contracted shells).
+c For 3-center two-el. integrals ONE of these vectors should be ZERO.
+c For 2-center two-el. integrals TWO of these vectors should be ZERO.
+c
+c If ZERO is found then it is replaced by NCS-the LAST contracted shell
+c (in PNL order). This is the S-type shell (uncontracted & exp.=zero)
+c which was added to the basis set. 
+c---------------------------------------------------------------------
+c
+      logical cent2,cent3,cent4
+      common /what_was_calc/ cent2,cent3,cent4
+c---------------------------------------------------------------------
+      common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
+     1,nsy(4),nsym,nganz(35),lopt(30)
+c---------------------------------------------------------------------
+      common /multi_basis/ num_bas_1,num_bas_2,num_bas_3,
+     *                     ncs_bas_1,ncs_bas_2,ncs_bas_3,
+     *                     nps_bas_1,nps_bas_2,nps_bas_3,
+     *                     nat_bas_1,nat_bas_2,nat_bas_3,
+     *                     ncf_bas_1,ncf_bas_2,ncf_bas_3 
+c
+      dimension icspnl(nquart),jcspnl(nquart),
+     *          kcspnl(nquart),lcspnl(nquart)
+c---------------------------------------------------------------------
+ctest
+c        write(6,*)'ncs_bas_1-3=',ncs_bas_1,ncs_bas_2,ncs_bas_3
+c        write(6,*)' entr iscpnl :', icspnl
+c        write(6,*)' entr jscpnl :', jcspnl
+c        write(6,*)' entr kscpnl :', kcspnl
+c        write(6,*)' entr lscpnl :', lcspnl
+ctest
+c
+      ics=icspnl(1)
+      jcs=jcspnl(1)
+      kcs=kcspnl(1)
+      lcs=lcspnl(1)
+c
+      ncenters=0
+      if(ics.gt.0) ncenters=ncenters+1
+      if(jcs.gt.0) ncenters=ncenters+1
+      if(kcs.gt.0) ncenters=ncenters+1
+      if(lcs.gt.0) ncenters=ncenters+1
+c
+c     write(6,*) ncenters,'-center integrals are requested'
+c
+      if(ncenters.eq.4) then
+         cent4=.true.
+c
+c        all possible cases 
+c        -----------------
+c        if(num_bas_ij.eq.num_bas_1) then
+c        endif
+         if(num_bas_ij.eq.num_bas_2) then
+            call ncshl_update(icspnl,nquart,ncs_bas_1)
+            call ncshl_update(jcspnl,nquart,ncs_bas_1)
+         endif
+         if(num_bas_ij.eq.num_bas_3) then
+            call ncshl_update(icspnl,nquart,ncs_bas_2)
+            call ncshl_update(jcspnl,nquart,ncs_bas_2)
+         endif
+c
+c        if(num_bas_kl.eq.num_bas_1) then
+c        endif
+         if(num_bas_kl.eq.num_bas_2) then
+            call ncshl_update(kcspnl,nquart,ncs_bas_1)
+            call ncshl_update(lcspnl,nquart,ncs_bas_1)
+         endif
+         if(num_bas_kl.eq.num_bas_3) then
+            call ncshl_update(kcspnl,nquart,ncs_bas_2)
+            call ncshl_update(lcspnl,nquart,ncs_bas_2)
+         endif
+      endif
+c
+      if(ncenters.eq.3) then
+         cent3=.true.
+c
+c        all possible cases 
+c        -----------------
+         if(ics.eq.0) then
+               do ii=1,nquart
+                  icspnl(ii)=ncs
+               enddo
+            if(num_bas_ij.eq.num_bas_2) then
+               call ncshl_update(jcspnl,nquart,ncs_bas_1)
+            endif
+            if(num_bas_ij.eq.num_bas_3) then
+               call ncshl_update(jcspnl,nquart,ncs_bas_2)
+            endif
+            if(num_bas_kl.eq.num_bas_2) then
+               call ncshl_update(kcspnl,nquart,ncs_bas_1)
+               call ncshl_update(lcspnl,nquart,ncs_bas_1)
+            endif
+            if(num_bas_ij.eq.num_bas_3) then
+               call ncshl_update(kcspnl,nquart,ncs_bas_2)
+               call ncshl_update(lcspnl,nquart,ncs_bas_2)
+            endif
+         endif
+c        -----------------
+         if(jcs.eq.0) then
+               do ii=1,nquart
+                  jcspnl(ii)=ncs
+               enddo
+            if(num_bas_ij.eq.num_bas_2) then
+               call ncshl_update(icspnl,nquart,ncs_bas_1)
+            endif
+            if(num_bas_ij.eq.num_bas_3) then
+               call ncshl_update(icspnl,nquart,ncs_bas_2)
+            endif
+            if(num_bas_kl.eq.num_bas_2) then
+               call ncshl_update(kcspnl,nquart,ncs_bas_1)
+               call ncshl_update(lcspnl,nquart,ncs_bas_1)
+            endif
+            if(num_bas_ij.eq.num_bas_3) then
+               call ncshl_update(kcspnl,nquart,ncs_bas_2)
+               call ncshl_update(lcspnl,nquart,ncs_bas_2)
+            endif
+         endif
+c        -----------------
+         if(kcs.eq.0) then
+               do ii=1,nquart
+                  kcspnl(ii)=ncs
+               enddo
+            if(num_bas_ij.eq.num_bas_2) then
+               call ncshl_update(icspnl,nquart,ncs_bas_1)
+               call ncshl_update(jcspnl,nquart,ncs_bas_1)
+            endif
+            if(num_bas_ij.eq.num_bas_3) then
+               call ncshl_update(icspnl,nquart,ncs_bas_2)
+               call ncshl_update(jcspnl,nquart,ncs_bas_2)
+            endif
+            if(num_bas_kl.eq.num_bas_2) then
+               call ncshl_update(lcspnl,nquart,ncs_bas_1)
+            endif
+            if(num_bas_ij.eq.num_bas_3) then
+               call ncshl_update(lcspnl,nquart,ncs_bas_2)
+            endif
+         endif
+c        -----------------
+         if(lcs.eq.0) then
+               do ii=1,nquart
+                  lcspnl(ii)=ncs
+               enddo
+            if(num_bas_ij.eq.num_bas_2) then
+               call ncshl_update(icspnl,nquart,ncs_bas_1)
+               call ncshl_update(jcspnl,nquart,ncs_bas_1)
+            endif
+            if(num_bas_ij.eq.num_bas_3) then
+               call ncshl_update(icspnl,nquart,ncs_bas_2)
+               call ncshl_update(jcspnl,nquart,ncs_bas_2)
+            endif
+            if(num_bas_kl.eq.num_bas_2) then
+               call ncshl_update(kcspnl,nquart,ncs_bas_1)
+            endif
+            if(num_bas_ij.eq.num_bas_3) then
+               call ncshl_update(kcspnl,nquart,ncs_bas_2)
+            endif
+         endif
+      endif
+c
+      if(ncenters.eq.2) then
+         cent2=.true.
+c
+c        only j=0 & l=0 case !!!
+c        -----------------
+               do ii=1,nquart
+                  jcspnl(ii)=ncs
+                  lcspnl(ii)=ncs
+               enddo
+            if(num_bas_ij.eq.num_bas_2) then
+               call ncshl_update(icspnl,nquart,ncs_bas_1)
+            endif
+            if(num_bas_ij.eq.num_bas_3) then
+               call ncshl_update(icspnl,nquart,ncs_bas_2)
+            endif
+            if(num_bas_kl.eq.num_bas_2) then
+               call ncshl_update(kcspnl,nquart,ncs_bas_1)
+            endif
+            if(num_bas_kl.eq.num_bas_3) then
+               call ncshl_update(kcspnl,nquart,ncs_bas_2)
+            endif
+ctest
+c        write(6,*)' exit iscpnl :', icspnl
+c        write(6,*)' exit jscpnl :', jcspnl
+c        write(6,*)' exit kscpnl :', kcspnl
+c        write(6,*)' exit lscpnl :', lcspnl
+ctest
+      endif
+c---------------------------------------------------------------------
+      end
+c=====================================================================
+      subroutine ncshl_update(icspnl,nquart,ncs_bas_1)
+      dimension icspnl(nquart)
+c
+            do ii=1,nquart
+               icspnl(ii)=icspnl(ii)+ncs_bas_1
+            enddo
+c
+      end
+c=====================================================================
+      subroutine labels_update(icf,jcf,kcf,lcf,integ,ij_basis,kl_basis,
+     *                         ish_first,jsh_first,ksh_first,lsh_first)
+c---------------------------------------------------------------------
+      common /multi_basis/ num_bas_1,num_bas_2,num_bas_3,
+     *                     ncs_bas_1,ncs_bas_2,ncs_bas_3,
+     *                     nps_bas_1,nps_bas_2,nps_bas_3,
+     *                     nat_bas_1,nat_bas_2,nat_bas_3,
+     *                     ncf_bas_1,ncf_bas_2,ncf_bas_3 
+      dimension icf(*),jcf(*),kcf(*),lcf(*)
+c---------------------------------------------------------------------
+ctest
+c        write(6,*)'ncf_bas_1-3=',ncf_bas_1,ncf_bas_2,ncf_bas_3
+c        write(6,*)' entr icf1-9 :',(icf(ii),ii=1,9)
+c        write(6,*)' entr jcf1-9 :',(jcf(ii),ii=1,9)
+c        write(6,*)' entr kcf1-9 :',(kcf(ii),ii=1,9)
+c        write(6,*)' entr lcf1-9 :',(lcf(ii),ii=1,9)
+ctest
+c
+      if(ij_basis.eq.num_bas_1 .and. kl_basis.eq.num_bas_1) RETURN
+c
+c ij
+c
+      if(ij_basis.eq.num_bas_2) then
+        if(ish_first.gt.0) call ncfun_update(icf,integ,ncf_bas_1)
+        if(jsh_first.gt.0) call ncfun_update(jcf,integ,ncf_bas_1)
+      endif
+c
+      if(ij_basis.eq.num_bas_3) then
+        if(ish_first.gt.0) call ncfun_update(icf,integ,ncf_bas_2)
+        if(jsh_first.gt.0) call ncfun_update(jcf,integ,ncf_bas_2)
+      endif
+c
+c kl
+c
+      if(kl_basis.eq.num_bas_2) then
+        if(ksh_first.gt.0) call ncfun_update(kcf,integ,ncf_bas_1)
+        if(lsh_first.gt.0) call ncfun_update(lcf,integ,ncf_bas_1)
+      endif
+c
+      if(kl_basis.eq.num_bas_3) then
+        if(ksh_first.gt.0) call ncfun_update(kcf,integ,ncf_bas_2)
+        if(lsh_first.gt.0) call ncfun_update(lcf,integ,ncf_bas_2)
+      endif
+ctest
+c        write(6,*)' exit icf1-9 :',(icf(ii),ii=1,9)
+c        write(6,*)' exit jcf1-9 :',(jcf(ii),ii=1,9)
+c        write(6,*)' exit kcf1-9 :',(kcf(ii),ii=1,9)
+c        write(6,*)' exit lcf1-9 :',(lcf(ii),ii=1,9)
+ctest
+c
+      end
+c=====================================================================
+      subroutine ncfun_update(icf,integ,ncf_bas_1)
+      dimension icf(*)
+c
+         do ii=1,integ
+         icf(ii)=icf(ii)-ncf_bas_1
+         enddo
 c
       end
 c=====================================================================

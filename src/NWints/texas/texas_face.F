@@ -6,9 +6,12 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.24 1996-07-19 22:44:10 mg141 Exp $
+c $Id: texas_face.F,v 1.25 1996-07-26 17:03:21 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
+c----------------------------------------------------------------
+      logical cent2,cent3,cent4
+      common /what_was_calc/ cent2,cent3,cent4
 c----------------------------------------------------------------
       integer h_txs_basnuc, k_txs_basnuc
       integer h_txs_mapp1 , k_txs_mapp1 
@@ -52,6 +55,9 @@ c
       write(8,*)'------------------------------------------------------'
       write(8,*)'Texas-int2 program has been called ',ncall_pnl,' times'
       if(ncall_pnl.eq.0) goto 00001
+      if(cent2) write(8,*)'   for 2-center two-electron integrals '
+      if(cent3) write(8,*)'   for 3-center two-electron integrals '
+      if(cent4) write(8,*)'   for 4-center two-electron integrals '
       write(8,*)'number of processed shell quartets ',nqrts_pnl
       write(8,18) bleffiy
    18 format(' blocking utilities of Texas used in ',f6.2,' %')
@@ -258,9 +264,15 @@ c::passed
       integer l_blsize
 c::local
       integer geom, basis 
-      integer nat ! number of atoms
+      integer nat, natoms ! number of atoms
       integer npshells ! total number of primitive shells
-      integer nshells
+      integer ncshells ! total number of contracted shells
+      integer npfunctx ! total number of primitive functions
+      integer ncfunctx ! total number of contracted functions
+c
+      integer npsh, ncsh 
+      integer ibasis
+c
       integer size_from_ma
       integer inuc,ibas
 c----------------------------------------------------------------
@@ -273,97 +285,162 @@ c----------------------------------------------------------------
      *                      h_txs_mapp2 , k_txs_mapp2,
      *                      h_txs_prep2 , k_txs_prep2 
 c----------------------------------------------------------------------
-      integer basis_init
-      common /c_basis_init/ basis_init
-c----------------------------------------------------------------------
+c?    integer basis_init
+c?    common /c_basis_init/ basis_init
 c
-c only for tests :
-c     integer ish,jsh,ksh,lsh,leri
-c     integer ijsh,klsh,ijkl
-c     double precision eri(614 656)  ! up to (ii/ii)
-c     double precision ra(3),rb(3),rc(3),rd(3)
-c only for tests - end
+      integer num_bas_1,num_bas_2,num_bas_3
+      integer ncs_bas_1,ncs_bas_2,ncs_bas_3
+      integer nps_bas_1,nps_bas_2,nps_bas_3
+      integer nat_bas_1,nat_bas_2,nat_bas_3
+      integer ncf_bas_1,ncf_bas_2,ncf_bas_3
+      common /multi_basis/ num_bas_1,num_bas_2,num_bas_3,
+     *                     ncs_bas_1,ncs_bas_2,ncs_bas_3,
+     *                     nps_bas_1,nps_bas_2,nps_bas_3,
+     *                     nat_bas_1,nat_bas_2,nat_bas_3,
+     *                     ncf_bas_1,ncf_bas_2,ncf_bas_3 
 c----------------------------------------------------------------------
       integer rtdb_copy
       common /c_rtdb_copy/ rtdb_copy
       integer bas
 c----------------------------------------------------------------------
       integer txs_static, txs_dynam
-c
+c----------------------------------------------------------------------
 c
       rtdb_copy = rtdb
-      if (nbas.gt.1 .and. ga_nodeid().eq.0) then
-        write(6,*)
-        write(6,*)' !! warning: texas can only handle one basis set'
-        write(6,*)
-        call util_flush(6)
-      endif
+c----------------------------------------------------------------------
+c     if (nbas.gt.1 .and. ga_nodeid().eq.0) then
+c       write(6,*)
+c       write(6,*)' !! warning: texas can only handle one basis set'
+c       write(6,*)
+c       call util_flush(6)
+c     endif
 c
-      basis = bases(1) ! only one basis in texas
-      basis_init = basis
+c     basis = bases(1) ! only one basis in texas
+c     basis_init = basis
 c
-      bas = basis + BASIS_HANDLE_OFFSET
-      geom = ibs_geom(bas)
+c     bas = basis + BASIS_HANDLE_OFFSET
+c     geom = ibs_geom(bas)
 c
-      nat = ncenter(geom)
-c------------------------------------
-c total number of contracted shells
+c     nat = ncenter(geom)
+c----------------------------------------------------------------------
+c multi basis set : Total number of Atoms,Contracted & Primitive shells 
 c
-      nshells = ncont_tot_gb(bas)
-c------------------------------------
-c total number of primitive shells
+      num_bas_1=0
+      ncs_bas_1=0
+      nps_bas_1=0
+      nat_bas_1=0
 c
-      npshells = nprim_tot_gb(bas)
-c------------------------------------
-c basis set type (cartesian or spherical harmonics)
+      num_bas_2=0
+      ncs_bas_2=0
+      nps_bas_2=0
+      nat_bas_2=0
 c
-*       if( bas_spherical(bas)) then 
-*           write(6,*)' basis set=spherical'
-*       else
-*           write(6,*)' basis set=cartesian'
-*       endif
-c------------------------------------
-c For 3- and 2-center(index) integrals add one 
-c uncontracted S-shell with exponent ZERO :
-c If these integrals are going to be calculated latter
-c number of basis SETS will be HERE greater than 1 :
+      num_bas_3=0
+      ncs_bas_3=0
+      nps_bas_3=0
+      nat_bas_3=0
 c
-      if(nbas.gt.1) then
-      endif
+      natoms=0
+      ncshells=0
+      npshells=0
+      do 100 ibasis=1,nbas
+         basis = bases(ibasis) 
+         bas = basis + BASIS_HANDLE_OFFSET
+         geom  = ibs_geom(bas)
 c
-c------------------------------------
-c Put Basis set and nuclear data into the PNL location
-c (remove it from bl() ) : 5*natoms + 13*npshells
+         natoms   = natoms   + ncenter(geom)
+         ncshells = ncshells + ncont_tot_gb(bas)
+         npshells = npshells + nprim_tot_gb(bas)
 c
-      size_from_ma = 5*nat + 13*npshells
+         if(ibasis.eq.1) then
+            num_bas_1=basis
+            ncs_bas_1=ncshells
+            nps_bas_1=npshells
+            nat_bas_1=natoms
+         endif
+         if(ibasis.eq.2) then
+            num_bas_2=basis
+            ncs_bas_2=ncshells
+            nps_bas_2=npshells
+            nat_bas_2=natoms
+         endif
+         if(ibasis.eq.3) then
+            num_bas_3=basis
+            ncs_bas_3=ncshells
+            nps_bas_3=npshells
+            nat_bas_3=natoms
+         endif
+         if(ibasis.eq.4) then
+            write(6,*) ' too many basis sets : allowed=3, passed=4'
+            write(6,*) ' execution stopped in texas_init'
+            STOP       ' execution stopped in texas_init'
+         endif
+  100 continue
+c----------------------------------------------------------------------
+c Allocate memory for basis set & nuclear data :(5*natoms+13*npshells)
+c Add one one more atom and one more shell for 2-&3-center integrals :
+c
+      size_from_ma = 5*(natoms+1) + 13*(npshells+1)
 c
       if (.not. MA_alloc_get(MT_DBL, size_from_ma, 'texas basis/nuc ',
      &                       h_txs_basnuc, k_txs_basnuc))
      &    call errquit('texas_init: alloc for texas basis/nuc failed',
      &    911)
       inuc = k_txs_basnuc
-      ibas = inuc + 5*nat
-c------------------------------------
+c>>>  ibas = inuc + 5*natoms
+      ibas = inuc + 5*(natoms+1)
+c----------------------------------------------------------------------
 c make bl and inx arrays 
 c
-      call blinx(nat,nshells,npshells,inuc,ibas)
-c------------------------------------
-c make datnuc array
+      call blinx(natoms,ncshells,npshells,inuc,ibas)
+c----------------------------------------------------------------------
+c make DATNUC , DATBAS and INX arrays :
 c
-      call makenuc(geom,nat,dbl_mb(inuc))
-c------------------------------------
+      natoms=0
+      ncshells=0
+      npshells=0
+      npfunctx=0  ! contr.func. counter , sum up inside
+      ncfunctx=0  ! primi.func. counter , sum up inside
+      do 200 ibasis=1,nbas
+         basis = bases(ibasis) 
+         bas   = basis + BASIS_HANDLE_OFFSET
+         geom  = ibs_geom(bas)
+         nat   = ncenter(geom)
 c
-      call makebas(nshells,bas, dbl_mb(ibas))
-c------------------------------------
-c finish inx array
+         call makenuc(geom,natoms, nat,dbl_mb(inuc))
+         natoms=natoms + nat
 c
-      call makeinx
-c------------------------------------
+         ncsh = ncont_tot_gb(bas)
+         npsh = nprim_tot_gb(bas)
+         call makebas(ncshells,npshells, ncsh,bas, dbl_mb(ibas))
+c
+         call makeinx(npfunctx,ncfunctx,ncshells,ncsh,bas,basis)
+c
+         ncshells = ncshells + ncsh
+         npshells = npshells + npsh
+  200 continue
+c----------------------------------------------------------------------
+c test only : print INX,DATNUC,DATBAS arrays :
+c
+c     call print_inx_nuc_bas(nbas,dbl_mb(inuc),dbl_mb(ibas))
+c
+c----------------------------------------------------------------------
+c Add one uncontracted s-shell with zero exponent.
+c Needed for 2- and 3-center integrals :
+c
+      call add_s_zero( dbl_mb(ibas))
+c
+c----------------------------------------------------------------------
 c Re-arrange a basis set according to the Texas convention
 c 1) normalize and 2) re-order
 c
       call txsarrag(rtdb, dbl_mb, nq_init, l_blsize)
 c
+c----------------------------------------------------------------------
+c print out basis sets info (in fort.8 if iprint is >0)
+c
+      call print_bas_infor(nbas)
+c----------------------------------------------------------------------
 c... map texas memory to memory commons of the PNL/int API
 c
 *      write(6,*)' mem_2e4c :',mem_2e4c
@@ -374,31 +451,57 @@ c
 *      mem_2e3c = max(mem_2e3c,l_blsize)
 *      mem_2e2c = max(mem_2e2c,l_blsize)
 c tmp fix for memory split
+c----------------------------------------------------------------------
       iszb_2e4c = isz_2e4c*100  ! 100* max single quartet size
       memb_2e4c = l_blsize
       call texas_memory (txs_static,1,txs_dynam)
       mem_2e4c = max(mem_2e4c,txs_static+txs_dynam)
-* add 2 center and 3 center changes later
-c
-c--------------------------------------------------
+      mem_2e3c = max(mem_2e3c,txs_static+txs_dynam)
+      mem_2e2c = max(mem_2e2c,txs_static+txs_dynam)
+c----------------------------------------------------------------------
 c ONLY for TESTS : calculate two-electron integrals  
-c---
-c      call test_calc2(nshells, l_blsize)
-c---
-c End of tests; program will be stopped in test_calc2.
-c--------------------------------------------------
+c
+c
+c        call test_cent2(num_bas_1,num_bas_1, l_blsize)
+c        call test_cent2(num_bas_1,num_bas_2, l_blsize)
+c        call test_cent2(num_bas_2,num_bas_1, l_blsize)
+c        call test_cent2(num_bas_2,num_bas_2, l_blsize)
+c
+*         call test_cent2(num_bas_3,num_bas_3, l_blsize)
+*         call test_cent2(num_bas_1,num_bas_3, l_blsize)
+*         call test_cent2(num_bas_3,num_bas_1, l_blsize)
+c
+c        call test_cent3i_kl(num_bas_1,num_bas_1, l_blsize)
+c        call test_cent3i_kl(num_bas_1,num_bas_2, l_blsize)
+c        call test_cent3i_kl(num_bas_2,num_bas_2, l_blsize)
+c
+c        call test_cent3ij_k(num_bas_1,num_bas_1, l_blsize)
+c        call test_cent3ij_k(num_bas_1,num_bas_2, l_blsize)
+c        call test_cent3ij_k(num_bas_2,num_bas_2, l_blsize)
+c
+c        call test_cent4(num_bas_1,num_bas_1, l_blsize)
+c        call test_cent4(num_bas_1,num_bas_2, l_blsize)
+c        call test_cent4(num_bas_2,num_bas_1, l_blsize)
+c        call test_cent4(num_bas_2,num_bas_2, l_blsize)
+c
+c End of tests; program will be stopped here
+c
+*      call texas_terminate()
+*      STOP ' stopped by kw in texas_face '
+c
+c End of tests; program stopped here
+c----------------------------------------------------------------------
 *rak:      write(6,*)'i h_txs_basnuc ',h_txs_basnuc
 *rak:      write(6,*)'i h_txs_mapp1  ',h_txs_mapp1
 *rak:      write(6,*)'i h_txs_mapp2  ',h_txs_mapp2
+c----------------------------------------------------------------------
       end
 c=================================================================
       subroutine blinx(natom,ncshell,npshell,inucx,ibasx)
       implicit real*8 (a-h,o-z)
-c------------------------------------
-c the common block /big/ bl(lcx) has been 
-c repleaced by pnl allocated scratch 
-c------------------------------------
-CNEW  parameter(mxsh= 2 000 000)
+c-----------------------------------------------------------------
+c the common block /big/ bl(lcx) has been repleaced by pnl scratch 
+c-----------------------------------------------------------------
       parameter(mxsh= 50 000)
 c------------------------------------
       common /index/ maxsh,ifp,inx(mxsh)
@@ -422,51 +525,92 @@ c
 c------------------------------------
       end
 c=================================================================
-      subroutine makenuc(geom,nat,datnuc)
+cccc  subroutine makenuc(geom,nat,datnuc)
+      subroutine makenuc(geom,natoms,nat,datnuc)
       implicit real*8 (a-h,o-z)
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
-      integer geom, nat
-      double precision datnuc(5,nat)
+ccccc integer geom, nat
+cccc  double precision datnuc(5,nat)
+c
+      integer geom, natoms, nat
+      double precision datnuc(5,*)
+c
+c     write(6,*)'entry MAKENUC : geom=',geom,' natoms,nat=',natoms,nat
 c
       do 100 iat=1,nat
-      datnuc(1,iat)=charge(iat,geom)
-      datnuc(2,iat)=coords(1,iat,geom)
-      datnuc(3,iat)=coords(2,iat,geom)
-      datnuc(4,iat)=coords(3,iat,geom)
-      datnuc(5,iat)=iat
-cccc  write(6,66) datnuc(5,iat),(datnuc(ii,iat),ii=1,4)
+      iatoms=natoms+iat
+      datnuc(1,iatoms)=charge(iat,geom)
+      datnuc(2,iatoms)=coords(1,iat,geom)
+      datnuc(3,iatoms)=coords(2,iat,geom)
+      datnuc(4,iatoms)=coords(3,iat,geom)
+      datnuc(5,iatoms)=iat
+cccc  write(6,66) datnuc(5,iatoms),(datnuc(ii,iat),ii=1,4)
   100 continue
    66 format('atom Name=',i3,' charge=',f5.1,' xyz(au)=',3f10.5)
 c
       end
 c=================================================================
-      subroutine makebas(nshells,bas,datbas)
+cccc  subroutine makebas(nshells,bas,datbas)
+      subroutine makebas(ncshells,npshells,ncsh,bas,datbas)
+c
+c npshells = total number of primitive  shells up to this basis set
+c ncshells = total number of contracted shells up to this basis set
+c ncsh     = number of shells in this basis set (bas)
+c
       implicit real*8 (a-h,o-z)
+#include "basP.fh"
       integer bas
+      logical cart_2_sphe
+      logical spcart_init
+      external spcart_init
       common /index/ maxsh,ifp,inx(1)
       common /inde1/ inxx
       dimension datbas(13,*)
-c
-c------------------------------------------------
+c---------------------------------------------------------------
+c test
+c     write(6,*)' makebas entry :bas=',bas,
+c    * '   ncshells,npshells,ncsh=', ncshells,npshells,ncsh
+c---------------------------------------------------------------
 c shell's type :
 c
 c ityp1= 1   2   3   4   5   6   7   8   9   10    !  texas type 
 c        s   p   l   d5  d6  f7  f10 g15 h21 i28
 c itype= 0   1   -1      2       3   4   5   6     !  pnl type
-c------------------------------------------------
+c---------------------------------------------------------------
+c basis set type (cartesian or spherical harmonics)
 c
-      ipshell = 0
-      do 00100 ics=1,nshells
-ccccc    call basdat(bas, ics, bl(ibas+1),inx(inxx), ipshell)
-         call basdat(bas, ics, datbas    ,inx(inxx), ipshell)
-00100 continue
+      cart_2_sphe=bas_spherical(bas)
+c---------------------------------------------------------------
+c
+      ityp_max=0
+      ipshell = npshells
+      do 100 ish=1,ncsh
+         call basdat(bas,ncshells,ish,datbas,inx(inxx),ipshell,
+     *               cart_2_sphe,itype)
+         if(itype.gt.ityp_max) ityp_max=itype
+  100 continue
+c
+c---------------------------------------------------------------
+c
+       if( cart_2_sphe ) then
+           write(6,*)' Basis Set no =',bas,' is Spherical Harmonics'
+           if( spcart_init(ityp_max,.true.,.false.)) then
+              write(6,*)' transformation matrix initialized'
+           else
+              call errquit('Cart_Sphe.-init: failed ?', 911)
+           endif
+       else
+           write(6,*)' Basis Set no =',bas,' is Cartesian '
+       endif
+c------------------------------------
 c
       end
 c==============1
-      subroutine basdat(bas, ics, datbas,inx, ipshell)
+      subroutine basdat(bas,ncshells,ish,datbas,inx, ipshell,
+     *                  cart_2_sphe,itype)
       implicit real*8 (a-h,o-z)
 ****
 **  This routine should be changed to be only the interface calls
@@ -479,28 +623,61 @@ c==============1
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+c
+      logical cart_2_sphe
       integer bas
       dimension datbas(13,*),inx(12,*)
-      dimension isize(10)
-      data isize /1, 3, 4, 5, 6, 7, 10, 15, 21, 28 /
+      dimension isize_cart(10),isize_sphe(10)
+c
+      data isize_cart /1, 3, 4, 5, 6, 7, 10, 15, 21, 28 /
+      data isize_sphe /1, 3, 4, 5, 5, 7,  7,  9, 11, 13 /
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
 c
-c---------------  s  p  l d5 d6  f7 f10 g15 h21 i28 -----------c
+c---------------------------------------------------------------
+c shell's type :
+c
+c itype= 0   1   -1      2       3   4   5   6     !  pnl type
+c        s   p   l   d5  d6  f7  f10 g15 h21 i28
+c ityp1= 1   2   3   4   5   6   7   8   9   10    !  texas type 
+c ityp1= 1   2   3   -   5   -   7   8   9   10    !  texas here
+c only above TXS types can be used here
+c---------------------------------------------------------------
+c
+      ics=ncshells+ish
+c---------------------------------------------------------------
+c test
+c     write(6,*)' entry BASDAT bas=',bas,' ncshells,ish=',ncshells,ish,
+c    *' icshell=',ics,' ipshell=',ipshell
+c---------------------------------------------------------------
 c
       inx(1,ics)=ipshell
-      inx(2,ics)=(sf_ibs_cn2ce(ics,bas))
-      itype = infbs_cont(CONT_TYPE,(sf_ibs_cn2ucn(ics,bas)),bas)
+c>>>> inx(2,ics)=(sf_ibs_cn2ce(ics,bas))
+      inx(2,ics)=(sf_ibs_cn2ce(ish,bas))
+c PNL types:
+c>>>  itype = infbs_cont(CONT_TYPE,(sf_ibs_cn2ucn(ics,bas)),bas)
+      itype = infbs_cont(CONT_TYPE,(sf_ibs_cn2ucn(ish,bas)),bas)
+C TXS types:
       ityp1 = itype + 1
       if(itype.eq.-1) ityp1=3
       if(itype.eq.2 ) ityp1=5
       if(itype.gt.2 ) ityp1=itype+4
-      inx(3,ics)=isize(ityp1)
-      igen = infbs_cont(CONT_NGEN,(sf_ibs_cn2ucn(ics,bas)),bas)
+c
+c TXS shell sizes :
+c
+      if( cart_2_sphe) then
+         inx(3,ics)=isize_sphe(ityp1)
+      else
+         inx(3,ics)=isize_cart(ityp1)
+      endif
+c
+c>>>  igen = infbs_cont(CONT_NGEN,(sf_ibs_cn2ucn(ics,bas)),bas)
+      igen = infbs_cont(CONT_NGEN,(sf_ibs_cn2ucn(ish,bas)),bas)
       inx(4,ics)=igen-1
       if(ityp1.eq.3) inx(4,ics)=0
-      iprim = infbs_cont(CONT_NPRIM,(sf_ibs_cn2ucn(ics,bas)),bas)
+c>>>  iprim = infbs_cont(CONT_NPRIM,(sf_ibs_cn2ucn(ics,bas)),bas)
+      iprim = infbs_cont(CONT_NPRIM,(sf_ibs_cn2ucn(ish,bas)),bas)
       inx(5,ics)=ipshell+iprim
 c------------------
 c     inx(6,ics)= symm.
@@ -515,8 +692,10 @@ c------------------
 c
 c transfer primitive shells info :
 c
-      iexppnl = infbs_cont(CONT_IEXP,(sf_ibs_cn2ucn(ics,bas)),bas) - 1
-      icofpnl = infbs_cont(CONT_ICFP,(sf_ibs_cn2ucn(ics,bas)),bas) - 1
+c>>>  iexppnl = infbs_cont(CONT_IEXP,(sf_ibs_cn2ucn(ics,bas)),bas) - 1
+c>>>  icofpnl = infbs_cont(CONT_ICFP,(sf_ibs_cn2ucn(ics,bas)),bas) - 1
+      iexppnl = infbs_cont(CONT_IEXP,(sf_ibs_cn2ucn(ish,bas)),bas) - 1
+      icofpnl = infbs_cont(CONT_ICFP,(sf_ibs_cn2ucn(ish,bas)),bas) - 1
       do 100 ipr=1,iprim
         ips=ipr+ipshell
 *       datbas(1,ips)=ext(ipr)
@@ -530,7 +709,8 @@ c
      &             sf_exndcf(icofpnl+ipr+((igc-1)*iprim),bas)
  150       continue
         endif
-        iat = (sf_ibs_cn2ce(ics,bas))
+c>>>>   iat = (sf_ibs_cn2ce(ics,bas))
+        iat = (sf_ibs_cn2ce(ish,bas))
         datbas(11,ips)=coords(1,iat,ibs_geom(bas))
         datbas(12,ips)=coords(2,iat,ibs_geom(bas))
         datbas(13,ips)=coords(3,iat,ibs_geom(bas))
@@ -539,34 +719,83 @@ c
       ipshell = ipshell+iprim
       end
 c=================================================================
-      subroutine makeinx
+      subroutine makeinx(nfunp,nfunc,ncshells,ncsh,bas,basis)
+c-----------------------------------------------------------------
+c nfunp   = total number of PRIM.basis funct. up to this basis set
+c nfunc   = total number of CONT.basis funct. up to this basis set
+c
+c ncshells = total number of CONT.shells up to this basis set
+c ncsh     = number of cont. shells in this basis set
+c-----------------------------------------------------------------
+c
       implicit real*8 (a-h,o-z)
+#include "basP.fh"
+      integer bas,basis
+      logical cart_2_sphe
       common /index/ maxsh,ifp,inx(1)
       common /inde1/ inxx
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
+c-----------------------------------------------------------------
+      common /multi_basis/ num_bas_1,num_bas_2,num_bas_3,
+     *                     ncs_bas_1,ncs_bas_2,ncs_bas_3,
+     *                     nps_bas_1,nps_bas_2,nps_bas_3,
+     *                     nat_bas_1,nat_bas_2,nat_bas_3,
+     *                     ncf_bas_1,ncf_bas_2,ncf_bas_3 
+c-----------------------------------------------------------------
 c
-      call inxdat(ncs,inx(inxx),nbf,ncf)
+      cart_2_sphe=bas_spherical(bas)
+c
+      call inxdat(nfunp,nfunc,ncshells,ncsh,inx(inxx),cart_2_sphe,ncf)
+c
+c save ncf for each basis set:
+c
+      if(basis.eq.num_bas_1) ncf_bas_1=ncf
+      if(basis.eq.num_bas_2) ncf_bas_2=ncf
+      if(basis.eq.num_bas_3) ncf_bas_3=ncf
+c
+      nbf=nfunp
 c
       end
 c==============1
-      subroutine inxdat(ncs,inx,nbf,ncf)
-      dimension inx(12,*)
-      dimension isize(10)
-      data isize /1, 3, 4, 5, 6, 7, 10, 15, 21, 28 /
+      subroutine inxdat(nfunp,nfunc,ncshells,ncsh,inx,cart_2_sphe,ncf)
 c
-      nfunc=0
-      do 100 ics=1,ncs
+c nfunp   = total number of PRIM.basis funct. up to this basis set
+c nfunc   = total number of CONT.basis funct. up to this basis set
+c
+c ncshells = total number of CONT.shells up to this basis set
+c ncsh     = number of cont. shells in this basis set
+c
+c
+      logical cart_2_sphe
+      dimension inx(12,*)
+      dimension isize_cart(10),isize_sphe(10)
+      data isize_cart /1, 3, 4, 5, 6, 7, 10, 15, 21, 28 /
+      data isize_sphe /1, 3, 4, 5, 5, 7,  7,  9, 11, 13 /
+c
+c>>>> nfunp=0
+c>>>> nfunc=0
+      do 100 icsh=1,ncsh
+        ics=icsh + ncshells
+c
         igenc=inx(4 ,ics)
         itype=inx(12,ics)
-        ifunc=isize(itype)
+        if( cart_2_sphe) then
+            ifunc=isize_sphe(itype)
+        else
+            ifunc=isize_cart(itype)
+        endif
         inx(11,ics)=nfunc
         nfunc=nfunc+ifunc*(igenc+1)
         inx(10,ics)=nfunc
+c contraction lenght :
+c from  ia=inx(1,ics)+1
+c to    ie=inx(5,ics)
+        icont=inx(5,ics)-inx(1,ics)
+        nfunp=nfunp+icont*ifunc
   100 continue
 c
-      ncf=inx(10,ncs)
-      nbf=inx(5, ncs)
+      ncf=inx(10,ncsh+ncshells)
 c
       end
 c=================================================================
@@ -577,6 +806,9 @@ c=================================================================
       integer rtdb
       character*11 scftype
       character*4 where
+c----------------------------------------------------------------
+      logical cent2,cent3,cent4
+      common /what_was_calc/ cent2,cent3,cent4
 c----------------------------------------------------------------
       integer h_txs_basnuc, k_txs_basnuc
       integer h_txs_mapp1 , k_txs_mapp1 
@@ -624,6 +856,12 @@ c initialize commons number,ener,ganz,type :
 c
       call txs_initial(rtdb)
 c
+c------------------------------------
+c initialize common /what_was_calc/ cent2,cent3,cent4
+c
+      cent2=.false.
+      cent3=.false.
+      cent4=.false.
 c------------------------------------
 c initialize common /mem_pnl_scr/ nall_peak,mark_peak,mem_peak
 c (needed in texas_terminate for info :
@@ -938,11 +1176,6 @@ c-------------
       if(iprint.gt.0)
      $       open(unit=8,file='fort.8',status='unknown',
      $       form='formatted')
-ccccc open(unit=7,file='fort.7',status='unknown',form='formatted')
-c--------------------------------
-c ONLY FOR TESTS with test_calc2
-c     open(unit=81,file='integ.81',status='unknown',form='formatted')
-c     open(unit=82,file='integ.82',status='unknown',form='formatted')
 c------------------------------------
       iov=1
 c
@@ -1065,7 +1298,6 @@ c-----------------------------
             if(ityp.eq.3) bl(ja+2)=bl(ja+2)*twopi75 * a75
 c-----------------------------
   280    continue
-c       loop over general contraction
   285    continue
   290 continue
 c
@@ -1670,5 +1902,214 @@ c        enddo
 c
 ctest
 c---------------------------------------------------------
+      end
+c==================================================================
+      subroutine add_s_zero(datbas)
+      implicit real*8 (a-h,o-z)
+c------------------------------------------------------------------
+c This routine adds one uncontracted s-orbital to the basis set:
+c------------------------------------------------------------------
+      common /index/ maxsh,ifp,inx(1)    
+      common /inde1/ inxx
+      common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
+     1,nsy(4),nsym,nganz(35),lopt(30)
+      dimension datbas(13,*)
+c------------------------------------
+c     write(6,*)
+c     write(6,*)' TEXAS COMBINED BASIS SET INFO :'
+c     write(6,*)
+c    *' nat=',na,' nbf=',nbf,' nsh=',nsh,' ncf=',ncf,' ncs=',ncs
+c------------------------------------
+      ncs=ncs+1
+      nsh=nsh+1
+      nbf=nbf+1
+      ncf=ncf+1
+c
+      call add_2_inxbas(inx(inxx), nbf,nsh,ncf,ncs, datbas)
+c
+c------------------------------------
+c     write(6,*)' One S-function with zero exponent added : '
+c     write(6,*)
+c    *' nat=',na,' nbf=',nbf,' nsh=',nsh,' ncf=',ncf,' ncs=',ncs
+c------------------------------------
+      end
+c==================================================================
+      subroutine add_2_inxbas(inx,nbf,nsh,ncf,ncs,datbas)
+      implicit real*8 (a-h,o-z)
+      dimension inx(12,*)
+      dimension datbas(13,*)
+c------------------------------------
+c
+c add to INX :
+c
+      inx(1,ncs)=nsh-1
+      inx(2,ncs)=0        ! center at atom number 0 
+      inx(3,ncs)=1        ! shell size 
+      inx(4,ncs)=0        ! gen. cont.
+      inx(5,ncs)=nsh
+c------------------
+c     inx(6,ncs)= symm.
+c     inx(7,ncs)= symm.
+c     inx(8,ncs)= symm.
+c     inx(9,ncs)= not used
+c------------------
+c     inx(11,ncs)= ! this +1 gives the first contr. function
+c     inx(10,ncs)= ! this    gives the last  contr. function
+c------------------
+      inx(10,ncs)=ncf
+      inx(11,ncs)=ncf-1
+      inx(12,ncs)=1
+c------------------------------------
+c
+c add to DATBAS :
+c
+      datbas(1,nsh)=0.d0  !exponent
+      datbas(2,nsh)=1.d0  !contrac. coef.
+ccc   datbas(3,nsh) - (10,nbf) ! gen.contr. coeff.
+      datbas(11,nsh)=0.d0   ! x-center
+      datbas(12,nsh)=0.d0   ! y-center
+      datbas(13,nsh)=0.d0   ! z-center
+c
+c------------------------------------
+      end
+c==================================================================
+      subroutine print_bas_infor(nbas)
+      common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
+     1,nsy(4),nsym,nganz(35),lopt(30)
+      common /intgop/ ncache,maxprice,iprint,iblock
+      common /multi_basis/ num_bas_1,num_bas_2,num_bas_3,
+     *                     ncs_bas_1,ncs_bas_2,ncs_bas_3,
+     *                     nps_bas_1,nps_bas_2,nps_bas_3,
+     *                     nat_bas_1,nat_bas_2,nat_bas_3,
+     *                     ncf_bas_1,ncf_bas_2,ncf_bas_3 
+c-------------------------------------------------------
+      if(iprint.eq.0) RETURN
+c-------------------------------------------------------
+      do ibasis=1,nbas
+        if(ibasis.eq.1) then
+           write(8,*)
+           write(8,*)' PNL Basis Set no = 1'
+           write(8,*)' nat=',nat_bas_1,' nsh=',nps_bas_1,
+     *               ' ncf=',ncf_bas_1,' ncs=',ncs_bas_1
+        endif
+        if(ibasis.eq.2) then
+           write(8,*)
+           write(8,*)' PNL Basis Set no = 2'
+           write(8,*)' nat=',nat_bas_2 - nat_bas_1,
+     *               ' nsh=',nps_bas_2 - nps_bas_1,
+     *               ' ncf=',ncf_bas_2 - ncf_bas_1,
+     *               ' ncs=',ncs_bas_2 - ncs_bas_1
+        endif
+        if(ibasis.eq.3) then
+           write(8,*)
+           write(8,*)' PNL Basis Set no = 3'
+           write(8,*)' nat=',nat_bas_3 - nat_bas_2,
+     *               ' nsh=',nps_bas_3 - nps_bas_2,
+     *               ' ncf=',ncf_bas_3 - ncf_bas_2,
+     *               ' ncs=',ncs_bas_3 - ncs_bas_2
+        endif
+      enddo
+c-------------------------------------------------------
+      write(8,*)
+      write(8,*)'     COMBINED TEXAS BASIS SET  '
+      write(8,*)'              plus             '
+      write(8,*)' one S-function with zero exponent : '
+      write(8,*)
+           write(8,*) ' nat=',na,
+     *                ' nbf=',nbf,
+     *                ' nsh=',nsh,
+     *                ' ncf=',ncf,
+     *                ' ncs=',ncs
+c-------------------------------------------------------
+c
+      end
+c==================================================================
+c==================================================================
+      subroutine print_inx_nuc_bas(nbas,datnuc,datbas)
+      implicit real*8 (a-h,o-z)
+      common /index/ maxsh,ifp,inx(1)    
+      common /inde1/ inxx
+      common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
+     1,nsy(4),nsym,nganz(35),lopt(30)
+c
+      common /multi_basis/ num_bas_1,num_bas_2,num_bas_3,
+     *                     ncs_bas_1,ncs_bas_2,ncs_bas_3,
+     *                     nps_bas_1,nps_bas_2,nps_bas_3,
+     *                     nat_bas_1,nat_bas_2,nat_bas_3,
+     *                     ncf_bas_1,ncf_bas_2,ncf_bas_3 
+      dimension datnuc(5,*), datbas(13,*)
+c
+      do ibasis=1,nbas
+        if(ibasis.eq.1) then
+           write(6,*)
+           write(6,*)' PNL Basis Set no = 1'
+           write(6,*)' natom=',nat_bas_1,' nsh=',nps_bas_1,
+     *               ' ncf=',ncf_bas_1,' ncs=',ncs_bas_1
+           ncs_b=1
+           ncs_e=ncs_bas_1
+           nps_b=1
+           nps_e=nps_bas_1
+           nat_b=1
+           nat_e=nat_bas_1
+        endif
+        if(ibasis.eq.2) then
+           write(6,*)
+           write(6,*)' PNL Basis Set no = 2'
+           write(6,*)' natom=',nat_bas_2,' nsh=',nps_bas_2,
+     *               ' ncf=',ncf_bas_2,' ncs=',ncs_bas_2
+           ncs_b=ncs_bas_1+1
+           ncs_e=ncs_bas_2
+           nps_b=nps_bas_1+1
+           nps_e=nps_bas_2
+           nat_b=nat_bas_1+1
+           nat_e=nat_bas_2
+        endif
+        if(ibasis.eq.3) then
+           write(6,*)
+           write(6,*)' PNL Basis Set no = 3'
+           write(6,*)' natom=',nat_bas_3,' nsh=',nps_bas_3,
+     *               ' ncf=',ncf_bas_3,' ncs=',ncs_bas_3
+           ncs_b=ncs_bas_2+1
+           ncs_e=ncs_bas_3
+           nps_b=nps_bas_2+1
+           nps_e=nps_bas_3
+           nat_b=nat_bas_2+1
+           nat_e=nat_bas_3
+        endif
+        call do_print(inx(inxx),datnuc,datbas,ncs_b,ncs_e,
+     *                                        nps_b,nps_e,
+     *                                        nat_b,nat_e)
+        write(6,*)
+      enddo
+c
+      end
+      subroutine do_print(inx,datnuc,datbas,ncs_b,ncs_e,
+     *                                      nps_b,nps_e,
+     *                                      nat_b,nat_e)
+      implicit real*8 (a-h,o-z)
+      dimension datnuc(5,*), datbas(13,*)
+      dimension inx(12,*)
+c
+      write(6,*)' INX array :'
+      do ics=ncs_b,ncs_e
+      write(6,66) ics, (inx(ii,ics),ii=1,12)
+   66 format('ics=',i3,2x,12(i5,1x))
+      enddo
+      write(6,*)
+c
+      write(6,*)' DATNUC array :'
+      do iat=nat_b,nat_e
+      write(6,67) iat, (datnuc(ii,iat),ii=1,5)
+   67 format('iat=',i3,2x,5(f10.5,1x))
+      enddo
+      write(6,*)
+c
+      write(6,*)' DATBAS array :'
+      do ips=nps_b,nps_e
+      write(6,68) ips, (datbas(ii,ips),ii=1,13)
+   68 format('ips=',i3,2x,5(f10.5,1x)/9x,5(f10.5,1x)/9x,5(f10.5,1x) )
+      enddo
+      write(6,*)
+c
       end
 c==================================================================
