@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.20 2003-03-21 23:42:08 bylaska Exp $
+* $Id: ion.F,v 1.21 2003-07-29 20:12:53 bylaska Exp $
 *
 
 *     ***************************
@@ -902,6 +902,42 @@ c     call ion_shift()
       ion_vion = dbl_mb(r0(1)+(i-1) + (j-1)*3)
       return
       end
+
+
+
+*     ***************************
+*     *				*
+*     *      ion_translate	*
+*     *				*
+*     ***************************
+
+      subroutine ion_translate(trans)
+      implicit none
+      real*8 trans(3)
+
+#include "mafdecls.fh"
+#include "ion.fh"
+
+      integer ii
+      real*8 x,y,z
+ 
+*     **** translate ions ****
+      do ii=1,nion
+        x = dbl_mb(r1(1)+ (ii-1)*3)     + trans(1)
+        y = dbl_mb(r1(1)+ (ii-1)*3 + 1) + trans(2)
+        z = dbl_mb(r1(1)+ (ii-1)*3 + 2) + trans(3)
+
+        dbl_mb(r1(1)+ (ii-1)*3)     = x
+        dbl_mb(r1(1)+ (ii-1)*3 + 1) = y
+        dbl_mb(r1(1)+ (ii-1)*3 + 2) = z
+      end do
+
+*     *** make sure ions are in the cell ***
+      call incell1(nion,dbl_mb(r1(1)))
+
+      return
+      end
+
 
 
 *     ***************************
