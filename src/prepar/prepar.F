@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.42 2001-11-06 06:15:21 d3j191 Exp $
+c $Id: prepar.F,v 1.43 2001-11-21 20:28:02 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -155,7 +155,7 @@ c
       filpmf=sysnam(1:len)//'.pmf '
       filtop=sysnam(1:len)//'.top '
       filrst=sysnam(1:len)//'_'//calc(1:lenc)//'.rst '
-      filseq=dir_t(1:lend)//sysnam(1:len)//'.seq '
+      filseq=dir_c(1:lend)//sysnam(1:len)//'.seq '
       filtmp=sysnam(1:len)//'.nam '
       filmrg=' '
 c
