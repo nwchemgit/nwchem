@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.461 2004-05-04 02:08:32 edo Exp $
+# $Id: makefile.h,v 1.462 2004-05-04 22:25:02 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1133,8 +1133,8 @@ endif
      FOPTIONS += $(INCLUDES) -WF,"$(DEFINES)" $(shell echo $(LIB_DEFINES) | sed -e "s/-D/-WF,-D/g"   | sed -e 's/\"/\\\"/g'  | sed -e "s/\'/\\\'/g")
   else
     FDEBUG= -O1 -g
-    FOPTIONS   = -fno-second-underscore -Wno-globals
-    FOPTIMIZE  = -O3 -funroll-loops
+    FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
+    FOPTIMIZE  = -O3 -fno-inline-functions -funroll-loops
     FOPTIMIZE += -falign-loops=16 -falign-jumps=16 -falign-functions=16
     FOPTIMIZE += -ffast-math -mpowerpc-gpopt
     FOPTIMIZE += -maltivec
