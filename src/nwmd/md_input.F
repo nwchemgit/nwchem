@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.71 2002-10-18 11:13:00 d3j191 Exp $
+c $Id: md_input.F,v 1.72 2002-11-14 15:39:16 d3j191 Exp $
 c
       implicit none
 c
@@ -1455,7 +1455,8 @@ c
       if(inp_compare(.false.,'pairs',item)) then
       if(loadb.eq.0) loadb=2
       if(loadb.eq.1) loadb=3
-      if(inp_i(lbpair)) goto 700
+      if(.not.inp_i(lbpair)) goto 700
+      lbpair=min(lbpair,50)
       goto 700
       endif
       goto 2

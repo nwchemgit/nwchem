@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.76 2002-11-12 22:06:56 d3j191 Exp $
+c $Id: sp_main.F,v 1.77 2002-11-14 15:39:22 d3j191 Exp $
 c
       implicit none
 c
@@ -2723,6 +2723,18 @@ c
       synsum=synsum+dlb(i)
     5 continue
 c
+      if(nldup.le.0) then
+      tslow=synsum
+      nldup=0
+      else
+      if(synsum.gt.tslow) then
+      nldup=nldup+1
+      else
+      tslow=synsum
+      nldup=0
+      endif
+      endif
+c
 c     if the accumulated synchronization time is less than 0.0001 sec
 c     no load balancing is needed
 c
@@ -2741,6 +2753,7 @@ c     if the busiest processor has no off-processor pairs in the
 c     cell-cell list loadbalancing will be done by resizing
 c
       lbsize=nlst(ibusy,2).eq.0
+      if(nldup.ge.lbpair) lbsize=.true.
 c
 c     order node list
 c
@@ -2781,6 +2794,8 @@ c
       ipairt=-4
       lpipo=.false.
       tsyncp=synsum
+      nldup=0
+      tslow=synsum
       return
       endif
 c
