@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.16 1997-12-08 18:39:11 d3g681 Exp $
+* $Id: task_gradient.F,v 1.17 1998-11-02 15:43:36 bernhold Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -91,7 +91,7 @@ c
       else if (theory .eq. 'mcscf') then
          status = scf_gradient(rtdb) ! Done thru SCF gradient module
       else if (theory .eq. 'rimp2') then
-         status = .false.       ! No derivatives yet
+         status = task_num_grad(rtdb) ! Only numerical
       else if (theory .eq. 'direct_mp2') then
          status = task_num_grad(rtdb) ! Only numerical
       else if (theory .eq. 'selci') then
