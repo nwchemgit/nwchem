@@ -1,5 +1,5 @@
       Subroutine igamma(Fj,N,L)
-c $Id: igamma.F,v 1.10 2002-08-06 01:09:02 edo Exp $
+c $Id: igamma.F,v 1.11 2003-01-06 20:51:36 edo Exp $
 
       Implicit none
       integer n
@@ -170,4 +170,11 @@ c ... downward recursion.
 *acc_debug:
 *acc_debug:  100 continue
 *acc_debug:
+      end
+      subroutine igamma_init
+c
+c     call need when txs is not active
+c
+      call fprep
+      return
       end

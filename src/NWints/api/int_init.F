@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.61 2000-05-27 19:34:11 mg201 Exp $
+c $Id: int_init.F,v 1.62 2003-01-06 20:51:32 edo Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -362,6 +362,8 @@ c
       if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
         call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min,
      *                  'scfd_int')
+      else
+         call igamma_init
       endif
 c
 c See if any basis has an attached ECP
