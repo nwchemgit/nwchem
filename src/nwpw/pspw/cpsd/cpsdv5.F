@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.37 2005-02-01 02:49:22 bylaska Exp $
+* $Id: cpsdv5.F,v 1.38 2005-02-09 02:37:04 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -393,10 +393,13 @@
             write(6,1131) 
      >      'PBE96 (White and Bird) parameterization'
          ELSE IF (control_gga().eq.2) THEN
-            write(6,1131) 'Hartree-Fock'
+            write(6,1131) 
+     >      'BLYP (White and Bird) parameterization'
          ELSE IF (control_gga().eq.3) THEN
             write(6,1131) 
      >      'PBE0 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.4) THEN
+            write(6,1131) 'Hartree-Fock'
          ELSE
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)

@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.14 2004-11-14 23:31:50 bylaska Exp $
+* $Id: c_electron.F,v 1.15 2005-02-09 02:38:42 bylaska Exp $
 *
 
 *     ***********************************
@@ -947,7 +947,7 @@ c     call dcopy(2*nfft3d,0.0d0,0,dn,1)
       logical value
       integer tmp1(2)
       integer trho(2),txcp(2),txce(2),n2ft3d
-      integer ms,i,j,k,q,nx,ny,nz,nq,indx1,indx2
+      integer ms,i,j,k,q,nx,ny,nz,nq,indx1,indx2,gga
 
 *     **** external functions ****
       integer  control_gga,control_version
@@ -956,9 +956,10 @@ c     call dcopy(2*nfft3d,0.0d0,0,dn,1)
 
       call c_coulomb_v(dng,dcpl_mb(vc(1)))
 
+      gga = control_gga()
 
       !*** LDA calculation ****
-      if (control_gga().eq.0) then
+      if (gga.eq.0) then
          value = MA_push_get(mt_dbl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
          if (.not. value) call errquit(
      >     'electron_gen_scf_potentials: out of stack memory',0, MA_ERR)
@@ -1008,7 +1009,7 @@ c     call dcopy(2*nfft3d,0.0d0,0,dn,1)
          end do
          
 
-         call v_bwexc(n2ft3d,ispin,
+         call v_bwexc(gga,n2ft3d,ispin,
      >                    dbl_mb(trho(1)),
      >                    1.0d0,1.0d0,
      >                    dbl_mb(txcp(1)),
