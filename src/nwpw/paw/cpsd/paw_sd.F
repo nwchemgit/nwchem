@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.43 2003-02-23 23:32:05 bylaska Exp $
+* $Id: paw_sd.F,v 1.44 2003-02-23 23:44:02 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -341,6 +341,7 @@
         end if
      
       end do
+      call psi_marat_write("marat.elc",ispin,ne,dcpl_mb(psi2(1)))
 
 
 *                |**************************|
@@ -495,7 +496,6 @@
       if (taskid.eq.MASTER) call current_second(cpu3)
 
 
-      call psi_marat_write("marat.elc",ispin,ne,dcpl_mb(psi2(1)))
 
 
 *         |****************************************|
