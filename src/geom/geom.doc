@@ -97,32 +97,6 @@ Operations:
       existing copy is returned.
 
 
-      logical function geom_create_rtdb_copy
-     &    (rtdb, e_geom,e_name,n_geom,n_name,keepit)
-c
-c routine to copy a current rtdb geometry to a new one with a new name. 
-c optionally keeps new handle active.
-c current status of e_geom is preserved.
-
-      integer rtdb    ! [input] rtdb handle
-      integer e_geom  ! [input] handle that exists on rtdb
-      integer n_geom  ! [output] handle of new geometry
-      character *(*) e_name  ! [input] name of existing geometry
-      character *(*) n_name  ! [input] name of new geometry
-      logical keepit         ! [input] keep new geometry handle active??
-
-
-  logical function geom_create_copy(geom_exist,geom_new,new_name)
-  integer geom_exist [input]  existing geometry handle
-  integer geom_new   [output] new geometry handle
-  character*(*)      [input]  string that is the name of the new 
-                              geometry object
-
-      This routine copies an incore geometry object instance to a new 
-      one created with the new name "new_name" 
-      
-
-
   logical function geom_destroy(geom)
 
       Delete the incore data structures associated with the geometry

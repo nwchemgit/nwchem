@@ -1,5 +1,5 @@
       logical function stpr_walk(rtdb)
-c $Id: stpr_walk.F,v 1.7 1994-09-25 07:53:20 d3e129 Exp $
+c $Id: stpr_walk.F,v 1.8 1994-09-28 00:17:30 d3e129 Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -30,9 +30,9 @@ c
       integer h_core, k_core    ! MA handle/index of scratch array for stepper
       integer h_chg, k_chg      ! MA handle/index of charge array
       integer int_val           ! value to propigate status (stpr_walk value)
-      integer new_geom
+*      integer new_geom
       character*40 new_geom_name ! new geometry name for next step
-      character*2 tmpname
+      character*4 tmpname
       character*16 stpr_tags(max_cent) ! local tags array
       logical status
       double precision convgg, convge
@@ -146,38 +146,28 @@ c
      &      dbl_mb(k_coord),
      &      energy,nat,convge,convgg,stpr_walk,
      &      rtdb,step_number)
-c
-c..... copy geom on rtdb with new name
-c
-        write(tmpname,'(i2)')abs(step_number)
-        new_geom_name='geometry step '//tmpname
-        if (.not.geom_create_rtdb_copy
-     &      (rtdb,geom,'geometry',new_geom,new_geom_name,.true.))
-     &      call errquit
-     &      ('stpr_walk: geom_create_rtdb_copy failed',911)
-*rak:        write(6,*)' after geom_create_rtdb_copy stpr_walk'
-*rak:        if (.not.geom_print(geom)) stop 'tmp error'
-*rak:        if (.not.geom_print(new_geom)) stop 'tmp error'
 c..... set coordinates
-        if (.not. geom_cart_set(new_geom,nat,
+        if (.not. geom_cart_set(geom,nat,
      &      stpr_tags,
      &      dbl_mb(k_coord),
      &      dbl_mb(k_chg)))
      &      call errquit
      &        ('stpr_walk: geom_cart_set failed ?',911)
 c
-*rak:        write(6,*)' after geom_cart_set stpr_walk'
-*rak:        if (.not.geom_print(geom)) stop 'tmp error'
-*rak:        if (.not.geom_print(new_geom)) stop 'tmp error'
+c..... copy geom on rtdb with new name
+c
+        write(tmpname,'(i4)')abs(step_number)
+c                      123456789012345678
+        new_geom_name='geometry step '//tmpname
+        if (.not.geom_rtdb_store(rtdb,geom,new_geom_name))
+     &      call errquit
+     &      ('stpr_walk: geom_rtdb_store (of copy) failed',911)
 c
         if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
      &      call errquit
      &        ('stpr_walk: rtdb_cput failed ?',911)
-        if (.not.geom_rtdb_store(rtdb,new_geom,new_geom_name))
-     &      call errquit
-     &      ('stpr_walk: geom_rtdb_store failed ?',911)
 c
-*rak:        if(.not.rtdb_print(rtdb,.true.)) stop 'tmp error'
+*        if(.not.rtdb_print(rtdb,.true.)) stop 'tmp error'
 c
 *rak---- old copy over geometry - start
 *rak:c
@@ -193,8 +183,8 @@ c
 c... clean up
         if (.not.geom_destroy(geom))
      &      call errquit('stpr_walk: geom_destroy failed?',911)
-        if (.not.geom_destroy(new_geom))
-     &      call errquit('stpr_walk: geom_destroy failed?',911)
+*        if (.not.geom_destroy(new_geom))
+*     &      call errquit('stpr_walk: geom_destroy failed?',911)
         if (.not.MA_Pop_Stack(h_chg))
      &      call errquit('stpr_walk: ma_pop_stack h_chg failed',911)
         if (.not.MA_Pop_Stack(h_grad))

@@ -20,8 +20,6 @@
       logical geom_charge_center
       logical geom_nuc_charge
       logical geom_nuc_rep_energy
-      logical geom_create_copy
-      logical geom_create_rtdb_copy
       logical geom_verify_coords
 c
       external geom_check_handle
@@ -46,6 +44,5 @@ c
       external geom_charge_center
       external geom_nuc_charge
       external geom_nuc_rep_energy
-      external geom_create_copy
-      external geom_create_rtdb_copy
       external geom_verify_coords
+c
