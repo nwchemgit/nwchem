@@ -1,4 +1,4 @@
-c $Id: int_2e3c.F,v 1.18 1999-07-14 00:28:39 d3e129 Exp $
+c $Id: int_2e3c.F,v 1.19 2000-06-08 18:01:50 mg201 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e3c}
@@ -30,6 +30,7 @@ c
 #include "bas_ibs_dec.fh"
 #include "int_nbf.fh"
 #include "stdio.fh"
+#include "rel_nwc.fh"
 c
 c::external subroutines used
 c errquit
@@ -81,6 +82,9 @@ c:: local
       integer nint
       logical OFALSE
       logical any_spherical
+c.rel-dmd
+      logical status_rel, ket_rel, j_rel, k_rel
+      integer sbas, abas, kets, c_icfps, d_icfps
 c
       integer WarnP
       save WarnP
@@ -123,6 +127,7 @@ c     define center information required
 c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
+      kets = ket
       p_geom  = ibs_geom(bra)
       cd_geom = ibs_geom(ket)
 c
@@ -169,8 +174,30 @@ c
      &    status_txs = status_txs .and. ((Lp+Lc+Ld).gt.7)
 #endif
 *
+      status_rel = dyall_mod_dir .and. .not.nesc_1e_approx
+     &    .and. (ketin .eq. ao_bsh)
+      if (status_rel) then
 c
-      if (status_sp) then
+c     get basis set handles; relativistic integral option valid
+c     if bra or ket are the ao basis and bra and ket have both
+c     functions relativistic
+c
+        ket_rel = .false.
+        sbas = sc_bsh + BASIS_HANDLE_OFFSET
+        abas = ao_bsh + BASIS_HANDLE_OFFSET
+        kets = sbas
+        ket_rel = ket .eq. abas
+        if (ket_rel) then
+          ucont = sf_ibs_cn2ucn(jsh,ket)
+          j_rel = infbs_cont(CONT_RELLS ,ucont,ket) .ne. 0
+          ucont = sf_ibs_cn2ucn(ksh,ket)
+          k_rel = infbs_cont(CONT_RELLS ,ucont,ket) .ne. 0
+          ket_rel = ket_rel .and. j_rel .and. k_rel
+        end if
+        status_rel = status_rel .and. ket_rel
+      end if
+c
+      if (status_sp .and. .not.status_rel) then
         call genr70(
      &         brain,ish,coords(1,p_cent,p_geom),
      &                 0,coords(1,p_cent,p_geom),
@@ -178,7 +205,7 @@ c
      &               ksh,coords(1,d_cent,cd_geom),
      &         eri)
 #if defined(USE_TEXAS_BROKE)
-      else if (status_txs) then
+      else if (status_txs .and. .not.status_rel) then
         num_quart = 1
         dummy_lab(1) = 0
         dummy_lab(2) = 0
@@ -215,6 +242,8 @@ c
         c_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
         c_iexp  = infbs_cont(CONT_IEXP ,ucont,ket)
         c_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
+        if (j_rel) ucont = ao_to_ls(ucont)
+        c_icfps = infbs_cont(CONT_ICFP ,ucont,kets)
 c
         ucont   = (sf_ibs_cn2ucn(ksh,ket))
         Ld      = infbs_cont(CONT_TYPE ,ucont,ket)
@@ -222,20 +251,41 @@ c
         d_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
         d_iexp  = infbs_cont(CONT_IEXP ,ucont,ket)
         d_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
+        if (k_rel) ucont = ao_to_ls(ucont)
+        d_icfps = infbs_cont(CONT_ICFP ,ucont,kets)
 c      
-        call hf2(
-     &         coords(1,p_cent,p_geom), dbl_mb(mb_exndcf(p_iexp,bra)),
-     &         dbl_mb(mb_exndcf(p_icfp,bra)), p_prim, p_gen, Lp,
-     &         coords(1,p_cent,p_geom), DCexp,
-     &         DCcoeff           ,      1,     1, 0,
-     &         coords(1,c_cent,cd_geom), dbl_mb(mb_exndcf(c_iexp,ket)),
-     &         dbl_mb(mb_exndcf(c_icfp,ket)), c_prim, c_gen, Lc,
-     &         coords(1,d_cent,cd_geom), dbl_mb(mb_exndcf(d_iexp,ket)),
-     &         dbl_mb(mb_exndcf(d_icfp,ket)), d_prim,d_gen,Ld,
+        if (status_rel) then
+          call rel_2e4c_sf (
+     &        coords(1,p_cent,p_geom), dbl_mb(mb_exndcf(p_iexp,bra)),
+     &        dbl_mb(mb_exndcf(p_icfp,bra)), 
+     &        dbl_mb(mb_exndcf(p_icfp,bra)),p_prim,p_gen,Lp,p_cent,
+     &        coords(1,p_cent,p_geom),DCexp,DCcoeff,
+     &        DCcoeff,1,1,0,p_cent,
+     &        coords(1,c_cent,cd_geom), dbl_mb(mb_exndcf(c_iexp,ket)),
+     &        dbl_mb(mb_exndcf(c_icfp,ket)), 
+     &        dbl_mb(mb_exndcf(c_icfps,kets)), c_prim,c_gen,Lc,c_cent,
+     &        coords(1,d_cent,cd_geom), dbl_mb(mb_exndcf(d_iexp,ket)),
+     &        dbl_mb(mb_exndcf(d_icfp,ket)), 
+     &        dbl_mb(mb_exndcf(d_icfps,kets)), d_prim,d_gen,Ld,d_cent,
+c...................... canAB   canCD   canPQ   DryRun
+     &        eri,leri,.false.,.false.,.false.,.false.,scr,lscr,
+c............  bra_rel                    do_ssss
+     &        .false.,ket_rel,ss_one_cent,.false.,rel_dbg)
+        else
+          call hf2(
+     &        coords(1,p_cent,p_geom), dbl_mb(mb_exndcf(p_iexp,bra)),
+     &        dbl_mb(mb_exndcf(p_icfp,bra)), p_prim, p_gen, Lp,
+     &        coords(1,p_cent,p_geom), DCexp, 
+     &        DCcoeff, 1, 1, 0,
+     &        coords(1,c_cent,cd_geom), dbl_mb(mb_exndcf(c_iexp,ket)),
+     &        dbl_mb(mb_exndcf(c_icfp,ket)), c_prim, c_gen, Lc,
+     &        coords(1,d_cent,cd_geom), dbl_mb(mb_exndcf(d_iexp,ket)),
+     &        dbl_mb(mb_exndcf(d_icfp,ket)), d_prim,d_gen,Ld,
 c......................... canAB    canCD    canPQ
-     &         eri, leri, OFALSE, OFALSE, OFALSE,
+     &        eri, leri, OFALSE, OFALSE, OFALSE,
 c............ dryrun
-     &         OFALSE, scr, lscr)
+     &        OFALSE, scr, lscr)
+        end if
 c
         if (any_spherical) then
 c ... reset general contractions for sp shells to 1 since they are handled
