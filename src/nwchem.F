@@ -67,7 +67,7 @@ c
 c
 c     Now are ready to summarize the environment
 c
-         call nwchem_banner(input_filename)
+      call nwchem_banner(input_filename)
 c
 c     Read the input and open the RTDB
 c
