@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.25 2004-12-21 02:08:54 marat Exp $
+c $Id: qmmm_main.F,v 1.26 2005-01-06 23:55:46 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -196,7 +196,7 @@ c
 c
 c     add quantum contributions on bq region
 c     --------------------------------------
-      norm = 0.0
+      norm = 0.0d0
       do i=1,3*nbq
          dbl_mb(i_gbq+i-1)=dbl_mb(i_gbq+i-1)+dbl_mb(i_g+3*nqm+i-1)
          norm = norm + dbl_mb(i_gbq+i-1)*dbl_mb(i_gbq+i-1)
@@ -208,6 +208,7 @@ c     --------------------------------------
 c
 c    add link forces
 c    ---------------
+      call qmmm_link_forces_qm(nqm,dbl_mb(i_gqm))
       call qmmm_link_forces_mm(nqm,nbq,dbl_mb(i_gqm),
      >                         int_mb(i_ibq),
      >                         dbl_mb(i_gbq))

@@ -34,7 +34,7 @@ c
 
       call qmmm_bq_data_dealloc()
 c
-      if(bq_exclude.eq.qmmm_all_atoms) return
+c      if(bq_exclude.eq.qmmm_all_atoms) return
 
       call mm_prune_bqzone()
 
@@ -59,6 +59,11 @@ c
      >                       dbl_mb(i_cbq),
      >                       dbl_mb(i_qbq))
 
+        if(bq_exclude.eq.qmmm_all_atoms) then
+          do i=1,nbqs
+             dbl_mb(i_qbq) = 0.0d0
+          end do
+        end if
       end if
 
       if(qmmm_print_debug()) 
@@ -150,11 +155,11 @@ c
       if(.not.ma_alloc_get(mt_dbl,3*nbq,'cbq',h_cbq,i_cbq))
      + call errquit('qmmm: Failed to allocate memory for cbq',3*nbq,
      +       MA_ERR)
-      call dfill(3*nbq,0.00,dbl_mb(i_cbq),1)
+      call dfill(3*nbq,0.d0,dbl_mb(i_cbq),1)
       if(.not.ma_alloc_get(mt_dbl,nbq,'qbq',h_qbq,i_qbq))
      + call errquit('qmmm: Failed to allocate memory for qbq',nbq,
      &       MA_ERR)
-      call dfill(nbq,0.00,dbl_mb(i_qbq),1)
+      call dfill(nbq,0.d0,dbl_mb(i_qbq),1)
       if(.not.ma_alloc_get(mt_int,nbq,'ibq',h_ibq,i_ibq))
      + call errquit('qmmm: Failed to allocate memory for ibq',nbq,
      &       MA_ERR)
