@@ -1,4 +1,4 @@
-c $Id: int_hf1sp.F,v 1.9 1997-05-29 00:36:08 d3e129 Exp $
+c $Id: int_hf1sp.F,v 1.10 1997-05-29 00:46:17 d3e129 Exp $
 *
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_hf1sp}
@@ -241,18 +241,18 @@ c:tex-The transformation is done in place as follows:
 c:tex-\begin{tabular}{rccc}
 c:tex- & computed & transformed & \\
 c:tex- &  order   &   order     & \\
-c:tex-~1 & (x|s)  &  (x|s)  & \\
-c:tex-~2 & (y|s)  &  (x|x)  & 2 $\rightarrow$ 5\\
-c:tex-~3 & (z|s)  &  (x|y)  & 3 $\rightarrow$ 9\\
-c:tex-~4 & (x|x)  &  (x|z)  & 4 $\rightarrow$ 2\\
-c:tex-~5 & (x|y)  &  (y|s)  & 5 $\rightarrow$ 3\\
-c:tex-~6 & (x|z)  &  (y|x)  & 6 $\rightarrow$ 4\\
-c:tex-~7 & (y|x)  &  (y|y)  & 7 $\rightarrow$ 6\\
-c:tex-~8 & (y|y)  &  (y|z)  & 8 $\rightarrow$ 7\\
-c:tex-~9 & (y|z)  &  (z|s)  & 9 $\rightarrow$ 8\\
-c:tex-10 & (z|x)  &  (z|x)  &  \\
-c:tex-11 & (z|y)  &  (z|y)  &  \\
-c:tex-12 & (z|z)  &  (z|z)  &  \\
+c:tex-~1 & (x$|$s)  &  (x$|$s)  & \\
+c:tex-~2 & (y$|$s)  &  (x$|$x)  & 2 $\rightarrow$ 5\\
+c:tex-~3 & (z$|$s)  &  (x$|$y)  & 3 $\rightarrow$ 9\\
+c:tex-~4 & (x$|$x)  &  (x$|$z)  & 4 $\rightarrow$ 2\\
+c:tex-~5 & (x$|$y)  &  (y$|$s)  & 5 $\rightarrow$ 3\\
+c:tex-~6 & (x$|$z)  &  (y$|$x)  & 6 $\rightarrow$ 4\\
+c:tex-~7 & (y$|$x)  &  (y$|$y)  & 7 $\rightarrow$ 6\\
+c:tex-~8 & (y$|$y)  &  (y$|$z)  & 8 $\rightarrow$ 7\\
+c:tex-~9 & (y$|$z)  &  (z$|$s)  & 9 $\rightarrow$ 8\\
+c:tex-10 & (z$|$x)  &  (z$|$x)  &  \\
+c:tex-11 & (z$|$y)  &  (z$|$y)  &  \\
+c:tex-12 & (z$|$z)  &  (z$|$z)  &  \\
 c:tex-\end{tabular}
 c:tex- 
 c:tex-{\it Syntax:}
@@ -307,30 +307,30 @@ c:tex-The transformation is done in place as follows:
 c:tex-\begin{tabular}{rccc}      
 c:tex-  &  computed  & transformed & \\
 c:tex-  &  ~order    &  order & \\
-c:tex-~1 & (xx|s)  &  (xx|s)  & \\
-c:tex-~2 & (xy|s)  &  (xx|x)  &  ~2 $\rightarrow$ 5~~ \\
-c:tex-~3 & (xz|s)  &  (xx|y)  &  ~3 $\rightarrow$ 9~~ \\
-c:tex-~4 & (yy|s)  &  (xx|z)  &  ~4 $\rightarrow$ 13~ \\
-c:tex-~5 & (yz|s)  &  (xy|s)  &  ~5 $\rightarrow$ 17~ \\
-c:tex-~6 & (zz|s)  &  (xy|x)  &  ~6 $\rightarrow$ 21~ \\
-c:tex-~7 & (xx|x)  &  (xy|y)  &  ~7 $\rightarrow$ 2~~ \\
-c:tex-~8 & (xx|y)  &  (xy|z)  &  ~8 $\rightarrow$ 3~~ \\
-c:tex-~9 & (xx|z)  &  (xz|s)  &  ~9 $\rightarrow$ 4~~ \\
-c:tex-10 & (xy|x)  &  (xz|x)  &  10 $\rightarrow$ 6~~ \\
-c:tex-11 & (xy|y)  &  (xz|y)  &  11 $\rightarrow$ 7~~ \\
-c:tex-12 & (xy|z)  &  (xz|z)  &  12 $\rightarrow$ 8~~ \\
-c:tex-13 & (xz|x)  &  (yy|s)  &  13 $\rightarrow$ 10~ \\
-c:tex-14 & (xz|y)  &  (yy|x)  &  14 $\rightarrow$ 11~ \\
-c:tex-15 & (xz|z)  &  (yy|y)  &  15 $\rightarrow$ 12~ \\
-c:tex-16 & (yy|x)  &  (yy|z)  &  16 $\rightarrow$ 14~ \\
-c:tex-17 & (yy|y)  &  (yz|s)  &  17 $\rightarrow$ 15~ \\
-c:tex-18 & (yy|z)  &  (yz|x)  &  18 $\rightarrow$ 16~ \\
-c:tex-19 & (yz|x)  &  (yz|y)  &  19 $\rightarrow$ 18~ \\
-c:tex-20 & (yz|y)  &  (yz|z)  &  20 $\rightarrow$ 19~ \\
-c:tex-21 & (yz|z)  &  (zz|s)  &  21 $\rightarrow$ 20~ \\
-c:tex-22 & (zz|x)  &  (zz|x)  & \\
-c:tex-23 & (zz|y)  &  (zz|y)  & \\
-c:tex-24 & (zz|z)  &  (zz|z)  & \\
+c:tex-~1 & (xx$|$s)  &  (xx$|$s)  & \\
+c:tex-~2 & (xy$|$s)  &  (xx$|$x)  &  ~2 $\rightarrow$ 5~~ \\
+c:tex-~3 & (xz$|$s)  &  (xx$|$y)  &  ~3 $\rightarrow$ 9~~ \\
+c:tex-~4 & (yy$|$s)  &  (xx$|$z)  &  ~4 $\rightarrow$ 13~ \\
+c:tex-~5 & (yz$|$s)  &  (xy$|$s)  &  ~5 $\rightarrow$ 17~ \\
+c:tex-~6 & (zz$|$s)  &  (xy$|$x)  &  ~6 $\rightarrow$ 21~ \\
+c:tex-~7 & (xx$|$x)  &  (xy$|$y)  &  ~7 $\rightarrow$ 2~~ \\
+c:tex-~8 & (xx$|$y)  &  (xy$|$z)  &  ~8 $\rightarrow$ 3~~ \\
+c:tex-~9 & (xx$|$z)  &  (xz$|$s)  &  ~9 $\rightarrow$ 4~~ \\
+c:tex-10 & (xy$|$x)  &  (xz$|$x)  &  10 $\rightarrow$ 6~~ \\
+c:tex-11 & (xy$|$y)  &  (xz$|$y)  &  11 $\rightarrow$ 7~~ \\
+c:tex-12 & (xy$|$z)  &  (xz$|$z)  &  12 $\rightarrow$ 8~~ \\
+c:tex-13 & (xz$|$x)  &  (yy$|$s)  &  13 $\rightarrow$ 10~ \\
+c:tex-14 & (xz$|$y)  &  (yy$|$x)  &  14 $\rightarrow$ 11~ \\
+c:tex-15 & (xz$|$z)  &  (yy$|$y)  &  15 $\rightarrow$ 12~ \\
+c:tex-16 & (yy$|$x)  &  (yy$|$z)  &  16 $\rightarrow$ 14~ \\
+c:tex-17 & (yy$|$y)  &  (yz$|$s)  &  17 $\rightarrow$ 15~ \\
+c:tex-18 & (yy$|$z)  &  (yz$|$x)  &  18 $\rightarrow$ 16~ \\
+c:tex-19 & (yz$|$x)  &  (yz$|$y)  &  19 $\rightarrow$ 18~ \\
+c:tex-20 & (yz$|$y)  &  (yz$|$z)  &  20 $\rightarrow$ 19~ \\
+c:tex-21 & (yz$|$z)  &  (zz$|$s)  &  21 $\rightarrow$ 20~ \\
+c:tex-22 & (zz$|$x)  &  (zz$|$x)  & \\
+c:tex-23 & (zz$|$y)  &  (zz$|$y)  & \\
+c:tex-24 & (zz$|$z)  &  (zz$|$z)  & \\
 c:tex-\end{tabular}
 c:tex-
 c:tex-{\it Syntax:}
@@ -413,22 +413,22 @@ c:tex-The transformation is done in place as follows:
 c:tex-\begin{tabular}{rccc}      
 c:tex-  &  computed & transformed   &   \\
 c:tex-  &   order   &  order  &   \\
-c:tex-~1 & (s|s)  &  (s|s)  &   \\
-c:tex-~2 & (s|x)  &  (s|x)  &   \\
-c:tex-~3 & (s|y)  &  (s|y)  &   \\
-c:tex-~4 & (s|z)  &  (s|z)  &   \\
-c:tex-~5 & (x|s)  &  (x|s)  &   \\
-c:tex-~6 & (y|s)  &  (x|x)  &  ~6 $\rightarrow$ 9\\
-c:tex-~7 & (z|s)  &  (x|y)  &  ~7 $\rightarrow$ 13\\
-c:tex-~8 & (x|x)  &  (x|z)  &  ~8 $\rightarrow$ 6\\
-c:tex-~9 & (x|y)  &  (y|s)  &  ~9 $\rightarrow$ 7\\
-c:tex-10 & (x|z)  &  (y|x)  &  10 $\rightarrow$ 8 \\ 
-c:tex-11 & (y|x)  &  (y|y)  &  11 $\rightarrow$ 10\\
-c:tex-12 & (y|y)  &  (y|z)  &  12 $\rightarrow$ 11\\
-c:tex-13 & (y|z)  &  (z|s)  &  13 $\rightarrow$ 12\\
-c:tex-14 & (z|x)  &  (z|x)  &   \\
-c:tex-15 & (z|y)  &  (z|y)  &   \\
-c:tex-16 & (z|z)  &  (z|z)  &   \\
+c:tex-~1 & (s$|$s)  &  (s$|$s)  &   \\
+c:tex-~2 & (s$|$x)  &  (s$|$x)  &   \\
+c:tex-~3 & (s$|$y)  &  (s$|$y)  &   \\
+c:tex-~4 & (s$|$z)  &  (s$|$z)  &   \\
+c:tex-~5 & (x$|$s)  &  (x$|$s)  &   \\
+c:tex-~6 & (y$|$s)  &  (x$|$x)  &  ~6 $\rightarrow$ 9\\
+c:tex-~7 & (z$|$s)  &  (x$|$y)  &  ~7 $\rightarrow$ 13\\
+c:tex-~8 & (x$|$x)  &  (x$|$z)  &  ~8 $\rightarrow$ 6\\
+c:tex-~9 & (x$|$y)  &  (y$|$s)  &  ~9 $\rightarrow$ 7\\
+c:tex-10 & (x$|$z)  &  (y$|$x)  &  10 $\rightarrow$ 8 \\ 
+c:tex-11 & (y$|$x)  &  (y$|$y)  &  11 $\rightarrow$ 10\\
+c:tex-12 & (y$|$y)  &  (y$|$z)  &  12 $\rightarrow$ 11\\
+c:tex-13 & (y$|$z)  &  (z$|$s)  &  13 $\rightarrow$ 12\\
+c:tex-14 & (z$|$x)  &  (z$|$x)  &   \\
+c:tex-15 & (z$|$y)  &  (z$|$y)  &   \\
+c:tex-16 & (z$|$z)  &  (z$|$z)  &   \\
 c:tex-\end{tabular}
 c:tex-
 c:tex-{\it Syntax:}
