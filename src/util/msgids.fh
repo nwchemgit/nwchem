@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.108 1999-02-12 18:36:20 d3j191 Exp $
+c     $Id: msgids.fh,v 1.109 1999-03-03 03:17:06 edo Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
@@ -45,6 +45,7 @@ c
       integer msg_gen_at_nat, msg_gen_at_restart
       integer msg_gen_at_iatom, msg_gen_at_ixyz
       integer msg_dftg_cdf,msg_schw2,msg_schw3
+      integer dft_mxmbf,dft_mxmbfnq
       integer msg_mull1,msg_mull2
       integer msg_trace_diag
       integer msg_grad_nquad
@@ -781,3 +782,6 @@ c
       parameter(mcf_48=msg_ftn_base-598)
       parameter(mcf_49=msg_ftn_base-599)
       parameter(mcf_50=msg_ftn_base-600)
+
+      parameter(dft_mxmbf=msg_ftn_base-601)
+      parameter(dft_mxmbfnq=msg_ftn_base-602)
