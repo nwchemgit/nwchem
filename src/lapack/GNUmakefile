@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.44 2003-04-04 01:42:11 edo Exp $
+#$Id: GNUmakefile,v 1.45 2004-09-29 22:07:14 edo Exp $
 
 include ../config/makefile.h
 
@@ -117,5 +117,9 @@ endif
 
 include ../config/makelib.h
 
-
+ifeq ($(_FC),ifc)
+  ifeq ($(_IFCV81),Y)
+    FOPTIMIZE +=-ip_no_inlining
+  endif
+endif
 
