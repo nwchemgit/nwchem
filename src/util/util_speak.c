@@ -38,7 +38,11 @@ void util_speak(const char *string)
 #endif
 }
 
+#ifdef CRAY-T3D
+void UTIL_SPEAK(const char *string, int len)
+#else
 void util_speak_(const char *string, int len)
+#endif
 {
 #ifdef SPEECH
     char buf[256];
@@ -50,7 +54,11 @@ void util_speak_(const char *string, int len)
 #endif
 }
 
+#ifdef CRAY-T3D
+void UTIL_SPEAK_INIT(const char *host, integer *fp, int len)
+#else
 void util_speak_init_(const char *host, integer *fp, int len)
+#endif
 {
 #ifdef SPEECH
     char buf[256];
