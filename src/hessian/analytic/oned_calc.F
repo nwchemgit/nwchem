@@ -1,5 +1,5 @@
 c
-c $Id: oned_calc.F,v 1.5 2000-05-30 14:47:30 windus Exp $
+c $Id: oned_calc.F,v 1.6 2000-07-18 14:59:57 windus Exp $
 c
       subroutine oned_calc(nxyz,g_rhs,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,geom,basis,nat)
@@ -82,7 +82,7 @@ c               if2 = if2 - iab2f + 1
 c               il2 = il2 - iab2f + 1
 
                 nint = (il1 - if1 + 1) * (il2 - if2 + 1)
-                write(6,*) 'nint is ',nint
+c               write(6,*) 'nint is ',nint
 c
 C     dS
 c
@@ -91,19 +91,19 @@ c
      &               lbuf,Ibuf,idatom)
 
                 if ( idatom(1) .ge. 1 ) then
-                write(6,*) 'integral buffer for ',idatom(1),
-     *              idatom(2)
+c               write(6,*) 'integral buffer for ',idatom(1),
+c    *              idatom(2)
 c
 c scale Ibuf for half the buffer because it comes back with the wrong sign
 c
 c               if (idatom(1).eq.idatom(2))
 c    *            call dscal(nint*3,-1.0d0,Ibuf(nint*3+1),1)
-                do i = 1, nint*6
-                  write(6,*) 'i = ',i,Ibuf(i)
-                enddo
+c               do i = 1, nint*6
+c                 write(6,*) 'i = ',i,Ibuf(i)
+c               enddo
 c
                   ic = 1
-                  write(6,*) 'if1,il1,if2,il2 ',if1,il1,if2,il2
+c                 write(6,*) 'if1,il1,if2,il2 ',if1,il1,if2,il2
                   natom = 2
 c                 if (idatom(1).eq.idatom(2)) natom = 1
                   do 28 i = 1, natom
@@ -112,8 +112,8 @@ c                 if (idatom(1).eq.idatom(2)) natom = 1
      *               il1,if2,il2,
      *               Ibuf(ic),il1-if1+1,1.0d0)
                     ic = ic + nint
-                    write(6,*) 'g_rhs of ',(idatom(i)-1)*3 + icart1
-                    call ga_print(g_rhs((idatom(i)-1)*3 + icart1))
+c                   write(6,*) 'g_rhs of ',(idatom(i)-1)*3 + icart1
+c                   call ga_print(g_rhs((idatom(i)-1)*3 + icart1))
  27               continue
  28               continue
                 endif   ! if idatom
@@ -129,10 +129,10 @@ c                call dscal(lbuf,qfac,Ibuf,1)
 c                if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) qfac=qfac/2
                  ic = 1
                  do atx = 1, nxyz
-                   write(6,*) 'if1,il1,if2,il2, ',if1,il1,if2,il2
-                   write(6,*) 'iab1f, iab1l, iab2f, iab2l', iab1f,
-     *              iab1l, iab2f, iab2l
-                   write(6,*) 'Ibuf(ic) ',Ibuf(ic), ic
+c                  write(6,*) 'if1,il1,if2,il2, ',if1,il1,if2,il2
+c                  write(6,*) 'iab1f, iab1l, iab2f, iab2l', iab1f,
+c    *              iab1l, iab2f, iab2l
+c                  write(6,*) 'Ibuf(ic) ',Ibuf(ic), ic
 c                  call ga_acc(g_rhs(atx),iab1f,iab1l,iab2f,iab2l,
 c    *              Ibuf(ic),iab1l-iab1f+1,1.0d0)
                    call ga_acc(g_rhs(atx),if1,il1,if2,il2,
@@ -140,8 +140,8 @@ c    *              Ibuf(ic),iab1l-iab1f+1,1.0d0)
 c                  if (.not.((iab1f.eq.iab2f).and.
 c    *               (iab1l.eq.iab2l))) call ga_acc(g_rhs(atx),
 c    *               iab2f,iab2l,iab1f,iab1l,Ibuf(ic),nint,1.0d0)
-                    write(6,*) 'for g_rhs(atx) ',atx
-                    call ga_print(g_rhs(atx))
+c                   write(6,*) 'for g_rhs(atx) ',atx
+c                   call ga_print(g_rhs(atx))
                     ic = ic + nint
 c put in the ga_accs
                  enddo
