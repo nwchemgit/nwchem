@@ -77,6 +77,7 @@ c
 c
 c     initialize for schwarz screening
 c
+      call int_app_set_no_texas(rtdb)
       call int_init(rtdb, 1, ao_bas_han)
       call schwarz_init (geom, ao_bas_han)
       call int_terminate()
@@ -141,6 +142,7 @@ c
 c     terminate integral scope
 c
       call intd_terminate()
+      call int_app_unset_no_texas(rtdb)
 c
       call ecce_print_module_exit ('dft','ok')
       call util_print_pop
