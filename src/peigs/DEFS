@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.75 2000-06-14 00:51:21 edo Exp $
+# $Id: DEFS,v 1.76 2000-08-29 18:08:39 edo Exp $
 #
 #======================================================================
 #
@@ -235,8 +235,8 @@ ifeq ($(peigs_TARGET),SGI_N32)
 peigs_CPU = MIPS
 peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
-peigs_CC += -DSTD_DBL -DSTD_INT
-peigs_FC += -align64  -D$(peigs_COMM) -DSTD_INT -DSTD_DBL -D$(peigs_CPU)
+peigs_CC += -DSTD_DBL -DSTD_INT -O3
+peigs_FC += -align64  -D$(peigs_COMM) -DSTD_INT -DSTD_DBL -D$(peigs_CPU) -O3
 peigs_CPP += -DSTD_INT -DSTD_DBL -D$(peigs_CPU) -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
@@ -248,13 +248,11 @@ ifeq ($(peigs_TARGET),SGITFP)
 peigs_CPU = MIPS
 peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
-peigs_CC += -DSTD_DBL -64
-peigs_FC += -align64  -64 -DSTD_DBL  -D$(peigs_COMM) -D$(peigs_CPU)
+peigs_CC += -DSTD_DBL -64 -O3
+peigs_FC += -align64  -64 -DSTD_DBL  -D$(peigs_COMM) -D$(peigs_CPU) -O3
 peigs_CPP += -DSTD_DBL -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
-peigs_FOPT = -O3 
-peigs_COPT = -O3
 peigs_COMM  = TCGMSG
 peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
 endif
