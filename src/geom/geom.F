@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.124 2003-12-13 02:34:18 marat Exp $
+C$Id: geom.F,v 1.125 2004-01-06 01:39:58 marat Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -1700,6 +1700,39 @@ c
          end do
       endif
       geom_efield_get = .true.
+      end
+      logical function geom_print_xyzq(geom, unit)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "stdio.fh"
+      integer geom, unit
+      integer i, j, icent
+      double precision scale, tmp(3)
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_print_xyzq = .true.
+      if (.not. geom_check_handle(geom, 'geom_print_xyzq')) then
+         geom_print_xyzq = .false.
+         return
+      end if
+c
+      scale = 1.0d0 / angstrom_to_au
+c
+      do icent = 1, ncenter(geom)
+       if(inp_compare(0,tags(icent,geom),'bq')) then
+       write(unit,3) tags(icent,geom),
+     $                (coords(j,icent,geom)*scale,j=1,3),
+     $                charge(icent,geom)
+
+
+ 3       format(1x,a16,1x,3f15.8,3x,"charge",3x,f15.8)
+      end if
+      end do
+c
       end
       logical function geom_print_xyz(geom, unit)
       implicit none

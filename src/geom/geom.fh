@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.40 2003-12-13 02:34:18 marat Exp $
+C$Id: geom.fh,v 1.41 2004-01-06 01:39:58 marat Exp $
       logical geom_disable_zmatrix
       logical geom_check_cent
       logical geom_rtdb_load
@@ -24,6 +24,7 @@ C$Id: geom.fh,v 1.40 2003-12-13 02:34:18 marat Exp $
       logical geom_cent_tag
       logical geom_print
       logical geom_print_xyz
+      logical geom_print_xyzq
       logical geom_tag_to_element
       logical geom_charge_center
       logical geom_center_of_mass
@@ -123,6 +124,7 @@ c
       external geom_cent_tag
       external geom_print
       external geom_print_xyz
+      external geom_print_xyzq
       external geom_tag_to_element
       external geom_charge_center
       external geom_center_of_mass
