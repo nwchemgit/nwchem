@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.33 2000-10-16 18:13:14 edo Exp $
+C$Id: int_1e_ga.F,v 1.34 2002-04-26 22:21:17 bert Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -67,6 +67,16 @@ c
          if (ibas.ne.jbas) call errquit
      $        ('int_1e_ga: Douglas-Kroll requires ibas=jbas', ibas)
          call int_1edk_ga(ibas,g,type,oskel)
+         call ga_sync()            ! So that no nasty races can result
+         return
+      endif
+c
+c     Doing Douglas-Kroll Spin-Orbit terms
+c
+      if (doug_kroll .and. (type.eq.5)) then
+         if (ibas.ne.jbas) call errquit
+     $        ('int_1e_ga: Douglas-Kroll requires ibas=jbas', ibas)
+         call int_1edk_so_ga(ibas,g,type,oskel)
          call ga_sync()            ! So that no nasty races can result
          return
       endif
