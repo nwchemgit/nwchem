@@ -1,0 +1,70 @@
+start h2o_dft
+
+memory global 8 mb stack 16 mb heap 10 mb
+
+geometry units au
+ O 0.00000000 0.00000000 0.24029800 
+ H 0.00000000 1.43256600 -0.96119100 
+ H 0.00000000 -1.43256600 -0.96119100 
+end
+
+dft
+ convergence diis 
+ noio
+end
+
+basis "ao basis" cartesian print segment
+ H library cc-pvdz
+ O library cc-pvdz
+end
+
+basis "cd basis" cartesian print segment
+O s # deMon-OXYGEN (4,3)
+     2000.00000000        1.0000000000
+O s
+      400.00000000        1.0000000000
+O s
+      100.00000000        1.0000000000
+O s
+       25.00000000        1.0000000000
+O s
+        7.80000000        1.0000000000
+O s
+        1.56000000        1.0000000000
+O s
+        0.39000000        1.0000000000
+O p
+        7.80000000        1.0000000000
+O p
+        1.56000000        1.0000000000
+O p
+        0.39000000        1.0000000000
+O d
+        7.80000000        1.0000000000
+O d
+        1.56000000        1.0000000000
+O d
+        0.39000000        1.0000000000
+H s  # deMon-HYDROGEN (3,1)
+       45.00000000        1.0000000000
+H s
+        7.50000000        1.0000000000
+H s
+        0.30000000        1.0000000000
+H s
+        1.50000000        1.0000000000
+H p
+        1.50000000        1.0000000000
+H d
+        1.50000000        1.0000000000
+end
+
+md
+ system h2o_dft
+ step 0.001 equil 0 data 10
+ print step 1 stat 10
+ record scoor 1 rest 1
+ test 10
+end
+
+task dft dynamics

@@ -1,0 +1,30 @@
+memory global 8 mb stack 16 mb heap 10 mb
+
+start h2o_scf
+
+geometry units au
+ O 0.00000000 0.00000000 0.24029800 
+ H 0.00000000 1.43256600 -0.96119100 
+ H 0.00000000 -1.43256600 -0.96119100 
+end
+
+
+basis cartesian print segment
+ H library cc-pvdz
+ O library cc-pvdz
+end
+
+scf
+  maxiter 20
+  thresh 1.e-10
+end
+
+md
+ system h2o_scf
+ equil 0 data 10 step 0.0005
+ print step 1 stat 10
+ record scoor 1 prop 1
+ test 10
+end
+
+task scf dynamics
