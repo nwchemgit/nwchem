@@ -2,7 +2,7 @@
      I     natoms,npol,oprint_parm,oprint_3c2e,
      O     n3c_int,n3c_dbl,n_semi_bufs,
      O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)
-* $Id: dft_mem3c.F,v 1.7 2004-04-22 01:14:05 edo Exp $
+* $Id: dft_mem3c.F,v 1.8 2004-04-28 05:09:36 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -121,7 +121,7 @@ c
       if (me.eq.0 .and. oprint_parm)
      &     write(LuOut,3228)avail, availm, n3c_dbl
       
-      if(deficit.ne.0) write(luout,3230) deficit
+      if(deficit.ne.0.and.me.eq.0) write(luout,3230) deficit
 c     
 c     Loops are parallelized over the products of AO shells
 c     (check for zero ... must be at least 1).
