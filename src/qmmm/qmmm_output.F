@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.9 2005-01-12 19:51:30 edo Exp $
+c $Id: qmmm_output.F,v 1.10 2005-01-25 18:42:00 marat Exp $
 c
 c
       subroutine qmmm_print_header()
@@ -187,6 +187,47 @@ c
 20    FORMAT(1X,A,T34,F12.6)
 21    FORMAT(1X,A,T34,F12.6," (",E12.6,2X, "kjoule/mol)")
 
+
+      end
+
+      subroutine qmmm_print_energy1(irtdb,energy,qm_energy)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_data.fh"
+#include "qmmm_params.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+
+      integer irtdb
+      double precision energy, mm_energy, qm_energy,eatoms
+c
+      character*32 pname
+
+      
+      pname = "qmmm_print_energy1"
+
+
+      if (.not.rtdb_get(irtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
+     $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)
+
+      qm_energy = qm_energy/cau2kj
+      energy = energy/cau2kj
+      mm_energy=energy-qm_energy
+      qm_energy = qm_energy+eatoms
+
+
+      if (.not. rtdb_put(irtdb,'qmmm:qm_energy',mt_dbl,1,qm_energy))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+
+      if (.not. rtdb_put(irtdb,'qmmm:mm_energy',mt_dbl,1,mm_energy))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+
+      if (.not. rtdb_put(irtdb,'qmmm:energy',mt_dbl,1,energy))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+
+      call qmmm_print_energy(irtdb)
 
       end
 

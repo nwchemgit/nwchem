@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.42 2005-01-10 19:53:21 marat Exp $
+c $Id: mm_interface.F,v 1.43 2005-01-25 18:42:00 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -878,7 +878,7 @@ c     mm local variables
       if(.not.ma_push_get(mt_int,nt,'i_act',l_act,i_act))
      + call errquit('qmmm: Failed to allocate memory for i_act',nt,
      &       MA_ERR)
-      call ifill(nt,1,int_mb(i_act),1)
+      call ifill(nt,0,int_mb(i_act),1)
 
       call mm_get_msa(msa)
       call mm_get_nsaloc(nsa)
@@ -890,7 +890,7 @@ c     mm local variables
         if(mm_type(i)) then
             do j=1,nt
               if(int_mb(psl+i-1).eq.ai(j)) then
-                 if(mm_fixed(i)) int_mb(i_act+j-1)=0
+                 if(mm_fixed(i)) int_mb(i_act+j-1)=1
               end if
             end do
         end if
@@ -898,8 +898,9 @@ c     mm local variables
 
       call ga_igop(msg_qmmm_act,int_mb(i_act),nt,'+')
 
+
       do i=1,nt
-         if(int_mb(i_act+i-1).eq.0) act(i)=.false.
+         if(int_mb(i_act+i-1).eq.1) act(i)=.false.
       end do
 
       if(.not.ma_pop_stack(l_act))

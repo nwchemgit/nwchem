@@ -96,7 +96,7 @@ c
       fixlinks = .false.
 
       eatoms = 0.0d0
-      linkatm=qmmm_halogen
+      linkatm=qmmm_hydrogen
       bq_exclude=qmmm_no_atoms
       optimization = "qm"
       link_ecp = "auto"

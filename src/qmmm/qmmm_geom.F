@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.48 2005-01-10 19:53:21 marat Exp $
+c $Id: qmmm_geom.F,v 1.49 2005-01-25 18:42:00 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -72,10 +72,15 @@ c     -----------------------------
      >                 dbl_mb(i_q),
      >                 dbl_mb(i_m))
 
+      if(qmmm_print_debug())
+     >    write(*,*) "mm_get_solute_cons_quant",pname
+
       call mm_get_solute_cons_quant(nqm,
      >                       int_mb(i_ind),
      >                       log_mb(i_act))
 
+      if(qmmm_print_debug())
+     >    write(*,*) "out mm_get_solute_cons_quant",pname
 
       do i=1,nqm
         int_mb(i_num+i-1)=int(dbl_mb(i_q+i-1))
@@ -890,7 +895,8 @@ c     -------------------------
            rql(k) = rq(k)-rl(k)
         end do
         l_ql=dnrm2(3,rql,1)
-        a = 1.0d0/(l_ql*0.529)
+c        a = 1.0d0/(l_ql*0.529)
+        a = 0.709d0
         ih = nqm-nlink+i
         do k=1,3
            rh(k) = rq(k) - rql(k)*a

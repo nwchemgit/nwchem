@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.12 2005-01-10 19:53:21 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.13 2005-01-25 18:42:00 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -418,10 +418,12 @@ c     -------------------------
         l_qh=qmmm_geom_distance(rh,rq)
         l_ql=qmmm_geom_distance(rl,rq)
         fh_rql = ddot(3,fh,1,rql,1)
-        a = 1.0d0 - l_qh/l_ql
-        b = fh_rql*l_qh/l_ql**3
+c        a = 1.0d0 - l_qh/l_ql
+c        b = fh_rql*l_qh/l_ql**3
+        a = 0.709d0
         do k=1,3
-          fq(k) = fh(k)*a + rql(k)*b
+c          fq(k) = fh(k)*a + rql(k)*b
+          fq(k) = fh(k)*(1.0d0-a)
           g(k,iq) = g(k,iq) + fq(k)
         end do
       end do
@@ -584,10 +586,12 @@ c     ------------------------------
         l_qh=qmmm_geom_distance(rh,rq)
         l_ql=qmmm_geom_distance(rl,rq)
         fh_rql = ddot(3,fh,1,rlq,1)
-        a = l_qh/l_ql
-        b = fh_rql*l_qh/l_ql**3
+         a = 0.709d0
+c        a = l_qh/l_ql
+c        b = fh_rql*l_qh/l_ql**3
         do k=1,3
-          fl(k) = fh(k)*a - rlq(k)*b
+c          fl(k) = fh(k)*a - rlq(k)*b
+          fl(k) = fh(k)*a 
           gbq(k,ib) = gbq(k,ib) + fl(k)
         end do
 c        write(*,*) "debug coord link",(rl(k1),k1=1,3)

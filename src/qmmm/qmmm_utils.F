@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_utils.F,v 1.2 2005-01-10 19:53:21 marat Exp $
+c $Id: qmmm_utils.F,v 1.3 2005-01-25 18:42:00 marat Exp $
 c
 
       function qmmm_geom_distance(r1,r2)

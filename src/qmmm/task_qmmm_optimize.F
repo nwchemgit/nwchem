@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.5 2005-01-14 00:47:47 edo Exp $
+c     $Id: task_qmmm_optimize.F,v 1.6 2005-01-25 18:42:00 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

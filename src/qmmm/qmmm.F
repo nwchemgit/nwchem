@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.41 2005-01-10 19:53:21 marat Exp $
+c $Id: qmmm.F,v 1.42 2005-01-25 18:42:00 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -100,6 +100,9 @@ c
       call mm_end()
       call qmmm_data_release()
       call qmmm_bq_data_dealloc()
+
+      if (.not. rtdb_put(rtdb,'qmmm:init',mt_log,1,.false.))
+     $     call errquit('qmmm: failed qmmm:init', 0, RTDB_ERR)
 
       qmmm_end = .true.
       return

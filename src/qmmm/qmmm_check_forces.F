@@ -346,7 +346,7 @@ c
 c
 c     get total number of atoms
 c     -------------------------
-      call mm_get_solute_tot_na_gen(ntot,mm_quant) 
+      call mm_get_solute_tot_na_gen(ntot,mm_link) 
            if (ga_nodeid() .eq. 0) then
          write(6,*)
          write(6,*) '@ number of atoms',ntot
@@ -374,16 +374,16 @@ c
       call dfill(3*ntot,0,dbl_mb(i_c),1)
 
       call mm_get_solute_ind_gen(ntot,
-     >                         mm_quant,
+     >                         mm_link,
      >                         int_mb(i_ai))
 
       call mm_get_solute_coord_gen(ntot,
-     >                         mm_quant,
+     >                         mm_link,
      >                         int_mb(i_ai),
      >                         dbl_mb(i_c))
 
       call mm_get_solute_force_gen(ntot,
-     >                         mm_quant,
+     >                         mm_link,
      >                         int_mb(i_ai),
      >                         dbl_mb(i_g))
  
@@ -412,7 +412,7 @@ c     -------------------
 10        continue
           dbl_mb(i_c+i-1)=c0+step
           call mm_set_solute_coord_gen(ntot,
-     >                       mm_quant,
+     >                       mm_link,
      >                       int_mb(i_ai),
      >                       dbl_mb(i_c))
           call md_sp()
@@ -434,7 +434,7 @@ c     -------------------
 
           dbl_mb(i_c+i-1)=c0-step
           call mm_set_solute_coord_gen(ntot,
-     >                       mm_quant,
+     >                       mm_link,
      >                       int_mb(i_ai),
      >                       dbl_mb(i_c))
 c
