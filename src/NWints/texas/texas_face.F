@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.52 1998-12-02 21:12:15 d3g681 Exp $
+c $Id: texas_face.F,v 1.53 1999-01-15 01:01:02 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -19,7 +19,11 @@ c----------------------------------------------------------------
       common /txs_ma_stuff/ h_txs_basnuc, k_txs_basnuc,
      *                      h_txs_mapp1 , k_txs_mapp1,
      *                      h_txs_prep2 , k_txs_prep2 
-c----------------------------------------------------------------
+c----------------------------------------------------------------------
+c:added:rak:fix linxmem size to basis set
+      integer texas_max_ang_val
+      common /c_texas_max_ang_val/ texas_max_ang_val
+c----------------------------------------------------------------------
       common /pnl_time/ time4texas_hf2_m,time4mul_quart
       common /txs_time/ timprep2,timcalc2,timblok2
 c----------------------------------------------------------------
@@ -57,6 +61,8 @@ c
            bleffiy=(xbluse/ysmallbl)*100.d0
          endif
       endif
+c----------------------------------------------------------------
+      texas_max_ang_val = -565   ! reset on termination
 c----------------------------------------------------------------
 c Information about integral's program performance :
 c
@@ -266,6 +272,10 @@ c
      *                     nat_bas_1,nat_bas_2,nat_bas_3,
      *                     ncf_bas_1,ncf_bas_2,ncf_bas_3 
 c----------------------------------------------------------------------
+c:added:rak:fix linxmem size to basis set
+      integer texas_max_ang_val
+      common /c_texas_max_ang_val/ texas_max_ang_val
+c----------------------------------------------------------------------
       integer rtdb_copy
       common /c_rtdb_copy/ rtdb_copy
       integer bas
@@ -273,6 +283,7 @@ c----------------------------------------------------------------------
       integer txs_static, txs_dynam
 c----------------------------------------------------------------------
 c
+      texas_max_ang_val = -565  ! ensure it is reset
       rtdb_copy = rtdb
 c----------------------------------------------------------------------
 c     if (nbas.gt.1 .and. ga_nodeid().eq.0) then
@@ -612,6 +623,11 @@ c==============1
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
 c
+c----------------------------------------------------------------------
+c:added:rak:fix linxmem size to basis set
+      integer texas_max_ang_val
+      common /c_texas_max_ang_val/ texas_max_ang_val
+c----------------------------------------------------------------------
       logical cart_2_sphe
       integer bas
       dimension datbas(13,*),inx(12,*)
@@ -646,6 +662,7 @@ c>>>> inx(2,ics)=(sf_ibs_cn2ce(ics,bas))
 c PNL types:
 c>>>  itype = infbs_cont(CONT_TYPE,(sf_ibs_cn2ucn(ics,bas)),bas)
       itype = infbs_cont(CONT_TYPE,(sf_ibs_cn2ucn(ish,bas)),bas)
+      texas_max_ang_val = max(texas_max_ang_val,itype)
 C TXS types:
       ityp1 = itype + 1
       if(itype.eq.-1) ityp1=3
@@ -1250,6 +1267,11 @@ c=================================================================
       common /route/ iroute
 cccc  common /limit_lost/ lost_limit
       common /allow_lost/ lost_allow   
+c----------------------------------------------------------------------
+c:added:rak:fix linxmem size to basis set
+      integer texas_max_ang_val
+      common /c_texas_max_ang_val/ texas_max_ang_val
+c----------------------------------------------------------------------
       integer rtdb_copy
       common /c_rtdb_copy/ rtdb_copy
       integer int_tmp, rtdb
@@ -1267,6 +1289,10 @@ c Defaults :
 c
 c
       rtdb = rtdb_copy
+c
+c
+c
+
 c:: read parameters from run time database use
 c:: defaults if they are not set on the rtdb
 c
@@ -1355,7 +1381,29 @@ c-----------------------------------------------------
       iblock=0      ! option name is IBLO  not used
 c                   ! option name is LIMI (3 numbers)
 c...
+c note: texas_max_ang_val is the PNL type for the maximum angular momentum in 
+c       a basis set.
       limxmem=4 000 000 ! limit for memory/block
+      if (texas_max_ang_val.eq.5) then
+        limxmem = 6 000 000     ! limit for memory/block (h functions)
+      else if(texas_max_ang_val.eq.4) then
+        limxmem = 4 000 000     ! limit for memory/block (g functions)
+      else if(texas_max_ang_val.eq.3) then
+        limxmem = 3 000 000     ! limit for memory/block (f functions)
+      else if(texas_max_ang_val.eq.2) then
+        limxmem = 2 000 000     ! limit for memory/block (d functions)
+      else if(texas_max_ang_val.eq.1) then
+        limxmem = 2 000 000     ! limit for memory/block (p functions)
+      else if(texas_max_ang_val.eq.0) then
+        limxmem = 2 000 000     ! limit for memory/block (s functions)
+      else
+        write(6,*)
+     &      'texas_input: guess for limxmem failed:using:',limxmem
+      endif
+*debug:s
+*      write(6,*)'texas_input: texas_max_ang_val :',texas_max_ang_val
+*      write(6,*)'texas_input: guess for limxmem :',limxmem
+*debug:e
       limblks=    5 000 ! limit for quartet-block-size
       limpair=    1 000 ! limit for pair-block-size
 c
