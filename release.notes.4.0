@@ -18,8 +18,8 @@ information.
 Additional major additions to the capabilities include: 
 
   o The Douglas-Kroll(-Hess) approach is implemented. It can be used at all levels 
-    of theory. Gradients have been implementing allowing for Douglas-Kroll including 
-    geometry optimizations and frequencies
+    of theory. Gradients have been implemented allowing geometry optimizations and 
+    frequency calculations using the Douglas-Kroll Hamiltonian.
   o Inclusion of code to evaluate relativistic integrals based on Dyall's modified Dirac
     (DmD) equation. This provides a one-electron approximation very similar to the
     Douglas-Kroll-Hess approach. Gradients are also available for this method.
