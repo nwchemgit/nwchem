@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.6 1999-10-08 18:27:28 d3j191 Exp $
+c $Id: cf_shake.F,v 1.7 1999-10-12 16:12:48 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -35,7 +35,7 @@ c
       if(nbonds.gt.0) then
       call cf_shks(nbonds,int_mb(lptr+1),mbt(2),mbp(2),
      + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
-     + msa,isto,igan,isat,isdt,xs,ys,dbl_mb(i_mas))
+     + isto,msa,igan,isat,isdt,xs,ys,dbl_mb(i_mas))
       endif
 c
       return
