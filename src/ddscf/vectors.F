@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.39 2002-02-19 21:41:23 d3k958 Exp $
+C$Id: vectors.F,v 1.40 2002-03-22 02:17:35 sohirata Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -185,7 +185,7 @@ c
 c
       movecs_read = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and. movecs_read .and.
-     $     util_print('vectors i/o', print_default)) then
+     $     util_print('vectors i/o', print_high)) then
          write(6,22) filename(1:inp_strlen(filename))
  22      format(/' Read molecular orbitals from ',a/)
          call util_flush(6)
