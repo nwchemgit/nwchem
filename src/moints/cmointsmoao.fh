@@ -1,10 +1,9 @@
-#include "util.fh"      
 c
 c
 c     
       integer moao_ipass                                ! count of passes
       integer moao_lun                                  ! unit number
-      character*(nw_max_path_len) moao_fname            ! filename for this PE
+      character*(1024) moao_fname                       ! filename for this PE
       integer moao_tasknum                              ! current task number
       integer moao_reclen                               ! length of current record read
       integer moao_issparse                             ! toggle sparse blocks

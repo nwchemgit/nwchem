@@ -29,7 +29,7 @@ c
 c
 c  Following routines use the common block
 c
-      block data
+      block data moints_moao_block
       implicit none
 #include "cmointsmoao.fh"
       data moao_ipass/-1/
@@ -102,7 +102,7 @@ c
         ssbblen = (ihi-ilo+1)*(jhi-jlo+1)*(kbhi-kblo+1)*(lbhi-lblo+1)
         call dfill( ssbblen, 0.d0, ssbb, 1 )
         do while (moints_iorec_next( blkid  ))
-          if (moao_issparse) then
+          if (moao_issparse.eq.1) then
             call moints_aodisk_iorec2sprs( ilo, ihi, jlo, jhi,
      $                             kblo, kbhi, lblo, lbhi,
      $                             ssbb, moao_reclen, 
