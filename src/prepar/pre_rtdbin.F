@@ -6,7 +6,7 @@
      + altloc,chain,icyren,iconst,model,nxlnk,mdold,ignore,scount,
      + fcount,mfract,nfract,ifract,scale,cpk,his,itopol)
 c
-c $Id: pre_rtdbin.F,v 1.35 2003-08-12 11:12:29 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.36 2003-08-12 11:33:53 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -163,6 +163,7 @@ c
 c
       lqhopmem=.false.
 c
+      call qhop_alloc()
       pre_rtdbin=.true.
       return
       end
