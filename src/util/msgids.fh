@@ -13,13 +13,13 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.130 2003-02-10 19:02:43 edo Exp $
+c     $Id: msgids.fh,v 1.131 2003-02-20 17:36:31 d3k958 Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_tcemem
       integer msg_utscr
       integer msg_tdmem
-      integer msg_et_2e
+      integer msg_et_2e, msg_et_adens, msg_et_bdens
       integer msg_hess_exy
       integer msg_hess_ddip
       integer msg_vec_type
@@ -1062,3 +1062,6 @@ c
       parameter (msg_tcemem = msg_ftn_base - 803) ! tce_memory
 c
       parameter (msg_utscr = msg_ftn_base - 803) ! util_avail_scr
+c
+      parameter(msg_et_adens = msg_ftn_base - 804) ! et_2e max alpha density
+      parameter(msg_et_bdens = msg_ftn_base - 805) ! et_2e max beta density
