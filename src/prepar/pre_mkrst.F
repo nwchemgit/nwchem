@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.76 2002-02-05 21:44:56 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.77 2002-02-16 22:58:55 d3j191 Exp $
 c
       implicit none
 c
@@ -283,7 +283,7 @@ c
       write(lfnout,1006) filpdb(1:index(filpdb,' ')-1)
  1006 format(' PDB file',t40,a,/)
       endif
-      if(nmis.gt.0) then
+      if(nmis.gt.0.or.iwater.gt.0) then
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
       if(.not.pre_misfit(lfnout,lfnmat,int_mb(i_sfnd),dbl_mb(i_xs),
@@ -503,7 +503,7 @@ c
      + ' Number of missing coordinates',t40,i8,/,
      + ' Total number of atoms',t40,i8,/)
       endif
-      if(nmis.gt.0) then
+      if(nmis.gt.0.or.iwater.gt.0) then
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
       if(.not.pre_misfit(lfnout,lfnmat,int_mb(i_sfnd),dbl_mb(i_xs),
@@ -801,7 +801,7 @@ c
      + ' Number of missing coordinates',t40,i8,/,
      + ' Total number of atoms',t40,i8,/)
       endif
-      if(nmis.gt.0) then
+      if(nmis.gt.0.or.iwater.gt.0) then
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
       if(.not.pre_misfit(lfnout,lfnmat,int_mb(i_sfnd),dbl_mb(i_xs),

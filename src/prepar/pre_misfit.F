@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.32 2002-02-15 22:38:23 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.33 2002-02-16 22:58:55 d3j191 Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
       integer i,ic,j,nn,nndx(10),nnn,nnndx(10),nm,miss
       real*8 d(3),c(3),p(3),t(3),r,dr,dd,px(3),pn(3),pz(3),pw(3)
       real*8 xmax(3),xmin(3),dx(3),dist2,gdist,gdist2,angle,boxh(3)
-      integer ix,iy,iz,k,imax,imin,ngrid,iwm,isa,iwm2,iwa,num
+      integer ix,iy,iz,k,l,m,imax,imin,ngrid,iwm,isa,iwm2,iwa,num
 c
       integer isg,ioff,jz,kz,lz
       real*8 dz,az,tz
@@ -384,6 +384,7 @@ c
       endif
    13 continue
       dx(k)=(xmax(k)-xmin(k)+4.0d0*gdist)/(mgrid-1)
+      xmin(k)=xmin(k)-2.0d0*gdist
    12 continue
 c
       ngrid=1
@@ -419,6 +420,36 @@ c
       if(dist2.lt.gdist2) goto 16
       endif
    17 continue
+      if(iwater.gt.0) then
+      do 117 k=1,nwm
+      if(iwfnd(k).gt.0) then
+      do 118 l=1,iwfnd(k)
+      if(npbtyp.eq.0) then
+      dist2=(grid(1,ngrid)-xw(1,l,k))**2+(grid(2,ngrid)-xw(2,l,k))**2+
+     + (grid(3,ngrid)-xw(3,l,k))**2
+      else
+      distx=grid(1,ngrid)-xw(1,l,k)
+      disty=grid(2,ngrid)-xw(2,l,k)
+      distz=grid(3,ngrid)-xw(3,l,k)
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      if(abs(distx).gt.boxh(1))
+     + distx=distx-util_nint(distx/box(1))*box(1)
+      if(abs(disty).gt.boxh(2))
+     + disty=disty-util_nint(distx/box(2))*box(2)
+      if(abs(distz).gt.boxh(3))
+     + distz=distz-util_nint(distx/box(3))*box(3)
+#else
+      if(abs(distx).gt.boxh(1)) distx=distx-nint(distx/box(1))*box(1)
+      if(abs(disty).gt.boxh(2)) disty=disty-nint(distx/box(2))*box(2)
+      if(abs(distz).gt.boxh(3)) distz=distz-nint(distx/box(3))*box(3)
+#endif
+      dist2=distx**2+disty**2+distz**2
+      endif
+      if(dist2.lt.gdist2) goto 16
+  118 continue
+      endif
+  117 continue
+      endif
       ngrid=ngrid+1
    16 continue
    15 continue
@@ -457,6 +488,36 @@ c
       grid(4,k)=grid(4,k)+qsa(j)/dist2
       endif
    19 continue
+      if(iwater.gt.0) then
+      do 119 m=1,nwm
+      if(iwfnd(m).gt.0) then
+      do 120 l=1,iwfnd(m)
+      if(npbtyp.eq.0) then
+      dist2=(grid(1,ngrid)-xw(1,l,m))**2+(grid(2,ngrid)-xw(2,l,m))**2+
+     + (grid(3,ngrid)-xw(3,l,m))**2
+      else
+      distx=grid(1,ngrid)-xw(1,l,m)
+      disty=grid(2,ngrid)-xw(2,l,m)
+      distz=grid(3,ngrid)-xw(3,l,m)
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      if(abs(distx).gt.boxh(1))
+     + distx=distx-util_nint(distx/box(1))*box(1)
+      if(abs(disty).gt.boxh(2))
+     + disty=disty-util_nint(distx/box(2))*box(2)
+      if(abs(distz).gt.boxh(3))
+     + distz=distz-util_nint(distx/box(3))*box(3)
+#else
+      if(abs(distx).gt.boxh(1)) distx=distx-nint(distx/box(1))*box(1)
+      if(abs(disty).gt.boxh(2)) disty=disty-nint(distx/box(2))*box(2)
+      if(abs(distz).gt.boxh(3)) distz=distz-nint(distx/box(3))*box(3)
+#endif
+      dist2=distx**2+disty**2+distz**2
+      endif
+      grid(4,k)=grid(4,k)+qwa(l)/dist2
+  120 continue
+      endif
+  119 continue
+      endif
    18 continue
 c
       endif
@@ -524,29 +585,13 @@ c
       grid(1,ngrid)=grid(1,j)
       grid(2,ngrid)=grid(2,j)
       grid(3,ngrid)=grid(3,j)
+      dist2=dsqrt((grid(1,ngrid)-xs(1,i))**2+
+     + (grid(2,ngrid)-xs(2,i))**2+(grid(3,ngrid)-xs(3,i))**2)
+      grid(4,ngrid)=grid(4,j)+qsa(i)/dist2
       endif
    21 continue
 c
-c     remove grid point from list
-c
-c      do 21 j=imin,ngrid
-c      do 22 k=1,4
-c      grid(k,j)=grid(k,j+1)
-c   22 continue
-c   21 continue
-c      ngrid=ngrid-1
-c
       if(ngrid.le.0) call errquit('No grid points left',9999)
-c
-c      if(ngrid.le.0) call errquit('No grid points',9999)
-c
-c     update grid potential
-c
-      do 27 k=1,ngrid
-      dist2=dsqrt((grid(1,k)-xs(1,i))**2+
-     + (grid(2,k)-xs(2,i))**2+(grid(3,k)-xs(3,i))**2)
-      grid(4,k)=grid(4,k)+qsa(i)/dist2
-   27 continue
 c
       else
       miss=miss+1
@@ -574,50 +619,49 @@ c
       dx(1)=(xs(1,isa)-xw(1,1,iwm))
       dx(2)=(xs(2,isa)-xw(2,1,iwm))
       dx(3)=(xs(3,isa)-xw(3,1,iwm))
-      dd=sqrt(dx(1)*dx(1)+dx(2)*dx(2)+dx(3)*dx(3))
+      dd=dx(1)*dx(1)+dx(2)*dx(2)+dx(3)*dx(3)
       px(1)=px(1)+qsa(isa)*dx(1)/dd
       px(2)=px(2)+qsa(isa)*dx(2)/dd
       px(3)=px(3)+qsa(isa)*dx(3)/dd
    24 continue
       do 25 iwm2=1,nwm
-      if(iwfnd(iwm).eq.3) then
+      if(iwfnd(iwm2).eq.3) then
       do 26 iwa=1,3
       dx(1)=(xw(1,iwa,iwm2)-xw(1,1,iwm))
       dx(2)=(xw(2,iwa,iwm2)-xw(2,1,iwm))
       dx(3)=(xw(3,iwa,iwm2)-xw(3,1,iwm))
-      dd=sqrt(dx(1)*dx(1)+dx(2)*dx(2)+dx(3)*dx(3))
+      dd=dx(1)*dx(1)+dx(2)*dx(2)+dx(3)*dx(3)
       px(1)=px(1)+qwa(iwa)*dx(1)/dd
       px(2)=px(2)+qwa(iwa)*dx(2)/dd
       px(3)=px(3)+qwa(iwa)*dx(3)/dd
    26 continue
       endif
    25 continue
-      pw(1)=0.0d0
-      pw(2)=0.0d0
-      pw(3)=0.055d0
-      angle=acos((pw(1)*px(1)+pw(2)*px(2)+pw(3)*px(3))/
-     + sqrt((pw(1)*pw(1)+pw(2)*pw(2)+pw(3)*pw(3))*
-     + (px(1)*px(1)+px(2)*px(2)+px(3)*px(3))))
+      dd=sqrt(px(1)*px(1)+px(2)*px(2)+px(3)*px(3))
+      pw(1)=-0.1d0*px(1)/dd
+      pw(2)=-0.1d0*px(2)/dd
+      pw(3)=-0.1d0*px(3)/dd
+      px(1)=pw(2)
+      px(2)=pw(3)
+      px(3)=pw(1)
       pn(1)=pw(2)*px(3)-pw(3)*px(2)
       pn(2)=pw(3)*px(1)-pw(1)*px(3)
       pn(3)=pw(1)*px(2)-pw(2)*px(1)
       pz(1)=0.0d0
       pz(2)=0.0d0
       pz(3)=0.0d0
-      pw(1)=0.0d0
-      pw(2)=-0.083d0
-      pw(3)=0.055d0
+      angle=0.95120d0
       call rotate(pz,pn,angle,pw,dx)
       xw(1,2,iwm)=xw(1,1,iwm)+dx(1)
       xw(2,2,iwm)=xw(2,1,iwm)+dx(2)
       xw(3,2,iwm)=xw(3,1,iwm)+dx(3)
-      pw(1)=0.0d0
-      pw(2)=0.083d0
-      pw(3)=0.055d0
+      angle=-0.95120d0
       call rotate(pz,pn,angle,pw,dx)
       xw(1,3,iwm)=xw(1,1,iwm)+dx(1)
       xw(2,3,iwm)=xw(2,1,iwm)+dx(2)
       xw(3,3,iwm)=xw(3,1,iwm)+dx(3)
+c
+      iwfnd(iwm)=3
       endif
    23 continue
       endif
