@@ -576,6 +576,7 @@ C
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
+#include "rtdb.fh"
 c
       logical status
       logical geom_zmt_put_zsym
@@ -1006,6 +1007,7 @@ C
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
+#include "rtdb.fh"
       logical status
       integer geom
 C
