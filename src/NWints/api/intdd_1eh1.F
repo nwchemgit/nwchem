@@ -1,6 +1,6 @@
       subroutine intdd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intdd_1eh1.F,v 1.1 1999-04-28 22:47:23 windus Exp $
+C $Id: intdd_1eh1.F,v 1.2 1999-04-29 21:37:42 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "basP.fh"
@@ -82,11 +82,11 @@ c
       scrsize = lscr - offset ! new scratch array size
       offset = offset + 1     ! increment for passing to intd_1eh1P
 c
-      call intd_1eh1P(i_basis,ish,j_basis,jsh,
+      call intdd_1eh1P(i_basis,ish,j_basis,jsh,
      &       scrsize,scr(offset),nint,H1a,scr)
 c
       end
-      subroutine intd_1eh1P(i_basis,ish,j_basis,jsh,lscr,scr,
+      subroutine intdd_1eh1P(i_basis,ish,j_basis,jsh,lscr,scr,
      &       nint,H1a,Ta)
       implicit none
 #include "stdio.fh"
