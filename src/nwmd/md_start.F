@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.63 2000-05-19 17:23:59 d3j191 Exp $
+c $Id: md_start.F,v 1.64 2000-05-23 20:28:18 d3j191 Exp $
 c
       implicit none
 c
@@ -1323,6 +1323,38 @@ c
       write(lfnout,1016) nfsvel
  1016 format(' Frequency recording solute velocities ',t55,i5)
       endif
+c
+      write(lfnout,2000)
+ 2000 format(/,' LOAD BALANCING',/)
+c
+
+      if(loadb.eq.0) write(lfnout,2001)
+ 2001 format(' None')
+      if(loadb.eq.1) write(lfnout,2002)
+ 2002 format(' Redistribution of inter-processor box pairs')
+      if(loadb.eq.2) write(lfnout,2003) factld
+ 2003 format(' Resizing of processor domains: smallest scaling ',f12.6)
+      if(loadb.eq.3) write(lfnout,2004) lbpair,factld
+ 2004 format(' Redistribution of inter-processor box pairs: retry ',
+     + i5,/,' Resizing of processor domains: smallest scaling ',f12.6)
+c
+      if(ireset.gt.0) write(lfnout,2005)
+ 2005 format(/,' Load balancing reset')
+c
+      if(itload.eq.0) write(lfnout,2006)
+ 2006 format(/,' Load balancing based on last synchronization time')
+      if(itload.eq.1) write(lfnout,2007)
+ 2007 format(/,' Load balancing based on minimum synchronization time')
+      if(itload.eq.2) write(lfnout,2008)
+ 2008 format(/,' Load balancing based on average synchronization time')
+      if(itload.eq.3) write(lfnout,2009)
+ 2009 format(/,' Load balancing based on average synchronization time',
+     + ' with minimum synchronization time on processor 0')
+c
+      if(ioload.eq.1) write(lfnout,2010)
+ 2010 format(/,' Time for I/O counted at each step')
+      if(ioload.eq.1) write(lfnout,2011)
+ 2011 format(/,' Experimental load balancing')
 c
       endif
 c
