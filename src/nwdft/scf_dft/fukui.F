@@ -3,7 +3,7 @@
      &                 g_xyz, g_nq, wght_GA, rho_n, irdens_atom,
      &                 icetobfr, natoms)
 c     
-c     $Id: fukui.F,v 1.16 2003-10-17 22:55:44 carlfahl Exp $
+c     $Id: fukui.F,v 1.17 2003-10-28 21:18:04 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -500,7 +500,7 @@ c
 
       Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s)
 
-C$Id: fukui.F,v 1.16 2003-10-17 22:55:44 carlfahl Exp $
+C$Id: fukui.F,v 1.17 2003-10-28 21:18:04 edo Exp $
       Implicit none
 #include "errquit.fh"
       integer geom,basis
@@ -661,7 +661,7 @@ c
      &                   wght_GA, rho_n, rdens_atom, 
      &                   cetobfr, natoms)
 c
-C$Id: fukui.F,v 1.16 2003-10-17 22:55:44 carlfahl Exp $
+C$Id: fukui.F,v 1.17 2003-10-28 21:18:04 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -881,7 +881,7 @@ c
             endif
          endif
 c      
-            call xc_fitv(Dbl_MB(iTmat), nTrows, nTcols,
+            call xc_fitv(rtdb,Dbl_MB(iTmat), nTrows, nTcols,
      &                   g_vxc, g_xcinv, IOLGC)
             if (oprint_time)call dft_tstamp(' After call to xc_fitv.  ')
             if (.not.ma_pop_stack(lTmat))
