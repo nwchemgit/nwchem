@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.20 2004-09-28 22:58:57 marat Exp $
+c $Id: qmmm.F,v 1.21 2004-09-30 06:11:20 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -14,14 +14,43 @@ c
 #include "qmmm.fh"
       integer irtdb
       logical qmmm_init
+      character*32 optimize
 c
       qmmm_init = .true.
+      if (.not.rtdb_cget(irtdb,'qmmm:optimize',1,optimize))
+     + call errquit('qmmm_init: failed to get qmmm:optimize',
+     &       0,RTDB_ERR)
+
+      if(optimize.eq.'mm') then
+        write(*,*) "optimize mm initialization"
+c        return
+      end if
+
 
 c     initialize mm part
 c     (note it will also want operation)
 c     --------------------------------------------
       call mm_init(irtdb)
+      call qmmm_init_qm(irtdb)
 
+      if (.not. rtdb_put(irtdb,'qmmm:init',mt_log,1,.true.))
+     $     call errquit('qmmm: failed qmmm:init', 0, RTDB_ERR)
+
+      return
+      end
+c
+      subroutine qmmm_init_qm(irtdb)
+      implicit none
+c
+#include "inp.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+      integer irtdb
+c
 c     allocate and initialize qmmm data structure
 c     -------------------------------------------
       call qmmm_data_init(irtdb)
@@ -33,9 +62,6 @@ c     create initial qm geometry
 c     --------------------------
       call qmmm_geom_init(irtdb)
 
-      if (.not. rtdb_put(irtdb,'qmmm:init',mt_log,1,.true.))
-     $     call errquit('qmmm: failed qmmm:init', 0, RTDB_ERR)
-
       return
       end
 c
@@ -45,9 +71,22 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "mafdecls.fh"
+#include "errquit.fh"
 
       integer rtdb
       logical qmmm_end
+      character*32 optimize
+      qmmm_end = .true.
+c
+      if (.not.rtdb_cget(rtdb,'qmmm:optimize',1,optimize))
+     + call errquit('qmmm_end: failed to get qmmm:optimize',
+     &       0,RTDB_ERR)
+
+      if(optimize.eq.'mm') then
+        write(*,*) "optimize mm no initialization"
+        return
+      end if
+
 
       call mm_end()
       call qmmm_data_release()
