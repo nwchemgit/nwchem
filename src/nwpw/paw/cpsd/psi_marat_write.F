@@ -1,5 +1,5 @@
 *
-* $Id: psi_marat_write.F,v 1.1 2002-08-16 01:13:06 bylaska Exp $
+* $Id: psi_marat_write.F,v 1.2 2002-09-18 23:33:23 bylaska Exp $
 *
 
 *     ***********************************
@@ -20,7 +20,7 @@
       integer version,l
       integer nfft3d,npack1
       integer nfft(3)
-      real*8  unita(3,3)
+      real*8  unita(3,3),scale
       character*30 filename
       character*255 full_filename
 
@@ -35,8 +35,8 @@ c     complex*16 tmp(*)
 *     ***** local functions ****
       character*30 control_output_psi
       external     control_output_psi
-      double precision control_unita
-      external         control_unita
+      double precision control_unita,lattice_omega
+      external         control_unita,lattice_omega
       integer  control_ngrid,control_version
       external control_ngrid,control_version
 
@@ -69,6 +69,7 @@ c     complex*16 tmp(*)
       unita(1,3) = control_unita(1,3)
       unita(2,3) = control_unita(2,3)
       unita(3,3) = control_unita(3,3)
+      scale = 1.0d0/dsqrt(lattice_omega())
 
       do n=1,ne(2)
         dbl_mb(psi_occup(1)+n-1) = 1.0d0
@@ -99,6 +100,9 @@ c     complex*16 tmp(*)
          call Pack_c_Copy(1,psi2(1+(n-1)*npack1),dcpl_mb(tmp2(1)))
          call Pack_c_unpack(1,dcpl_mb(tmp2(1)))         
          call D3dB_cr_fft3b(1,dcpl_mb(tmp2(1))) 
+         call D3dB_r_SMul(1,scale,
+     >                      dcpl_mb(tmp2(1)),
+     >                      dcpl_mb(tmp2(1)))
          call D3dB_r_FormatWrite(1,87,
      >                           dcpl_mb(tmp2(1)),
      >                           dcpl_mb(tmp(1)))
@@ -110,6 +114,9 @@ c     complex*16 tmp(*)
          call Pack_c_Copy(1,psi2(1+(n-1)*npack1),dcpl_mb(tmp2(1)))
          call Pack_c_unpack(1,dcpl_mb(tmp2(1)))         
          call D3dB_cr_fft3b(1,dcpl_mb(tmp2(1))) 
+         call D3dB_r_SMul(1,scale,
+     >                      dcpl_mb(tmp2(1)),
+     >                      dcpl_mb(tmp2(1)))
          call D3dB_r_FormatWrite(1,87,
      >                           dcpl_mb(tmp2(1)),
      >                           dcpl_mb(tmp(1)))
