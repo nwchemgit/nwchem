@@ -1,51 +1,14 @@
-
-#ifdef GENERIC_FOCK
-
-      subroutine rhf_fock_2e( geom, basis, g_dens, g_fock, tol2e,
-     $                        ocoul, oexch, oskel )
-      implicit none
-c     
-c     arguments
-c     
-      integer geom, basis
-      integer g_dens, g_fock    ! [input] handles
-      double precision tol2e    ! [input] integral selection threshold
-      logical ocoul, oexch      ! [input] compute coulomb/exchange 
-      logical oskel             ! [input] compute skeleton fock matrix
+c
+c  Distributed-data AO 2e-Fock construction routine
+c
+c      F(i) = jfac(i)*J[D(i)] + kfac(i)*K[D(i)]
 c
 c
-      integer vg_dens(2)
-      integer vg_fock(2)
-      integer nfock
-      double precision jfac(2), kfac(2)
-
-      if (ocoul) then
-        jfac(1) = 2.d0
-      else
-        jfac(1) = 0.d0
-      endif
-      if (oexch) then
-        kfac(1) = -1.d0
-      else
-        kfac(1) = 0.d0
-      endif
-      nfock = 1
-      vg_dens(1) = g_dens
-      vg_fock(1) = g_fock
-
-      call fock_2e( geom, basis, nfock, jfac, kfac, tol2e, oskel,
-     $              vg_dens, vg_fock )
-      
-      return
-      end
-
-
-
-
-#else
-      subroutine rhf_fock_2e(geom, basis, g_dens, g_fock, tol2e,
-     &       ocoul, oexch, oskel)
-C$Id: rhf_fock_2e.F,v 1.12 1995-03-14 01:52:14 rg240 Exp $
+c
+c
+      subroutine fock_2e( geom, basis, nfock, jfac, kfac,
+     $                    tol2e, oskel, vg_dens, vg_fock )
+C$Id $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -56,19 +19,24 @@ C$Id: rhf_fock_2e.F,v 1.12 1995-03-14 01:52:14 rg240 Exp $
 c     
 c     arguments
 c     
-      integer geom, basis, g_dens, g_fock ! [input] handles
-      double precision tol2e    ! [input] integral selection threshold
-      logical ocoul, oexch      ! [input] compute coulomb/exchange 
-c                               !         contribution to fock matrix
-      logical oskel             ! [input] compute skeleton fock matrix
+      integer geom, basis            ! [input] parameter handles
+      integer nfock                  ! [input] number of Fock matrices
+      double precision jfac(nfock)   ! [input] Coulomb prefactor
+      double precision kfac(nfock)   ! [input] exchange prefactor
+      double precision tol2e         ! [input] integral selection threshold
+      logical oskel                  ! [input] toggle skeleton Fock matrix
+      integer vg_dens(nfock)         ! [input] array of handles to densities
+      integer vg_fock(nfock)         ! [output] array of handles to Fock matrices
 c     
 c     local variables
 c     
-      integer natoms, maxd, iatom, max_at_bf, ilo, ihi
+      integer natoms, maxd, max_at_bf, ablklen
+      integer iatom, i, ilo, ihi
       integer l_dij, l_dik, l_dli, l_djk, l_dlj, l_dlk
       integer l_fij, l_fik, l_fli, l_fjk, l_flj, l_flk
       integer k_dij, k_dik, k_dli, k_djk, k_dlj, k_dlk
       integer k_fij, k_fik, k_fli, k_fjk, k_flj, k_flk
+      integer l_atmp, k_atmp
       logical status
 c     
 c     allocate necessary local temporary arrays on the stack
@@ -80,6 +48,10 @@ c
 c     k_* are the offsets corrsponding to the l_* handles
 c
       if (oscfps) call pstat_on(ps_fock_2e)
+c
+c     Halve exchange factor to conform to internal definition
+c
+      call dscal(nfock, 0.5d0, kfac, 1)
 c     
 c     Determine maximum no. of basis functions on any atom
 c     
@@ -91,7 +63,8 @@ c
      $        call errquit('rhf_fock_2e: bas_ce2bfr failed', iatom)
          max_at_bf = max(max_at_bf, ihi-ilo+1)
       enddo
-      maxd = max_at_bf**2
+      ablklen = max_at_bf**2
+      maxd = nfock*ablklen
 c     
       status = .true.
       status = status .and. ma_push_get(MT_DBL, maxd, 'dij',
@@ -118,20 +91,24 @@ c
      $     l_flj, k_flj)
       status = status .and. ma_push_get(MT_DBL, maxd, 'flk',
      $     l_flk, k_flk)
+      status = status .and. ma_push_get(MT_DBL, ablklen, 'atmp',
+     $     l_atmp, k_atmp)
       if (.not. status) call errquit('fock_2e: d/f** failed', maxd)
 c     
 c     Zero screening statistics
 c     
       call ifill(nscreen, 0, iscreen, 1)
 c     
-      call rhf_fock_2e_a(geom, basis, g_dens, g_fock, 
-     $     dbl_mb(k_dij), dbl_mb(k_dik), dbl_mb(k_dli), 
-     $     dbl_mb(k_djk), dbl_mb(k_dlj), dbl_mb(k_dlk), 
-     $     dbl_mb(k_fij), dbl_mb(k_fik), dbl_mb(k_fli), 
-     $     dbl_mb(k_fjk), dbl_mb(k_flj), dbl_mb(k_flk), maxd,
-     $     tol2e, ocoul, oexch, oskel)
+      call fock_2e_a( geom, basis, nfock, ablklen,
+     $                jfac, kfac, tol2e, oskel,
+     $                dbl_mb(k_dij), dbl_mb(k_dik), dbl_mb(k_dli), 
+     $                dbl_mb(k_djk), dbl_mb(k_dlj), dbl_mb(k_dlk), 
+     $                dbl_mb(k_fij), dbl_mb(k_fik), dbl_mb(k_fli), 
+     $                dbl_mb(k_fjk), dbl_mb(k_flj), dbl_mb(k_flk),
+     $                dbl_mb(k_atmp), vg_dens, vg_fock )
 c     
       status = .true.
+      status = status .and. ma_pop_stack(l_atmp)
       status = status .and. ma_pop_stack(l_flk)
       status = status .and. ma_pop_stack(l_flj)
       status = status .and. ma_pop_stack(l_fjk)
@@ -150,13 +127,16 @@ c
 c     
 c     fock_2e_a stuffs contributions into both the lower and upper
 c     triangles ... need to symmetrize and multiply by 2
-c     
-      call ga_dscal(g_fock, 2.0d0)
-      if (.not. oskel) call ga_symmetrize(g_fock)
+c
+      do i=1,nfock
+        call ga_dscal(vg_fock(i), 2.0d0)
+        if (.not. oskel) call ga_symmetrize(vg_fock(i))
+      enddo
+c
+c  Reset exchange factors
+c
+      call dscal(nfock, 2.d0, kfac, 1)
 c
       if (oscfps) call pstat_off(ps_fock_2e)
 c     
       end
-
-
-#endif

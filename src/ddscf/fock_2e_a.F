@@ -1,0 +1,257 @@
+c$$$      block data cfock_data
+c$$$#include "cfock.fh"
+c$$$C$Id: fock_2e_a.F,v 1.1 1995-03-14 01:52:01 rg240 Exp $
+c$$$      data lchunksize /-1/, task_chunks/-1/
+c$$$*
+c$$$*     lchunksize and task_chunks can be overriden ... 
+c$$$*     see rhf_get_param
+c$$$*
+c$$$      end
+
+
+      subroutine fock_2e_a( geom, basis, nfock, ablklen,
+     $                      jfac, kfac, tol2e, oskel,
+     $                      dij, dik, dli, djk, dlj, dlk,
+     $                      fij, fik, fli, fjk, flj, flk,
+     $                      tmp, vg_dens, vg_fock )
+      implicit none
+#include "tcgmsg.fh"
+#include "global.fh"
+#include "schwarz.fh"
+#include "geom.fh"
+#include "cfock.fh"
+#include "sym.fh"
+#include "util.fh"
+c
+c
+      integer geom, basis
+      integer nfock
+      integer ablklen
+      double precision jfac(nfock)
+      double precision kfac(nfock)
+      double precision tol2e
+      logical oskel
+      double precision dij(nfock*ablklen),dik(nfock*ablklen)
+      double precision dli(nfock*ablklen),djk(nfock*ablklen)
+      double precision dlj(nfock*ablklen),dlk(nfock*ablklen)
+      double precision fij(nfock*ablklen),fik(nfock*ablklen)
+      double precision fli(nfock*ablklen),fjk(nfock*ablklen)
+      double precision flj(nfock*ablklen),flk(nfock*ablklen)
+      double precision tmp(ablklen)
+      integer vg_dens(nfock)
+      integer vg_fock(nfock)
+c
+c
+c
+      integer natoms, nproc, ijkl, next
+      integer iat, jat, kat, lat, kl, lathi
+      integer idim, jdim, kdim, ldim
+      integer i_prev, j_prev, k_prev
+      integer blklen
+      double precision denmax                         ! Max Magnitude of atomic density blocks
+      double precision sij, smax, skl(1000), sijkl    ! schwarz info
+      integer lat_list(1000), nkl                     ! list of lat interacting with kat
+      double precision den_tol                        ! Density screen tolerance ( tol2e *  factor )
+      double precision q4_atom                        ! Symmetry scaling factor
+      integer ntask
+      logical otest, otestij
+c
+c
+      integer nxtask
+      double precision dabsmax, dabssum
+      external dabsmax, dabssum, nxtask
+c     
+c     How many atoms are there?
+c     
+      if (.not. geom_ncent(geom, natoms)) call errquit
+     $     ('rhf_fock_2e: geom_ncent failed', 0)
+c     
+c     How many processors are there?
+c
+      nproc = ga_nnodes()
+c
+c     For load imbalance to be about 1% we need about 100 tasks per
+c     processor.  Many more than this is unecessary.
+c     Task_chunks controls parallelization of the nested ijk.  
+c     The available parallelism is observed to 
+c     be of order natoms^2.  The default values of -1 is used to 
+c     check if the user has specified them in the input
+c
+      ntask = max(5*natoms**2 / nproc, 1)
+      if (task_chunks .eq. -1) then
+        task_chunks = max(ntask/100,1)
+      endif
+      if (ga_nodeid().eq.0 .and. util_print('ntask',print_high)) then
+        write(6,*) ' ntask, l, t, ',ntask, lchunksize, task_chunks
+        call util_flush(6)
+      endif
+c
+c     Empirically observe that to compute the fock matrix/energy
+c     to an accuracy of t need to screen on density*integrals
+c     to a precision of about 10^-2*t
+c
+      den_tol = max(tol2e*0.01,1.0d-300) ! To avoid a hard zero
+c     
+      i_prev = -1               ! For caching of F/D blocks
+      j_prev = -1
+      k_prev = -1
+      blklen = nfock*ablklen
+      call dfill(blklen, 0.0d0, fij, 1)
+      call dfill(blklen, 0.0d0, fik, 1)
+      call dfill(blklen, 0.0d0, fli, 1)
+      call dfill(blklen, 0.0d0, fjk, 1)
+      call dfill(blklen, 0.0d0, flj, 1)
+      call dfill(blklen, 0.0d0, flk, 1)
+c
+      q4_atom = 1.0d0
+c     
+      ijkl = 0
+      next = nxtask(nproc, task_chunks)
+c     
+c     Loop thru atomic triplets (i,j,k)
+c     
+      smax = schwarz_max()
+      do kat = natoms, 1, -1
+        nkl = 0
+        do lat = 1, kat
+          skl(lat) =  schwarz_atom(kat,lat)
+          if (smax*skl(lat) .ge. tol2e) then
+            nkl = nkl + 1
+            lat_list(nkl) = lat
+          endif
+        enddo
+        do iat = natoms, kat, -1
+          do jat = iat, 1, -1
+            sij = schwarz_atom(iat,jat)
+            otestij = sij*smax .ge. tol2e
+            if (otestij .and. oskel) then
+              otestij = sym_atom_pair(geom, iat, jat, q4_atom)
+            endif
+            if (otestij) then
+              lathi = kat
+              if (iat .eq. kat) lathi = jat
+c     
+              do kl = 1, nkl
+                lat = lat_list(kl)
+c
+c Load balance now only over non-zero interactions
+c
+                q4_atom = 1.0d0
+                otest = (lat .le. lathi) .and.
+     $               (sij*skl(lat) .ge. tol2e)
+                if (otest .and. oskel) then
+                  otest = sym_atom_quartet(geom, 
+     $                       iat, jat, kat, lat, q4_atom)
+                endif
+c
+                if (otest .and. (ijkl .eq. next)) then
+                  iscreen(3) = iscreen(3) + 1
+c     
+c Get blocks of D/F for coulomb interaction
+c     
+                  if (i_prev.ne.iat .or. j_prev.ne.jat) then
+                    if (i_prev.ne.-1)
+     $                call fock_upd_atom_blk( nfock, vg_fock, basis,
+     $                                        i_prev, j_prev, jfac,
+     $                                        fij, tmp )
+                    call fock_get_atom_blk( nfock, vg_dens, basis,
+     $                                      iat, jat, dij, tmp,
+     $                                      idim, jdim )
+                    call dfill((idim*jdim*nfock), 0.0d0, fij, 1)
+                  endif
+                  call fock_get_atom_blk( nfock, vg_dens, basis,
+     $                                    lat, kat, dlk, tmp,
+     $                                    ldim, kdim )
+                  call dfill((kdim*ldim*nfock), 0.0d0, flk, 1)
+c     
+c Get blocks of D/F for exchange interaction
+c     
+                  if (i_prev.ne.iat .or. k_prev.ne.kat) then
+                    if (i_prev.ne.-1)
+     $                call fock_upd_atom_blk( nfock, vg_fock,
+     $                                        basis, i_prev, k_prev,
+     $                                        kfac, fik, tmp )
+                    call fock_get_atom_blk( nfock, vg_dens, basis,
+     $                                      iat, kat, dik,
+     $                                      tmp, idim, kdim )
+                    call dfill((idim*kdim*nfock), 0.0d0, fik, 1)
+                  endif
+                  if (j_prev.ne.jat .or. k_prev.ne.kat) then
+                    if (j_prev .ne. -1)
+     $                call fock_upd_atom_blk( nfock, vg_fock,
+     $                                        basis, j_prev, k_prev,
+     $                                        kfac, fjk, tmp )
+                    call fock_get_atom_blk( nfock, vg_dens, basis,
+     $                                      jat, kat, djk,
+     $                                      tmp, jdim, kdim )
+                    call dfill((jdim*kdim*nfock), 0.0d0, fjk, 1)
+                  endif
+                  call fock_get_atom_blk( nfock, vg_dens, basis,
+     $                                    lat, iat, dli,
+     $                                    tmp, ldim, idim )
+                  call fock_get_atom_blk( nfock, vg_dens, basis,
+     $                                    lat, jat, dlj,
+     $                                    tmp, ldim, jdim )
+                  call dfill((idim*ldim*nfock), 0.0d0, fli, 1)
+                  call dfill((jdim*ldim*nfock), 0.0d0, flj, 1)
+c 
+                  if (max(idim,jdim,kdim,ldim).gt.ablklen)
+     $                 call errquit('Argggh', ablklen)
+c     
+                  i_prev = iat
+                  j_prev = jat
+                  k_prev = kat
+c     
+c Apply screening on the density and schwarz inequality
+c
+                  denmax = max( 4.0d0*dabssum(idim*jdim, dij),
+     $                          4.0d0*dabssum(kdim*ldim, dlk),
+     $                          dabssum(idim*kdim, dik),
+     $                          dabssum(idim*ldim, dli),
+     $                          dabssum(jdim*kdim, djk),
+     $                          dabssum(jdim*ldim, dlj))
+                  sijkl = schwarz_atom(iat,jat)*schwarz_atom(kat,lat)
+                  if (denmax*sijkl .ge. den_tol) then
+c
+c Construct these Fock atom-blocks
+c
+                    call fock_2e_b( basis, nfock, tol2e, q4_atom,
+     $                              iat, jat, kat, lat, 
+     $                              idim, jdim, kdim, ldim,
+     $                              dij, dik, dli, djk, dlj, dlk,
+     $                              fij, fik, fli, fjk, flj, flk )
+c     
+c Update F blocks
+c     
+                    call fock_upd_atom_blk( nfock, vg_fock, basis,
+     $                                      lat, iat, kfac, fli, tmp)
+                    call fock_upd_atom_blk( nfock, vg_fock, basis,
+     $                                      lat, jat, kfac, flj, tmp)
+                    call fock_upd_atom_blk( nfock, vg_fock, basis,
+     $                                      lat, kat, jfac, flk, tmp)
+                  endif
+                  next = nxtask(nproc, task_chunks)
+                endif
+                if (otest) ijkl = ijkl + 1
+              enddo
+            else
+              if (ga_nodeid().eq.0 .and. kat.eq.1) 
+     $             iscreen(1) = iscreen(1) + 1
+            endif
+          enddo
+        enddo
+      enddo
+c     
+      if (i_prev.ne.-1) then
+        call fock_upd_atom_blk( nfock, vg_fock, basis,
+     $                          i_prev, j_prev, jfac, fij, tmp )
+        call fock_upd_atom_blk( nfock, vg_fock, basis,
+     $                          j_prev, k_prev, kfac, fjk, tmp )
+        call fock_upd_atom_blk( nfock, vg_fock, basis,
+     $                          i_prev, k_prev, kfac, fik, tmp )
+      endif
+c     
+      next = nxtask(-nproc, task_chunks)
+      call ga_sync()
+c
+      end
