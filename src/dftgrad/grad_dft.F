@@ -23,7 +23,7 @@ c
 c       'geom' -> handle to geometry to use for the calculation
 c                     (no default)
 c
-c       'basis' -> handle to basis set to use for the calculation
+c       'ao_basis' -> handle to basis set to use for the calculation
 c                     (defaults to 'AO_basis')
 c
 c       'scftype' -> name of function to use (rhf,rohf,uhf)
@@ -72,7 +72,7 @@ c
       External int_normalize
 
       Integer rtdb              ! [input] database handle
-      Integer geom, basis       ! handles
+      Integer geom, ao_basis       ! handles
       Integer ipol
       Logical converged
       Logical status, print_debug
@@ -89,7 +89,7 @@ c**** debug: check database
       status = rtdb_print(rtdb,.true.)
 
       if (.not. context_push('dftgrad'))
-     $     call errquit('dftgrad: context_push failed', 0)
+     $     call errquit('grad_dft: context_push failed', 0)
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 c
@@ -97,7 +97,7 @@ c
       if ( .not.( status .and. converged )) then
         write (6,*) "status: ", status, "    converged: ",converged
         call errquit(
-     &       'dft dftgrad: no converged DFT wavefunction available',
+     &       'dft grad_dft: no converged DFT wavefunction available',
      &     0)
       endif 
 
@@ -110,15 +110,15 @@ c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('dftgrad: geom_create?', 0)
+     $     call errquit('grad_dft: geom_create?', 0)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('dftgrad: no geometry ', 0)
-      if (.not. bas_create(basis, 'AO_basis'))
-     $     call errquit('dftgrad: bas_create?', 0)
-      if (.not. bas_rtdb_load(rtdb, geom, basis, 'AO_basis'))
-     $     call errquit('dftgrad: no AO_basis ', 0)
-      if(.not. int_normalize(basis))
-     $     call errquit('dftgrad: normalization failed',911)
+     $     call errquit('grad_dft: no geometry ', 0)
+      if (.not. bas_create(ao_basis, 'AO_basis'))
+     $     call errquit('grad_dft: bas_create?', 0)
+      if (.not. bas_rtdb_load(rtdb, geom, ao_basis, 'AO_basis'))
+     $     call errquit('grad_dft: no AO_basis ', 0)
+      if(.not. int_normalize(ao_basis))
+     $     call errquit('grad_dft: normalization failed',911)
 c****
 c**** might need the DFT fitting bases here...
 c****
@@ -168,31 +168,31 @@ c
      $        '  wavefunction    = ', a/)
          if (print_debug) then
            if (.not. geom_print(geom)) 
-     $         call errquit('dftgrad: geom_print ?',0)
-           if (.not. bas_print(basis)) 
-     $         call errquit('dftgrad: bas_print ?',0)
+     $         call errquit('grad_dft: geom_print ?',0)
+           if (.not. bas_print(ao_basis)) 
+     $         call errquit('grad_dft: bas_print ?',0)
          endif
          call util_flush(6)
       endif
 c
 c initialize for schwarz screening
-      call intd_init(rtdb,1,basis)
-      call schwarz_init (geom, basis)
+      call intd_init(rtdb,1,ao_basis)
+      call schwarz_init (geom, ao_basis)
 c
-      call force_dft(rtdb,basis,geom,movecs_out,ipol)
+      call force_dft(rtdb,ao_basis,geom,movecs_out,ipol)
 c
       call schwarz_tidy ()
 c
-c dftgrad is done destroy basis and geomtry handles  
+c grad_dft is done destroy basis and geometry handles  
 c (e.g., preserve the memory available to other modules!!)
 c
       if (.not.(
-     &    (bas_destroy(basis))
+     &    (bas_destroy(ao_basis))
      &    .and.
      &    (geom_destroy(geom))
      &    ))
      &    call errquit
-     &    ('dftgrad:error destroying geom and basis handles',911)
+     &    ('grad_dft:error destroying geom and ao_basis handles',911)
 c
 c terminate integral scope
 c
