@@ -1,9 +1,9 @@
 c
-c $Id: onedd_calc.F,v 1.9 2000-08-23 01:02:49 windus Exp $
+c $Id: onedd_calc.F,v 1.10 2000-08-24 17:33:45 windus Exp $
 c
       subroutine onedd_calc(Hxy,nxyz,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,
-     *      g_wdens,g_dens,geom,basis,nat,dens,wdens,matb)
+     *      g_wdens,g_dens,geom,basis,nat,ndens,dens,wdens,matb)
 c
       implicit none
 c
@@ -22,12 +22,13 @@ c
       logical doS                  ! [input] do overlap contribution?
       logical doT                  ! [input] do kinetic contribution?
       logical doV                  ! [input] do potential contribution?
+      integer ndens                ! [input] number of density matrices
       integer g_wdens              ! [input] the weighted density handle
-      integer g_dens               ! [input] the density handle
+      integer g_dens(ndens)        ! [input] the density handle
       integer geom                 ! [input] the current geometry handle
       integer basis                ! [input] the current basis handle
       integer matb                 ! [input] max. atom buffer space needed
-      double precision dens(matb,matb)  ! [input] scratch for density blocks
+      double precision dens(ndens,matb,matb)  ! [input] scratch for density blocks
       double precision wdens(matb,matb) ! [input] scratch for wdensity blocks
       
 c
@@ -73,7 +74,13 @@ c
             status = bas_ce2cnr(basis,iat1,iac1f,iac1l)
             status = bas_ce2cnr(basis,iat2,iac2f,iac2l)
 
-            call ga_get (g_dens, iab1f,iab1l,iab2f,iab2l,dens,matb)
+            call ga_get (g_dens(1), iab1f,iab1l,iab2f,iab2l,
+     *                   dens,matb)
+            if (ndens.eq.2) then
+               call ga_get (g_dens(2), iab1f,iab1l,iab2f,iab2l,
+     *                      dens(2,1,1),matb)
+               call daxpy(matb*matb,1.0d+00,dens(2,1,1),1,dens,1)
+            endif
             call ga_get(g_wdens,iab1f,iab1l,iab2f,iab2l,wdens,matb)
 
             do 70 ish1 = iac1f, iac1l
@@ -147,7 +154,7 @@ c
                       dE = 0.0D0
                       do ip1 = if1, il1
                         do ip2 = if2, il2
-                          dE = dE + dens(ip1,ip2)*Ibuf(ic)
+                          dE = dE + dens(1,ip1,ip2)*Ibuf(ic)
                           ic = ic + 1
                         enddo
                       enddo
@@ -174,8 +181,8 @@ c
                     dE = 0.D0
                     do 31 ip1 = if1, il1
                       do 30 ip2 = if2, il2
-                        dE = dE + dens(ip1,ip2) * Ibuf(ic)
-c                       write(6,*) 'dens and int ',dens(ip1,ip2),
+                        dE = dE + dens(1,ip1,ip2) * Ibuf(ic)
+c                       write(6,*) 'dens and int ',dens(1,ip1,ip2),
 c    *                     Ibuf(ic)
                         ic = ic + 1
  30                   continue
@@ -210,7 +217,7 @@ c
                     dE = 0.D0
                     do ip1 = if1, il1
                       do ip2 = if2, il2
-                        dE = dE + dens(ip1,ip2) * Ibuf(ic)
+                        dE = dE + dens(1,ip1,ip2) * Ibuf(ic)
                         ic = ic + 1
                       enddo
                     enddo

@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.12 2000-08-14 19:59:42 windus Exp $
+C $Id: onedd_cont.F,v 1.13 2000-08-24 17:33:54 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -99,11 +99,16 @@ c
       call ga_print(g_wdens)
       write(6,*) 'The density is'
       call ga_print(g_dens(1))
+      if (ndens.gt.1) then
+        write(6,*) 'the beta density is '
+        call flush(6)
+        call ga_print(g_dens(2))
+      endif
 c
       if (.not. bas_nbf_ce_max(basis,matb))
      *  call errquit('onedd_cont: could not get matb',555)
       lsqatom = matb * matb
-      if (.not. ma_push_get(mt_dbl,lsqatom,'piece_density',
+      if (.not. ma_push_get(mt_dbl,ndens*lsqatom,'piece_density',
      *  l_dens,k_dens))
      *  call errquit('onedd_cont:could not allocate l_dens',lsqatom)
       if (.not. ma_push_get(mt_dbl,lsqatom,'piece_wdensity',l_wdens,
@@ -127,8 +132,8 @@ c
       doT = .true.
       call onedd_calc(dbl_mb(k_exy),ncent*3,dbl_mb(k_buf),
      *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
-     *  doS,doT,doV,g_wdens,g_dens,geom,basis,ncent,dbl_mb(k_dens),
-     *  dbl_mb(k_wdens),matb)
+     *  doS,doT,doV,g_wdens,g_dens,geom,basis,ncent,ndens,
+     *  dbl_mb(k_dens),dbl_mb(k_wdens),matb)
 c
 c should put the next line in when done with some testing
 c     call sym_hess_symmetrize(geom,dbl_mb(k_exy))
