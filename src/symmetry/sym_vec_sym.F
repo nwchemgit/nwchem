@@ -1,5 +1,5 @@
       subroutine sym_vec_symmetrize(geom, basis, vec)
-C$Id: sym_vec_sym.F,v 1.1 1997-03-04 17:15:12 d3g681 Exp $
+C$Id: sym_vec_sym.F,v 1.2 1997-03-04 19:24:11 d3e129 Exp $
       implicit none
 #include "global.fh"
 #include "geom.fh"
@@ -96,7 +96,7 @@ c
       integer ish, ish_type
       integer ingen, itype, inprim
       integer isphcart, i_nbf_per_sh
-      integer op, icent_new
+      integer op
 c
       double precision sum, scale
       integer sym_center_map, sym_number_ops
