@@ -1,11 +1,11 @@
 
-*     $Id: c_cgsd_energy.F,v 1.5 2002-02-13 20:02:06 edo Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.6 2002-05-03 19:44:02 bylaska Exp $                       
 *
 
 *     ***************************
-*     *							*
-*     *		c_cgsd_energy			*
-*     *							*
+*     *				*
+*     *	    c_cgsd_energy	*
+*     *				*
 *     ***************************
 
       real*8 function c_cgsd_energy(newpsi)

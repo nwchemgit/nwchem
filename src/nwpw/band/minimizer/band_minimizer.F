@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.19 2002-02-13 20:02:06 edo Exp $
+* $Id: band_minimizer.F,v 1.20 2002-05-03 19:44:02 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -215,7 +215,7 @@
            nbrillioun = brillioun_nbrillioun()
            newpsi = .true.
            if (taskid.eq.MASTER) then
-             value= pspw_reformat_c_wvfnc(nbrillioun)
+             value= pspw_reformat_c_wvfnc(1)
            end if
         end if
       end if

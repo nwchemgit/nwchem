@@ -1,11 +1,11 @@
 *
-* $Id: brillioun.F,v 1.2 2002-01-11 22:47:09 edo Exp $
+* $Id: brillioun.F,v 1.3 2002-05-03 19:44:00 bylaska Exp $
 *
 
 *     ***********************************
-*     *									*
-*     *			brillioun_init			*
-*     *									*
+*     *					*
+*     *	       brillioun_init		*
+*     *					*
 *     ***********************************
       subroutine brillioun_init()
       implicit none
@@ -73,9 +73,9 @@
       end
 
 *     ***********************************
-*     *									*
-*     *			brillioun_end			*
-*     *									*
+*     *					*
+*     *		brillioun_end		*
+*     *					*
 *     ***********************************
       subroutine brillioun_end()
       implicit none
@@ -96,9 +96,9 @@
       end 
 
 *     ***********************************
-*     *									*
-*     *		brillioun_nbrillioun 		*
-*     *									*
+*     *					*
+*     *		brillioun_nbrillioun 	*
+*     *					*
 *     ***********************************
       integer function brillioun_nbrillioun()
       implicit none
@@ -112,9 +112,9 @@
       end
 
 *     ***********************************
-*     *									*
-*     *			brillioun_weight		*
-*     *									*
+*     *					*
+*     *		brillioun_weight	*
+*     *					*
 *     ***********************************
       real*8 function brillioun_weight(nb)
       implicit none
@@ -128,9 +128,9 @@
       end
 
 *     ***********************************
-*     *									*
-*     *			brillioun_ks			*
-*     *									*
+*     *					*
+*     *		 brillioun_ks		*
+*     *					*
 *     ***********************************
       real*8 function brillioun_ks(i,nb)
       implicit none
@@ -144,9 +144,9 @@
       end
 
 *     ***********************************
-*     *									*
-*     *			brillioun_k				*
-*     *									*
+*     *					*
+*     *		  brillioun_k	        *
+*     *					*
 *     ***********************************
       real*8 function brillioun_k(i,nb)
       implicit none

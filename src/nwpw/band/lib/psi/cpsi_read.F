@@ -1,12 +1,12 @@
 *
-* $Id: cpsi_read.F,v 1.3 2002-02-03 01:54:12 bylaska Exp $
+* $Id: cpsi_read.F,v 1.4 2002-05-03 19:44:02 bylaska Exp $
 *
 
 #define TCGMSG
 *     ***************************
-*     *          	   			*
-*     *       cpsi_read			*
-*     *             			*
+*     *          	   	*
+*     *       cpsi_read		*
+*     *             		*
 *     ***************************
       subroutine cpsi_read(ispin,ne,nbrillioun,psi2)
       implicit none 
@@ -24,7 +24,7 @@
 *    *** local variables ***
       integer rtdb
       integer version,l
-      integer nfft3d
+      integer nfft3d,npack1
       integer nfft(3)
       real*8  unita(3,3)
       character*30 filename
@@ -51,6 +51,7 @@ c     complex*16 tmp(*)
 
       call Parallel_taskid(taskid)
       call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
 
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
@@ -130,7 +131,7 @@ c     **** send header to all nodes ****
 
       if (.not.rtdb_get(rtdb,'nwpw:psi_brillioun_check',
      >                  mt_log,1,brillioun_check))
-     >   brillioun_check = .true.
+     >   brillioun_check = .false.
 
       if (brillioun_check) then
       if ( nbrill.ne.nbrillioun) then
@@ -149,7 +150,7 @@ c     **** send header to all nodes ****
 
         do nb=1,nbrillioun
         do n=1,(ne(1)+ne(2))
-         indx = 1 + (n-1)*nfft3d + (nb-1)*nfft3d*(ne(1)+ne(2)) 
+         indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
          call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
      >                        dcpl_mb(tmp(1)))
          call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
@@ -162,7 +163,7 @@ c     **** send header to all nodes ****
 
         do nb=1,nbrill
         do n=1,(ne(1)+ne(2))
-         indx = 1 + (n-1)*nfft3d + (nb-1)*nfft3d*(ne(1)+ne(2)) 
+         indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
          call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
      >                        dcpl_mb(tmp(1)))
          call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
@@ -173,8 +174,8 @@ c     **** send header to all nodes ****
 *       **** use the last zone for filling in unknown zones ****
         do nb=nbrill+1,nbrillioun
         do n=1,(ne(1)+ne(2))
-         indx1 = 1 + (n-1)*nfft3d + (nbrill-1)*nfft3d*(ne(1)+ne(2)) 
-         indx  = 1 + (n-1)*nfft3d + (nb-1)*nfft3d*(ne(1)+ne(2)) 
+         indx1 = 1 + (n-1)*npack1 + (nbrill-1)*npack1*(ne(1)+ne(2)) 
+         indx  = 1 + (n-1)*npack1 + (nb-1)*    npack1*(ne(1)+ne(2)) 
          call Cram_c_Copy(nbrill,psi2(indx1),dcpl_mb(tmp2(1)))
          call Cram_c_unpack(nbrill,dcpl_mb(tmp2(1)))
          call Cram_c_pack(nb,dcpl_mb(tmp2(1)))

@@ -1,12 +1,12 @@
 *
-* $Id: c_geodesic.F,v 1.4 2002-02-13 00:53:45 edo Exp $
+* $Id: c_geodesic.F,v 1.5 2002-05-03 19:44:01 bylaska Exp $
 *
 
 
 *     ***********************************
-*     *			                		*
-*     *		c_geodesic_init	         	*
-*     *					                *
+*     *			                *
+*     *		c_geodesic_init	        *
+*     *					*
 *     ***********************************
 *
 *     Uses - c_geodesic common block
@@ -20,7 +20,7 @@
 
 *     **** local variables ****
       logical value
-      integer nfft3d,nemax,n,nbrill
+      integer npack1,nemax,n,nbrill
       
 
 *     **** external functions **** 
@@ -28,12 +28,12 @@
       external cpsi_ne,brillioun_nbrillioun
 
 
-      call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
       nemax  = cpsi_ne(1)+cpsi_ne(2)
       n      = cpsi_ne(1)
       nbrill = brillioun_nbrillioun()
 
-      value = MA_alloc_get(mt_dcpl,nfft3d*nemax*nbrill,
+      value = MA_alloc_get(mt_dcpl,npack1*nemax*nbrill,
      >                     'U',U(2),U(1))
       value = value.and.
      >        MA_alloc_get(mt_dcpl,2*n*n*nbrill,
@@ -48,9 +48,9 @@
       end
 
 *     ***********************************
-*     *									*
-*     *		c_geodesic_finalize			*
-*     *					                *
+*     *					*
+*     *		c_geodesic_finalize	*
+*     *					*
 *     ***********************************
 *
 *     Uses - c_geodesic common block
@@ -80,9 +80,9 @@
 
 
 *     ***********************************
-*     *					                *
-*     *		c_geodesic_start		    *
-*     *					                *
+*     *					*
+*     *		c_geodesic_start        *
+*     *					*
 *     ***********************************
 *
 *     Uses - c_geodesic common block
@@ -99,7 +99,7 @@
 
 *     **** local variables ****
       logical value
-      integer nfft3d,neall,nbrill,ispin
+      integer npack1,neall,nbrill,ispin
       integer nb,ms,i,j,n,nn,ne(2),indx,indxt
       integer V(2)
 
@@ -111,7 +111,7 @@
 
       call nwpw_timing_start(10)
 
-      call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
       ispin  = cpsi_ispin()
       ne(1)  = cpsi_ne(1)
       ne(2)  = cpsi_ne(2)
@@ -128,7 +128,7 @@
 
 *     **** HomeGrown SVD ****
       call dcopy(nbrill*neall,0.0d0,0,dbl_mb(S(1)),1)
-      call Stfl_SVD(ispin,ne,nfft3d,neall,nbrill,n,
+      call Stfl_SVD(ispin,ne,npack1,neall,nbrill,n,
      >              A,
      >              dcpl_mb(U(1)),
      >              dbl_mb(S(1)),
@@ -171,11 +171,11 @@
 
 
 
-*     ***************************
-*     *		            		*
-*     *		c_geodesic_get		*
-*     *					        *
-*     ***************************
+*     *******************************
+*     *		            	    *
+*     *		c_geodesic_get	    *
+*     *			            *
+*     *******************************
 *
 *     Uses - c_geodesic common block
 *
@@ -191,7 +191,7 @@
 
 *     **** local variables ****
       logical    value
-      integer    nfft3d,neall,nbrill,ispin,ne(2)
+      integer    npack1,neall,nbrill,ispin,ne(2)
       integer    nb,ms,j,k,n,nn,shift1,shift2
       real*8     scal1,scal2
       complex*16 zero,one
@@ -205,7 +205,7 @@
       call nwpw_timing_start(10)
       zero = dcmplx(0.0d0,0.0d0)
       one  = dcmplx(1.0d0,0.0d0)
-      call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
       ispin = cpsi_ispin()
       ne(1) = cpsi_ne(1)
       ne(2) = cpsi_ne(2)
@@ -253,16 +253,16 @@
      >              dcpl_mb(tmp2(1)+(ms-1)*nn),n)
 
         do k=1,ne(ms)
-          call zcopy(nfft3d,zero,0,Ynew(1+(k-1+shift1)*nfft3d),1)
+          call zcopy(npack1,zero,0,Ynew(1+(k-1+shift1)*npack1),1)
           do j=1,ne(ms)
             call Cram_cc_zaxpy(nb,
      >                         dcpl_mb(tmp2(1)+j-1+(k-1)*n+(ms-1)*nn),
-     >                         Yold(1+(j-1+shift1)*nfft3d),
-     >                         Ynew(1+(k-1+shift1)*nfft3d))
+     >                         Yold(1+(j-1+shift1)*npack1),
+     >                         Ynew(1+(k-1+shift1)*npack1))
             call Cram_cc_zaxpy(nb,
      >                         dcpl_mb(tmp3(1)+j-1+(k-1)*n+(ms-1)*nn),
-     >                         dcpl_mb(U(1)+(j-1+shift1)*nfft3d),
-     >                         Ynew(1+(k-1+shift1)*nfft3d))
+     >                         dcpl_mb(U(1)+(j-1+shift1)*npack1),
+     >                         Ynew(1+(k-1+shift1)*npack1))
 
           end do
         end do
@@ -322,7 +322,7 @@
 
 *     **** local variables ****
       logical    value
-      integer    nfft3d,neall,nbrill,ispin,ne(2)
+      integer    npack1,neall,nbrill,ispin,ne(2)
       integer    nb,ms,j,k,n,nn,shift1,shift2
       complex*16 zero,one
       real*8     scal1,scal3
@@ -336,7 +336,7 @@
       zero = dcmplx(0.0d0,0.0d0)
       one  = dcmplx(1.0d0,0.0d0)
 
-      call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
       ispin = cpsi_ispin()
       ne(1) = cpsi_ne(1)
       ne(2) = cpsi_ne(2)
@@ -387,16 +387,16 @@
 
 
         do k=1,ne(ms)
-          call zcopy(nfft3d,zero,0,Ynew(1+(k-1+shift1)*nfft3d),1)
+          call zcopy(npack1,zero,0,Ynew(1+(k-1+shift1)*npack1),1)
           do j=1,ne(ms)
             call Cram_cc_zaxpy(nb,
      >              (-1.0d0*dcpl_mb(tmp2(1)+j-1+(k-1)*n+(ms-1)*nn)),
-     >              Yold(1+(j-1+shift1)*nfft3d),
-     >              Ynew(1+(k-1+shift1)*nfft3d))
+     >              Yold(1+(j-1+shift1)*npack1),
+     >              Ynew(1+(k-1+shift1)*npack1))
             call Cram_cc_zaxpy(nb,
      >              dcpl_mb(tmp3(1)+j-1+(k-1)*n+(ms-1)*nn),
-     >              dcpl_mb(U(1)+(j-1+shift1)*nfft3d),
-     >              Ynew(1+(k-1+shift1)*nfft3d))
+     >              dcpl_mb(U(1)+(j-1+shift1)*npack1),
+     >              Ynew(1+(k-1+shift1)*npack1))
 
           end do
         end do
@@ -439,7 +439,7 @@
 
 *     **** local variables ****
       logical    value
-      integer    nfft3d,neall,nbrill,ne(2),ispin
+      integer    npack1,neall,nbrill,ne(2),ispin
       integer    nb,ms,j,k,n,nn,shift1,shift2
       complex*16 zero,one
       real*8     scal1,scal3
@@ -454,7 +454,7 @@
       zero = dcmplx(0.0d0,0.0d0)
       one  = dcmplx(1.0d0,0.0d0)
 
-      call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
       ispin  = cpsi_ispin()
       ne(1)  = cpsi_ne(1)
       ne(2)  = cpsi_ne(2)
@@ -476,7 +476,7 @@
      >   call errquit('out of stack memory',0)
 
 *     ***** calculate U^t * G ****
-      call Stfl_ggq_dot(ispin,ne,nfft3d,neall,nbrill,n,
+      call Stfl_ggq_dot(ispin,ne,npack1,neall,nbrill,n,
      >                  dcpl_mb(U(1)),
      >                  tG,
      >                  dcpl_mb(tmp1(1)))
@@ -515,12 +515,12 @@
 
             call Cram_cc_zaxpy(nb,
      >             (-1.0d0*dcpl_mb(tmp2(1)+j-1+(k-1)*n+shift2)),
-     >             Yold(1+(j-1+shift1)*nfft3d),
-     >               tG(1+(k-1+shift1)*nfft3d))
+     >             Yold(1+(j-1+shift1)*npack1),
+     >               tG(1+(k-1+shift1)*npack1))
             call Cram_cc_zaxpy(nb,
      >             (-1.0d0*dcpl_mb(tmp3(1)+j-1+(k-1)*n+shift2)),
-     >             dcpl_mb(U(1)+(j-1+shift1)*nfft3d),
-     >             tG(1+(k-1+shift1)*nfft3d))
+     >             dcpl_mb(U(1)+(j-1+shift1)*npack1),
+     >             tG(1+(k-1+shift1)*npack1))
           end do
         end do
 

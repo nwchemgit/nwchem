@@ -1,5 +1,5 @@
 *
-* $Id: c_semicore.F,v 1.2 2002-01-14 19:03:35 bylaska Exp $
+* $Id: c_semicore.F,v 1.3 2002-05-03 19:44:00 bylaska Exp $
 *
 
 #define TCGMSG
@@ -87,7 +87,7 @@
 
 *     ***************************
 *     *                         *
-*     *        cpsp_rcore        *
+*     *        cpsp_rcore       *
 *     *                         *
 *     ***************************
 
@@ -104,7 +104,7 @@
 
 *     ***************************
 *     *                         *
-*     *        cpsp_ncore        *
+*     *        cpsp_ncore       *
 *     *                         *
 *     ***************************
 
@@ -121,8 +121,8 @@
 
 
 *     **********************************
-*     *                         	   *
-*     *    c_semicore_density_update     *
+*     *                                *
+*     *    c_semicore_density_update   *
 *     *                                *
 *     **********************************
 
@@ -196,7 +196,7 @@ c          call Cram_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 *     ***************************
 *     *                         *
-*     *    c_semicore_check       *
+*     *    c_semicore_check     *
 *     *                         *
 *     ***************************
 
@@ -266,8 +266,8 @@ c          call Cram_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 
 *     **********************************
-*     *                         	   *
-*     *    c_semicore_density            *
+*     *                                *
+*     *    c_semicore_density          *
 *     *                                *
 *     **********************************
 

@@ -1,10 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.2 2001-12-15 03:11:01 bylaska Exp $
+# $Id: GNUmakefile,v 1.3 2002-05-03 19:44:00 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
-			c_electron.o \
-            cpsi_H.o 
+		c_electron.o \
+                cpsi_H.o 
 
 
 

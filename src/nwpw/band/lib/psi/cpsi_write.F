@@ -1,11 +1,11 @@
 *
-* $Id: cpsi_write.F,v 1.3 2002-01-18 01:54:31 bylaska Exp $
+* $Id: cpsi_write.F,v 1.4 2002-05-03 19:44:02 bylaska Exp $
 *
 
 *     ***************************
-*     *             			*
-*     *        cpsi_write		*
-*     *             			*
+*     *             		*
+*     *        cpsi_write	*
+*     *             		*
 *     ***************************
 
       subroutine cpsi_write(ispin,ne,nbrillioun,psi2)
@@ -18,7 +18,7 @@
 
 *    *** local variables ***
       integer version,l
-      integer nfft3d
+      integer nfft3d,npack1
       integer nfft(3)
       real*8  unita(3,3)
       character*30 filename
@@ -42,6 +42,7 @@ c     complex*16 tmp(*)
 
       call Parallel_taskid(taskid)
       call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0)
@@ -79,10 +80,10 @@ c     complex*16 tmp(*)
          call iwrite(6,nbrillioun,1)
       end if
 
-*     *** read in 3d blocks ***
+*     *** write out 3d blocks ***
       do nb=1,nbrillioun
       do n=1,(ne(1)+ne(2))
-         indx = 1+(n-1)*nfft3d + (nb-1)*nfft3d*(ne(1)+ne(2))
+         indx = 1+(n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2))
          call Cram_c_Copy(nb,psi2(indx),dcpl_mb(tmp2(1)))
          call Cram_c_unpack(nb,dcpl_mb(tmp2(1)))          
          call C3dB_c_write(1,6,dcpl_mb(tmp2(1)),

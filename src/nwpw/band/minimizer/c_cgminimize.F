@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.9 2002-01-15 03:27:09 bylaska Exp $                       
+*     $Id: c_cgminimize.F,v 1.10 2002-05-03 19:44:02 bylaska Exp $                       
 *
 
 
@@ -40,7 +40,7 @@ c      complex*16 G1(nfft3d,nemax)
 
       logical value
       integer ispin,ne(2)
-      integer neall,nfft3d,nbrill
+      integer neall,nfft3d,npack1,nbrill
 
 
 *     **** external functions ****
@@ -79,6 +79,7 @@ c      complex*16 G1(nfft3d,nemax)
        
   
       call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
       ispin  = cpsi_ispin()
       ne(1)  = cpsi_ne(1)
       ne(2)  = cpsi_ne(2)
@@ -87,13 +88,13 @@ c      complex*16 G1(nfft3d,nemax)
 
 
 *     **** allocate H0, G0, and G1 ****
-      value = MA_push_get(mt_dcpl,nfft3d*neall*nbrill,
+      value = MA_push_get(mt_dcpl,npack1*neall*nbrill,
      >                     'H0',H0(2),H0(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d*neall*nbrill,
+     >        MA_push_get(mt_dcpl,npack1*neall*nbrill,
      >                     'G0',G0(2),G0(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d*neall*nbrill,
+     >        MA_push_get(mt_dcpl,npack1*neall*nbrill,
      >                     'G1',G1(2),G1(1))
       if (.not. value) call errquit('c_cgminimize:out of heap memory',0)
 
@@ -102,12 +103,12 @@ c      complex*16 G1(nfft3d,nemax)
 
 *     ***** get the initial gradient and direction ****
       call cpsi_1get_Tgradient(dcpl_mb(G1(1)),E0)
-      call Stfl_gg_traceall(ispin,ne,nfft3d,neall,nbrill,
+      call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
      >                   dcpl_mb(G1(1)),
      >                   dcpl_mb(G1(1)),sum1)
 
 c     write(*,*) "sum1a,Estart,:",sum1,Estart
-      call Stfl_gg_Copy(ispin,ne,nfft3d,neall,nbrill,
+      call Stfl_gg_Copy(ispin,ne,npack1,neall,nbrill,
      >                   dcpl_mb(G1(1)),
      >                   dcpl_mb(H0(1)))
 
@@ -148,7 +149,7 @@ c        Eold = cpsi_geodesic_energy(0.0d0)
    
 
 *        **** transport the previous search directions ****
-         call Stfl_gg_Copy(ispin,ne,nfft3d,neall,nbrill,
+         call Stfl_gg_Copy(ispin,ne,npack1,neall,nbrill,
      >                     dcpl_mb(G1(1)),
      >                     dcpl_mb(G0(1)))
 
@@ -163,17 +164,17 @@ c        call c_dng_2to1()
 *        **** get the new gradient - also updates densities****
          call cpsi_1get_Tgradient(dcpl_mb(G1(1)),E0)
 
-         call Stfl_ggg_Sub(ispin,ne,nfft3d,neall,nbrill,
+         call Stfl_ggg_Sub(ispin,ne,npack1,neall,nbrill,
      >                       dcpl_mb(G1(1)),
      >                       dcpl_mb(G0(1)),
      >                       dcpl_mb(G0(1)))
 
          sum0  = sum1
-         call Stfl_gg_traceall(ispin,ne,nfft3d,neall,nbrill,
+         call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
      >                        dcpl_mb(G1(1)),
      >                        dcpl_mb(G1(1)),
      >                        sum1)
-         call Stfl_gg_traceall(ispin,ne,nfft3d,neall,nbrill,
+         call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
      >                        dcpl_mb(G0(1)),
      >                        dcpl_mb(G1(1)),
      >                        sum3)
@@ -191,11 +192,11 @@ c              scale = sum3/sum0
               scale = 0.0d0
            end if
 
-           call Stfl_gg_dScale(ispin,ne,nfft3d,neall,nbrill,
+           call Stfl_gg_dScale(ispin,ne,npack1,neall,nbrill,
      >                         scale,
      >                         dcpl_mb(H0(1)),
      >                         dcpl_mb(H0(1)))
-           call Stfl_ggg_Sum(ispin,ne,nfft3d,neall,nbrill,
+           call Stfl_ggg_Sum(ispin,ne,npack1,neall,nbrill,
      >                       dcpl_mb(G1(1)),
      >                       dcpl_mb(H0(1)),
      >                       dcpl_mb(H0(1)))
@@ -207,7 +208,7 @@ c              scale = sum3/sum0
 
 *        **** the new direction using steepest-descent ****
          else
-              call Stfl_gg_Copy(ispin,ne,nfft3d,neall,nbrill,
+              call Stfl_gg_Copy(ispin,ne,npack1,neall,nbrill,
      >                          dcpl_mb(G1(1)),
      >                          dcpl_mb(H0(1)))
          end if

@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.12 2002-01-20 23:49:21 bylaska Exp $
+* $Id: cpsp.F,v 1.13 2002-05-03 19:44:00 bylaska Exp $
 *
 
 #define TCGMSG
@@ -10,7 +10,8 @@
 #include "mafdecls.fh"
 #include "cpsp_common.fh"
 
-      integer nfft3d,npack0,nbrillioun
+      !integer nfft3d
+      integer npack0,npack1,nbrillioun
       logical value
 
 *     **** external functions *****
@@ -23,12 +24,13 @@
       nbrillioun = brillioun_nbrillioun()
 
       call Cram_npack(0,npack0)
-      call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
+      !call C3dB_nfft3d(1,nfft3d)
 
       value = MA_alloc_get(mt_dbl,(npsp*npack0),
      >                    'vl',vl(2),vl(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(lmmax_max*npsp*nfft3d*nbrillioun),
+     >        MA_alloc_get(mt_dbl,(lmmax_max*npsp*npack1*nbrillioun),
      >                    'vnl',vnl(2),vnl(1))
       value = value.and.
      >         MA_alloc_get(mt_dbl,(lmmax_max*npsp),
@@ -49,7 +51,7 @@
       if (.not. value) call errquit('out of heap memory',0)
 
       call dcopy(npsp*npack0,          0.0d0,0,dbl_mb(vl(1)), 1)
-      call dcopy(lmmax_max*npsp*nfft3d*nbrillioun,
+      call dcopy(lmmax_max*npsp*npack1*nbrillioun,
      >           0.0d0,0,dbl_mb(vnl(1)),1)
       call dcopy(lmmax_max*npsp,       0.0d0,0,dbl_mb(vnlnrm(1)),1)
       call dcopy(npsp,                 0.0d0,0,dbl_mb(zv(1)),1)
@@ -80,14 +82,14 @@
       call c_semicore_end()
 
       value = MA_free_heap(vl(2))
-      value = MA_free_heap(vnl(2))
-      value = MA_free_heap(vnlnrm(2))
-      value = MA_free_heap(zv(2))
-      value = MA_free_heap(amass(2))
-      value = MA_free_heap(rc(2))
-      value = MA_free_heap(lmmax(2))
-      value = MA_free_heap(lmax(2))
-      value = MA_free_heap(locp(2))
+      value = value.and.MA_free_heap(vnl(2))
+      value = value.and.MA_free_heap(vnlnrm(2))
+      value = value.and.MA_free_heap(zv(2))
+      value = value.and.MA_free_heap(amass(2))
+      value = value.and.MA_free_heap(rc(2))
+      value = value.and.MA_free_heap(lmmax(2))
+      value = value.and.MA_free_heap(lmax(2))
+      value = value.and.MA_free_heap(locp(2))
 
       return
       end
@@ -343,7 +345,7 @@ c     cpsp_rc = rc(i,ia)
 
 *     ***********************************
 *     *					*
-*     *	 	   cpsp_f_vlocal  		*
+*     *	 	   cpsp_f_vlocal  	*
 *     *					*
 *     ***********************************
 
@@ -435,7 +437,7 @@ c     cpsp_rc = rc(i,ia)
 
 *     ***********************************
 *     *					*
-*     *	 	   cpsp_v_nonlocal  		*
+*     *	 	 cpsp_v_nonlocal  	*
 *     *					*
 *     ***********************************
 
@@ -454,7 +456,7 @@ c     cpsp_rc = rc(i,ia)
 
 
 *     *** local variables ***
-      integer nfft3d,G(3),npack1
+      integer nfft3d,G(3),npack1,npack
       integer i,ii,ia,l,n,nn,nb,neall,nbrill
       real*8  omega,weight
       complex*16 ctmp,cxr
@@ -477,6 +479,7 @@ c     cpsp_rc = rc(i,ia)
       neall = ne(1)+ne(2)
       nbrill = brillioun_nbrillioun()
       call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
 
       value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
       value = value.and.
@@ -516,7 +519,7 @@ c     cpsp_rc = rc(i,ia)
         call cstrfac(ii,dcpl_mb(tmp4(1)))
 
         do nb=1,nbrill
-           call Cram_npack(nb,npack1)
+           call Cram_npack(nb,npack)
            call C3dB_c_Copy(1,dcpl_mb(tmp4(1)),dcpl_mb(exi(1)))
            call Cram_c_pack(nb,dcpl_mb(exi(1)))
            call cstrfac_k(ii,nb,cxr)
@@ -536,17 +539,17 @@ c     cpsp_rc = rc(i,ia)
      >                   int_mb(locp(1)+ia-1))
      >        ) then
 
-              call Cram_rc_Mul(nb,dbl_mb(vnl(1)+(l-1)*nfft3d
-     >                           +(nb-1)*nfft3d*lmmax_max
-     >                           +(ia-1)*nfft3d*lmmax_max*nbrill),
+              call Cram_rc_Mul(nb,dbl_mb(vnl(1)+(l-1)*npack1
+     >                           +(nb-1)*npack1*lmmax_max
+     >                           +(ia-1)*npack1*lmmax_max*nbrill),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(vtmp(1)))
 
 *          *** current function is p or f ****
            else
-              call Cram_irc_Mul(nb,dbl_mb(vnl(1)+(l-1)*nfft3d
-     >                           +(nb-1)*nfft3d*lmmax_max
-     >                           +(ia-1)*nfft3d*lmmax_max*nbrill),
+              call Cram_irc_Mul(nb,dbl_mb(vnl(1)+(l-1)*npack1
+     >                           +(nb-1)*npack1*lmmax_max
+     >                           +(ia-1)*npack1*lmmax_max*nbrill),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(vtmp(1)))
            end if
@@ -554,7 +557,7 @@ c     cpsp_rc = rc(i,ia)
 
 *         **** do kleinman-bylander multiplication ****
           call Cram_cc_nzdot(nb,nn,
-     >                      psi1(1+(nb-1)*neall*nfft3d),
+     >                      psi1(1+(nb-1)*neall*npack1),
      >                      dcpl_mb(vtmp(1)),
      >                      dcpl_mb(zsw1(1)))
 
@@ -567,7 +570,7 @@ c     cpsp_rc = rc(i,ia)
      >                         +(l-1)+(ia-1)*lmmax_max))
              call Cram_cc_zaxpy(nb,(-dcpl_mb(zsw1(1)+n-1)),
      >                          dcpl_mb(vtmp(1)),
-     >                psi2(1+(n-1)*nfft3d +(nb-1)*neall*nfft3d)) 
+     >                psi2(1+(n-1)*npack1 +(nb-1)*neall*npack1)) 
 
           end do
 
@@ -577,8 +580,9 @@ c     cpsp_rc = rc(i,ia)
                 if (ispin.eq.1) 
      >            dcpl_mb(zsw1(1)+n-1)=2.0d0*dcpl_mb(zsw1(1)+n-1)
 
-                do i=1,npack1
-                   ctmp = psi1(i+(n-1)*nfft3d)
+                do i=1,npack
+                   ctmp = psi1(i+(n-1)*npack1
+     >                          +(nb-1)*neall*npack1)
      >                  *dconjg(dcpl_mb(vtmp(1)+i-1))
      >                  *dconjg(dcpl_mb(zsw1(1)+n-1))
                    dbl_mb(xtmp(1)+i-1) = dimag(ctmp)
@@ -659,7 +663,7 @@ c     cpsp_rc = rc(i,ia)
 
 
 *     *** local variables ***
-      integer nfft3d,G(3),npack1,nbrill,neall
+      integer nfft3d,G(3),npack1,npack,nbrill,neall
       integer i,ii,ia,l,n,nn,nb
       real*8  omega,weight
       complex*16 ctmp,cxr
@@ -683,6 +687,7 @@ c     cpsp_rc = rc(i,ia)
       neall = ne(1)+ne(2)
       nbrill = brillioun_nbrillioun()
       call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
 
       value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
       value = value.and.
@@ -708,7 +713,7 @@ c     cpsp_rc = rc(i,ia)
       omega = lattice_omega()
 
       do nb = 1,nbrill
-        call Cram_npack(nb,npack1)
+        call Cram_npack(nb,npack)
         weight = brillioun_weight(nb)
 
 *       **** define Gx,Gy and Gz in packed space ****
@@ -741,17 +746,17 @@ c     cpsp_rc = rc(i,ia)
      >                   int_mb(locp(1)+ia-1))
      >        ) then
 
-              call Cram_rc_Mul(nb,dbl_mb(vnl(1)+(l-1)*nfft3d
-     >                           +(nb-1)*nfft3d*lmmax_max
-     >                           +(ia-1)*nfft3d*lmmax_max*nbrill),
+              call Cram_rc_Mul(nb,dbl_mb(vnl(1)+(l-1)*npack1
+     >                           +(nb-1)*npack1*lmmax_max
+     >                           +(ia-1)*npack1*lmmax_max*nbrill),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(vtmp(1)))
 
 *          *** current function is p or f ****
            else
-              call Cram_irc_Mul(nb,dbl_mb(vnl(1)+(l-1)*nfft3d
-     >                           +(nb-1)*nfft3d*lmmax_max
-     >                           +(ia-1)*nfft3d*lmmax_max*nbrill),
+              call Cram_irc_Mul(nb,dbl_mb(vnl(1)+(l-1)*npack1
+     >                           +(nb-1)*npack1*lmmax_max
+     >                           +(ia-1)*npack1*lmmax_max*nbrill),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(vtmp(1)))
            end if
@@ -759,7 +764,7 @@ c     cpsp_rc = rc(i,ia)
 
 *         **** do kleinman-bylander multiplication ****
           call Cram_cc_nzdot(nb,nn,
-     >                      psi1(1+(nb-1)*neall*nfft3d),
+     >                      psi1(1+(nb-1)*neall*npack1),
      >                      dcpl_mb(vtmp(1)),
      >                      dcpl_mb(zsw1(1)))
 
@@ -775,8 +780,8 @@ c     cpsp_rc = rc(i,ia)
              if (ispin.eq.1) 
      >         dcpl_mb(zsw1(1)+n-1)=2.0d0*dcpl_mb(zsw1(1)+n-1)
 
-             do i=1,npack1
-                ctmp = psi1(i+(n-1)*nfft3d+(nb-1)*neall*nfft3d)
+             do i=1,npack
+                ctmp = psi1(i+(n-1)*npack1+(nb-1)*neall*npack1)
      >               *dconjg(dcpl_mb(vtmp(1)+i-1))
      >               *dconjg(dcpl_mb(zsw1(1)+n-1))
                 dbl_mb(xtmp(1)+i-1) = dimag(ctmp)
@@ -832,7 +837,7 @@ c     cpsp_rc = rc(i,ia)
      >                       nfft,unita,
      >                       atom,amass,zv,lmmax,lmax,locp,
      >                       rc,vnlnrm,
-     >                       nfft3d,npack0,lmmax_max,
+     >                       nfft3d,npack0,npack1,lmmax_max,
      >                       vl,vnl,
      >                       semicore,rcore,ncore,
      >                       tmp,tmp2,
@@ -848,9 +853,9 @@ c     cpsp_rc = rc(i,ia)
       integer lmax
       integer locp
       real*8 rc(*),vnlnrm(*)
-      integer nfft3d,npack0,lmmax_max
+      integer nfft3d,npack0,npack1,lmmax_max
       real*8 vl(*)
-      real*8 vnl(nfft3d,lmmax_max,*)
+      real*8 vnl(npack1,lmmax_max,*)
       logical semicore
       real*8  rcore
       real*8  ncore(*)
@@ -1008,9 +1013,9 @@ c       close(11)
       end
 
 *     ***********************************
-*     *									*
-*     *	 	  cpsp_readall  				*
-*     *									*
+*     *					*
+*     *	 	  cpsp_readall  	*
+*     *					*
 *     ***********************************
 
       subroutine cpsp_readall()
@@ -1023,7 +1028,7 @@ c       close(11)
 
 
 *     **** local variables ****
-      integer ngp(3),version,nfft3d,npack0,nbrill
+      integer ngp(3),version,nfft3d,npack0,npack1,nbrill
       integer ia,l
       real*8 unita(3,3)
       character*12 boundry
@@ -1051,6 +1056,7 @@ c       close(11)
 
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
+      call Cram_max_npack(npack1)
       call Parallel_taskid(taskid)
       nbrill = brillioun_nbrillioun()
 
@@ -1088,10 +1094,10 @@ c       close(11)
      >                  int_mb(locp(1)+ia-1),
      >                  dbl_mb(rc(1) + (ia-1)*(lmax_max+1)),
      >                  dbl_mb(vnlnrm(1) + (ia-1)*lmmax_max),
-     >                  nfft3d,npack0,lmmax_max,
+     >                  nfft3d,npack0,npack1,lmmax_max,
      >                  dbl_mb(vl(1) + (ia-1)*npack0),
      >                  dbl_mb(vnl(1)
-     >                        +(ia-1)*nfft3d*lmmax_max*nbrill),
+     >                        +(ia-1)*npack1*lmmax_max*nbrill),
      >                  log_mb(semicore(1)+ia),
      >                  dbl_mb(rcore(1)+ia-1),
      >                  dbl_mb(ncore(1)+ (ia-1)*npack0*5),

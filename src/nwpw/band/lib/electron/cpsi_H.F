@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.3 2002-01-11 18:25:59 bylaska Exp $
+* $Id: cpsi_H.F,v 1.4 2002-05-03 19:44:01 bylaska Exp $
 *
 
       subroutine cpsi_H(ispin,ne,
@@ -24,7 +24,7 @@
       real*8  scal1,scal2
 
 *     **** tempory space ****
-      integer nfft3d,nb,neall,indx,nbrill
+      integer nfft3d,npack1,nb,neall,indx,indx2,nbrill
       integer vall(2),vpsi(2)
       logical value
 
@@ -41,6 +41,7 @@
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
       call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
 
       call nwpw_timing_start(12)
       value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
@@ -71,7 +72,6 @@
       call cpsp_v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion)
 
 
-
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****
 *     **********************************************************
@@ -88,8 +88,8 @@
       do ms=1,ispin
          do n=n1(ms),n2(ms)
 
-            indx = 1 + (n-1)*nfft3d + (nb-1)*nfft3d*neall
-
+            indx  = 1 + (n-1)*nfft3d + (nb-1)*nfft3d*neall
+            indx2 = 1 + (n-1)*npack1 + (nb-1)*npack1*neall
 *           *************************************
 *           **** vpsi_r = (vall_r+xcp)*psi_r ****
 *           *************************************
@@ -110,9 +110,10 @@
 *           ***********************
 *           **** add to Hpsi_k ****
 *           ***********************
+
             call Cram_cc_daxpy(nb,(-scal1),
-     >                           dcpl_mb(vpsi(1)),
-     >                           Hpsi_k(indx))
+     >                         dcpl_mb(vpsi(1)),
+     >                         Hpsi_k(indx2))
          end do
       end do
       end do

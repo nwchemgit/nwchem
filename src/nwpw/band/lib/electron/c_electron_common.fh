@@ -1,9 +1,9 @@
 *
-* $Id: c_electron_common.fh,v 1.2 2002-01-11 18:25:59 bylaska Exp $
+* $Id: c_electron_common.fh,v 1.3 2002-05-03 19:44:01 bylaska Exp $
 *
 
 *     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack0,nbrill
+      integer ispin,ne(2),nfft3d,npack0,npack1,nbrill
       integer Hpsi_k(2)
       integer psi_r(2)
       integer vl(2)
@@ -13,7 +13,8 @@
       integer xce(2)
       common / c_electron_block / Hpsi_k,psi_r,
      >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack0,nbrill
+     >                          ne,ispin,
+     >                          nfft3d,npack0,npack1,nbrill
 
 *     **** electron_counter common block ****
       integer counter

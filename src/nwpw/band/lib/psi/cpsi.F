@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.11 2002-02-13 00:53:45 edo Exp $
+* $Id: cpsi.F,v 1.12 2002-05-03 19:44:01 bylaska Exp $
 *
 
 
@@ -14,7 +14,7 @@
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
 
-      call zcopy(nfft3d*(ne(1)+ne(2))*nbrillioun,
+      call zcopy(npack1*(ne(1)+ne(2))*nbrillioun,
      >           dcpl_mb(psi1(1)),1,
      >           dcpl_mb(psi2(1)),1)
 
@@ -35,7 +35,7 @@
 #include "cpsi_common.fh"
 
  
-      call zcopy(nfft3d*(ne(1)+ne(2))*nbrillioun,
+      call zcopy(npack1*(ne(1)+ne(2))*nbrillioun,
      >           dcpl_mb(psi2(1)),1,
      >           dcpl_mb(psi1(1)),1)
 
@@ -178,11 +178,11 @@
 
 
 
-*     ***********************
-*     *						*
-*     *		cpsi_1eorbit		*
-*     *						*
-*     ***********************
+*     ***************************
+*     *				*
+*     *		cpsi_1eorbit	*
+*     *				*
+*     ***************************
       real*8 function cpsi_1eorbit()
       implicit none
 
@@ -261,11 +261,11 @@
 
 
 
-*     ***********************
-*     *						*
-*     *		c_rho_1exc		*
-*     *						*
-*     ***********************
+*     *******************************
+*     *				    *
+*     *		c_rho_1exc	    *
+*     *				    *
+*     *******************************
       real*8 function c_rho_1exc()
       implicit none
 
@@ -281,11 +281,11 @@
       return
       end
 
-*     *******************
-*     *					*
+*     ***************************
+*     *			        *
 *     *		c_rho_1pxc	*
-*     *					*
-*     *******************
+*     *				*
+*     ***************************
       real*8 function c_rho_1pxc()
       implicit none
 
@@ -301,11 +301,11 @@
       end
 
 
-*     *******************************
-*     *								*
+*     ***********************************
+*     *					*
 *     *		c_dng_1ehartree         *
-*     *								*
-*     *******************************
+*     *					*
+*     ***********************************
       real*8 function c_dng_1ehartree()
       implicit none
 
@@ -470,9 +470,9 @@
 
 
 *     ***********************************
-*     *									*
+*     *					*
 *     *	    cpsi_1geodesic_Gtransport	*
-*     *									*
+*     *					*
 *     ***********************************
       subroutine cpsi_1geodesic_Gtransport(t,G0)
       implicit none
@@ -489,11 +489,11 @@
 
 
 
-*     *******************************
-*     *								*
+*     ***********************************
+*     *					*
 *     *		cpsi_geodesic_energy 	*
-*     *								*
-*     *******************************
+*     *					*
+*     ***********************************
       real*8 function cpsi_geodesic_energy(t)
       implicit none
       real*8 t
@@ -523,11 +523,11 @@
       return
       end
 
-*     ***********************************
-*     *					*
-*     *		cpsi_geodesic_denergy 	*
-*     *					*
-*     ***********************************
+*     ***************************************
+*     *					    *
+*     *		cpsi_geodesic_denergy 	    *
+*     *					    *
+*     ***************************************
       real*8 function cpsi_geodesic_denergy(t)
       implicit none
       real*8 t
@@ -588,9 +588,9 @@ c      end if
       end
 
 *     ***********************************
-*     *									*
-*     *			cpsito2_sd_update	 	*
-*     *									*
+*     *					*
+*     *		cpsito2_sd_update	*
+*     *					*
 *     ***********************************
       subroutine cpsi1to2_sd_update(dte)
       implicit none
@@ -606,14 +606,14 @@ c      end if
       integer lmd(2),tmp_L(2)
 
       call c_electron_run(dcpl_mb(psi1(1)),
-     >                  dbl_mb(rho1(1)),
-     >                  dcpl_mb(dng1(1)),
-     >                  dbl_mb(rho1_all(1)))
+     >                     dbl_mb(rho1(1)),
+     >                    dcpl_mb(dng1(1)),
+     >                     dbl_mb(rho1_all(1)))
 
 *     **** do a steepest descent step ****
       call c_electron_sd_update(dcpl_mb(psi1(1)),
-     >                        dcpl_mb(psi2(1)),
-     >						  dte)
+     >                          dcpl_mb(psi2(1)),
+     >	         		dte)
 
 *     **** lagrange multiplier corrections ****
       neall = ne(1)+ne(2)
@@ -626,7 +626,7 @@ c      end if
      >        MA_push_get(mt_dcpl,(2*n*n*nbrillioun),
      >                    'lmd',lmd(2),lmd(1))
 
-      call cpsi_lmbda(ispin,ne,nfft3d,neall,nbrillioun,n,
+      call cpsi_lmbda(ispin,ne,npack1,neall,nbrillioun,n,
      >                 dcpl_mb(psi1(1)),
      >                 dcpl_mb(psi2(1)),
      >                 dte,
@@ -642,11 +642,11 @@ c      end if
       end
 
 
-*     ***********************
-*     *						*
+*     ***************************
+*     *				*
 *     *		cpsi_1force     *
-*     *						*
-*     ***********************
+*     *				*
+*     ***************************
 
       subroutine cpsi_1force(fion)
       implicit none
@@ -787,9 +787,9 @@ c      end
 
 
 *     ***************************
-*     *							*
-*     *		cpsi_1rotate2      	*
-*     *							*
+*     *				*
+*     *	      cpsi_1rotate2     *
+*     *				*
 *     ***************************
       subroutine cpsi_1rotate2()
       implicit none
@@ -803,7 +803,7 @@ c      end
       neall = ne(1) +ne(2)
       n     = ne(1)
 
-      call Stfl_gqg_Mul(ispin,ne,nfft3d,neall,nbrillioun,n,
+      call Stfl_gqg_Mul(ispin,ne,npack1,neall,nbrillioun,n,
      >                  dcpl_mb(psi1(1)),
      >                  dcpl_mb(hml(1)),
      >                  dcpl_mb(psi2(1)))
@@ -840,11 +840,11 @@ c      end
 
 
 
-*     ***********************
-*     *						*
-*     *		cpsi_error		*
-*     *						*
-*     ***********************
+*     ***************************
+*     *				*
+*     *		cpsi_error	*
+*     *				*
+*     ***************************
       real*8 function cpsi_error()
       implicit none
 
@@ -857,7 +857,7 @@ c      end
       real*8  error,sum,size
       integer tmp1(2)
 
-      value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
+      value = MA_push_get(mt_dcpl,(npack1),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit('out of stack memory in psi_error',0)
 
@@ -867,7 +867,7 @@ c      end
       do nb=1,nbrillioun
         call Cram_npack(nb,npack)
         do n=1, (ne(1)+ne(2))
-          indx = (n-1)*nfft3d + (nb-1)*nfft3d*(ne(1)+ne(2))
+          indx = (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2))
           do k=1,npack
              dcpl_mb(tmp1(1)+k-1) = dcpl_mb(psi2(1)+k-1+indx) 
      >                            - dcpl_mb(psi1(1)+k-1+indx)
@@ -888,11 +888,11 @@ c      end
       return
       end
 
-*     ***********************
-*     *						*
-*     *		c_rho_error		*
-*     *						*
-*     ***********************
+*     ***************************
+*     *			        *
+*     *		c_rho_error	*
+*     *			        *
+*     ***************************
       real*8 function c_rho_error()
       implicit none
 
@@ -943,11 +943,11 @@ c      end
       end
 
 
-*     ***********************
-*     *						*
-*     *		cpsi_ispin		*
-*     *						*
-*     ***********************
+*     ***************************
+*     *				*
+*     *		cpsi_ispin      *
+*     *			        *
+*     ***************************
       integer function cpsi_ispin()
       implicit none
 
@@ -959,11 +959,11 @@ c      end
       end
 
 
-*     *******************
-*     *					*
-*     *		cpsi_ne		*
-*     *					*
-*     *******************
+*     **********************
+*     *			   *
+*     *		cpsi_ne	   *
+*     *			   *
+*     **********************
       integer function cpsi_ne(ms)
       implicit none
       integer ms
@@ -977,7 +977,7 @@ c      end
 
 *     ***************************
 *     *				*
-*     *		cpsi_initialize 	*
+*     *	    cpsi_initialize 	*
 *     *				*
 *     ***************************
 
@@ -1009,21 +1009,22 @@ c      end
       if ((vers.eq.3).or.(vers.eq.4)) then
         call Parallel_taskid(taskid)
         if (taskid.eq.MASTER) then
-          value= pspw_reformat_c_wvfnc(nbrillioun)
+          value= pspw_reformat_c_wvfnc(1)
         end if
       end if
 
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
+      call Cram_max_npack(npack1)
       nbrillioun = brillioun_nbrillioun()
       neall = ne(1)+ne(2)
       n     = ne(1)
 
 *     **** allocate memory ****
-      value = MA_alloc_get(mt_dcpl,nfft3d*neall*nbrillioun,
+      value = MA_alloc_get(mt_dcpl,npack1*neall*nbrillioun,
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d*neall*nbrillioun,
+     >        MA_alloc_get(mt_dcpl,npack1*neall*nbrillioun,
      >                     'psi1',psi1(2),psi1(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,2*nfft3d,
@@ -1057,7 +1058,7 @@ c      end
 
 
 *     **** Ortho Check ****
-      call Stfl_g_OrthoCheckMake(ispin,ne,nfft3d,neall,nbrillioun,
+      call Stfl_g_OrthoCheckMake(ispin,ne,npack1,neall,nbrillioun,
      >                        dcpl_mb(psi1(1)))
 
       cpsi_initialize = value
@@ -1067,9 +1068,9 @@ c      end
 
 
 *     ***************************
-*     *							*
-*     *		cpsi_finalize		*
-*     *							*
+*     *				*
+*     *	     cpsi_finalize	*
+*     *				*
 *     ***************************
 
       logical function cpsi_finalize()
@@ -1087,15 +1088,15 @@ c      end
       call cpsi_write(ispin,ne,nbrillioun,dcpl_mb(psi1(1)))
     
       value = MA_free_heap(eig(2))
-      value = MA_free_heap(hml(2))
-      value = MA_free_heap(dng2(2))
-      value = MA_free_heap(dng1(2))
-      value = MA_free_heap(rho2(2))
-      value = MA_free_heap(rho1(2))
-      value = MA_free_heap(psi2(2))
-      value = MA_free_heap(psi1(2))
-      value = MA_free_heap(rho2_all(2))
-      value = MA_free_heap(rho1_all(2))
+      value = value.and.MA_free_heap(hml(2))
+      value = value.and.MA_free_heap(dng2(2))
+      value = value.and.MA_free_heap(dng1(2))
+      value = value.and.MA_free_heap(rho2(2))
+      value = value.and.MA_free_heap(rho1(2))
+      value = value.and.MA_free_heap(psi2(2))
+      value = value.and.MA_free_heap(psi1(2))
+      value = value.and.MA_free_heap(rho2_all(2))
+      value = value.and.MA_free_heap(rho1_all(2))
 
       cpsi_finalize = value
       return

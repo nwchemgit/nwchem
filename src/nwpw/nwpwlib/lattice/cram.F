@@ -1,11 +1,11 @@
 *
-* $Id: cram.F,v 1.9 2002-01-12 00:50:16 bylaska Exp $
+* $Id: cram.F,v 1.10 2002-05-03 19:44:03 bylaska Exp $
 *
 
 *     ***********************************
-*     *									*
-*     *	          Cram_Init				*	
-*     *									*
+*     *					*
+*     *	          Cram_Init		*	
+*     *					*
 *     ***********************************
   
       subroutine Cram_Init()
@@ -129,14 +129,24 @@
         call C3dB_ISumAll(int_mb(nwaveall_list(1)+nb))
       end do
 
+*     **** set npack_max - note that npack_max       **** 
+*     **** can be associated with different k-points ****
+*     **** on different processors                   ****
+      npack_max = 0
+      do nb=1,maxsize-1
+        if (int_mb(nidb2_list(1)+nb).gt.npack_max) then 
+          npack_max = int_mb(nidb2_list(1)+nb)
+        end if
+      end do
+
       return 
       end
 
 
 *     ***********************************
-*     *									*
-*     *	          Cram_end				*	
-*     *									*
+*     *					*
+*     *	          Cram_end		*	
+*     *					*
 *     ***********************************
 
       subroutine Cram_end()
@@ -216,9 +226,9 @@
       end
 
 *     ***********************************
-*     *									*
-*     *	          Cram_r_pack			*	
-*     *									*
+*     *					*
+*     *	          Cram_r_pack	        *	
+*     *					*
 *     ***********************************
 
       subroutine Cram_r_pack(nb,A)
@@ -330,6 +340,24 @@
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *        Cram_max_npack           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_max_npack(npack)
+      implicit none
+      integer npack
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+      npack = npack_max
+      return
+      end
+
 *     ***********************************
 *     *					*
 *     *	         Cram_nwave		*	
@@ -391,9 +419,9 @@
 
 
 *     ***********************************
-*     *									*
-*     *	         Cram_cc_nzdot			*	
-*     *									*
+*     *					*
+*     *	         Cram_cc_nzdot		*	
+*     *					*
 *     ***********************************
 
       subroutine Cram_cc_nzdot(nb,ne,A,B,sum)
@@ -409,7 +437,7 @@
 
 *     **** local variables ****
       integer n,np
-      integer nfft3d, shift
+      integer shift
 
 *     **** external functions ****
       complex*16 zdotc
@@ -418,10 +446,9 @@
 
       call nwpw_timing_start(2)
       call Parallel_np(np)
-      call C3dB_nfft3d(1,nfft3d)
 
       do n=1,ne
-        shift = (n-1)*nfft3d
+        shift = (n-1)*npack_max
 
         sum(n) = zdotc(int_mb(nidb2_list(1)+nb),
      >                         A(1+shift),1,
@@ -470,9 +497,9 @@
       end
 
 *     *******************************
-*     *								*
-*     *	         Cram_cc_zdot		*	
-*     *								*
+*     *				    *
+*     *	         Cram_cc_zdot	    *	
+*     *				    *
 *     *******************************
 
       subroutine Cram_cc_zdot(nb,A,B,sum)
@@ -856,9 +883,9 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       end
 
 *     ***********************************
-*     *									*
-*     *	         Cram_rr_Sqrt			*	
-*     *									*
+*     *					*
+*     *	         Cram_rr_Sqrt		*	
+*     *					*
 *     ***********************************
 
       subroutine Cram_rr_Sqrt(nb,A,C)
@@ -1071,9 +1098,9 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 
 *     ***********************************
-*     *									*
+*     *					*
 *     *	         Cram_rc_Mul            *
-*     *									*
+*     *					*
 *     ***********************************
 
       subroutine Cram_rc_Mul(nb,A,B,C)
@@ -1097,9 +1124,9 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       end
 
 *     ***********************************
-*     *									*
+*     *					*
 *     *	         Cram_irc_Mul           *
-*     *									*
+*     *					*
 *     ***********************************
 
       subroutine Cram_irc_Mul(nb,A,B,C)
@@ -1127,9 +1154,9 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 
 *     ***********************************
-*     *                 *
+*     *                                 *
 *     *          Cram_cc_Mul            *
-*     *                 *
+*     *                                 *
 *     ***********************************
 
       subroutine Cram_cc_Mul(nb,A,B,C)
@@ -1153,9 +1180,9 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       end
 
 *     ***********************************
-*     *									*
-*     *	         Cram_ccr_conjgMul		*	
-*     *									*
+*     *					*
+*     *	         Cram_ccr_conjgMul	*	
+*     *					*
 *     ***********************************
       subroutine Cram_ccr_conjgMul(nb,A,B,C)
       implicit none
@@ -1179,7 +1206,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 
 *     ***********************************
-*     *                				    *
+*     *                			*
 *     *          Cram_cc_conjgMul       *
 *     *                                 *
 *     ***********************************
@@ -1209,7 +1236,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Cram_rc_iMul            *
+*     *	         Cram_rc_iMul           *
 *     *					*
 *     ***********************************
 

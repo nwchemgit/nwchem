@@ -1,5 +1,5 @@
 *
-* $Id: Stiefel.F,v 1.5 2002-01-15 00:57:08 bylaska Exp $
+* $Id: Stiefel.F,v 1.6 2002-05-03 19:44:01 bylaska Exp $
 *
 
 
@@ -344,22 +344,24 @@
 *     *                		 *
 *     ****************************
 *
-*     A = FFT(-1)[A]
+*     B = FFT(-1)[A]
 *     uses - C3dB_cr_fft3b,Cram_c_unpack
 
-      subroutine Stfl_gh_fftb(ispin,ne,nfft3d,neall,nbrill,A)
+      subroutine Stfl_gh_fftb(ispin,ne,npack1,nfft3d,neall,nbrill,A,B)
       implicit none
       integer ispin,ne(2)
-      integer nfft3d,neall,nbrill
-      complex*16 A(nfft3d,neall,nbrill)
+      integer npack1,nfft3d,neall,nbrill
+      complex*16 A(npack1,neall,nbrill)
+      complex*16 B(nfft3d,neall,nbrill)
 
 *     **** local variables ****
       integer k,nb
 
       do nb=1,nbrill
       do k=1,(ne(1)+ne(2))
-        call Cram_c_unpack(nb,A(1,k,nb))
-        call C3dB_cr_fft3b(1,A(1,k,nb))
+        call Cram_c_Copy(nb,A(1,k,nb),B(1,k,nb))
+        call Cram_c_unpack(nb,B(1,k,nb))
+        call C3dB_cr_fft3b(1,B(1,k,nb))
       end do
       end do
       return
@@ -441,11 +443,11 @@
       return
       end
 
-*     ****************************
-*     *                	    	 *
-*     *    	Stfl_gg_traceall 	 *
+*     ********************************
+*     *                	    	     *
+*     *    	Stfl_gg_traceall     *
 *     *                		     *
-*     ****************************
+*     ********************************
       subroutine Stfl_gg_traceall(ispin,ne,nfft3d,neall,nbrill,A,B,sum)
       implicit none
       integer ispin,ne(2)
@@ -484,11 +486,11 @@
       return
       end
 
-*     ****************************
-*     *                	    	 *
-*     *    	Stfl_gg_trace    	 *
+*     ********************************
+*     *                	    	     *
+*     *    	Stfl_gg_trace        *
 *     *                		     *
-*     ****************************
+*     ********************************
 *
 *     uses - 
 

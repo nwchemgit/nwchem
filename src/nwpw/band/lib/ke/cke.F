@@ -1,5 +1,5 @@
 *
-* $Id: cke.F,v 1.2 2002-01-11 18:26:00 bylaska Exp $
+* $Id: cke.F,v 1.3 2002-05-03 19:44:01 bylaska Exp $
 *
       subroutine cke_init()
       implicit none 
@@ -8,7 +8,7 @@
 #include "cke_common.fh"
 
 *     **** local variables ****
-      integer nfft3d,G(3)
+      integer nfft3d,npack1,G(3)
       integer i,nb,nbrillioun
       real*8  gg,gx,gy,gz,kx,ky,kz
       logical value
@@ -24,11 +24,12 @@ c     real*8 G(nfft3d,3)
 
       nbrillioun = brillioun_nbrillioun()
       call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
       G(1)= G_indx(1)
       G(2)= G_indx(2)
       G(3)= G_indx(3)
 
-      value = MA_alloc_get(mt_dbl,nfft3d*nbrillioun,
+      value = MA_alloc_get(mt_dbl,npack1*nbrillioun,
      >                     'tg',tg_hndl,tg_indx)
       if (.not. value) call errquit('out of heap memory',0)
 
@@ -50,7 +51,7 @@ c     real*8 G(nfft3d,3)
 
          call Cram_r_pack(nb,dbl_mb(tmp1(1)))
          call Cram_r_Copy(nb,dbl_mb(tmp1(1)),
-     >                       dbl_mb(tg_indx+(nb-1)*nfft3d))
+     >                       dbl_mb(tg_indx+(nb-1)*npack1))
       end do
       
 
@@ -80,22 +81,22 @@ c     real*8 G(nfft3d,3)
 #include "cke_common.fh"
 
 *     **** local variables ****
-      integer nfft3d,nbrillioun
+      integer npack1,nbrillioun
       integer n,nb,indx
 
 *     **** external functions ****
       integer  brillioun_nbrillioun
       external brillioun_nbrillioun
       
-      call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
       nbrillioun = brillioun_nbrillioun()
 
       do nb=1,nbrillioun
       do n=1,(ne(1)+ne(2))
-         indx = 1 + (n-1)*nfft3d + (nb-1)*nfft3d*(ne(1)+ne(2))
+         indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2))
 
          call Cram_rc_Mul(nb,
-     >                    dbl_mb(tg_indx+(nb-1)*nfft3d),
+     >                    dbl_mb(tg_indx+(nb-1)*npack1),
      >                    psi1(indx),
      >                    psi2(indx))
       end do
@@ -116,7 +117,7 @@ c     real*8 G(nfft3d,3)
 
 
 *     **** local variables ****
-      integer nfft3d,np,indx,nb
+      integer npack1,np,indx,nb
       integer ms,n,n1(2),n2(2)
       real*8  sum
 
@@ -129,8 +130,8 @@ c     real*8 G(nfft3d,3)
       external brillioun_weight
      
       call Parallel_np(np)
-      call C3dB_nfft3d(1,nfft3d)
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      call Cram_max_npack(npack1)
+      value = MA_push_get(mt_dcpl,npack1,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) call errquit('out of stack memory',0)
 
 
@@ -143,9 +144,9 @@ c     real*8 G(nfft3d,3)
       do nb=1,brillioun_nbrillioun()
       do ms=1,ispin
          do n=n1(ms),n2(ms)
-            indx =  1+ (n-1)*nfft3d + (nb-1)*nfft3d*(ne(1)+ne(2))
+            indx =  1+ (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2))
             call Cram_rc_Mul(nb,
-     >                       dbl_mb(tg_indx+(nb-1)*nfft3d),
+     >                       dbl_mb(tg_indx+(nb-1)*npack1),
      >                       psi1(indx),
      >                       dcpl_mb(tmp1(1)))
             call Cram_cc_idot(nb,psi1(indx),
@@ -162,10 +163,3 @@ c     real*8 G(nfft3d,3)
       value = MA_pop_stack(tmp1(2))
       return 
       end 
-
-
-
-
-
-
-

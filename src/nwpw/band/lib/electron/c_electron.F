@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.7 2002-01-15 01:39:56 bylaska Exp $
+* $Id: c_electron.F,v 1.8 2002-05-03 19:44:01 bylaska Exp $
 *
 
 *     ***********************************
@@ -29,11 +29,12 @@
 
 *     **** get nfft3d, and npack0 and nbrill****
       call Cram_npack(0,npack0)
+      call Cram_max_npack(npack1)
       call C3dB_nfft3d(1,nfft3d)
       nbrill = brillioun_nbrillioun()
 
 *     **** allocate memory ****
-      value = MA_alloc_get(mt_dcpl,nbrill*nfft3d*(ne(1)+ne(2)),
+      value = MA_alloc_get(mt_dcpl,nbrill*npack1*(ne(1)+ne(2)),
      >                     'Hpsi_k',Hpsi_k(2),Hpsi_k(1))
       value = value.and.
      >        MA_alloc_get(mt_dcpl,nbrill*nfft3d*(ne(1)+ne(2)),
@@ -59,7 +60,7 @@
 
 *     ***********************************
 *     *					*
-*     *		c_electron_finalize       *
+*     *		c_electron_finalize     *
 *     *					*
 *     ***********************************
       subroutine c_electron_finalize()
@@ -143,10 +144,9 @@
 #include "c_electron_common.fh"
 
 
-      call c_electron_sd_subupdate(nfft3d,(ne(1)+ne(2)),nbrill,
+      call c_electron_sd_subupdate(npack1,(ne(1)+ne(2)),nbrill,
      >                           psi1,psi2,dcpl_mb(Hpsi_k(1)),
      >                           dte)
-
       return
       end
 
@@ -177,7 +177,7 @@
 
 *     ***********************************
 *     *					*
-*     *		c_electron_energy		*
+*     *		c_electron_energy	*
 *     *					*
 *     ***********************************
       real*8 function c_electron_energy(psi_k,dn,dng,dnall)
@@ -219,7 +219,7 @@
         weight = brillioun_weight(nb)
         do ms=1,ispin
            do ii=n1(ms),n2(ms)
-             indx = (ii-1)*nfft3d + (nb-1)*nfft3d*neall
+             indx = (ii-1)*npack1 + (nb-1)*npack1*neall
              call Cram_cc_idot(nb,
      >                         psi_k(1+indx),
      >                         dcpl_mb(Hpsi_k(1)+indx),
@@ -270,7 +270,7 @@
 
 *     ***********************************
 *     *					*
-*     *		c_electron_eorbit		*
+*     *		c_electron_eorbit	*
 *     *					*
 *     ***********************************
       real*8 function c_electron_eorbit(psi_k)
@@ -299,7 +299,7 @@
         weight = brillioun_weight(nb)
         do ms=1,ispin
            do ii=n1(ms),n2(ms)
-             indx = (ii-1)*nfft3d + (nb-1)*nfft3d*neall
+             indx = (ii-1)*npack1 + (nb-1)*npack1*neall
              call Cram_cc_idot(nb,psi_k(1+indx),
      >                           dcpl_mb(Hpsi_k(1)+indx),
      >                           sum)
@@ -439,7 +439,7 @@
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
-      call Stfl_gg_Copy(ispin,ne,nfft3d,(ne(1)+ne(2)),
+      call Stfl_gg_Copy(ispin,ne,npack1,(ne(1)+ne(2)),
      >                  dcpl_mb(Hpsi_k(1)),
      >                  Hpsi_k_new)
       return
@@ -501,13 +501,13 @@
       neall = ne(1)+ne(2)
 
 *     **** no preconditioning ***
-      call Stfl_gqg_Mul(ispin,ne,nfft3d,neall,nbrill,n,
+      call Stfl_gqg_Mul(ispin,ne,npack1,neall,nbrill,n,
      >                  psi_k,hml,THpsi_k)
-      call Stfl_ggg_Sub(ispin,ne,nfft3d,neall,nbrill,
+      call Stfl_ggg_Sub(ispin,ne,npack1,neall,nbrill,
      >                  dcpl_mb(Hpsi_k(1)),
      >                  THpsi_k,
      >                  THpsi_k)
-      call Stfl_gg_dScale(ispin,ne,nfft3d,neall,nbrill,
+      call Stfl_gg_dScale(ispin,ne,npack1,neall,nbrill,
      >                    (-1.0d0),
      >                    THpsi_k,
      >                    THpsi_k)
@@ -534,7 +534,7 @@
       n     = ne(1)
       neall = ne(1)+ne(2)
 
-      call Stfl_ggq_dot(ispin,ne,nfft3d,neall,nbrill,n,
+      call Stfl_ggq_dot(ispin,ne,npack1,neall,nbrill,n,
      >                  psi_k,
      >                  dcpl_mb(Hpsi_k(1)),
      >                  hml)
@@ -583,18 +583,18 @@
      >           move,
      >           fion)
 
-      call Stfl_gg_dscale(ispin,ne,nfft3d,(ne(1)+ne(2)),nbrill,
+      call Stfl_gg_dscale(ispin,ne,npack1,(ne(1)+ne(2)),nbrill,
      >                    (-1.0d0),
      >                    dcpl_mb(Hpsi_k(1)),
      >                    dcpl_mb(Hpsi_k(1)))
       return
       end
 
-*     ***************************
-*     *				*
-*     *	    c_electron_gen_psi_r	*
-*     *				*
-*     ***************************
+*     *******************************
+*     *				    *
+*     *	    c_electron_gen_psi_r    *
+*     *				    *
+*     *******************************
 
       subroutine c_electron_gen_psi_r(psi_k)
       implicit none
@@ -605,15 +605,16 @@
 
 
 *     **** local variables ****
-      integer neall
+      integer n,nb,neall
 
       neall = ne(1)+ne(2)
 
 
-      call Stfl_gg_Copy(ispin,ne,nfft3d,neall,nbrill,
-     >                  psi_k,
-     >                  dcpl_mb(psi_r(1)))
-      call Stfl_gh_fftb(ispin,ne,nfft3d,neall,nbrill,dcpl_mb(psi_r(1)))
+c      call Stfl_gg_Copy(ispin,ne,npack1,neall,nbrill,
+c     >                  psi_k,
+c     >                  dcpl_mb(psi_r(1)))
+      call Stfl_gh_fftb(ispin,ne,npack1,nfft3d,neall,nbrill,
+     >                  psi_k,dcpl_mb(psi_r(1)))
 
       return
       end
@@ -621,7 +622,7 @@
 
 *     ***********************************
 *     *				        *
-*     *	 c_electron_gen_densities	*
+*     *	    c_electron_gen_densities	*
 *     *				        *
 *     ***********************************
 
@@ -782,9 +783,9 @@ c     >                    dbl_mb(xce(1)))
 
       move = .false.
       call cpsp_v_local(dcpl_mb(vl(1)),
-     >               move,
-     >               dcpl_mb(tmp1(1)),
-     >               dbl_mb(tmp2(1)))
+     >                  move,
+     >                  dcpl_mb(tmp1(1)),
+     >                   dbl_mb(tmp2(1)))
 
       value = MA_pop_stack(tmp2(2))
       value = value.and.
@@ -882,9 +883,9 @@ c     >                    dbl_mb(xce(1)))
 
 
 *     ***********************************
-*     *									*
-*     *   c_electron_psi_vnl_ave 		*
-*     *									*
+*     *					*
+*     *   c_electron_psi_vnl_ave 	*
+*     *					*
 *     ***********************************
 
       real*8 function c_electron_psi_vnl_ave(psi1)
@@ -914,7 +915,7 @@ c     >                    dbl_mb(xce(1)))
       n2(2) = ne(1) + ne(2)
       neall = ne(1) + ne(2)
 
-      value = MA_push_get(mt_dcpl,(nfft3d*neall*nbrill),
+      value = MA_push_get(mt_dcpl,(npack1*neall*nbrill),
      >                    'tmp1',tmp1(2),tmp1(1)) 
       value = value.and.
      >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
@@ -923,7 +924,7 @@ c     >                    dbl_mb(xce(1)))
 
 
 *     **** average Kohn-Sham v_nonlocal energy ****
-      call Stfl_g_Zero(ispin,ne,nfft3d,neall,nbrill,dcpl_mb(tmp1(1)))
+      call Stfl_g_Zero(ispin,ne,npack1,neall,nbrill,dcpl_mb(tmp1(1)))
       call cpsp_v_nonlocal(ispin,ne,
      >                     psi1,
      >                     dcpl_mb(tmp1(1)),
@@ -934,7 +935,7 @@ c     >                    dbl_mb(xce(1)))
          weight = brillioun_weight(nb)
          do ms=1,ispin
          do n=n1(ms),n2(ms)
-         indx = (n-1)*nfft3d + (nb-1)*nfft3d*neall
+         indx = (n-1)*npack1 + (nb-1)*npack1*neall
 
             call Cram_cc_idot(nb,psi1(1+indx),
      >                         dcpl_mb(tmp1(1)+indx),
