@@ -1,4 +1,4 @@
-C $Id: ecp_int2.F,v 1.9 1998-04-03 20:49:40 mg201 Exp $
+C $Id: ecp_int2.F,v 1.10 1999-03-04 19:41:05 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int2 (mem_max,DryRun,
@@ -100,7 +100,7 @@ C $Id: ecp_int2.F,v 1.9 1998-04-03 20:49:40 mg201 Exp $
 *
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
-      debug_arrays = mod(ibug,10)/2 .eq. 1
+      debug_arrays = (mod(ibug,10)/2 .eq. 1) .and. .not.DryRun
 *
       if (debug_gen) then
         write (LuOut,'(//A,/)') 'Entering ecp_int2 ...'
@@ -141,6 +141,7 @@ C $Id: ecp_int2.F,v 1.9 1998-04-03 20:49:40 mg201 Exp $
       end if
       if (DryRun) then
         mem_max = max(mem_max,i-1)
+        if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
       else
         if (i-1 .gt. ltmp) call errquit(
      &      ' Insufficient memory in ecp_int2',99)
@@ -152,7 +153,7 @@ C $Id: ecp_int2.F,v 1.9 1998-04-03 20:49:40 mg201 Exp $
         i_z = i_y+l_a+1
         i_t = i_z+l_a+1
         call ecp_cart_xpd (l_a,n_na,n_all_a,X_AC,Y_AC,Z_AC,
-     &      tmp(i_x),tmp(i_y),tmp(i_z),tmp(i_t),tmp(i_ca),
+     &      tmp(i_x),tmp(i_y),tmp(i_z),tmp(i_t),tmp(i_ca),1,
      &      csco,lcsco)
         if (debug_arrays) call ecp_matpr (tmp(i_ca),1,n_na,1,n_all_a,1,
      &      n_na,1,n_all_a,'Cartesian expansion for centre a','E',78,4)
@@ -160,7 +161,7 @@ C $Id: ecp_int2.F,v 1.9 1998-04-03 20:49:40 mg201 Exp $
         i_z = i_y+l_b+1
         i_t = i_z+l_b+1
         call ecp_cart_xpd (l_b,n_nb,n_all_b,X_BC,Y_BC,Z_BC,
-     &      tmp(i_x),tmp(i_y),tmp(i_z),tmp(i_t),tmp(i_cb),
+     &      tmp(i_x),tmp(i_y),tmp(i_z),tmp(i_t),tmp(i_cb),1,
      &      csco,lcsco)
         if (debug_arrays) call ecp_matpr (tmp(i_cb),1,n_nb,1,n_all_b,1,
      &      n_nb,1,n_all_b,'Cartesian expansion for centre b','E',78,4)
@@ -254,6 +255,7 @@ C $Id: ecp_int2.F,v 1.9 1998-04-03 20:49:40 mg201 Exp $
         end if
         if (DryRun) then
           mem_max = max(mem_max,i_free-1)
+          if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
         else
           if (i_free-1 .gt. ltmp) call errquit(
      &        ' Insufficient memory in ecp_int2',99)
@@ -340,6 +342,7 @@ C $Id: ecp_int2.F,v 1.9 1998-04-03 20:49:40 mg201 Exp $
 *
         if (DryRun) then
           mem_max = max(mem_max,i_free-1)
+          if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
           if (debug_gen) write (LuOut,*) ' This is a dry run'
         else
           if (i_free-1 .gt. ltmp) call errquit(
@@ -427,6 +430,7 @@ C $Id: ecp_int2.F,v 1.9 1998-04-03 20:49:40 mg201 Exp $
         if (debug_addresses) write (LuOut,*) 'i_wa,i_wb',i_wa,i_wb
         if (DryRun) then
           mem_max = max(mem_max,i_free-1)
+          if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
         else
           if (i_free-1 .gt. ltmp) call errquit(
      &        ' Insufficient memory in ecp_int2',99)

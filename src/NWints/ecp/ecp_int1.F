@@ -1,4 +1,4 @@
-C $Id: ecp_int1.F,v 1.7 1998-04-01 17:54:53 mg201 Exp $
+C $Id: ecp_int1.F,v 1.8 1999-03-04 19:37:06 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int1 (mem_max,DryRun,
@@ -99,7 +99,7 @@ C $Id: ecp_int1.F,v 1.7 1998-04-01 17:54:53 mg201 Exp $
 *
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
-      debug_arrays = mod(ibug,10)/2 .eq. 1
+      debug_arrays = (mod(ibug,10)/2 .eq. 1) .and. .not.DryRun
 *
       if (DryRun) mem_max = 0
       if ((sphcart .ne. 0) .and. (l_b .gt. l_ecp)) return
@@ -143,6 +143,7 @@ C $Id: ecp_int1.F,v 1.7 1998-04-01 17:54:53 mg201 Exp $
       end if
       if (DryRun) then
         mem_max = max(mem_max,i_free-1)
+        if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
       else
         if (i_free-1 .gt. l_tmp) call errquit(
      &      ' Insufficient memory in ecp_int1',99)
@@ -152,7 +153,7 @@ C $Id: ecp_int1.F,v 1.7 1998-04-01 17:54:53 mg201 Exp $
         if (debug_arrays)
      &      write (LuOut,*) 'X_AC,Y_AC,Z_AC',X_AC,Y_AC,Z_AC
         call ecp_cart_xpd (l_a,n_na,n_all_a,X_AC,Y_AC,Z_AC,
-     &      tmp(i_x),tmp(i_y),tmp(i_z),tmp(i_t),tmp(i_ca),
+     &      tmp(i_x),tmp(i_y),tmp(i_z),tmp(i_t),tmp(i_ca),1,
      &      csco,lcsco)
         if (debug_arrays) call ecp_matpr(tmp(i_ca),1,n_na,1,n_all_a,
      &      1,n_na,1,n_all_a,'Cartesian expansion','E',78,4)
@@ -228,6 +229,7 @@ C        write (LuOut,*) 'm_count',m_count
         end if
         if (DryRun) then
           mem_max = max(mem_max,i_free-1)
+          if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
         else
           if (i_free-1 .gt. l_tmp) call errquit(
      &        ' Insufficient memory in ecp_int1',99)
@@ -286,6 +288,7 @@ C        write (LuOut,*) 'm_count',m_count
         i_free = i_ang_a+max(n_ang_t*n_x,n_na*n_nb)
         if (DryRun) then
           mem_max = max(mem_max,i_free-1)
+          if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
         else
           if (i_free-1 .gt. l_tmp) call errquit(
      &        ' Insufficient memory in ecp_int1',99)
