@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.34 2002-02-20 23:04:20 edo Exp $
+#$Id: GNUmakefile,v 1.35 2003-12-31 22:30:52 nwchem Exp $
 
 include ../config/makefile.h
 
@@ -79,6 +79,11 @@ ifeq ($(TARGET),CRAY-T3E)
 OBJ_OPTIMIZE = idamax.o
 endif
 
+ifeq ($(TARGET),MACX)
+  ifdef USE_VECLIB
+    OBJ_OPTIMIZE = lsame.o 
+  endif
+endif
 ifeq ($(TARGET),IBM)
   ifdef USE_ESSL
     OBJ_OPTIMIZE = lsame.o xerbla.o  izamax.o dcabs1.o
