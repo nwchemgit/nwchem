@@ -1,6 +1,6 @@
       subroutine int2e_file_balance
 *
-* $Id: int2e_balance.F,v 1.5 1997-11-07 11:35:11 d3e129 Exp $
+* $Id: int2e_balance.F,v 1.6 2000-10-13 18:22:47 d3g681 Exp $
 *
       implicit none
 #include "cint2efile.fh"
@@ -14,9 +14,6 @@ c
 c     Eliminate intermediate syncrhonizations, attempt to overlap
 c     big transfers, fuzzy termination.
 c     
-#if !(defined(SP) || defined(SP1) || defined(SOLARIS))
-      return
-#else 
       integer nrec, me, nproc, him, msglen, from, record
       integer tmp, i, j, p, q, test, nexch, nmoved, npass
       integer his_count, my_count, total, shift
@@ -195,5 +192,4 @@ c
      $     ('int2e_file_balance: failed rewind integral file', 0)
       call ga_sync()
 c
-#endif
       end
