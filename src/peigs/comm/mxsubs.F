@@ -88,7 +88,7 @@ c
       include 'mxsubs.h'
       integer ienv(4)
 #ifdef ALOG
-#include "alogf.h"
+      include 'alogf.h'
 #endif
       integer ifirst
       integer nocare, norder, ihost, ialnod, ialprc, nonode
@@ -236,7 +236,7 @@ c
       integer function mxtick ()
 c     mxtick -- return cpu time in arbitrary increments.
 c
-#include "mxsubs.h"
+      include 'mxsubs.h'
       
 #ifdef MPI
       double precision mxclock
@@ -290,7 +290,7 @@ c
 	external rcv
 #endif
 #ifdef ALOG
-#include "alogf.h"
+        include 'alogf.h'
 #endif
 #ifdef MPI
 	include 'mpif.h'
@@ -381,9 +381,9 @@ c
       double precision mxclock
       external         mxclock
 #endif
-#include "mxsubs.h"
+      include 'mxsubs.h'
 #ifdef ALOG
-#include "alogf.h"
+      include 'alogf.h'
 #endif
 #ifdef MPI
 	include 'mpif.h'
@@ -453,9 +453,9 @@ c        -- Note corruption of type.  See mxread for rationale.
       integer function mxsync ()
 c     mxsync -- synchronize all processors.
 c
-#include "mxsubs.h"
+      include 'mxsubs.h'
 #ifdef ALOG
-#include "alogf.h"
+      include 'alogf.h'
 #endif
 #ifdef MPI
 	include 'mpif.h'
@@ -490,7 +490,7 @@ c     binary-tree based version that runs in log(P) time and queues
 c     no more than two messages at any node.  (Replaces old mxbrod/mxcomb
 c     hack.)
 c
-#include "xpress.com"
+      include 'xpress.com'
       integer parent, child1, child2, itype
 
       parent = (me-1)/2
@@ -549,7 +549,7 @@ c               but reliable approach -- sending processor
 c               explicitly sends to each of the receiving ones.
 c
       integer data(*)
-#include "mxsubs.h"
+      include 'mxsubs.h'
 c.	write (*,*) 'mxbcst: me,iproc,isize,itype=',me,iproc,isize,itype
       if (me.eq.iproc) then
          do 10 ito = 0,nproc-1
@@ -572,7 +572,7 @@ c.      call mxsync ()
 	external pend
 #endif
 #ifdef ALOG
-#include "alogf.h"
+        include 'alogf.h'
 #endif
 #ifdef MPI
 	include 'mpif.h'
@@ -628,7 +628,7 @@ c
 c	The obvious "mynode" function, for those tired of using the
 c	'env' vector all the time.
 c
-#include "mxsubs.h"
+        include 'mxsubs.h'
         mxmynd = me
         return
         end
@@ -638,7 +638,7 @@ c
 c	The obvious "numprocs" function, for those tired of using the
 c	'env' vector all the time.
 c
-#include "mxsubs.h"
+        include 'mxsubs.h'
         mxnprc = nproc
         return
         end
