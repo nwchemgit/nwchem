@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize2.F,v 1.1 2002-06-25 19:51:25 bylaska Exp $                       
+c     $Id: cgminimize2.F,v 1.2 2002-06-25 21:38:26 bylaska Exp $                       
 c
 
 *  **************************************************************
@@ -279,6 +279,10 @@ c
          E(17) = e_vib
          E(18) = e_cav
       end if
+
+
+
+
 
 *     **** get pspw_charge  energies ****
       if (pspw_charge_found()) then

@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.10 2002-06-25 19:51:25 bylaska Exp $
+* $Id: electron.F,v 1.11 2002-06-25 21:38:26 bylaska Exp $
 *
 
 
@@ -228,10 +228,13 @@
       integer n2ft3d
       integer ii,ms,n1(2),n2(2),nx,ny,nz
       real*8  sum,eorbit,ehartr,exc,pxc,exc2,pxc2,dv
+      real*8  total_energy,ehsic,exsic,phsic,pxsic
 
 *     **** external functions *****
+      logical  pspw_SIC,pspw_SIC_relaxed
       integer  control_version
       real*8   lattice_omega,coulomb_e,electron_ehartree2
+      external pspw_SIC,pspw_SIC_relaxed
       external control_version
       external lattice_omega,coulomb_e,electron_ehartree2
       
@@ -253,10 +256,6 @@
       eorbit = 0.0d0
       do ms=1,ispin
          do ii=n1(ms),n2(ms)
-c           call D3dB_cc_idot(1,
-c     >                       psi_k(1+(ii-1)*nfft3d),
-c     >                       dcpl_mb(Hpsi_k(1)+(ii-1)*nfft3d),
-c     >                       sum)
            call Pack_cc_idot(1,
      >                       psi_k(1+(ii-1)*npack1),
      >                       dcpl_mb(Hpsi_k(1)+(ii-1)*npack1),
@@ -299,9 +298,22 @@ c     >                       sum)
       exc = exc*dv
       pxc = pxc*dv
           
+      total_energy = eorbit + exc - ehartr - pxc
+
+*     **** SIC corrections ****
+      if (pspw_SIC()) then
+      if (pspw_SIC_relaxed()) then
+         call pspw_energy_SIC(ispin,dbl_mb(psi_r(1)),
+     >                        ehsic,
+     >                        phsic,
+     >                        exsic,
+     >                        pxsic)
+         total_energy = total_energy + ehsic + exsic - phsic - pxsic
+      end if
+      end if
 
 *     **** total energy ****
-      electron_energy = eorbit + exc - ehartr - pxc
+      electron_energy = total_energy
 
       return
       end
@@ -336,9 +348,6 @@ c     >                       sum)
       eorbit = 0.0d0
       do ms=1,ispin
          do ii=n1(ms),n2(ms)
-c           call D3dB_cc_idot(1,psi_k(1+(ii-1)*nfft3d),
-c     >                      dcpl_mb(Hpsi_k(1)+(ii-1)*nfft3d),
-c     >                       sum)
            call Pack_cc_idot(1,psi_k(1+(ii-1)*npack1),
      >                       dcpl_mb(Hpsi_k(1)+(ii-1)*npack1),
      >                       sum)
@@ -377,9 +386,9 @@ c     >                       sum)
       end
 
 *     ***********************************
-*     *									*
-*     *		electron_ehartree2			*
-*     *									*
+*     *					*
+*     *		electron_ehartree2	*
+*     *					*
 *     ***********************************
       real*8 function electron_ehartree2(dn)
       implicit none
