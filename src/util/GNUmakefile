@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.95 1998-11-23 10:09:18 d3e129 Exp $
+# $Id: GNUmakefile,v 1.96 1998-12-12 22:46:55 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -82,7 +82,7 @@ endif
         OBJ = output.o errquit.o ffflush.o \
               print_center.o util_flush.o \
               util_host.o util_date.o \
-	      input_echo.o \
+	      input_echo.o util_transpose.o \
               ga_iter_diag.o \
               ga_maxelt.o ga_pcg_min.o line_search.o \
               ga_orth_vec.o ga_ran_fill.o ga_mix.o \
