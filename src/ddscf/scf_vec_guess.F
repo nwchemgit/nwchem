@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.41 2002-09-10 15:52:47 d3k958 Exp $
+c     $Id: scf_vec_guess.F,v 1.42 2002-09-26 18:28:28 d3k958 Exp $
 c
       implicit none
 c
@@ -424,7 +424,7 @@ c
 c    Apply any swaps of nuclei in the mapping of mo vectors
 c
        if ( rtdb_ma_get(rtdb, 'reorder', type, nelem, handle)) then
-         call movecs_swap_nuclei(rtdb,nbf,basis,scftype,g_movecs,
+         call movecs_swap_nuclei(rtdb,basis,scftype,g_movecs,
      &     dbl_mb(k_occ), dbl_mb(k_eval))
        endif
 c

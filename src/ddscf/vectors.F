@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.41 2002-09-10 15:52:50 d3k958 Exp $
+C$Id: vectors.F,v 1.42 2002-09-26 18:28:28 d3k958 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -567,12 +567,11 @@ c
 c
       end
 
-      subroutine movecs_swap_nuclei(rtdb,nbf,basis,scftype,g_vecs,
+      subroutine movecs_swap_nuclei(rtdb,basis,scftype,g_vecs,
      &   occ,eval)
       implicit none
 c
 #include "rtdb.fh"
-#include "geom.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
@@ -591,7 +590,7 @@ c     When finished delete the databse entries so that
 c     a restart does not re-reorder the vectors.
 c
       character*(*) scftype
-      integer rtdb, basis,g_vecs(*), nbf
+      integer rtdb, basis,g_vecs(*)
       double precision occ(*), eval(*)
       integer type, nelem, handle, index
       integer pair, i, j, off, set, nset, mlen
@@ -605,9 +604,11 @@ c
       nset = 2
       if (.not.ga_create(mt_dbl,dim1,dim2,'temp avecs',0,0,g_tempv(1))) 
      &    call errquit ('movecs_swap_nuclei:couldnt create array',0)
+      call ga_zero(g_tempv(1))
       call ga_copy(g_vecs(1),g_tempv(1))
       if (.not.ga_create(mt_dbl,dim1,dim2,'temp bvecs',0,0,g_tempv(2))) 
      &    call errquit ('movecs_swap_nuclei:couldnt create array',0)
+      call ga_zero(g_tempv(2))
       call ga_copy(g_vecs(2),g_tempv(2))
 
       else
@@ -615,9 +616,18 @@ c
       if (.not.ga_create(mt_dbl,dim1,dim2,'temp vecs',0,0,g_tempv(1))) 
      &    call errquit ('movecs_swap_nuclei:couldnt create array',0)
       call ga_copy(g_vecs(1),g_tempv(1))
+      call ga_zero(g_tempv(1))
       endif
 c
-      do i = 1,dim1*(nset-1)
+        if (.not.ma_push_get(mt_dbl,nset*dim1,'temp evals',
+     &     l_tmpevl,k_tmpevl) )
+     &     call errquit('movecs_swap_nuclei: ma_push failed',0)
+c
+        if (.not.ma_push_get(mt_dbl,nset*dim1,'temp occ',
+     &     l_tmpocc,k_tmpocc)) 
+     &     call errquit('movecs_swap_nuclei: ma_push failed',0)
+c
+      do i = 1,dim1*nset
          dbl_mb(k_tmpevl+i-1) = eval(i)
          dbl_mb(k_tmpocc+i-1) =  occ(i)
       enddo
@@ -633,17 +643,11 @@ c
       if (ga_nodeid() .eq. 0) then
 c
       do set = 1, nset
-        if (.not.ma_push_get(mt_dbl,nset*dim1,'temp evals',
-     &     l_tmpevl,k_tmpevl) )
-     &     call errquit('movecs_swap_nuclei: ma_push failed',0)
-c
-        if (.not.ma_push_get(mt_dbl,nset*dim1,'temp occ',
-     &     l_tmpocc,k_tmpocc)) 
-     &     call errquit('movecs_swap_nuclei: ma_push failed',0)
 c
             do pair = 1, nelem, 2
                i = int_mb(index+pair-1)
                j = int_mb(index+pair  )
+               print *,'swapping MOs of nuclei',i,j,' in set',set
 c
                if (.not.bas_ce2bfr(basis,i,ilo,ihi)) 
      &          call errquit('movecs_swap_nuclei: bas_ce2bfr',0)
@@ -672,18 +676,20 @@ c
 
             enddo  !pair
 c
-      call ga_copy(g_tempv(set),g_vecs(set))
-
-      do i = 1,dim1*(nset-1)
+      do i = 1,dim1*nset
         eval(i) = dbl_mb(k_tmpevl+i-1)
         occ(i)  = dbl_mb(k_tmpocc+i-1)
       enddo
+c
+      call ga_zero(g_vecs(set))
+      call ga_copy(g_tempv(set),g_vecs(set))
+      enddo  ! set
+c
 c
       if (.not.ma_pop_stack(l_tmpocc)) 
      &  call errquit('movecs_swap_nuclei: ma_pop failed',0)
       if (.not.ma_pop_stack(l_tmpevl)) 
      &  call errquit('movecs_swap_nuclei: ma_pop failed',0)
-      enddo  ! set
 c
       endif   !if ga_nodeid().eq.0
 c

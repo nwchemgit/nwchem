@@ -1,5 +1,5 @@
       subroutine vectors_input(rtdb, module)
-C     $Id: vectors_inp.F,v 1.6 2002-09-10 15:52:50 d3k958 Exp $
+C     $Id: vectors_inp.F,v 1.7 2002-09-26 18:28:28 d3k958 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -29,7 +29,7 @@ c
       parameter (num_dirs = 9)
       character*8 dirs(num_dirs)
       integer max_swap
-      parameter (max_swap = 20)
+      parameter (max_swap = 50)
       integer swap(max_swap), nswap, itest, mlen
       character*255 test, vectors_in, vectors_out
       integer maxfrag
@@ -149,6 +149,7 @@ c
          nswap = nswap + 2
          goto 551
       endif
+      print *,'reorder',nswap
 c
 c ================================================================
 
