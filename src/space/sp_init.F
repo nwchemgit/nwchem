@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.90 2001-11-09 16:12:09 d3j191 Exp $
+c $Id: sp_init.F,v 1.91 2001-11-09 18:21:47 d3j191 Exp $
 c
       implicit none
 c
@@ -859,7 +859,7 @@ c
       xtmin=bxs(1,l)
       do 16 j=1,new
       xtmax=max(xtmax,bxs(j,l))
-      xtmin=min(xtmax,bxs(j,l))
+      xtmin=min(xtmin,bxs(j,l))
    16 continue
       xtx=0.5d0*(xtmax+xtmin)
       if(npbtyp.ne.0) then
