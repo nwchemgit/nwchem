@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.383 2002-02-20 23:03:43 edo Exp $
+# $Id: makefile.h,v 1.384 2002-03-16 02:08:17 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -837,8 +837,8 @@ ifeq ($(TARGET),IBM)
 # -qfloat=fltint gives faster real-integer conversion (off by -qstrict)
 # -qhot seems to break a lot of things so don't ever use it
 # -qarch=pwr (for peril) com (for any) , pwr2  or ppc
-  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
-  COPTIMIZE = -O
+  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000 -qarch=auto -qtune=auto
+  COPTIMIZE = -O -qarch=auto -qtune=auto
 
     DEFINES = -DIBM -DAIX -DEXTNAME
 ifdef USE_ESSL
@@ -848,6 +848,7 @@ endif
 
        LIBPATH += -L/usr/lib 
 
+  LDOPTIONS += -bmaxstack:0x20000000 -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map
        CORE_LIBS +=  -llapack $(BLASOPT) -lblas \
 	      -brename:.daxpy_,.daxpy \
 	      -brename:.dcopy_,.dcopy \
@@ -922,7 +923,7 @@ ifeq ($(TARGET),IBM64)
          CC = xlc
     ARFLAGS = -X 64 urs 
      RANLIB = echo
-  MAKEFLAGS = -j 11 --no-print-directory
+  MAKEFLAGS = -j 24 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
@@ -944,6 +945,7 @@ else
    FOPTIONS += -qintsize=8 
    DEFINES  += -DEXT_INT 
 endif
+  LDOPTIONS += -bmaxstack:0x40000000 -bmaxdata:0x40000000 -bloadmap:nwchem.ibm64map
    CORE_LIBS += -llapack $(BLASOPT) -lblas
 
 
@@ -961,14 +963,14 @@ ifeq ($(TARGET),LAPI)
          CC = mpcc_r
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 1 --no-print-directory
+  MAKEFLAGS = -j 15 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
      MPILIB = 
 LARGE_FILES = YES
 
 ifeq ($(NWCHEM_TARGET_CPU),604)
-  LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map
+  LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x40000000 -bloadmap:nwchem.lapi_map
    LINK.f   = mpxlf_r   $(LDFLAGS)
 else
   LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x40000000 -bloadmap:nwchem.lapi_map
@@ -985,14 +987,9 @@ ifeq ($(NWCHEM_TARGET_CPU),P2SC)
         -qcache=type=i:level=1:size=32:line=128
   COPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
         -qcache=type=i:level=1:size=32:line=128
-endif
-ifeq ($(NWCHEM_TARGET_CPU),604)
-	FC += -qarch=604 -qtune=604 -qthreaded
-	CC += -qarch=ppc -qtune=604
-endif
-ifeq ($(NWCHEM_TARGET_CPU),PWR3)
-	FC += -qarch=pwr3 -qtune=pwr3 -qcache=auto -qthreaded
-	CC += -qarch=pwr3 -qtune=pwr3 -qcache=auto
+else
+	FC += -qarch=auto -qtune=auto -qcache=auto -qthreaded
+	CC += -qarch=auto -qtune=auto -qcache=auto
 endif
 
 
