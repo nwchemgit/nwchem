@@ -198,7 +198,7 @@ c$$$      end
 
 
 c
-c  $Id: moints_semi.F,v 1.36 1997-05-15 22:13:07 rg240 Exp $
+c  $Id: moints_semi.F,v 1.37 1997-06-28 05:15:01 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -266,6 +266,7 @@ c
        logical osym
        character*256 fnameK, fnameJ
        integer junit, kunit
+       logical oprint_mem
 *      parameter (junit=10,kunit=11)
 c
 
@@ -273,7 +274,6 @@ c
        integer moints_lmem
        external moints_numgr
        external moints_lmem
-       data blen/32/                              ! Affects performance only
        data osym/.false./
 c
 c  General info
@@ -289,7 +289,15 @@ c
        status = status.and.bas_numcont(basis,nsh)
        status = status.and.bas_nbf_cn_max(basis,maxbfsh)
        if (.not.status) call errquit('moints: cannot get basis info',0)
-       blen = max(blen,maxbfsh)
+c
+       oprint_mem = util_print('memory',print_high) .and.
+     $      ga_nodeid().eq.0
+c
+c     Initial block length is very generous for efficiency.  Reduce it
+c     in while loop (1212) if things do not fit.
+c
+       blen = min(nbf,16*maxbfsh) ! Initial generous allocation
+ 1212  continue
 c
 c  Memory arithmetic
 c
@@ -299,24 +307,67 @@ c
 c
        gmem = ga_memory_avail() / 8 ! Want amount in doubles
        call ga_dgop(313, gmem, 1, 'min')
+       if (oprint_mem) then
+          write(6,717) blen, gmem, lmemreq
+ 717      format(/'   Block length           ', i8/
+     $            '   Local GA available     ', f10.1/
+     $            '   Local memory required  ', i8)
+          call util_flush(6)
+       endif
+c
        if (ga_uses_ma()) gmem = gmem - lmemreq
+c
+       if (oprint_mem) then
+          write(6,718) gmem
+ 718      format('   Adjusted GA available  ', f10.1)
+          call util_flush(6)
+       endif
+c
        gmem = gmem*numnodes
 c
        gmem = gmem * 0.9d0      ! Protect against distribution inequity
 c
-       itmp = 0
-       if (ocoul) itmp = nocc
-       if (oexch) itmp = itmp + nvir
+       if (oprint_mem) then
+          write(6,719) gmem
+ 719      format('   Aggregate GA available ', 1p, d10.2)
+          call util_flush(6)
+       endif
+c
+       if (ocoul .and. oexch) then
+          itmp = nbf
+       else if (ocoul) then
+          itmp = nocc
+       else if (oexch) then
+          itmp = nvir
+       endif
 c
        mxrlen = int(gmem/(nseg*itmp))
        mxrlen = min(
      $      mxrlen, 
      $      min(nbf*nbf,10*maxbfsh*maxbfsh*numnodes))
-       if (mxrlen .lt. min(nbf*nbf,maxbfsh*maxbfsh*numnodes))
-     $      call errquit('moints_semi: insufficient GA available',
-     $      mxrlen*nseg*itmp)
 c
-      if (util_print('memory',print_high) .and. ga_nodeid().eq.0) 
+       if (oprint_mem) then
+          write(6,720) mxrlen, nseg, itmp, nbf, maxbfsh, numnodes
+ 720      format( '   Maximum record length  ', i8/
+     $            '   No. of segments        ', i8/
+     $            '   J/K orb. dimension     ', i8/
+     $            '   No. of functions       ', i8/
+     $            '   Max. functions/shell   ', i8/
+     $            '   Number of nodes        ', i8/)
+          call util_flush(6)
+       endif
+c
+       call ga_sync()           ! Just to ensure printing completes
+c
+       if (mxrlen .lt. min(nbf*nbf,maxbfsh*maxbfsh*numnodes)) then
+          if (blen .le. maxbfsh) call errquit
+     $         ('moints_semi: insufficient GA available',
+     $         mxrlen*nseg*itmp)
+          blen = max(maxbfsh,blen/2) ! Reduce blocksize and try again
+          goto 1212
+       endif
+c
+       if (oprint_mem) 
      $      write(6,900) lmemreq, nint(gmem/numnodes), mxrlen
 900   format(/,'Semi-direct integral transformation',
      $     /,' Local Memory required:   ',i10,' words '
@@ -326,7 +377,8 @@ c
 c  Create GA coulomb buffer
 c
        if (ocoul) then
-         itmp = (nocc/numnodes + min(mod(nocc,numnodes),1))*nseg
+**         itmp = (nocc/numnodes + min(mod(nocc,numnodes),1))*nseg
+         itmp = ((nocc-1)/numnodes + 1)*nseg ! rjh
          if (.not.(ga_create( MT_DBL, mxrlen, nseg*nocc, 'transp Jbuf',
      $                        mxrlen, itmp, g_jbuf )))
      $           call errquit('moints_semi: cannot allocate J buffer',0)
@@ -350,7 +402,11 @@ c
 c  Create GA exchange buffer
 c
        if (oexch) then
-         itmp = (nvir/numnodes + min(mod(nvir,numnodes),1))*nseg
+c
+c     This distribution needs refining to get better load balance.
+c
+**         itmp = (nvir/numnodes + min(mod(nvir,numnodes),1))*nseg
+          itmp = ((nvir-1)/numnodes+1)*nseg ! rjh
          if (.not.(ga_create( MT_DBL, mxrlen, nseg*nvir, 'transp Kbuf',
      $                        mxrlen, itmp, g_kbuf )))
      $           call errquit('moints_semi: cannot allocate K buffer',0)
@@ -1319,14 +1375,18 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
+#include "util.fh"
        integer basis, nocc, nvir, blen
        logical ocoul, oexch
 c
        integer nsh, nbf, maxbfsh
        integer bsize, ngrp, imax2e, imem2, memi, memd
-       logical status
+       logical status, oprint_mem
        integer moints_numgr
        external moints_numgr
+c
+       oprint_mem = util_print('memory',print_high) .and.
+     $      ga_nodeid().eq.0
 c
        status = bas_numbf(basis,nbf)
        status = status.and.bas_numcont(basis,nsh)
@@ -1346,6 +1406,24 @@ c
 c     Add on the ubiquitous 10% 
 c
        moints_lmem = (memd + ma_sizeof(MT_INT, memi, MT_DBL))*1.1
+c
+       if (oprint_mem) then
+          write(6,*)
+          write(6,1) ' Integer Lmemory ',
+     $         nsh , 4*ngrp , nbf*nbf , nsh*(nsh+1) ,
+     $        2*ga_nnodes() , (nbf*(nbf+1))/2
+ 1        format(a,1x,10i8)
+          write(6,1) ' Real Lmemory    ',
+     $        2*nbf*nbf , imax2e , imem2 , 
+     $        maxbfsh*maxbfsh*bsize*bsize ,
+     $        max((nocc*nocc),(maxbfsh*maxbfsh*bsize*bsize)) ,
+     $        max((bsize*maxbfsh*maxbfsh*nocc),(maxbfsh*nbf)) ,
+     $        maxbfsh*maxbfsh*nvir ,
+     $        maxbfsh*maxbfsh*nbf*nocc
+          write(6,1) ' Total Lmemory   ',
+     $         int((memd + ma_sizeof(MT_INT, memi, MT_DBL))*1.1)
+          call util_flush(6)
+       endif
 c
        end
 
