@@ -252,6 +252,7 @@ c
       implicit none
 c
 #include "mafdecls.fh"      
+#include "global.fh"
 #include "detciP.fh"
 #include "detci.fh"
 #include "cdetci.fh"
@@ -265,16 +266,18 @@ c
 c
 c Print stats
 c
-c$$$      write(6,901) detci_sigma_calls,
-c$$$     $             detci_saa_etime,
-c$$$     $             detci_sbb_etime,
-c$$$     $             detci_sab_etime,
-c$$$     $             detci_sigma_etime
+      if (ga_nodeid().eq.0) write(6,901) detci_sigma_calls,
+     $                                   detci_saa_etime,
+     $                                   detci_sbb_etime,
+     $                                   detci_sab_etime,
+     $                                   detci_sigma_etime,
+     $                                   detci_density_etime
  901  format(/,10x,'Number of sigma calls:',4x,i5,
-     $       /,10x,'Elapsed time (aa):',4x,f10.2,
-     $       /,23x,'(bb):',4x,f10.2,
-     $       /,23x,'(ab):',4x,f10.2,
-     $       /,23x,'(total)',2x,f10.2)
+     $       /,10x,5('>'),'Elapsed time (aa):',4x,f10.2,
+     $       /,23x,5('>'),'(bb):',4x,f10.2,
+     $       /,23x,5('>'),'(ab):',4x,f10.2,
+     $       /,23x,5('>'),'(total)',2x,f10.2,
+     $       /,23x,5('>'),'Density',2x,f10.2)
 c
 c  Free scratch memory
 c
@@ -347,6 +350,7 @@ c
       nstrb = detci_binomial( cdetci_norb, cdetci_nelb )
       ga_civec_create = ga_create( MT_DBL, nstrb, nstra, label,
      $                             nstrb, 1, g_a )
+c
       return
       end
 
@@ -684,18 +688,22 @@ c
 c
 #include "global.fh"
 #include "mafdecls.fh"
+#include "util.fh"
 #include "detciP.fh"
 #include "detci.fh"
 #include "cdetci.fh"
+#include "cdetcistats.fh"
 c
       integer g_civec
       double precision onepdm(*)
       double precision twopdm(*)
 c
-      integer nexa,nexb
-      integer nstra,nstrb
-      integer ntij
-      integer ijmap(detci_maxorb*detci_maxorb)
+      integer nexa, nexb
+      integer nstra, nstrb
+      integer nekla, neklb
+      integer nn
+      integer g_civect
+      double precision tx
 c
 c  Check internals
 c
@@ -704,12 +712,21 @@ c
 c     
 c  CI parameters
 c     
-      call detci_ijmap( cdetci_norb, cdetci_nsym, cdetci_osym,
-     $                  ntij, ijmap )
       nexa = (cdetci_norb-cdetci_nela+1)*cdetci_nela
       nexb = (cdetci_norb-cdetci_nelb+1)*cdetci_nelb
       nstra = detci_binomial( cdetci_norb, cdetci_nela )
       nstrb = detci_binomial( cdetci_norb, cdetci_nelb )
+      nekla = detci_binomial( (cdetci_norb-1),(cdetci_nela-1))
+      neklb = detci_binomial( (cdetci_norb-1),(cdetci_nelb-1))
+      nn = cdetci_norb*cdetci_norb
+c
+c
+c
+      tx = util_cpusec()
+      if (.not.ga_create( MT_DBL, nstra, nstrb, 'civec transp',
+     $                    nstra, 1, g_civect ))
+     $    call errquit('detci_density: cannot create CI transp.',0)
+      call ga_transpose( g_civec, g_civect )
 c
 c
 c
@@ -717,7 +734,7 @@ c
      $                   cdetci_nelb, nstra, nstrb, nexa, nexb,
      $                   cdetci_osym, int_mb(k_detci_exa),
      $                   int_mb(k_detci_exb), cdetci_ixmap,
-     $                   g_civec, onepdm )
+     $                   g_civec, g_civect, onepdm )
 c
 c
 c
@@ -725,13 +742,29 @@ c
      $                   cdetci_nelb, nstra, nstrb, nexa, nexb,
      $                   cdetci_osym, int_mb(k_detci_exa),
      $                   int_mb(k_detci_exb), cdetci_ixmap,
-     $                   g_civec, twopdm )
+     $                   g_civec, g_civect, twopdm )
 c
 c
 c
-c$$$      call detci_etrace( cdetci_norb, ntij, ijmap,
-c$$$     $                   dbl_mb(k_detci_h), dbl_mb(k_detci_g),
-c$$$     $                   onepdm, twopdm )
+#ifdef DETCI_DENSAB
+      call detci_twopdm_ab( cdetci_norb, cdetci_nsym, cdetci_nela,
+     $                      cdetci_nelb, nstra, nstrb, nexa, nexb,
+     $                      nekla, neklb, cdetci_osym, cdetci_ixmap,
+     $                      int_mb(k_detci_exa), int_mb(k_detci_exb),
+     $                      cdetci_ataba, cdetci_atabb,
+     $                      int_mb(k_detci_rhsscr),
+     $                      int_mb(k_detci_lhsscr),
+     $                      int_mb(k_detci_iscr),
+     $                      dbl_mb(k_detci_cprime),
+     $                      dbl_mb(k_detci_sprime),
+     $                      g_civec, twopdm )
+#endif
+c
+c
+c
+      if (.not.ga_destroy( g_civect ))
+     $   call errquit('detci_density: cannot destroy CI transp.',0)
+      detci_density_etime = detci_density_etime + util_cpusec() - tx
 c
 c
 c
