@@ -35,11 +35,10 @@ c
 c      
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = ' '
-      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory)) then
-         if (operation .ne. 'dynamics')
-     $     call errquit('task: no task input for theory?', 0)
-         theory = ' '
-      endif
+c
+      if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
+     + call errquit('task: no task input for theory?',0)
+c
       if (.not. rtdb_get(rtdb, 'task:ignore', mt_log, 1, ignore))
      $     ignore = .false.
 c
@@ -98,10 +97,10 @@ c
          status = task_optimize(rtdb)
       else if (inp_compare(.false., 'freq', operation)) then
          status = task_freq(rtdb)
-      else if (inp_compare(.false.,'dynamics', operation)) then
-         status = nwargos(rtdb)
-      else if (inp_compare(.false.,'thermodynamics', operation)) then
-         status = nwargos(rtdb)
+      else if (inp_compare(.false.,'dynamics',operation)) then
+         status=nwargos(rtdb)
+      else if(inp_compare(.false.,'thermodynamics',operation)) then
+         status=nwargos(rtdb)
       else
          call errquit('task: unknown generic operation',0)
       endif
