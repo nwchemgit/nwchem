@@ -1,4 +1,4 @@
-c     $Id: et_2e.F,v 1.6 2002-02-28 00:11:25 d3k958 Exp $
+c     $Id: et_2e.F,v 1.7 2002-03-06 15:59:59 d3k958 Exp $
       subroutine et_2e(nbf,basis,geom,max2e,mem2,g_pa,g_pb,omega2)
       implicit none
 c
@@ -31,13 +31,14 @@ c
       integer nxtask, next
       external nxtask
       double precision start_cpu, end_cpu, elapsed
-      double precision smax, sij, skl, tol, dtol
+      double precision smax, sij, skl
       double precision pa(nbf,nbf), pb(nbf,nbf)
       double precision paa(nbf,nbf), pbb(nbf,nbf)
       double precision pt2(nbf,nbf)
       double precision norm, G(10000), dij, dkl
-      double precision density_shell, acc
-      external  density_shell
+      double precision tol2e, tol_dij, tol_dkl
+      double precision ij_density_shell, kl_density_shell
+      external  ij_density_shell, kl_density_shell
 c     
 c     calculate alpha-alpha and beta-beta density products
 c     ====================================================
@@ -89,13 +90,25 @@ c
 c     begin loop over shells
 c     ======================
 c     
+      call schwarz_init(geom, basis)
       smax = schwarz_max() 
       shellnum = 0
       nproc = ga_nnodes()
       next = nxtask(nproc,1)
 c     
-      tol = 1.0d-9
-      dtol = 1.0d-6
+      tol2e    = 1.0d-8
+      tol_dij  = 1.0d-9
+      tol_dkl  = 1.0d-9
+c
+      if (ga_nodeid().eq.0) then
+      write(6,*)
+      write(6,*)'Start two-electron contribution,  H2(rp)...'
+      write(6,*)'Density screening tolerances:'
+      write(6,*)'tol2e   = ', tol2e
+      write(6,*)'tol_dij = ', tol_dij
+      write(6,*)'tol_dkl = ', tol_dkl
+      endif
+      call util_flush(6) 
 c     
       do ish = nsh, 1, -1
          if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
@@ -105,11 +118,11 @@ c
             if (.not. bas_cn2bfr(basis, jsh, jlo, jhi))
      $           call errquit('et_2e: bas_cn2bfr', jsh)
 c
-             dij =  density_shell(ilo,ihi,jlo,jhi,pa,pb,paa,pbb,nbf) 
-             if (dij.gt.dtol) then
+             dij =  ij_density_shell(ilo,ihi,jlo,jhi,pa,pb,paa,pbb,nbf) 
+             if (dij.gt.tol_dij) then
 c
               sij = schwarz_shell(ish,jsh)
-                if (sij*smax .gt. tol) then
+                if (sij*smax .gt. tol2e) then
 c     
                do ksh = ish, 1, -1
                   if (.not. bas_cn2bfr(basis, ksh, klo, khi))
@@ -118,14 +131,13 @@ c
                   maxlsh = ksh
                   if (ksh.EQ.ish) maxlsh = jsh
                   do lsh = maxlsh, 1, -1
-c
-             dkl =  density_shell(klo,khi,llo,lhi,pa,pb,paa,pbb,nbf) 
-             if (dkl.gt.dtol) then
-c
-                   if (shellnum.eq.next) then
-c
                      if (.not. bas_cn2bfr(basis, lsh, llo, lhi))
      $                 call errquit('et_2e: bas_cn2bfr', lsh)
+c
+             dkl =  kl_density_shell(klo,khi,llo,lhi,pa,pb,nbf) 
+             if (dkl.gt.tol_dkl) then
+c
+                   if (shellnum.eq.next) then
 c
                        call dens_prod(nbf,
      $                    ilo,ihi,jlo,jhi,klo,khi,llo,lhi, 
@@ -133,10 +145,8 @@ c
 c
                         skl = schwarz_shell(ksh,lsh)      
 c
-                        if (norm*sij*skl.gt. tol) then
+                        if (sij*skl.gt.tol2e.AND.norm.gt.tol2e) then
 c
-c                        if (shellnum.eq.next) then
-c     
                            call int_2e4c(basis, ish, jsh, basis, 
      $                          ksh, lsh, mem2, dbl_mb(k_scr), max2e, 
      $                          dbl_mb(k_gJ))
@@ -147,15 +157,16 @@ c
      &                          G,ng,dbl_mb(k_gJ),omega2_val)
 c
                            omega2 = omega2 + omega2_val
+c                write(6,1111) dij,dkl,norm,dabs(omega2_val)
 c     
-                     endif
+                       endif  !norm x schwarz screening
                    next = nxtask(nproc,1)
-                   endif   !dkl
-                   endif
+                   endif   !shellnum
                    shellnum = shellnum + 1
+                   endif   !dkl
                   enddo
                enddo
-            endif
+            endif  !sij x smax
             endif  !dij
          enddo
       enddo
@@ -175,7 +186,8 @@ c
 c
       if (.not. ma_pop_stack(l_scr)) call errquit('et_2e: pop',0)
       if (.not. ma_pop_stack(l_gJ))  call errquit('et_2e: pop',1)
-c     
+c
+ 1111 format(3F20.16,3x,F20.16)     
       return
       end
 

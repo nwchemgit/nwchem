@@ -1,10 +1,10 @@
-c $Id: et_calc.F,v 1.8 2002-02-26 16:54:21 d3k958 Exp $
+c $Id: et_calc.F,v 1.9 2002-03-06 15:59:59 d3k958 Exp $
       logical function et_calc(rtdb,Vba)
       implicit none
 c
 c     This function actually calculates Vba
 *
-* $Id: et_calc.F,v 1.8 2002-02-26 16:54:21 d3k958 Exp $
+* $Id: et_calc.F,v 1.9 2002-03-06 15:59:59 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -282,13 +282,12 @@ c  set size of D to be only nocc*nocc
 c  -----------------------------------------------
 c
       call ga_sync()
+c
       if(.not.ga_create(mt_dbl,nocc(j),nocc(j),'d',0,0,g_d))
      $        call errquit('task_et ga_create failed', g_d)
 c
-c D only contains elements for occupied orbitals
-c
-c g_tmp: handle for temporary array B'*S
-      g_tmp = ga_create_atom_blocked(geom, basis, 'g_tmp')    
+      if(.not.ga_create(mt_dbl,nbf,nbf,'temp',0,0,g_tmp))
+     $        call errquit('task_et ga_create failed', g_d)
 c
       call ga_dgemm('T','N',nocc(j),nbf,nbf,1.d0,g_bhandle(j)
      &               ,g_s,0.d0,g_tmp)
@@ -296,7 +295,6 @@ c
       call ga_dgemm('N','N',nocc(j),nocc(j),nbf,1.d0,g_tmp
      &               ,g_ahandle(j),0.d0,g_d)
 c
-c  tmp array is no longer needed.
       if (.not.ga_destroy(g_tmp))
      &  call errquit('could not destroy tmp array',g_tmp)
 c
@@ -320,6 +318,7 @@ c
      $        call errquit('ma_push_get failed for values ',k_vals)
 c
       call ga_svd_seq(g_d,g_u,g_vt,dbl_mb(k_vals))
+c       call et_svd(nocc(j),g_d,g_u,g_vt,dbl_mb(k_vals))
 c
 c prod is the product of singular values.
 c
@@ -328,6 +327,7 @@ c
          prod(j) = prod(j)*dbl_mb(k_vals+k-1)
       enddo
 c      write(6,*)'prod',j,prod(j)
+c      write(6,*)'singular values',(dbl_mb(k_vals+i-1),i=1,nocc(j))
 c
 c  D array is no longer needed.
       if (.not.ga_destroy(g_d))
@@ -500,6 +500,7 @@ c      calculate SBA
 c      =============
 c
        Sba = prod(1)*prod(2)*detprod
+c       write(6,*) 'Srp debug:',prod(1),prod(2),detprod
 c
 c
       if(me.eq.0) then
@@ -534,8 +535,11 @@ c
          call ga_get(g_phandle(2), i, i, j, j, pb_val, 1)
          call ga_get(g_h1, i, i, j, j, h1_val, 1)
          omega1 = omega1 + (pa_val+pb_val)*h1_val
+c         write(6,1111) i,j,pa_val+pb_val,h1_val,(pa_val+pb_val)*h1_val,
+c     &                  omega1
        enddo
        enddo
+ 1111  format (2i4,1x,4F25.16)
        omega1 = omega1*detprod
 c
       if(me.eq.0) then

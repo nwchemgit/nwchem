@@ -51,14 +51,15 @@ c
              ng = ng + 1
 c
              omega2 = omega2 + gJ(l,k,j,i)*G(ng)
+             if (dabs(gJ(l,k,j,i)*G(ng)).lt.1.0d-16) then
+             endif
 c
                enddo
             enddo
          enddo
       enddo
 c
- 1111 format (3(F16.12))
-c 1111 format (a12,3(F16.12))
+ 1111 format (2(F20.16),4x,2(F20.16))
        return
        end
 
