@@ -4,7 +4,7 @@
       double precision t1(nocc,nvir),
      &                 ht1(nocc,nvir),hiu(nocc,nvir)
 c
-      External DDot
+      External ddot
       double precision ddot
 C
 #include "ccsd_debug.fh"

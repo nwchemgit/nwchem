@@ -30,14 +30,14 @@
   USES_BLAS = \
 	      ccsd_itm.F \
 	      ccsd_t2pm.F \
-	      ccsd_fsig1.f \
-	      ccsd_fsig2.f \
-	      ccsd_iterdrv2.f \
+	      ccsd_fsig1.F \
+	      ccsd_fsig2.F \
+	      ccsd_iterdrv2.F \
 	      ccsd_pampt2.F \
 	      ccsd_pampt3.F \
-	      ccsd_pdiis.f \
+	      ccsd_pdiis.F \
 	      ccsd_sortmo.F \
-	      ccsd_trpdrv.f \
+	      ccsd_trpdrv.F \
 	      moints_trp.F
 
 
