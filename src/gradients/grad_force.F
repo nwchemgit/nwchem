@@ -1,5 +1,5 @@
       subroutine grad_force ( rtdb, basis, geom, movecs )
-c$Id: grad_force.F,v 1.4 1996-03-19 22:00:42 vg038 Exp $
+c$Id: grad_force.F,v 1.5 1996-08-19 15:22:25 d3g681 Exp $
 C calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C         ___                 ___                         ___
@@ -186,9 +186,15 @@ C     lookup table and list of active atoms
 
 C     symmetry or not
       if (.not. rtdb_get(rtdb, 'gradients:use symmetry', mt_log, 1,
-     $     oskel)) oskel = sym_number_ops(geom) .gt. 0
+     $     oskel)) then
+         if (.not. rtdb_get(rtdb, 'scf:skeleton', mt_log, 1,
+     $        oskel)) then
+            oskel = sym_number_ops(geom) .gt. 0
+         endif
+      endif
 c
-      if (oskel .and. ga_nodeid().eq.0) then
+      if (oskel .and. ga_nodeid().eq.0 .and. 
+     $     util_print('information',print_default)) then
          write(6,*) ' Using symmetry'
          call util_flush(6)
       endif
