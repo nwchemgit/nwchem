@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.74 1999-06-04 04:43:47 d3e129 Exp $
+# $Id: GNUmakefile,v 1.75 1999-07-02 19:06:09 d3e129 Exp $
 
 include config/makefile.h
 
@@ -159,7 +159,7 @@ endif
 # about emacs.  Note: find, grep and etags must be in your path.
 #
 tags_file:
-	find . \( -name "*.[cfFh]" -o -name "*.fh" \) -print | grep -v "\./include" | etags -
+	find . \( -name "*.[cfFh]" -o -name "*.fh" \) -print | grep -v "\./include" | grep -v "\./tools/include" | grep -v "NWints/seint" | etags -
 tags_clean:
 	find . -name TAGS -print -exec rm -f "{}" ";"
 

@@ -106,6 +106,6 @@ sngl_to_dbl dbl_to_sngl:
 # about emacs.  Note: find, grep and etags must be in your path.
 #
 tags_file:
-	find . \( -name "*.[cfFh]" -o -name "*.fh" \) -print | grep -v "\./include" | etags -
+	find . \( -name "*.[cfFh]" -o -name "*.fh" \) -print | grep -v "\./include" | grep -v "\./tools/include" | etags -
 tags_clean:
 	find . -name TAGS -print -exec rm -f "{}" ";"

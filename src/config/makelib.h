@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.44 1999-06-07 17:47:54 d3e129 Exp $
+# $Id: makelib.h,v 1.45 1999-07-02 19:06:31 d3e129 Exp $
 
 #
 # A makefile for a library should
@@ -272,7 +272,7 @@ endif
 #
 .PHONY: tags_file
 tags_file:
-	find . \( -name "*.[cfFh]" -o -name "*.fh" \) -print | grep -v "\./include" | etags -
+	find . \( -name "*.[cfFh]" -o -name "*.fh" \) -print | grep -v "\./include" | grep -v "\./tools/include" | grep -v "NWints/seint" | etags -
 .PHONY: tags_clean
 tags_clean:
 	find . -name TAGS -print -exec rm -f "{}" ";"
