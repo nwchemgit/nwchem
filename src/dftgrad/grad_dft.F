@@ -1,6 +1,6 @@
       logical function grad_dft(rtdb)
 *
-* $Id: grad_dft.F,v 1.27 1999-02-14 04:45:20 d3g681 Exp $
+* $Id: grad_dft.F,v 1.28 2000-04-17 22:02:35 zzhang Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -29,6 +29,7 @@ c
       integer nbases
       logical converged, status
       integer bases(3), plevel
+      character*80 theory, key, prefix
 c
 c----------------------------------------------------------------------- 
 c
@@ -39,7 +40,13 @@ c
       call util_print_rtdb_load(rtdb,'dft')
       call ecce_print_module_entry ('dft')
 c
-      status = rtdb_get(rtdb, 'dft:converged', MT_LOG, 1, converged) 
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('task:energy: theory not specified',0)
+      if(theory .eq. 'dft')then 
+         status = rtdb_get(rtdb, 'dft:converged', MT_LOG, 1, converged) 
+      else if(theory .eq. 'sodft')then 
+         status = rtdb_get(rtdb, 'sodft:converged', MT_LOG,1,converged)
+      endif
       if (.not.( status .and. converged ))then
          if ((ga_nodeid() .eq. 0) 
      &      .and. util_print('information', print_none) )then
@@ -125,7 +132,10 @@ c
 c
 c     Compute the gradients arising from CD fit and XC
 c
-      call dft_gradients(rtdb)
+cso
+      if(theory .eq. 'dft')call dft_gradients(rtdb)
+      if(theory .eq. 'sodft')call dft_gradients_so(rtdb)
+cso
 c
       call schwarz_tidy ()
 c
@@ -143,7 +153,8 @@ c
 c
 c     Compute the rest of the gradients (1-e and 2-e)
 c
-      call grad_force(rtdb, ao_bas_han, geom)
+      if(theory .eq. 'dft')call grad_force(rtdb, ao_bas_han, geom)
+      if(theory .eq. 'sodft')call grad_force_so(rtdb, ao_bas_han, geom)
 c
       if (.not.((bas_destroy(ao_bas_han)) .and. (geom_destroy(geom)) ) )
      &   call errquit
