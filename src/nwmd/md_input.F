@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.70 2002-08-21 14:57:40 d3j191 Exp $
+c $Id: md_input.F,v 1.71 2002-10-18 11:13:00 d3j191 Exp $
 c
       implicit none
 c
@@ -44,6 +44,7 @@ c
       integer i,mtimes,len
       character*255 filcmd
       integer lfncmd,numcmd,ifirst,ilast
+      logical expert
 c
 #include "bitops.fh"
 c
@@ -243,6 +244,7 @@ c    4 continue
     7 continue
       idtime=0
       project=' '
+      expert=.false.
 c
 c     read the nwchem input file
 c
@@ -265,6 +267,11 @@ c
      + form='formatted',status='unknown',err=1999)
       rewind(unit=lfncmd)
       numcmd=0
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'expert',item)) then
+      expert=.true.
       goto 2
       endif
 c
@@ -1482,6 +1489,11 @@ c
       write(6,9999) item
  9999 format('md_input: unknown field ',a)
       call errquit('md_input: error reading input file',0)
+      endif
+c
+      if(.not.expert) then
+      if(nflong.gt.1.and.ipme.gt.0)
+     + call errquit('md_input: PME with nflong>1 only in expert mode',0) 
       endif
 c
       if(nfscoo.lt.0) nfscoo=nfcoor

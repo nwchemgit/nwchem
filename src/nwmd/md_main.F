@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.147 2002-07-31 19:21:09 d3j191 Exp $
+c $Id: md_main.F,v 1.148 2002-10-18 11:13:03 d3j191 Exp $
 c
       implicit none
 c
@@ -1280,7 +1280,7 @@ c
 c
       if(mropt.ge.2) then
       if(me.eq.0) then
-      read(lfnmri) irunp,kequi,kdacq
+      read(lfnmri,end=399,err=399) irunp,kequi,kdacq
       if(irunp.ne.irun) call errquit('Number of run changed',irunp)
       if(.not.prp_rdmri(lfnmri,ndec)) call errquit('Error in mri',0)
       if(kequi+kdacq.lt.mequi) then
@@ -1294,13 +1294,28 @@ c
       endif
       kequi=mequi
       endif
+      goto 398
+  399 continue
+      kequi=0
+      kdacq=0
+  398 continue
       endif
+      call ga_brdcst(mrg_d31,kequi,ma_sizeof(mt_int,1,mt_byte),0)
+      call ga_brdcst(mrg_d32,kdacq,ma_sizeof(mt_int,1,mt_byte),0)
+c
+c     kequi will be 0 if no records could be read from lfnmri, and
+c     the coordinates and velocities will be used from the previous 
+c     lambda run.
+c     if this is the first run there must be something wrong
+c
+      if(kequi.eq.0) then
+      if(irun.eq.1) call errquit('No records found on mri',me)
+      else
       if(.not.sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs)))
      + call errquit('Error reading mri in sp_rdmri',0)
-      call ga_brdcst(mrg_d31,kequi,ma_sizeof(mt_int,1,mt_byte),0)
-      call ga_brdcst(mrg_d32,kdacq,ma_sizeof(mt_int,1,mt_byte),0)
+      endif
       endif
 c
       lxw=.false.
@@ -2512,7 +2527,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.147 2002-07-31 19:21:09 d3j191 Exp $
+c $Id: md_main.F,v 1.148 2002-10-18 11:13:03 d3j191 Exp $
 c
       implicit none
 c
