@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.4 2001-08-19 21:23:26 bjohnson Exp $	
+#	$Id: MakeFile,v 1.5 2003-01-24 23:35:54 edo Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -36,6 +36,7 @@ OBJ_OPTIMIZE = $(OBJDIR)\texas_face.obj \
                $(OBJDIR)\derivat.obj \
                $(OBJDIR)\convert.obj \
                $(OBJDIR)\test_calc2.obj \
+               $(OBJDIR)\abcd.obj \
                $(OBJDIR)\screened_op.obj
 !ELSE
 OBJ =          $(OBJDIR)\texas_stubs.obj
