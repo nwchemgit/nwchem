@@ -41,6 +41,7 @@ c
       call ifill(2*ntypes, 0, rad_cutoff, 1)
       call ifill(ntypes, 0, ll, 1)
       call dfill(ntypes, 0d0, exex, 1)
+      call dfill(ntypes, 0d0, shiftm, 1)
 c
 c     get desired grid accuracy
 c
@@ -208,6 +209,7 @@ c
       double precision grid_rnegl,shift_2g
 c
       range_max=0d0
+      shiftm_2g=0d0
       l_iat=l(iat)
       exp_iat=expo(iat)
          do jat=1,ncenters

@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.16 2000-01-13 00:25:42 edo Exp $
+c$Id: grid_setrad.F,v 1.17 2000-01-14 21:49:05 edo Exp $
 c
       implicit none
 c      
@@ -78,12 +78,12 @@ c
      &        call errquit('grid_setrad: cannot allocate 2l',0)
          if (.not.MA_Push_Get(MT_Dbl,ntypes,'exex',l_2ex,k_2ex))
      &        call errquit('grid_setrad: cannot allocate 2e',1)
-         if (.not.MA_Push_Get(MT_Dbl,ntypes,'exex',l_2g,k_2g))
-     &        call errquit('grid_setrad: cannot allocate 2e',2)
       else
          k_2l=0
          k_2ex=0
       endif
+         if (.not.MA_Push_Get(MT_Dbl,ntypes,'exex',l_2g,k_2g))
+     &        call errquit('grid_setrad: cannot allocate 2e',2)
 
       if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
      &   call errquit('grid_setrad: cannot allocate expo',0)
@@ -237,9 +237,9 @@ c
          endif
   100 continue
 
+      if (.not.ma_pop_stack(l_2g))
+     &     call errquit('grid_setrad: cannot pop stack',5)
       if(llind) then
-         if (.not.ma_pop_stack(l_2g))
-     &        call errquit('grid_setrad: cannot pop stack',5)
          if (.not.ma_pop_stack(l_2ex))
      &        call errquit('grid_setrad: cannot pop stack',3)
          if (.not.ma_pop_stack(l_2l))
