@@ -64,6 +64,11 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 		public void actionPerformed(ActionEvent e){ 
 		    setVisible(false); }});
 
+	rmsPlot.init();
+	rmsaPlot.init();
+	rmsrPlot.init();
+	bfacaPlot.init();
+	bfacrPlot.init();
 	rmsPlot.setTitle("RMS Deviation vs Time");
 	rmsaPlot.setTitle("Atomic RMS Deviation");
 	rmsrPlot.setTitle("Segment RMS Deviation");

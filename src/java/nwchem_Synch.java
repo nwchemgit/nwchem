@@ -91,6 +91,9 @@ class nwchem_Synch extends JFrame implements ActionListener, ChangeListener, Win
 		    nodPlot.addData(2,time,node,false,false);
 		};
 	    };
+	    if(type==1){card=br.readLine();};
+	    if(type==1){card=br.readLine();};
+	    if(type==1){card=br.readLine();};
 	  };
 	  synPlot.fillPlot();
 	  timPlot.fillPlot();
@@ -155,6 +158,9 @@ class nwchem_Synch extends JFrame implements ActionListener, ChangeListener, Win
 		    nodPlot.addData(2,time,node,false,false);
 		};
 	};
+	if(type==1){card=br.readLine();};
+	if(type==1){card=br.readLine();};
+	if(type==1){card=br.readLine();};
       };
       synPlot.fillPlot();
       timPlot.fillPlot();
