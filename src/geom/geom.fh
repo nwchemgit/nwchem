@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.19 1996-08-22 21:34:23 d3e863 Exp $
+C$Id: geom.fh,v 1.20 1996-10-01 18:50:50 d3e129 Exp $
       logical geom_check_cent
       logical geom_rtdb_load
       logical geom_rtdb_store
@@ -46,6 +46,20 @@ c
       logical geom_masses_get
       logical geom_mass_set
       logical geom_mass_get
+c
+      logical geom_set_ang2au
+      logical geom_get_ang2au
+      logical geom_set_au2ang
+      logical geom_get_au2ang
+c
+      logical geom_ecp_allset
+      logical geom_ecp_allget
+      logical geom_ecp_set
+      logical geom_ecp_get
+      logical geom_ncent_ecp
+      logical geom_coords_ecp
+      logical geom_any_ecp
+      logical geom_ecp_center_list
 c
       external geom_check_handle
       external geom_check_cent
@@ -95,3 +109,18 @@ c
       external geom_masses_get
       external geom_mass_set
       external geom_mass_get
+c
+      external geom_set_ang2au
+      external geom_get_ang2au
+      external geom_set_au2ang
+      external geom_get_au2ang
+c
+      external geom_ecp_allset
+      external geom_ecp_allget
+      external geom_ecp_set
+      external geom_ecp_get
+      external geom_ncent_ecp
+      external geom_coords_ecp
+      external geom_any_ecp
+      external geom_ecp_center_list
+c

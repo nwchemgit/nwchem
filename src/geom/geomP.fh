@@ -112,7 +112,7 @@ c
       parameter (max_cart=3*max_atom)
       parameter (nelements = 103)
 c
-      logical active, operiodic, oefield, include_bqbq
+      logical active, operiodic, oefield, include_bqbq, oecpcent
       integer ngeom_rtdb, ncenter, lenn, lent, lenr, group_number,
      $     ncenter_unique, isystype, setting_number, unique_cent,
      $     sym_op_inv, sym_num_ops, sym_center_map_handle,
@@ -164,6 +164,7 @@ c
      $     sym_center_map_handle(max_geom),
      $     sym_center_map_index(max_geom),
      $     include_bqbq(max_geom),
+     $     oecpcent(max_cent,max_geom),
      $     ngeom_rtdb,
      $     zmt_izmat(max_izmat)
 c

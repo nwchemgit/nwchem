@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.53 1996-08-29 17:17:44 d3g681 Exp $
+C$Id: geom.F,v 1.54 1996-10-01 18:50:50 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -74,7 +74,9 @@ c
      & 'Ih'/
 
 c
-      data angstrom_to_au /1.8897265d0/
+*rak:old:      data angstrom_to_au /1.8897265d0/
+      data angstrom_to_au /1.8897266d0/
+      data isystype / max_geom*0/
 c     
       end
       logical function geom_check_handle(geom, msg)
@@ -317,6 +319,9 @@ c
       tmp(k:) = ':user units'
       status = status .and.
      $     rtdb_cget(rtdb, tmp, 1, user_units(geom))
+      tmp(k:) = ':angstrom_to_au'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_dbl, 1, angstrom_to_au)
       tmp(k:) = ':setting number'
       status = status .and. 
      $     rtdb_get(rtdb, tmp, mt_int, 1, setting_number(geom))
@@ -339,6 +344,10 @@ c
       tmp(k:) = ':include_bqbq'
       status = status .and. 
      $     rtdb_get(rtdb, tmp, mt_log, 1, include_bqbq(geom))
+*rak: probably only incore data.  built by basis and ecp functionality
+*rak:      tmp(k:) = ':ecp centers'
+*rak:      status = status .and. 
+*rak:     $     rtdb_get(rtdb, tmp, mt_log, ncenter(geom), oecpcent(1,geom))
 c
 c--> get symmetry operators, number of operators and operator/atom
 c    map from rtdb
@@ -431,7 +440,7 @@ c
 c     eventually need to also make the symmetry info consistent
 c     and make internals/cartesians consistent
 c
-      double precision e, r
+      double precision e, e_nd_ef, r, rx, ry, rz
       integer i, j
       logical j_is_atom, i_is_atom
       logical geom_tag_to_element
@@ -458,10 +467,17 @@ c
             j_is_atom = is_atom(j)
             if (include_bqbq(geom) .or. (i_is_atom.or.j_is_atom)) then
 
-               r = dsqrt(
-     $              (coords(1,i,geom)-coords(1,j,geom))**2 + 
-     $              (coords(2,i,geom)-coords(2,j,geom))**2 + 
-     $              (coords(3,i,geom)-coords(3,j,geom))**2)
+*               r = dsqrt(
+*     $              (coords(1,i,geom)-coords(1,j,geom))**2 + 
+*     $              (coords(2,i,geom)-coords(2,j,geom))**2 + 
+*     $              (coords(3,i,geom)-coords(3,j,geom))**2)
+              rx = coords(1,i,geom)-coords(1,j,geom)
+              rx = rx*rx
+              ry = coords(2,i,geom)-coords(2,j,geom)
+              ry = ry*ry
+              rz = coords(3,i,geom)-coords(3,j,geom)
+              rz = rz*rz
+              r  = sqrt(rx+ry+rz)
                e = e + charge(i,geom)*charge(j,geom)/r
             endif
          end do
@@ -469,7 +485,12 @@ c
 c
 c     add in interaction of nuclear dipole with external field
 c
-      e = e + ddot(3, ndipole(1,geom), 1, efield(1,geom), 1)
+      e_nd_ef = ddot(3, ndipole(1,geom), 1, efield(1,geom), 1)
+*:debug-s      
+*debug:      write(6,*)' interaction of nuclear dipole ',
+*debug:     &    'with external field is ',e_nd_ef
+*:debug-e
+      e = e + e_nd_ef
 c
       erep(geom) = e
 c
@@ -581,6 +602,9 @@ c
       tmp(k:) = ':user units'
       status = status .and.
      $     rtdb_cput(rtdb, tmp, 1, user_units(geom))
+      tmp(k:) = ':angstrom_to_au'
+      status = status .and.
+     &     rtdb_put(rtdb, tmp, mt_dbl, 1, angstrom_to_au)
       tmp(k:) = ':setting number'
       status = status .and. 
      $     rtdb_put(rtdb, tmp, mt_int, 1, setting_number(geom))
@@ -705,6 +729,8 @@ c
       tmp(k:) = ':group name'
       status = status .and. rtdb_delete(rtdb, tmp)
       tmp(k:) = ':user units'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':angstrom_to_au'
       status = status .and. rtdb_delete(rtdb, tmp)
       tmp(k:) = ':setting number'
       status = status .and. rtdb_delete(rtdb, tmp)
@@ -1867,3 +1893,274 @@ c
       mass = geom_mass(icent,geom)
 c
       end      
+      logical function geom_set_ang2au(geom,value)
+      implicit none
+#include "geomP.fh"
+c::functions
+      logical geom_check_handle
+      external geom_check_handle
+c::passed
+      integer geom               ! [input] geometry handle
+      double precision value     ! [input] converts angstroms to au value ~1.8......
+c
+      geom_set_ang2au = geom_check_handle(geom,'geom_set_ang2au')
+      if (.not. geom_set_ang2au) return
+c
+      angstrom_to_au = value
+c
+      end
+      logical function geom_get_ang2au(geom,value)
+      implicit none
+#include "geomP.fh"
+c::functions
+      logical geom_check_handle
+      external geom_check_handle
+c::passed
+      integer geom               ! [input] geometry handle
+      double precision value     ! [output] converts angstroms to au value ~1.8......
+c
+      geom_get_ang2au = geom_check_handle(geom,'geom_get_ang2au')
+      if (.not. geom_get_ang2au) return
+c
+      value = angstrom_to_au
+c
+      end
+      logical function geom_set_au2ang(geom,value)
+      implicit none
+#include "geomP.fh"
+c::functions
+      logical geom_check_handle
+      external geom_check_handle
+c::passed
+      integer geom               ! [input] geometry handle
+      double precision value     ! [input] converts au to angstroms value ~0.52917
+c
+      geom_set_au2ang = geom_check_handle(geom,'geom_set_au2ang')
+      if (.not. geom_set_au2ang) return
+c
+      angstrom_to_au = 1.0d00/value
+c
+      end
+      logical function geom_get_au2ang(geom,value)
+      implicit none
+#include "geomP.fh"
+c::functions
+      logical geom_check_handle
+      external geom_check_handle
+c::passed
+      integer geom               ! [input] geometry handle
+      double precision value     ! [output] converts au to angstroms value ~0.52917
+c
+      geom_get_au2ang = geom_check_handle(geom,'geom_get_au2ang')
+      if (.not. geom_get_au2ang) return
+c
+      value = 1.0d00/angstrom_to_au
+c
+      end
+      logical function geom_ecp_allset(geom,ncenter_in,oecp)
+      implicit none
+c
+#include "geomP.fh"
+c
+      integer geom                 ! [input] geometry handle
+      integer ncenter_in           ! [input] number of centers
+      logical oecp(ncenter_in)     ! [input] array of T/F for having ECPs
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      integer icenter
+c
+      geom_ecp_allset = geom_check_handle(geom, 'geom_ecp_allset')
+c
+      if (ncenter_in.ne.ncenter(geom)) call errquit
+     &    (' too many or to few centers specified delta=',
+     &    (ncenter(geom)-ncenter_in))
+c
+      do icenter = 1,ncenter_in
+        oecpcent(icenter,geom) = oecp(icenter)
+      enddo
+c
+      end
+      logical function geom_ecp_allget(geom,ncenter_in,oecp)
+      implicit none
+c
+#include "geomP.fh"
+c
+      integer geom                 ! [input] geometry handle
+      integer ncenter_in           ! [input] number of centers
+      logical oecp(ncenter_in)     ! [input] array of T/F for having ECPs
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      integer icenter
+c
+      geom_ecp_allget = geom_check_handle(geom, 'geom_ecp_allget')
+c
+      if (ncenter_in.ne.ncenter(geom)) call errquit
+     &    (' too many or to few centers specified delta=',
+     &    (ncenter(geom)-ncenter_in))
+c
+      do icenter = 1,ncenter_in
+        oecp(icenter)= oecpcent(icenter,geom) 
+      enddo
+c
+      end
+
+      logical function geom_ecp_set(geom,icent,oecp)
+      implicit none
+c
+#include "geomP.fh"
+c
+      integer geom     ! [input] geometry handle
+      integer icent    ! [input] number of center to use
+      logical oecp     ! [input] T/F for having ECPs
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_ecp_set = geom_check_handle(geom, 'geom_ecp_set')
+c
+      if (.not.(icent.gt.0.and.icent.le.ncenter(geom)))
+     &    call errquit
+     &    (' icent out of range ncenter = ',
+     &    ncenter(geom))
+c
+      oecpcent(icent,geom) = oecp
+c
+      end
+      logical function geom_ecp_get(geom,icent)
+      implicit none
+c
+#include "geomP.fh"
+c
+      integer geom     ! [input] geometry handle
+      integer icent    ! [input] number of center to use
+* return call is  [output] T/F for having ECPs
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_ecp_get = geom_check_handle(geom, 'geom_ecp_get')
+c
+      if (.not.(icent.gt.0.and.icent.le.ncenter(geom)))
+     &    call errquit
+     &    (' icent out of range ncenter = ',
+     &    ncenter(geom))
+c
+      geom_ecp_get = oecpcent(icent,geom) 
+c
+      end
+      logical function geom_ncent_ecp(geom, ncent_ecp)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom              ! [input]
+      integer ncent_ecp             ! [output]
+      logical geom_check_handle
+      external geom_check_handle
+c
+      integer icent
+c
+      geom_ncent_ecp = geom_check_handle(geom, 'geom_ncent_ecp')
+      if (.not. geom_ncent_ecp) return
+      ncent_ecp = 0
+      do icent = 1,ncenter(geom)
+        if (oecpcent(icent,geom)) ncent_ecp = ncent_ecp + 1
+      enddo
+c      
+      end
+      logical function geom_coords_ecp(geom, coords_ecp, ncent_in)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom                              ! [input]
+      integer ncent_in                          ! [input]
+      double precision coords_ecp(3,ncent_in)   ! [output]
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      integer icent, ncent_ecp
+c
+      geom_coords_ecp = geom_check_handle(geom, 'geom_coords_ecp')
+      if (.not. geom_coords_ecp) return
+      ncent_ecp = 0
+      do icent = 1,ncenter(geom)
+        if (oecpcent(icent,geom)) then
+          ncent_ecp = ncent_ecp + 1
+          if (ncent_ecp.gt.ncent_in) call errquit
+     &        ('geom_coords_ecp: number of ecp centers is greater'//
+     &         ' than the coord array dimension which is:',ncent_in)
+*          write(6,*)' geom       = ',geom
+*          write(6,*)' ncent_ecp  = ',ncent_ecp
+*          write(6,*)' icent      = ',icent
+*          write(6,*)' coords geom 1',coords(1,icent,geom)
+*          write(6,*)' coords geom 2',coords(2,icent,geom)
+*          write(6,*)' coords geom 3',coords(3,icent,geom)
+          
+          coords_ecp(1,ncent_ecp) = coords(1,icent,geom)
+          coords_ecp(2,ncent_ecp) = coords(2,icent,geom)
+          coords_ecp(3,ncent_ecp) = coords(3,icent,geom)
+
+*          write(6,*)' coords ecp 1',coords_ecp(1,ncent_ecp)
+*          write(6,*)' coords ecp 2',coords_ecp(2,ncent_ecp)
+*          write(6,*)' coords ecp 3',coords_ecp(3,ncent_ecp)
+        endif
+      enddo
+*      write(6,*)' coordinates inside geom_coords_ecp'
+*      call output(coords_ecp,1,3,1,ncent_ecp,3,ncent_ecp,1)
+c      
+      end
+      logical function geom_any_ecp(geom)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom              ! [input]
+      logical geom_check_handle
+      external geom_check_handle
+c
+      integer icent
+c
+      geom_any_ecp = geom_check_handle(geom, 'geom_any_ecp')
+      if (.not. geom_any_ecp) return
+      geom_any_ecp = .false.
+      do icent = 1,ncenter(geom)
+        if (oecpcent(icent,geom)) then
+          geom_any_ecp = .true.
+          return
+        endif
+      enddo
+c      
+      end
+      logical function geom_ecp_center_list(geom, num_ecp_cent,
+     &    ecp_cent)
+      implicit none
+#include "geomP.fh"
+      logical geom_check_handle
+      external geom_check_handle
+c
+      integer geom ! [input] geometry handle
+      integer num_ecp_cent ! [input] dimension of ecp_cent 
+*. . . . . . . . . . . . .           array from calling routine
+      integer ecp_cent(num_ecp_cent)  ! [output] list of centers that
+*. . . . . . . . . . . . . . . . . . .           have ECPs
+*
+      integer icent, num_ecp
+*
+      geom_ecp_center_list =
+     &    geom_check_handle(geom,'geom_ecp_center_list')
+      if (.not. geom_ecp_center_list) return
+c
+      num_ecp = 0
+      do icent = 1, ncenter(geom)
+        if (oecpcent(icent,geom)) then
+          num_ecp = num_ecp + 1
+          if (num_ecp.gt.num_ecp_cent) call errquit
+     &        ('geom_ecp_center_list: number of ecp centers greater'//
+     &         ' than array size passed in which is:',num_ecp_cent)
+          ecp_cent(num_ecp) = icent
+        endif
+      enddo
+      end
