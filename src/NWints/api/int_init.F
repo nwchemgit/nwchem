@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.50 1999-12-09 18:31:59 bert Exp $
+c $Id: int_init.F,v 1.51 1999-12-09 18:37:15 bert Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -67,7 +67,6 @@ c
 c        Generate the fitting basis set and add it to the list of 
 c        used basis sets
 c
-         print*,'int_init basis',(bases(ibas),ibas=1,nbas)
          do 00400 ibas = 1, nbas
             if (.not. bas_name(bases(ibas),dk_bas_name,dk_trans_name))
      $         call errquit('int_init: failed in bas_name',0)
@@ -76,7 +75,6 @@ c
          call errquit('int_init: could not find ao basis',0)
 00004    call bas_create_uncont(rtdb,bases(ibas),'auto D-K basis',
      $      dk_fitbas)
-         print*,'fitbas',dk_fitbas
 c
 c        Set possibily an alternative speed of light
 c
