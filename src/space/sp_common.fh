@@ -1,5 +1,5 @@
 c
-c $Id: sp_common.fh,v 1.27 2000-11-07 18:15:49 d3j191 Exp $
+c $Id: sp_common.fh,v 1.28 2000-11-08 06:54:52 d3j191 Exp $
 c
 c     conversion factors
 c
@@ -67,7 +67,8 @@ c
      + nbxin,nbyin,nbzin
       common/sd_dim/me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,
      + nsf,npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,
-     + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc,mbblp,nserie
+     + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc,mbblp,nserie,
+     + nbxin,nbyin,nbzin
 c
       integer i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr
       integer i_ipl,l_ipl,i_jpl,l_jpl
