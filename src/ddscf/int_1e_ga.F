@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.31 2000-05-25 06:59:37 mdupuis Exp $
+C$Id: int_1e_ga.F,v 1.32 2000-08-25 20:07:13 edo Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -118,7 +118,7 @@ c
       logical odoit
       double precision q2
       external block_int1e      ! For T3D
-      integer i, noffset
+      integer i, noffset,g_loc
 c
       logical ocache_save
 c
@@ -215,6 +215,9 @@ cso
 c     
 c     Loop thru shells with static parallel work decomposition
 c     
+       if(.not.ga_duplicate(g,g_loc,'local g')) call
+     . errquit('int1e: dupl failed',0)
+       call ga_zero(g_loc)
       iproc = ga_nodeid()
       nproc = ga_nnodes()
       ijshell = 0
@@ -268,7 +271,7 @@ c
                   if (inp_compare(.false., integ_type, 'so')) then
                      do i = 1, 3
                         noffset = (ihi-ilo+1)*(jhi-jlo+1)*(i-1)   
-                        call ga_acc(g(i), ilo, ihi, jlo, jhi, 
+                        call ga_acc(g_loc, ilo, ihi, jlo, jhi, 
      $                    dbl_mb(k_buf+noffset),
      $                    idim, q2)
                      enddo 
@@ -277,8 +280,14 @@ c
                         write(6,*) 'ga_acc = ...',ga_nodeid()
                         call util_flush(6)
                      endif
-                     call ga_acc(g, ilo, ihi, jlo, jhi, dbl_mb(k_buf),
-     $                    idim, q2) 
+cedo                     call ga_acc(g, ilo, ihi, jlo, jhi, dbl_mb(k_buf),
+cedo     $                    idim, q2) 
+                    if(q2.ne.1) then
+                      call dscal((ihi-ilo+1)*(jhi-jlo+1),
+     ,            q2,dbl_mb(k_buf),1)
+                    endif
+                     call ga_put(g_loc, ilo, ihi, jlo, jhi,
+     ,             dbl_mb(k_buf),  idim) 
                   end if
                end if
             endif
@@ -299,6 +308,8 @@ c
          ocache=ocache_save
       endif
 c     
+      call ga_dadd(1.0d0, g_loc, 1.0d0, g, g)
+      if (.not. ga_destroy(g_loc)) call errquit('i1ega: gad?',0)
       call ga_sync()            ! So that no nasty races can result
 c     
       if (oscfps) call pstat_off(ps_int_1e)

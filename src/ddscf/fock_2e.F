@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, nfock, facj, fack,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
-c$Id: fock_2e.F,v 1.15 2000-05-26 01:26:28 edo Exp $
+c$Id: fock_2e.F,v 1.16 2000-08-25 20:07:12 edo Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -126,7 +126,8 @@ c      write(*,*)'*** fock_2e: nfock =',nfock
          call ga_zero(g_xc(ifock))
       enddo
 
-      call fock_xc(nfock, vg_dens, g_xc)
+      call fock_xc(geom1, nbf,ao_basis,
+     ,     nfock, vg_dens, g_xc,scftype)
 
       do ifock = 1, nfock
          if (xc_active) then

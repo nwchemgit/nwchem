@@ -1,6 +1,7 @@
-      subroutine fock_xc(nmat, g_dens, g_xc)
+      subroutine fock_xc(geom, nbf_ao, ao_bas_han,
+     ,     nmat, g_dens, g_xc,scftype)
 c
-c     $Id: fock_xc.F,v 1.9 2000-08-11 17:58:57 edo Exp $
+c     $Id: fock_xc.F,v 1.10 2000-08-25 20:07:12 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -11,13 +12,15 @@ c
 #include "global.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
-#include "../nwdft/include/cdft.fh"
 #include "../nwdft/grid/cgridfile.fh"
 c!!! BGJ
 #include "bgj.fh"
 #include "rtdb.fh"
 c!!! BGJ
 c
+      integer geom              ! [in]
+      integer nbf_ao,ao_bas_han ! [in]
+      character*4 scftype       ! [in]
       integer nmat              ! [input] number of XC matrices
       integer g_dens(nmat)      ! [input] array of handles to densities
       integer g_xc(nmat)        ! [input] array of handles to XC matrices
@@ -34,11 +37,15 @@ c
      &        l_cntoce, k_cntoce, l_cntobfr, k_cntobfr,
      &        l_cetobfr, k_cetobfr, l_rdens_atom, k_rdens_atom,
      &        l_g_dens_local, k_g_dens_local, k_g_dens_scf
+      integer ipol
       logical wght_GA_dum,grid_reopen,grid_on_file,xc_gotxc
       external grid_reopen,xc_gotxc
       double precision Exc_dum(2), rho_n_dum,tdum
 c
       if(.not.xc_gotxc()) return
+      ipol=1
+      if(scftype.eq.'UHF') ipol=2
+
       if (bgj_print() .gt. 0)
      &     write(*,*)'--------Entered fock_xc-------------'
       rtdb = bgj_get_rtdb_handle()
@@ -111,7 +118,8 @@ c
       g_xyz_dum = -1
       g_nq_dum = -1
       wght_GA_dum = .false.
-      call xc_init_index(int_mb(k_g_dens_scf), l_cntoce, k_cntoce,
+      call xc_init_index(geom,ipol,nbf_ao,ao_bas_han,
+     ,     int_mb(k_g_dens_scf), l_cntoce, k_cntoce,
      &                   l_cntobfr, k_cntobfr, l_cetobfr, k_cetobfr,
      &                   l_rdens_atom, k_rdens_atom)
 c
