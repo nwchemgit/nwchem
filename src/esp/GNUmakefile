@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.9 1999-02-16 17:50:54 d3j191 Exp $
+# $Id: GNUmakefile,v 1.10 2004-05-06 21:11:50 edo Exp $
 #
 
  OBJ_OPTIMIZE =  esp.o\
@@ -14,7 +14,6 @@
                  esp_grdcnt.o\
                  esp_grid.o\
                  esp_input.o\
-                 esp_jacobi.o\
                  esp_malloc.o\
                  esp_matinv.o\
                  esp_out.o\
@@ -22,6 +21,13 @@
                  esp_rms.o\
                  esp_rtdbin.o\
                  esp_wrtinp.o
+
+ifeq ($(FC),frt)
+  OBJ = esp_jacobi.o
+else
+  OBJ_OPTIMIZE += esp_jacobi.o
+endif
+
 
 LIBRARY=libesp.a
 
