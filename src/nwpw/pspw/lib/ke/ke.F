@@ -1,5 +1,5 @@
 *
-* $Id: ke.F,v 1.7 2002-08-13 23:24:15 bylaska Exp $
+* $Id: ke.F,v 1.8 2003-07-10 19:52:39 bylaska Exp $
 *
       subroutine ke_init()
       implicit none 
@@ -94,9 +94,36 @@ c     real*8 tg(nfft3d)
 
       end do
       
-
       return 
       end
+
+      subroutine ke_add(ispin,ne,psi1,psi2)
+      implicit none
+      integer    ispin,ne(2)
+      complex*16 psi1(*)
+      complex*16 psi2(*)
+
+#include "mafdecls.fh"
+
+*     **** common block used for ke.F ****
+c     real*8 tg(nfft3d)
+      integer tg_indx,tg_hndl
+      common / tg_block / tg_indx,tg_hndl
+
+*     **** local variables ****
+      integer npack1
+      integer n
+      
+      call Pack_npack(1,npack1)
+
+      do n=1,(ne(1)+ne(2))
+         call Pack_tc_MulAdd(1,dbl_mb(tg_indx),psi1(1+(n-1)*npack1),
+     >                                         psi2(1+(n-1)*npack1))
+      end do
+      
+      return 
+      end
+
 
       subroutine ke_ave(ispin,ne,psi1,ave)
       implicit none
@@ -158,7 +185,7 @@ c     complex*16 tmp1(nfft3d)
 
       subroutine ke_euv(ispin,ne,psi,euv)
 *
-* $Id: ke.F,v 1.7 2002-08-13 23:24:15 bylaska Exp $
+* $Id: ke.F,v 1.8 2003-07-10 19:52:39 bylaska Exp $
 *
       implicit none 
       integer ispin,ne(2)
