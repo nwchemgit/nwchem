@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.23 1996-06-27 23:18:31 d3g681 Exp $
+#$Id: GNUmakefile,v 1.24 1996-07-13 00:21:06 gutowski Exp $
 
 include ../config/makefile.h
 
@@ -70,12 +70,20 @@ OBJ_OPTIMIZE = dlabrd.o   dlarfb.o   dlasv2.o   dormlq.o \
                dgeqrf.o   dlapy2.o   dlasr.o    dormbr.o   ilaenv.o \
                dgesvd.o   dlarf.o    dlassq.o   dorml2.o   lsamen.o \
                dgesv.o    dgetrs.o   dgetrf.o   dlaswp.o \
-               dgetf2.o   dlanst.o   dlasrt.o \
+               dgetf2.o \
                dlagtf.o   dlagts.o   dlarnv.o   dlaruv.o   dpotrf.o \
                dpotri.o   dtrtri.o   dlauum.o   dlauu2.o   dpotf2.o \
                dsyev.o    dsygst.o   dsygv.o    dsytrd.o   dorgtr.o \
                dsteqr.o   dlansy.o   dsygs2.o   dsterf.o   dsytd2.o \
-               dorgql.o   dlatrd.o   dlae2.o    dlazro.o   dorg2l.o 
+               dorgql.o   dlatrd.o   dlae2.o    dlazro.o   dorg2l.o \
+               dladiv.o   dlae2.o    dlamc1.o   dlamc2.o   dlamc3.o \
+               dlamc4.o   dlamc5.o   dlanst.o   dlapy3.o   dlasrt.o \
+               dsterf.o   zheev.o    zhegs2.o   zhegst.o   zhegv.o \
+               zhetd2.o   zhetrd.o   zlacgv.o   zladiv.o   zlanhe.o \
+               zlarf.o    zlarfb.o   zlarfg.o   zlarft.o   zlascl.o \
+               zlaset.o   zlasr.o    zlassq.o   zlatrd.o   zpotf2.o \
+               zpotrf.o   zsteqr.o   zung2l.o   zung2r.o   zungql.o \
+               zungqr.o   zungtr.o
 else
 OBJ_OPTIMIZE = sgesvd.o   slarf.o    slassq.o   sorml2.o   lsamen.o \
                ilaenv.o   slabrd.o   slarfb.o   slasv2.o   sormlq.o \
