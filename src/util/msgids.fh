@@ -305,6 +305,8 @@ c
       parameter (mrg_i06=msg_ftn_base-146) ! arg_setup1
       parameter (mrg_i07=msg_ftn_base-147) ! arg_wrtinp
       parameter (mrg_i08=msg_ftn_base-148) ! arg_timing
+      parameter (mrg_i09=msg_ftn_base-149) ! arg_collct
+      parameter (mrg_i10=msg_ftn_base-150) ! arg_collct
 c
       parameter (mrg_t01=msg_ftn_base-168) ! arg_diag
 c
