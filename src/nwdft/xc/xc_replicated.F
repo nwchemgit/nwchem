@@ -1,7 +1,7 @@
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.10 2003-06-19 19:57:38 edo Exp $
+C$Id: xc_replicated.F,v 1.11 2003-06-24 19:42:25 edo Exp $
 c
       implicit none
 c      
@@ -27,6 +27,9 @@ c
 c
 c     go replicated for xc ?
 c
+#ifdef GA_TRACE
+      if(ga_nodeid().eq.0)write(0,*)'  g_dens ',g_dens(1)
+#endif
       if(.not.goforit) then
          xcreplicated=.false.
          return
@@ -144,7 +147,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.10 2003-06-19 19:57:38 edo Exp $
+C$Id: xc_replicated.F,v 1.11 2003-06-24 19:42:25 edo Exp $
 c
       implicit none
 c      
@@ -158,6 +161,9 @@ c
 c
       integer i
 c
+#ifdef GA_TRACE
+      if(ga_nodeid().eq.0) write(0,*)' g_vxc ',g_vxc(1)
+#endif
       xc_rep_close=.true.
       if(xcreplicated) then
          if(oldway) then

@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.65 2003-06-11 02:32:08 edo Exp $
+C$Id: nwdft.F,v 1.66 2003-06-24 19:42:23 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -229,7 +229,13 @@ c
      &    itype = 0
 c
       if(itype.eq.0) then
+#ifdef GA_TRACE
+      call trace_init(100000)                                 ! initialize trace
+#endif
         nwdft = dft_main0d(rtdb)
+#ifdef GA_TRACE
+      call trace_end(ga_nodeid())                            ! end trace
+#endif
       else
         call errquit('nwdft: problem with system type',0)
       endif
