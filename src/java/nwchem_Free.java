@@ -121,6 +121,8 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 	    double cnv[] = new double[10000];
             int mdata=10000;
             int numdat=0;
+            int ndec=0;
+            int nsa=0;
 	    while((card=br.readLine()) != null){
 		int nderiv = Integer.parseInt(card.substring(1,7).trim());
 		ndata = Integer.parseInt(card.substring(8,14).trim());
@@ -131,6 +133,8 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 		};
 		lambda=Double.valueOf(card.substring(15,26)).doubleValue();
 		dlambda=Double.valueOf(card.substring(27,38)).doubleValue();
+                ndec=Integer.parseInt(card.substring(39,46).trim());
+                nsa=Integer.parseInt(card.substring(47,54).trim());
 		if(first){gibPlot.addData(0,lambda,free,!first,true);};
 		first=false;
 		for(int i=0; i<6; i++){
@@ -157,6 +161,7 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 		lambda=lambda+dlambda;
 		gibPlot.addData(0,lambda,free,!first,false);
 		card=br.readLine();
+		for(int i=0; i<nsa; i=i+4){ card=br.readLine(); };
 	    };
 	    gibPlot.fillPlot();
 	    br.close();

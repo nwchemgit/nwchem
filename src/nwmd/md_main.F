@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.87 2000-05-19 17:23:59 d3j191 Exp $
+c $Id: md_main.F,v 1.88 2000-05-31 03:47:35 d3j191 Exp $
 c
       implicit none
 c
@@ -1007,7 +1007,7 @@ c
       external frequency,prp_mcti_step
 c
       logical done
-      integer npp,irunp,jequi,jdacq
+      integer npp,irunp,jequi,jdacq,ndec
 c
       if(me.eq.0) then
       if(mropt.ge.2) then
@@ -1040,7 +1040,7 @@ c
       read(lfnmri) irunp,kequi,kdacq
       if(irunp.ne.irun) call errquit('Number of run changed',irunp)
       if(kequi.lt.mequi) kdacq=0
-      call prp_rdmri(lfnmri)
+      call prp_rdmri(lfnmri,ndec)
       endif
       call sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
@@ -1070,6 +1070,9 @@ c
       mdstep=kdacq
       if(kdacq.eq.0) stime=zero
 c
+      ndec=0
+      if(npgdec.gt.1) call cf_dera_init()
+c
       lequi=.false.
       jdacq=kdacq
       do 3 idacq=kdacq+1,mdacq
@@ -1077,6 +1080,8 @@ c
       call timer_start(1)
 c
       call md_newton()
+c
+      if(npgdec.gt.1) ndec=ndec+1
 c
       call cf_mcti_kin(int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_vs),nsaloc)
 c
@@ -1122,17 +1127,19 @@ c
 c
       if(me.eq.0) then
       write(lfnmro) irun,jequi,jdacq
-      call prp_wrtmro(lfnmro)
+      call prp_wrtmro(lfnmro,ndec)
       call sp_wrtmro(lfnmro,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
       endif
 c
-      call prp_mcti_run(rlambd,dlambd)
+      call prp_mcti_run(rlambd,dlambd,ndec)
+c
+      if(ndec.gt.2) call cf_print_dera(lfnout,ndec)
 c
     1 continue
 c
-      call prp_mcti()
+      call prp_mcti(npgdec)
 c
       return
 c
@@ -2056,7 +2063,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.87 2000-05-19 17:23:59 d3j191 Exp $
+c $Id: md_main.F,v 1.88 2000-05-31 03:47:35 d3j191 Exp $
 c
       implicit none
 c

@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.21 2000-05-05 23:54:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
 c
       implicit none
 c
@@ -504,12 +504,12 @@ c
      + isfrom,nums,xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,
      + vdw,chg,iwatm,iwq,iass,lswndx,lswjpt,lswin,lswj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
-     + rw,isal,isrx,list)
+     + rw,isal,isrx,list,dera)
 #else
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.21 2000-05-05 23:54:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
 c
       implicit none
 c
@@ -538,6 +538,10 @@ c
       integer nums
       integer lswndx(0:msa,2),lswjpt(nums,2),lswin(nums,2)
       integer list(0:msa)
+c
+#if defined(CAFE_FORCES)
+      real*8 dera(5,nsatot)
+#endif
 c
       integer isatm,nswlen(2)
       integer isfr,iwm,ipsw,number,isa,ispm,isf,nax,ism
@@ -848,6 +852,9 @@ c
       dercon=half*(c124*rwi6(iax)-c64)*rwi6(iax)
       deriv(3,ipsw)=deriv(3,ipsw)+dercon
       deriv(14,ipsw)=deriv(14,ipsw)+dercon
+#if defined(CAFE_FORCES)
+      if(npgdec.gt.1) dera(1,isga(isa))=dera(1,isga(isa))+dercon
+#endif
    40 continue
       else
       do 41 iax=1,nax
@@ -871,6 +878,9 @@ c
       endif
       deriv(3,ipsw)=deriv(3,ipsw)+dercon
       deriv(14,ipsw)=deriv(14,ipsw)+dercon
+#if defined(CAFE_FORCES)
+      if(npgdec.gt.1) dera(1,isga(isa))=dera(1,isga(isa))+dercon
+#endif
    41 continue
       endif
       endif
@@ -887,6 +897,9 @@ c
       derco1=derco1+drvco1
       drvco2=chg(isq1(isa),1,iset)*qj4*rwi1(iax)
       derco2=derco2+drvco2
+#if defined(CAFE_FORCES)
+      if(npgdec.gt.1) dera(2,isga(isa))=dera(2,isga(isa))+drvco1+drvco2
+#endif
    42 continue
       deriv(5,ipsw)=deriv(5,ipsw)+derco1
       deriv(16,ipsw)=deriv(16,ipsw)+derco2
@@ -907,6 +920,9 @@ c
      + qj*rwi1(iax)*rwi2(iax)
       endif
       derco3=derco3+drvco3
+#if defined(CAFE_FORCES)
+      if(npgdec.gt.1) dera(2,isga(isa))=dera(2,isga(isa))+drvco3
+#endif
    43 continue
       deriv(5,ipsw)=deriv(5,ipsw)+derco1+half*derco3
       deriv(16,ipsw)=deriv(16,ipsw)+derco2+half*derco3
@@ -919,6 +935,9 @@ c
       derco1=derco1+drvco1
       drvco2=chg(isq1(isa),1,iset)*qj4*erfc(ealpha/rwi1(iax))*rwi1(iax)
       derco2=derco2+drvco2
+#if defined(CAFE_FORCES)
+      if(npgdec.gt.1) dera(2,isga(isa))=dera(2,isga(isa))+drvco1+drvco2
+#endif
   142 continue
       deriv(5,ipsw)=deriv(5,ipsw)+derco1
       deriv(16,ipsw)=deriv(16,ipsw)+derco2
@@ -939,6 +958,9 @@ c
      + qj*rwi1(iax)*rwi2(iax)
       endif
       derco3=derco3+drvco3
+#if defined(CAFE_FORCES)
+      if(npgdec.gt.1) dera(2,isga(isa))=dera(2,isga(isa))+drvco3
+#endif
   143 continue
       deriv(5,ipsw)=deriv(5,ipsw)+derco1+half*derco3
       deriv(16,ipsw)=deriv(16,ipsw)+derco2+half*derco3
@@ -1185,12 +1207,12 @@ c
      + vdw,chg,iass,
      + lssndx,lssjpt,lssin,lssj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
-     + rw,isal,jsal,jmal,jfal,isrx,qsa2,qsa3)
+     + rw,isal,jsal,jmal,jfal,isrx,qsa2,qsa3,dera)
 #else
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.21 2000-05-05 23:54:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
 c
       implicit none
 c
@@ -1214,6 +1236,10 @@ c
       integer nums
       integer lssndx(0:msa,2),lssjpt(nums,2),lssin(nums,2)
       integer iass(mat,mat),nsslen(2)
+c
+#if defined(CAFE_FORCES)
+      real*8 dera(5,nsatot)
+#endif
 c
       integer isa,jsa,i,isf,jsf
       integer isfr,isfrom,ism,jsm
@@ -1640,6 +1666,12 @@ c
       dercon=(vdw(isat(isfr+isa),isat(jsa),3,4)*rwi6(nax+jnum)
      + -vdw(isat(isfr+isa),isat(jsa),1,4))*rwi6(nax+jnum)
       deriv(15,ipss)=deriv(15,ipss)+dercon
+#if defined(CAFE_FORCES)
+      if(npgdec.gt.1) then
+      dera(3,isga(isa))=dera(3,isga(isa))+half*dercon
+      dera(3,isga(jsa))=dera(3,isga(jsa))+half*dercon
+      endif
+#endif
    39 continue
       else
       do 40 jnum=1,lssin(isa,ipss)
@@ -1658,6 +1690,12 @@ c
      + rwi2(nax+jnum)*rwi6(nax+jnum)*(c64-c124*rwi6(nax+jnum))
       endif
       deriv(15,ipss)=deriv(15,ipss)+dercon
+#if defined(CAFE_FORCES)
+      if(npgdec.gt.1) then
+      dera(3,isga(isa))=dera(3,isga(isa))+half*dercon
+      dera(3,isga(jsa))=dera(3,isga(jsa))+half*dercon
+      endif
+#endif
    40 continue
       endif
 c
@@ -1685,6 +1723,12 @@ c
       if(ireact.ne.0) then
       deriv(17,ipss)=deriv(17,ipss)+dercon*rffss/rwi2(nax+jnum)
       endif
+#if defined(CAFE_FORCES)
+      if(npgdec.gt.1) then
+      dera(4,isga(isa))=dera(4,isga(isa))+half*dercon*rwi1(nax+jnum)
+      dera(4,isga(jsa))=dera(4,isga(jsa))+half*dercon*rwi1(nax+jnum)
+      endif
+#endif
    42 continue
       else
       do 43 jnum=1,lssin(isa,ipss)
@@ -1714,6 +1758,12 @@ c
       if(ireact.ne.0) then
       deriv(17,ipss)=deriv(17,ipss)+dercon*rffss/rwi2(nax+jnum)
       endif
+#if defined(CAFE_FORCES)
+      if(npgdec.gt.1) then
+      dera(4,isga(isa))=dera(4,isga(isa))+half*dercon*rwi1(nax+jnum)
+      dera(4,isga(jsa))=dera(4,isga(jsa))+half*dercon*rwi1(nax+jnum)
+      endif
+#endif
    43 continue
       endif
       else
@@ -1733,6 +1783,12 @@ c
       if(ireact.ne.0) then
       deriv(17,ipss)=deriv(17,ipss)+dercon*rffss/rwi2(nax+jnum)
       endif
+#if defined(CAFE_FORCES)
+      if(npgdec.gt.1) then
+      dera(4,isga(isa))=dera(4,isga(isa))+half*dercon*rwi1(nax+jnum)
+      dera(4,isga(jsa))=dera(4,isga(jsa))+half*dercon*rwi1(nax+jnum)
+      endif
+#endif
   142 continue
       else
       do 143 jnum=1,lssin(isa,ipss)
@@ -1760,6 +1816,12 @@ c
       if(ireact.ne.0) then
       deriv(17,ipss)=deriv(17,ipss)+dercon*rffss/rwi2(nax+jnum)
       endif
+#if defined(CAFE_FORCES)
+      if(npgdec.gt.1) then
+      dera(4,isga(isa))=dera(4,isga(isa))+half*dercon*rwi1(nax+jnum)
+      dera(4,isga(jsa))=dera(4,isga(jsa))+half*dercon*rwi1(nax+jnum)
+      endif
+#endif
   143 continue
       endif
       endif
@@ -2065,7 +2127,7 @@ c
       subroutine cf_fsb(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.21 2000-05-05 23:54:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -2338,7 +2400,7 @@ c
       subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.21 2000-05-05 23:54:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2597,7 +2659,7 @@ c
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.21 2000-05-05 23:54:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -2922,7 +2984,7 @@ c
       subroutine cf_fso(nimprs,indexl,mso,msp,iimp,dimp,rimp,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.21 2000-05-05 23:54:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3230,9 +3292,9 @@ c
       return
       end
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
-     + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs)
+     + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera)
 c
-c $Id: cf_f.fh,v 1.21 2000-05-05 23:54:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3285,6 +3347,10 @@ c
       integer iatt(ndim),igan(ndim),imol(ndim),idyn(ndim),ichg(ndim)
       real*8 xs(ndim,3),fs(ndim,3)
       real*8 ess(msf,msf,mpe,2)
+c
+#if defined(CAFE_FORCES)
+      real*8 dera(5,nsatot)
+#endif
 c
       logical lpbc,lpbcs
 c
@@ -3462,6 +3528,12 @@ c      c124=cb12(iatt(isa),iatt(jsa),4)
       c124=vdw(iatt(isa),iatt(jsa),4,4)
       dercon=(c124*r6i-c64)*r6i
       deriv(15,1)=deriv(15,1)+dercon
+#if defined(CAFE_FORCES)
+      if(npgdec.gt.1) then
+      dera(3,igan(isa))=dera(3,igan(isa))+half*dercon
+      dera(3,igan(jsa))=dera(3,igan(jsa))+half*dercon
+      endif
+#endif
       endif
       if(ith(16)) then
 c      qi=qs(isa,iset)
@@ -3481,6 +3553,12 @@ c      qj4=qs(jsa,4)
       if(ireact.ne.0) then
       deriv(17,1)=deriv(17,1)+q14fac*(qi*qj4+qj*qi4)*rffss/r2i
       endif
+#if defined(CAFE_FORCES)
+      if(npgdec.gt.1) then
+      dera(4,igan(isa))=dera(4,igan(isa))+half*dercon
+      dera(4,igan(jsa))=dera(4,igan(jsa))+half*dercon
+      endif
+#endif
       endif
       endif
 c
@@ -3548,7 +3626,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.21 2000-05-05 23:54:43 d3j191 Exp $
+c $Id: cf_f.fh,v 1.22 2000-05-31 03:47:47 d3j191 Exp $
 c
       implicit none
 c

@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.23 2000-05-25 21:24:38 d3j191 Exp $
+c $Id: md_input.F,v 1.24 2000-05-31 03:47:35 d3j191 Exp $
 c
       implicit none
 c
@@ -369,7 +369,7 @@ c
 c     decomposition
 c
       if(inp_compare(.false.,'decomp',item)) then
-      npgdec=1
+      if(.not.inp_i(npgdec)) npgdec=1
       goto 2
       endif
 c

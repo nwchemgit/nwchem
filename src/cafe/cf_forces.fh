@@ -1,4 +1,4 @@
-c $Id: cf_forces.fh,v 1.9 2000-02-10 22:54:36 d3j191 Exp $
+c $Id: cf_forces.fh,v 1.10 2000-05-31 03:47:47 d3j191 Exp $
 #if defined(CAFE_POLARIZATION)
       subroutine forcep(lself,lpbcs,
      + xw,xwm,fw,pw,pwp,zwi,rtos,iwdt,iwz,
@@ -196,7 +196,7 @@ c
      + dbl_mb(i_smr1),dbl_mb(i_smr2),dbl_mb(i_s3r1),dbl_mb(i_s1r1),
      + dbl_mb(i_s1r2),dbl_mb(i_s1r3),dbl_mb(i_s3r2),dbl_mb(i_s1r4),
      + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_s1r5),dbl_mb(i_s1r6),
-     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3))
+     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3),dbl_mb(i_sti))
 #endif
       lptr=lptr+4*nsloc+1+npairs
       else
@@ -218,7 +218,7 @@ c
      + dbl_mb(i_smr1),dbl_mb(i_smr2),dbl_mb(i_s3r1),dbl_mb(i_s1r1),
      + dbl_mb(i_s1r2),dbl_mb(i_s1r3),dbl_mb(i_s3r2),dbl_mb(i_s1r4),
      + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_s1r5),dbl_mb(i_s1r6),
-     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3))
+     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3),dbl_mb(i_sti))
 #endif
       lptr=lptr+4*nsnon+1+npairs
       else
@@ -240,7 +240,7 @@ c
      + dbl_mb(i_s1r2),dbl_mb(i_s1r3),dbl_mb(i_s3r2),dbl_mb(i_s1r4),
      + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_s1r5),dbl_mb(i_s1r6),
      + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3),int_mb(i_s1i4),
-     + int_mb(i_s1i5),dbl_mb(i_smr5),dbl_mb(i_smr6))
+     + int_mb(i_s1i5),dbl_mb(i_smr5),dbl_mb(i_smr6),dbl_mb(i_sti))
 #endif
       lptr=lptr+4*nsloc+1+npairs
       else
@@ -306,7 +306,7 @@ c
       call cf_fst(npairs,int_mb(lptr+1),mtt(2),int_mb(i_itrd(2)),
      + dbl_mb(i_vdw),dbl_mb(i_chg),
      + max(isto,jsto),msa,isat,isga,ismf,isdt,isq3,
-     + xs,fs,ess,lpbc,lpbcs)
+     + xs,fs,ess,lpbc,lpbcs,dbl_mb(i_sti))
       lptr=lptr+1+npairs
       else
       lptr=lptr+1

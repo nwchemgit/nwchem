@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.42 2000-05-25 21:01:35 d3j191 Exp $
+c $Id: prp_main.F,v 1.43 2000-05-31 03:47:35 d3j191 Exp $
 c
       implicit none
 c
@@ -565,7 +565,7 @@ c
       prp_mcti_acc=done
       return
       end
-      subroutine prp_mcti_run(rlambd,dlambd)
+      subroutine prp_mcti_run(rlambd,dlambd,ndec)
 c
       implicit none
 c
@@ -573,24 +573,25 @@ c
 #include "mafdecls.fh"
 c
       real*8 rlambd,dlambd
+      integer ndec
 c
-      call prp_mcti_r(rlambd,dlambd,dbl_mb(i_dfr),
+      call prp_mcti_r(rlambd,dlambd,ndec,dbl_mb(i_dfr),
      + psumt(16),psumt(38),psumt(39))
 c
       return
       end
-      subroutine prp_mcti_r(rlambd,dlambd,dfr,taver,ep2ave,ep3ave)
+      subroutine prp_mcti_r(rlambd,dlambd,ndec,dfr,taver,ep2ave,ep3ave)
 c
       implicit none
 c
 #include "prp_common.fh"
 c
       real*8 rlambd,dlambd,dfr(mda),taver,ep2ave,ep3ave
-      integer i
+      integer i,ndec
 c
       if(me.eq.0) then
-      write(lfngib,1000) nderiv,nda,rlambd,dlambd
- 1000 format(2i7,2f12.6)
+      write(lfngib,1000) nderiv,nda,rlambd,dlambd,ndec,nsa
+ 1000 format(2i7,2f12.6,2i8)
       write(lfngib,1001) deriv
  1001 format(4e20.12)
       write(lfngib,1002) (dfr(i),i=1,nda)
@@ -599,31 +600,46 @@ c
      + ep2ave/dble(nsumt),ep3ave/dble(nsumt)
  1003 format(i10,3e20.12)
       endif
+      if(ndec.gt.0) call cf_wrtgib(lfngib)
 c
       return
       end
-      subroutine prp_mcti()
+      subroutine prp_mcti(n)
 c
       implicit none
 c
 #include "prp_common.fh"
 #include "mafdecls.fh"
 c
-      call prp_mcti_s(dbl_mb(i_dfr))
+      integer n,i_dec,l_dec
+c
+      npgdec=n
+c
+      if(npgdec.gt.0) then
+      if(.not.ma_push_get(mt_dbl,5*nsa,'dec',l_dec,i_dec))
+     + call errquit('Failed to allocate dec',0)
+      endif
+c
+      call prp_mcti_s(dbl_mb(i_dfr),dbl_mb(i_dec))
+c
+      if(npgdec.gt.0) then
+      if(.not.ma_pop_stack(l_dec))
+     + call errquit('Failed to deallocate dec',0)
+      endif
 c
       return
       end
-      subroutine prp_mcti_s(dfr)
+      subroutine prp_mcti_s(dfr,dec)
 c
       implicit none
 c
 #include "prp_common.fh"
 #include "mafdecls.fh"
 c
-      real*8 dfr(mda)
+      real*8 dfr(mda),dec(5,nsa)
 c
       character*10 pdate,ptime
-      integer i,j,k,number
+      integer i,j,k,number,ndec
       real*8 rlambd,dlambd,ddrft,dsterr,dcerr,ratio
       real*8 freeti,errti,drftti,taver,ep2ave,ep3ave
       real*8 epr,epf,etp,slambd,rnum,fterm(24)
@@ -631,6 +647,8 @@ c
       if(me.eq.0) then
 c
       do 1 k=1,4
+c
+      if((k.eq.2.or.k.eq.3).and.npgdec.eq.0) goto 1
 c
       call swatch(pdate,ptime)
       if(k.eq.1) then
@@ -676,15 +694,23 @@ c
       do 2 i=1,24
       fterm(i)=zero
     2 continue
+      do 22 i=1,nsa
+      dec(1,i)=zero
+      dec(2,i)=zero
+      dec(3,i)=zero
+      dec(4,i)=zero
+      dec(5,i)=zero
+   22 continue
       do 3 i=1,mrun
-      read(lfngib,2000) nderiv,nda,rlambd,dlambd
- 2000 format(2i7,2f12.6)
+      read(lfngib,2000) nderiv,nda,rlambd,dlambd,ndec
+ 2000 format(2i7,2f12.6,2i8)
       read(lfngib,2001) deriv
  2001 format(4e20.12)
       read(lfngib,2002) (dfr(j),j=1,nda)
  2002 format(4e20.12)
       read(lfngib,2003) number,taver,ep2ave,ep3ave
  2003 format(i10,3e20.12)
+      if(ndec.gt.0) call cf_rdgib(lfngib,dec,dlambd/dble(ndec))
 c
       slambd=slambd+dlambd
       rnum=dlambd/dble(nderiv)
@@ -724,48 +750,59 @@ c
 c
       close(unit=lfngib)
 c
+      if(ndec.gt.0) then
+      write(lfnout,1008)
+ 1008 format(//,' SOLUTE ATOM DECOMPOSITION THERMODYNAMIC INTEGRATION',
+     + //,'    Atom     Solvent     Solvent      Solute      Solute',/,
+     + '            v.d.Waals   electrost   v.d.Waals   electrost',/)
+      do 5 i=1,nsa
+      write(lfnout,1009) i,(dec(j,i),j=1,5)
+ 1009 format(i8,5f12.3)
+    5 continue
+      endif
+c
       endif
 c
       return
       end
-      subroutine prp_wrtmro(lfnmro)
+      subroutine prp_wrtmro(lfnmro,ndec)
 c
       implicit none
 c
 #include "prp_common.fh"
 #include "mafdecls.fh"
 c
-      integer lfnmro
+      integer lfnmro,ndec
 c
-      call prp_wtmro(lfnmro,dbl_mb(i_dfr))
+      call prp_wtmro(lfnmro,ndec,dbl_mb(i_dfr))
 c
       return
       end
-      subroutine prp_rdmri(lfnmri)
+      subroutine prp_rdmri(lfnmri,ndec)
 c
       implicit none
 c
 #include "prp_common.fh"
 #include "mafdecls.fh"
 c
-      integer lfnmri
+      integer lfnmri,ndec
 c
-      call prp_rmri(lfnmri,dbl_mb(i_dfr))
+      call prp_rmri(lfnmri,ndec,dbl_mb(i_dfr))
 c
       return
       end
-      subroutine prp_wtmro(lfnmro,dfr)
+      subroutine prp_wtmro(lfnmro,ndec,dfr)
 c
       implicit none
 c
 #include "prp_common.fh"
 c
-      integer lfnmro
+      integer lfnmro,ndec
       real*8 dfr(mda)
 c
       integer i
 c
-      write(lfnmro) nderiv,nda,nprop,nsum,nsumt
+      write(lfnmro) nderiv,nda,nprop,nsum,nsumt,ndec
       write(lfnmro) deriv
       write(lfnmro) (dfr(i),i=1,nda)
       write(lfnmro) tsum,t2sum,tsumt,t2sumt
@@ -775,21 +812,22 @@ c
       write(lfnmro) (psumt(i),i=1,nprop)
       write(lfnmro) (p2sumt(i),i=1,nprop)
       write(lfnmro) (pslopt(i),i=1,nprop)
+      if(ndec.gt.0) call cf_wrtmro(lfnmro)
 c
       return
       end
-      subroutine prp_rmri(lfnmri,dfr)
+      subroutine prp_rmri(lfnmri,ndec,dfr)
 c
       implicit none
 c
 #include "prp_common.fh"
 c
-      integer lfnmri
+      integer lfnmri,ndec
       real*8 dfr(mda)
 c
       integer i,nprp
 c
-      read(lfnmri) nderiv,nda,nprp,nsum,nsumt
+      read(lfnmri) nderiv,nda,nprp,nsum,nsumt,ndec
       if(nprop.ne.nprp) call errquit('Number of properties changed',0)
       read(lfnmri) deriv
       read(lfnmri) (dfr(i),i=1,nda)
@@ -800,6 +838,7 @@ c
       read(lfnmri) (psumt(i),i=1,nprop)
       read(lfnmri) (p2sumt(i),i=1,nprop)
       read(lfnmri) (pslopt(i),i=1,nprop)
+      if(ndec.gt.0) call cf_rdmri(lfnmri)
 c
       return
       end

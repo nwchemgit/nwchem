@@ -2,9 +2,9 @@
      + nf1,nf2,nf3,
      + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
-     + msmi,nsmi,ddi,edi,iprf)
+     + msmi,nsmi,nsai,ddi,edi,iprf)
 c
-c $Id: prp_init.F,v 1.26 2000-05-25 21:01:35 d3j191 Exp $
+c $Id: prp_init.F,v 1.27 2000-05-31 03:47:35 d3j191 Exp $
 c
       implicit none
 c
@@ -13,7 +13,7 @@ c
 #include "global.fh"
 c
       integer nserie,ntyp,lfn,iout,iprp,igib,iprf
-      integer nwmtot,msfi,nsfi,mpei,nf1,nf2,nf3
+      integer nwmtot,msfi,nsfi,nsai,mpei,nf1,nf2,nf3
       integer mdacq,mrn,ipset,isetp1,isetp2,msmi,nsmi
       logical lcf,lsp,ltwn,lpol,lpme,llpener,llpstep
       real*8 tstp,ddi,edi
@@ -45,6 +45,7 @@ c
       nwm=nwmtot
       msm=msmi
       nsm=nsmi
+      nsa=nsai
 c
       iset=ipset
       ipset1=isetp1

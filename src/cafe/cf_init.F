@@ -4,8 +4,8 @@
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
-     + issscl,delta,nfanal,lpbc)
-c $Id: cf_init.F,v 1.45 2000-05-24 20:22:00 d3j191 Exp $
+     + issscl,delta,nfanal,lpbc,npgi)
+c $Id: cf_init.F,v 1.46 2000-05-31 03:47:47 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -16,7 +16,7 @@ c
       integer lfntop,irtdbi
       character*(*) filtop
       integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
-      integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf
+      integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf,npgi
       real*8 spmet,step,tols,bx(3)
       integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal
       real*8 rcs,rcl,rqm,compr,delta
@@ -59,6 +59,8 @@ c
       ndxp=0
       maxl=0
       lanal=nfanal.gt.0
+c
+      npgdec=npgi
 c
       mwm=mwmi
       mwa=mwai
@@ -177,6 +179,11 @@ c
 c
       if(.not.ma_push_get(mt_byte,16*nsatot,'snam',l_snam,i_snam))
      + call errquit('Failed to allocate snam',me)
+c
+      if(npgdec.gt.1) then
+      if(.not.ma_push_get(mt_dbl,5*nsatot,'sti',l_sti,i_sti))
+     + call errquit('Failed to allocate sti',me)
+      endif
 c
       if(lqmd) then
       call cf_rdgeom(byte_mb(i_snam))
@@ -899,8 +906,8 @@ c
       if(id.eq.1) then
       call cf_icopy(idx,jdx,n,int_mb(i_itrd(id)),mtt(id))
       else
-      call cf_jcopy(idx,jdx,n,int_mb(i_itrd(id)),mtt(id))
-      call cf_index(int_mb(i_itrd(id)),mtt(id))
+      call cf_ncopy(idx,jdx,n,int_mb(i_itrd(id)),mtt(id))
+cx      call cf_index(int_mb(i_itrd(id)),mtt(id))
       endif
 c
       return
@@ -920,8 +927,8 @@ c
       if(id.eq.1) then
       call cf_icopy(idx,jdx,n,int_mb(i_ixcl(id)),mxt(id))
       else
-      call cf_jcopy(idx,jdx,n,int_mb(i_ixcl(id)),mxt(id))
-      call cf_index(int_mb(i_ixcl(id)),mxt(id))
+      call cf_ncopy(idx,jdx,n,int_mb(i_ixcl(id)),mxt(id))
+cx      call cf_index(int_mb(i_ixcl(id)),mxt(id))
       endif
 c
       return
@@ -986,6 +993,28 @@ c
       do 2 i=1,np
       if(ip(i,1).lt.0) ip(i,1)=ip(i-1,1)
     2 continue
+c
+      return
+      end
+      subroutine cf_ncopy(idx,jdx,n,ip,nip)
+c
+      implicit none
+c
+      integer n,nip
+      integer idx(n),jdx(n),ip(0:nip,2)
+c
+      integer i
+c
+      do 1 i=0,n
+      ip(i,1)=0
+    1 continue
+      do 2 i=1,n
+      ip(idx(i),1)=i
+      ip(i,2)=jdx(i)
+    2 continue
+      do 3 i=1,n
+      if(ip(i,1).eq.0) ip(i,1)=ip(i-1,1)
+    3 continue
 c
       return
       end

@@ -1,5 +1,5 @@
       subroutine cf_finish()
-c $Id: cf_finish.F,v 1.8 2000-04-04 23:03:56 d3j191 Exp $
+c $Id: cf_finish.F,v 1.9 2000-05-31 03:47:47 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -115,6 +115,11 @@ c
 c
       if(.not.ma_pop_stack(l_vdw))
      + call errquit('Failed to deallocate vdw',0)
+c
+      if(npgdec.gt.1) then
+      if(.not.ma_pop_stack(l_sti))
+     + call errquit('Failed to deallocate sti',0)
+      endif
 c
       if(.not.ma_pop_stack(l_snam))
      + call errquit('Failed to deallocate snam',0)

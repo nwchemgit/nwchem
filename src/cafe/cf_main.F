@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.56 2000-05-25 20:37:35 d3j191 Exp $
+c $Id: cf_main.F,v 1.57 2000-05-31 03:47:47 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2368,6 +2368,244 @@ c
       do 4 i=1,numb(2)
       write(iunit,1006) idbs(i,1),idbs(i,2)
     4 continue
+      endif
+c
+      return
+      end
+      subroutine cf_dera_init()
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      call cf_dera_i(dbl_mb(i_sti))
+c
+      return
+      end
+      subroutine cf_dera_i(dera)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      real*8 dera(5,nsatot)
+c
+      integer i
+c
+      do 1 i=1,nsatot
+      dera(1,i)=zero
+      dera(2,i)=zero
+      dera(3,i)=zero
+      dera(4,i)=zero
+      dera(5,i)=zero
+    1 continue
+c
+      return
+      end
+      subroutine cf_print_dera(lfnout,number)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer lfnout,number
+c
+      call cf_print_der(lfnout,number,dbl_mb(i_sti))
+c
+      return
+      end
+      subroutine cf_print_der(lfnout,number,dera)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer lfnout,number
+      real*8 dera(5,nsatot)
+c
+      integer i,j
+c
+      call ga_dgop(mcf_68,dera,5*nsatot,'+')
+c
+      if(me.eq.0) then
+c
+      write(lfnout,1000) number
+ 1000 format(//,' Solute MCTI derivatives from last',i8,' steps',//,
+     + '    Atom     Solvent     Solvent      Solute      Solute',/,
+     + '            v.d.Waals   electrost   v.d.Waals   electrost',/)
+c
+      do 1 i=1,nsatot
+      write(lfnout,1001) i,(dera(j,i)/dble(number),j=1,5)
+ 1001 format(i8,5f12.3)
+    1 continue
+c
+      endif
+c
+      return
+      end
+      subroutine cf_wrtmro(lfnmro)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer lfnmro
+c
+      call cf_wtmro(lfnmro,dbl_mb(i_sti))
+c
+      return
+      end
+      subroutine cf_wtmro(lfnmro,dera)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "msgids.fh"
+c
+      integer lfnmro
+      real*8 dera(5,nsatot)
+c
+      integer i,j
+c
+      call ga_dgop(mcf_68,dera,5*nsatot,'+')
+c
+      if(me.eq.0) then
+      write(lfnmro) ((dera(i,j),i=1,5),j=1,nsatot)
+      else
+      do 1 i=1,nsatot
+      do 2 j=1,5
+      dera(j,i)=zero
+    2 continue
+    1 continue
+      endif
+c
+      return
+      end
+      subroutine cf_rdmri(lfnmri)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer lfnmri
+c
+      if(npgdec.eq.0) call errquit('rdmri error',0)
+c
+      call cf_rmri(lfnmri,dbl_mb(i_sti))
+c
+      return
+      end
+      subroutine cf_rmri(lfnmri,dera)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer lfnmri
+      real*8 dera(5,nsatot)
+c
+      integer i,j
+c
+      if(me.eq.0) then
+      read(lfnmri) ((dera(i,j),i=1,5),j=1,nsatot)
+      else
+      do 1 i=1,nsatot
+      do 2 j=1,5
+      dera(j,i)=zero
+    2 continue
+    1 continue
+      endif
+c
+      return
+      end
+      subroutine cf_wrtgib(lfngib)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer lfngib
+c
+      call cf_wtgib(lfngib,dbl_mb(i_sti))
+c
+      return
+      end
+      subroutine cf_wtgib(lfngib,dera)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "msgids.fh"
+c
+      integer lfngib
+      real*8 dera(5,nsatot)
+c
+      integer i,j
+c
+      call ga_dgop(mcf_68,dera,5*nsatot,'+')
+c
+      if(me.eq.0) then
+      write(lfngib,1000) ((dera(i,j),i=1,5),j=1,nsatot)
+ 1000 format(4e20.10)
+      else
+      do 1 i=1,nsatot
+      do 2 j=1,5
+      dera(j,i)=zero
+    2 continue
+    1 continue
+      endif
+c
+      return
+      end
+      subroutine cf_rdgib(lfngib,dec,dlambd)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer lfngib
+      real*8 dec(5,nsatot),dlambd
+c
+      if(npgdec.eq.0) call errquit('rdgib error',0)
+c
+      call cf_rgib(lfngib,dbl_mb(i_sti),dec,dlambd)
+c
+      return
+      end
+      subroutine cf_rgib(lfngib,dera,dec,dlambd)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer lfngib
+      real*8 dera(5,nsatot),dec(5,nsatot),dlambd
+c
+      integer i,j
+c
+      if(me.eq.0) then
+      read(lfngib,1000) ((dera(i,j),i=1,5),j=1,nsatot)
+ 1000 format(4e20.10)
+      do 1 i=1,nsatot
+      do 2 j=1,5
+      dec(j,i)=dec(j,i)+dlambd*dera(j,i)
+    2 continue
+    1 continue
+      else
+      do 3 i=1,nsatot
+      do 4 j=1,5
+      dera(j,i)=zero
+    4 continue
+    3 continue
       endif
 c
       return

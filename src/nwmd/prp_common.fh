@@ -1,5 +1,5 @@
 c
-c $Id: prp_common.fh,v 1.19 2000-05-25 20:39:57 d3j191 Exp $
+c $Id: prp_common.fh,v 1.20 2000-05-31 03:47:35 d3j191 Exp $
 c
 c
       real*8 zero,tiny,half,one
@@ -16,11 +16,11 @@ c
 c
       integer me,np,lfnout,lfnprp,lfngib
       integer nsf,msf,mpe,nfoutp,nfstat,nfprop,maxp,mrun
-      integer mda,nda,nwm,msm,nsm
+      integer mda,nda,nwm,msm,nsm,nsa
 c
       common/prp_dim/me,np,lfnout,lfnprp,lfngib,
      + nsf,msf,mpe,nfoutp,nfstat,
-     + nfprop,maxp,mda,nda,mrun,nwm,msm,nsm
+     + nfprop,maxp,mda,nda,mrun,nwm,msm,nsm,nsa
 c
       integer i_dfr,l_dfr
       common/prp_ptr/i_dfr,l_dfr
@@ -37,13 +37,13 @@ c
       real*8 dfree,deriv(24)
       real*8 tstep,wbox,virial
       integer ntype,nprop,isprop,ixp(maxpro),nsum,nsumt,nderiv
-      integer iset,ipset1,ipset2,iprof
+      integer iset,ipset1,ipset2,iprof,npgdec
       logical lp(maxpro)
       common/prp_pro/p,psum,psumt,p2sum,p2sumt,pslop,pslopt,
      + tsum,t2sum,tsumt,t2sumt,tstep,wbox,virial,
      + dfree,deriv,
      + ixp,ntype,nprop,isprop,nsum,nsumt,nderiv,iset,ipset1,ipset2,
-     + iprof,
+     + iprof,npgdec,
      + lp
 c
       real*8 volume,temp,pres,tmpscl,tmsscl,prsscl,ddacq,edacq,samrat

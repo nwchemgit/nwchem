@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.67 2000-05-25 21:24:38 d3j191 Exp $
+c $Id: md_start.F,v 1.68 2000-05-31 03:47:35 d3j191 Exp $
 c
       implicit none
 c
@@ -43,7 +43,7 @@ c
      + tstep,tlwsha,mshitw,mshits,noshak,
      + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
-     + issscl,delta,nfanal,lpbc)
+     + issscl,delta,nfanal,lpbc,npgdec)
 c
 c     print topology information
 c     --------------------------
@@ -61,7 +61,7 @@ c
      + .true.,.true.,ltwin,ipolt.ne.0,ipme.ne.0,
      + npstep.ne.0,npener.ne.0,
      + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm,
-     + ddacq,edacq,iprof)
+     + nsa,ddacq,edacq,iprof)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
