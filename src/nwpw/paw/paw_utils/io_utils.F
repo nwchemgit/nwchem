@@ -1,5 +1,5 @@
 c
-c $Id: io_utils.F,v 1.1 2003-01-31 02:01:13 bylaska Exp $
+c $Id: io_utils.F,v 1.2 2003-01-31 02:07:51 bylaska Exp $
 c
 
   !*******************************************************
@@ -81,17 +81,18 @@ c
       character*255 junk
 
       l = index(mode,' ') -1
+      if (l.lt.1) l = 1
       if (mode(1:l).eq.'r') then
-          action   = "READ"
-          status   = "OLD"
-          position = "REWIND"
+          action   = 'READ'
+          status   = 'OLD'
+          position = 'REWIND'
       else if (mode(1:l).eq.'w') then
-          action = "WRITE"
-          status = "REPLACE"
+          action = 'WRITE'
+          status = 'REPLACE'
           position = "REWIND"
       else if (mode(1:l).eq.'w+') then
-          action   = "WRITE"
-          status   = "OLD"
+          action   = 'WRITE'
+          status   = 'OLD'
           position = "APPEND"
       else
           junk = "unknown parameter in open_file, "//mode(1:l)
@@ -100,9 +101,10 @@ c
 
       call get_io_unit(fp)
     
-      open(UNIT=fp,FILE=FileName,
+      l = index(FileName,' ') -1
+      open(UNIT=fp,FILE=FileName(1:l),
      >    STATUS=status,
-     >    FORM="FORMATTED",
+     >    FORM='formatted',
      >    IOSTAT=ierr)
 
       if (ierr.ne.0)  then
