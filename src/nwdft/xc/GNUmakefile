@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.57 1999-11-04 18:29:55 jolguin Exp $
+# $Id: GNUmakefile,v 1.58 2000-01-15 02:05:19 edo Exp $
 ifeq ($(TARGET),SGITFP)
 	OBJ = xc_getv.o xc_quadv0.o xc_quadv0_a.o xc_quadv1.o xc_fitv.o xc_get2oi.o qpts.o gat_mat.o	xc_beckew.o setACmat.o xc_neighb.o xc_ssw.o xc_oep.o xc_sic_pert.o xc_sic.o localize_sic.o   xc_exact_pot.o
 	OBJ_OPTIMIZE = xc_tabcd.o  xc_rhogen.o\
@@ -65,7 +65,7 @@ endif
 
      LIBRARY = libnwdft.a
 
-# LIB_DEFINES = -DDFT_TIMER
+ LIB_DEFINES = -DDFT_TIMER
 # LIB_DEFINES = -DQUADV0_REVERT
 
 LIB_INCLUDES = -I../include
