@@ -3,7 +3,7 @@ C NAME
 C     rimp2_denom -- Apply denominators to a global array of integrals
 C
 C REVISION
-C     $Id: rimp2_denom.F,v 1.3 1995-10-17 08:55:51 d3g681 Exp $
+C     $Id: rimp2_denom.F,v 1.4 2000-11-04 02:14:33 edo Exp $
 C
       Subroutine RIMP2_Denom(G_Ints, BaseI, BaseJ, NVirI, NVirJ,
      $   OccEigI, OccEigJ, VirEigI, VirEigJ)
@@ -44,10 +44,7 @@ C INCLUDE FILES
 #include "mafdecls.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
-      Integer AILo, AIHi, BJLo, BJHi, ILo, IHi, JLo, JHi, ALo, AHi,
-     $  BLo, BHi, Offset, LD, I, J, A, B, ABot, ATop, BBot, BTop,
-     $  H_Int
-      Double precision DenIJ, Den
+      Integer   H_Int,Ailo,AIhi,BJlo,BJhi,LD
 C
 C     First, find out what patch of the matrix we have.  First index
 C     is combined index AI, second is BJ
@@ -61,76 +58,99 @@ C
       If ( (AIhi-AIlo+1) * (BJHi-BJLo+1) .ne. 0) then
 C        
          Call GA_Access( G_Ints, AIlo, AIhi, BJlo, BJhi, H_Int, LD)
-C        
-C        Figure out what these correspond to in more 
-C        basic terms.  Note that everything here is relative
-C        to the base I and J for this matrix, which this routine
-C        doesn't really care about.
-C        
-         ALo = Mod( AILo, NVirI )
-         If ( ALo .eq. 0) ALo = NVirI
-         AHi = Mod( AIHi, NVirI )
-         If ( AHi .eq. 0) AHi = NVirI
-C        
-         BLo = Mod( BJLo, NVirJ )
-         If ( BLo .eq. 0) BLo = NVirJ
-         BHi = Mod( BJHi, NVirJ )
-         If ( BHi .eq. 0) BHi = NVirJ
-C        
-         ILo = Int( (AILo-1) / NVirI ) + 1
-         IHi = Int( (AIHi-1) / NVirI ) + 1
-C        
-         JLo = Int( (BJLo-1) / NVirJ ) + 1
-         JHi = Int( (BJHi-1) / NVirJ ) + 1
-C        
-         Offset = -1
-         Do J = JLo, JHi
-C           
-C           First and last J might not cover the whole range
-C           
-            BBot = 1
-            BTop = NVirJ
-            If ( J .eq. JLo) BBot = BLo
-            If ( J .eq. JHi) BTop = BHi
-C           
-            Do B = BBot, BTop
-C              
-C              These two loops walk down a column of our patch
-C
-               Do I = ILo, IHi
-C                 
-C                 Form half of the denominator
-C                 
-                  DenIJ = OccEigI(BaseI+I-1) + OccEigJ(BaseJ+J-1)
-C                 
-C                 As with B, A doesn't always cover the whole
-C                 range
-C                 
-                  ABot = 1
-                  ATop = NVirI
-                  If ( I .eq. ILo) ABot = ALo
-                  If ( I .eq. IHi) ATop = AHi
-C                 
-                  Do A = ABot, ATop
-                     Offset = Offset + 1
-C                    
-                     Den = DenIJ - VirEigI( A ) - VirEigJ( B )
-                     Dbl_MB( H_Int + Offset )
-     $                  =  Dbl_MB( H_Int + Offset ) / Den
-C                    
-                  EndDo         ! A
-               EndDo            ! I
-C
-C              Jump to the proper offset for the head of the next
-C              column.
-C
-               Offset = Offset + LD - (AIhi - AIlo + 1)
-C              
-            EndDo               ! B
-         EndDo                  ! J
+      call rimp2_denom_a(g_ints,
+     ,     AIlo, AIhi, BJlo, BJhi, dbl_mb(H_Int), LD,
+     ,     nviri,nvirj,basei,basej,
+     ,     occeigi,occeigj,vireigi,vireigj)
 C        
          Call GA_Release_Update( G_Ints, AIlo, AIhi, BJlo, BJhi)
       EndIf
 C     
       Return
       End
+c
+      subroutine rimp2_denom_a(g_ints,
+     ,     AIlo, AIhi, BJlo, BJhi, H_Int, LD,
+     ,     nviri,nvirj,basei,basej,
+     ,     occeigi,occeigj,vireigi,vireigj)
+      implicit none
+#include "mafdecls.fh"
+      integer g_ints,AIlo, AIhi, BJlo, BJhi,LD 
+      integer nviri,nvirj
+      integer basei,basej
+      double precision H_int(*),occeigi(*),occeigj(*),
+     .     vireigi(*),vireigj(*)
+c
+      integer alo,ahi,blo,bhi
+      integer ilo,ihi,jlo,jhi
+      integer i,j,a,b,offset,bbot,btop,abot,atop
+      double precision denij,den
+C     
+C        Figure out what these correspond to in more 
+C        basic terms.  Note that everything here is relative
+C        to the base I and J for this matrix, which this routine
+C        doesn't really care about.
+C        
+      ALo = Mod( AILo, NVirI )
+      If ( ALo .eq. 0) ALo = NVirI
+      AHi = Mod( AIHi, NVirI )
+      If ( AHi .eq. 0) AHi = NVirI
+C     
+      BLo = Mod( BJLo, NVirJ )
+      If ( BLo .eq. 0) BLo = NVirJ
+      BHi = Mod( BJHi, NVirJ )
+      If ( BHi .eq. 0) BHi = NVirJ
+C     
+      ILo = Int( (AILo-1) / NVirI ) + 1
+      IHi = Int( (AIHi-1) / NVirI ) + 1
+C     
+      JLo = Int( (BJLo-1) / NVirJ ) + 1
+      JHi = Int( (BJHi-1) / NVirJ ) + 1
+C     
+      Offset = 0
+      Do J = JLo, JHi
+C     
+C     First and last J might not cover the whole range
+C     
+         BBot = 1
+         BTop = NVirJ
+         If ( J .eq. JLo) BBot = BLo
+         If ( J .eq. JHi) BTop = BHi
+C     
+         Do B = BBot, BTop
+C     
+C     These two loops walk down a column of our patch
+C     
+            Do I = ILo, IHi
+C     
+C     Form half of the denominator
+C     
+               DenIJ = OccEigI(BaseI+I-1) + OccEigJ(BaseJ+J-1)
+C     
+C     As with B, A doesn't always cover the whole
+C     range
+C     
+               ABot = 1
+               ATop = NVirI
+               If ( I .eq. ILo) ABot = ALo
+               If ( I .eq. IHi) ATop = AHi
+C     
+               Do A = ABot, ATop
+                  Offset = Offset + 1
+C     
+                  Den = DenIJ - VirEigI( A ) - VirEigJ( B )
+                  H_Int( Offset )
+     $                 =  H_int( Offset ) / Den
+C     
+               EndDo            ! A
+            EndDo               ! I
+C     
+C     Jump to the proper offset for the head of the next
+C     column.
+C     
+            Offset = Offset + LD - (AIhi - AIlo + 1)
+C     
+         EndDo                  ! B
+      EndDo                     ! J
+      return
+      end
