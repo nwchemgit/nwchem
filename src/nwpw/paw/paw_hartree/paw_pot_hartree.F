@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_hartree.F,v 1.3 2003-02-15 01:29:40 bylaska Exp $
+c $Id: paw_pot_hartree.F,v 1.4 2003-02-15 22:58:36 marat Exp $
 c
 
 !**************************************************
@@ -35,7 +35,8 @@ c     !*** calculate the size and indexing ***
          int_mb(i_paw_pot_hartree(1) + in - 1) = paw_pot_hartree_size
          ia = ion_katm(in)
          paw_pot_hartree_size = paw_pot_hartree_size
-     >                + paw_proj_nbasis(ia)**2*ion_natm(ia)
+     >                + paw_proj_nbasis(ia)**2
+c     >                + paw_proj_nbasis(ia)**2*ion_natm(ia)
       end do
 
 
