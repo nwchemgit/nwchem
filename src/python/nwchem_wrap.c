@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.21 2004-12-28 18:04:51 edo Exp $
+ $Id: nwchem_wrap.c,v 1.22 2005-02-22 02:07:48 edo Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -22,7 +22,7 @@ static PyObject *NwchemError;
 
 static Integer rtdb_handle;            /* handle to the rtdb */
 
-#if defined(CRAY) || defined(CRAY_T3E) || defined(WIN32)
+#if defined(CRAY_T3E) || defined(WIN32)
 #define task_energy_ TASK_ENERGY
 #define task_gradient_ TASK_GRADIENT
 #define task_optimize_ TASK_OPTIMIZE
