@@ -2,7 +2,7 @@
      $     nbf,noa,nva,nob,nvb,
      $     batch_size,max_ma,max_ga,max_file,task,scftype)
 *     
-*     $Id: mp2_memory.F,v 1.20 2002-02-07 17:45:19 edo Exp $
+*     $Id: mp2_memory.F,v 1.21 2003-01-09 02:02:15 bert Exp $
 *     
       implicit none
 #include "mafdecls.fh"
@@ -78,7 +78,9 @@ c
       k_file_size=dble(nnbf_sparse)*batch_size*nva_local + nnbf + 2
       t_file_size = 0
       p_file_size = 0
+#ifndef EXT_INT
       if (k_file_size .gt. 2.4d8) k_file_size = 1d99
+#endif
 *      if (task .eq. 'gradient') then
          call mp2_backt_info(basis,tol2e,oskel,
      $        .false.,nshpair,nshpairlocal,
@@ -87,8 +89,10 @@ c
       if (task .eq. 'gradient') then
          t_file_size=dble((nob*nvb+noa*nva))*batch_size*nva_local
          p_file_size=dble(nbfpairlocal)*nbf*batch_size
+#ifndef EXT_INT
          if (t_file_size .gt. 2.4d8) t_file_size = 1d99
          if (p_file_size .gt. 2.4d8) p_file_size = 1d99
+#endif
       endif
 *      endif
 c
