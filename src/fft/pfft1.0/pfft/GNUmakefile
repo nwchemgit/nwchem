@@ -40,7 +40,7 @@ LIB_DEFINES = -D${IO_STYLE} -DIBM ${GENDEFS} -DTCGMSG -DFFTPACK
 
 #CPP		= /usr/lib/cpp -P -C -D${COMM_PKG} -D${IO_STYLE} -DIBM ${GENDEFS}
 
-###################################		dcopy.o \
+###################################		dcopy.o 
 OBJ_OPTIMIZE=	blktrn.o \
 		drain.o \
 		fillup.o \
