@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.7 1996-11-14 22:55:32 mdupuis Exp $
+C$Id: opt_drv.F,v 1.8 1996-12-04 23:14:23 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -1023,6 +1023,7 @@ C
 C
       OUT =.FALSE.
       SOME=.FALSE.
+      SOME=SOME.OR.OUT    
 C
       IF(OUT) THEN
          WRITE(IW,9999) NAT,NCART,NZVAR,NVAR,NINT,NCOOR,NZMAT
@@ -1736,7 +1737,7 @@ C
       DATA TENM1  /1.0D-01/
 C
       DBUG=.FALSE.
-      OUT =.FALSE.
+      OUT =.TRUE. 
       OUT =OUT.OR.DBUG
       IF(OUT) THEN
          WRITE(IW,9999) NVAR,NDIM
@@ -1778,6 +1779,11 @@ C
       IF(DBUG) THEN
          WRITE(IW,9996)
          CALL HND_PREV(HESVEC,HESEIG,NVAR+1,NVAR+1,NDIM)
+      ELSEIF(OUT) THEN
+         WRITE(IW,9996)
+         DO J=1,NVAR+1
+            WRITE(IW,9995) J,HESEIG(J)                 
+         ENDDO
       ENDIF
 C
 C     ----- THIS IS THE AUGMENTED HESSIAN DIRECTION -----
@@ -2302,7 +2308,7 @@ C
       DATA DALNOR,DALMAX        /0.9D+00,0.5D+00/
 C
       DBUG=.FALSE.
-      OUT =.FALSE.
+      OUT =.TRUE.
       OUT =OUT.OR.DBUG
       IF(OUT) THEN
          WRITE(IW,9994)
@@ -2703,11 +2709,11 @@ c
          if( ga_nodeid().eq.0) then
             status=driver_opt_get_hess(x(j10),ndimq,ndim) 
             status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
-            call ga_brdcst(35+msgdbl,x(j10),mdtob(ndim),0)
-            call ga_brdcst(36+msgdbl,x(j20),mdtob(ndim),0)
+            call ga_brdcst(35+msgdbl,x(j10),mdtob(ndim*ndim),0)
+            call ga_brdcst(36+msgdbl,x(j20),mdtob(ndim*ndim),0)
          else
-            call ga_brdcst(35+msgdbl,x(j10),mdtob(ndim),0)
-            call ga_brdcst(36+msgdbl,x(j20),mdtob(ndim),0)
+            call ga_brdcst(35+msgdbl,x(j10),mdtob(ndim*ndim),0)
+            call ga_brdcst(36+msgdbl,x(j20),mdtob(ndim*ndim),0)
          endif
          call ga_sync()
          status=rtdb_parallel(.true.)
@@ -2732,15 +2738,23 @@ c
          status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
             status=driver_opt_get_hess(x(i10),ndimx,ndim)
-            call ga_brdcst(37+msgdbl,x(i10),mdtob(ndim),0)
+            call ga_brdcst(37+msgdbl,x(i10),mdtob(ndim*ndim),0)
          else
-            call ga_brdcst(37+msgdbl,x(i10),mdtob(ndim),0)
+            call ga_brdcst(37+msgdbl,x(i10),mdtob(ndim*ndim),0)
          endif
          call ga_sync()
          status=rtdb_parallel(.true.)
          if(dbug) then
+         if( ga_nodeid().eq.0) then
             write(iw,*) 'in hss_update, cartesian hessian = '
             call hnd_prsq(x(i10),ndimx,ndimx,ndim)
+         endif
+         call ga_sync()
+         if( ga_nodeid().eq.1) then
+            write(iw,*) 'in hss_update, cartesian hessian = '
+            call hnd_prsq(x(i10),ndimx,ndimx,ndim)
+         endif
+         call ga_sync()
          endif
       endif
 c
@@ -2817,6 +2831,7 @@ c
       PARAMETER (MXZMAT=1500)
       PARAMETER (MXCOOR=1500)
       LOGICAL DBUG
+      LOGICAL OUT 
       LOGICAL CVGED
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OPTMIZ/X0(MXCOOR),X(MXCOOR),DX(MXCOOR),
@@ -2830,9 +2845,15 @@ c
       DATA TOL  /1.0D-08/
 C
       DBUG=.FALSE.
+      OUT =.TRUE. 
+      OUT =OUT.OR.DBUG
       IF(DBUG) THEN
          WRITE(IW,9999)
          CALL HND_PRSQ(HESS,NVAR,NVAR,NDIM)
+      ELSEIF(OUT) THEN
+         WRITE(IW,9999)
+      ENDIF
+      IF(OUT) THEN
          WRITE(IW,9997) 
          WRITE(IW,9994) (G0(I),I=1,NVAR)
          WRITE(IW,9996) 
@@ -2873,6 +2894,11 @@ C
          DUM=DUM+DX(I)*HESSDX(I)
       ENDDO
       DXHDX=DUM
+      IF(OUT) THEN
+         WRITE(IW,*) 'DXDG  = ',DXDG
+         WRITE(IW,*) 'DXDX  = ',DXDX
+         WRITE(IW,*) 'DXHDX = ',DXHDX
+      ENDIF
 C
       IF(MODUPD.LE.1) THEN       
 C
