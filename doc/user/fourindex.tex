@@ -2,7 +2,7 @@
 
 {\bf ????????????????????}
 \Large
-**What does this module do?  Is it invoked by any module other than
+**What does this module really do?  Is it invoked by any module other than
 DIRECT\_MP2?
 \normalsize
 
@@ -31,11 +31,11 @@ a \verb+SET+ directive of the form,
 \end{verbatim}
 
 % There is a choice of two algorithms for effecting the transformation.
-The default entry for the string \verb+method+ is \verb+"twofold"+, which
+The default entry for the string \verb+method+ is \verb+twofold+, which
 specifies ***what?***.  This option should be used in almost all instances.
 However, in cases of high orders of parallelism (i.e., more than 200 nodes),
  better throughput may be obtained with the alternative algorithm, 
-obtained by setting \verb+method+ to \verb+"sixfold"+.
+obtained by setting \verb+method+ to \verb+sixfold+.
 
 \subsection{AO Integral Blocking and Block Length for the Four-Index Transformation}
 
@@ -73,6 +73,7 @@ gain from a longer vector length.
 
 \Large
 ***What is $N_{bf} / 3$?
+\normalsize
 
 \subsection{Frozen orbitals for the Four-Index Transformation}
 
