@@ -1,8 +1,8 @@
-      subroutine daxpyfile(n,coefficients,d_in,d_out,size)
+      subroutine daxfile(n,coefficients,d_in,d_out,size)
 c
-c $Id: daxpyfile.F,v 1.3 2003-07-25 21:26:59 sohirata Exp $
+c $Id: daxfile.F,v 1.1 2003-07-25 21:27:19 sohirata Exp $
 c
-c     A linear combination of files added to the original
+c     A linear combination of files
 c
       implicit none
 #include "global.fh"
@@ -25,7 +25,7 @@ c
       nodezero = (ga_nodeid().eq.0)
       nblocks = size/buffer_size + 1
       blocksize = size/nblocks + 1
-      if (nodezero.and.util_print('daxpyfile',print_debug)) then
+      if (nodezero.and.util_print('daxfile',print_debug)) then
         do l = 1,n
           write(LuOut,9180) d_in(l),size,coefficients(l)
         enddo
@@ -39,7 +39,7 @@ c
      1  l_temp2,k_temp2))
      2  call errquit('tce_zero: MA problem',1)
       do i = 1,nblocks
-        if (nodezero.and.util_print('daxpyfile',print_debug))
+        if (nodezero.and.util_print('daxfile',print_debug))
      1    write(LuOut,9210) (i-1)*blocksize,
      2                      min(size,i*blocksize)-(i-1)*blocksize
         k = 0
@@ -57,7 +57,7 @@ c
      1      + coefficients(l) * dbl_mb(k_temp2+k-1)
           enddo
         enddo
-        call add_block(d_out,dbl_mb(k_temp1),
+        call put_block(d_out,dbl_mb(k_temp1),
      1    min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
       enddo
       if (.not.ma_pop_stack(l_temp2))

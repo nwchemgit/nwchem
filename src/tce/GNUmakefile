@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.17 2003-07-25 17:54:59 sohirata Exp $
+#$Id: GNUmakefile,v 1.18 2003-07-25 21:26:59 sohirata Exp $
 
 OBJ = tce_energy.o tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_filename.o createfile.o deletefile.o reconcilefile.o \
@@ -11,7 +11,7 @@ OBJ = tce_energy.o tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_a
       tce_jacobi_l1.o tce_jacobi_l2.o tce_jacobi_l3.o tce_jacobi_l4.o \
       ma_pack.o sf_print.o ma_print_compact.o ma_transpose.o ma_scale.o \
       tce_diis_init.o tce_diis_tidy.o tce_diis_switch.o tce_diis.o \
-      copyfile.o ddotfile.o daxpyfile.o dscalfile.o \
+      copyfile.o ddotfile.o daxfile.o daxpyfile.o dscalfile.o \
       tce_aod1.o tce_nud1.o tce_mod1.o tce_mod1_offset.o sym_abelian_axis.o \
       ccsd_lambda1.o ccsd_lambda2.o ccsd_density1.o \
       ccsdt_lambda1.o ccsdt_lambda2.o ccsdt_lambda3.o ccsdt_density1.o \
