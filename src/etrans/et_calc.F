@@ -1,10 +1,9 @@
-c $Id: et_calc.F,v 1.11 2002-03-27 22:16:51 d3k958 Exp $
       logical function et_calc(rtdb,Vba)
       implicit none
 c
-c     This function actually calculates Vba
+c     This function calculates Vba, the electron transfer matrix element.
 *
-* $Id: et_calc.F,v 1.11 2002-03-27 22:16:51 d3k958 Exp $
+* $Id: et_calc.F,v 1.12 2002-07-01 19:14:38 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -17,16 +16,6 @@ c
 #include "geom.fh"
 #include "cscf.fh"
 c
-c     Generic NWChem interface to compute Vba. SCF of DFT determinants
-c     can be used.
-c
-c     RTDB output parameters
-c     ----------------------
-c     task:status (logical)- T/F for success/failure
-c     if (status) then
-c     .  task:et (real)   - Vba (electron transfer matrix element)
-c
-c
       integer rtdb, me
       integer i, j, k
       integer l_vals,k_vals
@@ -36,84 +25,90 @@ c
       integer g_av,g_bu,g_t,g_h1
       integer g_avecsa,g_avecsb,g_bvecsa,g_bvecsb
       integer mem2, max2e, lena, lenb
-      integer method_2e
-c
+      integer method_2e, anmo, bnmo, nbf_file, nset
+
       logical et_movecs_read
       external et_movecs_read
       logical ga_copy
       external ga_copy
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
-c
-      character*255 a_file, b_file
+      logical movecs_read_header
+      external movecs_read_header
+
+      character*255 a_file, b_file, basis_name
       character*2 pname(2)
+
       double precision Vba
       double precision prod(2)
       double precision Sba,pa_val,pb_val,omega1,h1_val
       double precision detu(2),detv(2),detprod,omega2
       double precision Haa,Hbb,Hba,val, dum
-c
+
       me=ga_nodeid()
-c
+
       if (me.eq.0) then
       Call Util_Print_Centered(6,'Electron Transfer Calculation'
      &     ,40,.true.)
       write(6,*)
       endif
 c
-c========================
-c     for printing:
-c========================
+c -------------
+c for printing:
+c -------------
 c
       call util_print_push
       call util_print_rtdb_load(rtdb,"et")
 c
-c
-c     load geometry and symmetry info
-c     -------------------------------
+c -------------------------------
+c load geometry and symmetry info
+c -------------------------------
 c
       if (.not. geom_create(geom, 'geometry'))
      $     call errquit('scf_init: geom_create?', 0)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      $     call errquit('scf_init: no geometry ', 0)
 c
-c     load the basis set and get info about it
-c     ----------------------------------------
+c ----------------------------------------
+c load the basis set and get info about it
+c ----------------------------------------
 c
       if (.not. bas_create(basis, 'ao basis'))
      $     call errquit('et_calc: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      $        call errquit('et_calc: no ao basis set', 0)
 c
-c     get nbf
-c     -------
+c  -------
+c  get nbf
+c  -------
 c
       if (.not.bas_numbf(basis,nbf))
      $     call errquit('bas_numbf failed',0)
 c
-c     initialize the API 
-c     ------------------
+c ------------------
+c initialize the API 
+c ------------------
 c
       call int_init(rtdb, 1, basis)
       call int_acc_std()
       call int_normalize(rtdb,basis)
 c
-c     calculate the overlap integrals
-c     -------------------------------
-      call ga_sync()
+c  -------------------------------
+c  calculate the overlap integrals
+c  -------------------------------
+c
       if(.not.ga_create(mt_dbl,nbf,nbf,'s',0,0,g_s))
      $        call errquit('task_et ga_create failed', 0)
       call ga_zero(g_s)
       call int_1e_ga(basis, basis, g_s, 'overlap', .false.)  
-c
+
       if (util_print("et",print_debug)) then
        call ga_print(g_s)
       endif
 c
-c======================================================================= 
-c     Read MO vectors from files.
-c     First, get the A and B filenames from the rtdb
-c=======================================================================
+c ---------------------------
+c Read MO vectors from files
+c ---------------------------
 c
       if (.not. rtdb_cget(rtdb, 'a_vecs', 1, a_file))
      $     call errquit('et_calc: couldnt get a_vecs filename',0)
@@ -130,40 +125,104 @@ c
       write(6,*)
       endif
 c
+c -----------------------------------------------------
+c Allocate occupation and eigenvalue vectors. 
+c 'occ' is used to calculate nocc, 'eval' is never used.
+c ------------------------------------------------------
 c
-c     Allocate occupation vector. Used to calculate nocc(j),j=1,2 for alpha,
-c     beta occupied orbitals.
-c     ------------------------------------------------------------------------------
       if (.not.ma_push_get(mt_dbl,nbf,'occ',l_occ,k_occ))
      $         call errquit('ma_push_get failed for occ',k_occ)
-c
-c     Allocate evals, vector containing eigenvalues. Only used for
-c     calling et_movecs_read. Eigenvalues themselves are not needed.
-c     ----------------------------------------------------------
+
       if (.not.ma_push_get(mt_dbl,nbf,'evals',l_eval,k_eval))
      $        call errquit('ma_push_get failed for evals',k_eval)
 c
-c     allocate arrays for MO coefficients, for state A
-c     -------------------------------------------------------
+c ------------------------------------------------
+c Read header to check that nset=2, and to get nmo
+c ------------------------------------------------
+c
+c a_file:
+c -------
+c
+      if(.not.movecs_read_header(a_file(1:lena),title,basis_name,
+     &   scftype,nbf_file,nset,anmo,2)) 
+     &   call errquit('et_calc: movecs_read_header failed',me)
+
+      if (nset.ne.2) then
+        call errquit('et_calc: only UHF/ODFT orbitals allowed',nset)
+      endif
+
+      if (nbf_file.ne.nbf) then
+        call errquit('et_calc: basis function mismatch',nbf_file)
+      endif
+
+      if (anmo.lt.nbf) then
+        if (me.eq.0) then
+          write(6,*) a_file(1:lena),
+     &    'Linear dependent MO vectors have been removed' 
+        endif
+      endif
+
+c b_file:
+c -------
+c
+      if(.not.movecs_read_header(b_file(1:lenb),title,basis_name,
+     &   scftype,nbf_file,nset,bnmo,2)) 
+     &   call errquit('et_calc: movecs_read_header failed',me)
+
+      if (nset.ne.2) then
+        call errquit('et_calc: only UHF/ODFT orbitals allowed',bnmo)
+      endif
+
+      if (nbf_file.ne.nbf) then
+        call errquit('et_calc: basis function mismatch',nbf_file)
+      endif
+
+      if (bnmo.lt.nbf) then
+        if (me.eq.0) then
+          write(6,*) b_file(1:lenb),
+     &    'Linear dependent MO vectors have been removed' 
+        endif
+      endif
+c
+c check that the linear dependence in a_file and b_file is the same
+c -----------------------------------------------------------------
+c
+      if (anmo.ne.bnmo) then
+       if (me.eq.0) then 
+         write (6,*) 'et_calc: different lindep in a_file and b_file'
+       endif
+      endif
+
+c -------------------------------------------------------
+c allocate arrays for MO coefficients, for state A
+c -------------------------------------------------------
+c
       if (.not.ga_create(mt_dbl,nbf,nbf,'A alpha',0,0,g_avecsa))
      $         call errquit('ga_create failed for A alpha',g_avecsa)
 
       if (.not.ga_create(mt_dbl,nbf,nbf,'A beta',0,0,g_avecsb))
      $         call errquit('ga_create failed for A beta',g_avecsb)
 
-c     read occ, evals, mo coefficients for alpha orbitals from a_file
-c     ------------------------------------------------------------------
+      call ga_zero (g_avecsa)
+      call ga_zero (g_avecsb)
+c 
+c ------------------------------------------------------------------
+c read occ, evals, mo coefficients for alpha orbitals from a_file
+c ------------------------------------------------------------------
+c
       if(.not.et_movecs_read(a_file(1:lena),1,dbl_mb(k_occ)
      $   ,dbl_mb(k_eval),g_avecsa,dum))
      $ call errquit('et_movecs_read failed for alpha mos',0)
 c
-c     get nocc(1): # of occupied alpha mo's
-c     -------------------------------------
+c -------------------------------------
+c get nocc(1): # of occupied alpha mo's
+c -------------------------------------
+c
       nocc(1)=0
       do i = 1,nbf
        nocc(1) = nocc(1) + dbl_mb(k_occ+i-1)
       enddo
-c
+
       if (util_print("et",print_high)) then
       if(me.eq.0) then
         write(6,*) nocc(1), " occupied alpha orbitals"
@@ -172,19 +231,23 @@ c
         call ga_print(g_avecsa)
       endif
 c
-c     read occ, evals, mo coefficients for beta orbitals from a_file
-c     ------------------------------------------------------------------
+c ------------------------------------------------------------------
+c read occ, evals, mo coefficients for beta orbitals from a_file
+c ------------------------------------------------------------------
+c
       if(.not.et_movecs_read(a_file(1:lena),2,dbl_mb(k_occ)
      $     ,dbl_mb(k_eval),g_avecsb, dum))
      $ call errquit('et_movecs_read failed for beta mos',0)
 c
-c     get nocc(2): # of occupied alpha mo's
-c     -------------------------------------
+c -------------------------------------
+c get nocc(2): # of occupied alpha mo's
+c -------------------------------------
+c
       nocc(2)=0
       do i = 1,nbf
        nocc(2) = nocc(2) + dbl_mb(k_occ+i-1)
       enddo
-c
+
       if (util_print("et",print_high)) then
       if(me.eq.0) then
         write(6,*) nocc(2), " occupied  beta orbitals"
@@ -193,17 +256,23 @@ c
         call ga_print(g_avecsb)
       endif
 c
-c     allocate arrays for MO coefficients, for state B
-c     -------------------------------------------------------
+c -------------------------------------------------------
+c allocate arrays for MO coefficients, for state B
+c -------------------------------------------------------
+c
       if (.not.ga_create(mt_dbl,nbf,nbf,'B alpha',0,0,g_bvecsa))
      $         call errquit('ga_create failed for B alpha',g_bvecsa)
 
       if (.not.ga_create(mt_dbl,nbf,nbf,'B beta',0,0,g_bvecsb))
      $         call errquit('ga_create failed for B beta',g_bvecsb)
 
+      call ga_zero (g_bvecsa)
+      call ga_zero (g_bvecsb)
 c
-c     read occ, evals, mo coefficients from b_file
-c     ------------------------------------------------
+c ------------------------------------------------
+c read occ, evals, mo coefficients from b_file
+c ------------------------------------------------
+c
       if(.not.et_movecs_read(b_file(1:lenb),1,dbl_mb(k_occ)
      $   ,dbl_mb(k_eval) ,g_bvecsa, dum))
      $   call errquit('et_movecs_read failed for alpha mos',0)
@@ -217,17 +286,16 @@ c
        call ga_print(g_bvecsb)
       endif
 c
-c     Read converged scf or dft energy from movecs file
-c     vectors, occupation vector, eigenvalues will be re-written,
-c     but they are no longer needed at this point.
-c     ==========================================================
+c --------------------------------------------------
+c Read converged scf or dft energy from movecs file.
+c --------------------------------------------------
 c
       if(.not.et_movecs_read(a_file(1:lena),3
-     $   ,dbl_mb(k_occ),dbl_mb(k_eval),g_bvecsa, Haa)) 
+     $   ,dbl_mb(k_occ),dbl_mb(k_eval),1, Haa)) 
      $   call errquit('et_movecs_read failed for Haa',0)
 c
       if(.not.et_movecs_read(b_file(1:lenb),3
-     $   ,dbl_mb(k_occ),dbl_mb(k_eval),g_bvecsa, Hbb)) 
+     $   ,dbl_mb(k_occ),dbl_mb(k_eval),1, Hbb)) 
      $   call errquit('et_movecs_read failed for Hbb',0)
 c
       if (me.eq.0) then
@@ -235,9 +303,9 @@ c
       write(6,9995) 'Electronic energy of products    ','H(pp)',Hbb
       endif
 c
-c==================================================
-c     calculate D=B'*S*A for alpha and beta electrons
-c==================================================
+c -----------------------------------------------
+c calculate D=B'*S*A for alpha and beta electrons
+c -----------------------------------------------
 c
       g_ahandle(1)=g_avecsa
       g_ahandle(2)=g_avecsb
@@ -245,18 +313,23 @@ c
       g_bhandle(2)=g_bvecsb
 c
 c
-c     detprod is the product of det(U)*det(V) for alpha and beta electrons,
-c     and is used later.
+c detprod is the product of det(U)*det(V) for alpha and beta electrons,
+c and is used later.
+c ----------------------------------------------------------------------
 c
       detprod=1.0d0
 c
-c  for generalized density matrices:
+c -----------------------------------------------------
+c  pname is needed for generalized density matrices:
 c  Pa is for alpha electrons, Pb is for beta electrons.
+c -----------------------------------------------------
 c
       pname(1)='pa'
       pname(2)='pb'
 c
-c j is the alpha/beta loop:
+c ------------------------
+c begin alpha/beta loop j
+c ------------------------
 c
       do j = 1,2 
 c
@@ -270,8 +343,8 @@ c
       endif
       endif
 c
+c  -----------------------------------------------
 c  Perform matrix multiplication to get D = B'*S*A
-c  set size of D to be only nocc*nocc
 c  -----------------------------------------------
 c
       call ga_sync()
@@ -296,8 +369,9 @@ c
        call ga_print(g_d)
       endif
 c
+c ----------------------------------------------
 c Perform SVD to get U, V', and singluar values
-c Size of U and V' is nocc*nocc
+c ----------------------------------------------
 c
       if(.not.ga_create(mt_dbl,nocc(j),nocc(j),'u',0,0,g_u))
      $        call errquit('task_et ga_create failed', g_u)
@@ -311,9 +385,9 @@ c
      $        call errquit('ma_push_get failed for values ',k_vals)
 c
       call ga_svd_seq(g_d,g_u,g_vt,dbl_mb(k_vals))
-c       call et_svd(nocc(j),g_d,g_u,g_vt,dbl_mb(k_vals))
 c
 c prod is the product of singular values.
+c ---------------------------------------
 c
       prod(j) = 1.0d0
       do k = 1,nocc(j)
@@ -322,7 +396,7 @@ c
 c      write(6,*)'prod',j,prod(j)
 c      write(6,*)'singular values',(dbl_mb(k_vals+i-1),i=1,nocc(j))
 c
-c  D array is no longer needed.
+c
       if (.not.ga_destroy(g_d))
      &  call errquit('could not destroy D array',g_d)
 c
@@ -331,28 +405,20 @@ c
       call ga_print(g_vt)
       endif
 c
-      if(.not.ga_create(mt_dbl,nocc(j),nocc(j),'v',0,0,g_v))
-     $        call errquit('task_et ga_create failed', g_v)
-      call ga_transpose(g_vt,g_v)
 c
-      if (util_print("et",print_debug)) then
-      call ga_print(g_v) 
-      endif
-c
-c
-c      ===========================
-c      calculate det(U) and det(V)
-c      ===========================
+c --------------------------
+c calculate det(U) and det(V)
+c --------------------------
 c
        call et_det('N',g_u,nocc(j),detu(j))
        call et_det('T',g_vt,nocc(j),detv(j))
        detprod = detprod*detu(j)*detv(j)
 c       write(6,*) j,'detu,detv',detu(j),detv(j)
 c
-c=============================================================
+c ------------------------------------------------------------
 c                                               ^       ^
 c perform matrix mult to get transformed A & B: A = AV, B = BU
-c=============================================================
+c ------------------------------------------------------------
 c
       if(.not.ga_create(mt_dbl,nbf,nocc(j),'av',0,0,g_av))
      $        call errquit('task_et ga_create failed', g_av)
@@ -368,17 +434,14 @@ c
       call ga_dgemm('N','N',nbf,nocc(j),nocc(j),1.d0,g_bhandle(j),g_u
      &         ,0.d0,g_bu)
 c
-c  vectors are no longer needed
+c
       if (.not.ga_destroy(g_ahandle(j))) 
      &  call errquit('could not destroy mo vectors array',g_ahandle(j))
       if (.not.ga_destroy(g_bhandle(j))) 
      &  call errquit('could not destroy mo vectors array',g_bhandle(j))
 c
-c  U, V, VT are no longer needed
       if (.not.ga_destroy(g_u))
      &  call errquit('could not destroy U array',g_u)
-      if (.not.ga_destroy(g_v))
-     &  call errquit('could not destroy V array',g_v)
       if (.not.ga_destroy(g_vt))
      &  call errquit('could not destroy VT array',g_vt)
 c
@@ -396,11 +459,12 @@ c
       endif
 c
 c
-C                                   N
-C                                -------
-C     Calculates   T(i) =     PRODUCT  d(j) where N = nalpha or nbeta
-C                                -------
-C                                j.NE.i  
+c    --------------------------------------------------------------
+c                                   N
+c                                -------
+c     Calculates   T(i) =     PRODUCT  d(j) where N = nalpha or nbeta
+c                                -------
+c                                j.NE.i  
 c    --------------------------------------------------------------
 c    
       if(.not.ga_create(mt_dbl,nocc(j),nocc(j),'t',0,0,g_t))
@@ -421,16 +485,17 @@ c
          call ga_put(g_t,1,1,1,1,val,1)
 c
       endif
+      call ga_sync()
 c
       if (util_print("et",print_debug)) then
       call ga_print(g_t) 
       endif
 c
-c =====================================================
+c -----------------------------------------------------
 c                                            ^ ^
 c  calculate generalized density matrix, P = ATB'
 c  Pa is for alpha electrons, Pb is for beta electrons.
-c =====================================================
+c -----------------------------------------------------
 c
       if(.not.ga_create(mt_dbl,nbf,nbf,pname(j),0,0,g_phandle(j)))
      $        call errquit('task_et ga_create failed', g_phandle(j))
@@ -446,13 +511,12 @@ c
       call ga_dgemm('N','T',nbf,nbf,nocc(j),1.0d0,g_temp,g_bu
      &         ,0.0d0,g_phandle(j))
 c
-c  transformed MO's are no longer needed
+c
       if (.not.ga_destroy(g_av)) 
      &  call errquit('could not destroy transformed MO vectors',g_av)
       if (.not.ga_destroy(g_bu)) 
      &  call errquit('could not destroy transformed MO vectors',g_bu)
 c
-c  T and temp arrays are no longer needed
       if (.not.ga_destroy(g_t)) 
      &  call errquit('could not destroy T array',g_t)
       if (.not.ga_destroy(g_temp)) 
@@ -464,20 +528,22 @@ c
       endif
 c
 c
+c --------------------
 c end alpha/beta loop:
+c --------------------
       enddo    
 c
-c  overlap integrals are not longer needed
+
       if (.not.ga_destroy(g_s)) 
      &  call errquit('could not destroy overlap array',g_s)
+
 c
+c Pa is scaled by prod(b), Pb is scaled by prod(a)
+c ------------------------------------------------
 c
-c why is Pa scaled by prod(b), Pb scaled by prod(a)?
-c -------------------------------------------------
-c   
        call ga_dscal(g_phandle(1),prod(2))
        call ga_dscal(g_phandle(2),prod(1))
-c
+
       if (util_print("et",print_debug)) then
       if(me.eq.0) then
        write(6,*) 
@@ -488,9 +554,10 @@ c
        call ga_print(g_phandle(2))
       endif
 c
-c      =============
-c      calculate SBA
-c      =============
+c
+c -----------------------------------------
+c calculate overlap of state A with state B
+c -----------------------------------------
 c
        Sba = prod(1)*prod(2)*detprod
 c       write(6,*) 'Srp debug:',prod(1),prod(2),detprod
@@ -504,21 +571,24 @@ c
 c
       call util_flush(6) 
 c
-c      ============================================
-c      calculate the 1e contribution to Vba, omega1
-c      ============================================
+c --------------------------------------------
+c calculate the 1e contribution to Vba, omega1
+c --------------------------------------------
 c
-c     get hamiltonian integrals 
-c     -------------------------------
       if(.not.ga_create(mt_dbl,nbf,nbf,'h1',0,0,g_h1))
      $        call errquit('task_et ga_create failed', g_h1)
+c
+c get H1 integrals
+c ----------------
 c
       call ga_zero(g_h1)
       call int_1e_ga(basis, basis, g_h1, 'kinetic', .false.)  
       call int_1e_ga(basis, basis, g_h1, 'potential', .false.)  
 c
       if (util_print("et",print_debug)) then
-      call ga_print(g_h1)
+        if(me.eq.0) then
+          call ga_print(g_h1)
+        endif
       endif
 c
        omega1 = 0.0d0
@@ -531,6 +601,7 @@ c
        enddo
        enddo
 c
+       call ga_sync()
        omega1 = omega1*detprod
 c
       if(me.eq.0) then
@@ -541,13 +612,12 @@ c
 c
       call util_flush(6) 
 c
-c  H1 array is no longer needed.
       if (.not.ga_destroy(g_h1))
      &  call errquit('could not destroy H1 array',g_h1)
 c
-c      ============================================
-c      calculate the 2e contribution to Vba, omega2
-c      ============================================
+c --------------------------------------------
+c calculate the 2e contribution to Vba, omega2
+c --------------------------------------------
 c
        call int_mem_2e4c(mem2,max2e)
        mem2 = max(mem2,max2e)
@@ -556,6 +626,12 @@ c
        tol2e    =  min(1.0d-7,dabs(Sba)*1.0d-7)
        tol2e    =  max(1.0d-12,tol2e)
       endif
+c
+c two methods are available. One uses the scf fock builder (method_2e=1),
+c the other uses et_2e (method_2e=2). et_2e is more accurate, but much more
+c time consuming and should only be used for very small systems, or 
+c for debugging purposes.
+c ------------------------------------------------------------------------
 c
       if (.not.rtdb_get(rtdb,'et:method_2e',MT_INT,1,method_2e)) then
        method_2e = 1  !default uses fock builder for omega2
@@ -571,7 +647,7 @@ c
      &           g_phandle(1),g_phandle(2),omega2)
       endif
 c
-c  pa and pb arrays are no longer needed.
+c
       if (.not.ga_destroy(g_phandle(1)))
      &  call errquit('could not destroy P array',g_phandle(1))
       if (.not.ga_destroy(g_phandle(2)))
@@ -589,9 +665,9 @@ c
       endif
 c
 c
-c      =============
-c      calculate VBA
-c      =============
+c ---------------------------------------------
+c Finally, calculate the ET matrix element, Vba
+c ---------------------------------------------
 c
 c
        Vba =  Hba - Sba*(Haa+Hbb)*0.5d0
@@ -602,9 +678,9 @@ c
      $        call errquit('et_calc: rtdb_put of Vrp failed',0)
 c
 c
-c      =============
-c      Print results
-c      =============
+c -------------
+c Print results
+c -------------
 c
       if(me.eq.0) then
       write(6,9996) Vba,Vba*2.194746d5,
@@ -618,6 +694,8 @@ c
      &  49x,F11.6,' eV',/,
      &  49x,F11.3,' kcal/mol')
 c
+
+
       if (.not.ma_chop_stack(l_vals)) 
      &    call errquit('unable to destroy MA',l_vals)
       if (.not.ma_chop_stack(l_eval)) 
