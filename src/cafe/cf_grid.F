@@ -1,5 +1,5 @@
       subroutine cf_alpha
-c $Id: cf_grid.F,v 1.10 2001-12-03 23:57:17 d3j191 Exp $
+c $Id: cf_grid.F,v 1.11 2001-12-10 15:42:34 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -112,6 +112,8 @@ c
       do 4 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
+      if(k.gt.ngz) k=k-ngz
+      if(k.lt.1) k=k+ngz
       if(knode(k).eq.node) then
       lgrid=.true.
       k=k-kfrom(node+1)+1
@@ -449,16 +451,22 @@ c
       do 4 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
+      if(k.gt.ngz) k=k-ngz
+      if(k.lt.1) k=k+ngz
       if(knode(k).eq.node) then
       k=k-kfrom(node+1)+1
       j0=int(yw(iwm,2,iwa))-morder
       do 5 ith2=1,morder
       j0=j0+1
       j=j0+1+(ngy-isign(ngy,j0))/2
+      if(j.gt.ngy) j=j-ngy
+      if(j.lt.1) j=j+ngy
       i0=int(yw(iwm,1,iwa))-morder
       do 6 ith1=1,morder
       i0=i0+1
       i=i0+1+(ngx-isign(ngx,i0))/2
+      if(i.gt.ngx) i=i-ngx
+      if(i.lt.1) i=i+ngx
       term=chg(iwq(iwa),1,iset)*grid(1,i,j,k)
       fx=fx-ngx*term*dtheta(ith1,1,indx)*theta(ith2,2,indx)*
      + theta(ith3,3,indx)
