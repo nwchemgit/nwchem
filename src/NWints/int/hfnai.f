@@ -1,5 +1,5 @@
       Subroutine hfnai(E,R0,IJK,Vab,Nints,NPP,La,Lb,Li,Lp,Lp3,canAB)
-c $Id: hfnai.f,v 1.9 2004-07-22 16:31:41 edo Exp $
+c $Id: hfnai.f,v 1.10 2004-09-07 20:06:34 edo Exp $
       
       Implicit none
       
@@ -149,7 +149,6 @@ c--> Local variables
 
       integer ma,mb,mp,np, ica,icb,icb_limit,ipa,ipb
       integer Ia,Ja,Ka, Ib,Jb,Kb, Ip,Jp,Kp
-      integer npp1
 c
 c Compute the nuclear attraction integrals.
 c
@@ -187,8 +186,7 @@ c Define the angular momentum indices for shell "B".
           Ib = Nxyz(1)
           Jb = Nxyz(2)
           Kb = Nxyz(3)
-          npp1=(ia+ib+1)*(ja+jb+1)*(ka+kb+1)
-          call dcopy(npp1,0d0,0,VabP,1)
+          call dcopy(NPP,0d0,0,VabP,1)
           do Ip = 0,Ia+Ib
             do Jp = 0,Ja+Jb
               do Kp = 0,Ka+Kb
