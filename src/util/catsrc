@@ -1,5 +1,7 @@
 #!/bin/csh
 
+# $Id: catsrc,v 1.2 1995-02-02 18:09:17 d3g681 Exp $
+
 cd ..
 
 foreach dir ( $* )

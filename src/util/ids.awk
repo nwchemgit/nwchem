@@ -6,6 +6,7 @@
 # module name -> produce a write statement for the module name
 # other       -> produce nothing
 # 
+# $Id: ids.awk,v 1.2 1995-02-02 18:09:38 d3g681 Exp $
 
 BEGIN {
 		underline = "---------------------------------------------------------";
@@ -22,7 +23,7 @@ BEGIN {
 				 printf("      write(6,*) ' %s'\n",substr(underline,1,len));
 				}
 
-/\$Id: ids.awk,v 1.1 1995-02-02 17:51:25 d3g681 Exp $/		{
+/\$Id: ids.awk,v 1.2 1995-02-02 18:09:38 d3g681 Exp $/		{
 				 i = index($0, "$Id: ") + 5;
 				 j = index($0, "Exp $") - 1;
 				 n = j - i + 1;
