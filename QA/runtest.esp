@@ -1,5 +1,6 @@
 #!/bin/sh
 #
-cd /tmp
-runtest.unix procs 2 \
- $NWCHEM_TEST/esp/ethanethiol 
+runtests.unix procs 1 \
+ $NWCHEM_TEST/esp/esp
+runtests.unix procs 1 \
+ $NWCHEM_TEST/esp/esp_uhf
