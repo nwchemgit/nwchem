@@ -1,14 +1,15 @@
-      double complex function zdotu(n,zx,incx,zy,incy)
+      complex function cdotu(n,cx,incx,cy,incy)
 c
 c     forms the dot product of two vectors.
-c     jack dongarra, 3/11/78.
+c     jack dongarra, linpack, 3/11/78.
 c     modified 12/3/93, array(1) declarations changed to array(*)
 c
-C     $Id: zdotu.f,v 1.2 2002-01-19 04:49:57 edo Exp $                       
-      double complex zx(*),zy(*),ztemp
+C     $Id: cdotu.f,v 1.1 2002-01-19 04:49:57 edo Exp $                       
+      complex cx(*),cy(*),ctemp
       integer i,incx,incy,ix,iy,n
-      ztemp = (0.0d0,0.0d0)
-      zdotu = (0.0d0,0.0d0)
+c
+      ctemp = (0.0,0.0)
+      cdotu = (0.0,0.0)
       if(n.le.0)return
       if(incx.eq.1.and.incy.eq.1)go to 20
 c
@@ -20,18 +21,18 @@ c
       if(incx.lt.0)ix = (-n+1)*incx + 1
       if(incy.lt.0)iy = (-n+1)*incy + 1
       do 10 i = 1,n
-        ztemp = ztemp + zx(ix)*zy(iy)
+        ctemp = ctemp + cx(ix)*cy(iy)
         ix = ix + incx
         iy = iy + incy
    10 continue
-      zdotu = ztemp
+      cdotu = ctemp
       return
 c
 c        code for both increments equal to 1
 c
    20 do 30 i = 1,n
-        ztemp = ztemp + zx(i)*zy(i)
+        ctemp = ctemp + cx(i)*cy(i)
    30 continue
-      zdotu = ztemp
+      cdotu = ctemp
       return
       end
