@@ -17,10 +17,14 @@ c
 c
 c     find total number of molecules
 c
+c     on entry, id(i) contains the molecule number of atom i
+c
       do 13 i=1,nsa
       ndx(i,1)=0
       ndx(i,2)=0
    13 continue
+c
+c     store in ndx(i,1) the number of atoms in molecule i
 c
       nmol=0
       do 1 i=1,nsa
@@ -31,6 +35,8 @@ c
       do 14 i=1,nsa
       ndx(i,2)=id(i)
    14 continue
+c
+c     group single atom molecules with nearest multi-atom molecules
 c
       do 15 i=1,nsa
       if(ndx(id(i),1).eq.1) then
@@ -47,6 +53,7 @@ c
       endif
    16 continue
       if(k.gt.0) then
+      ndx(id(i),1)=0
       ndx(i,2)=id(k)
       write(*,'(a,i8,a,i4,a,f12.6)') 
      + ' Single ion ',i,' grouped with molecule ',
@@ -64,6 +71,7 @@ c
       root=0.0d0
 c
       do 3 m=1,nmol
+      if(ndx(m,1).gt.0) then
 c
 c     determine translation vector
 c
@@ -153,6 +161,7 @@ c
       dtran=dt
 cx      write(*,'(a,i4,a,f12.6,a,f12.6)') 
 cx     + '             Molecule ',large,' by ',dtran,' nm',root
+      endif
       endif
 c
     3 continue
