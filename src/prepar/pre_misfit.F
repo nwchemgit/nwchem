@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.22 2000-09-16 02:27:16 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.23 2000-09-21 15:24:19 d3j191 Exp $
 c
       implicit none
 c
@@ -163,6 +163,16 @@ c
       xs(1,i)=c(1)-dr*d(1)/r
       xs(2,i)=c(2)-dr*d(2)/r
       xs(3,i)=c(3)-dr*d(3)/r
+      if(nnn.eq.2) then
+      p(1)=xs(1,i)
+      p(2)=xs(2,i)
+      p(3)=xs(3,i)
+      t(1)=p(2)*c(3)-c(2)*p(3)+c(1)
+      t(2)=p(3)*c(1)-c(3)*p(1)+c(2)
+      t(3)=p(1)*c(2)-c(1)*p(2)+c(3)
+      angle=1.047198d0
+      call rotate(c,t,angle,p,xs(1,i))
+      endif
       isfnd(i)=1
       endif
 c

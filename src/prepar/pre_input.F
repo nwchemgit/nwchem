@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.66 2000-09-11 17:21:51 d3j191 Exp $
+c $Id: pre_input.F,v 1.67 2000-09-21 15:24:19 d3j191 Exp $
 c
       implicit none
 c
@@ -65,7 +65,7 @@ c
       slvnam='HOH'
       slvmdl='spce      '
       altloc='A'
-      chain='A'
+      chain='*'
       newtop=0
       newseq=0
       newrst=0
