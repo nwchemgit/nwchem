@@ -2,10 +2,9 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc,indx)
 c
-C$Id: grid_ssw.F,v 1.20 2003-12-20 00:29:34 edo Exp $
+C$Id: grid_ssw.F,v 1.21 2004-01-23 00:07:09 edo Exp $
 c
       implicit none
-#include "errquit.fh"
 #include "cdft.fh"
 
 c
@@ -106,62 +105,85 @@ c
       enddo
 32     continue
 c
-        do n=n1,n2
-           call dcopy(nctrs_pruned,1.d0,0,p,1)
-           do  i = 2, nctrs_pruned
-              inota=i.ne.AA
-              ij = (i*(i-1))/2
-              rag=rq(n,i)
-              
-              do  j = 1, i-1
-                 ij=ij+1
-                 mu = (rag - rq(n,j))*Rij(ij)
-                 if (mu.gt.(ass-eps)) then
-                    p(i)=0.d0
-                 elseif (mu.lt.-(ass-eps)) then
-                    p(j)=0.d0
-                 else
-#if !(defined(IFCLINUX) && defined(LINUX64))
-                    if(inota.and. j.ne.AA) then
-c     
-c     use interpolation for erfs
-c
-                       sk=erf1c(mu)
-                       if(mu.lt.0d0) then
-                          p(j) = p(j)*sk
-                          p(i) = p(i)*(1d0 - sk)
-                       else
-                          p(i) = p(i)*sk
-                          p(j) = p(j)*(1d0 - sk)
-                       endif
-                    else
-#endif
-                       sk=erf1(mu)
-                       p(i) = p(i)*sk
-                       p(j) = p(j)*(1d0 - sk)
-#if !(defined(IFCLINUX) && defined(LINUX64))
-                    endif
-#endif
-                 endif
-              enddo             ! end loop over j
-           enddo                ! end loop over i
-
+      do n=n1,n2
+         call grid_ssw0(nq,n,nctrs_pruned,AA,
+     ,     p,rq,rij,ass)
 c       
 c       compute sum of partitioning weights for normalization
 c       
 c       
-           wsum=0.d0
-           do i = 1, nctrs_pruned
-              wsum=wsum+p(i)
-           enddo
-           if(wsum.ne.0) then
-              xyzw(4,n) = p(AA)*xyzw(4,n)/wsum
-           else
-              call errquit(' ssw : wsum .eq.0 ',0, UNKNOWN_ERR)
+         wsum=0.d0
+         do i = 1, nctrs_pruned
+            wsum=wsum+p(i)
+         enddo
+         if(wsum.ne.0) then
+            xyzw(4,n) = p(AA)*xyzw(4,n)/wsum
+         else
+            call errquit(' ssw : wsum .eq.0 ',0)
                                 !           xyzw(4,n) =0d0
-           endif
-        enddo
+         endif
+      enddo
       call grid_compress(nq,xyzw,iscr,toll_scr)
         
+      return
+      end
+
+      subroutine grid_ssw0(nq,n,nctrs_pruned,AA,
+     ,     p,rq,rij,ass)
+      implicit none
+      integer nq ! complete no. grid pts
+      integer n ! grid point
+      integer nctrs_pruned ! no. centers
+      integer AA ! atom ctr of grid
+      double precision p(*)
+      double precision rq(nq,*)
+      double precision rij(*)
+      double precision ass ! erfc spread
+      integer i,j,ij
+      double precision rag,mu,sk
+      logical inota
+      double precision x,leps,toll_scr
+      parameter(leps=1d-4,toll_scr=1d-10)
+#include "xc_erftab.fh"
+c
+      call dcopy(nctrs_pruned,1.d0,0,p,1)
+      do  i = 2, nctrs_pruned
+         inota=i.ne.AA
+         ij = (i*(i-1))/2
+         rag=rq(n,i)
+         
+         do  j = 1, i-1
+            ij=ij+1
+           if(abs(p(i)).lt.toll_scr.and.
+     .           abs(p(j)).lt.toll_scr) then
+           else
+            mu = (rag - rq(n,j))*rij(ij)
+            if (mu.gt.ass) then
+               p(i)=0.d0
+            elseif (mu.lt.-ass) then
+               p(j)=0.d0
+            else
+c     
+c     use interpolation for erfs
+c
+               if(abs(mu).lt.leps) then
+                  sk=-1.88063178008d0*mu+0.5d0
+                  p(i) = p(i)*sk
+                  p(j) = p(j)*(1d0 - sk)
+               else
+                  sk=erf1c(mu)
+                  if(mu.lt.0d0) then
+                     p(j) = p(j)*sk
+                     p(i) = p(i)*(1d0 - sk)
+                  else
+                     p(i) = p(i)*sk
+                     p(j) = p(j)*(1d0 - sk)
+                  endif
+               endif
+            endif
+        endif
+      enddo                     ! end loop over j
+      enddo                     ! end loop over i
+
       return
       end

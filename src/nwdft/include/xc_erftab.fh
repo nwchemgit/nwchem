@@ -1,5 +1,5 @@
 *
-* $Id: xc_erftab.fh,v 1.12 2003-08-13 22:28:55 edo Exp $
+* $Id: xc_erftab.fh,v 1.13 2004-01-23 00:07:17 edo Exp $
 *
       double precision ass_erf1,ass_erf2,ass_ssf
       double precision alpha_erf1,alpha_erf2,eps
@@ -12,7 +12,7 @@ c
 #else
       double precision erfc
 #endif
-      parameter(ass_ssf=0.64d0,ass_erf1=.78d0,ass_erf2=0.49d0,
+      parameter(ass_ssf=0.64d0,ass_erf1=.725d0,ass_erf2=0.49d0,
      ,     alpha_erf1=1d0/0.30d0,
      ,     alpha_erf2=1d0/0.28d0,
      ,     eps=0.002d0)	
