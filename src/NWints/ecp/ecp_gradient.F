@@ -1,4 +1,4 @@
-C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
+C $Id: ecp_gradient.F,v 1.14 1999-04-29 00:24:27 edo Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_gradient (
@@ -232,6 +232,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
             call dfill (n_intmb*n_blk,zero,scr(i_lm),1)
           end if
           if (i_c_A .eq. i_c_C) then
+          if ((n_colc_C(-1,i) .gt. 0)) then
             if (n_blk .ne. 3) call ecp_local1 (mem,DryRun,
      &          R_BC,X_BC,Y_BC,Z_BC,l_B+1,
      &          n_prim_B,n_cont_B,scr(i_xcb),zeta_B,
@@ -243,6 +244,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
      &          csco,lcsco,
      &          scr(i_lp),n_intpb,.false.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
+            endif
             call ecp_int1 (mem,DryRun,
      &          R_BC,X_BC,Y_BC,Z_BC,l_B+1,
      &          n_prim_B,n_cont_B,scr(i_xcb),zeta_B,
@@ -255,6 +257,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
      &          scr(i_lp),n_intpb,n_blk,.false.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
           else
+          if ((n_colc_C(-1,i) .gt. 0)) then
             if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
      &          R_BC,X_BC,Y_BC,Z_BC,l_B+1,
      &          n_prim_B,n_cont_B,scr(i_xcb),zeta_B,
@@ -266,6 +269,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
      &          csco,lcsco,
      &          scr(i_lp),n_intpb,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
+            endif
             call ecp_int2 (mem,DryRun,
      &          R_BC,X_BC,Y_BC,Z_BC,l_B+1,
      &          n_prim_B,n_cont_B,scr(i_xcb),zeta_B,
@@ -283,6 +287,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
 *
           if (l_B .gt. 0) then
             if (i_c_A .eq. i_c_C) then
+          if ((n_colc_C(-1,i) .gt. 0)) then
               if (n_blk .ne. 3) call ecp_local1 (mem,DryRun,
      &            R_BC,X_BC,Y_BC,Z_BC,l_B-1,
      &            n_prim_B,n_cont_B,coef_B,zeta_B,
@@ -294,6 +299,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
      &            csco,lcsco,
      &            scr(i_lm),n_intmb,.false.,ibug/10)
               if (DryRun) max_type1 = max(mem,max_type1)
+              endif
               call ecp_int1 (mem,DryRun,
      &            R_BC,X_BC,Y_BC,Z_BC,l_B-1,
      &            n_prim_B,n_cont_B,coef_B,zeta_B,
@@ -306,6 +312,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
      &            scr(i_lm),n_intmb,n_blk,.false.,ibug/10)
               if (DryRun) max_type1 = max(mem,max_type1)
             else
+          if ((n_colc_C(-1,i) .gt. 0)) then
               if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
      &            R_BC,X_BC,Y_BC,Z_BC,l_B-1,
      &            n_prim_B,n_cont_B,coef_B,zeta_B,
@@ -317,6 +324,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
      &            csco,lcsco,
      &            scr(i_lm),n_intmb,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)
+              endif
               call ecp_int2 (mem,DryRun,
      &            R_BC,X_BC,Y_BC,Z_BC,l_B-1,
      &            n_prim_B,n_cont_B,coef_B,zeta_B,
@@ -360,6 +368,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
             call dfill (n_intma*n_blk,zero,scr(i_lm),1)
           end if
           if (i_c_B .eq. i_c_C) then
+          if ((n_colc_C(-1,i) .gt. 0)) then
             if (n_blk .ne. 3) call ecp_local1 (mem,DryRun,
      &          R_AC,X_AC,Y_AC,Z_AC,l_A+1,
      &          n_prim_A,n_cont_A,scr(i_xca),zeta_A,
@@ -371,6 +380,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
      &          csco,lcsco,
      &          scr(i_lp),n_intpa,.true.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
+            endif
             call ecp_int1 (mem,DryRun,
      &          R_AC,X_AC,Y_AC,Z_AC,l_A+1,
      &          n_prim_A,n_cont_A,scr(i_xca),zeta_A,
@@ -383,6 +393,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
      &          scr(i_lp),n_intpa,n_blk,.true.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
           else
+          if ((n_colc_C(-1,i) .gt. 0)) then
             if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
      &          R_BC,X_BC,Y_BC,Z_BC,l_B,
      &          n_prim_B,n_cont_B,coef_B,zeta_B,
@@ -394,6 +405,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
      &          csco,lcsco,
      &          scr(i_lp),n_intpa,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
+            endif
             call ecp_int2 (mem,DryRun,
      &          R_BC,X_BC,Y_BC,Z_BC,l_B,
      &          n_prim_B,n_cont_B,coef_B,zeta_B,
@@ -411,6 +423,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
 *
           if (l_A .gt. 0) then
             if (i_c_B .eq. i_c_C) then
+          if ((n_colc_C(-1,i) .gt. 0)) then
               if (n_blk .ne. 3) call ecp_local1 (mem,DryRun,
      &            R_AC,X_AC,Y_AC,Z_AC,l_A-1,
      &            n_prim_A,n_cont_A,coef_A,zeta_A,
@@ -422,6 +435,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
      &            csco,lcsco,
      &            scr(i_lm),n_intma,.true.,ibug/10)
               if (DryRun) max_type1 = max(mem,max_type1)
+              endif
               call ecp_int1 (mem,DryRun,
      &            R_AC,X_AC,Y_AC,Z_AC,l_A-1,
      &            n_prim_A,n_cont_A,coef_A,zeta_A,
@@ -434,6 +448,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
      &            scr(i_lm),n_intma,n_blk,.true.,ibug/10)
               if (DryRun) max_type1 = max(mem,max_type1)
             else
+          if ((n_colc_C(-1,i) .gt. 0)) then
               if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
      &            R_BC,X_BC,Y_BC,Z_BC,l_B,
      &            n_prim_B,n_cont_B,coef_B,zeta_B,
@@ -445,6 +460,7 @@ C $Id: ecp_gradient.F,v 1.13 1999-03-09 23:14:16 mg201 Exp $
      &            csco,lcsco,
      &            scr(i_lm),n_intma,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)
+           endif
               call ecp_int2 (mem,DryRun,
      &            R_BC,X_BC,Y_BC,Z_BC,l_B,
      &            n_prim_B,n_cont_B,coef_B,zeta_B,
