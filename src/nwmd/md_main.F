@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.171 2003-08-19 23:20:37 d3j191 Exp $
+c $Id: md_main.F,v 1.172 2003-08-20 16:04:22 d3j191 Exp $
 c
       implicit none
 c
@@ -2474,18 +2474,18 @@ c
 c
       integer lfn
       character*255 fil
-      character*7 cdr
       logical lveloc
       integer i,left
+      character*255 filn
 c
       if(me.eq.0) then
       if(keepr.eq.0) then
       open(unit=lfn,file=fil(1:index(fil,' ')-1),
      + form='formatted',status='unknown',err=9999)
       else
-      write(cdr,'(i7.7)') keepr
-      open(unit=lfn,
-     + file=fil(1:index(fil,'.rst')-1)//'-'//cdr//'.rst',
+      write(filn,'(a,a,i5.5,a)') fil(1:index(fil,'.rst')-1),'-',
+     + keepr,'.rst '
+      open(unit=lfn,file=filn(1:index(filn,' ')-1),
      + form='formatted',status='unknown',err=9999)
       endif
       endif
@@ -2631,7 +2631,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.171 2003-08-19 23:20:37 d3j191 Exp $
+c $Id: md_main.F,v 1.172 2003-08-20 16:04:22 d3j191 Exp $
 c
       implicit none
 c

@@ -7,7 +7,7 @@
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,ndumsi,ipbtpi,
      + lfnhop)
-c $Id: cf_init.F,v 1.93 2003-08-18 17:35:31 d3j191 Exp $
+c $Id: cf_init.F,v 1.94 2003-08-20 16:04:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1938,7 +1938,6 @@ c
       integer lamtyp,lambda,maxlam,lfnout,lfnpmf
       real*8 explam,rlambd,dlambd
       character*80 projct
-      character*3 cnum
       character*1 ch
 c
       character*255 filnam
@@ -1949,8 +1948,8 @@ c
       else
       lfnpmf=-lfnpmf
       endif
-      write(cnum,'(i3.3)') lambda
-      filnam=projct(1:index(projct,' ')-1)//cnum//'.pmf '
+      write(filnam,'(a,a,i5.5,a)') projct(1:index(projct,' ')-1),'-',
+     + lambda,'.pmf '
       open(unit=-lfnpmf,file=filnam(1:index(filnam,' ')-1),
      + form='formatted')
       if(mropt.eq.3) then
