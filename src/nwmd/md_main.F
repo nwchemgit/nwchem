@@ -599,6 +599,8 @@ c
 c
       call prp_wtrest(lfn)
 c
+      call sp_wtrest(lfn)
+c
       if(me.eq.0) then
       close(unit=lfn)
       endif
