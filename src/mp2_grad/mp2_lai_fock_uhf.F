@@ -87,13 +87,13 @@ c
       g_tmp1 = g_dens(1)
 c
       call ga_zero(g_tmp1)
-      call ga_dgemm('n', 'n', nbf, nbf, nv_a, 1.0d0, g_fock(1), 
+      call ga_dgemm('n', 'n', nbf, no_a, nbf, 1.0d0, g_fock(1), 
      $     g_vecs_a, 0.0d0, g_tmp1)
       call ga_dgemm('t', 'n', nv_a, no_a, nbf, 1.0d0, g_vecs_a,
      $     g_tmp1, 1.0d0, g_lai_a)
 c
       call ga_zero(g_tmp1)
-      call ga_dgemm('n', 'n', nbf, nbf, nv_b, 1.0d0, g_fock(1), 
+      call ga_dgemm('n', 'n', nbf, no_b, nbf, 1.0d0, g_fock(1), 
      $     g_vecs_b, 0.0d0, g_tmp1)
       call ga_dgemm('t', 'n', nv_b, no_b, nbf, 1.0d0, g_vecs_b,
      $     g_tmp1, 1.0d0, g_lai_b)
@@ -103,5 +103,92 @@ c
       if (.not. ga_destroy(g_fock(1))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(2))) call errquit('mp2_lfu: ga?',0)
 *
+      end
+      subroutine mp2_wij_fock_uhf(geom, basis,
+     $     g_ppq_a, g_ppq_b, 
+     $     no_a, no_b,
+     $     g_vecs_a, g_vecs_b,
+     $     g_wij_a, g_wij_b)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+      integer geom, basis       ! [input] 
+      integer no_a, no_b        ! [input] No. of occupied
+      integer g_ppq_a, g_ppq_b  ! [input] GA densities
+      integer g_vecs_a, g_vecs_b ! [input] MO vector handles
+      integer g_wij_a, g_wij_b  ! [output] Accumulate results into
+c
+c     w_ij += Ppq [(ij|pq) - (ip|jq)] 
+c
+c            = CupPpqCvq [(ij|uv) - (iu|jv)]
+c
+c            = J - K with density from symmetrized total AO density
+c
+      integer g_dens(1), g_fock(1), nfock, nmo, nbf, gtype
+      integer g_tmp1
+      double precision jfac(1), kfac(1), tol2e
+      logical oskel
+c
+      data nfock /1/
+      data jfac, kfac /1.0d0, -1.0d0/
+      data tol2e /1.0d-9/
+      data oskel /.false./
+c
+c     Allocate space for AO fock and density matrices
+c
+      call ga_create_atom_blocked(geom,basis,'mp2_grad: da',g_dens(1))
+      call ga_create_atom_blocked(geom,basis,'mp2_grad: fa',g_fock(1))
+      call ga_zero(g_dens(1))
+      call ga_zero(g_fock(1))
+c
+c     Workspace
+c
+      call ga_inquire(g_vecs_a, gtype, nbf, nmo)
+c      
+      if (.not. ga_create(mt_dbl, nbf, nmo, 'mp2_grad: tmp1',
+     $     1, 1, g_tmp1)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo)
+c
+c     Copy OO and VV patches into N*N array, transform and symmetrize
+c
+      call ga_zero(g_tmp1)
+      call ga_dgemm('n', 'n', nbf, nmo, nmo, 1.0d0, g_vecs_a,
+     $     g_ppq_a, 0.0d0, g_tmp1)
+      call ga_dgemm('n', 't', nbf, nbf, nmo, 1.0d0, g_tmp1,
+     $     g_vecs_a, 0.0d0, g_dens(1))
+      call ga_symmetrize(g_dens(1))
+c
+      call ga_zero(g_tmp1)
+      call ga_dgemm('n', 'n', nbf, nmo, nmo, 1.0d0, g_vecs_b,
+     $     g_ppq_b, 0.0d0, g_tmp1)
+      call ga_dgemm('n', 't', nbf, nbf, nmo, 1.0d0, g_tmp1,
+     $     g_vecs_b, 0.0d0, g_dens(1))
+      call ga_symmetrize(g_dens(1))
+c
+      if (.not. ga_destroy(g_tmp1)) call errquit('mp2_lfu: ga?',0)
+c
+c     Make the fock matrix
+c
+      call fock_2e(geom, basis, nfock, jfac, kfac,
+     $     tol2e, oskel, g_dens, g_fock)
+c
+c     Transform back
+c
+      g_tmp1 = g_dens(1)
+c
+      call ga_zero(g_tmp1)
+      call ga_dgemm('n', 'n', nbf, no_a, nbf, 1.0d0, g_fock(1), 
+     $     g_vecs_a, 0.0d0, g_tmp1)
+      call ga_dgemm('t', 'n', no_a, no_a, nbf, 1.0d0, g_vecs_a,
+     $     g_tmp1, 1.0d0, g_wij_a)
+c
+      call ga_zero(g_tmp1)
+      call ga_dgemm('n', 'n', nbf, no_b, nbf, 1.0d0, g_fock(1), 
+     $     g_vecs_b, 0.0d0, g_tmp1)
+      call ga_dgemm('t', 'n', no_b, no_b, nbf, 1.0d0, g_vecs_b,
+     $     g_tmp1, 1.0d0, g_wij_b)
+c
+      if (.not. ga_destroy(g_dens(1))) call errquit('mp2_lfu: ga?',0)
+      if (.not. ga_destroy(g_fock(1))) call errquit('mp2_lfu: ga?',0)
+c
       end
 
