@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.45 2000-05-31 05:55:06 d3j191 Exp $
+c $Id: prp_main.F,v 1.46 2000-06-01 19:57:45 d3j191 Exp $
 c
       implicit none
 c
@@ -618,14 +618,15 @@ c
       if(npgdec.gt.0) then
       if(.not.ma_push_get(mt_dbl,5*nsa,'dec',l_dec,i_dec))
      + call errquit('Failed to allocate dec',0)
+      else
+      if(.not.ma_push_get(mt_dbl,1,'dec',l_dec,i_dec))
+     + call errquit('Failed to allocate dec',0)
       endif
 c
       call prp_mcti_s(dbl_mb(i_dfr),dbl_mb(i_dec))
 c
-      if(npgdec.gt.0) then
       if(.not.ma_pop_stack(l_dec))
      + call errquit('Failed to deallocate dec',0)
-      endif
 c
       return
       end
@@ -694,6 +695,7 @@ c
       do 2 i=1,24
       fterm(i)=zero
     2 continue
+      if(npgdec.gt.0) then
       do 22 i=1,nsa
       dec(1,i)=zero
       dec(2,i)=zero
@@ -701,6 +703,7 @@ c
       dec(4,i)=zero
       dec(5,i)=zero
    22 continue
+      endif
       do 3 i=1,mrun
       read(lfngib,2000) nderiv,nda,rlambd,dlambd,ndec
  2000 format(2i7,2f12.6,2i8)
