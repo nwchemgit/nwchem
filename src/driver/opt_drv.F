@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.28 1997-05-22 00:08:55 d3g681 Exp $
+C$Id: opt_drv.F,v 1.29 1997-05-29 16:24:48 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -237,6 +237,12 @@ c
       if(cvged) then
          if (ga_nodeid().eq.0.or.dbug)  then
             write(iw,9998)
+            if (.not. geom_print(geom)) call errquit
+     $           ('hnd_opt_drv: geom_print?',0)
+            if (util_print('bonds',print_default))
+     $           call distan(nat,c)
+            if (util_print('angles',print_default))
+     $           call angle(nat,c)
          endif
          if (.not.geom_destroy(geom))
      &      call errquit('hnd_opt: geom_destroy?', 911)
@@ -292,6 +298,12 @@ c
       if(cvged) then
          if (ga_nodeid().eq.0.or.dbug)  then
             write(iw,9998)
+            if (.not. geom_print(geom)) call errquit
+     $           ('hnd_opt_drv: geom_print?',0)
+            if (util_print('bonds',print_default))
+     $           call distan(nat,c)
+            if (util_print('angles',print_default))
+     $           call angle(nat,c)
          endif
          if (.not.geom_destroy(geom))
      &      call errquit('hnd_opt: geom_destroy?', 911)
