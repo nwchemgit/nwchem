@@ -775,7 +775,8 @@ continue even if the task fails, as discussed above.
 \subsection{{\tt TASK} Directive for Special Operations}
 
 This form of the \verb+TASK+ directive is used in instances where the
-task to be performed does not fit the model of the previous version, or
+task to be performed does not fit the model of the previous version
+(such as execution of a Python program, Section \ref{sec:python}), or
 if the operation has not yet been implemented in a fashion that
 applies to a wide range of theories (e.g., property evaluation).
 Instead of requiring \verb+theory+ and \verb+operation+ as input, the
@@ -791,6 +792,7 @@ directive are listed
 below, with the corresponding entries for string variable \verb+<task>+.
 
 \begin{itemize}
+  \item \verb+python+ --- Execute a Python program (Section \ref{sec:python}).
   \item \verb+rtdbprint+ --- Print the contents of the database.
   \item \verb+cphf+ --- Invoke the CPHF module.
   \item \verb+property+ --- Perform miscellaneous property calculations.

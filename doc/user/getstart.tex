@@ -280,16 +280,18 @@ this case, so output from the SCF and MP2 modules is disabled with the
 \section{Input Format and Syntax for Directives}
 \label{sec:syntax}
 
-This section describes the syntax used in the rest of this
-documentation to describe the format of directives.  
-The input format for the directives used in NWChem is similar to that
-of UNIX shells, which is also used in other chemistry packages, most
+This section describes the input format and the syntax used in the
+rest of this documentation to describe the format of directives.  The
+input format for the directives used in NWChem is similar to that of
+UNIX shells, which is also used in other chemistry packages, most
 notably GAMESS-UK.  An input line is parsed into whitespace (blanks or
 tabs) separating tokens or fields.  Any token that contains whitespace
 must be enclosed in double quotes in order to be processed correctly.
 For example, the basis set with the descriptive name \verb+modified
 Dunning DZ+ must appear in a directive as \verb+"modified Dunning
-DZ"+, since the name consists of three separate words.  
+DZ"+, since the name consists of three separate words.
+
+\subsection{Input Format}
 
 A (physical) line in the input file is terminated with a newline
 character (also known as a 'return' or 'enter' character).  A
@@ -310,8 +312,7 @@ These same five lines could be entered on a single line, as
 \end{verbatim}
 This one physical input line comprises five logical
 input lines.  Each logical or physical input line must be no longer
-than 1023 characters.  Data is read until an end-of-file is detected,
-or until an \verb+EOF+ directive is encountered.
+than 1023 characters.  
 
 In the input file:
 \begin{itemize}
@@ -330,7 +331,20 @@ In the input file:
 \item \verb+#+ (the hash or pound symbol) is the comment character.
   All characters following \verb+#+ (up to the end of the physical
   line) are ignored.
+\item If {\em any} input line (excluding Python programs, Section
+\ref{sec:python}) begins with the string \verb+INCLUDE+ (ignoring
+case) and is followed by a valid file name, then the data in that file
+are read as if they were included into the current input file at the
+current line.  Up to three levels of nested include files are
+supported.  The user should note that inputting a basis set from the
+standard basis library (Section \ref{sec:basis}) uses one level of
+include.
+\item Data is read from the input file until an end-of-file is detected, or
+until the string \verb+EOF+ (ignoring case) is encountered at the
+beginning of an input line.
 \end{itemize}
+
+\subsection{Format and syntax of directives}
 
 Directives consist of a directive name, keywords, and optional input,
 and may contain one line or many.  Simple directives consist of a
@@ -463,4 +477,3 @@ be stored in the file \verb+large_basis.movecs+.
 The order of keyed optional entries within a directive should not
 matter, unless noted otherwise in the specific instructions for a
 particular directive.
-
