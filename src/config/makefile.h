@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.79 1994-11-11 01:24:30 og845 Exp $
+# $Id: makefile.h,v 1.80 1994-11-16 19:13:04 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -191,8 +191,8 @@ ifeq ($(TARGET),KSR)
     DEFINES = -DKSR -DPARALLEL_DIAG -DLongInteger
 
        LIBS = -L/home/d3g681/TCGMSG_DISTRIB \
-              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lnwints\
-              -lstepper -lmoints \
+              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lutil\
+              -lnwints -lstepper -lmoints \
               -lguess -lglobal -lutil \
 	      -lpeigs \
               -lksrlapk -lksrblas -llapack2 -lblas2  -ltcgmsg -para -lrpc
@@ -235,8 +235,8 @@ FVECTORIZE = -O2 -Minline=1000 -Mvect
 # CAUTION: PGI's linker thinks of -L as adding to the _beginning_ of the
 # search path -- contrary to usual unix usage!!!!!
        LIBS = -L/home/delilah11/gifann/lib \
-              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lnwints \
-	      -lstepper -lmoints \
+              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lutil \
+	      -lnwints -lstepper -lmoints \
               -lguess -lglobal -lutil \
 	      -lpeigs_paragon -ltcgmsg -llapack $(LIBDIR)/liblapack.a \
               -lkmath -nx
@@ -256,19 +256,19 @@ ifeq ($(TARGET),DELTA)
         AR = ar860
     RANLIB = @echo
 
-   INSTALL = "strip860 nwchem; rcp nwchem delta1: &"
+   INSTALL = "strip860 $(BINDIR)/nwchem; rcp $(BINDIR)/nwchem delta1:"
  MAKEFLAGS = -j2 
 
   FOPTIONS = -Knoieee
   COPTIONS = -Knoieee
- FOPTIMIZE = -O2 -Minline=1000
-FVECTORIZE = -O2 -Miniline=1000 -Mvect
+ FOPTIMIZE = -O2 	# -Minline=1000 ## Inlining fails on dtrtri.f
+FVECTORIZE = -O2 -Mvect # -Minline=1000 ## Inlining fails on dtrtri.f
  COPTIMIZE = -O2
 
    DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
       LIBS = -L/home/delilah11/gifann/lib \
-             -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lnwints \
-	     -lstepper -lmoints \
+             -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lutil \
+	     -lnwints -lstepper -lmoints \
              -lguess -lglobal -lutil \
              -lglobal -lpeigs_delta -ltcgmsg $(LIBDIR)/liblapack.a -llapack -lkmath -node
 
@@ -300,8 +300,8 @@ FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-so=1,-o=1
 
     DEFINES = -DSGITFP -DSGI -DLongInteger
        LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lnwints \
-	      -lstepper -lmoints \
+              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lutil \
+	      -lnwints -lstepper -lmoints \
               -lguess -lutil -lglobal\
 	      -ltcgmsg -llapack -lblas
 
@@ -331,8 +331,8 @@ ifeq ($(TARGET),SGI)
 
     DEFINES = -DSGI 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lnwints \
-	      -lstepper -lmoints \
+              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lutil \
+	      -lnwints -lstepper -lmoints \
               -lguess -lutil -lglobal\
 	      -ltcgmsg -llapack -lblas -lmalloc 
 
@@ -361,8 +361,8 @@ ifeq ($(TARGET),IBM)
     DEFINES = -DIBM -DEXTNAM 
 
        LIBS = -L/usr/lib -L/msrc/apps/lib -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lnwints \
-	      -lstepper -lmoints \
+              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lutil \
+	      -lnwints -lstepper -lmoints \
               -lguess -lglobal -lutil \
 	      -ltcgmsg -llapack -lblas\
 	      -brename:.daxpy_,.daxpy \
