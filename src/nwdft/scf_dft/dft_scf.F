@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.171 2000-11-14 19:06:52 edo Exp $
+c     $Id: dft_scf.F,v 1.172 2000-11-23 00:57:49 edo Exp $
 c     
       implicit none
 c
@@ -592,7 +592,7 @@ c
       odbug=.false.
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
          if(odbug) then
-            write(6,*) '-cosmo- ... found in dft_scf',
+            write(LuOut,*) '-cosmo- ... found in dft_scf',
      $                 ocosmo,ga_nodeid()
          endif
 c
@@ -601,7 +601,7 @@ c
             ogas_phase=.true.
             osol_phase=.true.
             if(odbug) then
-               write(6,*) '-cosmo- ... found , do gas & sol',
+               write(LuOut,*) '-cosmo- ... found , do gas & sol',
      $                    ocosmo,ga_nodeid()
             endif
             if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
@@ -610,18 +610,18 @@ c
             ogas_phase=.true.
             osol_phase=.false.
             if(odbug) then
-               write(6,*) '-cosmo- ... found , do gas only',
+               write(LuOut,*) '-cosmo- ... found , do gas only',
      $                    ocosmo,ga_nodeid()
             endif
          endif
       else
          if(odbug) then
-            write(6,*) '-cosmo- not found in dft_scf'
+            write(LuOut,*) '-cosmo- not found in dft_scf'
          endif
          ogas_phase=.true.
          osol_phase=.false.
+      call util_flush(LuOut)
       endif
-      call util_flush(6)
       call ga_sync()
 c
       iter = 1
@@ -666,15 +666,15 @@ c
         odbug=.false.
         if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
            if(odbug) then
-              write(6,*) '-cosmo- ... found in dft_scf ...',
+              write(LuOut,*) '-cosmo- ... found in dft_scf ...',
      $                   ocosmo,ga_nodeid()
-              call util_flush(6)
+              call util_flush(LuOut)
            endif
            if(ocosmo) then
               odbug=.false.
               if(odbug) then
                  osome=.true.
-                 write(6,*) 'geom = ',geom,ga_nodeid()
+                 write(LuOut,*) 'geom = ',geom,ga_nodeid()
               else
                  osome=.false.
               endif
@@ -687,13 +687,13 @@ c
               osome=.false.
            else
               if(odbug) then
-                 write(6,*) '-cosmo- ... found but .false.',
+                 write(LuOut,*) '-cosmo- ... found but .false.',
      $                      ga_nodeid()
               endif
            endif
         else
            if(odbug) then
-              write(6,*) '-cosmo- not found in dft_scf ...',
+              write(LuOut,*) '-cosmo- not found in dft_scf ...',
      $                   ga_nodeid()
            endif
         endif
@@ -731,7 +731,7 @@ c
       odbug=.false.
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
          if(odbug) then
-            write(6,*) '-cosmo- ... found in dft_scf',
+            write(LuOut,*) '-cosmo- ... found in dft_scf',
      $                 ocosmo,ga_nodeid()
          endif
          if(ocosmo) then
@@ -744,19 +744,19 @@ c
             osome=osome.or.odbug
             osome=osome.and.ga_nodeid().eq.0
             if(osome) then
-               write(6,9999) (etnew -ecosmo),ecosmo,etnew 
+               write(LuOut,9999) (etnew -ecosmo),ecosmo,etnew 
  9999 format(' energ0 = ',f20.10,/,' ecosmo = ',f20.10,/,
      $       ' etnew  = ',f20.10)
             endif
          else
             if(odbug) then
-               write(6,*) '-cosmo- ... found but .false.',
+               write(LuOut,*) '-cosmo- ... found but .false.',
      $                    ga_nodeid()
             endif
          endif
       else
          if(odbug) then
-            write(6,*) '-cosmo- not found in dft_scf',
+            write(LuOut,*) '-cosmo- not found in dft_scf',
      $                 ga_nodeid()
          endif
       endif
@@ -1179,7 +1179,7 @@ c
       odbug=.false.
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
          if(odbug) then
-            write(6,*) '-cosmo- ... found in dft_scf',
+            write(LuOut,*) '-cosmo- ... found in dft_scf',
      $                 ocosmo,ga_nodeid()
          endif
          if(ocosmo) then
@@ -1192,17 +1192,17 @@ c
             osome=osome.or.odbug
             osome=osome.and.ga_nodeid().eq.0
             if(osome) then
-               write(6,9999) (etnew -ecosmo),ecosmo,etnew
+               write(LuOut,9999) (etnew -ecosmo),ecosmo,etnew
             endif
          else
             if(odbug) then
-               write(6,*) '-cosmo- ... found but .false.',
+               write(LuOut,*) '-cosmo- ... found but .false.',
      $                    ga_nodeid()
             endif
          endif
       else
          if(odbug) then
-            write(6,*) '-cosmo- not found in dft_scf',
+            write(LuOut,*) '-cosmo- not found in dft_scf',
      $                 ga_nodeid()
          endif
       endif
@@ -1259,7 +1259,7 @@ c
          if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.true.))
      $       call errquit('rohf_diis_solve: rtdb_put failed',0)
          if(odbug) then
-            write(6,*) 'gas_phase done, do sol-phase now ...'
+            write(LuOut,*) 'gas_phase done, do sol-phase now ...'
          endif
 c
 c     ----- reset convergence aids -----
