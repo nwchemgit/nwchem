@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.102 2001-11-06 15:49:50 d3j191 Exp $
+c $Id: md_start.F,v 1.103 2001-11-09 17:12:22 d3j191 Exp $
 c
       implicit none
 c
@@ -1161,6 +1161,7 @@ c     Open debug file if requested
 c     ----------------------------
 c
       if(idebug.gt.0) then
+      lfndbg=18
       write(fildbg,'(a,i5.5,a)') 'nwchem_',me,'.dbg'
       open(unit=lfndbg,file=fildbg,form='formatted',status='unknown')
       endif
