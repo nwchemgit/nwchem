@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.15 2000-06-20 01:11:22 edo Exp $
+# $Id: GNUmakefile,v 1.16 2000-07-20 02:14:53 d3e129 Exp $
 
  SOURCE = ack.tex execution.tex mcscf.tex sample.tex symex.tex \
           basis.tex fourindex.tex scf.tex  top-level.tex \
@@ -40,6 +40,7 @@ html_only:
 
 view:	user.ps
 	ghostview -bg white -fg black -bd black user.001.ps
+	ghostview -bg white -fg black -bd black user.002.ps
 
 pdf:	$(SOURCE) .IGNORE
 	pdflatex -interaction=nonstopmode userpdf
