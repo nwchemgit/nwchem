@@ -1,4 +1,4 @@
-* $Id: abcd.F,v 1.1 2003-01-06 04:13:30 edo Exp $                        
+* $Id: abcd.F,v 1.2 2003-04-22 16:43:14 edo Exp $                        
       subroutine abcd_1(nbls1,lci,lcj, lcij,lckl,
      *                  indxij,indxkl,index, nij_uniqe,nkl_uniqe,
      *                  abcd,apb,rcpd,cpd,rapb,
@@ -276,7 +276,8 @@ c
             boa=b_over_a(lcij)
             if(boa .ge. 10.d0) then
                x_prim_wr2=x_prim_wr2 + nbls1        !   test
-               xost_digit_1= log10(boa*rcpd(lckl))
+cedo               xost_digit_1= log10(boa*rcpd(lckl))
+               xost_digit_1= log10(boa)+log10(rcpd(lckl))
                xost_digit  = (nskl-1)*xost_digit_1 
                lost_digit= nint( xost_digit )
           call get_max_const(nbls1,const,ngcd,index,gcoef,const_max)
