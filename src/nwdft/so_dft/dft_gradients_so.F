@@ -1,5 +1,5 @@
       subroutine dft_gradients_so(rtdb)
-c     $Id: dft_gradients_so.F,v 1.7 2001-02-07 19:56:14 zzhang Exp $
+c     $Id: dft_gradients_so.F,v 1.8 2001-06-09 05:14:34 edo Exp $
 c
 c calculate energy gradients with respect to nuclear coordinates
 c modified from scf version for use in DFT gradients
@@ -554,6 +554,8 @@ c!!! BGJ test !!!
       status = ma_free_heap (l_force)
       status = ga_destroy (iga_dens(2))
       status = ga_destroy (iga_dens(1))
+      status = ga_destroy (g_densso(2))
+      status = ga_destroy (g_densso(1))
       status = ga_destroy (g_force)
 c     
       return

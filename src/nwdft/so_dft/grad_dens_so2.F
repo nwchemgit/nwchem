@@ -3,7 +3,7 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs, omp2, pdm2, coeff)
 
-c     $Id: grad_dens_so2.F,v 1.3 2000-10-23 15:52:46 windus Exp $
+c     $Id: grad_dens_so2.F,v 1.4 2001-06-09 05:14:34 edo Exp $
 
 C     get densities for exact-exchange sodft: Im(Daa), Im(Dbb), 
 c     Re(Dab), Im(Dab)
@@ -67,7 +67,7 @@ C     get MO vectors from file (taken from Roberts scf_movecs_read)
       endif
 
       if (.not. movecs_read_so(movecs, occ, evals, g_vecs)) 
-     $     call errquit('grad_dens_so: could not read mo vectors', 110)
+     $     call errquit('grad_dens_so2:could not read mo vectors',110)
 c
       nocc = 2*nclosed + nopen 
       status = ga_create(mt_dbl,nbf2,nbf2,'density matrix', 0, 0, 
