@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.61 1997-03-25 01:33:45 rg240 Exp $
+#$Id: GNUmakefile,v 1.62 1997-04-01 02:04:58 rg240 Exp $
 
         OBJ = atwtest.o \
 	      direct_mp2.o \
@@ -22,6 +22,7 @@ endif
 
 OBJ_OPTIMIZE = \
               moints_aodisk.o \
+	      moints_cutil.o \
 	      moints_2x.o \
               moints_6x.o \
               moints_aux2.o 

@@ -94,6 +94,8 @@ c
       integer recnum, ssbblen
       logical moints_iorec_next
       external moints_iorec_next
+c$$$      DOUBLE PRECISION DABSSUM
+c$$$      EXTERNAL DABSSUM
 
       moints_gblk_fromdisk = .false.
       if (moao_ipass.lt.0) return
@@ -105,7 +107,7 @@ c
           if (moao_issparse.eq.1) then
             call moints_aodisk_iorec2sprs( ilo, ihi, jlo, jhi,
      $                             kblo, kbhi, lblo, lbhi,
-     $                             ssbb, moao_reclen, 
+     $                             ssbb, moao_reclen, moao_lwidth,
      $                             dbl_mb(moao_klabrec),
      $                             dbl_mb(moao_kvalrec) )
             moints_gblk_fromdisk = .true.
@@ -115,6 +117,9 @@ c
           recnum = recnum + 1
         enddo
 C        MOAO_CUMUL = MOAO_CUMUL + DABSSUM( SSBBLEN, SSBB )
+c$$$       WRITE(6,771) ISH, JSH, KSHLO, LSHLO, MOAO_TASKNUM, GA_NODEID(),
+c$$$     $              BLKID, DABSSUM(SSBBLEN,SSBB)
+c$$$ 771   FORMAT('qqqq-',4I4,3X,I5,I3,5X,I6,5X,F20.6)
       endif
       return
       end
@@ -148,6 +153,9 @@ c
       logical sparse                    ! for the moment only sparse case
       data sparse/.true./
 c
+c$$$      INTEGER SSBBLEN
+c$$$      DOUBLE PRECISION DABSSUM
+c$$$      EXTERNAL DABSSUM
 
       moints_gblk_todisk = .false.
       if (moao_ipass.lt.0) return
@@ -157,7 +165,7 @@ c
      $                           blkid, moao_buflen,
      $                           ilo, ihi, jlo, jhi,
      $                           kblo, kbhi, lblo, lbhi,
-     $                           ssbb, moao_spreclen, 
+     $                           ssbb, moao_spreclen, moao_lwidth,
      $                           dbl_mb(moao_klabrec), 
      $                           dbl_mb(moao_kvalrec) )
         else
@@ -166,6 +174,10 @@ c
        moints_gblk_todisk = .true.
 c
 C        MOAO_CUMUL = MOAO_CUMUL + DABSSUM( SSBBLEN, SSBB )
+c$$$       SSBBLEN = (IHI-ILO+1)*(JHI-JLO+1)*(KBHI-KBLO+1)*(LBHI-LBLO+1)
+c$$$       WRITE(6,771) ISH, JSH, KSHLO, LSHLO, MOAO_TASKNUM, GA_NODEID(),
+c$$$     $              BLKID, DABSSUM(SSBBLEN,SSBB)
+c$$$ 771   FORMAT('qqqq+',4I4,3X,I5,I3,5X,I6,5X,F20.6)
 c
       endif
       return
@@ -255,6 +267,7 @@ c
 #include "cmointsmoao.fh"
       integer stat
       integer blkinfo(MOINTS_NBLKINFO)
+      integer vlsize
 
       moints_aodisk_prep = .false.
       if (moao_ipass.lt.0) then
@@ -265,11 +278,14 @@ c
 c  allocate io buffers
 c
       if (moao_lbuf.lt.0) then
+        moao_lwidth = 8/ma_sizeof(MT_INT, 1, MT_BYTE)
+        vlsize = ma_sizeof(MT_INT, moao_lwidth, MT_BYTE) + 
+     $           ma_sizeof(MT_DBL, 1, MT_BYTE)
         if (.not.ma_alloc_get(MT_DBL, MOINTS_IOBUFLEN, 'moints iobuf',
      $                        moao_lbuf, moao_kbuf)) call errquit(
      $       'moints_aodisk_prep: cannot allocate io buffer',0)
         moao_buflen   = MOINTS_IOBUFLEN                                     ! bufflen (double words)
-        moao_spreclen = moao_buflen/(ma_sizeof(MT_INT,4,MT_DBL)+1)
+        moao_spreclen = moao_buflen/(vlsize/ma_sizeof(MT_DBL,1,MT_BYTE))    ! leng
         moao_kvalrec  = moao_kbuf                                           ! values
         moao_klabrec  = moao_kbuf + moao_spreclen                           ! labels after values
       endif
@@ -390,7 +406,7 @@ c
      $                             blkid, iobuflen,
      $                             ilo, ihi, jlo, jhi,
      $                             kblo, kbhi, lblo, lbhi,
-     $                             ssbb, reclen, 
+     $                             ssbb, reclen, lwidth,
      $                             iolab, ioval )
       implicit none
       integer lunao
@@ -401,36 +417,43 @@ c
       integer kblo, kbhi, lblo, lbhi
       double precision ssbb(lblo:lbhi,kblo:kbhi,jlo:jhi,ilo:ihi)
       integer reclen
-      integer iolab(4,reclen)
+      integer lwidth
+      integer iolab(lwidth,reclen)
       double precision ioval(reclen)
 
       integer i, j, k, l
-      integer iir, issparse
+      integer iir, issparse, lab1, lab2
       integer recnum
       double precision xx
+#include "bitops_decls.fh"
+#include "bitops_funcs.fh"      
 
       issparse = 1
       recnum = 0
       iir = 0
-      call ifill( 4*reclen, 0, iolab, 1 )
+      call ifill( lwidth*reclen, 0, iolab, 1 )
       call dfill( reclen, 0.d0, ioval, 1 )
       do i=ilo,ihi
         do j=jlo,jhi
+          lab1 = ior(lshift(i,16),j)
           do k=kblo,kbhi
             do l=lblo,lbhi
               xx = ssbb(l,k,j,i)
               if (abs(xx).gt.1.d-12) then
                 iir = iir + 1
                 ioval(iir)   = xx
-                iolab(1,iir) = i
-                iolab(2,iir) = j
-                iolab(3,iir) = k
-                iolab(4,iir) = l
+                lab2 = ior(lshift(k,16),l)
+                if (lwidth.eq.1) then
+                  iolab(1,iir) = ior(lshift(lab1,32),lab2)
+                elseif (lwidth.eq.2) then
+                  iolab(1,iir) = lab1
+                  iolab(2,iir) = lab2
+                endif
                 if (iir.eq.reclen) then
                   call moints_iorec_flush(lunao, tasknum, iir, issparse,
      $                                   blkid, iobuflen, ioval )
                   recnum = recnum + 1
-                  call ifill( 4*reclen, 0, iolab, 1 )
+                  call ifill( lwidth*reclen, 0, iolab, 1 )
                   call dfill( reclen, 0.d0, ioval, 1 )
                   iir = 0
                 endif
@@ -455,26 +478,45 @@ c
     
       subroutine moints_aodisk_iorec2sprs( ilo, ihi, jlo, jhi,
      $                             kblo, kbhi, lblo, lbhi,
-     $                             ssbb, reclen, iolab,
+     $                             ssbb, reclen, lwidth, iolab,
      $                             ioval )
       implicit none
       integer ilo, ihi, jlo, jhi
       integer kblo, kbhi, lblo, lbhi
       double precision ssbb(lblo:lbhi,kblo:kbhi,jlo:jhi,ilo:ihi)
       integer reclen
-      integer iolab(4,reclen)
+      integer lwidth
+      integer iolab(lwidth,reclen)
       double precision ioval(reclen)
       integer q, i, j, k, l
+      integer i16mask
+      integer onbitmask
+      external onbitmask
+#include "bitops_decls.fh"
+#include "bitops_funcs.fh"      
       
-      do q=1,reclen
-        i = iolab(1,q)
-        j = iolab(2,q)
-        k = iolab(3,q)
-        l = iolab(4,q)
-        ssbb(l,k,j,i) = ioval(q)
-      enddo
+      i16mask = onbitmask(16)
+      if (lwidth.eq.1) then
+        do q=1,reclen
+          i = iand(rshift(iolab(1,q),48),i16mask)
+          j = iand(rshift(iolab(1,q),32),i16mask)
+          k = iand(rshift(iolab(1,q),16),i16mask)
+          l = iand(iolab(1,q),i16mask)
+          ssbb(l,k,j,i) = ioval(q)
+        enddo
+      else if (lwidth.eq.2) then
+        do q=1,reclen
+          i = iand(rshift(iolab(1,q),16),i16mask)
+          j = iand(iolab(1,q),i16mask)
+          k = iand(rshift(iolab(2,q),16),i16mask)
+          l = iand(iolab(2,q),i16mask)
+          ssbb(l,k,j,i) = ioval(q)
+        enddo
+      endif
       return
       end
+
+
 
 
 

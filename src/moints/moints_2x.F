@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.24 1997-03-26 20:19:06 rg240 Exp $
+c  $Id: moints_2x.F,v 1.25 1997-04-01 02:04:59 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -472,6 +472,7 @@ c
      $                           dbl_mb(k_hlp), osym, int_mb(k_sym) )
            t4kidx = t4kidx + util_cpusec() - tz
          endif
+C	 CALL MOINTS_OP_PRINT(OCC_START,MO1_LO,MO1_HI,NMO2,G_EXCH)
          if (util_print('exchange integral',print_debug))
      $      call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_exch)
        endif

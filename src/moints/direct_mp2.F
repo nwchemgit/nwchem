@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.35 1997-03-28 23:35:49 rg240 Exp $
+C$Id: direct_mp2.F,v 1.36 1997-04-01 02:04:57 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -114,7 +114,7 @@ c
        if (.not. rtdb_cget(rtdb, 'fourindex:method ', 1, algo))
      $      algo = 'twofold'
 c
-c Check disk caching enabled
+c Check disk caching toggles
 c
        if (.not.rtdb_get(rtdb,'fourindex:aodisk', MT_LOG,
      $                   1, odisk)) odisk = .false.
@@ -122,8 +122,6 @@ c
      $                   1, oaoreuse)) oaoreuse = .false.
        if (.not.rtdb_get(rtdb,'fourindex:aokeep', MT_LOG,
      $                   1, oaokeep)) oaokeep = .false.
-       if (.not.moints_aodisk_init( odisk, oaoreuse ))
-     $    call errquit('direct_mp2: cannot initiliaze ao cache',0)
 c
 c Reconcile number of electrons and occupied/virtual orbitals
 c
@@ -252,6 +250,12 @@ c
        oseg_hi = moints_occrange( noper, occ_lo, oseg_lo, occ_hi )
        if (oseg_hi.lt.occ_hi) goto 322
 c
+c  Enabled disk caching *only* if multipassing required
+c
+       odisk = odisk.and.(npass.gt.1)
+       if (.not.moints_aodisk_init( odisk, oaoreuse ))
+     $    call errquit('direct_mp2: cannot initiliaze ao cache',0)
+c
 c Print info
 c
        if ((ga_nodeid().eq.0).and.(oprint)) then
@@ -338,6 +342,22 @@ c
 c End multipass loop
 c
        if (oseg_hi.lt.occ_hi) goto 22
+            
+c$$$       CALL GA_ZERO(G_EXCH)
+c$$$       TPASS = UTIL_CPUSEC()
+c$$$       CALL MOINTS_BUILD_2X(BASIS, OHALF, OSYM, OCC_LO,
+c$$$     $                      OSEG_LO, OSEG_HI,
+c$$$     $                      VIR_LO, VIR_HI, G_VECS,
+c$$$     $                      G_COUL, .FALSE., G_EXCH, .TRUE.,
+c$$$     $                      BLEN, OBLK )
+c$$$       CALL MOINTS_E2PAIR( NOCC, OCC_LO, OSEG_LO, OSEG_HI, NMO2,
+c$$$     $                     NMO2, NBF, G_EXCH, DBL_MB(K_EVALS),
+c$$$     $                     G_EPAIR )
+c$$$       TPASS = UTIL_CPUSEC() - TPASS
+c$$$       WRITE(6,771) TPASS
+c$$$ 771   FORMAT(' Second Pass   Time:',f10.2)
+c$$$
+
        call moints_aodisk_close( oaokeep )
 c
 c Print statistics

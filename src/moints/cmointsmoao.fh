@@ -14,6 +14,7 @@ c
       integer moao_kbuf                                 ! buffer pointer
       integer moao_kvalrec                              ! pointer to values
       integer moao_klabrec                              ! pointer to labels
+      integer moao_lwidth                               ! num ints to pack 4 labels
       logical moao_touch                                ! flag buffer read
       logical moao_eof                                  ! flag EOF
       DOUBLE PRECISION MOAO_CUMUL
@@ -33,10 +34,11 @@ c
      $                   moao_kbuf,
      $                   moao_kvalrec,
      $                   moao_klabrec,
+     $                   moao_lwidth,
+     $                   MOAO_NREC,
+     $                   MOAO_CUMUL,
      $                   moao_touch,
      $                   moao_eof,
-     $                   MOAO_CUMUL,
-     $                   MOAO_NREC,
      $                   moao_fname
       
       
