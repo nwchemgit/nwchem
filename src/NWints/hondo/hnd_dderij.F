@@ -1,4 +1,4 @@
-c $Id: hnd_dderij.F,v 1.2 1999-04-28 22:48:08 windus Exp $
+c $Id: hnd_dderij.F,v 1.3 2000-10-25 22:51:56 windus Exp $
 c
 c taken from hondo.
 c
@@ -14,11 +14,11 @@ c
       double precision ai, aj
       integer lit, ljt, j, i, nder
       dimension      x(7,*),     y(7,*),     z(7,*)
-      dimension   dxdi(5,1),  dydi(5,1),  dzdi(5,1)
-      dimension   dxdj(5,1),  dydj(5,1),  dzdj(5,1)
-      dimension ddxdii(5,1),ddydii(5,1),ddzdii(5,1)
-      dimension ddxdjj(5,1),ddydjj(5,1),ddzdjj(5,1)
-      dimension ddxdij(5,1),ddydij(5,1),ddzdij(5,1)
+      dimension   dxdi(5,*),  dydi(5,*),  dzdi(5,*)
+      dimension   dxdj(5,*),  dydj(5,*),  dzdj(5,*)
+      dimension ddxdii(5,*),ddydii(5,*),ddzdii(5,*)
+      dimension ddxdjj(5,*),ddydjj(5,*),ddzdjj(5,*)
+      dimension ddxdij(5,*),ddydij(5,*),ddzdij(5,*)
 c
 c     ----- dxdi ... -----
 c
