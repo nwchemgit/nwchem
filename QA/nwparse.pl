@@ -1,5 +1,5 @@
 #
-# $Id: nwparse.pl,v 1.17 2003-03-22 03:05:00 bylaska Exp $
+# $Id: nwparse.pl,v 1.18 2003-03-29 02:51:28 edo Exp $
 #
 #
 # perl script to parse nwchem output files
@@ -242,9 +242,9 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 #                                                    *** Assumes $itok was incremented above
 	    if (! $quiet) {
-		printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+		printf "%.4f\n", set_to_digits(@line_tokens[$itok],4);
 	    }
-	    printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+	    printf FILE_OUTPUT "%.4f\n", set_to_digits(@line_tokens[$itok],4);
 	}
 	if (/Total/ && /energy/) {
 	 if (/SCF/ || /DFT/ || /CCSD/ || /MP2/ || /MCSCF/ || /RIMP2/ || /RISCF/ || /BAND/ || /PAW/ || /PSPW/ ) {
