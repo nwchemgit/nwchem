@@ -42,9 +42,12 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
     int frIndex, toIndex;
     int atmNumber=0;
     int[][] id;
+    int[] idf,idt;
     
     Segment ToSgm = new Segment();
     Segment FrSgm = new Segment();
+
+    JButton writeButton = new JButton("Write");
     
     public nwchem_Segment(){
 	
@@ -72,11 +75,15 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 	
 	JButton doneButton = new JButton("Done");
 	
-	addComponent(header,doneButton,5,0,1,1,1,1,
+	addComponent(header,doneButton,6,0,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	doneButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
 		    setVisible(false); }});
+	
+	addComponent(header,writeButton,5,0,1,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
+	writeButton.addActionListener(this);
 
 	frLabel.setBackground(Color.yellow);
 	toLabel.setBackground(Color.lightGray);
@@ -236,7 +243,45 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 	header.validate();
     };
 
-    public void actionPerformed(ActionEvent e){}
+    public void actionPerformed(ActionEvent e){
+	if(e.getSource()==writeButton){
+	    idf = new int[FrSgm.numAtoms];
+	    idt = new int[ToSgm.numAtoms];
+	    for(int k=0; k<atmNumber; k++){
+		if(id[k][0]>=0){idf[id[k][0]]=k;};
+		if(id[k][1]>=0){idt[id[k][1]]=k;};
+	    };
+	    //	    PrintWriter sgmFile = new PrintWriter(new FileWriter("NEW.sgm"));
+	    //	    print(sgmFile,"%#10c%",atmNumber);
+	    //	    sgmFile.close();
+	    //	    OutputStream out = OutputStream("NEW.sgm");
+	    //	    OutputStream sgmFile = new PrintStream("NEW.sgm");
+	    //	    PrintStream sgmFile = new PrintStream("NEW.sgm");
+	    
+	    
+	    // temp
+	    System.out.println("# Merged Segment File");
+	    //Format.printf("%#10c%",new Va_list().add(atmNumber));
+	    for(int k=0; k<atmNumber; k++){
+		if(id[k][0]>=0){
+		    System.out.print(FrSgm.atom[id[k][0]].Name);
+		    System.out.print(FrSgm.atom[id[k][0]].Type1+" ");
+		    System.out.print(FrSgm.atom[id[k][0]].Type1+" ");
+		    if(id[k][1]>=0){
+			System.out.println(ToSgm.atom[id[k][1]].Type1+" ");
+		    } else {
+			System.out.println(FrSgm.atom[id[k][0]].Type1+"D");
+		    };
+		} else {
+		    System.out.print(ToSgm.atom[id[k][1]].Name);
+		    System.out.print(ToSgm.atom[id[k][1]].Type1+"D");
+		    System.out.print(ToSgm.atom[id[k][1]].Type1+"D");
+		    System.out.println(ToSgm.atom[id[k][1]].Type1);
+		};
+	    };
+	    // temp
+	};
+    };
     
     public void stateChanged(ChangeEvent e){}
     
@@ -318,6 +363,9 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		System.out.println(" Event index is "+j+" "+id[j][0]+" "+id[j][1]);
 	        if(id[j][0]>=0 && id[j][1]>=0){
 		    for(int k=atmNumber; k>j; k--){id[k][0]=id[k-1][0]; id[k][1]=id[k-1][1];};
+		    if(ToSgm.atom[id[j+1][1]].Name.substring(4,4)==" "){
+			ToSgm.atom[id[j+1][1]].Name=ToSgm.atom[id[j+1][1]].Name.substring(1,3)+"t";
+		    };
 		    id[j][1]=-1; id[j+1][0]=-1;  atmNumber++;
 		};
 		atomListUpdate();
