@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.88 2001-11-15 18:19:27 d3j191 Exp $
+c $Id: pre_input.F,v 1.89 2001-12-11 16:20:47 d3j191 Exp $
 c
       implicit none
 c
@@ -820,6 +820,10 @@ c
       jopt=1
       goto 6883
       endif
+      if(inp_compare(.false.,'moi',type)) then
+      kopt=1
+      goto 6883
+      endif
       if(.not.inp_i(igroup)) call errquit('pre_input: pmf',9999)
       if(type(1:8).eq.'distance'.or.type(1:8).eq.'basepair') then
       if(.not.inp_i(jgroup)) call errquit('pre_input: pmf',9999)
@@ -871,7 +875,7 @@ c
  6840 format('pmf dis',5i5,10x,2f12.6,2e12.5)
       numcmd=numcmd+1
       elseif(type(1:5).eq.'angle') then
-      write(68,6842) iopt,jopt,kopt,jopt,kopt,igroup,jgroup,kgroup,
+      write(68,6842) iopt,jopt,kopt,igroup,jgroup,kgroup,
      + value1,value2,forcon,forc2
  6842 format('pmf ang',6i5,5x,2f12.6,2e12.5)
       numcmd=numcmd+1
