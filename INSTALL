@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.61 2003-10-09 01:03:52 edo Exp $
+$Id: INSTALL,v 1.62 2003-12-31 23:33:03 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -164,6 +164,9 @@ BASIC BUILD INSTRUCTIONS:
                   ia64            HPUX 11.0                       y
    				 		   
    WIN32          Intel x86       Windows98/NT    Compaq 
+   				 		   
+   MACX           Apple MacOSX    Darwin 7.2.0    GNU,IBM xlf
+
    ----------------------------------------------------------------------
 
 
@@ -580,6 +583,10 @@ OPTIMIZATION TIPS:
    optimizing the value of -bmaxdata in the makefile.h file.  This
    option specifies the maximum amount of space to reserve for the
    program stack segment.
+  
+   On Apple MacOSX, setting USE_VECLIB=y links against the vecLib
+   library, available at
+   http://developer.apple.com/hardware/ve/vector_libraries.html
 
 
 POINT OF CONTACT USERS: 
