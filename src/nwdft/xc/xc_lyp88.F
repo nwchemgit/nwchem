@@ -1,7 +1,7 @@
       Subroutine xc_lyp88(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                    Amat, Cmat, nq, ipol, Ec, qwght, ldew, func)
 c
-C$Id: xc_lyp88.F,v 1.10 1999-02-15 16:47:15 bjohnson Exp $
+C$Id: xc_lyp88.F,v 1.11 2000-04-14 01:50:01 edo Exp $
 c
       implicit none 
 c
@@ -48,8 +48,8 @@ c
       Parameter (D = 0.34900D0)
       Parameter (P2 = A*B/D,  P3 = 4.D0*A/D)
 c
-c     Compute the partial derivatives of the correlation functional of Lee, Yang
-c     and Parr.
+c     Compute the partial derivatives of the correlation functional of 
+c     Lee, Yang and Parr.
 c
 c     References:
 c
@@ -158,40 +158,58 @@ c
             CDb = rho(n,3)
             CD13  = rho(n,1)**(1.d0/3.D0)
             CD13a = rho(n,2)**(1.d0/3.D0)
-            CD13b = rho(n,3)**(1.d0/3.D0)
             Gaa = delrho(n,1,1)*delrho(n,1,1) +
      &            delrho(n,2,1)*delrho(n,2,1) +
      &            delrho(n,3,1)*delrho(n,3,1)
-            Gbb = delrho(n,1,2)*delrho(n,1,2) +
-     &            delrho(n,2,2)*delrho(n,2,2) +
-     &            delrho(n,3,2)*delrho(n,3,2)
-            Gab = delrho(n,1,1)*delrho(n,1,2) +
-     &            delrho(n,2,1)*delrho(n,2,2) +
-     &            delrho(n,3,1)*delrho(n,3,2)
             CD43  =  (CD13 **2)**2
             CD83a = ((CD13a**2)**2)**2
-            CD83b = ((CD13b**2)**2)**2
             Ra = CDa/CD
-            Rb = CDb/CD
-            Rab = Ra*Rb
             Raa = Ra*Ra
-            Rbb = Rb*Rb
-            zeta = Ra - Rb
             xc = C/CD13
             xd = D/CD13
             Rx = xd/(1.D0 + xd)
             delta = xc + Rx
             omega = P2*Rx*max(exp(-xc),EPS)/CD43
-            Rab9 = P19*Rab
-            Faa = Rab9*(1.D0 - 3.D0*delta - (delta - 11.D0)*Ra)
-            Fbb = Rab9*(1.D0 - 3.D0*delta - (delta - 11.D0)*Rb)
-            Fab = Rab9*(47.D0 - 7.D0*delta)
             dElypdGaa = -omega*(Faa - Rbb)
+            if(cdb.gt.eps) then
+               CD13b = rho(n,3)**(1.d0/3.D0)
+               Gbb = delrho(n,1,2)*delrho(n,1,2) +
+     &              delrho(n,2,2)*delrho(n,2,2) +
+     &              delrho(n,3,2)*delrho(n,3,2)
+               Gab = delrho(n,1,1)*delrho(n,1,2) +
+     &              delrho(n,2,1)*delrho(n,2,2) +
+     &              delrho(n,3,1)*delrho(n,3,2)
+               CD83b = ((CD13b**2)**2)**2
+               Rb = CDb/CD
+               Rab = Ra*Rb
+               Rbb = Rb*Rb
+               Rab9 = P19*Rab
+               zeta = Ra - Rb
+               Faa = Rab9*(1.D0 - 3.D0*delta - (delta - 11.D0)*Ra)
+               Fbb = Rab9*(1.D0 - 3.D0*delta - (delta - 11.D0)*Rb)
+               Fab = Rab9*(47.D0 - 7.D0*delta)
+               T1 = -P3*Rx*Rab*CD43
+               T2a = -(P1*omega*Rab)*CD83a
+               T2b = -(P1*omega*Rab)*CD83b
+            else
+               cd13b=0d0
+               gbb=0d0
+               gab=0d0
+               cd83b=0d0
+               rb=0d0
+               rab=0d0
+               rbb=0d0
+               rab9=0d0
+               zeta=ra
+               faa=0d0
+               fbb=0d0
+               fab=0d0
+               t1=0d0
+               t2a=0d0
+               t2b=0d0
+            endif
             dElypdGbb = -omega*(Fbb - Raa)
             dElypdGab = -omega*(Fab - P43)
-            T1 = -P3*Rx*Rab*CD43
-            T2a = -(P1*omega*Rab)*CD83a
-            T2b = -(P1*omega*Rab)*CD83b
             T2 = T2a + T2b
             Elyp = T1 + T2 + dElypdGaa*Gaa + 
      &                       dElypdGbb*Gbb + 
@@ -200,14 +218,22 @@ c
             Ro = P13*(delta - 5.D0)/CD
             dFaadCDa = -(zeta/CDa)*Faa - Rab9*((3.D0 + Ra)*deltap + 
      &                  (delta - 11.D0)*Rb/CD)
-            dFaadCDb =  (zeta/CDb)*Faa - Rab9*((3.D0 + Ra)*deltap - 
+            if(cdb.gt.eps) then
+               dFaadCDb =  (zeta/CDb)*Faa - Rab9*((3.D0 + Ra)*deltap - 
      &                  (delta - 11.D0)*Ra/CD)
-            dFbbdCDa = -(zeta/CDa)*Fbb - Rab9*((3.D0 + Rb)*deltap - 
-     &                  (delta - 11.D0)*Rb/CD)
-            dFbbdCDb =  (zeta/CDb)*Fbb - Rab9*((3.D0 + Rb)*deltap + 
-     &                  (delta - 11.D0)*Ra/CD)
-            dFabdCDa = -(zeta/CDa)*Fab - 7.D0*Rab9*deltap
-            dFabdCDb =  (zeta/CDb)*Fab - 7.D0*Rab9*deltap
+               dFbbdCDa=-(zeta/CDa)*Fbb - Rab9*((3.D0 + Rb)*deltap - 
+     &              (delta - 11.D0)*Rb/CD)
+               dFbbdCDb= (zeta/CDb)*Fbb - Rab9*((3.D0 + Rb)*deltap + 
+     &              (delta - 11.D0)*Ra/CD)
+               dFabdCDb =  (zeta/CDb)*Fab - 7.D0*Rab9*deltap
+               dFabdCDa = -(zeta/CDa)*Fab - 7.D0*Rab9*deltap
+            else
+               dFaadCDb =0d0
+               dFbbdCDa=0d0
+               dFbbdCDb=  0d0
+               dFabdCDb =0d0
+               dFabdCDa = 0d0
+            endif
             d2ElypdCDadGaa = Ro*dElypdGaa - 
      &                       omega*(dFaadCDa + Rbb*(2.D0/CD))
             d2ElypdCDbdGaa = Ro*dElypdGaa - 
@@ -219,11 +245,16 @@ c
             d2ElypdCDadGab = Ro*dElypdGab - omega* dFabdCDa
             d2ElypdCDbdGab = Ro*dElypdGab - omega* dFabdCDb
             dT1dCDa = (T1/CD)*(P13*Rx + Rb/Ra)
-            dT1dCDb = (T1/CD)*(P13*Rx + Ra/Rb)
             dT2dCDa = (Ro - (zeta/CDa))*T2b + 
      &                (Ro + (P83 - zeta)/CDa)*T2a
-            dT2dCDb = (Ro + (zeta/CDb))*T2a + 
-     &                (Ro + (P83 + zeta)/CDb)*T2b
+            if(cdb.gt.eps) then
+               dT1dCDb = (T1/CD)*(P13*Rx + Ra/Rb)
+               dT2dCDb = (Ro + (zeta/CDb))*T2a + 
+     &              (Ro + (P83 + zeta)/CDb)*T2b
+            else
+               dT1dCDb = 0d0
+               dT2dCDb = 0d0
+            endif
             dElypdCDa = dT1dCDa + dT2dCDa + d2ElypdCDadGaa*Gaa +
      &                                      d2ElypdCDadGbb*Gbb +
      &                                      d2ElypdCDadGab*Gab
