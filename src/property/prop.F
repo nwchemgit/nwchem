@@ -5,7 +5,7 @@ c
 c>>>  Inquire rtdb for properties to be evaluated.
 c
 *
-* $Id: prop.F,v 1.8 1997-07-10 22:31:12 mdupuis Exp $
+* $Id: prop.F,v 1.9 1997-07-30 02:07:44 d3g681 Exp $
 *
       implicit none
       integer rtdb              ! [input]
@@ -24,8 +24,8 @@ c
       call ga_sync()
 
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
-      if(ga_nodeid().eq.0)
-     $     call util_print_centered(LUout,'Properties',40,.true.)
+*      if(ga_nodeid().eq.0)
+*     $     call util_print_centered(LUout,'Properties',40,.true.)
 c
 c     hondo property calculation routines 
 c

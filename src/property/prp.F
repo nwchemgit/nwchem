@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.22 1997-07-10 22:31:13 mdupuis Exp $
+* $Id: prp.F,v 1.23 1997-07-30 02:07:47 d3g681 Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -193,9 +193,9 @@ C
  9999 FORMAT(/,' ----- property selection -----',/,
      1 ' nodip =',I2,' noqdp =',I2,' nootp =',I2,
      2 ' nopop =',I2,' nospin=',I2,
-     3 ' noloc =',I2,' nodpl =',I2,' nodhp =',I2,' nod2hp=',I2,/,
+     3 ' noloc =',I2,' nodpl =',I2,/,' nodhp =',I2,' nod2hp=',I2,
      4 ' nofpl =',I2,' nofhp =',I2,' nof2hp=',I2,' nosos =',I2,
-     5 ' noelp =',I2,' noelf =',I2,' noelfg=',I2,' noden =',I2,
+     5 ' noelp =',I2,/,' noelf =',I2,' noelfg=',I2,' noden =',I2,
      6 ' nonmr =',I2,' noston=',I2)
  9998 FORMAT(' runtyp = --',A8,'--',/,' scftyp = --',A8,'--')
       END
@@ -10884,6 +10884,8 @@ C
       data blank/'  '/
 c
 c         ----- fill basis function symbol table -----
+c
+      debug = .false.
 c
       n = 0
       lastat=0

@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.3 1997-06-24 16:56:32 mdupuis Exp $
+* $Id: hnd_property.F,v 1.4 1997-07-30 02:07:44 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -48,7 +48,7 @@ c
 c
       if (ga_nodeid().eq.0) then
          if (util_print('information',print_low)) then
-            call util_print_centered(luout,'NWCHEM HND_PROP Module',
+            call util_print_centered(luout,'NWChem Property Module',
      $           40,.true.)
             write(luout,*)
             call util_flush(luout)
