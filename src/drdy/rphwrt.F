@@ -1,5 +1,5 @@
-C $Id: rphwrt.F,v 1.5 2003-10-17 22:54:46 carlfahl Exp $
-#if defined(LINUX)
+C $Id: rphwrt.F,v 1.6 2003-10-27 01:29:32 edo Exp $
+#if defined(LINUX) && !defined(XLFLINUX)
 #define APPEND_OK
 #endif
       Subroutine drdy_rphwrt (iop)
