@@ -67,7 +67,7 @@ c
          base = 0               ! Alpha is the same as beta
       endif
       ioff = base
-      do i = 1+ga_nodeid(),noa,ga_nnodes() ! Loop thru SCF order
+      do i = 1+ga_nodeid(),nob,ga_nnodes() ! Loop thru SCF order
          do a = 1,nvb
             ii = map_b(i)
             aa = map_b(a+nob)-nob
