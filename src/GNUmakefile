@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.49 1997-02-17 21:38:55 d3e129 Exp $
+# $Id: GNUmakefile,v 1.50 1997-02-18 06:36:43 d3h449 Exp $
 
 include config/makefile.h
 
@@ -35,7 +35,7 @@ link nwchem_link:
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f $(BINDIR)/nwchem
 endif
-	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o -ltask $(LIBS) $(LIBS)
+	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o -ltask $(LIBS)
 #	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 #
