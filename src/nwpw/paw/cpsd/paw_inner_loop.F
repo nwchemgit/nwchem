@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.21 2003-02-23 23:32:05 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.22 2003-02-23 23:55:11 bylaska Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -495,9 +495,9 @@ c     if (ispin.eq.1) enlocal = 2.0d0*enlocal
       ekin_atom = paw_energy_kin_atom()
       evloc_atom = paw_energy_vloc_atom()
       eion_atom = paw_energy_ion_atom()
-c      ecore_atom = paw_energy_core_atom()
-c      ecore_ion_atom = paw_energy_core_ion_atom()
-c      ecore_self_atom = paw_energy_core_self_atom()
+      ecore_atom = paw_energy_core_atom()
+      ecore_ion_atom = paw_energy_core_ion_atom()
+      ecore_self_atom = paw_energy_core_self_atom()
       exc_atom = paw_energy_xc_atom()
 
 *?????????????????????? what is this ??????????????      
