@@ -107,6 +107,14 @@ the specified trajectory files, use
 frames 200 400 10
 \end{verbatim}
 
+To set hydrogen bond criteria:
+
+\begin{verbatim}
+hbond [distance [[<real rhbmin default 0.0>] <real rhbmin>]] \
+      [donorangle [<real hbdmin> [ <real hbdmax default pi>]]] \
+      [acceptorangle [<real hbamin> [ <real hbamax default pi>]]]
+\end{verbatim}
+
 \section{Selection}
 
 Analyses can be applied to a selection of solute atoms. The selection
@@ -170,6 +178,12 @@ coordinates:
 
 \begin{verbatim}
 rmsd
+\end{verbatim}
+
+To analyze protein $\phi$-$\psi$ and backbone hydrogen bonding:
+
+\begin{verbatim}
+ramachandran
 \end{verbatim}
 
 To define a bond:
