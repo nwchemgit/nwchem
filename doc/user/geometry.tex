@@ -17,7 +17,8 @@ and complicated when presented in its general form, as follows:
            [bqbq] \
            [autoz]
     
-    [SYMMETRY [group] <string group_name> [print]]
+    [SYMMETRY [group] <string group_name> [print] \
+           [tol <real tol default 1d-2>]]
 
     <string tag> <real x y z> [charge <real charge>] [mass <real mass>]
     ... ]
@@ -175,7 +176,8 @@ periodic systems is not yet documented.)
 The general form of the directive, as described above within the general
 form of the \verb+GEOMETRY+ directive, is as follows:
 \begin{verbatim}
-    [SYMMETRY [group] <string group_name> [print]]
+    [SYMMETRY [group] <string group_name> [print] \
+           [tol <real tol default 1d-2>]]
 \end{verbatim}
 The keyword \verb+group+ is optional, and can be omitted without
 affecting how the input for this directive is processed\footnote{For
@@ -215,6 +217,10 @@ symmetry.
 The keyword \verb+print+ gives information concerning the point group
 generation, including the group generators, a character table, the
 mapping of centers, and the group operations.
+
+The keyword \verb+tol+ relates to the accuracy with which the symmetry-unique
+atoms should be specified.  When the atoms are generated, those that are
+within the tolerance, \verb+tol+, are considered the same.
 
 \section{Cartesian coordinate input}
 \label{sec:cart}
