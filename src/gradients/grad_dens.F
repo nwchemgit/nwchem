@@ -2,7 +2,7 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs, omp2, pdm2, coeff)
 
-c     $Id: grad_dens.F,v 1.8 1997-02-23 19:49:15 d3j191 Exp $
+c     $Id: grad_dens.F,v 1.9 1999-02-14 17:53:02 d3g681 Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -304,7 +304,7 @@ c
      $           call errquit('gradients: ma corrupt buf',0)
 
 c
-         endif
+         end if
          call ga_sync()
 c
          call ga_brdcst(33,pdm2, 8*nopen**4,0)
@@ -315,7 +315,7 @@ c
          call ga_symmetrize(g_wdens)
          call ga_symmetrize(g_dens(1))
 
-      endif
+      end if
          
 c     
 

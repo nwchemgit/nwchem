@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.30 1998-08-05 16:53:22 d3g681 Exp $
+c     $Id: grad_force.F,v 1.31 1999-02-14 17:53:03 d3g681 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -89,8 +89,8 @@ c
       integer lforce, l_force, k_force, l_evals, k_evals, l_occ, k_occ,
      $     l_act, k_act, 
      $     l_buf, k_buf, l_scr, k_scr, l_dens, k_dens, l_wdens, k_wdens,
-     $     k_frc_nuc, k_frc_kin, k_frc_2el, k_frc_wgh, 
-     $     l_frc_nuc, l_frc_kin, l_frc_2el, l_frc_wgh,
+     $     k_frc_nuc, k_frc_kin, k_frc_2el, k_frc_wgh, k_frc_cd,
+     $     l_frc_nuc, l_frc_kin, l_frc_2el, l_frc_wgh, l_frc_cd,
      $     l_frc_mp2, k_frc_mp2
 
 c     pdm2d is now used by all methods.  pdm2/a/b/c only by MCSCF
@@ -128,9 +128,18 @@ c
       character*20 theory
       character*8 scftype
       character*32 rtdb_string
-      logical oskel, omp2, status
+
+*     Stuff for DFT
+
+      integer ipol, lenxfac, noc(2)
+      parameter (lenxfac = 15)
+      logical oskel, omp2, odft, ocdfit, status
+      double precision xfac(15), jfac, kfac
 
       nproc = ga_nnodes()
+
+      jfac = 1.0d0              ! Only changed for DFT
+      kfac = 1.0d0
 
 C     get information about basis set
       if (.not. geom_ncent(geom,nat))
@@ -153,10 +162,30 @@ c
      $     call errquit('grad: failed getting theory',0)
 
 C     get SCF MO vectors for density
+
+      odft = .false.
       if (theory .eq. 'mcscf') then
          if (.not. rtdb_cget(rtdb, 'mcscf:input vectors', 1, movecs_in))
      $        call errquit('gradients: MCSCF MO vectors not defined',0)
          scftype = 'mcscf'
+      else if (theory .eq. 'dft') then
+         odft = .true.
+         if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
+     $        call errquit('gradients: DFT MO vectors not defined',0)
+         if (.not. rtdb_get(rtdb, 'dft:cdfit', mt_log, 1, ocdfit))
+     $        ocdfit = .false.
+         if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, lenxfac, xfac))
+     $        call errquit('gradients: xfac not in rtdb ', 0)
+         if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
+     $        ipol = 1
+         if (ipol .eq. 1) then
+            scftype = 'rhf'
+         else
+            scftype = 'uhf'
+         endif
+         jfac = 1.0d0
+         if (ocdfit) jfac = 0.0d0
+         kfac = xfac(1)
       else
          if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
      $        call errquit('gradients: scftype not defined',0)
@@ -181,6 +210,16 @@ C     scftype: MCSCF, RHF, ROHF or UHF
      $        nclosed = 0
          if (.not. rtdb_get(rtdb, 'mcscf:nact', mt_int, 1, nopen))
      $        call errquit('gradients: no mcscf active orbitals?',0)
+      else if (odft) then
+         if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
+     &        call errquit('gradients: rtdb_get of noc failed', 0)
+         if (ipol .eq. 1) then
+            nclosed = noc(1)
+            nopen   = 0
+         else
+            nclosed = min(noc(1),noc(2))
+            nopen   = abs(noc(1) - noc(2))
+         endif
       else
          if (.not. rtdb_get(rtdb, 'scf:nopen', mt_int, 1, nopen))
      $        nopen = 0
@@ -191,8 +230,13 @@ C     is it MP2?
          if (.not. omp2) then
             if (ga_nodeid() .eq. 0) then
                if (util_print('information', print_medium)) then
-                  write(luout,1) scftype
- 1                format(/'  wavefunction    =   ', a/)
+                  if (odft) then
+                     write(luout,101) ' dft ', ipol
+ 101                 format(/'  wavefunction    =   ', a, ' ipol =',i2/)
+                  else
+                     write(luout,1) scftype
+ 1                   format(/'  wavefunction    =   ', a/)
+                  endif
                   call util_flush(luout)
                end if
             end if
@@ -259,7 +303,11 @@ C     local replication(separate for the different pieces)
      $        k_frc_mp2)) call errquit
      &      ('grad:could not allocate l_force',lforce)
       end if
-
+      if (odft) then
+         if (.not. ma_push_get(mt_dbl, lforce, 'forces', l_frc_cd, 
+     $        k_frc_cd)) call errquit
+     &      ('grad:could not allocate l_force',lforce)
+      end if
 
 C     global density
       do i=1, ndens
@@ -469,8 +517,8 @@ C     define threshold for Schwarz screening(same as in SCF)
             tol2e = min(1d-7,tol2e * 1d-2)
          else
             tol2e = 1.0d-7
-         endif
-      endif
+         end if
+      end if
 c     
 c     Block the shells for Texas
 c     
@@ -504,7 +552,7 @@ c
       do i = 1, nbf
          if (.not. bas_bf2ce(basis, i, iat)) call errquit('bf2ce',i)
          int_mb(k_bftoat+i-1) = iat
-      enddo
+      end do
 c
 c     ==================================================================
 c
@@ -523,7 +571,7 @@ c
          call matrix_reorder(nbf, nopen,
      $        dbl_mb(k_coeff), .true., int_mb(k_rbfmap),
      $        .false., int_mb(k_rbfmap))
-      endif
+      end if
 c
 
       if (.not. ma_push_get(mt_int, 4*maxq, 'list', l_list, k_list))
@@ -534,7 +582,7 @@ c
 c     
       cpu_tim(2)  = util_cpusec()
       wall_tim(2) = util_wallsec()
-      call grad2(
+      if (jfac.ne.0.0d0 .or. kfac.ne.0.0d0) call grad2(
      $     dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
      $     dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk), 
      $     dbl_mb(ld_ij2),dbl_mb(ld_kl2),dbl_mb(ld_ik2),
@@ -555,7 +603,8 @@ c
      $     int_mb(k_shmap), int_mb(k_shglo), int_mb(k_shghi), 
      $     int_mb(k_bfglo), int_mb(k_bfghi), 
      $     int_mb(k_bfmap), int_mb(k_rbfmap), 
-     $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi))
+     $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
+     $     jfac, kfac)
       cpu_tim(2)  = util_cpusec()  - cpu_tim(2)
       wall_tim(2) = util_wallsec() - wall_tim(2)
 c     
@@ -581,6 +630,16 @@ c
      $           dbl_mb(k_frc_2el+i) + dbl_mb(k_frc_nuc+i) +
      $           dbl_mb(k_frc_wgh+i) + dbl_mb(k_frc_kin+i)
          end do
+
+         if (odft) then
+            if (.not. rtdb_get(rtdb, 'dft:cd+xc gradient', 
+     $           mt_dbl, 3*nat, dbl_mb(k_frc_cd))) call errquit
+     $           ('grad_force: no dft cd+xc gradient',110)
+            do i=0, 3*nat-1
+               dbl_mb(k_force+i) = dbl_mb(k_force+i) + 
+     $              dbl_mb(k_frc_cd+i) 
+            end do
+         endif
 
          if (omp2) then
             if (.not. rtdb_get(rtdb, 'mp2:nonseparable gradient', 
@@ -609,6 +668,8 @@ C     symmetrize
                else
                   theory = 'MP2(RHF)'
                end if
+            else if (odft) then
+               theory = 'DFT'
             else
                theory = scftype
             end if
@@ -624,8 +685,11 @@ C     symmetrize
             write(luout,2200) '2-electron gradient',' ',' ',
      $           ((dbl_mb(k_frc_2el+i-1+3*(j-1)),i=1,3),j=1,nat)
             if (omp2) write(luout,2200) theory(1:inp_strlen(theory)),
-     $           ' ', 'MP2 non-separable gradient',
+     $           ' ', 'non-separable gradient',
      $           ((dbl_mb(k_frc_mp2+i-1+3*(j-1)),i=1,3),j=1,nat)
+            if (odft) write(luout,2200) theory(1:inp_strlen(theory)),
+     $           ' ', 'CD+XC gradient',
+     $           ((dbl_mb(k_frc_cd+i-1+3*(j-1)),i=1,3),j=1,nat)
             write(luout,2200) 'total ',
      $           theory(1:inp_strlen(theory)), ' gradient',
      $           ((dbl_mb(k_force+i-1+3*(j-1)),i=1,3),j=1,nat)
@@ -638,6 +702,8 @@ C     store in rtdb
             rtdb_string = 'mp2:gradient'
          else if (scftype.eq. 'MCSCF') then
             rtdb_string = 'mcscf:gradient'
+         else if (odft) then
+            rtdb_string = 'dft:gradient'
          else
             rtdb_string = 'scf:gradient'
          end if
@@ -703,7 +769,6 @@ c
       end do
 c     
       end
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       double precision function grad_norm(frc, nat)
       implicit none
 
@@ -722,7 +787,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       return
       end
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       double precision function grad_max(frc, nat)
       implicit none
 
@@ -865,22 +929,22 @@ c     reorder L,s,p (-1,0,1) into order by complexity s,p,L (-1,0,1)
                tmp = shmap(j)
                shmap(j) = shmap(i)
                shmap(i) = tmp
-            endif
-         enddo
-      enddo
+            end if
+         end do
+      end do
       else
          do i = 1, nsh
             shmap(i) = i
             bfmap(i) = 1
-         enddo
-      endif
+         end do
+      end if
 c
       if (oprint) then
          write(6,1) (shmap(i),i=1,nsh)
  1       format('  shmap ', 12(i3,3x))
          write(6,11)(bfmap(i),i=1,nsh)
  11      format('  type  ', 12i9)
-      endif
+      end if
 c
 c     Now have shmap (new to old shell map) and in bfmap the type of
 c     each new shell.  Perform the blocking subject to constraints 
@@ -913,10 +977,10 @@ c
             shglo(nshblocks) = i
             bfglo(nshblocks) = bfghi(nshblocks-1)+1
             prevtype = itype
-         endif
+         end if
          shlen = shlen + 1
          bflen = bflen + shdim
-      enddo
+      end do
       shghi(nshblocks) = nsh
       bfghi(nshblocks) = nbf
       if (oprint) then
@@ -930,7 +994,7 @@ c
  5       format('  bfglo ', 12(i3,3x))
          write(6,6) (bfghi(i),i=1,nshblocks)
  6       format('  bfghi ', 12(i3,3x))
-      endif
+      end if
 c
 c     Now have shmap, shglo/hi and bfglo/hi, and nshblocks
 c
@@ -948,9 +1012,9 @@ c
             newbf = newbf + 1
             rbfmap(j) = newbf
             bfmap(newbf) = j
-         enddo
+         end do
          shbfhi(i) = newbf
-      enddo
+      end do
       if (newbf .ne. nbf) call errquit('newbf is bad',0)
 c
       if (oprint) then
@@ -962,7 +1026,7 @@ c
  9       format(' shbflo ', 12(i3,3x))
          write(6,10) (shbfhi(i),i=1,nsh)
  10      format(' shbfhi ', 12(i3,3x))
-      endif
+      end if
 c
       end
       subroutine zero_forces ( force, oactive, nat )
@@ -981,8 +1045,8 @@ c
           force(1,i) = zero
           force(2,i) = zero
           force(3,i) = zero
-        endif
-      enddo
+        end if
+      end do
 
       return
       end

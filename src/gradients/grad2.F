@@ -9,8 +9,8 @@
      $     nsh, oactive, oskel, scftype, omp2,
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
-     $     bftoat, shbflo, shbfhi)
-c     $Id: grad2.F,v 1.30 1998-07-13 23:33:56 d3g681 Exp $
+     $     bftoat, shbflo, shbfhi, jfac, kfac)
+c     $Id: grad2.F,v 1.31 1999-02-14 17:53:02 d3g681 Exp $
       implicit none
 #include "sym.fh"
 #include "global.fh"
@@ -68,6 +68,7 @@ c
       integer bftoat(nbf)       ! [input] Map from old basis func to atom
       integer shbflo(nsh)       ! [input] First new bf in new shell
       integer shbfhi(nsh)       ! [input] Last new bf in new shell
+      double precision jfac, kfac ! [input] DFT scaling for Coulomb/Exchange
 C-------------------------local variables-----------------------------
       integer  next, nint, ijklblock
       double precision scale, q4max
@@ -262,7 +263,7 @@ c
      $                                blen, 
      $                                iilo, jjlo, kklo, lllo,
      $                                iihi, jjhi, kkhi, llhi,
-     $                                pdm2d, psum)
+     $                                pdm2d, psum, jfac, kfac)
 c     
 c     Final screening including magnitude of the density
 c     
@@ -525,7 +526,8 @@ c
      $     d_ij2, d_kl2, d_ik2, d_jl2, d_il2, d_jk2, 
      $     d_ij3, d_kl3, d_ik3, d_jl3, d_il3, d_jk3, 
      $     d_ij4, d_kl4, d_ik4, d_jl4, d_il4, d_jk4, 
-     $     blen, ilo, jlo, klo, llo, ihi, jhi, khi, lhi, pdm2d, psum)
+     $     blen, ilo, jlo, klo, llo, ihi, jhi, khi, lhi, pdm2d, psum,
+     $     jfac, kfac)
       implicit none
       logical omp2,ouhf,orohf,omcscf   ! [input] Wavefunction info
       integer blen
@@ -544,6 +546,8 @@ c
       double precision pdm2d(blen,blen,blen,blen) ! [output] 2pdm
       double precision psum     ! [output] Norm of this block of twopdm
       integer ilo, jlo, klo, llo, ihi, jhi, khi, lhi
+c
+      double precision jfac, kfac ! [input] Factors for DFT
 c
       double precision den2
       integer i, j, k, l
@@ -602,8 +606,8 @@ c
                do j = jlo, jhi
                   do k = klo, khi
                      do l = llo, lhi
-                        den2 = half *(d_ij(i,j) * d_kl(k,l))
-     $                       - eigth  *(d_ik(i,k) * d_jl(j,l)
+                        den2 = half*jfac*(d_ij(i,j) * d_kl(k,l))
+     $                       - eigth*kfac*(d_ik(i,k) * d_jl(j,l)
      $                       +  d_il(i,l) * d_jk(j,k)
      $                       +  d_ik2(i,k) * d_jl2(j,l)
      $                       +  d_il2(i,l) * d_jk2(j,k))
@@ -649,26 +653,13 @@ c
                end do
             end do
          else                   ! RHF
-c$$$            write(6,*) ' DIJ ',id1,id2
-c$$$            call output(d_ij,1,id1,1,id2,blen,blen,1)
-c$$$            write(6,*) ' DKL ',id3,id4
-c$$$            call output(d_kl,1,id3,1,id4,blen,blen,1)
-c$$$            write(6,*) ' DIK ',id1,id3
-c$$$            call output(d_ik,1,id1,1,id3,blen,blen,1)
-c$$$            write(6,*) ' DIL ',id1,id4
-c$$$            call output(d_il,1,id1,1,id4,blen,blen,1)
-c$$$            write(6,*) ' DJK ',id2,id3
-c$$$            call output(d_jk,1,id2,1,id3,blen,blen,1)
-c$$$            write(6,*) ' DJL ',id2,id4
-c$$$            call output(d_jl,1,id2,1,id4,blen,blen,1)
             do i = ilo, ihi
                do j = jlo, jhi
                   do k = klo, khi
                      do l = llo, lhi
-                        den2 = half *(d_ij(i,j)*d_kl(k,l))
-     $                       - eigth *(d_ik(i,k) * d_jl(j,l)
+                        den2 = half*jfac*(d_ij(i,j)*d_kl(k,l))
+     $                       - eigth*kfac*(d_ik(i,k) * d_jl(j,l)
      $                       +  d_il(i,l) * d_jk(j,k))
-*                        write(6,*) ' PDM2 ',l,k,j,i,den2
                         pdm2d(l,k,j,i) = den2
                      end do
                   end do
@@ -688,6 +679,5 @@ c
          end do
       end do
       psum = sqrt(psum)
-*      write(6,*) ' PSUM ', psum
 c
       end
