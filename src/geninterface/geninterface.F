@@ -1,5 +1,5 @@
 C
-C $Id: geninterface.F,v 1.8 2003-11-01 00:57:36 yuri Exp $
+C $Id: geninterface.F,v 1.9 2003-11-12 20:22:49 yuri Exp $
 C
 C This is a first attempt at an interface code for Venus written in F77.
 C
@@ -37,30 +37,17 @@ C
 C  Create parallel processes
 
       call ga_brdcst(MT_INT, natom, mitob(1), 0)
-      write (6,*) 'after natom ', natom, ga_nodeid()
-      write (6,*) '3*natom ', 3*natom, ga_nodeid()
-      call flush(6)
       call ga_brdcst(MT_DBL, coordinates, mdtob(3*natom), 0)
-      write (6,*) 'after coordinates ', ga_nodeid()
-      I3N = 3*natom
-      do i = 1,I3N
-         write(6,*) coordinates(i), i, ga_nodeid()
-      enddo
-      call flush(6)
-      call ga_brdcst(MT_INT, theory, 256/4, 0)
-      write (6,*) 'after theory ', theory, ga_nodeid()
-      call flush(6)
-      call ga_brdcst(MT_INT, basis, 256/4, 0)
-      write (6,*) 'after basis ', basis, ga_nodeid()
-      call flush(6)
+C change MT_INT-256/4 to MT_BYTE-256
+      call ga_brdcst(MT_BYTE, theory, 256, 0)
+      call ga_brdcst(MT_BYTE, basis, 256, 0)
       call ga_brdcst(MT_INT, labels, 16*mitob(natom)/4, 0)
-      write (6,*) 'after labels ', ga_nodeid()
-      write(6,*) labels(1), labels(2), labels(3),labels(4)
-     * ,labels(5),labels(6)
-      call flush(6)
+C      write(6,*) labels(1), labels(2), labels(3),labels(4)
+C     * ,labels(5),labels(6)
+C      call flush(6)
 C YA: Broadcast charge
       call ga_brdcst(MT_DBL, charge, mdtob(1), 0)
-      call ga_brdcst(MT_INT,printName, 256/4, 0)
+      call ga_brdcst(MT_BYTE, printName, 256, 0)
 
       numatoms = natom
 C  Worry about input file.  For now use a dummy one.  Do I need to open it?
@@ -144,6 +131,17 @@ C  Process charge and put into rtdb
 
       if (.not. setCharge(charge))
      $     call errquit('initialize_qm: setCharge failed', 555,0)
+
+C  Process print type and put into rtdb
+
+      write (6,*) 'printName=',printName, ga_nodeid()
+C      i = rtdb_parallel(0)
+C      if (ga_nodeid().eq.0) then
+       if (.not. setPrint(printName))
+     $     call errquit('initialize_qm: setPrint failed', 555)
+C      end if
+C      i = rtdb_parallel(i)
+      write (6,*) 'after printName=',printName, ga_nodeid()
 
 C  Process molecule input and put into rtdb
 
@@ -577,6 +575,36 @@ C
      $     ('input_charge: failed to write to rtdb', 0)
 
       setCharge = .true.
+
+      return
+      end
+
+      logical function setPrint(printName)
+      implicit none
+#include "geninterface.fh"
+#include "rtdb.fh"
+#include "util.fh"
+
+      character*256 printName
+      integer level
+
+      setPrint = .false.
+
+      if (printName.eq."none") then
+         level=print_none
+      else if (printName.eq."low") then
+         level=print_low
+      else if (printName.eq."high") then
+         level=print_high
+      else if (printName.eq."debug") then
+         level=print_debug
+      else
+         level=print_medium
+      end if
+
+      call util_print_set_level(level)
+
+      setPrint = .true.
 
       return
       end
