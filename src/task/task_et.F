@@ -5,7 +5,6 @@
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
-#include "cscf.fh" 
       integer rtdb
 c
 c  11/26/01 DMAS: this was a copy of task_energy.F 
@@ -56,7 +55,7 @@ c===========================================================================
 c
 c     This function actually calculates Vba
 *
-* $Id: task_et.F,v 1.10 2001-12-20 18:51:51 d3k958 Exp $
+* $Id: task_et.F,v 1.11 2002-01-09 20:07:09 edo Exp $
 c
 *
 #include "rtdb.fh"
