@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.167 2003-12-04 20:05:40 d3j191 Exp $
+c $Id: cf_main.F,v 1.168 2003-12-04 20:56:16 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -295,7 +295,7 @@ c
       integer ismol(msa),isatt(msa),nums
       real*8 vs(msa,3),fs(msa,3),fcm(msm,5)
 c
-      call cf_scmf(ismol,isatt,fs,nums,fcm,dbl_mb(i_mas))
+      call cf_scmf(ismol,isatt,vs,fs,nums,fcm,dbl_mb(i_mas))
 c
       return
       end
