@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.11 2003-02-18 18:45:45 pollack Exp $
+c     $Id: dftg_gridv0.F,v 1.12 2003-02-20 18:00:36 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.11 2003-02-18 18:45:45 pollack Exp $
+c $Id: dftg_gridv0.F,v 1.12 2003-02-20 18:00:36 edo Exp $
 c     
       implicit none      
 c
@@ -97,7 +97,7 @@ c
       integer nscr,icrad,iprad,iang
       integer llmax, MXcont, max_elem_ang_scr,nxang
       integer nbf_ao_mxnbf_ce
-      integer lgthpmat
+      integer lgthpmat,nelem_tau
       integer nxtask
       external nxtask
 c     
@@ -248,8 +248,11 @@ c
       if (.not.MA_Push_Get(MT_Dbl,nelem,'delrho',ldelrho,idelrho))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
 
-
-      if (.not.MA_Push_Get(MT_Dbl,nelem,'tau',ltau,itau))
+c
+c    not used for the moment
+c	
+      nelem_tau=1
+      if (.not.MA_Push_Get(MT_Dbl,nelem_tau,'tau',ltau,itau))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
 
 
