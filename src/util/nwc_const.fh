@@ -1,5 +1,5 @@
 *
-* $Id: nwc_const.fh,v 1.4 2000-06-01 20:56:24 mg201 Exp $
+* $Id: nwc_const.fh,v 1.5 2000-06-08 23:20:20 d3g681 Exp $
 *
 * These constants are used to control some fixed dimensions within nwchem
 * Developers should strive to dynamically allocate memory for arrays and 
@@ -103,3 +103,17 @@
       integer nw_max_nbf
       parameter (nw_max_nbf = 10000)
 *------------------------------------------------------------------------------
+*
+*
+*
+*==============================================================================
+*==============================================================================
+* These paramaters parallel the ones above but are used for those wavefunctions
+* (right now the new CCSD code) that aren't applicable to very large systems.
+*
+      integer nw_max_atom_shells_small, nw_max_shells_small, 
+     $     nw_max_atom_nbf_small, nw_max_nbf_small
+      parameter (nw_max_atom_shells_small = 300)
+      parameter (nw_max_shells_small = 600)
+      parameter (nw_max_atom_nbf_small = 1000)
+      parameter (nw_max_nbf_small = 2000)
