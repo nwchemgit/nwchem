@@ -98,7 +98,8 @@ c
          write(6,*)
       endif
 c
-      call fd_make_vectors(geom, natoms, dbl_mb(k_coord), dbl_mb(k_tmp),
+      call fd_make_vectors(geom, natoms, natoms3,
+     $     dbl_mb(k_coord), dbl_mb(k_tmp),
      $     dbl_mb(k_vec), nvec, oprint_mode)
 c
       if (.not. ma_pop_stack(l_tmp)) call errquit('tng: ma corrupt',0)
@@ -268,14 +269,15 @@ c
      $     call errquit('task_num_grad: rtdb corrupt',0)
 c
       end
-      subroutine fd_make_vectors(geom, natoms, coords, temp, 
+      subroutine fd_make_vectors(geom, natoms, natoms3, 
+     $     coords, temp, 
      $     vectors, nvec, oprint)
       implicit none
       integer geom
-      integer natoms            ! [input]
+      integer natoms,natoms3    ! [input]
       double precision coords(3,natoms) ! [input]
-      double precision temp(3*natoms, 3*natoms) ! [scratch]
-      double precision vectors(3*natoms, 3*natoms) ! [output]
+      double precision temp(natoms3, natoms3) ! [scratch]
+      double precision vectors(natoms3, natoms3) ! [output]
       integer nvec              ! [output]
       logical oprint            ! [input]
 c
@@ -286,16 +288,16 @@ c     3) orthogonal to translations
 c
 c     Return the vectors and the number of vectors.
 c
-      integer natoms3, i3, i, j, k, info
-      integer maxat
-      parameter (maxat = 100)
-      double precision work(3*maxat,6), eval(maxat)
+      integer i3, i, j, k, info
+      integer maxat, nwork, maxat3
+      parameter (maxat = 100, nwork=12) ! Nwork must be at least 6
+      parameter (maxat3 = 3*maxat)
+      double precision work(maxat3,nwork), eval(maxat3)
       double precision centroid(3), x, y, z, xx, yy, zz, fx
       double precision ddot
       external ddot
 c
       if (natoms.gt.maxat) call errquit('fd_make_vec: hard dim', natoms)
-      natoms3 = 3*natoms
 c
 c     Make linearly indep. vectors, project totally symmetric component
 c
@@ -383,7 +385,8 @@ c     by diagonalizing the metric
 c     
       call dgemm('t','n',natoms3,natoms3,natoms3,1.0d0, 
      $     vectors, natoms3, vectors, natoms3, 0.0d0, temp, natoms3)
-      call dsyev('v','u',natoms3,temp,natoms3,eval,work,18*maxat,info)
+      call dsyev('v','u',natoms3,temp,natoms3,eval,work,
+     $     3*nwork*maxat,info)
       if (info .ne. 0) call errquit('fd_make_vectors: dsyev failed',0)
 *      write(6,*) ' Eigen values of the projected vectors metric '
 *      call output(eval, 1, natoms3, 1, 1, natoms3, 1, 1)
