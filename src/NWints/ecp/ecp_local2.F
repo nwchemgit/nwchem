@@ -1,4 +1,4 @@
-C $Id: ecp_local2.F,v 1.3 1999-03-08 23:15:05 mg201 Exp $
+C $Id: ecp_local2.F,v 1.4 1999-03-09 20:18:36 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_local2 (mem_max,DryRun,
@@ -10,7 +10,7 @@ C $Id: ecp_local2.F,v 1.3 1999-03-08 23:15:05 mg201 Exp $
      &    ecp_ints,n_int,ibug)
 *                                                                      *
 *   Calculate local ecp integrals for a given ECP centre for two       *
-*   off-centre basis functions.                                        *
+*   off-centre basis functions and add to integral array.              *
 *                                                                      *
 *   Argument (status) - description                                    *
 *                                                                      *
@@ -86,13 +86,8 @@ C $Id: ecp_local2.F,v 1.3 1999-03-08 23:15:05 mg201 Exp $
       double precision csco(lcsco)
 *
       debug_gen = ibug .gt. 0
-Cbug
-C      debug_arrays = .not.DryRun
-C      debug_addresses = .not.DryRun
-Cstd
       debug_addresses = mod(ibug,2) .eq. 1
       debug_arrays = (mod(ibug,10)/2 .eq. 1) .and. .not.DryRun
-Cend
 *
       if (DryRun) mem_max = 0
 *
@@ -393,7 +388,7 @@ Cend
      &      'Half-contracted integrals',
      &      'E',78,4)
         call dgemm ('N','N',n_abp,n_cont_b,n_prim_b,one,tmp(i_inta),
-     &      n_abp,coef_b,n_prim_b,zero,ecp_ints,n_abp)
+     &      n_abp,coef_b,n_prim_b,one,ecp_ints,n_abp)
 *
         if (debug_arrays) then
           call ecp_matpr (ecp_ints,1,n_bas_a,1,n_bas_b,
