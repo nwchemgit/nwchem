@@ -11,7 +11,7 @@ endif
 
 set TMP=tmp.$$
 
-set L2HOPT="-split 3 -bottom_navigation  -show_section_numbers"
+set L2HOPT="-split 3 -bottom_navigation  -show_section_numbers -image_type gif"
 
 # works also with a list of files here but not currently
 # used in this fashion
@@ -26,6 +26,12 @@ foreach document ($1)
 
   make clean >& /dev/null
   make $document.ps >& $document.latex.log
+
+
+  if ($document == "user") then
+  echo "htmlize:    making userpdf.pdf"
+  make pdf >>& $document.latex.log
+  endif
 
   if ($status != 0) then
     echo "htmlize: latex errors reported in $document.latex.log"
@@ -128,6 +134,14 @@ foreach document ($1)
 
 # Note: $document.search must match the type and style of this copy
 #       e.g., for user you need to add the number of parts to user.search
+  if ($document == "user") then
+      cp userpdf.pdf $document
+  if ($status != 0) then
+    echo "htmlize: copy of pdf failed for $document"
+    exit 1
+  endif
+  endif
+
 
   if (-e ${document}.ps) then
      cp ${document}.ps $document

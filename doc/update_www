@@ -1,6 +1,6 @@
 #!/bin/csh 
 #
-# $Id: update_www,v 1.5 1999-08-11 23:30:55 windus Exp $
+# $Id: update_www,v 1.6 2000-10-14 00:54:00 edo Exp $
 
 # Script to automate updating of web pages for the
 # user and programmers manuals.
@@ -15,7 +15,8 @@ set document = $argv[1]
 
 echo Updating WWW pages for $document.tex
 #...............   public 
-foreach WWWDIR (/msrc/www/pub/docs/nwchem/doc)
+#foreach WWWDIR (/msrc/www/pub/docs/nwchem/doc)
+foreach WWWDIR (/msrc/www/docs/nwchem/doc)
 #
 # Now copy the revised source into the EMSL public WWW tree
   echo "update_www: Public pages .. "

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.17 2000-08-22 18:59:14 d3e129 Exp $
+# $Id: GNUmakefile,v 1.18 2000-10-14 00:54:06 edo Exp $
 
  SOURCE = ack.tex execution.tex mcscf.tex sample.tex symex.tex \
           basis.tex fourindex.tex scf.tex  top-level.tex \
@@ -35,7 +35,7 @@ html:
 	@../htmlize user
 	@../update_www user
 
-html_only:
+html_only: 
 	@../htmlize user
 
 view:	user.ps
