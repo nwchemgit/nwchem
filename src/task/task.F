@@ -24,11 +24,11 @@ c
       character*80 errmsg
 c
       logical  rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
-      logical  nwargos, property, gapss
+      logical  nwargos, property, gapss, task_shell
       logical  task_energy, task_gradient, task_optimize, task_freq
 c
       external rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
-      external nwargos, property, gapss
+      external nwargos, property, gapss, task_shell
       external task_energy, task_gradient, task_optimize, task_freq
 c      
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
@@ -57,6 +57,8 @@ c
             status = property(rtdb)
          else if (inp_compare(.false.,'gapss', theory)) then
             status = gapss(rtdb) ! This could/should be in task_energy
+         else if (inp_compare(.false.,'shell', theory)) then
+            status = task_shell(rtdb)
          else
             operation = 'energy' ! No matching specialized operation
             goto 100            !  execute the default generic operation
@@ -82,5 +84,36 @@ c
       endif
 c
       end
+      logical function task_shell(rtdb)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+      integer rtdb
+c
+      integer i
+      character*1023 command
+      integer range(3)
+      integer util_system
+      external util_system
+c
+      integer system
+      external system
+c
+      if (.not.rtdb_get(rtdb,'task:shell range',mt_int,3,range)) then
+         range(1) = 0
+         range(2) = 0
+         range(3) = 1
+      endif
+      if (.not. rtdb_cget(rtdb,'task:shell command',1,command))
+     $     call errquit('task shell: shell command missing',0)
+c
+      task_shell = .true.
+c
+      do i = range(1), range(2), range(3)
+         if (ga_nodeid() .eq. i)
+     $        task_shell = util_system(command) .eq. 0
+      enddo
+c
+      end
 
-         

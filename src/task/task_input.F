@@ -37,6 +37,9 @@ c
          else if (inp_compare(.false.,test,'freq') .or.
      $            inp_compare(.false.,test,'frequencies')) then
             operation = 'freq'
+         else if (inp_compare(.false.,test,'shell')) then
+            theory = 'shell'
+            call task_shell_input(rtdb)
          else if (theory .eq. ' ') then
             theory = test
             call inp_lcase(theory)
@@ -45,6 +48,7 @@ c
          endif
          goto 10
       endif
+      call inp_clear_err()
 c
       if (theory .eq. ' ') goto 1000 ! No default theory
       if (.not. rtdb_cput(rtdb, 'task:theory', 1, theory))
@@ -68,5 +72,52 @@ c
       call task_delete_state()
 c
       end
+      subroutine task_shell_input(rtdb)
+      implicit none
+#include "rtdb.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+      integer rtdb
+c
+c     Read input of the shell task directive
+c
+c     task shell ([<integer-range processor = 0>]|all) <string command>
+c
+      character*1023 command
+      character*8 test
+      integer range(3)
+c
+      if (inp_n_field().lt.3 .or. inp_n_field().gt.4)
+     $     call errquit('task shell: invalid syntax',0)
+c
+      if (inp_n_field() .eq. 4) then
+         if (.not. inp_irange(range(1),range(2),range(3))) then
+            if (inp_a(test)) then
+               write(6,*) ' test ' ,test
+               if (inp_compare(.false.,test,'all')) then
+                  range(1) = 0
+                  range(2) = ga_nnodes()-1
+                  range(3) = 1
+                  goto 10
+               endif
+            endif
+         endif
+         call errquit('task shell: bad format for processor range',0)
+c
+ 10      if (range(1).lt.0 .or. range(1).ge.ga_nnodes() .or.
+     $        range(2).lt.0 .or. range(2).ge.ga_nnodes() .or.
+     $        range(3).lt.1)
+     $        call errquit('task shell: invalid process range',0)
+         if (.not. rtdb_put(rtdb, 'task:shell range', mt_int, 3, range))
+     $        call errquit('task shell: rtdb corrupt',0)
+      endif
+c
+      if (.not. inp_a(command))
+     $     call errquit('task shell: failed reading command',0)
+c     
+      if (.not. rtdb_cput(rtdb,'task:shell command',1,command))
+     $     call errquit('task shell: rtdb corrupt',0)
+c
+      end
 
-         
