@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.452 2004-04-23 19:13:15 edo Exp $
+# $Id: makefile.h,v 1.453 2004-04-23 22:31:46 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -816,18 +816,16 @@ ifeq ($(TARGET),IBM)
          CC = xlc
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 1 --no-print-directory
+  MAKEFLAGS = -j 5 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
    FOPTIONS = -qEXTNAME -qnosave -qalign=4k -qxlf77=leadzero
 # -qinitauto=FF
    COPTIONS = 
-# -qstrict required with -O3 (according to Edo)
 # -qfloat=rsqrt gives faster square roots (off by -qstrict)
 # -qfloat=fltint gives faster real-integer conversion (off by -qstrict)
-# -qhot seems to break a lot of things so don't ever use it
-  FOPTIMIZE = -O3 -qstrict -qfloat=fltint -NQ40000 -NT80000 -qarch=auto -qtune=auto
+  FOPTIMIZE = -O3 -qstrict -qfloat=fltint -NQ40000 -NT80000 -qarch=auto -qtune=auto -NS2048
   ifdef RSQRT
     FOPTIMIZE  += -qfloat=rsqrt:fltint
   endif
