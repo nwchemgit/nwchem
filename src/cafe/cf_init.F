@@ -6,7 +6,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc)
-c $Id: cf_init.F,v 1.37 2000-03-15 00:17:57 d3j191 Exp $
+c $Id: cf_init.F,v 1.38 2000-03-15 00:48:50 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1466,7 +1466,7 @@ c
      + dbl_mb(i_mas),dbl_mb(i_vdw))
       call cf_print_ctypes(lfnout,dbl_mb(i_chg))
 c      call cf_print_solvent(lfnout)
-c      call cf_print_solute(lfnout)
+      call cf_print_solute(lfnout,int_mb(i_imul))
       endif
 c
       return
@@ -1542,16 +1542,24 @@ c
  1000 format(/,' SOLVENT',//)
       return
       end
-      subroutine cf_print_solute(lfnout)
+      subroutine cf_print_solute(lfnout,imul)
 c
       implicit none
 c
 #include "cf_common.fh"
 c
       integer lfnout
+      integer imul(mmult,4)
+      integer i,m
+c
+      if(nmult(1)+nmult(2)+nmult(3)+nmult(4).le.0) return
 c
       write(lfnout,1000)
  1000 format(/,' SOLUTE',//)
+c
+      write(lfnout,1001) (imul(i,1),i=1,nmul)
+ 1001 format(' Atom involved in multi-node bonded interaction',i5)
+c
       return
       end
       subroutine cf_lambda(lamtyp,lambda,maxlam,explam,lfnout,
