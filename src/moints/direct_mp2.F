@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.10 1995-06-16 20:51:11 rg240 Exp $
+C$Id: direct_mp2.F,v 1.11 1995-06-22 08:56:21 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -25,7 +25,7 @@ c
        integer k_occ, l_occ, k_evals, l_evals, g_vecs
        integer k_epair, l_epair
        integer npairs
-       integer nbf, nsh, nelec, nact, nocc, nopen, nvir, nocc_correl
+       integer nbf, nsh, nelec, nact, nocc, nopen, nocc_correl
        integer occ_frozen, occ_lo, occ_hi
        integer vir_frozen, vir_lo, vir_hi, nmo, nmo2
        integer noper, oseg_lo, oseg_hi, npass, blen, nocct
@@ -156,10 +156,10 @@ c
 c
 c Get frozen core & virtual offsets
 c
-       if (.not.rtdb_get(rtdb,'occ_frozen',MT_INT,1,occ_frozen))
-     $      occ_frozen = 0
-       if (.not.rtdb_get(rtdb,'vir_frozen',MT_INT,1,vir_frozen))
-     $      vir_frozen = 0
+       if (.not.rtdb_get(rtdb,'fourindex:occ_frozen',MT_INT,1,
+     $      occ_frozen)) occ_frozen = 0
+       if (.not.rtdb_get(rtdb,'fourindex:vir_frozen',MT_INT,1,
+     $      vir_frozen)) vir_frozen = 0
 c
 c Set index ranges
 c
@@ -168,13 +168,12 @@ c
        nocc_correl = occ_hi - occ_lo + 1
        vir_lo = nocc + 1
        vir_hi = nbf - vir_frozen
-       nvir = nbf - nocc
        nmo2 = vir_hi - vir_lo + 1
 c
 c Get Block-length
 c
-       if (.not.rtdb_get(rtdb,'block',MT_INT,1,blen))
-     $      blen = 10
+       if (.not.rtdb_get(rtdb,'fourindex:block',MT_INT,
+     $      1,blen)) blen = 10
 c
 c Initialise integrals and screening
 c
@@ -261,8 +260,8 @@ c
 c
 c Evaluate and store pair energies
 c
-       call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nvir,
-     $                     g_exch, dbl_mb(k_evals), g_epair )
+       call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nmo2,
+     $                     nbf, g_exch, dbl_mb(k_evals), g_epair )
 c
 c Print progress of this pass
 c

@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.31 1995-06-16 20:51:16 rg240 Exp $
+C$Id: mointdriver.F,v 1.32 1995-06-22 08:56:59 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -158,8 +158,8 @@ c$$$       vir_hi = nbf - vir_frozen
 c
 c Get Block-length
 c
-       if (.not.rtdb_get(rtdb,'block',MT_INT,1,blen))
-     $      blen = 10
+       if (.not.rtdb_get(rtdb,'fourindex:block',MT_INT,
+     $      1,blen)) blen = 10
 c
 c Initialise integrals and screening
 c
@@ -272,7 +272,7 @@ c
 c Evaluate and store pair energies
 c
        call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nvir,
-     $                     g_exch, dbl_mb(k_evals), g_epair )
+     $                     nbf, g_exch, dbl_mb(k_evals), g_epair )
 c
 c
 c
