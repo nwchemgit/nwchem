@@ -1,11 +1,11 @@
       Subroutine dft_scf(rtdb,geom,AO_bas_han,CD_bas_han,XC_bas_han,
      &     ipol,Etold,Enuc,iVcoul_opt,iVxc_opt,
-     &     iconst,nconst,iter,iExc,
+     &     iconst,nconst,iter,
      &     iga_dens,iga_evecs,iga_olddens,iga_vxc,
      &     iga_fock,iga_diis,iga_svecs,isvals,
      &     iga_cdinv,iga_xcinv,iga_2ceri)
 
-C$Id: dft_scf.F,v 1.5 1995-05-10 03:52:44 og845 Exp $
+C$Id: dft_scf.F,v 1.6 1995-05-19 00:22:50 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
@@ -431,7 +431,7 @@ c
         call dft_tstamp(' Before call to GETVXC.  ')
         call xc_getv(rtdb,geom,AO_bas_han,XC_bas_han,
      &       Exc,ipol,nExc,
-     &       iExc,iVxc_opt,iga_xcinv,
+     &       iVxc_opt,iga_xcinv,
      &       iga_dens,iga_vxc,IOLGC,iAOacc,
      &       iga_wght,iga_xyz,wght_GA)
 
@@ -824,8 +824,13 @@ c-----------------------------------------------------------------------
 c
 c     computation of dipole moments
 c
-
-      call dft_mpole( geom, AO_bas_han, AO_bas_han,1, 
+      
+      if (.not. geom_ncent(geom, natoms))
+     &     call errquit('dft_scf: geom_ncent failed',73)      
+      if( .not. bas_high_angular(AO_bas_han,NXang) )
+     &     call errquit('exiting in dft_scf.',2)
+      if(natoms.gt.1.and.NXang.gt.1) 
+     &     call dft_mpole( geom, AO_bas_han, AO_bas_han,1, 
      &     iga_dens, ipol, rmoments, 3)
 
 C

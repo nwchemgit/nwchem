@@ -1,5 +1,5 @@
       Subroutine dftg_getxc( rtdb, geom, AO_bas_han, CD_bas_han, 
-     &                    XC_bas_han, ipol, natom, iEx, iEc,
+     &                    XC_bas_han, ipol, natom, 
      &                    iga_dens, force)
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -16,8 +16,11 @@ c****
 #include <bas.fh>
 #include <global.fh>
 #include <tcgmsg.fh>
+      
+      parameter(zero = 0.0d0,one = 1.0d0,onem = -1.0d0)
 
-c removed include bas_dft.fh
+      logical status
+      double precision xfac(10),cfac(10)
 c
 c--> Matrix Elements of the XC Potential & Energy
 c
@@ -57,28 +60,91 @@ c****
 c**** currently, only the "exact" quadrature (no fit of Coulomb or
 c**** XC terms used) form of gradient available
 c****
-c**** Exc(1)=0.d0
-c**** Exc(2)=0.d0
-      me=ga_nodeid()
       nproc=ga_nnodes()
-      zero = 0.0d0
-      one = 1.0d0
-      onem = -1.0d0
-c**** iEx = iExc/10
-c**** iEc = mod(iExc,10)
+      if (.not. rtdb_get(rtdb, 'dft:cfac', mt_dbl, 10, cfac))
+     $     call errquit('xc_getv: rtdb_put failed', 0)
+      if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, 10, xfac))
+     $     call errquit('xc_getv:rtdb_put failed', 0)
       if( .not. bas_numbf(AO_bas_han,nbf_ao) )then
         call errquit('Exiting in getdexc.',1)
       end if
-c     
-c     Option A:  Compute via direct numerical quadrature.
-c     
-c**** 
-c**** This is the only option presently active
-c**** 
-      call dftg_quadv0(rtdb,geom, AO_bas_han, 
-     &     ipol,iEx,iEc,
-     &     iga_dens,force,natom) ! debug
+      if( abs(xfac(1)).gt.1e-8 )then
+        
+c       
+c       Compute the exact exchange potential (as in Hartree-Fock calculations).
+c       
+        if (.not. rtdb_get(rtdb, 'dft:itol2e', mt_int, 1, itol2e))
+     $       call errquit('fitcd: rtdb_get failed', 0)
+        tol2e=10.d0**(-itol2e)
+        status = bas_nbf_ce_max(AO_bas_han,max_at_bf)
+        call int_mem ( max1e, max2e, mscratch_1e, mscratch_2e )
+        lbuf = max ( max1e, max2e )
+        lscratch = max ( mscratch_1e, mscratch_2e )
+        status = MA_Push_get(MT_DBL, lbuf, 'deriv buffer', l_buf,
+     &     k_buf)
+        if (.not.status) call errquit('could not allocate buffer',1)
+        status = MA_Push_get(MT_DBL, lscratch, 'deriv scratch', 
+     &       l_scr, k_scr)
 
+C     allocate local density matrix block
+
+        lsqa = max_at_bf * max_at_bf
+
+        status = status.and.MA_Push_get(MT_DBL,lsqa,
+     &       'local_w_density', l_ik, i_ik)
+        status = status.and.MA_Push_get(MT_DBL,lsqa,
+     &       'local_w_density', l_il, i_il)
+        status = status.and.MA_Push_get(MT_DBL,lsqa,
+     &       'local_w_density', l_jk, i_jk)
+        status = status.and.MA_Push_get(MT_DBL,lsqa,
+     &       'local_w_density', l_jl, i_jl)
+        if (.not.status) 
+     &       call errquit('force_dft: could not allocate scratch',1)
+
+c
+c     store total DM in ga_dens(1)
+c
+      if ( ipol .eq. 2 ) then
+        call ga_dadd ( one,iga_dens(1),one,iga_dens(2),iga_dens(1) )
+      endif 
+          call dftg_hf_x(xfac(1),
+     &         dbl_mb(i_ik), dbl_mb(i_jl),
+     &         dbl_mb(i_il), dbl_mb(i_jk),
+     &       force, iga_dens,
+     &       max_at_bf, AO_bas_han, nproc,
+     &       natom, dbl_mb(k_scr), lscratch, dbl_mb(k_buf),
+     &       lbuf, tol2e )
+
+        status = MA_Pop_Stack ( l_jl )
+        status = MA_Pop_Stack ( l_jk )
+        status = MA_Pop_Stack ( l_il )
+        status = MA_Pop_Stack ( l_ik )
+        status = MA_Pop_Stack ( l_scr )
+        status = MA_Pop_Stack ( l_buf )
+c
+c     restore alpha DM in g_dens(1)
+c
+      if ( ipol .eq. 2 ) then
+        call ga_dadd ( one,iga_dens(1),onem,iga_dens(2),iga_dens(1) )
+      endif 
+
+        if (.not.status) 
+     &       call errquit(' dftg_getcx: failed to dellocate',11)
+
+      endif
+      call ga_sync
+      tot=-xfac(1)
+      do i=1,10
+        tot=tot+xfac(i)+cfac(i)
+      enddo
+      if(abs(tot).gt.1e-8) then
+c     
+c       Compute via direct numerical quadrature.
+c     
+        call dftg_quadv0(rtdb,geom, AO_bas_han, 
+     &       ipol,
+     &       iga_dens,force,natom) 
+      endif
 
       return
       end

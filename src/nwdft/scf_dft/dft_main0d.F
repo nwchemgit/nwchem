@@ -1,7 +1,7 @@
       Subroutine dft_main0d( rtdb, geom, AO_bas_han, CD_bas_han,
      &                      XC_bas_han, iconst, nconst )
 
-C$Id: dft_main0d.F,v 1.1 1995-04-27 03:16:19 og845 Exp $
+C$Id: dft_main0d.F,v 1.2 1995-05-19 00:22:50 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -72,14 +72,6 @@ c
       lshift  = iconst(50)
       ncysh   = iconst(52)
       ndamp   = iconst(51)
-c
-c     Specify the type of XC energy functional.
-c
-      if (.not. rtdb_get(rtdb, 'dft:iEx', mt_int, 1, iEx))
-     $     call errquit('scfdriver: rtdb_get failed', 2)
-      if (.not. rtdb_get(rtdb, 'dft:iEc', mt_int, 1, iEc))
-     $     call errquit('scfdriver: rtdb_get failed', 3)
-      iExc = 10*iEx + iEc
 
 c     
 c     Select method to compute the XC potential.
@@ -321,7 +313,7 @@ c
 
       call dft_scf(rtdb,geom,AO_bas_han,CD_bas_han,XC_bas_han,
      &     ipol,Etold,Enuc,iVcoul_opt,iVxc_opt,
-     &     iconst,nconst,iter,iExc,
+     &     iconst,nconst,iter,
      &     iga_dens,iga_evecs,iga_olddens,iga_vxc,
      &     iga_fock,iga_diis,iga_svecs,isvals,
      &     iga_cdinv,iga_xcinv,iga_2ceri)

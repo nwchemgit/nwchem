@@ -1,7 +1,7 @@
       Subroutine dft_rdinput( rtdb, geom, AO_bas_han, CD_bas_han,
      &                    XC_bas_han, iconst, nconst )
 
-C$Id: dft_rdinput.F,v 1.2 1995-04-29 10:01:22 og845 Exp $
+C$Id: dft_rdinput.F,v 1.3 1995-05-19 00:21:21 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -52,8 +52,6 @@ c
      &     call errquit('rdinput: rtdb_get failed',8)
       if (.not. rtdb_get(rtdb, 'dft:mult', mt_int, 1, mult))
      &     call errquit('rdinput: rtdb_get failed',10)
-      if (.not. rtdb_get(rtdb, 'dft:icaltyp', mt_int, 1, icaltyp))
-     &     call errquit('rdinput: rtdb_get failed',12)
       if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
      &     call errquit('rdinput: rtdb_get failed',14)
       if (.not. rtdb_get(rtdb, 'dft:igcon', mt_int, 1, igcon))
@@ -68,12 +66,6 @@ c
      &     call errquit('rdinput: rtdb_get failed',22)
       if (.not. rtdb_get(rtdb, 'dft:idisoff', mt_int, 1, idisoff))
      &     call errquit('rdinput: rtdb_get failed',24)
-      if (.not. rtdb_get(rtdb, 'dft:MaxMem', mt_int, 1, MaxMem))
-     &     call errquit('rdinput: rtdb_get failed',26)
-      if (.not. rtdb_get(rtdb, 'dft:idir_quad', mt_int, 1, idir_quad))
-     &     call errquit('rdinput: rtdb_get failed',28)
-      if (.not. rtdb_get(rtdb, 'dft:idir_fit', mt_int, 1, idir_fit))
-     &     call errquit('rdinput: rtdb_get failed',30)
       if (.not. rtdb_get(rtdb, 'dft:noio', mt_int, 1, noio))
      &     call errquit('rdinput: rtdb_get failed',32)
       if (.not. rtdb_get(rtdb, 'dft:lshift', mt_int, 1, lshift))
@@ -90,10 +82,10 @@ c
      &     call errquit('rdinput: rtdb_get failed',44)
       if (.not. rtdb_get(rtdb, 'dft:nrmax', mt_int, 1, nrmax))
      &     call errquit('rdinput: rtdb_get failed',46)
-      if (.not. rtdb_get(rtdb, 'dft:iEx', mt_int, 1, iEx))
-     $     call errquit('rdinput: rtdb_get failed', 147)
-      if (.not. rtdb_get(rtdb, 'dft:iEc', mt_int, 1, iEc))
-     $     call errquit('rdinput: rtdb_get failed', 148)
+c      if (.not. rtdb_get(rtdb, 'dft:iEx', mt_int, 1, iEx))
+c     $     call errquit('rdinput: rtdb_get failed', 147)
+c      if (.not. rtdb_get(rtdb, 'dft:iEc', mt_int, 1, iEc))
+c     $     call errquit('rdinput: rtdb_get failed', 148)
 c     
 c     recover real parameters from rtdb
 c     
@@ -308,7 +300,6 @@ c     should be eliminated at least for these Gaussian basis set parameters.)
       iconst( 8) = itrscf 
       iconst( 9) = iscfcon
       iconst(11) = ipol   
-      iconst(14) = icaltyp
       iconst(18) = igcon  
       iconst(36) = icvgtyp
       iconst(37) = nfock
@@ -329,7 +320,7 @@ c     Check the user supplied input for any inconsistencies.
 
         call dft_inpana(geom,rtdb,Dbl_MB(icharge),Dbl_MB(icoord),
      &       iconst,nconst,ncenters)
-      if( iproc.eq.0 )then
+c      if( iproc.eq.0 )then
 c
 c       inpana could have modified ipol
 c
@@ -338,9 +329,10 @@ c
 c
 c       Write the scf header to output.
 c
-        call dft_banner(
-     &       itrscf,iscfcon,igcon,icaltyp,ipol,icvgtyp,idirect,
+        call dft_banner(rtdb,
+     &       itrscf,iscfcon,igcon,ipol,icvgtyp,idirect,
      &       nbf_xc,nbf_cd,iEx,iEc) 
+      if( iproc.eq.0 )then
         if(nfock.ne.0) then
           write(LuOut,'(3x,A,i2,A)') 
      &         '       ',nfock,' Fock matrices are used in DIIS'

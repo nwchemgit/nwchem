@@ -1,7 +1,7 @@
-      Subroutine xc_perdew91(tol_rho,
+      Subroutine xc_perdew91(tol_rho,fac,
      *     rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.4 1995-05-13 02:30:28 og845 Exp $
+C     $Id: xc_perdew91.F,v 1.5 1995-05-19 00:22:29 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -19,6 +19,11 @@ C     $Id: xc_perdew91.F,v 1.4 1995-05-13 02:30:28 og845 Exp $
       parameter (FIVE3=5.d0/3.d0,TWO3=2.d0/3.d0,FIVE6=5.d0/6.d0)
       parameter (pi=3.1415926535897932385d0)
 
+
+      logical grad_corr
+c
+c     logical grad_corr true if only GCA part needed
+c
 c--   > Charge Density 
 
       Dimension rho(ipol*(ipol+1)/2,nq)
@@ -53,6 +58,8 @@ c***************************************************************************
       twoab=(aa+aa)/bb
       twoab2=twoab/bb
       atwob2=1.d0/twoab2
+      grad_corr=.false.
+      if(abs(fac-1.d0).gt.1.e-8) grad_corr=.true.
 c       
 c       call to Perdew81 for LDA bit 
 c       
@@ -87,7 +94,7 @@ C
 C
 C         call for LDA bit
 C
-          call xc_p81(rhoval,dp81drho,1,1,egas,1.d0)
+          call xc_p81(1.d0,rhoval,dp81drho,1,1,egas,1.d0)
 
           degasda=arho*(dp81drho(1) - egas)
           
@@ -104,11 +111,11 @@ C
           dtdrhoa=-t*(dksdrho/aks+arho)
           dtdgamma=0.5d0*t/gammaval
 
-          dexp1=twoab2*(egas*arho)
+          dexpo1=twoab2*(egas*arho)
           dexpo2=(10.d0*(aks/akf)*t)**2
-          expo1=0.d0
+          expo1=1.e-20
           if(dexpo1.lt.EXPTOL) expo1=exp(-dexpo1)
-          expo2=0.d0
+          expo2=1.e-20
           if(dexpo2.lt.EXPTOL) expo2=exp(-dexpo2)
 
           A=twoab/(expo1-ONE)
@@ -121,8 +128,11 @@ C
 
           func=H0+H1
 
-          Ec = Ec + (egas+func*rhoval)*qwght(n)
-
+          if(.not.grad_corr) then
+            Ec = Ec + (egas+func*rhoval)*qwght(n)*fac
+          else
+            Ec = Ec + (func*rhoval)*qwght(n)*fac
+          endif
 c
 c         df/drho = func + rhoval*dfunc/drho
 c
@@ -139,8 +149,13 @@ c
      (         2.d0*t*dtdrhoa*A1p2At2 + dAdrhoa*t4 -
      -         alognd*A1p2At2*(2.d0*A*t*dtdrhoa +
      +         dAdrhoa*t2))
-          Amat(1,n) = Amat(1,n) +  dp81drho(1) + func +
-     +         rhoval*(dH0drhoa+dH1drhoa)
+          if(.not.grad_corr) then
+            Amat(1,n) = Amat(1,n) +  (dp81drho(1) + func +
+     +           rhoval*(dH0drhoa+dH1drhoa))*fac
+          else
+            Amat(1,n) = Amat(1,n) +  (func +
+     +           rhoval*(dH0drhoa+dH1drhoa))*fac
+          endif
 c
 C         df/dgamma
 c
@@ -154,7 +169,7 @@ c
      *           aden1*2.d0*t*dtdgamma*A1p2At2*
      *           (aden1-alognd*A)
 
-            gaa = (dH0dgamma +dH1dgamma)*rhoval
+            gaa = (dH0dgamma +dH1dgamma)*rhoval*fac
             gbb = gaa
             
             Cmat(1,1,n) = Cmat(1,1,n) + gaa*delrho(1,1,n)
@@ -199,7 +214,7 @@ C
 C
 C         call for LDA bit
 C
-          call xc_p81(rho(1,n),dp81drho,1,2,egas,1.d0)
+          call xc_p81(1.d0,rho(1,n),dp81drho,1,2,egas,1.d0)
 
           degasda=arho*(dp81drho(1) - egas)
           degasdb=arho*(dp81drho(2) - egas)
@@ -231,9 +246,9 @@ C
 
           dexpo1=twoab2*(egas*arho)/g3
           dexpo2=(10.d0*g2*(aks/akf)*t)**2
-          expo1=0.d0
+          expo1=1.e-20
           if(dexpo1.lt.EXPTOL) expo1=exp(-dexpo1)
-          expo2=0.d0
+          expo2=1.e-20
           if(dexpo2.lt.EXPTOL) expo2=exp(-dexpo2)
 
           A=twoab/(expo1-ONE)
@@ -245,7 +260,11 @@ C
 
           func=H0+H1
 
-          Ec = Ec + (egas+func*rhoval)*qwght(n)
+          if(.not.grad_corr) then
+            Ec = Ec + (egas+func*rhoval)*qwght(n)*fac
+          else
+            Ec = Ec + (func*rhoval)*qwght(n)*fac
+          endif
 
 c
 c         df/drho = func + rhoval*dfunc/drho
@@ -280,11 +299,19 @@ c
      -         alognd*A1p2At2*(2.d0*A*t*dtdrhob +
      +         dAdrhob*t2))
 
-          Amat(1,n) = Amat(1,n) +  dp81drho(1) + func +
-     +         rhoval*(dH0drhoa+dH1drhoa)
+          if(.not.grad_corr) then
+            Amat(1,n) = Amat(1,n) +  (dp81drho(1) + func +
+     +           rhoval*(dH0drhoa+dH1drhoa))*fac
 
-          Amat(2,n) = Amat(2,n) +  dp81drho(2) + func +
-     +         rhoval*(dH0drhob+dH1drhob)
+            Amat(2,n) = Amat(2,n) +  (dp81drho(2) + func +
+     +           rhoval*(dH0drhob+dH1drhob))*fac
+          else
+            Amat(1,n) = Amat(1,n) +  (func +
+     +           rhoval*(dH0drhoa+dH1drhoa))*fac
+
+            Amat(2,n) = Amat(2,n) +  (func +
+     +           rhoval*(dH0drhob+dH1drhob))*fac
+          endif
           
 c
 C- (func*add)*dzetadb
@@ -299,8 +326,8 @@ c
      *           aden1*2.d0*t*dtdgamma*A1p2At2*
      *           (aden1-alognd*A)
 
-            gaa = (dH0dgamma +dH1dgamma)*rhoval
-            gbb = gaa
+            gaa = (dH0dgamma +dH1dgamma)*rhoval*fac
+            gbb = gaa*fac
             
             Cmat(1,1,n) = Cmat(1,1,n) + 
      +           gaa*(delrho(1,1,n)+delrho(2,1,n))
@@ -319,6 +346,6 @@ c
    20   continue
 
       end if
-
+      return
       end
 

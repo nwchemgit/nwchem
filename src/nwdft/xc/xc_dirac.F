@@ -1,6 +1,6 @@
-      Subroutine xc_dirac(rho,Amat,nq,ipol,Ex,qwght)
+      Subroutine xc_dirac(fac,rho,Amat,nq,ipol,Ex,qwght)
 
-C$Id: xc_dirac.F,v 1.1 1995-04-26 03:40:11 og845 Exp $
+C$Id: xc_dirac.F,v 1.2 1995-05-19 00:22:26 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -42,8 +42,8 @@ c                      ======> SPIN-RESTRICTED <======
            Exp      = Exp + rho(1,n)*rho13*qwght(n)
          endif
    10  continue
-        call dscal(nq,P1,Amat(1,1),1)
-        Ex = Ex + P2*Exp
+        call dscal(nq,P1*fac,Amat(1,1),1)
+        Ex = Ex + P2*Exp*fac
 
       else
 
@@ -53,11 +53,11 @@ c                      ======> SPIN-UNRESTRICTED <======
          if(dabs(rho(1,n)).lt.TOLL) goto 20
         rho32=rho(2,n)**(1.d0/3.d0)
         rho33=rho(3,n)**(1.d0/3.d0)
-        Amat(1,n) = Amat(1,n) + P3*rho32
-        Amat(2,n) = Amat(2,n) + P3*rho33
+        Amat(1,n) = Amat(1,n) + P3*rho32*fac
+        Amat(2,n) = Amat(2,n) + P3*rho33*fac
         Exp      = Exp + (rho32*rho(2,n)+rho33*rho(3,n))*qwght(n)
    20  continue
-        Ex = Ex + P4*Exp
+        Ex = Ex + P4*Exp*fac
 
       end if
       return

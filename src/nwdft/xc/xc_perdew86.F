@@ -1,7 +1,7 @@
-      Subroutine xc_perdew86(rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,
-     *     qwght)
+      Subroutine xc_perdew86(fac,rho,delrho,gamma,Amat,Cmat,
+     *     nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew86.F,v 1.3 1995-05-02 04:14:16 og845 Exp $
+C     $Id: xc_perdew86.F,v 1.4 1995-05-19 00:22:28 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -16,7 +16,9 @@ C     $Id: xc_perdew86.F,v 1.3 1995-05-02 04:14:16 og845 Exp $
       parameter (FIVE3=5.d0/3.d0,TWO3=2.d0/3.d0,FIVE6=5.d0/6.d0)
       parameter (pi=3.1415926535897932385d0)
 
+c
 c--   > Charge Density 
+c
 
       Dimension rho(ipol*(ipol+1)/2,nq)
 
@@ -45,11 +47,8 @@ c***************************************************************************
       dprime(x)=(2.d0**ONETHIRD*FIVE6)*
      *     ( ((ONE+x)*.5d0)*TWO3-((ONE-x)*.5d0)*TWO3 )/
      /     dsqrt( ((ONE+x)*.5d0)**FIVE3+((ONE-x)*.5d0)**FIVE3)
-c       
-c       call to Perdew81 for LDA bit 
-c       
+
         rsfact=(0.75d0/pi)**ONETHIRD
-        call xc_p81(rho,Amat,nq,ipol,Ec,qwght)
         if( ipol.eq.1 )then
 
 c       ======> SPIN-RESTRICTED <======
@@ -85,24 +84,24 @@ C
 C         
 C         functional
 C         
-           func=expfac*CC*gammaval/rho43
+          func=expfac*CC*gammaval/rho43*fac
 
           dphidrho =  -phi * ( SEV6/rhoval  +   (CCPRIME/CC) ) 
 
           AAadd = (  (CCPRIME/CC) -
      -      (dphidrho +   FOURTHIRDS/rhoval) )*func
 
-          Amat(1,n) = Amat(1,n) + AAadd
+          Amat(1,n) = Amat(1,n) + AAadd*fac
 
           if(dsqgamma.gt.0.d0) then
 
-            g =func/gammaval*(2.d0-phi)
+            g =func/gammaval*(2.d0-phi)*fac
             
             Cmat(1,1,n) = Cmat(1,1,n) + g*delrho(1,1,n)
             Cmat(1,2,n) = Cmat(1,2,n) + g*delrho(1,2,n)
             Cmat(1,3,n) = Cmat(1,3,n) + g*delrho(1,3,n)
           endif
-          Ec      = Ec + func*qwght(n)
+          Ec      = Ec + func*qwght(n)*fac
           
    10   continue
 
@@ -152,12 +151,12 @@ C
 
           AAadd = (  (CCPRIME/CC) -
      -      (dphidrho +   FOURTHIRDS/rhoval) )*func
-          Amat(1,n) = Amat(1,n) + AAadd - (func*add)*dzetada
-          Amat(2,n) = Amat(2,n) + AAadd - (func*add)*dzetadb
+          Amat(1,n) = Amat(1,n) + (AAadd - (func*add)*dzetada)*fac
+          Amat(2,n) = Amat(2,n) + (AAadd - (func*add)*dzetadb)*fac
 
           if(dsqgamma.gt.TOLL) then
 
-            gaa = func/gammaval*(2.d0-phi)
+            gaa = func/gammaval*(2.d0-phi)*fac
             gbb = gaa
             gab = gaa
             
@@ -175,7 +174,7 @@ C
      +           gab*delrho(1,3,n)
           endif
 
-          Ec      = Ec + func*qwght(n)
+          Ec      = Ec + func*qwght(n)*fac
           
    20   continue
 
@@ -183,7 +182,7 @@ C
 
       end
 
-      Subroutine xc_p81(rho,Amat,nq,ipol,Ec,qwght)
+      Subroutine xc_p81(fac,rho,Amat,nq,ipol,Ec,qwght)
 c
 c     Ceperley Alder LDA from
 c     Perdew Zunger PRB 23, 5048 (1981)
@@ -247,9 +246,9 @@ c       ======> SPIN-RESTRICTED <======
 
             endif
 
-              Ec=Ec+eU*qwght(n)*rhoval
+              Ec=Ec+eU*qwght(n)*rhoval*fac
 
-            Amat(1,n) = Amat(1,n) + vU
+            Amat(1,n) = Amat(1,n) + vU*fac
 
           endif
 
@@ -296,10 +295,10 @@ c       ======> SPIN-UNRESTRICTED <======
 
             ePOL=(eP-eU)*fzzprime(zeta)
 
-            Ec=Ec+(eU+fz*(eP-eU))*qwght(n)*rhoval
+            Ec=Ec+(eU+fz*(eP-eU))*qwght(n)*rhoval*fac
             
-            Amat(1,n) = Amat(1,n) + AAadd + (1.d0-zeta)*ePOL
-            Amat(2,n) = Amat(2,n) + AAadd - (1.d0+zeta)*ePOL
+            Amat(1,n) = Amat(1,n) + (AAadd + (1.d0-zeta)*ePOL)*fac
+            Amat(2,n) = Amat(2,n) + (AAadd - (1.d0+zeta)*ePOL)*fac
 
           endif
 

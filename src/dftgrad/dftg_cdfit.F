@@ -178,18 +178,21 @@ C
             icount = 1
             do iat=1,2
               if(idatom(iat).gt.0) then
+                ist=1
                 do icart = 1,3
-                  dE=0.d0
-                  do ifp=ifirstp,ilastp
-                    dE=dE+ddot(
-     *                   nshbfq,CD_coef(ifirstq),1,buf(icount),1
-     *                   )*CD_coef(ifp)
-                    icount = icount + nshbfq
-                  enddo
-                  if(ishp.eq.ishq) dE=dE*0.5d0
-                  force(icart,idatom(iat)) = 
-     =                 force(icart,idatom(iat)) - dE
+                  call dgemv('n',nshbfq,nshbfp,
+     &                 1.d0,buf(icount),nshbfq,
+     &                 CD_coef(ifirstp),1,
+     &                 0.d0,vec(ist),1)
+                  ist=ist+nshbfq
+                  icount=icount+Nint
                 enddo
+                fac=-1.d0
+                if(ishp.eq.ishq) fac=-.5d0
+                call dgemv('t',nshbfq,3,
+     &               fac,vec,nshbfq,
+     &               CD_coef(ifirstq),1,
+     &               1.d0,force(1,idatom(iat)),1)
               else
                 icount = icount + 3 * Nint
               endif

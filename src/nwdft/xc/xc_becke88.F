@@ -1,9 +1,14 @@
-      Subroutine xc_becke88(rho,delrho,gamma,Amat,Cmat,nq,ipol,Ex,qwght)
+      Subroutine xc_becke88(fac,
+     *     rho,delrho,gamma,Amat,Cmat,nq,ipol,Ex,qwght)
 
-C$Id: xc_becke88.F,v 1.1 1995-04-26 03:40:10 og845 Exp $
+C$Id: xc_becke88.F,v 1.2 1995-05-19 00:22:26 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
+      logical grad_corr
+c
+c     logical grad_corr true if only GCA part needed
+c
 c--> Becke Empirical Parameter
 
       Parameter (BETA = 0.0042D0,TOLL=1.E-20)
@@ -45,6 +50,8 @@ c    Johnson, Gill & Pople, J. Chem. Phys. 98, 5612 (1993)
 c
 c***************************************************************************
       sinhm1(x)=log(x+dsqrt(1+x*x))
+      grad_corr=.false.
+      if(abs(fac-1.d0).gt.1.e-8) grad_corr=.true.
       if( ipol.eq.1 )then
 
 c                      ======> SPIN-RESTRICTED <======
@@ -65,19 +72,21 @@ c Spin alpha:
         Ha = sinhm1(Xa)
         Ta = 1/(ONE + SIX*(BETA*Xa)*Ha)
         Ca = -(BETA*Xa)*Xa*Ta
-        Ga = P2 + Ca
+        P2LDA=P2
+        if(grad_corr) P2LDA=0.d0
+        Ga = P2LDA + Ca
         Pa = ( (SIX*(BETA*Xa)**2)*(Xa/Sa - Ha) - TWO*(BETA*Xa) )*Ta**2
 
 c ...
 
-        Amat(1,n) = Amat(1,n) + FOURTHIRDS*CD13a*(Ga - Xa*Pa)
+        Amat(1,n) = Amat(1,n) + FOURTHIRDS*CD13a*(Ga - Xa*Pa)*fac
         if(Gna.gt.TOLL)  then
-          g         = .5d0*Pa/Gna
+          g         = .5d0*Pa/Gna*fac
           Cmat(1,1,n) = Cmat(1,1,n) + g*delrho(1,1,n)
           Cmat(1,2,n) = Cmat(1,2,n) + g*delrho(1,2,n)
           Cmat(1,3,n) = Cmat(1,3,n) + g*delrho(1,3,n)
         endif
-        Ex      = Ex + TWO*CD43a*Ga*qwght(n)
+        Ex      = Ex + TWO*CD43a*Ga*qwght(n)*fac
 
 
    10  continue
@@ -100,7 +109,9 @@ c Spin alpha:
         Ha = log(Xa + Sa)
         Ta = 1/(ONE + SIX*(BETA*Xa)*Ha)
         Ca = -(BETA*Xa)*Xa*Ta
-        Ga = P2 + Ca
+        P2LDA=P2
+        if(grad_corr) P2LDA=0.d0
+        Ga = P2LDA + Ca
         Pa = ( (SIX*(BETA*Xa)**2)*(Xa/Sa - Ha) - TWO*(BETA*Xa) )*Ta**2
 
 c Spin beta:
@@ -115,27 +126,27 @@ c Spin beta:
         Hb = log(Xb + Sb)
         Tb = 1/(ONE + SIX*(BETA*Xb)*Hb)
         Cb = -(BETA*Xb)*Xb*Tb
-        Gb = P2 + Cb
+        Gb = P2LDA + Cb
         Pb = ( (SIX*(BETA*Xb)**2)*(Xb/Sb - Hb) - TWO*(BETA*Xb) )*Tb**2
 
 c ...
 
-        Amat(1,n) = Amat(1,n) +FOURTHIRDS*CD13a*(Ga - Xa*Pa)
-        Amat(2,n) = Amat(2,n) + FOURTHIRDS*CD13b*(Gb - Xb*Pb)
+        Amat(1,n) = Amat(1,n) +FOURTHIRDS*CD13a*(Ga - Xa*Pa)*fac
+        Amat(2,n) = Amat(2,n) + FOURTHIRDS*CD13b*(Gb - Xb*Pb)*fac
         if(GNa.gt.TOLL) then
-          gaa = Pa/GNa
+          gaa = Pa/GNa*fac
           Cmat(1,1,n) = Cmat(1,1,n) + gaa*delrho(1,1,n) 
           Cmat(1,2,n) = Cmat(1,2,n) + gaa*delrho(1,2,n) 
           Cmat(1,3,n) = Cmat(1,3,n) + gaa*delrho(1,3,n) 
         endif
         if(GNb.gt.TOLL) then
-          gbb = Pb/GNb
+          gbb = Pb/GNb*fac
           Cmat(2,1,n) = Cmat(2,1,n) + gbb*delrho(2,1,n) 
           Cmat(2,2,n) = Cmat(2,2,n) + gbb*delrho(2,2,n) 
           Cmat(2,3,n) = Cmat(2,3,n) + gbb*delrho(2,3,n) 
         endif
         
-        Ex      = Ex + (CD43a*Ga + CD43b*Gb)*qwght(n)
+        Ex      = Ex + (CD43a*Ga + CD43b*Gb)*qwght(n)*fac
 
    20  continue
 

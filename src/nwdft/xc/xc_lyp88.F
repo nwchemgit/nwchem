@@ -1,6 +1,7 @@
-      Subroutine xc_lyp88(rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,qwght)
+      Subroutine xc_lyp88(fac,
+     *     rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C$Id: xc_lyp88.F,v 1.1 1995-04-26 03:40:13 og845 Exp $
+C$Id: xc_lyp88.F,v 1.2 1995-05-19 00:22:27 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -135,14 +136,14 @@ c                      ======> SPIN-RESTRICTED <======
 
 c ...
 
-        Amat(1,n) = Amat(1,n) + dElypdCDa
-        gaa=dElypdGaa + 0.5d0*dElypdGab
+        Amat(1,n) = Amat(1,n) + dElypdCDa*fac
+        gaa=(dElypdGaa + 0.5d0*dElypdGab)*fac
         if(dabs(gaa).gt.TOLL) then
           Cmat(1,1,n)=Cmat(1,1,n)+gaa*delrho(1,1,n)
           Cmat(1,2,n)=Cmat(1,2,n)+gaa*delrho(1,2,n)
           Cmat(1,3,n)=Cmat(1,3,n)+gaa*delrho(1,3,n)
         endif
-        Ec      =  Ec + Elyp*qwght(n)
+        Ec      =  Ec + Elyp*qwght(n)*fac
 
    10  continue
 
@@ -246,11 +247,11 @@ c                      ======> SPIN-UNRESTRICTED <======
 
 c ...
 
-        Amat(1,n) = Amat(1,n) + dElypdCDa
-        Amat(2,n) = Amat(2,n) + dElypdCDb
-        gaa = 2.d0*dElypdGaa
-        gbb = 2.d0*dElypdGbb
-        gab = dElypdGab
+        Amat(1,n) = Amat(1,n) + dElypdCDa*fac
+        Amat(2,n) = Amat(2,n) + dElypdCDb*fac
+        gaa = 2.d0*dElypdGaa*fac
+        gbb = 2.d0*dElypdGbb*fac
+        gab = dElypdGab*fac
         Cmat(1,1,n)=Cmat(1,1,n)+gaa*delrho(1,1,n)+gab*delrho(2,1,n)
         Cmat(2,1,n)=Cmat(2,1,n)+gbb*delrho(2,1,n)+gab*delrho(1,1,n)
         Cmat(1,2,n)=Cmat(1,2,n)+gaa*delrho(1,2,n)+gab*delrho(2,2,n)
@@ -258,7 +259,7 @@ c ...
         Cmat(1,3,n)=Cmat(1,3,n)+gaa*delrho(1,3,n)+gab*delrho(2,3,n)
         Cmat(2,3,n)=Cmat(2,3,n)+gbb*delrho(2,3,n)+gab*delrho(1,3,n)
 
-        Ec      =  Ec + Elyp*qwght(n)
+        Ec      =  Ec + Elyp*qwght(n)*fac
 
    20  continue
 
