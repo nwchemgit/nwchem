@@ -30,15 +30,15 @@ after converting the Gaussian Cube file with
 \htmladdnormallink{gcube2plt}
 {http://www.csc.fi/lul/chem/scarecrow/gcube2plt.c}.
 
-\section{TITLE --- Title for {\em Insight}}
+\section{TITLE --- Title directive}
 
 \begin{verbatim}
-  TITLE
-  <string Title default Unknown Title>
+  TITLE <string Title default Unknown Title>
 \end{verbatim}
 
 This sub-directive specifies a title line for the generated
-input to the {\em Insight} program. Only one line is allowed.
+input to the {\em Insight} program or for the Gaussian cube
+file. Only one line is allowed.
 
 \section{LIMITXYZ --- Plot limits}
 
@@ -69,14 +69,15 @@ $\alpha$ and $\beta$ electron densities.
 
 
 
-\section{OUTPUT --- Filename for {\em Insight}}
+\section{OUTPUT --- Filename}
 
 \begin{verbatim}
   OUTPUT <string File_Name default dplot>
 \end{verbatim}
 
 This sub-directive specifies the name of the generated input to the
-{\em Insight} program. The name \verb+OUTPUT+ is reserved for the
+{\em Insight} program or the generated Gaussian cube file. 
+The name \verb+OUTPUT+ is reserved for the
 standard NWChem output.
 
 
@@ -144,7 +145,7 @@ scf
 vectors  output n2.movecs
 end
 dplot
-  TITLE;HOMO
+  TITLE HOMO
   vectors n2.movecs
    LimitXYZ
  -3.0 3.0 10  
@@ -172,7 +173,7 @@ scf
 vectors  output n2.movecs
 end
 dplot
-  TITLE;HOMO
+  TITLE HOMO
   vectors n2.movecs
    LimitXYZ
  -3.0 3.0 10  
