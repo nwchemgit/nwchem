@@ -12,8 +12,6 @@
 
 static PyObject *NwchemError;
 
-#define MAX_VAR_NAME    256
-
 static int rtdb_handle;            /* handle to the rtdb */
 
 static PyObject *
@@ -276,7 +274,6 @@ static PyObject *wrap_task_energy(PyObject *self, PyObject *args)
     char *filename, *mode;
     char *theory;
     double energy;
-    PyObject *returnObj;
     
     if (PyArg_Parse(args, "s", &theory)) {
 	if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR, 
@@ -298,8 +295,72 @@ static PyObject *wrap_task_energy(PyObject *self, PyObject *args)
 	return NULL;
     }
     
-    return Py_VaBuildValue("d", (void *) &energy);
+    return Py_BuildValue("d", energy);
 }
+
+static PyObject *wrap_task_gradient(PyObject *self, PyObject *args)
+{
+    char *filename, *mode;
+    char *theory;
+    double energy, *gradient;
+    int ma_type, nelem, ma_handle, ind, i;
+    char date[26], *format_str;
+    PyObject *returnObj, *eObj, *gradObj;
+    
+    if (PyArg_Parse(args, "s", &theory)) {
+	if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR, 
+		      strlen(theory)+1, theory)) {
+	    PyErr_SetString(NwchemError, "task_gradient: putting theory failed");
+	    return NULL;
+	}
+	if (!task_gradient_(&rtdb_handle)) {
+	    PyErr_SetString(NwchemError, "task_gradient: failed");
+	    return NULL;
+	}
+	if (!rtdb_get(rtdb_handle, "task:energy", MT_F_DBL, 1, &energy)) {
+	    PyErr_SetString(NwchemError, "task_gradient: getting energy failed");
+	    return NULL;
+	}
+	if (!rtdb_ma_get(rtdb_handle,"task:gradient",&ma_type,&nelem,&ma_handle)) {
+	    PyErr_SetString(NwchemError, "task_gradient: getting gradient failed");
+	    return NULL;
+	}
+	if (!MA_get_pointer(ma_handle, &gradient)) {
+	    PyErr_SetString(NwchemError, "task_gradient: ma_get_ptr failed");
+	    return NULL;
+	}
+    }
+    else {
+	PyErr_SetString(PyExc_TypeError, "Usage: task_gradient(theory)");
+	return NULL;
+    }
+    
+    if (!(format_str = malloc(nelem+3))) {
+	PyErr_SetString(PyExc_MemoryError,
+			"rtdb_get failed allocating format string");
+	(void) MA_free_heap(ma_handle);
+	return NULL;
+    }
+
+    ind = 0;
+    format_str[ind++] = '[';
+    for (i = 0; i < nelem; i++, ind++) {
+	format_str[ind] = 'd';
+    }
+    format_str[ind++] = ']';
+    format_str[ind] = 0;
+    
+    eObj = Py_BuildValue("d",energy);
+    gradObj = Py_VaBuildValue(format_str, (void *) gradient);
+    returnObj = Py_BuildValue("OO", eObj, gradObj);
+    Py_DECREF(eObj);
+    Py_DECREF(gradObj);
+    (void) MA_free_heap(ma_handle);
+    (void) free(format_str);
+
+    return returnObj;
+}
+
 
 static PyObject *wrap_ga_nodeid(PyObject *self, PyObject *args)
 {
@@ -309,7 +370,7 @@ static PyObject *wrap_ga_nodeid(PyObject *self, PyObject *args)
 	return NULL;
     }
 
-    return Py_VaBuildValue("i", (void *) &nodeid);
+    return Py_BuildValue("i", nodeid);
 }
     
 
@@ -345,6 +406,7 @@ static struct PyMethodDef nwchem_methods[] = {
    {"rtdb_put",        wrap_rtdb_put, 0}, 
    {"rtdb_get",        wrap_rtdb_get, 0}, 
    {"task_energy",     wrap_task_energy, 0}, 
+   {"task_gradient",   wrap_task_gradient, 0}, 
    {"input_parse",     wrap_nw_inp_from_string, 0}, 
    {"ga_nodeid",       wrap_ga_nodeid, 0}, 
    {NULL, NULL}

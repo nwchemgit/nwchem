@@ -46,6 +46,8 @@ int task_python_(int *rtdb_ptr)
    fclose(F);
    /*   unlink(filename); */
 
+   Py_Finalize();
+
    return !ret;
 }
 
