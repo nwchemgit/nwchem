@@ -1,4 +1,4 @@
-c $Id: intbd_2e4c.F,v 1.3 1997-06-26 00:36:30 d3e129 Exp $
+c $Id: intbd_2e4c.F,v 1.4 1997-06-26 19:42:56 d3e129 Exp $
 *
       logical function intbd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,
@@ -162,7 +162,20 @@ c
      &    ketin,kcl(i_q),ketin,lcl(i_q))
       numint = numint*12
       i_scr_ptr = numint + 1
-      newlscr   = lscr - numint*12
+      newlscr   = lscr - numint
+      if (newlscr .lt. 0) then
+        write(6,*)' newlscr too small      :',newlscr
+        write(6,*)' lscr                   :',lscr
+        write(6,*)' numint                 :',(numint/12)
+        write(6,*)' numint spherical       :',nint_s
+        write(6,*)' numint grad            :',numint
+        write(6,*)' numint grad spherical  :',(nint_s*12)
+        write(6,*)' i bf size is ',(ihi-ilo+1)
+        write(6,*)' j bf size is ',(jhi-jlo+1)
+        write(6,*)' k bf size is ',(khi-klo+1)
+        write(6,*)' l bf size is ',(lhi-llo+1)
+        call errquit('intbd_nw_2e4c: fatal error',911)
+      endif
       call intd_2e4c(
      &    brain,icl(i_q),jcl(i_q),
      &    ketin,kcl(i_q),lcl(i_q),
