@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.22 2001-02-12 21:52:39 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.23 2001-07-14 05:11:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -302,6 +302,11 @@ c
       call ga_brdcst(mcf_32,ip3,24*numbl,0)
       call ga_brdcst(mcf_56,qfac,numbd,0)
 c
+      do 15 i=1,nsatot
+      stemp=snam(i)
+      call util_char_ga_brdcst(mcf_66,stemp,0)
+      if(me.ne.0) snam(i)=stemp
+   15 continue
 c      call ga_brdcst(mcf_66,byte_mb(i_snam),16*nsatot,0)
 c
 c      if(lanal) then

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.96 2001-07-10 22:39:00 d3j191 Exp $
+c $Id: cf_main.F,v 1.97 2001-07-14 05:11:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2256,7 +2256,7 @@ c
       if(ifr.eq.0.or.ito.eq.0) then
       if(ifix.eq.0) then
       do 5 i=1,nums
-      tag=snam(i)
+      tag=snam(isgan(i))
       do 51 j=1,16
       if(target(j:j).eq.'?') tag(j+5:j+5)='?'
    51 continue
@@ -2269,7 +2269,7 @@ c
       endif
       if(ifix.eq.1) then
       do 6 i=1,nums
-      tag=snam(i)
+      tag=snam(isgan(i))
       do 61 j=1,16
       if(target(j:j).eq.'?') tag(j+5:j+5)='?'
    61 continue
@@ -2283,7 +2283,7 @@ c
       else
       do 7 i=1,nums
       if(issgm(i).ge.ifr.and.issgm(i).le.ito) then
-      tag=snam(i)
+      tag=snam(isgan(i))
       do 71 j=1,16
       if(target(j:j).eq.'?') tag(j+5:j+5)='?'
    71 continue
@@ -2306,7 +2306,7 @@ c
       if(ifr.eq.0.or.ito.eq.0) then
       if(ifix.eq.0) then
       do 8 i=1,nums
-      tag=snam(i)
+      tag=snam(isgan(i))
       do 81 j=1,16
       if(target(j:j).eq.'?') tag(j+5:j+5)='?'
    81 continue
@@ -2320,7 +2320,7 @@ c
       endif
       if(ifix.eq.1) then
       do 9 i=1,nums
-      tag=snam(i)
+      tag=snam(isgan(i))
       do 91 j=1,16
       if(target(j:j).eq.'?') tag(j+5:j+5)='?'
    91 continue
@@ -2335,7 +2335,7 @@ c
       else
       do 10 i=1,nums
       if(issgm(i).ge.ifr.and.issgm(i).le.ito) then
-      tag=snam(i)
+      tag=snam(isgan(i))
       do 101 j=1,16
       if(target(j:j).eq.'?') tag(j+5:j+5)='?'
   101 continue
