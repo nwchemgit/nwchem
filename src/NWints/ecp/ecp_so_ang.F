@@ -1,4 +1,4 @@
-C$Id: ecp_so_ang.F,v 1.4 1998-04-03 01:40:39 mg201 Exp $
+C$Id: ecp_so_ang.F,v 1.5 1998-09-25 18:00:00 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_so_ang (l,angint,soint,n_ang)
@@ -6,13 +6,14 @@ C$Id: ecp_so_ang.F,v 1.4 1998-04-03 01:40:39 mg201 Exp $
 *   Perform sum over m for spin-orbit integrals. This includes the 2/l *
 *   factor in the s.l formalism - see the last piece of code. To use   *
 *   sigma instead of s, change from two to one.                        *
+*   Note that the sqrt((1+delta_m,0)(1+delta_m',0)) term is included.  *
 *                                                                      *
 *   Argument (status) - description                                    *
 *                                                                      *
 *   l (inp) - angular momentum of projector                            *
-*   angint - angular integrals for LH projector                        *
-*   soint - angular integrals with spin-orbit term added               *
-*   n_ang - number of angular integrals                                *
+*   angint (inp) - angular integrals for LH projector                  *
+*   soint (out) - angular integrals with spin-orbit term added         *
+*   n_ang (inp) - number of angular integrals                          *
 *                                                                      *
 *   Written by K. G. Dyall                                             *
 *                                                                      *
