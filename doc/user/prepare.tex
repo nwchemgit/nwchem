@@ -512,8 +512,8 @@ The variable \verb+xpndw+ specifies the size in nm with which the simulation
 volume will be increased after solvation.
 
 \begin{verbatim}
-read (rst | pdb) <string filename>
-write (rst | [solute [<integer nsolvent>]] pdb | xyz) <string filename>
+read [rst | rst_old | pdb] <string filename>
+write [rst | [solute [<integer nsolvent>]] (pdb | xyz)] <string filename>
 \end{verbatim}
 
 These directives read and write the file \verb+filename+ in the specified
