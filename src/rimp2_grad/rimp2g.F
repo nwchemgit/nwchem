@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.7 1998-07-14 16:18:37 bernhold Exp $
+C$Id: rimp2g.F,v 1.8 1998-07-14 21:41:49 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -374,7 +374,7 @@ C     Clean up some memory
 C
       Status = .TRUE.
       Status = Status .AND. MA_Pop_Stack( H_Contrib)
-      Status = Status .AND.  MA_Free_Heap(H_Eval)
+c$$$      Status = Status .AND.  MA_Free_Heap(H_Eval)
       If ( .NOT. Status) Call ErrQuit(
      $   'RIMP2G: Unable to destroy local arrays', 0)
 C
@@ -384,7 +384,8 @@ C     ************
 C
       If ( DoGrad ) then
          Call RIMP2_Driver_G(MaxSpin, TopSpin, NFrzOcc, NAct, NVir,
-     $        FitBas, FN_Int, FN_Gam, BraKetSame)
+     $        FitBas, FN_Int, FN_Gam, BraKetSame, g_P2,
+     $        Dbl_MB(I_Eval), MxNCorBF)
       EndIf
 C
 C     ***********
@@ -393,6 +394,11 @@ C     ***********
 C
       If ( DRA_Terminate() .ne. 0) Call ErrQuit(
      $   'RIMP2G: DRA_Terminate failed', 0)
+C
+      Status = .TRUE.
+      Status = Status .AND.  MA_Free_Heap(H_Eval)
+      If ( .NOT. Status) Call ErrQuit(
+     $   'RIMP2G: Unable to destroy local arrays', 0)
 C
       Status = .TRUE.
       Status = Status .AND. Geom_Destroy( Geom)

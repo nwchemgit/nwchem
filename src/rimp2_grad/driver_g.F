@@ -3,11 +3,11 @@ C NAME
 C     RIMP2_Driver_G -- Master routine for RI-MP2 gradient evaluation
 C
 C REVISION
-C     $Id: driver_g.F,v 1.3 1998-07-14 16:18:34 bernhold Exp $
+C     $Id: driver_g.F,v 1.4 1998-07-14 21:41:48 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_G(MaxSpin, TopSpin, NFrzO, NAct,
-     $     NVir, FitBas, FN_Int, FN_Gam, BraKetSame)
+     $     NVir, FitBas, FN_Int, FN_Gam, BraKetSame, g_P2, Eig, LDEig)
       Implicit NONE
 C
       Integer MaxSpin       ![in]
@@ -19,6 +19,9 @@ C
       Character*(*) FN_Int(MaxSpin, 2, 2) ![in]
       Character*(*) FN_Gam(TopSpin) ![in]
       Logical BraKetSame    ![in]
+      Integer g_P2(TopSpin) ![in]
+      Integer LDEig ![in]
+      Double Precision Eig(LDEig, TopSpin) ![in]
 C
 C INCLUDE FILES
 #include "mafdecls.fh"
@@ -38,8 +41,7 @@ C
 C
 C LOCAL VARIABLES
       Integer ISpin, NFit
-      Integer g_L1(MyMaxSpin), g_L2(MyMaxSpin), g_L3(MyMaxSpin),
-     $     g_L4(MyMaxSpin), g_L(MyMaxspin)
+      Integer g_L(MyMaxspin), g_W2(MyMaxSpin)
       Logical PrInfo, PrPrgRpt
       Character*256 String1
       Integer D_Int(MyMaxSpin, 2, 2), D_Gam(MyMaxSpin)
@@ -119,10 +121,19 @@ C
      $        String1(:Inp_StrLen(String1)), MinChunk,
      $        MinChunk, g_L(ISpin) ) ) Call ErrQuit(
      $        'RIMP2_Driver_G: can''t allocate L', ISpin)
+C
+C        Create W2(p,q) (initial contributions come from L)
+C
+         String1 = 'W2 spin ' // SpinItoA(ISpin)
+         If ( .NOT. GA_Create(MT_Dbl, NFrzO+NAct(ISpin)+NVir(ISpin),
+     $        NFrzO+NAct(ISpin)+NVir(ISpin),
+     $        String1(:Inp_StrLen(String1)), MinChunk,
+     $        MinChunk, g_W2(ISpin) ) ) Call ErrQuit(
+     $        'RIMP2_Driver_G: can''t allocate W2', ISpin)
       EndDo ! ISpin
 C
       Call RIMP2_Mk_L(TopSpin, NFrzO, NAct, NVir, NFit, D_Int(1, 1, 1),
-     $     D_Int(1, 1, 2), D_Gam, g_L)
+     $     D_Int(1, 1, 2), D_Gam, g_L, g_P2, g_W2, Eig, LDEig)
 C
 C     *******************
 C     * Clean up memory *
@@ -131,6 +142,13 @@ C
       Do ISpin = 1, TopSpin
          If ( .NOT. GA_Destroy( G_L(ISpin) ) ) Call ErrQuit(
      $        'RIMP2_Driver_G: can''t free L', ISpin)
+         If ( .NOT. GA_Destroy( G_W2(ISpin) ) ) Call ErrQuit(
+     $        'RIMP2_Driver_G: can''t free W2', ISpin)
+C
+C        Created in RIMP2_Driver_E
+C
+         If ( .NOT. GA_Destroy( G_P2(ISpin) ) ) Call ErrQuit(
+     $        'RIMP2_Driver_G: can''t free P2', ISpin)
       EndDo
 C
 C     ************************

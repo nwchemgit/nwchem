@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_E -- Master routine for RI-MP2 energy evaluation
 C
 C REVISION
-C     $Id: driver_e.F,v 1.2 1998-07-13 02:38:07 bernhold Exp $
+C     $Id: driver_e.F,v 1.3 1998-07-14 21:41:47 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_DRIVER_E(MaxSpin, BraKetSame, FN_Int,
@@ -495,17 +495,6 @@ C
             Status = GA_Destroy( G_PairE(ISpin+JSpin-1) )
          EndDo
       EndDo
-C
-C     ****************************************
-C     * Finished with gradient intermediates *
-C     ****************************************
-C
-      If ( DoGrad ) then
-         Do ISpin = 1, TopSpin
-            If (.NOT. GA_Destroy( G_P2(ISpin) ) ) Call ErrQuit(
-     $         'RIMP2_Driver_E: can''t destroy P2 ', 0)
-         EndDo
-      EndIf
 C
       Call GA_Sync
       Call PStat_Off(PS_Energy)
