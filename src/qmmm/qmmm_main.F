@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_main.F,v 1.15 2004-01-23 02:49:24 marat Exp $
+c $Id: qmmm_main.F,v 1.16 2004-01-23 20:47:41 marat Exp $
 c
       subroutine qmmm_optimize(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq,lesp)
@@ -281,7 +281,7 @@ c
 
       if(xyz) then
         call util_file_name('xyz', .false., .false., filename)
-        open(unit=43,status="replace",form="formatted",file=filename)
+        open(unit=43,status="new",form="formatted",file=filename)
         if(.not.geom_print_xyz(igeom,43))
      +    call errquit('qmmm: Failed to xyz file',0)
         close(43)
@@ -289,7 +289,7 @@ c
 
       if(xyzq) then
         call util_file_name('xyzq', .false., .false., filename)
-        open(unit=43,status="replace",form="formatted",file=filename)
+        open(unit=43,status="new",form="formatted",file=filename)
         if(.not.geom_print_xyzq(igeom,43))
      +    call errquit('qmmm: Failed to xyzq file',0)
         close(43)
