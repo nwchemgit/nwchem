@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.2 2000-03-29 21:14:20 d3g681 Exp $
+*     $Id: uccsdtest.F,v 1.3 2000-03-29 23:36:55 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -2051,7 +2051,7 @@ c
             end do
             do i = o_sym(1,ir,spin),o_sym(2,ir,spin),oblock_max
                noblock(spin) = noblock(spin) + 1
-               oblock_sym(noblock(spin),spin) = 1
+               oblock_sym(noblock(spin),spin) = 0
                oblock(1,noblock(spin),spin) = i
                oblock(2,noblock(spin),spin) = 
      $              min(o_sym(2,ir,spin),i+oblock_max-1)
@@ -2102,4 +2102,97 @@ c
 c
       write(6,*) ' eps ', ((eps(i,spin),i=1,nmo),spin=1,2)
 c
+      end
+      subroutine uccsdt_get_3x(kblock, ablock, bblock, 
+     $     spink, spina, spinb, ints)
+      implicit none
+#include "mafdecls.fh"
+#include "cuccsdtP.fh"
+      integer kblock, ablock, bblock, spink, spina, spinb
+      double precision ints(*)
+c
+      logical oflip_ab, oflip_ek
+      double precision g
+      integer base,a,b,e,k,spine,syme, ind
+      integer alo, ahi, blo, bhi, klo, khi, elo, ehi
+      g(e,k,a,b) = dbl_mb(base + 
+     $     e-1 + nmo*(k-1 + nmo*(a-1 + nmo*(b-1))))
+c
+c     Returns <ek||ab> for orbitals in the specified triples blocks and for given
+c     spins of each block.  The integrals will be in the array
+c     I(nv_sym(esym),dim(kblock),dim(ablock),dim(bblock)).  
+c
+c     Mixed spin integrals will get one of <ek|ab> or -<ek|ba>.  
+c
+      oflip_ab = .false.
+      oflip_ek = .false.
+      if (spink*spina*spinb .eq. 1) then ! <ek||ab> pure alpha
+         base = k_moints_aa
+         spine = 1
+      else if (spink*spina*spinb .eq. 8) then ! <ek||ab> pure beta
+         base = k_moints_bb
+         spine = 2
+      else
+         base = k_moints_ab
+         oflip_ek = spink.eq.1
+         oflip_ab = spinb.eq.1
+         spine = 1
+         if (spink.eq.1) spine = 2
+      endif
+c
+      syme = ieor(oblock_sym(kblock,spink),
+     $     ieor(vblock_sym(ablock,spina),vblock_sym(bblock,spinb)))
+c
+      alo = vblock(1,ablock,spina)
+      ahi = vblock(2,ablock,spina)
+      blo = vblock(1,bblock,spinb)
+      bhi = vblock(2,bblock,spinb)
+      klo = oblock(1,kblock,spink)
+      khi = oblock(2,kblock,spink)
+      elo = v_sym(1,syme,spine)
+      ehi = v_sym(2,syme,spine)
+c
+      ind = 0
+      do b = blo, bhi
+         do a = alo, ahi
+            do k = klo, khi
+               if (oflip_ek) then
+                  if (oflip_ab) then
+                     do e = elo, ehi
+                        ind = ind + 1
+                        ints(ind) = g(k,e,b,a)
+                     end do
+                  else
+                     do e = elo, ehi
+                        ind = ind + 1
+                        ints(ind) = -g(k,e,a,b)
+                     end do
+                  end if
+               else
+                  if (oflip_ab) then
+                     do e = elo, ehi
+                        ind = ind + 1
+                        ints(ind) = -g(e,k,b,a)
+                     end do
+                  else
+                     do e = elo, ehi
+                        ind = ind + 1
+                        ints(ind) = g(e,k,a,b)
+                     end do
+                  end if
+               end if
+            end do
+         end do
+      end do
+c
+      end
+      subroutine util_iswap2(i,j)
+      integer i, j, tmp
+c
+c     Swap the arguments
+c
+      tmp = i
+      i = j
+      j = tmp
+c     
       end
