@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.9 2003-02-13 17:42:51 sohirata Exp $
+c $Id: tce_ao2e.F,v 1.10 2003-03-16 23:41:18 sohirata Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -50,9 +50,9 @@ c     Set offsets
 c     ===========
 c
       if (ipol.eq.1) then
-        N = (nmo(1) - nfc(1)) * 2
+        N = (nmo(1) - nfc(1) - nfv(1)) * 2
       else
-        N = nmo(1) + nmo(2) - nfc(1) - nfc(2)
+        N = nmo(1) + nmo(2) - nfc(1) - nfc(2) - nfv(1) - nfv(2)
       endif
       nodezero = (ga_nodeid().eq.0)
       do j = 1, nbf

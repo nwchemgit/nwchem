@@ -1,6 +1,6 @@
       subroutine tce_mo2e(rtdb,d_ao2e,d_mo2e,k_2e_offset)
 c
-c $Id: tce_mo2e.F,v 1.7 2003-01-08 22:59:14 sohirata Exp $
+c $Id: tce_mo2e.F,v 1.8 2003-03-16 23:41:18 sohirata Exp $
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c
@@ -41,7 +41,7 @@ c
       integer nxtval
       external nxtval
       integer next,count,nprocs
-      integer N,Nb
+      integer Nb
 c     integer pqrs,r,s
 c     integer l_debug,k_debug
 c     double precision debugdbl
@@ -52,11 +52,6 @@ c     Preliminary
 c     ===========
 c
       nodezero = (ga_nodeid().eq.0)
-      if (ipol.eq.1) then
-        N = (nmo(1) - nfc(1)) * 2
-      else
-        N = nmo(1) + nmo(2) - nfc(1) - nfc(2)
-      endif
       Nb = noa + nob + nva + nvb
 c
 c     ===========
