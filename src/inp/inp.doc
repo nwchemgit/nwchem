@@ -175,6 +175,11 @@
 
      Lowercase the character string z
 
+  subroutine inp_ucase(z)
+  character*(*) z
+
+     Uppercase the character string z
+
 
   integer function inp_strlen(z)
   character*(*) z

@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.16 1995-02-02 23:15:01 d3g681 Exp $
+C$Id: inp.F,v 1.17 1995-03-31 01:39:59 d3g681 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -644,6 +644,27 @@ c
       do i = 1, length
          test = ichar(string(i:i))
          if (test.ge.uca .and. test.le.ucz) 
+     $        string(i:i) = char(test+shift)
+      enddo
+c
+      end
+      subroutine inp_ucase(string)
+      implicit none
+      character*(*) string
+      intrinsic ichar, len
+      integer i, length, lca, lcz, uca, shift, test
+c
+      lca = ichar('a')          ! MUST be lowercase A
+      lcz = ichar('z')          ! MUST be lowercase Z
+      uca = ichar('A')          ! MUST be uppercase a
+      shift = uca - lca
+      if (shift .eq. 0) 
+     $     call errquit('inp_ucase: check case of program source', 0)
+c
+      length = len(string)
+      do i = 1, length
+         test = ichar(string(i:i))
+         if (test.ge.lca .and. test.le.lcz) 
      $        string(i:i) = char(test+shift)
       enddo
 c
