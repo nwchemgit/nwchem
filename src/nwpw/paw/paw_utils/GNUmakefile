@@ -1,9 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.9 2003-02-19 01:11:22 marat Exp $
+# $Id: GNUmakefile,v 1.10 2003-04-07 21:53:17 windus Exp $
 #
 
 
-          OBJ = paw_utils.o integrate.o io_utils.o error.o double_factorial.o bessel_transform.o \
+          OBJ = paw_utils.o integrate.o io_utils.o chkerr.o double_factorial.o bessel_transform.o \
                 paw_gauss_weights.o paw_spher_grid.o
 
           HEADERS = bessel_transform.fh integrate.fh paw_utils.fh paw_params.fh
