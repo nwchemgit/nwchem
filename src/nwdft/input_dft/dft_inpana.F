@@ -5,13 +5,14 @@ c     Analyze input to deduce nature of system, and set key flags.
 c
 c***********************************************************************
       subroutine dft_inpana(geom,rtdb,zan,c,iconst,nconst,nat)
-C$Id: dft_inpana.F,v 1.2 1995-04-29 10:01:21 og845 Exp $
+C$Id: dft_inpana.F,v 1.3 1995-09-14 17:27:07 pg511 Exp $
       implicit real*8 (a-h,o-z)
       logical even
       dimension zan(nat), c(3,nat), iconst(nconst)
       integer noc(2)
       Integer rtdb    !  runtime database handle
       integer geom
+      Parameter ( EPSILON=1.d-13 )
 #include "stdio.fh"
 #include <rtdb.fh>     ! for rtdb_get
 #include <mafdecls.h>  ! for mt_int
@@ -32,21 +33,21 @@ c
 c
 c-->  Scan for ghost atoms.
 c
-      nghost=0
-      do 500 inat=1,nat
-        if (zan(inat).lt.0.5)then
-          nghost=nghost+1
-          zan(inat)=0.0d0
-          if(me.eq.0) write(LuOut,9250) inat
-        endif 
-  500 continue 
+c****      nghost=0
+c****      do 500 inat=1,nat
+c****        if (zan(inat).lt.0.5)then
+c****          nghost=nghost+1
+c****          zan(inat)=0.0d0
+c****          if(me.eq.0) write(LuOut,9250) inat
+c****        endif 
+c****  500 continue 
 c
 c-->  Determine number of electrons in system.
 c
       if (.not. geom_nuc_charge(geom, anucl_charg))
      $     call errquit('scf: geom_nuc_charge failed', 0)
 c
-      nel = int(anucl_charg) - ichg
+      nel = int(anucl_charg+EPSILON) - ichg
 c
 c-->  Check to see if calculation type is allowed.
 c
