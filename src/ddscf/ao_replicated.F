@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.3 1996-06-27 22:42:18 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.4 1996-07-03 17:11:35 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -331,7 +331,10 @@ c     Figure out no. of tasks to do on each request to the
 c     shared counter.  Memory permitting we want this to be 
 c     close to 1.
 c
-      task_bf = ntype*ntype/(10*ga_nnodes())
+c     I worry about an infinite loop here ... is there always a 
+c     solution to these constraints?  Should we limit the no. of passes?
+c
+      task_bf = max(ntype*ntype/(10*ga_nnodes()),1)
       if (max_p .lt. nint(sqrt(dfloat(qdim))) .and.
      $     task_bf .ge. 4) then
          max_p = min(nint(sqrt(dfloat(qdim))),2*max_p)
