@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.62 2002-05-14 21:41:33 d3j191 Exp $
+c $Id: md_input.F,v 1.63 2002-06-05 00:38:51 d3j191 Exp $
 c
       implicit none
 c
@@ -762,7 +762,7 @@ c
       afix=' '
       if(inp_compare(.false.,'free',item)) ifix=0
 c
-      if(.not.inp_a(item)) call errquit('md_input : error fix',13)
+      if(.not.inp_a(item)) call errquit('md_input : error fix',1)
 c
       if(inp_compare(.false.,'solvent',item)) then
       if(.not.inp_i(ifirst)) then
@@ -772,15 +772,15 @@ c
       else
       ifirst=-1
       if(inp_compare(.false.,'within',item)) then
-      if(.not.inp_f(rfix)) call errquit('md_input : error fix',13)
-      if(.not.inp_a(afix)) call errquit('md_input : error fix',13)
+      if(.not.inp_f(rfix)) call errquit('md_input : error fix',2)
+      if(.not.inp_a(afix)) call errquit('md_input : error fix',3)
       ilast=-1
       elseif(inp_compare(.false.,'beyond',item)) then
-      if(.not.inp_f(rfix)) call errquit('md_input : error fix',13)
-      if(.not.inp_a(afix)) call errquit('md_input : error fix',13)
+      if(.not.inp_f(rfix)) call errquit('md_input : error fix',4)
+      if(.not.inp_a(afix)) call errquit('md_input : error fix',5)
       ilast=-2
       else
-      call errquit('md_input : error fix',13)
+      call errquit('md_input : error fix',6)
       endif
       endif
       else
@@ -800,15 +800,15 @@ c
       else
       ifirst=-1
       if(inp_compare(.false.,'within',item)) then
-      if(.not.inp_f(rfix)) call errquit('md_input : error fix',13)
-      if(.not.inp_a(afix)) call errquit('md_input : error fix',13)
+      if(.not.inp_f(rfix)) call errquit('md_input : error fix',7)
+      if(.not.inp_a(afix)) call errquit('md_input : error fix',8)
       ilast=-1
       elseif(inp_compare(.false.,'beyond',item)) then
-      if(.not.inp_f(rfix)) call errquit('md_input : error fix',13)
-      if(.not.inp_a(afix)) call errquit('md_input : error fix',13)
+      if(.not.inp_f(rfix)) call errquit('md_input : error fix',9)
+      if(.not.inp_a(afix)) call errquit('md_input : error fix',10)
       ilast=-2
       else
-      call errquit('md_input : error fix',13)
+      call errquit('md_input : error fix',11)
       endif
       endif
       else
