@@ -1,0 +1,559 @@
+c$$$      double precision function f(x, y, z)
+c$$$      implicit none
+c$$$      double precision x, y, z, rsq, alpha
+c$$$      alpha = 0.9d0
+c$$$      rsq = x*x+y*y+z*z
+c$$$      f = exp(-rsq) - exp(-alpha*rsq)*alpha**1.5d0
+c$$$      end
+c$$$      double precision function d2f(x,y,z)
+c$$$      implicit none
+c$$$      double precision x, y, z, rsq, alpha
+c$$$      alpha = 0.9d0
+c$$$      rsq = x*x+y*y+z*z
+c$$$      d2f = (4.0d0*rsq-6.0d0)*exp(-rsq) - 
+c$$$     $     (4.0d0*alpha*alpha*rsq-6.0d0*alpha)*
+c$$$     $     exp(-alpha*rsq)*alpha**1.5d0
+c$$$      end
+c$$$      double precision function v(x,y,z)
+c$$$      implicit none
+c$$$      double precision x, y, z, rsq, alpha, fa,fb
+c$$$      alpha = 0.9d0
+c$$$c
+c$$$      rsq = x*x+y*y+z*z
+c$$$c
+c$$$      call fmvector(1, 0, rsq, fa)
+c$$$      call fmvector(1, 0, alpha*rsq, fb)
+c$$$c
+c$$$      v = (fa - fb*sqrt(alpha))*0.5d0
+c$$$*     v = (fa + alpha**1.5d0*fb/sqrt(alpha))*0.5d0
+c$$$c
+c$$$      end
+c$$$      double precision function f(x,y,z)
+c$$$      implicit none
+c$$$      double precision x, y, z, rsq
+c$$$      double precision a, b, c
+c$$$      data a, b, c/0.17065d0,0.3413d0,0.6826d0/
+c$$$      rsq = (x-a)**2 + (y-b)**2 + (z-c)**2
+c$$$*     1s
+c$$$*     f = exp(-rsq)
+c$$$*     2p
+c$$$*     f = (x-a)*exp(-rsq)
+c$$$*     3dxy
+c$$$*     f = (x-a)*(y-b)*exp(-rsq)
+c$$$*     3d(x2-y2)
+c$$$      f = ((x-a)**2 - (y-b)**2)*exp(-rsq)
+c$$$      end
+c$$$      double precision function v(x,y,z)
+c$$$      implicit none
+c$$$      double precision x, y, z, rsq, fm(0:10)
+c$$$      double precision a, b, c
+c$$$      data a, b, c/0.17065d0,0.3413d0,0.6826d0/
+c$$$      rsq = (x-a)**2 + (y-b)**2 + (z-c)**2
+c$$$*     1s
+c$$$*     call fmvector(1, 0, rsq, fm)
+c$$$*     v = fm(0) * 0.5d0
+c$$$*     2p
+c$$$*     call fmvector(1, 1, rsq, fm)
+c$$$*     v = (x-a) * fm(1) * 0.5d0
+c$$$*     3dxy
+c$$$*     call fmvector(1, 2, rsq, fm)
+c$$$*     v = (x-a) * (y-b) * fm(2) * 0.5d0
+c$$$*     3d(x2-y2)
+c$$$      call fmvector(1, 2, rsq, fm)
+c$$$      v = ((x-a)**2 - (y-b)**2) * fm(2) * 0.5d0
+c$$$c
+c$$$      end
+c$$$      double precision function anl(n,l,x)
+c$$$      implicit none
+c$$$c
+c$$$      integer n, l
+c$$$      double precision x
+c$$$c
+c$$$      integer k
+c$$$      double precision ik, xkm1, xsq, fm(11)
+c$$$
+c$$$      if (mod(n-l+1,2) .ne. 1) stop 543
+c$$$      if (n.lt.l) then 
+c$$$         stop 544
+c$$$      else if (n .eq. l) then
+c$$$         ik = 0.0d0
+c$$$      else
+c$$$         ik = 1.0d0
+c$$$         xsq = x*x
+c$$$         xkm1 = xsq
+c$$$         do k = 3, n-l-1, 2
+c$$$            ik = 0.5d0*dble(k-1) + xkm1
+c$$$            xkm1 = xkm1 * xsq
+c$$$         enddo
+c$$$         ik = ik * exp(-x*x) * 0.5d0
+c$$$*     write(6,*) ' n-l-1, x, ik ', n-l-1, x, ik
+c$$$      endif
+c$$$      
+c$$$      call fmvector(1, (n+l)/2, x*x, fm)
+c$$$      anl = (0.5d0*(x**(n-l))*dble(n+l+1)*fm((n+l)/2+1) + 
+c$$$     $      0.5d0*dble(n-l)*ik) / dble(l+l+1)
+c$$$
+c$$$**      call fmvector(1,1,x*x,fm)
+c$$$**      anl = 0.5d0*3.0d0*fm(2)
+c$$$
+c$$$      end
+c$$$      subroutine fmvector(n,l,t,fm)
+c$$$      implicit none
+c$$$      integer n, l
+c$$$      double precision t(n), fm(n,0:l)
+c$$$c
+c$$$      integer i
+c$$$      do i = 1, n
+c$$$         fm(i,0) = t(i)
+c$$$      enddo
+c$$$      call igamma(fm,n,l)
+c$$$      call errquit(' fmvector ',0)
+c$$$c
+c$$$      end
+c$$$      double precision function d2f(x,y,z)
+c$$$      implicit none
+c$$$      double precision x, y, z, rsq
+c$$$*     1s
+c$$$      rsq = x*x+y*y+z*z
+c$$$      d2f = (4.0d0*rsq-6.0d0)*exp(-rsq)
+c$$$      end
+c$$$      subroutine fft3d(dir,nx,ny,nz,g,fg)
+c$$$      implicit none
+c$$$      integer nx, ny, nz, dir
+c$$$      double complex g(nx,ny,nz),fg(nx,ny,nz)
+c$$$c
+c$$$c     Non-destructive 3D complex FFT
+c$$$c
+c$$$      integer maxn
+c$$$      parameter (maxn = 1024)
+c$$$      double precision wsave(10*maxn), scale
+c$$$      double complex a(maxn)
+c$$$      integer i, j, k
+c$$$c
+c$$$      if (ny .gt. maxn) call errquit('cfft3d: ny>maxn', ny)
+c$$$      if (nz .gt. maxn) call errquit('cfft3d: nz>maxn', nz)
+c$$$c
+c$$$      call cffti(nx,wsave)
+c$$$      do k = 1, nz
+c$$$         do j = 1, ny
+c$$$            do i = 1, nx
+c$$$               fg(i,j,k) = g(i,j,k)
+c$$$            end do
+c$$$            if (dir .gt. 0) then
+c$$$               call cfftf(nx,fg(1,j,k),wsave)
+c$$$            else
+c$$$               call cfftb(nx,fg(1,j,k),wsave)
+c$$$            end if
+c$$$         end do
+c$$$      end do
+c$$$      scale = 2.0d0
+c$$$      if (ny*nz .eq. 1) goto 100
+c$$$c
+c$$$      call cffti(ny,wsave)
+c$$$      do k = 1, nz
+c$$$         do i = 1, nx
+c$$$            do j = 1, ny
+c$$$               a(j) = fg(i,j,k)
+c$$$            end do
+c$$$            if (dir .ge. 0) then
+c$$$               call cfftf(ny,a,wsave)
+c$$$            else
+c$$$               call cfftb(ny,a,wsave)
+c$$$            end if
+c$$$            do j = 1, ny
+c$$$               fg(i,j,k) = a(j)
+c$$$            end do
+c$$$         end do
+c$$$      end do
+c$$$      scale = 4.0d0
+c$$$      if (nz .eq. 1) goto 100
+c$$$c
+c$$$      call cffti(nz,wsave)
+c$$$      do j = 1, ny
+c$$$         do i = 1, nx
+c$$$            do k = 1, nz
+c$$$               a(k) = fg(i,j,k)
+c$$$            end do
+c$$$            if (dir .ge. 0) then
+c$$$               call cfftf(nz,a,wsave)
+c$$$            else
+c$$$               call cfftb(nz,a,wsave)
+c$$$            end if
+c$$$            do k = 1, nz
+c$$$               fg(i,j,k) = a(k)
+c$$$            end do
+c$$$         end do
+c$$$      end do
+c$$$      scale = 8.0d0
+c$$$c
+c$$$ 100  if (dir .ge. 0) then
+c$$$         scale = scale / dble(nx*ny*nz)
+c$$$      else
+c$$$         scale = 1.0d0 / scale
+c$$$      end if
+c$$$      do k = 1, nz
+c$$$         do j = 1, ny
+c$$$            do i = 1, nx
+c$$$               fg(i,j,k) = fg(i,j,k)*scale
+c$$$            end do
+c$$$         end do
+c$$$      end do
+c$$$c
+c$$$      end
+
+
+
+      subroutine tn_interp_3d_entire(g, nx, ny, nz, gg, nnx, nny, nnz,
+     $     order)
+      implicit none
+c     
+      integer nx, ny, nz, nnz, nny, nnz
+      double precision g(nx,ny,nz), gg(nnx,nny,nnz)
+c     
+c     Given two uniform grids over the same volume interpolate
+c     from the coarser (g) to the finer (gg), adding the values
+c     to the target.  Use the given order of interpolation if
+c     possible.
+c     
+c     Need to add some verification of precision and stability
+c     
+c     Use (order+1) + 2*nsmooth points (nsmooth points on either side) 
+c     when fitting.
+c     
+c     Loop over blocks of order+1 points in each dimension.
+c     
+c     *bot-*top is the volume that will contain the points to
+c     be interpolated to.
+c     
+c     *hi-*lo is the interpolating volume including the smoothing points
+c     
+c     Determine the list of target points in the interpolating volume.
+c     In the case that some points are in common between the two grids
+c     careful management is needed for points on the volume boundaries
+c     so we manually increment these counters to avoid either neglecting
+c     points or double counting.
+c     
+c     Pretend the entire voume is 1:nx,1:ny,1:nz
+c     
+      integer nsmooth
+      double precision hhx, hhy, hhz
+c     
+      hhx = dble(nx)/dble(nnx-1) ! Ficticious spacing of the fine grid
+      hhy = dble(ny)/dble(nny-1)
+      hhz = dble(nz)/dble(nnz-1)
+c     
+c     Add at least two points on either end of the volume, including
+c     more so that the total no. of points being fit is about 50% more
+c     than the no. of coefficients.  cuberoot(1.5) = 1.145
+c     
+      nsmooth = nint(0.145d0*dble(order+1)*0.5d0)
+      nsmooth = max(nsmooth,2)
+      write(6,*) ' nsmooth ', nsmooth
+c     
+      kkbot = 1
+      do kbot = 1, nz, (order+1)
+         ktop = min(nz,kbot+order)
+         klo = max( 1,kbot-nsmooth)
+         khi = min(nz,ktop+nsmooth)
+         if (klo.eq.1) then  
+            khi = min(nz,khi+nsmooth)
+         else if (khi .eq. nz) then
+            klo = max(1,kbot-nsmooth)
+         endif
+         kktop = nint(dble(ktop-1)/hhz) + 1
+         if (ktop .eq. nz) kktop = nnz
+         nptz = kktop - kkbot + 1
+         if (nptz .gt. maxnpt) call errquit('tn_i_3d_entire: nptz',nptz)
+         do k = kkbot, kktop
+            z(k-kkbot+1) = dble(k-1)*hhz + 1.0d0
+         enddo
+c     
+         do jbot = 1, ny, (order+1)
+            jtop = min(ny,jbot+order)
+            jlo = max( 1,jbot-nsmooth)
+            jhi = min(ny,jtop+nsmooth)
+            if (jlo.eq.1) then  
+               jhi = min(ny,jhi+nsmooth)
+            else if (jhi .eq. ny) then
+               jlo = max(1,jbot-nsmooth)
+            endif
+            jjtop = nint(dble(jtop-1)/hhy) + 1
+            if (jtop .eq. ny) jjtop = nny
+            npty = jjtop - jjbot + 1
+            if (npty .gt. maxnpt) call errquit('tn_i_3d_entire: npty',npty)
+            do j = jjbot, jjtop
+               y(j-jjbot+1) = dble(j-1)*hhy + 1.0d0
+            enddo
+c     
+            do ibot = 1, nx, (order+1)
+               itop = min(nx,ibot+order)
+               ilo = max( 1,ibot-nsmooth)
+               ihi = min(nx,itop+nsmooth)
+               if (ilo.eq.1) then  
+                  ihi = min(nx,ihi+nsmooth)
+               else if (ihi .eq. nx) then
+                  ilo = max(1,ibot-nsmooth)
+               endif
+               iitop = nint(dble(itop-1)/hhx) + 1
+               if (itop .eq. nx) iitop = nnx
+               nptx = iitop - iibot + 1
+               if (nptx .gt. maxnpt) call errquit('tn_i_3d_entire: nptx',nptx)
+               do i = iibot, iitop
+                  x(i-iibot+1) = dble(i-1)*hhx + 1.0d0
+               enddo
+c     
+
+
+
+
+c     
+               iibot = iitop + 1
+            enddo               ! ibot
+            jjbot = jjtop + 1
+         enddo                  ! jbot
+         kkbot = kktop + 1
+      enddo                     ! kbot
+      end
+
+
+
+
+      subroutine tn_interp_3d(nx, ny, nz, xlo, xhi, ylo, yhi, zlo, zhi,
+     $     nptx, npty, nptz, x, y, z, f, ldx, ldy, ff, ldxff, ldyff, 
+     $     order)
+      implicit none
+c
+c     NEVER TESTED !!!
+c     
+c     Given a discretization of the volume [xlo:xhi,ylo:yhi,zlo:zhi]
+c     in f(1:nx,1:ny,1:nz) return in ff(1:nptx,1:npty,1:nptz)
+c     the values of f() interpolated onto the coordinates 
+c     (x(i),y(j),z(k)) i=1,nptx, j=1,npty, k=1,nptz using a least-squares
+c     Chebyshev approximation of the given order in each dimension.
+c     
+c     The input array f() is DESTROYED and must be dimensioned
+c     ldx>=max(nx,nptx), ldy>=max(ny,npty)
+c     
+      integer nx, ny, nz, nptx, npty, nptz, ldx, ldy, ldxff, ldyff, 
+     $     order
+      double precision xlo,xhi,ylo,yhi,zlo,zhi
+      double precision f(ldx, ldy, *), ff(ldxff, ldyff, *)
+      double precision x(nptx), y(npty), z(nptz)
+c     
+      integer i, j, k, l
+      integer maxnpt, maxn
+      parameter (maxnpt=64, maxn=64)
+      double precision c(maxnpt,maxn), fijk, tmp(maxnpt)
+c     
+      if (nx.gt.ldx) call errquit('tn_i_3d: nx>ldx',nx*10000+ldx)
+      if (ny.gt.ldy) call errquit('tn_i_3d: ny>ldy',ny*10000+ldy)
+      if (nptx.gt.ldx) call errquit('tn_i_3d: nptx>ldx',nptx*10000+ldx)
+      if (npty.gt.ldy) call errquit('tn_i_3d: npty>ldy',npty*10000+ldy)
+      if (nx.gt.maxn .or. nptx.gt.maxnpt) call errquit
+     $     ('tn_i_3d: nx or nptx', 10000*nx+nptx)
+      if (ny.gt.maxn .or. npty.gt.maxnpt) call errquit
+     $     ('tn_i_3d: ny or npty', 10000*ny+npty)
+      if (nz.gt.maxn .or. nptz.gt.maxnpt) call errquit
+     $     ('tn_i_3d: nz or nptz', 10000*nz+nptz)
+c     
+      do l = 1, nptx
+         if (x(l).lt.xlo .or. x(l).gt.xhi) call errquit
+     $        ('tn_interp_3d: x is out of range',l)
+      enddo
+      do l = 1, npty
+         if (y(l).lt.ylo .or. y(l).gt.yhi) call errquit
+     $        ('tn_interp_3d: y is out of range',l)
+      enddo
+      do l = 1, nptz
+         if (z(l).lt.zlo .or. z(l).gt.zhi) call errquit
+     $        ('tn_interp_3d: z is out of range',l)
+      enddo
+c     
+      call tn_collate_matrix(nx, xlo, xhi, nptx, x, order, c, maxnpt)
+      do k = 1, nz
+         do j = 1, ny
+            do l = 1, nptx
+               tmp(l) = 0.0d0
+            end do
+            do i = 1, nx
+               fijk = f(i,j,k)
+               if (abs(fijk) .gt. 0.0d0) then
+                  do l = 1, nptx
+                     tmp(l) = tmp(l)+c(l,i)*fijk
+                  end do
+               end if
+            end do
+            do l = 1, nptx
+               f(l,j,k) = tmp(l)
+            end do
+         end do
+      end do
+c     
+      call tn_collate_matrix(ny, ylo, yhi, npty, y, order, c, maxnpt)
+      do k = 1, nz
+         do i = 1, nptx
+            do l = 1, npty
+               tmp(l) = 0.0d0
+            end do
+            do j = 1, ny
+               fijk = f(i,j,k)
+               if (abs(fijk) .gt. 0.0d0) then
+                  do l = 1, npty
+                     tmp(l) = tmp(l) + c(l,j)*fijk
+                  end do
+               end if
+            end do
+            do l = 1, npty
+               f(i,l,k) = tmp(l)
+            end do
+         end do
+      end do
+c     
+      call tn_collate_matrix(nz, zlo, zhi, nptz, z, order, c, maxnpt)
+      do j = 1, npty
+         do i = 1, nptx
+            do k = 1, nptz
+               tmp(l) = 0.0d0
+            end do
+            do k = 1, nz
+               fijk = f(i,j,k)
+               if (abs(fijk) .gt. 0.0d0) then
+                  do l = 1, npty
+                     tmp(l) = tmp(l) + c(l,j)*fijk
+                  end do
+               end if
+            end do
+            do l = 1, npty
+               f(i,j,l) = tmp(l)
+            end do
+         end do
+      end do
+c     
+      end
+      double precision function tn_interp_3d_point(g, ldx, ldy,  
+     $     n, x, y, z, order)
+      implicit none
+c
+c     Given a discretization of the volume (1:n,1:n,1:n) 
+c     in g(1:n,1:n,1:n) return the value interpolated at x,y,z within
+c     the volume using a chebyshev LSQ interpolation of the given order.
+c
+c     The numerical stability of this approach is not clear and
+c     must still be verified.
+c     
+c     The input array of points is PRESERVED.
+c     
+      integer n, ldx, ldy, order
+      double precision x, y, z, g(ldx,ldy,*)
+c     
+      integer i, j, k, prevorder, ind
+      integer maxn, maxorder
+      parameter (maxn=63, maxorder=53)
+      double precision cx(maxn), cy(maxn), cz(maxn), sumi, sumj, sum
+      double precision qq((maxorder+1)*maxn), xx, yy, zz,
+     $     tx(0:maxorder), ty(0:maxorder), tz(0:maxorder)
+      data prevorder/-1/
+      save qq
+c     
+      if (n.gt.maxn) call errquit('tn_i_3d_pt: n', n)
+      if (order.gt.maxorder) call errquit('tn_i_3d_pt:order',order)
+c     
+      if (order.ne.prevorder) then
+         call tn_fitting_matrix(order,n,qq)
+         prevorder = order
+      endif
+      do i = 1, n
+         cx(i) = 0.0d0
+         cy(i) = 0.0d0
+         cz(i) = 0.0d0
+      enddo
+      xx = 2.0d0*(x-1.0d0)/dble(n-1) - 1.0d0
+      yy = 2.0d0*(y-1.0d0)/dble(n-1) - 1.0d0
+      zz = 2.0d0*(z-1.0d0)/dble(n-1) - 1.0d0
+c     
+      tx(0)=1.0d0
+      ty(0)=1.0d0
+      tz(0)=1.0d0
+      tx(1)=xx
+      ty(1)=yy
+      tz(1)=zz
+      do j=1,order-1
+         tx(j+1) = 2.0d0*xx*tx(j) - tx(j-1)
+         ty(j+1) = 2.0d0*yy*ty(j) - ty(j-1)
+         tz(j+1) = 2.0d0*zz*tz(j) - tz(j-1)
+      enddo
+c
+      ind = 1
+      do j = 1, n
+         do k = 0,order
+            cx(j) = cx(j) + tx(k)*qq(ind+k)
+            cy(j) = cy(j) + ty(k)*qq(ind+k)
+            cz(j) = cz(j) + tz(k)*qq(ind+k)
+         enddo
+         ind = ind + order + 1
+      enddo
+c
+      sum = 0.0d0
+      do k = 1, n
+         sumj = 0.0d0
+         do j = 1, n
+            sumi = 0.0d0
+            do i = 1, n
+               sumi = sumi + cx(i)*g(i,j,k)
+            end do
+            sumj = sumj + cy(j)*sumi
+         end do
+         sum = sum + cz(k)*sumj
+      end do
+c     
+      tn_interp_3d_point = sum
+c
+      end
+
+
+
+c$$$*            if (abs(poti-potii).gt.1d-10) then
+c$$$*               write(6,*) poti, potii,x,y,z
+c$$$*               stop 99
+c$$$*            endif
+c$$$c
+c$$$c     Copy the subgrid into a volume to test direct fitting
+c$$$c
+c$$$            ind = 1
+c$$$            do k = klo,klo+ninterp-1
+c$$$               do j = jlo,jlo+ninterp-1
+c$$$                  do i = ilo,ilo+ninterp-1
+c$$$                     fg(ind) = g(i,j,k)
+c$$$                     ind = ind + 1
+c$$$                  enddo
+c$$$               enddo
+c$$$            enddo
+c$$$            call tn_lsq_fit_cube(ninterp,order,fg)
+c$$$            dn = dble(ninterp-1)
+c$$$            xi = 2d0*(xi - 1d0 - dn*0.5d0)/dn
+c$$$            yi = 2d0*(yi - 1d0 - dn*0.5d0)/dn
+c$$$            zi = 2d0*(zi - 1d0 - dn*0.5d0)/dn
+c$$$            poti = tn_cube_eval(fg,ninterp,ninterp,order,xi,yi,zi)
+c$$$            if (abs(potii-poti).gt.1d-3) call errquit('fda',0)
+c     
+
+
+      subroutine symmetrize(a,n)
+      implicit none
+      integer n
+      double precision a(n,n)
+      integer i, j
+      double precision tmp
+c
+      do i = 1, n
+         do j = 1, i-1
+            tmp = 0.5d0*(a(i,j)+a(j,i))
+            a(i,j) = tmp
+            a(j,i) = tmp
+         enddo
+      enddo
+c     
+      end
+      
+
+
