@@ -1,34 +1,47 @@
 \label{sec:etrans}
 
-The NWChem ET module uses the method of {\em Corresponding Orbital Transformation} to calculate the
-electron transfer matrix element between ET reactant and product states,
-$V_{RP}$ ($H_{AB}$ or $V_{AB}$ in the literature). The only input required for the ET module is the
-name of the files containing the open-shell (UHF or ODFT) MO vectors for the localized ET reactant and product states ($R$ and $P$).
+The NWChem electron transfer (ET) module calculates the electronic coupling energy (also called the electron transfer
+matrix element) between ET reactant and product states.  The electronic coupling ($V_{RP}$), activation energy ($\Delta G^{*}$),
+and nuclear reorganization energy ($\lambda$) are all components of the electron transfer rate defined by Marcus' theory, which
+also depends on the temperature (reference 1):
 
-The basis set used in the calculation of $V_{RP}$ must be the same as the basis set used to calculate the MO vectors of
-$R$ and $P$.  The magnitude of $V_{RP}$ depends on the amount of overlap between $R$ and $P$,
-which is important to consider when choosing the basis set.  Diffuse functions may be
-necessary to fill in the overlap, particularly when the ET distance is long.
-
-The magnitude of $V_{RP}$ is a measurement of the degree of coupling between $R$ and $P$ and,
-therefore, the facility of the electron transfer.  It's natural then that $V_{RP}$ is an important component in the expression for
-the electron transfer rate: 
-
-\begin{equation} 
+\begin{equation}
 {k_{ET}}=
 \frac{2\pi}{\hbar}
 V_{RP}^{2}
 \frac{1}{\sqrt{4\pi \lambda k_{B}T}}
 \exp \left( \frac{- \Delta G^{*}}{k_{B} T} \right)
 \end{equation}
-where $\lambda$ is the nuclear relaxation energy associated with the attachment of the electron and $\Delta G^{*}$ is the
-free energy activation barrier between the ET reactant and product states (in the simplest case, $\Delta G^{*} \approx \lambda / 4$).
 
-Suggested references are listed below.  The first reference gives a good basic description 
-of Marcus' two-state ET model, and the appendix of the second reference details the method used
+The ET module utilizes the method of {\em Corresponding Orbital Transformation} to calculate $V_{RP}$.
+The only input required are the names
+of the files containing the open-shell (UHF or ODFT) MO vectors for the ET reactant and product states ($R$ and $P$).
+
+Although open-shell DFT orbitals can be used as input, the current implementation of the ET module uses a Hartree-Fock 
+formalism (ref.3).  Therefore, for consistency, UHF orbitals should be used for the calculation of $V_{RP}$, although this
+is not required.
+
+The basis set used in the calculation of $V_{RP}$ must be the same as the basis set used to calculate the MO vectors of
+$R$ and $P$.  The magnitude of $V_{RP}$ depends on the amount of overlap between $R$ and $P$,
+which is important to consider when choosing the basis set.  Diffuse functions may be
+necessary to fill in the overlap, particularly when the ET distance is long.
+
+The MO's of $R$ and $P$ must correspond to localized states.  for instance, in the reaction $A^{ -}$ $B$ $\rightarrow$ $A$ $B^{ -}$
+the transferring electron is localized on A in the reactant state and is localized on B in the product state.
+To verify the localization of the electron in the calculation of the vectors, carefully examine the Mulliken population
+analysis.  In order to determine which orbitals are involved in the electron transfer, use the print keyword \verb+"mulliken ao"+ 
+which prints the Mulliken population of each basis function.
+
+An effective core potential (ECP) basis can be used to replace core electrons.  However, there is one caveat: the orbitals
+involved in electron transfer must not be replaced with ECP's.  Since the ET orbitals are valence orbitals, this is not usually
+a problem, but the user should use ECP's with care.
+
+Suggested references are listed below.  The first two references gives a good description 
+of Marcus' two-state ET model, and the appendix of the third reference details the method used
 in the ET module.
 
 \begin{enumerate}
+\item R.A. Marcus, N. Sutin, Biochimica Biophysica Acta 35, 437, (1985).
 \item J.R. Bolton, N. Mataga, and G. McLendon in ``Electron Transfer in Inorganic, Organic and Biological Systems"
 (American Chemical Society, Washington, D.C., 1991)
 \item A. Farazdel, M. Dupuis, E. Clementi, and A. Aviram, 
@@ -38,21 +51,18 @@ J.~Am.~Chem.~Soc., 112, 4206 (1990).
 \section{{\tt VECTORS} --- input of MO vectors for ET reactant and product states}
 \label{sec:etransvectors}
 
-
 \begin{verbatim}
   VECTORS [reactants] <string reactants_filename>
   VECTORS [products ] <string products_filename>
 \end{verbatim}
 
-The \verb+VECTORS+ directive allows the user to specify the source 
+In the \verb+VECTORS+ directive the user specifies the source 
 of the molecular orbital vectors for the ET reactant and product states. 
 This is required input, as no default filename will be set by the program.
 In fact, this is the only required input in the ET module, although there are
 other optional keywords described below.
 
-
-
-\section{{\tt FOCK/NOFOCK} --- method for calculating the two-electron contribution to the ET Hamiltonian}
+\section{{\tt FOCK/NOFOCK} --- method for calculating the two-electron contribution to $V_{RP}$ }
 \label{sec:etransfock}
 
  \begin{verbatim}
@@ -64,21 +74,9 @@ routine in the calculation of the two-electron portion of the ET Hamiltonian.
 Since the Fock matrix routine has been optimized for speed, accuracy and parallel performance,
 it is the most efficient choice.
 
-The user can calculate the two-electron contribution to the ET Hamiltonian
+Alternatively, the user can calculate the two-electron contribution to the ET Hamiltonian
 with another subroutine which may be more accurate for systems with a small
 number of basis functions, although it is slower.
-
-\section{{\tt SWITCH2E} --- overlap threshold which determines the method for calculating the two-electron contribution to the ET Hamiltonian}
-\label{sec:switch2e}
-
- \begin{verbatim}
-   <SWITCH2E <real switch2e default 1.0d-12>
- \end{verbatim}
-
-In cases when the ET reactants and products are {\em very} weakly interacting (small $S_{RP}$), the two-electron
-contribution to the electronic coupling should not be calculated with the NWChem Fock matrix routine (see \ref{sec:thresh}).
-When $S_{RP}$ is less than \verb+switch2e+ , the \verb+NOFOCK+ routine will be used for
-the two electron contribution to the coupling (see \ref{sec:etransfock}).  
 
 \section{{\tt TOL2E} --- integral screening threshold}
 \label{sec:etranstol2e}
@@ -91,7 +89,8 @@ The variable \verb+tol2e+ is used in determining the integral
 screening threshold for the evaluation of the two-electron contribution to the Hamiltonian
 between the electron transfer reactant and product states.
 As a default, \verb+tol2e+ is set depending on the magnitude
-of the overlap between the ET reactant and product states ($S_{RP}$), within the range 1.0d-12 $\rightarrow$ 1.0d-7.
+of the overlap between the ET reactant and product states ($S_{RP}$), and is not less than 1.0d-12 
+or greater than 1.0d-7.
 
 The input to specify the threshold explicitly within the \verb+ET+
 directive is, for example:
@@ -103,13 +102,12 @@ directive is, for example:
 \section{{\tt Example}}
 
 The following example is for a simple electron transfer reaction, $He_{}$ $\rightarrow$ $He^{ +}$.
-The ET calculation is easy to execute, but it is crucial ET reactant and product
+The ET calculation is easy to execute, but it is crucial that ET reactant and product
 wavefunctions reflect {\em localized states}. This can be accomplished
 using either a fragment guess (shown in the example, see \ref{sec:fragguess}), or a charged atomic
 density guess (see \ref{sec:atomscf}). 
-Once the localized orbitals for the ET reactants have been calculated, you can use the 
-reactants' vectors with the
-\verb+REORDER+ keyword to move the electron from the first helium to the second see \ref{sec:etransvectors}).
+For self-exchange ET reactions such as this one, you can use the 
+\verb+REORDER+ keyword to move the electron from the first helium to the second (see \ref{sec:vectors}).
 
 Example input :
 \begin{verbatim}
@@ -117,60 +115,34 @@ Example input :
 #ET reactants:
 charge 1
 scf 
-  doublet
-  uhf
-  vectors input fragment hep.mo he.mo output hea.mo 
-# hep.mo are the vectors for He(+), 
-# he.mo  are the vectors for neutral He.
+  doublet; uhf; vectors input fragment HeP.mo He.mo output HeA.mo
+# HeP.mo are the vectors for He(+), 
+# He.mo  are the vectors for neutral He.
 end 
 task scf
 
 #ET products:
 charge 1
 scf 
-  doublet
-  uhf
-  vectors input hea.mo reorder 2 1 output heb.mo 
+  doublet; uhf; vectors input HeA.mo reorder 2 1 output HeB.mo
 end 
 task scf
 
 et
- vectors reactants hea.mo 
- vectors products heb.mo
+ vectors reactants HeA.mo 
+ vectors products HeB.mo
 end
 task scf et       
 
 \end{verbatim}
-It is important to verify the localization of the electron in the calculation 
-of the vectors \verb+hea.mo+ and \verb+heb.mo+. To do this, carefully examine the Mulliken population
-analysis.  For the ET product state in the helium example, the Mulliken population
-analysis looks like this:
-
-\begin{verbatim}
-
-   Mulliken analysis of the total density
-   -------------------------------------
-
-    Atom       Charge   Shell Charges
- -----------   ------   -------------------------------------------------------
-    1 He   2     1.00   0.56  0.44
-    2 He   2     2.00   0.78  1.22
-
-    Atom       Charge   Shell Charges
- -----------   ------   -------------------------------------------------------
-    1 He   2     1.00   0.56  0.44
-    2 He   2     0.00   0.00  0.00
-\end{verbatim}
-The Mulliken population analyses of the total and spin densities show that there is a single electron on
-the first helium and a pair of electrons on the second helium.  
 
 Here is what the output looks like for this example:
 \begin{verbatim}
                            Electron Transfer Calculation
                            -----------------------------
 
- MO vectors for reactants: hea.mo
- MO vectors for products : heb.mo
+ MO vectors for reactants: HeA.mo
+ MO vectors for products : HeB.mo
 
  Electronic energy of reactants     H(RR)      -5.3402392824
  Electronic energy of products      H(PP)      -5.3402392824
@@ -197,6 +169,6 @@ Here is what the output looks like for this example:
 The overlap between the ET reactant and product states ($S_{RP}$) is small,
 so the magnitude of the coupling between the states is also small. 
 If the fragment guess
-or charged atomic density guess were not used, the spin density would be 0.5 on both He atoms, the overlap between
+or charged atomic density guess were not used, the Mulliken spin population would be 0.5 on both He atoms, the overlap between
 the ET reactant and product states would be \verb+100 %+ and an infinite
 $V_{RP}$ would result.
