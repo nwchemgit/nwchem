@@ -3,7 +3,7 @@
      &                 g_xyz, g_nq, wght_GA, rho_n, irdens_atom,
      &                 icetobfr, natoms)
 c     
-c     $Id: fukui.F,v 1.17 2003-10-28 21:18:04 edo Exp $
+c     $Id: fukui.F,v 1.18 2003-10-28 21:20:43 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -500,7 +500,7 @@ c
 
       Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s)
 
-C$Id: fukui.F,v 1.17 2003-10-28 21:18:04 edo Exp $
+C$Id: fukui.F,v 1.18 2003-10-28 21:20:43 edo Exp $
       Implicit none
 #include "errquit.fh"
       integer geom,basis
@@ -661,7 +661,7 @@ c
      &                   wght_GA, rho_n, rdens_atom, 
      &                   cetobfr, natoms)
 c
-C$Id: fukui.F,v 1.17 2003-10-28 21:18:04 edo Exp $
+C$Id: fukui.F,v 1.18 2003-10-28 21:20:43 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -717,7 +717,7 @@ c
 c           nTcols = ipol 
 c
       integer me,nproc,i,nTrows,nTcols
-      integer lTmat,iTmat
+      integer lTmat,iTmat,g_oep
       double precision zero,one,onem
       logical oprint_intermediate_xc, oprint_time, grid_on_file
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
@@ -882,7 +882,7 @@ c
          endif
 c      
             call xc_fitv(rtdb,Dbl_MB(iTmat), nTrows, nTcols,
-     &                   g_vxc, g_xcinv, IOLGC)
+     &                   g_vxc, g_xcinv, g_oep, IOLGC)
             if (oprint_time)call dft_tstamp(' After call to xc_fitv.  ')
             if (.not.ma_pop_stack(lTmat))
      &         call errquit('xc_getv: cannot pop stack',0, MA_ERR)
