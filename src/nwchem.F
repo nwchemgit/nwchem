@@ -22,9 +22,9 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.98 1997-03-18 00:29:02 d3e129 Exp $
+c     $Id: nwchem.F,v 1.99 1997-04-25 02:32:04 d3e129 Exp $
 *------------------------------------------------*
-* COPYRIGHT (C) 1994, 1995, 1996,                *
+* COPYRIGHT (C) 1994, 1995, 1996, 1997           *
 *         Pacific Northwest National Laboratory, * 
 *         Battelle Memorial Institute.           *
 *------------------------------------------------*

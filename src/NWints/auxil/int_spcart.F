@@ -1,7 +1,7 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.16 1997-03-31 23:26:49 d3e129 Exp $
+c $Id: int_spcart.F,v 1.17 1997-04-25 02:32:06 d3e129 Exp $
 *------------------------------------------------*
-* COPYRIGHT (C) 1994, 1995, 1996,                *
+* COPYRIGHT (C) 1994, 1995, 1996, 1997           *
 *         Pacific Northwest National Laboratory, *
 *         Battelle Memorial Institute.           *
 *------------------------------------------------*

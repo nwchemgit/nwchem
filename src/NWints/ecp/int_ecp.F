@@ -1,8 +1,8 @@
       logical function int_ecp_init(ecpidin,indx_grad)
-* $Id: int_ecp.F,v 1.6 1997-04-18 21:54:06 d3e129 Exp $
+* $Id: int_ecp.F,v 1.7 1997-04-25 02:32:07 d3e129 Exp $
       implicit none
 *------------------------------------------------*
-* COPYRIGHT (C) 1994, 1995, 1996,                *
+* COPYRIGHT (C) 1994, 1995, 1996, 1997           *
 *         Pacific Northwest National Laboratory, *
 *         Battelle Memorial Institute.           *
 *------------------------------------------------*

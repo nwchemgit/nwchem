@@ -1,7 +1,7 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.6 1997-04-02 22:46:39 d3e129 Exp $
+* $Id: util_legal.F,v 1.7 1997-04-25 02:32:18 d3e129 Exp $
 *------------------------------------------------*
-* COPYRIGHT (C) 1994, 1995, 1996,                *
+* COPYRIGHT (C) 1994, 1995, 1996, 1997           *
 *         Pacific Northwest National Laboratory, * 
 *         Battelle Memorial Institute.           *
 *------------------------------------------------*
@@ -22,7 +22,7 @@ c
       center_pt = 40
 c
       call util_print_centered(luout,
-     &    ' COPYRIGHT (C) 1994, 1995, 1996,          ',
+     &    ' COPYRIGHT (C) 1994, 1995, 1996, 1997     ',
      &    center_pt+1, FF)
       call util_print_centered(luout,
      &    '    Pacific Northwest National Laboratory, ',
