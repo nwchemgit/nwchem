@@ -6,7 +6,7 @@
 *     ***************************
       subroutine xyz_init()
 *
-* $Id: xyz.F,v 1.5 2004-05-07 02:19:02 edo Exp $
+* $Id: xyz.F,v 1.6 2004-05-07 23:17:58 edo Exp $
 *
       implicit none 
 
@@ -40,7 +40,7 @@
              read(18,*,end=100) 
            end do
   100      continue
-#if defined(FUJITSU_SOLARIS) 
+#if defined(FUJITSU_SOLARIS) || defined(SOLARIS)
            backspace 18
 #endif
          else
