@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.387 2002-08-06 16:25:29 edo Exp $
+# $Id: makefile.h,v 1.388 2002-11-23 22:35:50 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1342,8 +1342,8 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
       COPTIMIZE = -O1
 
       ifeq ($(FC),efc)
-#        FOPTIONS   =   -align  -132   -w  -ftz  -tpp1 
-        FOPTIONS   =   -auto -align  -132   -w  -ftz  -tpp2
+        ITANIUMNO = $(shell   cat /proc/cpuinfo | egrep family | head -1  2>&1 | awk ' /Itanium 2/ { print "-tpp2"; exit };/Itanium/ { print "-tpp1"}')
+        FOPTIONS   =   -auto -align  -132   -w  -ftz  $(ITANIUMNO)
 #        FOPTIONS   =  -auto   -132   -w  -ftz  -tpp2
         FDEBUG = -g -O2
         DEFINES  +=   -DIFCLINUX
