@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.31 1998-06-14 20:01:56 d3g681 Exp $
+C$Id: inp.F,v 1.32 1998-06-15 04:31:01 d3g681 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -150,9 +150,11 @@ c
       integer ncol(max_field)
       logical ois_ws            ! Inline funtion  
       character*1 xtest
+c
       ois_ws(xtest) = (xtest.eq.xblnk .or. xtest.eq.xtab)
+c
 c     
-      nline=nline+1
+ 1    nline=nline+1
       if(nline.le.noline)go to 150
 c
       if (oswit) then
@@ -180,6 +182,23 @@ c
      $     goto 300
       if (lenja.eq.3 .and. inp_compare(.false., 'eof', ja(1:3))) 
      $     goto 300
+c
+c     Handle include statement
+c
+      if (inp_compare(.false.,ja(1:7),'include')) then
+         if (include_level .eq. max_include_level) call errquit
+     $        ('inp_read: include nested too deep ', include_level)
+         include_level = include_level + 1
+         include_file_name(include_level) = ja(9:)
+         write(6,*) ' include: start of ', 
+     $        include_file_name(include_level)
+     $        (1:inp_strlen(include_file_name(include_level)))
+         open(80+include_level,file=include_file_name(include_level),
+     $        form='formatted', status='old', err=105)
+         call inp_save_state()
+         call inp_init(80+include_level,6)
+         goto 1
+      endif
 c
 c     handle blank lines and concatenation using backslash
 c
@@ -320,12 +339,25 @@ c
       inp_read = .true.
       return
 c
- 300  oswit = .true.
-      ierrpos = -1
-      errmsg = 'unexpected end of data file'
-      inp_read = .false.
-      jump=0
-      jrec=0
+ 300  if (include_level .gt. 0) then ! End of file detected
+         close(80+include_level)
+         write(6,*) ' include: end of ', 
+     $        include_file_name(include_level)
+     $        (1:inp_strlen(include_file_name(include_level)))
+         include_level = include_level - 1
+         call inp_restore_state()
+         goto 1
+      else
+         oswit = .true.
+         ierrpos = -1
+         errmsg = 'unexpected end of data file'
+         inp_read = .false.
+         jump=0
+         jrec=0
+      endif
+      return
+c
+ 105  call errquit('inp_read: failed to open include file',0)
 c
       end
       logical function inp_eof()
@@ -356,6 +388,14 @@ c
 c     If an error has occured print out the error message
 c     and the position in the current input line
 c     
+      if (include_level .gt. 0) then
+         write(6,*) ' Include file stack '
+         do i = 1, include_level
+            write(6,321) i, include_file_name(i)
+     $        (1:inp_strlen(include_file_name(i)))
+ 321        format(1x,i5,2x,a)
+         enddo
+      endif
       if (errmsg .ne. ' ') then
          length = inp_strlen(errmsg)
          write(iwrite, 40) input_line, errmsg(1:length)

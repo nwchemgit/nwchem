@@ -6,7 +6,7 @@ c
 **      implicit character *4 (y)
 c
       integer max_width         ! Maximum input width of an input line
-C$Id: inpP.fh,v 1.6 1998-06-14 20:01:57 d3g681 Exp $
+C$Id: inpP.fh,v 1.7 1998-06-15 04:31:02 d3g681 Exp $
       integer max_field         ! Maximum no. of fields in an input line
       parameter (max_width = 1024)
       parameter (max_field = max_width/2 + 1)
@@ -42,6 +42,12 @@ c
      $     nstart(max_field),nline,noline,nerr,oswit,ierrpos, input_line
       common/inp_file/iread,iwrite
 c
+      integer max_include_level
+      parameter (max_include_level = 3)
+      integer include_level
+      common/inp_include_info/include_level
+      character*255 include_file_name
+      common/inp_include_cinfo/include_file_name(max_include_level)
 c
 c     This drivel below is to save state so that by doing the following
 c
@@ -53,7 +59,7 @@ c     call inp_restore_state
 c
 c     It is possible to go off and read another file without 
 c     destroying the state of the current file.  Note that this
-c     only works only THREE TIMES.
+c     only works nested three deep (i.e., 4 files concurrently open)
 c
 c     Note that all of these commons must match in size the
 c     ones above and that inp_save/restore_state must also be 
