@@ -1,5 +1,5 @@
 c
-c $Id: c_G_init.F,v 1.1 2003-06-26 21:15:37 bylaska Exp $
+c $Id: c_G_init.F,v 1.2 2003-10-24 18:48:03 marat Exp $
 c
 
       integer function c_G_indx(i)
@@ -51,7 +51,7 @@ c
 *      **** allocate G_block common block ****
         call C3dB_nfft3d(1,nfft3d)
         value = MA_alloc_get(mt_dbl,(3*nfft3d),'G',g_hndl,G(1))
-        if (.not. value) call errquit('out of heap memory',0)
+        if (.not. value) call errquit('out of heap memory',0,0)
 
         G(2) = G(1) + nfft3d
         G(3) = G(2) + nfft3d

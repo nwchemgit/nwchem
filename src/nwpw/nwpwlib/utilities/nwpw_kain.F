@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_kain.F,v 1.1 2003-03-19 02:06:58 bylaska Exp $                       
+*     $Id: nwpw_kain.F,v 1.2 2003-10-24 18:48:03 marat Exp $                       
 *
 
 *     *****************************************
@@ -70,7 +70,7 @@
       value = MA_Push_get(mt_dbl,nsize,'dx_ptr',dx_mptr,dx_ptr)
       value = value.and.
      >        MA_Push_get(mt_dbl,nsize,'df_ptr',df_mptr,df_ptr)
-      if (.not. value) call errquit('nwpw_kain:push stack',0)
+      if (.not. value) call errquit('nwpw_kain:push stack',0,0)
 
 
 *     **** rho(2*m) = rho_in - rho(2*m) ****
@@ -149,7 +149,7 @@
      
       value =           MA_Pop_stack(df_mptr)
       value = value.and.MA_Pop_stack(dx_mptr)
-      if (.not. value) call errquit('nwpw_kain:pop stack',0)
+      if (.not. value) call errquit('nwpw_kain:pop stack',0,0)
       return 
       end
 

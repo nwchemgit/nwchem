@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_list.F,v 1.2 2003-03-19 00:45:59 bylaska Exp $ 
+*     $Id: nwpw_list.F,v 1.3 2003-10-24 18:48:03 marat Exp $ 
 *
       subroutine nwpw_list_start(size_list0,nsize0)
       implicit none
@@ -23,7 +23,7 @@
      >           MA_alloc_get(mt_dbl,nsize,
      >            'Grsm_list1',grsm_mem(2,i),grsm_mem(1,i))
       end do
-      if (.not. value) call errquit('nwpw_list_start:get heap',0)
+      if (.not. value) call errquit('nwpw_list_start:get heap',0,0)
          
       return
       end
@@ -44,7 +44,7 @@
          value = value.and.
      >           MA_free_heap(grsm_mem(2,i))
       end do
-      if (.not. value) call errquit('nwpw_list_end:free heap',0)
+      if (.not. value) call errquit('nwpw_list_end:free heap',0,0)
 
       return
       end
