@@ -1,9 +1,10 @@
       subroutine input_set(rtdb)
-C$Id: input_set.F,v 1.14 1999-10-15 23:25:40 d3g681 Exp $
+C$Id: input_set.F,v 1.15 2000-04-10 10:52:35 hvd Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "stdio.fh"
       integer rtdb              ! [input]
       character*255 field       ! input buffer
       character*255 name        ! name of variable being set
@@ -101,7 +102,7 @@ C     How much data is there to read? (For integers there may be more,
 C     since each field may actually be a range.
 C
       nvalues = inp_n_field() - inp_cur_field()
-*      write(6,*) name(1:inp_strlen(name)), ' is ', type, ' ',nvalues
+*      write(LuOut,*) name(1:inp_strlen(name)),' is ', type,' ',nvalues
 C
 C     Read the data according to the specified type.  For integers, we
 C     allocate an obnoxiously large buffer in the hopes of ensuring
@@ -193,6 +194,7 @@ c
       implicit none
 #include "rtdb.fh"
 #include "inp.fh"
+#include "stdio.fh"
       integer rtdb
 c     
       character*255 test, name
@@ -215,7 +217,7 @@ c
 	 status = rtdb_first(rtdb, name)
  10      if (status) then
 	    if (inp_compare(.true.,test(1:ltest),name(1:ltest))) then
-               write(6,*) ' unset: ', name(1:inp_strlen(name))
+               write(LuOut,*) ' unset: ', name(1:inp_strlen(name))
 	       if (.not. rtdb_delete(rtdb,name)) call errquit
      $              ('input_unset: failed deleting existing entry',0)
 	    endif
@@ -223,7 +225,7 @@ c
             goto 10
          endif
       else if (.not. rtdb_delete(rtdb,test)) then
-         write(6,*) ' unset: warning: ',test(1:inp_strlen(test)),
+         write(LuOut,*) ' unset: warning: ',test(1:inp_strlen(test)),
      $        ' is not in the database '
       endif
 c     

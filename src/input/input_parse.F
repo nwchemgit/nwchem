@@ -1,11 +1,12 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.55 2000-02-25 00:42:10 windus Exp $
+C     $Id: input_parse.F,v 1.56 2000-04-10 10:52:35 hvd Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "stdio.fh"
 c     
 c     All processes call this routine.  Only process 0 actually reads the 
 c     input.  All other processes skip to the end of the routine
@@ -27,11 +28,12 @@ c
       if (ga_nodeid() .eq. 0) then
 c     
          if (util_print('banner',print_low)) then
-           write(6,*)
-           write(6,*)
-           call util_print_centered(6, 'NWChem Input Module',40,.true.)
-           write(6,*)
-           write(6,*)
+           write(LuOut,*)
+           write(LuOut,*)
+           call util_print_centered(LuOut, 
+     &          'NWChem Input Module',40,.true.)
+           write(LuOut,*)
+           write(LuOut,*)
          endif
 c     
 c     Do data base operations in sequential mode
@@ -172,10 +174,10 @@ c
 c     Read input but found no task directive.  Not an error
 c     but is probably undesirable ... unless doing python loop
 c
-            write(6,*) 
-            write(6,*) ' ! warning: processed input with no task'
-            write(6,*)
-            call util_flush(6)
+            write(LuOut,*) 
+            write(LuOut,*) ' ! warning: processed input with no task'
+            write(LuOut,*)
+            call util_flush(LuOut)
          endif
       endif                     ! End node zero only
 c     

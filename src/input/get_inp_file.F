@@ -1,8 +1,9 @@
       subroutine get_input_filename(input_filename)
-C     $Id: get_inp_file.F,v 1.1 1995-12-13 01:35:22 d3g681 Exp $
+C     $Id: get_inp_file.F,v 1.2 2000-04-10 10:52:35 hvd Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
+#include "stdio.fh"
       character*(*) input_filename
 c     
 c     Process zero ends up with the name of the input file
@@ -27,7 +28,7 @@ c
          call getarg(arg, test)
 #endif
          if (arg .eq. 1) input_filename = test
-         write(6,1) arg, test(1:inp_strlen(test))
+         write(LuOut,1) arg, test(1:inp_strlen(test))
  1       format(' argument',i3,' = ',a)
       enddo
       if (nargs .ge. 1) then
@@ -37,12 +38,12 @@ c
          input_filename = 'nwchem.nw'
       endif
 c
-      open(5,file=input_filename,status='old',err=10)
-      close(5)
+      open(LuIn,file=input_filename,status='old',err=10)
+      close(LuIn)
       return
 c
  10   l = inp_strlen(input_filename)
-      write(6,*) ' Unable to open ',input_filename(1:l), 
+      write(LuOut,*) ' Unable to open ',input_filename(1:l), 
      $     ' --- appending .nw'
       input_filename(l+1:l+3) = '.nw'
 c     

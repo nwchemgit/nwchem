@@ -1,8 +1,9 @@
       subroutine input_title(rtdb)
-C$Id: input_title.F,v 1.5 2000-01-19 17:21:15 windus Exp $
+C$Id: input_title.F,v 1.6 2000-04-10 10:52:35 hvd Exp $
       implicit none
 #include "rtdb.fh"
 #include "inp.fh"
+#include "stdio.fh"
 c
       integer rtdb
       character*255 title
@@ -37,9 +38,9 @@ c
       do i = 1, lent
          underline(i:i) = '-'
       enddo
-      write(6,1) blank(1:center),title(1:lent)
-      write(6,1) blank(1:center),underline(1:lent)
-      write(6,*)
+      write(LuOut,1) blank(1:center),title(1:lent)
+      write(LuOut,1) blank(1:center),underline(1:lent)
+      write(LuOut,*)
  1    format(1x,a,a)
 c
 c     Store title in the database
