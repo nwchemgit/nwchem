@@ -27,6 +27,7 @@ c
        integer mo_lo, mo_hi
        integer i, j, iter, maxiter, nmixed, clo, chi
        integer icgreset                                   ! Number of iterations between CG resets
+       integer blen
        double precision pfac
        double precision thresh, lshift0
        double precision eone, etwo, energy, enrep
@@ -36,6 +37,7 @@ c
        logical oskel
        logical oorbsolve
        logical oprinfo
+       logical ohalf
 c
 c---------------------
 c  Debugging variables
@@ -56,6 +58,8 @@ c
        external mcscf_rohf_den2occ
 c
        data oorbsolve/.true./
+       data ohalf/.true./
+       data blen/16/
 c
 c
 c
@@ -213,10 +217,14 @@ c
 c   Initial 4-Index Tranformation
 c
        if (omcscfprof) call pstat_on(ps_4index)
-       call moints_build_6x( basis, oskel,
+       call moints_build_2x( basis, ohalf, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .true., 16 )
+     $                       g_exch, .true., blen )
+c$$$       call moints_build_6x( basis, oskel,
+c$$$     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
+c$$$     $                       g_movecs, g_coul, .true.,
+c$$$     $                       g_exch, .true., blen )
        if (omcscfprof) call pstat_off(ps_4index)
 c
 c
@@ -367,7 +375,13 @@ c
          endif
        endif
 c
-c  Energy trace routine
+c
+c  ------ End of regular MCSCF module      ------
+c  ------ Remainder are debugging sections ------
+c
+       goto 401
+c
+c         Check energy trace
 c     
        call mcscf_etrace( geom, basis, nbf, nclosed, nact,
      $                    oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2),
@@ -377,12 +391,6 @@ c
          if (oprinfo) write(6,674) energy
  674     format(/,20x,'<<<<<<<< trace energy: ',f20.10,' >>>>>>>',/)
        endif
-c
-c
-c  ------ End of regular MCSCF module      ------
-c  ------ Remainder are debugging sections ------
-c
-       goto 401
 c
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,7 +1,7 @@
 c
 c  Solve orbital MCSCF equations using PCG/NR
 c
-c  $Id: mcscf_orb.F,v 1.10 1996-03-15 22:41:00 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.11 1996-04-03 00:14:58 rg240 Exp $
 c
        subroutine mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed,
      $                           nact, oskel, orbsym, dm1, dm2,
@@ -51,8 +51,10 @@ c
        double precision xx, yy, eold, hmax, hmin, maxx
        integer g_afock, g_ifock, g_gfock
        integer g_newvecs, g_grad, g_kvec, g_srch, g_hdiag
+       integer blen
        logical olsrchprint
        logical ostepci
+       logical ocoul, oexch, ohalf
        double precision lshift
        save lshift
 c
@@ -66,6 +68,8 @@ c
        data lshift/1.0d0/
        data pflg/2/
        data ostepci/.false./
+       data blen/16/
+       data ohalf/.true./
 c
 c
 c
@@ -219,12 +223,19 @@ c
          call rohf_k2cf( basis, nbf, nbf, nclosed, nact, g_kvec,
      $                   g_movecs, g_newvecs )
 c
-c   Both J and K are regenerated
+c   Regenerate J, (also K if doing stepci)
 c
-         call moints_build_6x( basis, oskel,
+         oexch = ostepci
+         if (omcscfprof) call pstat_on(ps_4index)
+         call moints_build_2x( basis, ohalf, oskel,
      $                         molo, molo, mohi, 1, nbf,
-     $                         g_newvecs, g_coul, .true.,
-     $                         g_exch, .true., 16 )
+     $                         g_newvecs, g_coul, ocoul,
+     $                         g_exch, oexch, blen )
+c$$$         call moints_build_6x( basis, oskel,
+c$$$     $                         molo, molo, mohi, 1, nbf,
+c$$$     $                         g_newvecs, g_coul, ocoul,
+c$$$     $                         g_exch, .true., 16 )
+         if (omcscfprof) call pstat_off(ps_4index)
 c
 c   Resolve secular eqn for each step?
 c
@@ -271,6 +282,21 @@ c
        call ga_copy(g_newvecs, g_movecs )
        gnorm = sqrt(ga_ddot(g_grad, g_grad))
 c
+c  Update Exchange operator if necessary
+c
+       if (.not.(ostepci)) then
+         if (omcscfprof) call pstat_on(ps_4index)
+         call moints_build_2x( basis, ohalf, oskel,
+     $                         molo, molo, mohi, 1, nbf,
+     $                         g_movecs, g_coul, .false.,
+     $                         g_exch, .true., blen )
+c$$$         call moints_build_6x( basis, oskel,
+c$$$     $                         molo, molo, mohi, 1, nbf,
+c$$$     $                         g_movecs, g_coul, .true.,
+c$$$     $                         g_exch, .false., 16 )
+         if (omcscfprof) call pstat_off(ps_4index)
+       endif
+c
 c  Clean-up
 c
        if (.not.ga_destroy(g_newvecs))
@@ -298,7 +324,7 @@ c
 
 
        subroutine lsrch_proj( g_grad, g_srch, gs0, alpha1, alpha0 )
-C$Id: mcscf_orb.F,v 1.10 1996-03-15 22:41:00 rg240 Exp $
+C$Id: mcscf_orb.F,v 1.11 1996-04-03 00:14:58 rg240 Exp $
        implicit none
 #include "global.fh"
        integer g_grad, g_srch
