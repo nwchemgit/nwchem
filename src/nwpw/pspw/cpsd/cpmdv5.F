@@ -13,7 +13,7 @@
 
       logical function cpmdv5(rtdb)
 *
-* $Id: cpmdv5.F,v 1.4 2001-10-26 02:28:26 bylaska Exp $
+* $Id: cpmdv5.F,v 1.5 2001-10-26 21:05:07 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -280,13 +280,13 @@
 
 
 
+*     **** read ions ****
+      value = ion_init(rtdb)
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call psp_init()
       call psp_readall()
 
-*     **** read ions ****
-      value = ion_init(rtdb)
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
       call ke_init()

@@ -1,7 +1,7 @@
+c
+c $Id: pspw_dplot_input.F,v 1.3 2001-10-26 21:05:08 bylaska Exp $
+c
       subroutine pspw_dplot_input(rtdb)
-c
-c $Id: pspw_dplot_input.F,v 1.2 2001-10-26 02:28:27 bylaska Exp $
-c
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"

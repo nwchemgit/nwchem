@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.6 2001-10-26 02:28:26 bylaska Exp $
+* $Id: cpsdv5.F,v 1.7 2001-10-26 21:05:08 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -279,15 +279,15 @@
       if (.not. value) call errquit('out of heap memory',0)
 
 
+*     **** read ions ****
+      value = ion_init(rtdb)
+      call center_geom(cx,cy,cz)
+      call center_mass(gx,gy,gz)
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call psp_init()
       call psp_readall()
 
-*     **** read ions ****
-      value = ion_init(rtdb)
-      call center_geom(cx,cy,cz)
-      call center_mass(gx,gy,gz)
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
       call ke_init()

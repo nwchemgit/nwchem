@@ -1,6 +1,11 @@
+*     ***************************************
+*     *										*
+*     *          psp_generator_input    	*
+*     *										*
+*     ***************************************
       subroutine psp_generator_input(rtdb)
 c
-c $Id: psp_generator_input.F,v 1.1 2001-08-30 16:58:37 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.2 2001-10-26 21:05:05 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -380,6 +385,22 @@ c
      >              pspgenerator(1:j),j,
      >              pseudopotential_filename(1:k),k)
       call message(4) 
+
+      return
+      end
+
+*     ***************************************
+*     *										*
+*     *          psp_generator_auto     	*
+*     *										*
+*     ***************************************
+      subroutine psp_generator_auto(atom)
+      implicit none
+      character*2 atom
+
+      write(*,*) "need to generate 1d psp for ",atom
+      stop
+
 
       return
       end

@@ -1,6 +1,6 @@
       subroutine cgsd_input(rtdb)
 c
-c $Id: cgsd_input.F,v 1.1 2001-08-30 00:25:11 edo Exp $
+c $Id: cgsd_input.F,v 1.2 2001-10-26 21:05:06 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -242,9 +242,6 @@ c
       if (output_wavefunction_filename.eq.' ') 
      >  call errquit(
      >       'cgsd_input: nead an output wavefunction_filename', 0)
-      if (npsp.eq.0)
-     >  call errquit(
-     >   'cgsd_input: nead to enter formatted pseudopotentials', 0)
 
 
       ind = index(cell_name,' ') - 1

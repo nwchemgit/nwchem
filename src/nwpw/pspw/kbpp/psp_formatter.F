@@ -1,6 +1,12 @@
+*     ***************************************
+*     *										*
+*     *			psp_formatter				*
+*     *										*
+*     ***************************************
+
       logical function psp_formatter(rtdb)
 c
-c $Id: psp_formatter.F,v 1.1 2001-08-30 00:38:59 edo Exp $
+c $Id: psp_formatter.F,v 1.2 2001-10-26 21:05:09 bylaska Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -96,13 +102,13 @@ c
 *     ***** run Periodic code *****
       if (boundry(1:l).eq.'periodic') then
          value = value.and.
-     >     kbppv3(3,psp_filename,formatted_filename,ngrid,unita,
+     >     kbppv3(.true.,3,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,rlocal)
 
 *     ***** run APeriodic code *****
       else if (boundry(1:l).eq.'aperiodic') then
          value = value.and.
-     >     kbppv3(4,psp_filename,formatted_filename,ngrid,unita,
+     >     kbppv3(.true.,4,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,rlocal)
       else
          write(*,*) "unknown boundry type: ",boundry(1:l)
@@ -117,3 +123,75 @@ c
       psp_formatter = value
       return
       end
+
+
+*     ***************************************
+*     *										*
+*     *			psp_formatter_auto			*
+*     *										*
+*     ***************************************
+      subroutine psp_formatter_auto(atom)
+      implicit none
+      character*2  atom
+
+*     ***** local variables *****
+      logical       value
+      integer       i,j,l
+      integer	    locp,lmax
+      character*20  psp_filename,formatted_filename
+      character*4   element
+      real*8        rlocal
+
+*     ***** simulation cell  variables *****
+      double precision unita(3,3)
+      integer          ngrid(3),version
+
+*     ***** external functions *****
+      integer      control_version
+      integer      control_ngrid
+      real*8       control_unita
+      logical      kbppv3, pspw_filefind
+      external     control_version
+      external     control_ngrid
+      external     control_unita
+      external     kbppv3, pspw_filefind
+
+      value  = .true.
+
+*     **** get lmax,locp,and rlocal from psp library ****
+      lmax  = -1
+      locp  = -1
+      rlocal = 1.0d0
+
+*     **** define psp_filename and formatted_filename ****
+      element = '    '
+      element = atom
+      l = index(element,' ') - 1
+      psp_filename       = element(1:l)//'.psp'
+      formatted_filename = element(1:l)//'.vpp'
+
+*     **** generate one-dimensional pseudopotential file ****
+      if (.not.pspw_filefind(psp_filename)) then
+        call psp_generator_auto(atom)
+      end if
+
+*     **** cell information ****
+      version = control_version()
+      do i=1,3
+         ngrid(i) = control_ngrid(i)
+         do j=1,3
+           unita(i,j) = control_unita(i,j)
+         end do
+      end do
+
+      value = value.and.
+     >     kbppv3(.false.,
+     >            version,psp_filename,formatted_filename,ngrid,unita,
+     >            locp,lmax,rlocal)
+*     *** exit if error found ***
+      if(.not. value) call errquit('psp_formatter_auto: error',0)
+
+      return
+      end
+
+

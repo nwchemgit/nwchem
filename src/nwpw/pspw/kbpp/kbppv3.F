@@ -4,17 +4,18 @@
 *     *                                    *
 *     **************************************
 
-      logical function kbppv3(version,
+      logical function kbppv3(oprint,version,
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax,rlocal)
 *
-* $Id: kbppv3.F,v 1.1 2001-08-30 00:38:59 edo Exp $
+* $Id: kbppv3.F,v 1.2 2001-10-26 21:05:08 bylaska Exp $
 *
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 
+      logical          oprint
       integer          version
       character*25     psp_filename,formatted_filename
       integer          ngrid(3)
@@ -182,7 +183,7 @@
 
 
 
-      if (taskid.eq.MASTER) then
+      if ((taskid.eq.MASTER).and.(oprint)) then
       write(*,*) "     ********************************************"
       write(*,*) "     *                                          *"
       write(*,*) "     *     KBPPV3 - Pseudopotential Formatter   *"
@@ -256,7 +257,7 @@
      >                    full_filename)
       l = index(full_filename,' ') - 1
       write(*,*)
-      write(*,*) "Outputing formatted_filename: ",full_filename(1:l)
+      write(*,*) "Generated formatted_filename: ",full_filename(1:l)
       write(*,*)
       call openfile(2,full_filename,l,'w',l)     
          call iwrite(2,version,1)
@@ -297,7 +298,7 @@
       value = MA_free_heap(G_hndl)
 
       
-      if (taskid.eq.MASTER) call message(4)
+      if ((taskid.eq.MASTER).and.(oprint)) call message(4)
       kbppv3 = value
       return
 

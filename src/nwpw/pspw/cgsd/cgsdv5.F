@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.5 2001-10-26 02:28:25 bylaska Exp $
+* $Id: cgsdv5.F,v 1.6 2001-10-26 21:05:06 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -201,14 +201,14 @@
 *     **** read in wavefunctions and initialize psi ****
       value = psi_initialize()
 
-*     **** allocate psp data structure and read in psedupotentials into it ****
-      call psp_init()
-      call psp_readall()
-
 *     **** read ions ****
       value = ion_init(rtdb)
       call center_geom(cx,cy,cz)
       call center_mass(gx,gy,gz)
+
+*     **** allocate psp data structure and read in psedupotentials into it ****
+      call psp_init()
+      call psp_readall()
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
       call ke_init()
