@@ -38,14 +38,15 @@ c
          batch_left = util_batch_job_time_remaining()
 *         write(6,*) ' BATCH LEFT ', batch_left
 c
-         if (user_left .eq. -1) then
+         if (user_left .eq. -1) then ! User limit not defined
             left = batch_left
 *            write(6,*) ' LEFT1 ', left
-         else if (batch_left .eq. -1) then
+         else if (batch_left .eq. -1) then ! Batch limit not defined
             left = user_left
 *            write(6,*) ' LEFT2 ', left
-         else
-            left = min(batch_left,user_left)
+         else                   ! Both defined
+*            left = min(batch_left,user_left)
+            left = user_left    ! Seems better to allow override from input
 *            write(6,*) ' LEFT3 ', left
          endif
       endif
