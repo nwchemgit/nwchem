@@ -1,7 +1,7 @@
 
 Guide to Installing NWChem Binary Builds
 ====================================================
-$Id: INSTALL.binbuilds,v 1.7 2002-03-28 22:19:22 windus Exp $
+$Id: INSTALL.binbuilds,v 1.8 2003-04-30 19:03:03 edo Exp $
 ----------------------------------------------------
 
 INSTALLING NWCHEM FOR GENERAL SITE USE: 
@@ -52,7 +52,9 @@ F) Please note that the .nwchemrc does not handle the pseudopotential
    libraries used in the planewave part of the code.  The user will
    need to set an environment variable, NWCHEM_NWPW_LIBRARY, to the
    appropriate location.  For example:
-   setenv NWCHEM_NWPW_LIBRARY /usr/local/lib/nwchem/libraryps/
+   setenv NWCHEM_NWPW_LIBRARY /usr/local/lib/NWChem/data/
+   IMPORTANT: If you don't put the last slash ("/") after "data",
+         nwchem will not be able to find the nwpw library files.
 
 
 POINT OF CONTACT USERS:
