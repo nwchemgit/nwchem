@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.22 1999-10-21 20:02:52 d3j191 Exp $
+c $Id: prp_main.F,v 1.23 1999-10-26 19:32:16 d3j191 Exp $
 c
       implicit none
 c
@@ -26,7 +26,7 @@ c
       return
       end
       subroutine prp_proper(mdstep,stime,eww,esw,ess,esk,epme,
-     + uqmd,uqmmm,epot,epotw,epotsw,epots,vol)
+     + uqmd,uqmmm,epot,epotw,epotsw,epots,vol,dwr,dsr)
 c
       implicit none
 c
@@ -44,6 +44,7 @@ c
       real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3,edrs,epmf
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits
+      real*8 dwr,dsr(msm)
 c
       integer i,j,k,it
 c
@@ -165,6 +166,7 @@ c
       p(59)=eww(4,1)
       p(66)=ewp
       p(67)=p(67)+ewp
+      p(69)=dwr
       p(76)=epme(iset)
       p(97)=timer_wall(2)
       p(98)=timer_wall(3)
@@ -219,6 +221,10 @@ c
 c
       p(38)=exp(-p(36)/(rgas*temp))
       p(39)=exp(-p(37)/(rgas*temp))
+c
+      dwr=p(69)/dble(nwm)
+      p(69)=dwr/dble(6)
+      p(70)=1.0d3*dwr/stime
 c
       epot=p(26) 
       epots=zero

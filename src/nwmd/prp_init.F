@@ -1,9 +1,10 @@
       subroutine prp_start(nserie,ntyp,lfn,fil,iout,iprp,igib,
      + nf1,nf2,nf3,
      + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,
-     + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp)
+     + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
+     + msmi)
 c
-c $Id: prp_init.F,v 1.17 1999-10-21 21:13:30 d3j191 Exp $
+c $Id: prp_init.F,v 1.18 1999-10-26 19:32:16 d3j191 Exp $
 c
       implicit none
 c
@@ -13,7 +14,7 @@ c
 c
       integer nserie,ntyp,lfn,iout,iprp,igib
       integer nwmtot,msfi,nsfi,mpei,nf1,nf2,nf3
-      integer mdacq,mrn,ipset,isetp1,isetp2
+      integer mdacq,mrn,ipset,isetp1,isetp2,msmi
       logical lcf,lsp,ltwn,lpol,lpme,llpener,llpstep
       real*8 tstp
       character*255 fil
@@ -42,6 +43,7 @@ c
       nfprop=nf3
       mrun=mrn
       nwm=nwmtot
+      msm=msmi
 c
       iset=ipset
       ipset1=isetp1
@@ -165,7 +167,9 @@ c
       pronam( 67)='Energy solvent total                        kJ/mol'
       pronam( 68)='Virial solvent                              kJ/mol'
       pronam( 69)='Mean square displacement solvent /6          nm**2'
+      lp(69)=nwm.gt.0
       pronam( 70)='Diffusion constant solvent * e9             m**2/s'
+      lp(70)=nwm.gt.0
       pronam( 71)='Dipole moment solvent permanent            e30 C m'
       pronam( 72)='Dipole moment solvent induced              e30 C m'
       pronam( 73)='Dipole moment solvent                      e30 C m'

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.34 1999-10-22 15:30:28 d3j191 Exp $
+c $Id: md_start.F,v 1.35 1999-10-26 19:32:16 d3j191 Exp $
 c
       implicit none
 c
@@ -26,7 +26,8 @@ c
      + npx,npy,npz,nbx,nby,nbz,
      + npbtyp,nbxtyp,box,vlat,lpbc,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
-     + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,lqmd)
+     + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,lqmd,
+     + iguide)
 c
 c     start the analysis API
 c     ----------------------
@@ -51,6 +52,9 @@ c     --------------------------
 c
       call cf_print_top(lfnout)
 c
+      msm=max(1,nsm)
+      msf=max(1,nsf)
+c
 c     start the property API
 c     ----------------------
 c
@@ -58,7 +62,7 @@ c
      + lfngib,nfoutp,nfstat,nfprop,
      + .true.,.true.,ltwin,ipolt.ne.0,ipme.ne.0,
      + npstep.ne.0,npener.ne.0,
-     + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep)
+     + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -97,12 +101,12 @@ c
      + call errquit('Failed to allocate memory for fs',0)
       if(.not.ma_push_get(mt_dbl,3*mwm,'xwcr',l_xwcr,i_xwcr))
      + call errquit('Failed to allocate memory for xwcr',0)
-      msm=max(1,nsm)
-      msf=max(1,nsf)
       if(.not.ma_push_get(mt_dbl,3*msm,'xsm',l_xsm,i_xsm))
      + call errquit('Failed to allocate memory for xsm',0)
       if(.not.ma_push_get(mt_dbl,3*msm,'xscr',l_xscr,i_xscr))
      + call errquit('Failed to allocate memory for xscr',0)
+      if(.not.ma_push_get(mt_dbl,msm,'dsr',l_dsr,i_dsr))
+     + call errquit('Failed to allocate memory for dsr',0)
       if(.not.ma_push_get(mt_dbl,6*msm,'zs',l_zs,i_zs))
      + call errquit('Failed to allocate memory for zs',0)
       if(.not.ma_push_get(mt_dbl,2*mpe*msf,'esw',l_esw,i_esw))
@@ -123,13 +127,19 @@ c
      + call errquit('Failed to allocate memory for psp',0)
       endif
       endif
+      if(iguide.gt.0) then
+      if(.not.ma_push_get(mt_dbl,3*mwa*mwm,'gw',l_gw,i_gw))
+     + call errquit('Failed to allocate memory for gw',0)
+      if(.not.ma_push_get(mt_dbl,3*msa,'gs',l_gs,i_gs))
+     + call errquit('Failed to allocate memory for gs',0)
+      endif
 c
 c     retrieve current coordinates for this node
 c     ------------------------------------------
 c
       call sp_setup(me,int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_xwcr),
-     + dbl_mb(i_vw),nwmloc,
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),nsaloc)
+     + dbl_mb(i_vw),dbl_mb(i_gw),nwmloc,
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_gs),nsaloc)
 c
 c     fix or unfix
 c     ------------
@@ -141,8 +151,8 @@ c     spacial decomposition
 c     ---------------------
 c
       call sp_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
-     + int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
-     + int_mb(i_is),nsaloc)
+     + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_gs),int_mb(i_is),nsaloc)
 c
 c     calculate mass factors
 c     ----------------------
@@ -799,6 +809,8 @@ c     + call errquit('md_rtdbin: rtdb_get failed',92)
      + call errquit('md_rtdbin: rtdb_get failed',97)
       if(.not.rtdb_get(irtdb,'md:maxpro',mt_int,1,maxpro))
      + call errquit('md_rtdbin: rtdb_get failed',98)
+      if(.not.rtdb_get(irtdb,'md:iguide',mt_int,1,iguide))
+     + call errquit('md_rtdbin: rtdb_get failed',99)
 c
       if(.not.rtdb_get(irtdb,'md:dx0sd',mt_dbl,1,dx0sd))
      + call errquit('md_rtdbin: rtdb_get failed',100)
@@ -1084,6 +1096,10 @@ c
 c
       msa=msareq
       mwm=mwmreq
+c
+      factgg=zero
+      if(tguide.gt.zero) factgg=exp(-tstep/tguide)
+      factgf=one-factgg
 c
 c     open recording file
 c

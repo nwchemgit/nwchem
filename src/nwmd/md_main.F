@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.42 1999-10-22 15:30:27 d3j191 Exp $
+c $Id: md_main.F,v 1.43 1999-10-26 19:32:16 d3j191 Exp $
 c
       implicit none
 c
@@ -63,7 +63,7 @@ c
 c
       call prp_proper(0,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
 c
       call prp_print()
 c
@@ -100,8 +100,8 @@ c
 c     atom redistribution
 c
       call sp_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
-     + int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
-     + int_mb(i_is),nsaloc)
+     + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_gs),int_mb(i_is),nsaloc)
 c
       if(.not.ma_push_get(mt_dbl,mwa+msa,'wws',l_wws,i_wws))
      + call errquit('Failed to allocate memory for wws',me)
@@ -176,7 +176,7 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
 c
       epsd=epot
       epsdw=epotw
@@ -258,7 +258,7 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
 c
 c     if energy goes up restore coordinates and forces
 c
@@ -354,7 +354,7 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
 c
       ecgnew=epot
       eqrs=epot
@@ -581,7 +581,7 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
 c
       ecg2=epot
       epcgw=epotw
@@ -656,7 +656,7 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
 c
       dxmax=zero
       dxwmax=zero
@@ -802,7 +802,7 @@ c
       call md_newton()
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
       call md_server
     1 continue
 c
@@ -815,7 +815,7 @@ c
 c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
       call md_server
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
@@ -918,7 +918,7 @@ c
 c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
@@ -997,6 +997,11 @@ c
       call md_fold(int_mb(i_iw),int_mb(i_is),
      + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm))
 c
+c     subtract center of mass coordinates from reference coordinates
+c
+      call md_addref(.false.,dbl_mb(i_xwm),dbl_mb(i_xwcr),
+     + dbl_mb(i_xsm),dbl_mb(i_xscr),dbl_mb(i_dsr))
+c
       if(.not.lqmd) then
 c
 c     dynamic load balancing
@@ -1012,8 +1017,8 @@ c
 c     atom redistribution
 c
       call sp_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
-     + int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
-     + int_mb(i_is),nsaloc)
+     + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_gs),int_mb(i_is),nsaloc)
 c
       endif
 c
@@ -1024,6 +1029,24 @@ c
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
+c     average forces
+c
+      if(iguide.gt.0) then
+c
+      call md_guided(dbl_mb(i_fw),dbl_mb(i_fs),
+     + dbl_mb(i_gw),dbl_mb(i_gs))
+c
+c     time step
+c
+      call cf_mdstep(int_mb(i_iw+(lwdyn-1)*mwm),dbl_mb(i_xw),
+     + dbl_mb(i_yw),dbl_mb(i_vw),dbl_mb(i_vwt),dbl_mb(i_gw),nwmloc,
+     + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa),
+     + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_vst),
+     + dbl_mb(i_gs),nsaloc,int_mb(i_iw+(lwgmn-1)*mwm),
+     + int_mb(i_is+(lsgan-1)*msa))
+c
+      else
+c
 c     time step
 c
       call cf_mdstep(int_mb(i_iw+(lwdyn-1)*mwm),dbl_mb(i_xw),
@@ -1032,6 +1055,7 @@ c
      + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_vst),
      + dbl_mb(i_fs),nsaloc,int_mb(i_iw+(lwgmn-1)*mwm),
      + int_mb(i_is+(lsgan-1)*msa))
+      endif
 c
 c     shake
 c
@@ -1048,17 +1072,22 @@ c
      + int_mb(i_is+(lsfrc-1)*msa),dbl_mb(i_zs),
      + dbl_mb(i_esk),nsaloc,box,vlat,pres,temp,tempw,temps)
 c
-c     center solute in box
-c
-      if(frequency(mdstep,nfcntr)) then
-      call cf_center(dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),nsaloc)
-      endif
-c
 c     center of mass coordinates
 c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_xsm))
+c
+c     add center of mass coordinates from reference coordinates
+c
+      call md_addref(.true.,dbl_mb(i_xwm),dbl_mb(i_xwcr),
+     + dbl_mb(i_xsm),dbl_mb(i_xscr))
+c
+c     center solute in box
+c
+      if(frequency(mdstep,nfcntr)) then
+      call cf_center(dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),nsaloc)
+      endif
 c
 c     remove overall translational motion
 c
@@ -1084,6 +1113,47 @@ c
       lfirst=.false.
 c
       call timer_stop(3)
+c
+      return
+      end
+      subroutine md_addref(ladd,xwm,xwcr,xsm,xscr,dsr)
+c
+      implicit none
+c
+#include "md_common.fh"
+c
+      logical ladd
+      real*8 xwm(mwm,3),xwcr(mwm,3),xsm(msm,3),xscr(msm,3),dsr(msm)
+c
+      integer i
+c
+      if(ladd) then
+      dwr=zero
+      do 1 i=1,nwmloc
+      xwcr(i,1)=xwcr(i,1)+xwm(i,1)
+      xwcr(i,2)=xwcr(i,2)+xwm(i,2)
+      xwcr(i,3)=xwcr(i,3)+xwm(i,3)
+      dwr=dwr+xwcr(i,1)*xwcr(i,1)+xwcr(i,2)*xwcr(i,2)+
+     + xwcr(i,3)*xwcr(i,3)
+    1 continue
+      do 2 i=1,nsm
+      xscr(i,1)=xscr(i,1)+xsm(i,1)
+      xscr(i,2)=xscr(i,2)+xsm(i,2)
+      xscr(i,3)=xscr(i,3)+xsm(i,3)
+      dsr(i)=xscr(i,1)*xscr(i,1)+xscr(i,2)*xscr(i,2)+xscr(i,3)*xscr(i,3)
+    2 continue
+      else
+      do 3 i=1,nwmloc
+      xwcr(i,1)=xwcr(i,1)-xwm(i,1)
+      xwcr(i,2)=xwcr(i,2)-xwm(i,2)
+      xwcr(i,3)=xwcr(i,3)-xwm(i,3)
+    3 continue
+      do 4 i=1,nsm
+      xscr(i,1)=xscr(i,1)-xsm(i,1)
+      xscr(i,2)=xscr(i,2)-xsm(i,2)
+      xscr(i,3)=xscr(i,3)-xsm(i,3)
+    4 continue
+      endif
 c
       return
       end
@@ -1221,6 +1291,35 @@ c
       endif
 c
       call cf_fnorm(fw,nwmloc,isl(1,lsatt),fs,nsaloc,fnorm,fmax)
+c
+      return
+      end
+      subroutine md_guided(fw,fs,gw,gs)
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
+      real*8 gw(mwm,3,mwa),gs(msa,3)
+c
+      integer i,j,k
+c
+      do 1 k=1,nwa
+      do 2 j=1,3
+      do 3 i=1,nwmloc
+      gw(i,j,k)=factgg*gw(i,j,k)+factgf*fw(i,j,k,1)
+    3 continue
+    2 continue
+    1 continue
+c
+      do 4 j=1,3
+      do 5 i=1,nsaloc
+      gs(i,j)=factgg*gs(i,j)+factgf*fs(i,j,1)
+    5 continue
+    4 continue
 c
       return
       end

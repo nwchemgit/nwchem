@@ -1,5 +1,5 @@
 c
-c $Id: prp_common.fh,v 1.13 1999-10-21 20:05:22 d3j191 Exp $
+c $Id: prp_common.fh,v 1.14 1999-10-26 19:32:16 d3j191 Exp $
 c
 c
       real*8 zero,tiny,one
@@ -15,11 +15,11 @@ c
 c
       integer me,np,lfnout,lfnprp,lfngib
       integer nsf,msf,mpe,nfoutp,nfstat,nfprop,maxp,mrun
-      integer mda,nda,nwm
+      integer mda,nda,nwm,msm
 c
       common/prp_dim/me,np,lfnout,lfnprp,lfngib,
      + nsf,msf,mpe,nfoutp,nfstat,
-     + nfprop,maxp,mda,nda,mrun,nwm
+     + nfprop,maxp,mda,nda,mrun,nwm,msm
 c
       integer i_dfr,l_dfr
       common/prp_ptr/i_dfr,l_dfr

@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.6 1999-09-17 22:22:01 d3j191 Exp $
+c $Id: md_input.F,v 1.7 1999-10-26 19:32:16 d3j191 Exp $
 c
       implicit none
 c
@@ -28,12 +28,12 @@ c
       integer ireact,itemp,nscb,idscb(10),memlim,morder,isolvo,lfout6
       integer mwmreq,msareq,itest,nodpme,lbpair,ireset,npmf
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
-      integer itload,ihess,latom,icomm,maxpro,nfanal,iport
+      integer itload,ihess,latom,icomm,maxpro,nfanal,iport,iguide
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
       real*8 rrdf,xfield,xfvect(3),xffreq,weight,rqmmm,dielec,ealpha
-      real*8 frgaus,rbox,disrlx,drsscl,eqm
+      real*8 frgaus,rbox,disrlx,drsscl,eqm,tguide
 c
       integer i,mtimes,mdold
 c
@@ -153,6 +153,7 @@ c
       icomm=0
       maxpro=0
       iport=0
+      iguide=0
 c
       server=' '
 c
@@ -195,6 +196,7 @@ c
       disrlx=0.1d0
       drsscl=one
       eqm=0.0d0
+      tguide=0.0d0
 c      do 4 i=1,msf
 c      lsffix(i)=1
 c    4 continue
@@ -496,6 +498,14 @@ c
       goto 2
       endif
       goto 3
+      endif
+c
+c     guided dynamics
+c
+      if(inp_compare(.false.,'guided',item)) then
+      iguide=1
+      if(.not.inp_f(tguide)) tguide=0.1d0
+      goto 2
       endif
 c
 c     reaction field
@@ -1307,6 +1317,8 @@ c     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:icomm',mt_int,1,icomm))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:maxpro',mt_int,1,maxpro))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:iguide',mt_int,1,iguide))
      + call errquit('md_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'md:dx0sd',mt_dbl,1,dx0sd))

@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.17 1999-09-20 15:03:42 d3j191 Exp $
+c $Id: md_common.fh,v 1.18 1999-10-26 19:32:16 d3j191 Exp $
 c
 c     parameters
 c
@@ -118,7 +118,7 @@ c
      + compr,tmpext,tmprlx,tmsrlx,tgauss,dielec,field,factld,sil,
      + urlow,hbdis1,hbdis2,hbang1,hbang2,verinp,shift0(6),shift1(6),
      + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
-     + xfvect(3),xffreq,xfield,drdf,uqmatm
+     + xfvect(3),xffreq,xfield,drdf,uqmatm,tguide,factgf,factgg
       integer nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
      + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
      + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,
@@ -138,7 +138,7 @@ c
      + nfefld,maxpro,icomm,latom,ihess,itload,nfdrss,nftime,itime,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
      + lwtype,ndistr,lbpair,noshak,iunfix,ifix,isdit,icgit,npmf,
-     + irun,iequi,idacq,
+     + irun,iequi,idacq,iguide,
      + inp_ptr
       common/md_inp/ptol,rshort,rlong,stime,tstep,elam,ddacq,edacq,
      + fdacq,weight,facapp,dgscl,dgref,ddgscl,ssshft,dx0sd,dxmsd,
@@ -146,7 +146,7 @@ c
      + compr,tmpext,tmprlx,tmsrlx,tgauss,dielec,field,factld,sil,
      + urlow,hbdis1,hbdis2,hbang1,hbang2,verinp,shift0,shift1,
      + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
-     + xfvect,xffreq,xfield,drdf,uqmatm,
+     + xfvect,xffreq,xfield,drdf,uqmatm,tguide,factgf,factgg,
      + nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
      + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
      + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,
@@ -166,7 +166,7 @@ c
      + nfefld,maxpro,icomm,latom,ihess,itload,nfdrss,nftime,itime,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
      + lwtype,ndistr,lbpair,noshak,iunfix,ifix,isdit,icgit,npmf,
-     + irun,iequi,idacq,
+     + irun,iequi,idacq,iguide,
      + inp_ptr
 c
       logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
@@ -179,11 +179,11 @@ c
      + msf,nsf
 c
       real*8 temps,tempw,temp,pres,volume,epme(3),eww(mpe,2),eskin,
-     + zw(3,2),fmax,fnorm,
+     + zw(3,2),fmax,fnorm,dwr,
      + epot,epotw,epotsw,epots,
      + vlat(3,3),vlati(3,3),box(3),rlambd,dlambd,wbox,uqmd,uqmmm
       common/md_pro/temps,tempw,temp,pres,volume,epme,eww,eskin,
-     + zw,fmax,fnorm,
+     + zw,fmax,fnorm,dwr,
      + epot,epotw,epotsw,epots,
      + vlat,vlati,box,rlambd,dlambd,wbox,uqmd,uqmmm
 c
@@ -191,11 +191,11 @@ c
      + i_iw,l_iw,i_is,l_is,i_xw,l_xw,i_xs,l_xs,i_fw,l_fw,i_fs,l_fs,
      + i_iwz,l_iwz,i_isz,l_isz,i_xwm,l_xwm,i_xsm,l_xsm,i_zs,l_zs,
      + i_vw,l_vw,i_vs,l_vs,i_vwt,l_vwt,i_vst,l_vst,i_yw,l_yw,i_ys,l_ys,
-     + i_pw,l_pw,i_ps,l_ps,i_pwp,l_pwp,i_psp,l_psp,
-     + i_xwcr,l_xwcr,i_xscr,l_xscr
+     + i_pw,l_pw,i_ps,l_ps,i_pwp,l_pwp,i_psp,l_psp,i_gw,l_gw,i_gs,l_gs,
+     + i_xwcr,l_xwcr,i_xscr,l_xscr,i_dsr,l_dsr
       common/md_ptr/i_esk,l_esk,i_ess,l_ess,i_esw,l_esw,i_rtos,l_rtos,
      + i_iw,l_iw,i_is,l_is,i_xw,l_xw,i_xs,l_xs,i_fw,l_fw,i_fs,l_fs,
      + i_iwz,l_iwz,i_isz,l_isz,i_xwm,l_xwm,i_xsm,l_xsm,i_zs,l_zs,
      + i_vw,l_vw,i_vs,l_vs,i_vwt,l_vwt,i_vst,l_vst,i_yw,l_yw,i_ys,l_ys,
-     + i_pw,l_pw,i_ps,l_ps,i_pwp,l_pwp,i_psp,l_psp,
-     + i_xwcr,l_xwcr,i_xscr,l_xscr
+     + i_pw,l_pw,i_ps,l_ps,i_pwp,l_pwp,i_psp,l_psp,i_gw,l_gw,i_gs,l_gs,
+     + i_xwcr,l_xwcr,i_xscr,l_xscr,i_dsr,l_dsr
