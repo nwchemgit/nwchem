@@ -4,13 +4,13 @@
      &                       cntobfr, cetobfr, natoms,
      &                       g_movecs, noc, k_eval, totsic)
 c
-C$Id: xc_sic_pert.F,v 1.1 1999-08-10 21:21:14 jolguin Exp $
+C$Id: xc_sic_pert.F,v 1.2 1999-08-11 01:21:04 d3j191 Exp $
 c
       implicit none
 c      
       integer nExc, iVxc_opt, natoms, rtdb, g_xcinv, g_dens(2),
      &        g_vxc(4), g_wght, g_xyz, g_nq, ik, noc(2), isp,
-     &        isp, n_states, naux_ipol, i, g_dens_orb(2), g_orb,
+     &        n_states, naux_ipol, g_dens_orb(2), g_orb,
      &        g_vxc_orb(4), g_movecs(2), k_eval(2), g_coul_orb,
      &        i_temp_vec, l_temp_vec, fac_oc
       double precision Exc_orb(2), tot_sic_xc, tot_sic_coul, ecoul_orb,
