@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.50 1996-03-12 09:57:01 d3e129 Exp $
+c $Id: raktest.F,v 1.51 1996-03-18 05:12:30 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -145,7 +145,6 @@ c
       integer i_bf
       character*27 bf_tag
       integer cont
-      integer type
       integer center
       character*1 ch_type(-1:5)
       data ch_type /'l','s','p','d','f','g','h'/
@@ -321,6 +320,8 @@ c
      &    scr,mscr,buf,mbuf,cn2bfr_sp)
       implicit none
 #include "bas.fh"
+#include "stdio.fh"
+#include "util.fh"
       integer nbf, nbf_sp, nshell, mscr, mbuf, basis
       integer cn2bfr_sp(2,nshell)
       double precision scr(mscr), buf(mbuf)
@@ -328,43 +329,161 @@ c
       integer ish, jsh, ksh, lsh
       integer ilo, jlo, klo, llo
       integer ihi, jhi, khi, lhi
+      integer ilosp, jlosp, klosp, llosp
+      integer ihisp, jhisp, khisp, lhisp
+      integer inbf, jnbf, knbf, lnbf
+      integer inbf_sp, jnbf_sp, knbf_sp, lnbf_sp
+      integer itype, jtype, ktype, ltype
+      integer iatom, jatom, katom, latom
       integer i, j, k, l
       integer count
+      integer junk1,junk2,junk3
+      double precision ttrans_w, ttrans_c
+      double precision tcomp_w, tcomp_c
+      double precision tadd_w, tadd_c
 c
+      logical spcart_init, spcart_terminate
+      external spcart_init, spcart_terminate
+c
+      if (.not.spcart_init(5,.true.,.false.))
+     &    stop ' spcart_init failed'
+      ttrans_w = 0.0d00
+      ttrans_c = 0.0d00
+      tcomp_w  = 0.0d00
+      tcomp_c  = 0.0d00
       do ish = 1,nshell
         if (.not.bas_cn2bfr(basis,ish,ilo,ihi))
      &      stop 'cn2bfr error i'
+        if (.not.bas_continfo
+     &      (basis,ish,itype,junk1,junk2,junk3))
+     &      stop 'bas_continfo error i'
+        if (.not.bas_cn2ce(basis,ish,iatom))
+     &      stop 'bas_cn2ce error i'
+        ilosp = cn2bfr_sp(1,ish)
+        ihisp = cn2bfr_sp(2,ish)
+        inbf    = ihi-ilo + 1
+        inbf_sp = ihisp-ilosp + 1
         do jsh = 1,ish
           if (.not.bas_cn2bfr(basis,jsh,jlo,jhi))
      &        stop 'cn2bfr error j'
+          if (.not.bas_continfo
+     &        (basis,jsh,jtype,junk1,junk2,junk3))
+     &        stop 'bas_continfo error j'
+          if (.not.bas_cn2ce(basis,jsh,jatom))
+     &        stop 'bas_cn2ce error j'
+          jlosp = cn2bfr_sp(1,jsh)
+          jhisp = cn2bfr_sp(2,jsh)
+          jnbf    = jhi-jlo + 1
+          jnbf_sp = jhisp-jlosp + 1
           do ksh = 1,jsh
             if (.not.bas_cn2bfr(basis,ksh,klo,khi))
      &          stop 'cn2bfr error k'
+            if (.not.bas_continfo
+     &          (basis,ksh,ktype,junk1,junk2,junk3))
+     &          stop 'bas_continfo error k'
+            if (.not.bas_cn2ce(basis,ksh,katom))
+     &          stop 'bas_cn2ce error k'
+            klosp = cn2bfr_sp(1,ksh)
+            khisp = cn2bfr_sp(2,ksh)
+            knbf    = khi-klo + 1
+            knbf_sp = khisp-klosp + 1
             do lsh = 1,ksh
               if (.not.bas_cn2bfr(basis,lsh,llo,lhi))
      &            stop 'cn2bfr error l'
+              if (.not.bas_continfo
+     &            (basis,lsh,ltype,junk1,junk2,junk3))
+     &            stop 'bas_continfo error l'
+              if (.not.bas_cn2ce(basis,lsh,latom))
+     &            stop 'bas_cn2ce error l'
+              llosp = cn2bfr_sp(1,lsh)
+              lhisp = cn2bfr_sp(2,lsh)
+              lnbf    = lhi-llo + 1
+              lnbf_sp = lhisp-llosp + 1
+              tadd_c = util_cpusec()
+              tadd_w = util_wallsec()
+*              if (ish.ne.4) goto 99999
+*              if (jsh.ne.4) goto 99999
+*              if (ksh.ne.4) goto 99999
+*              if (lsh.ne.4) goto 99999
               call int_2e4c
      &            (basis,ish,jsh,basis,ksh,lsh,mscr,scr,mbuf,buf)
+              tadd_c = util_cpusec() - tadd_c
+              tadd_w = util_wallsec() - tadd_w
+              if (tadd_c.gt.0.0d00) tcomp_c = tcomp_c + tadd_c
+              if (tadd_w.gt.0.0d00) tcomp_w = tcomp_w + tadd_w
+              write(luout,10000)ish,jsh,ksh,lsh,
+     &            itype,jtype,ktype,ltype,
+     &            iatom,jatom,katom,latom
               count = 0
               do i=ilo,ihi
                 do j=jlo,jhi
                   do k=klo,khi
                     do l=llo,lhi
                       count = count + 1
-                      if (abs(buf).gt.1.0d-07) then
-                        write(6,10000)i,j,k,l,buf(count)
+                      if (abs(buf(count)).gt.1.0d-07) then
+                        write(luout,10001)i,j,k,l,buf(count),count
                       endif
                     enddo
                   enddo
                 enddo
               enddo
-c
+*
+              tadd_c = util_cpusec()
+              tadd_w = util_wallsec()
+              call spcart_bra2etran(buf,scr,
+     &            jnbf,inbf,jnbf_sp,inbf_sp,
+     &            jtype,itype,(knbf*lnbf),
+     &            .false.)
+              call spcart_ket2etran(buf,scr,
+     &            lnbf,knbf,lnbf_sp,knbf_sp,
+     &            ltype,ktype,(inbf_sp*jnbf_sp),
+     &            .false.)
+              tadd_c = util_cpusec() - tadd_c
+              tadd_w = util_wallsec() - tadd_w
+              if (tadd_c.gt.0.0d00) ttrans_c = ttrans_c + tadd_c
+              if (tadd_w.gt.0.0d00) ttrans_w = ttrans_w + tadd_w
+*
+              write(luout,10000)ish,jsh,ksh,lsh,
+     &            itype,jtype,ktype,ltype,
+     &            iatom,jatom,katom,latom
+              count = 0
+              do i=ilosp,ihisp
+                do j=jlosp,jhisp
+                  do k=klosp,khisp
+                    do l=llosp,lhisp
+                      count = count + 1
+                      if (abs(buf(count)).gt.1.0d-07) then
+                        write(luout,10002)i,j,k,l,buf(count),count
+                      endif
+                    enddo
+                  enddo
+                enddo
+              enddo
+c.... end of shell loops
+99999         continue
             enddo
           enddo
         enddo
       enddo
 c
-10000 format('(',i5,i5,'|',i5,i5,') =',1pd20.10,' cart')
+      if (.not.spcart_terminate()) stop 'term error'
+      write(luout,*)' total compute time ( cpu): ',tcomp_c
+      write(luout,*)' total compute time (wall): ',tcomp_w
+      write(luout,*)' total tranfrm time ( cpu): ',ttrans_c
+      write(luout,*)' total tranfrm time (wall): ',ttrans_w
+      write(luout,'(1x,a,f10.2)')
+     &    '      %    overhead ( cpu): ',
+     &    (ttrans_c/tcomp_c*100.0d00)
+      write(luout,'(1x,a,f10.2)')
+     &    '      %    overhead (wall): ',
+     &    (ttrans_w/tcomp_w*100.0d00)
+c
+10000 format(
+     &    'Shells <',i5,i5,'|',i5,i5,'>',5x,
+     &    'Types  {',i5,i5,'|',i5,i5,'}',5x,
+     &    'Atoms  (',i5,i5,'|',i5,i5,')')
+10001 format('(',i5,i5,'|',i5,i5,') =',1pd20.10,' cart',1x,i10)
+10002 format('[',i5,i5,'|',i5,i5,'] =',1pd20.10,' sphr',1x,i10)
 c
       end
 *.......................................................................
@@ -405,7 +524,8 @@ c
       integer typei, typej, nprim, ngen, spsp
       integer nint, nint_sp, count, hi_ang, st_ang
       integer ii, jj
-      double precision value, pi, fact
+      double precision value
+*rak:      double precision pi, fact
 c
       logical spcart_init, spcart_terminate
       external spcart_init, spcart_terminate
@@ -462,7 +582,7 @@ c
               s(jbf,ibf) = value
             enddo
           enddo
-****************#define NEW_WAY
+********************#define NEW_WAY
 #if defined(NEW_WAY)
           call spcart_tran1e(buf,scr,
      &        nbfj,nbfi,typej,
