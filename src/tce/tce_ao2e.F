@@ -1,0 +1,221 @@
+      subroutine tce_ao2e(rtdb,d_ao2e)
+c
+c $Id: tce_ao2e.F,v 1.1 2002-10-18 23:42:07 sohirata Exp $
+c
+c     Returns a SF handle for the AO 2-e integral matrix.
+c
+      implicit none
+#include "rtdb.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "bas.fh"
+#include "schwarz.fh"
+#include "sf.fh"
+#include "tce.fh"
+      integer rtdb                 ! Run-time database
+      logical nodezero             ! True if node zero
+      integer d_ao2e               ! AO integrals
+      integer joff(max_size)       ! j offset
+      integer loff(max_size)       ! l offset
+      integer work1,work2          ! Work array sizes
+      integer l_work1,k_work1      ! Work array 1
+      integer l_work2,k_work2      ! Work array 2
+      integer l_ijkl,k_ijkl        ! AO integrals
+      integer l_ij,k_ij            ! AO integrals
+      integer l_pj,k_pj            ! Quarter transformed
+      integer l_pq,k_pq            ! Half transformed
+      integer l_pq_packed,k_pq_packed! Packed
+      integer g1b,g2b
+      integer sf_size_pq
+      integer sf_size_kl
+      integer ish,jsh,ksh,lsh
+      integer i,j,k,l,kl
+      integer ikjl,ijkl
+      integer ilo,ihi,jlo,jhi
+      integer klo,khi,llo,lhi
+      integer irange,jrange
+      integer krange,lrange
+      integer kloff
+      integer dummy
+      integer request
+      integer nxtval
+      external nxtval
+      integer next,count,nprocs
+      integer N
+      character*20 filename
+c
+c     ===========
+c     Set offsets
+c     ===========
+c
+      if (ipol.eq.1) then
+        N = (nmo(1) - nfc(1)) * 2
+      else
+        N = nmo(1) + nmo(2) - nfc(1) - nfc(2)
+      endif
+      nodezero = (ga_nodeid().eq.0)
+      do j = 1, nbf
+        joff(j) = (j-1)*nbf
+      enddo
+      do l = 1, nbf
+        loff(l) = (l-1)*nbf
+      enddo
+c
+c     ===========
+c     Allocate SF
+c     ===========
+c
+      sf_size_pq = 0
+      do g1b = 1,noa+nob+nva+nvb
+        do g2b = g1b,noa+nob+nva+nvb
+          sf_size_pq = sf_size_pq + int_mb(k_range+g1b-1)
+     1                            * int_mb(k_range+g2b-1)
+        enddo
+      enddo
+      sf_size_kl = nbf**2
+      if (nodezero.and.util_print('ao2e',print_default)) then
+        write(LuOut,*)
+        write(LuOut,9000) sf_size_pq*sf_size_kl
+      endif
+ 9000 format(1x,'2-e (intermediate) file size = ',i15)
+      call util_file_name('v2i',.true.,.false.,filename)
+      if (nodezero.and.util_print('mo1e',print_default))
+     1  write(LuOut,9010) filename
+ 9010 format(1x,'2-e (intermediate) file name = ',A)
+      dummy=sf_create(filename,dfloat(bytes*sf_size_pq*sf_size_kl),
+     1  dfloat(bytes*sf_size_pq*sf_size_kl),
+     2  dfloat(bytes*sf_size_pq),d_ao2e)
+c
+c     =======================
+c     Initialize integral API
+c     =======================
+c
+      call int_mem_2e4c(work1,work2)
+      if (.not.ma_push_get(mt_dbl,work1,'work1',l_work1,k_work1))
+     1  call errquit('tce_ao2e: MA problem',0)
+      if (.not.ma_push_get(mt_dbl,work2,'work2',l_work2,k_work2))
+     1  call errquit('tce_ao2e: MA problem',1)
+      if (.not.ma_push_get(mt_dbl,nbf*nbf,'ij',l_ij,k_ij))
+     1  call errquit('tce_ao2e: MA problem',4)
+      if (.not.ma_push_get(mt_dbl,N*nbf,'pj',l_pj,k_pj))
+     1  call errquit('tce_ao2e: MA problem',5)
+      if (.not.ma_push_get(mt_dbl,N*N,'pq',l_pq,k_pq))
+     1  call errquit('tce_ao2e: MA problem',6)
+      if (.not.ma_push_get(mt_dbl,sf_size_pq,'pq_packed',
+     1  l_pq_packed,k_pq_packed)) call errquit('tce_ao2e: MA problem',7)
+c
+c     ================
+c     Loop over shells
+c     ================
+c
+      nprocs = ga_nnodes()
+      count = 0
+      next = nxtval(nprocs)
+      do lsh=1,nshells
+        do ksh=1,nshells
+          if (next.eq.count) then
+            if (.not.bas_cn2bfr(ao_bas_han,ksh,klo,khi))
+     1        call errquit('tce_ao2e: basis fn range problem',0)
+            krange = khi - klo + 1
+            if (.not.bas_cn2bfr(ao_bas_han,lsh,llo,lhi))
+     1        call errquit('tce_ao2e: basis fn range problem',1)
+            lrange = lhi - llo + 1
+            if (.not.ma_push_get(mt_dbl,sf_size_kl*krange*lrange,
+     1        'ao2e',l_ijkl,k_ijkl))
+     2        call errquit('tce_ao2e: MA problem',18)
+            do ijkl = 1,sf_size_kl*krange*lrange
+              dbl_mb(k_ijkl+ijkl-1) = 0.0d0
+            enddo
+            do jsh=1,nshells
+              do ish=1,nshells
+                if (schwarz_shell(ish,ksh)*schwarz_shell(jsh,lsh) 
+     1            .ge. tol2e) then
+                  if (.not.bas_cn2bfr(ao_bas_han,ish,ilo,ihi))
+     1              call errquit('tce_ao2e: basis fn range problem',2)
+                  irange = ihi - ilo + 1
+                  if (.not.bas_cn2bfr(ao_bas_han,jsh,jlo,jhi))
+     1              call errquit('tce_ao2e: basis fn range problem',3)
+                  jrange = jhi - jlo + 1
+                  call int_2e4c(ao_bas_han,ish,ksh,ao_bas_han,jsh,lsh,
+     1              work2,dbl_mb(k_work2),work1,dbl_mb(k_work1))
+                  kl = 0
+                  do l = llo,lhi
+                    do k = klo,khi
+                      kl = kl + 1
+                      kloff = (kl-1)*sf_size_kl
+                      do j = jlo,jhi
+                        do i = ilo,ihi
+                          ikjl = (((i-ilo)*krange+(k-klo))*jrange
+     1                           +(j-jlo))*lrange+(l-llo)
+                          dbl_mb(k_ijkl+kloff+joff(j)+i-1) = 
+     1                      dbl_mb(k_work1+ikjl)
+                        enddo
+                      enddo
+                    enddo
+                  enddo
+                endif
+              enddo
+            enddo
+c
+c     Write to SF
+c
+            kl = 0
+            do l = llo,lhi
+              do k = klo,khi
+                kl = kl + 1
+                kloff = (kl-1)*sf_size_kl
+c
+c     Half transformation
+c
+                call dcopy(sf_size_kl,dbl_mb(k_ijkl+kloff),1,
+     1            dbl_mb(k_ij),1)
+                call dgemm('T','N',N,nbf,nbf,
+     1            1.0d0,dbl_mb(k_movecs_sorted),nbf,
+     2            dbl_mb(k_ij),nbf,
+     3            0.0d0,dbl_mb(k_pj),N)
+                call dgemm('N','N',N,N,nbf,
+     1            1.0d0,dbl_mb(k_pj),N,
+     2            dbl_mb(k_movecs_sorted),nbf,
+     3            0.0d0,dbl_mb(k_pq),N)
+                call ma_pack(dbl_mb(k_pq),dbl_mb(k_pq_packed),N)
+                dummy=sf_write(d_ao2e,
+     1            dfloat(bytes*(loff(l)+k-1)*sf_size_pq),
+     2            dfloat(bytes*sf_size_pq),dbl_mb(k_pq_packed),request)
+                dummy=sf_wait(request)
+              enddo
+            enddo
+            if (.not.ma_pop_stack(l_ijkl)) 
+     1        call errquit('tcc_ao2e: MA problem',16)
+            next = nxtval(nprocs)
+          endif
+          count = count + 1
+        enddo
+      enddo
+      next = nxtval(-nprocs)
+      call ga_sync()
+c
+c     ==========
+c     Deallocate
+c     ==========
+c
+      if (.not.ma_pop_stack(l_pq_packed)) 
+     1  call errquit('tcc_ao2e: MA problem',8)
+      if (.not.ma_pop_stack(l_pq)) 
+     1  call errquit('tcc_ao2e: MA problem',9)
+      if (.not.ma_pop_stack(l_pj)) 
+     1  call errquit('tcc_ao2e: MA problem',10)
+      if (.not.ma_pop_stack(l_ij)) 
+     1  call errquit('tcc_ao2e: MA problem',11)
+      if (.not.ma_pop_stack(l_work2)) 
+     1  call errquit('tcc_ao2e: MA problem',14)
+      if (.not.ma_pop_stack(l_work1)) 
+     1  call errquit('tcc_ao2e: MA problem',15)
+c
+c     ======
+c     Return
+c     ======
+c
+      return
+      end
