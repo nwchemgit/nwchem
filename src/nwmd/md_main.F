@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.84 2000-05-18 20:40:46 d3j191 Exp $
+c $Id: md_main.F,v 1.85 2000-05-18 21:11:38 d3j191 Exp $
 c
       implicit none
 c
@@ -1197,10 +1197,10 @@ c
       syntim=timer_wall_average(4)
       endif
       if(me.eq.0) then
-      if(costio.ge.syntim) then
+      if(corrio.ge.syntim) then
       syntim=zero
       else
-      syntim=syntim-costio
+      syntim=syntim-corrio
       endif
       endif
       call sp_balanc(stime,syntim,wallt,frequency(mdstep,nfsync))
@@ -1232,6 +1232,7 @@ c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
+      corrio=costio
       if(me.eq.0.and..not.lequi.and.(lxw.or.lvw.or.lxs.or.lvs)) then
 c
       call timer_start(17)
@@ -1248,7 +1249,8 @@ c
       endif
 c
       call timer_stop(17)
-      costio=timer_wall(17)
+      costio=max(costio,timer_wall(17))
+      corrio=costio-timer_wall(17)
 c
       endif
 c
@@ -2039,7 +2041,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.84 2000-05-18 20:40:46 d3j191 Exp $
+c $Id: md_main.F,v 1.85 2000-05-18 21:11:38 d3j191 Exp $
 c
       implicit none
 c
