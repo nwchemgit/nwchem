@@ -44,8 +44,7 @@ All three MP2 tasks share the same input block.
   MP2
     [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
             [virtual <integer nfzv default 0>]]
-    [AOTOL2E <real aotol2e default 1d-9>]
-    [MOTOL2E <real motol2e default 1d-9>]
+    [TIGHT]
     [PRINT]
     [NOPRINT]
     [VECTORS <string filename default scf-output-vectors> \
@@ -129,13 +128,22 @@ keyword.  For instance, to freeze the top 5 virtuals
 Again, note that this only works for the direct-MP2 and RI-MP2 energy
 codes.
 
-\subsection{{\tt AOTOL2E} and {\tt MOTOL2E} --- Integral Screening}
+\subsection{{\tt TIGHT} --- Increased precision}
 
-The screening of AO and MO two-electron integrals are controlled by
-these parameters.  The defaults of $10^{-9}$ are adequate except for
-high-accuracy calculations, weakly interacting systems, and in the
-presence of near linear dependence in the orbital basis.  For very
-high accuracy calculations values of $10^{-12}$ are suitable.
+The \verb+TIGHT+ directive can be used to increase the precision
+in the MP2 energy and gradients.
+
+By default the MP2 gradient package should compute energies accurate
+to better than a micro-Hartree, and gradients accurate to about five
+decimal places (atomic units).  However, if there is significant
+linear dependence in the basis set the precision might not be this
+good.  Also, for computing very accurate geometries or numerical
+frequencies, greater precision may be desirable.
+
+ This option increases the precision to which both the SCF (from
+$10^{-6}$ to $10^{-8}$) and CPHF (from $10^{-4}$ to $10^{-6}$) are
+solved, and also tightens thresholds for computation of the AO and MO
+integrals (from $10^{-9}$ to $10^{-11}$) within the MP2 code.
 
 \subsection{{\tt PRINT} and {\tt NOPRINT}}
 
