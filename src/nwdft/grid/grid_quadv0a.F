@@ -6,7 +6,7 @@
      &                       Pmat, rq, rq0, rdens_atom, cntoce,
      &                       cntobfr, cetobfr, Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0a.F,v 1.4 1999-08-11 18:57:32 edo Exp $
+c$Id: grid_quadv0a.F,v 1.5 1999-08-11 23:54:30 edo Exp $
 c
       implicit none
 c
@@ -51,7 +51,7 @@ c
      &        lrdelchi_atom, irdelchi_atom
       integer nat_tot,nat_scr
       integer nqpts_per_buf, nqpts, ictr_buf
-      integer lrqbuf, irqbuf,ldmat,idmat
+      integer lrqbuf, irqbuf,ldmat,idmat,i
       logical grid_file_rewind
       external grid_file_rewind
       Logical GRAD, oprint
@@ -120,12 +120,20 @@ c
 c           Evaluate the distances (squared) between each center and the qpoints.
 c
          mbf_ao=nbf_ao
+         if(natoms.gt.1) then
          call ifill(mbf_ao, 0, int_mb(iibf_ao), 1)
          call nbf_to_mbf(AO_bas_han,  mbf_ao, natoms, 
      &        ictr_buf,rad,xyz,
      &        int_mb(iibf_ao),  iniz, ifin, expo, 
      &        acc_ao_gauss)
          if (mbf_ao.eq.0) goto 200
+         else
+            iniz(1)=1
+            ifin(1)=nbf_ao
+            do i=0,nbf_ao-1
+               int_mb(iibf_ao+i)=i+1
+            enddo
+         endif
 c
          if (.not.MA_Push_Get(mt_dbl, nqpts*mbf_ao, 'chi_ao', 
      &        lchi_ao, ichi_ao))
