@@ -130,9 +130,9 @@ c
 c     
 c     A global OR is required to piece together the parts made in parallel
 c
-      call igop(3333, int_mb(k_cat), len_cat, 'or')
-      call igop(3334, int_mb(k_csh), len_csh, 'or')
-      call dgop(3335, sch_max, 1, 'max')
+      call ga_igop(3333, int_mb(k_cat), len_cat, 'or')
+      call ga_igop(3334, int_mb(k_csh), len_csh, 'or')
+      call ga_dgop(3335, sch_max, 1, 'max')
 c
       if (odebug) write(6,*) ' sch_max ', sch_max
 c

@@ -101,7 +101,7 @@ c
       double precision energy
       double precision charge
 c
-      character*255 movecs_in, movecs_out, movecs
+      character*255 movecs_in, movecs_out
       logical rhf
       external rhf
 c
