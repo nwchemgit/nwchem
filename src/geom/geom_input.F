@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.47 1997-02-17 17:56:41 d3g681 Exp $
+C     $Id: geom_input.F,v 1.48 1997-02-23 18:27:28 d3j191 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -22,8 +22,6 @@ c
       logical oforce_autoz
       logical include_bqbq
       logical oprint_sym
-      integer max_center        ! parameter for local array dimension
-      double precision scale    ! For unit conversion
       integer nzinput
       integer max_center        ! parameter for local array dimension
       double precision scale    ! For unit conversion
