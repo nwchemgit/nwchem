@@ -1,5 +1,5 @@
 c
-c $Id: hnd_hlfd_ij.F,v 1.3 1999-12-21 23:54:04 windus Exp $
+c $Id: hnd_hlfd_ij.F,v 1.4 2000-07-13 22:24:24 windus Exp $
 c
 c Taken from HONDO
 c
@@ -89,7 +89,7 @@ c
      2              1, 1, 5, 1, 2, 1, 2, 4, 4, 1,
      3              3, 3, 2, 2, 3/
       data minprim / 1, 2, 5,11,21/
-      data maxprim / 1, 3,10,20,35/
+      data maxprim / 1, 4,10,20,35/
 c
       tol =rln10*itol
 c
@@ -269,12 +269,12 @@ c
       call hnd_deriaj( dxvdi(1,1,iroot), dyvdi(1,1,iroot),
      1              dzvdi(1,1,iroot), dxvdj(1,1,iroot),
      1              dyvdj(1,1,iroot), dzvdj(1,1,iroot),
-     1              xv(1,1,iroot),    yv(1,1,iroot),    zv(1,1,iroot),
+     1              xv(1,1,iroot),    yv(1,1,iroot),   zv(1,1,iroot),
      2          lit,ljt,ai,aj)
       call hnd_deriaj(ddxvdi(1,1,iroot),ddyvdi(1,1,iroot),
      1             ddzvdi(1,1,iroot), ddxvdj(1,1,iroot),
      1             ddyvdj(1,1,iroot), ddzvdj(1,1,iroot),
-     1             dxv(1,1,iroot),   dyv(1,1,iroot),   dzv(1,1,iroot),
+     1             dxv(1,1,iroot),   dyv(1,1,iroot),  dzv(1,1,iroot),
      2          lit,ljt,ai,aj)
 c
   420 continue
@@ -299,23 +299,23 @@ c
       dumzz=zero
       do 430 iroot=1,nroots
       dumxx=dumxx+w2(iroot)*
-     1     (ddxvdi(ix,jx,iroot)* yv   (iy,jy,iroot)* zv   (iz,jz,iroot))
+     1  (ddxvdi(ix,jx,iroot)* yv   (iy,jy,iroot)* zv   (iz,jz,iroot))
       dumxy=dumxy+w2(iroot)*
-     1     (dxvdi (ix,jx,iroot)*dyv   (iy,jy,iroot)* zv   (iz,jz,iroot))
+     1  (dxvdi (ix,jx,iroot)*dyv   (iy,jy,iroot)* zv   (iz,jz,iroot))
       dumxz=dumxz+w2(iroot)*
-     1     (dxvdi (ix,jx,iroot)* yv   (iy,jy,iroot)*dzv   (iz,jz,iroot))
+     1  (dxvdi (ix,jx,iroot)* yv   (iy,jy,iroot)*dzv   (iz,jz,iroot))
       dumyx=dumyx+w2(iroot)*
-     1     (dxv   (ix,jx,iroot)*dyvdi (iy,jy,iroot)* zv   (iz,jz,iroot))
+     1  (dxv   (ix,jx,iroot)*dyvdi (iy,jy,iroot)* zv   (iz,jz,iroot))
       dumyy=dumyy+w2(iroot)*
-     1     ( xv   (ix,jx,iroot)*ddyvdi(iy,jy,iroot)* zv   (iz,jz,iroot))
+     1  ( xv   (ix,jx,iroot)*ddyvdi(iy,jy,iroot)* zv   (iz,jz,iroot))
       dumyz=dumyz+w2(iroot)*
-     1     ( xv   (ix,jx,iroot)*dyvdi (iy,jy,iroot)*dzv   (iz,jz,iroot))
+     1  ( xv   (ix,jx,iroot)*dyvdi (iy,jy,iroot)*dzv   (iz,jz,iroot))
       dumzx=dumzx+w2(iroot)*
-     1     (dxv   (ix,jx,iroot)* yv   (iy,jy,iroot)*dzvdi (iz,jz,iroot))
+     1  (dxv   (ix,jx,iroot)* yv   (iy,jy,iroot)*dzvdi (iz,jz,iroot))
       dumzy=dumzy+w2(iroot)*
-     1     ( xv   (ix,jx,iroot)*dyv   (iy,jy,iroot)*dzvdi (iz,jz,iroot))
+     1  ( xv   (ix,jx,iroot)*dyv   (iy,jy,iroot)*dzvdi (iz,jz,iroot))
       dumzz=dumzz+w2(iroot)*
-     1     ( xv   (ix,jx,iroot)* yv   (iy,jy,iroot)*ddzvdi(iz,jz,iroot))
+     1  ( xv   (ix,jx,iroot)* yv   (iy,jy,iroot)*ddzvdi(iz,jz,iroot))
   430 continue
       ij=ij+1
       didvij(ij,1,1)=didvij(ij,1,1)+dumxx*(aa1*pi212*pij(ij))
@@ -341,23 +341,23 @@ c
       dumzz=zero
       do 435 iroot=1,nroots
       dumxx=dumxx+w2(iroot)*
-     1     (ddxvdj(ix,jx,iroot)* yv   (iy,jy,iroot)* zv   (iz,jz,iroot))
+     1  (ddxvdj(ix,jx,iroot)* yv   (iy,jy,iroot)* zv   (iz,jz,iroot))
       dumxy=dumxy+w2(iroot)*
-     1     (dxvdj (ix,jx,iroot)*dyv   (iy,jy,iroot)* zv   (iz,jz,iroot))
+     1  (dxvdj (ix,jx,iroot)*dyv   (iy,jy,iroot)* zv   (iz,jz,iroot))
       dumxz=dumxz+w2(iroot)*
-     1     (dxvdj (ix,jx,iroot)* yv   (iy,jy,iroot)*dzv   (iz,jz,iroot))
+     1  (dxvdj (ix,jx,iroot)* yv   (iy,jy,iroot)*dzv   (iz,jz,iroot))
       dumyx=dumyx+w2(iroot)*
-     1     (dxv   (ix,jx,iroot)*dyvdj (iy,jy,iroot)* zv   (iz,jz,iroot))
+     1  (dxv   (ix,jx,iroot)*dyvdj (iy,jy,iroot)* zv   (iz,jz,iroot))
       dumyy=dumyy+w2(iroot)*
-     1     ( xv   (ix,jx,iroot)*ddyvdj(iy,jy,iroot)* zv   (iz,jz,iroot))
+     1  ( xv   (ix,jx,iroot)*ddyvdj(iy,jy,iroot)* zv   (iz,jz,iroot))
       dumyz=dumyz+w2(iroot)*
-     1     ( xv   (ix,jx,iroot)*dyvdj (iy,jy,iroot)*dzv   (iz,jz,iroot))
+     1  ( xv   (ix,jx,iroot)*dyvdj (iy,jy,iroot)*dzv   (iz,jz,iroot))
       dumzx=dumzx+w2(iroot)*
-     1     (dxv   (ix,jx,iroot)* yv   (iy,jy,iroot)*dzvdj (iz,jz,iroot))
+     1  (dxv   (ix,jx,iroot)* yv   (iy,jy,iroot)*dzvdj (iz,jz,iroot))
       dumzy=dumzy+w2(iroot)*
-     1     ( xv   (ix,jx,iroot)*dyv   (iy,jy,iroot)*dzvdj (iz,jz,iroot))
+     1  ( xv   (ix,jx,iroot)*dyv   (iy,jy,iroot)*dzvdj (iz,jz,iroot))
       dumzz=dumzz+w2(iroot)*
-     1     ( xv   (ix,jx,iroot)* yv   (iy,jy,iroot)*ddzvdj(iz,jz,iroot))
+     1  ( xv   (ix,jx,iroot)* yv   (iy,jy,iroot)*ddzvdj(iz,jz,iroot))
   435 continue
       djdvij(ij,1,1)=djdvij(ij,1,1)+dumxx*(aa1*pi212*pij(ij))
       djdvij(ij,1,2)=djdvij(ij,1,2)+dumxy*(aa1*pi212*pij(ij))
@@ -371,8 +371,6 @@ c
 c
   440 continue
   450 continue
-c
-  500 continue
 c
  6000 continue
  7000 continue
