@@ -87,9 +87,12 @@ c
       endif
 c
       lshift=0.0d0
-      precond_tol=1d-6
+      if (.not. rtdb_get(rtdb, 'cphf:thresh', mt_dbl, 1, 
+     $     precond_tol)) precond_tol=1d-5
+      if (.not. rtdb_get(rtdb, 'cphf:maxiter', mt_int, 1,
+     $     max_precond_iter)) max_precond_iter = 100
+c
       pflg=2
-      max_precond_iter = 50
       max_precond_sub = 20
       if (oprint) then
          write(6,170) scftype
