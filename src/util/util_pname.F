@@ -16,9 +16,12 @@ c
       integer i, p
 c
       i = inp_strlen(name)
-      if (i+5.gt.len(pname))
-     &  call errquit
+      if (i+5.gt.len(pname)) then
+         write(6,*) ' util_pname: |',name,'|'
+         call util_flush(6)
+         call errquit
      $     ('util_pname: pname too short for name.id',len(pname))
+      endif
       pname = name
       p = ga_nnodes()
 c

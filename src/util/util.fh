@@ -1,7 +1,7 @@
 #include "printlevels.fh"
 c      
       logical util_print
-C$Id: util.fh,v 1.7 1995-07-10 17:02:19 d3e129 Exp $
+C$Id: util.fh,v 1.8 1996-07-17 16:37:57 d3g681 Exp $
       double precision ddot
       double precision util_cpusec
       double precision util_wallsec
@@ -9,3 +9,7 @@ C$Id: util.fh,v 1.7 1995-07-10 17:02:19 d3e129 Exp $
       external ddot
       external util_cpusec
       external util_wallsec
+c
+      integer nw_max_path_len   ! Maximum path len -> posix standard is what?
+      parameter (nw_max_path_len = 255)
+c

@@ -1,9 +1,15 @@
-# $Id: GNUmakefile,v 1.55 1996-07-05 15:38:12 d3g681 Exp $
+# $Id: GNUmakefile,v 1.56 1996-07-17 16:37:56 d3g681 Exp $
 
 include ../config/makefile.h
 
+ifeq ($(TARGET),SOLARIS)
+  EXTRA_OBJ = ieeetrap.o
+  SPEECH = YES
+endif
+
 ifeq ($(TARGET),SUN)
   EXTRA_OBJ = ieeetrap.o
+  SPEECH = YES
 endif
 
 ifeq ($(TARGET),SP1)
@@ -25,6 +31,8 @@ endif
        BLAS = dfill.o ifill.o rsg.o
 
    LIB_TARGETS = testsolve
+   LIB_DEFINES = -DSCRATCH_DEF_DIR=$(SCRATCH_DEF_DIR) \
+                 -DPERM_DEF_DIR=$(PERM_DEF_DIR)
 
  OBJ_OPTIMIZE =  ga_matpow.o util_pack.o dabssum.o dabsmax.o $(BLAS)
 
@@ -34,7 +42,7 @@ endif
         OBJ = output.o errquit.o ffflush.o \
               print_center.o util_flush.o \
               util_host.o util_date.o \
-	      ga_orthog.o file_prefix.o \
+	      ga_orthog.o \
               ga_it_orth.o ga_it_lsolve.o ga_iter_diag.o \
               ga_maxelt.o ga_pcg_min.o line_search.o \
               ga_orth_vec.o ga_ran_fill.o ga_mix.o \
@@ -49,6 +57,7 @@ endif
 	      gather.o scatter.o \
 	      ga_trace_dg.o \
               icopy.o util_legal.o \
+              util_file_name.o \
               util_speak.o util_rtdb_speak.o \
               $(EXTRA_OBJ) 
 
@@ -60,7 +69,7 @@ endif
                 ga_orthog.F
 
 ifdef SPEECH
-   LIB_DEFINES = -DSPEECH
+   LIB_DEFINES += -DSPEECH
    LIB_TARGETS += speechserver speechclient
    OBJ += udp.o
 endif
