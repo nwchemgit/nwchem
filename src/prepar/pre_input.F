@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.64 2000-08-31 15:05:06 d3j191 Exp $
+c $Id: pre_input.F,v 1.65 2000-09-05 22:45:09 d3j191 Exp $
 c
       implicit none
 c
@@ -1359,7 +1359,7 @@ c
       if(.not.rtdb_put(irtdb,'prep:ignore',mt_int,1,ignore))
      + call errquit('pre_input: rtdb_put failed',0)
 c
-      if(maxscf.gt.0) then
+      if(maxscf.ge.0) then
       if(.not.rtdb_put(irtdb,'prep:maxscf',mt_int,1,maxscf))
      + call errquit('pre_input: rtdb_put failed',0)
       endif
