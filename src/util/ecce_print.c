@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #if defined(CRAY) || defined(CRAY_T3D)
 #include <fortran.h>
 #endif
@@ -196,6 +197,52 @@ void ecce_print2(const char *key, int ma_type,
     print_info("end", key, typename, dim1, dim2);
     fflush(ecce_file);
 }
+
+void ecce_print2_dbl_tol(const char *key, 
+			 const double *data, 
+			 int ld1, int dim1, int dim2, double tol)
+{
+    static int print_warning = 1;
+    int i;
+    int ndecimal;
+
+    if (!ecce_print_enabled) return;
+
+    ndecimal = floor(-log10(tol));
+    /*printf("tol = %f ndecimal=%d\n", tol, ndecimal);*/
+    if (ndecimal < 1) ndecimal = 1;
+
+    print_info("begin", key, "double", dim1, dim2);
+    for (i=0; i<dim2; i++, data += ld1) {
+	int nzero = 0;
+	int nprint = 0;
+	int j;
+	for (j=0; j<dim1; j++) {
+	    double value = data[j];
+	    if (fabs(value) < tol) {
+		nzero++;
+	    } else {
+		if (nzero) {
+		    if (nzero > 1)
+			nprint += fprintf(ecce_file," %d*0.0",nzero);
+		    else
+			nprint += fprintf(ecce_file," 0.0");
+		    nzero = 0;
+		}
+		if (nprint > 72) {
+		    fprintf(ecce_file,"\n");
+		    nprint = 0;
+		}
+		nprint += fprintf(ecce_file," %.*f",ndecimal,value);
+	    }
+	}
+	if (nzero) nprint += fprintf(ecce_file," %d*0.0",nzero);
+	if (nprint) fprintf(ecce_file,"\n");
+    }
+
+    print_info("end", key, "double", dim1, dim2);
+    fflush(ecce_file);
+}
     
 void ecce_print_control(int new, int *old)
 {
@@ -353,6 +400,33 @@ void ecce_print2_(const char *key, Integer *ma_type,
 
     ecce_print2(buf, (int) *ma_type, data, (int) *ld1, (int) *dim1, 
 		(int) *dim2);
+}
+
+#if defined(CRAY) || defined(CRAY_T3D)
+void ecce_print2_dbl_tol_(_fcd f, 
+			 const double *data, Integer *ld1, 
+			 Integer *dim1, Integer *dim2,
+			 const double *tol)
+{
+    const char *key = _fcdtocp(f);
+    int keylen = _fcdlen(f);
+#else
+void ecce_print2_dbl_tol_(const char *key, 
+			 const double *data, 
+			 Integer *ld1, Integer *dim1, Integer *dim2,
+			 const double *tol, int keylen)
+{
+#endif
+    char buf[1024];
+
+    if (!fortchar_to_string(key, keylen, buf, sizeof(buf))) {
+	fprintf(stderr,"!! ecce_print: key too long (%d %d)\n", 
+		keylen, sizeof(buf));
+	return;
+    }
+
+    ecce_print2_dbl_tol(buf, data, (int) *ld1, (int) *dim1, 
+		(int) *dim2, *tol);
 }
 
 #if defined(CRAY) || defined(CRAY_T3D)
