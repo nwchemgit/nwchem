@@ -1,5 +1,5 @@
 *
-* $Id: psi_marat_write.F,v 1.3 2003-02-13 20:26:42 marat Exp $
+* $Id: psi_marat_write.F,v 1.4 2003-02-14 19:59:52 d3j191 Exp $
 *
 
 *     ***********************************
@@ -12,7 +12,7 @@
       implicit none 
       integer ispin,ne(2)
       double complex psi2(*)
-      character(*) filename
+      character*(*) filename
 
 #include "mafdecls.fh"
 

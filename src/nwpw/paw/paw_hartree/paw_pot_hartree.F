@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_hartree.F,v 1.1 2003-02-13 20:23:04 marat Exp $
+c $Id: paw_pot_hartree.F,v 1.2 2003-02-14 19:55:59 d3j191 Exp $
 c
 
 !**************************************************
@@ -220,4 +220,4 @@ c        write(*,*) "hpot:pot",dcpl_mb(paw_pot_hartree(1)+i_hp)
       end do
        
       return
-      end subroutine
+      end
