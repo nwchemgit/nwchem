@@ -152,15 +152,15 @@ c
       integer i, j, l, k, jj
       double precision xx, yy, zz, p1, p2
       integer l_t, k_t, l_s, k_s, lds
-      integer g_dentmp
+**      integer g_dentmp
       integer myid, nn, rlo, rhi, cilo, cihi, dilo, dihi
 c
 c
       myid = ga_nodeid()
       nn = norb*norb
-      if (.not.(ga_create(MT_DBL, nn, nn, 'g dens', nn, 1, g_dentmp )))
-     $   call errquit('detci_twopdm: cannot create global',0)
-      call ga_zero(g_dentmp)
+*      if (.not.(ga_create(MT_DBL, nn, nn, 'g dens', nn, 1, g_dentmp )))
+*     $   call errquit('detci_twopdm: cannot create global',0)
+*      call ga_zero(g_dentmp)
       call ga_distribution( g_civect, myid, rlo, rhi, dilo, dihi )
       if (((dilo.ne.0).and.(dihi.ne.-1)).and.
      $    ((rlo.ne.1).or.(rhi.ne.nstra)))
@@ -180,6 +180,9 @@ c
      $     call errquit('cannot allocate temp',0)
       if (.not.ma_push_get(MT_DBL,nstrb,'dens:tmp2',l_s,k_s))
      $     call errquit('cannot allocate temp',0)
+c
+      if (cilo.gt.0 .and. cihi.gt.0) 
+     $     call ga_access(g_civec, 1, nstrb, cilo, cihi, k_s, lds )
       call ga_sync()
       do ia=1,nstra
         call ga_get(g_civec,1,nstrb,ia,ia,dbl_mb(k_t),1)
@@ -196,14 +199,18 @@ c
               l  = map(exa(5,jex,ja))
               k  = map(exa(6,jex,ja))
               kl = (l-1)*norb + k
-              call ga_access(g_civec, 1, nstrb, ka, ka, k_s, lds )
-              xx = ddot(nstrb, dbl_mb(k_s), 1, dbl_mb(k_t), 1 ) * p2
-              call ga_release( g_civec, 1, nstrb, ka, ka )
-              call ga_acc( g_dentmp, ij, ij, kl, kl, xx, 1, 1.d0 )
+*              call ga_access(g_civec, 1, nstrb, ka, ka, k_s, lds )
+              xx = ddot(nstrb, dbl_mb(k_s+(ka-cilo)*lds), 1, 
+     $             dbl_mb(k_t), 1 ) * p2
+*              call ga_release( g_civec, 1, nstrb, ka, ka )
+*              call ga_acc( g_dentmp, ij, ij, kl, kl, xx, 1, 1.d0 )
+              twopdm(i,j,k,l) = twopdm(i,j,k,l) + xx
             endif
           enddo
         enddo
       enddo
+      if (cilo.gt.0 .and. cihi.gt.0) 
+     $     call ga_release(g_civec, 1, nstrb, cilo, cihi)
       if (.not.ma_pop_stack(l_s))
      $   call errquit('cannot pop stack',0)
       if (.not.ma_pop_stack(l_t))
@@ -217,6 +224,8 @@ c
      $     call errquit('cannot allocate temp',0)
       if (.not.ma_push_get(MT_DBL,nstra,'dens:tmp2',l_s,k_s))
      $     call errquit('cannot allocate temp',0)
+      if (dilo.gt.0 .and. dihi.gt.0)
+     $     call ga_access(g_civect, 1, nstra, dilo, dihi, k_s, lds )
       call ga_sync()
       do ib=1,nstrb                                                  ! Parallel
         call ga_get(g_civect,1,nstra,ib,ib,dbl_mb(k_t),1)
@@ -233,14 +242,18 @@ c
               l  = map(exb(5,jex,jb))
               k  = map(exb(6,jex,jb))
               kl = (l-1)*norb + k
-              call ga_access(g_civect, 1, nstra, kb, kb, k_s, lds )
-              xx = ddot(nstra, dbl_mb(k_s), 1, dbl_mb(k_t), 1 ) * p2
-              call ga_release( g_civect, 1, nstra, kb, kb )
-              call ga_acc( g_dentmp, ij, ij, kl, kl, xx, 1, 1.d0 )
+*              call ga_access(g_civect, 1, nstra, kb, kb, k_s, lds )
+              xx = ddot(nstra, dbl_mb(k_s+(kb-dilo)*lds), 1,
+     $             dbl_mb(k_t), 1 ) * p2
+*              call ga_release( g_civect, 1, nstra, kb, kb )
+*              call ga_acc( g_dentmp, ij, ij, kl, kl, xx, 1, 1.d0 )
+              twopdm(i,j,k,l) = twopdm(i,j,k,l) + xx
             endif
           enddo
         enddo
       enddo
+      if (dilo.gt.0 .and. dihi.gt.0)
+     $     call ga_release(g_civect, 1, nstra, dilo, dihi)
       if (.not.ma_pop_stack(l_s))
      $   call errquit('cannot pop stack',0)
       if (.not.ma_pop_stack(l_t))
@@ -264,12 +277,13 @@ c
             l  = map(exa(6,iex,ia))
             call ga_access(g_civec, 1, nstrb, ja, ja, k_s, lds )
             xx = ddot( nstrb, dbl_mb(k_t), 1, dbl_mb(k_s), 1 )
-            call ga_release(g_civec, 1, nstrb, ja, ja, k_s, lds )
+            call ga_release(g_civec, 1, nstrb, ja, ja)
             yy = -0.5d0*xx*p1
             do j=1,norb
               ij = (map(j)-1)*norb + i
               jl = (l-1)*norb + map(j)
-              call ga_acc(g_dentmp, ij, ij, jl, jl, yy, 1, 1.d0 )
+*              call ga_acc(g_dentmp, ij, ij, jl, jl, yy, 1, 1.d0 )
+              twopdm(i,map(j),map(j),l) = twopdm(i,map(j),map(j),l) + yy
             enddo
           endif
         enddo
@@ -285,6 +299,8 @@ c
       call ga_sync()
       if (.not.ma_push_get(MT_DBL,nstra,'dens:tmp1',l_t,k_t))
      $     call errquit('cannot allocate temp',0)
+      if  (dilo.gt.0 .and. dihi.gt.0) 
+     $     call ga_access(g_civect, 1, nstra, dilo, dihi, k_s, lds )
       do ib=1,nstrb
         call ga_get(g_civect, 1, nstra, ib, ib, dbl_mb(k_t), 1 )
         do iex=1,nexb
@@ -293,27 +309,31 @@ c
             p1 = exb(4,iex,ib)
             i  = map(exb(5,iex,ib))
             l  = map(exb(6,iex,ib))
-            call ga_access(g_civect, 1, nstra, jb, jb, k_s, lds )
-            xx = ddot(nstra, dbl_mb(k_t), 1, dbl_mb(k_s), 1 )
-            call ga_release( g_civect, 1, nstra, jb, jb )
+*            call ga_access(g_civect, 1, nstra, jb, jb, k_s, lds )
+            xx = ddot(nstra, dbl_mb(k_t), 1,
+     $           dbl_mb(k_s+(jb-dilo)*lds), 1 )
+*            call ga_release( g_civect, 1, nstra, jb, jb )
             yy = -0.5d0*xx*p1
             do j=1,norb
               ij = (map(j)-1)*norb + i
               jl = (l-1)*norb + map(j)
-              call ga_acc(g_dentmp, ij, ij, jl, jl, yy, 1, 1.d0 )
+*              call ga_acc(g_dentmp, ij, ij, jl, jl, yy, 1, 1.d0 )
+              twopdm(i,map(j),map(j),l) = twopdm(i,map(j),map(j),l) + yy
             enddo
           endif
         enddo
       enddo
+      if  (dilo.gt.0 .and. dihi.gt.0) 
+     $     call ga_release(g_civect, 1, nstra, dilo, dihi)
       if (.not.ma_pop_stack(l_t))
      $   call errquit('cannot pop stack',0)
       call ga_sync()
-      call ga_get(g_dentmp,1,nn,1,nn,twopdm,nn)
+*      call ga_get(g_dentmp,1,nn,1,nn,twopdm,nn)
 c
 c  Clean up
 c
-      if (.not.ga_destroy(g_dentmp))
-     $  call errquit('detci_twopdm: cannot destroy global dens',0)
+*      if (.not.ga_destroy(g_dentmp))
+*     $  call errquit('detci_twopdm: cannot destroy global dens',0)
           
       return
       end
@@ -387,9 +407,9 @@ c
       integer lelv(detci_maxelec)
       integer oidx(detci_maxorb)
       integer ip(detci_maxelec)
-      integer g_dentmp
+*      integer g_dentmp
       integer ploop, numnodes, next, myid, nn
-      double precision phase, xx
+      double precision phase, xx, dummy(1)
       double precision tx
       integer nxtval
       external nxtval
@@ -399,11 +419,11 @@ c   Initialize parallel stuff
 c
       tx = util_cpusec()
       nn = norb*norb
-      if (.not.(ga_create(MT_DBL, nn, nn, 'g dens', nn, 1, g_dentmp )))
-     $   call errquit('detci_twopdm_ab: cannot create global',0)
-      call ga_zero(g_dentmp)
-      if (ga_nodeid().eq.0)
-     $   call ga_put( g_dentmp, 1, nn, 1, nn, twopdm, nn )
+*      if (.not.(ga_create(MT_DBL, nn, nn, 'g dens', nn, 1, g_dentmp )))
+*     $   call errquit('detci_twopdm_ab: cannot create global',0)
+*      call ga_zero(g_dentmp)
+*      if (ga_nodeid().eq.0)
+*     $   call ga_put( g_dentmp, 1, nn, 1, nn, twopdm, nn )
       call ga_sync()
       ploop = -1
       numnodes = ga_nnodes()
@@ -480,7 +500,7 @@ c
 c   Gather in left and right CI columns
 c
             call detci_cigather( nstrb, nstra, ne_kl, g_civec, vlhs,
-     $                           vphase, cprime )
+     $                           vphase, cprime , dummy, .false.)
             call detci_cigather0( nstrb, nstra, ne_kl, g_civec, vrhs,
      $                            sprime )
 c
@@ -498,8 +518,10 @@ c
                 lk    = (k-1)*norb + l
                 xx = ddot(ne_kl, cprime(jstr,1), nstrb,
      $                    sprime(kstr,1), nstrb ) * phase * 0.5d0
-                call ga_acc(g_dentmp, ij, ij, kl, kl, xx, 1, 1.d0 )
-                call ga_acc(g_dentmp, lk, lk, ji, ji, xx, 1, 1.d0 )
+*                call ga_acc(g_dentmp, ij, ij, kl, kl, xx, 1, 1.d0 )
+*                call ga_acc(g_dentmp, lk, lk, ji, ji, xx, 1, 1.d0 )
+                 twopdm(ii,jj,kk,ll) = twopdm(ii,jj,kk,ll) + xx
+		 twopdm(ll,kk,jj,ii) = twopdm(ll,kk,jj,ii) + xx
               enddo
             enddo
 c
@@ -513,8 +535,8 @@ c
 c
 c   Cleanup
 c
-      call ga_get(g_dentmp, 1, nn, 1, nn, twopdm, nn )
-      if (.not.ga_destroy(g_dentmp))
-     $  call errquit('detci_twopdm_ab: cannot destroy global dens',0)
-      return
+*      call ga_get(g_dentmp, 1, nn, 1, nn, twopdm, nn )
+*      if (.not.ga_destroy(g_dentmp))
+*     $  call errquit('detci_twopdm_ab: cannot destroy global dens',0)
+*      return
       end

@@ -830,6 +830,7 @@ c
 c
 c
 c
+      call dfill(nn*nn, 0.0d0, twopdm, 1)
       call detci_twopdm( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                   cdetci_nelb, nstra, nstrb, nexa, nexb,
      $                   cdetci_osym, int_mb(k_detci_exa),
@@ -849,6 +850,7 @@ c
      $                      dbl_mb(k_detci_cprime),
      $                      dbl_mb(k_detci_sprime),
      $                      g_civec, twopdm )
+       call ga_dgop(1, twopdm, nn*nn, '+')
 c
 c
 c
@@ -989,7 +991,7 @@ c
       integer ij, rij, kl, rkl
       integer ijsym, ijklsym, nmixed
       double precision TOL
-      data TOL/1.d-12/
+      data TOL/1.d-9/
 #include "symmdef.fh"
 #include "symmmul.fh"
 c      
@@ -1000,25 +1002,27 @@ c
           rij = ijmap(irmap(i),irmap(j))
           h1(ij) = h(rij)
           ijsym = MULX(orbsym(i),orbsym(j))
-          if ((ijsym.ne.1).and.(abs(h1(ij)).gt.TOL))
-     $      nmixed = nmixed + 1
+          if (ijsym.ne.1) then
+            if (abs(h1(ij)).gt.TOL) nmixed = nmixed + 1
+            h1(ij) = 0.0d0
+          endif
           do k=1,norb
             do l=1,k
               kl = ijmap(k,l)
               rkl = ijmap(irmap(k),irmap(l))
               g1(ij,kl) = g(rij,rkl)
               ijklsym = MULX(ijsym,MULX(orbsym(k),orbsym(l)))
-              if ((ijklsym.ne.1).and.(abs(g1(ij,kl)).gt.TOL))
-     $          nmixed = nmixed + 1
+              if (ijklsym.ne.1) then
+                 if (abs(g1(ij,kl)).gt.TOL) nmixed = nmixed + 1
+                 g1(ij,kl) = 0.0d0
+              endif
             enddo
           enddo
         enddo
       enddo
       if ((nmixed.gt.0).and.(ga_nodeid().eq.0)) then
-        write(6,771)
- 771    format(/,' *** DETCI: MO ints symmetry contaminated ***')
+        call errquit('DETCI: MO ints symmetry contaminated',nmixed)
       endif
-
-      return
+c
       end
 

@@ -621,24 +621,36 @@ c
 c
 c Column gather on CI matrix (with phase)
 c
-      subroutine detci_cigather(n,m,nv,g_x,iv,ph,y)
+      subroutine detci_cigather(n,m,nv,g_x,iv,ph,y,x,usex)
       implicit none
 #include "global.fh"
       integer n,m,nv
       integer iv(nv),ph(nv)
-c      double precision x(n,m)
+      double precision x(n,m)
+      logical usex
       integer g_x
       double precision y(n,*)
-      integer i,j,ii,iq
+      integer i,j,ii
+      double precision q
 
-      do i=1,nv
-        ii = iv(i)
-        iq = ph(i)
-        call ga_get(g_x,1,n,ii,ii,y(1,i),1)
-        do j=1,n
-          y(j,i) = iq*y(j,i)
+      if (usex) then
+        do i=1,nv
+          ii = iv(i)
+          q = ph(i)
+          do j=1,n
+            y(j,i) = q*x(j,ii)
+          enddo
         enddo
-      enddo
+      else
+        do i=1,nv
+          ii = iv(i)
+          q = ph(i)
+          call ga_get(g_x,1,n,ii,ii,y(1,i),1)
+          do j=1,n
+            y(j,i) = q*y(j,i)
+          enddo
+        enddo
+      endif
       return
       end
 
@@ -712,9 +724,11 @@ c
 
       do j=1,nex
         xx = f(j)
-        do i=1,n
-          s(i,istr) = s(i,istr) + xx*c(i,idx(j))
-        enddo
+	if (xx .ne. 0.0d0) then
+          do i=1,n
+            s(i,istr) = s(i,istr) + xx*c(i,idx(j))
+          enddo
+        endif
       enddo
       return
       end
@@ -727,20 +741,26 @@ c
 c
 c CI vector scatter accumulate
 c
-      subroutine detci_ciscatter(n,m,nv,x,iv,g_y)
+      subroutine detci_ciscatter(n,m,nv,x,iv,g_y,y,usey)
       implicit none
 #include "global.fh"
       integer n,m,nv
       double precision x(n,nv)
-c      double precision y(n,m)
+      double precision y(n,m)
+      logical usey
       integer g_y
       integer iv(nv)
-      integer i,ii
+      integer i,ii,j
 
       do i=1,nv
         ii = iv(i)
-        call ga_acc(g_y,1,n,ii,ii,x(1,i),n,1.d0)
-C        call daxpy(n,1.d0,x(1,i),1,y(1,ii),1)
+	if (usey) then
+	  do j = 1, n
+	     y(j,ii) = y(j,ii) + x(j,i)
+          enddo
+	else
+          call ga_acc(g_y,1,n,ii,ii,x(1,i),n,1.d0)
+	endif
       enddo
       return
       end
@@ -1214,6 +1234,7 @@ c
 #include "global.fh"
 #include "detciP.fh"
 #include "detci.fh"
+#include "mafdecls.fh"
       integer norb                            ! [input] Orbitals
       integer nsym                            ! [input] Irreps
       integer nela                            ! [input] Alpha electrons
@@ -1232,12 +1253,16 @@ c
       integer i, isym, jsym, istr, jstr
       integer rlo, rhi, clo, chi, myid
       double precision ea, eb, xx
+      double precision denominator
+      integer l_c, k_c
 c
 c$$$      DOUBLE PRECISION XRANDOM
 c$$$      DOUBLE PRECISION DRAND
 c
       myid = ga_nodeid()
       call ga_distribution( g_civec, myid, rlo, rhi, clo, chi )
+      if (.not. ma_push_get(mt_dbl, nstrb, 'detci_dscal: beta',
+     $     l_c, k_c)) call errquit('detci_diagscale: ma', nstrb)
 c
 c Loop over pairs of alpha,beta strings = CI index
 c
@@ -1248,6 +1273,7 @@ c
       isym = detci_elvsymm( norb, nela, nsym, osym, elva )
       istr = detci_elv2str( norb, nela, nsym, osym, ataba, elva )
       if ((istr.ge.clo).and.(istr.le.chi)) then
+        call ga_get(g_civec,1,nstrb,istr,istr,dbl_mb(k_c),1)
         ea = 0.d0
         do i=1,nela
           ea = ea + eps(elva(i))
@@ -1262,9 +1288,14 @@ c
         enddo
         jsym = detci_elvsymm( norb, nelb, nsym, osym, elvb )
         jstr = detci_elv2str( norb, nelb, nsym, osym, atabb, elvb )
-        call ga_get(g_civec,jstr,jstr,istr,istr,xx,1)
-        xx = xx / (eref - ea - eb )
-        call ga_put(g_civec,jstr,jstr,istr,istr,xx,1)
+*        call ga_get(g_civec,jstr,jstr,istr,istr,xx,1)
+        xx = dbl_mb(k_c+jstr-1)
+	denominator = (eref - ea - eb )
+        if (abs(denominator) .lt. 0.1d0) denominator = 
+     $    sign(0.1d0,denominator)
+        xx = xx / denominator
+*        call ga_put(g_civec,jstr,jstr,istr,istr,xx,1)
+        dbl_mb(k_c+jstr-1) = xx
 c
 C
 C ******* TESTING ONLY ********
@@ -1275,10 +1306,14 @@ C      XRANDOM = ((0.5d0-DRAND(0))*0.001)*(EB+EA)
 C      CIVEC(JSTR,ISTR) = CIVEC(JSTR,ISTR)/(EREF - EA - EB + XRANDOM)
 C
         if (detci_getnextelv( norb, nelb, elvb )) goto 102
+        call ga_put(g_civec,1,nstrb,istr,istr,dbl_mb(k_c),1)
       endif
       if (detci_getnextelv( norb, nela, elva )) goto 101
-      
-      return
+c
+      if (.not. ma_pop_stack(l_c)) call errquit
+     $   ('detci:dscal ma corrupt',0)
+      call ga_sync
+c
       end
 
 

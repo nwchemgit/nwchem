@@ -51,7 +51,7 @@ c
       if ((oprint).and.(ga_nodeid().eq.0)) write(6,906)
  906  format(/,'Iter',8x,'Energy',10x,'DeltaE',
      $       6x,'Rnorm',7x,'Coeff',7x,'Time')
-      call flush(6)
+      call util_flush(6)
 c
 c
 c
@@ -180,7 +180,7 @@ c$$$      rnorm = dnrm2(n,q,1)
       if ((ga_nodeid().eq.0).and.(oprint)) then
         write(6,881) iter,ee(1),(ee(1)-eold),rnormscal,abs(cc(1,1)),tx
  881    format(i3,3x,f20.14,3e12.2,f10.2)
-        call flush(6)
+        call util_flush(6)
       endif
       eold = ee(1)
       if ((rnorm.lt.tol).or.(iter.ge.maxiter)) goto 101
