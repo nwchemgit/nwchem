@@ -136,6 +136,18 @@ c
       integer mrg_i19
       integer mrg_i20
 c
+      integer mre_000
+      integer mre_001
+      integer mre_002
+      integer mre_003
+      integer mre_004
+      integer mre_005
+      integer mre_006
+      integer mre_007
+      integer mre_008
+      integer mre_010
+      integer mre_050
+c
       integer msg_hessmin
       integer msg_hessmax
       integer msg_moints_stats_1
@@ -527,15 +539,16 @@ c
       parameter(msg_gapss_scfshift1=msg_ftn_base-279) ! gap_scfshift
       parameter(msg_gapss_scfshift2=msg_ftn_base-280) ! gap_scfshift
 c
-      parameter(mre_001=msg_ftn_base-281) ! esp_grid
-      parameter(mre_002=msg_ftn_base-282) ! esp_grid
-      parameter(mre_003=msg_ftn_base-283) ! esp_grid
-      parameter(mre_004=msg_ftn_base-284) ! esp_grid
-      parameter(mre_005=msg_ftn_base-285) ! esp_grid
-      parameter(mre_006=msg_ftn_base-286) ! esp_grid
-      parameter(mre_007=msg_ftn_base-287) ! esp_grid
-      parameter(mre_008=msg_ftn_base-288) ! esp_grid
-      parameter(mre_009=msg_ftn_base-289) ! esp_grid
-      parameter(mre_010=msg_ftn_base-290) ! esp_grid
-      parameter(mre_050=msg_ftn_base-330) ! esp_grid
+      parameter(mre_000=msg_ftn_base-281) ! esp_grid
+      parameter(mre_001=msg_ftn_base-282) ! esp_grid
+      parameter(mre_002=msg_ftn_base-283) ! esp_grid
+      parameter(mre_003=msg_ftn_base-284) ! esp_grid
+      parameter(mre_004=msg_ftn_base-285) ! esp_grid
+      parameter(mre_005=msg_ftn_base-286) ! esp_grid
+      parameter(mre_006=msg_ftn_base-287) ! esp_grid
+      parameter(mre_007=msg_ftn_base-288) ! esp_grid
+      parameter(mre_008=msg_ftn_base-289) ! esp_grid
+      parameter(mre_009=msg_ftn_base-290) ! esp_grid
+      parameter(mre_010=msg_ftn_base-291) ! esp_grid
+      parameter(mre_050=msg_ftn_base-331) ! esp_grid
 
