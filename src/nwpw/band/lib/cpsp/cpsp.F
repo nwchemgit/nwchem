@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.3 2001-12-20 00:30:50 bylaska Exp $
+* $Id: cpsp.F,v 1.4 2002-01-07 02:05:33 bylaska Exp $
 *
 
 #define TCGMSG
@@ -795,14 +795,16 @@ c     integer    lmmax(nkatmx)
      >                   int_mb(locp(1)+ia-1))
      >        ) then
               call Cram_rc_Mul(nb,dbl_mb(vnl(1)+(l-1)*nfft3d
-     >                           +(ia-1)*nfft3d*lmmax_max),
+     >                           +(nb-1)*nfft3d*lmmax_max
+     >                           +(ia-1)*nfft3d*lmmax_max*nbrill),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(vtmp(1)))
 
 *          *** current function is p or f ****
            else
               call Cram_irc_Mul(nb,dbl_mb(vnl(1)+(l-1)*nfft3d
-     >                           +(ia-1)*nfft3d*lmmax_max),
+     >                           +(nb-1)*nfft3d*lmmax_max
+     >                           +(ia-1)*nfft3d*lmmax_max*nbrill),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(vtmp(1)))
            end if
@@ -816,6 +818,7 @@ c     integer    lmmax(nkatmx)
 
           do n=1,nn
           
+             dcpl_mb(zsw1(1)+n-1) = dconjg(dcpl_mb(zsw1(1)+n-1))
              dcpl_mb(zsw1(1)+n-1) = dcpl_mb(zsw1(1)+n-1)
      >                      /(omega*dbl_mb(vnlnrm(1)
      >                         +(l-1)+(ia-1)*lmmax_max))
@@ -1315,7 +1318,7 @@ c     integer    lmmax(nkatmx)
 
 
 *     **** local variables ****
-      integer ngp(3),version,nfft3d,npack0
+      integer ngp(3),version,nfft3d,npack0,nbrill
       integer ia,l
       real*8 unita(3,3)
       character*12 boundry
@@ -1330,12 +1333,12 @@ c     integer    lmmax(nkatmx)
 
 *     **** external functions ****
       logical      pspw_filefind
-      integer      control_ngrid
+      integer      control_ngrid,brillioun_nbrillioun
       real*8       control_unita
       character*12 control_boundry
       character*2  ion_atom
       external     pspw_filefind
-      external     control_ngrid
+      external     control_ngrid,brillioun_nbrillioun
       external     control_unita
       external     control_boundry
       external     ion_atom
@@ -1344,6 +1347,7 @@ c     integer    lmmax(nkatmx)
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
       call Parallel_taskid(taskid)
+      nbrill = brillioun_nbrillioun()
 
 *     *** set semicore(0) *****
       log_mb(semicore(1)) = .false.
@@ -1381,7 +1385,8 @@ c     integer    lmmax(nkatmx)
      >                  dbl_mb(vnlnrm(1) + (ia-1)*lmmax_max),
      >                  nfft3d,npack0,lmmax_max,
      >                  dbl_mb(vl(1) + (ia-1)*npack0),
-     >                  dbl_mb(vnl(1)+ (ia-1)*nfft3d*lmmax_max),
+     >                  dbl_mb(vnl(1)
+     >                        +(ia-1)*nfft3d*lmmax_max*nbrill),
      >                  log_mb(semicore(1)+ia),
      >                  dbl_mb(rcore(1)+ia-1),
      >                  dbl_mb(ncore(1)+ (ia-1)*npack0*5),

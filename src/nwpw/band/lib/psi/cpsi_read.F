@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_read.F,v 1.1 2001-12-14 20:02:44 bylaska Exp $
+* $Id: cpsi_read.F,v 1.2 2002-01-07 02:05:37 bylaska Exp $
 *
 
 #define TCGMSG
@@ -95,15 +95,25 @@ c     **** send header to all nodes ****
         call errquit('Error reading wavefunctions', 0)
       end if
 
-      if ( (unita(1,1).ne.control_unita(1,1)) .or.
-     >     (unita(2,1).ne.control_unita(2,1)) .or.
-     >     (unita(3,1).ne.control_unita(3,1)) .or.
-     >     (unita(1,2).ne.control_unita(1,2)) .or.
-     >     (unita(2,2).ne.control_unita(2,2)) .or.
-     >     (unita(3,2).ne.control_unita(3,2)) .or.
-     >     (unita(1,3).ne.control_unita(1,3)) .or.
-     >     (unita(2,3).ne.control_unita(2,3)) .or.
-     >     (unita(3,3).ne.control_unita(3,3)) ) then
+      if ( (dabs(unita(1,1)-control_unita(1,1)).gt.1.0d-6) .or.
+     >     (dabs(unita(2,1)-control_unita(2,1)).gt.1.0d-6) .or.
+     >     (dabs(unita(3,1)-control_unita(3,1)).gt.1.0d-6) .or.
+     >     (dabs(unita(1,2)-control_unita(1,2)).gt.1.0d-6) .or.
+     >     (dabs(unita(2,2)-control_unita(2,2)).gt.1.0d-6) .or.
+     >     (dabs(unita(3,2)-control_unita(3,2)).gt.1.0d-6) .or.
+     >     (dabs(unita(1,3)-control_unita(1,3)).gt.1.0d-6) .or.
+     >     (dabs(unita(2,3)-control_unita(2,3)).gt.1.0d-6) .or.
+     >     (dabs(unita(3,3)-control_unita(3,3)).gt.1.0d-6) ) then
+            write(*,*) "unita(psi)      unita(lattice)"
+            write(*,*) unita(1,1), control_unita(1,1)
+            write(*,*) unita(2,1), control_unita(2,1)
+            write(*,*) unita(3,1), control_unita(3,1)
+            write(*,*) unita(1,2), control_unita(1,2)
+            write(*,*) unita(2,2), control_unita(2,2)
+            write(*,*) unita(3,2), control_unita(3,2)
+            write(*,*) unita(1,3), control_unita(1,3)
+            write(*,*) unita(2,3), control_unita(2,3)
+            write(*,*) unita(3,3), control_unita(3,3)
         call errquit('Error reading wavefunctions', 1)
       end if
 

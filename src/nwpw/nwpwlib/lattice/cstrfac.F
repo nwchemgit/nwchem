@@ -1,5 +1,5 @@
 *
-* $Id: cstrfac.F,v 1.2 2001-12-13 03:49:53 bylaska Exp $
+* $Id: cstrfac.F,v 1.3 2002-01-07 02:05:37 bylaska Exp $
 *
 
 *     ***********************************
@@ -326,7 +326,7 @@ C ... End STRFAC ....
       external ion_nion
 
       nion = ion_nion()
-      ck = dbl_mb(cxr(1)+ii-1+(nb-1)*nion)
+      ck = dcpl_mb(cxr(1)+ii-1+(nb-1)*nion)
       return
       end
 
@@ -358,7 +358,7 @@ C ... End STRFAC ....
       nion = ion_nion()
       do nb=1,brillioun_nbrillioun()
       do i =1,nion
-         dbl_mb(cxr(1)+i-1+(nb-1)*nion) =
+         dcpl_mb(cxr(1)+i-1+(nb-1)*nion) =
      >        dcmplx(cos( (brillioun_k(1,nb))*ion_rion(1,i)
      >                  + (brillioun_k(2,nb))*ion_rion(2,i)
      >                  + (brillioun_k(3,nb))*ion_rion(3,i)),
