@@ -65,17 +65,6 @@ c
       l_cache = -1
       k_cache = -1
 c
-      if (oinfo) then
-         write(6,20) actualname(1:inp_strlen(actualname)),
-     $        rec_len_in_dbl,max_cache_rec,max_file_rec
- 20      format(/
-     $        ' Integral file          = ', a/
-     $        ' Record size in doubles = ', i6/
-     $        ' Max. records in memory = ', i6/
-     $        ' Max. records in file   = ', i6/)
-         call util_flush(6)
-      endif
-c
       int2e_file_open = .true.
 c
       end
@@ -462,6 +451,24 @@ c
       implicit none
 #include "cint2efile.fh"
 #include "mafdecls.fh"
+#include "inp.fh"
+c
+c     Opening of file, allocation of buffer and writing of
+c     info message are all now deferred until the first
+c     write operation
+c
+      if (cur_rec .eq. 1) then
+         if (oinfo) then
+            write(6,20) actualname(1:inp_strlen(actualname)),
+     $           rec_len_in_dbl,max_cache_rec,max_file_rec
+ 20         format(/
+     $           ' Integral file          = ', a/
+     $           ' Record size in doubles = ', i6/
+     $           ' Max. records in memory = ', i6/
+     $           ' Max. records in file   = ', i6/)
+            call util_flush(6)
+         endif
+      endif
 c
 c     should test here for overflowing the file/memory cache
 c
