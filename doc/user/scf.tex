@@ -171,6 +171,7 @@ sufficient for nearly all such purposes.
           [reorder <integer atom1 atom2> ...] \
           [output <string output_filename default input_movecs>] \
           [lock]
+          [rotate  <string input-geometry> <string input-movecs>] 
 \end{verbatim}
 
 The \verb+VECTORS+ directive allows the user to specify the source and
@@ -210,6 +211,9 @@ source of the input molecular orbital vectors as any of the following:
   \ref{sec:fragguess}), this is the most powerful initial guess option
   within the code.  It is particularly indispensible for open shell
   metallic systems.
+\item \verb+ ROTATE input-geometry movecs + --- rotates existing 
+   MO vectors  generated at previous geometry ({\tt input-geometry})
+   to the current geometry
 \end{itemize}
  
 The molecular orbitals are saved every iteration if more than 600
@@ -330,6 +334,39 @@ will be swapped with those on atom 1.
 The final orbitals obtained in
 the calculation will be written to the file \verb+"try2.movecs"+.
 
+Example of application of the {\tt ROTATE} directive:
+
+\begin{verbatim}
+geometry test1 noautosym noautoz nocenter
+ o          -0.6 0.0 0.0
+ o          0.6 0.0 0.0
+symmetry c1
+end
+
+geometry test2 noautosym noautoz nocenter
+ o            -0.54812727458556054 -0.24404198584548012  0.0
+ o            0.54812727458556054  0.24404198584548012   0.0
+symmetry c1
+end
+
+basis "ao basis" 
+ *    library 6-31G*
+end
+
+set geometry test1
+
+dft
+ vectors input atomic output test1.mo
+ mulliken
+end
+task dft 
+
+set geometry test2
+dft
+vectors input rotate test1 test1.mo output test2.mo
+end
+task dft
+\end{verbatim}
 \subsection{Superposition of fragment molecular orbitals}
 \label{sec:fragguess}
 
