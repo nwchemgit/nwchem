@@ -1,11 +1,12 @@
-      subroutine sp_start(lfntop,filtop,lfnrst,filrst,rsht,rlng,rinp,
+      subroutine sp_start(lfntop,filtop,lfnrst,filrst,lsyn,filsyn,nsyn,
+     + rsht,rlng,rinp,
      + npxi,npyi,npzi,nbxi,nbyi,nbzi,
      + npbt,nbxt,boxt,vlatt,lpbc,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd)
 c
 c
-c $Id: sp_init.F,v 1.32 1999-07-27 21:09:07 d3e129 Exp $
+c $Id: sp_init.F,v 1.33 1999-08-25 23:21:01 d3j191 Exp $
 c
       implicit none
 c
@@ -17,8 +18,8 @@ c
       logical sp_rdrest,sp_diffbb
       external sp_rdrest,sp_diffbb
 c
-      integer lfntop,lfnrst
-      character*255 filtop,filrst
+      integer lfntop,lfnrst,lsyn,nsyn
+      character*255 filtop,filrst,filsyn
       real*8 rsht,rlng,rinp,boxt(3),vlatt(3,3),rtemp(3)
       real*8 temp,tempw,temps,fld
       integer npxi,npyi,npzi,nbxi,nbyi,nbzi
@@ -30,6 +31,9 @@ c
 c
       me=ga_nodeid()
       np=ga_nnodes()
+c
+      lfnsyn=lsyn
+      nfsync=nsyn
 c
       rshort=rsht
       rlong=max(rsht,rlng)
@@ -168,6 +172,11 @@ c
       nldup=-1
 c
       lpbc=npbtyp.gt.0
+c
+      if(me.eq.0) then
+      if(nfsync.gt.0) open(unit=lfnsyn,
+     + file=filsyn(1:index(filsyn,' ')-1),status='unknown')
+      endif
 c
       call ga_sync()
 c

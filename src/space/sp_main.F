@@ -1,6 +1,6 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa)
 c
-c $Id: sp_main.F,v 1.14 1999-07-27 21:09:08 d3e129 Exp $
+c $Id: sp_main.F,v 1.15 1999-08-25 23:21:02 d3j191 Exp $
 c
       implicit none
 c
@@ -1639,6 +1639,12 @@ c
 c
       call ga_dgop(msp_14,dlb,np,'+')
       call ga_dgop(msp_15,synsum,1,'+')
+cx
+      if(me.eq.0) then
+      write(lfnsyn,3000) synsum
+ 3000 format('synchronization time ',f12.6)
+      endif
+cx
       if(synsum.lt.1.0d-5) return
 c
 c     count load balancing steps with increasing synsum
@@ -1724,6 +1730,13 @@ c
       do 13 i=1,np
       nen(nod(i)+1,1)=nlst(i)
    13 continue
+c
+      if(me.eq.0) then
+      do 14 i=1,np
+      write(lfnsyn,3001) i-1,dlb(i),nen(i,1)
+ 3001 format(i5,f12.6,i5)
+   14 continue
+      endif
 c
       call ga_brdcst(msp_17,nen,np*ma_sizeof(mt_int,1,mt_byte),0)
 c

@@ -1,5 +1,5 @@
 c
-c $Id: sp_common.fh,v 1.7 1999-07-27 21:09:07 d3e129 Exp $
+c $Id: sp_common.fh,v 1.8 1999-08-25 23:21:01 d3j191 Exp $
 c
 c
       real*8 zero,half,one
@@ -70,10 +70,11 @@ c
       real*8 bxmin,bymin,bzmin,tsyncp,factld,third
       integer npbtyp,nbxtyp,neighb(27,2),loadb,lbpair,npprev,ntwin,nldup
       integer nbbdif
+      integer lfnsyn,nfsync
       logical lpbc0,ltwin,lpola,lfree,llong,lnode0,lqmd
       common/sd_var/rshort,rlong,rbox,box,boxh,bsize,vlat,vlati,
      + bxmin,bymin,bzmin,tsyncp,factld,third,
      + npbtyp,nbxtyp,neighb,loadb,lbpair,npprev,ntwin,nldup,nbbdif,
+     + lfnsyn,nfsync,
      + lpbc0,ltwin,lpola,lfree,llong,lnode0,lqmd
-
-
+c
