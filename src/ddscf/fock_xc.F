@@ -1,6 +1,6 @@
       subroutine fock_xc(nmat, g_dens, g_xc)
 c
-c     $Id: fock_xc.F,v 1.4 2000-05-01 20:28:46 edo Exp $
+c     $Id: fock_xc.F,v 1.5 2000-05-25 17:45:34 bjohnson Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -89,6 +89,9 @@ c            write(*,*)'Density matrix',imat
 c            call ga_print(int_mb(k_g_dens_local+imat-1))
 c         enddo
       endif
+#if 0
+c     !!! Comment out initialization so fock_xc will accumulate
+c     !!! for storage efficiency
 c
 c     Initialize XC matrices
 c
@@ -97,6 +100,7 @@ c         write(*,*)'Density matrix',imat
 c         call ga_print(g_dens(imat))
          call ga_zero(g_xc(imat))
       enddo
+#endif
 c
 c     Prepare to call xc_quadv0
 c
@@ -140,7 +144,7 @@ c
 c
       if (bgj_print() .gt. 0) then
          do imat = 1, nmat
-            write(*,*)'XC matrix',imat
+            write(*,*)'XC matrix',imat,' at end of fock_xc:'
             call ga_print(g_xc(imat))
          enddo
          write(*,*)'--------Leaving fock_xc-------------'
