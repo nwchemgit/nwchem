@@ -277,11 +277,13 @@ label <integer itag> <string tag>  [ <real rtag default 0.0> ] \\
 where tag number $itag$ is set to the string $tag$ for all atoms
 anam within a distance $rtag$ from segments $iatag$ through $jatag$.
 A question mark can be used in anam as a wild card character.
-For example, to display atoms 34 through 45 in the color mistyrose
-in the \ecce\ trajectory viewer can be specified with
+\par
+For example, to display all carbon atoms in segments 34 through 45 
+in green and rendered cpk in povray files can be specified with
 
 \begin{verbatim}
-label 1 mistyrose 34 45
+label 1 cpk 34 45 _C??
+label 2 green 34 45 _C??
 \end{verbatim}
 
 Coordinates written to a pov file can be scaled using
