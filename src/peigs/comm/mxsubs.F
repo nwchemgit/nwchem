@@ -1,5 +1,5 @@
 *
-* $Id: mxsubs.F,v 1.14 2003-06-15 00:42:51 edo Exp $
+* $Id: mxsubs.F,v 1.15 2003-10-29 04:49:31 edo Exp $
 *
 *======================================================================
 *
@@ -582,9 +582,6 @@ c.      call mxsync ()
       end
 
       subroutine mxpend
-#ifdef TCGMSG
-	external pend
-#endif
 #ifdef ALOG
 #include "alogf.h"
 #endif
@@ -604,7 +601,6 @@ c.      call mxsync ()
       ENDIF
 #endif
 #ifdef TCGMSG
-cedo	call pend
         call ga_error(' peigs error: mxpend',0)
 #endif
 #ifdef ALOG
