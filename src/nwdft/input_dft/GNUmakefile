@@ -1,10 +1,8 @@
-# $Id: GNUmakefile,v 1.2 1994-10-26 08:51:57 og845 Exp $
+# $Id: GNUmakefile,v 1.3 1994-11-04 04:01:57 og845 Exp $
 
       OBJ_OPTIMIZE = \
 	banner_dft.o			   inpana.o \
-	rdbasis.o				    \
-	rdcalc.o			   \
-	rdinput.o			   rdprop.o \
+	rdinput.o			   \
 	rdquad.o			   \
 	setquad.o
 
