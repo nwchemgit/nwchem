@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.27 1998-07-27 04:09:10 d3e129 Exp $
+c     $Id: scf_vec_guess.F,v 1.28 1998-08-26 17:18:53 d3g681 Exp $
 c
       implicit none
 c
@@ -86,6 +86,15 @@ c
       if (.not. oinitialized) call errquit
      &     ('scf_v_g: not initialized?', 0)
 c
+      if (owritefile) then
+         tolguess = tol2e
+      else if (inp_compare(.false., 'DFT', calling_module))then
+         tolguess = 1d-5
+      else
+         tolguess = 1d-7        ! 1e-5 broke too many large basis SCFs
+      endif
+      status = rtdb_get(rtdb,'tolguess',mt_dbl,1,tolguess)
+c
       oprint = util_print('mo guess', print_default) .and.
      &     ga_nodeid().eq.0
 *      if (oprint)write(6,*)' Calling module = ',calling_module
@@ -123,7 +132,13 @@ c
      &        call errquit('scf_v_g: ga_destroy?',0)
       endif
 c
-      if (nmo .ne. nbf) tol2e = min(tol2e, 1d-9)
+c     Need to force higher accuracy if linear dependence is
+c     detected
+c
+      if (nmo .ne. nbf) then
+         tol2e = min(tol2e, 1d-10)
+         dentolmax = 1d-9
+      endif
 c
  3212 continue
       if (movecs_in .eq. 'hcore' .or. movecs_in .eq. 'atomic') then
@@ -147,13 +162,8 @@ c     Modified by RJH so that unless writing of integrals has been
 c     forced on, it will do a quick and dirty initial guess and
 c     not store any integrals at all.
 c
-         if (owritefile) then
-            tolguess = tol2e
-         else
+         if (.not. owritefile) then
             call fock_force_direct(rtdb)
-            tolguess = 1d-5     ! 1e-4 broke clark still crown ether
-            if (nmo .ne. nbf) tolguess = 1d-7
-            status = rtdb_get(rtdb,'tolguess',mt_dbl,1,tolguess)
          endif
 *         write(6,*) ' tolguess', tolguess
          call rhf_dens_to_mo(rtdb, geom, basis, 2*nclosed+nopen,
