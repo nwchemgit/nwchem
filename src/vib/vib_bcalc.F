@@ -1,7 +1,7 @@
        SUBROUTINE vib_BCALC(IZMAT,BMTRX,HINT,ZMAT,SCR,
      &                 HESSIAN,EIGVEC,EIGVAL)
 C*MODULE VIB  *DECK BCALC
-* $Id: vib_bcalc.F,v 1.1 1995-07-29 23:19:14 d3e129 Exp $
+* $Id: vib_bcalc.F,v 1.2 1995-07-29 23:38:41 d3e129 Exp $
 C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       LOGICAL LINEAR
@@ -38,7 +38,7 @@ C
 *     &            NAT3,NAT3,NAT3,NAT3,NAT3,NAT3)
       WRITE(6,9020)
 C
-*      CALL PRDATA(HINT,EIGVAL,NAT3,NAT3,NR,NAT3,.TRUE.,NPRI)
+*      CALL vib_PRDATA(HINT,EIGVAL,NAT3,NAT3,NR,NAT3,.TRUE.,NPRI)
 C
  9010 FORMAT(///,10X,'------------------------------------------',/
      &           10X,'INTERNAL COORDINATE DESCRIPTION OF HESSIAN',/

@@ -1,6 +1,6 @@
       SUBROUTINE vib_CALLG(G,IGDIM,SCR,fv1,fv2,
      &    ROOT,ALPH,LVAL,NROOTS)
-* $Id: vib_callg.F,v 1.1 1995-07-29 23:19:21 d3e129 Exp $
+* $Id: vib_callg.F,v 1.2 1995-07-29 23:38:47 d3e129 Exp $
 C
 C Routine to set up actual spaces for call to GIVENS
 C
@@ -18,7 +18,7 @@ C
       enddo
 *      call rsg(nroots,nroots,g,scr,root,1,alph,fv1,fv2,ierr)
       call vib_sjacobi(nroots,nroots,g,root,alph,ierr)
-      if (ierr.ne.0) call errquit('vib_callg: rsg error',ierr)
+      if (ierr.ne.0) call errquit('vib_callg: vib_sjacobi error',ierr)
 *     CALL GIVENS(LVAL,NROOTS,LVAL,NROOTS,G,SCR,ROOT,ALPH) !diagonalize it
 C
       RETURN

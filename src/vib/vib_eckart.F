@@ -1,5 +1,5 @@
       SUBROUTINE vib_eckart( HESS, HESSP, HESST, COORD, VC )
-* $Id: vib_eckart.F,v 1.1 1995-07-29 23:19:29 d3e129 Exp $
+* $Id: vib_eckart.F,v 1.2 1995-07-29 23:38:50 d3e129 Exp $
       IMPLICIT REAL*8 (A-H,O-Z)
       PARAMETER( ZERO=0.D0, ONE=1.D0 )
       COMMON /HESS/ NATOM,NAT3,NHESS,NHESST
@@ -36,7 +36,7 @@ C****
           END IF
    50   CONTINUE
         DO 60 IATOM=1,NATOM       ! loop over atoms
-          CALL CROSS(COORD(1,IATOM),UNIVEC,
+          CALL vib_CROSS(COORD(1,IATOM),UNIVEC,
      &      VC(3*(IATOM-1)+1,IAXIS+3))
    60   CONTINUE
    40 CONTINUE
