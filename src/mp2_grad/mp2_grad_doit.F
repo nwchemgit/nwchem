@@ -30,7 +30,6 @@ c
       integer noa,nva,nob,nvb,nir
       integer maxireps, maxops
       parameter (maxireps=20, maxops=120)
-      integer op_class_index(maxops)
       integer iclass_dim(maxireps)
       character*8 zir(maxireps), zclass(maxireps)
       double precision chars(maxireps*maxireps)
@@ -52,23 +51,19 @@ c
       logical ocoul,oexch
       double precision tol2e,e2
       double precision eval_a(*),eval_b(*)
-c
-c
       integer oseg_lo,oseg_hi
       ocoul=.false.
       oexch=.true.
+c
       noa=noa_hi-noa_lo+1
       nva=nva_hi-nva_lo+1
       nob=nob_hi-nob_lo+1
       nvb=nvb_hi-nvb_lo+1
-      write(6,*) 'inside mp2_grad_doit: noa,nva,nob,nvb',
-     $     noa,nva,nob,nvb
 c
       call sym_group_name(geom,group_name)
       if (.not. sym_char_table(group_name, nop, nir, iclass_dim,
      $     zir, zclass, chars))
      $     call errquit('sym_print_char_table: no char table',0)
-      write(6,*) 'inside mp2_grad_doit: nir is ',nir
 c
       num_i_perseg=noa_hi
       do oseg_lo=noa_lo,noa_hi,num_i_perseg
