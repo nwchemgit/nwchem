@@ -1,6 +1,6 @@
       logical function task_energy(rtdb)
 *
-* $Id: task_energy.F,v 1.21 2000-06-02 18:40:09 bert Exp $
+* $Id: task_energy.F,v 1.22 2000-06-05 19:32:32 zzhang Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -67,10 +67,10 @@ c
          call grid_cleanup(rtdb)
       else if (theory .eq. 'sodft')then 
 c     setup ipol=2: spin unrestricted DFT, but save current setting
-         if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol_dft))
-     &       call errquit('task_energy: rtdb_get failed', 1)
+         ipol_dft = 1
+         status = rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol_dft)
          if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, 2))
-     &       call errquit('task_energy: rtdb_put failed', 1)
+     &        call errquit('task_energy: rtdb_put failed', 1)
          status = nwdft(rtdb)
 c     restore ipol value
          if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol_dft))
