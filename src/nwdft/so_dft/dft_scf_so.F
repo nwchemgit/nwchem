@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.9 2000-04-27 18:50:29 edo Exp $
+c     $Id: dft_scf_so.F,v 1.10 2000-04-27 20:39:15 zzhang Exp $
 c     
       implicit none
 c     
@@ -852,7 +852,7 @@ c      write(*,*)"Ecore: z", Ecore
 
 cso  
 cso   Accumulate y-component s.o. contribution 
-cso   Re(Dy)=-Re(Dab)+Re(Dba) 
+cso   Re(Dy)=Re(Dab)-Re(Dba) 
 cso   <Hy>=Re(Dy) dot Vy 
 cso   
       call ga_zero(g_tmp) 
