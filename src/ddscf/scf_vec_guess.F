@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.28 1998-08-26 17:18:53 d3g681 Exp $
+c     $Id: scf_vec_guess.F,v 1.29 1999-05-31 23:15:39 d3g681 Exp $
 c
       implicit none
 c
@@ -133,11 +133,12 @@ c
       endif
 c
 c     Need to force higher accuracy if linear dependence is
-c     detected
+c     detected.  Also turn off density screening.
 c
       if (nmo .ne. nbf) then
          tol2e = min(tol2e, 1d-10)
          dentolmax = 1d-9
+         odensityscreen = .false.
       endif
 c
  3212 continue
