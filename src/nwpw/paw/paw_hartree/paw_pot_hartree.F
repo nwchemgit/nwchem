@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_hartree.F,v 1.7 2003-02-26 20:35:00 marat Exp $
+c $Id: paw_pot_hartree.F,v 1.8 2003-02-27 01:36:19 bylaska Exp $
 c
 
 !**************************************************
@@ -111,7 +111,7 @@ c     !*** calculate the size and indexing ***
       integer mult_l
       integer i_hp,i_hp0
       integer nilm,njlm,niplm,njplm
-      complex tmp_hartree_pot
+      complex*16 tmp_hartree_pot
 
       write(*,*) " in hartree potential"
       !*** zero out paw_pot_hartree ***
@@ -248,3 +248,19 @@ c     >                   (njlm+lj+mj)*paw_proj_nbasis(ia)   ! G(alpha,beta) ind
        
       return
       end
+
+
+
+      subroutine paw_hartree_pot_ptr(ptr)
+      implicit none
+      integer ptr
+
+#include "paw_pot_hartree_data.fh"
+
+      ptr = paw_pot_hartree(1)
+
+      return
+      end
+
+
+
