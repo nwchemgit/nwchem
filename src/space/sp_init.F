@@ -8,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.99 2001-11-21 17:30:37 d3j191 Exp $
+c $Id: sp_init.F,v 1.100 2001-11-30 15:19:58 d3j191 Exp $
 c
       implicit none
 c
@@ -2697,6 +2697,11 @@ c
       integer ils,ihs,jls,jhs
       character*10 rdate,rtime
 c
+      logical lpw,lps
+c
+      lpw=.false.
+      lps=.false.
+c
       if(me.eq.0) then
 c
       call swatch(rdate,rtime)
@@ -2707,8 +2712,8 @@ c
  1001 format(2f12.6,1pe12.5,1x,2a10)
       write(lfntrj,1002) ((vlat(i,j),j=1,3),i=1,3)
  1002 format(3f12.6)
-      write(lfntrj,1003) lxw,lvw,lfw,lxs,lvs,lfs,nwm,nwa,nsa
- 1003 format(6l1,3i10)
+      write(lfntrj,1003) lxw,lvw,lfw,lpw,lxs,lvs,lfs,lps,nwm,nwa,nsa
+ 1003 format(8l1,3i10)
 c
       if((lxw.or.lvw.or.lfw).and.nwm.gt.0) then
       number=0
