@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.435 2003-11-17 06:32:28 edo Exp $
+# $Id: makefile.h,v 1.436 2003-12-17 22:24:23 mhackler Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -945,7 +945,7 @@ else
    DEFINES  += -DEXT_INT 
 endif
 #  LDOPTIONS += -bmaxstack:0x60000000 -bmaxdata:0x60000000 -bloadmap:nwchem.ibm64map# IBM claims maxstack and maxdata not needed on 64-bit
-  LDOPTIONS += -bloadmap:nwchem.ibm64map
+  LDOPTIONS += -bloadmap:nwchem.ibm64map -bbigtoc
    CORE_LIBS += -llapack $(BLASOPT) -lblas
 
 
