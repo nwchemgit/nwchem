@@ -3,7 +3,7 @@ c
 c>>>  driver 
 c     
       implicit real*8 (a-h,o-z)
-      logical LResult
+      logical LResult,converged
       logical ok
       logical status
 c****
@@ -66,8 +66,8 @@ c
       elseif(itype.eq.3) then
         if(.not. geom_ncent(geom,ncent))
      &     call errquit('nwdft: ncent get failed',0)
-C        call main3d(geom,rtdt,ncent)
-C      else
+        call main3d(geom,rtdt,ncent)
+      else
         call errquit('nwdft: problem with system type',0)
       endif
 c
@@ -80,6 +80,8 @@ c
       if(iproc.eq.0) call flush(lwr)
 
       nwdft = .true.
+      if (.not. context_pop('dft')) 
+     &     call errquit('context_pop failed',0)
       close(7)
       return
       end
