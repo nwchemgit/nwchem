@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.295 1999-08-03 23:11:59 d3e129 Exp $
+# $Id: makefile.h,v 1.296 1999-08-05 20:14:15 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1139,9 +1139,6 @@ endif
 
 ifeq ($(TARGET),LINUX)
 #
-# Most Linux distributions are using EGCS
-#
-  EGCS = YES
 #
 # Linux running on an x86 using g77
 # f2c has not been tested in years and is not supported
@@ -1159,12 +1156,29 @@ ifeq ($(BUILDING_PYTHON),python)
    INCPATH += -I/usr/include/python1.5
 endif
 
+  DEFINES = -DLINUX
+
+ifeq ($(FC),pgf77)
+  DEFINES   += -DPGLINUX
+  FOPTIONS   = -Mdalign -Minform,warn -Mnolist -Minfo=loop -Munixlogical
+# for pentium
+  FOPTIONS  += -tp p5  
+# for Pentium Pro or Pentium II
+# FOPTIONS  += -tp p6
+  FOPTIMIZE  = -O2 -Mvect
+  COPTIONS   = -Wall -m486 -malign-double
+  COPTIMIZE  = -g -O2
+  MAKEFLAGS += FC=pgf77
+else
 # defaults are for X86 platforms
          FC  = g77
   FOPTIONS   = -fno-second-underscore 
   FOPTIMIZE  = -g -O2 
   COPTIONS   = -Wall -m486 -malign-double
   COPTIMIZE  = -g -O2
+# Most Linux distributions are using EGCS
+#
+  EGCS = YES
 ifdef EGCS
   FOPTIONS  += -fno-globals -Wunused -fno-silent -m486 -malign-double
   FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
@@ -1184,14 +1198,20 @@ ifeq ($(NWCHEM_TARGET_CPU),POWERPC)
   COPTIONS   = -Wall
   COPTIMIZE  = -g -O2
 endif
+endif
 
-    DEFINES = -DLINUX
 
+ifeq ($(FC),pgf77)
+  LDOPTIONS = -g
+     LINK.f = pgf77 $(LDFLAGS)
+ EXTRA_LIBS += -lm
+else
   LDOPTIONS = -g
      LINK.f = g77 $(LDFLAGS)
  EXTRA_LIBS += -lm
 ifndef EGCS
  EXTRA_LIBS += -lf2c -lm
+endif
 endif
 
   CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
@@ -1238,43 +1258,43 @@ NW_CORE_SUBDIRS = include basis geom inp input chemio ma \
       EXTRA_LIBS = -L /opt/tools/lib/ -lmp -lgen  -lpx -lelf -Wl,-J,-P,-t
 endif
 
-ifeq ($(TARGET),PGLINUX)
-#
-# Linux running on an x86 using g77
-# to use f2c/gcc, define environment variable USE_F2C
-#
-       NICE = nice
-      SHELL := $(NICE) /bin/sh
-    CORE_SUBDIRS_EXTRA = blas lapack
-         CC = gcc
-     RANLIB = ranlib
-  MAKEFLAGS = -j 1 --no-print-directory
-    INSTALL = @echo $@ is built
-
-  FOPTIONS  = -Mdalign -Minform,warn -Mnolist 
-#         FC = sleep 2;pgf77
-          FC = pgf77
-#         FC = sleep 2;pghpf -Mf90
-
-   COPTIONS =  -Wall -m486 -malign-double
-ifeq ($(NWCHEM_TARGET_CPU),604)
-   COPTIONS =  -Wall
-endif
-  FOPTIMIZE = -O2
-  COPTIMIZE = -g -02
-
-    DEFINES = -DLINUX -DPGLINUX
-
-  LDOPTIONS = -g
-     LINK.f = pgf77 $(LDFLAGS)
-  CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
- EXTRA_LIBS = 
-
-        CPP = gcc -E -nostdinc -undef -P
-   FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
-			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
-			/bin/rm -f /tmp/$$$$.c) || exit 1
-endif
+#-do not use# ifeq ($(TARGET),PGLINUX)
+#-do not use# #
+#-do not use# # Linux running on an x86 using g77
+#-do not use# # to use f2c/gcc, define environment variable USE_F2C
+#-do not use# #
+#-do not use#        NICE = nice
+#-do not use#       SHELL := $(NICE) /bin/sh
+#-do not use#     CORE_SUBDIRS_EXTRA = blas lapack
+#-do not use#          CC = gcc
+#-do not use#      RANLIB = ranlib
+#-do not use#   MAKEFLAGS = -j 1 --no-print-directory
+#-do not use#     INSTALL = @echo $@ is built
+#-do not use#
+#-do not use#   FOPTIONS  = -Mdalign -Minform,warn -Mnolist 
+#-do not use# #         FC = sleep 2;pgf77
+#-do not use#           FC = pgf77
+#-do not use# #         FC = sleep 2;pghpf -Mf90
+#-do not use#
+#-do not use#    COPTIONS =  -Wall -m486 -malign-double
+#-do not use# ifeq ($(NWCHEM_TARGET_CPU),604)
+#-do not use#    COPTIONS =  -Wall
+#-do not use# endif
+#-do not use#   FOPTIMIZE = -O2
+#-do not use#   COPTIMIZE = -g -02
+#-do not use#
+#-do not use#     DEFINES = -DLINUX -DPGLINUX
+#-do not use#
+#-do not use#   LDOPTIONS = -g
+#-do not use#      LINK.f = pgf77 $(LDFLAGS)
+#-do not use#   CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
+#-do not use#  EXTRA_LIBS = 
+#-do not use#
+#-do not use#         CPP = gcc -E -nostdinc -undef -P
+#-do not use#    FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
+#-do not use# 			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
+#-do not use# 			/bin/rm -f /tmp/$$$$.c) || exit 1
+#-do not use# endif
 
 
 ###################################################################
