@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.75 1997-11-12 22:19:12 d3e129 Exp $
+c $Id: basis.F,v 1.76 1997-11-12 22:23:52 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -3473,9 +3473,10 @@ c     contraction coefficients for a given contraction set,
 c     in the basis input, for any contraction set in the basis
 c    
       implicit none
-#include "bas.fh"
+      logical bas_numcont, bas_continfo
+      external bas_numcont, bas_continfo
 c::args
-C$Id: basis.F,v 1.75 1997-11-12 22:19:12 d3e129 Exp $
+C$Id: basis.F,v 1.76 1997-11-12 22:23:52 d3e129 Exp $
       integer basis_hand ! nwchem basis handle
       integer ncontr_max  ! max no of contractions for any contraction set
 c::locals
