@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.3 1994-11-11 22:24:38 og845 Exp $
+# $Id: GNUmakefile,v 1.4 1994-11-14 23:51:25 gg502 Exp $
 
       OBJ_OPTIMIZE = \
 	a_dist.o			   becke.o	\
@@ -13,6 +13,8 @@
 	vwn.o				   vx_exact.o	
 
      LIBRARY = libnwdft.a
+
+   USES_BLAS = fitvxc.F quadvxc0.F quadvxc1.F dirac.F tabcd.F rho_gen.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.8 1994-11-11 22:18:48 og845 Exp $
+# $Id: GNUmakefile,v 1.9 1994-11-14 23:51:23 gg502 Exp $
 
       OBJ_OPTIMIZE = \
 	dzero.o		\
@@ -21,7 +21,7 @@
 
      LIBRARY = libnwdft.a
 
-#   USES_BLAS = 
+   USES_BLAS = simltr.F int_eval_gbsets.F second.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.4 1994-11-11 22:41:12 og845 Exp $
+# $Id: GNUmakefile,v 1.5 1994-11-14 23:51:21 gg502 Exp $
 
       OBJ_OPTIMIZE = \
 	bsolve.o	\
@@ -12,7 +12,7 @@
 
      LIBRARY = libnwdft.a
 
-   USES_BLAS = 
+   USES_BLAS = gasbld.F bsolve.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
