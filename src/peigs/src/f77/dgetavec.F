@@ -640,25 +640,7 @@ c
 c this is for an occasionally breakage on cray mpp
 c can''t tell if it is the compiler or what
 c
-      if ( gamma(k) .eq. 0.0d0 ) then
-         do i = b1, bn
-            index(i) = i
-         enddo
-       	 call dshellsort2(k, gamma(b1), index(b1))
-         k = 1
-         do i = b1, bn
-            if ( gamma(i) .ne. 0.0d0 ) then
-               k = index(k)
-               z(k) = gamma(i)*ONE
-               goto 1000
-            else
-               k = k+1
-            endif
-         enddo
-      else
-         Z( K ) = gamma(k)* ONE
-      endif
- 1000 continue
+      Z( K ) = gamma(k)* ONE
 c     
 c     DO I = B1, bn
 c     write(*,*) ' gamma ', i, gamma(i), k
