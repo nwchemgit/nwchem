@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.40 2001-08-10 00:05:59 edo Exp $
+* $Id: geom_hnd.F,v 1.41 2003-07-14 18:13:49 edo Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -4744,6 +4744,7 @@ c
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "geomhnd.fh"
+#include "mafdecls.fh"
       character*(*) name
       integer n
 c
@@ -4769,7 +4770,8 @@ c
  10      status = .false.
       endif
 c     
- 20   if (parallel) call ga_brdcst(323, status, mitob(1), 0)
+ 20   if (parallel) call ga_brdcst(323, status, 
+     ,     ma_sizeof(mt_log,1,mt_byte), 0)
       geom_hnd_check_data = status
 c     
       end
