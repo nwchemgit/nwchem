@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.62 2003-04-01 22:49:50 edo Exp $
+C$Id: nwdft.F,v 1.63 2003-04-01 23:21:45 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -167,6 +167,7 @@ c
                goto 1101
             endif
          else if(theory .eq. 'sodft')then 
+            grid_ok=grid_reopen(rtdb,geom)
             igok=0
             if(grid_ok) igok=1
             call ga_igop(999,igok,1,'+')
