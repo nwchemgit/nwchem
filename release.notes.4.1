@@ -84,7 +84,11 @@ SCF:
 
   o BUG FIX: Bug introduced in 4.0.1 which produced nonsense numbers for
     very large SCF and DFT calculations has been fixed.
-  o 
+  o KNOWN BUG: In a sequence of calculations in one input deck (using
+    the same geometry and basis set) if the Hamiltonian gets changed (by
+    adding relativistic operators or COSMO) in the subsequent calculation
+    the vectors are assumed to be converged. This is not correct as the 
+    Hamiltonian changed. 
   o 
 
 COSMO:
