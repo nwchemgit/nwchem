@@ -63,7 +63,9 @@ MP2 and RI-MP2 modules support frozen virtual orbitals.
 
 By default, no orbitals are frozen.  The \verb+atomic+ keyword causes
 orbitals to be frozen according to the rules in Table
-\ref{tbl:freeze-by-atoms}.  The actual input would be
+\ref{tbl:freeze-by-atoms}.  Note that {\em no} orbitals are frozen on
+atoms on which the nuclear charge has been modified either by the user
+or due to the presence of an ECP.  The actual input would be
 \begin{verbatim}
   freeze atomic
 \end{verbatim}
