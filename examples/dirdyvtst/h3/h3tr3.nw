@@ -1,0 +1,75 @@
+start h3
+
+basis
+ h library 3-21G
+end
+
+scf     
+   uhf 
+   doublet 
+   thresh 1.0e-6 
+end
+
+dirdyvtst autosym 0.001
+  theory scf
+*GENERAL
+  TITLE
+    Test run: H+H2 reaction, Page-McIver LQA algorithm, no restart
+  
+  ATOMS
+     1    H
+     2    H
+     3    H
+  END
+
+*REACT1
+   GEOM
+     1  0.0   0.0   0.0
+     2  0.0   0.0   1.3886144
+   END
+
+   SPECIES LINRP
+
+*REACT2
+  GEOM
+    3    0.0   0.0 190.3612132
+  END
+
+  SPECIES  ATOMIC
+
+*PROD2
+  GEOM
+    1   0.0   0.0 190.3612132
+  END
+ 
+  SPECIES   ATOMIC
+
+*PROD1
+
+  GEOM
+    2  0.0   0.0   1.3886144
+    3   0.0   0.0   0.0
+  END
+
+  SPECIES  LINRP
+
+*START
+
+  GEOM
+    1  0.0   0.0  -1.76531973
+    2  0.0   0.0   0.0
+    3  0.0   0.0   1.76531973
+  END
+
+  SPECIES  LINTS
+
+*PATH
+  SSTEP  0.05
+  SSAVE  0.05 
+  SLP    0.50 
+  SLM   -0.50
+  SCALEMASS 0.6718993
+  INTEGRA   LQA
+end
+
+task dirdyvtst

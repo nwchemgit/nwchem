@@ -1,0 +1,552 @@
+ argument  1 = ./h3tr3.nw
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 4.0
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                                         
+                                         
+ 
+ 
+            COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+ 
+                            >>> All Rights Reserved <<<
+ 
+ 
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+           Job information
+           ---------------
+
+    hostname      = pitb
+    program       = /usr/users/windus/nwchem/bin/DECOSF/nwchem
+    date          = Tue May  1 13:22:01 2001
+
+    compiled      = Tue May  1 13:19:17 PDT 2001
+    source        = /usr/users/windus/nwchem
+    nwchem branch = Development
+    input         = ./h3tr3.nw
+    prefix        = h3.
+    data base     = ./h3.db
+    status        = startup
+    nproc         =    1
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap      =   47382524 doubles =    361.5 Mbytes
+    stack     =   15794169 doubles =    120.5 Mbytes
+    global    =   63176714 doubles =    482.0 Mbytes (within heap+stack)
+    total     =   63176693 doubles =    482.0 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = .
+ 
+ 
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+                      Basis "ao basis" -> "" (cartesian)
+                      -----
+  h (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  5.44717800E+00  0.156285
+  1 S  8.24547000E-01  0.904691
+ 
+  2 S  1.83192000E-01  1.000000
+ 
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ h                           3-21G                   2        2   2s
+
+
+
+
+ DIRDYVTST - DiRect DYnamics for Variational Transition State Theory with the NWChem  electronic structure code
+
+     This code prepares the file30 input for POLYRATE from electronic structure calculations of gradients
+     hessians at the reactant, product, and saddle point geometries, and along the minimum energy path.
+     Cartesian geometries for the reactants, products, and saddle points need to be input to this code;
+     optimization for these geometries is not performed in the code.  Points along the minimum energy path
+     are calculated here.
+
+ Options, lgs=
+   1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0
+
+           Note that only lgs 1,2,6,8,27,31,38,39 are used.
+
+     lgs( 1)= 1, saddle point; MEP started along unbound eigenvector
+     lgs( 2)= 0, frequencies and eigenvectors at save points along MEP are not printed
+     lgs( 6)= 1,  2, reactants,  2, products
+     lgs( 8)= 0, no restart
+     lgs(27)= 0, use original direction of unbound eigenvector at saddle point
+     lgs(31)= 2, MEP calculation uses Page-McIver LQA algorithm
+     lgs(38)= 0, No electronic structure files saved
+     lgs(39)= 0, No single point calculation  performed
+
+
+ Title:
+     Test run: H+H2 reaction, Page-McIver LQA algorithm, no restart              
+
+
+ Number of atoms =     3
+
+
+ Masses
+                                  amu             a.u.            kg
+     Mass of atom  1           1.007825      1837.108749   1.673231E-27
+     Mass of atom  2           1.007825      1837.108749   1.673231E-27
+     Mass of atom  3           1.007825      1837.108749   1.673231E-27
+     Forward reduced mass      0.671899      1224.768271   1.115514E-27
+
+
+ Reactants
+
+     Input geometry (cartesian coordinates in au)
+      atom            x             y             z
+        1          0.00000       0.00000       0.00000
+        2          0.00000       0.00000       1.38861
+        3          0.00000       0.00000     190.36121
+
+     Species 1 consists of atom(s):    1  2
+          icode=    3
+
+     Species 2 consists of atom(s):    3
+          icode=    1
+
+
+ Products
+
+     Input geometry (cartesian coordinates in au)
+      atom            x             y             z
+        1          0.00000       0.00000     190.36121
+        2          0.00000       0.00000       1.38861
+        3          0.00000       0.00000       0.00000
+
+     Species 3 consists of atom(s):    2  3
+          icode=    3
+
+     Species 4 consists of atom(s):    1
+          icode=    1
+
+
+ Saddle point or starting geometry on MEP
+
+     Input geometry (cartesian coordinates in au)
+      atom            x             y             z
+        1          0.00000       0.00000      -1.76532
+        2          0.00000       0.00000       0.00000
+        3          0.00000       0.00000       1.76532
+          icode=    3
+
+ Mass scaled coordinates, rotated so principle axes are aligned
+
+     Reactants
+      atom            x             y             z
+        1          0.00000       0.00000     -78.28061
+        2          0.00000       0.00000     -76.57993
+        3          0.00000       0.00000     154.86054
+
+     Products
+      atom            x             y             z
+        1          0.00000       0.00000    -154.86054
+        2          0.00000       0.00000      76.57993
+        3          0.00000       0.00000      78.28061
+
+     Saddle point or starting geometry on MEP
+      atom            x             y             z
+        1          0.00000       0.00000      -2.16204
+        2          0.00000       0.00000       0.00000
+        3          0.00000       0.00000       2.16204
+
+
+ Parameters for MEP calculation
+
+     Step size, dels=  0.050000
+     Interval for saving Hessian data, delsv =  0.050000
+     Interval for computing Hessian data, delhss =  0.050000
+     Path also stopped if s .gt.  0.500000 or s .lt. -0.500000
+
+
+ ********** Reactants
+
+ Geometry in mass-scaled cartesians (bohrs):
+
+                 x               y               z
+   1        0.000000E+00    0.000000E+00   -7.828061E+01
+   2        0.000000E+00    0.000000E+00   -7.657993E+01
+   3        0.000000E+00    0.000000E+00    1.548605E+02
+ Symmetry group is C4V
+
+ Potential energy=  -1.6191584449E+00 Hartree= -1.01604E+03 kcal/mol
+
+ Derivatives in mass-scaled cartesians (au):
+   1        0.000000E+00    0.000000E+00   -4.574978E-08
+   2        0.000000E+00    0.000000E+00    4.574978E-08
+   3        0.000000E+00    0.000000E+00    5.324826E-17
+
+ Reactant species    1
+
+ Eigenvalues and eigenvectors of hessian
+
+                       m=       1            2            3            4            5            6
+  Eigenvalues (au)=           0.551478     0.000000     0.000000     0.000000     0.000000     0.000000
+  Frequencies (cm^-1)=     4657.164836     3.024441     3.024441     0.000066     0.000063    -0.000048
+  Eigenvectors=
+                        1     0.000000     0.707107     0.000000    -0.707107     0.000000     0.000000
+                        2     0.000000     0.000000    -0.707107     0.000000     0.704361     0.062257
+                        3     0.707107     0.000000     0.000000     0.000000     0.062257    -0.704361
+                        4     0.000000    -0.707107     0.000000    -0.707107     0.000000     0.000000
+                        5     0.000000     0.000000     0.707107     0.000000     0.704361     0.062257
+                        6    -0.707107     0.000000     0.000000     0.000000     0.062257    -0.704361
+  
+
+ Reactant species    2 is an atom
+
+
+ ********** Products
+
+ Geometry in mass-scaled cartesians (bohrs):
+
+                 x               y               z
+   1        0.000000E+00    0.000000E+00   -1.548605E+02
+   2        0.000000E+00    0.000000E+00    7.657993E+01
+   3        0.000000E+00    0.000000E+00    7.828061E+01
+ Symmetry group is C4V
+
+ Potential energy=  -1.6191584449E+00 Hartree= -1.01604E+03 kcal/mol
+
+ Derivatives in mass-scaled cartesians (au):
+   1        0.000000E+00    0.000000E+00   -2.983319E-17
+   2        0.000000E+00    0.000000E+00   -4.574978E-08
+   3        0.000000E+00    0.000000E+00    4.574978E-08
+
+ Product species     1
+
+ Eigenvalues and eigenvectors of hessian
+
+                       m=       1            2            3            4            5            6
+  Eigenvalues (au)=           0.551478     0.000000     0.000000     0.000000     0.000000     0.000000
+  Frequencies (cm^-1)=     4657.164836     3.024441     3.024441     0.000066    -0.000046    -0.000046
+  Eigenvectors=
+                        1     0.000000     0.000000     0.707107     0.000000     0.000000     0.707107
+                        2     0.000000     0.707107     0.000000     0.000000    -0.707107     0.000000
+                        3     0.707107     0.000000     0.000000     0.707107     0.000000     0.000000
+                        4     0.000000     0.000000    -0.707107     0.000000     0.000000     0.707107
+                        5     0.000000    -0.707107     0.000000     0.000000    -0.707107     0.000000
+                        6    -0.707107     0.000000     0.000000     0.707107     0.000000     0.000000
+  
+
+ Product species     2 is an atom
+
+
+ ********** Saddle point or starting point
+
+ Geometry in mass-scaled cartesians (bohrs):
+
+                 x               y               z
+   1        0.000000E+00    0.000000E+00   -2.162041E+00
+   2        0.000000E+00    0.000000E+00    0.000000E+00
+   3        0.000000E+00    0.000000E+00    2.162041E+00
+ Symmetry group is D4H
+
+ Potential energy=  -1.5920744789E+00 Hartree= -9.99042E+02 kcal/mol
+
+ Derivatives in mass-scaled cartesians (au):
+   1        0.000000E+00    0.000000E+00   -2.372509E-08
+   2        0.000000E+00    0.000000E+00    0.000000E+00
+   3        0.000000E+00    0.000000E+00    2.372509E-08
+
+ Eigenvalues and eigenvectors of hessian
+
+                       m=       1            2            3            4            5            6
+  Eigenvalues (au)=           0.107367     0.031975     0.031975    -0.133577     0.000000     0.000000
+  Frequencies (cm^-1)=     2054.905320  1121.409344  1121.409344 -2292.042610     1.008024     1.008024
+  Eigenvectors=
+                        1     0.000000     0.375428    -0.160376     0.000000    -0.629221     0.322616
+                        2     0.000000     0.160376     0.375428     0.000000    -0.322616    -0.629221
+                        3    -0.707107     0.000000     0.000000    -0.408249     0.000000     0.000000
+                        4     0.000000    -0.750856     0.320753     0.000000     0.000000     0.000000
+                        5     0.000000    -0.320753    -0.750856     0.000000     0.000000     0.000000
+                        6     0.000000     0.000000     0.000000     0.816496     0.000000     0.000000
+                        7     0.000000     0.375428    -0.160376     0.000000     0.629221    -0.322616
+                        8     0.000000     0.160376     0.375428     0.000000     0.322616     0.629221
+                        9     0.707107     0.000000     0.000000    -0.408249     0.000000     0.000000
+  
+
+                       m=       7            8            9
+  Eigenvalues (au)=           0.000000     0.000000     0.000000
+  Frequencies (cm^-1)=        0.298404     0.298404     2.280222
+  Eigenvectors=
+                        1    -0.345859     0.462293     0.000000
+                        2     0.462293     0.345859     0.000000
+                        3     0.000000     0.000000     0.577350
+                        4    -0.345859     0.462293     0.000000
+                        5     0.462293     0.345859     0.000000
+                        6     0.000000     0.000000     0.577351
+                        7    -0.345859     0.462293     0.000000
+                        8     0.462293     0.345859     0.000000
+                        9     0.000000     0.000000     0.577350
+  
+
+
+ Set up to take first step off saddle point
+
+ Vector for initial step off saddle point=
+                                     0.0000   0.0000  -0.4082   0.0000   0.0000   0.8165   0.0000   0.0000  -0.4082
+
+
+ ********** Calculate points along reaction path
+
+      dels=          5.00000E-02
+      delsv=         5.00000E-02
+      delhss=        5.00000E-02
+      dir=           1.00000E+00
+      slm=          -5.00000E-01
+      slp=           5.00000E-01
+
+ Path followed using Page-McIver LQA algorithm
+
+ Take step from saddle point in reactant direction
+
+  All quantities in atomic units, x is vector of mass-weighted coordinates,
+  dx is the normalized mass-weighted gradient vector, and |dV/x| is the magnitude of the gradient
+         s       V,|dV/dx|
+        0.00000  2.70840E-02    x=   0.0000   0.0000  -2.1620   0.0000   0.0000   0.0000   0.0000   0.0000   2.1620
+                 0.00000E+00   dx=   0.0000   0.0000  -0.4082   0.0000   0.0000   0.8165   0.0000   0.0000  -0.4082
+ Symmetry group is C4V
+       -0.05000  2.69189E-02    x=   0.0000   0.0000  -2.1416   0.0000   0.0000  -0.0408   0.0000   0.0000   2.1825
+                 6.54649E-03   dx=   0.0000   0.0000  -0.3515   0.0000   0.0000   0.8140   0.0000   0.0000  -0.4625
+ Symmetry group is C4V
+       -0.10000  2.64409E-02    x=   0.0000   0.0000  -2.1242   0.0000   0.0000  -0.0815   0.0000   0.0000   2.2057
+                 1.24074E-02   dx=   0.0000   0.0000  -0.3132   0.0000   0.0000   0.8096   0.0000   0.0000  -0.4964
+ Symmetry group is C4V
+       -0.15000  2.56988E-02    x=   0.0000   0.0000  -2.1092   0.0000   0.0000  -0.1219   0.0000   0.0000   2.2311
+                 1.70396E-02   dx=   0.0000   0.0000  -0.2610   0.0000   0.0000   0.8005   0.0000   0.0000  -0.5395
+ Symmetry group is C4V
+       -0.20000  2.47625E-02    x=   0.0000   0.0000  -2.0973   0.0000   0.0000  -0.1617   0.0000   0.0000   2.2589
+                 2.01453E-02   dx=   0.0000   0.0000  -0.1941   0.0000   0.0000   0.7839   0.0000   0.0000  -0.5898
+ Symmetry group is C4V
+       -0.25000  2.37089E-02    x=   0.0000   0.0000  -2.0890   0.0000   0.0000  -0.2004   0.0000   0.0000   2.2894
+                 2.17629E-02   dx=   0.0000   0.0000  -0.1106   0.0000   0.0000   0.7559   0.0000   0.0000  -0.6453
+ Symmetry group is C4V
+       -0.30000  2.26046E-02    x=   0.0000   0.0000  -2.0853   0.0000   0.0000  -0.2375   0.0000   0.0000   2.3228
+                 2.22524E-02   dx=   0.0000   0.0000  -0.0135   0.0000   0.0000   0.7138   0.0000   0.0000  -0.7003
+ Symmetry group is C4V
+       -0.35000  2.14935E-02    x=   0.0000   0.0000  -2.0867   0.0000   0.0000  -0.2721   0.0000   0.0000   2.3588
+                 2.21153E-02   dx=   0.0000   0.0000   0.0859   0.0000   0.0000   0.6602   0.0000   0.0000  -0.7461
+ Symmetry group is C4V
+       -0.40000  2.03967E-02    x=   0.0000   0.0000  -2.0928   0.0000   0.0000  -0.3040   0.0000   0.0000   2.3968
+                 2.17301E-02   dx=   0.0000   0.0000   0.1727   0.0000   0.0000   0.6048   0.0000   0.0000  -0.7775
+ Symmetry group is C4V
+       -0.45000  1.93217E-02    x=   0.0000   0.0000  -2.1028   0.0000   0.0000  -0.3332   0.0000   0.0000   2.4361
+                 2.12513E-02   dx=   0.0000   0.0000   0.2384   0.0000   0.0000   0.5571   0.0000   0.0000  -0.7955
+ Symmetry group is C4V
+       -0.50000  1.82724E-02    x=   0.0000   0.0000  -2.1157   0.0000   0.0000  -0.3603   0.0000   0.0000   2.4761
+                 2.07061E-02   dx=   0.0000   0.0000   0.2838   0.0000   0.0000   0.5211   0.0000   0.0000  -0.8049
+
+ Take step from saddle point in product direction
+
+  All quantities in atomic units, x is vector of mass-weighted coordinates,
+  dx is the normalized mass-weighted gradient vector, and |dV/x| is the magnitude of the gradient
+         s       V,|dV/dx|
+        0.00000  2.70840E-02    x=   0.0000   0.0000  -2.1620   0.0000   0.0000   0.0000   0.0000   0.0000   2.1620
+                 0.00000E+00   dx=   0.0000   0.0000  -0.4082   0.0000   0.0000   0.8165   0.0000   0.0000  -0.4082
+ Symmetry group is C4V
+        0.05000  2.69189E-02    x=   0.0000   0.0000  -2.1825   0.0000   0.0000   0.0408   0.0000   0.0000   2.1416
+                 6.54649E-03   dx=   0.0000   0.0000   0.4625   0.0000   0.0000  -0.8140   0.0000   0.0000   0.3515
+ Symmetry group is C4V
+        0.10000  2.64409E-02    x=   0.0000   0.0000  -2.2057   0.0000   0.0000   0.0815   0.0000   0.0000   2.1242
+                 1.24074E-02   dx=   0.0000   0.0000   0.4964   0.0000   0.0000  -0.8096   0.0000   0.0000   0.3132
+ Symmetry group is C4V
+        0.15000  2.56988E-02    x=   0.0000   0.0000  -2.2311   0.0000   0.0000   0.1219   0.0000   0.0000   2.1092
+                 1.70396E-02   dx=   0.0000   0.0000   0.5395   0.0000   0.0000  -0.8005   0.0000   0.0000   0.2610
+ Symmetry group is C4V
+        0.20000  2.47625E-02    x=   0.0000   0.0000  -2.2589   0.0000   0.0000   0.1617   0.0000   0.0000   2.0973
+                 2.01453E-02   dx=   0.0000   0.0000   0.5898   0.0000   0.0000  -0.7839   0.0000   0.0000   0.1941
+ Symmetry group is C4V
+        0.25000  2.37089E-02    x=   0.0000   0.0000  -2.2894   0.0000   0.0000   0.2004   0.0000   0.0000   2.0890
+                 2.17628E-02   dx=   0.0000   0.0000   0.6453   0.0000   0.0000  -0.7559   0.0000   0.0000   0.1106
+ Symmetry group is C4V
+        0.30000  2.26046E-02    x=   0.0000   0.0000  -2.3228   0.0000   0.0000   0.2375   0.0000   0.0000   2.0853
+                 2.22524E-02   dx=   0.0000   0.0000   0.7003   0.0000   0.0000  -0.7137   0.0000   0.0000   0.0135
+ Symmetry group is C4V
+        0.35000  2.14936E-02    x=   0.0000   0.0000  -2.3588   0.0000   0.0000   0.2721   0.0000   0.0000   2.0867
+                 2.21152E-02   dx=   0.0000   0.0000   0.7461   0.0000   0.0000  -0.6602   0.0000   0.0000  -0.0859
+ Symmetry group is C4V
+        0.40000  2.03967E-02    x=   0.0000   0.0000  -2.3968   0.0000   0.0000   0.3040   0.0000   0.0000   2.0928
+                 2.17300E-02   dx=   0.0000   0.0000   0.7775   0.0000   0.0000  -0.6048   0.0000   0.0000  -0.1727
+ Symmetry group is C4V
+        0.45000  1.93217E-02    x=   0.0000   0.0000  -2.4361   0.0000   0.0000   0.3332   0.0000   0.0000   2.1028
+                 2.12513E-02   dx=   0.0000   0.0000   0.7955   0.0000   0.0000  -0.5571   0.0000   0.0000  -0.2384
+ Symmetry group is C4V
+        0.50000  1.82725E-02    x=   0.0000   0.0000  -2.4761   0.0000   0.0000   0.3603   0.0000   0.0000   2.1157
+                 2.07061E-02   dx=   0.0000   0.0000   0.8049   0.0000   0.0000  -0.5211   0.0000   0.0000  -0.2838
+
+
+ Sort data in file 30 so points along MEP have the reaction coordinate in ascending order.
+ Also calculate the values of the reaction coordinate at the reactant and product geometries
+  and shift energies so reactant v is zero.
+
+ Summary of sorted data (all units are atomic)
+     R = reactants, P = products, * = saddle point or starting geometry
+
+         s           V               x (mass weighted)
+ R   -187.13211  0.00000E+00         0.0000   0.0000 -78.2806   0.0000   0.0000 -76.5799   0.0000   0.0000 154.8605
+ P    187.13212  0.00000E+00         0.0000   0.0000-154.8605   0.0000   0.0000  76.5799   0.0000   0.0000  78.2806
+ *      0.00000  2.70840E-02         0.0000   0.0000  -2.1620   0.0000   0.0000   0.0000   0.0000   0.0000   2.1620
+  
+       -0.50000  1.82724E-02         0.0000   0.0000  -2.1157   0.0000   0.0000  -0.3603   0.0000   0.0000   2.4761
+       -0.45000  1.93217E-02         0.0000   0.0000  -2.1028   0.0000   0.0000  -0.3332   0.0000   0.0000   2.4361
+       -0.40000  2.03967E-02         0.0000   0.0000  -2.0928   0.0000   0.0000  -0.3040   0.0000   0.0000   2.3968
+       -0.35000  2.14935E-02         0.0000   0.0000  -2.0867   0.0000   0.0000  -0.2721   0.0000   0.0000   2.3588
+       -0.30000  2.26046E-02         0.0000   0.0000  -2.0853   0.0000   0.0000  -0.2375   0.0000   0.0000   2.3228
+       -0.25000  2.37089E-02         0.0000   0.0000  -2.0890   0.0000   0.0000  -0.2004   0.0000   0.0000   2.2894
+       -0.20000  2.47625E-02         0.0000   0.0000  -2.0973   0.0000   0.0000  -0.1617   0.0000   0.0000   2.2589
+       -0.15000  2.56988E-02         0.0000   0.0000  -2.1092   0.0000   0.0000  -0.1219   0.0000   0.0000   2.2311
+       -0.10000  2.64409E-02         0.0000   0.0000  -2.1242   0.0000   0.0000  -0.0815   0.0000   0.0000   2.2057
+       -0.05000  2.69189E-02         0.0000   0.0000  -2.1416   0.0000   0.0000  -0.0408   0.0000   0.0000   2.1825
+        0.05000  2.69189E-02         0.0000   0.0000  -2.1825   0.0000   0.0000   0.0408   0.0000   0.0000   2.1416
+        0.10000  2.64409E-02         0.0000   0.0000  -2.2057   0.0000   0.0000   0.0815   0.0000   0.0000   2.1242
+        0.15000  2.56988E-02         0.0000   0.0000  -2.2311   0.0000   0.0000   0.1219   0.0000   0.0000   2.1092
+        0.20000  2.47625E-02         0.0000   0.0000  -2.2589   0.0000   0.0000   0.1617   0.0000   0.0000   2.0973
+        0.25000  2.37089E-02         0.0000   0.0000  -2.2894   0.0000   0.0000   0.2004   0.0000   0.0000   2.0890
+        0.30000  2.26046E-02         0.0000   0.0000  -2.3228   0.0000   0.0000   0.2375   0.0000   0.0000   2.0853
+        0.35000  2.14936E-02         0.0000   0.0000  -2.3588   0.0000   0.0000   0.2721   0.0000   0.0000   2.0867
+        0.40000  2.03967E-02         0.0000   0.0000  -2.3968   0.0000   0.0000   0.3040   0.0000   0.0000   2.0928
+        0.45000  1.93217E-02         0.0000   0.0000  -2.4361   0.0000   0.0000   0.3332   0.0000   0.0000   2.1028
+        0.50000  1.82725E-02         0.0000   0.0000  -2.4761   0.0000   0.0000   0.3603   0.0000   0.0000   2.1157
+
+
+ Summary of MEP data
+     R = reactants, P = products, * = saddle point or starting geometry
+
+  Cartesian coordinates, x
+
+        s (au)   V (kcal/mol)        x (Angstroms)
+ R   -187.13211  0.00000E+00
+ P    187.13212  0.00000E+00
+ *      0.00000  1.69954E+01         0.0000   0.0000  -0.9342   0.0000   0.0000   0.0000   0.0000   0.0000   0.9342
+       -0.50000  1.14661E+01         0.0000   0.0000  -0.9141   0.0000   0.0000  -0.1557   0.0000   0.0000   1.0698
+       -0.45000  1.21246E+01         0.0000   0.0000  -0.9086   0.0000   0.0000  -0.1440   0.0000   0.0000   1.0526
+       -0.40000  1.27991E+01         0.0000   0.0000  -0.9042   0.0000   0.0000  -0.1314   0.0000   0.0000   1.0356
+       -0.35000  1.34874E+01         0.0000   0.0000  -0.9016   0.0000   0.0000  -0.1176   0.0000   0.0000   1.0192
+       -0.30000  1.41846E+01         0.0000   0.0000  -0.9010   0.0000   0.0000  -0.1026   0.0000   0.0000   1.0036
+       -0.25000  1.48776E+01         0.0000   0.0000  -0.9026   0.0000   0.0000  -0.0866   0.0000   0.0000   0.9892
+       -0.20000  1.55387E+01         0.0000   0.0000  -0.9062   0.0000   0.0000  -0.0699   0.0000   0.0000   0.9760
+       -0.15000  1.61262E+01         0.0000   0.0000  -0.9114   0.0000   0.0000  -0.0527   0.0000   0.0000   0.9640
+       -0.10000  1.65919E+01         0.0000   0.0000  -0.9178   0.0000   0.0000  -0.0352   0.0000   0.0000   0.9530
+       -0.05000  1.68919E+01         0.0000   0.0000  -0.9253   0.0000   0.0000  -0.0176   0.0000   0.0000   0.9430
+        0.05000  1.68919E+01         0.0000   0.0000  -0.9430   0.0000   0.0000   0.0176   0.0000   0.0000   0.9253
+        0.10000  1.65919E+01         0.0000   0.0000  -0.9530   0.0000   0.0000   0.0352   0.0000   0.0000   0.9178
+        0.15000  1.61262E+01         0.0000   0.0000  -0.9640   0.0000   0.0000   0.0527   0.0000   0.0000   0.9114
+        0.20000  1.55387E+01         0.0000   0.0000  -0.9760   0.0000   0.0000   0.0699   0.0000   0.0000   0.9062
+        0.25000  1.48776E+01         0.0000   0.0000  -0.9892   0.0000   0.0000   0.0866   0.0000   0.0000   0.9026
+        0.30000  1.41846E+01         0.0000   0.0000  -1.0036   0.0000   0.0000   0.1026   0.0000   0.0000   0.9010
+        0.35000  1.34874E+01         0.0000   0.0000  -1.0192   0.0000   0.0000   0.1176   0.0000   0.0000   0.9016
+        0.40000  1.27991E+01         0.0000   0.0000  -1.0356   0.0000   0.0000   0.1314   0.0000   0.0000   0.9042
+        0.45000  1.21246E+01         0.0000   0.0000  -1.0526   0.0000   0.0000   0.1440   0.0000   0.0000   0.9086
+        0.50000  1.14661E+01         0.0000   0.0000  -1.0698   0.0000   0.0000   0.1557   0.0000   0.0000   0.9141
+
+
+  Frequencies
+
+        s (au)                      frequencies (cm^-1)
+ R   -187.13211                     4657.16
+ P    187.13212                     4657.16
+ *      0.00000                     2054.91  1121.41  1121.41 -2292.04
+  
+       -0.50000                     3920.94   573.89   573.89
+       -0.45000                     3770.47   639.86   639.86
+       -0.40000                     3573.20   715.77   715.77
+       -0.35000                     3320.49   799.15   799.15
+       -0.30000                     3026.37   883.27   883.27
+       -0.25000                     2731.68   959.51   959.51
+       -0.20000                     2478.60  1021.57  1021.57
+       -0.15000                     2287.14  1067.29  1067.29
+       -0.10000                     2157.72  1097.61  1097.61
+       -0.05000                     2083.18  1114.63  1114.63
+        0.05000                     2083.17  1114.63  1114.63
+        0.10000                     2157.76  1097.61  1097.61
+        0.15000                     2287.18  1067.29  1067.29
+        0.20000                     2478.65  1021.57  1021.57
+        0.25000                     2731.71   959.51   959.51
+        0.30000                     3026.36   883.27   883.27
+        0.35000                     3320.47   799.14   799.14
+        0.40000                     3573.17   715.76   715.76
+        0.45000                     3770.44   639.85   639.85
+        0.50000                     3920.91   573.89   573.89
+ drdy_NWChem has finished correctly, bye !
+
+ Task  times  cpu:       54.9s     wall:       69.4s

@@ -1,0 +1,21 @@
+#!/bin/csh
+
+$NWCHEM_EXECUTABLE ./h3tr1.nw >& h3tr1.out 
+cp h3.file30 h3file30.1
+$NWCHEM_EXECUTABLE ./h3tr2.nw >& h3tr2.out
+mv h3.file30 h3file30.2
+rm h3.*
+$NWCHEM_EXECUTABLE ./h3tr3.nw >& h3tr3.out
+mv h3.file30 h3file30.3
+rm h3.*
+$NWCHEM_EXECUTABLE ./h3tr4.nw >& h3tr4.out
+mv h3.file30 h3file30.4
+rm h3.*
+$NWCHEM_EXECUTABLE ./h3tr5.nw >& h3tr5.out
+mv h3.file30 h3file30.5
+#
+# This last rm is optional.  h3tr5 actually write out a bunch of
+# files and so you may want to comment out the last line to make
+# sure that the files are getting written out OK.
+#
+rm h3.*

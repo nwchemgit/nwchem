@@ -1,0 +1,5 @@
+This is a set of various tests on H + H2 for different options in
+DIRDYVTST.  When running h3tr2, make sure that the files for h3tr1 
+are available as h3tr2 is a "restart" of h3tr1 extending the points
+calculated on the surface.  The script runh3 is included for ease of
+running these jobs serially.
