@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.50 2001-12-15 05:04:49 d3j191 Exp $
+c $Id: md_common.fh,v 1.51 2002-02-02 16:32:19 d3j191 Exp $
 c
 c     parameters
 c
@@ -127,7 +127,7 @@ c
      + nemcrt,nfqrs,msdit,mcgit,ncgcy,mshitw,mshits,ifss,nbias,
      + nfoutp,nfstat,nfrest,nffree,nfcoor,nfscoo,nfprop,nfvelo,
      + nfsvel,nfpold,nrwrec,nfindu,nfsind,nfcntr,nfslow,nfshkw,
-     + nfforc,nfsfor,
+     + nfforc,nfsfor,npstat,
      + nfshks,nfrdf,nfdip,nfkirk,nkirk,nfhbo,nfsync,ngl,ngr,ngc,
      + ngrww,ngrsw,ngrss,ndip,numhis,numdis,lnghis,lngdis,nfacfa,
      + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivropt,iint,
@@ -157,7 +157,7 @@ c
      + nemcrt,nfqrs,msdit,mcgit,ncgcy,mshitw,mshits,ifss,nbias,
      + nfoutp,nfstat,nfrest,nffree,nfcoor,nfscoo,nfprop,nfvelo,
      + nfsvel,nfpold,nrwrec,nfindu,nfsind,nfcntr,nfslow,nfshkw,
-     + nfforc,nfsfor,
+     + nfforc,nfsfor,npstat,
      + nfshks,nfrdf,nfdip,nfkirk,nkirk,nfhbo,nfsync,ngl,ngr,ngc,
      + ngrww,ngrsw,ngrss,ndip,numhis,numdis,lnghis,lngdis,nfacfa,
      + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivropt,iint,

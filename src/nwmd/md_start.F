@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.110 2002-01-31 06:40:22 d3j191 Exp $
+c $Id: md_start.F,v 1.111 2002-02-02 16:32:26 d3j191 Exp $
 c
       implicit none
 c
@@ -61,7 +61,7 @@ c
       call prp_start(nserie,ntype,lfnrst,filrst,lfnout,lfnprp,
      + lfngib,nfoutp,nfstat,nfprop,
      + .true.,.true.,ltwin,ipolt.ne.0,ipme.ne.0,
-     + npstep.ne.0,npener.ne.0,
+     + npstep.ne.0,npener.ne.0,npstat,
      + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm,
      + nsa,ddacq,edacq,iprof,npmf,npener,ndistr,lpbc,nbias)
 c
@@ -377,6 +377,7 @@ c
       nptops=0
       nptopt=0
       npstep=0
+      npstat=0
       npener=0
       nptmng=0
       npmemo=0
@@ -713,6 +714,8 @@ c
       if(.not.rtdb_get(irtdb,'md:itrack',mt_int,1,itrack))
      + call errquit('md_rtdbin: rtdb_get failed',31)
       if(.not.rtdb_get(irtdb,'md:npstep',mt_int,1,npstep))
+     + call errquit('md_rtdbin: rtdb_get failed',32)
+      if(.not.rtdb_get(irtdb,'md:npstat',mt_int,1,npstat))
      + call errquit('md_rtdbin: rtdb_get failed',32)
       if(.not.rtdb_get(irtdb,'md:npener',mt_int,1,npener))
      + call errquit('md_rtdbin: rtdb_get failed',33)

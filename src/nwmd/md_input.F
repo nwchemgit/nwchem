@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.51 2001-12-15 05:04:49 d3j191 Exp $
+c $Id: md_input.F,v 1.52 2002-02-02 16:32:26 d3j191 Exp $
 c
       implicit none
 c
@@ -21,7 +21,7 @@ c
       integer ipolt,mshitw,mshits,npstep,npener,npdist,nptmng,nfpair
       integer nfrdf,nfcntr,nfoutp,nfstat,nfrest,keepr,nfcoor,nfscoo
       integer nfvelo,nfsvel,nfprop,nffree,nfsync,iformt,madbox,loadb
-      integer nfforc,nfwfor,nfsfor
+      integer nfforc,nfwfor,nfsfor,npstat
       integer nflong,nfgaus,mropt,nfauto,nfconv,nffet,idebug,mpolit
       integer npatom,nptopw,nptops,npx,npy,npz,nbx,nby,nbz,itrack
       integer ngx,ngy,ngz,numfix,ifix,noshak,nfslow,nfefld,nfsfld
@@ -85,6 +85,7 @@ c
       mshitw=100
       mshits=100
       npstep=0
+      npstat=0
       npatom=0
       nptopw=0
       nptops=0
@@ -1034,6 +1035,10 @@ c
       npstep=1
       goto 500
       endif
+      if(inp_compare(.false.,'detail',item)) then
+      npstat=1
+      goto 500
+      endif
       if(inp_compare(.false.,'energy',item)) then
       if(.not.inp_i(npener)) npener=1
       goto 500
@@ -1462,6 +1467,8 @@ c
       if(.not.rtdb_put(irtdb,'md:itrack',mt_int,1,itrack))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:npstep',mt_int,1,npstep))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:npstat',mt_int,1,npstat))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:npener',mt_int,1,npener))
      + call errquit('md_input: rtdb_put failed',0)

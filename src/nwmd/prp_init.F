@@ -1,10 +1,10 @@
       subroutine prp_start(nserie,ntyp,lfn,fil,iout,iprp,igib,
      + nf1,nf2,nf3,
-     + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,
+     + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,npstti,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc,nbiasi)
 c
-c $Id: prp_init.F,v 1.43 2002-01-28 21:17:25 d3j191 Exp $
+c $Id: prp_init.F,v 1.44 2002-02-02 16:32:26 d3j191 Exp $
 c
       implicit none
 c
@@ -13,7 +13,7 @@ c
 #include "global.fh"
 c
       integer nserie,ntyp,lfn,iout,iprp,igib,iprf,ndistr,nbiasi
-      integer nwmtot,msfi,nsfi,nsai,mpei,nf1,nf2,nf3,npenrg
+      integer nwmtot,msfi,nsfi,nsai,mpei,nf1,nf2,nf3,npenrg,npstti
       integer mdacq,mrn,ipset,isetp1,isetp2,msmi,nsmi,npmf
       logical lcf,lsp,ltwn,lpol,lpme,llpener,llpstep,lpbc
       real*8 tstp,ddi,edi
@@ -47,6 +47,7 @@ c
       nsm=nsmi
       nsa=nsai
       nbias=nbiasi
+      npstat=npstti
 c
       iset=ipset
       ipset1=isetp1
@@ -348,7 +349,7 @@ c
     5 continue
       endif
 c
-      if(msm.gt.0) then
+      if(msm.gt.0.and.npstat.gt.0) then
       if(it+2*nsm.gt.maxpro)
      + call errquit('Increase dimension maxpro',0)
       do 7 i=1,nsm
