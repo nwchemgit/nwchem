@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.33 1997-04-02 00:42:10 d3e129 Exp $
+#$Id: GNUmakefile,v 1.34 1997-04-08 18:07:58 d3e129 Exp $
 include ../config/makefile.h
 
        LIBRARY = libutil.a
@@ -21,7 +21,11 @@ endif
 ifeq ($(TARGET),DELTA)
    LIB_DEFINES = -DBASIS_LIBRARY="'library'"
 else
+ifdef BASIS_LIBRARY_PATH
+   LIB_DEFINES = -DBASIS_LIBRARY=$(BASIS_LIBRARY_PATH)
+else
    LIB_DEFINES = -DBASIS_LIBRARY="'$(SRCDIR)/basis/library'"
+endif
 endif
 
      USES_BLAS = bas_blas.F bas_blasP.F
