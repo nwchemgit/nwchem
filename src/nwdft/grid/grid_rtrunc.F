@@ -55,7 +55,7 @@ c
 c
 c   accuracy must be at least 10-7
 c
-      job_grid_acc=min(job_grid_acc,1d-7)
+c      job_grid_acc=min(job_grid_acc,1d-7)
       
       call grid_rtrunc0(zprim,job_grid_acc,
      ,     int_mb(k_ics),int_mb(k_ldiff),dbl_mb(k_minexp))
@@ -103,7 +103,7 @@ c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
                xb(1)=dbl_mb(k_coord+3*(iat_diff-1))
                xb(2)=dbl_mb(k_coord+3*(iat_diff-1)+1)
                xb(3)=dbl_mb(k_coord+3*(iat_diff-1)+2)
-               call grid_checks(iat,alphaa,lla,xa,
+               call grid_checks(job_grid_acc,iat,alphaa,lla,xa,
      .           iat_diff,alphab,llb,xb)
          enddo
          endif
