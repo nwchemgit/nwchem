@@ -206,6 +206,20 @@ c        local variables
          
        end
 
+      subroutine mm_clear_bqwzone(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+c        local variables
+         integer pwz
+
+         call mm_get_pwz(pwz)
+
+         int_mb(pwz+i-1)=0
+         
+       end
+
        function mm_quant(i)
          implicit none
 #include "mafdecls.fh"

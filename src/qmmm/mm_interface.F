@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.32 2004-12-01 18:31:00 marat Exp $
+c $Id: mm_interface.F,v 1.33 2004-12-04 00:52:27 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -207,15 +207,20 @@ c
 c
       integer i
       integer nsaloc
+      integer nwmloc
       integer bq_exclude
 
       call mm_get_nsaloc(nsaloc)
+      call mm_get_nwmloc(nwmloc)
 
       bq_exclude = qmmm_get_bq_exclude()
 
       if(bq_exclude.eq.qmmm_all_atoms) then
         do i=1,nsaloc
           call mm_clear_bqzone(i)
+        end do
+        do i=1,nwmloc
+          call mm_clear_bqwzone(i)
         end do
       else if(bq_exclude.eq.qmmm_linkbond) then
         do i=1,nsaloc
