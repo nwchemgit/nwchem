@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.86 1999-06-01 19:45:23 d3e129 Exp $
+C$Id: geom.F,v 1.87 1999-06-03 21:14:35 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -2435,8 +2435,10 @@ c::-local
       double precision BAxBC(3), CBxCD(3) 
       double precision mbaxbc, mcbxcd
       double precision cosangle
+      double precision threshcos
+      parameter (threshcos=1.0d-6)
       double precision thresh
-      parameter (thresh=1.0d-6)
+      parameter (thresh = 1.0d-3)
       logical linear1
       logical linear2
 c
@@ -2549,11 +2551,11 @@ c
       cosangle = cosangle/mbaxbc/mcbxcd
       if (cosangle.gt.1.0d00) then
         abc = cosangle - 1.0d00
-        if (abs(abc).lt.thresh) cosangle = cosangle - abc
+        if (abs(abc).lt.threshcos) cosangle = cosangle - abc
       endif
       if (cosangle.lt.-1.0d00) then
         abc = -1.0d00 - cosangle
-        if (abs(abc).lt.thresh) cosangle = cosangle + abc
+        if (abs(abc).lt.threshcos) cosangle = cosangle + abc
       endif
       dihedral = acos(cosangle)
       dihedral = dihedral*180.0d00/pi
