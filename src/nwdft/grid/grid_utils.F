@@ -119,7 +119,7 @@ c
       end
       Subroutine mbf_ao_max(rtdb, qxyz, rq0, zprim, coord, leb)
 c
-C$Id: grid_utils.F,v 1.2 1999-06-14 22:39:27 d3h449 Exp $
+C$Id: grid_utils.F,v 1.3 1999-06-28 20:52:31 d3g681 Exp $
 c
       implicit none
 c      
@@ -491,7 +491,7 @@ c
 c
       return
       end
-      double precision function fastj_gaussian_range(n, alpha, eps)
+      double precision function dft_gaussian_range(n, alpha, eps)
       implicit none
 c
       integer n
@@ -508,7 +508,7 @@ c
 c
       logeps = log(eps)
 c      
-      fastj_gaussian_range = 
+      dft_gaussian_range = 
      $     (n*log(-logeps) - n*log(alpha) - 4.0d0*logeps) /
      $     sqrt(-16.0d0*alpha*logeps)
 c
@@ -594,7 +594,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq)
 c
-C$Id: grid_utils.F,v 1.2 1999-06-14 22:39:27 d3h449 Exp $
+C$Id: grid_utils.F,v 1.3 1999-06-28 20:52:31 d3g681 Exp $
 c
       implicit none
 c
