@@ -1,624 +1,133 @@
 c===============================================================
-      subroutine blockin2(bl,lcore,inx,nbl2,nbloks,iret_limit)
+c kw 22.05.97 : nsupb(*) has been eleminated.(not used for PNNL)
+c kw 22.05.97 : nasize(*)has been eleminated. 
+c===============================================================
+      subroutine blockin2(bl,lcore,inx,nbl2)
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
+      common /cpu/ intsize,iacc,icache,memreal
 c
       common /route/ iroute
 c
-      common /cpu/ intsize,iacc,icache,memreal
       common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
       common /infob/ inuc,ibas,na,nbf,nsh,ncf,ncs
 c
-      common /memor1/ iisd,jjsd,ijbld
-cpnl: common /memor1a/ npard,ncost,nsupb, mxsize
-      common /memor1a/ npard,ncost,nsupb, mxsize,nasize
-      common /memors/ nsym,ijshp,isymm
-c 
-c save sizes :
-      common /memor1_S/ iisd_S,jjsd_S,ijbld_S
-      common /memor1a_S/ npard_S,ncost_S,nsupb_S, mxsize_S,nasize_S
-      common /memors_S/      ijshp_S
+      common /memor1/ npard,mxsize,nblock1,nblock1_back
 c
       dimension bl(*)
       dimension inx(12,*)
 c------------------------------------------------
 c begining of the blocking procedure for pairs
-c
-      call memo1(ncs,ijchd)
-c
 c------------------------------------------------
-c Check out how many atoms of the same type the 
-c molecule contains and decide which blocking
-c procedure will be used :
+c Constructe blocks of contracted shells and shell-pairs
+c calculates number of blocks of :
+c shells (nbl1), pairs-shell (nbl2) and quartets-shell (nbl4)
+c allocates memory for 
+c nblock1(), npar(), mxsize(*)
+c (and sets up these arrays )
 c
-      if(iroute.eq.0) call whichblk(dbl_mb(inuc),na,inx,ncs,iroute)
-c 
-c output iroute (=1 or =2) ( stored in the common /route/
+      call blkpair(bl,ncs,inx,lcore,
+     *             dbl_mb(inuc),dbl_mb(ibas),na,
+     *             nblock1,nblock1_back,npard,mxsize,       ! output
+     *             nbl1,nbl2,nbl4)                          ! output
 c
-      if(nprint.gt.0) write(8,*)' blocking procedure route=',iroute
+c  output : array's addresses :
+c  nblock1, nblock1_back,npard, mxsize
 c------------------------------------------------
-c Constructe blocks of contracted shell pairs
-c ( calculates number of block-pairs nbl2 and 
-c  reserves memory for npar, ijbl and nsupb 
-c  and sets up these arrays )
-c
-      call blkpair(bl,ncs,inx,bl(iisd),bl(jjsd), bl(ijchd),
-     *             nbl2,nsupb,npard,ijbld, mxsize,nasize,lcore,nsym,
-     *             dbl_mb(inuc),dbl_mb(ibas),na,iret_limit)
-c
-c  output : arrays : nsupb, npar ijbl mxsize )
-c------------------------------------------------
-c returm in the case when LIMPAIR was changed in the BLKSIZER:
-c
-      if(iret_limit.gt.0) RETURN
-c------------------------------------------------
-c Memory checking in former texas bl() , now repleaced by PNL dbl_mb:
-c
-      call getmem(0,last1)
-      call retmem(1)
-      last2=nsym*ncs*(ncs+1)/2  +  nbl2*(nbl2+1)/2
-      memneed=last1+last2
-c--------
-      if(memneed .gt. lcore )then
-         write(6,*) ' Memory problem in txs-bl-replacing scratch : '
-         write(6,*) ' requested=',memneed,' ; available=',lcore  
-         write(6,*) ' check in TXSARRAG : ntxs_scr_size too small '
-         write(6,*) ' nbl2=',nbl2,' last1=',last1,' last2=',last2
-         if(icheck.eq.0)  call errquit(
-     $        'texas:Memory problem in Blockin2', 0)
-*stop 'Memory problem in Blockin2'
+      if(nprint.gt.1) then
+          call block_info(inx,bl(nblock1),bl(npard),nbl2)
       endif
-c--------
-c------------------------------------------------
-      call getmem(nbl2*(nbl2+1)/2, ncost)
-      call price(inx,bl(iisd),bl(jjsd),bl(ijbld),bl(npard),
-     *           bl(nsupb),nbl2,bl(ncost),nprint)
-c------------------------------------------------
-c save sizes:
-c 
-      ncspairs=ncs*(ncs+1)/2
-      iisd_S=ncspairs
-      jjsd_S=ncspairs
-      ijshp_S=nsym*ncspairs
-      ncost_S=nbl2*(nbl2+1)/2
 c------------------------------------------------
 c save addresses :
 c
       call data_save
 c------------------------------------------------
 c This is the end of blocking procedure for PAIRS 
-c
 c The following is known at this point :
 c
-c  pairs ijcs are given by ics=iis(ijcs) and jcs=jjs(ijcs)
-c  number of pair-blocks = NBL2
+c  number of shell-blocks = NBL1
+c  number of pair-blocks  = NBL2
+c  number of quart-blocks = NBL4
 c  number of pairs in the block ibl is NPAR(ibl)
-c  which pairs belong to this block : ijcs=ijbl(ibl,1-npar)
 c---
-c The number of contracted shell Quartets would be
-c NSUPB=NBL2*(NBL2+1)/2 if they are not too big. I call
-c them Super-blocks of c.s.quartets.The maximum size for 
-c each of them is known and kept in array MAXSIZE(i=1,NSUPB) 
+c The number of contracted shell Quartets is
+c NBL4=NBL2*(NBL2+1)/2. The maximum size for each of 
+c them is known and kept in array MAXSIZE(i=1,NSUPB) 
 c (bl(mxsize)) (no of quartets). According to this max.size
 c super-blocks will be split into a number of smaller blocks 
-c which is also known (NBLOKS) but is NOT transfered.
 c------------------------------------------------
       end
 c===============================================================
-      subroutine blkpair(bl,ncs,inx,iis,jjs,ijcheck, nbl2,nsupb,npard,
-     *                   ijbld,mxsize,nasize,lcore,nsym,
-     *                   datnuc,datbas,natoms,iret_limit)
+      subroutine blkpair(bl,ncs,inx,lcore, datnuc,datbas,natoms,
+     *           nblock1,nblock1_back,npard,mxsize,    ! output
+     *                   nbl1,nbl2,nbl4)               ! output
       implicit real*8 (a-h,o-z)
 c May96 :to be used in txs_scratch_siz2 routine to estimate memory :
       common /max_pairs/ maxpar
-c save sizes :
-      common /memor1_S/ iisd_S,jjsd_S,ijbld_S
-      common /memor1a_S/ npard_S,ncost_S,nsupb_S, mxsize_S,nasize_S
-      common /memors_S/      ijshp_S
-c
       common /route/ iroute
-      common /cpu/ intsize,iacc,icache,memreal
+c save sizes :
+      common /memor1_S/ npard_S,mxsize_S,nblock1_S,nblock1_back_S
+c
       dimension bl(*)
       dimension inx(12,*)
-      dimension iis(*),jjs(*),ijcheck(*)
       dimension datnuc(5,*),datbas(13,*)
 c------------------------------------------------
-c Constructe pairs of contracted shells ( I>=J )
-c
-      call pairs(ncs,inx,iis,jjs)
-c
+      call memo1_int(ncs+1,nblock1)
+      call memo1_int(ncs  ,nblock1_back)
 c------------------------------------------------
-c Calculate number of blocks of pairs (NBL2)
-c and setup the IJBL(nbl2,*) and NPAR(*) arrays
+c make blocks of single shells :
 c
-c Preliminary memory reservation for 
-c NPAR , IJBL , MXSIZE
+      call blk_shells(ncs,inx,iroute,datnuc,datbas,
+     *                bl(nblock1),nbl1,nbl2,nbl4,maxpar)
 c
-      ndim=10000
-      call memo1a(ndim,ndim,ndim,npard,ijbld,mxsize)
-  100 continue
+c output : nblock1(i-1)+1  : first shell in i-blck1   
+c output : nblock1(i)      : last  shell in i-blck1   
+c output : nbl1 - number of blocks of shells
+c output : nbl2 - number of blocks of shell-pairs 
+c output : nbl4 - number of blocks of shell-quartets
+c output : maxpar-maximum number of pairs in blokcs of pairs
+c------------------------------------------------
+c make nblock1_back(*) array
 c
-      call blockpnr(nbl2,maxpar,ncs,bl(ijbld),bl(npard),
-     *              ijcheck,iis,jjs,inx,  ndim,ireturn,
-     *              datnuc,datbas,natoms,iroute)
-      if(ireturn.eq.1) then 
-          ndim=2*ndim
-          call retmem(3)
-          call memo1a(ndim,ndim,ndim,npard,ijbld,mxsize)
-          go to 100
-      endif
+      call make_nblock1_back(ncs,nbl1,bl(nblock1),bl(nblock1_back))
 c
-c Final memory reservation for NPAR and IJBL and for NSUPB
-c         for further uses
+c output : nblock1_back(ics) => block of shells ics belong to
+c------------------------------------------------
+c allocate memory for arrays : NPAR(nbl2) and MXSIZE(NBL4)
 c
-      npardim=nbl2
-      ijbldim=nbl2*maxpar
-      msizdim=nbl2*(nbl2+1)/2
-      call retmem(3)
-      call memo1a(npardim,ijbldim,msizdim,npard,ijbld,mxsize)
-c
+      call memo1_int(nbl2,npard)
+      call memo1_int(nbl4,mxsize)
 c------------------------------------------------
 c save sizes:
-      npard_S= npardim
-      ijbld_S=ijbldim
-      mxsize_S=msizdim
+c
+      npard_S        =nbl2
+      mxsize_S       =nbl4
+      nblock1_S      =ncs+1
+      nblock1_back_S =ncs
 c------------------------------------------------
-c Select the blocks of pairs of this same type c
-c Type means this same TYPE and CONTRACTION LENGHT 
-c        and general contraction deep 
-c        
-c Setup the IJBL(nbl2,*) and NPAR(*) arrays
+c Constructe blocks of contracted shell pairs :
 c
-c Constructe these blocks of contracted pairs :
+      call blk_pairs(nbl1,nbl2,bl(nblock1),bl(npard))
 c
-      call blockpar(nbl2,ncs,bl(ijbld),bl(npard),ijcheck,iis,jjs,inx,
-     *              datnuc,datbas,natoms,iroute)
-c
+c output: NPAR(*)
 c------------------------------------------------
-c  Set up the vectors :
-c  MXSIZE(super-block)-  maximum size of small blocks in a super-block
-c  NSUPB (super-block)-  number of small blocks in this sup-block 
-c and for PNL :
-c  NASIZE(super-block)-  actual size of a super block (no. of quartets
-c                                                     without spliting)
+c  Set up the vector :
+c MXSIZE(super-block)-  maximum size of a super-block
 c
-      nosb=nbl2*(nbl2+1)/2
-      call getmem(nosb,nsupb)
-      call getmem(nosb,nasize)
+      call blksizer(inx,ncs,nbl2,iroute,bl(nblock1),bl(npard),
+     *              bl(mxsize))
 c
-      call blksizer(bl(nsupb),nbl2,bl(ijbld),bl(npard), iis,jjs,inx,
-     *              bl(mxsize),bl(nasize),ncs,iroute,iret_limit)
-c
-c iret_limit shows if everything is OK with LIMXMEM and LIMPAIR:
-c
-c iret_limit=0 OK
-c iret_limitM .NE.0 :
-c                LIMPAIR was to high for the current value of LIMXMEM :
-c                LIMPAIR was decreased to iret_limpit in blksizer.
-c                Whole blocking procedure has to be repeated .
-c                begining from memory allocation for scratch1 
-c                in texas_face.F. This info is sent to texas_face 
-c                through common block /max_pairs/
-c
-      if(iret_limit.gt.0) RETURN
-c------------------------------------------------
-c save sizes:
-      nsupb_S=nosb
-      nasize_S=nosb
 c------------------------------------------------
       end
 c===============================================================
-      subroutine pairs(ncs,inx,iis,jjs)
-      dimension inx(12,*)
-      dimension iis(*),jjs(*)
-c
-      ijcs=0
-      do 400 ics=1,ncs
-      do 400 jcs=1,ics
-         ijcs=ijcs+1
-         iis(ijcs)=ics
-         jjs(ijcs)=jcs
-  400 continue
-c-------------------------------------------------------------
-      end
-c===============================================================
-      subroutine blockpnr(nbl2,maxpar,ncs,ijbl1,npar,
-     *                    ijcheck,iis,jjs,inx,
-     *                    ndim,ireturn,
-     *                    datnuc,datbas,natoms,iroute)
+      subroutine blksizer(inx,ncs,nbl2,iroute,nblock1,npar,
+     *                    mxsize)
 c-----------------------------------------------------------
-c*  calculates a Number of blocks of contracted pairs (nbl2)
-c*  and a number of pairs in a block ( npar(nbl2) )
-c*  and selects a block with a maximum number of pairs
-c-----
-c upper limits for : maximum memory in bl() for ONE block  
-c                    number of quart in a quartet-blocks
-c                    number of pairs in a pair-block
-c-----------------------------------------------------------
-      implicit real*8 (a-h,o-z)
-      logical cond1,cond2,cond3,cond4,cond5
-      common /intgop/ ncache,maxprice,iprint,iblock
-      common /intlim/ limxmem,limblks,limpair
-      dimension datnuc(5,*),datbas(13,*)
-      dimension npar(*),ijbl1(*)
-      dimension ijcheck(*)
-      dimension inx(12,*),iis(*),jjs(*)
-c
-      maxpair=limpair
-c
-      ireturn=0
-c
-      ncsp=ncs*(ncs+1)/2
-      do 100 ijcs=1,ncsp
-      ijcheck(ijcs)=0
-  100 continue
-c
-c    select the blocks of pairs of this same type c
-c    / type means this same TYPE and CONTRACTION LENGHT /
-c    /                 and general contraction         /
-c
-      ibl=1
-      ijbl1(1)=1
-      npar(1)=1
-      ijcheck(1)=1
-      ijcs=1
-cc
- 1000 continue
-      if(ijcheck(ijcs).eq.0) then
-cc
-         ics0=iis(ijcs)
-         jcs0=jjs(ijcs)
-c atoms and charges:
-         iat0=inx(2,ics0)
-         jat0=inx(2,jcs0)
-c charge
-         if(iat0.eq.0) then
-            nzi0=0
-         else
-            nzi0=datnuc(1,iat0)
-         endif
-         if(jat0.eq.0) then
-            nzj0=0
-         else
-            nzj0=datnuc(1,jat0)
-         endif
-c types:
-         it0=inx(12,ics0)
-         jt0=inx(12,jcs0)
-c contraction:
-         ic0=inx(5,ics0)-inx(1,ics0)
-         jc0=inx(5,jcs0)-inx(1,jcs0)
-c first primitive exponent:
-         icb0=inx(1,ics0)+1
-         jcb0=inx(1,jcs0)+1
-         exi0=datbas(1,icb0)
-         exj0=datbas(1,jcb0)
-c gen.contr.
-         ngci0=inx(4,ics0)
-         ngcj0=inx(4,jcs0)
-           do 1100 ib=1,ibl
-           ijcs1=ijbl1(ib)
-           ijp=npar(ib)
-ccc
-           ics1=iis(ijcs1)
-           jcs1=jjs(ijcs1)
-           iat1=inx(2,ics1)
-           jat1=inx(2,jcs1)
-           if(iat1.eq.0) then
-              nzi1=0
-           else
-              nzi1=datnuc(1,iat1)
-           endif
-           if(jat1.eq.0) then
-              nzj1=0
-           else
-              nzj1=datnuc(1,jat1)
-           endif
-           it1=inx(12,ics1)
-           jt1=inx(12,jcs1)
-           ic1=inx(5,ics1)-inx(1,ics1)
-           jc1=inx(5,jcs1)-inx(1,jcs1)
-           icb1=inx(1,ics1)+1
-           jcb1=inx(1,jcs1)+1
-           exi1=datbas(1,icb1)
-           exj1=datbas(1,jcb1)
-           ngci1=inx(4,ics1)
-           ngcj1=inx(4,jcs1)
-ccc
-           cond1=.false.
-           cond2=.false.
-           cond3=.false.
-           cond4=.false.
-           cond5=.false.
-           if(it0  .eq.  it1 .and. jt0  .eq.  jt1) cond1=.true.
-           if(ic0  .eq.  ic1 .and. jc0  .eq.  jc1) cond2=.true.
-           if(ngci0.eq.ngci1 .and. ngcj0.eq.ngcj1) cond3=.true.
-           if(nzi0 .eq. nzi1 .and.  nzj0.eq. nzj1) cond4=.true.
-           if(exi0 .eq. exi1 .and.  exj0.eq. exj1) cond5=.true.
-ccc
-      IF( iroute.eq.1 ) THEN
-        if(cond1) then
-          if(cond2) then
-            if(cond3) then
-                    ijp=ijp+1
-c                   limit a number of pairs in a block :
-                    if(ijp.gt.maxpair) then
-                      go to 1100
-                    else
-                      npar(ib)=ijp
-                      ijcheck(ijcs)=1
-                      if(ijcs.eq.ncsp) go to 2000
-                      ijcs=ijcs+1
-                      go to 1000
-                    endif
-            endif
-          endif
-        endif
-      ELSE
-        if(cond1) then
-          if(cond2) then
-            if(cond3) then
-              if(cond4) then
-                if(cond5) then
-                    ijp=ijp+1
-c                   limit a number of pairs in a block :
-                    if(ijp.gt.maxpair) then
-                      go to 1100
-                    else
-                      npar(ib)=ijp
-                      ijcheck(ijcs)=1
-                      if(ijcs.eq.ncsp) go to 2000
-                      ijcs=ijcs+1
-                      go to 1000
-                    endif
-                endif
-              endif
-            endif
-          endif
-        endif
-      ENDIF
- 1100      continue
-c
-         ibl=ibl+1
-         if(ibl.ge.ndim) then
-            ireturn=1
-            return
-         endif
-         ijbl1(ibl)=ijcs
-         npar(ibl)=1
-         ijcheck(ijcs)=1
-         if(ijcs.eq.ncsp) go to 2000
-         ijcs=ijcs+1
-         go to 1000
-      else
-         if(ijcs.eq.ncsp) go to 2000
-         ijcs=ijcs+1
-         go to 1000
-      endif
- 2000 nbl2=ibl
-c
-c--------------------------------
-      maxpar=0
-      iblmax=1
-      do 2500 ibl=1,nbl2
-      ijpar=npar(ibl)
-      if(ijpar.gt.maxpar) then
-           maxpar=ijpar
-           iblmax=ibl
-      endif
- 2500 continue
-c---------------------------------------------------------------
-      if(iprint.gt.0) write(8,495) nbl2,ncsp,maxpar,iblmax
-  495 format(/' Number of Blocks of Contracted Pairs =',i7/
-     *        ' total number of contracted pairs     =',i7/ 
-     *        ' maximum number of pairs =',i6,' in block=',i5/)
-c-------------------
-      nbloks=nbl2*(nbl2+1)/2
-      ntotq=ncsp*(ncsp+1)/2
-      if(iprint.gt.0) write(8,496) nbloks,ntotq
-  496 format(/' Number of Blocks of Contracted Quartets =',i15/
-     *        ' total number of contracted quartets     =',i15/)
-c---------------------------------------------------------------
-      end
-c===============================================================
-      subroutine blockpar(nbl2,ncs,ijbl,npar,ijcheck,iis,jjs,inx,
-     *                   datnuc,datbas,natoms,iroute)
-c------------------------------------------------------------
-c*    select the blocks of pairs of this same type c
-c*      type means :
-c*    1. the same TYPE 
-c*    2. the same CONTRACTION LENGHT 
-c*    3. the same GENERAL CONTRACTION DEEP
-c*    4. the same TYPE OF ATOMS
-c------------------------------------------------------------
-      implicit real*8 (a-h,o-z)
-      logical cond1,cond2,cond3,cond4,cond5
-      common /intlim/ limxmem,limblks,limpair
-      dimension datnuc(5,*),datbas(13,*)
-      dimension npar(*),ijbl(nbl2,*)
-      dimension ijcheck(*)
-      dimension inx(12,*),iis(*),jjs(*)
-c
-      maxpair=limpair
-c
-      ncsp=ncs*(ncs+1)/2
-      do 10 ijcs=1,ncsp
-      ijcheck(ijcs)=0
-   10 continue
-c
-      ibl=1
-      ijbl(1,1)=1
-      npar(1)=1
-      ijcheck(1)=1
-      ijcs=1
-cc
- 1000 continue
-      if(ijcheck(ijcs).eq.0) then
-cc
-         ics0=iis(ijcs)
-         jcs0=jjs(ijcs)
-c atoms and charges:
-         iat0=inx(2,ics0)
-         jat0=inx(2,jcs0)
-         if(iat0.eq.0) then
-            nzi0=0
-         else
-            nzi0=datnuc(1,iat0)
-         endif
-         if(jat0.eq.0) then
-            nzj0=0
-         else
-            nzj0=datnuc(1,jat0)
-         endif
-c types and contractions :
-         it0=inx(12,ics0)
-         jt0=inx(12,jcs0)
-         ic0=inx(5,ics0)-inx(1,ics0)
-         jc0=inx(5,jcs0)-inx(1,jcs0)
-c first primitive exponent:
-         icb0=inx(1,ics0)+1
-         jcb0=inx(1,jcs0)+1
-         exi0=datbas(1,icb0)
-         exj0=datbas(1,jcb0)
-c gen.contr.
-         ngci0=inx(4,ics0)
-         ngcj0=inx(4,jcs0)
-cc
-           do 1100 ib=1,ibl
-           ijcs1=ijbl(ib,1)
-           ijp=npar(ib)
-cc
-           ics1=iis(ijcs1)
-           jcs1=jjs(ijcs1)
-           iat1=inx(2,ics1)
-           jat1=inx(2,jcs1)
-           if(iat1.eq.0) then
-              nzi1=0
-           else
-              nzi1=datnuc(1,iat1)
-           endif
-           if(jat1.eq.0) then
-              nzj1=0
-           else
-              nzj1=datnuc(1,jat1)
-           endif
-           it1=inx(12,ics1)
-           jt1=inx(12,jcs1)
-           ic1=inx(5,ics1)-inx(1,ics1)
-           jc1=inx(5,jcs1)-inx(1,jcs1)
-           icb1=inx(1,ics1)+1
-           jcb1=inx(1,jcs1)+1
-           exi1=datbas(1,icb1)
-           exj1=datbas(1,jcb1)
-c gen.contr.
-           ngci1=inx(4,ics1)
-           ngcj1=inx(4,jcs1)
-cc
-           cond1=.false.
-           cond2=.false.
-           cond3=.false.
-           cond4=.false.
-           cond5=.false.
-           if(it0  .eq.  it1 .and. jt0  .eq.  jt1) cond1=.true.
-           if(ic0  .eq.  ic1 .and. jc0  .eq.  jc1) cond2=.true.
-           if(ngci0.eq.ngci1 .and. ngcj0.eq.ngcj1) cond3=.true.
-           if(nzi0 .eq. nzi1 .and.  nzj0.eq. nzj1) cond4=.true.
-           if(exi0 .eq. exi1 .and.  exj0.eq. exj1) cond5=.true.
-cc
-      IF( iroute.eq.1 ) THEN
-        if(cond1) then
-          if(cond2) then
-            if(cond3) then
-                    ijp=ijp+1
-c                   limit a number of pairs in a block :
-                    if(ijp.gt.maxpair) then
-                       go to 1100
-                    else
-                       npar(ib)=ijp
-                       ijbl(ib,ijp)=ijcs
-                       ijcheck(ijcs)=1
-                       if(ijcs.eq.ncsp) go to 2000
-                       ijcs=ijcs+1
-                       go to 1000
-                    endif
-            endif
-          endif
-        endif
-      ELSE
-        if(cond1) then
-          if(cond2) then
-            if(cond3) then
-              if(cond4) then
-                if(cond5) then
-                    ijp=ijp+1
-c                   limit a number of pairs in a block :
-                    if(ijp.gt.maxpair) then
-                       go to 1100
-                    else
-                       npar(ib)=ijp
-                       ijbl(ib,ijp)=ijcs
-                       ijcheck(ijcs)=1
-                       if(ijcs.eq.ncsp) go to 2000
-                       ijcs=ijcs+1
-                       go to 1000
-                    endif
-                endif
-              endif
-            endif
-          endif
-        endif
-      ENDIF
- 1100      continue
-c
-         ibl=ibl+1
-         ijbl(ibl,1)=ijcs
-         npar(ibl)=1
-         ijcheck(ijcs)=1
-         if(ijcs.eq.ncsp) go to 2000
-         ijcs=ijcs+1
-         go to 1000
-      else
-         if(ijcs.eq.ncsp) go to 2000
-         ijcs=ijcs+1
-         go to 1000
-      endif
- 2000 continue
-c-------------
-c checking :
-      if(ibl.ne.nbl2) then
-         write(6,*)'number of pair-blocks :'
-         write(6,*)'  from blockpNr =',nbl2
-         write(6,*)'  from blockpAr =',ibl 
-         call errquit('texas: pair conflict', 0)
-*         stop 'pair conflict'
-      endif
-c---------------------------------------------------------------
-cMay15 
-c     do 2500 ibl=1,nbl2
-c     ijcs1=ijbl(ibl,1)
-c     ics1=iis(ijcs1)
-c     jcs1=jjs(ijcs1)
-c     it1=inx(12,ics1)
-c     jt1=inx(12,jcs1)
-c     ic1=inx(5,ics1)-inx(1,ics1)
-c     jc1=inx(5,jcs1)-inx(1,jcs1)
-c     ijpar=npar(ibl)
-c     write(8,502) ibl,ijpar,it1,jt1,ic1,jc1
-c2500 continue
-c 502 format(/'Block=',i3,2x,'contains ',i3,' pairs of csh.',
-c    *' Itype=',i2,' Jtype=',i2,' Icon=',i2,' Jcon=',i2/)
-cMay15 
-c---------------------------------------------------------------
-      end
-c===============================================================
-      subroutine blksizer(nsupb ,nbl2,ijbl,npar,iis,jjs,inx,
-     *                    mxsize,nasize,ncs,iroute,iret_limit)
-c-----------------------------------------------------------
-c This subroutine determines the block-size for two-electron
-c integrals calculations.
-c The memory requimant is also estimated for ordinary two-el.
-c integrals as well as for GIAO derivatives.
+c This routine determines maximum for the block-size for
+c integrals calculations. The memory requimant is also 
+c estimated for ordinary two-el. as well as for GIAO, GRADIENT
+c and HESSIAN  derivatives.
 c-----------------------------------------------------------
       implicit real*8 (a-h,o-z)
       logical firstd
@@ -634,13 +143,10 @@ c
       common /logic2/ lenn(1)
       common /logic3/ lensm(1)
 c
-      dimension nasize (*)
-      dimension mxsize(*), nsupb(*)
-      dimension npar(*),ijbl(nbl2,*)
-      dimension inx(12,*),iis(*),jjs(*)
+      dimension inx(12,*),nblock1(0:*)
+      dimension npar(*)
+      dimension mxsize(*)
 c
-c-----------------------------------------------------
-      iret_limit=0
 c-----------------------------------------------------
 c  iforwhat shows what the Blockin2 routins are called for :
 c  1) for ordinary two-el.integrals (ifor=1)
@@ -650,25 +156,18 @@ c  4) for second derivatives        (ifor=4)
 c
 c  This is used to send info about memory to the Calcint2
 c-----------------------------------------------------
-c  Calculates the total number of blocks of contracted
-c  shells quartets NBLOKS (only for info).
-c  Sets up the MXSIZE(*) and NSUPB(*) arrays for each
-c  Super-block (number of them is NBL2*(NBL2+1)/2 ) .
+c  Sets up the MXSIZE(*) array 
 c
-      mem2max=0
-      mem2ijx=0
-      mem2klx=0
-      mem4max=0
 c
       nblsmax=0
+      nblsmin=1 000 000   
       maxme1=0
       nbloks=0     ! counter of all blocks
       nbl12=0      ! counter of super-blocks
       do 100 ibl=1,nbl2
       ijpar=npar(ibl)
-      ijcs1=ijbl(ibl,1)
-      ics1=iis(ijcs1)
-      jcs1=jjs(ijcs1)
+cnew  only first pair in a block:
+      call get_ics_jcs(nblock1,ibl,  1  ,ics1,jcs1)
 c
       itype=inx(12,ics1)
       jtype=inx(12,jcs1)
@@ -690,91 +189,91 @@ c
       nbl12=nbl12+1
 c
       klpar=npar(kbl)
-      klcs1=ijbl(kbl,1)
-      kcs1=iis(klcs1)
-      lcs1=jjs(klcs1)
+cnew
+      call get_ics_jcs(nblock1,kbl,  1  ,kcs1,lcs1)
+c
       ktype=inx(12,kcs1)
       ltype=inx(12,lcs1)
 c
       ktype1=ktype
       ltype1=ltype
-      if(ktype.gt.4) ktype1=ktype-1
-      if(ltype.gt.4) ltype1=ltype-1
+      if(ktype.gt.4)  ktype1=ktype-1
+      if(ltype.gt.4)  ltype1=ltype-1
       if(ktype1.gt.5) ktype1=ktype1-1
       if(ltype1.gt.5) ltype1=ltype1-1
       nfkl=lenn(ktype1)*lenn(ltype1)
       nfijkl=nfij*nfkl
-c
+c 
       lck=inx(5,kcs1)-inx(1,kcs1)
       lcl=inx(5,lcs1)-inx(1,lcs1)
 c
       ngck=inx(4,kcs1)
       ngcl=inx(4,lcs1)
+c-------------------------------------------------
+      nquart_all=ijpar*klpar
+      if(ibl.eq.kbl) nquart_all=ijpar*(ijpar+1)/2
 c
+c maximum pairs allowed by the input limit 
+c for pairs/pair-block
+c
+      ijpar_lim=ijpar
+      klpar_lim=klpar
+      if(ijpar.gt.limpair) ijpar_lim=limpair
+      if(klpar.gt.limpair) klpar_lim=limpair
+c
+c     if(ibl.eq.kbl) nquart_lim=ijpar_lim*(ijpar_lim+1)/2
+c
+      nquart_lim=ijpar_lim*klpar_lim
+c
+      nquart=min(nquart_all,nquart_lim)
+c
+      ijpar=ijpar_lim
+      klpar=klpar_lim
+c
+ctest
+c     write(6,*) 'blksizer:block=',nbl12,
+c    *  ' nquart_all=',nquart_all,' nquart_lim=',nquart_lim
+ctest
+c-------------------------------------------------
+c maximum block-size allowed by the cache size
+c
+      maxsize=       icache /nfijkl
+      if(maxsize.eq.0) maxsize=1
+c
+c maximum block-size allowed by the input limit 
+c for quartets/block
+c
+      if(maxsize.gt.limblks) maxsize=limblks
+c
+c maximum block-size according to the current task
+c i.e. to the number of quartets of the same type
+c
+      mxsize(nbl12)=min(maxsize,nquart)
+c------------------------------------------------
 c calculate maximum memory needed for one block :
 c 1) for ordinary two-el.integrals (ifor=1)
 c 2) for GIAO two-el. derivatives  (ifor=2)
 c 3) for gradient derivatives      (ifor=3)
 c 4) for second derivatives        (ifor=4)
+c------------------------------------------------
 c
-ctest
-c     write(8,*)'    '
-c     write(8,*)'Super-block=',nbl12,' Ibl=',ibl,' Kbl=',kbl
-c
-c----
-      ifor=1
-c----
       IF( iroute.eq.1 ) THEN
-      call blksize1(ibl,kbl,ijpar,klpar,itype1,jtype1,ktype1,ltype1,
-     *              lci,lcj,lck,lcl, ngci,ngcj,ngck,ngcl,
-     *              memor2,memor2ij,memor2kl,memor4,ifor)
+        call blksize1(ibl,kbl,ijpar,klpar,itype1,jtype1,ktype1,ltype1,
+     *                lci,lcj,lck,lcl, ngci,ngcj,ngck,ngcl,
+     *                memor2,memor2ij,memor2kl,memor4,iforwhat)
       ELSE
-      call blksize2(ibl,kbl,ijpar,klpar,itype1,jtype1,ktype1,ltype1,
-     *              lci,lcj,lck,lcl, ngci,ngcj,ngck,ngcl,
-     *              memor2,memor2ij,memor2kl,memor4,ifor)
+        call blksize2(ibl,kbl,ijpar,klpar,itype1,jtype1,ktype1,ltype1,
+     *                lci,lcj,lck,lcl, ngci,ngcj,ngck,ngcl,
+     *                memor2,memor2ij,memor2kl,memor4,iforwhat)
       ENDIF
-c     write(8,*)' memor2,memor2ij,memor2kl,memor4'
-c     write(8,*) memor2,memor2ij,memor2kl,memor4
-c----
-      if(memor2.gt.mem2max) then
-         mem2max=memor2
-         ispbl2=nbl12
-      endif
-      if(memor2ij.gt.mem2ijx) then
-         mem2ijx=memor2ij
-         ispbl2ij=nbl12
-      endif
-      if(memor2kl.gt.mem2klx) then
-         mem2klx=memor2kl
-         ispbl2kl=nbl12
-      endif
-      if(memor4.gt.mem4max) then
-         mem4max=memor4
-         ispbl4=nbl12
-      endif
+c     write(6,*)'block=',nbl12,'  memor2,memor2ij,memor2kl,memor4 =',
+c    *                            memor2,memor2ij,memor2kl,memor4
 c-------------------------------------------------
-      maxsize=       icache /nfijkl
-      if(maxsize.eq.0) maxsize=1
-      if(maxsize.gt.limblks) maxsize=limblks
-c-------------------------------------------------
- 1234 continue
-c
-      ikbl=0       ! counter of blocks belonging to one super-block
+      ikbl=0       !counter of blocks belonging to one super-block
       maxmem=0
       maxqrt=0
-      mxsize(nbl12)=maxsize
-c
-      nquart=ijpar*klpar
-      if(ibl.eq.kbl) nquart=ijpar*(ijpar+1)/2
-cpnl:
-      nasize(nbl12)=nquart       ! texas-size of a super-block
-c
-c  calculate the number of blocks of contracted quartets
-c
-          ikbl=ikbl+1
-          ijsize=ijpar
-          klsize=klpar
-c----------------------------------------------
+      ikbl=ikbl+1  !always =1 for pnl
+c-------------------------------------------------
 c put the upper limit on the maxmem :
 c-->  mqrt1=memor2ij+memor2kl+memor4
 c memory for ONE quartet and one pair in block2 :
@@ -790,45 +289,15 @@ c
 cccc     stop 'blksizer'
       endif
 c----------------------------------------------
-c put the upper limit on the maxmem :
-c     mqrt1=ijpar*memor2ij+klpar*memor2kl+ memor4
-c memory for ONE quartet but all pairs :
-c
-      mqrt1=ijpar*memor2ij+klpar*memor2kl+ memor4
-c
-      if(mqrt1.ge.limxmem) then
-        write(6,*)'       For the current value of LIMXMEM             '
-        write(6,*)'            pair-blocks are too big.                '
-c
-c npar_limit=[ sqrt( 4*m2 +4*m4*limxmem) - 2*m2 ]/2*m4
-c 
-        m2=min(memor2ij,memor2kl)
-        m4=memor4
-        npar_lim=sqrt( dble(m2*m2 + m4*limxmem) ) -m2
-        npar_lim=npar_lim/m4
-        if(npar_lim.eq.0) then
-           write(6,*)'program stoped in the Blksizer routine'
-           write(6,*)'LIMPAIR can not be adjusted to LIMXMEM'
-           write(6,*)'     Change the value of LIMXMEM '
-           call errquit('texas:blksizer', 0)
-cccc       stop 'blksizer'
-        endif
-        write(6,*)' LIMPAIR is decreased from ',limpair,' to',npar_lim
-        limpair=npar_lim
-        iret_limit=1
-        RETURN
-      endif
-c----------------------------------------------
-c for PNL calculate what SHOULD be maximum size of a block due to the
-c memory limit :
+c redefine maximum block-szie according to the memory limit :
 c
       memorx=ijpar*memor2ij+klpar*memor2kl+ mxsize(nbl12)*memor4
       if(memorx.gt.limxmem) then
          mxqrts=(limxmem-ijpar*memor2ij-klpar*memor2kl)/memor4
-         if(mxqrts.eq.0) mxqrts=1
+         if(mxqrts.le.0) mxqrts=1
          if(mxqrts.gt.limblks) mxqrts=limblks
-c        write(6,*)' from sizer : sup-blk=',nbl12,' txs_size=',
-c    *   nasize(nbl12),' memory=',memorx,' limxmem=',limxmem
+c        write(6,*)' blksizer : sup-blk=',nbl12,' full size=',
+c    *   nquart_all   ,' memory needed=',memorx,' memory limit=',limxmem
 c        write(6,*)' max.size changed from ',mxsize(nbl12),' to',mxqrts
          mxsize(nbl12)=mxqrts
       endif
@@ -858,30 +327,11 @@ c----------------------------------------------
 c----------------------------------------------
 c select a super-block with maximum memory requirement for ONE block
 c
-      nsupb(nbl12)=ikbl
       nbloks=nbloks+ikbl
       if(maxmem.gt.maxme1) then
          maxme1=maxmem
          ispblx=nbl12
 c        remember also : 
-         iblx=ibl
-         kblx=kbl
-c
-         itypx=itype1
-         jtypx=jtype1
-         ktypx=ktype1
-         ltypx=ltype1
-c
-         lcix=lci
-         lcjx=lcj
-         lckx=lck
-         lclx=lcl
-c
-         ngcix=ngci
-         ngcjx=ngcj
-         ngckx=ngck
-         ngclx=ngcl
-c
          m2  =memor2 
          min4=memin4
          m2ij=memor2ij
@@ -892,123 +342,46 @@ c
          nblsy=nblsx
       endif
 c--------------
-c Select a super-block with the maximum 
-c block-size for ONE block :
+c Select a super-block with the maximum & minimum block-size :
 c
       if(maxqrt.gt.nblsmax) then
          nblsmax=maxqrt
          ispblq=nbl12
       endif
+      if(maxqrt.lt.nblsmin) then
+         nblsmin=maxqrt
+         ispblm=nbl12
+      endif
 c--------------
   100 continue
 c-----------------------------------------------------------
-c Print out info about maximum sizes of super-blocks (PNL):
-c
       IF(nprint.gt.0) THEN
 c
       write(8,*)'--------------------------------------------------'
       write(8,*)' Maximum sizes of super-blocks upon restrictions :'
       write(8,*)'         cache memory < ',icache
-      write(8,*)'         block size   < ',limblks
+      write(8,*)'         pairs limit  < ',limpair
+      write(8,*)'         quart limit  < ',limblks
       write(8,*)'         memory limit < ',limxmem
       write(8,*)'--------------------------------------------------'
-c     do 200 isupb=1,nbl12
-c     write(8,*)' super-block=',isupb,' txs-size=',nasize(isupb),
-c    *                                ' max-size=',mxsize(isupb)
-c 200 continue
-c     write(8,*)'--------------------------------------------------'
 c
-      ENDIF
-c-----------------------------------------------------------
-c This is memory requested for one block
-c and it should be the same like maxme1 .
-c        mblok1=ijpay*m2ij+klpay*m2kl+nblsy*m4
-c        mblok1=mblok1+m2 + min4
-c-----------------------------------------------------------
-c Now calculate how much memory will be needed for the NMR
-c two-el. int. derivatives with the SAME blok-size structure
-c like for ordinary integrals :
 c
-      ifor=2
-      IF( iroute.eq.1 ) THEN
-      call blksize1(iblx,kblx,ijpay,klpay,itypx,jtypx,ktypx,ltypx,
-     *              lcix,lcjx,lckx,lclx, ngcix,ngcjx,ngckx,ngclx,
-     *              memor2,memor2ij,memor2kl,memor4,ifor)
-      ELSE
-      call blksize2(iblx,kblx,ijpay,klpay,itypx,jtypx,ktypx,ltypx,
-     *              lcix,lcjx,lckx,lclx, ngcix,ngcjx,ngckx,ngclx,
-     *              memor2,memor2ij,memor2kl,memor4,ifor)
-      ENDIF
-c
-         maxme2=ijpay*memor2ij+klpay*memor2kl+nblsy*memor4
-         maxme2=maxme2+memor2 + min4
-c-----------------------------------------------------------
 c Print out info concerning memory requiments :
-c-----------------------------------------------------------
-      IF(nprint.eq.0) RETURN
-c-----------------------------------------------------------
+c
+      npairs=ncs*(ncs+1)/2
+      pairs=dble(npairs)
+      quart=pairs*(pairs+1)/2
       write(8,*)
-      write(8,497) nbl12,nblsmax,ispblq,nbloks
-  497 format(/' Number of Super-Blocks of Contracted Quartets =',i20/
-     *        ' maximum block-size =',i7,' in S-block=',i6/
-     *        ' Total number of Blocks of Contracted Quartets =',i20/)
-c------------pnl -------------------------------------------
-c
-c print it only for the CHECK run :
-c
-      IF(icheck.ne.0) THEN
-      write(8,498) nblsmax,ispblq, mem2max,ispbl2, mem2ijx,ispbl2ij,
-     *             mem2klx,ispbl2kl,mem4max,ispbl4, maxme1,ispblx 
-  498 format( ' ***** Maximum values required for Super-blocks *****'/
-     *        ' maximum block-size    =',i10,'   in S-block=',i6/
-     *        ' memory for pair-precal=',i10,'   in S-block=',i6/
-     *        ' memory for one pair IJ=',i10,'   in S-block=',i6/
-     *        ' memory for one pair KL=',i10,'   in S-block=',i6/
-     *        ' memory for one quartet=',i10,'   in S-block=',i6/
-     *        ' memory for ONE block  =',i10,'   in S-block=',i6/)
+      write(8,497) nbl12,nbloks,quart,nblsmax,ispblq
+     *                                    ,nblsmin,ispblm
+  497 format(/' Number of Super-Blocks of Contracted Quartets =',i15/
+     *        ' Total number of Blocks of Contracted Quartets =',i15/
+     *        ' Total number of contracted shell quartets     =',f16.0/
+     *        ' maximum block-size =',i7,'  in S-block =',i6/ 
+     *        ' minimum block-size =',i7,'  in S-block =',i6/)
 c
       ENDIF
-c
-c print it for the CHECK run and for ordinary two-el.integrals :
-c
-      IF(icheck.ne.0 .or. iforwhat.eq.1) THEN
-c     write(6,499) ispblx, iblx,kblx,m2,
-c    *  m2ij,ijpay, m2kl,klpay, m4,nblsy, maxme1,maxme1+1
-c
-      write(8,499) ispblx, iblx,kblx,m2,
-     *  m2ij,ijpay, m2kl,klpay, m4,nblsy, maxme1,maxme1+1
-  499 format( ' ** Most memory consuming block in the Super-block  **'/
-     *        ' number =',i6,' made out of pair-blocks =',2i6//
-     *        '   for ordinary two-electron integrals requires :'//
-     *        '   ',i7,' d.w. of memory for pair-precalc.'/
-     *        '   ',i7,' d.w. of memory for one pair ij (',i5,' pairs)'/
-     *        '   ',i7,' d.w. of memory for one pair kl (',i5,' pairs)'/
-     *        '   ',i7,' d.w. of memory for one quartet (',i5,' quart)'/
-     *        '   '  ,i9,' d.w. of memory for the whole block  '/
-     *        ' first free address in bl will be=',i10/)
-      ENDIF
-c
-c NMR :
-c print it for the CHECK run and for the GIAO two-el.integrals :
-c
-cPNL----------
-c     IF(icheck.ne.0 .or. iforwhat.eq.2) THEN
-c     write(8,501) ispblx, iblx,kblx,memor2,
-c    *  memor2ij,ijpay, memor2kl,klpay, memor4,nblsy, maxme2
-c 501 format( ' ** Most memory consuming block in the Super-block  **'/
-c    *        ' number =',i6,' made out of pair-blocks =',2i6//
-c    *        '   for the GIAO two-electron integrals requires :'//
-c    *        '   ',i7,' d.w. of memory for pair-precalc.'/
-c    *        '   ',i7,' d.w. of memory for one pair ij (',i5,' pairs)'/
-c    *        '   ',i7,' d.w. of memory for one pair kl (',i5,' pairs)'/
-c    *        '   ',i7,' d.w. of memory for one quartet (',i5,' quart)'/
-c    *        '   '  ,i9,' d.w. of memory for the whole block  '/)
-c transmit the maxme2 to the Calcint2 through the common /memmax/
-c
-c        if(iforwhat.eq.2) maxme1=maxme2
-c     ENDIF
-cPNL----------
-c--------
+c-----------------------------------------------------------
       end
 c===============================================================
       subroutine blksize1(ibl,kbl,ijpar,klpar,ityp,jtyp,ktyp,ltyp,
@@ -1042,10 +415,13 @@ c----------------------------------------------------------------------
 c----------------------------------------------------------------------
 c ifor=1   for ordinary two-el.integrals
 c ifor=2   for NMR GIAO integral derivatives
+c ifor=3   for gradient integral derivatives (first  derivatives)
+c ifor=4   for hessian  integral derivatives (second derivatives)
 c
       where='    '
       if(ifor.eq.2) where='shif'
       if(ifor.eq.3) where='forc'
+      if(ifor.eq.4) where='hess'
 c----------------------------------------------------------------------
       lci=lcix
       lcj=lcjx
@@ -1065,9 +441,13 @@ c
       NSIJ=NQI+NQJ-1
       NSKL=NQK+NQL-1
 c
-      if(where.eq.'shif') then
+      if(where.eq.'shif' .or. where.eq.'forc') then
         nsij=nsij+1
         nskl=nskl+1
+      endif
+      if(where.eq.'hess') then
+        nsij=nsij+2
+        nskl=nskl+2
       endif
 C
       MMAX=NSIJ+NSKL-1
@@ -1163,7 +543,6 @@ c
 c------------------------
 c
       memasse=memasse+3   ! convert in assemble
-cMay96memamsh=memamsh+3   ! convert in amshift 
       memamsh=memamsh+6   ! convert in amshift 
       if(ngcd.gt.1) then 
          memgenc=(ngcij+ngckl+ngcd*lnij*lnkl)
@@ -1214,10 +593,13 @@ c----------------------------------------------------------------------
 c----------------------------------------------------------------------
 c ifor=1   for ordinary two-el.integrals
 c ifor=2   for NMR GIAO integral derivatives
+c ifor=3   for gradient integral derivatives (first  derivatives)
+c ifor=4   for hessian  integral derivatives (second derivatives)
 c
       where='    '
       if(ifor.eq.2) where='shif'
       if(ifor.eq.3) where='forc'
+      if(ifor.eq.4) where='hess'
 c----------------------------------------------------------------------
       lci=lcix
       lcj=lcjx
@@ -1240,9 +622,13 @@ c
       NSIJ=NQI+NQJ-1
       NSKL=NQK+NQL-1
 c
-      if(where.eq.'shif') then
+      if(where.eq.'shif' .or. where.eq.'forc') then
         nsij=nsij+1
         nskl=nskl+1
+      endif
+      if(where.eq.'hess') then
+        nsij=nsij+2
+        nskl=nskl+2
       endif
 C
       MMAX=NSIJ+NSKL-1
@@ -1315,6 +701,10 @@ c
 c      add memory reserved in memo6 routine :
          memor2ij=memor2ij+3
          memor2kl=memor2kl+3
+      endif
+      if(where.eq.'forc') then
+         memor2ij=memor2ij+lci+lcj
+         memor2kl=memor2kl+lck
       endif
 c------------------------
 c quartet-calculations (reserved in memo5c :
@@ -1398,13 +788,29 @@ c ------------------------------------------
       ngcijkl=(ngci+1)*(ngcj+1)*(ngck+1)*(ngcl+1)
       nblsg=nbls*ngcijkl
 c
-      if(where.ne.'shif') then
+ccccc if(where.ne.'shif' .or. where.ne.'forc') then
 c       ----------------------------
         memasse=nblsg*(lnijkl + mem0)
 c       ----------------------------
-      else
+ccccc endif
+      if(where.eq.'shif') then
 c       ----------------------------
         memasse=nblsg*(7*lnijkl + mem0+6*nfu(nsij)*nfu(nskl)  )
+c       ----------------------------
+      endif
+      if(where.eq.'forc') then
+c       ----------------------------
+change  memasse=nblsg*(9*lnijkl +4*mem0+10*nfu(nsij)*nfu(nskl)  )
+        memasse=nblsg*max(9*lnijkl,4*mem0) 
+        memasse=memasse + 10*nfu(nsij)*nfu(nskl)
+c       ----------------------------
+      endif
+      if(where.eq.'hess') then
+c       ----------------------------
+c       belove 54 if grad. are returned to
+ccc     memasse=nblsg*max(45*lnijkl,10*mem0)  ! only second returned
+        memasse=nblsg*max(54*lnijkl,10*mem0)  ! first & second returned
+        memasse=memasse + 55*nfu(nsij)*nfu(nskl)
 c       ----------------------------
       endif
 c
@@ -1414,12 +820,18 @@ c
       endif
 c
         IF(LSHELLT.GT.0) THEN
-          if(where.eq.'shif' .or. where.eq.'forc') then
-           mbfkl12=lnij*nfu(nqkl1+1)*nbls + 6*nfu(nsij)*nfu(nqkl+1)*nbls
-           mbfij12=nfu(nqij1+1)*lnkl*nbls + 6*nfu(nqij+1)*nfu(nskl)*nbls
-          else
            mbfkl12=lnij*nfu(nqkl+1)*nbls 
            mbfij12=nfu(nqij+1)*lnkl*nbls
+c
+          if(where.eq.'shif') then
+           mbfkl12=lnij*nfu(nqkl1+1)*nbls + 6*nfu(nsij)*nfu(nqkl+1)*nbls
+           mbfij12=nfu(nqij1+1)*lnkl*nbls + 6*nfu(nqij+1)*nfu(nskl)*nbls
+          endif
+          if(where.eq.'forc') then
+           mbfkl12= 4*lnij*nfu(nqkl1+1)*nbls 
+     *            +10*nfu(nsij)*nfu(nqkl+1)*nbls
+           mbfij12= 4*nfu(nqij1+1)*lnkl*nbls 
+     *            +10*nfu(nqij+1)*nfu(nskl)*nbls
           endif
 c
           if(lshellt.gt.1) then
@@ -1434,15 +846,20 @@ c           ----------------------
 c     
         IF( LSHELLT.GT.1 ) THEN
 c
-          if(where.eq.'shif' .or. where.eq.'forc') then
+          mbf2l =nfu(nqij+1)*nfu(nqkl+1)*nbls 
+          mbfkl3=lnij*nbls
+          mbfij3=lnkl*nbls
+          if(where.eq.'shif') then
             mbf2l=nfu(nqij1+1)*nfu(nqkl1+1)*nbls 
      *         +6*nfu(nqij +1)*nfu(nqkl +1)*nbls
             mbfkl3=lnij*4*nbls + 6*nfu(nsij)*nbls
             mbfij3=4*lnkl*nbls + 6*nfu(nskl)*nbls
-          else
-            mbf2l=nfu(nqij+1)*nfu(nqkl+1)*nbls 
-            mbfkl3=lnij*nbls
-            mbfij3=lnkl*nbls
+          endif
+          if(where.eq.'forc') then
+            mbf2l=4*nfu(nqij1+1)*nfu(nqkl1+1)*nbls 
+     *         +10*nfu(nqij +1)*nfu(nqkl +1)*nbls
+            mbfkl3=4*lnij*4*nbls +10*nfu(nsij)*nbls
+            mbfij3=4*4*lnkl*nbls +10*nfu(nskl)*nbls
           endif
 c
           if(lshellt.gt.2) then
@@ -1460,13 +877,17 @@ c           ----------------------
 c
         IF( LSHELLT.GT.2 ) THEN
 c
-          if(where.eq.'shif' .or. where.eq.'forc') then
+            mbf3l0=max( nfu(nqij +1),nfu(nqkl +1) )
+            mbf3l=mbf3l0*nbls
+          if(where.eq.'shif') then
             mbf3l1=max( nfu(nqij1+1),nfu(nqkl1+1) )
             mbf3l0=max( nfu(nqij +1),nfu(nqkl +1) )
             mbf3l=4*mbf3l1*nbls + 6*mbf3l0*nbls
-          else
+          endif
+          if(where.eq.'forc') then
+            mbf3l1=max( nfu(nqij1+1),nfu(nqkl1+1) )
             mbf3l0=max( nfu(nqij +1),nfu(nqkl +1) )
-            mbf3l=mbf3l0*nbls
+            mbf3l=(4*4*mbf3l1 +10*mbf3l0)*nbls
           endif
 c
           if(lshellt.gt.3) then
@@ -1481,11 +902,9 @@ c           ----------------------
 c
         IF( LSHELLT.GT.3 ) then
 c
-          if(where.eq.'shif' .or. where.eq.'forc') then
-            i4s =16*nbls + 6*nbls
-          else
-            i4s =nbls
-          endif
+          i4s =nbls
+          if(where.eq.'shif') i4s =16*nbls + 6*nbls
+          if(where.eq.'forc') i4s =4*16*nbls +10*nbls
 c           ----------------------
             memasse=memasse+i4s
 c           ----------------------
@@ -1556,6 +975,10 @@ c
             mwij=6*mwij
             mxij=6*mxij
         endif
+        if(where.eq.'forc') then
+            mwij=10*mwij
+            mxij=10*mxij
+        endif
 c           ----------------------
             memamsh=mwij+mxij
 c           ----------------------
@@ -1569,6 +992,10 @@ c
             mvus=6*mvus
             myz =6*myz 
         endif
+        if(where.eq.'forc') then
+            mvus=10*mvus
+            myz =10*myz 
+        endif
 c           ----------------------
             memamsh=memamsh+(mvus+myz)
 c           ----------------------
@@ -1577,6 +1004,9 @@ c
             mbf2l=nfu(nqij+1)*nfu(nqkl+1) *nbls
             if(where.eq.'shif') then
                mbf2l=6*mbf2l
+            endif
+            if(where.eq.'forc') then
+               mbf2l=10*mbf2l
             endif
 c           ----------------------
             memamsh=memamsh+(2*mvus+myz)
@@ -1744,80 +1174,103 @@ c       ----------------------
       endif
 c
       end
-c===============================================================
-c The new price routine :
-c=====
-      subroutine price(inx,iis,jjs,ijbl,npar,nsupb,nbl2,ncost,nprint)
+c=======================================================================
+c23456789.123456789.123456789.123456789.123456789.123456789.123456789.12
+      subroutine block_info(inx,nblock1,npar,nbl2)
       implicit real*8 (a-h,o-z)
-      character*11 scftype
-      character*4 where
-      common /runtype/ scftype,where
-      common /logic1/ ndege(1)
-      common /logic2/ lenn(1)
-      common /logic3/ lensm(1)
-      common /logic4/ nfu(1)
-c
-      dimension nsupb(*)
-      dimension inx(12,*),iis(*),jjs(*),ijbl(nbl2,*), ncost(*),npar(*)
-c-------------------------
-c*
-      if(nprint.gt.1) then
+      common /local_info/ mmax,itype,jtype,ktype,ltype,
+     *                         icont,jcont,kcont,lcont
+      dimension inx(12,*),nblock1(*),npar(*)
+c-------------------------------------------------------------
+c this is called only for print purposes (iprint>1)
+c-------------------------------------------------------------
       write(8,*  )' FIRST 1000 BLOCKS '
       write(8,505)
   505 format(/
      *' Block  MMAX   type   contrac.   nfun/q      Nqrt   Nfunc',2x,
      * 'Price/i')
-      endif
 c
-c contracted integrals counter
-c
-      maxpr=0
-      minpr=100000
       maxst=0
-      ntotq=0
-c
       ikbl=0
       do 100 ibl=1,nbl2
-      ijcs1=ijbl(ibl,1)
-      ics1=iis(ijcs1)
-      jcs1=jjs(ijcs1)
+      nparij=npar(ibl)
+      call get_ics_jcs(nblock1,ibl,  1  ,ics1,jcs1)
+c
+         do 200 kbl=1,ibl
+         nparkl=npar(kbl)
+         ikbl=ikbl+1
+c
+         if(ikbl.gt.1000) RETURN
+c
+         call get_ics_jcs(nblock1,kbl,  1  ,kcs1,lcs1)
+c
+         nquart=nparij*nparkl
+         if(kbl.eq.ibl) nquart=nparij*(nparij+1)/2
+c
+c---------------------------------------------------------------
+c estimate the price of one integral in a block
+c
+         call get_price1(inx,ics1,jcs1,kcs1,lcs1,nfijkl,nprice)
+c
+c output:  nprice and nfijkl
+c and mmax, types, contractions in the local common /local_info/
+c---------------------------------------------------------------
+c
+         if(mmax.ne.maxst) then
+c           for printing purpose only
+            write(8,*)'   '
+            maxst=mmax
+         endif
+c
+         nfun=nquart*nfijkl
+         write(8,506) ikbl,mmax,itype,jtype,ktype,ltype,
+     *                icont,jcont,kcont,lcont,nfijkl,nquart,nfun,nprice
+ccc  *                ngci1,ngcj1,ngck1,ngcl1,nfijkl,nquart,nfun,nprice
+  200    continue
+  100 continue
+c
+  506 format(2x,i4,2x,i2,2x,4i2,2x,4i2,3x,i5,4x,i6,1x,i8,3x,i6      )
+c
+c---------------------------------------------------------------
+c
+      end
+c=======================================================================
+      subroutine get_price1(inx,ics1,jcs1,kcs1,lcs1,nfijkl,nprice)
+      common /local_info/ mmax,itype,jtype,ktype,ltype,
+     *                         icont,jcont,kcont,lcont
+      common /logic1/ ndege(1)
+      common /logic2/ lenn(1)
+      common /logic3/ lensm(1)
+      common /logic4/ nfu(1)
+      dimension inx(12,*)
+c------------------------- ij part -----------
       itype=inx(12,ics1)
       jtype=inx(12,jcs1)
-c     int=inx(3,ics1)
-c     jnt=inx(3,jcs1)
-c     ijnt=int*jnt
       itype1=itype
       jtype1=jtype
       if(itype.gt.4) itype1=itype-1
       if(jtype.gt.4) jtype1=jtype-1
       if(itype1.gt.5) itype1=itype1-1
       if(jtype1.gt.5) jtype1=jtype1-1
-      icont=inx(5,iis(ijcs1))-inx(1,iis(ijcs1))
-      jcont=inx(5,jjs(ijcs1))-inx(1,jjs(ijcs1))
+      icont=inx(5,ics1)-inx(1,ics1)
+      jcont=inx(5,jcs1)-inx(1,jcs1)
       ijcont=icont*jcont
       ngci=inx(4,ics1)
       ngcj=inx(4,jcs1)
       ngci1=ngci+1
       ngcj1=ngcj+1
-      nparij=npar(ibl)
       nfij  =lenn(itype1)*lenn(jtype1)
       ngcij =ngci1*ngcj1
-c-
-         do 100 kbl=1,ibl
-         ikbl=ikbl+1
-         klcs1=ijbl(kbl,1)
-         kcs1=iis(klcs1)
-         lcs1=jjs(klcs1)
-         nparkl=npar(kbl)
 c
-         nquart=nparij*nparkl
-         if(kbl.eq.ibl) nquart=nparij*(nparij+1)/2
+         nqi=ndege(itype1)
+         nqj=ndege(jtype1)
+         nsij=nqi+nqj-1
+         lnij=lensm(nsij)
+         nqij=nqi
+         if(nqj.gt.nqi) nqij=nqj
 c
-         ntotq=ntotq+nquart
+c------------------------- kl part -----------
 c
-c        knt=inx(3,kcs1)
-c        lnt=inx(3,lcs1)
-c        klnt=knt*lnt
          ktype=inx(12,kcs1)
          ltype=inx(12,lcs1)
          ktype1=ktype
@@ -1826,29 +1279,12 @@ c        klnt=knt*lnt
          if(ltype.gt.4) ltype1=ltype-1
          if(ktype1.gt.5) ktype1=ktype1-1
          if(ltype1.gt.5) ltype1=ltype1-1
-c
-         nfijkl=nfij*lenn(ktype1)*lenn(ltype1)
-         nfun=nquart*nfijkl
-c
-         kcont=inx(5,iis(klcs1))-inx(1,iis(klcs1))
-         lcont=inx(5,jjs(klcs1))-inx(1,jjs(klcs1))
-         ijklc=ijcont*kcont*lcont
-c
-c number of general contractions
-c
+         kcont=inx(5,kcs1)-inx(1,kcs1)
+         lcont=inx(5,lcs1)-inx(1,lcs1)
          ngck=inx(4,kcs1)
          ngcl=inx(4,lcs1)
          ngck1=ngck+1
          ngcl1=ngcl+1
-cccccc   ngcd=ngci1*ngcj1*ngck1*ngcl1
-         ngcd=ngcij*ngck1*ngcl1
-c-
-         nqi=ndege(itype1)
-         nqj=ndege(jtype1)
-         nsij=nqi+nqj-1
-         lnij=lensm(nsij)
-         nqij=nqi
-         if(nqj.gt.nqi) nqij=nqj
 c
          nqk=ndege(ktype1)
          nql=ndege(ltype1)
@@ -1857,9 +1293,12 @@ c
          nqkl=nqk
          if(nql.gt.nqk) nqkl=nql
 c
+c----------------------  ijkl part -----------
+c
+         nfijkl=nfij*lenn(ktype1)*lenn(ltype1)
          mmax=nsij+nskl-1
 c
-c estimate the price for a block
+c---------------------------------------------
 c
          if ( mmax.le.2 ) then
            nprice=39
@@ -1910,8 +1349,7 @@ c
 c
          endif
 c
-ccccccc  nprice=nprice*icont*jcont*kcont*lcont
-         nprice=nprice*ijklc
+         nprice=nprice*icont*jcont*kcont*lcont
 c
 c from shifting of angular momentum :
 c
@@ -1951,217 +1389,21 @@ c
 c
          endif
 c
+c general contraction factor :
+c
+        ngcfact=(ngci1+1)*(ngcj1+1)*(ngck1+1)*(ngcl1+1)
+        ngcfact=ngcfact/16
+c
+        nprice=nprice/ngcfact
+c---------------------------------------------
         nprice=nprice/nfijkl
-c
-        ngen1=16*ngcd
-        ngen2=(ngci1+1)*(ngcj1+1)*(ngck1+1)*(ngcl1+1)
-        ngen12=ngen1/ngen2
-c
-        nprice=nprice*ngen12
-        nprice=nprice/ngcd
-c
-c-----> npricet=nprice*nfun
-c
-        ncost(ikbl)=nprice
-c
-        if(nprice.gt.maxpr) maxpr=nprice
-        if(nprice.lt.minpr) minpr=nprice
-c
-c  end of price
-c
-       if(nprint.gt.1 .and. ikbl.le.1000) then
-         if(mmax.ne.maxst) then
-c* for printing purpose only
-           write(8,*)'   '
-           maxst=mmax
-         endif
-         write(8,506) ikbl,mmax,itype,jtype,ktype,ltype,
-     *                icont,jcont,kcont,lcont,nfijkl,nquart,nfun,
-ccc  *                ngci1,ngcj1,ngck1,ngcl1,nfijkl,nquart,nfun,
-     *                nprice
-         if(nsupb(ikbl).gt.1) then
-            write(8,507) nsupb(ikbl)
-         endif
-       endif
-  100 continue
-c
-c 506 format(2x,i4,2x,i2,2x,4i2,2x,4i2,3x,i5,4x,i4,1x,i7,3x,i5,2x,i8)
-  506 format(2x,i4,2x,i2,2x,4i2,2x,4i2,3x,i5,4x,i6,1x,i8,3x,i6      )
-  507 format(5x,' this super-block is split into ',i5,' blocks')
-c
-c---------------------------------------------------------------
-c print statistics : number of 2e-int. and its price disribution
-c 
-cpnl  if(scftype.eq.'    ') then
-cpnl    call statint(inx,iis,jjs,ijbl,npar,nbl2,ncost,minpr,maxpr)
-cpnl  endif
-c----------------------------------------------------------------
-c
+c---------------------------------------------
       end
-c================================================
-      subroutine statint(inx,iis,jjs,ijbl,npar,nbl2,ncost,
-     *                   minpr,maxpr)
-      implicit real*8 (a-h,o-z)
-c
-      dimension inx(12,*),iis(*),jjs(*),ijbl(nbl2,*), ncost(*),npar(*)
-      dimension intnu(9)
-      dimension xintxx(9)
-      data half /0.5d0/
-c-------------------------------------------
-c number of integrals more expensive than :
-c     10% of maximum price
-c     25% of maximum price 
-c     50% of maximum price
-c     75% of maximum price
-c    100% of maximum price
-c-------------------------------------------
-      do 15 ii=1,9
-      xintxx(ii)=0
-   15 continue
-      xprice=dble(maxpr)
-      x001=0.001d0*xprice
-      x005=0.005d0*xprice
-      x010=0.010d0*xprice
-      x050=0.050d0*xprice
-      x100=0.10d0*xprice
-      x250=0.25d0*xprice
-      x500=0.50d0*xprice
-      x750=0.75d0*xprice
-      x990=0.99d0*xprice
-c
-      intnu(1)=int(x001)
-      intnu(2)=int(x005)
-      intnu(3)=int(x010)
-      intnu(4)=int(x050)
-      intnu(5)=int(x100)
-      intnu(6)=int(x250)
-      intnu(7)=int(x500)
-      intnu(8)=int(x750)
-      intnu(9)=int(x990)
-c-------------------------
-c
-c contracted integrals counter
-c
-      xinteg=0
-c
-      ikbl=0
-      do 100 ibl=1,nbl2
-      ijcs1=ijbl(ibl,1)
-      ics1=iis(ijcs1)
-      jcs1=jjs(ijcs1)
-      inte=inx(3,ics1)
-      jnte=inx(3,jcs1)
-      ijnte=inte*jnte
-      nparij=npar(ibl)
-c-
-      call parinteg(ibl,nparij,ijbl,nbl2,iis,jjs,ijnte,inte,ijxint)
-c-
-         do 100 kbl=1,ibl
-         ikbl=ikbl+1
-         klcs1=ijbl(kbl,1)
-         kcs1=iis(klcs1)
-         lcs1=jjs(klcs1)
-         knte=inx(3,kcs1)
-         lnte=inx(3,lcs1)
-         klnte=knte*lnte
-         nparkl=npar(kbl)
-c--
-         if(kbl.ne.ibl) then
-           call parinteg(kbl,nparkl,ijbl,nbl2,iis,jjs,klnte,knte,klxint)
-           xinteg1=dble(ijxint)*dble(klxint)
-         else
-           xinteg1=dble(ijxint)*dble(ijxint+1)
-           xinteg1=xinteg1*half
-         endif
-c
-c  integrals in one super-block = xinteg1
-c  total number of integrals:
-c
-         xinteg=xinteg + xinteg1
-c--
-         nprice=ncost(ikbl)
-c
-c count number of integrals more expensive than ..
-c
-         do 150 ii=1,9
-          if(nprice.gt.intnu(ii)) xintxx(ii)=xintxx(ii)+xinteg1
-  150    continue
-c
-  100 continue
-c
-        call statint1(xintxx,intnu,minpr,maxpr,xinteg)
-c
-      end
-c================================================
-      subroutine parinteg(ibl,nparij,ijbl,nbl2,iis,jjs,
-     *                    ijnt,int, ijxint)
-      implicit real*8 (a-h,o-z)
-      dimension iis(*),jjs(*),ijbl(nbl2,*)
-c-
-       ijeq=0
-       do 1001 ijpar=1,nparij
-        ijcs=ijbl(ibl,ijpar)
-        ics=iis(ijcs)
-        jcs=jjs(ijcs)
-        if(jcs.eq.ics) ijeq=ijeq+1
- 1001  continue
-       ijxint=(nparij-ijeq)*ijnt + ijeq*int*(int+1)/2
-c-
-      end
-c================================================
-      subroutine statint1(xintxx,intnu,minpr,maxpr,xinteg)
-      implicit real*8 (a-h,o-z)
-      dimension xintxx(9), intnu(9)
-c-----------------------------------
-c print statistics : number of 2e-int. and its price disribution
-c 
-c--
-      x1024=1024.d0
-      xmega=1.d0/(x1024*x1024)
-      if(xinteg.gt.0.d0) xint1=1.d0/xinteg
-c--
-c     write(6,500)
-      write(8,500)
-  500 format(70('.'))
-c     write(6,501)
-      write(8,501)
-  501 format(' Integral statistics (w/o symmetry and neglect)'/)
-c     write(6,502) minpr,maxpr
-      write(8,502) minpr,maxpr
-  502 format('        computational cost per integral :'/
-     *       '        minimum = ',i3,' maximum = ',i6/)
-c--
-      xbyte=xinteg*8.d0*xmega
-      part=100.d0
-      ipay=0
-c     write(6,504) xinteg,part,ipay     ,xbyte
-      write(8,504) xinteg,part,ipay     ,xbyte
-c--
-c     write(6,500)
-      write(8,500)
-      part=0.d0
-      do 20 ii=1,9
-        if(xintxx(ii).gt.0.d0) then
-           xintx=xintxx(ii)
-           xbyte=xintx*8.d0*xmega
-           if(xinteg.gt.0.d0) part=xintx*xint1
-           part=part*100.d0
-c          write(6,504) xintx,part,intnu(ii),xbyte
-           write(8,504) xintx,part,intnu(ii),xbyte
-        endif
-   20 continue
-c     write(6,500)
-      write(8,500)
-  504 format
-     *(f17.0,' (',f5.1,'%) int. stored for ipay=',i6,' take ',
-     *                                               f10.2,'MB')
-c---
-      end
+c=======================================================================
 c================================================================
 c    subroutines for blocking quartets :
 c================================================================
-      subroutine blockin4(isbl,ibl,kbl,nbloks,nbls_pnl,
-     *                    bl,inx,npard,nbl2)
+      subroutine blockin4(isbl,ibl,kbl,nbls_pnl,bl,npar)
 c---------------------------------------------
 c this routine is called for each super-block
 c and NBLOKS is a number of blocks belonging
@@ -2169,43 +1411,33 @@ c to the given super-block ISBL .
 c (whatever the "super-block" means )
 c---------------------------------------------
       implicit real*8 (a-h,o-z)
-      logical firstd
 c
-      common /cpu/ intsize,iacc,icache,memreal
-      common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
-      common /infob/ inuc,ibas,na,nbf,nsh,ncf,ncs
-c
-      common /memor1/ iisd,jjsd,ijbld
       common /memor2/ nqrtd, nibld,nkbld, nijbd,nijed, nklbd,nkled
-      common /memor3/ nblok1d
-      common /memors/ nsym,ijshp,isymm
 c
       dimension bl(*)
-      dimension inx(12,*)
+      dimension npar(*)      !    npar(nbl2)
 c------------------------------------------------
 c
 c*  constructe blocks of quartets of contracted shells :
 c*  set up vectors : nqrt,nibl,nkbl, nijb,nije, nklb,nkle
 c
+      nbloks=1            ! always for pnl
       call memo2(nbloks)  ! res.mem. for 7 arrays (above)
 c
-      call blockqur(isbl,ibl,kbl,nbloks,maxqrt,nbl2,bl(ijbld),bl(npard),
-     *bl(nqrtd),bl(nibld),bl(nkbld),bl(nijbd),bl(nijed),
-     *bl(nklbd),bl(nkled),bl(iisd),bl(jjsd),inx)
+      call blockqur(isbl,ibl,kbl,maxqrt,npar,
+     *              bl(nqrtd),bl(nibld),bl(nkbld),bl(nijbd),bl(nijed),
+     *              bl(nklbd),bl(nkled))
 c
-CCCC  call memo3(maxqrt)
       call memo3(nbls_pnl)
 c
 c end of the blocking procedure
 c
       end
 c===============================================================
-      subroutine blockqur(isbl,ibl,kbl,nbloks,maxqrt,nbl2,ijbl,npar,
-     * nqrt,nibl,nkbl, nijb,nije,nklb,nkle,iis,jjs,inx)
+      subroutine blockqur(isbl,ibl,kbl,maxqrt,npar,
+     *                    nqrt,nibl,nkbl, nijb,nije,nklb,nkle)
 c
-      dimension npar(*),ijbl(nbl2,*)
-      dimension inx(12,*),iis(*),jjs(*)
-c*
+      dimension npar(*)
       dimension nibl(*),nkbl(*),nijb(*),nije(*),nklb(*),nkle(*)
       dimension nqrt(*)
 c*
@@ -2219,53 +1451,30 @@ c
       ikbl=0
 c
       if(ibl.gt.kbl) then
-         call nondiax(nqrt,ikbl,ibl,kbl,ijbl,nbl2,npar,
+         call nondiax(nqrt,ikbl,ibl,kbl,npar,
      *                nibl,nkbl, nijb,nije,nklb,nkle)
       else
-         call diagonx(nqrt,ikbl,ibl,kbl,ijbl,nbl2,npar,
+         call diagonx(nqrt,ikbl,ibl,kbl,npar,
      *                nibl,nkbl, nijb,nije,nklb,nkle)
       endif
 c
-c It should be  nbloks=ikbl
-c
-c NOT true for PNL :
-cpnl  if(ikbl.ne.nbloks) then
-cpnl     write(8,*)' In the Super-block no.=',isbl
-cpnl     write(8,*)' number of blocks of contracted quartets'
-cpnl     write(8,*)' from Blksizer and Blockqur subroutines'
-cpnl     write(8,*)'          is not the same             '
-cpnl :   write(8,*)'  execution stoped '
-cpnl :   stop600
-cpnl  endif
-c
 cpnl
       nbloks=ikbl
+      if(nbloks.ne.1) then
+         write(6,*)'number of small blocks in a super-block MUST be 1'
+         write(6,*)'but it is ',nbloks,' in super-block=',isbl     
+         stop      ' execution stopped in blockqur routine'
+      endif
 c
-      maxqrt=0
-      ikblmx=1
-      ntotq=0
-      do 650 ikbl=1,nbloks
-      ntotq=ntotq+nqrt(ikbl)
-          if(nqrt(ikbl).gt.maxqrt) then
-             maxqrt=nqrt(ikbl)
-             ikblmx=ikbl
-          endif
-  650 continue
-c------------------------------------------------------------------
-c     write(8,497) isbl,nbloks,ntotq,maxqrt,ikblmx
-c 497 format(/'     In the Super-block no.=',i6/ 
-c    *        '  number of Blocks of Contracted Quartets =',i6/
-c    *        '  total number of contracted quartets =',i7/
-c    *        '  maximum number of quartets =',i6,' in block=',i6/)
-c
+      maxqrt=nqrt(1) 
 c------------------------------------------------------------------
       end
 c==================================================================
-      subroutine nondiax(nqrt,ikbl,ibl,kbl,ijbl,nbl2,npar,
-     *nibl,nkbl, nijb,nije,nklb,nkle)
+      subroutine nondiax(nqrt,ikbl,ibl,kbl,npar,
+     *                   nibl,nkbl, nijb,nije,nklb,nkle)
       implicit real*8 (a-h,o-z)
 c
-      dimension npar(*),ijbl(nbl2,*)
+      dimension npar(*)
       dimension nqrt(*)
 c
       dimension nibl(*), nkbl(*)
@@ -2273,7 +1482,7 @@ c
 c
       ijpar=npar(ibl)
       klpar=npar(kbl)
-      nquart=ijpar*klpar
+cccc  nquart=ijpar*klpar
 c
           ijsize=ijpar
           klsize=klpar
@@ -2348,10 +1557,10 @@ c
 c
       end
 c=====================================================================
-      subroutine diagonx(nqrt,ikbl,ibl,kbl,ijbl,nbl2,npar,
+      subroutine diagonx(nqrt,ikbl,ibl,kbl,npar,
      *                   nibl,nkbl, nijb,nije,nklb,nkle)
       implicit real*8 (a-h,o-z)
-      dimension npar(*),ijbl(nbl2,*)
+      dimension npar(*)
       dimension nqrt(*),nibl(*),nkbl(*)
       dimension nijb(*),nije(*),nklb(*),nkle(*)
 c
@@ -2380,28 +1589,16 @@ c---------------
       end
 c======================================================================
       subroutine data_save
-      common /infob/ inuc,ibas,na,nbf,nsh,ncf,ncs
-      common /memor1/ iisd,jjsd,ijbld
-      common /memor1a/ npard,ncost,nsupb, mxsize,nasize
-      common /memors/ nsym,ijshp,isymm
+      common /memor1/ npard,mxsize,nblock1,nblock1_back
 c
-c copy it to :
+c addresses refer to local bl() as defined in texas_face :
 c
-c refer to local bl() as defined in texas_face3 :
+      common /memor1_R/ npard_R,mxsize_R,nblock1_R,nblock1_back_R
 c
-      common /memor1_R/ iisd_R,jjsd_R,ijbld_R
-      common /memor1a_R/ npard_R,ncost_R,nsupb_R, mxsize_R,nasize_R
-      common /memors_R/      ijshp_R
-c
-      iisd_R  =iisd
-      jjsd_R  =jjsd
-      ijbld_R =ijbld
-      npard_R =npard
-      ncost_R =ncost
-      nsupb_R =nsupb 
-      mxsize_R=mxsize
-      nasize_R=nasize
-      ijshp_R =ijshp
+      npard_R        =npard
+      mxsize_R       =mxsize
+      nblock1_R      =nblock1
+      nblock1_back_R =nblock1_back
 c
       end
 c======================================================================
@@ -2468,3 +1665,158 @@ c
 c     
       end
 c======================================================================
+c
+c     NEW routines 1997
+c
+c
+c===============================================================
+      subroutine blk_shells(ncs,inx,iroute,datnuc,datbas,
+     *                      nblock1,nbl1,nbl2,nbl4,maxpar)
+      implicit real*8 (a-h,o-z)
+      logical txs93,txs95, cond1,cond2,cond3,cond4,cond5
+      common /intlim/ limxmem,limblks,limpair
+      dimension nblock1(0:ncs)
+      dimension inx(12,*)
+      dimension datnuc(5,*),datbas(13,*)
+c
+c calculate number of different shells (i.e. different blocks)
+c according to two different criterions (txs93 or txs95)
+c
+      iexch=0
+      do 55 ics0=1,ncs-1
+         ist0=inx(12,ics0)                 ! type of shell
+         iat0=inx(2,ics0)                  ! atom
+         nzi0=0                            ! charge
+         if(iat0.gt.0) nzi0=datnuc(1,iat0)
+         isc0=inx(5,ics0)-inx(1,ics0)      ! contraction lenght
+         isp0=inx(1,ics0)+1                ! first primitive
+         exi0=datbas(1,isp0)               ! exponent of first primitive
+         ngci0=inx(4,ics0)                 ! general contraction deep
+c
+c next shell :
+c
+         ics1=ics0+1
+         ist1=inx(12,ics1)     
+         iat1=inx(2,ics1)       
+         nzi1=0                
+         if(iat1.gt.0) nzi1=datnuc(1,iat1)
+         isc1=inx(5,ics1)-inx(1,ics1)  
+         isp1=inx(1,ics1)+1           
+         exi1=datbas(1,isp1)         
+         ngci1=inx(4,ics1)          
+c
+c---------------------------------------------
+c check against criterion (3 or 5 conditions) :
+c
+           cond1=.false.
+           cond2=.false.
+           cond3=.false.
+           cond4=.false.
+           cond5=.false.
+           if(ist0 .eq. ist1 ) cond1=.true.
+           if(isc0 .eq. isc1 ) cond2=.true.
+           if(ngci0.eq.ngci1 ) cond3=.true.
+           if(nzi0 .eq. nzi1 ) cond4=.true.
+           if(exi0 .eq. exi1 ) cond5=.true.
+c
+           txs93=.false.
+           txs95=.false.
+           if(cond1.and.cond2.and.cond3) txs93=.true.
+           if(cond4.and.cond5.and.txs93) txs95=.true.
+c
+           if(iroute.eq.1) then
+              if(.not.txs93) then
+                 iexch=iexch+1
+                 nblock1(iexch)=ics0
+              endif
+           else
+              if(.not.txs95) then
+                 iexch=iexch+1
+                 nblock1(iexch)=ics0
+              endif
+           endif
+c
+   55 continue
+c
+      nblock1(0)=0
+      nblock1(iexch+1)=ncs
+c
+c---------------------------------------------
+c number of shell-blocks:
+c
+      nbl1=iexch+1
+c---------------------------------------------
+c find maximum number of pairs per block of pairs :
+c
+      maxshell=0
+      do ibl=1,nbl1
+         icsb=nblock1(ibl-1)+1
+         icse=nblock1(ibl)
+         ishell=icse-icsb+1
+         do jbl=1,ibl
+            jcsb=nblock1(jbl-1)+1
+            jcse=nblock1(jbl)
+            jshell=jcse-jcsb+1
+            ijshell=ishell*jshell
+            if(jbl.eq.ibl) ijshell=ishell*(ishell+1)/2
+            if(ijshell.gt.maxshell) maxshell=ijshell
+         enddo
+      enddo
+c
+      nbl2=nbl1*(nbl1+1)/2
+      nbl4=nbl2*(nbl2+1)/2
+      maxpar=maxshell
+c---------------------------------------------
+ctest only
+c     write(6,*)' nbl1=',nbl1
+c     write(6,*)' nbl2=',nbl2
+c     write(6,*)' nbl4=',nbl4
+c---------------------------------------------
+c
+      end
+c===============================================================
+      subroutine make_nblock1_back(ncs,nbl1,nblock1,nblock1_back)
+      dimension nblock1(0:ncs),nblock1_back(ncs)
+c construct nblock1_back() array
+      do ibl=1,nbl1
+         icsb=nblock1(ibl-1)+1
+         icse=nblock1(ibl)
+         do ics=icsb,icse
+            nblock1_back(ics)=ibl
+         enddo
+      enddo
+      end
+c===============================================================
+      subroutine blk_pairs(nbl1,nbl2,nblock1, npar)
+      implicit real*8 (a-h,o-z)
+      dimension nblock1(0:*)                  ! nblock1(0:ncs)
+      dimension npar(nbl2)                    ! output 
+c
+c nbl1 - number of single shell blocks 
+c nbl2 - number of shell-pairs  blocks 
+c    
+c
+c  constructe pairs of contracted shells
+c
+      ijbl=0             !    blocks counter (no limit)
+      do 100 ibl=1,nbl1     
+         ibeg=nblock1(ibl-1)+1
+         iend=nblock1(ibl)
+         do 200 jbl=1,ibl
+            ijbl=ijbl+1
+            jbeg=nblock1(jbl-1)+1
+            jend=nblock1(jbl)
+            ijpar=0
+            do 300 ics=ibeg,iend
+               jenx=jend
+               if(jbl.eq.ibl) jenx=ics
+               do 400 jcs=jbeg,jenx
+                  ijpar=ijpar+1
+                  npar(ijbl)=ijpar
+  400          continue
+  300       continue
+  200    continue
+  100 continue
+c
+      end
+c===============================================================

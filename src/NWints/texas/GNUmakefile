@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.31 1997-03-26 00:49:48 d3e129 Exp $
+# $Id: GNUmakefile,v 1.32 1997-06-06 21:12:11 pg481 Exp $
  
 USE_TEXAS = YEP
 
@@ -29,14 +29,17 @@ ifeq ($(USE_TEXAS),YEP)
 		 texas_stubs.o \
                  uniq_pairs.o \
                  transfor.o\
-                 gencon.o 
-#                test_calc2.o
+                 gencon.o\
+                 derivat.o\
+                 test_calc2.o
 else
-      OBJ = texas_stubs.o
+      OBJ = texas_stubs.o 
       OBJ_OPTIMIZE = 
 endif
 
-      USES_BLAS = big_service.f
+      USES_BLAS = amshift.f \
+                  big_service.f \
+                  trobsa.f 
 
        LIBRARY = libnwints.a
 
@@ -50,3 +53,8 @@ txs:
 removeobj:
 	ar d  $(LIBRARY_PATH) $(OBJ) $(OBJ_OPTIMIZE)
 
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+$(LIBRARY_PATH)(texas_face.o):	$(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/bas_ibs_sfn.fh $(INCDIR)/bas_ibs_dec.fh $(INCDIR)/bas_exndcf_sfn.fh $(INCDIR)/bas_exndcf_dec.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh $(INCDIR)/apiP.fh 
+$(LIBRARY_PATH)(precalc2.o):	$(INCDIR)/mafdecls.fh 
+$(LIBRARY_PATH)(texas_hf.o):	$(INCDIR)/mafdecls.fh 
+$(LIBRARY_PATH)(spec_block.o):	$(INCDIR)/mafdecls.fh 

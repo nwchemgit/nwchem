@@ -2,7 +2,7 @@
      *                      ijblock,klblock,ijpres2,klpres2, 
      *                      isbl_s,isbl_q)
       implicit real*8 (a-h,o-z)
-      common /txs_index/ maxsh,ifp,inx(1)
+      common /index/ maxsh,ifp,inx(1)
       common /pnl007/ nij_uniqe, ij_uniqe ! uniqe pairs for pair-blocks
       dimension bl(*)
       dimension npar(nbl2) 

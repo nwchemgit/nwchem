@@ -1,22 +1,21 @@
-c $Id: shells.f,v 1.1 1995-10-30 20:57:51 d3e129 Exp $
-      subroutine txs_shells(inx,iis,jjs,ijcs1,klcs1)
+c--------------------------------------------------------------------
+      subroutine txs_shells(inx,ics1,jcs1,kcs1,lcs1)
       common /types/itype,jtype,ktype,ltype,itype1,jtype1,ktype1,ltype1 
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
       common /lengt/ ilen,jlen,klen,llen, ilen1,jlen1,klen1,llen1
       common /gcont/ ngci1,ngcj1,ngck1,ngcl1,ngcd
       common /logic2/ len(1)
       dimension inx(12,*)
-      dimension iis(*),jjs(*)
 c
-c This subroutine sets up TYPE and LENGTH of shells
-c and contraction information including general contraction.
+c This subroutine sets up TYPE and LENGTH of shells and
+c contraction information including general contraction.
 c
 c  type of shells :
 c
-      itype=inx(12,iis(ijcs1))
-      jtype=inx(12,jjs(ijcs1))
-      ktype=inx(12,iis(klcs1))
-      ltype=inx(12,jjs(klcs1))
+      itype=inx(12,ics1)
+      jtype=inx(12,jcs1)
+      ktype=inx(12,kcs1)
+      ltype=inx(12,lcs1)
 c
       itype1=itype
       jtype1=jtype
@@ -34,10 +33,10 @@ c
 c
 c needed for transformation i.e. d6->d5, f10->f7  :
 c
-      ilen=inx(3,iis(ijcs1) )
-      jlen=inx(3,jjs(ijcs1) )
-      klen=inx(3,iis(klcs1) )
-      llen=inx(3,jjs(klcs1) )
+      ilen=inx(3,ics1)
+      jlen=inx(3,jcs1)
+      klen=inx(3,kcs1)
+      llen=inx(3,lcs1)
 c
       ilen1=len(itype1)
       jlen1=len(jtype1)
@@ -46,10 +45,11 @@ c
 c
 c number of general contractions
 c
-      ngci=inx(4,iis(ijcs1))
-      ngcj=inx(4,jjs(ijcs1))
-      ngck=inx(4,iis(klcs1))
-      ngcl=inx(4,jjs(klcs1))
+      ngci=inx(4,ics1)
+      ngcj=inx(4,jcs1)
+      ngck=inx(4,kcs1)
+      ngcl=inx(4,lcs1)
+c
       ngci1=ngci+1
       ngcj1=ngcj+1
       ngck1=ngck+1
@@ -58,14 +58,14 @@ c
 c
 c contraction begining and end :
 c
-      ia=inx(1,iis(ijcs1))+1
-      ie=inx(5,iis(ijcs1))
-      ja=inx(1,jjs(ijcs1))+1
-      je=inx(5,jjs(ijcs1))
-      ka=inx(1,iis(klcs1))+1
-      ke=inx(5,iis(klcs1))
-      la=inx(1,jjs(klcs1))+1
-      le=inx(5,jjs(klcs1))
+      ia=inx(1,ics1)+1
+      ie=inx(5,ics1)
+      ja=inx(1,jcs1)+1
+      je=inx(5,jcs1)
+      ka=inx(1,kcs1)+1
+      ke=inx(5,kcs1)
+      la=inx(1,lcs1)+1
+      le=inx(5,lcs1)
 c
 c length of contractions
 c
@@ -118,9 +118,13 @@ c for NMR derivatives
 c     nsij=nsij+ijderiv
 c     nskl=nskl+klderiv
 c
-      if (where.eq.'shif') then
+      if (where.eq.'shif' .or. where.eq.'forc') then
         nsij=nsij+1
         nskl=nskl+1
+      endif
+      if (where.eq.'hess') then
+        nsij=nsij+2
+        nskl=nskl+2
       endif
 c--------
 C

@@ -1,10 +1,17 @@
-c $Id: zeroint.f,v 1.2 1996-05-14 17:53:52 d3g681 Exp $
+c $Id: zeroint.f,v 1.3 1997-06-06 21:12:31 pg481 Exp $
 c* This is used to substitute ZERO in Buffers when some
 c* of quartets do not appear First time (they are neglected)
 c*
-      subroutine zeroint(bl,nbls,nbls1,nbls2,l01,l02,indx,ngcd,ibux )
+c* Changes for gradient derivatives :
+c* one more parameter added to show how many arrays have to be zerout:
+c* it can be 4 for gradient der. otherwise it is 1
+c*
+      subroutine zeroint(bl,nbls,nbls1,nbls2,l01,l02,indx,ngcd ,narr)
       implicit real*8 (a-h,o-z)
 c
+      character*11 scftype
+      character*4 where
+      common /runtype/ scftype,where
       common /logic4/ nfu(1)
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common /lcases/ lcase
@@ -35,8 +42,7 @@ c
       call retmem(1)
 c
       if(mmax.le.2) then
-        ibut=ibuf
-        call zerosp(lnijkl,nbls,bl(ibut),bl(idxnot),nbls2,ngcd)
+        call zerosp(lnijkl,nbls,bl(ibuf),bl(idxnot),nbls2,ngcd)
         call retmem(1)
         return
       endif
@@ -45,17 +51,25 @@ C******************************************************
 c-------------------------------
 c-   --- for buf2  ---
 c
-        ibut=ibuf2
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(ibut ),l01,l02,nfu(nqij)+1,nfu(nqkl)+1 )
+         ibut2=ibuf2
+         if(where.eq.'forc' .or. where.eq.'hess') ibut2=ibuf
+         call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+     *               bl(ibut2),l01,l02,nfu(nqij)+1,nfu(nqkl)+1 )
       IF(lshellt.eq.0) go to 100
 c-------------------------------
 c     if(lcase.eq. 2.or.lcase.eq. 6.or.lcase.eq. 8.or.lcase.eq. 9.or.
 c    *   lcase.eq.12.or.lcase.eq.13.or.lcase.eq.14.or.lcase.eq.16) then
       if(lshelij.eq.1 .or. lshelij.eq.3) then
 c-   --- for bfij1 ---
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(ibfij1),lqij,l02,ijbeg,klbeg)
+c
+         ibut2=ibfij1
+ccc      incre=nbls*lqij*l02
+ccc      do 15 iarr=1,narr
+            call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+ccc  *                  bl(ibfij1),lqij,l02,ijbeg,klbeg)
+     *                  bl(ibut2 ),lqij,l02,ijbeg,klbeg)
+ccc         ibut2=ibut2+incre
+ccc15    continue
 c
       endif
 c----------
@@ -63,24 +77,45 @@ c     if(lcase.eq. 3.or.lcase.eq. 6.or.lcase.eq.10.or.lcase.eq.11.or.
 c    *   lcase.eq.12.or.lcase.eq.13.or.lcase.eq.15.or.lcase.eq.16) then
       if(lshelij.eq.2 .or. lshelij.eq.3) then
 c-   --- for bfij2 ---
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(ibfij2),lqij,l02,ijbeg,klbeg)
+c
+         ibut2=ibfij2
+ccc      incre=nbls*lqij*l02
+ccc      do 20 iarr=1,narr
+            call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+ccc  *                  bl(ibfij2),lqij,l02,ijbeg,klbeg)
+     *                  bl(ibut2 ),lqij,l02,ijbeg,klbeg)
+ccc         ibut2=ibut2+incre
+ccc20    continue
       endif
 c----------
 c     if(lcase.eq. 4.or.lcase.eq. 7.or.lcase.eq. 8.or.lcase.eq.10.or.
 c    *   lcase.eq.12.or.lcase.eq.14.or.lcase.eq.15.or.lcase.eq.16) then
       if(lshelkl.eq.1 .or. lshelkl.eq.3) then
 c-   --- for bfkl1 ---
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(ibfkl1),l01,lqkl,ijbeg,klbeg)
+c
+         ibut2=ibfkl1
+ccc      incre=nbls*l01*lqkl
+ccc      do 25 iarr=1,narr
+            call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+cccc *                  bl(ibfkl1),l01,lqkl,ijbeg,klbeg)
+     *                  bl(ibut2 ),l01,lqkl,ijbeg,klbeg)
+ccc         ibut2=ibut2+incre
+ccc25    continue
       endif
 c----------
 c     if(lcase.eq. 5.or.lcase.eq. 7.or.lcase.eq. 9.or.lcase.eq.11.or.
 c    *   lcase.eq.13.or.lcase.eq.14.or.lcase.eq.15.or.lcase.eq.16) then
       if(lshelkl.eq.2 .or. lshelkl.eq.3) then
 c-   --- for bfkl2 ---
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(ibfkl2),l01,lqkl,ijbeg,klbeg)
+c
+         ibut2=ibfkl2
+ccc      incre=nbls*l01*lqkl
+ccc      do 30 iarr=1,narr
+            call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+ccc  *                  bl(ibfkl2),l01,lqkl,ijbeg,klbeg)
+     *                  bl(ibut2 ),l01,lqkl,ijbeg,klbeg)
+ccc         ibut2=ibut2+incre
+ccc30    continue
       endif
 c
       IF(lshellt.eq.1) go to 100
@@ -88,43 +123,85 @@ c----------
 c     if(lcase.eq. 6.or.lcase.eq.12.or.lcase.eq.13.or.lcase.eq.16) then
       if(lshelij.eq.3) then
 c-   --- for bfij3 ---
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(ibfij3),lij3,l02,ijbeg,klbeg)
+c
+         ibut2=ibfij3
+ccc      incre=nbls*lij3*l02
+ccc      do 35 iarr=1,narr
+            call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+ccc  *                  bl(ibfij3),lij3,l02,ijbeg,klbeg)
+     *                  bl(ibut2 ),lij3,l02,ijbeg,klbeg)
+ccc         ibut2=ibut2+incre
+ccc35    continue
       endif
 c----------
 c     if(lcase.eq. 7.or.lcase.eq.14.or.lcase.eq.15.or.lcase.eq.16) then
       if(lshelkl.eq.3) then
 c-   --- for bfkl3 ---
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(ibfkl3),l01,lkl3,ijbeg,klbeg)
+c
+         ibut2=ibfkl3
+ccc      incre=nbls*l01*lkl3
+ccc      do 40 iarr=1,narr
+            call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+ccc  *                  bl(ibfkl3),l01,lkl3,ijbeg,klbeg)
+     *                  bl(ibut2 ),l01,lkl3,ijbeg,klbeg)
+ccc         ibut2=ibut2+incre
+ccc40    continue
       endif
 c----------
 c     if(lcase.eq. 8.or.lcase.eq.12.or.lcase.eq.14.or.lcase.eq.16) then
 c-   --- for bf2l1 ---
       if(lcas2(1).eq.1) then
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(ibf2l1),lqij,lqkl,ijbeg,klbeg)
+c
+         ibut2=ibf2l1
+ccc      incre=nbls*lqij*lqkl
+ccc      do 45 iarr=1,narr
+            call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+ccc  *                  bl(ibf2l1),lqij,lqkl,ijbeg,klbeg)
+     *                  bl(ibut2 ),lqij,lqkl,ijbeg,klbeg)
+ccc         ibut2=ibut2+incre
+ccc45    continue
       endif
 c----------
 c     if(lcase.eq. 9.or.lcase.eq.13.or.lcase.eq.14.or.lcase.eq.16) then
       if(lcas2(2).eq.1) then
 c-   --- for bf2l2 ---
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(ibf2l2),lqij,lqkl,ijbeg,klbeg)
+c
+         ibut2=ibf2l2
+ccc      incre=nbls*lqij*lqkl
+ccc      do 50 iarr=1,narr
+            call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+ccc  *                  bl(ibf2l2),lqij,lqkl,ijbeg,klbeg)
+     *                  bl(ibut2 ),lqij,lqkl,ijbeg,klbeg)
+ccc         ibut2=ibut2+incre
+ccc50    continue
       endif
 c----------
 c     if(lcase.eq.10.or.lcase.eq.12.or.lcase.eq.15.or.lcase.eq.16) then
       if(lcas2(3).eq.1) then
 c-   --- for bf2l3 ---
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(ibf2l3),lqij,lqkl,ijbeg,klbeg)
+c
+         ibut2=ibf2l3
+ccc      incre=nbls*lqij*lqkl
+ccc      do 55 iarr=1,narr
+            call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+ccc  *                  bl(ibf2l3),lqij,lqkl,ijbeg,klbeg)
+     *                  bl(ibut2 ),lqij,lqkl,ijbeg,klbeg)
+ccc         ibut2=ibut2+incre
+ccc55    continue
       endif
 c----------
 c     if(lcase.eq.11.or.lcase.eq.13.or.lcase.eq.15.or.lcase.eq.16) then
       if(lcas2(4).eq.1) then
 c-   --- for bf2l4 ---
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(ibf2l4),lqij,lqkl,ijbeg,klbeg)
+c
+         ibut2=ibf2l4
+ccc      incre=nbls*lqij*lqkl
+ccc      do 60 iarr=1,narr
+            call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+ccc  *                  bl(ibf2l4),lqij,lqkl,ijbeg,klbeg)
+     *                  bl(ibut2 ),lqij,lqkl,ijbeg,klbeg)
+ccc         ibut2=ibut2+incre
+ccc60    continue
       endif
 c
       IF(lshellt.eq.2) go to 100
@@ -132,31 +209,66 @@ c----------
 c     if(lcase.eq.12.or.lcase.eq.16) then
       if(lcas3(1).eq.1) then
 c-   --- for bf3l  ---
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(ibf3l1),lqmx,l3l,1   ,1)
+c
+         ibut2=ibf3l1
+ccc      incre=nbls*lqmx*l3l
+ccc      do 65 iarr=1,narr
+            call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+ccc  *                  bl(ibf3l1),lqmx,l3l,1   ,1)
+     *                  bl(ibut2 ),lqmx,l3l,1   ,1)
+ccc         ibut2=ibut2+incre
+ccc65    continue
       endif
 c     if(lcase.eq.13.or.lcase.eq.16) then
       if(lcas3(2).eq.1) then
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(ibf3l2),lqmx,l3l,1   ,1)
+c
+         ibut2=ibf3l2
+ccc      incre=nbls*lqmx*l3l
+ccc      do 70 iarr=1,narr
+            call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+ccc  *                  bl(ibf3l2),lqmx,l3l,1   ,1)
+     *                  bl(ibut2 ),lqmx,l3l,1   ,1)
+ccc         ibut2=ibut2+incre
+ccc70    continue
       endif
 c     if(lcase.eq.14.or.lcase.eq.16) then
       if(lcas3(3).eq.1) then
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(ibf3l3),l3l,lqmx,1   ,1)
+c
+         ibut2=ibf3l3
+ccc      incre=nbls*lqmx*l3l
+ccc      do 75 iarr=1,narr
+            call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+ccc  *                  bl(ibf3l3),l3l,lqmx,1   ,1)
+     *                  bl(ibut2 ),l3l,lqmx,1   ,1)
+ccc         ibut2=ibut2+incre
+ccc75    continue
       endif
 c     if(lcase.eq.15.or.lcase.eq.16) then
       if(lcas3(4).eq.1) then
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(ibf3l4),l3l,lqmx,1   ,1)
+c
+         ibut2=ibf3l4
+ccc      incre=nbls*lqmx*l3l
+ccc      do 80 iarr=1,narr
+            call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+ccc  *                  bl(ibf3l4),l3l,lqmx,1   ,1)
+     *                  bl(ibut2 ),l3l,lqmx,1   ,1)
+ccc         ibut2=ibut2+incre
+ccc80    continue
       endif
 c
       IF(lshellt.eq.3) go to 100
 c----------
       if(lcase.eq.16) then
 c-   --- for ssss(nbls)  ---
-         call zerout(nbls,nbls2,ngcd, bl(idxnot),
-     *               bl(issss ),lsss,lsss,1   ,1)
+c
+         ibut2=issss
+ccc      incre=nbls*lsss*lsss
+ccc      do 85 iarr=1,narr
+         call zerout(narr,nbls,nbls2,ngcd, bl(idxnot),
+ccc  *               bl(issss ),lsss,lsss,1   ,1)
+     *               bl(ibut2 ),lsss,lsss,1   ,1)
+ccc         ibut2=ibut2+incre
+ccc85    continue
       endif
 c
 c-------------------------------
@@ -202,10 +314,11 @@ c
 c
       end
 c=================================================
-      subroutine zerout(nbls,nbls2,ngcd, idxnot, azero,l1,l2,i1,i2)
+cccc  subroutine zerout(nbls,nbls2,ngcd, idxnot, azero,l1,l2,i1,i2)
+      subroutine zerout(narr,nbls,nbls2,ngcd, idxnot, azero,l1,l2,i1,i2)
       implicit real*8 (a-h,o-z)
       dimension idxnot(*)
-      dimension azero(nbls,l1,l2,ngcd)
+      dimension azero(narr,nbls,l1,l2,ngcd)
 c     
       if (ngcd .gt. 1) then
          do iqu=1,ngcd
@@ -213,7 +326,9 @@ c
                do ij=i1,l1
                   do i=1,nbls2
                      ijkl=idxnot(i)
-                     azero(ijkl,ij,kl,iqu)=0.0d0
+                     do iarr=1,narr
+                        azero(iarr,ijkl,ij,kl,iqu)=0.0d0
+                     enddo
                   enddo
                enddo
             enddo
@@ -223,7 +338,9 @@ c
             do ij=i1,l1
                do i=1,nbls2
                   ijkl=idxnot(i)
-                  azero(ijkl,ij,kl,1)=0.0d0
+                  do iarr=1,narr
+                     azero(iarr,ijkl,ij,kl,1)=0.0d0
+                  enddo
                enddo
             enddo
          enddo

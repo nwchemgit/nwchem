@@ -1,8 +1,3 @@
-      SUBROUTINE GVBMP3
-c $Id: time.f,v 1.5 1996-07-09 01:19:00 rg240 Exp $
-C     EMPTY
-      END
-C
       SUBROUTINE txs_SECOND(T)
       common /intgop/ ncache,maxprice,iprint,iblock
       double precision T

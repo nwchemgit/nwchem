@@ -1,31 +1,29 @@
 c===================================================================
 c          FOR GENERAL CONTRACTED SHELLS
-C previously in spec_calcint.f file :
 c     subroutine gcparij(nbls, indxij,npij,
 c     subroutine gcparkl(nbls,indxkl,npkl,
 c     subroutine gcqijkl(nbls,nbls1, index,indxij,indxkl,npij,npkl,
-c     subroutine gcpairs(ij, nbls, indxp, nblok1,iis,jjs,
+c     subroutine gcpairs(ij, nbls, indxp, nblok1,
 c     subroutine gcquart(nbls,nbls1, index,indxp,
-C previously in precalc2.F     file :
 c     subroutine specasg(bl,first,nbls,nbls1, index,indxij,indxkl,
-C previously in asslemblx.f    file :
 c     subroutine assemblg(bl,firstc,nbls,nbls1,l01,l02,ngcd,
-c new routines made out of former asselg :
 c     subroutine asselg_n(firstc,xt1,lt1,lt2,nbls,indx,nbls1,
 c     subroutine asselg_d(firstc,xt1,lt1,lt2,nbls,indx,nbls1,
 c===================================================================
 c          FOR GENERAL CONTRACTED SHELLS
 c
 c          Used when iroute=1 (old) : tx93 
+c
+c NOTE :
+c npij and npkl denote now UNIQE pairs , not all pairs in a block.
 c===================================================================
-      subroutine gcparij(nbls, indxij,npij,
-     *                   ii,jj,ngci1,ngcj1,ngcij,
-     *                   gci,gcj, gcij, nblok1,iis,jjs,indxp)
+      subroutine gcparij(nbls, indxij,npij, ii,jj,ngci1,ngcj1,ngcij,
+     *                   gci,gcj, gcij, nblok1, indxp)
       implicit real*8 (a-h,o-z)
 c
       dimension indxij(*)
       dimension gci(npij,ngci1,*),gcj(npij,ngcj1,*)
-      dimension nblok1(2,*),iis(*),jjs(*)
+      dimension nblok1(2,*)
       dimension gcij(ngcij,nbls)
       dimension indxp(*)
 c-------------------------------------------------------------------
@@ -36,8 +34,7 @@ c-------------------------------------------------------------------
       do 204 ijkl=1,nbls
       ijpar=indxij(ijkl)
       ijcs=nblok1(1,indxp(ijkl))
-      ics=iis(ijcs)
-      jcs=jjs(ijcs)
+      call get_ij_half(ijcs,ics,jcs)
              ijpg=0
              do 2041 igc=1,ngci1
              coefi=gci(ijpar,igc,ii)
@@ -55,13 +52,12 @@ ctry         if(jcs.eq.ics .and. jgc.NE.igc) coefj=coefj*2.0d0
 c
       end
 c====================================================================
-      subroutine gcparkl(nbls,indxkl,npkl,
-     *                   kk,ll,ngck1,ngcl1,ngckl,
-     *                   gck,gcl,gckl, nblok1,iis,jjs,indxp)
+      subroutine gcparkl(nbls,indxkl,npkl, kk,ll,ngck1,ngcl1,ngckl,
+     *                   gck,gcl,gckl, nblok1, indxp)
       implicit real*8 (a-h,o-z)
       dimension indxkl(*)
       dimension gck(npkl,ngck1,*),gcl(npkl,ngcl1,*)
-      dimension nblok1(2,*),iis(*),jjs(*)
+      dimension nblok1(2,*)
       dimension gckl(ngckl,nbls)
       dimension indxp(*)
 c-------------------------------------------------------------------
@@ -73,8 +69,7 @@ c
       do 204 ijkl=1,nbls
       klpar=indxkl(ijkl)
       klcs=nblok1(2,indxp(ijkl))
-      kcs=iis(klcs)
-      lcs=jjs(klcs)
+      call get_ij_half(klcs,kcs,lcs)
              klpg=0
              do 2042 kgc=1,ngck1
              coefk=gck(klpar,kgc,kk)
@@ -93,13 +88,13 @@ c
 c
       end
 c====================================================================
-      subroutine gcqijkl(nbls,nbls1, index,indxij,indxkl,npij,npkl,
+      subroutine gcqijkl(nbls,nbls1, index,indxij,indxkl,
      *                   ngci1,ngcj1,ngck1,ngcl1,ngcd,
-     *                   nblok1,iis,jjs, indgc,gcoef,indxp,
+     *                   nblok1, indgc,gcoef,indxp,
      *                   gcij,ngcij, gckl,ngckl)
       implicit real*8 (a-h,o-z)
       dimension index(*),indxij(*),indxkl(*)
-      dimension nblok1(2,*),iis(*),jjs(*)
+      dimension nblok1(2,*)
 c
       dimension indgc(nbls) 
       dimension gcoef(ngcd,nbls)
@@ -115,13 +110,10 @@ c-------------------------------------------------------------------
       ijpar=indxij(ijkl)
 c
       ijcs=nblok1(1,indxp(ijkl))
-      ics=iis(ijcs)
-      jcs=jjs(ijcs)
-c
+      call get_ij_half(ijcs,ics,jcs)
       klpar=indxkl(ijkl)
       klcs=nblok1(2,indxp(ijkl))
-      kcs=iis(klcs)
-      lcs=jjs(klcs)
+      call get_ij_half(klcs,kcs,lcs)
 c
              ijpg=0
              do 2041 igc=1,ngci1
@@ -160,14 +152,14 @@ c===================================================================
 c     Used when iroute=2 (new) : tx95
 c
 c===================================================================
-      subroutine gcpairs(ij, nbls, indxp, nblok1,iis,jjs,
-     *     lcij,ngci1,ngcj1,ngcij, gcij,
+      subroutine gcpairs(ij, nbls, indxp, nblok1,
+     *                   lcij,ngci1,ngcj1,ngcij, gcij,
 c     output :
      *     gcijx) 
       implicit real*8 (a-h,o-z)
 c------------------------------------------------------
       dimension indxp(*)
-      dimension nblok1(2,*),iis(*),jjs(*)
+      dimension nblok1(2,*)
       dimension gcij(ngcj1*ngci1,*) ! (ngcj1,ngci1,*)
       dimension gcijx(ngcij,nbls)
 c------------------------------------------------------
@@ -185,8 +177,7 @@ c
       else
          do ijkl=1,nbls
             ijcs=nblok1(ij,indxp(ijkl))
-            ics=iis(ijcs)
-            jcs=jjs(ijcs)
+            call get_ij_half(ijcs,ics,jcs)
                do ijpg = 1, ngci1ngcj1
                   gcijx(ijpg,ijkl)=gcij(ijpg,lcij)
                enddo
@@ -196,14 +187,14 @@ c
       end
 c====================================================================
       subroutine gcquart(nbls,nbls1, index,indxp,
-     *     ngci1,ngcj1,ngck1,ngcl1,ngcd,nblok1,iis,jjs, 
-     *     gcij,ngcij,  gckl,ngckl,
+     *                   ngci1,ngcj1,ngck1,ngcl1,ngcd,nblok1,
+     *                   gcij,ngcij,  gckl,ngckl,
 ccc   output :
      *     indgc,gcoef)
       implicit real*8 (a-h,o-z)
 c------------------------------------------------------
       dimension index(*),indxp(*)
-      dimension nblok1(2,*),iis(*),jjs(*)
+      dimension nblok1(2,*)
       dimension indgc(nbls) 
       dimension gcoef(ngcd,nbls), gcij(ngcij,nbls),gckl(ngckl,nbls)
 c------------------------------------------------------
@@ -225,8 +216,7 @@ c
          do i=1,nbls1
             ijkl=index(i)
             ijcs=nblok1(1,indxp(ijkl))
-            ics=iis(ijcs)
-            jcs=jjs(ijcs)
+            call get_ij_half(ijcs,ics,jcs)
             do ijp1=1,ijpg
                gcoef(ijp1,ijkl)=gcij(ijp1,ijkl)*gckl(1,ijkl)
             enddo
@@ -237,12 +227,10 @@ c
             ijkl=index(i)
 c     
             ijcs=nblok1(1,indxp(ijkl))
-            ics=iis(ijcs)
-            jcs=jjs(ijcs)
+            call get_ij_half(ijcs,ics,jcs)
 c     
             klcs=nblok1(2,indxp(ijkl))
-            kcs=iis(klcs)
-            lcs=jjs(klcs)
+            call get_ij_half(klcs,kcs,lcs)
 c     
             ijklg=0
                do ijp1=1,ijpg
@@ -449,7 +437,8 @@ c
 c--------------------------------------------------------
 c for ordinary scf integrals:
 c
-      if(where.eq.'buff') then
+cccc  if(where.eq.'buff') then
+      if(where.eq.'buff' .or. where.eq.'shif') then
          if(ndiag.eq.0) then
            call asselg_d(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
      *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) )
@@ -463,12 +452,13 @@ c--------------------------------------------------------
 c for gradient integral derivatives:
 c
       if(where.eq.'forc') then
+         ibut2=ibuf
          if(ndiag.eq.0) then
-           call asselg_d_der(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
+           call asselg_d_der(firstc,bl(iwt0),l01,l02,nbls,bl(ibut2),
      *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) ,
      *                   bl(iaax),bl(ibbx),bl(iccx))
          else
-           call asselg_n_der(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
+           call asselg_n_der(firstc,bl(iwt0),l01,l02,nbls,bl(ibut2),
      *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) ,
      *                   bl(iaax),bl(ibbx),bl(iccx))
          endif

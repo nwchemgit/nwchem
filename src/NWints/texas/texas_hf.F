@@ -2,11 +2,12 @@
      *                       q4, use_q4,
      *                       ra,rb,rc,rd,use_r,
      *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
-     *                       more_int,blscr,l_blscr,zerotol)
+     *                       more_int,blscr,l_blscr,zerotol,int_type)
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
 c
+      character*8 int_type
       integer ij_basis, ish(*), jsh(*), kl_basis, ksh(*), lsh(*)
       integer nquart
       double precision q4(*)
@@ -23,262 +24,26 @@ c
       integer l_blscr
       double precision zerotol
 c
-      integer k_g, l_g, k_lab, l_lab, lablen
-      integer ilo, ihi, idim, k_i, ishs
-      integer jlo, jhi, jdim, k_j, jshs
-      integer klo, khi, kdim, k_k, kshs
-      integer llo, lhi, ldim, k_l, lshs
-c     
-c     Wrapper around texas_hf2 so that ONLY ever call texas
-c     for integrals with labels but can still support the PNL
-c     1-shell-at-a-time all-integrals no-labels interface
+      double precision time_beg,time_end
+      double precision time4texas_hf2_m,time4mul_quart
+      common /pnl_time/ time4texas_hf2_m,time4mul_quart
+c------------------------------------------------------------------
+      call txs_second(time_beg)
+c------------------------------------------------------------------
+c send info about type of integrals requested :
 c
-*      write(6,*) ' texas hf ', labels
-      if (labels) then
+      call requested_task(int_type)
+c------------------------------------------------------------------
          call texas_hf2_m2(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *        q4, use_q4,
      *        ra,rb,rc,rd,use_r,
      *        eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
      *        more_int,blscr,l_blscr,zerotol)
-      else
-c
-         if (nquart.ne.1) call errquit
-     $        ('texas: no-labels for 1 quartet only',nquart)
-         if (.not. bas_cn2bfr(ij_basis, ish, ilo, ihi))
-     $        call errquit('texas_hf: bad basis?', ij_basis)
-         if (.not. bas_cn2bfr(ij_basis, jsh, jlo, jhi))
-     $        call errquit('texas_hf: bad basis?', ij_basis)
-         if (.not. bas_cn2bfr(kl_basis, ksh, klo, khi))
-     $        call errquit('texas_hf: bad basis?', kl_basis)
-         if (.not. bas_cn2bfr(kl_basis, lsh, llo, lhi))
-     $        call errquit('texas_hf: bad basis?', kl_basis)
-c
-         idim = (ihi - ilo + 1)
-         jdim = (jhi - jlo + 1)
-         kdim = (khi - klo + 1)
-         ldim = (lhi - llo + 1)
-         lablen = idim*jdim*kdim*ldim
-         if (leri .lt. lablen) call errquit('texas: leri < lablen',leri)
-c
-         if (.not. ma_push_get(mt_int, 4*lablen , 'texas_hf: labels',
-     $        l_lab, k_lab)) call errquit
-     $        ('texas_hf: insufficient memory for labels?', lablen)
-         if (.not. ma_push_get(mt_dbl, lablen , 'texas_hf: labels',
-     $        l_g, k_g)) call errquit
-     $        ('texas_hf: insufficient memory for eri?', lablen)
-c
-         k_i = k_lab
-         k_j = k_i + lablen
-         k_k = k_j + lablen
-         k_l = k_k + lablen
-c
-         ishs = ish(1)          ! Save since texas reorders
-         jshs = jsh(1)
-         kshs = ksh(1)
-         lshs = lsh(1)
-c
-         int_mb(k_i) = -99999999
-c
-         call texas_hf2_m2(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
-     *        q4, use_q4,
-     *        ra,rb,rc,rd,use_r,
-     *        dbl_mb(k_g), lablen,
-     $        int_mb(k_i),int_mb(k_j),int_mb(k_k),int_mb(k_l),
-     $        integ_n0, .true.,
-     *        more_int, blscr, l_blscr, 0.0d0)
-c
-         if (.not. ma_verify_allocator_stuff())
-     $        call errquit('texas_labels corrupted ma 1', 0)
-c
-         call dfill(lablen, 0.0d0, eri, 1)
-c
-         call texas_pnl_nolabels(
-     $        ishs, jshs, kshs, lshs,
-     $        ilo, jlo, klo, llo,
-     $        ihi, jhi, khi, lhi,
-     $        integ_n0, 
-     $        dbl_mb(k_g), 
-     $        int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
-     $        eri)
-c
-         if (.not. ma_verify_allocator_stuff())
-     $        call errquit('texas_labels corrupted ma 2', 0)
-c
-         if (.not. ma_pop_stack(l_g)) call errquit
-     $        ('texas_hf: pop stack failed', 0)
-         if (.not. ma_pop_stack(l_lab)) call errquit
-     $        ('texas_hf: pop stack failed', 0)
-c
-      endif
-c
+c------------------------------------------------------------------
+      call txs_second(time_end)
+      time4texas_hf2_m=time4texas_hf2_m + (time_end-time_beg)
+c------------------------------------------------------------------
       end
-      subroutine texas_pnl_nolabels(
-     $     ish, jsh, ksh, lsh,
-     $     ilo, jlo, klo, llo,
-     $     ihi, jhi, khi, lhi,
-     $     integ_n0, 
-     $     gg, ii, jj, kk, ll,
-     $     eri)
-      implicit none
-      integer ish, jsh, ksh, lsh
-      integer ilo, jlo, klo, llo
-      integer ihi, jhi, khi, lhi
-      integer integ_n0
-      double precision gg(*)
-      integer ii(*), jj(*), kk(*), ll(*)
-      double precision eri(llo:lhi, klo:khi, jlo:jhi, ilo:ihi)
-c     
-      integer integ, i, j, k, l
-      logical oij, okl, oikjl
-      double precision g, tmp
-c     
-      oij = ish.eq.jsh
-      okl = ksh.eq.lsh
-      oikjl = ish.eq.ksh .and. jsh.eq.lsh
-*      write(6,*) ' oij, okl, oikjl ', oij, okl, oikjl
-c     
-      do integ = 1, integ_n0
-         i = ii(integ)
-         j = jj(integ)
-         k = kk(integ)
-         l = ll(integ)
-         g = gg(integ)
-         eri(l,k,j,i) = g
-      enddo
-c
-c     All the following loops are really only necessary for
-c     generally contracted shells but don't hurt if we do
-c     them for all shells?
-c     
-c$$$      if (oij) then
-c$$$         do integ = 1, integ_n0
-c$$$            i = ii(integ)
-c$$$            j = jj(integ)
-c$$$            k = kk(integ)
-c$$$            l = ll(integ)
-c$$$            g = gg(integ)
-c$$$            eri(l,k,i,j) = g
-c$$$         enddo
-c$$$         if (okl) then
-c$$$            do integ = 1, integ_n0
-c$$$               i = ii(integ)
-c$$$               j = jj(integ)
-c$$$               k = kk(integ)
-c$$$               l = ll(integ)
-c$$$               g = gg(integ)
-c$$$               eri(k,l,i,j) = g
-c$$$            enddo
-c$$$         endif
-c$$$      endif
-c$$$c     
-c$$$      if ((.not. oij) .and. okl) then
-c$$$         do integ = 1, integ_n0
-c$$$            i = ii(integ)
-c$$$            j = jj(integ)
-c$$$            k = kk(integ)
-c$$$            l = ll(integ)
-c$$$            g = gg(integ)
-c$$$            eri(k,l,j,i) = g
-c$$$         enddo
-c$$$      endif
-c$$$c     
-c$$$      if (oikjl) then
-c$$$         do integ = 1, integ_n0
-c$$$            i = ii(integ)
-c$$$            j = jj(integ)
-c$$$            k = kk(integ)
-c$$$            l = ll(integ)
-c$$$            g = gg(integ)
-c$$$            eri(j,i,l,k) = g
-c$$$         enddo
-c$$$c     
-c$$$         if (oij) then
-c$$$            do integ = 1, integ_n0
-c$$$               i = ii(integ)
-c$$$               j = jj(integ)
-c$$$               k = kk(integ)
-c$$$               l = ll(integ)
-c$$$               g = gg(integ)
-c$$$               eri(i,j,l,k) = g
-c$$$            enddo
-c$$$            if (okl) then
-c$$$               do integ = 1, integ_n0
-c$$$                  i = ii(integ)
-c$$$                  j = jj(integ)
-c$$$                  k = kk(integ)
-c$$$                  l = ll(integ)
-c$$$                  g = gg(integ)
-c$$$                  eri(i,j,k,l) = g
-c$$$               enddo
-c$$$            endif
-c$$$         endif
-c$$$c     
-c$$$         if ((.not. oij) .and. okl) then
-c$$$            do integ = 1, integ_n0
-c$$$               i = ii(integ)
-c$$$               j = jj(integ)
-c$$$               k = kk(integ)
-c$$$               l = ll(integ)
-c$$$               g = gg(integ)
-c$$$               eri(j,i,k,l) = g
-c$$$            enddo
-c$$$         endif
-c$$$      endif
-c
-      if (oij) then
-         do i = ilo, ihi
-            do j = jlo, jhi
-               do k = klo, khi
-                  do l = llo, lhi
-                     tmp = (eri(l,k,j,i) + eri(l,k,i,j))*.5d0
-                     eri(l,k,j,i) = tmp
-                     eri(l,k,i,j) = tmp
-                  enddo
-               enddo
-            enddo
-         enddo
-      endif
-      if (okl) then
-         do i = ilo, ihi
-            do j = jlo, jhi
-               do k = klo, khi
-                  do l = llo, lhi
-                     tmp = (eri(l,k,j,i) + eri(k,l,j,i))*.5d0
-                     eri(k,l,j,i) = tmp
-                     eri(l,k,j,i) = tmp
-                  enddo
-               enddo
-            enddo
-         enddo
-      endif
-      if (oikjl) then
-         do i = ilo, ihi
-            do j = jlo, jhi
-               do k = klo, khi
-                  do l = llo, lhi
-                     tmp = (eri(l,k,j,i) + eri(j,i,l,k))*.5d0
-                     eri(j,i,l,k) = tmp
-                     eri(l,k,j,i) = tmp
-                  enddo
-               enddo
-            enddo
-         enddo
-      endif
-c
-c$$$      write(6,*) ' ish, jsh, ksh, lsh ', ish, jsh, ksh, lsh
-c$$$      do i = ilo, ihi
-c$$$         do j = jlo, jhi
-c$$$            do k = klo, khi
-c$$$               do l = llo, lhi
-c$$$ 1                format(4i6,f20.6)
-c$$$                  write(6,1) i, j, k, l, eri(l,k,j,i)
-c$$$               enddo
-c$$$            enddo
-c$$$         enddo
-c$$$      enddo
-c     
-      end
-c $Id: texas_hf.F,v 1.19 1997-05-01 03:22:04 d3g681 Exp $
 c=================================================================
       subroutine texas_hf2_m2(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
@@ -408,7 +173,7 @@ c=================================================================
 #include "mafdecls.fh"
       logical use_q4,use_r,labels,more_int
       double precision ra(3), rb(3), rc(3), rd(3)
-      common /txs_index/ maxsh,ifp,inx(1)
+      common /index/ maxsh,ifp,inx(1)
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
 c----------------------------------------------------------------
@@ -419,11 +184,10 @@ c----------------------------------------------------------------
 c----------------------------------------------------------------
       common /pnl006/ nsplit,isplit,isbl_split, isbl_part
 c----------------------------------------------------------------
-      common /pnl_time1/ time_pt,time_setup
-      common /pnl_time2/ time_calc2,time_do2,time_do4,time_doqrt
-c
-      common /pnl_nqrt/ ncall_pnl, nqrts_pnl
-c------------------------------pnl time--------------------------
+      common /pnl_time/ time4texas_hf2_m,time4mul_quart
+c----------------------------------------------------------------
+      common /pnl_nqrt/ ncall_pnl, nqrts_pnl, npart_pnl
+c----------------------------------------------------------------
 cpnl  common /big/ bl(1)
       dimension bl(l_blscr), q4(nquart)
 c
@@ -436,7 +200,7 @@ c returning integrals and indeces :
 c----------------------------------------------------------------
 c eri - PNL buffer for returning integrals 
 c----------------------------------------------------------------
-             call txs_second(tim_beg)
+             call txs_second(time_beg)
 c----------------------------------------------------------------
 c memory checking ;
 c
@@ -457,7 +221,6 @@ c----------------------------------------------------------------
 ctest
 c      write(6,*)' call no=',ncall_pnl,' scratch size=',l_blscr
 c----------------------------------------------------------------
-      iforwhat=1
 c----------------------------------------------------------------
 c if use_r is true replace current coordinates by Ra-Rd
 c
@@ -471,8 +234,6 @@ c re-oredr TXS-requested shells in quartets to TXS-work ordering :
 c find wihch TXS pairs are present in a request (ijpres2,klpres2)
 c find all pair-blocks to which requested shells  belong :
 c
-      call txs_second(tim_1setup)
-c
       call txs_setup(bl,inx,ncs,leri,
      *               nquart,icspnl,jcspnl,kcspnl,lcspnl,labels,
      *               more_int)
@@ -480,12 +241,10 @@ c
 c 11 calls to getmem 
 c 12 calls to getmem
 c if(.not.labels) +1 call to getmem
-c
-      call txs_second(tim_2setup)
-      time_setup=time_setup + (tim_2setup-tim_1setup)
 c----------------------------------------------------------------
 c if this pnl-request is too big (too many integrals at once) 
 c
+      npart_pnl=npart_pnl+(isplit+1)
       if( isplit.gt.0 ) then
           more_int=.true.
           nsplit=0
@@ -496,26 +255,16 @@ c----------------------------------------------------------------
 c----------------------------------------------------------------
 c calculate two-electron integrals :
 c
-c----------------------------------------------------------------
       if(.not.labels) then
          ispec=1
          integ_n0=0
 c
 c        calculate integrals without labels :
 c
-*     ncfunct is not used on this call
+c     ncfunct is not used on this call
          call calcint2(bl,inx, q4,use_q4, icf,jcf,kcf,lcf,eri,
      *        dbl_mb(ncfunct))
          integ_nx=integ_n0
-c--------------------------------------------------------
-c test only
-c       write(6,*)' from texas_hf_m : q4 vector :nquart=',nquart
-c       write(6,1234) (q4(iii),iii=1,nquart)
-c       if(ncall_pnl.eq.1 .and. nsplit.eq.1) then
-c       call print_int2(ncall_pnl,eri,leri,
-c    *             icspnl,jcspnl,kcspnl,lcspnl,integ_n0,nquart)
-c       endif
-c--------------------------------------------------------
 c
       else
 c
@@ -525,28 +274,9 @@ c
 c        calculate integrals with labels :
 c
          call calcint2(bl,inx, q4,use_q4, icf,jcf,kcf,lcf,eri,
-     $        dbl_mb(ncfunct))
+     *        dbl_mb(ncfunct))
          integ_nx=integ_n0
 c
-c        find pnl-labels corresponding to the given set of 
-c        txs-labels , transfer labels from txs to pnl:
-c
-            call txs_second(tim_1pt)
-c
-C@@@@@   call pnl_txs(bl(ncfunct),icf,jcf,kcf,lcf,integ_n0 )
-******    call pnl_txs(dbl_mb(ncfunct),icf,jcf,kcf,lcf,integ_n0 )
-c----------------------------------------------------------------
-c test only
-c       write(6,*)' from texas_hf_m : q4 vector :nquart=',nquart
-c       write(6,1234) (q4(iii),iii=1,nquart)
-c1234 format(10(f5.3,1x))
-c       if(ncall_pnl.eq.1 .and. nsplit.eq.1) then
-c       call print_int1(ncall_pnl,eri,leri,icf,jcf,kcf,lcf,integ_n0)
-c       endif
-c--------------------------------------------------------
-c
-            call txs_second(tim_2pt)
-            time_pt=time_pt+(tim_2pt - tim_1pt)
       endif
 c
       if(isplit.gt.0) then
@@ -559,7 +289,7 @@ c
          else
             call retmem(12)
          endif
-c-------------------------
+c----------------------------------------------------------------
 c if use_r is true return original coordinates 
 c Probably NOT needed !
 c---
@@ -567,32 +297,18 @@ c        if (use_r) then
 c         call replacer(bl(inuc+1),ra,rb,rc,rd,inx,nquart,
 c    *                  icspnl,jcspnl,kcspnl,lcspnl,'back')
 c        endif
-c-------------------------
+c----------------------------------------------------------------
 c check and update memory status in pnl_scratch 
 c after each pnl request is done; 
 c
          call memstat_pnl
-c-------------------------
+c
       endif
 c----------------------------------------------------------------
-      call txs_second(tim_end)
-      time_calc2=time_calc2+(tim_end -tim_beg)
-c----------------------------------------------------------------
-c test only :
-c
-c     integ_upto_sum=integ_upto_sum + integ_nx
-c     write(6,*)'FROM MUL_QUART(end):LERI=',leri,' call no=',ncall_pnl,
-c    *'req.size=',nquart,' split=',isplit+1,' repeat=',nsplit
-c     write(6,*)
-c    *'integrals: from this run=',integ_nx,',total=',integ_upto_sum,
-c    *' more_int=',more_int,' labels=',labels
-c-----
+      call txs_second(time_end)
+      time4mul_quart=time4mul_quart  + (time_end -time_beg)
 c----------------------------------------------------------------
       if(integ_nx.eq.0 .and. more_int) go to 999
-c----------------------------------------------------------------
-c-----
-c          write(8,*)'FROM MUL_QUART (end): call no.=',ncall_pnl,
-c    *               ' integ.buffer=',leri,' scratch size=',l_blscr
 c----------------------------------------------------------------
 c memory checking ;
 c
@@ -679,10 +395,8 @@ c more_int is needed only to execute (or not) part of supblks_split
 c
       common /bl_txs_add/ ntxs_bl_scr 
 c
-      common /memor1/ iisd,jjsd,ijbld
-cpnl: common /memor1a/ npard,ncost,nsupb, mxsize
-      common /memor1a/ npard,ncost,nsupb, mxsize,nasize
-      common /memor1b/ nbl2,nbloks
+      common /memor1/ npard,mxsize,nblock1,nblock1_back
+      common /memor1b/ nbl2
 c
       common /pnl001/ ispec,ijpres2,klpres2, ijblock,klblock,iqorder
       common /pnl002/ ncshell,ncfunct,nblock2,integ_n0
@@ -690,7 +404,6 @@ c
       common /pnl004/ isize,jsize,ksize,lsize,itxspnl
       common /pnl005/ isblsize,isblqrts,isblpoint
       common /pnl006/ nsplit,isplit,isbl_split, isbl_part
-      common /pnlRJH/ isblcall
       dimension icspnl(*),jcspnl(*),kcspnl(*),lcspnl(*)  ! dim=nquart
       dimension inx(12,*)
       dimension bl(*)
@@ -700,10 +413,10 @@ c--------------------------------------------------------
 c--------------------------------------------------------
 c find texas-shells corresponding to the given set of pnl-shells.
 c
-      call getmem(nquart,icstxs)
-      call getmem(nquart,jcstxs)
-      call getmem(nquart,kcstxs)
-      call getmem(nquart,lcstxs)
+      call memo1_int(nquart,icstxs)
+      call memo1_int(nquart,jcstxs)
+      call memo1_int(nquart,kcstxs)
+      call memo1_int(nquart,lcstxs)
 c
 C@@@@ call txs_pnl(nquart,bl(ncshell),
       call txs_pnl(nquart,dbl_mb(ncshell),
@@ -718,41 +431,40 @@ c--------------------------------------------------------
 c reserve memory 
 c for pairs ij, kl which are present in a request
 c
-      call getmem(nquart, ijpres2)
-      call getmem(nquart, klpres2)
+      call memo1_int(nquart, ijpres2)
+      call memo1_int(nquart, klpres2)
 c-
-      call getmem(nquart, iqorder)
+      call memo1_int(nquart, iqorder)
 c--------------------------------------------------------
 c reserve memory 
 c for pair-blocks ij, kl which are present in a request
 c
-      call getmem(nbl2, ijblock)
-      call getmem(nbl2, klblock)
+      call memo1_int(nbl2, ijblock)
+      call memo1_int(nbl2, klblock)
 c--------------------------------------------------------
 c reserve memory for present super-blocks
 c
-      call getmem(nquart,isblqrts)
-      call getmem(nsupblk,isblsize)
+      call memo1_int(nquart,isblqrts)
+      call memo1_int(nsupblk,isblsize)
 c--------------------------------------------------------
 c  7 calls to getmem 
 c--------------------------------------------------------
-      call getmem(nquart,isupblk)
-      call getmem(nsupblk,isblpoin)
+      call memo1_int(nquart,isupblk)
+      call memo1_int(nsupblk,isblpoin)
       call swap_shells(nquart,icspnl,jcspnl,kcspnl,lcspnl,
      *     nbl2,
      *     bl(ijblock),bl(klblock),bl(ijpres2),bl(klpres2),
-C@@@ *     bl(isupblk),bl(isblsize),bl(isblqrts),bl(nblock2),
-     *     bl(isupblk),bl(isblsize),bl(isblqrts),dbl_mb(nblock2),
-     *     bl(iqorder),bl(isblpoin), 
-     *     dbl_mb(ntxs_bl_scr-1+isblcall) )
+     *     bl(isupblk),bl(isblsize),bl(isblqrts),bl(nblock1_back),
+     *     bl(iqorder),bl(isblpoin) )
       call retmem(1)
       call retmem(1)
 c  
       if(.not.labels) then
          call get_sizes(inx,icspnl,jcspnl,kcspnl,lcspnl,
-     *                      isize,jsize,ksize,lsize,ngcont,ngcq)
+     *                      isize,jsize,ksize,lsize,ngcont)
 ccc   write(6,*)'general contraction deep=',ngcont
-         call getmem(ngcont*isize*jsize*ksize*lsize,itxspnl)
+c
+         call memo1_int(ngcont*isize*jsize*ksize*lsize,itxspnl)
 c
          call ordr_shells(icspnl,jcspnl,kcspnl,lcspnl,
      *                    isize,jsize,ksize,lsize,bl(itxspnl),
@@ -771,34 +483,34 @@ c check current sizes of super-blocks against maximum sizes
 c and available size of integral's buffer (leri):
 c (maximum sizes calculated in blksizer (spec_block.f) )
 c
-      call getmem(nsupblk,isbl_part)
+      call memo1_int(nsupblk,isbl_part)
+c
       call supblks_split(bl(mxsize),leri,inx,
-     *                   bl(iisd),bl(jjsd),bl(ijbld),nbl2,
+     *                   bl(nblock1),nbl2,
      *     bl(ijpres2),bl(klpres2),bl(isblsize),bl(isbl_part),
      *     more_int)
-c
 c---------------------------------------------------------
 c calculate the size of the request and split it if needed
 c
-      call getmem(nsupblk+2,isbl_split)
-      call request_split(leri,inx,bl(iisd),bl(jjsd),nbl2,
+      call memo1_int(nsupblk+2,isbl_split)
+      call request_split(leri,inx, nbl2,
      *     bl(ijpres2),bl(klpres2),bl(isblsize),bl(isblqrts),
-     *     bl(isbl_part),bl(mxsize),
+     *     bl(isbl_part),
      *     bl(isbl_split),isplit )
 c
       call retmem(1)
-      call getmem(isplit+2, isbl_split)
+      call memo1_int(isplit+2, isbl_split)
 c---------------------------------------------------------
 c calculate the pointer to the block's quartets 
 c (to eliminate calcul. in the get_nbls_pnl routine)
 c
-      call getmem(nsupblk,isblpoint)
+      call memo1_int(nsupblk,isblpoint)
       call supblks_point(nsupblk,bl(isblsize),bl(isblpoint))
 c--------------------------------------------------------
       end
 c==================================================================
       subroutine get_sizes(inx, icstxs,jcstxs,kcstxs,lcstxs,
-     *                     isize,jsize,ksize,lsize,ngcont,ngcq)
+     *                     isize,jsize,ksize,lsize,ngcont)
       dimension inx(12,*),icstxs(*),jcstxs(*), kcstxs(*),lcstxs(*)
 c
       ics=icstxs(1)
@@ -815,16 +527,6 @@ c
 c
       ngcont=igcon*jgcon*kgcon*lgcon
 c
-      ngcq=1
-      if(ngcont.gt.1) then
-         ijpg=igcon*jgcon
-         if(ics.eq.jcs) ijpg=igcon*(igcon+1)/2
-         klpg=kgcon*lgcon
-         if(kcs.eq.lcs) klpg=kgcon*(kgcon+1)/2
-         ngcq=ijpg*klpg
-         if(ijcs.eq.klcs) ngcq=ijpg*(ijpg+1)/2
-      endif
-c
       isize=inx(3, ics)
       jsize=inx(3, jcs)
       ksize=inx(3, kcs)
@@ -835,9 +537,8 @@ c==================================================================
       subroutine swap_shells(nquart,icstxs,jcstxs,kcstxs,lcstxs,
      *                                         nbl2,
      *                       ijblock,klblock,ijpres2,klpres2,
-     *                       isupblk, isbl_s,isbl_q, nblock2,
-     *                       iqorder,isbl_p,
-     *                               isbl_c)  
+     *                       isupblk, isbl_s,isbl_q, nblock1_back,
+     *                       iqorder,isbl_p)
       dimension icstxs(nquart),jcstxs(nquart),
      *          kcstxs(nquart),lcstxs(nquart)
       dimension ijblock(nbl2),klblock(nbl2)
@@ -846,10 +547,9 @@ c==================================================================
       dimension isupblk(nquart)
       dimension isbl_s(*) ! dimension nbl2*(nbl2+1)/2  num of super-blks
       dimension isbl_q(nquart)
-      dimension nblock2(*) !  dimension ncs*(ncs+1)/2
+      dimension nblock1_back(*) !  dimension ncs
       dimension ipnl(4)
       dimension isbl_p(*) ! dimension nbl2*(nbl2+1)/2  num of super-blks
-      dimension isbl_c(*) ! dimension nbl2*(nbl2+1)/2  num of super-blks
 c
 c
       isbl=0
@@ -892,8 +592,14 @@ c pair-blocks they belong :
 c
         ijcs=ics*(ics-1)/2+jcs
         klcs=kcs*(kcs-1)/2+lcs
-        ijblock1=nblock2(ijcs)
-        klblock1=nblock2(klcs)
+cnew
+        i_block1=nblock1_back(ics)
+        j_block1=nblock1_back(jcs)
+        ijblock1=i_block1*(i_block1-1)/2 + j_block1
+        k_block1=nblock1_back(kcs)
+        l_block1=nblock1_back(lcs)
+        klblock1=k_block1*(k_block1-1)/2 + l_block1
+cnew
 c
         iswitch=0
         if(ijblock1.lt.klblock1) iswitch=1
@@ -961,13 +667,6 @@ c
       iquart=isbl_p(isblq)
       isbl_q(iquart)=iq
   50  continue
-c---------------------------------------------------------
-c For performace estimation 
-c(how many times a given s-bl was called)
-c
-      do 90 isbl=1,nbl2*(nbl2+1)/2 
-      if(isbl_s(isbl).gt.0) isbl_c(isbl)=isbl_c(isbl)+1
-   90 continue
 c---------------------------------------------------------
 c
       end
@@ -1171,24 +870,17 @@ c=====================================================================
       subroutine switch_scr(bltxs, blscr,l_blscr)
       implicit real*8 (a-h,o-z)
 c
-c copy  from local bl() as defined in texas_face3 :
+c copy  from local bl() as defined in texas_face :
 c
-      common /memor1_R/ iisd_R,jjsd_R,ijbld_R
-      common /memor1a_R/ npard_R,ncost_R,nsupb_R, mxsize_R,nasize_R
-      common /memors_R/      ijshp_R
+      common /memor1_R/ npard_R,mxsize_R,nblock1_R,nblock1_back_R
 c
 c to pnl :
 c
-      common /memor1/ iisd,jjsd,ijbld
-      common /memor1a/ npard,ncost,nsupb, mxsize,nasize
-      common /memors/ nsym,ijshp,isymm
+      common /memor1/ npard,mxsize,nblock1,nblock1_back
 c
 c and for corresp. sizes :
 c
-      common /memor1_S/ iisd_S,jjsd_S,ijbld_S
-      common /memor1a_S/ npard_S,ncost_S,nsupb_S, mxsize_S,nasize_S
-      common /memors_S/      ijshp_S
-c
+      common /memor1_S/ npard_S,mxsize_S,nblock1_S,nblock1_back_S
 c
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nXXX,nganz(35),lopt(30)
@@ -1205,45 +897,50 @@ c
       call retall
 c-------------------------------
 c
-      call getmem(iisd_S ,  iisd)
-      call getmem(jjsd_S ,  jjsd)
-      call getmem(ijbld_S, ijbld)
-c
-      call getmem(npard_S ,npard)
-      call getmem(ncost_S ,ncost)
-      call getmem(nsupb_S ,nsupb)
-      call getmem(mxsize_S,mxsize)
-      call getmem(nasize_S,nasize)
-c
-      call getmem(ijshp_S, ijshp)
+      call memo1_int(npard_S ,npard)
+      call memo1_int(mxsize_S,mxsize)
+      call memo1_int(nblock1_S,nblock1)
+      call memo1_int(nblock1_back_S,nblock1_back)
 c-------------------------------
 c copy data :
 c
-      call tfer_i(bltxs(iisd_R), blscr(iisd), iisd_S )
-      call tfer_i(bltxs(jjsd_R), blscr(jjsd), jjsd_S )
-      call tfer_i(bltxs(ijbld_R), blscr(ijbld), ijbld_S )
-c
       call tfer_i(bltxs(npard_R), blscr(npard), npard_S )
-      call tfer_i(bltxs(ncost_R), blscr(ncost), ncost_S )
-      call tfer_i(bltxs(nsupb_R), blscr(nsupb), nsupb_S )
       call tfer_i(bltxs(mxsize_R),blscr(mxsize), mxsize_S )
-      call tfer_i(bltxs(nasize_R),blscr(nasize), nasize_S )
-c
-      call tfer_i(bltxs(ijshp_R), blscr(ijshp), ijshp_S )
-c
+      call tfer_i(bltxs(nblock1_R),blscr(nblock1), nblock1_S )
+      call tfer_i
+     *    (bltxs(nblock1_back_R),blscr(nblock1_back), nblock1_back_S )
 c-------------------------------
       end
 c==========
       subroutine tfer_i(ia,ib,n)
       dimension ia(n),ib(n)
+c---------------------------
+c       do 10 ii=1,n
+c         ib(ii)=ia(ii)
+c  10   continue
+c---------------------------
 c
-      do 10 ii=1,n
-      ib(ii)=ia(ii)
-   10 continue
+      m = mod(n,7)
+      if( m .eq. 0 ) go to 20
+        do 10 ii=1,n
+          ib(ii)=ia(ii)
+   10   continue
+      if( n .lt. 7) return
+   20 mp1=m+1
+      do 30 i=mp1,n,7
+         ib(i  ) = ia(i  )
+         ib(i+1) = ia(i+1)
+         ib(i+2) = ia(i+2)
+         ib(i+3) = ia(i+3)
+         ib(i+4) = ia(i+4)
+         ib(i+5) = ia(i+5)
+         ib(i+6) = ia(i+6)
+   30 continue
 c
       end
 c=====================================================================
-      subroutine supblks_split(maxsize,leri,inx,iis,jjs,ijbl,nbl2,
+      subroutine supblks_split(maxsize,leri,inx,
+     *                         nblock1,nbl2,
      *                         ijpres2,klpres2,isbl_s,isbl_part,
      *                         more_int)
 c--------------------------------------------------------------------
@@ -1251,18 +948,24 @@ c this routine is called for every new PNL request i.e when
 c more_int=.false.
 c--------------------------------------------------------------------
       logical more_int
-      common /pnl_nqrt/ ncall_pnl, nqrts_pnl
+      common /pnl_nqrt/ ncall_pnl, nqrts_pnl, npart_pnl
       dimension maxsize(*)
-      dimension inx(12,*),iis(*),jjs(*),ijbl(nbl2,*)
+      dimension inx(12,*),nblock1(*)
       dimension isbl_s(*) ! dimension nbl2*(nbl2+1)/2  num of super-blks
       dimension ijpres2(*),klpres2(*)  ! dimension nquart
       dimension isbl_part(*)  ! dimension nbl2*(nbl2+1)/2
-c--------------------------------------------------------------------
+c---------------------------------------------------------------------
+c for derivatives of all kinds :
+      common /memmax/ ispblx, maxme1,iforwhat
+c---------------------------------------------------------------------
+      n_times=1
+      if(iforwhat.eq.2) n_times= 6 ! giao Ist derivatives
+      if(iforwhat.eq.3) n_times=12 ! gradient derivatives
+      if(iforwhat.eq.4) n_times=78 ! hessian  derivatives
+c---------------------------------------------------------------------
          isupb=0
          do 10 ibl=1,nbl2
-         ijcs1=ijbl(ibl,1)
-         ics1=iis(ijcs1)
-         jcs1=jjs(ijcs1)
+         call get_ics_jcs(nblock1,ibl,1,ics1,jcs1)
          icont_ij=(inx(4,ics1)+1)*(inx(4,jcs1)+1)
          integ_ij=inx(3,ics1)*inx(3,jcs1)*icont_ij
          do 10 kbl=1,ibl
@@ -1271,12 +974,13 @@ c--------------------------------------------------------------------
             isbl_size=isbl_s(isupb)
             if(isbl_size.gt.0) then
                maxm_size=maxsize(isupb)
-               klcs1=ijbl(kbl,1)
-               kcs1=iis(klcs1)
-               lcs1=jjs(klcs1)
+               call get_ics_jcs(nblock1,kbl,1,kcs1,lcs1)
                icont_kl=(inx(4,kcs1)+1)*(inx(4,lcs1)+1)
                integ_kl=inx(3,kcs1)*inx(3,lcs1)*icont_kl
                integ1=integ_ij*integ_kl
+c
+               integ1=integ1*n_times  ! derivatives
+c
                integ=integ1*maxm_size
 c
 c first re-define maximum size according to leri :
@@ -1301,22 +1005,29 @@ c
 c---------------------------------------------------------
       end
 c=====================================================================
-      subroutine request_split(leri,inx,iis,jjs,nbl2,ijpres2,klpres2,
-     *                         isbl_s,isbl_q, isbl_part,maxsize,
+      subroutine request_split(leri,inx,nbl2,ijpres2,klpres2,
+     *                         isbl_s,isbl_q, isbl_part,
      *                         isbl_split,isplit)
 c--------------------------------------------------------------------
 c if a given pnl-request is too big then it is devided into parts:
 c--------------------------------------------------------------------
       common /pnl003/ nqrtpnl,icstxs,jcstxs,kcstxs,lcstxs
-      common /pnl_nqrt/ ncall_pnl, nqrts_pnl
+      common /pnl_nqrt/ ncall_pnl, nqrts_pnl, npart_pnl
       dimension inx(12,*)
-      dimension iis(*),jjs(*)
       dimension isbl_s(*)               ! dimension nbl2*(nbl2+1)/2  
       dimension isbl_q(*)               ! dimension nquart
       dimension ijpres2(*),klpres2(*)   ! dimension nquart
-      dimension isbl_part(*),maxsize(*) ! dim. nbl2*(nbl2+1)/2
+      dimension isbl_part(*)            ! dim. nbl2*(nbl2+1)/2
       dimension isbl_split(0:*)
-c-----------------------------------
+c---------------------------------------------------------------------
+c for derivatives of all kinds :
+      common /memmax/ ispblx, maxme1,iforwhat
+c---------------------------------------------------------------------
+      n_times=1
+      if(iforwhat.eq.2) n_times= 6 ! giao Ist derivatives
+      if(iforwhat.eq.3) n_times=12 ! gradient derivatives
+      if(iforwhat.eq.4) n_times=78 ! hessian  derivatives
+c---------------------------------------------------------------------
 c
          itotal=0
          isplit=0
@@ -1328,21 +1039,20 @@ c
          do 60 kbl=1,ibl
          isupb=iibl+kbl
          isbl_size=isbl_s(isupb)
-         maxm_size=maxsize(isupb)
          nparts=isbl_part(isupb)
          if(isbl_size.eq.0) go to 60
 c
            iq1=isbl_q(ipoint+1)
            ijcs1=ijpres2(iq1)
            klcs1=klpres2(iq1)
-           ics1=iis(ijcs1)
-           jcs1=jjs(ijcs1)
+           call get_ij_half(ijcs1,ics1,jcs1)
            icont_ij=(inx(4,ics1)+1)*(inx(4,jcs1)+1)
-           kcs1=iis(klcs1)
-           lcs1=jjs(klcs1)
+           call get_ij_half(klcs1,kcs1,lcs1)
            icont_kl=(inx(4,kcs1)+1)*(inx(4,lcs1)+1)
            integ1=inx(3,ics1)*inx(3,jcs1)*inx(3,kcs1)*inx(3,lcs1)
            integ1=integ1*icont_ij*icont_kl
+c
+           integ1=integ1*n_times ! derivatives
 c
 c  splitting among super-blocks :
 c
@@ -1381,15 +1091,6 @@ c    *              ' split into ',itotal+1,' pieces'
 ccc  *              ' split into ',isplit+1,' pieces'
 c         write(6,66)(isbl_split(ii),ii=0,isplit+1)
 c 66      format(' isbl_split(ii)=',i3)
-c
-c        write(6,*)' blocks in the request no=3'
-c        do isupb=1,nbl2*(nbl2+1)/2
-c        maxm_size=maxsize(isupb)
-c        isbl_size=isbl_s(isupb)
-c        nparts=isbl_part(isupb)
-c        write(6,77)isupb,maxm_size,isbl_size,nparts
-c 77     format('block=',i3,' maxsize=',i5,' pnlsize=',i5,' parts=',i5)
-c        enddo
 ccc    endif
 ccc   endif
 c---------------------------------------------------------
@@ -1689,3 +1390,86 @@ c
 c
       end
 c=====================================================================
+      subroutine requested_task(int_type)
+      character*8 int_type
+      character*27 type_i,type_r
+      character*11 scftype
+      character*4 where
+      common /runtype/ scftype,where
+      common /memmax/ ispblx, maxme1,iforwhat
+c
+      if(int_type.eq.'scfd_int') then 
+         where='buff'
+         irequest=1
+      endif
+      if(int_type.eq.'giao_int') then
+         where='shif'
+         irequest=2
+      endif
+      if(int_type.eq.'der1_int') then 
+         where='forc'
+         irequest=3
+      endif
+      if(int_type.eq.'der2_int') then 
+         where='hess'
+         irequest=4
+      endif
+c
+c check if the texas integral program has been initiated 
+c for up to this requested task :
+c
+      if(irequest.gt.iforwhat) then
+c
+         if(iforwhat.eq.1) type_i='ordinary 2-el.integrals    '
+         if(iforwhat.eq.2) type_i='giao integral derivatives  '
+         if(iforwhat.eq.3) type_i='first  geometry derivatives'
+         if(iforwhat.eq.4) type_i='second geometry derivatives'
+         if(irequest.eq.1) type_r='ordinary 2-el.integrals    '
+         if(irequest.eq.2) type_r='giao integral derivatives  '
+         if(irequest.eq.3) type_r='first  geometry derivatives'
+         if(irequest.eq.4) type_r='second geometry derivatives'
+c
+         write(6,66) type_i,type_r
+   66 format('                   Texas integral program '/
+     *       ' has been initialized only for :',a27/
+     *       ' and can not be executed for   :',a27)
+         stop 'program stopped in requested_task subroutine'
+      endif
+c
+      end
+c==================================================================
+      subroutine get_ics_jcs(nblock1,ijblock,ijpar,ics,jcs)
+c--------------------------------------------------
+c ijblock - pair-block               ![input]
+c ijpar   - a pair in that block     ![input]
+c ics,jcs : shells                   ![output]
+c--------------------------------------------------
+cccc  dimension nblock1(0:nbl1)
+      dimension nblock1(0:*   )
+c
+c
+      call get_ij_half(ijblock, iblock,jblock)
+c
+      ics_b= nblock1(iblock-1)+1     ! first shell 
+      ics_e= nblock1(iblock)         ! last shell
+      jcs_b= nblock1(jblock-1)+1     ! first shell 
+      jcs_e= nblock1(jblock)         ! last shell
+c
+c     increm=ics_e-ics_b+1
+c     jncrem=jcs_e-jcs_b+1
+c
+      if(jblock.eq.iblock) then
+         call get_ij_half(ijpar,ishell,jshell)
+      else
+         jncrem=jcs_e-jcs_b+1
+         call get_ij_full(ijpar,jncrem,ishell,jshell)
+      endif
+c
+c ishell,jshell - shells in the ijblock (numbered from 1 to increm
+c                                                      1 to jncrem)
+c
+      ics=ishell+ics_b -1
+      jcs=jshell+jcs_b -1
+c
+      end
+c-----------------------------------------------------------------

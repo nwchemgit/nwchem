@@ -6,39 +6,15 @@ c====================================================================
 c    Memory handling subroutines for 2-electron integrals program
 c
 c====================================================================
-c
-      subroutine memo1(ncs,ijchd)
-      common /cpu/ intsize,iacc,icache,memreal
-      common /memor1/ iisd,jjsd,ijbld
-c
-      ncsp=ncs*(ncs+1)/2
-      if(intsize.ne.1) ncsp=ncsp/intsize+1
-c
-      call getmem(ncsp,iisd)           ! for iis(ncsp)
-      call getmem(ncsp,jjsd)           ! for jjs(ncsp)
-      call getmem(ncsp,ijchd)          ! for ijcheck(ncsp)
-c
-      return
-      end
-c********
-      subroutine memo1a(npdim,ijdim,mxdim,npard,ijbld,mxsid)
+      subroutine memo1_int(namount,iaddress)
       common /cpu/ intsize,iacc,icache,memreal
 c
-      npardim=npdim
-      ijbldim=ijdim
-      mxsidim=mxdim
-      if(intsize.ne.1) then
-         npardim=npardim/intsize+1
-         ijbldim=ijbldim/intsize+1
-         mxsidim=mxsidim/intsize+1
-      endif
-      call getmem(npardim,npard)
-      call getmem(ijbldim,ijbld)
-      call getmem(mxsidim,mxsid)
+      needed=namount
+      if(intsize.ne.1) needed=namount/intsize+1 
+      call getmem(needed,iaddress)
 c
-      return
       end
-c********
+c====================================================================
       subroutine memo2(nbloks)
       common /cpu/ intsize,iacc,icache,memreal
       common /memor2/ nqrtd, nibld,nkbld, nijbd,nijed, nklbd,nkled
@@ -56,18 +32,22 @@ c
 c
       return
       end
-c********
+c====================================================================
       subroutine memo3(maxqrt)
       common /cpu/ intsize,iacc,icache,memreal
       common /memor3/ nblok1d
       common /memors/ nsym,ijshp,isymm
 c
+c--------------------------------------------------
       ndim=maxqrt*2
       if(intsize.ne.1) ndim=ndim/intsize+1
 c
       call getmem(ndim,nblok1d)      ! for nblok1(2,*)
       call getmem(maxqrt,isymm)      ! for isymm(*)
-      return
+c--------------------------------------------------
+c     call memo1_int(maxqrt*2, nblok1d)  ! for nblok1(2*maxqrt) 
+c     call memo1_int(maxqrt  , nsymm  )  ! for symm(maxqrt) 
+c--------------------------------------------------
       end
 c********
       subroutine memo4a(nbls, l11,l12,mem2,igmcnt)
@@ -141,6 +121,12 @@ c
        lqmx=max( lqij,lqkl )
 c
 c---------------------------------------------------------------------
+c l11,l12,mem2 are not used for mmax.le.2 (psss)
+c
+       l11=1
+       l12=1
+       mem2=1
+c---------------------------------------------------------------------
 c
 c* initiate all addresses :
 c for trobsa :
@@ -182,16 +168,64 @@ c gen.contr.
       ngcijkl=(ngci+1)*(ngcj+1)*(ngck+1)*(ngcl+1)
       nblsg=nbls*ngcijkl
 c
-      if(where.ne.'shif') then
+ccccc if(where.ne.'shif' .and. where.ne.'forc') then
+      if(where.eq.'buff') then
         call getmem(nblsg*lnijkl,ibuf)  ! for buf(nbls,lnijkl)
         call getmem(nblsg*mem0,ibuf2)  ! for buf2(nbls,lnij,lnkl)
-      else
+      endif
+      if(where.eq.'shif') then
 c     - for nmr derivatives -
         call getmem(7*nblsg*lnijkl,ibuf)  ! for buf(nbls,lnijkl)
         ixxx=nblsg*mem0 + 6*nblsg*nfu(nsij)*nfu(nskl)
         call getmem(ixxx      ,ibuf2)  ! for buf2(nbls,lnij,lnkl)
       endif
+      if(where.eq.'forc') then
+c     memory allocated for ibuf will be used twice : first for
+c     assembling (instead of buf2) and then for final derivatives.
+c     For ibuf allocate maximum of :
+        iyyy=nblsg*max(9*lnijkl,4*mem0) 
+c     and for ibuf2 :
+        ixxx=               10*nblsg*nfu(nsij)*nfu(nskl)
+c     instead of ixxx=4*nblsg*mem0 + 10*nblsg*nfu(nsij)*nfu(nskl)
 c
+c 4*nblsg*mem0 is probably ALWAYS greater than 9*nblsg*lnijkl
+c
+c 4 comes from : ordinary contraction 
+c              + rescaled contrac. with 2*expA
+c              + rescaled contrac. with 2*expB
+c              + rescaled contrac. with 2*expC
+c 10 comes from 9 different derivatives with respect to 
+c Ax,y,z , Bx,y,z and Cx,y,z (center positions)
+c     plus 1 location for ordinary integrals.
+c
+        call getmem(iyyy  ,ibuf )  ! for buf (nbls,lnijkl)
+        call getmem(ixxx  ,ibuf2)  ! for buf2(nbls,lnij,lnkl)
+      endif
+c
+      if(where.eq.'hess') then
+        iyyy=nblsg*max(54*lnijkl,10*mem0) 
+        ixxx=55*nblsg*nfu(nsij)*nfu(nskl)
+c
+c 10 comes from : ordinary contraction 
+c               + rescaled contrac. with 2*expA
+c               + rescaled contrac. with 2*expB
+c               + rescaled contrac. with 2*expC
+c               + rescaled contrac. with 2*expA*2expB
+c               + rescaled contrac. with 2*expA*2expC
+c               + rescaled contrac. with 2*expB*2expC
+c               + rescaled contrac. with (2*expA)**2    
+c               + rescaled contrac. with (2*expB)**2
+c               + rescaled contrac. with (2*expC)**2
+c 54 comes from :  9 first derivatives 
+c                +45 second derivatives
+c
+c 55 comes from :  1 ordinary integrals
+c                  9 first derivatives 
+c                +45 second derivatives
+c
+        call getmem(iyyy  ,ibuf )  ! for buf (nbls,lnijkl)
+        call getmem(ixxx  ,ibuf2)  ! for buf2(nbls,lnij,lnkl)
+      endif
 c
 c
 c  count calls of getmem :
@@ -202,12 +236,20 @@ c
       if(mmax.le.2) return
 c
         IF(LSHELLT.GT.0) THEN
-          if(where.eq.'shif' .or. where.eq.'forc') then
-           mbfkl12=lnij*nfu(nqkl1+1)*nbls + 6*nfu(nsij)*nfu(nqkl+1)*nbls
-           mbfij12=nfu(nqij1+1)*lnkl*nbls + 6*nfu(nqij+1)*nfu(nskl)*nbls
-          else
+c for ordinary integrals:
+c
            mbfkl12=lnij*nfu(nqkl+1)*nbls 
            mbfij12=nfu(nqij+1)*lnkl*nbls
+c
+          if(where.eq.'shif') then
+           mbfkl12=lnij*nfu(nqkl1+1)*nbls + 6*nfu(nsij)*nfu(nqkl+1)*nbls
+           mbfij12=nfu(nqij1+1)*lnkl*nbls + 6*nfu(nqij+1)*nfu(nskl)*nbls
+          endif
+          if(where.eq.'forc') then
+           mbfkl12=4*lnij*nfu(nqkl1+1)*nbls
+     *            +10*nfu(nsij)*nfu(nqkl+1)*nbls
+           mbfij12=4*nfu(nqij1+1)*lnkl*nbls
+     *            +10*nfu(nqij+1)*nfu(nskl)*nbls
           endif
 c
           if(lshellt.gt.1) then
@@ -226,17 +268,23 @@ c
 c     
         IF( LSHELLT.GT.1 ) THEN
 c
-          if(where.eq.'shif' .or. where.eq.'forc') then
+            mbf2l=nfu(nqij+1)*nfu(nqkl+1)*nbls 
+            mbfkl3=lnij*nbls
+            mbfij3=lnkl*nbls
+c
+          if(where.eq.'shif') then
             mbf2l=nfu(nqij1+1)*nfu(nqkl1+1)*nbls 
      *         +6*nfu(nqij +1)*nfu(nqkl +1)*nbls
 c
             mbfkl3=lnij*4*nbls + 6*nfu(nsij)*nbls
             mbfij3=4*lnkl*nbls + 6*nfu(nskl)*nbls
-          else
-            mbf2l=nfu(nqij+1)*nfu(nqkl+1)*nbls 
+          endif
+          if(where.eq.'forc') then
+            mbf2l=4*nfu(nqij1+1)*nfu(nqkl1+1)*nbls 
+     *           +10*nfu(nqij +1)*nfu(nqkl +1)*nbls
 c
-            mbfkl3=lnij*nbls
-            mbfij3=lnkl*nbls
+            mbfkl3=4*(lnij*4*nbls) + 10*nfu(nsij)*nbls
+            mbfij3=4*(4*lnkl*nbls) + 10*nfu(nskl)*nbls
           endif
 c
           if(lshellt.gt.2) then
@@ -259,13 +307,17 @@ c
 c
         IF( LSHELLT.GT.2 ) THEN
 c
-          if(where.eq.'shif' .or. where.eq.'forc') then
+            mbf3l0=max( nfu(nqij +1),nfu(nqkl +1) )
+            mbf3l=mbf3l0*nbls
+          if(where.eq.'shif') then
             mbf3l1=max( nfu(nqij1+1),nfu(nqkl1+1) )
             mbf3l0=max( nfu(nqij +1),nfu(nqkl +1) )
             mbf3l=4*mbf3l1*nbls + 6*mbf3l0*nbls
-          else
+          endif
+          if(where.eq.'forc') then
+            mbf3l1=max( nfu(nqij1+1),nfu(nqkl1+1) )
             mbf3l0=max( nfu(nqij +1),nfu(nqkl +1) )
-            mbf3l=mbf3l0*nbls
+            mbf3l=4*(4*mbf3l1*nbls) + 10*mbf3l0*nbls
           endif
 c
           if(lshellt.gt.3) then
@@ -284,10 +336,12 @@ c
 c
         IF( LSHELLT.GT.3 ) then
 c
-          if(where.eq.'shif' .or. where.eq.'forc') then
-            i4s =16*nbls + 6*nbls
-          else
             i4s =nbls
+          if(where.eq.'shif') then
+            i4s =16*nbls + 6*nbls
+          endif
+          if(where.eq.'forc') then
+            i4s =4*16*nbls + 10*nbls
           endif
 c
             call getmem(i4s  ,issss)  ! for ssss
@@ -413,6 +467,14 @@ c
             mwij=6*mwij
             mxij=6*mxij
         endif
+        if(where.eq.'forc') then
+            mwij=10*mwij
+            mxij=10*mxij
+        endif
+        if(where.eq.'hess') then
+            mwij=55*mwij
+            mxij=55*mxij
+        endif
 c---new----
 c
             call getmem(mwij,iwij)    ! for wij
@@ -436,6 +498,10 @@ c
             mvus=6*mvus
             myz =6*myz 
         endif
+        if(where.eq.'forc') then
+            mvus=10*mvus
+            myz =10*myz 
+        endif
 c
             call getmem(mvus,ivij)      ! for vij
             call getmem(myz ,iyij)      ! for yij
@@ -446,6 +512,9 @@ c
             mbf2l=nfu(nqij+1)*nfu(nqkl+1) *nbls
             if(where.eq.'shif') then
                mbf2l=6*mbf2l
+            endif
+            if(where.eq.'forc') then
+               mbf2l=10*mbf2l
             endif
 c
 c* for x2l1-4, uij and sij:
@@ -473,6 +542,7 @@ c
 c
          mnbls=nbls
          if(where.eq.'shif') mnbls=6*nbls
+         if(where.eq.'forc') mnbls=10*nbls
 c
          if(lshellt.gt.3) then
             call getmem(mnbls*nfu(nqkl+1), ix3l1) ! for x3l1
@@ -511,7 +581,13 @@ c
 c 4. for : txab(ijpar,3,lcij)
 c
 c Total number of calls of Getmem is 11 or 12 (if gen.con.)
+c OR 13 or 14 if where='forc'
 c------------------------------------------
+c for gradient derivatives:
+      character*11 scftype
+      character*4 where
+      common /runtype/ scftype,where
+c
       common /cpu/ intsize,iacc,icache,memreal
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
       common /memor5x/ ieab,iecd
@@ -567,6 +643,12 @@ c
         call getmem(ndijg,igcij)              !               12
       endif
 c
+      iaa=1
+      ibb=1
+      if(where.eq.'forc' .or. where.eq.'hess') then
+         call getmem(ndi,iaa)     ! for  aa(ijpar,lci)        13  
+         call getmem(ndj,ibb)     ! for  bb(ijpar,lcj)        14   
+      endif
 c------------------------------------------
       end
 c================================================================
@@ -576,6 +658,11 @@ c================================================================
 c------------------------------------------
 c Memory handling for right-hand pairs:
 c------------------------------------------
+c for gradient derivatives:
+      character*11 scftype
+      character*4 where
+      common /runtype/ scftype,where
+c
       common /memor5x/ ieab,iecd
       common /memor5a/ iaa,ibb,icc,idd,icis,icjs,icks,icls,
      * ixab,ixp,ixpn,ixpp,iabnia,iapb,i1apb,ifij,icij,isab,
@@ -589,7 +676,7 @@ c------------------------------------------
 c reserve memory for right-hand pairs KL :
 c
        ndk=   klpar*lck
-       ndl=   klpar*lcl
+cccc   ndl=   klpar*lcl
 c
       call getmem(lck,icks)       ! for cks(lck)                1
       call getmem(lcl,icls)       ! for cls(lcl)                2
@@ -624,6 +711,11 @@ c-----
       if(ngcd.gt.1) then
         ndklg=lckl*ngck1*ngcl1
         call getmem(ndklg,igckl)      !               12
+      endif
+c------------------------------------------
+      icc=1
+      if(where.eq.'forc' .or. where.eq.'hess') then
+         call getmem(ndk,icc)   ! for  cc(klpar,lck) 13
       endif
 c------------------------------------------
       end

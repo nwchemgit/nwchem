@@ -1,4 +1,4 @@
-c $Id: missing.f,v 1.1 1995-10-30 20:57:43 d3e129 Exp $
+c $Id: missing.f,v 1.2 1997-06-06 21:12:12 pg481 Exp $
 *rak:      subroutine rohf
 *rak:      end
 *rak:      subroutine twocon
@@ -17,7 +17,7 @@ c $Id: missing.f,v 1.1 1995-10-30 20:57:43 d3e129 Exp $
 *rak:      end
 *rak:      subroutine casscf
 *rak:      end
-      subroutine nmrderx
-      end
+c     subroutine nmrderx
+c     end
       subroutine precal2d
       end

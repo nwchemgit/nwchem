@@ -1,4 +1,4 @@
-c $Id: amshift.f,v 1.1 1995-10-30 20:57:31 d3e129 Exp $
+c $Id: amshift.f,v 1.2 1997-06-06 21:12:03 pg481 Exp $
 c----------------------------------------------------
 C*
 C*  THESE ROUTINES SHIFT THE ANGULAR MOMENTUM
@@ -40,6 +40,9 @@ ccccc common /big/ bl(1)
      * ixij,iyij,izij, iwij,ivij,iuij,isij
 c
       common /memor4a/ ibf3l1,ibf3l2,ibf3l3,ibf3l4
+c only for first & second derivatives (for use in amshift):
+cccc  common /memor4b/ibuf0
+      common /memor4b/ider0,ider1,ider2
 c
       common /memor5a/ iaa,ibb,icc,idd,icis,icjs,icks,icls,
      * ixab,ixp,ixpn,ixpp,iabnia,iapb,i1apb,ifij,icij,isab,
@@ -68,14 +71,27 @@ c
       call getmem(mindxx,indxx)
 c
 c------------------------------------------------
-          nmr =ngcd*nbls*lnijkl 
-c-
+c for odinary integrals :
+c
           nbuf2=ibuf2
           nbuf=ibuf
           m=1
+c
+c for giao integral derivatives :
           if(where.eq.'shif') then
+            nmr =ngcd*nbls*lnijkl 
             nbuf=ibuf+nmr
             m=6
+          endif
+c
+c for gradient integral derivatives :
+          if(where.eq.'forc') then
+            m=9
+          endif
+c
+c for hessian  integral derivatives :
+          if(where.eq.'hess') then
+            m=45
           endif
 c-
           mnbls=m*nbls
@@ -130,17 +146,46 @@ c-
         incre2=mnbls*l01*l02
 c-
          do 200 iqu=1,ngcd
-          jbuf =nbuf +(iqu-1)*incre
-          jbuf2=nbuf2+(iqu-1)*incre2
-          call shift0l(bl(jbuf),bl(jbuf2),
-     *                 l01,l02,bl(iwij),lsmx,lsjl,
-     *                 bl(ixij),nfu(nqi+1),lqij,lnkl,mnbls,
-c--> *                 bl(ixij),nfu(nqi+1),nfu(nqij+1),lnkl,nbls,
-     *                 bl(ixabn),bl(ixcdn),
-     *                 bl(indxx),lni,lnj,lnk,lnl)
+           jbuf =nbuf +(iqu-1)*incre
+           jbuf2=nbuf2+(iqu-1)*incre2
+ccccc      if(where.ne.'forc') then
+           if(where.eq.'buff' .or. where.eq.'shif') then
+              call shift0l(bl(jbuf),bl(jbuf2),
+     *                     l01,l02,bl(iwij),lsmx,lsjl,
+     *                     bl(ixij),nfu(nqi+1),lqij,lnkl,mnbls,
+     *                     bl(ixabn),bl(ixcdn),
+     *                     bl(indxx),lni,lnj,lnk,lnl)
+           endif
+           if(where.eq.'forc') then
+cccccc        jbuf0=ibuf0+(iqu-1)*nbls*l01*l02
+              jbuf0=ider0+(iqu-1)*nbls*l01*l02
+              iwij0=iwij +mnbls*lsmx*lsjl 
+              ixij0=ixij +mnbls*nfu(nqi+1)*lqij*lnkl
+              call shift0l_der1(bl(jbuf),bl(jbuf2),bl(jbuf0),
+     *                         l01,l02,bl(iwij),bl(iwij0),lsmx,lsjl,
+     *                         bl(ixij),bl(ixij0),nfu(nqi+1),lqij,lnkl,
+     *                         mnbls,nbls,
+     *                         bl(ixabn),bl(ixcdn),
+     *                         bl(indxx),lni,lnj,lnk,lnl)
+           endif
+           if(where.eq.'hess') then
+              jbuf0=ider0+(iqu-1)*nbls*l01*l02
+              jbuf1=ider1+(iqu-1)*9*nbls*l01*l02
+              iwij1=iwij +mnbls*lsmx*lsjl 
+              ixij1=ixij +mnbls*nfu(nqi+1)*lqij*lnkl
+              iwij0=iwij1 +    9*lsmx*lsjl 
+              ixij0=ixij1 +    9*nfu(nqi+1)*lqij*lnkl
+              call shift0l_der2(bl(jbuf),bl(jbuf2),bl(jbuf1),bl(jbuf0),
+     *                         l01,l02,bl(iwij),bl(iwij1),bl(iwij0),
+     *                         lsmx,lsjl,
+     *                         bl(ixij),bl(ixij1),bl(ixij0),
+     *                         nfu(nqi+1),lqij,lnkl, mnbls,nbls,
+     *                         bl(ixabn),bl(ixcdn),
+     *                         bl(indxx),lni,lnj,lnk,lnl)
+           endif
   200    continue
-          call retmem(3)
-          return
+         call retmem(3)
+         return
        endif
 c
 c- 1 l-shell
@@ -478,10 +523,10 @@ ccc
        nlend=nfu(nql+1)
 c
        nqix=nqi
-       nqjx=nqj
+ccccc  nqjx=nqj
 c
        nqkx=nqk
-       nqlx=nql
+ccccc  nqlx=nql
        nqklx=nqkl
 c
       do 100 nkl=nfu(nqklx)+1,nfu(nskl+1)
@@ -590,18 +635,18 @@ c
        nlend=nfu(nql+1)
 c
        nqix=nqi
-       nqjx=nqj
+ccccc  nqjx=nqj
        if(ityp.eq.3) then
           nibeg=1
           if(jtyp.le.3) nqix=1
        endif
        if(jtyp.eq.3) then
           njbeg=1
-          if(ityp.le.3) nqjx=1
+ccccc     if(ityp.le.3) nqjx=1
        endif
 c
        nqkx=nqk
-       nqlx=nql
+ccccc  nqlx=nql
        nqklx=nqkl
        if(ktyp.eq.3) then
           nkbeg=1
@@ -614,7 +659,7 @@ c
           nlbeg=1
           if(ktyp.le.3) then
              nqklx=1
-             nqlx=1
+ccccc        nqlx=1
           endif
        endif
 c
@@ -805,18 +850,18 @@ c
        nlend=nfu(nql+1)
 c
        nqix=nqi
-       nqjx=nqj
+ccccc  nqjx=nqj
        if(ityp.eq.3) then
           nibeg=1
           if(jtyp.le.3) nqix=1
        endif
        if(jtyp.eq.3) then
           njbeg=1
-          if(ityp.le.3) nqjx=1
+ccccc     if(ityp.le.3) nqjx=1
        endif
 c
        nqkx=nqk
-       nqlx=nql
+ccccc  nqlx=nql
        nqklx=nqkl
        if(ktyp.eq.3) then
           nkbeg=1
@@ -829,7 +874,7 @@ c
           nlbeg=1
           if(ktyp.le.3) then
              nqklx=1
-             nqlx=1
+ccccc        nqlx=1
           endif
        endif
 c
@@ -1116,18 +1161,18 @@ c
        nlend=nfu(nql+1)
 c
        nqix=nqi
-       nqjx=nqj
+ccccc  nqjx=nqj
        if(ityp.eq.3) then
           nibeg=1
           if(jtyp.le.3) nqix=1
        endif
        if(jtyp.eq.3) then
           njbeg=1
-          if(ityp.le.3) nqjx=1
+ccccc     if(ityp.le.3) nqjx=1
        endif
 c
        nqkx=nqk
-       nqlx=nql
+ccccc  nqlx=nql
        nqklx=nqkl
        if(ktyp.eq.3) then
           nkbeg=1
@@ -1140,7 +1185,7 @@ c
           nlbeg=1
           if(ktyp.le.3) then
              nqklx=1
-             nqlx=1
+ccccc        nqlx=1
           endif
        endif
 c
@@ -1501,12 +1546,12 @@ c
        nlend=nfu(nql+1)
 c
        nqix=1
-       nqjx=1
+ccccc  nqjx=1
        nibeg=1
        njbeg=1
 c
        nqkx=1
-       nqlx=1
+ccccc  nqlx=1
        nqklx=1
        nkbeg=1
        nlbeg=1
@@ -1731,3 +1776,613 @@ c---------------------------------------------------
 c
       end
 c=====================================================
+      subroutine shift0l_der1(buf,buf2,buf0,lt1,lt2,
+     *                   wij,wij0,lt3,lsjl,
+     *                   xij,xij0,lt4,lt5,lt6,mnbls,nbls,
+     *                   xab,xcd,
+     *                   indxx,lni1,lnj1,lnk1,lnl1)
+c------------------------------------
+c  when l-shells are not present
+c------------------------------------
+      implicit real*8 (a-h,o-z)
+      common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
+      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
+     1i,acc
+      common/shell/lshellt,lshelij,lshelkl,lhelp,lcas2(4),lcas3(4)
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
+     * nqi,nqj,nqk,nql,nsij,nskl,
+     * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbex,klbex
+      common /logic4/ nfu(1)
+c
+      dimension buf0(nbls,lt1,lt2),wij0(nbls,lt3,lsjl)
+      dimension buf2(mnbls,lt1,lt2),wij(mnbls,lt3,lsjl)
+      dimension xij(mnbls,lt4,lt5,lt6), xij0(nbls,lt4,lt5,lt6)
+      dimension buf(mnbls,*)
+      dimension xab(mnbls,3),xcd(mnbls,3)
+      dimension indxx(lni1,lnj1,lnk1,lnl1)
+c------------------------------------
+c
+      nibeg=nfu(nqi)+1
+      niend=nfu(nqi+1)
+      njbeg=nfu(nqj)+1
+      njend=nfu(nqj+1)
+cc
+      nkbeg=nfu(nqk)+1
+      nkend=nfu(nqk+1)
+      nlbeg=nfu(nql)+1
+      nlend=nfu(nql+1)
+c
+      nqix=nqi
+ccccc nqjx=nqj
+c
+      nqkx=nqk
+ccccc nqlx=nql
+      nqklx=nqkl
+c
+      do 100 nkl=nfu(nqklx)+1,nfu(nskl+1)
+c
+           do 102 nij=nfu(nqix)+1,nfu(nsij+1)
+           call tfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
+           call tfer(buf0(1,nij,nkl),wij0(1,nij,1),nbls)
+  102      continue
+c
+           call horiz12_der1(wij0,wij,lt3,lsjl,xab, nbls,nqi,nqj,nsij1)
+c
+           do 107 nj=njbeg,njend
+           do 107 ni=nibeg,niend
+           call tfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
+           call tfer(wij0(1,ni,nj),xij0(1,ni,nj,nkl), nbls)
+  107      continue
+  100 continue
+c
+c------------------------------------
+c this part shifts angular momentum
+c   from position 3 to position 4
+c----                         -------
+c
+      ncount=0
+      do 20 i=1,lni
+      do 20 j=1,lnj
+      do 20 k=1,lnk
+      do 20 l=1,lnl
+         ncount=ncount+1
+      indxx(i,j,k,l)=ncount
+   20 continue
+c
+c------------------------------------
+c
+      ixyz=0
+      do 300 ni=nibeg,niend
+      ixyz=ixyz+1
+      jxyz=0
+      do 300 nj=njbeg,njend
+      jxyz=jxyz+1
+c
+         do 301 nkl=nfu(nqkx)+1,nfu(nskl+1)
+         call tfer( xij(1,ni,nj,nkl), wij(1,nkl,1),mnbls)
+         call tfer(xij0(1,ni,nj,nkl),wij0(1,nkl,1), nbls)
+  301    continue
+c
+         call horiz34_der1(wij0,wij,lt3,lsjl,xcd, nbls,nqk,nql,nskl1)
+c
+      kxyz=0
+      do 305 nk=nkbeg,nkend
+      kxyz=kxyz+1
+      lxyz=0
+      do 305 nl=nlbeg,nlend
+      lxyz=lxyz+1
+      indx=indxx(ixyz,jxyz,kxyz,lxyz)
+      call tfer(wij(1,nk,nl),buf(1,indx),mnbls)
+  305 continue
+  300 continue
+c
+      end
+c=============================================================
+      subroutine horiz12_der1(wij0,wij,lw1,lw2,xab,nbls,nqi,nqj,nsij1)
+      implicit real*8 (a-h,o-z)
+c
+      common /logic4/ nfu(1)
+      common /logic5/ icoor(1)
+      common /logic6/ icool(1)
+      common /logic7/ ifrst(1)
+      common /logic8/ ilast(1)
+      common /logic11/ npxyz(3,1)
+c
+      dimension wij0(nbls,lw1,lw2)
+      dimension wij(9,nbls,lw1,lw2),xab(9,nbls,3)
+c---------------------------------------------------
+          do 110 j=2,nqj
+          jbeg=nfu(j)+1
+          jend=nfu(j+1)
+             do 115 i=nsij1-j,nqi,-1
+             ibeg=nfu(i)+1
+             iend=nfu(i+1)
+                do 120 nj=jbeg,jend
+                njm=ilast(nj)
+                kcr=icool(nj)
+                   do 125 ni=ibeg,iend
+                   nij=npxyz(kcr,ni)
+                      do 130 n=1, nbls
+c Ax
+                      wij(1,n,ni,nj)=wij(1,n,nij,njm)
+     *                              + xab(1,n,kcr)*wij(1,n,ni,njm)
+c Bx
+                      wij(2,n,ni,nj)=wij(2,n,nij,njm)
+     *                              + xab(2,n,kcr)*wij(2,n,ni,njm)
+c Cx 
+                      wij(3,n,ni,nj)=wij(3,n,nij,njm)
+     *                              + xab(3,n,kcr)*wij(3,n,ni,njm)
+c Ay
+                      wij(4,n,ni,nj)=wij(4,n,nij,njm)
+     *                              + xab(4,n,kcr)*wij(4,n,ni,njm)
+c By
+                      wij(5,n,ni,nj)=wij(5,n,nij,njm)
+     *                              + xab(5,n,kcr)*wij(5,n,ni,njm)
+c Cy 
+                      wij(6,n,ni,nj)=wij(6,n,nij,njm)
+     *                              + xab(6,n,kcr)*wij(6,n,ni,njm)
+c Az
+                      wij(7,n,ni,nj)=wij(7,n,nij,njm)
+     *                              + xab(7,n,kcr)*wij(7,n,ni,njm)
+c Bz
+                      wij(8,n,ni,nj)=wij(8,n,nij,njm)
+     *                              + xab(8,n,kcr)*wij(8,n,ni,njm)
+c Cz
+                      wij(9,n,ni,nj)=wij(9,n,nij,njm)
+     *                              + xab(9,n,kcr)*wij(9,n,ni,njm)
+c
+c add an extra term arising from differentiation of the shifting formula
+c ONLY for derivatives over center A and B , not C :
+c
+                      wij0(n,ni,nj)=wij0(n,nij,njm)
+     *                              + xab(1,n,kcr)*wij0(n,ni,njm)
+                      if(kcr.eq.1) then
+                         wij(1,n,ni,nj)=wij(1,n,ni,nj) + wij0(n,ni,njm)
+                         wij(2,n,ni,nj)=wij(2,n,ni,nj) - wij0(n,ni,njm)
+                      endif
+                      if(kcr.eq.2) then
+                         wij(4,n,ni,nj)=wij(4,n,ni,nj) + wij0(n,ni,njm)
+                         wij(5,n,ni,nj)=wij(5,n,ni,nj) - wij0(n,ni,njm)
+                      endif
+                      if(kcr.eq.3) then
+                         wij(7,n,ni,nj)=wij(7,n,ni,nj) + wij0(n,ni,njm)
+                         wij(8,n,ni,nj)=wij(8,n,ni,nj) - wij0(n,ni,njm)
+                      endif
+  130                 continue
+  125              continue
+  120          continue
+  115        continue
+  110     continue
+c
+      end
+c=====================================================
+      subroutine horiz34_der1(wij0,wij,lw1,lw2,xab,nbls,nqi,nqj,nsij1)
+      implicit real*8 (a-h,o-z)
+c
+      common /logic4/ nfu(1)
+      common /logic5/ icoor(1)
+      common /logic6/ icool(1)
+      common /logic7/ ifrst(1)
+      common /logic8/ ilast(1)
+      common /logic11/ npxyz(3,1)
+c
+      dimension wij0(nbls,lw1,lw2)
+      dimension wij(9,nbls,lw1,lw2),xab(9,nbls,3)
+c---------------------------------------------------
+          do 110 j=2,nqj
+          jbeg=nfu(j)+1
+          jend=nfu(j+1)
+             do 115 i=nsij1-j,nqi,-1
+             ibeg=nfu(i)+1
+             iend=nfu(i+1)
+                do 120 nj=jbeg,jend
+                njm=ilast(nj)
+                kcr=icool(nj)
+                   do 125 ni=ibeg,iend
+                   nij=npxyz(kcr,ni)
+                      do 130 n=1, nbls
+c Ax
+                      wij(1,n,ni,nj)=wij(1,n,nij,njm)
+     *                              + xab(1,n,kcr)*wij(1,n,ni,njm)
+c Bx
+                      wij(2,n,ni,nj)=wij(2,n,nij,njm)
+     *                              + xab(2,n,kcr)*wij(2,n,ni,njm)
+c Cx 
+                      wij(3,n,ni,nj)=wij(3,n,nij,njm)
+     *                              + xab(3,n,kcr)*wij(3,n,ni,njm)
+c Ay
+                      wij(4,n,ni,nj)=wij(4,n,nij,njm)
+     *                              + xab(4,n,kcr)*wij(4,n,ni,njm)
+c By
+                      wij(5,n,ni,nj)=wij(5,n,nij,njm)
+     *                              + xab(5,n,kcr)*wij(5,n,ni,njm)
+c Cy 
+                      wij(6,n,ni,nj)=wij(6,n,nij,njm)
+     *                              + xab(6,n,kcr)*wij(6,n,ni,njm)
+c Az
+                      wij(7,n,ni,nj)=wij(7,n,nij,njm)
+     *                              + xab(7,n,kcr)*wij(7,n,ni,njm)
+c Bz
+                      wij(8,n,ni,nj)=wij(8,n,nij,njm)
+     *                              + xab(8,n,kcr)*wij(8,n,ni,njm)
+c Cz 
+                      wij(9,n,ni,nj)=wij(9,n,nij,njm)
+     *                              + xab(9,n,kcr)*wij(9,n,ni,njm)
+c
+c add an extra term arising from differentiation of the shifting formula
+c ONLY for derivatives over center C, not over A and B:
+c
+                      wij0(n,ni,nj)=wij0(n,nij,njm)
+     *                              + xab(1,n,kcr)*wij0(n,ni,njm)
+                      if(kcr.eq.1) then
+                         wij(3,n,ni,nj)=wij(3,n,ni,nj) + wij0(n,ni,njm)
+                      endif
+                      if(kcr.eq.2) then
+                         wij(6,n,ni,nj)=wij(6,n,ni,nj) + wij0(n,ni,njm)
+                      endif
+                      if(kcr.eq.3) then
+                         wij(9,n,ni,nj)=wij(9,n,ni,nj) + wij0(n,ni,njm)
+                      endif
+  130                 continue
+  125              continue
+  120          continue
+  115        continue
+  110     continue
+c
+      end
+c=====================================================
+      subroutine shift0l_der2(buf,buf2,buf1,buf0,lt1,lt2,
+     *                   wij,wij1,wij0,lt3,lsjl,
+     *                   xij,xij1,xij0,lt4,lt5,lt6,mnbls,nbls,
+     *                   xab,xcd,
+     *                   indxx,lni1,lnj1,lnk1,lnl1)
+c------------------------------------
+c  when l-shells are not present
+c------------------------------------
+      implicit real*8 (a-h,o-z)
+      common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
+      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
+     1i,acc
+      common/shell/lshellt,lshelij,lshelkl,lhelp,lcas2(4),lcas3(4)
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
+     * nqi,nqj,nqk,nql,nsij,nskl,
+     * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbex,klbex
+      common /logic4/ nfu(1)
+c
+      dimension buf0(nbls,lt1,lt2),wij0(nbls,lt3,lsjl)
+      dimension buf1(9*nbls,lt1,lt2),wij1(9*nbls,lt3,lsjl)
+      dimension buf2(mnbls,lt1,lt2),wij(mnbls,lt3,lsjl)
+      dimension xij(mnbls,lt4,lt5,lt6),xij1(9*nbls,lt4,lt5,lt6),
+     *                                 xij0(  nbls,lt4,lt5,lt6)
+      dimension buf(mnbls,*)
+      dimension xab(mnbls,3),xcd(mnbls,3)
+      dimension indxx(lni1,lnj1,lnk1,lnl1)
+c------------------------------------
+      nbls9=9*nbls
+c
+      nibeg=nfu(nqi)+1
+      niend=nfu(nqi+1)
+      njbeg=nfu(nqj)+1
+      njend=nfu(nqj+1)
+cc
+      nkbeg=nfu(nqk)+1
+      nkend=nfu(nqk+1)
+      nlbeg=nfu(nql)+1
+      nlend=nfu(nql+1)
+c
+      nqix=nqi
+ccccc nqjx=nqj
+c
+      nqkx=nqk
+ccccc nqlx=nql
+      nqklx=nqkl
+c
+      do 100 nkl=nfu(nqklx)+1,nfu(nskl+1)
+c
+           do 102 nij=nfu(nqix)+1,nfu(nsij+1)
+           call tfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
+           call tfer(buf1(1,nij,nkl),wij1(1,nij,1),nbls9)
+           call tfer(buf0(1,nij,nkl),wij0(1,nij,1),nbls)
+  102      continue
+c
+           call horiz12_der2(wij0,wij1,wij,
+     *                       lt3,lsjl,xab, nbls,nqi,nqj,nsij1)
+c
+           do 107 nj=njbeg,njend
+           do 107 ni=nibeg,niend
+           call tfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
+           call tfer(wij1(1,ni,nj),xij1(1,ni,nj,nkl),nbls9)
+           call tfer(wij0(1,ni,nj),xij0(1,ni,nj,nkl),nbls)
+  107      continue
+  100 continue
+c
+c------------------------------------
+c this part shifts angular momentum
+c   from position 3 to position 4
+c----                         -------
+c
+      ncount=0
+      do 20 i=1,lni
+      do 20 j=1,lnj
+      do 20 k=1,lnk
+      do 20 l=1,lnl
+         ncount=ncount+1
+      indxx(i,j,k,l)=ncount
+   20 continue
+c
+c------------------------------------
+c
+      ixyz=0
+      do 300 ni=nibeg,niend
+      ixyz=ixyz+1
+      jxyz=0
+      do 300 nj=njbeg,njend
+      jxyz=jxyz+1
+c
+         do 301 nkl=nfu(nqkx)+1,nfu(nskl+1)
+         call tfer( xij(1,ni,nj,nkl), wij(1,nkl,1),mnbls)
+         call tfer(xij1(1,ni,nj,nkl),wij1(1,nkl,1),nbls9)
+         call tfer(xij0(1,ni,nj,nkl),wij0(1,nkl,1), nbls)
+  301    continue
+c
+         call horiz34_der2(wij0,wij1,wij,
+     *                     lt3,lsjl,xcd, nbls,nqk,nql,nskl1)
+c
+      kxyz=0
+      do 305 nk=nkbeg,nkend
+      kxyz=kxyz+1
+      lxyz=0
+      do 305 nl=nlbeg,nlend
+      lxyz=lxyz+1
+      indx=indxx(ixyz,jxyz,kxyz,lxyz)
+      call tfer(wij(1,nk,nl),buf(1,indx),mnbls)
+  305 continue
+  300 continue
+c
+      end
+c=============================================================
+      subroutine horiz12_der2(wij0,wij1,wij2,
+     *                        lw1,lw2,xab,nbls,nqi,nqj,nsij1)
+      implicit real*8 (a-h,o-z)
+c
+      common /logic4/ nfu(1)
+      common /logic5/ icoor(1)
+      common /logic6/ icool(1)
+      common /logic7/ ifrst(1)
+      common /logic8/ ilast(1)
+      common /logic11/ npxyz(3,1)
+c
+      dimension wij0(nbls,lw1,lw2)
+      dimension wij1(9,nbls,lw1,lw2)
+      dimension wij2(45,nbls,lw1,lw2),xab(45,nbls,3)
+c---------------------------------------------------
+          do 110 j=2,nqj
+          jbeg=nfu(j)+1
+          jend=nfu(j+1)
+             do 115 i=nsij1-j,nqi,-1
+             ibeg=nfu(i)+1
+             iend=nfu(i+1)
+                do 120 nj=jbeg,jend
+                njm=ilast(nj)
+                kcr=icool(nj)
+                   do 125 ni=ibeg,iend
+                   nij=npxyz(kcr,ni)
+                      do 130 n=1, nbls
+      wij0(n,ni,nj)=wij0(n,nij,njm) + xab(1,n,kcr)*wij0(n,ni,njm)
+                      do m=1,9
+      wij1(m,n,ni,nj)=wij1(m,n,nij,njm) + xab(m,n,kcr)*wij1(m,n,ni,njm)
+                      enddo
+                      do m=1,45
+      wij2(m,n,ni,nj)=wij2(m,n,nij,njm) + xab(m,n,kcr)*wij2(m,n,ni,njm)
+                      enddo
+c
+c add an extra term arising from differentiation of the shifting formula
+c ONLY for derivatives over center A and B , not C :
+c
+c  first derivatives:
+c
+          if(kcr.eq.1) then
+             wij1(1,n,ni,nj)=wij1(1,n,ni,nj) + wij0(n,ni,njm)
+             wij1(2,n,ni,nj)=wij1(2,n,ni,nj) - wij0(n,ni,njm)
+c
+          endif
+          if(kcr.eq.2) then
+             wij1(4,n,ni,nj)=wij1(4,n,ni,nj) + wij0(n,ni,njm)
+             wij1(5,n,ni,nj)=wij1(5,n,ni,nj) - wij0(n,ni,njm)
+          endif
+          if(kcr.eq.3) then
+             wij1(7,n,ni,nj)=wij1(7,n,ni,nj) + wij0(n,ni,njm)
+             wij1(8,n,ni,nj)=wij1(8,n,ni,nj) - wij0(n,ni,njm)
+          endif
+c
+c second derivatives:
+c
+          if(kcr.eq.1) then
+c block aa:
+             wij2(1,n,ni,nj)=wij2(1,n,ni,nj) + wij1(1,n,ni,njm)*2.d0
+             wij2(2,n,ni,nj)=wij2(2,n,ni,nj) + wij1(4,n,ni,njm)
+             wij2(3,n,ni,nj)=wij2(3,n,ni,nj) + wij1(7,n,ni,njm)
+c block ab:
+             wij2(7,n,ni,nj) =wij2(7,n,ni,nj) - wij1(1,n,ni,njm)
+     *                                        + wij1(2,n,ni,njm)
+             wij2(8,n,ni,nj) =wij2(8,n,ni,nj) + wij1(5,n,ni,njm)
+             wij2(9,n,ni,nj) =wij2(9,n,ni,nj) + wij1(8,n,ni,njm)
+             wij2(10,n,ni,nj)=wij2(10,n,ni,nj)- wij1(4,n,ni,njm)
+             wij2(13,n,ni,nj)=wij2(13,n,ni,nj)- wij1(7,n,ni,njm)
+c block ac:
+             wij2(16,n,ni,nj)=wij2(16,n,ni,nj)+ wij1(3,n,ni,njm)
+             wij2(17,n,ni,nj)=wij2(17,n,ni,nj)+ wij1(6,n,ni,njm)
+             wij2(18,n,ni,nj)=wij2(18,n,ni,nj)+ wij1(9,n,ni,njm)
+c block bb:
+             wij2(25,n,ni,nj)=wij2(25,n,ni,nj)- wij1(2,n,ni,njm)*2.d0
+             wij2(26,n,ni,nj)=wij2(26,n,ni,nj)- wij1(5,n,ni,njm)
+             wij2(27,n,ni,nj)=wij2(27,n,ni,nj)- wij1(8,n,ni,njm)
+c block bc:
+             wij2(31,n,ni,nj)=wij2(31,n,ni,nj)- wij1(3,n,ni,njm)
+             wij2(32,n,ni,nj)=wij2(32,n,ni,nj)- wij1(6,n,ni,njm)
+             wij2(33,n,ni,nj)=wij2(33,n,ni,nj)- wij1(9,n,ni,njm)
+c block cc: no contributions of this kind
+          endif
+          if(kcr.eq.2) then
+c block aa:
+             wij2(2,n,ni,nj)=wij2(2,n,ni,nj) + wij1(1,n,ni,njm)
+             wij2(4,n,ni,nj)=wij2(4,n,ni,nj) + wij1(4,n,ni,njm)*2.d0
+             wij2(5,n,ni,nj)=wij2(5,n,ni,nj) + wij1(7,n,ni,njm)
+c block ab:
+             wij2(8,n,ni,nj) =wij2(8,n,ni,nj) - wij1(1,n,ni,njm)
+             wij2(10,n,ni,nj)=wij2(10,n,ni,nj)+ wij1(2,n,ni,njm)
+             wij2(11,n,ni,nj)=wij2(11,n,ni,nj)- wij1(4,n,ni,njm)
+     *                                        + wij1(5,n,ni,njm)
+             wij2(12,n,ni,nj)=wij2(12,n,ni,nj)+ wij1(8,n,ni,njm)
+             wij2(14,n,ni,nj)=wij2(14,n,ni,nj)- wij1(7,n,ni,njm)
+c block ac:
+             wij2(19,n,ni,nj)=wij2(19,n,ni,nj)+ wij1(3,n,ni,njm)
+             wij2(20,n,ni,nj)=wij2(20,n,ni,nj)+ wij1(6,n,ni,njm)
+             wij2(21,n,ni,nj)=wij2(21,n,ni,nj)+ wij1(9,n,ni,njm)
+c block bb:
+             wij2(26,n,ni,nj)=wij2(26,n,ni,nj)- wij1(2,n,ni,njm)
+             wij2(28,n,ni,nj)=wij2(28,n,ni,nj)- wij1(5,n,ni,njm)*2.d0
+             wij2(29,n,ni,nj)=wij2(29,n,ni,nj)- wij1(8,n,ni,njm)
+c block bc:
+             wij2(34,n,ni,nj)=wij2(34,n,ni,nj)- wij1(3,n,ni,njm)
+             wij2(35,n,ni,nj)=wij2(35,n,ni,nj)- wij1(6,n,ni,njm)
+             wij2(36,n,ni,nj)=wij2(36,n,ni,nj)- wij1(9,n,ni,njm)
+c block cc: no contributions of this kind
+          endif
+          if(kcr.eq.3) then
+c block aa:
+             wij2(3,n,ni,nj)=wij2(3,n,ni,nj) + wij1(1,n,ni,njm)
+             wij2(5,n,ni,nj)=wij2(5,n,ni,nj) + wij1(4,n,ni,njm)
+             wij2(6,n,ni,nj)=wij2(6,n,ni,nj) + wij1(7,n,ni,njm)*2.d0
+c block ab:
+             wij2(9,n,ni,nj) =wij2(9,n,ni,nj) - wij1(1,n,ni,njm)
+             wij2(12,n,ni,nj)=wij2(12,n,ni,nj)- wij1(4,n,ni,njm)
+             wij2(13,n,ni,nj)=wij2(13,n,ni,nj)+ wij1(2,n,ni,njm)
+             wij2(14,n,ni,nj)=wij2(14,n,ni,nj)+ wij1(5,n,ni,njm)
+             wij2(15,n,ni,nj)=wij2(15,n,ni,nj)- wij1(7,n,ni,njm)
+     *                                        + wij1(8,n,ni,njm)
+c block ac:
+             wij2(22,n,ni,nj)=wij2(22,n,ni,nj)+ wij1(3,n,ni,njm)
+             wij2(23,n,ni,nj)=wij2(23,n,ni,nj)+ wij1(6,n,ni,njm)
+             wij2(24,n,ni,nj)=wij2(24,n,ni,nj)+ wij1(9,n,ni,njm)
+c block bb:
+             wij2(27,n,ni,nj)=wij2(27,n,ni,nj)- wij1(2,n,ni,njm)
+             wij2(29,n,ni,nj)=wij2(29,n,ni,nj)- wij1(5,n,ni,njm)
+             wij2(30,n,ni,nj)=wij2(30,n,ni,nj)- wij1(8,n,ni,njm)*2.d0
+c block bc:
+             wij2(37,n,ni,nj)=wij2(37,n,ni,nj)- wij1(3,n,ni,njm)
+             wij2(38,n,ni,nj)=wij2(38,n,ni,nj)- wij1(6,n,ni,njm)
+             wij2(39,n,ni,nj)=wij2(39,n,ni,nj)- wij1(9,n,ni,njm)
+c block cc: no contributions of this kind
+          endif
+  130                 continue
+  125              continue
+  120          continue
+  115        continue
+  110     continue
+c
+      end
+c=====================================================
+      subroutine horiz34_der2(wij0,wij1,wij2,
+     *                        lw1,lw2,xab,nbls,nqi,nqj,nsij1)
+      implicit real*8 (a-h,o-z)
+c
+      common /logic4/ nfu(1)
+      common /logic5/ icoor(1)
+      common /logic6/ icool(1)
+      common /logic7/ ifrst(1)
+      common /logic8/ ilast(1)
+      common /logic11/ npxyz(3,1)
+c
+      dimension wij0(nbls,lw1,lw2)
+      dimension wij1(9,nbls,lw1,lw2)
+      dimension wij2(45,nbls,lw1,lw2),xab(45,nbls,3)
+c---------------------------------------------------
+          do 110 j=2,nqj
+          jbeg=nfu(j)+1
+          jend=nfu(j+1)
+             do 115 i=nsij1-j,nqi,-1
+             ibeg=nfu(i)+1
+             iend=nfu(i+1)
+                do 120 nj=jbeg,jend
+                njm=ilast(nj)
+                kcr=icool(nj)
+                   do 125 ni=ibeg,iend
+                   nij=npxyz(kcr,ni)
+                      do 130 n=1, nbls
+      wij0(n,ni,nj)=wij0(n,nij,njm) + xab(1,n,kcr)*wij0(n,ni,njm)
+                         do m=1,9
+      wij1(m,n,ni,nj)=wij1(m,n,nij,njm) + xab(m,n,kcr)*wij1(m,n,ni,njm)
+                         enddo
+                         do m=1,45
+      wij2(m,n,ni,nj)=wij2(m,n,nij,njm) + xab(m,n,kcr)*wij2(m,n,ni,njm)
+                         enddo
+c
+c add an extra term arising from differentiation of the shifting formula
+c ONLY for derivatives over center C, not over A and B:
+c
+c first derivatives:
+c
+      if(kcr.eq.1) then
+         wij1(3,n,ni,nj)=wij1(3,n,ni,nj) + wij0(n,ni,njm)
+      endif
+      if(kcr.eq.2) then
+         wij1(6,n,ni,nj)=wij1(6,n,ni,nj) + wij0(n,ni,njm)
+      endif
+      if(kcr.eq.3) then
+         wij1(9,n,ni,nj)=wij1(9,n,ni,nj) + wij0(n,ni,njm)
+      endif
+c
+c second derivatives:
+c
+          if(kcr.eq.1) then
+c block ac:
+             wij2(16,n,ni,nj)=wij2(16,n,ni,nj)+ wij1(1,n,ni,njm)
+             wij2(19,n,ni,nj)=wij2(19,n,ni,nj)+ wij1(4,n,ni,njm)
+             wij2(22,n,ni,nj)=wij2(22,n,ni,nj)+ wij1(7,n,ni,njm)
+c block bc:
+             wij2(31,n,ni,nj)=wij2(31,n,ni,nj)+ wij1(2,n,ni,njm)
+             wij2(34,n,ni,nj)=wij2(34,n,ni,nj)+ wij1(5,n,ni,njm)
+             wij2(37,n,ni,nj)=wij2(37,n,ni,nj)+ wij1(8,n,ni,njm)
+c block cc:
+             wij2(40,n,ni,nj)=wij2(40,n,ni,nj)+ wij1(3,n,ni,njm)*2.d0
+             wij2(41,n,ni,nj)=wij2(41,n,ni,nj)+ wij1(6,n,ni,njm)
+             wij2(42,n,ni,nj)=wij2(42,n,ni,nj)+ wij1(9,n,ni,njm)
+          endif
+          if(kcr.eq.2) then
+c block ac:
+             wij2(17,n,ni,nj)=wij2(17,n,ni,nj)+ wij1(1,n,ni,njm)
+             wij2(20,n,ni,nj)=wij2(20,n,ni,nj)+ wij1(4,n,ni,njm)
+             wij2(23,n,ni,nj)=wij2(23,n,ni,nj)+ wij1(7,n,ni,njm)
+c block bc:
+             wij2(32,n,ni,nj)=wij2(32,n,ni,nj)+ wij1(2,n,ni,njm)
+             wij2(35,n,ni,nj)=wij2(35,n,ni,nj)+ wij1(5,n,ni,njm)
+             wij2(38,n,ni,nj)=wij2(38,n,ni,nj)+ wij1(8,n,ni,njm)
+c block cc:
+             wij2(41,n,ni,nj)=wij2(41,n,ni,nj)+ wij1(3,n,ni,njm)
+             wij2(43,n,ni,nj)=wij2(43,n,ni,nj)+ wij1(6,n,ni,njm)*2.d0
+             wij2(44,n,ni,nj)=wij2(44,n,ni,nj)+ wij1(9,n,ni,njm)
+          endif
+          if(kcr.eq.3) then
+c block ac:
+             wij2(18,n,ni,nj)=wij2(18,n,ni,nj)+ wij1(1,n,ni,njm)
+             wij2(21,n,ni,nj)=wij2(21,n,ni,nj)+ wij1(4,n,ni,njm)
+             wij2(24,n,ni,nj)=wij2(24,n,ni,nj)+ wij1(7,n,ni,njm)
+c block bc:
+             wij2(33,n,ni,nj)=wij2(33,n,ni,nj)+ wij1(2,n,ni,njm)
+             wij2(36,n,ni,nj)=wij2(36,n,ni,nj)+ wij1(5,n,ni,njm)
+             wij2(39,n,ni,nj)=wij2(39,n,ni,nj)+ wij1(8,n,ni,njm)
+c block cc:
+             wij2(42,n,ni,nj)=wij2(42,n,ni,nj)+ wij1(3,n,ni,njm)
+             wij2(44,n,ni,nj)=wij2(44,n,ni,nj)+ wij1(6,n,ni,njm)
+             wij2(45,n,ni,nj)=wij2(45,n,ni,nj)+ wij1(9,n,ni,njm)*2.d0
+          endif
+  130                 continue
+  125              continue
+  120          continue
+  115        continue
+  110     continue
+c
+      end
