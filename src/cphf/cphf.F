@@ -12,10 +12,11 @@ c
 c     
       status=rtdb_parallel(.true.) ! Broadcast reads to all processes
 c     
-      if(ga_nodeid().eq.0)
-     $     call util_print_centered(6, 'NWCHEM CPHF Module', 40, .true.)
-      write(6,*)
-      write(6,*)
+      if(ga_nodeid().eq.0)then
+         call util_print_centered(6,'NWCHEM CPHF Module',40,.true.)
+         write(6,*)
+         write(6,*) 
+      endif
       call cphf_solve(rtdb)
       cphf=.true.
       end
