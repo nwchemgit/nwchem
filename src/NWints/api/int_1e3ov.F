@@ -89,11 +89,11 @@ c
 c
       call hf3OIs(
      &       coords(1,i_cent,i_geom),exndcf(i_iexp,ibas),
-     &       exndcf(i_icfp,ibas),i_prim, i_gen, Li,
+     &       exndcf(i_icfp,ibas),i_prim, Li,
      &       coords(1,j_cent,j_geom),exndcf(j_iexp,jbas),
-     &       exndcf(j_icfp,jbas),j_prim, j_gen, Lj,
+     &       exndcf(j_icfp,jbas),j_prim, Lj,
      &       coords(1,k_cent,k_geom),exndcf(k_iexp,kbas),
-     &       exndcf(k_icfp,kbas),k_prim, k_gen, Lk,
+     &       exndcf(k_icfp,kbas),k_prim, Lk,
 c.....................TriDiag..DryRun
      &       OV3,lov3,.false.,.false.,scr,lscr)
       end
