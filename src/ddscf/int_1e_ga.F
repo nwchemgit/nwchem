@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.29 2000-05-22 23:27:25 mdupuis Exp $
+C$Id: int_1e_ga.F,v 1.30 2000-05-23 06:10:51 mdupuis Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -124,8 +124,9 @@ c
 c
       logical odbug
       logical osome
+c
       odbug=.false.
-      osome=.true.
+      osome=.false.
       osome=osome.or.odbug
       odbug=odbug.and.(ga_nodeid().eq.0)
       osome=osome.and.(ga_nodeid().eq.0)

@@ -197,7 +197,7 @@ c
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
          if(ocosmo) then
             odiis=.true.
-            odbug=.true.
+            odbug=.false.
             if(odbug) then
                write(*,*) 'force -diis- because of cosmo'
             endif
@@ -268,7 +268,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.46 2000-05-06 05:48:11 mdupuis Exp $
+C$Id: scf_get_info.F,v 1.47 2000-05-23 06:10:52 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.35 2000-05-16 18:55:07 mdupuis Exp $
+C$Id: rohf.F,v 1.36 2000-05-23 06:10:52 mdupuis Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -59,7 +59,7 @@ c
          omode=rtdb_parallel(.false.)
          if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
             if(ocosmo) then
-               odbug=.true.
+               odbug=.false.
                if(odbug) then
                   osome=.true.
                else

@@ -3,7 +3,7 @@
      $     eone, etwo, g_fcv, g_fpv,
      $     g_fcp, oskel)
 *
-* $Id: rohf_fock.F,v 1.12 2000-05-23 05:39:07 mdupuis Exp $
+* $Id: rohf_fock.F,v 1.13 2000-05-23 06:10:52 mdupuis Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -130,7 +130,7 @@ c
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
            if(ocosmo) then
 c
-              odbug=.true.
+              odbug=.false.
               if(odbug) then
                  osome=.true.
               else
