@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.123 2003-10-17 22:54:18 carlfahl Exp $
+c $Id: basis.F,v 1.124 2003-10-21 22:46:25 edo Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1224,7 +1224,7 @@ c
 00012   continue
         enddo
         if (.not.MA_Free_Heap(l_array)) call
-     E       errquit(' basrtdbdoload: failed freeheap',0)
+     E       errquit(' basrtdbdoload: failed freeheap',0, MA_ERR)
 c
 c We messed around with the memory. The basis set sould have room for 
 c two (2) extra variables, which are added below. Add them now.
