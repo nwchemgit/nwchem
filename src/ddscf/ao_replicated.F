@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.18 1996-10-18 19:52:12 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.19 1996-12-07 00:53:31 d3h325 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -365,12 +365,12 @@ c     and allowing for the max no. of quartets to be processed per block
 c     
       nshpair = nsh*(nsh+1)/2
       if (ga_nnodes() .gt. 1) then
-         max_p = int(dfloat(nshpair)*dsqrt(dnops))
+         max_p = int(real(nshpair)*dsqrt(dnops))
          max_p = max_p/sqrt(100.0d0*ga_nnodes()) ! 100 tasks per processor
-         max_p = min(nint(sqrt(dfloat(nops*qdim))),max_p)
+         max_p = min(nint(sqrt(real(nops*qdim))),max_p)
          max_p = max(10,max_p)
       else
-         max_p = int(sqrt(dfloat(nops*qdim)))
+         max_p = int(sqrt(real(nops*qdim)))
       end if
 c     
 c     generate info about the pairs
@@ -390,9 +390,9 @@ c     shared counter.  Memory permitting we want this to be
 c     close to 1.
 c
       chunk = max(ntype*ntype/(100*ga_nnodes()),1)  ! 100 tasks per proc
-      if (max_p .lt. nint(sqrt(dfloat(nops*qdim))) .and.
+      if (max_p .lt. nint(sqrt(real(nops*qdim))) .and.
      $     chunk .ge. 4) then
-         max_p = min(nint(sqrt(dfloat(nops*qdim))),2*max_p)
+         max_p = min(nint(sqrt(real(nops*qdim))),2*max_p)
          goto 10
       end if
       if ((oprint  .or. util_print('semi_direct',print_debug))
@@ -872,7 +872,7 @@ c     reorder L,s,p (-1,0,1) into order by complexity s,p,L
 *               write(6,910) nij, it, jt, iprice(i,j)
 * 910           format(1x,i8,1p,2d9.2,0p,i8)
                sij(nij) =  min(it,jt) +
-     $              maxtype*(max(it,jt) + maxtype*dfloat(iprice(i,j)))
+     $              maxtype*(max(it,jt) + maxtype*real(iprice(i,j)))
             end if
          end do
       end do
