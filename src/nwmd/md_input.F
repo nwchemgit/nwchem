@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.31 2000-09-18 18:36:34 d3j191 Exp $
+c $Id: md_input.F,v 1.32 2000-09-25 15:54:44 d3j191 Exp $
 c
       implicit none
 c
@@ -1394,7 +1394,7 @@ c
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:idebug',mt_int,1,idebug))
      + call errquit('md_input: rtdb_put failed',0)
-      if(.not.rtdb_put(irtdb,'md:idebug',mt_int,1,icntrl))
+      if(.not.rtdb_put(irtdb,'md:icntrl',mt_int,1,icntrl))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ngl',mt_int,1,ngl))
      + call errquit('md_input: rtdb_put failed',0)

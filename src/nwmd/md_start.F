@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.80 2000-09-20 22:41:08 d3j191 Exp $
+c $Id: md_start.F,v 1.81 2000-09-25 15:54:44 d3j191 Exp $
 c
       implicit none
 c
@@ -766,7 +766,7 @@ c
      + call errquit('md_rtdbin: rtdb_get failed',63)
       if(.not.rtdb_get(irtdb,'md:idebug',mt_int,1,idebug))
      + call errquit('md_rtdbin: rtdb_get failed',64)
-      if(.not.rtdb_get(irtdb,'md:idebug',mt_int,1,icntrl))
+      if(.not.rtdb_get(irtdb,'md:icntrl',mt_int,1,icntrl))
      + call errquit('md_rtdbin: rtdb_get failed',64)
       if(.not.rtdb_get(irtdb,'md:ngl',mt_int,1,ngl))
      + call errquit('md_rtdbin: rtdb_get failed',65)
