@@ -1,5 +1,5 @@
       logical function scf_hessian(rtdb)
-* $Id: scf_hessian.F,v 1.8 2000-05-31 19:52:59 windus Exp $
+* $Id: scf_hessian.F,v 1.9 2000-10-23 17:01:50 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -29,11 +29,11 @@ c
 c
 c temp
 c
-      status = hess_anal(rtdb)
-      if (.not. status) call errquit
-     $  ('analytic hessian did not work',555)
-      scf_hessian = status
-      return
+c     status = hess_anal(rtdb)
+c     if (.not. status) call errquit
+c    $  ('analytic hessian did not work',555)
+c     scf_hessian = status
+c     return
 c
       if (.not. scf(rtdb))
      $     call errquit('scf_hessian: scf failed', 0)

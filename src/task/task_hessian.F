@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.11 2000-08-09 18:48:54 bjohnson Exp $
+* $Id: task_hessian.F,v 1.12 2000-10-23 17:01:56 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -77,10 +77,12 @@ c
 
       prefix = theory ! Most common
 
-      if ((analytic.and.inp_compare(.false.,theory,'scf')).or.
-     $    (analytic.and.inp_compare(.false.,theory,'dft'))) then
-        numerical = .false.
-      endif
+c     if ((analytic.and.inp_compare(.false.,theory,'scf')).or.
+c    $    (analytic.and.inp_compare(.false.,theory,'dft'))) then
+c       numerical = .false.
+c     endif
+      if ((analytic.and.inp_compare(.false.,theory,'scf')))
+     $  numerical = .false.
 c
 c     Actually do the deed
 c
@@ -121,7 +123,8 @@ c
           write(6,*)
         endif
 c
-        if (theory .eq. 'scf' .or. theory .eq. 'dft') then
+c       if (theory .eq. 'scf' .or. theory .eq. 'dft') then
+        if (theory .eq. 'scf') then
           status = scf_hessian(rtdb)
         else
           call errquit('task_hessian: unknown analytic theory',0)
