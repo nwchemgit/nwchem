@@ -1,0 +1,33 @@
+title "Methylamine...rhf/3-21g//Pople-Gordon standard geometry"
+
+start methylamine
+
+echo
+
+memory 8 mw
+
+basis
+ C library 3-21g
+ N library 3-21g
+ H library 3-21g
+end
+
+geometry
+ C            .052902     .711852     .000000
+ N            .052902    -.758148     .000000
+ H           -.974760    1.075185     .000000
+ H            .566733    1.075185     .889981
+ H            .566733    1.075185    -.889981
+ H           -.423217   -1.094815     .824662
+ H           -.423217   -1.094815    -.824662
+ symmetry c1
+end
+
+task SCF energy
+
+nbo
+ $nbo cmo $end
+end
+
+task nbo 
+

@@ -1,11 +1,11 @@
 #!/bin/csh
 #
-# $Id: doqmtests,v 1.10 2000-10-31 22:16:32 windus Exp $
+# $Id: doqmtests,v 1.11 2000-11-02 01:25:14 windus Exp $
 #
 #---   small tests
 runtests.unix auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
 runtests.unix rimp2_ne sadsmall scf_feco5 small_intchk tagcheck testtab
-runtests.unix h2o_dk u_sodft cosmo_h2o
+runtests.unix h2o_dk u_sodft cosmo_h2o ch5n_nbo
 
 #---   small tests that should fail!
 echo ' '
