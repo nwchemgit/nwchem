@@ -1,5 +1,5 @@
 /*
- $Id: nw_inp_from_string.c,v 1.8 2000-08-26 00:37:57 d3g681 Exp $
+ $Id: nw_inp_from_string.c,v 1.9 2000-08-26 19:58:09 d3g681 Exp $
 */
 #include "global.h"
 #include <stdio.h>
@@ -53,7 +53,7 @@ int nw_inp_from_string(Integer rtdb, const char *input)
 #elif defined(USE_FCD)
 #error Do something about _fcd
 #else
-    status = nw_inp_from_file_(&rtdb, fstring, strlen(fstring));
+    status = nw_inp_from_file_(&rtdb, filename, strlen(filename));
 #endif
 
 
