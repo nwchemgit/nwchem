@@ -588,7 +588,8 @@ Following directives control the ensemble type.
 
 \item
 \begin{verbatim}
-isotherm [<real tmpext>] [trelax <real tmprlx> [<real tmsrlx>]]
+isotherm [<real tmpext> [<real tmpext2>]] [trelax <real tmprlx> [<real tmsrlx>]] \
+         [anneal [<real tann1>] <real tann2>]
 \end{verbatim}
 specifies a constant temperature ensemble using Berendsen's thermostat,
 where \verb+<tmpext>+ is the external temperature with a default of 298.15~K,
@@ -597,12 +598,14 @@ with a default of 0.1. If only \verb+<tmprlx>+ is given the complete system
 is coupled to the heat bath with relaxation time \verb+<tmprlx>+. If both
 relaxation times are supplied, solvent and solute are independently coupled
 to the heat bath with relaxation times \verb+<tmprlx>+ and \verb+<tmsrlx>+,
-respectively.
+respectively. If keyword \verb+anneal+ is specified, the external temperature 
+will change from \verb+tmpext+ to \verb+tempext2+ between simulation time
+\verb+tann1+ and \verb+tann2+ 
 
 \item
 \begin{verbatim}
 isobar [<real prsext>] [trelax <real prsrlx> ] \
-       [compress <real compr>] [anisotropic] [noz]
+       [compres <real compr>] [anisotropic] [noz]
 \end{verbatim}
 specifies a constant pressure ensemble using Berendsen's piston,
 where \verb+<prsext>+ is the external pressure with a default of 1.025~10$^5$ Pa,
