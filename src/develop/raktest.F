@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.32 1995-02-06 22:56:51 d3e129 Exp $
+c $Id: raktest.F,v 1.33 1995-02-07 00:48:29 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -13,22 +13,25 @@ c
       if (rtdb_get(rtdb,'raktask',MT_INT,1,rak_tmp))
      &    raktask = rak_tmp
 c
-      goto (00100,00200,00300) raktask
+      goto (00100,00200,00300,00400) raktask
 c
       write(6,*)' default raktest task '
       call raktest0(rtdb)
       goto 00001
 c
-00100 write(6,*)' raktest task 1 '
+00100 write(6,*)' raktest task 1 gen_hess at'
       call raktest1(rtdb)
       goto 00001
 c
-00200 write(6,*)' raktest task 2 '
+00200 write(6,*)' raktest task 2 gen_hess opt/at'
       call raktest2(rtdb)
       goto 00001
 c
-00300 write(6,*)' raktest task 3 '
+00300 write(6,*)' raktest task 3 stepper test'
       call raktest3(rtdb)
+      goto 00001
+00400 write(6,*)' raktest task 4 check intd_init'
+      call raktest4(rtdb)
       goto 00001
 c
 00001 continue
@@ -3865,3 +3868,43 @@ c free memory
         write(6,*)' walk NOT converged'
       endif
       end
+      subroutine raktest4(rtdb)
+      implicit none
+#include "rtdb.fh"
+#include "geom.fh"
+#include "bas.fh"
+#include "basP.fh"
+#include "mafdecls.fh"
+c
+      integer rtdb
+      integer geom
+c
+c
+      integer nbas, bases(6)
+c
+      if (.not.bas_rtdb_in(rtdb))
+     &    call errquit('raktest4: error loading known basis sets',911)
+c
+      write(6,*)' number of basis sets in rtdb ',nbasis_rtdb
+c
+      do 00100 nbas = 1,nbasis_rtdb
+        write(6,*)' basis ',nbas,' is ',bs_names_rtdb(nbas)
+00100 continue
+c
+      if (.not.geom_create(geom,'geometry'))
+     &    call errquit('raktest4: geom_create failed',911)
+      if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
+     &    call errquit('raktest4: geom_create failed',911)
+c
+      do 00200 nbas = 1,nbasis_rtdb
+        if(.not.bas_create(bases(nbas),bs_names_rtdb(nbas)))
+     &      call errquit('raktest4: bas_create choked',911)
+        if(.not.
+     &      bas_rtdb_load
+     &      (rtdb,geom,bases(nbas),bs_names_rtdb(nbas)))
+     &      call errquit('raktest4: bas_rtdb_load choked',911)
+00200 continue
+      call intd_init(rtdb,nbasis_rtdb,bases)
+c
+      end
+
