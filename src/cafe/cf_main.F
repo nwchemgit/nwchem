@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.102 2001-08-03 19:48:48 d3j191 Exp $
+c $Id: cf_main.F,v 1.103 2001-08-03 21:57:08 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2247,13 +2247,21 @@ c
       integer issgm(msa)
       real*8 xwm(mwm,3),xs(msa,3)
 c
-      call cf_fix_sw(lfn,numfix,iwgmn,iwdt,numw,
-     + isgan,isatt,isdt,issgm,nums,byte_mb(i_snam),xwm,xs)
+      integer i_temp,l_temp
 c
+      if(.not.ma_push_get(mt_int,nsatot,'itemp',l_temp,i_temp))
+     + call errquit('Unable to allocate temp array in cf_fix',0) 
+c
+      call cf_fix_sw(lfn,numfix,iwgmn,iwdt,numw,
+     + isgan,isatt,isdt,issgm,nums,byte_mb(i_snam),xwm,xs,
+     + int_mb(i_ibnd(2)),mbt(2),int_mb(i_temp))
+c
+      if(.not.ma_pop_stack(l_temp)) 
+     + call errquit('Unable to deallocate temp array in cf_fix',0) 
       return
       end
       subroutine cf_fix_sw(lfn,numfix,iwgmn,iwdt,numw,
-     + isgan,isatt,isdt,issgm,nums,snam,xwm,xs)
+     + isgan,isatt,isdt,issgm,nums,snam,xwm,xs,idb,nsb,itemp)
 c
       implicit none
 c
@@ -2266,13 +2274,14 @@ c
       integer cf_atonum,cf_numcon
       external cf_atonum,cf_numcon
 c
-      integer lfn,numfix,numw,nums
+      integer lfn,numfix,numw,nums,nsb
       integer iwdt(mwm),iwgmn(mwm),isgan(msa),isatt(msa),isdt(msa)
-      integer issgm(msa)
+      integer issgm(msa),idb(nsb,4),itemp(nsatot)
       character*16 snam(nsatot)
       real*8 xwm(mwm,3),xs(msa,3)
 c
       integer i,j,ndof(3),ifix,ifr,ito,l,len,number,itarget,ntotal(2)
+      integer ib,jb
       real*8 fact(3),xtarget(3),rfix,dist2,rfix2
       character*80 string,target,residu
       character*16 tag
@@ -2505,6 +2514,27 @@ c
       endif
       endif
 c
+c     solute atoms constraints
+c
+      do 76 i=1,nsatot
+      itemp(i)=0
+   76 continue
+c
+      do 62 i=1,nums
+      itemp(isgan(i))=i
+   62 continue
+c
+      do 64 j=1,4
+      do 63 i=1,nsb
+      ib=itemp(idb(i,1))
+      jb=itemp(idb(i,2))
+      if(ib.gt.0.and.jb.gt.0.and.idb(i,3).gt.0) then
+      if(iand(isdt(ib),mfixed).eq.lfixed) isdt(jb)=ior(isdt(jb),lfixed)
+      if(iand(isdt(jb),mfixed).eq.lfixed) isdt(ib)=ior(isdt(ib),lfixed)
+      endif
+   63 continue
+   64 continue
+c
 c     make permanent
 c
       if(string(5:5).eq.'p') then
@@ -2517,10 +2547,10 @@ c
       ntotal(1)=0
       ntotal(2)=0
       do 201 i=1,nums
-      if(isdt(i).ne.0) ntotal(1)=ntotal(1)+1
+      if(iand(isdt(i),mfixed).eq.lfixed) ntotal(1)=ntotal(1)+1
   201 continue
       do 202 i=1,numw
-      if(iwdt(i).ne.0) ntotal(2)=ntotal(2)+1
+      if(iand(iwdt(i),mfixed).eq.lfixed) ntotal(2)=ntotal(2)+1
   202 continue
 c
       if(np.gt.1) then
