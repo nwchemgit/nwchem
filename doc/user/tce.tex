@@ -141,6 +141,60 @@ or
       TASK TCE FREQUENCIES
 \end{verbatim}
 
+Alternatively, more descriptive keywords for each individual method can be used.
+For instance, to perform a CCSDT energy, gradient, etc. calculation, use
+\begin{verbatim}
+      TASK UCCSDT ENERGY
+\end{verbatim}
+or
+\begin{verbatim}
+      TASK UCCSDT GRADIENT
+\end{verbatim}
+or
+\begin{verbatim}
+      TASK UCCSDT OPTIMIZE
+\end{verbatim}
+or
+\begin{verbatim}
+      TASK UCCSDT FREQUENCIES
+\end{verbatim}
+with an (optional) input block enclosed either by \verb+UCCSDT+ and \verb+END+ or
+by \verb+UCC+ and \verb+END+.  The keywords for individual methods of TCE module
+always start with letter \verb+U+ which stands for ``unrestricted'' to avoid 
+confusion with other related methods (such as spin-restricted CCSD and various 
+canonical MP2 implementation) already in place in NWChem.
+\begin{verbatim}
+  (UCCSDT||UCC)
+    [(DFT||HF||SCF) default HF=SCF]
+    [THRESH <double thresh default 1e-6>]
+    [MAXITER <integer maxiter default 100>]
+    [IO (fortran||c||ga||sf||replicated) default ga]
+    [DIIS <integer diis default 5>]
+    [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
+             [virtual <integer nfzv default 0>]]
+    [PRINT (none||low||medium||high||debug)
+      <string list_of_names ...>]
+  END
+\end{verbatim}
+When a method (CCSDT in this example) is specified in the task directive, 
+a duplicate method specification
+is not necessary (indeed not allowed) in the corresponding (\verb+UCCSDT+ or \verb+UCC+ in this case) 
+input block.  The keywords of the other methods for task directive are:
+\begin{verbatim}
+      TASK (UCCD||ULCCD||UCCSD||ULCCSD||UQCISD||UCCSDT||UCCSDTQ) ENERGY
+\end{verbatim}
+or
+\begin{verbatim}
+      TASK (UCISD||UCISDT||UCISDTQ) ENERGY
+\end{verbatim}
+or
+\begin{verbatim}
+      TASK (UMP2||UMP3||UMP4||UMBPT2||UMBPT3||UMBPT4) ENERGY
+\end{verbatim}
+etc.  The input block can be specified by the same name (\verb+UCISDT+ and \verb+END+
+block for \verb+TASK UCISDT ENERGY+) or \verb+UCC+ for the CC family, \verb+UCI+ for 
+the CI family, and \verb+UMP+ or \verb+UMBPT+ for the MP family of methods.
+
 The user may also specify the parameters of reference wave function calculation
 in a separate block for either HF (SCF) or DFT, depending on the first keyword
 in the above syntax.
@@ -183,6 +237,34 @@ can be performed with the following input blocks:
   SCF
   CCSDT
   END
+
+  TASK TCE ENERGY
+\end{verbatim}
+or
+\begin{verbatim}
+  SCF
+  SINGLET
+  RHF
+  END
+
+  UCCSDT
+  SCF
+  END
+
+  TASK UCCSDT ENERGY
+\end{verbatim}
+or
+\begin{verbatim}
+  SCF
+  SINGLET
+  RHF
+  END
+
+  UCC
+  SCF
+  END
+
+  TASK UCCSDT ENERGY
 \end{verbatim}
 This calculation (and any correlation calculation in the TCE module using a RHF or RDFT
 reference for a closed-shell system) skips the storage and computation of all $\beta$ spin
@@ -198,6 +280,8 @@ for an open-shell doublet system can be requested by
   SCF
   CCSDT
   END
+
+  TASK TCE ENERGY
 \end{verbatim}
 and likewise, UHF-UCCSDT for an open-shell doublet system can be specified with
 \begin{verbatim}
@@ -210,6 +294,8 @@ and likewise, UHF-UCCSDT for an open-shell doublet system can be specified with
   SCF
   CCSDT
   END
+
+  TASK TCE ENERGY
 \end{verbatim}
 The operation and storage costs of the last two calculations are identical.  To use the
 KS DFT reference wave function for a UCCSD calculation of an open-shell doublet system,
@@ -223,6 +309,8 @@ KS DFT reference wave function for a UCCSD calculation of an open-shell doublet 
   DFT
   CCSD
   END
+
+  TASK TCE ENERGY
 \end{verbatim}
 Note that the default model of the DFT module is LDA.
 
@@ -427,4 +515,31 @@ CCSD
 END
 
 TASK TCE ENERGY
+\end{verbatim}
+The same result can be obtained by the following input:
+\begin{verbatim}
+START h2o
+
+TITLE "ROHF-UCCSD/cc-pVTZ H2O"
+
+CHARGE 1
+
+GEOMETRY
+O     0.00000000     0.00000000     0.12982363
+H     0.75933475     0.00000000    -0.46621158
+H    -0.75933475     0.00000000    -0.46621158
+END
+
+BASIS
+* library cc-pVTZ
+END
+
+SCF
+ROHF
+DOUBLET
+THRESH 1.0e-10
+TOL2E  1.0e-10
+END
+
+TASK UCCSD ENERGY
 \end{verbatim}
