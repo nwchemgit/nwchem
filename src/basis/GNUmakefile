@@ -16,8 +16,8 @@ endif
 
 include ../config/makelib.h
 
-testbasis:	testbasis.o 
-	$(FC) $(FFLAGS) -o $@ testbasis.o $(LIBS)
+testbasis:	testbasis.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ testbasis.o $(LIBS)
 
 
 basis.o:	basP.fh	geobasmapP.fh basdeclsP.fh
