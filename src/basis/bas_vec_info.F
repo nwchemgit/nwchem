@@ -1,4 +1,7 @@
       logical function bas_vec_info(basis, info)
+*
+* $Id: bas_vec_info.F,v 1.3 1997-10-31 20:23:19 d3e129 Exp $
+*
       implicit none
 #include "bas.fh"
 #include "inp.fh"

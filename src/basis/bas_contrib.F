@@ -1,4 +1,7 @@
       subroutine bas_all_ce_info(basis, cnr, bfr)
+*
+* $Id: bas_contrib.F,v 1.2 1997-10-31 20:23:18 d3e129 Exp $
+*
       implicit none
 #include "bas.fh"
 #include "geom.fh"
