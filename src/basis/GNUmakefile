@@ -8,7 +8,6 @@ ifeq ($(TARGET),CRAY-T3D)
    OBJ_OPTIMIZE = basis.o 
    OBJ =  basisP.o bas_input.o
 endif
-	 
    LIB_TARGETS = testbasis testbasis.o
 
 ifeq ($(TARGET),DELTA)
