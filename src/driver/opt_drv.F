@@ -4,6 +4,7 @@
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "rtdb.fh"
 #include "geom.fh"
@@ -197,6 +198,7 @@ c
       end
       subroutine driver_tfgx(geom)
       implicit none
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -257,6 +259,7 @@ c
 #include "global.fh"
 #include "geom.fh"
 #include "rtdb.fh"
+#include "nwc_const.fh"
 #include "coptopt.fh"
 c
       integer rtdb, geom
@@ -270,10 +273,10 @@ c
       double precision zero
       parameter (zero=0.0d+00)
       integer mxatom, mxcart, mxzmat, mxcoor
-      parameter (mxatom=500)
+      parameter (mxatom=nw_max_atom)
       parameter (mxcart=3*mxatom)
-      parameter (mxzmat=1500)     
-      parameter (mxcoor=1500)
+      parameter (mxzmat=nw_max_zmat)     
+      parameter (mxcoor=nw_max_coor)
 c
 c     These commons are used in the internal coordinate guess
 c
@@ -420,11 +423,12 @@ c
       SUBROUTINE HND_OPT_HSS_INIT_ZMT(HSSQ,NINT,ZMAT,IZMAT,SOME,
      $     bscale, ascale, tscale)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+#include "nwc_const.fh"
       PARAMETER (ZERO=0.0D+00,      ONE=1.0D+00,
      1     QUARTR=0.25D+00,   PT5=0.5D+00,
      2     THIRD=ONE/3.0D+00, TOHB2=6.423D-02,
      3     TOANGS=0.52917724924D+00)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=nw_max_atom)
       LOGICAL OUT 
       LOGICAL SOME
       LOGICAL DBUG
@@ -812,6 +816,7 @@ c
       end
       subroutine driver_initialize(rtdb, geom)
       implicit none
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "geom.fh"
 #include "rtdb.fh"
@@ -1168,6 +1173,7 @@ c
       end
       subroutine driver_hessian_update()
       implicit none
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "util.fh"
 #include "mafdecls.fh"
@@ -1245,6 +1251,7 @@ c
       end
       subroutine driver_opt_search_dir(geom)
       implicit none
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -1482,6 +1489,7 @@ c
       end
       subroutine driver_line_search1(rtdb,geom)
       implicit none
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "geom.fh"
 #include "util.fh"
@@ -1610,6 +1618,7 @@ c
       end
       subroutine driver_line_search2(rtdb,geom)
       implicit none
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "geom.fh"
 #include "util.fh"
@@ -1735,6 +1744,7 @@ c
       implicit none
 #include "geom.fh"
 #include "rtdb.fh"
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "mafdecls.fh"
       integer rtdb, geom
@@ -1778,6 +1788,7 @@ c
       end
       subroutine driver_take_step(rtdb, geom)
       implicit none
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "geom.fh"
 #include "rtdb.fh"
@@ -1860,6 +1871,7 @@ c
       end
       subroutine driver_print(geom, istep)
       implicit none
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "global.fh"
 #include "util.fh"
@@ -1927,6 +1939,7 @@ c
       end
       logical function driver_converged()
       implicit none
+#include "nwc_const.fh"
 #include "coptopt.fh"
 c
 c     Return true if we have converged
@@ -1949,6 +1962,7 @@ c
       subroutine driver_cart_pmat(rtdb, geom)
       implicit none
 #include "rtdb.fh"
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
@@ -2082,6 +2096,7 @@ c
       end
       subroutine driver_project_hess_grad(hess, pg)
       implicit none
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "mafdecls.fh"
       double precision 
@@ -2149,6 +2164,7 @@ c
       end
       subroutine driver_compute_info()
       implicit none
+#include "nwc_const.fh"
 #include "coptopt.fh"
 c
 c     Compute stuff used for printing and convergence tests
@@ -2182,6 +2198,7 @@ c
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "inp.fh"
 c     
@@ -2265,6 +2282,7 @@ c
       subroutine driver_sad_search_dir(rtdb,geom,istep)
       implicit none
 #include "rtdb.fh"
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -2661,6 +2679,7 @@ c
       end
       subroutine driver_symmetrize_step(geom)
       implicit none
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "mafdecls.fh"
       integer geom
@@ -2700,6 +2719,7 @@ c
       end
       subroutine driver_compute_actual_step(geom)
       implicit none
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "geom.fh"
       integer geom

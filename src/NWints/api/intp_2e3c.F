@@ -1,6 +1,6 @@
       subroutine intp_2e3c(brain, ish, ketin, jsh, ksh, Ri, Rj, 
      &       lscr, scr, leri, eri)
-c $Id: intp_2e3c.F,v 1.8 1998-12-10 23:48:25 d3e129 Exp $
+c $Id: intp_2e3c.F,v 1.9 1999-07-14 00:28:42 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 3 center two 
@@ -10,6 +10,7 @@ c eri = <bra_g(ish)|ket_g(jsh).ket_g(ksh)>
 c
 #include "apiP.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"

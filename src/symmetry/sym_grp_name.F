@@ -1,6 +1,7 @@
       subroutine sym_group_name(geom, name)
-C$Id: sym_grp_name.F,v 1.1 1995-12-13 01:28:18 d3g681 Exp $
+C$Id: sym_grp_name.F,v 1.2 1999-07-14 00:29:11 d3e129 Exp $
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom              ! [input]
       character*(*) name        ! [output]

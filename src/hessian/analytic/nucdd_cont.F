@@ -1,5 +1,5 @@
 C
-C $Id: nucdd_cont.F,v 1.1 1999-05-06 17:29:35 windus Exp $
+C $Id: nucdd_cont.F,v 1.2 1999-07-14 00:29:00 d3e129 Exp $
 C
       subroutine nucdd_cont(rtdb)
 c
@@ -9,6 +9,7 @@ c
       implicit none
 c
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "global.fh"
 #include "hess_info.fh"

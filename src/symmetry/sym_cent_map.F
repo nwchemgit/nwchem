@@ -1,8 +1,9 @@
       integer function sym_center_map(geom,cent,opnum)
-C$Id: sym_cent_map.F,v 1.1 1995-12-13 01:28:09 d3g681 Exp $
+C$Id: sym_cent_map.F,v 1.2 1999-07-14 00:29:10 d3e129 Exp $
       implicit none
 c
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "geom.fh"
 #include "global.fh"

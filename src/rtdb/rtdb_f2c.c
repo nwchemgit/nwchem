@@ -1,4 +1,4 @@
-/*$Id: rtdb_f2c.c,v 1.15 1999-05-29 01:13:51 d3g681 Exp $*/
+/*$Id: rtdb_f2c.c,v 1.16 1999-07-14 00:29:10 d3e129 Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -337,7 +337,7 @@ Logical rtdb_cput_(const Integer *handle, const char *name,
 
   int hbuf = (int) *handle;
   char nbuf[256];
-  char abuf[10240];
+  char abuf[20480];
   int nelbuf;
   int typebuf;
   int i, left;
@@ -407,7 +407,8 @@ Logical rtdb_cget_(const Integer *handle, const char *name,
 
   int hbuf = (int) *handle;
   char nbuf[256];
-  char abuf[10240];
+  char abuf[20480];
+  /*  char abuf[10240];*/
   int nelbuf;
   int typebuf;
   int i;

@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.26 1998-07-13 23:41:17 d3g681 Exp $
+c$Id: fock_2e_a.F,v 1.27 1999-07-14 00:28:53 d3e129 Exp $
 c
 #include "cfock.fh"
       data task_bf/-1/          ! Chunking of funstions per task
@@ -22,7 +22,7 @@ c     see scf_init for input of task_chunks etc.
      $     blocks, nblock)
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.26 1998-07-13 23:41:17 d3g681 Exp $
+c     $Id: fock_2e_a.F,v 1.27 1999-07-14 00:28:53 d3e129 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -32,6 +32,7 @@ c
 #include "sym.fh"
 #include "util.fh"
 #include "cscfps.fh"
+#include "nwc_const.fh"
 c     
       integer geom, basis
       integer nfock
@@ -101,7 +102,7 @@ c
       ncomputed = 0
       if (.not. geom_ncent(geom, natoms)) call errquit
      $     ('fock_2e: geom_ncent failed', 0)
-      if (natoms .gt. 1000) call errquit
+      if (natoms .gt. nw_max_atom) call errquit
      $     ('fock_2e: hard dimension failed', natoms)
 c     
 c     How many processors are there?

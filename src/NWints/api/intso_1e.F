@@ -1,4 +1,4 @@
-c $Id: intso_1e.F,v 1.2 1998-12-10 23:48:30 d3e129 Exp $
+c $Id: intso_1e.F,v 1.3 1999-07-14 00:28:43 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{intso\_1e}
@@ -10,6 +10,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"

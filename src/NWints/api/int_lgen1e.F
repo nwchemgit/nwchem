@@ -1,4 +1,4 @@
-c $Id: int_lgen1e.F,v 1.14 1998-12-10 23:48:15 d3e129 Exp $
+c $Id: int_lgen1e.F,v 1.15 1999-07-14 00:28:40 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines
 c:tex-\subsection{int\_l1gen1e}
@@ -15,6 +15,7 @@ c:tex-\begin{verbatim}
      &       ilab, jlab, l1e, Gen1e, lscr, scr, numgen) 
 c:tex-\end{verbatim}
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "mafdecls.fh"

@@ -1,4 +1,4 @@
-*     $Id: intb_2e4c.F,v 1.22 1998-12-10 23:48:17 d3e129 Exp $
+*     $Id: intb_2e4c.F,v 1.23 1999-07-14 00:28:40 d3e129 Exp $
 c:tex-
 c:tex-\subsection{intb\_2e4c}
 c:tex-This logical function returns the integrals and labels based on the
@@ -44,6 +44,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "numb_qP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
@@ -168,6 +169,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "numb_qP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"

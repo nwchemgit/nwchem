@@ -1,4 +1,4 @@
-* $Id: atscf_ecp.F,v 1.10 1999-06-09 00:27:02 d3e129 Exp $
+* $Id: atscf_ecp.F,v 1.11 1999-07-14 00:28:49 d3e129 Exp $
       subroutine atscf_ecp(geom,basis,tag,hatom,nbas,
      &    zeta,cont,ucont,nz)
 *
@@ -258,6 +258,7 @@ c.. free allocated memory
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "bas_ibs_dec.fh"
 #include "bas_exndcf_dec.fh"

@@ -1,6 +1,6 @@
       logical function task_ecp_print_integrals(rtdb)
       implicit none
-* $Id: rak26.F,v 1.1 1999-03-18 01:54:10 d3e129 Exp $
+* $Id: rak26.F,v 1.2 1999-07-14 00:28:54 d3e129 Exp $
 c
 #include "stdio.fh"
 #include "mafdecls.fh"
@@ -79,6 +79,7 @@ c
      &    geom, basis, nbf, nat, nshell, szb, szs,
      &    zint,buf,scr)
       implicit none
+#include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "geomP.fh"

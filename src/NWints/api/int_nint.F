@@ -1,4 +1,4 @@
-c $Id: int_nint.F,v 1.5 1997-05-29 23:43:06 d3e129 Exp $
+c $Id: int_nint.F,v 1.6 1999-07-14 00:28:40 d3e129 Exp $
 *
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_nint}
@@ -164,6 +164,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "int_nbf.fh"
 c
 c::passed
@@ -244,6 +245,7 @@ c:tex-\begin{verbatim}
      &       kbasin,kcnt,lbasin,lcnt)
 c:tex-\end{verbatim}
       implicit none
+#include "nwc_const.fh"
 #include "int_nbf.fh"
 c
 c::passed
@@ -313,6 +315,7 @@ c..lcnt/lsh
 * not used :     &       kbasin,kcnt,lbasin,lcnt)
 * not used :      implicit none
 * not used :#include "bas.fh"
+* not used :#include "nwc_const.fh"
 * not used :#include "int_nbf.fh"
 * not used :c
 * not used :c::passed
@@ -376,6 +379,7 @@ c..lcnt/lsh
 * not used :      integer function int_unint_raw(ibasin,icnt,jbasin,jcnt,
 * not used :     &       kbasin,kcnt,lbasin,lcnt)
 * not used :      implicit none
+* not used :#include "nwc_const.fh"
 * not used :#include "int_nbf.fh"
 * not used :c
 * not used :c::passed

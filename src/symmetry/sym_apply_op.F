@@ -1,8 +1,9 @@
       subroutine sym_apply_op(geom, opnum, r, r1)
-C$Id: sym_apply_op.F,v 1.7 1996-07-15 22:07:01 gutowski Exp $
+C$Id: sym_apply_op.F,v 1.8 1999-07-14 00:29:10 d3e129 Exp $
       implicit none
 c
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom, opnum

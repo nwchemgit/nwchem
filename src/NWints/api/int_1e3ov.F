@@ -1,4 +1,4 @@
-c $Id: int_1e3ov.F,v 1.14 1998-12-10 23:48:06 d3e129 Exp $
+c $Id: int_1e3ov.F,v 1.15 1999-07-14 00:28:38 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1e3ov}
@@ -13,6 +13,7 @@ c:tex-\begin{verbatim}
 c
 c:tex-\end{verbatim}
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"

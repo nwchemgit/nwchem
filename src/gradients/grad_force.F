@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.34 1999-06-17 18:28:55 edo Exp $
+c     $Id: grad_force.F,v 1.35 1999-07-14 00:28:59 d3e129 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -855,7 +855,7 @@ c
          if (util_print('active atoms', print_low) .and. 
      $       ga_nodeid().eq.0)   then
            write(6,1) (int_mb(k_actlist+i-1),i=1,nactive)
- 1         format('  gradient active actoms ',15i4)
+ 1         format('  gradient active atoms ',15i4)
 *           write(6,2) (oactive(i),i=1,natoms)
 * 2         format('  oactive ',30l2)
 	 end if

@@ -1,9 +1,10 @@
       subroutine intpd_1e1cpe(i_basis,ish,Ri,lscr,scr,lpea,Pea)
 *
-* $Id: intpd_1e1cpe.F,v 1.3 1998-12-10 23:48:26 d3e129 Exp $
+* $Id: intpd_1e1cpe.F,v 1.4 1999-07-14 00:28:43 d3e129 Exp $
 *
       implicit none
 #include "apiP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"

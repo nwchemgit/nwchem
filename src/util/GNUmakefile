@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.106 1999-07-02 00:30:11 d3e129 Exp $
+# $Id: GNUmakefile,v 1.107 1999-07-14 00:29:13 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -124,7 +124,7 @@ endif
     LIBRARY = libutil.a
     HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh \
               printlevels.fh bitops.fh bitops_decls.fh bitops_funcs.fh \
-              bgj.fh bgj_common.fh
+              bgj.fh bgj_common.fh nwc_const.fh
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F

@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.40 1999-07-08 19:10:59 d3e129 Exp $
+* $Id: prp.F,v 1.41 1999-07-14 00:29:05 d3e129 Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -247,10 +247,11 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "mafdecls.fh"
+#include "nwc_const.fh"
       integer rtdb,basis,geom
       logical status
       PARAMETER   (MXIODA=255)
-      PARAMETER   (MXATOM=500)
+      PARAMETER   (MXATOM=NW_MAX_ATOM)
       CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP, RUNTYP
       CHARACTER*8 SCF, UHF, MP2, PROP
@@ -467,7 +468,8 @@ C
       SUBROUTINE HND_DIPINT(XS,YS,ZS,CM,L1)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "hnd_tol.fh"
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
       LOGICAL IANDJ
@@ -842,8 +844,9 @@ C
       SUBROUTINE HND_DIPAMS(BMASS,NCALL,NCODE,SOME)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
+#include "nwc_const.fh"
       PARAMETER (MXBFN=3072)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       LOGICAL SAME,SOME
       CHARACTER*8 ERRMSG
       character*8 anam,bflab
@@ -937,13 +940,14 @@ C
       END
       SUBROUTINE HND_INRTIA(AM,CM,PAXS,NOCOFM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "nwc_const.fh"
 C
 C     ----- PROGRAM TO GET INERTIAL AXES. CONSTRUCTS INERTIA -----
 C           TENSOR, THEN CALLS DIAGONALIZATION ROUTINE TO GET
 C           DIRECTION COSINES FOR PRINCIPAL INERTIA AXES AND
 C           INERTIA MOMENTS. G. HURST, JUNE 1987.
 C
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (ZERO = 0.0D+00)
       LOGICAL SOME
 C     COMMON/HND_INFOA/NAT,ICH,MUL,NUM,NX,NE,NA,NB,ZAN(MXATOM),
@@ -1136,10 +1140,11 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "mafdecls.fh"
+#include "nwc_const.fh"
       integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP
       CHARACTER*8 SCF, UHF, MP2
@@ -1399,7 +1404,8 @@ C
       SUBROUTINE HND_QDPINT(XXS,YYS,ZZS,XYS,XZS,YZS,CM,L1)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "hnd_tol.fh"
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
       LOGICAL IANDJ
@@ -1801,8 +1807,9 @@ C
       SUBROUTINE HND_QDPAMS(BMASS,NCALL,NCODE)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
+#include "nwc_const.fh"
       PARAMETER (MXBFN=3072)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       LOGICAL SAME
       CHARACTER*8 ERRMSG
       character*8 anam,bflab
@@ -1897,10 +1904,11 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "mafdecls.fh"
+#include "nwc_const.fh"
       integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP
       CHARACTER*8 SCF, UHF, MP2
@@ -2238,7 +2246,8 @@ C
      1                  ZZXS,ZZYS,XYZS,CM,L1)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "hnd_tol.fh"
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
       LOGICAL IANDJ
@@ -2692,8 +2701,9 @@ C
       SUBROUTINE HND_OTPAMS(BMASS,NCALL,NCODE)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
+#include "nwc_const.fh"
       PARAMETER (MXBFN=3072)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       LOGICAL SAME
       CHARACTER*8 ERRMSG
       character*8 anam,bflab
@@ -2788,6 +2798,7 @@ C
 #include "rtdb.fh"
 #include "global.fh"
 #include "mafdecls.fh"
+#include "nwc_const.fh"
       integer   rtdb, basis, geom
       logical   status
       integer   g_s
@@ -2796,7 +2807,7 @@ C
       external  ga_create_atom_blocked
       PARAMETER (MXIODA=255)
       PARAMETER (MXBFN=3072)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP, RUNTYP
       CHARACTER*8 SCF, UHF, MP2, PROP
@@ -3147,7 +3158,8 @@ C
 C
       SUBROUTINE HND_ATMBFN
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
@@ -3175,8 +3187,9 @@ C
       SUBROUTINE HND_APSPOP(S,D,DS,P,PS,B,F,V,SB,FV,IA,NAT,NUM)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
 #include "global.fh"
+#include "nwc_const.fh"
       PARAMETER (MXBFN=3072)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       character*8 anam,bflab
       character*2 bnam
       COMMON/HND_IOFILE/IR,IW,IP
@@ -3346,9 +3359,10 @@ C
       SUBROUTINE HND_ORBPOP(rtdb,geom,basis,
      &                      S,V,T,IA,NPOP,L1,NDIM,MOFLG,SPI)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "nwc_const.fh"
       PARAMETER (MXIODA=255)
       PARAMETER (MXBFN=3072)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
 #include "rtdb.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -3564,9 +3578,10 @@ C
       END
       SUBROUTINE HND_SHLPOP(AOPOP)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "nwc_const.fh"
 #include "global.fh"
       PARAMETER (MXBFN=3072)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
       PARAMETER (ZERO=0.0D+00)
@@ -3680,7 +3695,8 @@ C
       END
       SUBROUTINE HND_ATMPOP(A,IA,B,NAT)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       COMMON/HND_BFNATM/LIMLOW(MXATOM),LIMSUP(MXATOM)
       DIMENSION A(1),B(1),IA(1)
       DATA ZERO /0.0D+00/
@@ -3748,7 +3764,8 @@ C     AS PART OF HONDO.
 C
       PARAMETER (MXIODA=255)
       PARAMETER (MXBFN=3072)
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       CHARACTER*8 ERRMSG
 c%%
       CHARACTER*8 VECWRD, ENDWRD
@@ -3886,8 +3903,9 @@ c%%
       SUBROUTINE HND_BOYORB(NORB,CC,CL,B,DMAO,IORD,IIR,IA,RIJ,RI,
      1 QPIX,QPJX,L1,L2,M1,M2,IFRZ,NFRZ)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "nwc_const.fh"
       PARAMETER (MXIODA=255)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       LOGICAL OUT
       COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_DAFILE/IDAF,NAV,IODA(MXIODA)
@@ -4229,7 +4247,8 @@ C
       END
       FUNCTION HND_BOYRND(XX,D,L1)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       COMMON/HND_INFOA/NAT,ICH,MUL,NUM,NX,NE,NA,NB,ZAN(MXATOM),
      1                                         C(3,MXATOM)
       DIMENSION D(L1,L1)
@@ -4257,7 +4276,8 @@ C
       END
       SUBROUTINE HND_BOYBFN
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)      
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
@@ -4284,7 +4304,8 @@ C
       END
       SUBROUTINE HND_BOYGVB(NORB,NPAIR,NUM,IPAIR,NAT,V)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       COMMON/HND_BFNBOY/LIMLOW(MXATOM),LIMSUP(MXATOM)
       DIMENSION V(NUM,1),IPAIR(1)
       DATA ZERO /0.0D+00/
@@ -4330,11 +4351,12 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "mafdecls.fh"
+#include "nwc_const.fh"
       integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
       PARAMETER (MXBFN=3072)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP
       CHARACTER*8 SCF, UHF, MP2
@@ -4636,7 +4658,8 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "hnd_rys.fh"
 #include "hnd_tol.fh"
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
       LOGICAL IANDJ
@@ -4905,11 +4928,12 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "mafdecls.fh"
+#include "nwc_const.fh"
       integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
       PARAMETER (MXBFN=3072)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       LOGICAL SOME,OUT
 C     INTEGER SPIND
       CHARACTER*8 WFNTYP, SCFTYP
@@ -5096,7 +5120,8 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "hnd_rys.fh"
 #include "hnd_tol.fh"
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
       CHARACTER*8 ERRMSG
@@ -5387,11 +5412,12 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "mafdecls.fh"
+#include "nwc_const.fh"
       integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
       PARAMETER (MXBFN=3072)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       LOGICAL SOME,OUT
       CHARACTER*8 WFNTYP, SCFTYP
       CHARACTER*8 SCF, UHF, MP2
@@ -5692,7 +5718,8 @@ C
       END
       SUBROUTINE HND_ELFGRD(NPT,XYZPT,ELFGR,DAB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
 #include "hnd_rys.fh"
@@ -6020,8 +6047,9 @@ C
 #include "rtdb.fh"
 #include "global.fh"
 #include "mafdecls.fh"
+#include "nwc_const.fh"
       PARAMETER (MXIODA=255)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXBFN=3072)
       integer  rtdb,geom,basis
       logical  status
@@ -6545,7 +6573,8 @@ C
       SUBROUTINE HND_ELWFNC(NPT,XYZPT,ELDEN,V)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "hnd_tol.fh"
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
 C     LOGICAL IANDJ
@@ -6726,7 +6755,8 @@ C
       SUBROUTINE HND_ELDENC(NPT,XYZPT,ELDEN,DAB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "hnd_tol.fh"
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
       LOGICAL IANDJ
@@ -7035,10 +7065,11 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "mafdecls.fh"
+#include "nwc_const.fh"
       integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP
       CHARACTER*8 SCF, UHF, MP2
@@ -7350,8 +7381,9 @@ C
      1                  XRANGE,YRANGE,ZRANGE,XVEC,YVEC,ZVEC,
      2                  ORIGIN,IATOM,IUNIT)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+#include "nwc_const.fh"
       PARAMETER (MXBFN=3072)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       CHARACTER*8 ERRMSG
       character*8 anam,bflab
       character*2 bnam
@@ -7617,6 +7649,7 @@ C
       END
       SUBROUTINE HND_STONEX
       implicit DOUBLE PRECISION (a-h,o-z)
+#include "nwc_const.fh"
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     data $stone
 c     -----------
@@ -7691,7 +7724,7 @@ c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       parameter (mxioda=255)
       parameter (nummx=3072)
-      parameter (MXATOM=500)
+      parameter (MXATOM=NW_MAX_ATOM)
       character*8   errmsg
       character*255 input
       character*8   word1,word2,word3,word4,word5
@@ -8058,8 +8091,9 @@ c
       SUBROUTINE HND_STNINT(DMAT,DBUG)
       implicit DOUBLE PRECISION (a-h,o-z)
 #include "hnd_tol.fh"
+#include "nwc_const.fh"
       parameter (nummx=3072)
-      parameter (MXATOM=500)
+      parameter (MXATOM=NW_MAX_ATOM)
       logical iandj,out,norm,double,dbug
       character*8 anam,bflab
       character*2 bnam
@@ -8829,7 +8863,8 @@ c%%
       END
       FUNCTION HND_STNESP(CX,CY,CZ)
       implicit DOUBLE PRECISION (a-h,o-z)
-      parameter (MXATOM=500)
+#include "nwc_const.fh"
+      parameter (MXATOM=NW_MAX_ATOM)
       COMMON/HND_iofile/ir,iw,ip
       COMMON/HND_infoa/nat,ich,mul,num,nx,ne,na,nb,zan(mxatom),
      1                                         c(3,mxatom)
@@ -8962,10 +8997,11 @@ C
       SUBROUTINE HND_PREVL(V,E,M,N,NDIM)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "global.fh"
+#include "nwc_const.fh"
 C
 C     ----- PRINT OUT E AND V-MATRICES
 C
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXBFN=3072)
       character*8  anam,bflab,cbf
       character*2  bnam
@@ -9142,7 +9178,8 @@ C     ----- SUBROUTINES BELOW TAKEN FROM SYM.F IN HONDO -----
 C
       SUBROUTINE HND_SPHMAT(SP,NDIM,IFINV,IFTSP)
       IMPLICIT REAL*8(A-H,O-Z)
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00)
@@ -9524,10 +9561,11 @@ C
       SUBROUTINE HND_PRSQL(V,M,N,NDIM)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "global.fh"
+#include "nwc_const.fh"
 C
 C     ----- PRINT OUT A SQUARE MATRIX WITH LABELS
 C
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXBFN=3072)
       character*8 anam,bflab,cbf
       character*2 bnam
@@ -10772,6 +10810,7 @@ C
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "global.fh"
+#include "nwc_const.fh"
       integer rtdb,geom,basis
       parameter (max_center = 500)
       integer          ic 
@@ -10797,7 +10836,7 @@ C
       CHARACTER*2 BNAM
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
-      PARAMETER (MXATOM=500)
+      PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXBFN =3072)
       PARAMETER (SLAB=' S')
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
@@ -11526,9 +11565,10 @@ c
       subroutine hnd_prp_init(geom,basis)
       implicit double precision (a-h,o-z)
 c 
+#include "nwc_const.fh"
 #include "hnd_tol.fh"
       parameter (zero=0.0d+00)
-      parameter (mxatom=500)
+      parameter (mxatom=nw_max_atom)
       parameter (mxprim=2048)
       parameter (mxshel=512)
       parameter (mxsym=48)
@@ -11758,6 +11798,7 @@ c
       end
       subroutine hnd_prp_nw_hnd
       implicit double precision (a-h,o-z)
+#include "nwc_const.fh"
 c
 c     ----- order of components in shells in HONDO -----
 c
@@ -11823,7 +11864,7 @@ c    5           'XXZZ','XYYY','XYYZ','XYZZ','XZZZ',
 c                   31     32     33     34     35
 c    6           'YYYY','YYYZ','YYZZ','YZZZ','ZZZZ'/
 c
-      parameter (mxatom=500)
+      parameter (mxatom=nw_max_atom)
       parameter (mxprim=2048)
       parameter (mxshel=512)
       parameter (mxnbf =2048)

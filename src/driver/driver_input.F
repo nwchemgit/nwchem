@@ -1,6 +1,7 @@
       subroutine driver_input(rtdb)
       implicit none
 #include "inp.fh"
+#include "nwc_const.fh"
 #include "coptopt.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"

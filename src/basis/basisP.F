@@ -1,6 +1,7 @@
       subroutine print_exndcf(msg)
       implicit none
-c $Id: basisP.F,v 1.20 1998-04-29 07:29:53 d3e129 Exp $
+c $Id: basisP.F,v 1.21 1999-07-14 00:28:51 d3e129 Exp $
+#include "nwc_const.fh"
 #include "basP.fh"
       character *(*) msg
       integer i,j
@@ -16,6 +17,7 @@ c $Id: basisP.F,v 1.20 1998-04-29 07:29:53 d3e129 Exp $
       logical function bas_add_ucnt_init(basisin)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "bas_exndcf_dec.fh"
       integer basisin
@@ -42,6 +44,7 @@ c
       logical function bas_add_ucnt_tidy(basisin)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "bas_exndcf_dec.fh"
       integer basisin
@@ -66,6 +69,7 @@ c
       logical function bas_set_ecp_basis(basis)
       implicit none
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
       logical bas_check_handle
       external bas_check_handle
@@ -84,6 +88,7 @@ c
       logical function bas_set_so_basis(basis)
       implicit none
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
       logical bas_check_handle
       external bas_check_handle
@@ -102,6 +107,7 @@ c
       logical function ecp_set_num_elec(ecpid,tag,num_elec,stdtag)
       implicit none
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 *functions::
       logical ecp_check_handle
@@ -137,6 +143,7 @@ c
       logical function ecp_get_num_elec(ecpid,tag,num_elec)
       implicit none
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "stdio.fh"
 *functions::
@@ -176,6 +183,7 @@ c
       logical function bas_add_utag(basisin, tag, stdtag, itag)
       implicit none
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "inp.fh"
       integer basisin           ! [input] basis handle
@@ -228,6 +236,7 @@ c
 *.....................................................................
       subroutine bas_err_info(info)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 c     
       character*(*) info        ! [input]
@@ -273,6 +282,7 @@ c
       logical function bas_ucontinfo(basisin,icont,itype,
      &       nprimo,ngeno,sphcart)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
@@ -319,6 +329,7 @@ c
 *.....................................................................
       logical function bas_unumcont(basisin,numcont)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
@@ -348,6 +359,7 @@ c Block data structure to initialize the common block variables in the
 c  internal basis set object data structures
 c
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 c     
       data nbasis_rtdb /0/
@@ -368,6 +380,7 @@ c
 c  types 0->S, 1->P, 2->D, 3->F etc. -1->SP -2->SPD
 c
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 c:: function
@@ -409,6 +422,7 @@ c
 *.....................................................................
       logical function bas_set_spherical(basisin, ospherical)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 c
@@ -432,6 +446,7 @@ c
 *.....................................................................
       logical function bas_get_spherical(basisin, is_spherical)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 c
@@ -461,6 +476,7 @@ c
 #include "rtdb.fh"
 #include "context.fh"
 #include "inp.fh"      
+#include "nwc_const.fh"
 #include "basP.fh"      
 c::functions
       logical  bas_rtdb_in

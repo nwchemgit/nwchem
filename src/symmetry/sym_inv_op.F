@@ -1,5 +1,6 @@
       subroutine sym_inv_op(geom, op, opinv)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom, op, opinv
 c
@@ -8,6 +9,7 @@ c
       end
       subroutine sym_init_inv_op(geom)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom
       integer i
@@ -18,7 +20,7 @@ c
 c
       end
       subroutine sym_find_inv_op(geom, op, opinv)
-C$Id: sym_inv_op.F,v 1.3 1995-11-19 19:31:41 d3g681 Exp $
+C$Id: sym_inv_op.F,v 1.4 1999-07-14 00:29:11 d3e129 Exp $
       implicit none
 #include "sym.fh"
       integer geom, op, opinv

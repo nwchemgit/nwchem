@@ -10,7 +10,7 @@ c
 c     These parameter definitions from geomP.fh and soon to be from
 c     a standard include file
       integer max_cent, max_nzvar, max_izmat
-      parameter (max_cent      = 500)
+      parameter (max_cent      = nw_max_atom)
       parameter (max_nzvar     = 3*max_cent)
       parameter (max_izmat     = 4*max_nzvar)
 c

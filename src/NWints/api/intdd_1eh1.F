@@ -1,8 +1,9 @@
       subroutine intdd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intdd_1eh1.F,v 1.3 1999-05-06 17:25:48 windus Exp $
+C $Id: intdd_1eh1.F,v 1.4 1999-07-14 00:28:42 d3e129 Exp $
       implicit none
 #include "stdio.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -91,6 +92,7 @@ c
       implicit none
 #include "stdio.fh"
 #include "apiP.fh"
+#include "nwc_const.fh"
 #include "int_nbf.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"

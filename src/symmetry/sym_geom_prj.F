@@ -1,6 +1,7 @@
       subroutine sym_geom_project(geom, tol)
-C     $Id: sym_geom_prj.F,v 1.3 1997-03-25 19:11:39 d3g681 Exp $
+C     $Id: sym_geom_prj.F,v 1.4 1999-07-14 00:29:10 d3e129 Exp $
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "sym.fh"
 #include "mafdecls.fh"

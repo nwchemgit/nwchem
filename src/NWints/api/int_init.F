@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.42 1999-07-08 19:10:48 d3e129 Exp $
+c $Id: int_init.F,v 1.43 1999-07-14 00:28:39 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -22,6 +22,7 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "nwc_const.fh"
 #include "int_nbf.fh"
 #include "util.fh"
 #include "stdio.fh"

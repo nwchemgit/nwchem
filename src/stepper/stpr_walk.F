@@ -1,5 +1,5 @@
       integer function stpr_walk(rtdb)
-c     $Id: stpr_walk.F,v 1.34 1998-08-01 02:14:07 d3g681 Exp $
+c     $Id: stpr_walk.F,v 1.35 1999-07-14 00:29:10 d3e129 Exp $
       implicit none
 c     
 #include "mafdecls.fh"
@@ -7,7 +7,8 @@ c
 #include "msgtypesf.h"
 #include "global.fh"
 #include "geom.fh"
-#include "geomP.fh"
+#include "nwc_const.fh"
+********************************************************************#include "geomP.fh"
 #include "rtdb.fh"
 #include "msgids.fh"
 #include "pstat.fh"
@@ -32,7 +33,7 @@ c
       integer h_chg, k_chg      ! MA handle/index of charge array
       integer int_val           ! value to propigate status (stpr_walk value)
       character*40 new_geom_name ! new geometry name for next step
-      character*16 stpr_tags(max_cent) ! local tags array
+      character*16 stpr_tags(nw_max_atom) ! local tags array
       integer i_timewalk
       logical o_timewalk, okeepgeom
       logical status

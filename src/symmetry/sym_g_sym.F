@@ -1,5 +1,5 @@
       subroutine sym_grad_symmetrize(geom, grad)
-C     $Id: sym_g_sym.F,v 1.3 1997-10-21 21:39:47 d3g681 Exp $
+C     $Id: sym_g_sym.F,v 1.4 1999-07-14 00:29:10 d3e129 Exp $
       implicit none
 #include "sym.fh"
 #include "mafdecls.fh"
@@ -53,7 +53,7 @@ c
 c
       end
       subroutine sym_hess_symmetrize(geom, h)
-C     $Id: sym_g_sym.F,v 1.3 1997-10-21 21:39:47 d3g681 Exp $
+C     $Id: sym_g_sym.F,v 1.4 1999-07-14 00:29:10 d3e129 Exp $
       implicit none
 #include "sym.fh"
 #include "mafdecls.fh"
@@ -111,7 +111,7 @@ c
 c
       end
       subroutine sym_der_dip_symmetrize(geom, d)
-C     $Id: sym_g_sym.F,v 1.3 1997-10-21 21:39:47 d3g681 Exp $
+C     $Id: sym_g_sym.F,v 1.4 1999-07-14 00:29:10 d3e129 Exp $
       implicit none
 #include "sym.fh"
 #include "mafdecls.fh"
@@ -168,6 +168,7 @@ c
       subroutine sym_apply_hess_op(geom, opnum, h, h1)
       implicit none
 c
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom, opnum

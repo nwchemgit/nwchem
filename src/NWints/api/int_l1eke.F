@@ -1,4 +1,4 @@
-c $Id: int_l1eke.F,v 1.9 1998-04-29 07:27:36 d3e129 Exp $
+c $Id: int_l1eke.F,v 1.10 1999-07-14 00:28:39 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l1eke}
@@ -16,6 +16,7 @@ c:tex-\begin{verbatim}
      &       ilab, jlab, lke, Ke, lscr, scr, numgen) 
 c:tex-\end{verbatim}
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "mafdecls.fh"

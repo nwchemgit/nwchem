@@ -1,6 +1,6 @@
       subroutine intdd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intdd_2e4c.F,v 1.6 1999-04-23 09:29:36 d3e129 Exp $
+c $Id: intdd_2e4c.F,v 1.7 1999-07-14 00:28:42 d3e129 Exp $
       implicit none
 c
 * basic api routine to generate 4 center two electron 
@@ -60,6 +60,7 @@ c       azdz=33    |                  |                     |
 c------------------------------------------------------------
 #include "stdio.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"

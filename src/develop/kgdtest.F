@@ -1,4 +1,4 @@
-c $Id: kgdtest.F,v 1.4 1998-10-27 20:42:29 jhvan Exp $
+c $Id: kgdtest.F,v 1.5 1999-07-14 00:28:53 d3e129 Exp $
       logical function kgdtest (rtdb)
       implicit none
 #include "mafdecls.fh"
@@ -42,6 +42,7 @@ c
 #include "context.fh"
 #include "geom.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"

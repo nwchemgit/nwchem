@@ -138,6 +138,7 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "inp.fh"
 c::functions

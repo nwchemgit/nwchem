@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.17 1999-03-16 22:57:34 d3e129 Exp $
+* $Id: int_ecp.F,v 1.18 1999-07-14 00:28:45 d3e129 Exp $
       implicit none
 *::cr::7
 *------------------------------------------------*
@@ -12,6 +12,7 @@
 *
 #include "mafdecls.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
@@ -451,6 +452,7 @@ c
      &    c_coef)
       implicit none
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"

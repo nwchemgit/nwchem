@@ -1,4 +1,4 @@
-c $Id: int_l1e3ov.F,v 1.11 1998-12-10 23:48:12 d3e129 Exp $
+c $Id: int_l1e3ov.F,v 1.12 1999-07-14 00:28:39 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l1e3ov}
@@ -17,6 +17,7 @@ c
 c routine to calculate labels for 3 center overlap integrals 
 c
       implicit none 
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "mafdecls.fh"

@@ -1,12 +1,13 @@
       program libcheck
-* $Id: libcheck.F,v 1.2 1998-01-09 01:32:22 d3e129 Exp $
+* $Id: libcheck.F,v 1.3 1999-07-14 00:28:52 d3e129 Exp $
       implicit none
 #include "inp.fh"
+#include "nwc_const.fh"
       character*5 btype
       character*40 name
       character*100 field
       integer pmax, cmax
-      parameter (pmax=30,cmax=30)
+      parameter (pmax=nw_max_prim,cmax=nw_max_gen_con)
       double precision ee(pmax),cc(pmax,cmax)
       integer rex(pmax)
       logical okay

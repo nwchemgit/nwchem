@@ -1,6 +1,6 @@
       subroutine geom_print_rtdb_ecce(rtdb)
 *
-* $Id: geom_print_ecce.F,v 1.3 1997-11-04 10:04:24 d3e129 Exp $
+* $Id: geom_print_ecce.F,v 1.4 1999-07-14 00:28:59 d3e129 Exp $
 *
 #include "geom.fh"
       integer rtdb, geom
@@ -16,6 +16,7 @@ c
       end
       subroutine geom_print_ecce(geom)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "mafdecls.fh"
       integer geom

@@ -1,4 +1,4 @@
-c $Id: int_func_c.F,v 1.4 1997-11-07 12:47:08 d3e129 Exp $
+c $Id: int_func_c.F,v 1.5 1999-07-14 00:28:39 d3e129 Exp $
 *
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_nospherical\_check}
@@ -14,6 +14,7 @@ c routine to stop if basis is spherical
 c
       implicit none
 #include "stdio.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 c:tex-\begin{verbatim}
       integer basisin     ! [input] basis set handle
@@ -50,6 +51,7 @@ c routine to stop if basis has any general contractions
 c
       implicit none
 #include "stdio.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 c:tex-\begin{verbatim}
       integer basisin     ! [input] basis set handle
@@ -87,6 +89,7 @@ c routine to stop if basis/shell has sp shells
 c
       implicit none
 #include "stdio.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 c:tex-\begin{verbatim}
       integer basisin     ! [input] basis set handle
@@ -124,6 +127,7 @@ c routine to stop if basis/shell has sp shells
 c
       implicit none
 #include "stdio.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 c:tex-\begin{verbatim}
       integer nbas           ! [input] number of basis sets

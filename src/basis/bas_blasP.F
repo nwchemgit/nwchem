@@ -1,7 +1,7 @@
 *
 * routines from basisP.F that use blas calls
 *
-* $Id: bas_blasP.F,v 1.7 1999-03-15 22:59:29 d3e129 Exp $
+* $Id: bas_blasP.F,v 1.8 1999-07-14 00:28:50 d3e129 Exp $
 *
 *.....................................................................
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
@@ -9,6 +9,7 @@
       implicit none
 #include "mafdecls.fh"
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "bas_exndcf_dec.fh"
 #include "ecpso_decP.fh"
@@ -104,7 +105,8 @@ c
         if (.not.ma_free_heap(h_old)) call errquit
      &      ('bas_add_ucnt: error freeing old exponents',911)
       endif
-      if (infbs_head(HEAD_NCONT,ind)+1 .gt. nucont_bsmx) then
+*      if (infbs_head(HEAD_NCONT,ind)+1 .gt. nucont_bsmx) then
+      if (infbs_head(HEAD_NCONT,ind) .gt. nucont_bsmx) then
          write(6,*) 'bas_add_ucnt: too many contractions '
          bas_add_ucnt = .false.
          return
@@ -195,6 +197,7 @@ c
       logical function bas_getu_coeff(basisin,icont,coeff)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
@@ -244,6 +247,7 @@ c
       logical function bas_getu_exponent(basisin,icont,exp)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
@@ -293,6 +297,7 @@ c
       logical function bas_setu_coeff(basisin,icont,coeff,ncoeff)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
@@ -351,6 +356,7 @@ c
 *.....................................................................
       logical function bas_setu_exponent(basisin,icont,exp,nexp)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"

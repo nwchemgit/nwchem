@@ -1,14 +1,13 @@
        SUBROUTINE vib_BCALC(IZMAT,BMTRX,HINT,ZMAT,SCR,
      &                 HESSIAN,EIGVEC,EIGVAL)
 C*MODULE VIB  *DECK BCALC
-* $Id: vib_bcalc.F,v 1.4 1998-08-04 18:55:52 mdupuis Exp $
+* $Id: vib_bcalc.F,v 1.5 1999-07-14 00:29:13 d3e129 Exp $
 C
       IMPLICIT none
-c
-      
+#include "nwc_const.fh"
 C
       INTEGER MXATM
-      PARAMETER (MXATM=50)
+      PARAMETER (MXATM=nw_max_atom)
       double precision zan,c
       COMMON /cvib_INFOA /  ZAN(MXATM),C(3,MXATM)
 c

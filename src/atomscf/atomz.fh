@@ -1,7 +1,7 @@
 c
-* $Id: atomz.fh,v 1.1 1996-03-29 04:53:26 d3e129 Exp $
+* $Id: atomz.fh,v 1.2 1999-07-14 00:28:49 d3e129 Exp $
       integer max_num_z           ! maximum number of charges that can be specified
-      parameter (max_num_z=20)    ! set to 20 [should match bas_staticP.fh info]
+      parameter (max_num_z=40)    ! set to 40 
       integer num_z               ! actual number of modified atomic charges
       double precision z          ! values of modified charges
       character*16 tags_z         ! basis tag associated with charges

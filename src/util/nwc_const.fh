@@ -1,0 +1,105 @@
+*
+* $Id: nwc_const.fh,v 1.1 1999-07-14 00:29:13 d3e129 Exp $
+*
+* These constants are used to control some fixed dimensions within nwchem
+* Developers should strive to dynamically allocate memory for arrays and 
+* should only use these constants when necessary.  
+*
+* Adjust these parameters with care.  The defaults were chosen based on 
+* current parameter settings throughout the code and unified under this
+* single include file.  
+*
+*
+*==============================================================================
+*==============================================================================
+* This first block of parameters are ones that contain simple mappings for 
+* scailing the code size. 
+*==============================================================================
+*
+*
+*------------------------------------------------------------------------------
+* Maximum number of basis set objects
+*
+      integer nw_max_basis_sets
+      parameter (nw_max_basis_sets = 6)
+*------------------------------------------------------------------------------
+* Maximum number of geometry objects
+*
+      integer nw_max_geoms
+      parameter (nw_max_geoms = 4)
+*------------------------------------------------------------------------------
+* Maximum number of QM atoms
+*
+      integer nw_max_atom
+      parameter (nw_max_atom = 500)
+*------------------------------------------------------------------------------
+* Maximum number of zmatrix variables (mxzmat)
+*
+      integer nw_max_zmat
+      parameter (nw_max_zmat = 3*nw_max_atom)  
+*------------------------------------------------------------------------------
+* Maximum number of integer zmatrix constants (mxizmt)
+*
+      integer nw_max_izmat
+      parameter (nw_max_izmat = 4*nw_max_atom) !4*nw_max_zmat
+*------------------------------------------------------------------------------
+* Maximum number of coordinates  (mxcoor)
+*
+      integer nw_max_coor
+      parameter (nw_max_coor = 3*nw_max_atom)
+*------------------------------------------------------------------------------
+* Maximum angular momentum (union of all integral functionality)
+*                                 0=S, 1=P, 2=D, 3=F, 4=G, 5=H
+      integer nw_max_angular
+      parameter (nw_max_angular = 5)
+*------------------------------------------------------------------------------
+* Maximum number of primitive gaussians in a segmented shell 
+*....................................................... or general contraction
+*
+      integer nw_max_prim
+      parameter (nw_max_prim = 40)
+*------------------------------------------------------------------------------
+* Maximum number of unique tags
+*
+      integer nw_max_unq_tags
+      parameter (nw_max_unq_tags = 40)
+*------------------------------------------------------------------------------
+* Maximum number of general contractions in a shell
+*
+      integer nw_max_gen_con
+      parameter (nw_max_gen_con = 30)
+*------------------------------------------------------------------------------
+*
+*
+*
+*==============================================================================
+*==============================================================================
+* For the parameters below you need to worry about the kinds of cases you
+* are going to run.  A generic simple mapping is NOT possible.  The defaults
+* are set in an attempt to be able to handle general NWChem configuration for
+* small systems with lots of basis functions and large systems with a smaller
+* set of basis functions. Review settings above before changing the ratios 
+* here. 
+*==============================================================================
+
+*------------------------------------------------------------------------------
+* Maximum number of shells or contractions on an atom
+*
+      integer nw_max_atom_shells
+      parameter (nw_max_atom_shells = 300)
+*------------------------------------------------------------------------------
+* Maximum number of shells on a QM system 
+*...................................(must be <= nw_max_atom_shells*nw_max_atom)
+      integer nw_max_shells
+      parameter (nw_max_shells = 3000)
+*------------------------------------------------------------------------------
+* Maximum number of basis functions on an atom 
+*
+      integer nw_max_atom_nbf
+      parameter (nw_max_atom_nbf = 3000)
+*------------------------------------------------------------------------------
+* Maximum number of basis functions on a QM system
+*...................................(must be <= nw_max_atom_nbf*nw_max_atom)
+      integer nw_max_nbf
+      parameter (nw_max_nbf = 10000)
+*------------------------------------------------------------------------------

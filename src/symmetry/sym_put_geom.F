@@ -1,11 +1,12 @@
       subroutine sym_put_in_geom(geom, nat_uniq, nat_new,
      $     tags_new, uniq_cent, coords_new, l_map, k_map, nops,
      $     charge_new, mass_new)
-C$Id: sym_put_geom.F,v 1.3 1998-08-03 23:12:47 d3g681 Exp $
+C$Id: sym_put_geom.F,v 1.4 1999-07-14 00:29:12 d3e129 Exp $
       implicit none
 
 #include "mafdecls.fh"
 #include "geom.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 
       integer geom,nat_uniq,nat_new,i,l_map, k_map, nops

@@ -1,12 +1,13 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.14 1998-10-02 22:16:24 d3e129 Exp $
+c $Id: intd_2e4c.F,v 1.15 1999-07-14 00:28:41 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
 c 
 #include "stdio.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -335,6 +336,7 @@ c
      &    it,jt,kt,lt,igin,jgin,kgin,lgin,
      &    bra_sph,ket_sph,idatom)
       implicit none
+#include "nwc_const.fh"
 #include "int_nbf.fh"
 c::passed
       integer nint

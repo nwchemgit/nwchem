@@ -1,10 +1,11 @@
       logical function int_norm_2c(basisin)
-c $Id: int_norm_2c.F,v 1.5 1998-11-04 08:52:25 d3e129 Exp $
+c $Id: int_norm_2c.F,v 1.6 1999-07-14 00:28:45 d3e129 Exp $
 c::assumptions
 *..   MA_init has been called
 c
       implicit none
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"

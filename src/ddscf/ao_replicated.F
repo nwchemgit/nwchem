@@ -1,7 +1,7 @@
       subroutine ao_replicated(geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock)
 c     
-c     $Id: ao_replicated.F,v 1.35 1999-05-09 18:31:21 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.36 1999-07-14 00:28:52 d3e129 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -223,6 +223,7 @@ c
      $     jfac, kfac, tol2e, oskel, dens, fock, rdens,
      $     plist, ps, qdim, q4, ijkl, tdim, pinfo)
       implicit none
+#include "nwc_const.fh"
 #include "geom.fh"
 #include "bas.fh"
 #include "global.fh"
@@ -275,9 +276,9 @@ c
       common/fred/nqdone, neri_done, neri_direct, neri_cached, ntreq
 c
       integer cnmax
-      parameter (cnmax=2048) ! Max no. of shells and centers
-      integer cntoce(cnmax)     ! Map from contractions to centers
-      integer cntobfr(2,cnmax)  ! Map from contractions to bf range
+      parameter (cnmax=nw_max_shells) ! Max no. of shells 
+      integer cntoce(cnmax)           ! Map from contractions to centers
+      integer cntobfr(2,cnmax)        ! Map from contractions to bf range
 c
       integer nops              ! No. of group operators = max value of q4
       double precision dnops, dentol_pairs

@@ -1,6 +1,7 @@
       subroutine sym_print_all(geom, oinfo, ouniq, omap, oops, ochar)
-C$Id: sym_pr_all.F,v 1.2 1996-08-19 17:55:27 d3g681 Exp $
+C$Id: sym_pr_all.F,v 1.3 1999-07-14 00:29:12 d3e129 Exp $
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "util.fh"
 #include "mafdecls.fh"

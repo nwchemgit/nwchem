@@ -1,6 +1,6 @@
       subroutine intdd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intdd_1eov.F,v 1.1 1999-04-28 22:47:23 windus Exp $
+c $Id: intdd_1eov.F,v 1.2 1999-07-14 00:28:42 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 c::functions
@@ -66,6 +66,7 @@ c
 c returns 1e overlap second derivative integrals for shells/contractions ish,jsh
 c
 #include "stdio.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"

@@ -1,4 +1,4 @@
-c $Id: int_mpole.F,v 1.12 1998-12-10 23:48:16 d3e129 Exp $
+c $Id: int_mpole.F,v 1.13 1999-07-14 00:28:40 d3e129 Exp $
 *
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mpole}
@@ -35,6 +35,7 @@ c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
 #include "apiP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"

@@ -1,4 +1,4 @@
-c $Id: int_hf1sp.F,v 1.15 1998-12-10 23:48:11 d3e129 Exp $
+c $Id: int_hf1sp.F,v 1.16 1999-07-14 00:28:39 d3e129 Exp $
 *
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_hf1sp}
@@ -18,6 +18,7 @@ c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
 #include "stdio.fh"
+#include "nwc_const.fh"
 #include "int_nbf.fh"
 c::passed
 c:tex-For an integral $<i|Operator|j>$
@@ -216,6 +217,7 @@ c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
 #include "stdio.fh"
+#include "nwc_const.fh"
 #include "int_nbf.fh"
 c::passed
 c:tex-For an integral $<i|Operator|j>$

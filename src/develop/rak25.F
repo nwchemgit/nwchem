@@ -1,6 +1,6 @@
       logical function task_ecp_deriv_check(rtdb)
       implicit none
-* $Id: rak25.F,v 1.3 1999-03-17 14:49:40 d3e129 Exp $
+* $Id: rak25.F,v 1.4 1999-07-14 00:28:53 d3e129 Exp $
 c
 #include "stdio.fh"
 #include "mafdecls.fh"
@@ -111,6 +111,7 @@ c
      &    grad, fdgrad, buf, buf3, scr, bufp, bufm,
      &    bufpp, bufmm, xyz)
       implicit none
+#include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "geomP.fh"

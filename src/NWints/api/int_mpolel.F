@@ -1,7 +1,7 @@
       subroutine int_mpolel(i_basis, ish, j_basis, jsh, lval, centerl,
      &    lscr, scr, lmpint, MP, num_mpint)
 *
-* $Id: int_mpolel.F,v 1.3 1998-12-10 23:48:16 d3e129 Exp $
+* $Id: int_mpolel.F,v 1.4 1999-07-14 00:28:40 d3e129 Exp $
 *
 c
 c routine to compute multipole integrals at a given lvalue.
@@ -64,6 +64,7 @@ c
 c
       implicit none
 #include "apiP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"

@@ -192,6 +192,7 @@ c
       subroutine localizePM(basis, c, sc, nloc, iloc, nbf, nmo,
      $     g_c, g_sc)
       implicit none
+#include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "geom.fh"
@@ -204,7 +205,8 @@ c
       double precision c(nbf, 2), sc(nbf, 2)
       integer g_c, g_sc
       integer maxat, nlist
-      parameter (maxat = 1000)
+*............................   these should be dynamically allocated ?
+      parameter (maxat = nw_max_atom)
       integer list(maxat)
       double precision pop(maxat)
 c
@@ -217,6 +219,9 @@ c
      $     ('localize: basis ', 0)
       if (.not. geom_ncent(geom, natoms)) call errquit
      $     ('localize: geom',0)
+c
+      if (natoms.gt.maxat) call errquit
+     &      ('localize: maxat too small ', 911)
 c
       tol = 1d-8
       gamma_tol = 1d-10
@@ -385,6 +390,7 @@ c
       subroutine localizeFB(basis, c, uc, nloc, iloc, nbf, nmo,
      $     g_c, g_uc)
       implicit none
+#include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "geom.fh"
@@ -403,9 +409,18 @@ c
       double precision u21
       integer nrot, set, pair, neven, x, natoms
       integer maxat, nlist
-      parameter (maxat = 1000)
+*............................   these should be dynamically allocated ?
+      parameter (maxat = nw_max_atom)
       integer list(maxat)
       double precision pop(maxat), qas
+c
+      if (.not. bas_geom(basis, geom)) call errquit
+     $     ('localize: basis ', 0)
+      if (.not. geom_ncent(geom, natoms)) call errquit
+     $     ('localize: geom',0)
+c
+      if (natoms.gt.maxat) call errquit
+     &      ('localize: maxat too small ', 911)
 c
       tol = 1d-8
       gamma_tol = 1d-10
@@ -535,11 +550,6 @@ c
       end do
 c
  1000 continue
-c
-      if (.not. bas_geom(basis, geom)) call errquit
-     $     ('localize: basis ', 0)
-      if (.not. geom_ncent(geom, natoms)) call errquit
-     $     ('localize: geom',0)
 c
 c     Analyze localization of each mo
 c

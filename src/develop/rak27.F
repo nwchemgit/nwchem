@@ -1,6 +1,6 @@
       logical function task_hondo_deriv_check(rtdb)
       implicit none
-* $Id: rak27.F,v 1.1 1999-04-09 23:09:27 windus Exp $
+* $Id: rak27.F,v 1.2 1999-07-14 00:28:54 d3e129 Exp $
 c
 c For testing hondo gradient integrals.  It is currently set up to test
 c the potential derivative integrals.  Comments are sprinkled through the
@@ -114,6 +114,7 @@ c
      &    bufpp, bufmm, xyz)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geom.fh"
 #include "geomP.fh"
 #include "basdeclsP.fh"

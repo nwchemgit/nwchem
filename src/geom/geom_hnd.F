@@ -1011,10 +1011,12 @@ C
       END
       logical function geom_zmtmak(geom, oprint)
       implicit double precision (a-h,o-z)
+#include "stdio.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "util.fh"
+#include "nwc_const.fh"
       integer  geom
       logical  oprint
       parameter (max_zcoord=16)
@@ -1026,11 +1028,11 @@ c     This version does not use the old HONDO common blocks so
 c     it may be called without preamble or fear of side-effects.
 c     
       parameter (toangs=0.52917724924d+00)
-      parameter (mxatom=500)
+      parameter (mxatom=nw_max_atom)
       parameter (mxcart=3*mxatom)
-      parameter (mxzmat=1500)    
-      parameter (mxcoor=1500)    
-      parameter (mxizmt=6000)
+      parameter (mxzmat=nw_max_zmat)    
+      parameter (mxcoor=nw_max_coor)    
+      parameter (mxizmt=nw_max_izmat)
       parameter (mxbond= 384)   ! for specifying additional bonds
       parameter (mxbnds= 8*mxatom)
       parameter (mxangs= 8*mxatom)
@@ -1053,7 +1055,7 @@ c
       logical geom_autoz_info_get
       external geom_autoz_info_get
       integer iw
-      parameter (iw=6)
+      parameter (iw=luout)
 
 *     common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
 *     common/hnd_zmtpar/nzmat,nzvar,nvar
@@ -1848,7 +1850,9 @@ c
      4                      ijklnb,numlnb,xyzlnb,
      $     max_tor_per_bond, oprint)
       implicit double precision (a-h,o-z)
-      parameter (mxatom=500)        
+#include "stdio.fh"
+#include "nwc_const.fh"
+      parameter (mxatom=nw_max_atom)        
       parameter (mxbnds= 8*mxatom)
       parameter (mxangs= 8*mxatom)
       parameter (mxtors= 8*mxatom)
@@ -1857,10 +1861,9 @@ c
       logical     dbug
       logical     out
       logical     zdone, oprint
-*      logical     dooopa
       logical     dolinb
       integer iw
-      parameter (iw=6)
+      parameter (iw=luout)
       dimension c(3,*)
       dimension izmat(*)   
       dimension ijbnds(2,*)
@@ -2019,12 +2022,14 @@ c
       subroutine hnd_zmtyp1(nzvar,nizmat,izmat,mxizmt,
      1                      nat,nbnds,ijbnds,iibnds,nibnds,numbnd)
       implicit double precision (a-h,o-z)
+#include "stdio.fh"
+#include "nwc_const.fh"
       parameter (ione=1)
-      parameter (mxatom=500)        
+      parameter (mxatom=nw_max_atom)        
       parameter (mxbnds= 8*mxatom)
       logical     dbug
       integer iw
-      parameter (iw=6)
+      parameter (iw=luout)
       dimension izmat(*)   
       dimension ijbond(2,mxbnds)
       dimension iibond(  mxatom)
@@ -2098,8 +2103,10 @@ c
      1     nat,nbnds,ijbnds,iibnds,nibnds,ijkang,numang,
      2     dolinb, zdone, oprint)
       implicit double precision (a-h,o-z)
+#include "stdio.fh"
+#include "nwc_const.fh"
       parameter (itwo=2)
-      parameter (mxatom=500)        
+      parameter (mxatom=nw_max_atom)        
       parameter (mxbnds= 8*mxatom)
       parameter (mxangs= 8*mxatom)
       logical     dbug
@@ -2108,7 +2115,7 @@ c
       logical     linbnd
       logical     oprint
       integer iw
-      parameter (iw=6)
+      parameter (iw=luout)
       dimension c(3,*)
       dimension izmat(*)   
       dimension ijkang(3,*)     
@@ -2371,8 +2378,10 @@ c
      1     numatom,nbnds,ijbnds,iibnds,nibnds, ! note rename nat -> numatom
      2     ijklto,numtor, max_tor_per_bond, zdone, oprint)
       implicit double precision (a-h,o-z)
+#include "stdio.fh"
+#include "nwc_const.fh"
       parameter (ithree=3)
-      parameter (mxatom=500)        
+      parameter (mxatom=nw_max_atom)        
       parameter (mxbnds= 8*mxatom)
       parameter (mxtors= 8*mxatom)
       logical     dbug
@@ -2381,7 +2390,7 @@ c
       logical zdone, oprint, oopb, oi3d, oj3d
       logical geom_add_tor, bonds_span3d
       integer iw
-      parameter (iw=6)
+      parameter (iw=luout)
       dimension c(3,*)
       dimension izmat(*)   
       dimension ijklto(4,*)      
@@ -3254,7 +3263,9 @@ c     .                          (+1 or -1 as input, 1 if numeric given)
 C
 C     S. CHIN: 11/08/90 - IBM KINGSTON, NY
 C
-      PARAMETER     (MXATOM=500)
+#include "stdio.fh"
+#include "nwc_const.fh"
+      PARAMETER     (MXATOM=nw_max_atom)
       PARAMETER     (MAXGEO=MXATOM+1,MAXZMT=40,MAXVAR=256)
       LOGICAL       DBUG
       LOGICAL       LST
@@ -3301,7 +3312,7 @@ C
       DATA PLUS   /'+'/
       DATA MINUS  /'-'/
 c
-      IW = 6
+      IW = luout
 c
       do i = nzmod+1,nzmod+3
          zvarname(i) = ' '       ! Default for numeric parameter
@@ -3793,7 +3804,9 @@ C          =+/- 1 ZVAL(3,I) IS BOND ANGLE A-C-D
 C          =2     BOND ANGLE B-C-D IS TETRAHEDRAL
 C          =3     ATOMS B-C-D ARE COLLINEAR
 C
-      PARAMETER     (MXATOM=500)
+#include "stdio.fh"
+#include "nwc_const.fh"
+      PARAMETER     (MXATOM=nw_max_atom)
       PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=256)
       LOGICAL       DBUG
       LOGICAL       CART
@@ -3810,7 +3823,7 @@ C
       DATA PT1,MAX   /0.1D+00,6/
 C
       DBUG=.FALSE.
-      IW = 6
+      IW = luout
 C
       PIFAC=3.1415926536D+00/180.0D+00
       COSTD=-ONE/THREE
@@ -4898,6 +4911,7 @@ c
       subroutine geom_make_constraint_matrix(geom, nzvar, cmat,
      $     nconstraint)
       implicit none
+#include "nwc_const.fh"
       integer geom, nzvar       ! input
       double precision cmat(nzvar, nzvar) ! scratch
       integer nconstraint       ! output
@@ -4924,7 +4938,7 @@ c
       character*8 test
 c
       integer mxcoor
-      parameter (mxcoor = 1500)
+      parameter (mxcoor = nw_max_coor)
       character*8 zvarname(mxcoor)
       integer nzfrz, izfrz(mxcoor)
       double precision zvarsign(mxcoor)

@@ -1,12 +1,13 @@
       SUBROUTINE ZMATIN(IZMAT,NELS)
 C*MODULE VIB  *DECK ZMATIN
-* $Id: vib_zmatin.F,v 1.2 1995-10-21 09:16:38 d3e129 Exp $
+* $Id: vib_zmatin.F,v 1.3 1999-07-14 00:29:13 d3e129 Exp $
 C
       IMPLICIT NONE
+#include "nwc_const.fh"
 *: input elsewhere now :      LOCICAL NVAROK
 C
       INTEGER MXATM
-      PARAMETER (MXATM=50)
+      PARAMETER (MXATM=nw_max_atom)
       double precision zan,c
       COMMON /cvib_INFOA /  ZAN(MXATM),C(3,MXATM)
 c

@@ -1,4 +1,4 @@
-c $Id: int_2e3c.F,v 1.17 1999-05-07 21:44:14 bjohnson Exp $
+c $Id: int_2e3c.F,v 1.18 1999-07-14 00:28:39 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e3c}
@@ -20,6 +20,7 @@ c eri = <bra_g(ish)|ket_g(jsh).ket_g(ksh)>
 c
 #include "apiP.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"

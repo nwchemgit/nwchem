@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.33 1998-12-10 23:48:04 d3e129 Exp $
+c $Id: exact_mem.F,v 1.34 1999-07-14 00:28:38 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -155,6 +155,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
@@ -282,6 +283,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
@@ -410,6 +412,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
@@ -581,6 +584,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
@@ -697,6 +701,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
@@ -818,6 +823,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
@@ -1000,6 +1006,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 c
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "stdio.fh"
@@ -1086,6 +1093,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 c:tex-\begin{verbatim}
       integer basisin ! [input] basis set handle
@@ -1105,6 +1113,7 @@ c
       logical function api_is_atomic_basis(basisin)
       implicit none
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
       integer basisin ! [input] basis set handle
 * returns true if basis set is an atomic style basis
@@ -1120,6 +1129,7 @@ c
       logical function api_is_so_basis(basisin)
       implicit none
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
       integer basisin ! [input] basis set handle
 * returns true if basis set is an so style basis

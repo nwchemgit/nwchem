@@ -1,8 +1,9 @@
       subroutine sym_apply_cart_op(geom, opnum, r, r1)
-C$Id: sym_ap_cart.F,v 1.1 1995-12-13 01:28:06 d3g681 Exp $
+C$Id: sym_ap_cart.F,v 1.2 1999-07-14 00:29:10 d3e129 Exp $
       implicit none
 c
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom, opnum

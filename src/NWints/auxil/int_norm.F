@@ -1,7 +1,8 @@
       logical function int_normalize(basisin)
-c $Id: int_norm.F,v 1.4 1996-02-06 01:39:57 d3e129 Exp $
+c $Id: int_norm.F,v 1.5 1999-07-14 00:28:45 d3e129 Exp $
       implicit none
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"

@@ -1,8 +1,9 @@
       subroutine intp_1epe(i_basis,ish,Ri,j_basis,jsh,Rj,
      &    lscr,scr,lpe,Pe)
-c $Id: intp_1epe.F,v 1.8 1998-12-10 23:48:24 d3e129 Exp $
+c $Id: intp_1epe.F,v 1.9 1999-07-14 00:28:42 d3e129 Exp $
       implicit none
 #include "stdio.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"

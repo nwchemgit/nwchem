@@ -1,8 +1,9 @@
       logical function bas_checksum(basisin, sum)
       implicit none
 *
-* $Id: bas_checksum.F,v 1.2 1997-10-31 20:23:18 d3e129 Exp $
+* $Id: bas_checksum.F,v 1.3 1999-07-14 00:28:50 d3e129 Exp $
 *
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"

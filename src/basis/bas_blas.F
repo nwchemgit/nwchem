@@ -1,7 +1,7 @@
 *
 * routines from basis.F that use blas calls
 *
-* $Id: bas_blas.F,v 1.1 1997-04-02 00:42:06 d3e129 Exp $
+* $Id: bas_blas.F,v 1.2 1999-07-14 00:28:50 d3e129 Exp $
 *
       logical function bas_get_exponent(basisin,icont,exp)
 c
@@ -9,6 +9,7 @@ c  returns the exponents of a given mapped contraction
 c
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
@@ -60,6 +61,7 @@ c returns the coefficients for the given mapped contraction
 c
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
@@ -114,6 +116,7 @@ c sets the exponents to the input array for a given mapped contraction
 c
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
@@ -178,6 +181,7 @@ c sets the coefficients of the given mapped contraction
 c
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
@@ -244,6 +248,7 @@ c returns the r-exponents of a given mapped contraction
 c
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
@@ -295,6 +300,7 @@ c sets the exponents to the input array for a given mapped contraction
 c
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"

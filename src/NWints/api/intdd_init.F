@@ -1,4 +1,4 @@
-c $Id: intdd_init.F,v 1.8 1999-07-08 19:10:48 d3e129 Exp $
+c $Id: intdd_init.F,v 1.9 1999-07-14 00:28:42 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intdd\_init}
@@ -24,6 +24,7 @@ c
 #include "apiP.fh"
 #include "rtdb.fh"
 #include "candoP.fh"
+#include "nwc_const.fh"
 #include "int_nbf.fh"
 #include "util.fh"
 c::functions

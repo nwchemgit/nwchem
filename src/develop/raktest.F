@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.91 1999-07-08 19:10:52 d3e129 Exp $
+c $Id: raktest.F,v 1.92 1999-07-14 00:28:54 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -1150,6 +1150,7 @@ c
 #include "context.fh"
 #include "geom.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -1657,6 +1658,7 @@ c raktest = 4
 #include "rtdb.fh"
 #include "geom.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "mafdecls.fh"
 c
@@ -1722,6 +1724,7 @@ c raktest = 5
 #include "rtdb.fh"
 #include "geom.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "mafdecls.fh"
 c
@@ -2926,6 +2929,7 @@ c
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"      
 #include "geomP.fh"
@@ -3359,6 +3363,7 @@ c
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -3942,6 +3947,7 @@ c
      &    nbf,nat,cmaster,basis,geom)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "geom.fh"
 #include "bas.fh"
@@ -5201,6 +5207,7 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "nwc_const.fh"
 #include "int_nbf.fh"
 c::functions
       logical spcart_init

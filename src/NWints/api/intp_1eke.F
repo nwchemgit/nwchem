@@ -1,6 +1,7 @@
       subroutine intp_1eke(i_basis,ish,j_basis,jsh,R,lscr,scr,lke,Ke)
-c $Id: intp_1eke.F,v 1.8 1998-12-10 23:48:23 d3e129 Exp $
+c $Id: intp_1eke.F,v 1.9 1999-07-14 00:28:42 d3e129 Exp $
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"

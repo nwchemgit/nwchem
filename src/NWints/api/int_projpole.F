@@ -1,4 +1,4 @@
-c $Id: int_projpole.F,v 1.10 1998-12-10 23:48:16 d3e129 Exp $
+c $Id: int_projpole.F,v 1.11 1999-07-14 00:28:40 d3e129 Exp $
 *
 c:tex-% This is part of the standard API routines
 c:tex-\subsection{int\_projpole}
@@ -27,6 +27,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"

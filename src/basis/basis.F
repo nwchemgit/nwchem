@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.88 1999-07-08 19:10:51 d3e129 Exp $
+c $Id: basis.F,v 1.89 1999-07-14 00:28:51 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -7,6 +7,7 @@ c:input none
 c:output always true.
 c
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 c
@@ -120,6 +121,7 @@ c creates a handle and marks it active in the in-core data structure
 c
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "inp.fh"
@@ -240,6 +242,7 @@ c
       implicit none
 #include "mafdecls.fh"
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "bas_exndcf_dec.fh"
 #include "ecpso_decP.fh"
@@ -323,6 +326,7 @@ c
 c Checks to see if a basis set handle is valid
 c
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 c:passed
       integer basisin           ! [input] handle
@@ -350,6 +354,7 @@ c Checks to see if a basis set handle is valid
 c
       implicit none
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "ecpso_decP.fh"
 #include "inp.fh"
@@ -378,6 +383,7 @@ c Checks to see if a basis set handle is valid
 c
       implicit none
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "ecpso_decP.fh"
 #include "inp.fh"
@@ -406,6 +412,7 @@ c
 c routine to load the rtdb with 321g basis sets for atoms 1-20
 c H to Ca
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "bas_exndcf_dec.fh"
@@ -733,6 +740,7 @@ c
       implicit none
 #include "stdio.fh"
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "inp.fh"
@@ -876,6 +884,7 @@ c routine to print unique basis information that is in core
 c
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "inp.fh"
@@ -1141,6 +1150,7 @@ c shells, basis functions, and centers.
 c
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "geom.fh"
 #include "context.fh"
@@ -1316,6 +1326,7 @@ c
 c
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "geom.fh"
 #include "context.fh"
@@ -1808,6 +1819,7 @@ c routine that does an incore basis set store to the rtdb
 c
 #include "mafdecls.fh"
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "ecpso_decP.fh"
 c::passed
@@ -1862,6 +1874,7 @@ c the rtdb.
 c
 #include "mafdecls.fh"
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "inp.fh"
 #include "rtdb.fh"
@@ -1956,6 +1969,7 @@ c
 c  calculate, return and store high angular momentem function
 c   for given basis. 
 c
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 c::functions
@@ -1997,6 +2011,7 @@ c
       logical function gbs_map_clear(basisin)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "bas_ibs_dec.fh"
@@ -2089,6 +2104,7 @@ c
 c prints the basis set <-> geometry mapping information
 c
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
@@ -2202,6 +2218,7 @@ c     output to rtdb info about known basis sets
 c     
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "rtdb.fh"
 c     
@@ -2225,6 +2242,7 @@ c
 c add basis set name to known basis set list on rtdb
 c
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "rtdb.fh"
 #include "inp.fh"
@@ -2274,6 +2292,7 @@ c
 c routine to print active all basis set(s) information
 c
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 c::function
       logical bas_print
@@ -2299,6 +2318,7 @@ c     for diagnostic and debugging purposes
 c     
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "rtdb.fh"
 #include "inp.fh"
@@ -2329,6 +2349,7 @@ c
 c returns the center for a given mapped contraction
 c
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "bas_ibs_dec.fh"
@@ -2365,6 +2386,7 @@ c
 c returns the UNIQUE center for a given mapped contraction
 c
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "bas_ibs_dec.fh"
@@ -2403,6 +2425,7 @@ c in ifirst and the last basis function index in ilast
 c
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "bas_ibs_dec.fh"
@@ -2474,6 +2497,7 @@ c returns the mapped contraction range on a given center
 c
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "geom.fh"
@@ -2527,6 +2551,7 @@ c routine to return the center of a given basis function
 c
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "geom.fh"
@@ -2577,6 +2602,7 @@ c basis function index
 c 
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "bas_ibs_dec.fh"
@@ -2624,6 +2650,7 @@ c
 c returns the total number of basis functions of the mapped basis set.
 c
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 c::function
@@ -2650,6 +2677,7 @@ c
 c returns the total number of primitives of the mapped basis set.
 c
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 c::function
@@ -2676,6 +2704,7 @@ c
 c returns the total number of coeffsof the mapped basis set.
 c
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 c::function
@@ -2702,6 +2731,7 @@ c
 c returns the name and translated name of the basis set
 c
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"      
 #include "inp.fh"
 c::functions
@@ -2732,6 +2762,7 @@ c
 *.....................................................................
       logical function bas_cont_tag(basisin,icont,tagout)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "stdio.fh"
 #include "mafdecls.fh"
@@ -2767,6 +2798,7 @@ c  returns the generic information about the given mapped contraction
 c
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
@@ -2826,6 +2858,7 @@ c returns the total number of mapped contractions/shells for the
 c given basis set
 c
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
@@ -2856,6 +2889,7 @@ c
 c  calculate, return and store maximum basis function block size
 c   for all contractions in a given basis. 
 c
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 c::functions
@@ -2903,6 +2937,7 @@ c  calculate, return and store maximum basis function block size
 c   for all contractions in a given basis. 
 c
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geom.fh"
 #include "basdeclsP.fh"
@@ -2956,6 +2991,7 @@ c
 *.....................................................................
       logical function bas_geom(basisin,geom)	
       implicit none 
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
@@ -2978,6 +3014,7 @@ c
 *.....................................................................
       logical function bas_ncoef_cn_max(basisin, ncoef_max)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
       integer basisin   ! [input] basis set handle
@@ -3001,6 +3038,7 @@ c
 *.....................................................................
       logical function bas_nprim_cn_max(basisin, nprim_max)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
       integer basisin   ! [input] basis set handle
@@ -3024,6 +3062,7 @@ c
 *.....................................................................
       logical function bas_norm_get(basisin,norm_id)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 c
@@ -3039,6 +3078,7 @@ c
 *.....................................................................
       logical function bas_norm_set(basisin,norm_id)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 c
@@ -3059,6 +3099,7 @@ c
 *.....................................................................
       logical function bas_norm_print(basisin)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "stdio.fh"
@@ -3091,6 +3132,7 @@ c routine to print unique ecpid information that is in core
 c
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "inp.fh"
@@ -3210,6 +3252,7 @@ c routine to print unique soid information that is in core
 c
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "inp.fh"
@@ -3320,6 +3363,7 @@ c
 *.....................................................................
       logical function bas_set_ecp_name(basisin,ecp_name)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
       integer basisin
       character*(*) ecp_name
@@ -3331,6 +3375,7 @@ c
 *.....................................................................
       logical function bas_set_so_name(basisin,so_name)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
       integer basisin
       character*(*) so_name
@@ -3342,6 +3387,7 @@ c
 *.....................................................................
       logical function bas_get_ecp_name(basisin,ecp_name)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
       integer basisin
       character*(*) ecp_name
@@ -3353,6 +3399,7 @@ c
 *.....................................................................
       logical function bas_get_so_name(basisin,so_name)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
       integer basisin
       character*(*) so_name
@@ -3364,6 +3411,7 @@ c
 *.....................................................................
       logical function bas_set_ecp_handle(basisin,ecp_handle)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
       integer basisin
       integer ecp_handle
@@ -3375,6 +3423,7 @@ c
 *.....................................................................
       logical function bas_get_ecp_handle(basisin,ecp_handle)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
       integer basisin
       integer ecp_handle
@@ -3390,6 +3439,7 @@ c
 *.....................................................................
       logical function ecp_set_parent_handle(ecp_handle,basis_handle)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
       integer ecp_handle
       integer basis_handle
@@ -3412,6 +3462,7 @@ c
 *.....................................................................
       logical function ecp_get_parent_handle(ecp_handle,basis_handle)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
       integer ecp_handle
       integer basis_handle
@@ -3435,6 +3486,7 @@ c
 *.....................................................................
       logical function bas_set_so_handle(basisin,so_handle)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
       integer basisin
       integer so_handle
@@ -3446,6 +3498,7 @@ c
 *.....................................................................
       logical function bas_get_so_handle(basisin,so_handle)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
       integer basisin
       integer so_handle
@@ -3461,6 +3514,7 @@ c
 *.....................................................................
       logical function so_set_parent_handle(so_handle,basis_handle)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
       integer so_handle
       integer basis_handle
@@ -3483,6 +3537,7 @@ c
 *.....................................................................
       logical function so_get_parent_handle(so_handle,basis_handle)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"
       integer so_handle
       integer basis_handle
@@ -3508,6 +3563,7 @@ c
       implicit none
 #include "stdio.fh"
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "global.fh"
@@ -3576,6 +3632,7 @@ c
 c::includes
 #include "stdio.fh"
 #include "inp.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 c::functions
@@ -3772,6 +3829,7 @@ c
       end
       logical function bas_is_spherical(basisin)
       implicit none
+#include "nwc_const.fh"
 #include "basP.fh"      
 #include "stdio.fh"
 *::passed
@@ -3796,6 +3854,7 @@ c
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
@@ -4309,6 +4368,7 @@ c returns the largest primitive exponent in the given basis set
 c
 #include "stdio.fh"
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
@@ -4360,6 +4420,7 @@ c returns the largest primitive exponent in the given basis set
 c
 #include "stdio.fh"
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"

@@ -1,11 +1,12 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.122 1999-07-13 18:01:27 d3g681 Exp $
+C     $Id: geom_input.F,v 1.123 1999-07-14 00:28:58 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
 #include "geom.fh"
 #include "tcgmsg.fh"
 #include "rtdb.fh"
+#include "nwc_const.fh"
       integer rtdb              ! [input]
 c     
       character*255 field       ! for character input
@@ -28,7 +29,7 @@ c
       double precision scale    ! For unit conversion
       double precision threquiv ! Threshold for autosym atom equivalence
 c     .                           and for forcing symmetry
-      parameter (max_center = 500)
+      parameter (max_center = nw_max_atom)
       double precision coords(3,max_center), velocities(3,max_center)
       double precision charge(max_center), mass(max_center)
       character*16 tags(max_center)
@@ -241,7 +242,7 @@ c
      $           scale,oprint)
             goto 20
          else
-            if ((ncenter+1) .eq. max_center) call errquit
+            if ((ncenter+1) .gt. max_center) call errquit
      $           ('geom_input: too many centers?', ncenter)
             tags(ncenter+1) = field
             charge(ncenter+1) = 0.0d0
@@ -464,6 +465,7 @@ c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
       subroutine geom_sys_input(geom,scale)
       implicit none
 #include "geom.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "inp.fh"
       integer geom
@@ -551,6 +553,7 @@ c        status = geom_set_user_units(geom,'fractional')
       implicit none
 #include "inp.fh"
 #include "geom.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom
@@ -612,6 +615,7 @@ c
      $     ijbond_val,ijkang_val,ijklto_val,ijklop_val,ijklnb_val,
      $     ijbond_frz,ijkang_frz,ijklto_frz,ijklop_frz,ijklnb_frz)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom
       integer ijbond(2,*),ijkang(3,*),ijklto(4,*),ijklop(4,*),
@@ -646,11 +650,11 @@ c
       call icopy(4*max_zcoord,zmt_ijklop(1,1,geom),1,ijklop,1)
       call icopy(4*max_zcoord,zmt_ijklnb(1,1,geom),1,ijklnb,1)
 *
-      call icopy(max_zcoord,zmt_ijbond_frz(1,geom),1,ijbond_frz,1)
-      call icopy(max_zcoord,zmt_ijkang_frz(1,geom),1,ijkang_frz,1)
-      call icopy(max_zcoord,zmt_ijklto_frz(1,geom),1,ijklto_frz,1)
-      call icopy(max_zcoord,zmt_ijklop_frz(1,geom),1,ijklop_frz,1)
-      call icopy(max_zcoord,zmt_ijklnb_frz(1,geom),1,ijklnb_frz,1)
+      call lcopy(max_zcoord,zmt_ijbond_frz(1,geom),1,ijbond_frz,1)
+      call lcopy(max_zcoord,zmt_ijkang_frz(1,geom),1,ijkang_frz,1)
+      call lcopy(max_zcoord,zmt_ijklto_frz(1,geom),1,ijklto_frz,1)
+      call lcopy(max_zcoord,zmt_ijklop_frz(1,geom),1,ijklop_frz,1)
+      call lcopy(max_zcoord,zmt_ijklnb_frz(1,geom),1,ijklnb_frz,1)
 *
       call dcopy(max_zcoord,zmt_ijbond_val(1,geom),1,ijbond_val,1)
       call dcopy(max_zcoord,zmt_ijkang_val(1,geom),1,ijkang_val,1)
@@ -669,6 +673,7 @@ c
       end
       subroutine geom_autoz_input(geom,oprint)
       implicit double precision (a-h,o-z)
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom
       logical oprint
@@ -917,17 +922,18 @@ c
      2                           units,oprint)
       implicit none
 #include "stdio.fh"
+#include "nwc_const.fh"
 #include "geom.fh"
       integer      mxizmt
       integer      mxzmat
       integer      mxatom
       integer      mxcart
       integer      mxcoor
-      parameter    (mxizmt=6000)
-      parameter    (mxzmat=1500)
-      parameter    (mxatom=500)
+      parameter    (mxizmt=nw_max_izmat)
+      parameter    (mxzmat=nw_max_zmat)
+      parameter    (mxatom=nw_max_atom)
       parameter    (mxcart=3*mxatom)
-      parameter    (mxcoor=1500)
+      parameter    (mxcoor=nw_max_coor)
 
       character*8 zvarname(mxcoor)
       double precision zvarsign(mxcoor)
@@ -1042,6 +1048,7 @@ c
       end
       logical function geom_compute_zmatrix(geom, zmat)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "stdio.fh"
       integer geom
@@ -1156,6 +1163,7 @@ c
       end
       logical function geom_print_zmatrix(geom, data, string, odata)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "inp.fh"
       integer geom
@@ -1334,6 +1342,7 @@ c
       end
       subroutine geom_zmat_to_cart(s, nzvar, c)
       implicit none
+#include "nwc_const.fh"
 #include "global.fh"
       integer nzvar
       double precision s(nzvar), c(3,*)
@@ -1350,9 +1359,9 @@ c
       integer mxcoor, mxizmt, nizmat
       integer mxatom
       double precision cc, zan
-      parameter (mxatom=500)
-      parameter (mxcoor = 1500)
-      parameter (mxizmt=6000)
+      parameter (mxatom = nw_max_atom)
+      parameter (mxcoor = nw_max_coor)
+      parameter (mxizmt = nw_max_izmat)
       common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
       common/hnd_molxyz/cc(3,mxatom),zan(mxatom),nat
 c
@@ -1605,6 +1614,7 @@ c
       end
       subroutine geom_zmat_ico_scale(geom, s, bscale, ascale)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom
@@ -1693,11 +1703,12 @@ C
 C      ZVAL        =  DISTANCE, ANGLE AND TORSION ANGLE VALUE
 C       ZMT        =  I, J, K, L INDICES
 C
-      PARAMETER     (MXATOM=500)
-      PARAMETER     (MXCOOR=1500)
+#include "nwc_const.fh"
+      PARAMETER     (MXATOM=nw_max_atom)
+      PARAMETER     (MXCOOR=nw_max_coor)
       PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=256)
       PARAMETER     (MAXPRM=100)
-      PARAMETER     (MXIZMT=6000)
+      PARAMETER     (MXIZMT=nw_max_izmat)
       PARAMETER     (MAXLST=10+1)
       CHARACTER*16  TAGS
       LOGICAL       GEOM_LST_PUT_COORD
@@ -2683,10 +2694,11 @@ c
      $     group)
       implicit none
 #include "stdio.fh"
+#include "nwc_const.fh"
       integer      rtdb
       integer      geom
       integer      mxatom
-      parameter    (mxatom=500)
+      parameter    (mxatom=nw_max_atom)
       integer      ir
       integer      iw
       integer      i
@@ -2769,9 +2781,10 @@ c
       end
       SUBROUTINE HND_AUTSYM(ODONE,RTDB,THREQUIV,groupname)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "nwc_const.fh"
       INTEGER     RTDB
       LOGICAL     ODONE
-      PARAMETER   (MXATOM=500)
+      PARAMETER   (MXATOM=nw_max_atom)
       PARAMETER   (MXSYM =120)
       CHARACTER*8 ERRMSG,groupname
       CHARACTER*1 XYZNAM
@@ -2879,9 +2892,10 @@ c
 c     RJH ... added parameter THREQUIV to provide user control
 c     .       for noisy geometries, and groupname to return value
 C
+#include "nwc_const.fh"
       LOGICAL     ODONE
       PARAMETER   (MXORDR=24)
-      PARAMETER   (MXATOM=500)
+      PARAMETER   (MXATOM=nw_max_atom)
       CHARACTER*8 ERRMSG,groupname
       LOGICAL     MUCH
       LOGICAL     DBUG
@@ -4438,7 +4452,8 @@ C
 C
 C     ----- CENTER AND MOMENTS OF INERTIA ----- 
 C
-      PARAMETER (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER (MXATOM=nw_max_atom)
       PARAMETER (ZERO=0.0D+00)
       LOGICAL OUT
       COMMON/HND_IOFILE/IR,IW
@@ -4506,7 +4521,8 @@ C
       END
       SUBROUTINE HND_MOLAMS(BMASS,SOME)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER   (MXATOM=500)
+#include "nwc_const.fh"
+      PARAMETER   (MXATOM=nw_max_atom)
       LOGICAL     SOME
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
@@ -5237,6 +5253,7 @@ C
 #include "mafdecls.fh"
 #include "util.fh"
 #include "global.fh"
+#include "nwc_const.fh"
       integer geom
       double precision alpha, ds(*)
       double precision err      ! [output] Returns the error
@@ -5248,7 +5265,7 @@ c
 c     Also enforce symmetry.
 c
       integer max_cent, max_nzvar
-      parameter (max_cent = 500)
+      parameter (max_cent = nw_max_atom)
       parameter (max_nzvar= 3*max_cent)
       double precision  p(max_nzvar) ! Current internals
       double precision  q(max_nzvar) ! Target internals
@@ -5412,6 +5429,7 @@ c
 #include "mafdecls.fh"
 #include "util.fh"
 #include "global.fh"
+#include "nwc_const.fh"
       integer geom
       external impose_constraints
 c     
@@ -5426,7 +5444,7 @@ c
 c     Also enforce symmetry.
 c     
       integer max_cent, max_nzvar
-      parameter (max_cent = 500)
+      parameter (max_cent = nw_max_atom)
       parameter (max_nzvar= 3*max_cent)
       double precision  p(max_nzvar) ! Current internals
       double precision  q(max_nzvar) ! Target internals
@@ -5525,6 +5543,7 @@ c
       end
       subroutine geom_impose_initial_values_on_q(geom,q)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom
       double precision q(*)
@@ -5595,6 +5614,7 @@ c
       end
       subroutine geom_impose_constraints_on_q(geom,q)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom
       double precision q(*)
@@ -5644,6 +5664,7 @@ c
       end
       subroutine geom_zmat_sane_step(geom, s)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "util.fh"
 c
@@ -5846,6 +5867,7 @@ c
       end
       subroutine geom_zmt_remember_constants(geom)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom
 c

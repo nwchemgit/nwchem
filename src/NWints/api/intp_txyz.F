@@ -1,6 +1,7 @@
       subroutine intp_txyz(n_cent, n_geom, R, xyz_new)
-c $Id: intp_txyz.F,v 1.3 1995-12-22 01:39:11 d3e129 Exp $
+c $Id: intp_txyz.F,v 1.4 1999-07-14 00:28:42 d3e129 Exp $
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c::external subroutines used
 c... dgemv

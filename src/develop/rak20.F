@@ -1,6 +1,6 @@
       logical function task_pderiv(rtdb)
 *
-* $Id: rak20.F,v 1.5 1998-10-26 16:12:11 d3e129 Exp $
+* $Id: rak20.F,v 1.6 1999-07-14 00:28:53 d3e129 Exp $
 *
 ***********************************************************************
 * This is about the nuclear coordinate derivatives of multicenter 
@@ -250,6 +250,7 @@ c
      &    buf,bufp,bufm,scr,p1c,p1fd,xyz)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "bas.fh"
 #include "stdio.fh"
@@ -427,6 +428,7 @@ c
      &    buf,bufp,bufm,scr,ovc,ovfd,xyz)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "bas.fh"
 #include "stdio.fh"
@@ -644,6 +646,7 @@ c
      &    buf,bufp,bufm,scr,kec,kefd,xyz)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "bas.fh"
 #include "stdio.fh"
@@ -860,6 +863,7 @@ c
      &    buf,bufp,bufm,scr,pec,pefd,xyz)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "bas.fh"
 #include "stdio.fh"
@@ -1086,6 +1090,7 @@ c
      &    buf,bufp,bufm,scr,eri2c,eri2fd,xyz)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "bas.fh"
 #include "stdio.fh"
@@ -1303,6 +1308,7 @@ c
      &    buf,bufp,bufm,scr,eri3c,eri3fd,xyz)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "bas.fh"
 #include "stdio.fh"
@@ -1563,6 +1569,7 @@ c
      &    buf,bufp,bufm,scr,ov3c,ov3fd,xyz)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "bas.fh"
 #include "stdio.fh"
@@ -1813,6 +1820,7 @@ c
      &    buf,bufp,bufm,scr,mp3c,mp3fd,xyz)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "bas.fh"
 #include "stdio.fh"
@@ -2331,6 +2339,7 @@ c
      &    buf,bufp,bufm,scr,eri3,eri3t,xyz)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "bas.fh"
 #include "stdio.fh"
@@ -2502,6 +2511,7 @@ c
      &    buf,bufp,bufm,scr,eri3,eri3t,xyz)
       implicit none
 #include "mafdecls.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "bas.fh"
 #include "stdio.fh"

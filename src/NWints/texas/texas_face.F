@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.56 1999-07-08 19:10:49 d3e129 Exp $
+c $Id: texas_face.F,v 1.57 1999-07-14 00:28:46 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -222,6 +222,7 @@ c..  this routine is the current interface to the texas code
 c
 #include "bas.fh"
 #include "geom.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -530,6 +531,7 @@ c=================================================================
 cccc  subroutine makenuc(geom,nat,datnuc)
       subroutine makenuc(geom,natoms,nat,datnuc)
       implicit real*8 (a-h,o-z)
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -563,6 +565,7 @@ c ncshells = total number of contracted shells up to this basis set
 c ncsh     = number of shells in this basis set (bas)
 c
       implicit real*8 (a-h,o-z)
+#include "nwc_const.fh"
 #include "basP.fh"
       integer bas
       logical cart_2_sphe
@@ -618,6 +621,7 @@ c==============1
 **  This routine should be changed to be only the interface calls
 **  RAK
 ****
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -737,6 +741,7 @@ c ncsh     = number of cont. shells in this basis set
 c-----------------------------------------------------------------
 c
       implicit real*8 (a-h,o-z)
+#include "nwc_const.fh"
 #include "basP.fh"
       integer bas,basis
       logical cart_2_sphe

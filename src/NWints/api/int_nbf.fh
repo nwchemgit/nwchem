@@ -1,8 +1,8 @@
 c
-* $Id: int_nbf.fh,v 1.1 1996-07-18 23:59:25 d3e129 Exp $
+* $Id: int_nbf.fh,v 1.2 1999-07-14 00:28:40 d3e129 Exp $
 c
       integer int_nbf_max_ang
-      parameter (int_nbf_max_ang = 5)  ! l, s, p, d, f, g, h
+      parameter (int_nbf_max_ang = nw_max_angular)  ! l, s, p, d, f, g, h
       integer int_nbf_x, int_nbf_s
       common /int_nbf_c/int_nbf_x(-1:int_nbf_max_ang),
      &      int_nbf_s(-1:int_nbf_max_ang)

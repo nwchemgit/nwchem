@@ -1,4 +1,4 @@
-c $Id: int_l2e2c.F,v 1.12 1998-12-10 23:48:14 d3e129 Exp $
+c $Id: int_l2e2c.F,v 1.13 1999-07-14 00:28:39 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e2c}
@@ -16,6 +16,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"

@@ -1,4 +1,4 @@
-c $Id: int_pgen1e.F,v 1.8 1997-05-29 23:43:07 d3e129 Exp $
+c $Id: int_pgen1e.F,v 1.9 1999-07-14 00:28:40 d3e129 Exp $
 *
 c:tex-% This is part of the standard API
 c:tex-\subsection{int\_pgen1e}
@@ -16,6 +16,7 @@ c generic one electron printing routine
 c  print_level = 0 print only lables and integrals
 c              = 1 print shell information etc. 
 c
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 c

@@ -1,4 +1,4 @@
-c $Id: intbd_2e4c.F,v 1.10 1998-12-10 23:48:18 d3e129 Exp $
+c $Id: intbd_2e4c.F,v 1.11 1999-07-14 00:28:40 d3e129 Exp $
 *
       logical function intbd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,
@@ -6,6 +6,7 @@ c $Id: intbd_2e4c.F,v 1.10 1998-12-10 23:48:18 d3e129 Exp $
      &     l_erilab, nint, lscr, scr)
       implicit none
 #include "numb_qP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
@@ -74,6 +75,7 @@ c
       implicit none
 #include "stdio.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "numb_qP.fh"
 c::functions

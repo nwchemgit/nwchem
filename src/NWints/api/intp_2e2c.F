@@ -1,6 +1,6 @@
       subroutine intp_2e2c(brain, ish, ketin, jsh, Rj,
      &       lscr, scr, leri, eri)
-c $Id: intp_2e2c.F,v 1.7 1998-12-10 23:48:24 d3e129 Exp $
+c $Id: intp_2e2c.F,v 1.8 1999-07-14 00:28:42 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 2 center two electron integrals
@@ -8,6 +8,7 @@ c eri = <bra_g(ish)|ket_g(jsh)>
 c
 #include "apiP.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"

@@ -12,6 +12,7 @@ c     As an optimization inline sym_center_map ... the only reason
 c     geomP.fh and mafdecls.fh are included here ... the interface
 c     is compatible with that of the actual routine.
 c
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "mafdecls.fh"
       integer iat_new
@@ -50,7 +51,7 @@ c
 c
       end
       logical function sym_shell(basis, ishell, q1)
-C$Id: sym_sh_pair.F,v 1.4 1997-03-04 06:08:47 d3e129 Exp $
+C$Id: sym_sh_pair.F,v 1.5 1999-07-14 00:29:12 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"      
@@ -82,7 +83,7 @@ c
 c
       end
       logical function sym_shell_pair(basis, ishell, jshell, q2)
-C$Id: sym_sh_pair.F,v 1.4 1997-03-04 06:08:47 d3e129 Exp $
+C$Id: sym_sh_pair.F,v 1.5 1999-07-14 00:29:12 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"      
@@ -153,6 +154,7 @@ c     As an optimization inline sym_center_map ... the only reason
 c     geomP.fh and mafdecls.fh are included here ... the interface
 c     is compatible with that of the actual routine.
 c
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "mafdecls.fh"
       integer iat_new, jat_new, ijat, ijat_new
@@ -210,6 +212,7 @@ c     (iat<->jat) <-> (kat<->lat)
 c
 c     ... it is easy to extend it to not use these
 c
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "mafdecls.fh"
       integer iat_new, jat_new, kat_new, lat_new
@@ -312,6 +315,7 @@ c
       integer iat, jat, kat, lat ! Atom indices [input]
       double precision q4       ! Constituency number [output]
 c
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "mafdecls.fh"
       integer iat_new, jat_new, kat_new, lat_new

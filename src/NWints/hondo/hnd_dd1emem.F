@@ -1,4 +1,4 @@
-c $Id: hnd_dd1emem.F,v 1.2 1999-05-06 17:25:49 windus Exp $
+c $Id: hnd_dd1emem.F,v 1.3 1999-07-14 00:28:46 d3e129 Exp $
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : 1e- derivative memory routine
@@ -7,6 +7,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine hnd_dd1emem(bases,nbas)
       implicit none
 #include "apiP.fh"
+#include "nwc_const.fh"
 #include "bas.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"

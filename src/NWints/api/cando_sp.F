@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.35 1999-07-08 19:10:48 d3e129 Exp $
+c $Id: cando_sp.F,v 1.36 1999-07-14 00:28:38 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -18,6 +18,7 @@ c because it is only called by routines that do this.
 c 
 c
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "candoP.fh"
@@ -103,6 +104,7 @@ c because it only called by routines that do this.
 c
 c
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
@@ -171,6 +173,7 @@ c this routine does not check the shell and int_init
 c because it only called by routines that do this.
 c
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
@@ -254,6 +257,7 @@ c:tex-for all 2e permutations.
 #endif
 c
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
@@ -316,6 +320,7 @@ c this routine does not check the shell and int_init
 c because it only called by routines that do this.
 c
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
@@ -376,6 +381,7 @@ c because it is only called by routines that do this.
 c
 #include "apiP.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"

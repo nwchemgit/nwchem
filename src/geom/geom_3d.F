@@ -16,11 +16,12 @@ c
 c     The lattice angles are input in Degrees
 c***********************************************************************
       subroutine geom_3d(geom,c2au)
-C$Id: geom_3d.F,v 1.7 1997-09-25 05:55:42 gutowski Exp $
+C$Id: geom_3d.F,v 1.8 1999-07-14 00:28:57 d3e129 Exp $
       implicit none
 #include "global.fh"
 #include "inp.fh"
 #include "geom.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       double precision deter3

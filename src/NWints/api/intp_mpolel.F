@@ -2,7 +2,7 @@
      &    lval, centerl,
      &    lscr, scr, lmpint, MP, num_mpint)
 *
-* $Id: intp_mpolel.F,v 1.3 1998-12-10 23:48:26 d3e129 Exp $
+* $Id: intp_mpolel.F,v 1.4 1999-07-14 00:28:42 d3e129 Exp $
 *
 c
 c routine to compute multipole integrals at a given lvalue with the
@@ -65,6 +65,7 @@ c
 c
       implicit none
 #include "apiP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"

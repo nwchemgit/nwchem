@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.44 1998-09-08 09:10:21 d3e129 Exp $
+c $Id: bas_input.F,v 1.45 1999-07-14 00:28:50 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -281,6 +281,7 @@ c
 #include "geom.fh"
 #include "inp.fh"
 #include "baslibraryP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "ecpso_decP.fh"
@@ -454,6 +455,7 @@ c
       implicit none
 #include "stdio.fh"
 #include "bas.fh"
+#include "nwc_const.fh"
 #include "basdeclsP.fh"
 #include "basP.fh"
 #include "geom.fh"
@@ -479,7 +481,7 @@ c
       logical o_basis
       logical rex_okay
       logical ostat_f, ostat_field, ostat_split
-      parameter (cont_max = 30, prim_max = 30)
+      parameter (cont_max = nw_max_gen_con, prim_max = nw_max_prim)
       double precision expnt(prim_max), coeff(prim_max,cont_max),
      $     etmp(prim_max), ctmp(prim_max),
      &     rex(prim_max), rex_tmp(prim_max)
@@ -513,7 +515,7 @@ c
      &    call errquit
      &    ('bas_input_cont: sp shell requires exactly 2 coeffs',ngen)
 c
-      do iprim = 1, prim_max
+      do iprim = 1, (prim_max+1)
 c
         if (oIs_ecp.or.oIs_so) then
           ostat_f = inp_f(rex(iprim))
@@ -527,6 +529,8 @@ c     If cannot read the first field as an exponent then
 c     it is the end of this contraction
 c     
           goto 30
+        else if (iprim.gt.prim_max) then
+          continue  ! drop out of loop without any assignment
         else if (expnt(iprim) .le. 0.0d0) then
           call errquit('bas_input_cont: invalid exponent', 0)
         else
@@ -657,6 +661,7 @@ c
       implicit none
 #include "bas.fh"
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "geom.fh"
 #include "inp.fh"
@@ -1019,6 +1024,7 @@ c
       subroutine bas_ecce_print_basis(basisin,module_id)
       implicit none
 #include "basdeclsP.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "ecpso_decP.fh"
 #include "bas_exndcf_dec.fh"

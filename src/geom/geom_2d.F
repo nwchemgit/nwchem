@@ -65,11 +65,12 @@ c                                                   AC Hess
 c***********************************************************************
       subroutine geom_2d(geom,c2au)
 *
-* $Id: geom_2d.F,v 1.4 1997-11-04 10:04:22 d3e129 Exp $
+* $Id: geom_2d.F,v 1.5 1999-07-14 00:28:57 d3e129 Exp $
 *
       implicit none
 #include "inp.fh"
 #include "geom.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom,i,j

@@ -1,6 +1,7 @@
       block data geom_data
-C$Id: geom.F,v 1.91 1999-06-28 15:50:57 d3g681 Exp $
+C$Id: geom.F,v 1.92 1999-07-14 00:28:56 d3e129 Exp $
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer i                 ! For implied do in data staements
@@ -83,6 +84,7 @@ c
       end
       logical function geom_check_handle(geom, msg)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -100,6 +102,7 @@ c
       end
       logical function geom_check_cent(geom, msg, icent)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -119,6 +122,7 @@ c
       end
       logical function geom_rtdb_in(rtdb)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -148,6 +152,7 @@ c
       end
       logical function geom_rtdb_out(rtdb)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -167,6 +172,7 @@ c
       end
       logical function geom_rtdb_add(rtdb, name)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -214,6 +220,7 @@ c
       end
       subroutine geom_err_info(info)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       character*(*) info        ! [input]
@@ -250,6 +257,7 @@ c
       logical function geom_rtdb_load(rtdb, geom, name)
       implicit none
 #include "rtdb.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
@@ -524,6 +532,7 @@ c
       end
       subroutine geom_compute_values(geom)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "util.fh"
 #include "inp.fh"
@@ -596,6 +605,7 @@ c
       end
       logical function geom_include_bqbq(geom)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom
       logical geom_check_handle
@@ -608,6 +618,7 @@ c
       end
       logical function geom_set_bqbq(geom, value)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       logical value
       integer geom
@@ -622,6 +633,7 @@ c
       end
       logical function geom_rtdb_store(rtdb, geom, name)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -849,6 +861,7 @@ c
       end
       logical function geom_rtdb_delete(rtdb, name)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "rtdb.fh"
 #include "inp.fh"
@@ -910,6 +923,7 @@ c
       end
       logical function geom_strip_sym(geom)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "mafdecls.fh"
 c
@@ -944,6 +958,7 @@ c
       end
       logical function geom_destroy(geom)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "mafdecls.fh"
 c
@@ -970,6 +985,7 @@ c
       end
       logical function geom_group_set(geom, group)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "inp.fh"
 c     
@@ -993,6 +1009,7 @@ c
       
       logical function geom_vel_set(geom, vel)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -1008,6 +1025,7 @@ c
       end
       logical function geom_vel_get(geom, vel)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -1023,6 +1041,7 @@ c
       end
       logical function geom_cart_set(geom, ncent, t, c, q)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -1059,6 +1078,7 @@ c
       end
       logical function geom_cart_get(geom, ncent, t, c, q)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -1085,6 +1105,7 @@ c
       end
       logical function geom_cart_coords_get(geom, c)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -1107,6 +1128,7 @@ c
       end
       logical function geom_cart_coords_set(geom, c)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -1129,6 +1151,7 @@ c
       end
       logical function geom_cent_get(geom, icent, t, c, q)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -1155,6 +1178,7 @@ c
       end
       logical function geom_cent_set(geom, icent, t, c, q)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -1184,6 +1208,7 @@ c
       end
       logical function geom_ncent(geom, ncent)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -1198,6 +1223,7 @@ c
       end
       logical function geom_ncent_unique(geom, ncent)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -1212,6 +1238,7 @@ c
       end
       logical function geom_cent_tag(geom, icent, tag)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -1231,6 +1258,7 @@ c
       end
       logical function geom_efield_set(geom, ef)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -1242,6 +1270,7 @@ c     call geom_set_values(geom)
       end
       logical function geom_efield_get(geom, ef)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -1268,6 +1297,7 @@ c
       end
       logical function geom_print_xyz(geom, unit)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "util.fh"
 #include "inp.fh"
@@ -1308,6 +1338,7 @@ c
       end
       logical function geom_print(geom)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "util.fh"
 #include "inp.fh"
@@ -1399,12 +1430,14 @@ c
       write(6,*) '     ----------- '
       write(6,*)
       do icent = 1, ncenter(geom)
-	 do jcent = 1, icent-1
-	    if (tags(icent,geom) .eq. tags(jcent,geom)) goto 765
-         enddo
-	 write(6,44) tags(icent,geom), geom_mass(icent,geom)
- 44      format('      ',a16,' ',f10.6)
- 765  enddo
+        if (abs(geom_mass(icent,geom)).lt.1.0d-07) goto 765
+        do jcent = 1, icent-1
+          if (tags(icent,geom) .eq. tags(jcent,geom)) goto 765
+        enddo
+        write(6,44) tags(icent,geom), geom_mass(icent,geom)
+44      format('      ',a16,' ',f10.6)
+765     continue
+      enddo
       write(6,*)
 c     
       write(6,41) erep(geom)
@@ -1499,6 +1532,7 @@ c
       logical function geom_tag_to_element(tag, symbol, element, atn)
       implicit none
 #include "inp.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
       character*2 symbols(nelements)
       character*16 elements(nelements)
@@ -1620,6 +1654,7 @@ c
       end
       logical function geom_charge_center(geom)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom              ! [input]
       integer i, k
@@ -1654,6 +1689,7 @@ c
 c
       end
       logical function geom_nuc_rep_energy(geom, energy)
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom              ! [input]
       double precision energy   ! [output]
@@ -1668,6 +1704,7 @@ c
 c
       end
       logical function geom_nuc_charge(geom, total_charge)
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom              ! [input]
       double precision total_charge ! [output]
@@ -1764,6 +1801,7 @@ c---> new functions added on incorporation on symmetry and solid state codes
 c
 c
       logical function geom_systype_get(geom, itype)
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom              ! [input]
       integer itype
@@ -1781,6 +1819,7 @@ c
       end
       logical function geom_latvec_get(geom,vectors)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom,i              ! [input]
@@ -1798,6 +1837,7 @@ c
       end
       logical function geom_latang_get(geom,angles)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom,i              ! [input]
@@ -1815,6 +1855,7 @@ c
       end
       logical function geom_recipvec_get(geom,rvectors)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom,i               ! [input]
@@ -1832,6 +1873,7 @@ c
       end
       logical function geom_recipang_get(geom,rangles)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom,i               ! [input]
@@ -1848,6 +1890,7 @@ c
       end
       logical function geom_volume_get(geom,volume)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -1863,6 +1906,7 @@ c
       end
       logical function geom_amatrix_get(geom,amat)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom,i,j               ! [input]
@@ -1881,6 +1925,7 @@ c
       end
       logical function geom_bmatrix_get(geom,bmat)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom,i,j               ! [input]
@@ -1899,6 +1944,7 @@ c
       end
       logical function geom_amatinv_get(geom,amatinv)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom,i,j               ! [input]
@@ -1917,6 +1963,7 @@ c
       end
       logical function geom_uniquecent_get(geom,ncent,uniquecent)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom,ncent             ! [input]
@@ -1934,6 +1981,7 @@ c
       end
       logical function geom_get_user_scale(geom, scale)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom              ! [input]
       double precision scale    ! [output] Conversion from user units to A.U.
@@ -1958,6 +2006,7 @@ c
       end
       logical function geom_set_user_units(geom, units)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom
       character*(*) units
@@ -1971,6 +2020,7 @@ c
       end
       logical function geom_get_user_units(geom, units)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom
       character*(*) units       ! [output] 
@@ -2021,6 +2071,7 @@ c
 c RAK 11/95 PNNL/EMSL/HPCCG
 c
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer atn             ! [input] atomic number of element
@@ -2071,6 +2122,7 @@ c
       end
       logical function geom_masses_set(geom, ncent, masses)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom                   ! [input] geometry handle
@@ -2098,6 +2150,7 @@ c
       end      
       logical function geom_masses_get(geom, ncent, masses)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom                   ! [input] geometry handle
@@ -2120,6 +2173,7 @@ c
       end      
       logical function geom_mass_set(geom, icent, mass)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom            ! [input] geometry handle
@@ -2144,6 +2198,7 @@ c
       end      
       logical function geom_mass_get(geom, icent, mass)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom            ! [input] geometry handle
@@ -2168,6 +2223,7 @@ c
       end      
       logical function geom_set_ang2au(geom,value)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c::functions
       logical geom_check_handle
@@ -2184,6 +2240,7 @@ c
       end
       logical function geom_get_ang2au(geom,value)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c::functions
       logical geom_check_handle
@@ -2200,6 +2257,7 @@ c
       end
       logical function geom_set_au2ang(geom,value)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c::functions
       logical geom_check_handle
@@ -2216,6 +2274,7 @@ c
       end
       logical function geom_get_au2ang(geom,value)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c::functions
       logical geom_check_handle
@@ -2233,6 +2292,7 @@ c
       logical function geom_ecp_allset(geom,ncenter_in,oecp)
       implicit none
 c
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom                 ! [input] geometry handle
@@ -2258,6 +2318,7 @@ c
       logical function geom_ecp_allget(geom,ncenter_in,oecp)
       implicit none
 c
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom                 ! [input] geometry handle
@@ -2285,6 +2346,7 @@ c
       implicit none
 c
 #include "stdio.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom     ! [input] geometry handle
@@ -2309,6 +2371,7 @@ c
       implicit none
 c
 #include "stdio.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom     ! [input] geometry handle
@@ -2331,6 +2394,7 @@ c
       end
       logical function geom_ncent_ecp(geom, ncent_ecp)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -2350,6 +2414,7 @@ c
       end
       logical function geom_coords_ecp(geom, coords_ecp, ncent_in)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom                              ! [input]
@@ -2392,6 +2457,7 @@ c
       end
       logical function geom_any_ecp(geom)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
@@ -2414,6 +2480,7 @@ c
       logical function geom_ecp_center_list(geom, num_ecp_cent,
      &    ecp_cent)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       logical geom_check_handle
       external geom_check_handle
@@ -2443,6 +2510,7 @@ c
       end
       logical function geom_nuc_dipole(geom,dip)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom              ! [input]
       double precision dip(3)   ! [output] Returns the nuclear dipole in AU
@@ -4262,6 +4330,7 @@ c
 c Written by: R. A. Kendall, PNNL, December 1996
 c
 #include "stdio.fh"
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer atn ! [input] atomic number of element
       double precision rcoval ! [output] estimate of covalent 
@@ -4333,6 +4402,7 @@ C data for 87-103 RA Kendall
       end
       logical function geom_create(geom, name)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 #include "inp.fh"
 c     

@@ -1,6 +1,6 @@
       subroutine intd_1eke(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lTa,Ta,idatom)
-c $Id: intd_1eke.F,v 1.1 1999-04-10 00:14:50 windus Exp $
+c $Id: intd_1eke.F,v 1.2 1999-07-14 00:28:40 d3e129 Exp $
 c
 c This routine has NOT been extensively tested. - TLW
 c
@@ -69,6 +69,7 @@ c
 c returns 1e kinetic derivative integrals for shells/contractions ish,jsh
 c
 #include "stdio.fh"
+#include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"

@@ -6,7 +6,7 @@ C
 C SYNOPSIS
       Logical Function Geom_Num_Core(Geom, NCore)
 *
-* $Id: geom_numcore.F,v 1.3 1998-07-08 22:34:47 d3g681 Exp $
+* $Id: geom_numcore.F,v 1.4 1999-07-14 00:28:59 d3e129 Exp $
 *
       Implicit NONE
       Integer Geom     ! [in]  Geometry handle
@@ -25,6 +25,7 @@ c     will underestimate the actual number of core orbitals in the
 c     calculation.
 C
 C INCLUDE FILES
+#include "nwc_const.fh"
 #include "geomP.fh"
 C 
 C EXTERNAL ROUTINES

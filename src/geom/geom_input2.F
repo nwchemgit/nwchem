@@ -1,5 +1,6 @@
       logical function geom_zmt_get_varinfo(geom,zvarname,zvarsign)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom
       character*(*) zvarname(*)
@@ -19,6 +20,7 @@ c
       end
       logical function geom_zmt_get_source(geom,source)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
       integer geom
       character*(*) source
@@ -34,6 +36,7 @@ c
       logical function geom_zmt_put_data(geom, nizmat, izmat,
      $     nzfrz, izfrz, izfrz_val, nzvar, zvarname, zvarsign, source)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom, nizmat, izmat(*), nzfrz, izfrz(*), nzvar
@@ -66,6 +69,7 @@ c
       end
       logical function geom_zmt_get_nzvar(geom,nzvar)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom
@@ -81,6 +85,7 @@ c
       end
       logical function geom_zmt_get_nizmat(geom,nizmat)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom
@@ -97,6 +102,7 @@ c
       logical function geom_zmt_get_izmat(geom,
      1                                    izmat,nizmat)         
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom
@@ -117,6 +123,7 @@ c
       end
       logical function geom_zmt_get_izfrz(geom,izfrz)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom
@@ -136,6 +143,7 @@ c
       end
       logical function geom_zmt_get_izfrz_val(geom,izfrz_val)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom
@@ -154,6 +162,7 @@ c
       end
       logical function geom_zmt_get_nzfrz(geom,nzfrz)
       implicit none
+#include "nwc_const.fh"
 #include "geomP.fh"
 c
       integer geom
