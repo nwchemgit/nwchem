@@ -3,7 +3,7 @@
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_hessv2.F,v 1.2 2001-12-12 00:54:32 windus Exp $
+c     $Id: rohf_hessv2.F,v 1.3 2001-12-15 01:25:11 windus Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -45,7 +45,7 @@ c
      $     pflg,
      $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hessv2.F,v 1.2 2001-12-12 00:54:32 windus Exp $
+C     $Id: rohf_hessv2.F,v 1.3 2001-12-15 01:25:11 windus Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -112,7 +112,7 @@ c
       end
       subroutine rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_hessv2.F,v 1.2 2001-12-12 00:54:32 windus Exp $
+C     $Id: rohf_hessv2.F,v 1.3 2001-12-15 01:25:11 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -223,10 +223,12 @@ c
       nfock = 0
       do ivec = 1, nvec
          nfock          = nfock + 1
-c         jfac(nfock)    =  1.0d0   ! CV
-c         kfac(nfock)    = -0.5d0   ! CV
          jfac(nfock)    =  1.0d0   ! CV
-         kfac(nfock)    = 1.0d0   ! CV
+         kfac(nfock)    = -0.5d0   ! CV
+c        jfac(nfock)    =  1.0d0   ! CV
+c        kfac(nfock)    = 1.0d0   ! CV
+c        jfac(nfock)    =  4.0d0   ! CV
+c        kfac(nfock)    = -1.0d0   ! CV
          if (nopen .gt. 0) then
             nfock          = nfock + 1
             jfac(nfock)    =  1.0d0 ! CP

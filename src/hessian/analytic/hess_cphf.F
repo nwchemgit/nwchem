@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.31 2001-12-12 00:53:55 windus Exp $
+C $Id: hess_cphf.F,v 1.32 2001-12-15 01:24:39 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -222,6 +222,14 @@ c
       call hess_moootoao2(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, num)
+      if (.not. ga_duplicate (g_rhs, g_tmp,'Temporary g_rhs'))
+     $  call errquit('hess_cphf: could not duplicate g_rhs',555)
+      call hess_modfock2(g_rhs, g_vecs, g_tmp, ndens, n3xyz,
+     $                  tol2e, rtdb, geom, basis, jfac, kfac,
+     $                  num, ocphfprint)
+      if (.not.ga_destroy(g_tmp))
+     $  call errquit('hess_cphf: cannot destroy g_tmp',555)
+      
 c
 c     This is temporary until I can get the code working with multiple
 c     dimensional GAs: copy g_rhs into g_rhs_x which is an array of two-
@@ -282,9 +290,9 @@ c
 c     call hess_moootoao(g_rhs_x, g_vecs, g_modx,
 c    $          oprint, ocphfprint,
 c    $          nocc, nvirt, ndens, n3xyz, num)
-      call hess_modfock(g_rhs_x, g_vecs, g_modx, ndens, n3xyz,
-     $                  tol2e, rtdb, geom, basis, jfac, kfac,
-     $                  num, ocphfprint)
+c     call hess_modfock(g_rhs_x, g_vecs, g_modx, ndens, n3xyz,
+c    $                  tol2e, rtdb, geom, basis, jfac, kfac,
+c    $                  num, ocphfprint)
       call hess_aotomo(g_rhs_x, g_vecs, g_modx,
      $          oprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, num)
@@ -1038,6 +1046,7 @@ c
       integer ndens, n3xyz, rtdb, geom, basis, num
       integer g_rhs_x, g_vecs(ndens), g_tmp
       integer ind, ndns, in, nfock
+      integer l_jfac, k_jfac, l_kfac, k_kfac
       double precision tol2e, jfac(ndens), kfac(ndens)
       double precision jfact, kfact, dmax
       logical ocphfprint
@@ -1047,11 +1056,23 @@ c Set up some parameters for the fock_2e call.  Note that I am not
 c sure if jfact and kfact should stay the same for DFT!  This needs to
 c be dependent on the jfac and kfac in hess_info.fh.
 c
-      call ga_maxelt(g_rhs_x,dmax)
+c     call ga_maxelt(g_rhs_x,dmax)
 c     if (dmax.gt.tol2e) then  ! the value of tol2e may not be the best here
+      if (.not. ma_push_get(MT_DBL, ndens*n3xyz,'j factors',
+     $     l_jfac, k_jfac))
+     $     call errquit
+     $     ('hess_modfock2: could not allocate l_jfac',ndens*n3xyz)
+      if (.not. ma_push_get(MT_DBL, ndens*n3xyz,'k factors',
+     $     l_kfac, k_kfac))
+     $     call errquit
+     $     ('hess_modfock2: could not allocate l_kfac',ndens*n3xyz)
+      ind = 0
       do ndns = 1, ndens
-        jfac(ndns) =  8.0d+00*jfac(ndns)
-        kfac(ndns) = -4.0d+00*kfac(ndns)
+        do in = 1, n3xyz
+          dbl_mb(k_jfac+ind) =  8.0d+00*jfac(ndns)
+          dbl_mb(k_kfac+ind) =  8.0d+00*kfac(ndns)
+          ind = ind + 1
+        enddo
       enddo
 
       call ga_copy(g_rhs_x,g_tmp)  ! copy Ta to g_tmp
@@ -1059,7 +1080,7 @@ c     if (dmax.gt.tol2e) then  ! the value of tol2e may not be the best here
 
       if (ocphfprint) then
         if(ga_nodeid().eq.0) then
-          write(LuOut,*) 'nfock ',nfock
+c         write(LuOut,*) 'nfock ',nfock
           write(LuOut,*) 'density like matrix before fock_2e'
         endif
         call ga_print(g_tmp)
@@ -1078,7 +1099,10 @@ c
       if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
      $     call errquit('hess_cphf: rtdb_put of j_derfit failed',0)
 c
-      call shell_fock_build(basis,0,ndens,jfac,kfac,tol2e,
+c     call shell_fock_build(basis,0,ndens,jfac,kfac,tol2e,
+c    &            g_tmp,g_rhs_x)
+      call shell_fock_build(basis,0,ndens*n3xyz,dbl_mb(k_jfac),
+     &            dbl_mb(k_kfac),tol2e,
      &            g_tmp,g_rhs_x)
 c
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
@@ -1087,46 +1111,52 @@ c
      $     call errquit('hess_cphf: rtdb_put of calc_type failed',0)
       call int_terminate()
       call schwarz_tidy()
+c
+      if (.not.ma_pop_stack(l_kfac))
+     $  call errquit('hess_cphf: pop problem with l_jfac',555)
+      if (.not.ma_pop_stack(l_jfac))
+     $  call errquit('hess_cphf: pop problem with l_kfac',555)
+c
       if (ocphfprint) then
         if(ga_nodeid().eq.0) then
           write(LuOut,*)
-          write(LuOut,*) 'fock matrix after fock_2e',ind
+          write(LuOut,*) 'fock matrix after fock_2e'
         endif
         call ga_print(g_rhs_x)
       endif
 
-      ind = 0
-      do ndns = 1, ndens
-      do in = 1, n3xyz
-        ind = ind+1
-        call ga_zero(g_tmp) ! prepare for transformation
-        write(LuOut,*) 'before first ga_matmul_patch'
-        call ga_matmul_patch ('t','n', 1.D0, 0.D0,
-     $                         g_vecs(1),    1, num,    1, num,
-     $                         g_rhs_x,   1, num,    1, num,
-     $                         g_tmp,       1, num,    1, num )
- 
-        write(LuOut,*) 'before second ga_matmul_patch'
-        call ga_matmul_patch ('n','n', 1.D0, 0.D0,
-     $                         g_tmp,       1, num,    1, num,
-     $                         g_vecs(1),    1, num,    1, num,
-     $                         g_rhs_x,   1, num,    1, num ) 
-      enddo
-      enddo
+c     ind = 0
+c     do ndns = 1, ndens
+c     do in = 1, n3xyz
+c       ind = ind+1
+c       call ga_zero(g_tmp) ! prepare for transformation
+c       write(LuOut,*) 'before first ga_matmul_patch'
+c       call ga_matmul_patch ('t','n', 1.D0, 0.D0,
+c    $                         g_vecs(1),    1, num,    1, num,
+c    $                         g_rhs_x,   1, num,    1, num,
+c    $                         g_tmp,       1, num,    1, num )
+c
+c       write(LuOut,*) 'before second ga_matmul_patch'
+c       call ga_matmul_patch ('n','n', 1.D0, 0.D0,
+c    $                         g_tmp,       1, num,    1, num,
+c    $                         g_vecs(1),    1, num,    1, num,
+c    $                         g_rhs_x,   1, num,    1, num ) 
+c     enddo
+c     enddo
 
 c
 c Put jfac and kfac back to what they were before entering the routine
 c
-      do ndns = 1, ndens
-        jfac(ndns) = jfac(ndns)/8.0d+00
-        kfac(ndns) = kfac(ndns)/-4.0d+00
-      enddo
-
-      if (ocphfprint) then
-        if(ga_nodeid().eq.0)
-     $    write(LuOut,*) 'after transformation back to MO basis',ind
-        call ga_print(g_rhs_x)
-      endif
+c     do ndns = 1, ndens
+c       jfac(ndns) = jfac(ndns)/8.0d+00
+c       kfac(ndns) = kfac(ndns)/-4.0d+00
+c     enddo
+c
+c     if (ocphfprint) then
+c       if(ga_nodeid().eq.0)
+c    $    write(LuOut,*) 'after transformation back to MO basis',ind
+c       call ga_print(g_rhs_x)
+c     endif
 c
       return
       end

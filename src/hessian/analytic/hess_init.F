@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.22 2001-11-21 02:06:24 edo Exp $
+C $Id: hess_init.F,v 1.23 2001-12-15 01:24:39 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -112,8 +112,10 @@ c
 c    Need to fix jfac and kfac for UHF
 c
       if (oprint) write(LuOut,*) 'HESS: getting wavefunction info'
+c     jfac(1) = 1.0d0   ! Only changed for DFT
+c     kfac(1) = 1.0d0
       jfac(1) = 1.0d0   ! Only changed for DFT
-      kfac(1) = 1.0d0
+      kfac(1) = -0.5d0
       if (theory .eq. 'hf') then
         if (.not. rtdb_get(rtdb, 'scf:nmo', MT_INT, 1, nmo))
      *    call errquit('hess_init: failed to get nmo', 555)

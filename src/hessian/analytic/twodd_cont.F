@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.26 2001-12-12 00:53:56 windus Exp $
+C $Id: twodd_cont.F,v 1.27 2001-12-15 01:24:39 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -402,6 +402,7 @@ c  Actually do the deed
 c
       if (oprint.and.(ga_nodeid().eq.0)) 
      $     write(LuOut,*) 'HESS: before twodd_coul_ex call'
+c
       if (jfac(1).ne.0.0d0 .or. kfac(1).ne.0.0d0) call twodd_coul_ex(
      $     dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
      $     dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk),

@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.13 2001-12-12 00:53:56 windus Exp $
+c $Id: shell_fock_build.F,v 1.14 2001-12-15 01:24:39 windus Exp $
 c
       subroutine shell_fock_build(basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -44,6 +44,14 @@ c
       external ga_create_atom_blocked
 c
 c     write(6,*) 'inside of shell_fock_build'
+c
+c Quietly modify the values of jfac and kfac so that the original
+c values coming in can be consistent with the original fock_2e
+c
+      do i= 1, ndens
+         jfac(i) = jfac(i)*4.0d00
+         kfac(i) = kfac(i)*2.0d00
+      enddo
 c
 c Get the dimensions of g_fock and eventually g_dens.
 c
@@ -181,6 +189,13 @@ c  Clean up memory allocated in this routine
 c
       if (.not. ma_chop_stack(l_d_ij))
      $  call errquit('shell_fock_build:failed chopping MA stack',555)
+c
+c Quietly modify the values of jfac and kfac back to the original
+c
+      do i= 1, ndens
+         jfac(i) = jfac(i)/4.0d00
+         kfac(i) = kfac(i)/2.0d00
+      enddo
 c
       end
 c
@@ -637,12 +652,18 @@ c
             k = rbfmap(k) - kbflo + 1
             l = rbfmap(l) - lbflo + 1
             do nf = 1, nfock
-               f_ij(nf,i,j)=f_ij(nf,i,j)+4.0d+00*g*d_kl(nf,k,l)
-               f_kl(nf,k,l)=f_kl(nf,k,l)+4.0d+00*g*d_ij(nf,i,j)
-               f_ik(nf,i,k)=f_ik(nf,i,k)-g*d_jl(nf,j,l)
-               f_il(nf,i,l)=f_il(nf,i,l)-g*d_jk(nf,j,k)
-               f_jl(nf,j,l)=f_jl(nf,j,l)-g*d_ik(nf,i,k)
-               f_jk(nf,j,k)=f_jk(nf,j,k)-g*d_il(nf,i,l)
+c              f_ij(nf,i,j)=f_ij(nf,i,j)+4.0d+00*g*d_kl(nf,k,l)
+c              f_kl(nf,k,l)=f_kl(nf,k,l)+4.0d+00*g*d_ij(nf,i,j)
+c              f_ik(nf,i,k)=f_ik(nf,i,k)-g*d_jl(nf,j,l)
+c              f_il(nf,i,l)=f_il(nf,i,l)-g*d_jk(nf,j,k)
+c              f_jl(nf,j,l)=f_jl(nf,j,l)-g*d_ik(nf,i,k)
+c              f_jk(nf,j,k)=f_jk(nf,j,k)-g*d_il(nf,i,l)
+               f_ij(nf,i,j)=f_ij(nf,i,j)+g*d_kl(nf,k,l)
+               f_kl(nf,k,l)=f_kl(nf,k,l)+g*d_ij(nf,i,j)
+               f_ik(nf,i,k)=f_ik(nf,i,k)+g*d_jl(nf,j,l)
+               f_il(nf,i,l)=f_il(nf,i,l)+g*d_jk(nf,j,k)
+               f_jl(nf,j,l)=f_jl(nf,j,l)+g*d_ik(nf,i,k)
+               f_jk(nf,j,k)=f_jk(nf,j,k)+g*d_il(nf,i,l)
             end do
          end if
       end do
@@ -726,12 +747,18 @@ c     write(6,*) 'densities are kl, ij, jl, jk, ik, il,i,j,k,l ',
 c    *  i,j,k,l,
 c    *  d_kl(v,k,l),d_ij(v,i,j),d_jl(v,j,l),d_jk(v,j,k),
 c    *  d_ik(v,i,k),d_il(v,i,l)
-               f_ij(xyz,i,j)=f_ij(xyz,i,j)+4.0d+00*g*d_kl(v,k,l)
-               f_kl(xyz,k,l)=f_kl(xyz,k,l)+4.0d+00*g*d_ij(v,i,j)
-               f_ik(xyz,i,k)=f_ik(xyz,i,k)-g*d_jl(v,j,l)
-               f_il(xyz,i,l)=f_il(xyz,i,l)-g*d_jk(v,j,k)
-               f_jl(xyz,j,l)=f_jl(xyz,j,l)-g*d_ik(v,i,k)
-               f_jk(xyz,j,k)=f_jk(xyz,j,k)-g*d_il(v,i,l)
+c              f_ij(xyz,i,j)=f_ij(xyz,i,j)+4.0d+00*g*d_kl(v,k,l)
+c              f_kl(xyz,k,l)=f_kl(xyz,k,l)+4.0d+00*g*d_ij(v,i,j)
+c              f_ik(xyz,i,k)=f_ik(xyz,i,k)-g*d_jl(v,j,l)
+c              f_il(xyz,i,l)=f_il(xyz,i,l)-g*d_jk(v,j,k)
+c              f_jl(xyz,j,l)=f_jl(xyz,j,l)-g*d_ik(v,i,k)
+c              f_jk(xyz,j,k)=f_jk(xyz,j,k)-g*d_il(v,i,l)
+               f_ij(xyz,i,j)=f_ij(xyz,i,j)+g*d_kl(v,k,l)
+               f_kl(xyz,k,l)=f_kl(xyz,k,l)+g*d_ij(v,i,j)
+               f_ik(xyz,i,k)=f_ik(xyz,i,k)+g*d_jl(v,j,l)
+               f_il(xyz,i,l)=f_il(xyz,i,l)+g*d_jk(v,j,k)
+               f_jl(xyz,j,l)=f_jl(xyz,j,l)+g*d_ik(v,i,k)
+               f_jk(xyz,j,k)=f_jk(xyz,j,k)+g*d_il(v,i,l)
                nbuf = nbuf + 1
               end do
               end do
