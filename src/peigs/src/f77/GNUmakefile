@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.17 1999-10-28 17:12:01 d3g270 Exp $
+# $Id: GNUmakefile,v 1.18 1999-11-13 02:53:46 bjohnson Exp $
 #
 
 include ../../../config/makefile.h
@@ -72,24 +72,31 @@ all:		$(FOBJ) $(EOBJ)
 realclean:
 		clean
 
+#
+# Note that under Cygwin the rm commands are case-insensitive, so the
+# commands below intended to remove intermediate .f files actually remove
+# the original .F files!  Since intermediate files are not generated for
+# Cygwin, this is avoided by commenting out the rm statements.
+#
 clean:
 		-rm -f *.o
 		-rm -f *.s
+ifneq ($(peigs_TARGET),CYGNUS)
 		-rm -f dgetavec.f dlaebz.f dlaebz2.f dlagtf1.f \
 		dlas2.f dlasq1.f dlasq2.f \
 		dlasq3.f dlasq4.f dlasr.f \
 		dlasrt.f dlassq.f dlasv2.f dlaswp.f \
 		dlasy2.f dlasyf.f dspevx2.f dstebz3.f \
 		neblw2.f sneblw2.f sstebz3.f
+endif
 		-rm -f F*.f
 
+.f.o:; $(peigs_FC) -c $<
+.F.o:; $(peigs_FC) -c $<
+.c.o:; $(peigs_CC) -c $<
 
 dlasq1.o:	dlasq1.F
 		$(peigs_FC) -c -g $<
 
 dlasq2.o:	dlasq2.F
 		$(peigs_FC) -c -g $<
-
-.f.o:; $(peigs_FC) -c $<
-.F.o:; $(peigs_FC) -c $<
-.c.o:; $(peigs_CC) -c $<
