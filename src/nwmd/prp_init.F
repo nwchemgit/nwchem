@@ -5,7 +5,7 @@
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbci,nbiasi,
      + nodpme,nipmf,lguide,lqmmm,lqmd,iradgi,idifci,nbget)
 c
-c $Id: prp_init.F,v 1.67 2004-01-31 17:27:18 d3j191 Exp $
+c $Id: prp_init.F,v 1.68 2004-04-13 09:46:03 d3j191 Exp $
 c
       implicit none
 c
@@ -145,7 +145,7 @@ c
       pronam( 33)='Virial total                                kJ/mol'
       pronam( 34)='pV total                                    kJ/mol'
       pronam( 35)='Enthalpy                                    kJ/mol'
-      pronam( 36)='Potential Energy perturbation 1             kJ/mol'
+      pronam( 36)='Potential energy perturbation 1             kJ/mol'
       lp(36)=lpert2
       pronam( 37)='Potential energy perturbation 2             kJ/mol'
       lp(37)=lpert3

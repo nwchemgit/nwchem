@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.169 2004-03-09 18:33:00 d3j191 Exp $
+c $Id: cf_main.F,v 1.170 2004-04-13 09:46:04 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2749,7 +2749,10 @@ c
       integer ib,jb,nsad
       real*8 fact(3),xtarget(3),rfix,dist2,rfix2
       character*80 string,target,residu
-      character*16 tag
+      character*16 tag,token
+      logical lnumber
+c
+      integer icolon,icomma,idash,length,jfr,jto
 c
       if(me.eq.0) then
       write(lfnout,1000) numfix
@@ -2978,6 +2981,91 @@ c
    10 continue
       endif
       endif
+      endif
+c
+c     selection
+c
+      write(*,'(a,a)') 'FIX STRING IS ',string
+      if(string(5:5).eq.'S') then
+      target=string(41:80)
+      write(*,'(a,a)') 'FIX SELECT TARGET IS ',target
+c
+      do 55 i=1,nsatot
+      itemp(i)=0
+   55 continue
+c
+      icolon=index(target,':')
+c
+c     for the residues
+c
+      if(icolon.gt.0) then
+      token='                '
+      icomma=index(target(1:icolon-1),',')
+      if(icomma.gt.0) then
+      length=icomma-1
+      else
+      length=icolon-1
+      endif
+      token(1:length)=target(1:length)
+      write(*,'(a,a)') 'FIX SELECT TOKEN IS ',token(1:length)
+      do 57 i=1,length
+      lnumber=.false.
+      if(token(i:i).eq.'1') lnumber=.true.
+      if(token(i:i).eq.'2') lnumber=.true.
+      if(token(i:i).eq.'3') lnumber=.true.
+      if(token(i:i).eq.'4') lnumber=.true.
+      if(token(i:i).eq.'5') lnumber=.true.
+      if(token(i:i).eq.'6') lnumber=.true.
+      if(token(i:i).eq.'7') lnumber=.true.
+      if(token(i:i).eq.'8') lnumber=.true.
+      if(token(i:i).eq.'9') lnumber=.true.
+      if(token(i:i).eq.'0') lnumber=.true.
+      if(token(i:i).eq.'-') lnumber=.true.
+      if(.not.lnumber) goto 58
+   57 continue
+c     number
+      idash=index(token(1:length),'-')
+      if(idash.gt.0) then
+c     range numbered residues
+      tag='                '
+      tag(18-idash:16)=token(1:idash-1)
+      read(tag,'(i16)') jfr
+      tag='                '
+      tag(16+idash-length:16)=token(idash+1:length)
+      read(tag,'(i16)') jto
+      else
+c     single numbered residue
+      tag='                '
+      tag(17-length:16)=token(1:length)
+      read(tag,'(i16)') jfr
+      jto=jfr
+      endif
+      do 60 i=1,nsatot
+      read(snam(i)(11:16),'(i6)') j
+      if(j.ge.jfr.and.j.le.jto) itemp(i)=1
+   60 continue
+      goto 59
+   58 continue
+c     single named residue
+      do 141 i=1,nsatot
+      if(snam(i)(1:length).eq.token(1:length)) itemp(i)=1
+  141 continue
+   59 continue
+      else
+      do 56 i=1,nsatot
+      itemp(i)=1
+   56 continue
+      endif
+c
+c
+      j=0
+      do 66 i=1,nsatot
+      if(itemp(i).eq.1) j=j+1
+   66 continue
+      write(*,'(a,i5)') 'Number of selected atoms is ',j
+c
+c     for the atoms
+c
       endif
 c
 c     solute atoms constraints
