@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.260 1998-07-14 20:02:32 d3j191 Exp $
+# $Id: makefile.h,v 1.261 1998-07-17 16:02:20 d3g681 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -846,7 +846,9 @@ ifeq ($(TARGET),SP1)
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
-  LDOPTIONS = -lm -qEXTNAME -qnosave -g -bloadmap:nwchem_map -L$(LIBDIR) 
+LARGE_FILES = YES
+
+  LDOPTIONS = -lc -lm -qEXTNAME -qnosave -g -bloadmap:nwchem_map -L$(LIBDIR) 
    LINK.f   = mpxlf -qnohpf $(LDOPTIONS)
    FOPTIONS = -qEXTNAME -qnosave
 # -qinitauto=7F # note that grad_force breaks with this option
@@ -946,11 +948,13 @@ ifeq ($(TARGET),LAPI)
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
+LARGE_FILES = YES
+
 ifeq ($(NWCHEM_TARGET_CPU),604)
-  LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bloadmap:nwchem.lapi_map -L$(LIBDIR) 
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bloadmap:nwchem.lapi_map -L$(LIBDIR) 
    LINK.f   = mpxlf_r   $(LDOPTIONS)
 else
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bloadmap:nwchem.lapi_map -L $(LIBDIR)
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bloadmap:nwchem.lapi_map -L$(LIBDIR)
    LINK.f   = mpcc_r   $(LDOPTIONS)
 endif
    FOPTIONS = -qEXTNAME -qnosave
