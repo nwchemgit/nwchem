@@ -1,3 +1,6 @@
+*
+* $Id: cgsdv5.F,v 1.23 2002-02-27 19:05:20 bylaska Exp $
+*
 
 ***********************************************************************
 *                      cgsdv5-mpi  (MPI code)                         *
@@ -10,9 +13,6 @@
 ***********************************************************************
 
       logical function cgsdv5(rtdb,flag)
-*
-* $Id: cgsdv5.F,v 1.22 2002-02-26 20:06:39 bylaska Exp $
-*
       implicit none
       integer rtdb
       integer flag

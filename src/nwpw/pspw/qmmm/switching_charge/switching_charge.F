@@ -1,17 +1,86 @@
+c
+c $Id: switching_charge.F,v 1.2 2002-02-27 19:05:22 bylaska Exp $
+c
+
+***********************************************************
+*                                                         *
+*               Switching Charge module                   *
+*                                                         *
+*          Interfaced to nwchem-PSPW code                 *
+*                                                         *
+*   -- developed by Eric J. Bylaska on February 27, 2002  *
+*                                                         *
+***********************************************************
+*
+*
+*
+
+*     **********************************
+*     *                                *
+*     *     Switching_Charge_init      *
+*     *                                *
+*     **********************************
+
+      subroutine Switching_Charge_init(rtdb)
+      implicit none
+      integer rtdb
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "switching_charge.fh"
+
+        if (.not.rtdb_get(rtdb,
+     >      'nwpw:charge_dielectric_d',mt_dbl,1,s_d))
+     >    s_d = 0.5d0/0.529177d0
+
+        if (.not.rtdb_get(rtdb,
+     >      'nwpw:charge_dielectric_rho',mt_dbl,1,s_rho))
+     >    s_rho = 2.5d0/0.529177d0
+
+        if (.not.rtdb_get(rtdb,
+     >      'nwpw:charge_rcut',mt_dbl,1,s_sigma))
+     >    s_sigma = 0.8d0/0.529177d0
+
+      return
+      end
+
+*     **********************************
+*     *                                *
+*     *     Switching_Charge_end       *
+*     *                                *
+*     **********************************
+
+      subroutine Switching_Charge_end()
+      implicit none
+      integer i
+
+      i = 0
+      return
+      end
+
 
 *     *************************************
 *     *           			              *
 *     *   Switching_Charge_Generate_V     *
 *     *                         			*
 *     *************************************
-      subroutine Switching_Charge_Generate_V()
+      subroutine Switching_Charge_Generate_V(n2ft3d,rgrid,Vqm)
       implicit none
+      integer n2ft3d
+      real*8  rgrid(3,*)
+      real*8  Vqm(*)
+
+#include "switching_charge.fh"
+
+*     **** local variables ****
+      integer ii,k,nion
+      real*8 x1,y1,z1,q1,r,epsilon
 
 *     **** external functions ****
       integer  pspw_qmmm_nion
-      real*8   pspw_qmmm_rion
+      real*8   pspw_qmmm_rion,util_erf
       external pspw_qmmm_nion
-      external pspw_qmmm_rion
+      external pspw_qmmm_rion,util_erf
 
       nion = pspw_qmmm_nion()
 
@@ -44,42 +113,46 @@
       return
       end
 
-*     **********************************
-*     *                                *
-*     *     pspw_charge_rho_Fcharge        *
-*     *                                *
-*     **********************************
 
-      subroutine pspw_charge_rho_Fcharge(n2ft3d,rgrid,rho,dv,fcharge)
+*     *************************************
+*     *                                   *
+*     *  Switching_Charge_Potential_Fmm   *
+*     *                                   *
+*     *************************************
+
+      subroutine Switching_Charge_Potential_Fmm(n2ft3d,rgrid,rho,dv,fmm)
       implicit none
       integer n2ft3d
       real*8 rgrid(3,*)
       real*8 rho(*)
       real*8 dv
-      real*8 fcharge(3,*)
+      real*8 fmm(3,*)
 
 #include "mafdecls.fh"
-#include "pspw_charge.fh"
+#include "switching_charge.fh"
 
 *     ***** local variables ****
-      integer i,j
+      integer i,j,nion
       real*8 rx,ry,rz,c
       real*8 fx,fy,fz,verf,yerf,v
       real*8 x,y,z,q,r,epsilon,depsilon,sqrt_pi
 
 *     **** external functions ****
-      real*8   util_erf
-      external util_erf
+      integer  pspw_qmmm_nion
+      real*8   pspw_qmmm_rion,util_erf
+      external pspw_qmmm_nion
+      external pspw_qmmm_rion,util_erf
 
+      nion = pspw_qmmm_nion()
 
-      if (nion.gt.0) then
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
 
       do j=1,nion
-         x = dbl_mb(r1(1)+3*(j-1))
-         y = dbl_mb(r1(1)+3*(j-1)+1)
-         z = dbl_mb(r1(1)+3*(j-1)+2)
-         q = -dbl_mb(charge(1)+j-1)
+         x = pspw_qmmm_rion(1,j)
+         y = pspw_qmmm_rion(2,j)
+         z = pspw_qmmm_rion(3,j)
+         call pspw_Q_param_MM(j,q)
+         q = -q
          c = 1.0d0/s_sigma
          fx = 0.0d0
          fy = 0.0d0
@@ -121,13 +194,11 @@
          call D3dB_SumAll(fx)
          call D3dB_SumAll(fy)
          call D3dB_SumAll(fz)
-         fcharge(1,j) = fcharge(1,j) - fx*dv
-         fcharge(2,j) = fcharge(2,j) - fy*dv
-         fcharge(3,j) = fcharge(3,j) - fz*dv
+         fmm(1,j) = fmm(1,j) - fx*dv
+         fmm(2,j) = fmm(2,j) - fy*dv
+         fmm(3,j) = fmm(3,j) - fz*dv
       end do
 
-
-      end if
 
       return
       end

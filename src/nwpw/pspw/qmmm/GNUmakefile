@@ -1,7 +1,7 @@
 #
-# $Id: GNUmakefile,v 1.6 2002-02-11 19:31:28 edo Exp $
+# $Id: GNUmakefile,v 1.7 2002-02-27 19:05:22 bylaska Exp $
 #
- SUBDIRS = pspw_LJ pspw_Q model_potential
+ SUBDIRS = pspw_LJ pspw_Q model_potential switching_charge
  OBJ_OPTIMIZE = \
                 pspw_qmmm_input.o \
                 pspw_qmmm.o

@@ -1,4 +1,7 @@
-c     $Id: cgminimize.F,v 1.13 2002-02-25 02:11:33 bylaska Exp $                       
+c
+c     $Id: cgminimize.F,v 1.14 2002-02-27 19:05:20 bylaska Exp $                       
+c
+
 *  ************************************************************
 *  *                MPI cgminimize routine                    *
 *  *               (Fletcher-Reeves' steps)                   *

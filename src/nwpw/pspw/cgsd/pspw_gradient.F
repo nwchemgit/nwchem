@@ -1,4 +1,6 @@
-c     $Id: pspw_gradient.F,v 1.1 2001-08-30 00:25:11 edo Exp $
+c
+c     $Id: pspw_gradient.F,v 1.2 2002-02-27 19:05:21 bylaska Exp $
+c
       logical function pspw_gradient(rtdb)
       implicit none
       integer rtdb
