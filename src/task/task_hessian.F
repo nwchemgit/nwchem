@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.16 2002-01-15 19:37:00 bylaska Exp $
+* $Id: task_hessian.F,v 1.17 2002-01-30 01:13:22 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -35,8 +35,8 @@ c     the numerical derivative routine (not true in my case at the time).
 c
       logical stpr_gen_hess_at
       external stpr_gen_hess_at
-      logical  scf,scf_hessian
-      external scf,scf_hessian
+      logical  scf,hess_anal
+      external scf,hess_anal
 c
       integer ecce_old_print, ecce_junk_print
       logical status, ignore, numerical, analytic
@@ -125,7 +125,7 @@ c
         endif
 c
         if (theory .eq. 'scf' .or. theory .eq. 'dft') then
-          status = scf_hessian(rtdb)
+          status = hess_anal(rtdb)
         else
           call errquit('task_hessian: unknown analytic theory',0)
         endif
