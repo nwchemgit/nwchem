@@ -5,13 +5,13 @@ c     BGJ - 8/98
 c
 #ifndef SECOND_DERIV
       Subroutine setACmat(delrho, Amat, Cmat, qwght, ipol, nq, GRAD,
-     &                    xform_Cmat)
+     &                    xform_Cmat,kske,Mmat)
 #else
       Subroutine setACmat_d2(delrho, Amat, Amat2, Cmat, Cmat2, qwght,
      &                       ipol, nq, GRAD, xform_Cmat)
 #endif
 c
-C$Id: setACmat.F,v 1.14 2000-10-23 15:52:55 windus Exp $
+C$Id: setACmat.F,v 1.15 2003-10-13 21:17:19 pollack Exp $
 c
       implicit none
 c
@@ -31,6 +31,10 @@ c
 c     Sampling Matrices for the XC Potential & Energy
 c
       double precision Amat(nq,ipol),Cmat(nq,3,ipol)
+
+      double precision Mmat(nq,ipol)
+      logical kske    
+ 
 #ifdef SECOND_DERIV
       double precision Amat2(nq,NCOL_AMAT2),Cmat2(nq,NCOL_CMAT2)
 #endif
@@ -75,10 +79,20 @@ c
          if (xform_Cmat) then
             do ii = 1, ipol
                do jj = 1, nq
+
+                  if(kske) then
                   Amat(jj,ii) = Amat(jj,ii)*qwght(jj)
                   Cmat(jj,1,ii) = Cmat(jj,1,ii)*qwght(jj)
                   Cmat(jj,2,ii) = Cmat(jj,2,ii)*qwght(jj)
                   Cmat(jj,3,ii) = Cmat(jj,3,ii)*qwght(jj)
+                  Mmat(jj,ii) = Mmat(jj,ii)*qwght(jj)
+
+                  else
+                  Amat(jj,ii) = Amat(jj,ii)*qwght(jj)
+                  Cmat(jj,1,ii) = Cmat(jj,1,ii)*qwght(jj)
+                  Cmat(jj,2,ii) = Cmat(jj,2,ii)*qwght(jj)
+                  Cmat(jj,3,ii) = Cmat(jj,3,ii)*qwght(jj)
+                  endif
                enddo
             enddo
          else
