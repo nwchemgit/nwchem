@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct)
 c
 c
-c $Id: sp_init.F,v 1.53 2000-01-21 17:32:14 d3j191 Exp $
+c $Id: sp_init.F,v 1.54 2000-01-25 00:17:51 d3j191 Exp $
 c
       implicit none
 c
@@ -556,12 +556,10 @@ c
     1 continue
       read(lfnrst,1016) nhist
  1016 format(32x,i5)
-      print*,'nhist=',nhist
       if(nhist.gt.0) then
       do 21 i=1,nhist
       read(lfnrst,1017) hist(i)
  1017 format(a80)
-      print*,hist(i)
    21 continue
       endif
       if(nhist.lt.mxhist) then
