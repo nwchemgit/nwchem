@@ -971,17 +971,17 @@ c     How much memory?  Leave space for GAs, for the integral code,
 c     and for 50,000 of misc. junk. 
 c
       avail = MA_inquire_avail(mt_dbl)
-      write(6,*) ' avail 1 ', avail
+*      write(6,*) ' avail 1 ', avail
       if (ga_uses_ma()) avail = avail - ga_memory_avail()
-      write(6,*) ' avail 2 ', avail
+*      write(6,*) ' avail 2 ', avail
       call intb_mem_2e4c(max2e, mem2)
-      write(6,*) ' avail 3 ', avail
+*      write(6,*) ' avail 3 ', avail
       avail = avail - 5*maxeri - mem2
-      write(6,*) ' avail 4 ', avail
+*      write(6,*) ' avail 4 ', avail
       avail = avail - 100000
-      write(6,*) ' avail 5 ', avail
+*      write(6,*) ' avail 5 ', avail
       call ga_igop(msg_int2e_file, avail, 1, 'min')
-      write(6,*) ' avail 6 ', avail
+*      write(6,*) ' avail 6 ', avail
 c
 c     Assume that for the small systems for which can hold the
 c     integrals, that there is no sparsity except for symmetry.
@@ -994,13 +994,13 @@ c
      $     ('int2e_test_mem: bad geom handle?',0)
 c     
       nq = 0.125d0 * dble(nbf+1)**4 
-      write(6,*) ' nq 1 ', nq
+*      write(6,*) ' nq 1 ', nq
       nq = nq * (dble(natom_unique) / dble(natom))
-      write(6,*) ' nq 1 ', nq
+*      write(6,*) ' nq 1 ', nq
       nq = nq / ga_nnodes()
-      write(6,*) ' nq 1 ', nq
+*      write(6,*) ' nq 1 ', nq
       nq = nq * 1.1d0 + 2*(rec_len_in_dbl+1) ! Fudge factors for safety
-      write(6,*) ' nq 1 ', nq
+*      write(6,*) ' nq 1 ', nq
 c
       if (nq .lt. avail) then
          memsize = int(nq)      ! Set these so that scf_tidy cleans up
