@@ -3,7 +3,7 @@
      &               Cxyz,zan,exinv,ncenters,
      &               bO2I,bKEI,bNAI,Nints,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1.F,v 1.17 2000-05-02 19:47:54 mg201 Exp $
+c $Id: hf1.F,v 1.18 2000-05-26 19:49:16 mg201 Exp $
       Implicit none
       integer NPA,NCA,La,NPB,NCB,Lb,ncenters,Nints,maxW0
       logical O2I,KEI,NAI,canAB
@@ -25,6 +25,7 @@ c--> Blocks of Overlap, Kinetic Energy & Nuclear Attraction Integrals
 c--> Scratch Space.
 
       double precision W0(maxW0)
+
 c--> Local variables
 
       integer MXD,NCP,NPP,La2,Lb2,Li,Lp,Lp3,MaxMem,nintlocal,lprod,nd
@@ -94,18 +95,13 @@ c******************************************************************************
         call hf_print_set(0)
       endif
 #endif
-C      write(LuOut,*)' inside hf1 '
-C      call util_flush(6)
+
       MXD = 0
 
 c Determine whether general or segmented contraction is used.
 
       NCP = NCA*NCB
-
       GenCon = NCP.ne.1
-
-*      write(LuOut,*)' gencon ',gencon,nca,ncb
-
 
 c To determine all the Hermite expansion coefficients required to evaluate
 c the kinetic energy integrals, increment the angular momenta by one.
@@ -139,36 +135,31 @@ c Assign pointers to scratch space.
       i_ESp   = (maxW0+1) - 3*(NPA*NPB)
       i_right = i_ESp
 
-C      write (LuOut,*) 'before hfset'
-
       if( DryRun )then
 
         MaxMem = i_left + (maxW0 - (i_right-1))
         NPP = NPA*NPB
-C        write (LuOut,*) MaxMem,maxW0
-      else
 
-        if (i_left.ge.i_right) then
+      else if (i_left.ge.i_right) then
  
-          write(LuOut,*) 'HF1:  Insufficient scratch space.'
-          write(LuOut,*) '       needed    ',i_left+(maxW0-(i_right-1))
-          write(LuOut,*) '       allocated ',maxW0
-          write(LuOut,*) ' DryRun ',DryRun
+        write(LuOut,*) 'HF1:  Insufficient scratch space.'
+        write(LuOut,*) '       needed    ',i_left+(maxW0-(i_right-1))
+        write(LuOut,*) '       allocated ',maxW0
+        write(LuOut,*) ' DryRun ',DryRun
  
-          write(LuOut,*) 'From the left '
-          write(LuOut,*) 'ALPHAp:  ',i_ALPHAp
-          write(LuOut,*) 'IPAIRp:  ',i_IPAIRp
-          write(LuOut,*) 'From the right '
-          write(LuOut,*) 'ESp   :  ',i_ESp
+        write(LuOut,*) 'From the left '
+        write(LuOut,*) 'ALPHAp:  ',i_ALPHAp
+        write(LuOut,*) 'IPAIRp:  ',i_IPAIRp
+        write(LuOut,*) 'From the right '
+        write(LuOut,*) 'ESp   :  ',i_ESp
  
-          stop
+        call errquit('hf1: insufficient memory for hfset',911)
  
-        end if
+      else
  
         call hfset(Axyz,Aprims,Acoefs,NPA,NCA,
      &      Bxyz,Bprims,Bcoefs,NPB,NCB,
-     &      GenCon,W0(i_ALPHAp),W0(i_IPAIRp),
-     &      W0(i_ESp),NPP)
+     &      GenCon,W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ESp),NPP)
 
       end if
 
@@ -198,37 +189,35 @@ C      write (LuOut,*) 'before hfmke'
       if (gencon) then
         i_prim_ints = i_ptr
         i_half_ints = i_prim_ints + NPP
-        i_ptr        = i_half_ints + NPA*NCB
+        i_ptr       = i_half_ints + NPA*NCB
       end if
 
       i_pf   = i_ptr
-      i_left = i_pf - 1
+      i_left = i_pf     + 2*NPP - 1
 
       if( DryRun )then
-C        write (LuOut,*) i_left, i_right
+
         MaxMem = max( MaxMem, i_left + (maxW0 - (i_right-1)) )
-C        write (LuOut,*) MaxMem,maxW0
+
+      else if( i_left.ge.i_right) then
+
+        write(LuOut,*) 'HF1:  Insufficient scratch space.'
+        write(LuOut,*) '       needed    ',i_left+(maxW0-(i_right-1))
+        write(LuOut,*) '       allocated ',maxW0
+        write(LuOut,*) ' DryRun ',DryRun
+
+        write(LuOut,*) 'From the left '
+        write(LuOut,*) 'ALPHAp:  ',i_ALPHAp
+        write(LuOut,*) 'IPAIRp:  ',i_IPAIRp
+        write(LuOut,*) 'Ep    :  ',i_Ep
+        write(LuOut,*) 'pf    :  ',i_pf
+        write(LuOut,*) 'From the right '
+        write(LuOut,*) 'ESp   :  ',i_ESp
+
+        call errquit('hf1: insufficient memory for hfmke',911)
 
       else
 
-        if( i_left.ge.i_right) then
-
-          write(LuOut,*) 'HF1:  Insufficient scratch space.'
-          write(LuOut,*) '       needed    ',i_left+(maxW0-(i_right-1))
-          write(LuOut,*) '       allocated ',maxW0
-          write(LuOut,*) ' DryRun ',DryRun
-
-          write(LuOut,*) 'From the left '
-          write(LuOut,*) 'ALPHAp:  ',i_ALPHAp
-          write(LuOut,*) 'IPAIRp:  ',i_IPAIRp
-          write(LuOut,*) 'Ep    :  ',i_Ep
-          write(LuOut,*) 'pf    :  ',i_pf
-          write(LuOut,*) 'From the right '
-          write(LuOut,*) 'ESp   :  ',i_ESp
-
-          stop
-
-        end if
         do nd = 0,MXD
           call hfmke(Axyz,Bxyz,W0(i_ALPHAp),W0(i_ESp),W0(i_Ep),W0(i_pf),
      &        nd,NPP,MXD,La+Li,Lb+Li)
@@ -241,10 +230,9 @@ c Compute the 2-center overlap integrals, <a|S|b>.
       if( O2I )then
         if( .not. DryRun )then
           if (gencon) then
-            call hf2oi_gc(W0(i_Ep),bO2I,
-     &          W0(i_prim_ints),W0(i_half_ints),
-     &          Acoefs,Bcoefs,W0(i_IPAIRp),
-     &          NPA,NPB,NCA,NCB,NPP,La,Lb,La2,Lb2,Li,canAB)
+            call hf2oi_gc(W0(i_Ep),bO2I,W0(i_prim_ints),W0(i_half_ints),
+     &          Acoefs,Bcoefs,W0(i_IPAIRp),NPA,NPB,NCA,NCB,NPP,
+     &          La,Lb,La2,Lb2,Li,canAB)
           else
             call hf2oi(W0(i_Ep),bO2I,Nints,NPP,La,Lb,Li,canAB)
           endif
@@ -253,7 +241,7 @@ c Compute the 2-center overlap integrals, <a|S|b>.
 
 c Compute kinetic energy integrals, <a|T|b>.
 
-      if( KEI )then
+      if (KEI) then
 
 c Assign pointers to scratch space.
 
@@ -263,38 +251,33 @@ c Assign pointers to scratch space.
         if( DryRun )then
 
           MaxMem = max( MaxMem, i_top )
-C          write (LuOut,*) MaxMem,maxW0
 
+        else if( i_top.gt.maxW0 )then
+
+          write(LuOut,*) 'HF1:  Insufficient scratch space.'
+          write(LuOut,*) '       needed    ',i_top
+          write(LuOut,*) '       allocated ',maxW0
+          write(LuOut,*) ' DryRun ',DryRun
+
+          write(LuOut,*) 'ALPHAp:  ',i_ALPHAp 
+          write(LuOut,*) 'IPAIRp:  ',i_IPAIRp
+          write(LuOut,*) 'Ep    :  ',i_Ep
+          write(LuOut,*) 'Ti    :  ',i_Ti
+
+          call errquit('hf1: insufficient memory for hfkei',911)
+
+        else if (gencon) then
+
+          call hfkei_gc(W0(i_ALPHAp),W0(i_Ep),bKEI,
+     &        W0(i_prim_ints),W0(i_half_ints),W0(i_Ti),
+     &        Acoefs,Bcoefs,W0(i_IPAIRp),
+     &        NPA,NPB,NCA,NCB,NPP,La,Lb,La2,Lb2,Li,canAB)
         else
 
-          if( i_top.gt.maxW0 )then
+          call hfkei(W0(i_ALPHAp),W0(i_Ep),bKEI,W0(i_Ti),
+     &        Nints,NPP,La,Lb,Li,canAB)
 
-            write(LuOut,*) 'HF1:  Insufficient scratch space.'
-            write(LuOut,*) '       needed    ',i_top
-            write(LuOut,*) '       allocated ',maxW0
-            write(LuOut,*) ' DryRun ',DryRun
-
-            write(LuOut,*) 'ALPHAp:  ',i_ALPHAp 
-            write(LuOut,*) 'IPAIRp:  ',i_IPAIRp
-            write(LuOut,*) 'Ep    :  ',i_Ep
-            write(LuOut,*) 'Ti    :  ',i_Ti
-
-            stop
-
-          end if
-
-
-         if (gencon) then
-           call hfkei_gc(W0(i_ALPHAp),W0(i_Ep),bKEI,
-     &         W0(i_prim_ints),W0(i_half_ints),W0(i_Ti),
-     &         Acoefs,Bcoefs,W0(i_IPAIRp),
-     &         NPA,NPB,NCA,NCB,NPP,La,Lb,La2,Lb2,Li,canAB)
-         else
-           call hfkei(W0(i_ALPHAp),W0(i_Ep),bKEI,W0(i_Ti),
-     &         Nints,NPP,La,Lb,Li,canAB)
-         end if
-
-       end if
+        end if
 
       end if
        
@@ -320,29 +303,27 @@ c Assign scratch space.
           MaxMem = max( MaxMem, i_top )
 C          write (LuOut,*) MaxMem,maxW0
 
+        else if( i_top.gt.maxW0 .and. .not.DryRun )then
+
+          write(LuOut,*) 'HF1:  Insufficient scratch space.'
+          write(LuOut,*) '       needed    ',i_top
+          write(LuOut,*) '       allocated ',maxW0
+          write(LuOut,*) ' DryRun ',DryRun
+
+          write(LuOut,*) 'ALPHAp:  ',i_ALPHAp 
+          write(LuOut,*) 'IPAIRp:  ',i_IPAIRp
+          write(LuOut,*) 'Ep    :  ',i_Ep
+          write(LuOut,*) 'R0    :  ',i_R0
+          write(LuOut,*) 'IJK   :  ',i_IJK
+          write(LuOut,*) 'P     :  ',i_P
+          write(LuOut,*) 'RS    :  ',i_RS
+          write(LuOut,*) 'PC    :  ',i_PC
+          write(LuOut,*) 'ff    :  ',i_ff
+          write(LuOut,*) 'Rj    :  ',i_Rj
+
+          call errquit('hf1: insufficient memory for hfmkr',911)
+
         else
-
-          if( i_top.gt.maxW0 .and. .not.DryRun )then
-
-            write(LuOut,*) 'HF1:  Insufficient scratch space.'
-            write(LuOut,*) '       needed    ',i_top
-            write(LuOut,*) '       allocated ',maxW0
-            write(LuOut,*) ' DryRun ',DryRun
-
-            write(LuOut,*) 'ALPHAp:  ',i_ALPHAp 
-            write(LuOut,*) 'IPAIRp:  ',i_IPAIRp
-            write(LuOut,*) 'Ep    :  ',i_Ep
-            write(LuOut,*) 'R0    :  ',i_R0
-            write(LuOut,*) 'IJK   :  ',i_IJK
-            write(LuOut,*) 'P     :  ',i_P
-            write(LuOut,*) 'RS    :  ',i_RS
-            write(LuOut,*) 'PC    :  ',i_PC
-            write(LuOut,*) 'ff    :  ',i_ff
-            write(LuOut,*) 'Rj    :  ',i_Rj
-
-            stop
-
-          end if
 
           call hf1mkr(Axyz,Bxyz,Cxyz,zan,exinv,ncenters,
      &        W0(i_ALPHAp),W0(i_P),W0(i_RS),W0(i_PC),W0(i_ff),
@@ -359,15 +340,12 @@ C          write (LuOut,*) MaxMem,maxW0
      &          Nints,NPP,La,Lb,Li,Lp,Lp3,canAB)
           end if
 
-       end if
+        end if
 
       end if
 
 c Return the maximum amount of scratch space required by a "dry run".
 
       if( DryRun ) maxW0 = MaxMem
-C      write (LuOut,*) MaxMem,maxW0
-C      write(LuOut,*)' leaving hf1 '
-C      call util_flush(6)
 c
       end
