@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.109 1999-06-14 19:13:03 d3e129 Exp $
+C     $Id: geom_input.F,v 1.110 1999-06-14 21:28:01 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -42,7 +42,7 @@ c     .                           and for forcing symmetry
       character*16 format
       logical geom_zmtmak
       external geom_zmtmak
-      external geom_data        ! What is this????????
+      external geom_data        ! What is this?
 c     
 c     read a geometry from the input deck and output it
 c     to the rtdb.
@@ -5121,7 +5121,7 @@ c
             iadd = iadd + 5
 c
          else
-            call errquit('geom_zmat_sane_step: ??', itype)
+            call errquit('geom_zmat_sane_step: ?', itype)
          endif    
 c
          if (itype.eq.1) then
@@ -5170,7 +5170,7 @@ c
                end if
             endif
          else
-            call errquit('geom_zmat_sane_step: ???',999)
+            call errquit('geom_zmat_sane_step: ?',999)
          endif
 c
       enddo
