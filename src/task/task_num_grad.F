@@ -1,7 +1,40 @@
       logical function task_num_grad(rtdb)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+      integer rtdb
 *
-* $Id: task_num_grad.F,v 1.22 1998-07-08 22:04:23 d3g681 Exp $
+* $Id: task_num_grad.F,v 1.23 1999-11-17 00:47:11 d3g681 Exp $
 *
+      logical analytic
+      logical task_energy, num_grad
+      external task_energy, num_grad
+      character*128 theory, key
+c
+c check for analytic user input 
+c
+      if (rtdb_get(rtdb,'task:analytic', mt_log, 1, analytic)) then
+         if (analytic) then
+            call errquit(
+     $           'task_num_grad:asked for analytic but there is none',0)
+         endif
+      endif
+c
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('num_grad: theory missing?',0)
+c
+c     Nasty little hack ... CCSD module produces energy for multiple theories 
+c
+      if ((theory.eq.'ccsd(t)') .or. (theory.eq.'ccsd+t(ccsd)'))
+     $     theory = 'ccsd'
+c
+      task_num_grad = num_grad(rtdb, 
+     $     task_energy, 'task:energy', 'task:gradient', 
+     $     theory, .false.)
+c
+      end
+      logical function num_grad(rtdb, func, ename, gname, theory,
+     $     osavestate)
       implicit none
 #include "geom.fh"
 #include "rtdb.fh"
@@ -10,11 +43,22 @@
 #include "util.fh"
 #include "inp.fh"
       integer rtdb              ! [input] 
+      logical func              ! [input]
+      external func
+      character *(*) ename      ! [input]
+      character *(*) gname      ! [input]
+      logical osavestate        ! [input]
 c
-c     Return energy and gradient at current geometry
+c     Compute derivatives of function(rtdb) w.r.t. nuclear displacements
+c     using numerical finite difference, returning the gradient in rtdb(gname).
 c
-c     Compute derivatives of task_energy() w.r.t. nuclear displacements
-c     using numerical finite difference.
+c     logical func(rtdb)
+c     .   Takes the geometry (and other info as necessary) from the
+c     .   database and puts its value (think of it as the energy) in
+c     .   rtdb(ename).
+c
+c     If (osavestate) then the save/restore state routines can & should
+c     be used between finite difference steps and at the end.
 c
 c     Uses symmetry and projects out rotations/translations. 
 c
@@ -24,8 +68,8 @@ c
       integer l_ncoord, k_ncoord, l_grad, k_grad, l_q, k_q, l_t, k_t
       integer natoms, natoms3, ecce_old_print, ecce_junk_print
       logical oprint_mode, oprint_step, oprint_info, osaved
-      logical analytic, ofivept
-      character*128 name, key, theory
+      logical ofivept
+      character*128 name, key, theory, tmp
       character*16 thetag
       double precision eref, eplus, eminus, grad, crd(3), q
       double precision eplus2, eminus2, grad3
@@ -35,20 +79,9 @@ c
       external task_energy, task_save_state, task_restore_state, 
      $     task_delete_state, fd_step_energy
 c
-      task_num_grad = .false.
+      num_grad = .false.
       osaved = .false.
       ofivept = .false.
-c
-c check for analytic user input 
-c
-      if (.not.rtdb_get(rtdb,'task:analytic', mt_log, 1,
-     &    analytic)) analytic = .false.
-      if (analytic) then
-* reuse of varable 'key' 
-        key = 'task_num_grad: fatal error: requested analytic '
-        key = key//'gradient when none existed'
-        call errquit(key,911)
-      endif
 c
       call ecce_print_control(0, ecce_old_print) ! Disable ECCE printing
 c
@@ -62,37 +95,37 @@ c
      $     ga_nodeid().eq.0
 c
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('task_num_grad: geom_create?', 0)
+     $     call errquit('num_grad: geom_create?', 0)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('task_num_grad: no geometry ', 0)
+     $     call errquit('num_grad: no geometry ', 0)
       if (.not. geom_ncent(geom, natoms)) call errquit
-     $     ('task_num_grad: geom_ncent ?', geom)
+     $     ('num_grad: geom_ncent ?', geom)
       natoms3 = natoms*3
       if (.not. ma_push_get(mt_dbl, natoms3*natoms3, 'tng: vectors',
      $     l_vec, k_vec)) call errquit
-     $     ('task_num_grad: insufficient memory (1) ', natoms3**2)
+     $     ('num_grad: insufficient memory (1) ', natoms3**2)
       if (.not. ma_push_get(mt_dbl, natoms3, 'tng: grad',
      $     l_grad, k_grad)) call errquit
-     $     ('task_num_grad: insufficient memory (2) ', natoms3)
+     $     ('num_grad: insufficient memory (2) ', natoms3)
       if (.not. ma_push_get(mt_dbl, natoms3, 'tng: coord',
      $     l_coord, k_coord)) call errquit
-     $     ('task_num_grad: insufficient memory (3) ', natoms3)
+     $     ('num_grad: insufficient memory (3) ', natoms3)
       if (.not. ma_push_get(mt_dbl, natoms3, 'tng: ncoord',
      $     l_ncoord, k_ncoord)) call errquit
-     $     ('task_num_grad: insufficient memory (4) ', natoms3)
+     $     ('num_grad: insufficient memory (4) ', natoms3)
       if (.not. ma_push_get(mt_dbl, natoms, 'tng: charge',
      $     l_q, k_q)) call errquit
-     $     ('task_num_grad: insufficient memory (5) ', natoms)
+     $     ('num_grad: insufficient memory (5) ', natoms)
       if (.not. ma_push_get(mt_byte, natoms*16, 'tng: tags',
      $     l_t, k_t)) call errquit
-     $     ('task_num_grad: insufficient memory (6) ', natoms)
+     $     ('num_grad: insufficient memory (6) ', natoms)
       if (.not. ma_push_get(mt_dbl, natoms3*natoms3, 'tng: temp',
      $     l_tmp, k_tmp)) call errquit
-     $     ('task_num_grad: insufficient memory (7) ', natoms**2)
+     $     ('num_grad: insufficient memory (7) ', natoms**2)
 c
       if (.not. geom_cart_get(geom, natoms, byte_mb(k_t), 
      $     dbl_mb(k_coord), dbl_mb(k_q))) 
-     $     call errquit('task_num_grad: bad geom',0)
+     $     call errquit('num_grad: bad geom',0)
 c
 c     Save the name, if any, of the reference geometry so we can
 c     restore it upon completion.  Also, save the geometry itself
@@ -101,7 +134,7 @@ c
       if (.not. rtdb_cget(rtdb,'geometry', 1, name))
      $     name = 'geometry'
       if (.not. geom_rtdb_store(rtdb, geom, 'numg reference')) 
-     $     call errquit('task_num_grad: store of geom failed',0)
+     $     call errquit('num_grad: store of geom failed',0)
 c
       if (oprint_info) then
          call util_print_centered(6, 
@@ -126,21 +159,25 @@ c
 c
       if (.not. ma_pop_stack(l_tmp)) call errquit('tng: ma corrupt',0)
 c
+      if (osavestate) then
+c     
 c     Compute the energy at the reference geometry, save for restart
-c
-      if (.not. task_energy(rtdb)) goto 100 ! Clean up and return
-      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, eref)) then
-         if (ga_nodeid() .eq. 0) 
-     $        write(6,*) ' task_num_grad: no energy in database'
-         goto 100               ! Clean up and return
+c     
+         if (.not. task_energy(rtdb)) goto 100 ! Clean up and return
+         if (.not. rtdb_get(rtdb, ename, mt_dbl, 1, eref)) then
+            if (ga_nodeid() .eq. 0) 
+     $           write(6,*) ' num_grad: no energy in database'
+            goto 100            ! Clean up and return
+         endif
+c     
+         if (oprint_info) then
+            write(6,11) eref
+ 11         format(' Reference energy ', f20.8/)
+            call util_flush(6)
+         endif
+         if (.not. task_save_state(rtdb, 'numg')) goto 100 
+         osaved = .true.
       endif
-      if (oprint_info) then
-         write(6,11) eref
- 11      format(' Reference energy ', f20.8/)
-         call util_flush(6)
-      endif
-      if (.not. task_save_state(rtdb, 'numg')) goto 100 
-      osaved = .true.
 c
       if (.not.rtdb_get(rtdb,'tng:fivept', mt_log, 1,
      &    ofivept)) ofivept = .false.
@@ -161,7 +198,9 @@ c
             if (.not.fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
      $           dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
      $           dbl_mb(k_grad), dbl_mb(k_q),
-     $           byte_mb(k_t), 2.0d0*delta, eplus2)) goto 100
+     $           byte_mb(k_t), 2.0d0*delta, eplus2, 
+     $           osavestate, ename, func)) 
+     $           goto 100
             if (oprint_step) then
                write(6,'('' step '',i3, '' +2 '',f20.8)') ivec, eplus2
                call util_flush(6)
@@ -169,7 +208,9 @@ c
             if (.not.fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
      $           dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
      $           dbl_mb(k_grad), dbl_mb(k_q),
-     $           byte_mb(k_t), delta, eplus)) goto 100
+     $           byte_mb(k_t), delta, eplus, 
+     $           osavestate, ename, func))
+     $           goto 100
             if (oprint_step) then
                write(6,'('' step '',i3, '' +1 '',f20.8)') ivec, eplus
                call util_flush(6)
@@ -177,7 +218,9 @@ c
             if (.not.fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
      $           dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
      $           dbl_mb(k_grad), dbl_mb(k_q),
-     $           byte_mb(k_t), -delta, eminus)) goto 100
+     $           byte_mb(k_t), -delta, eminus, 
+     $           osavestate, ename, func)) 
+     $           goto 100
             if (oprint_step) then
                write(6,'('' step '',i3, '' -1 '',f20.8)') ivec, eminus
                call util_flush(6)
@@ -185,7 +228,9 @@ c
             if (.not.fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
      $           dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
      $           dbl_mb(k_grad), dbl_mb(k_q),
-     $           byte_mb(k_t), -2.0d0*delta, eminus2)) goto 100
+     $           byte_mb(k_t), -2.0d0*delta, eminus2, 
+     $           osavestate, ename, func)) 
+     $           goto 100
             if (oprint_step) then
                write(6,'('' step '',i3, '' -2 '',f20.8)') ivec, eminus2
                call util_flush(6)
@@ -203,7 +248,9 @@ c
             if (.not.fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
      $           dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
      $           dbl_mb(k_grad), dbl_mb(k_q),
-     $           byte_mb(k_t), delta, eplus)) goto 100
+     $           byte_mb(k_t), delta, eplus, 
+     $           osavestate, ename, func)) 
+     $           goto 100
             if (oprint_step) then
                write(6,13) ivec, eplus
  13            format(' step ', i5,' energy ',f20.8)
@@ -212,7 +259,9 @@ c
             if (.not.fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
      $           dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
      $           dbl_mb(k_grad), dbl_mb(k_q),
-     $           byte_mb(k_t),-delta, eminus)) goto 100
+     $           byte_mb(k_t),-delta, eminus, 
+     $           osavestate, ename, func))
+     $           goto 100
             if (oprint_step) then
                write(6,13) -ivec, eminus
                call util_flush(6)
@@ -237,12 +286,10 @@ c     Symmetrize the gradient to get rid of symmetry breaking noise
 c
       call sym_grad_symmetrize(geom, dbl_mb(k_grad))
 c     
-      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task_num_grad: theory missing?',0)
-c
       if (oprint_info) then
-         call inp_ucase(theory) ! NOTE overwrites theory here
-         write(6,1000) theory(1:inp_strlen(theory)),
+         tmp = theory
+         call inp_ucase(tmp)
+         write(6,1000) tmp(1:inp_strlen(tmp)),
      $        'x','y','z','x','y','z'
          do i = 1, natoms
             if (.not. geom_cent_get(geom, i, thetag, crd, q))
@@ -260,50 +307,42 @@ c
          call util_flush(6)
       endif
 c
-c     store the gradient as if it was generated by the application
-c     (reget theory since may have uppercased it)
+c     store the gradient in gname
 c
-      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task_num_grad: theory missing?',0)
+      if (.not. rtdb_put(rtdb, gname, mt_dbl, natoms3, dbl_mb(k_grad)))
+     $     call errquit('num_grad: failed to store gradient',0)
 c
-c     Nasty little hack ... CCSD module produces energy for multiple theories 
-c
-      if ((theory.eq.'ccsd(t)') .or. (theory.eq.'ccsd+t(ccsd)'))
-     $     theory = 'ccsd'
-c
-      key = ' '
-      write(key,'(a,'':gradient'')') theory(1:inp_strlen(theory))
-      if (.not. rtdb_put(rtdb, key, mt_dbl, natoms3, dbl_mb(k_grad)))
-     $     call errquit('task_num_grad: failed to store gradient',0)
-c
+      if (osavestate) then
+c     
 c     restore the reference energy
-c
-      key = ' '
-      write(key,'(a,'':energy'')') theory(1:inp_strlen(theory))
-      if (.not. rtdb_put(rtdb, key, mt_dbl, 1, eref))
-     $     call errquit('task_num_grad: failed to store energy',0)
-c
-      task_num_grad = .true.
+c     
+         key = ' '
+         write(key,'(a,'':energy'')') theory(1:inp_strlen(theory))
+         if (.not. rtdb_put(rtdb, key, mt_dbl, 1, eref))
+     $        call errquit('num_grad: failed to store energy',0)
+      endif
+c     
+      num_grad = .true.
 c
  100  continue
 c
 c     Restore state and clean up
 c
-      if (osaved) then
+      if (osavestate .and. osaved) then
          if (.not. task_restore_state(rtdb,'numg'))
-     $        call errquit('task_num_grad: failed to restore state',0)
+     $        call errquit('num_grad: failed to restore state',0)
          if (.not. task_delete_state(rtdb,'numg'))
-     $        call errquit('task_num_grad: failed to delete state',0)
+     $        call errquit('num_grad: failed to delete state',0)
       endif
 c
 c     restore any indirection of the geometry and delete the reference
 c
       if (name .ne. 'geometry') then
          if (.not. rtdb_cput(rtdb,'geometry',1,name))
-     $        call errquit('task_num_grad: rtdb corrupt',0)
+     $        call errquit('num_grad: rtdb corrupt',0)
       endif
       if (.not. geom_rtdb_delete(rtdb, 'numg reference')) 
-     $     call errquit('task_num_grad: delete of ref geom failed',0)
+     $     call errquit('num_grad: delete of ref geom failed',0)
 c
       if (.not. ma_pop_stack(l_t))call errquit('tng: ma corrupt',0)
       if (.not. ma_pop_stack(l_q))call errquit('tng: ma corrupt',0)
@@ -318,7 +357,8 @@ c
 c
       end
       logical function fd_step_energy(rtdb, geom, natoms, coords,
-     $     ncoords, vec, grad, q, tags, delta, energy)
+     $     ncoords, vec, grad, q, tags, delta, energy, 
+     $     osavestate, ename, func)
       implicit none
 #include "geom.fh"
 #include "rtdb.fh"
@@ -330,11 +370,15 @@ c
       character*16 tags(*)
       double precision delta
       double precision energy   ! [output]
+      logical osavestate
+      character *(*) ename
+      logical func
+      external func
 c
       integer i, natoms3
       logical status
-      logical task_energy, task_restore_state
-      external task_energy, task_restore_state
+      logical task_restore_state
+      external task_restore_state
 c
       fd_step_energy = .false.
       natoms3 = natoms*3
@@ -345,31 +389,33 @@ c
       call sym_grad_symmetrize(geom, ncoords) ! Paranoid enforcement
 c
       if (.not. geom_cart_set(geom, natoms, tags, ncoords, q))
-     $     call errquit('task_num_grad: bad geom',0)
+     $     call errquit('num_grad: bad geom',0)
       if (.not. geom_rtdb_store(rtdb, geom, 'num. grad. geometry')) 
-     $     call errquit('task_num_grad: store of geom failed',0)
+     $     call errquit('num_grad: store of geom failed',0)
       if (.not. rtdb_cput(rtdb, 'geometry', 1, 'num. grad. geometry'))
-     $     call errquit('task_num_grad: rtdb corrupt',0)
+     $     call errquit('num_grad: rtdb corrupt',0)
 c
-      if (.not. task_restore_state(rtdb,'numg'))
-     $     call errquit('task_num_grad: restore state failed',0)
-      status = task_energy(rtdb)
+      if (osavestate) then
+         if (.not. task_restore_state(rtdb,'numg'))
+     $        call errquit('num_grad: restore state failed',0)
+      endif
+      status = func(rtdb)
       fd_step_energy = status
       if ((.not. status) .and. (ga_nodeid().eq.0)) then
          write(6,*) 
-         write(6,*) ' task_num_grad: !! displaced energy failed'
+         write(6,*) ' num_grad: !! displaced energy failed'
          write(6,*)
          call util_flush(6)
       endif
       if (.not. status) return
 c
-      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, energy))
-     $     call errquit('task_num_grad: no energy in database',0)
+      if (.not. rtdb_get(rtdb, ename, mt_dbl, 1, energy))
+     $     call errquit('num_grad: no energy in database',0)
 c
       if (.not. geom_rtdb_delete(rtdb, 'num. grad. geometry'))
-     $     call errquit('task_num_grad: rtdb corrupt (geom) ',0)
+     $     call errquit('num_grad: rtdb corrupt (geom) ',0)
       if (.not. rtdb_delete(rtdb,'geometry'))
-     $     call errquit('task_num_grad: rtdb corrupt',0)
+     $     call errquit('num_grad: rtdb corrupt',0)
 c
       end
       subroutine fd_make_vectors(rtdb, geom, natoms, natoms3, 
