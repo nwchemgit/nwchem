@@ -1,0 +1,40 @@
+memory heap 1 mb stack 36 mb global 12 mb
+start dna
+
+prepare
+ system dna_em
+ new_top new_seq
+ new_rst
+end
+
+task prepare
+
+md
+ system dna_em
+ sd 100
+end
+
+task md optimize
+
+task shell "cp dna_em.qrs dna_md.rst"
+
+md
+ system dna_md
+ equil 0 data 1000
+ record scoor 10
+ isotherm 100.0
+ record rest 100
+end
+
+task md dynamics
+
+analyze
+ system dna_md
+ reference dna_em.qrs
+ file dna_md.trj
+ super dna_super.trj
+ rmsd
+ scan dna_scan
+end
+
+task analyze

@@ -1,0 +1,48 @@
+memory noverify heap 1 mb stack 48 mb global 24 mb
+
+start crown_job
+
+prepare
+ system crown_em
+ solvate
+ touch 1.0
+end
+
+task prepare
+
+md
+ system crown_em
+ sd 100
+end
+
+task md optimize
+
+task shell "cp crown_em.qrs crown_md.rst"
+
+md
+ system crown_md
+ equil 0 data 5000
+ print step 100 stat 1000
+ record rest 1000
+ isotherm 298.15
+ isobar
+end
+
+task md dynamics
+
+task shell "cp crown_md.rst crown_ti.rst"
+
+md
+ system crown_ti
+ new forward 21 of 21
+ step 0.002 equil 1000 data 2000 over 2000
+ drift 5.0 error 5.0
+ cutoff 0.9
+ leapfrog
+ isotherm 298.15 trelax 0.1 0.1
+ print step 100 stat 1000
+ update pairs 10 center 1 long 1
+ record rest 1000 prop 10 free 1000
+end
+
+task md thermodynamics

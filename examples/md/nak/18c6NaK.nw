@@ -1,0 +1,44 @@
+start 18c6NaK-rtdb
+
+prepare
+ system 18c6NaK
+ modify atom 7:Na final type K
+ solvate cube 2.0
+ write 18c6NaK_em.rst
+end
+
+task prepare
+
+md
+ system 18c6NaK_em
+ sd 100
+end
+
+task md optimize
+
+task shell "cp 18c6NaK_em.qrs 18c6NaK_md.rst"
+
+md
+ system 18c6NaK_md
+ data 1000
+ isotherm
+ isobar
+ print step 100 stat 1000
+ record rest 1000
+end
+
+task md dynamics
+
+task shell "cp 18c6NaK_md.rst 18c6NaK_ti.rst"
+
+md
+ system 18c6NaK_ti
+ new forward 21
+ data 1000
+ isotherm
+ isobar
+ print step 100 stat 1000
+ record rest 1000 free 1000
+end
+
+task md thermodynamics

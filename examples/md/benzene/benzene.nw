@@ -1,0 +1,28 @@
+start benzene
+
+prepare
+ system benzene_em
+ new_top new_seq
+ solvate
+end
+
+task prepare
+
+md
+ system benzene_em
+ sd 100
+end
+
+task md optimize
+
+task shell "cp benzene_em.qrs benzene_md.rst"
+
+md
+ system benzene_md
+ data 100
+ isotherm
+ isobar
+ print step 10 stat 100
+end
+
+task md dynamics

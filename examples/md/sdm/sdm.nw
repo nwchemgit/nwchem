@@ -1,0 +1,58 @@
+start sdm_rtdb
+
+geometry units angstrom
+ S     -3.45591e-17     -0.798199     5.88235e-10
+ C     -1.35235     0.383977     0.00277221
+ H     -1.33839     1.01926     -0.878994
+ H     -1.32825     1.02688     0.879880
+ H     -2.29241     -0.158055     0.0108906
+ C     1.35235     0.383977     -0.00277221
+ H     1.33839     1.01926     0.878994
+ H     1.32825     1.02688     -0.879880
+ H     2.29241     -0.158055     -0.0108906
+end
+
+prepare
+ system sdm_em
+ solvate
+end
+
+task prepare
+
+md
+ sd 100
+end
+
+task md optimize
+
+prepare
+ system sdm_em
+ read sdm_em.qrs
+ write sdm_em.pdb
+ solvate
+ write sdm_em2.rst
+end
+
+task prepare
+
+md
+ system sdm_em2
+ sd 100
+end
+
+task md optimize
+
+task shell "cp sdm_em2.qrs sdm_md.rst"
+
+md
+ system sdm_md
+ equil 0 data 1000 step 0.001
+ isotherm 25.0 trelax 0.1 0.1
+ isobar
+ cutoff short 0.9 long 1.0
+ update pairs 5 long 5
+ record coord 10 prop 10
+ print step 50 stat 500
+end
+
+task md dynamics

@@ -1,0 +1,21 @@
+memory heap 1 mb stack 512 mb global 12 mb
+
+start job
+
+prepare
+ system mache_xx
+end
+
+task prepare
+
+md
+ system mache_md
+ equil 0 data 10
+ print step 1 stat 10
+ isotherm 298.15 trelax 0.1 0.1
+ isobar
+ record rest 0
+ pme grid 96 order 4
+end
+
+task md dynamics

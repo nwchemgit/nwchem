@@ -1,0 +1,8 @@
+start job
+
+prepare
+ system hrc_em
+ new_top new_seq
+end
+
+task prepare

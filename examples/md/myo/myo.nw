@@ -1,0 +1,50 @@
+start myo
+
+prepare
+ system myo_em
+end
+
+task prepare
+
+md
+ system myo_em
+ set 1
+ cutoff 0.9
+ sd 100
+ noshake
+ update pairs 10
+ record coord 1 prop 1
+end
+
+task md optimize
+
+prepare
+ system myo_md
+ read myo_em.qrs
+ solvate
+ write myo_ems.rst
+end
+
+task prepare
+
+md
+ system myo_ems
+ fix solute
+ sd 100
+end
+
+task md optimize
+
+task shell "cp myo_ems.qrs myo_md.rst"
+
+md
+ system myo_md
+ step 0.001 data 10 
+ cutoff 0.9
+ leapfrog
+ print step 1 stat 10
+ update pairs 10 center 1
+ record rest 0 prop 1 coord 1
+end
+
+task md dynamics
