@@ -1,4 +1,4 @@
-C $Id: ecp_int2.F,v 1.3 1996-10-16 22:44:37 mg201 Exp $
+C $Id: ecp_int2.F,v 1.4 1997-08-19 23:31:48 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int2 (mem_max,DryRun,
@@ -7,7 +7,7 @@ C $Id: ecp_int2.F,v 1.3 1996-10-16 22:44:37 mg201 Exp $
      &    l_ecp_max,n_prim_c,n_coef_c,ind_C,n_c_tot,coef_c,zeta_c,
      &    p_min,p_max,tol,sphcart,tmp,ltmp,
      &    csco,lcsco,
-     &    ecp_ints,n_ints,ibug)
+     &    ecp_ints,n_ints,n_blk,ibug)
 *                                                                      *
 *   Calculate Type 2 radial integrals for a given ECP centre, angular  *
 *   projector and exponent p                                           *
@@ -65,7 +65,7 @@ C $Id: ecp_int2.F,v 1.3 1996-10-16 22:44:37 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
-      integer i,k,l,
+      integer i,j,k,l,
      &    i_ai,ibug,i_ca,i_Ga,i_bi,i_cb,i_Gb,i_free,
      &    i_a,i_b,i_c,i_d,i_k,i_t,i_x,i_y,i_z,i_int_a,i_int_b,
      &    i_Q_int,i_Qh,i_Q,i_Qabc,i_gam,i_bet,i_alp,i_pre,i_tmp,i_Qa,
@@ -74,9 +74,9 @@ C $Id: ecp_int2.F,v 1.3 1996-10-16 22:44:37 mg201 Exp $
      &    la_min,lb_min,m_count,mt_max,mt_min,mem_max,
      &    n_na,n_all_a,n_nsa,n_ta,n_nb,n_all_b,n_nsb,n_tb,n_c,
      &    n_ab,n_abc,nc_ab,ncab,n_Q,n_row,n_ang_a,n_ang_b,
-     &    n_l,n_l_c,n_lam_a,n_lam_b,ltmp,n_ints,n_c_tot,
-     &    n_prim_a,n_prim_b,n_cont_a,n_cont_b,n_int_a,n_int_b,nu_a,nu_b,
-     &    p_max,p_min,sphcart
+     &    n_l,n_l_c,n_lam_a,n_lam_b,ltmp,n_ints,n_c_tot,n_blk,n_x,
+     &    n_prim_a,n_prim_b,n_cont_a,n_cont_b,n_cont_c,n_int_a,n_int_b,
+     &    nu_a,nu_b,p_max,p_min,sphcart
       integer n_coef_c(-1:l_ecp_max),ind_C(-1:l_ecp_max),
      &    n_prim_c(p_min:p_max,-1:l_ecp_max)
       integer lcsco
@@ -84,7 +84,7 @@ C $Id: ecp_int2.F,v 1.3 1996-10-16 22:44:37 mg201 Exp $
       double precision coef_c(n_c_tot),zeta_c(n_c_tot),
      &    coef_a(n_prim_a,n_cont_a),coef_b(n_prim_b,n_cont_b),
      &    zeta_a(n_prim_a),zeta_b(n_prim_b),
-     &    tmp(ltmp),ecp_ints(n_ints),
+     &    tmp(ltmp),ecp_ints(n_ints,n_blk),
      &    R_AC,X_AC,Y_AC,Z_AC,R_BC,X_BC,Y_BC,Z_BC,
      &    tol,fac,log_prefactor
       double precision csco(lcsco)
@@ -180,6 +180,15 @@ C $Id: ecp_int2.F,v 1.3 1996-10-16 22:44:37 mg201 Exp $
 *     Loop over ECP angular momentum projectors
 *
       do l_c = 0,l_ecp_max
+        if (l_c .gt. 0) then
+          n_cont_c = n_blk/4+1
+          n_x = n_blk
+        else if (n_blk .ne. 3) then
+          n_cont_c = 1
+          n_x = 1
+        else
+          cycle
+        end if
         n_c = n_coef_c(l_c)
         i_t = ind_c(l_c)
 *
@@ -219,12 +228,12 @@ C $Id: ecp_int2.F,v 1.3 1996-10-16 22:44:37 mg201 Exp $
 *   Allocate scratch memory for integrals
 *
         i_Q_int = i_free
-        i_Qh = i_Q_int+ncab*n_int_a*n_int_b
+        i_Qh = i_Q_int+ncab*n_int_a*n_int_b*n_cont_c
         i_Qabc = i_free
         i_tmp = i_Qabc+3*m_count*n_abc
         i_Qab = max(i_tmp+20*n_abc,i_Qh)
-        i_Q = i_Qab+n_ab*(l_a+1)*(l_b+1)
-        i_ai = i_Q+n_ab*n_Q
+        i_Q = i_Qab+n_ab*(l_a+1)*(l_b+1)*n_cont_c
+        i_ai = i_Q+n_ab*n_Q*n_cont_c
         i_bi = i_ai+n_abc
         i_gam = i_bi+n_abc
         i_bet = i_gam+n_abc
@@ -281,8 +290,8 @@ C $Id: ecp_int2.F,v 1.3 1996-10-16 22:44:37 mg201 Exp $
           call ecp_radint2 (p_min,p_max,
      &        l_a,n_prim_a,n_cont_a,n_int_a,coef_a,tmp(i_ai),tmp(i_alp),
      &        l_b,n_prim_b,n_cont_b,n_int_b,coef_b,tmp(i_bi),tmp(i_bet),
-     &        l_c,n_prim_c(p_min,l_c),n_c,coef_c(i_t),tmp(i_gam),
-     &        tmp(i_pre),tol,sphcart,n_ab,n_abc,n_Q,m_count,
+     &        l_c,n_prim_c(p_min,l_c),n_cont_c,n_c,coef_c(i_t),
+     &        tmp(i_gam),tmp(i_pre),tol,sphcart,n_ab,n_abc,n_Q,m_count,
      &        tmp(i_tmp),tmp(i_Qabc),tmp(i_Qab),tmp(i_Q),tmp(i_Q_int),
      &        ibug/10)
         end if
@@ -296,8 +305,9 @@ C $Id: ecp_int2.F,v 1.3 1996-10-16 22:44:37 mg201 Exp $
         n_ang_b = (l_min+1)*(l_b+1)**2-l_min*(l_min+1)*(2*l_min+1)/6
 *
         i_ang = i_Qh
-        i_ang_a = i_ang+n_ang_a*n_ang_b
-        i_ang_b = i_ang_a+n_l_c*n_ang_a
+        i_ang_a = i_ang+n_ang_a*n_ang_b*n_x
+        if (n_x .gt. 1) i_ang_a = max(i_ang_a,i_ang+n_ang_a*n_l_c)
+        i_ang_b = i_ang_a+n_l_c*n_ang_a*n_x
         i_free = i_ang_b+n_l_c*n_ang_b
         if (debug_addresses) then
           write (LuOut,*) 'n_l_c,n_ang_a,n_ang_b',n_l_c,n_ang_a,n_ang_b
@@ -327,23 +337,61 @@ C $Id: ecp_int2.F,v 1.3 1996-10-16 22:44:37 mg201 Exp $
               i = i+n_l_c*n_l
             end do
           end do
-*
-*       Scale row of one array to insert factor of (1+delta_m,0) and
-*       perform sum over m.
-*
-          call dscal (n_ang_a,two,tmp(i_ang_a+l_c),n_l_c)
-          fac = n_l_c*2
-          fac = fac*pi
-          call dgemm ('T','N',n_ang_a,n_ang_b,n_l_c,fac,tmp(i_ang_a),
-     &        n_l_c,tmp(i_ang_b),n_l_c,zero,tmp(i_ang),n_ang_a)
           if (debug_arrays) then
-            write (LuOut,*) 'fac = ',fac
             call ecp_matpr (tmp(i_ang_a),-l_c,l_c,1,n_ang_a,
      &          -l_c,l_c,1,n_ang_a,'A Angular integrals','F',78,4)
             call ecp_matpr (tmp(i_ang_b),-l_c,l_c,1,n_ang_b,
      &          -l_c,l_c,1,n_ang_a,'B Angular integrals','F',78,4)
-            call ecp_matpr (tmp(i_ang),1,n_ang_a,1,n_ang_b,1,n_ang_a,
-     &          1,n_ang_b,'Combined angular integrals','F',78,4)
+          end if
+*
+*       Perform sums over m,m'. For the scalar integrals, this requires
+*       the insertion of a factor of (1+delta_m,0); for the spin-orbit
+*       integrals a routine is called to sum over m.
+*
+          if (n_x .gt. 1) then
+            call dcopy (n_ang_a*n_l_c,tmp(i_ang_a),1,tmp(i_ang),1)
+            i = i_ang_a+(n_x-3)*n_l_c*n_ang_a
+            call ecp_so_ang (l_c,tmp(i_ang),tmp(i),n_ang_a)
+          end if
+          if (n_x .ne. 3) call dscal (n_ang_a,two,tmp(i_ang_a+l_c),
+     &          n_l_c)
+*
+*       Sum over m for scalar integrals [factor 2\pi(2l+1)]
+*
+          fac = n_l_c*2
+          fac = fac*pi
+          if (n_x .ne. 3) then
+            call dgemm ('T','N',n_ang_a,n_ang_b,n_l_c,fac,tmp(i_ang_a),
+     &          n_l_c,tmp(i_ang_b),n_l_c,zero,tmp(i_ang),n_ang_a)
+            if (debug_arrays) then
+              call ecp_matpr (tmp(i_ang_a),-l_c,l_c,1,n_ang_a,-l_c,l_c,
+     &            1,n_ang_a,'Modified scalar A Angular integrals','F',
+     &            78,4)
+              call ecp_matpr (tmp(i_ang),1,n_ang_a,1,n_ang_b,1,n_ang_a,
+     &            1,n_ang_b,'Combined scalar angular integrals','F',78,
+     &            4)
+            end if
+          end if
+*
+*       Sum over m for spin-orbit integrals [factor 4\pi]
+*
+          if (n_x .ge. 3) then
+            fac = pi+pi
+            fac = fac+fac
+            i_a = i_ang_a+(n_x-3)*n_ang_a*n_l_c
+            i_b = i_ang+(n_x-3)*n_ang_a*n_ang_b
+            do i = 1,3
+              call dgemm ('T','N',n_ang_a,n_ang_b,n_l_c,fac,tmp(i_a),
+     &            n_l_c,tmp(i_ang_b),n_l_c,zero,tmp(i_b),n_ang_a)
+              if (debug_arrays) then
+                call ecp_matpr (tmp(i_a),-l_c,l_c,1,n_ang_a,-l_c,l_c,1,
+     &              n_ang_a,'Modified A SO Angular integrals','F',78,4)
+                call ecp_matpr (tmp(i_b),1,n_ang_a,1,n_ang_b,1,n_ang_a,
+     &              1,n_ang_b,'Combined SO angular integrals','F',78,4)
+              end if
+              i_a = i_a+n_ang_a*n_l_c
+              i_b = i_b+n_ang_a*n_ang_b
+            end do
           end if
         end if
 *
@@ -361,99 +409,108 @@ C $Id: ecp_int2.F,v 1.3 1996-10-16 22:44:37 mg201 Exp $
           if (i_free-1 .gt. ltmp) call errquit(
      &        ' Insufficient memory in ecp_int2',99)
           n_row = ncab*n_int_a
-          i_b = i_cb
-          i_d = i_Q_int
-          do nu_b = 0,l_b
-            i_Qb = i_d
-            if (sphcart .eq. 0) then
-              lb_min = mod(nu_b,2)
-            else
-              lb_min = nu_b
-            end if
-            do lam_b = nu_b,lb_min,-2
-              l_min = min(lam_b-1,l_c)
-              i_ang_b = i_ang+n_ang_a*((l_min+1)*lam_b**2
-     &            -l_min*(l_min+1)*(2*l_min+1)/6)
-              n_lam_b = 2*lam_b+1
-              i_int_b = i_Qb
-              do k_b = lam_b+l_c,abs(lam_b-l_c),-2
-                fac = 2*k_b+1
-                call dgemm ('N','T',n_ang_a,n_nb,n_lam_b,fac,
-     &              tmp(i_ang_b),n_ang_a,tmp(i_b),n_nb,zero,
-     &              tmp(i_wa),n_ang_a)
-                if (debug_gen) write (LuOut,*) 'nu_b,lam_b,k_b',
-     &              nu_b,lam_b,k_b
-                if (debug_arrays) call ecp_matpr (tmp(i_wa),
-     &              1,n_ang_a,1,n_nb,1,n_ang_a,1,n_nb,
-     &              'Angular integrals contracted with b expansion','E',
-     &              78,4)
-                i_ang_b = i_ang_b+n_lam_b*n_ang_a
+          do i_x = 1,n_x
+            i_b = i_cb
+            i_d = i_Q_int
+            do nu_b = 0,l_b
+              i_Qb = i_d
+              if (sphcart .eq. 0) then
+                lb_min = mod(nu_b,2)
+              else
+                lb_min = nu_b
+              end if
+              do lam_b = nu_b,lb_min,-2
+                l_min = min(lam_b-1,l_c)
+                i_ang_b = i_ang+n_ang_a*((l_min+1)*lam_b**2
+     &              -l_min*(l_min+1)*(2*l_min+1)/6)
+                n_lam_b = 2*lam_b+1
+                i_int_b = i_Qb
+                do k_b = lam_b+l_c,abs(lam_b-l_c),-2
+                  fac = 2*k_b+1
+                  call dgemm ('N','T',n_ang_a,n_nb,n_lam_b,fac,
+     &                tmp(i_ang_b),n_ang_a,tmp(i_b),n_nb,zero,
+     &                tmp(i_wa),n_ang_a)
+                  if (debug_gen) write (LuOut,*) 'nu_b,lam_b,k_b',
+     &                nu_b,lam_b,k_b
+                  if (debug_arrays) call ecp_matpr (tmp(i_wa),
+     &                1,n_ang_a,1,n_nb,1,n_ang_a,1,n_nb,
+     &                'Angular integrals contracted with b expansion',
+     &                'E',78,4)
+                  i_ang_b = i_ang_b+n_lam_b*n_ang_a
 *
-                i_a = i_ca
-                i_c = i_int_b
-                do nu_a = 0,l_a
-                  i_Qa = i_c
-                  if (sphcart .eq. 0) then
-                    la_min = mod(nu_a,2)
-                  else
-                    la_min = nu_a
-                  end if
-                  do lam_a = nu_a,la_min,-2
-                    l_min = min(lam_a-1,l_c)
-                    i_ang_a = i_wa+((l_min+1)*lam_a**2
-     &                  -l_min*(l_min+1)*(2*l_min+1)/6)
-                    n_lam_a = 2*lam_a+1
-                    i_int_a = i_Qa
-                    do k_a = lam_a+l_c,abs(lam_a-l_c),-2
-                      fac = 2*k_a+1
-                      if (debug_gen) write (LuOut,*) 'nu_a,lam_a,k_a',
-     &                    nu_a,lam_a,k_a
-                      call dgemm ('N','N',n_na,n_nb,n_lam_a,fac,
-     &                    tmp(i_a),n_na,tmp(i_ang_a),n_ang_a,zero,
-     &                    tmp(i_wb),n_na)
-                      i_ang_a = i_ang_a+n_lam_a
-                      call ecp_angrad (n_na,n_cont_a,n_nb,n_cont_b,
-     &                    tmp(i_wb),tmp(i_int_a),ecp_ints)
-                      if (debug_arrays) then
-                        call ecp_matpr (tmp(i_wb),1,n_na,1,n_nb,1,n_na,
-     &                      1,n_nb,'Contracted angular integrals','E',
-     &                      78,4)
-                        call ecp_matpr (tmp(i_int_a),1,n_cont_a,
-     &                      1,n_cont_b,1,n_cont_a,1,n_cont_b,
-     &                      'Radial integrals','E',78,4)
-                        call ecp_matpr (ecp_ints,1,n_cont_a*n_na,
-     &                      1,n_nb*n_cont_b,1,n_cont_a*n_na,
-     &                      1,n_nb*n_cont_b,'ECP integrals','E',78,4)
-                      end if
-                      i_int_a = i_int_a+ncab
+                  i_a = i_ca
+                  i_c = i_int_b
+                  do nu_a = 0,l_a
+                    i_Qa = i_c
+                    if (sphcart .eq. 0) then
+                      la_min = mod(nu_a,2)
+                    else
+                      la_min = nu_a
+                    end if
+                    do lam_a = nu_a,la_min,-2
+                      l_min = min(lam_a-1,l_c)
+                      i_ang_a = i_wa+((l_min+1)*lam_a**2
+     &                    -l_min*(l_min+1)*(2*l_min+1)/6)
+                      n_lam_a = 2*lam_a+1
+                      i_int_a = i_Qa
+                      do k_a = lam_a+l_c,abs(lam_a-l_c),-2
+                        fac = 2*k_a+1
+                        if (debug_gen) write (LuOut,*) 'nu_a,lam_a,k_a',
+     &                      nu_a,lam_a,k_a
+                        call dgemm ('N','N',n_na,n_nb,n_lam_a,fac,
+     &                      tmp(i_a),n_na,tmp(i_ang_a),n_ang_a,zero,
+     &                      tmp(i_wb),n_na)
+                        i_ang_a = i_ang_a+n_lam_a
+                        call ecp_angrad (n_na,n_cont_a,n_nb,n_cont_b,
+     &                      tmp(i_wb),tmp(i_int_a),ecp_ints(1,i_x))
+                        if (debug_arrays) then
+                          call ecp_matpr (tmp(i_wb),1,n_na,1,n_nb,
+     &                        1,n_na,1,n_nb,
+     &                        'Contracted angular integrals','E',78,4)
+                          call ecp_matpr (tmp(i_int_a),1,n_cont_a,
+     &                        1,n_cont_b,1,n_cont_a,1,n_cont_b,
+     &                        'Radial integrals','E',78,4)
+                          call ecp_matpr (ecp_ints(1,i_x),1,
+     &                        n_cont_a*n_na,1,n_nb*n_cont_b,1,
+     &                        n_cont_a*n_na,1,n_nb*n_cont_b,
+     &                        'ECP integrals','E',78,4)
+                        end if
+                        i_int_a = i_int_a+ncab
+                      end do
+                      i_a = i_a+n_lam_a*n_na
+                      i_Qa = i_Qa+ncab
                     end do
-                    i_a = i_a+n_lam_a*n_na
-                    i_Qa = i_Qa+ncab
+                    if (sphcart .eq. 0) then
+                      i_c = i_c+(min(nu_a,(nu_a+l_c)/2)+1)*ncab
+                    else
+                      i_c = i_c+(min(nu_a,l_c)+1)*ncab
+                    end if
                   end do
-                  if (sphcart .eq. 0) then
-                    i_c = i_c+(min(nu_a,(nu_a+l_c)/2)+1)*ncab
-                  else
-                    i_c = i_c+(min(nu_a,l_c)+1)*ncab
-                  end if
-                end do
 *
-                i_int_b = i_int_b+n_row
+                  i_int_b = i_int_b+n_row
+                end do
+                i_b = i_b+n_lam_b*n_nb
+                i_Qb = i_Qb+n_row
               end do
-              i_b = i_b+n_lam_b*n_nb
-              i_Qb = i_Qb+n_row
+              if (sphcart .eq. 0) then
+                i_d = i_d+(min(nu_b,(nu_b+l_c)/2)+1)*n_row
+              else
+                i_d = i_d+(min(nu_b,l_c)+1)*n_row
+              end if
             end do
-            if (sphcart .eq. 0) then
-              i_d = i_d+(min(nu_b,(nu_b+l_c)/2)+1)*n_row
-            else
-              i_d = i_d+(min(nu_b,l_c)+1)*n_row
-            end if
-          end do
+            i_ang = i_ang+n_ang_a*n_ang_b
+            if ((n_x .eq. 4) .and. (i_x .eq. 1))
+     &          i_Q_int = i_Q_int+ncab*n_int_a*n_int_b
+          end do ! i_x
+*
         end if
 *
       end do
-      if (debug_arrays) call ecp_matpr (ecp_ints,1,n_nb*n_cont_b,
-     &    1,n_na*n_cont_a,1,n_nb*n_cont_b,1,n_na*n_cont_a,
-     &    'ECP integrals','E',78,4)
+      do i = 1,n_blk
+        if (debug_arrays) call ecp_matpr (ecp_ints(1,i),1,n_nb*n_cont_b,
+     &      1,n_na*n_cont_a,1,n_nb*n_cont_b,1,n_na*n_cont_a,
+     &      'ECP integrals','E',78,4)
+      end do
       if (debug_gen) write (LuOut,*) 'Exiting ecp_int2'
 *
       return

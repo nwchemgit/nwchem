@@ -1,4 +1,4 @@
-C $Id: ecp_integral.F,v 1.3 1996-10-16 21:17:21 mg201 Exp $
+C $Id: ecp_integral.F,v 1.4 1997-08-19 23:32:22 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_integral (
@@ -70,9 +70,12 @@ C $Id: ecp_integral.F,v 1.3 1996-10-16 21:17:21 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
-      integer i,l,n,
+      integer i,j,l,n,
      &    n_prim_A,n_cont_A,l_A,n_prim_B,n_cont_B,l_B,n_zeta_C,n_C,
-     &    l_ecp_max,n_int,sphcart,lscr,ibug
+     &    l_ecp_max,n_int,n_blk,sphcart,lscr,ibug
+Ctest
+      parameter (n_blk=1)
+Cend
       integer n_prim_C(0:2,-1:l_ecp_max,n_C),
      &    n_coef_C(-1:l_ecp_max,n_C),ind_C(-1:l_ecp_max,n_C),
      &    n_tot_C(n_C),l_C(n_C)
@@ -85,12 +88,15 @@ C $Id: ecp_integral.F,v 1.3 1996-10-16 21:17:21 mg201 Exp $
      &    xyz_A(3),zeta_A(n_prim_A),coef_A(n_prim_A,n_cont_A),
      &    xyz_B(3),zeta_B(n_prim_B),coef_B(n_prim_B,n_cont_B),
      &    xyz_C(3,n_C),zeta_C(n_zeta_C),coef_C(n_zeta_C),
-     &    scr(lscr),ecp_ints(n_int)
+     &    scr(lscr),ecp_ints(n_int*n_blk)
       double precision 
      &    X_AC,Y_AC,Z_AC,R_AC,X_BC,Y_BC,Z_BC,R_BC,
      &    tiny,tol
       double precision csco(lcsco)
       data tol/1.0d-16/,tiny/1.0d-13/
+*
+      if ((n_blk .ne. 1) .and. (n_blk .ne. 3) .and. (n_blk .ne. 4))
+     &    call errquit('Illegal value of n_blk in ecp_integral',99)
 *
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
@@ -118,7 +124,7 @@ C $Id: ecp_integral.F,v 1.3 1996-10-16 21:17:21 mg201 Exp $
      &    'Mismatch of integral count in ecp_integrals',99)
       if (sphcart .ne. 0) call errquit(
      &    'Do your own spherical transformation, lazy bum!',99)
-      i_scr = n_intt+1
+      i_scr = n_intt*n_blk+1
       memscr = lscr-i_scr+1
       if (DryRun) then
         max_loc = 0
@@ -126,7 +132,7 @@ C $Id: ecp_integral.F,v 1.3 1996-10-16 21:17:21 mg201 Exp $
         max_type1 = 0
         max_type2 = 0
       else
-        call dcopy (n_intt,zero,0,ecp_ints,1)
+        call dfill (n_intt*n_blk,zero,ecp_ints,1)
         if (debug_addresses) write (LuOut,*) 'memscr =',memscr
         if (memscr .lt. 0) call errquit (
      &      'Insufficient scratch memory in ecp_integral',99)
@@ -192,17 +198,19 @@ C $Id: ecp_integral.F,v 1.3 1996-10-16 21:17:21 mg201 Exp $
         i_zeta0 = i_zeta1+n_prim1
         if (debug_addresses) write (LuOut,*) 'i_zeta,i_zeta0,i_zeta1',
      &      i_zeta,i_zeta0,i_zeta1
-        call ecp_local (mem,DryRun,
-     &      xyz_A,zeta_A,coef_A,n_prim_A,n_cont_A,n_cart_A,l_A,
-     &      xyz_B,zeta_B,coef_B,n_prim_B,n_cont_B,n_cart_B,l_B,
-     &      xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
-     &      zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
-     &      scr,scr(i_scr),memscr,
-     &      ibug)
-        if (DryRun) then
-          max_loc = max(mem,max_loc)
-        else
-          call daxpy (n_intt,one,scr,1,ecp_ints,1)
+        if ((n_prim0+n_prim1 .gt. 0) .and. (n_blk .ne. 3)) then
+          call ecp_local (mem,DryRun,
+     &        xyz_A,zeta_A,coef_A,n_prim_A,n_cont_A,n_cart_A,l_A,
+     &        xyz_B,zeta_B,coef_B,n_prim_B,n_cont_B,n_cart_B,l_B,
+     &        xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
+     &        zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
+     &        scr,scr(i_scr),memscr,
+     &        ibug)
+          if (DryRun) then
+            max_loc = max(mem,max_loc)
+          else
+            call daxpy (n_intt,one,scr,1,ecp_ints,1)
+          end if
         end if
 *
 *     Evaluate and add integrals over non-local part
@@ -222,7 +230,7 @@ C     &        'zeta_C','E',81,5)
 C          call ecp_matpr (coef_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
 C     &        'coef_C','E',81,5)
 C        end if
-        if (.not.DryRun) call dcopy (n_intt,zero,0,scr,1)
+        if (.not.DryRun) call dfill (n_intt*n_blk,zero,scr,1)
         if ((R_AC .lt. tiny) .and. (R_BC .lt. tiny)) then
 *
 *       One-centre case, A = B = C
@@ -233,9 +241,9 @@ C        end if
      &        l_A,n_prim_A,n_cont_A,coef_A,zeta_A,n_cart_a,
      &        l_C(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
      &        n_zeta_C,coef_C,zeta_C,0,2,
-     &        tol,sphcart,scr(i_scr),memscr,
-     &        csco,lcsco,
-     &        scr,ibug/10)
+     &        tol,sphcart,
+     &        scr(i_scr),memscr,csco,lcsco,
+     &        scr,n_blk,ibug/10)
           if (DryRun) max_type0 = max(mem,max_type0)
         else if (R_AC .lt. tiny) then
 *
@@ -249,7 +257,7 @@ C        end if
      &        n_zeta_C,coef_C,zeta_C,0,2,
      &        tol,sphcart,scr(i_scr),memscr,
      &        csco,lcsco,
-     &        scr,n_intt,.false.,ibug/10)
+     &        scr,n_intt,n_blk,.false.,ibug/10)
           if (DryRun) max_type1 = max(mem,max_type1)
         else if (R_BC .lt. tiny) then
 *
@@ -263,7 +271,7 @@ C        end if
      &        n_zeta_C,coef_C,zeta_C,0,2,
      &        tol,sphcart,scr(i_scr),memscr,
      &        csco,lcsco,
-     &        scr,n_intt,.true.,ibug/10)
+     &        scr,n_intt,n_blk,.true.,ibug/10)
           if (DryRun) max_type1 = max(mem,max_type1)
         else
 *
@@ -277,20 +285,26 @@ C        end if
      &        n_zeta_C,coef_C,zeta_C,0,2,
      &        tol,sphcart,scr(i_scr),memscr,
      &        csco,lcsco,
-     &        scr,n_intt,ibug/10)
+     &        scr,n_intt,n_blk,ibug/10)
           if (DryRun) max_type2 = max(mem,max_type2)
         end if
 *
 *     Add integrals from this centre to the total.
 *
         if (.not.DryRun) then
-           call daxpy (n_intt,one,scr,1,ecp_ints,1)
-           if (debug_arrays) call ecp_matpr (scr,1,n_all_b,1,n_all_a,
-     &          1,n_all_b,1,n_all_a,'Non-local ECP integrals','E',78,4)
+          call daxpy (n_intt*n_blk,one,scr,1,ecp_ints,1)
+          if (debug_arrays) then
+            n = 1
+            do j = 1,n_blk
+              call ecp_matpr (scr(n),1,n_all_b,1,n_all_a,1,n_all_b,
+     &            1,n_all_a,'Non-local ECP integrals','E',78,4)
+              n = n+n_intt
+            end do
+          end if
         end if
       end do
       if (DryRun) then
-        lscr = max(max_loc,max_type0,max_type1,max_type2)+n_intt
+        lscr = max(max_loc,max_type0,max_type1,max_type2)+n_intt*n_blk
         if (debug_addresses) then
           write (LuOut,*) 'max_loc',max_loc
           write (LuOut,*) 'max_type0',max_type0
@@ -299,9 +313,13 @@ C        end if
           write (LuOut,*) 'n_intt',n_intt
           write (LuOut,*) 'lscr',lscr
         end if
-      else
-        if (debug_arrays) call ecp_matpr (ecp_ints,1,n_all_b,1,n_all_a,
-     &      1,n_all_b,1,n_all_a,'Final ECP integrals','E',78,4)
+      else if (debug_arrays) then
+        n = 1
+        do j = 1,n_blk
+          call ecp_matpr (ecp_ints(n),1,n_all_b,1,n_all_a,
+     &        1,n_all_b,1,n_all_a,'Final ECP integrals','E',78,4)
+          n = n+n_intt
+        end do
       end if
       if (debug_gen) write (LuOut,*) 'Exiting ecp_integral'
 *
