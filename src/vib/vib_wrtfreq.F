@@ -1,5 +1,5 @@
       SUBROUTINE vib_WRTFREQ(rtdb,EIGVAL,NAT3,ZEROPE,NPRI)
-* $Id: vib_wrtfreq.F,v 1.10 2002-10-08 21:41:18 bylaska Exp $
+* $Id: vib_wrtfreq.F,v 1.11 2002-12-30 23:07:23 edo Exp $
 C
 C This routine scales the eigenvalues properly and then converts them
 C      to wavenumbers
@@ -34,7 +34,7 @@ c
       integer i,it,ntemp,h_actlist,l_actlist,ma_type
 
 *     ****  conversions and constants ****
-      double precision AUKCAL,c,h,kgas,Rgas
+      double precision AUKCAL,c,h,kgas,Rgas,inertprod
       parameter (AUKCAL=627.5093314d0)
       parameter (c=2.998e+10,h=6.626e-27,kgas=1.3807e-16)   ! cgs units
       parameter (Rgas = 1.9863d0/1000.0d0/AUKCAL)           ! atomic units
@@ -189,11 +189,15 @@ c     &      temp = 298.15d0
         Strans = (5.0d0/2.0d0)*Rgas*log(temp)
      >         + (3.0d0/2.0d0)*Rgas*log(M) 
      >         - 2.3135d0/AUKCAL/1000.0d0
-
-        Srot   = (Rgas/2.0d0)*( 3.0d0*log(temp) 
-     >                        - log(inertia_A*inertia_B*inertia_C) 
-     >                        - 2.0d0*log(dble(sigma))) 
-     >         + 3.0327d0/AUKCAL/1000.0d0
+        inertprod=inertia_A*inertia_B*inertia_C
+        if (abs(inertprod).lt.1d-9) then
+           srot=0d0
+        else
+           Srot   = (Rgas/2.0d0)*( 3.0d0*log(temp) -
+     >          log(inertprod) -
+     >          2.0d0*log(dble(sigma))) +
+     >          + 3.0327d0/AUKCAL/1000.0d0
+        endif
 
 *       **** add up vibrational contributions ****
         Svib   = 0.0d0
@@ -262,12 +266,14 @@ C
       parameter (lwork=9)
       double precision work(lwork)
       character*16 t
+      double precision fconv,eps
 
 *     ****  conversions and constants ****
       double precision AUKCAL,c,h,kgas,Rgas
       parameter (AUKCAL=627.5093314d0)
       parameter (c=2.998e+10,h=6.626e-27,kgas=1.3807e-16)   ! cgs units
       parameter (Rgas = 1.9863d0/1000.0d0/AUKCAL)           ! atomic units
+      parameter (fconv=4.6497791d-41, eps=1d-9)
 
 *     **** external functions ****
       double precision deter3
@@ -327,19 +333,21 @@ C
 
       if (.not. MA_pop_stack(r1(2)))
      >  call errquit('vib_geom_parameters_set: pop stack',3)
-
       call DSYEV('N','U',3,mtensor,3,meig,work,lwork,ierr)
 
-      meig(1) = 4.6497791d-41*meig(1)  ! convert to cgs units
-      meig(2) = 4.6497791d-41*meig(2)
-      meig(3) = 4.6497791d-41*meig(3)
+      meig(1) = fconv*meig(1)  ! convert to cgs units
+      meig(2) = fconv*meig(2)
+      meig(3) = fconv*meig(3)
 
       q = 4.0d0*datan(1.0d0)
       q = 8.0d0*q*q             ! 8*pi^2
       q = h/(q*c)               ! h/(8*pi^2*c) - there is an error in old McQuarrie
-      AA = q/meig(1)    ! in units of cm-1
-      BB = q/meig(2)
-      CC = q/meig(3)
+      AA = 0d0
+      BB = 0d0
+      CC = 0d0
+      if(abs(meig(1)).gt.eps) AA = q/meig(1)    ! in units of cm-1
+      if(abs(meig(2)).gt.eps) BB = q/meig(2)
+      if(abs(meig(3)).gt.eps) CC = q/meig(3)
 *
       if (.not.geom_destroy(geom)) call errquit
      &    ('vib_geom_parameters_get: geom_destroy failed',911)
