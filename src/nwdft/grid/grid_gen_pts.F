@@ -1,6 +1,6 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.7 1999-07-09 22:41:56 edo Exp $
+c$Id: grid_gen_pts.F,v 1.8 1999-07-14 15:28:09 edo Exp $
 c
       implicit none
 c      
@@ -27,14 +27,14 @@ c
 c     allocate space for atomic coordinates and charges
 c
       if (.not. Ma_Push_Get(MT_Dbl,ncenters*3,'coordinates',lcoord,
-     &   icoord))call errquit('grid_gen_pts: failed to alloc 
-     &   coordinates',0)
+     &   icoord))call errquit(
+     (     'grid_gen_pts: failed to alloc coordinates',0)
       if (.not. Ma_Push_Get(MT_Dbl,ncenters,'charges',lcharge,
-     &   icharge))call errquit('grid_gen_pts: failed to alloc 
-     &   charges',0)
+     &   icharge))call errquit(
+     (     'grid_gen_pts: failed to alloc charges',0)
       if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
-     &   ltags, itags))call errquit('grid_gen_pts: failed to 
-     &   alloc center tags',0)
+     &   ltags, itags))call errquit(
+     (     'grid_gen_pts: failed to alloc center tags',0)
 c
 c     Get ncenter tags, coordinates, and charges from the geometry object.
 c     
