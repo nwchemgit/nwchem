@@ -1,11 +1,12 @@
       logical function bas_vec_info(basis, info)
 *
-* $Id: bas_vec_info.F,v 1.5 1999-06-01 20:08:51 d3e129 Exp $
+* $Id: bas_vec_info.F,v 1.6 2000-04-10 17:16:08 hvd Exp $
 *
       implicit none
 #include "bas.fh"
 #include "inp.fh"
 #include "geom.fh"
+#include "stdio.fh"
       integer basis             ! [input] 
       character*16 info(*)      ! [output]
 c
@@ -223,7 +224,7 @@ c
      $                 iat, symbol, shtypes(type), cbf(1:7)
                endif
 c
-*               write(6,*) i, ' "', info(i), '"'
+*               write(LuOut,*) i, ' "', info(i), '"'
 c
             enddo
          enddo
@@ -248,6 +249,7 @@ c$$$      end
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
+#include "stdio.fh"
       logical  bas_vec_info
       external bas_vec_info
       integer basis
@@ -261,14 +263,14 @@ c
      $     call errquit('bas_print_labels: ma failed', nbf*16)
       if (.not.bas_vec_info(basis, byte_mb(k_bftags)))
      &    call errquit('bas_print_labels: bas_vec_info failed',911)
-      write(6,*)
-      call util_print_centered(6, 'Basis function labels',
+      write(LuOut,*)
+      call util_print_centered(LuOut, 'Basis function labels',
      $     13, .true.)
-      write(6,780)
+      write(LuOut,780)
  780  format(4x,'   No.  Atm El Type'/
      $       4x,'   ---  --- -- ----')
       do i = 1, nbf
-         write(6,781) i, (byte_mb(k_bftags+(i-1)*16-1+j),j=1,16)
+         write(LuOut,781) i, (byte_mb(k_bftags+(i-1)*16-1+j),j=1,16)
  781     format(4x,i5,4x,16a1)
       enddo
       if (.not. ma_pop_stack(l_bftags)) call errquit

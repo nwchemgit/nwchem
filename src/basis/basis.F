@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.98 2000-01-25 19:23:45 mg201 Exp $
+c $Id: basis.F,v 1.99 2000-04-10 17:16:08 hvd Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -10,6 +10,7 @@ c
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
+#include "stdio.fh"
 c
       integer cdata,idata,rdata
       integer mapidata, total4, total8
@@ -65,24 +66,24 @@ c.. total space
       total8 = 2*total4 + rdata + cdata 
       total4 = total4 + rdata + cdata 
 c
-      write(6,'(////1x,a,f5.2,a)')
+      write(LuOut,'(////1x,a,f5.2,a)')
      &      ' **** basis set version ',bsversion,' ****'
-      write(6,'(1x,a,i20,a)')
+      write(LuOut,'(1x,a,i20,a)')
      &      '   character data in-core ',cdata,' bytes'
-      write(6,'(1x,a,i20,a)')
+      write(LuOut,'(1x,a,i20,a)')
      &      '   real      data in-core ',rdata,' bytes'
-      write(6,'(1x,a,i20,a)')
+      write(LuOut,'(1x,a,i20,a)')
      &      '   integer*4 data in-core ',idata,' bytes'
-      write(6,'(1x,a,i20,a)')
+      write(LuOut,'(1x,a,i20,a)')
      &      'or integer*8 data in-core ',(2*idata),' bytes'
-      write(6,'(1x,a,i20,a)')
+      write(LuOut,'(1x,a,i20,a)')
      &      '   integer*4 mapping data in-core ',
      &      mapidata,' bytes'
-      write(6,'(1x,a,i20,a/)')
+      write(LuOut,'(1x,a,i20,a/)')
      &      'or integer*8 mapping data in-core ',
      &      (2*mapidata),' bytes'
-      write(6,*)' total(4)   = ',total4,' bytes'
-      write(6,*)' total(8)   = ',total8,' bytes'
+      write(LuOut,*)' total(4)   = ',total4,' bytes'
+      write(LuOut,*)' total(8)   = ',total8,' bytes'
 c
 c.. convert to kilobytes
 c
@@ -92,25 +93,25 @@ c
       mapidata = (mapidata + 999) / 1000
       total4   = (total4   + 999) / 1000
       total8   = (total8   + 999) / 1000
-      write(6,'(///1x,a,f5.2,a)')
+      write(LuOut,'(///1x,a,f5.2,a)')
      &      ' **** basis set version ',bsversion,' ****'
-      write(6,'(1x,a,i20,a)')
+      write(LuOut,'(1x,a,i20,a)')
      &      '   character data in-core ',cdata,' Kbytes'
-      write(6,'(1x,a,i20,a)')
+      write(LuOut,'(1x,a,i20,a)')
      &      '   real      data in-core ',rdata,' Kbytes'
-      write(6,'(1x,a,i20,a)')
+      write(LuOut,'(1x,a,i20,a)')
      &      '   integer*4 data in-core ',idata,' Kbytes'
-      write(6,'(1x,a,i20,a)')
+      write(LuOut,'(1x,a,i20,a)')
      &      'or integer*8 data in-core ',(2*idata),' Kbytes'
-      write(6,'(1x,a,i20,a)')
+      write(LuOut,'(1x,a,i20,a)')
      &      '   integer*4 mapping data in-core ',
      &      mapidata,' Kbytes'
-      write(6,'(1x,a,i20,a/)')
+      write(LuOut,'(1x,a,i20,a/)')
      &      'or integer*8 mapping data in-core ',
      &      (2*mapidata),' Kbytes'
-      write(6,*)' total(4)   = ',total4,' Kbytes'
-      write(6,*)' total(8)   = ',total8,' Kbytes'
-      write(6,'(////)')
+      write(LuOut,*)' total(4)   = ',total4,' Kbytes'
+      write(LuOut,*)' total(8)   = ',total8,' Kbytes'
+      write(LuOut,'(////)')
 c
       bas_version = .true.
       end
@@ -127,6 +128,7 @@ c
 #include "inp.fh"
 #include "basdeclsP.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::functions
 c ifill from util
 c dfill from util
@@ -146,7 +148,7 @@ c
         if (.not.bsactive(basis)) goto 01000
 00100 continue
 c
-      write(6,*)' bas_create: no free basis handles for ',name
+      write(LuOut,*)' bas_create: no free basis handles for ',name
       bas_create = .false.
       return
 c
@@ -199,11 +201,11 @@ c
 c
 c debug print all basis sets that are active
 c
-*:debug:      write(6,*)' bas_create: active basis sets'
+*:debug:      write(LuOut,*)' bas_create: active basis sets'
 *:debug:      do iiii = 1,nbasis_bsmx
 *:debug:        if (bsactive(iiii)) then
 *:debug:          jjjj = inp_strlen(bs_name(iiii))
-*:debug:          write(6,*)'bas_create:',bs_name(iiii)(1:jjjj),' ',iiii
+*:debug:          write(LuOut,*)'bas_create:',bs_name(iiii)(1:jjjj),' ',iiii
 *:debug:        endif
 *:debug:      enddo
 c
@@ -249,6 +251,7 @@ c
 #include "geomP.fh"
 #include "geobasmapP.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c::functions used
 c::bas
       logical bas_check_handle
@@ -295,7 +298,7 @@ c must restore active geometry data appropriately
       endif
 c
       if(.not.gbs_map_clear(basisin)) then
-        write(6,*)' error clearing map '
+        write(LuOut,*)' error clearing map '
         bas_do_destroy = .false.
         return
       endif
@@ -328,6 +331,7 @@ c
       implicit none
 #include "nwc_const.fh"
 #include "basP.fh"
+#include "stdio.fh"
 c:passed
       integer basisin           ! [input] handle
       character*(*) msg         ! [input] error message
@@ -341,9 +345,9 @@ c
 c
 * user's responsibility to deal with status
 *      if (.not. bas_check_handle) then
-*        write(6,*)msg,': basis handle is invalid '
-*        write(6,*)'basis_check_handle: lexical handle ',basis
-*        write(6,*)'basis_check_handle:         handle ',basisin
+*        write(LuOut,*)msg,': basis handle is invalid '
+*        write(LuOut,*)'basis_check_handle: lexical handle ',basis
+*        write(LuOut,*)'basis_check_handle:         handle ',basisin
 *      endif
       return
       end
@@ -416,6 +420,7 @@ c H to Ca
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c
 c function declarations
 c
@@ -445,7 +450,7 @@ c
 #include "bas_exndcf_sfn.fh"
 c
       if (.not.bas_create(basis,'321g:1-20')) then
-        write(6,*)' basis set handle not created '
+        write(LuOut,*)' basis set handle not created '
         bas_321g_load = .false.
         return
       endif
@@ -720,14 +725,14 @@ c add p now
      &       infbs_cont(1,1,usebas),
      &      dbl_mb(mb_exndcf(1,usebas)),3,9,30,'3-21g',' ')
 c
-      write(6,*)' inside 321g load '
-      write(6,*)' inside 321g load '
+      write(LuOut,*)' inside 321g load '
+      write(LuOut,*)' inside 321g load '
       bas_321g_load = bas_print(basis)
-      write(6,*)' inside 321g load '
-      write(6,*)' inside 321g load '
+      write(LuOut,*)' inside 321g load '
+      write(LuOut,*)' inside 321g load '
 c
       if (.not.bas_destroy(basis)) then
-        write(6,*)' error releasing temproary basis handle '
+        write(LuOut,*)' error releasing temproary basis handle '
         bas_321g_load = .false.
         return
       endif
@@ -890,6 +895,7 @@ c
 #include "inp.fh"
 #include "geom.fh"
 #include "ecpso_decP.fh"
+#include "stdio.fh"
 c
 c function declarations
 c      
@@ -943,14 +949,14 @@ c
       else
          polynomial = ' (cartesian)'
       endif
-      write(6,1)bs_name(basis)(1:inp_strlen(bs_name(basis))), 
+      write(LuOut,1)bs_name(basis)(1:inp_strlen(bs_name(basis))), 
      $     bs_trans(basis)(1:inp_strlen(bs_trans(basis))), polynomial
  1    format('                      Basis "',a,'" -> "',a,'"',a/
      $       '                      -----')
       mytags  = infbs_head(HEAD_NTAGS,basis)
       if (mytags.le.0) then
-        write(6,*)' Empty basis set '
-        write(6,*)
+        write(LuOut,*)' Empty basis set '
+        write(LuOut,*)
         return
       endif
 c
@@ -970,13 +976,13 @@ c
             buffer = bs_tags(i,basis)
          endif
          len_tag = inp_strlen(buffer)
-         call util_print_centered(6, buffer, len_tag/2 + 1, .true.)
+         call util_print_centered(LuOut, buffer, len_tag/2 + 1, .true.)
 
          myucont = infbs_tags(TAG_NCONT,i,basis)
 c        
         ifcont = infbs_tags(TAG_FCONT,i,basis)
 c     
-        write(6,6)
+        write(LuOut,6)
  6      format(
      $       '            Exponent  Coefficients '/
      $       '       -------------- ',57('-'))
@@ -993,12 +999,12 @@ c
           iexptr = infbs_cont(CONT_IEXP,ifcont,basis) - 1
           icfptr = infbs_cont(CONT_ICFP,ifcont,basis) - 1
           do 00300 k=1,myprim
-            write(6,7) j, shell_type(1:2),
+            write(LuOut,7) j, shell_type(1:2),
      &          sf_exndcf((iexptr+k),basis),
      &          (sf_exndcf((icfptr+k+(l-1)*myprim),basis),l=1,mygen)
  7           format(1x,i2,1x,a2,1x,f14.6,20f10.6)
 00300     continue
-          write(6,*)
+          write(LuOut,*)
           ifcont = ifcont + 1
 00200   continue
 00100 continue
@@ -1044,9 +1050,9 @@ c::local
       logical status_ecp_ph, status_so_ph
       logical status_ecp, status_so
 c
-*:debug:      write(6,*)' bas_rtdb_load:rtdb,geom,basis ',
+*:debug:      write(LuOut,*)' bas_rtdb_load:rtdb,geom,basis ',
 *:debug:     &    rtdb,geom,basisin
-*:debug:      write(6,*)' bas_rtdb_load:name ',name
+*:debug:      write(LuOut,*)' bas_rtdb_load:name ',name
       bas_rtdb_load =
      &    bas_rtdb_do_load(rtdb, geom, basisin, name)
       if (.not.inp_compare(.false.,'ao basis',name(1:8)))
@@ -1159,6 +1165,7 @@ c
 #include "geobasmapP.fh"
 #include "inp.fh"
 #include "global.fh"
+#include "stdio.fh"
 c
 c function declarations
 c
@@ -1242,7 +1249,7 @@ c
 
       if (.not.ma_alloc_get(mt_dbl,(nexcf+ecXtra),nameex,
      &    h_tmp, k_tmp)) then
-        write(6,*)' not enough memory'
+        write(LuOut,*)' not enough memory'
         call errquit
      &      (' bas_rtdb_do_load: error allocating space'//
      &      ' for exndcf',911)
@@ -1290,13 +1297,13 @@ c     rjh ... can be quiet now since the application should
 c     whine if it really did need the basis set
 c
 *         if(ga_nodeid().eq.0) then
-*            write(6,*)
-*            write(6,*) ' bas_rtdb_do_load: basis not present "',
+*            write(LuOut,*)
+*            write(LuOut,*) ' bas_rtdb_do_load: basis not present "',
 *     $           bs_name(basis)(1:inp_strlen(bs_name(basis))),
 *     &          '" -> "',
 *     $           bs_trans(basis)(1:inp_strlen(bs_trans(basis))),
 *     &          '"'
-*            write(6,*)
+*            write(LuOut,*)
 *         endif
          bas_rtdb_do_load = .false.
 c.....add diagnostics later
@@ -1399,9 +1406,9 @@ c
 
       status = geom_ncent(geom, nat)
       if (nat.eq.0.or..not.status) then
-        write(6,*)' bas_geobas_build: ERROR '
-        write(6,*)' number of centers is zero or weird'
-        write(6,*)' nat = ',nat
+        write(LuOut,*)' bas_geobas_build: ERROR '
+        write(LuOut,*)' number of centers is zero or weird'
+        write(LuOut,*)' nat = ',nat
         bas_geobas_build = .false.
 c..... add diagnostics later
         return
@@ -1444,8 +1451,8 @@ c.... set flag if any sp (spd,spdf) shells are present
 c
 c... clear old ibs_ce2uce if it exists
       if (ibs_ce2uce(SZ_ibs,basis).gt.0) then
-*debug:mem        write(6,*)' clearing old ce2uce data ',ga_nodeid()
-*debug:mem        call util_flush(6)
+*debug:mem        write(LuOut,*)' clearing old ce2uce data ',ga_nodeid()
+*debug:mem        call util_flush(LuOut)
         h_tmp = ibs_ce2uce(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
      &        ('bas_geobas_build: error freeing ibs_ce2uce',911)
@@ -1459,8 +1466,8 @@ c                                 123456789012
         call errquit
      &      ('bas_geobas_build: error ma_alloc ibs_ce2uce',911)
       else
-*debug:mem        write(6,*)' generating ce2uce data ',ga_nodeid()
-*debug:mem        call util_flush(6)
+*debug:mem        write(LuOut,*)' generating ce2uce data ',ga_nodeid()
+*debug:mem        call util_flush(LuOut)
         call ifill(nat,0,int_mb(k_tmp),1)
         ibs_ce2uce(H_ibs,basis)  = h_tmp
         ibs_ce2uce(K_ibs,basis)  = k_tmp
@@ -1468,15 +1475,15 @@ c                                 123456789012
 *debug:mem        do inode = 0,(ga_nnodes() - 1)
 *debug:mem          if (inode.eq.ga_nodeid()) call MA_summarize_allocated_blocks()
 *debug:mem          call ga_sync()
-*debug:mem          call util_flush(6)
+*debug:mem          call util_flush(LuOut)
 *debug:mem        enddo
       endif
 c
 c build center to unique center map
 c
       if (nat.gt.nat_mx) then
-        write(6,*)' nat     = ',nat
-        write(6,*)' nat max = ',nat_mx
+        write(LuOut,*)' nat     = ',nat
+        write(LuOut,*)' nat max = ',nat_mx
         call errquit ('bas_geobas_build: nat.gt.nat_mx',911)
       endif
       found_any = .false.
@@ -1549,20 +1556,20 @@ c
 *debug:mem          if (inode.eq.ga_nodeid()) then
 *debug:mem            call MA_summarize_allocated_blocks()
 *debug:mem            if (MA_verify_allocator_stuff()) then
-*debug:mem              write(6,*)' no errors'
+*debug:mem              write(LuOut,*)' no errors'
 *debug:mem            else
-*debug:mem              write(6,*)' errors'
+*debug:mem              write(LuOut,*)' errors'
 *debug:mem            endif
 *debug:mem          endif
 *debug:mem          call ga_sync()
-*debug:mem          call util_flush(6)
+*debug:mem          call util_flush(LuOut)
 *debug:mem        enddo
 *debug:mem      call bas_print_allocated_info('bas_geobas_build 1')
       ncont_tot_gb(basis)  = 0
       do 10200 i=1,nat
          uce = sf_ibs_ce2uce(i,basis)
-*debug:mem         write(6,*)' myuce = ',uce,i,ga_nodeid()
-*debug:mem         call util_flush(6)
+*debug:mem         write(LuOut,*)' myuce = ',uce,i,ga_nodeid()
+*debug:mem         call util_flush(LuOut)
          if (uce.gt.0) then
             idum_cont = infbs_tags(TAG_NCONT,uce,basis)
             ncont_tot_gb(basis)   = idum_cont + ncont_tot_gb(basis)
@@ -1573,8 +1580,8 @@ c allocate space for center -> contraction range map
 c
 c... clear old ibs_ce2cnr if it exists
       if (ibs_ce2cnr(SZ_ibs,basis).gt.0) then
-*debug:mem        write(6,*)' clearing old ce2cnr data ',ga_nodeid()
-*debug:mem        call util_flush(6)
+*debug:mem        write(LuOut,*)' clearing old ce2cnr data ',ga_nodeid()
+*debug:mem        call util_flush(LuOut)
         h_tmp = ibs_ce2cnr(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
      &        ('bas_geobas_build: error freeing ibs_ce2cnr',911)
@@ -1589,8 +1596,8 @@ c                                 123456789012
         call errquit
      &      ('bas_geobas_build: error ma_alloc ibs_ce2cnr',911)
       else
-*debug:mem        write(6,*)' generating ce2cnr data ',ga_nodeid()
-*debug:mem        call util_flush(6)
+*debug:mem        write(LuOut,*)' generating ce2cnr data ',ga_nodeid()
+*debug:mem        call util_flush(LuOut)
         call ifill((2*nat),0,int_mb(k_tmp),1)
         ibs_ce2cnr(H_ibs,basis)  = h_tmp
         ibs_ce2cnr(K_ibs,basis)  = k_tmp
@@ -1598,7 +1605,7 @@ c                                 123456789012
 *debug:mem        do inode = 0,(ga_nnodes() - 1)
 *debug:mem          if (inode.eq.ga_nodeid()) call MA_summarize_allocated_blocks()
 *debug:mem          call ga_sync()
-*debug:mem          call util_flush(6)
+*debug:mem          call util_flush(LuOut)
 *debug:mem        enddo
       endif
 c
@@ -1622,9 +1629,9 @@ c
       if (ncont_tot_gb(basis) .eq. 0) call errquit
      $    ('bas_geobas_build: no functions in basis set', 0)
       if (ncont_tot_gb(basis) .gt. ncont_mx) then
-        write(6,*)' number of contractions     = ',
+        write(LuOut,*)' number of contractions     = ',
      &      ncont_tot_gb(basis)
-        write(6,*)' number of contractions max = ',ncont_mx
+        write(LuOut,*)' number of contractions max = ',ncont_mx
         call errquit ('bas_geobas_build: ncont.gt.ncont_mx ',911)
       endif
 c
@@ -1632,8 +1639,8 @@ c allocate space for contraction -> center map
 c
 c... clear old ibs_cn2ce if it exists
       if (ibs_cn2ce(SZ_ibs,basis).gt.0) then
-*debug:mem        write(6,*)' clearing old cn2ce data ',ga_nodeid()
-*debug:mem        call util_flush(6)
+*debug:mem        write(LuOut,*)' clearing old cn2ce data ',ga_nodeid()
+*debug:mem        call util_flush(LuOut)
         h_tmp = ibs_cn2ce(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
      &        ('bas_geobas_build: error freeing ibs_cn2ce',911)
@@ -1647,8 +1654,8 @@ c                                 123456789012
      &      name_tmp,h_tmp,k_tmp)) then
         call errquit('bas_geobas_build: error ma_alloc ibs_cn2ce',911)
       else
-*debug:mem        write(6,*)' generating cn2ce data ',ga_nodeid()
-*debug:mem        call util_flush(6)
+*debug:mem        write(LuOut,*)' generating cn2ce data ',ga_nodeid()
+*debug:mem        call util_flush(LuOut)
         call ifill((1+ncont_tot_gb(basis)),0,int_mb(k_tmp),1)
         ibs_cn2ce(H_ibs,basis)  = h_tmp
         ibs_cn2ce(K_ibs,basis)  = k_tmp
@@ -1675,8 +1682,8 @@ c allocate space for ibs_cn2ucn map
 c
 c... clear old ibs_cn2ucn if it exists
       if (ibs_cn2ucn(SZ_ibs,basis).gt.0) then
-*debug:mem        write(6,*)' clearing old cn2ucn data ',ga_nodeid()
-*debug:mem        call util_flush(6)
+*debug:mem        write(LuOut,*)' clearing old cn2ucn data ',ga_nodeid()
+*debug:mem        call util_flush(LuOut)
         h_tmp = ibs_cn2ucn(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
      &        ('bas_geobas_build: error freeing ibs_cn2ucn',911)
@@ -1691,8 +1698,8 @@ c                                 123456789012
         call errquit
      &      ('bas_geobas_build: error ma_alloc ibs_cn2ucn',911)
       else
-*debug:mem        write(6,*)' generating cn2ucn data ',ga_nodeid()
-*debug:mem        call util_flush(6)
+*debug:mem        write(LuOut,*)' generating cn2ucn data ',ga_nodeid()
+*debug:mem        call util_flush(LuOut)
         call ifill((1+ncont_tot_gb(basis)),0,int_mb(k_tmp),1)
         ibs_cn2ucn(H_ibs,basis)  = h_tmp
         ibs_cn2ucn(K_ibs,basis)  = k_tmp
@@ -1718,13 +1725,13 @@ c
                   icount = icount + 1
 00600          continue
             else
-               write(6,*)' bas_geobas_build: ERROR '
-               write(6,*)' contraction range size mismatch'
-               write(6,*)'        cont. range (',jstart,':',jend,')'
-               write(6,*)' unique cont. range (',kstart,':',kend,')'
-               write(6,*)'        cont. size: ',jsize
-               write(6,*)' calculated unique cont. size: ',ksize
-               write(6,*)'     lookup unique cont. size: ',lsize
+               write(LuOut,*)' bas_geobas_build: ERROR '
+               write(LuOut,*)' contraction range size mismatch'
+               write(LuOut,*)'        cont. range (',jstart,':',jend,')'
+               write(LuOut,*)' unique cont. range (',kstart,':',kend,')'
+               write(LuOut,*)'        cont. size: ',jsize
+               write(LuOut,*)' calculated unique cont. size: ',ksize
+               write(LuOut,*)'     lookup unique cont. size: ',lsize
                bas_geobas_build = .false.
                return
             endif
@@ -1739,8 +1746,8 @@ c allocate space for ibs_cn2bfr map
 c
 c... clear old ibs_cn2bfr if it exists
       if (ibs_cn2bfr(SZ_ibs,basis).gt.0) then
-*debug:mem        write(6,*)' clearing old cn2bfr data ',ga_nodeid()
-*debug:mem        call util_flush(6)
+*debug:mem        write(LuOut,*)' clearing old cn2bfr data ',ga_nodeid()
+*debug:mem        call util_flush(LuOut)
         h_tmp = ibs_cn2bfr(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
      &        ('bas_geobas_build: error freeing ibs_cn2bfr',911)
@@ -1755,8 +1762,8 @@ c                                 123456789012
         call errquit
      &      ('bas_geobas_build: error ma_alloc ibs_cn2bfr',911)
       else
-*debug:mem        write(6,*)' generating cn2bfr data ',ga_nodeid()
-*debug:mem        call util_flush(6)
+*debug:mem        write(LuOut,*)' generating cn2bfr data ',ga_nodeid()
+*debug:mem        call util_flush(LuOut)
         call ifill((2*(1+ncont_tot_gb(basis))),0,int_mb(k_tmp),1)
         ibs_cn2bfr(H_ibs,basis)  = h_tmp
         ibs_cn2bfr(K_ibs,basis)  = k_tmp
@@ -1889,6 +1896,7 @@ c
 #include "basP.fh"
 #include "inp.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 c
 c    This routine stores the basis set information in the appropriate 
 c    data structure on the run-time-data-base (rtdb).  
@@ -1965,8 +1973,8 @@ c
 c read the basis now get check status of read operations
 c
       if (.not.status) then
-        write(6,*)' bas_rtdb_store: ERROR '
-        write(6,*)' one or more put operations failed '
+        write(LuOut,*)' bas_rtdb_store: ERROR '
+        write(LuOut,*)' one or more put operations failed '
         bas_rtdb_do_store = .false.
 c..... add diagnostics later
         return
@@ -2027,6 +2035,7 @@ c
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c
 c routine to clear online map information and basis information
 c
@@ -2045,7 +2054,7 @@ c
 c
       gbs_map_clear = bas_check_handle(basisin,'gbs_map_clear')
       if (.not. gbs_map_clear ) then
-        write(6,*) ' basis handle not valid '
+        write(LuOut,*) ' basis handle not valid '
         return
       endif
 c
@@ -2122,6 +2131,7 @@ c
 #include "basdeclsP.fh"
 #include "geom.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -2149,9 +2159,9 @@ c find number of atoms
       status = geom_ncent(mygeom, nat)
 c
       if (nat.eq.0.or..not.status) then
-        write(6,*)' gbs_map_print: ERROR '
-        write(6,*)' number of centers is zero or weird'
-        write(6,*)' nat = ',nat
+        write(LuOut,*)' gbs_map_print: ERROR '
+        write(LuOut,*)' number of centers is zero or weird'
+        write(LuOut,*)' nat = ',nat
         gbs_map_print = .false.
 c..... add diagnostics later
         return
@@ -2159,51 +2169,51 @@ c..... add diagnostics later
 c
 c print global information
 c
-      write(6,*)'<<< GBS_MAP_PRINT >>>'
-      write(6,*)' total number of atoms           :',nat
-      write(6,*)' total number of contractions    :',
+      write(LuOut,*)'<<< GBS_MAP_PRINT >>>'
+      write(LuOut,*)' total number of atoms           :',nat
+      write(LuOut,*)' total number of contractions    :',
      &       ncont_tot_gb(basis)
-      write(6,*)' total number of primitives      :',
+      write(LuOut,*)' total number of primitives      :',
      &       nprim_tot_gb(basis)
-      write(6,*)' total number of coefficients    :',
+      write(LuOut,*)' total number of coefficients    :',
      &       ncoef_tot_gb(basis)
-      write(6,*)' total number of basis functions :',
+      write(LuOut,*)' total number of basis functions :',
      &       nbf_tot_gb(basis)
 c
 c print center based mapping information.  
 c
-      write(6,*)' '
-      write(6,*)'==================================================',
-     &       '=============================='
-      write(6,*)' center -> unique center map          <ibs_ce2uce>'
-      write(6,*)'        -> contraction range map      <ibs_ce2cnr>'
-      write(6,*)'==================================================',
-     &       '=============================='
+      write(LuOut,*)' '
+      write(LuOut,*)'=================================================',
+     &       '==============================='
+      write(LuOut,*)' center -> unique center map          <ibs_ce2uce>'
+      write(LuOut,*)'        -> contraction range map      <ibs_ce2cnr>'
+      write(LuOut,*)'=================================================',
+     &       '==============================='
       do 00100 i=1,nat
-        write(6,'(1x,a,i4,2x,a,i3)')
+        write(LuOut,'(1x,a,i4,2x,a,i3)')
      &         'center:',i,'maps to unique center:',
      &        sf_ibs_ce2uce(i,basis)
         myfirst = sf_ibs_ce2cnr(1,i,basis)
         mylast  = sf_ibs_ce2cnr(2,i,basis)
         mysize  = mylast - myfirst + 1
-        write(6,'(14x,a,i4,2x,a,i4,a,i4,a,/)')
+        write(LuOut,'(14x,a,i4,2x,a,i4,a,i4,a,/)')
      &         'has',mysize,'contractions   <first:',
      &         myfirst,'>  <last:',mylast,'>'
 00100 continue
 c
 c print contraction based mapping information
 c
-      write(6,*)' '
-      write(6,*)'==================================================',
-     &       '=============================='
-      write(6,*)' contraction -> center map                     ',
+      write(LuOut,*)' '
+      write(LuOut,*)'=================================================',
+     &       '==============================='
+      write(LuOut,*)' contraction -> center map                     ',
      &       '                <ibs_cn2ce>'
-      write(6,*)'             -> unique contraction in basis set',
+      write(LuOut,*)'             -> unique contraction in basis set',
      &       '                <ibs_cn2ucn>'
-      write(6,*)'             -> basis function range           ',
+      write(LuOut,*)'             -> basis function range           ',
      &       '                <ibs_cn2bfr>'
-      write(6,*)'==================================================',
-     &       '=============================='
+      write(LuOut,*)'=================================================',
+     &       '==============================='
 c
       do 00200 i=1,ncont_tot_gb(basis)
         mycenter = sf_ibs_cn2ce(i,basis)
@@ -2211,11 +2221,11 @@ c
         myfirst  = sf_ibs_cn2bfr(1,i,basis)
         mylast   = sf_ibs_cn2bfr(2,i,basis)
         mysize   = mylast - myfirst + 1
-        write(6,'(1x,a,i4,2x,a,i3)')
+        write(LuOut,'(1x,a,i4,2x,a,i3)')
      &         'contraction',i,'is on center:',mycenter
-        write(6,'(18x,a,i3)')
+        write(LuOut,'(18x,a,i3)')
      &         'is represented by unique contraction:',myucont
-        write(6,'(18x,a,i5,a,i5,a,i5,a,/)')
+        write(LuOut,'(18x,a,i5,a,i5,a,i5,a,/)')
      &         'has',mysize,' basis functions <first:',myfirst,
      &         '>  <last:',mylast,'>'
 00200 continue
@@ -2233,6 +2243,7 @@ c
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 c     
 c::passed
       integer rtdb ! [input] run time data base handle
@@ -2244,7 +2255,7 @@ c
      &     rtdb_cput(rtdb, 'basis:names', nbasis_rtdb,
      &       bs_names_rtdb)
       if (.not. bas_rtdb_out) 
-     &     write(6,*) ' bas_rtdb_out: rtdb is corrupt '
+     &     write(LuOut,*) ' bas_rtdb_out: rtdb is corrupt '
 c     
       end
 *.....................................................................
@@ -2258,6 +2269,7 @@ c
 #include "basP.fh"
 #include "rtdb.fh"
 #include "inp.fh"
+#include "stdio.fh"
 c     
       integer rtdb              ! [input] run time data base handle
       character*(*) name        ! [input] name of basis set to add
@@ -2280,7 +2292,7 @@ c
 c     Name is not present ... add and rewrite info
 c     
       if (nbasis_rtdb .eq. nbasis_rtdb_mx) then
-         write(6,*) ' bas_rtdb_add: too many basis tries on rtdb ',
+         write(LuOut,*) ' bas_rtdb_add: too many basis tries on rtdb ',
      &      name
          bas_rtdb_add = .false.
          return
@@ -2291,7 +2303,7 @@ c
 c     
       bas_rtdb_add = bas_rtdb_out(rtdb)
       if (.not. bas_rtdb_add) then
-         write(6,*) ' bas_rtdb_add: rtdb error adding ', name(1:ln)
+         write(LuOut,*) ' bas_rtdb_add: rtdb error adding ', name(1:ln)
          return
       endif
 c     
@@ -2331,6 +2343,7 @@ c
 #include "rtdb.fh"
 #include "inp.fh"
 #include "global.fh"
+#include "stdio.fh"
       integer rtdb     ! [input] run time data base handle
 c     
 c     Print list of known basis sets
@@ -2346,15 +2359,15 @@ c
 c
       ignore = bas_rtdb_in(rtdb)
       if (ga_nodeid() .eq. 0) then
-         write(6,*)
-         call util_print_centered(6,'Basis sets in the database',
+         write(LuOut,*)
+         call util_print_centered(LuOut,'Basis sets in the database',
      $        23,.true.)
-         write(6,*)
+         write(LuOut,*)
          if (nbasis_rtdb .le. 0) then
-            write(6,*) ' There are no basis sets in the database'
-            write(6,*)
+            write(LuOut,*) ' There are no basis sets in the database'
+            write(LuOut,*)
          else
-            if (nbasis_rtdb .gt. 0) write(6,3)
+            if (nbasis_rtdb .gt. 0) write(LuOut,3)
  3          format(
      $           1x,4x,2x,'Name',28x,2x,'Natoms',2x,
      $           'Last Modified',/,
@@ -2365,7 +2378,7 @@ c
      $              bs_names_rtdb(basis)(1:len_bs_rtdb(basis))
                if (.not. rtdb_get(rtdb, key, mt_int, 
      $              ndbs_head, head_array)) then
-                  write(6,*) ' Warning: basis set ', basis, 
+                  write(LuOut,*) ' Warning: basis set ', basis, 
      $                 ' may be corrupt'
                   natom = -1
                else
@@ -2373,26 +2386,26 @@ c
                endif
                if (.not. rtdb_get_info(rtdb, key, ma_type, 
      $              nelem, date)) then
-                  write(6,*) ' Warning: basis set ', basis, 
+                  write(LuOut,*) ' Warning: basis set ', basis, 
      $                 ' may be corrupt'
                   date = 'unknown'
                endif
                name32 = bs_names_rtdb(basis)(1:len_bs_rtdb(basis))
-               write(6,4) basis, name32, natom, date
+               write(LuOut,4) basis, name32, natom, date
  4             format(1x,i4,2x,a32,2x,i6,2x,a26)
             end do
             if (nbasis_rtdb .gt. 0) then
                if (.not. rtdb_cget(rtdb,'ao basis',1,key)) 
      $              key = 'ao basis'
-               write(6,*)
-               write(6,5) key(1:inp_strlen(key))
+               write(LuOut,*)
+               write(LuOut,5) key(1:inp_strlen(key))
  5             format(2x,'The basis set named "',a,
      $              '" is the default AO basis for restart')
             endif
-            write(6,*)
-            write(6,*)
+            write(LuOut,*)
+            write(LuOut,*)
          endif
-         call util_flush(6)
+         call util_flush(LuOut)
       endif
 c     
       end
@@ -2408,6 +2421,7 @@ c
 #include "basP.fh"
 #include "rtdb.fh"
 #include "inp.fh"
+#include "stdio.fh"
 c     
       integer rtdb     ! [input] run time data base handle
       integer bas
@@ -2417,7 +2431,7 @@ c
      $     then
         if (.not. rtdb_cget(rtdb,'basis:names', nbasis_rtdb_mx,
      $        bs_names_rtdb)) then
-          write(6,*) 'bas_rtdb_in: rtdb corrupt'
+          write(LuOut,*) 'bas_rtdb_in: rtdb corrupt'
         else
           do 00100 bas = 1, nbasis_rtdb
             len_bs_rtdb(bas) = inp_strlen(bs_names_rtdb(bas))
@@ -2439,6 +2453,7 @@ c
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -2456,9 +2471,9 @@ c
       basis = basisin + Basis_Handle_Offset
       bas_cn2ce = cont.ge.0 .and. cont.le.ncont_tot_gb(basis)
       if (.not.bas_cn2ce) then
-        write(6,*)' bas_cn2ce: invalid contraction information '
-        write(6,*)' contraction range is 0:',ncont_tot_gb(basis)
-        write(6,*)' input contraction was: ',cont
+        write(LuOut,*)' bas_cn2ce: invalid contraction information '
+        write(LuOut,*)' contraction range is 0:',ncont_tot_gb(basis)
+        write(LuOut,*)' input contraction was: ',cont
         return
       endif
       center = sf_ibs_cn2ce(cont,basis)
@@ -2476,6 +2491,7 @@ c
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -2493,9 +2509,9 @@ c
       basis = basisin + Basis_Handle_Offset
       bas_cn2uce = cont.ge.0 .and. cont.le.ncont_tot_gb(basis)
       if (.not.bas_cn2uce) then
-        write(6,*)' bas_cn2uce: invalid contraction information '
-        write(6,*)' contraction range is 0:',ncont_tot_gb(basis)
-        write(6,*)' input contraction was: ',cont
+        write(LuOut,*)' bas_cn2uce: invalid contraction information '
+        write(LuOut,*)' contraction range is 0:',ncont_tot_gb(basis)
+        write(LuOut,*)' input contraction was: ',cont
         return
       endif
 c
@@ -2515,6 +2531,7 @@ c
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -2537,9 +2554,9 @@ c
       basis = basisin + Basis_Handle_Offset
       bas_cn2bfr = cont.ge.0 .and. cont.le.ncont_tot_gb(basis)
       if (.not.bas_cn2bfr) then
-        write(6,*)' bas_cn2bfr: invalid contraction information '
-        write(6,*)' contraction range is 0:',ncont_tot_gb(basis)
-        write(6,*)' input contraction was: ',cont
+        write(LuOut,*)' bas_cn2bfr: invalid contraction information '
+        write(LuOut,*)' contraction range is 0:',ncont_tot_gb(basis)
+        write(LuOut,*)' input contraction was: ',cont
         return
       endif
 c
@@ -2554,6 +2571,7 @@ c
 c  returns the basis function range for a given center
 c
       implicit none
+#include "stdio.fh"
       integer basis ! [input] handle
       integer icent ! [input] no. of center
       integer ibflo, ibfhi ! [output] range of functions on center
@@ -2588,6 +2606,7 @@ c
 #include "geobasmapP.fh"
 #include "geom.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -2610,18 +2629,18 @@ c
       bas_ce2cnr = geom_ncent(ibs_geom(basis),nat)
       if (nat.eq.0.or..not.bas_ce2cnr) then
         bas_ce2cnr = .false.
-        write(6,*)' bas_ce2cnr: ERROR '
-        write(6,*)' number of centers is zero or weird'
-        write(6,*)' nat = ',nat
+        write(LuOut,*)' bas_ce2cnr: ERROR '
+        write(LuOut,*)' number of centers is zero or weird'
+        write(LuOut,*)' nat = ',nat
 c..... add diagnostics later
         return
       endif
 
       bas_ce2cnr = center.gt.0 .and. center.le.nat
       if (.not.bas_ce2cnr) then
-        write(6,*)' bas_ce2cnr: invalid center information '
-        write(6,*)' center range is 1:',nat
-        write(6,*)' input center was : ',center
+        write(LuOut,*)' bas_ce2cnr: invalid center information '
+        write(LuOut,*)' center range is 1:',nat
+        write(LuOut,*)' input center was : ',center
         return
       endif
 c
@@ -2642,6 +2661,7 @@ c
 #include "geobasmapP.fh"
 #include "geom.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -2661,9 +2681,9 @@ c
       bas_bf2ce = geom_ncent(ibs_geom(basis),nat)
       if (.not.bas_bf2ce .or. nat.le.0) then
         bas_bf2ce = .false.
-        write(6,*)' bas_bf2ce: ERROR '
-        write(6,*)' number of centers is zero or weird'
-        write(6,*)' nat = ',nat
+        write(LuOut,*)' bas_bf2ce: ERROR '
+        write(LuOut,*)' number of centers is zero or weird'
+        write(LuOut,*)' nat = ',nat
         return
       endif
 c
@@ -2692,6 +2712,7 @@ c
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_numcont
       logical bas_check_handle
@@ -2712,7 +2733,7 @@ c
 c
       bas_bf2cn = bas_numcont(basisin,numcont)
       if (.not.bas_bf2cn) then
-        write(6,*)'bas_bf2cn: could not get number of contractions'
+        write(LuOut,*)'bas_bf2cn: could not get number of contractions'
         return
       endif
 c
@@ -2889,6 +2910,7 @@ c
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -2916,10 +2938,10 @@ c
       icontmax = ncont_tot_gb(basis)
 c
       if (.not.(icont.ge.0.and.icont.le.icontmax)) then
-        write(6,*)' bas_continfo: ERROR '
-        write(6,*)' contraction range for basis is 0:',
+        write(LuOut,*)' bas_continfo: ERROR '
+        write(LuOut,*)' contraction range for basis is 0:',
      &         icontmax
-        write(6,*)' information requested for contraction:',icont
+        write(LuOut,*)' information requested for contraction:',icont
         bas_continfo = .false.
         return
       endif
@@ -2978,6 +3000,7 @@ c
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
+#include "stdio.fh"
 c::functions
       logical bas_check_handle
       external bas_check_handle
@@ -2992,7 +3015,7 @@ c:local
 c
       bas_nbf_cn_max = bas_check_handle(basisin,'bas_nbf_cn_max')
       if (.not. bas_nbf_cn_max ) then
-        write(6,*) 'bas_nbf_cn_max: basis handle not valid '
+        write(LuOut,*) 'bas_nbf_cn_max: basis handle not valid '
         return
       endif
 c
@@ -3029,6 +3052,7 @@ c
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c::functions
       logical bas_check_handle
       external bas_check_handle
@@ -3044,7 +3068,7 @@ c
 c
       bas_nbf_ce_max = bas_check_handle(basisin,'bas_nbf_ce_max')
       if (.not. bas_nbf_ce_max ) then
-        write(6,*) 'bas_nbf_ce_max: basis handle not valid '
+        write(LuOut,*) 'bas_nbf_ce_max: basis handle not valid '
         return
       endif
 c
@@ -3052,9 +3076,9 @@ c
 c
       bas_nbf_ce_max = geom_ncent(ibs_geom(basis),mynat)
       if (mynat.le.0.or. .not.bas_nbf_ce_max) then
-        write(6,*)' bas_nbf_ce_max: ERROR '
-        write(6,*)' number of centers is zero or weird'
-        write(6,*)' nat = ',mynat
+        write(LuOut,*)' bas_nbf_ce_max: ERROR '
+        write(LuOut,*)' number of centers is zero or weird'
+        write(LuOut,*)' nat = ',mynat
         return
       endif
 c
@@ -3226,6 +3250,7 @@ c
 #include "basdeclsP.fh"
 #include "inp.fh"
 #include "geom.fh"
+#include "stdio.fh"
 c
 c function declarations
 c      
@@ -3267,14 +3292,14 @@ c
       else
          cartorsph = 'cartesian'
       endif
-      write(6,1)bs_name(ecpid)(1:inp_strlen(bs_name(ecpid))), 
+      write(LuOut,1)bs_name(ecpid)(1:inp_strlen(bs_name(ecpid))), 
      $    bs_trans(ecpid)(1:inp_strlen(bs_trans(ecpid))),cartorsph
  1    format('                 ECP       "',a,'" -> "',a,'"',' (',a,')'/
      $       '                -----')
       mytags  = infbs_head(HEAD_NTAGS,ecpid)
       if (mytags.le.0) then
-        write(6,*)' Empty ECP '
-        write(6,*)
+        write(LuOut,*)' Empty ECP '
+        write(LuOut,*)
         return
       endif
 c
@@ -3296,13 +3321,13 @@ c
           buffer = bs_tags(i,ecpid)
         endif
         len_tag = inp_strlen(buffer)
-        call util_print_centered(6, buffer, len_tag/2 + 1, .true.)
+        call util_print_centered(LuOut, buffer, len_tag/2 + 1, .true.)
         
         myucont = infbs_tags(TAG_NCONT,i,ecpid)
 c        
         ifcont = infbs_tags(TAG_FCONT,i,ecpid)
 c     
-        write(6,6)
+        write(LuOut,6)
  6      format(
      $      '          R-exponent    Exponent     Coefficients '/
      $      '         ------------ ',57('-'))
@@ -3316,12 +3341,12 @@ c
           icfptr  = infbs_cont(CONT_ICFP, ifcont,ecpid) - 1
           irexptr = infbs_cont(CONT_IREXP,ifcont,ecpid) - 1
           do 00300 k=1,myprim
-            write(6,7) j, shell_type,
+            write(LuOut,7) j, shell_type,
      &          sf_exndcf((irexptr+k),ecpid),
      &          sf_exndcf((iexptr+k),ecpid),
      &          (sf_exndcf((icfptr+k+(l-1)*myprim),ecpid),l=1,mygen)
 00300     continue
-          write(6,*)
+          write(LuOut,*)
           ifcont = ifcont + 1
 00200   continue
 00100 continue
@@ -3346,6 +3371,7 @@ c
 #include "basdeclsP.fh"
 #include "inp.fh"
 #include "geom.fh"
+#include "stdio.fh"
 c
 c function declarations
 c      
@@ -3381,16 +3407,16 @@ c
 c
 c print basis set information
 c      
-      write(6,1)bs_name(soid)(1:inp_strlen(bs_name(soid))), 
+      write(LuOut,1)bs_name(soid)(1:inp_strlen(bs_name(soid))), 
      $    bs_trans(soid)(1:inp_strlen(bs_trans(soid)))
  1    format('             SO Potential "',a,'" -> "',a,'"'/
      $    '                      -----')
-      if (bas_spherical(soid)) write(6,2)
+      if (bas_spherical(soid)) write(LuOut,2)
  2    format('    SO Basis is spherical, 5d, 7f, 9g ... ')
       mytags  = infbs_head(HEAD_NTAGS,soid)
       if (mytags.le.0) then
-        write(6,*)' Empty SO Basis set '
-        write(6,*)
+        write(LuOut,*)' Empty SO Basis set '
+        write(LuOut,*)
         return
       endif
 c
@@ -3411,13 +3437,13 @@ c
           buffer = bs_tags(i,soid)
         endif
         len_tag = inp_strlen(buffer)
-        call util_print_centered(6, buffer, len_tag/2 + 1, .true.)
+        call util_print_centered(LuOut, buffer, len_tag/2 + 1, .true.)
         
         myucont = infbs_tags(TAG_NCONT,i,soid)
 c        
         ifcont = infbs_tags(TAG_FCONT,i,soid)
 c     
-        write(6,6)
+        write(LuOut,6)
  6      format(
      $      '          R-exponent    Exponent     Coefficients '/
      $      '         ------------ ',60('-'))
@@ -3431,12 +3457,12 @@ c
           icfptr  = infbs_cont(CONT_ICFP, ifcont,soid) - 1
           irexptr = infbs_cont(CONT_IREXP,ifcont,soid) - 1
           do 00300 k=1,myprim
-            write(6,7) j, shell_type,
+            write(LuOut,7) j, shell_type,
      &          sf_exndcf((irexptr+k),soid),
      &          sf_exndcf((iexptr+k),soid),
      &          (sf_exndcf((icfptr+k+(l-1)*myprim),soid),l=1,mygen)
 00300     continue
-          write(6,*)
+          write(LuOut,*)
           ifcont = ifcont + 1
 00200   continue
 00100 continue
@@ -4431,6 +4457,7 @@ c
 *      
 *::includes
 #include "geom.fh"
+#include "stdio.fh"
 *::functions
       logical bas_match_tags
       external bas_match_tags
@@ -4447,7 +4474,7 @@ c
       bas_isce = geom_cent_get(geom,center,gtag,cxyz,chg)
       if (.not.bas_isce) call errquit
      &      ('bas_iscet: geom_cent_get failed',911)
-*      write(6,*)' center = ',center,' gtag:<',gtag,'>'
+*      write(LuOut,*)' center = ',center,' gtag:<',gtag,'>'
       bas_isce  = bas_match_tags(gtag,basisin,tag_indx)
       end
       logical function bas_large_exponent(basisin,exponent)

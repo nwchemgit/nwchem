@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.48 2000-01-14 20:00:59 d3g681 Exp $
+c $Id: bas_input.F,v 1.49 2000-04-10 17:16:08 hvd Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -108,7 +108,7 @@ c
 c     Not a recognized option ... the name of the basis or an error
 c
             if ((name.ne.' ') .or. (inp_cur_field() .ne. 2)) then
-               write(6,*)
+               write(LuOut,*)
      &            ' bas_input: basis/ecp/so name must be first option'
                goto 10000
             endif
@@ -231,12 +231,12 @@ c
      &      ('bas_input: so_set_basis failed',911)
       endif
       if (o_add_ecpname) then
-        write(6,*)' ecp basis set associated is ',ecpname
+        write(LuOut,*)' ecp basis set associated is ',ecpname
         if (.not.bas_set_ecp_name(basis,ecpname)) call errquit
      &      ('bas_input: bas_set_ecp_name failed',911)
       endif
       if (o_add_soname) then
-        write(6,*)' so basis set associated is ',soname
+        write(LuOut,*)' so basis set associated is ',soname
         if (.not.bas_set_so_name(basis,soname)) call errquit
      &      ('bas_input: bas_set_so_name failed',911)
       endif
@@ -281,7 +281,7 @@ c
 c
       return
 c
-10000 write(6,10001)
+10000 write(LuOut,10001)
 10001 format(' basis|ecp|so [<name>] [library <standard set>] \\',/,
      $    '      [file <filename>] [spherical|cartesian] [segment]\\',
      &    '      [print|noprint] [ecpset name_of_ecp]',
@@ -300,6 +300,7 @@ c
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "ecpso_decP.fh"
+#include "stdio.fh"
 c::passed
       integer basis             ! [input]
       logical osegment          ! [input]
@@ -421,7 +422,7 @@ c
                  else
                    tag_in_lib = standard
                    standard   = field
-*                   write(6,*) ' tag_in_lib, standard ', 
+*                   write(LuOut,*) ' tag_in_lib, standard ', 
 *     $                tag_in_lib, standard
                  endif
                endif
@@ -440,9 +441,9 @@ c
 c...  nelec  ...  =>  number of electrons for ecp
 c
  28            if (.not.inp_i(num_elec)) goto 10000
-*debug:               write(6,*)' basis    = ',basis
-*debug:               write(6,*)' tag      = ',tag
-*debug:               write(6,*)' num_elec = ',num_elec
+*debug:               write(LuOut,*)' basis    = ',basis
+*debug:               write(LuOut,*)' tag      = ',tag
+*debug:               write(LuOut,*)' num_elec = ',num_elec
                if (.not.ecp_set_num_elec(basis,tag,num_elec,'unknown'))
      &             call errquit
      &             ('bas_input_body: ecp_set_num_elec failed',911)
@@ -479,7 +480,7 @@ c     Have read in all of the basis set/ecp info.
 c     
  9000 return
 c
-10000 write(6,1)
+10000 write(LuOut,1)
  1    format(' basis directive body format is:',/,
      $       '       tag library <standard set> [file <filename>]',/,
      $       '       tag <contraction type>',/,
@@ -691,7 +692,7 @@ c
 c
       return
 c
-10000 write(6,1)
+10000 write(LuOut,1)
  1    format(' basis/ecp contraction format is:',/,
      $       '       tag <contraction type>',/,
      $       '           <exponent> <contraction coefficients>',/,
@@ -715,6 +716,7 @@ c
 #include "geom.fh"
 #include "inp.fh"
 #include "ecpso_decP.fh"
+#include "stdio.fh"
       integer basis             ! [input] basis handle
       logical osegment          ! [input] segment if true
       character*16 tag          ! [input] tag
@@ -805,7 +807,7 @@ c
       endif
  35   call inp_restore_state    ! Failure ... restore unit 5 and abort
       call inp_clear_err
-      write(6,*) ' bas_tag_lib: failed to locate ', string
+      write(LuOut,*) ' bas_tag_lib: failed to locate ', string
       call errquit('bas_tag_lib: no such basis available', 0)
 c
  34   continue                  ! success
@@ -865,7 +867,7 @@ c
 c
       return
 c
- 1000 write(6,*) ' bas_tag_lib: looking for ', tag_in_lib, standard,
+ 1000 write(LuOut,*) ' bas_tag_lib: looking for ', tag_in_lib, standard,
      $     filename
       call errquit('bas_tag_lib: failed to open basis library', 0)
 c
@@ -1005,7 +1007,7 @@ c
      &        status='old', err=99998,
      &        form='formatted',
      &        access='sequential')
-          call inp_init(unitrc,6)
+          call inp_init(unitrc,LuOut)
 00002     continue
           if (.not.inp_read()) then
             if (inp_eof()) then
@@ -1109,10 +1111,10 @@ c
 #include "ecpso_sfnP.fh"
 *
       if (is_ecce_print_on()) then
-*        write(6,*)' ecce print is on '
+*        write(LuOut,*)' ecce print is on '
         continue
       else
-*        write(6,*)' ecce print is off '
+*        write(LuOut,*)' ecce print is off '
         return
       endif
       basis = basisin + Basis_Handle_Offset 
@@ -1125,8 +1127,8 @@ c
       if (oIs_so)    myline = 'so    '
       if (oIs_basis) myline = 'basis '
 *        
-*      write(6,*)'len basis',len_bs_name(basis)
-*      write(6,*)'len trans',len_bs_trans(basis)
+*      write(LuOut,*)'len basis',len_bs_name(basis)
+*      write(LuOut,*)'len trans',len_bs_trans(basis)
 *
       if (len_bs_trans(basis).eq.0) then
         myline = myline(1:6)//'"'//

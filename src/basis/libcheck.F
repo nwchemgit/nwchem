@@ -1,8 +1,9 @@
       program libcheck
-* $Id: libcheck.F,v 1.3 1999-07-14 00:28:52 d3e129 Exp $
+* $Id: libcheck.F,v 1.4 2000-04-10 17:16:08 hvd Exp $
       implicit none
 #include "inp.fh"
 #include "nwc_const.fh"
+#include "stdio.fh"
       character*5 btype
       character*40 name
       character*100 field
@@ -17,7 +18,7 @@ c
       open(unit=7,file='library',status='old',
      &    access='sequential',form='formatted',err=90000)
 c
-      call inp_init(7,6)
+      call inp_init(7,LuOut)
       nbasis = 0
       nwrong = 0
 00001 if (.not.inp_read()) then
@@ -50,7 +51,7 @@ c
         endif
       endif
       if (.not.oecp.and.btype(1:5).ne.'basis') then
-        write(6,*)' unrecognized btype',btype
+        write(LuOut,*)' unrecognized btype',btype
         goto 80000
       endif
 00002 continue
@@ -114,20 +115,21 @@ c
         goto 00003
       endif
 70000 continue
-      write(6,*)' number of basis sets/ecps checked :',nbasis
-      write(6,*)' number that have a problem        :',nwrong
+      write(LuOut,*)' number of basis sets/ecps checked :',nbasis
+      write(LuOut,*)' number that have a problem        :',nwrong
       stop ' no run errors '
 80000 continue
 *      call inp_outrec()
-      write(6,*)'end of file or error reading'
+      write(LuOut,*)'end of file or error reading'
       stop ' done with error'
 c
-90000 write(6,*)' error opening library '
+90000 write(LuOut,*)' error opening library '
       stop ' done with error'
       end
       subroutine checkem(nwrong,ng,nprim,rex,ee,ldc,cc,oecp,name,okay)
       implicit none
 #include "inp.fh"
+#include "stdio.fh"
       character*(*) name
       integer nwrong
       integer ng
@@ -157,11 +159,11 @@ c
         okay = okay.and.exokay.and.rexokay
         if (.not.okay) then
           if (.not.header) then
-            write(6,*)' '
-            write(6,*)' '
-            write(6,*)'---------------------------------------',
+            write(LuOut,*)' '
+            write(LuOut,*)' '
+            write(LuOut,*)'---------------------------------------',
      &          '-----------------------------------------'
-            write(6,*)' rex and or ee: errors in ',name
+            write(LuOut,*)' rex and or ee: errors in ',name
             header = .true.
           endif
           if (oecp) then
@@ -174,10 +176,10 @@ c
             else
               errmsg=' fatal logic error in libcheck'
             endif
-            write(6,*)' ip, rex, ee ',ip,rex(ip),ee(ip)
+            write(LuOut,*)' ip, rex, ee ',ip,rex(ip),ee(ip)
           else
             errmsg='bad exponent'
-            write(6,*)' ip, ee', ip, ee(ip)
+            write(LuOut,*)' ip, ee', ip, ee(ip)
           endif
         endif
       enddo
@@ -192,17 +194,17 @@ c
         if (.not.okay) then
           errmsg='bad general contraction all zero coeffs'
           if (.not.header) then
-            write(6,*)' '
-            write(6,*)' '
-            write(6,*)'---------------------------------------',
+            write(LuOut,*)' '
+            write(LuOut,*)' '
+            write(LuOut,*)'---------------------------------------',
      &          '-----------------------------------------'
-            write(6,*)' cc: errors in ',name
+            write(LuOut,*)' cc: errors in ',name
             header = .true.
           endif
-          write(6,*)' ig, nzero, nprim ',ig,nzero,nprim
+          write(LuOut,*)' ig, nzero, nprim ',ig,nzero,nprim
           do ip = 1,nprim
             if (abs(cc(ip,ig)).lt.thresh) then
-              write(6,*)' ig, ip, cc ',ig, ip, cc(ip,ig)
+              write(LuOut,*)' ig, ip, cc ',ig, ip, cc(ip,ig)
             endif
           enddo
         endif
@@ -219,13 +221,13 @@ c
           if (.not.okay) then
             errmsg='bad exponent all contraction coeffs are zero'
             if (.not.header) then
-              write(6,*)' cc:2: errors in ',name
+              write(LuOut,*)' cc:2: errors in ',name
               header = .true.
             endif
             do ig = 1,ng
-              write(6,*)' ig, nzero, nprim ',ig,nzero,nprim
+              write(LuOut,*)' ig, nzero, nprim ',ig,nzero,nprim
               if (abs(cc(ip,ig)).lt.thresh) then
-                write(6,*)' ig, ip, cc ',ig, ip, cc(ip,ig)
+                write(LuOut,*)' ig, ip, cc ',ig, ip, cc(ip,ig)
               endif
             enddo
           endif
@@ -238,7 +240,7 @@ c
       lname = inp_strlen(name)
       lerr  = inp_strlen(errmsg)
       if (oecp) then
-        write(6,'(a,a,1x,a)')
+        write(LuOut,'(a,a,1x,a)')
      &      ' something wrong with a contraction in:ECP: ',
      &      name(1:lname),errmsg(1:lerr)
         write(8,'(a,a,1x,a)')
@@ -246,7 +248,7 @@ c
      &      name(1:lname),errmsg(1:lerr)
         call util_flush(8)
       else
-        write(6,'(a,a,1x,a)')
+        write(LuOut,'(a,a,1x,a)')
      &      ' something wrong with a contraction in:BASIS: ',
      &      name(1:lname),errmsg(1:lerr)
         write(8,'(a,a,1x,a)')
@@ -256,11 +258,11 @@ c
       endif
       if (oecp) then
         do ip = 1,nprim
-          write(6,10000)rex(ip),ee(ip),(cc(ip,ig),ig=1,ng)
+          write(LuOut,10000)rex(ip),ee(ip),(cc(ip,ig),ig=1,ng)
         enddo
       else
         do ip = 1,nprim
-          write(6,10001)ee(ip),(cc(ip,ig),ig=1,ng)
+          write(LuOut,10001)ee(ip),(cc(ip,ig),ig=1,ng)
         enddo
       endif
 10000 format(1x,i3,1x,30(1pd14.6))

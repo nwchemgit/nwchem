@@ -1,7 +1,7 @@
 *
 * routines from basis.F that use blas calls
 *
-* $Id: bas_blas.F,v 1.2 1999-07-14 00:28:50 d3e129 Exp $
+* $Id: bas_blas.F,v 1.3 2000-04-10 17:16:07 hvd Exp $
 *
       logical function bas_get_exponent(basisin,icont,exp)
 c
@@ -15,6 +15,7 @@ c
 #include "basdeclsP.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -39,10 +40,10 @@ c
       myucont = sf_ibs_cn2ucn(icont,basis)
       bas_get_exponent = icont.ge.0.and.icont.le.icontmax
       if (.not.(bas_get_exponent)) then
-        write(6,*)' bas_get_exponent: ERROR '
-        write(6,*)' contraction range for basis is 0:',
+        write(LuOut,*)' bas_get_exponent: ERROR '
+        write(LuOut,*)' contraction range for basis is 0:',
      &         icontmax
-        write(6,*)' information requested for contraction:',icont
+        write(LuOut,*)' information requested for contraction:',icont
         return
       endif
 c
@@ -67,6 +68,7 @@ c
 #include "basdeclsP.fh"
 #include "bas_ibs_dec.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -92,10 +94,10 @@ c
       myucont = sf_ibs_cn2ucn(icont,basis)
       bas_get_coeff = icont.ge.0.and.icont.le.icontmax
       if (.not.(bas_get_coeff)) then
-        write(6,*)' bas_get_coeff: ERROR '
-        write(6,*)' contraction range for basis is 0:',
+        write(LuOut,*)' bas_get_coeff: ERROR '
+        write(LuOut,*)' contraction range for basis is 0:',
      &         icontmax
-        write(6,*)' information requested for contraction:',icont
+        write(LuOut,*)' information requested for contraction:',icont
         return
       endif
 c
@@ -122,6 +124,7 @@ c
 #include "basdeclsP.fh"
 #include "bas_ibs_dec.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -150,10 +153,10 @@ c
 
       bas_set_exponent = icont.ge.0.and.icont.le.icontmax
       if (.not.(bas_set_exponent)) then
-        write(6,*)' bas_set_exponent: ERROR '
-        write(6,*)' contraction range for basis is 0:',
+        write(LuOut,*)' bas_set_exponent: ERROR '
+        write(LuOut,*)' contraction range for basis is 0:',
      &         icontmax
-        write(6,*)' information requested for contraction:',icont
+        write(LuOut,*)' information requested for contraction:',icont
         return
       endif
 c
@@ -161,11 +164,11 @@ c
       myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
       bas_set_exponent = myprim.eq.nexp
       if (.not.bas_set_exponent) then
-        write(6,*)' bas_set_exponent: ERROR '
-        write(6,*)' input and stored number of exponents ',
+        write(LuOut,*)' bas_set_exponent: ERROR '
+        write(LuOut,*)' input and stored number of exponents ',
      &         '(nprim) differ '
-        write(6,*)' input  nprim: ',nexp
-        write(6,*)' stored nprim: ',myprim
+        write(LuOut,*)' input  nprim: ',nexp
+        write(LuOut,*)' stored nprim: ',myprim
         return
       endif
       call dcopy(nexp,exp,1,dbl_mb(mb_exndcf(myexptr,basis)),1)
@@ -187,6 +190,7 @@ c
 #include "basdeclsP.fh"
 #include "bas_ibs_dec.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -215,10 +219,10 @@ c
 
       bas_set_coeff = icont.ge.0.and.icont.le.icontmax
       if (.not.(bas_set_coeff)) then
-        write(6,*)' bas_set_coeff: ERROR '
-        write(6,*)' contraction range for basis is 0:',
+        write(LuOut,*)' bas_set_coeff: ERROR '
+        write(LuOut,*)' contraction range for basis is 0:',
      &         icontmax
-        write(6,*)' information requested for contraction:',icont
+        write(LuOut,*)' information requested for contraction:',icont
         return
       endif
 c
@@ -228,11 +232,11 @@ c
 c
       bas_set_coeff = ncoeff .eq. (myprim*mygen)
       if(.not.bas_set_coeff) then
-        write(6,*)' bas_set_coeff: ERROR '
-        write(6,*)' input and stored number of coefficients ',
+        write(LuOut,*)' bas_set_coeff: ERROR '
+        write(LuOut,*)' input and stored number of coefficients ',
      &         '(nprim*ngen) differ '
-        write(6,*)' input  nprim*ngen: ',ncoeff
-        write(6,*)' stored nprim*ngen: ',(myprim*mygen)
+        write(LuOut,*)' input  nprim*ngen: ',ncoeff
+        write(LuOut,*)' stored nprim*ngen: ',(myprim*mygen)
         return
       endif
       call dcopy(ncoeff,coeff,1,dbl_mb(mb_exndcf(mycoeffptr,basis)),1)
@@ -254,6 +258,7 @@ c
 #include "basdeclsP.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c::function
       logical ecp_check_handle
       external ecp_check_handle
@@ -278,10 +283,10 @@ c
       myucont = sf_ibs_cn2ucn(icont,ecp)
       ecp_get_rexponent = icont.ge.0.and.icont.le.icontmax
       if (.not.(ecp_get_rexponent)) then
-        write(6,*)' ecp_get_rexponent: ERROR '
-        write(6,*)' contraction range for ecp is 0:',
+        write(LuOut,*)' ecp_get_rexponent: ERROR '
+        write(LuOut,*)' contraction range for ecp is 0:',
      &         icontmax
-        write(6,*)' information requested for contraction:',icont
+        write(LuOut,*)' information requested for contraction:',icont
         return
       endif
 c
@@ -306,6 +311,7 @@ c
 #include "basdeclsP.fh"
 #include "bas_ibs_dec.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::function
       logical ecp_check_handle
       external ecp_check_handle
@@ -334,10 +340,10 @@ c
 
       ecp_set_rexponent = icont.ge.0.and.icont.le.icontmax
       if (.not.(ecp_set_rexponent)) then
-        write(6,*)' ecp_set_rexponent: ERROR '
-        write(6,*)' contraction range for ecp is 0:',
+        write(LuOut,*)' ecp_set_rexponent: ERROR '
+        write(LuOut,*)' contraction range for ecp is 0:',
      &         icontmax
-        write(6,*)' information requested for contraction:',icont
+        write(LuOut,*)' information requested for contraction:',icont
         return
       endif
 c
@@ -345,11 +351,11 @@ c
       myprim  = infbs_cont(CONT_NPRIM,myucont,ecp)
       ecp_set_rexponent = myprim.eq.nexp
       if (.not.ecp_set_rexponent) then
-        write(6,*)' ecp_set_rexponent: ERROR '
-        write(6,*)' input and stored number of exponents ',
+        write(LuOut,*)' ecp_set_rexponent: ERROR '
+        write(LuOut,*)' input and stored number of exponents ',
      &         '(nprim) differ '
-        write(6,*)' input  nprim: ',nexp
-        write(6,*)' stored nprim: ',myprim
+        write(LuOut,*)' input  nprim: ',nexp
+        write(LuOut,*)' stored nprim: ',myprim
         return
       endif
       call dcopy(nexp,exp,1,dbl_mb(mb_exndcf(myexptr,ecp)),1)

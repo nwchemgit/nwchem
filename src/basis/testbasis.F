@@ -1,5 +1,5 @@
       program testbasis
-c $Id: testbasis.F,v 1.18 1999-12-30 21:58:18 mg201 Exp $
+c $Id: testbasis.F,v 1.19 2000-04-10 17:16:09 hvd Exp $
       implicit none
 c
 #include "bas.fh"
@@ -57,7 +57,7 @@ c
       call input_parse(rtdb)
 c
       if(.not.geom_create(geom,'geometry')) then
-        write(6,*)' error getting geometry handle '
+        write(LuOut,*)' error getting geometry handle '
         stop ' error '
       endif
 c
@@ -67,17 +67,17 @@ c
 c
       basis = 0
       if(.not.bas_create(basis,'xy basis')) then
-        write(6,*)' error getting basis handle '
+        write(LuOut,*)' error getting basis handle '
         stop ' error '
       endif
       basis = 0
       if(.not.bas_create(basis,'wz basis')) then
-        write(6,*)' error getting second basis handle '
+        write(LuOut,*)' error getting second basis handle '
         stop ' error '
       endif
       basis = 0
       if(.not.bas_create(basis,'ao basis')) then
-        write(6,*)' error getting third basis handle '
+        write(LuOut,*)' error getting third basis handle '
         stop ' error '
       endif
 c
@@ -87,37 +87,37 @@ c
       status = gbs_map_print(basis)
 c
       status = bas_continfo(basis,1,iang,nprim,ngen,sphcart)
-      write(6,*)' user:query: status  cont 1 ',status
-      write(6,*)' user:query: type    cont 1 ',iang
-      write(6,*)' user:query: nprim   cont 1 ',nprim
-      write(6,*)' user:query: ngen    cont 1 ',ngen
-      write(6,*)' user:query: sphcart cont 1 ',sphcart
+      write(LuOut,*)' user:query: status  cont 1 ',status
+      write(LuOut,*)' user:query: type    cont 1 ',iang
+      write(LuOut,*)' user:query: nprim   cont 1 ',nprim
+      write(LuOut,*)' user:query: ngen    cont 1 ',ngen
+      write(LuOut,*)' user:query: sphcart cont 1 ',sphcart
       if (nprim*ngen.gt.lexcf) call errquit
      &      (' lexcf too small ',(nprim*ngen))
       call dfill(lexcf,0.0d00,exp  ,1)
       call dfill(lexcf,0.0d00,coeff,1)
       status = bas_get_exponent(basis,1,exp)
       status = bas_get_coeff(basis,1,coeff)
-      write(6,*)' user exponenents and coefficients '
+      write(LuOut,*)' user exponenents and coefficients '
       do 00100 i=1,nprim
-        write(6,*)exp(i),(coeff(i+(j-1)*nprim),j=1,ngen)
+        write(LuOut,*)exp(i),(coeff(i+(j-1)*nprim),j=1,ngen)
 00100 continue
 c
       status = bas_ucontinfo(basis,1,type,nprim,ngen,sphcart)
-      write(6,*)' unique:query: status  cont 1 ',status
-      write(6,*)' unique:query: type    cont 1 ',type
-      write(6,*)' unique:query: nprim   cont 1 ',nprim
+      write(LuOut,*)' unique:query: status  cont 1 ',status
+      write(LuOut,*)' unique:query: type    cont 1 ',type
+      write(LuOut,*)' unique:query: nprim   cont 1 ',nprim
       if (nprim*ngen.gt.lexcf) call errquit
      &      (' lexcf too small ',(nprim*ngen))
-      write(6,*)' unique:query: ngen    cont 1 ',ngen
-      write(6,*)' unique:query: sphcart cont 1 ',sphcart
+      write(LuOut,*)' unique:query: ngen    cont 1 ',ngen
+      write(LuOut,*)' unique:query: sphcart cont 1 ',sphcart
       call dfill(lexcf,0.0d00,exp  ,1)
       call dfill(lexcf,0.0d00,coeff,1)
       status = bas_getu_exponent(basis,1,exp)
       status = bas_getu_coeff(basis,1,coeff)
-      write(6,*)' unique exponenents and coefficients '
+      write(LuOut,*)' unique exponenents and coefficients '
       do 00200 i=1,nprim
-        write(6,*)exp(i),(coeff(i+(j-1)*nprim),j=1,ngen)
+        write(LuOut,*)exp(i),(coeff(i+(j-1)*nprim),j=1,ngen)
 00200 continue
 c
       exp(1) = 565.6589
@@ -129,82 +129,82 @@ c
 c
 c
       status = bas_ucontinfo(basis,1,type,nprim,ngen,sphcart)
-      write(6,*)' modified '
-      write(6,*)' unique:query: status  cont 1 ',status
-      write(6,*)' unique:query: type    cont 1 ',type
-      write(6,*)' unique:query: nprim   cont 1 ',nprim
-      write(6,*)' unique:query: ngen    cont 1 ',ngen
-      write(6,*)' unique:query: sphcart cont 1 ',sphcart
+      write(LuOut,*)' modified '
+      write(LuOut,*)' unique:query: status  cont 1 ',status
+      write(LuOut,*)' unique:query: type    cont 1 ',type
+      write(LuOut,*)' unique:query: nprim   cont 1 ',nprim
+      write(LuOut,*)' unique:query: ngen    cont 1 ',ngen
+      write(LuOut,*)' unique:query: sphcart cont 1 ',sphcart
       if (nprim*ngen.gt.lexcf) call errquit
      &      (' lexcf too small ',(nprim*ngen))
       status = bas_getu_exponent(basis,1,exp)
       status = bas_getu_coeff(basis,1,coeff)
-      write(6,*)' exponenents and coefficients '
+      write(LuOut,*)' exponenents and coefficients '
       do 00300 i=1,nprim
-        write(6,*)exp(i),(coeff(i+(j-1)*nprim),j=1,ngen)
+        write(LuOut,*)exp(i),(coeff(i+(j-1)*nprim),j=1,ngen)
 00300 continue
 c
 c
 c     Try adding new contractions on an existing center
 c
-      write(6,*) ' adding 3*3 d function on H'
+      write(LuOut,*) ' adding 3*3 d function on H'
       if (.not. bas_add_ucnt(basis, 'H', 2, 3, 3, expnt_new,
      &    expnt_new, coeff_new, 4, 'none', .false.))
-     &    write(6,*) ' basis_add_ucnt failed'
-      if (.not. bas_print(basis)) write(6,*) ' print ?'
+     &    write(LuOut,*) ' basis_add_ucnt failed'
+      if (.not. bas_print(basis)) write(LuOut,*) ' print ?'
 c
 c     Try adding new contractions on a new center
 c
-      write(6,*) ' adding 2*3 g function on Cl'
+      write(LuOut,*) ' adding 2*3 g function on Cl'
       if (.not. bas_add_ucnt(basis, 'Cl', 4, 2, 3, expnt_new,
      $     coeff_new, 4, 'none', .false.))
-     &    write(6,*) ' basis_add_ucnt failed'
-      if (.not. bas_print(basis)) write(6,*) ' print ?'
+     &    write(LuOut,*) ' basis_add_ucnt failed'
+      if (.not. bas_print(basis)) write(LuOut,*) ' print ?'
 c
 c
-      write(6,'(///,1x,a)')' bas_print_all '
+      write(LuOut,'(///,1x,a)')' bas_print_all '
       status = bas_print_all()
       call bas_err_info(' testbasis bas_err_info info ')
 c
       status = bas_high_angular(basis,iang)
-      write(6,*)' high angular momentum ', iang
+      write(LuOut,*)' high angular momentum ', iang
       status = bas_version()
       namename = ' '
       nametrans = ' '
       status = bas_name(basis,namename, nametrans)
-      write(6,*)' handle         :  ',basis, status
+      write(LuOut,*)' handle         :  ',basis, status
       i = inp_strlen(namename)
-      write(6,'(a,a,a)')' name           : <',
+      write(LuOut,'(a,a,a)')' name           : <',
      &       namename(1:i),'>'
       i = inp_strlen(nametrans)
-      write(6,*)' translated name: <',
+      write(LuOut,*)' translated name: <',
      &       nametrans(1:i),'>'
 c
-      write(6,*)' basis function to ce/cn check '
+      write(LuOut,*)' basis function to ce/cn check '
       status = bas_numbf(basis,nbf)
       do 00400 ibf=1,nbf
         status = bas_bf2ce(basis,ibf,iat)
         status = bas_bf2cn(basis,ibf,icont)
-        write(6,*)' basis function ',ibf,
+        write(LuOut,*)' basis function ',ibf,
      &            ' is on center ',iat,
      &         ' and in contraction',icont
 00400 continue
 c
       status = bas_geobas_build(basis)
-      write(6,*)' basis handle ',basis
+      write(LuOut,*)' basis handle ',basis
       call bas_geomap_check(basis)
 c
       status = bas_nbf_cn_max(basis,nbf)
-      write(6,*)' max block of nbf on a shell for basis is:',nbf
+      write(LuOut,*)' max block of nbf on a shell for basis is:',nbf
 c
       status = bas_nbf_ce_max(basis,nbf)
-      write(6,*)' max block of nbf on an atom for basis is:',nbf
+      write(LuOut,*)' max block of nbf on an atom for basis is:',nbf
 c
       status = bas_ncoef_cn_max(basis,nbf)
-      write(6,*)' max num coefs in any contraction ',nbf
+      write(LuOut,*)' max num coefs in any contraction ',nbf
 c
       status = bas_nprim_cn_max(basis,nbf)
-      write(6,*)' max num prims in any contraction ',nbf
+      write(LuOut,*)' max num prims in any contraction ',nbf
 c
 c
       stop ' testbasis done '
@@ -220,6 +220,7 @@ c
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 #include "geom.fh"
+#include "stdio.fh"
 c
       integer basisin
 c
@@ -237,106 +238,106 @@ c
 c
       status = bas_geom(basisin,geom)
       basis = basisin + BASIS_HANDLE_OFFSET
-      write(6,*)' '
-      write(6,*)' '
-      write(6,*)' '
-      write(6,*)' basis geometry mapping checks '
-      write(6,*)' basis handle is    :',basisin
-      write(6,*)' geometry handle is :',geom
-      write(6,*)' '
-      write(6,*)' current memory heap pointers'
-      write(6,*)' ibs_cn2ucn ma handle :',ibs_cn2ucn(H_ibs,basis)
-      write(6,*)' ibs_cn2ucn ma pointer:',ibs_cn2ucn(K_ibs,basis)
-      write(6,*)' ibs_cn2ucn size      :',ibs_cn2ucn(SZ_ibs,basis)
-      write(6,*)' '
-      write(6,*)' ibs_cn2ce ma handle  :',ibs_cn2ce(H_ibs,basis)
-      write(6,*)' ibs_cn2ce ma pointer :',ibs_cn2ce(K_ibs,basis)
-      write(6,*)' ibs_cn2ce size       :',ibs_cn2ce(SZ_ibs,basis)
-      write(6,*)' '
-      write(6,*)' ibs_ce2uce ma handle :',ibs_ce2uce(H_ibs,basis)
-      write(6,*)' ibs_ce2uce ma pointer:',ibs_ce2uce(K_ibs,basis)
-      write(6,*)' ibs_ce2uce size      :',ibs_ce2uce(SZ_ibs,basis)
-      write(6,*)' '
-      write(6,*)' ibs_cn2bfr ma handle :',ibs_cn2bfr(H_ibs,basis)
-      write(6,*)' ibs_cn2bfr ma pointer:',ibs_cn2bfr(K_ibs,basis)
-      write(6,*)' ibs_cn2bfr size      :',ibs_cn2bfr(SZ_ibs,basis)
-      write(6,*)' '
-      write(6,*)' ibs_ce2cnr ma handle :',ibs_ce2cnr(H_ibs,basis)
-      write(6,*)' ibs_ce2cnr ma pointer:',ibs_ce2cnr(K_ibs,basis)
-      write(6,*)' ibs_ce2cnr size      :',ibs_ce2cnr(SZ_ibs,basis)
-      write(6,*)' '
-      write(6,*)' '
-      write(6,*)' '
+      write(LuOut,*)' '
+      write(LuOut,*)' '
+      write(LuOut,*)' '
+      write(LuOut,*)' basis geometry mapping checks '
+      write(LuOut,*)' basis handle is    :',basisin
+      write(LuOut,*)' geometry handle is :',geom
+      write(LuOut,*)' '
+      write(LuOut,*)' current memory heap pointers'
+      write(LuOut,*)' ibs_cn2ucn ma handle :',ibs_cn2ucn(H_ibs,basis)
+      write(LuOut,*)' ibs_cn2ucn ma pointer:',ibs_cn2ucn(K_ibs,basis)
+      write(LuOut,*)' ibs_cn2ucn size      :',ibs_cn2ucn(SZ_ibs,basis)
+      write(LuOut,*)' '
+      write(LuOut,*)' ibs_cn2ce ma handle  :',ibs_cn2ce(H_ibs,basis)
+      write(LuOut,*)' ibs_cn2ce ma pointer :',ibs_cn2ce(K_ibs,basis)
+      write(LuOut,*)' ibs_cn2ce size       :',ibs_cn2ce(SZ_ibs,basis)
+      write(LuOut,*)' '
+      write(LuOut,*)' ibs_ce2uce ma handle :',ibs_ce2uce(H_ibs,basis)
+      write(LuOut,*)' ibs_ce2uce ma pointer:',ibs_ce2uce(K_ibs,basis)
+      write(LuOut,*)' ibs_ce2uce size      :',ibs_ce2uce(SZ_ibs,basis)
+      write(LuOut,*)' '
+      write(LuOut,*)' ibs_cn2bfr ma handle :',ibs_cn2bfr(H_ibs,basis)
+      write(LuOut,*)' ibs_cn2bfr ma pointer:',ibs_cn2bfr(K_ibs,basis)
+      write(LuOut,*)' ibs_cn2bfr size      :',ibs_cn2bfr(SZ_ibs,basis)
+      write(LuOut,*)' '
+      write(LuOut,*)' ibs_ce2cnr ma handle :',ibs_ce2cnr(H_ibs,basis)
+      write(LuOut,*)' ibs_ce2cnr ma pointer:',ibs_ce2cnr(K_ibs,basis)
+      write(LuOut,*)' ibs_ce2cnr size      :',ibs_ce2cnr(SZ_ibs,basis)
+      write(LuOut,*)' '
+      write(LuOut,*)' '
+      write(LuOut,*)' '
 c
       status = bas_numcont(basisin,ncont)
       status = geom_ncent(geom,nat)
-      write(6,*)' total number of contractions is ',ncont
-      write(6,*)' total number of centers      is ',nat
-      write(6,*)' '
-      write(6,*)' '
-      write(6,*)' '
-      write(6,*)' cont 2 uniq cont check '
+      write(LuOut,*)' total number of contractions is ',ncont
+      write(LuOut,*)' total number of centers      is ',nat
+      write(LuOut,*)' '
+      write(LuOut,*)' '
+      write(LuOut,*)' '
+      write(LuOut,*)' cont 2 uniq cont check '
       do icont = 0,ncont
         ucont = 23234
         ucont2 = ucont
         ucont = sf_ibs_cn2ucn(icont,basis)
         ucont2 = int_mb(mb_ibs_cn2ucn(icont,basis))
-        write(6,'(a,i5,a,i5,i5)')
+        write(LuOut,'(a,i5,a,i5,i5)')
      &        ' contraction ',icont,
      &        ' maps to unique contraction ',ucont,ucont2
       enddo
 
-      write(6,*)' '
-      write(6,*)' '
-      write(6,*)' cont 2 center check '
+      write(LuOut,*)' '
+      write(LuOut,*)' '
+      write(LuOut,*)' cont 2 center check '
       do icont = 0,ncont
         status = bas_cn2ce(basisin,icont,cent_api)
         cent_sf = sf_ibs_cn2ce(icont,basis)
         cent_mb = int_mb(mb_ibs_cn2ce(icont,basis))
-        write(6,'(a,i5,a,3i5,a)')
+        write(LuOut,'(a,i5,a,3i5,a)')
      &        ' contraction ',icont,' is on center ',
      &        cent_api,cent_sf,cent_mb,
      &        ' ... (sould be 3 identical numbers)'
       enddo
 c
-      write(6,*)' '
-      write(6,*)' '
-      write(6,*)' center 2 unique center check '
+      write(LuOut,*)' '
+      write(LuOut,*)' '
+      write(LuOut,*)' center 2 unique center check '
       do inat = 1,nat
         atom_sf = sf_ibs_ce2uce(inat,basis)
         atom_mb = int_mb(mb_ibs_ce2uce(inat,basis))
-        write(6,'(a,i5,a,2i5,a)')
+        write(LuOut,'(a,i5,a,2i5,a)')
      &        ' center ',inat,
      &        ' maps to unique center/tag ',atom_sf,atom_mb,
      &        ' ... (sould be 2 identical numbers)'
       enddo
 c
-      write(6,*)' '
-      write(6,*)' '
-      write(6,*)' contraction 2 basis function range '
+      write(LuOut,*)' '
+      write(LuOut,*)' '
+      write(LuOut,*)' contraction 2 basis function range '
       do icont = 1,ncont
         status = bas_cn2bfr(basisin,icont,bflo_api,bfhi_api)
         bflo_sf = sf_ibs_cn2bfr(1,icont,basis)
         bfhi_sf = sf_ibs_cn2bfr(2,icont,basis)
         bflo_mb = int_mb(mb_ibs_cn2bfr(1,icont,basis))
         bfhi_mb = int_mb(mb_ibs_cn2bfr(2,icont,basis))
-        write(6,'(a,i5,a,6i5,a)')
+        write(LuOut,'(a,i5,a,6i5,a)')
      &        ' contraction ',icont,
      &        ' maps to range of basis functions ',
      &        bflo_api,bfhi_api,bflo_sf,bfhi_sf,bflo_mb,bfhi_mb,
      &        ' ... (sould be 3 sets identical numbers)'
       enddo
 c
-      write(6,*)' '
-      write(6,*)' '
-      write(6,*)' center 2 contraction range '
+      write(LuOut,*)' '
+      write(LuOut,*)' '
+      write(LuOut,*)' center 2 contraction range '
       do inat = 1,nat
         status = bas_ce2cnr(basisin,inat,cnlo_api,cnhi_api)
         cnlo_sf = sf_ibs_ce2cnr(1,inat,basis)
         cnhi_sf = sf_ibs_ce2cnr(2,inat,basis)
         cnlo_mb = int_mb(mb_ibs_ce2cnr(1,inat,basis))
         cnhi_mb = int_mb(mb_ibs_ce2cnr(2,inat,basis))
-        write(6,'(a,i5,a,6i5,a)')
+        write(LuOut,'(a,i5,a,6i5,a)')
      &        ' center ',inat,
      &        ' maps to range of contractons',
      &        cnlo_api,cnhi_api,cnlo_sf,cnhi_sf,cnlo_mb,cnhi_mb,

@@ -1,7 +1,7 @@
 *
 * routines from basisP.F that use blas calls
 *
-* $Id: bas_blasP.F,v 1.9 1999-12-30 21:58:17 mg201 Exp $
+* $Id: bas_blasP.F,v 1.10 2000-04-10 17:16:08 hvd Exp $
 *
 *.....................................................................
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
@@ -90,10 +90,10 @@ c
         if (.not.ma_alloc_get(
      &      mt_dbl,s_new,' input for basis heap ',
      &      h_new, k_new)) then
-          write(6,*)'bas_add_ucnt: too many prims/coeffs'
-          write(6,*)' allocated size for input is :',
+          write(LuOut,*)'bas_add_ucnt: too many prims/coeffs'
+          write(LuOut,*)' allocated size for input is :',
      &        exndcf(SZ_exndcf,ind)
-          write(6,*)' size requested here         :',
+          write(LuOut,*)' size requested here         :',
      &        (free+size_add-1)
           bas_add_ucnt = .false.
           return
@@ -108,7 +108,7 @@ c
       endif
 *      if (infbs_head(HEAD_NCONT,ind)+1 .gt. nucont_bsmx) then
       if (infbs_head(HEAD_NCONT,ind) .gt. nucont_bsmx) then
-         write(6,*) 'bas_add_ucnt: too many contractions '
+         write(LuOut,*) 'bas_add_ucnt: too many contractions '
          bas_add_ucnt = .false.
          return
       endif
@@ -208,6 +208,7 @@ c
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -232,10 +233,10 @@ c
 c
       bas_getu_coeff = icont.gt.0.and.icont.le.icontmax
       if (.not.(bas_getu_coeff)) then
-        write(6,*)' bas_getu_coeff: ERROR '
-        write(6,*)' contraction range for basis is 1:',
+        write(LuOut,*)' bas_getu_coeff: ERROR '
+        write(LuOut,*)' contraction range for basis is 1:',
      &         icontmax
-        write(6,*)' information requested for contraction:',icont
+        write(LuOut,*)' information requested for contraction:',icont
         return
       endif
 c
@@ -258,6 +259,7 @@ c
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -284,10 +286,10 @@ c
 
       bas_getu_exponent = icont.gt.0.and.icont.le.icontmax
       if (.not.(bas_getu_exponent)) then
-        write(6,*)' bas_getu_exponent: ERROR '
-        write(6,*)' contraction range for basis is 1:',
+        write(LuOut,*)' bas_getu_exponent: ERROR '
+        write(LuOut,*)' contraction range for basis is 1:',
      &         icontmax
-        write(6,*)' information requested for contraction:',icont
+        write(LuOut,*)' information requested for contraction:',icont
         return
       endif
 c
@@ -308,6 +310,7 @@ c
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -332,10 +335,10 @@ c
 c
       bas_setu_coeff = icont.gt.0.and.icont.le.icontmax
       if (.not.(bas_setu_coeff)) then
-        write(6,*)' bas_setu_coeff: ERROR '
-        write(6,*)' contraction range for basis is 1:',
+        write(LuOut,*)' bas_setu_coeff: ERROR '
+        write(LuOut,*)' contraction range for basis is 1:',
      &         icontmax
-        write(6,*)' information requested for contraction:',icont
+        write(LuOut,*)' information requested for contraction:',icont
         return
       endif
 c
@@ -345,11 +348,11 @@ c
 c
       bas_setu_coeff = ncoeff .eq. (myprim*mygen)
       if(.not.bas_setu_coeff) then
-        write(6,*)' bas_setu_coeff: ERROR '
-        write(6,*)' input and stored number of coefficients ',
+        write(LuOut,*)' bas_setu_coeff: ERROR '
+        write(LuOut,*)' input and stored number of coefficients ',
      &         '(nprim*ngen) differ '
-        write(6,*)' input  nprim*ngen: ',ncoeff
-        write(6,*)' stored nprim*ngen: ',(myprim*mygen)
+        write(LuOut,*)' input  nprim*ngen: ',ncoeff
+        write(LuOut,*)' stored nprim*ngen: ',(myprim*mygen)
         return
       endif
       call dcopy(ncoeff,coeff,1,
@@ -368,6 +371,7 @@ c
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::function
       logical bas_check_handle
       external bas_check_handle
@@ -394,10 +398,10 @@ c
 
       bas_setu_exponent = icont.gt.0.and.icont.le.icontmax
       if (.not.(bas_setu_exponent)) then
-        write(6,*)' bas_setu_exponent: ERROR '
-        write(6,*)' contraction range for basis is 1:',
+        write(LuOut,*)' bas_setu_exponent: ERROR '
+        write(LuOut,*)' contraction range for basis is 1:',
      &         icontmax
-        write(6,*)' information requested for contraction:',icont
+        write(LuOut,*)' information requested for contraction:',icont
         return
       endif
 c
@@ -405,11 +409,11 @@ c
       myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
       bas_setu_exponent = myprim.eq.nexp
       if (.not.bas_setu_exponent) then
-        write(6,*)' bas_setu_exponent: ERROR '
-        write(6,*)' input and stored number of exponents ',
+        write(LuOut,*)' bas_setu_exponent: ERROR '
+        write(LuOut,*)' input and stored number of exponents ',
      &         '(nprim) differ '
-        write(6,*)' input  nprim: ',nexp
-        write(6,*)' stored nprim: ',myprim
+        write(LuOut,*)' input  nprim: ',nexp
+        write(LuOut,*)' stored nprim: ',myprim
         return
       endif
 c
