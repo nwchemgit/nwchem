@@ -194,8 +194,7 @@ c
 c
       real*8 pcgw(mwm,3,mwa),pcgs(msa,3)
 c
-      real*8 epot,edif,epcg,dx,dxf,dxmax,beta1
-      character*1 cqrs
+      real*8 epot,epcg,dx,beta1
 c
       icgit=1
 c
@@ -282,7 +281,7 @@ c
       external frequency,prp_mcti_step
 c
       logical done
-      integer npp,irunp,kdata(3)
+      integer npp,irunp
 c
       if(me.eq.0) then
       if(mropt.ge.2) then
