@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf)
 c
-c $Id: prp_init.F,v 1.28 2000-06-09 17:18:17 d3j191 Exp $
+c $Id: prp_init.F,v 1.29 2000-06-09 20:36:38 d3j191 Exp $
 c
       implicit none
 c
@@ -105,9 +105,7 @@ c
       pronam( 18)='Temperature solute                               K'
       lp(18)=nsf.gt.0
       pronam( 19)='Temperature translations                         K'
-      lp(19)=.true.
       pronam( 20)='Temperature rotations                            K'
-      lp(20)=.true.
       pronam( 21)='Temperature scaling solvent                       '
       lp(21)=nwm.gt.0
       pronam( 22)='Temperature scaling solute                        '

@@ -1,5 +1,5 @@
 c
-c $Id: prp_common.fh,v 1.21 2000-06-09 17:18:17 d3j191 Exp $
+c $Id: prp_common.fh,v 1.22 2000-06-09 20:36:38 d3j191 Exp $
 c
 c
       real*8 zero,tiny,half,one
@@ -12,7 +12,7 @@ c
       parameter(rgas=8.31441d-03)
 c
       integer maxpro
-      parameter(maxpro=500)
+      parameter(maxpro=27500)
 c
       integer me,np,lfnout,lfnprp,lfngib
       integer nsf,msf,mpe,nfoutp,nfstat,nfprop,maxp,mrun
