@@ -1,6 +1,6 @@
       subroutine movecs_rotate(rtdb, geom, basis, nset, g_vecs,
      .     evals, foccs)
-C$Id: movecs_rotate.F,v 1.12 2002-12-19 19:39:04 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.13 2002-12-31 23:41:21 d3k958 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -30,6 +30,7 @@ c
       double precision xyyx,xyyy,xyyz
       double precision xzyx,xzyy,xzyz
       double precision xmid, ymid, zmid, norm
+      double precision xrot, yrot, zrot, det
       integer lact, lold, lcharge, ltags
       integer iact, iold, icharge, itags
       integer l_a, k_a, l_b, k_b
@@ -131,28 +132,6 @@ c
         zmid = 0.0d0
         norm = 0.0d0
         do i = 1, nat
-           xmid = xmid + dbl_mb(iact+3*(i-1)+0)
-           ymid = ymid + dbl_mb(iact+3*(i-1)+1)
-           zmid = zmid + dbl_mb(iact+3*(i-1)+2)
-           norm = norm + 1.0d0
-        end do
-        xmid = xmid / norm
-        ymid = ymid / norm
-        zmid = zmid / norm
-        do i = 1, nat
-           dbl_mb(iact+3*(i-1)+0) = dbl_mb(iact+3*(i-1)+0) - xmid
-           dbl_mb(iact+3*(i-1)+1) = dbl_mb(iact+3*(i-1)+1) - ymid
-           dbl_mb(iact+3*(i-1)+2) = dbl_mb(iact+3*(i-1)+2) - zmid
-        end do
-c
-c     Repeat for the first structure.
-c     This centroid position is saved.
-c
-        xmid = 0.0d0
-        ymid = 0.0d0
-        zmid = 0.0d0
-        norm = 0.0d0
-        do i = 1, nat
            xmid = xmid + dbl_mb(iold+3*(i-1)+0)
            ymid = ymid + dbl_mb(iold+3*(i-1)+1)
            zmid = zmid + dbl_mb(iold+3*(i-1)+2)
@@ -165,6 +144,28 @@ c
            dbl_mb(iold+3*(i-1)+0) = dbl_mb(iold+3*(i-1)+0) - xmid
            dbl_mb(iold+3*(i-1)+1) = dbl_mb(iold+3*(i-1)+1) - ymid
            dbl_mb(iold+3*(i-1)+2) = dbl_mb(iold+3*(i-1)+2) - zmid
+        end do
+c
+c     Repeat for the first structure.
+c     This centroid position is saved.
+c
+        xmid = 0.0d0
+        ymid = 0.0d0
+        zmid = 0.0d0
+        norm = 0.0d0
+        do i = 1, nat
+           xmid = xmid + dbl_mb(iact+3*(i-1)+0)
+           ymid = ymid + dbl_mb(iact+3*(i-1)+1)
+           zmid = zmid + dbl_mb(iact+3*(i-1)+2)
+           norm = norm + 1.0d0
+        end do
+        xmid = xmid / norm
+        ymid = ymid / norm
+        zmid = zmid / norm
+        do i = 1, nat
+           dbl_mb(iact+3*(i-1)+0) = dbl_mb(iact+3*(i-1)+0) - xmid
+           dbl_mb(iact+3*(i-1)+1) = dbl_mb(iact+3*(i-1)+1) - ymid
+           dbl_mb(iact+3*(i-1)+2) = dbl_mb(iact+3*(i-1)+2) - zmid
         end do
 c
 c     Use the quaternion - based method to achieve the best fit
@@ -218,8 +219,6 @@ c
       call dcopy(16,c,1,v,1)
       call util_jacobi (4,v,4,d)
 c
-c      write (luout,*) 'eigenvalues',d(1), d(2), d(3), d(4)
-c
         q(1) = v(1,4)
         q(2) = v(2,4)
         q(3) = v(3,4)
@@ -228,26 +227,54 @@ c
 c     Assemble the rotation matrix that superimposes the molecules.
 c
         rot(1,1) = q(1)*q(1) + q(2)*q(2) - q(3)*q(3) - q(4)*q(4)
-        rot(2,1) = 2.0d0 * (q(2) * q(3) - q(1) * q(4))
-        rot(3,1) = 2.0d0 * (q(2) * q(4) + q(1) * q(3))
-        rot(1,2) = 2.0d0 * (q(3) * q(2) + q(1) * q(4))
+        rot(1,2) = 2.0d0 * (q(2) * q(3) - q(1) * q(4))
+        rot(1,3) = 2.0d0 * (q(2) * q(4) + q(1) * q(3))
+        rot(2,1) = 2.0d0 * (q(3) * q(2) + q(1) * q(4))
         rot(2,2) = q(1)*q(1) - q(2)*q(2) + q(3)*q(3) - q(4)*q(4)
-        rot(3,2) = 2.0d0 * (q(3) * q(4) - q(1) * q(2))
-        rot(1,3) = 2.0d0 * (q(4) * q(2) - q(1) * q(3))
-        rot(2,3) = 2.0d0 * (q(4) * q(3) + q(1) * q(2))
+        rot(2,3) = 2.0d0 * (q(3) * q(4) - q(1) * q(2))
+        rot(3,1) = 2.0d0 * (q(4) * q(2) - q(1) * q(3))
+        rot(3,2) = 2.0d0 * (q(4) * q(3) + q(1) * q(2))
         rot(3,3) = q(1)*q(1) - q(2)*q(2) - q(3)*q(3) + q(4)*q(4)
-c
 c
       if (oprint_info)   then
         call util_print_centered(luout,'Rotation matrix',15,.true.)
           do i = 1,3
-            write(luout,4) rot(i,1), rot(i,2), rot(i,3)
+            write(luout,4) rot(1,i), rot(2,i), rot(3,i)
           enddo
           write(luout,*)
           call util_flush(luout)
       endif
    4  format(3F12.6)
+c
+c print out the rotated coordinates for debugging purposes
+c
+      do i = 1, nat
+         x2 = dbl_mb(iold+3*(i-1)+0)
+         y2 = dbl_mb(iold+3*(i-1)+1)
+         z2 = dbl_mb(iold+3*(i-1)+2)
+         xrot = x2*rot(1,1) + y2*rot(2,1) + z2*rot(3,1)
+         yrot = x2*rot(1,2) + y2*rot(2,2) + z2*rot(3,2)
+         zrot = x2*rot(1,3) + y2*rot(2,3) + z2*rot(3,3)
+         x2 = xrot + xmid
+         y2 = yrot + ymid
+         z2 = zrot + zmid
+         x2 = x2 / 1.889725989d0
+         y2 = y2 / 1.889725989d0
+         z2 = z2 / 1.889725989d0
+         if (ga_nodeid().eq.0) then
+         write(6,4) x2,y2,z2
+         endif
+      end do
+c
       call ga_sync()
+c
+c calculate the determinant of the rotation matrix
+c
+      det = rot(1,1)*(rot(2,2)*rot(3,3)-rot(3,2)*rot(2,3))
+     &     -rot(1,2)*(rot(2,1)*rot(3,3)-rot(2,3)*rot(3,1))
+     &     +rot(1,3)*(rot(2,1)*rot(3,2)-rot(2,2)*rot(3,1))
+c
+      if (ga_nodeid().eq.0) write(6,*)'det(rot) ',det
 c
       if (.not. ma_pop_stack(lold))
      &     call errquit('movecs_rotate:cant pop stack',0)
@@ -291,6 +318,8 @@ c
       if (.not. ma_push_get(mt_dbl, nbf, 'vectors out', l_b, k_b))
      $     call errquit('sym_movecs_apply_rot: ma?', nbf)
 c
+        call ga_sync()
+c
         do iset = 1,nset
 c
         do j = 1+ga_nodeid(),nmo,ga_nnodes()
@@ -323,7 +352,7 @@ c
 c
 c
       subroutine sym_movecs_apply_rot(basis, matrix, v, t)
-C$Id: movecs_rotate.F,v 1.12 2002-12-19 19:39:04 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.13 2002-12-31 23:41:21 d3k958 Exp $
       implicit none
 #include "geom.fh"
 #include "sym.fh"
@@ -442,7 +471,7 @@ c
       end
       subroutine sym_bas_rot(geom, matrix, r, maxf, ang_max,
      &    otransform)
-C$Id: movecs_rotate.F,v 1.12 2002-12-19 19:39:04 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.13 2002-12-31 23:41:21 d3k958 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
