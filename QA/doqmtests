@@ -1,0 +1,29 @@
+#!/bin/csh
+#
+# $Id: doqmtests,v 1.1 1999-07-15 00:56:57 d3e129 Exp $
+#
+#---   small tests
+runtests.unix auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
+runtests.unix rimp2_ne sadsmall scf_feco5 small_intchk tagcheck testtab
+runtests.unix 
+
+#---   small tests that should fail!
+runtests.unix oh2
+#---   medium tests
+runtests.unix dft_feco5 
+runtests.unix dft_ozone 
+runtests.unix dft_siosi3
+runtests.unix dielsalder
+runtests.unix grad_ozone
+runtests.unix hess_c6h6
+runtests.unix intchk
+runtests.unix sadbig
+runtests.unix 
+runtests.unix 
+#---   long  may not run on workstations
+runtests.unix aump2 
+runtests.unix grad_nh3_trimer 
+runtests.unix hess_nh3
+runtests.unix hess_nh3_dimer
+runtests.unix mp2_si2h6
+runtests.unix uoverlap
