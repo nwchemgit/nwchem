@@ -1,5 +1,5 @@
 c
-c $Id: io_utils.F,v 1.2 2003-01-31 02:07:51 bylaska Exp $
+c $Id: io_utils.F,v 1.3 2003-02-08 00:29:54 bylaska Exp $
 c
 
   !*******************************************************
@@ -16,7 +16,7 @@ c
     
       !*** local variables ***
       integer  min_io_unit,max_io_unit 
-      parameter(min_io_unit = 500,max_io_unit = 600)
+      parameter(min_io_unit = 20,max_io_unit = 100)
 
       logical open_status,exist_status
       integer i,ierr
