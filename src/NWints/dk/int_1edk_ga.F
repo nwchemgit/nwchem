@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, kskel)
-c $Id: int_1edk_ga.F,v 1.19 1999-12-09 01:28:10 bert Exp $
+c $Id: int_1edk_ga.F,v 1.20 1999-12-10 20:08:42 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -14,7 +14,7 @@ c $Id: int_1edk_ga.F,v 1.19 1999-12-09 01:28:10 bert Exp $
 #include "geomP.fh"
 #include "bgj.fh"
 c     
-c     Compute the Douglas-Kroll integrals and place then in a given global array.
+c     Compute the Douglas-Kroll integrals and ADD them to a given global array.
 c
 c     There are three forms of Douglas-Kroll that are or can be used:
 c     1. Free-particle projection operators, similar to Foldy-Wouthuysen 
@@ -190,7 +190,7 @@ c     Do A Vg_a A, remember A is diagonal stored as vector and store in DKg_a
 c
       call ga_copy(Vg_a,tempg_a)
       call ga_scale_rlh(tempg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
-      call ga_dadd(1.0d0,DKg_a,1.0d0,tempg_a,Dkg_a)
+      call ga_dadd(1.0d0,DKg_a,1.0d0,tempg_a,DKg_a)
 c
 c     Get double derivative potential energy matrix p.Vp in uncontracted basis, 
 c     add ARVRA term to global array:
