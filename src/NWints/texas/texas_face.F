@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.22 1996-07-12 18:20:14 pg481 Exp $
+c $Id: texas_face.F,v 1.23 1996-07-15 17:02:04 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -317,11 +317,11 @@ c
 c------------------------------------
 c basis set type (cartesian or spherical harmonics)
 c
-       if( bas_spherical(bas)) then 
-           write(6,*)' basis set=spherical'
-       else
-           write(6,*)' basis set=cartesian'
-       endif
+*       if( bas_spherical(bas)) then 
+*           write(6,*)' basis set=spherical'
+*       else
+*           write(6,*)' basis set=cartesian'
+*       endif
 c------------------------------------
 c For 3- and 2-center(index) integrals add one 
 c uncontracted S-shell with exponent ZERO :
