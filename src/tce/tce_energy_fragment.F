@@ -1,6 +1,6 @@
       logical function tce_energy_fragment(rtdb)
 c
-c $Id: tce_energy_fragment.F,v 1.5 2004-04-12 23:34:01 sohirata Exp $
+c $Id: tce_energy_fragment.F,v 1.6 2004-11-02 17:10:59 edo Exp $
 c
 c Wrapper for tce_energy for fragment MO calculations.
 c
@@ -63,7 +63,7 @@ c
       if (.not.rtdb_get(rtdb,'fragment:damping',mt_dbl,1,damping))
      1  damping = 1.0d0
       if (.not.rtdb_get(rtdb,'tce:fragment',mt_int,1,fragment))
-     1  call errquit('tce_energy_fragment',0,RTDB_ERR)
+     1  fragment=0
       if (fragment.eq.-1) then
         tce_energy_fragment = tce_energy(rtdb,.true.)
         return
