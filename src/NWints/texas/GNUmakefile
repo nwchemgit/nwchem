@@ -1,5 +1,7 @@
-# $Id: GNUmakefile,v 1.7 1995-10-30 20:57:41 d3e129 Exp $
+# $Id: GNUmakefile,v 1.8 1995-11-01 17:16:18 d3e129 Exp $
  
+ifeq ($(USE_TEXAS),YEP)
+      LIB_DEFINES = -DUSE_TEXAS
   OBJ_OPTIMIZE = texas_face.o\
                  texas_hf.o\
                  big_service.o\
@@ -22,6 +24,11 @@
                  trobsa.o\
                  zeroint.o \
 		 missing.o
+else
+      OBJ = texas_stubs.o
+      OBJ_OPTIMIZE = 
+endif
+
        LIBRARY = libnwints.a
 
 include ../../config/makefile.h
