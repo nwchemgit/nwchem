@@ -2,7 +2,7 @@
      $     nbf,noa,nva,nob,nvb,
      $     batch_size,max_ma,max_ga,max_file,task)
 *
-* $Id: mp2_memory.F,v 1.15 1997-07-25 16:53:11 d3g681 Exp $
+* $Id: mp2_memory.F,v 1.16 1997-08-22 22:55:23 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -41,7 +41,7 @@ c
       call int_init(rtdb,1,basis)
       call schwarz_init(geom,basis)
       nnbf_sparse = 0
-      do ish = 1, nsh
+      do ish = 1+ga_nodeid(), nsh, ga_nnodes()
          if (.not. bas_cn2bfr(basis,ish,ilo,ihi)) call errquit
      $        ('mp2_memory: bas_cntobfr failed', ish)
          do jsh = 1, ish
@@ -56,6 +56,7 @@ c
             endif
          enddo
       enddo
+      call ga_igop(543, nnbf_sparse, 1, '+')
       if (nnbf_sparse .gt. nnbf) call errquit('mp2mem: confused',0)
       call schwarz_tidy()
       call int_terminate()
