@@ -1,6 +1,6 @@
 #!/bin/csh 
 #
-# $Id: runtest.batch,v 1.5 1997-07-02 22:07:44 d3e129 Exp $
+# $Id: runtest.batch,v 1.6 1997-10-13 21:17:40 d3j191 Exp $
 #
 # Batch system based parallel and sequential execution of test jobs
 #
@@ -397,6 +397,7 @@ foreach TEST ($args_2_use)
   echo 'if($md_test_run) then'                   >> $BATCH_SCRIPT
   echo '   echo -n "     verifying nwout ... "'  >> $BATCH_SCRIPT
   echo '   echo "skipped"'                       >> $BATCH_SCRIPT
+  echo '   set diff1_status=0'                   >> $BATCH_SCRIPT
   echo "else"                                    >> $BATCH_SCRIPT
 
 # Now verify the output
