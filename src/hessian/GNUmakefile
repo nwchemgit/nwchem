@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.14 1999-05-06 17:29:34 windus Exp $
+# $Id: GNUmakefile,v 1.15 2000-07-27 16:11:57 bjohnson Exp $
 #
 
- SUBDIRS = analytic/dft analytic
+ SUBDIRS = analytic
 
  OBJ = scf_hessian.o rhf_hessian.o hess_blas.o
  
