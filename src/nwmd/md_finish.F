@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.7 1999-07-28 00:40:15 d3e129 Exp $
+c $Id: md_finish.F,v 1.8 1999-08-25 19:34:28 d3j191 Exp $
 c
       implicit none
 c
@@ -92,16 +92,23 @@ c
 c
 #include "md_common.fh"
 c
+      integer timer_calls
       real*8 timer_cpu_average,timer_wall_average
+      external timer_calls
       external timer_cpu_average,timer_wall_average
 c
       if(me.eq.0) then
       write(lfnout,1000)
- 1000 format(/,' TIMING ANALYSIS',//,' Average times per call',
+ 1000 format(/,' TIMING ANALYSIS',//,t20,' Number of calls',
+     + t44,' Average times per call',
      + //,t40,'        Wall',t55,'         CPU',/)
-      write(lfnout,1001) timer_wall_average(1),
+      write(lfnout,1001) timer_calls(1),timer_wall_average(1),
      + timer_cpu_average(1)
- 1001 format(' MD step',t40,f12.3,t55,f12.3)
+ 1001 format(' MD step',t20,i10,t40,f12.3,t55,f12.3)
+c
+      write(lfnout,2001) timer_calls(5),timer_wall_average(5),
+     + timer_cpu_average(5)
+ 2001 format(' FFT',t20,i10,t40,f12.3,t55,f12.3)
       endif
 c
       return
