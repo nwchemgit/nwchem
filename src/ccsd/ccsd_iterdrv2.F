@@ -5,7 +5,7 @@
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener, Tol2E, occd, oconverged)
-C     $Id: ccsd_iterdrv2.F,v 2.20 2004-06-10 15:43:22 bert Exp $
+C     $Id: ccsd_iterdrv2.F,v 2.21 2004-06-23 20:20:48 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "util.fh"
@@ -71,11 +71,17 @@ c - starting vectors
 
       call util_file_name('t2', .false.,.false.,t2file)
 
+c - if converged, read vectors and return
+c - else check if one can restart
       if (.not.rtdb_get(rtdb, 'ccsd:restart',MT_LOG, 1, orestart))
      $    orestart = .true.   ! By default always try to restart
+      if (.not.rtdb_get(rtdb, 'ccsd:converged',MT_LOG, 1, oconverged))
+     $    oconverged = .false.  ! Not converged yet
 
-      if (orestart) orestart = 
-     $     ccsd_read_restart(t2file, g_t2, nvir, lhoov)
+      if (orestart.or.oconverged) then
+          orestart = ccsd_read_restart(t2file, g_t2, nvir, lhoov)
+          if (oconverged) oconverged = orestart
+      endif
 
 c Note that if restart fails orestart will be set false
       if (.not. orestart) then
@@ -100,6 +106,17 @@ c ------------------------------------------------------------
      &     call errquit('ga_create g_nht2 failed',0, GA_ERR)
 c
       call ga_sync()
+c
+      if(oconverged) then
+         if (iam.eq.0)write(6,*) 'CCSD is already converged'
+         offt2 = 0
+         if(.not.rtdb_put(rtdb, 'ccsd:corlenerg',MT_DBL, 1, eccsd))
+     $      eccsd=zip
+         call ga_sync()
+         call qexit('iterdrv',0)
+         return
+      endif
+c
       iter=0
       idiis=0
       ndiis=0
@@ -141,6 +158,10 @@ c
       oconverged = .false.
       if (dabs(rms).lt.thre.and.dabs(deccsd).lt.thre)then
          oconverged = .true.
+         if(.not.rtdb_put(rtdb, 'ccsd:corlenerg',MT_DBL, 1, eccsd))
+     $     call errquit('ccsd_iterdrv2: rtdb_put failed', 0, RTDB_ERR)
+         if(.not.rtdb_put(rtdb, 'ccsd:converged',MT_LOG, 1, oconverged))
+     $     call errquit('ccsd_iterdrv2: rtdb_put failed', 0, RTDB_ERR)
         if (iam.eq.0)write(6,1236)
  1236   format(18x,'*************converged*************',18x,
      &         /,73('-'),/)
@@ -250,14 +271,10 @@ c
       if (util_test_time_remaining(rtdb,time_prev_iter)) then
          goto 99
       else
-c
-c     We are running out of time, so we better write out the current 
-c     T1 and T2 for possible restart 
-c
-      if (.not. ccsd_write_restart(t2file, g_t2, 
-     $     nvir, lhoov, offt2))
-     $     call errquit('ccsd: failed saving vector for restart',0,
-     &       UNKNOWN_ERR)
+         if (.not. ccsd_write_restart(t2file, g_t2, 
+     $        nvir, lhoov, offt2))
+     $        call errquit('ccsd: failed saving vector for restart',0,
+     &          UNKNOWN_ERR)
          goto 999
       endif
 c
