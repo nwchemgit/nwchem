@@ -7,7 +7,7 @@
      $     ioff,nnbf,indx_v,nva_lo_local,nva_hi_local,
      $     e2,task,tunita,tunitb,kunit)
 *
-* $Id: mp2_make_tuhf.F,v 1.14 1999-06-16 00:10:24 d3e129 Exp $
+* $Id: mp2_make_tuhf.F,v 1.15 2001-09-26 16:58:22 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -225,6 +225,13 @@ c
 c
       call ga_dgop(1,eaa,1,'+')
       call ga_dgop(1,eab,1,'+')
+c
+      if (ga_nodeid().eq.0 .and. 
+     $     util_print('information',print_default)) then
+         write(6,555) eaa, eab
+ 555     format(//,'EAA = ',f20.10, ' EBB = ',f20.10,//)
+         call util_flush(6)
+      end if
       e2=e2-0.25d0*eaa-0.5d0*eab
       if(.not.ga_destroy(g_t_b))call errquit(
      $     'could not destroy t_b handle',1)
