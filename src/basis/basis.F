@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.16 1994-05-20 17:48:45 d3e129 Exp $
+c $Id: basis.F,v 1.17 1994-05-23 20:42:28 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1766,7 +1766,8 @@ c::functions
       external nbf_from_ucont
 c:: passed
       integer basisin       ! [input] basis set handle
-      integer nbf_max       ! [output] high angular momentum of basis
+      integer nbf_max       ! [output] largest basis function block on any 
+c                           !          shell in the given basis set.
 c:local
       integer basis, myucont, i, mynbf
 c
@@ -1793,5 +1794,52 @@ c
 c
       nbfmax_bs(basis) = nbf_max
       bas_nbf_cn_max = .true.
+      return
+      end
+c......................................................................
+      logical function bas_nbf_ce_max(basisin,nbf_max)
+      implicit none
+c
+c  calculate, return and store maximum basis function block size
+c   for all contractions in a given basis. 
+c
+#include "basP.fh"
+#include "geom.fh"
+#include "basdeclsP.fh"
+#include "geobasmapP.fh"
+c::functions
+      logical bas_check_handle
+      external bas_check_handle
+c:: passed
+      integer basisin       ! [input] basis set handle
+      integer nbf_max       ! [output] largest nbf block on an 
+c                           !          atom in the given basis.
+c:local
+      integer basis, mynat, iat, mylo, myhi, mynbf
+c
+      bas_nbf_ce_max = bas_check_handle(basisin,'bas_nbf_ce_max')
+      if (.not. bas_nbf_ce_max ) then
+        write(6,*) 'bas_nbf_ce_max: basis handle not valid '
+        return
+      endif
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+c
+      bas_nbf_ce_max = geom_ncent(ibs_geom(basis),mynat)
+      if (mynat.le.0.or. .not.bas_nbf_ce_max) then
+        write(6,*)' bas_nbf_ce_max: ERROR '
+        write(6,*)' number of centers is zero or weird'
+        write(6,*)' nat = ',mynat
+        return
+      endif
+c
+      nbf_max = -1
+      do 00100 iat = 1,mynat
+        mylo  = ibs_cn2bfr(1,ibs_ce2cnr(1,iat,basis),basis)
+        myhi  = ibs_cn2bfr(2,ibs_ce2cnr(2,iat,basis),basis)
+        mynbf = myhi - mylo + 1
+        nbf_max = max(nbf_max, mynbf)
+00100 continue
+c
       return
       end

@@ -1,5 +1,5 @@
       program testbasis
-c $Id: testbasis.F,v 1.7 1994-05-20 17:48:50 d3e129 Exp $
+c $Id: testbasis.F,v 1.8 1994-05-23 20:42:30 d3e129 Exp $
       implicit none
 c
 #include "bas.fh"
@@ -181,7 +181,10 @@ c
 00400 continue
 c
       status = bas_nbf_cn_max(basis,nbf)
-      write(6,*)' max block of nbf for basis is:',nbf
+      write(6,*)' max block of nbf on a shell for basis is:',nbf
+c
+      status = bas_nbf_ce_max(basis,nbf)
+      write(6,*)' max block of nbf on an atom for basis is:',nbf
 c
       stop ' testbasis done '
       end
