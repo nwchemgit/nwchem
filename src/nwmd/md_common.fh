@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.57 2002-04-12 23:03:47 d3j191 Exp $
+c $Id: md_common.fh,v 1.58 2002-04-30 17:23:21 d3j191 Exp $
 c
 c     parameters
 c
@@ -127,7 +127,7 @@ c
      + nemcrt,nfqrs,msdit,mcgit,ncgcy,mshitw,mshits,ifss,nbias,
      + nfoutp,nfstat,nfrest,nffree,nfcoor,nfscoo,nfprop,nfvelo,
      + nfsvel,nfpold,nrwrec,nfindu,nfsind,nfcntr,nfslow,nfshkw,
-     + nfforc,nfsfor,npstat,linkatm,nobq,impfr,impto,
+     + nfforc,nfsfor,npstat,linkatm,nobq,impfr,impto,npforc,
      + nfshks,nfrdf,nfdip,nfkirk,nkirk,nfhbo,nfsync,ngl,ngr,ngc,
      + ngrww,ngrsw,ngrss,ndip,numhis,numdis,lnghis,lngdis,nfacfa,
      + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivopt,iint,
@@ -157,7 +157,7 @@ c
      + nemcrt,nfqrs,msdit,mcgit,ncgcy,mshitw,mshits,ifss,nbias,
      + nfoutp,nfstat,nfrest,nffree,nfcoor,nfscoo,nfprop,nfvelo,
      + nfsvel,nfpold,nrwrec,nfindu,nfsind,nfcntr,nfslow,nfshkw,
-     + nfforc,nfsfor,npstat,linkatm,nobq,impfr,impto,
+     + nfforc,nfsfor,npstat,linkatm,nobq,impfr,impto,npforc,
      + nfshks,nfrdf,nfdip,nfkirk,nkirk,nfhbo,nfsync,ngl,ngr,ngc,
      + ngrww,ngrsw,ngrss,ndip,numhis,numdis,lnghis,lngdis,nfacfa,
      + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivopt,iint,

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.121 2002-04-17 23:42:26 d3j191 Exp $
+c $Id: md_start.F,v 1.122 2002-04-30 17:23:22 d3j191 Exp $
 c
       implicit none
 c
@@ -385,6 +385,7 @@ c
       npstep=0
       npstat=0
       npener=0
+      npforc=0
       nptmng=0
       npmemo=0
 c
@@ -726,6 +727,8 @@ c
       if(.not.rtdb_get(irtdb,'md:npstat',mt_int,1,npstat))
      + call errquit('md_rtdbin: rtdb_get failed',32)
       if(.not.rtdb_get(irtdb,'md:npener',mt_int,1,npener))
+     + call errquit('md_rtdbin: rtdb_get failed',33)
+      if(.not.rtdb_get(irtdb,'md:npforc',mt_int,1,npforc))
      + call errquit('md_rtdbin: rtdb_get failed',33)
       if(.not.rtdb_get(irtdb,'md:npdist',mt_int,1,npdist))
      + call errquit('md_rtdbin: rtdb_get failed',34)

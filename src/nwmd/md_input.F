@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.60 2002-04-12 23:03:47 d3j191 Exp $
+c $Id: md_input.F,v 1.61 2002-04-30 17:23:21 d3j191 Exp $
 c
       implicit none
 c
@@ -31,7 +31,7 @@ c
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
       integer itload,ihess,latom,icomm,nfanal,iport,iguide,icentr
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
-      integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ
+      integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ,npforc
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -94,6 +94,7 @@ c
       nptopw=0
       nptops=0
       npener=0
+      npforc=0
       npdist=0
       nptmng=0
       nfpair=1
@@ -1091,6 +1092,14 @@ c
       if(.not.inp_i(npener)) npener=1
       goto 500
       endif
+      if(inp_compare(.false.,'energies',item)) then
+      if(.not.inp_i(npener)) npener=1
+      goto 500
+      endif
+      if(inp_compare(.false.,'forces',item)) then
+      if(.not.inp_i(npforc)) npforc=1
+      goto 500
+      endif
       if(inp_compare(.false.,'matrix',item)) then
       npdist=1
       goto 500
@@ -1544,6 +1553,8 @@ c
       if(.not.rtdb_put(irtdb,'md:npstat',mt_int,1,npstat))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:npener',mt_int,1,npener))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:npforc',mt_int,1,npforc))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:npdist',mt_int,1,npdist))
      + call errquit('md_input: rtdb_put failed',0)
