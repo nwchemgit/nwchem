@@ -85,7 +85,7 @@
 #include "globalp.c.h"
 
 #define min(a,b) ( (a) < (b) ? (a) : (b))
-#define max(a,b) ((a) > (b) ? (a) : (b))
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define ffabs(a) ((a) >= (0.) ? (a) : (-a))
 
 
@@ -236,10 +236,10 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
       
   onenrm = ffabs( d[0] ) + ffabs( e[1] );
   tmp = ffabs(d[*n-1]) + ffabs(e[*n-1]);
-  onenrm = max(onenrm, tmp);
+  onenrm = MAX(onenrm, tmp);
   for (i = 1; i < *n-1; ++i) {
     tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
-    onenrm = max(onenrm, tmp);
+    onenrm = MAX(onenrm, tmp);
   }
   
   ortol = onenrm * (DoublePrecision ) 1.e-3 ;
@@ -404,10 +404,10 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
        */
       onenrm = ffabs( d[b1] ) + ffabs( e[b1+1] );
       tmp = ffabs(d[bn]) + ffabs(e[bn]);
-      onenrm = max(onenrm, tmp);
+      onenrm = MAX(onenrm, tmp);
       for (i = b1 + 1; i < bn; ++i) {
 	tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
-	onenrm = max(onenrm, tmp);
+	onenrm = MAX(onenrm, tmp);
       }
       ortol = onenrm * (DoublePrecision ) 1.e-3 ;
       
@@ -466,14 +466,14 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	
 	if ( jblk > 1 )  {            /* jblk > 1 */
 	  sep = ffabs(xj - xjm);
-	  if ( sep > max((DoublePrecision) 1.e3, (DoublePrecision) *n)*max(ffabs(xj), ffabs(xjm)) ){
+	if ( sep > 2.*MAX(fabs(xj), fabs(xjm)) * ortol){
 	    if ( clustr_check(clustrptr, j-1, *imin, imax) == 1 ) {
 	      *(c_ptr++) = clustrptr;
 	      *(c_ptr++) = j-1;
 	      *(c_ptr++) = b1;
 	      *(c_ptr++) = bn;
 	      num_cls++;
-	      max_clustr_size = max( j - clustrptr, max_clustr_size);
+	      max_clustr_size = MAX( j - clustrptr, max_clustr_size);
 	    }
 	    clustrptr = j;
 	    jblk = 1;
@@ -505,7 +505,7 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	    *(c_ptr++) = b1;
 	    *(c_ptr++) = bn;
 	    num_cls++;
-	    max_clustr_size = max( (end_of_block -clustrptr + 1), max_clustr_size);
+	    max_clustr_size = MAX( (end_of_block -clustrptr + 1), max_clustr_size);
 	    
 #ifdef DEBUG1
 	    fprintf(stderr, " out of 5 me = %d \n", me );
@@ -560,6 +560,10 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
   
   c_ptr = clustr_info;
   *num_clustr = num_cls;
+/*
+ for ( ii = 0; ii < 4* *num_clustr; ii++ )
+  printf("me = %d clustr4_info[%d] =  %d \n", me, ii, *(c_ptr++));               
+*/
   
   /*
     for ( ii = 0; ii < 4* *num_clustr; ii++ )
