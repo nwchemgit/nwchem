@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_vloc_atom.F,v 1.2 2003-02-11 21:10:35 marat Exp $
+* $Id: paw_energy_vloc_atom.F,v 1.3 2003-02-14 19:25:56 marat Exp $
 *
 
 
@@ -42,7 +42,7 @@
                 do mj=-lj,lj
                 i_mtr = i_mtr0 +i+(j-1)*nb
                 if(mi==mj) then
-                  evloc = evloc + dcpl_mb(paw_ovlp_w(1)+i_w)*
+                  evloc = evloc - dcpl_mb(paw_ovlp_w(1)+i_w)*
      >                          dbl_mb(paw_vloc_matrix(1) + i_mtr - 1) 
                 end if
                 i_w = i_w +1
