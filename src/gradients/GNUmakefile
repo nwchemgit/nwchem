@@ -1,12 +1,12 @@
-# $Id: GNUmakefile,v 1.17 1995-12-07 23:03:21 vg038 Exp $
+# $Id: GNUmakefile,v 1.18 1995-12-07 23:59:36 vg038 Exp $
 
 ifeq ($(TARGET),SGITFP)
      OBJ = gradients.o grad_force.o grad1.o scf_gradient.o grad_get_dens.o \
            grad_dens.o grad2.o grad_store.o
 else
      OBJ = gradients.o grad_force.o grad1.o scf_gradient.o grad_get_dens.o \
-           grad_dens.o  grad_store.o grad2.o
-#   OBJ_OPTIMIZE = grad2.o
+           grad_dens.o  grad_store.o 
+     OBJ_OPTIMIZE = grad2.o
 endif
 
    USES_BLAS = grad_force.F grad_dens.F
