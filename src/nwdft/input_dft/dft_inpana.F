@@ -5,13 +5,20 @@ c     Analyze input to deduce nature of system, and set key flags.
 c
 c***********************************************************************
       subroutine dft_inpana(geom,rtdb,zan,c,iconst,nconst,nat)
-C$Id: dft_inpana.F,v 1.5 1995-11-15 01:24:27 d3g681 Exp $
-      implicit real*8 (a-h,o-z)
+C$Id: dft_inpana.F,v 1.6 1995-11-27 03:17:28 og845 Exp $
+      implicit none
+      integer nat,nconst
       logical even
-      dimension zan(nat), c(3,nat), iconst(nconst)
+      double precision zan(nat), c(3,nat)
+      integer iconst(nconst)
       integer noc(2)
       Integer rtdb    !  runtime database handle
       integer geom
+C
+      integer me,ipol,ichg,mult,nel
+      integer noc1,noca,nocb
+      double precision anucl_charg
+      double precision EPSILON
       Parameter ( EPSILON=1.d-13 )
 #include "stdio.fh"
 #include "rtdb.fh"
@@ -112,7 +119,7 @@ c
 c
 c-->  Write to output.
 c
-         write(LuOut,9150)nat-nghost
+         write(LuOut,9150)nat
 c
          write(LuOut,9200)nel,ichg,mult
 
