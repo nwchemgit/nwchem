@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.113 2001-11-15 04:31:42 d3j191 Exp $
+c $Id: md_main.F,v 1.114 2001-12-15 01:51:30 d3j191 Exp $
 c
       implicit none
 c
@@ -1489,9 +1489,9 @@ c
     1 continue
       endif
 c
+    3 continue
       if(nsaloc.gt.0) then
       call sp_nbbl(nbbl)
-    3 continue
       do 4 ibbl=1,nbbl
       call sp_gethdl(ibbl,lhandl,lself,iwfr,iwto,isfr,isto)
       if(lself) call cf_shakes(lhandl,xs,ys,isl(1,lsgan),isl(1,lsatt),
@@ -1501,9 +1501,9 @@ c
       dmax=max(dmax,(xs(i,1)-ys(i,1))**2+(xs(i,2)-ys(i,2))**2+
      + (xs(i,3)-ys(i,3))**2)
     5 continue
+      endif
       if(.not.cf_shakep(xs,ys,isl(1,lsgan),isl(1,lsatt),isl(1,lsdyn),
      + nsaloc)) goto 3
-      endif
 c
       dmax=sqrt(dmax)
       call ga_dgop(mrg_d45,dmax,1,'max')
@@ -2193,7 +2193,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.113 2001-11-15 04:31:42 d3j191 Exp $
+c $Id: md_main.F,v 1.114 2001-12-15 01:51:30 d3j191 Exp $
 c
       implicit none
 c

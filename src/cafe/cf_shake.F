@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.18 2001-12-15 01:19:36 d3j191 Exp $
+c $Id: cf_shake.F,v 1.19 2001-12-15 01:51:57 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -52,12 +52,16 @@ c
       integer nums
       real*8 xs(msa,3),ys(msa,3)
       integer igan(msa),isat(msa),isdt(msa)
+      integer nitall
 c
       cf_shakep=.true.
 c
       if(lpmf) then
       call cf_shkp(nums,xs,ys,igan,isat,int_mb(i_ipmf),int_mb(i_jpmf),
      + dbl_mb(i_rpmf),dbl_mb(i_xpmf),dbl_mb(i_ypmf),dbl_mb(i_mas))
+      nitall=niters-1
+      call ga_igop(mcf_64,nitall,1,'+')
+      cf_shakep=nitall.le.0
       endif
 c
       return
