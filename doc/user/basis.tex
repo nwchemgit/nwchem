@@ -11,9 +11,9 @@ from a standard set in the EMSL basis set library that is included in
 the release of NWChem.  (See Appendix \ref{sec:knownbasis} for a list
 of the standard basis sets currently supplied with the release of the
 code.)  Alternatively, the user can specify particular functions
-explicitly in the input defining a particular basis set.
+explicitly in the input, defining a particular basis set.
 
-The form of the \verb+BASIS+ directive is as follows;
+The general form of the \verb+BASIS+ directive is as follows;
 
 \begin{verbatim}
   BASIS [<string name default "ao basis">] \
@@ -33,15 +33,15 @@ The form of the \verb+BASIS+ directive is as follows;
   END
 \end{verbatim}    
 
-Examining first the keywords on the \verb+BASIS+ directive line:
+Examining the keywords on the first line of the \verb+BASIS+ directive;
 
 
 \begin{itemize}
-\item {\tt NAME}
+\item {\tt name}
 
 By default the basis set is stored in the database with the name
 \verb+"ao basis"+.  By specifying another name in the \verb+BASIS+
-directive, multiple basis sets may be stored at once in the database.
+directive, multiple basis sets may be stored simultaneously in the database.
 Also, the DFT (Section \ref{sec:dft}), RISCF (Section \ref{sec:riscf})
 and RIMP2 (Section \ref{sec:rimp2}) modules require multiple basis
 sets with specific names.
@@ -70,7 +70,8 @@ problems with linear dependence.
 By default NWChem forces all basis sets to be segmented, 
 even if they are input with either general contractions, or $L$ or sp
 shells. This is because the current derivative integral package cannot
-handle general contractions.  If just computing energies a substantial
+handle general contractions.  If a calculation is only 
+computing energies, a substantial
 performance gain can result from exploiting generally contracted basis
 sets, in which case {\tt NOSEGMENT} should be specified.
 
@@ -83,7 +84,7 @@ Specifying the keyword \verb+noprint+ allows the user to supress this output.
 
 Basis sets are associated with centers by using the tag of a center in
 a geometry that has either been input by the user (Section
-\ref{sec:geom}) or created automatically.  Each atom or center with
+\ref{sec:geom}) or is available elsewhere.  Each atom or center with
 the same \verb+tag+ will have the same basis set.  All atoms must have
 basis functions assigned to them --- only dummy centers may have no
 basis functions.
@@ -94,8 +95,9 @@ coefficients.
 
 \subsection{Basis set library}
 
-The keyword \verb+library+ specifies that the calculation will use the
-standard basis sets in NWChem.  The string \verb+standard_set+ is the
+The keyword \verb+library+ associated with each specific \verb+tag+
+entry specifies that the calculation will use the
+standard basis set in NWChem for that center.  The string \verb+standard_set+ is the
 name that identifies the functions in the library.  The names of
 standard basis sets are not case sensitive.  See Appendix
 \ref{sec:knownbasis} for a complete list of the basis functions in the
@@ -103,7 +105,7 @@ NWChem library and their specification.  If basis functions are to be
 placed upon a dummy center, the string \verb+tag_in_lib+ must also be
 entered on this line, to identify the correct atom type to use in the
 basis function library (see the ghost atom example in Section
-(\ref{sec:set} and below).
+\ref{sec:set} and below).
 
 A default path to the basis set library is provided on installation of
 the code, but a different path can be defined by specifying the
@@ -139,7 +141,7 @@ This directive tells the code to use the basis sets \verb+3-21g+ in
 the file /usr/d3g681/nwchem/library for atoms \verb+o+ and \verb+si+ ,
 rather than looking for them in the default library.
 
-Another example.  To specify the cc-pvdz basis for a calculation on
+Another example;  to specify the cc-pvdz basis for a calculation on
 the water monomer in the dimer basis, where the dummy oxygen and dummy
 hydrogen centers have been identified as \verb+bqo+ and \verb+bqh+
 respectively, the \verb+BASIS+ directive is as follows,
@@ -155,11 +157,14 @@ respectively, the \verb+BASIS+ directive is as follows,
 
 \subsection{Explicit basis set definition}
 
+If the basis sets in the library or available in other external files
+are not suitable for a given calculation, the user has the option
+of defining the basis set explicitly.
 A generally contracted Gaussian basis function is associated with a
-center as follows
+center using an input line of the following form,
 \begin{verbatim}
-     <string tag> <string shell\_type>
-        <real exponent> <real list\_of\_coefficients>
+     <string tag> <string shell_type>
+        <real exponent> <real list_of_coefficients>
         ...
 \end{verbatim}
 

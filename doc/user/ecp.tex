@@ -1,6 +1,7 @@
 \label{sec:ecp}
 
-This directive describes an effective core potential (ECP) basis set
+This optional directive allows the user to describe an 
+effective core potential (ECP) basis set
 of contracted gaussian functions.  The ECPs are fit to Gaussians 
 with the form 
 \[
@@ -11,21 +12,48 @@ exponent of the ``r'' term (r-exponent), and $B_{lk}$ is the gaussian
 exponent.  The r-exponent is shifted by 2 as per most of the ECP
 literature, e.g., an r-exponent of 0 implies $r^{-2}$.
 
+The EMSL library does not currently support a standard set of ECP basis
+functions.  Basis sets using these functions must be specified explicitly
+by user input in the \verb+ECP+ directive.  This directive has
+essentially the same form as the standard \verb+BASIS+ directive,
+except for differences in the type of information to be supplied for
+each atom or center using the ECP basis set.  The form of the input for
+the \verb+ECP+ directive is as follows;
+
+\begin{verbatim}
+  ecp [<string name default "ecp basis">] \
+        [spherical || cartesian default cartesian] \
+        [segment || nosegment default segment] \
+        [print || noprint default print]
+
+     <string tag> [nelec] <integer number_of_electrons_replaced>
+ 
+        ...
+
+     <string tag> <string shell_type>
+     <real r-exponent> <real gaussian-exponent> <real list_of_coefficients>
+        ...
+     
+  END
+\end{verbatim}    
+
 By default ECP basis sets are automatically segmented and cartesian
 even if general contractions are input. 
-
 ECP basis functions are associated with centers in geometries through
-the tags or names of centers which must match exactly (including case)
+tags or names of centers.  These tags must match exactly (including case)
+in the \verb+GEOMETRY+ and \verb+ECP+ directives, 
 and are limited to sixteen (16) characters.  Each center with the same
 tag will have the same ECP basis set.  By default the input module
-prints each ECP basis set encountered; use the \verb+NOPRINT+ option
-to disable printing.  There can be only one active ECP basis set even
+prints each ECP basis set encountered.  The \verb+NOPRINT+ option
+can be used
+to disable printing.  There can be only one active ECP basis set, even
 though several may exist in the input deck.  The ECP modules load
 ``ecp basis'' with any ``ao basis'' present.  The ECP functionality
 works for energy and gradients.
 
-In the same fashion as for geometries or regular basis sets, ECP basis
-sets are named, with the default name being \verb+"ecp basis"+.  It
+ECP basis sets are named in the same fashion as for geometries 
+or regular basis sets,
+with the default name being \verb+"ecp basis"+.  It
 should be clear from the above discussion on geometries and database
 entries how indirection is supported.
 
@@ -34,7 +62,8 @@ EMSL basis set library; they must be specified explicitly.  All
 directives that are in common with the standard gaussian basis set
 input have the same function and syntax.
 
-The keyword pairs
+The following keyword pairs are included as input options for the 
+\verb+ECP+ directive,
 
 \begin{verbatim}
   spherical || cartesian
@@ -42,7 +71,8 @@ The keyword pairs
   print || noprint
 \end{verbatim}
 
-are interpreted in the \verb+ECP+ directive in the same manner as for
+These keyword pairs are interpreted in the \verb+ECP+ 
+directive in the same manner as for
 the \verb+BASIS+ directive, but only the defaults are currently
 available for the coordinate system and segmentation in the \verb+ECP+
 directive.  NWChem assumes that all ECP basis sets are segmented and
@@ -76,7 +106,7 @@ for a given atom or center (identified by the string \verb+tag+) denotes
 the local part of the ECP basis.  This is equivalent to the highest 
 angular momentum
 functions specified in the literature for most ECP basis sets.  The
-standard entries ($s$, $p$, $d$, etc.) for \verb+shell_type+ delineate 
+standard entries (\verb+s, p, d+, etc.) for \verb+shell_type+ delineate 
 the angular momentum projector onto the local function.  The shell type 
 label of \verb+s+ indicates the \verb+ul-s+ projector input, \verb+p+ 
 indicates the \verb+ul-p+, etc.
