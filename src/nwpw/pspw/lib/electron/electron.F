@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.36 2004-11-13 02:22:06 bylaska Exp $
+* $Id: electron.F,v 1.37 2005-01-27 18:24:05 bylaska Exp $
 *
 
 
@@ -1008,12 +1008,14 @@ c    >                     hml(shift+1))
 
 
       do ms=1,ispin
-         shift = (ms-1)*ne(1)*ne(1)
          n     = ne(ms)
+         if (n.le.0) go to 30
+         shift = (ms-1)*ne(1)*ne(1)
          call Pack_ccm_dot(1,n,
      >                     psi_k(1+(ms-1)*ne(1)*npack1),
      >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
      >                     hml(shift+1))
+   30    continue
       end do
 
 
