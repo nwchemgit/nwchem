@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.36 1997-07-30 02:07:58 d3g681 Exp $
+C$Id: rimp2.F,v 1.37 1997-08-20 21:51:34 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -165,7 +165,13 @@ C
      $   RefSpin, RefNMO, MaxSpin) )
      $   Call ErrQuit('RIMP2: Unable to open SCF eigenvectors', 0)
 C
-      MxNMO = 0
+C     MOVecs_Read/MOVecs_Gather (for historical reasons) require the
+C     occupation & eigenvalue vectors to be NAOBF rather than the actual
+C     number of MOs.  Since MxNMO sizes these quantities in this part of
+C     the code, we must insure it is large enough.
+C
+      MxNMO = NAOBF
+c$$$      MxNMO = 0
       Do I = 1, RefSpin
          MxNMO = Max( MxNMO, RefNMO(I) )
       EndDo
@@ -258,7 +264,13 @@ C
       Call Mk_Correl_Map(RTDB, Geom, TopSpin, NMO, NCorBF, MxNMO,
      $   Int_MB(I_CorMap), FullRef )
 C
-      MxNCorBF = 0
+C     MOVecs_Read/MOVecs_Gather (for historical reasons) require the
+C     occupation & eigenvalue vectors to be NAOBF rather than the actual
+C     number of MOs.  Since MxNCorBF sizes these quantities in this part of
+C     the code, we must insure it is large enough.
+C
+      MxNCorBF = NAOBF
+c$$$      MxNCorBF = 0
       Do I = 1, TopSpin
          MxNCorBF = Max( MxNCorBF, NCorBF(I) )
       EndDo

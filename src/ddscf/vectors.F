@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.30 1997-07-30 02:05:10 d3g681 Exp $
+C$Id: vectors.F,v 1.31 1997-08-20 21:51:20 bernhold Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -112,8 +112,8 @@ c
 c
       character*(*) filename
       integer iset              ! No. (1,2) of set of vectors to read
-      double precision occ(*)
-      double precision evals(*)
+      double precision occ(*)   ! Must be at least nbf long (not nmo)
+      double precision evals(*) ! Must be at least nbf long (not nmo)
       integer g_vecs
 c
       integer nsets             ! No. of sets of vectors
@@ -245,12 +245,14 @@ c
      $   'movecs_gather: failed to read movecs file', 1)
 c
 c     allocate memory to be used while reading info
+C     movecs_read expects fullocc and fulleval arrays to be nbf,
+C     not nmo(iset)!
 c
-      if (.not. ma_push_get(mt_dbl,nmo(iset),'movecs_gather',
+      if (.not. ma_push_get(mt_dbl,nbf,'movecs_gather',
      $   l_fullocc, k_fullocc)) call errquit(
      $   'movecs_gather: ma failed', nmo(iset))
 c
-      if (.not. ma_push_get(mt_dbl,nmo(iset),'movecs_gather',
+      if (.not. ma_push_get(mt_dbl,nbf,'movecs_gather',
      $   l_fulleval, k_fulleval)) call errquit(
      $   'movecs_gather: ma failed', nmo(iset))
 c
