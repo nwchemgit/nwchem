@@ -833,7 +833,7 @@ c
          lxfac(9) = .true.
          nlxfac(9) = .true.
       endif
-      if (.not. inp_f(xfac(8))) then
+      if (.not. inp_f(xfac(9))) then
          xfac(9) = 1.0d0
       endif
        goto 10
