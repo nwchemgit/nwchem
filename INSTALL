@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.70 2004-12-29 00:40:36 edo Exp $
+$Id: INSTALL,v 1.71 2005-02-17 01:58:58 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -120,8 +120,8 @@ BASIC BUILD INSTRUCTIONS:
    SOLARIS        Sun             Solaris 2.X                     y
    SOLARIS64      Sun             Solaris 2.X    Sun,Fujitsu      y
    				 		   
-   IBM            IBM RS/6000     AIX 4.X                         y
-   IBM64          IBM RS/6000     AIX 4.X                         y
+   IBM            IBM RS/6000     AIX 4.X,5.X                     y
+   IBM64          IBM RS/6000     AIX 4.X,5.X                     y
    				 		   
    DECOSF         DEC AXP         Tru64 4.0-5.0                   y
    				 		   
@@ -129,18 +129,17 @@ BASIC BUILD INSTRUCTIONS:
                   using 32 ints 		   
    SGITFP         SGI 64 bit os   IRIX 6.5                        y
    				 		   
-   CRAY-T3E       Cray T3E        UNICOS         
    cray-sv2       Cray X1         UNICOS/mp    Cray               y
    				 		   
    LAPI           IBM SP          AIX/LAPI                        y
    LAPI64         IBM SP          AIX/LAPI                        y
    				 		   
-   LINUX          x86             RH,MDK          GNU,Intel,PGI   y
-                  ppc             YD2.1,SLES8     GNU,xlf         y
-   LINUX64        Alpha           RedHat 6.2      Compaq          y
-                  ia64            RedHat 7.2      Intel           y
-                  x86_64          Suse SLES8      PGI,PathScale   y
-                  ppc64           Suse SLES8      xlf             y
+   LINUX          x86             RH,MDK,SLES GNU,Intel,PGI       y
+                  ppc             YD2.1,SLES  GNU,xlf             y
+   LINUX64        Alpha           RedHat 6.2  Compaq              y
+                  ia64            RedHat 7.2  Intel               y
+                  x86_64          SLES, RH    PGI,PathScale,Intel Y   
+                  ppc64           SLES, RH      xlf               y
    				 		   
    HPUX           hppa            HPUX 11.0                       y
    HPUX64         hppa            HPUX 11.0                       y
@@ -148,7 +147,7 @@ BASIC BUILD INSTRUCTIONS:
    				 		   
    WIN32          Intel x86       Windows98/NT    Compaq 
    				 		   
-   MACX           Apple MacOSX    Darwin 7.2.0    GNU,IBM xlf
+   MACX           Apple MacOSX    Darwin 7.7.0    GNU,IBM xlf
 
    ----------------------------------------------------------------------
 
@@ -168,11 +167,6 @@ BASIC BUILD INSTRUCTIONS:
     SGI_N32        R8000           R8000
                    R10000          R10000
                    R12000          R12000
-    LAPI* OR SP    Power 2         DO __NOT__ set NWCHEM_TARGET_CPU
-                   Power 2 super   P2SC
-                   604e chip       604
-    LINUX          Intel Pentium   DO __NOT__ set NWCHEM_TARGET_CPU
-                   Power Mac       POWERPC
 
     LINUX using the Portland Group Compiler, pgf77, is available.  
           However, NWChem development is under the GNU suite of
@@ -285,12 +279,18 @@ USE OF NON DEFAULT COMPILERS:
 
   Possible choices
 
-   NWCHEM_TARGET       FC     CC
-   ------------------------------
-   LINUX               ifc    icc   Intel compilers for IA32
-   LINUX               pgf77        Portland Group f77 compiler
-   LINUX64                    ecc   Intel C compiler for IA64
-   SOLARIS64           frt    fcc   Fujitsu Compilers         
+   NWCHEM_TARGET   uname -m    FC     CC
+   ---------------------------------------
+   LINUX           i386       ifc    icc   Intel compilers for IA32
+   LINUX           i386       pgf77        Portland Group f77 compiler
+   LINUX64         ppc        xlf    xlc   IBM compilers
+   LINUX64         ia64       ecc          Intel C compiler for IA64
+   LINUX64         x86_64     pathf90      PathScale f90 compiler
+   LINUX64         x86_64     ifc          Intel EM64T Fortran compiler
+   LINUX64         x86_64     pgf90        PGI Fortran90 compiler
+   LINUX64         ppc64      xlf    xlc   IBM compilers
+   MACX                       xlf    xlc   IBM compilers
+   SOLARIS64                  frt    fcc   Fujitsu Compilers         
   
    Notes:
     1) On Pentium4/Xeon machine, use of  the Intel compiler is  strongly
@@ -300,6 +300,9 @@ USE OF NON DEFAULT COMPILERS:
     2) using the Portland Group Compiler, pgf77, is available.  
     However, NWChem development is under the GNU and Intel suite of
     compilers and so the pgf77 version is far from being optimal. 
+    3) use of the GNU fortran compiler (g77) on 64-bit architecture
+    (e.g. x86_64) is not encouraged because of the NWChem default use
+    of 64-bit integers on 64-bit architectures.
 
 
 ALTERNATIVE ONE-TIME BUILD:
@@ -333,8 +336,8 @@ B) make directories
    mkdir /usr/local/NWChem/bin
    mkdir /usr/local/NWChem/data
 
-C) cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/nwchem /usr/local/NWChem/bin
-*  cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/parallel /usr/local/NWChem/bin 
+C) cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}/nwchem /usr/local/NWChem/bin
+*  cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}/parallel /usr/local/NWChem/bin 
    cd /usr/local/NWChem/bin
    chmod 755 nwchem 
    chmod 755 parallel
@@ -343,8 +346,8 @@ C) cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/nwchem /usr/local/NW
           http://www.emsl.pnl.gov/pub/docs/nwchem/doc/user/index.html
           or read the README files in $NWCHEM_TOP/src/tcgmsg    
    For SPs:
-** cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/jobtime usr/local/NWChem/bin
-   cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/jobtime.pl usr/local/NWChem/bin
+** cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}/jobtime usr/local/NWChem/bin
+   cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}/jobtime.pl usr/local/NWChem/bin
    **Note: These scripts use perl to get information from LoadLeveller
            to get time information.  jobtime may need to be modified
            to find perl on your system.  If you can't get these to 
@@ -356,8 +359,10 @@ D) cd $NWCHEM_TOP/src/basis
    cd $NWCHEM_TOP/src/
    cp -r data /usr/local/NWChem
    cd $NWCHEM_TOP/src/nwpw/libraryps
-   cp -r library1 /usr/local/NWChem/data
-   cp -r library2 /usr/local/NWChem/data
+   cp -r pspw_default /usr/local/NWChem/data
+   cp -r paw_default  /usr/local/NWChem/data
+   cp -r TM  /usr/local/NWChem/data
+   cp -r HGH_LDA  /usr/local/NWChem/data
 
 E) Each user will need a .nwchemrc file to point to these default data
    files.  A global one could be put in /usr/local/NWChem/data and a
@@ -399,6 +404,7 @@ BUILDING WITH MPI:
    set to compile with NWChem.  These are:
 
      USE_MPI       -  set to "y" if you want to compile with MPI
+     USE_MPIF      -  set to "y" if you want to the NWPW module to use fortran-bindings of MPI
      LIBMPI        -  name of the library with -l (eg. -lmpich)
      MPI_LIB       -  directory where the MPI library resides
      MPI_INCLUDE   -  directory where the MPI include files reside
@@ -456,7 +462,7 @@ BUILDING WITH MPI:
    we usually run nwchem under MPI are the following:
      1) using mpirun:
      
-     mpirun -np 8 $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/nwchem h2o.nw
+     mpirun -np 8 $NWCHEM_TOP/bin/${NWCHEM_TARGET}}/nwchem h2o.nw
      
      NOTE: In some MPI implementation, NWChem fails to read the input
      file argument (h2o.nw in the previous example). If this is the
@@ -467,7 +473,7 @@ BUILDING WITH MPI:
      and you have installed the ch_shmem version of MPICH, 
      you can do
 
-     $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/nwchem -np 8 h2o.nw
+     $NWCHEM_TOP/bin/${NWCHEM_TARGET}/nwchem -np 8 h2o.nw
      
      The previous NOTE about the input file argument applies to
      this case, too.
@@ -538,11 +544,6 @@ OPTIMIZATION TIPS:
        http://www.intel.com/software/products/mkl/mkl60/
    
    
-   If you are using AMD Opteron computers (a.k.a. x86-64), you might
-   want to try the ACML library
-   http://www.developwithamd.com/acml 
-   (download the 64-bit library and not the 32-bit one)
-
    If you are using HP computers (either PA-RISC or IA-64), you might
    want to try the MLIB library
    http://www.hp.com/go/mlib
@@ -560,7 +561,7 @@ OPTIMIZATION TIPS:
    nwchem uses 64-bit integers (i.e. integer*8) on 64-bit platforms,
    most of the vendors optimized BLAS libraries used 32-bit integers.
    BLAS libraries not supporting 64-bit integers: 
-   CXML (DECOSF), ESSL (LAPI64), MKL (LINUX64).
+   CXML (DECOSF), ESSL (LAPI64), MKL (LINUX64/ia64), ACML(LINUX64/x86_64).
 
    If you are interested in "tweaking" compile options, the 
    appropriate place to do this is the $NWCHEM_TOP/config/makefile.h
@@ -653,6 +654,9 @@ MPI_LIB=$MPI_LOC/lib
 MPI_INCLUDE=$MPI_LOC/include
 LIBMPI=-lmpich             
 
+optional variable
+USE_MPIF=y
+
 To run NWChem, you need to set the following enviromental variable:
 
 GMPI_SHMEM_FILE /tmp/$USER.gm 
@@ -718,12 +722,26 @@ set MPI_INCLUDE=c:\PROGRA~1\ARGONN~1\MPICH.NT.1.2.3\SDK\INCLUDE
 set MPI_LIB=c:\PROGRA~1\ARGONN~1\MPICH.NT.1.2.3\SDK\lib
 set NWCHEM_EXTRA_LIBS=c:\PROGRA~1\ARGONN~1\MPICH.NT.1.2.3\SDK\lib\mpich.lib
 
+You'll first need to create the util_version.F file in the util directory 
+cd $NWCHEM_TOP\src\util
+cp util_v_stub.F util_version.F
+
+For nwchem-4.7 you will also need to modify the matmul.c file in the tools/global/src
+directory
+cd $NWCHEM_TOP\src\tools\src
+edit matmul.c and change all instances of "ga_error_" to "ga_error"
+
 To start the compilation, start the Microsoft makefile utility from the 
 top level source directory by typing 
 
 nmake
 
 The name of the executable is nw32.exe.
+
+Note: This build has only been tested using Compac visual fortran (version 6.6) and Microsoft
+C/C++ (Version 12.00) on windows XP and windows 2000.
+
+Reminder: For Compaq visual fortran don't forget to execute the "dfvars" script.
 
 
 MEMORY SCRIPT:
