@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.22 2004-09-30 06:46:30 marat Exp $
+c $Id: qmmm.F,v 1.23 2004-10-09 00:32:40 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -17,15 +17,6 @@ c
       character*32 optimize
 c
       qmmm_init = .true.
-      if (.not.rtdb_cget(irtdb,'qmmm:optimize',1,optimize))
-     + call errquit('qmmm_init: failed to get qmmm:optimize',
-     &       0,RTDB_ERR)
-
-      if(optimize.eq.'mm') then
-        write(*,*) "optimize mm initialization"
-c        return
-      end if
-
 
 c     initialize mm part
 c     (note it will also want operation)
@@ -82,12 +73,6 @@ c
      + call errquit('qmmm_end: failed to get qmmm:optimize',
      &       0,RTDB_ERR)
 
-      if(optimize.eq.'mm') then
-        write(*,*) "optimize mm no initialization"
-c        return
-      end if
-
-
       call mm_end()
       call qmmm_data_release()
 
@@ -132,7 +117,7 @@ c     external functions
 c     QM energy calculation
 c     --------------------
       status = task_energy_doit(rtdb,theory,energy)
-      energy = energy+ 0.5d0*eatoms
+      energy = energy-eatoms
       call qmmm_geom_finish(rtdb)
  
 
@@ -177,6 +162,7 @@ c
       integer nqm,nbq
       logical link
       integer ntot
+      integer i
 
 
       link = .not.qmmm_h_link()
@@ -213,7 +199,7 @@ c
       call dfill(3*nqm,0,dbl_mb(i_gmm),1)
 
       status = task_gradient_doit(rtdb,theory,energy,dbl_mb(i_g))
-      energy = energy+ 0.5d0*eatoms
+      energy = energy-eatoms
 
       call mm_get_solute_force_quant(nqm,
      &                     link,
