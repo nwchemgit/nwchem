@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.193 2001-10-18 20:10:19 edo Exp $
+c     $Id: dft_scf.F,v 1.194 2001-10-23 21:39:07 edo Exp $
 c     
       implicit none
 c
@@ -121,7 +121,7 @@ C
 c
 c     early convergence tolerances
 c
-      parameter(itol_min = 7, iAOacc_min = 12, tol_rho_min = 1.d-7)
+      parameter(itol_min = 6.4, iAOacc_min = 12, tol_rho_min = 1.d-7)
 c
       double precision dft_dencvg, dft_time
       external dft_dencvg
@@ -1104,6 +1104,7 @@ c
      &   go to 1000 ! begin new iteration
       if (idone.eq.1.and.(.not.last_time_energy))then
          last_time_energy = .true.
+         if(rlshift.eq.0) goto 2000
          go to 1000             ! build final total energies
       endif
 c     
