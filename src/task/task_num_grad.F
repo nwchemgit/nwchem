@@ -1,0 +1,413 @@
+      logical function task_num_grad(rtdb)
+      implicit none
+#include "geom.fh"
+#include "rtdb.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "inp.fh"
+      integer rtdb              ! [input] 
+c
+c     Return energy and gradient at current geometry
+c
+c     Compute derivatives of task_energy() w.r.t. nuclear displacements
+c     using numerical finite difference.
+c
+c     Uses symmetry and projects out rotations/translations. 
+c
+c     Does not yet freeze atoms but this can be easily added
+c     A few hard dimensions need fixing to use more than 100 atoms
+c     (presumably not necessary until most of them are frozen)
+c
+      integer geom
+      integer nvec, ivec
+      integer l_vec, k_vec, l_tmp, k_tmp, l_coord, k_coord
+      integer l_ncoord, k_ncoord, l_grad, k_grad, l_q, k_q, l_t, k_t
+      integer natoms, natoms3
+      logical oprint_mode, oprint_step, oprint_info, osaved
+      character*128 name, key, theory
+      double precision eref, eplus, eminus, grad
+      double precision delta    ! finite-difference step
+      logical task_energy, task_save_state, task_restore_state, 
+     $     task_delete_state, fd_step_energy
+      external task_energy, task_save_state, task_restore_state, 
+     $     task_delete_state, fd_step_energy
+c
+      task_num_grad = .false.
+      osaved = .false.
+c
+      call util_print_push()
+      call util_print_rtdb_load(rtdb, 'numg')
+      oprint_info = util_print('information', print_low) .and. 
+     $     ga_nodeid().eq.0
+      oprint_mode = util_print('modes', print_default) .and. 
+     $     ga_nodeid().eq.0
+      oprint_step = util_print('step', print_low) .and. 
+     $     ga_nodeid().eq.0
+c
+      if (.not. geom_create(geom, 'geometry'))
+     $     call errquit('task_num_grad: geom_create?', 0)
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     $     call errquit('task_num_grad: no geometry ', 0)
+      if (.not. geom_ncent(geom, natoms)) call errquit
+     $     ('task_num_grad: geom_ncent ?', geom)
+      natoms3 = natoms*3
+      if (.not. ma_push_get(mt_dbl, natoms3*natoms3, 'tng: vectors',
+     $     l_vec, k_vec)) call errquit
+     $     ('task_num_grad: insufficient memory (1) ', natoms3**2)
+      if (.not. ma_push_get(mt_dbl, natoms3, 'tng: grad',
+     $     l_grad, k_grad)) call errquit
+     $     ('task_num_grad: insufficient memory (2) ', natoms3)
+      if (.not. ma_push_get(mt_dbl, natoms3, 'tng: coord',
+     $     l_coord, k_coord)) call errquit
+     $     ('task_num_grad: insufficient memory (3) ', natoms3)
+      if (.not. ma_push_get(mt_dbl, natoms3, 'tng: ncoord',
+     $     l_ncoord, k_ncoord)) call errquit
+     $     ('task_num_grad: insufficient memory (4) ', natoms3)
+      if (.not. ma_push_get(mt_dbl, natoms, 'tng: charge',
+     $     l_q, k_q)) call errquit
+     $     ('task_num_grad: insufficient memory (5) ', natoms)
+      if (.not. ma_push_get(mt_dbl, natoms3, 'tng: tags',
+     $     l_t, k_t)) call errquit
+     $     ('task_num_grad: insufficient memory (6) ', natoms)
+      if (.not. ma_push_get(mt_dbl, natoms3*natoms3, 'tng: temp',
+     $     l_tmp, k_tmp)) call errquit
+     $     ('task_num_grad: insufficient memory (7) ', natoms**2)
+c
+      if (.not. geom_cart_get(geom, natoms, byte_mb(k_t), 
+     $     dbl_mb(k_coord), dbl_mb(k_q))) 
+     $     call errquit('task_num_grad: bad geom',0)
+c
+c     Save the name, if any, of the reference geometry so we can
+c     restore it upon completion.  Also, save the geometry itself
+c     so that it can be recovered.
+c
+      if (.not. rtdb_cget(rtdb,'geometry', 1, name))
+     $     name = 'geometry'
+      if (.not. geom_rtdb_store(rtdb, geom, 'numg reference')) 
+     $     call errquit('task_num_grad: store of geom failed',0)
+c
+      if (oprint_info) then
+         call util_print_centered(6, 'NWChem Numerical Gradients', 
+     $        40, .true.)
+         write(6,*)
+         write(6,*)
+         write(6,*) ' Reference coordinates (a.u.) ',
+     $        name(1:inp_strlen(name))
+         call output(dbl_mb(k_coord), 1, 3, 1, natoms, 3, natoms, 1)
+         write(6,*)
+      endif
+c
+      call fd_make_vectors(geom, natoms, dbl_mb(k_coord), dbl_mb(k_tmp),
+     $     dbl_mb(k_vec), nvec, oprint_mode)
+c
+      if (.not. ma_pop_stack(l_tmp)) call errquit('tng: ma corrupt',0)
+c
+c     Compute the energy at the reference geometry, save for restart
+c
+      if (.not. task_energy(rtdb)) goto 100 ! Clean up and return
+      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, eref)) then
+         if (ga_nodeid() .eq. 0) 
+     $        write(6,*) ' task_num_grad: no energy in database'
+         goto 100               ! Clean up and return
+      endif
+      if (oprint_info) then
+         write(6,11) eref
+ 11      format(' Reference energy ', f20.8/)
+         call util_flush(6)
+      endif
+      if (.not. task_save_state(rtdb, 'numg')) goto 100 
+      osaved = .true.
+c
+      if (.not. rtdb_get(rtdb, 'tng:delta', mt_dbl, 1, delta)) 
+     $     delta = 0.01d0
+      if (oprint_info) then
+         write(6,12) delta
+ 12      format(' Finite difference step ',1p,d12.5/)
+         call util_flush(6)
+      endif
+c
+      call dfill(natoms3, 0.0d0, dbl_mb(k_grad), 1)
+      do ivec = 1, nvec
+c
+c     Currently only two-point central differences
+c
+         if (.not. fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
+     $        dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
+     $        dbl_mb(k_grad), dbl_mb(k_q),
+     $        byte_mb(k_t), delta, ivec, eplus)) goto 100
+         if (oprint_step) then
+            write(6,13) ivec, eplus
+ 13         format(' step ', i5,' energy ',f20.8)
+            call util_flush(6)
+         endif
+         if (.not. fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
+     $        dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
+     $        dbl_mb(k_grad), dbl_mb(k_q),
+     $        byte_mb(k_t),-delta, ivec, eminus)) goto 100
+         if (oprint_step) then
+            write(6,13) -ivec, eminus
+            call util_flush(6)
+         endif
+c
+         grad = (eplus - eminus) / (2.0d0*delta)
+         if (oprint_step) then
+            write(6,14) grad
+ 14         format('            gradient ',7x,f9.6)
+            call util_flush(6)
+         endif
+c
+c     logic should be here to diagnose too large/small energy change
+c
+         call daxpy(natoms3, grad, dbl_mb(k_vec+(ivec-1)*natoms3), 1,
+     $        dbl_mb(k_grad), 1)
+c
+      enddo
+c
+c     Symmetrize the gradient to get rid of symmetry breaking noise
+c
+      call sym_grad_symmetrize(geom, dbl_mb(k_grad))
+c     
+      if (oprint_info) then
+         write(6,*) ' Gradient '
+         call output(dbl_mb(k_grad), 1, 3, 1, natoms, 3, natoms, 1)
+         write(6,*)
+         call util_flush(6)
+      endif
+c
+c     store the gradient as if it was generated by the application
+c
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('task_num_grad: theory missing?',0)
+      key = ' '
+      write(key,'(a,'':gradient'')') theory(1:inp_strlen(theory))
+      if (.not. rtdb_put(rtdb, key, mt_dbl, natoms3, dbl_mb(k_grad)))
+     $     call errquit('task_num_grad: failed to store gradient',0)
+c
+c     restore the reference energy
+c
+      key = ' '
+      write(key,'(a,'':energy'')') theory(1:inp_strlen(theory))
+      if (.not. rtdb_put(rtdb, key, mt_dbl, 1, eref))
+     $     call errquit('task_num_grad: failed to store energy',0)
+c
+      task_num_grad = .true.
+c
+ 100  continue
+c
+c     Restore state and clean up
+c
+      if (osaved) then
+         if (.not. task_restore_state(rtdb,'numg'))
+     $        call errquit('task_num_grad: failed to restore state',0)
+         if (.not. task_delete_state(rtdb,'numg'))
+     $        call errquit('task_num_grad: failed to delete state',0)
+      endif
+c
+c     restore any indirection of the geometry and delete the reference
+c
+      if (name .ne. 'geometry') then
+         if (.not. rtdb_cput(rtdb,'geometry',1,name))
+     $        call errquit('task_num_grad: rtdb corrupt',0)
+      endif
+      if (.not. geom_rtdb_delete(rtdb, 'numg reference')) 
+     $     call errquit('task_num_grad: delete of ref geom failed',0)
+c
+      if (.not. ma_pop_stack(l_t))call errquit('tng: ma corrupt',0)
+      if (.not. ma_pop_stack(l_q))call errquit('tng: ma corrupt',0)
+      if (.not. ma_pop_stack(l_ncoord))call errquit('tng: ma corrupt',0)
+      if (.not. ma_pop_stack(l_coord)) call errquit('tng: ma corrupt',0)
+      if (.not. ma_pop_stack(l_grad)) call errquit('tng: ma corrupt',0)
+      if (.not. ma_pop_stack(l_vec)) call errquit('tng: ma corrupt',0)
+      if (.not. geom_destroy(geom)) call errquit('tng: geom corrupt',0)
+      call util_print_pop()
+c
+      end
+      logical function fd_step_energy(rtdb, geom, natoms, coords,
+     $     ncoords, vec, grad, q, tags, delta, ivec, energy)
+      implicit none
+#include "geom.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+      integer rtdb, geom
+      integer natoms
+      double precision coords(*),ncoords(*),vec(*), grad(*), q(*)
+      character*16 tags(*)
+      double precision delta
+      integer ivec
+      double precision energy   ! [output]
+c
+      integer i, natoms3
+      character*128 name
+      logical task_energy
+      external task_energy
+c
+      fd_step_energy = .false.
+      natoms3 = natoms*3
+c         
+      do i = 1, natoms3
+         ncoords(i) = coords(i) + delta*vec(i)
+      enddo
+      call sym_grad_symmetrize(geom, ncoords) ! Paranoid enforcement
+c
+      if (.not. geom_cart_set(geom, natoms, tags, ncoords, q))
+     $     call errquit('task_num_grad: bad geom',0)
+      name = ' '
+      write(name, '(a,i4)') 'numg geometry ',ivec
+      if (.not. geom_rtdb_store(rtdb, geom, name)) 
+     $     call errquit('task_num_grad: store of geom failed',0)
+      if (.not. rtdb_cput(rtdb, 'geometry', 1, name))
+     $     call errquit('task_num_grad: rtdb corrupt',0)
+c
+      call task_restore_state(rtdb,'numg')
+      fd_step_energy = task_energy(rtdb)
+c
+      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, energy))
+     $     call errquit('task_num_grad: no energy in database',0)
+      if (.not. geom_rtdb_delete(rtdb,name))
+     $     call errquit('task_num_grad: rtdb corrupt (geom) ',0)
+c
+      if (.not. rtdb_delete(rtdb,'geometry'))
+     $     call errquit('task_num_grad: rtdb corrupt',0)
+c
+      end
+      subroutine fd_make_vectors(geom, natoms, coords, temp, 
+     $     vectors, nvec, oprint)
+      implicit none
+      integer geom
+      integer natoms            ! [input]
+      double precision coords(3,natoms) ! [input]
+      double precision temp(3*natoms, 3*natoms) ! [scratch]
+      double precision vectors(3*natoms, 3*natoms) ! [output]
+      integer nvec              ! [output]
+      logical oprint            ! [input]
+c
+c     Make a set of orthnormal vectors that are
+c     1) totally symmetric
+c     2) orthogonal to rotations
+c     3) orthogonal to translations
+c
+c     Return the vectors and the number of vectors.
+c
+      integer natoms3, i3, i, j, k, info
+      integer maxat
+      parameter (maxat = 100)
+      double precision work(3*maxat,6), eval(maxat)
+      double precision centroid(3), x, y, z, xx, yy, zz, fx
+      double precision ddot
+      external ddot
+c
+      if (natoms.gt.maxat) call errquit('fd_make_vec: hard dim', natoms)
+      natoms3 = 3*natoms
+c
+c     Make linearly indep. vectors, project totally symmetric component
+c
+      call dfill(natoms3*natoms3,0.0d0,vectors, 1)
+      call dfill(natoms3,1.0d0,vectors,natoms3+1)
+      do i = 1, natoms3
+         call sym_grad_symmetrize(geom, vectors(1,i))
+      enddo
+c     
+c     Construct vectors corresponding to translations and rotations
+c
+      call dfill(3, 0.0d0, centroid, 1)
+      do i = 1, natoms
+         do k = 1, 3
+            centroid(k) = centroid(k) + coords(k,i)/natoms
+         enddo
+      enddo
+c
+      do k = 1, 3               ! x, y, z translations
+         call dfill(natoms3, 0.0d0, work(1,k), 1)
+         call dfill(natoms, sqrt(1.0d0/natoms), work(k,k), 3)
+      enddo
+      do k = 4, 6               ! x, y, z rotations
+         do i = 1, natoms
+            x = coords(1,i) - centroid(1)
+            y = coords(2,i) - centroid(2)
+            z = coords(3,i) - centroid(3)
+            if (k .eq. 4) then
+               xx = 0.0d0
+               yy = -z
+               zz =  y
+            else if (k .eq. 5) then
+               xx =  z
+               yy =  0.0d0
+               zz = -x
+            else if (k .eq. 6) then
+               xx = -y
+               yy =  x
+               zz =  0.0d0
+            endif
+            i3 = (i-1)*3
+            work(i3+1,k) = xx
+            work(i3+2,k) = yy
+            work(i3+3,k) = zz
+         enddo
+         do j = 1, k-1
+            fx = ddot(natoms3, work(1,j), 1, work(1,k), 1)
+            call daxpy(natoms3, -fx, work(1,j), 1, work(1,k), 1)
+         enddo
+         fx = sqrt(ddot(natoms3, work(1,k), 1, work(1,k), 1))
+         if (fx . gt. 1d-6) then
+            call dscal(natoms3, 1.0d0/fx, work(1,k), 1)
+         else
+            call dfill(natoms3, 0.0d0, work(1,k), 1)
+         endif
+      enddo
+c     
+      do k = 1, 6
+         call sym_grad_symmetrize(geom, work(1,k))
+         fx = sqrt(ddot(natoms3, work(1,k), 1, work(1,k), 1))
+         if (fx . gt. 1d-6) then
+            call dscal(natoms3, 1.0d0/fx, work(1,k), 1)
+         else
+            call dfill(natoms3, 0.0d0, work(1,k), 1)
+         endif
+      enddo
+c
+*      if (oprint) then
+*         write(6,*) ' symmetrized translation and rotation vectors'
+*         call output(work, 1, natoms3, 1, 6, 3*maxat, 6, 1)
+*         write(6,*)
+*      endif
+c
+c     Project trans/rotn from the symmetrized vectors
+c
+      do k = 1, 6
+         do i = 1, natoms3
+            fx = ddot(natoms3, work(1,k), 1, vectors(1,i), 1)
+            call daxpy(natoms3, -fx, work(1,k), 1, vectors(1,i), 1)
+         enddo
+      enddo
+c
+c     Get rid of the zero vectors and orthonormalize the rest
+c     by diagonalizing the metric
+c     
+      call dgemm('t','n',natoms3,natoms3,natoms3,1.0d0, 
+     $     vectors, natoms3, vectors, natoms3, 0.0d0, temp, natoms3)
+      call dsyev('v','u',natoms3,temp,natoms3,eval,work,600,info)
+      if (info .ne. 0) call errquit('fd_make_vectors: dsyev failed',0)
+*      write(6,*) ' Eigen values of the projected vectors metric '
+*      call output(eval, 1, natoms3, 1, 1, natoms3, 1, 1)
+c     
+c     There should be nvec unit eigen values with all else zero
+c     
+      nvec = 0
+      do i = 1, natoms3
+         if (eval(i) .gt. 1d-3) then
+            nvec = nvec + 1
+            call dcopy(natoms3,temp(1,i),1,vectors(1,nvec),1)
+            call dscal(natoms3,1.0d0/sqrt(eval(i)),vectors(1,nvec),1)
+         endif
+      enddo
+      if (oprint) then
+         write(6,*) ' Independent symmetric all-internal modes ',  nvec
+         call output(vectors, 1, natoms3, 1, nvec, natoms3, nvec, 1)
+         call util_flush(6)
+      endif
+c
+      end
+
+
+

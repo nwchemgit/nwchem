@@ -15,6 +15,8 @@ c
 c     RTDB input parameters
 c     ---------------------
 c     task:theory (string) - name of (QM) level of theory to use
+c     task:numerical (logical) - optional - if true use numerical 
+c         differentiation. If absent or false use default selection.
 c     
 c     RTDB output parameters
 c     ----------------------
@@ -26,19 +28,19 @@ c     task:walltime (real) - wall time to execute the task
 c
 c     Also returns status through the function value
 c
-c     If the method does not have analytic derivatives call the
-c     numerical derivative routine.
+c     If the method does not have analytic derivatives automatically call
+c     the numerical derivative routine.
 c
       logical  scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       external scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       logical semi_dir_mp2
       external semi_dir_mp2
 c
-      logical scf_gradient, grad_dft
-      external scf_gradient, grad_dft
+      logical scf_gradient, grad_dft, task_num_grad
+      external scf_gradient, grad_dft, task_num_grad
 c
       integer k_grad, l_grad, type, nelem
-      logical status
+      logical status, numerical
       double precision energy, cpu, wall
       character*80 theory, key
 c
@@ -51,6 +53,8 @@ c     Right now only have a QM component
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:gradient: theory not specified',0)
+      if (.not. rtdb_get(rtdb, 'task:numerical', mt_log, 1, 
+     $     numerical)) numerical = .false.
 c
 c     Set output parameters as if failed
 c
@@ -61,7 +65,9 @@ c
 c
 c     Actually do the deed
 c
-      if (theory .eq. 'scf') then
+      if (numerical) then
+         status = task_num_grad(rtdb)
+      else if (theory .eq. 'scf') then
          if (.not.rtdb_put(rtdb, 'scf:lagrangian',mt_log, 1, .true.))
      $        call errquit('task_gradient: rtdb is corrupt?',0)
          status = scf_gradient(rtdb)
