@@ -2,7 +2,7 @@
      $     g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b, scftype, nfrozen,
      $     title)
 *
-* $Id: mp2_make_nos.F,v 1.1 1997-05-20 17:46:15 d3g681 Exp $
+* $Id: mp2_make_nos.F,v 1.2 1997-05-30 19:10:11 d3g681 Exp $
 *
       implicit none
 #include "util.fh"
@@ -25,7 +25,7 @@ c     Make the MP2 natural orbitals
 c
       integer l_eval, k_eval, g_dens, g_nos(2), 
      $     g_work, g_vecs(2), g_p(2), no(2)
-      integer iset, i, nsets, ioff
+      integer iset, i, nsets, ioff, nmos(2)
       logical oprint
       logical movecs_write
       external movecs_write
@@ -40,6 +40,8 @@ c
       g_p(2)    = g_p_tot_b
       no(1)     = noa
       no(2)     = nob
+      nmos(1)   = nmo
+      nmos(2) = nmo
 c
       if(.not.ma_push_get(mt_dbl, 2*nbf,'mp2 nos', l_eval,k_eval))      
      $     call errquit('mp2_nos: allocating eval?', nbf)
@@ -138,11 +140,13 @@ c
 c
       enddo
 c
+      call ga_sync
+c
       call util_file_name('mp2nos',.false.,.false.,filename)
 c
       if (.not. movecs_write(rtdb, basis, filename, 
      $     'mp2', title,
-     $     nbf, nsets, nmo, dbl_mb(k_eval), nbf, 
+     $     nbf, nsets, nmos, dbl_mb(k_eval), nbf, 
      $     dbl_mb(k_eval), nbf, g_nos))
      $     call errquit('mp2_nos: failed writing nos',0)
 c
