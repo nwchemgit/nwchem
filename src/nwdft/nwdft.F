@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.41 1999-06-15 16:26:25 d3h449 Exp $
+C$Id: nwdft.F,v 1.42 1999-08-30 22:34:05 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -49,10 +49,13 @@ c
       call util_print_push
       call util_print_rtdb_load(rtdb, 'dft')
 #ifdef DFT_TIMER
-c     open timings file as unit 7 in the scratch directory
+c     open timings file as unit 7 in the perm directory
 c     only process 0 will write to it
-      call util_file_name('dftim',.true.,.false.,timings)
+      if(iproc.eq.0) then
+c      call util_file_name('dftim',.true.,.false.,timings)
+      call util_file_name('dftim',.false.,.false.,timings)
       open(7,file=timings,form='formatted',status='unknown',err=1010)
+      endif
 #endif
       oprint = util_print('information', print_low)
       if (oprint) then
