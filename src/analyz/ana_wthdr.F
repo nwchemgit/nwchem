@@ -1,6 +1,6 @@
       subroutine ana_wthdr(iunit,fmt,sgmnam,tag,isel)
 c
-c $Id: ana_wthdr.F,v 1.13 2000-07-28 02:57:06 d3j191 Exp $
+c $Id: ana_wthdr.F,v 1.14 2000-07-31 17:57:51 d3j191 Exp $
 c
       implicit none
 c
@@ -18,6 +18,9 @@ c
 c
       integer i,ib,j,jb,nsb,lq,nwb
       logical binary
+      character*4 dcdhdr
+      character*80 dcdtit(10)
+      integer icntrl(20)
 c
       character*1 cdummy
       character*2 elemnt
@@ -32,7 +35,7 @@ c
       return
       endif
 c
-      binary=fmt(1:1).eq.'b' 
+      binary=fmt(1:1).eq.'b'.or.fmt.eq.'dcd'
 c
       if(iunit.eq.lfncop) then
       fname=filcop
@@ -192,6 +195,23 @@ c
       close(unit=44)
       write(iunit,6007)
  6007 format('}')
+      endif
+c
+      if(fmt.eq.'dcd') then
+      dcdhdr='CORD'
+      do 21 i=1,20
+      icntrl(i)=0
+   21 continue
+c     number of frames
+      icntrl(1)=(ifrto-ifrfr+1)/ifrsk
+      icntrl(2)=1
+      icntrl(3)=1
+      write(iunit) dcdhdr,icntrl
+      dcdtit(1)='charmm dcd formatted trajectory file'
+      write(iunit) 1,dcdtit(1)
+      ldcd=.false.
+      write(*,8000) icntrl(1)
+ 8000 format(/,' Number of frames to be written to dcd is',i10)
       endif
 c
       endif

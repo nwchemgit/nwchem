@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,iwsel)
 c
-c $Id: ana_wtfram.F,v 1.24 2000-07-28 02:57:06 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.25 2000-07-31 17:57:50 d3j191 Exp $
 c
       implicit none
 c
@@ -158,6 +158,27 @@ c
       write(iunit) ((real(1.0d1*(x(i,j)+0.5d0*box(j))),j=1,3),i=1,nsa),
      + (real(1.0d1*box(j)),j=1,3)
       endif
+      endif
+c
+      if(fmt.eq.'dcd') then
+      if(.not.ldcd) then
+      if(lxw.and..not.lsonly) then
+      write(iunit) nsa+nwa*nwm
+      print*,'Number to dcd s+w is ',nsa+nwa*nwm
+      else
+      write(iunit) nsa
+      print*,'Number to dcd s is ',nsa
+      endif
+      ldcd=.true.
+      endif
+      do 72 k=1,3
+      if(lxw.and..not.lsonly) then
+      write(iunit) (1.0d1*(x(i,k)+0.5d0*box(k)),i=1,nsa),
+     + ((1.0d1*(w(i,j,k)+0.5d0*box(k)),j=1,nwa),i=1,nwm)
+      else
+      write(iunit) (1.0d1*(x(i,k)+0.5d0*box(k)),i=1,nsa)
+      endif
+   72 continue
       endif
 c
       if(fmt.eq.'eci') then
