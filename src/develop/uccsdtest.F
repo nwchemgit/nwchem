@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.3 2000-03-29 23:36:55 d3g681 Exp $
+*     $Id: uccsdtest.F,v 1.4 2000-03-30 00:36:22 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -2112,11 +2112,8 @@ c
       double precision ints(*)
 c
       logical oflip_ab, oflip_ek
-      double precision g
-      integer base,a,b,e,k,spine,syme, ind
+      integer base,spine,syme
       integer alo, ahi, blo, bhi, klo, khi, elo, ehi
-      g(e,k,a,b) = dbl_mb(base + 
-     $     e-1 + nmo*(k-1 + nmo*(a-1 + nmo*(b-1))))
 c
 c     Returns <ek||ab> for orbitals in the specified triples blocks and for given
 c     spins of each block.  The integrals will be in the array
@@ -2152,38 +2149,309 @@ c
       elo = v_sym(1,syme,spine)
       ehi = v_sym(2,syme,spine)
 c
+      call uccsdt_copy_int_block
+     $     (ints,dbl_mb(base),nmo,nmo,nmo,
+     $     elo,ehi,klo,khi,alo,ahi,blo,bhi,
+     $     oflip_ek,oflip_ab,.false.)
+c
+      end
+      subroutine uccsdt_get_2x(iblock, jblock, ablock, bblock, 
+     $     spini, spinj, spina, spinb, ints)
+      implicit none
+#include "mafdecls.fh"
+#include "cuccsdtP.fh"
+      integer iblock, jblock, ablock, bblock, spini, spinj, spina, spinb
+      double precision ints(*)
+c
+      logical oflip_ab, oflip_ij
+      integer base
+      integer alo, ahi, blo, bhi, ilo, ihi, jlo, jhi
+c
+c     Returns <ij||ab> for orbitals in the specified triples blocks and for given
+c     spins of each block.  The integrals will be in the array
+c     I(dim(iblock),dim(jblock),dim(ablock),dim(bblock)).  
+c
+c     Mixed spin integrals will get one of <ij|ab> or -<ij|ba>.  
+c
+      oflip_ab = .false.
+      oflip_ij = .false.
+      if (spini*spinj*spina*spinb .eq. 1) then ! <ij||ab> pure alpha
+         base = k_moints_aa
+      else if (spini*spinj*spina*spinb .eq. 16) then ! <ij||ab> pure beta
+         base = k_moints_bb
+      else
+         base = k_moints_ab
+         oflip_ij = spinj.eq.1
+         oflip_ab = spinb.eq.1
+      endif
+c
+      alo = vblock(1,ablock,spina)
+      ahi = vblock(2,ablock,spina)
+      blo = vblock(1,bblock,spinb)
+      bhi = vblock(2,bblock,spinb)
+      ilo = oblock(1,iblock,spini)
+      ihi = oblock(2,iblock,spini)
+      jlo = oblock(1,jblock,spinj)
+      jhi = oblock(2,jblock,spinj)
+c
+      call uccsdt_copy_int_block
+     $     (ints,dbl_mb(base),nmo,nmo,nmo,
+     $     ilo,ihi,jlo,jhi,alo,ahi,blo,bhi,
+     $     oflip_ij,oflip_ab,.false.)
+c
+      end
+      subroutine uccsdt_get_1x(cblock, iblock, jblock, 
+     $     spinc, spini, spinj, ints)
+      implicit none
+#include "mafdecls.fh"
+#include "cuccsdtP.fh"
+      integer cblock, iblock, jblock, spinc, spini, spinj
+      double precision ints(*)
+c
+      logical oflip_ij, oflip_mc
+      integer base,spinm,symm
+      integer ilo, ihi, jlo, jhi, clo, chi, mlo, mhi
+c
+c     Returns <mc||ij> for orbitals in the specified triples blocks and for given
+c     spins of each block.  The integrals will be in the array
+c     I(no_sym(msym,spin1),dim(cblock),dim(iblock),dim(jblock)).
+c
+c     Mixed spin integrals will get one of <mc|ij> or -<mc|ji>.  
+c
+      oflip_ij = .false.
+      oflip_mc = .false.
+      if (spinc*spini*spinj .eq. 1) then ! <mc||ij> pure alpha
+         base = k_moints_aa
+         spinm = 1
+      else if (spinc*spini*spinj .eq. 8) then ! <mc||ij> pure beta
+         base = k_moints_bb
+         spinm = 2
+      else
+         base = k_moints_ab
+         oflip_mc = spinc.eq.1
+         oflip_ij = spinj.eq.1
+         spinm = 1
+         if (spinc.eq.1) spinm = 2
+      endif
+c
+      symm = ieor(vblock_sym(cblock,spinc),
+     $     ieor(oblock_sym(iblock,spini),oblock_sym(jblock,spinj)))
+c
+      ilo = oblock(1,iblock,spini)
+      ihi = oblock(2,iblock,spini)
+      jlo = oblock(1,jblock,spinj)
+      jhi = oblock(2,jblock,spinj)
+      clo = vblock(1,cblock,spinc)
+      chi = vblock(2,cblock,spinc)
+      mlo = o_sym(1,symm,spinm)
+      mhi = o_sym(2,symm,spinm)
+c
+      call uccsdt_copy_int_block
+     $     (ints,dbl_mb(base),nmo,nmo,nmo,
+     $     mlo,mhi,clo,chi,ilo,ihi,jlo,jhi,
+     $     oflip_mc,oflip_ij,.false.)
+c
+      end
+      subroutine uccsdt_copy_int_block
+     $     (ints,g,dim1,dim2,dim3,
+     $     elo,ehi,klo,khi,alo,ahi,blo,bhi,
+     $     oflip_ek,oflip_ab,oflip_ek_ab)
+      implicit none
+      integer dim1, dim2, dim3
+      double precision g(dim1,dim2,dim3,*)
+      integer elo,ehi,klo,khi,alo,ahi,blo,bhi
+      logical oflip_ab,oflip_ek,oflip_ek_ab
+      double precision ints(*)
+c
+      integer e,k,a,b,ind
+c
       ind = 0
       do b = blo, bhi
          do a = alo, ahi
             do k = klo, khi
-               if (oflip_ek) then
-                  if (oflip_ab) then
-                     do e = elo, ehi
-                        ind = ind + 1
-                        ints(ind) = g(k,e,b,a)
-                     end do
+               if (oflip_ek_ab) then
+                  if (oflip_ek) then
+                     if (oflip_ab) then
+                        do e = elo, ehi
+                           ind = ind + 1
+                           ints(ind) = g(b,a,k,e)
+                        end do
+                     else
+                        do e = elo, ehi
+                           ind = ind + 1
+                           ints(ind) = -g(a,b,k,e)
+                        end do
+                     end if
                   else
-                     do e = elo, ehi
-                        ind = ind + 1
-                        ints(ind) = -g(k,e,a,b)
-                     end do
+                     if (oflip_ab) then
+                        do e = elo, ehi
+                           ind = ind + 1
+                           ints(ind) = -g(b,a,e,k)
+                        end do
+                     else
+                        do e = elo, ehi
+                           ind = ind + 1
+                           ints(ind) = g(a,b,e,k)
+                        end do
+                     end if
                   end if
                else
-                  if (oflip_ab) then
-                     do e = elo, ehi
-                        ind = ind + 1
-                        ints(ind) = -g(e,k,b,a)
-                     end do
+                  if (oflip_ek) then
+                     if (oflip_ab) then
+                        do e = elo, ehi
+                           ind = ind + 1
+                           ints(ind) = g(k,e,b,a)
+                        end do
+                     else
+                        do e = elo, ehi
+                           ind = ind + 1
+                           ints(ind) = -g(k,e,a,b)
+                        end do
+                     end if
                   else
-                     do e = elo, ehi
-                        ind = ind + 1
-                        ints(ind) = g(e,k,a,b)
-                     end do
+                     if (oflip_ab) then
+                        do e = elo, ehi
+                           ind = ind + 1
+                           ints(ind) = -g(e,k,b,a)
+                        end do
+                     else
+                        do e = elo, ehi
+                           ind = ind + 1
+                           ints(ind) = g(e,k,a,b)
+                        end do
+                     end if
                   end if
                end if
             end do
          end do
       end do
+c
+      end
+      subroutine uccsdt_get_t3x(cblock, iblock, jblock, 
+     $     spinc, spini, spinj, T)
+      implicit none
+#include "mafdecls.fh"
+#include "cuccsdtP.fh"
+      integer cblock, iblock, jblock, spinc, spini, spinj
+      double precision T(*)
+c
+c     Returns T(e,c,i,j) with orbitals i & e corresponding to electon 1.
+c
+c     T(nv_sym(esym,spin1),dim(cblock),dim(iblock),dim(jblock))
+c
+      logical oflip_ij, oflip_ec
+      integer base,spine,syme
+      integer ilo, ihi, jlo, jhi, clo, chi, elo, ehi
+      integer dim1, dim2, dim3
+c
+c     Returns <mc||ij> for orbitals in the specified triples blocks and for given
+c     spins of each block.  The integrals will be in the array
+c     I(no_sym(msym,spin1),dim(cblock),dim(iblock),dim(jblock)).
+c
+c     Mixed spin integrals will get one of <mc|ij> or -<mc|ji>.  
+c
+      oflip_ij = .false.
+      oflip_ec = .false.
+      if (spinc*spini*spinj .eq. 1) then ! <ec||ij> pure alpha
+         base = k_taa
+         spine = 1
+         dim1 = nv(1)
+         dim2 = nv(1)
+         dim3 = no(1)
+      else if (spinc*spini*spinj .eq. 8) then ! <ec||ij> pure beta
+         base = k_tbb
+         spine = 2
+         dim1 = nv(2)
+         dim2 = nv(2)
+         dim3 = no(2)
+      else
+         base = k_tab
+         oflip_ec = spinc.eq.1
+         oflip_ij = spinj.eq.1
+         spine = 1
+         if (spinc.eq.1) spine = 2
+         dim1 = nv(1)
+         dim2 = nv(2)
+         dim3 = no(1)
+      endif
+c
+      syme = ieor(vblock_sym(cblock,spinc),
+     $     ieor(oblock_sym(iblock,spini),oblock_sym(jblock,spinj)))
+c
+      ilo = oblock(1,iblock,spini)
+      ihi = oblock(2,iblock,spini)
+      jlo = oblock(1,jblock,spinj)
+      jhi = oblock(2,jblock,spinj)
+      clo = vblock(1,cblock,spinc) - no(spinc)
+      chi = vblock(2,cblock,spinc) - no(spinc)
+      elo = v_sym(1,syme,spine)    - no(spine)
+      ehi = v_sym(2,syme,spine)    - no(spine)
+c
+      call uccsdt_copy_int_block
+     $     (T,dbl_mb(base),dim1,dim2,dim3,
+     $     elo,ehi,clo,chi,ilo,ihi,jlo,jhi,
+     $     oflip_ec,oflip_ij)
+c
+      end
+      subroutine uccsdt_get_t1x(kblock, ablock, bblock, 
+     $     spink, spina, spinb, T)
+      implicit none
+#include "mafdecls.fh"
+#include "cuccsdtP.fh"
+      integer kblock, ablock, bblock, spink, spina, spinb
+      double precision T(*)
+c
+      logical oflip_ab, oflip_mk
+      integer base,spinm,symm,dim1,dim2,dim3
+      integer alo, ahi, blo, bhi, klo, khi, mlo, mhi
+c
+c     Returns <mk||ab> for orbitals in the specified triples blocks and for given
+c     spins of each block.  The integrals will be in the array
+c     I(nv_sym(esym),dim(kblock),dim(ablock),dim(bblock)).  
+c
+c     Mixed spin integrals will get one of <mk|ab> or -<mk|ba>.  
+c
+      oflip_ab = .false.
+      oflip_mk = .false.
+      if (spink*spina*spinb .eq. 1) then ! <mk||ab> pure alpha
+         base = k_taa
+         spinm = 1
+         dim1 = nv(1)
+         dim2 = nv(1)
+         dim3 = no(1)
+      else if (spink*spina*spinb .eq. 8) then ! <mk||ab> pure beta
+         base = k_tbb
+         spinm = 2
+         dim1 = nv(2)
+         dim2 = nv(2)
+         dim3 = no(2)
+      else
+         base = k_tab
+         oflip_mk = spink.eq.1
+         oflip_ab = spinb.eq.1
+         spinm = 1
+         if (spink.eq.1) spinm = 2
+         dim1 = nv(1)
+         dim2 = nv(2)
+         dim3 = no(1)
+      endif
+c
+      symm = ieor(oblock_sym(kblock,spink),
+     $     ieor(vblock_sym(ablock,spina),vblock_sym(bblock,spinb)))
+c
+      alo = vblock(1,ablock,spina)
+      ahi = vblock(2,ablock,spina)
+      blo = vblock(1,bblock,spinb)
+      bhi = vblock(2,bblock,spinb)
+      klo = oblock(1,kblock,spink)
+      khi = oblock(2,kblock,spink)
+      mlo = o_sym(1,symm,spinm)
+      mhi = o_sym(2,symm,spinm)
+c
+      call uccsdt_copy_int_block
+     $     (T,dbl_mb(base),dim1,dim2,dim3,
+     $     mlo,mhi,klo,khi,alo,ahi,blo,bhi,
+     $     oflip_mk,oflip_ab,.true.)
 c
       end
       subroutine util_iswap2(i,j)
