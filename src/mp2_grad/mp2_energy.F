@@ -420,7 +420,7 @@ c$$$     $        g_vecs_a,g_vecs_b)
 c...
 c...call to Herbert's stuff
 c... 
-      call grad_force(rtdb,basis,geom)
+      call grad_force(rtdb,basis,geom,movecs)
 c     
       if(ga_nodeid().eq.0)write(6,*) 'MP2 Correction = ',e2
 c
