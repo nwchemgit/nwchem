@@ -1,5 +1,5 @@
       subroutine bas_create_uncont(basis_in,name,basis_out)
-c $Id: bas_create_uncont.F,v 1.2 1999-11-24 23:08:03 bert Exp $
+c $Id: bas_create_uncont.F,v 1.3 1999-12-01 00:34:10 d3j191 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "mafdecls.fh"
@@ -41,7 +41,7 @@ c
       integer ipr_mx                 ! Maximum # of primitives in basis
       integer usegeom, usertdb       ! Handles to geometry and rtdb basis_in
       integer nuniqatom, iuniqcent   ! # of unique atoms
-      integer nshell, nprim
+      integer nshell
       integer iatom, ishell, iprim
       integer ifirst, ilast, icont
       integer cartsph, l_type
