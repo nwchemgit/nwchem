@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.15 1997-04-30 15:33:52 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.16 1997-05-01 15:45:37 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -419,7 +419,7 @@ c
       maxg = maxg*max_nbf_ket*max_nbf_ket
       maxg = maxg*12
       memsize = max(memsize,maxg)
-      factor = 1.25d00
+      factor = 1.50d00
       memsize = int(dble(memsize)*factor)
       maxg    = int(dble(maxg)*factor)
 c
