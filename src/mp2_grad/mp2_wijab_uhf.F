@@ -8,7 +8,7 @@
      $     eval_a,eval_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b)
 *
-* $Id: mp2_wijab_uhf.F,v 1.12 1997-03-27 08:50:25 d3e129 Exp $
+* $Id: mp2_wijab_uhf.F,v 1.13 1997-04-23 01:12:48 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -172,9 +172,11 @@ c
       call ga_sync()
       if(ga_nodeid().eq.0)then
          call util_inplace_transpose(noa, dbl_mb(k_w_ij_a))
-         call ga_acc(g_w_ij_a,1,noa,1,noa,dbl_mb(k_w_ij_a),noa,one)
+         call ga_acc(g_w_ij_a,noa_lo,noa_hi,noa_lo,noa_hi,
+     $        dbl_mb(k_w_ij_a),noa,one)
          call util_inplace_transpose(nob, dbl_mb(k_w_ij_b))
-         call ga_acc(g_w_ij_b,1,nob,1,nob,dbl_mb(k_w_ij_b),nob,one)
+         call ga_acc(g_w_ij_b,nob_lo,nob_hi,nob_lo,nob_hi,
+     $        dbl_mb(k_w_ij_b),nob,one)
          call util_inplace_transpose(nva, dbl_mb(k_w_ab_a))
          call ga_acc(g_w_ab_a,1,nva,1,nva,dbl_mb(k_w_ab_a),nva,one)
          call util_inplace_transpose(nvb, dbl_mb(k_w_ab_b))

@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.38 1997-04-11 00:34:19 d3g681 Exp $
+* $Id: mp2_energy.F,v 1.39 1997-04-23 01:12:42 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -68,6 +68,7 @@ c
       logical status,oblk
       integer g_p_ab_a,g_p_ab_b,g_p_ij_a,g_p_ij_b,g_lai_a,g_lai_b
       integer g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,g_w_ai_a,g_w_ai_b
+      integer g_liy_a, g_liy_b
 c     
       integer g_rhs, g_vecs_swap(2)
       integer grad_length
@@ -278,12 +279,12 @@ c
 c     Also reorder the evals
 c     
       call dcopy(nbf,dbl_mb(k_eval_a),1,dbl_mb(k_work),1)
-      do i=noa_lo,nva_hi
+      do i=1,nva_hi
          dbl_mb(k_eval_a-1+int_mb(k_map_a+i-1))=dbl_mb(k_work+i-1)
       end do
 c     
       call dcopy(nmo,dbl_mb(k_eval_b),1,dbl_mb(k_work),1)
-      do i=nob_lo,nvb_hi
+      do i=1,nvb_hi
          dbl_mb(k_eval_b-1+int_mb(k_map_b+i-1))=dbl_mb(k_work+i-1)
       end do
 c
@@ -355,6 +356,7 @@ c
          if(.not.ga_create(mt_dbl,nvb,nvb,'g_w_ab_b',
      $        nvb,1,g_w_ab_b))call errquit(
      $        'could not alloc g_w_ab_b',1)
+c
          if(.not.ga_create(mt_dbl,noa,nva,'lai_a',noa,1,g_lai_a))
      $        call errquit('could not alloc ga for lai_a',1)
          if(.not.ga_create(mt_dbl,nob,nvb,'lai_b',nob,1,g_lai_b))
@@ -363,6 +365,18 @@ c
      $        call errquit('could not alloc ga for wai_a',1)
          if(.not.ga_create(mt_dbl,nob,nvb,'wai_b',nob,1,g_w_ai_b))
      $        call errquit('could not alloc ga for wai_b',1)
+c
+         if (noa_frozen .gt. 0) then
+            if(.not.ga_create(mt_dbl,noa-noa_frozen,noa_frozen,'lyi_a',
+     $           1,1,g_liy_a))
+     $           call errquit('could not alloc ga for lyi_a',1)
+            if(.not.ga_create(mt_dbl,nob-nob_frozen,nob_frozen,'lyi_b',
+     $           1,1,g_liy_b))
+     $           call errquit('could not alloc ga for lyi_b',1)
+c
+            call ga_zero(g_liy_a)
+            call ga_zero(g_liy_b)
+         endif
 c     
          call ga_zero(g_p_ij_a)
          call ga_zero(g_p_ab_a)
@@ -383,10 +397,15 @@ c
      $     int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
      $     num_oa_sym,num_va_sym,g_vecs_b,nob_lo,nob_hi,nvb_lo,
      $     nvb_hi,int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,
-     $     sym_hi_vb,num_ob_sym,num_vb_sym,dbl_mb(k_eval_a),
+     $     sym_hi_vb,num_ob_sym,num_vb_sym,
+
+     $     sym_lo_foa,sym_hi_foa,num_foa_sym,
+     $     sym_lo_fob,sym_hi_fob,num_fob_sym,
+
+     $     dbl_mb(k_eval_a),
      $     dbl_mb(k_eval_b),basis,geom,tol2e,e2,nbf,nmo,task,
      $     pass,oblk,oskel,
-     $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
+     $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,g_liy_a,g_liy_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $     g_w_ai_a,g_w_ai_b,g_lai_a,g_lai_b,
      $     dbl_mb(k_grad),scftype)
@@ -397,10 +416,15 @@ c
      $        sym_hi_ob,sym_lo_vb,sym_hi_vb,num_ob_sym,
      $        num_vb_sym,g_vecs_a,noa_lo,noa_hi,nva_lo,
      $        nva_hi,int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,
-     $        sym_hi_va,num_oa_sym,num_va_sym,dbl_mb(k_eval_b),
+     $        sym_hi_va,num_oa_sym,num_va_sym,
+
+     $        sym_lo_fob,sym_hi_fob,num_fob_sym,
+     $        sym_lo_foa,sym_hi_foa,num_foa_sym,
+
+     $        dbl_mb(k_eval_b),
      $        dbl_mb(k_eval_a),basis,geom,tol2e,e2,nbf,nmo,task,
      $        pass,oblk,oskel,
-     $        g_p_ij_b,g_p_ij_a,g_p_ab_b,g_p_ab_a,
+     $        g_p_ij_b,g_p_ij_a,g_p_ab_b,g_p_ab_a,g_liy_b,g_liy_a,
      $        g_w_ij_b,g_w_ij_a,g_w_ab_b,g_w_ab_a,
      $        g_w_ai_b,g_w_ai_a,g_lai_b,g_lai_a,
      $        dbl_mb(k_grad),scftype)
@@ -426,6 +450,10 @@ c
             call ga_copy(g_w_ai_a, g_w_ai_b)
             call ga_dadd(1.0d0, g_lai_a, 1.0d0, g_lai_b, g_lai_a)
             call ga_copy(g_lai_a, g_lai_b)
+            if (noa_frozen .gt. 0) then
+               call ga_dadd(1.0d0, g_liy_a, 1.0d0, g_liy_b, g_liy_a)
+               call ga_copy(g_liy_a, g_liy_b)
+            endif
          end if
       end if
 c     
@@ -448,39 +476,57 @@ c
       if(.not. rtdb_put(rtdb,'mp2:energy',mt_dbl,1,e_total))
      $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0)
 c     
-      if (omatrix) then
-         call ga_print(g_p_ab_a)
-         call ga_print(g_p_ij_a)
-         call ga_print(g_w_ab_a)
-         call ga_print(g_w_ij_a)
-         call ga_print(g_w_ai_a)
-         call ga_print(g_lai_a)
-         call ga_print(g_p_ab_b)
-         call ga_print(g_p_ij_b)
-         call ga_print(g_w_ab_b)
-         call ga_print(g_w_ij_b)
-         call ga_print(g_w_ai_b)
-         call ga_print(g_lai_b)
-      end if
-      if (otrace) then
-         call mp2_print_trace_norm(g_w_ij_a,'w_ij_a',noa)
-         call mp2_print_trace_norm(g_w_ab_a,'w_ab_a',nva)
-         call mp2_print_trace_norm(g_w_ij_b,'w_ij_b',nob)
-         call mp2_print_trace_norm(g_w_ab_b,'w_ab_b',nvb)
-         norm = sqrt(ga_ddot(g_lai_a,g_lai_a))
-         if (ga_nodeid().eq.0) write(6,771) 'Norm of lai_a', norm
-         norm = sqrt(ga_ddot(g_lai_b,g_lai_b))
-         if (ga_nodeid().eq.0) write(6,771) 'Norm of lai_b', norm
-         norm = sqrt(ga_ddot(g_w_ai_a,g_w_ai_a))
-         if (ga_nodeid().eq.0) write(6,771) 'Norm of w_ai_a', norm
-         norm = sqrt(ga_ddot(g_w_ai_b,g_w_ai_b))
-         if (ga_nodeid().eq.0) write(6,771) 'Norm of w_ai_b', norm
- 771     format(1x,a,1x,f20.12)
-         if (ga_nodeid().eq.0) call util_flush(6)
-      end if
-      call ga_sync()
-c     
       if(task.eq.'gradient') then
+         if (omatrix) then
+            call ga_print(g_p_ab_a)
+            call ga_print(g_p_ij_a)
+            call ga_print(g_w_ab_a)
+            call ga_print(g_w_ij_a)
+            call ga_print(g_w_ai_a)
+            call ga_print(g_lai_a)
+            if (noa_frozen .gt. 0) call ga_print(g_liy_a)
+            call ga_print(g_p_ab_b)
+            call ga_print(g_p_ij_b)
+            call ga_print(g_w_ab_b)
+            call ga_print(g_w_ij_b)
+            call ga_print(g_w_ai_b)
+            call ga_print(g_lai_b)
+            if (nob_frozen .gt. 0) call ga_print(g_liy_b)
+         end if
+         if (otrace) then
+            call mp2_print_trace_norm(g_w_ij_a,'w_ij_a',noa)
+            call mp2_print_trace_norm(g_w_ab_a,'w_ab_a',nva)
+            call mp2_print_trace_norm(g_w_ij_b,'w_ij_b',nob)
+            call mp2_print_trace_norm(g_w_ab_b,'w_ab_b',nvb)
+            norm = sqrt(ga_ddot(g_lai_a,g_lai_a))
+            if (ga_nodeid().eq.0) write(6,771) 'Norm of lai_a', norm
+            norm = sqrt(ga_ddot(g_lai_b,g_lai_b))
+            if (ga_nodeid().eq.0) write(6,771) 'Norm of lai_b', norm
+            norm = sqrt(ga_ddot(g_w_ai_a,g_w_ai_a))
+            if (ga_nodeid().eq.0) write(6,771) 'Norm of w_ai_a', norm
+            norm = sqrt(ga_ddot(g_w_ai_b,g_w_ai_b))
+            if (ga_nodeid().eq.0) write(6,771) 'Norm of w_ai_b', norm
+ 771        format(1x,a,1x,f20.12)
+            if (ga_nodeid().eq.0) call util_flush(6)
+         end if
+         call ga_sync()
+c     
+         if (noa_frozen .gt. 0) then
+            call mp2_make_piy(noa_lo, noa_hi, g_p_ij_a, g_liy_a, 
+     $           dbl_mb(k_eval_a))
+            call mp2_make_piy(nob_lo, nob_hi, g_p_ij_b, g_liy_b, 
+     $           dbl_mb(k_eval_b))
+            call mp2_make_wiy(noa_lo, noa_hi, g_w_ij_a, g_liy_a, 
+     $           dbl_mb(k_eval_a))
+            call mp2_make_wiy(nob_lo, nob_hi, g_w_ij_b, g_liy_b, 
+     $           dbl_mb(k_eval_b))
+            if (omatrix) then
+               call ga_print(g_p_ij_a)
+               call ga_print(g_p_ij_b)
+               call ga_print(g_w_ij_a)
+               call ga_print(g_w_ij_b)
+            endif
+         endif
          call pstat_on(ps_laifock)
          call mp2_lai_fock_uhf(geom,basis,
      $        g_p_ab_a,g_p_ab_b,g_p_ij_a,g_p_ij_b,g_vecs_a,g_vecs_b,
@@ -521,7 +567,7 @@ c
          if(.not.cphf(rtdb))call errquit('could not do cphf',1)
          call pstat_off(ps_cphf)
 c     
-c...  the g_rhs now holds the solution         
+c...  the g_rhs will now hold the solution         
 c     
          call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
          if(.not.file_read_ga(cphf_sol,g_rhs))
@@ -580,7 +626,8 @@ c
      $        'mp2_energy: ga_create failed',0)
          call mp2_make_tot_wdens(g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $        g_w_ai_a,g_w_ai_b,g_w_tot_a,g_w_tot_b,
-     $        noa,nva,nob,nvb,nbf,nmo,g_vecs_a,g_vecs_b,
+     $        noa_lo,noa_hi,nva,nob_lo,nob_hi,
+     $        nvb,nbf,nmo,g_vecs_a,g_vecs_b,
      $        dbl_mb(k_eval_a),dbl_mb(k_eval_b),
      $        g_p_tot_a,g_p_tot_b)
 c     
@@ -606,13 +653,13 @@ c
      $           'semi_dir_mp2:failed to store gradient in rtdb',0)
             status=rtdb_parallel(.true.)
          end if
-c...  
-c...  call to Herbert's stuff
-c...  
-         call pstat_on(ps_sep)
-         call grad_force(rtdb,basis,geom) 
-         call pstat_off(ps_sep)
-c     
+c
+         if (noa_frozen .gt. 0) then
+            if (.not. ga_destroy(g_liy_a)) call errquit(
+     $           'could not destroy Liy a',0)
+            if (.not. ga_destroy(g_liy_b)) call errquit(
+     $           'could not destroy Liy b',0)
+         endif
          if(.not.ga_destroy(g_rhs))call errquit(
      $        'could not destroy g_rhs',1)
          if(.not.ga_destroy(g_p_ij_a))call errquit(
@@ -655,6 +702,29 @@ c
      $     'could not destroy g_vecs_a',1)
       if(.not.ga_destroy(g_vecs_b))
      $     call errquit('could not destroy g_vecs_b',1)
+c...  
+c...  call to Herbert's stuff to do the separable peice
+c...  
+      if (task .eq. 'gradient') then
+         call pstat_on(ps_sep)
+         call grad_force(rtdb,basis,geom) 
+         call pstat_off(ps_sep)
+c
+c     Clean up the files (CPHF RHS and solution, densities)
+c
+         call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+         if (ga_nodeid() .eq. 0) call util_file_unlink(cphf_sol)
+         call util_file_name('cphf_rhs',.true.,.true.,cphf_sol)
+         if (ga_nodeid() .eq. 0) call util_file_unlink(cphf_sol)
+         call util_file_name('p_a_ao',.true.,.true.,cphf_sol)
+         if (ga_nodeid() .eq. 0) call util_file_unlink(cphf_sol)
+         call util_file_name('p_b_ao',.true.,.true.,cphf_sol)
+         if (ga_nodeid() .eq. 0) call util_file_unlink(cphf_sol)
+         call util_file_name('w_a_ao',.true.,.true.,cphf_sol)
+         if (ga_nodeid() .eq. 0) call util_file_unlink(cphf_sol)
+         call util_file_name('w_b_ao',.true.,.true.,cphf_sol)
+         if (ga_nodeid() .eq. 0) call util_file_unlink(cphf_sol)
+      endif
 c     
       call ga_sync
 c     

@@ -1,6 +1,6 @@
       logical function semi_dir_mp2(rtdb)
 *
-* $Id: mp2_grad.F,v 1.19 1997-04-10 02:05:10 d3g681 Exp $
+* $Id: mp2_grad.F,v 1.20 1997-04-23 01:12:43 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -49,6 +49,7 @@ c
 c
       if(.not.rtdb_cget(rtdb,'sdmp2:task',1,task)) call errquit
      $     ('could not determine task for semi-direct mp2',1)
+      status = rtdb_delete(rtdb,'sdmp2:task')
 c      
       if(.not.rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '

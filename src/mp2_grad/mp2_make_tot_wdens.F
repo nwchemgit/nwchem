@@ -1,14 +1,15 @@
       subroutine mp2_make_tot_wdens(g_w_ij_a,g_w_ij_b,g_w_ab_a,
      $     g_w_ab_b,g_w_ai_a,g_w_ai_b,g_w_tot_a,g_w_tot_b,
-     $     noa,nva,nob,nvb,nbf,nmo,g_vecs_a,g_vecs_b,
+     $     noa_lo, noa_hi,nva,nob_lo,nob_hi,
+     $     nvb,nbf,nmo,g_vecs_a,g_vecs_b,
      $     evals_a, evals_b, g_p_tot_a, g_p_tot_b)
 *
-* $Id: mp2_make_tot_wdens.F,v 1.5 1997-03-27 08:50:03 d3e129 Exp $
+* $Id: mp2_make_tot_wdens.F,v 1.6 1997-04-23 01:12:46 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
-      integer nbf,noa,nva,nob,nvb, nmo
+      integer nbf,noa_hi,nva,nob_hi,nvb, nmo, noa_lo, nob_lo
       integer g_vecs_a,g_vecs_b
       integer g_w_ij_a,g_w_ij_b
       integer g_w_ab_a,g_w_ab_b
@@ -30,34 +31,34 @@ c
       one=1.0d0
       zero=0.0d0
       two=2.0d0
-      if(.not.ga_create(mt_dbl,nva,noa,'wai_a_tr',nva,1,
+      if(.not.ga_create(mt_dbl,nva,noa_hi,'wai_a_tr',nva,1,
      $     g_w_ai_a_tr))call errquit(
      $     'could not alloc wai_a_tr',1)
-      if(.not.ga_create(mt_dbl,nvb,nob,'wai_b_tr',nvb,1,
+      if(.not.ga_create(mt_dbl,nvb,nob_hi,'wai_b_tr',nvb,1,
      $     g_w_ai_b_tr))call errquit(
      $     'could not alloc wai_b_tr',1)
 c     
       call ga_zero(g_w_tot_a)
       call ga_zero(g_w_tot_b)
-      call ga_copy_patch('n',g_w_ai_a,1,noa,1,nva,g_w_tot_a,
-     $     1, noa, noa+1, nmo)
+      call ga_copy_patch('n',g_w_ai_a,1,noa_hi,1,nva,g_w_tot_a,
+     $     1, noa_hi, noa_hi+1, nmo)
 c     
       call ga_transpose(g_w_ai_a,g_w_ai_a_tr)
-      call ga_copy_patch('n',g_w_ai_a_tr,1,nva,1,noa,g_w_tot_a,
-     $     noa+1,nmo,1,noa)
-      call ga_copy_patch('n',g_w_ij_a,1,noa,1,noa,g_w_tot_a,
-     $     1,noa,1,noa)
+      call ga_copy_patch('n',g_w_ai_a_tr,1,nva,1,noa_hi,g_w_tot_a,
+     $     noa_hi+1,nmo,1,noa_hi)
+      call ga_copy_patch('n',g_w_ij_a,1,noa_hi,1,noa_hi,g_w_tot_a,
+     $     1,noa_hi,1,noa_hi)
       call ga_copy_patch('n',g_w_ab_a,1,nva,1,nva,g_w_tot_a,
-     $     noa+1,nmo,noa+1,nmo)
-      call ga_copy_patch('n',g_w_ai_b,1,nob,1,nvb,g_w_tot_b,
-     $     1, nob, nob+1,nmo)
+     $     noa_hi+1,nmo,noa_hi+1,nmo)
+      call ga_copy_patch('n',g_w_ai_b,1,nob_hi,1,nvb,g_w_tot_b,
+     $     1, nob_hi, nob_hi+1,nmo)
       call ga_transpose(g_w_ai_b,g_w_ai_b_tr)
-      call ga_copy_patch('n',g_w_ai_b_tr,1,nvb,1,nob,g_w_tot_b,
-     $     nob+1,nmo,1,nob)
-      call ga_copy_patch('n',g_w_ij_b,1,nob,1,nob,g_w_tot_b,
-     $     1,nob,1,nob)
+      call ga_copy_patch('n',g_w_ai_b_tr,1,nvb,1,nob_hi,g_w_tot_b,
+     $     nob_hi+1,nmo,1,nob_hi)
+      call ga_copy_patch('n',g_w_ij_b,1,nob_hi,1,nob_hi,g_w_tot_b,
+     $     1,nob_hi,1,nob_hi)
       call ga_copy_patch('n',g_w_ab_b,1,nvb,1,nvb,g_w_tot_b,
-     $     nob+1,nmo,nob+1,nmo)
+     $     nob_hi+1,nmo,nob_hi+1,nmo)
 c
       if(.not.ga_destroy(g_w_ai_a_tr))call errquit(
      $     'could not destroy g_w_ai_a_tr handle',1)
@@ -70,8 +71,8 @@ c     Wai += - Ei Pai
 c     
 c     Brute force for now
 c     
-      call mp2_w_hack(g_w_tot_a, g_p_tot_a, evals_a, noa, nva)
-      call mp2_w_hack(g_w_tot_b, g_p_tot_b, evals_b, nob, nvb)
+      call mp2_w_hack(g_w_tot_a, g_p_tot_a, evals_a, noa_hi, nva)
+      call mp2_w_hack(g_w_tot_b, g_p_tot_b, evals_b, nob_hi, nvb)
 c     
 c...  transform to AO basis and write
 c     
@@ -111,6 +112,7 @@ c
       integer i, j, a, b
       double precision p
 c
+      call ga_sync()
       do i = 1+ga_nodeid(), no,ga_nnodes()
          do j = 1, no
             call ga_get(g_p, i, i, j, j, p, 1)
@@ -137,6 +139,7 @@ c
             call ga_acc(g_w, a, a, b, b, -p*e(a), 1, 1.0d0)
          enddo
       enddo
+      call ga_sync()
 c
       end
 

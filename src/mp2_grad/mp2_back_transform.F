@@ -12,7 +12,7 @@
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
 *
-* $Id: mp2_back_transform.F,v 1.14 1997-04-06 20:59:18 d3g681 Exp $
+* $Id: mp2_back_transform.F,v 1.15 1997-04-23 01:12:40 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -150,7 +150,7 @@ c
       if (.not. ma_chop_stack(l_t)) call errquit
      $     ('mp2:backt: first chop stack failed', 0)
 c
-      tdim = shmax*shmax*nbf*(oseg_hi-oseg_lo+1)
+      tdim = shmax*shmax*nbf*ninseg
       if (.not. ma_push_get(mt_dbl, tdim, 'mp2:back tt',
      $     l_t, k_t)) call errquit
      $     ('mp2: backt: failed ma for nonsep test', tdim)
@@ -186,7 +186,7 @@ c
       enddo
 c      
       call pstat_on(ps_nonsep)
-      call mp2_nonsep_test(rtdb, basis,
+      call mp2_nonsep(rtdb, basis,
      $     twopdmunit,
      $     dbl_mb(k_c_t),
      $     nsh, nbf, ninseg,
@@ -575,7 +575,7 @@ c
       end if
 c
       end
-      subroutine mp2_nonsep_test(
+      subroutine mp2_nonsep(
      $     rtdb,
      $     basis,
      $     twopdmunit,
@@ -640,14 +640,14 @@ c
       status = bas_geom ( basis, geom )
       status = geom_ncent ( geom, nat )
 c
-      if (.not. ma_push_get(mt_dbl, lenscr, 'mp2:test', l_scr, k_scr))
-     $     call errquit('mp2:test ma', lenscr)
-      if (.not. ma_push_get(mt_dbl, leng, 'mp2:test', l_g, k_g))
-     $     call errquit('mp2:test ma', leng)
-      if (.not. ma_push_get(mt_dbl, lenscrd, 'mp2:test', l_scrd,k_scrd))
-     $     call errquit('mp2:test ma', lenscrd)
-      if (.not. ma_push_get(mt_dbl, lengd, 'mp2:test', l_gd, k_gd))
-     $     call errquit('mp2:test ma', lengd)
+      if (.not. ma_push_get(mt_dbl, lenscr, 'mp2:test1', l_scr, k_scr))
+     $     call errquit('mp2:test ma-1 ', lenscr)
+      if (.not. ma_push_get(mt_dbl, leng, 'mp2:test2', l_g, k_g))
+     $     call errquit('mp2:test ma-2', leng)
+      if (.not. ma_push_get(mt_dbl, lenscrd, 'mp2:test3',l_scrd,k_scrd))
+     $     call errquit('mp2:test ma-3', lenscrd)
+      if (.not. ma_push_get(mt_dbl, lengd, 'mp2:test4', l_gd, k_gd))
+     $     call errquit('mp2:test ma-4', lengd)
 c     
       if (odebug) then
          write(6,*) ' Transposed occupied MOS in segment '

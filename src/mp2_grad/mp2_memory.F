@@ -2,7 +2,7 @@
      $     nbf,noa,nva,nob,nvb,
      $     batch_size,max_ma,max_ga,max_file,task)
 *
-* $Id: mp2_memory.F,v 1.10 1997-03-27 08:50:07 d3e129 Exp $
+* $Id: mp2_memory.F,v 1.11 1997-04-23 01:12:47 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -50,6 +50,7 @@ c
       call int_init(rtdb,1,basis)
       call int_mem_2e4c(leng, lenscr)
       call int_terminate
+      lenscr = max(lenscr,leng)
 c
       max_ma=2*nbf*nbf+((nva+nvb)*8+nnbf+1)
      $     /ma_sizeof(mt_dbl,1,mt_int)
@@ -59,6 +60,7 @@ c
          call int_init(rtdb,1,basis)
          call intd_init(rtdb,1,basis)
          call int_mem ( idum, lengd, idum2, lenscrd )
+         lenscrd = max(lenscrd,lengd)
          call int_terminate
 c
          max_ma=max_ma+max(

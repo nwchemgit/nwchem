@@ -6,7 +6,7 @@
      $     tunita,tunitb,eval_a,eval_b,
      $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b)
 *
-* $Id: mp2_pijab_uhf.F,v 1.11 1997-03-27 08:50:10 d3e129 Exp $
+* $Id: mp2_pijab_uhf.F,v 1.12 1997-04-23 01:12:47 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -152,8 +152,10 @@ c
       call ga_dgop(msg_p_ab_b_sum,dbl_mb(k_p_ab_b),nvb*nvb,'+')
       call ga_sync()
       if(ga_nodeid().eq.0)then
-         call ga_acc(g_p_ij_a,1,noa,1,noa,dbl_mb(k_p_ij_a),noa,one)
-         call ga_acc(g_p_ij_b,1,nob,1,nob,dbl_mb(k_p_ij_b),nob,one)
+         call ga_acc(g_p_ij_a, noa_lo,noa_hi,noa_lo,noa_hi,
+     $        dbl_mb(k_p_ij_a),noa,one)
+         call ga_acc(g_p_ij_b,nob_lo,nob_hi,nob_lo,nob_hi,
+     $        dbl_mb(k_p_ij_b),nob,one)
          call ga_acc(g_p_ab_a,1,nva,1,nva,dbl_mb(k_p_ab_a),nva,one)
          call ga_acc(g_p_ab_b,1,nvb,1,nvb,dbl_mb(k_p_ab_b),nvb,one)
       end if

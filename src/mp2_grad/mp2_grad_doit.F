@@ -2,14 +2,19 @@
      $     irs_a,sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,  
      $     num_oa,num_va,g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
      $     irs_b,sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
-     $     num_ob,num_vb,eval_a,eval_b,basis,geom,tol2e,e2,nbf,nmo,
+     $     num_ob,num_vb,
+
+     $     sym_lo_foa,sym_hi_foa,num_foa,
+     $     sym_lo_fob,sym_hi_fob,num_fob,
+
+     $     eval_a,eval_b,basis,geom,tol2e,e2,nbf,nmo,
      $     task,passab,oblk,oskel,
-     $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
+     $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,g_liy_a,g_liy_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.28 1997-04-11 23:11:25 d3h325 Exp $
+* $Id: mp2_grad_doit.F,v 1.29 1997-04-23 01:12:44 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -22,12 +27,14 @@
       integer noa_lo,noa_hi,nob_lo,nob_hi
       integer irs_a(*),irs_b(*)
       integer nva_lo,nva_hi,nvb_lo,nvb_hi
+      integer sym_lo_foa(0:7),sym_hi_foa(0:7)
       integer sym_lo_oa(0:7),sym_hi_oa(0:7)
       integer sym_lo_va(0:7),sym_hi_va(0:7)
+      integer sym_lo_fob(0:7),sym_hi_fob(0:7)
       integer sym_lo_ob(0:7),sym_hi_ob(0:7)
       integer sym_lo_vb(0:7),sym_hi_vb(0:7)
-      integer num_oa(0:*),num_va(0:*)
-      integer num_ob(0:*),num_vb(0:*)
+      integer num_foa(0:*),num_oa(0:*),num_va(0:*)
+      integer num_fob(0:*),num_ob(0:*),num_vb(0:*)
       integer basis
       integer geom
       integer nbf,nmo
@@ -60,12 +67,12 @@
       logical ocoul,oexch, oprint_mem, oprint_where
       double precision tol2e,e2
       double precision eval_a(*),eval_b(*)
-      integer oseg_lo,oseg_hi
+      integer oseg_lo,oseg_hi, noa_frozen, nob_frozen
       character*8 task
       integer k_t_a_in,k_t_b_in,l_t_a_in,l_t_b_in
       integer k_t_eps_a,k_t_eps_b,l_t_eps_a,l_t_eps_b
-      integer k_lai3_a,k_lai3_b
-      integer l_lai3_a,l_lai3_b
+      integer k_lai3_a,k_lai3_b,k_liy3_a,k_liy3_b
+      integer l_lai3_a,l_lai3_b,l_liy3_a,l_liy3_b
       integer k_lai1_a,k_lai1_b
       integer l_lai1_a,l_lai1_b
       integer g_lai_a,g_lai_b
@@ -73,8 +80,8 @@
       integer k_vvvo,l_vvvo
       integer k_vooo,l_vooo
 c     
-      integer g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b
-      integer g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b
+      integer g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,g_liy_a
+      integer g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,g_liy_b
       double precision grad(3,*)
       character*20 fstype
       integer max_ga,max_file,max_ma,avail_ga,avail_ma,avail_file
@@ -99,7 +106,9 @@ c
          info = ' for UHF beta'
       end if
 c     
-      noa=noa_hi-noa_lo+1
+      noa_frozen = noa_lo-1
+      nob_frozen = nob_lo-1
+      noa=noa_hi-noa_lo+1  !!!!!!! NOTE NOA/B HERE REFER TO ACTIVE OCCUPIED
       nva=nva_hi-nva_lo+1
       nob=nob_hi-nob_lo+1
       nvb=nvb_hi-nvb_lo+1
@@ -211,8 +220,13 @@ c
          if(.not.ma_push_get(mt_int,nvb*nir,'toff_b',
      $        l_toff_b,k_toff_b))
      $        call errquit('mp2_grad_doit: could not alloc toff_b',1)
-         call ga_get(g_vecs_a,1,nbf,1,nmo,dbl_mb(k_amos),nbf)
-         call ga_get(g_vecs_b,1,nbf,1,nmo,dbl_mb(k_bmos),nbf)
+c
+         if (ga_nodeid() .eq. 0) then
+            call ga_get(g_vecs_a,1,nbf,1,nmo,dbl_mb(k_amos),nbf)
+            call ga_get(g_vecs_b,1,nbf,1,nmo,dbl_mb(k_bmos),nbf)
+         endif
+         call ga_brdcst(134, dbl_mb(k_amos), nbf*nmo*8, 0)
+         call ga_brdcst(134, dbl_mb(k_bmos), nbf*nmo*8, 0)
 c     
          call util_file_name('kh',.true.,.true.,fnamek)
          call waopen(kunit,fnamek,1,0,itmp)
@@ -308,18 +322,33 @@ c
      $           call errquit('mp2_grad: could not alloc vvvo',1)
             if(.not.ma_push_get(mt_dbl,nbf*nbf,'vooo',l_vooo,k_vooo))
      $           call errquit('mp2_grad: could not alloc vooo',1)
+c
             if(.not.ma_push_get(mt_dbl,noa*nva,'lai3_a',
      $           l_lai3_a,k_lai3_a))call errquit
      $           ('mp2_grad: could not alloc lai3_a',1)
             if(.not.ma_push_get(mt_dbl,nob*nvb,'lai3_b',
      $           l_lai3_b,k_lai3_b))call errquit
      $           ('mp2_grad: could not alloc lai3_b',1)
-            if(.not.ma_push_get(mt_dbl,noa*nva,'lai1_a',
+c
+            if (noa_frozen .gt. 0) then
+               if(.not.ma_push_get(mt_dbl,noa_frozen*noa,'lyi3_a',
+     $              l_liy3_a,k_liy3_a))call errquit
+     $              ('mp2_grad: could not alloc lyi3_a',1)
+               if(.not.ma_push_get(mt_dbl,nob_frozen*nob,'lyi3_b',
+     $              l_liy3_b,k_liy3_b))call errquit
+     $              ('mp2_grad: could not alloc lyi3_b',1)
+            else
+               k_liy3_a = 1     ! To ensure valid pointer
+               k_liy3_b = 1
+            endif
+c
+            if(.not.ma_push_get(mt_dbl,(noa+noa_frozen)*nva,'lai1_a',
      $           l_lai1_a,k_lai1_a))call errquit
      $           ('mp2_grad: could not alloc lai1_a',1)
-            if(.not.ma_push_get(mt_dbl,nob*nvb,'lai1_b',
+            if(.not.ma_push_get(mt_dbl,(nob+nob_frozen)*nvb,'lai1_b',
      $           l_lai1_b,k_lai1_b)) call errquit(
      $           'could not alloc lai1_b',1)
+c
             if(.not.ma_push_get(mt_dbl,nbf*nbf,'jb_ia',l_jb_ia,k_jb_ia))
      $           call errquit('mp2_grad: could not alloc jb_ia',1)
             if(.not.ma_push_get(mt_dbl,nbf*nbf,'temp',l_temp,k_temp))
@@ -329,6 +358,8 @@ c
             call mp2_lai_uhf(nva_lo,nva_hi,sym_lo_oa,sym_hi_oa,
      $           sym_lo_va,sym_hi_va,num_oa,nvb_lo,nvb_hi,
      $           sym_lo_ob,sym_hi_ob,num_ob,sym_lo_vb,sym_hi_vb,
+     $           sym_lo_foa,sym_hi_foa,num_foa,
+     $           sym_lo_fob,sym_hi_fob,num_fob,
      $           nir,num_va,num_vb,oseg_lo,oseg_hi,irs_a,irs_b,
      $           dbl_mb(k_amos),dbl_mb(k_bmos),int_mb(k_v),
      $           nbf,ioff,nnbf,nva_lo_local,nva_hi_local,
@@ -338,7 +369,10 @@ c
      $           dbl_mb(k_jb_ia),dbl_mb(k_temp),
      $           tunita,tunitb,dbl_mb(k_lai3_a),dbl_mb(k_lai3_b),
      $           dbl_mb(k_lai1_a),dbl_mb(k_lai1_b),
-     $           g_lai_a,g_lai_b,g_wai_a,g_wai_b,kunit)
+     $           dbl_mb(k_liy3_a), dbl_mb(k_liy3_b),
+     $           g_lai_a,g_lai_b,g_wai_a,g_wai_b,
+     $           g_liy_a, g_liy_b,
+     $           kunit)
             call pstat_off(ps_lai)
 c     
             if (oprint_where) then

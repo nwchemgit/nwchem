@@ -1,16 +1,20 @@
       subroutine mp2_lai_uhf(nva_lo,nva_hi,sym_lo_oa,sym_hi_oa,
      $     sym_lo_va,sym_hi_va,num_oa,nvb_lo,nvb_hi,
      $     sym_lo_ob,sym_hi_ob,num_ob,sym_lo_vb,sym_hi_vb,
+     $     sym_lo_foa,sym_hi_foa,num_foa,
+     $     sym_lo_fob,sym_hi_fob,num_fob,
      $     nir,num_va,num_vb,oseg_lo,oseg_hi,irs_a,irs_b,
      $     c_a,c_b,indx_v,nbf,ioff,nnbf,
      $     nva_lo_local,nva_hi_local,noa_lo,noa_hi,
      $     nob_lo,nob_hi,nva,nvb,
      $     noa,nob,t_a,t_b,ia_cb,ia_jk,ia_uv,tmp,tunita,tunitb,
-     $     l_ai3_a,l_ai3_b,l_ai1_a,l_ai1_b,g_lai_a,g_lai_b,
-     $     g_wai_a,g_wai_b,kunit)
-*
-* $Id: mp2_lai_uhf.F,v 1.9 1997-03-27 08:49:52 d3e129 Exp $
-*
+     $     l_ai3_a,l_ai3_b,l_ai1_a,l_ai1_b,
+     $     l_iy3_a, l_iy3_b,
+     $     g_lai_a,g_lai_b,
+     $     g_wai_a,g_wai_b,g_liy_a, g_liy_b,kunit)
+*     
+*     $Id: mp2_lai_uhf.F,v 1.10 1997-04-23 01:12:45 d3g681 Exp $
+*     
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -19,11 +23,13 @@
       integer noa_lo,noa_hi,nva_lo,nva_hi
       integer sym_lo_oa(0:*),sym_hi_oa(0:*)
       integer sym_lo_va(0:*),sym_hi_va(0:*)
-      integer num_oa(0:*),num_va(0:*)
+      integer sym_lo_foa(0:7),sym_hi_foa(0:7)
+      integer num_foa(0:7),num_oa(0:*),num_va(0:*)
       integer nob_lo,nob_hi,nvb_lo,nvb_hi
       integer sym_lo_ob(0:*),sym_hi_ob(0:*)
       integer sym_lo_vb(0:*),sym_hi_vb(0:*)
-      integer num_ob(0:*),num_vb(0:*)
+      integer sym_lo_fob(0:7),sym_hi_fob(0:7)
+      integer num_fob(0:7),num_ob(0:*),num_vb(0:*)
       integer indx_v(*)
       integer nbf,nnbf,ioff,kunit
       integer noa,nva,nob,nvb
@@ -32,15 +38,19 @@
       integer oseg_lo,oseg_hi
       double precision c_a(nbf,nbf),c_b(nbf,nbf)
       double precision zero,one,minusone,half
-      integer syma,symi,symb,symj,symia,symc,symk
+      integer syma,symi,symb,symj,symia,symc,symk,symy
       integer irs_a(*),irs_b(*)
       integer nva_lo_local,nva_hi_local
-      double precision l_ai1_a(noa_lo:noa_hi,nva_lo:nva_hi)
-      double precision l_ai1_b(nob_lo:nob_hi,nvb_lo:nvb_hi)
+      double precision l_ai1_a(1:noa_hi,nva_lo:nva_hi)
+      double precision l_ai1_b(1:nob_hi,nvb_lo:nvb_hi)
       double precision l_ai3_a(noa_lo:noa_hi,nva_lo:nva_hi)
       double precision l_ai3_b(nob_lo:nob_hi,nvb_lo:nvb_hi)
+c     
+      double precision l_iy3_a(noa_lo:noa_hi,1:*)
+      double precision l_iy3_b(nob_lo:nob_hi,1:*)
+c     
       double precision t_a(*),t_b(*),ia_cb(*),ia_jk(*),tmp(*),ia_uv(*)
-      integer g_lai_a,g_lai_b
+      integer g_lai_a,g_lai_b,g_liy_a, g_liy_b
       integer tunita,tunitb
       double precision tunitptra,tunitptrb
       integer tcounta,tcountb
@@ -52,7 +62,7 @@
       parameter(msg_l_ai1_b_sum=9989)
       integer i_batch
       integer g_wai_a,g_wai_b
-c
+c     
 #include "bitops.fh"
 c     
       zero=0.0d0
@@ -61,10 +71,15 @@ c
       half=0.5d0
       tunitptra=1
       tunitptrb=1
+
+      if (noa_lo .gt. 1) then
+         call dfill(noa*(noa_lo-1),zero,l_iy3_a,1)
+         call dfill(nob*(nob_lo-1),zero,l_iy3_b,1)
+      end if
       call dfill((noa*nva),zero,l_ai3_a,1)
       call dfill((nob*nvb),zero,l_ai3_b,1)
-      call dfill((noa*nva),zero,l_ai1_a,1)
-      call dfill((nob*nvb),zero,l_ai1_b,1)
+      call dfill((noa_hi*nva),zero,l_ai1_a,1)
+      call dfill((nob_hi*nvb),zero,l_ai1_b,1)
 c     
       do i=oseg_lo,oseg_hi 
          symi=irs_a(i)
@@ -83,6 +98,7 @@ c...  form pure spin t*(vv|vo) and t*(vo|oo) terms
 c     
             call mp2_read_tijab(nva_lo, nva_hi, irs_a, symia,
      $           num_oa, sym_hi_oa, sym_lo_oa, tunita, tunitptra, t_a)
+c     
             tcounta=1
             do symb=0,nir-1
                symc=ieor(symia,symb)
@@ -106,6 +122,33 @@ c
                end if
                tcounta=tcounta+num_oa(symj)*num_va(symb)
             end do
+c     
+            if (noa_lo .gt. 1) then ! Frozen orbital piece
+               tcounta=1
+               do symb=0,nir-1
+                  symy=ieor(symia,symb)
+                  symj=symy
+                  if(num_foa(symy).gt.0.and.num_va(symb).gt.0.
+     $                 and.num_oa(symj).gt.0)then
+                     call dgemm('n','n',nbf,num_foa(symy),nbf,one,
+     $                    ia_uv,nbf,c_a(1,sym_lo_foa(symy)),nbf,
+     $                    zero,tmp,nbf)
+                     call dgemm('t','n',num_foa(symy),num_va(symb),
+     $                    nbf,one,tmp,nbf,c_a(1,sym_lo_va(symb)),
+     $                    nbf,zero,ia_cb,num_foa(symy))
+c     
+c     Ljy <- sum(iab) Tjb,ia*(yb|ia)
+c     
+                     call dgemm('n','t',num_oa(symj),
+     $                    num_foa(symy),num_va(symb),
+     $                    one,t_a(tcounta),num_oa(symj),
+     $                    ia_cb,num_foa(symy),one,
+     $                    l_iy3_a(sym_lo_oa(symj),sym_lo_foa(symy)),noa)
+                  end if
+                  tcounta=tcounta+num_oa(symj)*num_va(symb)
+               end do
+            end if
+c     
             tcounta=1
             do symb=0,nir-1
                symk=symb
@@ -125,15 +168,43 @@ c
      $                 num_va(symb),num_oa(symj),
      $                 minusone,ia_jk,num_oa(symj),
      $                 t_a(tcounta),num_oa(symj),one,
-     $                 l_ai1_a(sym_lo_oa(symk),sym_lo_va(symb)),noa)
+     $                 l_ai1_a(sym_lo_oa(symk),sym_lo_va(symb)),noa_hi)
                end if
                tcounta=tcounta+num_oa(symj)*num_va(symb)
             end do
+c     
+            if (noa_lo .ne. 1) then ! Frozen orbital piece
+               tcounta=1
+               do symb=0,nir-1
+                  symk=symb
+                  symj=ieor(symia,symk)
+                  if(num_oa(symj).gt.0.and.num_foa(symk).gt.0.
+     $                 and.num_va(symb).gt.0)then
+                     call dgemm('n','n',nbf,num_oa(symj),nbf,one, ! Done twice
+     $                    ia_uv,nbf,c_a(1,sym_lo_oa(symj)),nbf,
+     $                    zero,tmp,nbf)
+                     call dgemm('t','n',num_oa(symj),num_foa(symk),
+     $                    nbf,one,tmp,nbf,c_a(1,sym_lo_foa(symk)),
+     $                    nbf,zero,ia_jk,num_oa(symj))
+c     
+c     Lyb = sum(iaj) (ia|jy)*Tjb,ia
+c     
+                     call dgemm('t','n',num_foa(symk),
+     $                    num_va(symb),num_oa(symj),
+     $                    minusone,ia_jk,num_oa(symj),
+     $                    t_a(tcounta),num_oa(symj),one,
+     $                    l_ai1_a(sym_lo_foa(symk),sym_lo_va(symb)),
+     $                    noa_hi)
+                  end if
+                  tcounta=tcounta+num_oa(symj)*num_va(symb)
+               end do
+            end if
 c     
 c...  form mixed spin t*(vv|vo) and t*(vo|oo) terms
 c     
             call mp2_read_tijab(nvb_lo, nvb_hi, irs_b, symia,
      $           num_ob, sym_hi_ob, sym_lo_ob, tunitb, tunitptrb, t_b)
+c     
             tcountb=1
             do symb=0,nir-1
                symc=ieor(symia,symb)
@@ -157,6 +228,33 @@ c
                end if
                tcountb=tcountb+num_ob(symj)*num_vb(symb)
             end do
+c     
+            if (nob_lo .gt. 1) then ! Frozen orbital piece
+               tcountb=1
+               do symb=0,nir-1
+                  symy=ieor(symia,symb)
+                  symj=symy
+                  if(num_fob(symy).gt.0.and.num_vb(symb).gt.0.
+     $                 and.num_ob(symj).gt.0)then
+                     call dgemm('n','n',nbf,num_fob(symy),nbf,one,
+     $                    ia_uv,nbf,c_b(1,sym_lo_fob(symy)),nbf,
+     $                    zero,tmp,nbf)
+                     call dgemm('t','n',num_fob(symy),num_vb(symb),
+     $                    nbf,one,tmp,nbf,c_b(1,sym_lo_vb(symb)),
+     $                    nbf,zero,ia_cb,num_fob(symy))
+c     
+c     Ljy <- sum(iab) Tjb,ia*(yb|ia)
+c     
+                     call dgemm('n','t',num_ob(symj),
+     $                    num_fob(symy),num_vb(symb),
+     $                    one,t_b(tcountb),num_ob(symj),
+     $                    ia_cb,num_fob(symy),one,
+     $                    l_iy3_b(sym_lo_ob(symj),sym_lo_fob(symy)),nob)
+                  end if
+                  tcountb=tcountb+num_ob(symj)*num_vb(symb)
+               end do
+            end if
+c     
             tcountb=1
             do symb=0,nir-1
                symk=symb
@@ -176,25 +274,72 @@ c
      $                 num_vb(symb),num_ob(symj),
      $                 minusone,ia_jk,num_ob(symj),
      $                 t_b(tcountb),num_ob(symj),one,
-     $                 l_ai1_b(sym_lo_ob(symk),sym_lo_vb(symb)),nob)
+     $                 l_ai1_b(sym_lo_ob(symk),sym_lo_vb(symb)),
+     $                 nob_hi)
                end if
                tcountb=tcountb+num_ob(symj)*num_vb(symb)
             end do
+c     
+            if (nob_lo .ne. 1) then ! Frozen orbital piece
+               tcountb=1
+               do symb=0,nir-1
+                  symk=symb
+                  symj=ieor(symia,symk)
+                  if(num_ob(symj).gt.0.and.num_fob(symk).gt.0.
+     $                 and.num_vb(symb).gt.0)then
+                     call dgemm('n','n',nbf,num_ob(symj),nbf,one, ! Done twice
+     $                    ia_uv,nbf,c_b(1,sym_lo_ob(symj)),nbf,
+     $                    zero,tmp,nbf)
+                     call dgemm('t','n',num_ob(symj),num_fob(symk),
+     $                    nbf,one,tmp,nbf,c_b(1,sym_lo_fob(symk)),
+     $                    nbf,zero,ia_jk,num_ob(symj))
+c     
+c     Lyb = sum(iaj) (ia|jy)*Tjb,ia
+c     
+                     call dgemm('t','n',num_fob(symk),
+     $                    num_vb(symb),num_ob(symj),
+     $                    minusone,ia_jk,num_ob(symj),
+     $                    t_b(tcountb),num_ob(symj),one,
+     $                    l_ai1_b(sym_lo_fob(symk),sym_lo_vb(symb)),
+     $                    nob_hi)
+                  end if
+                  tcountb=tcountb+num_ob(symj)*num_vb(symb)
+               end do
+            end if
          end do
       end do
 c     
       call ga_dgop(msg_l_ai3_a_sum,l_ai3_a,noa*nva,'+')
       call ga_dgop(msg_l_ai3_b_sum,l_ai3_b,nob*nvb,'+')
-      call ga_dgop(msg_l_ai1_a_sum,l_ai1_a,noa*nva,'+')
-      call ga_dgop(msg_l_ai1_b_sum,l_ai1_b,nob*nvb,'+')
+      call ga_dgop(msg_l_ai1_a_sum,l_ai1_a,noa_hi*nva,'+')
+      call ga_dgop(msg_l_ai1_b_sum,l_ai1_b,nob_hi*nvb,'+')
+      if (noa_lo .gt. 1) then
+         call ga_dgop(msg_l_ai3_a_sum,l_iy3_a,noa*(noa_lo-1),'+')
+         call ga_dgop(msg_l_ai3_b_sum,l_iy3_b,nob*(nob_lo-1),'+')
+      end if
+c
+c$$$      write(6,*) ' l_ai1_a '
+c$$$      call output(l_ai1_a,1,noa_hi,1,nva,noa_hi,nva,1)
+c$$$      write(6,*) ' l_ai1_b '
+c$$$      call output(l_ai1_b,1,nob_hi,1,nvb,nob_hi,nvb,1)
+c$$$c
+c$$$      write(6,*) ' l_ai3_a '
+c$$$      call output(l_ai3_a,1,noa,1,noa_lo-1,noa,noa_lo-1,1)
+c$$$      write(6,*) ' l_ai3_b '
+c$$$      call output(l_ai3_b,1,nob,1,nob_lo-1,nob,nob_lo-1,1)
+c      
       call ga_sync()
       if(ga_nodeid().eq.0)then
-         call ga_acc(g_lai_a,1,noa,1,nva,l_ai3_a,noa,one)
-         call ga_acc(g_lai_b,1,nob,1,nvb,l_ai3_b,nob,one)
-         call ga_acc(g_lai_a,1,noa,1,nva,l_ai1_a,noa,one)
-         call ga_acc(g_lai_b,1,nob,1,nvb,l_ai1_b,nob,one)
-         call ga_acc(g_wai_a,1,noa,1,nva,l_ai1_a,noa,minusone)
-         call ga_acc(g_wai_b,1,nob,1,nvb,l_ai1_b,nob,minusone)
+         call ga_acc(g_lai_a,noa_lo,noa_hi,1,nva,l_ai3_a,noa,one)
+         call ga_acc(g_lai_b,nob_lo,nob_hi,1,nvb,l_ai3_b,nob,one)
+         call ga_acc(g_lai_a,1,noa_hi,1,nva,l_ai1_a,noa_hi,one)
+         call ga_acc(g_lai_b,1,nob_hi,1,nvb,l_ai1_b,nob_hi,one)
+         call ga_acc(g_wai_a,1,noa_hi,1,nva,l_ai1_a,noa_hi,minusone)
+         call ga_acc(g_wai_b,1,nob_hi,1,nvb,l_ai1_b,nob_hi,minusone)
+         if (noa_lo .gt. 1) then
+            call ga_acc(g_liy_a,1,noa,1,noa_lo-1,l_iy3_a,noa,one)
+            call ga_acc(g_liy_b,1,nob,1,nob_lo-1,l_iy3_b,nob,one)
+         end if
       end if
 c     
       end
