@@ -1,4 +1,4 @@
-C $Id: ecp_t1_Q0int.F,v 1.2 1999-04-01 19:55:42 mg201 Exp $
+C $Id: ecp_t1_Q0int.F,v 1.3 1999-06-08 22:24:34 d3e129 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_t1_Q0int (n,m,x,a_sqrt,Q0,temp,ind,tol)
@@ -29,6 +29,12 @@ C $Id: ecp_t1_Q0int.F,v 1.2 1999-04-01 19:55:42 mg201 Exp $
       double precision x(n),a_sqrt(n),q0(n),temp(n,6),tol,
      &    m_plus_half,real_m,log_accy
 *
+*   Initialize ind array
+*
+      do i = 1,n
+        ind(i) = -1
+      enddo
+*
 *   Gather arguments
 *
       real_m = m
@@ -57,15 +63,21 @@ C $Id: ecp_t1_Q0int.F,v 1.2 1999-04-01 19:55:42 mg201 Exp $
         end if
       end do
       i = n1-np
-C      write (6,*) 'na,np',na,np
+*debug      if (na.gt.0.or.np.gt.0) then
+*debug        write (6,*) 'Q0:na,np,sum,n,diff',na,np,(na+np),n,(n-na-np)
+*debug      endif
 *
-      if (na .gt. 0) call ecp_t1_Q0asy (na,m,temp(1,1),temp(1,2),
-     &    temp(1,3),temp(1,4),temp(1,5),temp(1,6),tol)
-      if (np .gt. 0) call ecp_t1_Q0pow (np,m,temp(i,1),temp(i,2),
-     &    temp(i,3),temp(i,4),temp(i,5),temp(i,6),tol)
-      do i = 1,n
-        Q0(ind(i)) = temp(i,6)
-      end do
+      if (na.gt.0.or.np.gt.0) then
+*................... i.e., ind(*) is actually set by conditions above !
+        if (na .gt. 0) call ecp_t1_Q0asy (na,m,temp(1,1),temp(1,2),
+     &      temp(1,3),temp(1,4),temp(1,5),temp(1,6),tol)
+        if (np .gt. 0) call ecp_t1_Q0pow (np,m,temp(i,1),temp(i,2),
+     &      temp(i,3),temp(i,4),temp(i,5),temp(i,6),tol)
+        do i = 1,n
+          if (ind(i).gt.0)
+     &        Q0(ind(i)) = temp(i,6)
+        end do
+      endif
 *
       return
       end

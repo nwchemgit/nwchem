@@ -1,4 +1,4 @@
-C $Id: ecp_t1_Q1int.F,v 1.2 1999-04-01 19:55:43 mg201 Exp $
+C $Id: ecp_t1_Q1int.F,v 1.3 1999-06-08 22:24:34 d3e129 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_t1_Q1int (n,m,x,a_sqrt,Q1,temp,ind,tol)
@@ -26,8 +26,16 @@ C $Id: ecp_t1_Q1int.F,v 1.2 1999-04-01 19:55:43 mg201 Exp $
       implicit none
 #include "ecp_consts.fh"
       integer i,m,n,na,np,n1,ind(n)
+*debug      integer j
       double precision x(n),a_sqrt(n),Q1(n),temp(n,6),tol,
      &    m_plus_half,m_plus_1,log_accy
+*
+*   Initialize ind array
+*
+*debug      write(6,*)' enter ecp_t1_q1int '
+      do i = 1,n
+        ind(i) = -1
+      enddo
 *
 *   Gather arguments
 *
@@ -41,8 +49,10 @@ C $Id: ecp_t1_Q1int.F,v 1.2 1999-04-01 19:55:43 mg201 Exp $
         if (x(i) .eq. zero) then
           if (m .eq. 0) then
             Q1(i) = a_sqrt(i)**2/two
+*debug            write(6,*)' q1(',i,') = a_sqrt(i)**2/two of ',n
           else
             Q1(i) = zero
+*debug            write(6,*)' q1(',i,') = 0 of ',n
           end if
         else if (log_accy+x(i)**2+two*m_plus_half*log(x(i)) .gt. zero) 
      &        then
@@ -58,15 +68,25 @@ C $Id: ecp_t1_Q1int.F,v 1.2 1999-04-01 19:55:43 mg201 Exp $
         end if
       end do
       i = n1-np
-C      write (6,*) 'na,np',na,np
+*debug      if (na.gt.0.or.np.gt.0) then
+*debug        write (6,*) 'Q1:na,np,sum,n,diff',na,np,(na+np),n,(n-na-np)
+*debug      endif
+*debug      do j = 1,n
+*debug        write(6,*)' ind(i)', ind(j),j,' of ',n
+*debug      end do
 *
-      if (na .gt. 0) call ecp_t1_Q1asy (na,m,temp(1,1),temp(1,2),
-     &    temp(1,3),temp(1,6),tol)
-      if (np .gt. 0) call ecp_t1_Q1pow (np,m,temp(i,1),temp(i,2),
-     &    temp(i,3),temp(i,4),temp(i,5),temp(i,6),tol)
-      do i = 1,n
-        Q1(ind(i)) = temp(i,6)
-      end do
+      if (na.gt.0.or.np.gt.0) then
+*................... i.e., ind(*) is actually set by conditions above !
+        if (na .gt. 0) call ecp_t1_Q1asy (na,m,temp(1,1),temp(1,2),
+     &      temp(1,3),temp(1,6),tol)
+        if (np .gt. 0) call ecp_t1_Q1pow (np,m,temp(i,1),temp(i,2),
+     &      temp(i,3),temp(i,4),temp(i,5),temp(i,6),tol)
+        do i = 1,n
+*debug          write(6,*)' ind(i)', ind(i),i,' ofof ',n
+          if (ind(i).gt.0)
+     &        Q1(ind(i)) = temp(i,6)
+        end do
+      endif
 *
       return
       end
