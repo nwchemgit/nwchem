@@ -1,0 +1,9 @@
+How to compile NWChem libraries for NWChem/VENUS:
+First time:
+cd $NWCHEM_TOP/src
+make nwchem_config NWCHEM_MODULES=venus
+make >& make.log
+make stubs.o
+Following times:
+cd $NWCHEM_TOP/src/geninterface
+make
