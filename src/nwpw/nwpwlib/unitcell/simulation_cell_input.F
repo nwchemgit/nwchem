@@ -1,6 +1,6 @@
       subroutine simulation_cell_input(rtdb)
 c
-c $Id: simulation_cell_input.F,v 1.4 2002-01-04 23:20:01 bylaska Exp $
+c $Id: simulation_cell_input.F,v 1.5 2002-03-08 16:19:41 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -15,7 +15,7 @@ c
 
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 12)
+      parameter (num_dirs = 15)
       character*22 dirs(num_dirs)
       character*255 test
 
@@ -24,7 +24,7 @@ c
       double precision unita(3,3)
       double precision lat_a,lat_b,lat_c
       double precision alpha,beta,gamma
-      double precision scale
+      double precision scale,ll
 
       integer ntokens
       parameter (ntokens=7)
@@ -42,6 +42,9 @@ c
      >            'ngrid',
      >            'boundary_conditions:',
      >            'boundry_conditions',
+     >            'sc',
+     >            'fcc',
+     >            'bcc',
      >            'end'/
 
       data tokens /'lat_a', 'lat_b', 'lat_c',
@@ -83,6 +86,7 @@ c
       goto ( 100,  200, 300, 400, 500, 
      >       100,  200, 300, 400,
      >       200,  200,
+     >       600, 700, 800,
      >      9999) ind
       call errquit(
      >      'simulation_cell_input: unimplemented directive', ind)
@@ -114,40 +118,40 @@ c
      >     'simulation_cell_input: inp_read(unita(*,1)) failed', 0)
       if (.not. inp_f(unita(1,1)))
      >     call errquit(
-     >           'simulation_cell_input: failed to read unita', 0)
+     >           'simulation_cell_input: failed to read unita', 1)
       if (.not. inp_f(unita(2,1)))
      >     call errquit(
-     >          'simulation_cell_input: failed to read unita', 0)
+     >          'simulation_cell_input: failed to read unita', 2)
       if (.not. inp_f(unita(3,1)))
      >     call errquit(
-     >          'simulation_cell_input: failed to read unita', 0)
+     >          'simulation_cell_input: failed to read unita', 3)
 
       if (.not. inp_read()) 
      >     call errquit(
-     >     'simulation_cell_input: inp_read(unita(*,2)) failed', 0)
+     >     'simulation_cell_input: inp_read(unita(*,2)) failed', 4)
       if (.not. inp_f(unita(1,2)))
      >     call errquit(
-     >          'simulation_cell_input: failed to read unita', 0)
+     >          'simulation_cell_input: failed to read unita', 5)
       if (.not. inp_f(unita(2,2)))
      >     call errquit(
-     >           'simulation_cell_input: failed to read unita', 0)
+     >           'simulation_cell_input: failed to read unita', 6)
       if (.not. inp_f(unita(3,2)))
      >     call errquit(
-     >           'simulation_cell_input: failed to read unita', 0)
+     >           'simulation_cell_input: failed to read unita', 7)
 
 
       if (.not. inp_read()) 
      >     call errquit(
-     >     'simulation_cell_input: inp_read(unita(*,3)) failed', 0)
+     >     'simulation_cell_input: inp_read(unita(*,3)) failed', 8)
       if (.not. inp_f(unita(1,3)))
      >     call errquit(
-     >           'simulation_cell_input: failed to read unita', 0)
+     >           'simulation_cell_input: failed to read unita', 9)
       if (.not. inp_f(unita(2,3)))
      >     call errquit(
-     >           'simulation_cell_input: failed to read unita', 0)
+     >           'simulation_cell_input: failed to read unita', 10)
       if (.not. inp_f(unita(3,3)))
      >     call errquit(
-     >           'simulation_cell_input: failed to read unita', 0)
+     >           'simulation_cell_input: failed to read unita', 11)
       goto 10
 
 
@@ -215,7 +219,56 @@ c
      >                      unita)
       goto 10
 
+c
+c  simple cubic lattice vectors
+c 
+ 600  if (.not. inp_f(ll)) 
+     >     call errquit(
+     >     'simulation_cell_input: SC inp_read(L) failed', 0)
+      unita(1,1) = ll
+      unita(2,1) = 0.0d0
+      unita(3,1) = 0.0d0
+      unita(1,2) = 0.0d0
+      unita(2,2) = ll
+      unita(3,2) = 0.0d0
+      unita(1,3) = 0.0d0
+      unita(2,3) = 0.0d0
+      unita(3,3) = ll
+      goto 10
 
+c
+c  face-centered cubic lattice vectors
+c 
+ 700  if (.not. inp_f(ll)) 
+     >     call errquit(
+     >     'simulation_cell_input: FCC inp_read(L) failed', 0)
+      unita(1,1) = ll/2.0d0
+      unita(2,1) = ll/2.0d0
+      unita(3,1) = 0.0d0
+      unita(1,2) = ll/2.0d0
+      unita(2,2) = 0.0d0
+      unita(3,2) = ll/2.0d0
+      unita(1,3) = 0.0d0
+      unita(2,3) = ll/2.0d0
+      unita(3,3) = ll/2.0d0
+      goto 10
+
+c
+c  body-centered cubic lattice vectors
+c 
+ 800  if (.not. inp_f(ll)) 
+     >     call errquit(
+     >     'simulation_cell_input: BCC inp_read(L) failed', 0)
+      unita(1,1) =  ll/2.0d0
+      unita(2,1) =  ll/2.0d0
+      unita(3,1) =  ll/2.0d0
+      unita(1,2) = -ll/2.0d0
+      unita(2,2) =  ll/2.0d0
+      unita(3,2) =  ll/2.0d0
+      unita(1,3) =  ll/2.0d0
+      unita(2,3) =  ll/2.0d0
+      unita(3,3) = -ll/2.0d0
+      goto 10
 
 *     ***** add simulation_cell to rtdb ****
  9999 continue
