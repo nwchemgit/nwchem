@@ -1,6 +1,6 @@
       logical function task_ecp_deriv_check(rtdb)
       implicit none
-* $Id: rak25.F,v 1.2 1999-03-16 22:52:45 d3e129 Exp $
+* $Id: rak25.F,v 1.3 1999-03-17 14:49:40 d3e129 Exp $
 c
 #include "stdio.fh"
 #include "mafdecls.fh"
@@ -18,6 +18,8 @@ c
       integer maxg1, maxs1
       integer hbuf, hbufp, hbufm, hscr, hg, hfd, hxyz
       integer kbuf, kbufp, kbufm, kscr, kg, kfd, kxyz
+      integer hbufpp, hbufmm, hbuf3
+      integer kbufpp, kbufmm, kbuf3
 c
       task_ecp_deriv_check = .false.
 c
@@ -57,9 +59,15 @@ c
       status = status .and.
      &    ma_alloc_get(mt_dbl,maxg1,'int buffer' ,hbuf,kbuf)
       status = status .and.
+     &    ma_alloc_get(mt_dbl,maxg1,'int buffer' ,hbuf3,kbuf3)
+      status = status .and.
      &    ma_alloc_get(mt_dbl,maxg1,'int buffer(+)' ,hbufp,kbufp)
       status = status .and.
+     &    ma_alloc_get(mt_dbl,maxg1,'int buffer(2+)' ,hbufpp,kbufpp)
+      status = status .and.
      &    ma_alloc_get(mt_dbl,maxg1,'int buffer(-)' ,hbufm,kbufm)
+      status = status .and.
+     &    ma_alloc_get(mt_dbl,maxg1,'int buffer(2-)' ,hbufmm,kbufmm)
       status = status .and.
      &    ma_alloc_get(mt_dbl,maxs1,'scr buffer' ,hscr,kscr)
       status = status .and.
@@ -75,17 +83,23 @@ c
      &    geom, basis, nbf, nat, nshell, maxg1, maxs1,
      &    dbl_mb(kg), dbl_mb(kfd), 
      &    dbl_mb(kbuf),
+     &    dbl_mb(kbuf3),
      &    dbl_mb(kscr),
      &    dbl_mb(kbufp),
      &    dbl_mb(kbufm),
+     &    dbl_mb(kbufpp),
+     &    dbl_mb(kbufmm),
      &    dbl_mb(kxyz))
       status = .true.
       status = status.and.ma_free_heap(hg)
       status = status.and.ma_free_heap(hfd)
       status = status.and.ma_free_heap(hbuf)
+      status = status.and.ma_free_heap(hbuf3)
       status = status.and.ma_free_heap(hscr)
       status = status.and.ma_free_heap(hbufp)
       status = status.and.ma_free_heap(hbufm)
+      status = status.and.ma_free_heap(hbufpp)
+      status = status.and.ma_free_heap(hbufmm)
       status = status.and.ma_free_heap(hxyz)
       status = status.and.bas_destroy(basis)
       status = status.and.geom_destroy(geom)
@@ -94,7 +108,8 @@ c
       logical function raktask25_a(rtdb,
      &    geom, basis, nbf, nat, nshell,
      &    sizeg, sizescr,
-     &    grad, fdgrad, buf, scr, bufp, bufm, xyz)
+     &    grad, fdgrad, buf, buf3, scr, bufp, bufm,
+     &    bufpp, bufmm, xyz)
       implicit none
 #include "mafdecls.fh"
 #include "geom.fh"
@@ -118,7 +133,9 @@ c
       double precision xyz(3,nat)
       double precision grad(nbf,nbf,3,nat)
       double precision fdgrad(nbf,nbf,3,nat)
-      double precision buf(sizeg), bufp(sizeg), bufm(sizeg)
+      double precision buf(sizeg), buf3(sizeg)
+      double precision bufp(sizeg), bufm(sizeg)
+      double precision bufpp(sizeg), bufmm(sizeg)
       double precision scr(sizescr)
 c
       double precision thresh, delta, factor, norm
@@ -144,6 +161,8 @@ c
       call dfill(sizeg,0.0d00,buf,1)
       call dfill(sizeg,0.0d00,bufp,1)
       call dfill(sizeg,0.0d00,bufm,1)
+      call dfill(sizeg,0.0d00,bufpp,1)
+      call dfill(sizeg,0.0d00,bufmm,1)
       call dfill(sizescr,0.0d00,scr,1)
 * store original coordintates
 *      write(6,*)' original coordinates '
@@ -155,8 +174,7 @@ c
       soid = 0
       thresh = 1.0d-09
       delta = 0.0025d00
-      factor = 1.0d00/(2.0d00*delta)
-      write(6,*)' delta/factor ',delta, factor
+      write(6,*)' delta =',delta
       xbas = basis + BASIS_HANDLE_OFFSET
 c
       nshell_use = nshell
@@ -190,9 +208,34 @@ c
           do atom = 1,nat
             do ixyz = 1,3
               call dcopy(nat3,xyz,1,coords(1,1,geom),1)
-              coords(ixyz,atom,geom) = coords(ixyz,atom,geom) + delta
+              coords(ixyz,atom,geom) =
+     &              coords(ixyz,atom,geom) + delta + delta
               call dfill(sizescr,0.0d00,scr,1)
               call dfill(sizeg,0.0d00,buf,1)
+              call dfill(sizeg,0.0d00,bufpp,1)
+c
+*             write(6,*)' plus ', atom, ixyz
+*              if (.not.geom_print(geom)) stop ' gp error'
+              call int_ecp_terminate()
+              ignore = int_ecp_init(ecpid, soid,1)
+              call int_ecp_hf1(
+     &            coords(1,ii_atom,geom),
+     &            dbl_mb(mb_exndcf(ii_exp,xbas)),
+     &            dbl_mb(mb_exndcf(ii_cf,xbas)),
+     &            ii_np, ii_gen, ii_type, ii_atom,
+
+     &            coords(1,jj_atom,geom),
+     &            dbl_mb(mb_exndcf(jj_exp,xbas)),
+     &            dbl_mb(mb_exndcf(jj_cf,xbas)),
+     &            jj_np, jj_gen, jj_type, jj_atom,
+
+     &            bufpp,nbfsh,scr,sizescr,.false.)
+*              if (nbfsh.eq.1) write(6,*)
+*     &            ' ',atom,' X=',ixyz,' +', bufp(1)
+*
+              call dcopy(nat3,xyz,1,coords(1,1,geom),1)
+              coords(ixyz,atom,geom) = coords(ixyz,atom,geom) + delta
+              call dfill(sizescr,0.0d00,scr,1)
               call dfill(sizeg,0.0d00,bufp,1)
 c
 *             write(6,*)' plus ', atom, ixyz
@@ -235,12 +278,49 @@ c
      &            jj_np, jj_gen, jj_type, jj_atom,
 
      &            bufm,nbfsh,scr,sizescr,.false.)
+*
+              call dcopy(nat3,xyz,1,coords(1,1,geom),1)
+              coords(ixyz,atom,geom) =
+     &              coords(ixyz,atom,geom) - delta - delta 
+              call dfill(sizescr,0.0d00,scr,1)
+              call dfill(sizeg,0.0d00,bufmm,1)
+c
+*              write(6,*)' minus ', atom, ixyz
+*              if (.not.geom_print(geom)) stop ' gp error'
+              call int_ecp_terminate()
+              ignore = int_ecp_init(ecpid, soid,1)
+              call int_ecp_hf1(
+     &            coords(1,ii_atom,geom),
+     &            dbl_mb(mb_exndcf(ii_exp,xbas)),
+     &            dbl_mb(mb_exndcf(ii_cf,xbas)),
+     &            ii_np, ii_gen, ii_type, ii_atom,
+
+     &            coords(1,jj_atom,geom),
+     &            dbl_mb(mb_exndcf(jj_exp,xbas)),
+     &            dbl_mb(mb_exndcf(jj_cf,xbas)),
+     &            jj_np, jj_gen, jj_type, jj_atom,
+
+     &            bufmm,nbfsh,scr,sizescr,.false.)
 *              if (nbfsh.eq.1) write(6,*)
 *     &            ' ',atom,' X=',ixyz,' -', bufm(1)
 *
-              call dcopy(nbfsh,bufp,1,buf,1)
-              call daxpy(nbfsh,-1.0d00,bufm,1,buf,1)
-              call dscal(nbfsh,factor,buf,1)
+*.............. 3 point
+              factor = 1.0d00/(2.0d00*delta)
+              call dcopy(nbfsh,bufp,1,buf3,1)
+              call daxpy(nbfsh,-1.0d00,bufm,1,buf3,1)
+              call dscal(nbfsh,factor,buf3,1)
+*.............. 5 point
+              factor = 2.0d0/(3.0d0*delta)
+              call dscal(nbfsh,factor,bufp,1)
+              call dscal(nbfsh,factor,bufm,1)
+              factor = 1.0d00/(12.0d00*delta)
+              call dscal(nbfsh,factor,bufpp,1)
+              call dscal(nbfsh,factor,bufmm,1)
+              call dcopy(nbfsh,          bufp, 1,buf,1)
+              call daxpy(nbfsh,-1.0d00,  bufm, 1,buf,1)
+              call daxpy(nbfsh,-1.0d00, bufpp, 1,buf,1)
+              call daxpy(nbfsh, 1.0d00, bufmm, 1,buf,1)
+              
 *              if (nbfsh.eq.1) write(6,*)
 *     &            ' ',atom,' X=',ixyz,' g', buf(1)
               cnt = 1
@@ -248,6 +328,8 @@ c
                 do j = jlo, jhi
                   fdgrad(i,j,ixyz,atom) = buf(cnt)
                   fdgrad(j,i,ixyz,atom) = buf(cnt)
+                    grad(i,j,ixyz,atom) = buf3(cnt)   ! grad has 3 point
+                    grad(j,i,ixyz,atom) = buf3(cnt)
                   cnt = cnt + 1
                 enddo
               enddo
@@ -257,12 +339,16 @@ c
           enddo
         enddo
       enddo
+      write(6,*)' differences between 3 point and 5 point '
+      call rak25_diff(fdgrad,grad,nbf,nat)
 c
 *      call prt25(fdgrad,nbf,nat,'fd gradient')
 c
       call dcopy(nat3,xyz,1,coords(1,1,geom),1)
+      call dfill((nbf*nbf*3*nat),0.0d00,grad,1)
       call int_ecp_terminate()
       ignore = int_ecp_init(ecpid, soid,1)
+*
       nshell_use = nshell
 *      nshell_use = 1
       do ishell = 1, nshell_use
