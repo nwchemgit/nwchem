@@ -78,41 +78,69 @@ c
 *     ..
 *     .. Executable Statements ..
 *      
+
+*$PL$ CMCHAR=' '
+CDIR$          NEXTSCALAR
+C$DIR          SCALAR
+CDIR$          NEXT SCALAR
+CVD$L          NOVECTOR
+CDEC$          NOVECTOR
+CVD$           NOVECTOR
+*VDIR          NOVECTOR
+*VOCL          LOOP,SCALAR
+CIBM           PREFER SCALAR
+*$PL$ CMCHAR='*'
+
  310  CONTINUE
       IF( B1.EQ.1 ) THEN
          T( B1 ) = -LAMBDA
       ELSE
          T( B1 ) = LD( B1-1 ) * L( B1-1 ) - LAMBDA
       END IF
-       
+      
       DO I = B1, BN-1
          DPLUS( I ) = ( D( I ) + T( I ) ) - DELTA
-c         LPLUS( I ) = LD( I ) / DPLUS( I )
+c     LPLUS( I ) = LD( I ) / DPLUS( I )
+         if ( dplus(i) .lt. DLAMCHU ) then
          LPLUS( I ) = LD( I ) /(DPLUS( I ) + DLAMCHU)
-         T ( I+1 ) = ( T( I )-DELTA ) * LPLUS( I ) * L( I ) - LAMBDA
+         else
+         LPLUS( I ) = LD( I ) /DPLUS( I )
+         endif
+
+         T ( I+1 ) =
+     $        ( T( I )-DELTA ) * LPLUS( I ) * L( I ) - LAMBDA
       END DO
-      DPLUS( BN ) = ( D( BN ) + T( BN ) ) - DELTA
-       
+      DPLUS( BN	) = ( D( BN ) + T( BN ) ) - DELTA
+      
       IF(.NOT.( ( DPLUS( BN ).GT.ZERO) .OR.
-     $          ( DPLUS( BN ).LT.ONE ) ) ) THEN
+     $     ( DPLUS( BN ).LT.ONE ) ) ) THEN
          IF( B1.EQ.1 ) THEN
             T( B1 ) = -LAMBDA
          ELSE
             T( B1 ) = LD( B1-1 ) * L( B1-1 ) - LAMBDA
          END IF
-       
+         
          DO I = B1, BN-1
             DPLUS( I ) = ( D( I ) + T( I ) ) - DELTA
-            LPLUS( I ) = LD( I ) /(DPLUS( I ) + DLAMCHU)
-*      
-*  Need to check the next few lines
-*      
-            IF(LPLUS( I ).EQ.0 .AND. ONE/(T( I )-DELTA).EQ.ZERO ) THEN
+         if ( dplus(i) .lt. DLAMCHU ) then
+         LPLUS( I ) = LD( I ) /(DPLUS( I ) + DLAMCHU)
+         else
+         LPLUS( I ) = LD( I ) /DPLUS( I )
+         endif
+c            LPLUS( I ) = LD( I ) /DPLUS( I )
+
+*     
+*     Need to check the next few lines
+*     
+         IF(LPLUS( I ).EQ.0 
+     $           .AND. ONE/(T( I )-DELTA).EQ.ZERO ) THEN
                T ( I+1 ) = L( I ) * LD( I ) - LAMBDA
-            ELSE IF((T(I)-DELTA).EQ.ZERO .AND. ONE/LPLUS(I).EQ.0 ) THEN
+            ELSE IF((T(I)-DELTA).EQ.ZERO
+     $              .AND. ONE/LPLUS(I).EQ.0 ) THEN
                T ( I+1 ) = -ONE / (DPLUS( I )+ DLAMCHU)
             ELSE
-               T ( I+1 ) = ( T( I )-DELTA )*LPLUS( I )*L( I ) - LAMBDA
+               T ( I+1 ) =
+     $              ( T( I )-DELTA )*LPLUS( I )*L( I ) - LAMBDA
             END IF
          END DO
          DPLUS( BN ) = ( D( BN ) + T( BN ) ) - DELTA
@@ -121,26 +149,6 @@ c         LPLUS( I ) = LD( I ) / DPLUS( I )
       IF(.NOT.( ( DPLUS( BN ).GT.ZERO) .OR.
      $          ( DPLUS( BN ).LT.ONE ) ) ) THEN
          print *,"DDSTQDS : NaN detected!"
-         print *,"dplus = [ "
-         do i = b1,bn
-            write(*,101) dplus(i)
-         end do
-         print *,"];"
-         print *,"lplus = [ "
-         do i = b1,bn-1
-           write(*,101) lplus(i)
-         end do
-         print *,"];"
-         print *,"t  = [ "
-         do i = b1,bn
-           write(*,101) t(i)
-         end do
-         print *,"];"
-         stop
-         EPS = DLAMCHP
-         LAMBDA = LAMBDA*(ONE+EPS)
-         print *,"New Lambda = "
-         write(*,101) LAMBDA
          GO TO 310
       END IF
        
@@ -166,8 +174,8 @@ c         LPLUS( I ) = LD( I ) / DPLUS( I )
       DOUBLE PRECISION   DELTA, LAMBDA
 *     ..
 *     .. Array Arguments ..
-      DOUBLE PRECISION   D( * ), L( * ), P( * ), DMINUS( * ),
-     $                   LLD( * ), UMINUS( * )
+      DOUBLE PRECISION   D( N ), L( N-1 ), P(N ), DMINUS( N ),
+     $                   LLD( N-1 ), UMINUS( N )
 *     ..
 *      
 *  Purpose
@@ -232,11 +240,30 @@ c         LPLUS( I ) = LD( I ) / DPLUS( I )
 *     ..
 *     .. Executable Statements ..
 *      
+
+*$PL$ CMCHAR=' '
+CDIR$          NEXTSCALAR
+C$DIR          SCALAR
+CDIR$          NEXT SCALAR
+CVD$L          NOVECTOR
+CDEC$          NOVECTOR
+CVD$           NOVECTOR
+*VDIR          NOVECTOR
+*VOCL          LOOP,SCALAR
+CIBM           PREFER SCALAR
+*$PL$ CMCHAR='*'
+
  210  CONTINUE
       P( BN ) = D( BN ) - LAMBDA
       DO I = BN-1, B1, -1
          DMINUS( I+1 ) = ( LLD( I ) + P( I+1 ) ) - DELTA
-         TMP = D( I ) / DMINUS( I+1 )
+
+         if ( dminus(i+1) < DLAMCHU ) then
+            TMP = D( I ) / (DMINUS( I+1 )+DLAMCHU)
+         else
+            TMP = D( I ) / DMINUS( I+1 )
+         endif
+
          UMINUS( I ) = L( I ) * TMP
          P ( I ) = ( P( I+1 ) - DELTA ) * TMP - LAMBDA
       END DO
@@ -251,7 +278,11 @@ c         LPLUS( I ) = LD( I ) / DPLUS( I )
          P( BN ) = D( BN ) - LAMBDA
          DO I = BN-1, B1, -1
             DMINUS( I+1 ) = ( LLD( I ) + P( I+1 ) ) - DELTA
-            TMP = D( I ) / DMINUS( I+1 )
+            if ( dminus(i+1) < DLAMCHU ) then
+               TMP = D( I ) / (DMINUS( I+1 )+DLAMCHU)
+            else
+               TMP = D( I ) / DMINUS( I+1 )
+            endif
             UMINUS( I ) = L( I ) * TMP
 *      
 *  Need to check the next few lines
@@ -272,31 +303,11 @@ c         LPLUS( I ) = LD( I ) / DPLUS( I )
       END IF
        
       IF(.NOT.( ( DMINUS( B1 ).GT.ZERO) .OR.
-     $          ( DMINUS( B1 ).LT.ONE ) ) ) THEN
-         print *,"DDQDS : NaN detected!"
-         print *,"dminus : "
-         do i = b1,bn
-           write(*,101) dminus(i)
-         end do
-         print *,"];"
-         print *,"uminus = [ "
-         do i = b1,bn-1
-           write(*,101) uminus(i)
-         end do
-         print *,"];"
-         print *,"p  = [ "
-         do i = b1,bn
-           write(*,101) p(i)
-         end do
-         print *,"];"
-         stop
-         EPS = DLAMCHP
-         LAMBDA = LAMBDA*(ONE+EPS)
-         print *,"New Lambda = "
-         write(*,101) LAMBDA
+     $     ( DMINUS( B1 ).LT.ONE ) ) ) THEN
+         print *," peigs DDQDS : NaN detected!"
          GO TO 210
       END IF
-       
+      
        
       RETURN
 101   format (E22.14)
@@ -307,10 +318,12 @@ c         LPLUS( I ) = LD( I ) / DPLUS( I )
 *      
       END
        
-      SUBROUTINE DCMPGAMMA( LAMBDA, DELTA, N, B1, BN, L, D,
-     $                   LD, LLD, LPLUS, DPLUS, UMINUS, DMINUS, T,
-     $                   P, K, GAMMA )
-*      
+      SUBROUTINE DCMPGAMMA( LAMBDA, DELTA, N, B1,
+     $     BN, L, D,
+     $     LD, LLD, LPLUS, DPLUS, UMINUS,
+     $     DMINUS, T,
+     $     P, K, GAMMA )
+*     
 *  -- LAPACK routine (version 0.0) -- in progress --
 *     September 1995
 *      
@@ -320,9 +333,10 @@ c         LPLUS( I ) = LD( I ) / DPLUS( I )
       DOUBLE PRECISION   DELTA, LAMBDA
 *     ..
 *     .. Array Arguments ..
-      DOUBLE PRECISION   D( * ), L( * ), P( * ), GAMMA( * ),
-     $                   DMINUS( * ), LPLUS( * ), T( * ), UMINUS( * ),
-     $                   DPLUS( * ), LD( * ), LLD( * )
+      DOUBLE PRECISION   D( N ), L( N-1 ), P( N ), GAMMA( N ),
+     $     DMINUS( N-1 ), LPLUS( N-1 ), T( N ),
+     $     UMINUS( N-1 ),
+     $     DPLUS( N ), LD( N-1 ), LLD( N-1 )
 *     ..
 *      
 *  Purpose
@@ -406,6 +420,19 @@ c         LPLUS( I ) = LD( I ) / DPLUS( I )
 *     ..
 *     .. Executable Statements ..
 *      
+
+*$PL$ CMCHAR=' '
+CDIR$          NEXTSCALAR
+C$DIR          SCALAR
+CDIR$          NEXT SCALAR
+CVD$L          NOVECTOR
+CDEC$          NOVECTOR
+CVD$           NOVECTOR
+*VDIR          NOVECTOR
+*VOCL          LOOP,SCALAR
+CIBM           PREFER SCALAR
+*$PL$ CMCHAR='*'
+
        
       EPS = DLAMCHP
       K = B1
@@ -571,11 +598,11 @@ C
       DOUBLE PRECISION   znrm, dummy, dummy1, dummy2
 *     ..
 *     .. External Functions ..
-      INTEGER            IDAMAX
-      EXTERNAL           IDAMAX
+      INTEGER            idamax
+      EXTERNAL           idamax
 c      
-      double precision DNRM2
-      external DNRM2
+      double precision dnrm2
+      external dnrm2
 c      
 *     ..
 *     .. Intrinsic Functions ..
@@ -590,6 +617,19 @@ c
       LOGICAL L7, L8, L9, L10, L11, L12, L13, L14, L15, L16, L17, L18
       ZBEGIN = B1
       ZEND = BN
+
+*$PL$ CMCHAR=' '
+CDIR$          NEXTSCALAR
+C$DIR          SCALAR
+CDIR$          NEXT SCALAR
+CVD$L          NOVECTOR
+CDEC$          NOVECTOR
+CVD$           NOVECTOR
+*VDIR          NOVECTOR
+*VOCL          LOOP,SCALAR
+CIBM           PREFER SCALAR
+*$PL$ CMCHAR='*'
+
       CALL DDSTQDS( LAMBDA, DELTA, N, B1, BN, L, D, LD,
      $     LPLUS, DPLUS, T )
       CALL DDQDS( LAMBDA, DELTA, N, B1, BN, L, D, LLD,
@@ -773,7 +813,7 @@ c     DO I = B1, BN
 c     ZTZ = ZTZ + Z( I ) * Z( I )
 c     END DO
 c      
-      ztz = DNRM2( bn-b1+1, z(b1), 1) + DLAMCHU
+      ztz = dnrm2( bn-b1+1, z(b1), 1) + DLAMCHU
 c      
       RETURN
 101   format (E22.14)

@@ -195,11 +195,11 @@
 *     .. External Functions ..
       LOGICAL            LSAME
       INTEGER            ILAENV
-      DOUBLE PRECISION   DLAMCH
-      EXTERNAL           LSAME, ILAENV, DLAMCH
+      DOUBLE PRECISION   dlamch
+      EXTERNAL           LSAME, ILAENV, dlamch
 *     ..
 *     .. External Subroutines ..
-      EXTERNAL           DLAEBZ, XERBLA
+      EXTERNAL           DLAEBZ2, XERBLA
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS, INT, LOG, MAX, MIN, SQRT
@@ -282,8 +282,8 @@ c
 *     NB is the minimum vector length for vector bisection, or 0
 *     if only scalar is to be done.
 *
-      SAFEMN = DLAMCH( 'S' )
-      ULP = DLAMCH( 'P' )
+      SAFEMN = dlamch( 'S' )
+      ULP = dlamch( 'P' )
       RTOLI = ULP*RELFAC
       NB = ILAENV( 1, 'DSTEBZ', ' ', N, -1, -1, -1 )
       IF( NB.LE.1 )
@@ -374,10 +374,12 @@ c
          IWORK( 5 ) = IL - 1
          IWORK( 6 ) = IU
 *
-         CALL DLAEBZ( 3, ITMAX, N, 2, 2, NB, ATOLI, RTOLI, PIVMIN, D, E,
-     $                WORK, IWORK( 5 ), WORK( N+1 ), WORK( N+5 ), IOUT,
-     $                IWORK, W, IBLOCK, IINFO )
-*
+         CALL DLAEBZ2( 3, ITMAX, N, 2, 2, NB, ATOLI,
+     $        RTOLI, PIVMIN, D, E,
+     $        WORK, IWORK( 5 ), WORK( N+1 ),
+     $        WORK( N+5 ), IOUT,
+     $        IWORK, W, IBLOCK, IINFO )
+*     
          IF( IWORK( 6 ).EQ.IU ) THEN
             WL = WORK( N+1 )
             WLU = WORK( N+3 )
@@ -500,10 +502,11 @@ c
 *
             WORK( N+1 ) = GL
             WORK( N+IN+1 ) = GU
-            CALL DLAEBZ( 1, 0, IN, IN, 1, NB, ATOLI, RTOLI, PIVMIN,
-     $                   D( IBEGIN ), E( IBEGIN ), WORK( IBEGIN ),
-     $                   IDUMMA, WORK( N+1 ), WORK( N+2*IN+1 ), IM,
-     $                   IWORK, W( M+1 ), IBLOCK( M+1 ), IINFO )
+            CALL DLAEBZ2( 1, 0, IN, IN, 1, NB, ATOLI,
+     $           RTOLI, PIVMIN,
+     $           D( IBEGIN ), E( IBEGIN ), WORK( IBEGIN ),
+     $           IDUMMA, WORK( N+1 ), WORK( N+2*IN+1 ), IM,
+     $           IWORK, W( M+1 ), IBLOCK( M+1 ), IINFO )
 *
             NWL = NWL + IWORK( 1 )
             NWU = NWU + IWORK( IN+1 )
@@ -513,7 +516,7 @@ c
 *
             ITMAX = INT( ( LOG( GU-GL+PIVMIN )-LOG( PIVMIN ) ) /
      $              LOG( TWO ) ) + 2
-            CALL DLAEBZ( 2, ITMAX, IN, IN, 1, NB, ATOLI, RTOLI, PIVMIN,
+            CALL DLAEBZ2( 2, ITMAX, IN, IN, 1, NB, ATOLI, RTOLI, PIVMIN,
      $                   D( IBEGIN ), E( IBEGIN ), WORK( IBEGIN ),
      $                   IDUMMA, WORK( N+1 ), WORK( N+2*IN+1 ), IOUT,
      $                   IWORK, W( M+1 ), IBLOCK( M+1 ), IINFO )

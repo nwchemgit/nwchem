@@ -72,3 +72,9 @@ clean:
 .f.o:; $(peigs_FC) -c $<
 .F.o:; $(peigs_FC) -c $<
 .c.o:; $(peigs_CC) -c $<
+
+dlasq1.o:	dlasq1.F
+		$(peigs_FC) -c -g $<
+
+dlasq2.o:	dlasq2.F
+		$(peigs_FC) -c -g $<

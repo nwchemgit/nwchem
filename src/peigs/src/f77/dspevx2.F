@@ -184,12 +184,12 @@
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      DOUBLE PRECISION   DLAMCH, DLANSP
-      EXTERNAL           LSAME, DLAMCH, DLANSP
+      DOUBLE PRECISION   dlamch, dlansp
+      EXTERNAL           LSAME, dlamch, dlansp
 *     ..
 *     .. External Subroutines ..
-      EXTERNAL           DCOPY, DOPGTR, DOPMTR, DSCAL, DSPTRD, DSTEBZ,
-     $                   DSTEIN, DSTEQR, DSTERF, DSWAP, XERBLA
+      EXTERNAL           dcopy, DOPGTR, DOPMTR, dscal, DSPTRD, DSTEBZ,
+     $                   DSTEIN, dsteqr, dsterf, dswap, XERBLA
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          MIN, SQRT
@@ -252,8 +252,8 @@
 *
 *     Get machine constants.
 *
-      SAFMIN = DLAMCH( 'Safe minimum' )
-      EPS = DLAMCH( 'Precision' )
+      SAFMIN = dlamch( 'Safe minimum' )
+      EPS = dlamch( 'Precision' )
 c
 c      SAFMIN = DLAMCHS
 c      EPS = DLAMCHP
@@ -271,7 +271,7 @@ c
          VLL = VL
          VUU = VU
       END IF
-      ANRM = DLANSP( 'M', UPLO, N, AP, WORK )
+      ANRM = dlansp( 'M', UPLO, N, AP, WORK )
       IF( ANRM.GT.ZERO .AND. ANRM.LT.RMIN ) THEN
          ISCALE = 1
          SIGMA = RMIN / ANRM
@@ -280,7 +280,7 @@ c
          SIGMA = RMAX / ANRM
       END IF
       IF( ISCALE.EQ.1 ) THEN
-         CALL DSCAL( ( N*( N+1 ) ) / 2, SIGMA, AP, 1 )
+         CALL dscal( ( N*( N+1 ) ) / 2, SIGMA, AP, 1 )
          IF( ABSTOL.GT.0 )
      $      ABSTLL = ABSTOL*SIGMA
          IF( VALEIG ) THEN
@@ -354,7 +354,7 @@ c
          ELSE
             IMAX = INFO - 1
          END IF
-         CALL DSCAL( IMAX, ONE / SIGMA, W, 1 )
+         CALL dscal( IMAX, ONE / SIGMA, W, 1 )
       END IF
 *
 *     If eigenvalues are not in order, then sort them, along with
@@ -377,7 +377,7 @@ c
                IWORK( INDIBL+I-1 ) = IWORK( INDIBL+J-1 )
                W( J ) = TMP1
                IWORK( INDIBL+J-1 ) = ITMP1
-               CALL DSWAP( N, Z( 1, I ), 1, Z( 1, J ), 1 )
+               CALL dswap( N, Z( 1, I ), 1, Z( 1, J ), 1 )
                IF( INFO.NE.0 ) THEN
                   ITMP1 = IFAIL( I )
                   IFAIL( I ) = IFAIL( J )

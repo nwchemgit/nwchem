@@ -1,69 +1,21 @@
-#include "blas_lapackf.h"
-*======================================================================
+      SUBROUTINE SSTEBZ3( RANGE1, ORDER1, N, VL, VU, IL, IU,
+     $  ABSTOL, D, E, M, NSPLIT, W, IBLOCK, ISPLIT, 
+     $  WORK, IWORK, INFO )
 *
-* DISCLAIMER
-*
-* This material was prepared as an account of work sponsored by an
-* agency of the United States Government.  Neither the United States
-* Government nor the United States Department of Energy, nor Battelle,
-* nor any of their employees, MAKES ANY WARRANTY, EXPRESS OR IMPLIED, OR
-* ASSUMES ANY LEGAL LIABILITY OR RESPONSIBILITY FOR THE ACCURACY,
-* COMPLETENESS, OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
-* SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE WOULD NOT
-* INFRINGE PRIVATELY OWNED RIGHTS.
-*
-* ACKNOWLEDGMENT
-*
-* This software and its documentation were produced with Government
-* support under Contract Number DE-AC06-76RLO-1830 awarded by the United
-* States Department of Energy.  The Government retains a paid-up
-* non-exclusive, irrevocable worldwide license to reproduce, prepare
-* derivative works, perform publicly and display publicly by or for the
-* Government, including the right to distribute to other Government
-* contractors.
-*
-*======================================================================
-*
-*  -- PEIGS  routine (version 2.1) --
-*     Pacific Northwest Laboratory
-*     July 28, 1995
-*
-*======================================================================
-      SUBROUTINE SSTEBZ3( RANGE1, ORDER1,
-     $     N, VL, VU, IL, IU,
-     $     ABSTOL, D, E,
-     $     M, NSPLIT, W, IBLOCK, ISPLIT,
-     $     WORK, IWORK,
-     $     INFO )
-*
-*     Modified version of LAPACK version 1.1 DSTEBZ.f.
-*
-*     CHANGES FROM LAPACK:
-*
-*     - Name changes
-*     - Fix method of throwing away extra eigenvalues.
-*     - Partition initial search interval if JOB='I',
-*          and first call to DLAEBZ yielded
-*          intervals rather than points.  This,
-*          helps insure W(I1) <= W(I2) when I1 < I2.
-*          and their are clusters of eigenvalues.
-*     - Add increment of NWL, NWU at the GO TO 70 statement
-*          This actually restores something taken out when
-*          going from version 1.0b to 1.1.
-*
-*  -- LAPACK routine (version 1.1pnl) --
+*  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
-*     March 31, 1993
+*     September 30, 1994
 *
 *     .. Scalar Arguments ..
-      integer ORDER1, RANGE1
+      CHARACTER          ORDER, RANGE
+      integer range1, order1
       INTEGER            IL, INFO, IU, M, N, NSPLIT
       REAL   ABSTOL, VL, VU
 *     ..
 *     .. Array Arguments ..
       INTEGER            IBLOCK( * ), ISPLIT( * ), IWORK( * )
-      REAL   D( * ), E( * ), W( * ), WORK( * )
+      REAL   D( N ), E( N-1 ), W( N ), WORK( * )
 *     ..
 *
 *  Purpose
@@ -73,6 +25,11 @@
 *  matrix T.  The user may ask for all eigenvalues, all eigenvalues
 *  in the half-open interval (VL, VU], or the IL-th through IU-th
 *  eigenvalues.
+*
+*  To avoid overflow, the matrix must be scaled so that its
+*  largest element is no greater than overflow**(1/2) *
+*  underflow**(1/4) in absolute value, and for greatest
+*  accuracy, it should not be much smaller than that.
 *
 *  See W. Kahan "Accurate Eigenvalues of a Symmetric Tridiagonal
 *  Matrix", Report CS41, Computer Science Dept., Stanford
@@ -99,28 +56,21 @@
 *                              largest.
 *
 *  N       (input) INTEGER
-*          The dimension of the tridiagonal matrix T.  N >= 0.
+*          The order of the tridiagonal matrix T.  N >= 0.
 *
 *  VL      (input) REAL
-*          If RANGE='V', the lower bound of the interval to be searched
-*          for eigenvalues.  Eigenvalues less than or equal to VL will
-*          not be returned.  Not referenced if RANGE='A' or 'I'.
-*
 *  VU      (input) REAL
-*          If RANGE='V', the upper bound of the interval to be searched
-*          for eigenvalues.  Eigenvalues greater than VU will not be
-*          returned.  VU must be greater than VL.  Not referenced if
-*          RANGE='A' or 'I'.
+*          If RANGE='V', the lower and upper bounds of the interval to
+*          be searched for eigenvalues.  Eigenvalues less than or equal
+*          to VL, or greater than VU, will not be returned.  VL < VU.
+*          Not referenced if RANGE = 'A' or 'I'.
 *
 *  IL      (input) INTEGER
-*          If RANGE='I', the index (from smallest to largest) of the
-*          smallest eigenvalue to be returned.  IL must be at least 1.
-*          Not referenced if RANGE='A' or 'V'.
-*
 *  IU      (input) INTEGER
-*          If RANGE='I', the index (from smallest to largest) of the
-*          largest eigenvalue to be returned.  IU must be at least IL
-*          and no greater than N.  Not referenced if RANGE='A' or 'V'.
+*          If RANGE='I', the indices (in ascending order) of the
+*          smallest and largest eigenvalues to be returned.
+*          1 <= IL <= IU <= N, if N > 0; IL = 1 and IU = 0 if N = 0.
+*          Not referenced if RANGE = 'A' or 'V'.
 *
 *  ABSTOL  (input) REAL
 *          The absolute tolerance for the eigenvalues.  An eigenvalue
@@ -129,19 +79,14 @@
 *          less.  If ABSTOL is less than or equal to zero, then ULP*|T|
 *          will be used, where |T| means the 1-norm of T.
 *
+*          Eigenvalues will be computed most accurately when ABSTOL is
+*          set to twice the underflow threshold 2*DLAMCH('S'), not zero.
+*
 *  D       (input) REAL array, dimension (N)
-*          The n diagonal elements of the tridiagonal matrix T.  To
-*          avoid overflow, the matrix must be scaled so that its largest
-*          entry is no greater than overflow**(1/2) * underflow**(1/4)
-*          in absolute value, and for greatest accuracy, it should not
-*          be much smaller than that.
+*          The n diagonal elements of the tridiagonal matrix T.
 *
 *  E       (input) REAL array, dimension (N-1)
 *          The (n-1) off-diagonal elements of the tridiagonal matrix T.
-*          To avoid overflow, the matrix must be scaled so that its
-*          largest entry is no greater than overflow**(1/2) *
-*          underflow**(1/4) in absolute value, and for greatest
-*          accuracy, it should not be much smaller than that.
 *
 *  M       (output) INTEGER
 *          The actual number of eigenvalues found. 0 <= M <= N.
@@ -159,9 +104,10 @@
 *  IBLOCK  (output) INTEGER array, dimension (N)
 *          At each row/column j where E(j) is zero or small, the
 *          matrix T is considered to split into a block diagonal
-*          matrix.  On exit, IBLOCK(i) specifies which block (from 1 to
-*          the number of blocks) the eigenvalue W(i) belongs to.
-*          (DSTEBZ may use the remaining N-M elements as workspace.)
+*          matrix.  On exit, if INFO = 0, IBLOCK(i) specifies to which
+*          block (from 1 to the number of blocks) the eigenvalue W(i)
+*          belongs.  (DSTEBZ may use the remaining N-M elements as
+*          workspace.)
 *
 *  ISPLIT  (output) INTEGER array, dimension (N)
 *          The splitting points, at which T breaks up into submatrices.
@@ -205,14 +151,6 @@
 *                                        floating-point arithmetic.
 *                        Cure: Increase the PARAMETER "FUDGE",
 *                              recompile, and try again.
-*                = 5:    RANGE='I', and for a 2-by-2 block we found
-*                        three distinct intervals containing eigenvalues
-*                        which implies the existance of > 2 eigenvalues,
-*                        an impossibility.
-*                        Cause:  non-monotonic arithmetic, causing the
-*                                Sturm sequence to be non-monotonic.
-*                        Cure:   recalculate, using RANGE='A', and pick
-*                                out eigenvalues IL:IU.
 *
 *  Internal Parameters
 *  ===================
@@ -235,48 +173,49 @@
 *
 *     .. Parameters ..
       REAL   ZERO, ONE, TWO, HALF
-      PARAMETER          ( ZERO = 0.0, ONE = 1.0, TWO = 2.0,
-     $                   HALF = 1.0/TWO )
+      PARAMETER          ( ZERO = 0.0e0, ONE = 1.e0, TWO = 2.0e0,
+     $                   HALF = 1.0e0 / TWO )
       REAL   FUDGE, RELFAC
-      PARAMETER          ( FUDGE = 2.0, RELFAC = 2.0 )
+      PARAMETER          ( FUDGE = 2.0e0, RELFAC = 2.0e0 )
 *     ..
 *     .. Local Scalars ..
       LOGICAL            NCNVRG, TOOFEW
       INTEGER            IB, IBEGIN, IDISCL, IDISCU, IE, IEND, IINFO,
      $                   IM, IN, IOFF, IORDER, IOUT, IRANGE, ITMAX,
      $                   ITMP1, IW, IWOFF, J, JB, JDISC, JE, NB, NWL,
-     $                   NWU, NINTRV
+     $                   NWU
       REAL   ATOLI, BNORM, GL, GU, PIVMIN, RTOLI, SAFEMN,
      $                   TMP1, TMP2, TNORM, ULP, WKILL, WL, WLU, WU, WUL
-      character          range, order
 *     ..
 *     .. Local Arrays ..
       INTEGER            IDUMMA( 1 )
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
-      INTEGER            ILAENV1
-      EXTERNAL           LSAME, ILAENV1
+      INTEGER            ILAENV
+      REAL   dlamch
+      EXTERNAL           LSAME, ILAENV, dlamch
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           SLAEBZ2, XERBLA
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS, INT, LOG, MAX, MIN, SQRT
-#include "blas_lapack.data"
 *     ..
 *     .. Executable Statements ..
 *
       INFO = 0
-*
-*     Decode RANGE
-*
+c
       if ( range1 .eq. 1 ) range = 'A'
       if ( range1 .eq. 2 ) range = 'V'
       if ( range1 .eq. 3 ) range = 'I'
       if ( order1 .eq. 1 ) order = 'B'
       if ( order1 .eq. 2 ) order = 'E'
-           
+
+
+*
+*     Decode RANGE
+*
       IF( LSAME( RANGE, 'A' ) ) THEN
          IRANGE = 1
       ELSE IF( LSAME( RANGE, 'V' ) ) THEN
@@ -291,7 +230,7 @@
 *
       IF( LSAME( ORDER, 'B' ) ) THEN
          IORDER = 2
-      ELSE IF( LSAME( ORDER, 'E' ) .OR. LSAME( ORDER, 'A' ) ) THEN
+      ELSE IF( LSAME( ORDER, 'E' ) ) THEN
          IORDER = 1
       ELSE
          IORDER = 0
@@ -316,7 +255,7 @@
       END IF
 *
       IF( INFO.NE.0 ) THEN
-         CALL XERBLA( 'DSTEBZ3', -INFO )
+         CALL XERBLA( 'DSTEBZ', -INFO )
          RETURN
       END IF
 *
@@ -341,12 +280,10 @@
 *     NB is the minimum vector length for vector bisection, or 0
 *     if only scalar is to be done.
 *
-c
-      SAFEMN = SLAMCHS
-      ULP = SLAMCHP
-c
+      SAFEMN = dlamch( 'S' )
+      ULP = dlamch( 'P' )
       RTOLI = ULP*RELFAC
-      NB = ILAENV1( 1, 'DSTEBZ', ' ', N, -1, -1, -1 )
+      NB = ILAENV( 1, 'SSTEBZ3', ' ', N, -1, -1, -1 )
       IF( NB.LE.1 )
      $   NB = 0
 *
@@ -435,10 +372,11 @@ c
          IWORK( 5 ) = IL - 1
          IWORK( 6 ) = IU
 *
-         CALL SLAEBZ2( 3, ITMAX, N, 2, 2, NB, ATOLI, RTOLI, PIVMIN, D,
-     $                E,
-     $                WORK, IWORK( 5 ), WORK( N+1 ), WORK( N+5 ), IOUT,
-     $                IWORK, W, IBLOCK, IINFO )
+         CALL SLAEBZ2( 3, ITMAX, N, 2, 2, NB, ATOLI,
+     $        RTOLI, PIVMIN, D, E,
+     $        WORK, IWORK( 5 ), WORK( N+1 ),
+     $        WORK( N+5 ), IOUT,
+     $        IWORK, W, IBLOCK, IINFO )
 *
          IF( IWORK( 6 ).EQ.IU ) THEN
             WL = WORK( N+1 )
@@ -488,8 +426,6 @@ c
 *     NWL accumulates the number of eigenvalues .le. WL,
 *     NWU accumulates the number of eigenvalues .le. WU
 *
-      MWL = NWL
-      MWU = NWU
       M = 0
       IEND = 0
       INFO = 0
@@ -540,132 +476,51 @@ c
             GL = GL - FUDGE*BNORM*ULP*IN - FUDGE*PIVMIN
             GU = GU + FUDGE*BNORM*ULP*IN + FUDGE*PIVMIN
 *
-            IF( IRANGE.GT.1 ) THEN
-               GL = MAX( GL, WL )
-               GU = MIN( GU, WU )
-               IF( GL.GE.GU ) THEN
-                  IF( GU .LE. WL) THEN
-                    NWL = NWL + IN
-                    NWU = NWU + IN
-                  END IF
- 
-                  GO TO 70
-               END IF
+*           Compute ATOLI for the current submatrix
+*
+            IF( ABSTOL.LE.ZERO ) THEN
+               ATOLI = ULP*MAX( ABS( GL ), ABS( GU ) )
+            ELSE
+               ATOLI = ABSTOL
             END IF
 *
-*           Set Up Initial Intervals
+            IF( IRANGE.GT.1 ) THEN
+               IF( GU.LT.WL ) THEN
+                  NWL = NWL + IN
+                  NWU = NWU + IN
+                  GO TO 70
+               END IF
+               GL = MAX( GL, WL )
+               GU = MIN( GU, WU )
+               IF( GL.GE.GU )
+     $            GO TO 70
+            END IF
 *
-            NINTRV = 1
+*           Set Up Initial Interval
+*
             WORK( N+1 ) = GL
             WORK( N+IN+1 ) = GU
-*
-            IF( IRANGE .EQ. 3 ) THEN
-*
-              IF( WL  .LT. WLU  .AND.
-     $            WLU .LT. WUL  .AND.
-     $            WUL .LT. WU   .AND.
-     $            GL  .LT. WLU  .AND.
-     $            GU  .GT. WUL       ) THEN
-*
-                IF( IN .GT. 2 ) THEN
-                  NINTRV = 3
-                  WORK( N+1 )    = GL
-                  WORK( N+2 )    = WLU
-                  WORK( N+3 )    = WUL
-                  WORK( N+IN+1 ) = WLU
-                  WORK( N+IN+2 ) = WUL
-                  WORK( N+IN+3 ) = GU
-                ELSE
-                  IRANGE = -3
-                  NINTRV = 2
-                  WORK( N+1 )    = GL
-                  WORK( N+2 )    = WUL
-                  WORK( N+IN+1 ) = WLU
-                  WORK( N+IN+2 ) = GU
-                ENDIF
-*
-              ELSE IF( WL .LT. WLU  .AND.
-     $                 GL .LT. WLU  .AND.
-     $                 GU .GT. WLU       ) THEN
-*
-                NINTRV = 2
-                WORK( N+1 )    = GL 
-                WORK( N+2 )    = WLU
-                WORK( N+IN+1 ) = WLU
-                WORK( N+IN+2 ) = GU
-*
-              ELSE IF( WUL .LT. WU   .AND.
-     $                 GL  .LT. WUL  .AND.
-     $                 GU  .GT. WUL       ) THEN
-*
-                NINTRV = 2
-                WORK( N+1 )    = GL
-                WORK( N+2 )    = WUL
-                WORK( N+IN+1 ) = WUL
-                WORK( N+IN+2 ) = GU
-*
-              ENDIF
-            ENDIF
-
-C*            WRITE(*,'(1X,A,5I3, 1P, 3(2X,2D13.5))') 
-C*     $         'JB,NWL,U,IL,U = ', JB, MWL, MWU, IL, IU,
-C*     $            (WORK(N+I),WORK(N+IN+I),I=1,NINTRV)
-            CALL SLAEBZ2( 1, 0, IN, IN, NINTRV, NB, ATOLI, RTOLI,
-     $                   PIVMIN,
-     $                   D( IBEGIN ), E( IBEGIN ), WORK( IBEGIN ),
-     $                   IDUMMA, WORK( N+1 ), WORK( N+2*IN+1 ), IM,
-     $                   IWORK, W( M+1 ), IBLOCK( M+1 ), IINFO )
-*
+            CALL SLAEBZ2( 1, 0, IN, IN, 1, NB,
+     $           ATOLI, RTOLI, PIVMIN,
+     $           D( IBEGIN ), E( IBEGIN ), WORK( IBEGIN ),
+     $           IDUMMA, WORK( N+1 ), WORK( N+2*IN+1 ), IM,
+     $           IWORK, W( M+1 ), IBLOCK( M+1 ), IINFO )
+*     
             NWL = NWL + IWORK( 1 )
-            NWU = NWU + IWORK( IN+NINTRV )
+            NWU = NWU + IWORK( IN+1 )
             IWOFF = M - IWORK( 1 )
-*
-            IF( IRANGE .EQ. -3 ) THEN
-              IRANGE = 3
-              NINTRV = 0
-*
-              IF( IWORK( IN + 1 ) .GT. IWORK( 1 ) ) THEN
-*               Eigenvalues in interval (GL, WLU].
-                NINTRV = NINTRV + 1
-                WORK( N+NINTRV )    = GL
-                WORK( N+IN+NINTRV ) = WLU
-              ENDIF
-*
-              IF( IWORK( 2 ) .GT. IWORK( IN + 1 ) ) THEN
-*               Eigenvalues in interval (WLU, WUL].
-                NINTRV = NINTRV + 1
-                WORK( N+NINTRV )    = WLU
-                WORK( N+IN+NINTRV ) = WUL
-              ENDIF
-*
-              IF( IWORK( IN + 2 ) .GT. IWORK( 2 ) ) THEN
-*               Eigenvalues in interval (WUL, GU].
-*
-                NINTRV = NINTRV + 1
-                IF( NINTRV .GT. 2 ) THEN
-                  INFO = 5
-                  RETURN
-                ENDIF
-*
-                WORK( N+NINTRV )    = WUL
-                WORK( N+IN+NINTRV ) = GU
-              ENDIF
-*
-              NINTRV = MAX( NINTRV, 1 )
-                  
-            ENDIF
 *
 *           Compute Eigenvalues
 *
             ITMAX = INT( ( LOG( GU-GL+PIVMIN )-LOG( PIVMIN ) ) /
      $              LOG( TWO ) ) + 2
-            CALL SLAEBZ2( 2, ITMAX, IN, IN, NINTRV, NB, ATOLI, RTOLI,
-     $                   PIVMIN,
-     $                   D( IBEGIN ), E( IBEGIN ), WORK( IBEGIN ),
-     $                   IDUMMA, WORK( N+1 ), WORK( N+2*IN+1 ), IOUT,
-     $                   IWORK, W( M+1 ), IBLOCK( M+1 ), IINFO )
-*
-*           Copy Eigenvalues Into W and IBLOCK
+            CALL SLAEBZ2( 2, ITMAX, IN, IN, 1, NB,
+     $           ATOLI, RTOLI, PIVMIN,
+     $           D( IBEGIN ), E( IBEGIN ), WORK( IBEGIN ),
+     $           IDUMMA, WORK( N+1 ), WORK( N+2*IN+1 ), IOUT,
+     $           IWORK, W( M+1 ), IBLOCK( M+1 ), IINFO )
+*     
+*     Copy Eigenvalues Into W and IBLOCK
 *           Use -JB for block number for unconverged eigenvalues.
 *
             DO 60 J = 1, IOUT
@@ -694,10 +549,35 @@ C*     $            (WORK(N+I),WORK(N+IN+I),I=1,NINTRV)
 *     If NWL+1 < IL or NWU > IU, discard extra eigenvalues.
 *
       IF( IRANGE.EQ.3 ) THEN
+         IM = 0
          IDISCL = IL - 1 - NWL
          IDISCU = NWU - IU
 *
          IF( IDISCL.GT.0 .OR. IDISCU.GT.0 ) THEN
+            DO 80 JE = 1, M
+               IF( W( JE ).LE.WLU .AND. IDISCL.GT.0 ) THEN
+                  IDISCL = IDISCL - 1
+               ELSE IF( W( JE ).GE.WUL .AND. IDISCU.GT.0 ) THEN
+                  IDISCU = IDISCU - 1
+               ELSE
+                  IM = IM + 1
+                  W( IM ) = W( JE )
+                  IBLOCK( IM ) = IBLOCK( JE )
+               END IF
+   80       CONTINUE
+            M = IM
+         END IF
+         IF( IDISCL.GT.0 .OR. IDISCU.GT.0 ) THEN
+*
+*           Code to deal with effects of bad arithmetic:
+*           Some low eigenvalues to be discarded are not in (WL,WLU],
+*           or high eigenvalues to be discarded are not in (WUL,WU]
+*           so just kill off the smallest IDISCL/largest IDISCU
+*           eigenvalues, by simply finding the smallest/largest
+*           eigenvalue(s).
+*
+*           (If N(w) is monotone non-decreasing, this should never
+*               happen.)
 *
             IF( IDISCL.GT.0 ) THEN
                WKILL = WU
@@ -720,7 +600,7 @@ C*     $            (WORK(N+I),WORK(N+IN+I),I=1,NINTRV)
                   IW = 0
                   DO 110 JE = 1, M
                      IF( IBLOCK( JE ).NE.0 .AND.
-     $                   ( W( JE ).GE.WKILL .OR. IW.EQ.0 ) ) THEN
+     $                   ( W( JE ).GT.WKILL .OR. IW.EQ.0 ) ) THEN
                         IW = JE
                         WKILL = W( JE )
                      END IF
@@ -745,7 +625,7 @@ C*     $            (WORK(N+I),WORK(N+IN+I),I=1,NINTRV)
 *
 *     If ORDER='B', do nothing -- the eigenvalues are already sorted
 *        by block.
-*     If ORDER='E' or 'A', sort the eigenvalues from smallest to largest
+*     If ORDER='E', sort the eigenvalues from smallest to largest
 *
       IF( IORDER.EQ.1 .AND. NSPLIT.GT.1 ) THEN
          DO 150 JE = 1, M - 1
@@ -775,6 +655,6 @@ C*     $            (WORK(N+I),WORK(N+IN+I),I=1,NINTRV)
      $   INFO = INFO + 2
       RETURN
 *
-*     End of DSTEBZ3
+*     End of DSTEBZ
 *
       END
