@@ -1,4 +1,4 @@
-c $Id: api.doc,v 1.8 1994-05-05 17:21:10 d3e129 Exp $
+c $Id: api.doc,v 1.9 1994-05-05 19:07:40 d3e129 Exp $
 c
 critical path
 --------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ next to be done
 ... one_3c_int = <i_g(ish).j_g(jsh).k_g(ksh)>
 . int_1e3ov(i_basis, ish, j_basis, jsh, k_basis, ksh, lscr,
                    scr, lov3, OV3)
- int_l1e3ov(i_basis, j_basis, k_basis, ish, jsh, ksh, zerotol,
+. int_l1e3ov(i_basis, ish, j_basis, jsh, k_basis, ksh, zerotol,
                lov3, OV3, ilab, jlab, klab, numov3, lscr, scr)
 
 

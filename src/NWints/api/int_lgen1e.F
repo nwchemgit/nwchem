@@ -1,6 +1,6 @@
       subroutine int_lgen1e(i_basis, ish, j_basis, jsh, zerotol,
      &       ilab, jlab, l1e, Gen1e, lscr, scr, numgen) 
-c $Id: int_lgen1e.F,v 1.6 1994-05-05 17:21:19 d3e129 Exp $
+c $Id: int_lgen1e.F,v 1.7 1994-05-05 19:07:44 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -38,6 +38,11 @@ c
       jbas  = j_basis + BASIS_HANDLE_OFFSET
       ijbas = ibas .eq. jbas
 c
+c copy Gen1e vector to scratch array
+c      
+      if (l1e.gt.lscr)
+     & call errquit('int_lgen1e: scratch array too small. need:',l1e)
+      
       call dcopy(l1e,Gen1e,1,scr,1)
 c
       numgen = 0
