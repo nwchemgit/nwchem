@@ -1,0 +1,83 @@
+      subroutine mp2_grad_doit(g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
+     $     irs_a,sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,  
+     $     num_oa,num_va,
+     $     g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
+     $     irs_b,sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
+     $     num_ob,num_vb,
+     $     eval_a,eval_b,
+     $     basis,geom,tol2e,e2,nbf)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+      integer g_vecs_a,g_vecs_b
+      integer noa_lo,noa_hi,nob_lo,nob_hi
+      integer irs_a(*),irs_b(*)
+      integer nva_lo,nva_hi,nvb_lo,nvb_hi
+      integer sym_lo_oa(0:7),sym_hi_oa(0:7)
+      integer sym_lo_va(0:7),sym_hi_va(0:7)
+      integer sym_lo_ob(0:7),sym_hi_ob(0:7)
+      integer sym_lo_vb(0:7),sym_hi_vb(0:7)
+      integer num_oa(0:*),num_va(0:*)
+      integer num_ob(0:*),num_vb(0:*)
+      integer basis
+      integer geom
+      integer nbf
+      integer num_i_perseg
+      integer k_amos,k_bmos,l_amos,l_bmos
+      integer k_v,l_v
+      integer k_temp,l_temp
+      integer k_uv_ia,l_uv_ia
+      integer k_jb_ia,l_jb_ia
+      integer itmp,kunit
+      integer nnbf,ioff
+      character*256 fname,tmpname
+      integer nva_lo_local,nva_hi_local
+      parameter (kunit=11)
+      logical ocoul,oexch
+      double precision tol2e,e2
+      double precision eval_a(*),eval_b(*)
+c
+c
+      integer oseg_lo,oseg_hi
+      ocoul=.false.
+      oexch=.true.
+      num_i_perseg=noa_hi
+      do oseg_lo=noa_lo,noa_hi,num_i_perseg
+         oseg_hi=min((oseg_lo+num_i_perseg-1),noa_hi)
+         call moints_semi(basis,tol2e,ocoul,oexch,oseg_lo,oseg_hi,
+     $        noa_lo,noa_hi,nva_lo,nva_hi,g_vecs_a)
+         if(.not.ma_push_get(mt_dbl,nbf*nbf,'amos',l_amos,k_amos))
+     $        call errquit('mp2_grad_doit: error with ma',1)
+         if(.not.ma_push_get(mt_dbl,nbf*nbf,'bmos',l_bmos,k_bmos))
+     $        call errquit('mp2_grad_doit: error with ma',1)
+         call ga_get(g_vecs_a,1,nbf,1,nbf,dbl_mb(k_amos),nbf)
+         call ga_get(g_vecs_b,1,nbf,1,nbf,dbl_mb(k_bmos),nbf)
+         call util_file_prefix('khalf',tmpname)
+         call util_pname(tmpname,fname)
+         call waopen(kunit,fname,1,0,itmp)
+         if(itmp.ne.0)call errquit('mp2_grad_doit waopen?',1)
+         call moints_vrange(kunit,nva_lo_local,nva_hi_local,nnbf,ioff)
+         if(.not.ma_push_get(mt_int,(nnbf+mod(nnbf,2)),'scatter',
+     $        l_v,k_v))call errquit('could not alloc k_v',1)
+         call moints_getscattv(kunit,nnbf,int_mb(k_v))
+         if(.not.ma_push_get(mt_dbl,nbf*nbf,'uv_ia',l_uv_ia,k_uv_ia))
+     $        call errquit('could not alloc uv_ia',1)
+         if(.not.ma_push_get(mt_dbl,nbf*nbf,'jb_ia',l_jb_ia,k_jb_ia))
+     $        call errquit('could not alloc jb_ia',1)
+         if(.not.ma_push_get(mt_dbl,nbf*nbf,'temp',l_temp,k_temp))
+     $        call errquit('could not alloc temp',1)
+         call mp2_make_t(nbf,noa_lo,noa_hi,nva_lo,nva_hi,
+     $        sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,num_oa,num_va,
+     $        nob_lo,nob_hi,nvb_lo,nvb_hi,sym_lo_ob,sym_hi_ob,
+     $        sym_lo_vb,sym_hi_vb,num_ob,num_vb,oseg_lo,oseg_hi,
+     $        basis,irs_a,dbl_mb(k_amos),irs_b,dbl_mb(k_bmos),
+     $        dbl_mb(k_uv_ia),dbl_mb(k_jb_ia),
+     $        eval_a,eval_b,
+     $        dbl_mb(k_temp),ioff,nnbf,int_mb(k_v),
+     $        nva_lo_local,nva_hi_local,e2)
+         if(.not.ma_chop_stack(l_amos))call errquit(
+     $        'chop stack problem',1)
+      enddo
+      end
+         
+
