@@ -68,7 +68,8 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_et.F,v 1.1 2001-11-19 22:15:57 d3k958 Exp $
+* $Id: task_et.F,v 1.2 2001-11-19 22:18:11 d3k958 Exp $
+c
 *
       implicit none
 #include "rtdb.fh"
