@@ -1,6 +1,6 @@
       logical function task_num_grad(rtdb)
 *
-* $Id: task_num_grad.F,v 1.20 1997-12-03 10:09:06 d3e129 Exp $
+* $Id: task_num_grad.F,v 1.21 1997-12-08 18:39:12 d3g681 Exp $
 *
       implicit none
 #include "geom.fh"
@@ -217,6 +217,12 @@ c     (reget theory since may have uppercased it)
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task_num_grad: theory missing?',0)
+c
+c     Nasty little hack ... CCSD module produces energy for multiple theories 
+c
+      if ((theory.eq.'ccsd(t)') .or. (theory.eq.'ccsd+t(ccsd)'))
+     $     theory = 'ccsd'
+c
       key = ' '
       write(key,'(a,'':gradient'')') theory(1:inp_strlen(theory))
       if (.not. rtdb_put(rtdb, key, mt_dbl, natoms3, dbl_mb(k_grad)))

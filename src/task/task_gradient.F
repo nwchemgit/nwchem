@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.15 1997-05-28 21:53:27 d3g681 Exp $
+* $Id: task_gradient.F,v 1.16 1997-12-08 18:39:11 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -99,6 +99,12 @@ c
       else if (theory .eq. 'oimp2') then
          status = .false.       ! No derivatives yet
       else if (theory .eq. 'ccsd') then
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'ccsd(t)') then
+         prefix = 'ccsd'
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'ccsd+t(ccsd)') then
+         prefix = 'ccsd'
          status = task_num_grad(rtdb) ! Only numerical
       else if (theory .eq. 'qmmm') then
          if (ga_nodeid().eq.0) then

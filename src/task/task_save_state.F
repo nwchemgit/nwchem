@@ -1,6 +1,6 @@
       logical function task_save_state(rtdb,suffix)
 *
-* $Id: task_save_state.F,v 1.5 1997-04-02 23:25:07 d3e129 Exp $
+* $Id: task_save_state.F,v 1.6 1997-12-08 18:39:13 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -87,6 +87,25 @@ c     Also need to save the CI vectors for MCSCF.  Don't know if
 c     the selci used SCF or MCSCF.
 c     
             call util_file_name('civec',.false.,.false.,vectors)
+            inquire(file=vectors,exist=oexist)
+            if (oexist) then
+               name = ' '
+               write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
+     $              suffix(1:inp_strlen(suffix))
+               call util_file_copy(vectors, name)
+               if (oprint) then
+                  write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+                  call util_flush(6)
+               endif
+            endif
+         endif
+c
+         if (theory.eq.'ccsd' .or. theory.eq.'ccsd(t)'
+     $        .or. theory.eq.'ccsd+t(ccsd)') then
+c     
+c     Also need to save the CCSD amplitudes
+c     
+            call util_file_name('t2',.false.,.false.,vectors)
             inquire(file=vectors,exist=oexist)
             if (oexist) then
                name = ' '
@@ -204,6 +223,25 @@ c     Also need to restore the CI vectors for MCSCF.  Don't know if
 c     the selci used SCF or MCSCF so just copy the file if it exists.
 c     
             call util_file_name('civec',.false.,.false.,vectors)
+            name = ' '
+            write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
+     $           suffix(1:inp_strlen(suffix))
+            inquire(file=name,exist=oexist)
+            if (oexist) then
+               call util_file_copy(name,vectors)
+               if (oprint) then
+                  write(6,'(8x,a)') vectors(1:inp_strlen(vectors))
+                  call util_flush(6)
+               endif
+            endif
+         endif
+c
+         if (theory.eq.'ccsd' .or. theory.eq.'ccsd(t)'
+     $        .or. theory.eq.'ccsd+t(ccsd)') then
+c     
+c     Also need to restore the CCSD amplitudes
+c     
+            call util_file_name('t2',.false.,.false.,vectors)
             name = ' '
             write(name,'(a,''.'',a)') vectors(1:inp_strlen(vectors)),
      $           suffix(1:inp_strlen(suffix))
