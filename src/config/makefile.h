@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.219 1997-03-14 21:13:09 d3e129 Exp $
+# $Id: makefile.h,v 1.220 1997-03-18 10:05:42 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -565,7 +565,7 @@ ifeq ($(TARGET),SGI)
   MAKEFLAGS = -j 4 --no-print-directory
     DEFINES = -DSGI
 
-  FOPTIONS = # -mips3
+  FOPTIONS = -Nn10000 # -mips3
   COPTIONS =  -fullwarn #-mips3
  FOPTIMIZE = -O2
  COPTIMIZE = -O2
