@@ -22,6 +22,7 @@ OBJ_ENERGY = \
       ecp_cstrans.o  \
       ecp_down_m.o   \
       ecp_gaussq.o   \
+      ecp_ind_var.o  \
       ecp_init_c2s.o \
       ecp_init_con.o \
       ecp_int0.o     \
