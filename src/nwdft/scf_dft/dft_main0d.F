@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.24 1999-02-09 23:20:16 d3h449 Exp $
+c     $Id: dft_main0d.F,v 1.25 1999-05-10 22:46:33 edo Exp $
 c     
       implicit none
 c
@@ -27,7 +27,7 @@ c
       external ga_create_atom_blocked
 c
       integer g_dens(2), g_evecs(2), g_vxc(4)
-      integer g_svecs, g_xcinv, g_oi, g_2ceri, g_cdinv
+      integer g_svecs, g_xcinv, g_oi
       integer g_s, g_fock, g_tmpb, g_tmp
       integer nvxc
       integer me, nproc, info
@@ -212,19 +212,7 @@ c
      &      call errquit('dft_main0d: error creating g_cdinv',0)
          call ga_zero(g_cdinv)
          lmiss = 1
-         if (me.eq.0.and.IOLGC)then
-c
-c           try to read old CDI matrix on disk; use if appropriate
-c
-            call dft_invio('CDI', g_cdinv, nbf_cd, 'READ', lmiss)
-            if (lmiss.ne.0)then
-               if (oprint_ioinfo)write(6, *)
-     &         ' old CDI READ miss; constructing new matrix. '
-            endif
-         endif
-         call ga_brdcst(Msg_CD_Ex, lmiss, mitob(1), 0)
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2f'
-         if (lmiss.eq.1) then
+c         if (lmiss.eq.1) then
             call ga_zero(g_cdinv)
             info = 0
 c            do i = 0, nproc
@@ -280,7 +268,7 @@ c                  call errquit(' temp stop this should not happen',0)
                endif
             endif
             call ga_sync
-         endif
+c         endif
          if (IOLGC) then
 c            call gadest(g_cdinv)
             if (.not. ga_destroy(g_cdinv)) call errquit
@@ -386,7 +374,7 @@ c
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2'
       dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
      &                     iter, g_dens, g_evecs, g_vxc, g_fock, 
-     &                     g_svecs, isvals, g_cdinv, g_xcinv, g_2ceri)
+     &                     g_svecs, isvals, g_xcinv)
 c     
 c     Clean up memory usage.
 c     
