@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.92 1999-02-01 16:40:55 d3j191 Exp $
+# $Id: make_nwchem_config,v 1.93 1999-02-01 18:01:06 d3h449 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -18,7 +18,7 @@
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf prepar \
         nwargos esp hessian plane_wave selci dplot mp2_grad nwaprep oimp2 \
-        property gapss fft rimp2_grad nbo python analyz cf
+        property gapss fft rimp2_grad nbo python analyz
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
