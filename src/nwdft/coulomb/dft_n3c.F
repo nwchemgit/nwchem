@@ -1,6 +1,6 @@
       double precision function dft_n3cdbl( AO_bas_han, CD_bas_han,
      &     itol2e)
-C$Id: dft_n3c.F,v 1.5 1996-11-27 23:48:18 d3h449 Exp $
+C$Id: dft_n3c.F,v 1.6 1996-12-03 18:30:36 d3h449 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -102,21 +102,22 @@ c     processor and allow for some load-unbalance, e.g., 1.5
 c
       dft_n3cdbl = dft_n3cdbl/dble(nproc) + dble(batch_max) + 1024.0d0
 c
-c     cannot be smaller than mxsh*mxsh*nbf_cd
+c     cannot be smaller than mxsh*mxsh*nbf_cd*icount
 c
       dft_n3cdbl = max(dft_n3cdbl,batch_max)
 c
-      if(me.eq.0)write(LuOut,1111)n3, ischw1, dft_n3cdbl
+      if(me.eq.0)write(LuOut,1111)n3, ischw1, dft_n3cdbl, batch_max
  1111 format(/,
      &       10x,'Maximum number of 3-center 2e- integrals is: ',f15.0,
      &     /,10x,'  This is reduced with Schwarz screening to: ',f15.0,
-     &     /,10x,'  Incore requires a per proc buffer size of: ',f15.0)
+     &     /,10x,'  Incore requires a per proc buffer size of: ',f15.0,
+     &     /,10x,'        The minimum integral buffer size is: ',f15.0)
 c      
       return
       end
       integer function dft_n3cint(AO_bas_han, CD_bas_han, 
      &      itol2e)
-C$Id: dft_n3c.F,v 1.5 1996-11-27 23:48:18 d3h449 Exp $
+C$Id: dft_n3c.F,v 1.6 1996-12-03 18:30:36 d3h449 Exp $
       implicit none
             
 c****

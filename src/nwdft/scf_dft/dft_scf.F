@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.48 1996-11-27 23:48:27 d3h449 Exp $
+C$Id: dft_scf.F,v 1.49 1996-12-03 18:30:49 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -449,16 +449,6 @@ c
       if (movecs_out.eq.' ') then
             movecs_out = movecs_in
       endif
-c
-      if( me.eq.0 )then
-        nheap = MA_Inquire_Heap(MT_Dbl)
-        nstack = MA_Inquire_Stack(MT_Dbl)
-        write(LuOut,'(10x,a,f10.2,i20)')
-     &       ' Heap Space remaining (MW):  ',dble(nheap)*1.D-06,nheap
-        write(LuOut,'(10x,a,f10.2,i20)')
-     &       'Stack Space remaining (MW):  ',dble(nstack)*1.D-06,nstack
-	call flush(LuOut)
-      end if
 c**** 
 c**** Top of infinite SCF iteration loop
 c**** 
@@ -784,9 +774,18 @@ c
       enddo     ! end loop over ispin
 c
       if(oprint.and.iter.eq.1.and.me.eq.0)then
+        nheap = MA_Inquire_Heap(MT_Dbl)
+        nstack = MA_Inquire_Stack(MT_Dbl)
+        write(LuOut,21)
+        write(LuOut,'(10x,a,f10.2,i20)')
+     &       ' Heap Space remaining (MW):  ',dble(nheap)*1.D-06,nheap
+        write(LuOut,'(10x,a,f10.2,i20)')
+     &       'Stack Space remaining (MW):  ',dble(nstack)*1.D-06,nstack
+	call flush(LuOut)
         write(LuOut,1)
       endif
- 1    format(/,
+   21 format(/,10x,' Memory utilization after 1st SCF pass: ')
+    1 format(/,
      $      1x,'  convergence    iter        energy       DeltaE   ',
      $         'RMS-Dens  Diis-err    time'/
      $      1x,'---------------- ----- ----------------- --------- ',
