@@ -1,6 +1,6 @@
       subroutine qhop_alloc
 c
-c $Id: qhop_final.F,v 1.4 2003-08-12 16:57:52 d3j191 Exp $
+c $Id: qhop_final.F,v 1.5 2003-08-18 16:40:53 d3j191 Exp $
 c
       implicit none
 c
@@ -17,18 +17,18 @@ c
 c
 c     allocate memory for parameter arrays
 c
-      if(.not.ma_push_get(mt_int,2*maxseq,'iptseq',l_ptseq,i_ptseq))
-     + call errquit('Failed to allocate iptseq',0)
-      if(.not.ma_push_get(mt_int,mxseq,'iptarat',l_ptarat,i_ptarat))
-     + call errquit('Failed to allocate iptarat',0)
-      if(.not.ma_push_get(mt_int,4*mxar,'iarat',l_iarat,i_iarat))
-     + call errquit('Failed to allocate iarat',0)
-      if(.not.ma_push_get(mt_dbl,2*mxar,'racs',l_racs,i_racs))
-     + call errquit('Failed to allocate racs',0)
-      if(.not.ma_push_get(mt_int,maxpar,'iptpar',l_ptpar,i_ptpar))
-     + call errquit('Failed to allocate iptpar',0)
       if(.not.ma_push_get(mt_dbl,31*maxpar,'par',l_par,i_par))
      + call errquit('Failed to allocate par',0)
+      if(.not.ma_push_get(mt_int,maxpar,'iptpar',l_ptpar,i_ptpar))
+     + call errquit('Failed to allocate iptpar',0)
+      if(.not.ma_push_get(mt_dbl,2*mxar,'racs',l_racs,i_racs))
+     + call errquit('Failed to allocate racs',0)
+      if(.not.ma_push_get(mt_int,4*mxar,'iarat',l_iarat,i_iarat))
+     + call errquit('Failed to allocate iarat',0)
+      if(.not.ma_push_get(mt_int,mxseq,'iptarat',l_ptarat,i_ptarat))
+     + call errquit('Failed to allocate iptarat',0)
+      if(.not.ma_push_get(mt_int,2*maxseq,'iptseq',l_ptseq,i_ptseq))
+     + call errquit('Failed to allocate iptseq',0)
 c
       return
       end
