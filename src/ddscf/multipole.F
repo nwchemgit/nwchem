@@ -1,7 +1,7 @@
       subroutine multipole_density(basis, center, lmax, 
      &     g_dens, moments, len_moments)
 *
-* $Id: multipole.F,v 1.9 1998-12-10 23:48:48 d3e129 Exp $
+* $Id: multipole.F,v 1.10 2001-11-15 01:42:24 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -200,17 +200,14 @@ c
                do k = ltotal, 0, -1
                   do l = (ltotal-k), 0, -1
                      m = ltotal - k - l
-                     xk = dble(k)
-                     xl = dble(l)
-                     xm = dble(m)
                      ind = ind + 1
 c
 c     On Fujitsu 0**0 is not 1
 c
                      moments(ind) = moments(ind) + q*
-     $                    pow_multi((coord(1)-center(1)),xk) *
-     $                    pow_multi((coord(2)-center(2)),xl) * 
-     $                    pow_multi((coord(3)-center(3)),xm)
+     $                    pow_multi((coord(1)-center(1)),k) *
+     $                    pow_multi((coord(2)-center(2)),l) * 
+     $                    pow_multi((coord(3)-center(3)),m)
                   end do
                end do
             end do
@@ -219,11 +216,12 @@ c
 c
       end 
       double precision function pow_multi(a,b)
-      double precision a, b
+      double precision a
+      integer b
 c
 c     On Fujitsu 0**0 is not 1
 c
-      if (b .eq. 0.0d0) then
+      if (b .eq. 0) then
          pow_multi = 1.0d0
       else
          pow_multi = a**b
