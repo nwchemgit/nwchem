@@ -1,6 +1,6 @@
       Subroutine xc_fitv(Tmat, nTrows, nTcols, g_vxc, g_xcinv, IOLGC)
 c
-C$Id: xc_fitv.F,v 1.13 1999-06-16 00:10:27 d3e129 Exp $
+C$Id: xc_fitv.F,v 1.14 2000-04-19 23:46:54 edo Exp $
 c
       implicit none
 c
@@ -68,14 +68,15 @@ c
       integer n1, n2, ishb, ifirstb, ilastb, nshbfb,
      &        ishc, ifirstc, ilastc, nshbfc, Nao2, iixc,
      &        isha, ifirsta, ilasta, nshbfa, nscr2
-      integer Nintegrals, npint, mag, Max_scr, nxc
-      double precision fact, q1
+      integer Nintegrals, npint, mag, Max_scr, nxc,nint_api
+      double precision fact, q1,toll
 c******************************************************************************
 #if defined(DFT_TIMER)
       call ga_sync
       call t_stat(10,-1)
 #endif
 c
+      toll=10d0**(-itol2e)
       me=ga_nodeid()
       nproc = ga_nnodes()
 c
@@ -215,6 +216,7 @@ c
      &               ilasta))call errquit('Exiting in fitvxc.',12)
                   nshbfa=ilasta-ifirsta+1
                   Nintegrals = Nao2*nshbfa
+                  nint_api=mag
                   nscr2=max_scr
 c                   
 c                 check for use of symmetry
@@ -223,7 +225,7 @@ c
                      if (sym_shell(xc_bas_han, isha, q1))then
                         call int_1e3ov(XC_bas_han, isha, AO_bas_han, 
      &                       ishb, AO_bas_han, ishc, nscr2, 
-     &                       Dbl_MB(iscr2), Nintegrals, Dbl_MB(i3OI))
+     &                       Dbl_MB(iscr2), Nint_api, Dbl_MB(i3OI))
                         call dscal(Nintegrals, q1, Dbl_MB(i3OI), 1)
 c      
 c                       Multiply the matrix of 3-ctr OIs by the XC 
@@ -235,7 +237,8 @@ c
                            istart=ivvxc+ii*Nao2
                            do ia = 0, nshbfa-1
                               fact=DBL_MB(nxc+ia)
-                              call daxpy(Nao2, fact, DBL_MB(npint), 1, 
+                              if(abs(fact).gt.toll)
+     /                         call daxpy(Nao2, fact, DBL_MB(npint), 1, 
      &                             DBL_MB(istart), 1)
                               npint=npint+Nao2
                            enddo
@@ -246,7 +249,7 @@ c
                   else
                      call int_1e3ov(XC_bas_han, isha, AO_bas_han, ishb,
      &                    AO_bas_han, ishc, nscr2, Dbl_MB(iscr2),
-     &                    Nintegrals, Dbl_MB(i3OI))
+     &                    Nint_api, Dbl_MB(i3OI))
 c      
 c                    Multiply the matrix of 3-ctr OIs by the XC 
 c                    expansion coefficients.
@@ -257,7 +260,8 @@ c
                         istart=ivvxc+ii*Nao2
                         do ia = 0, nshbfa-1
                            fact=DBL_MB(nxc+ia)
-                           call daxpy(Nao2, fact, DBL_MB(npint), 1, 
+                           if(abs(fact).gt.toll)
+     .                          call daxpy(Nao2, fact, DBL_MB(npint), 1, 
      &                          DBL_MB(istart), 1)
                            npint=npint+Nao2
                         enddo

@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.29 1999-09-02 17:37:19 edo Exp $
+C$Id: xc_getv.F,v 1.30 2000-04-19 23:46:55 edo Exp $
 c
       implicit none
 c      
@@ -58,7 +58,7 @@ c
 c           nTcols = ipol 
 c
       integer me,nproc,i,nTrows,nTcols
-      integer lTmat,iTmat
+      integer lTmat,iTmat,ii
       double precision zero,one,onem
       logical oprint_intermediate_xc, oprint_time, grid_on_file
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
@@ -253,6 +253,7 @@ c
      &                 Dbl_MB(iTmat+nbf_xc))
                endif
             endif
+
 c      
             if (oprint_time)call dft_tstamp('Before call to xc_fitv.  ')
             call xc_fitv(Dbl_MB(iTmat), nTrows, nTcols,
