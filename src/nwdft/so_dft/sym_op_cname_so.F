@@ -1,6 +1,6 @@
       subroutine sym_op_class_name_so(op_type, order, power, direction,
      $     group_name, class, rclass)
-C$Id: sym_op_cname_so.F,v 1.1 2000-04-17 21:46:09 zzhang Exp $
+C$Id: sym_op_cname_so.F,v 1.2 2000-04-24 19:10:27 bert Exp $
       implicit none
 #include "inp.fh"
 c     
@@ -163,25 +163,25 @@ c
       else if (op_type .eq. 'improper rotation') then 
          if(one_sided)then 
             if(power .gt. 1)then
-               write(class,'("s",i1,"^"i1)')order,power
-               write(rclass,'("Rs",i1,"^"i1)')order,power
+               write(class,'("s",i1,"^",i1)')order,power
+               write(rclass,'("Rs",i1,"^",i1)')order,power
             else if(power .eq. 1)then 
                write(class,'("s",i1)')order
                write(rclass,'("Rs",i1)')order
             else if(power .lt. 0)then 
                if(mod(order,2) .eq. 0)then 
-                  write(class,'("s",i1,"^"i1)')order,order+power
-                  write(rclass,'("Rs",i1,"^"i1)')order,order+power
+                  write(class,'("s",i1,"^",i1)')order,order+power
+                  write(rclass,'("Rs",i1,"^",i1)')order,order+power
                else 
-                  write(class,'("s",i1,"^"i1)')order,2*order+power
-                  write(rclass,'("Rs",i1,"^"i1)')order,2*order+power
+                  write(class,'("s",i1,"^",i1)')order,2*order+power
+                  write(rclass,'("Rs",i1,"^",i1)')order,2*order+power
                endif
             endif
          endif
          if(two_sided)then 
             if(power .gt. 1)then 
-               write(class,'("s",i1,"^"i1)')order,power
-               write(rclass,'("Rs",i1,"^"i1)')order,power
+               write(class,'("s",i1,"^",i1)')order,power
+               write(rclass,'("Rs",i1,"^",i1)')order,power
             else if(power .eq. 1)then 
                write(class,'("s",i1)')order
                write(rclass,'("Rs",i1)')order
@@ -189,8 +189,8 @@ c
                write(class,'("Rs",i1)')order
                write(rclass,'("s",i1)')order
             else if(power .lt. -1)then 
-               write(class,'("Rs",i1,"^"i1)')order,abs(power)
-               write(rclass,'("s",i1,"^"i1)')order,abs(power)
+               write(class,'("Rs",i1,"^",i1)')order,abs(power)
+               write(rclass,'("s",i1,"^",i1)')order,abs(power)
             endif
          endif
       else if (op_type .eq. 'mirror') then
