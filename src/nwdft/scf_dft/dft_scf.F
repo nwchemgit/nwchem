@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.135 1999-10-11 15:41:24 jolguin Exp $
+c     $Id: dft_scf.F,v 1.136 1999-11-04 18:21:34 jolguin Exp $
 c     
       implicit none
 c
@@ -47,6 +47,15 @@ c
       double precision dft_n3cdbl
       external dft_n3cdbl
 cc    Jorge Garza/Begin
+c
+c     Variables used to obtain the exact exchange-correlation potential
+c
+      integer g_rho_exact(2), g_tmp_exact(2), g_addit_exact(2),
+     &        g_movecs_aux(2)
+      integer incre, exact_pot
+      double precision lamda, p_lamda, dif_lamda, lamda_old,
+     &                 Ecoul_aux(2)
+c
       integer test_sic, condfukui, l_degen, i_degen(2), isp, j_d,
      &        tot_oc
       double precision totsic, homo_test, start
@@ -165,6 +174,8 @@ c
      &   test_sic))test_sic = 0
       if (.not. rtdb_get(rtdb, 'dft:condfukui', mt_int, 1,
      &   condfukui)) condfukui = 0
+      if (.not. rtdb_get(rtdb, 'dft:exact_pot', mt_int, 1,
+     &   exact_pot)) exact_pot = 0
       if (me.eq.0.and.oprint_sic)then
          if (test_sic.eq.1) then
             write(LuOut,*) ' SIC perturbative approximation is used'
@@ -569,6 +580,17 @@ C	if(ssmear.gt.1.d-9.and.movecs_in.ne.'atomic'.and.
      &        Dbl_MB(k_eval(1)),dbl_mb(k_occ),
      &        ssmear,tdots,iter,.false.,mult,check_deg)
 c
+c  Jorge Garza/Begin/Exact_pot
+c
+         if (exact_pot.eq.1) then
+           call open_xc_exact_pot(g_rho_exact, g_tmp_exact,
+     &                            g_addit_exact, g_movecs_aux,
+     &                            g_dens, dif_lamda, lamda,
+     &                            p_lamda, lamda_old, Ecoul_aux)
+         end if
+c
+c Jorge Garza/End/Exact_pot
+c
 c     compute the integrated density (numerical)
 c
 !      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
@@ -690,25 +712,33 @@ c         call gadest(g_s)
      &      ('dft_scf: could not destroy g_s', 0)
       endif
 c Jorge Garza/Begin
-      tot_oc = noc(1) + noc(2)
-      if (.not.MA_Push_Get(MT_Int, tot_oc, 'degen_homo',
+      if (test_sic.ne.0) then
+        tot_oc = noc(1) + noc(2)
+        if (.not.MA_Push_Get(MT_Int, tot_oc, 'degen_homo',
      &                 l_degen, i_degen(1)))
      &         call errquit('dft_scf: cannot allocate degen homo',0)
-      do isp=1,ipol
-        if (isp.eq.2) i_degen(2) = i_degen(1) + noc(1)
-        if (noc(isp).ne.0) then
-         homo_test = Dbl_MB(k_eval(isp)+noc(isp)-1)
-         do j = 1,noc(isp)
-           start = Dbl_MB(k_eval(isp)+j-1)
-           if (dabs(start-homo_test).le.1.0d-04) then
-               Int_MB(i_degen(isp) + j - 1) = 1
-           else
-               Int_MB(i_degen(isp) + j -1) = 0
-           end if
-         end do
-        end if
-      end do
+        do isp=1,ipol
+          if (isp.eq.2) i_degen(2) = i_degen(1) + noc(1)
+          if (noc(isp).ne.0) then
+           homo_test = Dbl_MB(k_eval(isp)+noc(isp)-1)
+           do j = 1,noc(isp)
+             start = Dbl_MB(k_eval(isp)+j-1)
+             if (dabs(start-homo_test).le.1.0d-04) then
+                 Int_MB(i_degen(isp) + j - 1) = 1
+             else
+                 Int_MB(i_degen(isp) + j -1) = 0
+             end if
+           end do
+          end if
+        end do
+      end if
 c Jorge Garza/End
+c
+c    The loop associated with the label 135 is to find the exact exchange-
+c    correlation potential.
+c
+ 135  continue
+c
       iter = 1
 c     
 c     Top of infinite SCF iteration loop
@@ -876,10 +906,16 @@ c
       rho_n = 0.0d0
       if (ipol.eq.2)call ga_zero(g_vxc(2))
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
+c
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
      &             dbl_mb(irdens_atom), int_mb(icntoce), 
      &             int_mb(icntobfr), int_mb(icetobfr), natoms)
+c
+      if (exact_pot.eq.1) then
+        call xc_exact_pot(Ecoul_aux, g_dens, g_vxc, noc, g_rho_exact,
+     &                    dif_lamda, g_tmp_exact, g_addit_exact)
+      end if
 c
 c  Jorge Garza/Begin
 c       
@@ -1521,9 +1557,25 @@ c
 c     
  2000 continue
       Etnew = Ecore + Ecoul + Exc(1) +tdots
+      if (.not. ga_destroy(g_denso(1))) call errquit
+     &   ('dft_scf: could not destroy g_denso', 0)
+      if(ipol.eq.2) then
+          if (.not. ga_destroy(g_denso(2))) call errquit
+     &     ('dft_scf: could not destroy g_denso', 0)
+      end if
+c
+      if (exact_pot.eq.1) then
+        call parlam_xc_exact_pot(lamda, lamda_old, dif_lamda,
+     &                               p_lamda, incre, g_tmp_exact,
+     &                               g_addit_exact, g_movecs_aux,
+     &                               g_movecs, iter, k_eval,
+     &                               Ecoul_aux, noc)
+        if (lamda.le.900.0) go to 135
+        call close_xc_exact_pot(g_rho_exact, g_tmp_exact,
+     &                          g_addit_exact, g_movecs_aux)
+      end if
 c
 c     Jorge Garza / Begin
-c
       if (test_sic.eq.1.or.test_sic.eq.3) then
          call localize_sic(g_movecs, noc)
          call xc_sic_pert(rtdb, nExc, iVxc_opt, g_xcinv,
@@ -1798,8 +1850,10 @@ c
          call ecce_print1 ('correlation energy', mt_dbl, Exc(2), 1)
       endif
 c Jorge Garza/Begin
-      if (.not.ma_pop_stack(l_degen))
+      if (test_sic.ne.0) then
+        if (.not.ma_pop_stack(l_degen))
      &   call errquit('dft_scf: cannot pop stack',0)
+      end if
 c Jorge Garza/End
       if (.not.ma_pop_stack(l_ir))
      &   call errquit('dft_scf: cannot pop stack',0)
@@ -1810,12 +1864,6 @@ c
       endif
       if (.not. ga_destroy(g_tmp)) call errquit
      &   ('dft_scf: could not destroy g_tmp', 0)
-      if (.not. ga_destroy(g_denso(1))) call errquit
-     &   ('dft_scf: could not destroy g_denso', 0)
-      if(ipol.eq.2) then
-      if (.not. ga_destroy(g_denso(2))) call errquit
-     &   ('dft_scf: could not destroy g_denso', 0)
-      endif
 c
       call fock_2e_tidy(rtdb)
 c     
