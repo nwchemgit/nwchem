@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.24 2004-05-24 13:43:19 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.25 2004-10-14 00:26:32 bylaska Exp $
 c
 
 *     ***************************************
@@ -520,7 +520,7 @@ c
 *     *          psp_generator_auto         *
 *     *					    *
 *     ***************************************
-      subroutine psp_generator_auto(atom,lmax,locp,rlocal)
+      subroutine psp_generator_auto(iopt,atom,lmax,locp,rlocal)
       implicit none
 
 #include "inp.fh"
@@ -530,6 +530,7 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 
+      integer iopt
       character*2 atom
       double precision rlocal
       integer	    locp,lmax
@@ -571,11 +572,12 @@ c
       psp_in = "junk.inp "
       ka = index(atom,' ') - 1
       if (ka.lt.0) ka = 2
-      psp_out = atom(1:ka)//".psp "
+      if (iopt==1) psp_out = atom(1:ka)//".psp "
+      if (iopt==2) psp_out = atom(1:ka)//"_basis "
       j = index(psp_in,' ')  - 1
       k = index(psp_out,' ') - 1
 
-      call nwpw_libgeninp(atom,sdir_name(1:h)//'/junk.inp')
+      call nwpw_libgeninp(iopt,atom,sdir_name(1:h)//'/junk.inp')
       lmax=nwpw_libglmax(atom)
       locp=nwpw_libglocp(atom)
       rlocal=nwpw_libgrlocal(atom)
@@ -652,6 +654,20 @@ c        *** PBE96 ***
          if (control_print(print_debug)) debug = 1
          if (control_print(print_high)) print  = 1
          call teter_parse(debug,    
+     >        lmax,locp,rlocal,
+     >        sdir_name(1:h),h,
+     >        dir_name(1:i),i,
+     >        psp_in(1:j),j,
+     >        psp_out(1:k),k,
+     >        atom(1:ka),ka)
+
+      !*** PAW basis format ***
+      else if (psp_type.eq.4) then
+         debug = 0
+         print = 0
+         if (control_print(print_debug)) debug = 1
+         if (control_print(print_high)) print  = 1
+         call paw_atom_driver(debug,    
      >        lmax,locp,rlocal,
      >        sdir_name(1:h),h,
      >        dir_name(1:i),i,
@@ -741,7 +757,7 @@ c
       j = index(psp_in,' ')  - 1
       k = index(psp_out,' ') - 1
 
-      call nwpw_libgeninp(atom,sdir_name(1:h)//'/junk.inp')
+      call nwpw_libgeninp(1,atom,sdir_name(1:h)//'/junk.inp')
       lmax=nwpw_libglmax(atom)
       locp=nwpw_libglocp(atom)
       rlocal=nwpw_libgrlocal(atom)
@@ -773,6 +789,20 @@ c
          if (control_print(print_debug)) debug = 1
          if (control_print(print_high)) print  = 1
          call teter_parse(debug,
+     >        lmax,locp,rlocal,
+     >        sdir_name(1:h),h,
+     >        dir_name(1:i),i,
+     >        psp_in(1:j),j,
+     >        psp_out(1:k),k,
+     >        atom(1:ka),ka)
+
+      !*** PAW pseudopotential format ***
+      else if (psp_type.eq.4) then
+         debug = 0
+         print = 0
+         if (control_print(print_debug)) debug = 1
+         if (control_print(print_high)) print  = 1
+         call paw_atom_driver(debug,
      >        lmax,locp,rlocal,
      >        sdir_name(1:h),h,
      >        dir_name(1:i),i,

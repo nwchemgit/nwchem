@@ -1,6 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.5 2004-05-24 13:43:18 bylaska Exp $
+# $Id: GNUmakefile,v 1.6 2004-10-14 00:26:32 bylaska Exp $
 #
+      SUBDIRS = paw_atom
+
  OBJ_OPTIMIZE = \
                 psp_generator_input.o \
                 pspsolve.o \
