@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk)
 c
-c $Id: pre_mkrst.F,v 1.58 2000-09-05 22:19:27 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.59 2000-09-05 22:29:24 d3j191 Exp $
 c
       implicit none
 c
@@ -377,6 +377,7 @@ c
       open(unit=lfnslv,file=filslv(1:index(filslv,' ')-1),
      + status='old',err=1020)
       close(unit=lfnslv)
+      write(lfnout,1008) filslv(1:index(filslv,' ')-1)
       goto 1021
  1020 continue
 c
