@@ -1,4 +1,4 @@
-* $Id: atscf_ecp.F,v 1.9 1998-10-29 00:28:30 d3e129 Exp $
+* $Id: atscf_ecp.F,v 1.10 1999-06-09 00:27:02 d3e129 Exp $
       subroutine atscf_ecp(geom,basis,tag,hatom,nbas,
      &    zeta,cont,ucont,nz)
 *
@@ -89,13 +89,10 @@ c gather info for call to ecp_integral
 c
       if (.not.bas_ce2cnr(ecpis,icent,clo,chi))
      &    call errquit('atscf_ecp:bas_ce2cnr failed',911)
-c get tag from contraction      
-      if (.not.bas_cont_tag(ecpis,clo,btag)) call errquit
-     &    ('atscf_ecp:bas_cont_tag failed ',911)
-      if (btag.ne.gtag) then
-        write(luout,*)' atscf_ecp: tag mismatch '
-        write(luout,*)' geometry tag: ',gtag
-        write(luout,*)' basis    tag: ',btag
+c Check if center is in the given ecp basis set
+      if (.not.(bas_isce(geom,ecpis,icent))) then
+        write(luout,*)' the lexical center ',icent, ' with tag ',
+     &      gtag,' is not in the ecp basis '
         call errquit('atscf_ecp: tag mismatch fatal error',911)
       endif
       call atscf_ecp_setup_hatom(geom,basis,ecpis,
