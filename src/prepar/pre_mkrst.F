@@ -2,7 +2,7 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
-c $Id: pre_mkrst.F,v 1.6 1998-04-29 18:35:18 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.7 1998-05-01 17:37:04 d3j191 Exp $
 c
       implicit none
 c
@@ -191,7 +191,17 @@ c
 c     allocate memory for crystal solvent
 c     -----------------------------------
 c
-cx      if(nwmc.gt.0) then
+      if(lcryst) then
+      if(.not.ma_free_heap(l_xwc))
+     + call errquit('ma_free_heap failed on l_xwc',9999)
+      if(.not.ma_free_heap(l_vwc))
+     + call errquit('ma_free_heap failed on l_vwc',9999)
+      if(.not.ma_free_heap(l_wfnd))
+     + call errquit('ma_free_heap failed on l_wfnd',9999)
+      if(.not.ma_free_heap(l_wcmr))
+     + call errquit('ma_free_heap failed on l_wcmr',9999)
+      lcryst=.false.
+      endif
       mwmc=nwmc
       if(nwmc.eq.0) mwmc=1
       if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,"xwc",l_xwc,i_xwc))
@@ -203,7 +213,6 @@ cx      if(nwmc.gt.0) then
       if(.not.ma_alloc_get(mt_int,mwmc,"wcmr",l_wcmr,i_wcmr))
      + call errquit('ma_alloc_get failed for wcmr',9999)
       lcryst=.true.
-cx      endif
 c
 c     read the pdb file
 c     -----------------
@@ -449,6 +458,17 @@ c     allocate memory for crystal solvent
 c     -----------------------------------
 c
       if(nwmc.gt.0) then
+      if(lcryst) then
+      if(.not.ma_free_heap(l_xwc))
+     + call errquit('ma_free_heap failed on l_xwc',9999)
+      if(.not.ma_free_heap(l_vwc))
+     + call errquit('ma_free_heap failed on l_vwc',9999)
+      if(.not.ma_free_heap(l_wfnd))
+     + call errquit('ma_free_heap failed on l_wfnd',9999)
+      if(.not.ma_free_heap(l_wcmr))
+     + call errquit('ma_free_heap failed on l_wcmr',9999)
+      lcryst=.false.
+      endif
       mwmc=nwmc
       if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,"xwc",l_xwc,i_xwc))
      + call errquit('ma_alloc_get failed for xwc',9999)
