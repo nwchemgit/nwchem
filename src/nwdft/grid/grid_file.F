@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.53 2003-03-21 21:04:44 edo Exp $
+* $Id: grid_file.F,v 1.54 2003-04-11 23:09:10 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -37,6 +37,7 @@ c
       character*80 errmsg
       external util_scratch_dir_avail_for_me
       logical grid_file_rewind
+      logical oreafail
       external grid_file_rewind
 c
 c     Open file returning CHEMIO filehandle (not yet)
@@ -52,6 +53,7 @@ c
       otrace = util_print('griddebug',print_debug)
       oinfo  = util_print('gridinfo', print_default) .and.
      $     ga_nodeid().eq.0
+      oreafail = util_print('grinforead', print_high)
 c
       if (otrace) then
          write(LuOut,*) ' grid_file: opening ',
@@ -202,7 +204,9 @@ cedo           write(6,*) ' enucs ',enuc,enuc_in
          file_opened = .true.
       endif
       return
- 199  write(6,*) ga_nodeid(),' grinfo reading failed',ioserr
+ 199  continue
+      if(oreafail)
+     W  write(luout,*) ga_nodeid(),' grinfo reading failed',ioserr
       return
 c
 c
