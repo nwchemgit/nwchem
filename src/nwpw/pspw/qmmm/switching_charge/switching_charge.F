@@ -1,5 +1,5 @@
 c
-c $Id: switching_charge.F,v 1.7 2002-03-03 21:17:00 bylaska Exp $
+c $Id: switching_charge.F,v 1.8 2002-03-03 23:23:03 bylaska Exp $
 c
 
 ***********************************************************
@@ -303,7 +303,6 @@ c
      >      + (rgrid(3,k)-z1)**2
           r = dsqrt(r)
 
-*         **** define dielectric switching function ****
           if (r .gt. 1.0d-15) then
             Vmm(k) = Vmm(k) - q1*util_erf(c*r)/r
           else
