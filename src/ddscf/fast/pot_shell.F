@@ -46,9 +46,9 @@ c
       double precision expj(maxprim), coeffj(maxprim)
       double precision a, b, c
 c
-      integer ish,itype,inprim,ingen,numi,ibflo,ibfhi,i,iprim,iat
-      integer jsh,jtype,jnprim,jngen,numj,jbflo,jbfhi,j,jprim,jat
-      integer ijtype, ind, nlm, ipt, n, l, m, geom, ind
+      integer itype,inprim,ingen,numi,ibflo,ibfhi,i,iprim,iat
+      integer jtype,jnprim,jngen,numj,jbflo,jbfhi,j,jprim,jat
+      integer ijtype,nlm, ipt, n, l, m, geom, ind
       logical iosph, josph
       double precision ri(3), rj(3), x, y, z, alpha, prefac, sqrta, ar,
      $     dmax, radial, factor, sum, ppot, r, charge, ralpha
