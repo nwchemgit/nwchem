@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.25 1995-10-10 06:05:01 d3g681 Exp $
+# $Id: GNUmakefile,v 1.26 1995-10-17 08:52:23 d3g681 Exp $
 
 include config/makefile.h
 
@@ -108,7 +108,11 @@ ifneq ($(EXCLUDED_SUBDIRS),)
 	done
 endif
 
+.PHONY:	depend
 depend:	
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
 	done
+	config/makedepend
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+nwchem.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 

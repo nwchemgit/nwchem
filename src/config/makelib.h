@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.18 1995-06-29 23:09:51 d3g681 Exp $
+# $Id: makelib.h,v 1.19 1995-10-17 08:52:51 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -143,13 +143,13 @@ subdirs:
         done
 endif
 
-
+.PHONY:	depend
 depend:	
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
-	echo Making depend in `pwd`
-	$(CNFDIR)/simpledepend 
+	@echo Making depend in `pwd`
+	$(CNFDIR)/makedepend 
 
 
 ifdef HEADERS
@@ -160,7 +160,9 @@ endif
 	cp -p $(HEADERS) $(INCDIR)
 	touch include_stamp
 
-$(OBJECTS):	$(HEADERS)
+# The below dependency has now been superceded by the complete
+# dependency analysis of headers of makedepend/dependencies
+#$(OBJECTS):	$(HEADERS)
 
 else
 include_stamp:

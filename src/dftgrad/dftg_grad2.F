@@ -9,7 +9,7 @@ c****
 
       implicit real*8 (a-h,o-z)
 
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "schwarz.fh"

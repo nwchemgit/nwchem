@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.32 1995-06-22 08:56:59 rg240 Exp $
+C$Id: mointdriver.F,v 1.33 1995-10-17 08:54:13 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -24,26 +24,29 @@ c
        integer nbf_vecs, nsets
        integer k_occ, l_occ, k_evals, l_evals, g_vecs
        integer k_epair, l_epair
+       integer k_x, l_x
        integer npairs
-       integer nbf, nsh, nelec, nact, nocc, nopen, nvir, nocc_correl
+       integer nbf, nsh, maxbfsh, nelec
+       integer nact, nocc, nopen, nvir, nocc_correl
        integer occ_frozen, occ_lo, occ_hi
        integer vir_frozen, vir_lo, vir_hi, nmo, nmo2
        integer noper, oseg_lo, oseg_hi, npass, blen, max_noper, nocct
        integer noper_core
        integer g_coul, g_exch, g_epair
-       integer i,j,ij
-       integer ii
-       logical oexch,ocoul,oprint,status,ohalf,omemprint
+       integer i, j, ij, ii
+       logical oexch, ocoul, oprint, status, ohalf, omemprint
        double precision emp2, e2pair
        double precision tpass
+       double precision tol2e
        character*7 algo
 c
 c
 c
        data g_coul,g_exch/-1,-1/
-       data oexch,ocoul/.true.,.true./
+       data oexch,ocoul/.true.,.false./
        data ohalf/.true./
        data charge/0.d0/
+       data tol2e/1.d-12/
 c
 c
 c
@@ -77,6 +80,7 @@ c
        status = geom_nuc_charge(geom, nuclear_charge)
        status = status.and.bas_numbf(basis, nbf)
        status = status.and.bas_numcont(basis,nsh)
+       status = status.and.bas_nbf_cn_max(basis,maxbfsh)
        if (.not. status)
      $   call errquit('moint_driver: failed to get info', 0)
 c
@@ -148,10 +152,10 @@ c
        occ_lo = occ_frozen + 1
        occ_hi = nocc
        nocc_correl = occ_hi - occ_lo + 1
-c$$$       vir_lo = nocc + 1
-c$$$       vir_hi = nbf - vir_frozen
-       vir_lo = 1
-       vir_hi = nbf
+       vir_lo = nocc + 1
+       vir_hi = nbf - vir_frozen
+c$$$       vir_lo = 1
+c$$$       vir_hi = nbf
        nvir = nbf - nocc
        nmo2 = vir_hi - vir_lo + 1
        noper = occ_hi - occ_lo + 1
@@ -314,7 +318,7 @@ c
            write(6,997)
  997       format(//,15x,'Pair Energies',/)
            write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
- 998       format(8f10.5)
+ 998       format(5x,f12.6)
          endif
 c
 c Print out total correlation correction
@@ -332,11 +336,30 @@ c
        status = ga_destroy(g_epair)
        if (ocoul) status = ga_destroy(g_coul)
        if (oexch) status = ga_destroy(g_exch)
+c
+c ---------------------------
+c  Test semi-direct routine
+c ---------------------------
+c
+       ocoul = .false.
+       oexch = .true.
+       call moints_semi( basis, tol2e, ocoul, oexch,
+     $                   occ_lo, occ_hi, vir_lo, vir_hi, g_vecs )
+
+       status = ma_push_get(MT_DBL, (nbf*nbf), 'mos', l_x, k_x )
+       call ga_get(g_vecs,1,nbf,1,nbf,dbl_mb(k_x),nbf)
+       if (oexch)
+     $    call moints_readintK( nbf, occ_lo, occ_hi, vir_lo, vir_hi,
+     $                          dbl_mb(k_x), dbl_mb(k_evals) )
+       if (ocoul)
+     $    call moints_readintJ( nbf, occ_lo, occ_hi, vir_lo, vir_hi,
+     $                          dbl_mb(k_x), dbl_mb(k_evals) )
+       status = ma_pop_stack(l_x)
+c
+c
+c
+c
        status = ma_pop_stack(l_evals)
-c
-c
-c
-c
        call schwarz_tidy()
        status = status.and.ma_pop_stack(l_occ)
        if (.not.status) call errquit('moints: cannot pop stack?',0)

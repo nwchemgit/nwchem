@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.8 1995-06-30 18:52:21 d3h449 Exp $
+# $Id: GNUmakefile,v 1.9 1995-10-17 08:52:34 d3g681 Exp $
 
       OBJ_OPTIMIZE = hf1d.o      hf2d.o     hfd2oi.o \
                      hfderi.o    hfdkei.o   hfdnai.o \
@@ -14,3 +14,6 @@
 include ../../config/makefile.h
 include ../../config/makelib.h
 
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+hf1d.o :	 $(INCDIR)/pstat.fh $(INCDIR)/int_tim.fh 
+hf2d.o :	 $(INCDIR)/global.fh $(INCDIR)/apiP.fh 

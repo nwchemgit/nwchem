@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.13 1995-06-28 17:10:26 rg240 Exp $
+#$Id: GNUmakefile,v 1.14 1995-10-17 08:52:45 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -73,3 +73,4 @@ endif
 include ../config/makelib.h
 
 
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY

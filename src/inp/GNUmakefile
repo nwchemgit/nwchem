@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.6 1995-07-16 02:57:12 gg502 Exp $
+# $Id: GNUmakefile,v 1.7 1995-10-17 08:53:55 d3g681 Exp $
 
       LIBRARY = libutil.a
 #     LIBRARY = libinp.a
@@ -18,3 +18,9 @@ include ../config/makelib.h
 test:	test.o inp.o inp_irange.o inp_ilist.o
 	$(FC) $(FFLAGS) -o $@ $^ $(LIBS)
 
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+inp.o :	 inpP.fh inp.fh 
+inp_ilist.o :	 inpP.fh 
+inp_irange.o :	 inpP.fh 
+test.o :	 inp.fh 
+test_ilist.o :	 inp.fh 

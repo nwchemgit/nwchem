@@ -1,7 +1,7 @@
       subroutine int_chk_sum(rtdb,basisin,print_ints)
-c $Id: int_chk_sum.F,v 1.15 1995-05-12 08:08:05 d3e129 Exp $
+c $Id: int_chk_sum.F,v 1.16 1995-10-17 08:52:31 d3g681 Exp $
       implicit none
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "msgids.fh"

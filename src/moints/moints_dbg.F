@@ -22,7 +22,7 @@
                write(6,901) j,k,jk
  901           format(//,'Operator: [',i2,',',i2,']','  index:',i5/)
                call ga_access(g_a,ilo,ihi,jk,jk,k_local,ld_local)
-               call moints_print_square(nbf,dbl_mb(k_local))
+               call moints_matprint(nbf,nbf,dbl_mb(k_local))
              endif
            enddo
          enddo
@@ -35,23 +35,22 @@
 
 
 
+      subroutine moints_matprint(n,m,x)
+      implicit none
+      integer n,m
+      double precision x(n,m)
+      integer i, j, mxrow
 
-       subroutine moints_print_square(n,x)
-       implicit none
-       integer n,i,j
-       double precision x(n,n)
-       integer col
+      mxrow = min(m,10)
+      do i=1,min(n,20)
+        write(6,901) (x(i,j),j=1,mxrow)
+ 901    format(10f12.6)
+      enddo
+      write(6,*)
+      return
+      end
 
-       col = min(10,n)
-       do i=1,n
-         write(6,901) (x(i,j),j=1,col)
- 901     format(10f12.6)
-       enddo
-       call util_flush(6)
-       end
-
-
-
+        
 
 
 

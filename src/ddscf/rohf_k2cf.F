@@ -1,8 +1,8 @@
       subroutine rohf_k2cf(basis, nbf, nclosed, nopen,
      $     g_kvec, g_vecs, g_result)
-C     $Id: rohf_k2cf.F,v 1.2 1995-10-10 06:11:11 d3g681 Exp $
+C     $Id: rohf_k2cf.F,v 1.3 1995-10-17 08:53:01 d3g681 Exp $
       implicit none
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 c     
 c     Transform mo-coeffs from k-vector using exp(K)

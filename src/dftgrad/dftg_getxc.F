@@ -11,11 +11,11 @@ c**** nwchem handles
 c****
       integer rtdb, geom, AO_bas_han, CD_bas_han, XC_bas_han
 c**** 
-#include <mafdecls.fh>
-#include <rtdb.fh>
-#include <bas.fh>
-#include <global.fh>
-#include <tcgmsg.fh>
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "bas.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
       
       parameter(zero = 0.0d0,one = 1.0d0,onem = -1.0d0)
 

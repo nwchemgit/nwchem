@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.11 1995-02-02 23:09:31 d3g681 Exp $
+#$Id: GNUmakefile,v 1.12 1995-10-17 08:52:43 d3g681 Exp $
 include ../config/makefile.h
 
        LIBRARY = libutil.a
@@ -28,3 +28,8 @@ testbasis:	testbasis.o
 basis.o:	basP.fh	geobasmapP.fh basdeclsP.fh
 basP.fh:	bas_staticP.fh
 	@touch basP.fh
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+bas_input.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh bas.fh 
+basis.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh geobasmapP.fh $(INCDIR)/context.fh basdeclsP.fh basP.fh basP.fh 
+basisP.o :	 $(INCDIR)/inp.fh geobasmapP.fh basdeclsP.fh basP.fh 
+testbasis.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh bas.fh 

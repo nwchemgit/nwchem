@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.39 1995-10-10 06:11:07 d3g681 Exp $
+# $Id: GNUmakefile,v 1.40 1995-10-17 08:52:58 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -76,13 +76,64 @@ HEADERS = schwarz.fh cscfps.fh
 include ../config/makefile.h
 include ../config/makelib.h
 
-fock_2e_a.o rhf_fock_2e_a.o rhf_get_param.o rhf_hessv.o scf_get_info.o ao_fock_2e.o do_ri.o:	 cfock.fh
-rhf_hessv.o rhf_nr_solve.o:	 crhf.fh
-rohf.o rohf_make_shift.o rohf_nr_solve.o rohf_search_precond.o rohf_step_energy.o rohf_wrap.o scf_movecs.o:	 crohf.fh
-rohf_make_shift.o rohf_nr_solve.o rohf_rotate_movecs.o rohf_search_precond.o rohf_step_energy.o rohf_wrap.o scf_get_info.o scf_movecs.o scf_vectors_guess.o:	 cscf.fh
-fock_2e.o fock_2e_b.o ga_orthog_mos.o int_1e_ga.o matrix_exp.o rhf_canon.o rhf_canon_save.o rhf_dens_to_mo.o rhf_do_canon.o rhf_fock_2e.o rhf_fock_2e_b.o rhf_nr_solve.o rohf_nr_solve.o rohf_search_precond.o rohf_step_energy.o scf.o scf_pstat.o vectors.o:	 cscfps.fh
-schwarz_atom.o schwarz_init.o schwarz_max.o schwarz_shell.o schwarz_tidy.o:	 cschwarz.fh
-rhf_dens_to_mo.o rhf_energy.o rhf_hessv.o:	 cskeleton.fh
-fock_2e.o fock_2e_a.o fock_2e_b.o rhf_fock_2e.o rhf_fock_2e_a.o rhf_fock_2e_b.o schwarz_atom.o schwarz_init.o schwarz_max.o schwarz_print.o schwarz_shell.o schwarz_tidy.o:	 schwarz.fh
-
-int2e_file.o:	cint2efile.fh
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+ao_fock_2e.o :	 schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cscfps.fh cfock.fh $(INCDIR)/bas.fh 
+bad.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+do_ri.o :	 cfock.fh 
+fock_2e.o :	 cscf.fh cfock.fh 
+fock_2e_a.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh schwarz.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cfock.fh 
+fock_2e_a.semi.save.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh schwarz.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cfock.fh 
+fock_2e_b.o :	 $(INCDIR)/util.fh schwarz.fh $(INCDIR)/mafdecls.fh cscfps.fh cfock.fh $(INCDIR)/bas.fh 
+fock_2e_from_file.o :	 $(INCDIR)/util.fh cscfps.fh 
+fock_2e_report.o :	 $(INCDIR)/global.fh cfock.fh 
+fock_2e_task.o :	 cfock.fh $(INCDIR)/bas.fh 
+fock_get_atom_blk.o :	 $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+fock_upd_atom_blk.o :	 $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+ga_conform.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+ga_create_atom_blocked.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+ga_create_cont_blocked.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+ga_mxv.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+ga_orthog_mos.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscfps.fh $(INCDIR)/bas.fh 
+int2e_file.o :	 $(INCDIR)/util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh cint2efile.fh 
+int_1e_ga.o :	 $(INCDIR)/sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh cscfps.fh $(INCDIR)/bas.fh 
+k2cf.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+matrix_exp.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscfps.fh 
+movecs_fix_phase.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+movecs_project.o :	 $(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+nxtask.o :	 $(INCDIR)/global.fh 
+rhf_dens_to_mo.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cscfps.fh $(INCDIR)/bas.fh 
+riscf_fock_2e.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/pstat.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscfps.fh $(INCDIR)/bas.fh 
+riscf_init.o :	 $(INCDIR)/tcgmsg.fh schwarz.fh $(INCDIR)/pstat.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscfps.fh $(INCDIR)/bas.fh 
+riscf_list.o :	 riscf.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+riscf_square.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/bas.fh 
+riscf_trans_int.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+rohf.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh cscf.fh crohf.fh 
+rohf_canon.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscfps.fh cscf.fh crohf.fh 
+rohf_dens.o :	 $(INCDIR)/global.fh 
+rohf_fock.o :	 $(INCDIR)/util.fh $(INCDIR)/global.fh cscf.fh crohf.fh $(INCDIR)/bas.fh 
+rohf_fock2grad.o :	 $(INCDIR)/global.fh cscf.fh crohf.fh 
+rohf_hdiag_scale.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+rohf_hessv_1e.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+rohf_hessv_2e.o :	 $(INCDIR)/util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+rohf_hessv_xx.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+rohf_k2cf.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+rohf_make_shift.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscf.fh crohf.fh 
+rohf_nr_solve.o :	 $(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cscfps.fh cscf.fh crohf.fh 
+rohf_rotate_movecs.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscf.fh 
+rohf_search_precond.o :	 $(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscfps.fh cscf.fh crohf.fh 
+rohf_step_energy.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscfps.fh cscf.fh crohf.fh 
+rohf_wrap.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cscf.fh crohf.fh $(INCDIR)/bas.fh 
+scf.o :	 $(INCDIR)/util.fh $(INCDIR)/sym.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cscfps.fh cscf.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
+scf_get_info.o :	 $(INCDIR)/util.fh $(INCDIR)/sym.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cscf.fh cfock.fh $(INCDIR)/bas.fh 
+scf_movecs.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscf.fh crohf.fh 
+scf_movecs_sym_adapt.o :	 $(INCDIR)/sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+scf_pstat.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh cscfps.fh cscf.fh 
+scf_vectors_guess.o :	 $(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh cscf.fh $(INCDIR)/bas.fh 
+schwarz_atom.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh cschwarz.fh 
+schwarz_init.o :	 $(INCDIR)/util.fh schwarz.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cschwarz.fh $(INCDIR)/bas.fh 
+schwarz_max.o :	 cschwarz.fh 
+schwarz_print.o :	 $(INCDIR)/tcgmsg.fh schwarz.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/global.fh 
+schwarz_shell.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh cschwarz.fh 
+schwarz_tidy.o :	 $(INCDIR)/mafdecls.fh cschwarz.fh 
+uhf.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cuhf.fh cuhf.fh cscfps.fh cscf.fh 
+vectors.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh cscfps.fh 

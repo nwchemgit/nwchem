@@ -52,3 +52,14 @@ LIB_DEFINES =
 
 include ../config/makefile.h
 include ../config/makelib.h
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+aoccsd.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+ccsd.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
+ccsd_directbf.o :	 $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/bas.fh 
+ccsd_driver.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
+ccsd_get_param.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+ccsd_mkcinv.o :	 $(INCDIR)/bas.fh 
+ccsd_mktask.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/bas.fh 
+ccsd_pampt.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/bas.fh 
+moints_trp.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/schwarz.fh $(INCDIR)/msgids.fh $(INCDIR)/moints_stats.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+rddcom.o :	 $(INCDIR)/global.fh 

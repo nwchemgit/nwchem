@@ -1,11 +1,11 @@
       subroutine grad1 ( H, lbuf, scr, lscr, dens, wdens, frc, 
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
      $                   max_at_bf, rtdb, oskel )
-c$Id: grad1.F,v 1.9 1995-10-16 18:21:34 d3g681 Exp $
+c$Id: grad1.F,v 1.10 1995-10-17 08:53:51 d3g681 Exp $
 
       implicit real*8 (a-h,o-z)
 
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "geom.fh"
 #include "bas.fh"

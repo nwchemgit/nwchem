@@ -6,12 +6,12 @@
      &     iga_dens,force, CD_coef )
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
-#include <mafdecls.h>
-#include <rtdb.fh>
-#include <bas.fh>
-#include <global.fh>
-#include <tcgmsg.fh>
-#include <msgids.fh>
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "bas.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgids.fh"
 c****
 c**** handles
 c****

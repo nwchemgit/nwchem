@@ -2,7 +2,7 @@
       implicit real*8 (a-h,o-z) 
 c
       integer rtdb
-#include<quad.fh>
+#include "quad.fh"
 c
       logical nwdft, grad_dft
       external nwdft, grad_dft

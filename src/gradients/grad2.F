@@ -1,12 +1,12 @@
       subroutine grad2(d_ij,d_kl,d_ik,d_jl,d_il,d_jk,frc,g_dens,ldim,
      $                 basis,nproc,nat, scr, lscr, buf, lbuf, tol2e,
      $                 s34, oactive, oskel)
-c$Id: grad2.F,v 1.12 1995-10-16 18:21:35 d3g681 Exp $
+c$Id: grad2.F,v 1.13 1995-10-17 08:53:52 d3g681 Exp $
 
       implicit real*8 (a-h,o-z)
 
 #include "sym.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "schwarz.fh"

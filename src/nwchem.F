@@ -1,6 +1,6 @@
       program nwchem
       implicit none
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "tcgmsg.fh"
@@ -16,7 +16,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.54 1995-10-10 06:05:02 d3g681 Exp $
+c     $Id: nwchem.F,v 1.55 1995-10-17 08:52:24 d3g681 Exp $
 c
       character*255 input_filename
       double precision total_wall, total_cpu
@@ -162,7 +162,7 @@ c
       end
       subroutine start(rtdb)
       implicit none
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "rtdb.fh"
 #include "inp.fh"
 #include "global.fh"

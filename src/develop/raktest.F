@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.38 1995-06-14 07:38:26 d3e129 Exp $
+c $Id: raktest.F,v 1.39 1995-10-17 08:53:05 d3g681 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -1409,10 +1409,10 @@ c
 *rak:#include "geom.fh"
 *rak:#include "geomP.fh"
 *rak:#include "geobasmapP.fh"
-*rak:c----#include <dimensions.fh>
-*rak:c----#include <atoms.fh>
-*rak:c----#include <AO_basis_set.fh>
-*rak:c----#include <timer.fh>
+*rak:c----#include "dimensions.fh"
+*rak:c----#include "atoms.fh"
+*rak:c----#include "AO_basis_set.fh"
+*rak:c----#include "timer.fh"
 *rak:
 *rak:c--> Scratch Space
 *rak:

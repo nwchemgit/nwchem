@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.13 1995-03-28 20:12:22 d3e129 Exp $
+# $Id: GNUmakefile,v 1.14 1995-10-17 08:52:36 d3g681 Exp $
 
     OBJ_OPTIMIZE = hfmkr_9.o hfmkr_8.o hfmkr_7.o \
                    hfmkr_6.o hfmkr_5.o hfmkr_4.o \
@@ -23,3 +23,13 @@ write:
 
 showxyz:	showxyz.o
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ showxyz.o $(LIBS)
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+defNxyz.o :	 sh_order.fh 
+getNxyz.o :	 sh_order.fh 
+hf1.o :	 $(INCDIR)/pstat.fh $(INCDIR)/int_tim.fh 
+hf1set3.o :	 $(INCDIR)/apiP.fh 
+hfmke.o :	 $(INCDIR)/pstat.fh $(INCDIR)/int_tim.fh 
+hfmkr.o :	 $(INCDIR)/pstat.fh $(INCDIR)/int_tim.fh 
+hfset.o :	 $(INCDIR)/apiP.fh 
+igamma.o :	 $(INCDIR)/pstat.fh $(INCDIR)/int_tim.fh 
+matchNxyz.o :	 sh_order.fh 

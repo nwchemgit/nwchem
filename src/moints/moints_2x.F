@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.4 1995-04-19 22:41:45 rg240 Exp $
+c  $Id: moints_2x.F,v 1.5 1995-10-17 08:54:14 d3g681 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -64,12 +64,11 @@ c
        integer l_hlp, k_hlp, l_ssni,k_ssni
        integer l_hlp2, k_hlp2
        integer l_eri, k_eri, l_iscr,k_iscr
-       integer l_mo,k_mo
+       integer l_mo, k_mo
        integer l_shmap, k_shmap
-       integer n_ssbb, n_ssbb1, n_ssni, n_ssai, n_hlp, n_hlp2
+       integer n_ssbb, n_ssbb1, n_ssni, n_ssai, n_hlp, n_hlp2, n_ijni
        integer mem2, max2e
-       integer n_ijni
-       integer num_nodes, ploop, next
+       integer num_nodes, ploop, next, itmp
        double precision tol2e, scale, schw_ij
        double precision tz, thalf, tint, t1idx, t2kidx, t3kidx, t4kidx
        double precision t34jidx, ttotal, t2jidx, tsynch
@@ -313,14 +312,16 @@ c
            call moints_Ktrf34( g_exch, .true., occ_start,
      $                         mo1_lo, mo1_hi, mo2_lo, mo2_hi,
      $                         nbf, dbl_mb(k_mo), dbl_mb(k_hlp) )
+           itmp = nbf
          else
            call moints2xv_Ktrf4( g_exch, occ_start, mo1_lo, mo1_hi,
      $                           mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
      $                           dbl_mb(k_hlp) )
            t4kidx = t4kidx + tcgtime() - tz
+           itmp = nmo2
          endif
          if (util_print('exchange integral',print_debug)) then
-           call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_exch)
+           call moints_op_print(occ_start,mo1_lo,mo1_hi,itmp,g_exch)
          endif
        endif
 c
