@@ -1,0 +1,157 @@
+ 
+*     ***********************************
+*     *					*
+*     *        Orb_pop_aorb		*
+*     *					*
+*     ***********************************
+
+      subroutine Orb_pop_aorb(ispin,ne,npack1,nemax,c2,
+     >                        lmax,a,sum)
+      implicit none
+      integer    iunit
+      integer    ispin,ne(2)
+      integer    npack1,nemax
+      complex*16 c2(npack1,*)
+
+      integer lmax(*)
+      real*8  a(36,nemax,*)
+      real*8  sum(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+
+*     **** local variables ****
+      logical value
+      integer spin
+      integer i,k,l,n,ll,l1,l2,jj
+      integer llmax,nfft3d
+      real*8  w,pi,twopi
+      integer n1(2),n2(2)
+
+*     *** MA Arrays ****
+      integer phi(2)
+
+
+*     **** external functions ****
+      integer  ion_nion,ion_katm,aorbs_get_basis_number
+      external ion_nion,ion_katm,aorbs_get_basis_number
+
+      call D3dB_nfft3d(1,nfft3d)
+
+      n1(1) = 1
+      n2(1) = ne(1)
+      n1(2) = ne(1)+1
+      n2(2) = ne(1)+ne(2)
+
+
+      value = MA_push_get(mt_dcpl, nfft3d,'phi',phi(2),phi(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+
+*     -------------------
+*     POPULATION ANALYSIS
+*     -------------------
+      pi = 4.0d0*datan(1.0d0)
+      twopi = 2.0d0*pi
+
+      call phafac()
+      do i=1,ion_nion()
+
+
+        DO spin=1,ispin
+          do n=n1(spin),n2(spin)
+
+* S-COMPONENT
+            jj=aorbs_get_basis_number(i,1)
+            call aorbs_aorb(jj,dcpl_mb(phi(1)))
+            call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+            A(1,N,I)=w
+
+
+* P-COMPONENT
+            IF(lmax(ion_katm(i)).GE.1) THEN
+
+*             **** px component ****
+              jj=aorbs_get_basis_number(i,4)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              A(2,N,I)=w
+
+*             **** py component ****
+              jj=aorbs_get_basis_number(i,3)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              A(3,N,I)=w
+
+*             **** pz component ****
+              jj=aorbs_get_basis_number(i,2)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              A(4,N,I)=w
+            ENDIF
+
+* D-COMPONENT
+            IF(lmax(ion_katm(I)).GE.2) THEN
+
+*             **** dzz component ****
+              jj=aorbs_get_basis_number(i,9)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              A(5,N,I)=w
+
+*             **** dx2-y2 component ****
+              jj=aorbs_get_basis_number(i,5)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              A(6,N,I)=w
+
+*             **** dxy component ****
+              jj=aorbs_get_basis_number(i,8)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              A(7,N,I)=w
+
+*             **** dyz component ****
+              jj=aorbs_get_basis_number(i,7)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              A(8,N,I)=w
+
+*             **** dzx component ****
+              jj=aorbs_get_basis_number(i,6)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              A(9,N,I)=w
+            ENDIF 
+
+          end do
+        end do
+      end do
+ 
+      DO SPIN=1,ISPIN
+        DO N=N1(SPIN),N2(SPIN)
+          SUM(N)=0.0d0
+
+          DO I=1,ion_nion()
+            LLMAX=(lmax(ion_katm(I))+1)**2
+            DO LL=1,LLMAX
+              SUM(N)=SUM(N)+A(LL,N,I)**2
+            END DO
+          END DO
+
+          DO I=1,ion_nion()
+            LLMAX=(lmax(ion_katm(I))+1)**2
+            DO LL=1,LLMAX
+              A(LL,N,I)=A(LL,N,I)/DSQRT(SUM(N))
+            END DO
+          END DO
+
+        END DO
+      END DO
+
+      value = MA_pop_stack(phi(2))
+
+      return 
+      end
+ 
