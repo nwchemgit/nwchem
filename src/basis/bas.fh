@@ -1,4 +1,4 @@
-c $Id: bas.fh,v 1.23 1999-07-27 17:45:11 d3e129 Exp $
+c $Id: bas.fh,v 1.24 1999-10-26 21:31:08 mg201 Exp $
 c:bas.fh
 c
       logical bas_checksum
@@ -88,6 +88,9 @@ c
       logical bas_cont_large_exponent
       logical bas_any_gcorsp
 c
+      logical bas_rel_exists
+      logical basis_is_rel
+c
       external bas_version        
       external bas_create         
       external bas_destroy        
@@ -175,3 +178,6 @@ c
       external bas_large_exponent
       external bas_cont_large_exponent
       external bas_any_gcorsp
+c
+      external bas_rel_exists
+      external basis_is_rel
