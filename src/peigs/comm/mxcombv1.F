@@ -188,8 +188,8 @@ c     result, followed by a series of expand phases to rebroadcast it.
 c
 c     Determine the item length in terms of integer*4 data declarations.
 c
-20     iteml4 = iteml/NBYTEI
-       mxfer = iteml4*(bufsiz/iteml)
+ 20	iteml4 = iteml/NBYTEI
+c       mxfer = iteml4*(bufsiz/iteml)
 	mxfer = iteml*nitem
 c
 c     Part one, collapse-and-combine by interpreting the node list as
