@@ -25,7 +25,7 @@ calculation.
 The form of the \verb+GEOMETRY+ directive is as follows;
 
 \begin{verbatim}
-  GEOMETRY [<string name default geometry>] [zmt]\
+  GEOMETRY [<string name default geometry>] [zmat]\
            [units <string units default bohr>] \
            [bqbq] \
            [print [xyz] || noprint]
@@ -60,14 +60,14 @@ The form of the \verb+GEOMETRY+ directive is as follows;
 % causes the geometry to also be printed in the \verb+XYZ+ format of
 % XMol.  
 
-This is a multiple directive and may consist of many or few lines,
+This is a multiple directive and may contain many or few lines,
 depending on the application.  The input supplied with this directive
-consist of three main sections; 
+consists of three main sections; 
 
 \begin{itemize}
 \item basic information to identify the geometry object in the code and
-define how it will be processed,
-\item input to identify the symmetry group for the molecule,
+define how it will be processed
+\item input to identify the symmetry group for the molecule
 \item input to specify the geometric locations of the atoms in the molecule
 \end{itemize}
 
@@ -122,10 +122,10 @@ Examples of expected input for the string \verb+group_name+ include
 such entries as
 
 \begin{itemize}
-\item \verb+c2v+ -- C\_{2v}
-\item \verb+d2h+ -- D\_{2h}
-\item \verb+Td+ -- T\_{d}
-\item \verb+d6h+ -- D\_{6h}
+\item \verb+c2v+ -- for molecular symmetry C\_{2v}
+\item \verb+d2h+ -- for molecular symmetry D\_{2h}
+\item \verb+Td+ -- for molecular symmetry T\_{d}
+\item \verb+d6h+ -- for molecular symmetry D\_{6h}
 \end{itemize}
 
 The user must know the symmetry of the molecule being modeled, and be able
@@ -141,8 +141,9 @@ by NWChem.
 
 The default in NWChem is to specify the geometry information in Cartesian 
 coordinates.  Each atom of the molecule being modeled by the geometry
-object must be specified on a line in the directive; that is, on a line of
-the form,
+object must be specified on a line in the directive.  That is, each atom
+or center
+must be identified on a line of the following form;
 
 \begin{verbatim}
 
@@ -151,7 +152,7 @@ the form,
 
 \end{verbatim}
 
-The string \verb+tag+ is the name of the atom or center.  I is limited to
+The string \verb+tag+ is the name of the atom or center.  The string is limited to
 16 characters, and must correspond to the
 name of an atom in one of the basis sets defined for the calculation.
 Atoms or centers with the same \verb+tag+ will use the same basis set in
@@ -165,11 +166,13 @@ begins with the letters \verb+bq+.  An atom must have basis functions
 associated with it, and so must all centers.  If the keyword \verb+bqbq+
 is specified, dummy centers must also have basis functions.
 
+\Large
 \verb+************************+
 Shall we tell the users what a dummy center is, and the difference
 between a 'center' and an atom?  Or do we assume they were all born
 knowing this?  Also might want to explain 'ghost' atoms here...
 \verb+************************+
+\normalsize
 
 The xyz coordinates of the atom in the molecule, relative to some origin
 (***shall we tell them where it is?***) are specified as real numbers 
@@ -181,7 +184,7 @@ atom is its atomic number, adjusted for the presence of ECPs (see Section
 \ref{sec:ecp}).  In order to specify a different value for the
 charge on a particular atom, the user must enter
 the keyword \verb+charge+, then enter a real number for the unit charge
-of the atom in \verb+charge+.  The values specified for the charges of 
+of the atom in the real variable \verb+charge+.  The values specified for the charges of 
 all atoms, centers, and
 dummy centers are used in conjunction with the 
 total charge of the system (as specified with the \verb+CHARGE+ directive; 
@@ -191,9 +194,13 @@ see Section
 The default mass for an atom is taken to be the mass of its highest naturally
 occuring isotope.  If the user wishes to model some other isotope of the
 element, its mass must be defined explicitly by specifying the keyword 
-\verb+mass+ and entering the appropriate value for \verb+mass+.  (***shall
+\verb+mass+ and entering the appropriate value for \verb+mass+.  
+
+\Large
+(***shall
 we tell them the units to use for mass?  Or is this something everybody
 already knows?***)
+\normalsize
 
 
 %  Each line in the body of the directive specifies the name or tag, and
@@ -242,23 +249,29 @@ already knows?***)
 
 Specifying the keyword \verb+zmat+ on the \verb+GEOMETRY+ directive allows
 the user to specify the structure of the molecule by means of its Z-matrix.
-It is also possible to enter the coordinates of some of the atoms using
-cartesian coordinates, however.  The code is able to distinguish between
-the two types of input by means of the input following the \verb+tag+ string
+However, it is also possible to enter the coordinates of some of the atoms using
+cartesian coordinates, even when the keyword \verb+zmat+ has been specified.
+The code is able to distinguish between
+the two types of input by means of the input following the string \verb+tag+
 for the particular atom.  If the Z-matrix input is specified for the atom,
 the input consists of pairs numbers that define connectivity indices and 
 bond length, bond angle, or torsion angle.  If the
 input is in Cartesian coordinates, the input consists of three real numbers
-defining the x,y,z coordinates of the atom.  However, the x,y,z coordinates
+defining the x,y,z coordinates of the atom.  However, when the \verb+zmat+
+keyword is specified, any Cartesian coordinate input (i.e., x,y,z, coordinates)
 must be specified in {\AA}ngstr{\o}ms, regardless of the entry specified
-for /verb+units+.
+for \verb+units+.
 
 The keyword \verb+ghost+ is used to denote a 'ghost' atom in the molecular
 geometry.  A 'ghost' atom is like an ordinary atom in that it has its 
 associated basis set, but it is assumed to have a nuclear charge of zero.
 This is a useful property for such things as calculations to assess basis set
-superposition error.  (***How does this differ from setting the \verb+charge+
+superposition error.  
+
+\Large
+(***How does this differ from setting the \verb+charge+
 to zero in the Cartesian coordinates input option?***)
+\normalsize
 
 % If the \verb+GEOMETRY+ directive contains the \verb+zmat+ keyword, the
 % structure of the molecule is defined by means of its Z-matrix, or
@@ -293,6 +306,7 @@ to zero in the Cartesian coordinates input option?***)
 The input supplied for the atoms describing the molecule by means of its
 Z-matrix requires the following sequential approach.
 
+\Large
 \verb+*****************+
 Questions we might want to answer at this point;
 \begin{itemize}
@@ -301,8 +315,10 @@ or can the user pick any old atom?
 \item Is there a required order in which the atoms of a molecule must be
 entered?
 \item What about molecules with multiple bonds?
+\item What is a ghost?  (Same as a center?  Or something else?)
 \end{itemize}
 \verb+****************+
+\normalsize
 
 \begin{enumerate}
 
@@ -323,11 +339,11 @@ entered?
 %   same remark applies as before.
     For the second atom, the Z-matrix input requires the name of the atom
     as it appears in the basis set, 
-    plus the connectivity <$i1$> and the bond distance <$blength$> 
+    plus the connectivity $<$i1$>$ and the bond distance $<$blength$>$ 
     connecting it to another atom. 
 
-    (NOTE: The connectivity for any bond, {\tt i1, i2, i3} ldots, 
-    can be specified as an integer (1, 2, 3, ldots) or as a string 
+    (NOTE: The connectivity for any bond, {\tt i1, i2, i3} \ldots, 
+    can be specified as an integer (1, 2, 3, \ldots) or as a string 
     which matches the name specified for one of the atoms in the molecule.
     If the connectivity (such as {\tt i1}) is defined as a string,
     and the same element appears more than once in the molecule, a number
@@ -341,13 +357,13 @@ entered?
 %    'ghost', same remark applies as before.
     For the third atom of the molecule, the Z-matrix input requires the
     name of the atom as it appears in the basis set and the connectivity 
-    <$i1$> and bond distance 
-    <$blength$> connecting it to atom 2, plus the connectivity <$i2$>
-    and angle <$alpha$> it makes with the plane of the first two atoms. 
+    $<$i1$>$ and bond distance 
+    $<$blength$>$ connecting it to atom 2, plus the connectivity $<$i2$>$
+    and angle $<$alpha$>$ it makes with the plane of the first two atoms. 
 
    \item $<$atom$>$ $<$i1$>$ $<$blength$>$ $<$i2$>$ $<$alpha$>$ $<$i3$>$ $<$beta$>$ $<$i4$>$ [ghost] %
 
-    For the fourth atom, and all subsequent atoms in the molecule (if it
+    For the fourth atom and all subsequent atoms in the molecule (if it
     has more than four atoms), the Z-matrix input requires the name 
     of the atom as it appears in the basis set,
     plus the connectivities and bond length,
@@ -359,28 +375,33 @@ entered?
 %        atom;  it  can  be followed  
 %        by numbers if desired. The chemical symbol implies the nuclear
 %        charge.  
-    \item [$\bullet$]  {\tt i1} defines the connectivity of the following bond.  
+    \item [$\bullet$]  {\tt i1} defines the connectivity of the following bond  
 %    \item [$\bullet$]  {\tt blength} is the bond length 'this atom-atom i1'.
-    \item [$\bullet$]    {\tt blength} is the bond length between this atom and the atom denoted by {\tt i1}. 
-    \item [$\bullet$]  {\tt i2} defines the connectivity of the following angle.  
+    \item [$\bullet$]    {\tt blength} is the bond length between this atom and the atom denoted by {\tt i1}
+    \item [$\bullet$]  {\tt i2} defines the connectivity of the following angle
 %    \item [$\bullet$]  {\tt alpha} is the angle 'this atom-atom i1-atom i2'.
-    \item [$\bullet$]  {\tt alpha} is the angle that the bond with this atom makes with the plane of the bond between atom {\tt i1} and atom {\tt i2}.  
-    \item [$\bullet$]  {\tt i3} defines the connectivity of the following angle.
+    \item [$\bullet$]  {\tt alpha} is the angle that the bond with this atom 
+makes with the plane of the bond between atom {\tt i1} and atom {\tt i2}  
+    \item [$\bullet$]  {\tt i3} defines the connectivity of the following angle
 %    \item [$\bullet$]  {\tt beta}  is  either  the dihedral angle
 %'this atom-atom {\tt i1}-atom {\tt i2}-atom 
 %        {\tt i3}', or perhaps a second bond angle, 'this atom-atom i1-atom {\t%t i3}'
     \item [$\bullet$]  {\tt beta}  is  the dihedral angle between
 this atom and the plane containing atom {\tt i1} and atom {\tt i2} and atom 
-        {\tt i3}'; alternatively, it defines a second bond angle for this atom, between this atom and the plane of the two atoms atom {\tt i1} and atom {\tt i3}.  Which alternative is selected depends on the value specified for {\tt i4}, as explained below. 
+        {\tt i3}; alternatively, it defines a second bond angle for this atom, between this atom 
+and the plane of the two atoms atom {\tt i1} and atom {\tt i3}.  
+Which alternative is selected depends on the value specified for {\tt i4}, as explained below. 
 %    \item [$\bullet$]  {\tt i4} defines the nature of {\tt beta}.  If
 %{\tt beta} is a dihedral
 %        angle,  {\tt i4}=0  ( default ).  If {\tt beta} is a second bond angle,
 %        then {\tt i4}=+/-1 
 %        (sign specifies one of two possible directions).  
 %    \item [$\bullet$]  For 'ghost', same remark applies as before.
-    \item [$\bullet$]  {\tt i4} defines the nature of {\tt beta}.  If {\tt i4} is zero, 
+    \item [$\bullet$]  {\tt i4} defines the nature of the input for {\tt beta}.  If {\tt i4} is zero, 
 {\tt beta} is interpreted as a dihedral
-        angle.  (This is the default.)  If {\tt i4} is entered as +1 or -1, {\tt beta} is interpreted as a second bond angle.  (The sign of {\tt i4} specifies the direction of the bond angle ***relative to what?***).
+        angle.  (This is the default.)  If {\tt i4} is entered as +1 or -1, {\tt beta} 
+is interpreted as a second bond angle.  (The sign of {\tt i4} specifies the 
+direction of the bond angle ***relative to what?***).
     \end{itemize}
 
 %  \item Line no.\ 4  is repeated for each remaining atom. A blank line
@@ -442,7 +463,7 @@ The \verb+GEOMETRY+ directive also contains a feature that allows the user
 to define symbolic definitions for a set of variables that will be 
 qualified as '{\bf frozen}'.  A {\bf frozen} atom is one that will not
 have any of its geometric parameters changed in the course of an optimization
-or other calculation that can change the geometry of a molecule.  
+or other calculation that would change the geometry of a molecule.  
 The ability to actually use this feature
 for atoms defined by means of the Z-matrix input does not exist in NWChem
 as yet, but the input option has been included to ensure compatibilty with
@@ -518,6 +539,7 @@ In this example, the symbolic strings listed after the first blank line
 with the values listed ({\tt CC= 1.4888}, {\tt CH1 = 1.0790}, etc.).  The
 second blank line forces the symbolic definitions starting with {\tt HCH1
 = 10428} to be {\bf frozen}.
+\Large
 \verb+***************************+
 What does the code actually do with this input, since the {\bf frozen}
 feature is not active?  Does it go ahead and use the specified values
@@ -525,3 +547,4 @@ for {\tt HCH1} through {\tt FCH2}, and change them as required by the
 calculation?  Or are those strings defined some other way, and the
 {\bf frozen} assignments ignored?
 \verb+***************************+
+\normalsize
