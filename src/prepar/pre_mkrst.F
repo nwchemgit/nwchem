@@ -12,12 +12,12 @@ c
       character*255 filtop,filpdb,filrst,filtmp,filcmd,filnam
       character*80 source,card
 c
-      integer nsa,nwa,nwm
+      integer nsa,nwa,nwm,nmis
       integer msa,mwa
 c
       integer l_cwa,i_cwa
       integer l_csa,i_csa,l_sat,i_sat,l_sgm,i_sgm,l_qsa,i_qsa
-      integer l_xs,i_xs
+      integer l_sfnd,i_sfnd,l_xs,i_xs
 c
       logical lslvnt,ldistr,lnames
       integer length,len
@@ -39,6 +39,7 @@ c     character*16 cwa(mwa)  : solvent atom names
 c     character*16 csa(msa)  : solute atom names
 c     integer isat(msa)      : solute atom types
 c     integer isgm(msa)      : solute segment numbers
+c     integer isfnd(msa)     : solute atom found flags
 c     real*8 qsa(msa)        : solute atom charges
 c     real*8 xs(3,msa)       : solute atom coordinates
 c
@@ -50,10 +51,15 @@ c
      + call errquit('Memory allocation failed for sat',9999)
       if(.not.ma_push_get(mt_int,msa,"sgm",l_sgm,i_sgm))
      + call errquit('Memory allocation failed for sgm',9999)
+      if(.not.ma_push_get(mt_int,msa,"sfnd",l_sfnd,i_sfnd))
+     + call errquit('Memory allocation failed for sfnd',9999)
       if(.not.ma_push_get(mt_dbl,msa,"qsa",l_qsa,i_qsa))
      + call errquit('Memory allocation failed for qsa',9999)
-      if(.not.ma_push_get(mt_dbl,msa,"xs",l_xs,i_xs))
+      if(.not.ma_push_get(mt_dbl,3*msa,"xs",l_xs,i_xs))
      + call errquit('Memory allocation failed for xs',9999)
+c
+      lslvnt=.false.
+      ldistr=.false.
 c
 c     read topology file
 c     ------------------
@@ -62,15 +68,23 @@ c
      + byte_mb(i_cwa),mwa,nwa,int_mb(i_sat),int_mb(i_sgm),
      + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa))
      + call errquit('pre_toprd failed',9999)
+      if(lprint.ge.5) write(lfnout,2000) filtop(1:index(filtop,' ')-1)
+ 2000 format('Topology successfully read from ',a)
 c
 c     open the command file
 c     ---------------------
 c
       open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
-     + form='formatted',status='old',err=999)
-c
-      lslvnt=.false.
-      ldistr=.false.
+     + form='formatted',status='old',err=99)
+      goto 1
+   99 continue
+      if(.not.pre_rdpdb(filpdb,lfnpdb,filtmp,lfntmp,.true.,
+     + byte_mb(i_csa),int_mb(i_sgm),int_mb(i_sfnd),dbl_mb(i_xs),
+     + msa,nsa,nmis))
+     + call errquit('pre_rdpdb failed',9999)
+      if(lprint.ge.5) write(lfnout,2003) filpdb(1:index(filpdb,' ')-1)
+      write(lfnout,2103) nmis,nsa
+      goto 9
 c
     1 continue
 c
@@ -99,8 +113,13 @@ c
       len=index(filpdb,' ')-1
       lnames=length.eq.len.and.filnam(1:len).eq.filpdb(1:len)
       if(.not.pre_rdpdb(filnam,lfnpdb,filtmp,lfntmp,lnames,
-     + byte_mb(i_csa),int_mb(i_sgm),dbl_mb(i_xs),msa,nsa))
+     + byte_mb(i_csa),int_mb(i_sgm),int_mb(i_sfnd),dbl_mb(i_xs),
+     + msa,nsa,nmis))
      + call errquit('pre_rdpdb failed',9999)
+      if(lprint.ge.5) write(lfnout,2003) filnam(1:index(filnam,' ')-1)
+ 2003 format('PDB file successfully read from ',a)
+      write(lfnout,2103) nmis,nsa
+ 2103 format('Missing',i5,' atoms out of',i5)
       endif
 c
 c     read restart file
@@ -199,6 +218,8 @@ c
      + call errquit('Memory deallocation failed for xs',9999)
       if(.not.ma_pop_stack(l_qsa))
      + call errquit('Memory deallocation failed for qsa',9999)
+      if(.not.ma_pop_stack(l_sfnd))
+     + call errquit('Memory deallocation failed for sfnd',9999)
       if(.not.ma_pop_stack(l_sgm))
      + call errquit('Memory deallocation failed for sgm',9999)
       if(.not.ma_pop_stack(l_sat))

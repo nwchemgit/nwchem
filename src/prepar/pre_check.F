@@ -72,9 +72,9 @@ c
       if(lang(4,i).le.0.and.lang(4,i).gt.-7) then
       k=-lang(4,i)
       do 5 j=1,3
-      if(j.eq.1.and.(k.eq.1.or.k.eq.3.or.k.eq.5)) goto 3
-      if(j.eq.2.and.(k.eq.2.or.k.eq.3.or.k.eq.6)) goto 3
-      if(j.eq.3.and.(k.eq.4.or.k.eq.5.or.k.eq.6)) goto 3
+      if(j.eq.1.and.(k.eq.1.or.k.eq.3.or.k.eq.5)) goto 5
+      if(j.eq.2.and.(k.eq.2.or.k.eq.3.or.k.eq.6)) goto 5
+      if(j.eq.3.and.(k.eq.4.or.k.eq.5.or.k.eq.6)) goto 5
       do 14 ii=1,i
       if(lang(4,ii).le.0.and.lang(4,ii).gt.-7) then
       kk=-lang(4,i)
@@ -107,9 +107,9 @@ c
       if(ldih(5,i).le.0.and.ldih(5,i).gt.-7) then
       k=-ldih(5,i)
       do 7 j=1,3
-      if(j.eq.1.and.(k.eq.1.or.k.eq.3.or.k.eq.5)) goto 3
-      if(j.eq.2.and.(k.eq.2.or.k.eq.3.or.k.eq.6)) goto 3
-      if(j.eq.3.and.(k.eq.4.or.k.eq.5.or.k.eq.6)) goto 3
+      if(j.eq.1.and.(k.eq.1.or.k.eq.3.or.k.eq.5)) goto 7
+      if(j.eq.2.and.(k.eq.2.or.k.eq.3.or.k.eq.6)) goto 7
+      if(j.eq.3.and.(k.eq.4.or.k.eq.5.or.k.eq.6)) goto 7
       do 16 ii=1,i
       if(ldih(5,ii).le.0.and.ldih(5,ii).gt.-7) then
       kk=-ldih(5,i)
@@ -145,9 +145,9 @@ c
       if(limp(5,i).le.0.and.limp(5,i).gt.-7) then
       k=-limp(5,i)
       do 9 j=1,3
-      if(j.eq.1.and.(k.eq.1.or.k.eq.3.or.k.eq.5)) goto 3
-      if(j.eq.2.and.(k.eq.2.or.k.eq.3.or.k.eq.6)) goto 3
-      if(j.eq.3.and.(k.eq.4.or.k.eq.5.or.k.eq.6)) goto 3
+      if(j.eq.1.and.(k.eq.1.or.k.eq.3.or.k.eq.5)) goto 9
+      if(j.eq.2.and.(k.eq.2.or.k.eq.3.or.k.eq.6)) goto 9
+      if(j.eq.3.and.(k.eq.4.or.k.eq.5.or.k.eq.6)) goto 9
       do 18 ii=1,i
       if(limp(5,ii).le.0.and.limp(5,ii).gt.-7) then
       kk=-limp(5,i)

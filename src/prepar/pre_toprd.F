@@ -70,7 +70,7 @@ c
  1005 format(a10)
       do 10 i=1,nsa
       read(lfntop,1006) isat(i),nsm,isgm(i),csa(i),n
- 1006 format(i7,i7,14x,i7,a16,7x,i5)
+ 1006 format(i7,i7,14x,i7,a16,10x,i5)
       read(lfntop,1007) qsa(i)
  1007 format(f12.6) 
       if(n.eq.3) then

@@ -166,7 +166,7 @@ c
       ifrac=ifrac+1
       endif
       write(lfntop,1010) latm(3,i),imol,latm(1,i),latm(2,i),
-     + latm(5,i),cseq(latm(5,i)),catm(1,i)(1:5),i,0,ifrac
+     + lseq(1,latm(5,i)),cseq(latm(5,i)),catm(1,i)(1:5),i,0,ifrac
  1010 format(5i7,a10,a5,i10,2i5)
       write(lfntop,1011) (qatm(2*j-1,i),j=1,3),(qatm(2*j,i),j=1,3)
  1011 format(6f12.6)

@@ -1,9 +1,9 @@
       logical function pre_rdpdb(filpdb,lfnpdb,filtmp,lfntmp,lnams,
-     + csa,isgm,isfnd,xs,msa,nsa)
+     + csa,isgm,isfnd,xs,msa,nsa,nmis)
 c
       implicit none
 c
-      integer lfnpdb,lfntmp,msa,nsa
+      integer lfnpdb,lfntmp,msa,nsa,nmis
       logical lnams,lnames
       character*255 filpdb,filtmp
       character*16 csa(msa)
@@ -31,13 +31,17 @@ c     open the alternate names file
 c     -----------------------------
 c
       if(lnames) then
+      lnames=.false.
       open(unit=lfntmp,file=filtmp(1:index(filtmp,' ')-1),
-     + form='formatted',status='old',err=9999)
+     + form='formatted',status='old',err=99)
+      lnames=.true.
+   99 continue
       endif
 c
 c     initializations
 c     ---------------
 c
+      nmis=0
       last=0
       nprv=0
       do 1 i=1,msa
@@ -86,9 +90,11 @@ c
       xs(1,i)=1.0d-01*x
       xs(2,i)=1.0d-01*y
       xs(3,i)=1.0d-01*z
+      write(*,'(a6,a4,i5)') nama,namr,i
       goto 100
       endif
     2 continue
+      write(*,'(a6,a4)') nama,namr
       else
       endif
 c
@@ -97,6 +103,12 @@ c
     9 continue
 c
       close(unit=lfnpdb)
+c
+      nmis=0
+      do 3 i=1,msa
+      if(isfnd(i).eq.0) nmis=nmis+1
+    3 continue
+      nsa=msa
 c
       pre_rdpdb=.true.
       return

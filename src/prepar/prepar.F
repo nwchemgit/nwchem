@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.11 1998-04-22 23:52:31 d3j191 Exp $
+c $Id: prepar.F,v 1.12 1998-04-23 20:38:53 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -238,7 +238,25 @@ c
 c
     6 continue
 c
+c     remove temporary file if they exist
+c     -----------------------------------
+c
+      open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
+     + form='formatted',status='old',err=11)
+      close(unit=lfncmd,status='delete')
+   11 continue
+      open(unit=lfntmp,file=filtmp(1:index(filtmp,' ')-1),
+     + form='formatted',status='old',err=12)
+      close(unit=lfntmp,status='delete')
+   12 continue
+c
+c     reset print
+c     -----------
+c
       call util_print_pop
+c
+c     signal other nodes to return
+c     ----------------------------
 c
       itask=0
       call ga_brdcst(pre_i00,itask,ma_sizeof(mt_int,1,mt_byte),0)

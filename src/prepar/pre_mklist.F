@@ -378,7 +378,7 @@ c
       if((ldih(1,i).eq.lang(1,j).and.ldih(4,i).eq.lang(3,j)).or.
      + (ldih(1,i).eq.lang(3,j).and.ldih(4,i).eq.lang(2,j))) then
       do 24 k=no+1,nimp
-      if(limp(1,k).eq.i) goto 2
+      if(limp(1,k).eq.i) goto 23
    24 continue
       nimp=nimp+1
       limp(1,nimp)=i

@@ -27,7 +27,7 @@ c
 c
       do 4 i=1,nang
       do 5 j=1,nexc
-      if(lexc(1,j).eq.lang(1,i).and.lexc(2,j).eq.lang(3,i)) goto 2
+      if(lexc(1,j).eq.lang(1,i).and.lexc(2,j).eq.lang(3,i)) goto 4
     5 continue
       nexc=nexc+1
       if(nexc.gt.mexc) call errquit('increase mexc',9999)
