@@ -1,4 +1,4 @@
-c $Id: intd_init.F,v 1.21 1999-07-14 00:28:41 d3e129 Exp $
+c $Id: intd_init.F,v 1.22 1999-10-26 22:27:29 mg201 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_init}
@@ -31,6 +31,8 @@ c::functions
       external spcart_init
       logical  int_ecp_init
       external int_ecp_init
+      logical  int_rel_init
+      external int_rel_init
       logical  texas_check_basis_ok
       external texas_check_basis_ok
 c::passed
@@ -205,6 +207,15 @@ c
       if (.not.(spcart_init((ang2use+1),.true.,.false.))) then
         call errquit('intd_init: spcart_init failed',911)
       endif
+c
+c Initialize relativistic basis set stuff
+c
+      any_rel = bas_rel_exists(rtdb)
+      if (any_rel) then
+        if (.not. int_rel_init(rtdb,nbas,bases)) call errquit
+     &      ('int_init: int_rel_init failed ',911)
+      end if
+c
 c.. read in approximate memory from rtdb
 c.  
 c.. parameter is default value used in hf2d
