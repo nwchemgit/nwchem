@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.6 1999-07-13 02:24:35 edo Exp $
+c$Id: grid_acc_def.F,v 1.7 1999-07-13 21:27:50 edo Exp $
 c
       implicit none
 c      
@@ -185,7 +185,7 @@ c
      .     then
          ngridin=0
       else
-         if (.not. rtdb_get(rtdb,'dft:grtagin',mt_byte,ngridin,grtagin))
+         if (.not. rtdb_cget(rtdb,'dft:grtagin',ngridin,grtagin))
      &        call errquit('grid_inp: rtdb_put failed', 1000)
          if(.not.rtdb_get(rtdb,'dft:nradin',mt_int,ngridin,nradin))
      &        call errquit('grid_inp: rtdb_get failed', 1000)
@@ -315,13 +315,17 @@ c
 c
 c     check if by atom grid parameters have been redifined by input
 c
+               
                lgridin=.false.
+               if(ngridin.ne.0) then
                do jj=1,ngridin
                   if(grtagin(jj).eq.tag) then
                      lgridin=.true.
                      igridin=jj
                   endif
                enddo
+            endif
+!               write(0,*) ' jj tag ig ',jj,tag,igridin,lgridin
 c     
 c
                if(lgridin) then
@@ -345,6 +349,7 @@ c
                   nang(itype) = grid_params(grid_acc_index,2,
      &                                    i_atomic_number)
                endif
+!               write(0,*) ' it ',itype,nrad(itype),nang(itype)
 c                
                if(nrad(itype).gt.mxnrad)mxnrad = nrad(itype)
                if(nang(itype).gt.mxnang)mxnang = nang(itype)
