@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.51 2000-10-06 07:09:25 d3j191 Exp $
+c $Id: ana_task.F,v 1.52 2000-10-06 07:37:24 d3j191 Exp $
 c
       implicit none
 c
@@ -645,7 +645,8 @@ c
 c     scan frames
 c     -----------
 c
-      if(card(1:6).eq.'scan  ') then
+      if(card(1:6).eq.'scan  '.or.card(1:6).eq.'scans ') then
+      lsuper=card(1:6).eq.'scans '
       read(card(8:80),'(a)') string
       filram=string(1:index(string,' ')-1)//'.ram'
       filrms=string(1:index(string,' ')-1)//'.rms'
@@ -699,6 +700,10 @@ c
       nread=nread+1
       if(nread.lt.ifrfr) goto 10
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
+c
+      if(lsuper) call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
+     + num,msa,dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,
+     + .true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
 c
 c     evaluate bond lenghts
 c

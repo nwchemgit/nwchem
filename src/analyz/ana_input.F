@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.38 2000-10-06 07:09:25 d3j191 Exp $
+c $Id: ana_input.F,v 1.39 2000-10-06 07:37:24 d3j191 Exp $
 c
       implicit none
 c
@@ -255,9 +255,16 @@ c     scan frames and write to file
 c     -----------------------------
 c
       if(inp_compare(.false.,'scan',item)) then
+      if(.not.inp_a(item)) call errquit('Error in scan',0)
+      if(inp_compare(.false.,'super',item)) then
       if(.not.inp_a(filcop)) call errquit('Error in scan',0)
       write(lfncmd,1016) filcop(1:index(filcop,' ')-1)
- 1016 format('scan   ',a)
+ 1016 format('scans  ',a)
+      else
+      filcop=item
+      write(lfncmd,1023) filcop(1:index(filcop,' ')-1)
+ 1023 format('scan   ',a)
+      endif
       numcmd=numcmd+1
       goto 2
       endif
