@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.61 1997-03-25 01:42:56 d3e129 Exp $
+C$Id: geom.F,v 1.62 1997-03-25 19:58:09 mdupuis Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -347,6 +347,25 @@ c
       tmp(k:) = ':include_bqbq'
       status = status .and. 
      $     rtdb_get(rtdb, tmp, mt_log, 1, include_bqbq(geom))
+      tmp(k:) = ':zmt_nizmat'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_int, 1, zmt_nizmat(geom))
+      tmp(k:) = ':usr_nizmat'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_int, 1, usr_nizmat(geom))
+      if (zmt_nizmat(geom) .gt. 0) then
+        tmp(k:) = ':zmt_izmat'
+        status = status .and. 
+     $       rtdb_get(rtdb, tmp, mt_int, zmt_nizmat(geom), 
+     $       zmt_izmat(1,geom))
+      endif
+      if (usr_nizmat(geom) .gt. 0) then
+        tmp(k:) = ':usr_izmat'
+        status = status .and. 
+     $       rtdb_get(rtdb, tmp, mt_int, usr_nizmat(geom), 
+     $       usr_izmat(1,geom))
+      endif
+c
 *rak: probably only incore data.  built by basis and ecp functionality
 *rak:      tmp(k:) = ':ecp centers'
 *rak:      status = status .and. 
@@ -637,6 +656,24 @@ c
       tmp(k:) = ':include_bqbq'
       status = status .and. 
      $     rtdb_put(rtdb, tmp, mt_log, 1, include_bqbq(geom))
+      tmp(k:) = ':zmt_nizmat'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_int, 1, zmt_nizmat(geom))
+      tmp(k:) = ':usr_nizmat'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_int, 1, usr_nizmat(geom))
+      if (zmt_nizmat(geom) .gt. 0) then
+        tmp(k:) = ':zmt_izmat'
+        status = status .and. 
+     $       rtdb_put(rtdb, tmp, mt_int, zmt_nizmat(geom), 
+     $       zmt_izmat(1,geom))
+      endif
+      if (usr_nizmat(geom) .gt. 0) then
+        tmp(k:) = ':usr_izmat'
+        status = status .and. 
+     $       rtdb_put(rtdb, tmp, mt_int, usr_nizmat(geom), 
+     $       usr_izmat(1,geom))
+      endif
 c
 c--> put symmetry operators, number of operators and operator/atom
 c    map out to rtdb
@@ -816,6 +853,8 @@ c
       sym_num_ops(geom) = 0
       user_units(geom) = 'angstroms'
       include_bqbq(geom) = .false.
+      zmt_nizmat(geom) = 0
+      usr_nizmat(geom) = 0
 c
       do i = 1, 3
         lattice_vectors(i,geom) = 0

@@ -115,7 +115,8 @@ c
       integer ngeom_rtdb, ncenter, lenn, lent, lenr, group_number,
      $     ncenter_unique, isystype, setting_number, unique_cent,
      $     sym_op_inv, sym_num_ops, sym_center_map_handle,
-     $     sym_center_map_index,zmt_izmat,usr_izmat
+     $     sym_center_map_index,
+     $     zmt_izmat,zmt_nizmat,usr_izmat,usr_nizmat
       double precision coords, charge, efield, latvec, ndipole, erep,
      $     lattice_vectors, lattice_angles, amatrix, amatrix_inv,
      $     volume_direct, metric_matrix, recip_lat_vectors, 
@@ -159,8 +160,10 @@ c
      $     include_bqbq(max_geom),
      $     oecpcent(max_cent,max_geom),
      $     ngeom_rtdb,
-     $     zmt_izmat(max_izmat),
-     $     usr_izmat(max_izmat)
+     $     zmt_izmat(max_izmat,max_geom),
+     $     zmt_nizmat(max_geom),
+     $     usr_izmat(max_izmat,max_geom),
+     $     usr_nizmat(max_geom)
 c
       character*256 names, names_rtdb, trans
       character*16 tags

@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.59 1997-03-12 22:12:39 mdupuis Exp $
+C     $Id: geom_input.F,v 1.60 1997-03-25 19:58:13 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -929,7 +929,9 @@ c
       logical      geom_tag_to_element
       logical      geom_atn_to_default_mass
       logical      geom_zmt_put_izmat          
+      logical      geom_zmt_put_nizmat          
       logical      geom_usr_put_izmat          
+      logical      geom_usr_put_nizmat          
       logical      dbug 
       logical      some 
       double precision zmat
@@ -949,7 +951,9 @@ c
       external     geom_tag_to_element
       external     geom_atn_to_default_mass
       external     geom_zmt_put_izmat          
+      external     geom_zmt_put_nizmat          
       external     geom_usr_put_izmat          
+      external     geom_usr_put_nizmat          
 c
       dbug=.false.
       some=.true.
@@ -982,9 +986,13 @@ c
 c
 c     ----- store -izmat- for -nwchem- -----
 c
-      if(.not.geom_zmt_put_izmat(izmat,nizmat))
+      if(.not.geom_zmt_put_nizmat(geom,nizmat))
+     1   call errquit('geom_input: geom_zmt_put_nizmat failed', 0)
+      if(.not.geom_zmt_put_izmat(geom,izmat,nizmat))
      1   call errquit('geom_input: geom_zmt_put_izmat failed', 0)
-      if(.not.geom_usr_put_izmat(izmat,nizmat))
+      if(.not.geom_usr_put_nizmat(geom,nizmat))
+     1   call errquit('geom_input: geom_usr_put_nizmat failed', 0)
+      if(.not.geom_usr_put_izmat(geom,izmat,nizmat))
      1   call errquit('geom_input: geom_usr_put_izmat failed', 0)
       if(dbug) then
          write(iw,9994)
@@ -1025,71 +1033,127 @@ c
  9994 format(' storing -izmat- via - geom_zmt_put_izmat - ')
  9993 format(1x,i5,i5,3f10.6)
       end
-      logical function geom_zmt_put_izmat(izmat,nizmat)          
+      logical function geom_zmt_put_nizmat(geom,nizmat)
+      implicit none
+#include "geomP.fh"
+c
+      integer geom
+      integer nizmat
+c
+      zmt_nizmat(geom) = nizmat
+c
+      geom_zmt_put_nizmat=.true.
+      return
+      end
+      logical function geom_zmt_get_nizmat(geom,nizmat)
+      implicit none
+#include "geomP.fh"
+c
+      integer geom
+      integer nizmat            
+c
+      nizmat = zmt_nizmat(geom)
+c
+      geom_zmt_get_nizmat=.true.
+      return
+      end
+      logical function geom_zmt_put_izmat(geom,
+     1                                    izmat,nizmat)          
       implicit none
 #include "geomP.fh"
 c     
+      integer geom
       integer nizmat             
       integer izmat             
       integer i
       dimension izmat(*)
 c
       do i = 1, nizmat
-         zmt_izmat(i) = izmat(i)
+         zmt_izmat(i,geom) = izmat(i)
       end do
 c
       geom_zmt_put_izmat=.true.
       return
       end
-      logical function geom_zmt_get_izmat(izmat,nizmat)         
+      logical function geom_zmt_get_izmat(geom,
+     1                                    izmat,nizmat)         
       implicit none
 #include "geomP.fh"
 c     
+      integer geom
       integer nizmat             
       integer izmat             
       integer i
       dimension izmat(*)
 c
       do i = 1, nizmat
-         izmat(i) = zmt_izmat(i)
+         izmat(i) = zmt_izmat(i,geom)
       end do
 c
       geom_zmt_get_izmat=.true.
       return
       end
-      logical function geom_usr_put_izmat(izmat,nizmat)
+      logical function geom_usr_put_nizmat(geom,nizmat)
+      implicit none
+#include "geomP.fh"
+c
+      integer geom
+      integer nizmat
+c
+      usr_nizmat(geom) = nizmat
+c
+      geom_usr_put_nizmat=.true.
+      return
+      end
+      logical function geom_usr_get_nizmat(geom,nizmat)
+      implicit none
+#include "geomP.fh"
+c
+      integer geom
+      integer nizmat            
+c
+      nizmat = usr_nizmat(geom)
+c
+      geom_usr_get_nizmat=.true.
+      return
+      end
+      logical function geom_usr_put_izmat(geom,
+     1                                    izmat,nizmat)
       implicit none
 #include "geomP.fh"
 c    
+      integer geom
       integer nizmat
       integer izmat
       integer i
       dimension izmat(*)
 c
       do i = 1, nizmat
-         usr_izmat(i) = izmat(i)
+         usr_izmat(i,geom) = izmat(i)
       end do
 c
       geom_usr_put_izmat=.true.
       return
       end
-      logical function geom_usr_get_izmat(izmat,nizmat)
+      logical function geom_usr_get_izmat(geom,
+     1                                    izmat,nizmat)
       implicit none
 #include "geomP.fh"
 c    
+      integer geom
       integer nizmat
       integer izmat
       integer i
       dimension izmat(*)
 c
       do i = 1, nizmat
-         izmat(i) = usr_izmat(i)
+         izmat(i) = usr_izmat(i,geom)
       end do
 c
       geom_usr_get_izmat=.true.
       return
       end
-      logical function geom_zmt_put_zmat(zmat,nzmat)          
+      logical function geom_zmt_put_zmat(geom,zmat,nzmat)          
       implicit none
 c     
       integer      mxzmat
@@ -1101,6 +1165,7 @@ c
       parameter    (mxzmat=1500)
       parameter    (mxcoor=1500)
 c                   mxcoor=max(mxcart,mxzmat)
+      integer geom
       integer nzmat
       integer i
       double precision  zmt_zmat
@@ -1114,7 +1179,7 @@ c
       geom_zmt_put_zmat=.true.
       return
       end
-      logical function geom_zmt_get_zmat(zmat,nzmat)         
+      logical function geom_zmt_get_zmat(geom,zmat,nzmat)         
       implicit none
 c     
       integer      mxzmat
@@ -1126,6 +1191,7 @@ c
       parameter    (mxzmat=1500)
       parameter    (mxcoor=1500)
 c                   mxcoor=max(mxcart,mxzmat)
+      integer geom
       integer nzmat
       integer i
       double precision  zmt_zmat
@@ -1499,11 +1565,11 @@ c
       endif
 c
       if(mzvar.gt.mxzmat) then
-         write(iw,*) ' in geom_zmt_put_zsym, mzvar.gt.mxzmat. stop '
+         write(iw,*) ' in geom_zmt_get_zsym, mzvar.gt.mxzmat. stop '
          call errquit('geom_input: mzvar too big',0)
       endif
       if(nzvar.gt.mxzmat) then
-         write(iw,*) ' in geom_zmt_put_zsym, nzvar.gt.mxzmat. stop '
+         write(iw,*) ' in geom_zmt_get_zsym, nzvar.gt.mxzmat. stop '
          call errquit('geom_input: nzvar too big',0)
       endif
 c
@@ -1835,8 +1901,8 @@ c
  9999 format(' in -geom_no_autoz- ')
  9998 format(1x,i5,i5,3f10.6)
       end
-      subroutine  geom_zmt_autoz(rtdb,
-     1                           geom,coords,charge,tags,ncenter,
+      subroutine  geom_zmt_autoz(rtdb,geom,
+     1                           coords,charge,tags,ncenter,
      2                           nzinput,oforce_autoz)
       implicit none
 #include "stdio.fh"
@@ -1865,6 +1931,7 @@ c
       integer      nat
       integer      geom
       logical      geom_zmt_put_izmat          
+      logical      geom_zmt_put_nizmat          
       logical      oforce_autoz
       logical      zdone
       logical      dbug 
@@ -1930,7 +1997,9 @@ c
 c
 c     ----- save -izmat- and -zmat- -----
 c
-      if(.not.geom_zmt_put_izmat(izmat,nizmat))
+      if(.not.geom_zmt_put_nizmat(geom,nizmat))
+     1   call errquit('geom_input: geom_zmt_put_nizmat failed', 0)
+      if(.not.geom_zmt_put_izmat(geom,izmat,nizmat))
      1   call errquit('geom_input: geom_zmt_put_izmat failed', 0)
       if(dbug) then
          write(iw,9993)
@@ -2085,7 +2154,7 @@ C
  9996 FORMAT(12I5)
  9995 FORMAT(' ERROR IN -prt-autoz- , IZVAR,IADD,ITYPE = ',3I5)
       END
-      subroutine geom_zmt_icoord(rtdb)
+      subroutine geom_zmt_icoord(rtdb,geom)
       implicit none
 #include "rtdb.fh"
 #include "msgtypesf.h"
@@ -2094,6 +2163,7 @@ C
 #include "stdio.fh"
       logical      status
       integer      rtdb
+      integer      geom
       integer      mitob
       integer      mxizmt
       integer      mxzmat
@@ -2120,6 +2190,7 @@ C
       integer      nuc
       integer      nat
       logical      geom_zmt_get_izmat
+      logical      geom_zmt_get_nizmat
       logical      dbug
       logical      some
       double precision zmat
@@ -2157,7 +2228,9 @@ c
 c
       status = rtdb_parallel(.false.)
       if(ga_nodeid().eq.0) then
-         if(.not.geom_zmt_get_izmat(izmat,nizmat))
+         if(.not.geom_zmt_get_nizmat(geom,nizmat))
+     1   call errquit('geom_input: geom_zmt_get_nizmat failed',0)
+         if(.not.geom_zmt_get_izmat(geom,izmat,nizmat))
      1   call errquit('geom_input: geom_zmt_get_izmat failed',0)
          call ga_brdcst(18+msgint,nizmat,mitob(1     ),0)
          call ga_brdcst(19+msgint,izmat ,mitob(mxizmt),0)
@@ -2177,7 +2250,7 @@ c
 c     ----- call -icoord- -----
 c
       ifzmat=1
-      call hnd_icoord
+      call hnd_icoord(rtdb,geom)
       return
  9999 format(' in -geom_zmt_icoord ')
  9998 format(' reading -izmat- via -geom_zmt_get_izmat- ')
@@ -2185,7 +2258,7 @@ c
  9996 format(12(i5,','))
  9995 format(' $end ')
       end
-      SUBROUTINE HND_ICOORD(RTDB)
+      SUBROUTINE HND_ICOORD(RTDB,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -2196,6 +2269,7 @@ c
 c
       logical status
       integer rtdb
+      integer geom
       logical  geom_zmt_opn_fil
 C
 C     ---                 CONSTRUCT -Z- MATRIX                     ---
@@ -2257,8 +2331,8 @@ C
          IF(.NOT.STATUS) THEN
             CALL ERRQUIT('GEOM_ZMT_OPN_FIL?',911)
          ENDIF
-         CALL HND_BANDBI(NAT,C)
-         CALL HND_ZMTPRT
+         CALL HND_BANDBI(GEOM,NAT,C)
+         CALL HND_ZMTPRT(GEOM)
       ELSEIF(IFZMAT.NE.0.AND.NZMAT.EQ.0) THEN
 C
 C     -----       THERE IS NO -Z- MATRIX     -----
@@ -2271,8 +2345,8 @@ C
             IF(.NOT.STATUS) THEN
                CALL ERRQUIT('GEOM_ZMT_OPN_FIL?',911)
             ENDIF
-            CALL HND_BANDBI(NAT,C)
-            CALL HND_ZMTPRT
+            CALL HND_BANDBI(GEOM,NAT,C)
+            CALL HND_ZMTPRT(GEOM)
          ELSE
 C
 C     -----  DEFINE ROTATIONS+TRANSLATIONS  -----
@@ -3070,7 +3144,7 @@ C
  9992 FORMAT(' IN -ZMTLIN- THE ',I4,'-TH INDEPENDENT VECTOR',
      1       ' COULD NOT BE FOUND. STOP')
       END
-      SUBROUTINE HND_BANDBI(NAT,C)
+      SUBROUTINE HND_BANDBI(GEOM,NAT,C)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -3080,6 +3154,7 @@ C
 #include "context.fh"
 #include "geom.fh"
 #include "geomP.fh"
+      INTEGER GEOM
 C
 C     ----- CALCULATE -B- AND -BI- MATRICES -----
 C
@@ -3094,7 +3169,7 @@ C     ----- RETURN IF NO INTERNAL COORDINATES -----
 C
       IF(NZMAT.EQ.0) RETURN
 C
-      OUT=.FALSE.
+      OUT=.FALSE.  
       OUT=OUT.OR.NPRINT.EQ.1
       OUT=OUT.OR.IPRZMT.GE.1
       IF(OUT) THEN
@@ -3158,8 +3233,9 @@ C     LAST=MAX0(LAST1,LAST2)
 C
 C     ----- CALCULATE -B- MATRIX -----
 C
-      CALL HND_BMAT(NZVAR,NCART,DBL_MB(I10),DBL_MB(I20),DBL_MB(I30),
-     1              NZMAT,C)
+      CALL HND_BMAT(GEOM,NZVAR,NCART,
+     1              DBL_MB(I10),DBL_MB(I20),DBL_MB(I30),
+     2              NZMAT,C)
       IF(OUT) THEN
          WRITE(IW,9998)
       ENDIF
@@ -3209,7 +3285,7 @@ C
  9998 FORMAT(' IN -BANDBI- AFTER -BMAT- , BEFORE -BINVR- ')
  9997 FORMAT(' IN -BANDBI- AFTER -BINVR- ')
       END
-      SUBROUTINE HND_BMAT(NZVAR,NCART,B,ZMAT,IZMAT,NZMAT,C)
+      SUBROUTINE HND_BMAT(GEOM,NZVAR,NCART,B,ZMAT,IZMAT,NZMAT,C)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "rtdb.fh"
 #include "msgtypesf.h"
@@ -3217,6 +3293,7 @@ C
 #include "mafdecls.fh"
 #include "stdio.fh"
       logical status
+      integer geom
 C
 C     ----- CONSTRUCT THE B MATRIX -----
 C
@@ -3224,6 +3301,7 @@ C
       LOGICAL     DBUG
       LOGICAL     OUT
       LOGICAL     GEOM_ZMT_GET_IZMAT
+      LOGICAL     GEOM_ZMT_GET_NIZMAT
       LOGICAL     GEOM_ZMT_PUT_ZMAT 
       LOGICAL     GEOM_ZMT_PUT_BMAT 
       CHARACTER*8 ERRMSG
@@ -3259,7 +3337,9 @@ C
 C
       STATUS=RTDB_PARALLEL(.FALSE.)
       IF( GA_NODEID().EQ.0) THEN
-         IF(.NOT.GEOM_ZMT_GET_IZMAT(IZMAT,NZMAT))
+         IF(.NOT.GEOM_ZMT_GET_NIZMAT(GEOM,NZMAT))
+     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_NIZMAT FAILED',0)
+         IF(.NOT.GEOM_ZMT_GET_IZMAT(GEOM,IZMAT,NZMAT))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_IZMAT FAILED',0)
          CALL GA_BRDCST(20+MSGINT,NZMAT,MITOB(1     ),0)
          CALL GA_BRDCST(21+MSGINT,IZMAT,MITOB(NZMAT ),0)
@@ -3375,7 +3455,7 @@ C     ----- STORE FOR -NWCHEM- -----
 C
       STATUS=RTDB_PARALLEL(.FALSE.)
       IF( GA_NODEID().EQ.0) THEN
-         IF(.NOT.GEOM_ZMT_PUT_ZMAT(ZMAT,NZVAR))
+         IF(.NOT.GEOM_ZMT_PUT_ZMAT(GEOM,ZMAT,NZVAR))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZMAT FAILED',0)
          IF(.NOT.GEOM_ZMT_PUT_BMAT(B   ,NCART,NZVAR,NCART))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_BMAT FAILED',0)
@@ -3416,6 +3496,8 @@ C
       LOGICAL     GEOM_ZMT_PUT_BINV 
       LOGICAL     GEOM_ZMT_GET_BMAT
       LOGICAL     GEOM_ZMT_PUT_ZIND
+      LOGICAL     GEOM_ZMT_GET_ZIND
+      LOGICAL     GEOM_ZMT_PUT_ZSYM
       LOGICAL     GEOM_ZMT_GET_ZSYM
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
@@ -3447,9 +3529,6 @@ C     --- NATURL .. FINAL BASIS = NATURAL   INTERNAL        COORD. ---
 C     --- SYMTRC .. FINAL BASIS = SYMMETRIC INTERNAL        COORD. ---
 C     --- INDEP  .. FINAL BASIS = (NON-REDUNDANT+REDUNDANT) COORD. ---
 C
-      IF(NATZMT.NE.2) THEN
-         NATZMT=2
-      ENDIF
       NATURL=NATZMT.EQ.0
       SYMTRC=NATZMT.EQ.1
       INDEP =NATZMT.EQ.2              
@@ -3589,6 +3668,17 @@ C
          WRITE(IW,9989) NINDEP,NREDUN,NZVAR,NVAR
       ENDIF
 C
+      IF(SYMTRC) THEN
+         DO J=1,NZVAR
+            DO I=1,NZVAR
+               S(I,J)=ZERO
+            ENDDO
+            S(J,J)=ONE
+         ENDDO
+         IF(.NOT.GEOM_ZMT_PUT_ZIND(S,NZVAR,NDIM))            
+     1      CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZIND FAILED',0)
+      ENDIF
+C
 C     ----- IF WORKING BASIS IS (NON-REDUNDANT+REDUNDANT) -----
 C     -----         TRANSFORM -B- TO THAT BASIS           -----
 C
@@ -3607,8 +3697,8 @@ C
                S(I,J)=T(J)
             ENDDO
          ENDDO
-         IF(.NOT.GEOM_ZMT_PUT_ZIND(S,NZVAR,NDIM))            
-     1      CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZIND FAILED',0)
+         IF(.NOT.GEOM_ZMT_PUT_ZSYM(S,NZVAR,NDIM))            
+     1      CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZSYM FAILED',0)
          IF(OUT) THEN
             WRITE(IW,9980)
             IF(DBUG) THEN
@@ -3750,6 +3840,11 @@ C
          CALL HND_PRSQ(H,NZVAR,NZVAR,NDIM) 
       ENDIF
 C
+C     ----- NEXT TIME AROUND WE WILL WORK WITH -----
+C           WHAT ARE NOW SYM.INTERN.COORD.
+C
+      NATZMT=1
+C
 C          -A-                                 AT -90-
 C          -B-  (B tilde)                      AT -91-
 C          -S-  (pristine)                     AT -92-
@@ -3791,7 +3886,7 @@ C
  9981 FORMAT(/,' K * K(T) PROJECTOR ')         
  9980 FORMAT(/,' -ZIND- FROM NATURAL TO (INDEP+DEP) COORDINATES')
       END
-      SUBROUTINE HND_BANDZ(NAT,C,Z)
+      SUBROUTINE HND_BANDZ(GEOM,NAT,C,Z)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -3804,6 +3899,7 @@ C
 C
 C     ----- CALCULATE -B- AND -BI- MATRICES -----
 C
+      LOGICAL GEOM
       LOGICAL OUT
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OUTPUT/NPRINT
@@ -3847,8 +3943,9 @@ C
 C
 C     ----- CALCULATE -B- MATRIX -----
 C
-      CALL HND_BZ(NZVAR,NCART,DBL_MB(I10),DBL_MB(I20),DBL_MB(I30),
-     1            NZMAT,C)
+      CALL HND_BZ(GEOM,NZVAR,NCART,
+     1            DBL_MB(I10),DBL_MB(I20),DBL_MB(I30),
+     2            NZMAT,C)
       DO I=1,NZVAR
          Z(I)=DBL_MB(I+I20-1)
       ENDDO
@@ -3872,14 +3969,16 @@ C
  9999 FORMAT(' IN -BANDZ- NZMAT,NZVAR,NVAR,NAT = ',4I5)
  9998 FORMAT(' IN -BANDZ- AFTER -BZ- ')
       END
-      SUBROUTINE HND_BZ(NZVAR,NCART,B,ZMAT,IZMAT,NZMAT,C)
+      SUBROUTINE HND_BZ(GEOM,NZVAR,NCART,B,ZMAT,IZMAT,NZMAT,C)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      integer geom
 C
 C     ----- CONSTRUCT THE B MATRIX -----
 C
       PARAMETER (    NA=10 )
       LOGICAL     OUT
       LOGICAL     GEOM_ZMT_GET_IZMAT
+      LOGICAL     GEOM_ZMT_GET_NIZMAT
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OUTPUT/NPRINT
@@ -3908,7 +4007,9 @@ C          -A-     AT -90-
 C          -IZMAT- AT -96-
 C
       NDUM=3*NA
-      IF(.NOT.GEOM_ZMT_GET_IZMAT(IZMAT,NZMAT))
+      IF(.NOT.GEOM_ZMT_GET_NIZMAT(GEOM,NZMAT))
+     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_NIZMAT FAILED',0)
+      IF(.NOT.GEOM_ZMT_GET_IZMAT(GEOM,IZMAT,NZMAT))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_IZMAT FAILED',0)
       IF(OUT) THEN
          WRITE(IW,9997) 
@@ -4018,7 +4119,7 @@ C
  9996 FORMAT(12I5)
  9995 FORMAT(' ERROR IN -BZ- , IZVAR,IADD,ITYPE = ',3I5)
       END
-      SUBROUTINE HND_ZMTPRT
+      SUBROUTINE HND_ZMTPRT(GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -4032,7 +4133,9 @@ C
 C     ----- PRINT THE CURRENT Z MATRIX -----
 C
       LOGICAL STATUS
+      INTEGER GEOM
       LOGICAL GEOM_ZMT_GET_IZMAT
+      LOGICAL GEOM_ZMT_GET_NIZMAT
       LOGICAL GEOM_ZMT_GET_ZMAT
       LOGICAL DBUG
       COMMON/HND_IOFILE/IR,IW
@@ -4063,9 +4166,11 @@ C     ----- GET IZMAT AND ZMAT FROM DIRECT ACCESS -----
 C
       STATUS=RTDB_PARALLEL(.FALSE.)
       IF( GA_NODEID().EQ.0) THEN 
-         IF(.NOT.GEOM_ZMT_GET_IZMAT(DBL_MB(I20),NZMAT))
+         IF(.NOT.GEOM_ZMT_GET_NIZMAT(GEOM,NZMAT))
+     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_NIZMAT FAILED',0)
+         IF(.NOT.GEOM_ZMT_GET_IZMAT(GEOM,DBL_MB(I20),NZMAT))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_IZMAT FAILED',0)
-         IF(.NOT.GEOM_ZMT_GET_ZMAT(DBL_MB(I10),NZVAR))
+         IF(.NOT.GEOM_ZMT_GET_ZMAT(GEOM,DBL_MB(I10),NZVAR))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_ZMAT FAILED',0)
          CALL GA_BRDCST(22+MSGDBL,DBL_MB(I20),MDTOB(NZMAT),0)
          CALL GA_BRDCST(23+MSGDBL,DBL_MB(I10),MDTOB(NZVAR),0)
