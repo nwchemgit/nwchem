@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.23 1998-12-10 23:48:40 d3e129 Exp $
+c $Id: int_spcart.F,v 1.24 1999-06-17 13:58:43 d3e129 Exp $
 *::cr::7
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
@@ -466,6 +466,8 @@ c
               call errquit('fix p: error',911)
             endif
             dpdp(count_val) = Dp(lc,ls)
+*            if (dpdp(count_val).lt.0.0d00)
+*     &            dpdp(count_val) = -dpdp(count_val)
           endif
           Dp(lc,ls) = 0.0d00
         enddo
