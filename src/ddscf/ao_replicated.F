@@ -1,7 +1,7 @@
       subroutine ao_replicated(geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock, asym)
 c     
-c     $Id: ao_replicated.F,v 1.37 2000-04-27 20:07:09 zzhang Exp $
+c     $Id: ao_replicated.F,v 1.38 2000-04-28 01:04:56 zzhang Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -203,8 +203,6 @@ c
          call ga_dscal(vg_fock(i), 4.0d0) ! Undo scaling
          if (.not. oskel .and. .not. asym) 
      &        call ga_symmetrize(vg_fock(i))
-         if (.not. oskel .and. asym) 
-     &        call asym_fock2e(vg_fock(i))
       end do
 c     
 c     Reset exchange factors
