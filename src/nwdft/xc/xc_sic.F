@@ -4,7 +4,7 @@
      &                  cetobfr, natoms,
      &                  g_movecs, noc,  totsic, i_degen, n_levels)
 c
-C$Id: xc_sic.F,v 1.13 2000-05-18 18:15:08 jolguin Exp $
+C$Id: xc_sic.F,v 1.14 2000-06-09 22:17:30 edo Exp $
 c
       implicit none
 c      
@@ -42,13 +42,13 @@ c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
 c
-      integer me,nproc
+      integer me,nproc,ii
 c     integer me,nproc,i,nTrows,nTcols
 c     integer lTmat,iTmat
       double precision zero,one,onem
       logical oprint_intermediate_xc, oprint_time, oprint_sic
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
-      double precision tol2e
+      double precision tol2e,edodumm
 c******************************************************************************
 c
 c Compute the matrix elements for the XC potential of the OEP and the
@@ -193,10 +193,17 @@ c
               sic_orb_spin = isp
               sic_orb_index = 0
               rho_n = 0.0d00
-              call xc_quadv0(rtdb, nExc, g_vxc_orb, g_sic_dens,
-     &                       g_wght, g_xyz, g_nq, wght_GA, Exc_orb,
-     &                       rho_n, rdens_atom,
-     &                       cetobfr, natoms)
+              if(naux_ipol.eq.1) then
+                 do ii=1,natoms*natoms
+                    rdens_atom(natoms*natoms+ii)=rdens_atom(ii)
+                 enddo
+              endif
+              call grid_quadv0(rtdb, g_sic_dens, g_vxc_orb, 
+     ,           nexc,rho_n,  Exc_orb,edodumm)
+!              call xc_quadv0(rtdb, nExc, g_vxc_orb, g_sic_dens,
+!     &                       g_wght, g_xyz, g_nq, wght_GA, Exc_orb,
+!     &                       rho_n, rdens_atom,
+!     &                       cetobfr, natoms)
 c
 c   Exc_orb(1) is the exchange-correlation energy by orbital
 c

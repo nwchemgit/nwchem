@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.163 2000-06-08 18:42:25 edo Exp $
+c     $Id: dft_scf.F,v 1.164 2000-06-09 22:17:29 edo Exp $
 c     
       implicit none
 c
@@ -129,7 +129,7 @@ c
       character*255 basis_name, basis_trans,blob
 
       integer nopen, nclosed, g_denso(2),k_tmp,l_tmp,nstdis,
-     .     mult_loc,l_gdiis,k_gdiis
+     .     mult_loc,l_gdiis,k_gdiis,ipolmod
       logical dft_mem3c
       external dft_mem3c
 c !!! BGJ
@@ -223,28 +223,11 @@ c
 c     
       call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
      &                int_mb(icetobfr), natoms, nshells_ao)
-c
-c     Set aside some memory for reduced density matrix
-c
-      if (.not.MA_Push_Get(MT_Dbl,ipol*natoms*natoms,'rdens_atom',
-     &   lrdens_atom,irdens_atom))
-     &   call errquit('dft_scf: cannot allocate rdens_atom',0)
-c     
-c     determine pattern of orbitals' occupancy
-c     
+
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
      &   call errquit('dft_scf: rtdb_get of noc failed', 0)
       if (.not. MA_Push_Get(MT_Dbl,nbf_ao*ipol,'mo occ',l_occ,k_occ))
      &   call errquit('dft_scf: failed to alloc',999)
-c
-c     get/set orbital overlap tolerance
-c
-      if (.not. rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))then
-         toll_s = 1.d-6
-         if (.not. rtdb_put(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))
-     &      call errquit('dft_main0d: failed to put toll_s in rtdb', 0)
-      endif
-c      
       if (ipol.eq.1)then
 c     
 c        noc(1) = No. of electrons alpha
@@ -262,6 +245,26 @@ c    Jorge Garza/Begin
       call xc_sicinit(rtdb, test_sic, condfukui, exact_pot,
      &                l_degen, i_degen, noc, act_levels)
 c     Jorge Garza/End
+c
+c     Set aside some memory for reduced density matrix
+c
+      ipolmod=ipol
+      if(test_sic.ne.0) ipolmod=2
+      if (.not.MA_Push_Get(MT_Dbl,ipolmod*natoms*natoms,'rdens_atom',
+     &   lrdens_atom,irdens_atom))
+     &   call errquit('dft_scf: cannot allocate rdens_atom',0)
+c     
+c     determine pattern of orbitals' occupancy
+c     
+c
+c     get/set orbital overlap tolerance
+c
+      if (.not. rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))then
+         toll_s = 1.d-6
+         if (.not. rtdb_put(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))
+     &      call errquit('dft_main0d: failed to put toll_s in rtdb', 0)
+      endif
+c      
 c
       if (ipol .eq. 1)then
 c
