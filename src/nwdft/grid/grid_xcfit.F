@@ -6,7 +6,7 @@
      ,     acc_xc_gauss)
       implicit none
 c
-c$Id: grid_xcfit.F,v 1.3 2003-01-03 22:43:14 edo Exp $
+c$Id: grid_xcfit.F,v 1.4 2003-01-03 23:29:33 edo Exp $
 c
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -49,13 +49,11 @@ c
       if (.not.bas_numcont(xc_bas_han, ncontrsetx))
      &     call errquit('Exiting in grid_quadv0b',0)
       if(natoms.gt.1) then
-       do i=1,ncontrsetx
-            docsetx(i)=.true.
-         enddo
       Call oldnBF_to_mBF(xc_bas_han,rq0,
      &                mbf_xc,natoms,
      &                iniz,ifin,ibf,
-     &                Expo,nbf_xc_mxprim,acc_xc_gauss)
+     &                Expo,nbf_xc_mxprim,
+     .        docsetx,acc_xc_gauss)
          if (mbf_xc.eq.0) return
       else
          iniz(1)=1
@@ -154,9 +152,10 @@ c
       return
       end
       Subroutine oldnbf_to_mbf(basis_hand, rq0, mbf, mcenters, 
-     &                      iniz, ifin, ibf, zprim, nzprim, acc_gauss)
+     &                      iniz, ifin, ibf, zprim, nzprim, 
+     .     docset, acc_gauss)
 c
-C$Id: grid_xcfit.F,v 1.3 2003-01-03 22:43:14 edo Exp $
+C$Id: grid_xcfit.F,v 1.4 2003-01-03 23:29:33 edo Exp $
 c
       implicit none
 c      
@@ -164,6 +163,7 @@ c
       integer mcenters ! [input]
       integer nzprim ! [input]
       double precision acc_gauss ! [input]
+      logical docset(*)
       integer mbf  ! [input/output]
 c
 #include "bas.fh"
@@ -195,6 +195,7 @@ c
       npt=0
 c
       do 400 icset = 1,ncontrset
+         docset(icset) = .false.
          if (.not.bas_cn2ce(basis_hand, icset, ictr))
      &      call errquit('Exiting in nbf_to_mbf.',2)
 c         
@@ -243,6 +244,7 @@ c
           do m=1,nshbf
             ibf(n1+m ) = npt+m
           enddo
+          docset(icset) = .true.
             if (iniz(ictr).eq.0) iniz(ictr)=n1+1
             n1 = n1 + nshbf
          endif

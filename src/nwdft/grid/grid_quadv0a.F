@@ -10,7 +10,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf,l3d,triplet)
 c
-c$Id: grid_quadv0a.F,v 1.32 2003-01-03 22:48:29 edo Exp $
+c$Id: grid_quadv0a.F,v 1.33 2003-01-03 23:29:33 edo Exp $
 c
       implicit none
 c
@@ -68,15 +68,15 @@ c
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
       if (xcfit) then
-         if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
+         if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_xinfo',
      &        lbas_cent_xinfo, ibas_cent_xinfo))
      &        call errquit('grid_quadv0a: cant alloca bas_cent_info',0)
-      if (.not.bas_numcont(AO_bas_han, ncontrsetx))
+      if (.not.bas_numcont(xc_bas_han, ncontrsetx))
      &     call errquit('Exiting in grid_quadv0a',0)
-      if (.not.MA_Push_Get(mt_int, 6*ncontrsetx, 'bas_cset_info',
+      if (.not.MA_Push_Get(mt_int, 6*ncontrsetx, 'bas_cset_xinfo',
      &     lbas_cset_xinfo, ibas_cset_xinfo))
      &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0)
-      if (.not.MA_Push_Get(mt_log, ncontrsetx, 'docset',
+      if (.not.MA_Push_Get(mt_log, ncontrsetx, 'docsetx',
      &     ldocsetx, idocsetx))
      &     call errquit('grid_quadv0a: cannot allocate docset',
      .     ncontrset)
