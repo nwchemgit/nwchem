@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_diis.F,v 1.2 2003-03-19 00:45:59 bylaska Exp $                       
+*     $Id: nwpw_diis.F,v 1.3 2003-06-27 23:23:36 bylaska Exp $                       
 *
 
 *     *****************************************
@@ -78,9 +78,11 @@
 #include "nwpw_diis_common.fh"
 
 *     **** local variables ****
-      integer i,j
-      real*8 sum, scal
-      real*8 A(max_list,max_list)
+      integer i,j,iwork(max_list)
+      real*8 sum, scal,ferr,berr,rcond
+      real*8 AP(max_list*(max_list+1)/2)
+      real*8 AFP(max_list*(max_list+1)/2)
+      real*8 work(3*max_list)
       real*8 A2(max_list,max_list),eig(max_list)
       integer rr_ptr,gg_ptr,ipiv(max_list),info
 
@@ -167,22 +169,36 @@ c DEBUG
 
 
 *     **** solve Bc = d ****
- 20   call dcopy(max_list,d,1,c,1)
-      call dcopy(max_list*max_list,B,1,A,1)
-      call dgesv(m+1,1,A,max_list,ipiv,c,max_list,info)
+ 20   continue
+      call dcopy(max_list,d,1,c,1)
+
+      !call dcopy(max_list*max_list,B,1,A,1)
+      !call dgesv(m+1,1,A,max_list,ipiv,c,max_list,info)
+      do j=1,m+1
+      do i=1,j
+        AP(i+(j-1)*j/2) = B(i,j)
+      end do
+      end do
+      call dspsvx( 'N', 'U', m+1, 1, AP, AFP,
+     >             ipiv, d,  m+1, c, m+1,
+     >             rcond, ferr, berr, 
+     >             work,iwork,
+     >             info)
 
 *     **** check for linear dependency ****
-      sum = 0.0d0
-      do i=2,m+1
-         sum = sum+dabs(c(i))
-      end do
+c     sum = 0.0d0
+c     do i=2,m+1
+c        sum = sum+dabs(c(i))
+c     end do
+c     write(*,*) "DEBUG: sum=",sum,"  count=",(m+1),
+c    >           "   info=",info,"   rcond=",rcond
 
       !if (sum.gt.1.2d0) then
-      !   call nwpw_diis_gram_schmidt()
+      !   call nwpw_diis_gram_schmidt() !*** this routine does not work ***
       !   go to 20
       !end if
 
-      if (sum.gt.1.2d0) then
+      if ((info.ne.0).or.(rcond.lt.1.0d-10)) then
          call nwpw_diis_shift()
          m = m-1
          go to 20
