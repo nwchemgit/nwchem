@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.8 1996-01-04 21:28:20 d3g681 Exp $
+c $Id: texas_face.F,v 1.9 1996-01-05 18:10:31 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -194,7 +194,6 @@ c
       write(8,*) '===================================================='
       end
 c=================================================================
-c.old.rak      subroutine texas_init(rtdb,nbas,bases)
       subroutine texas_init(rtdb,nbas,bases,l_blsize)
 c---------------------------------------------------------------
 c l_blsize = size of the scratch array which will be used when
@@ -286,6 +285,15 @@ c total number of primitive shells
 c
       npshells = nprim_tot_gb(bas)
 c------------------------------------
+c For 3- and 2-center(index) integrals add one 
+c uncontracted S-shell with exponent ZERO :
+c If these integrals are going to be calculated latter
+c number of basis SETS will be HERE greater than 1 :
+c
+      if(nbas.gt.1) then
+      endif
+c
+c------------------------------------
 c Put Basis set and nuclear data into the PNL location
 c (remove it from bl() ) :
 c 5*natoms
@@ -350,11 +358,8 @@ c=================================================================
       subroutine blinx(natom,ncshell,npshell,inucx,ibasx)
       implicit real*8 (a-h,o-z)
 c------------------------------------
-c the common block /big/ bl(lcx) has been repleaced by pnl
-c allocated scratch 
-c
-ckw   parameter(lcx = 5 000 000)
-ckw   common /big/ bl(lcx)
+c the common block /big/ bl(lcx) has been 
+c repleaced by pnl allocated scratch 
 c------------------------------------
       parameter(mxsh= 2 000 000)
 c------------------------------------
@@ -369,12 +374,8 @@ c------------------------------------
       inuc=inucx 
       ibas=ibasx 
 c------------------------------------
-c???? lcore=lcx
-c------
       maxsh=mxsh
 c------------------------------------
-c???? call retall
-c
       call retinall
 c------------------------------------
 c reserve memory (in index) for inx
@@ -412,13 +413,11 @@ c=================================================================
       dimension datbas(13,*)
 c
 c------------------------------------------------
-c texas type 
-c------
-c ityp1= 1   2   3   4   5   6   7   8   9   10
+c shell's type :
+c
+c ityp1= 1   2   3   4   5   6   7   8   9   10    !  texas type 
 c        s   p   l   d5  d6  f7  f10 g15 h21 i28
-c itype= 0   1   -1      2       3   4   5   6
-c-------
-c PNL   type 
+c itype= 0   1   -1      2       3   4   5   6     !  pnl type
 c------------------------------------------------
 c
       ipshell = 0
@@ -739,16 +738,11 @@ c
      *              maxprice,scftype)
 c
 cccc  write(6,100) scftype
-  100 format(
-     */'------------------------------------------------------'/
-     * '*  SCF will be performed in the ',a11,' fashion  *'/
-     * '------------------------------------------------------'/)
+c 100 format(
+c    */'------------------------------------------------------'/
+c    * '*  SCF will be performed in the ',a11,' fashion  *'/
+c    * '------------------------------------------------------'/)
 c
-c------------------------------------
-c change the value of "scftype"
-c
-**      scftype='**  PNL  **'
-**      write(6,100) scftype
 c------------------------------------
 c Construct an array showing to which pair-block
 c a given pair of shells belongs:
@@ -908,17 +902,12 @@ c=================================================================
       subroutine txs_cor_norm(bl,inx,ibas,inuc,ncs,iprint)
 c bl is now replaced by pnl-array BASNUC .
       implicit real*8 (a-h,o-z)
-      character*4 betu(8)
       common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
      1i,acc
-c
       dimension bl(*),inx(12,*)
-c
-      DATA BETU/'S','P','L','D','F','G','H','I'/
-C                 1      2      3      4      5
 c---------------------------------------------------------------------
-      data pii /3.1415926535898d0/
-c (2/pi)**3/4 :
+      data pii /3.1415926535898d0/   
+C (2/pi)**3/4 :
       twopi=two/pii
       twopi3=twopi*twopi*twopi
       twopi75=sqrt(sqrt(twopi3))
@@ -927,8 +916,6 @@ c
 c---------------------------------------------------------------------
       do 290 i=1,ncs
          ityp=inx(12,i)
-         ifu=inx(11,i)+1
-         ifu2=inx(10,i)
 c        begin and end of the contraction
          ig=inx(1,i)+1
          ie=inx(5,i)
@@ -939,8 +926,15 @@ c        begin and end of the contraction
             i1=inx(2,i)
             i2=inuc+i1*5
   270       a=bl(ja)
+c
+c exponent may be zero (only once) to handel 3- and 2-center(index) integrals:
+c
+            if(a.gt.zero) then
+               a75=a**(-0.75d0)
+            else
+               a75=one
+            endif
 c-----------------------------
-            a75=a**(-0.75d0)
             bl(ja+igc)=bl(ja+igc)*twopi75 * a75
             if(ityp.eq.3) bl(ja+2)=bl(ja+2)*twopi75 * a75
 c-----------------------------
