@@ -1,4 +1,4 @@
-C $Id: drdy_synch.F,v 1.9 2001-02-01 01:01:50 windus Exp $
+C $Id: drdy_synch.F,v 1.10 2001-02-02 01:29:27 windus Exp $
       subroutine drdy_synch(opcode,calling_routine)
       implicit none
 #include "drdyP.fh"
@@ -61,6 +61,12 @@ c
           if (.not.rtdb_cput(my_rtdb,'task:theory',1,drdy_theory)) then
             write(fu6,*)' could not write drdy:theory -> theory'
             call errquit('drdy_synch: fatal error ',911)
+          endif
+          if (rtdb_cget(my_rtdb,'drdy:input',1,input)) then
+            if (.not.nw_inp_from_character(my_rtdb,input)) then
+              write(fu6,*) 'could not process drdy:theory input'
+              call errquit('drdy_synch: fatal error ',555)
+            endif
           endif
 c
 c Otherwise we need to set the information for the single point
@@ -164,12 +170,6 @@ c
      &         call errquit
      &         ('drdy_synch:failed resetting user ecp name',0)
           end if
-          if (rtdb_cget(my_rtdb,'drdy:input',1,input)) then
-            if (.not.nw_inp_from_character(my_rtdb,input)) then
-              write(fu6,*) 'could not process drdy:theory input'
-              call errquit('drdy_synch: fatal error ',555)
-            endif
-          endif
         end if
         return
       endif

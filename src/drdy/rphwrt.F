@@ -1,4 +1,4 @@
-C $Id: rphwrt.F,v 1.3 2001-01-19 17:43:14 windus Exp $
+C $Id: rphwrt.F,v 1.4 2001-02-02 01:29:27 windus Exp $
 #if defined(LINUX)
 #define APPEND_OK
 #endif
@@ -22,6 +22,7 @@ C
 *::local:
 *::passed:
       Integer iop
+      Character*80 filename ! we want to give the file 30 a name
 *::local:
 #if !(defined(APPEND_OK) || defined(F90_IO))
       character*80 dummy_card
@@ -33,6 +34,10 @@ C
       nfreq  = 0
       nend   = 0
       lifreq = 0
+c
+c get a unique file name for fu30
+c
+      call util_file_name('file30',.false.,.false.,filename)
 C
       if (iop.eq.0) then
 c
@@ -44,7 +49,7 @@ C
             write(fu6,*)' deleting old unit fu30 data'
             close (unit=fu30, status='delete')
          endif
-         open (unit=fu30,status='new',form='formatted')
+         open (unit=fu30,status='new',form='formatted',file=filename)
          write (fu30,3000) ctitle
 C
 C Options:
@@ -79,13 +84,15 @@ c
             close (unit=fu30, status='keep')
          endif
 #if defined(APPEND_OK)
-         open (unit=fu30,access='append',form='formatted')
+         open (unit=fu30,access='append',form='formatted',
+     &         file=filename)
 #endif
 #if defined(F90_IO)
-         open (unit=fu30,position='append',form='formatted')
+         open (unit=fu30,position='append',form='formatted',
+     $         file=filename)
 #endif
 #if !(defined(APPEND_OK) || defined(F90_IO))
-         open (unit=fu30,form='formatted')
+         open (unit=fu30,form='formatted',file=filename)
          rewind fu30
 00001    continue
          read (fu30,'(a)',end=00002) dummy_card
@@ -143,23 +150,21 @@ c
           close (unit=fu30, status='keep')
         endif
 #if defined(APPEND_OK)
-        open (unit=fu30,access='append',form='formatted')
-        write(fu6,*) 'inside rphwrt for saddle and append OK'
+        open (unit=fu30,access='append',form='formatted',
+     &        file=filename)
 #endif
 #if defined(F90_IO)
-        open (unit=fu30,position='append',form='formatted')
-        write(fu6,*) 'inside rphwrt for saddle and F90 OK'
+        open (unit=fu30,position='append',form='formatted',
+     &        file=filename)
 #endif
 #if !(defined(APPEND_OK) || defined(F90_IO))
-        open (unit=fu30,form='formatted')
+        open (unit=fu30,form='formatted',file=filename)
         rewind fu30
 00003   continue
         read (fu30,'(a)',end=00004) dummy_card
         goto 00003
 00004   backspace fu30
-        write(fu6,*) 'inside rphwrt for saddle and other OK'
 #endif
-        write(fu6,*) 'inside rphwrt for saddle'
         write (fu30,3050)
          nfreq = nf(5)
          if(lgs(39).eq.0) then
@@ -184,13 +189,15 @@ C  write out packed hessian in mass-weighted coordinates
             close (unit=fu30, status='keep')
          endif
 #if defined(APPEND_OK)
-         open (unit=fu30,access='append',form='formatted')
+         open (unit=fu30,access='append',form='formatted',
+     &         file=filename)
 #endif
 #if defined(F90_IO)
-         open (unit=fu30,position='append',form='formatted')
+         open (unit=fu30,position='append',form='formatted',
+     &         file=filename)
 #endif
 #if !(defined(APPEND_OK) || defined(F90_IO))
-         open (unit=fu30,form='formatted')
+         open (unit=fu30,form='formatted',file=filename)
          rewind fu30
 00005    continue
          read (fu30,'(a)',end=00006) dummy_card
@@ -210,13 +217,15 @@ c
             close (unit=fu30, status='keep')
          endif
 #if defined(APPEND_OK)
-         open (unit=fu30,access='append',form='formatted')
+         open (unit=fu30,access='append',form='formatted',
+     &         file=filename)
 #endif
 #if defined(F90_IO)
-         open (unit=fu30,position='append',form='formatted')
+         open (unit=fu30,position='append',form='formatted',
+     &         file=filename)
 #endif
 #if !(defined(APPEND_OK) || defined(F90_IO))
-         open (unit=fu30,form='formatted')
+         open (unit=fu30,form='formatted',file=filename)
          rewind fu30
 00007    continue
          read (fu30,'(a)',end=00008) dummy_card

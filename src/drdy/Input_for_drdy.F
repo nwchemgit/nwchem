@@ -1,4 +1,4 @@
-C $Id: Input_for_drdy.F,v 1.4 2001-02-01 17:42:47 windus Exp $
+C $Id: Input_for_drdy.F,v 1.5 2001-02-02 01:29:27 windus Exp $
       Subroutine Input_for_drdy(rtdb)
 C
 C Options in lgs array
@@ -38,6 +38,7 @@ C  All other lgs variables are not used in this version of the code
 C
       Implicit none
 #include "stdio.fh"
+#include "rtdb.fh"
 #include "drdyP.fh"
 *::passed:
       Integer rtdb ! [input] RTDB handle
@@ -47,6 +48,7 @@ C
       logical nwc_restart
       Integer i,ii,j,l,iop
       Logical  lexit
+      character*32 theory
 C
 C     Initialize values
 C
@@ -146,6 +148,11 @@ C
       if(lgs(39).eq.0) then
          write (fu6,6115) lgs(39)
       else
+         if (.not.rtdb_cget(rtdb,'drdy:sptheory',1,theory)) then
+           write (fu6,6117)
+           call errquit('Input_for_drdy: problem with singlepoint',
+     &                   555)
+         endif
          write (fu6,6116) lgs(39)
       endif
       write (fu6,612) ctitle
@@ -326,6 +333,9 @@ c
 6115  Format(5x,'lgs(39)=',i2,', No single point calculation ',
      *   ' performed')
 6116  Format(5x,'lgs(39)=',i2,', Single point calculation performed')
+6117  Format(5x,'ERROR: Single point calculation cannot be',
+     *       ' performed since',/,5x,
+     *       ' sptheory was not given in DRDYVTST block')
 612   Format(//,' Title:',/,1x,a80)
 613   Format(//,' Number of atoms =',i6)
 614   Format (//,' Masses',/,T35,'amu',13x,'a.u.',12x,'kg')
