@@ -1,0 +1,148 @@
+#!/bin/csh
+
+# Script to automate updating of web pages for the
+# user and programmers manuals.
+
+set WWWDIR=/msrc/doc/www/changes/docs/nwchem/doc
+
+cd $NWCHEM_TOP/doc
+set TMP=tmp.$$
+
+foreach document (user prog)
+
+  echo HTMLizing $document.tex
+
+# First make sure the latex builds OK
+
+  echo "   Cleaning and making $document.ps"
+
+  make clean 
+  make $document.ps >& $document.latex.log
+
+  if ($status != 0) then
+    echo htmlize: latex errors reported in $document.latex.log
+    exit 1
+  endif
+
+# Get rid of the old directory and run latex2html
+
+  if (-e $document) then
+    echo "   Removing old $document directory"
+    /bin/rm -rf $document
+  endif
+
+  echo "   Running latex2html on $document.tex"
+
+  latex2html $document.tex >& $document.latex2html.log
+  if ($status != 0) then
+    echo htmlize: latex2html errors reported in $document.latex2html.log
+    exit 1
+  endif
+
+# To make the document searchable we need to make the INDEX file
+# and insert the link near the top of document/document.html.
+# We actually shove it immediately before the first unnumbered list
+# <UL> which is the table of contents
+
+  echo "   Inserting search information into $document/$document.html"
+
+  /bin/cp $document.INDEX $document/INDEX
+  if ($status != 0) then
+    echo htmlize: copy of INDEX for $document failed
+    exit 1
+  endif
+
+  @ i = 0
+  sed -e '/<UL>/,$ d' < $document/$document.html > $TMP
+  @ i += $status
+  cat $document.search >> $TMP
+  @ i += $status
+  echo '<UL>' >> $TMP
+  @ i += $status
+  sed -e '1,/<UL>/ d' < $document/$document.html >> $TMP
+  @ i += $status
+
+  if ($i != 0) then
+    echo htmlize: insertion of search info into $document failed
+    exit 1
+  endif
+
+  /bin/mv $document/$document.html  $document/$document.html.bak
+  mv $TMP $document/$document.html 
+
+# Munge the backgrounds ... need to hardwire the sed here since have
+# trouble getting a shell variable inside two levels of quotes.
+#
+# At same time eliminate references to http://www.emsl.pnl.gov since we
+# need to reference files from the root in order for them to work on 
+# both the public and private side
+
+  echo "   Munging backgrounds and http paths"
+
+  pushd $document
+
+  foreach file (*.html)
+    if ($document == "prog") then
+      sed -e 's/<BODY>/<BODY BACKGROUND="..\/..\/backgrounds\/rainier1_1.jpg" BGCOLOR="FAEBD7">/' -e 's,http://www.emsl.pnl.gov,,g' < $file > $TMP
+    else if ($document == "user") then
+      sed -e 's/<BODY>/<BODY BACKGROUND="..\/..\/backgrounds\/mt_st_helens_4.jpg" BGCOLOR="FAEBD7">/' -e 's,http://www.emsl.pnl.gov,,g' < $file > $TMP
+    else
+      echo htmlize: unknown document in background munge ... $document
+      exit 1
+    endif
+
+    if ($status != 0) then
+       echo htmlize: sed of $file failed ... look in $TMP for output.
+       exit 1
+    endif
+    /bin/mv $TMP $file
+  end
+
+  popd
+
+# Copy the postscript and compressed postscript files down
+
+  echo "   Copying postscript source"
+
+  cp $document.ps $document
+  if ($status != 0) then
+    echo htmlize: copy of postscript failed for $document
+    exit 1
+  endif
+
+  compress < $document.ps > $document/$document.ps.Z  
+
+  if ($status != 0) then
+    echo htmlize: compression of postscript failed for $document
+    exit 1
+  endif
+
+# Now copy the revised source into the EMSL WWW changes tree
+
+  if (! -e $WWWDIR) then
+    echo Making $WWWDIR
+    /bin/mkdir -p $WWWDIR
+  endif
+
+  echo "   Copying $document into $WWWDIR"
+
+  /bin/cp -r $document $WWWDIR
+  
+  if ($status != 0) then
+    echo htmlize: copy to $WWWDIR of $document failed
+    exit 1
+  endif
+
+# Hopefully all is OK
+
+  echo "   Done with $document"
+ 
+  /bin/rm -f $TMP
+  
+end
+
+echo " "
+echo Ask webmaster@emsl to update $WWWDIR/...
+echo " "
+echo     mailx -s \'Please update from $WWWDIR\' webmaster@emsl
+echo " "
