@@ -42,6 +42,9 @@ c     olock      = if true use max overlap to lock orbitals to correspond
 c                  to input orbitals.  Has side effect of disabling
 c                  some convergence aids (interim diag of fock matrix)
 c
+c     olagr      = if true lagrangian is stored in a file
+c                  needed for open shell ROHF gradients
+c
 c     These are determined by rohf_precond_select and control convergence.
 c
 c     ls_tol      = conv. threshold for line search 
