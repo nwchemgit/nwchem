@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.45 1998-03-22 22:33:15 mdupuis Exp $
+C$Id: opt_drv.F,v 1.46 1998-03-26 18:40:02 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -2471,8 +2471,11 @@ c
       implicit double precision (a-h,o-z)
       parameter (zero=0.0d+00)
       parameter ( one=1.0d+00)
+      parameter ( tol=1.0d-10)
       parameter (mxatom=500)
-      logical   dbug
+      logical      dbug
+      logical      out
+      character*24 errmsg
       common/hnd_iofile/ir,iw
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       dimension hess(ndim,*)
@@ -2480,12 +2483,15 @@ c
       dimension   tr(ndim,*)
       dimension    t(*)
       dimension    g(3)
+      data errmsg /'program stop in -eckart-'/
 c
       dbug=.false.
+      out =.true.
+      out =out.or.dbug
 c
       ncart=3*nat
 c
-      if(dbug) then
+      if(out) then
          write(iw,*) 'in -hnd-opt-eckart- ....'
          write(iw,*) 'un-projected hessian'
          call hnd_prsq(hess,ncart,ncart,ndim)
@@ -2544,7 +2550,7 @@ c
          call hnd_prsq(tr,6,ncart,ndim)
       endif
 c
-c     ----- orthonormalize -----
+c     ----- orthonormalize rot. + trans. -----
 c
       nxyz=0
       do jxyz=1,6
@@ -2565,38 +2571,80 @@ c
             enddo
          endif
       enddo
-      if(dbug) then
+      if(out) then
          write(iw,*) 'translations and rotations vectors'
          call hnd_prsq(tr,6,ncart,ndim)
       endif
-      if(dbug.and.nxyz.ne.6) then
+      if(out.and.nxyz.ne.6) then
          write(iw,*) '# of transl.+rot. found',nxyz
       endif
 c
-c     ----- eckart projector ----
+c     ----- eckart transform ----
 c
       do jxyz=1,ncart
          do ixyz=1,ncart
-            proj(ixyz,jxyz)=zero
+            proj(ixyz,ncart+1-jxyz)=zero
          enddo
-         proj(jxyz,jxyz)=one
-         do ixyz=1,ncart
-            dum=zero
-            do kxyz=1,6
-               dum=dum+tr(ixyz,kxyz)*tr(jxyz,kxyz)
+         if(jxyz.le.nxyz) then
+            do ixyz=1,ncart
+               proj(ixyz,ncart+1-jxyz)=tr(ixyz,jxyz)
             enddo
-            proj(ixyz,jxyz)=proj(ixyz,jxyz)-dum
-         enddo
+         endif
+      enddo
+      mxyz=nxyz+1
+      do jxyz=1,ncart
+         if(mxyz.le.ncart) then
+            do ixyz=1,ncart
+               proj(ixyz,ncart+1-mxyz)=zero
+            enddo
+            proj(jxyz,ncart+1-mxyz)=one
+            do kxyz=1,mxyz-1 
+               dum=zero
+               do ixyz=1,ncart
+                  dum=dum+proj(ixyz,ncart+1-kxyz)
+     1                   *proj(ixyz,ncart+1-mxyz)
+               enddo
+               do ixyz=1,ncart
+                  proj(ixyz,ncart+1-mxyz)=proj(ixyz,ncart+1-mxyz)-
+     1                                    proj(ixyz,ncart+1-kxyz)*dum
+               enddo   
+            enddo
+            dum=zero
+            do ixyz=1,ncart
+               dum=dum+proj(ixyz,ncart+1-mxyz)*proj(ixyz,ncart+1-mxyz)
+            enddo
+            if(dum.gt.tol) then
+               dum=one/sqrt(dum)
+               do ixyz=1,ncart
+                  proj(ixyz,ncart+1-mxyz)=proj(ixyz,ncart+1-mxyz)*dum
+               enddo
+               mxyz=mxyz+1
+            endif
+         endif
       enddo
       if(dbug) then
-         write(iw,*) 'eckart projector'
+         write(iw,*) 'eckart transformation'
          call hnd_prsq(proj,ncart,ncart,ndim)
       endif
+      do jxyz=1,nxyz 
+         do ixyz=1,ncart
+            proj(ixyz,ncart+1-jxyz)=zero
+         enddo
+      enddo
+      if(out) then
+         write(iw,*) 'eckart transformation'
+         call hnd_prsq(proj,ncart,ncart,ndim)
+      endif
+      if(mxyz.le.ncart) then
+         write(iw,*) 'something wrong in -eckart- transform'
+         write(iw,*) 'nxyz,mxyz,mcart = ',nxyz,mxyz,mcart
+         call hnd_hnderr(3,errmsg)
+      endif
 c
-c     ----- project hessian -----
+c     ----- transform hessian -----
 c
       if(dbug) then
-         write(iw,*) 'un-projected hessian'
+         write(iw,*) 'un-transformed hessian'
          call hnd_prsq(hess,ncart,ncart,ndim)
       endif
 c
@@ -2612,11 +2660,17 @@ c
             hess(ixyz,jxyz)=t(jxyz)
          enddo
       enddo
+c
+      if(dbug) then
+         write(iw,*) 'half-transformed hessian'
+         call hnd_prsq(hess,ncart,ncart,ndim)
+      endif
+c
       do jxyz=1,ncart
          do ixyz=1,ncart
             dum=zero
             do kxyz=1,ncart
-               dum=dum+proj(ixyz,kxyz)*hess(kxyz,jxyz)
+               dum=dum+proj(kxyz,ixyz)*hess(kxyz,jxyz)
             enddo
             t(ixyz)=dum
          enddo
@@ -2624,10 +2678,14 @@ c
             hess(ixyz,jxyz)=t(ixyz)
          enddo
       enddo
-      if(dbug) then
-         write(iw,*) '   projected hessian'
+      if(out) then
+         write(iw,*) '   transformed hessian'
          call hnd_prsq(hess,ncart,ncart,ndim)
       endif
+c
+c     ----- project gradient -----
+c
+
 c
       return
       end
@@ -3407,7 +3465,7 @@ C
 C
 C     ----- CALL FUNCTION EVALUATION -----
 C
-         STATUS=UTIL_TEST_TIME_REMAINING(RTDB,ENERGY_TIME*ONEPT5)
+         STATUS=UTIL_TEST_TIME_REMAINING(RTDB,INT(ENERGY_TIME*ONEPT5))
          IF(OUT) THEN
             WRITE(IW,*) 'ENOUGH TIME REMAINING FOR ENERGY = ? ',STATUS
          ENDIF
@@ -3588,7 +3646,7 @@ C
 C     ----- CALCULATE THE GRADIENT FOR THE FINAL POINT -----
 C
   900 CONTINUE
-         STATUS=UTIL_TEST_TIME_REMAINING(RTDB,GRADIENT_TIME*ONEPT5)
+         STATUS=UTIL_TEST_TIME_REMAINING(RTDB,INT(GRADIENT_TIME*ONEPT5))
          IF(OUT) THEN
             WRITE(IW,*) 'ENOUGH TIME REMAINING FOR GRADIENT = ? ',STATUS
          ENDIF
