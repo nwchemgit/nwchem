@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi,nbgeti,madbxi)
 c
 c
-c $Id: sp_init.F,v 1.139 2004-04-21 22:52:34 d3j191 Exp $
+c $Id: sp_init.F,v 1.140 2004-05-04 22:59:03 edo Exp $
 c
       implicit none
 c
@@ -2339,6 +2339,9 @@ c
       integer ils,ihs,jls,jhs
       character*10 rdate,rtime
       character*18 user
+#ifdef USE_POSIXF
+      integer ilen,ierror
+#endif
       integer idyn,idynp,ihop
       logical lforces
 c
@@ -2347,7 +2350,11 @@ c
       if(ga_nodeid().eq.0) then
 c
       call swatch(rdate,rtime)
+#ifdef USE_POSIXF
+      call pxfgetlogin(user, ilen, ierror)
+#else
       call getlog(user)
+#endif
       if(user(18:18).ne.' ') user='                  '
 c
       rewind(lfnrst)
@@ -3786,11 +3793,18 @@ c
       integer ilw,ihw,jlw,jhw,ils,ihs,jls,jhs
       character*10 rdate,rtime
       character*18 user
+#ifdef USE_POSIXF
+      integer ilen,ierror
+#endif
 c
       write(lfnmro) nwm,nwa,nsa,stime,temp,pres,vlat,nhist
 c
       call swatch(rdate,rtime)
+#ifdef USE_POSIXF
+      call pxfgetlogin(user, ilen, ierror)
+#else
       call getlog(user)
+#endif
       if(user(18:18).ne.' ') user='                  '
       hist(nhist)(1:18)=user
       hist(nhist)(19:28)=rdate
