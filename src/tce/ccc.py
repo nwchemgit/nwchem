@@ -6,6 +6,12 @@ import tkMessageBox
 import tkSimpleDialog
 import tkFileDialog
 
+import string
+import copy
+import sys
+import oce
+import tce
+
 class Window:
 
    def __init__(self,master):
@@ -127,14 +133,59 @@ class Window:
       self.frame3.pack(fill=X)
       self.status = Label(self.frame3, text = "", bd=1, relief=SUNKEN, anchor=W)
       self.status.pack(side=BOTTOM, fill=X)
+      
+      menu = Menu(master)
+      master.config(menu=menu)
+      filemenu = Menu(master)
+      menu.add_cascade(label="File",menu=filemenu)
+      filemenu.add_command(label="Import second quantized expressions",command=self.read_oceinput)
+      filemenu.add_command(label="Import tensor contraction expressions",command=self.read_tceinput)
+      filemenu.add_command(label="Exit",command=self.exit)
+      helpmenu = Menu(menu)
+      menu.add_cascade(label="Help",menu=helpmenu)
+      helpmenu.add_command(label="About",command=self.about)
+      helpmenu.add_command(label="References",command=self.references)
+
+   def read_oceinput(self):
+      
+      filename = tkFileDialog.askopenfilename()
+      if (filename != ""):
+         self.oce_result = oce.readfromfile(filename)
+         self.listbox.delete(0,END)
+         for line in self.oce_result.show():
+             self.listbox.insert(END, line)
+         self.listbox.pack(fill=X)
+         self.status.config(text = repr(len(self.oce_result.show()))+" second quantized expressions imported")
+         self.status.update_idletasks()
+      self.progress = 1
+      self.buttonOK = Button(self.frame, text = "Perform Operator Contractions", command = self.go, width = 100).grid(row=8,columnspan=6)
+      return
+
+   def read_tceinput(self):
+      
+      filename = tkFileDialog.askopenfilename()
+      if (filename != ""):
+         self.tce_result = tce.readfromfile(filename)
+         self.listbox.delete(0,END)
+         for line in self.tce_result.show():
+             self.listbox.insert(END, line)
+         self.listbox.pack(fill=X)
+         self.status.config(text = repr(len(self.tce_result.show()))+" multiple tensor contraction expressions imported")
+         self.status.update_idletasks()
+      self.progress = 61
+      self.buttonOK = Button(self.frame, text = "Perform Strength Reduction", command = self.go, width = 100).grid(row=8,columnspan=6)
+      return
+
+   def exit(self):
+      sys.exit()
+
+   def about(self):
+      tkMessageBox.showinfo("About", "Tensor Contraction Engine, Version 1.0\nCopyright (c) 2003, Battelle & Pacific Northwest National Laboratory\n")
+
+   def references(self):
+      tkMessageBox.showinfo("References", "S. Hirata, J. Phys. Chem. A 107, 9887-9897 (2003).\n")
 
    def go(self):
-   
-      import string
-      import copy
-      import sys
-      import oce
-      import tce
 
       if (self.progress == 0):
          horders = []
@@ -143,7 +194,7 @@ class Window:
          if (self.h2.get() != 0):
             horders.append(self.h2.get())
          if (not horders):
-            horders.append(0)
+	    horders.append(0)
          torders = [0]
          if (self.t1.get() != 0):
             torders.append(self.t1.get())
@@ -502,12 +553,13 @@ class Window:
                               print ansatz
                               listofansatz.append(ansatz)
          
-         for ansatz in listofansatz:
-             self.listbox.insert(END, ansatz)
-         self.listbox.pack(fill=X)
          self.oce_result = oce.ListOperatorSequences()
          for line in listofansatz:
             self.oce_result.add(oce.stringtooperatorsequence(line))
+         for line in self.oce_result.show():
+            self.listbox.insert(END,line)
+         self.listbox.pack(fill=X)
+
          self.progress = 1
          self.buttonOK = Button(self.frame, text = "Perform Operator Contractions", command = self.go, width = 100).grid(row=8,columnspan=6)
          return
@@ -581,6 +633,17 @@ class Window:
          self.listbox.pack(fill=X)
          newlen = len(self.oce_result.show())
          self.status.config(text = repr(newlen)+" multiple tensor contractions ("+repr(originallen-newlen)+" diagrams merged)")
+         if tkMessageBox.askyesno("TCE", "Relabel operators?\n"):
+            oldname = tkSimpleDialog.askstring("TCE", "Old label for operator?\n")
+            newname = tkSimpleDialog.askstring("TCE", "New label for operator?\n")
+            while (oldname and newname):
+               self.oce_result.relabelamplitudes(oldname,newname)
+               self.listbox.delete(0,END)
+               for line in self.oce_result.show():
+                  self.listbox.insert(END,line)
+               self.listbox.pack(fill=X)
+               oldname = tkSimpleDialog.askstring("TCE", "Old label for operator?\n")
+               newname = tkSimpleDialog.askstring("TCE", "New label for operator?\n")
          self.status.update_idletasks()
          self.progress = 5
          self.buttonOK = Button(self.frame, text = "Save Working Equations...", command = self.go, width = 100).grid(row=8,columnspan=6)
@@ -709,6 +772,18 @@ class Window:
          self.progress = 7
          self.buttonOK = Button(self.frame, text = "Perform Factorization", command = self.go, width = 100).grid(row=8,columnspan=6)
          return
+            
+      if (self.progress == 61):
+         self.tce_result = self.tce_result.breakdown()
+         self.listbox.delete(0,END)
+         for line in self.tce_result.show():
+            self.listbox.insert(END, line)
+         self.listbox.pack(fill=X)
+         self.status.config(text = repr(len(self.tce_result.children))+" first order binary contractions")
+         self.status.update_idletasks()
+         self.progress = 7
+         self.buttonOK = Button(self.frame, text = "Perform Factorization", command = self.go, width = 100).grid(row=8,columnspan=6)
+         return
          
       if (self.progress == 7):
          originallen = len(self.tce_result.children)
@@ -725,19 +800,88 @@ class Window:
          return
 
       if (self.progress == 8):
-         subroutinename = tkSimpleDialog.askstring("TCE", "Stub Name of Fortran77 code?\n")
-         if (subroutinename == ""):
-            return
-            
-         self.tce_result = self.tce_result.fortran77(subroutinename,excitation=['t','x'],deexcitation=['y'],intermediate=['i','j'],general=['f','v'])
-         self.listbox.delete(0,END)
-         for line in self.tce_result.show():
-            self.listbox.insert(END, line)
-         self.listbox.pack(fill=X)
-         self.status.config(text = repr(len(self.tce_result.show()))+" lines of Fortran code generated")
-         self.status.update_idletasks()
-         self.progress = 9
-         self.buttonOK = Button(self.frame, text = "Save Fortran77 Code...", command = self.go, width = 100).grid(row=8,columnspan=6)
+         types = self.tce_result.tensortypes()
+         message = ""
+         excitation = ""
+         excitationold = ""
+         for type in types[1]:
+            excitationold = excitationold + type + " "
+            if (excitation):
+               excitation = excitation + "and '" + type + "' "
+            else:
+               excitation = "'" + type + "' "
+         if (excitation):
+            message = message + excitation + "are excitation tensors\n"
+         deexcitation = ""
+         deexcitationold = ""
+         for type in types[2]:
+            deexcitationold = deexcitationold + type + " "
+            if (deexcitation):
+               deexcitation = deexcitation + "and '" + type + "' "
+            else:
+               deexcitation = "'" + type + "' "
+         if (deexcitation):
+            message = message + deexcitation + "are deexcitation tensors\n"
+         intermediate = ""
+         intermediateold = ""
+         for type in types[3]:
+            intermediateold = intermediateold + type + " "
+            if (intermediate):
+               intermediate = intermediate + "and '" + type + "' "
+            else:
+               intermediate = "'" + type + "' "
+         if (intermediate):
+            message = message + intermediate + "are intermediate tensors\n"
+         general = ""
+         generalold = ""
+         for type in types[4]:
+            generalold = generalold + type + " "
+            if (general):
+               general = general + "and '" + type + "' "
+            else:
+               general = "'" + type + "' "
+         if (general):
+            message = message + general + "are general tensors\n"
+         if tkMessageBox.askyesno("TCE", message):
+            subroutinename = tkSimpleDialog.askstring("TCE", "Stub Name of Fortran77 code?\n")
+            if (subroutinename):
+               self.tce_result = self.tce_result.fortran77(subroutinename)
+               self.listbox.delete(0,END)
+               for line in self.tce_result.show():
+                  self.listbox.insert(END, line)
+               self.listbox.pack(fill=X)
+               self.status.config(text = repr(len(self.tce_result.show()))+" lines of Fortran code generated")
+               self.status.update_idletasks()
+               self.progress = 9
+               self.buttonOK = Button(self.frame, text = "Save Fortran77 Code...", command = self.go, width = 100).grid(row=8,columnspan=6)
+         else:
+            excitationlist = []
+            deexcitationlist = []
+            intermediatelist = []
+            generallist = []
+            dialogresult = tkSimpleDialog.askstring("TCE","Excitation Tensors",initialvalue=excitationold)
+            if (dialogresult):
+               excitationlist = string.split(dialogresult)
+            dialogresult = tkSimpleDialog.askstring("TCE","Deexcitation Tensors",initialvalue=deexcitationold)
+            if (dialogresult):
+               deexcitationlist = string.split(dialogresult)
+            dialogresult = tkSimpleDialog.askstring("TCE","Intermediate Tensors",initialvalue=intermediateold)
+            if (dialogresult):
+               intermediatelist = string.split(dialogresult)
+            dialogresult = tkSimpleDialog.askstring("TCE","General Tensors",initialvalue=generalold)
+            if (dialogresult):
+               generallist = string.split(dialogresult)
+            subroutinename = tkSimpleDialog.askstring("TCE", "Stub Name of Fortran77 code?\n")
+            if (subroutinename):
+               self.tce_result = self.tce_result.fortran77(subroutinename,excitationlist,deexcitationlist,intermediatelist,generallist)
+               self.listbox.delete(0,END)
+               for line in self.tce_result.show():
+                  self.listbox.insert(END, line)
+               self.listbox.pack(fill=X)
+               self.status.config(text = repr(len(self.tce_result.show()))+" lines of Fortran code generated")
+               self.status.update_idletasks()
+               self.progress = 9
+               self.buttonOK = Button(self.frame, text = "Save Fortran77 Code...", command = self.go, width = 100).grid(row=8,columnspan=6)
          return
 
       if (self.progress == 9):
@@ -831,29 +975,8 @@ class Window:
       self.status.config(text = "")
       self.status.update_idletasks()
 
-
-class Windowmenu:
-
-   def __init__(self,master):
-
-      menu = Menu(master)
-      master.config(menu=menu)
-      filemenu = Menu(master)
-      menu.add_cascade(label="File",menu=filemenu)
-      filemenu.add_command(label="Exit",command=self.exit)
-      helpmenu = Menu(menu)
-      menu.add_cascade(label="Help",menu=helpmenu)
-      helpmenu.add_command(label="About",command=self.about)
-
-   def exit(self):
-      sys.exit()
-
-   def about(self):
-      tkMessageBox.showinfo("About", "Tensor Contraction Engine, Version 1.0\nCopyright (c) 2003, Battelle & Pacific Northwest National Laboratory\n")
-
 root = Tk()
 
 window = Window(root)
-windowmenu = Windowmenu(root)
 
 root.mainloop()

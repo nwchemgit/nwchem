@@ -1,6 +1,6 @@
 # Operator Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: oce.py,v 1.8 2003-10-19 00:52:05 sohirata Exp $
+# $Id: oce.py,v 1.9 2004-04-20 21:42:05 sohirata Exp $
 
 import string
 
@@ -1711,6 +1711,15 @@ class OperatorSequence:
                return 1
 
       return 0
+      
+   def iszero(self):
+      """True if the numerical factor is computationally zero"""
+      threshold = 1.0e-12
+      zero = 1
+      for coefficient in self.factor.coefficients:
+         if (abs(coefficient) > threshold):
+            zero = 0
+      return zero
  
 class ListOperatorSequences:
 
@@ -1900,6 +1909,7 @@ class ListOperatorSequences:
       self.simplifytwo(verbose)
       # the followings do not seem to affect the result, yet it costs enormous memory & time
       # self.simplifyfour(1)
+      self = copy.deepcopy(self.deletezero())
       return self
 
    def simplifyone(self,verbose=0):
@@ -2231,3 +2241,33 @@ class ListOperatorSequences:
          if (operatorsequence.isacycliccontraction()):
             return 1
       return 0
+
+   def relabelamplitudes(self,old,new):
+      """Relabels amplitude"""
+      for noperatorsequence in range(len(self.list)):
+         operatorsequence = self.list[noperatorsequence]
+         for namplitude in range(len(operatorsequence.amplitudes)):
+            amplitude = operatorsequence.amplitudes[namplitude]
+            if (amplitude.type == old):
+               self.list[noperatorsequence].amplitudes[namplitude].type = copy.deepcopy(new)
+      return self
+
+   def deletezero(self):
+      """Deletes computationally zero terms"""
+
+      result = ListOperatorSequences()
+
+      originallength = len(self.list)
+
+      # for a fully contracted sequence ...
+      for noperatorsequence in range(len(self.list)):
+         operatorsequence = self.list[noperatorsequence]
+         if (not operatorsequence.iszero()):
+            result.add(operatorsequence)
+
+      newlength = len(result.list)
+
+      if (originallength != newlength):
+         print " !!! WARNING !!! %d computationally zero terms have been deleted" %(originallength - newlength)
+
+      return result
