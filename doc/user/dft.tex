@@ -713,9 +713,11 @@ procedures deemed undesirable with the obvious keywords,
   GRID [(xcoarse||coarse||medium||fine||xfine) default medium] \
        [(gausleg <integer radpts default 50> 
                  <integer nagrid default 10>) ||\ 
-        (lebedev <integer radpts default 50> 
-                 <integer iangquad default 4>)] \ 
-       [delley||becke] \
+        (lebedev <integer radpts> 
+                 <integer iangquad>)] \ 
+       [lebmed||lebfine||lebxfine)
+       [becke||erf1||erf2||ssf] \
+       [euler||mura||treutler||lindh] \
        [rm <real rm default 2.0>]
 \end{verbatim}
 
@@ -909,7 +911,7 @@ $N_{angular}$ & 38 & 50 & 110 & 194 & 302 & 434 & 590 & 770 & 974 &
 \end{center}
 
 Therefore the user can specify any number of radial points along with
-the level of angular quadrature (1-10).
+the level of angular quadrature (1-11).
 
 The user can also specify grid parameters specific for a given atom type: 
 parameters that must be supplied are: atom tag, number of radial points, number
@@ -918,6 +920,15 @@ As an example, here is a grid input line for the water molecule
 \begin{verbatim}
 grid lebedev 80 5 H 70 4 12 O 90 5 15 
 \end{verbatim}
+Work is in progress to define pre-computed Lebedev quadrature of give accuaracy
+\begin{center}
+  \begin{tabular}[right]{|c|c|} \hline
+Keyword & {\tt Total Energy Target Accuracy} \\ \hline
+{\tt lebmed}  & $1x10^{-6}$ \\ \hline
+{\tt lebfine}    & $1x10^{-7}$ \\ \hline
+{\tt lebxfine}   & $1x10^{-8}$ \\ \hline
+  \end{tabular} \\
+\end{center}
 
 %       [store_wght] [nquad_task <integer nquad_task default 1>] \
 %{\bf JEFF: store\_weight and nquad\_task need explaining}
@@ -930,9 +941,23 @@ grid lebedev 80 5 H 70 4 12 O 90 5 15
 %The user also has the option of choosing one of two types of spatial weights
 %implemented in the numerical integration of the XC terms; Delley and Becke.
 
-%\begin{verbatim}
-%  GRID [(becke||delley) default becke]
-%\end{verbatim}
+\begin{verbatim}
+  GRID [(becke||erf1||erf2||ssf) default becke]
+\end{verbatim}
+
+{\tt ssf} R.E.Stratmann, G.Scuseria and  M.J.Frisch,
+Chem. Phys. Lett. {\bf 257}, 213 (1996).
+
+
+\begin{verbatim}
+  GRID [[euler||mura||treutler||lindh]  default euler]
+\end{verbatim}
+
+{\tt euler} Murray Handy Laming, Euler-McLaurin \\
+{\tt mura} M.E.Mura and P.J.Knowles, J Chem Phys {\bf 104}, 9848
+(1996).\\
+{\tt treutler} O.Treutler and R.Alrhichs, J.Chem.Phys {\bf 102}, 346 (1995).\\
+{\tt lindh} R.Lindh (1999)
 
 \section{TOLERANCES --- Screening tolerances}
 
