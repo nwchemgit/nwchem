@@ -1,5 +1,6 @@
 echo
 start  c6h6
+memory 300 MB
 title "benzene in sto-3g"
 geometry autoz units au
    C       1.853049   1.853049    .000000

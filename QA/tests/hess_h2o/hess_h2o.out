@@ -1,6 +1,5 @@
- argument  1 = hess_h2o
-  Unable to open hess_h2o --- appending .nw
- 
+ argument  1 = hess_h2o.nw
+
 
 
 ============================== echo of input deck ==============================
@@ -42,27 +41,27 @@ task scf freq
 
                                          
                                          
- 
- 
-             Northwest Computational Chemistry Package (NWChem) 3.3.1
-             --------------------------------------------------------
- 
- 
+
+
+              Northwest Computational Chemistry Package (NWChem) 4.0
+              ------------------------------------------------------
+
+
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
- 
+
                                          
                                          
- 
- 
-                   COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999
+
+
+            COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
                         Pacific Northwest National Laboratory,
                              Battelle Memorial Institute.
- 
+
                             >>> All Rights Reserved <<<
- 
- 
+
+
                                     DISCLAIMER
                                     ----------
 
@@ -112,12 +111,12 @@ task scf freq
            Job information
            ---------------
 
-    hostname      = fatman
-    program       = nwchem
-    date          = Tue Aug 22 14:01:03 2000
+    hostname      = skor
+    program       = /home/windus/nwchem/bin/LINUX/nwchem
+    date          = Wed Jan 30 16:49:09 2002
 
-    compiled      = Tue Aug 22 10:28:11 CDT 2000
-    source        = /home/rickyk/nwchem
+    compiled      = Wed Jan 30 16:22:32 PST 2002
+    source        = /home/windus/nwchem
     nwchem branch = Development
     input         = hess_h2o.nw
     prefix        = h2o.
@@ -131,59 +130,54 @@ task scf freq
            Memory information
            ------------------
 
-    heap      =   19660801 doubles =    157.3 Mbytes
-    stack     =    6553601 doubles =     52.4 Mbytes
-    global    =   26214411 doubles =    209.7 Mbytes (within heap+stack)
-    total     =   26214402 doubles =    209.7 Mbytes
+    heap      =    8847354 doubles =     67.5 Mbytes
+    stack     =    2949107 doubles =     22.5 Mbytes
+    global    =   11796484 doubles =     90.0 Mbytes (within heap+stack)
+    total     =   11796461 doubles =     90.0 Mbytes
     verify    = yes
     hardfail  = no 
 
 
            Directory information
            ---------------------
- 
+
   0 permanent = .
   0 scratch   = .
- 
- 
- 
- 
+
+
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
-                                      Water
-                                      -----
- 
- C2V symmetry detected
- coordinates in local symmetry frame 
 
-     1  0.00000000  0.00000000  0.12390688
-     2 -1.93042809  0.00000000 -0.98324578
-     3  1.93042809  0.00000000 -0.98324578
+
+                                                                                                                              Water
+                                                                                                                              -----
+
+ C2V symmetry detected
 
           ------
           auto-z
           ------
- 
- 
+
+
                              Geometry "geometry" -> ""
                              -------------------------
- 
+
  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 O                    8.0000     0.00000000     0.00000000     0.22143053
     2 H                    1.0000    -1.93042809     0.00000000    -0.88572213
     3 H                    1.0000     1.93042809     0.00000000    -0.88572213
- 
+
       Atomic Mass 
       ----------- 
- 
+
       O                 15.994910
       H                  1.007825
- 
+
 
  Effective nuclear repulsion energy (a.u.)       7.4487761816
 
@@ -192,50 +186,53 @@ task scf freq
         X                 Y               Z
  ---------------- ---------------- ----------------
      0.0000000000     0.0000000000     0.0000000000
- 
+
       Symmetry information
       --------------------
- 
+
  Group name             C2v       
  Group number             16
  Group order               4
  No. of unique centers     2
- 
+
       Symmetry unique atoms
- 
+
      1    2
- 
+
 
 
                                 Z-matrix (autoz)
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value
       ----------- --------  ----- ----- ----- ----- ----- ----------
     1 Stretch                  1     2                       1.17762
     2 Stretch                  1     3                       1.17762
     3 Bend                     2     1     3               120.32913
- 
- 
- 
+
+  library name resolved from: .nwchemrc
+  library file name is: </msrc/proj/nwchem/share/library>
+  
+
+
                            NWChem Geometry Optimization
                            ----------------------------
- 
- 
- 
- 
+
+
+
+
                                        Water
- 
- 
+
+
  maximum gradient threshold         (gmax) =   0.000015
  rms gradient threshold             (grms) =   0.000010
  maximum cartesian step threshold   (xmax) =   0.000060
  rms cartesian step threshold       (xrms) =   0.000040
  fixed trust radius                (trust) =   0.300000
  maximum step size to saddle      (sadstp) =   0.100000
- energy precision                  (eprec) =   1.0D-07
+ energy precision                  (eprec) =   1.0E-07
  maximum number of steps          (nptopt) =   20
  initial hessian option           (inhess) =    0
  line search option               (linopt) =    1
@@ -252,38 +249,38 @@ task scf freq
           Energy Minimization
           -------------------
 
- 
+
  Names of Z-matrix variables 
     1              2              3         
- 
+
  Variables with the same non-blank name are constrained to be equal
- 
- 
+
+
  Using diagonal initial Hessian 
  Scaling for Hessian diagonals: bonds = 1.00  angles = 0.25  torsions = 0.10
 
           --------
           Step   0
           --------
- 
- 
+
+
                          Geometry "geometry" -> "geometry"
                          ---------------------------------
- 
+
  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 O                    8.0000     0.00000000     0.00000000     0.22143053
     2 H                    1.0000    -1.93042809     0.00000000    -0.88572213
     3 H                    1.0000     1.93042809     0.00000000    -0.88572213
- 
+
       Atomic Mass 
       ----------- 
- 
+
       O                 15.994910
       H                  1.007825
- 
+
 
  Effective nuclear repulsion energy (a.u.)       7.4487761816
 
@@ -292,26 +289,26 @@ task scf freq
         X                 Y               Z
  ---------------- ---------------- ----------------
      0.0000000000     0.0000000000     0.0000000000
- 
+
       Symmetry information
       --------------------
- 
+
  Group name             C2v       
  Group number             16
  Group order               4
  No. of unique centers     2
- 
+
       Symmetry unique atoms
- 
+
      1    2
- 
+
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
                                        Water
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =     7
@@ -336,21 +333,21 @@ task scf freq
 
       Symmetry analysis of basis
       --------------------------
- 
+
         a1          4
         a2          0
         b1          2
         b2          1
- 
 
- Forming initial guess at       0.4s
 
- 
+ Forming initial guess at       0.1s
+
+
       Superposition of Atomic Density Guess
       -------------------------------------
- 
+
  Sum of atomic energies:         -74.71095592
- 
+
       Non-variational initial energy
       ------------------------------
 
@@ -359,22 +356,22 @@ task scf freq
  2-e energy   =      36.904784
  HOMO         =      -0.221116
  LUMO         =       0.252490
- 
- 
+
+
       Symmetry analysis of molecular orbitals - initial
       -------------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
 
- Starting SCF solution at       0.6s
+
+ Starting SCF solution at       0.1s
 
 
 
@@ -387,48 +384,48 @@ task scf freq
  ----------------------------------------------
 
 
- #quartets = 7.900D+01 #integrals = 1.640D+02 #direct =  0.0% #cached =100.0%
+ #quartets = 7.900E+01 #integrals = 1.640E+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   3144
+ Max. records in memory =      2        Max. records in file   =  52448
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.8253535857  7.61D-01  6.23D-01      0.5
-                 2      -74.8863576300  1.41D-01  1.06D-01      0.6
-                 3      -74.8880346086  3.48D-02  2.50D-02      0.6
-                 4      -74.8881424285  4.77D-04  3.68D-04      0.7
-                 5      -74.8881424608  4.31D-08  3.23D-08      0.8
+                 1      -74.8253535857  7.61E-01  6.23E-01      0.1
+                 2      -74.8863576300  1.41E-01  1.06E-01      0.1
+                 3      -74.8880346086  3.48E-02  2.50E-02      0.1
+                 4      -74.8881424285  4.77E-04  3.68E-04      0.1
+                 5      -74.8881424608  4.31E-08  3.23E-08      0.1
 
 
        Final RHF  results 
        ------------------ 
 
          Total SCF energy =    -74.888142460824
-      One-electron energy =   -119.244688763511
-      Two-electron energy =     36.907770121044
+      One-electron energy =   -119.244688763510
+      Two-electron energy =     36.907770121043
  Nuclear repulsion energy =      7.448776181643
 
-        Time for solution =      0.3s
+        Time for solution =      0.1s
 
 
- 
+
        Symmetry analysis of molecular orbitals - final
        -----------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
+
              Final eigenvalues
              -----------------
 
@@ -440,51 +437,61 @@ task scf freq
     5   -0.3744
     6    0.3811
     7    0.5606
- 
+
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
- 
- Vector    2  Occ=2.000000D+00  E=-1.172709D+00  Symmetry=a1
-              MO Center= -2.6D-16, -8.8D-18,  1.1D-02, r^2= 5.5D-01
+
+ Vector    2  Occ=2.000000E+00  E=-1.172709E+00  Symmetry=a1
+              MO Center= -7.6E-17,  1.9E-19,  1.1E-02, r^2= 5.5E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.910725  1 O  s                  1     -0.242919  1 O  s          
- 
- Vector    3  Occ=2.000000D+00  E=-5.295450D-01  Symmetry=b1
-              MO Center=  3.3D-16, -6.2D-49, -1.7D-01, r^2= 1.1D+00
+
+ Vector    3  Occ=2.000000E+00  E=-5.295450E-01  Symmetry=b1
+              MO Center=  8.4E-17, -1.1E-35, -1.7E-01, r^2= 1.1E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.586053  1 O  px                 7      0.455376  3 H  s          
-     6     -0.455376  2 H  s          
- 
- Vector    4  Occ=2.000000D+00  E=-3.893881D-01  Symmetry=a1
-              MO Center= -1.4D-15,  4.0D-17,  6.6D-02, r^2= 8.1D-01
+     3      0.586053  1 O  px                 6     -0.455376  2 H  s          
+     7      0.455376  3 H  s          
+
+ Vector    4  Occ=2.000000E+00  E=-3.893881E-01  Symmetry=a1
+              MO Center= -6.7E-17, -1.9E-17,  6.6E-02, r^2= 8.1E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.780294  1 O  pz                 2      0.414595  1 O  s          
      6     -0.338073  2 H  s                  7     -0.338073  3 H  s          
- 
- Vector    5  Occ=2.000000D+00  E=-3.744217D-01  Symmetry=b2
-              MO Center= -5.2D-33, -4.1D-17,  1.2D-01, r^2= 4.2D-01
+
+ Vector    5  Occ=2.000000E+00  E=-3.744217E-01  Symmetry=b2
+              MO Center=  1.1E-32,  3.0E-17,  1.2E-01, r^2= 4.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
- 
- Vector    6  Occ=0.000000D+00  E= 3.810926D-01  Symmetry=a1
-              MO Center=  0.0D+00,  9.6D-18, -3.5D-01, r^2= 1.3D+00
+
+ Vector    6  Occ=0.000000E+00  E= 3.810926E-01  Symmetry=a1
+              MO Center= -7.7E-16, -1.0E-17, -3.5E-01, r^2= 1.3E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      0.688691  2 H  s                  7      0.688691  3 H  s          
      5      0.667592  1 O  pz                 2     -0.602871  1 O  s          
- 
- Vector    7  Occ=0.000000D+00  E= 5.605872D-01  Symmetry=b1
-              MO Center=  1.3D-15, -3.1D-33, -2.0D-01, r^2= 1.2D+00
+
+ Vector    7  Occ=0.000000E+00  E= 5.605872E-01  Symmetry=b1
+              MO Center=  8.9E-16, -3.0E-33, -2.0E-01, r^2= 1.2E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.923109  1 O  px                 7     -0.681976  3 H  s          
      6      0.681976  2 H  s          
- 
- 
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.09752365
+
+ moments of inertia (a.u.)
+ ------------------
+           2.194243005950           0.000000000000           0.000000000000
+           0.000000000000           9.705668775629           0.000000000000
+           0.000000000000           0.000000000000           7.511425769679
+
   Mulliken analysis of the total density
   --------------------------------------
 
@@ -493,34 +500,34 @@ task scf freq
     1 O    8     8.24   2.00  1.87  4.37
     2 H    1     0.88   0.88
     3 H    1     0.88   0.88
- 
+
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
- 
+
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      0.000000      0.000000     10.000000
- 
+
      1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
      1   0 0 1     -0.532980      0.000000      0.000000
- 
+
      2   2 0 0     -2.762038      0.000000      7.453105
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -4.640073      0.000000      0.000000
      2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -4.169032      0.000000      1.961259
- 
+
 
  Parallel integral file used       1 records with       0 large values
 
                               NWChem Gradients Module
                               -----------------------
- 
- 
+
+
                                        Water
- 
+
 
   wavefunction    =   RHF     
 
@@ -537,18 +544,18 @@ task scf freq
    1 O       0.000000   0.000000   0.221431    0.000000   0.000000   0.058550
    2 H      -1.930428   0.000000  -0.885722   -0.140065   0.000000  -0.029275
    3 H       1.930428   0.000000  -0.885722    0.140065   0.000000  -0.029275
- 
+
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.09   |
+                 |  CPU   |       0.00   |       0.02   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.09   |
+                 |  WALL  |       0.00   |       0.03   |
                  ----------------------------------------
 
 @ Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
 @ ---- ---------------- -------- -------- -------- -------- -------- --------
-@    0     -74.88814246  0.0D+00  0.13607  0.11511  0.00000  0.00000      1.2
+@    0     -74.88814246  0.0E+00  0.13607  0.11511  0.00000  0.00000      0.3
                                                        ok       ok  
 
 
@@ -557,24 +564,24 @@ task scf freq
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
     1 Stretch                  1     2                       1.17762    0.13607
     2 Stretch                  1     3                       1.17762    0.13607
     3 Bend                     2     1     3               120.32913    0.05216
- 
- Restricting large step in mode    1 eval= 4.4D-02 step=-1.2D+00 new=-3.0D-01
- Restricting large step in mode    2 eval= 2.4D-01 step=-5.8D-01 new=-3.0D-01
- Restricting large step in mode    3 eval= 2.4D-01 step=-5.8D-01 new=-3.0D-01
+
+ Restricting large step in mode    1 eval= 4.4E-02 step=-1.2E+00 new=-3.0E-01
+ Restricting large step in mode    2 eval= 2.4E-01 step=-5.8E-01 new=-3.0E-01
+ Restricting large step in mode    3 eval= 2.4E-01 step=-5.8E-01 new=-3.0E-01
  Restricting overall step due to large component. alpha=  1.00
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
                                        Water
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =     7
@@ -599,14 +606,14 @@ task scf freq
 
       Symmetry analysis of basis
       --------------------------
- 
+
         a1          4
         a2          0
         b1          2
         b2          1
- 
 
- Forming initial guess at       1.4s
+
+ Forming initial guess at       0.3s
 
 
  Read molecular orbitals from ./h2o.movecs
@@ -616,21 +623,21 @@ task scf freq
 
 Water
 
- 
+
       Symmetry analysis of molecular orbitals - initial
       -------------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
 
- Starting SCF solution at       1.4s
+
+ Starting SCF solution at       0.3s
 
 
 
@@ -643,47 +650,47 @@ Water
  ----------------------------------------------
 
 
- #quartets = 7.900D+01 #integrals = 1.640D+02 #direct =  0.0% #cached =100.0%
+ #quartets = 7.900E+01 #integrals = 1.640E+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   3144
+ Max. records in memory =      2        Max. records in file   =  52448
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.9561884470  1.82D-01  1.39D-01      1.1
-                 2      -74.9579099937  2.98D-02  2.08D-02      1.1
-                 3      -74.9580285156  1.29D-04  8.15D-05      1.2
-                 4      -74.9580285164  1.81D-10  1.33D-10      1.3
+                 1      -74.9561884470  1.82E-01  1.39E-01      0.2
+                 2      -74.9579099937  2.98E-02  2.08E-02      0.2
+                 3      -74.9580285156  1.29E-04  8.15E-05      0.3
+                 4      -74.9580285164  1.81E-10  1.33E-10      0.3
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =    -74.958028516432
-      One-electron energy =   -121.408244509283
-      Two-electron energy =     37.825522985717
+         Total SCF energy =    -74.958028516431
+      One-electron energy =   -121.408244509281
+      Two-electron energy =     37.825522985716
  Nuclear repulsion energy =      8.624693007133
 
-        Time for solution =      0.2s
+        Time for solution =      0.1s
 
 
- 
+
        Symmetry analysis of molecular orbitals - final
        -----------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
+
              Final eigenvalues
              -----------------
 
@@ -695,52 +702,62 @@ Water
     5   -0.3825
     6    0.5322
     7    0.6920
- 
+
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
- 
- Vector    2  Occ=2.000000D+00  E=-1.231947D+00  Symmetry=a1
-              MO Center= -2.2D-16, -2.2D-17, -5.0D-02, r^2= 5.5D-01
+
+ Vector    2  Occ=2.000000E+00  E=-1.231947E+00  Symmetry=a1
+              MO Center= -6.4E-17,  6.9E-18, -5.0E-02, r^2= 5.5E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.856994  1 O  s                  1     -0.235704  1 O  s          
      6      0.154803  2 H  s                  7      0.154803  3 H  s          
- 
- Vector    3  Occ=2.000000D+00  E=-5.954744D-01  Symmetry=b1
-              MO Center=  3.1D-16, -2.0D-35, -1.6D-01, r^2= 9.0D-01
+
+ Vector    3  Occ=2.000000E+00  E=-5.954744E-01  Symmetry=b1
+              MO Center=  3.5E-17, -2.4E-35, -1.6E-01, r^2= 9.0E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.595532  1 O  px                 7      0.446094  3 H  s          
-     6     -0.446094  2 H  s          
- 
- Vector    4  Occ=2.000000D+00  E=-4.292352D-01  Symmetry=a1
-              MO Center= -1.0D-15,  5.2D-17,  1.3D-01, r^2= 6.6D-01
+     3      0.595532  1 O  px                 6     -0.446094  2 H  s          
+     7      0.446094  3 H  s          
+
+ Vector    4  Occ=2.000000E+00  E=-4.292352E-01  Symmetry=a1
+              MO Center= -1.1E-18, -1.3E-34,  1.3E-01, r^2= 6.6E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.784301  1 O  pz                 2      0.496787  1 O  s          
      6     -0.294160  2 H  s                  7     -0.294160  3 H  s          
- 
- Vector    5  Occ=2.000000D+00  E=-3.825406D-01  Symmetry=b2
-              MO Center= -4.0D-33, -4.0D-17,  1.1D-01, r^2= 4.2D-01
+
+ Vector    5  Occ=2.000000E+00  E=-3.825406E-01  Symmetry=b2
+              MO Center=  4.5E-33,  3.3E-18,  1.1E-01, r^2= 4.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
- 
- Vector    6  Occ=0.000000D+00  E= 5.321632D-01  Symmetry=a1
-              MO Center= -1.7D-16,  9.8D-18, -3.8D-01, r^2= 1.2D+00
+
+ Vector    6  Occ=0.000000E+00  E= 5.321632E-01  Symmetry=a1
+              MO Center= -6.8E-16, -1.0E-17, -3.8E-01, r^2= 1.2E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.797500  1 O  s                  6     -0.762185  2 H  s          
      7     -0.762185  3 H  s                  5     -0.704101  1 O  pz         
- 
- Vector    7  Occ=0.000000D+00  E= 6.920121D-01  Symmetry=b1
-              MO Center=  9.4D-16, -3.1D-33, -2.2D-01, r^2= 1.1D+00
+
+ Vector    7  Occ=0.000000E+00  E= 6.920121E-01  Symmetry=b1
+              MO Center=  5.6E-16, -2.7E-33, -2.2E-01, r^2= 1.1E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.974874  1 O  px                 7     -0.783100  3 H  s          
      6      0.783100  2 H  s          
- 
- 
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.08652047
+
+ moments of inertia (a.u.)
+ ------------------
+           2.116328329291           0.000000000000           0.000000000000
+           0.000000000000           7.205537246059           0.000000000000
+           0.000000000000           0.000000000000           5.089208916768
+
   Mulliken analysis of the total density
   --------------------------------------
 
@@ -749,82 +766,82 @@ Water
     1 O    8     8.33   2.00  1.83  4.49
     2 H    1     0.84   0.84
     3 H    1     0.84   0.84
- 
+
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
- 
+
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      0.000000      0.000000     10.000000
- 
+
      1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
      1   0 0 1     -0.631529      0.000000     -0.092561
- 
+
      2   2 0 0     -3.052871      0.000000      5.049695
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -4.564792      0.000000      0.000000
      2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -4.070243      0.000000      1.892474
- 
+
 
  Parallel integral file used       1 records with       0 large values
 
  Line search: 
-     step= 1.00 grad=-9.7D-02 hess= 2.7D-02 energy=    -74.958029 mode=downhill
+     step= 1.00 grad=-9.7E-02 hess= 2.7E-02 energy=    -74.958029 mode=downhill
  new step= 1.78                   predicted energy=    -74.974498
 
           --------
           Step   1
           --------
- 
- 
+
+
                          Geometry "geometry" -> "geometry"
                          ---------------------------------
- 
+
  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 O                    8.0000     0.00000000     0.00000000     0.17671469
     2 H                    1.0000    -1.33559018     0.00000000    -0.86336421
     3 H                    1.0000     1.33559018     0.00000000    -0.86336421
- 
+
       Atomic Mass 
       ----------- 
- 
+
       O                 15.994910
       H                  1.007825
- 
 
- Effective nuclear repulsion energy (a.u.)       9.8261730656
+
+ Effective nuclear repulsion energy (a.u.)       9.8261730655
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
      0.0000000000     0.0000000000    -0.3130108817
- 
+
       Symmetry information
       --------------------
- 
+
  Group name             C2v       
  Group number             16
  Group order               4
  No. of unique centers     2
- 
+
       Symmetry unique atoms
- 
+
      1    2
- 
+
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
                                        Water
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =     7
@@ -849,14 +866,14 @@ Water
 
       Symmetry analysis of basis
       --------------------------
- 
+
         a1          4
         a2          0
         b1          2
         b2          1
- 
 
- Forming initial guess at       1.9s
+
+ Forming initial guess at       0.4s
 
 
  Read molecular orbitals from ./h2o.movecs
@@ -866,21 +883,21 @@ Water
 
 Water
 
- 
+
       Symmetry analysis of molecular orbitals - initial
       -------------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
 
- Starting SCF solution at       1.9s
+
+ Starting SCF solution at       0.4s
 
 
 
@@ -893,47 +910,47 @@ Water
  ----------------------------------------------
 
 
- #quartets = 7.900D+01 #integrals = 1.640D+02 #direct =  0.0% #cached =100.0%
+ #quartets = 7.900E+01 #integrals = 1.640E+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   3144
+ Max. records in memory =      2        Max. records in file   =  52448
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.9407163021  2.00D-01  1.39D-01      1.5
-                 2      -74.9427914568  2.51D-02  1.71D-02      1.5
-                 3      -74.9428809652  2.37D-04  1.61D-04      1.5
-                 4      -74.9428809689  1.76D-09  1.56D-09      1.6
+                 1      -74.9407163021  2.00E-01  1.39E-01      0.4
+                 2      -74.9427914568  2.51E-02  1.71E-02      0.4
+                 3      -74.9428809652  2.37E-04  1.61E-04      0.4
+                 4      -74.9428809689  1.76E-09  1.56E-09      0.4
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =    -74.942880968862
-      One-electron energy =   -123.439156611060
-      Two-electron energy =     38.670102576627
- Nuclear repulsion energy =      9.826173065570
+         Total SCF energy =    -74.942880968864
+      One-electron energy =   -123.439156610998
+      Two-electron energy =     38.670102576602
+ Nuclear repulsion energy =      9.826173065532
 
-        Time for solution =      0.2s
+        Time for solution =      0.1s
 
 
- 
+
        Symmetry analysis of molecular orbitals - final
        -----------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
+
              Final eigenvalues
              -----------------
 
@@ -945,53 +962,63 @@ Water
     5   -0.3970
     6    0.6698
     7    0.8178
- 
+
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
- 
- Vector    2  Occ=2.000000D+00  E=-1.303499D+00  Symmetry=a1
-              MO Center=  6.9D-18, -1.3D-18, -1.1D-01, r^2= 5.3D-01
+
+ Vector    2  Occ=2.000000E+00  E=-1.303499E+00  Symmetry=a1
+              MO Center= -7.4E-17,  6.0E-18, -1.1E-01, r^2= 5.3E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.811536  1 O  s                  1     -0.230647  1 O  s          
      6      0.161477  2 H  s                  7      0.161477  3 H  s          
      5     -0.152719  1 O  pz         
- 
- Vector    3  Occ=2.000000D+00  E=-6.511382D-01  Symmetry=b1
-              MO Center=  0.0D+00,  0.0D+00, -1.4D-01, r^2= 7.8D-01
+
+ Vector    3  Occ=2.000000E+00  E=-6.511382E-01  Symmetry=b1
+              MO Center=  2.0E-17, -4.1E-35, -1.4E-01, r^2= 7.8E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.610591  1 O  px                 6     -0.440709  2 H  s          
      7      0.440709  3 H  s          
- 
- Vector    4  Occ=2.000000D+00  E=-4.615104D-01  Symmetry=a1
-              MO Center=  0.0D+00, -2.0D-35,  1.8D-01, r^2= 5.6D-01
+
+ Vector    4  Occ=2.000000E+00  E=-4.615104E-01  Symmetry=a1
+              MO Center= -4.0E-18,  8.2E-19,  1.8E-01, r^2= 5.6E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.789894  1 O  pz                 2      0.554815  1 O  s          
      6     -0.252404  2 H  s                  7     -0.252404  3 H  s          
- 
- Vector    5  Occ=2.000000D+00  E=-3.970054D-01  Symmetry=b2
-              MO Center= -1.2D-33, -7.7D-18,  9.4D-02, r^2= 4.2D-01
+
+ Vector    5  Occ=2.000000E+00  E=-3.970054E-01  Symmetry=b2
+              MO Center=  3.3E-33,  1.8E-18,  9.4E-02, r^2= 4.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
- 
- Vector    6  Occ=0.000000D+00  E= 6.698409D-01  Symmetry=a1
-              MO Center=  0.0D+00,  9.0D-18, -4.1D-01, r^2= 1.1D+00
+
+ Vector    6  Occ=0.000000E+00  E= 6.698409E-01  Symmetry=a1
+              MO Center= -8.8E-18, -8.6E-18, -4.1E-01, r^2= 1.1E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.999955  1 O  s                  6     -0.845786  2 H  s          
      7     -0.845786  3 H  s                  5     -0.748964  1 O  pz         
- 
- Vector    7  Occ=0.000000D+00  E= 8.178190D-01  Symmetry=b1
-              MO Center= -5.6D-17,  3.9D-34, -2.5D-01, r^2= 9.8D-01
+
+ Vector    7  Occ=0.000000E+00  E= 8.178190E-01  Symmetry=b1
+              MO Center= -3.1E-18,  8.7E-35, -2.5E-01, r^2= 9.8E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      1.027880  1 O  px                 6      0.901455  2 H  s          
      7     -0.901455  3 H  s          
- 
- 
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.06031437
+
+ moments of inertia (a.u.)
+ ------------------
+           1.936432124481           0.000000000000           0.000000000000
+           0.000000000000           5.531950851944           0.000000000000
+           0.000000000000           0.000000000000           3.595518727463
+
   Mulliken analysis of the total density
   --------------------------------------
 
@@ -1000,34 +1027,34 @@ Water
     1 O    8     8.43   2.00  1.81  4.62
     2 H    1     0.79   0.79
     3 H    1     0.79   0.79
- 
+
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
- 
+
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      0.000000      0.000000     10.000000
- 
+
      1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
      1   0 0 1     -0.710661      0.000000     -0.313011
- 
+
      2   2 0 0     -3.269187      0.000000      3.567602
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -4.488922      0.000000      0.000000
      2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -3.953804      0.000000      1.740620
- 
+
 
  Parallel integral file used       1 records with       0 large values
 
                               NWChem Gradients Module
                               -----------------------
- 
- 
+
+
                                        Water
- 
+
 
   wavefunction    =   RHF     
 
@@ -1044,18 +1071,18 @@ Water
    1 O       0.000000   0.000000   0.176715    0.000000   0.000000  -0.178200
    2 H      -1.335590   0.000000  -0.863364    0.109371   0.000000   0.089100
    3 H       1.335590   0.000000  -0.863364   -0.109371   0.000000   0.089100
- 
+
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.09   |
+                 |  CPU   |       0.00   |       0.02   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.09   |
+                 |  WALL  |       0.00   |       0.03   |
                  ----------------------------------------
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    1     -74.94288097 -5.5D-02  0.14104  0.11517  0.28021  0.59275      2.4
+@    1     -74.94288097 -5.5E-02  0.14104  0.11517  0.28021  0.59275      0.5
                                                                     
 
 
@@ -1064,22 +1091,22 @@ Water
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
     1 Stretch                  1     2                       0.89579   -0.14104
     2 Stretch                  1     3                       0.89579   -0.14104
     3 Bend                     2     1     3               104.18129    0.00278
- 
- Restricting large step in mode    1 eval= 4.6D-02 step=-3.6D-01 new=-3.0D-01
- Restricting large step in mode    3 eval= 5.0D-01 step= 4.0D-01 new= 3.0D-01
+
+ Restricting large step in mode    1 eval= 4.6E-02 step=-3.6E-01 new=-3.0E-01
+ Restricting large step in mode    3 eval= 5.0E-01 step= 4.0E-01 new= 3.0E-01
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
                                        Water
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =     7
@@ -1104,14 +1131,14 @@ Water
 
       Symmetry analysis of basis
       --------------------------
- 
+
         a1          4
         a2          0
         b1          2
         b2          1
- 
 
- Forming initial guess at       2.6s
+
+ Forming initial guess at       0.6s
 
 
  Read molecular orbitals from ./h2o.movecs
@@ -1121,21 +1148,21 @@ Water
 
 Water
 
- 
+
       Symmetry analysis of molecular orbitals - initial
       -------------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
 
- Starting SCF solution at       2.6s
+
+ Starting SCF solution at       0.6s
 
 
 
@@ -1148,47 +1175,47 @@ Water
  ----------------------------------------------
 
 
- #quartets = 7.900D+01 #integrals = 1.640D+02 #direct =  0.0% #cached =100.0%
+ #quartets = 7.900E+01 #integrals = 1.640E+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   3144
+ Max. records in memory =      2        Max. records in file   =  52448
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.9573455748  2.54D-01  1.88D-01      1.9
-                 2      -74.9631717014  6.43D-02  4.29D-02      2.0
-                 3      -74.9638740643  1.91D-03  1.52D-03      2.0
-                 4      -74.9638744530  9.39D-08  8.42D-08      2.1
+                 1      -74.9573455748  2.54E-01  1.88E-01      0.5
+                 2      -74.9631717014  6.43E-02  4.29E-02      0.5
+                 3      -74.9638740643  1.91E-03  1.52E-03      0.5
+                 4      -74.9638744530  9.39E-08  8.42E-08      0.5
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =    -74.963874452977
-      One-electron energy =   -121.417682716214
-      Two-electron energy =     37.765780921934
- Nuclear repulsion energy =      8.688027341303
+         Total SCF energy =    -74.963874452980
+      One-electron energy =   -121.417682716790
+      Two-electron energy =     37.765780922177
+ Nuclear repulsion energy =      8.688027341634
 
-        Time for solution =      0.2s
+        Time for solution =      0.1s
 
 
- 
+
        Symmetry analysis of molecular orbitals - final
        -----------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
+
              Final eigenvalues
              -----------------
 
@@ -1200,52 +1227,62 @@ Water
     5   -0.3941
     6    0.5633
     7    0.6533
- 
+
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
- 
- Vector    2  Occ=2.000000D+00  E=-1.249652D+00  Symmetry=a1
-              MO Center=  6.9D-18, -1.4D-18, -7.1D-03, r^2= 5.4D-01
+
+ Vector    2  Occ=2.000000E+00  E=-1.249652E+00  Symmetry=a1
+              MO Center= -6.4E-17,  6.4E-18, -7.1E-03, r^2= 5.4E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.853260  1 O  s                  1     -0.234626  1 O  s          
      6      0.152820  2 H  s                  7      0.152820  3 H  s          
- 
- Vector    3  Occ=2.000000D+00  E=-5.734841D-01  Symmetry=b1
-              MO Center=  0.0D+00,  0.0D+00, -1.2D-01, r^2= 8.5D-01
+
+ Vector    3  Occ=2.000000E+00  E=-5.734841E-01  Symmetry=b1
+              MO Center=  2.2E-17, -3.5E-35, -1.2E-01, r^2= 8.5E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.620662  1 O  px                 6     -0.452068  2 H  s          
      7      0.452068  3 H  s          
- 
- Vector    4  Occ=2.000000D+00  E=-4.661493D-01  Symmetry=a1
-              MO Center=  0.0D+00,  1.5D-18,  1.6D-01, r^2= 7.0D-01
+
+ Vector    4  Occ=2.000000E+00  E=-4.661493E-01  Symmetry=a1
+              MO Center=  8.7E-19, -7.9E-19,  1.6E-01, r^2= 7.0E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.737371  1 O  pz                 2      0.538218  1 O  s          
      6     -0.308903  2 H  s                  7     -0.308903  3 H  s          
- 
- Vector    5  Occ=2.000000D+00  E=-3.941310D-01  Symmetry=b2
-              MO Center= -1.5D-33, -9.2D-18,  1.8D-01, r^2= 4.2D-01
+
+ Vector    5  Occ=2.000000E+00  E=-3.941310E-01  Symmetry=b2
+              MO Center=  4.0E-33,  3.1E-18,  1.8E-01, r^2= 4.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
- 
- Vector    6  Occ=0.000000D+00  E= 5.632860D-01  Symmetry=a1
-              MO Center=  0.0D+00,  9.0D-18, -3.7D-01, r^2= 1.1D+00
+
+ Vector    6  Occ=0.000000E+00  E= 5.632860E-01  Symmetry=a1
+              MO Center= -1.2E-17, -8.6E-18, -3.7E-01, r^2= 1.1E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.781744  1 O  pz                 2     -0.769133  1 O  s          
      6      0.746016  2 H  s                  7      0.746016  3 H  s          
- 
- Vector    7  Occ=0.000000D+00  E= 6.532929D-01  Symmetry=b1
-              MO Center=  5.6D-17,  1.9D-34, -2.2D-01, r^2= 1.0D+00
+
+ Vector    7  Occ=0.000000E+00  E= 6.532929E-01  Symmetry=b1
+              MO Center= -6.2E-18, -1.3E-34, -2.2E-01, r^2= 1.0E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.933911  1 O  px                 7     -0.799309  3 H  s          
-     6      0.799309  2 H  s          
- 
- 
+     3      0.933911  1 O  px                 6      0.799309  2 H  s          
+     7     -0.799309  3 H  s          
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.19752182
+
+ moments of inertia (a.u.)
+ ------------------
+           2.966904524618           0.000000000000           0.000000000000
+           0.000000000000           7.050525670804           0.000000000000
+           0.000000000000           0.000000000000           4.083621146186
+
   Mulliken analysis of the total density
   --------------------------------------
 
@@ -1254,82 +1291,82 @@ Water
     1 O    8     8.30   2.00  1.86  4.44
     2 H    1     0.85   0.85
     3 H    1     0.85   0.85
- 
+
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
- 
+
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      0.000000      0.000000     10.000000
- 
+
      1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
      1   0 0 1     -0.666783      0.000000      0.841202
- 
+
      2   2 0 0     -3.426443      0.000000      4.051915
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -4.572348      0.000000      0.000000
      2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -4.030356      0.000000      2.722642
- 
+
 
  Parallel integral file used       1 records with       0 large values
 
  Line search: 
-     step= 1.00 grad=-6.5D-02 hess= 4.4D-02 energy=    -74.963874 mode=downhill
+     step= 1.00 grad=-6.5E-02 hess= 4.4E-02 energy=    -74.963874 mode=downhill
  new step= 0.74                   predicted energy=    -74.966813
 
           --------
           Step   2
           --------
- 
- 
+
+
                          Geometry "geometry" -> "geometry"
                          ---------------------------------
- 
+
  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 O                    8.0000     0.00000000     0.00000000     0.29759731
     2 H                    1.0000    -1.40338354     0.00000000    -0.92380551
     3 H                    1.0000     1.40338354     0.00000000    -0.92380551
- 
+
       Atomic Mass 
       ----------- 
- 
+
       O                 15.994910
       H                  1.007825
- 
 
- Effective nuclear repulsion energy (a.u.)       8.9563069394
+
+ Effective nuclear repulsion energy (a.u.)       8.9563069395
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     0.0000000000     0.0000000000     0.5331674154
- 
+     0.0000000000     0.0000000000     0.5331674155
+
       Symmetry information
       --------------------
- 
+
  Group name             C2v       
  Group number             16
  Group order               4
  No. of unique centers     2
- 
+
       Symmetry unique atoms
- 
+
      1    2
- 
+
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
                                        Water
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =     7
@@ -1354,14 +1391,14 @@ Water
 
       Symmetry analysis of basis
       --------------------------
- 
+
         a1          4
         a2          0
         b1          2
         b2          1
- 
 
- Forming initial guess at       3.6s
+
+ Forming initial guess at       0.7s
 
 
  Read molecular orbitals from ./h2o.movecs
@@ -1371,21 +1408,21 @@ Water
 
 Water
 
- 
+
       Symmetry analysis of molecular orbitals - initial
       -------------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
 
- Starting SCF solution at       3.7s
+
+ Starting SCF solution at       0.7s
 
 
 
@@ -1398,46 +1435,46 @@ Water
  ----------------------------------------------
 
 
- #quartets = 7.900D+01 #integrals = 1.640D+02 #direct =  0.0% #cached =100.0%
+ #quartets = 7.900E+01 #integrals = 1.640E+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   3144
+ Max. records in memory =      2        Max. records in file   =  52448
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.9652728702  5.76D-02  4.49D-02      2.3
-                 2      -74.9656196273  3.06D-03  2.22D-03      2.3
-                 3      -74.9656203642  3.42D-07  2.59D-07      2.4
+                 1      -74.9652728702  5.76E-02  4.49E-02      0.6
+                 2      -74.9656196273  3.06E-03  2.22E-03      0.6
+                 3      -74.9656203642  3.42E-07  2.59E-07      0.6
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =    -74.965620364162
-      One-electron energy =   -121.909230016465
-      Two-electron energy =     37.987302712899
- Nuclear repulsion energy =      8.956306939404
+         Total SCF energy =    -74.965620364161
+      One-electron energy =   -121.909230016616
+      Two-electron energy =     37.987302712952
+ Nuclear repulsion energy =      8.956306939503
 
-        Time for solution =      0.2s
+        Time for solution =      0.1s
 
 
- 
+
        Symmetry analysis of molecular orbitals - final
        -----------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
+
              Final eigenvalues
              -----------------
 
@@ -1449,52 +1486,62 @@ Water
     5   -0.3942
     6    0.5894
     7    0.6928
- 
+
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
- 
- Vector    2  Occ=2.000000D+00  E=-1.262137D+00  Symmetry=a1
-              MO Center=  6.9D-18, -1.4D-18, -3.6D-02, r^2= 5.4D-01
+
+ Vector    2  Occ=2.000000E+00  E=-1.262137E+00  Symmetry=a1
+              MO Center= -6.7E-17,  6.4E-18, -3.6E-02, r^2= 5.4E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.842002  1 O  s                  1     -0.233369  1 O  s          
      6      0.155790  2 H  s                  7      0.155790  3 H  s          
- 
- Vector    3  Occ=2.000000D+00  E=-5.925395D-01  Symmetry=b1
-              MO Center=  0.0D+00,  0.0D+00, -1.3D-01, r^2= 8.4D-01
+
+ Vector    3  Occ=2.000000E+00  E=-5.925395E-01  Symmetry=b1
+              MO Center=  5.1E-17, -4.4E-35, -1.3E-01, r^2= 8.4E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.616409  1 O  px                 6     -0.450014  2 H  s          
      7      0.450014  3 H  s          
- 
- Vector    4  Occ=2.000000D+00  E=-4.651782D-01  Symmetry=a1
-              MO Center= -6.9D-18,  1.2D-18,  1.7D-01, r^2= 6.6D-01
+
+ Vector    4  Occ=2.000000E+00  E=-4.651782E-01  Symmetry=a1
+              MO Center= -1.3E-19, -4.5E-19,  1.7E-01, r^2= 6.6E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.750311  1 O  pz                 2      0.545930  1 O  s          
      6     -0.295384  2 H  s                  7     -0.295384  3 H  s          
- 
- Vector    5  Occ=2.000000D+00  E=-3.941836D-01  Symmetry=b2
-              MO Center= -1.4D-33, -8.9D-18,  1.6D-01, r^2= 4.2D-01
+
+ Vector    5  Occ=2.000000E+00  E=-3.941836E-01  Symmetry=b2
+              MO Center=  3.8E-33,  2.8E-18,  1.6E-01, r^2= 4.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
- 
- Vector    6  Occ=0.000000D+00  E= 5.893908D-01  Symmetry=a1
-              MO Center=  0.0D+00,  9.1D-18, -3.8D-01, r^2= 1.1D+00
+
+ Vector    6  Occ=0.000000E+00  E= 5.893908E-01  Symmetry=a1
+              MO Center=  3.0E-17, -8.7E-18, -3.8E-01, r^2= 1.1E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.823114  1 O  s                  5     -0.774429  1 O  pz         
      6     -0.769568  2 H  s                  7     -0.769568  3 H  s          
- 
- Vector    7  Occ=0.000000D+00  E= 6.928486D-01  Symmetry=b1
-              MO Center=  1.1D-16,  3.9D-34, -2.3D-01, r^2= 1.0D+00
+
+ Vector    7  Occ=0.000000E+00  E= 6.928486E-01  Symmetry=b1
+              MO Center= -2.8E-17, -1.9E-33, -2.3E-01, r^2= 1.0E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.956067  1 O  px                 7     -0.821272  3 H  s          
-     6      0.821272  2 H  s          
- 
- 
+     3      0.956067  1 O  px                 6      0.821272  2 H  s          
+     7     -0.821272  3 H  s          
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.16090413
+
+ moments of inertia (a.u.)
+ ------------------
+           2.670469020642           0.000000000000           0.000000000000
+           0.000000000000           6.640262177068           0.000000000000
+           0.000000000000           0.000000000000           3.969793156426
+
   Mulliken analysis of the total density
   --------------------------------------
 
@@ -1503,34 +1550,34 @@ Water
     1 O    8     8.33   2.00  1.85  4.48
     2 H    1     0.83   0.83
     3 H    1     0.83   0.83
- 
+
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
- 
+
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      0.000000      0.000000     10.000000
- 
+
      1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
      1   0 0 1     -0.679926      0.000000      0.533167
- 
+
      2   2 0 0     -3.384326      0.000000      3.938971
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -4.552246      0.000000      0.000000
      2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -4.014830      0.000000      2.415347
- 
+
 
  Parallel integral file used       1 records with       0 large values
 
                               NWChem Gradients Module
                               -----------------------
- 
- 
+
+
                                        Water
- 
+
 
   wavefunction    =   RHF     
 
@@ -1547,18 +1594,18 @@ Water
    1 O       0.000000   0.000000   0.297597    0.000000   0.000000  -0.000029
    2 H      -1.403384   0.000000  -0.923806    0.009653   0.000000   0.000014
    3 H       1.403384   0.000000  -0.923806   -0.009653   0.000000   0.000014
- 
+
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.09   |
+                 |  CPU   |       0.00   |       0.03   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.10   |
+                 |  WALL  |       0.00   |       0.03   |
                  ----------------------------------------
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    2     -74.96562036 -2.3D-02  0.00729  0.00695  0.05769  0.12673      4.1
+@    2     -74.96562036 -2.3E-02  0.00729  0.00695  0.05769  0.12673      0.8
                                                                     
 
 
@@ -1567,20 +1614,20 @@ Water
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
     1 Stretch                  1     2                       0.98451   -0.00729
     2 Stretch                  1     3                       0.98451   -0.00729
     3 Bend                     2     1     3                97.93213   -0.00623
- 
+
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
                                        Water
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =     7
@@ -1605,14 +1652,14 @@ Water
 
       Symmetry analysis of basis
       --------------------------
- 
+
         a1          4
         a2          0
         b1          2
         b2          1
- 
 
- Forming initial guess at       4.3s
+
+ Forming initial guess at       0.8s
 
 
  Read molecular orbitals from ./h2o.movecs
@@ -1622,21 +1669,21 @@ Water
 
 Water
 
- 
+
       Symmetry analysis of molecular orbitals - initial
       -------------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
 
- Starting SCF solution at       4.3s
+
+ Starting SCF solution at       0.8s
 
 
 
@@ -1649,46 +1696,46 @@ Water
  ----------------------------------------------
 
 
- #quartets = 7.900D+01 #integrals = 1.640D+02 #direct =  0.0% #cached =100.0%
+ #quartets = 7.900E+01 #integrals = 1.640E+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   3144
+ Max. records in memory =      2        Max. records in file   =  52448
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.9657019434  2.07D-02  1.75D-02      2.8
-                 2      -74.9657756948  8.25D-05  7.83D-05      2.8
-                 3      -74.9657756949  3.33D-11  2.20D-11      2.9
+                 1      -74.9657019434  2.07E-02  1.75E-02      0.7
+                 2      -74.9657756948  8.25E-05  7.83E-05      0.8
+                 3      -74.9657756949  3.33E-11  2.20E-11      0.8
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =    -74.965775694879
-      One-electron energy =   -121.843680337229
-      Two-electron energy =     37.972193776691
- Nuclear repulsion energy =      8.905710865659
+         Total SCF energy =    -74.965775694881
+      One-electron energy =   -121.843680337373
+      Two-electron energy =     37.972193776686
+ Nuclear repulsion energy =      8.905710865806
 
-        Time for solution =      0.2s
+        Time for solution =      0.0s
 
 
- 
+
        Symmetry analysis of molecular orbitals - final
        -----------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
+
              Final eigenvalues
              -----------------
 
@@ -1700,52 +1747,62 @@ Water
     5   -0.3915
     6    0.5795
     7    0.6976
- 
+
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
- 
- Vector    2  Occ=2.000000D+00  E=-1.255918D+00  Symmetry=a1
-              MO Center=  6.9D-18, -1.5D-18, -4.3D-02, r^2= 5.4D-01
+
+ Vector    2  Occ=2.000000E+00  E=-1.255918E+00  Symmetry=a1
+              MO Center= -6.8E-17,  6.5E-18, -4.3E-02, r^2= 5.4E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.844710  1 O  s                  1     -0.233880  1 O  s          
      6      0.155839  2 H  s                  7      0.155839  3 H  s          
- 
- Vector    3  Occ=2.000000D+00  E=-5.969070D-01  Symmetry=b1
-              MO Center=  0.0D+00,  0.0D+00, -1.4D-01, r^2= 8.5D-01
+
+ Vector    3  Occ=2.000000E+00  E=-5.969070E-01  Symmetry=b1
+              MO Center=  1.6E-17, -3.1E-35, -1.4E-01, r^2= 8.5E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.609900  1 O  px                 6     -0.448395  2 H  s          
      7      0.448395  3 H  s          
- 
- Vector    4  Occ=2.000000D+00  E=-4.558422D-01  Symmetry=a1
-              MO Center= -6.9D-18,  1.0D-18,  1.6D-01, r^2= 6.6D-01
+
+ Vector    4  Occ=2.000000E+00  E=-4.558422E-01  Symmetry=a1
+              MO Center= -1.6E-19, -3.0E-19,  1.6E-01, r^2= 6.6E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.761183  1 O  pz                 2      0.533693  1 O  s          
      6     -0.293239  2 H  s                  7     -0.293239  3 H  s          
- 
- Vector    5  Occ=2.000000D+00  E=-3.914924D-01  Symmetry=b2
-              MO Center= -1.4D-33, -9.0D-18,  1.4D-01, r^2= 4.2D-01
+
+ Vector    5  Occ=2.000000E+00  E=-3.914924E-01  Symmetry=b2
+              MO Center=  4.0E-33,  2.9E-18,  1.4E-01, r^2= 4.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
- 
- Vector    6  Occ=0.000000D+00  E= 5.794993D-01  Symmetry=a1
-              MO Center=  0.0D+00,  9.5D-18, -3.8D-01, r^2= 1.1D+00
+
+ Vector    6  Occ=0.000000E+00  E= 5.794993E-01  Symmetry=a1
+              MO Center=  3.0E-17, -9.1E-18, -3.8E-01, r^2= 1.1E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.824627  1 O  s                  6     -0.771576  2 H  s          
      7     -0.771576  3 H  s                  5     -0.755077  1 O  pz         
- 
- Vector    7  Occ=0.000000D+00  E= 6.975817D-01  Symmetry=b1
-              MO Center=  0.0D+00,  0.0D+00, -2.3D-01, r^2= 1.0D+00
+
+ Vector    7  Occ=0.000000E+00  E= 6.975817E-01  Symmetry=b1
+              MO Center= -2.9E-17, -8.2E-34, -2.3E-01, r^2= 1.0E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.964914  1 O  px                 6      0.813213  2 H  s          
      7     -0.813213  3 H  s          
- 
- 
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.13787362
+
+ moments of inertia (a.u.)
+ ------------------
+           2.492017840147           0.000000000000           0.000000000000
+           0.000000000000           6.726896901595           0.000000000000
+           0.000000000000           0.000000000000           4.234879061448
+
   Mulliken analysis of the total density
   --------------------------------------
 
@@ -1754,82 +1811,82 @@ Water
     1 O    8     8.33   2.00  1.85  4.49
     2 H    1     0.83   0.83
     3 H    1     0.83   0.83
- 
+
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
- 
+
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      0.000000      0.000000     10.000000
- 
+
      1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
      1   0 0 1     -0.668861      0.000000      0.339431
- 
+
      2   2 0 0     -3.295824      0.000000      4.201998
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -4.553125      0.000000      0.000000
      2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -4.028466      0.000000      2.238938
- 
+
 
  Parallel integral file used       1 records with       0 large values
 
  Line search: 
-     step= 1.00 grad=-9.0D-04 hess= 7.4D-04 energy=    -74.965776 mode=downhill
+     step= 1.00 grad=-9.0E-04 hess= 7.4E-04 energy=    -74.965776 mode=downhill
  new step= 0.60                   predicted energy=    -74.965892
 
           --------
           Step   3
           --------
- 
- 
+
+
                          Geometry "geometry" -> "geometry"
                          ---------------------------------
- 
+
  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 O                    8.0000     0.00000000     0.00000000     0.28101111
     2 H                    1.0000    -1.43138217     0.00000000    -0.91551242
     3 H                    1.0000     1.43138217     0.00000000    -0.91551242
- 
+
       Atomic Mass 
       ----------- 
- 
+
       O                 15.994910
       H                  1.007825
- 
 
- Effective nuclear repulsion energy (a.u.)       8.9255680170
+
+ Effective nuclear repulsion energy (a.u.)       8.9255680169
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     0.0000000000     0.0000000000     0.4170640214
- 
+     0.0000000000     0.0000000000     0.4170640215
+
       Symmetry information
       --------------------
- 
+
  Group name             C2v       
  Group number             16
  Group order               4
  No. of unique centers     2
- 
+
       Symmetry unique atoms
- 
+
      1    2
- 
+
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
                                        Water
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =     7
@@ -1854,14 +1911,14 @@ Water
 
       Symmetry analysis of basis
       --------------------------
- 
+
         a1          4
         a2          0
         b1          2
         b2          1
- 
 
- Forming initial guess at       4.8s
+
+ Forming initial guess at       0.9s
 
 
  Read molecular orbitals from ./h2o.movecs
@@ -1871,21 +1928,21 @@ Water
 
 Water
 
- 
+
       Symmetry analysis of molecular orbitals - initial
       -------------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
 
- Starting SCF solution at       4.8s
+
+ Starting SCF solution at       0.9s
 
 
 
@@ -1898,46 +1955,46 @@ Water
  ----------------------------------------------
 
 
- #quartets = 7.900D+01 #integrals = 1.640D+02 #direct =  0.0% #cached =100.0%
+ #quartets = 7.900E+01 #integrals = 1.640E+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   3144
+ Max. records in memory =      2        Max. records in file   =  52448
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.9658786057  8.23D-03  6.95D-03      3.1
-                 2      -74.9658901174  5.06D-05  3.81D-05      3.1
-                 3      -74.9658901176  3.90D-08  3.48D-08      3.2
+                 1      -74.9658786057  8.23E-03  6.95E-03      0.8
+                 2      -74.9658901174  5.06E-05  3.81E-05      0.9
+                 3      -74.9658901176  3.90E-08  3.48E-08      0.9
 
 
        Final RHF  results 
        ------------------ 
 
          Total SCF energy =    -74.965890117556
-      One-electron energy =   -121.869158935387
-      Two-electron energy =     37.977700800859
- Nuclear repulsion energy =      8.925568016972
+      One-electron energy =   -121.869158935329
+      Two-electron energy =     37.977700800833
+ Nuclear repulsion energy =      8.925568016940
 
-        Time for solution =      0.2s
+        Time for solution =      0.1s
 
 
- 
+
        Symmetry analysis of molecular orbitals - final
        -----------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
+
              Final eigenvalues
              -----------------
 
@@ -1949,52 +2006,62 @@ Water
     5   -0.3926
     6    0.5836
     7    0.6956
- 
+
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
- 
- Vector    2  Occ=2.000000D+00  E=-1.258389D+00  Symmetry=a1
-              MO Center=  6.9D-18, -1.5D-18, -4.0D-02, r^2= 5.4D-01
+
+ Vector    2  Occ=2.000000E+00  E=-1.258389E+00  Symmetry=a1
+              MO Center= -6.7E-17,  6.4E-18, -4.0E-02, r^2= 5.4E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.843677  1 O  s                  1     -0.233685  1 O  s          
      6      0.155800  2 H  s                  7      0.155800  3 H  s          
- 
- Vector    3  Occ=2.000000D+00  E=-5.952599D-01  Symmetry=b1
-              MO Center=  0.0D+00,  0.0D+00, -1.3D-01, r^2= 8.4D-01
+
+ Vector    3  Occ=2.000000E+00  E=-5.952599E-01  Symmetry=b1
+              MO Center=  4.9E-17,  1.4E-50, -1.3E-01, r^2= 8.4E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.612401  1 O  px                 6     -0.449029  2 H  s          
-     7      0.449029  3 H  s          
- 
- Vector    4  Occ=2.000000D+00  E=-4.595623D-01  Symmetry=a1
-              MO Center= -6.9D-18,  1.1D-18,  1.6D-01, r^2= 6.6D-01
+     3      0.612401  1 O  px                 7      0.449029  3 H  s          
+     6     -0.449029  2 H  s          
+
+ Vector    4  Occ=2.000000E+00  E=-4.595623E-01  Symmetry=a1
+              MO Center= -5.2E-18, -3.6E-19,  1.6E-01, r^2= 6.6E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.756901  1 O  pz                 2      0.538517  1 O  s          
      6     -0.294097  2 H  s                  7     -0.294097  3 H  s          
- 
- Vector    5  Occ=2.000000D+00  E=-3.925973D-01  Symmetry=b2
-              MO Center= -1.4D-33, -8.9D-18,  1.5D-01, r^2= 4.2D-01
+
+ Vector    5  Occ=2.000000E+00  E=-3.925973E-01  Symmetry=b2
+              MO Center=  4.0E-33,  2.8E-18,  1.5E-01, r^2= 4.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
- 
- Vector    6  Occ=0.000000D+00  E= 5.835693D-01  Symmetry=a1
-              MO Center=  0.0D+00,  9.3D-18, -3.8D-01, r^2= 1.1D+00
+
+ Vector    6  Occ=0.000000E+00  E= 5.835693E-01  Symmetry=a1
+              MO Center= -1.1E-17, -8.9E-18, -3.8E-01, r^2= 1.1E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.824093  1 O  s                  6     -0.770869  2 H  s          
      7     -0.770869  3 H  s                  5     -0.762794  1 O  pz         
- 
- Vector    7  Occ=0.000000D+00  E= 6.956103D-01  Symmetry=b1
-              MO Center=  5.6D-17, -1.9D-34, -2.3D-01, r^2= 1.0D+00
+
+ Vector    7  Occ=0.000000E+00  E= 6.956103E-01  Symmetry=b1
+              MO Center=  5.1E-18, -4.5E-34, -2.3E-01, r^2= 1.0E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.961486  1 O  px                 7     -0.816250  3 H  s          
-     6      0.816250  2 H  s          
- 
- 
+     3      0.961486  1 O  px                 6      0.816250  2 H  s          
+     7     -0.816250  3 H  s          
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.14710230
+
+ moments of inertia (a.u.)
+ ------------------
+           2.562785087762           0.000000000000           0.000000000000
+           0.000000000000           6.692559492703           0.000000000000
+           0.000000000000           0.000000000000           4.129774404942
+
   Mulliken analysis of the total density
   --------------------------------------
 
@@ -2003,34 +2070,34 @@ Water
     1 O    8     8.33   2.00  1.85  4.49
     2 H    1     0.83   0.83
     3 H    1     0.83   0.83
- 
+
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
- 
+
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      0.000000      0.000000     10.000000
- 
+
      1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
      1   0 0 1     -0.673236      0.000000      0.417064
- 
+
      2   2 0 0     -3.331181      0.000000      4.097710
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -4.552821      0.000000      0.000000
      2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -4.023219      0.000000      2.308064
- 
+
 
  Parallel integral file used       1 records with       0 large values
 
                               NWChem Gradients Module
                               -----------------------
- 
- 
+
+
                                        Water
- 
+
 
   wavefunction    =   RHF     
 
@@ -2047,18 +2114,18 @@ Water
    1 O       0.000000   0.000000   0.281011    0.000000   0.000000  -0.003679
    2 H      -1.431382   0.000000  -0.915512    0.001650   0.000000   0.001839
    3 H       1.431382   0.000000  -0.915512   -0.001650   0.000000   0.001839
- 
+
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.09   |
+                 |  CPU   |       0.00   |       0.03   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.10   |
+                 |  WALL  |       0.00   |       0.03   |
                  ----------------------------------------
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    3     -74.96589012 -2.7D-04  0.00245  0.00201  0.01472  0.02749      5.2
+@    3     -74.96589012 -2.7E-04  0.00245  0.00201  0.01472  0.02749      1.0
                                                                     
 
 
@@ -2067,20 +2134,20 @@ Water
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
     1 Stretch                  1     2                       0.98724   -0.00245
     2 Stretch                  1     3                       0.98724   -0.00245
     3 Bend                     2     1     3               100.21403    0.00035
- 
+
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
                                        Water
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =     7
@@ -2105,14 +2172,14 @@ Water
 
       Symmetry analysis of basis
       --------------------------
- 
+
         a1          4
         a2          0
         b1          2
         b2          1
- 
 
- Forming initial guess at       5.4s
+
+ Forming initial guess at       1.0s
 
 
  Read molecular orbitals from ./h2o.movecs
@@ -2122,21 +2189,21 @@ Water
 
 Water
 
- 
+
       Symmetry analysis of molecular orbitals - initial
       -------------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
 
- Starting SCF solution at       5.4s
+
+ Starting SCF solution at       1.0s
 
 
 
@@ -2149,46 +2216,46 @@ Water
  ----------------------------------------------
 
 
- #quartets = 7.900D+01 #integrals = 1.640D+02 #direct =  0.0% #cached =100.0%
+ #quartets = 7.900E+01 #integrals = 1.640E+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   3144
+ Max. records in memory =      2        Max. records in file   =  52448
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.9658994343  3.41D-03  2.70D-03      3.5
-                 2      -74.9659007239  1.10D-06  8.49D-07      3.6
-                 3      -74.9659007239  5.08D-08  3.37D-08      3.6
+                 1      -74.9658994343  3.41E-03  2.70E-03      1.0
+                 2      -74.9659007239  1.10E-06  8.49E-07      1.0
+                 3      -74.9659007239  5.08E-08  3.37E-08      1.0
 
 
        Final RHF  results 
        ------------------ 
 
          Total SCF energy =    -74.965900723941
-      One-electron energy =   -121.841355054562
-      Two-electron energy =     37.965024342526
- Nuclear repulsion energy =      8.910429988095
+      One-electron energy =   -121.841355054547
+      Two-electron energy =     37.965024342519
+ Nuclear repulsion energy =      8.910429988086
 
-        Time for solution =      0.2s
+        Time for solution =      0.1s
 
 
- 
+
        Symmetry analysis of molecular orbitals - final
        -----------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
+
              Final eigenvalues
              -----------------
 
@@ -2200,52 +2267,62 @@ Water
     5   -0.3926
     6    0.5822
     7    0.6933
- 
+
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
- 
- Vector    2  Occ=2.000000D+00  E=-1.257724D+00  Symmetry=a1
-              MO Center=  6.9D-18, -1.5D-18, -3.8D-02, r^2= 5.4D-01
+
+ Vector    2  Occ=2.000000E+00  E=-1.257724E+00  Symmetry=a1
+              MO Center=  3.4E-20, -1.4E-21, -3.8E-02, r^2= 5.4E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.844289  1 O  s                  1     -0.233749  1 O  s          
      6      0.155637  2 H  s                  7      0.155637  3 H  s          
- 
- Vector    3  Occ=2.000000D+00  E=-5.941428D-01  Symmetry=b1
-              MO Center=  0.0D+00,  0.0D+00, -1.3D-01, r^2= 8.5D-01
+
+ Vector    3  Occ=2.000000E+00  E=-5.941428E-01  Symmetry=b1
+              MO Center=  1.9E-17,  1.0E-39, -1.3E-01, r^2= 8.5E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.612637  1 O  px                 6     -0.449183  2 H  s          
-     7      0.449183  3 H  s          
- 
- Vector    4  Occ=2.000000D+00  E=-4.596988D-01  Symmetry=a1
-              MO Center= -6.9D-18,  1.1D-18,  1.6D-01, r^2= 6.6D-01
+     3      0.612637  1 O  px                 7      0.449183  3 H  s          
+     6     -0.449183  2 H  s          
+
+ Vector    4  Occ=2.000000E+00  E=-4.596988E-01  Symmetry=a1
+              MO Center= -3.9E-18, -3.8E-19,  1.6E-01, r^2= 6.6E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.756084  1 O  pz                 2      0.538245  1 O  s          
      6     -0.294897  2 H  s                  7     -0.294897  3 H  s          
- 
- Vector    5  Occ=2.000000D+00  E=-3.926138D-01  Symmetry=b2
-              MO Center= -1.4D-33, -8.9D-18,  1.5D-01, r^2= 4.2D-01
+
+ Vector    5  Occ=2.000000E+00  E=-3.926138E-01  Symmetry=b2
+              MO Center=  4.0E-33,  9.3E-18,  1.5E-01, r^2= 4.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
- 
- Vector    6  Occ=0.000000D+00  E= 5.821629D-01  Symmetry=a1
-              MO Center=  0.0D+00,  9.3D-18, -3.8D-01, r^2= 1.1D+00
+
+ Vector    6  Occ=0.000000E+00  E= 5.821629E-01  Symmetry=a1
+              MO Center= -4.1E-17, -8.9E-18, -3.8E-01, r^2= 1.1E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.820956  1 O  s                  6     -0.769514  2 H  s          
      7     -0.769514  3 H  s                  5     -0.763403  1 O  pz         
- 
- Vector    7  Occ=0.000000D+00  E= 6.932766D-01  Symmetry=b1
-              MO Center=  0.0D+00,  0.0D+00, -2.3D-01, r^2= 1.0D+00
+
+ Vector    7  Occ=0.000000E+00  E= 6.932766E-01  Symmetry=b1
+              MO Center= -4.1E-17, -5.1E-35, -2.3E-01, r^2= 1.0E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.960146  1 O  px                 6      0.814979  2 H  s          
      7     -0.814979  3 H  s          
- 
- 
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.14929863
+
+ moments of inertia (a.u.)
+ ------------------
+           2.579772961198           0.000000000000           0.000000000000
+           0.000000000000           6.714880178787           0.000000000000
+           0.000000000000           0.000000000000           4.135107217589
+
   Mulliken analysis of the total density
   --------------------------------------
 
@@ -2254,82 +2331,82 @@ Water
     1 O    8     8.33   2.00  1.85  4.48
     2 H    1     0.83   0.83
     3 H    1     0.83   0.83
- 
+
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
- 
+
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      0.000000      0.000000     10.000000
- 
+
      1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
      1   0 0 1     -0.672619      0.000000      0.435540
- 
+
      2   2 0 0     -3.334180      0.000000      4.103001
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -4.553979      0.000000      0.000000
      2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -4.024104      0.000000      2.324823
- 
+
 
  Parallel integral file used       1 records with       0 large values
 
  Line search: 
-     step= 1.00 grad=-1.8D-05 hess= 7.0D-06 energy=    -74.965901 mode=downhill
+     step= 1.00 grad=-1.8E-05 hess= 7.0E-06 energy=    -74.965901 mode=downhill
  new step= 1.26                   predicted energy=    -74.965901
 
           --------
           Step   4
           --------
- 
- 
+
+
                          Geometry "geometry" -> "geometry"
                          ---------------------------------
- 
+
  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 O                    8.0000     0.00000000     0.00000000     0.28432765
     2 H                    1.0000    -1.43254162     0.00000000    -0.91717069
     3 H                    1.0000     1.43254162     0.00000000    -0.91717069
- 
+
       Atomic Mass 
       ----------- 
- 
+
       O                 15.994910
       H                  1.007825
- 
 
- Effective nuclear repulsion energy (a.u.)       8.9065579260
+
+ Effective nuclear repulsion energy (a.u.)       8.9065579243
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     0.0000000000     0.0000000000     0.4402798088
- 
+     0.0000000000     0.0000000000     0.4402798108
+
       Symmetry information
       --------------------
- 
+
  Group name             C2v       
  Group number             16
  Group order               4
  No. of unique centers     2
- 
+
       Symmetry unique atoms
- 
+
      1    2
- 
+
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
                                        Water
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =     7
@@ -2354,14 +2431,14 @@ Water
 
       Symmetry analysis of basis
       --------------------------
- 
+
         a1          4
         a2          0
         b1          2
         b2          1
- 
 
- Forming initial guess at       5.8s
+
+ Forming initial guess at       1.1s
 
 
  Read molecular orbitals from ./h2o.movecs
@@ -2371,21 +2448,21 @@ Water
 
 Water
 
- 
+
       Symmetry analysis of molecular orbitals - initial
       -------------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
 
- Starting SCF solution at       5.8s
+
+ Starting SCF solution at       1.1s
 
 
 
@@ -2398,45 +2475,45 @@ Water
  ----------------------------------------------
 
 
- #quartets = 7.900D+01 #integrals = 1.640D+02 #direct =  0.0% #cached =100.0%
+ #quartets = 7.900E+01 #integrals = 1.640E+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   3144
+ Max. records in memory =      2        Max. records in file   =  52448
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.9659011080  8.71D-04  6.92D-04      3.8
-                 2      -74.9659011924  7.21D-08  5.52D-08      3.9
+                 1      -74.9659011080  8.71E-04  6.92E-04      1.1
+                 2      -74.9659011924  7.21E-08  5.52E-08      1.1
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =    -74.965901192368
-      One-electron energy =   -121.834238636233
-      Two-electron energy =     37.961779517902
- Nuclear repulsion energy =      8.906557925963
+         Total SCF energy =    -74.965901192367
+      One-electron energy =   -121.834238633100
+      Two-electron energy =     37.961779516474
+ Nuclear repulsion energy =      8.906557924259
 
-        Time for solution =      0.1s
+        Time for solution =      0.0s
 
 
- 
+
        Symmetry analysis of molecular orbitals - final
        -----------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
+
              Final eigenvalues
              -----------------
 
@@ -2448,52 +2525,62 @@ Water
     5   -0.3926
     6    0.5818
     7    0.6927
- 
+
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
- 
- Vector    2  Occ=2.000000D+00  E=-1.257554D+00  Symmetry=a1
-              MO Center=  6.9D-18, -1.5D-18, -3.8D-02, r^2= 5.4D-01
+
+ Vector    2  Occ=2.000000E+00  E=-1.257554E+00  Symmetry=a1
+              MO Center= -9.5E-19, -1.9E-21, -3.8E-02, r^2= 5.4E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.844446  1 O  s                  1     -0.233765  1 O  s          
      6      0.155595  2 H  s                  7      0.155595  3 H  s          
- 
- Vector    3  Occ=2.000000D+00  E=-5.938567D-01  Symmetry=b1
-              MO Center=  0.0D+00,  0.0D+00, -1.3D-01, r^2= 8.5D-01
+
+ Vector    3  Occ=2.000000E+00  E=-5.938567E-01  Symmetry=b1
+              MO Center= -1.4E-17,  1.1E-39, -1.3E-01, r^2= 8.5E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.612699  1 O  px                 6     -0.449222  2 H  s          
      7      0.449222  3 H  s          
- 
- Vector    4  Occ=2.000000D+00  E=-4.597337D-01  Symmetry=a1
-              MO Center= -6.9D-18,  1.1D-18,  1.6D-01, r^2= 6.6D-01
+
+ Vector    4  Occ=2.000000E+00  E=-4.597337E-01  Symmetry=a1
+              MO Center=  2.5E-19, -3.8E-19,  1.6E-01, r^2= 6.6E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.755874  1 O  pz                 2      0.538174  1 O  s          
      6     -0.295101  2 H  s                  7     -0.295101  3 H  s          
- 
- Vector    5  Occ=2.000000D+00  E=-3.926182D-01  Symmetry=b2
-              MO Center= -1.4D-33, -8.9D-18,  1.5D-01, r^2= 4.2D-01
+
+ Vector    5  Occ=2.000000E+00  E=-3.926182E-01  Symmetry=b2
+              MO Center=  4.0E-33,  9.3E-18,  1.5E-01, r^2= 4.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
- 
- Vector    6  Occ=0.000000D+00  E= 5.818029D-01  Symmetry=a1
-              MO Center=  0.0D+00,  9.3D-18, -3.8D-01, r^2= 1.1D+00
+
+ Vector    6  Occ=0.000000E+00  E= 5.818029E-01  Symmetry=a1
+              MO Center=  4.2E-18, -8.9E-18, -3.8E-01, r^2= 1.1E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.820154  1 O  s                  6     -0.769168  2 H  s          
      7     -0.769168  3 H  s                  5     -0.763559  1 O  pz         
- 
- Vector    7  Occ=0.000000D+00  E= 6.926795D-01  Symmetry=b1
-              MO Center= -1.7D-16,  3.9D-34, -2.3D-01, r^2= 1.0D+00
+
+ Vector    7  Occ=0.000000E+00  E= 6.926795E-01  Symmetry=b1
+              MO Center= -1.4E-17,  1.3E-33, -2.3E-01, r^2= 1.0E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.959803  1 O  px                 6      0.814655  2 H  s          
      7     -0.814655  3 H  s          
- 
- 
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.14986208
+
+ moments of inertia (a.u.)
+ ------------------
+           2.584140084931           0.000000000000           0.000000000000
+           0.000000000000           6.720607613309           0.000000000000
+           0.000000000000           0.000000000000           4.136467528377
+
   Mulliken analysis of the total density
   --------------------------------------
 
@@ -2502,34 +2589,34 @@ Water
     1 O    8     8.33   2.00  1.85  4.48
     2 H    1     0.83   0.83
     3 H    1     0.83   0.83
- 
+
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
- 
+
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      0.000000      0.000000     10.000000
- 
+
      1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
      1   0 0 1     -0.672461      0.000000      0.440280
- 
+
      2   2 0 0     -3.334950      0.000000      4.104351
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -4.554275      0.000000      0.000000
      2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -4.024329      0.000000      2.329142
- 
+
 
  Parallel integral file used       1 records with       0 large values
 
                               NWChem Gradients Module
                               -----------------------
- 
- 
+
+
                                        Water
- 
+
 
   wavefunction    =   RHF     
 
@@ -2546,18 +2633,18 @@ Water
    1 O       0.000000   0.000000   0.284328    0.000000   0.000000  -0.000006
    2 H      -1.432542   0.000000  -0.917171    0.000010   0.000000   0.000003
    3 H       1.432542   0.000000  -0.917171   -0.000010   0.000000   0.000003
- 
+
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.09   |
+                 |  CPU   |       0.00   |       0.03   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.09   |
+                 |  WALL  |       0.00   |       0.03   |
                  ----------------------------------------
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    4     -74.96590119 -1.1D-05  0.00001  0.00001  0.00146  0.00332      6.2
+@    4     -74.96590119 -1.1E-05  0.00001  0.00001  0.00146  0.00332      1.2
                                      ok       ok                    
 
 
@@ -2566,20 +2653,20 @@ Water
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
     1 Stretch                  1     2                       0.98940   -0.00001
     2 Stretch                  1     3                       0.98940   -0.00001
     3 Bend                     2     1     3               100.02567    0.00000
- 
+
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
                                        Water
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =     7
@@ -2604,14 +2691,14 @@ Water
 
       Symmetry analysis of basis
       --------------------------
- 
+
         a1          4
         a2          0
         b1          2
         b2          1
- 
 
- Forming initial guess at       6.3s
+
+ Forming initial guess at       1.3s
 
 
  Read molecular orbitals from ./h2o.movecs
@@ -2621,21 +2708,21 @@ Water
 
 Water
 
- 
+
       Symmetry analysis of molecular orbitals - initial
       -------------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
 
- Starting SCF solution at       6.4s
+
+ Starting SCF solution at       1.3s
 
 
 
@@ -2648,45 +2735,45 @@ Water
  ----------------------------------------------
 
 
- #quartets = 7.900D+01 #integrals = 1.640D+02 #direct =  0.0% #cached =100.0%
+ #quartets = 7.900E+01 #integrals = 1.640E+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =   3144
+ Max. records in memory =      2        Max. records in file   =  52448
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.9659011926  1.04D-05  8.16D-06      4.2
-                 2      -74.9659011926  4.06D-08  3.13D-08      4.3
+                 1      -74.9659011926  1.04E-05  8.16E-06      1.2
+                 2      -74.9659011926  4.06E-08  3.13E-08      1.2
 
 
        Final RHF  results 
        ------------------ 
 
          Total SCF energy =    -74.965901192574
-      One-electron energy =   -121.834125495483
-      Two-electron energy =     37.961734415277
- Nuclear repulsion energy =      8.906489887633
+      One-electron energy =   -121.834125495464
+      Two-electron energy =     37.961734415268
+ Nuclear repulsion energy =      8.906489887622
 
-        Time for solution =      0.1s
+        Time for solution =      0.0s
 
 
- 
+
        Symmetry analysis of molecular orbitals - final
        -----------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1      
- 
+
              Final eigenvalues
              -----------------
 
@@ -2698,52 +2785,62 @@ Water
     5   -0.3926
     6    0.5818
     7    0.6927
- 
+
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
- 
- Vector    2  Occ=2.000000D+00  E=-1.257549D+00  Symmetry=a1
-              MO Center=  6.9D-18, -1.5D-18, -3.8D-02, r^2= 5.4D-01
+
+ Vector    2  Occ=2.000000E+00  E=-1.257549E+00  Symmetry=a1
+              MO Center= -1.2E-18, -1.9E-21, -3.8E-02, r^2= 5.4E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.844449  1 O  s                  1     -0.233766  1 O  s          
      6      0.155595  2 H  s                  7      0.155595  3 H  s          
- 
- Vector    3  Occ=2.000000D+00  E=-5.938552D-01  Symmetry=b1
-              MO Center=  0.0D+00,  0.0D+00, -1.3D-01, r^2= 8.5D-01
+
+ Vector    3  Occ=2.000000E+00  E=-5.938552E-01  Symmetry=b1
+              MO Center= -1.1E-17,  1.2E-39, -1.3E-01, r^2= 8.5E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.612697  1 O  px                 6     -0.449222  2 H  s          
      7      0.449222  3 H  s          
- 
- Vector    4  Occ=2.000000D+00  E=-4.597301D-01  Symmetry=a1
-              MO Center= -6.9D-18,  1.1D-18,  1.6D-01, r^2= 6.6D-01
+
+ Vector    4  Occ=2.000000E+00  E=-4.597301E-01  Symmetry=a1
+              MO Center= -2.2E-18, -3.8E-19,  1.6E-01, r^2= 6.6E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.755877  1 O  pz                 2      0.538167  1 O  s          
      6     -0.295103  2 H  s                  7     -0.295103  3 H  s          
- 
- Vector    5  Occ=2.000000D+00  E=-3.926170D-01  Symmetry=b2
-              MO Center= -1.4D-33, -8.9D-18,  1.5D-01, r^2= 4.2D-01
+
+ Vector    5  Occ=2.000000E+00  E=-3.926170E-01  Symmetry=b2
+              MO Center=  4.0E-33,  9.3E-18,  1.5E-01, r^2= 4.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
- 
- Vector    6  Occ=0.000000D+00  E= 5.817942D-01  Symmetry=a1
-              MO Center=  0.0D+00,  9.3D-18, -3.8D-01, r^2= 1.1D+00
+
+ Vector    6  Occ=0.000000E+00  E= 5.817942E-01  Symmetry=a1
+              MO Center=  4.4E-18, -8.9E-18, -3.8E-01, r^2= 1.1E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.820145  1 O  s                  6     -0.769164  2 H  s          
      7     -0.769164  3 H  s                  5     -0.763552  1 O  pz         
- 
- Vector    7  Occ=0.000000D+00  E= 6.926745D-01  Symmetry=b1
-              MO Center= -1.1D-16,  0.0D+00, -2.3D-01, r^2= 1.0D+00
+
+ Vector    7  Occ=0.000000E+00  E= 6.926745E-01  Symmetry=b1
+              MO Center=  3.3E-18, -5.9E-35, -2.3E-01, r^2= 1.0E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.959803  1 O  px                 6      0.814648  2 H  s          
      7     -0.814648  3 H  s          
- 
- 
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.14985879
+
+ moments of inertia (a.u.)
+ ------------------
+           2.584114546121           0.000000000000           0.000000000000
+           0.000000000000           6.720713728573           0.000000000000
+           0.000000000000           0.000000000000           4.136599182452
+
   Mulliken analysis of the total density
   --------------------------------------
 
@@ -2752,54 +2849,54 @@ Water
     1 O    8     8.33   2.00  1.85  4.48
     2 H    1     0.83   0.83
     3 H    1     0.83   0.83
- 
+
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
- 
+
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      0.000000      0.000000     10.000000
- 
+
      1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
      1   0 0 1     -0.672454      0.000000      0.440252
- 
+
      2   2 0 0     -3.334920      0.000000      4.104482
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -4.554279      0.000000      0.000000
      2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -4.024337      0.000000      2.329117
- 
+
 
  Parallel integral file used       1 records with       0 large values
 
  Line search: 
-     step= 1.00 grad=-4.1D-10 hess= 2.0D-10 energy=    -74.965901 mode=accept  
+     step= 1.00 grad=-4.1E-10 hess= 2.0E-10 energy=    -74.965901 mode=accept  
  new step= 1.00                   predicted energy=    -74.965901
 
           --------
           Step   5
           --------
- 
- 
+
+
                          Geometry "geometry" -> "geometry"
                          ---------------------------------
- 
+
  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 O                    8.0000     0.00000000     0.00000000     0.28432369
     2 H                    1.0000    -1.43256442     0.00000000    -0.91716871
     3 H                    1.0000     1.43256442     0.00000000    -0.91716871
- 
+
       Atomic Mass 
       ----------- 
- 
+
       O                 15.994910
       H                  1.007825
- 
+
 
  Effective nuclear repulsion energy (a.u.)       8.9064898876
 
@@ -2808,26 +2905,26 @@ Water
         X                 Y               Z
  ---------------- ---------------- ----------------
      0.0000000000     0.0000000000     0.4402521041
- 
+
       Symmetry information
       --------------------
- 
+
  Group name             C2v       
  Group number             16
  Group order               4
  No. of unique centers     2
- 
+
       Symmetry unique atoms
- 
+
      1    2
- 
+
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
                                        Water
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =     7
@@ -2852,12 +2949,12 @@ Water
 
       Symmetry analysis of basis
       --------------------------
- 
+
         a1          4
         a2          0
         b1          2
         b2          1
- 
+
 
   The SCF is already converged 
 
@@ -2865,10 +2962,10 @@ Water
 
                               NWChem Gradients Module
                               -----------------------
- 
- 
+
+
                                        Water
- 
+
 
   wavefunction    =   RHF     
 
@@ -2885,18 +2982,18 @@ Water
    1 O       0.000000   0.000000   0.284324    0.000000   0.000000   0.000000
    2 H      -1.432564   0.000000  -0.917169    0.000000   0.000000   0.000000
    3 H       1.432564   0.000000  -0.917169    0.000000   0.000000   0.000000
- 
+
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.09   |
+                 |  CPU   |       0.01   |       0.02   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.09   |
+                 |  WALL  |       0.00   |       0.03   |
                  ----------------------------------------
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    5     -74.96590119 -2.1D-10  0.00000  0.00000  0.00001  0.00002      6.9
+@    5     -74.96590119 -2.1E-10  0.00000  0.00000  0.00001  0.00002      1.4
                                      ok       ok       ok       ok  
 
 
@@ -2905,13 +3002,13 @@ Water
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
     1 Stretch                  1     2                       0.98941    0.00000
     2 Stretch                  1     3                       0.98941    0.00000
     3 Bend                     2     1     3               100.02685    0.00000
- 
+
 
       ----------------------
       Optimization converged
@@ -2920,7 +3017,7 @@ Water
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    5     -74.96590119 -2.1D-10  0.00000  0.00000  0.00001  0.00002      6.9
+@    5     -74.96590119 -2.1E-10  0.00000  0.00000  0.00001  0.00002      1.4
                                      ok       ok       ok       ok  
 
 
@@ -2929,32 +3026,32 @@ Water
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
     1 Stretch                  1     2                       0.98941    0.00000
     2 Stretch                  1     3                       0.98941    0.00000
     3 Bend                     2     1     3               100.02685    0.00000
- 
- 
- 
+
+
+
                          Geometry "geometry" -> "geometry"
                          ---------------------------------
- 
+
  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 O                    8.0000     0.00000000     0.00000000     0.28432369
     2 H                    1.0000    -1.43256442     0.00000000    -0.91716871
     3 H                    1.0000     1.43256442     0.00000000    -0.91716871
- 
+
       Atomic Mass 
       ----------- 
- 
+
       O                 15.994910
       H                  1.007825
- 
+
 
  Effective nuclear repulsion energy (a.u.)       8.9064898876
 
@@ -2963,36 +3060,36 @@ Water
         X                 Y               Z
  ---------------- ---------------- ----------------
      0.0000000000     0.0000000000     0.4402521041
- 
+
       Symmetry information
       --------------------
- 
+
  Group name             C2v       
  Group number             16
  Group order               4
  No. of unique centers     2
- 
+
       Symmetry unique atoms
- 
+
      1    2
- 
- 
+
+
                 Final and change from initial internal coordinates
                 --------------------------------------------------
- 
+
 
 
                                 Z-matrix (autoz)
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value       Change
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
     1 Stretch                  1     2                       0.98941   -0.18821
     2 Stretch                  1     3                       0.98941   -0.18821
     3 Bend                     2     1     3               100.02685  -20.30228
- 
+
  ==============================================================================
                                 internuclear distances
  ------------------------------------------------------------------------------
@@ -3019,137 +3116,313 @@ Water
 
 
 
- Task  times  cpu:        4.4s     wall:        6.6s
- 
- 
+ Task  times  cpu:        1.2s     wall:        1.3s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
- 
- 
+
+
+
+
                    NWChem Nuclear Hessian and Frequency Analysis
                    ---------------------------------------------
- 
- 
- 
-                         NWChem Finite-difference Hessian
-                         --------------------------------
- 
- 
 
- Saving state for scf with suffix hess
-        ./h2o.movecs
- 
- atom:   1 xyz: 1(+) wall time:       7.1      date:  Tue Aug 22 14:01:10 2000
 
- atom:   1 xyz: 1(-) wall time:       7.6      date:  Tue Aug 22 14:01:10 2000
 
- atom:   1 xyz: 2(+) wall time:       8.0      date:  Tue Aug 22 14:01:11 2000
+                              NWChem Analytic Hessian
+                              -----------------------
 
- atom:   1 xyz: 2(-) wall time:       8.4      date:  Tue Aug 22 14:01:11 2000
 
- atom:   1 xyz: 3(+) wall time:       8.9      date:  Tue Aug 22 14:01:11 2000
+ Read molecular orbitals from ./h2o.movecs
 
- atom:   1 xyz: 3(-) wall time:       9.3      date:  Tue Aug 22 14:01:12 2000
+  stpr_wrt_fd_from_sq: overwrite of existing file:./h2o.hess
 
- atom:   3 xyz: 1(+) wall time:       9.8      date:  Tue Aug 22 14:01:12 2000
+ Read molecular orbitals from ./h2o.movecs
 
- atom:   3 xyz: 1(-) wall time:      10.3      date:  Tue Aug 22 14:01:13 2000
+ g_dip in AO basis
 
- atom:   3 xyz: 2(+) wall time:      10.8      date:  Tue Aug 22 14:01:13 2000
+ global array: dipole matrix[1:3,1:7,1:7],  handle: -994 
 
- atom:   3 xyz: 2(-) wall time:      11.2      date:  Tue Aug 22 14:01:14 2000
+ -- patch: dipole matrix[1:3,1:7,1]
 
- atom:   3 xyz: 3(+) wall time:      11.6      date:  Tue Aug 22 14:01:14 2000
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.00000     0.00000     0.05079     0.00000     0.00000    -0.00281
+   2       0.00000     0.00000     0.00000     0.05079     0.00000     0.00000
+   3       0.13446     0.03183     0.00000     0.00000     0.05079     0.00436
 
- atom:   3 xyz: 3(-) wall time:      12.1      date:  Tue Aug 22 14:01:15 2000
+            7  
+       -----------
+   1       0.00281
+   2       0.00000
+   3       0.00436
 
-  
-  finite difference hessian delta =     1.0000000000000D-03
+ -- patch: dipole matrix[1:3,1:7,2]
 
-              1        2        3        4        5        6        7        8
-    1    0.8040   0.0000   0.0000  -0.4020   0.0000  -0.3371  -0.4020   0.0000
-    2    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
-    3    0.0000   0.0000   0.6349  -0.2163   0.0000  -0.3174   0.2163   0.0000
-    4   -0.4020   0.0000  -0.2163   0.4389   0.0000   0.2767  -0.0369   0.0000
-    5    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
-    6   -0.3371   0.0000  -0.3174   0.2767   0.0000   0.3001   0.0604   0.0000
-    7   -0.4020   0.0000   0.2163  -0.0369   0.0000   0.0604   0.4389   0.0000
-    8    0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
-    9    0.3371   0.0000  -0.3174  -0.0604   0.0000   0.0173  -0.2767   0.0000
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.00000     0.00000     0.64117     0.00000     0.00000    -0.27579
+   2       0.00000     0.00000     0.00000     0.64117     0.00000     0.00000
+   3       0.03183     0.13446     0.00000     0.00000     0.64117    -0.17027
 
-              9      
-    1    0.3371
-    3   -0.3174
-    4   -0.0604
-    6    0.0173
-    7   -0.2767
-    9    0.3001
-  
+            7  
+       -----------
+   1       0.27579
+   2       0.00000
+   3      -0.17027
 
-  finite difference derivative dipole; delta =     1.0000000000000D-03
+ -- patch: dipole matrix[1:3,1:7,3]
 
-  
-  
- X vector of derivative dipole (au) [debye/angstrom]
- d_dipole_x/<atom=   1,x> =    -0.0311     [   -0.1496]
- d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
- d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
- d_dipole_x/<atom=   2,x> =     0.0156     [    0.0748]
- d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
- d_dipole_x/<atom=   2,z> =    -0.2216     [   -1.0646]
- d_dipole_x/<atom=   3,x> =     0.0156     [    0.0748]
- d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
- d_dipole_x/<atom=   3,z> =     0.2216     [    1.0646]
-  
- Y vector of derivative dipole (au) [debye/angstrom]
- d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
- d_dipole_y/<atom=   1,y> =    -0.5597     [   -2.6883]
- d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
- d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
- d_dipole_y/<atom=   2,y> =     0.2798     [    1.3441]
- d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
- d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
- d_dipole_y/<atom=   3,y> =     0.2798     [    1.3441]
- d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
-  
- Z vector of derivative dipole (au) [debye/angstrom]
- d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
- d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
- d_dipole_z/<atom=   1,z> =     0.0835     [    0.4012]
- d_dipole_z/<atom=   2,x> =    -0.1571     [   -0.7544]
- d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
- d_dipole_z/<atom=   2,z> =    -0.0418     [   -0.2006]
- d_dipole_z/<atom=   3,x> =     0.1571     [    0.7544]
- d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
- d_dipole_z/<atom=   3,z> =    -0.0418     [   -0.2006]
-  
-  
-  triangle hessian written to ./h2o.hess
-  derivative dipole written to ./h2o.fd_ddipole
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.05079     0.64117     0.00000     0.00000     0.00000     0.47462
+   2       0.00000     0.00000     0.00000     0.00000     0.00000     0.00000
+   3       0.00000     0.00000     0.13446     0.00000     0.00000     0.11393
 
- Deleting state for scf with suffix hess
-        ./h2o.movecs
- 
- 
- 
+            7  
+       -----------
+   1       0.47462
+   2       0.00000
+   3      -0.11393
+
+ -- patch: dipole matrix[1:3,1:7,4]
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.00000     0.00000     0.00000     0.00000     0.00000     0.00000
+   2       0.05079     0.64117     0.00000     0.00000     0.00000     0.29184
+   3       0.00000     0.00000     0.00000     0.13446     0.00000     0.00000
+
+            7  
+       -----------
+   1       0.00000
+   2       0.29184
+   3       0.00000
+
+ -- patch: dipole matrix[1:3,1:7,5]
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.00000     0.00000     0.00000     0.00000     0.00000     0.15329
+   2       0.00000     0.00000     0.00000     0.00000     0.00000     0.00000
+   3       0.05079     0.64117     0.00000     0.00000     0.13446     0.38740
+
+            7  
+       -----------
+   1      -0.15329
+   2       0.00000
+   3       0.38740
+
+ -- patch: dipole matrix[1:3,1:7,6]
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1      -0.00281    -0.27579     0.47462     0.00000     0.15329    -1.43256
+   2       0.00000     0.00000     0.00000     0.29184     0.00000     0.00000
+   3       0.00436    -0.17027     0.11393     0.00000     0.38740    -1.06703
+
+            7  
+       -----------
+   1       0.00000
+   2       0.00000
+   3      -0.26772
+
+ -- patch: dipole matrix[1:3,1:7,7]
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.00281     0.27579     0.47462     0.00000    -0.15329     0.00000
+   2       0.00000     0.00000     0.00000     0.29184     0.00000     0.00000
+   3       0.00436    -0.17027    -0.11393     0.00000     0.38740    -0.26772
+
+            7  
+       -----------
+   1       1.43256
+   2       0.00000
+   3      -1.06703
+ g_dip in MO basis
+
+ global array: dipole matrix[1:3,1:7,1:7],  handle: -994 
+
+ -- patch: dipole matrix[1:3,1:7,1]
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.00000     0.00000     0.04015    -0.00000     0.00000     0.00000
+   2      -0.00000    -0.00000     0.00000    -0.00000     0.06381    -0.00000
+   3       0.13404    -0.00822     0.00000     0.04811     0.00000    -0.04509
+
+            7  
+       -----------
+   1       0.05511
+   2      -0.00000
+   3       0.00000
+
+ -- patch: dipole matrix[1:3,1:7,2]
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.00000    -0.00000     0.84079    -0.00000    -0.00000    -0.00000
+   2      -0.00000    -0.00000     0.00000    -0.00000     0.62038    -0.00000
+   3      -0.00822    -0.22177     0.00000     0.70223     0.00000     0.11182
+
+            7  
+       -----------
+   1      -0.12219
+   2      -0.00000
+   3      -0.00000
+
+ -- patch: dipole matrix[1:3,1:7,3]
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.04015     0.84079    -0.00000    -0.31429    -0.00000    -0.81098
+   2       0.00000     0.00000     0.00000     0.00000     0.00000     0.00000
+   3       0.00000     0.00000    -0.39756     0.00000     0.00000     0.00000
+
+            7  
+       -----------
+   1       0.00000
+   2      -0.00000
+   3       0.67959
+
+ -- patch: dipole matrix[1:3,1:7,4]
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1      -0.00000    -0.00000    -0.31429     0.00000     0.00000     0.00000
+   2      -0.00000    -0.00000     0.00000    -0.00000     0.16753    -0.00000
+   3       0.04811     0.70223     0.00000     0.15789    -0.00000    -0.54555
+
+            7  
+       -----------
+   1       0.69348
+   2      -0.00000
+   3       0.00000
+
+ -- patch: dipole matrix[1:3,1:7,5]
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.00000    -0.00000    -0.00000     0.00000     0.00000     0.00000
+   2       0.06381     0.62038     0.00000     0.16753     0.00000     0.07051
+   3       0.00000     0.00000     0.00000    -0.00000     0.13446    -0.00000
+
+            7  
+       -----------
+   1       0.00000
+   2      -0.00000
+   3      -0.00000
+
+ -- patch: dipole matrix[1:3,1:7,6]
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.00000    -0.00000    -0.81098     0.00000     0.00000     0.00000
+   2      -0.00000    -0.00000     0.00000    -0.00000     0.07051    -0.00000
+   3      -0.04509     0.11182     0.00000    -0.54555    -0.00000    -0.86676
+
+            7  
+       -----------
+   1       1.03443
+   2      -0.00000
+   3       0.00000
+
+ -- patch: dipole matrix[1:3,1:7,7]
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.05511    -0.12219     0.00000     0.69348     0.00000     1.03443
+   2      -0.00000    -0.00000    -0.00000    -0.00000    -0.00000    -0.00000
+   3       0.00000    -0.00000     0.67959     0.00000    -0.00000     0.00000
+
+            7  
+       -----------
+   1      -0.00000
+   2       0.00000
+   3      -0.58071
+                                NWChem CPHF Module
+                                ------------------
+
+
+
+ Read molecular orbitals from ./h2o.movecs
+
+    scftype = RHF 
+    nclosed =    5
+      nopen =    0
+  variables =       10
+  num. vecs =        9
+  tolerance =   1.0E-04
+  max. iter =  100
+
+
+ #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  52448
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+
+Iterative solution of linear equations
+  No. of variables       10
+  No. of equations        9
+  Maximum subspace       90
+       Convergence  1.0E-04
+        Start time      1.8
+
+
+   iter   nsub   residual    time
+   ----  ------  --------  ---------
+     1      9    3.13E-01       1.8
+
+  neglecting  7  1.62842177E-18
+  neglecting  8  8.44117017E-19
+  neglecting  9  1.84674777E-19
+
+   iter   nsub   residual    time
+   ----  ------  --------  ---------
+     2     18    2.13E-02       1.8
+
+  neglecting  11  6.06962366E-18
+  neglecting  12  4.80013895E-18
+  neglecting  13  3.32867271E-18
+  neglecting  14  2.3280513E-18
+  neglecting  15  1.36080762E-18
+  neglecting  16  8.53906247E-19
+  neglecting  17  4.70158742E-19
+  neglecting  18  1.07500399E-19
+
+   iter   nsub   residual    time
+   ----  ------  --------  ---------
+     3     27    1.01E-14       1.9
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  stpr_wrt_fd_from_sq: overwrite of existing file:./h2o.hess
+
+
   Vibrational analysis via the FX method 
- 
+
   See chapter 2 in "Molecular Vibrations" by Wilson, Decius and Cross
- 
+
   Vib: Default input used 
- 
+
   Nuclear Hessian passed symmetry test 
- 
+
 
 
  ---------------------------- Atom information ----------------------------
      atom    #        X              Y              Z            mass
  --------------------------------------------------------------------------
-    O        1  0.0000000D+00  0.0000000D+00  2.8432369D-01  1.5994910D+01
-    H        2 -1.4325644D+00  0.0000000D+00 -9.1716871D-01  1.0078250D+00
-    H        3  1.4325644D+00  0.0000000D+00 -9.1716871D-01  1.0078250D+00
+    O        1  0.0000000E+00  0.0000000E+00  2.8432369E-01  1.5994910E+01
+    H        2 -1.4325644E+00  0.0000000E+00 -9.1716871E-01  1.0078250E+00
+    H        3  1.4325644E+00  0.0000000E+00 -9.1716871E-01  1.0078250E+00
  --------------------------------------------------------------------------
 
 
@@ -3162,15 +3435,15 @@ Water
 
               1           2           3           4           5           6           7           8           9
    ----- ----- ----- ----- -----
-    1   5.02629D+01
-    2   0.00000D+00 1.34871D-05
-    3   0.00000D+00 0.00000D+00 3.96939D+01
-    4  -1.00119D+02 0.00000D+00-5.38763D+01 4.35504D+02
-    5   0.00000D+00-6.18098D-07 0.00000D+00 0.00000D+00 4.25619D-05
-    6  -8.39698D+01 0.00000D+00-7.90664D+01 2.74576D+02 0.00000D+00 2.97773D+02
-    7  -1.00119D+02 0.00000D+00 5.38763D+01-3.66495D+01 0.00000D+00 5.99433D+01 4.35504D+02
-    8   0.00000D+00-6.18098D-07 0.00000D+00 0.00000D+00-4.00995D-05 0.00000D+00 0.00000D+00 4.25619D-05
-    9   8.39698D+01 0.00000D+00-7.90664D+01-5.99433D+01 0.00000D+00 1.72119D+01-2.74576D+02 0.00000D+00 2.97773D+02
+    1   5.02629E+01
+    2  -1.48695E-16 2.17895E-07
+    3   3.40775E-14-1.54675E-15 3.96939E+01
+    4  -1.00119E+02 5.81097E-15-5.38763E+01 4.35504E+02
+    5  -2.33791E-15 7.07065E-07-1.49196E-14 3.62151E-15-5.14242E-05
+    6  -8.39698E+01 4.10081E-15-7.90664E+01 2.74576E+02-5.93860E-14 2.97773E+02
+    7  -1.00119E+02-9.05168E-15 5.38763E+01-3.66495E+01 4.27769E-14 5.99434E+01 4.35504E+02
+    8   2.93028E-15 7.07064E-07-1.40291E-14 1.09009E-15 4.86123E-05 8.13030E-15-1.27638E-14-5.14242E-05
+    9   8.39698E+01 2.06114E-15-7.90664E+01-5.99434E+01 1.71932E-14 1.72120E+01-2.74576E+02-3.19160E-14 2.97773E+02
 
 
 
@@ -3181,21 +3454,21 @@ Water
 
                     1           2           3           4           5           6
  
- Frequency         -2.86       -0.40       -0.37        0.25        0.60        1.48
+ Frequency         -1.63       -1.29       -0.29        0.12        0.12        0.12
  
-           1     0.03212     0.23913     0.00000     0.00000     0.00000     0.00000
-           2     0.00000     0.00000     0.00000     0.01964     0.24927     0.00000
-           3     0.00000     0.00000     0.23563     0.00000     0.00000     0.00000
-           4    -0.42974     0.20064     0.00000     0.00000     0.00000     0.00000
-           5     0.00000     0.00000     0.00000     0.70218    -0.05533     0.70436
-           6     0.55069     0.04589     0.23563     0.00000     0.00000     0.00000
-           7    -0.42974     0.20064     0.00000     0.00000     0.00000     0.00000
-           8     0.00000     0.00000     0.00000     0.70218    -0.05533    -0.70436
-           9    -0.55069    -0.04589     0.23563     0.00000     0.00000     0.00000
+           1     0.00000     0.05146     0.00000     0.23572     0.00000     0.00000
+           2     0.00000     0.00000    -0.07191     0.00000     0.00000     0.23948
+           3     0.00000     0.00000     0.00000     0.00000     0.23563     0.00000
+           4     0.00000    -0.41200     0.00000     0.23491     0.00000     0.00000
+           5    -0.70436     0.00000     0.67460     0.00000     0.00000     0.20256
+           6     0.00000     0.55259     0.00000     0.00097     0.23563     0.00000
+           7     0.00000    -0.41200     0.00000     0.23491     0.00000     0.00000
+           8     0.70436     0.00000     0.67460     0.00000     0.00000     0.20256
+           9     0.00000    -0.55259     0.00000    -0.00096     0.23563     0.00000
 
                     7           8           9
  
- Frequency       2170.04     4140.00     4391.07
+ Frequency       2170.05     4140.00     4391.07
  
            1     0.00000     0.00000    -0.06562
            2     0.00000     0.00000     0.00000
@@ -3208,54 +3481,15 @@ Water
            9     0.52470    -0.40655    -0.43676
 
 
-
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||         Derivative Dipole Moments (debye/angs)
-  Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
- ------ ---------- || ------------------ ------------------ -----------------
-    1       -2.859 ||       1.242               0.000             0.000
-    2       -0.402 ||      -0.103               0.000             0.000
-    3       -0.366 ||       0.000               0.000             0.000
-    4        0.251 ||       0.000               1.835             0.000
-    5        0.599 ||       0.000              -0.819             0.000
-    6        1.478 ||       0.000               0.000             0.000
-    7     2170.045 ||       0.000               0.000             0.414
-    8     4140.005 ||       0.000               0.000             1.024
-    9     4391.069 ||      -0.842               0.000             0.000
- ----------------------------------------------------------------------------
-
-
-
-  
-  
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||                 Infra Red Intensities
-  Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
- ------ ---------- || -------------- ----------------- ---------- -----------
-    1       -2.859 ||    0.066820           1.542        65.139      18.455
-    2       -0.402 ||    0.000464           0.011         0.452       0.128
-    3       -0.366 ||    0.000000           0.000         0.000       0.000
-    4        0.251 ||    0.145928           3.367       142.258      40.303
-    5        0.599 ||    0.029062           0.670        28.331       8.027
-    6        1.478 ||    0.000000           0.000         0.000       0.000
-    7     2170.045 ||    0.007424           0.171         7.237       2.050
-    8     4140.005 ||    0.045428           1.048        44.286      12.547
-    9     4391.069 ||    0.030744           0.709        29.971       8.491
- ----------------------------------------------------------------------------
-
-
-
- 
- 
         Vibrational analysis via the FX method 
   --- with translations and rotations projected out ---
   --- via the Eckart algorithm                      ---
- Projected Nuclear Hessian trans-rot subspace norm:8.7495D-31
+ Projected Nuclear Hessian trans-rot subspace norm:1.9201E-31
                          (should be close to zero!) 
 
 
 From the projected analysis 
-The Zero-Point Energy (Kcal/mol) =          15.30259925
+The Zero-Point Energy (Kcal/mol) =          15.30260131
 
 
 
@@ -3269,18 +3503,18 @@ The Zero-Point Energy (Kcal/mol) =          15.30259925
  P.Frequency        0.00        0.00        0.00        0.00        0.00        0.00
  
            1     0.00000     0.00000     0.00000     0.23578     0.00569     0.05089
-           2     0.00000     0.25004     0.00000     0.00000     0.00000     0.00000
+           2     0.25004     0.00000     0.00000     0.00000     0.00000     0.00000
            3     0.00000     0.00000     0.00000     0.00000     0.23417    -0.02619
            4     0.00000     0.00000     0.00000     0.23447    -0.04583    -0.40970
-           5     0.00000     0.00000     0.99611     0.00000     0.00000     0.00000
+           5     0.00000     0.99611     0.00000     0.00000     0.00000     0.00000
            6     0.00000     0.00000     0.00000     0.00156     0.29560     0.52298
            7     0.00000     0.00000     0.00000     0.23447    -0.04583    -0.40970
-           8     0.99611     0.00000     0.00000     0.00000     0.00000     0.00000
+           8     0.00000     0.00000     0.99611     0.00000     0.00000     0.00000
            9     0.00000     0.00000     0.00000    -0.00155     0.17275    -0.57536
 
                     7           8           9
  
- P.Frequency     2170.04     4140.00     4391.07
+ P.Frequency     2170.05     4140.00     4391.07
  
            1     0.00000     0.00000    -0.06562
            2     0.00000     0.00000     0.00000
@@ -3291,71 +3525,32 @@ The Zero-Point Energy (Kcal/mol) =          15.30259925
            7     0.43141     0.55678     0.52076
            8     0.00000     0.00000     0.00000
            9     0.52470    -0.40655    -0.43676
+ vib:animation  F
+
+ Task  times  cpu:        0.6s     wall:        0.6s
 
 
-
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||    Projected Derivative Dipole Moments (debye/angs)
-  Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
- ------ ---------- || ------------------ ------------------ -----------------
-    1        0.000 ||       0.000               1.339             0.000
-    2        0.000 ||       0.000              -0.672             0.000
-    3        0.000 ||       0.000               1.339             0.000
-    4        0.000 ||      -0.004               0.000             0.000
-    5        0.000 ||      -0.138               0.000             0.000
-    6        0.000 ||       1.238               0.000             0.000
-    7     2170.044 ||       0.000               0.000             0.414
-    8     4140.005 ||       0.000               0.000             1.024
-    9     4391.069 ||      -0.842               0.000             0.000
- ----------------------------------------------------------------------------
-
-
-
-  
-  
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||           Projected Infra Red Intensities
-  Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
- ------ ---------- || -------------- ----------------- ---------- -----------
-    1        0.000 ||    0.077703           1.793        75.749      21.460
-    2        0.000 ||    0.019584           0.452        19.091       5.409
-    3        0.000 ||    0.077703           1.793        75.749      21.460
-    4        0.000 ||    0.000001           0.000         0.001       0.000
-    5        0.000 ||    0.000831           0.019         0.810       0.230
-    6        0.000 ||    0.066452           1.533        64.781      18.353
-    7     2170.044 ||    0.007424           0.171         7.237       2.050
-    8     4140.005 ||    0.045428           1.048        44.286      12.547
-    9     4391.069 ||    0.030744           0.709        29.971       8.491
- ----------------------------------------------------------------------------
-
-
-
- vib:animation   F
-
- Task  times  cpu:        5.4s     wall:        5.9s
- 
- 
                                 NWChem Input Module
                                 -------------------
- 
- 
- 
- 
+
+
+
+
                    NWChem Nuclear Hessian and Frequency Analysis
                    ---------------------------------------------
- 
+
                        reusing previously generated Hessian
                        ------------------------------------
- 
- 
+
+
   Vibrational analysis via the FX method 
- 
+
   See chapter 2 in "Molecular Vibrations" by Wilson, Decius and Cross
- 
+
   Vib: Default input used 
- 
+
   Nuclear Hessian passed symmetry test 
- 
+
   the string:H               has the user substring of H               
   the string:O               has the user substring of O               
  bas_do_tags_match:debug: no match for tags <H               > and <
@@ -3367,9 +3562,9 @@ bas_do_tags_match:debug: tag H                matched this tag H
  ---------------------------- Atom information ----------------------------
      atom    #        X              Y              Z            mass
  --------------------------------------------------------------------------
-    O        1  0.0000000D+00  0.0000000D+00  2.8432369D-01  1.5994910D+01
-    H        2 -1.4325644D+00  0.0000000D+00 -9.1716871D-01  2.0141018D+00
-    H        3  1.4325644D+00  0.0000000D+00 -9.1716871D-01  2.0141018D+00
+    O        1  0.0000000E+00  0.0000000E+00  2.8432369E-01  1.5994910E+01
+    H        2 -1.4325644E+00  0.0000000E+00 -9.1716871E-01  2.0141018E+00
+    H        3  1.4325644E+00  0.0000000E+00 -9.1716871E-01  2.0141018E+00
  --------------------------------------------------------------------------
 
 
@@ -3382,15 +3577,15 @@ bas_do_tags_match:debug: tag H                matched this tag H
 
               1           2           3           4           5           6           7           8           9
    ----- ----- ----- ----- -----
-    1   5.02629D+01
-    2   0.00000D+00 1.34871D-05
-    3   0.00000D+00 0.00000D+00 3.96939D+01
-    4  -7.08220D+01 0.00000D+00-3.81110D+01 2.17919D+02
-    5   0.00000D+00-4.37229D-07 0.00000D+00 0.00000D+00 2.12973D-05
-    6  -5.93984D+01 0.00000D+00-5.59298D+01 1.37394D+02 0.00000D+00 1.49001D+02
-    7  -7.08220D+01 0.00000D+00 3.81110D+01-1.83388D+01 0.00000D+00 2.99947D+01 2.17919D+02
-    8   0.00000D+00-4.37229D-07 0.00000D+00 0.00000D+00-2.00652D-05 0.00000D+00 0.00000D+00 2.12973D-05
-    9   5.93984D+01 0.00000D+00-5.59298D+01-2.99947D+01 0.00000D+00 8.61259D+00-1.37394D+02 0.00000D+00 1.49001D+02
+    1   5.02629E+01
+    2  -1.48695E-16 2.17895E-07
+    3   3.40775E-14-1.54675E-15 3.96939E+01
+    4  -7.08219E+01 4.11055E-15-3.81109E+01 2.17919E+02
+    5  -1.65379E-15 5.00163E-07-1.05538E-14 1.81214E-15-2.57319E-05
+    6  -5.93984E+01 2.90083E-15-5.59299E+01 1.37394E+02-2.97158E-14 1.49001E+02
+    7  -7.08219E+01-6.40296E-15 3.81109E+01-1.83388E+01 2.14049E-14 2.99947E+01 2.17919E+02
+    8   2.07282E-15 5.00162E-07-9.92386E-15 5.45463E-16 2.43248E-05 4.06828E-15-6.38679E-15-2.57319E-05
+    9   5.93984E+01 1.45801E-15-5.59299E+01-2.99947E+01 8.60320E-15 8.61259E+00-1.37394E+02-1.59703E-14 1.49001E+02
 
 
 
@@ -3401,17 +3596,17 @@ bas_do_tags_match:debug: tag H                matched this tag H
 
                     1           2           3           4           5           6
  
- Frequency         -2.04       -0.39       -0.35        0.18        0.60        1.05
+ Frequency         -1.15       -0.93       -0.21        0.11        0.11        0.11
  
-           1     0.04288     0.22941     0.00000     0.00000     0.00000     0.00000
-           2     0.00000     0.00000     0.00000     0.01257     0.24972     0.00000
-           3     0.00000     0.00000     0.22348     0.00000     0.00000     0.00000
-           4    -0.28956     0.19350     0.00000     0.00000     0.00000     0.00000
-           5     0.00000     0.00000     0.00000     0.49762    -0.02504     0.49825
-           6     0.39637     0.04282     0.22348     0.00000     0.00000     0.00000
-           7    -0.28956     0.19350     0.00000     0.00000     0.00000     0.00000
-           8     0.00000     0.00000     0.00000     0.49762    -0.02504    -0.49825
-           9    -0.39637    -0.04282     0.22348     0.00000     0.00000     0.00000
+           1     0.00000     0.06634     0.00000     0.00001     0.22375     0.00000
+           2     0.00000     0.00000    -0.08765     0.00000     0.00000     0.23417
+           3     0.00000     0.00000     0.00000     0.22348    -0.00001     0.00000
+           4     0.00000    -0.26802     0.00000     0.00001     0.22237     0.00000
+           5    -0.49825     0.00000     0.46663     0.00000     0.00000     0.17466
+           6     0.00000     0.39867     0.00000     0.22348     0.00164     0.00000
+           7     0.00000    -0.26802     0.00000     0.00001     0.22237     0.00000
+           8     0.49825     0.00000     0.46663     0.00000     0.00000     0.17466
+           9     0.00000    -0.39867     0.00000     0.22348    -0.00166     0.00000
 
                     7           8           9
  
@@ -3428,45 +3623,6 @@ bas_do_tags_match:debug: tag H                matched this tag H
            9     0.33914    -0.28860    -0.29885
 
 
-
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||         Derivative Dipole Moments (debye/angs)
-  Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
- ------ ---------- || ------------------ ------------------ -----------------
-    1       -2.038 ||       0.894               0.000             0.000
-    2       -0.386 ||      -0.097               0.000             0.000
-    3       -0.347 ||       0.000               0.000             0.000
-    4        0.178 ||       0.000               1.304             0.000
-    5        0.598 ||       0.000              -0.739             0.000
-    6        1.045 ||       0.000               0.000             0.000
-    7     1584.828 ||       0.000               0.000             0.317
-    8     2990.841 ||       0.000               0.000             0.717
-    9     3211.189 ||      -0.570               0.000             0.000
- ----------------------------------------------------------------------------
-
-
-
-  
-  
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||                 Infra Red Intensities
-  Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
- ------ ---------- || -------------- ----------------- ---------- -----------
-    1       -2.038 ||    0.034617           0.799        33.747      17.999
-    2       -0.386 ||    0.000404           0.009         0.394       0.210
-    3       -0.347 ||    0.000000           0.000         0.000       0.000
-    4        0.178 ||    0.073698           1.700        71.844      38.319
-    5        0.598 ||    0.023649           0.546        23.054      12.296
-    6        1.045 ||    0.000000           0.000         0.000       0.000
-    7     1584.828 ||    0.004352           0.100         4.242       2.263
-    8     2990.841 ||    0.022313           0.515        21.751      11.601
-    9     3211.189 ||    0.014061           0.324        13.707       7.311
- ----------------------------------------------------------------------------
-
-
-
- 
- 
         Vibrational analysis via the FX method 
   --- with translations and rotations projected out ---
   --- via the Eckart algorithm                      ---
@@ -3476,12 +3632,12 @@ bas_do_tags_match:debug: tag H                matched this tag H
  O               >
 bas_do_tags_match:debug: tag H                matched this tag H               
 bas_do_tags_match:debug: tag H                matched this tag H               
- Projected Nuclear Hessian trans-rot subspace norm:8.7495D-31
+ Projected Nuclear Hessian trans-rot subspace norm:1.9201E-31
                          (should be close to zero!) 
 
 
 From the projected analysis 
-The Zero-Point Energy (Kcal/mol) =          11.13520621
+The Zero-Point Energy (Kcal/mol) =          11.13520771
 
 
 
@@ -3494,15 +3650,15 @@ The Zero-Point Energy (Kcal/mol) =          11.13520621
  
  P.Frequency        0.00        0.00        0.00        0.00        0.00        0.00
  
-           1     0.20404     0.00000     0.00000     0.00000    -0.00504    -0.11318
-           2     0.00000     0.00000     0.25004     0.00000     0.00000     0.00000
-           3     0.01519     0.00000     0.00000     0.00000     0.22227     0.01748
-           4    -0.03412     0.00000     0.00000     0.00000     0.02949    -0.34533
-           5     0.00000     0.00000     0.00000     0.70463     0.00000     0.00000
-           6     0.29914     0.00000     0.00000     0.00000     0.18110     0.29428
-           7    -0.03412     0.00000     0.00000     0.00000     0.02949    -0.34533
-           8     0.00000     0.70463     0.00000     0.00000     0.00000     0.00000
-           9    -0.26877     0.00000     0.00000     0.00000     0.26345    -0.25931
+           1     0.23119     0.00000     0.00000     0.00000     0.01311     0.02913
+           2     0.00000     0.25004     0.00000     0.00000     0.00000     0.00000
+           3    -0.00710     0.00000     0.00000     0.00000     0.21931    -0.04236
+           4     0.17835     0.00000     0.00000     0.00000    -0.05115    -0.29472
+           5     0.00000     0.00000     0.70463     0.00000     0.00000     0.00000
+           6     0.05590     0.00000     0.00000     0.00000     0.29593     0.34378
+           7     0.17835     0.00000     0.00000     0.00000    -0.05115    -0.29472
+           8     0.00000     0.00000     0.00000     0.70463     0.00000     0.00000
+           9    -0.07010     0.00000     0.00000     0.00000     0.14269    -0.42849
 
                     7           8           9
  
@@ -3517,80 +3673,41 @@ The Zero-Point Energy (Kcal/mol) =          11.13520621
            7     0.32290     0.37945     0.35632
            8     0.00000     0.00000     0.00000
            9     0.33914    -0.28860    -0.29885
+ vib:animation  F
+
+ Task  times  cpu:        0.0s     wall:        0.0s
 
 
-
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||    Projected Derivative Dipole Moments (debye/angs)
-  Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
- ------ ---------- || ------------------ ------------------ -----------------
-    1        0.000 ||      -0.640               0.000             0.000
-    2        0.000 ||       0.000               0.947             0.000
-    3        0.000 ||       0.000              -0.672             0.000
-    4        0.000 ||       0.000               0.947             0.000
-    5        0.000 ||       0.093               0.000             0.000
-    6        0.000 ||       0.624               0.000             0.000
-    7     1584.828 ||       0.000               0.000             0.317
-    8     2990.841 ||       0.000               0.000             0.717
-    9     3211.189 ||      -0.570               0.000             0.000
- ----------------------------------------------------------------------------
-
-
-
-  
-  
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||           Projected Infra Red Intensities
-  Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
- ------ ---------- || -------------- ----------------- ---------- -----------
-    1        0.000 ||    0.017766           0.410        17.320       9.238
-    2        0.000 ||    0.038881           0.897        37.904      20.216
-    3        0.000 ||    0.019584           0.452        19.091      10.183
-    4        0.000 ||    0.038881           0.897        37.904      20.216
-    5        0.000 ||    0.000374           0.009         0.364       0.194
-    6        0.000 ||    0.016881           0.389        16.457       8.778
-    7     1584.828 ||    0.004352           0.100         4.242       2.263
-    8     2990.841 ||    0.022313           0.515        21.751      11.601
-    9     3211.189 ||    0.014061           0.324        13.707       7.311
- ----------------------------------------------------------------------------
-
-
-
- vib:animation   F
-
- Task  times  cpu:        0.2s     wall:        0.2s
- 
- 
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
   WARNING: old mass redefinitions being replaced
- 
- 
+
+
                    NWChem Nuclear Hessian and Frequency Analysis
                    ---------------------------------------------
- 
+
                        reusing previously generated Hessian
                        ------------------------------------
- 
- 
+
+
   Vibrational analysis via the FX method 
- 
+
   See chapter 2 in "Molecular Vibrations" by Wilson, Decius and Cross
- 
+
   Vib: Default input used 
- 
+
   Nuclear Hessian passed symmetry test 
- 
+
 
 
  ---------------------------- Atom information ----------------------------
      atom    #        X              Y              Z            mass
  --------------------------------------------------------------------------
-    O        1  0.0000000D+00  0.0000000D+00  2.8432369D-01  1.5994910D+01
-    H        2 -1.4325644D+00  0.0000000D+00 -9.1716871D-01  2.0141018D+00
-    H        3  1.4325644D+00  0.0000000D+00 -9.1716871D-01  1.0078250D+00
+    O        1  0.0000000E+00  0.0000000E+00  2.8432369E-01  1.5994910E+01
+    H        2 -1.4325644E+00  0.0000000E+00 -9.1716871E-01  2.0141018E+00
+    H        3  1.4325644E+00  0.0000000E+00 -9.1716871E-01  1.0078250E+00
  --------------------------------------------------------------------------
 
 
@@ -3603,15 +3720,15 @@ The Zero-Point Energy (Kcal/mol) =          11.13520621
 
               1           2           3           4           5           6           7           8           9
    ----- ----- ----- ----- -----
-    1   5.02629D+01
-    2   0.00000D+00 1.34871D-05
-    3   0.00000D+00 0.00000D+00 3.96939D+01
-    4  -7.08220D+01 0.00000D+00-3.81110D+01 2.17919D+02
-    5   0.00000D+00-4.37229D-07 0.00000D+00 0.00000D+00 2.12973D-05
-    6  -5.93984D+01 0.00000D+00-5.59298D+01 1.37394D+02 0.00000D+00 1.49001D+02
-    7  -1.00119D+02 0.00000D+00 5.38763D+01-2.59251D+01 0.00000D+00 4.24026D+01 4.35504D+02
-    8   0.00000D+00-6.18098D-07 0.00000D+00 0.00000D+00-2.83655D-05 0.00000D+00 0.00000D+00 4.25619D-05
-    9   8.39698D+01 0.00000D+00-7.90664D+01-4.24026D+01 0.00000D+00 1.21754D+01-2.74576D+02 0.00000D+00 2.97773D+02
+    1   5.02629E+01
+    2  -1.48695E-16 2.17895E-07
+    3   3.40775E-14-1.54675E-15 3.96939E+01
+    4  -7.08219E+01 4.11055E-15-3.81109E+01 2.17919E+02
+    5  -1.65379E-15 5.00163E-07-1.05538E-14 1.81214E-15-2.57319E-05
+    6  -5.93984E+01 2.90083E-15-5.59299E+01 1.37394E+02-2.97158E-14 1.49001E+02
+    7  -1.00119E+02-9.05168E-15 5.38763E+01-2.59251E+01 3.02595E-14 4.24026E+01 4.35504E+02
+    8   2.93028E-15 7.07064E-07-1.40291E-14 7.71105E-16 3.43873E-05 5.75120E-15-1.27638E-14-5.14242E-05
+    9   8.39698E+01 2.06114E-15-7.90664E+01-4.24026E+01 1.21621E-14 1.21754E+01-2.74576E+02-3.19160E-14 2.97773E+02
 
 
 
@@ -3622,17 +3739,17 @@ The Zero-Point Energy (Kcal/mol) =          11.13520621
 
                     1           2           3           4           5           6
  
- Frequency         -2.36       -0.39       -0.36        0.21        0.60        1.28
+ Frequency         -1.41       -1.07       -0.24        0.11        0.11        0.11
  
-           1     0.03868     0.23389     0.01083     0.00000     0.00000     0.00000
-           2     0.00000     0.00000     0.00000     0.01493     0.24959    -0.00133
-           3    -0.02471    -0.01286     0.22891     0.00000     0.00000     0.00000
-           4    -0.34408     0.19684     0.00819     0.00000     0.00000     0.00000
-           5     0.00000     0.00000     0.00000     0.57799    -0.03672    -0.40135
-           6     0.43166     0.03132     0.23206     0.00000     0.00000     0.00000
-           7    -0.34408     0.19684     0.00819     0.00000     0.00000     0.00000
-           8     0.00000     0.00000     0.00000     0.56664    -0.02954     0.81871
-           9    -0.48108    -0.05703     0.22575     0.00000     0.00000     0.00000
+           1     0.00000     0.06044     0.00000     0.20408    -0.10497     0.00000
+           2    -0.00098     0.00000    -0.08127     0.00000     0.00000     0.23646
+           3     0.00000    -0.02399     0.00000     0.10478     0.20401     0.00000
+           4     0.00000    -0.32411     0.00000     0.20329    -0.10406     0.00000
+           5    -0.40169     0.00000     0.54800     0.00000     0.00000     0.18668
+           6     0.00000     0.43452     0.00000     0.10572     0.20292     0.00000
+           7     0.00000    -0.32411     0.00000     0.20329    -0.10406     0.00000
+           8     0.81839     0.00000     0.53598     0.00000     0.00000     0.18760
+           9     0.00000    -0.48251     0.00000     0.10383     0.20510     0.00000
 
                     7           8           9
  
@@ -3649,54 +3766,15 @@ The Zero-Point Energy (Kcal/mol) =          11.13520621
            9     0.58972     0.03481    -0.59800
 
 
-
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||         Derivative Dipole Moments (debye/angs)
-  Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
- ------ ---------- || ------------------ ------------------ -----------------
-    1       -2.358 ||       1.029               0.000             0.000
-    2       -0.394 ||      -0.100               0.000             0.000
-    3       -0.356 ||      -0.007               0.000             0.000
-    4        0.205 ||       0.000               1.498             0.000
-    5        0.598 ||       0.000              -0.760             0.000
-    6        1.282 ||       0.000               0.565             0.000
-    7     1900.868 ||       0.336               0.000             0.369
-    8     3090.219 ||      -0.360               0.000            -0.584
-    9     4276.287 ||      -0.621               0.000             0.663
- ----------------------------------------------------------------------------
-
-
-
-  
-  
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||                 Infra Red Intensities
-  Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
- ------ ---------- || -------------- ----------------- ---------- -----------
-    1       -2.358 ||    0.045892           1.059        44.738      16.555
-    2       -0.394 ||    0.000430           0.010         0.419       0.155
-    3       -0.356 ||    0.000002           0.000         0.002       0.001
-    4        0.205 ||    0.097316           2.245        94.868      35.106
-    5        0.598 ||    0.025038           0.578        24.408       9.032
-    6        1.282 ||    0.013815           0.319        13.468       4.984
-    7     1900.868 ||    0.010807           0.249        10.536       3.899
-    8     3090.219 ||    0.020391           0.470        19.878       7.356
-    9     4276.287 ||    0.035792           0.826        34.891      12.912
- ----------------------------------------------------------------------------
-
-
-
- 
- 
         Vibrational analysis via the FX method 
   --- with translations and rotations projected out ---
   --- via the Eckart algorithm                      ---
- Projected Nuclear Hessian trans-rot subspace norm:8.7495D-31
+ Projected Nuclear Hessian trans-rot subspace norm:1.9201E-31
                          (should be close to zero!) 
 
 
 From the projected analysis 
-The Zero-Point Energy (Kcal/mol) =          13.25234416
+The Zero-Point Energy (Kcal/mol) =          13.25234603
 
 
 
@@ -3710,13 +3788,13 @@ The Zero-Point Energy (Kcal/mol) =          13.25234416
  P.Frequency        0.00        0.00        0.00        0.00        0.00        0.00
  
            1     0.22902     0.00000     0.00000     0.00000    -0.01470     0.06044
-           2     0.00000     0.00000     0.25004     0.00000     0.00000     0.00000
+           2     0.00000     0.25004     0.00000     0.00000     0.00000     0.00000
            3     0.00008     0.00000     0.00000     0.00000     0.22854     0.03073
            4     0.23085     0.00000     0.00000     0.00000     0.07637    -0.31318
-           5     0.00000     0.00000     0.00000     0.70463     0.00000     0.00000
+           5     0.00000     0.00000     0.70463     0.00000     0.00000     0.00000
            6    -0.00210     0.00000     0.00000     0.00000     0.11996     0.47620
            7     0.23085     0.00000     0.00000     0.00000     0.07637    -0.31318
-           8     0.00000     0.99611     0.00000     0.00000     0.00000     0.00000
+           8     0.00000     0.00000     0.00000     0.99611     0.00000     0.00000
            9     0.00226     0.00000     0.00000     0.00000     0.33712    -0.41473
 
                     7           8           9
@@ -3732,80 +3810,41 @@ The Zero-Point Energy (Kcal/mol) =          13.25234416
            7     0.50572    -0.10621     0.75366
            8     0.00000     0.00000     0.00000
            9     0.58972     0.03481    -0.59800
+ vib:animation  F
+
+ Task  times  cpu:        0.0s     wall:        0.0s
 
 
-
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||    Projected Derivative Dipole Moments (debye/angs)
-  Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
- ------ ---------- || ------------------ ------------------ -----------------
-    1        0.000 ||       0.005               0.000             0.000
-    2        0.000 ||       0.000               1.339             0.000
-    3        0.000 ||       0.000              -0.672             0.000
-    4        0.000 ||       0.000               0.947             0.000
-    5        0.000 ||       0.245               0.000             0.000
-    6        0.000 ||      -1.004               0.000             0.000
-    7     1900.868 ||       0.336               0.000             0.369
-    8     3090.219 ||      -0.360               0.000            -0.584
-    9     4276.287 ||      -0.621               0.000             0.663
- ----------------------------------------------------------------------------
-
-
-
-  
-  
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||           Projected Infra Red Intensities
-  Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
- ------ ---------- || -------------- ----------------- ---------- -----------
-    1        0.000 ||    0.000001           0.000         0.001       0.000
-    2        0.000 ||    0.077703           1.793        75.749      28.031
-    3        0.000 ||    0.019584           0.452        19.091       7.065
-    4        0.000 ||    0.038881           0.897        37.904      14.026
-    5        0.000 ||    0.002598           0.060         2.532       0.937
-    6        0.000 ||    0.043725           1.009        42.625      15.774
-    7     1900.868 ||    0.010807           0.249        10.536       3.899
-    8     3090.219 ||    0.020391           0.470        19.878       7.356
-    9     4276.287 ||    0.035792           0.826        34.891      12.912
- ----------------------------------------------------------------------------
-
-
-
- vib:animation   F
-
- Task  times  cpu:        0.2s     wall:        0.2s
- 
- 
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
   WARNING: old mass redefinitions being replaced
- 
- 
+
+
                    NWChem Nuclear Hessian and Frequency Analysis
                    ---------------------------------------------
- 
+
                        reusing previously generated Hessian
                        ------------------------------------
- 
- 
+
+
   Vibrational analysis via the FX method 
- 
+
   See chapter 2 in "Molecular Vibrations" by Wilson, Decius and Cross
- 
+
   Vib: Default input used 
- 
+
   Nuclear Hessian passed symmetry test 
- 
+
 
 
  ---------------------------- Atom information ----------------------------
      atom    #        X              Y              Z            mass
  --------------------------------------------------------------------------
-    O        1  0.0000000D+00  0.0000000D+00  2.8432369D-01  1.5994910D+01
-    H        2 -1.4325644D+00  0.0000000D+00 -9.1716871D-01  2.0141018D+00
-    H        3  1.4325644D+00  0.0000000D+00 -9.1716871D-01  3.0160493D+00
+    O        1  0.0000000E+00  0.0000000E+00  2.8432369E-01  1.5994910E+01
+    H        2 -1.4325644E+00  0.0000000E+00 -9.1716871E-01  2.0141018E+00
+    H        3  1.4325644E+00  0.0000000E+00 -9.1716871E-01  3.0160493E+00
  --------------------------------------------------------------------------
 
 
@@ -3818,15 +3857,15 @@ The Zero-Point Energy (Kcal/mol) =          13.25234416
 
               1           2           3           4           5           6           7           8           9
    ----- ----- ----- ----- -----
-    1   5.02629D+01
-    2   0.00000D+00 1.34871D-05
-    3   0.00000D+00 0.00000D+00 3.96939D+01
-    4  -7.08220D+01 0.00000D+00-3.81110D+01 2.17919D+02
-    5   0.00000D+00-4.37229D-07 0.00000D+00 0.00000D+00 2.12973D-05
-    6  -5.93984D+01 0.00000D+00-5.59298D+01 1.37394D+02 0.00000D+00 1.49001D+02
-    7  -5.78748D+01 0.00000D+00 3.11438D+01-1.49863D+01 0.00000D+00 2.45113D+01 1.45525D+02
-    8   0.00000D+00-3.57298D-07 0.00000D+00 0.00000D+00-1.63970D-05 0.00000D+00 0.00000D+00 1.42222D-05
-    9   4.85396D+01 0.00000D+00-4.57051D+01-2.45113D+01 0.00000D+00 7.03810D+00-9.17507D+01 0.00000D+00 9.95021D+01
+    1   5.02629E+01
+    2  -1.48695E-16 2.17895E-07
+    3   3.40775E-14-1.54675E-15 3.96939E+01
+    4  -7.08219E+01 4.11055E-15-3.81109E+01 2.17919E+02
+    5  -1.65379E-15 5.00163E-07-1.05538E-14 1.81214E-15-2.57319E-05
+    6  -5.93984E+01 2.90083E-15-5.59299E+01 1.37394E+02-2.97158E-14 1.49001E+02
+    7  -5.78748E+01-5.23242E-15 3.11437E+01-1.49863E+01 1.74918E-14 2.45113E+01 1.45525E+02
+    8   1.69388E-15 4.08726E-07-8.10965E-15 4.45746E-16 1.98779E-05 3.32454E-15-4.26507E-15-1.71836E-05
+    9   4.85396E+01 1.19146E-15-4.57052E+01-2.45113E+01 7.03042E-15 7.03810E+00-9.17507E+01-1.06649E-14 9.95022E+01
 
 
 
@@ -3837,17 +3876,17 @@ The Zero-Point Energy (Kcal/mol) =          13.25234416
 
                     1           2           3           4           5           6
  
- Frequency         -1.84       -0.38       -0.34        0.16        0.60        0.96
+ Frequency         -1.05       -0.84       -0.19        0.11        0.11        0.11
  
-           1     0.04692     0.22481    -0.00831     0.00000     0.00000     0.00000
-           2     0.00000     0.00000     0.00000     0.01102     0.24979    -0.00138
-           3     0.01769     0.00990     0.21782     0.00000     0.00000     0.00000
-           4    -0.25383     0.19011    -0.00622     0.00000     0.00000     0.00000
-           5     0.00000     0.00000     0.00000     0.44225    -0.01649     0.54830
-           6     0.37628     0.05127     0.21533     0.00000     0.00000     0.00000
-           7    -0.25383     0.19011    -0.00622     0.00000     0.00000     0.00000
-           8     0.00000     0.00000     0.00000     0.44755    -0.02174    -0.36164
-           9    -0.34090    -0.03147     0.22032     0.00000     0.00000     0.00000
+           1     0.00000     0.07127     0.00000    -0.10278     0.19278     0.00000
+           2    -0.00079     0.00000    -0.09216     0.00000     0.00000     0.23243
+           3     0.00000     0.01692     0.00000     0.19238     0.10277     0.00000
+           4     0.00000    -0.23148     0.00000    -0.10236     0.19118     0.00000
+           5     0.54814     0.00000     0.41095     0.00000     0.00000     0.16481
+           6     0.00000     0.37790     0.00000     0.19188     0.10468     0.00000
+           7     0.00000    -0.23148     0.00000    -0.10236     0.19118     0.00000
+           8    -0.36182     0.00000     0.41681     0.00000     0.00000     0.16405
+           9     0.00000    -0.34405     0.00000     0.19288     0.10086     0.00000
 
                     7           8           9
  
@@ -3864,54 +3903,15 @@ The Zero-Point Energy (Kcal/mol) =          13.25234416
            9     0.23382    -0.32590    -0.07023
 
 
-
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||         Derivative Dipole Moments (debye/angs)
-  Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
- ------ ---------- || ------------------ ------------------ -----------------
-    1       -1.836 ||      -0.809               0.000             0.000
-    2       -0.378 ||      -0.093               0.000             0.000
-    3       -0.339 ||       0.006               0.000             0.000
-    4        0.159 ||       0.000               1.166             0.000
-    5        0.598 ||       0.000              -0.723             0.000
-    6        0.955 ||       0.000               0.255             0.000
-    7     1463.327 ||      -0.146               0.000             0.299
-    8     2579.306 ||      -0.231               0.000             0.507
-    9     3123.047 ||      -0.455               0.000            -0.411
- ----------------------------------------------------------------------------
-
-
-
-  
-  
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||                 Infra Red Intensities
-  Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
- ------ ---------- || -------------- ----------------- ---------- -----------
-    1       -1.836 ||    0.028334           0.654        27.621      17.268
-    2       -0.378 ||    0.000377           0.009         0.368       0.230
-    3       -0.339 ||    0.000001           0.000         0.001       0.001
-    4        0.159 ||    0.058969           1.360        57.486      35.938
-    5        0.598 ||    0.022651           0.523        22.082      13.805
-    6        0.955 ||    0.002810           0.065         2.739       1.712
-    7     1463.327 ||    0.004791           0.111         4.671       2.920
-    8     2579.306 ||    0.013455           0.310        13.117       8.200
-    9     3123.047 ||    0.016289           0.376        15.879       9.927
- ----------------------------------------------------------------------------
-
-
-
- 
- 
         Vibrational analysis via the FX method 
   --- with translations and rotations projected out ---
   --- via the Eckart algorithm                      ---
- Projected Nuclear Hessian trans-rot subspace norm:8.7495D-31
+ Projected Nuclear Hessian trans-rot subspace norm:1.9201E-31
                          (should be close to zero!) 
 
 
 From the projected analysis 
-The Zero-Point Energy (Kcal/mol) =          10.24692214
+The Zero-Point Energy (Kcal/mol) =          10.24692359
 
 
 
@@ -3924,15 +3924,15 @@ The Zero-Point Energy (Kcal/mol) =          10.24692214
  
  P.Frequency        0.00        0.00        0.00        0.00        0.00        0.00
  
-           1     0.06540     0.21785     0.00000     0.00000     0.00000     0.03280
-           2     0.00000     0.00000     0.00000     0.25004     0.00000     0.00000
-           3    -0.08238    -0.00006     0.00000     0.00000     0.00000     0.20266
-           4    -0.20523     0.21885     0.00000     0.00000     0.00000    -0.10292
-           5     0.00000     0.00000     0.00000     0.00000     0.70463     0.00000
-           6     0.24029    -0.00126     0.00000     0.00000     0.00000     0.36447
-           7    -0.20523     0.21885     0.00000     0.00000     0.00000    -0.10292
-           8     0.00000     0.00000     0.57581     0.00000     0.00000     0.00000
-           9    -0.40506     0.00115     0.00000     0.00000     0.00000     0.04084
+           1     0.21785     0.00000     0.00000     0.00000     0.03280     0.06540
+           2     0.00000     0.25004     0.00000     0.00000     0.00000     0.00000
+           3    -0.00006     0.00000     0.00000     0.00000     0.20266    -0.08238
+           4     0.21885     0.00000     0.00000     0.00000    -0.10292    -0.20523
+           5     0.00000     0.00000     0.70463     0.00000     0.00000     0.00000
+           6    -0.00126     0.00000     0.00000     0.00000     0.36447     0.24029
+           7     0.21885     0.00000     0.00000     0.00000    -0.10292    -0.20523
+           8     0.00000     0.00000     0.00000     0.57581     0.00000     0.00000
+           9     0.00115     0.00000     0.00000     0.00000     0.04084    -0.40506
 
                     7           8           9
  
@@ -3947,54 +3947,15 @@ The Zero-Point Energy (Kcal/mol) =          10.24692214
            7     0.24792     0.40543     0.07146
            8     0.00000     0.00000     0.00000
            9     0.23382    -0.32590    -0.07023
+ vib:animation  F
+
+ Task  times  cpu:        0.0s     wall:        0.0s
 
 
-
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||    Projected Derivative Dipole Moments (debye/angs)
-  Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
- ------ ---------- || ------------------ ------------------ -----------------
-    1        0.000 ||       0.728               0.000             0.000
-    2        0.000 ||       0.003               0.000             0.000
-    3        0.000 ||       0.000               0.774             0.000
-    4        0.000 ||       0.000              -0.672             0.000
-    5        0.000 ||       0.000               0.947             0.000
-    6        0.000 ||      -0.365               0.000             0.000
-    7     1463.327 ||      -0.146               0.000             0.299
-    8     2579.306 ||      -0.231               0.000             0.507
-    9     3123.047 ||      -0.455               0.000            -0.411
- ----------------------------------------------------------------------------
-
-
-
-  
-  
- ----------------------------------------------------------------------------
- Normal Eigenvalue ||           Projected Infra Red Intensities
-  Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
- ------ ---------- || -------------- ----------------- ---------- -----------
-    1        0.000 ||    0.022942           0.529        22.365      13.982
-    2        0.000 ||    0.000000           0.000         0.000       0.000
-    3        0.000 ||    0.025965           0.599        25.312      15.824
-    4        0.000 ||    0.019584           0.452        19.091      11.935
-    5        0.000 ||    0.038881           0.897        37.904      23.696
-    6        0.000 ||    0.005769           0.133         5.624       3.516
-    7     1463.327 ||    0.004791           0.111         4.671       2.920
-    8     2579.306 ||    0.013455           0.310        13.117       8.200
-    9     3123.047 ||    0.016289           0.376        15.879       9.927
- ----------------------------------------------------------------------------
-
-
-
- vib:animation   F
-
- Task  times  cpu:        0.2s     wall:        0.2s
- 
- 
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -4005,11 +3966,11 @@ The Zero-Point Energy (Kcal/mol) =          10.24692214
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 3956     3956     2.06e+04 8296     1.11e+04   18        0        0     
-bytes total:             2.00e+06 7.98e+05 8.18e+05 7.20e+02 0.00e+00 0.00e+00
+calls: 2589     2589     1.81e+04 8139     9337      170        0        0     
+bytes total:             1.87e+06 7.36e+05 9.97e+05 5.29e+04 0.00e+00 0.00e+00
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 5448 bytes
- 
+Max memory consumed for GA by this process: 36000 bytes
+
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -4018,10 +3979,10 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        34	        32
+	maximum number of blocks	        45	        36
 	current total bytes		         0	         0
-	maximum total bytes		   1059760	  15464636
-	maximum total K-bytes		      1060	     15465
+	maximum total bytes		   1894036	  15465308
+	maximum total K-bytes		      1895	     15466
 	maximum total M-bytes		         2	        16
 
 
@@ -4034,7 +3995,7 @@ MA usage statistics:
 
             High Performance Computational Chemistry Group, "NWChem, A
             Computational Chemistry Package for Parallel Computers, 
-            Version 3.3.1" (1999), Pacific Northwest National Laboratory,
+            Version 4.0.1" (2001), Pacific Northwest National Laboratory,
             Richland, Washington 99352-0999, USA.
 
 
@@ -4044,17 +4005,15 @@ MA usage statistics:
             Please use the following citation when publishing results
             obtained with NWChem:
 
-            Anchell, J.; Apra, E.; Bernholdt, D.; Borowski, P.; Bylaska, E.; 
-            Clark, T.; Clerc, D.; Dachsel, H.; de Jong, W.A.; Deegan, M.; 
-            Dupuis, M.; Dyall, K.; Elwood, D.; Fann, G.; Fruchtl, H.; 
-            Glendenning, E.; Gutowski, M.; Harrison, R.; Hess, A.; 
-            Jaffe, J.; Johnson, B.; Ju, J.; Kendall, R.; Kobayashi, R.; 
-            Kutteh, R.; Lin, Z.; Littlefield, R.; Long, X.; Meng, B.; 
-            Nichols, J.; Nieplocha, J.; Rendall, A.; Rosing, M.;Sandrone, G; 
-            Stave, M.; Straatsma, T.;Taylor, H.; Thomas, G.; van Lenthe, J.; 
-            Windus, T; Wolinski, K.; Wong, A.; Zhang, Z.; "NWChem, A 
-            Computational Chemistry Package for Parallel Computers, 
-            Version 3.3.1" (1999),
+            R. J. Harrison, J. A. Nichols, T. P. Straatsma, M. Dupuis, E. J. Bylaska,
+            G. I. Fann, T. L. Windus, E. Apra, J. Anchell, D. Bernholdt, P. Borowski,
+            T. Clark, D. Clerc, H. Dachsel, B. de Jong, M. Deegan, K. Dyall, D. Elwood,
+            H. Fruchtl, E. Glendenning, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,
+            R. Kendall, R. Kobayashi, R, Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+            J. Nieplocha, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor, G. Thomas,
+            J. van Lenthe, K. Wolinski, A. Wong, and Z. Zhang,
+            "NWChem, A Computational Chemistry Package for Parallel Computers, 
+            Version 4.0.1" (2001),
                       Pacific Northwest National Laboratory,
                       Richland, Washington 99352-0999, USA.
 
@@ -4074,4 +4033,4 @@ MA usage statistics:
 
 
 
- Total times  cpu:       10.6s     wall:       13.5s
+ Total times  cpu:        1.9s     wall:        2.1s
