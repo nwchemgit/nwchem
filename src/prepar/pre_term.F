@@ -2,7 +2,7 @@
      + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_term.F,v 1.11 2001-11-15 16:45:57 d3j191 Exp $
+c $Id: pre_term.F,v 1.12 2003-07-17 19:38:57 d3j191 Exp $
 c
 c     function to determine the terminal segments
 c
@@ -14,7 +14,7 @@ c
       external pre_sgmfil,pre_atmscn
 c
       integer lfnout,lfnsgm,mseq,nseq,mlnk,nlnk
-      integer lseq(4,mseq),llnk(3,mlnk)
+      integer lseq(6,mseq),llnk(3,mlnk)
       character*10 cseq(mseq)
       character*4 clnk(2,mlnk)
       character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c

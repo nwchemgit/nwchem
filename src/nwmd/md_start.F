@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.142 2003-01-14 16:31:09 d3j191 Exp $
+c $Id: md_start.F,v 1.143 2003-07-17 19:39:20 d3j191 Exp $
 c
       implicit none
 c
@@ -19,13 +19,14 @@ c     start the spacial decomposition API
 c     -----------------------------------
 c
       if(.not.lqmd) then
-      call sp_start(lfntop,filtop,lfnrst,filrst,lfnsyn,filsyn,
+      call sp_start(lfnout,lfntop,filtop,lfnrst,filrst,lfnsyn,filsyn,
      + nfsync,rshort,rlong,zero,rsgm,
      + npx,npy,npz,nbx,nby,nbz,
      + npbtyp,nbxtyp,box,vlat,lpbc,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,lqmd,
-     + iguide,lfndbg,idebug,projct,mbbreq,nserie,isload,ireset,icntrl)
+     + iguide,lfndbg,idebug,projct,mbbreq,nserie,isload,ireset,icntrl,
+     + nseq,i_lseq)
       endif
 c
 c     start the analysis API
@@ -45,7 +46,8 @@ c
      + tmprlx,tmsrlx,prsrlx,scaleq,facpmf,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
-     + npener,icntrl,nbias,mropt,includ,ltwin)
+     + npener,icntrl,nbias,mropt,includ,ltwin,
+     + nseq,i_lseq,nfhop,rhop,lfnhop,filhop)
 c
       if(mlambd.gt.0.and.ilambd.gt.0.and.ilambd.le.mlambd)
      + call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
@@ -329,6 +331,7 @@ c
       filcmd=filnam(1:ibl)//'.cmd'
       filtri=filnam(1:ibl)//'.tri'
       filpmf=filnam(1:ibl)//'.pmf'
+      filhop=filnam(1:iun)//'.hop'
 c
 c     set logical file numbers
 c
@@ -373,6 +376,7 @@ c
       lfncmd=47
       lfnpmf=48
       lfntri=49
+      lfnhop=50
 c
 c     set defaults
 c
@@ -903,6 +907,10 @@ c     + call errquit('md_rtdbin: rtdb_get failed',92)
      + call errquit('md_rtdbin: rtdb_get failed',96)
       if(.not.rtdb_get(irtdb,'md:icomm',mt_int,1,icomm))
      + call errquit('md_rtdbin: rtdb_get failed',97)
+      if(.not.rtdb_get(irtdb,'md:nfhop',mt_int,1,nfhop))
+     + call errquit('md_rtdbin: rtdb_get failed',98)
+      if(.not.rtdb_get(irtdb,'md:rhop',mt_dbl,1,rhop))
+     + call errquit('md_rtdbin: rtdb_get failed',98)
       if(.not.rtdb_get(irtdb,'md:iguide',mt_int,1,iguide))
      + call errquit('md_rtdbin: rtdb_get failed',98)
       if(.not.rtdb_get(irtdb,'md:nopack',mt_int,1,nopack))
@@ -1633,10 +1641,12 @@ c
       if(loadb.eq.1) write(lfnout,2002)
  2002 format(' Redistribution of inter-processor box pairs')
       if(loadb.eq.2) write(lfnout,2003) factld
- 2003 format(' Resizing of processor domains: smallest scaling ',f12.6)
+ 2003 format(' Resizing of processor domains: smallest scaling ',
+     + t55,f12.6)
       if(loadb.eq.3) write(lfnout,2004) lbpair,factld
  2004 format(' Redistribution of inter-processor box pairs: retry ',
-     + i5,/,' Resizing of processor domains: smallest scaling ',f12.6)
+     + t55,i5,/,' Resizing of processor domains: smallest scaling ',
+     + t55,f12.6)
       if(isload.gt.0) write(lfnout,2104)
  2104 format(' Resizing in z-dimension only')
 c
@@ -1657,6 +1667,18 @@ c
  2010 format(/,' Time for I/O counted at each step')
       if(ioload.eq.1) write(lfnout,2011)
  2011 format(/,' Experimental load balancing')
+c
+      if(nfhop.gt.0) then
+c
+      write(lfnout,3000)
+ 3000 format(/,' QHOP PROTON HOPPING',/)
+c
+      write(lfnout,3001) nfhop
+ 3001 format(' Frequency hopping attempts ',t55,i5)
+      write(lfnout,3002) rhop
+ 3002 format(' Donor-acceptor cutoff distance',t55,f12.6)
+c
+      endif
 c
       endif
 c

@@ -6,7 +6,7 @@
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst,his)
 c
-c $Id: pre_mkseq.F,v 1.38 2001-11-06 06:15:20 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.39 2003-07-17 19:38:57 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -151,7 +151,7 @@ c                  2       : index into unique segment list
 c                  3       : index of first atom of sequence entry
 c                  4       : molecule number
 c
-      if(.not.ma_push_get(mt_int,4*mseq,'lseq',l_lseq,i_lseq))
+      if(.not.ma_push_get(mt_int,6*mseq,'lseq',l_lseq,i_lseq))
      + call errquit('Memory allocation failed for lseq',9999)
 c
 c     char*5  cseq(1,mseq) : name of sequence entry on pdb

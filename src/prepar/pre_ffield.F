@@ -1,16 +1,17 @@
       logical function pre_ffield(idir,lfnpar,filpar,lfnout,
      + q14fac,releps,ffield,
      + icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
-     + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
-     + limp,rimp,mimp,nimp)
+     + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
+     + ldih,nfdih,kdih,rdih,mdih,ndih,
+     + limp,kimp,rimp,mimp,nimp,nparms,mparms)
 c
-c $Id: pre_ffield.F,v 1.19 2001-10-18 04:06:49 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.20 2003-07-17 19:38:56 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
-      integer idir,lfnpar,lfnout
+      integer idir,lfnpar,lfnout,nparms,mparms
       character*255 filpar
       real*8 q14fac,releps
       character*80 ffield
@@ -19,20 +20,20 @@ c
       character*6 catt(2,matt)
       real*8 patt(4,2,matt,matt),ratt(matt)
       integer matm,natm
-      integer latm(9,matm)
-      character*6 catm(4,matm)
+      integer latm(11,matm)
+      character*6 catm(mparms,matm)
       integer mbnd,nbnd
       integer lbnd(4,mbnd)
-      real*8 rbnd(6,mbnd)
+      real*8 rbnd(nparms,2,mbnd)
       integer mang,nang
       integer lang(5,mang)
-      real*8 rang(6,mang)
+      real*8 rang(nparms,2,mang)
       integer mdih,ndih
-      integer ldih(9,mdih),kdih(6,3,mdih)
-      real*8 rdih(6,6,mdih)
+      integer ldih(6,mdih),nfdih(nparms,mdih),kdih(6,nparms,mdih)
+      real*8 rdih(6,nparms,2,mdih)
       integer mimp,nimp
-      integer limp(9,mimp)
-      real*8 rimp(6,mimp)
+      integer limp(6,mimp),kimp(nparms,mdih)
+      real*8 rimp(nparms,2,mimp)
 c
       integer i,j,length,nt,ng,latnum,mult,ifnd,nd
       character*80 card
@@ -243,14 +244,14 @@ c
       do 10 i=1,nbnd
 c      if(lbnd(3,i).le.0.and.lbnd(4,i).eq.0) then
       if(lbnd(3,i).le.0) then
-      do 11 j=1,3
+      do 11 j=1,nparms
       if(iand(mask(j),lbnd(4,i)).eq.0) then
       btyp1(1:5)=catm(1+j,lbnd(1,i))(1:5)
       btyp2(1:5)=catm(1+j,lbnd(2,i))(1:5)
       if((atyp1.eq.btyp1.and.atyp2.eq.btyp2).or.
      + (atyp2.eq.btyp1.and.atyp1.eq.btyp2)) then
-      rbnd(j*2-1,i)=p1
-      rbnd(j*2,i)=p2
+      rbnd(j,1,i)=p1
+      rbnd(j,2,i)=p2
       lbnd(3,i)=-(ior(iabs(lbnd(3,i)),2**(j-1)))
       endif
       endif
@@ -287,16 +288,19 @@ c
       do 13 i=1,nang
 c      if(lang(4,i).le.0.and.lang(5,i).eq.0) then
       if(lang(4,i).le.0) then
-      do 14 j=1,3
+      do 14 j=1,nparms
       if(iand(mask(j),lang(5,i)).eq.0) then
       btyp1(1:5)=catm(1+j,lang(1,i))(1:5)
       btyp2(1:5)=catm(1+j,lang(2,i))(1:5)
       btyp3(1:5)=catm(1+j,lang(3,i))(1:5)
       if(atyp2.eq.btyp2.and.((atyp1.eq.btyp1.and.atyp3.eq.btyp3).or.
      + (atyp3.eq.btyp1.and.atyp1.eq.btyp3))) then
-      rang(j*2-1,i)=p1
-      rang(j*2,i)=p2
+      rang(j,1,i)=p1
+      rang(j,2,i)=p2
       lang(4,i)=-(ior(iabs(lang(4,i)),2**(j-1)))
+c      write(*,'(6i5,6a6)') lang(1,i),lang(2,i),lang(3,i),lang(4,i),
+c     + lang(5,i),j,atyp1,atyp2,atyp3,btyp1,btyp2,btyp3
+c      write(*,'(4i5,3a6)') (lang(j,i),j=1,4),atyp1,atyp2,atyp3
       endif
       endif
    14 continue
@@ -336,7 +340,7 @@ c
       do 16 i=1,ndih
 c      if(ldih(5,i).le.0.and.ldih(6,i).eq.0) then
       if(ldih(5,i).le.0) then
-      do 17 j=1,3
+      do 17 j=1,nparms
       if(iand(mask(j),ldih(6,i)).eq.0) then
       btyp1(1:5)=catm(1+j,ldih(1,i))(1:5)
       btyp2(1:5)=catm(1+j,ldih(2,i))(1:5)
@@ -349,10 +353,10 @@ c
      + ((atyp1.eq.'      '.or.atyp1.eq.btyp4).and.
      + atyp2.eq.btyp3.and.atyp3.eq.btyp2.and.
      + (atyp4.eq.'      '.or.atyp4.eq.btyp1))) then
-      ldih(6+j,i)=nd
-      kdih(ldih(6+j,i),j,i)=mult
-      rdih(ldih(6+j,i),2*j-1,i)=p1 
-      rdih(ldih(6+j,i),2*j,i)=p2 
+      nfdih(j,i)=nd
+      kdih(nfdih(j,i),j,i)=mult
+      rdih(nfdih(j,i),j,1,i)=p1 
+      rdih(nfdih(j,i),j,2,i)=p2 
       ldih(5,i)=-(ior(iabs(ldih(5,i)),2**(j-1)))
       endif
       endif
@@ -397,7 +401,7 @@ c
       do 19 i=1,nimp
 c      if(limp(5,i).le.0.and.limp(6,i).eq.0) then
       if(limp(5,i).le.0) then
-      do 20 j=1,3
+      do 20 j=1,nparms
       if(iand(mask(j),limp(6,i)).eq.0) then
       btyp1(1:5)=catm(1+j,limp(1,i))(1:5)
       btyp2(1:5)=catm(1+j,limp(2,i))(1:5)
@@ -474,9 +478,9 @@ c
       endif
 c
       if(ifnd.ne.0) then
-      limp(6+j,i)=mult
-      rimp(2*j-1,i)=ifnd*p1 
-      rimp(2*j,i)=p2 
+      kimp(j,i)=mult
+      rimp(j,1,i)=ifnd*p1 
+      rimp(j,2,i)=p2 
       limp(5,i)=-(ior(iabs(limp(5,i)),2**(j-1)))
       endif
       endif

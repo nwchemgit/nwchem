@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.161 2003-04-04 16:56:03 d3j191 Exp $
+c $Id: md_main.F,v 1.162 2003-07-17 19:39:19 d3j191 Exp $
 c
       implicit none
 c
@@ -54,6 +54,7 @@ c
       integer i_wws,l_wws
 c
       lpair=.true.
+      lhop=.false.
       llong=ltwin
 c
 c     center of mass coordinates
@@ -143,6 +144,7 @@ c
       endif
 c
       lpair=.true.
+      lhop=.false.
       llong=ltwin
 c
 c     read frame from trajectory file
@@ -326,6 +328,7 @@ c
       return
 c
       lpair=.true.
+      lhop=.false.
 c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
@@ -373,6 +376,7 @@ c
       isdit=0
 c
       lpair=.true.
+      lhop=.false.
 c
 c     atomic forces and potential energies
 cl forces
@@ -459,6 +463,7 @@ c
       isdit=isdit+1
 c
       lpair=frequency(isdit,nfpair)
+      lhop=.false.
       llong=(frequency(isdit,nflong).or.lpair).and.ltwin
 c
 c     atomic forces and potential energies
@@ -574,6 +579,7 @@ c
       beta1=zero
       icgit=0
       lpair=.true.
+      lhop=.false.
 c
       call timer_start(1)
 c
@@ -689,6 +695,7 @@ c
       if(icgit.eq.(icgit/ncgcy)*ncgcy) beta1=zero
       icgit=icgit+1
       lpair=frequency(icgit,nfpair)
+      lhop=.false.
 c
       ypa=zero
       pnorm=zero
@@ -763,6 +770,7 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       lpair=.false.
+      lhop=.false.
 c
       beta3=beta2*pnorm/fnorm
 c
@@ -1053,6 +1061,7 @@ c
       external frequency
 c
       character*1 mdt
+      logical ltmp
 c
       lfirst=.true.
       lxw=.false.
@@ -1063,6 +1072,8 @@ c
 c
 c     equilibration
 c
+      ltmp=lhop
+      lhop=.false.
       lequi=.true.
       lprpmf=.false.
       do 1 iequi=kequi+1,mequi
@@ -1080,6 +1091,7 @@ c
 c
 c     data gathering
 c
+      lhop=ltmp
       lequi=.false.
       lprpmf=iprpmf.ne.0
       if(lprpmf) lfnpmf=-iabs(lfnpmf)
@@ -1548,6 +1560,7 @@ c
       endif
 c
       lpair=lfirst.or.frequency(mdstep,nfpair)
+      lhop=frequency(mdstep,nfhop)
       llong=(lfirst.or.frequency(mdstep,nflong).or.lpair).and.ltwin
 c
       call timer_stop(10)
@@ -1680,7 +1693,7 @@ c
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_vst),
      + dbl_mb(i_fs),nsaloc,int_mb(i_iw+(lwgmn-1)*mwm),
-     + int_mb(i_is+(lsgan-1)*msa),tmpext)
+     + int_mb(i_is+(lsgan-1)*msa),int_mb(i_is+(lssgm-1)*msa),tmpext)
       call timer_stop(58)
 c
 c     shake
@@ -1902,16 +1915,16 @@ c
       if(lpair) call md_zinit(int_mb(i_iwz),int_mb(i_isz))
 c
       call timer_stop(16)
-      call timer_start(17)
 c
       if(lqmd) then
+      call timer_start(17)
       call qmd_forces(irtdb,int_mb(i_is+(lsgan-1)*msa),
      + int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_fs),msa,
      + nsaloc,uqmd,lesp)
       uqmd=uqmd-uqmatm
+      call timer_stop(17)
       return
       endif
-      call timer_stop(17)
 c
       call timer_start(18)
       call ga_sync()
@@ -1929,27 +1942,30 @@ c
       call ga_sync()
       call timer_stop(20)
 c
+      if(ncoll.gt.0) then
       call timer_start(21)
-      if(ncoll.gt.0) call cf_collapse(ncoll,fcoll,nsaloc,nwmloc,
-     + isl(1,lsmol),
+      call cf_collapse(ncoll,fcoll,nsaloc,nwmloc,isl(1,lsmol),
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_fs),
      + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_fw))
       call timer_stop(21)
+      endif
+      if(ifield.gt.0) then
       call timer_start(22)
-      if(ifield.gt.0) call cf_extern(stime,nsaloc,dbl_mb(i_fs),
+      call cf_extern(stime,nsaloc,dbl_mb(i_fs),
      + isl(1,lsct1),nwmloc,dbl_mb(i_fw))
       call timer_stop(22)
+      endif
       call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
      + isl(1,lsatt),isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),
      + dbl_mb(i_ess),dbl_mb(i_fss),lfnpmf,lprpmf,iprpmf,
      + npmf.eq.1.or.lpmfc)
 c
-      call timer_start(32)
       if(ipolt.gt.0) then
+      call timer_start(32)
       call md_induce(iwl,isl,xw,xwm,xs,dbl_mb(i_pw),
      + dbl_mb(i_pwp),dbl_mb(i_ps),dbl_mb(i_psp))
-      endif
       call timer_stop(32)
+      endif
 c
       if(lpme.and.llong) then
       if(lpert2) then
@@ -2002,15 +2018,15 @@ c
       call sp_final(fw,fs,lpair,int_mb(i_iwz),int_mb(i_isz))
       call timer_stop(54)
 c
-      call timer_start(55)
       if(lqmmm) then
+      call timer_start(55)
       call qmmm_forces(irtdb,mwm,nwmloc,mwa,nwa,int_mb(i_iwz),xw,fw,
      + msa,nsaloc,int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
      + int_mb(i_is+(lsct1-1)*msa),int_mb(i_isz),xs,fs,uqmmm,
      + linkatm,nobq,lesp)
       uqmmm=uqmmm-uqmatm
-      endif
       call timer_stop(55)
+      endif
 c
       if(ltwin) then
       do 1 j=1,3
@@ -2096,8 +2112,8 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
-      logical sp_local
-      external sp_local
+      logical sp_local,cf_hopping
+      external sp_local,cf_hopping
 c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
@@ -2108,19 +2124,31 @@ c
       integer nbbl
       integer itcom1,itforc,itcom2
 c
+      logical lforce,ldone
+c
       local=.true.
-      itcom1=44
-      itforc=45
-      itcom2=46
+      itcom1=42
+      itforc=43
+      itcom2=44
 c
       call sp_nbbl(nbbl)
+c
+      lforce=.true.
+      ldone=.true.
+c
+      if(lpair.and.lhop) then
+      lforce=.false.
+      ldone=.false.
+      endif
+c
+  100 continue
 c
       do 1 ibbl=1,nbbl
 c
       if(local.and..not.sp_local(ibbl)) then
-      itcom1=47
-      itforc=48
-      itcom2=49
+      itcom1=45
+      itforc=46
+      itcom2=47
       local=.false.
       endif
 c
@@ -2145,9 +2173,10 @@ c
      + int_mb(i_iwz),iwfr,iwto,jwfr,jwto,xs,dbl_mb(i_xsm),fs,
      + dbl_mb(i_zs),isl(1,lsgan),isl(1,lsatt),isl(1,lsdyn),isl(1,lsgrp),
      + isl(1,lsfrc),isl(1,lsmol),isl(1,lssss),isl(1,lsct1),isl(1,lsct2),
-     + isl(1,lsct3),int_mb(i_isz),isfr,isto,jsfr,jsto,lpbc,lhandl,
+     + isl(1,lsct3),isl(1,lssgm),isl(1,lshop),int_mb(i_isz),
+     + isfr,isto,jsfr,jsto,lpbc,lhandl,
      + .true.,eww,dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_fss),
-     + dbl_mb(i_esa))
+     + dbl_mb(i_esa),int_mb(i_lseq),lforce)
       else
       call forcep(lself,lpbcs,xw,xwm,fw,dbl_mb(i_pw),dbl_mb(i_pwp),zw,
      + dbl_mb(i_rtos),iwl(1,lwdyn),int_mb(i_iwz),iwfr,iwto,jwfr,jwto,xs,
@@ -2169,6 +2198,25 @@ c
 c
       if(lpme.and.llong) then
       call pme_forces(fw(1,1,1,2),nwmloc,fs(1,1,2),isl(1,lsct1),nsaloc)
+      endif
+c
+      if(.not.ldone) then
+      if(cf_hopping(isl(1,lssgm),isl(1,lsgan),isl(1,lshop),xs,nsaloc))
+     + then
+      if(lpair) then
+      lpair=.false.
+      lforce=.true.
+      ldone=.false.
+      else
+      lpair=.true.
+      lforce=.true.
+      ldone=.true.
+      call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
+      endif
+      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
+     + dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esa))
+      goto 100
+      endif
       endif
 c
       return
@@ -2422,7 +2470,7 @@ c
       call sp_wrtrst(lfn,fil,lveloc,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_gw),
      + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
-     + dbl_mb(i_gs),dbl_mb(i_xscr),projct)
+     + dbl_mb(i_gs),dbl_mb(i_xscr),projct,int_mb(i_lseq))
 c
       call md_wtrest(lfn)
 c
@@ -2545,7 +2593,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.161 2003-04-04 16:56:03 d3j191 Exp $
+c $Id: md_main.F,v 1.162 2003-07-17 19:39:19 d3j191 Exp $
 c
       implicit none
 c

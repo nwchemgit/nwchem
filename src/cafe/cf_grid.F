@@ -1,5 +1,5 @@
       subroutine cf_alpha
-c $Id: cf_grid.F,v 1.15 2002-12-20 19:50:01 bert Exp $
+c $Id: cf_grid.F,v 1.16 2003-07-17 19:44:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -79,7 +79,7 @@ c
       real*8 xw(mwm,3,mwa),xs(msa,3)
       real*8 yw(mwm,3,mwa),ys(msa,3)
       integer iwq(mwa),isq(msa)
-      real*8 chg(mqt,mqp,6),theta(morder,3,*),dtheta(morder,3,*)
+      real*8 chg(mqt,mqp,mset),theta(morder,3,*),dtheta(morder,3,*)
       integer knode(np),kfrom(np)
       logical lsldo(np,*)
       real*8 grid(ngrx,ngry,mgz)
@@ -443,7 +443,7 @@ c
       integer nwmloc,nsaloc,node,mgz
       real*8 yw(mwm,3,mwa),fw(mwm,3,mwa),ys(msa,3),fs(msa,3)
       integer iwq(mwa),isq(msa)
-      real*8 chg(mqt,mqp,6),theta(morder,3,*),dtheta(morder,3,*)
+      real*8 chg(mqt,mqp,mset),theta(morder,3,*),dtheta(morder,3,*)
       integer knode(*),kfrom(*)
       logical lsldo(*)
       real*8 grid(ngrx,ngry,mgz)
@@ -566,7 +566,7 @@ c
       integer ipset,nwmloc,nsaloc
       real*8 xw(mwm,3,mwa),xs(msa,3),ecorr
       integer isq(msa),iwq(mwa)
-      real*8 chg(mqt,mqp,6)
+      real*8 chg(mqt,mqp,mset)
 c
       integer i
 c
@@ -581,7 +581,7 @@ c
 c
       if(nsaloc.gt.0) then
       do 2 i=1,nsaloc
-      ecorr=ecorr-chg(isq(i),1,iset)*chg(isq(i),1,ipset)
+      ecorr=ecorr-chg(isq(i),1,ipset)*chg(isq(i),1,ipset)
     2 continue
       endif
 c

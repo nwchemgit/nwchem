@@ -1,5 +1,5 @@
       subroutine cf_finish()
-c $Id: cf_finish.F,v 1.16 2003-01-14 16:31:15 d3j191 Exp $
+c $Id: cf_finish.F,v 1.17 2003-07-17 19:44:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -28,6 +28,16 @@ c
      + call errquit('Failed to deallocate ipmf',0)
       endif
 c
+      if(nhop.gt.0) then
+      if(.not.ma_pop_stack(l_pda))
+     + call errquit('Failed to deallocate pda',0)
+      if(.not.ma_pop_stack(l_uda))
+     + call errquit('Failed to deallocate uda',0)
+      if(.not.ma_pop_stack(l_rda))
+     + call errquit('Failed to deallocate rda',0)
+      if(.not.ma_pop_stack(l_lda))
+     + call errquit('Failed to deallocate lda',0)
+      endif
       if(ndrs.gt.0) then
       if(.not.ma_pop_stack(l_xdrs))
      + call errquit('Failed to deallocate xdrs',0)

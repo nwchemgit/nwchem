@@ -1,11 +1,11 @@
-      logical function pre_mktop(lfnout,ffield,
+      logical function pre_mktop(lfnout,title,ffield,nparms,mparms,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,
-     + lfnmod,filmod,lfnmat,
+     + lfnmod,filmod,lfnmat,lfnhdb,lfnhop,filhop,
      + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + par_s,par_x,par_q,par_u,par_t,par_c,
-     + ignore,slvnam)
+     + ignore,slvnam,itopol)
 c
-c $Id: pre_mktop.F,v 1.31 2002-07-29 19:00:04 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.32 2003-07-17 19:38:57 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -32,8 +32,10 @@ c
       external pre_nonbon,pre_modify
 c
       integer lfnout,lfnseq,lfntop,lfnsgm,lfnpar,lfnmod,ignore,lfnmat
-      character*80 ffield
-      character*255 filseq,filtop,filmod
+      integer lfnhdb,lfnhop
+      integer nparms,mparms,itopol
+      character*80 ffield,title(2,3)
+      character*255 filseq,filtop,filmod,filhop
       character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
       character*255 par_s,par_x,par_q,par_u,par_t,par_c
       character*3 slvnam
@@ -54,10 +56,10 @@ c
       integer l_lang,i_lang,l_rang,i_rang
 c
       integer mdih,ndih
-      integer l_ldih,i_ldih,l_kdih,i_kdih,l_rdih,i_rdih
+      integer l_ldih,i_ldih,l_kdih,i_kdih,l_rdih,i_rdih,l_ndih,i_ndih
 c
       integer mimp,nimp
-      integer l_limp,i_limp,l_rimp,i_rimp
+      integer l_limp,i_limp,l_rimp,i_rimp,l_kimp,i_kimp
 c
       integer matt,natt,mats,nats
       integer l_latt,i_latt,l_catt,i_catt,l_patt,i_patt,l_ratt,i_ratt
@@ -77,7 +79,7 @@ c
 c
       integer natmt,nbndt,nangt,ndiht,nimpt,n3rdt,mqu
 c
-      real*8 releps,q14fac,wcorr(3)
+      real*8 releps,q14fac,wcorr(10)
 c
       logical lupdat
 c
@@ -111,7 +113,7 @@ c                  2       : link type
 c                  3       : index of first atom of sequence entry
 c                  4       : molecule number
 c
-      if(.not.ma_push_get(mt_int,4*mseq,'lseq',l_lseq,i_lseq))
+      if(.not.ma_push_get(mt_int,6*mseq,'lseq',l_lseq,i_lseq))
      + call errquit('Memory allocation failed for lseq',9999)
 c
 c     char*5  cseq(1,mseq) : name of sequence entry on pdb
@@ -168,8 +170,9 @@ c
       if(.not.pre_dimens(lfnout,lfnsgm,
      + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
-     + natm,nbnd,nang,ndih,nimp))
+     + natm,nbnd,nang,ndih,nimp,nparms))
      + call errquit('pre_dimens failed',9999)
+      mparms=nparms+1
 c
 c     adjust dimension to account for links
 c     -------------------------------------
@@ -194,112 +197,91 @@ c
 c     allocate memory for atomic lists
 c     --------------------------------
 c
-c     integer latm(1,matm) : charge group
-c                  2       : polarization group
-c                  3       : link number
-c                  4       : center type
-c                  5       : segment number
-c                  6       : molecule number
-c                  7       : atomic number
-c                  8       : fraction
+c     integer latm(1,matm)   : charge group
+c                  2         : polarization group
+c                  3         : link number
+c                  4         : center type
+c                  5         : segment number
+c                  6         : molecule number
+c                  7         : atomic number
+c                  8         : fraction
+c                  9         : ???
 c
 c
-c     char*6  catm(1,matm) : atom name 
-c                  2       : atom type set 1
-c                  3       : atom type set 2
-c                  4       : atom type set 3
+c     char*6  catm(  1,matm) : atom name 
+c                  i+1       : atom type set i, i=1,nparms
 c
-      if(.not.ma_push_get(mt_int,9*matm,'latm',l_latm,i_latm))
+      if(.not.ma_push_get(mt_int,11*matm,'latm',l_latm,i_latm))
      + call errquit('Memory allocation failed for latm',9999)
-      if(.not.ma_push_get(mt_byte,24*matm,'catm',l_catm,i_catm))
+      if(.not.ma_push_get(mt_byte,6*mparms*matm,'catm',l_catm,i_catm))
      + call errquit('Memory allocation failed for catm',9999)
 c
-c     real*8 qatm(1,matm) : partial atomic charges set 1
-c                 2       : polarizability set 1
-c                 3       : partial atomic charges set 2
-c                 4       : polarizability set 2
-c                 5       : partial atomic charges set 3
-c                 6       : polarizability set 3
+c     real*8 qatm(nparms,1,matm) : partial atomic charges sets 1,..,nparms
+c                        2       : polarizabilities sets 1,..,nparms
 c
       mqu=3*matm
-      if(.not.ma_push_get(mt_dbl,6*mqu,'qatm',l_qatm,i_qatm))
+      if(.not.ma_push_get(mt_dbl,2*nparms*mqu,'qatm',l_qatm,i_qatm))
      + call errquit('Memory allocation failed for qatm',9999)
 c
 c     allocate memory for bonded lists
 c     --------------------------------
 c
-c     integer lbnd(1:2,mbnd) : bond indices
-c                  3         : parameter source
-c                  4         : constraint type
-c     real*8  rbnd(1,mbnd)   : bond length set 1
-c                  2         : force constant set 1
-c                  3         : bond length set 2
-c                  4         : force constant set 2
-c                  5         : bond length set 3
-c                  6         : force constant set 3
+c     integer lbnd(1:2,mbnd)        : bond indices
+c                  3                : parameter source
+c                  4                : constraint type
+c     real*8  rbnd(nparms,1,mbnd)   : bond length set 1
+c                         2         : force constant set 1
 c
       if(.not.ma_push_get(mt_int,4*mbnd,'lbnd',l_lbnd,i_lbnd))
      + call errquit('Memory allocation failed for lbnd',9999)
-      if(.not.ma_push_get(mt_dbl,6*mbnd,'rbnd',l_rbnd,i_rbnd))
+      if(.not.ma_push_get(mt_dbl,2*nparms*mbnd,'rbnd',l_rbnd,i_rbnd))
      + call errquit('Memory allocation failed for rbnd',9999)
 c
-c     integer lang(1:3,mang) : angle indices
-c                  4         : parameter source
-c                  5         : constraint type
-c     real*8  rang(1,mang)   : angle set 1
-c                  2         : force constant set 1
-c                  3         : angle set 2
-c                  4         : force constant set 2
-c                  5         : angle set 3
-c                  6         : force constant set 3
+c     integer lang(1:3,mang)        : angle indices
+c                  4                : parameter source
+c                  5                : constraint type
+c     real*8  rang(nparms,1,mang)   : angle set 1
+c                         2         : force constant set 1
 c
       if(.not.ma_push_get(mt_int,5*mang,'lang',l_lang,i_lang))
      + call errquit('Memory allocation failed for lang',9999)
-      if(.not.ma_push_get(mt_dbl,6*mang,'rang',l_rang,i_rang))
+      if(.not.ma_push_get(mt_dbl,2*nparms*mang,'rang',l_rang,i_rang))
      + call errquit('Memory allocation failed for rang',9999)
 c
 c     integer ldih(1:4,mdih) : torsion indices
 c                  5         : parameter source
 c                  6         : constraint type
-c                  7         : number of functions set 1
-c                  8         : number of functions set 2
-c                  9         : number of functions set 3
 c
-c     integer kdih(6,1,mimp) : multiplicity set 1
-c                    2       : multiplicity set 2
-c                    3       : multiplicity set 3
+c     integer nfdih(nparms,mdih) : number of functions
 c
-c     real*8  rdih(6,1,mdih) : phase angle set 1
-c                    2       : force constant set 1
-c                    3       : phase angle set 2
-c                    4       : force constant set 2
-c                    5       : pahse angle set 3
-c                    6       : force constant set 3 
+c     integer kdih(6,nparms,mdih) : multiplicity set 1
 c
-      if(.not.ma_push_get(mt_int,9*mdih,'ldih',l_ldih,i_ldih))
+c     real*8  rdih(6,nparms,1,mdih) : phase angle set 1
+c                           2       : force constant set 1
+c
+      if(.not.ma_push_get(mt_int,6*mdih,'ldih',l_ldih,i_ldih))
      + call errquit('Memory allocation failed for ldih',9999)
-      if(.not.ma_push_get(mt_int,18*mdih,'kdih',l_kdih,i_kdih))
+      if(.not.ma_push_get(mt_int,nparms*mdih,'nfdih',l_ndih,i_ndih))
      + call errquit('Memory allocation failed for ldih',9999)
-      if(.not.ma_push_get(mt_dbl,36*mdih,'rdih',l_rdih,i_rdih))
+      if(.not.ma_push_get(mt_int,6*nparms*mdih,'kdih',l_kdih,i_kdih))
+     + call errquit('Memory allocation failed for ldih',9999)
+      if(.not.ma_push_get(mt_dbl,12*nparms*mdih,'rdih',l_rdih,i_rdih))
      + call errquit('Memory allocation failed for rdih',9999)
 c
 c     integer limp(1:4,mimp) : improper torsion indices
 c                  5         : parameter source
 c                  6         : constraint type
-c                  7         : multiplicity set 1
-c                  8         : multiplicity set 2
-c                  9         : multiplicity set 3
 c
-c     real*8  rimp(1,mimp)   : phase angle set 1
-c                  2         : force constant set 1
-c                  3         : phase angle set 2
-c                  4         : force constant set 2
-c                  5         : pahse angle set 3
-c                  6         : force constant set 3
+c     integer kimp(nparms,mimp) : multiplicity
 c
-      if(.not.ma_push_get(mt_int,9*mimp,'limp',l_limp,i_limp))
+c     real*8  rimp(nparms,1,mimp)   : phase angle set 1
+c                         2         : force constant set 1
+c
+      if(.not.ma_push_get(mt_int,6*mimp,'limp',l_limp,i_limp))
      + call errquit('Memory allocation failed for limp',9999)
-      if(.not.ma_push_get(mt_dbl,6*mimp,'rimp',l_rimp,i_rimp))
+      if(.not.ma_push_get(mt_int,nparms*mimp,'kimp',l_kimp,i_kimp))
+     + call errquit('Memory allocation failed for limp',9999)
+      if(.not.ma_push_get(mt_dbl,2*nparms*mimp,'rimp',l_rimp,i_rimp))
      + call errquit('Memory allocation failed for rimp',9999)
 c
 c     generate the atomic and bonded lists
@@ -318,17 +300,18 @@ c
      + call errquit('Memory allocation failed for ndx',9999)
       if(.not.ma_push_get(mt_dbl,nval,'rval',l_rval,i_rval))
      + call errquit('Memory allocation failed for rval',9999)
-      if(.not.pre_mklist(lfnout,lfnsgm,lfnmat,
+      if(.not.pre_mklist(lfnout,lfnsgm,lfnmat,nparms,mparms,
      + ffield,dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbnd,
      + int_mb(i_lang),dbl_mb(i_rang),mang,nang,
-     + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndih,
-     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,
+     + int_mb(i_ldih),int_mb(i_ndih),int_mb(i_kdih),
+     + dbl_mb(i_rdih),mdih,ndih,
+     + int_mb(i_limp),int_mb(i_kimp),dbl_mb(i_rimp),mimp,nimp,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr,
-     + nval,int_mb(i_ival),dbl_mb(i_rval),int_mb(i_ndx)))
+     + nval,int_mb(i_ival),dbl_mb(i_rval),int_mb(i_ndx),itopol))
      + call errquit('pre_mklist failed',9999)
       if(.not.ma_pop_stack(l_rval))
      + call errquit('Memory deallocation failed for rval',9999)
@@ -344,27 +327,29 @@ c
 c
 c     apply topology modifications to atom types
 c     ------------------------------------------
-c
-      if(.not.pre_modify(1,lfnout,lfnmod,filmod,ffield,int_mb(i_latm),
-     + byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
+      if(.not.pre_modify(1,lfnout,lfnmod,filmod,ffield,nparms,mparms,
+     + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbnd,nbndt,
      + int_mb(i_lang),dbl_mb(i_rang),mang,nang,nangt,
-     + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndih,ndiht,
-     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,nimpt,lupdat))
+     + int_mb(i_ldih),int_mb(i_ndih),int_mb(i_kdih),
+     + dbl_mb(i_rdih),mdih,ndih,ndiht,
+     + int_mb(i_limp),int_mb(i_kimp),dbl_mb(i_rimp),mimp,nimp,nimpt,
+     + lupdat))
      + call errquit('pre_modify failed',9999)
 c
 c     get number of atom types
 c     ------------------------
 c
-      if(.not.pre_natyps(lfnout,byte_mb(i_catm),matm,natmt,natt,nats))
+      if(.not.pre_natyps(lfnout,nparms,mparms,
+     + byte_mb(i_catm),matm,natmt,natt,nats))
      + call errquit('pre_natyps failed',9999)
       matt=natt
       mats=nats
 c
       if(util_print('topology',print_debug)) then
       write(lfnout,1006) natt
- 1006 format('number of atom types is ',i10)
+ 1006 format(' Number of atom types is ',i10)
       endif
 c
 c     allocate memory for atom type lists
@@ -372,7 +357,7 @@ c     -----------------------------------
 c
       if(.not.ma_push_get(mt_int,3*matt,'latt',l_latt,i_latt))
      + call errquit('Memory allocation failed for latt',9999)
-      if(.not.ma_push_get(mt_int,3*mats,'lats',l_lats,i_lats))
+      if(.not.ma_push_get(mt_int,nparms*mats,'lats',l_lats,i_lats))
      + call errquit('Memory allocation failed for lats',9999)
       if(.not.ma_push_get(mt_byte,36*matt,'catt',l_catt,i_catt))
      + call errquit('Memory allocation failed for catt',9999)
@@ -384,17 +369,19 @@ c
 c     substitute force field parameters
 c     ---------------------------------
 c
-      if(.not.pre_params(lfnpar,lfnout,
+      if(.not.pre_params(lfnpar,lfnout,nparms,mparms,
      + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + par_s,par_x,par_q,par_u,par_t,par_c,
      + ffield,releps,q14fac,ignore,
      + int_mb(i_latm),byte_mb(i_catm),matm,natmt,
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbndt,
      + int_mb(i_lang),dbl_mb(i_rang),mang,nangt,
-     + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndiht,
-     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimpt,
+     + int_mb(i_ldih),int_mb(i_ndih),int_mb(i_kdih),
+     + dbl_mb(i_rdih),mdih,ndiht,
+     + int_mb(i_limp),int_mb(i_kimp),dbl_mb(i_rimp),mimp,nimpt,
      + int_mb(i_latt),int_mb(i_lats),byte_mb(i_catt),dbl_mb(i_patt),
-     + dbl_mb(i_ratt),matt,natt,mats,nats))
+     + dbl_mb(i_ratt),matt,natt,mats,nats,
+     + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq))
      + call errquit('pre_params failed',9999)
 c
       if(util_print('topology',print_debug)) then
@@ -496,30 +483,34 @@ c
 c     apply topology modifications to bonded parameters
 c     -------------------------------------------------
 c
-      if(.not.pre_modify(2,lfnout,lfnmod,filmod,ffield,int_mb(i_latm),
-     + byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
+      if(.not.pre_modify(2,lfnout,lfnmod,filmod,ffield,nparms,mparms,
+     + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbnd,nbndt,
      + int_mb(i_lang),dbl_mb(i_rang),mang,nang,nangt,
-     + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndih,ndiht,
-     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,nimpt,lupdat))
+     + int_mb(i_ldih),int_mb(i_ndih),int_mb(i_kdih),
+     + dbl_mb(i_rdih),mdih,ndih,ndiht,
+     + int_mb(i_limp),int_mb(i_kimp),dbl_mb(i_rimp),mimp,nimp,nimpt,
+     + lupdat))
      + call errquit('pre_modify failed',9999)
 c
 c     write the topology file
 c     -----------------------
 c
-      if(.not.pre_wrttop(lfnout,ffield,lfntop,filtop,releps,q14fac,
-     + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,mqu,
+      if(.not.pre_wrttop(lfnout,title,ffield,lfntop,filtop,lfnhdb,
+     + lfnhop,filhop,releps,q14fac,
+     + nparms,mparms,int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,mqu,
      + int_mb(i_latt),int_mb(i_lats),byte_mb(i_catt),dbl_mb(i_patt),
      + dbl_mb(i_ratt),matt,natt,mats,nats,int_mb(i_latm),
      + byte_mb(i_catm),
      + dbl_mb(i_qatm),matm,natm,int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,
      + nbnd,int_mb(i_lang),
-     + dbl_mb(i_rang),mang,nang,int_mb(i_ldih),int_mb(i_kdih),
-     + dbl_mb(i_rdih),mdih,ndih,
-     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,int_mb(i_l3rd),
+     + dbl_mb(i_rang),mang,nang,int_mb(i_ldih),int_mb(i_ndih),
+     + int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndih,
+     + int_mb(i_limp),int_mb(i_kimp),dbl_mb(i_rimp),mimp,nimp,
+     + int_mb(i_l3rd),
      + m3rd,n3rd,int_mb(i_lexc),mexc,nexc,int_mb(i_lnon),mnon,nnon,
-     + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam))
+     + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol))
      + call errquit('pre_wrttop failed',9999)
 c
       if(util_print('topology',print_debug)) then
@@ -548,12 +539,16 @@ c
      + call errquit('Memory deallocation failed for latt',9999)
       if(.not.ma_pop_stack(l_rimp))
      + call errquit('Memory deallocation failed for rimp',9999)
+      if(.not.ma_pop_stack(l_kimp))
+     + call errquit('Memory deallocation failed for limp',9999)
       if(.not.ma_pop_stack(l_limp))
      + call errquit('Memory deallocation failed for limp',9999)
       if(.not.ma_pop_stack(l_rdih))
      + call errquit('Memory deallocation failed for rdih',9999)
       if(.not.ma_pop_stack(l_kdih))
      + call errquit('Memory deallocation failed for kdih',9999)
+      if(.not.ma_pop_stack(l_ndih))
+     + call errquit('Memory deallocation failed for ldih',9999)
       if(.not.ma_pop_stack(l_ldih))
      + call errquit('Memory deallocation failed for ldih',9999)
       if(.not.ma_pop_stack(l_rang))

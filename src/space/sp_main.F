@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.82 2003-01-08 20:01:32 d3j191 Exp $
+c $Id: sp_main.F,v 1.83 2003-07-17 19:39:29 d3j191 Exp $
 c
       implicit none
 c
@@ -187,10 +187,10 @@ c
  1001 format(/,' DATA PACKING',/)
       write(lfnout,1002) ' Packing solute in  ',npack,
      + ' integers : ',(ipack(i),i=1,npack)
- 1002 format(a,i2,a,14i4)
+ 1002 format(a,i2,a,15i4)
       write(lfnout,1003) ' significant bits : ',
      + (nbits(i),i=1,mis2)
- 1003 format(14x,a,14i4)
+ 1003 format(14x,a,15i4)
       write(lfnout,1002) ' Packing solvent in ',npackw,
      + ' integers : ',(ipackw(i),i=1,npackw)
       write(lfnout,1003) ' significant bits : ',

@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.72 2002-11-14 15:39:16 d3j191 Exp $
+c $Id: md_input.F,v 1.73 2003-07-17 19:39:19 d3j191 Exp $
 c
       implicit none
 c
@@ -32,13 +32,13 @@ c
       integer itload,ihess,latom,icomm,nfanal,iport,iguide,icentr
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
       integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ,npforc
-      integer iprop,iprpmf
+      integer iprop,iprpmf,nfhop
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
       real*8 rrdf,xfield,xfvect(3),xffreq,weight,rqmmm,dielec,ealpha
       real*8 frgaus,rbox,disrlx,drsscl,eqm,tguide,fguide,rfix,fcoll
-      real*8 tmpext2,tann1,tann2,scaleq,rsgm,facpmf
+      real*8 tmpext2,tann1,tann2,scaleq,rsgm,facpmf,rhop
       character*12 afix
 c
       integer i,mtimes,len
@@ -150,6 +150,8 @@ c
       ngz=nbz
       len=0
       iprop=0
+      nfhop=0
+      rhop=0.35d0
 c      ifix=0
 c      iunfix=0
       numfix=0
@@ -611,6 +613,14 @@ c
       goto 252
       endif
       goto 3
+      endif
+c
+c     qhop proton hopping
+c
+      if(inp_compare(.false.,'qhop',item)) then
+      if(.not.inp_i(nfhop)) nfhop=10
+      if(.not.inp_f(rhop)) rhop=0.35d0
+      goto 2
       endif
 c
 c     guided dynamics
@@ -1766,6 +1776,10 @@ c     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:latom',mt_int,1,latom))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:icomm',mt_int,1,icomm))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:nfhop',mt_int,1,nfhop))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:rhop',mt_dbl,1,rhop))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:iguide',mt_int,1,iguide))
      + call errquit('md_input: rtdb_put failed',0)

@@ -2,7 +2,7 @@
      + xatm,catm,latm,matm,lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,nlnkf)
 c
-c $Id: pre_links.F,v 1.15 2001-07-06 03:45:13 d3j191 Exp $
+c $Id: pre_links.F,v 1.16 2003-07-17 19:38:56 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -27,7 +27,7 @@ c
       integer latm(5,matm)
       character*6 catm(3,matm)
       character*80 ffield
-      integer lseq(4,mseq),llnk(4,mlnk)
+      integer lseq(6,mseq),llnk(4,mlnk)
       character*5 cseq(2,mseq)
       character*4 clnk(2,mlnk)
       integer nshort,ishort(10),jshort(10)
@@ -136,8 +136,9 @@ c
       clnk(2,nlnk)=catm(2,jshort(j))(1:4)
       if(util_print('sequence',print_high)) then
       write(lfnout,1003) nlnk,
-     +  llnk(1,nlnk),clnk(1,nlnk),llnk(2,nlnk),clnk(2,nlnk)
- 1003 format(' Chain link   ',2i5,':',a4,i5,':',a4)
+     +  llnk(1,nlnk),clnk(1,nlnk),llnk(2,nlnk),clnk(2,nlnk),
+     + ishort(j),jshort(j),rshort(j)
+ 1003 format(' Chain link   ',2i5,':',a4,i5,':',a4,3x,2i7,f12.6)
       endif
       endif
   101 continue
@@ -154,6 +155,8 @@ c
      + ishort,jshort,rshort)
       if(nshort.gt.0) then
       do 102 k=1,nshort
+      if(latm(5,ishort(k)).ne.0) goto 102
+      if(latm(5,jshort(k)).ne.0) goto 102
       if(latm(5,ishort(k)).eq.0) latm(5,ishort(k))=3
       if(latm(5,jshort(k)).eq.0) latm(5,jshort(k))=3
       nlnk=nlnk+1
@@ -166,8 +169,9 @@ c
       clnk(2,nlnk)=catm(2,jshort(k))(1:4)
       if(util_print('sequence',print_high)) then
       write(lfnout,1004) nlnk,
-     +  llnk(1,nlnk),clnk(1,nlnk),llnk(2,nlnk),clnk(2,nlnk)
- 1004 format(' Side link    ',2i5,':',a4,i5,':',a4)
+     +  llnk(1,nlnk),clnk(1,nlnk),llnk(2,nlnk),clnk(2,nlnk),
+     + ishort(k),jshort(k),rshort(k)
+ 1004 format(' Side link    ',2i5,':',a4,i5,':',a4,3x,2i7,f12.6)
       endif
       l=lseq(4,j)
       do 4 m=1,nseq
@@ -322,6 +326,9 @@ c     ----------------------------------------------
 c
       do 18 i=1,nlnk
       if(lseq(4,llnk(1,i)).ne.lseq(4,llnk(2,i))) then
+      write(lfnout,88) i,llnk(1,i),llnk(2,i),
+     + lseq(4,llnk(1,i)),lseq(4,llnk(2,i))
+   88 format('ADJUST LINK ',5i7)
       j=lseq(4,llnk(2,i))
       do 19 k=1,nseq
       if(lseq(4,k).eq.j) then

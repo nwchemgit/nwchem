@@ -1,7 +1,7 @@
       logical function pre_rdseq(lfnout,lfnseq,filseq,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_rdseq.F,v 1.13 1998-12-23 19:31:50 d3j191 Exp $
+c $Id: pre_rdseq.F,v 1.14 2003-07-17 19:38:57 d3j191 Exp $
 c
 c     function to read the sequence file
 c
@@ -13,7 +13,7 @@ c
 #include "util.fh"
 c
       integer lfnout,lfnseq,mseq,nseq,mlnk,nlnk
-      integer lseq(4,mseq),llnk(3,mlnk)
+      integer lseq(6,mseq),llnk(3,mlnk)
       character*10 cseq(mseq)
       character*4 clnk(2,mlnk)
       character*255 filseq

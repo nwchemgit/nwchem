@@ -1,7 +1,7 @@
       logical function pre_pdbsiz(iunit,filnam,lfnout,
      + model,natm,nseq,nssb,nlnk,namslv,numslv,altloc,chain)
 c
-c $Id: pre_pdbsiz.F,v 1.16 2002-08-14 19:56:32 d3j191 Exp $
+c $Id: pre_pdbsiz.F,v 1.17 2003-07-17 19:38:57 d3j191 Exp $
 c
 c     function to read dimensions from a pdb formatted file
 c
@@ -26,7 +26,7 @@ c
 c
       integer iunit,lfnout,model,natm,nseq,nssb,nchain,nlnk
       character*255 filnam
-      integer numslv
+      integer numslv,lrgpdb
       character*3 namslv
       character*1 ,altloc,chain,pchain
 c
@@ -46,6 +46,7 @@ c
       lslvnt=.false.
       numslv=0
       pchain=' '
+      lrgpdb=0
 c
       length=index(filnam,' ')-1
 c
@@ -66,6 +67,13 @@ c
 c
       read(iunit,1000,end=999,err=9999) card
  1000 format(a)
+c
+c     lrgpdb option
+c
+      if(card(1:6).eq.'LRGPDB') then
+      lrgpdb=1
+      goto 1
+      endif
 c
 c     MODEL
 c
@@ -138,8 +146,13 @@ c
       if(mdl.eq.model) then
       if(card(18:20).eq.namslv) lslvnt=.true.
       if(.not.lslvnt) natm=natm+1
+      if(lrgpdb.eq.0) then
       read(card(23:26),1003) i
  1003 format(i4)
+      else
+      read(card(21:26),1023) i
+ 1023 format(i6)
+      endif
       if(i.ne.isgm.or.card(22:22).ne.pchain) then
       if(i+ioff.lt.isgm) ioff=isgm+1-i
       isgm=i+ioff

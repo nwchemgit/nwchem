@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.170 2003-04-02 21:34:54 windus Exp $
+# $Id: make_nwchem_config,v 1.171 2003-07-17 19:48:59 d3j191 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -17,7 +17,7 @@
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver dftgrad scfaux cphf ccsd vib mcscf prepar \
-        esp hessian plane_wave selci dplot mp2_grad oimp2 \
+        esp hessian plane_wave selci dplot mp2_grad oimp2 qhop\
         property gapss nwpw fft rimp2_grad nbo python analyz nwmd cafe space \
         drdy vscf uccsdt qmmm qmd mcstep etrans tddft tce geninterface
 
@@ -29,7 +29,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lgapss -lesp -lddscf -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
-		    -lprepar -lnwmd -lnwpw -lpaw -lpspw -lband -lnwpwlib -lcafe -lspace -lanalyze\
+		    -lprepar -lnwmd -lnwpw -lpaw -lpspw -lband -lnwpwlib -lcafe -lspace -lanalyze -lqhop\
                     -lpfft -ldplot -loimp2 -lnbo -lpython -ldrdy -lvscf -lqmmm -lqmd -lmcstep -letrans\
                     -ltddft -ltce -lgeninterface
 
@@ -146,7 +146,7 @@ MODULES := $(patsubst etrans, etrans ddscf NWints,$(MODULES) )
 MODULES := $(patsubst tddft,tddft nwdft NWints,$(MODULES) )
 MODULES := $(patsubst tce,tce nwdft ddscf NWints  hessian  dftgrad gradients  ,$(MODULES) )
 
-MODULES := $(patsubst nwmd,nwmd cafe space fft,$(MODULES) )
+MODULES := $(patsubst nwmd,nwmd cafe space fft qhop,$(MODULES) )
 
 MODULES := $(patsubst develop,develop ddscf uccsdt,$(MODULES) )
 MODULES := $(patsubst uccsdt,uccsdt ddscf ccsd,$(MODULES) )
@@ -207,6 +207,7 @@ MOD_LIBS := $(patsubst tddft,-ltddft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst tce,-ltce,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cafe,-lcafe,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst space,-lspace,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst qhop,-lqhop,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwmd,-lnwmd,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst qmd,-lqmd,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst qmmm,-lqmmm,$(MOD_LIBS) )

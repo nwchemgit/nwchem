@@ -1,13 +1,14 @@
-      logical function pre_rtdbin(irtdb,ffield,
+      logical function pre_rtdbin(irtdb,title,ffield,
      + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + par_s,par_x,par_q,par_u,par_t,par_c,
      + source,sysnam,calc,slvnam,slvmdl,
-     + newtop,newseq,newrst,mcount,ncount,icount,mgrid,gdist,mnoe,
+     + newtop,newseq,newrst,mcount,ncount,icount,
+     + mgrid,nrgrid,iogrid,rogrid,gdist,mnoe,
      + maxscf,qscale,
      + altloc,chain,icyren,iconst,model,nxlnk,mdold,ignore,scount,
-     + fcount,mfract,nfract,ifract,scale,cpk,his)
+     + fcount,mfract,nfract,ifract,scale,cpk,his,itopol)
 c
-c $Id: pre_rtdbin.F,v 1.32 2002-08-14 22:06:28 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.33 2003-07-17 19:38:57 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -22,20 +23,20 @@ c
       integer irtdb,mcount,ncount
       character*3 slvnam
       character*80 source
-      character*80 ffield,sysnam,calc
+      character*80 ffield,sysnam,calc,title(2,3)
       character*10 slvmdl
       character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
       character*255 par_s,par_x,par_q,par_u,par_t,par_c
       integer newtop,newseq,newrst,icount(mcount),icyren,ignore
       integer len,ndx,mgrid,mnoe,maxscf,model,nxlnk,mdold
-      integer mfract,nfract,iconst
+      integer mfract,nfract,iconst,itopol
       integer ifract(mfract)
       real*8 gdist,qscale
       character*1 altloc,chain,his
       character*4 scount(mcount)
       real*8 fcount
       real*8 scale,cpk
-      integer i
+      integer i,j,nrgrid,iogrid(5),rogrid(2,5)
 c
       character*255 key,value
 c
@@ -54,9 +55,16 @@ c
       par_c=' '
       source=' '
 c
+      do 7 i=1,2
+      do 8 j=1,3
+      title(i,j)=' '
+    8 continue
+    7 continue
+c
 c     read from rtdb
 c     --------------
 c
+      if(.not.rtdb_cget(irtdb,'prep:title',6,title)) continue
       if(.not.rtdb_cget(irtdb,'prep:ffield',1,ffield)) continue
 c
       if(.not.rtdb_cget(irtdb,'prep:dir_s',1,dir_s)) continue
@@ -108,9 +116,18 @@ c
       if(.not.rtdb_get(irtdb,'prep:fcount',mt_dbl,1,fcount))
      + call errquit('Counter ion input problem',0)
       if(.not.rtdb_get(irtdb,'prep:mgrid',mt_int,1,mgrid)) mgrid=24
+      if(.not.rtdb_get(irtdb,'prep:nrgrid',mt_int,1,nrgrid)) nrgrid=0
+      if(nrgrid.gt.0) then
+      if(.not.rtdb_get(irtdb,'prep:iogrid',mt_int,nrgrid,iogrid))
+     + call errquit('pre_rtdb: rtdb_get failed',0)
+      if(.not.rtdb_get(irtdb,'prep:rogrid',mt_int,2*nrgrid,rogrid))
+     + call errquit('pre_rtdbin: rtdb_get failed',0)
+      endif
       if(.not.rtdb_get(irtdb,'prep:rgrid',mt_dbl,1,gdist)) gdist=0.2d0
 c
-      if(.not.rtdb_get(irtdb,'prep:mnoe',mt_int,1,mnoe)) mnoe=1
+      if(.not.rtdb_get(irtdb,'prep:mnoe',mt_int,1,mnoe)) mnoe=0
+c
+      if(.not.rtdb_get(irtdb,'prep:itopol',mt_int,1,itopol)) itopol=0
 c
       if(.not.rtdb_get(irtdb,'prep:ignore',mt_int,1,ignore)) ignore=0
 c

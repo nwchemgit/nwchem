@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.48 2002-08-14 19:56:32 d3j191 Exp $
+c $Id: prepar.F,v 1.49 2003-07-17 19:38:58 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -47,10 +47,11 @@ c
 c
       character*255 filpdb,filseq,filtop,filrst,filpar,filtmp,filcmd
       character*255 filmod,prefix,filxyz,filqqq,filnoe,filpmf,filpov
-      character*255 filmrg(100)
+      character*255 filhop,filmrg(100)
       character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
       character*255 par_s,par_x,par_q,par_u,par_t,par_c
       character*80 sysnam,calc,ffield
+      character*80 title(2,3)
       character*10 slvmdl
       character*3 slvnam
       character*80 source
@@ -61,13 +62,23 @@ c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
       integer lfnxyz,lfnqqq,lfnnoe,lfnpmf,lfnpov,lfnmat,lfnmrg
       integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod,nxlnk,mdold
+      integer lfnhdb,lfnhop
       integer newtop,newseq,newrst,mgrid,mnoe,maxscf,icount(mcount)
       integer ncount,icyren,model,iconst,nmerge
+      integer nrgrid,iogrid(5),rogrid(2,5)
       integer nfract,ifract(mfract)
-      integer ignore
+      integer ignore,itopol
       real*8 gdist,qscale,xmerge(3,100)
       logical lstate
       real*8 scale,cpk
+c
+      integer nparms,mparms
+c
+c     nparms is the number of parameters sets written to the topology file
+c     this number is initially set to 1 but may be increased in pre_dimens
+c
+      nparms=1
+      mparms=nparms+1
 c
       irtdb=irtdb0
 c
@@ -98,6 +109,8 @@ c
       lfnpov=27
       lfnmat=28
       lfnmrg=29
+      lfnhdb=30
+      lfnhop=31
 c
 c     node 0 only please
 c     ------------------
@@ -130,16 +143,21 @@ c
 c     get info from rtdb
 c     ------------------
 c
-      if(.not.pre_rtdbin(irtdb,ffield,
+      if(.not.pre_rtdbin(irtdb,title,ffield,
      + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + par_s,par_x,par_q,par_u,par_t,par_c,
      + source,
      + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,mcount,ncount,
-     + icount,mgrid,
+     + icount,mgrid,nrgrid,iogrid,rogrid,
      + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,iconst,
      + model,nxlnk,mdold,
-     + ignore,scount,fcount,mfract,nfract,ifract,scale,cpk,his))
+     + ignore,scount,fcount,mfract,nfract,ifract,scale,cpk,his,itopol))
      + call errquit('pre_rtdbin failed',9999)
+c
+      if(itopol.eq.2) then
+      nparms=3
+      mparms=nparms+1
+      endif
 c
 c     construct file names
 c     --------------------
@@ -160,6 +178,7 @@ c
       filnoe=sysnam(1:len)//'.drs '
       filpmf=sysnam(1:len)//'.pmf '
       filtop=sysnam(1:len)//'.top '
+      filhop=sysnam(1:len)//'.hop '
       filrst=sysnam(1:len)//'_'//calc(1:lenc)//'.rst '
       filseq=dir_c(1:lend)//sysnam(1:len)//'.seq '
       filtmp=sysnam(1:len)//'.nam '
@@ -297,11 +316,11 @@ c
 c     generate topology
 c     -----------------
 c
-      if(.not.pre_mktop(lfnout,ffield,
+      if(.not.pre_mktop(lfnout,title,ffield,nparms,mparms,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,lfnmod,filmod,lfnmat,
-     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + lfnhdb,lfnhop,filhop,dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + par_s,par_x,par_q,par_u,par_t,par_c,
-     + ignore,slvnam))
+     + ignore,slvnam,itopol))
      + call errquit('pre_mktop failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2010) filtop(1:index(filtop,' ')-1)
@@ -345,11 +364,12 @@ c
 c     generate restart file
 c     ---------------------
 c
-      if(.not.pre_mkrst(irtdb,mdold,source,lfnout,lfntop,filtop,
+      if(.not.pre_mkrst(irtdb,title,mdold,source,lfnout,lfntop,filtop,
      + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd,
-     + lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,chain,model,
+     + lfnslv,slvmdl,slvnam,mgrid,nrgrid,iogrid,rogrid,gdist,mnoe,
+     + altloc,chain,model,
      + lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,lfnmat,
-     + lfnmrg,nmerge,xmerge,filmrg,fcount))
+     + lfnmrg,nmerge,xmerge,filmrg,fcount,lfnmod,filmod,itopol))
      + call errquit('pre_mkrst failed',9999)
 c
     6 continue
@@ -357,9 +377,11 @@ c
 c     handle other commands
 c     ---------------------
 c
+      if(mnoe.gt.0) then
       if(.not.pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam))
      + call errquit('re_mknoe failed',9999)
+      endif
 c
 c     remove temporary files if they exist
 c     ------------------------------------

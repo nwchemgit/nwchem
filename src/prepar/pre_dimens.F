@@ -1,8 +1,8 @@
       logical function pre_dimens(lfnout,lfnsgm,
      + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
-     + lseq,cseq,mseq,nseq,natm,nbnd,nang,ndih,nimp)
+     + lseq,cseq,mseq,nseq,natm,nbnd,nang,ndih,nimp,nparms)
 c
-c $Id: pre_dimens.F,v 1.7 2001-11-15 16:45:56 d3j191 Exp $
+c $Id: pre_dimens.F,v 1.8 2003-07-17 19:38:56 d3j191 Exp $
 c
 c     function to determine total system array dimensions
 c
@@ -13,8 +13,8 @@ c
       logical pre_sgmfil,pre_sgmsiz
       external pre_sgmfil,pre_sgmsiz
 c
-      integer lfnout,lfnsgm,mseq,nseq,natm,nbnd,nang,ndih,nimp
-      integer lseq(4,mseq)
+      integer lfnout,lfnsgm,mseq,nseq,natm,nbnd,nang,ndih,nimp,nparms
+      integer lseq(6,mseq)
       character*10 cseq(mseq)
       character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
 c
@@ -54,7 +54,8 @@ c
 c     find segment dimensions
 c     -----------------------
 c
-      if(.not.pre_sgmsiz(lfnsgm,filsgm,nsatm,nsbnd,nsang,nsdih,nsimp))
+      if(.not.pre_sgmsiz(lfnsgm,filsgm,nsatm,nsbnd,nsang,nsdih,nsimp,
+     + nparms))
      + call errquit('pre_sgmsiz failed',9999)
 c
       natm=natm+nsatm

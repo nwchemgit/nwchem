@@ -1,40 +1,50 @@
-      logical function pre_rdsgm(lfnout,ffield,imol,isgm,igrp,
+      logical function pre_rdsgm(lfnout,ffield,nparms,mparms,
+     + imol,isgm,igrp,
      + ipgrp,lfnsgm,filsgm,lfnmat,filmat,
      + latm,catm,qatm,matm,natm,lbnd,rbnd,mbnd,nbnd,
-     + lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
-     + wcorr)
+     + lang,rang,mang,nang,ldih,nfdih,kdih,rdih,mdih,ndih,
+     + limp,kimp,rimp,mimp,nimp,
+     + wcorr,npar,ipardef,itopol)
 c
-c $Id: pre_rdsgm.F,v 1.13 2000-09-15 22:21:54 d3j191 Exp $
+c $Id: pre_rdsgm.F,v 1.14 2003-07-17 19:38:57 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
-      integer lfnout,lfnsgm,imol,isgm,igrp,ipgrp,lfnmat
+      external loc
+      integer loc
+c
+      integer lfnout,lfnsgm,imol,isgm,igrp,ipgrp,lfnmat,nparms,mparms
       character*255 filsgm,filmat
       character*80 ffield
-      integer matm,natm
-      integer latm(9,matm)
-      character*6 catm(4,matm)
-      real*8 qatm(6,matm)
+      integer matm,natm,itopol
+      integer latm(11,matm)
+      character*6 catm(mparms,matm)
+      real*8 qatm(nparms,2,matm)
       integer mbnd,nbnd
       integer lbnd(4,mbnd)
-      real*8 rbnd(6,mbnd)
+      real*8 rbnd(nparms,2,mbnd)
       integer mang,nang
       integer lang(5,mang)
-      real*8 rang(6,mang)
+      real*8 rang(nparms,2,mang)
       integer mdih,ndih
-      integer ldih(9,mdih),kdih(6,3,mdih)
-      real*8 rdih(6,6,mdih)
+      integer ldih(6,mdih),nfdih(nparms,mdih),kdih(6,nparms,mdih)
+      real*8 rdih(6,nparms,2,mdih)
       integer mimp,nimp
-      integer limp(9,mimp)
-      real*8 rimp(6,mimp)
-      real*8 wcorr(3)
+      integer limp(6,mimp),kimp(nparms,mimp)
+      real*8 rimp(nparms,2,mimp)
+      real*8 wcorr(10)
+      real*8 version
 c
       character*80 card
-      integer i,j,l,length,na,jmol,nzmat
-      integer nsatm,nsbnd,nsang,nsdih,nsimp,ld(6),md(3),izm(4)
-      real*8 rd(6),zm(3)
+      integer i,j,k,l,length,na,jmol,nzmat,npar,ipardef,idhop
+      integer nsatm,nsbnd,nsang,nsdih,nsimp,ld(6),md(10),izm(4)
+      real*8 rd(10,2),zm(3)
+c
+      integer itemp
+      real*8 dtemp
+      character*6 ctemp
 c
       jmol=imol
 c
@@ -51,8 +61,21 @@ c
       read(lfnsgm,1000) card
  1000 format(a)
       if(card(1:1).eq.'#'.or.card(1:1).eq.'$') goto 1
-      read(card,1001,err=9999) nsatm,nsbnd,nsang,nsdih,nsimp,wcorr,nzmat
- 1001 format(5i5,3f12.6,i5)
+      read(card,1001,err=9999) version
+ 1001 format(f12.6)
+      read(lfnsgm,1002,err=9999)
+     + nsatm,nsbnd,nsang,nsdih,nsimp,nzmat,npar,ipardef
+ 1002 format(8i5)
+      if(ipardef.eq.0) ipardef=1
+      if(npar.gt.nparms) call errquit('Error in number par sets',npar)
+      do 2 i=1,npar
+      read(lfnsgm,1003) wcorr(i)
+ 1003 format(f12.6)
+    2 continue
+      do 102 i=npar+1,nparms
+      wcorr(i)=wcorr(npar)
+  102 continue
+c
       if(natm+nsatm.gt.matm) call errquit('increase matm',9999)
       if(nbnd+nsbnd.gt.mbnd) call errquit('increase mbnd',9999)
       if(nang+nsang.gt.mang) call errquit('increase mang',9999)
@@ -63,17 +86,13 @@ c     read the atom list
 c     ------------------
 c
       na=natm
-      do 2 i=1,nsatm
+      do 3 i=1,nsatm
       natm=natm+1
-      read(lfnsgm,1002) (catm(j,natm),j=1,4),(latm(j,natm),j=1,4)
- 1002 format(5x,4a6,4i5)
-      read(lfnsgm,1003) (qatm(j,natm),j=1,6)
- 1003 format(6f12.6)
-c
-      if(util_print('connectivity',print_debug)) then
-      write(lfnout,1002) (catm(j,natm),j=1,4),(latm(j,natm),j=1,4)
-      write(lfnout,1003) (qatm(j,natm),j=1,6)
-      endif
+      read(lfnsgm,1004) catm(1,natm),(latm(j,natm),j=1,4),latm(10,natm)
+ 1004 format(5x,a6,5i5)
+      read(lfnsgm,1005) (catm(j+1,natm),qatm(j,1,natm),qatm(j,2,natm),
+     + j=1,npar)
+ 1005 format(5x,a6,2f12.6)
 c
       latm(5,natm)=isgm
       latm(6,natm)=jmol
@@ -82,123 +101,228 @@ c
       latm(2,natm)=latm(2,natm)+ipgrp
 c
       if(isgm.eq.0) then
-      catm(2,natm)(6:6)='w'
-      catm(3,natm)(6:6)='w'
-      catm(4,natm)(6:6)='w'
+      do 4 j=2,npar+1
+      catm(j,natm)(6:6)='w'
+    4 continue
       endif
 c
-    2 continue
+      do 103 j=npar+1,nparms
+      catm(j+1,natm)=catm(npar+1,natm)
+      qatm(j,1,natm)=qatm(npar,1,natm)
+      qatm(j,2,natm)=qatm(npar,2,natm)
+  103 continue
+c
+      idhop=0
+      do 1103 j=1,npar
+      if(catm(j+1,natm)(6:6).ne.'D') idhop=idhop+2**(j-1)
+ 1103 continue
+      latm(11,natm)=idhop
+c
+      if(util_print('connectivity',print_debug)) then
+      write(lfnout,1004) catm(1,natm),(latm(j,natm),j=1,4)
+      write(lfnout,1005) (catm(j+1,natm),qatm(j,1,natm),qatm(j,2,natm),
+     + j=1,nparms)
+      endif
+c
+      if(itopol.eq.0.and.ipardef.gt.1) then
+      ctemp=catm(2,natm)
+      catm(2,natm)=catm(1+ipardef,natm)
+      catm(1+ipardef,natm)=ctemp
+      dtemp=qatm(1,1,natm)
+      qatm(1,1,natm)=qatm(ipardef,1,natm)
+      qatm(ipardef,1,natm)=dtemp
+      dtemp=qatm(1,2,natm)
+      qatm(1,2,natm)=qatm(ipardef,2,natm)
+      qatm(ipardef,2,natm)=dtemp
+      endif
+    3 continue
+c 
       igrp=latm(1,natm)
       ipgrp=latm(2,natm)
 c
 c     read the bond list
 c     ------------------
 c
-      do 3 i=1,nsbnd
+      do 5 i=1,nsbnd
       nbnd=nbnd+1
-      read(lfnsgm,1004) (lbnd(j,nbnd),j=1,4)
- 1004 format(5x,4i5)
-      read(lfnsgm,1005) (rbnd(j,nbnd),j=1,6)
- 1005 format(3(f12.6,e12.5))
-c
-      if(util_print('connectivity',print_debug)) then
-      write(lfnout,1004) (lbnd(j,nbnd),j=1,4)
-      write(lfnout,1005) (rbnd(j,nbnd),j=1,6) 
-      endif
+      read(lfnsgm,1006) (lbnd(j,nbnd),j=1,4)
+ 1006 format(5x,4i5)
+      read(lfnsgm,1007) (rbnd(j,1,nbnd),rbnd(j,2,nbnd),j=1,npar)
+ 1007 format(f12.6,e12.5)
 c
       lbnd(1,nbnd)=lbnd(1,nbnd)+na
       lbnd(2,nbnd)=lbnd(2,nbnd)+na
-    3 continue
+c
+      do 105 j=npar+1,nparms
+      rbnd(j,1,nbnd)=rbnd(npar,1,nbnd)
+      rbnd(j,2,nbnd)=rbnd(npar,2,nbnd)
+  105 continue
+c
+      if(util_print('connectivity',print_debug)) then
+      write(lfnout,1006) (lbnd(j,nbnd),j=1,4)
+      write(lfnout,1007) (rbnd(j,1,nbnd),rbnd(j,2,nbnd),j=1,nparms)
+      endif
+c
+      if(itopol.eq.0.and.ipardef.gt.1) then
+      dtemp=rbnd(1,1,nbnd)
+      rbnd(1,1,nbnd)=rbnd(ipardef,1,nbnd)
+      rbnd(ipardef,1,nbnd)=dtemp
+      dtemp=rbnd(1,2,nbnd)
+      rbnd(1,2,nbnd)=rbnd(ipardef,2,nbnd)
+      rbnd(ipardef,2,nbnd)=dtemp
+      endif
+c
+    5 continue
 c
 c     read the angle list
 c     -------------------
 c
-      do 4 i=1,nsang
+      do 6 i=1,nsang
       nang=nang+1
-      read(lfnsgm,1006) (lang(j,nang),j=1,5)
- 1006 format(5x,5i5)
-      read(lfnsgm,1007) (rang(j,nang),j=1,6)
- 1007 format(3(f10.6,e12.5))
+      read(lfnsgm,1008) (lang(j,nang),j=1,5)
+ 1008 format(5x,5i5)
+      read(lfnsgm,1009) (rang(j,1,nang),rang(j,2,nang),j=1,npar)
+ 1009 format(f10.6,e12.5)
       lang(1,nang)=lang(1,nang)+na
       lang(2,nang)=lang(2,nang)+na
       lang(3,nang)=lang(3,nang)+na
+c
+      do 106 j=npar+1,nparms
+      rang(j,1,nbnd)=rang(npar,1,nang)
+      rang(j,2,nbnd)=rang(npar,2,nang)
+  106 continue
+c
       if(util_print('connectivity',print_debug)) then
-      write(lfnout,1006) (lang(j,nang),j=1,5)
-      write(lfnout,1007) (rang(j,nang),j=1,6)
+      write(lfnout,1008) (lang(j,nang),j=1,5)
+      write(lfnout,1009) (rang(j,1,nang),rang(j,2,nang),j=1,nparms)
       endif
-    4 continue
+c
+      if(itopol.eq.0.and.ipardef.gt.1) then
+      dtemp=rang(1,1,nang)
+      rang(1,1,nang)=rang(ipardef,1,nang)
+      rang(ipardef,1,nang)=dtemp
+      dtemp=rang(1,2,nang)
+      rang(1,2,nang)=rang(ipardef,2,nang)
+      rang(ipardef,2,nang)=dtemp
+      endif
+c
+    6 continue
 c
 c     read the torsion list
 c     ---------------------
 c
-      do 5 i=1,nsdih
-      read(lfnsgm,1008) (ld(j),j=1,6)
- 1008 format(5x,6i5)
-      read(lfnsgm,1009) (md(j),rd(2*j-1),rd(2*j),j=1,3)
- 1009 format(3(i3,f10.6,e12.5))
+      do 7 i=1,nsdih
+      read(lfnsgm,1010) (ld(j),j=1,6)
+ 1010 format(5x,6i5)
+      read(lfnsgm,1011) (md(j),rd(j,1),rd(j,2),j=1,npar)
+ 1011 format(i3,f10.6,e12.5)
 c
-      if(util_print('connectivity',print_debug)) then
-      write(lfnout,1008) (ld(j),j=1,6)
-      write(lfnout,1009) (md(j),rd(2*j-1),rd(2*j),j=1,3)
+      if(itopol.eq.0.and.ipardef.gt.1) then
+      itemp=md(1)
+      md(1)=md(ipardef)
+      md(ipardef)=itemp
+      dtemp=rd(1,1)
+      rd(1,1)=rd(ipardef,1)
+      rd(ipardef,1)=dtemp
+      dtemp=rd(1,2)
+      rd(1,2)=rd(ipardef,2)
+      rd(ipardef,2)=dtemp
       endif
 c
-      if(md(1).ge.0.and.md(2).ge.0.and.md(3).ge.0) then
+      l=0
+      do 8 j=1,nparms
+      if(md(j).ge.0) l=l+1
+    8 continue
+      if(l.eq.nparms) then
       ndih=ndih+1
-      ldih(7,ndih)=1
-      ldih(8,ndih)=1
-      ldih(9,ndih)=1
-      do 51 j=1,6
+      do 9 j=1,nparms
+      nfdih(j,ndih)=1
+    9 continue
+      do 10 j=1,6
       ldih(j,ndih)=ld(j)
-   51 continue
+   10 continue
       else
-      if(md(1).lt.0) ldih(7,ndih)=ldih(7,ndih)+1
-      if(md(2).lt.0) ldih(8,ndih)=ldih(8,ndih)+1
-      if(md(3).lt.0) ldih(9,ndih)=ldih(9,ndih)+1
+      do 11 j=1,nparms
+      if(md(j).lt.0) nfdih(j,ndih)=nfdih(j,ndih)+1
+   11 continue
       endif
 c
-      do 150 l=1,3
-      do 52 j=1,6
-      rdih(ldih(6+l,ndih),j,ndih)=rd(j)
-   52 continue
-      do 53 j=1,3
-      kdih(ldih(6+l,ndih),j,ndih)=md(j)
-   53 continue
-  150 continue
+      do 12 l=1,nparms
+      do 13 j=1,nparms
+      rdih(nfdih(l,ndih),j,1,ndih)=rd(j,1)
+      rdih(nfdih(l,ndih),j,2,ndih)=rd(j,2)
+      kdih(nfdih(l,ndih),j,ndih)=md(j)
+   13 continue
+   12 continue
 c
       ldih(1,ndih)=ldih(1,ndih)+na
       ldih(2,ndih)=ldih(2,ndih)+na
       ldih(3,ndih)=ldih(3,ndih)+na
       ldih(4,ndih)=ldih(4,ndih)+na
-    5 continue
+c
+      do 107 j=npar+1,nparms
+      nfdih(j,ndih)=nfdih(npar,ndih)
+      do 117 k=1,nfdih(j,ndih)
+      kdih(k,j,ndih)=kdih(k,npar,ndih)
+      rdih(k,j,1,ndih)=rdih(k,npar,1,ndih)
+      rdih(k,j,2,ndih)=rdih(k,npar,2,ndih)
+  117 continue
+  107 continue
+c
+      if(util_print('connectivity',print_debug)) then
+      write(lfnout,1010) (ldih(j,ndih),j=1,6)
+      write(lfnout,1011) ((kdih(l,j,ndih),rdih(l,j,1,ndih),
+     + rdih(l,j,2,ndih),l=1,nfdih(j,ndih)),j=1,nparms)
+      endif
+c
+    7 continue
 c
 c     read the improper torsion list
 c     ------------------------------
 c
-      do 6 i=1,nsimp
+      do 14 i=1,nsimp
       nimp=nimp+1
       if(ffield(1:5).eq.'amber') then
-      read(lfnsgm,1010) limp(2,nimp),limp(3,nimp),limp(1,nimp),
+      read(lfnsgm,1012) limp(2,nimp),limp(3,nimp),limp(1,nimp),
      + (limp(j,nimp),j=4,6)
       else
-      read(lfnsgm,1010) (limp(j,nimp),j=1,6)
+      read(lfnsgm,1012) (limp(j,nimp),j=1,6)
       endif
- 1010 format(5x,6i5)
-      read(lfnsgm,1011) (limp(6+j,nimp),rimp(2*j-1,nimp),
-     + rimp(2*j,nimp),j=1,3)
- 1011 format(3(i3,f10.6,e12.5))
-c
-      if(util_print('connectivity',print_debug)) then
-      write(lfnout,1010) (limp(j,nimp),j=1,6)
-      write(lfnout,1011) (limp(6+j,nimp),rimp(2*j-1,nimp),
-     + rimp(2*j,nimp),j=1,3)
-      endif
+ 1012 format(5x,6i5)
+      read(lfnsgm,1013) (kimp(j,nimp),rimp(j,1,nimp),
+     + rimp(j,2,nimp),j=1,npar)
+ 1013 format(i3,f10.6,e12.5)
 c
       limp(1,nimp)=limp(1,nimp)+na
       limp(2,nimp)=limp(2,nimp)+na
       limp(3,nimp)=limp(3,nimp)+na
       limp(4,nimp)=limp(4,nimp)+na
 c
-    6 continue
+      do 114 j=npar+1,nparms
+      kimp(j,nimp)=kimp(npar,nimp)
+      rimp(j,1,nimp)=rimp(npar,1,nimp)
+      rimp(j,2,nimp)=rimp(npar,2,nimp)
+  114 continue
+c
+      if(util_print('connectivity',print_debug)) then
+      write(lfnout,1012) (limp(j,nimp),j=1,6)
+      write(lfnout,1013) (kimp(j,nimp),rimp(j,1,nimp),
+     + rimp(j,2,nimp),j=1,nparms)
+      endif
+c
+      if(itopol.eq.0.and.ipardef.gt.1) then
+      itemp=kimp(1,nimp)
+      kimp(1,nimp)=kimp(ipardef,nimp)
+      kimp(ipardef,nimp)=itemp
+      dtemp=rimp(1,1,nimp)
+      rimp(1,1,nimp)=rimp(ipardef,1,nimp)
+      rimp(ipardef,1,nimp)=dtemp
+      dtemp=rimp(1,2,nimp)
+      rimp(1,2,nimp)=rimp(ipardef,2,nimp)
+      rimp(ipardef,2,nimp)=dtemp
+      endif
+c
+   14 continue
 c
 c     copy the z-matrix information
 c     -----------------------------
@@ -206,16 +330,22 @@ c
       if(nzmat.gt.0) then
       open(unit=lfnmat,file=filmat(1:index(filmat,' ')-1),
      + form='formatted',status='unknown',err=9999)
-      do 7 i=1,nzmat
-      read(lfnsgm,1012) izm,zm
-      write(lfnmat,1013) izm,zm
- 1012 format(5x,4i5,3f12.6)
- 1013 format(4i5,3f12.6)
-    7 continue
+      do 15 i=1,nzmat
+      read(lfnsgm,1014) izm,zm
+      write(lfnmat,1015) izm,zm
+ 1014 format(5x,4i5,3f12.6)
+ 1015 format(4i5,3f12.6)
+   15 continue
       close(unit=lfnmat)
       endif
 c
       close(unit=lfnsgm)
+c
+      if(util_print('where',print_debug)) then
+      write(lfnout,1120) filsgm(1:length)
+ 1120 format('READING SEGMENT FILE ',a,' DONE')
+      endif
+c
       pre_rdsgm=.true.
       return
  9999 continue

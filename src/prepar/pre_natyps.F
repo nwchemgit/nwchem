@@ -1,15 +1,16 @@
-      logical function pre_natyps(lfnout,catm,matm,natm,natt,nats)
+      logical function pre_natyps(lfnout,nparms,mparms,
+     + catm,matm,natm,natt,nats)
 c
-c $Id: pre_natyps.F,v 1.5 2001-10-23 20:46:28 d3j191 Exp $
+c $Id: pre_natyps.F,v 1.6 2003-07-17 19:38:57 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
-      integer lfnout,matm,natm,natt,nats
-      character*6 catm(4,matm)
+      integer lfnout,matm,natm,natt,nats,nparms,mparms
+      character*6 catm(mparms,matm)
 c
-      integer i,j,ii,jj,iii
+      integer i,j,k,ii,jj,iii
 c
       natt=0
       nats=0
@@ -20,9 +21,9 @@ c
       endif
 c
       do 1 i=1,natm
-      do 2 ii=1,3
+      do 2 ii=1,nparms
       do 3 j=1,i-1
-      do 4 jj=1,3
+      do 4 jj=1,nparms
       if(catm(ii+1,i).eq.catm(jj+1,j)) goto 2
     4 continue
     3 continue
@@ -44,8 +45,11 @@ c
 c
       do 6 i=1,natm
       do 7 j=1,i-1
-      if(catm(2,i).eq.catm(2,j).and.catm(3,i).eq.catm(3,j).and.
-     + catm(4,i).eq.catm(4,j)) goto 6
+      ii=0
+      do 8 k=1,nparms
+      if(catm(k+1,i).eq.catm(k+1,j)) ii=ii+1
+    8 continue
+      if(ii.eq.nparms) goto 6
     7 continue
       nats=nats+1
     6 continue

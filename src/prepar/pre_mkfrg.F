@@ -7,7 +7,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_mkfrg.F,v 1.38 2003-04-10 23:29:08 bert Exp $
+c $Id: pre_mkfrg.F,v 1.39 2003-07-17 19:38:56 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -51,7 +51,7 @@ c
       integer nseq,nsgm,natm,nato
       integer mbnd,mang,mdih,mimp
       integer mbndt,nbndt
-      integer lseq(4,mseq),lsgm(3,msgm),latm(5,matm),lato(5,mato)
+      integer lseq(6,mseq),lsgm(3,msgm),latm(5,matm),lato(5,mato)
       character*5 cseq(2,mseq),csgm(msgm)
       character*6 catm(3,matm),cato(3,mato)
       real*8 xatm(3,matm),qatm(matm),xato(3,mato),qato(mato),qscale,qsum

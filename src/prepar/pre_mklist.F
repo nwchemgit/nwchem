@@ -1,16 +1,16 @@
-      logical function pre_mklist(lfnout,lfnsgm,lfnmat,
+      logical function pre_mklist(lfnout,lfnsgm,lfnmat,nparms,mparms,
      + ffield,dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,
      + latm,catm,qatm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,
      + lang,rang,mang,nang,
-     + ldih,kdih,rdih,mdih,ndih,
-     + limp,rimp,mimp,nimp,
+     + ldih,nfdih,kdih,rdih,mdih,ndih,
+     + limp,kimp,rimp,mimp,nimp,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr,
-     + nval,ival,rval,ndx)
+     + nval,ival,rval,ndx,itopol)
 c
-c $Id: pre_mklist.F,v 1.26 2001-11-15 16:45:56 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.27 2003-07-17 19:38:57 d3j191 Exp $
 c
       implicit none
 c
@@ -20,43 +20,54 @@ c
       integer pre_atnum
       external pre_sgmfil,pre_rdsgm,pre_atnum
 c
-      integer lfnout,lfnsgm,lfnmat
+      integer lfnout,lfnsgm,lfnmat,nparms,mparms,itopol
       character*80 ffield
       character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
       integer mseq,nseq
-      integer lseq(4,mseq)
+      integer lseq(6,mseq)
       character*10 cseq(mseq)
       integer mlnk,nlnk
       integer llnk(3,mlnk)
       character*4 clnk(2,mlnk)
       integer matm,natm
-      integer latm(9,matm)
-      character*6 catm(4,matm)
-      real*8 qatm(6,matm)
+      integer latm(11,matm)
+      character*6 catm(mparms,matm)
+      real*8 qatm(nparms,2,matm)
       integer mbnd,nbnd
       integer lbnd(4,mbnd)
-      real*8 rbnd(6,mbnd)
+      real*8 rbnd(nparms,2,mbnd)
       integer mang,nang
       integer lang(5,mang)
-      real*8 rang(6,mang)
+      real*8 rang(nparms,2,mang)
       integer mdih,ndih
-      integer ldih(9,mdih),kdih(6,3,mdih)
-      real*8 rdih(6,6,mdih)
+      integer ldih(6,mdih),nfdih(nparms,mdih),kdih(6,nparms,mdih)
+      real*8 rdih(6,nparms,2,mdih)
       integer mimp,nimp
-      integer limp(9,mimp)
-      real*8 rimp(6,mimp)
+      integer limp(6,mimp),kimp(nparms,mimp)
+      real*8 rimp(nparms,2,mimp)
       integer natmt,nbndt,nangt,ndiht,nimpt
-      real*8 wcorr(3)
+      real*8 wcorr(10)
       integer nval
       integer ival(nval),ndx(nval)
       real*8 rval(nval)
 c
-      integer i,j,k,l,link1,link2,isgm,jsgm,nb,na,nd,ni,nn,iatm,ia(10)
+      integer i,j,k,l,m,link1,link2,isgm,jsgm,nb,na,nd,ni,nn,iatm,ia(10)
       integer no,ndi,ltemp,igrp,ipgrp,nia(3)
       real*8 rtemp
       character*4 atl1,atl2
       character*255 filsgm,filmat
-      integer in,jn,ln,ir,itmp
+      integer in,jn,ln,ir,itmp,nsgmpar,ipdef
+c
+c     lang(1,i) : atom index i in angle i-j-k
+c     lang(2,i) : atom index j in angle i-j-k
+c     lang(3,i) : atom index k in angle i-j-k
+c     lang(4,i) : constraint type
+c     lang(5,i) : parameter origin
+c
+      if(util_print('where',print_debug)) then
+      write(lfnout,1100)
+ 1100 format('PRE_MKLIST ENTERED ',a)
+      endif
 c
       igrp=0
       ipgrp=0
@@ -76,15 +87,24 @@ c
 c     append the atom and bonded lists
 c     --------------------------------
 c
-      if(.not.pre_rdsgm(lfnout,ffield,lseq(4,i),i,igrp,ipgrp,
+      if(.not.pre_rdsgm(lfnout,ffield,nparms,mparms,
+     + lseq(4,i),i,igrp,ipgrp,
      + lfnsgm,filsgm,lfnmat,filmat,
      + latm,catm,qatm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
-     + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,wcorr))
+     + ldih,nfdih,kdih,rdih,mdih,ndih,limp,kimp,rimp,mimp,nimp,
+     + wcorr,nsgmpar,ipdef,itopol))
      + call errquit('pre_rdsgm failed',9999)
 c
+      lseq(5,i)=nsgmpar
+      lseq(6,i)=ipdef
     1 continue
       lseq(3,nseq+1)=natm+1
+c
+      if(util_print('where',print_debug)) then
+      write(lfnout,1101)
+ 1101 format('PRE_MKLIST LOOP 1 DONE ')
+      endif
 c
 c     save original number of bonds in nb
 c
@@ -121,6 +141,11 @@ c
       endif
       endif
     2 continue
+c
+      if(util_print('where',print_debug)) then
+      write(lfnout,1102)
+ 1102 format('PRE_MKLIST LOOP 2 DONE ')
+      endif
 c
 c     add explicit links
 c     ------------------
@@ -214,6 +239,11 @@ c
 c
     5 continue
 c
+      if(util_print('where',print_debug)) then
+      write(lfnout,1105)
+ 1105 format('PRE_MKLIST LOOP 5 DONE ')
+      endif
+c
       if(util_print('topology',print_low)) then
       write(lfnout,1003)
  1003 format(' ')
@@ -282,9 +312,6 @@ c
       ldih(4,ndih)=lang(3,j)
       ldih(5,ndih)=0
       ldih(6,ndih)=0
-      ldih(7,ndih)=0
-      ldih(8,ndih)=0
-      ldih(9,ndih)=0
       else
       if(lang(2,i).eq.lang(3,j).and.lang(3,i).eq.lang(2,j)) then
       if(ndih.ge.mdih) call errquit('increase mdih',9999)
@@ -295,9 +322,6 @@ c
       ldih(4,ndih)=lang(1,j)
       ldih(5,ndih)=0
       ldih(6,ndih)=0
-      ldih(7,ndih)=0
-      ldih(8,ndih)=0
-      ldih(9,ndih)=0
       else
       if(lang(1,i).eq.lang(2,j).and.lang(2,i).eq.lang(3,j)) then
       if(ndih.ge.mdih) call errquit('increase mdih',9999)
@@ -308,9 +332,6 @@ c
       ldih(4,ndih)=lang(3,i)
       ldih(5,ndih)=0
       ldih(6,ndih)=0
-      ldih(7,ndih)=0
-      ldih(8,ndih)=0
-      ldih(9,ndih)=0
       else
       if(lang(1,i).eq.lang(2,j).and.lang(2,i).eq.lang(1,j)) then
       if(ndih.ge.mdih) call errquit('increase mdih',9999)
@@ -321,9 +342,6 @@ c
       ldih(4,ndih)=lang(3,i)
       ldih(5,ndih)=0
       ldih(6,ndih)=0
-      ldih(7,ndih)=0
-      ldih(8,ndih)=0
-      ldih(9,ndih)=0
       endif
       endif
       endif
@@ -443,9 +461,6 @@ c
       ldih(4,ndih)=ldih(4,i)
       ldih(5,ndih)=ldih(5,i)
       ldih(6,ndih)=ldih(6,i)
-      ldih(7,ndih)=ldih(7,i)
-      ldih(8,ndih)=ldih(8,i)
-      ldih(9,ndih)=ldih(9,i)
    20 continue
       endif
 c
@@ -507,10 +522,15 @@ c
 c
       endif
 c
+      if(util_print('where',print_debug)) then
+      write(lfnout,1107)
+ 1107 format('PRE_MKLIST START SORTING ')
+      endif
+c
 c     sort the bond list
 c     ------------------
 c
-      if(nbnd.gt.0) then
+      if(nbnd.gt.1) then
       do 34 i=1,nbnd
       if(lbnd(1,i).gt.lbnd(2,i)) then
       ltemp=lbnd(1,i)
@@ -572,14 +592,21 @@ c
       lbnd(k,i)=ival(ndx(i))
    41 continue
    39 continue
-      do 42 k=1,6
+      do 42 k=1,nparms
+      do 442 l=1,2
       do 43 i=1,nbnd
-      rval(i)=rbnd(k,i)
+      rval(i)=rbnd(k,l,i)
    43 continue
       do 44 i=1,nbnd
-      rbnd(k,i)=rval(ndx(i))
+      rbnd(k,l,i)=rval(ndx(i))
    44 continue
+  442 continue
    42 continue
+      endif
+c
+      if(util_print('where',print_debug)) then
+      write(lfnout,1121)
+ 1121 format('PRE_MKLIST BONDS SORTED ')
       endif
 c
 c     sort the angle lists
@@ -653,14 +680,21 @@ c
       lang(k,i)=ival(ndx(i))
    52 continue
    50 continue
-      do 54 k=1,6
+      do 54 k=1,nparms
+      do 554 l=1,2
       do 55 i=1,nang
-      rval(i)=rang(k,i)
+      rval(i)=rang(k,l,i)
    55 continue
       do 56 i=1,nang
-      rang(k,i)=rval(ndx(i))
+      rang(k,l,i)=rval(ndx(i))
    56 continue
+  554 continue
    54 continue
+      endif
+c
+      if(util_print('where',print_debug)) then
+      write(lfnout,1122)
+ 1122 format('PRE_MKLIST ANGLES SORTED ')
       endif
 c
 c     sort dihedral list
@@ -736,7 +770,7 @@ c
       ndx(in)=itmp
       goto 59
    60 continue
-      do 62 k=1,9
+      do 62 k=1,6
       do 63 i=1,ndih
       ival(i)=ldih(k,i)
    63 continue
@@ -745,15 +779,17 @@ c
    64 continue
    62 continue
       do 65 l=1,6
-      do 66 k=1,6
+      do 66 k=1,nparms
+      do 566 m=1,2
       do 67 i=1,ndih
-      rval(i)=rdih(l,k,i)
+      rval(i)=rdih(l,k,m,i)
    67 continue
       do 68 i=1,ndih
-      rdih(l,k,i)=rval(ndx(i))
+      rdih(l,k,m,i)=rval(ndx(i))
    68 continue
+  566 continue
    66 continue
-      do 69 k=1,3
+      do 69 k=1,nparms
       do 70 i=1,ndih
       ival(i)=kdih(l,k,i)
    70 continue
@@ -762,6 +798,19 @@ c
    71 continue
    69 continue
    65 continue
+      do 569 k=1,nparms
+      do 570 i=1,ndih
+      ival(i)=nfdih(k,i)
+  570 continue
+      do 571 i=1,ndih
+      nfdih(k,i)=ival(ndx(i))
+  571 continue
+  569 continue
+      endif
+c
+      if(util_print('where',print_debug)) then
+      write(lfnout,1123)
+ 1123 format('PRE_MKLIST TORSIONS SORTED ')
       endif
 c
 c
@@ -777,89 +826,101 @@ c
      + limp(3,i).gt.limp(3,j)).or.
      + (limp(1,i).eq.limp(1,j).and.limp(2,i).eq.limp(2,j).and.
      + limp(3,i).eq.limp(3,j).and.limp(4,i).gt.limp(4,j))) then
-      do 74 k=1,9
+      do 74 k=1,6
       ltemp=limp(k,i)
       limp(k,i)=limp(k,j)
       limp(k,j)=ltemp
    74 continue
-      do 75 k=1,6
-      rtemp=rimp(k,i)
-      rimp(k,i)=rimp(k,j)
-      rimp(k,j)=rtemp
+      do 574 k=1,nparms
+      ltemp=kimp(k,i)
+      kimp(k,i)=kimp(k,j)
+      kimp(k,j)=ltemp
+  574 continue
+      do 75 k=1,nparms
+      do 575 l=1,2
+      rtemp=rimp(k,l,i)
+      rimp(k,l,i)=rimp(k,l,j)
+      rimp(k,l,j)=rtemp
+  575 continue
    75 continue
       endif
    73 continue
    72 continue
       endif
 c
-c     check number of segments involved in angles
-c     -------------------------------------------
-c
-      do 76 i=1,nang
-      if(lseq(1,latm(5,lang(1,i))).ne.lseq(1,latm(5,lang(2,i))).and.
-     + lseq(1,latm(5,lang(1,i))).ne.lseq(1,latm(5,lang(3,i))).and.
-     + lseq(1,latm(5,lang(2,i))).ne.lseq(1,latm(5,lang(3,i)))) then
-      lang(5,i)=-1
+      if(util_print('where',print_debug)) then
+      write(lfnout,1108)
+ 1108 format('PRE_MKLIST DONE SORTING ')
       endif
-   76 continue
-c
-c     check number of segments involved in dihedrals
-c     ----------------------------------------------
-c
-      do 77 i=1,ndih
-      if(lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(2,i))).and.
-     + lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(3,i))).and.
-     + lseq(1,latm(5,ldih(2,i))).ne.lseq(1,latm(5,ldih(3,i)))) then
-      ldih(6,i)=-1
-      else
-      if(lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(2,i))).and.
-     + lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(4,i))).and.
-     + lseq(1,latm(5,ldih(2,i))).ne.lseq(1,latm(5,ldih(4,i)))) then
-      ldih(6,i)=-1
-      else
-      if(lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(3,i))).and.
-     + lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(4,i))).and.
-     + lseq(1,latm(5,ldih(3,i))).ne.lseq(1,latm(5,ldih(4,i)))) then
-      ldih(6,i)=-1
-      else
-      if(lseq(1,latm(5,ldih(2,i))).ne.lseq(1,latm(5,ldih(3,i))).and.
-     + lseq(1,latm(5,ldih(2,i))).ne.lseq(1,latm(5,ldih(4,i))).and.
-     + lseq(1,latm(5,ldih(3,i))).ne.lseq(1,latm(5,ldih(4,i)))) then
-      ldih(6,i)=-1
-      endif
-      endif
-      endif
-      endif
-   77 continue
-c
-c     check number of segments involved in improper dihedrals
-c     -------------------------------------------------------
-c
-      do 78 i=1,nimp
-      if(lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(2,i))).and.
-     + lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(3,i))).and.
-     + lseq(1,latm(5,limp(2,i))).ne.lseq(1,latm(5,limp(3,i)))) then
-      limp(6,i)=-1
-      else
-      if(lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(2,i))).and.
-     + lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(4,i))).and.
-     + lseq(1,latm(5,limp(2,i))).ne.lseq(1,latm(5,limp(4,i)))) then
-      limp(6,i)=-1
-      else
-      if(lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(3,i))).and.
-     + lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(4,i))).and.
-     + lseq(1,latm(5,limp(3,i))).ne.lseq(1,latm(5,limp(4,i)))) then
-      limp(6,i)=-1
-      else
-      if(lseq(1,latm(5,limp(2,i))).ne.lseq(1,latm(5,limp(3,i))).and.
-     + lseq(1,latm(5,limp(2,i))).ne.lseq(1,latm(5,limp(4,i))).and.
-     + lseq(1,latm(5,limp(3,i))).ne.lseq(1,latm(5,limp(4,i)))) then
-      limp(6,i)=-1
-      endif
-      endif
-      endif
-      endif
-   78 continue
+cc
+cc     check number of segments involved in angles
+cc     -------------------------------------------
+cc
+c      do 76 i=1,nang
+c      if(lseq(1,latm(5,lang(1,i))).ne.lseq(1,latm(5,lang(2,i))).and.
+c     + lseq(1,latm(5,lang(1,i))).ne.lseq(1,latm(5,lang(3,i))).and.
+c     + lseq(1,latm(5,lang(2,i))).ne.lseq(1,latm(5,lang(3,i)))) then
+c      lang(5,i)=-1
+c      endif
+c   76 continue
+cc
+cc     check number of segments involved in dihedrals
+cc     ----------------------------------------------
+cc
+c      do 77 i=1,ndih
+c      if(lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(2,i))).and.
+c     + lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(3,i))).and.
+c     + lseq(1,latm(5,ldih(2,i))).ne.lseq(1,latm(5,ldih(3,i)))) then
+c      ldih(6,i)=-1
+c      else
+c      if(lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(2,i))).and.
+c     + lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(4,i))).and.
+c     + lseq(1,latm(5,ldih(2,i))).ne.lseq(1,latm(5,ldih(4,i)))) then
+c      ldih(6,i)=-1
+c      else
+c      if(lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(3,i))).and.
+c     + lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(4,i))).and.
+c     + lseq(1,latm(5,ldih(3,i))).ne.lseq(1,latm(5,ldih(4,i)))) then
+c      ldih(6,i)=-1
+c      else
+c      if(lseq(1,latm(5,ldih(2,i))).ne.lseq(1,latm(5,ldih(3,i))).and.
+c     + lseq(1,latm(5,ldih(2,i))).ne.lseq(1,latm(5,ldih(4,i))).and.
+c     + lseq(1,latm(5,ldih(3,i))).ne.lseq(1,latm(5,ldih(4,i)))) then
+c      ldih(6,i)=-1
+c      endif
+c      endif
+c      endif
+c      endif
+c   77 continue
+cc
+cc     check number of segments involved in improper dihedrals
+cc     -------------------------------------------------------
+cc
+c      do 78 i=1,nimp
+c      if(lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(2,i))).and.
+c     + lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(3,i))).and.
+c     + lseq(1,latm(5,limp(2,i))).ne.lseq(1,latm(5,limp(3,i)))) then
+c      limp(6,i)=-1
+c      else
+c      if(lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(2,i))).and.
+c     + lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(4,i))).and.
+c     + lseq(1,latm(5,limp(2,i))).ne.lseq(1,latm(5,limp(4,i)))) then
+c      limp(6,i)=-1
+c      else
+c      if(lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(3,i))).and.
+c     + lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(4,i))).and.
+c     + lseq(1,latm(5,limp(3,i))).ne.lseq(1,latm(5,limp(4,i)))) then
+c      limp(6,i)=-1
+c      else
+c      if(lseq(1,latm(5,limp(2,i))).ne.lseq(1,latm(5,limp(3,i))).and.
+c     + lseq(1,latm(5,limp(2,i))).ne.lseq(1,latm(5,limp(4,i))).and.
+c     + lseq(1,latm(5,limp(3,i))).ne.lseq(1,latm(5,limp(4,i)))) then
+c      limp(6,i)=-1
+c      endif
+c      endif
+c      endif
+c      endif
+c   78 continue
 c
 c     read solvent segment
 c     --------------------
@@ -875,14 +936,22 @@ c
       if(.not.pre_sgmfil(cseq(nseq+1),lfnsgm,filsgm,
      + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c))
      + call errquit('pre_sgmfil failed',9999)
-      if(.not.pre_rdsgm(lfnout,ffield,0,0,igrp,ipgrp,lfnsgm,
+      if(.not.pre_rdsgm(lfnout,ffield,nparms,mparms,
+     + 0,0,igrp,ipgrp,lfnsgm,
      + filsgm,lfnmat,filmat,latm,catm,qatm,matm,natmt,
      + lbnd,rbnd,mbnd,nbndt,lang,rang,mang,nangt,
-     + ldih,kdih,rdih,mdih,ndiht,limp,rimp,mimp,nimpt,wcorr))
+     + ldih,nfdih,kdih,rdih,mdih,ndiht,limp,kimp,rimp,mimp,nimpt,
+     + wcorr,nsgmpar,ipdef,itopol))
      + call errquit('pre_rdsgm failed',9999)
       endif
       lseq(3,nseq+2)=natmt+1
 c
       pre_mklist=.true.
+c
+      if(util_print('where',print_debug)) then
+      write(lfnout,1110)
+ 1110 format('PRE_MKLIST DONE')
+      endif
+c
       return
       end

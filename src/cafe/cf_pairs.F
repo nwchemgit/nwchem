@@ -1,7 +1,7 @@
       subroutine pairs(lself,lpbcs,xw,xwm,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,
-     + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
-     + isfr,isto,jsfr,jsto,lpbc,lstptr)
+     + isga,isat,isdt,isgr,isgm,ismf,isml,isss,isq1,isq2,isq3,ishop,isz,
+     + isfr,isto,jsfr,jsto,lpbc,lstptr,lseq)
 c
 c     in     log : lself           : true for box self interactions
 c     in     r*8 : xw(mwm,3,mwa)   : solvent coordinates
@@ -30,7 +30,7 @@ c     in/out int : lstptr          : list pointer
 c
 c     dimensions nwm,nwa and nsa need to have been given by a call to cf_initx
 c
-c $Id: cf_pairs.F,v 1.11 2002-02-21 15:58:52 d3j191 Exp $
+c $Id: cf_pairs.F,v 1.12 2003-07-17 19:44:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -41,9 +41,11 @@ c
       integer iwdt(mwm),iwz(mwm),isz(msa)
       integer isga(msa),isat(msa),isdt(msa),isgr(msa),ismf(msa)
       integer isml(msa),isss(msa),isq1(msa),isq2(msa),isq3(msa)
+      integer ishop(msa),isgm(msa)
       integer iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer lstptr
       logical lself,lpbc,lpbcs
+      integer lseq(mseq)
 c
       integer nwloc,nsloc,nwnon,nsnon,npairs,mpairs
       integer lptr,lptrn
@@ -134,12 +136,13 @@ c
       mpairs=maxl-(lptr-i_list)-4*nsloc-1
       if(nsloc.gt.0.and.nsnon.gt.0) then
       call cf_lss(lself,lpbc,lpbcs,
-     + xs,isga,isdt,isgr,isss,isz,isfr,isto,
+     + xs,isga,isdt,isgr,isgm,isss,ishop,isz,isfr,isto,
      + jsfr,jsto,
      + nsloc,mpairs,npairs,int_mb(lptr+1),int_mb(lptr+1+2*nsloc),
      + int_mb(lptr+1+4*nsloc),
      + int_mb(i_s2i1),dbl_mb(i_s3r1),dbl_mb(i_s1r1),
-     + int_mb(i_itrd(2)),mtt(2),int_mb(i_ixcl(2)),mxt(2))
+     + int_mb(i_itrd(2)),mtt(2),int_mb(i_ixcl(2)),mxt(2),
+     + int_mb(i_lda),dbl_mb(i_rda),lseq)
       endif
       int_mb(lptr)=npairs
       int_mb(lptrn+3)=lptr

@@ -2,7 +2,7 @@
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
      + llnk,clnk,mlnk,nlnk,icyren,his)
 c
-c $Id: pre_rename.F,v 1.18 2001-07-06 03:45:14 d3j191 Exp $
+c $Id: pre_rename.F,v 1.19 2003-07-17 19:38:57 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -14,7 +14,7 @@ c
       character*255 filmod
       character*80 ffield,card
       integer mseq,nseq,matm,natm,mlnk,nlnk,icyren
-      integer lseq(4,mseq),latm(5,matm)
+      integer lseq(6,mseq),latm(5,matm)
       character*5 cseq(2,mseq),string
       character*6 catm(3,matm)
       integer llnk(4,mlnk)

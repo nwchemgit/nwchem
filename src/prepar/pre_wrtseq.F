@@ -2,7 +2,7 @@
      + cseq,lseq,mseq,nseq,lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,nlnkf,
      + slvmdl,mcount,ncount,icount,scount,mfract,nfract,ifract)
 c
-c $Id: pre_wrtseq.F,v 1.11 2001-07-06 03:45:14 d3j191 Exp $
+c $Id: pre_wrtseq.F,v 1.12 2003-07-17 19:38:58 d3j191 Exp $
 c
 c     function to write the sequence file
 c
@@ -11,7 +11,7 @@ c
 #include "util.fh"
 c
       integer lfnseq,mseq,nseq,mssb,nssb,mlnk,nlnk,nlnkf,lfnout
-      integer lseq(4,mseq),lssb(2,mssb),llnk(4,mlnk)
+      integer lseq(6,mseq),lssb(2,mssb),llnk(4,mlnk)
       character*4 clnk(2,mlnk)
       character*5 cseq(2,mseq)
       character*10 slvmdl

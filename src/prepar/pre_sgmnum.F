@@ -1,7 +1,7 @@
       logical function pre_sgmnum(lfnout,
      + lseq,cseq,mseq,nseq,nsgm)
 c
-c $Id: pre_sgmnum.F,v 1.6 2001-07-06 03:45:14 d3j191 Exp $
+c $Id: pre_sgmnum.F,v 1.7 2003-07-17 19:38:57 d3j191 Exp $
 c
 c     function to scan database for unique segments in sequence
 c
@@ -19,7 +19,7 @@ c
 #include "util.fh"
 c
       integer lfnout,mseq,nseq,nsgm
-      integer lseq(4,mseq)
+      integer lseq(6,mseq)
       character*5 cseq(2,mseq)
 c
       integer i,j

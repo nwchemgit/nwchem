@@ -1,9 +1,9 @@
       logical function pre_misfit(lfnout,lfnmat,
      + isfnd,xs,csa,qsa,isgm,msa,nsa,
-     + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
-     + qwa,mwm,mwa,nwm,nwa,npbtyp,box,fcount)
+     + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,nmis,iwater,iwfnd,xw,
+     + qwa,mwm,mwa,nwm,nwa,npbtyp,box,fcount,nrgrid,iogrid,rogrid)
 c
-c $Id: pre_misfit.F,v 1.34 2002-08-14 19:56:32 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.35 2003-07-17 19:38:56 d3j191 Exp $
 c
       implicit none
 c
@@ -16,13 +16,14 @@ c
       logical md_zmat
       external md_zmat
 c
-      integer lfnout,msa,nsa,msb,nsb,mgrid,iwater,mwm,mwa,nwm,nwa
-      integer lfnmat
+      integer lfnout,lfnmat
+      integer msa,nsa,msb,nsb,mgrid,nmis,iwater,mwm,mwa,nwm,nwa
       integer isfnd(msa),idsb(2,msb),iwfnd(mwm),npbtyp,isgm(msa)
       real*8 cdsb(msb),xs(3,msa),qsa(msa)
       character*16 csa(msa)
       real*8 xw(3,mwa,mwm),qwa(mwa),box(3),fcount
       character*255 filmat
+      integer nrgrid,iogrid(5),rogrid(2,5)
 c
       real*8 grid(4,mgrid),distx,disty,distz
       integer i,ic,j,nn,nndx(10),nnn,nnndx(10),nm,miss
@@ -31,8 +32,10 @@ c
       integer ix,iy,iz,k,l,m,imax,imin,ngrid,iwm,isa,iwm2,iwa,num
 c
       integer isg,ioff,jz,kz,lz
-      real*8 dz,az,tz
+      real*8 dz,az,tz,dgrid
       logical lmat,fndone
+c
+      if(nmis.gt.0) then
 c
 c     process z-matrices for missing atoms
 c     ------------------------------------
@@ -76,6 +79,11 @@ c
       if(lmat) close(unit=lfnmat)
       if(fndone) goto 32
 c
+      if(util_print('restart',print_default)) then
+      write(lfnout,2000) 
+ 2000 format(' Z-matrix definitions done',/)
+      endif
+c
 c     generate missing coordinates based on simple rules
 c     --------------------------------------------------
 c
@@ -96,7 +104,6 @@ c     for each atom without coordinates
 c     ---------------------------------
 c
       if(isfnd(i).ne.1) then
-c
       if(util_print('coordinates',print_debug)) then
       write(lfnout,'(a,i7,5x,a16)') 'Not found: atom ',i,csa(i)
       endif
@@ -330,6 +337,10 @@ c
 c
     1 continue
 c
+      if(util_print('restart',print_default)) then
+      write(lfnout,2001) 
+ 2001 format(' Geometric rules definitions done',/)
+      endif
 c
       do 8 i=1,nsa
 c
@@ -352,6 +363,7 @@ c
       nndx(nn)=idsb(1,j)
       endif
     9 continue
+c
 c
 c     if not bound to any atom
 c     ------------------------
@@ -449,6 +461,36 @@ c
   118 continue
       endif
   117 continue
+      endif
+      if(nrgrid.gt.0) then
+      do 217 k=1,nrgrid
+      if(iogrid(k).eq.1) then
+      if(grid(1,ngrid).lt.rogrid(1,k)) goto 16
+      if(grid(1,ngrid).gt.rogrid(2,k)) goto 16
+      elseif(iogrid(k).eq.2) then
+      if(grid(1,ngrid).gt.rogrid(1,k).and.grid(1,ngrid).lt.rogrid(2,k))
+     + goto 16
+      elseif(iogrid(k).eq.3) then
+      if(grid(2,ngrid).lt.rogrid(1,k)) goto 16
+      if(grid(2,ngrid).gt.rogrid(2,k)) goto 16
+      elseif(iogrid(k).eq.4) then
+      if(grid(2,ngrid).gt.rogrid(1,k).and.grid(1,ngrid).lt.rogrid(2,k))
+     + goto 16
+      elseif(iogrid(k).eq.5) then
+      if(grid(3,ngrid).lt.rogrid(1,k)) goto 16
+      if(grid(3,ngrid).gt.rogrid(2,k)) goto 16
+      elseif(iogrid(k).eq.6) then
+      if(grid(3,ngrid).gt.rogrid(1,k).and.grid(1,ngrid).lt.rogrid(2,k))
+     + goto 16
+      elseif(iogrid(k).eq.5) then
+      dgrid=sqrt(grid(1,ngrid)**2+grid(2,ngrid)**2)
+      if(dgrid.lt.rogrid(1,k)) goto 16
+      if(dgrid.gt.rogrid(2,k)) goto 16
+      elseif(iogrid(k).eq.6) then
+      dgrid=sqrt(grid(1,ngrid)**2+grid(2,ngrid)**2)
+      if(dgrid.gt.rogrid(1,k).and.dgrid.lt.rogrid(2,k)) goto 16
+      endif
+  217 continue
       endif
       ngrid=ngrid+1
    16 continue
@@ -603,8 +645,15 @@ c
       endif
     8 continue
 c
+      if(util_print('restart',print_default)) then
+      write(lfnout,2002) 
+ 2002 format(' Grid specifications for non-bonded atoms done',/)
+      endif
+c
       if(miss.ne.0) then
       call errquit('pre_misfit: missing non hydrogen coordinates',9999)
+      endif
+c
       endif
 c
 c     crystal waters
@@ -664,6 +713,11 @@ c
       iwfnd(iwm)=3
       endif
    23 continue
+      endif
+c
+      if(util_print('restart',print_default)) then
+      write(lfnout,2003) 
+ 2003 format(' Crystal waters done',/)
       endif
 c
       pre_misfit=.true.

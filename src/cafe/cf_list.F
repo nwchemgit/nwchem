@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.20 2003-05-14 23:09:40 d3j191 Exp $
+c $Id: cf_list.F,v 1.21 2003-07-17 19:44:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -348,14 +348,16 @@ c
 c
       return
       end
-      subroutine cf_lss(lself,lpbc,lpbcs,xs,iga,idt,igr,iss,isz,
+      subroutine cf_lss(lself,lpbc,lpbcs,xs,iga,idt,igr,isgm,iss,ish,
+     + isz,
      + isfr,isto,jsfr,jsto,nlocs,mpairs,npairs,lssjpt,lssin,lssj,list,
-     + rwx,rw,ndxt,nt,ndxx,nx)
+     + rwx,rw,ndxt,nt,ndxx,nx,lda,rda,lseq)
 c
       implicit none
 c
 #include "cf_common.fh"
 #include "bitops.fh"
+#include "mafdecls.fh"
 c
       real*8 rwx(mscr,3),rw(mscr)
       real*8 xs(msa,3)
@@ -364,13 +366,20 @@ c
 c
       integer lssj(*),lssjpt(nlocs,2),lssin(nlocs,2)
       integer list(msa,3),iga(msa),igr(msa),idt(msa),iss(msa),isz(msa)
+      integer ish(msa),isgm(msa)
+      integer lseq(mseq)
       logical lself,lpbc,lpbcs
 c
       integer isafr,isfr,isato,isto,jsafr,jsfr,jsato,jsto
-      integer mpairs,npairs,isa,jsa,nlist1,nlist2
+      integer mpairs,npairs,isa,jsa,nlist1,nlist2,idoff,iaoff
       integer ifrsx,itosx,ifrst,itost,jfrsx,jtosx,jfrst,jtost
       integer iskip1,iskip2,istsum,ist,jst,isxsum,isx,jsx,ilist
       integer nlist0,isa0,iisa,isglob,ipss,jsglob,nlist,leq,nssl0
+      integer lda(10,*)
+      real*8 rda(5,*)
+c
+      real*8 xhop(4,3),xacc(5)
+      integer idon,iacc
 c
 c     this subroutine evaluates the solute-solute pairlist
 c
@@ -541,6 +550,68 @@ c
    25 continue
       endif
       endif
+c
+c     donor acceptor pair list
+c
+      if(nhop.gt.0) then
+      idon=0
+      iacc=0
+      if(ish(isa).gt.0) then
+      if(iand(ish(isa),1).eq.0) then
+      idon=isa
+      else
+      iacc=isa
+      endif
+      endif
+      if(idon.gt.0.or.iacc.gt.0) then
+      do 225 jsa=jsafr,jsato
+      if(isgm(isa).ne.isgm(jsa)) then
+      if(idon.eq.isa) iacc=0
+      if(iacc.eq.isa) idon=0
+      if(ish(jsa).gt.0) then
+      if(iacc.gt.0.and.iand(ish(jsa),1).eq.0) then
+      idon=jsa
+      elseif(idon.gt.0.and.iand(ish(jsa),1).eq.1) then
+      iacc=jsa
+      endif
+      endif
+      if(idon.gt.0.and.iacc.gt.0.and.rw(jsa).lt.rhop2) then
+ctmp
+c     temporary change to exclude same to same protonation state
+c
+      if(lseq(isgm(idon)).ne.lseq(isgm(iacc))) then
+ctmp
+      call qhop_asite(msa,xs,idon,iga(idon),isgm(idon),lseq(isgm(idon)),
+     + iacc,iga(iacc),isgm(iacc),lseq(isgm(iacc)),xacc,idoff,iaoff)
+      nlda=nlda+1
+c      write(*,2222) nlda,idon,iga(idon),isgm(idon),lseq(isgm(idon)),
+c     + iacc,iga(iacc),isgm(iacc),lseq(isgm(iacc)),sqrt(rw(jsa))
+ 2222 format(9i5,f12.6)
+      if(nlda.gt.3*nhop) call errquit('Increase nhop',nhop)
+      lda(1,nlda)=iga(idon)
+      lda(2,nlda)=idon
+      lda(3,nlda)=isgm(idon)
+      lda(4,nlda)=lseq(isgm(idon))+ish(idon)/2
+      lda(5,nlda)=idoff
+      lda(6,nlda)=iga(iacc)
+      lda(7,nlda)=iacc
+      lda(8,nlda)=isgm(iacc)
+      lda(9,nlda)=lseq(isgm(iacc))-ish(iacc)/2
+      lda(10,nlda)=iaoff
+      rda(1,nlda)=xacc(1)
+      rda(2,nlda)=xacc(2)
+      rda(3,nlda)=xacc(3)
+      rda(4,nlda)=xacc(4)
+      rda(5,nlda)=xacc(5)
+      endif
+      endif
+ctmp
+      endif
+ctmp
+  225 continue
+      endif
+      endif
+c
       if(npss.eq.2) then
       if(iand(idt(isa),mdynam).eq.ldynam.or.includ.eq.1) then
       do 26 jsa=jsafr,jsato
@@ -744,14 +815,6 @@ c
       endif
    57 continue
 c
-      if(iqmmm.ne.0) then
-      do 159 jsa=jsafr,jsato
-      if(iand(idt(iisa),lquant).ne.0.and.
-     + iand(idt(jsa),lquant).ne.0) list(jsa,3)=0
-  159 continue
-      endif
-      
-c
 c     remove interactions between dummy atoms
 c
 c     bits set in iss : 0 set 1 s-w is dummy               (1)
@@ -764,23 +827,23 @@ c                       6 set 1 s-s self is dummy         (64)
 c                       7 set 2 s-s self is dummy        (128)
 c                       8 set 3 s-s self is dummy        (256)
 c
-      if(.not.ithint) then
-      do 150 jsa=jsafr,jsato
-      if(iand(iss(iisa),72).eq.72) list(jsa,3)=0
-      if(iand(iss(jsa),72).eq.72) list(jsa,3)=0
-  150 continue
-      else
-      do 151 jsa=jsafr,jsato
-      if(iand(iss(iisa),144).eq.144.and.iand(iss(iisa),288).eq.288)
-     + list(jsa,3)=0
-      if(iand(iss(jsa),144).eq.144.and.iand(iss(jsa),288).eq.288)
-     + list(jsa,3)=0
-      if(iand(iss(iisa),144).eq.144.and.iand(iss(jsa),288).eq.288)
-     + list(jsa,3)=0
-      if(iand(iss(jsa),144).eq.144.and.iand(iss(iisa),288).eq.288)
-     + list(jsa,3)=0
-  151 continue
-      endif
+cz      if(.not.ithint) then
+cz      do 150 jsa=jsafr,jsato
+cz      if(iand(iss(iisa),72).eq.72) list(jsa,3)=0
+cz      if(iand(iss(jsa),72).eq.72) list(jsa,3)=0
+cz  150 continue
+cz      else
+cz      do 151 jsa=jsafr,jsato
+cz      if(iand(iss(iisa),144).eq.144.and.iand(iss(iisa),288).eq.288)
+cz     + list(jsa,3)=0
+cz      if(iand(iss(jsa),144).eq.144.and.iand(iss(jsa),288).eq.288)
+cz     + list(jsa,3)=0
+cz      if(iand(iss(iisa),144).eq.144.and.iand(iss(jsa),288).eq.288)
+cz     + list(jsa,3)=0
+cz      if(iand(iss(jsa),144).eq.144.and.iand(iss(iisa),288).eq.288)
+cz     + list(jsa,3)=0
+cz  151 continue
+cz      endif
 c
 c     make the actual pairlist
 c

@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.22 2002-08-09 22:16:13 d3j191 Exp $
+c $Id: cf_shake.F,v 1.23 2003-07-17 19:44:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -81,7 +81,7 @@ c
       integer isgan(msa),isat(msa)
       integer ipmf(numpmf,8),jpmf(numpmf,4,npmfa)
       real*8 rpmf(3,6,numpmf),xpmf(4,4,numpmf),ypmf(4,3,numpmf)
-      real*8 wgt(mat,6),ft(4,3),rv(2),w(4)
+      real*8 wgt(mat,mset),ft(4,3),rv(2),w(4)
       integer ip(3),it(2),ign(4),iml(4),idt(4),ich(4)
 c
       integer i,j,k,l,m
@@ -206,7 +206,7 @@ c
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa)
       integer mwb,nwb,nbp
       integer ibnd(mwb,3),iwat(mwa)
-      real*8 bnd(mwb,nbp,6),wgt(mat,6)
+      real*8 bnd(mwb,nbp,6),wgt(mat,mset)
       real*8 rwx(mscr,3),rwi1(mscr),rwi2(mscr),rwi6(mscr),f(mscr)
       real*8 swt(mwm,3,mwb)
 c
@@ -403,7 +403,7 @@ c
       integer matoms,natoms
       integer igan(matoms),isat(matoms),isdt(matoms)
       real*8 xs(matoms,3),ys(matoms,3)
-      real*8 wgt(mat,6)
+      real*8 wgt(mat,mset)
 c
       real*8 wsai,wsaj
       logical ready,dtl

@@ -1,7 +1,7 @@
       logical function pre_rtdbsq(irtdb,igeom,lfnout,sysnam,
      + lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm)
 c
-c $Id: pre_rtdbsq.F,v 1.8 2000-02-21 07:05:45 d3j191 Exp $
+c $Id: pre_rtdbsq.F,v 1.9 2003-07-17 19:38:57 d3j191 Exp $
 c
 c     function to read sequence from the rtdb
 c
@@ -27,7 +27,7 @@ c
 c
       integer irtdb,igeom
       integer lfnout,mseq,nseq,matm,natm
-      integer lseq(4,mseq),latm(5,matm)
+      integer lseq(6,mseq),latm(5,matm)
       character*6 catm(3,matm)
       character*5 cseq(2,mseq)
       character*80 sysnam

@@ -1,5 +1,5 @@
       subroutine cf_rdgeom(snam)
-c $Id: cf_rdgeom.F,v 1.8 2002-02-02 04:28:26 d3j191 Exp $
+c $Id: cf_rdgeom.F,v 1.9 2003-07-17 19:44:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -40,7 +40,7 @@ c
       natyps=nsatot
       nqtyps=nsatot
 c
-      call cf_inita(natyps,4,nqtyps,4)
+      call cf_inita(natyps,4,nqtyps,4,3)
 c
       if(.not.geom_create(igeom,'geometry'))
      + call errquit('cf_rdgeom: geom_create failed',0)
@@ -62,7 +62,9 @@ c
       vadata(2*j-1)=q
       vadata(2*j)=0.0d0
     2 continue
-      call cf_para(i,cdata,rdata,idata)
+      call cf_para(i,1,cdata(1),rdata(1),idata(1))
+      call cf_para(i,2,cdata(2),rdata(2),idata(2))
+      call cf_para(i,3,cdata(3),rdata(3),idata(3))
       call cf_parq(i,vadata)
     1 continue
       if(.not.geom_destroy(igeom))
@@ -149,7 +151,7 @@ c
 c     initialize on nodes other than 0
 c
       if(me.ne.0) then
-      call cf_inita(natyps,4,nqtyps,4)
+      call cf_inita(natyps,4,nqtyps,4,3)
       call cf_initb(1,1,nbw,2,nhw,2,ndw,3,now,3,ntw,2,nnw,2,naw)
       call cf_initb(2,nas,nbt,2,nhs,2,nds,3,nos,3,nts,2,nxs,2,0)
       endif

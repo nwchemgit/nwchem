@@ -4,9 +4,9 @@
      + cwa,iwat,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam,iropt,irrand,nxrep,nyrep,nzrep,drep,
      + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,nmerge,xmerge,filmrg,
-     + irenum,invert)
+     + irenum,invert,ihop,ips)
 c
-c $Id: pre_wrtpdb.F,v 1.41 2002-08-15 20:41:32 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.42 2003-07-17 19:38:57 d3j191 Exp $
 c
       implicit none
 c
@@ -22,6 +22,7 @@ c
       integer lfnmrg,lrgpdb
       character*255 filpdb,filmrg(100)
       integer num(mat),isat(msa),isgm(msa),imol(msa),ifra(msa),iwat(mwa)
+      integer ihop(msa),ips(msa)
       character*16 cwa(mwa),csa(msa)
       character*3 slvnam
       real*8 amass(mat),xs(3,msa),vs(3,msa),xw(3,mwa,mwm),vw(3,mwa,mwm)
@@ -40,6 +41,10 @@ c
       character*3 sname
       character*1 charr
       integer icharr,ilang,inum
+c
+      real*8 dumdst
+c
+      dumdst=0.025d0
 c
       isoff=0
       iaoff=0
@@ -114,6 +119,7 @@ c
       do 11 k=1,nsb
       i=idsb(1,k)
       j=idsb(2,k)
+c      write(*,'(5i5)') i,j,k,isgm(i),isgm(j)
       if(isgm(i).ne.isgm(j)) then
       dist=sqrt((xs(1,j)-xs(1,i))*(xs(1,j)-xs(1,i))+
      + (xs(2,j)-xs(2,i))*(xs(2,j)-xs(2,i))+
@@ -126,6 +132,20 @@ c
       endif
    11 continue
       do 1 i=1,nsa
+      if(ips(i).ge.0.or.ihop(i).eq.0) then
+      x(1)=xs(1,i)
+      x(2)=xs(2,i)
+      x(3)=xs(3,i)
+      else
+      x(1)=xs(1,i)-xs(1,i+ihop(i))
+      x(2)=xs(2,i)-xs(2,i+ihop(i))
+      x(3)=xs(3,i)-xs(3,i+ihop(i))
+      dist=sqrt(x(1)*x(1)+x(2)*x(2)+x(3)*x(3))
+      dist=dumdst/dist
+      x(1)=xs(1,i+ihop(i))+dist*x(1)
+      x(2)=xs(2,i+ihop(i))+dist*x(2)
+      x(3)=xs(3,i+ihop(i))+dist*x(3)
+      endif
       temp=4.009103873d1*amass(isat(i))*
      + (vs(1,i)*vs(1,i)+vs(2,i)*vs(2,i)+vs(3,i)*vs(3,i))
       if(temp.gt.999.0) temp=999.989
@@ -135,10 +155,10 @@ c
       if(sname(3:3).eq.'_') sname(3:3)=' '
       if(lrgpdb.eq.0) then
       write(lfnpdb,1001) i,csa(i)(11:14),sname,' ',
-     + isgm(i)+ioff,(1.0d1*xs(k,i),k=1,3),temp,pre_atnam(num(isat(i)))
+     + isgm(i)+ioff,(1.0d1*x(k),k=1,3),temp,pre_atnam(num(isat(i)))
       else
       write(lfnpdb,2001) i,csa(i)(11:14),sname,
-     + isgm(i)+ioff,(1.0d1*xs(k,i),k=1,3),temp,pre_atnam(num(isat(i)))
+     + isgm(i)+ioff,(1.0d1*x(k),k=1,3),temp,pre_atnam(num(isat(i)))
       endif
  1001 format('ATOM',i7,1x,a4,1x,a3,1x,a1,i4,4x,3f8.3,6x,f6.2,4x,a2)
  2001 format('ATOM',i7,1x,a4,1x,a3,i6,4x,3f8.3,6x,f6.2,4x,a2)
@@ -256,9 +276,23 @@ c
       x(1)=xs(1,i)
       x(2)=xs(2,i)
       x(3)=xs(3,i)
-      y(1)=xs(1,i)
-      y(2)=xs(2,i)
-      y(3)=xs(3,i)
+      if(ips(i).ge.0.or.ihop(i).eq.0) then
+      x(1)=xs(1,i)
+      x(2)=xs(2,i)
+      x(3)=xs(3,i)
+      else
+      x(1)=xs(1,i)-xs(1,i+ihop(i))
+      x(2)=xs(2,i)-xs(2,i+ihop(i))
+      x(3)=xs(3,i)-xs(3,i+ihop(i))
+      dist=sqrt(x(1)*x(1)+x(2)*x(2)+x(3)*x(3))
+      dist=dumdst/dist
+      x(1)=xs(1,i+ihop(i))+dist*x(1)
+      x(2)=xs(2,i+ihop(i))+dist*x(2)
+      x(3)=xs(3,i+ihop(i))+dist*x(3)
+      endif
+      y(1)=x(1)
+      y(2)=x(2)
+      y(3)=x(3)
       if(irrand.eq.1.or.irrand.eq.4) call rotate(o,px,angle,x,y)
       x(1)=y(1)
       x(2)=y(2)
@@ -406,9 +440,23 @@ c
       x(1)=xs(1,i)
       x(2)=xs(2,i)
       x(3)=xs(3,i)
-      y(1)=xs(1,i)
-      y(2)=xs(2,i)
-      y(3)=xs(3,i)
+      if(ips(i).ge.0.or.ihop(i).eq.0) then
+      x(1)=xs(1,i)
+      x(2)=xs(2,i)
+      x(3)=xs(3,i)
+      else
+      x(1)=xs(1,i)-xs(1,i+ihop(i))
+      x(2)=xs(2,i)-xs(2,i+ihop(i))
+      x(3)=xs(3,i)-xs(3,i+ihop(i))
+      dist=sqrt(x(1)*x(1)+x(2)*x(2)+x(3)*x(3))
+      dist=dumdst/dist
+      x(1)=xs(1,i+ihop(i))+dist*x(1)
+      x(2)=xs(2,i+ihop(i))+dist*x(2)
+      x(3)=xs(3,i+ihop(i))+dist*x(3)
+      endif
+      y(1)=x(1)
+      y(2)=x(2)
+      y(3)=x(3)
       if(irrand.eq.1.or.irrand.eq.4) call rotate(o,px,angle,x,y)
       x(1)=y(1)
       x(2)=y(2)

@@ -1,7 +1,7 @@
       subroutine cf_dww(xw,xwm,pw,pwp,iwfrom,nlocw,lpbc,chg,iwq,
      + lwwndx,lwwjpt,lwwin,lwwj,rwc,xi,xj,rwx,pl,pj,fi,fj)
 c
-c $Id: cf_d.F,v 1.5 2002-01-04 16:06:12 d3j191 Exp $
+c $Id: cf_d.F,v 1.6 2003-07-17 19:44:23 d3j191 Exp $
 c
       implicit none
 c
@@ -11,7 +11,7 @@ c
       real*8 pw(mwm,3,mwa,2),pwp(mwm,3,mwa,2,2)
       integer iwfrom,nlocw
       logical lpbc
-      real*8 chg(mqt,mqp,6)
+      real*8 chg(mqt,mqp,mset)
       integer iwq(mwa)
       integer lwwndx(0:mwm,2),lwwin(nlocw,2),lwwjpt(nlocw,2),lwwj(*)
 c
@@ -288,7 +288,7 @@ c
      + xw,xwm,pw,pwp,iwq,lpbc,chg,lswndx,lswjpt,lswin,lswj,
      + rwc,xi,xj,rwx,pl,pj,fi,fj,isal)
 c
-c $Id: cf_d.F,v 1.5 2002-01-04 16:06:12 d3j191 Exp $
+c $Id: cf_d.F,v 1.6 2003-07-17 19:44:23 d3j191 Exp $
 c
       implicit none
 c
@@ -300,7 +300,7 @@ c
       real*8 xw(mwm,3,mwa),xwm(mwm,3),pw(mwm,3,mwa,2),pwp(mwm,3,mwa,2,2)
       integer iwq(mwa)
       logical lpbc
-      real*8 chg(mqt,mqp,6)
+      real*8 chg(mqt,mqp,mset)
       integer lswndx(0:msa,2),lswjpt(nums,2),lswin(nums,2),lswj(*)
       real*8 rwc(mscr,3),xi(mscr,3),xj(mscr,3,mwa),rwx(mscr,3)
       real*8 pl(mscr,3),pj(mscr,3,mwa),fi(mscr,3),fj(mscr,3,mwa)
@@ -677,7 +677,7 @@ c
      + lpbc,chg,lssndx,lssjpt,lssin,lssj,xi,xj,rwc,rwi1,rwi2,rwi6,
      + rwx,rw,fi,fj,f,isal,jsal,jmal,jfal,pl,pj)
 c
-c $Id: cf_d.F,v 1.5 2002-01-04 16:06:12 d3j191 Exp $
+c $Id: cf_d.F,v 1.6 2003-07-17 19:44:23 d3j191 Exp $
 c
       implicit none
 c
@@ -687,7 +687,7 @@ c
       integer ismf(msa),isml(msa),isq2(msa),isq3(msa)
       integer isfrom,nums
       logical lpbc
-      real*8 chg(mqt,mqp,6)
+      real*8 chg(mqt,mqp,mset)
       integer lssndx(0:msa,2),lssjpt(nums,2),lssin(nums,2)
 c
       real*8 xi(mscr,3),xj(mscr,3),rwx(mscr,3),rwi1(mscr)

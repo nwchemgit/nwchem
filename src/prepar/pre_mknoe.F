@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam)
 c
-c $Id: pre_mknoe.F,v 1.32 2002-07-30 21:12:17 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.33 2003-07-17 19:38:57 d3j191 Exp $
 c
       implicit none
 c
@@ -17,7 +17,7 @@ c
 c
       integer nsa,nwa,noe
       integer mat,msa,mwa,mnoe,msm,nsm,msb,nsb
-      integer nnoe,nqu
+      integer nnoe,nqu,mseq,nseq
       character*3 slvnam
 c
       integer l_cwa,i_cwa,l_mas,i_mas,l_num,i_num,l_sat,i_sat
@@ -26,6 +26,7 @@ c
       integer l_qwa,i_qwa,l_wat,i_wat,l_sfr,i_sfr
       integer l_isb,i_isb,l_csb,i_csb,l_eq,i_eq
       integer l_temp,i_temp,l_tempj,i_tempj
+      integer l_lseq,i_lseq,i_ihop,l_ihop,l_istat,i_istat
 c
       integer maxgrp,maxatm,maxpmf
       parameter(maxgrp=500)
@@ -53,7 +54,7 @@ c
  1000 format(' NOE FILE GENERATION')
       endif
 c
-      if(.not.pre_topsiz(lfntop,filtop,lfnout,mat,msa,mwa,msb,nqu))
+      if(.not.pre_topsiz(lfntop,filtop,lfnout,mat,msa,mwa,msb,nqu,nseq))
      + call errquit('pre_topsiz failed',9999)
 c
       if(util_print('where',print_high)) then
@@ -68,6 +69,7 @@ c
       nsa=0
       nsb=0
       nnoe=0
+      mseq=nseq
 c
 c     allocate memory
 c     ---------------
@@ -112,6 +114,12 @@ c
      + call errquit('Memory allocation failed for idsb',9999)
       if(.not.ma_push_get(mt_dbl,msb,'cdsb',l_csb,i_csb))
      + call errquit('Memory allocation failed for cdsb',9999)
+      if(.not.ma_push_get(mt_int,mseq,'lseq',l_lseq,i_lseq))
+     + call errquit('Memory allocation failed for lseq',9999)
+      if(.not.ma_push_get(mt_int,msa,'ihop',l_ihop,i_ihop))
+     + call errquit('Memory allocation failed for ihop',9999)
+      if(.not.ma_push_get(mt_int,msa,'istat',l_istat,i_istat))
+     + call errquit('Memory allocation failed for istat',9999)
 c
       nwa=0
       nsa=0
@@ -132,7 +140,8 @@ c
      + int_mb(i_wat),int_mb(i_sat),int_mb(i_sgm),int_mb(i_sml),
      + int_mb(i_sfr),
      + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,nsm,int_mb(i_isb),
-     + dbl_mb(i_csb),msb,nsb,dbl_mb(i_qu),nqu,slvnam))
+     + dbl_mb(i_csb),msb,nsb,dbl_mb(i_qu),nqu,slvnam,
+     + mseq,nseq,int_mb(i_lseq),int_mb(i_ihop),int_mb(i_istat)))
      + call errquit('pre_toprd failed',9999)
       if(util_print('coordinates',print_default)) then
       write(lfnout,1003) filtop(1:index(filtop,' ')-1)
@@ -255,6 +264,12 @@ c     -----------------
 c
       if(.not.ma_pop_stack(l_eq))
      + call errquit('Memory deallocation failed for eq',9999)
+      if(.not.ma_pop_stack(l_istat))
+     + call errquit('Memory deallocation failed for istat',9999)
+      if(.not.ma_pop_stack(l_ihop))
+     + call errquit('Memory deallocation failed for ihop',9999)
+      if(.not.ma_pop_stack(l_lseq))
+     + call errquit('Memory deallocation failed for lseq',9999)
       if(.not.ma_pop_stack(l_csb))
      + call errquit('Memory deallocation failed for cdsb',9999)
       if(.not.ma_pop_stack(l_isb))

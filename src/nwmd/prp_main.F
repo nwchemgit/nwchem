@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.90 2003-03-12 15:34:30 d3j191 Exp $
+c $Id: prp_main.F,v 1.91 2003-07-17 19:39:20 d3j191 Exp $
 c
       implicit none
 c
@@ -50,7 +50,7 @@ c
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3,edrs,epmf
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,npolit
       real*8 dwr,dsr(msm),gsm(msm,4,2),esa(nsa,2)
-      real*8 prest(3,3),virt(3,3),ekct(3,3),ep2m,ep3m
+      real*8 prest(3,3),virt(3,3),ekct(3,3),ep2m,ep3m,epmec2,epmec3
       real*8 xsm(msm,3),dx(3),upmf(100)
 c
       integer i,j,k,it
@@ -91,6 +91,8 @@ c
    10 continue
     9 continue
       epmec=eww(9,1)
+      epmec2=eww(9,1)
+      epmec3=eww(9,1)
       do 12 j=1,msf
       el=el+esw(j,5,1)
       eq=eq+esw(j,6,1)
@@ -98,6 +100,8 @@ c
       el=el+ess(k,j,5,1)+ess(k,j,7,1)
       eq=eq+ess(k,j,6,1)+ess(k,j,8,1)
       epmec=epmec+ess(k,j,9,1)
+      epmec2=epmec2+ess(k,j,10,1)
+      epmec3=epmec3+ess(k,j,11,1)
    13 continue
    12 continue
 c
@@ -119,10 +123,13 @@ c
       if(me.eq.0) ep=ep+edrs
       ep=ep+epmf
 c
+      if(lpme) then
       ep=ep+epme(iset)+epmec
       eq=eq+epme(iset)+epmec
-      ep2=ep2+epme(2)-epme(1)
-      ep3=ep3+epme(3)-epme(1)
+      ep2=ep2+epme(2)-epme(1)+epmec2-epmec
+      ep3=ep3+epme(3)-epme(1)+epmec3-epmec
+      endif
+c
       ek=ewk
       do 111 i=1,msf
       ek=ek+esk(i)
@@ -193,42 +200,51 @@ c
       p(69)=dwr
       if(lnoe) p(74)=edrs
       if(lpmf) p(75)=epmf
+      if(ntype.ne.3) then
       p(76)=epme(iset)
-      p(77)=epmec
-      p(79)=timer_wall(2)
-      p(80)=timer_wall(3)
-      if(me.eq.0) p(81)=timer_wall(3)
+      p(79)=epmec
+      else
+      p(76)=epme(1)
+      p(77)=epme(2)-p(76)
+      p(78)=epme(3)-p(76)
+      p(79)=epme(1)+epmec
+      p(80)=epme(2)+epmec2-p(79)
+      p(81)=epme(3)+epmec3-p(79)
+      endif
+      p(83)=timer_wall(2)
+      p(84)=timer_wall(3)
+      if(me.eq.0) p(85)=timer_wall(3)
       if(me.eq.0) then
-      p(82)=virt(1,1)
-      p(83)=virt(1,2)
-      p(84)=virt(1,3)
-      p(85)=virt(2,1)
-      p(86)=virt(2,2)
-      p(87)=virt(2,3)
-      p(88)=virt(3,1)
-      p(89)=virt(3,2)
-      p(90)=virt(3,3)
-      p(91)=prest(1,1)
-      p(92)=prest(1,2)
-      p(93)=prest(1,3)
-      p(94)=prest(2,1)
-      p(95)=prest(2,2)
-      p(96)=prest(2,3)
-      p(97)=prest(3,1)
-      p(98)=prest(3,2)
-      p(99)=prest(3,3)
-      p(100)=ekct(1,1)
-      p(101)=ekct(1,2)
-      p(102)=ekct(1,3)
-      p(103)=ekct(2,1)
-      p(104)=ekct(2,2)
-      p(105)=ekct(2,3)
-      p(106)=ekct(3,1)
-      p(107)=ekct(3,2)
-      p(108)=ekct(3,3)
-      p(109)=box(1)
-      p(110)=box(2)
-      p(111)=box(3)
+      p(86)=virt(1,1)
+      p(87)=virt(1,2)
+      p(88)=virt(1,3)
+      p(89)=virt(2,1)
+      p(90)=virt(2,2)
+      p(91)=virt(2,3)
+      p(92)=virt(3,1)
+      p(93)=virt(3,2)
+      p(94)=virt(3,3)
+      p(95)=prest(1,1)
+      p(96)=prest(1,2)
+      p(97)=prest(1,3)
+      p(98)=prest(2,1)
+      p(99)=prest(2,2)
+      p(100)=prest(2,3)
+      p(101)=prest(3,1)
+      p(102)=prest(3,2)
+      p(103)=prest(3,3)
+      p(104)=ekct(1,1)
+      p(105)=ekct(1,2)
+      p(106)=ekct(1,3)
+      p(107)=ekct(2,1)
+      p(108)=ekct(2,2)
+      p(109)=ekct(2,3)
+      p(110)=ekct(3,1)
+      p(111)=ekct(3,2)
+      p(112)=ekct(3,3)
+      p(113)=box(1)
+      p(114)=box(2)
+      p(115)=box(3)
       endif
 c
       maxp=isprop
@@ -342,21 +358,21 @@ cxxxxx      call ga_dgop(mrg_d43,epme,3,'+')
       if(npener.gt.0) call ga_dgop(mrg_d47,esa,2*nsa,'+')
       endif
 c
-      if(p(80).ne.0.0d0) then
-      p(80)=(p(80)-p(79))/p(80)
+      if(p(84).ne.0.0d0) then
+      p(84)=(p(84)-p(83))/p(84)
       endif
 c
       if(temp.eq.zero.or.me.ne.0) then
-      p(112)=zero
-      p(113)=zero
-      p(114)=zero
-      p(115)=zero
+      p(116)=zero
+      p(117)=zero
+      p(118)=zero
+      p(119)=zero
       p(51)=zero
       else
-      p(112)=exp(-p(36)/(rgas*temp))
-      p(113)=exp(-p(37)/(rgas*temp))
-      p(114)=exp(-p(38)/(rgas*temp))
-      p(115)=exp(-p(39)/(rgas*temp))
+      p(116)=exp(-p(36)/(rgas*temp))
+      p(117)=exp(-p(37)/(rgas*temp))
+      p(118)=exp(-p(38)/(rgas*temp))
+      p(119)=exp(-p(39)/(rgas*temp))
       p(51)=exp(-p(50)/(rgas*temp))
       if(nbias.gt.0) p(41)=p(40)*p(51)
       endif
@@ -667,7 +683,7 @@ c
       integer ndec
 c
       call prp_mcti_r(rlambd,dlambd,ndec,dbl_mb(i_dfr),dbl_mb(i_dfrm),
-     + psumt(16),psumt(112),psumt(113),psumt(114),psumt(115),
+     + psumt(16),psumt(116),psumt(117),psumt(118),psumt(119),
      + psumt(51),psumt(41))
 c
       return

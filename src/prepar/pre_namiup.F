@@ -1,7 +1,7 @@
       logical function pre_namiup(lfnout,ffield,
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm)
 c
-c $Id: pre_namiup.F,v 1.10 2001-07-06 03:45:13 d3j191 Exp $
+c $Id: pre_namiup.F,v 1.11 2003-07-17 19:38:57 d3j191 Exp $
 c
 c     function to comply with IUPAC atom naming
 c
@@ -29,7 +29,7 @@ c
       character*80 ffield
       integer mseq,matm
       integer nseq,natm
-      integer lseq(4,mseq),latm(5,matm)
+      integer lseq(6,mseq),latm(5,matm)
       character*6 catm(3,matm)
       character*5 cseq(2,mseq)
       character*2 elemnt

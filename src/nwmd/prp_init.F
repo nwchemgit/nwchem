@@ -1,11 +1,11 @@
       subroutine prp_start(nseri,ntyp,nftri,lfn,fil,iout,iprp,igib,
      + nf1,nf2,nf3,ipropi,
-     + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,npstti,
+     + lcf,lsp,ltwn,lpol,lpmei,llpstep,llpener,npstti,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbci,nbiasi,
      + nodpme,nipmf)
 c
-c $Id: prp_init.F,v 1.59 2002-11-08 20:04:44 d3j191 Exp $
+c $Id: prp_init.F,v 1.60 2003-07-17 19:39:20 d3j191 Exp $
 c
       implicit none
 c
@@ -17,7 +17,7 @@ c
       integer nwmtot,msfi,nsfi,nsai,mpei,nf1,nf2,nf3,npenrg,npstti
       integer mdacq,mrn,ipset,isetp1,isetp2,msmi,nsmi,npmf,nodpme
       integer ipropi,nipmf
-      logical lcf,lsp,ltwn,lpol,lpme,llpener,llpstep,lpbci
+      logical lcf,lsp,ltwn,lpol,lpmei,llpener,llpstep,lpbci
       real*8 tstp,ddi,edi
       character*255 fil
 c
@@ -55,6 +55,7 @@ c
       nbias=nbiasi
       npstat=npstti
       npmfi=nipmf
+      lpme=lpmei
 c
       iset=ipset
       ipset1=isetp1
@@ -202,83 +203,98 @@ c
       lp(74)=lnoe
       pronam( 75)='Energy umbrella potentials                  kJ/mol'
       lp(75)=lpmf
+      if(ntype.ne.3) then
       pronam( 76)='Particle mesh Ewald reciprocal energy       kJ/mol'
       lp(76)=lpme
-      pronam( 77)='Particle mesh Ewald correction energy       kJ/mol'
+      pronam( 79)='Particle mesh Ewald correction energy       kJ/mol'
+      lp(79)=lpme
+      else
+      pronam( 76)='Particle mesh Ewald reciprocal energy       kJ/mol'
       lp(76)=lpme
-      pronam( 78)='Energy distance restraints                  kJ/mol'
-      pronam( 79)='Synchronization time                             s'
-      lp(79)=ntype.ge.1
-      pronam( 80)='Efficiency load balancing                         '
-      lp(80)=ntype.ge.1
-      pronam( 81)='Time per step                                    s'
-      lp(81)=ntype.ge.1
-      pronam( 82)='Virial tensor element (1,1)                 kJ/mol'
-      lp( 82)=.true.
-      pronam( 83)='Virial tensor element (1,2)                 kJ/mol'
-      lp( 83)=.true.
-      pronam( 84)='Virial tensor element (1,3)                 kJ/mol'
-      lp( 84)=.true.
-      pronam( 85)='Virial tensor element (2,1)                 kJ/mol'
-      lp( 85)=.true.
-      pronam( 86)='Virial tensor element (2,2)                 kJ/mol'
+      pronam( 77)='PME reciprocal energy perturbation 2        kJ/mol'
+      lp(77)=lpme
+      pronam( 78)='PME reciprocal energy perturbation 3        kJ/mol'
+      lp(78)=lpme
+      pronam( 79)='Particle mesh Ewald correction energy       kJ/mol'
+      lp(79)=lpme
+      pronam( 80)='PME correction energy perturbation 2        kJ/mol'
+      lp(80)=lpme
+      pronam( 81)='PME correction energy perturbation 3        kJ/mol'
+      lp(81)=lpme
+      endif
+      pronam( 82)='Energy distance restraints                  kJ/mol'
+      pronam( 83)='Synchronization time                             s'
+      lp( 83)=ntype.ge.1
+      pronam( 84)='Efficiency load balancing                         '
+      lp( 84)=ntype.ge.1
+      pronam( 85)='Time per step                                    s'
+      lp( 85)=ntype.ge.1
+      pronam( 86)='Virial tensor element (1,1)                 kJ/mol'
       lp( 86)=.true.
-      pronam( 87)='Virial tensor element (2,3)                 kJ/mol'
+      pronam( 87)='Virial tensor element (1,2)                 kJ/mol'
       lp( 87)=.true.
-      pronam( 88)='Virial tensor element (3,1)                 kJ/mol'
+      pronam( 88)='Virial tensor element (1,3)                 kJ/mol'
       lp( 88)=.true.
-      pronam( 89)='Virial tensor element (3,2)                 kJ/mol'
+      pronam( 89)='Virial tensor element (2,1)                 kJ/mol'
       lp( 89)=.true.
-      pronam( 90)='Virial tensor element (3,3)                 kJ/mol'
+      pronam( 90)='Virial tensor element (2,2)                 kJ/mol'
       lp( 90)=.true.
-      pronam( 91)='Pressure tensor element (1,1)                   Pa'
-      lp( 91)=lpbc
-      pronam( 92)='Pressure tensor element (1,2)                   Pa'
-      lp( 92)=lpbc
-      pronam( 93)='Pressure tensor element (1,3)                   Pa'
-      lp( 93)=lpbc
-      pronam( 94)='Pressure tensor element (2,1)                   Pa'
-      lp( 94)=lpbc
-      pronam( 95)='Pressure tensor element (2,2)                   Pa'
+      pronam( 91)='Virial tensor element (2,3)                 kJ/mol'
+      lp( 91)=.true.
+      pronam( 92)='Virial tensor element (3,1)                 kJ/mol'
+      lp( 92)=.true.
+      pronam( 93)='Virial tensor element (3,2)                 kJ/mol'
+      lp( 93)=.true.
+      pronam( 94)='Virial tensor element (3,3)                 kJ/mol'
+      lp( 94)=.true.
+      pronam( 95)='Pressure tensor element (1,1)                   Pa'
       lp( 95)=lpbc
-      pronam( 96)='Pressure tensor element (2,3)                   Pa'
+      pronam( 96)='Pressure tensor element (1,2)                   Pa'
       lp( 96)=lpbc
-      pronam( 97)='Pressure tensor element (3,1)                   Pa'
+      pronam( 97)='Pressure tensor element (1,3)                   Pa'
       lp( 97)=lpbc
-      pronam( 98)='Pressure tensor element (3,2)                   Pa'
+      pronam( 98)='Pressure tensor element (2,1)                   Pa'
       lp( 98)=lpbc
-      pronam( 99)='Pressure tensor element (3,3)                   Pa'
+      pronam( 99)='Pressure tensor element (2,2)                   Pa'
       lp( 99)=lpbc
-      pronam(100)='Kinetic energy element (1,1)                kJ/mol'
-      lp(100)=.true.
-      pronam(101)='Kinetic energy element (1,2)                kJ/mol'
-      lp(101)=.true.
-      pronam(102)='Kinetic energy element (1,3)                kJ/mol'
-      lp(102)=.true.
-      pronam(103)='Kinetic energy element (2,1)                kJ/mol'
-      lp(103)=.true.
-      pronam(104)='Kinetic energy element (2,2)                kJ/mol'
+      pronam(100)='Pressure tensor element (2,3)                   Pa'
+      lp(100)=lpbc
+      pronam(101)='Pressure tensor element (3,1)                   Pa'
+      lp(101)=lpbc
+      pronam(102)='Pressure tensor element (3,2)                   Pa'
+      lp(102)=lpbc
+      pronam(103)='Pressure tensor element (3,3)                   Pa'
+      lp(103)=lpbc
+      pronam(104)='Kinetic energy element (1,1)                kJ/mol'
       lp(104)=.true.
-      pronam(105)='Kinetic energy element (2,3)                kJ/mol'
+      pronam(105)='Kinetic energy element (1,2)                kJ/mol'
       lp(105)=.true.
-      pronam(106)='Kinetic energy element (3,1)                kJ/mol'
+      pronam(106)='Kinetic energy element (1,3)                kJ/mol'
       lp(106)=.true.
-      pronam(107)='Kinetic energy element (3,2)                kJ/mol'
+      pronam(107)='Kinetic energy element (2,1)                kJ/mol'
       lp(107)=.true.
-      pronam(108)='Kinetic energy element (3,3)                kJ/mol'
+      pronam(108)='Kinetic energy element (2,2)                kJ/mol'
       lp(108)=.true.
-      pronam(109)='Box x-dimension                                 nm'
-      lp(109)=lpbc
-      pronam(110)='Box y-dimension                                 nm'
-      lp(110)=lpbc
-      pronam(111)='Box z-dimension                                 nm'
-      lp(111)=lpbc
-      pronam(112)='Free energy perturbation 1                  kJ/mol'
-      pronam(113)='Free energy perturbation 2                  kJ/mol'
-      pronam(114)='Free energy perturbation 1 including mass   kJ/mol'
-      pronam(115)='Free energy perturbation 2 including mass   kJ/mol'
+      pronam(109)='Kinetic energy element (2,3)                kJ/mol'
+      lp(109)=.true.
+      pronam(110)='Kinetic energy element (3,1)                kJ/mol'
+      lp(110)=.true.
+      pronam(111)='Kinetic energy element (3,2)                kJ/mol'
+      lp(111)=.true.
+      pronam(112)='Kinetic energy element (3,3)                kJ/mol'
+      lp(112)=.true.
+      pronam(113)='Box x-dimension                                 nm'
+      lp(113)=lpbc
+      pronam(114)='Box y-dimension                                 nm'
+      lp(114)=lpbc
+      pronam(115)='Box z-dimension                                 nm'
+      lp(115)=lpbc
+      pronam(116)='Free energy perturbation 1                  kJ/mol'
+      pronam(117)='Free energy perturbation 2                  kJ/mol'
+      pronam(118)='Free energy perturbation 1 including mass   kJ/mol'
+      pronam(119)='Free energy perturbation 2 including mass   kJ/mol'
 c
-      isprop=115
+      isprop=119
       it=isprop
 c
       if(nsf.gt.0) then

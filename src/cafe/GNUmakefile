@@ -1,9 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.7 2000-01-06 21:20:44 d3j191 Exp $
+# $Id: GNUmakefile,v 1.8 2003-07-17 19:44:23 d3j191 Exp $
 #
 OBJ_OPTIMIZE=cf_d.o cf_fp.o cf_f.o\
              cf_finish.o\
              cf_forces.o cf_forcep.o\
+             cf_hopping.o\
              cf_induce.o\
              cf_init.o\
              cf_list.o\

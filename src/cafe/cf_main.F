@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.155 2003-04-18 19:47:38 d3j191 Exp $
+c $Id: cf_main.F,v 1.156 2003-07-17 19:44:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -38,7 +38,7 @@ c
       integer nums,isat(msa)
       real*8 ww(mwa),ws(msa)
       integer iwat(msa)
-      real*8 wgt(mat,6)
+      real*8 wgt(mat,mset)
 c
       integer i
 c
@@ -97,7 +97,7 @@ c
 #include "global.fh"
 c
       integer numw,nums,iwat(mwa),isat(msa),isml(msa)
-      real*8 wsm(msm),wgt(mat,6)
+      real*8 wsm(msm),wgt(mat,mset)
 c
       integer i
 c
@@ -166,7 +166,7 @@ c
 #include "cf_common.fh"
 c
       integer iwfr,iwto,iwa(mwa)
-      real*8 xw(mwm,3,mwa),xwm(mwm,3),wgt(mat,6)
+      real*8 xw(mwm,3,mwa),xwm(mwm,3),wgt(mat,mset)
 c
       integer i,j,k
       real*8 factor
@@ -216,7 +216,7 @@ c
 #include "global.fh"
 c
       integer isfr,isto,isat(msa),isml(msa)
-      real*8 xs(msa,3),xsm(msm,3),gsm(msm,4,2),wsm(msm),wgt(mat,6)
+      real*8 xs(msa,3),xsm(msm,3),gsm(msm,4,2),wsm(msm),wgt(mat,mset)
 c
       integer i,j
       real*8 dist2
@@ -289,7 +289,7 @@ c
       integer numw,nums
       real*8 xwm(mwm,3),ww,xs(msa,3)
       integer iwat(msa),isat(msa)
-      real*8 wgt(mat,6)
+      real*8 wgt(mat,mset)
 c
       integer iwm,iwa,isa
 c
@@ -364,7 +364,7 @@ c
       return
       end
       subroutine cf_mdstep(iwdt,xw,yw,vw,vwt,fw,numw,
-     + isdt,isat,xs,ys,vs,vst,fs,nums,iwgmn,isgan,tmpx)
+     + isdt,isat,xs,ys,vs,vst,fs,nums,iwgmn,isgan,issgm,tmpx)
 c
       implicit none
 c
@@ -372,7 +372,8 @@ c
 #include "mafdecls.fh"
 c
       integer numw,nums
-      integer iwdt(mwm),isdt(msa),isat(msa),isgan(msa),iwgmn(mwm)
+      integer iwdt(mwm),isdt(msa),isat(msa),isgan(msa),issgm(msa)
+      integer iwgmn(mwm)
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa)
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),fw(mwm,3,mwa)
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),vst(msa,3),fs(msa,3)
@@ -385,7 +386,7 @@ c
       if(mdalgo.eq.1) then
       call cf_lpfrog(iwdt,xw,yw,vw,vwt,fw,numw,
      + isdt,isat,xs,ys,vs,vst,fs,nums,int_mb(i_iwa),
-     + dbl_mb(i_mas),iwgmn,isgan)
+     + dbl_mb(i_mas),iwgmn)
       elseif(mdalgo.eq.2) then
       call cf_lpfrog_bc(iwdt,xw,yw,vw,vwt,fw,numw,
      + isdt,isat,xs,ys,vs,vst,fs,nums,int_mb(i_iwa),
@@ -417,7 +418,7 @@ c
       return
       end
       subroutine cf_lpfrog(iwdt,xw,yw,vw,vwt,fw,numw,
-     + isdt,isat,xs,ys,vs,vst,fs,nums,iwat,wgt,iwgmn,isgan)
+     + isdt,isat,xs,ys,vs,vst,fs,nums,iwat,wgt,iwgmn)
 c
       implicit none
 c
@@ -425,14 +426,15 @@ c
 #include "mafdecls.fh"
 c
       integer numw,nums
-      integer iwdt(mwm),isdt(msa),isat(msa),isgan(msa),iwgmn(mwm)
+      integer iwdt(mwm),isdt(msa),isat(msa)
+      integer iwgmn(mwm)
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa)
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),fw(mwm,3,mwa)
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),vst(msa,3),fs(msa,3)
       integer iwat(mwa)
-      real*8 wgt(mat,6)
+      real*8 wgt(mat,mset)
 c
-      integer iwa,iwm,isa
+      integer iwa,iwm,isa,i,ndxrel
       real*8 factor
 c
       if(numw.gt.0) then
@@ -489,6 +491,7 @@ c
       xs(isa,3)=xs(isa,3)+vs(isa,3)*tstep
       endif
     3 continue
+c
       endif
 c
       return
@@ -511,7 +514,7 @@ c
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),fw(mwm,3,mwa)
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),vst(msa,3),fs(msa,3)
       integer iwat(mwa)
-      real*8 wgt(mat,6)
+      real*8 wgt(mat,mset)
 c
       integer iwa,iwm,isa
       real*8 factor,chi,ekin(2)
@@ -948,7 +951,7 @@ c
       integer numw
       integer iwat(mwa)
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),vw(mwm,3,mwa),vwt(mwm,3,mwa)
-      real*8 wgt(mat,6)
+      real*8 wgt(mat,mset)
 c
       integer i,j,k,l
       real*8 vvsum,ww,visum,vjsum
@@ -1044,7 +1047,7 @@ c
       integer nums
       integer isat(msa),ismol(msa),isfrc(msa)
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),vst(msa,3)
-      real*8 wgt(mat,6),vsm(msm,3)
+      real*8 wgt(mat,mset),vsm(msm,3)
       real*8 wsm(msm)
       real*8 esk(msf)
 c
@@ -1124,7 +1127,7 @@ c
       integer numw
       integer iwat(mwa)
       real*8 vw(mwm,3,mwa)
-      real*8 wgt(mat,6)
+      real*8 wgt(mat,mset)
 c
       integer i,j,k
       real*8 ekinwa,ekinw
@@ -1155,7 +1158,7 @@ c
 c
       integer nums
       integer isat(msa)
-      real*8 vs(msa,3),wgt(mat,6)
+      real*8 vs(msa,3),wgt(mat,mset)
 c
       integer i,j
       real*8 ekins
@@ -1261,7 +1264,7 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
-      real*8 wgt(mat,6)
+      real*8 wgt(mat,mset)
       real*8 fw(mwm,3,mwa),fs(msa,3),fnorm,fmax
       integer iwat(mwa),isat(msa),numw,nums
       integer isdt(msa),iwdt(mwm)
@@ -1365,7 +1368,7 @@ c
 c
       integer nums,numw
       integer isq(msa),iwq(mwa)
-      real*8 stime,fs(msa,3),fw(mwm,3,mwa),chg(mqt,mqp,6)
+      real*8 stime,fs(msa,3),fw(mwm,3,mwa),chg(mqt,mqp,mset)
 c
       integer i,j,k
       real*8 efield,q,df
@@ -1460,6 +1463,8 @@ c
       integer i,j,k,l,m
       real*8 wm,wmtot
       logical skip
+c
+      integer lseq(2),isgm(2)
 c
       call timer_start(29)
       epmf=zero
@@ -1568,8 +1573,10 @@ c
       ip(1)=1
       ip(2)=2
       ip(3)=0
-      call cf_fsb(1,it,1,3,ip,rpmf(1,1,i),rv,2,4,ign,iml,idt,ich,chg,
-     + xpmf(1,1,i),ft,et,.false.,.false.,.false.,me.eq.0,dbl_mb(i_sti))
+      call cf_fsb(1,it,1,3,ip,rpmf(1,1,i),rv,2,4,
+     + ign,isgm,iml,idt,ich,chg,
+     + xpmf(1,1,i),ft,et,.false.,.false.,.false.,me.eq.0,
+     + dbl_mb(i_sti),lseq)
       if(me.eq.0) then
       if(lrec.and.lfnpmf.lt.0.and.(iprpmf.lt.0.or.iprpmf.eq.ipmf(i,1)))
      + write(-lfnpmf,1000) i,rv
@@ -1607,8 +1614,10 @@ c
       ip(2)=2
       ip(3)=3
       ip(4)=0
-      call cf_fsh(1,it,1,3,ip,rpmf(1,1,i),rv,3,4,ign,iml,idt,ich,chg,
-     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,me.eq.0,dbl_mb(i_sti))
+      call cf_fsh(1,it,1,3,ip,rpmf(1,1,i),rv,3,4,
+     + ign,isgm,iml,idt,ich,chg,
+     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,me.eq.0,
+     + dbl_mb(i_sti),lseq)
 c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Angle:',rv,(ft(3,j),j=1,3)
       if(me.eq.0) then
       if(lrec.and.lfnpmf.lt.0) write(-lfnpmf,1000) i,rv
@@ -1647,13 +1656,15 @@ c
       ip(4)=4
       ip(5)=0
       if(ipmf(i,1).eq.3) then
-      call cf_fsd(1,it,1,3,ip,rpmf(1,1,i),rv,4,4,ign,iml,idt,
-     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,me.eq.0,dbl_mb(i_sti))
+      call cf_fsd(1,it,1,3,ip,rpmf(1,1,i),rv,4,4,ign,isgm,iml,idt,
+     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,me.eq.0,
+     + dbl_mb(i_sti),lseq)
 c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Dih:',rv,(ft(3,j),j=1,3)
       endif
       if(ipmf(i,1).eq.4) then
-      call cf_fso(1,it,1,3,ip,rpmf(1,1,i),rv,4,4,ign,iml,idt,
-     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,me.eq.0,dbl_mb(i_sti))
+      call cf_fso(1,it,1,3,ip,rpmf(1,1,i),rv,4,4,ign,isgm,iml,idt,
+     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,me.eq.0,
+     + dbl_mb(i_sti),lseq)
 c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Imp:',rv,(ft(3,j),j=1,3)
       endif
       if(me.eq.0) then
@@ -1728,8 +1739,10 @@ c
       ip(1)=1
       ip(2)=2
       ip(3)=0
-      call cf_fsb(1,it,1,3,ip,rpmf(1,1,i),rv,2,4,ign,iml,idt,ich,chg,
-     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,me.eq.0,dbl_mb(i_sti))
+      call cf_fsb(1,it,1,3,ip,rpmf(1,1,i),rv,2,4,
+     + ign,isgm,iml,idt,ich,chg,
+     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,me.eq.0,
+     + dbl_mb(i_sti),lseq)
 c
 c     sum ubias on every processor since this is not done in replicated mode
 c
@@ -1987,7 +2000,7 @@ c
 c
       real*8 tgauss,frgaus
       integer numw,nums
-      real*8 vw(mwm,3,mwa),vs(msa,3),wgt(mat,6)
+      real*8 vw(mwm,3,mwa),vs(msa,3),wgt(mat,mset)
       integer iwdt(mwm),isdt(msa),iwat(mwa),isat(msa)
 c
       real*8 facdof,rran,tdev
@@ -2078,7 +2091,7 @@ c
       real*8 tgauss
       integer numw,nums
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),vs(msa,3),vst(msa,3)
-      real*8 wgt(mat,6)
+      real*8 wgt(mat,mset)
       integer iwdt(mwm),isdt(msa),iwat(mwa),isat(msa)
 c
       real*8 ekwcg,ekscg,tempgw,tempgs,gaufcw,gaufcs,ekcg(2)
@@ -2202,7 +2215,7 @@ c
 c
       integer nums
       integer isat(msa),isga(msa)
-      real*8 vs(msa,3),wgt(mat,6)
+      real*8 vs(msa,3),wgt(mat,mset)
       real*8 dera(6,nsatot)
 c
       integer i
@@ -2304,7 +2317,7 @@ c
 #include "msgids.fh"
 c
       integer numw,nums
-      real*8 vw(mwm,3,mwa),vs(msa,3),wgt(mat,6)
+      real*8 vw(mwm,3,mwa),vs(msa,3),wgt(mat,mset)
       integer iwat(mwa),isat(msa)
 c
       integer i,j,k
@@ -2381,7 +2394,7 @@ c
 c
       integer lfnout,nsb,msb,msp
       integer ibnd(msb,3)
-      real*8 bnd(msb,msp,6),rbnd(msb,2)
+      real*8 bnd(msb,msp,mset),rbnd(msb,2)
       character*16 snam(nsatot)
 c
       integer i,j
@@ -2420,7 +2433,7 @@ c
 c
       integer lfnout,nsh,msh,msp
       integer iang(msh,4)
-      real*8 ang(msh,msp,6),rang(msh,2)
+      real*8 ang(msh,msp,mset),rang(msh,2)
       character*16 snam(nsatot)
 c
       integer i,j
@@ -2452,7 +2465,7 @@ c
 c
       integer lfnout,nsd,msd,msp
       integer idih(msd,5)
-      real*8 dih(msd,msp,6),rdih(msd,2)
+      real*8 dih(msd,msp,mset),rdih(msd,2)
       character*16 snam(nsatot)
 c
       integer i,j
@@ -2485,7 +2498,7 @@ c
 c
       integer lfnout,nso,mso,msp
       integer ioop(mso,5)
-      real*8 oop(mso,msp,6),roop(mso,2)
+      real*8 oop(mso,msp,mset),roop(mso,2)
       character*16 snam(nsatot)
 c
       integer i,j
@@ -3009,7 +3022,7 @@ c
 #include "cf_common.fh"
 c
       integer ia
-      real*8 wgt(mat,6)
+      real*8 wgt(mat,mset)
 c
       cf_am=wgt(ia,iset)
 c
@@ -3129,7 +3142,7 @@ c
 #include "cf_common.fh"
 c
       integer iq
-      real*8 chg(mqt,mqp,6)
+      real*8 chg(mqt,mqp,mset)
 c
       cf_chg=chg(iq,1,iset)/qfac
 c
@@ -3630,7 +3643,7 @@ c
 c
       integer nsb,msb,msp
       integer ibnd(msb,3)
-      real*8 bnd(msb,msp,6),rbnd(msb,2),esa(nsa,2)
+      real*8 bnd(msb,msp,mset),rbnd(msb,2),esa(nsa,2)
 c
       integer i
 c
@@ -3653,7 +3666,7 @@ c
 c
       integer nsh,msh,msp
       integer iang(msh,4)
-      real*8 ang(msh,msp,6),rang(msh,2),esa(nsa,2)
+      real*8 ang(msh,msp,mset),rang(msh,2),esa(nsa,2)
 c
       integer i
 c
@@ -3675,7 +3688,7 @@ c
 c
       integer nsd,msd,msp
       integer idih(msd,5)
-      real*8 dih(msd,msp,6),rdih(msd,2),esa(nsa,2)
+      real*8 dih(msd,msp,mset),rdih(msd,2),esa(nsa,2)
 c
       integer i
 c
@@ -3698,7 +3711,7 @@ c
 c
       integer nso,mso,msp
       integer ioop(mso,5)
-      real*8 oop(mso,msp,6),roop(mso,2),esa(nsa,2)
+      real*8 oop(mso,msp,mset),roop(mso,2),esa(nsa,2)
 c
       integer i
 c

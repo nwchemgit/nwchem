@@ -2,7 +2,7 @@
      + lang,mang,nang,lexc,mexc,nexc,nval,ival,ndx,catt,matt,
      + lats,mats,latm,matm,natm,lupdat)
 c
-c $Id: pre_excl.F,v 1.7 2002-04-19 22:21:12 d3j191 Exp $
+c $Id: pre_excl.F,v 1.8 2003-07-17 19:38:56 d3j191 Exp $
 c
       implicit none
 c
@@ -13,7 +13,7 @@ c
       integer ival(nval),ndx(nval)
       character*6 catt(2,matt)
       integer lats(3,mats)
-      integer latm(9,matm)
+      integer latm(11,matm)
       logical lupdat
 c
       integer i,j,k,l,in,jn,ln,itmp,ir
@@ -64,7 +64,7 @@ c
     4 continue
       endif
 c
-      if(nexc.gt.0) then
+      if(nexc.gt.1) then
       do 7 i=1,nexc
       ndx(i)=i
     7 continue

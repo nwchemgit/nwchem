@@ -6,7 +6,7 @@
      + nring3,nring4,nring5,nring6,
      + latmt,matmt,natmt,lbndt,mbndt,nbndt)
 c
-c $Id: pre_atype.F,v 1.16 2002-02-13 22:07:24 d3j191 Exp $
+c $Id: pre_atype.F,v 1.17 2003-07-17 19:38:56 d3j191 Exp $
 c
       implicit none
 c
@@ -267,6 +267,7 @@ c     read the atom type data
 c     -----------------------
 c
       ntype=0
+  900 continue
       lt=index(par_s,' ')-1
       ld=index(dir_s,' ')-1
       l=ld+lt

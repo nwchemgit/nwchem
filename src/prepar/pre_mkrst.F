@@ -1,10 +1,11 @@
-      logical function pre_mkrst(irtdb,mdold,source,lfnout,
+      logical function pre_mkrst(irtdb,title,mdold,source,lfnout,
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
-     + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
+     + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,nrgrid,iogrid,rogrid,
+     + gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
-     + lfnmat,lfnmrg,nmerge,xmerge,filmrg,fcount)
+     + lfnmat,lfnmrg,nmerge,xmerge,filmrg,fcount,lfnmod,filmod,itopol)
 c
-c $Id: pre_mkrst.F,v 1.87 2002-08-15 15:19:31 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.88 2003-07-17 19:38:57 d3j191 Exp $
 c
       implicit none
 c
@@ -27,12 +28,12 @@ c
       external pre_rot,pre_crop
 c
       integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd,lfnmat
-      integer lfnslv,model,mdold,lfnxyz,lfnqqq,lfnpov,lfnmrg
+      integer lfnslv,model,mdold,lfnxyz,lfnqqq,lfnpov,lfnmrg,lfnmod
       character*255 filtop,filpdb,filrst,filtmp,filcmd,filnam,filslv
-      character*255 filxyz,filqqq,filpov,filmrg(100)
+      character*255 filxyz,filqqq,filpov,filmrg(100),filmod
       character*10 slvmdl
       character*3 slvnam
-      character*80 source,card,card2,cfix
+      character*80 source,card,card2,cfix,title(2,3)
       character*1 altloc,chain
       real*8 fcount
       real*8 scale,cpk
@@ -40,7 +41,8 @@ c
       integer nsa,nwa,nwm,nmis,npbtyp,nbxtyp,noe,nwms,nwas,mwmc,nwmc
       integer mat,msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
       integer nnoe,ifix,jfix,nnwm,nnwa,nnsa,nnwmc,nqu,iropt,irrand,irrep
-      integer invert,nmerge
+      integer invert,nmerge,mseq,nseq,itopol
+      integer nrgrid,iogrid(5),rogrid(2,5)
       real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist,rfix,drep(3)
       real*8 boxset(3),xmerge(3,100)
       real*8 edgex,edgey,edgez
@@ -54,6 +56,7 @@ c
       integer l_wfnd,i_wfnd,l_wcmr,i_wcmr,l_qwa,i_qwa
       integer l_isb,i_isb,l_csb,i_csb,l_grid,i_grid
       integer l_wat,i_wat,l_lang,i_lang
+      integer l_lseq,i_lseq,l_ips,i_ips,l_ihop,i_ihop,l_istat,i_istat
 c
       logical lslvnt,ldistr,lsolva,lcryst,lnames,lpdbbx
       integer length,len,islv,idum1,idum2,idum3,idum4,iwater,irenum
@@ -71,7 +74,7 @@ c
  1000 format(' RESTART FILE GENERATION')
       endif
 c
-      if(.not.pre_topsiz(lfntop,filtop,lfnout,mat,msa,mwa,msb,nqu))
+      if(.not.pre_topsiz(lfntop,filtop,lfnout,mat,msa,mwa,msb,nqu,nseq))
      + call errquit('pre_topsiz failed',9999)
 c
       if(util_print('restart',print_high)) then
@@ -101,6 +104,7 @@ c
       irrand=0
       invert=0
       nskip=0
+      mseq=nseq
 c
 c     allocate memory
 c     ---------------
@@ -153,6 +157,14 @@ c
      + call errquit('Memory allocation failed for idsb',9999)
       if(.not.ma_push_get(mt_dbl,msb,'cdsb',l_csb,i_csb))
      + call errquit('Memory allocation failed for cdsb',9999)
+      if(.not.ma_push_get(mt_int,mseq,'lseq',l_lseq,i_lseq))
+     + call errquit('Memory allocation failed for lseq',9999)
+      if(.not.ma_push_get(mt_int,msa,'ips',l_ips,i_ips))
+     + call errquit('Memory allocation failed for ips',9999)
+      if(.not.ma_push_get(mt_int,msa,'ihop',l_ihop,i_ihop))
+     + call errquit('Memory allocation failed for ihop',9999)
+      if(.not.ma_push_get(mt_int,msa,'istat',l_istat,i_istat))
+     + call errquit('Memory allocation failed for istat',9999)
 c
       lslvnt=.false.
       ldistr=.false.
@@ -209,7 +221,8 @@ c
      + int_mb(i_wat),int_mb(i_sat),int_mb(i_sgm),int_mb(i_sml),
      + int_mb(i_sfr),
      + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,nsm,int_mb(i_isb),
-     + dbl_mb(i_csb),msb,nsb,dbl_mb(i_qu),nqu,slvnam))
+     + dbl_mb(i_csb),msb,nsb,dbl_mb(i_qu),nqu,slvnam,
+     + mseq,nseq,int_mb(i_lseq),int_mb(i_ihop),int_mb(i_istat)))
      + call errquit('pre_toprd failed',9999)
       if(util_print('coordinates',print_default)) then
       write(lfnout,1003) filtop(1:index(filtop,' ')-1)
@@ -218,6 +231,17 @@ c
 c
       msm=nsm
 c
+c     set protonation index
+c     ---------------------
+c
+c     returned in ips: number of sets to skip to get to next 
+c     protonation state if this proton hops off.
+c
+      if(itopol.eq.3) then
+      call qhop_pindex(msa,nsa,int_mb(i_sgm),int_mb(i_ihop),
+     + int_mb(i_ips))
+      endif
+c
 c     open the command file
 c     ---------------------
 c
@@ -225,6 +249,10 @@ c
      + form='formatted',status='old',err=99)
       goto 1
    99 continue
+      if(util_print('restart',print_default)) then
+      write(lfnout,1025) 
+ 1025 format(' No command file found: Default restart directives',/)
+      endif
 c
 c     write restart when no command file is found
 c     ===========================================
@@ -290,12 +318,13 @@ c
       if(nmis.gt.0.or.iwater.gt.0) then
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
+      print*,'call 1'
       if(.not.pre_misfit(lfnout,lfnmat,int_mb(i_sfnd),dbl_mb(i_xs),
      + byte_mb(i_csa),dbl_mb(i_qsa),int_mb(i_sgm),msa,nsa,
      + int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
-     + dbl_mb(i_grid),mgrid,ngrid,gdist,iwater,int_mb(i_wfnd),
+     + dbl_mb(i_grid),mgrid,ngrid,gdist,nmis,iwater,int_mb(i_wfnd),
      + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa,npbtyp,box,
-     + fcount))
+     + fcount,nrgrid,iogrid,rogrid))
      + call errquit('pre_misfit failed',9999)
       if(.not.ma_pop_stack(l_grid))
      + call errquit('Memory deallocation failed for grid',9999)
@@ -344,11 +373,13 @@ c
      + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
      + call errquit('pre_wtrst failed',9999)
       else
-      if(.not.pre_wrtrst(lfnout,lfnrst,filrst,npbtyp,nbxtyp,box,
+      if(.not.pre_wrtrst(lfnout,lfnrst,filrst,title,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
      + int_mb(i_sar),int_mb(i_sgm),dbl_mb(i_xs),dbl_mb(i_vs),
-     + msa,nsa,msm,nsm,irrep,nxrep,nyrep,nzrep))
+     + msa,nsa,msm,nsm,irrep,nxrep,nyrep,nzrep,
+     + mseq,nseq,int_mb(i_lseq),int_mb(i_ips),int_mb(i_istat),
+     + lfnmod,filmod,itopol))
      + call errquit('pre_wrtrst failed',9999)
       endif
       goto 9
@@ -358,12 +389,17 @@ c     =======================================
 c
     1 continue
 c
+      if(util_print('restart',print_default)) then
+      write(lfnout,1026) 
+ 1026 format(' Restart generation using command file directives',/)
+      endif
+c
       read(lfncmd,1101,end=9,err=9997) card
  1101 format(a)
 c
       if(util_print('restart',print_high)) then
       write(lfnout,1099) card
- 1099 format('command card ',a)
+ 1099 format(' Command option executing: ',a,/)
       endif
 c
 c     read distance restraints
@@ -514,13 +550,18 @@ c
       if(nmis.gt.0.or.iwater.gt.0) then
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
+      print*,'call 2'
       if(.not.pre_misfit(lfnout,lfnmat,int_mb(i_sfnd),dbl_mb(i_xs),
      + byte_mb(i_csa),dbl_mb(i_qsa),int_mb(i_sgm),msa,nsa,
      + int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
-     + dbl_mb(i_grid),mgrid,ngrid,gdist,iwater,int_mb(i_wfnd),
+     + dbl_mb(i_grid),mgrid,ngrid,gdist,nmis,iwater,int_mb(i_wfnd),
      + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa,npbtyp,box,
-     + fcount))
+     + fcount,nrgrid,iogrid,rogrid))
      + call errquit('pre_misfit failed',9999)
+      if(util_print('restart',print_default)) then
+      write(lfnout,1023) 
+ 1023 format(' Coordinates generated for missing atoms',/)
+      endif
       if(.not.ma_pop_stack(l_grid))
      + call errquit('Memory deallocation failed for grid',9999)
       endif
@@ -593,7 +634,8 @@ c
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
-     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
+     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm,
+     + mseq,nseq,int_mb(i_lseq),int_mb(i_ips)))
      + call errquit('pre_rdrst failed',9999)
       lpdbbx=.true.
       endif
@@ -696,7 +738,7 @@ c
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
      + iropt,irrand,nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),zdist,
      + nskip,iskip,int_mb(i_lang),lfnmrg,nmerge,xmerge,filmrg,
-     + irenum,invert))
+     + irenum,invert,int_mb(i_ihop),int_mb(i_ips)))
      +  call errquit('pre_wrtpdb failed',9999)
       if(.not.ma_pop_stack(l_lang))
      + call errquit('ma_pop_stack failed for lang',9999)
@@ -812,15 +854,24 @@ c
      + ' Total number of atoms',t40,i8,/)
       endif
       if(nmis.gt.0.or.iwater.gt.0) then
+      if(util_print('restart',print_default)) then
+      write(lfnout,1027) nmis,iwater
+ 1027 format(' Generating missing atom coordinates: ',2i5,/)
+      endif
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
+      print*,'call 3'
       if(.not.pre_misfit(lfnout,lfnmat,int_mb(i_sfnd),dbl_mb(i_xs),
      + byte_mb(i_csa),dbl_mb(i_qsa),int_mb(i_sgm),msa,nsa,
      + int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
-     + dbl_mb(i_grid),mgrid,ngrid,gdist,iwater,int_mb(i_wfnd),
+     + dbl_mb(i_grid),mgrid,ngrid,gdist,nmis,iwater,int_mb(i_wfnd),
      + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa,npbtyp,box,
-     + fcount))
+     + fcount,nrgrid,iogrid,rogrid))
      + call errquit('pre_misfit failed',9999)
+      if(util_print('restart',print_default)) then
+      write(lfnout,1024) 
+ 1024 format(' Coordinates generated for missing atoms',/)
+      endif
       if(.not.ma_pop_stack(l_grid))
      + call errquit('Memory deallocation failed for grid',9999)
       endif
@@ -847,11 +898,13 @@ c
       filnam=card(8:80)
       length=index(filnam,' ')-1
       if(length.eq.0) filnam=filrst
-      if(.not.pre_wrtrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
+      if(.not.pre_wrtrst(lfnout,lfnrst,filnam,title,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
      + int_mb(i_sar),int_mb(i_sgm),dbl_mb(i_xs),dbl_mb(i_vs),
-     + msa,nsa,msm,nsm,irrep,nxrep,nyrep,nzrep))
+     + msa,nsa,msm,nsm,irrep,nxrep,nyrep,nzrep,
+     + mseq,nseq,int_mb(i_lseq),int_mb(i_ips),int_mb(i_istat),
+     + lfnmod,filmod,itopol))
      + call errquit('pre_wrtrst failed',9999)
       irrep=0
       endif
@@ -1344,6 +1397,14 @@ c
 c     deallocate memory
 c     -----------------
 c
+      if(.not.ma_pop_stack(l_istat))
+     + call errquit('Memory deallocation failed for istat',9999)
+      if(.not.ma_pop_stack(l_ihop))
+     + call errquit('Memory deallocation failed for ihop',9999)
+      if(.not.ma_pop_stack(l_ips))
+     + call errquit('Memory deallocation failed for ips',9999)
+      if(.not.ma_pop_stack(l_lseq))
+     + call errquit('Memory deallocation failed for lseq',9999)
       if(.not.ma_pop_stack(l_csb))
      + call errquit('Memory deallocation failed for cdsb',9999)
       if(.not.ma_pop_stack(l_isb))

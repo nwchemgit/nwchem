@@ -1,5 +1,5 @@
 c
-c $Id: prp_common.fh,v 1.32 2002-08-13 19:00:27 d3j191 Exp $
+c $Id: prp_common.fh,v 1.33 2003-07-17 19:39:20 d3j191 Exp $
 c
 c
       real*8 zero,tiny,half,one
@@ -26,8 +26,9 @@ c
       common/prp_ptr/i_dfr,l_dfr,i_dfrm,l_dfrm
 c
       logical lcafe,lspac,ltwin,lhdr,lfhdr,lpstep,lpener,lpmf,lnoe,lpbc
+      logical lpme
       common/prp_log/lcafe,lspac,ltwin,lhdr,lfhdr,lpstep,lpener,lpmf,
-     + lnoe,lpbc
+     + lnoe,lpbc,lpme
 c
       character*50 pronam(maxpro)
       common/prp_txt/pronam

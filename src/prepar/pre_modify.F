@@ -1,9 +1,10 @@
       logical function pre_modify(iwhich,lfnout,lfnmod,filmod,ffield,
-     + latm,catm,qatm,matm,natm,lseq,cseq,mseq,nseq,
+     + nparms,mparms,latm,catm,qatm,matm,natm,lseq,cseq,mseq,nseq,
      + lbnd,rbnd,mbnd,nbnd,nbndt,lang,rang,mang,nang,nangt,
-     + ldih,kdih,rdih,mdih,ndih,ndiht,limp,rimp,mimp,nimp,nimpt,lupdat)
+     + ldih,nfdih,kdih,rdih,mdih,ndih,ndiht,limp,kimp,rimp,mimp,nimp,
+     + nimpt,lupdat)
 c
-c     $Id: pre_modify.F,v 1.14 2002-07-29 19:00:04 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.15 2003-07-17 19:38:57 d3j191 Exp $
 c
       implicit none
 c
@@ -13,26 +14,26 @@ c
       logical str_replace
       external str_replace
 c
-      integer iwhich,lfnout,lfnmod,matm,natm,mseq,nseq
+      integer iwhich,lfnout,lfnmod,matm,natm,mseq,nseq,nparms,mparms
       character*80 ffield
       character*255 filmod
-      integer latm(9,matm)
-      character*6 catm(4,matm)
-      integer lseq(4,mseq)
+      integer latm(11,matm)
+      character*6 catm(mparms,matm)
+      integer lseq(6,mseq)
       character*10 cseq(mseq)
-      real*8 qatm(6,matm)
+      real*8 qatm(nparms,2,matm)
       integer mbnd,nbnd,nbndt
       integer lbnd(4,mbnd)
-      real*8 rbnd(6,mbnd)
+      real*8 rbnd(nparms,2,mbnd)
       integer mang,nang,nangt
       integer lang(5,mang)
-      real*8 rang(6,mang)
+      real*8 rang(nparms,2,mang)
       integer mdih,ndih,ndiht
-      integer ldih(9,mdih),kdih(6,3,mdih)
-      real*8 rdih(6,6,mdih)
+      integer ldih(6,mdih),nfdih(nparms,mdih),kdih(6,nparms,mdih)
+      real*8 rdih(6,nparms,2,mdih)
       integer mimp,nimp,nimpt
-      integer limp(9,mimp)
-      real*8 rimp(6,mimp)
+      integer limp(6,mimp),kimp(nparms,mimp)
+      real*8 rimp(nparms,2,mimp)
 c
       character*80 card
       character*12 target,atomi,atomj,atomk,atoml
@@ -93,8 +94,8 @@ c
       endif
       do 2 i=1,natm
       if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.aname) then
-      do 3 j=1,3
-      if(mset.eq.0.or.mset.eq.j) qatm(2*j-1,i)=charge
+      do 3 j=1,nparms
+      if(mset.eq.0.or.mset.eq.j) qatm(j,1,i)=charge
     3 continue
       endif
     2 continue
@@ -107,8 +108,8 @@ c
       endif
       do 4 i=1,natm
       if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.aname) then
-      do 5 j=1,3
-      if(mset.eq.0.or.mset.eq.j) qatm(2*j,i)=polar
+      do 5 j=1,nparms
+      if(mset.eq.0.or.mset.eq.j) qatm(j,2,i)=polar
     5 continue
       endif
     4 continue
@@ -121,7 +122,7 @@ c
       endif
       do 6 i=1,natm
       if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.aname) then
-      do 7 j=1,3
+      do 7 j=1,nparms
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(1:5)=type
     7 continue
       endif
@@ -134,7 +135,7 @@ c
       endif
       do 8 i=1,natm
       if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.aname) then
-      do 9 j=1,3
+      do 9 j=1,nparms
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='D'
     9 continue
       endif
@@ -147,7 +148,7 @@ c
       endif
       do 10 i=1,natm
       if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.aname) then
-      do 11 j=1,3
+      do 11 j=1,nparms
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='S'
    11 continue
       endif
@@ -162,7 +163,7 @@ c
       do 12 i=1,natm
       if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.aname) then
       foundit=.true.
-      do 13 j=1,3
+      do 13 j=1,nparms
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='Q'
    13 continue
       endif
@@ -178,7 +179,7 @@ c
       do 112 i=1,natm
       if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.aname) then
       foundit=.true.
-      do 113 j=1,3
+      do 113 j=1,nparms
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='H'
   113 continue
       endif
@@ -191,11 +192,11 @@ c     segment modifications
 c     ---------------------
 c
       if(card(1:7).eq.'segment') then
-      print*,'CARD=',card
+c      print*,'CARD=',card
       read(card(9:13),'(i5)') isgm
-      print*,'ISGM=',isgm
+c      print*,'ISGM=',isgm
       read(card(19:19),'(i1)') mset
-      print*,'MSET=',mset
+c      print*,'MSET=',mset
       if(card(21:23).eq.'dum') then
       if(util_print('where',print_default)) then
       write(lfnout,2006) isgm,mset
@@ -203,7 +204,7 @@ c
       endif
       do 14 i=1,natm
       if(lseq(1,latm(5,i)).eq.isgm) then
-      do 15 j=1,3
+      do 15 j=1,nparms
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='D'
    15 continue
       endif
@@ -216,7 +217,7 @@ c
       endif
       do 16 i=1,natm
       if(lseq(1,latm(5,i)).eq.isgm) then
-      do 17 j=1,3
+      do 17 j=1,nparms
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='S'
    17 continue
       endif
@@ -229,8 +230,8 @@ c
       endif
       do 218 i=1,natm
       if(lseq(1,latm(5,i)).eq.isgm) then
-      do 219 j=1,3
-      if(mset.eq.0.or.mset.eq.j) qatm(2*j-1,i)=0.0d0
+      do 219 j=1,nparms
+      if(mset.eq.0.or.mset.eq.j) qatm(j,1,i)=0.0d0
   219 continue
       endif
   218 continue
@@ -245,7 +246,7 @@ c
       do 18 i=1,natm
       write(*,'(3i7)') i,lseq(1,latm(5,i)),isgm
       if(lseq(1,latm(5,i)).eq.isgm) then
-      do 19 j=1,3
+      do 19 j=1,nparms
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='Q'
    19 continue
       endif
@@ -258,7 +259,7 @@ c
       endif
       do 118 i=1,natm
       if(lseq(1,latm(5,i)).eq.isgm) then
-      do 119 j=1,3
+      do 119 j=1,nparms
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='H'
   119 continue
       endif
@@ -268,7 +269,7 @@ c
 c
       if(card(1:6).eq.'update') then
       lupdat=.true.
-      do 50 j=1,3
+      do 50 j=1,nparms
       n=0
       m=0
       do 51 i=1,nbndt
@@ -277,10 +278,13 @@ c
      + (catm(j+1,lbnd(2,i))(6:6).ne.'Q'.and.
      + catm(j+1,lbnd(2,i))(6:6).ne.'H')) then
       n=n+1
-      do 52 k=1,6
-      if(k.le.4) lbnd(k,n)=lbnd(k,i)
-      rbnd(k,n)=rbnd(k,i)
+      do 52 k=1,4
+      lbnd(k,n)=lbnd(k,i)
    52 continue
+      do 552 k=1,nparms
+      rbnd(k,1,n)=rbnd(k,1,i)
+      rbnd(k,2,n)=rbnd(k,2,i)
+  552 continue
       if(i.le.nbnd) m=n
       endif
    51 continue
@@ -296,10 +300,13 @@ c
      + (catm(j+1,lang(3,i))(6:6).ne.'Q'.and.
      + catm(j+1,lang(3,i))(6:6).ne.'H')) then
       n=n+1
-      do 54 k=1,6
-      if(k.le.5) lang(k,n)=lang(k,i)
-      rang(k,n)=rang(k,i)
+      do 54 k=1,5
+      lang(k,n)=lang(k,i)
    54 continue
+      do 554 k=1,nparms
+      rang(k,1,n)=rang(k,1,i)
+      rang(k,2,n)=rang(k,2,i)
+  554 continue
       if(i.le.nang) m=n
       endif
    53 continue
@@ -317,15 +324,16 @@ c
      + (catm(j+1,ldih(4,i))(6:6).ne.'Q'.and.
      + catm(j+1,ldih(4,i))(6:6).ne.'H')) then
       n=n+1
-      do 56 k=1,9
+      do 56 k=1,6
       ldih(k,n)=ldih(k,i)
-      if(k.le.6) then
-      do 57 l=1,6
-      kdih(k,l,n)=rdih(k,l,i)
-      if(l.le.3) rdih(k,l,n)=rdih(k,l,i)
-   57 continue
-      endif
    56 continue
+      do 57 l=1,nparms
+      nfdih(l,n)=nfdih(l,i)
+      do 556 k=1,6
+      rdih(k,l,1,n)=rdih(k,l,1,i)
+      rdih(k,l,2,n)=rdih(k,l,2,i)
+  556 continue
+   57 continue
       if(i.le.ndih) m=n
       endif
    55 continue
@@ -343,10 +351,14 @@ c
      + (catm(j+1,limp(4,i))(6:6).ne.'Q'.and.
      + catm(j+1,limp(4,i))(6:6).ne.'H')) then
       n=n+1
-      do 59 k=1,9
+      do 59 k=1,6
       limp(k,n)=limp(k,i)
-      if(k.le.6) rimp(k,n)=rimp(k,i)
    59 continue
+      do 559 k=1,nparms
+      kimp(k,n)=kimp(k,i)
+      rimp(k,1,n)=rimp(k,1,i)
+      rimp(k,2,n)=rimp(k,2,i)
+  559 continue
       if(i.le.nimp) m=n
       endif
    58 continue
@@ -403,8 +415,8 @@ c
       if(ibnd.eq.0) call errquit('Bond could not be found',9999)
       do 23 i=1,3
       if(mset.eq.0.or.mset.eq.i) then
-      rbnd(2*i-1,ibnd)=value
-      rbnd(2*i,ibnd)=forcon
+      rbnd(i,1,ibnd)=value
+      rbnd(i,2,ibnd)=forcon
       endif
    23 continue
       endif
@@ -465,8 +477,8 @@ c
       if(iang.eq.0) call errquit('Angle could not be found',9999)
       do 27 i=1,3
       if(mset.eq.0.or.mset.eq.i) then
-      rang(2*i-1,iang)=value
-      rang(2*i,iang)=forcon
+      rang(i,1,iang)=value
+      rang(i,2,iang)=forcon
       endif
    27 continue
       endif
@@ -537,12 +549,16 @@ c
    29 continue
    30 continue
       if(idih.eq.0) call errquit('Torsion could not be found',9999)
-      do 31 j=1,max(ldih(7,i),ldih(8,i),ldih(9,i))
-      do 32 i=1,3
+      m=0
+      do 531 j=1,nparms
+      m=max(m,nfdih(j,i))
+  531 continue
+      do 31 j=1,m
+      do 32 i=1,nparms
       if((mset.eq.0.or.mset.eq.i).and.
      + (multip.eq.0.or.multip.eq.iabs(kdih(j,i,idih)))) then
-      rdih(j,2*i-1,idih)=value
-      rdih(j,2*i,idih)=forcon
+      rdih(j,i,1,idih)=value
+      rdih(j,i,2,idih)=forcon
       endif
    32 continue
       if(multip.eq.0) goto 33
@@ -646,8 +662,8 @@ c
       if(iimp.eq.0) call errquit('Out-of-plane could not be found',9999)
       do 37 i=1,3
       if(mset.eq.0.or.mset.eq.i) then
-      rimp(2*i-1,iimp)=value
-      rimp(2*i,iimp)=forcon
+      rimp(i,1,iimp)=value
+      rimp(i,2,iimp)=forcon
       endif
    37 continue
       endif

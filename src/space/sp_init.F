@@ -1,14 +1,15 @@
-      subroutine sp_start(lfntop,filtop,lfnrst,filrst,
+      subroutine sp_start(lfnout,lfntop,filtop,lfnrst,filrst,
      + lsyn,filsyn,nsyn,
      + rsht,rlng,rinp,rsgmi,
      + npxi,npyi,npzi,nbxi,nbyi,nbzi,
      + npbt,nbxt,boxt,vlatt,lpbc,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd,iguidi,
-     + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl)
+     + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl,nseqi,
+     + i_lseqi)
 c
 c
-c $Id: sp_init.F,v 1.116 2003-04-04 17:54:51 d3j191 Exp $
+c $Id: sp_init.F,v 1.117 2003-07-17 19:39:29 d3j191 Exp $
 c
       implicit none
 c
@@ -20,18 +21,22 @@ c
       logical sp_rdrest,sp_diffbb
       external sp_rdrest,sp_diffbb
 c
-      integer lfntop,lfnrst,lsyn,nsyn,ldbg,idbg
+      integer lfntop,lfnrst,lsyn,nsyn,ldbg,idbg,lfnout
       character*255 filtop,filrst,filsyn
       real*8 rsht,rlng,rinp,boxt(3),vlatt(3,3),rtemp(3)
       real*8 temp,tempw,temps,fld,rsgmi
       integer itemp(2)
-      integer npxi,npyi,npzi,nbxi,nbyi,nbzi,isld,irset
+      integer npxi,npyi,npzi,nbxi,nbyi,nbzi,isld,irset,nseqi,i_lseqi
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer lenscr,ldb,lbp,npbt,nbxt,iguidi,mbbi,nseri,ictrl
       logical lpol,lfre,ignore,lpbc,lqd
       character*80 prjct
 c
       integer i,j,l_f,i_f
+c
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY USE AT START SP_START',0)
+      endif
 c
       me=ga_nodeid()
       np=ga_nnodes()
@@ -145,7 +150,12 @@ c
      + call errquit('Failed to allocate n',0)
 c
       call ga_sync()
-      call sp_rdrst(lfnrst,filrst,lfntop,filtop,
+c
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY USE BEFORE RDRST IN SP_START',0)
+      endif
+c
+      call sp_rdrst(lfnout,lfnrst,filrst,lfntop,filtop,
      + temp,tempw,temps,int_mb(i_ipl),
      + dbl_mb(i_x),dbl_mb(i_v),dbl_mb(i_f),dbl_mb(i_r),int_mb(i_i),
      + dbl_mb(i_x),dbl_mb(i_v),dbl_mb(i_f),dbl_mb(i_xscr),int_mb(i_i),
@@ -153,7 +163,11 @@ c
      + int_mb(i_bi),lenscr,
      + dbl_mb(i_bx),dbl_mb(i_bv),dbl_mb(i_bf),int_mb(i_bi),
      + lenscr,int_mb(i_n),
-     + int_mb(i_iown),dbl_mb(i_boxs))
+     + int_mb(i_iown),dbl_mb(i_boxs),int_mb(i_lseq),int_mb(i_sndx))
+c
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY USE AFTER RDRST IN SP_START',0)
+      endif
 c
       if(.not.ma_pop_stack(l_n))
      + call errquit('Failed to deallocate n',0)
@@ -233,7 +247,12 @@ c
       endif
       endif
 c
-      call ga_sync()
+      nseqi=nseq
+      i_lseqi=i_lseq
+c
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY USE AT EXIT SP_START',0)
+      endif
 c
       return
       end
@@ -286,8 +305,8 @@ c
       if(jdum.ne.0) then
       read(lfnrst,1001) cdum
       endif
-      read(lfnrst,1005) nwm,nwa,nsm,nsa,nwmc,nsf
- 1005 format(6i10)
+      read(lfnrst,1005) nwm,nwa,nsm,nsa,nwmc,nsf,nseq
+ 1005 format(7i10)
       close(unit=lfnrst,status='keep')
 c
       bsize=max(rshort+half*rsgm,half*(rlong+half*rsgm),rbox)
@@ -435,6 +454,13 @@ c
       if(.not.ma_push_get(mt_int,mip2*mbox,'jpl',l_jpl,i_jpl))
      + call errquit('Failed to allocate jpl',0)
 c
+      mseq=nseq
+c
+      if(.not.ma_push_get(mt_int,mseq,'lseq',l_lseq,i_lseq))
+     + call errquit('Failed to allocate lseq',0)
+      if(.not.ma_push_get(mt_int,mseq,'sndx',l_sndx,i_sndx))
+     + call errquit('Failed to allocate sndx',0)
+c
       if(.not.ga_create(mt_int,np*mbox,mip2,'ip',mbox,mip2,ga_ip))
      + call errquit('Failed to create global array ip',0)
       if(.not.ga_create(mt_int,np*mwm,miw2,'iw',mwm,miw2,ga_iw))
@@ -483,6 +509,10 @@ c
       if(.not.ga_destroy(ga_ip))
      + call errquit('Error ga_destroy iw',ga_ip)
 c
+      if(.not.ma_pop_stack(l_sndx))
+     + call errquit('Failed to deallocate sndx',0)
+      if(.not.ma_pop_stack(l_lseq))
+     + call errquit('Failed to deallocate lseq',0)
       if(.not.ma_pop_stack(l_jpl))
      + call errquit('Failed to deallocate jpl',0)
       if(.not.ma_pop_stack(l_ipl))
@@ -502,19 +532,20 @@ c
 c
       return
       end
-      subroutine sp_rdrst(lfnrst,filrst,lfntop,filtop,
+      subroutine sp_rdrst(lfnout,lfnrst,filrst,lfntop,filtop,
      + temp,tempw,temps,ipl,xw,vw,fw,xwcr,iwl,xs,vs,fs,xscr,isl,
      + bxw,bvw,bfw,brw,ibw,nw,bxs,bvs,bfs,ibs,ns,ndx,
-     + ibownr,boxsiz)
+     + ibownr,boxsiz,lseq,isndx)
 c
       implicit none
 c
 #include "sp_common.fh"
+#include "mafdecls.fh"
 c
       integer sp_btop
       external sp_btop
 c
-      integer lfnrst,lfntop
+      integer lfnrst,lfntop,lfnout
       character*255 filrst,filtop
       integer nw,ns
       integer ibownr(maxbox,3)
@@ -527,7 +558,7 @@ c
       real*8 bfw(nw,3,mwa),bfs(ns,3)
       integer ibw(nw,2),ibs(ns,mis2)
       real*8 boxsiz(maxbox,3)
-      integer ndx(nw)
+      integer ndx(nw),lseq(mseq),isndx(mseq)
       real*8 temp,tempw,temps
 c
       character*1 cdum
@@ -540,8 +571,9 @@ c
       integer nat,nqt,naw,nbw,nhw,ndw,now,ntw,nnw,nsmr
       real*8 boxi(3)
       logical lforces
+      character*80 card
 c
-      integer l,m,ib(3),nbox,nb(3),joff
+      integer l,m,ib(3),nbox,nb(3),joff,npars,icount,lasts
       real*8 xtmin,xtmax,xtx,xt(3)
 c
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
@@ -549,8 +581,14 @@ c
       external util_nint
 #endif
 c
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY USE ENTERING SP_RDRST',0)
+      endif
+c
       lpbc9=.true.
       nsmr=0
+      icount=0
+      lasts=0
 c
       if(me.eq.0) then
 c
@@ -562,42 +600,59 @@ c
      + status='old',form='formatted',err=9899)
       rewind(lfntop)
 c
-      do 101 i=1,5
-      read(lfntop,2001,end=9897,err=9898) cdum
- 2001 format(a1)
-  101 continue
-      read(lfntop,2002,end=9897,err=9898) nat,nqt
+      write(lfnout,6000)
+ 6000 format(/,' TOPOLOGY FILE INFORMATION',/)
+c
+      read(lfntop,2001,end=9897,err=9898) card
+ 2001 format(a80)
+      write(lfnout,6001) card
+ 6001 format(' Title',t15,a)
+      read(lfntop,2001,end=9897,err=9898) card
+      write(lfnout,6002) card
+ 6002 format(t15,a)
+      read(lfntop,2001,end=9897,err=9898) card
+      write(lfnout,6002) card
+c
+      read(lfntop,2001,end=9897,err=9898) card
+      write(lfnout,6003) card(1:12),card(13:32),card(33:42)
+ 6003 format(' Version',t15,a,/,' Date',t15,a,/,' Force field',t15,a)
+c
+      read(lfntop,2002,end=9897,err=9898) npars
+      read(lfntop,2002,end=9897,err=9898) nat
+      read(lfntop,2002,end=9897,err=9898) nqt
+      read(lfntop,2002,end=9897,err=9898) nseq
  2002 format(i5)
+      read(lfntop,2001,end=9897,err=9898) cdum
+      do 1103 k=1,npars
       do 102 i=1,nat
       read(lfntop,2001,end=9897,err=9898) cdum
       do 103 j=i,nat
       read(lfntop,2001,end=9897,err=9898) cdum
-      read(lfntop,2001,end=9897,err=9898) cdum
   103 continue
   102 continue
-      do 104 i=1,nqt
+ 1103 continue
+      do 104 i=1,nqt*npars
       read(lfntop,2001,end=9897,err=9898) cdum
   104 continue
+      do 4104 i=1,nseq
+      read(lfntop,2001,end=9897,err=9898) cdum
+ 4104 continue
       read(lfntop,2003,end=9897,err=9898) naw,nbw,nhw,ndw,now,ntw,nnw
  2003 format(5i7,2i10)
       read(lfntop,2001,end=9897,err=9898) cdum
       do 105 i=1,naw
       read(lfntop,2001,end=9897,err=9898) cdum
   105 continue
-      do 106 i=1,nbw
-      read(lfntop,2001,end=9897,err=9898) cdum
+      do 106 i=1,nbw*(npars+1)
       read(lfntop,2001,end=9897,err=9898) cdum
   106 continue
-      do 107 i=1,nhw
-      read(lfntop,2001,end=9897,err=9898) cdum
+      do 107 i=1,nhw*(npars+1)
       read(lfntop,2001,end=9897,err=9898) cdum
   107 continue
-      do 108 i=1,ndw
-      read(lfntop,2001,end=9897,err=9898) cdum
+      do 108 i=1,ndw*(npars+1)
       read(lfntop,2001,end=9897,err=9898) cdum
   108 continue
-      do 109 i=1,now
-      read(lfntop,2001,end=9897,err=9898) cdum
+      do 109 i=1,now*(npars+1)
       read(lfntop,2001,end=9897,err=9898) cdum
   109 continue
       if(ntw.gt.0) then
@@ -611,17 +666,37 @@ c
  2005 format(11i7)
       endif
       read(lfntop,2001,end=9897,err=9898) cdum
+      do 204 i=1,npars
+      read(lfntop,2001,end=9897,err=9898) cdum
+  204 continue
 c
-      do 1 i=1,3
-      read(lfnrst,1001,end=9997,err=9998) cdum
- 1001 format(a1)
-    1 continue
-      read(lfnrst,1016) nhist,lforces
- 1016 format(32x,i5,4x,l1)
+      write(lfnout,6100)
+ 6100 format(/,' RESTART FILE INFORMATION',/)
+c
+      read(lfnrst,1001,end=9997,err=9998) card
+ 1001 format(a80)
+      write(lfnout,6101) card
+ 6101 format(' Title',t15,a)
+      read(lfnrst,1001,end=9997,err=9998) card
+      write(lfnout,6102) card
+ 6102 format(t15,a)
+      read(lfnrst,1001,end=9997,err=9998) card
+      write(lfnout,6002) card
+c
+      read(lfnrst,1016) card(1:32),nhist,lforces
+ 1016 format(a32,i5,4x,l1)
+      write(lfnout,6103) card(1:12),card(13:32)
+ 6103 format(' Version',t15,a,/,' Date',t15,a)
+c
+      if(nhist.gt.0) write(lfnout,6104)
+ 6104 format(/,' History',/)
+c
       if(nhist.gt.0) then
       do 21 i=1,nhist
       read(lfnrst,1017) hist(i)
  1017 format(a80)
+      write(lfnout,6105) hist(i)
+ 6105 format(1x,a)
    21 continue
       endif
       if(nhist.lt.mxhist) then
@@ -807,8 +882,12 @@ c
       do 13 i=1,nsa
       if(k.gt.ns) call errquit('Increase memory for sp_rdrst buffer',0)
       read(lfnrst,1011,end=9997,err=9998)
-     + ibs(k,11),(bxs(k,j),j=1,3),(bvs(k,j),j=1,3)
- 1011 format(i1,1x,6f13.8)
+     + ibs(k,11),(bxs(k,j),j=1,3),(bvs(k,j),j=1,3),ibs(k,12)
+ 1011 format(i1,1x,6f13.8,i5)
+cx
+cx      write(*,1011)
+cx     + ibs(k,11),(bxs(k,j),j=1,3),(bvs(k,j),j=1,3),ibs(k,12)
+cx 
       if(lforces) then
       read(lfnrst,1111,end=9997,err=9998) (bfs(k,j),j=1,3)
  1111 format(2x,6e13.6)
@@ -819,6 +898,15 @@ c
       endif
       read(lfntop,2009,end=9897,err=9898) (ibs(k,j),j=1,10)
  2009 format(16x,10i5)
+      if(ibs(k,3).ne.lasts) then
+      icount=icount+1
+      lasts=ibs(k,3)
+      isndx(icount)=lasts
+      endif
+      ibs(k,3)=icount
+cx
+cx      write(*,2009) (ibs(k,j),j=1,10)
+cx
       if(nsmr.lt.ibs(k,2)) nsmr=ibs(k,2)
       if(nserie.eq.0) then
       if(nsf.lt.ibs(k,1)) nsf=ibs(k,1)
@@ -918,6 +1006,10 @@ c
       isl(j,lsdyn)=ibs(j,11)
       isl(j,lsbox)=nbox
       isl(j,lsnod)=node
+      isl(j,lshop)=0
+      if(ibs(j,12).gt.0) isl(j,lshop)=ibs(j,12)*2
+      if(ibs(j,12).lt.0) isl(j,lshop)=(-ibs(j,12))*2+1
+c      write(*,'(3i5)') j,ibs(j,12),isl(j,lshop)
       do 121 l=1,3
       xs(j,l)=bxs(j,l)
       vs(j,l)=bvs(j,l)
@@ -949,7 +1041,7 @@ c
 c     make first atom of next segment first in the list
 c
       if(k.gt.new) then
-      do 122 j=1,11
+      do 122 j=1,12
       ibs(1,j)=ibs(k,j)
   122 continue
       do 123 j=1,3
@@ -984,6 +1076,20 @@ c
       endif
    32 continue
       endif
+c
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY IN SP_RDRST',1)
+      endif
+c
+      if(nseq.gt.0) then
+      read(lfnrst,1013) (lseq(i),i=1,nseq)
+ 1013 format(20i3)
+      endif
+c
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY IN SP_RDRST',2)
+      endif
+c
    99 continue
 c
       close(unit=lfnrst,status='keep')
@@ -991,10 +1097,14 @@ c
 c
       endif
 c
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY USE EXITING SP_RDRST',0)
+      endif
+c
       return
  9897 call errquit('EOF encountered on topology file',0)
- 9898 call errquit('Error reading topology file',0)
- 9899 call errquit('Error opening topology file',0)
+ 9898 call errquit('Error reading topology file',1)
+ 9899 call errquit('Error opening topology file',2)
  9997 call errquit('EOF encountered on restart file',0)
  9998 call errquit('Error reading restart file',0)
  9999 call errquit('Error opening restart file',0)
@@ -1870,7 +1980,8 @@ c
       return
       end
       subroutine sp_wrtrst(lfnrst,filrst,lveloc,
-     + pres,temp,tempw,temps,iwl,xw,vw,fw,xwcr,isl,xs,vs,fs,xscr,prjct)
+     + pres,temp,tempw,temps,iwl,xw,vw,fw,xwcr,isl,xs,vs,fs,xscr,prjct,
+     + lseq)
 c
       implicit none
 c
@@ -1881,7 +1992,7 @@ c
       integer lfnrst
       character*255 filrst
       logical lveloc
-      integer iwl(mwm,miw2),isl(msa,mis2)
+      integer iwl(mwm,miw2),isl(msa,mis2),lseq(mseq)
       real*8 pres,temp,tempw,temps
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa),xwcr(mwm,3)
       real*8 xs(msa,3),vs(msa,3),fs(msa,3),xscr(msm,3)
@@ -1911,7 +2022,7 @@ c
      + iwl,int_mb(i_packw),xw,vw,fw,xwcr,isl,int_mb(i_pack),xs,vs,fs,
      + xscr,int_mb(i_ipl),lenscr,int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv),
      + dbl_mb(i_bf),dbl_mb(i_br),int_mb(i_bi),dbl_mb(i_bx),
-     + dbl_mb(i_bv),dbl_mb(i_bf))
+     + dbl_mb(i_bv),dbl_mb(i_bf),lseq)
 c
       if(.not.ma_pop_stack(l_n))
      + call errquit('Failed to deallocate n',0)
@@ -1930,7 +2041,7 @@ c
       end
       subroutine sp_wtrst(lfnrst,filrst,lveloc,pres,temp,tempw,temps,
      + iwl,iwlp,xw,vw,fw,xwcr,isl,islp,xs,vs,fs,xscr,
-     + ipl,nb,ibw,bxw,bvw,bfw,brw,ibs,bxs,bvs,bfs)
+     + ipl,nb,ibw,bxw,bvw,bfw,brw,ibs,bxs,bvs,bfs,lseq)
 c
       implicit none
 c
@@ -1942,11 +2053,11 @@ c
       character*255 filrst
       logical lveloc
       real*8 pres,temp,tempw,temps
-      integer iwl(mwm,miw2),isl(msa,mis2)
+      integer iwl(mwm,miw2),isl(msa,mis2),lseq(mseq)
       integer iwlp(mwm,npackw),islp(msa,npack)
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa),xwcr(mwm,3)
       real*8 xs(msa,3),vs(msa,3),fs(msa,3),xscr(msm,3)
-      integer ipl(mbox,mip2),ibw(nb),ibs(nb)
+      integer ipl(mbox,mip2),ibw(nb),ibs(nb,2)
       real*8 bxw(nb,3,mwa),bvw(nb,3,mwa),bfw(nb,3,mwa),brw(nb,3)
       real*8 bxs(nb,3),bvs(nb,3),bfs(nb,3)
 c
@@ -1954,7 +2065,7 @@ c
       integer ilp,ihp,jlp,jhp,ili,ihi,jli,jhi,ilw,ihw,jlw,jhw
       integer ils,ihs,jls,jhs
       character*10 rdate,rtime
-      integer idyn,idynp
+      integer idyn,idynp,ihop
       logical lforces
 c
       lforces=iguide.ne.0
@@ -1981,7 +2092,7 @@ c
  1003 format(1pe12.5)
       write(lfnrst,1004) temp,tempw,temps
  1004 format(3f12.6)
-      write(lfnrst,1005) nwm,nwa,nsm,nsa,nwmc,nsf,0,0,0
+      write(lfnrst,1005) nwm,nwa,nsm,nsa,nwmc,nsf,nseq,0,0
  1005 format(7i10,2i5)
 c
       if(nwm.gt.0) then
@@ -2081,7 +2192,8 @@ c     begin test code 10/31/2001
 c     initialize ibw to check that all atoms have been received
 c
       do 1117 i=1,nb
-      ibs(i)=-1
+      ibs(i,1)=-1
+      ibs(i,2)=0
  1117 continue
 c
 c     end test code
@@ -2116,27 +2228,35 @@ c
       bfs(j,2)=fs(i,2)
       bfs(j,3)=fs(i,3)
       endif
-      ibs(j)=isl(i,lsdyn)
+      ibs(j,1)=isl(i,lsdyn)
+      ibs(j,2)=isl(i,lshop)
       endif
     8 continue
       endif
     7 continue
       do 9 i=1,nums
-      idyn=iand(ibs(i),12)/4
-      idynp=iand(ibs(i),3)
-      if(lveloc) then
-      write(lfnrst,1008) idynp,idyn,(bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
+      idyn=iand(ibs(i,1),12)/4
+      idynp=iand(ibs(i,1),3)
+      ihop=ibs(i,2)
+      if(iand(ihop,1).eq.1) then
+      ihop=-(ihop/2)
       else
-      write(lfnrst,1008) idynp,idyn,(bxs(i,j),j=1,3),(zero,j=1,3)
+      ihop=ihop/2
       endif
- 1008 format(2i1,6f13.8)
+      if(lveloc) then
+      write(lfnrst,1008) idynp,idyn,(bxs(i,j),j=1,3),(bvs(i,j),j=1,3),
+     + ihop
+      else
+      write(lfnrst,1008) idynp,idyn,(bxs(i,j),j=1,3),(zero,j=1,3),ihop
+      endif
+ 1008 format(2i1,6f13.8,i5)
       if(lforces) write(lfnrst,1108) (bfs(i,j),j=1,3)
  1108 format(2x,3e13.6)
 c
 c     begin test code 10/31/2001
 c     check if al atoms have been received
 c
-      if(ibs(i).lt.0)
+      if(ibs(i,1).lt.0)
      + call errquit('Missing solute atom in wtrst',i)
 c
 c     end test code
@@ -2151,6 +2271,11 @@ c
       write(lfnrst,1109) (xscr(i,j),j=1,3)
  1109 format(2x,3f13.8)
    21 continue
+      endif
+c
+      if(nseq.gt.0) then
+      write(lfnrst,1013) (lseq(i),i=1,nseq)
+ 1013 format(20i3)
       endif
 c
       endif
@@ -2315,9 +2440,9 @@ c
       real*8 bxs(nb,3),bfs(nb,3)
       real*8 esa(nsa,2)
 c
-      integer i,j,number,icyc,ncyc,node,nums,nsan,idyn,ism,iss
+      integer i,j,k,number,icyc,ncyc,node,nums,nsan,idyn,ism,iss
       integer ilp,ihp,jlp,jhp,ili,ihi,jli,jhi,ils,ihs,jls,jhs
-      integer naw,nbw,nhw,ndw,now,ntw,nnw,nat,nqt,idum
+      integer naw,nbw,nhw,ndw,now,ntw,nnw,nat,nqt,idum,npars
       character*1 cdum
       character*16 cat
 c
@@ -2350,42 +2475,46 @@ c
       open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
      + status='old',form='formatted')
       rewind(lfntop)
-      do 101 i=1,5
+      do 101 i=1,4
       read(lfntop,2001) cdum
  2001 format(a1)
   101 continue
-      read(lfntop,2002) nat,nqt
+      read(lfntop,2002) npars
+      read(lfntop,2002) nat
+      read(lfntop,2002) nqt
+      read(lfntop,2002) nseq
  2002 format(i5)
+      read(lfntop,2001) cdum
+      do 1102 k=1,npars
       do 102 i=1,nat
       read(lfntop,2001) cdum
       do 103 j=i,nat
       read(lfntop,2001) cdum
-      read(lfntop,2001) cdum
   103 continue
   102 continue
-      do 104 i=1,nqt
+ 1102 continue
+      do 104 i=1,nqt*npars
       read(lfntop,2001) cdum
   104 continue
+      do 4104 i=1,nseq
+      read(lfntop,2001) cdum
+ 4104 continue
       read(lfntop,2003) naw,nbw,nhw,ndw,now,ntw,nnw
  2003 format(5i7,2i10)
       read(lfntop,2001) cdum
       do 105 i=1,naw
       read(lfntop,2001) cdum
   105 continue
-      do 106 i=1,nbw
-      read(lfntop,2001) cdum
+      do 106 i=1,nbw*(npars+1)
       read(lfntop,2001) cdum
   106 continue
-      do 107 i=1,nhw
-      read(lfntop,2001) cdum
+      do 107 i=1,nhw*(npars+1)
       read(lfntop,2001) cdum
   107 continue
-      do 108 i=1,ndw
-      read(lfntop,2001) cdum
+      do 108 i=1,ndw*(npars+1)
       read(lfntop,2001) cdum
   108 continue
-      do 109 i=1,now
-      read(lfntop,2001) cdum
+      do 109 i=1,now*(npars+1)
       read(lfntop,2001) cdum
   109 continue
       if(ntw.gt.0) then
@@ -2399,6 +2528,9 @@ c
  2005 format(11i7)
       endif
       read(lfntop,2001) cdum
+      do 204 i=1,npars
+      read(lfntop,2001) cdum
+  204 continue
 c
       if(nsa.gt.0) then
       number=0
@@ -2739,6 +2871,11 @@ c
 c
       logical lpw,lps
 c
+      real*8 dumdst,dist
+      integer nonh
+c
+      dumdst=0.02d0
+c
       lpw=.false.
       lps=.false.
 c
@@ -2882,12 +3019,27 @@ c
       call ga_get(ga_s,ils,ils+nsan-1,jls,jls+2,xs,msa)
       if(lvs) call ga_get(ga_s,ils,ils+nsan-1,jls+3,jls+5,vs,msa)
       if(lfs) call ga_get(ga_s,ils,ils+nsan-1,jls+6,jls+8,fs,msa)
+      nonh=0
       do 10 i=1,nsan
       j=isl(i,lsgan)-number
       if(j.gt.0.and.j.le.nums) then
       bxs(j,1)=xs(i,1)
       bxs(j,2)=xs(i,2)
       bxs(j,3)=xs(i,3)
+      if(iand(isl(i,lshop),1).eq.1) then
+      if(nonh.gt.0) then
+      bxs(j,1)=xs(nonh,1)-xs(i,1)
+      bxs(j,2)=xs(nonh,2)-xs(i,2)
+      bxs(j,3)=xs(nonh,3)-xs(i,3)
+      dist=sqrt(bxs(j,1)*bxs(j,1)+bxs(j,2)*bxs(j,2)+bxs(j,3)*bxs(j,3))
+      dist=dumdst/dist
+      bxs(j,1)=xs(nonh,1)+dist*bxs(j,1)
+      bxs(j,2)=xs(nonh,2)+dist*bxs(j,2)
+      bxs(j,3)=xs(nonh,3)+dist*bxs(j,3)
+      endif
+      else
+      nonh=i
+      endif
       if(lvs) then
       bvs(j,1)=vs(i,1)
       bvs(j,2)=vs(i,2)

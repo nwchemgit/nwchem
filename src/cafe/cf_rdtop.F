@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.26 2002-07-12 17:09:57 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.27 2003-07-17 19:44:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -15,16 +15,21 @@ c
       real*8 releps
       character*16 stemp,snam(nsatot)
       integer natyps,nqtyps
-      real*8 rdata(9),vadata(6),vrdata(6)
-      integer idata(16)
-      character*6 cdata(3)
-      integer i,ia,iq,j,k,l,m,m2,m3,itemp(4),i_i,i_j,l_i,l_j
+      real*8 rdata(24),vdata(24,4),qdata(24,2),ddata(24,3),pdata(4,24)
+      integer idata(24)
+      character*6 cdata(24)
+      integer i,ia,iq,j,k,l,m,m2,m3,m4,itemp(24),i_i,i_j,l_i,l_j
       integer naw,nbw,nhw,ndw,now,ntw,nnw
       integer nas,nbt,nhs,nds,nos,nts,nxs
       integer numbl,numbi,numbd,iqfr,iqto
+      character*10 string
 c
       real*8 cf_charge
       external cf_charge
+c
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY USE AT START RDTOP',0)
+      endif
 c
       if(me.eq.0) then
 c
@@ -38,40 +43,60 @@ c
       nmult(3)=0
       nmult(4)=0
       totchg=0.0d0
+      nhop=0
 c
  1000 format(a)
       read(lfntop,1001,end=9997,err=9998) title
  1001 format(a80)
       read(lfntop,1002,end=9997,err=9998) topdat,toptim,ffield
  1002 format(12x,3a10)
-      read(lfntop,1003,end=9997,err=9998) q14fac,releps
- 1003 format(2f12.6)
+      read(lfntop,1003,end=9997,err=9998) nparms
+      mset=nparms
+      if(lfree) mset=6
+      read(lfntop,1003,end=9997,err=9998) natyps
+      read(lfntop,1003,end=9997,err=9998) nqtyps
+      read(lfntop,1003,end=9997,err=9998) nseq
+ 1003 format(i5)
+      read(lfntop,1004,end=9997,err=9998) q14fac,releps
+ 1004 format(2f12.6)
       if(q14fac.lt.small) q14fac=one
       if(releps.lt.small) releps=one
       qfac=sqrt(1.389354428d+02/releps)
-      read(lfntop,1004,end=9997,err=9998) natyps
-      read(lfntop,1004,end=9997,err=9998) nqtyps
- 1004 format(i5)
       call cf_inita(natyps,4,nqtyps,4)
       do 1 i=1,natyps
       read(lfntop,1005,end=9997,err=9998)
-     + (cdata(j),rdata(j),j=1,3),(idata(j),j=1,3)
- 1005 format(3(a6,f12.6),3i5)
+     + (idata(k),cdata(k),rdata(k),k=1,nparms)
+ 1005 format(5x,i5,1x,a6,f12.6)
       call cf_para(i,cdata,rdata,idata)
+  101 continue
     1 continue
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY IN RDTOP ATOM TYPES',0)
+      endif
       do 2 i=1,natyps
       do 3 j=i,natyps
-      read(lfntop,1006,end=9997,err=9998) (vadata(k),k=1,6)
-      read(lfntop,1006,end=9997,err=9998) (vrdata(k),k=1,6)
- 1006 format(6e12.5)
-      call cf_parv(i,j,vadata,vrdata)
+      read(lfntop,1006,end=9997,err=9998)
+     + ((vdata(k,l),l=1,4),k=1,nparms)
+ 1006 format(10x,4e12.5)
+      call cf_parv(i,j,vdata)
     3 continue
     2 continue
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY IN RDTOP VDWAALS',0)
+      endif
       do 4 i=1,nqtyps
-      read(lfntop,1007,end=9997,err=9998) (vadata(j),j=1,6)
- 1007 format(3(f12.6,e12.5))
-      call cf_parq(i,vadata)
+      read(lfntop,1007,end=9997,err=9998)
+     + ((qdata(k,l),l=1,2),k=1,nparms)
+ 1007 format(5x,f12.6,e12.5)
+      call cf_parq(i,qdata)
     4 continue
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY IN RDTOP CHARGE TYPES',0)
+      endif
+      do 4004 i=1,nseq
+      read(lfntop,4008,end=9997,err=9998) string
+ 4008 format(a10)
+ 4004 continue
       read(lfntop,1008,end=9997,err=9998) naw,nbw,nhw,ndw,now,ntw,nnw
  1008 format(5i7,2i10)
       call cf_initb(1,1,nbw,2,nhw,2,ndw,3,now,3,ntw,2,nnw,2,naw)
@@ -85,43 +110,46 @@ c
     5 continue
       idata(4)=0
       do 6 i=1,nbw
-      read(lfntop,1011,end=9997,err=9998)
-     + (idata(j),j=1,3),(rdata(j),j=1,6)
- 1011 format(3i7,/,3(f12.6,e12.5))
-      if(noshak.eq.1.or.noshak.eq.3) then
-      idata(3)=0
-      if(rdata(2).lt.small) rdata(2)=1.0d+05
-      if(rdata(4).lt.small) rdata(4)=1.0d+05
-      if(rdata(6).lt.small) rdata(6)=1.0d+05
-      endif
-      call cf_parbnd(1,i,idata,rdata)
+      read(lfntop,1011,end=9997,err=9998) (idata(j),j=1,3)
+ 1011 format(3i7)
+      read(lfntop,2011,end=9997,err=9998)
+     + ((pdata(k,j),k=1,2),j=1,nparms)
+ 2011 format(f12.6,e12.5)
+      if(noshak.eq.1.or.noshak.eq.3) idata(3)=0
+      call cf_parbnd(1,i,idata,pdata)
       if(idata(3).gt.0) nwc=nwc+1
     6 continue
       idata(5)=0
       do 7 i=1,nhw
-      read(lfntop,1012,end=9997,err=9998)
-     + (idata(j),j=1,3),(rdata(j),j=1,6)
- 1012 format(3i7,/,3(f10.6,e12.5))
-      call cf_parang(1,i,idata,rdata)
+      read(lfntop,1012,end=9997,err=9998) (idata(j),j=1,3)
+ 1012 format(3i7)
+      read(lfntop,2012,end=9997,err=9998) 
+     + ((pdata(k,j),k=1,2),j=1,nparms)
+ 2012 format(f10.6,e12.5)
+      call cf_parang(1,i,idata,pdata)
     7 continue
       idata(6)=0
       do 8 i=1,ndw
-      read(lfntop,1013,end=9997,err=9998)
-     + (idata(j),j=1,4),(itemp(j),rdata(3*j-1),rdata(3*j),j=1,3)
- 1013 format(4i7,/,3(i3,f10.6,e12.5))
-      rdata(1)=dble(itemp(1))
-      rdata(4)=dble(itemp(2))
-      rdata(7)=dble(itemp(3))
-      call cf_pardih(1,i,idata,rdata)
+      read(lfntop,1013,end=9997,err=9998) (idata(j),j=1,4)
+ 1013 format(4i7)
+      read(lfntop,2013,end=9997,err=9998)
+     + (itemp(j),(pdata(k,j),k=2,3),j=1,nparms)
+ 2013 format(i3,f10.6,e12.5)
+      do 2008 j=1,nparms
+      pdata(1,j)=dble(itemp(j))
+ 2008 continue
+      call cf_pardih(1,i,idata,pdata)
     8 continue
       do 9 i=1,now
-      read(lfntop,1014,end=9997,err=9998)
-     + (idata(j),j=1,4),(rdata(3*j-1),rdata(3*j),j=1,3)
- 1014 format(4i7,/,3(3x,f10.6,e12.5))
-      rdata(1)=0.0d0
-      rdata(4)=0.0d0
-      rdata(7)=0.0d0
-      call cf_parimp(1,i,idata,rdata)
+      read(lfntop,1014,end=9997,err=9998) (idata(j),j=1,4)
+ 1014 format(4i7)
+      read(lfntop,2014,end=9997,err=9998)
+     + ((pdata(k,j),k=2,3),j=1,nparms)
+ 2014 format(3x,f10.6,e12.5)
+      do 2009 j=1,nparms
+      pdata(1,j)=0.0d0
+ 2009 continue
+      call cf_parimp(1,i,idata,pdata)
     9 continue
       if(.not.ma_push_get(mt_int,max(ntw,nnw,nts,nxs),'i',l_i,i_i))
      + call errquit('Failed to allocate temp array',0)
@@ -139,11 +167,16 @@ c
       read(lfntop,1016,end=9997,err=9998) (int_mb(i_j+i-1),i=1,nnw)
       call cf_ndxxcl(1,int_mb(i_i),int_mb(i_j),nnw)
       endif
-      read(lfntop,1024,end=9997,err=9998) ewc
- 1024 format(10x,3f12.6)
+      read(lfntop,8888) string
+ 8888 format(a)
+      read(lfntop,1024,end=9997,err=9998) (ewc(i),i=1,nparms)
+ 1024 format(f12.6)
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY IN RDTOP SOLVENT',0)
+      endif
       do 10 i=1,nas
-      read(lfntop,1017,end=9997,err=9998) stemp,j,k,l,m,m2,m3
- 1017 format(a16,3i5,15x,3i5)
+      read(lfntop,1017,end=9997,err=9998) stemp,j,k,l,m,m2,m3,m4
+ 1017 format(a16,3i5,15x,3i5,5x,i5)
       if(i.eq.1) then
       iqfr=min(m,m2,m3)
       iqto=max(m,m2,m3)
@@ -158,53 +191,53 @@ c      if(j.gt.nsm) nsm=j
       totchg=totchg+cf_charge(m)
       if(k.gt.msm)
      + call errquit('Topology and Restart are incompatible',0)
+      if(m4.lt.0) nhop=nhop+1
    10 continue
       if(scaleq.ge.zero) call cf_scaleq(iqfr,iqto)
       idata(4)=0
       do 11 i=1,nbt
-      read(lfntop,1018,end=9997,err=9998) (idata(j),j=1,3),
-     + (rdata(j),j=1,6)
- 1018 format(3i7,/,3(f12.6,e12.5))
-      if(noshak.eq.2.or.noshak.eq.3) then
-      idata(3)=0
-      if(rdata(2).lt.small) rdata(2)=1.0d+05
-      if(rdata(4).lt.small) rdata(4)=1.0d+05
-      if(rdata(6).lt.small) rdata(6)=1.0d+05
-      endif
-      call cf_parbnd(2,i,idata,rdata)
+      read(lfntop,1018,end=9997,err=9998) (idata(j),j=1,3)
+ 1018 format(3i7)
+      read(lfntop,2018,end=9997,err=9998)
+     + ((pdata(k,j),k=1,2),j=1,nparms)
+ 2018 format(f12.6,e12.5)
+      if(noshak.eq.2.or.noshak.eq.3) idata(3)=0
+      call cf_parbnd(2,i,idata,pdata)
       if(idata(3).gt.0) nsc=nsc+1
    11 continue
       idata(5)=0
       do 12 i=1,nhs
-      read(lfntop,1019,end=9997,err=9998) (idata(j),j=1,4),
-     + (rdata(j),j=1,6)
- 1019 format(4i7,/,3(f10.6,e12.5))
-      call cf_parang(2,i,idata,rdata)
+      read(lfntop,1019,end=9997,err=9998) (idata(j),j=1,3)
+ 1019 format(3i7)
+      read(lfntop,2019,end=9997,err=9998) 
+     + ((pdata(k,j),k=1,2),j=1,nparms)
+ 2019 format(f10.6,e12.5)
+      call cf_parang(2,i,idata,pdata)
    12 continue
       idata(6)=0
       do 13 i=1,nds
-      read(lfntop,1020,end=9997,err=9998) (idata(j),j=1,5),
-     + (itemp(j),rdata(3*j-1),rdata(3*j),j=1,3)
- 1020 format(5i7,/,3(i3,f10.6,e12.5))
-      rdata(1)=dble(abs(itemp(1)))
-      rdata(3)=abs(rdata(3))
-      rdata(4)=dble(abs(itemp(2)))
-      rdata(6)=abs(rdata(6))
-      rdata(7)=dble(abs(itemp(3)))
-      rdata(9)=abs(rdata(9))
-      call cf_pardih(2,i,idata,rdata)
+      read(lfntop,1020,end=9997,err=9998) (idata(j),j=1,4)
+ 1020 format(4i7)
+      read(lfntop,2020,end=9997,err=9998)
+     + (itemp(j),(pdata(k,j),k=2,3),j=1,nparms)
+ 2020 format(i3,f10.6,e12.5)
+      do 3013 j=1,nparms
+      pdata(1,j)=dble(abs(itemp(j)))
+      pdata(3,j)=abs(pdata(3,j))
+ 3013 continue
+      call cf_pardih(2,i,idata,pdata)
    13 continue
       do 14 i=1,nos
-      read(lfntop,1021,end=9997,err=9998) (idata(j),j=1,4),
-     + (itemp(j),rdata(3*j-1),rdata(3*j),j=1,3)
- 1021 format(5i7,/,3(i3,f10.6,e12.5))
-      rdata(1)=dble(abs(itemp(1)))
-      rdata(3)=abs(rdata(3))
-      rdata(4)=dble(abs(itemp(2)))
-      rdata(6)=abs(rdata(6))
-      rdata(7)=dble(abs(itemp(3)))
-      rdata(9)=abs(rdata(9))
-      call cf_parimp(2,i,idata,rdata)
+      read(lfntop,1021,end=9997,err=9998) (idata(j),j=1,4)
+ 1021 format(4i7)
+      read(lfntop,2021,end=9997,err=9998)
+     + ((pdata(k,j),k=2,3),j=1,nparms)
+ 2021 format(3x,f10.6,e12.5)
+      do 3014 j=1,nparms
+      pdata(1,j)=dble(abs(itemp(j)))
+      pdata(3,j)=abs(pdata(3,j))
+ 3014 continue
+      call cf_parimp(2,i,idata,pdata)
    14 continue
       if(nts.gt.0) then
       read(lfntop,1022,end=9997,err=9998) (int_mb(i_i+i-1),i=1,nts)
@@ -222,6 +255,10 @@ c      if(j.gt.nsm) nsm=j
       if(.not.ma_pop_stack(l_i)) call errquit('Dealloc failed',0)
 c
       close(unit=lfntop)
+c
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY IN RDTOP',1)
+      endif
 c
       endif
 c
@@ -249,7 +286,9 @@ c
       idata(14)=nos
       idata(15)=nts
       idata(16)=nxs
-      call ga_brdcst(mcf_01,idata,16*numbi,0)
+      idata(17)=mset
+      idata(18)=nparms
+      call ga_brdcst(mcf_01,idata,18*numbi,0)
       natyps=idata(1)
       nqtyps=idata(2)
       nbw=idata(3)
@@ -266,11 +305,13 @@ c
       nos=idata(14)
       nts=idata(15)
       nxs=idata(16)
+      mset=idata(17)
+      nparms=idata(18)
 c
 c     initialize on nodes other than 0
 c
       if(me.ne.0) then
-      call cf_inita(natyps,4,nqtyps,4)
+      call cf_inita(natyps,4,nqtyps,4,nparms)
       call cf_initb(1,1,nbw,2,nhw,2,ndw,3,now,3,ntw,2,nnw,2,naw)
       call cf_initb(2,nas,nbt,2,nhs,2,nds,3,nos,3,nts,2,nxs,2,0)
       endif
@@ -279,29 +320,29 @@ c     broadcast force field parameters
 c
 c      call ga_brdcst(mcf_02,byte_mb(i_nam),16*mat,0)
 c
-      call ga_brdcst(mcf_02,int_mb(i_typ),3*mat*numbi,0)
-      call ga_brdcst(mcf_03,dbl_mb(i_mas),6*mat*numbd,0)
-      call ga_brdcst(mcf_04,int_mb(i_num),3*mat*numbi,0)
-      call ga_brdcst(mcf_05,dbl_mb(i_vdw),6*mat*mat*map*numbd,0)
-      call ga_brdcst(mcf_06,dbl_mb(i_chg),6*mqt*mqp*numbd,0)
+      call ga_brdcst(mcf_02,int_mb(i_typ),nparms*mat*numbi,0)
+      call ga_brdcst(mcf_03,dbl_mb(i_mas),mset*mat*numbd,0)
+      call ga_brdcst(mcf_04,int_mb(i_num),nparms*mat*numbi,0)
+      call ga_brdcst(mcf_05,dbl_mb(i_vdw),mset*mat*mat*map*numbd,0)
+      call ga_brdcst(mcf_06,dbl_mb(i_chg),mset*mqt*mqp*numbd,0)
       call ga_brdcst(mcf_07,int_mb(i_iwa),mwa*numbi,0)
       call ga_brdcst(mcf_08,int_mb(i_iwq),mwa*numbi,0)
       call ga_brdcst(mcf_09,int_mb(i_ibnd(1)),4*mbt(1)*numbi,0)
       call ga_brdcst(mcf_10,int_mb(i_ibnd(2)),4*mbt(2)*numbi,0)
-      call ga_brdcst(mcf_11,dbl_mb(i_bnd(1)),6*mbp(1)*mbt(1)*numbd,0)
-      call ga_brdcst(mcf_12,dbl_mb(i_bnd(2)),6*mbp(2)*mbt(2)*numbd,0)
+      call ga_brdcst(mcf_11,dbl_mb(i_bnd(1)),mset*mbp(1)*mbt(1)*numbd,0)
+      call ga_brdcst(mcf_12,dbl_mb(i_bnd(2)),mset*mbp(2)*mbt(2)*numbd,0)
       call ga_brdcst(mcf_13,int_mb(i_iang(1)),5*mht(1)*numbi,0)
       call ga_brdcst(mcf_14,int_mb(i_iang(2)),5*mht(2)*numbi,0)
-      call ga_brdcst(mcf_15,dbl_mb(i_ang(1)),6*mhp(1)*mht(1)*numbd,0)
-      call ga_brdcst(mcf_16,dbl_mb(i_ang(2)),6*mhp(2)*mht(2)*numbd,0)
+      call ga_brdcst(mcf_15,dbl_mb(i_ang(1)),mset*mhp(1)*mht(1)*numbd,0)
+      call ga_brdcst(mcf_16,dbl_mb(i_ang(2)),mset*mhp(2)*mht(2)*numbd,0)
       call ga_brdcst(mcf_17,int_mb(i_idih(1)),6*mdt(1)*numbi,0)
       call ga_brdcst(mcf_18,int_mb(i_idih(2)),6*mdt(2)*numbi,0)
-      call ga_brdcst(mcf_19,dbl_mb(i_dih(1)),6*mdp(1)*mdt(1)*numbd,0)
-      call ga_brdcst(mcf_20,dbl_mb(i_dih(2)),6*mdp(2)*mdt(2)*numbd,0)
+      call ga_brdcst(mcf_19,dbl_mb(i_dih(1)),mset*mdp(1)*mdt(1)*numbd,0)
+      call ga_brdcst(mcf_20,dbl_mb(i_dih(2)),mset*mdp(2)*mdt(2)*numbd,0)
       call ga_brdcst(mcf_21,int_mb(i_iimp(1)),6*mit(1)*numbi,0)
       call ga_brdcst(mcf_22,int_mb(i_iimp(2)),6*mit(2)*numbi,0)
-      call ga_brdcst(mcf_23,dbl_mb(i_imp(1)),6*mip(1)*mit(1)*numbd,0)
-      call ga_brdcst(mcf_24,dbl_mb(i_imp(2)),6*mip(2)*mit(2)*numbd,0)
+      call ga_brdcst(mcf_23,dbl_mb(i_imp(1)),mset*mip(1)*mit(1)*numbd,0)
+      call ga_brdcst(mcf_24,dbl_mb(i_imp(2)),mset*mip(2)*mit(2)*numbd,0)
       call ga_brdcst(mcf_25,int_mb(i_itrd(1)),2*(mtt(1)+1)*numbi,0)
       call ga_brdcst(mcf_26,int_mb(i_itrd(2)),2*(mtt(2)+1)*numbi,0)
       call ga_brdcst(mcf_27,int_mb(i_ixcl(1)),2*(mxt(1)+1)*numbi,0)
@@ -359,6 +400,10 @@ c
      + factms=two/(rgas*dble(3*nsa-nsc-3*islow))
       if(nwm*(3*nwa-nwc)+3*nsa-nsc-3*islow.gt.0)
      + factmp=two/(rgas*dble(nwm*(3*nwa-nwc)+3*nsa-nsc-3*islow))
+c
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY USE AFTER RDTOP',0)
+      endif
 c
       return
 c

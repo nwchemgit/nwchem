@@ -2,7 +2,7 @@
      + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + lfnout,lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,mato)
 c
-c $Id: pre_sgmndx.F,v 1.12 2001-11-28 15:19:48 d3j191 Exp $
+c $Id: pre_sgmndx.F,v 1.13 2003-07-17 19:38:57 d3j191 Exp $
 c
 c     function to scan database directories for segments in sequence
 c
@@ -34,7 +34,7 @@ c
 #include "util.fh"
 c
       integer iunit,lfnout,mseq,nseq,msgm,nsgm,mato
-      integer lseq(4,mseq),lsgm(3,msgm)
+      integer lseq(6,mseq),lsgm(3,msgm)
       character*5 cseq(2,mseq),csgm(msgm)
       character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,filnam
 c

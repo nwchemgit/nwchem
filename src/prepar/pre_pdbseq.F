@@ -2,7 +2,7 @@
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,altloc,chain)
 c
-c $Id: pre_pdbseq.F,v 1.23 2000-06-01 21:42:37 d3j191 Exp $
+c $Id: pre_pdbseq.F,v 1.24 2003-07-17 19:38:57 d3j191 Exp $
 c
 c     function to read sequence from a pdb formatted file
 c
@@ -25,7 +25,7 @@ c
 #include "util.fh"
 c
       integer iunit,lfnout,model,mseq,nseq,matm,natm,mssb,nssb,mlnk,nlnk
-      integer lseq(4,mseq),latm(5,matm),lssb(2,mssb),llnk(4,mlnk)
+      integer lseq(6,mseq),latm(5,matm),lssb(2,mssb),llnk(4,mlnk)
       character*6 catm(3,matm)
       character*5 cseq(2,mseq)
       character*4 clnk(2,mlnk)

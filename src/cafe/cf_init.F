@@ -5,8 +5,8 @@
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + sclq,fpmf,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
-     + nbiasi,mropti,incl,ltwn)
-c $Id: cf_init.F,v 1.88 2003-01-14 16:31:15 d3j191 Exp $
+     + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,lfnhop,filhop)
+c $Id: cf_init.F,v 1.89 2003-07-17 19:44:24 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -14,14 +14,15 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer lfntop,irtdbi
-      character*(*) filtop
+      integer lfntop,lfnhop,irtdbi
+      character*(*) filtop,filhop
       integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf,nipmf,npgi
-      real*8 spmet,step,tols,bx(3),fldi,fvec(3),ffrq,sclq
+      real*8 spmet,step,tols,bx(3),fldi,fvec(3),ffrq,sclq,rhopi
       integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal,ictrl,incl
+      integer nfhopi
       real*8 rcs,rcl,rqm,compr,delta,fpmf
-      integer iitmps,iiprss,iislow,iipopt
+      integer iitmps,iiprss,iislow,iipopt,nseqi,i_lseqi
       integer nodpme,ntyp,idset,ipset1,ipset2
       integer issscl,npenrg,nbiasi,mropti
       real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
@@ -29,6 +30,10 @@ c
 c
       integer i,itemp(2)
       character*3 string
+c
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('ERROR IN MEMORY USE AT START CF_START',0)
+      endif
 c
       me=ga_nodeid()
       np=ga_nnodes()
@@ -54,6 +59,8 @@ c
       mdalgo=mdalg
       includ=incl
 c
+      lfree=ntype.eq.3
+c
       nbs=0
       mscr=0
       lscr=.false.
@@ -62,6 +69,7 @@ c
       llist=.false.
       lpmf=npmf.gt.0
       ndxp=0
+      nlda=0
       maxl=0
       lanal=nfanal.gt.0
       npener=npenrg
@@ -180,6 +188,18 @@ c
 c
       numpmf=0
 c
+      rhop=rhopi
+      rhop2=rhop*rhop
+      nfhop=nfhopi
+      nseq=nseqi
+      mseq=nseqi
+      i_lseq=i_lseqi
+c
+      lqhop=nfhop.ne.0
+c
+      if(lqhop.and.lfree)
+     + call errquit('Proton hopping thermodynamics not allowed',0)
+c
       ithint=ntype.eq.3
       ipert2=ithint.or.(iset.eq.1.and.(ipset1.eq.2.or.ipset2.eq.2))
       ipert3=ithint.or.(iset.eq.1.and.(ipset1.eq.2.or.ipset2.eq.2))
@@ -235,6 +255,20 @@ c
       if(me.eq.0) then
       close(unit=lfntop)
       endif
+      endif
+c
+c     proton hopping: donor-acceptor pair list allocation
+c     ---------------------------------------------------
+c
+      if(nhop.gt.0) then
+      if(.not.ma_push_get(mt_int,10*nhop*3,'lda',l_lda,i_lda))
+     + call errquit('Failed to allocate lda',0)
+      if(.not.ma_push_get(mt_dbl,5*nhop*3,'rda',l_rda,i_rda))
+     + call errquit('Failed to allocate rda',0)
+      if(.not.ma_push_get(mt_dbl,4*nhop*3,'uda',l_uda,i_uda))
+     + call errquit('Failed to allocate uda',0)
+      if(.not.ma_push_get(mt_dbl,nhop*3,'pda',l_pda,i_pda))
+     + call errquit('Failed to allocate pda',0)
       endif
 c
 c     potential of mean force
@@ -317,6 +351,11 @@ c
       write(*,'(a,a)') ' Number of fractions differs on topology ',
      + ' and restart files'
       endif
+c
+c     initialize QHOP parameters
+c
+      if(nfhop.gt.0) call qhop_init(lfnhop,filhop,6,me)
+c
       nsfi=nsf
       nbiasi=nbias
       mropt=mropti
@@ -462,6 +501,8 @@ c
 c
       integer nat,nap,nqt,nqp
 c
+      integer ndim
+c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
@@ -479,7 +520,7 @@ c                                                          4 : derivative
 c                                                          5 : set 1
 c                                                          6 : set 2
 c
-      if(.not.ma_push_get(mt_dbl,mat*mat*map*6,'vdw',l_vdw,i_vdw))
+      if(.not.ma_push_get(mt_dbl,mat*mat*map*mset,'vdw',l_vdw,i_vdw))
      + call errquit('Allocation failed for vdw',0)
 c
 c     for atomic masses 1 : mass set 1
@@ -489,28 +530,28 @@ c                       4 : mass derivative
 c                       5 : mass set 1
 c                       6 : mass set 2
 c                           
-      if(.not.ma_push_get(mt_dbl,mat*6,'mas',l_mas,i_mas))
+      if(.not.ma_push_get(mt_dbl,mat*mset,'mas',l_mas,i_mas))
      + call errquit('Allocation failed for mas',0)
 c
 c     for atom type names 1 : name set 1
 c                         2 : name set 2
 c                         3 : name set 3
 c
-      if(.not.ma_push_get(mt_byte,6*mat*3,'nam',l_nam,i_nam))
+      if(.not.ma_push_get(mt_byte,6*mat*nparms,'nam',l_nam,i_nam))
      + call errquit('Allocation failed for nam',0)
 c
 c     for atomic numbers  1 : atomic number set 1
 c                         2 : atomic number set 2
 c                         3 : atomic number set 3
 c
-      if(.not.ma_push_get(mt_int,mat*3,'num',l_num,i_num))
+      if(.not.ma_push_get(mt_int,mat*nparms,'num',l_num,i_num))
      + call errquit('Allocation failed for num',0)
 c
 c     for special type    1 : type in set 1
 c                         2 : type in set 2
 c                         3 : type in set 3
 c
-      if(.not.ma_push_get(mt_int,mat*3,'typ',l_typ,i_typ))
+      if(.not.ma_push_get(mt_int,mat*nparms,'typ',l_typ,i_typ))
      + call errquit('Allocation failed for typ',0)
 c
       if(.not.ma_push_get(mt_int,mat*mat,'ias',l_ias,i_ias))
@@ -518,7 +559,7 @@ c
 c
 c     for charge types
 c
-      if(.not.ma_push_get(mt_dbl,mqt*mqp*6,'chg',l_chg,i_chg))
+      if(.not.ma_push_get(mt_dbl,mqt*mqp*mset,'chg',l_chg,i_chg))
      + call errquit('Allocation failed for chg',0)
 c
       return
@@ -530,19 +571,21 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer ia
-      character*6 nam(3)
-      real*8 wgt(3)
-      integer num(3)
+      integer ia,is
+      character*6 nam(24)
+      real*8 wgt(24)
+      integer num(24)
 c
       if(ia.lt.1.or.ia.gt.mat) call errquit('Error in para',0)
 c
       call cf_copya(ia,nam,wgt,num,byte_mb(i_nam),
      + dbl_mb(i_mas),int_mb(i_num),int_mb(i_typ))
 c
+      if(lfree) then
       if(abs(wgt(1)-wgt(2)).gt.tiny) ip2(13)=.true.
       if(abs(wgt(1)-wgt(3)).gt.tiny) ip3(13)=.true.
       if(abs(wgt(2)-wgt(3)).gt.tiny) ith(13)=.true.
+      endif
 c
       return
       end
@@ -555,13 +598,14 @@ c
 #include "mafdecls.fh"
 c
       integer ia
-      character*6 nami(3),nam(mat,3)
-      real*8 wgti(3),wgt(mat,6)
-      integer numa(3),num(mat,3),ityp(mat,3)
+      character*6 nami(24),nam(mat,nparms)
+      real*8 wgti(24),wgt(mat,mset)
+      integer numa(24),num(mat,nparms),ityp(mat,nparms)
 c
       integer i
 c
-      do 1 i=1,3
+      if(.not.lfree) then
+      do 1 i=1,nparms
       nam(ia,i)=nami(i)
       wgt(ia,i)=wgti(i)
       num(ia,i)=numa(i)
@@ -569,13 +613,23 @@ c
       if(nam(ia,i)(6:6).eq.'Q') ityp(ia,i)=1
       if(nam(ia,i)(6:6).eq.'H') ityp(ia,i)=2
     1 continue
-      wgt(ia,4)=wgti(3)-wgti(2)
-      wgt(ia,5)=wgti(2)
-      wgt(ia,6)=wgti(3)
+      else
+      do 2 i=1,3
+      nam(ia,i)=nami(i)
+      wgt(ia,i)=wgti(i)
+      num(ia,i)=numa(i)
+      ityp(ia,i)=0
+      if(nam(ia,i)(6:6).eq.'Q') ityp(ia,i)=1
+      if(nam(ia,i)(6:6).eq.'H') ityp(ia,i)=2
+    2 continue
+      wgt(ia,4)=wgt(ia,3)-wgt(ia,2)
+      wgt(ia,5)=wgt(ia,2)
+      wgt(ia,6)=wgt(ia,3)
+      endif
 c
       return
       end
-      subroutine cf_parv(ia,ja,vdwai,vdwri)
+      subroutine cf_parv(ia,ja,vdwi)
 c
       implicit none
 c
@@ -583,7 +637,9 @@ c
 #include "mafdecls.fh"
 c
       integer ia,ja
-      real*8 vdwai(6),vdwri(6)
+      real*8 vdwi(24,4)
+c
+      integer i
 c
 c     van der Waals parameters are entered here as:
 c
@@ -593,14 +649,15 @@ c
       if(ia.lt.1.or.ia.gt.mat) call errquit('Error in para',0)
       if(ja.lt.1.or.ja.gt.mat) call errquit('Error in para',0)
 c
-      call cf_copyv(ia,ja,vdwai,vdwri,dbl_mb(i_vdw))
+      call cf_copyv(ia,ja,vdwi,dbl_mb(i_vdw))
 c
-      if(abs(vdwai(1)-vdwai(2)).gt.tiny) ip2(14)=.true.
-      if(abs(vdwai(1)-vdwai(3)).gt.tiny) ip3(14)=.true.
-      if(abs(vdwai(2)-vdwai(3)).gt.tiny) ith(14)=.true.
-      if(abs(vdwri(1)-vdwri(2)).gt.tiny) ip2(14)=.true.
-      if(abs(vdwri(1)-vdwri(3)).gt.tiny) ip3(14)=.true.
-      if(abs(vdwri(2)-vdwri(3)).gt.tiny) ith(14)=.true.
+      if(lfree) then
+      do 1 i=1,4
+      if(abs(vdwi(1,i)-vdwi(2,i)).gt.tiny) ip2(14)=.true.
+      if(abs(vdwi(1,i)-vdwi(3,i)).gt.tiny) ip3(14)=.true.
+      if(abs(vdwi(2,i)-vdwi(3,i)).gt.tiny) ith(14)=.true.
+    1 continue
+      endif
 c
       return
       end
@@ -612,18 +669,21 @@ c
 #include "mafdecls.fh"
 c
       integer ia
-      real*8 chgi(6)
+      real*8 chgi(24,2)
+c
+      integer i
 c
       if(ia.lt.1.or.ia.gt.mqt) call errquit('Error in parq',0)
 c
       call cf_copyq(ia,chgi,dbl_mb(i_chg))
 c
-      if(abs(chgi(1)-chgi(3)).gt.tiny) ip2(16)=.true.
-      if(abs(chgi(1)-chgi(5)).gt.tiny) ip3(16)=.true.
-      if(abs(chgi(3)-chgi(5)).gt.tiny) ith(16)=.true.
-      if(abs(chgi(2)-chgi(4)).gt.tiny) ip2(17)=.true.
-      if(abs(chgi(2)-chgi(6)).gt.tiny) ip3(17)=.true.
-      if(abs(chgi(4)-chgi(6)).gt.tiny) ith(17)=.true.
+      if(lfree) then
+      do 1 i=1,2
+      if(abs(chgi(1,i)-chgi(2,i)).gt.tiny) ip2(15+i)=.true.
+      if(abs(chgi(1,i)-chgi(3,i)).gt.tiny) ip3(15+i)=.true.
+      if(abs(chgi(2,i)-chgi(3,i)).gt.tiny) ith(15+i)=.true.
+    1 continue
+      endif
 c
       return
       end
@@ -635,20 +695,26 @@ c
 #include "mafdecls.fh"
 c
       integer ia
-      real*8 chgi(6),chg(mqt,mqp,6)
+      real*8 chgi(24,2),chg(mqt,mqp,mset)
 c
       integer i
 c
-      do 1 i=1,3
-      chg(ia,1,i)=qfac*chgi(2*i-1)
-      chg(ia,2,i)=chgi(2*i)
+      if(.not.lfree) then
+      do 1 i=1,nparms
+      chg(ia,1,i)=qfac*chgi(i,1)
+      chg(ia,2,i)=chgi(i,2)
     1 continue
-c
-      do 2 i=1,2
+      else
+      do 2 i=1,3
+      chg(ia,1,i)=qfac*chgi(i,1)
+      chg(ia,2,i)=chgi(i,2)
+    2 continue
+      do 3 i=1,2
       chg(ia,i,4)=chg(ia,i,3)-chg(ia,i,2)
       chg(ia,i,5)=chg(ia,i,2)
       chg(ia,i,6)=chg(ia,i,3)
-    2 continue
+    3 continue
+      endif
 c
       return
       end
@@ -673,19 +739,19 @@ c
 #include "mafdecls.fh"
 c
       integer iqfr,iqto
-      real*8 chg(mqt,mqp,6)
+      real*8 chg(mqt,mqp,mset)
 c
       integer i,j
 c
       do 1 i=iqfr,iqto
-      do 2 j=1,6
+      do 2 j=1,nparms
       chg(i,1,j)=scaleq*chg(i,1,j)
     2 continue
     1 continue
 c
       return
       end
-      subroutine cf_copyv(ia,ja,vdwai,vdwri,vdw)
+      subroutine cf_copyv(ia,ja,vdwai,vdw)
 c
       implicit none
 c
@@ -693,29 +759,41 @@ c
 #include "mafdecls.fh"
 c
       integer ia,ja
-      real*8 vdwai(6),vdwri(6),vdw(mat,mat,map,6)
+      real*8 vdwai(24,4),vdw(mat,mat,map,mset)
 c
-      integer i,j
+      integer i,j,k
 c
-      do 1 i=1,3
-      vdw(ia,ja,1,i)=vdwai(i)
-      vdw(ia,ja,2,i)=vdwai(i+3)
-      vdw(ia,ja,3,i)=vdwri(i)
-      vdw(ia,ja,4,i)=vdwri(i+3)
+      if(.not.lfree) then
+      do 1 i=1,4
+      do 2 j=1,nparms
+      vdw(ia,ja,i,j)=vdwai(j,i)
+      if(ia.ne.ja) vdw(ja,ia,i,j)=vdw(ia,ja,i,j)
+    2 continue
     1 continue
-      do 2 i=1,4
+      else
+      do 3 i=1,4
+      do 4 j=1,3
+      vdw(ia,ja,i,j)=vdwai(j,i)
+    4 continue
+    3 continue
+      do 5 i=1,4
       vdw(ia,ja,i,4)=vdw(ia,ja,i,3)-vdw(ia,ja,i,2)
       vdw(ia,ja,i,5)=vdw(ia,ja,i,2)
       vdw(ia,ja,i,6)=vdw(ia,ja,i,3)
-    2 continue
+    5 continue
       if(ia.ne.ja) then
-      do 3 i=1,4
-      do 4 j=1,6
+      do 6 i=1,4
+      do 7 j=1,6
       vdw(ja,ia,i,j)=vdw(ia,ja,i,j)
-    4 continue
-    3 continue
+    7 continue
+    6 continue
+      endif
       endif
 c
+c      do 55 i=1,4
+c      write(*,9) ia,ja,i,(vdw(ia,ja,i,j),j=1,mset)
+c   55 continue
+c    9 format(3i5,10e12.5)
       return
       end
       subroutine cf_initb(id,ntot,nbt,nbp,nht,nhp,ndt,ndp,nit,nip,
@@ -723,7 +801,7 @@ c
 c
 c     cf_init initializes the classical forces API routines
 c
-c     in: nbt, integer number of bond types
+c     in:  nbt, integer number of bond types
 c          nbp, integer number of parameters per bond type
 c          nht, integer number of angle types
 c          nhp, integer number of parameters per angle type
@@ -771,7 +849,7 @@ c     allocate memory
 c
 c     for bond types
 c
-      if(.not.ma_push_get(mt_dbl,mbt(id)*mbp(id)*6,'bnd',
+      if(.not.ma_push_get(mt_dbl,mbt(id)*mbp(id)*mset,'bnd',
      + l_bnd(id),i_bnd(id)))
      + call errquit('Allocation failed for bnd',0)
       if(.not.ma_push_get(mt_int,mbt(id)*mbp(id)*3,'ibnd',
@@ -783,7 +861,7 @@ c
 c
 c     for angle types
 c
-      if(.not.ma_push_get(mt_dbl,mht(id)*mhp(id)*6,'ang',
+      if(.not.ma_push_get(mt_dbl,mht(id)*mhp(id)*mset,'ang',
      + l_ang(id),i_ang(id)))
      + call errquit('Allocation failed for ang',0)
       if(.not.ma_push_get(mt_int,mht(id)*mhp(id)*4,'iang',
@@ -795,7 +873,7 @@ c
 c
 c     for dihedral types
 c
-      if(.not.ma_push_get(mt_dbl,mdt(id)*mdp(id)*6,'dih',
+      if(.not.ma_push_get(mt_dbl,mdt(id)*mdp(id)*mset,'dih',
      + l_dih(id),i_dih(id)))
      + call errquit('Allocation failed for dih',0)
       if(.not.ma_push_get(mt_int,mdt(id)*mdp(id)*5,'idih',
@@ -806,8 +884,8 @@ c
      + call errquit('Allocation failed for rdih',0)
 c
 c     for improper dihedral types
-c
-      if(.not.ma_push_get(mt_dbl,mit(id)*mip(id)*6,'imp',
+c 
+      if(.not.ma_push_get(mt_dbl,mit(id)*mip(id)*mset,'imp',
      + l_imp(id),i_imp(id)))
      + call errquit('Allocation failed for imp',0)
       if(.not.ma_push_get(mt_int,mit(id)*mip(id)*5,'iimp',
@@ -839,6 +917,7 @@ c
       if(id.eq.2.and.msm.gt.0) then
       if(.not.ma_push_get(mt_dbl,msm,'wsm',l_wsm,i_wsm))
      + call errquit('Allocation failed for wsm',0)
+c
       endif
 c
       return
@@ -865,27 +944,41 @@ c
 #include "cf_common.fh"
 c
       integer i,j,id,ia,iq,iwa(mwa),iwq(mwa)
-      real*8 wgt(mat,6),chg(mqt,mqp,6),vdw(mat,mat,map,6)
+      real*8 wgt(mat,mset),chg(mqt,mqp,mset),vdw(mat,mat,map,mset)
 c
       iwa(id)=ia
       iwq(id)=iq
 c
-      if(abs(wgt(ia,1)-wgt(ia,2)).gt.tiny) ip2(1)=.true.
-      if(abs(wgt(ia,1)-wgt(ia,3)).gt.tiny) ip3(1)=.true.
-      if(abs(wgt(ia,2)-wgt(ia,3)).gt.tiny) ith(1)=.true.
+      if(lfree) then
+      if(abs(wgt(ia,1)-wgt(ia,2)).gt.tiny) then
+      ip2(1)=.true.
+      ith(1)=.true.
+      endif
       do 1 j=1,map
       do 2 i=1,mat
-      if(abs(vdw(ia,i,j,1)-vdw(ia,i,j,2)).gt.tiny) ip2(2)=.true.
+      if(abs(vdw(ia,i,j,1)-vdw(ia,i,j,2)).gt.tiny) then
+      ip2(2)=.true.
+      ith(2)=.true.
+      endif
+      if(nparms.gt.2) then
       if(abs(vdw(ia,i,j,1)-vdw(ia,i,j,3)).gt.tiny) ip3(2)=.true.
-      if(abs(vdw(ia,i,j,2)-vdw(ia,i,j,3)).gt.tiny) ith(2)=.true.
+      endif
     2 continue
     1 continue
-      if(abs(chg(iq,1,1)-chg(iq,1,2)).gt.tiny) ip2(4)=.true.
+      if(abs(chg(iq,1,1)-chg(iq,1,2)).gt.tiny) then
+      ip2(4)=.true.
+      ith(4)=.true.
+      endif
+      if(abs(chg(iq,2,1)-chg(iq,2,2)).gt.tiny) then
+      ip2(5)=.true.
+      ith(5)=.true.
+      endif
+      if(nparms.gt.2) then
+      if(abs(wgt(ia,1)-wgt(ia,3)).gt.tiny) ip3(1)=.true.
       if(abs(chg(iq,1,1)-chg(iq,1,3)).gt.tiny) ip3(4)=.true.
-      if(abs(chg(iq,1,2)-chg(iq,1,3)).gt.tiny) ith(4)=.true.
-      if(abs(chg(iq,2,1)-chg(iq,2,2)).gt.tiny) ip2(5)=.true.
-      if(abs(chg(iq,2,1)-chg(iq,2,3)).gt.tiny) ip3(5)=.true.
-      if(abs(chg(iq,2,2)-chg(iq,2,3)).gt.tiny) ith(5)=.true.
+      if(abs(chg(iq,2,1)-chg(iq,2,3)).gt.tiny) ip3(5)=.true.      
+      endif
+      endif
 c
       return
       end
@@ -897,7 +990,7 @@ c
 #include "mafdecls.fh"
 c
       integer id,idp,ip(4)
-      real*8 p(*)
+      real*8 p(4,24)
 c
       if(id.le.0.or.id.gt.nbs) call errquit('Error in parbnd',0)
       if(idp.lt.1.or.idp.gt.mbt(id)) call errquit('Error in parbnd',0)
@@ -917,7 +1010,7 @@ c
 #include "mafdecls.fh"
 c
       integer id,idp,ip(5)
-      real*8 p(*)
+      real*8 p(4,24)
 c
       if(id.le.0.or.id.gt.nbs) call errquit('Error 1 in parang',0)
       if(idp.lt.1.or.idp.gt.mht(id)) call errquit('Error 2 in parang',0)
@@ -937,7 +1030,7 @@ c
 #include "mafdecls.fh"
 c
       integer id,idp,ip(6)
-      real*8 p(*)
+      real*8 p(4,24)
 c
       if(id.le.0.or.id.gt.nbs) call errquit('Error 1 in pardih',0)
       if(idp.lt.1.or.idp.gt.mdt(id)) call errquit('Error 2 in pardih',0)
@@ -957,7 +1050,7 @@ c
 #include "mafdecls.fh"
 c
       integer id,idp,ip(6)
-      real*8 p(*)
+      real*8 p(4,24)
 c
       if(id.le.0.or.id.gt.nbs) call errquit('Error 1 in parimp',0)
       if(idp.lt.1.or.idp.gt.mit(id)) call errquit('Error 2 in parimp',0)
@@ -976,23 +1069,32 @@ c
 c
       integer id,idimi,idimp,idimt
       integer ipari(idimi),ipar(idimt,idimi)
-      real*8 pari(idimp,3),par(idimt,idimp,6)
+      real*8 pari(4,24),par(idimt,idimp,mset)
       logical ip2log,ip3log,ithlog
 c
       do 1 i=1,idimi
       ipar(id,i)=ipari(i)
     1 continue
+c
+      if(.not.lfree) then
       do 2 i=1,idimp
-      par(id,i,1)=pari(i,1)
-      par(id,i,2)=pari(i,2)
-      par(id,i,3)=pari(i,3)
-      par(id,i,4)=pari(i,3)-pari(i,2)
-      par(id,i,5)=pari(i,2)
-      par(id,i,6)=pari(i,3)
+      do 3 j=1,nparms
+      par(id,i,j)=pari(i,j)
+    3 continue
+    2 continue
+      else
+      do 4 i=1,idimp
+      do 5 j=1,3
+      par(id,i,j)=pari(i,j)
+    5 continue
+      par(id,i,4)=par(id,i,3)-par(id,i,2)
+      par(id,i,5)=par(id,i,2)
+      par(id,i,6)=par(id,i,3)
       if(abs(pari(i,1)-pari(i,2)).gt.tiny) ip2log=.true.
       if(abs(pari(i,1)-pari(i,3)).gt.tiny) ip3log=.true.
       if(abs(pari(i,2)-pari(i,3)).gt.tiny) ithlog=.true.
-    2 continue
+    4 continue
+      endif
 c
       return
       end
@@ -1481,7 +1583,12 @@ c
       lssw=0
       llss=0
       lsss=0
+      nlda=0
       endif
+c
+      do 23 i=1,4*nhop
+      dbl_mb(i_uda-1+i)=zero
+   23 continue
 c
       if(.not.llist) lpair=.true.
 c
@@ -1672,7 +1779,7 @@ c
 c
 #include "cf_common.fh"
 c
-      real*8 wgt(mat,6),vdw(mat,mat,map,6),chg(mqt,mqp,6)
+      real*8 wgt(mat,mset),vdw(mat,mat,map,mset),chg(mqt,mqp,mset)
       integer iwat(mwa),iwqt(mwa)
       integer mwb,mwh,mwd,mwo,nbp,nhp,ndp,nop
       integer nwb,nwh,nwd,nwo
@@ -1724,26 +1831,26 @@ c
       integer i,j,k,l
 c
       write(lfnout,1000)
- 1000 format(/,' ATOM TYPES',//,t8,'Type',t42,'Atomic number',
-     + t59,'Mass',/)
+ 1000 format(/,' ATOM TYPES',//,t9,'Set',t13,'Type',
+     + t24,'Atomic',t32,'Mass',/,t24,'number')
 c
       do 1 i=1,mat
-      write(lfnout,1001) i,(nam(i,j),j=1,3),(num(i,j),j=1,3),
-     + (wgt(i,j),j=1,3)
- 1001 format(i5,1x,3(1x,a6,4x),3i5,3f12.6)
+      write(lfnout,1001) i,(j,nam(i,j),num(i,j),wgt(i,j),j=1,nparms)
+ 1001 format(/,2i5,2x,a6,4x,i5,f12.6,/,(5x,i5,2x,a6,4x,i5,f12.6))
     1 continue
 c
       write(lfnout,1002)
- 1002 format(/,' VAN DER WAALS PARAMETERS',//,11x,
-     + 3(' Atom types  v. d. Waals v. d. Waals'),/,11x,
-     + 3('                         3rd neighb '),/)
+ 1002 format(/,' VAN DER WAALS PARAMETERS',//,
+     + t14,'Set',t19,'Atom types',t30,4(' v. d. Waals'),/,
+     + t30,2('  dispersion'),2('   repulsion'),/,
+     + t30,2(12x,'  3rd neighb'))
 c
       do 2 i=1,mat
       do 3 j=i,mat
-      write(lfnout,1003) i,j,(nam(i,k)(1:5),nam(j,k)(1:5),
-     + (vdw(i,j,l,k),l=1,2),k=1,3),
-     + (nam(i,k)(6:6),nam(j,k)(6:6),(vdw(i,j,l,k),l=3,4),k=1,3)
- 1003 format(2i5,1x,3(2(1x,a5),2e12.5),/,11x,3(8x,2a1,2x,2e12.5))
+      write(lfnout,1003) i,j,(k,nam(i,k)(1:5),nam(j,k)(1:5),
+     + (vdw(i,j,l,k),l=1,4),k=1,nparms)
+ 1003 format(/,3i5,3x,a5,1x,a5,4(1pe12.5),/,
+     + (10x,i5,3x,a5,1x,a5,4(1pe12.5)))
     3 continue
     2 continue
 c
@@ -1756,17 +1863,26 @@ c
 #include "cf_common.fh"
 c
       integer lfnout
-      real*8 chg(mqt,mqp,6)
+      real*8 chg(mqt,mqp,mset)
 c
       integer i,j
 c
       write(lfnout,1000)
- 1000 format(/,' CHARGE TYPES',//,t10,'Charge',t49,'Polarization',/)
+ 1000 format(/,' CHARGE TYPES',//,t10,'Charge',/)
 c
       do 1 i=1,mqt
-      write(lfnout,1001) i,(chg(i,1,j)/qfac,j=1,3),(chg(i,2,j),j=1,3)
- 1001 format(i5,3f12.6,3x,3f12.6)
+      write(lfnout,1001) i,(chg(i,1,j)/qfac,j=1,nparms)
+ 1001 format(i5,10f12.6)
     1 continue
+c
+      write(lfnout,1002)
+ 1002 format(//,t10,'Polarization',/)
+c
+      do 2 i=1,mqt
+      write(lfnout,1003) i,(chg(i,2,j),j=1,nparms)
+ 1003 format(i5,10f12.6)
+    2 continue
+      
 c
       return
       end
@@ -1850,6 +1966,20 @@ c
      + mdt(2),mdp(2),dbl_mb(i_dih(2)),mit(2),mip(2),dbl_mb(i_imp(2)),
      + lfnpmf)
 c
+      if(ipme.ne.0) call cf_pmelam()
+c
+      return
+      end
+      subroutine cf_pmelam()
+c
+      implicit none
+c
+#include "pme_common.fh"
+c
+      lcorr(1)=.false.
+      lcorr(2)=.false.
+      lcorr(3)=.false.
+c
       return
       end
       subroutine cf_lam(lamtyp,lambda,maxlam,explam,lfnout,
@@ -1866,7 +1996,7 @@ c
 c
       integer lamtyp,lambda,maxlam,lfnout
       real*8 explam,rlambd,dlambd
-      real*8 wgt(mat,6),vdw(mat,mat,map,6),chg(mqt,mqp,6)
+      real*8 wgt(mat,mset),vdw(mat,mat,map,mset),chg(mqt,mqp,mset)
       integer mwb,mwh,mwd,mwo,nbp,nhp,ndp,nop
       integer nwb,nwh,nwd,nwo
       integer msb,msh,msd,mso,npb,nph,npd,npo
