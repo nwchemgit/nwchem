@@ -1,3 +1,6 @@
+*
+* $Id: v_bwexc.F,v 1.5 2005-02-09 02:19:36 bylaska Exp $
+*
 
       
 
@@ -8,10 +11,11 @@
 *    ************************************
 *
       
-      subroutine v_bwexc(n2ft3d,ispin,dn,
+      subroutine v_bwexc(gga,n2ft3d,ispin,dn,
      >                   x_parameter,c_parameter,
      >                   xcp,xce)
       implicit none
+      integer gga
       integer n2ft3d
       integer  ispin
       real*8  dn(n2ft3d,2)
@@ -113,6 +117,7 @@ c        ***** calculate agr = |grad n| ****
 
 
 c        ***** calculate xce,fn=df/dn, and fdn=df/d|grad n|  ****
+         if (gga.eq.1) then
          call gen_PBE96_BW_restricted(n2ft3d,
      >                                dbl_mb(rho(1)),
      >                                dbl_mb(agr(1)),
@@ -120,6 +125,17 @@ c        ***** calculate xce,fn=df/dn, and fdn=df/d|grad n|  ****
      >                                xce,
      >                                dbl_mb(fn(1)),
      >                                dbl_mb(fdn(1)))
+         else if (gga.eq.2) then
+         call gen_BLYP_BW_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >                                x_parameter,c_parameter,
+     >                                xce,
+     >                                dbl_mb(fn(1)),
+     >                                dbl_mb(fdn(1)))
+         else
+          call errquit('bad gga',0,0)
+         end if
 
 c        ***** calculate df/d|grad n| *(grad n)/|grad n| ****
          call D3dB_rr_Divide(1,dbl_mb(grx(1)),

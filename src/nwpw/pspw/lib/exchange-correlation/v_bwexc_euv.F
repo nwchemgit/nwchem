@@ -1,3 +1,6 @@
+*
+* $Id: v_bwexc_euv.F,v 1.4 2005-02-09 02:19:36 bylaska Exp $
+*
 
       
 
@@ -8,8 +11,9 @@
 *    ************************************
 *
       
-      subroutine v_bwexc_euv(n2ft3d,ispin,dn,stress)
+      subroutine v_bwexc_euv(gga,n2ft3d,ispin,dn,stress)
       implicit none
+      integer gga
       integer n2ft3d
       integer  ispin
       real*8  dn(n2ft3d,2)
@@ -126,6 +130,7 @@ c        ***** calculate agr = |grad n| ****
 
     
 c        ***** calculate fdn=df/d|grad n|  ****
+         if (gga.eq.1) then
          call gen_PBE96_BW_restricted(n2ft3d,
      >                                dbl_mb(rho(1)),
      >                                dbl_mb(agr(1)),
@@ -133,6 +138,19 @@ c        ***** calculate fdn=df/d|grad n|  ****
      >                                dbl_mb(xce(1)), !*** not used ??***
      >                                dbl_mb(fn(1)),  !*** not used ??***
      >                                dbl_mb(fdn(1)))
+
+         else if (gga.eq.2) then
+         call gen_BLYP_BW_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >                                1.0d0,1.0d0,
+     >                                dbl_mb(xce(1)), !*** not used ??***
+     >                                dbl_mb(fn(1)),  !*** not used ??***
+     >                                dbl_mb(fdn(1)))
+         else
+          call errquit('bad gga',0,0)
+         end if
+
 
      
 c        ***** calculate df/d|grad n| *(grad n)/|grad n| ****
