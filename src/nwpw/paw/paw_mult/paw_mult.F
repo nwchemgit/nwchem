@@ -1,5 +1,5 @@
 *
-* $Id: paw_mult.F,v 1.3 2003-02-17 02:29:47 bylaska Exp $
+* $Id: paw_mult.F,v 1.4 2003-02-17 22:29:10 bylaska Exp $
 *
 
 
@@ -87,9 +87,9 @@
       if (.not.ok) 
      > call errquit("paw_mult_init: out of stack memory",2)
 
-      call dcopy(nfft3d,dbl_mb(G_indx(1)),1,dbl_mb(Gx(1)))
-      call dcopy(nfft3d,dbl_mb(G_indx(2)),1,dbl_mb(Gy(1)))
-      call dcopy(nfft3d,dbl_mb(G_indx(3)),1,dbl_mb(Gz(1)))
+      call D3dB_t_Copy(1,dbl_mb(G_indx(1)),dbl_mb(Gx(1)))
+      call D3dB_t_Copy(1,dbl_mb(G_indx(2)),dbl_mb(Gy(1)))
+      call D3dB_t_Copy(1,dbl_mb(G_indx(3)),dbl_mb(Gz(1)))
       call Pack_t_pack(0,dbl_mb(Gx(1)))
       call Pack_t_pack(0,dbl_mb(Gy(1)))
       call Pack_t_pack(0,dbl_mb(Gz(1)))
@@ -204,8 +204,9 @@
 
       !**** local variables ***
       logical ok
-      integer ia,ii,jj,l,m,nion,npack0,mult_l
+      integer ia,ii,jj,kk,l,m,nion,npack0,mult_l
       integer exi(2),tmp(2),QYlm(2)
+      real*8  sum
 
       !**** allocate stack memory ****
       call Pack_npack(0,npack0)
@@ -219,6 +220,7 @@
      >  'paw_mult_dn_cmp_get: out of stack memory',0)
 
 
+      sum = 0.0d0
       nion = ion_nion()
       do ii=1,nion
          ia = ion_katm(ii)
@@ -226,18 +228,22 @@
          !**** Define QYlm ****
          mult_l = paw_basis_mult_l(ia)
          jj     = int_mb(i_paw_qlm(1)+ii-1)
+         write(*,*) "Qlm(0):",ii,dcpl_mb(paw_qlm(1)+jj)
+         sum = sum + dble(dcpl_mb(paw_qlm(1)+jj))
+         kk     = 0
          call dcopy(2*npack0,0.0d0,0,dcpl_mb(QYlm(1)),1)
          do l=0,mult_l
          do m=-l,l
            call Pack_cc_zaxpy(0,
      >               dcpl_mb(paw_qlm(1)+jj),
-     >               dcpl_mb(g_lm(1)+(jj)*npack0),
+     >               dcpl_mb(g_lm(1)+(kk)*npack0),
      >               dcpl_mb(QYlm(1)))
 
            jj = jj + 1
+           kk = kk + 1
          end do
          end do
-        
+
          !**** Multiply by Structure Factor ****
          call strfac_pack(0,ii,dcpl_mb(exi(1)))
          call Pack_cc_Mul(0,
@@ -275,6 +281,9 @@
      >                 dn_cmp_smooth,
      >                 dn_cmp_diff)
 
+      write(*,*) "Qtotal:",sum*dsqrt(16.0d0*datan(1.0d0))
+      sum = 2*dbl_mb(paw_q00(1)) + dbl_mb(paw_q00(1)+1)
+      write(*,*) "Qcore :",sum*dsqrt(16.0d0*datan(1.0d0))
 
       !**** deallocate stack memory ****
       ok =        MA_pop_stack(QYlm(2))
