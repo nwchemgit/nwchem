@@ -1,4 +1,4 @@
-C $Id: drdy_input.F,v 1.6 2001-02-01 01:01:50 windus Exp $
+C $Id: drdy_input.F,v 1.7 2001-02-01 17:42:47 windus Exp $
       subroutine drdy_input(rtdb)
       implicit none
 *: typical drdy input deck
@@ -203,6 +203,9 @@ c
             call drdy_input_add_line(rtdb,count)  ! count incremented
             goto 00100
           elseif(inp_compare(.false.,'singlepoint',field(1:11))) then
+            call drdy_input_add_line(rtdb,count)  ! count incremented
+            goto 00100
+          elseif(inp_compare(.false.,'savefile',field(1:8))) then
             call drdy_input_add_line(rtdb,count)  ! count incremented
             goto 00100
           elseif(inp_compare(.false.,'integra',field(1:7))) then

@@ -1,4 +1,4 @@
-C $Id: Input_for_drdy.F,v 1.3 2001-01-19 17:43:11 windus Exp $
+C $Id: Input_for_drdy.F,v 1.4 2001-02-01 17:42:47 windus Exp $
       Subroutine Input_for_drdy(rtdb)
 C
 C Options in lgs array
@@ -26,13 +26,13 @@ C       =3, use Page-McIver CLQA algorithm
 C       =4, use Page-McIver CUBE algorithm
 C  38 - are electronic structure files save?
 C       =0, no files saved
-C       =1, yes, the output file is saved
-C       =2, yes, the checkpoint file is saved
-C       =3, yes, the output and checkpoint files are saved
-C       =4, yes, the output and checkpoint files and the output from the single point calculation are saved 
+C       =1, yes, the movecs file is saved
+C       =2, yes, the hessian file is saved
+C       =3, yes, the movecs and hessian files are saved
+C       =4, yes, the movecs and hessian files and the movecs from the single point calculation are saved 
 C  39 - is a single point calculation performed at each save point?
 C       =0, no
-C	=1, yes
+C	    =1, yes
 C
 C  All other lgs variables are not used in this version of the code
 C

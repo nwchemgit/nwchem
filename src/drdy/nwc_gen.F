@@ -1,4 +1,4 @@
-C $Id: nwc_gen.F,v 1.2 2001-02-01 01:01:50 windus Exp $
+C $Id: nwc_gen.F,v 1.3 2001-02-01 17:42:48 windus Exp $
       Subroutine nwc_gen (x,v,dx,fmat,hess,xs,natom,n3,n3tm,ndbar,op)
 C
 C  Run NWChem task to get potential and first and second derivatives
@@ -71,7 +71,8 @@ c
         call geom_auto_sym(my_rtdb,geom,dx,
      &      copy_charge,copy_labels,ncenter,
      &      threquiv,groupname)
-        write(luout,10) groupname
+        if (op.ne.DRDY_CODE_SPENERGY)
+     &    write(luout,10) groupname
         if (geom_group_set(geom,groupname)) then
           if (.not.geom_cart_set(geom,ncenter,copy_labels,dx,
      &         copy_charge))
@@ -157,10 +158,9 @@ C     original orientation
       endif
 *
       return
-10    Format (1x,'groupname is ',a3)
+10    Format (1x,'Symmetry group is ',a3)
 1000  Format (1x,79a1)
 1001  Format (' ')
 1002  Format (1x,2i2)
 1003  Format (1x,5a1,1p3e20.10)
-600   format (1x,' construct gaussian data file:')
       End

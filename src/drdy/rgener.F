@@ -1,4 +1,4 @@
-C $Id: rgener.F,v 1.3 2001-01-19 17:43:13 windus Exp $
+C $Id: rgener.F,v 1.4 2001-02-01 17:42:48 windus Exp $
       Subroutine drdy_rgener(string,iend,istrt)
 c
 c     called by:
@@ -13,7 +13,7 @@ C
       Integer iend,istrt,isect
       Character * 80 string
 *::local:
-      Integer ierr,lout,lchk,lspc
+      Integer ierr,lvec,lhess,lspc
 c
 c     read in first keyword in this section
 c
@@ -39,15 +39,15 @@ c SINGLE POINT CALCULATION
             lgs(39) = 1
 C SAVE ELECTRONIC STRUCTURE FILES
          else if (string(istrt:istrt+7).eq.'savefile') then
-            lout = 0
-            lchk = 0
+            lvec = 0
+            lhess = 0
             lspc = 0
             call drdy_rword(string,istrt,ierr)
             do while (ierr.eq.0)
-               if(string(istrt:istrt+2).eq.'out') then
-                  lout = 1
-               elseif(string(istrt:istrt+2).eq.'chk') then
-                  lchk = 1
+               if(string(istrt:istrt+3).eq.'vecs') then
+                  lvec = 1
+               elseif(string(istrt:istrt+3).eq.'hess') then
+                  lhess = 1
                elseif(string(istrt:istrt+2).eq.'spc') then
                   if(lgs(39).ne.0) then
                      lspc = 1
@@ -60,8 +60,8 @@ C SAVE ELECTRONIC STRUCTURE FILES
                endif
                call drdy_rword(string,istrt,ierr)
             enddo
-            if (lchk.eq.0) then
-               if (lout.eq.0) then
+            if (lhess.eq.0) then
+               if (lvec.eq.0) then
                   write(fu6,1203)
                   call errquit('drdy_rgener: invalid argument',555)
                else
@@ -69,7 +69,7 @@ C SAVE ELECTRONIC STRUCTURE FILES
                endif
                if(lspc.ne.0) write(fu6,1204)
             else
-               if (lout.eq.0) then
+               if (lvec.eq.0) then
                   lgs(38) = 2
                   if(lspc.ne.0) write(fu6,1204)
                else if (lspc.eq.0) then
@@ -89,13 +89,13 @@ c
 1200  format(3x,'Error:  the following is not a valid keyword in the',
      *       ' general section',/A80)
 1201  format(3x,'Error:  the following is not a valid argument for the',
-     *       ' SAVE FILE keyword',/,A80)
-1202  Format(3x,'Cannot save output single point calculation because',
-     *       ' the calculation is not being performed')
-1203  format(3x,'SAVE FILE is specified, but no valid arguments are',
+     *       ' SAVEFILE keyword',/,A80)
+1202  Format(3x,'Cannot save vectors for single point calculation ',
+     *       'because the calculation is not being performed')
+1203  format(3x,'SAVEFILE is specified, but no valid arguments are',
      *       ' given')
-1204  format(3x,'To save the output from single point calculation, the',
-     *       ' regular gaussian output and checkpoint files must also',
+1204  format(3x,'To save the vectors from single point calculation,',
+     *       ' the regular vectors and hessian files must also be',
      *       ' saved')
 c
       return
