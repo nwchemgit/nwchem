@@ -1,5 +1,5 @@
 *
-* $Id: moints_aodisk.F,v 1.19 1997-11-04 09:58:02 d3e129 Exp $
+* $Id: moints_aodisk.F,v 1.20 1998-08-19 18:33:52 rg240 Exp $
 *
 c
 c  Set of routines to cache AO integrals for the 4-index
@@ -979,10 +979,10 @@ c
      $                               sprstol, labint, iorec(irp), nir1, 
      $                               iorec(irrp), iorec(drp), nnz1 )
           rp = drp + nnz1
-          if ((nnz1.ne.nnz).or.(nir1.ne.nir))
+          if ((nnz1.ne.nnz).or.(nir1.ne.nir)) 
      $      call errquit('moints_aodisk_sprs2iorec: internal error 2',0)
-
         enddo
+
       enddo
       if (rp.gt.(reclen+1))
      $  call errquit('moints_aodisk_sprs2iorec: internal error 1',0)
@@ -1265,10 +1265,12 @@ c
       end
 
 c
+c  Define this macro assume everyone supports integer*2
+c  Undefine if compiler complains
 c
-c
-#if defined(SUN) || defined(SOLARIS) || defined(SGI) 
 #define HAVE_FORTRAN_INTEGER2
+#if defined(CRAY_T3E)
+#undef HAVE_FORTRAN_INTEGER2
 #endif
 
 
@@ -1388,6 +1390,7 @@ c
       nnz = 0
       nir = 0
       pack = 0
+      bp = 0
       do s=1,n
         colp(1,s) = nnz + 1
         do t=1,m
