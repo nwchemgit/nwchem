@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.4 1996-02-14 17:43:34 d3e129 Exp $
+c $Id: int_spcart.F,v 1.5 1996-02-14 22:24:54 d3e129 Exp $
 * 
 * initialization of spherical to cartesean tranformation array
 *... stored on heap.  
@@ -266,7 +266,9 @@ c: passed
       double precision blockout(ndima,-ls:ls)           ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
 c: local
+#if defined(USE_LOOPS)
       integer i,j,k
+#endif
       integer L2s
 c::statement function ----- start
       integer iic,iis,iil
@@ -292,8 +294,7 @@ c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
       endif
-#define SPECIAL_CODE
-#if defined(SPECIAL_CODE)
+c
       if (ls.eq.2) then
         call spcart_a_sd(blockin,blockout,ndima,in_place)
         return
@@ -304,15 +305,16 @@ c
         call spcart_a_sg(blockin,blockout,ndima,in_place)
         return
       endif
-#endif
-#if defined(USE_DGEMM)
+c
+
 c
 c dgemm call for blockin(ndima,l2s)*dtrans(l2s,2l+1) = blockout(ndima,2l+1)
 c
       L2s = ((ls+1)*(ls+2)/2)
       call dgemm('n','n',ndima,(2*ls+1),L2s,1.0d00,blockin,ndima,
      &    dbl_mb(int_mb(k_sp2c_lindx+Ls)),L2s,0.0d00,blockout,ndima)
-#else
+c
+#if defined(USE_LOOPS)
 c
 c  blockout(ndima,2l+1) = blockin(ndima,l2s)*d_spcart(l2s,2l+1,lp=ls)
 c      
@@ -344,7 +346,9 @@ c: passed
       double precision blockout(-ls:ls,ndima)           ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
 c: local
+#if defined(USE_LOOPS)
       integer i,j,k
+#endif
       integer L2s
 c::statement function ----- start
       integer iic,iis,iil
@@ -370,7 +374,7 @@ c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
       endif
-#if defined(SPECIAL_CODE)
+c
       if (ls.eq.2) then
         call spcart_sd_a(blockin,blockout,ndima,in_place)
         return
@@ -381,8 +385,6 @@ c
         call spcart_sg_a(blockin,blockout,ndima,in_place)
         return
       endif
-#endif
-#if defined(USE_DGEMM)
 c
 c dgemm call for:
 c  Transpose(d_spcart(l2s,2l+1))*blockin(l2s,ndima) = blockout(2l+1,ndima)
@@ -391,7 +393,7 @@ c
       call dgemm('t','n',(2*ls+1),ndima,L2s,1.0d00,
      &      dbl_mb(int_mb(k_sp2c_lindx+Ls)),L2s,
      &      blockin,L2s,0.0d00,blockout,(2*ls+1))
-#else
+#if defined(USE_LOOPS)
 c
 c blockout(2l+1,ndima) = blockin(l2s,ndima)*d_spcart(l2s,2l+1,lp=ls)
 c      
@@ -426,7 +428,10 @@ c: passed
       double precision blockout(ndima,-ls:ls,ndimb)            ! [output] matrix 
       logical in_place  ! [input] true if blockin and blockout are the same pointer
 c: local
-      integer i,j,k, m
+#if defined(USE_LOOPS)
+      integer i,j,k
+#endif
+      integer m
       integer L2s
 c::statement function ----- start
       integer iic,iis,iil
@@ -452,7 +457,7 @@ c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
       endif
-#if defined(SPECIAL_CODE)
+c
       if (ls.eq.2) then
         call spcart_a_sd_b(blockin,blockout,ndima,ndimb,in_place)
         return
@@ -463,8 +468,6 @@ c
         call spcart_a_sg_b(blockin,blockout,ndima,ndimb,in_place)
         return
       endif
-#endif
-#if defined(USE_DGEMM)
 c
 c dgemm for all ndimb
 c
@@ -475,7 +478,7 @@ c
      &        dbl_mb(int_mb(k_sp2c_lindx+Ls)),L2s,
      &        0.0d00,blockout(1,1,m),ndima)
 00100 continue
-#else
+#if defined(USE_LOOPS)
       L2s = ((ls+1)*(ls+2)/2)
       do 00100 m = 1,ndimb
         do 00200 i=1,ndima
@@ -1323,4 +1326,3 @@ c
 00200   continue
 00100 continue
       end
-
