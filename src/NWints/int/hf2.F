@@ -4,7 +4,7 @@
      &               Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,
      &               bERI,Nint,canAB,canCD,canPQ,
      &               DryRun,W0,maxW0)
-c $Id: hf2.F,v 1.3 1994-06-08 22:39:59 d3e129 Exp $
+c $Id: hf2.F,v 1.4 1994-08-12 00:43:30 d3e129 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -18,7 +18,7 @@ c--> Cartesian Coordinates, Primitives & Contraction Coefficients
       Dimension Bxyz(3),Bprims(NPB),Bcoefs(NPB,NCB)
       Dimension Cxyz(3),Cprims(NPC),Ccoefs(NPC,NCC)
       Dimension Dxyz(3),Dprims(NPD),Dcoefs(NPD,NCD)
-
+c
 c--> Block of Electron Repulsion Integrals
 
       Dimension bERI(Nint)
@@ -26,12 +26,19 @@ c--> Block of Electron Repulsion Integrals
 c--> Scratch Space
 
       Dimension W0(maxW0)
+#if defined(INT_TIMING)
+#include "int_tim.fh"
+#include "pstat.fh"
+#endif
 c
 c Compute 4-ctr electron repulsion integrals (ERI) for four shells of 
 c contracted Gaussian functions.
 c
 c******************************************************************************
 
+#if defined(INT_TIMING)
+      call pstat_on(hand_int(13))
+#endif
       MXD = 0
 
 c Determine whether general or segmented contraction is used.
@@ -94,10 +101,16 @@ c Assign pointers to scratch space.
 
       else
 
+#if defined(INT_TIMING)
+      call pstat_on(hand_int(14))
+#endif
        call hfset(Axyz,Aprims,Acoefs,NPA,NCA,
      &            Bxyz,Bprims,Bcoefs,NPB,NCB,
      &            GenCon,W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ESp),NPP)
 
+#if defined(INT_TIMING)
+      call pstat_off(hand_int(14))
+#endif
       end if
  
 c Define the prefactor of the overlap distribution "Q".
@@ -137,10 +150,16 @@ c Assign pointers to scratch space.
 
       else
 
+#if defined(INT_TIMING)
+      call pstat_on(hand_int(14))
+#endif
        call hfset(Cxyz,Cprims,Ccoefs,NPC,NCC,
      &            Dxyz,Dprims,Dcoefs,NPD,NCD,
      &            GenCon,W0(i_ALPHAq),W0(i_IPAIRq),W0(i_ESq),NPQ)
 
+#if defined(INT_TIMING)
+      call pstat_off(hand_int(14))
+#endif
        end if
 
 c Define the Hermite linear expansion coefficients.
@@ -182,6 +201,9 @@ c Assign pointers to scratch space.
 
       else
 
+#if defined(INT_TIMING)
+      call pstat_on(hand_int(15))
+#endif
        do 100 nd = 0,MXD
 
         call hfmke(Axyz,Bxyz,W0(i_ALPHAp),W0(i_ESp),W0(i_Ep),W0(i_pf),
@@ -192,6 +214,9 @@ c Assign pointers to scratch space.
 
   100  continue
 
+#if defined(INT_TIMING)
+      call pstat_off(hand_int(15))
+#endif
       end if
 
 c Evaluate the auxiliary function integrals.
@@ -237,10 +262,17 @@ c Assign pointers to scratch space.
 
       else
 
-       call hf2mkr(Axyz,Bxyz,Cxyz,Dxyz,W0(i_ALPHAp),W0(i_ALPHAq),
-     &             W0(i_R0),W0(i_IJK),W0(i_P),W0(i_Q),W0(i_PQ),
-     &             W0(i_ff),W0(i_Rj),NPP,NPQ,Lr,Lr3)
+#if defined(INT_TIMING)
+      call pstat_on(hand_int(16))
+#endif
+        call hf2mkr(Axyz,Bxyz,Cxyz,Dxyz,W0(i_ALPHAp),W0(i_ALPHAq),
+     &      W0(i_R0),W0(i_IJK),W0(i_P),W0(i_Q),W0(i_PQ),
+     &      W0(i_ff),W0(i_Rj),
+     &      NPP,NPQ,Lr,Lr3)
 
+#if defined(INT_TIMING)
+      call pstat_off(hand_int(16))
+#endif
       end if
 
 c Compute the ERI.
@@ -281,14 +313,23 @@ c Assign pointers to scratch space.
 
       else
 
+#if defined(INT_TIMING)
+      call pstat_on(hand_int(17))
+#endif
        call hferi(W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),bERI,
      &            W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,MXD,
      &            canAB,canCD,canPQ)
 
+#if defined(INT_TIMING)
+      call pstat_off(hand_int(17))
+#endif
       end if
 
 c Return the maximum amount of scratch space required by a "dry run".
 
       if( DryRun ) maxW0 = MaxMem
 c
+#if defined(INT_TIMING)
+      call pstat_off(hand_int(13))
+#endif
       end
