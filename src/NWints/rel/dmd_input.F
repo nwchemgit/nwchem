@@ -1,6 +1,6 @@
       subroutine dmd_input(rtdb)
 *
-* $Id: dmd_input.F,v 1.6 2000-02-03 20:40:14 mg201 Exp $
+* $Id: dmd_input.F,v 1.7 2000-07-28 20:10:57 mg201 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -102,9 +102,6 @@ c
               call errquit('dmd_input: unknown option for nesc2e',0)
             end if
             go to 10
-          else
-            one_cent = .false.
-            do_ssss = .true.
           end if
         else
           call errquit('dmd_input: unknown directive',0)
@@ -132,7 +129,7 @@ c
      &        'K. G. Dyall, in preparation.')
         else if (one_cent) then
           write (luout,50)
-   50     format (/' Only one-center small component densities used',
+   50     format (/' Only one-center small component densities used ',
      &        'in two-electron integrals.')
         end if
         write (luout,*)
