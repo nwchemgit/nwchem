@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.25 1996-08-06 05:34:53 d3g681 Exp $
+C$Id: inp.F,v 1.26 1996-08-19 15:23:33 d3g681 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -328,7 +328,7 @@ c
          write(iwrite, 40) input_line, errmsg(1:length)
  40      format(' input error at line', i5,': ', a)
 c
-         jrec=-1
+****  jrec=-1 ! Why was this being set?  Seems undesirable
          write(iwrite,50)ia(1:iwidth)
  50      format(1x,a)
          if (ierrpos .gt. 0) then

@@ -99,6 +99,7 @@ C
          JLast  = JTmp(2)
          JStride = JTmp(1)
       EndIf
+c
       return
 c
  120  ierrpos = nstrt
