@@ -1,5 +1,5 @@
 c
-c $Id: paw_overlap_matrix.F,v 1.5 2003-02-18 01:24:13 bylaska Exp $
+c $Id: paw_overlap_matrix.F,v 1.6 2003-02-25 02:43:56 bylaska Exp $
 c
 
 !**************************************************
@@ -34,7 +34,6 @@ c
       if (.not.ok)
      > call errquit("init_paw_overlap_matrix: error getting heap",0)
 
-        write(*,*) "i_overlap_matrix",i_overlap_matrix
   
       !*** determine matrix size ***
       matr_size = 0
@@ -175,7 +174,6 @@ c
              tmp = def_integr(power_f,dbl_mb(i_f),power_r,r,
      >                        log_amesh,ic)
         
-             write(*,*) "find_overlap_matrix:",i,j,tmp
              matrix(i,j) = tmp
              matrix(j,i) = tmp
            else

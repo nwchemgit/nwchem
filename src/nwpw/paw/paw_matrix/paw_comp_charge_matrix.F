@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge_matrix.F,v 1.5 2003-02-21 03:03:44 bylaska Exp $
+* $Id: paw_comp_charge_matrix.F,v 1.6 2003-02-25 02:40:52 bylaska Exp $
 *
 !**************************************************
 !
@@ -164,7 +164,7 @@
 
             tmp = def_integr(2*la+2,dbl_mb(i_f),la,r,log_amesh,ic)
 
-            write(*,*) "find_comp_charge_matrix:",i,j, la,tmp
+            
             matrix(i,j,la+1) = tmp
             matrix(j,i,la+1) = tmp
 
