@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.21 1996-10-22 15:43:14 d3g681 Exp $
+C$Id: geom.fh,v 1.22 1997-02-08 00:12:26 d3g681 Exp $
       logical geom_check_cent
       logical geom_rtdb_load
       logical geom_rtdb_store
@@ -37,6 +37,8 @@ cnew ones
       logical geom_set_bqbq
       logical geom_default_charge_with_ecp
       logical geom_uniquecent_get
+      logical geom_get_user_scale
+      logical geom_get_user_units
 c
       logical geom_num_core
       logical geom_tag_to_default_mass
@@ -128,3 +130,5 @@ c
 c
       external geom_nuc_dipole
 c
+      external geom_get_user_scale
+      external geom_get_user_units

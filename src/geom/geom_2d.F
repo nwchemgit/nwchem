@@ -69,9 +69,9 @@ c***********************************************************************
 #include "geom.fh"
 #include "geomP.fh"
 c
-      integer geom,i,j,iang,indx(3)
-      double precision cdist(3),cang(3),gmat(3,3),amat(3,3),dperm,vol
-      double precision c1,c2,c3,s1,s2,s3,rad,ainv(3,3),rdist(3),rang(3)
+      integer geom,i,j
+      double precision cdist(3),cang(3),gmat(3,3),amat(3,3),vol
+      double precision c3,s3,rad,ainv(3,3)
       double precision pi,bmat(3,3)
 c
       parameter(rad=57.295779513082343d0)

@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.56 1996-12-14 00:47:52 d3e129 Exp $
+C$Id: geom.F,v 1.57 1997-02-08 00:12:25 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -29,7 +29,7 @@ c
      & 'P-4','I-4','P4/m','P4_2/m','P4/n',
      & 'P4_2/n','I4/m','I4_1/a','P422','P42_12',
      & 'P4_122','P4_12_12','P4_222','P4_22_12','P4_322'/
-      data (sym_spgnames(i),i=96,190)/
+      data (sym_spgnames(i),i=96,190)/   
      & 'P4_32_12','I422','I4_122','P4mm','P4bm',
      & 'P4_2cm','P4_2nm','P4cc','P4nc','P4_2mc',
      & 'P4_2bc','I4mm','I4cm','I4_1md','I4_1cd',
@@ -806,7 +806,7 @@ c
       sym_center_map_index(geom) = 1
       group_name(geom) = 'C1'
       sym_num_ops(geom) = 0
-      user_units(geom) = 'a.u.'
+      user_units(geom) = 'angstrom'
       include_bqbq(geom) = .false.
 c
       do i = 1, 3
@@ -1093,18 +1093,17 @@ c
 #include "geomP.fh"
 #include "util.fh"
 #include "inp.fh"
-c
-c     Basic printing of cartesian geometry ... needs support for
-c     user defined units, internal coords, different formats, ...
-c
+c     
+c     Basic printing of cartesian geometry 
+c     needs support for internal coords, different formats, ...
+c     
       integer geom              ! [input]
       integer icent, jcent
-      logical geom_check_handle, geom_check_cent
-      external geom_check_handle, geom_check_cent
-      integer i, j
+      logical geom_check_handle, geom_check_cent, geom_get_user_scale
+      external geom_check_handle, geom_check_cent, geom_get_user_scale
+      integer i
       double precision scale, tmp(3)
       character*80 buf
-      character*10 csys
       logical oprint_uniq
 c
       if (.not. geom_check_handle(geom, 'geom_print')) then
@@ -1112,34 +1111,19 @@ c
          return
       end if
 c
-      if (user_units(geom) .eq. 'a.u.') then
-         scale = 1.0d0
-      else if (user_units(geom) .eq. 'fractional') then
-         scale = 1.0d0
-      else if (user_units(geom) .eq. 'angstrom') then
-         scale = 1.0d0 / angstrom_to_au
-      else
-         call errquit('geom_print: user_units are unspecified', 0)
-      end if
+c     All of the code seems to be commented out except for
+c     molecules so just return if this is not a molecule (RJH)
 c
-      if (isystype(geom) .eq. 0) then
-         csys = 'Molecule'
-      else if (isystype(geom) .eq. 1) then
-         csys = 'Polymer'
-      else if (isystype(geom) .eq. 2) then
-         csys = 'Slab'
-      else if (isystype(geom) .eq. 3) then
-         csys = 'Crystal'
-      else
-         call errquit('geom_print: unknown system type', isystype(geom))
-      end if
+c     ... it would be nice to have one routine that prints all
+c     possible geometries but ...
 c
-c do this for molecules only
-c
-      if(isystype(geom).eq.0) then
-         buf = ' '
-         write(buf,1) 
-     $        csys(1:inp_strlen(csys)),
+      if (isystype(geom) .ne. 0) return
+c     
+      if (.not. geom_get_user_scale(geom, scale))
+     $     call errquit('geom_print: user units?',0)
+c     
+      buf = ' '
+      write(buf,1) 'Geometry',
      $        names(geom)(1:lenn(geom)), 
      $        trans(geom)(1:lent(geom))
  1    format(a,' "',a,'" -> "',a,'"')
@@ -1147,70 +1131,33 @@ c
       write(6,*)
       call util_print_centered(6,buf,40,.true.)
       write(6,*)
-      write(6,2) user_units(geom)(1:inp_strlen(user_units(geom)))
- 2    format(' Units of output coordinates = ', a)
+      write(6,2) user_units(geom)(1:inp_strlen(user_units(geom))),
+     $     scale
+ 2    format(' Output coordinates in ', a,
+     $     ' (scale by ',f12.9,' to convert to a.u.)')
       if (include_bqbq(geom))
      $     write(6,*) ' Include Bq-Bq interactions'
-      endif
-c      if (isystype(geom) .eq. 3) then
-c         write(6,21) 
-c     $        volume_direct(geom),
-c     $        (lattice_vectors(i,geom),i=1,3),
-c     $        (lattice_angles(i,geom),i=1,3),
-c     $        (recip_lat_vectors(i,geom),i=1,3),
-c     $        (recip_lat_angles(i,geom),i=1,3)
-c 21      format(
-c     $        ' Direct space cell volume (angstrom^3)   ', f12.6/
-c     $        ' Lattice vectors (angstrom)              ', 3f12.6/
-c     $        ' Lattice angles (degrees)                ', 3f12.6/
-c     $        ' Reciprocal lattice vectors (angs^-1)    ', 3f12.6/
-c     $        ' Reciprocal lattice angles (degrees)     ', 3f12.6/)
-cc
-c         write(6,*) ' Crystallographic to cartesian (angstrom) matrix'
-c         write(6,*)
-c         write(6,22) ((amatrix(i,j,geom)/angstrom_to_au,j=1,3),i=1,3)
-c 22      format(3(5x,3f12.6/))
-cc
-c         write(6,*) ' Cartesian (angstrom) to crystallographic matrix'
-c         write(6,*)
-c         write(6,22)((amatrix_inv(i,j,geom)*angstrom_to_au,j=1,3),i=1,3)
-cc
-c         write(6,*) ' Metric matrix (angstrom^2) for the direct lattice'
-c         write(6,*)
-c         write(6,22)((metric_matrix(i,j,geom),j=1,3),
-c     $        i=1,3)
 c
-c      endif
-      if(isystype(geom).eq.0) then
       write(6,*)
-c
+c     
       write(6,3) 
  3    format('  No.       Tag          Charge          X',
      $     '              Y              Z'/
-     $       ' ---- ---------------- ---------- --------------',
+     $     ' ---- ---------------- ---------- --------------',
      $     ' -------------- --------------')
       do icent = 1, ncenter(geom)
-c
-c     Convert from cartesian to crystallographic coordinates
-c
          do i = 1, 3
-            tmp(i) = 0.0d0
-            do j = 1, 3
-               tmp(i) = tmp(i) + 
-     $              amatrix_inv(i,j,geom)*coords(j,icent,geom)
-            end do
-            tmp(i) = tmp(i)*scale ! Scale units as necessary
+            tmp(i) = coords(i,icent,geom)/scale ! Scale units as necessary
          end do
          write(6,4) icent, tags(icent,geom), charge(icent,geom),
      $        (tmp(i),i=1,3)
  4       format(' ',i4,' ',a16,' ',f10.4,3f15.8)
       end do
-      endif
-c
+c     
 c     Only print out the masses for unique tags ... the structure
 c     should actually only store the data for unique tags.
 c     Also, keep all common output within 80 columns
-c
+c     
       write(6,*)
       write(6,*) '     Atomic Mass '
       write(6,*) '     ----------- '
@@ -1223,39 +1170,29 @@ c
  44      format('      ',a16,' ',f10.6)
  765  enddo
       write(6,*)
-c
-      if (isystype(geom) .eq. 0) then
-         write(6,41) erep(geom)
- 41      format(/' Effective nuclear repulsion energy (au) ', f18.10/)
-c
-         write(6,91)
- 91      format('             Nuclear Dipole moment (au) ')
-         write(6,101)
- 101     format('             --------------------------')
-         write(6,7)
- 7       format('        X                 Y               Z'/
-     $        ' ---------------- ---------------- ----------------')
-         write(6,8) (ndipole(i,geom), i=1,3)
- 8       format(3(1x,f16.10))
-         write(6,*)
-      end if
-c
-      if (oefield(geom)) then
-         write(6,9)
- 9       format('         Electric Field (au) ')
-         write(6,10)
- 10      format('         -------------------')
-         write(6,7)
-         write(6,8) (efield(i,geom), i=1,3)
-         write(6,*)
-      end if
-c
+c     
+      write(6,41) erep(geom)
+ 41   format(/' Effective nuclear repulsion energy (a.u.) ', f18.10/)
+c     
+      write(6,91)
+ 91   format('            Nuclear Dipole moment (a.u.) ')
+      write(6,101)
+ 101  format('            ----------------------------')
+      write(6,7)
+ 7    format('        X                 Y               Z'/
+     $     ' ---------------- ---------------- ----------------')
+      write(6,8) (ndipole(i,geom), i=1,3)
+ 8    format(3(1x,f16.10))
+      write(6,*)
+c     
       oprint_uniq = sym_num_ops(geom) .gt. 0
-      call sym_print_all(geom, .true., oprint_uniq, .false., .false.,
-     $     .false.)
-c
+      if (oprint_uniq) then
+         call sym_print_all(geom, .true., oprint_uniq, .false., .false.,
+     $        .false.)
+      endif
+c     
       geom_print = .true.
-c
+c     
       end
       logical function geom_default_charge_with_ecp(atn, q)
       implicit none
@@ -1698,6 +1635,30 @@ c
          uniquecent(i)=unique_cent(i,geom)
       enddo
       end
+      logical function geom_get_user_scale(geom, scale)
+      implicit none
+#include "geomP.fh"
+      integer geom              ! [input]
+      double precision scale    ! [output] Conversion from user units to A.U.
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_get_user_scale = 
+     $     geom_check_handle(geom, 'geom_get_user_scale')
+c
+      if (user_units(geom) .eq. 'a.u.') then
+         scale = 1.0d0
+      else if (user_units(geom) .eq. 'angstrom') then
+         scale = angstrom_to_au
+      else if (user_units(geom) .eq. 'nanometer') then
+         scale = angstrom_to_au * 10.0d0
+      else if (user_units(geom) .eq. 'picometer') then
+         scale = angstrom_to_au * 0.01d0
+      else
+         call errquit('geom_get_user_scale: unknown units',0)
+      endif
+c
+      end
       logical function geom_set_user_units(geom, units)
       implicit none
 #include "geomP.fh"
@@ -1709,6 +1670,19 @@ c
       geom_set_user_units =
      $     geom_check_handle(geom, 'geom_set_user_units')
       user_units(geom) = units
+c
+      end
+      logical function geom_get_user_units(geom, units)
+      implicit none
+#include "geomP.fh"
+      integer geom
+      character*(*) units       ! [output] 
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_get_user_units =
+     $     geom_check_handle(geom, 'geom_get_user_units')
+      units = user_units(geom)
 c
       end
       logical function geom_tag_to_default_mass(tag,mass)

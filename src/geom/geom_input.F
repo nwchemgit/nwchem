@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.44 1997-01-29 22:02:00 mdupuis Exp $
+C     $Id: geom_input.F,v 1.45 1997-02-08 00:12:29 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -72,7 +72,7 @@ c     systype must precede symmetry
 c     
 c     
       old_format_input = .false.
-      units = 'atomic units'
+      units = 'angstrom'        ! The new default
       name  = ' '
       oprint = .true.           ! Default is to print the geometry
       ozmatrix = .false.        ! Default is cartesian input
@@ -150,20 +150,25 @@ c
 c     
 c     ----- check units -----
 c
+      call inp_lcase(units)
+c
       if (units(1:2) .eq. 'au' .or. units(1:2) .eq. 'bo' .or.
      &    units(1:2) .eq. 'at') then
-        scale = 1.0d0
-        status = geom_set_user_units(geom,'a.u.')
+         units = 'a.u.'
       else if (units(1:2) .eq. 'an') then
-        if(.not.geom_get_ang2au(geom,scale)) then
-          scale  = 1.88972598858d0
-          write(luout,*)'geom_input: geom_get_ang2au failed'
-          write(luout,*)'using geom_input default value of ',scale
-        endif
-        status = geom_set_user_units(geom,'angstrom')
+         units = 'angstrom'
+      else if (units(1:2).eq.'nm' .or. units(1:2).eq.'na') then
+         units = 'nanometer'
+      else  if (units(1:2).eq.'pm' .or. units(1:2).eq.'pi') then
+         units = 'picometer'
       else
         call errquit('geom_input: unknown units', 0)
       end if
+c
+      if (.not. geom_set_user_units(geom,units))
+     $     call errquit('geom_input: failed setting user units',0)
+      if (.not. geom_get_user_scale(geom,scale))
+     $     call errquit('geom_input: failed getting user scale',0)
 c
 c     ----- coordinate input -----
 c     
@@ -255,7 +260,7 @@ c
         if (scale.ne.1.0d0) then
           write(luout,1) name(1:inp_strlen(name)), scale, 1.0d0/scale
  1        format(/' Scaling coordinates for geometry "',a,'" by ',
-     $        f11.9/'(inverse scale = ',f11.9,')',/)
+     $        f12.9/' (inverse scale = ',f12.9,')',/)
           call dscal(3*ncenter, scale, coords, 1)
         end if
       else if (isys .gt. 0) then
@@ -533,7 +538,6 @@ c
       parameter (mxcoor=1500)
 c                mxcoor=max(mxcart,mxzmat)
       character*255 field
-      logical       status
       logical       ready
       logical       dbug
       logical       out 
@@ -879,13 +883,11 @@ c
       integer      ncenter
       integer      icenter
       integer      atn
-      integer      isys
       character*16 tags
       character*16 element
       character*16 atmlab 
       character*2  symbol
       logical      is_atom
-      logical      status
       integer      geom
       logical      geom_tag_to_element
       logical      geom_atn_to_default_mass
@@ -1021,7 +1023,6 @@ c
 #include "context.fh"
 #include "geomP.fh"
 c
-      logical status
       integer ga_zmt_bmat
       integer ga_zmt_binv
       integer ga_zmt_zsym
@@ -1030,11 +1031,8 @@ c
       integer nzvar
       integer ncart
       integer mcart
-      integer i
-      integer j
       integer ir
       integer iw
-      integer ip
       logical dbug
       common/hnd_iofile/ir,iw
       double precision bmat(mcart,*)
@@ -1069,7 +1067,6 @@ c
 #include "context.fh"
 #include "geomP.fh"
 c
-      logical status
       integer ga_zmt_bmat
       integer ga_zmt_binv
       integer ga_zmt_zsym
@@ -1078,11 +1075,8 @@ c
       integer nzvar
       integer ncart
       integer mcart
-      integer i
-      integer j
       integer ir
       integer iw
-      integer ip
       logical dbug
       common/hnd_iofile/ir,iw
       double precision bmat(mcart,*)
@@ -1118,7 +1112,6 @@ c
 #include "context.fh"
 #include "geomP.fh"
 c
-      logical status
       integer ga_zmt_bmat
       integer ga_zmt_binv
       integer ga_zmt_zsym
@@ -1126,11 +1119,8 @@ c
 c
       integer nzvar
       integer mzvar
-      integer i
-      integer j
       integer ir
       integer iw
-      integer ip
       logical dbug
       common/hnd_iofile/ir,iw
       double precision zsym(mzvar,*)
@@ -1166,7 +1156,6 @@ c
 #include "context.fh"
 #include "geomP.fh"
 c
-      logical status
       integer ga_zmt_bmat
       integer ga_zmt_binv
       integer ga_zmt_zsym
@@ -1174,11 +1163,8 @@ c
 c     
       integer nzvar
       integer mzvar
-      integer i
-      integer j
       integer ir
       integer iw
-      integer ip
       logical dbug
       common/hnd_iofile/ir,iw
       double precision zsym(mzvar,*)
@@ -1214,7 +1200,6 @@ c
 #include "context.fh"
 #include "geomP.fh"
 c
-      logical status
       integer ga_zmt_bmat
       integer ga_zmt_binv
       integer ga_zmt_zsym
@@ -1223,11 +1208,8 @@ c
       integer nzvar
       integer ncart
       integer mcart
-      integer i
-      integer j
       integer ir
       integer iw
-      integer ip
       logical dbug
       common/hnd_iofile/ir,iw
       double precision binv(mcart,*)
@@ -1263,7 +1245,6 @@ c
 #include "context.fh"
 #include "geomP.fh"
 c
-      logical status
       integer ga_zmt_bmat
       integer ga_zmt_binv
       integer ga_zmt_zsym
@@ -1272,11 +1253,8 @@ c
       integer nzvar
       integer ncart
       integer mcart
-      integer i
-      integer j
       integer ir
       integer iw
-      integer ip
       logical dbug
       common/hnd_iofile/ir,iw
       double precision binv(mcart,*)
@@ -1328,8 +1306,6 @@ c                   mxcoor=max(mxcart,mxzmat)
       integer      nuc
       integer      nat
       integer      geom
-      logical      geom_zmt_put_izmat          
-      logical      zdone
       logical      dbug 
       logical      some 
       double precision coords
@@ -1500,7 +1476,6 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
-      logical status
 c
 c     ----- get the -zmat- values ----- 
 C
@@ -1659,11 +1634,9 @@ C
       integer      nzmat
       integer      nzvar
       integer      nvar
-      integer      ncenter
       integer      nuc
       integer      nat
       logical      geom_zmt_get_izmat
-      logical      zdone
       logical      dbug
       logical      some
       double precision zmat
@@ -1766,7 +1739,6 @@ C
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
       COMMON/HND_ZMTOPT/IFZMAT,NATZMT          
       COMMON/HND_ZMTOUT/IPRZMT
-      DIMENSION Z(MXCOOR)
       DIMENSION R(MXATOM)
       DATA ONE   /1.0D+00/
       DATA UNIT  /0.52917715D+00/
@@ -2975,7 +2947,6 @@ C     S            NZVAR *NZVAR
 C     T            NZVAR
 C     IA      MAX( NZVAR        , NCART       )
 C
-      LOGICAL     SKIP
       LOGICAL     OUT
       LOGICAL     DBUG
       LOGICAL     NATURL
@@ -4428,7 +4399,6 @@ C
 #include "mafdecls.fh"
 #include "geom.fh"
       integer  rtdb
-      integer  geom
       logical  status
       logical  zcoord_input
       parameter (max_zcoord=16)
@@ -5207,9 +5177,6 @@ C
       COMMON/HND_IOFILE/IR,IW
       DIMENSION C(3,*)
       DIMENSION IZMAT(*)   
-      DIMENSION IJBOND(2,MXBNDS)
-      DIMENSION IIBOND(  MXATOM)
-      DIMENSION NIBOND(  MXATOM)
       DIMENSION IJBNDS(2,*)
       DIMENSION IIBNDS(  *)
       DIMENSION NIBNDS(  *)
@@ -5944,10 +5911,6 @@ C
       DIMENSION IJKLNB(4,*)      
       DIMENSION XYZLNB(3,*)
       DIMENSION IJKANG(3,*)           
-      DIMENSION IJKLOP(4,MXOOPA)      
-      DIMENSION IJBOND(2,MXBNDS)
-      DIMENSION IIBOND(  MXATOM)
-      DIMENSION NIBOND(  MXATOM)
       DIMENSION IJBNDS(2,*)
       DIMENSION IIBNDS(  *)
       DIMENSION NIBNDS(  *)
@@ -6025,10 +5988,6 @@ C
       LOGICAL       OUT 
       LOGICAL       LST
       LOGICAL       NEWFIL
-      LOGICAL       EXTNAL
-      LOGICAL       INTNAL
-      LOGICAL       GLOBAL
-      LOGICAL       C1SYM
       CHARACTER*255 STRING
       INTEGER*4     FLGWRD
       INTEGER*4     FLGZMT
@@ -6055,9 +6014,7 @@ C
       CHARACTER*1   BLK
       CHARACTER*80  BLNK80
       CHARACTER*80  GEOFIL
-      CHARACTER*80  GEONAM
       CHARACTER*17  BIOSYM
-      CHARACTER*5   BIONAM
       CHARACTER*5   BIOEND
       CHARACTER*5   CHAR5
       CHARACTER*12  CHAR12
@@ -7511,7 +7468,6 @@ C
       LOGICAL       DBUG
       LOGICAL       CART
       CHARACTER*8   ATNAME
-      INTEGER*4     ZMT
       CHARACTER*8   ERRMSG
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_XYZGEO/XX(MAXGEO),YY(MAXGEO),ZZ(MAXGEO),
