@@ -208,6 +208,8 @@ c
       integer mrp_i07
 c
       integer mrp_999
+c
+      integer msg_gapss_scfshift1, msg_gapss_scfshift2
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -521,3 +523,7 @@ c
       parameter(mrg_d53=msg_ftn_base-276) ! arg_shakep
       parameter(mrg_d54=msg_ftn_base-277) ! arg_shakep
       parameter(mrg_d55=msg_ftn_base-278) ! arg_shakep
+c
+      parameter(msg_gapss_scfshift1=msg_ftn_base-279) ! gap_scfshift
+      parameter(msg_gapss_scfshift2=msg_ftn_base-280) ! gap_scfshift
+
