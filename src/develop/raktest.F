@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.29 1994-11-06 12:49:33 d3e129 Exp $
+c $Id: raktest.F,v 1.30 1994-11-06 14:16:20 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -28,8 +28,8 @@ c
       subroutine raktest1(rtdb)
       implicit none
       integer rtdb
-      call deriv2c(rtdb)
       call deriv3c(rtdb)
+      call deriv2c(rtdb)
       end
       subroutine deriv3c(rtdb)
       implicit none
@@ -48,7 +48,7 @@ c
       integer basis, geom
       integer nbf, nshells, nat
       integer size2e, size2e_d
-      integer h2e3d,i2e3d, h2e3d_fd,i2e3d_fd, h2e3d_diff,i2e3d_diff
+      integer h2e3d,i2e3d, h2e3d_fd,i2e3d_fd
       integer hxyz,ixyz,nbuf,nscr,hscr,iscr,hbuf,ibuf
       logical status
 c
@@ -76,34 +76,46 @@ c
 c
       size2e   = nbf*nbf*nbf
       size2e_d = size2e*3*nat
+      write(6,*)' size2e   = ',size2e
+      write(6,*)' size2e_d = ',size2e_d
 c
       call intd_init(rtdb,1,basis)
 *      call int_normalize(basis)
       call int_norm_2c(basis)
 c
-      if (.not.ma_push_get(mt_dbl,size2e_d,'2e2c d real',
+      if(.not.ma_set_error_print(.true.)) stop ' fuck 1'
+      if(.not.ma_verify_allocator_stuff()) stop ' fuck 2'
+      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
+      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
+      if (.not.ma_push_get(mt_dbl,size2e_d,'2e3c d real',
      &    h2e3d,i2e3d))
      &    call errquit('deriv3c: ma fail 1',911)
-      if (.not.ma_push_get(mt_dbl,size2e_d,'2e2c d fd',
+      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
+      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
+      if (.not.ma_push_get(mt_dbl,size2e_d,'2e3c d fd',
      &    h2e3d_fd,i2e3d_fd))
      &    call errquit('deriv3c: ma fail 2',911)
-      if (.not.ma_push_get(mt_dbl,size2e_d,'2e2c d diff',
-     &    h2e3d_diff,i2e3d_diff))
-     &    call errquit('deriv3c: ma fail 3',911)
+      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
+      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
       if (.not.ma_push_get(mt_dbl,(3*nat),'xyzbuf',
      &    hxyz,ixyz))
      &    call errquit('deriv3c: ma fail 4',911)
+      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
+      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
       call int_mem_2e4c(nbuf,nscr)
       if (.not.ma_push_get(mt_dbl,nscr,'scratch',
      &    hscr,iscr))
      &    call errquit('deriv3c: ma fail 5',911)
+      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
+      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
       if (.not.ma_push_get(mt_dbl,(2*nbuf),'buffer scratch',
      &    hbuf,ibuf))
      &    call errquit('deriv3c: ma fail 6',911)
+      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
+      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
 c
       call dfill(size2e_d, 0.0d00,dbl_mb(i2e3d)     ,1)
       call dfill(size2e_d, 0.0d00,dbl_mb(i2e3d_fd)  ,1)
-      call dfill(size2e_d, 0.0d00,dbl_mb(i2e3d_diff),1)
       call dfill(nscr,     0.0d00,dbl_mb(iscr)      ,1)
       call dfill(2*nbuf,   0.0d00,dbl_mb(ibuf)      ,1)
       call dfill((3*nat),  0.0d00,dbl_mb(ixyz)      ,1)
@@ -116,21 +128,18 @@ c
       call build_3edfd(dbl_mb(i2e3d_fd),nat,size2e,nbf,
      &    dbl_mb(iscr),nscr,dbl_mb(ibuf),nbuf,dbl_mb(ixyz),
      &    1.0d-05,basis,geom,nshells)
-      call dcopy(size2e_d,dbl_mb(i2e3d_fd),1,dbl_mb(i2e3d_diff),1)
-      call daxpy(size2e_d,-1.0d00,dbl_mb(i2e3d),1,dbl_mb(i2e3d_diff),1)
+      call daxpy(size2e_d,-1.0d00,dbl_mb(i2e3d),1,dbl_mb(i2e3d_fd),1)
 c
-      call print_2d3c(dbl_mb(i2e3d),dbl_mb(i2e3d_fd),
-     &    dbl_mb(i2e3d_diff),nbf,nat)
+      call print_2d3c(dbl_mb(i2e3d),dbl_mb(i2e3d_fd),nbf,nat)
 c
       write(6,*)
       write(6,*)' 2e3c deriv diff norm ',
-     &    ddot(size2e_d,dbl_mb(i2e3d_diff),1,dbl_mb(i2e3d_diff),1)
+     &    ddot(size2e_d,dbl_mb(i2e3d_fd),1,dbl_mb(i2e3d_fd),1)
 c
       call intd_terminate()
       status = ma_pop_stack(hbuf)
       status = status.and.ma_pop_stack(hscr)
       status = status.and.ma_pop_stack(hxyz)
-      status = status.and.ma_pop_stack(h2e3d_diff)
       status = status.and.ma_pop_stack(h2e3d_fd)
       status = status.and.ma_pop_stack(h2e3d)
       if (.not.status) call errquit('pop failed',911)
@@ -491,11 +500,10 @@ c
 c... copy original coords in to coords array
       call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
       end
-      subroutine print_2d3c(x2e3d,x2e3dfd,diff,nbf,nat)
+      subroutine print_2d3c(x2e3d,diff,nbf,nat)
       implicit none
       integer nbf,nat
       double precision x2e3d(nbf,nbf,nbf,3,nat)
-      double precision x2e3dfd(nbf,nbf,nbf,3,nat)
       double precision diff(nbf,nbf,nbf,3,nat)
 c
       double precision thresh
@@ -513,12 +521,9 @@ c
             do 00400 jbf = 1,nbf
               do 00500 kbf = 1,nbf
                 printit = abs(x2e3d(ibf,jbf,kbf,dxyz,datom)).gt.thresh
-                printit = printit .or.
-     &              abs(x2e3dfd(ibf,jbf,kbf,dxyz,datom)).gt.thresh
                 if (printit) then
                   write(6,10000)ibf,jbf,kbf,datom,dxyz,
      &                x2e3d(ibf,jbf,kbf,dxyz,datom),
-     &                x2e3dfd(ibf,jbf,kbf,dxyz,datom),
      &                diff(ibf,jbf,kbf,dxyz,datom)
                 endif
 00500         continue
@@ -527,8 +532,8 @@ c
 00200   continue
 00100 continue
 c
-10000 format('d2e2c <',i3,',',i3,',',i3,'|',i3,'|',i3,' > val =',
-     &    d20.10,' fd =',d20.10,' diff =',d20.10)
+10000 format('d2e3c <',i3,',',i3,',',i3,'|',i3,'|',i3,' > val =',
+     &    d20.10,' diff =',d20.10)
 c
       end
       subroutine print_2d2c(x2e2d,x2e2d_fd,diff,size2e,nat)
