@@ -15,14 +15,14 @@ c
       integer tagl, elel        !  Length of strings minus trailing blanks
 c
 c.......................................................................
-c     atomic r h f code for gto's. uses roothaan double diagonalization.
+c     atomic r h f code for gtos. uses roothaan double diagonalization.
 c.......................................................................
 c
 c      routine datoms .. tramad are a totally separate unit
 c      they use commom cguess to communicate
 c      oprin,iwr are new parameters to control printing
 c      hatom are the pseudo-corrections in the contracted basis from gam
-c            they replace atom's own integrals
+c            they replace atoms own integrals
 c.......................................................................
 c
 #include "cguess.fh"
@@ -133,6 +133,7 @@ c.......................................................................
          do i = 1 , ndim
             ss(i) = s(i)
             fc(i) = s(i)
+	    fo(i)=0.d0
          enddo
 c.......................................................................
 c
@@ -186,10 +187,10 @@ c
 c...
 c...    now add the h-pseudo-contributions (from xpsnld)
 c...
-         do i = 1 , ndim
-            fc(i) = fc(i) + hatom(i)
-            fo(i) = fo(i) + hatom(i)
-         enddo
+c         do i = 1 , ndim
+c            fc(i) = fc(i) + hatom(i)
+c            fo(i) = fo(i) + hatom(i)
+c         enddo
 c.......................................................................
 c
 c     do double diagonalization by symmetries:
