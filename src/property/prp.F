@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.29 1998-07-20 23:19:19 mdupuis Exp $
+* $Id: prp.F,v 1.30 1998-08-04 18:51:04 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -3413,6 +3413,7 @@ C
          if (ga_nodeid().eq.0) WRITE(IW,9993)
       ENDIF
 C
+      NA=0
       NORB=NA
       IF(NPOP.GT.0) NORB=NPOP
       IF((WFNTYP.EQ.SCF.AND.SCFTYP.EQ.UHF.and.ga_nodeid().eq.0).OR.
@@ -3534,6 +3535,7 @@ C
       IF(IPASS.EQ.2) GO TO 200
       IPASS=2
       NDAF=19
+      NB=0
       NORB=NB
       IF(NPOP.GT.0) NORB=NPOP
       if (ga_nodeid().eq.0) WRITE(IW,9997)
@@ -4464,6 +4466,9 @@ C           4. CENTER OF MASS
 C
 c%%
       NPTMAX=0
+      NXGRD =0
+      NYGRD =0
+      NZGRD =0
 *     CALL HND_GRDMAP(X(INIT+3*NPTMAX),NPTGRD,NXGRD,NYGRD,NZGRD,
 *    1            XRANGE,YRANGE,ZRANGE,XVEC,YVEC,ZVEC,
 *    2            ORIGIN,IATOM,IUNIT)
@@ -6174,6 +6179,7 @@ C
       SOME=.TRUE.
       SOME=SOME.OR.OUT
       IF(RUNTYP.EQ.PROP) THEN
+         NA =0
          NCO=NA
       ENDIF
 C
@@ -6185,6 +6191,9 @@ C           4. CENTER OF MASS
 C
       NPTMAX=0
       NPTGRD=0
+      NXGRD =0
+      NYGRD =0
+      NZGRD =0
 *     CALL HND_GRDMAP(X(1+3*NPTMAX),NPTGRD,NXGRD,NYGRD,NZGRD,
 *    1            XRANGE,YRANGE,ZRANGE,XVEC,YVEC,ZVEC,
 *    2            ORIGIN,IATOM,IUNIT)
@@ -7220,12 +7229,18 @@ C
       DO 310 IPT=1,NPTMAX
   310 X(IPT+I10-1)=ZERO
 C
+c--
+      NA=0
+c--
       DO 330 IMO=1,NA
       CALL HND_ELWFNC(NPTMAX,X(I00),X(I11),X(I20+L1*(IMO-1)))
       DO 320 IPT=1,NPTMAX
   320 X(IPT+I10-1)=X(IPT+I10-1)+X(IPT+I11-1)**2
   330 CONTINUE
 C
+c--
+      NB=0
+c--
       DO 350 IMO=1,NB
       CALL HND_ELWFNC(NPTMAX,X(I00),X(I11),X(I30+L1*(IMO-1)))
       DO 340 IPT=1,NPTMAX
@@ -11037,6 +11052,7 @@ c
      $      movecs_in = 'atomic'
        if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_out))
      $      movecs_out = ' '
+       movecs = ' '
        if (movecs.eq.' ') then
          if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore') then
             movecs_out = 'movecs'
