@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.98 1999-12-09 21:24:42 mg201 Exp $
+C$Id: geom.F,v 1.99 2000-01-04 23:17:40 d3g681 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -204,14 +204,16 @@ c
       ngeom_rtdb = 0
       if (rtdb_get(rtdb, 'geometry:ngeom', mt_int, 1, ngeom_rtdb))
      $     then
-         if (.not. rtdb_cget(rtdb, 'geometry:names', ngeom_rtdb,
-     $        names_rtdb)) then
-            write(6,*) 'geom_rtdb_in: rtdb corrupt'
-         else
-            do geom = 1, ngeom_rtdb
-               lenr(geom) = inp_strlen(names_rtdb(geom))
-            end do
-            geom_rtdb_in = .true.
+         if (ngeom_rtdb . gt. 0) then
+            if (.not. rtdb_cget(rtdb, 'geometry:names', ngeom_rtdb,
+     $           names_rtdb)) then
+               write(6,*) 'geom_rtdb_in: rtdb corrupt'
+            else
+               do geom = 1, ngeom_rtdb
+                  lenr(geom) = inp_strlen(names_rtdb(geom))
+               end do
+               geom_rtdb_in = .true.
+            end if
          end if
       end if
 c     
@@ -230,8 +232,10 @@ c     output to rtdb info about known geometries
 c     
       geom_rtdb_out  =
      $     rtdb_put(rtdb, 'geometry:ngeom', mt_int, 1, ngeom_rtdb)
-      geom_rtdb_out  =  geom_rtdb_out  .and.
-     $     rtdb_cput(rtdb, 'geometry:names', ngeom_rtdb, names_rtdb)
+      if (ngeom_rtdb . gt. 0) then
+         geom_rtdb_out  =  geom_rtdb_out  .and.
+     $        rtdb_cput(rtdb, 'geometry:names', ngeom_rtdb, names_rtdb)
+      endif
       if (.not. geom_rtdb_out) 
      $     write(6,*) ' geom_rtdb_out: rtdb is corrupt '
 c     
