@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.56 2004-03-13 00:19:35 marat Exp $
+* $Id: task.F,v 1.57 2004-04-01 02:38:48 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -32,6 +32,7 @@ c
       double precision task_cpu, task_wall
       logical oprint_task_times, odebug
 c
+      logical ocons
       logical rjhtest, raktest, atwtest, task_check_sum, cphf,
      $     jantest, mcstep_main, uccsdtest
       logical property, dplot, gapss, task_shell, moints_full
@@ -83,6 +84,12 @@ c
 c
       if (.not. rtdb_get(rtdb, 'task:ignore', mt_log, 1, ignore))
      $     ignore = .false.
+      if(rtdb_get(rtdb, 'cons:active', mt_log, 1, ocons)) then
+        ocons=.true.
+      else
+        ocons=.false.
+      end if
+      if(ocons) call cons_init(rtdb)
 c
 c for qmmm, nwmd will call appropriate task routines
 c
@@ -257,6 +264,7 @@ c     *** task_paw handles paw specific "operations" ***
         status=rtdb_delete(rtdb, 'task:QMMM')
 
        endif
+       if(ocons) call cons_print_summary(rtdb)
 c
       call ga_sync()
 99999 continue
