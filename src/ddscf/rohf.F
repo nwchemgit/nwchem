@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.22 1997-04-23 16:48:56 d3g681 Exp $
+C$Id: rohf.F,v 1.23 1997-04-25 00:00:50 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -28,6 +28,10 @@ c
       double precision etwo     ! Two electron energy
       double precision enrep    ! Effective nuclear repulsion energy
       double precision rohf_time
+c
+      integer ilo, ihi          ! For printing movecs analysis
+      double precision eval_pr_tol
+      parameter (eval_pr_tol = 1.0d0)
 C
 *      Integer NAtoms, NShells
 c
@@ -120,9 +124,15 @@ c
       endif
 c
       if (util_print('final vectors analysis', print_default)) then
-         call movecs_print_anal(basis, max(1,nclosed-10),
-     $        nprint, 0.15d0, g_movecs, 
-     $        'ROHF Molecular Orbital Analysis', 
+         do ilo = 1,max(1,nclosed-10)
+            if (dbl_mb(k_eval+ilo-1) .ge. -eval_pr_tol) goto 961
+         enddo
+ 961     do ihi = min(nclosed+nopen+10,nmo),nmo
+            if (dbl_mb(k_eval+ihi-1) .ge. eval_pr_tol) goto 9611
+         enddo
+ 9611    continue
+         call movecs_print_anal(basis, ilo, ihi, 0.15d0, g_movecs, 
+     $        'ROHF Final Molecular Orbital Analysis', 
      $        .true., dbl_mb(k_eval), oadapt, int_mb(k_irs),
      $        .true., dbl_mb(k_occ))
       endif

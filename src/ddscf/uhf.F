@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.41 1997-04-23 17:07:11 d3g681 Exp $
+C$Id: uhf.F,v 1.42 1997-04-25 00:00:55 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -29,6 +29,10 @@ c
       double precision enrep    ! Effective nuclear repulsion energy
       double precision uhf_time
       double precision sz, s2
+c
+      integer ilo, ihi          ! For printing movecs analysis
+      double precision eval_pr_tol
+      parameter (eval_pr_tol = 1.0d0)
 C
       Integer NAtoms, NShells
 c
@@ -118,14 +122,19 @@ C
          end if
       endif
       if (util_print('final vectors analysis', print_default)) then
-         call movecs_print_anal(basis, max(1,nbeta-10),
-     $        nprint, 0.15d0, g_movecs, 
-     $        'UHF Alpha Molecular Orbital Analysis', 
+         do ilo = 1,max(1,nbeta-10)
+            if (dbl_mb(k_eval+ilo-1) .ge. -eval_pr_tol) goto 961
+         enddo
+ 961     do ihi = min(nalpha+10,nmo),nmo
+            if (dbl_mb(k_eval+ihi-1) .ge. eval_pr_tol) goto 9611
+         enddo
+ 9611    continue
+         call movecs_print_anal(basis, ilo, ihi, 0.15d0, g_movecs, 
+     $        'UHF Final Alpha Molecular Orbital Analysis', 
      $        .true., dbl_mb(k_eval), oadapt, int_mb(k_irs),
      $        .true., dbl_mb(k_occ))
-         call movecs_print_anal(basis, max(1,nbeta-10),
-     $        nprint, 0.15d0, g_movecs(2), 
-     $        'UHF Beta Molecular Orbital Analysis', 
+         call movecs_print_anal(basis, ilo, ihi, 0.15d0, g_movecs(2), 
+     $        'UHF Final Beta Molecular Orbital Analysis', 
      $        .true., dbl_mb(k_eval+nbf), oadapt, int_mb(k_irs+nmo),
      $        .true., dbl_mb(k_occ+nbf))
       endif
@@ -189,7 +198,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.41 1997-04-23 17:07:11 d3g681 Exp $
+C     $Id: uhf.F,v 1.42 1997-04-25 00:00:55 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -478,7 +487,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.41 1997-04-23 17:07:11 d3g681 Exp $
+C$Id: uhf.F,v 1.42 1997-04-25 00:00:55 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -569,7 +578,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.41 1997-04-23 17:07:11 d3g681 Exp $
+c     $Id: uhf.F,v 1.42 1997-04-25 00:00:55 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -648,7 +657,7 @@ c
       call ga_dadd(one, g_b_dens, mone, g_b_coul, g_b_coul)
       call ga_maxelt(g_a_coul, errmaxa)
       call ga_maxelt(g_b_coul, errmaxb)
-      if (max(errmaxa,errmaxb).gt.1d-10) then
+      if (max(errmaxa,errmaxb).gt.1d-4) then
          if (ga_nodeid().eq.0) then
             write(6,77) errmaxa,errmaxb
  77         format(' Warning: spatial symmetry breaking in UHF: ',
@@ -1055,7 +1064,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.41 1997-04-23 17:07:11 d3g681 Exp $
+C$Id: uhf.F,v 1.42 1997-04-25 00:00:55 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

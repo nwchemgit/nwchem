@@ -8,6 +8,7 @@
 #include "bas.fh"
 #include "geom.fh"
 #include "stdio.fh"
+#include "cscfps.fh"
 c     
 c     Add into in moments() the cartesian multipole moments computed
 c     as an expectation value using the given density.  A minus sign
@@ -40,6 +41,8 @@ c
       integer nbf_max, lmpmax, maxd, ishell, jshell, ijshell
       integer ilo, ihi, jlo, jhi, idim, jdim, ind, i, j, l, m, ioff
       integer l_scr, k_scr, l_mp, k_mp, l_dens, k_dens, l_m, k_m
+c
+      if (oscfps) call pstat_on(ps_multip)
 c     
       noperators = (lmax+1)*(lmax+2)*(lmax+3)/6
       if (noperators .gt. len_moments)
@@ -143,6 +146,8 @@ c
       if (.not. ma_pop_stack(l_dens)) call errquit('multipole: ma?',0)
       if (.not. ma_pop_stack(l_scr)) call errquit('multipole: ma?',0)
       if (.not. ma_pop_stack(l_mp)) call errquit('multipole: ma?',0)
+c
+      if (oscfps) call pstat_off(ps_multip)
 c     
       end
       subroutine geom_nuc_mpole(geom, center, lmax,

@@ -1,4 +1,4 @@
-C$Id: cscfps.fh,v 1.12 1996-10-22 08:33:16 d3g681 Exp $
+C$Id: cscfps.fh,v 1.13 1997-04-25 00:00:46 d3g681 Exp $
 c
 c     pstat handles for the SCF code
 c
@@ -7,7 +7,9 @@ c
      $     ps_vecio, ps_orthog, ps_int_dip, ps_gaops, ps_fock_io,
      $     ps_sym_sym, ps_sym_ad, ps_riscf_read, ps_intio
       integer ps_vhalf, ps_index, ps_transform, ps_extract, ps_exchange,
-     $     ps_coulomb, ps_copy, ps_transpose, ps_k2cf
+     $     ps_coulomb, ps_copy, ps_transpose, ps_k2cf,
+     $     ps_mull, ps_multip, ps_moanal
+
       logical oscfps            ! True if gathering stats
       common /cscfps/ oscfps,
      $     ps_fock_2e, ps_int_1e, ps_solve, ps_search,
@@ -15,5 +17,6 @@ c
      $     ps_vecio, ps_orthog, ps_int_dip, ps_vhalf, ps_index, 
      $     ps_transform, ps_extract, ps_exchange, ps_coulomb, 
      $     ps_copy, ps_transpose, ps_intio, ps_gaops, ps_fock_io,
-     $     ps_sym_sym, ps_sym_ad, ps_riscf_read, ps_k2cf
+     $     ps_sym_sym, ps_sym_ad, ps_riscf_read, ps_k2cf,
+     $     ps_mull, ps_multip, ps_moanal
 c

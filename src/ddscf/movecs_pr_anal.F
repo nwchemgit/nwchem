@@ -6,6 +6,7 @@
 #include "bas.fh"
 #include "global.fh"
 #include "inp.fh"
+#include "cscfps.fh"
 c
       integer basis
       integer ilo, ihi          ! [input] Range of vectors to print
@@ -35,6 +36,7 @@ c
       external sym_char_table
 c
       call ga_sync
+      if (oscfps) call pstat_on(ps_moanal)
 c
       if (ga_nodeid() .eq. 0) then
          if (.not. bas_numbf(basis, nbf)) call errquit
@@ -128,6 +130,7 @@ c
      $        ('bas_vec_info: ma pop?', 0)
       endif
 c
+      if (oscfps) call pstat_off(ps_moanal)
       call ga_sync()
 c
       end

@@ -1,5 +1,5 @@
       subroutine scf_vectors_guess(rtdb)
-C     $Id: scf_vec_guess.F,v 1.12 1997-04-16 16:52:28 d3g681 Exp $
+C     $Id: scf_vec_guess.F,v 1.13 1997-04-25 00:00:53 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -287,5 +287,30 @@ c
      $     call errquit('scf:rtdb_cput failed scf:output vectors',0)
 c
       movecs_in = movecs_out
+c
+c     Print out an analysis if explicitly requested
+c
+      if (util_print("initial vector analysis", print_debug)) then
+         nprint = min(nclosed+nopen+20,nmo)
+         if (scftype.eq.'RHF' .or. scftype.eq.'ROHF') then
+            call movecs_print_anal(basis, max(1,nclosed-20),
+     $           nprint, 0.15d0, g_movecs, 
+     $           'ROHF Initial Molecular Orbital Analysis', 
+     $           .true., dbl_mb(k_eval), oadapt, int_mb(k_irs),
+     $           .true., dbl_mb(k_occ))
+         else
+            nprint = min(nalpha+20,nmo)
+            call movecs_print_anal(basis, max(1,nbeta-20),
+     $           nprint, 0.15d0, g_movecs, 
+     $           'UHF Initial Alpha Molecular Orbital Analysis', 
+     $           .true., dbl_mb(k_eval), oadapt, int_mb(k_irs),
+     $           .true., dbl_mb(k_occ))
+            call movecs_print_anal(basis, max(1,nbeta-20),
+     $           nprint, 0.15d0, g_movecs(2), 
+     $           'UHF Initial Beta Molecular Orbital Analysis', 
+     $           .true., dbl_mb(k_eval+nbf), oadapt, int_mb(k_irs+nmo),
+     $           .true., dbl_mb(k_occ+nbf))
+         endif
+      endif
 c
       end

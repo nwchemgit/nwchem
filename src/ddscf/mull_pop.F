@@ -1,6 +1,6 @@
       Subroutine mull_pop( geom, basis, iga_dens,iga_s)
 
-C$Id: mull_pop.F,v 1.10 1997-04-23 01:11:18 d3g681 Exp $
+C$Id: mull_pop.F,v 1.11 1997-04-25 00:00:48 d3g681 Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -18,10 +18,10 @@ c
 #include "bas.fh"
 #include "geom.fh"
 #include "global.fh"
-
+#include "cscfps.fh"
 #include "mafdecls.fh"
 
-
+      if (oscfps) call pstat_on(ps_mull)
       
 
 c*****************************************************************************
@@ -64,6 +64,9 @@ c
       if(.not.MA_Pop_Stack(lPSmat))
      &     call errquit(' exiting in mull_pop',35)
       status= ga_destroy(iga_PS)
+c
+      if (oscfps) call pstat_off(ps_mull)
+c
       return
       end
 c
