@@ -652,8 +652,8 @@ Listed below is the format of a WAVEFUNCTION\_EXPANDER sub-block.
 PSPW
 ... 
    WAVEFUNCTION_EXPANDER   
-     OLD_WAVEFUNCTION_FILENAME: <string old_wavefunction_name>
-     NEW_WAVEFUNCTION_FILENAME: <string new_wavefunction_name>
+     OLD_WAVEFUNCTION_FILENAME: <string old_wavefunction_name default input_movecs>
+     NEW_WAVEFUNCTION_FILENAME: <string new_wavefunction_name default input_movecs>
      NEW_NGRID: <integer na1 na2 na3>
     
    END
@@ -737,7 +737,7 @@ sub-block.
 \end{itemize}
 
 
-\subsection{ATOMIC\_FILLING Block}
+\subsubsection{ATOMIC\_FILLING Block}
 This required block is used to define the reference atom which is used
 to define the pseudopotential. After the ATOMIC\_FILLING: $<$ncore$>$ $<$nvalence$>$ line
 The core states are listed (one per line), and then the valence states are listed (one per line).  
@@ -765,7 +765,7 @@ ATOMIC_FILLING: 3 0
 could be used for a pseudopotential with no valence electrons.
 
 
-\subsection{CUTOFF Block}
+\subsubsection{CUTOFF Block}
 This optional block specifies the cutoff distances used
 to match the all-electron atom to the pseudopotential atom.  For
 Hamann pseudopotentials $r_{cut}(l)$ defines the distance
@@ -802,7 +802,7 @@ CUTOFF: 2
 \end{verbatim}
 
 
-\subsection{SEMICORE\_RADIUS Option}
+\subsubsection{SEMICORE\_RADIUS Option}
 Specifying the SEMICORE\_RADIUS option turns on the semicore correction approximation proposed
 by Louie et al (S.G. Louie, S. Froyen, and M.L. Cohen, Phys. Rev. B, \textbf{26}, 1738, (1982)).  
 This approximation is known to dramatically improve results for systems containing 
@@ -965,9 +965,84 @@ end if
 
 
 
-\section{PSPW Car-Parrinello Output Datafiles}
+\subsection{PSPW Car-Parrinello Output Datafiles}
 \label{sec:pspw_cp_data}
 
+\subsubsection{XYZ motion file}
+Data file that stores ion positions and velocities as
+a function of time in XYZ format.
+
+\begin{verbatim}
+[line 1:          ]  n_ion
+[line 2:          ]  
+do ii=1,n_ion
+[line 2+ii:       ] atom_name(ii), x(ii),y(ii),z(ii),vx(ii),vy(ii),vz(ii)
+end do
+[line n_ion+3     ] n_nion
+
+do ii=1,n_ion
+[line n_ion+3+ii: ] atom_name(ii), x(ii),y(ii),z(ii), vx(ii),vy(ii),vz(ii)
+end do
+[line 2*n_ion+4:  ]  ....
+\end{verbatim}
+
+
+\subsubsection{ION\_MOTION motion file}
+Datafile that stores ion positions and velocities
+as a function of time
+
+\begin{verbatim}
+[line 1:          ]  it_out, n_ion, omega
+[line 2:          ]  time
+do ii=1,n_ion
+[line 2+ii:       ] x(ii),y(ii),z(ii), vx(ii),vy(ii),vz(ii)
+end do
+[line n_ion+3     ] time
+do 
+do ii=1,n_ion
+[line n_ion+3+ii: ] x(ii),y(ii),z(ii), vx(ii),vy(ii),vz(ii)
+end do
+[line 2*n_ion+4:  ]  ....
+\end{verbatim}
+
+\subsubsection{EMOTION motion file}
+Datafile that store energies as a function of time
+\begin{verbatim}
+[line 1:          ]  time, E1,E2,E3,E4,E5,E6,E7,E8, (E9,E10, if Nose-Hoover)
+[line 2:          ] ...
+\end{verbatim}
+
+
+\subsubsection{HMOTION motion file}
+Datafile that stores the rotation matrix
+as a function of time.
+
+\begin{verbatim}
+[line 1:          ] time
+[line 2:          ] ms,ne(ms),ne(ms)
+do i=1,ne(ms)
+[line 2+i:        ] (hml(i,j), j=1,ne(ms)
+end do
+[line 3+ne(ms):   ] time
+[line 4+ne(ms):   ] ....
+\end{verbatim}
+
+
+\subsubsection{EIGMOTION motion file}
+Datafile that stores the eigenvalues for the one-electron
+orbitals as a function of time.
+
+\begin{verbatim}
+[line 1:          ]  time, (eig(i), i=1,number_orbitals)
+[line 2:          ] ...
+\end{verbatim}
+
+
+\subsubsection{OMOTION motion file}
+Datafile that stores a reduced representation of the
+one-electron orbitals.  To be used with a molecular
+orbital viewer that will be ported to NWChem
+in the near future. 
 
 
 \section{Minimizing the DFT Energy Functional}
