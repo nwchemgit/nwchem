@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.5 1999-05-10 08:25:04 d3e129 Exp $
+# $Id: GNUmakefile,v 1.6 2001-11-16 02:10:55 edo Exp $
 
 OBJ_OPTIMIZE =  xc_cpks_coeff.o \
 		xc_d2expl.o \
@@ -7,6 +7,7 @@ OBJ_OPTIMIZE =  xc_cpks_coeff.o \
 		xc_nucder_gen.o \
 		xc_rhogen_nucder.o \
 		xc_rhogen_pert.o \
+		dft_3dacc.o \
 		xc_tabcd_cpks_lhs.o \
 		xc_tabcd_cpks_rhs.o
 

@@ -1,7 +1,7 @@
       subroutine xc_hessian(geom,rtdb, nbf,basis,
      ,     g_dens, nactive,oactive,  hess, scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.11 2001-03-27 00:48:55 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.12 2001-11-16 02:10:55 edo Exp $
 c
 c     Wrapper routine for XC hessian without fitting
 c
@@ -14,7 +14,7 @@ c
       integer g_dens(*)         ! [input] array of handles to densities
       integer nactive           ! [input] number of active atoms
       logical oactive(nactive)  ! [input] key to active atoms
-      double precision hess(*)  ! [output] XC hessian matrix
+      double precision hess  ! [output] XC hessian matrix
 c
       integer ipol
       external xc_gotxc
@@ -33,7 +33,7 @@ c
       subroutine xc_cpks_rhs(geom,rtdb,nbf,basis,
      ,     g_dens, nactive, oactive, g_rhs,scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.11 2001-03-27 00:48:55 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.12 2001-11-16 02:10:55 edo Exp $
 c
 c     Wrapper routine for XC CPKS RHS without fitting
 c
@@ -63,7 +63,7 @@ c
      ,     g_dens, nactive, oactive,  hess, g_rhs,
      &                        calc_type)
 c
-c     $Id: xc_nucder_gen.F,v 1.11 2001-03-27 00:48:55 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.12 2001-11-16 02:10:55 edo Exp $
 c
 c     General routine for XC hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -125,6 +125,7 @@ c
      &   call errquit('xc_deriv_gen: geom_ncent failed',1)
 c      write(*,*)'natoms',natoms
 #if 0
+  Broken because of 3-d g_rhs
 c     !!! Commented out so that routines will accumulate, allowing
 c     !!! more efficient use of storage
 c
