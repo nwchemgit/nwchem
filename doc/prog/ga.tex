@@ -15,6 +15,9 @@ model.  The Global Array (GA) toolkit provides an efficient and portable
 Each process in a MIMD parallel program can asynchronously access
 logical blocks of physically distributed matrices without need for
 explicit cooperation by other processes. 
+The trade-off with this approach is that
+access to shared data will be slower than access
+to local data, and the programmer must be aware of this in designing modules.
 
 From the user perspective, a global array can be used as if it was stored
 in the shared memory. Details of the data distribution, addressing and
@@ -34,6 +37,87 @@ on the web site http://www.emsl.pnl.gov:2080/docs/global/.
 Currently support is limited to 2-D double precision or integer arrays
 with block distribution, at most one block per array per processor.
 
+\subsubsection{Interaction Between GA and MA}
+
+Available global (GA)
+and local (MA) memory can interact within NWChem in only two ways,
+
+\begin{enumerate}
+\item GA is allocated within MA, and GA is limited only by the available
+    space in MA.
+
+\item GA is not allocated within MA, and GA is limited at initialization
+    (within NWChem input this is controlled by the MEMORY directive)
+\end{enumerate}
+
+If GA is allocated within MA, then 
+the available GA space is limited to the currently available MA space.  This
+also means that the total allocatable memory for GA {\em and} MA must be
+no more than the available MA space.
+If GA is not allocated within MA, then local and global arrays occupy essentially
+independent space.  The allocatable memory for GA is limited only by the available
+space for GA, and similarly, the allocatable memory for MA is limited only
+by the available local memory.
+
+When allocating space for GA,
+some care must be exercised in the treatment of the information returned by
+the routine \verb+ga_memory_avail()+, whether or not
+the allocation is done in MA.  The routine \verb+ga_memory_avail()+
+returns the amount of memory (in bytes)
+available for use by GA in the calling process.
+This returned value must be converted to double precision words when
+using double precision.
+If a uniformly distributed GA is desired, it is also necessary to find
+the minimum of this value across all nodes.  This value will in general be
+a rather large number.
+When running on a platform with many nodes and having a large memory, 
+the agreggate GA memory, even in double precision words, could be a large enough
+value to overflow a
+32-bit integer.  Therefore, for calculations that require knowing the size of
+total memory, it is advisable to first store the size of memory on each node 
+in a double precision
+number and then sum these values across all the nodes.
+
+The following pseudo-code illustrates this process for an application.
+
+\begin{verbatim}
+#include "global.fh"
+#include "mafdecls.fh"
+
+    integer avail_ma, avail_ga
+
+    avail_ma = ma_inquire_avail(mt_dbl)
+    avail_ga = ga_memory_avail()/ma_sizeof(mt_dbl,1,mt_byte)
+
+    if (ga_uses_ma()) then
+c
+c  available GA space is limited to currently available MA space,
+c  and GA and MA share the same space
+c
+      allocatable_ga + allocable_ma <= avail_ma = avail_ga
+
+    else
+c
+c  GA and MA are independent
+c
+         allocatable_ga <= avail_ga
+         allocatable_ma <= avail_ma
+
+    endif
+c
+c find the minimum value of available GA space over all nodes
+c
+    call ga_igop(msgtype,avail_ga,1,'min')
+c
+c determine the total available GA space
+c
+    double precision davail_ga
+    davail_ga = ga_memory_avail()/ma_sizeof(mt_dbl,1,mt_byte)
+    call ga_dgop(msgtype,davail_ga,1,'+')
+
+\end{verbatim}
+
+
 \subsubsection{List of GA Routines}
 
 The following routines are invoked for operations that are globally collective.
@@ -44,7 +128,8 @@ simultaneously invoked by all processes as if in SIMD mode.
 \item {\tt ga\_initialize\_()} --- initialize global array internal
   structures
 \item {\tt ga\_initialize\_ltd(mem\_limit)} --- initialize global arrays and set
-  memory usage limits
+  memory usage limits (note: if \verb+mem_limit+ is less than zero specifies
+  unlimited memory usage.)
 \begin{itemize}
 \item      integer {\tt mem\_limit}       --- [input] GA total memory ( specifying less than 0
 means "unlimited memory")
@@ -430,12 +515,15 @@ mode where only compute processes participate
 \item     character {\tt op}        --- [input] 
 \end{itemize}
 
-\item {\tt ga\_igop(type, x, n, op)} --- equivalent to TCGMSG igop, for use in data-server mode
-where only compute processes participate
+\item {\tt ga\_igop(type, x, n, op)} --- equivalent to TCGMSG {\tt igop}, for use in data-server mode
+where only compute processes participate; performs the operation specified by the input variable
+{\tt op} (supported operations include addition, multiplication, maximum, minimum, 
+and maximum or minimum of the absolute
+value), and returns the value in {\tt x}.
 \begin{itemize}
 \item     integer {\tt type}        --- [input] integer handle of array
 \item     integer {\tt n}           --- [input]
-\item     double precision {\tt x}  --- [input] 
+\item     double precision {\tt x}  --- [input/output]
 \item     character {\tt op}        --- [input] 
 \end{itemize}
 
@@ -468,7 +556,7 @@ Other utility operations:
 
 \item {\tt ga\_inquire\_memory\_()} --- find the amount of memory in
   active arrays
-\item {\tt ga\_memory\_avail\_()} --- find the amount of memory left for
+\item {\tt ga\_memory\_avail\_()} --- find the amount of memory (in bytes) left for
   GA
 \item {\tt ga\_summarize(verbose)} --- prints summary info about allocated
   arrays
