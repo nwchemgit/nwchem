@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.43 2000-04-25 17:20:30 d3j191 Exp $
+c $Id: cf_main.F,v 1.44 2000-04-25 21:47:36 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1720,6 +1720,40 @@ c
     1 continue
       fdata(25)=ep2(1)
       fdata(26)=ep3(1)
+c
+      return
+      end
+      subroutine cf_mcti_kin(isat,vs,nums)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer nums
+      integer isat(msa)
+      real*8 vs(msa,3)
+c
+      call cf_mcti_w(isat,vs,nums,dbl_mb(i_mas))
+c
+      return
+      end
+      subroutine cf_mcti_w(isat,vs,nums,wgt)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer nums
+      integer isat(msa)
+      real*8 vs(msa,3),wgt(mat,6)
+c
+      integer i
+c
+      do 1 i=1,nums
+      deriv(13,1)=deriv(13,1)+wgt(isat(i),4)*
+     + (vs(i,1)*vs(i,1)+vs(i,2)*vs(i,2)+vs(i,3)*vs(i,3))
+    1 continue
 c
       return
       end
