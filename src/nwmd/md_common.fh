@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.22 1999-12-16 16:55:08 d3j191 Exp $
+c $Id: md_common.fh,v 1.23 2000-01-12 06:07:38 d3j191 Exp $
 c
 c     parameters
 c
@@ -170,9 +170,9 @@ c
      + inp_ptr
 c
       logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
-     + lpert2,lpert3,lxw,lvw,lxs,lvs,lpack
+     + lpert2,lpert3,lxw,lvw,lxs,lvs,lpack,lequi
       common/md_log/lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
-     + lpert2,lpert3,lxw,lvw,lxs,lvs,lpack
+     + lpert2,lpert3,lxw,lvw,lxs,lvs,lpack,lequi
 c
       integer mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,msf,nsf
       common/md_dim/mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,

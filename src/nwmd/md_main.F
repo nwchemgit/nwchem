@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.52 2000-01-06 21:20:14 d3j191 Exp $
+c $Id: md_main.F,v 1.53 2000-01-12 06:07:38 d3j191 Exp $
 c
       implicit none
 c
@@ -826,6 +826,7 @@ c
 c
 c     equilibration
 c
+      lequi=.true.
       do 1 iequi=kequi+1,mequi
       call timer_start(1)
       call md_newton()
@@ -838,6 +839,7 @@ c
 c
 c     data gathering
 c
+      lequi=.false.
       do 2 idacq=kdacq+1,mdacq
       call timer_start(1)
 c
@@ -934,6 +936,7 @@ c
 c
 c     equilibration
 c
+      lequi=.true.
       do 2 iequi=kequi+1,mequi
       call timer_start(1)
       call md_newton()
@@ -945,6 +948,7 @@ c
       mdstep=kdacq
       if(kdacq.eq.0) stime=zero
 c
+      lequi=.false.
       do 3 idacq=kdacq+1,mdacq
 c
       call timer_start(1)
@@ -961,6 +965,18 @@ c
 c
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
       if(frequency(mdstep,nftime)) call md_wrtime
+c
+      lxw=frequency(mdstep,nfcoor)
+      lvw=frequency(mdstep,nfvelo)
+      lxs=frequency(mdstep,nfscoo)
+      lvs=frequency(mdstep,nfsvel)
+c
+      if(me.eq.0.and.idacq.eq.mdacq.and.(lxw.or.lvw.or.lxs.or.lvs)) then
+      call sp_wrttrj(lfncoo,lxw,lvw,lxs,lvs,
+     + stime,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+      endif
 c
       call timer_stop(1)
 c
@@ -1077,7 +1093,7 @@ c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
-      if(me.eq.0.and.(lxw.or.lvw.or.lxs.or.lvs)) then
+      if(me.eq.0.and..not.lequi.and.(lxw.or.lvw.or.lxs.or.lvs)) then
       call sp_wrttrj(lfncoo,lxw,lvw,lxs,lvs,
      + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
