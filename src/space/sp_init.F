@@ -1134,6 +1134,7 @@ c
 c     allocate memory for the box-box list
 c
       if(mbblp.eq.0) then
+      if(np.gt.1) call ga_igop(msp_20,mbbl,1,'max')
       if(.not.ma_push_get(mt_int,15*mbbl,'bb',l_bb,i_bb))
      + call errquit('Failed to allocate memory for bb',0)
       else
