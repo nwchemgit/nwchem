@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.116 2002-05-07 00:51:09 bylaska Exp $
+C$Id: geom.F,v 1.117 2002-05-07 23:51:35 bylaska Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2381,20 +2381,22 @@ c
       end do
 c
 c     Update the amatrix inverse
+c      - Since amat=[a1,a2,a3]
+c              ainv=[b1,b2,b3]^t
 c
       call dfill(9,0.0d0,c,1)
-      c(1,1) = amat(2,2)*amat(3,3) - amat(3,2)*amat(2,3)
-      c(2,1) = amat(3,2)*amat(1,3) - amat(1,2)*amat(3,3)
-      c(3,1) = amat(1,2)*amat(2,3) - amat(2,2)*amat(1,3)
-      c(1,2) = amat(2,3)*amat(3,1) - amat(3,3)*amat(2,1)
-      c(2,2) = amat(3,3)*amat(1,1) - amat(1,3)*amat(3,1)
-      c(3,2) = amat(1,3)*amat(2,1) - amat(2,3)*amat(1,1)
-      c(1,3) = amat(2,1)*amat(3,2) - amat(3,1)*amat(2,2)
-      c(2,3) = amat(3,1)*amat(1,2) - amat(1,1)*amat(3,2)
-      c(3,3) = amat(1,1)*amat(2,2) - amat(2,1)*amat(1,2)
+      c(1,1) = amat(2,2)*amat(3,3) - amat(3,2)*amat(2,3)  ! = b(1,1)
+      c(1,2) = amat(3,2)*amat(1,3) - amat(1,2)*amat(3,3)  ! = b(2,1)
+      c(1,3) = amat(1,2)*amat(2,3) - amat(2,2)*amat(1,3)  ! = b(3,1)
+      c(2,1) = amat(2,3)*amat(3,1) - amat(3,3)*amat(2,1)  ! = b(1,2)
+      c(2,2) = amat(3,3)*amat(1,1) - amat(1,3)*amat(3,1)  ! = b(2,2)
+      c(2,3) = amat(1,3)*amat(2,1) - amat(2,3)*amat(1,1)  ! = b(3,2)
+      c(3,1) = amat(2,1)*amat(3,2) - amat(3,1)*amat(2,2)  ! = b(1,3)
+      c(3,2) = amat(3,1)*amat(1,2) - amat(1,1)*amat(3,2)  ! = b(2,3)
+      c(3,3) = amat(1,1)*amat(2,2) - amat(2,1)*amat(1,2)  ! = b(3,3)
       vol = amat(1,1)*c(1,1)
-     >       + amat(2,1)*c(2,1)
-     >       + amat(3,1)*c(3,1)
+     >    + amat(2,1)*c(1,2)
+     >    + amat(3,1)*c(1,3)
       volume_direct(geom) = vol
 c
       call dscal(9,1.0d0/vol,c,1)
