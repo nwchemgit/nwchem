@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.4 2001-11-29 16:51:21 bylaska Exp $
+ $Id: pspsolve.c,v 1.5 2001-11-29 18:39:50 edo Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -24,7 +24,7 @@
 
 void FATR pspsolve_
 #if defined(USE_FCD)
-                    Integer *debug_ptr,
+                   (Integer *debug_ptr,
 			  const _fcd fcd_sdir_name,
                     Integer *n9,
 			  const _fcd fcd_dir_name,
