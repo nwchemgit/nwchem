@@ -306,15 +306,6 @@ c
 
       end 
 
-      function qmmm_get_i_cbqw()
-      implicit none
-#include "qmmm_data.fh"
-      integer qmmm_get_i_cbqw
-
-      qmmm_get_i_cbqw = i_cbqw
-
-      end 
-
       function qmmm_get_i_t()
       implicit none
 #include "qmmm_data.fh"
