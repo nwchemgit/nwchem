@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.34 1995-03-31 01:32:46 d3g681 Exp $
+c $Id: basis.F,v 1.35 1995-05-17 08:26:19 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -99,7 +99,6 @@ c
 #include "geobasmapP.fh"
 #include "inp.fh"
 #include "basdeclsP.fh"
-#include "util.fh"
 c::functions
 c ifill from util
 c dfill from util
