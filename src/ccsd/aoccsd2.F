@@ -3,7 +3,7 @@
      &                  g_ncoul, g_nexch, RefEner,
      $   CC_Theory, rtdb, mxvec, geom, Tol2e, occd, oconverged)
       implicit none
-C     $Id: aoccsd2.F,v 2.26 2002-12-05 06:37:33 windus Exp $
+C     $Id: aoccsd2.F,v 2.27 2003-04-07 17:46:52 bert Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -582,7 +582,7 @@ c
          call moints_trp(basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
      &      vir_lo, vir_hi,
      &      g_coul, ocoul, g_exch, oexch,
-     &      blen, cmo, ncor, nocc, nvir, Tol2E)
+     &      blen, cmo, ncor, nocc, nvir, ndel, Tol2E)
 c        print *,'call trpdrv ',nvpass
 
 *          if (iam .eq. 0) then

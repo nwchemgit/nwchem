@@ -31,7 +31,7 @@ c
       end
       
 
-c  $Id: moints_trp.F,v 2.14 2003-04-07 17:36:05 bert Exp $
+c  $Id: moints_trp.F,v 2.15 2003-04-07 17:46:52 bert Exp $
 c
 c
 c     No-one knows what this stuff is doing ... are the next comments correct?
@@ -55,7 +55,7 @@ c
      $                        mo2_lo, mo2_hi,
      $                        g_coul, ocoul,
      $                        g_exch, oexch,
-     $                        blen, cmo, ncor, nocc, nvir, Tol2E)
+     $                        blen, cmo, ncor, nocc, nvir, ndel, Tol2E)
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -76,7 +76,7 @@ c
        integer g_exch                         ! Exchange operator
        logical ocoul,oexch                    ! Type selection
        integer blen                           ! Blocking length
-       integer ncor, nocc, nvir
+       integer ncor, nocc, nvir, ndel
        double precision cmo(*)
        Double Precision Tol2E                 ! Integral tolerance
 c
@@ -123,7 +123,7 @@ c
        nmo1 = mo1_hi - mo1_lo + 1
        nmo2 = mo2_hi - mo2_lo + 1
 c
-       nmo = ncor + nocc + nvir
+       nmo = ncor + nocc + nvir + ndel
 c     
 c  Symmetry adapt the MOs and renumber irreps to start at zero
 c     
