@@ -1,6 +1,6 @@
       subroutine ana_wthdr(iunit,fmt,sgmnam,tag,isel)
 c
-c $Id: ana_wthdr.F,v 1.8 2000-03-21 22:23:50 d3j191 Exp $
+c $Id: ana_wthdr.F,v 1.9 2000-03-24 05:41:35 d3j191 Exp $
 c
       implicit none
 c
@@ -70,7 +70,11 @@ c
      + status='unknown')
       rewind(44)
       read(44,4401) nwa,nsa,nsb
-      write(iunit,4401) nwa,nsa,nsb
+      if(nsa.eq.nsel) then
+      write(iunit,4401) nwa,nsel,nsb
+      else
+      write(iunit,4401) nwa,nsel,0
+      endif
  4401 format(3i10)
       do 1 i=1,nwa
       read(44,4402) cwa
@@ -81,11 +85,13 @@ c
       read(44,4402) cwa
       if(isel(i).ne.0) write(iunit,4402) cwa,i
     2 continue
+      if(nsa.eq.nsel) then
       do 3 i=1,nsb
       read(44,4403) ib,jb
       write(iunit,4403) ib,jb
  4403 format(2i8)
     3 continue
+      endif
       close(unit=44)
       endif
 c
@@ -140,9 +146,10 @@ c
       endif
 c
       if(fmt.eq.'frm') then
-      write(iunit,6001) nsa
+      write(iunit,6001) nsel
  6001 format('Atoms {',/,i8)
       do 6 i=1,nsa
+      if(isel(i).ne.0) then
       elemnt=sgmnam(i)(6:7)
       name=sgmnam(i)(11:16)//':'//sgmnam(i)(1:5)//':'//sgmnam(i)(6:10)
       do 7 j=8,14
@@ -153,6 +160,7 @@ c
       write(iunit,6002) elemnt,name,tag(i,1)(1:index(tag(i,1),' ')-1),
      + tag(i,2)(1:index(tag(i,2),' ')-1)
  6002 format(a2,1x,a18,1x,a,1x,a)
+      endif
     6 continue
       open(unit=44,file='.header',form='formatted',
      + status='unknown')
@@ -161,13 +169,19 @@ c
       do 8 i=1,nwa+nsa
       read(44,4402) cdummy
     8 continue
+      if(nsel.eq.nsa) then
       write(iunit,6005) nsb
+      else
+      write(iunit,6005) 0
+      endif
  6005 format('}',/,'Bonds {',/,i8)
+      if(nsel.eq.nsa) then
       do 9 i=1,nsb
       read(44,6006) ib,jb
       write(iunit,6006) ib,jb
  6006 format(2i8)
     9 continue
+      endif
       close(unit=44)
       write(iunit,6007)
  6007 format('}')

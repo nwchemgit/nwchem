@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel)
 c
-c $Id: ana_wtfram.F,v 1.6 2000-03-21 22:23:50 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.7 2000-03-24 05:41:35 d3j191 Exp $
 c
       implicit none
 c
@@ -150,7 +150,7 @@ c
       write(iunit,7001)
  7001 format(/,'Geometry {')
       do 9 i=1,nsa
-      write(iunit,7002) (1.0d1*x(i,j),j=1,3)
+      if(isel(i).ne.0) write(iunit,7002) (1.0d1*x(i,j),j=1,3)
  7002 format(3f12.4)
     9 continue
       write(iunit,7003)
