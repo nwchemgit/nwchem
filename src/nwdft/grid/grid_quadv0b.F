@@ -1,3 +1,8 @@
+#if 0
+#define QUADV0_REVERT
+#else
+#undef QUADV0_REVERT
+#endif
       Subroutine grid_quadv0b(
      ,     ictr_buf,qxyz, qwght, nqpts,rad,grad,
      .     g_dens, ncoef_max, natoms, 
@@ -10,7 +15,7 @@
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadv0b.F,v 1.12 2000-04-25 02:08:42 edo Exp $
+c$Id: grid_quadv0b.F,v 1.13 2000-04-27 01:24:48 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -30,6 +35,7 @@ c
       double precision dabsmax,wmax
       external dabsmax
       external grid_nbfm
+      integer iscf_rho,iscf_delrho
       logical grid_sicinit,grid_sicend
       external grid_sicinit,grid_sicend
       double precision acc_xc_gauss
@@ -63,11 +69,11 @@ c
 c     
       if (.not.MA_Push_Get(mt_dbl, nqpts*mbf_ao, 'chi_ao', 
      &     lchi_ao, ichi_ao))
-     &     call errquit('grid_quadv0a: cannot allocate chi_ao',0)
+     &     call errquit('grid_quadv0b: cannot allocate chi_ao',0)
       if(GRAD) then
          if (.not.MA_Push_Get(mt_dbl, 3*nqpts*mbf_ao,
      .        'delchi_ao', ldelchi_ao, idelchi_ao))
-     &        call errquit('grid_quadv0a: cant alloc delchi_ao',0)
+     &        call errquit('grid_quadv0b: cant alloc delchi_ao',0)
       endif
       if (sic_orb_index.eq.1) then
          if(.not.grid_sicinit(nqpts,
@@ -101,25 +107,47 @@ c
       if(nqpts.eq.0) goto 2010
 
       wmax= dabsmax(nqpts,qwght)
-
-      if (sic_orb_index.eq.1) then
-         call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
-     ,        rho,delrho,grad,ibf_ao, iniz, ifin,
-     ,        dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
-     ,        bp, rscr, rchi_atom, rdelchi_atom,
-     ,        rdens_atom,
-     ,        Fmat, Pmat, Bmat,
-     ,        dbl_mb(i_vect1),dbl_mb(idelrho_sig))
-      else
-         call xc_rhogen(tol_rho, AO_bas_han, g_dens,
-     &        nbf_ao_mxnbf_ce, natoms, ipol, nqpts, nbf_ao,
-     &        mbf_ao, ldelley, GRAD, Fmat, Pmat, Bmat, 
-     &        dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
-     &        ibf_ao, iniz, ifin, rho, delrho, 
+      if(do_scf) then
+         if (sic_orb_index.eq.1) then
+            call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
+     ,           rho,delrho,grad,ibf_ao, iniz, ifin,
+     ,           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
+     ,           bp, rscr, rchi_atom, rdelchi_atom,
+     ,           rdens_atom,
+     ,           Fmat, Pmat, Bmat,
+     ,           dbl_mb(i_vect1),dbl_mb(idelrho_sig))
+         else
+            call xc_rhogen(tol_rho, AO_bas_han, g_dens,
+     &           nbf_ao_mxnbf_ce, natoms, ipol, nqpts, nbf_ao,
+     &           mbf_ao, ldelley, GRAD, Fmat, Pmat, Bmat, 
+     &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
+     &           ibf_ao, iniz, ifin, rho, delrho, 
      &        bp, rscr, 
-     &        rchi_atom, rdelchi_atom,
-     &        rdens_atom, cetobfr,wmax)
-      endif
+     &           rchi_atom, rdelchi_atom,
+     &           rdens_atom, cetobfr,wmax)
+         endif
+      else  if (do_cpks_l) then
+#ifdef QUADV0_REVERT
+            call xc_rhogen(tol_rho, AO_bas_han, g_dens(2),
+     &           nbf_ao_mxnbf_ce, natoms, ipol, nqpts, nbf_ao,
+     &           mbf_ao, ldelley, GRAD, Fmat, Pmat, Bmat, 
+     &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
+     &           ibf_ao, iniz, ifin, rho, delrho, 
+     &        bp, rscr, 
+     &           rchi_atom, rdelchi_atom,
+     &           rdens_atom, cetobfr,wmax)
+#else
+            call xc_rhogen_pert(tol_rho, AO_bas_han, g_dens,
+     &           nbf_ao_mxnbf_ce, natoms, nmat+1,ipol, nqpts, 
+     .           nbf_ao, mbf_ao, GRAD, Fmat, Pmat, Bmat, 
+     &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
+     &           ibf_ao, iniz, ifin, rho, delrho, 
+     &           rscr, rchi_atom, 
+     .           rdelchi_atom, rdens_atom, cetobfr)
+#endif
+            else if (do_cpks_r) then
+               call errquit('gridquadv0b: what do do for cpks rhs?',0)
+            endif
 c     
 c     Evaluate the integrated charge density.
 c     
@@ -130,7 +158,23 @@ c
      &     ddot(nqpts, qwght, 1, rho, 1)
       if(abs(rho0-rho_int).lt.tol_rho) goto 2010
 c     
-      call xc_eval_fnl(rho, delrho, Amat,
+c
+c           Evaluate the XC potential and energy sampling matrices.
+c           Set up pointer to the SCF density for the CPS LHS case.
+c
+            if (do_cpks_l) then
+#ifdef QUADV0_REVERT
+               iscf_rho = 1
+               iscf_delrho = 1
+#else
+               iscf_rho = 1 + nqpts*ipol*nmat
+               iscf_delrho = 1 + nqpts*3*ipol*nmat
+#endif
+            else
+               iscf_rho = 1
+               iscf_delrho = 1
+            endif
+      call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), Amat,
      &     Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
      &     GRAD, .false., dummy, .false.)
 
@@ -148,18 +192,49 @@ c
       else
          if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
      &        'Dmat', lDmat,iDmat))
-     &        call errquit('grdi_quadv0_a: cannot allocate Dmat',0)
+     &        call errquit('grid_quadv0b: cannot allocate Dmat',0)
 c     
-         call xc_tabcd(tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
-     &        Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
-     &        Dbl_MB(idelchi_ao), ipol, nqpts, mbf_ao, 
-     &        nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, 
-     &        AO_bas_han, 
-     &        natoms, iniz, ifin, g_vxc, ibf_ao,
+         if(do_scf) then
+            call xc_tabcd(tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
+     &           Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
+     &           Dbl_MB(idelchi_ao), ipol, nqpts, mbf_ao, 
+     &           nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, 
+     &           AO_bas_han, 
+     &           natoms, iniz, ifin, g_vxc, ibf_ao,
      &        rchi_atom, rdelchi_atom,
-     &        rdens_atom, cetobfr)
-         if (.not.ma_pop_stack(lDmat))
-     &        call errquit('grid_quadv0_a: cannot pop stack', 1)
+     &           rdens_atom, cetobfr)
+            else if (do_cpks_l) then
+#ifdef QUADV0_REVERT
+            call xc_tabcd(tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
+     &           Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
+     &           Dbl_MB(idelchi_ao), ipol, nqpts, mbf_ao, 
+     &           nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, 
+     &           AO_bas_han, 
+     &           natoms, iniz, ifin, g_vxc, ibf_ao,
+     &        rchi_atom, rdelchi_atom,
+     &           rdens_atom, cetobfr)
+#else
+c
+c     Combine derivs of functional with deriv densities to get coeffs
+c     of bfn pairs in CPKS LHS - these are written back into rho and
+c     delrho
+c
+               call xc_cpks_coeff(rho, delrho, Amat2, Cmat2, Cmat,
+     &              delrho(iscf_delrho), nmat, ipol, nqpts, GRAD)
+               call xc_tabcd_cpks_lhs(tol_rho, Fmat, Pmat, rho, Bmat,
+     &              delrho, Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
+     &              Dbl_MB(idelchi_ao), nmat, ipol, nqpts, mbf_ao,
+     &              nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, AO_bas_han,
+     &              natoms, iniz, ifin, g_vxc, ibf_ao,
+     &              rchi_atom, rdelchi_atom,
+     &              rdens_atom, cetobfr)
+#endif
+            else if (do_cpks_r) then
+               call errquit('gridquadv0b: what do do for cpks rhs?',0)
+            endif
+
+            if (.not.ma_pop_stack(lDmat))
+     &        call errquit('grid_quadv0b: cannot pop stack', 1)
       endif
  2010 continue
       if (sic_orb_index.eq.1) then
@@ -167,6 +242,6 @@ c
      ,        call errquit(' grid_quadv0b: grid_sicend failed',0)
       endif
       if (.not.ma_chop_stack(lchi_ao))
-     &     call errquit('grid_quadv0a: cannot pop stack', 3)
+     &     call errquit('grid_quadv0b: cannot pop stack', 3)
       return
       end
