@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.16 1994-08-17 07:12:09 d3e129 Exp $
+# $Id: GNUmakefile,v 1.17 1994-08-18 04:52:22 d3e129 Exp $
 
 HEADERS = api/int_tim.fh api/apiP.fh
 LIBRARY = libnwints.a
@@ -94,8 +94,19 @@ realclean:	clean
 	/bin/rm -f *~ \#*\#
 
 debug:
-	$(MAKE) 'DEFINES = -DSUN -DINT_TIMING'
+	for intdir in $(INT_SUBDIRS) ; do \
+		echo Making $$intdir objects ; \
+		(cd $$intdir; $(MAKE) 'DEFINES = -DSUN -DINT_TIMING') || exit 1 ; \
+	done
 debugopt:
-	$(MAKE) 'FOPT=-O3 -Nl99' 'DEFINES = -DSUN -DINT_TIMING'
+	for intdir in $(INT_SUBDIRS) ; do \
+		echo Making $$intdir objects ; \
+		(cd $$intdir; 	$(MAKE) 'FOPT=-O3 -Nl99' 'DEFINES = -DSUN -DINT_TIMING' ) || exit 1 ; \
+	done
+
 opt:
-	$(MAKE) 'FOPT=-O3 -Nl99' 'DEFINES = -DSUN'
+	for intdir in $(INT_SUBDIRS) ; do \
+		echo Making $$intdir objects ; \
+		(cd $$intdir; $(MAKE) 'FOPT=-O3 -Nl99' 'DEFINES = -DSUN') || exit 1 ; \
+	done
+
