@@ -1,4 +1,4 @@
-* $Id: int_order.F,v 1.3 2003-10-17 22:54:02 carlfahl Exp $
+* $Id: int_order.F,v 1.4 2004-07-21 16:09:39 bert Exp $
       program int_order
       implicit none
 c
@@ -171,8 +171,8 @@ c
       block data int_order_BD
 #include "int_order.fh"      
 *            
-*                        -1   0    1    2    3    4    5    6
-      data shell_types /'sp','s ','p ','d ','f ','g ','h ','i '/
+*                        -1   0    1    2    3    4    5    6    7   8
+      data shell_types /'sp','s ','p ','d ','f ','g ','h ','i ','k','l'/
       end
       subroutine int_case1_order()
       implicit none
