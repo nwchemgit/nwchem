@@ -351,6 +351,11 @@ peigs_CC += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
 -qcache=type=i:level=1:size=32:line=128 \
 -qarch=pwr2 -qtune=pwr2
 endif
+ifeq ($(NWCHEM_TARGET_CPU),604)
+peigs_FC += -qarch=604 -qtune=604
+peigs_CC += -qarch=ppc -qtune=604
+endif
+
 
 
 endif
@@ -377,6 +382,11 @@ peigs_FC += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
 peigs_CC += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
 -qcache=type=i:level=1:size=32:line=128 \
 -qarch=pwr2 -qtune=pwr2
+endif
+
+ifeq ($(NWCHEM_TARGET_CPU),604)
+peigs_FC += -qarch=604 -qtune=604
+peigs_CC += -qarch=ppc -qtune=604
 endif
 
 endif
