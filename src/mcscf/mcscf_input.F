@@ -1,6 +1,6 @@
       subroutine mcscf_input(rtdb)
 c
-c $Id: mcscf_input.F,v 1.3 1996-10-04 22:11:19 d3g681 Exp $
+c $Id: mcscf_input.F,v 1.4 1997-02-07 22:06:54 d3g681 Exp $
 c
       implicit none
 #include "inp.fh"
@@ -12,7 +12,7 @@ c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
       integer num_profopt       ! No. of known profiling options
-      parameter (num_dirs = 13)
+      parameter (num_dirs = 15)
       parameter (num_profopt = 1)
       character*12 dirs(num_dirs)
       character*12 prof_opt(num_profopt)
@@ -31,6 +31,8 @@ c
      $            'profile',
      $            'symmetry',
      $            'hessian',
+     $            'print',
+     $            'noprint',
      $            'end'/
       data prof_opt/ 'fock' /
 c
@@ -48,7 +50,7 @@ c
 c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900, 1000,
-     $      1100, 1200,
+     $      1100, 1200, 1300, 1400,
      $      9999) ind
       call errquit('mcscf_input: unimplemented directive', ind)
 c     
@@ -165,6 +167,13 @@ c
       endif
       if (.not. rtdb_put(rtdb,'mcscf:hessiantype', MT_INT, 1, pflg))
      $     call errquit('mcscf_input: rtdb_put of pflg failed',0)
+      goto 1001
+c
+c     print/noprint
+c
+ 1300 continue
+ 1400 continue
+      call util_print_input(rtdb,'mcscf')
       goto 1001
 c
 c

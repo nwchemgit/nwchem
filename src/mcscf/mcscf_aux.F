@@ -393,7 +393,7 @@ c
  944           format('Restart movecs mismatch with input')
                status = .false.
             endif
-            if (oprint) then
+            if (oprint .and. title_vecs.ne.' ') then
                write(6,77) title_vecs(1:inp_strlen(title_vecs))
  77            format(/' Loading old vectors from job with title :'//a/)
                call util_flush(6)
@@ -633,7 +633,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.19 1996-11-10 18:05:24 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.20 1997-02-07 22:06:52 d3g681 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -724,7 +724,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.19 1996-11-10 18:05:24 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.20 1997-02-07 22:06:52 d3g681 Exp $
 c
 c   Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c   partially occupied orbitals (trivially)

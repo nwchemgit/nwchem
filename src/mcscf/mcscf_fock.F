@@ -1,16 +1,16 @@
-c
-c  %A%
-c  $Id: mcscf_fock.F,v 1.7 1996-07-02 01:20:59 rg240 Exp $
-c
-c Compute the MCSCF MO-Fock matrices;
-c inactive, active and generalized
-c
-c
-       subroutine mcscf_fock( geom, basis, nbf, nclosed, nact,
-     $                        oskel, tol2e, dm1, dm2, g_movecs,
-     $                        g_coul, eone, etwo, ecore,
-     $                        g_ifock, g_afock, g_gfock )
-       implicit none
+c     
+c     %A%
+c     $Id: mcscf_fock.F,v 1.8 1997-02-07 22:06:54 d3g681 Exp $
+c     
+c     Compute the MCSCF MO-Fock matrices;
+c     inactive, active and generalized
+c     
+c     
+      subroutine mcscf_fock( geom, basis, nbf, nclosed, nact,
+     $     oskel, tol2e, dm1, dm2, g_movecs,
+     $     g_coul, eone, etwo, ecore,
+     $     g_ifock, g_afock, g_gfock )
+      implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "msgids.fh"
@@ -18,185 +18,184 @@ c
 #include "bas.fh"
 #include "geom.fh"
 #include "mcscfprof.fh"
-c
-c
-c The definition for the *generalized* Fock
-c elements is defined as twice the normal Fock elements 
-c (see Siegbahn et al.) and therefore the gradient 
-c is twice the generalized Fock element. This routine
-c follows this convention, i.e.,
-c
-c                   gen    gen
-c          g   = 2(F    - F   )  = 4F
-c           pq      pq     qp        pq
-c
-c
-c Note the asymmetry in the generalized Fock,
-c
-c
-c          F   =  0      for p not closed-shell
-c           pi
-c
-c          F   =  0      for p not open-shell
-c           pt
-c
-c
-       integer geom, basis                            ! [input] Geometry and basis handles
-       integer nbf                                    ! [input] Number of basis functions
-       integer nclosed                                ! [input] Number of closed shells
-       integer nact                                   ! [input] Number of open shells
-       logical oskel                                  ! [input] Symmetry toggle
-       double precision tol2e                         ! [input] Integral tolerance
-       double precision dm1(nact,nact)                ! [input] Active space 1PDM
-       double precision dm2(nact,nact,nact,nact)      ! [input] Active space 2PDM
-       integer g_movecs                               ! [input] MO coefficients
-       integer g_coul                                 ! [input] Coulomb integrals
-       double precision eone, etwo                    ! [output] Energy components
-       double precision ecore                         ! [output] Inactive core energy
-       integer g_ifock                                ! [output] Inactive Fock
-       integer g_afock                                ! [output] Active Fock
-       integer g_gfock                                ! [output] Generalized Fock
-c
-c
-       integer g_cdens, g_adens, g_tmp, g_tmp2, g_tmp3
-       double precision e2ii, e2ia, e2ai, e2aa, xx
-       integer nset, aoff, aend, i
-       integer iv_dens(2), iv_fock(2)
-       double precision jfac(2), kfac(2)
-       integer ga_create_atom_blocked
-       external ga_create_atom_blocked
-       double precision ga_trace_diag
-       external ga_trace_diag
-       data nset/2/
-       data jfac/1.0d0, 1.d0/
-       data kfac/-0.5d0, -0.5d0/
-c
-c
-c
-       if (omcscfprof) call pstat_on(ps_gfock)
-       aoff = nclosed + 1
-       aend = nclosed + nact
-       call ga_zero(g_ifock)
-       call ga_zero(g_afock)
-       g_tmp = ga_create_atom_blocked(geom, basis, 'temp1')
-       g_tmp2 = ga_create_atom_blocked(geom, basis, 'temp2')
-       g_tmp3 = ga_create_atom_blocked(geom, basis, 'temp3')
-       g_cdens = ga_create_atom_blocked(geom, basis, 'closed dens')
-       g_adens = ga_create_atom_blocked(geom, basis, 'active dens')
-       call mcscf_occ2dens(nbf, nclosed, nact, dm1, g_movecs,
-     $                     g_cdens, g_adens )
-c
-c One-electron component
-c
-       call ga_zero(g_tmp)
-       call ga_zero(g_tmp2)
-       call ga_zero(g_tmp3)
-       call int_1e_ga( basis, basis, g_tmp, 'kinetic', oskel)
-       call int_1e_ga( basis, basis, g_tmp, 'potential', oskel)
-       if (oskel) call sym_symmetrize(geom, basis, .false., g_tmp)
-       eone = ga_ddot(g_tmp,g_cdens) + ga_ddot(g_tmp,g_adens)
-c
-c Two-electron component of the Fock matrices
-c
-       iv_dens(1) = g_cdens
-       iv_dens(2) = g_adens
-       iv_fock(1) = g_tmp2
-       iv_fock(2) = g_tmp3
-       call fock_2e( geom, basis, nset, jfac, kfac, tol2e, oskel,
-     $               iv_dens, iv_fock )
-c
-c
-c  Symmetrize Fock AO components
-c
-       if (oskel) then
+c     
+c     
+c     The definition for the *generalized* Fock
+c     elements is defined as twice the normal Fock elements 
+c     (see Siegbahn et al.) and therefore the gradient 
+c     is twice the generalized Fock element. This routine
+c     follows this convention, i.e.,
+c     
+c     gen    gen
+c     g   = 2(F    - F   )  = 4F
+c     pq      pq     qp        pq
+c     
+c     
+c     Note the asymmetry in the generalized Fock,
+c     
+c     
+c     F   =  0      for p not closed-shell
+c     pi
+c     
+c     F   =  0      for p not open-shell
+c     pt
+c     
+c     
+      integer geom, basis       ! [input] Geometry and basis handles
+      integer nbf               ! [input] Number of basis functions
+      integer nclosed           ! [input] Number of closed shells
+      integer nact              ! [input] Number of open shells
+      logical oskel             ! [input] Symmetry toggle
+      double precision tol2e    ! [input] Integral tolerance
+      double precision dm1(nact,nact) ! [input] Active space 1PDM
+      double precision dm2(nact,nact,nact,nact) ! [input] Active space 2PDM
+      integer g_movecs          ! [input] MO coefficients
+      integer g_coul            ! [input] Coulomb integrals
+      double precision eone, etwo ! [output] Energy components
+      double precision ecore    ! [output] Inactive core energy
+      integer g_ifock           ! [output] Inactive Fock
+      integer g_afock           ! [output] Active Fock
+      integer g_gfock           ! [output] Generalized Fock
+c     
+      integer g_cdens, g_adens, g_tmp, g_tmp2, g_tmp3
+      double precision e2ii, e2ia, e2ai, e2aa, xx
+      integer nset, aoff, aend, i
+      integer iv_dens(2), iv_fock(2)
+      double precision jfac(2), kfac(2)
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
+      double precision ga_trace_diag
+      external ga_trace_diag
+      data nset/2/
+      data jfac/1.0d0, 1.d0/
+      data kfac/-0.5d0, -0.5d0/
+c     
+c     
+c     
+      if (omcscfprof) call pstat_on(ps_gfock)
+      aoff = nclosed + 1
+      aend = nclosed + nact
+      call ga_zero(g_ifock)
+      call ga_zero(g_afock)
+      g_tmp = ga_create_atom_blocked(geom, basis, 'temp1')
+      g_tmp2 = ga_create_atom_blocked(geom, basis, 'temp2')
+      g_tmp3 = ga_create_atom_blocked(geom, basis, 'temp3')
+      g_cdens = ga_create_atom_blocked(geom, basis, 'closed dens')
+      g_adens = ga_create_atom_blocked(geom, basis, 'active dens')
+      call mcscf_occ2dens(nbf, nclosed, nact, dm1, g_movecs,
+     $     g_cdens, g_adens )
+c     
+c     One-electron component
+c     
+      call ga_zero(g_tmp)
+      call ga_zero(g_tmp2)
+      call ga_zero(g_tmp3)
+      call int_1e_ga( basis, basis, g_tmp, 'kinetic', oskel)
+      call int_1e_ga( basis, basis, g_tmp, 'potential', oskel)
+      if (oskel) call sym_symmetrize(geom, basis, .false., g_tmp)
+      eone = ga_ddot(g_tmp,g_cdens) + ga_ddot(g_tmp,g_adens)
+c     
+c     Two-electron component of the Fock matrices
+c     
+      iv_dens(1) = g_cdens
+      iv_dens(2) = g_adens
+      iv_fock(1) = g_tmp2
+      iv_fock(2) = g_tmp3
+      call fock_2e( geom, basis, nset, jfac, kfac, tol2e, oskel,
+     $     iv_dens, iv_fock )
+c     
+c     
+c     Symmetrize Fock AO components
+c     
+      if (oskel) then
          call sym_symmetrize(geom, basis, .false., g_tmp2)
          call sym_symmetrize(geom, basis, .false., g_tmp3)
-       endif
-       e2ii = ga_ddot(g_tmp2,g_cdens)
-       e2ia = ga_ddot(g_tmp2,g_adens)
-       e2ai = ga_ddot(g_tmp3,g_cdens)
-       call ga_dadd(1.d0, g_tmp, 1.d0, g_tmp2, g_tmp2 )
-c
-c  Transform Fock to MO representation
-c
-       call two_index_transf(g_tmp2, g_movecs, g_movecs,
-     $                       g_cdens, g_ifock )
-       call two_index_transf(g_tmp3, g_movecs, g_movecs,
-     $                       g_cdens, g_afock )
-c
-c Generalized Fock matrix elements
-c               I      A
-c    F   =  2 (F   +  F  )
+      endif
+      e2ii = ga_ddot(g_tmp2,g_cdens)
+      e2ia = ga_ddot(g_tmp2,g_adens)
+      e2ai = ga_ddot(g_tmp3,g_cdens)
+      call ga_dadd(1.d0, g_tmp, 1.d0, g_tmp2, g_tmp2 )
+c     
+c     Transform Fock to MO representation
+c     
+      call two_index_transf(g_tmp2, g_movecs, g_movecs,
+     $     g_cdens, g_ifock )
+      call two_index_transf(g_tmp3, g_movecs, g_movecs,
+     $     g_cdens, g_afock )
+c     
+c     Generalized Fock matrix elements
+c     I      A
+c     F   =  2 (F   +  F  )
 c     iq        iq     iq
-c
-c
-       call ga_zero(g_gfock)
-       call ga_dadd_patch( 2.d0, g_ifock, 1, nclosed, 1, nbf,
-     $                     2.d0, g_afock, 1, nclosed, 1, nbf,
-     $                           g_gfock, 1, nclosed, 1, nbf )
-c
-c                     I 
-c    F   =  sum[ D  .F   ]  +  2.sum[ P    (qu|vx) ]
+c     
+c     
+      call ga_zero(g_gfock)
+      call ga_dadd_patch( 2.d0, g_ifock, 1, nclosed, 1, nbf,
+     $     2.d0, g_afock, 1, nclosed, 1, nbf,
+     $     g_gfock, 1, nclosed, 1, nbf )
+c     
+c     I 
+c     F   =  sum[ D  .F   ]  +  2.sum[ P    (qu|vx) ]
 c     tq          tu  qu               tuvx
-c
-c
-       call ga_zero(g_tmp)
-       call ga_zero(g_cdens)
-       call mcscf_denfock_trace(nclosed, nact, nbf, dm1,
-     $                          g_ifock, g_tmp)
-       call mcscf_3index_trace( nbf, nclosed, nact, dm2,
-     $                          g_coul, g_cdens )
-       e2aa = ga_trace_diag(g_cdens)                            ! <--- NB. Fii and Faa are zero in this
-       call ga_dadd_patch( 1.d0, g_tmp, aoff, aend, 1, nbf,     !          case, only Ftt is non-zero
-     $                     1.d0, g_cdens, aoff, aend, 1, nbf,
-     $                           g_gfock, aoff, aend, 1, nbf )
-c
-c  Inactive core energy (when added to full CI energy = total energy)
-c
-c                   I       I
+c     
+c     
+      call ga_zero(g_tmp)
+      call ga_zero(g_cdens)
+      call mcscf_denfock_trace(nclosed, nact, nbf, dm1,
+     $     g_ifock, g_tmp)
+      call mcscf_3index_trace( nbf, nclosed, nact, dm2,
+     $     g_coul, g_cdens )
+      e2aa = ga_trace_diag(g_cdens) ! <--- NB. Fii and Faa are zero in this
+      call ga_dadd_patch( 1.d0, g_tmp, aoff, aend, 1, nbf, ! case, only Ftt is non-zero
+     $     1.d0, g_cdens, aoff, aend, 1, nbf,
+     $     g_gfock, aoff, aend, 1, nbf )
+c     
+c     Inactive core energy (when added to full CI energy = total energy)
+c     
+c     I       I
 c     ecore = sum  F   -  e2    
-c                i  ii          
-c
-c                   I
-c           = sum  F   - sum  [ 2(ii|jj) - (ij|ij) ]
-c                i  ii      ij
-c
-       ecore = 0.d0
-       do i=ga_nodeid()+1,nclosed,ga_nnodes()
+c     i  ii          
+c     
+c     I
+c     = sum  F   - sum  [ 2(ii|jj) - (ij|ij) ]
+c     i  ii      ij
+c     
+      ecore = 0.d0
+      do i=ga_nodeid()+1,nclosed,ga_nnodes()
          call ga_get(g_ifock,i,i,i,i,xx,1)
          ecore = ecore + xx*2.d0
-       enddo
-       call ga_sync()
-       call ga_dgop(msg_mcscf_ifocktrace2,ecore,1,'+')
-       ecore = ecore - e2ii*0.5d0
-c
-c  Sum 2e-energy components
-c
-         
-       etwo = (e2ii + e2ia + e2ai + e2aa)*0.5d0
+      enddo
+      call ga_sync()
+      call ga_dgop(msg_mcscf_ifocktrace2,ecore,1,'+')
+      ecore = ecore - e2ii*0.5d0
+c     
+c     Sum 2e-energy components
+c     
+      
+      etwo = (e2ii + e2ia + e2ai + e2aa)*0.5d0
 
-c$$$       WRITE(6,881) EONE,(E2II*0.5D0),E2IA,(E2AA*0.5d0)
-c$$$ 881   FORMAT(/,5X,'ECORE:',F20.14,
-c$$$     $        /,5X,'EONE:',1X,F20.14,
-c$$$     $        /,5X,'EII:',2X,F20.14,
-c$$$     $        /,5X,'EIA:',2X,F20.14,
-c$$$     $        /,5X,'EAA:',2X,F20.14)
-c
-c  Clean up
-c
-       if (.not.ga_destroy(g_tmp))
-     $   call errquit('mcscf_fock: cannot destroy',0)
-       if (.not.ga_destroy(g_tmp2))
-     $   call errquit('mcscf_fock: cannot destroy',0)
-       if (.not.ga_destroy(g_tmp3))
-     $   call errquit('mcscf_fock: cannot destroy',0)
-       if (.not.ga_destroy(g_cdens))
-     $   call errquit('mcscf_fock: cannot destroy',0)
-       if (.not.ga_destroy(g_adens))
-     $   call errquit('mcscf_fock: cannot destroy',0)
-       if (omcscfprof) call pstat_off(ps_gfock)
-       return
-       end
+c$$$  WRITE(6,881) EONE,(E2II*0.5D0),E2IA,(E2AA*0.5d0)
+c$$$  881   FORMAT(/,5X,'ECORE:',F20.14,
+c$$$  $        /,5X,'EONE:',1X,F20.14,
+c$$$  $        /,5X,'EII:',2X,F20.14,
+c$$$  $        /,5X,'EIA:',2X,F20.14,
+c$$$  $        /,5X,'EAA:',2X,F20.14)
+c     
+c     Clean up
+c     
+      if (.not.ga_destroy(g_tmp))
+     $     call errquit('mcscf_fock: cannot destroy',0)
+      if (.not.ga_destroy(g_tmp2))
+     $     call errquit('mcscf_fock: cannot destroy',0)
+      if (.not.ga_destroy(g_tmp3))
+     $     call errquit('mcscf_fock: cannot destroy',0)
+      if (.not.ga_destroy(g_cdens))
+     $     call errquit('mcscf_fock: cannot destroy',0)
+      if (.not.ga_destroy(g_adens))
+     $     call errquit('mcscf_fock: cannot destroy',0)
+      if (omcscfprof) call pstat_off(ps_gfock)
+      return
+      end
 
 
 
@@ -437,4 +436,189 @@ c
       enddo
       mcscf_trace_pq = xx
       return
+      end
+
+
+      subroutine mcscf_dump_for_grad(geom, basis, nbf, nclosed, nact,
+     $     oskel, tol2e, dm1, dm2, g_movecs,  g_coul)
+      implicit none
+#include "global.fh"
+#include "eaf.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+c
+c     Dump out the information necessary for computing the
+c     gradient w.r.t. nuclear coordinates.
+c
+c     (1) Total 1-pdm in AO basis
+c     (2) Effective active space 2-pdm symmetrized
+c     (3) Negative energy weighted density in the AO basis
+c
+c     NOTE: the dm2 is destroyed in this process
+c
+      integer geom, basis       ! [input] Geometry and basis handles
+      integer nbf               ! [input] Number of basis functions
+      integer nclosed           ! [input] Number of closed shells
+      integer nact              ! [input] Number of open shells
+      logical oskel             ! [input] Symmetry toggle
+      double precision tol2e    ! [input] Integral tolerance
+      double precision dm1(nact,nact) ! [input] Active space 1PDM
+      double precision dm2(nact,nact,nact,nact) ! [input] Active space 2PDM
+      integer g_movecs          ! [input] MO coefficients
+      integer g_coul            ! [input] Coulomb integrals
+c
+      double precision offset   ! EAF file offset
+      integer pdmfile           ! EAF handle for 2pdm file
+      character*255 pdmfilename ! EAF 2pdm filename
+c
+      double precision offset   ! Offset to write AO Fock matrix at
+      double precision eone, etwo ! Energy components
+      double precision ecore    ! Inactive core energy
+      integer g_ifock           ! Inactive Fock
+      integer g_afock           ! Active Fock
+      integer g_gfock           ! Generalized Fock
+c
+      integer l_buf, k_buf, p, q, r, s, nocc
+      logical odebug
+c
+      nocc = nclosed+nact
+      odebug = util_print('graddebug',print_debug)
+c
+      if (.not.ga_create(MT_DBL,nbf,nbf,'Act Fock',nbf,1,g_afock))
+     $     call errquit('mcscf_orb: cannot allocate active Fock',0)
+      if (.not.ga_create(MT_DBL,nbf,nbf,'In Fock',nbf,1,g_ifock))
+     $     call errquit('mcscf_orb: cannot allocate inactive Fock',0)
+      if (.not.ga_create(MT_DBL,nbf,nbf,'Gen Fock',nbf,1,g_gfock))
+     $     call errquit('mcscf_orb: cannot allocate general Fock',0)
+c      
+      call mcscf_fock( geom, basis, nbf, nclosed, nact,
+     $     oskel, tol2e, dm1, dm2, g_movecs,
+     $     g_coul, eone, etwo, ecore,
+     $     g_ifock, g_afock, g_gfock )
+c
+      if (.not. ma_push_get(mt_dbl,nbf*nbf,'buffer',l_buf,k_buf))
+     $     call errquit('mcscf: grad dump ... memory problem',nbf**2)
+c
+      if (odebug) then
+         if (ga_nodeid().eq.0) then
+            write(6,*) ' THE ACTIVE SPACE 1-PDM AT CONVERGENCE '
+            call output(dm1, 1, nact, 1, nact, nact, nact, 1)
+            write(6,*) ' THE LAGRANGIAN AT CONVERGENCE '
+            call util_flush(6)
+         endif
+         call ga_print(g_gfock)
+      endif
+c
+c     Open the file to hold the info
+c
+      if (ga_nodeid().eq.0) then
+         call util_file_name('mcpdm',.true.,.false.,pdmfilename)
+         if (eaf_open(pdmfilename, eaf_rw, pdmfile) .ne. 0)
+     $        call errquit('mcscf: failed opening 2pdm file',0)
+         offset = 0.0d0
+      endif
+c
+c     Transform core+active Lagrangian to AO basis using afock
+c     as workspace, putting AO result back into gfock.
+c     Then write it out.
+c
+      call ga_dgemm('n','t',nocc,nbf,nocc,1.0d0,g_gfock,g_movecs,
+     $     0.0d0,g_afock)
+      call ga_dgemm('n','n',nbf,nbf,nocc,1.0d0,g_movecs,g_afock,
+     $     0.0d0,g_gfock)
+      if (ga_nodeid() .eq. 0) then
+         call ga_get(g_gfock,1,nbf,1,nbf,dbl_mb(k_buf),nbf)
+         if (eaf_write(pdmfile, offset, dbl_mb(k_buf), 8*nbf**2).ne.0)
+     $        call errquit('mcscf: failed writing lagrangian',0)
+         offset = offset + 8*nbf**2
+      endif
+c
+c     Form the full 1-particle density in the AO basis and output.
+c     Do this by making full MO density in gfock and then transforming
+c
+      call ga_zero(g_gfock)
+      if (ga_nodeid() .eq. 0) then
+         call ga_put(g_gfock,
+     $        nclosed+1,nclosed+nact,nclosed+1,nclosed+nact, dm1, nact)
+         do p = 1, nclosed
+            call ga_put(g_gfock,p,p,p,p,2.0d0,1)
+         enddo
+      endif
+      if (odebug) then
+         if (ga_nodeid().eq.0) then
+            write(6,*) ' Full MO density '
+            call util_flush(6)
+         endif
+         call ga_print(g_gfock)
+      endif
+      call ga_dgemm('n','t',nocc,nbf,nocc,1.0d0,g_gfock,g_movecs,
+     $     0.0d0,g_afock)
+      call ga_dgemm('n','n',nbf,nbf,nocc,1.0d0,g_movecs,g_afock,
+     $     0.0d0,g_gfock)
+c
+      if (ga_nodeid() .eq. 0) then
+         call ga_get(g_gfock,1,nbf,1,nbf,dbl_mb(k_buf),nbf)
+         if (eaf_write(pdmfile, offset, dbl_mb(k_buf), 8*nbf**2).ne.0)
+     $        call errquit('mcscf: failed writing lagrangian',0)
+         offset = offset + 8*nbf**2
+      endif
+c
+c     Peffective(p,q,r,s) = P(pq,rs) - (D(p,q)D(r,s) - 1/2 D(p,r)D(q,s))
+c     symmetrized over r and s (or p and q)
+c
+c     Note that Adrian's 2-pdm includes the factor of 1/2 not
+c     included in RJH's gradient derivation ... hence the factor
+c     of 2 below
+c
+      do s = 1, nact
+         do r = 1, nact
+            do q = 1, nact
+               do p = 1, nact
+                  dm2(p,q,r,s) = 2.0d0*dm2(p,q,r,s) - 
+     $                 (dm1(p,q)*dm1(r,s) - 0.5d0*dm1(p,r)*dm1(q,s))
+               enddo
+            enddo
+            do p = 1, nact
+               do q = 1, p-1
+                  dm2(p,q,r,s) = 0.5d0*(dm2(p,q,r,s)+dm2(q,p,r,s))
+                  dm2(q,p,r,s) = dm2(p,q,r,s)
+               enddo
+            enddo
+         enddo
+      enddo
+c
+      if (odebug .and. ga_nodeid().eq.0) then
+         do s = 1, nact
+            do r = 1, nact
+               write(6,*) ' GAMMA *,*,',r,s
+               call output(dm2(1,1,r,s),1,nact,1,nact,nact,nact,1)
+            enddo
+         enddo
+         call util_flush(6)
+      endif
+c
+      if (ga_nodeid() .eq. 0) then
+         if (eaf_write(pdmfile, offset, dm2, 8*nact**4).ne.0)
+     $        call errquit('mcscf: failed writing 2pdm file',0)
+         if (eaf_close(pdmfile).ne.0)
+     $        call errquit('mcscf: failed closing 2pdm file',0)
+      endif
+c
+      if (ga_nodeid().eq.0 .and. 
+     $     util_print('information',print_default)) then
+         write(6,777) 
+     $        pdmfilename(1:inp_strlen(pdmfilename))
+ 777     format(/' Wrote Lagrangian and 1- and 2-particle',
+     $        ' density matrices to ',a/)
+         call util_flush(6)
+      endif
+c
+      call ga_sync()
+c
+      if (.not. ma_pop_stack(l_buf)) call errquit('mcscf: dump MA?',0)
+      if (.not. ga_destroy(g_gfock)) call errquit('mcscf: dump GA?',0)
+      if (.not. ga_destroy(g_ifock)) call errquit('mcscf: dump GA?',0)
+      if (.not. ga_destroy(g_afock)) call errquit('mcscf: dump GA?',0)
+c
       end

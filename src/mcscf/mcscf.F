@@ -1,5 +1,5 @@
-       logical function mcscf( rtdb )
-       implicit none
+      logical function mcscf( rtdb )
+      implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -9,385 +9,412 @@
 #include "sym.fh"
 #include "pstat.fh"
 #include "mcscfprof.fh"
+c     
+      integer rtdb
+c     
+      integer geom, basis
+      integer nbf, nclosed, nvir, nact, noper, nsym
+      integer nactel, nela, nelb, multip, orlen
+      integer l_occ, k_occ, l_sym, k_sym
+      integer l_evals, k_evals
+      integer l_dm1, k_dm1, l_dm2, k_dm2
+      integer l_tmp, k_tmp
+      integer g_movecs, g_coul, g_exch
+      integer g_conj, g_gradold, g_hcore
+      integer mo_lo, mo_hi
+      integer i, j, iter, maxiter, nmixed, clo, chi
+      integer icgreset          ! Number of iterations between CG resets
+      integer blen
+c     
+      double precision pfac
+      double precision thresh, lshift0
+      double precision eone, etwo, enrep, energy
+      double precision ecore, eci, e0
+      double precision citol, citol_now
+      double precision tol2e, gnorm, gnrmv(100), cjgtol
+      double precision cputime, walltime
+      logical oe2approx, ostepci, oconj, ocanonical, onatural
+      logical ocjrst, ocjrst1, ocanon, ocirestart
+      logical ocimicro, ocivecprint
+      logical oconverged
+      logical oskel
+      logical oprinfo, oprhigh, oprconv, oprciconv
+      logical ohalf
+      logical ocisolve
+      logical oblk
+      integer ciiterlo, ciiterhi ! Iteration range for CI solution
+c     
+      character*255 title
+c     
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
+      integer ga_create_JKblocked
+      external ga_create_JKblocked
+c     
+      data ohalf/.true./
+      data blen/25/
+c     
+      cputime = util_cpusec()
+      walltime= util_wallsec()
 c
-       integer rtdb
+      mcscf = .true.
+      oconverged = .false.
+c     
+      call util_print_push
+      call util_print_rtdb_load(rtdb, 'mcscf')
+      call ecce_print_module_entry('mcscf')
 c
-       integer geom, basis
-       integer nbf, nclosed, nvir, nact, noper, nsym
-       integer nactel, nela, nelb, multip, orlen
-       integer l_occ, k_occ, l_sym, k_sym
-       integer l_evals, k_evals
-       integer l_dm1, k_dm1, l_dm2, k_dm2
-       integer l_tmp, k_tmp
-       integer g_movecs, g_coul, g_exch
-       integer g_conj, g_gradold, g_hcore
-       integer mo_lo, mo_hi
-       integer i, j, iter, maxiter, nmixed, clo, chi
-       integer icgreset                                   ! Number of iterations between CG resets
-       integer blen
-       double precision pfac
-       double precision thresh, lshift0
-       double precision eone, etwo, enrep, energy
-       double precision ecore, eci, e0
-       double precision citol, citol_now
-       double precision tol2e, gnorm, gnrmv(100), cjgtol
-       logical oe2approx, ostepci, oconj, ocanonical, onatural
-       logical ocjrst, ocjrst1, ocanon, ocirestart
-       logical ocimicro, ocivecprint
-       logical oconverged
-       logical oskel
-       logical oprinfo, oprhigh, oprconv
-       logical ohalf
-       logical ocisolve
-       logical oblk
-       integer ciiterlo, ciiterhi                         ! Iteration range for CI solution
-c
-       integer ga_create_atom_blocked
-       external ga_create_atom_blocked
-       integer ga_create_JKblocked
-       external ga_create_JKblocked
-c
-       data ohalf/.true./
-       data blen/25/
-c
-       mcscf = .true.
-       oconverged = .false.
-c
-       call util_print_push
-       call util_print_rtdb_load(rtdb, 'mcscf')
-       oprinfo = (util_print('information',print_low).and.
-     $           (ga_nodeid().eq.0))
-       oprconv = (util_print('conv',print_low).and.
-     $           (ga_nodeid().eq.0))
-c
-c  Get w.f. parameters
-c
-       call mcscf_getinfo(rtdb, geom, basis, nbf, nclosed, nact )
-       nvir = nbf - nclosed - nact
-       orlen = (nclosed*nvir) + (nact*nvir) + (nclosed*nact)
-       nsym = sym_number_ops(geom)+1
-       if (.not.rtdb_get(rtdb,'scf:skeleton',MT_LOG,1,oskel))
-     $   oskel = sym_number_ops(geom).gt.0
-       if (.not.geom_nuc_rep_energy( geom, enrep ))
-     $   call errquit('mcscf: cannot retrieve nuclear repulsion',0)
-       if (.not.rtdb_get(rtdb,'mcscf:tol2e',MT_DBL,1,tol2e))        
-     $      tol2e = 1.d-10      ! Redundant recovered later
-c
-c  Get electron and spin multiplicity (NB: for info only)
-c  Active elec and multiplicity must be set --- no defaults
-c
-       if (.not.rtdb_get(rtdb,'mcscf:nactelec',MT_INT,1,nactel))
-     $   call errquit('number of active electrons not set',0)
-       if (.not.rtdb_get(rtdb,'mcscf:multiplicity',MT_INT,1,multip))
-     $   call errquit('spin multiplicity not set',0)
-       nela = (nactel + multip - 1)/2
-       nelb = nactel - nela
-       if ((mod((nactel + multip - 1),2).ne.0).or.
-     $    (nela.lt.0).or.(nelb.lt.0))
-     $    call errquit('mcscf: incompatible elec and spin',0)
-c
-c  Get convergence info
-c
-       if (.not.rtdb_get(rtdb,'mcscf:maxiter',MT_INT,1,maxiter)) then
+      oprinfo = (util_print('information',print_low).and.
+     $     (ga_nodeid().eq.0))
+      oprconv = (util_print('conv',print_default).and.
+     $     (ga_nodeid().eq.0))
+      oprciconv = (util_print('ciconv',print_high).and.
+     $     (ga_nodeid().eq.0))
+c     
+c     Get w.f. parameters
+c     
+      call mcscf_getinfo(rtdb, geom, basis, nbf, nclosed, nact )
+      nvir = nbf - nclosed - nact
+      orlen = (nclosed*nvir) + (nact*nvir) + (nclosed*nact)
+      nsym = sym_number_ops(geom)+1
+      if (.not.rtdb_get(rtdb,'scf:skeleton',MT_LOG,1,oskel))
+     $     oskel = sym_number_ops(geom).gt.0
+      if (.not.geom_nuc_rep_energy( geom, enrep ))
+     $     call errquit('mcscf: cannot retrieve nuclear repulsion',0)
+      if (.not.rtdb_get(rtdb,'mcscf:tol2e',MT_DBL,1,tol2e))        
+     $     tol2e = 1.d-10       ! Redundant recovered later
+c     
+c     Get electron and spin multiplicity (NB: for info only)
+c     Active elec and multiplicity must be set --- no defaults
+c     
+      if (.not.rtdb_get(rtdb,'mcscf:nactelec',MT_INT,1,nactel))
+     $     call errquit('number of active electrons not set',0)
+      if (.not.rtdb_get(rtdb,'mcscf:multiplicity',MT_INT,1,multip))
+     $     call errquit('spin multiplicity not set',0)
+      nela = (nactel + multip - 1)/2
+      nelb = nactel - nela
+      if ((mod((nactel + multip - 1),2).ne.0).or.
+     $     (nela.lt.0).or.(nelb.lt.0))
+     $     call errquit('mcscf: incompatible elec and spin',0)
+c     
+c     Get convergence info
+c     
+      if (.not.rtdb_get(rtdb,'mcscf:maxiter',MT_INT,1,maxiter)) then
          if (.not.rtdb_get(rtdb,'scf:maxiter',MT_INT,1,maxiter))
-     $     maxiter = 5
-       endif
-       if (.not.rtdb_get(rtdb,'mcscf:cgreset',MT_INT,1,icgreset))  
-     $   icgreset = 20
-       if (.not.rtdb_get(rtdb,'mcscf:thresh',MT_DBL,1,thresh)) then
+     $        maxiter = 5
+      endif
+      if (.not.rtdb_get(rtdb,'mcscf:cgreset',MT_INT,1,icgreset))  
+     $     icgreset = 20
+      if (.not.rtdb_get(rtdb,'mcscf:thresh',MT_DBL,1,thresh)) then
          if (.not.rtdb_get(rtdb,'scf:thresh',MT_DBL,1,thresh))
-     $     thresh = 1.d-6
-       endif
-       if (.not. rtdb_get(rtdb,'mcscf:lshift',MT_DBL,1,lshift0)) then
+     $        thresh = 1.d-6
+      endif
+      if (.not. rtdb_get(rtdb,'mcscf:lshift',MT_DBL,1,lshift0)) then
          if (.not. rtdb_get(rtdb,'scf:lshift',MT_DBL,1,lshift0))
-     $     lshift0 = 0.1d0
-       endif
-       if (.not.rtdb_get(rtdb,'mcscf:e2approx',MT_LOG,1,oe2approx))
-     $      oe2approx = .true.
-       if (.not.rtdb_get(rtdb,'mcscf:cisolve',MT_LOG,1,ocisolve))
-     $      ocisolve = .true.
-       if (.not.rtdb_get(rtdb,'mcscf:conjugacy',MT_LOG,1,oconj))
-     $      oconj = .true.
-       if (.not.rtdb_get(rtdb,'mcscf:microci',MT_LOG,1,ostepci))
-     $      ostepci = .true.
-       if (.not.rtdb_get(rtdb,'mcscf:citol',MT_DBL,1,citol))
-     $      citol = min(1.d-6,thresh)
-       if (.not. rtdb_get(rtdb,'mcscf:canonical',MT_LOG,1,ocanonical))
-     $      ocanonical = .true.
-       if (.not. rtdb_get(rtdb,'mcscf:natural',MT_LOG,1,onatural))
-     $      onatural = .true.
-       if (.not. rtdb_get(rtdb,'mcscf:ciiterlo',MT_INT,1,ciiterlo))
-     $      ciiterlo = 0
-       if (.not. rtdb_get(rtdb,'mcscf:ciiterhi',MT_INT,1,ciiterhi))
-     $      ciiterhi = maxiter + 1
-c
-c  Profiling and statistics
-c
-       call mcscf_profile_init(rtdb)
-c
-c  Print info
-c
-       oprhigh = util_print('extra info',print_high)
-       if (oprinfo) write(6,900)
- 900   format(/,27x,14('='),/
-     $          28x,'Direct MCSCF',/
-     $          27x,14('='),/)
-       if (oprinfo) write(6,901) nbf, nclosed, nact, nactel,
-     $                           multip, orlen
-       if (oprhigh) write(6,902) (nclosed*nvir),(nact*nvir),
-     $                           (nclosed*nact)
- 901   format(18x,35('-'),/,
-     $        20x,'Basis functions:',10x,i5,/,
-     $        20x,'Inactive shells:',10x,i5,/,
-     $        20x,'Active shells:',12x,i5,/,
-     $        20x,'Active electrons:',9x,i5,/,
-     $        20x,'Multiplicity:',13x,i5,/,
-     $        20x,'Orbital rotations:',8x,i5)
- 902   format(25x,'Inact - Virt',9x,i5,/,
-     $        25x,'Act - Virt',11x,i5,/,
-     $        25x,'Inact - Act',10x,i5,/)
-       if (oprinfo) write(6,903)
- 903   format(18x,35('-'))
-       if (oprinfo) write(6,904) oe2approx, oconj, ostepci, ocanonical,
-     $                           maxiter, thresh, icgreset, lshift0
- 904   format(/,18x,35('-'),/,
-     $          20x,'E2 extrapolation:',9x,l5,/,
-     $          20x,'Conjugacy:',16x,l5,/,
-     $          20x,'Micro CI relax:',11x,l5,/,
-     $          20x,'Canonical orbitals:',7x,l5,/,
-     $          20x,'Maximum iterations:',7x,i5,/,
-     $          20x,'Converge threshold:',e12.2,/,
-     $          20x,'Conjugacy resets:',9x,i5,/,
-     $          20x,'Initial levelshift:',f12.2,/,
-     $          18x,35('-'))
-c
-c  Create occupation and orbital energy vectors
-c
-       if (.not.ma_push_get(MT_DBL, nbf, 'eps', l_evals, k_evals))
+     $        lshift0 = 0.1d0
+      endif
+      if (.not.rtdb_get(rtdb,'mcscf:e2approx',MT_LOG,1,oe2approx))
+     $     oe2approx = .true.
+      if (.not.rtdb_get(rtdb,'mcscf:cisolve',MT_LOG,1,ocisolve))
+     $     ocisolve = .true.
+      if (.not.rtdb_get(rtdb,'mcscf:conjugacy',MT_LOG,1,oconj))
+     $     oconj = .true.
+      if (.not.rtdb_get(rtdb,'mcscf:microci',MT_LOG,1,ostepci))
+     $     ostepci = .true.
+      if (.not.rtdb_get(rtdb,'mcscf:citol',MT_DBL,1,citol))
+     $     citol = min(1.d-6,thresh)
+      if (.not. rtdb_get(rtdb,'mcscf:canonical',MT_LOG,1,ocanonical))
+     $     ocanonical = .true.
+      if (.not. rtdb_get(rtdb,'mcscf:natural',MT_LOG,1,onatural))
+     $     onatural = .true.
+      if (.not. rtdb_get(rtdb,'mcscf:ciiterlo',MT_INT,1,ciiterlo))
+     $     ciiterlo = 0
+      if (.not. rtdb_get(rtdb,'mcscf:ciiterhi',MT_INT,1,ciiterhi))
+     $     ciiterhi = maxiter + 1
+      if (.not. rtdb_cget(rtdb, 'title', 1, title))
+     $     title = ' '
+c     
+c     Profiling and statistics
+c     
+      call mcscf_profile_init(rtdb)
+c     
+c     Print info
+c     
+      oprhigh = util_print('extra info',print_high)
+      if (oprinfo) then
+         write(6,*)
+         call util_print_centered(6, 'NWChem Direct MCSCF Module',
+     $        40, .true.)
+         write(6,*)
+         write(6,*)
+         if (title .ne. ' ') then
+            call util_print_centered(6, title, 40, .false.)
+            write(6,*)
+            write(6,*)
+         endif
+         write(6,901) nbf, nclosed, nact, nactel,
+     $        multip, orlen
+         if (oprhigh) write(6,902) (nclosed*nvir),(nact*nvir),
+     $        (nclosed*nact)
+ 901     format(5x,35('-'),/,
+     $        7x,'Basis functions:',10x,i5,/,
+     $        7x,'Inactive shells:',10x,i5,/,
+     $        7x,'Active shells:',12x,i5,/,
+     $        7x,'Active electrons:',9x,i5,/,
+     $        7x,'Multiplicity:',13x,i5,/,
+     $        7x,'Orbital rotations:',8x,i5)
+ 902     format(12x,'Inact - Virt',9x,i5,/,
+     $        12x,'Act - Virt',11x,i5,/,
+     $        12x,'Inact - Act',10x,i5,/)
+         write(6,903)
+ 903     format(5x,35('-'))
+         write(6,904) oe2approx, oconj, ostepci, ocanonical,
+     $        maxiter, thresh, icgreset, lshift0
+ 904     format(/,5x,35('-'),/,
+     $        7x,'E2 extrapolation:',9x,l5,/,
+     $        7x,'Conjugacy:',16x,l5,/,
+     $        7x,'Micro CI relax:',11x,l5,/,
+     $        7x,'Canonical orbitals:',7x,l5,/,
+     $        7x,'Maximum iterations:',7x,i5,/,
+     $        7x,'Converge threshold:',1p,e12.2,0p/,
+     $        7x,'Conjugacy resets:',9x,i5,/,
+     $        7x,'Initial levelshift:',f12.2,/,
+     $        5x,35('-'))
+      endif
+c     
+c     Create occupation and orbital energy vectors
+c     
+      if (.not.ma_push_get(MT_DBL, nbf, 'eps', l_evals, k_evals))
      $     call errquit('mcscf: cannot allocate',0)
-       if (.not.ma_push_get(MT_DBL, nbf, 'MO occ', l_occ, k_occ))
+      if (.not.ma_push_get(MT_DBL, nbf, 'MO occ', l_occ, k_occ))
      $     call errquit('mcscf: cannot allocate',0)
-c
-c  Allocate 1- & 2-PDM
-c
-       if (.not.ma_push_get(MT_DBL, (nact*nact*nact*nact),
-     $                      '2P density', l_dm2, k_dm2))
+c     
+c     Allocate 1- & 2-PDM
+c     
+      if (.not.ma_push_get(MT_DBL, (nact*nact*nact*nact),
+     $     '2P density', l_dm2, k_dm2))
      $     call errquit('mcscf: cannot allocate MO density',0)
-       if (.not.ma_push_get(MT_DBL, (nact*nact),
-     $                      '1P density', l_dm1, k_dm1))
+      if (.not.ma_push_get(MT_DBL, (nact*nact),
+     $     '1P density', l_dm1, k_dm1))
      $     call errquit('mcscf: cannot allocate MO density',0)
-c
-c  Initialize stuff
-c
-       call int_normalize(basis)
-       call int_init(rtdb, 1, basis)
-       call schwarz_init(geom, basis)
-       call scf_get_fock_param( rtdb, tol2e )
-c
-c  Create and get MO vectors 
-c
-       if (.not.ga_create(MT_DBL,nbf,nbf,'MO vectors',nbf,1,g_movecs))
-     $   call errquit('mcscf: cannot allocate MO vectors',0)
-       call mcscf_getmovecs( rtdb, geom, basis, nbf, dbl_mb(k_occ),
-     $                       dbl_mb(k_evals), g_movecs )
-c
-c  Orbital irreps
-c 
-       if (.not.ma_push_get(MT_INT, nbf, 'MO sym', l_sym, k_sym))
+c     
+c     Initialize stuff
+c     
+      call int_normalize(basis)
+      call int_init(rtdb, 1, basis)
+      call schwarz_init(geom, basis)
+      call scf_get_fock_param( rtdb, tol2e )
+c     
+c     Create and get MO vectors 
+c     
+      if (.not.ga_create(MT_DBL,nbf,nbf,'MO vectors',nbf,1,g_movecs))
+     $     call errquit('mcscf: cannot allocate MO vectors',0)
+      call mcscf_getmovecs( rtdb, geom, basis, nbf, dbl_mb(k_occ),
+     $     dbl_mb(k_evals), g_movecs )
+c     
+c     Orbital irreps
+c     
+      if (.not.ma_push_get(MT_INT, nbf, 'MO sym', l_sym, k_sym))
      $     call errquit('mcscf: cannot allocate symmetry',0)
-       call sym_movecs_adapt( basis, 1.d-8, g_movecs,
-     $                        int_mb(k_sym), nmixed )
-       if (nmixed .ne. 0) call errquit(
-     $   'mcscf: symmetry contamination in starting MOs', nmixed)
-       call ga_orthog_mos(basis, g_movecs)
-c
-c  Print orbital info
-c
-       if (oprinfo) then
+      call sym_movecs_adapt( basis, 1.d-8, g_movecs,
+     $     int_mb(k_sym), nmixed )
+      if (nmixed .ne. 0) call errquit(
+     $     'mcscf: symmetry contamination in starting MOs', nmixed)
+      call ga_orthog_mos(basis, g_movecs)
+c     
+c     Print orbital info
+c     
+      if (util_print('orbinfo',print_default).and.ga_nodeid().eq.0) then
          write(6,550)
  550     format(/,2x,'Starting Orbital Energies')
          write(6,551) (dbl_mb(k_evals+i-1),i=1,nbf)
- 551     format(7f12.6)
+ 551     format(6f13.6)
          write(6,887) 
  887     format(/,2x,'Orbital Symmetry Irreps')
          write(6,888) (int_mb(k_sym+i),i=0,nbf-1)
- 888     format(16i3)
-       endif
-       if (.not.ga_duplicate(g_movecs,g_hcore,'1e hamiltonian'))
-     $   call errquit('mcscf: cannot dup MO vectors',0)
-c
-c   Create conjugacy vectors
-c
-       if (.not.ga_create(MT_DBL,orlen,1,'Conj',1,1,g_conj))
-     $      call errquit('mcscf: cannot allocate',0)
-       if (.not.ga_create(MT_DBL,orlen,1,'Old Gradient',1,1,g_gradold))
-     $      call errquit('mcscf: cannot allocate',0)
-       call ga_zero(g_conj)
-       call ga_zero(g_gradold)
-       pfac = 1.d0
-       ocjrst = .false.
-c
-c   Allocate operator matrices
-c   Memory test required here!
-c
-       mo_lo = nclosed + 1
-       mo_hi = nclosed + nact
-       noper = (nact*(nact+1))/2
-       g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb Oper')
-       g_exch = ga_create_JKblocked(noper,nbf,nbf,'X Oper')
-       if (.not.rtdb_get(rtdb,'mcscf:aoblock',MT_LOG,1,oblk)) then
+ 888     format(25i3)
+      endif
+      if (.not.ga_duplicate(g_movecs,g_hcore,'1e hamiltonian'))
+     $     call errquit('mcscf: cannot dup MO vectors',0)
+c     
+c     Create conjugacy vectors
+c     
+      if (.not.ga_create(MT_DBL,orlen,1,'Conj',1,1,g_conj))
+     $     call errquit('mcscf: cannot allocate',0)
+      if (.not.ga_create(MT_DBL,orlen,1,'Old Gradient',1,1,g_gradold))
+     $     call errquit('mcscf: cannot allocate',0)
+      call ga_zero(g_conj)
+      call ga_zero(g_gradold)
+      pfac = 1.d0
+      ocjrst = .false.
+c     
+c     Allocate operator matrices
+c     Memory test required here!
+c     
+      mo_lo = nclosed + 1
+      mo_hi = nclosed + nact
+      noper = (nact*(nact+1))/2
+      g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb Oper')
+      g_exch = ga_create_JKblocked(noper,nbf,nbf,'X Oper')
+      if (.not.rtdb_get(rtdb,'mcscf:aoblock',MT_LOG,1,oblk)) then
          if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,1,oblk))
-     $      oblk = .false.
-       endif
-c
-c   Initial 4-Index Tranformation
-c
-       call moints_build_2x( basis, ohalf, oskel,
-     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
-     $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .true., blen, oblk )
-c
-c   Core energy
-c
-       call dfill((nact*nact),0.d0,dbl_mb(k_dm1),1)
-       call dfill((nact*nact*nact*nact),0.d0,dbl_mb(k_dm2),1)
-       call mcscf_etrace( geom, basis, nbf, nclosed, nact,
-     $                    .false., oskel, tol2e, dbl_mb(k_dm1),
-     $                    dbl_mb(k_dm2), g_movecs, g_coul,
-     $                    eone, etwo, ecore )
-c
-c
-c  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-c
-c                    MCSCF Macroiteractions
-c
-c  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-c
-c
-       cjgtol = 1.d-3
-       gnorm = 4.d0
-       e0 = ecore + enrep
-       ocanon = .false.
-       ocivecprint = util_print('civec',print_debug)
-       do iter=1,maxiter
+     $        oblk = .false.
+      endif
+c     
+c     Initial 4-Index Tranformation
+c     
+      call moints_build_2x( basis, ohalf, oskel,
+     $     mo_lo, mo_lo, mo_hi, 1, nbf,
+     $     g_movecs, g_coul, .true.,
+     $     g_exch, .true., blen, oblk )
+c     
+c     Core energy
+c     
+      call dfill((nact*nact),0.d0,dbl_mb(k_dm1),1)
+      call dfill((nact*nact*nact*nact),0.d0,dbl_mb(k_dm2),1)
+      call mcscf_etrace( geom, basis, nbf, nclosed, nact,
+     $     .false., oskel, tol2e, dbl_mb(k_dm1),
+     $     dbl_mb(k_dm2), g_movecs, g_coul,
+     $     eone, etwo, ecore )
+c     
+c     
+c     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+c     
+c     MCSCF Macroiterations
+c     
+c     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+c     
+c     
+      cjgtol = 1.d-3
+      gnorm = 4.d0
+      e0 = ecore + enrep
+      ocanon = .false.
+      ocivecprint = util_print('civec',print_debug)
+      do iter=1,maxiter
          if (oprconv) write(6,996) iter
  996     format(///,10x,'%%%%% MacroIteration ',i3,' %%%%%',/)
          if (mod(iter,5) .eq. 0) call ga_orthog_mos(basis, g_movecs)
-c
-c  CI logic
-c
+c     
+c     CI logic
+c     
          ocirestart = (iter.gt.1).and.(.not.(ocanon))
          ocisolve = ((iter.ge.ciiterlo).and.(iter.le.ciiterhi)).or.
-     $              ((iter.eq.1).and.(ciiterlo.ne.0)).or.
-     $              (ocanon)
-c
-c  CI solver
-c
+     $        ((iter.eq.1).and.(ciiterlo.ne.0)).or.
+     $        (ocanon)
+c     
+c     CI solver
+c     
          if (ocisolve) then
-c$$$           call mcscf_ifock( geom, basis, nbf, nclosed, nact,              
-c$$$     $                       oskel, tol2e, g_movecs, eone, etwo,
-c$$$     $                       ecore, g_hcore )                          ! this will give correct CI total energy
-           call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
-     $                       g_coul, g_exch, g_hcore )                 ! wrong CI total energy but saves 1 fock build
-           e0 = ecore + enrep
-           if (omcscfprof) call pstat_on(ps_ci)
-           citol_now = min(citol, (gnorm*0.05d0))
-           call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $                         nsym, int_mb(k_sym), e0,
-     $                         dbl_mb(k_evals), g_hcore, g_coul, 
-     $                         citol_now, ocirestart, oprconv,
-     $                         ocivecprint,
-     $                         dbl_mb(k_dm1), dbl_mb(k_dm2), eci )
-           if (util_print('ci energy',print_default).and.
-     $         (ga_nodeid().eq.0)) write(6,882) eci
- 882       format(/,11x,'>>>| CI energy:',7x,f22.12)
-           if (omcscfprof) call pstat_off(ps_ci)
+c$$$  call mcscf_ifock( geom, basis, nbf, nclosed, nact,              
+c$$$  $                       oskel, tol2e, g_movecs, eone, etwo,
+c$$$  $                       ecore, g_hcore )                          ! this will give correct CI total energy
+            call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
+     $           g_coul, g_exch, g_hcore ) ! wrong CI total energy but saves 1 fock build
+            e0 = ecore + enrep
+            if (omcscfprof) call pstat_on(ps_ci)
+            citol_now = min(citol, (gnorm*0.05d0))
+            call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
+     $           nsym, int_mb(k_sym), e0,
+     $           dbl_mb(k_evals), g_hcore, g_coul, 
+     $           citol_now, ocirestart, oprciconv,
+     $           ocivecprint,
+     $           dbl_mb(k_dm1), dbl_mb(k_dm2), eci )
+            if (util_print('ci energy',print_default).and.
+     $           (ga_nodeid().eq.0)) write(6,882) eci
+ 882        format(/,11x,'>>>| CI energy:',7x,f22.12)
+            if (omcscfprof) call pstat_off(ps_ci)
          else
-           if (oprinfo) write(6,834) 
- 834       format(5x,'--- Skipped CI component ---')
+            if (oprinfo) write(6,834) 
+ 834        format(5x,'--- Skipped CI component ---')
          endif
-c
-c  Conjugacy reset
-c
+c     
+c     Conjugacy reset
+c     
          ocjrst1 = (ocjrst).or.(mod(iter,icgreset).eq.0).or.
-     $             ((gnorm.lt.cjgtol).and.(.not.(ocanonical)))
+     $        ((gnorm.lt.cjgtol).and.(.not.(ocanonical)))
          if ((oconj).and.(ocjrst1)) then
-           call ga_zero(g_conj)
-           call ga_zero(g_gradold)
-           cjgtol = gnorm*gnorm
+            call ga_zero(g_conj)
+            call ga_zero(g_gradold)
+            cjgtol = gnorm*gnorm
          endif
          ocjrst = ocjrst1
-c
-c  Microiterative CI relaxation logic
-c
+c     
+c     Microiterative CI relaxation logic
+c     
          ocimicro = ostepci.and.(gnorm.lt.5.d0).and.
-     $              (iter.ge.ciiterlo).and.(iter.le.ciiterhi)
+     $        (iter.ge.ciiterlo).and.(iter.le.ciiterhi)
          if ((ostepci).and.(.not.(ocimicro)).and.
-     $       (oprinfo)) write(6,812)
+     $        (oprinfo)) write(6,812)
  812     format(5x,'--- Micro CI disabled ---')
-c
-c  Orbital solver
-c
+c     
+c     Orbital solver
+c     
          if (omcscfprof) call pstat_on(ps_orb)
          ocanon = ocanonical.and.(mod((iter-1),10).eq.0)
          call mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $                        oskel, thresh, int_mb(k_sym),
-     $                        dbl_mb(k_dm1), dbl_mb(k_dm2), g_coul,
-     $                        g_exch, oconj, ocjrst, ocanon, ocimicro,
-     $                        g_conj, g_gradold, g_hcore, eone, etwo,
-     $                        ecore, gnorm, dbl_mb(k_evals),
-     $                        g_movecs, oconverged, oprconv,
-     $                        dbl_mb(k_occ))
+     $        oskel, thresh, int_mb(k_sym),
+     $        dbl_mb(k_dm1), dbl_mb(k_dm2), g_coul,
+     $        g_exch, oconj, ocjrst, ocanon, ocimicro,
+     $        g_conj, g_gradold, g_hcore, eone, etwo,
+     $        ecore, gnorm, dbl_mb(k_evals),
+     $        g_movecs, oconverged, oprconv,
+     $        dbl_mb(k_occ))
+c
+         energy = eone + etwo + enrep
+         call ecce_print1('total energy', mt_dbl, energy, 1)
+         call ecce_print1('orbital gradient norm', mt_dbl, gnorm, 1)
+c
          gnrmv(iter) =  gnorm
          ocjrst = ocjrst.or.ocanon
          if (omcscfprof) call pstat_off(ps_orb)
          if (oconverged) goto 27
-       enddo
-c
-c  Print convergence status
-c
- 27    continue
-       if (oprinfo) then
+      enddo
+c     
+c     Print convergence status
+c     
+ 27   continue
+      if (oprinfo) then
          if (gnorm.lt.thresh) then
-           write(6,928)
- 928       format(////,5x,30('='),/,12x,'MCSCF Converged',/,5x,30('='))
+            write(6,928)
+ 928        format(////,5x,30('='),/,12x,'MCSCF Converged',/,5x,
+     $           30('='))
          else
-           write(6,929)
- 929       format(//,5x,'--- maximum iterations reached ---')
+            write(6,929)
+ 929        format(//,5x,'--- maximum iterations reached ---')
          endif
-       endif
-c
-       mcscf = oconverged
-c
-*       if (gnorm .gt. thresh) then
-*         mcscf = .false.
-*       else
-*         mcscf = .true.
-*       endif
-c
-c
-c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-c
-c             Analysis and Printing Section
-c
-c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-c
-c
-c  Canonical Orbitals
-c
-       if ((oprinfo).and.(util_print('movecs',print_debug))) then
+      endif
+c     
+      mcscf = oconverged
+c     
+*     if (gnorm .gt. thresh) then
+*     mcscf = .false.
+*     else
+*     mcscf = .true.
+*     endif
+c     
+c     
+c     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+c     
+c     Analysis and Printing Section
+c     
+c     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+c     
+c     
+c     Canonical Orbitals
+c     
+      if ((oprinfo).and.(util_print('movecs',print_debug))) then
          if (ocanonical) then
-           write(6,810)
- 810       format(///,10x,'Canonical Orbitals and Eigenvalues')
+            write(6,810)
+ 810        format(///,10x,'Canonical Orbitals and Eigenvalues')
          else
-           write(6,811)
- 811       format(///,10x,'Orbitals and Eigenvalues')
+            write(6,811)
+ 811        format(///,10x,'Orbitals and Eigenvalues')
          endif
          if (.not.ma_push_get(MT_DBL, (nbf*(nclosed+nact)), 'tmp',
-     $                        l_tmp, k_tmp))
+     $        l_tmp, k_tmp))
      $        call errquit('mcscf: cannot allocate local MO',0)
          call ga_get(g_movecs, 1, nbf, 1, (nclosed+nact),
-     $               dbl_mb(k_tmp), nbf)
+     $        dbl_mb(k_tmp), nbf)
          chi = 0
  32      clo = chi + 1
          chi = min((clo + 7),(nact+nclosed))
@@ -395,166 +422,189 @@ c
          write(6,881) (dbl_mb(k_evals+i-1),i=clo,chi)
          write(6,*)
          do i=1,nbf
-           write(6,881) (dbl_mb(k_tmp+(j-1)*nbf+i-1),j=clo,chi)
+            write(6,881) (dbl_mb(k_tmp+(j-1)*nbf+i-1),j=clo,chi)
          enddo
          if (chi.ne.(nact+nclosed)) goto 32
          if (.not.ma_pop_stack(l_tmp))
-     $     call errquit('mcscf: cannot pop local MO',0)
-       else if ((oprinfo) .and. util_print('evals',print_default)) then
+     $        call errquit('mcscf: cannot pop local MO',0)
+      else if ((oprinfo) .and. util_print('evals',print_default)) then
          if (ocanonical) then
-           write(6,8101)
-8101       format(///,10x,'Canonical Eigenvalues')
+            write(6,8101)
+ 8101       format(///,10x,'Canonical Eigenvalues')
          else
-           write(6,8111)
-8111       format(///,10x,'Non-canonical Eigenvalues')
+            write(6,8111)
+ 8111       format(///,10x,'Non-canonical Eigenvalues')
          endif
          call output(dbl_mb(k_evals), 1, nbf, 1, 1, nbf, 1, 1)
          write(6,*)
-       endif
-c
-c  Solve CI for Canonical orbitals
-c
-       call moints_build_2x( basis, ohalf, oskel,
-     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
-     $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .true., blen, oblk )
-       call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
-     $                   g_coul, g_exch, g_hcore )
-       ocivecprint = util_print('converged civec',print_default)
-       call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $                     nsym, int_mb(k_sym), e0, dbl_mb(k_evals),
-     $                     g_hcore, g_coul, 
-     $                     citol, .true., .false., ocivecprint,
-     $                     dbl_mb(k_dm1), dbl_mb(k_dm2), eci )
-c
-c  Natural Orbitals
-c
-       if (onatural) then
+      endif
+c     
+c     Solve CI for Canonical orbitals
+c     
+      call moints_build_2x( basis, ohalf, oskel,
+     $     mo_lo, mo_lo, mo_hi, 1, nbf,
+     $     g_movecs, g_coul, .true.,
+     $     g_exch, .true., blen, oblk )
+      call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
+     $     g_coul, g_exch, g_hcore )
+      ocivecprint = util_print('converged civec',print_default)
+      call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
+     $     nsym, int_mb(k_sym), e0, dbl_mb(k_evals),
+     $     g_hcore, g_coul, 
+     $     citol, .true., .false., ocivecprint,
+     $     dbl_mb(k_dm1), dbl_mb(k_dm2), eci )
+c     
+c     Natural Orbitals
+c     
+      if (onatural) then
          call mcscf_naturalorb( nbf, nclosed, nact, dbl_mb(k_dm1),
-     $                          dbl_mb(k_occ), dbl_mb(k_evals),
-     $                          g_movecs )
-c
+     $        dbl_mb(k_occ), dbl_mb(k_evals),
+     $        g_movecs )
+c     
 c     Again, for degenerate irreps that we must split, symmetry
 c     may be contaminated.  Adapt and orthog one more time
-c
+c     
          call sym_movecs_adapt(basis, 1.d-8, g_movecs,
-     $                        int_mb(k_sym), nmixed)
+     $        int_mb(k_sym), nmixed)
          call ga_orthog_mos(basis, g_movecs)
-c
+c     
          call mcscf_save_vec(rtdb,geom,basis, nbf, 
      $        dbl_mb(k_evals), dbl_mb(k_occ), g_movecs)
-c
+c     
          if ((oprinfo).and.(util_print('movecs',print_debug))) then
-           write(6,880)
- 880       format(///,10x,'Natural Orbitals and Occupation')
-           if (.not.ma_push_get(MT_DBL, (nbf*(nclosed+nact)), 'tmp',
-     $                          l_tmp, k_tmp))
-     $          call errquit('mcscf: cannot allocate local MO',0)
-           call ga_get(g_movecs, 1, nbf, 1, (nclosed+nact),
-     $                dbl_mb(k_tmp), nbf)
-           chi = 0
- 33        clo = chi + 1
-           chi = min((clo + 7),(nact+nclosed))
-           write(6,*)
-           write(6,881) (dbl_mb(k_occ+i-1),i=clo,chi)
- 881       format(8f12.6)
-           write(6,*)
-           do i=1,nbf
-             write(6,881) (dbl_mb(k_tmp+(j-1)*nbf+i-1),j=clo,chi)
-           enddo
-           if (chi.ne.(nact+nclosed)) goto 33
-           if (.not.ma_pop_stack(l_tmp))
-     $          call errquit('mcscf: cannot pop local MO',0)
+            write(6,880)
+ 880        format(///,10x,'Natural Orbitals and Occupation')
+            if (.not.ma_push_get(MT_DBL, (nbf*(nclosed+nact)), 'tmp',
+     $           l_tmp, k_tmp))
+     $           call errquit('mcscf: cannot allocate local MO',0)
+            call ga_get(g_movecs, 1, nbf, 1, (nclosed+nact),
+     $           dbl_mb(k_tmp), nbf)
+            chi = 0
+ 33         clo = chi + 1
+            chi = min((clo + 7),(nact+nclosed))
+            write(6,*)
+            write(6,881) (dbl_mb(k_occ+i-1),i=clo,chi)
+ 881        format(8f12.6)
+            write(6,*)
+            do i=1,nbf
+               write(6,881) (dbl_mb(k_tmp+(j-1)*nbf+i-1),j=clo,chi)
+            enddo
+            if (chi.ne.(nact+nclosed)) goto 33
+            if (.not.ma_pop_stack(l_tmp))
+     $           call errquit('mcscf: cannot pop local MO',0)
          else if ((oprinfo) .and. util_print('nocc',print_default))then
-           write(6,8801)
-8801       format(///,10x,'Natural orbital occupation numbers')
-           call output(dbl_mb(k_occ), 1, nact+nclosed, 1, 1, nbf, 1, 1)
-           write(6,*)
+            write(6,8801)
+ 8801       format(///,10x,'Natural orbital occupation numbers')
+            call output(dbl_mb(k_occ), 1, nact+nclosed, 1, 1, nbf, 1, 1)
+            write(6,*)
          endif
-c
-c  Resolve CI for Natural Orbitals
-c
+c     
+c     Resolve CI for Natural Orbitals
+c     
          call moints_build_2x( basis, ohalf, oskel,
-     $                         mo_lo, mo_lo, mo_hi, 1, nbf,
-     $                         g_movecs, g_coul, .true.,
-     $                         g_exch, .true., blen, oblk )
+     $        mo_lo, mo_lo, mo_hi, 1, nbf,
+     $        g_movecs, g_coul, .true.,
+     $        g_exch, .true., blen, oblk )
          call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
-     $                     g_coul, g_exch, g_hcore )
+     $        g_coul, g_exch, g_hcore )
          ocivecprint = util_print('civec',print_debug)
          call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $                       nsym, int_mb(k_sym), e0, dbl_mb(k_evals),
-     $                       g_hcore, g_coul, 
-     $                       citol, .false., .false., ocivecprint,
-     $                       dbl_mb(k_dm1), dbl_mb(k_dm2), eci )
-       endif
-c
-c  Energy trace
+     $        nsym, int_mb(k_sym), e0, dbl_mb(k_evals),
+     $        g_hcore, g_coul, 
+     $        citol, .false., .false., ocivecprint,
+     $        dbl_mb(k_dm1), dbl_mb(k_dm2), eci )
+      endif
 c     
-       call mcscf_etrace( geom, basis, nbf, nclosed, nact,
-     $                    .true., oskel, tol2e, dbl_mb(k_dm1),
-     $                    dbl_mb(k_dm2), g_movecs, g_coul,
-     $                    eone, etwo, ecore )
-       energy = eone + etwo + enrep
-       if (util_print('trace energy',print_low).and.
-     $     (ga_nodeid().eq.0)) write(6,674) energy, gnorm
- 674   format(//,20x,'Energy:',11x,f20.14,
-     $         /,20x,'Gradient Norm:',4x,e20.4)
+c     Energy trace
+c     
+      call mcscf_etrace( geom, basis, nbf, nclosed, nact,
+     $     .true., oskel, tol2e, dbl_mb(k_dm1),
+     $     dbl_mb(k_dm2), g_movecs, g_coul,
+     $     eone, etwo, ecore )
+      energy = eone + etwo + enrep
+c
+      cputime  = util_cpusec() - cputime
+      walltime = util_wallsec() - walltime
+      if (util_print('trace energy',print_low).and.
+     $     (ga_nodeid().eq.0)) write(6,674) energy, gnorm, 
+     $     cputime, walltime
+ 674  format(//
+     $        '       Final MCSCF results '/
+     $        '       ------------------- '//
+     $        '       Total MCSCF energy =', f20.12/
+     $        '            Gradient norm =', 1p,d13.1,0p//
+     $        '    CPU time for solution =', f9.1,'s'/
+     $        '   Wall time for solution =', f9.1,'s'//)
+c     
+      call ecce_print1('total energy', mt_dbl, energy, 1)
+      call ecce_print1('orbital gradient norm', mt_dbl, gnorm, 1)
+      call ecce_print1('two-electron energy', mt_dbl, etwo, 1)
+      call ecce_print1('one-electron energy', mt_dbl, eone, 1)
+      call ecce_print1('nuclear repulsion energy', mt_dbl, enrep, 1)
+c
+      call mcscf_dump_for_grad(geom, basis, nbf, nclosed, nact,
+     $     oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2), 
+     $     g_movecs,  g_coul)
 
 #ifdef MCSCF_DEBUGGER
-c
-c  Debugging routine
-c
-       call mcscf_debugger( rtdb, basis, geom, nbf, nclosed, nact,
-     $                      g_movecs, dbl_mb(k_evals) )
+c     
+c     Debugging routine
+c     
+      call mcscf_debugger( rtdb, basis, geom, nbf, nclosed, nact,
+     $     g_movecs, dbl_mb(k_evals) )
 #endif
-c
-c  Store energy and convergence status
-c
+c     
+c     Store energy and convergence status
+c     
       if (.not. rtdb_put(rtdb, 'mcscf:energy', MT_DBL, 1, energy)) 
-     $  call errquit('mcscf: failed to store energy in rtdb', 0)
+     $     call errquit('mcscf: failed to store energy in rtdb', 0)
       if (.not. rtdb_put(rtdb, 'mcscf:converged', MT_LOG, 1,
      $     oconverged))
-     $  call errquit('mcscf: failed to store converged in rtdb', 0)
-c
-c  Cleanup
-c
- 401   continue
-       call mcscf_profile_tidy()
-       call scf_tidy(rtdb)
-       call schwarz_tidy()
-       call int_terminate()
-       if (.not.ga_destroy(g_hcore))
-     $      call errquit('mcscf: cannot destroy 1e hamiltonian',0)
-       if (.not.ga_destroy(g_conj))
-     $      call errquit('mcscf: cannot destroy conjugacy',0)
-       if (.not.ga_destroy(g_gradold))
-     $      call errquit('mcscf: cannot destroy old gradient',0)
-       if (.not.bas_destroy(basis))
-     $   call errquit('mcscf: cannot free basis handle',0)
-       if (.not.geom_destroy(geom))
-     $   call errquit('mcscf: cannot destory geom handle', 0)
-       if (.not.ma_pop_stack(l_sym))
-     $      call errquit('mcscf: cannot pop stack?',0)
-       if (.not.ma_pop_stack(l_dm1))
-     $      call errquit('mcscf: cannot pop stack?',0)
-       if (.not.ma_pop_stack(l_dm2))
-     $      call errquit('mcscf: cannot pop stack?',0)
-       if (.not.ma_pop_stack(l_occ))
-     $      call errquit('mcscf: cannot pop stack?',0)
-       if (.not.ma_pop_stack(l_evals))
-     $      call errquit('mcscf: cannot pop stack?',0)
-       if (.not.ga_destroy(g_exch))
-     $      call errquit('mcscf: cannot destroy exchange',0)
-       if (.not.ga_destroy(g_coul))
-     $      call errquit('mcscf: cannot destroy Coulomb',0)
-       if (.not.ga_destroy(g_movecs))
-     $      call errquit('mcscf: cannot destroy MO vectors',0)
-c
-c
-c
-       call util_print_pop
-       return
-       end
+     $     call errquit('mcscf: failed to store converged in rtdb', 0)
+c     
+c     Cleanup
+c     
+ 401  continue
+      call mcscf_profile_tidy()
+      call scf_tidy(rtdb)
+      call schwarz_tidy()
+      call int_terminate()
+      if (.not.ga_destroy(g_hcore))
+     $     call errquit('mcscf: cannot destroy 1e hamiltonian',0)
+      if (.not.ga_destroy(g_conj))
+     $     call errquit('mcscf: cannot destroy conjugacy',0)
+      if (.not.ga_destroy(g_gradold))
+     $     call errquit('mcscf: cannot destroy old gradient',0)
+      if (.not.bas_destroy(basis))
+     $     call errquit('mcscf: cannot free basis handle',0)
+      if (.not.geom_destroy(geom))
+     $     call errquit('mcscf: cannot destory geom handle', 0)
+      if (.not.ma_pop_stack(l_sym))
+     $     call errquit('mcscf: cannot pop stack?',0)
+      if (.not.ma_pop_stack(l_dm1))
+     $     call errquit('mcscf: cannot pop stack?',0)
+      if (.not.ma_pop_stack(l_dm2))
+     $     call errquit('mcscf: cannot pop stack?',0)
+      if (.not.ma_pop_stack(l_occ))
+     $     call errquit('mcscf: cannot pop stack?',0)
+      if (.not.ma_pop_stack(l_evals))
+     $     call errquit('mcscf: cannot pop stack?',0)
+      if (.not.ga_destroy(g_exch))
+     $     call errquit('mcscf: cannot destroy exchange',0)
+      if (.not.ga_destroy(g_coul))
+     $     call errquit('mcscf: cannot destroy Coulomb',0)
+      if (.not.ga_destroy(g_movecs))
+     $     call errquit('mcscf: cannot destroy MO vectors',0)
+c     
+      if (oconverged) then
+         call ecce_print_module_exit('mcscf', 'ok')
+      else
+         call ecce_print_module_exit('mcscf', 'failed')
+      endif
+c     
+      call util_print_pop
+      return
+      end
 
 
 
@@ -621,6 +671,8 @@ c
        if (nactel.gt.(2*nact))
      $    call errquit('mcscf: actel > 2*actorb',nactel)
        nclosed = (nelec-nactel) / 2
+       if (.not. rtdb_put(rtdb, 'mcscf:nclosed', mt_int, 1, nclosed))
+     $      call errquit('mcscf: failed storing nclosed', 0)
 c
 c  Reconcile symmetry info
 c
