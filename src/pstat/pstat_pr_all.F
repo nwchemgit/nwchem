@@ -1,5 +1,5 @@
       Subroutine PStat_Print_All
-C$Id: pstat_pr_all.F,v 1.5 2004-10-15 04:54:18 edo Exp $
+C$Id: pstat_pr_all.F,v 1.6 2004-11-15 19:31:33 edo Exp $
       Implicit NONE
 C
 #include "pstatP.fh"
@@ -84,7 +84,8 @@ C
             dMAM(2, 2) = dMAM(2, 2) / GA_NNodes()
             Call ga_DGOp(Msg_PStat_Max, dMAM(3, 2), 1, 'max')
 C
-            if(abs(pstat_flop(i)).gt.1d-3) then
+            if(abs(pstat_flop(i)).gt.1d-3.
+     .           and.pstat_times(i,2).gt.1d-5) then
                fmam(1) = pstat_flop(i)/pstat_times(i,2)
                fmam(2) = pstat_flop(i)/pstat_times(i,2)
                fmam(3) = pstat_flop(i)/pstat_times(i,2)
