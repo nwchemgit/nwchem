@@ -1,4 +1,4 @@
- argument  1 = c2h6-rifc01.nwc
+ argument  1 = c2h6-ri00.nwc
                                          
                                          
 
@@ -73,10 +73,10 @@
 
     hostname  = kopernik.npac.syr.edu
     program   = ../../bin/SGI_N32/nwchem
-    date      = Wed Feb 12 15:15:23 1997
-    compiled  = Wed Feb 12 15:14:00 EST 1997
+    date      = Wed Feb 12 14:48:06 1997
+    compiled  = Wed Feb 12 14:42:34 EST 1997
     source    = /home/A6G/bernhold/nwchem-dev/ccsd/nwchem
-    input     = c2h6-rifc01.nwc
+    input     = c2h6-ri00.nwc
     prefix    = c2h6.
     data base = ./c2h6.db
     status    = restart
@@ -134,10 +134,6 @@
 
  14 D        0.550000  1.000000
 
- 15 D        0.303400  1.000000
-
- 16 F        1.100000  1.000000
-
   H (Hydrogen)
   ------------
             Exponent  Coefficients 
@@ -154,8 +150,6 @@
 
   6 P        0.727000  1.000000
 
-  7 D        1.454000  1.000000
-
 
  Read molecular orbitals from ./c2h6.movecs
 
@@ -169,13 +163,10 @@
 
 
           Nr. of AO basis functions:         60
-     Nr. of fitting basis functions:        170
+     Nr. of fitting basis functions:        102
                Nr. of MO spin cases:          1
-        Nr. of MOs in SCF reference:         60
-    Nr. of occupied MOs in SCF ref.:          9
-     Nr. of virtual MOs in SCF ref.:         51
-        Nr. of MOs to be correlated:         58
-     Nr. of occupied MOs correlated:          7
+        Nr. of MOs to be correlated:         60
+     Nr. of occupied MOs correlated:          9
       Nr. of virtual MOs correlated:         51
 
           RI integral approximation: 'V'
@@ -187,34 +178,25 @@
                  SCF reference file: './c2h6.movecs'
                 SCF reference title: 'C2H6, cc-pVDZ basis, SCF optimized geometry'
 
-
- ******************
- * IMPORTANT NOTE *
- ******************
- This correlated calculation is based on an SCF reference in which
- orbitals have been frozen or rearranged relative to the result of the
- SCF calculation.  From this point on, the orbitals are labeled in the
- 'correlated basis'.
-
- Dropping small eigenvalue            1 -9.5510476455689526E-15
- Dropping small eigenvalue            2 -4.9772534676317093E-16
- Dropping small eigenvalue            3 -2.2690666534470794E-16
- Dropping small eigenvalue            4  8.0195334424230779E-17
- Dropping small eigenvalue            5  2.0403186888383431E-16
- Dropping small eigenvalue            6  1.6114146864639164E-15
- Transformation block size    7, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    7 pass. @Wed Feb 12 15:15:35 1997
- Energy evaluation using block sizes     7    7
- RIMP2_V_E2: Approx. ints. done (    1:    7,    1:    7) @Wed Feb 12 15:15:35 1997
- RIMP2_V_E2: Copy to B done (    1:    7,    1:    7) @Wed Feb 12 15:15:35 1997
- RIMP2_V_E2: Denominators done (    1:    7,    1:    7) @Wed Feb 12 15:15:35 1997
- RIMP2_V_E2: Completed block (    1:    7,    1:    7) @Wed Feb 12 15:15:35 1997
+ Setting small eigenvalue to infinity            1 -4.9274773957414606E-14
+ Setting small eigenvalue to infinity            2 -1.3799235039744531E-15
+ Setting small eigenvalue to infinity            3 -1.1308544999268326E-15
+ Setting small eigenvalue to infinity            4 -3.7819632831330744E-16
+ Setting small eigenvalue to infinity            5 -2.5489033116332448E-16
+ Setting small eigenvalue to infinity            6  8.7638244435220262E-16
+ Transformation block size    9, requiring     1 integral passes.
+ XForm_3cInts: Completed     1:    9 pass. @Wed Feb 12 14:48:12 1997
+ Energy evaluation using block sizes     9    9
+ RIMP2_V_E2: Approx. ints. done (    1:    9,    1:    9) @Wed Feb 12 14:48:12 1997
+ RIMP2_V_E2: Copy to B done (    1:    9,    1:    9) @Wed Feb 12 14:48:12 1997
+ RIMP2_V_E2: Denominators done (    1:    9,    1:    9) @Wed Feb 12 14:48:12 1997
+ RIMP2_V_E2: Completed block (    1:    9,    1:    9) @Wed Feb 12 14:48:12 1997
  -------------
  RI-MP2 energy
  -------------
  Reference energy:               -79.235115203882188
- Correlation energy:              -0.303793330407775
- Total RI-MP2 energy:            -79.538908534289959
+ Correlation energy:              -0.316312789369265
+ Total RI-MP2 energy:            -79.551427993251451
  -----------------------
  Performance information
  -----------------------
@@ -224,22 +206,22 @@
                                    Nr. of calls                 CPU time (s)              Wall time (s)  
                              -------------------------      ---------------------      ---------------------
  Name                        Min        Avg        Max      Min      Avg      Max      Min      Avg      Max
- Overall                       1          1          1  10.      10.      10.        12.      12.      12.    
- 3c integral xform.            1          1          1  6.9      6.9      6.9        7.9      7.9      7.9    
- Energy                        1          1          1 0.36     0.36     0.36       0.40     0.40     0.40    
- 3c integral generati          2          2          2  6.6      6.6      6.6        6.7      6.7      6.7    
- First 2/3 xform.              6          6          6 0.13     0.13     0.13       0.13     0.13     0.13    
- Final 1/3 xform.              1          1          1 0.10     0.10     0.10       0.14     0.14     0.14    
- Write 3c integrals            1          1          1 6.81E-02 6.81E-02 6.81E-02   0.94     0.94     0.94    
- Read 3c integrals             1          1          1 5.68E-02 5.68E-02 5.68E-02   5.69E-02 5.69E-02 5.69E-02
- Fitting basis xform           1          1          1 0.88     0.88     0.88        1.1      1.1      1.1    
- Schwarz init                  1          1          1 0.19     0.19     0.19       0.20     0.20     0.20    
- Form 4ci                      1          1          1 0.21     0.21     0.21       0.21     0.21     0.21    
- Form A & B                    1          1          1 5.71E-02 5.71E-02 5.71E-02   5.73E-02 5.73E-02 5.73E-02
- Denominators                  1          1          1 1.45E-02 1.45E-02 1.45E-02   1.46E-02 1.46E-02 1.46E-02
- Pair Energies                 1          1          1 6.75E-03 6.75E-03 6.75E-03   6.86E-03 6.86E-03 6.86E-03
+ Overall                       1          1          1  5.5      5.5      5.5        6.1      6.1      6.1    
+ 3c integral xform.            1          1          1  3.4      3.4      3.4        3.8      3.8      3.8    
+ Energy                        1          1          1 0.47     0.47     0.47       0.50     0.50     0.50    
+ 3c integral generati          1          1          1  3.2      3.2      3.2        3.2      3.2      3.2    
+ First 2/3 xform.              3          3          3 8.07E-02 8.07E-02 8.07E-02   8.11E-02 8.11E-02 8.11E-02
+ Final 1/3 xform.              1          1          1 5.13E-02 5.13E-02 5.13E-02   5.16E-02 5.16E-02 5.16E-02
+ Write 3c integrals            1          1          1 4.97E-02 4.97E-02 4.97E-02   0.34     0.34     0.34    
+ Read 3c integrals             1          1          1 4.93E-02 4.93E-02 4.93E-02   5.06E-02 5.06E-02 5.06E-02
+ Fitting basis xform           1          1          1 0.24     0.24     0.24       0.25     0.25     0.25    
+ Schwarz init                  1          1          1 0.18     0.18     0.18       0.18     0.18     0.18    
+ Form 4ci                      1          1          1 0.24     0.24     0.24       0.25     0.25     0.25    
+ Form A & B                    1          1          1 0.11     0.11     0.11       0.11     0.11     0.11    
+ Denominators                  1          1          1 2.81E-02 2.81E-02 2.81E-02   2.92E-02 2.92E-02 2.92E-02
+ Pair Energies                 1          1          1 2.34E-02 2.34E-02 2.34E-02   2.36E-02 2.36E-02 2.36E-02
 
- The average no. of pstat calls per process was 2.00D+01 with a timing overhead of 3.07D-04s
+ The average no. of pstat calls per process was 1.60D+01 with a timing overhead of 2.44D-04s
 
 
 
@@ -258,10 +240,10 @@
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:   16       16       52      385     5512        0        0        0     
-bytes total:             4.43e+06 1.87e+06 2.20e+06 0.00e+00 0.00e+00 0.00e+00
+calls:   16       16       70      338     4149        0        0        0     
+bytes total:             3.34e+06 1.86e+06 2.31e+06 0.00e+00 0.00e+00 0.00e+00
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 2525096 bytes
+Max memory consumed for GA by this process: 3746088 bytes
 
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -273,9 +255,9 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        20	         9
 	current total bytes		         0	         0
-	maximum total bytes		   4839476	  18823476
-	maximum total K-bytes		      4840	     18824
-	maximum total M-bytes		         5	        19
+	maximum total bytes		   3280380	  17004060
+	maximum total K-bytes		      3281	     17005
+	maximum total M-bytes		         4	        18
 
 
  If you wish to cite NWChem in the references section of a
@@ -288,4 +270,4 @@ MA usage statistics:
 
 
 
- Total times  cpu:       10.9s     wall:       13.1s
+ Total times  cpu:        5.9s     wall:        6.8s

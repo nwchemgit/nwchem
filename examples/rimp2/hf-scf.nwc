@@ -3,9 +3,9 @@ start hf
 title
 HF, cc-pVDZ basis, SCF optimized geometry
 
-geometry
-H	1	0.1482000000   0.0000000000   0.0000000000
-F	9	1.8518000000   0.0000000000   0.0000000000
+geometry units au
+H	0.1482000000   0.0000000000   0.0000000000
+F	1.8518000000   0.0000000000   0.0000000000
 end
 
 basis

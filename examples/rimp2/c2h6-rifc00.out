@@ -1,112 +1,160 @@
-allocation unit: 524288K, max shmem: 52428800K
  argument  1 = c2h6-rifc00.nwc
- argument  2 = -master
- argument  3 = circusf.pnl.gov
- argument  4 = 1179
- argument  5 = 1
- argument  6 = 8
- argument  7 = 0
- argument  8 = 0
                                          
                                          
 
 
-                             North West CHEM (NWCHEM)
-                             ------------------------
+              Northwest Computational Chemistry Package (NWChem) 2.1
+              ------------------------------------------------------
 
 
                     Environmental Molecular Sciences Laboratory
-                           Pacific Northwest Laboratory
+                       Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
                                          
                                          
 
 
+                           COPYRIGHT (C) 1994, 1995, 1996,
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+
+                            >>> All Rights Reserved <<<
+
+
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
               Job information
               ---------------
 
-    hostname = circus
-    program  = nwchem
-    date     = Sat Jun 17 15:59:20 1995
-    compiled = Sat Jun 17 15:57:25 EDT 1995
-    source   = /home/gg502/proj/nwchem-950616
-    input    = c2h6-rifc00.nwc
-    nproc    =    8
+    hostname  = kopernik.npac.syr.edu
+    program   = ../../bin/SGI_N32/nwchem
+    date      = Wed Feb 12 14:48:13 1997
+    compiled  = Wed Feb 12 14:42:34 EST 1997
+    source    = /home/A6G/bernhold/nwchem-dev/ccsd/nwchem
+    input     = c2h6-rifc00.nwc
+    prefix    = c2h6.
+    data base = ./c2h6.db
+    status    = restart
+    nproc     =    1
 
 
             Memory information
             ------------------
 
-    heap   =     314573 doubles
-    stack  =     314573 doubles
-    global =    2516582 doubles (allocated separately from heap & stack)
-    total  =    3145728 doubles
-    verify = yes
+    heap      =    1572865 doubles
+    stack     =    1572865 doubles
+    global    =    3145728 doubles (allocated separately from heap & stack)
+    total     =    6291458 doubles
+    verify    = yes
+    hardfail  = no 
 
 
- file prefix = c2h6
 
 
                                 NWCHEM Input Module
                                 -------------------
 
 
-                      Basis "ri-mp2 basis" -> ""
+                      Basis "ri-mp2 basis" -> "" (cartesian)
                       -----
   C (Carbon)
   ----------
-          Exponent  Coefficients 
-       ------------ ------------------------------------------------------------
-  1 S   6665.000000  0.000692
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S     6665.000000  0.000692
 
-  2 S   1000.000000  0.005329
+  2 S     1000.000000  0.005329
 
-  3 S    228.000000  0.027077
+  3 S      228.000000  0.027077
 
-  4 S     64.710000  0.101718
+  4 S       64.710000  0.101718
 
-  5 S     21.060000  0.274740
+  5 S       21.060000  0.274740
 
-  6 S      7.495000  0.448564
+  6 S        7.495000  0.448564
 
-  7 S      2.797000  0.285074
+  7 S        2.797000  0.285074
 
-  8 S      0.521500  0.015204
+  8 S        0.521500  0.015204
 
-  9 S      0.159600 -0.003191
+  9 S        0.159600 -0.003191
 
- 10 P      9.439000  0.038109
+ 10 P        9.439000  0.038109
 
- 11 P      2.002000  0.209480
+ 11 P        2.002000  0.209480
 
- 12 P      0.545600  0.508557
+ 12 P        0.545600  0.508557
 
- 13 P      0.151700  0.468842
+ 13 P        0.151700  0.468842
 
- 14 D      0.550000  1.000000
+ 14 D        0.550000  1.000000
 
   H (Hydrogen)
   ------------
-          Exponent  Coefficients 
-       ------------ ------------------------------------------------------------
-  1 S     13.010000  0.019685
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S       13.010000  0.019685
 
-  2 S      1.962000  0.137977
+  2 S        1.962000  0.137977
 
-  3 S      0.444600  0.478148
+  3 S        0.444600  0.478148
 
-  4 S      0.122000  0.501240
+  4 S        0.122000  0.501240
 
-  5 S      0.122000  1.000000
+  5 S        0.122000  1.000000
 
-  6 P      0.727000  1.000000
-
-
- Read molecular orbitals from c2h6.movecs
+  6 P        0.727000  1.000000
 
 
- Read molecular orbitals from c2h6.movecs
+ Read molecular orbitals from ./c2h6.movecs
+
+
+ Read molecular orbitals from ./c2h6.movecs
 
                                NWCHEM RI-MP2 Energy
                                --------------------
@@ -126,9 +174,11 @@ allocation unit: 524288K, max shmem: 52428800K
 
           RI integral approximation: 'V'
     Threshold for Schwarz screening:  1.000E-08
+ Smallest eigenvalue retained in fit  1.000E-08
      Base file name for MO integrals 'mo3cint'
+    Type of storage for MO integrals 'Fortran direct access files'
 
-                 SCF reference file: 'c2h6.movecs'
+                 SCF reference file: './c2h6.movecs'
                 SCF reference title: 'C2H6, cc-pVDZ basis, SCF optimized geometry'
 
 
@@ -140,52 +190,73 @@ allocation unit: 524288K, max shmem: 52428800K
  SCF calculation.  From this point on, the orbitals are labeled in the
  'correlated basis'.
 
+ Setting small eigenvalue to infinity            1 -4.9274773957414606E-14
+ Setting small eigenvalue to infinity            2 -1.3799235039744531E-15
+ Setting small eigenvalue to infinity            3 -1.1308544999268326E-15
+ Setting small eigenvalue to infinity            4 -3.7819632831330744E-16
+ Setting small eigenvalue to infinity            5 -2.5489033116332448E-16
+ Setting small eigenvalue to infinity            6  8.7638244435220262E-16
  Transformation block size    7, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    7 pass. @Sat Jun 17 15:59:36 1995
+ XForm_3cInts: Completed     1:    7 pass. @Wed Feb 12 14:48:19 1997
  Energy evaluation using block sizes     7    7
- RIMP2_V_E2: Approx. ints. done (    1:    7,    1:    7) @Sat Jun 17 15:59:37 1995
- RIMP2_V_E2: Copy to B done (    1:    7,    1:    7) @Sat Jun 17 15:59:37 1995
- RIMP2_V_E2: Denominators done (    1:    7,    1:    7) @Sat Jun 17 15:59:37 1995
- RIMP2_V_E2: Completed block (    1:    7,    1:    7) @Sat Jun 17 15:59:37 1995
+ RIMP2_V_E2: Approx. ints. done (    1:    7,    1:    7) @Wed Feb 12 14:48:19 1997
+ RIMP2_V_E2: Copy to B done (    1:    7,    1:    7) @Wed Feb 12 14:48:19 1997
+ RIMP2_V_E2: Denominators done (    1:    7,    1:    7) @Wed Feb 12 14:48:19 1997
+ RIMP2_V_E2: Completed block (    1:    7,    1:    7) @Wed Feb 12 14:48:19 1997
  -------------
  RI-MP2 energy
  -------------
- Reference energy:               -79.235115497896075
- Correlation energy:              -0.307697955678070
- Total RI-MP2 energy:            -79.542813453574141
+ Reference energy:               -79.235115203882188
+ Correlation energy:              -0.307697960870282
+ Total RI-MP2 energy:            -79.542813164752474
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  2.25D-06 seconds/call
+ Timer overhead =  1.52D-05 seconds/call
 
                                    Nr. of calls                 CPU time (s)              Wall time (s)  
                              -------------------------      ---------------------      ---------------------
  Name                        Min        Avg        Max      Min      Avg      Max      Min      Avg      Max
- Overall                       1          1          1   0.       0.       0.        15.      15.      15.    
- 3c integral xform.            1          1          1   0.       0.       0.        5.0      5.0      5.0    
- Energy                        1          1          1   0.       0.       0.       0.54     0.54     0.54    
- 3c integral generati          1          1          1   0.       0.       0.        2.8      3.9      4.7    
- First 2/3 xform.              3          3          3   0.       0.       0.       2.92E-02 4.61E-02 6.91E-02
- Final 1/3 xform.              1          1          1   0.       0.       0.       7.90E-02 7.91E-02 7.94E-02
- Write 3c integrals            1          1          1   0.       0.       0.       3.84E-02 4.27E-02 4.59E-02
- Read 3c integrals             2          2          2   0.       0.       0.       6.52E-02 7.06E-02 8.38E-02
- 2c integral generati          1          1          1   0.       0.       0.        1.9      1.9      1.9    
- V^{-1/2}                      1          1          1   0.       0.       0.        6.5      6.5      6.5    
- Schwarz 4c                    1          1          1   0.       0.       0.       0.30     0.30     0.30    
- Schwarz 2c                    1          1          1   0.       0.       0.       1.96E-02 1.98E-02 2.05E-02
- GA Create                     3          3          3   0.       0.       0.       1.32E-02 1.33E-02 1.33E-02
- Form 4ci                      1          1          1   0.       0.       0.       0.17     0.17     0.17    
- Form A & B                    1          1          1   0.       0.       0.       6.46E-02 6.47E-02 6.47E-02
- Denominators                  1          1          1   0.       0.       0.       1.14E-02 1.18E-02 1.21E-02
- Pair Energies                 1          1          1   0.       0.       0.       1.00E-03 9.90E-03 1.57E-02
- Det. Energy Blocking          1          1          1   0.       0.       0.       3.22E-03 3.26E-03 3.29E-03
+ Overall                       1          1          1  5.2      5.2      5.2        5.7      5.7      5.7    
+ 3c integral xform.            1          1          1  3.4      3.4      3.4        3.6      3.6      3.6    
+ Energy                        1          1          1 0.27     0.27     0.27       0.29     0.29     0.29    
+ 3c integral generati          1          1          1  3.2      3.2      3.2        3.3      3.3      3.3    
+ First 2/3 xform.              3          3          3 6.56E-02 6.56E-02 6.56E-02   6.68E-02 6.68E-02 6.68E-02
+ Final 1/3 xform.              1          1          1 3.98E-02 3.98E-02 3.98E-02   4.08E-02 4.08E-02 4.08E-02
+ Write 3c integrals            1          1          1 3.90E-02 3.90E-02 3.90E-02   0.20     0.20     0.20    
+ Read 3c integrals             1          1          1 3.51E-02 3.51E-02 3.51E-02   3.55E-02 3.55E-02 3.55E-02
+ Fitting basis xform           1          1          1 0.24     0.24     0.24       0.25     0.25     0.25    
+ Schwarz init                  1          1          1 0.18     0.18     0.18       0.18     0.18     0.18    
+ Form 4ci                      1          1          1 0.14     0.14     0.14       0.14     0.14     0.14    
+ Form A & B                    1          1          1 5.70E-02 5.70E-02 5.70E-02   5.86E-02 5.86E-02 5.86E-02
+ Denominators                  1          1          1 1.45E-02 1.45E-02 1.45E-02   1.50E-02 1.50E-02 1.50E-02
+ Pair Energies                 1          1          1 6.73E-03 6.73E-03 6.73E-03   6.88E-03 6.88E-03 6.88E-03
+
+ The average no. of pstat calls per process was 1.60D+01 with a timing overhead of 2.43D-04s
+
+
+
+                                NWCHEM Input Module
+                                -------------------
+
+
 
  Summary of allocated global arrays 
  ----------------------------------
 
    No active global arrays
   
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:   16       16       51      317     4132        0        0        0     
+bytes total:             2.57e+06 1.33e+06 1.56e+06 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 2330888 bytes
+
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -194,34 +265,21 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	         2	        11
+	maximum number of blocks	        20	         9
 	current total bytes		         0	         0
-	maximum total bytes		      1152	    800096
+	maximum total bytes		   3280380	  16807244
+	maximum total K-bytes		      3281	     16808
+	maximum total M-bytes		         4	        17
 
-	calls per routine:
-		         5  MA_alloc_get
-		         6  MA_allocate_heap
-		         0  MA_chop_stack
-		         6  MA_free_heap
-		        78  MA_get_index
-		         0  MA_get_next_memhandle
-		         2  MA_get_pointer
-		         1  MA_init
-		         0  MA_init_memhandle_iterator
-		         2  MA_inquire_avail
-		         1  MA_inquire_heap
-		         1  MA_inquire_stack
-		        72  MA_pop_stack
-		         1  MA_print_stats
-		        72  MA_push_get
-		        72  MA_push_stack
-		         3  MA_set_auto_verify
-		         0  MA_set_error_print
-		         1  MA_set_hard_fail
-		       202  MA_sizeof
-		         0  MA_sizeof_overhead
-		         1  MA_summarize_allocated_blocks
-		       443  MA_verify_allocator_stuff
- Setting small eigenvalue to infinity   1  -1.2147769906654557E-13
- Creating: host=circus, user=gg502,
-           file=nwchem, port=1179
+
+ If you wish to cite NWChem in the references section of a
+ publication, please use the following citation:
+
+    High Performance Computational Chemistry Group, "NWChem,
+    A Computational Chemistry Package for Parallel
+    Computers, Version 2.1," (1996), Pacific Northwest
+    National Laboratory, Richland, Washington 99352, USA.
+
+
+
+ Total times  cpu:        5.6s     wall:        6.3s
