@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.45 2000-04-24 14:50:01 d3j191 Exp $
+c $Id: pre_input.F,v 1.46 2000-04-25 05:44:12 d3j191 Exp $
 c
       implicit none
 c
@@ -25,7 +25,7 @@ c
       integer newtop,newseq,newrst,icount(10),multip,ncount
       integer nfract,ifract(mfract)
 c
-      integer len,numcmd,nummod,mgrid,mnoe,maxscf,num,mset
+      integer len,numcmd,nummod,mgrid,mnoe,maxscf,num,mset(2),nset
       integer isgm,icyren,model,nxlnk
       real*8 touch,xpnd(3),rgrid,edge,edges(3),dnoe(5),qscale,charge
       real*8 polar,value,forcon,forc2,box(3)
@@ -372,50 +372,63 @@ c
 c
       if(inp_compare(.false.,'atom',item)) then
       if(.not.inp_a(atom)) call errquit('pre_input: modify',9999)
-      mset=0
+      mset(1)=0
+      nset=1
  3312 continue
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'set',item)) then
-      if(.not.inp_i(mset)) call errquit('pre_input: mset',9999)
-      if(mset.lt.0.or.mset.gt.3) call errquit('pre_input: mset',9999)
+      if(.not.inp_i(mset(1))) call errquit('pre_input: mset',9999)
+      if(mset(1).lt.0.or.mset(1).gt.3)
+     + call errquit('pre_input: mset',9999)
+      goto 3312
+      endif
+      if(inp_compare(.false.,'initial',item)) then
+      mset(1)=1
+      mset(2)=2
+      nset=2
+      goto 3312
+      endif
+      if(inp_compare(.false.,'final',item)) then
+      mset(1)=3
+      nset=1
       goto 3312
       endif
       if(inp_compare(.false.,'charge',item)) then
       if(.not.inp_f(charge)) call errquit('pre_input: charge',9999)
-      write(67,6701) atom(1:index(atom,' ')-1),mset,charge
+      write(67,6701) (atom(1:index(atom,' ')-1),mset(i),charge,i=1,nset)
  6701 format('atom ',a,t19,i1,' chg ',f12.6)
       nummod=nummod+1
       goto 3312
       endif
       if(inp_compare(.false.,'polar',item)) then
       if(.not.inp_f(polar)) call errquit('pre_input: polar',9999)
-      write(67,6702) atom(1:index(atom,' ')-1),mset,polar
+      write(67,6702) (atom(1:index(atom,' ')-1),mset(i),polar,i=1,nset)
  6702 format('atom ',a,t19,i1,' pol ',f12.9)
       nummod=nummod+1
       goto 3312
       endif
       if(inp_compare(.false.,'type',item)) then
       if(.not.inp_a(type)) call errquit('pre_input: type',9999)
-      write(67,6703) atom(1:index(atom,' ')-1),mset,
-     + type(1:index(type,' ')-1)
+      write(67,6703) (atom(1:index(atom,' ')-1),mset(i),
+     + type(1:index(type,' ')-1),i=1,nset)
  6703 format('atom ',a,t19,i1,' typ ',a)
       nummod=nummod+1
       goto 3312
       endif
       if(inp_compare(.false.,'dummy',item)) then
-      write(67,6704) atom(1:index(atom,' ')-1),mset
+      write(67,6704) (atom(1:index(atom,' ')-1),mset(i),i=1,nset)
  6704 format('atom ',a,t19,i1,' dum ')
       nummod=nummod+1
       goto 3312
       endif
       if(inp_compare(.false.,'self',item)) then
-      write(67,6705) atom(1:index(atom,' ')-1),mset
+      write(67,6705) (atom(1:index(atom,' ')-1),mset(i),i=1,nset)
  6705 format('atom ',a,t19,i1,' ego ')
       nummod=nummod+1
       goto 3312
       endif
       if(inp_compare(.false.,'quantum',item)) then
-      write(67,6706) atom(1:index(atom,' ')-1),mset
+      write(67,6706) (atom(1:index(atom,' ')-1),mset(i),i=1,nset)
  6706 format('atom ',a,t19,i1,' qtm ')
       nummod=nummod+1
       goto 3312
@@ -425,28 +438,41 @@ c
 c
       else if(inp_compare(.false.,'segment',item)) then
       if(.not.inp_i(isgm)) call errquit('pre_input: modify',9999)
-      mset=0
+      mset(1)=0
+      nset=1
  3313 continue
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'set',item)) then
-      if(.not.inp_i(mset)) call errquit('pre_input: mset',9999)
-      if(mset.lt.0.or.mset.gt.3) call errquit('pre_input: mset',9999)
+      if(.not.inp_i(mset(1))) call errquit('pre_input: mset',9999)
+      if(mset(1).lt.0.or.mset(1).gt.3)
+     + call errquit('pre_input: mset',9999)
+      goto 3313
+      endif
+      if(inp_compare(.false.,'initial',item)) then
+      mset(1)=1
+      mset(2)=2
+      nset=2
+      goto 3313
+      endif
+      if(inp_compare(.false.,'final',item)) then
+      mset(1)=3
+      nset=1
       goto 3313
       endif
       if(inp_compare(.false.,'dummy',item)) then
-      write(67,6707) isgm,mset
+      write(67,6707) (isgm,mset(i),i=1,nset)
  6707 format('segment ',i5,t19,i1,' dum ')
       nummod=nummod+1
       goto 3313
       endif
       if(inp_compare(.false.,'self',item)) then
-      write(67,6708) isgm,mset
+      write(67,6708) (isgm,mset(i),i=1,nset)
  6708 format('segment ',i5,t19,i1,' ego ')
       nummod=nummod+1
       goto 3313
       endif
       if(inp_compare(.false.,'quantum',item)) then
-      write(67,6709) isgm,mset
+      write(67,6709) (isgm,mset(i),i=1,nset)
  6709 format('segment ',i5,t19,i1,' qtm ')
       nummod=nummod+1
       goto 3313
@@ -457,19 +483,32 @@ c
       else if(inp_compare(.false.,'bond',item)) then
       if(.not.inp_a(atomi)) call errquit('pre_input: modify',9999)
       if(.not.inp_a(atomj)) call errquit('pre_input: modify',9999)
-      mset=0
+      mset(1)=0
+      nset=1
  3314 continue
       if(inp_f(value)) then
       if(.not.inp_f(forcon)) call errquit('pre_input: modify',9999)
-      write(67,6710) mset,value,forcon,atomi(1:index(atomi,' ')-1),
-     + atomj(1:index(atomj,' ')-1)
+      write(67,6710) (mset(i),value,forcon,atomi(1:index(atomi,' ')-1),
+     + atomj(1:index(atomj,' ')-1),i=1,nset)
  6710 format('bond ',i1,1x,f12.6,e12.5,1x,a,1x,a)
       nummod=nummod+1
       endif
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'set',item)) then
-      if(.not.inp_i(mset)) call errquit('pre_input: mset',9999)
-      if(mset.lt.0.or.mset.gt.3) call errquit('pre_input: mset',9999)
+      if(.not.inp_i(mset(1))) call errquit('pre_input: mset',9999)
+      if(mset(1).lt.0.or.mset(1).gt.3)
+     + call errquit('pre_input: mset',9999)
+      goto 3314
+      endif
+      if(inp_compare(.false.,'initial',item)) then
+      mset(1)=1
+      mset(2)=2
+      nset=2
+      goto 3314
+      endif
+      if(inp_compare(.false.,'final',item)) then
+      mset(1)=3
+      nset=1
       goto 3314
       else
       call errquit('pre_input: bond',9999)
@@ -479,19 +518,30 @@ c
       if(.not.inp_a(atomi)) call errquit('pre_input: modify',9999)
       if(.not.inp_a(atomj)) call errquit('pre_input: modify',9999)
       if(.not.inp_a(atomk)) call errquit('pre_input: modify',9999)
-      mset=0
+      mset(1)=0
+      nset=1
  3315 continue
       if(inp_f(value)) then
       if(.not.inp_f(forcon)) call errquit('pre_input: modify',9999)
-      write(67,6711) mset,value,forcon,atomi(1:index(atomi,' ')-1),
-     + atomj(1:index(atomj,' ')-1),atomk(1:index(atomk,' ')-1)
+      write(67,6711) (mset(i),value,forcon,atomi(1:index(atomi,' ')-1),
+     + atomj(1:index(atomj,' ')-1),atomk(1:index(atomk,' ')-1),i=1,nset)
  6711 format('angle ',i1,1x,f12.6,e12.5,1x,a,1x,a,1x,a)
       nummod=nummod+1
       endif
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'set',item)) then
-      if(.not.inp_i(mset)) call errquit('pre_input: mset',9999)
-      if(mset.lt.0.or.mset.gt.3) call errquit('pre_input: mset',9999)
+      if(.not.inp_i(mset(1))) call errquit('pre_input: mset',9999)
+      if(mset(1).lt.0.or.mset(1).gt.3)
+     + call errquit('pre_input: mset',9999)
+      goto 3315
+      elseif(inp_compare(.false.,'initial',item)) then
+      mset(1)=1
+      mset(2)=2
+      nset=2
+      goto 3315
+      elseif(inp_compare(.false.,'final',item)) then
+      mset(1)=3
+      nset=1
       goto 3315
       else
       call errquit('pre_input: angle',9999)
@@ -502,21 +552,34 @@ c
       if(.not.inp_a(atomj)) call errquit('pre_input: modify',9999)
       if(.not.inp_a(atomk)) call errquit('pre_input: modify',9999)
       if(.not.inp_a(atoml)) call errquit('pre_input: modify',9999)
-      mset=0
+      mset(1)=0
+      nset=1
       multip=0
  3316 continue
       if(inp_f(value)) then
       if(.not.inp_f(forcon)) call errquit('pre_input: modify',9999)
-      write(67,6712) mset,multip,value,forcon,
+      write(67,6712) (mset(i),multip,value,forcon,
      + atomi(1:index(atomi,' ')-1),atomj(1:index(atomj,' ')-1),
-     + atomk(1:index(atomk,' ')-1),atoml(1:index(atoml,' ')-1)
+     + atomk(1:index(atomk,' ')-1),atoml(1:index(atoml,' ')-1),i=1,nset)
  6712 format('torsion ',i1,1x,i1,1x,f12.6,e12.5,1x,a,1x,a,1x,a,1x,a)
       nummod=nummod+1
       endif
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'set',item)) then
-      if(.not.inp_i(mset)) call errquit('pre_input: mset',9999)
-      if(mset.lt.0.or.mset.gt.3) call errquit('pre_input: mset',9999)
+      if(.not.inp_i(mset(1))) call errquit('pre_input: mset',9999)
+      if(mset(1).lt.0.or.mset(1).gt.3)
+     + call errquit('pre_input: mset',9999)
+      goto 3316
+      endif
+      if(inp_compare(.false.,'initial',item)) then
+      mset(1)=1
+      mset(2)=2
+      nset=2
+      goto 3316
+      endif
+      if(inp_compare(.false.,'final',item)) then
+      mset(1)=3
+      nset=1
       goto 3316
       endif
       if(inp_compare(.false.,'multiplicity',item)) then
@@ -533,20 +596,33 @@ c
       if(.not.inp_a(atomj)) call errquit('pre_input: modify',9999)
       if(.not.inp_a(atomk)) call errquit('pre_input: modify',9999)
       if(.not.inp_a(atoml)) call errquit('pre_input: modify',9999)
-      mset=0
+      mset(1)=0
+      nset=1
  3317 continue
       if(inp_f(value)) then
       if(.not.inp_f(forcon)) call errquit('pre_input: modify',9999)
-      write(67,6713) mset,value,forcon,
+      write(67,6713) (mset(i),value,forcon,
      + atomi(1:index(atomi,' ')-1),atomj(1:index(atomj,' ')-1),
-     + atomk(1:index(atomk,' ')-1),atoml(1:index(atoml,' ')-1)
+     + atomk(1:index(atomk,' ')-1),atoml(1:index(atoml,' ')-1),i=1,nset)
  6713 format('plane ',i1,1x,f12.6,e12.5,1x,a,1x,a,1x,a,1x,a)
       nummod=nummod+1
       endif
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'set',item)) then
-      if(.not.inp_i(mset)) call errquit('pre_input: mset',9999)
-      if(mset.lt.0.or.mset.gt.3) call errquit('pre_input: mset',9999)
+      if(.not.inp_i(mset(1))) call errquit('pre_input: mset',9999)
+      if(mset(1).lt.0.or.mset(1).gt.3)
+     + call errquit('pre_input: mset',9999)
+      goto 3317
+      endif
+      if(inp_compare(.false.,'initial',item)) then
+      mset(1)=1
+      mset(2)=2
+      nset=2
+      goto 3317
+      endif
+      if(inp_compare(.false.,'final',item)) then
+      mset(1)=3
+      nset=1
       goto 3317
       else
       call errquit('pre_input: plane',9999)
