@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.32 2000-04-21 00:28:47 edo Exp $
+C$Id: xc_getv.F,v 1.33 2000-04-21 19:16:47 edo Exp $
 c
       implicit none
 c      
@@ -230,9 +230,6 @@ c
      &                    Dbl_MB(iTmat+nbf_xc))
                endif
             endif
-            do i=1,nbf_xc
-               write(0,*) i ,dbl_mb(itmat+i-1)
-            enddo
             call xc_fitv(Dbl_MB(iTmat), nTrows, nTcols,
      &           g_vxc, g_xcinv, IOLGC)
             if (.not.ma_pop_stack(lTmat))

@@ -12,7 +12,7 @@
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
-C$Id: grid_quadvc.F,v 1.6 2000-04-21 00:28:46 edo Exp $
+C$Id: grid_quadvc.F,v 1.7 2000-04-21 19:16:47 edo Exp $
       implicit none
 #include "cdft.fh"
 #include "cgridfile.fh"
@@ -60,7 +60,7 @@ c
      &        cntobfr, cetobfr, 
      ,        ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
          ntot_cube=ntot_cube+1
          if(cube_done) then
             nwrbuf=nwrbuf+1

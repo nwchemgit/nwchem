@@ -5,7 +5,7 @@
      ,     acc_xc_gauss)
       implicit none
 c
-c$Id: grid_xcfit.F,v 1.1 2000-04-21 17:20:49 edo Exp $
+c$Id: grid_xcfit.F,v 1.2 2000-04-21 19:16:47 edo Exp $
 c
 #include "mafdecls.fh"
       logical grad
@@ -41,9 +41,6 @@ c
      &     ictr,rad,xyz,
      &     ibf,iniz, ifin,
      &     expo,acc_XC_gauss)
-      write(0,*) ' m n i',mbf_xc,nqpts,ipol
-      write(0,*) ' ibf ',ibf
-      write(0,*) ' A ',AMAT
       if (mbf_xc.eq.0)return
 c
       if (.not.MA_Push_Get(MT_Dbl, mbf_xc*ipol, 'Tpmat', lTpmat,
@@ -72,12 +69,6 @@ c
      ,     mbf_xc, natoms,iscr,nscr,
      ,     expo,nbf_xc_mxprim, coef, ncoef_max,   
      &              iniz, ifin)
-      write(0,*)
-      write(0,*)
-      write(0,*) ' chi ',nbf_xc_mxprim, ncoef_max
-      call zz1(nqpts,mbf_xc,dbl_mb(ichi_xc))
-      write(0,*) ' iniz ',iniz
-      write(0,*)  ' ifin ',ifin
 c     
 c     
 c     Gather T 
@@ -90,9 +81,6 @@ c
       call dgemv('T', nqpts, mbf_xc, 1.D0, 
      &     DBL_MB(ichi_xc), nqpts, Amat, 1, 
      &     1.D0, dbl_mb(iTpmat), 1)
-      write(0,*) ' ttt '
-      call zz1(1,mbf_xc,dbl_mb(itpmat))
-      write(0,*) ' ttt '
       if (ipol.eq.2)then
          iTpp = iTpmat + mbf_xc
          call dgemv('T', nqpts, mbf_xc, 1.D0, 
@@ -130,18 +118,14 @@ c
      &           dbl_mb(iTpp), 1)
          endif
       endif
+      do  k = 1,ipol
+         call dft_scatter(mbf_xc, Tmat(1,k), ibf,
+     &        Dbl_MB(iTpmat+(k-1)*mbf_xc))
+      enddo
+      
  2010 continue
       if (.not.ma_chop_stack(ltpmat))
      &     call errquit('grid_fitxc: cannot chop stack',19)
             
-      return
-      end
-      subroutine zz1(nqpts,nbf,chi)
-      implicit none
-      integer nqpts,nbf,i
-      double precision chi(nqpts,nbf)
-      do i=1,nbf
-         write(0,*) ' chi ',i,chi(1,i)
-      enddo
       return
       end
