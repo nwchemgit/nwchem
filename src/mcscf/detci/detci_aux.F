@@ -16,20 +16,21 @@ c   The absolute string index is obtained by adding
 c   on the offset stored in arctab(1,1,isym)
 c   
 c
-      subroutine detci_vatable( norb, nel, nsym, osym, mul,
-     $                        vtxtab, arctab )
+      subroutine detci_vatable( norb, nel, nsym, osym,
+     $                          vtxtab, arctab )
       implicit none
 #include "detciP.fh"
       integer norb
       integer nel
       integer nsym
       integer osym(norb)
-      integer mul(nsym,nsym)
       integer vtxtab(0:norb,0:nel,nsym)
       integer arctab(norb,nel,nsym)
 c
       integer iorb, ello, el, weight, offset, iel
       integer isym, jsym, ksym
+#include "bitops.fh"
+#include "symmmul.fh"
 c
 c
 c
@@ -41,7 +42,8 @@ c
         do el=ello,nel
           do isym=1,nsym
             weight = vtxtab((iorb-1),el,isym)
-            jsym = mul(osym(iorb),isym)
+C            jsym = ieor((osym(iorb)-1),(isym-1)) + 1
+            jsym = MULX(osym(iorb),isym)
             if (el.gt.0) weight = weight + vtxtab((iorb-1),(el-1),jsym)
             vtxtab(iorb,el,isym) = weight
           enddo
@@ -64,7 +66,8 @@ C$$$      ENDDO
           isym=osym(iorb)
           do iel=1,nel
             if (vtxtab(iorb,iel,jsym).ne.0) then
-              ksym = mul(jsym,isym)
+C              ksym = ieor((jsym-1),(isym-1)) + 1
+              ksym = MULX(jsym,isym)
               if (vtxtab(iorb-1,iel-1,ksym).ne.0) then
                 arctab(iorb,iel,jsym) = vtxtab((iorb-1),iel,jsym)
               endif
@@ -85,6 +88,7 @@ c$$$        ENDDO
 c$$$      ENDDO
 c$$$ 911  format('Symmetry:',i5)
 c$$$ 901  format(16i5)
+
       return
       end
 
@@ -105,25 +109,25 @@ c  Note: symmtery offset is stored in arctab(1,1,isym)
 c
 c
 c
-      integer function detci_elv2str( norb, nel, nsym, osym, mul,
+      integer function detci_elv2str( norb, nel, nsym, osym, 
      $                                arctab, elv )
       implicit none
       integer norb
       integer nel
       integer nsym
       integer osym(norb)
-      integer mul(nsym,nsym)
       integer arctab(norb,nel,nsym)
       integer elv(nel)
       integer isym, iel, iorb, wght
+#include "bitops.fh"
+#include "symmmul.fh"
 
       detci_elv2str = 1
       isym = 1
       do iel=1,nel
         iorb = elv(iel)
-        isym = mul(isym,osym(iorb))
+        isym = MULX(isym,osym(iorb))
         wght = arctab(iorb,iel,isym)
-C        PRINT*,'WGHT:',WGHT
 C        if (wght.eq.-1) stop 116
         detci_elv2str = detci_elv2str + wght
       enddo
@@ -139,17 +143,18 @@ c
 c  Compute index string from Boolean occupation
 c  vector.
 c
-      integer function detci_occ2str( norb, nel, nsym, osym, mul,
+      integer function detci_occ2str( norb, nel, nsym, osym,
      $                              arctab, occ )
       implicit none
       integer norb
       integer nel
       integer nsym
       integer osym(norb)
-      integer mul(nsym,nsym)
       integer arctab(norb,nel,nsym)
       integer occ(norb)
       integer isym, iel, iorb, wght
+#include "bitops.fh"
+#include "symmmul.fh"
 
       detci_occ2str = 1
       isym = 1
@@ -158,7 +163,7 @@ c
         if (occ(iorb).eq.1) then
           iel = iel + 1
 C          if (iel.gt.nel) stop 118
-          isym = mul(isym,osym(iorb))
+          isym = MULX(isym,osym(iorb))
           wght = arctab(iorb,iel,isym)
 C          if (wght.eq.-1) stop 117
           detci_occ2str = detci_occ2str + wght
@@ -260,19 +265,20 @@ c
 
 
 
-      integer function detci_elvsymm( norb, nel, nsym, osym, mul, elv )
+      integer function detci_elvsymm( norb, nel, nsym, osym, elv )
       implicit none
       integer norb
       integer nel
       integer nsym
       integer osym(norb)
-      integer mul(nsym,nsym)
       integer elv(nel)
       integer i
+#include "bitops.fh"
+#include "symmmul.fh"
 
       detci_elvsymm = 1
       do i=1,nel
-        detci_elvsymm = mul(detci_elvsymm,osym(elv(i)))
+        detci_elvsymm = MULX(detci_elvsymm,osym(elv(i)))
       enddo
 
       return
@@ -280,19 +286,20 @@ c
 
 
 
-      integer function detci_occsymm( norb, nel, nsym, osym, mul, occ )
+      integer function detci_occsymm( norb, nel, nsym, osym, occ )
       implicit none
       integer norb
       integer nel
       integer nsym
       integer osym(norb)
-      integer mul(nsym,nsym)
       integer occ(norb)
       integer i
+#include "bitops.fh"
+#include "symmmul.fh"
 
       detci_occsymm = 1
       do i=1,norb
-        if (occ(i).eq.1) detci_occsymm = mul(detci_occsymm,osym(i))
+        if (occ(i).eq.1) detci_occsymm = MULX(detci_occsymm,osym(i))
       enddo
 
       return
@@ -440,7 +447,7 @@ c         ex(6,iex,istr) = i
 c
 c
       subroutine detci_excit( norb, nel, nsym, nstr, nex, osym,
-     $                        mul, ijmap, atab, ex )
+     $                        ijmap, atab, ex )
       implicit none
 #include "detciP.fh"
 #include "detci.fh"
@@ -450,7 +457,6 @@ c
       integer nstr
       integer nex
       integer osym(norb)
-      integer mul(nsym,nsym)
       integer ijmap(norb,norb)
       integer atab(norb,nel,nsym)
       integer ex(6,nex,nstr)
@@ -464,7 +470,6 @@ c
       integer iel, ihole, iex, iexsym
       integer phase1, phase2
       integer i, j, n1
-
 c
 c
 c
@@ -478,8 +483,8 @@ c
 c  Loop through all strings
 c
  100  continue
-      istr = detci_elv2str( norb, nel, nsym, osym, mul, atab, elv )
-      isym = detci_elvsymm( norb, nel, nsym, osym, mul, elv )
+      istr = detci_elv2str( norb, nel, nsym, osym, atab, elv )
+      isym = detci_elvsymm( norb, nel, nsym, osym, elv )
       call detci_elv2occ( norb, nel, elv, occv )
       call detci_elv2holv( norb, nel, elv, holv )
       iex = 0
@@ -499,7 +504,7 @@ c
               icreate = holv(ihole) ! E_ij
             endif
             occv(icreate) = 1
-            jsym = detci_occsymm( norb, nel, nsym, osym, mul, occv )
+            jsym = detci_occsymm( norb, nel, nsym, osym, occv )
             if (jsym.eq.iexsym) then
               iex = iex + 1
               if (iex.gt.nex) stop 333
@@ -508,7 +513,7 @@ c
               do j=1,icreate-1
                 if (occv(j).eq.1) phase2 = phase2*(-1)
               enddo
-              jstr=detci_occ2str(norb, nel, nsym, osym, mul, atab, occv)
+              jstr=detci_occ2str(norb, nel, nsym, osym, atab, occv)
               ex(1,iex,istr) = jstr
               ex(2,iex,istr) = jsym
               ex(3,iex,istr) = ijmap(elv(iel),icreate)
@@ -533,12 +538,11 @@ c
 c
 c Symmetry-blocked triangular sum (ij) mapping
 c
-      subroutine detci_ijmap( norb, nsym, osym, mul, nij, ijmap )
+      subroutine detci_ijmap( norb, nsym, osym, nij, ijmap )
       implicit none
       integer norb
       integer nsym
       integer osym(norb)
-      integer mul(nsym,nsym)
       integer nij
       integer ijmap(norb,norb)
       integer isym, i, j
@@ -745,7 +749,7 @@ c  Print out dominant CI vector elements
 c  with corresponding configuration info
 c
       subroutine detci_civec_print( norb, nsym, nela, nelb,
-     $                              nstra, nstrb, mul, osym,
+     $                              nstra, nstrb, osym,
      $                              map, ataba, atabb,
      $                              g_x, thresh )
       implicit none
@@ -756,7 +760,6 @@ c
       integer nsym
       integer nela, nelb
       integer nstra, nstrb
-      integer mul(nsym,nsym)
       integer osym(norb)
       integer map(norb)
       integer ataba(norb,nela,nsym), atabb(norb,nelb,nsym)
@@ -777,14 +780,14 @@ c
         elva(i) = i
       enddo
  101  continue
-      isym = detci_elvsymm( norb, nela, nsym, osym, mul, elva )
-      istr = detci_elv2str( norb, nela, nsym, osym, mul, ataba, elva )
+      isym = detci_elvsymm( norb, nela, nsym, osym, elva )
+      istr = detci_elv2str( norb, nela, nsym, osym, ataba, elva )
       do i=1,nelb
         elvb(i) = i
       enddo
  102  continue
-      jsym = detci_elvsymm( norb, nelb, nsym, osym, mul, elvb )
-      jstr = detci_elv2str( norb, nelb, nsym, osym, mul, atabb, elvb )
+      jsym = detci_elvsymm( norb, nelb, nsym, osym, elvb )
+      jstr = detci_elv2str( norb, nelb, nsym, osym, atabb, elvb )
       ici = (istr-1)*nstrb + jstr
       call ga_get(g_x,jstr,jstr,istr,istr,xx,1)
       if (abs(xx).ge.thresh) then
@@ -860,7 +863,7 @@ c
 
 
 
-      subroutine detci_strlist( norb, nsym, nel, nstr, mul, osym, atab )
+      subroutine detci_strlist( norb, nsym, nel, nstr, osym, atab )
       implicit none
 #include "detciP.fh"
 #include "detci.fh"
@@ -868,7 +871,6 @@ c
       integer nsym
       integer nel
       integer nstr
-      integer mul(nsym,nsym)
       integer osym(norb)
       integer atab(norb,nel,nsym)
 c
@@ -883,8 +885,8 @@ c
         elv(i) = i
       enddo
  101  continue
-      isym = detci_elvsymm( norb, nel, nsym, osym, mul, elv )
-      istr = detci_elv2str( norb, nel, nsym, osym, mul, atab, elv )
+      isym = detci_elvsymm( norb, nel, nsym, osym, elv )
+      istr = detci_elv2str( norb, nel, nsym, osym, atab, elv )
       write(6,988) isym,istr,(elv(i),i=1,nel)
  988  format(i3,i6,5x,10i3)
       if (detci_getnextelv( norb, nel, elv )) goto 101
@@ -940,7 +942,7 @@ c  Generate lowest Aufbau configuration
 c  for given symmetry
 c
       subroutine detci_guesscfg( norb, nsym, nela, nelb,
-     $                           osym, mul, eps, symstate, cfg )
+     $                           osym, eps, symstate, cfg )
       implicit none
 #include "detci.fh"
 #include "detciP.fh"
@@ -948,7 +950,6 @@ c
       integer nsym
       integer nela, nelb
       integer osym(norb)
-      integer mul(nsym,nsym)
       double precision eps(norb)
       integer symstate
       integer cfg(nela+nelb)
@@ -957,6 +958,8 @@ c
       integer jx(2*detci_maxorb)
       integer i,j,ii,jj,nopen,noorb,isym
       double precision elow, xx
+#include "bitops.fh"
+#include "symmmul.fh"
 c
 c  Sort orbitals by energy
 c
@@ -1000,7 +1003,7 @@ c
         xx = 0.d0
         do i=1,nopen
           jx(i) = kx(nelb + ix(i))
-          isym = mul(isym,osym(jx(i)))
+          isym = MULX(isym,osym(jx(i)))
           xx = xx + eps(jx(i))
         enddo
 c
@@ -1035,8 +1038,8 @@ c  from a list of configurations and
 c  associated coefficients
 c
       subroutine detci_ciguess( norb, nsym, nela, nelb, nstra, nstrb,
-     $                        osym, mul, ataba, atabb,
-     $                        ngs, cfggs, cgs, g_civec )
+     $                          osym, ataba, atabb,
+     $                          ngs, cfggs, cgs, g_civec )
       implicit none
 #include "global.fh"
 #include "detciP.fh"
@@ -1048,7 +1051,6 @@ c
       integer nstra                           ! [input] Alpha strings
       integer nstrb                           ! [input] Beta strings
       integer osym(norb)                      ! [input] Orbital irreps     
-      integer mul(nsym,nsym)                  ! [input] Direct product table
       integer ataba(norb,nela,nsym)           ! [input] Alpha arc weights
       integer atabb(norb,nelb,nsym)           ! [input] Beta arc weights
       integer ngs                             ! [input] Number of configurations
@@ -1067,8 +1069,8 @@ c
       do i=1,ngs
         call icopy(nela,cfggs(1,i),1,elva,1)
         call icopy(nelb,cfggs(nela+1,i),1,elvb,1)
-        astr = detci_elv2str( norb, nela, nsym, osym, mul, ataba, elva )
-        bstr = detci_elv2str( norb, nelb, nsym, osym, mul, atabb, elvb )
+        astr = detci_elv2str( norb, nela, nsym, osym, ataba, elva )
+        bstr = detci_elv2str( norb, nelb, nsym, osym, atabb, elvb )
         call ga_put(g_civec,bstr,bstr,astr,astr,cgs(i),1)
       enddo
       xx = sqrt(ga_ddot(g_civec,g_civec))
@@ -1139,7 +1141,7 @@ c           ref             k
 c
 c
       subroutine detci_diagscale( norb, nsym, nela, nelb, nstra, nstrb,
-     $                            osym, mul, ataba, atabb, eref, eps,
+     $                            osym, ataba, atabb, eref, eps,
      $                            g_civec )
       implicit none
 #include "global.fh"
@@ -1152,7 +1154,6 @@ c
       integer nstra                           ! [input] Alpha strings
       integer nstrb                           ! [input] Beta strings
       integer osym(norb)                      ! [input] Orbital irreps     
-      integer mul(nsym,nsym)                  ! [input] Direct product table
       integer ataba(norb,nela,nsym)           ! [input] Alpha arc weights
       integer atabb(norb,nelb,nsym)           ! [input] Beta arc weights
       double precision eref                   ! [input] Reference ground-state
@@ -1177,8 +1178,8 @@ c
         elva(i) = i
       enddo
  101  continue
-      isym = detci_elvsymm( norb, nela, nsym, osym, mul, elva )
-      istr = detci_elv2str( norb, nela, nsym, osym, mul, ataba, elva )
+      isym = detci_elvsymm( norb, nela, nsym, osym, elva )
+      istr = detci_elv2str( norb, nela, nsym, osym, ataba, elva )
       if ((istr.ge.clo).and.(istr.le.chi)) then
         ea = 0.d0
         do i=1,nela
@@ -1192,8 +1193,8 @@ c
         do i=1,nelb
           eb = eb + eps(elvb(i))
         enddo
-        jsym = detci_elvsymm( norb, nelb, nsym, osym, mul, elvb )
-        jstr = detci_elv2str( norb, nelb, nsym, osym, mul, atabb, elvb )
+        jsym = detci_elvsymm( norb, nelb, nsym, osym, elvb )
+        jstr = detci_elv2str( norb, nelb, nsym, osym, atabb, elvb )
         call ga_get(g_civec,jstr,jstr,istr,istr,xx,1)
         xx = xx / (eref - ea - eb )
         call ga_put(g_civec,jstr,jstr,istr,istr,xx,1)
@@ -1225,7 +1226,7 @@ c  Project out coefficients of given irrep
 c
 c
       subroutine detci_symmproject( norb, nsym, nela, nelb,
-     $                              nstra, nstrb, osym, mul,
+     $                              nstra, nstrb, osym, 
      $                              ataba, atabb, ksym, oscreen,
      $                              mxcnt, g_civec )
       implicit none
@@ -1240,7 +1241,6 @@ c
       integer nstra                           ! [input] Alpha strings
       integer nstrb                           ! [input] Beta strings
       integer osym(norb)                      ! [input] Orbital irreps     
-      integer mul(nsym,nsym)                  ! [input] Direct product table
       integer ataba(norb,nela,nsym)           ! [input] Alpha arc weights
       integer atabb(norb,nelb,nsym)           ! [input] Beta arc weights
       integer ksym                            ! [input] Requested irrep
@@ -1253,6 +1253,9 @@ c
       integer myid, rlo, rhi, cilo, cihi
       integer k_ci, ldc
 c
+#include "bitops.fh"
+#include "symmmul.fh"
+c
       mxcnt = 0.d0
       call ga_distribution( g_civec, myid, rlo, rhi, cilo, cihi )
       do asym=1,nsym
@@ -1262,7 +1265,7 @@ c
           if ((istr.ge.cilo).and.(istr.le.cihi)) then
             call ga_access( g_civec, rlo, rhi, istr, istr, k_ci, ldc )
             do bsym=1,nsym
-              if (mul(asym,bsym).ne.ksym) then
+              if (MULX(asym,bsym).ne.ksym) then
                 call detci_symstrr( norb, nsym, nelb, nstrb, atabb,
      $                              bsym, blo, bhi )
                 do jstr=blo,bhi

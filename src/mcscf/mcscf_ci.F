@@ -46,7 +46,6 @@ c
       double precision acteps(detci_maxorb)
       double precision mxcnt
       integer maxiter
-      integer mul(detci_maxsy*detci_maxsy)
       integer ijmap(detci_maxorb*detci_maxorb)
       integer i, iprint, hasprint
       integer ntij, n2
@@ -95,7 +94,6 @@ c   Retrieve symmetry stuff
 c
       if (.not.rtdb_get(rtdb,'mcscf:statesymmetry',MT_INT,1,symstate))
      $   symstate = 1
-      call getsymm_multab( nsym, mul )
 c
 c   Remap active indices into symmetry blocks
 c
@@ -104,7 +102,7 @@ c
         actsym(i) = orbsym(nclosed+i)
         acteps(i) = eps(nclosed+i)
       enddo
-      call detci_ijmap( nact, nsym, actsym, mul, ntij, ijmap )
+      call detci_ijmap( nact, nsym, actsym, ntij, ijmap )
 c
 c   Allocate local space for 1e and 2e MO integrals
 c   Push global MO integrals into local space
@@ -123,7 +121,7 @@ c
 c   Initialize DetCI internals
 c
       call detci_init( nact, nela, nelb, nsym, symstate,
-     $                 mul, actsym, iprint, acteps,
+     $                 actsym, iprint, acteps,
      $                 dbl_mb(k_h1), dbl_mb(k_eri) )
 c
 c   Create CI-vectors
@@ -151,7 +149,7 @@ c
           call util_isort( nela, guess_cfg )
           call util_isort( nelb, guess_cfg(nela+1) )
         else
-          call detci_guesscfg( nact, nsym, nela, nelb, actsym, mul,
+          call detci_guesscfg( nact, nsym, nela, nelb, actsym,
      $                         acteps, symstate, guess_cfg )
         endif
         nguesscfg = 1

@@ -546,7 +546,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.7 1996-03-01 01:53:59 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.8 1996-03-01 22:37:14 rg240 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -637,7 +637,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.7 1996-03-01 01:53:59 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.8 1996-03-01 22:37:14 rg240 Exp $
 c
 c Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c partially occupied orbitals (trivially)
@@ -906,35 +906,6 @@ c
       end
 
       
-
-
-
-
-
-      subroutine getsymm_multab( nsym, mul )
-      implicit none
-      integer nsym
-      integer mul(nsym,nsym)
-      integer i,j,table(8,8)
-      data table/1,2,3,4,5,6,7,8,
-     $           2,1,4,3,6,5,8,7,
-     $           3,4,1,2,7,8,5,6,
-     $           4,3,2,1,8,7,6,5,
-     $           5,6,7,8,1,2,3,4,
-     $           6,5,8,7,2,1,4,3,
-     $           7,8,5,6,3,4,1,2,
-     $           8,7,6,5,4,3,2,1/
-
-      do i=1,nsym
-        do j=1,nsym
-          mul(j,i) = table(j,i)
-        enddo
-      enddo
-      return
-      end
-
-
-
 
 
 

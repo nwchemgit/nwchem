@@ -6,7 +6,7 @@ c  (S = M = (nela - nelb)/2)
 c
 c
       subroutine detci_spadpt( norb, nsym, nela, nelb, nstra, nstrb,
-     $                         mul, osym, ataba, atabb, nexa, nexb,
+     $                         osym, ataba, atabb, nexa, nexb,
      $                         exa, exb, g_civec, g_pvec )
       implicit none
 #include "global.fh"
@@ -16,7 +16,6 @@ c
       integer nsym
       integer nela, nelb
       integer nstra, nstrb
-      integer mul(nsym,nsym)
       integer osym(norb)
       integer ataba(norb,nela,nsym)
       integer atabb(norb,nelb,nsym)
@@ -49,8 +48,8 @@ c
       do tt=ssmax,0,-2
         if (tt.ne.ss) then
           call detci_lowdinproj( norb, nsym, nela, nelb, nstra, nstrb,
-     $                         mul, osym, ataba, atabb, nexa, nexb,
-     $                         exa, exb, ss, tt, g_civec, g_pvec )
+     $                           osym, ataba, atabb, nexa, nexb,
+     $                           exa, exb, ss, tt, g_civec, g_pvec )
           call ga_copy(g_pvec,g_civec)
 c$$$          PRINT*,' TT = ',TT
 c$$$          CALL DETCI_PRINT( G_CIVEC, 1.D-3)
@@ -66,8 +65,8 @@ c$$$          CALL DETCI_PRINT( G_CIVEC, 1.D-3)
 
 
       subroutine detci_lowdinproj( norb, nsym, nela, nelb, nstra, nstrb,
-     $                           mul, osym, ataba, atabb, nexa, nexb,
-     $                           exa, exb, k2, s2, g_civec, g_pvec )
+     $                             osym, ataba, atabb, nexa, nexb,
+     $                             exa, exb, k2, s2, g_civec, g_pvec )
       implicit none
 #include "global.fh"
 #include "detciP.fh"
@@ -76,7 +75,6 @@ c$$$          CALL DETCI_PRINT( G_CIVEC, 1.D-3)
       integer nsym
       integer nela, nelb
       integer nstra, nstrb
-      integer mul(nsym,nsym)
       integer osym(norb)
       integer ataba(norb,nela,nsym)
       integer atabb(norb,nelb,nsym)
@@ -136,7 +134,7 @@ c
         elva(i) = i
       enddo
  101  continue
-      istra = detci_elv2str( norb, nela, nsym, osym, mul, ataba, elva )
+      istra = detci_elv2str( norb, nela, nsym, osym, ataba, elva )
       call detci_elv2occ( norb, nelb, elva, occa )
       call ifill((detci_maxorb*detci_maxorb),0,eij,1)
       call ifill((detci_maxorb*detci_maxorb),0,pij,1)
@@ -149,7 +147,7 @@ c
         elvb(i) = i
       enddo
  102  continue
-      istrb = detci_elv2str( norb, nelb, nsym, osym, mul, atabb, elvb )
+      istrb = detci_elv2str( norb, nelb, nsym, osym, atabb, elvb )
       call detci_elv2occ( norb, nelb, elvb, occb )
       call ga_get(g_civec,istrb,istrb,istra,istra,xxci,1)
 c
@@ -201,8 +199,8 @@ c           2
 c  Operate S  on CI vector
 c
       subroutine detci_ssq( norb, nsym, nela, nelb, nstra, nstrb,
-     $                    mul, osym, ataba, atabb, nexa, nexb,
-     $                    exa, exb, civec, pvec )
+     $                      osym, ataba, atabb, nexa, nexb,
+     $                      exa, exb, civec, pvec )
       implicit none
 #include "detciP.fh"
 #include "detci.fh"
@@ -210,7 +208,6 @@ c
       integer nsym
       integer nela, nelb
       integer nstra, nstrb
-      integer mul(nsym,nsym)
       integer osym(norb)
       integer ataba(norb,nela,nsym)
       integer atabb(norb,nelb,nsym)
@@ -246,7 +243,7 @@ c
         elva(i) = i
       enddo
  101  continue
-      istra = detci_elv2str( norb, nela, nsym, osym, mul, ataba, elva )
+      istra = detci_elv2str( norb, nela, nsym, osym, ataba, elva )
 c$$$      call detci_elv2occ( norb, nelb, elva, occa )
       call ifill((detci_maxorb*detci_maxorb),0,eij,1)
       call ifill((detci_maxorb*detci_maxorb),0,pij,1)
@@ -259,7 +256,7 @@ c$$$      call detci_elv2occ( norb, nelb, elva, occa )
         elvb(i) = i
       enddo
  102  continue
-      istrb = detci_elv2str( norb, nelb, nsym, osym, mul, atabb, elvb )
+      istrb = detci_elv2str( norb, nelb, nsym, osym, atabb, elvb )
 c$$$      call detci_elv2occ( norb, nelb, elvb, occb )
 c
 c

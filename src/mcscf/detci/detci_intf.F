@@ -6,7 +6,7 @@ c  in detci.fh
 c
 
       subroutine detci_init( norb, nela, nelb, nsym, symstate,
-     $                       mul, osym, iprint, eps, h, g )
+     $                       osym, iprint, eps, h, g )
       implicit none
 c
 #include "mafdecls.fh"
@@ -22,7 +22,6 @@ c
       integer nelb
       integer nsym
       integer symstate
-      integer mul(nsym,nsym)
       integer osym(norb)
       integer iprint
       double precision eps(norb)
@@ -81,17 +80,9 @@ c$$$        WRITE(6,'(I5,A5,I5,5X,F10.4)') I,' ->',CDETCI_IRMAP(I),
 c$$$     $                                 CDETCI_EPS(CDETCI_IRMAP(I))
 c$$$      ENDDO
 c
-c
-      do i=1,nsym
-        do j=1,nsym
-          ij = (i-1)*nsym + j
-          cdetci_mul(ij) = mul(j,i)
-        enddo
-      enddo
-c     
 c  Compute CI parameters
 c     
-      call detci_ijmap( norb, nsym, cdetci_osym, mul, ntij, ijmap )
+      call detci_ijmap( norb, nsym, cdetci_osym, ntij, ijmap )
       nexa = (norb-nela+1)*nela
       nexb = (norb-nelb+1)*nelb
       nstra = detci_binomial(norb,nela)
@@ -140,9 +131,9 @@ c
 c     
 c  Construct arc weight tables
 c     
-      call detci_vatable( norb, nela, nsym, cdetci_osym, mul,
+      call detci_vatable( norb, nela, nsym, cdetci_osym, 
      $                    vtab, cdetci_ataba )
-      call detci_vatable( norb, nelb, nsym, cdetci_osym, mul,
+      call detci_vatable( norb, nelb, nsym, cdetci_osym,
      $                    vtab, cdetci_atabb )
 c     
 c  Allocate and construct excitation operator table
@@ -154,16 +145,14 @@ c
      $                       l_detci_exa, k_detci_exa))
      $    call errquit('detci: cannot allocate',0)
         call detci_excit( norb, nela, nsym, nstra, nexa, cdetci_osym,
-     $                    mul, ijmap, cdetci_ataba,
-     $                    int_mb(k_detci_exa) )
+     $                    ijmap, cdetci_ataba, int_mb(k_detci_exa) )
       endif
       if (nexb.gt.0) then
         if (.not.ma_push_get(MT_INT, (6*nexb*(nstrb+1)), 'detci:exb',
      $                       l_detci_exb, k_detci_exb))
      $    call errquit('detci: cannot allocate',0)
         call detci_excit( norb, nelb, nsym, nstrb, nexb, cdetci_osym,
-     $                    mul, ijmap, cdetci_atabb,
-     $                    int_mb(k_detci_exb) )
+     $                    ijmap, cdetci_atabb, int_mb(k_detci_exb) )
       endif
 c
 c  Allocate ERI block
@@ -223,13 +212,12 @@ c  Compute internal memory required & CI-vector length
 c
 
       integer function detci_memsiz( norb, nela, nelb, nsym,
-     $                             mul, osym, vlen )
+     $                               osym, vlen )
       implicit none
       integer norb
       integer nela
       integer nelb
       integer nsym
-      integer mul(nsym,nsym)
       integer osym(norb)
       integer vlen
 c
@@ -416,7 +404,7 @@ c  Generate normalized guess CI vector
 c
       call detci_ciguess( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                    cdetci_nelb, nstra, nstrb, cdetci_osym,
-     $                    cdetci_mul, cdetci_ataba, cdetci_atabb,
+     $                    cdetci_ataba, cdetci_atabb,
      $                    ngs, rcfg, cgs, g_civec )
 c
 c  Spin adapt
@@ -430,7 +418,7 @@ c
       if (cdetci_nsym.gt.1) then
         call detci_symmproject( cdetci_norb, cdetci_nsym,
      $                          cdetci_nela, cdetci_nelb, nstra,
-     $                          nstrb, cdetci_osym, cdetci_mul,
+     $                          nstrb, cdetci_osym, 
      $                          cdetci_ataba, cdetci_atabb,
      $                          cdetci_symstate, .true.,
      $                          mxcnt, g_civec )
@@ -490,7 +478,7 @@ c
 c  CI parameters
 c     
       call detci_ijmap( cdetci_norb, cdetci_nsym, cdetci_osym,
-     $                cdetci_mul, ntij, ijmap )
+     $                  ntij, ijmap )
       nexa = (cdetci_norb-cdetci_nela+1)*cdetci_nela
       nexb = (cdetci_norb-cdetci_nelb+1)*cdetci_nelb
       nstra = detci_binomial( cdetci_norb, cdetci_nela )
@@ -502,7 +490,7 @@ c  Sigma components
 c
       call detci_sigmaaa( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                    cdetci_nelb, nstra, nstrb, nexa, nexb,
-     $                    nekla, neklb, cdetci_osym, cdetci_mul,
+     $                    nekla, neklb, cdetci_osym, 
      $                    ijmap, int_mb(k_detci_exa),
      $                    int_mb(k_detci_exb),
      $                    cdetci_ataba, cdetci_atabb, ntij,
@@ -515,7 +503,7 @@ c
 
       call detci_sigmabb( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                    cdetci_nelb, nstra, nstrb, nexa, nexb,
-     $                    nekla, neklb, cdetci_osym, cdetci_mul,
+     $                    nekla, neklb, cdetci_osym, 
      $                    ijmap, int_mb(k_detci_exa),
      $                    int_mb(k_detci_exb),
      $                    cdetci_ataba, cdetci_atabb, ntij,
@@ -524,7 +512,7 @@ c
      $                    g_civec, g_sigma )
 
 C$$$      CALL DETCI_CIVEC_PRINT( CDETCI_NORB, CDETCI_NSYM, CDETCI_NELA, CDETCI_NELB,
-C$$$     $                      NSTRA, NSTRB, CDETCI_MUL, CDETCI_OSYM,
+C$$$     $                      NSTRA, NSTRB, CDETCI_OSYM,
 C$$$     $                      CDETCI_ATABA, CDETCI_ATABB, SIGMA, 1.D-5 )
 
       tz = util_cpusec()
@@ -532,7 +520,7 @@ C$$$     $                      CDETCI_ATABA, CDETCI_ATABB, SIGMA, 1.D-5 )
 
       call detci_sigmaab( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                    cdetci_nelb, nstra, nstrb, nexa, nexb,
-     $                    nekla, neklb, cdetci_osym, cdetci_mul,
+     $                    nekla, neklb, cdetci_osym,
      $                    ijmap, int_mb(k_detci_exa),
      $                    int_mb(k_detci_exb),
      $                    cdetci_ataba, cdetci_atabb, ntij,
@@ -547,7 +535,7 @@ C$$$     $                      CDETCI_ATABA, CDETCI_ATABB, SIGMA, 1.D-5 )
 c
 c
 c$$$      CALL DETCI_CIVEC_PRINT( CDETCI_NORB, CDETCI_NSYM, CDETCI_NELA, CDETCI_NELB,
-c$$$     $                      NSTRA, NSTRB, CDETCI_MUL, CDETCI_OSYM,
+c$$$     $                      NSTRA, NSTRB, CDETCI_OSYM,
 c$$$     $                      CDETCI_ATABA, CDETCI_ATABB, SIGMA, 1.D-5 )
 c
 c
@@ -595,7 +583,7 @@ c  energies (Moller-Plesset denominators)
 c
       call detci_diagscale( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                      cdetci_nelb, nstra, nstrb, cdetci_osym,
-     $                      cdetci_mul, cdetci_ataba, cdetci_atabb,
+     $                      cdetci_ataba, cdetci_atabb,
      $                      cdetci_eref, cdetci_eps, g_civec )
 c
 c  Spin-adapt the vector
@@ -622,7 +610,7 @@ c$$$      CALL DETCI_PRINT(G_CIVEC,1.D-3)
       if (cdetci_nsym.gt.1) then
         call detci_symmproject( cdetci_norb, cdetci_nsym,
      $                          cdetci_nela, cdetci_nelb, nstra,
-     $                          nstrb, cdetci_osym, cdetci_mul,
+     $                          nstrb, cdetci_osym, 
      $                          cdetci_ataba, cdetci_atabb,
      $                          cdetci_symstate, .true.,
      $                          mxcnt, g_civec )
@@ -670,7 +658,7 @@ c
 c
 c
       call detci_civec_print( cdetci_norb, cdetci_nsym, cdetci_nela,
-     $                        cdetci_nelb, nstra, nstrb, cdetci_mul,
+     $                        cdetci_nelb, nstra, nstrb,
      $                        cdetci_osym, cdetci_ixmap,
      $                        cdetci_ataba, cdetci_atabb,
      $                        g_civec, thresh )
@@ -717,7 +705,7 @@ c
 c  CI parameters
 c     
       call detci_ijmap( cdetci_norb, cdetci_nsym, cdetci_osym,
-     $                  cdetci_mul, ntij, ijmap )
+     $                  ntij, ijmap )
       nexa = (cdetci_norb-cdetci_nela+1)*cdetci_nela
       nexb = (cdetci_norb-cdetci_nelb+1)*cdetci_nelb
       nstra = detci_binomial( cdetci_norb, cdetci_nela )
@@ -727,7 +715,7 @@ c
 c
       call detci_onepdm( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                   cdetci_nelb, nstra, nstrb, nexa, nexb,
-     $                   cdetci_osym, cdetci_mul, int_mb(k_detci_exa),
+     $                   cdetci_osym, int_mb(k_detci_exa),
      $                   int_mb(k_detci_exb), cdetci_ixmap,
      $                   g_civec, onepdm )
 c
@@ -735,7 +723,7 @@ c
 c
       call detci_twopdm( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                   cdetci_nelb, nstra, nstrb, nexa, nexb,
-     $                   cdetci_osym, cdetci_mul, int_mb(k_detci_exa),
+     $                   cdetci_osym, int_mb(k_detci_exa),
      $                   int_mb(k_detci_exb), cdetci_ixmap,
      $                   g_civec, twopdm )
 c
@@ -788,7 +776,7 @@ c
 c  CI parameters
 c     
       call detci_ijmap( cdetci_norb, cdetci_nsym, cdetci_osym,
-     $                cdetci_mul, ntij, ijmap )
+     $                  ntij, ijmap )
       nexa = (cdetci_norb-cdetci_nela+1)*cdetci_nela
       nexb = (cdetci_norb-cdetci_nelb+1)*cdetci_nelb
       nstra = detci_binomial( cdetci_norb, cdetci_nela )
@@ -797,7 +785,7 @@ c
 c
 c
       call detci_spadpt( cdetci_norb, cdetci_nsym, cdetci_nela,
-     $                   cdetci_nelb, nstra, nstrb, cdetci_mul,
+     $                   cdetci_nelb, nstra, nstrb,
      $                   cdetci_osym, cdetci_ataba, cdetci_atabb,
      $                   nexa, nexb, int_mb(k_detci_exa),
      $                   int_mb(k_detci_exb), g_civec, g_wvec )
@@ -843,7 +831,7 @@ c
       if (cdetci_nsym.gt.1) then
         call detci_symmproject( cdetci_norb, cdetci_nsym,
      $                          cdetci_nela, cdetci_nelb, nstra,
-     $                          nstrb, cdetci_osym, cdetci_mul,
+     $                          nstrb, cdetci_osym, 
      $                          cdetci_ataba, cdetci_atabb,
      $                          cdetci_symstate, oscreen,
      $                          mxcnt, g_civec )

@@ -7,7 +7,6 @@
       integer ntij
       integer civlen
       integer maxiter
-      integer mul(detci_maxsy*detci_maxsy)
       integer osym(detci_maxorb)
       integer ijmap(detci_maxorb*detci_maxorb)
       double precision escf, edetci, potnuc
@@ -45,8 +44,6 @@ c
 c
 c
       REAL TX, T2(2)
-      INTEGER MULTAB
-      MULTAB(i,j) = mul((i-1)*nsym+j)
       XX = DRAND(234)
 c
 c read CI parameters
@@ -60,9 +57,6 @@ c
         stop 777
       endif
       read(5,*) (osym(i),i=1,norb)
-      do i=1,nsym
-        read(5,*) (mul(j+(i-1)*nsym),j=1,nsym)
-      enddo
 c
 c Read in orbital energies
 c
@@ -86,14 +80,14 @@ c
 c     
 c  Read integral stuff
 c     
-      call detci_ijmap( norb, nsym, osym, mul, ntij, ijmap )
+      call detci_ijmap( norb, nsym, osym, ntij, ijmap )
       call detci_readints( norb, ntij, ijmap, potnuc, escf, eps, h, g )
 c
 c  Initialize DETCI internals
 c
-      stack_req = detci_memsiz( norb, nela, nelb, nsym, mul,
+      stack_req = detci_memsiz( norb, nela, nelb, nsym, 
      $                        osym, civlen )
-      call detci_init( norb, nela, nelb, nsym, mul, osym,
+      call detci_init( norb, nela, nelb, nsym, osym,
      $               iprint, eps, h, g )
 c
 c  Call guess routine

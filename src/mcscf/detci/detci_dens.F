@@ -1,5 +1,5 @@
       subroutine detci_onepdm( norb, nsym, nela, nelb, nstra, nstrb,
-     $                         nexa, nexb, osym, mul, exa, exb, map,
+     $                         nexa, nexb, osym, exa, exb, map,
      $                         g_civec, onepdm )
       implicit none
 #include "global.fh"
@@ -14,7 +14,6 @@
       integer nexa                            ! [input] Alpha excitations
       integer nexb                            ! [input] Beta excitations
       integer osym(norb)                      ! [input] Orbital irreps     
-      integer mul(nsym,nsym)                  ! [input] Direct product table
       integer exa(6,nexa,nstra)               ! [input] Alpha excitation lookup table
       integer exb(6,nexb,nstrb)               ! [input] Beta excitation lookup table
       integer map(norb)                       ! [input] Orbital index map
@@ -95,7 +94,7 @@ c
 c
 c
       subroutine detci_twopdm( norb, nsym, nela, nelb, nstra, nstrb,
-     $                       nexa, nexb, osym, mul, exa, exb, map,
+     $                       nexa, nexb, osym, exa, exb, map,
      $                       g_civec, twopdm )
       implicit none
 #include "global.fh"
@@ -110,7 +109,6 @@ c
       integer nexa                                    ! [input] Alpha excitations
       integer nexb                                    ! [input] Beta excitations
       integer osym(norb)                              ! [input] Orbital irreps     
-      integer mul(nsym,nsym)                          ! [input] Direct product table
       integer exa(6,nexa,nstra)                       ! [input] Alpha excitation lookup table
       integer exb(6,nexb,nstrb)                       ! [input] Beta excitation lookup table
       integer map(norb)                               ! [input] Orbital index map

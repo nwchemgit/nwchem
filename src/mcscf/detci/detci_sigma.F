@@ -5,7 +5,7 @@ c
 c
       subroutine detci_sigmaaa( norb, nsym, nela, nelb, nstra, nstrb,
      $                          nexa, nexb, nekla, neklb,
-     $                          osym, mul, ijmap, exa, exb,
+     $                          osym, ijmap, exa, exb,
      $                          ataba, atabb, ntij,
      $                          h, g, f, g_civec, g_sigma )
       implicit none
@@ -24,7 +24,6 @@ c
       integer nekla                           ! [input] Maximum non-zero alpha strings for E_kl
       integer neklb                           ! [input] Maximum non-zero beta strings for E_kl
       integer osym(norb)                      ! [input] Orbital irreps     
-      integer mul(nsym,nsym)                  ! [input] Direct product table
       integer ijmap(norb,norb)                ! [input] Map of (i,j) -> ij (symmtery-blocked)
       integer ataba(norb,nela,nsym)           ! [input] Alpha arc weights
       integer atabb(norb,nelb,nsym)           ! [input] Beta arc weights
@@ -53,6 +52,8 @@ c
       double precision ddot
       external ddot
 c
+#include "bitops.fh"
+#include "symmmul.fh"
 c
 c
       do i=1,norb
@@ -82,7 +83,7 @@ c
           kphase = exb(4,iex,istr)
           k      = exb(5,iex,istr)
           l      = exb(6,iex,istr)
-          iksym = mul(isym,ksym)
+          iksym  = MULX(isym,ksym)
 C          if (iksym.eq.1) then
             xx = 0.d0
             do j=1,norb
@@ -132,7 +133,7 @@ c
 c
       subroutine detci_sigmabb( norb, nsym, nela, nelb, nstra, nstrb,
      $                          nexa, nexb, nekla, neklb,
-     $                          osym, mul, ijmap, exa, exb,
+     $                          osym, ijmap, exa, exb,
      $                          ataba, atabb, ntij,
      $                          h, g, f, g_civec, g_sigma )
       implicit none
@@ -151,7 +152,6 @@ c
       integer nekla                           ! [input] Maximum non-zero alpha strings for E_kl
       integer neklb                           ! [input] Maximum non-zero beta strings for E_kl
       integer osym(norb)                      ! [input] Orbital irreps     
-      integer mul(nsym,nsym)                  ! [input] Direct product table
       integer ijmap(norb,norb)                ! [input] Map of (i,j) -> ij (symmtery-blocked)
       integer ataba(norb,nela,nsym)           ! [input] Alpha arc weights
       integer atabb(norb,nelb,nsym)           ! [input] Beta arc weights
@@ -178,6 +178,9 @@ c
       integer trii(detci_maxorb)
       double precision xx,yy
       double precision tmp(10000)
+c
+#include "bitops.fh"
+#include "symmmul.fh"
 c
       if (10000 .lt. nstrb) 
      $     call errquit('sigmabb: hard dimension failed',nstrb)
@@ -211,7 +214,7 @@ c
           kphase = exa(4,iex,istr)
           k      = exa(5,iex,istr)
           l      = exa(6,iex,istr)
-          iksym = mul(isym,ksym)
+          iksym = MULX(isym,ksym)
 C          if (iksym.eq.1) then
             xx = 0.d0
             do j=1,norb
@@ -281,7 +284,7 @@ c
 c
       subroutine detci_sigmaab( norb, nsym, nela, nelb, nstra, nstrb,
      $                          nexa, nexb, nekla, neklb,
-     $                          osym, mul, ijmap, exa, exb,
+     $                          osym, ijmap, exa, exb,
      $                          ataba, atabb, ntij, g,
      $                          vrhs, vlhs, vphase, f,
      $                          cprime, sprime, g_civec, g_sigma )
@@ -300,7 +303,6 @@ c
       integer nekla                           ! [input] Max non-zero alpha strings for E_kl
       integer neklb                           ! [input] Max non-zero beta strings for E_kl
       integer osym(norb)                      ! [input] Orbital irreps     
-      integer mul(nsym,nsym)                  ! [input] Direct product table
       integer ijmap(norb,norb)                ! [input] Map of (i,j) -> ij (symm-blocked)
       integer ataba(norb,nela,nsym)           ! [input] Alpha arc weights
       integer atabb(norb,nelb,nsym)           ! [input] Beta arc weights
@@ -394,12 +396,12 @@ c Put index into gather/scatter arrays
 c
 
               vphase(ne_kl) = iph
-              vrhs(ne_kl) = detci_elv2str(norb,nela,nsym,osym,mul,
+              vrhs(ne_kl) = detci_elv2str(norb,nela,nsym,osym,
      $                                    ataba,relv)
-              vlhs(ne_kl) = detci_elv2str(norb,nela,nsym,osym,mul,
+              vlhs(ne_kl) = detci_elv2str(norb,nela,nsym,osym,
      $                                    ataba,lelv)
 
-c$$$          IREV =  DETCI_ELV2STR(NORB,NELA,NSYM,OSYM,MUL,ATABA,RELV)
+c$$$          IREV =  DETCI_ELV2STR(NORB,NELA,NSYM,OSYM,ATABA,RELV)
 c$$$          REV_RHS(IREV) = NE_KL
 
               if (detci_getnextelv(nidx,(nela-1),ip)) goto 101
