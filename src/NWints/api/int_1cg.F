@@ -1,4 +1,4 @@
-c $Id: int_1cg.F,v 1.12 1999-07-14 00:28:38 d3e129 Exp $
+c $Id: int_1cg.F,v 1.13 1999-10-26 22:14:50 mg201 Exp $
 *
 **********************************************************************
 c:tex-% This is part of the API Standard Integral routines
@@ -82,7 +82,7 @@ c
      &        coords(1,i_cent,i_geom), DCexp, DCcoeff,
      &        1, 1, 0, i_cent,
      &        coords(1,1,i_geom),charge(1,i_geom),
-     &        ncenter(i_geom),
+     &        geom_invnucexp(1,i_geom),ncenter(i_geom),
 c............................. doS    doT     doV     canonical
      &        G1e,scr,scr,l1g,.true.,.false.,.false.,.false.,
 c.............. dryrun
@@ -95,7 +95,8 @@ c.............. dryrun
      &        i_prim, i_gen, Li,
      &        coords(1,i_cent,i_geom),DCexp,
      &        DCcoeff, 1, 1, 0,
-     &        coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &        coords(1,1,i_geom),charge(1,i_geom),
+     &        geom_invnucexp(1,i_geom),ncenter(i_geom),
 c............................. doS    doT     doV     canonical
      &         G1e,scr,scr,l1g,.true.,.false.,.false.,.false.,
 c.............. dryrun
