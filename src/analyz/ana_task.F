@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.48 2000-09-14 21:42:36 d3j191 Exp $
+c $Id: ana_task.F,v 1.49 2000-09-29 00:08:13 d3j191 Exp $
 c
       implicit none
 c
@@ -77,6 +77,7 @@ c
       lrms=.false.
       lana=.false.
       lrama=.false.
+      lesd=.false.
 c
       nave=0
       ndata=0
@@ -112,6 +113,7 @@ c
       endif
 c
     1 continue
+      lesd=.false.
 c
       if(me.eq.0) then
       read(lfncmd,1000,end=9999) card
@@ -886,6 +888,7 @@ c     projection
 c     ----------
 c
       if(card(1:6).eq.'projec') then
+      lesd=.true.
       read(card(8:14),'(i7)') ivec
       fil=card(15:80)
       i=index(fil,'.')
@@ -979,6 +982,7 @@ c
       close(unit=lfntrj)
       write(*,'(a)') ' Closing trj file '
       endif
+      lesd=.false.
 c
       goto 1
       endif

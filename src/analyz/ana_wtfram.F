@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.34 2000-09-07 15:31:45 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.35 2000-09-29 00:08:13 d3j191 Exp $
 c
       implicit none
 c
@@ -94,6 +94,7 @@ c
       nss=0
       if(lsx) then
       do 4 i=1,nsa
+      if(.not.lesd.or.isel(i).ne.0) then
       string=sgmnam(i)(13:16)//'   '
       if(sgmnam(i)(13:13).eq.' ') string=sgmnam(i)(14:16)//'    '
       if(sgmnam(i)(14:14).eq.' ') string=sgmnam(i)(15:16)//'     '
@@ -108,6 +109,7 @@ c
      + sgmnam(i)(1:4),string,'?',sgmnam(i)(6:7),0.0
       endif
  2001 format(a4,1x,3f15.9,1x,a4,1x,a7,a1,7x,a2,f7.3)
+      endif
     4 continue
       write(iunit,2002)
       read(sgmnam(nsa)(13:16),'(i4)') nss

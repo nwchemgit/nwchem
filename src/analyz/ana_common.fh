@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.39 2000-09-14 21:38:22 d3j191 Exp $
+c $Id: ana_common.fh,v 1.40 2000-09-29 00:08:13 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -71,9 +71,10 @@ c
       common/ana_dim/nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel,npov,
      + nwsel,nwrit,indx,msgm,nsgm
 c
-      logical lxw,lvw,lsx,lsv,lsel,lana,lrms,lsonly,ltop,ldcd,lrama
+      logical lxw,lvw,lsx,lsv,lsel,lana,lrms,lsonly,ltop,ldcd,lrama,
+     + lesd
       common/ana_log/lxw,lvw,lsx,lsv,lsel,lana,lrms,lsonly,ltop,ldcd,
-     + lrama
+     + lrama,lesd
 c
       character*24 wtag(100,2)
       character*16 wnam(100)
