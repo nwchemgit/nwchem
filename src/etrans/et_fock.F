@@ -114,24 +114,30 @@ c Calculate symmetrized contribution to omega2
 c --------------------------------------------
 c
       omega2 = 0.0d0
+      omega2 = omega2 + ga_ddot (g_fock(1),g_dens(1)) 
+      omega2 = omega2 + ga_ddot (g_fock(1),g_dens(2)) 
+      omega2 = omega2 + ga_ddot (g_fock(2),g_dens(1)) 
+      omega2 = omega2 + ga_ddot (g_fock(2),g_dens(2)) 
+      omega2 = omega2 - ga_ddot (g_fock(3),g_dens(1)) 
+      omega2 = omega2 - ga_ddot (g_fock(4),g_dens(2)) 
 c
-      do i = 1,nbf
-      do j = 1,nbf
-        call ga_get(g_fock(1), i, i, j, j,fJa,1)
-        call ga_get(g_fock(2), i, i, j, j,fJb,1)
-        call ga_get(g_fock(3), i, i, j, j,fKa,1)
-        call ga_get(g_fock(4), i, i, j, j,fKb,1)
-        call ga_get(g_dens(1), i, i, j, j,pa,1)
-        call ga_get(g_dens(2), i, i, j, j,pb,1)
-c
-        omega2 = omega2 + pa*fJa
-        omega2 = omega2 + pb*fJa
-        omega2 = omega2 + pb*fJb
-        omega2 = omega2 + pa*fJb
-        omega2 = omega2 - pa*fKa
-        omega2 = omega2 - pb*fKb
-      enddo
-      enddo
+c      do i = 1,nbf
+c      do j = 1,nbf
+c        call ga_get(g_fock(1), i, i, j, j,fJa,1)
+c        call ga_get(g_fock(2), i, i, j, j,fJb,1)
+c        call ga_get(g_fock(3), i, i, j, j,fKa,1)
+c        call ga_get(g_fock(4), i, i, j, j,fKb,1)
+c        call ga_get(g_dens(1), i, i, j, j,pa,1)
+c        call ga_get(g_dens(2), i, i, j, j,pb,1)
+cc
+c        omega2 = omega2 + pa*fJa
+c        omega2 = omega2 + pb*fJa
+c        omega2 = omega2 + pb*fJb
+c        omega2 = omega2 + pa*fJb
+c        omega2 = omega2 - pa*fKa
+c        omega2 = omega2 - pb*fKb
+c      enddo
+c      enddo
 c
 c
 c
@@ -173,18 +179,22 @@ c --------------------------------------------
 c Calculate ANTI-symmetrized contribution to omega2
 c --------------------------------------------
 c
-      do i = 1,nbf
-      do j = 1,nbf
-        call ga_get(g_fock(1), i, i, j, j,fKa,1)
-        call ga_get(g_fock(2), i, i, j, j,fKb,1)
-        call ga_get(g_dens(1), i, i, j, j,pa,1)
-        call ga_get(g_dens(2), i, i, j, j,pb,1)
+      omega2 = omega2 - ga_ddot (g_fock(1),g_dens(1)) 
+      omega2 = omega2 - ga_ddot (g_fock(2),g_dens(2)) 
 c
-        omega2 = omega2 - pa*fKa 
-        omega2 = omega2 - pb*fKb 
-      enddo
-      enddo
+c      do i = 1,nbf
+c      do j = 1,nbf
+c        call ga_get(g_fock(1), i, i, j, j,fKa,1)
+c        call ga_get(g_fock(2), i, i, j, j,fKb,1)
+c        call ga_get(g_dens(1), i, i, j, j,pa,1)
+c        call ga_get(g_dens(2), i, i, j, j,pb,1)
 c
+c        omega2 = omega2 - pa*fKa 
+c        omega2 = omega2 - pb*fKb 
+c      enddo
+c      enddo
+c
+c    
 c
 c --------------
 c Destroy arrays

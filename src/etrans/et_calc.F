@@ -3,7 +3,7 @@
 c
 c     This function calculates Vba, the electron transfer matrix element.
 *
-* $Id: et_calc.F,v 1.13 2002-09-03 23:17:54 d3k958 Exp $
+* $Id: et_calc.F,v 1.14 2002-09-05 17:53:00 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -590,15 +590,19 @@ c
         endif
       endif
 c
+c       omega1 = 0.0d0
+c       do i = 1,nbf
+c       do j = 1,nbf
+c         call ga_get(g_phandle(1), i, i, j, j, pa_val, 1)
+c         call ga_get(g_phandle(2), i, i, j, j, pb_val, 1)
+c         call ga_get(g_h1, i, i, j, j, h1_val, 1)
+c         omega1 = omega1 + (pa_val+pb_val)*h1_val
+c       enddo
+c       enddo
+c
        omega1 = 0.0d0
-       do i = 1,nbf
-       do j = 1,nbf
-         call ga_get(g_phandle(1), i, i, j, j, pa_val, 1)
-         call ga_get(g_phandle(2), i, i, j, j, pb_val, 1)
-         call ga_get(g_h1, i, i, j, j, h1_val, 1)
-         omega1 = omega1 + (pa_val+pb_val)*h1_val
-       enddo
-       enddo
+       omega1 = omega1 + ga_ddot (g_h1,g_phandle(1))
+       omega1 = omega1 + ga_ddot (g_h1,g_phandle(2))
 c
        call ga_sync()
        omega1 = omega1*detprod
@@ -634,6 +638,7 @@ c
        write(6,*)
       endif
 
+c ------------------------------------------------------------------------
 c two methods are available. One uses the scf fock builder (method_2e=1),
 c the other uses et_2e (method_2e=2). et_2e is more accurate, but much more
 c time consuming and should only be used for very small systems, or 
@@ -654,6 +659,9 @@ c
      &           g_phandle(1),g_phandle(2),omega2)
       endif
 c
+c ----------------------------------------------------
+c destroy density arrays and calculate omega2 and Hba
+c ----------------------------------------------------
 c
       if (.not.ga_destroy(g_phandle(1)))
      &  call errquit('could not destroy P array',g_phandle(1))

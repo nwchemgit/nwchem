@@ -1,4 +1,4 @@
-c     $Id: et_2e.F,v 1.9 2002-03-27 22:16:51 d3k958 Exp $
+c     $Id: et_2e.F,v 1.10 2002-09-05 17:53:00 d3k958 Exp $
       subroutine et_2e(rtdb,nbf,basis,geom,max2e,mem2,tol2e,
      &                 g_pa,g_pb,omega2)
       implicit none
@@ -104,19 +104,10 @@ c
       call schwarz_init(geom, basis)
       smax = schwarz_max() 
 c
-c       if (.not. rtdb_get(rtdb,'et:Srp', MT_DBL, 1, Sba))
-c     $        call errquit('et_calc: rtdb_put of Srp failed',0)
-c      Sba = Sba*1.0d-7
-cc
-c      if (.not. rtdb_get(rtdb, 'et:tol2e', MT_DBL, 1, tol2e)) then
-c       tol2e    =  min(1.0d-7,dabs(Sba))
-c       tol2e    =  max(1.0d-12,tol2e)
-c      endif
-c
  1212 format (2x,a30,1x,a1,1pE14.4)
       if (ga_nodeid().eq.0) then
       write(6,*)
-      write(6,*)'Start two-electron contribution,  H2(rp)...'
+      write(6,*)'Start two-electron contribution,  H2(RP)...'
       write(6,1212)'Density screening tolerance   ',':',tol2e
       write(6,1212)'Largest value of alpha density',':',maxPa
       write(6,1212)'Largest value of beta density ',':',maxPb
