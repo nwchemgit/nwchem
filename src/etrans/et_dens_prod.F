@@ -79,7 +79,6 @@ c
      &                  + pb(j,i)*pa(l,k)
      &                  + pb(j,i)*pb(l,k)
 c
-c
                 Gilkj = - pa(i,l)*pa(k,j) 
      &                  - pb(i,l)*pb(k,j)
 c
