@@ -11,6 +11,7 @@ C
 #include "global.fh"
 #include "pstat.fh"
 #include "rimp2_timers.fh"
+#include "numerical_constants.fh"
 C
       Logical MOVecs_Read_Header, Int_Normalize
       External MOVecs_Read_Header, Int_Normalize
@@ -25,7 +26,7 @@ C
       Parameter (MaxSpin = 2)
 C
       Integer NILimit
-      Parameter (NILimit = 10)
+c$$$      Parameter (NILimit = 10)
 C
       Character*(*) Def_Int, Def_MOVec
       Parameter (Def_Int = 'mo3cint', Def_MOVec = 'movecs')
@@ -144,7 +145,7 @@ C
 C
 C     Get other controls -- threshold for neglect of integrals, etc.
 C
-      Call RIMP2_Get_Param( RTDB, Thresh)
+      Call RIMP2_Get_Param( RTDB, Thresh, NILimit)
 C
 C     *************************************
 C     * Integral transformation (to disk) *
@@ -181,8 +182,13 @@ c$$$      Write (LuOut, *) 'About to compute energy'
 C
 C     Also get the SCF energy so we can report the total energy
 C
-      Status = Status .AND. RTDB_Get(RTDB, 'scf:energy', MT_Dbl, 1,
-     $   RefEner)
+      Status = RTDB_Get(RTDB, 'scf:energy', MT_Dbl, 1, RefEner)
+      If ( .NOT. Status ) then
+         RefEner = FP_Zero
+         If ( Me .eq. 0) Write ( LuOut, *)
+     $      'RIMP2: Warning! Unable to get scf:energy from RTDB.'
+      EndIf
+C
       TotEner = RefEner + CorEner
 C
       If ( Me .eq. 0) then
