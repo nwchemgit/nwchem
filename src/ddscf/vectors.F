@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.11 1995-02-02 23:12:17 d3g681 Exp $
+C$Id: vectors.F,v 1.12 1995-03-31 01:36:36 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -291,7 +291,7 @@ c
       goto 10
 c
       end
-      subroutine movecs_swap(rtdb,g_vecs)
+      subroutine movecs_swap(rtdb,g_vecs,occ,eval)
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -299,7 +299,9 @@ c
 #include "util.fh"
 c
       integer rtdb, g_vecs
+      double precision occ(*), eval(*)
 c
+      double precision tmp
       integer type, nelem, handle, index
       integer l_veci, k_veci, l_vecj, k_vecj, dim1, dim2
       integer pair, i, j
@@ -335,6 +337,14 @@ c
             call ga_get(g_vecs, 1, dim1, j, j, dbl_mb(k_vecj), 1)
             call ga_put(g_vecs, 1, dim1, i, i, dbl_mb(k_vecj), 1)
             call ga_put(g_vecs, 1, dim1, j, j, dbl_mb(k_veci), 1)
+c
+            tmp = occ(i)
+            occ(i) = occ(j)
+            occ(j) = tmp
+            tmp = eval(i)
+            eval(i) = eval(j)
+            eval(j) = tmp
+
 c     
          enddo
          if (oprint) call util_flush(6)

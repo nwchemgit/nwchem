@@ -1,0 +1,40 @@
+c     
+c     
+c     $Id: crohf.fh,v 1.1 1995-03-31 01:35:03 d3g681 Exp $
+c     $Synopsis "Pass info to ROHF internal routines"$
+c     
+c     
+c     Private COMMON block for ROHF internal routines
+c     to facilitate use of generic solvers.
+c     Provide only the minimal amount of info for internal routines
+c     to function.
+c     Should only be included by the wrapper modules
+c     Prefix with "crohf_" to avoid namespace conflict
+c     
+c     
+c     
+c     Internal state bit-positions
+c     
+      integer CROHF_ENERGY
+      integer CROHF_FOCK
+      integer CROHF_GRAD
+      parameter(CROHF_ENERGY=1)
+      parameter(CROHF_FOCK=2)
+      parameter(CROHF_GRAD=3)
+c     
+      integer crohf_init_flag   ! Validity flag for this common block
+      integer crohf_state       ! Bit flags for state of parameters
+c     
+      integer crohf_vlen        ! Length of parameter space
+      integer crohf_g_fcv       ! Closed-virtual Fock matrix handle
+      integer crohf_g_fpv       ! Partial-virtual Fock matrix handle
+      integer crohf_g_fcp       ! Closed-partial Fock matrix handle
+c
+      common/crohf/
+     $     crohf_init_flag,
+     $     crohf_state,
+     $     crohf_vlen,
+     $     crohf_g_fcv,
+     $     crohf_g_fpv,
+     $     crohf_g_fcp
+c

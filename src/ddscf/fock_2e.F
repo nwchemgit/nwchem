@@ -1,15 +1,8 @@
-c
-c  Distributed-data AO 2e-Fock construction routine
-c
-c      F(i) = jfac(i)*J[D(i)] + kfac(i)*K[D(i)]
-c
-c
-c
-c
+
       subroutine fock_2e( geom, basis, nfock, jfac, kfac,
      $                    tol2e, oskel, vg_dens, vg_fock )
 c
-c$Id: fock_2e.F,v 1.2 1995-03-14 02:21:19 rg240 Exp $
+c$Id: fock_2e.F,v 1.3 1995-03-31 01:35:07 d3g681 Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -18,7 +11,11 @@ c
 #include "geom.fh"
 #include "schwarz.fh"
 #include "cscfps.fh"
-c     
+c
+c  Distributed-data AO 2e-Fock construction routine
+c
+c      F(i) = jfac(i)*J[D(i)] + kfac(i)*K[D(i)]
+c
 c     arguments
 c     
       integer geom, basis            ! [input] parameter handles
@@ -64,7 +61,7 @@ c
          if (.not. bas_ce2bfr(basis, iatom, ilo, ihi))
      $        call errquit('rhf_fock_2e: bas_ce2bfr failed', iatom)
          max_at_bf = max(max_at_bf, ihi-ilo+1)
-      enddo
+      end do
       ablklen = max_at_bf**2
       maxd = nfock*ablklen
 c     
@@ -133,7 +130,7 @@ c
       do i=1,nfock
         call ga_dscal(vg_fock(i), 2.0d0)
         if (.not. oskel) call ga_symmetrize(vg_fock(i))
-      enddo
+      end do
 c
 c  Reset exchange factors
 c

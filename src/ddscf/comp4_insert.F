@@ -1,5 +1,5 @@
       subroutine comp4_insert(m, i, s, nb_per_i)
-C$Id: comp4_insert.F,v 1.4 1995-02-02 23:11:30 d3g681 Exp $
+C$Id: comp4_insert.F,v 1.5 1995-03-31 01:35:01 d3g681 Exp $
       implicit none
 c
       integer m(*)              ! Array holding info compressed to 4 bits
@@ -7,8 +7,11 @@ c
       double precision s        ! Value to be inserted
       integer nb_per_i          ! No. of bytes per integer
 c
-      integer v,vv                 ! Value after compression
+      integer v                 ! Value after compression
       integer index, nbits      ! Index into compressed array
+#ifdef CRAY
+      integer vv
+#endif
 c
 c     Map value to log10 with range 4,...,-11 and values outside
 c     of this range mapped to nearest limit

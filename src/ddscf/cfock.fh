@@ -1,12 +1,5 @@
 c
-c     Options to restrict loops in the fock build
-c
-c     orestrict_2 -> Only evaluate 2 center integrals
-c
-c     orestrict_3 -> Only evaluate 3 center integrals
-c
-      logical orestrict_2, orestrict_3
-C$Id: cfock.fh,v 1.4 1995-02-02 23:11:27 d3g681 Exp $
-      integer lchunksize, task_chunks
-      common/cfock/orestrict_2, orestrict_3, lchunksize, task_chunks
+C$Id: cfock.fh,v 1.5 1995-03-31 01:34:59 d3g681 Exp $
+      integer task_chunks
+      common/cfock/ task_chunks
 c

@@ -1,0 +1,87 @@
+c
+c     Common for parameters to do with convergence and common details
+c     of the NR/PCG UHF and ROHF SCF
+c
+c     These are determined by scf_get_info from input/default
+c
+c
+c     oinitialized  = true if initialized
+c     gnorm_tol  = convergence threshold for gradient norm
+c     shifts(6)  = level shifts
+c     nr_gswitch = value of max. element of gradient at which to
+c                 enable NR
+c     tol2e      = 2-e integral selection threshold for energy/gradient
+c     maxiter    = maximum no. of iterations
+c     odisable_conjugacy = disable conjugacy forever
+c
+c     geom       = Geometry handle
+c     basis      = Basis handle
+c     trans      = Translated basis set name
+c     title      = Job title
+c     movecs_in  = Name of input movecs file
+c     movecs_out = Name of output movecs file
+c     scftype    = type of SCF (UHF/ROHF)
+c
+c     charge     = nett charge on system
+c     nclosed    = no. of closed shells
+c     nopen      = no. of open shells
+c     nelec      = no. of electrons
+c     nbf        = no. of basis functions
+c     nmo        = no. of linearly indep. MOs (= nbf for now)
+c
+c     l/k_eval   = scf eigen values (local ma handle)
+c     l/k_occ    = scf occupation (local ma handle)
+c     g_movecs   = eigen-vectors  (global ga handle)
+c
+c     oskel      = if true use symmetry in fock building
+c
+c     These are determined by rohf_precond_select and control convergence.
+c
+c     ls_tol      = conv. threshold for line search 
+c     lshift      = current level shift for preconditioner
+c     precond_tol = accuracy required for preconditioner
+c     oconjugacy  = if (false) PCG must reset conjugacy condition
+c     ododiag     = diagonalize the next fock matrix
+c     odisable_nr = if true turns NR off (i.e. pflg=1) for ever
+c     pflg_prev   = previous setting for pflg (1=1-e hessian, 2=exact)
+c     pflg        = current setting for pflg
+c     eprec       = estimated precision in energy for line search
+c
+c     These are determined by rohf_nr_solve
+c
+c     iter = current macro iteration number
+c
+      integer geom, basis, nopen, nclosed, nelec, nbf, nmo
+      double precision gnorm_tol, shifts, nr_gswitch, tol2e
+      double precision ls_tol, lshift, precond_tol, charge, eprec
+      logical oconjugacy, ododiag, odisable_nr, odisable_conjugacy
+      logical oskel, oinitialized
+      integer pflg, pflg_prev, maxiter, iter, g_movecs
+      character*255 movecs_in, movecs_out, title, trans
+      character*4 scftype
+      integer l_eval, k_eval, l_occ, k_occ
+c
+      common /cscf/
+c
+c     Doubles
+c
+     $     gnorm_tol, shifts(6), nr_gswitch, tol2e, 
+     $     ls_tol, lshift, precond_tol, charge, eprec,
+c
+c     Logicals
+c
+     $     oconjugacy, ododiag, odisable_nr, odisable_conjugacy,
+     $     oskel, oinitialized,
+c
+c     Integers
+c
+     $     pflg, pflg_prev, maxiter, iter,
+     $     geom, basis, nopen, nclosed, nelec, nbf, nmo,
+     $     l_eval, k_eval, l_occ, k_occ, g_movecs
+c
+c     Characters
+c
+      common /ccscf/ 
+     $     movecs_in, movecs_out, trans, title, scftype
+
+     
