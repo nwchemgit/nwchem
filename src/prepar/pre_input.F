@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.108 2003-07-31 12:35:45 d3j191 Exp $
+c $Id: pre_input.F,v 1.109 2003-09-02 18:54:14 d3j191 Exp $
 c
       implicit none
 c
@@ -1440,6 +1440,8 @@ c
       if(inp_compare(.false.,'pdb',item)) then
       if(.not.inp_a(item)) then
       write(68,6806) irenum,lrgpdb,nkeepw,' '
+      lwrcoo=.true.
+      numcmd=numcmd+1
       else
       write(68,6806) irenum,lrgpdb,nkeepw,item(1:index(item,' ')-1)
  6806 format('wr_pdb',2i1,'solute ',i10,a)
@@ -1449,6 +1451,8 @@ c
       elseif(inp_compare(.false.,'xyz',item)) then
       if(.not.inp_a(item)) then
       write(68,6824) nkeepw,' '
+      lwrcoo=.true.
+      numcmd=numcmd+1
       else
       write(68,6824) nkeepw,item(1:index(item,' ')-1)
  6824 format('wr_xyz solute ',i10,a)
@@ -1457,8 +1461,12 @@ c
       endif
       elseif(index(item,'.pdb').gt.0) then
       write(68,6806) irenum,lrgpdb,nkeepw,item(1:index(item,' ')-1)
+      lwrcoo=.true.
+      numcmd=numcmd+1
       elseif(index(item,'.xyz').gt.0) then
       write(68,6824) irenum,nkeepw,item(1:index(item,' ')-1)
+      lwrcoo=.true.
+      numcmd=numcmd+1
       else
       call errquit('pre_input: write solute',9999)
       endif
