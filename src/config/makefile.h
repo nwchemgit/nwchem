@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.375 2001-12-10 20:42:58 edo Exp $
+# $Id: makefile.h,v 1.376 2001-12-15 04:13:46 d3j191 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -581,11 +581,11 @@ ifeq ($(TARGET),SGITFP)
 FVECTORIZE_8K = -O3 -TENV:X=3 -WK,-dr=AKC
 
 #optimization flags for R10000 (IP28)
- FOPTIMIZE_10K = -O3 -OPT:const_copy_limit=20000:Olimit=4000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC
+ FOPTIMIZE_10K = -O3 -OPT:const_copy_limit=20000:Olimit=4800 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC
 FVECTORIZE_10K = -O3 -TENV:X=1 -WK,-dr=AKC
 
 #optimization flags for R12000 (IP30)
- FOPTIMIZE_12K = -O3 -OPT:const_copy_limit=20000:Olimit=4000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC
+ FOPTIMIZE_12K = -O3 -OPT:const_copy_limit=20000:Olimit=4800 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC
 FVECTORIZE_12K = -O3 -TENV:X=1 -WK,-dr=AKC
 
  COPTIMIZE = -O
