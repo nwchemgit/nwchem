@@ -35,8 +35,11 @@ Integer util_batch_job_time_remaining_(void)
   
   if (fscanf(p,"%d",&t) != 1) {
     /*(void) fprintf(stderr,"ujtr: failed to read time from pipe\n");*/
+    (void) fclose(p);
     return NOT_AVAILABLE;
   }
+
+  fclose(p);
 
   if (t < 0) t = 0;
 
