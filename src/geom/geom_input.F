@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.84 1998-07-29 22:32:41 d3g681 Exp $
+C     $Id: geom_input.F,v 1.85 1998-08-03 16:50:17 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -389,6 +389,10 @@ c
          if(dbug) then
             call sym_print_all(geom,.true.,.true.,.true.,.true.,.true.)
          endif
+         if (.not.geom_print_distances(geom))
+     &         call errquit('geom_input: print_distances failed ',911)
+         if (.not.geom_print_angles(geom))
+     &         call errquit('geom_input: print_angles failed ',911)
       end if
 c     
       if (.not. geom_rtdb_store(rtdb, geom, name))
