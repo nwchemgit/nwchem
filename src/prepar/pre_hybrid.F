@@ -1,6 +1,6 @@
       logical function pre_hybrid(xatm,latm,matm,natm)
 c
-c $Id: pre_hybrid.F,v 1.3 1999-12-17 05:07:39 d3j191 Exp $
+c $Id: pre_hybrid.F,v 1.4 1999-12-18 17:23:29 d3j191 Exp $
 c
 c     in  : xatm(3,matm) = atomic coordinates
 c         : latm(2,matm) = atomic numbers
@@ -46,6 +46,7 @@ c
       if(angle1.ge.2.96d0.and.angle1.lt.3.15d0) ia=2
       latm(3,i)=ia
       if(latm(2,i).eq.7) latm(3,i)=3
+      if(latm(2,i).eq.8) latm(3,i)=2
       elseif(nn.eq.3) then
       angle1=angl(xatm(1,nl(1)),xatm(1,i),xatm(1,nl(2)))
       ia=0
