@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.36 1996-10-11 17:58:16 mdupuis Exp $
+C     $Id: geom_input.F,v 1.37 1996-10-16 00:18:30 mdupuis Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -1078,7 +1078,7 @@ c
 c
       if(.not.zdone) then
          write(iw,9997)
-         call hnd_hnderr(3,errmsg)
+         nzmat=0
       endif
 c
 c     ----- save -izmat- and -zmat- -----
@@ -1297,6 +1297,7 @@ C
             NCART=3*NAT
             NZVAR=3*NAT
             NVAR =3*NAT
+            NZMAT=0
             NCOOR=MAX(NCART,NZVAR)
             CALL HND_TRNROT(NAT,C,NCART,NCOOR)
 C
@@ -4740,8 +4741,8 @@ C
  9996 FORMAT(' $END   ')
       END
       SUBROUTINE HND_ZMTYP2(NZVAR,NIZMAT,IZMAT,C,
-     1                      NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKANG,NUMANG,
-     2                      DOLINB)
+     1           NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKANG,NUMANG,
+     2           DOLINB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (ITWO=2)
       PARAMETER (MXATOM=500)        
