@@ -1,4 +1,4 @@
-c $Id: int_1estv.F,v 1.8 2002-04-11 15:22:14 windus Exp $
+c $Id: int_1estv.F,v 1.9 2003-01-24 17:37:37 bert Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1estv}
@@ -597,7 +597,7 @@ c::local
       integer Li, i_prim, i_gen, i_iexp, i_icfp, i_cent, i_icfpS
       integer Lj, j_prim, j_gen, j_iexp, j_icfp, j_cent, j_icfpS
 c
-      integer i_geom_efc
+      integer i_geom_efc,iii
 c
       logical any_spherical
       integer i_nbf_x, j_nbf_x
@@ -766,7 +766,7 @@ c
      &        coords(1,1,i_geom_efc),charge(1,i_geom_efc),
      &        geom_invnucexp(1,i_geom),ncenter(i_geom_efc),
      &        S,T,V,lstv,doS,doT,doV,canAB,.false.,
-     &        scr,lscr,'int_1eov')
+     &        scr,lscr,'int_1eefc')
       elseif (onw_ok) then
         call hf1(
      &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),

@@ -1,4 +1,4 @@
-c $Id: int_hf1sp.F,v 1.17 1999-10-26 22:24:37 mg201 Exp $
+c $Id: int_hf1sp.F,v 1.18 2003-01-24 17:37:37 bert Exp $
 *
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_hf1sp}
@@ -264,7 +264,7 @@ c::local
      &      xyz,zan,exinv,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &      dryrun,scr,lscr)
 *
-      if (any_ecp.and.doV) then
+      if (any_ecp.and.doV.and.msg.ne.'int_1eefc') then
         nintV = int_nbf_x(Li)*i_ngen
         nintV = nintV*int_nbf_x(Lj)*j_ngen
         offset = nintV + 1
