@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.28 2002-07-13 21:16:49 edo Exp $
+# $Id: GNUmakefile,v 1.29 2003-02-10 20:54:59 edo Exp $
 # 
 
 HEADERS   = ecp_nwc.fh
@@ -107,6 +107,10 @@ LIBRARY = libnwints.a
 
 include ../../config/makefile.h
 include ../../config/makelib.h
+ifeq ($(NWCHEM_TARGET),DECOSF)
+        FOPTIONS+= -math_library accurate
+endif
+
 test_drive:	test_drive.o 
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ test_drive.o $(LIBS)
 

@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.394 2003-02-06 02:13:19 edo Exp $
+# $Id: makefile.h,v 1.395 2003-02-10 20:54:59 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1133,12 +1133,12 @@ ifeq ($(TARGET),DECOSF)
 
 # assume noaccuracy_sensitive was breaking the code in recent versions (EA)
               FDEBUG = -g -O0
-              FOPTIONS = -align dcommons -math_library fast -fpe2 -check nounderflow -check nopower -check nooverflow  -warn argument_checking -warn unused -automatic
+              FOPTIONS = -align dcommons -math_library fast -fpe2 -check nounderflow -check nopower -check nooverflow  -warn argument_checking -warn unused -automatic -math_library fast
 
              COPTIONS = 
              LDOPTIONS = -O
              LINK.f = f77 $(LDFLAGS)
-             FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
+             FOPTIMIZE =  -O4  -tune host -arch host  
              FVECTORIZE = -fast -O4 -tune host -arch host
              COPTIMIZE = -O
 
