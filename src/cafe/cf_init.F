@@ -1269,7 +1269,7 @@ c
 c
       return
       end
-      subroutine cf_print(lfnout)
+      subroutine cf_print_top(lfnout)
 c
       implicit none
 c

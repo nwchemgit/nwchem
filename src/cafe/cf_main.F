@@ -15,6 +15,42 @@ c
 c
       return
       end
+      subroutine cf_mass(ww,ws,isat,nums)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer nums,isat(msa)
+      real*8 ww(mwa),ws(msa)
+c
+      call cf_m(ww,ws,isat,nums,int_mb(i_iwa),dbl_mb(i_mas))
+c
+      return
+      end
+      subroutine cf_m(ww,ws,isat,nums,iwat,wgt)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer nums,isat(msa)
+      real*8 ww(mwa),ws(msa)
+      integer iwat(msa)
+      real*8 wgt(mat,6)
+c
+      integer i
+c
+      do 1 i=1,nwa
+      ww(i)=wgt(iwat(i),iset)
+    1 continue
+      do 2 i=1,nums
+      ws(i)=wgt(isat(i),iset)
+    2 continue
+c
+      return
+      end
       subroutine cf_volume()
 c
       implicit none
@@ -290,603 +326,6 @@ c
       fs(i,1)=vs(i,1)
       fs(i,2)=vs(i,2)
       fs(i,3)=vs(i,3)
-    4 continue
-      endif
-c
-      return
-      end
-      subroutine cf_sdstep(iwdt,xw,yw,fw,vw,numw,
-     + isat,isdt,xs,ys,fs,vs,nums,dxf)
-c
-      implicit none
-c
-#include "cf_common.fh"
-#include "mafdecls.fh"
-c
-      integer numw,nums
-      integer iwdt(mwm),isdt(msa),isat(msa)
-      real*8 dxf
-      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),fw(mwm,3,mwa),vw(mwm,3,mwa)
-      real*8 xs(msa,3),ys(msa,3),fs(msa,3),vs(msa,3)
-c
-      call cf_xstep(iwdt,xw,yw,fw,vw,numw,
-     + isat,isdt,xs,ys,fs,vs,nums,dxf,
-     + int_mb(i_iwa),dbl_mb(i_mas))
-c
-      return
-      end
-      subroutine cf_xstep(iwdt,xw,yw,fw,vw,numw,
-     + isat,isdt,xs,ys,fs,vs,nums,
-     + dxf,iwat,wgt)
-c
-      implicit none
-c
-#include "cf_common.fh"
-#include "mafdecls.fh"
-c
-      integer numw,nums
-      integer iwdt(mwm),isdt(msa),isat(msa)
-      real*8 dxf
-      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),fw(mwm,3,mwa),vw(mwm,3,mwa)
-      real*8 xs(msa,3),ys(msa,3),fs(msa,3),vs(msa,3)
-      integer iwat(mwa)
-      real*8 wgt(mat,6)
-c
-      integer i,j
-      real*8 dxstep,factor
-c
-      if(numw.gt.0) then
-      do 1 j=1,nwa
-      do 2 i=1,numw
-      yw(i,1,j)=xw(i,1,j)
-      yw(i,2,j)=xw(i,2,j)
-      yw(i,3,j)=xw(i,3,j)
-      vw(i,1,j)=fw(i,1,j)
-      vw(i,2,j)=fw(i,2,j)
-      vw(i,3,j)=fw(i,3,j)
-    2 continue
-      factor=one/wgt(iwat(j),iset)
-      do 3 i=1,numw
-      if(iand(iwdt(i),mfixed).ne.lfixed) then
-      dxstep=factor*dxf*fw(i,1,j)
-      xw(i,1,j)=xw(i,1,j)+dxstep
-      dxstep=factor*dxf*fw(i,2,j)
-      xw(i,2,j)=xw(i,2,j)+dxstep
-      dxstep=factor*dxf*fw(i,3,j)
-      xw(i,3,j)=xw(i,3,j)+dxstep
-      endif
-    3 continue
-    1 continue
-      endif
-c
-      if(nums.gt.0) then
-      do 4 i=1,nums
-      ys(i,1)=xs(i,1)
-      ys(i,2)=xs(i,2)
-      ys(i,3)=xs(i,3)
-      vs(i,1)=fs(i,1)
-      vs(i,2)=fs(i,2)
-      vs(i,3)=fs(i,3)
-    4 continue
-      do 5 i=1,nums
-      if(iand(isdt(i),mfixed).ne.lfixed) then
-      factor=one/wgt(isat(i),iset)
-      dxstep=factor*dxf*fs(i,1)
-      xs(i,1)=xs(i,1)+dxstep
-      dxstep=factor*dxf*fs(i,2)
-      xs(i,2)=xs(i,2)+dxstep
-      dxstep=factor*dxf*fs(i,3)
-      xs(i,3)=xs(i,3)+dxstep
-      endif
-    5 continue
-      endif
-c
-      return
-      end
-      subroutine cf_cginit(xw,yw,vw,fw,pw,numw,
-     + isat,xs,ys,vs,fs,ps,nums,dxf)
-c
-      implicit none
-c
-#include "cf_common.fh"
-#include "mafdecls.fh"
-c
-      integer numw,nums
-      real*8 dxf
-      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa)
-      real*8 pw(mwm,3,mwa)
-      integer isat(msa)
-      real*8 xs(msa,3),ys(msa,3),vs(msa,3),fs(msa,3),ps(msa,3)
-c
-      call cf_cg0(int_mb(i_iwa),xw,yw,vw,fw,pw,numw,
-     + isat,xs,ys,vs,fs,ps,nums,dxf,dbl_mb(i_mas))
-c
-      return
-      end
-      subroutine cf_cg0(iwat,xw,yw,vw,fw,pw,numw,
-     + isat,xs,ys,vs,fs,ps,nums,dxf,wgt)
-c
-      implicit none
-c
-#include "cf_common.fh"
-c
-      integer numw,nums
-      real*8 dxf
-      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa)
-      real*8 pw(mwm,3,mwa)
-      integer iwat(mwa),isat(msa)
-      real*8 xs(msa,3),ys(msa,3),vs(msa,3),fs(msa,3),ps(msa,3)
-      real*8 wgt(mat,6)
-c
-      integer i,j,k
-      real*8 wfact
-c
-      if(numw.gt.0) then
-      do 1 j=1,nwa
-      wfact=one/wgt(iwat(j),iset)
-      do 2 k=1,3
-      do 3 i=1,numw
-      yw(i,k,j)=xw(i,k,j)
-      vw(i,k,j)=xw(i,k,j)
-      xw(i,k,j)=xw(i,k,j)+dxf*fw(i,k,j)*wfact
-      pw(i,k,j)=zero
-    3 continue
-    2 continue
-    1 continue
-      endif
-c
-      if(nums.gt.0) then
-      do 4 k=1,3
-      do 5 i=1,nums
-      ys(i,k)=xs(i,k)
-      vs(i,k)=xs(i,k)
-      xs(i,k)=xs(i,k)+dxf*fs(i,k)/wgt(isat(i),iset)
-      ps(i,k)=zero
-    5 continue
-    4 continue
-      endif
-c
-      return
-      end
-      subroutine cf_cg_fnorm(xw,yw,fw,numw,
-     + isat,xs,ys,fs,nums,dxfi,fnorm)
-c
-      implicit none
-c
-#include "cf_common.fh"
-#include "mafdecls.fh"
-#include "msgids.fh"
-c
-      integer numw,nums
-      real*8 dxfi,fnorm
-      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),fw(mwm,3,mwa)
-      integer isat(msa)
-      real*8 xs(msa,3),ys(msa,3),fs(msa,3)
-c
-      call cf_cg_fn(int_mb(i_iwa),xw,yw,fw,numw,
-     + isat,xs,ys,fs,nums,dxfi,fnorm,dbl_mb(i_mas))
-c
-      if(np.gt.1) call ga_dgop(mcf_51,fnorm,1,'+')
-c
-      return
-      end
-      subroutine cf_cg_fn(iwat,xw,yw,fw,numw,
-     + isat,xs,ys,fs,nums,dxfi,fnorm,wgt)
-c
-      implicit none
-c
-#include "cf_common.fh"
-c
-      integer numw,nums
-      real*8 dxfi,fnorm
-      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),fw(mwm,3,mwa)
-      integer iwat(mwa),isat(msa)
-      real*8 xs(msa,3),ys(msa,3),fs(msa,3)
-      real*8 wgt(mat,6)
-c
-      integer i,j,k
-      real*8 wfact
-c
-      fnorm=zero
-c
-      if(numw.gt.0) then
-      do 1 j=1,nwa
-      wfact=dxfi/wgt(iwat(j),iset)
-      do 2 k=1,3
-      do 3 i=1,numw
-      fw(i,k,j)=(xw(i,k,j)-yw(i,k,j))*wfact
-      fnorm=fnorm+fw(i,k,j)*fw(i,k,j)
-    3 continue
-    2 continue
-    1 continue
-      endif
-c
-      if(nums.gt.0) then
-      do 4 k=1,3
-      do 5 i=1,nums
-      fs(i,k)=(xs(i,k)-ys(i,k))*dxfi/wgt(isat(i),iset)
-      fnorm=fnorm+fs(i,k)*fs(i,k)
-    5 continue
-    4 continue
-      endif
-c
-      return
-      end
-      subroutine cf_cg_search(fw,pw,numw,fs,ps,nums,beta,yp,pnorm)
-c
-      implicit none
-c
-#include "cf_common.fh"
-#include "msgids.fh"
-#include "global.fh"
-c
-      real*8 fw(mwm,3,mwa),pw(mwm,3,mwa)
-      real*8 fs(msa,3),ps(msa,3)
-      integer numw,nums
-      real*8 beta,yp,pnorm
-c
-      integer i,j,k
-      real*8 rtmp(2)
-c
-      yp=zero
-      pnorm=zero
-c
-      if(numw.gt.0) then
-      do 1 j=1,nwa
-      do 2 k=1,3
-      do 3 i=1,numw
-      pw(i,k,j)=fw(i,k,j)+beta*pw(i,k,j)
-      pnorm=pnorm+pw(i,k,j)*pw(i,k,j)
-      yp=yp+pw(i,k,j)*fw(i,k,j)
-    3 continue
-    2 continue
-    1 continue
-      endif
-c
-      if(nums.gt.0) then
-      do 4 k=1,3
-      do 5 i=1,nums
-      ps(i,k)=fs(i,k)+beta*ps(i,k)
-      pnorm=pnorm+ps(i,k)*ps(i,k)
-      yp=yp+ps(i,k)*fs(i,k)
-    5 continue
-    4 continue
-      endif
-c
-      if(np.gt.1) then
-      rtmp(1)=pnorm
-      rtmp(2)=yp
-      call ga_dgop(mcf_52,rtmp,2,'+')
-      pnorm=rtmp(1)
-      yp=rtmp(2)
-      endif
-c
-      if(pnorm.lt.zero) call errquit('pnorm<zero',0)
-      pnorm=sqrt(pnorm)
-c
-      return
-      end
-      subroutine cf_cgstep(xw,vw,pw,numw,isat,xs,vs,ps,nums,beta)
-c
-      implicit none
-c
-#include "cf_common.fh"
-#include "mafdecls.fh"
-#include "msgids.fh"
-c
-      integer numw,nums
-      real*8 beta
-      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),pw(mwm,3,mwa)
-      integer isat(msa)
-      real*8 xs(msa,3),vs(msa,3),ps(msa,3)
-c
-      call cf_cgstp(int_mb(i_iwa),xw,vw,pw,numw,
-     + isat,xs,vs,ps,nums,dbl_mb(i_mas),beta)
-c
-      return
-      end
-      subroutine cf_cgstp(iwat,xw,vw,pw,numw,isat,xs,vs,ps,nums,
-     + wgt,beta)
-c
-      implicit none
-c
-#include "cf_common.fh"
-c
-      integer numw,nums
-      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),pw(mwm,3,mwa)
-      integer iwat(mwa),isat(msa)
-      real*8 xs(msa,3),vs(msa,3),ps(msa,3)
-      real*8 wgt(mat,6),beta
-c
-      integer i,j,k
-      real*8 wfact
-c
-      if(numw.gt.0) then
-      do 1 j=1,nwa
-      wfact=beta/wgt(iwat(j),iset)
-      do 2 k=1,3
-      do 3 i=1,numw
-      xw(i,k,j)=vw(i,k,j)+wfact*pw(i,k,j)
-    3 continue
-    2 continue
-    1 continue
-      endif
-c
-      if(nums.gt.0) then
-      do 4 k=1,3
-      do 5 i=1,nums
-      xs(i,k)=vs(i,k)+beta*ps(i,k)/wgt(isat(i),iset)
-    5 continue
-    4 continue
-      endif
-c
-      return
-      end
-      subroutine cf_cgstep2(xw,yw,fw,numw,isat,xs,ys,fs,nums,beta,dxmax)
-c
-      implicit none
-c
-#include "cf_common.fh"
-#include "mafdecls.fh"
-#include "msgids.fh"
-c
-      integer numw,nums
-      real*8 beta,dxmax
-      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),fw(mwm,3,mwa)
-      integer isat(msa)
-      real*8 xs(msa,3),ys(msa,3),fs(msa,3)
-c
-      call cf_cgstp2(int_mb(i_iwa),xw,yw,fw,numw,
-     + isat,xs,ys,fs,nums,dbl_mb(i_mas),beta,dxmax)
-c
-      if(np.gt.1) call ga_dgop(mcf_55,dxmax,1,'max')
-c
-      return
-      end
-      subroutine cf_cgstp2(iwat,xw,yw,fw,numw,isat,xs,ys,fs,nums,
-     + wgt,beta,dxmax)
-c
-      implicit none
-c
-#include "cf_common.fh"
-c
-      integer numw,nums
-      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),fw(mwm,3,mwa)
-      integer iwat(mwa),isat(msa)
-      real*8 xs(msa,3),ys(msa,3),fs(msa,3)
-      real*8 wgt(mat,6),beta,dxmax
-c
-      integer i,j,k
-      real*8 wfact,dxstep
-c
-      dxmax=zero
-c
-      if(numw.gt.0) then
-      do 1 j=1,nwa
-      wfact=beta/wgt(iwat(j),iset)
-      do 2 k=1,3
-      do 3 i=1,numw
-      yw(i,k,j)=xw(i,k,j)
-      dxstep=wfact*fw(i,k,j)
-      xw(i,k,j)=xw(i,k,j)+dxstep
-      dxmax=max(dxmax,abs(dxstep))
-    3 continue
-    2 continue
-    1 continue
-      endif
-c
-      if(nums.gt.0) then
-      do 4 k=1,3
-      do 5 i=1,nums
-      ys(i,k)=xs(i,k)
-      dxstep=beta*fs(i,k)/wgt(isat(i),iset)
-      xs(i,k)=xs(i,k)+dxstep
-      dxmax=max(dxmax,abs(dxstep))
-    5 continue
-    4 continue
-      endif
-c
-      return
-      end
-      subroutine cf_cgforce(xw,yw,fw,pw,numw,isat,xs,ys,fs,ps,nums,
-     + beta,yp)
-c
-      implicit none
-c
-#include "cf_common.fh"
-#include "mafdecls.fh"
-#include "msgids.fh"
-#include "global.fh"
-c
-      integer numw,nums
-      real*8 beta,yp
-      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),fw(mwm,3,mwa),pw(mwm,3,mwa)
-      integer isat(msa)
-      real*8 xs(msa,3),ys(msa,3),fs(msa,3),ps(msa,3)
-c
-      call cf_cgfrc(int_mb(i_iwa),xw,yw,fw,pw,numw,
-     + isat,xs,ys,fs,ps,nums,dbl_mb(i_mas),beta,yp)
-c
-      if(np.gt.1) call ga_dgop(mcf_53,yp,1,'+')
-c
-      return
-      end
-      subroutine cf_cgfrc(iwat,xw,yw,fw,pw,numw,isat,xs,ys,fs,ps,nums,
-     + wgt,beta,yp)
-c
-      implicit none
-c
-#include "cf_common.fh"
-c
-      integer numw,nums
-      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),fw(mwm,3,mwa),pw(mwm,3,mwa)
-      integer iwat(mwa),isat(msa)
-      real*8 xs(msa,3),ys(msa,3),fs(msa,3),ps(msa,3)
-      real*8 wgt(mat,6),beta,yp
-c
-      integer i,j,k
-      real*8 wfact
-c
-      yp=zero
-c
-      if(numw.gt.0) then
-      do 1 j=1,nwa
-      wfact=one/(beta*wgt(iwat(j),iset))
-      do 2 k=1,3
-      do 3 i=1,numw
-      fw(i,k,j)=(xw(i,k,j)-yw(i,k,j))*wfact
-      yp=yp+pw(i,k,j)*fw(i,k,j)
-    3 continue
-    2 continue
-    1 continue
-      endif
-c
-      if(nums.gt.0) then
-      do 4 k=1,3
-      do 5 i=1,nums
-      fs(i,k)=(xs(i,k)-ys(i,k))/(beta*wgt(isat(i),iset))
-      yp=yp+ps(i,k)*fs(i,k)
-    5 continue
-    4 continue
-      endif
-c
-      return
-      end
-      subroutine cf_cg_interp(xw,yw,vw,pw,numw,isat,xs,ys,vs,ps,nums,
-     + beta,dxmax)
-c
-      implicit none
-c
-#include "cf_common.fh"
-#include "mafdecls.fh"
-#include "msgids.fh"
-#include "global.fh"
-c
-      integer numw,nums
-      real*8 beta,dxmax
-      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),vw(mwm,3,mwa),pw(mwm,3,mwa)
-      integer isat(msa)
-      real*8 xs(msa,3),ys(msa,3),vs(msa,3),ps(msa,3)
-c
-      call cf_cg_ntrp(int_mb(i_iwa),xw,yw,vw,pw,numw,
-     + isat,xs,ys,vs,ps,nums,dbl_mb(i_mas),beta,dxmax)
-c
-      if(np.gt.1) call ga_dgop(mcf_54,dxmax,1,'max')
-c
-      return
-      end
-      subroutine cf_cg_ntrp(iwat,xw,yw,vw,pw,numw,isat,xs,ys,vs,ps,nums,
-     + wgt,beta,dxmax)
-c
-      implicit none
-c
-#include "cf_common.fh"
-c
-      integer numw,nums
-      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),vw(mwm,3,mwa),pw(mwm,3,mwa)
-      integer iwat(mwa),isat(msa)
-      real*8 xs(msa,3),ys(msa,3),vs(msa,3),ps(msa,3)
-      real*8 wgt(mat,6),beta,dxmax
-c
-      integer i,j,k
-      real*8 wfact,dxstep
-c
-      dxmax=zero
-c
-      if(numw.gt.0) then
-      do 1 j=1,nwa
-      wfact=beta/wgt(iwat(j),iset)
-      do 2 k=1,3
-      do 3 i=1,numw
-      dxstep=wfact*pw(i,k,j)
-      dxmax=max(dxmax,abs(dxstep))
-      yw(i,k,j)=vw(i,k,j)
-      xw(i,k,j)=vw(i,k,j)+dxstep
-    3 continue
-    2 continue
-    1 continue
-      endif
-c
-      if(nums.gt.0) then
-      do 4 k=1,3
-      do 5 i=1,nums
-      dxstep=beta/wgt(isat(i),iset)
-      dxmax=max(dxmax,abs(dxstep))
-      ys(i,k)=vs(i,k)
-      xs(i,k)=vs(i,k)+dxstep
-    5 continue
-    4 continue
-      endif
-c
-      return
-      end
-      subroutine cf_cgstep3(xw,yw,vw,fw,pw,numw,
-     + isat,xs,ys,vs,fs,ps,nums,beta1,beta2,fnorm)
-c
-      implicit none
-c
-#include "cf_common.fh"
-#include "mafdecls.fh"
-#include "msgids.fh"
-c
-      integer numw,nums
-      real*8 beta1,beta2,fnorm
-      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),vw(mwm,3,mwa)
-      real*8 fw(mwm,3,mwa),pw(mwm,3,mwa)
-      integer isat(msa)
-      real*8 xs(msa,3),ys(msa,3),vs(msa,3),fs(msa,3),ps(msa,3)
-c
-      call cf_cgstp3(int_mb(i_iwa),xw,yw,vw,fw,pw,numw,
-     + isat,xs,ys,vs,fs,ps,nums,dbl_mb(i_mas),beta1,beta2,fnorm)
-c
-      if(np.gt.1) call ga_dgop(mcf_56,fnorm,1,'+')
-c
-      return
-      end
-      subroutine cf_cgstp3(iwat,xw,yw,vw,fw,pw,numw,
-     + isat,xs,ys,vs,fs,ps,nums,
-     + wgt,beta1,beta2,fnorm)
-c
-      implicit none
-c
-#include "cf_common.fh"
-c
-      integer numw,nums
-      real*8 beta1,beta2,fnorm
-      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),vw(mwm,3,mwa)
-      real*8 fw(mwm,3,mwa),pw(mwm,3,mwa)
-      integer iwat(mwa),isat(msa)
-      real*8 xs(msa,3),ys(msa,3),vs(msa,3),fs(msa,3),ps(msa,3)
-      real*8 wgt(mat,6)
-c
-      integer i,j,k
-      real*8 wfact1,wfact2
-c
-      fnorm=zero
-c
-      if(numw.gt.0) then
-      do 1 j=1,nwa
-      wfact1=one/(beta1*wgt(iwat(j),iset))
-      wfact2=one/(beta2*wgt(iwat(j),iset))
-      do 2 k=1,3
-      do 3 i=1,numw
-      pw(i,k,j)=(yw(i,k,j)-vw(i,k,j))*wfact1
-      fw(i,k,j)=(xw(i,k,j)-yw(i,k,j))*wfact2
-      vw(i,k,j)=yw(i,k,j)
-      fnorm=fnorm+fw(i,k,j)*fw(i,k,j)
-    3 continue
-    2 continue
-    1 continue
-      endif
-c
-      if(nums.gt.0) then
-      do 4 k=1,3
-      do 5 i=1,nums
-      ps(i,k)=(ys(i,k)-vs(i,k))/(beta1*wgt(isat(i),iset))
-      fs(i,k)=(xs(i,k)-ys(i,k))/(beta2*wgt(isat(i),iset))
-      vs(i,k)=ys(i,k)
-      fnorm=fnorm+fs(i,k)*fs(i,k)
-    5 continue
     4 continue
       endif
 c
@@ -1909,6 +1348,219 @@ c
       vs(i,k)=vs(i,k)-vb(k)
     9 continue
     6 continue
+c
+      return
+      end
+      subroutine cf_print_energy(lfnout)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer lfnout
+c
+      if(me.ne.0) return
+c
+      if(numb(2).gt.0) call cf_pr_bonds(lfnout,numb(2),mbt(2),mbp(2),
+     + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)))
+c
+      if(numh(2).gt.0) call cf_pr_angles(lfnout,numh(2),mht(2),mhp(2),
+     + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)))
+c
+      if(numd(2).gt.0) call cf_pr_dihes(lfnout,numd(2),mdt(2),mdp(2),
+     + int_mb(i_idih(2)),dbl_mb(i_dih(2)),dbl_mb(i_rdih(2)))
+c
+      if(numi(2).gt.0) call cf_pr_imprs(lfnout,numi(2),mit(2),mip(2),
+     + int_mb(i_iimp(2)),dbl_mb(i_imp(2)),dbl_mb(i_rimp(2)))
+c
+      return
+      end
+      subroutine cf_pr_bonds(lfnout,nsb,msb,msp,ibnd,bnd,rbnd)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer lfnout,nsb,msb,msp
+      integer ibnd(msb,3)
+      real*8 bnd(msb,msp,6),rbnd(msb,2)
+c
+      integer i,j
+c
+      write(lfnout,1000)
+ 1000 format(/,' Solute bonds',/,
+     + '      i      j      c     b_0        C          b          U',/)
+c
+      do 1 i=1,nsb
+      write(lfnout,1001) (ibnd(i,j),j=1,3),(bnd(i,j,iset),j=1,2),
+     + (rbnd(i,j),j=1,2)
+ 1001 format(3i7,f10.5,e12.5,f10.5,f12.6)
+    1 continue
+c
+      return
+      end
+      subroutine cf_pr_angles(lfnout,nsh,msh,msp,iang,ang,rang)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer lfnout,nsh,msh,msp
+      integer iang(msh,4)
+      real*8 ang(msh,msp,6),rang(msh,2)
+c
+      integer i,j
+c
+      write(lfnout,1000)
+ 1000 format(/,' Solute angles',/,
+     + '      i      j      k      c    th_0   ',
+     + '     C         th          U',/)
+c
+      do 1 i=1,nsh
+      write(lfnout,1001) (iang(i,j),j=1,4),(ang(i,j,iset),j=1,2),
+     + (rang(i,j),j=1,2)
+ 1001 format(4i7,f10.5,e12.5,f10.5,f12.6)
+    1 continue
+c
+      return
+      end
+      subroutine cf_pr_dihes(lfnout,nsd,msd,msp,idih,dih,rdih)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer lfnout,nsd,msd,msp
+      integer idih(msd,5)
+      real*8 dih(msd,msp,6),rdih(msd,2)
+c
+      integer i,j
+c
+      write(lfnout,1000)
+ 1000 format(/,' Solute torsions',/,
+     + '      i      j      k      l      c  mul   phi_0   ',
+     + '     C        phi          U',/)
+c
+      do 1 i=1,nsd
+      write(lfnout,1001) (idih(i,j),j=1,5),(dih(i,j,iset),j=1,3),
+     + (rdih(i,j),j=1,2)
+ 1001 format(5i7,f5.1,f10.5,e12.5,f10.5,f12.6)
+    1 continue
+c
+      return
+      end
+      subroutine cf_pr_imprs(lfnout,nso,mso,msp,ioop,oop,roop)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer lfnout,nso,mso,msp
+      integer ioop(mso,5)
+      real*8 oop(mso,msp,6),roop(mso,2)
+c
+      integer i,j
+c
+      write(lfnout,1000)
+ 1000 format(/,' Solute out of plane torsions',/,
+     + '      i      j      k      l      c  mul theta_0   ',
+     + '     C      theta          U',/)
+c
+      do 1 i=1,nso
+      write(lfnout,1001) (ioop(i,j),j=1,5),(oop(i,j,iset),j=1,3),
+     + (roop(i,j),j=1,2)
+ 1001 format(5i7,f5.1,f10.5,e12.5,f10.5,f12.6)
+    1 continue
+c
+      return
+      end
+      subroutine cf_fix(ifix,iunfix,iwdt,numw,isatt,isdt,nums)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+#include "bitops.fh"
+c
+      integer cf_atonum
+      external cf_atonum
+c
+      integer ifix,iunfix,numw,nums
+      integer iwdt(mwm),isatt(msa),isdt(msa)
+c
+      integer i
+c
+      if(numw.gt.0) then
+      if(iand(ifix,1).eq.1) then
+      do 1 i=1,numw
+      iwdt(i)=ior(iwdt(i),lfixed)
+    1 continue
+      endif
+      if(iand(iunfix,1).eq.1) then
+      do 2 i=1,numw
+      iwdt(i)=iand(iwdt(i),not(lfixed))
+    2 continue
+      endif
+      if(iand(ifix,2).eq.2) then
+      do 3 i=1,numw
+      iwdt(i)=ior(iwdt(i),lfixed)
+    3 continue
+      endif
+      if(iand(iunfix,2).eq.2) then
+      do 4 i=1,numw
+      iwdt(i)=iand(iwdt(i),not(lfixed))
+    4 continue
+      endif
+      endif
+c
+      if(nums.gt.0) then
+      if(iand(ifix,1).eq.1) then
+      do 5 i=1,nums
+      isdt(i)=ior(isdt(i),lfixed)
+    5 continue
+      endif
+      if(iand(iunfix,1).eq.1) then
+      do 6 i=1,nums
+      isdt(i)=iand(isdt(i),not(lfixed))
+    6 continue
+      endif
+      if(iand(ifix,4).eq.4) then
+      do 7 i=1,nums
+      isdt(i)=ior(isdt(i),lfixed)
+    7 continue
+      endif
+      if(iand(iunfix,4).eq.4) then
+      do 8 i=1,nums
+      isdt(i)=iand(isdt(i),not(lfixed))
+    8 continue
+      endif
+      if(iand(ifix,8).eq.8) then
+      do 9 i=1,nums
+      if(cf_atonum(isatt(i),int_mb(i_num)).ne.1)
+     + isdt(i)=ior(isdt(i),lfixed)
+    9 continue
+      endif
+      if(iand(iunfix,8).eq.8) then
+      do 10 i=1,nums
+      if(cf_atonum(isatt(i),int_mb(i_num)).ne.1)
+     + isdt(i)=iand(isdt(i),not(lfixed))
+   10 continue
+      endif
+      
+      endif
+c
+      return
+      end
+      integer function cf_atonum(ia,num)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer ia,num(mat,3)
+c
+      cf_atonum=num(ia,iset)
 c
       return
       end
