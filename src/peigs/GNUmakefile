@@ -24,3 +24,5 @@ depend:
 	@echo No dependencies in include
 
 
+source:
+	@echo Nothing to be done for $@

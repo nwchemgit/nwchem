@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.51 1997-02-19 19:27:07 mdupuis Exp $
+# $Id: GNUmakefile,v 1.52 1997-03-25 16:49:57 d3g681 Exp $
 
 include config/makefile.h
 
@@ -156,9 +156,9 @@ endif
 stripdepend:	
 	config/stripdepend
 
-.PHONY:	src.F
-src.F:	
-	cat stubs.f nwchem.F > src.F
+.PHONY:	source
+source:	
+	cat stubs.f nwchem.F > source
 ifdef SUBDIRS
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \

@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.225 1997-03-24 05:07:01 d3g270 Exp $
+# $Id: makefile.h,v 1.226 1997-03-25 16:50:12 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -214,14 +214,14 @@ ifeq ($(TARGET),SOLARIS)
 # if you want to use purecoverage tool you must
 #
 # setenv PURECOV 1
-# FLINT = 1
+FLINT = 1
 #
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
 	CPP = /usr/ccs/lib/cpp
          CC = gcc
      RANLIB = echo
-  MAKEFLAGS = -j 2 --no-print-directory
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = echo $@ is built
 # -fast introduces many options that must be applied to all files
 # -stackvar puts locals on the stack which seems a good thing
@@ -1008,9 +1008,11 @@ endif
 else
 #        -------------
 
-.F.o:; flint $(CPPFLAGS) -m -P SGI,SUN,CRAY -u $<
+# First time thru you need the -L... option. Next time remove it
+# and move the library file name to the last but one argument and add -g
+.F.o:; flint $(CPPFLAGS) -g -m -P SGI,SUN,CRAY -u $(SRCDIR)/nwchem.lbt $<
 
-.f.o:; flint $(CPPFLAGS) -m -P SGI,SUN,CRAY -u $<
+.f.o:; flint $(CPPFLAGS) -g -m -P SGI,SUN,CRAY -u $(SRCDIR)/nwchem.lbt $<
 
 endif
 
