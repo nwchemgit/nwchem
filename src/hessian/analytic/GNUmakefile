@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.9 2000-08-10 03:00:06 windus Exp $
+# $Id: GNUmakefile,v 1.10 2000-08-28 18:47:58 edo Exp $
 
 SUBDIRS = dft 
 
@@ -27,12 +27,12 @@ OBJ_OPTIMIZE =  hess_anal.o \
 
 LIB_INCLUDES = -I../../../nwdft/include
 
-   USES_BLAS = 	xc_d2expl.o \
-		xc_rhogen_nucder.o \
-		xc_rhogen_pert.o \
-		xc_tabcd_cpks_lhs.o \
-		xc_tabcd_cpks_rhs.o \
-        hess_restart.o
+   USES_BLAS = 	xc_d2expl.F \
+		xc_rhogen_nucder.F \
+		xc_rhogen_pert.F \
+		xc_tabcd_cpks_lhs.F \
+		xc_tabcd_cpks_rhs.F \
+    onedd_calc.F    hess_restart.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
