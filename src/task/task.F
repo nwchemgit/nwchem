@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.57 2004-04-01 02:38:48 marat Exp $
+* $Id: task.F,v 1.58 2004-04-20 22:33:33 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -84,9 +84,7 @@ c
 c
       if (.not. rtdb_get(rtdb, 'task:ignore', mt_log, 1, ignore))
      $     ignore = .false.
-      if(rtdb_get(rtdb, 'cons:active', mt_log, 1, ocons)) then
-        ocons=.true.
-      else
+      if(.not.rtdb_get(rtdb, 'cons:active', mt_log, 1, ocons)) then
         ocons=.false.
       end if
       if(ocons) call cons_init(rtdb)
@@ -263,8 +261,10 @@ c     *** task_paw handles paw specific "operations" ***
         end if
         status=rtdb_delete(rtdb, 'task:QMMM')
 
-       endif
-       if(ocons) call cons_print_summary(rtdb)
+      endif
+
+      if(ocons) call cons_end(rtdb)
+      if(ocons) call cons_print_summary(rtdb)
 c
       call ga_sync()
 99999 continue
