@@ -1,5 +1,5 @@
       subroutine ccsd_input(rtdb)
-C     $Id: ccsd_input.F,v 2.7 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: ccsd_input.F,v 2.8 2004-07-28 15:40:59 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -18,6 +18,7 @@ c
       parameter (num_dirs = 16)
       character*8 dirs(num_dirs)
       character*255 test
+      character*80 key
       integer maxit, iprt, MaxDIIS
       Double Precision convi, tol2e
 C
@@ -28,6 +29,17 @@ C
      $   'print','noprint',
      $   'doa', 'dob', 'dog', 'doh', 'dojk', 'dos', 'dod',
      $   'diisbas', 'freeze', 'end'/
+c
+c     Remove previous entries so empty directive forces freeze nothing.
+c     To be consistent with the rest of the code, a new ccsd block
+c     should reset no the default of no freezing
+c
+      key = ' '
+      write(key,'(a,'':'',a)') 'ccsd','frozen core'
+      call rtdb_clean(rtdb,key)
+      key = ' '
+      write(key,'(a,'':'',a,'':'')') 'ccsd','frozen virtual'
+      call rtdb_clean(rtdb,key)
 c
  10   if (.not. inp_read()) call errquit
      $     ('ccsd_input: inp_read failed', 0, INPUT_ERR)
