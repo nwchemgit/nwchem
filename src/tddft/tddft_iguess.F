@@ -3,7 +3,7 @@
      2  d_trials,g_movecs,evl,ntrials,nproducts,algorithm,targetsym,
      3  symmetry,l_irs,k_irs,tda)
 c
-c $Id: tddft_iguess.F,v 1.7 2002-06-21 22:49:06 sohirata Exp $
+c $Id: tddft_iguess.F,v 1.8 2003-01-14 20:06:17 edo Exp $
 c
 c Generate simple initial guess vectors. First sorts 
 c the eigenvalue differences (epsilon_a - epsilon_i).
@@ -191,7 +191,7 @@ c
           endif
         endif
       endif
- 1010 format(/,2x,'Initial guess read from ',a20)
+ 1010 format(/,2x,'Initial guess read from ',a)
 c
 c --------------------
 c Allocate work arrays

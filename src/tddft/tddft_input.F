@@ -1,6 +1,6 @@
       subroutine tddft_input(rtdb)
 c
-c $Id: tddft_input.F,v 1.6 2002-06-21 17:13:41 sohirata Exp $
+c $Id: tddft_input.F,v 1.7 2003-01-14 20:06:17 edo Exp $
 c
 c Input parser for TDDFT called by input/input_parse.F.
 c Also sets default values for input parameters.
@@ -118,7 +118,7 @@ c
 c
 c     VECTOR (filename for solution vectors)
 c
-      vector=''
+      call util_file_name('tddft',.false.,.false.,vector)
       if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
      1  call errquit('tddft_input: failed writing to rtdb',0)
 c
