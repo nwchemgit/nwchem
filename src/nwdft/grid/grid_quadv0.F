@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.17 2000-10-17 21:21:03 edo Exp $
+C$Id: grid_quadv0.F,v 1.18 2000-11-03 18:56:45 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(4)
@@ -19,7 +19,7 @@ c
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(4)
-      Logical oprint,grad,xc_chkgrad
+      Logical oprint,grad,xc_chkgrad,oprintw
       external xc_chkgrad
       double precision Exc(2)
       double precision rho_n
@@ -80,6 +80,7 @@ c
       me = ga_nodeid()
       nproc = ga_nnodes()
       oprint = util_print('quadrature', print_high)
+      oprintw = util_print('quadrature warning', print_medium)
       grad=xc_chkgrad()
 c
       npol = (ipol*(ipol+1))/2
@@ -386,9 +387,11 @@ c
          nelec=noc(1)+noc(2)
       endif
          
-      rho_err=abs(rho_int-dble(nelec))/nelec
-      if(.not.do_cpks_l.and.rho_err.gt.job_grid_acc.and.me.eq.0)
-     * write(LuOut,123) rho_err,job_grid_acc
+      if(oprintw) then
+         rho_err=abs(rho_int-dble(nelec))/nelec
+         if(.not.do_cpks_l.and.rho_err.gt.job_grid_acc.and.me.eq.0)
+     *        write(LuOut,123) rho_err,job_grid_acc
+      endif
 
       rho_n = rho_int
 c
