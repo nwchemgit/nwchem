@@ -1,7 +1,7 @@
-# $Id: GNUmakefile,v 1.1 1994-04-04 09:57:15 d3e129 Exp $
+# $Id: GNUmakefile,v 1.2 1994-04-08 16:00:49 d3e129 Exp $
 
 include ../../config/makefile.h
-AUX_OBJ = int_normalize.o nmcoef.o 
+AUX_OBJ = int_normalize.o nmcoef.o int_chk_sum.o
 
 
 auxobj:	$(AUX_OBJ)
