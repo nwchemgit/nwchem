@@ -1,0 +1,5 @@
+restart h2o
+
+task scf
+
+

@@ -10,11 +10,11 @@ echo "                    "
 # argument 1 = work directory (made if ncessary)
 # argument 2 = full pathname of input file
 # argument 3 = full pathname of output file which defaults
-#              to name of input file with .in replaced by .out
+#              to name of input file with .nw replaced by .out
 # e.g.
-#     runnwchem /tmp /sphome/harrison/test.in 
+#     runnwchem /tmp /sphome/harrison/test.nw 
 #     or
-#     runnwchem /tmp /sphome/harrison/test.in /sphome/harrison/test.out
+#     runnwchem /tmp /sphome/harrison/test.nw /sphome/harrison/test.out
 #
 set STATUS = 0
 #
@@ -25,7 +25,7 @@ setenv INPUT $argv[2]
 if ($#argv >= 3) then
   setenv OUTPUT $argv[3]
 else
-  setenv OUTPUT `dirname $INPUT`/`basename $INPUT .in`.out
+  setenv OUTPUT `dirname $INPUT`/`basename $INPUT .nw`.out
 endif
 #
 # Path to executable

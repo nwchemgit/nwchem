@@ -11,7 +11,7 @@ echo "                    "
 # argument 2 = full pathname of input file
 
 # e.g.
-#     interactive /tmp /sphome/harrison/test.in 
+#     interactive /tmp /sphome/harrison/test.nw 
 #
 
 #
