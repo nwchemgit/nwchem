@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.177 2004-05-14 16:00:47 edo Exp $
+# $Id: GNUmakefile,v 1.178 2004-09-30 04:20:15 edo Exp $
 
 include ../config/makefile.h
 
@@ -118,7 +118,7 @@ endif
 
  OBJ_OPTIMIZE =  ga_matpow.o util_pack.o dabssum.o dabsmax.o $(BLAS) \
                  ga_it_lsolve.o ga_it_orth.o ga_orthog.o idamin.o \
-                 util_jacobi.o stpr_sjacobi.o util_memcpy.o ga_accback.o ga_antisymmetr.o util_gnxtval.o
+                 util_jacobi.o stpr_sjacobi.o util_memcpy.o ga_accback.o ga_antisymmetr.o util_gnxtval.o nxtask.o
 
   SUBDIRS = md5
 

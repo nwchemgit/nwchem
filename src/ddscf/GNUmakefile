@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.118 2004-07-27 16:20:52 bert Exp $
+# $Id: GNUmakefile,v 1.119 2004-09-30 04:20:13 edo Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -10,7 +10,7 @@
         schwarz_init.o            vectors_inp.o \
         int_1e_ga.o               schwarz_pr.o \
         ga_orth_mos.o           schwarz_tidy.o \
-        nxtask.o                int2e_balance.o \
+        int2e_balance.o \
         vectors.o               scf_sym_scr.o \
 	ga_cont_blk.o           mull_pop.o \
         matrix_exp.o              scf_pstat.o \
