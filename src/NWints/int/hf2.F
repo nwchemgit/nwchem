@@ -1,4 +1,4 @@
-c $Id: hf2.F,v 1.19 2000-06-01 18:50:32 mg201 Exp $
+c $Id: hf2.F,v 1.20 2000-06-01 21:06:13 mg201 Exp $
       Subroutine hf2(Axyz,Aprims,Acoefs,NPA,NCA,La,
      &               Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
      &               Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,
@@ -8,7 +8,7 @@ c $Id: hf2.F,v 1.19 2000-06-01 18:50:32 mg201 Exp $
 
       Implicit none
 #include "stdio.fh"
-#include "nwc_const.fh"
+#include "mafdecls.fh"
 
       Integer NPA,NCA,La
       Integer NPB,NCB,Lb
@@ -60,7 +60,10 @@ c
 c******************************************************************************
 
       MXD = 0
-      istep = 2/nw_int_per_real
+      istep = MA_sizeof(MT_DBL,1,MT_INT)
+      if (istep .gt. 2) call errquit(
+     &    'hf2:Too many integers per real for Ipair addressing',911)
+      istep = 2/istep
 
 c Determine whether general or segmented contraction is used.
 
