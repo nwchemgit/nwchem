@@ -2,7 +2,7 @@
       implicit none
 #include "errquit.fh"
 *     
-*     $Id: stpr_gh_at.F,v 1.22 2003-11-14 21:43:08 bert Exp $
+*     $Id: stpr_gh_at.F,v 1.23 2004-02-06 19:24:32 marat Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -26,6 +26,8 @@ c::   passed
       integer rtdb
       double precision delta
 c::   local
+      integer i
+      integer ma_type
       integer whoiam, master
       integer geom
       integer nat, rank_hess
@@ -47,6 +49,7 @@ c::   local
       logical o_directions
       logical ogeom_aliased
       logical last_pass
+      logical oprint
       double precision time_taskg1, time_taskg2
       integer time_taskg, print_level
       double precision xyz(3), chg
@@ -63,6 +66,7 @@ c::   local
       external task_gradient, task_save_state, task_restore_state,
      &    task_delete_state, task_energy
 c     
+      oprint = ga_nodeid().eq.0
       o_stepper_debug = util_print('debug_stepper',print_debug)
       o_directions    = util_print('directions', print_medium)
       o_debug_restart = util_print('debug_stepper_restart',print_debug)
@@ -158,13 +162,20 @@ c
 c     
 c     all nodes working here
 c     
-      if (.not.rtdb_ma_get(rtdb,'gen_hess:active atoms',MT_INT,
+c      if (.not.rtdb_ma_get(rtdb,'gen_hess:active atoms',MT_INT,
+      if (.not.rtdb_ma_get(rtdb,'gen_hess:actlist',ma_type,
      &    nat_active,h_active)) then
         all_atom = .true.
       else
         all_atom = .false.
         if (.not.MA_get_index(h_active,i_active)) call errquit
      &      ('stpr_gen_hess_at: ma_get_index error',6, MA_ERR)
+        if(oprint) then
+        write(*,*) "active atoms for hessian generation"
+        do i=1,nat_active
+             write(*,*) int_mb(i_active+i-1)
+        end do
+        end if
       endif
 c     set no xyz options
       if (.not.rtdb_get(rtdb,'vib:no_x',mt_log,1,no_x))
@@ -289,6 +300,12 @@ c
      &        dbl_mb(k_hess),1)
           call dfill((3*rank_hess),0.0d00,dbl_mb(k_ddipole),1)
         endif
+          write(luout,*)' '
+          write(luout,*)'initial hessian' 
+          call output(dbl_mb(k_hess),1,rank_hess,1,rank_hess,
+     &        rank_hess,rank_hess,1)
+          write(luout,*)' '
+ 
       endif
       ignore_status = rtdb_parallel(.true.)
       call ga_sync()
