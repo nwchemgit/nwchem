@@ -1,0 +1,127 @@
+      subroutine rjhtest(rtdb)
+      implicit none
+      integer rtdb
+      call print_integs(rtdb, 'geometry','mo basis')
+      end
+      subroutine print_integs(rtdb, geom_name, basis_name)
+      implicit none
+#include "rtdb.fh"
+#include "geom.fh"
+#include "bas.fh"
+#include "inp.fh"
+      integer rtdb
+      character*(*) geom_name, basis_name
+      integer geom
+      integer basis
+      integer ncenter
+      integer icent, jcent, kcent, lcent
+      integer ish, jsh, ksh, lsh
+      integer ishlo, ishhi, jshlo, jshhi, kshlo, kshhi, lshlo, lshhi
+      integer i, j, k, l, ijkl
+      integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
+      double precision eri(256), xi(3), xj(3), xk(3), xl(3)
+      double precision qi, qj, qk, ql
+      character*16 tagi, tagj, tagk, tagl
+c
+      if (.not. geom_create(geom, geom_name))
+     $     call errquit('print_integs: geom_create failed?', 0)
+      if (.not. geom_rtdb_load(rtdb, geom, geom_name))
+     $     call errquit('print_integs: geom_load failed', 0)
+      if (.not. geom_print(geom))
+     $     call errquit('print_integs: geom_print failed', 0)
+      if (.not. bas_create(basis, basis_name))
+     $     call errquit('print_integs: basis create failed', 0)
+      if (.not. bas_rtdb_load(rtdb, geom, basis, basis_name))
+     $      call errquit('print_integs: basis load failed', 0)
+      if (.not. bas_print(basis))
+     $      call errquit('print_integs: basis print failed', 0)
+      if (.not. gbs_map_print(basis))
+     $     call errquit('print_integs: gbs_map_print failed', 0)
+c
+      write(6,2) geom_name(1:inp_strlen(geom_name)),
+     $     basis_name(1:inp_strlen(basis_name))
+ 2    format(/' Integrals for geometry "',a,'" with basis "',a,'"'/)
+c
+c     Partially redundant four-fold loop thru centers
+c
+      if (.not. geom_ncent(geom, ncenter))
+     $     call errquit('print_integs: geom_ncent failed', 0)
+      do icent = 1, ncenter
+         do jcent = 1, icent
+            do kcent = 1, icent
+               do lcent = 1, kcent
+c
+c     Figure out coords and contractions of each center
+c
+                  if (.not. geom_cent_get(geom, icent, tagi, xi, qi))
+     $                 call errquit('print_integs: cent_get ?', icent)
+                  if (.not. geom_cent_get(geom, jcent, tagj, xj, qj))
+     $                 call errquit('print_integs: cent_get ?', jcent)
+                  if (.not. geom_cent_get(geom, kcent, tagk, xk, qk))
+     $                 call errquit('print_integs: cent_get ?', kcent)
+                  if (.not. geom_cent_get(geom, lcent, tagl, xl, ql))
+     $                 call errquit('print_integs: cent_get ?', lcent)
+c                  
+                  if (.not. bas_ce2cnr(basis, icent, ishlo, ishhi))
+     $                 call errquit('print_integs: ce2cnr ?', icent)
+                  if (.not. bas_ce2cnr(basis, jcent, jshlo, jshhi))
+     $                 call errquit('print_integs: ce2cnr ?', jcent)
+                  if (.not. bas_ce2cnr(basis, kcent, kshlo, kshhi))
+     $                 call errquit('print_integs: ce2cnr ?', kcent)
+                  if (.not. bas_ce2cnr(basis, lcent, lshlo, lshhi))
+     $                 call errquit('print_integs: ce2cnr ?', lcent)
+c
+c     Partially redundant four-fold loop thru contractions
+c
+                  do ish = ishlo, ishhi
+                     do jsh = jshlo, jshhi
+                        do ksh = kshlo, kshhi
+                           do lsh = lshlo, lshhi
+c
+c     Now compute the SP integrals over these shells
+c
+                              call genr70(
+     $                             basis, ish, xi, jsh, xj,
+     $                             basis, ksh, xk, lsh, xl,
+     $                             eri)
+c
+c     Print the integrals out
+c 
+                              if (.not. bas_cn2bfr(basis, ish, ilo,ihi))
+     $                             call errquit('print_integ: cn2bf?',0)
+                              if (.not. bas_cn2bfr(basis, jsh, jlo,jhi))
+     $                             call errquit('print_integ: cn2bf?',0)
+                              if (.not. bas_cn2bfr(basis, ksh, klo,khi))
+     $                             call errquit('print_integ: cn2bf?',0)
+                              if (.not. bas_cn2bfr(basis, lsh, llo,lhi))
+     $                             call errquit('print_integ: cn2bf?',0)
+c
+                              ijkl = 0
+                              do i = ilo, ihi
+                                 do j = jlo, jhi
+                                    do k = klo, khi
+                                       do l = llo, lhi
+                                          ijkl = ijkl + 1
+                                          write(6,1) i,j,k,l,eri(ijkl)
+                                       enddo
+                                    enddo
+                                 enddo
+                              enddo
+                           enddo
+                        enddo
+                     enddo
+                  enddo
+               enddo
+            enddo
+         enddo
+      enddo
+c
+ 1    format(4i6,f20.10)
+
+
+      if (.not. geom_destroy(geom))
+     $     call errquit('print_integs: geom_destroy failed', 0)
+      if (.not.bas_destroy(basis))
+     $     call errquit('print_integs: basis destroy failed', 0)
+c
+      end
