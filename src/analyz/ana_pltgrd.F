@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(card)
 c
-c $Id: ana_pltgrd.F,v 1.5 2000-01-05 00:45:02 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.6 2000-03-14 21:15:21 d3j191 Exp $
 c
       implicit none
 c
@@ -10,7 +10,6 @@ c
       integer mgrd,i
       character*80 card,string
 c
-      print*,card
       string=card(8:80)
 c
       read(string(1:4),'(i4)') mgrd
@@ -20,7 +19,6 @@ c
       i=index(string,' ')
       filchg=string(1:i)
       filplt=string(i+1:80)
-      print*,rcut,spac
 c
       ngrd(1)=mgrd
       ngrd(2)=mgrd
@@ -153,8 +151,13 @@ c
       integer ix,iy,iz,i,j,k,mgrd,nxfr,nxto
       real*8 xg,yg,zg
 c
+      write(*,3000) filplt(1:index(filplt,' ')-1)
+ 3000 format(' filplt= ',a)
+c      write(*,3001) filxyz(1:index(filxyz,' ')-1)
+c 3001 format(' filxyz= ',a)
+c
       mgrd=ngx*ngy*ngz
-      print*,ngx,ngy,ngz
+      lplt=1
 c
       if(np.eq.1) then
       nxfr=1
@@ -180,9 +183,12 @@ c
       yg=dble(iy-1)*spac+xmin(2)
       do 6 iz=1,ngz
       zg=dble(iz-1)*spac+xmin(3)
+c      write(*,'(3e20.12)') xg,yg,zg
       do 7 i=1,nsa
       g(ix,iy,iz)=g(ix,iy,iz)+138.9354d0*
      + q(i,lplt)/sqrt((xg-x(i,1))**2+(yg-x(i,2))**2+(zg-x(i,3))**2)
+c      write(*,'(4i5,3e20.12)') ix,iy,iz,i,g(ix,iy,iz),q(i,lplt),
+c     + sqrt((xg-x(i,1))**2+(yg-x(i,2))**2+(zg-x(i,3))**2)
     7 continue
     6 continue
     5 continue
@@ -212,6 +218,9 @@ c
       write(lfnplt,1003) (((g(ix,iy,iz),ix=1,ngx),iy=1,ngy),iz=1,ngz)
  1003 format(2e20.12)
       close(unit=lfnplt)
+      write(*,1004) filplt(1:index(filplt,' ')-1)
+ 1004 format(' Grid data written to ',a)
+      stop
 c
 c     write coordinates in xyz format
 c
@@ -226,6 +235,8 @@ c
  2001 format(a2,1x,3f12.6)
     8 continue
       close(lfnxyz)
+      write(*,2002) filxyz(1:index(filxyz,' ')-1)
+ 2002 format(' Coordinates written to ',a)
       endif
 c
       return
