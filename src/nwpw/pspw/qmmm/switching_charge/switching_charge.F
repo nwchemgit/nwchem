@@ -1,5 +1,5 @@
 c
-c $Id: switching_charge.F,v 1.3 2002-02-27 19:46:42 bylaska Exp $
+c $Id: switching_charge.F,v 1.4 2002-02-27 20:34:16 bylaska Exp $
 c
 
 ***********************************************************
@@ -160,6 +160,7 @@ c
       nion = pspw_qmmm_nion()
 
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
+      c = 1.0d0/s_sigma
 
       do j=1,nion
          x = pspw_qmmm_rion(1,j)
@@ -167,7 +168,6 @@ c
          z = pspw_qmmm_rion(3,j)
          call pspw_Q_param_MM(j,q)
          q = -q
-         c = 1.0d0/s_sigma
          fx = 0.0d0
          fy = 0.0d0
          fz = 0.0d0
@@ -195,7 +195,7 @@ c
               verf = util_erf(yerf)
               v    = epsilon*q*( (2.0d0/sqrt_pi)*(r*c)*exp(-(r*c)**2)
      >                          - verf)/r**3
-     >             + depsilon*q*verf/r
+     >             + depsilon*q*verf/r**2
             else
               v = 0.0d0
             end if
