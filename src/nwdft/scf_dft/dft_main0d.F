@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.23 1999-02-05 01:55:47 d3h449 Exp $
+c     $Id: dft_main0d.F,v 1.24 1999-02-09 23:20:16 d3h449 Exp $
 c     
       implicit none
 c
@@ -336,7 +336,7 @@ c
       do i = me, nbf_ao-1, nproc
          if (Dbl_MB(isvals+i).lt.toll_s)  
      &      write(LuOut,*) ' singular eigenvalue in S matrix ',
-     &      Dbl_MB(isvals+i)
+     &      i, toll_s, Dbl_MB(isvals+i)
       enddo
 c     
 #if defined(DFT_TIMER)

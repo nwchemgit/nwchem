@@ -7,7 +7,7 @@ c     iwhich = 1; build S
 c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.10 1999-02-06 01:58:14 d3h449 Exp $
+C$Id: diis_bld12.F,v 1.11 1999-02-09 23:20:17 d3h449 Exp $
 c
       implicit none
 c
@@ -50,8 +50,8 @@ c
                call dscal(nbf, aaz, DBL_MB(itmpm), 1)
                call put_col(iga_stmp, nbf, i, DBL_MB(itmpm))
             else
-c               if (me.eq.0)write(LuOut,*)
-c     &            ' Small eig of S in build of S', aaz
+c               write(LuOut,*)' Small eig of S in build of S',
+c     &           i, aaz, toll_s
                call get_col(iga_svecs, nbf, i, DBL_MB(itmpm))
                call put_col(iga_stmp, nbf, i, DBL_MB(itmpm))
             endif
@@ -70,8 +70,8 @@ c
                call dscal(nbf, aaz, DBL_MB(itmpm), 1)
                call put_col(iga_stmp, nbf, i, DBL_MB(itmpm))
             else
-c               if (me.eq.0)write(LuOut,*)
-c     &            ' Small eig of S in build of S^-1/2', aaz
+c               write(LuOut,*)' Small eig of S in build of S^-1/2',
+c     &           i, aaz, toll_s
                call get_col(iga_svecs, nbf, i, DBL_MB(itmpm))
                call put_col(iga_stmp, nbf, i, DBL_MB(itmpm))
             endif
@@ -90,8 +90,8 @@ c
                call dscal(nbf, aaz, DBL_MB(itmpm), 1)
                call put_col(iga_stmp, nbf, i, DBL_MB(itmpm))
             else
-c               if (me.eq.0)write(LuOut,*)
-c     &            ' Small eig of S in build of S^1/2', aaz
+c               write(LuOut,*)' Small eig of S in build of S^1/2',
+c     &           i, aaz, toll_s
                call get_col(iga_svecs, nbf, i, DBL_MB(itmpm))
                call put_col(iga_stmp, nbf, i, DBL_MB(itmpm))
             endif
