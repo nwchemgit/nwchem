@@ -6,7 +6,7 @@
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd)
 c
 c
-c $Id: sp_init.F,v 1.37 1999-09-17 22:22:41 d3j191 Exp $
+c $Id: sp_init.F,v 1.38 1999-10-08 18:29:34 d3j191 Exp $
 c
       implicit none
 c
@@ -462,6 +462,10 @@ c
 c
       integer nat,nqt,naw,nbw,nhw,ndw,now,ntw,nnw,ipp,ips,ix
       real*8 boxi(3)
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      real*8 arg_nint
+      external arg_nint
+#endif
 c
       lpbc9=.true.
       nsf=0

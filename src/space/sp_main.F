@@ -1,6 +1,6 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa)
 c
-c $Id: sp_main.F,v 1.23 1999-09-21 22:02:00 d3j191 Exp $
+c $Id: sp_main.F,v 1.24 1999-10-08 18:29:34 d3j191 Exp $
 c
       implicit none
 c
@@ -545,6 +545,10 @@ c
       real*8 factor,xscx,xscy,xscz,boxi(3)
       integer itemps,nfold
       logical lend
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      real*8 arg_nint
+      external arg_nint
+#endif
 c
       boxi(1)=one/box(1)
       boxi(2)=one/box(2)
