@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.294 1999-07-21 18:42:33 d3e129 Exp $
+# $Id: makefile.h,v 1.295 1999-08-03 23:11:59 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -47,7 +47,7 @@ endif
 #                  LINUX        NWCHEM_TARGET_CPU :
 #                                                  nothing for X86 (e.g. do not set this)
 #                                                  ALPHA for AlphaLinux (broke)
-#                                                  POWERPC for MkLinux (broke)
+#                                                  POWERPC for MkLinux 
 #                  PARAGON
 #                  SGI
 #                  SGI_N32      NWCHEM_TARGET_CPU : R8000 or R10000
@@ -105,7 +105,7 @@ endif
 # e.g. LIBPATH = -L/msrc/proj/mss/lib
 #
     LIBPATH = 
-    LIBPATH = -L$(NWCHEM_TOP)/src/tools/lib/$(TARGET)
+    LIBPATH = -L$(SRCDIR)/tools/lib/$(TARGET)
 
 #
 # Define INCPATH to be directories to get includes for
@@ -113,7 +113,7 @@ endif
 # will be searched AFTER anything you are building now.
 #
     INCPATH = 
-    INCPATH = -I$(NWCHEM_TOP)/src/tools/include
+    INCPATH = -I$(SRCDIR)/tools/include
 
 # These subdirectories will build the core, or supporting libraries
 # that are required by all NWChem modules.  The include directory is

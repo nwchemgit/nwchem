@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.45 1999-07-02 19:06:31 d3e129 Exp $
+# $Id: makelib.h,v 1.46 1999-08-03 23:12:01 d3e129 Exp $
 
 #
 # A makefile for a library should
@@ -289,7 +289,7 @@ endif
 		  /bin/rm -f $$body.f ; \
 		fi ; \
         done
-	
+
 
 
 .PHONY:	realclean
@@ -320,6 +320,13 @@ source:
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
+
+.PHONY:	cleanDEP
+cleanDEP:
+ifdef SUBDIRS
+	$(MAKESUBDIRS)
+endif
+	@/bin/rm -f dependencies
 
 #
 # If make cannot find the dependencies file it will generate it

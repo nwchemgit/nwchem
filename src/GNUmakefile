@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.75 1999-07-02 19:06:09 d3e129 Exp $
+# $Id: GNUmakefile,v 1.76 1999-08-03 23:10:35 d3e129 Exp $
 
 include config/makefile.h
 
@@ -121,6 +121,13 @@ cleanF:
 		  /bin/rm -f $$body.f ; \
 		fi ; \
         done
+.PHONY:	cleanDEP
+cleanDEP:
+	@for dir in $(SUBDIRS) ; do \
+		echo Making $@ in $$dir; \
+		$(MAKE)	-C $$dir cleanDEP || exit 1 ;  \
+	done
+	@/bin/rm -f dependencies
 
 sngl_to_dbl dbl_to_sngl:
 	@$(MAKE) directories

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.10 1999-07-29 23:14:14 d3g681 Exp $
+# $Id: GNUmakefile,v 1.11 1999-08-03 23:11:29 d3e129 Exp $
 #
 # This makefile has to be processed by GNU make
 #
@@ -95,6 +95,9 @@ $(STAMP):
 
 .PHONY: cleanF
 cleanF:
+	@echo Not done here
+.PHONY: cleanDEP
+cleanDEP:
 	@echo Not done here
 source:
 	

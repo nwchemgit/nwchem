@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.25 1999-07-29 23:09:23 d3g681 Exp $
+# $Id: GNUmakefile,v 1.26 1999-08-03 23:10:49 d3e129 Exp $
 #
 
 LIBRARY = libpeigs.a
@@ -24,6 +24,8 @@ include_stamp:	./h/blas_lapack.h
 .PHONY :        clean	cleanF	realclean
 
 cleanF:
+	@echo " not done here"
+cleanDEP:
 	@echo " not done here"
 clean:
 	(cd ./src/c; $(MAKE) clean)
