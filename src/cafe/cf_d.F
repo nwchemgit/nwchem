@@ -1,7 +1,7 @@
       subroutine cf_dww(xw,xwm,pw,pwp,iwfrom,nlocw,lpbc,chg,iwq,
      + lwwndx,lwwjpt,lwwin,lwwj,rwc,xi,xj,rwx,pl,pj,fi,fj)
 c
-c $Id: cf_d.F,v 1.2 1999-03-29 17:22:07 d3j191 Exp $
+c $Id: cf_d.F,v 1.3 1999-04-27 17:48:34 d3j191 Exp $
 c
       implicit none
 c
@@ -193,8 +193,8 @@ c
 c     thermodynamic perturbation and integration
 c
       do 30 ipset=2,3
-      if((ipset.eq.2.and.ipert1.gt.0).or.
-     + (ipset.eq.3.and.ipert2.gt.0)) then
+      if((ipset.eq.2.and.ipert2).or.
+     + (ipset.eq.3.and.ipert3)) then
 c
       nax2=0
       do 31 iwm=lwwndx(iwpm-1,ipww)+1,lwwndx(iwpm,ipww)
@@ -296,7 +296,7 @@ c
      + xw,xwm,pw,pwp,iwq,lpbc,chg,lswndx,lswjpt,lswin,lswj,
      + rwc,xi,xj,rwx,pl,pj,fi,fj,isal)
 c
-c $Id: cf_d.F,v 1.2 1999-03-29 17:22:07 d3j191 Exp $
+c $Id: cf_d.F,v 1.3 1999-04-27 17:48:34 d3j191 Exp $
 c
       implicit none
 c
@@ -575,8 +575,8 @@ c
 c     thermodynamic integration and perturbation
 c
       do 30 ipset=2,3
-      if((ipset.eq.2.and.ipert1.gt.0).or.
-     + (ipset.eq.3.and.ipert2.gt.0)) then
+      if((ipset.eq.2.and.ipert2).or.
+     + (ipset.eq.3.and.ipert3)) then
 c
       nax2=0
       do 31 isa=lswndx(ispm-1,ipsw)+1,lswndx(ispm,ipsw)
@@ -681,7 +681,7 @@ c
      + lpbc,chg,lssndx,lssjpt,lssin,lssj,xi,xj,rwx,rwi1,rwi2,rwi6,
      + rwc,rw,f,fi,fj,isal,jsal,jmal,jfal,pl,pj)
 c
-c $Id: cf_d.F,v 1.2 1999-03-29 17:22:07 d3j191 Exp $
+c $Id: cf_d.F,v 1.3 1999-04-27 17:48:34 d3j191 Exp $
 c
       implicit none
 c
@@ -961,8 +961,8 @@ c
 c     thermodynamic integration and perturbation
 c
       do 15 ipset=2,3
-      if((ipset.eq.2.and.ipert1.gt.0).or.
-     + (ipset.eq.3.and.ipert2.gt.0)) then
+      if((ipset.eq.2.and.ipert2).or.
+     + (ipset.eq.3.and.ipert3)) then
 c
       nax2=0
       do 16 isa=lssndx(isslen-1,ipss)+1,lssndx(isslen,ipss)

@@ -136,9 +136,14 @@ c
 c
       wbox=zero
 c
-      ithint=0
-      ipert1=0
-      ipert2=0
+      ithint=.false.
+      ipert2=.false.
+      ipert3=.false.
+      do 2 i=1,24
+      ith(i)=.false.
+      ip2(i)=.false.
+      ip3(i)=.false.
+    2 continue
 c
       call cf_rdtop(lfntop,filtop)
 c
@@ -255,6 +260,10 @@ c
 c
       call cf_copya(ia,nam,wgt,num,byte_mb(i_nam),
      + dbl_mb(i_mas),int_mb(i_num))
+c
+      if(abs(wgt(1)-wgt(2)).gt.tiny) ip2((ia-1)*12+1)=.true.
+      if(abs(wgt(1)-wgt(3)).gt.tiny) ip3((ia-1)*12+1)=.true.
+      if(abs(wgt(2)-wgt(3)).gt.tiny) ith((ia-1)*12+1)=.true.
 c
       return
       end
@@ -1286,5 +1295,15 @@ c
 c
       write(lfnout,1000)
  1000 format(/,' SOLUTE',//)
+      return
+      end
+      subroutine cf_lambda(rlam)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      real*8 rlam
+c
       return
       end

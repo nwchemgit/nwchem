@@ -59,11 +59,11 @@ c
 c
       integer ix,iwb,iwm,iwa,jwa,nshake,ndtl,iwr
       real*8 bw,tw,w,dif,cmx1,cmx2,cmx3,tisum,cdwb4,ydif1,ydif2,ydif3
-      real*8 ydist,ep1sum,cdwb2,ep2sum,cdwb3,wiwa,wjwa
+      real*8 ydist,ep2sum,cdwb2,ep3sum,cdwb3,wiwa,wjwa
 c
 #include "bitops.fh"
 c
-      if(ithint.ne.0.and.ith(7).ne.0) then
+      if(ithint.and.ith(7)) then
       do 6 ix=1,3
       do 5 iwb=1,nwb
       do 4 iwm=1,nwmloc
@@ -116,7 +116,7 @@ c
       rwi6(iwm)=half*rwi1(iwm)/(rwi2(iwm)*w)
     9 continue
 c
-      if(ithint.ne.0.and.ith(7).ne.0) then
+      if(ithint.and.ith(7)) then
       do 12 ix=1,3
       do 11 iwm=1,nwmloc
       swt(iwm,ix,iwb)=swt(iwm,ix,iwb)+rwi6(iwm)*rwx(iwm,ix)
@@ -149,7 +149,7 @@ c
       xw(iwm,2,iwa)=yw(iwm,2,iwa)
       xw(iwm,3,iwa)=yw(iwm,3,iwa)
    25 continue
-      if(ithint.ne.0.and.ith(7).ne.0) then
+      if(ithint.and.ith(7)) then
       do 26 iwb=1,nwb
       swt(iwm,1,iwb)=zero
       swt(iwm,2,iwb)=zero
@@ -179,7 +179,7 @@ c   21 continue
 c      endif
 c      endif
 c
-      if(ithint.ne.0.and.ith(7).ne.0) then
+      if(ithint.and.ith(7)) then
       tisum=zero
       do 14 iwb=1,nwb
       iwa=ibnd(iwb,1)
@@ -196,8 +196,8 @@ c
    14 continue
       deriv(7,1)=tisum*tstepi*tstepi
       endif
-      if(ip1(5).ne.0) then
-      ep1sum=zero
+      if(ip2(5)) then
+      ep2sum=zero
       do 16 iwb=1,nwb
       iwa=ibnd(iwb,1)
       jwa=ibnd(iwb,2)
@@ -207,14 +207,14 @@ c
       ydif2=yw(iwm,2,iwa)-yw(iwm,2,jwa)
       ydif3=yw(iwm,3,iwa)-yw(iwm,3,jwa)
       ydist=sqrt(ydif1**2+ydif2**2+ydif3**2)
-      ep1sum=ep1sum+(swt(iwm,1,iwb)*ydif1+swt(iwm,2,iwb)*ydif2+
+      ep2sum=ep2sum+(swt(iwm,1,iwb)*ydif1+swt(iwm,2,iwb)*ydif2+
      + swt(iwm,3,iwb)*ydif3)*cdwb2/ydist
    17 continue
    16 continue
-      ep1(1)=ep1(1)+ep1sum*tstepi*tstepi
+      ep2(1)=ep2(1)+ep2sum*tstepi*tstepi
       endif
-      if(ip2(5).ne.0) then
-      ep2sum=zero
+      if(ip3(5)) then
+      ep3sum=zero
       do 18 iwb=1,nwb
       iwa=ibnd(iwb,1)
       jwa=ibnd(iwb,2)
@@ -224,11 +224,11 @@ c
       ydif2=yw(iwm,2,iwa)-yw(iwm,2,jwa)
       ydif3=yw(iwm,3,iwa)-yw(iwm,3,jwa)
       ydist=sqrt(ydif1**2+ydif2**2+ydif3**2)
-      ep2sum=ep2sum+(swt(iwm,1,iwb)*ydif1+swt(iwm,2,iwb)*ydif2+
+      ep3sum=ep3sum+(swt(iwm,1,iwb)*ydif1+swt(iwm,2,iwb)*ydif2+
      + swt(iwm,3,iwb)*ydif3)*cdwb3/ydist
    19 continue
    18 continue
-      ep2(1)=ep2(1)+ep2sum*tstepi*tstepi
+      ep3(1)=ep3(1)+ep3sum*tstepi*tstepi
       endif
 c
       return
