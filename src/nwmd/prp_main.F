@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.94 2003-07-23 20:37:32 d3j191 Exp $
+c $Id: prp_main.F,v 1.95 2003-10-13 20:45:58 d3j191 Exp $
 c
       implicit none
 c
@@ -859,7 +859,7 @@ c
      + ' Run Lambda   Size',
      + ' Temperature     Reverse     Forward    Ensemble Lambda',
      + ' Accumulated        Bias   Corrected',/,18x,
-     + '      kJ/mol           K      kJ/mol      kJ/mol       ',
+     + '           K      kJ/mol      kJ/mol      kJ/mol       ',
      + '      kJ/mol      kJ/mol      kJ/mol',/)
       endif
       else
@@ -870,7 +870,7 @@ c
      + ' Run Lambda   Size',
      + ' Temperature     Reverse     Forward    Ensemble Lambda',
      + ' Accumulated        Bias   Corrected',/,18x,
-     + '      kJ/mol           K      kJ/mol      kJ/mol       ',
+     + '           K      kJ/mol      kJ/mol      kJ/mol       ',
      + '      kJ/mol      kJ/mol      kJ/mol',/)
       endif
       endif
