@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.34 2000-10-10 16:04:10 d3j191 Exp $
+c $Id: md_input.F,v 1.35 2000-11-03 16:11:39 d3j191 Exp $
 c
       implicit none
 c
@@ -30,6 +30,7 @@ c
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
       integer itload,ihess,latom,icomm,nfanal,iport,iguide,icentr
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
+      integer ifidi
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -82,6 +83,7 @@ c
       itscal=0
       nfgaus=0
       ipolt=0
+      ifidi=0
       mpolit=10
       mshitw=100
       mshits=100
@@ -302,6 +304,11 @@ c
       if(.not.inp_i(isetp2)) goto 2
       if(isetp1.eq.3) call errquit('md_input: illegal ipset1',2)
       if(isetp2.ne.3) call errquit('md_input: illegal ipset2',2)
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'numerical',item)) then
+      ifidi=1
       goto 2
       endif
 c
@@ -1415,6 +1422,8 @@ c
       if(.not.rtdb_put(irtdb,'md:idebug',mt_int,1,idebug))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:icntrl',mt_int,1,icntrl))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:ifidi',mt_int,1,ifidi))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ngl',mt_int,1,ngl))
      + call errquit('md_input: rtdb_put failed',0)
