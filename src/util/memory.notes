@@ -1,0 +1,76 @@
+$Id: memory.notes,v 1.1 1995-06-13 20:07:51 gg502 Exp $
+
+On many platforms, nodes are not being shared with other jobs, so it
+makes sense to try to use as much memory on each node as possible.
+The idea becomes even more useful with inhomogeneous memory
+distributions being used increasingly.  Unfortunately this turn out to
+be a hard thing to do in general, but I have found info for a few
+machines.
+
+--------
+Cray-T3D
+--------
+The Fortran--callable library routine IHPSTAT returns information
+about the heap. IHPSTAT(12) tells you how far the heap can extend (in
+words, of course).  Since Cray's don't have VM this is very
+straightforward and Cray system analysts tell me that all this memory
+can be used by the application -- there is no need to reserve some
+more for the OS.  I haven't tried it.
+
+IHPSTAT(12) responds as expected to initialization of MA, which
+allocates a large chunk of memory up front to manage for the
+application.
+
+-------------
+Intel Paragon
+-------------
+The code below was made available by Thanh Phung, Intel system analyst
+at CCSF.  Vm_statistics seems to be a Mach routine.  There is no man
+page for it on the Paragon, but there is a short, unhelpful one on the
+KSR.  He says that it reports the amount of memory available before
+paging begins, and the result is sensible.  It does _not_ react as
+might be expected to initialization of MA -- the result afterwards is
+practically the same as before.  I suspect this is because of OSF1's
+lazy allocation model -- pages are not actually allocated by the VM
+system until something tries to _use_ them.
+
+/* ----- begin code from Thanh Phung ----- */
+#include <stdio.h>
+#include <mach.h>
+
+struct vm_statistics    vm_stat;
+
+double avaimem()
+{
+    double total_bytes; 
+    if (vm_statistics(current_task(), &vm_stat) != KERN_SUCCESS)
+    {
+        fprintf (stderr, "failed to get statistics.\n");
+        exit(1);
+    }
+    /* DEB: Should probably use vm_stat.pagesize instead of 8192 */
+    total_bytes = vm_stat.free_count * 8192 ;
+/*    printf ("AVAILABLE MEMORY IN BYTES = %f\n", total_bytes); */
+    return (total_bytes) ;
+}
+/* ----- end code from Thanh Phung ----- */
+
+---
+KSR
+---
+
+Being an OSF1 system, the KSR has the same vm_statistics call that the
+Paragon does, however it doesn't return what you want.  On the
+Paragon, each node is a separate VM system, and you get the per-node
+information from the call.  On the KSR, the whole machine is one big
+VM system, and the information returned by vm_statistics is not safe
+because you may in fact be sharing the space with other jobs.
+
+---
+IBM
+---
+
+I haven't been able to figure out how to get this information.  Note
+that AIX uses lazy allocation like OSF1, so if you were able to get
+the info, the technical questions about how to use it are the same as
+those on the Paragon.
