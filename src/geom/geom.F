@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.102 2000-04-10 16:30:10 hvd Exp $
+C$Id: geom.F,v 1.103 2000-05-22 23:29:14 mdupuis Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -1167,6 +1167,56 @@ c
          coords(2,i,geom) = c(2,i)
          coords(3,i,geom) = c(3,i)
          unique_cent(i,geom) = i
+      end do
+c
+      end
+      logical function geom_efc_cart_get(geom, ncent, c, q)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c
+      integer geom              ! [input]
+      integer ncent             ! [output]
+      double precision c(3, ncent) ! [output]
+      double precision q(ncent) ! [output]
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+      integer i
+c
+c-    geom_efc_cart_get = geom_check_handle(geom, 'geom_efc_cart_get')
+c-    if (.not. geom_efc_cart_get) return
+c
+      ncent = ncenter(geom)
+      do i = 1, ncent
+         q(i) = charge(i,geom)
+         c(1,i) = coords(1,i,geom)
+         c(2,i) = coords(2,i,geom)
+         c(3,i) = coords(3,i,geom)
+      end do
+c
+      end
+      logical function geom_efc_cart_set(geom, ncent, c, q)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c
+      integer geom              ! [input]
+      integer ncent             ! [output]
+      double precision c(3, ncent) ! [output]
+      double precision q(ncent) ! [output]
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+      integer i
+c
+c-    geom_efc_cart_set = geom_check_handle(geom, 'geom_efc_cart_set')
+c-    if (.not. geom_efc_cart_set) return
+c
+      ncenter(geom) = ncent
+      do i = 1, ncent
+         charge(i,geom) = q(i)
+         coords(1,i,geom) = c(1,i)
+         coords(2,i,geom) = c(2,i)
+         coords(3,i,geom) = c(3,i)
       end do
 c
       end
