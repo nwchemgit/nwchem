@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.23 1998-06-15 23:23:18 d3g681 Exp $
+* $Id: task.F,v 1.24 1998-07-02 20:28:12 ng972 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -32,17 +32,17 @@ c
 c
       logical  rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       logical  nwargos, property, dplot, gapss, task_shell, moints_full
-      logical esp,prepar
+      logical  esp, prepar
       logical  task_energy, task_gradient, task_optimize, task_freq
       logical  task_hessian, task_saddle, task_lst
-      logical  task_qmmm, task_python
+      logical  task_qmmm, task_python, task_nbo
       logical task_version
 c
       external rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       external nwargos, property, dplot, gapss, task_shell, moints_full
       external task_energy, task_gradient, task_optimize, task_freq
       external task_hessian, task_saddle, task_lst
-      external task_version, task_python
+      external task_version, task_python, task_nbo
       external esp,prepar
 c
       oprint_task_times = util_print('task time',print_default)
@@ -112,6 +112,8 @@ c
             status = cphf(rtdb)
          else if (inp_compare(.false.,'property', theory)) then
             status = property(rtdb)
+         else if (inp_compare(.false.,'nbo', theory)) then
+            status = task_nbo(rtdb)
          else if (inp_compare(.false.,'gapss', theory)) then
             status = gapss(rtdb) ! This could/should be in task_energy
          else if (inp_compare(.false.,'shell', theory)) then
