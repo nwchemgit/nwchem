@@ -1,6 +1,6 @@
 #!/bin/csh  -f
 #
-# $Id: getmem.nwchem,v 1.6 2002-01-24 23:17:55 bert Exp $
+# $Id: getmem.nwchem,v 1.7 2002-10-25 17:20:53 edo Exp $
 # this script tries to figure out no. of processors and RAM
 # to get the maximum available memory in memor_def.F
 # It can also pick up an alternate amount of memory to take 
@@ -17,7 +17,12 @@ if ($NWCHEM_TARGET == LINUX) then
 set nproc = `egrep processor /proc/cpuinfo | wc --line`
 set memtot = `egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  `
 else  if ($NWCHEM_TARGET == LINUX64) then
+if(`uname -m` == ia64) then
+set nproc = `egrep processor /proc/cpuinfo | wc --l` 
+else
+#this works for Alpha
 set nproc = `egrep cpus /proc/cpuinfo |  sed -e "s/cpus detected		: //"`
+endif
 set memtot = `egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  `
 else  if ($NWCHEM_TARGET == DECOSF) then
 set nproc = `/usr/sbin/psrinfo | wc -l `
@@ -66,9 +71,10 @@ endif
 if($good != 0) then
 set memproc=0
 @ memproc = ($memtot / $nproc)
+@ memprocgb = ($memproc / 1000000)
 echo "Total Memory         :" $memtot "Kb"
 echo "No. of processors    :" $nproc
-echo "Total Memory/proc    :" $memproc "Kb"
+echo "Total Memory/proc    :" $memproc "KB = " $memprocgb "GB"
 # take away memory for OS
 @ memproc = (($memproc - ($memos * 1024)))
 # multiply by 128=(1024/8) to get to doubles
