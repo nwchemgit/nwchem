@@ -1,4 +1,4 @@
-c $Id: int_l1eke.F,v 1.5 1996-10-07 16:50:35 d3e129 Exp $
+c $Id: int_l1eke.F,v 1.6 1996-10-08 22:43:10 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsubsection{int\_l1eke}
@@ -38,10 +38,6 @@ c:tex-\begin{verbatim}
       integer jlab(lke)          ! [output] j bas fun labels array
       double precision Ke(lke)   ! [output] kinetic energy integral buffer
 c:tex-\end{verbatim}
-      integer i_basis, j_basis, ish, jsh, lke, numgen, lscr
-      integer ilab(lke),jlab(lke)
-      double precision zerotol, scr(lscr)
-      double precision Ke(lke)
 c::local
       integer ibas, jbas, icount, i, j
       logical ijbas
