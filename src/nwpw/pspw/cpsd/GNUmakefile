@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.6 2004-03-08 22:51:26 bylaska Exp $
+# $Id: GNUmakefile,v 1.7 2004-05-14 16:02:46 edo Exp $
 #
  OBJ_OPTIMIZE = \
 		cpsd_input.o \
@@ -20,7 +20,7 @@
       LIBRARY = libpspw.a
 
     USES_BLAS = psi_lmbda.f psi_lmbda_sic.f \
-                inner_loop.F inner_loop_md.F cpsdv5.F cpmdv5.F
+                inner_loop.F inner_loop_md.F cpsdv5.F cpmdv5.F psi_lmbda2.f
                 
 
   LIB_DEFINES =
