@@ -1,4 +1,4 @@
-% $Id: qmmm.tex,v 1.8 2002-02-06 19:38:53 sohirata Exp $
+% $Id: qmmm.tex,v 1.9 2002-03-04 23:57:57 d3j191 Exp $
 
 \label{sec:qmmm}
 
@@ -32,13 +32,17 @@ except for the geometry\footnote{Any geometry information in the
 be constructed automatically by nwmd.  For dynamics and free energy
 simulations the input is again identical to that for nwmd with
 limitations on the kinds of simulations that can be done.
+Link atoms are defined by the molecular dynamics module, based on
+the specification of the quantum atoms in the prepare module. For
+the link atoms, basis sets \verb+X_L+ need to be defined in the
+basis set input block.
 
 The QM/MM module is invoked with the task directive where the
 ``theory'' is QMMM.  The recognized operations on the QM/MM theory
 directive are energy, optimize, and dynamics.
 
 \begin{verbatim}
-  TASK QMMM (energy | optimize | dynamics)
+  task qmmm (energy | optimize | dynamics)
 \end{verbatim}
 
 Tasks \verb+gradient+, \verb+saddle+, \verb+frequencies+ and
@@ -47,15 +51,21 @@ Tasks \verb+gradient+, \verb+saddle+, \verb+frequencies+ and
 
 The QM/MM input consists of the standard NWChem input block:
 \begin{verbatim}
-  QMMM
+  qmmm
     ...
-  END
+  end
 \end{verbatim}
 
-The \verb+QMMM+ has the following the additional sub-directive that the user
+The \verb+qmmm+ has the following the additional sub-directive that the user
 may specify for the particular simulation.  These options currently are:
 
-\section{\tt EATOMS}
+\begin{itemize}
+
+\item
+\begin{verbatim}
+eatoms < real eatoms>
+\end{verbatim}
+
 There is one compound input directive that must exist for the QM/MM
 simulation to proceed.  This sets the relative zero of energy for the
 QM component of the system.  It is not incorrect to leave this value as
@@ -69,16 +79,28 @@ methods is the vacuum.  The {\it a priori} determination of the
 separated atom energy for a particular QM method is not well defined
 and thus leads to a number of assumptions or guess work depending upon
 the particular QM method being utilized.  Therefor, the determination
-of the QM separated atom energy (``eatoms'') is left to the user.  The
-input takes the form:
-
-\begin{verbatim}
-  EATOMS <real eatoms>
-\end{verbatim}
-
+of the QM separated atom energy (``eatoms'') is left to the user.
 There is no default for this and the input {\bf must} be present for a
 QM/MM simulation.  
 
+\item
+\begin{verbatim}
+link hydrogen
+\end{verbatim}
+
+This directive specified to use hydrogens as link atoms. The default
+is to use the next group VII atom.  
+
+\item
+\begin{verbatim}
+nobq ( hydrogen | all | none )
+\end{verbatim}
+
+This directive specifies that hydrogen atoms, all atoms, or no atoms,
+respectively, bonded to link atoms will carry a zero charge in the
+QM part of the calculation.
+
+\end{itemize}
 All other parameters that control the QM/MM simulation are set via the
 input to nwmd (see chapter \ref{sec:nwmd}).
 

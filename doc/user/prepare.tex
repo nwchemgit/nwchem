@@ -396,14 +396,18 @@ not persistent.
 \begin{verbatim}
 modify atom <string atomname> [set <integer mset> | initial | final] \
 	( type <string atomtyp> |  charge <real atomcharge> |  \
-	  polar <real atompolar> | dummy | self | quantum )
+	  polar <real atompolar> | dummy | self | quantum | quantum_high )
 \end{verbatim}
 
 These \verb+modify+ commands change the atom type, partial atomic charge,
 atomic polarizability, specify a dummy, self-interaction and quantum atom,
 respectively. If \verb+mset+ is specified, the modification will only
 apply to the specified set, which has to be 1, 2 or 3. If not specified,
-the modification will be applied to all three sets. The \verb+atomnam+
+the modification will be applied to all three sets. The quantum region in
+QM/MM simulations is defined by specifying atoms with the \verb+quantum+
+or \verb+quantum_high+ label. For atoms defined \verb+quantum_high+
+basis sets labeled \verb+X_H+ will be used.
+The \verb+atomnam+
 should be specified as \verb+<integer isgm>:<string name>+, where
 \verb+isgm+ is the segment number, and \verb+name+ is the atom name. A
 leading blank in an atom name should be substituted with an underscore.
