@@ -123,6 +123,59 @@ c
       endif
 c
       end
+      subroutine util_file_print_dirs()
+      implicit none
+#include "util.fh"
+#include "inp.fh"      
+#include "cfileprefix.fh"
+#include "stdio.fh"
+#include "global.fh"
+c
+c     Print a summary of the permanent and scratch file directories
+c
+      character*(nw_max_path_len) sdir, pdir, prevsdir, prevpdir
+      integer node
+      logical util_file_parse_dir
+      external util_file_parse_dir
+c
+      prevpdir = ' '
+      prevsdir = ' '
+      do node = 0, ga_nnodes()-1
+         if (ga_nodeid() .eq. node) then
+            if (.not. util_file_parse_dir(scratch_dir, sdir)) then
+               if (.not. util_file_parse_dir(
+     $              SCRATCH_DEF_DIR
+     $              , sdir)) sdir = ' ' ! Final default is blank
+            endif
+            if (.not. util_file_parse_dir(permanent_dir, pdir)) then
+               if (.not. util_file_parse_dir(
+     $              PERM_DEF_DIR
+     $              , pdir)) pdir = ' ' ! Final default is blank
+            endif
+         endif
+c
+         if (node .ne. 0) then
+            call util_char_ga_brdcst(2*node+1, pdir, node)
+            call util_char_ga_brdcst(2*node+2, sdir, node)
+         endif
+c
+         if ((pdir.ne.prevpdir .or. sdir.ne.prevsdir) .and. 
+     $        ga_nodeid().eq.0) then
+            write(6,1) node, pdir(1:inp_strlen(pdir)), node,
+     $           sdir(1:inp_strlen(sdir))
+ 1          format(i3,' permanent = ', a/
+     $             i3,' scratch   = ', a)
+         endif
+         prevpdir = pdir
+         prevsdir = sdir
+      enddo
+c
+      if (ga_nodeid() .eq. 0) then
+         write(6,*)
+         call util_flush(6)
+      endif
+c
+      end
       logical function util_file_parse_dir(dirlist, dir)
       implicit none
 #include "inp.fh"
@@ -143,7 +196,7 @@ c
       integer istart, iend, i, ind, p, ihostend, def1, spe1, nspe, ndef
       data numbers /'0','1','2','3','4','5','6','7','8','9'/
 c
-*      write(6,*) ' dirlist in ufpd |',dirlist,'|'
+*      write(6,*) ga_nodeid(), ' dirlist in ufpd |',dirlist,'|'
 c
       util_file_parse_dir = .true.
       ndef = 0                  ! No. of default dirs found
@@ -236,7 +289,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.6 1996-11-02 02:59:24 d3g681 Exp $
+C$Id: util_file_name.F,v 1.7 1997-03-05 23:10:59 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -350,9 +403,9 @@ c     Broadcast start options to everyone else
 c
 10000 call ga_brdcst(Msg_StartUp, ostartup, mitob(1), 0)
       call ga_brdcst(Msg_StartUp, ocontinue, mitob(1), 0)
-      call util_char_ga_brdcst(Msg_startup, file_prefix)
-      call util_char_ga_brdcst(Msg_startup, scratch_dir)
-      call util_char_ga_brdcst(Msg_startup, permanent_dir)
+      call util_char_ga_brdcst(Msg_startup, file_prefix, 0)
+      call util_char_ga_brdcst(Msg_startup, scratch_dir, 0)
+      call util_char_ga_brdcst(Msg_startup, permanent_dir, 0)
 c
       end
       subroutine input_default_file_prefix(input_file_name,file_prefix)

@@ -1,16 +1,17 @@
-      subroutine util_char_ga_brdcst(type, string)
+      subroutine util_char_ga_brdcst(type, string, origin)
       implicit none
 #include "inp.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
       integer type
       character*(*) string
+      integer origin
 c
       integer maxs, ls, i
       parameter (maxs = 256)
       integer c(maxs)
 c
-      if (ga_nodeid() .eq. 0) then
+      if (ga_nodeid() .eq. origin) then
          ls = inp_strlen(string)
          if (ls .gt. maxs) call errquit
      $        ('util_char_ga_brdcst: lazy robert: string too large', ls)
@@ -20,10 +21,10 @@ c
          enddo
       endif
 c     
-      call ga_brdcst(type, ls, mitob(1), 0)
+      call ga_brdcst(type, ls, mitob(1), origin)
       if (ls .gt.len(string)) call errquit
      $     ('util_char_ga_brdcst: receiving string too small',ls)
-      call ga_brdcst(type, c, mitob(ls), 0)
+      if (ls .gt. 0) call ga_brdcst(type, c, mitob(ls), origin)
 c
       string = ' ' 
       do i = 1,ls
