@@ -1,7 +1,7 @@
       Subroutine xc_dirac(tol_rho,fac,lfac,nlfac,rho,Amat,nq,ipol,
      &                    Ex,qwght,ldew,func)
 
-C$Id: xc_dirac.F,v 1.5 1997-02-14 07:37:08 gutowski Exp $
+C$Id: xc_dirac.F,v 1.6 1997-02-15 01:34:15 gutowski Exp $
       Implicit none
 
       integer nq,ipol
@@ -42,7 +42,7 @@ c***************************************************************************
 
 c                      ======> SPIN-RESTRICTED <======
        do 10 n = 1,nq
-         if(rho(1,n).gt.tol_rho) then
+         if(abs(rho(1,n)).gt.tol_rho) then
            rho13=rho(1,n)**(1.d0/3.d0)
            Amat(1,n) = Amat(1,n) + rho13
            Exp      = Exp + rho(1,n)*rho13*qwght(n)

@@ -1,11 +1,11 @@
-      Subroutine xc_perdew86(fac,lfac,nlfac,rho,delrho,Amat,Cmat,
-     &           nq,ipol,Ec,qwght)
+      Subroutine xc_perdew86(tol_rho,fac,lfac,nlfac,rho,delrho,Amat,
+     &           Cmat,nq,ipol,Ec,qwght)
 c
-C     $Id: xc_perdew86.F,v 1.10 1996-10-18 00:53:28 d3h449 Exp $
+C     $Id: xc_perdew86.F,v 1.11 1997-02-15 01:34:17 gutowski Exp $
 c
       implicit none
 
-      double precision fac ! [input]
+      double precision tol_rho,fac ! [input]
       integer nq,ipol      ! [input]
       double precision Ec  ! [input/output]
       logical lfac, nlfac
@@ -70,6 +70,7 @@ c       ======> SPIN-RESTRICTED <======
         do 10 n = 1,nq
 
           rhoval = rho(1,n)
+          if(abs(rhoval).lt.tol_rho) goto 10
           rho13  = rhoval**ONETHIRD
           rho43  = rhoval*rho13
           rho76  = rhoval**SEV6 
@@ -127,6 +128,7 @@ c       ======> SPIN-UNRESTRICTED <======
 
         do 20 n = 1,nq
           rhoval = rho(1,n)
+          if(abs(rhoval).lt.tol_rho) goto 10
           arho=1.d0/rhoval
           rho13  = rhoval**ONETHIRD
           rho43  = rhoval*rho13
@@ -206,7 +208,8 @@ C
 
       end
 
-      Subroutine xc_p81(fac,lfac,nlfac,rho,Amat,nq,ipol,Ec,qwght)
+      Subroutine xc_p81(tol_rho,fac,lfac,nlfac,rho,Amat,nq,ipol,Ec,
+     &                  qwght)
 c
 c     Ceperley Alder LDA from
 c     Perdew Zunger PRB 23, 5048 (1981)
@@ -229,7 +232,7 @@ c--   > Sampling Matrices for the XC Potential & Energy
 c
       double precision AU,BU,CU,DU,
      *     GU,B1U,B2U,AP,BP,CP,DP,
-     *     GP,B1P,B2P,pi,TOLL,ONE3,SEV6,
+     *     GP,B1P,B2P,pi,tol_rho,ONE3,SEV6,
      *     FOUR3,TWO3
       parameter(
      *     AU=0.0311d0,BU=-0.048d0,CU=0.0020d0,DU=-0.0116d0,
@@ -237,7 +240,6 @@ c
      *     AP=0.01555d0,BP=-0.0269d0,CP=0.0007d0,DP=-0.0048d0,
      *     GP=-.0843d0,B1P=1.3981d0,B2P=0.2611d0)
       parameter (pi=3.1415926535897932385d0)
-      Parameter (TOLL=1.D-40)
       Parameter (ONE3=1.d0/3.d0,SEV6=7.d0/6.d0)
       Parameter (FOUR3=4.D0/3.D0,TWO3=2.d0/3.d0)
 
@@ -258,7 +260,7 @@ C
 c       ======> SPIN-RESTRICTED <======
         do n=1,nq
           
-          if(rho(1,n).gt.TOLL) then
+          if(abs(rho(1,n)).gt.tol_rho) then
             
             rhoval=rho(1,n)
             rs=rsfact/rhoval**ONE3
@@ -295,7 +297,7 @@ c       ======> SPIN-RESTRICTED <======
 c       ======> SPIN-UNRESTRICTED <======
         do n=1,nq
           
-          if(rho(1,n).gt.TOLL) then
+          if(abs(rho(1,n)).gt.tol_rho) then
             rhoval=rho(1,n)
             zeta=(rho(2,n)-rho(3,n))/rhoval
             fz=fzeta(zeta)

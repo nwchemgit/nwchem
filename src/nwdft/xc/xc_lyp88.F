@@ -1,7 +1,7 @@
-      Subroutine xc_lyp88(fac,lfac,nlfac,
+      Subroutine xc_lyp88(tol_rho,fac,lfac,nlfac,
      &           rho,delrho,Amat,Cmat,nq,ipol,Ec,qwght)
 c
-C$Id: xc_lyp88.F,v 1.5 1996-10-18 00:53:27 d3h449 Exp $
+C$Id: xc_lyp88.F,v 1.6 1997-02-15 01:34:16 gutowski Exp $
 c
       implicit none 
 
@@ -27,7 +27,7 @@ c--> Sampling Matrices for the XC Potential & Energy
       double precision Amat(ipol,nq),Cmat(ipol,3,nq)
 c
       double precision P13,P43,P83,P19,EPS,
-     ,     P1,TOLL,A,B,C,D,
+     ,     P1,tol_rho,TOLL,A,B,C,D,
      ,     P2, P3
 
       Parameter (P13=1.D0/3.D0,P43=4.D0*P13,P83=8.D0*P13,P19=1.D0/9.D0)
@@ -78,7 +78,7 @@ c                      ======> SPIN-RESTRICTED <======
 
        do 10 n = 1,nq
 
-        if(dabs(rho(1,n)).lt.TOLL) goto 10
+        if(abs(rho(1,n)).lt.tol_rho) goto 10
         CD  = rho(1,n)
         CDa = 0.5D0*CD
         CDb = CDa
@@ -172,7 +172,7 @@ c ...
 c                      ======> SPIN-UNRESTRICTED <======
 
        do 20 n = 1,nq
-         if(dabs(rho(1,n)).lt.TOLL) goto 20
+         if(abs(rho(1,n)).lt.tol_rho) goto 20
         CD  = rho(1,n)
         CDa = rho(2,n)
         CDb = rho(3,n)

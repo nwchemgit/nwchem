@@ -1,4 +1,4 @@
-      subroutine xc_pw91lda(fac,lfac,nlfac,rho,Amat,nq,ipol,
+      subroutine xc_pw91lda(tol_rho,fac,lfac,nlfac,rho,Amat,nq,ipol,
      &           Ec,qwght)
 c  uniform-gas correlation of Perdew and Wang 1991
 c  input: seitz radius (rs), relative spin polarization (zet)
@@ -17,7 +17,7 @@ c  output: correlation contribution (alfc) to the spin stiffness
       double precision eu,ep,eurs,eprs,alfm,alfrsm,alfc,epw91
       double precision zet
       double precision gam,fzz,thrd,thrd4,f
-      double precision rhoval,pi,rsfact
+      double precision rhoval,pi,rsfact,tol_rho
       integer n
       double precision vcup,vcdn,comm,eczet,fz,ecrs,z4,rs,
      ,     rho13
@@ -30,43 +30,45 @@ C
 C
       rsfact=(0.75d0/pi)**thrd
       do n = 1,nq
-        rhoval = rho(1,n)
-        rho13  = rhoval**thrd
-        rs=rsfact/rho13
+        if(abs(rho(1,n)).gt.tol_rho) then
+          rhoval = rho(1,n)
+          rho13  = rhoval**thrd
+          rs=rsfact/rho13
 
-        call xc_gcor(0.0310907d0,0.21370d0,7.5957d0,3.5876d0,
-     *       1.6382d0,0.49294d0,rs,eu,eurs)
-        if(ipol.eq.2) then
-          zet=(rho(2,n)-rho(3,n))/rhoval
-          z4 = zet**4
-          call xc_gcor(0.01554535d0,0.20548d0,14.1189d0,6.1977d0,
-     *       3.3662d0,0.62517d0,rs,ep,eprs)
-          call xc_gcor(0.0168869d0,0.11125d0,10.357d0,3.6231d0,
-     *       0.88026d0,0.49671d0,rs,alfm,alfrsm)
-c         alfm is minus the spin stiffness alfc
-          alfc = -alfm
-          f = ((1.d0+zet)**thrd4+(1.d0-zet)**thrd4-2.d0)/gam
-          epw91=(eu*(1.d0-f*z4)+ep*f*z4-alfm*f*(1.d0-z4)/fzz)
-        else
-          epw91=eu
-        endif
-        ec = ec+epw91*qwght(n)*rhoval*fac
-c       energy done. now the potential:
-        if(ipol.eq.2) then
-          ecrs = eurs*(1.d0-f*z4)+eprs*f*z4-alfrsm*f*(1.d0-z4)/fzz
-          fz = thrd4*((1.d0+zet)**thrd-(1.d0-zet)**thrd)/gam
-          eczet = 4.d0*(zet**3)*f*(ep-eu+alfm/fzz)+fz*(z4*ep-z4*eu
-     *         -(1.d0-z4)*alfm/fzz)
-          comm = epw91 -rs*ecrs/3.d0-zet*eczet
-          vcup = comm + eczet
-          vcdn = comm - eczet
-          Amat(1,n) = Amat(1,n) + vcup*fac
-          Amat(2,n) = Amat(2,n) + vcdn*fac
-        else
-          comm = epw91 -rs*eurs/3.d0
-          Amat(1,n) = Amat(1,n) + comm*fac
-        endif
+          call xc_gcor(0.0310907d0,0.21370d0,7.5957d0,3.5876d0,
+     *         1.6382d0,0.49294d0,rs,eu,eurs)
+          if(ipol.eq.2) then
+            zet=(rho(2,n)-rho(3,n))/rhoval
+            z4 = zet**4
+            call xc_gcor(0.01554535d0,0.20548d0,14.1189d0,6.1977d0,
+     *         3.3662d0,0.62517d0,rs,ep,eprs)
+            call xc_gcor(0.0168869d0,0.11125d0,10.357d0,3.6231d0,
+     *         0.88026d0,0.49671d0,rs,alfm,alfrsm)
+c           alfm is minus the spin stiffness alfc
+            alfc = -alfm
+            f = ((1.d0+zet)**thrd4+(1.d0-zet)**thrd4-2.d0)/gam
+            epw91=(eu*(1.d0-f*z4)+ep*f*z4-alfm*f*(1.d0-z4)/fzz)
+          else
+            epw91=eu
+          endif
+          ec = ec+epw91*qwght(n)*rhoval*fac
+c         energy done. now the potential:
+          if(ipol.eq.2) then
+            ecrs = eurs*(1.d0-f*z4)+eprs*f*z4-alfrsm*f*(1.d0-z4)/fzz
+            fz = thrd4*((1.d0+zet)**thrd-(1.d0-zet)**thrd)/gam
+            eczet = 4.d0*(zet**3)*f*(ep-eu+alfm/fzz)+fz*(z4*ep-z4*eu
+     *           -(1.d0-z4)*alfm/fzz)
+            comm = epw91 -rs*ecrs/3.d0-zet*eczet
+            vcup = comm + eczet
+            vcdn = comm - eczet
+            Amat(1,n) = Amat(1,n) + vcup*fac
+            Amat(2,n) = Amat(2,n) + vcdn*fac
+          else
+            comm = epw91 -rs*eurs/3.d0
+            Amat(1,n) = Amat(1,n) + comm*fac
+          endif
 
+        endif
       enddo
       return
       end

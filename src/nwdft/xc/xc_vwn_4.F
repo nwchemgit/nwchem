@@ -141,7 +141,7 @@ c                      ======> SPIN-RESTRICTED <======
        do 100 n = 1,nq
 
 c        Compute the interpolation variable.
-        if(dabs(rho(1,n)).lt.tol_rho) goto 100
+        if(abs(rho(1,n)).lt.tol_rho) goto 100
         rho3=rho(1,n)**onethird
         xs = sqrt(p0/rho3)
 
@@ -172,7 +172,7 @@ c  2 from this formula.)
 c                      ======> SPIN-UNRESTRICTED <======
 
        do 200 n = 1,nq
-         if(dabs(rho(1,n)).lt.tol_rho) goto 200
+         if(abs(rho(1,n)).lt.tol_rho) goto 200
 
 c Compute the interpolation variable.
 

@@ -1,7 +1,7 @@
       Subroutine xc_perdew91(tol_rho,cfac,lcfac,nlcfac,
      *     rho,delrho,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.19 1997-02-14 06:13:03 gutowski Exp $
+C     $Id: xc_perdew91.F,v 1.20 1997-02-15 01:34:18 gutowski Exp $
       Implicit none
 
       double precision TOLL,EXPTOL
@@ -115,7 +115,7 @@ c       ======> SPIN-RESTRICTED <======
 
         do 10 n = 1,nq
           rhoval = rho(1,n)
-          if(rhoval.le.tol_rho) goto 10
+          if(abs(rhoval).le.tol_rho) goto 10
           arho=1.d0/rhoval
           rho13  = rhoval**ONE3
           rs=rsfact/rho13
@@ -148,7 +148,7 @@ c
               facl = cfac(1)
              lfacl = lcfac(1)
             nlfacl = nlcfac(1)
-            call xc_vwn_5(facl,lfacl,nlfacl,rhoval,dp81drho,
+            call xc_vwn_5(tol_rho,facl,lfacl,nlfacl,rhoval,dp81drho,
      &                  lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
@@ -156,7 +156,7 @@ c
               facl = cfac(3)
              lfacl = lcfac(3)
             nlfacl = nlcfac(3)
-            call xc_p81(facl,lfacl,nlfacl,rhoval,dp81drho,
+            call xc_p81(tol_rho,facl,lfacl,nlfacl,rhoval,dp81drho,
      &                  lnq,ipol,egas,lqwght)
           endif
 c
@@ -165,7 +165,7 @@ c
               if(abs(facl).lt.eps)facl = 1.0d0
              lfacl = lcfac(6)
             nlfacl = nlcfac(6)
-            call xc_pw91lda(facl,lfacl,nlfacl,rhoval,dp81drho,
+            call xc_pw91lda(tol_rho,facl,lfacl,nlfacl,rhoval,dp81drho,
      &                      lnq,ipol,egas,lqwght)
           endif
 c
@@ -173,7 +173,7 @@ c
               facl = cfac(7)
              lfacl = lcfac(7)
             nlfacl = nlcfac(7)
-            call xc_vwn_1_rpa(facl,lfacl,nlfacl,rhoval,dp81drho,
+            call xc_vwn_1_rpa(tol_rho,facl,lfacl,nlfacl,rhoval,dp81drho,
      &                     lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
@@ -181,7 +181,7 @@ c
               facl = cfac(8)
              lfacl = lcfac(8)
             nlfacl = nlcfac(8)
-            call xc_vwn_1(facl,lfacl,nlfacl,rhoval,dp81drho,
+            call xc_vwn_1(tol_rho,facl,lfacl,nlfacl,rhoval,dp81drho,
      &                     lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
@@ -189,7 +189,7 @@ c
               facl = cfac(9)
              lfacl = lcfac(9)
             nlfacl = nlcfac(9)
-            call xc_vwn_2(facl,lfacl,nlfacl,rhoval,dp81drho,
+            call xc_vwn_2(tol_rho,facl,lfacl,nlfacl,rhoval,dp81drho,
      &                     lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
@@ -197,7 +197,7 @@ c
               facl = cfac(10)
              lfacl = lcfac(10)
             nlfacl = nlcfac(10)
-            call xc_vwn_3(facl,lfacl,nlfacl,rhoval,dp81drho,
+            call xc_vwn_3(tol_rho,facl,lfacl,nlfacl,rhoval,dp81drho,
      &                     lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
@@ -205,7 +205,7 @@ c
               facl = cfac(11)
              lfacl = lcfac(11)
             nlfacl = nlcfac(11)
-            call xc_vwn_4(facl,lfacl,nlfacl,rhoval,dp81drho,
+            call xc_vwn_4(tol_rho,facl,lfacl,nlfacl,rhoval,dp81drho,
      &                     lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
@@ -318,7 +318,7 @@ c
 c       ======> SPIN-UNRESTRICTED <======
         do 20 n = 1,nq
           rhoval = rho(1,n)
-          if(rhoval.le.tol_rho) goto 20
+          if(abs(rhoval).le.tol_rho) goto 20
           arho=1.d0/rhoval
           rho13  = rhoval**ONE3
           rs=rsfact/rho13
@@ -361,7 +361,7 @@ c
               facl = cfac(1)
              lfacl = lcfac(1)
             nlfacl = nlcfac(1)
-            call xc_vwn_5(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+            call xc_vwn_5(tol_rho,facl,lfacl,nlfacl,rho(1,n),dp81drho,
      &                  lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
@@ -369,7 +369,7 @@ c
               facl = cfac(3)
              lfacl = lcfac(3)
             nlfacl = nlcfac(3)
-            call xc_p81(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+            call xc_p81(tol_rho,facl,lfacl,nlfacl,rho(1,n),dp81drho,
      &                  lnq,ipol,egas,lqwght)
           endif
 c
@@ -378,7 +378,7 @@ c
               if(abs(facl).lt.eps)facl = 1.0d0
              lfacl = lcfac(6)
             nlfacl = nlcfac(6)
-            call xc_pw91lda(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+            call xc_pw91lda(tol_rho,facl,lfacl,nlfacl,rho(1,n),dp81drho,
      &                      lnq,ipol,egas,lqwght)
           endif
 c
@@ -386,15 +386,15 @@ c
               facl = cfac(7)
              lfacl = lcfac(7)
             nlfacl = nlcfac(7)
-            call xc_vwn_1_rpa(facl,lfacl,nlfacl,rho(1,n),dp81drho,
-     &                     lnq,ipol,egas,lqwght,.false.,dummy)
+            call xc_vwn_1_rpa(tol_rho,facl,lfacl,nlfacl,rho(1,n),
+     &           dp81drho,lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
           if(abs(cfac(8)).gt.eps) then
               facl = cfac(8)
              lfacl = lcfac(8)
             nlfacl = nlcfac(8)
-            call xc_vwn_1(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+            call xc_vwn_1(tol_rho,facl,lfacl,nlfacl,rho(1,n),dp81drho,
      &                     lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
@@ -402,7 +402,7 @@ c
               facl = cfac(9)
              lfacl = lcfac(9)
             nlfacl = nlcfac(9)
-            call xc_vwn_2(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+            call xc_vwn_2(tol_rho,facl,lfacl,nlfacl,rho(1,n),dp81drho,
      &                     lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
@@ -410,7 +410,7 @@ c
               facl = cfac(10)
              lfacl = lcfac(10)
             nlfacl = nlcfac(10)
-            call xc_vwn_3(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+            call xc_vwn_3(tol_rho,facl,lfacl,nlfacl,rho(1,n),dp81drho,
      &                     lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
@@ -418,7 +418,7 @@ c
               facl = cfac(11)
              lfacl = lcfac(11)
             nlfacl = nlcfac(11)
-            call xc_vwn_4(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+            call xc_vwn_4(tol_rho,facl,lfacl,nlfacl,rho(1,n),dp81drho,
      &                     lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
