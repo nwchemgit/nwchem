@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.31 1998-08-24 03:20:42 d3e129 Exp $
+c $Id: cando_sp.F,v 1.32 1998-08-26 23:57:50 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -184,6 +184,7 @@ c:tex-A zero [i|j]sh means ignore this shell. this allows one function
 c:tex-for all 2e permutations and multiple basis sets.  This routine 
 c:tex-{\tt cando\_sp\_u} works for unique shells only.
 c::local
+#if defined(USE_SP_CODE)
       integer basis, mytype, mycont, mygen
 c
       if (user_cando_sp) then
@@ -224,6 +225,9 @@ c.... check jsh_u
      $       (((mytype.eq.0).or.(mytype.eq.1)).and.mygen.eq.1)) .and.
      $         (mycont.le.25)
       endif
+#else
+      cando_sp_u = .false.
+#endif
 c
       end
 ***********************************************************************
