@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska
-   $Id: atom.c,v 1.3 2002-02-13 19:13:55 edo Exp $
+   $Id: atom.c,v 1.4 2004-05-24 13:43:18 bylaska Exp $
 */
 
 #include	<stdio.h>
@@ -520,8 +520,12 @@ FILE 	*fp;
 				        fill[i],eigenvalue[i],peak[i]);
    }
    fprintf(fp,"------------------------------------------------------------\n");
-   fprintf(fp,"charge      = %le\n",Integrate_LogGrid(rho));
-   fprintf(fp,"core charge = %le\n",Integrate_LogGrid(rho_core));
+   
+   fprintf(fp,"electronic charge      = %le\n",-Integrate_LogGrid(rho));
+   fprintf(fp,"electronic core charge = %le\n",-Integrate_LogGrid(rho_core));
+   fprintf(fp,"total atom charge      = %le\n",Zion-Integrate_LogGrid(rho));
+
+
 
 
    fprintf(fp,"\nTotal E       = %le\n",Total_E);

@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.23 2004-03-03 23:26:54 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.24 2004-05-24 13:43:19 bylaska Exp $
 c
 
 *     ***************************************
@@ -540,7 +540,7 @@ c
       logical value,hprint
       character*255 dir_name,sdir_name
       character*16 psp_in,psp_out
-      integer h,i,j,k,debug,psp_type,print
+      integer h,i,j,k,ka,debug,psp_type,print
       character ch_tmp
 
 *     **** external functions ****
@@ -569,9 +569,9 @@ c
       open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='unknown')
       close(unit=99,status='delete')
       psp_in = "junk.inp "
-      k = index(atom,' ') - 1
-      if (k.lt.0) k = 2
-      psp_out = atom(1:k)//".psp "
+      ka = index(atom,' ') - 1
+      if (ka.lt.0) ka = 2
+      psp_out = atom(1:ka)//".psp "
       j = index(psp_in,' ')  - 1
       k = index(psp_out,' ') - 1
 
@@ -618,7 +618,8 @@ c        *** PBE96 ***
      >        psp_in(1:j),j,
      >        psp_out(1:k),k)
 
-      else
+      !*** HGH pseudopotential format ***
+      else if (psp_type.eq.1) then
          debug = 0
          print = 0
          if (control_print(print_debug)) debug = 1
@@ -629,7 +630,38 @@ c        *** PBE96 ***
      >        dir_name(1:i),i,
      >        psp_in(1:j),j,
      >        psp_out(1:k),k)
+
+      !*** CPI pseudopotential format ***
+      else if (psp_type.eq.2) then
+         debug = 0
+         print = 0
+         if (control_print(print_debug)) debug = 1
+         if (control_print(print_high)) print  = 1
+         call cpi_parse(debug,    
+     >        lmax,locp,rlocal,
+     >        sdir_name(1:h),h,
+     >        dir_name(1:i),i,
+     >        psp_in(1:j),j,
+     >        psp_out(1:k),k,
+     >        atom(1:ka),ka)
+
+      !*** TETER pseudopotential format ***
+      else if (psp_type.eq.3) then
+         debug = 0
+         print = 0
+         if (control_print(print_debug)) debug = 1
+         if (control_print(print_high)) print  = 1
+         call teter_parse(debug,    
+     >        lmax,locp,rlocal,
+     >        sdir_name(1:h),h,
+     >        dir_name(1:i),i,
+     >        psp_in(1:j),j,
+     >        psp_out(1:k),k,
+     >        atom(1:ka),ka)
+
+
       end if
+
       open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
       close(unit=99,status='delete')
 
@@ -674,7 +706,7 @@ c
       logical value,hprint
       character*255 dir_name,sdir_name
       character*16 psp_in,psp_out
-      integer h,i,j,k,debug,psp_type,print
+      integer h,i,j,k,ka,debug,psp_type,print
       character ch_tmp
 
 *     **** external functions ****
@@ -703,9 +735,9 @@ c
       open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='unknown')
       close(unit=99,status='delete')
       psp_in = "junk.inp "
-      k = index(atom,' ') - 1
-      if (k.lt.0) k = 2
-      psp_out = atom(1:k)//".psp1"
+      ka = index(atom,' ') - 1
+      if (ka.lt.0) ka = 2
+      psp_out = atom(1:ka)//".psp1"
       j = index(psp_in,' ')  - 1
       k = index(psp_out,' ') - 1
 
@@ -720,7 +752,35 @@ c
       write(*,*) "psp_type:",psp_type
       end if
 
+      !*** CPI pseudopotential format ***
+      if (psp_type.eq.2) then
+         debug = 0
+         print = 0
+         if (control_print(print_debug)) debug = 1
+         if (control_print(print_high)) print  = 1
+         call cpi_parse(debug,
+     >        lmax,locp,rlocal,
+     >        sdir_name(1:h),h,
+     >        dir_name(1:i),i,
+     >        psp_in(1:j),j,
+     >        psp_out(1:k),k,
+     >        atom(1:ka),ka)
 
+      !*** TETER pseudopotential format ***
+      else if (psp_type.eq.3) then
+         debug = 0
+         print = 0
+         if (control_print(print_debug)) debug = 1
+         if (control_print(print_high)) print  = 1
+         call teter_parse(debug,
+     >        lmax,locp,rlocal,
+     >        sdir_name(1:h),h,
+     >        dir_name(1:i),i,
+     >        psp_in(1:j),j,
+     >        psp_out(1:k),k,
+     >        atom(1:ka),ka)
+
+      else
 
 c        *** add GGA options to junk.inp ***
 *  
@@ -752,6 +812,7 @@ c        *** PBE96 ***
      >        psp_out(1:k),k)
 
 
+      end if
       open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
       close(unit=99,status='delete')
 

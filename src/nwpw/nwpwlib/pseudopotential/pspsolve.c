@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.11 2004-05-04 22:09:31 edo Exp $
+ $Id: pspsolve.c,v 1.12 2004-05-24 13:43:19 bylaska Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -521,6 +521,7 @@ Integer	*n2;
    free(pspl);
    free(rl);
    free(rhol);
+   end_Linear();
 
    fflush(stdout);
 

@@ -1,6 +1,6 @@
 /* psp.c -
    author - Eric Bylaska
-   $Id: psp1d.c,v 1.4 2003-12-02 19:17:09 bylaska Exp $
+   $Id: psp1d.c,v 1.5 2004-05-24 13:43:18 bylaska Exp $
 */
 
 #include	<stdio.h>
@@ -385,9 +385,15 @@ void	init_Psp(char *filename)
    }
 
    /* define the ion charge */
-   Zion=0.0;
-   for (p=Ncore_Atom(); p<(Ncore_Atom()+Nvalence_Atom()); ++p)
-      Zion += fill_Atom(p);
+   //Zion=0.0;
+   //for (p=Ncore_Atom(); p<(Ncore_Atom()+Nvalence_Atom()); ++p)
+   //   Zion += fill_Atom(p);
+
+   Zion = Zion_Atom();
+   for (p=0; p<(Ncore_Atom()); ++p)
+      Zion -= fill_Atom(p);
+
+
 
    
 } /* init_Psp */
@@ -525,7 +531,10 @@ FILE 	*fp;
    if (Solver_Type==Vanderbilt) 
       fprintf(fp,"Using AE valence density for descreening\n");
 
-   fprintf(fp,  "Pseudopotential Charge: %lf\n", Integrate_LogGrid(rho));
+   fprintf(fp,  "Pseudopotential ion charge       = %lf\n", Zion);
+   fprintf(fp,  "Pseudopotential electronic charge= %lf\n", -Integrate_LogGrid(rho));
+   fprintf(fp,  "Pseudopotential atom charge      = %lf\n", Zion-Integrate_LogGrid(rho));
+
    fprintf(fp,"\nTotal E       = %le\n",Total_E);
    fprintf(fp,"\n");
    

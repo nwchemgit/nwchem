@@ -1,9 +1,11 @@
 /*
- $Id: spline.c,v 1.2 2002-02-13 19:13:57 edo Exp $
+ $Id: spline.c,v 1.3 2004-05-24 13:43:19 bylaska Exp $
    spline.c -
     Taken from Numerical recipies, with slight modifications as
 suggested by hamman's code.
 */
+
+#include 	<stdlib.h>
 #include	<stdio.h>
 #include	<string.h>
 
@@ -11,8 +13,9 @@ suggested by hamman's code.
 #include	"grids.h"
 #include	"loggrid.h"
 
-static	int	nrl=501;
+static	int	nrl=1501;
 static	double	drl=0.02;
+static  int     *nl;
 
 void	init_Linear(char *filename)
 {
@@ -28,7 +31,13 @@ void	init_Linear(char *filename)
       fscanf(fp,"%d %lf",&nrl,&drl);
    }
    fclose(fp);
+   nl   = (int *) malloc(nrl*sizeof(int));
 
+}
+
+void	end_Linear()
+{
+   free(nl);
 }
 
 int	nrl_Linear()
@@ -170,7 +179,7 @@ double	rl[];
 double	ulin[];
 {
    int i,Ngrid;
-   int	nl[1000];
+   //int	nl[5000];
    double r0,al;
    double *r;
    double *tmp;

@@ -23,6 +23,7 @@ extern double	*drho_semicore_Psp();
 extern double	r_semicore_Psp();
 extern double	*r_psi_Psp(int );
 extern int	n_Psp(int);
+extern int	ns_Psp(int);
 extern int	l_Psp(int);
 extern int	lmax_Psp();
 extern double	fill_Psp(int);

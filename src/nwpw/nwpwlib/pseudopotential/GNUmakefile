@@ -1,10 +1,12 @@
 #
-# $Id: GNUmakefile,v 1.4 2003-12-02 19:17:08 bylaska Exp $
+# $Id: GNUmakefile,v 1.5 2004-05-24 13:43:18 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
                 psp_generator_input.o \
                 pspsolve.o \
                 hgh_parse.o \
+                cpi_parse.o \
+                teter_parse.o \
                 get_word.o name.o\
                 loggrid.o pred_cor.o spline.o grids.o atom.o  \
                 schrodin.o \
