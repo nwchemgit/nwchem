@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvint.F,v 1.1 1999-01-22 00:51:49 windus Exp $
+c $Id: hnd_stvint.F,v 1.2 1999-04-10 00:15:17 windus Exp $
 c
 c Taken from HONDO
 c
@@ -40,16 +40,17 @@ c
       double precision csj, cpj, cdj, cfj, cgj, ax, ay, az
       double precision xs, ys, zs, xt, yt, zt, dum, dum1, dum2
       double precision xint, yint, zint, t, x0, y0, z0, xi, yi, zi 
+      double precision xj, yj, zj, ccx, ccy, ccz 
+      double precision rln10, zero, one, pi212
       double precision aax, aay, aaz, znuc, cx, cy, cz, uu, ww, tt
       double precision xv, yv, zv
-      double precision xj, yj, zj, rln10, zero, one, pi212
       integer lit, ljt, mini, minj, maxi, maxj, ljtmod, jg
       integer ijx, ijy, ijz, minprim, maxprim, ij, i, j
       integer ni, nj, maxrys, i1, i2, j1, j2, ig, ic, iroot
       integer ix, iy, iz, jx, jy, jz
       logical some, doH1
-      common/hnd_xyzstv/xint,yint,zint,t,x0,y0,z0,xi,yi,zi,xj,yj,zj,
-     1                  ni,nj
+      common/hnd_xyzder/xint,yint,zint,t,x0,y0,z0,xi,yi,zi,xj,yj,zj,
+     1                  ni,nj,ccx,ccy,ccz
       dimension ijx(35),ijy(35),ijz(35)
       dimension xs(5,7)  ,ys(5,7)  ,zs(5,7)
       dimension xt(5,5)  ,yt(5,5)  ,zt(5,5)
@@ -93,7 +94,6 @@ c
       lit = Li + 1
       mini=minprim(lit)
       maxi=maxprim(lit)
-c     loci=kloc(ii)-mini
 c
 c     ----- jshell -----
 c
@@ -201,8 +201,6 @@ c
      2       310,350,350,350,350,350,350,350,350,350,
      3       350,350,350,350,350),j
   230 dum2=dum1*csj
-      go to 350
-  240 dum2=dum2+csi*cpj*fac
       go to 350
   250 dum2=dum1*cpj
       go to 350

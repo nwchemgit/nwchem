@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.6 1999-01-26 01:06:36 d3e129 Exp $
+# $Id: GNUmakefile,v 1.7 1999-04-10 00:15:18 windus Exp $
 
 include ../../config/makefile.h
 
@@ -13,6 +13,16 @@ include ../../config/makefile.h
                  hnd_stvint.o  \
                  hnd_sxyz.o   \
                  hnd_txyz.o   \
+                 hnd_initd.o  \
+                 hnd_d1emem.o  \
+                 hnd_stvintd.o \
+                 hnd_dderij.o \
+                 hnd_sd_ij.o  \
+                 hnd_tvd_ij.o \
+                 hnd_ddtxyz.o \
+                 hnd_hlf_ij.o \
+                 hnd_dvxyz.o  \
+                 hnd_ddvxyz.o \
                  hnd_to_nw_order.o \
                  hnd_terminate.o 
 
@@ -22,6 +32,6 @@ include ../../config/makefile.h
 
        LIBRARY = libnwints.a
 
-     USES_BLAS = hnd_stvint.F
+     USES_BLAS = hnd_stvint.F hnd_stvintd.F
 include ../../config/makelib.h
 

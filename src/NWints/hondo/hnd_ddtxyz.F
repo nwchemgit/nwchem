@@ -1,13 +1,11 @@
-c
-c $Id: hnd_txyz.F,v 1.2 1999-04-10 00:15:18 windus Exp $
-c
-      subroutine hnd_txyz(xt,yt,zt,xs,ys,zs,ni,nj,aj)
+      subroutine hnd_ddtxyz(xt,yt,zt,xs,ys,zs,ni,nj,aj)
       implicit none
 c
       double precision xt, yt, zt, xs, ys, zs, aj
       integer ni, nj, i, j
-      dimension xt(5,*),yt(5,*),zt(5,*)
-      dimension xs(5,*),ys(5,*),zs(5,*)
+c
+      dimension xt(7,*),yt(7,*),zt(7,*)
+      dimension xs(7,*),ys(7,*),zs(7,*)
 c
       do 10 i=1,ni
       xt(i,1)=(xs(i,1  )            -xs(i,3  )*(aj+aj))*aj
