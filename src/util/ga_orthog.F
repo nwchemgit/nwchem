@@ -2,7 +2,8 @@
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
-      integer g_vecs, g_over, ometric
+      integer g_vecs, g_over
+      logical ometric
 c
       integer ulo, uhi, type, ni, nu, uchunk, ld
       integer l_tmp, k_tmp, k_s, l_s, l_over, k_over, l_w, k_w
