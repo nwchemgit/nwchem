@@ -1,7 +1,7 @@
       Subroutine dftg_gridv0b(nqpts,rad,ictr_buf,iga_dens,
      &                         ncoef_max, NXprim, max_at_bf,
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
-     &                         func, d_qwght, qwght, qxyz, xyz, 
+     &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
      &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
      &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
      &                         rq0, hh, 
@@ -13,7 +13,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr)
 c      
-c     $Id: dftg_gridv0b.F,v 1.3 2000-04-14 01:47:45 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.4 2000-04-15 01:24:24 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -57,7 +57,7 @@ c
       double precision func(n_per_rec)
       double precision d_qwght(3,n_per_rec,*)
       double precision qwght(nqpts), qxyz(3,nqpts)
-      double precision xyz(3,natoms)
+      double precision xyz(3,natoms),xyzm(3,natoms)
       integer iandex(natoms)
       integer iniz(natoms), ifin(natoms)
       integer ibf_ao(nbf_ao),curatoms(natoms)
@@ -99,6 +99,7 @@ c
       external dabsmax
       integer grid_nbfm
       external grid_nbfm
+      integer natoms_l ! atoms left after xc_sig
 c
       integer ncuratoms, l_drhonuc, k_drhonuc,
      &        l_ddelrhonuc, k_ddelrhonuc, l_d2scr, k_d2scr
@@ -117,19 +118,6 @@ c
      &           ibf_ao, iniz, ifin, expo, 
      .           minexp,ldiff, acc_AO_gauss)
             if (mbf_ao .eq. 0) return
-            if(ldew) then
-!               if(lssw) then
-                  call dftg_gridssw(d_qwght,qwght, qxyz, xyz, 
-     .                 rq, ictr_buf, natoms, iandex,
-     .                 nqpts,tol_rho,whichssw)
-!               else
-!                     call dftg_beckew(d_qwght, qwght, qxyz, xyzm,
-!     &                                Rij, rq, dbl_mb(ibp),
-!     &                                dbl_mb(izeta), dbl_mb(idzeta),
-!     &                                dbl_mb(idp), ictr, qcenters,
-!     &                                nq_orig,nq, iandex)
-!                  endif
-               endif
             
             if (do_hess .or. do_cpks_r) then
 c     
@@ -337,7 +325,6 @@ c              terms
 c     
                if (do_force) then
 c 
-!                 call dftg_quadv0_b(ictr_buf, .false., AO_bas_han, ipol,
                  call dftg_quadv0_b(ictr_buf, ldew, AO_bas_han, ipol,
      &                            grad, nbf_ao, mbf_ao, natoms, nqpts,
      &                            dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
@@ -446,7 +433,12 @@ c
 c
 c
                if (do_force.and.ldew)then
-                  call dftg_wderiv(ictr_buf, natoms, nqpts, nqpts, 
+                  natoms_l=natoms
+                     call dftg_gridssw(d_qwght,qwght, qxyz, xyz,xyzm, 
+     .                    rq, ictr_buf, natoms_l, iandex,
+     .                    nqpts,whichssw,
+     ,                    rad,expo)
+                  call dftg_wderiv(ictr_buf, natoms_l, nqpts, nqpts, 
      .                 iandex, 
      &                             natoms, func, d_qwght,
      &                             force, oactive, nactive)

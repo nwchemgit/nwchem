@@ -8,7 +8,7 @@ c
      &                       nactive, rdens_atom, cntoce, cntobfr,
      &                       cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.3 2000-04-14 01:47:45 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.4 2000-04-15 01:24:22 edo Exp $
 c
       implicit none      
 c
@@ -35,7 +35,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cntoce, cntobfr, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.3 2000-04-14 01:47:45 edo Exp $
+c $Id: dftg_gridv0.F,v 1.4 2000-04-15 01:24:22 edo Exp $
 c     
       implicit none      
 c
@@ -79,7 +79,7 @@ c
      &        npol, nxyz, max_at_bf,  nqtot,
      &        nd_qwght, mA, mA2, mC, mC2, ncoef_max, max_at_bf2, nelem, 
      &        n1, icount, ilo, ihi, iatom, nd_func
-      integer lxyz, ixyz, lcharge, icharge,  lAmat, iAmat, 
+      integer lxyz, ixyz, l_xyzm,k_xyzm,lcharge, icharge,  lAmat, iAmat, 
      &        lCmat, iCmat, lqxyz, iqxyz, lqwght, iqwght, ld_qwght, 
      &        id_qwght, lfunc, ifunc, lrq0, irq0, lrq, irq, lniz, iniz, 
      &        lfin, ifin, lexpo, iexpo, lcoef, icoef, lFmat, iFmat, 
@@ -146,6 +146,8 @@ c
       nxyz = 3*natoms
 c
       if (.not.MA_Alloc_Get(MT_Dbl,nxyz,'xyz',lxyz,ixyz))
+     &   call errquit('dftg_gridv0: cannot allocate xyz',0)
+      if (.not.MA_Alloc_Get(MT_Dbl,nxyz,'xyz',l_xyzm,k_xyzm))
      &   call errquit('dftg_gridv0: cannot allocate xyz',0)
       if (.not.MA_Push_Get(MT_Dbl,natoms,'charge',lcharge,icharge))
      &   call errquit('dftg_gridv0: cannot allocate charge',0)
@@ -290,7 +292,7 @@ c
      &                   rho_int, nqtot, int_mb(iniz), int_mb(ifin),
      &                   dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ifunc),
      &                   dbl_mb(id_qwght), dbl_mb(iqwght),
-     &                   dbl_mb(iqxyz), dbl_mb(ixyz), 
+     &                   dbl_mb(iqxyz), dbl_mb(ixyz),dbl_mb(k_xyzm), 
      &                   int_mb(iandex), dbl_mb(iexpo), dbl_mb(icoef),
      &                   dbl_mb(iAmat), dbl_mb(k_Amat2),
      &                   dbl_mb(iCmat), dbl_mb(k_Cmat2),
@@ -339,6 +341,8 @@ c
 c
       if (.not.ma_free_heap(lxyz))
      &   call errquit('dftg_gridv0: cannot free heap',0)
+      if (.not.ma_free_heap(l_xyzm))
+     &   call errquit('dftg_gridv0: cannot free heap',1)
 c
       return 
 c     

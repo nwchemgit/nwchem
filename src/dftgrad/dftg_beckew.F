@@ -1,14 +1,16 @@
-      Subroutine dftg_beckew(d_qwght, qwght, qxyz, xyz, Rij, rq, p,
+      Subroutine dftg_beckew(grid_written,
+     ,     d_qwght, qwght, qxyz, xyz, Rij, rq, p,
      &                       zeta, dzeta, d_p, ictr, bcenters, 
      .     nq_orig,nq,
      &                       iandex)
 c
-C     $Id: dftg_beckew.F,v 1.9 1999-11-16 23:24:33 edo Exp $
+C     $Id: dftg_beckew.F,v 1.10 2000-04-15 01:24:22 edo Exp $
 c
       implicit none
 c
 #include "cdft.fh"
 c      
+      logical grid_written ! [in]
       integer bcenters, nq,nq_orig
       double precision qxyz(3,nq), xyz(3,*)
       double precision Rij(*)
@@ -235,6 +237,16 @@ c
              endif
            enddo
          enddo
+      if(.not.grid_written) then
+         do n=1,nq
+            if(p(n,ictr_reduc).gt.eps)then
+               qwght(n) = (p(n,ictr_reduc)*qwght(n))/zeta(n)
+            else
+               qwght(n)=0d0
+            endif
+         enddo
+      endif
+
 c     
 c     compute \Delta_i W_ictr
 c     
@@ -243,24 +255,17 @@ c
       do B = 1, bcenters
          if (B.ne.ictr_reduc)then
             do n = 1, nq
-         if(p(n,ictr_reduc).gt.1d-16) then
-               d_qwght(1,n,B)= (d_p(1,n,B) -
-     &           dzeta(1,n,B)*p(n,ictr_reduc)/zeta(n))*qwght(n)/zeta(n)
-               d_qwght(2,n,B)= (d_p(2,n,B) -
-     &           dzeta(2,n,B)*p(n,ictr_reduc)/zeta(n))*qwght(n)/zeta(n)
-               d_qwght(3,n,B)= (d_p(3,n,B) -
-     &           dzeta(3,n,B)*p(n,ictr_reduc)/zeta(n))*qwght(n)/zeta(n)
-         endif
+               if(p(n,ictr_reduc).gt.1d-16) then
+                  d_qwght(1,n,B)= (d_p(1,n,B)/p(n,ictr_reduc) -
+     &                 dzeta(1,n,B)/zeta(n))*qwght(n)
+                  d_qwght(2,n,B)= (d_p(2,n,B)/p(n,ictr_reduc) -
+     &                 dzeta(2,n,B)/zeta(n))*qwght(n)
+                  d_qwght(3,n,B)= (d_p(3,n,B)/p(n,ictr_reduc) -
+     &                 dzeta(3,n,B)/zeta(n))*qwght(n)
+               endif
             enddo
          endif
       enddo
-cedo      do n = 1, nq
-cedo         if(p(n,ictr_reduc).gt.1d-16) then
-cedo            qwght(n) = (p(n,ictr_reduc)*qwght(n))/zeta(n)
-cedo         else
-cedo            qwght(n)=0d0
-cedo         endif
-cedo      enddo
       n=1
  111  if(n.le.nq) then
       if(qwght(n).lt.1d-16) then
@@ -279,7 +284,6 @@ cedo      enddo
          enddo
          nq=nq-1
       else
-         qwght(n) = (p(n,ictr_reduc)*qwght(n))/zeta(n)
          n=n+1
       endif
       goto 111

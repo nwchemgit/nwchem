@@ -1,7 +1,7 @@
       Subroutine dftg_gridv0a(rtdb, iga_dens,ldew,
      &                         ncoef_max, NXprim, max_at_bf,
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
-     &                         func, d_qwght, qwght, qxyz, xyz, 
+     &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
      &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
      &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
      &                         rq0, hh,  
@@ -11,7 +11,7 @@
      &                         nactive, rdens_atom, cntobfr,
      &                         cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.4 2000-04-14 01:47:45 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.5 2000-04-15 01:24:23 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -56,7 +56,7 @@ c
       double precision func(n_per_rec)
       double precision d_qwght(3,n_per_rec,*)
       double precision qwght(n_per_rec), qxyz(3,n_per_rec)
-      double precision xyz(3,natoms)
+      double precision xyz(3,natoms),xyzm(3,natoms)
       integer iandex(natoms)
       integer iniz(natoms), ifin(natoms)
       integer ibf_ao(nbf_ao),curatoms(natoms)
@@ -191,7 +191,7 @@ c
          call dftg_gridv0b(nqpts,rad,ictr_buf,iga_dens,
      &                         ncoef_max, NXprim, max_at_bf,
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
-     &                         func, d_qwght, qwght, qxyz, xyz, 
+     &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
      &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
      &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
      &                         rq0, hh, 
