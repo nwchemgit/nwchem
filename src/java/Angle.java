@@ -7,9 +7,9 @@ public class Angle{
 
     public Angle(String card, int isource){
 	source=isource;
-	type1=card.substring(0,2);
-	type2=card.substring(6,8);
-	type3=card.substring(12,14);
+	type1=card.substring(0,3);
+	type2=card.substring(6,9);
+	type3=card.substring(12,15);
 	value=Double.valueOf(card.substring(18,27)).doubleValue();
 	force=Double.valueOf(card.substring(27,39)).doubleValue();
 	redefining=false; redefined=false; selected=true;

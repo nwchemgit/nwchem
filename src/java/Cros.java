@@ -7,8 +7,8 @@ public class Cros{
 
     public Cros(String card, String card2, int isource){
 	source=isource;
-	type1=card.substring(0,2);
-	type2=card.substring(6,8);
+	type1=card.substring(0,3);
+	type2=card.substring(6,9);
 	redefining=false; redefined=false; selected=true;
     }
 

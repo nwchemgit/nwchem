@@ -301,7 +301,8 @@ class nwchem_Param extends JFrame implements ActionListener, ChangeListener, Win
 			if(Torsions[i].type1.equals("  ") && Torsions[i].type4.equals("  ")) {
 			    Torsions[i].redefining=true; Torsions[j].redefined=true;
 			};
-		    } else if(Torsions[i].type2.equals(Torsions[j].type3) && Torsions[i].type3.equals(Torsions[j].type2)) {
+		    }; 
+		    if(Torsions[i].type2.equals(Torsions[j].type3) && Torsions[i].type3.equals(Torsions[j].type2)) {
 			if(Torsions[i].type1.equals(Torsions[j].type4) && Torsions[i].type4.equals(Torsions[j].type1)) {
 			    Torsions[i].redefining=true; Torsions[j].redefined=true;
 			};

@@ -11,10 +11,10 @@ public class Torsion{
 
     public Torsion(String card, int isource){
 	source=isource;
-	type1=card.substring(0,2);
-	type2=card.substring(6,8);
-	type3=card.substring(12,14);
-	type4=card.substring(18,20);
+	type1=card.substring(0,3);
+	type2=card.substring(6,9);
+	type3=card.substring(12,15);
+	type4=card.substring(18,21);
 	redefining=false; redefined=false; selected=true;
 	number=0;
 	multiplicity[number]=Integer.parseInt(card.substring(45,50).trim());

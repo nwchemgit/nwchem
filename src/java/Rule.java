@@ -6,7 +6,7 @@ public class Rule{
 
     public Rule(String card, String card2, String card3, int isource){
 	source=isource;
-	type=card.substring(0,2);
+	type=card.substring(0,3);
 	redefining=false; redefined=false; selected=true;
     }
 
