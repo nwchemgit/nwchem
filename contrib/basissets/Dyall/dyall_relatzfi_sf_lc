@@ -98,6 +98,60 @@ basis "I_dyall_relatz(fi/sf/lc)" SPHERICAL
   I   f 
   1.9717394E-01  9.99988188514E-01
 end
+basis "Hf_dyall_relatz(fi/sf/lc)" SPHERICAL
+  Hf  f 
+  5.0607023E-02  9.99996968296E-01
+  Hf  g 
+  8.8737880E-02  9.99993502789E-01
+end
+basis "Ta_dyall_relatz(fi/sf/lc)" SPHERICAL
+  Ta  f 
+  6.6224443E-02  9.99996032727E-01
+  Ta  g 
+  1.2348499E-01  9.99990958802E-01
+end
+basis "W_dyall_relatz(fi/sf/lc)" SPHERICAL
+  W   f 
+  8.4739032E-02  9.99994923614E-01
+  W   g 
+  1.6712585E-01  9.99987763765E-01
+end
+basis "Re_dyall_relatz(fi/sf/lc)" SPHERICAL
+  Re  f 
+  1.0397999E-01  9.99993771003E-01
+  Re  g 
+  2.1324619E-01  9.99984387322E-01
+end
+basis "Os_dyall_relatz(fi/sf/lc)" SPHERICAL
+  Os  f 
+  1.2329684E-01  9.99992613860E-01
+  Os  g 
+  2.5970073E-01  9.99980986539E-01
+end
+basis "Ir_dyall_relatz(fi/sf/lc)" SPHERICAL
+  Ir  f 
+  1.4258870E-01  9.99991458229E-01
+  Ir  g 
+  3.0662893E-01  9.99977551211E-01
+end
+basis "Pt_dyall_relatz(fi/sf/lc)" SPHERICAL
+  Pt  f 
+  1.6195139E-01  9.99990298369E-01
+  Pt  g 
+  3.5481201E-01  9.99974024155E-01
+end
+basis "Au_dyall_relatz(fi/sf/lc)" SPHERICAL
+  Au  f 
+  1.8145695E-01  9.99989129966E-01
+  Au  g 
+  4.0528481E-01  9.99970329636E-01
+end
+basis "Hg_dyall_relatz(fi/sf/lc)" SPHERICAL
+  Hg  f 
+  2.1123618E-01  9.99987346190E-01
+  Hg  g 
+  4.7023460E-01  9.99965575649E-01
+end
 basis "Tl_dyall_relatz(fi/sf/lc)" SPHERICAL
   Tl  s 
   1.5054872E-02  9.99999699366E-01

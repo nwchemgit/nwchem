@@ -98,6 +98,60 @@ basis "I_dyall_relatz(fi/sf/fw)" SPHERICAL
   I   f
   1.9717394E-01  1.00000000000E+00
 end
+basis "Hf_dyall_relatz(fi/sf/fw)" SPHERICAL
+  Hf  f
+  5.0607023E-02  1.00000000000E+00
+  Hf  g
+  8.8737880E-02  1.00000000000E+00
+end
+basis "Ta_dyall_relatz(fi/sf/fw)" SPHERICAL
+  Ta  f
+  6.6224443E-02  1.00000000000E+00
+  Ta  g
+  1.2348499E-01  1.00000000000E+00
+end
+basis "W_dyall_relatz(fi/sf/fw)" SPHERICAL
+  W   f
+  8.4739032E-02  1.00000000000E+00
+  W   g
+  1.6712585E-01  1.00000000000E+00
+end
+basis "Re_dyall_relatz(fi/sf/fw)" SPHERICAL
+  Re  f
+  1.0397999E-01  1.00000000000E+00
+  Re  g
+  2.1324619E-01  1.00000000000E+00
+end
+basis "Os_dyall_relatz(fi/sf/fw)" SPHERICAL
+  Os  f
+  1.2329684E-01  1.00000000000E+00
+  Os  g
+  2.5970073E-01  1.00000000000E+00
+end
+basis "Ir_dyall_relatz(fi/sf/fw)" SPHERICAL
+  Ir  f
+  1.4258870E-01  1.00000000000E+00
+  Ir  g
+  3.0662893E-01  1.00000000000E+00
+end
+basis "Pt_dyall_relatz(fi/sf/fw)" SPHERICAL
+  Pt  f
+  1.6195139E-01  1.00000000000E+00
+  Pt  g
+  3.5481201E-01  1.00000000000E+00
+end
+basis "Au_dyall_relatz(fi/sf/fw)" SPHERICAL
+  Au  f
+  1.8145695E-01  1.00000000000E+00
+  Au  g
+  4.0528481E-01  1.00000000000E+00
+end
+basis "Hg_dyall_relatz(fi/sf/fw)" SPHERICAL
+  Hg  f
+  2.1123618E-01  1.00000000000E+00
+  Hg  g
+  4.7023460E-01  1.00000000000E+00
+end
 basis "Tl_dyall_relatz(fi/sf/fw)" SPHERICAL
   Tl  s
   1.5054872E-02  1.00000000000E+00

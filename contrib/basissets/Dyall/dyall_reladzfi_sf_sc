@@ -1,4 +1,4 @@
-# $Id: dyall_reladzfi_sf_sc,v 1.1 2003-04-01 01:08:27 mg201 Exp $
+# $Id: dyall_reladzfi_sf_sc,v 1.2 2004-02-18 21:58:58 mg201 Exp $
 basis "Ga_dyall_reladz(fi/sf/sc)" SPHERICAL
   Ga  s
   2.3477550E-02  9.99998593515E-01
@@ -78,6 +78,42 @@ basis "I_dyall_reladz(fi/sf/sc)" SPHERICAL
   3.3808205E-02  9.99996624395E-01
   I   d
   1.2325670E-01  9.99982771095E-01
+end
+basis "Hf_dyall_reladz(fi/sf/sc)" SPHERICAL
+  Hf  f 
+  1.1195327E-01  9.99979880081E-01
+end
+basis "Ta_dyall_reladz(fi/sf/sc)" SPHERICAL
+  Ta  f 
+  1.4059344E-01  9.99974733177E-01
+end
+basis "W_dyall_reladz(fi/sf/sc)" SPHERICAL
+  W   f 
+  1.5925621E-01  9.99971379352E-01
+end
+basis "Re_dyall_reladz(fi/sf/sc)" SPHERICAL
+  Re  f 
+  1.9237380E-01  9.99965427996E-01
+end
+basis "Os_dyall_reladz(fi/sf/sc)" SPHERICAL
+  Os  f 
+  2.1776801E-01  9.99960864643E-01
+end
+basis "Ir_dyall_reladz(fi/sf/sc)" SPHERICAL
+  Ir  f 
+  2.4625192E-01  9.99955746154E-01
+end
+basis "Pt_dyall_reladz(fi/sf/sc)" SPHERICAL
+  Pt  f 
+  2.6863666E-01  9.99951723735E-01
+end
+basis "Au_dyall_reladz(fi/sf/sc)" SPHERICAL
+  Au  f 
+  3.0537602E-01  9.99945121987E-01
+end
+basis "Hg_dyall_reladz(fi/sf/sc)" SPHERICAL
+  Hg  f 
+  3.4059395E-01  9.99938793768E-01
 end
 basis "Tl_dyall_reladz(fi/sf/sc)" SPHERICAL
   Tl  s

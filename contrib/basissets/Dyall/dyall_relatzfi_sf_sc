@@ -1,3 +1,4 @@
+# $Id: dyall_relatzfi_sf_sc,v 1.2 2004-02-18 21:58:58 mg201 Exp $
 basis "Ga_dyall_relatz(fi/sf/sc)" SPHERICAL
   Ga  s 
   1.7330197E-02  9.99998961788E-01
@@ -97,6 +98,60 @@ basis "I_dyall_relatz(fi/sf/sc)" SPHERICAL
   7.6963367E-02  9.99989241889E-01
   I   f 
   1.9717394E-01  9.99964565402E-01
+end
+basis "Hf_dyall_relatz(fi/sf/sc)" SPHERICAL
+  Hf  f 
+  5.0607023E-02  9.99990904879E-01
+  Hf  g 
+  8.8737880E-02  9.99980508326E-01
+end
+basis "Ta_dyall_relatz(fi/sf/sc)" SPHERICAL
+  Ta  f 
+  6.6224443E-02  9.99988098165E-01
+  Ta  g 
+  1.2348499E-01  9.99972876323E-01
+end
+basis "W_dyall_relatz(fi/sf/sc)" SPHERICAL
+  W   f 
+  8.4739032E-02  9.99984770817E-01
+  W   g 
+  1.6712585E-01  9.99963291144E-01
+end
+basis "Re_dyall_relatz(fi/sf/sc)" SPHERICAL
+  Re  f 
+  1.0397999E-01  9.99981312970E-01
+  Re  g 
+  2.1324619E-01  9.99953161722E-01
+end
+basis "Os_dyall_relatz(fi/sf/sc)" SPHERICAL
+  Os  f 
+  1.2329684E-01  9.99977841525E-01
+  Os  g 
+  2.5970073E-01  9.99942959256E-01
+end
+basis "Ir_dyall_relatz(fi/sf/sc)" SPHERICAL
+  Ir  f 
+  1.4258870E-01  9.99974374613E-01
+  Ir  g 
+  3.0662893E-01  9.99932653128E-01
+end
+basis "Pt_dyall_relatz(fi/sf/sc)" SPHERICAL
+  Pt  f 
+  1.6195139E-01  9.99970895013E-01
+  Pt  g 
+  3.5481201E-01  9.99922071791E-01
+end
+basis "Au_dyall_relatz(fi/sf/sc)" SPHERICAL
+  Au  f 
+  1.8145695E-01  9.99967389781E-01
+  Au  g 
+  4.0528481E-01  9.99910988029E-01
+end
+basis "Hg_dyall_relatz(fi/sf/sc)" SPHERICAL
+  Hg  f 
+  2.1123618E-01  9.99962038409E-01
+  Hg  g 
+  4.7023460E-01  9.99896725761E-01
 end
 basis "Tl_dyall_relatz(fi/sf/sc)" SPHERICAL
   Tl  s 
