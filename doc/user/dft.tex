@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.60 2002-02-16 01:48:18 edo Exp $ 
+% $Id: dft.tex,v 1.61 2002-03-26 23:28:22 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -477,49 +477,49 @@ a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
 \begin{table}[htp]
 
 %\centering
-\begin{tabular}{|l|cccc|r|}
+\begin{tabular}{|l|ccccc|r|}
 \hline
-           &          &             &        &         &         \\
-Keyword    & X & C & GGA    &  Hybrid & Ref.\\
-           &          &             &        &         &         \\
+           &          &             &        &         &      &   \\
+Keyword    & X        & C           & GGA    &  Hybrid & 2nds & Ref.\\
+           &          &             &        &         &      &   \\
 \hline
- slater     & $\star$    &            &         &         &[1]\\
+ slater     & $\star$    &            &         &      &  Y   &[1]\\
 \hline                                                  
-vwn\_1     &          &   $\star$     &         &        &[2]     \\
-vwn\_2     &          &   $\star$     &         &        &[2]    \\
-vwn\_3     &          &   $\star$     &         &        &[2]     \\
-vwn\_4     &          &   $\star$     &         &        &[2]     \\
-vwn\_5     &          &   $\star$     &         &        &[2]     \\
-vwn\_1\_rpa&          &   $\star$     &         &        &[2]     \\
-perdew81   &          &   $\star$     &         &        &[3]     \\
-pw91lda    &          &   $\star$     &         &        &[4]\\
+vwn\_1     &          &   $\star$     &         &      &  Y   &[2]     \\
+vwn\_2     &          &   $\star$     &         &      &  Y   &[2]    \\
+vwn\_3     &          &   $\star$     &         &      &  Y   &[2]     \\
+vwn\_4     &          &   $\star$     &         &      &  Y   &[2]     \\
+vwn\_5     &          &   $\star$     &         &      &  Y   &[2]     \\
+vwn\_1\_rpa&          &   $\star$     &         &      &  Y   &[2]     \\
+perdew81   &          &   $\star$     &         &      &  Y   &[3]     \\
+pw91lda    &          &   $\star$     &         &      &  Y   &[4]\\
 \hline                                                  
-becke88    & $\star$    &             &  $\star$  &        &[5]\\
-xperdew91  & $\star$    &             &  $\star$  &        &[6]\\
-xpbe96     & $\star$    &             &  $\star$  &        &[7]\\
-gill96     & $\star$    &             &  $\star$  &        &[8]\\
-optx       & $\star$    &             &  $\star$  &        &[20]\\
+becke88    & $\star$    &             &  $\star$  &        &  Y   &[5]\\
+xperdew91  & $\star$    &             &  $\star$  &        &  Y   &[6]\\
+xpbe96     & $\star$    &             &  $\star$  &        &  Y   &[7]\\
+gill96     & $\star$    &             &  $\star$  &        &  Y   &[8]\\
+optx       & $\star$    &             &  $\star$  &        &  N   &[20]\\
 \hline                                                  
-perdew86   &          &   $\star$     &  $\star$  &        &[9]\\
-lyp        &          &   $\star$     &  $\star$  &        &[10]\\
-perdew91   &          &   $\star$     &  $\star$  &        &[6]\\
-cpbe96     &          &   $\star$     &  $\star$  &        &[7]\\
+perdew86   &          &   $\star$     &  $\star$  &        &  Y   &[9]\\
+lyp        &          &   $\star$     &  $\star$  &        &  Y   &[10]\\
+perdew91   &          &   $\star$     &  $\star$  &        &  N   &[6]\\
+cpbe96     &          &   $\star$     &  $\star$  &        &  N   &[7]\\
 \hline                                                  
-hcth       & $\star$    &   $\star$     &  $\star$  &        &[11]\\
-hcth120    & $\star$    &   $\star$     &  $\star$  &        &[12]\\
-hcth147    & $\star$    &   $\star$     &  $\star$  &        &[12]\\
-hcth407    & $\star$    &   $\star$     &  $\star$  &        &[19]\\
-becke97gga1  & $\star$    &   $\star$     &  $\star$  &        &[18]\\
-hcthp14    & $\star$    &   $\star$     &  $\star$  &        &[21]\\
+hcth       & $\star$    &   $\star$     &  $\star$  &        &  N   &[11]\\
+hcth120    & $\star$    &   $\star$     &  $\star$  &        &  N   &[12]\\
+hcth147    & $\star$    &   $\star$     &  $\star$  &        &  N   &[12]\\
+hcth407    & $\star$    &   $\star$     &  $\star$  &        &  N   &[19]\\
+becke97gga1  & $\star$    &   $\star$     &  $\star$  &        &  N   &[18]\\
+hcthp14    & $\star$    &   $\star$     &  $\star$  &        &  N   &[21]\\
 \hline                                                  
-beckehandh & $\star$    &   $\star$     &           & $\star$  &[13]\\
-b3lyp      & $\star$    &   $\star$     &  $\star$  & $\star$  &[14]\\
-acm        & $\star$    &   $\star$     &  $\star$  & $\star$  &[14]\\
-becke97    & $\star$    &   $\star$     &  $\star$  & $\star$  &[15]\\
-becke97-1  & $\star$    &   $\star$     &  $\star$  & $\star$  &[15]\\
-becke97-2  & $\star$    &   $\star$     &  $\star$  & $\star$  &[22]\\
-becke98    & $\star$    &   $\star$     &  $\star$  & $\star$  &[16]\\
-pbe0       & $\star$    &   $\star$     &  $\star$  & $\star$  &[17]\\
+beckehandh & $\star$    &   $\star$     &           & $\star$  &  Y   &[13]\\
+b3lyp      & $\star$    &   $\star$     &  $\star$  & $\star$  &  Y   &[14]\\
+acm        & $\star$    &   $\star$     &  $\star$  & $\star$  &  Y   &[14]\\
+becke97    & $\star$    &   $\star$     &  $\star$  & $\star$  &  N   &[15]\\
+becke97-1  & $\star$    &   $\star$     &  $\star$  & $\star$  &  N   &[15]\\
+becke97-2  & $\star$    &   $\star$     &  $\star$  & $\star$  &  N   &[22]\\
+becke98    & $\star$    &   $\star$     &  $\star$  & $\star$  &  N   &[16]\\
+pbe0       & $\star$    &   $\star$     &  $\star$  & $\star$  &  N   &[17]\\
 \hline
 \end{tabular}
 \caption{Table of available Exchange (X) and Correlation (C) functionals}
