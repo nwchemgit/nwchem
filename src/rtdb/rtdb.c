@@ -1,4 +1,4 @@
-/*$Id: rtdb.c,v 1.10 1995-02-02 23:22:04 d3g681 Exp $*/
+/*$Id: rtdb.c,v 1.11 1995-03-31 01:43:41 d3g681 Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -405,4 +405,13 @@ int rtdb_delete(const int handle, const char *name)
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
 
   return status;
+}
+
+  
+void rtdb_print_usage()
+{
+#ifdef USE_HDBM
+  if (me == 0)
+    hdbm_print_usage();
+#endif
 }

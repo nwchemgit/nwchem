@@ -1,4 +1,4 @@
-/*$Id: rtdb_f2c.c,v 1.8 1995-02-02 23:22:11 d3g681 Exp $*/
+/*$Id: rtdb_f2c.c,v 1.9 1995-03-31 01:43:43 d3g681 Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -15,14 +15,10 @@ typedef long integer;		/* Equivalent C type to FORTRAN integer */
 #define FORTRAN_FALSE ((logical) 0)
 
 
-int fortchar_to_string( f,  flen, buf, buflen)
-    int flen;
-    char *buf;
-    const int buflen;
 #ifdef CRAY
-    _fcd	f;		/* FORTRAN character descriptor */
+int fortchar_to_string(_fcd f, int flen, char *buf, const int buflen)
 #else
-    const char *f;
+int fortchar_to_string(const char *f, int flen, char *buf, const int buflen)
 #endif
 {
 #ifdef CRAY
@@ -56,16 +52,13 @@ int fortchar_to_string( f,  flen, buf, buflen)
   return 1;
 }
 
-int string_to_fortchar( f, flen, buf)
-  int flen;
-  char *buf;
 #ifdef CRAY
-  _fcd f;
+int string_to_fortchar(_fcd f, int flen, char *buf)
 #else
-  char *f;
+int string_to_fortchar(char *f, int flen, char *buf)
 #endif
 {
-  int len = strlen(buf), i;
+  int len = (int) strlen(buf), i;
 #ifdef CRAY
   flen = _fcdlen(f);
 #endif
@@ -473,3 +466,7 @@ logical rtdb_delete_(const integer *handle, const char *name, const int nlen)
     return FORTRAN_FALSE;
 }
 
+void rtdb_print_usage_()
+{
+  rtdb_print_usage();
+}

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.7 1994-12-29 06:43:27 og845 Exp $
+# $Id: GNUmakefile,v 1.8 1995-03-31 01:43:39 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -14,9 +14,20 @@ include ../config/makefile.h
                    context.o davetest.o interact.o rtdb_par_f2c.o \
                    cntx.o cntx
 
-    LIB_INCLUDES = -I../db
-
        TEST_LIBS = $(LIBRARY) $(LIBS) 
+
+#define this to use HDBM ... otherwise DB will be used
+#                            DB is broken-ish on 64 bit machines
+        USE_HDBM = 1
+
+ifdef USE_HDBM
+     LIB_DEFINES = -DUSE_HDBM
+         SUBDIRS = hdbm
+else
+    LIB_INCLUDES = -I./db
+     LIB_DEFINES = -DUSE_DB
+         SUBDIRS = db
+endif
 
 include ../config/makelib.h
 

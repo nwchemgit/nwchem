@@ -1,15 +1,28 @@
-/*$Id: rtdb_seq.c,v 1.8 1995-02-02 23:22:12 d3g681 Exp $*/
+/*$Id: rtdb_seq.c,v 1.9 1995-03-31 01:43:45 d3g681 Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdio.h>
+
+#ifdef USE_HDBM
+#include "hdbm.h"
+#define DBT datum
+#define SIZE(a) ((a).dsize)
+#define DATA(a) ((a).dptr)
+#define WRAP(data, size, p) datum_wrap(data, size, p)
+#endif
+#ifdef USE_DB
 #include <db.h>
+#define SIZE(a) ((a).size)
+#define DATA(a) ((a).data)
+#define WRAP(data, size, p) *(p) = wrap_DBT(data, size)
+#endif
+
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
 #ifndef IPSC
 #include <sys/time.h>
 #endif
-/*#include <limits.h>*/
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "rtdb.h"
@@ -22,7 +35,7 @@ extern char *strdup(const char *);
 extern void *malloc(size_t);
 extern void free(void *);
 
-#define MAX_RTDB 5
+#define MAX_RTDB 2
 
 #define FORTRAN_TRUE  1L
 #define FORTRAN_FALSE 0L
@@ -31,7 +44,12 @@ static struct {			/* Keep track of active RTDBs */
   int active;
   char *filename;
   int scratch;
+#ifdef USE_HDBM
+  hdbm db;
+#endif
+#ifdef USE_DB
   DB *db;
+#endif
 } rtdb[MAX_RTDB];
 
 struct info_struct{		/* Matching info entry for each datum */
@@ -42,6 +60,7 @@ struct info_struct{		/* Matching info entry for each datum */
 
 static char info_header[] = "!rtdb!"; /* Prefix for info entries */
 
+#ifdef USE_DB
 static DBT wrap_DBT(const void *data, size_t size)
 /*
   Make a DBT that refers to the region pointed to
@@ -54,6 +73,7 @@ static DBT wrap_DBT(const void *data, size_t size)
 
   return tmp;
 }
+#endif
 
 static long file_size(const char *filename)
 /*
@@ -250,93 +270,6 @@ const char *ma_typename(const int ma_type)
   }
 }
 
-
-static DBT make_DBT(const void *data, size_t size) 
-/*
-  Make a DBT by duplicating the data described
-  by the arguments.
-*/
-{
-  DBT tmp;
-
-  tmp.size = 0; tmp.data = 0;
-  
-  if (size && data) {
-    ALLOCATE(tmp.data, size, char, "make_DBT: tmp.data (%d)");
-    memcpy(tmp.data, (const void *) data, (int) size);
-    tmp.size = size;
-  }
-
-  return tmp;
-}
-
-static void print_hex_DBT(const DBT *d)
-/*
-  Print summary of DBT to stdout in hex
-*/
-{
-  long len = MIN(8, d->size);
-  long i;
-  unsigned char *ptr = (unsigned char *) d->data;
-
-  printf("(%d, 0x%p, 0x",(int) d->size, d->data);
-  if (d->data) {
-    for (i=0; i<len; i++) 
-      printf("%2.2x", (unsigned) ptr[i]);
-    if (len < d->size)
-      printf(" ...");
-  }
-  printf(")");
-  fflush(stdout);
-}
-
-static void print_string_DBT(const DBT *d)
-/*
-  Prints DBT to stdout assuming a null terminated string.
-*/
-{
-  long len = MIN(8, d->size-1);
-
-  (void) printf("(%ld, 0x%lx, \"",d->size, (unsigned long) d->data);
-  if (d->data) {
-    (void) printf("%.*s", (int) len, (char *) d->data);
-    if (len < (d->size-1))
-      (void) printf("...");
-  }
-  (void) printf("\")");
-  fflush(stdout);
-}
-
-static DBT duplicate_DBT(const DBT *d)
-/*
-  Duplicate the DBT d, ALLOCATing space as required.
-*/
-{
-  void *data = d->data;
-  size_t size = d->size;
-  DBT tmp;
-
-  tmp.data = 0; tmp.size = 0;
-  
-  if (size && data) {
-    ALLOCATE(tmp.data, size, char, "duplicate_DBT: data (%d)");
-    memcpy(tmp.data, data, size);
-    tmp.size = size;
-  }
-
-  return tmp;
-}
-
-static void free_DBT(DBT *d)
-/*
-  Free the memory pointed to by d.data, assumed to have
-  got from ALLOCATE.
-*/
-{
-  if (d->data)
-    FREE(d->data);
-}
-
 int rtdb_seq_open(const char *filename, const char *mode, int *handle)
 /*
     Filename = path to file associated with the data base
@@ -352,25 +285,29 @@ int rtdb_seq_open(const char *filename, const char *mode, int *handle)
                data base are made
 */
 {
+#ifdef USE_DB
+  HASHINFO openinfo;
+#endif
   int flags = O_RDWR | O_CREAT;
   int exists = access(filename, R_OK | W_OK) == 0;
   int new;
-  HASHINFO openinfo;
 
   /* See if the data base is already open ... if so return and complain */
 
   for (new=0; new<MAX_RTDB; new++)
     if (rtdb[new].active)
       if (strcmp(filename, rtdb[new].filename) == 0) {
-	(void) fprintf(stderr, "rtdb_seq_open: %s is already open\n", filename);
+	(void) fprintf(stderr, "rtdb_seq_open: %s is already open\n", 
+		       filename);
 	return 0;
       }
 
-  /* Figure out file access modes */
+  /* Figure out if the file exists */
 
   if (strcmp(mode, "new") == 0) {
     if (exists) {
-      (void) fprintf(stderr, "rtdb_seq_open: %s exists but is being opened new\n",
+      (void) fprintf(stderr, 
+		     "rtdb_seq_open: %s exists but is being opened new\n",
 		     filename);
       return 0;
     }
@@ -378,7 +315,7 @@ int rtdb_seq_open(const char *filename, const char *mode, int *handle)
   else if (strcmp(mode, "old") == 0) {
     if (!exists) {
       (void) fprintf(stderr, 
-		     "rtdb_seq_open: %s does not exist but is being opened old\n",
+		     "rtdb_seq_open: %s does not exist, cannot open old\n",
 		     filename);
       return 0;
     }
@@ -414,9 +351,9 @@ int rtdb_seq_open(const char *filename, const char *mode, int *handle)
       (strcmp(mode, "unknown") == 0 && file_size(filename) <= 0))
     (void) unlink(filename);
 
-
   /* Open the physical data base */
 
+#if USE_DB  
   openinfo.bsize = 1024*4;
 #if defined(CRAY)
   openinfo.cachesize = 4*128*1024;
@@ -434,6 +371,15 @@ int rtdb_seq_open(const char *filename, const char *mode, int *handle)
 		   filename);
     return 0;
   }
+#endif
+
+#if USE_HDBM
+  if (!hdbm_open(filename, 1, &rtdb[new].db)) {
+    (void) fprintf(stderr, "rtdb_seq_open: hdbm failed to open file %s\n",
+		   filename);
+    return 0;
+  }
+#endif
 
   /* Shove info into the RTDB structure and have at it */
 
@@ -472,9 +418,15 @@ int rtdb_seq_first(const int handle, const int namelen, char *name)
   name    = name of entry is returned in this buffer
 */
 {
+#if USE_DB  
   DB *db;
+  int flags = R_FIRST;
+#endif
+#if USE_HDBM
+  hdbm db;
+#endif
+  int status;
   DBT key, value;
-  int flags = R_FIRST, status;
 
   if (!check_handle(handle)) {
     (void) fprintf(stderr, "rdtb_first: handle (%d) is invalid\n", handle);
@@ -483,28 +435,40 @@ int rtdb_seq_first(const int handle, const int namelen, char *name)
 
   db = rtdb[handle].db;
 
+#ifdef USE_DB
   while ((status = db->seq(db, &key, &value, flags)) == 0) {
-
     flags = R_NEXT;
-
-    if (strncmp(info_header, key.data, strlen(info_header)) != 0)
+    if (strncmp(info_header, DATA(key), strlen(info_header)) != 0)
       break;
   }
+  status = !status;
+#endif
+#ifdef USE_HDBM
+  for (status=hdbm_first_key(db, &key);
+       status;
+       status=hdbm_next_key(db, &key)) {
+    if (strncmp(info_header, DATA(key), strlen(info_header)) != 0)
+      break;
+    datum_free(key);
+  }
+#endif
 
-  if (status == 0) {
-    if (namelen >= key.size) {
-      strncpy(name, (char *) key.data, namelen);
+  if (status) {
+    if (namelen >= SIZE(key)) {
+      strncpy(name, (char *) DATA(key), namelen);
       name[namelen-1] = 0;
-      return 1;
     }
     else {
-      (void) fprintf(stderr, "rtdb_seq_first: name is too small, need=%u got=%d\n",
-		     (int) key.size, (int) namelen);
-      return 0;
-    }
+      (void) fprintf(stderr, 
+		     "rtdb_seq_first: name is too small, need=%u got=%d\n",
+		     (int) SIZE(key), (int) namelen);
+      status = 0;
+      }
+#ifdef USE_HDBM
+    datum_free(key);
+#endif
   }
-  else
-    return 0;
+  return status;
 }
 
 int rtdb_seq_delete(const int handle, const char *name)
@@ -519,20 +483,44 @@ int rtdb_seq_delete(const int handle, const char *name)
   name    = name of entry to delete
 */
 {
-  DB *db;
-  DBT key;
+#ifdef USE_DB
+  DB *db = rtdb[handle].db;
+#endif
+#ifdef USE_HDBM
+  hdbm db = rtdb[handle].db;
+#endif
+  DBT key, info_key;
   int flags = 0, status;
+  char info_buf[256];
 
   if (!check_handle(handle)) {
     (void) fprintf(stderr, "rdtb_delete: handle (%d) is invalid\n", handle);
     return 0;
   }
 
-  key = wrap_DBT(name, strlen(name)+1);
+  if (strlen(name)+sizeof(info_header)+1 > sizeof(info_buf)) {
+    (void) fprintf(stderr,
+		   "rtdb_delete: info entry buffer needs to be %d\n",
+		   (int) (strlen(name)+sizeof(info_header)+1));
+    return 0;
+  }
+  
+  (void) sprintf(info_buf, "%s%s", info_header, name);
 
-  db = rtdb[handle].db;
+  WRAP(info_buf, strlen(info_buf)+1, &info_key);
+  WRAP(name, strlen(name)+1, &key);
 
+#ifdef USE_DB  
   status = db->del(db, &key, flags);
+  if (status == 0)
+    status = db->del(db, &info_key, flags);
+
+#endif
+#ifdef USE_HDBM
+  status = !hdbm_delete(db, key);
+  if (status == 0)
+    status = !hdbm_delete(db, info_key);
+#endif
 
   if (status == 0)
     return 1;
@@ -554,37 +542,53 @@ int rtdb_seq_next(const int handle, const int namelen, char *name)
   name    = name of entry is returned in this buffer
 */
 {
-  DB *db;
+#ifdef USE_DB
+  DB *db = rtdb[handle].db;
+  int flags = R_NEXT;
+#endif
+#ifdef USE_HDBM
+  hdbm db = rtdb[handle].db;
+#endif
+  int status;
   DBT key, value;
-  int flags = R_NEXT, status;
 
   if (!check_handle(handle)) {
     (void) fprintf(stderr, "rdtb_close: handle (%d) is invalid\n", handle);
     return 0;
   }
 
-  db = rtdb[handle].db;
-
-  while ((status = db->seq(db, &key, &value, flags)) == 0) {
-    flags = R_NEXT;
-
-    if (strncmp(info_header, key.data, strlen(info_header)) != 0)
+#ifdef USE_DB
+  while ((status = db->seq(db, &key, &value, flags)) == 0) { 
+    flags = R_NEXT;		/* } For emacs */
+    if (strncmp(info_header, DATA(key), strlen(info_header)) != 0)
       break;
   }
+  status = !status;
+#endif
+#ifdef USE_HDBM
+  while ((status = hdbm_next_key(db, &key))) {
+    if (strncmp(info_header, DATA(key), strlen(info_header)) != 0)
+      break;
+    datum_free(key);
+  }
+#endif
 
-  if (status == 0) {
-    if (namelen >= key.size) {
-      strncpy(name, (char *) key.data, namelen);
-      return 1;
+  if (status) {
+    if (namelen >= SIZE(key)) {
+      strncpy(name, (char *) DATA(key), namelen);
     }
     else {
-      (void) fprintf(stderr, "rtdb_seq_next: name too small, need=%u, got=%d\n",
-		     (int) key.size, (int) namelen);
-      return 0;
+      (void) fprintf(stderr, 
+		     "rtdb_seq_next: name too small, need=%u, got=%d\n",
+		     (int) SIZE(key), (int) namelen);
+      status = 0;
     }
+#ifdef USE_HDBM
+    datum_free(key);
+#endif
   }
-  else
-    return 0;
+
+  return status;
 }
 
 
@@ -600,29 +604,34 @@ int rtdb_seq_close(const int handle, const char *mode)
   in which instance it is always deleted upon closing
 */
 {
-  DB *db;
+#ifdef USE_DB
+  DB *db = rtdb[handle].db;
+#endif
+#ifdef USE_HDBM
+  hdbm db = rtdb[handle].db;
+#endif
 
   if (!check_handle(handle)) {
     (void) fprintf(stderr, "rdtb_close: handle (%d) is invalid\n", handle);
     return 0;
   }
 
-  db = rtdb[handle].db;
-  
   /* Mark as inactive even if we trap any other errors */
 
   rtdb[handle].active = 0;
 
+#ifdef USE_DB
   /* Flush changes to the DB if required */
 
-  if (!(strcmp(mode,"delete") == 0 || rtdb[handle].scratch))
-    if (NODEID_() == 0)
-      if (db->sync(db, (u_int) 0)) {
-	(void) fprintf(stderr, "rdtb_close: db sync(%s) returned error\n", 
-		       rtdb[handle].filename);
-	return 0;
-      }
-  
+  if (!(strcmp(mode,"delete") == 0 || rtdb[handle].scratch)) {
+
+    if (db->sync(db, (u_int) 0)) {
+      (void) fprintf(stderr, "rdtb_close: db sync(%s) returned error\n", 
+		     rtdb[handle].filename);
+      return 0;
+    }
+  }  
+
   /* Actually close the data base */
   
   if (db->close(db)) {
@@ -630,18 +639,33 @@ int rtdb_seq_close(const int handle, const char *mode)
 		   rtdb[handle].filename);
     return 0;
   }
+#endif
+#ifdef USE_HDBM
+  if (!hdbm_close(db)) {
+    (void) fprintf(stderr, "rdtb_close: hdbm close(%s) returned error\n", 
+		   rtdb[handle].filename);
+    return 0;
+  }
+#endif
 
   /* Delete it if required */
     
   if (strcmp(mode,"delete") == 0 || rtdb[handle].scratch) {
-    if (NODEID_() == 0) {
-      if (unlink(rtdb[handle].filename) != 0) {
-	(void) fprintf(stderr, "rdtb_close: error in deleting %s\n",
-		       rtdb[handle].filename);
-	return 0;
-      }
+    if (unlink(rtdb[handle].filename) != 0) {
+      (void) fprintf(stderr, "rdtb_close: error in deleting %s\n",
+		     rtdb[handle].filename);
+      return 0;
     }
   }
+#ifdef USE_HDBM
+  else {			/* Compress out dead space */
+    if (!hdbm_file_compress(rtdb[handle].filename)) {
+      (void) fprintf(stderr, "rdtb_close: hdbm compress(%s) returned error\n", 
+		     rtdb[handle].filename);
+      return 0;
+    }
+  }
+#endif
 
   return 1;
 }
@@ -747,8 +771,14 @@ static int rtdb_seq_put_info(const int handle,
 {
   struct info_struct info;
   char info_buf[256];
+#ifdef USE_DB
   DB *db = rtdb[handle].db;
+#endif
+#ifdef USE_HDBM
+  hdbm db = rtdb[handle].db;
+#endif
   DBT key, value;
+  int status;
 
   if (!check_handle(handle)) {
     (void) fprintf(stderr, "rtdb_seq_put_info: handle (%d) is invalid\n", handle);
@@ -760,18 +790,27 @@ static int rtdb_seq_put_info(const int handle,
   get_time(info.date);
 
   if (strlen(name)+sizeof(info_header)+1 > sizeof(info_buf)) {
-    (void) fprintf(stderr,"rtdb_seq_put_info: info entry buffer needs to be %d\n",
+    (void) fprintf(stderr,
+		   "rtdb_seq_put_info: info entry buffer needs to be %d\n",
 		   (int) (strlen(name)+sizeof(info_header)+1));
     return 0;
   }
   
   (void) sprintf(info_buf, "%s%s", info_header, name);
 
-  key = wrap_DBT(info_buf, strlen(info_buf)+1);
-  value = wrap_DBT(&info, sizeof(info));
+  WRAP(info_buf, strlen(info_buf)+1, &key);
+  WRAP(&info, sizeof(info), &value);
+  
+#ifdef USE_DB
+  status = !(db->put(db, &key, &value, (u_int) 0));
+#endif
+#ifdef USE_HDBM
+  status = hdbm_replace(db, key, value);
+#endif
 
-  if (db->put(db, &key, &value, (u_int) 0)) {
-    (void) fprintf(stderr, "rtdb_seq_put_info: db put failed for \"%s\" in %s\n",
+  if (!status) {
+    (void) fprintf(stderr, 
+		   "rtdb_seq_put_info: put failed for \"%s\" in %s\n",
 		   name, rtdb[handle].filename);
     return 0;
   }
@@ -793,45 +832,62 @@ int rtdb_seq_get_info(const int handle,
 {
   struct info_struct info;
   char info_buf[256];
+#ifdef USE_DB
   DB *db = rtdb[handle].db;
+#endif
+#ifdef USE_HDBM
+  hdbm db = rtdb[handle].db;
+#endif
   DBT key, value;
   int status;
 
   if (!check_handle(handle)) {
-    (void) fprintf(stderr, "rtdb_seq_get_info: handle (%d) is invalid\n", handle);
+    (void) fprintf(stderr, "rtdb_seq_get_info: handle (%d) is invalid\n", 
+		   handle);
     return 0;
   }
 
   if (strlen(name)+sizeof(info_header)+1 > sizeof(info_buf)) {
-    (void) fprintf(stderr,"rtdb_seq_get_info: info entry buffer needs to be %d\n",
+    (void) fprintf(stderr,
+		   "rtdb_seq_get_info: info entry buffer needs to be %d\n",
 		   (int) (strlen(name)+sizeof(info_header)+1));
     return 0;
   }
   
   (void) sprintf(info_buf, "%s%s", info_header, name);
 
-  key = wrap_DBT(info_buf, strlen(info_buf)+1);
+  WRAP(info_buf, strlen(info_buf)+1, &key);
 
-  if (status = db->get(db, &key, &value, (u_int) 0)) {
+#ifdef USE_DB
+  status = (db->get(db, &key, &value, (u_int) 0));
+  if (status == -1) {
+    (void) fprintf(stderr, 
+		   "rtdb_seq_get_info: db get failed for \"%s\" in %s\n",
+		   name, rtdb[handle].filename);
+  }
+  status = !status;
+#endif
+#ifdef USE_HDBM
+  status = hdbm_read(db, key, &value);
+#endif
 
-    if (status == -1) {
-      (void) fprintf(stderr, "rtdb_seq_get_info: db get failed for \"%s\" in %s\n",
-		     name, rtdb[handle].filename);
-    }
-    else {
+  if (!status) {
       /* Entry not found ... quietly return error so that failed
 	 probes are not excessively verbose */
-    }
     return 0;
   }
 
-  if (value.size != sizeof(info)) {
-    (void) fprintf(stderr, "rtdb_seq_get_info: size mismatch : info=%d, db=%d\n",
-		   (int) sizeof(info), (int) value.size);
+  if (SIZE(value) != sizeof(info)) {
+    (void) fprintf(stderr, 
+		   "rtdb_seq_get_info: size mismatch : info=%d, db=%d\n",
+		   (int) sizeof(info), (int) SIZE(value));
     return 0;
   }
 
-  (void) memcpy(&info, value.data, value.size);
+  (void) memcpy(&info, DATA(value), SIZE(value));
+#ifdef USE_HDBM
+  datum_free(value);
+#endif
 
   *ma_type = info.ma_type;
   *nelem   = info.nelem;
@@ -852,8 +908,14 @@ int rtdb_seq_put(const int handle, const char *name, const int ma_type,
   array    = data to be inserted
 */  
 {
+#ifdef USE_DB
+  DB *db = rtdb[handle].db;
+#endif
+#ifdef USE_HDBM
+  hdbm db = rtdb[handle].db;
+#endif
   DBT key, value;
-  DB *db;
+
   int status;
 
   if (!check_handle(handle)) {
@@ -863,28 +925,45 @@ int rtdb_seq_put(const int handle, const char *name, const int ma_type,
 
   /* Enter the data into the data base */
 
-  key = wrap_DBT(name, strlen(name)+1);
-  value = wrap_DBT(array, MA_sizeof(ma_type, nelem, MT_CHAR));
+  WRAP(name, strlen(name)+1,&key);
+  WRAP(array, MA_sizeof(ma_type, nelem, MT_CHAR),&value);
 
-  db = rtdb[handle].db;
+#ifdef USE_DB
+  status = !db->put(db, &key, &value, (u_int) 0);
+#endif
+#ifdef USE_HDBM
+  status = hdbm_replace(db, key, value);
+#endif
 
-  if (db->put(db, &key, &value, (u_int) 0)) {
-    (void) fprintf(stderr, "rtdb_seq_put: db put failed for \"%s\" in %s\n",
+  if (!status) {
+    (void) fprintf(stderr, "rtdb_seq_put: put failed for \"%s\" in %s\n",
 		   name, rtdb[handle].filename);
     return 0;
   }
 
   /* Enter the info into the data base as "!rtdb!<name>" */
 
-  status = rtdb_seq_put_info(handle, name, ma_type, nelem);
+  if (!rtdb_seq_put_info(handle, name, ma_type, nelem))
+    return 0;
 
   /* This operations flushes ALL writes immediately to disk
      ... it may be slow, in which case comment the next statement
      out and be sure to explicitly close the databse */
 
-  status = status && (db->sync(db, (u_int) 0) == 0);
+#ifdef USE_DB
+  status = (db->sync(db, (u_int) 0) == 0);
+#endif
+#ifdef USE_HDBM
+  status = hdbm_file_flush(db);  
+#endif
 
-  return status;
+  if (!status) {
+    (void) fprintf(stderr, "rtdb_seq_put: flush failed for \"%s\" in %s\n",
+		   name, rtdb[handle].filename);
+    return 0;
+  }
+
+  return 1;
 }
 
 int rtdb_seq_get(const int handle, const char *name, const int ma_type,
@@ -899,9 +978,15 @@ int rtdb_seq_get(const int handle, const char *name, const int ma_type,
   array    = user provided buffer that returns data
 */
 {
+#ifdef USE_DB
+  DB *db = rtdb[handle].db;
+#endif
+#ifdef USE_HDBM
+  hdbm db = rtdb[handle].db;
+#endif
+
   DBT key, value;
   int status, ma_type_from_db, nelem_from_db;
-  DB *db;
   char date[26];
   int nelem_actual;
 
@@ -909,8 +994,6 @@ int rtdb_seq_get(const int handle, const char *name, const int ma_type,
     (void) fprintf(stderr, "rtdb_seq_get: handle (%d) is invalid\n", handle);
     return 0;
   }
-
-  db = rtdb[handle].db;
 
   /* Retrieve the info from the data base to check types etc. */
 
@@ -926,43 +1009,51 @@ int rtdb_seq_get(const int handle, const char *name, const int ma_type,
 
   if (ma_type_from_db != ma_type) {
     (void) fprintf(stderr, 
-		   "rtdb_seq_get: type mismatch for \"%s\" in %s: arg=%d, db=%d\n",
+		   "rtdb_seq_get: type mismatch \"%s\" in %s: arg=%d, db=%d\n",
 		   name, rtdb[handle].filename, ma_type, ma_type_from_db);
     return 0;
   }
 
   /* Get the data from the data base */
 
-  key = wrap_DBT(name, strlen(name)+1);
+  WRAP(name, strlen(name)+1, &key);
+#ifdef USE_DB
+  /* Return can be 1 (not present) or -1 (failed).  Both are an
+     error here as the get_info above succeeded */
+  status = (db->get(db, &key, &value, (u_int) 0) == 0);
+#endif
+#ifdef USE_HDBM
+  status = hdbm_read(db, key, &value);
+#endif
 
-  if ((status = db->get(db, &key, &value, (u_int) 0))) {
-    /* Status can be 1 (not present) or -1 (failed).  Both are an
-       error here as the get_info above succeeded */
-    
-    (void) fprintf(stderr, "rtdb_seq_get: db get failed for \"%s\" in %s\n",
+  if (!status) {
+    (void) fprintf(stderr, "rtdb_seq_get: get failed for \"%s\" in %s\n",
 		   name, rtdb[handle].filename);
     return 0;
   }
 
-  /* Now check that users buffer is big enough */
+  /* Now check that user's buffer is big enough */
 
-  nelem_actual = MA_sizeof(MT_CHAR, value.size, ma_type);
+  nelem_actual = MA_sizeof(MT_CHAR, SIZE(value), ma_type);
 
   if (nelem_actual != nelem_from_db) {
     (void) fprintf(stderr, 
-		   "rtdb_seq_get: size error for \"%s\" in %s: info=%d, db=%d\n",
+		   "rtdb_seq_get: size error \"%s\" in %s: info=%d, db=%d\n",
 		   name, rtdb[handle].filename, nelem_from_db,
 		   nelem_actual);
     return 0;
   }
 
   if (nelem_actual > nelem) {
-    (void) fprintf(stderr, "rtdb_seq_get: \"%s\" is %d long, buffer is only %d\n",
+    (void) fprintf(stderr, "rtdb_seq_get: \"%s\" is %d long, buffer is %d\n",
 		   name, nelem_actual, nelem);
     return 0;
   }
 
-  (void) memcpy(array, value.data, value.size);
+  (void) memcpy(array, DATA(value), SIZE(value));
+#ifdef USE_HDBM
+  datum_free(value);
+#endif
 
   return 1;
 }
@@ -986,7 +1077,7 @@ int rtdb_seq_ma_get(const int handle, const char *name, int *ma_type,
   Integer nelem_buf;
 
   if (!check_handle(handle)) {
-    (void) fprintf(stderr, "rtdb_seq_ma_get: handle (%d) is invalid\n", handle);
+    (void) fprintf(stderr, "rtdb_seq_ma_get: handle (%d) invalid\n", handle);
     return 0;
   }
 
@@ -994,7 +1085,7 @@ int rtdb_seq_ma_get(const int handle, const char *name, int *ma_type,
 
   if (!rtdb_seq_get_info(handle, name, ma_type, nelem, date)) {
     /*
-    (void) fprintf(stderr, "rtdb_seq_ma_get: get info failed for \"%s\" in %s\n",
+    (void) fprintf(stderr, "rtdb_seq_ma_get: get info failed \"%s\" in %s\n",
 		   name, rtdb[handle].filename);
                    */
     return 0;
@@ -1006,7 +1097,7 @@ int rtdb_seq_ma_get(const int handle, const char *name, int *ma_type,
   nelem_buf   = (Integer) *nelem;
 
   if (!MA_allocate_heap(ma_type_buf, nelem_buf, name, &ma_handle_buf)) {
-    (void) fprintf(stderr, "rtdb_seq_ma_get: MA_allocate_heap failed, nelem=%d\n",
+    (void) fprintf(stderr, "rtdb_seq_ma_get: MA_allocate_heap : nelem=%d\n",
 		   *nelem);
     return 0;
   }
@@ -1018,7 +1109,7 @@ int rtdb_seq_ma_get(const int handle, const char *name, int *ma_type,
   }
 
   if (!rtdb_seq_get(handle, name, *ma_type, *nelem, ma_data)) {
-    (void) fprintf(stderr, "rtdb_seq_ma_get: rtdb_seq_get failed for %s\n", name);
+    (void) fprintf(stderr, "rtdb_seq_ma_get: rtdb_seq_get failed %s\n", name);
     (void) MA_free_heap(ma_handle_buf);
     return 0;
   }
