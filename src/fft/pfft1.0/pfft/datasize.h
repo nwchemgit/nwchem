@@ -34,5 +34,10 @@
 
       INTEGER             NBYTEI, NBYTED
 
+#ifdef KSR || SGI
+      PARAMETER(          NBYTED = 8,
+     $                    NBYTEI = 8 )
+#else
       PARAMETER(          NBYTED = 8,
      $                    NBYTEI = 4 )
+#endif
