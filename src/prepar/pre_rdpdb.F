@@ -2,7 +2,7 @@
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
      + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model,box)
 c
-c $Id: pre_rdpdb.F,v 1.18 2000-04-07 17:14:43 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.19 2000-06-01 21:42:38 d3j191 Exp $
 c
       implicit none
 c
@@ -22,19 +22,21 @@ c
 c
       character*6 name1,name2
       character*80 card
-      integer i,last,nprv,num,iw,length,mdl,nump
+      integer i,last,nprv,num,iw,length,mdl,nump,ioff
       real*8 x,y,z
       character*3 namr
       character*4 nama
       character*6 hdr
       logical lsolut
-      character*1 alocal,achain
+      character*1 alocal,achain,pchain
 c
       lnames=lnams
       iw=0
       iwater=0
       mdl=0
       nump=0
+      ioff=0
+      pchain=' '
 c
       length=index(filpdb,' ')-1
       if(util_print('where',print_debug)) then
@@ -137,17 +139,11 @@ c
 c
       if(chain.eq.'*') then
       if(num.lt.nump) then
-      if(achain.eq.'B') num=num+1000
-      if(achain.eq.'C') num=num+2000
-      if(achain.eq.'D') num=num+3000
-      if(achain.eq.'E') num=num+4000
-      if(achain.eq.'F') num=num+5000
-      if(achain.eq.'G') num=num+6000
-      if(achain.eq.'H') num=num+7000
-      if(achain.eq.'I') num=num+8000
-      if(achain.eq.' ') num=num+9000
+      if(achain.ne.pchain) ioff=(nump/100+1)*100-num
+      num=num+ioff
       endif
       endif
+      pchain=achain
       if(card(18:20).eq.namslv) lsolut=.false.
       if(num.ne.nump) nump=num
 c

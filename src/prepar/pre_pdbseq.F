@@ -2,7 +2,7 @@
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,altloc,chain)
 c
-c $Id: pre_pdbseq.F,v 1.22 2000-02-21 07:05:45 d3j191 Exp $
+c $Id: pre_pdbseq.F,v 1.23 2000-06-01 21:42:37 d3j191 Exp $
 c
 c     function to read sequence from a pdb formatted file
 c
@@ -32,10 +32,10 @@ c
       character*3 namslv
       real*8 xatm(3,matm)
       character*255 filnam
-      character*1 altloc,chain
+      character*1 altloc,chain,pchain
 c
       character*80 card
-      integer length,mdl,iseq,isgm,i,j,k,nchain,iatm
+      integer length,mdl,iseq,isgm,i,j,k,nchain,iatm,ioff
 c
       integer pre_atnum
       external pre_atnum
@@ -47,6 +47,8 @@ c
       iatm=0
       nssb=0
       nlnk=0
+      ioff=0
+      pchain=' '
 c
       length=index(filnam,' ')-1
 c
@@ -157,17 +159,11 @@ c
  1003 format(i4)
       if(chain.eq.'*') then
       if(i.lt.isgm) then
-      if(card(22:22).eq.'B') i=i+1000
-      if(card(22:22).eq.'C') i=i+2000
-      if(card(22:22).eq.'D') i=i+3000
-      if(card(22:22).eq.'E') i=i+4000
-      if(card(22:22).eq.'F') i=i+5000
-      if(card(22:22).eq.'G') i=i+6000
-      if(card(22:22).eq.'H') i=i+7000
-      if(card(22:22).eq.'I') i=i+8000
-      if(card(22:22).eq.' ') i=i+9000
+      if(card(22:22).ne.pchain) ioff=(isgm/100+1)*100-i
+      i=i+ioff
       endif
       endif
+      pchain=card(22:22)
       if(card(18:20).eq.namslv) goto 99
       if(i.ne.isgm) then
       isgm=i
@@ -207,17 +203,11 @@ c
  1004 format(i4)
       if(chain.eq.'*') then
       if(i.lt.isgm) then
-      if(card(22:22).eq.'B') i=i+1000
-      if(card(22:22).eq.'C') i=i+2000
-      if(card(22:22).eq.'D') i=i+3000
-      if(card(22:22).eq.'E') i=i+4000
-      if(card(22:22).eq.'F') i=i+5000
-      if(card(22:22).eq.'G') i=i+6000
-      if(card(22:22).eq.'H') i=i+7000
-      if(card(22:22).eq.'I') i=i+8000
-      if(card(22:22).eq.' ') i=i+9000
+      if(card(22:22).ne.pchain) ioff=(isgm/100+1)*100-i
+      i=i+ioff
       endif
       endif
+      pchain=card(22:22)
       if(card(18:20).eq.namslv) goto 99
       if(i.ne.isgm) then
       isgm=i
