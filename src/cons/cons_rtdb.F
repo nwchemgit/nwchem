@@ -1,4 +1,4 @@
-c $Id: cons_rtdb.F,v 1.2 2004-11-29 22:16:58 marat Exp $
+c $Id: cons_rtdb.F,v 1.3 2005-04-02 02:19:22 marat Exp $
       subroutine cons_create(namespace,rtdb)
       implicit none
 #include "errquit.fh"
@@ -418,7 +418,6 @@ c
       if(.not.rtdb_get(rtdb,tag_n,mt_int,1,n)) then
          n = 0
       end if
-      write(*,*) "cons info n",n
       if (n .eq. 0 ) then
          write(*,*) "no fixed atoms found"
          return

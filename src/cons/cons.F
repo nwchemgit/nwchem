@@ -626,7 +626,6 @@ c
       character*255 namespace
 c
       call cons_get_namespace(namespace,rtdb)
-      write(*,*) "cons_add_egrad",namespace
       if(.not.cons_status(namespace,rtdb)) return
       if(.not.cons_hbonds(namespace,rtdb)) return
 c
