@@ -5,7 +5,7 @@
      &     iga_fock,iga_diis,iga_svecs,isvals,
      &     iga_cdinv,iga_xcinv,iga_2ceri)
 
-C$Id: dft_scf.F,v 1.8 1995-07-19 23:22:18 og845 Exp $
+C$Id: dft_scf.F,v 1.9 1995-09-14 17:29:38 pg511 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
@@ -199,7 +199,7 @@ c
             movecs_out = movecs_in
       endif
 c
-C  get MO vectors from file
+c  get MO vectors from file
 c
       LResult = movecs_read_header(movecs_in, title_vecs, basis_vecs,
      &     nbf_vecs, nsets, nmo_read, 2)
@@ -873,7 +873,7 @@ c     Store energy and convergence status ... not sure if better to
 c     do this here or have each wavefunction type do it
 c     
       if (.not. bas_name(AO_bas_han, name, trans))
-     $     call errquit('scf: bas_name?', 0)
+     $     call errquit('dft_scf: bas_name?', 0)
       if (name .eq. ' ') name = 'ao basis'
 
       if (.not. context_prefix('energy', name)) call errquit
