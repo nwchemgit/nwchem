@@ -2073,6 +2073,15 @@ c
 #include "inp.fh"
       integer rtdb
 c
+      integer nmo, g_tmp, l_occ, k_occ,
+     $     l_eval, k_eval, l_mos, k_mos, l_most, k_most
+      integer nocc, nvirt, nopen, nclosed, nso, noso
+      integer l_t, k_t, l_t2, k_t2, l_f, k_f
+      integer l_t1, k_t1, l_r1, k_r1
+      integer l_pmost, k_pmost, l_hmost, k_hmost
+      integer l_work, k_work, l_h, k_h
+      integer l_t1_vomos, k_t1_vomos
+c
       double precision g_mo(nmo,nmo,nmo,nmo)
       double precision fock(nmo,nmo)
       double precision t1(nso,nso)
@@ -2083,14 +2092,6 @@ c
       logical movecs_read, movecs_read_header
       external movecs_read, movecs_read_header
 c
-      integer nmo, g_tmp, l_occ, k_occ,
-     $     l_eval, k_eval, l_mos, k_mos, l_most, k_most
-      integer nocc, nvirt, nopen, nclosed, nso, noso
-      integer l_t, k_t, l_t2, k_t2, l_f, k_f
-      integer l_t1, k_t1, l_r1, k_r1
-      integer l_pmost, k_pmost, l_hmost, k_hmost
-      integer l_work, k_work, l_h, k_h
-      integer l_t1_vomos, k_t1_vomos
       logical int_normalize
       external int_normalize
 c
