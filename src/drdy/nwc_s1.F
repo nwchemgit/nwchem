@@ -7,6 +7,7 @@ C
 #include "nwc_drdyP.fh"
 #include "geom.fh"
 #include "stdio.fh"
+#include "printlevels.fh"
       Integer natom, n3
       Double Precision v
       Double Precision x(n3),dx(n3),xs(n3),amass(n3)
@@ -21,12 +22,16 @@ C
       double precision threquiv
       character*16 groupname
       Integer i, ncenter_B4_autosym, ncenter, nata
+      Integer current_print_level
       logical copy_sym, copy_c1
 C 
 C Transform to cartesian coordinates
 *      write(6,*)' x before ',x
       Call drdy_trans (2,n3,amass,x,dx)
 *
+      call util_print_get_level(current_print_level)
+      call util_print_set_level(print_none)
+*      
       if (.not.geom_create(geom,'geometry'))
      &      call errquit('nwc_s1: geom_create failed',911)
       if (.not.geom_set_user_units(geom,'a.u.'))
@@ -81,6 +86,7 @@ C Transform to cartesian coordinates
      &      call errquit('nwc_s1: geom_rtdb_store failed',911)
       if (.not.geom_destroy(geom))
      &      call errquit('nwc_s1: geom_destroy failed',911)
+      call util_print_set_level(current_print_level)
 *      write(6,*)' x after  ',x
       call drdy_synch(DRDY_CODE_GRADIENT)
       call drdy_nwc_get_energy(my_rtdb,v)
