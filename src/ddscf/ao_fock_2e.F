@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock, asym)
 c
-c$Id: ao_fock_2e.F,v 1.15 2000-04-27 20:06:28 zzhang Exp $
+c$Id: ao_fock_2e.F,v 1.16 2000-04-27 21:34:27 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -218,10 +218,8 @@ c
       end
 
       subroutine asym_fock2e(g_fock)
-c
-#include "global.fh"
-c
       implicit none
+#include "global.fh"
       integer g_fock, g_tmp
 c
       if (.not. ga_duplicate(g_fock, g_tmp, 'tmp'))
