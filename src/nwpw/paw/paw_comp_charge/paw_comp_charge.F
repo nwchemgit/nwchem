@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.17 2003-02-16 00:52:28 marat Exp $
+* $Id: paw_comp_charge.F,v 1.18 2003-02-16 07:33:19 marat Exp $
 *
 
 
@@ -94,13 +94,9 @@
         integer na
         integer ia
         integer nlmi
-        integer i1,i2
-        integer l1,l2
         integer tot_natom
-        integer nproj
         integer i_matr,i_matr0
-        integer i_w,i_w0,i_w1
-        integer m1,m2
+        integer i_w,i_w0
         integer nb2,nb
         integer mult_l
         complex qlm_tmp
@@ -113,6 +109,11 @@
         external gen_gaunt_coeff
 
         tot_natom = ion_nion()
+
+*       *** zero the comp charges ***
+        do i=1,paw_qlm(3)
+          dcpl_mb(paw_qlm(1)+i-1) = dcmplx(0,0)
+        end do
     
 c       !*** set values for l=0 m=0 elements ***
         nlmi = 0
