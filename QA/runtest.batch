@@ -1,11 +1,11 @@
 #!/bin/csh 
 #
-# $Id: runtest.batch,v 1.1 1997-06-30 17:16:45 d3e129 Exp $
+# $Id: runtest.batch,v 1.2 1997-07-01 00:52:36 d3e129 Exp $
 #
 # Batch system based parallel and sequential execution of test jobs
 #
 # Usage:
-#       runtest.batch [-procs nproc] testdir1 [testdir2 ...]
+#       runtest.batch [-procs nproc] [-nowait] testdir1 [testdir2 ...]
 #
 #
 # Gets executable from environment variable NWCHEM_EXECUTABLE or
@@ -42,6 +42,8 @@
 
 
 #  get batch system information information
+@ argv_set_nproc = 0
+
 if ($?BATCH_SYSTEM) then
    set BATCH = $BATCH_SYSTEM
 else
@@ -54,7 +56,7 @@ else
    if (! ($?BATCH)) then
       llq >& /dev/null
       if (! ($status)) then
-         set BATCH = LoadLeveler
+         set BATCH = LL   # LoadLeveler
       endif
    endif
    if (! ($?BATCH)) then
@@ -73,7 +75,7 @@ else
      if (-x /u5/u5097/bind/nwchem.t3e) then
         set NWCHEM = /u5/u5097/bind/nwchem.t3e
      endif
-  else if ($BATCH == "LoadLeveler") then
+  else if ($BATCH == "LL") then
      if (-x /u/nwchem/bind/nwchem.sp) then
         set NWCHEM = /u/nwchem/bind/nwchem.sp
      endif
@@ -108,7 +110,7 @@ endif
 set TESTOUTPUTS = $CURDIR/testoutputs
 if ($BATCH == "NQE") then
   set SCRATCHDIR  = \$BIG/scratchdir
-else if ($BATCH == "LoadLeveler") then
+else if ($BATCH == "LL") then
   set SCRATCHDIR  = /scratch/scratchdir
 else 
   set SCRATCHDIR  = $CURDIR/scratchdir
@@ -157,16 +159,21 @@ foreach TEST ($argv[*])
     echo could not find job in $TEST
     continue
   endif
-
-  if ($BATCH == "NQE") then
+#
+# get NPROC
+#
+  if (! ($argv_set_nproc)) then
      set NPROC = 2
      if (-e $TESTDIR/MPP) then
         set NPROC = `grep NPROC $TESTDIR/MPP | sed 's/NPROC//'`
      endif
+  endif
+
+  @ run_count++
+  if ($BATCH == "NQE") then
      echo  "#QSUB -mb"                           >> $BATCH_SCRIPT
      echo  "#QSUB -me"                           >> $BATCH_SCRIPT
      echo  "#QSUB -s /bin/csh"                   >> $BATCH_SCRIPT
-     @ run_count++
      echo  "#QSUB -r nwc_reg_$run_count"         >> $BATCH_SCRIPT
      echo  "#QSUB -lM 28Mw"                      >> $BATCH_SCRIPT
      echo  "#QSUB -lm 28Mw"                      >> $BATCH_SCRIPT
@@ -175,15 +182,31 @@ foreach TEST ($argv[*])
      echo  "#QSUB -lt 2000"                      >> $BATCH_SCRIPT
      echo  "#QSUB -l mpp_p=$NPROC"               >> $BATCH_SCRIPT
      echo  "#"                                   >> $BATCH_SCRIPT
-  else if ($BATCH == "LoadLeveler") then
-     echo " LoadLeveler setup for batch not implemented"
+  else if ($BATCH == "LL") then
+     echo  "#!/bin/csh -x"
+     echo  "# @ job_type         =    parallel"                    >> $BATCH_SCRIPT
+     echo  "# @ class            =    mss_large"                   >> $BATCH_SCRIPT
+     echo  "# @ requirements     =    (Adapter == "hps_user")"     >> $BATCH_SCRIPT
+     echo  "# @ input            =    /dev/null"                   >> $BATCH_SCRIPT
+     echo  "# @ output           =    $BATCH_SCRIPT.outlog"        >> $BATCH_SCRIPT
+     echo  "# @ error            =    $BATCH_SCRIPT.errlog"        >> $BATCH_SCRIPT
+     echo  "# @ environment      =    COPY_ALL; MP_EUILIB=us; MP_CSS_INTERRUPT=yes; MP_INFOLEVEL=2; MP_EUIDEVICE=css0; MP_PULSE=0; MP_SINGLE_THREAD=yes; MP_WAIT_MODE=yeild"    >> $BATCH_SCRIPT
+     echo  "# @ min_processors   =    $NPROC"                      >> $BATCH_SCRIPT
+     echo  "# @ max_processors   =    $NPROC"                      >> $BATCH_SCRIPT
+     echo  "# @ cpu_limit        =    2:00:00"                     >> $BATCH_SCRIPT
+     echo  "# @ queue"                                             >> $BATCH_SCRIPT
+     echo  "#"                                                     >> $BATCH_SCRIPT
+     echo  "#"                                                     >> $BATCH_SCRIPT
      continue
   else
      echo " unknown setup for batch script"
      continue
   endif
-  echo "set echo timestamp verbose"         >> $BATCH_SCRIPT
-# echo "set echo timestamp"                 >> $BATCH_SCRIPT
+  if ($BATCH == "NQE")
+     echo "set echo timestamp"              >> $BATCH_SCRIPT
+  else
+     echo "set echo"                        >> $BATCH_SCRIPT
+  endif
   echo "set batchjob_status = 0"            >> $BATCH_SCRIPT
   echo "cd $CURDIR"                         >> $BATCH_SCRIPT
   echo "if(! -d $TESTOUTPUTS) then"         >> $BATCH_SCRIPT
@@ -286,14 +309,36 @@ foreach TEST ($argv[*])
 #
   echo "cp $NWCHEM $SCRATCHDIR/nwchem.run"           >> $BATCH_SCRIPT
   echo 'if($md_test_run) then'                       >> $BATCH_SCRIPT
-#  echo "   /bin/time mpprun -n $NPROC $SCRATCHDIR/nwchem.run $INPUTFILE >& $STUB.nwout"  >> $BATCH_SCRIPT
-  echo "   mpprun -n $NPROC $SCRATCHDIR/nwchem.run $INPUTFILE >& $STUB.nwout"  >> $BATCH_SCRIPT
+  if ($BATCH == "NQE") then
+     echo "   mpprun -n $NPROC $SCRATCHDIR/nwchem.run $INPUTFILE >& $STUB.nwout"  >> $BATCH_SCRIPT
+  else if ($BATCH == "LL") then
+     echo "cat << EOFCAT > poe.commands"                           >> $BATCH_SCRIPT
+     echo "/usr/local/bin/copyexe $SCRATCHDIR/nwchem.run"          >> $BATCH_SCRIPT
+     echo "$SCRATCHDIR/nwchem.run $INPUTFILE"                      >> $BATCH_SCRIPT
+     echo "quit"                                                   >> $BATCH_SCRIPT
+     echo "EOFCAT"                                                 >> $BATCH_SCRIPT
+     echo "poe -newjob yes -cmdfile poe.commands > $STUB.nwout"    >> $BATCH_SCRIPT
+  else
+     echo "How do I run NWChem in this batch system?"
+     exit 911
+  endif
   echo '   set runstat = $status'                    >> $BATCH_SCRIPT
   echo "   cp $OUTPUTFILE $TESTOUTPUTS/$OUTPUTFILE"  >> $BATCH_SCRIPT
   echo "   cp $TESTFILE $TESTOUTPUTS/$TESTFILE"      >> $BATCH_SCRIPT
   echo "else"                                        >> $BATCH_SCRIPT
-#  echo "   /bin/time mpprun -n $NPROC $SCRATCHDIR/nwchem.run $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE"  >> $BATCH_SCRIPT
-  echo "   mpprun -n $NPROC $SCRATCHDIR/nwchem.run $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE"  >> $BATCH_SCRIPT
+  if ($BATCH == "NQE") then
+     echo "   mpprun -n $NPROC $SCRATCHDIR/nwchem.run $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE"  >> $BATCH_SCRIPT
+  else if ($BATCH == "LL") then
+     echo "cat << EOFCAT > poe.commands"                                      >> $BATCH_SCRIPT
+     echo "/usr/local/bin/copyexe $SCRATCHDIR/nwchem.run"                     >> $BATCH_SCRIPT
+     echo "$SCRATCHDIR/nwchem.run $INPUTFILE"                                 >> $BATCH_SCRIPT
+     echo "quit"                                                              >> $BATCH_SCRIPT
+     echo "EOFCAT"                                                            >> $BATCH_SCRIPT
+     echo "poe -newjob yes -cmdfile poe.commands > $TESTOUTPUTS/$OUTPUTFILE"  >> $BATCH_SCRIPT
+  else
+     echo "How do I run NWChem in this batch system?"
+     exit 911
+  endif
   echo '   set runstat = $status'                    >> $BATCH_SCRIPT
   echo "endif"                                       >> $BATCH_SCRIPT
 #
@@ -333,13 +378,13 @@ foreach TEST ($argv[*])
   echo "      goto notify_status"                                      >> $BATCH_SCRIPT
   echo "   endif"                                                      >> $BATCH_SCRIPT
 
-  echo "   diff -w $STUB.ok.out.nwparse $STUB.out.nwparse ">> $BATCH_SCRIPT
+  echo "   diff -w $STUB.ok.out.nwparse $STUB.out.nwparse "            >> $BATCH_SCRIPT
 #
   echo '   set diff1_status = $status'                                 >> $BATCH_SCRIPT
   echo "endif"                                                         >> $BATCH_SCRIPT
 #
 
-  echo 'if($diff1_status) then'            >> $BATCH_SCRIPT
+  echo 'if($diff1_status) then'      >> $BATCH_SCRIPT
   echo "   echo failed"              >> $BATCH_SCRIPT
   echo "   set batchjob_status = 1"  >> $BATCH_SCRIPT
   echo "   goto notify_status"       >> $BATCH_SCRIPT
@@ -396,8 +441,9 @@ foreach TEST ($argv[*])
   echo " sumitting job $BATCH_SCRIPT to $BATCH using $NPROC processes/nodes"
   if ($BATCH == "NQE") then
      cqsub  $BATCH_SCRIPT
-  else if ($BATCH == "LoadLeveler") then
-     llsubmit $BATCH_SCRIPT
+  else if ($BATCH == "LL") then
+     echo " LL submission not tested yet"
+#     llsubmit $BATCH_SCRIPT
   else
      echo " $BATCH not configured for submission     
      exit 911
@@ -407,6 +453,7 @@ foreach TEST ($argv[*])
      exit 911
   endif
 end
+if ($BATCH == "LL") exit 12345
 @ jobs_total = $run_count
 echo " "
 echo " A total of $jobs_total jobs were submitted to $BATCH"
