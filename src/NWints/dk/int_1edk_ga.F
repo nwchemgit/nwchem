@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, kskel)
-c $Id: int_1edk_ga.F,v 1.14 1999-11-24 23:06:54 bert Exp $
+c $Id: int_1edk_ga.F,v 1.15 1999-12-08 01:18:34 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -54,6 +54,7 @@ c
       integer Vg_a              ! GA handle potential energy integral matrix V
       integer Vdg_a             ! GA handle p.Vp and later pxVP integral matrix
       integer DKg_a             ! GA handle Douglas-Kroll integrals in uncontracted basis
+      integer X_ga, Y_ga, Z_ga  ! GA arrays for th epxVp integrals (if needed)
       integer tempg_a           ! Temporary g_a matrix #1 handle
       integer tmpg_a            ! Temporary g_a matrix #2 handle
       integer Mixg_a            ! GA handle for transformation between contr and uncont
@@ -65,11 +66,10 @@ c
       integer iloop             
       integer basis_array(2)
 c
-      double precision c, c2    ! Speed of light c (in au) plus c^2 
+      double precision c2    ! Speed of light c (in au) squared 
 c
-      c = 137.0359895d0
-c     c = 137.0360000d0         ! Speed of light by Bernd Hess
-      c2 = c*c
+c     dk_clight = 137.0360000d0         ! Speed of light by Bernd Hess
+      c2 = dk_clight * dk_clight
 c
 c     At this point we set oskel to false. Having symmetry and oskel is true 
 c     lead to NWChem hanging, no progress and no crash!
@@ -156,7 +156,8 @@ c
       if (.not. ma_push_get(MT_DBL,nbf,'Evector',Em_a,EIm_a))
      $     call errquit('int_1edk_ga: ma_push_get failed Evector',0)
       do 10 iloop = 1, nbf
-         dbl_mb(EIm_a+iloop-1) = c*Sqrt(dbl_mb(p2Im_a+iloop-1)+c2)
+         dbl_mb(EIm_a+iloop-1) = dk_clight*
+     $                           Sqrt(dbl_mb(p2Im_a+iloop-1)+c2)
    10 continue
 c
 c     Construct vector A from E: A = Sqrt((E+c^2)/2E) and
@@ -167,7 +168,7 @@ c
       if (.not. ma_push_get(MT_DBL,nbf,'Kvector',Km_a,KIm_a))
      $     call errquit('int_1edk_ga: ma_push_get failed Kvector',0)
       do 20 iloop = 1, nbf
-         dbl_mb(KIm_a+iloop-1) = c/(dbl_mb(EIm_a+iloop-1)+c2)  
+         dbl_mb(KIm_a+iloop-1) = dk_clight/(dbl_mb(EIm_a+iloop-1)+c2)  
          dbl_mb(AIm_a+iloop-1) = Sqrt((dbl_mb(EIm_a+iloop-1)+c2)/
      $                                (2.0d0*dbl_mb(EIm_a+iloop-1)))
    20 continue
@@ -241,7 +242,13 @@ c     At this point we have the basic integrals for the free-particle projection
 c     operators. The remaining terms come from the external potential. Skip and 
 c     construct final integrals if dk_form_type=1 (see header).
 c 
-      if (dk_form_type .eq. 1) goto 100
+      if (dk_form_type .eq. 1) then     
+         if (.not. ga_destroy(Vdg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
+         if (.not. ga_destroy(Vg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
+         goto 100
+      endif
 c
 c     Scale U^tVU (in Vg_a) and U^tp.VpU (in Vdg_a) with 1/(Ep+Ep') for W terms
 c
@@ -495,30 +502,51 @@ c     (CPL, 199, 491, 1992) denoted vn2.
 c     Skip and construct final integrals if dk_form_type=2 (see header).
 c 
       if (dk_form_type .eq. 2) then
+         if (.not. ga_destroy(Vdg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
+         if (.not. ga_destroy(Vg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
          if (.not. ma_pop_stack(tempm_a))
      $       call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
          goto 100
       endif
 c
 c     Unfortunately for the full Douglas-Kroll we do need for each term 
-c     integrals of the type (pxVp)D(pxVp). We don't need the Vdg_a array 
-c     anymore so we will reuse that for to get the pxVp integrals and to 
-c     construct the final three terms.
+c     integrals of the type (pxVp)D(pxVp). We now need three GA's to 
+c     store the three components of the integrals and to construct the 
+c     final three terms.
 c
 c     NOTE: If we neglect these terms we get an incomplete Douglas-Kroll
 c           transformation a la Haberlen&Rosch (CPL, 199, 491, 1992)
 c
 c
-c     Get pxVp (in Vdg_a) and transform to U^tVU and scale with 1/(Ep+Ep') for W terms
+c     Get pxVp X_ga, Y_ga and Z_ga, and transform to U^tVU and scale 
+c     with 1/(Ep+Ep') for W terms
 c
-      call ga_zero(Vdg_a)
-      call int_1e_oldga(usebasis,usebasis,Vdg_a,'pxVp',oskel)
+      if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp X',1,1,X_ga))
+     $     call errquit('int_1edk_ga: ga_create failed GA X_ga',0)
+      if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp Y',1,1,Y_ga))
+     $     call errquit('int_1edk_ga: ga_create failed GA Y_ga',0)
+      if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp Z',1,1,Z_ga))
+     $     call errquit('int_1edk_ga: ga_create failed GA Z_ga',0)
+c
+      call int_pxvp_ga(usebasis,X_ga,Y_ga,Z_ga,oskel)
       call ga_zero(tempg_a)
-      call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,Vdg_a,0.0d0,tempg_a)
-      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,Vdg_a)
-      call ga_scale_divEpp(Vdg_a,dbl_mb(EIm_a))
+      call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,X_ga,0.0d0,tempg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,X_ga)
+      call ga_scale_divEpp(X_ga,dbl_mb(EIm_a))
+      call ga_zero(tempg_a)
+      call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,Y_ga,0.0d0,tempg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,Y_ga)
+      call ga_scale_divEpp(Y_ga,dbl_mb(EIm_a))
+      call ga_zero(tempg_a)
+      call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,Z_ga,0.0d0,tempg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,Z_ga)
+      call ga_scale_divEpp(Z_ga,dbl_mb(EIm_a))
 c
 c     W(1)E(p)W(1): - UAK     pxVp  KAE(p)K^-2p^-2AK pxVp  KAU^t
+c
+c     For each component of pxVp (i.e. x, y, z)
 c
       do 60 iloop = 1, nbf
          dbl_mb(tempIm_a+iloop-1) = dbl_mb(AIm_a+iloop-1)*
@@ -526,10 +554,18 @@ c
      $                              dbl_mb(EIm_a+iloop-1)/
      $                              dbl_mb(p2Im_a+iloop-1)
    60 continue
-      call ga_copy(Vdg_a,tempg_a)
+      call ga_copy(X_ga,tempg_a)
       call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
       call ga_zero(tmpg_a)
-      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Vdg_a,0.0d0,
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,X_ga,0.0d0,
+     $              tmpg_a)
+      call ga_copy(Y_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Y_ga,1.0d0,
+     $              tmpg_a)
+      call ga_copy(Z_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Z_ga,1.0d0,
      $              tmpg_a)
       call ga_scale_rlh(tmpg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
       call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
@@ -537,15 +573,25 @@ c
 c
 c     E(p)W(1)^2:   - UE(p)AK pxVp  KAK^-2p^-2AK     pxVp  KAU^t
 c
+c     For each component of pxVp (i.e. x, y, z)
+c
       do 61 iloop = 1, nbf
          dbl_mb(tempIm_a+iloop-1) = dbl_mb(AIm_a+iloop-1)*
      $                              dbl_mb(AIm_a+iloop-1)/
      $                              dbl_mb(p2Im_a+iloop-1)
    61 continue
-      call ga_copy(Vdg_a,tempg_a)
+      call ga_copy(X_ga,tempg_a)
       call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
       call ga_zero(tmpg_a)
-      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Vdg_a,0.0d0,
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,X_ga,0.0d0,
+     $              tmpg_a)
+      call ga_copy(Y_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Y_ga,1.0d0,
+     $              tmpg_a)
+      call ga_copy(Z_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Z_ga,1.0d0,
      $              tmpg_a)
       call ga_scale_rlh(tmpg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
       call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
@@ -554,15 +600,25 @@ c
 c
 c     W(1)^2E(p):   - UAK     pxVp  KAK^-2p^-2AK     pxVp  KAE(p)U^t
 c
+c     For each component of pxVp (i.e. x, y, z)
+c
       do 62 iloop = 1, nbf
          dbl_mb(tempIm_a+iloop-1) = dbl_mb(AIm_a+iloop-1)*
      $                              dbl_mb(AIm_a+iloop-1)/
      $                              dbl_mb(p2Im_a+iloop-1)
    62 continue
-      call ga_copy(Vdg_a,tempg_a)
+      call ga_copy(X_ga,tempg_a)
       call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
       call ga_zero(tmpg_a)
-      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Vdg_a,0.0d0,
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,X_ga,0.0d0,
+     $              tmpg_a)
+      call ga_copy(Y_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Y_ga,1.0d0,
+     $              tmpg_a)
+      call ga_copy(Z_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Z_ga,1.0d0,
      $              tmpg_a)
       call ga_scale_rlh(tmpg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
       call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
@@ -573,6 +629,12 @@ c     At this point we have the integrals we want in momentum space. We have to
 c     backtransform to real space and, as we work in a primitive basis, contract
 c     them back into the contracted basis.
 c
+      if (.not. ga_destroy(Z_ga))
+     $    call errquit('int_1edk_ga: ga_destroy Z_ga',0)
+      if (.not. ga_destroy(Y_ga))
+     $    call errquit('int_1edk_ga: ga_destroy Y_ga',0)
+      if (.not. ga_destroy(X_ga))
+     $    call errquit('int_1edk_ga: ga_destroy X_ga',0)
       if (.not. ma_pop_stack(tempm_a))
      $    call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
   100 continue
@@ -603,12 +665,6 @@ c
      $     call errquit('int_1edk_ga: ma_pop_stack Em_a',0)
       if (.not. ma_pop_stack(p2m_a))
      $     call errquit('int_1edk_ga: ma_pop_stack p2m_a',0)
-      if (type .gt. 1) then
-         if (.not. ga_destroy(Vdg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
-         if (.not. ga_destroy(Vg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
-      endif
       if (.not. ga_destroy(Ug_a))
      $     call errquit('int_1edk_ga: ga_destroy Ug_a',0)
       if (.not. ga_destroy(tmpg_a))
