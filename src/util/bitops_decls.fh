@@ -14,3 +14,7 @@ c
       intrinsic shiftr, shiftl
       integer iiibit, jjjbit
 #endif
+#if defined(SGI) && defined(_LANGUAGE_FORTRAN90)
+      integer rshift, lshift
+      integer iiibit, jjjbit
+#endif
