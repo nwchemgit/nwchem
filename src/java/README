@@ -1,9 +1,12 @@
 Requirements for the NWChem java gui:
 
-1. JAVA 1.2 SDK in PATH
-2. $(NWCHEM_TOP)/lib/classes in CLASSPATH
-3. PTOLEMY environment variable pointing to ptolemy.plot.jar
-4. CFORMAT classes available in directory pointed to in CLASSPATH
+1. JAVA 1.2 SDK or later in PATH
+2. Create a directory $(NWCHEM_TOP)/lib/classes
+3. Define the following environment variables in your .cshrc
+	NWCHEM_CLASSES pointing to $(NWCHEM_TOP)/lib/classes
+	PTPLOT_APPLICATION pointing to plotapplication.jar
+	MYCLASSES pointing to directory with the CFORMAT classes
+4. Add ${NWCHEM_CLASSES}, ${PTPLOT_APPLICATION} and ${MYCLASSES} to CLASSPATH
 
 To compile type 'make' in $(NWCHEM_TOP)/src/java. This copies the
 class files to ${NWCHEM_TOP)/lib/classes
