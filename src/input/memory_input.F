@@ -26,7 +26,7 @@ c
 c     input units default to doubles
 c
 c     Return required sizes in units of double precision words
-c     or -1 if not specified in the input
+c     or 1000000 doubles if not specified in the input
 c
 c     If (ostore) store the values in the rtdb using the current context
 c     (so that in the near future each module can control its own memory)
@@ -89,6 +89,10 @@ c     Make sure that defaults OK even if units were changed
 c
       if (heap_size .le. 0) heap_size = -1
       if (stack_size .le. 0) stack_size = -1
+      if (heap_size.eq.-1 .and. stack_size.eq.-1) then
+         heap_size = 500000
+         stack_size= 500000
+      endif
 c
 c     Debug
 c

@@ -115,8 +115,6 @@ c
 c     Done
 c
       end
-      subroutine scf_input
-      end
       subroutine input_time
       end
       subroutine input_defaults
