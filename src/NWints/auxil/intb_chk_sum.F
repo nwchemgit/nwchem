@@ -1,5 +1,5 @@
       subroutine intb_chk_sum(rtdb,basis,print_ints)
-* $Id: intb_chk_sum.F,v 1.5 1996-10-04 21:44:54 d3g681 Exp $
+* $Id: intb_chk_sum.F,v 1.6 1997-02-20 10:51:06 d3e129 Exp $
 * does checksum for 2 electron eri blocking integral interface only
 *
 * geom and basis data structures initiated and destroyed outside 
@@ -30,6 +30,7 @@ c::local
       integer h_q4, k_q4                         ! handle and index for q4 symmetry factors
       integer atom_blk_sz                        ! number of atom quartets in atom cache
 c
+      character*255 name69
       logical print69  ! print integrals to unit 69
       logical dumm69   ! used to read print69 from rtdb
       logical all_at_once ! logical for single block pass
@@ -61,14 +62,23 @@ c
 *- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 c
 c set zero tolerance
-      zerotol = 1.0d-09
+      zerotol = 1.0d-08
 c
 c
 c set print69 flag
 c
       print69 = .false.
-      if (rtdb_get(rtdb,'int:4c69',MT_LOG,1,dumm69)) then
+      if (rtdb_get(rtdb,'intcsum:b2e4cprint',MT_LOG,1,dumm69)) then
         print69 = dumm69
+      endif
+*
+*-- open files for each node
+*
+      if (print69) then
+        call util_file_name('csum.b2e4c',.false.,.true.,name69)
+        open(unit=69,file=name69,
+     &      form='formatted',access='sequential',
+     &      status='unknown')
       endif
 c
 c get information from geom/basis objects
@@ -107,28 +117,33 @@ c
         write(luout,*)' memory needed   : ',int_tmp
       endif
       all_at_once = memb.ge.int_tmp
-      if (rtdb_get(rtdb,'intb:all_at_once',MT_LOG,1,status)) then
+      if (rtdb_get(rtdb,'intcsum:b2e4c:all_at_once',
+     &    MT_LOG,1,status)) then
         write(luout,*)' all_at_once forced to be ',status
         all_at_once = status
       endif
       if (.not.all_at_once) then
         atom_blk_sz = 20
-        if(rtdb_get(rtdb,'intb:atom_size',MT_INT,1,int_tmp)) then
+        if(rtdb_get(rtdb,'intcsum:b2e4c:atom_size',
+     &      MT_INT,1,int_tmp)) then
           write(luout,*)' atom cahce block size set to ',int_tmp
           atom_blk_sz = int_tmp
         endif
         max_shell_q = atom_blk_sz*50
-        if(rtdb_get(rtdb,'intb:quartet_size',MT_INT,1,int_tmp)) then
+        if(rtdb_get(rtdb,'intcsum:b2e4c:quartet_size',
+     &      MT_INT,1,int_tmp)) then
           write(luout,*)' quartet cache buffer size set to ',int_tmp
           max_shell_q = int_tmp
         endif
         memb = max_shell_q*81
-        if(rtdb_get(rtdb,'intb:buffer_size',MT_INT,1,int_tmp)) then
+        if(rtdb_get(rtdb,'intcsum:b2e4c:buffer_size',
+     &      MT_INT,1,int_tmp)) then
           write(luout,*)' eri/label buffer size set to ',int_tmp
           memb = int_tmp
         endif
         memscr = memscr + memscr/10
-        if(rtdb_get(rtdb,'intb:scratch_size',MT_INT,1,int_tmp)) then
+        if(rtdb_get(rtdb,'intcsum:b2e4c:scratch_size',
+     &      MT_INT,1,int_tmp)) then
           write(luout,*)' scratch array size set to ',int_tmp
           memscr = int_tmp
         endif
@@ -203,7 +218,7 @@ c
         call intb_simple_canon(int_mb(i_ilab),int_mb(i_jlab),
      &      int_mb(i_klab),int_mb(i_llab),
      &      dbl_mb(i_eri), neri, zerotol)
-        write(6,*)' stsum_inve called 1'
+*        write(6,*)' stsum_inve called 1'
         call stsum_inve(neri,
      &      dbl_mb(i_eri),
      &      int_mb(i_ilab),int_mb(i_jlab),
@@ -213,7 +228,7 @@ c
      &      int_mb(i_ilab),int_mb(i_jlab),
      &      int_mb(i_klab),int_mb(i_llab),
      &      dbl_mb(i_stats),
-     &      print_ints,print69)
+     &      print_ints,print69,'intb: 2e4c')
         if (status) then
           if (debug) write(luout,*)
      &        ' intb_chk_sum: more integrals goto 00001'
@@ -224,6 +239,10 @@ c print stats
 c
         call prt_stat_sum('all at once blocked two electron',
      &      dbl_mb(i_stats),num_ints_total)
+        call stsum_inve(-1,
+     &      dbl_mb(i_eri),
+     &      int_mb(i_ilab),int_mb(i_jlab),
+     &      int_mb(i_klab),int_mb(i_llab))
       else
 c
 c multiple passes required
@@ -306,6 +325,9 @@ c
       status = status .and. ma_pop_stack(h_eri)
       if (.not.status) call errquit
      &    ('intb_chk_sum: ma_pop_stack failed',911)
+* close file      
+      close(unit=69,status='keep')
+      call ga_sync()
       end
       subroutine intb_atom_blocks_chksum(
      &    leri,memscr,max_q,a_blk,nat,
@@ -356,7 +378,8 @@ c---------------------------------------------|
         katlo = max(1,kathi-kbk+1)
         call util_date(my_date)
         write(6,'(a,i4,a,i4,a,a)')
-     &      ' doing atom block [',kathi,'->',katlo,'] ',my_date
+     &      ' doing atom block [',kathi,'->',katlo,'] ',
+     &      my_date(1:26)
         call util_flush(6)
         do iathi = nat, 1, -ibk
           iatlo = max(1,iathi-ibk+1)
@@ -440,8 +463,8 @@ c---------------------------------------------------------------------
 *rak:     &            max_q, leri, memscr, a_blk, nat, neri
 *rak:              status = ma_verify_allocator_stuff()
               call stsum2(neri,num_ints_total,eri,ilb,jlb,klb,llb,
-     &            stats,printem,print69)
-              write(6,*)' stsum_inve called 2'
+     &            stats,printem,print69,'intb: 2e4c')
+*              write(6,*)' stsum_inve called 2'
               call stsum_inve(neri,eri,ilb,jlb,klb,llb)
 *rak:              write(6,*)
 *rak:     &          ' max_q, leri, memscr, a_blk, nat, neri 5',
@@ -476,6 +499,7 @@ c---------------------------------------------------------------------
 *
       call prt_stat_sum('multi-passed blocked two electron',
      &    stats,num_ints_total)
+      call stsum_inve(-1,eri,ilb,jlb,klb,llb)
 *
       end
       subroutine intb_quart_from_atoms(
