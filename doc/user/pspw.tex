@@ -29,7 +29,7 @@ in sections \ref{sec:pspw_sd}-\ref{sec:pspw_cp}.  Finally in section
 module are discussed.
 
 If you are a first time user of this module it is recommended that you skip
-the next section and proceed directly to the tutorials in sections 
+the next two sections and proceed directly to the tutorials in sections 
 \ref{sec:pspw_sd}-\ref{sec:pspw_cp}.
 
 \section{PSPW Tasks}
@@ -247,8 +247,12 @@ sub-block.
 
 
 \subsection{PSP\_FORMATTER}
-The psp\_formatter task is used to generate a formatted pseudopotential 
-datafile.
+The psp\_formatter task takes a non-seperable pseudopotential defined in
+one-dimension real-space in a one-dimensional psp datafile and does two 
+things to it.  First it puts it into the semi-local form suggested by 
+Kleinman and Bylander and then it expands in in a periodic Fourier
+series defined by the simulation cell RTDB.  
+
 Input to the PSP\_FORMATTER task is contained
 within the PSP\_FORMATTER sub-block.
 \begin{verbatim}
@@ -620,27 +624,31 @@ the total energy for a NaCl molecule.
 
 Before running a steepest\_descent simulation several files and
 RTDB structures must be defined or initialized.  Specifically, the user 
-is required to have defined the ion positions and simulation cell in the 
-RTDB, a formatted pseudopotential file for each kind of ion, 
-a file containing the one-electron orbitals, and lastly a 
-steepest\_descent PSPW sub-block. 
+is required to have defined the {\bf ion positions} and {\bf simulation cell}
+ in the RTDB, a {\bf formatted pseudopotential file} for each kind of ion, 
+a {\bf file containing the one-electron orbitals}, and lastly a 
+{\bf steepest\_descent PSPW sub-block}. 
 
+In the following tutorial we show the input needed to find an
+energy for an NaCl molecule.  In this example default Hamann pseudopotentials
+are used for Na and Cl, the exchange correlation functional is LSDA, and
+the cutoff energy is 12 au.
 \begin{enumerate}
 \item Define the ion positions using the geometry directive.
-      \begin{verbatim}
+ \tiny     \begin{verbatim}
          ...
          geometry units au 
-         Na    1.0 0.0 0.0
-         Cl   -1.0 0.0 0.0
+         Na    2.23 0.0 0.0
+         Cl   -2.23 0.0 0.0
          end
          ...
       \end{verbatim}
-
+\normalsize
 \item Generate a pseudopotential for Sodium atoms and store it in a
       one-dimensional pseudopotential datafile called Na.psp.  
       The following input can be used to generate a default
       Hamann pseudopotential.  
-      \begin{verbatim}
+ \tiny     \begin{verbatim}
          ...
          PSPW
             PSP_GENERATOR
@@ -660,10 +668,10 @@ steepest\_descent PSPW sub-block.
          task PSPW PSP_GENERATOR
          ...
       \end{verbatim}
-
-\item Using the same proceedure as above generate a pseudopotential 
+\normalsize
+\item Use the same proceedure as above generate a pseudopotential 
       for Chlorine. 
-      \begin{verbatim}
+ \tiny     \begin{verbatim}
          ...
          PSPW 
             PSP_GENERATOR
@@ -685,13 +693,13 @@ steepest\_descent PSPW sub-block.
          task PSPW PSP_GENERATOR
          ...
       \end{verbatim}
-
+\normalsize
 
 \item Define the simulation cell.  
       The following input defines a simulation cell called ``small.'' This
       cell is periodic and cubic with a side length of 20.0 au and has
       32 grid points in each direction.  
-   \begin{verbatim}
+\tiny   \begin{verbatim}
          ...
          PSPW
             SIMULATION_CELL
@@ -706,9 +714,9 @@ steepest\_descent PSPW sub-block.
          END
          ...
    \end{verbatim}
-
+\normalsize
 \item Format the Na pseudopotential onto the ``small'' simulation cell.
-   \begin{verbatim}
+\tiny   \begin{verbatim}
          ...
          PSPW
             PSP_FORMATTER
@@ -720,9 +728,9 @@ steepest\_descent PSPW sub-block.
          task PSPW PSP_FORMATTER
          ...
    \end{verbatim}
-
+\normalsize
 \item Format the Cl pseudopotential onto the ``small'' simulation cell.
-   \begin{verbatim}
+\tiny   \begin{verbatim}
          ...
          PSPW
             PSP_FORMATTER
@@ -734,9 +742,9 @@ steepest\_descent PSPW sub-block.
          task PSPW PSP_FORMATTER
          ...
    \end{verbatim}
-
+\normalsize
 \item Generate an initial guess for the one-electron orbitals.
-   \begin{verbatim}
+\tiny   \begin{verbatim}
          ...
          PSPW
             WAVEFUNCTION_INITIALIZER
@@ -758,10 +766,10 @@ steepest\_descent PSPW sub-block.
          task PSPW WAVEFUNCTION_INTITALIZER
          ...
    \end{verbatim}
-
+\normalsize
 \item Optimize the one-electron orbitals with respect to energy using
       steepest descent.
-      \begin{verbatim}
+\tiny \begin{verbatim}
          PSPW
             STEEPEST_DESCENT
                cell_name: small
@@ -783,16 +791,17 @@ steepest\_descent PSPW sub-block.
 
 
 \end{enumerate}
-
+\normalsize
 
 
 Putting it all together we have:
+\tiny
 \begin{verbatim}
 title; NaCl
 
 start NaCl
 
-memory global 12 mb stack 6 mb heap 10 mb
+memory global 22 mb stack 16 mb heap 20 mb
 
 geometry units au
 Na 1.2000000000 0.00000000  0.00000000
@@ -872,18 +881,26 @@ END
 task pspw steepest_descent
 end
 \end{verbatim}
-
-
 \begin{verbatim}
-\end{verbatim}
 
+
+\end{verbatim}
+\normalsize
 \section{Running a Car-Parrinello Simulation}
 \label{sec:pspw_cp}
 
-A Car-Parrinello simulation is used to perform an ab initio molecular
-dynamics simulation.  
+In this section we show how to perform a Car-Parrinello
+molecular dynamic simulation for an NaCl molecule.  As with the example in 
+the steepest descent tutorial,  this example uses default Hamann 
+pseudopotentials for Na and Cl, LSDA exchange 
+correlation functional, and a cutoff energy of 12 au.
 
-Before running a PSPW Car-Parrinello  simulation several files and
+Before running a PSPW Car-Parrinello  simulation the system should be
+on the Born-Oppenheimer surface, i.e. the one-electron
+orbitals should be minimized with respect to the total energy using steepest
+descent.
+
+several files and
 RTDB structures must be defined or initialized.  Specifically, the user 
 is required to have defined the ion positions, ion velocities, and 
 simulation cell in the RTDB, a formatted pseudopotential file for each 
@@ -896,90 +913,9 @@ PSPW sub-block.
 \section{PSPW Capabilities and Limitations}
 \label{sec:pspw_limits}
 
-This section list the technical capabilities for the PSPW code being 
-implemented into NWChem.  The capabilities included in this pre-release
-are highlighted, with the full implementation of the listed capabilities 
-expected to be done by early winter of 1999.
-
-\large
-\textbf{Energies}
-\normalsize
-
-Many exchange-correlation potentials are implemented.
-The following spin-dependent and spin-independent exchange-correlation
-potentials are implemented.
-\begin{itemize}
-	\item \textbf{Vosko et al's parameterization of Ceperley and 
-	       Alder's data (LDA/LSD)}
-	\item Becke exchange, and Perdew and Wang correlation (RBP91/BP91)
-	\item Becke exchange, and Lee, Yang and Parr correlation (RBLYP/BLYP)
-\end{itemize} 
-
-\large
-\textbf{Energy Minimization}
-\normalsize
-
-Several methods are  available for minimizing the total energy functional
-with respect to the ground state density (or 1-electron orbitals).
-\begin{itemize}
-	\item \textbf{Fixed step length steepest descent algorithm}
-	\item Conjugate gradient on a Grassmann manifold algorithm.
-	      This algorithm was developed by Edelman, Arias, and Smith.
-\end{itemize}
-
-\large
-\textbf{Geometry Optimizations}
-\normalsize
-
-The nuclear coordinate forces are calculated analytically using the 
-Hellman-Feynman theorem.  Using these forces we implemented the following
-geometry optimization algorithms
-\begin{itemize}
-	\item \textbf{Fixed step length steepest descent algorithm}
-	\item Newton-Raphson with density minimized via a conjugate
-	      gradient algorithm
-\end{itemize}
-
-\large
-\textbf{Molecular Dynamics}
-\normalsize
-
-The following constant energy molecular dynamics algorithms are implemented.
-\begin{itemize}
-	\item \textbf{Car-Parrinello (extened Lagrangian dynamics) algorithm}
-	\item To allow the user to do molecular dynamics explicitly on
-	      the Born-Oppenheimer surface we have implemented the Verlet
-	      algorithm to integrate the nuclear coordinates equation of
-	      motion and mimimize the density at each time step with
-	      the conjugate gradient algorithm.
-\end{itemize}
-
-\large
-\textbf{Pseudopotentials}
-\normalsize
-
-\begin{itemize}
-	\item \textbf{Hamann norm-conserving pseudopotential}
-	\item \textbf{Troullier-Martins norm-conserving pseudopotential}
-	\item Rappe norm-conserving pseudopotential
-	\item Scheffler
-	\item Vanderbilt's ultra-soft pseudopotentials
-	\item core-corrections	
-	\item spin-dependent potentials
-\end{itemize}
 
 
-\large
-\textbf{Simulations Cells}
-\normalsize
-
-\begin{itemize}
-	\item \textbf{periodic boundary conditions}
-	\item free-space boundary conditions
-	\item general orthorhombic dimensions
-\end{itemize}
-
-\section{Acknowledgements}
+\section{Questions and Difficulties}
 
 Encountered problems should be reported to 
 Eric J. Bylaska, eric.bylaska@pnl.gov
