@@ -12,7 +12,7 @@
 start ne2
 title; ne dimer test for 3c integral bug
 
-geometry units angstroms
+geometry 
 Ne 0.0 0.0 0.0
 Ne 0.0 0.0 2.7
 end
