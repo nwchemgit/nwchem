@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.6 2004-08-14 02:30:57 marat Exp $
+c $Id: mm_interface.F,v 1.7 2004-08-16 23:21:48 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -41,7 +41,7 @@ c
       integer tmp(1)
 c
       call mm_get_nqm(tmp(1))
-      call ga_igop(msg_qmmm_nat1,tmp,1,'+')
+      call ga_igop(msg_qmmm_nqm,tmp,1,'+')
       nqm=tmp(1)
       end
 
@@ -131,7 +131,7 @@ c
       integer tmp(1)
 c
       call mm_get_nbqw(tmp(1))
-c      call ga_igop(msg_qmmm_nat2,tmp,1,'+')
+      call ga_igop(msg_qmmm_nbqw,tmp,1,'+')
       nbq=tmp(1)
       end
 
@@ -172,7 +172,7 @@ c
       integer tmp(1)
 c
       call mm_get_nbqs(tmp(1))
-      call ga_igop(msg_qmmm_nat2,tmp,1,'+')
+      call ga_igop(msg_qmmm_nbqs,tmp,1,'+')
       nbq=tmp(1)
       end
 
@@ -222,6 +222,7 @@ c
 
 #include "global.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
 #include "errquit.fh"
 #include "geom.fh"
 #include "qmmm.fh"
@@ -269,7 +270,7 @@ c     ------------------
       do i=me+1,np
         int_mb(i_off+i-1)=nbqs
       end do    
-c      call ga_igop(msg_qmmm_offset,loff,np,'+')
+      call ga_igop(msg_qmmm_nbqs_off,int_mb(i_off),np,'+')
 c
 c     set offset for a current node
 c     -----------------------------
@@ -1013,200 +1014,4 @@ c     local variables
 
       end
 
-c      subroutine mm_create_bq_geom(irtdb)
-c      implicit none
-c
-c#include "global.fh"
-c#include "mafdecls.fh"
-c#include "errquit.fh"
-c#include "geom.fh"
-c#include "qmmm.fh"
-c
-c      integer irtdb
-cc     qm local variables
-c      integer np
-c      integer nbq
-c      integer i_cbq,l_cbq
-c      integer i_m,l_m
-c      integer i_q,l_q
-c      integer i_t,l_t
-c      integer i_i,l_i
-c      integer i_ioff,l_ioff
-c      integer igeom
-cc     mm local variables
-c      integer msa
-c      integer nsaloc
-c      integer psdt
-c      integer psat
-c      integer pxs
-c      integer psz
-c      integer psq
-c
-cc
-cc     get total number of bq atoms
-c      call mm_get_tot_nbq(nbq)
-c
-cc     number of nodes
-cc     --------------
-c      np = ga_nnodes()
-c
-c      if(.not.ma_push_get(mt_dbl,3*nbq,'m',l_m,i_m))
-c     + call errquit('qmmm: Failed to allocate for m',nbq, MA_ERR)
-c      if(.not.ma_push_get(mt_dbl,nbq,'q',l_q,i_q))
-c     + call errquit('qmmm: Failed to allocate for q',nbq, MA_ERR)
-c      if(.not.ma_push_get(mt_byte,16*nbq,'t',l_t,i_t))
-c     + call errquit('qmmm: Failed to allocate for t',nbq, MA_ERR)
-c      if(.not.ma_push_get(mt_int,nbq,'i',l_i,i_i))
-c     + call errquit('qmmm: Failed to allocate for i',nbq, MA_ERR)
-c      if(.not.ma_push_get(mt_dbl,3*nbq,'cbq',l_cbq,i_cbq))
-c     + call errquit('qmmm: Failed to allocate for m',3*nbq, MA_ERR)
-c      if(.not.ma_push_get(mt_int,np,'ioff',l_ioff,i_ioff))
-c     + call errquit('qmmm: Failed to allocate memory for ioff',np,
-c     &       MA_ERR)
-c
-c 
-c      call mm_get_msa(msa)
-c      call mm_get_nsaloc(nsaloc)
-c      call mm_get_psdt(psdt)
-c      call mm_get_psat(psat)
-c      call mm_get_pxs(pxs)
-c      call mm_get_psz(psz)
-c      call mm_get_psq(psq)
-c
-c
-cc      call mm_get_bq_geom0(nt,np,msa,nsaloc,
-cc     &                   int_mb(i_ioff),
-cc     &                   int_mb(psdt),
-cc     &                   int_mb(psat),
-cc     &                   int_mb(psq),
-cc     &                   int_mb(psz),
-cc     &                   dbl_mb(pxs),
-cc     &                   int_mb(i_i),
-cc     &                   dbl_mb(i_c),
-cc     &                   dbl_mb(i_q),
-cc     &                   dbl_mb(i_m),
-cc     &                   byte_mb(i_t))
-cc
-cc
-cc       if(.not.geom_create(igeom,'geometry'))
-cc     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
-cc      if(.not.geom_cart_set(igeom,nt,byte_mb(i_t),
-cc     + dbl_mb(i_c),dbl_mb(i_q)))
-cc     + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
-cc      if(.not.geom_masses_set(igeom,nt,dbl_mb(i_m)))
-cc     + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
-cc      call geom_compute_values(igeom)
-cc
-cc      if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
-cc     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
-cc
-cc       if(.not.geom_destroy(igeom))
-cc     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
-c
-c
-c      if(.not.ma_pop_stack(l_ioff))
-c     & call errquit('qmmm: Failed to deallocate stack',nbq,
-c     &       MA_ERR)
-c      if(.not.ma_pop_stack(l_cbq))
-c     & call errquit('qmmm: Failed to deallocate stack',nbq,
-c     &       MA_ERR)
-c      if(.not.ma_pop_stack(l_i))
-c     & call errquit('qmmm: Failed to deallocate stack',nbq,
-c     &       MA_ERR)
-c      if(.not.ma_pop_stack(l_t))
-c     & call errquit('qmmm: Failed to deallocate stack',nbq,
-c     &       MA_ERR)
-c      if(.not.ma_pop_stack(l_q))
-c     & call errquit('qmmm: Failed to deallocate stack',nbq,
-c     &       MA_ERR)
-c      if(.not.ma_pop_stack(l_m))
-c     & call errquit('qmmm: Failed to deallocate stack',nbq,
-c     &       MA_ERR)
-c
-c
-c
-c      end
-c
-c
-c      subroutine mm_get_bq_geom0(nt,np,msa,nsa,
-c     &                   loff,
-c     &                   isdt,
-c     &                   isat,
-c     &                   isq,
-c     &                   isz,
-c     &                   xs,
-c     &                   inum,
-c     &                   cbq,
-c     &                   q,
-c     &                   m,
-c     &                   t)
-c      implicit none
-c#include "global.fh"
-c#include "mafdecls.fh"
-c#include "msgids.fh"
-c#include "qmmm_params.fh"
-c      integer nt,np
-c      integer msa,nsa
-c      integer loff(np)
-c      integer isdt(msa)
-c      integer isat(msa)
-c      integer isz(msa)
-c      integer xs(msa)
-c      integer inum(nt)
-c      double precision cbq(3,nt)
-c      double precision q(nt)
-c      double precision m(nt)
-c      character*16 t(nt)
-c
-c      integer i
-c      integer me
-c      integer nbq
-c      integer ioff
-c      integer ioq
-c
-c      do i=1,np
-c        loff(i)=0
-c      end do
-cc
-cc     accumulate offsets
-cc     ------------------
-c      me = ga_nodeid()
-c      call mm_get_nbq(nbq)
-c      do i=me+1,np
-c        loff(i)=nbq
-c      end do    
-c      call ga_igop(msg_qmmm_offset1,loff,np,'+')
-cc
-cc     set offset for a current node
-cc     -----------------------------
-c      if(me.gt.0) then
-c        ioff=loff(me)
-c      else
-c        ioff=0
-c      end if
-c
-c      ioq=ioff
-c      do i=1,nsa
-c      if(iand(isdt(i),lqsoft).ne.0) 
-c         if(isz(i).gt.0) then
-c         ioq=ioq+1
-c         cbq(1,ioq)=xs(i,1)*cnm2au
-c         cbq(2,ioq)=xs(i,2)*cnm2au
-c         cbq(3,ioq)=xs(i,3)*cnm2au
-c         inum(ioq)=cf_element(isat(i))
-c         end if
-c      endif
-c      end do
-c
-c      call ga_dgop(msg_qmmm_cbq,cbq,3*nt,'+')
-c      call ga_igop(msg_qmmm_inumbq,inum,nt,'+')
-c
-c      do i=1,nt
-c         q(i) = cf_charge(isq(i))
-c         t(i) = 'Bq' 
-c         if(.not.geom_tag_to_default_mass(t(i),m(i)))
-c     &   call errquit('qmmm: Failed to set masses',0, GEOM_ERR)
-c      end do
-c
-c      end
 
