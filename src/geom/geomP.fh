@@ -144,8 +144,6 @@ c
      $     ngeom_rtdb
 c
       character*256 names, names_rtdb, trans
-      character*2 symbols
-      character*16 elements
       character*16 tags
       character*10 group_name
       character*10 user_units
@@ -155,8 +153,6 @@ c
      $     trans(1:max_geom),
      $     names_rtdb(1:max_geom_rtdb),
      $     tags(max_cent, max_geom),
-     $     symbols(nelements),
-     $     elements(nelements),
      $     group_name(max_geom),
      $     user_units(max_geom),
      $     sym_spgnames(230),

@@ -1035,6 +1035,8 @@ c
       implicit none
 #include "inp.fh"
 #include "geomP.fh"
+      character*2 symbols(nelements)
+      character*16 elements(nelements)
       data symbols/
      $     'H ', 'He', 'Li', 'Be', 'B ', 'C ', 'N ', 'O ', 'F ', 'Ne',
      $     'Na', 'Mg', 'Al', 'Si', 'P ', 'S ', 'Cl', 'Ar', 'K ', 'Ca',
