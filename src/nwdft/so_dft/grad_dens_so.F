@@ -3,7 +3,7 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs, omp2, pdm2, coeff)
 
-c     $Id: grad_dens_so.F,v 1.3 2000-06-15 00:54:17 edo Exp $
+c     $Id: grad_dens_so.F,v 1.4 2000-06-15 00:59:51 edo Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -89,7 +89,7 @@ cso   nocc = nclosed + nopen ! == nalpha
             end do
             call ga_scatter ( g_eigen_diag, evals, int_mb(k_ind),
      $           int_mb(k_ind2), nocc )
-            if(.not.MA_chop_stack(int_mb(l_ind2)))
+            if(.not.MA_chop_stack(l_ind))
      .           call errquit(' gradensso: chop stackfailed ',2)
          end if
          status = ga_create(mt_dbl,nbf2,nbf2,'density matrix', 0, 0, 
