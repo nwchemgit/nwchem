@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.15 1994-08-15 04:49:34 d3e129 Exp $
+# $Id: GNUmakefile,v 1.16 1994-08-17 07:12:09 d3e129 Exp $
 
 HEADERS = api/int_tim.fh api/apiP.fh
 LIBRARY = libnwints.a
@@ -51,12 +51,13 @@ OBJ = $(API_OBJ)  $(INT_OBJ) $(INTSP_OBJ)	$(DERIV_OBJ) $(AUX_OBJ) $(TEXAS_OBJ)
 
 INT_SUBDIRS = api int aux ints_sp deriv texas
 
-$(LIBRARY):	$(OBJ)
-	/bin/rm -f $@
+nwints_stamp:	include_stamp
+	/bin/rm -f $(LIBRARY) 
 	$(MAKE) intlibs
-	$(AR) $(ARFLAGS) $@ $(OBJ)
-	$(RANLIB) $@
+	$(AR) $(ARFLAGS) $(LIBRARY)  $(OBJ)
+	$(RANLIB) $(LIBRARY) 
 	cp -p $(LIBRARY) $(LIBDIR)
+	touch nwints_stamp
 
 ifdef HEADERS
 include_stamp:	$(HEADERS)
@@ -83,8 +84,11 @@ sngl_to_dbl dbl_to_sngl:
 	echo $@ : no conversion necessary
 endif
 
+redo rebuild:
+	/bin/rm -f nwints_stamp
+	$(MAKE) nwints_stamp
 clean:
-	/bin/rm -f $(LIBRARY) $(OBJ) core include_stamp $(LIB_TARGETS)
+	/bin/rm -f $(LIBRARY) $(OBJ) core include_stamp nwints_stamp */*_stamp $(LIB_TARGETS)
 
 realclean:	clean
 	/bin/rm -f *~ \#*\#

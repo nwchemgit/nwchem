@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.2 1994-05-05 00:04:01 d3e129 Exp $
+# $Id: GNUmakefile,v 1.3 1994-08-17 07:12:41 d3e129 Exp $
 
 include ../../config/makefile.h
 
@@ -8,10 +8,12 @@ INTSP_OBJ = genr70.o init70.o qout70.o \
             sp1111.o tabgen.o 
 
 
-intspobj:	$(INTSP_OBJ)
+int_sp_stamp:	$(INTSP_OBJ)
+	/bin/rm -f ../nwints_stamp
+	touch int_sp_stamp 
 
 clean:
-	/bin/rm -f $(INTSP_OBJ)
+	/bin/rm -f $(INTSP_OBJ) int_sp_stamp 
 
 $(INTSP_OBJ):	auxvar.fh geom.fh maxc.fh  pgeom.fh qgeom.fh \
 	const.fh  ginf.fh miscg.fh picon.fh shllfo.fh

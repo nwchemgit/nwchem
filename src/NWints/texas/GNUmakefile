@@ -1,10 +1,12 @@
-# $Id: GNUmakefile,v 1.1 1994-07-28 15:20:48 d3e129 Exp $
+# $Id: GNUmakefile,v 1.2 1994-08-17 07:12:42 d3e129 Exp $
 
 include ../../config/makefile.h
 
 TEXAS_OBJ = 
 
-texasobj:	$(TEXAS_OBJ)
+texas_stamp:	$(TEXAS_OBJ)
+	/bin/rm -f ../nwints_stamp
+	touch texas_stamp 
 
 clean:
-	/bin/rm -f $(TEXAS_OBJ)
+	/bin/rm -f $(TEXAS_OBJ) texas_stamp 

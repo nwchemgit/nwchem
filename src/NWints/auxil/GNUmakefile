@@ -1,10 +1,12 @@
-# $Id: GNUmakefile,v 1.3 1994-05-05 00:03:21 d3e129 Exp $
+# $Id: GNUmakefile,v 1.4 1994-08-17 07:12:34 d3e129 Exp $
 
 include ../../config/makefile.h
 
 AUX_OBJ = int_normalize.o nmcoef.o int_chk_sum.o
 
-auxobj:	$(AUX_OBJ)
+aux_stamp:	$(AUX_OBJ)
+	/bin/rm -f ../nwints_stamp
+	touch aux_stamp 
 
 clean:
-	/bin/rm -f $(AUX_OBJ)
+	/bin/rm -f $(AUX_OBJ) aux_stamp 
