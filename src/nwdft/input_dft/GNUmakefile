@@ -1,11 +1,11 @@
-# $Id: GNUmakefile,v 1.1 1994-10-20 23:50:49 pg511 Exp $
+# $Id: GNUmakefile,v 1.2 1994-10-26 08:51:57 og845 Exp $
 
       OBJ_OPTIMIZE = \
 	banner_dft.o			   inpana.o \
 	rdbasis.o				    \
 	rdcalc.o			   \
 	rdinput.o			   rdprop.o \
-	rdquad.o			   setbasis.o \
+	rdquad.o			   \
 	setquad.o
 
      LIBRARY = libnwdft.a
