@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.117 1995-07-29 23:45:24 d3e129 Exp $
+# $Id: makefile.h,v 1.118 1995-10-10 06:08:34 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -204,7 +204,7 @@ ifeq ($(TARGET),SUN)
 
     DEFINES = -DSUN
 
-       CORE_LIBS = -lglobal -lutil -ltcgmsg -llapack -lblas
+       CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas
 
   EXPLICITF = FALSE
 endif
