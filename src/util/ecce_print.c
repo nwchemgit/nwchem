@@ -320,6 +320,7 @@ static int fortchar_to_string(const char *f, int flen, char *buf,
 #define ecce_print_control_      ECCE_PRINT_CONTROL
 #define ecce_print1_             ECCE_PRINT1
 #define ecce_print2_             ECCE_PRINT2
+#define ecce_print2_dbl_tol_     ECCE_PRINT2_DBL_TOL
 #define ecce_print1_char_        ECCE_PRINT1_CHAR
 #define ecce_print_module_entry_ ECCE_PRINT_MODULE_ENTRY
 #define ecce_print_module_exit_  ECCE_PRINT_MODULE_EXIT
