@@ -1,5 +1,5 @@
       subroutine tol_input(rtdb, module)
-C$Id: tol_inp.F,v 1.10 2000-04-11 15:39:26 hvd Exp $
+C$Id: tol_inp.F,v 1.11 2001-10-18 03:33:27 edo Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -102,8 +102,8 @@ c     accCoul; for use in fitcd & fitvcoul for schwarz screening
 c             
   500 if (.not. inp_i(itol2e)) then
          write(LuOut,*)' tol_inp: accCoul value not found; defaulting ',
-     &             ' to 10.'
-         itol2e = 10
+     &             ' to 8.'
+         itol2e = 8
       endif
       if (.not. rtdb_put(rtdb, 'dft:itol2e', mt_int, 1, itol2e))
      &   call errquit('tol_inp: rtdb_put failed', 500)

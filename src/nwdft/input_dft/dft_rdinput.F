@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.89 2001-05-16 01:13:46 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.90 2001-10-18 03:33:27 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -279,7 +279,7 @@ c
 c
       if (.not. rtdb_get(rtdb, 'dft:itol2e', mt_int, 1,
      &   itol2e))then
-         itol2e=10
+         itol2e=8
          if (.not. rtdb_put(rtdb, 'dft:itol2e',
      &      mt_int, 1, itol2e))
      &      call errquit('dft_rdinput: rtdb_put failed', 127)
@@ -519,6 +519,7 @@ c
       cname(19)='   Becke 1997GGA-1 Correlation Potential'
       cname(20)='         HCTH407  Correlation Functional'
       cname(21)='         HCTHP1/4 Correlation Functional'
+      cname(22)='            OPTC     Exchange Functional'
 c
 c     Exchange functional name defaults.
 c

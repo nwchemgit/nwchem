@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.24 2001-08-19 21:34:33 bjohnson Exp $
+c     $Id: xc_eval_fnl.F,v 1.25 2001-10-18 03:33:27 edo Exp $
 c
       implicit none
 c
@@ -334,6 +334,10 @@ c
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ex, qwght,ldew,func)
          endif
+      endif
+      if (abs(cfac(22)).gt.eps)then
+         call xc_optc(rho, delrho, 
+     &                      Amat, Cmat, nq, Ec, qwght,ldew,func)
       endif
 c     
 c     Combine with quadrature weights

@@ -1,4 +1,4 @@
-c $Id: int_2e2c.F,v 1.17 1999-07-14 00:28:38 d3e129 Exp $
+c $Id: int_2e2c.F,v 1.18 2001-10-18 03:33:27 edo Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e2c}
@@ -42,10 +42,10 @@ c::functions
       external int_chk_sh
       external int_chk_init
 #define USE_TEXAS
-#if defined(USE_TEXAS_BROKE)
+cedo#if defined(USE_TEXAS_BROKE)
       logical cando_txs
       external cando_txs
-#endif
+cedo#endif
 c:: passed
 c:tex-\begin{verbatim}
       integer brain ! [input] bra basis set handle
@@ -64,7 +64,7 @@ c:: local
       integer Lp, p_prim, p_gen, p_iexp, p_icfp, p_cent
       integer Lq, q_prim, q_gen, q_iexp, q_icfp, q_cent
       logical status_nw, status_sp
-#if defined(USE_TEXAS_BROKE)
+cedo#if defined(USE_TEXAS_BROKE)
       logical status_gen
       logical status_txs
       integer num_quart, dummy_lab(2)
@@ -72,7 +72,7 @@ c:: local
       integer txs_i,txs_j,txs_d1,txs_d2
       integer nint
       logical dum_log
-#endif
+cedo#endif
       logical any_spherical
       logical OFALSE
 c
@@ -99,12 +99,12 @@ c
 c
       if (.not.shells_ok)
      &       call errquit('int_2e2c: invalid contraction/shell',0)
-#ifndef USE_TEXAS_BROKE
+cedo#ifndef USE_TEXAS_BROKE
       call int_nogencont_check(brain,'int_2e2c:bra')
       call int_nogencont_check(ketin,'int_2e2c:ket')
       call int_nospshell_check(brain,'int_2e2c:bra')
       call int_nospshell_check(ketin,'int_2e2c:ket')
-#endif
+cedo#endif
 c
 c     define center information required 
 c
@@ -140,13 +140,13 @@ c set status variables
 c
       status_nw = cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,0)
       status_sp = cando_sp(brain,ish,0).and.cando_sp(ketin,jsh,0)
-#if defined(USE_TEXAS_BROKE)
+cedo#if defined(USE_TEXAS_BROKE)
       status_txs = cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,0)
       status_gen = (max(p_gen,q_gen)) .gt. 1 ! if general contraction texas is only option
 *        greater than (f|f) do texas
       if (.not.status_gen)
      &    status_txs = status_txs .and. ((Lp+Lq).gt.6)
-#endif
+cedo#endif
 
 c
       if (status_sp) then
@@ -156,7 +156,7 @@ c
      &         ketin,jsh,coords(1,q_cent,q_geom),
      &                 0,coords(1,q_cent,q_geom),
      &         eri)
-#if defined(USE_TEXAS_BROKE)
+cedo#if defined(USE_TEXAS_BROKE)
       else if (status_txs) then
         num_quart = 1
         dummy_lab(1) = 0
@@ -178,7 +178,7 @@ c
      &      eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
      &      nint, OFALSE, dum_log, scr, lscr, 0.0d0,'scfd_int')
 
-#endif
+cedo#endif
 c
       else if(status_nw) then
         ucont   = (sf_ibs_cn2ucn(ish,bra))

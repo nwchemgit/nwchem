@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.53 2001-01-16 23:21:12 edo Exp $
+C$Id: nwdft.F,v 1.54 2001-10-18 03:33:24 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -198,7 +198,7 @@ c
         bases(1) = AO_bas_han
       endif
 c
-      if (i3 .gt. 1) call int_app_set_no_texas(rtdb)
+!      if (i3 .gt. 1) call int_app_set_no_texas(rtdb)
       call int_init(rtdb, i3, bases)
 c     
 c--> determine system type (molecule, polymer,surface,crystal)

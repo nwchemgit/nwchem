@@ -38,7 +38,7 @@ c     cpbe96
 c     xpbe96
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs = 38,numfunc=30)
+      parameter (num_dirs = 39,numfunc=30)
       character*15 dirs(num_dirs)
       character*255 test
 c
@@ -60,7 +60,7 @@ c
      ,     'xhcth','xbecke97','xbecke97-1',
      ,     'chcth','cbecke97','cbecke97-1','hcth120','hcth147',
      ,     'becke98','pbe0','becke97gga1','hcth407','hcthp14',
-     ,     'optx'/
+     ,     'optx','optc'/
 c
 c     Only these few arrays are initialized (not defaults).
 c
@@ -89,7 +89,7 @@ c
      &      1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
      ,      2100,2200,2300, 2400, 
      ,     2500, 2600, 2700, 2510, 2610, 2710,1812,1847,2800,2900,
-     , 3000, 3100,3200,3300,
+     , 3000, 3100,3200,3300,3400,
      ,     1999) ind
       call errquit('xc_inp: unimplemented directive', ind)
 c     
@@ -240,6 +240,16 @@ c
        nlxfac(16)=.true.
        lxfac(2)=.true.
        xfac(2)=1.05151d0
+       goto 10
+c     
+c     Handys OPTC 2001
+c     
+ 3400  continue
+       if (.not. inp_f(cfac(22))) then
+          cfac(22) = 1.d0
+       endif
+         lcfac(22) = .true.
+         nlcfac(22) = .true.
        goto 10
 c     
 c     HCTH for exchange & correlation

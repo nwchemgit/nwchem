@@ -1,4 +1,4 @@
-c $Id: int_2e3c.F,v 1.19 2000-06-08 18:01:50 mg201 Exp $
+c $Id: int_2e3c.F,v 1.20 2001-10-18 03:33:27 edo Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e3c}
@@ -44,10 +44,10 @@ c::functions
       external int_chk_sh
       external int_chk_init
 *----------------------------#define USE_TEXAS
-#if defined(USE_TEXAS_BROKE)
+cedo#if defined(USE_TEXAS_BROKE)
       logical cando_txs
       external cando_txs
-#endif
+cedo#endif
 c::functions
       integer int_nint_cart
       external int_nint_cart
@@ -71,14 +71,14 @@ c:: local
       integer Lc, c_prim, c_gen, c_iexp, c_icfp, c_cent
       integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_cent
       logical status_nw, status_sp
-#if defined(USE_TEXAS_BROKE)
+cedo#if defined(USE_TEXAS_BROKE)
       logical status_gen
       logical status_txs
       integer num_quart, dummy_lab(2)
       double precision roff(3), q4 
       integer txs_i,txs_j,txs_k,txs_d
       logical dum_log
-#endif
+cedo#endif
       integer nint
       logical OFALSE
       logical any_spherical
@@ -116,12 +116,12 @@ c
       shells_ok = shells_ok .and. int_chk_sh(ketin,ksh)
       if (.not.shells_ok)
      &       call errquit('int_2e3c: invalid contraction/shell',0)
-#ifndef USE_TEXAS_BROKE
+cedo#ifndef USE_TEXAS_BROKE
       call int_nogencont_check(brain,'int_2e3c:bra')
       call int_nogencont_check(ketin,'int_2e3c:ket')
       call int_nospshell_check(brain,'int_2e3c:bra')
       call int_nospshell_check(ketin,'int_2e3c:ket')
-#endif
+cedo#endif
 c
 c     define center information required 
 c
@@ -165,14 +165,14 @@ c set integral code status
 c
       status_nw = cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,ksh)
       status_sp = cando_sp(brain,ish,0).and.cando_sp(ketin,jsh,ksh)
-#if defined(USE_TEXAS_BROKE)
+cedo#if defined(USE_TEXAS_BROKE)
       status_txs = cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,ksh)
       status_gen = (max(p_gen,c_gen,d_gen)) .gt. 1  ! if general contraction texas is only option
 
 *                                (p|ff) or greater do texas
       if (.not.status_gen)
      &    status_txs = status_txs .and. ((Lp+Lc+Ld).gt.7)
-#endif
+cedo#endif
 *
       status_rel = dyall_mod_dir .and. .not.nesc_1e_approx
      &    .and. (ketin .eq. ao_bsh)
@@ -204,7 +204,7 @@ c
      &         ketin,jsh,coords(1,c_cent,cd_geom),
      &               ksh,coords(1,d_cent,cd_geom),
      &         eri)
-#if defined(USE_TEXAS_BROKE)
+cedo#if defined(USE_TEXAS_BROKE)
       else if (status_txs .and. .not.status_rel) then
         num_quart = 1
         dummy_lab(1) = 0
@@ -226,7 +226,7 @@ c
      &        eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
      &        nint, OFALSE, dum_log, scr, lscr, 0.0d0,'scfd_int')
 
-#endif
+cedo#endif
       else if(status_nw) then
 c
         ucont   = (sf_ibs_cn2ucn(ish,bra))
