@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_G_IJ -- Evaluate RI-MP2 gradient contributions for IJ batch
 C
 C REVISION
-C     $Id: g_ij.F,v 1.3 1998-07-16 19:59:48 bernhold Exp $
+C     $Id: g_ij.F,v 1.4 1998-10-12 14:31:23 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_G_IJ(TopSpin, SameSpin, NFrzI, ILo, IHi, NVirI,
@@ -87,16 +87,16 @@ C
 C     Compute P^{(2)}_{ab} contributions
 C
       Vir1 = NFrzI+NOccI+1
-      Call RIMP2_P2AB(.FALSE., IJTri, ILo, IHi, NVirI, JLo, JHi,
-     $   NVirJ, .FALSE., G_T2, G_P2(ISpin), Vir1)
+      Call RIMP2_P2AB(SameSpin, .FALSE., IJTri, ILo, IHi, NVirI,
+     $     JLo, JHi, NVirJ, .FALSE., G_T2, G_P2(ISpin), Vir1)
 C
 C     If this is the mixed spin case, we must also get the contribution
 C     to the beta density.
 C
       If ( TopSpin .eq. 2 .AND. .NOT. SameSpin) then
          Vir1 = NFrzJ+NOccJ+1
-         Call RIMP2_P2AB(.FALSE., IJTri, ILo, IHi, NVirI, JLo, JHi,
-     $      NVirJ, .TRUE., G_T2, G_P2(JSpin), Vir1)
+         Call RIMP2_P2AB(Samespin, .FALSE., IJTri, ILo, IHi, NVirI,
+     $        JLo, JHi, NVirJ, .TRUE., G_T2, G_P2(JSpin), Vir1)
       EndIf
 c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
 c$$$     $   '       P(2)_{ab} done')
@@ -104,16 +104,16 @@ C
 C     Compute P^{(2)}_{ij} contributions
 C
       Occ1 = NFrzI+1
-      Call RIMP2_P2ij(.FALSE., IJTri, ILo, IHi, NVirI, JLo, JHi,
-     $   NVirJ, .FALSE., G_T2, G_P2(ISpin), Occ1)
+      Call RIMP2_P2ij(SameSpin, .FALSE., IJTri, ILo, IHi, NVirI,
+     $     JLo, JHi, NVirJ, .FALSE., G_T2, G_P2(ISpin), Occ1)
 C
 C     If this is the mixed spin case, we must also get the contribution
 C     to the beta density.
 C
       If ( TopSpin .eq. 2 .AND. .NOT. SameSpin) then
          Occ1 = NFrzJ+1
-         Call RIMP2_P2ij(.FALSE., IJTri, ILo, IHi, NVirI, JLo, JHi,
-     $      NVirJ, .TRUE., G_T2, G_P2(JSpin), Occ1)
+         Call RIMP2_P2ij(SameSpin, .FALSE., IJTri, ILo, IHi, NVirI,
+     $        JLo, JHi, NVirJ, .TRUE., G_T2, G_P2(JSpin), Occ1)
       EndIf
 c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
 c$$$     $   '       P(2)_{ij} done')

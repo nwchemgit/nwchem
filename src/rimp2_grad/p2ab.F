@@ -3,13 +3,14 @@ C NAME
 C     RIMP2_P2ab -- Form P^{(2)}_{ab} for batch in memory
 C
 C REVISION
-C     $Id: p2ab.F,v 1.2 1998-10-06 18:36:40 bernhold Exp $
+C     $Id: p2ab.F,v 1.3 1998-10-12 14:31:25 bernhold Exp $
 C
 C SYNOPSIS
-      Subroutine RIMP2_P2AB(IJSym, IJTri, ILo, IHi, NVirI, JLo, JHi,
-     $   NVirJ, Mixed, G_T, G_P2, Vir1)
+      Subroutine RIMP2_P2AB(SameSpin, IJSym, IJTri, ILo, IHi, NVirI,
+     $     JLo, JHi, NVirJ, Mixed, G_T, G_P2, Vir1)
       Implicit NONE
 C
+      Logical SameSpin ![in]
       Logical IJSym
       Logical IJTri
       Integer ILo
@@ -124,8 +125,9 @@ C
 C     Accumulate our contribution into global P(2) array
 C     To understand the factor, see the discussion of spin cases, above.
 C
-      Fact = 0.5d0
-      If ( .NOT. IJSym ) Fact = 1.0d0
+      Fact = 1.0d0
+      If ( SameSpin) Fact = 0.5d0
+c$$$      If ( .NOT. IJSym ) Fact = 1.0d0
 C
       If ( Mixed ) then
          Call GA_Acc(G_P2, Vir1, Vir1+NVirJ-1, Vir1, Vir1+NVirJ-1,

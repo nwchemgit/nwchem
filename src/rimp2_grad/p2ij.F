@@ -3,13 +3,14 @@ C NAME
 C     RIMP2_P2ij -- Form P^{(2)}_{ij} for batch in memory
 C
 C REVISION
-C     $Id: p2ij.F,v 1.2 1998-10-06 18:36:44 bernhold Exp $
+C     $Id: p2ij.F,v 1.3 1998-10-12 14:31:27 bernhold Exp $
 C
 C SYNOPSIS
-      Subroutine RIMP2_P2ij(IJSym, IJTri, ILo, IHi, NVirI, JLo, JHi,
-     $   NVirJ, Mixed, G_T, G_P2, Occ1)
+      Subroutine RIMP2_P2ij(SameSpin, IJSym, IJTri, ILo, IHi, NVirI,
+     $     JLo, JHi, NVirJ, Mixed, G_T, G_P2, Occ1)
       Implicit NONE
 C
+      Logical SameSpin
       Logical IJSym
       Logical IJTri
       Integer ILo
@@ -77,8 +78,9 @@ C
 C
 C     To understand the factor, see the discussion of spin cases, above.
 C
-      Fact = -0.5d0
-      If ( .NOT. IJSym ) Fact = -1.0d0
+      Fact = -1.0d0
+      If ( SameSpin) Fact = -0.5d0
+c$$$      If ( .NOT. IJSym ) Fact = -1.0d0
 C
       If ( Mixed ) then
          Do I = 1, NJ
@@ -98,7 +100,7 @@ C
                EndIf
             EndDo
          EndDo
-      Else
+      Else                      ! .NOT. Mixed
          Do I = 1, NI
             Do J = 1, NI
                Pij = 0.0d0
