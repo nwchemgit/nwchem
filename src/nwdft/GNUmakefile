@@ -1,8 +1,10 @@
-# $Id: GNUmakefile,v 1.1 1994-10-20 23:40:14 pg511 Exp $
+# $Id: GNUmakefile,v 1.2 1994-10-25 00:17:43 og845 Exp $
 
-   OBJ = nwdft.o
+#   OBJ = nwdft.o
 
    LIBRARY = libnwdft.a
+#   SUBDIRS = input_dft symmetry scf_dft coulomb xc util
+   SUBDIRS = input_dft scf_dft coulomb xc util
 
    HEADERS = \
       include/AO_basis_set.fh  \
@@ -19,7 +21,6 @@
       include/stdio.fh    \
       include/bas_new.fh
 
-   SUBDIRS = input_dft symmetry scf_dft coulomb xc util
 
 include ../config/makefile.h
 include ../config/makelib.h
