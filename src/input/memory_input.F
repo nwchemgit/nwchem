@@ -1,4 +1,5 @@
-      subroutine memory_input(rtdb, ostore, stack_size, heap_size)
+      subroutine memory_input(rtdb, ostore, stack_size, heap_size, 
+     $     overify)
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -8,6 +9,7 @@
       logical ostore            ! [input]
       integer stack_size        ! [output]
       integer heap_size         ! [output]
+      logical overify           ! [output]
 c
       character*8 user_units, ctest
       double precision user_stack, user_heap
@@ -27,7 +29,7 @@ c
 c
 c     Parse memory directive
 c
-c     memory [[heap] <heap_size>] [stack <stack_size>] [<units>]
+c     memory [[heap] <heap_size>] [stack <stack_size>] [<units>] [verify|noverify]
 c
 c     input units default to doubles
 c
@@ -54,7 +56,11 @@ c
 c     Parse the input line
 c
  10   if (inp_a_trunc(ctest)) then
-         if (inp_compare(.false.,'heap', ctest)) then
+         if (inp_compare(.false.,'verify',ctest)) then
+            overify = .true.
+         else if (inp_compare(.false.,'noverify',ctest)) then
+            overify = .false.
+         else if (inp_compare(.false.,'heap', ctest)) then
             if (.not. inp_f(user_heap)) goto 1000
          else if (inp_compare(.false.,'stack', ctest)) then
             if (.not. inp_f(user_stack)) goto 1000
@@ -70,7 +76,7 @@ c
 c     debug
 c
 *      write(6,*) ' heap ', user_heap, ' stack ', user_stack,' ',
-*     $     user_units
+*     $     user_units, ', verify ', overify
 c
 c     Convert user units to doubles/reals
 c
@@ -112,11 +118,6 @@ c
      $     heap_size+stack_size)
 #endif
 c
-c     Debug
-c
-*      write(6,*) ' heap ', heap_size, ' stack ', stack_size,' ',
-*     $     'doubles'
-c
 c     Store data to the rtdb
 c
       if (ostore) then
@@ -130,6 +131,6 @@ c
       return
 c
  1000 call errquit('input_mem_size: memory [[heap] <heap_size>] '//
-     $     '[stack <stack_size>] [<units>]', 0)
+     $     '[stack <stack_size>] [<units>] [verify|noverify]', 0)
 c
       end
