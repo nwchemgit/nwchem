@@ -1,0 +1,31 @@
+echo
+start dplot
+
+memory 90 mb 
+
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+task scf energy
+
+
+
+dplot
+   title HOMO
+   limitXYZ
+   -3.0 3.0 10
+   -3.0 3.0 10
+   -3.0 3.0 10
+   spin total
+   gaussian
+   output lumo.cube
+end
+task dplot
