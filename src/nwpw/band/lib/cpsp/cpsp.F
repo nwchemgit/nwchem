@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.5 2002-01-08 23:40:48 bylaska Exp $
+* $Id: cpsp.F,v 1.6 2002-01-09 00:20:31 bylaska Exp $
 *
 
 #define TCGMSG
@@ -559,11 +559,6 @@ c     integer    lmmax(nkatmx)
 #include "mafdecls.fh"
 
 *     **** common blocks ****
-c     real*8     vl(nfft3d,nkatmx)
-c     real*8     vnl(nfft3d,16,nkatmx)
-c     real*8     vnlnrm(16,nkatmx)
-c     real*8     zv(nkatmx),amass(nkatmx),rc(0:4,nkatmx)
-c     integer    lmmax(nkatmx)
       integer    vl(2)
       integer    vnl(2)
       integer    vnlnrm(2)
@@ -876,8 +871,8 @@ c     integer    lmmax(nkatmx)
        
         
         end do
+        end do
 
-      end do
       end do
 
       if (move) then

@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.9 2002-01-08 23:49:06 bylaska Exp $
+* $Id: C3dB-new.F,v 1.10 2002-01-09 00:20:31 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -365,8 +365,8 @@ c     implicit none
     
       msglen = 1
       sumt = sum
-c     call GA_DGOP(9+MSGDBL,sumt,1,'+')
-      call DGOP(9+MSGDBL,sumt,1,'+')
+      call GA_DGOP(9+MSGDBL,sumt,1,'+')
+c     call DGOP(9+MSGDBL,sumt,1,'+')
       sumall=sumt
 
       sum = sumall
@@ -2413,8 +2413,8 @@ c     implicit none
 
 #ifdef TCGMSG
       call dcopy(n,sum,1,dbl_mb(sumall(1)),1)
-c     call GA_DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
-      call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
+      call GA_DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
+c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
 #endif
 
       call dcopy(n,dbl_mb(sumall(1)),1,sum,1)

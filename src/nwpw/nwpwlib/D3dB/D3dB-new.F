@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.7 2002-01-08 23:49:06 bylaska Exp $
+* $Id: D3dB-new.F,v 1.8 2002-01-09 00:20:32 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -423,8 +423,8 @@ c     call mp_combine(sumt,sumall,msglen,d_vadd,allgrp)
      >               MASTER,MPI_COMM_WORLD,mpierr)
 #endif
 #ifdef TCGMSG
-c     call GA_DGOP(9+MSGDBL,sumt,1,'+')
-      call DGOP(9+MSGDBL,sumt,1,'+')
+      call GA_DGOP(9+MSGDBL,sumt,1,'+')
+c     call DGOP(9+MSGDBL,sumt,1,'+')
       sumall=sumt
 #endif
 
@@ -3332,8 +3332,8 @@ c     implicit none
 #endif
 #ifdef TCGMSG
       call dcopy(n,sum,1,dbl_mb(sumall(1)),1)
-c     call GA_DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
-      call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
+      call GA_DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
+c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
 #endif
 
       call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
