@@ -10,7 +10,8 @@ peigs_stamp:	include_stamp
 	touch peigs_stamp
 
 
-# no include files needed
+# no include files needed. 
+# The tie to an include file is necessary for timing issues in parallel makes RAK 2/16/98
 include_stamp:	./h/blas_lapack.h
 	touch include_stamp
 
