@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.168 1996-09-20 18:19:06 d3g681 Exp $
+# $Id: makefile.h,v 1.169 1996-09-24 20:45:40 d3g270 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -228,9 +228,11 @@ endif
 
 ifeq ($(TARGET),SOLARIS)
 #
-# Sun running Solaris 2.4 or later
+# Sun runningS olaris 2.4 or later
+# if you want to use purecoverage tool you must
 #
-       NICE = nice
+# setenv PURECOV 1
+#
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
          CC = gcc
@@ -259,6 +261,42 @@ ifeq ($(TARGET),SOLARIS)
        CORE_LIBS = -lutil -lglobal -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
       EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl
+
+#ifdef PURECOV
+#
+# Sun runningS olaris 2.4 or later
+#
+      SHELL := $(NICE) /bin/sh
+    CORE_SUBDIRS_EXTRA = blas lapack
+         CC = purecov gcc
+         FC = purecov f77
+     RANLIB = echo
+  MAKEFLAGS = -j 2 --no-print-directory
+    INSTALL = echo $@ is built
+# -fast introduces many options that must be applied to all files
+# -stackvar puts locals on t
+# the stack which seems a good thing
+#     but may need to increase the stacksize at runtime using limit
+# -xs allows debugging without .o files
+   FOPTIONS = -Nl199 -fast -dalign -stackvar
+   COPTIONS = -Wall
+# Under Solaris -O3 is the default with -fast (was -O2 with SUNOS)
+# -fsimple=2 enables more rearranging of floating point expressions
+# -depend enables more loop restructuring
+  FOPTIMIZE = -O3 -fsimple=2 -depend 
+# Under Solaris -g no longer disables optimization ... -O2 seems solid
+# but is slow and impairs debug ... use -O1 for speed and debugability
+     FDEBUG = -g -O1
+  COPTIMIZE = -g -O1
+   LIBPATH += -L/usr/ucblib
+   LIBPATH += -L/afs/msrc/sun4m_54/apps/purecov
+   DEFINES = -DSOLARIS
+   OPTIONS = -xildoff -Bstatic
+   CORE_LIBS = -lutil -lglobal -llapack -lblas
+# First four needed for parallel stuff, last for linking with profiling
+	   EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -lintl -lc -lc -lpurecov_stubs
+
+#endif
 endif
 
 
@@ -832,6 +870,5 @@ endif
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $% $<
 
 (%.o):  %.o
-	
-# Preceding line has a tab to make an empty rule
 
+# Preceding line has a tab to make an empty rule
