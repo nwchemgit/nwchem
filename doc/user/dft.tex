@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.51 2001-04-09 22:43:38 edo Exp $ 
+% $Id: dft.tex,v 1.52 2001-11-12 19:11:35 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -53,13 +53,11 @@ the DFT module are:
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
       [xpbe96 [nonlocal] <real prefactor default 1.0>] \
       [gill96 [nonlocal] <real prefactor default 1.0>] \
-      [xhcth  <real prefactor default 1.0>] \
       [lyp <real prefactor default 1.0>] \
       [perdew81 <real prefactor default 1.0>] \
       [perdew86 [nonlocal] <real prefactor default 1.0>] \
       [perdew91 [nonlocal] <real prefactor default 1.0>] \
       [cpbe96 [nonlocal] <real prefactor default 1.0>] \
-      [chcth  <real prefactor default 1.0>] \
       [pw91lda <real prefactor default 1.0>] \
       [slater <real prefactor default 1.0>] \
       [vwn_1 <real prefactor default 1.0>] \
@@ -173,19 +171,17 @@ has the same effect.
 \begin{verbatim}
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
      [becke97]  [becke97-1] [becke98] [hcth] [hcth120] [hcth147] \
-      [hcth407] [becke97gga1] \
+      [hcth407] [becke97gga1] [optx] [hcthp14]\
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
       [xpbe96 [nonlocal] <real prefactor default 1.0>] \
       [gill96 [nonlocal] <real prefactor default 1.0>] \
-      [xhcth  <real prefactor default 1.0>] \
       [lyp <real prefactor default 1.0>] \
       [perdew81 <real prefactor default 1.0>] \
       [perdew86 [nonlocal] <real prefactor default 1.0>] \
       [perdew91 [nonlocal] <real prefactor default 1.0>] \
       [cpbe96 [nonlocal] <real prefactor default 1.0>] \
-      [chcth  <real prefactor default 1.0>] \
       [pw91lda <real prefactor default 1.0>] \
       [slater <real prefactor default 1.0>] \
       [vwn_1 <real prefactor default 1.0>] \
@@ -197,7 +193,8 @@ has the same effect.
 \end{verbatim}
 
 The user has the option of specifying the exchange-correlation
-treatment in the DFT Module.  The default exchange-correlation
+treatment in the DFT Module (see table \ref{tablexc}).
+  The default exchange-correlation
 functional is defined as the local density approximation (LDA) for
 closed shell systems and its counterpart the local spin-density (LSD)
 approximation for open shell systems.  Within this approximation the
@@ -224,57 +221,55 @@ corresponding to each functional to be printed, rather than just the
 total exchange-correlation energy which is the default.
 
 Many alternative exchange and correlation functionals are available to
-the user.  The following sections describe these options.
+the user as listed in table \ref{tablexc}.  The following sections describe 
+how to use these options.
 
-\subsection{Optional Exchange Functionals}
+\subsection{Exchange-Correlation Functionals}
 
-There are six exchange functionals in addition to the default exchange
-functional.  These are 
-\begin{itemize}
+There are several Exchange and Correlation functionals in addition to the 
+default {\tt slater} and {\tt vwn\_5}
+functionals.  These are either local or gradient-corrected functionals (GCA);
+a full list can be found in table \ref{tablexc}. 
 
-\item the Becke 1998 gradient-corrected functional (see A.D.~Becke, 
- J. Chem. Phys. {\bf 88}, 3098 (1988)), is invoked by specifying
+%\begin{itemize}
+%
+%\item the Becke 1998 gradient-corrected functional (see A.D.~Becke, 
+% Phys. Rev. A {\bf 38}, 3098 (1988)), is invoked by specifying
+%
+%\begin{verbatim}
+%   XC becke88
+%\end{verbatim}
+%
+%\item the Perdew 1991 gradient-corrected exchange functional (J.P. Perdew,
+%  J.A.~Chevary, S.H.~Vosko, K.A.~Jackson, M.R.~Pederson, D.J.~Singh
+%  and C.~Fiolhais, Phys. Rev. B {\bf 46}, 6671 (1992)), is invoked by specifying
+%
+%\begin{verbatim}
+%   XC xperdew91
+%\end{verbatim}
+%
+%\item the Perdew-Burke-Ernzerhof gradient-corrected exchange functional \\
+% (J.P.~Perdew, K.~Burke and M.~Ernzerhof, Physical Review Letters
+%{\bf 77}, 3865 (1996); {\bf 78}, 1396 (1997))), is invoked by specifying
+%
+%\begin{verbatim}
+%   XC xpbe96
+%\end{verbatim}
+%
+%\item the Gill 1996 gradient-corrected exchange functional (P.W.Gill , Mol. Phys. {\bf 89}, 433 (1996)), is invoked by specifying
+%
+%\begin{verbatim}
+%   XC gill96
+%\end{verbatim}
 
-\begin{verbatim}
-   XC becke88
-\end{verbatim}
 
-\item the Perdew 1991 gradient-corrected exchange functional (J.P. Perdew,
-  J.A.~Chevary, S.H.~Vosko, K.A.~Jackson, M.R.~Pederson, D.J.~Singh
-  and C.~Fiolhais, Phys. Rev. B {\bf 46}, 6671 (1992)), is invoked by specifying
-
-\begin{verbatim}
-   XC xperdew91
-\end{verbatim}
-
-\item the Perdew-Burke-Ernzerhof gradient-corrected exchange functional \\
- (J.P.~Perdew, K.~Burke and M.~Ernzerhof, Physical Review Letters
-{\bf 77}, 3865 (1996); {\bf 78}, 1396 (1997))), is invoked by specifying
-
-\begin{verbatim}
-   XC xpbe96
-\end{verbatim}
-
-\item the Gill 1996 gradient-corrected exchange functional (P.W.Gill , Mol. Phys. {\bf 89}, 433 (1996)), is invoked by specifying
-
-\begin{verbatim}
-   XC gill96
-\end{verbatim}
-
-\item the Hamprecht-Cohen-Tozer-Handy  gradient-corrected exchange 
-functional
-(F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
-    J. Chem. Phys. {\bf 109}, 6264 (1998))
-\begin{verbatim}
-   XC xhcth
-\end{verbatim}
-
-\item The Hartree-Fock exact exchange functional, (which has $O(N^4)$
+%\item 
+The Hartree-Fock exact exchange functional, (which has $O(N^4)$
 computation expense), is invoked by specifying
 \begin{verbatim}
    XC HFexch
 \end{verbatim}
-\end{itemize}
+%\end{itemize}
 
 Note that the user also has the ability to include only the local or
 nonlocal contributions of a given functional.  In addition the user
@@ -295,110 +290,103 @@ as:
 \end{verbatim}
 
   
-\subsection{Optional Correlation Functionals}
+%\subsection{Correlation Functionals}
 
-In addition to the default \verb+vwn_5+ correlation functional, the user has
-10 alternative correlation functionals to choose from: lyp, perdew81,
-perdew86, perdew91, pw91lda, \verb+vwn_1+, \verb+vwn_2+, \verb+vwn_3+,
-\verb+vwn_4+, and \verb+vwn_1_rpa+.
+%In addition to the default \verb+vwn_5+ correlation functional, the user has
+%alternative correlation functionals as listed in table \ref{tablexc}.
+%to choose from: lyp, perdew81,
+%perdew86, perdew91, pw91lda, \verb+vwn_1+, \verb+vwn_2+, \verb+vwn_3+,
+%\verb+vwn_4+, and \verb+vwn_1_rpa+.
 
-As in the exchange functional input, individual local/nonlocal
-components as well as multiplicative prefactors can be invoked where
-appropriate.  Each of the correlation functionals is listed below along with
-appropriate citation. 
+%As in the exchange functional input, individual local/nonlocal
+%components as well as multiplicative prefactors can be invoked where
+%appropriate.  Each of the correlation functionals is listed below along with
+%appropriate citation in table \ref{tablexc}. 
 
 \sloppy
 
-\begin{itemize}
-\item VWN local density functionals; S.J.~Vosko, L.~Wilk and M.~Nusair, 
-  Can.~J.~Phys.~{\bf  58}, 1200 (1980); all five (5) functionals as
-  described in this paper (addressed in the paper as I - V) have been
-  implemented.  These functionals can be invoked with the keywords:
-\begin{verbatim}
-   XC vwn_1
-   XC vwn_2
-   XC vwn_3
-   XC vwn_4
-   XC vwn_5
-\end{verbatim}
+%\begin{itemize}
+%\item VWN local density functionals; S.J.~Vosko, L.~Wilk and M.~Nusair, 
+%  Can.~J.~Phys.~{\bf  58}, 1200 (1980); all five (5) functionals as
+%  described in this paper (addressed in the paper as I - V) have been
+%  implemented.  These functionals can be invoked with the keywords:
+%\begin{verbatim}
+%   XC vwn_1
+%   XC vwn_2
+%   XC vwn_3
+%   XC vwn_4
+%   XC vwn_5
+%\end{verbatim}
+%
+%  Note that functionals; \verb+vwn_2+, \verb+vwn_3+, and \verb+vwn_4+
+%  require both sets of parameters (the Monte Carlo parameters of
+%  Ceperley and Alder and VWN's RPA parameters) used in fitting the
+%  homogeneous electron gas correlation energy.  Functionals
+%  \verb+vwn_1+ and \verb+vwn_5+ require only the Monte Carlo fitting
+%  parameters.  In order to reproduce results in the literature another
+%  functional was added; the \verb+vwn_1_rpa+.  This is the original
+%  \verb+vwn_1+ functional with RPA parameters as opposed to the
+%  prescribed Monte Carlo parameters.  This functional can be invoked
+%  with the keyword,
+%\begin{verbatim}
+%   XC vwn_1_rpa
+%\end{verbatim}
+%
+%\item Perdew81 local density functional; J.~P.~Perdew and A.~Zunger,
+%  Phys.~Rev.~B {\bf23}, 5048 (1981). This functional can be invoked with the
+%  keyword,
+%\begin{verbatim}
+%   XC perdew81
+%\end{verbatim}
+%
+%\item Perdew \& Wang 1991 local density functional;  J.P.~Perdew
+%  and Y.~Wang, Phys. Rev. B {\bf 45}, 13244 (1992).  The parameters
+%  used in this formula are obtained by fitting to the Ceperley and
+%  Alder Quantum Monte Carlo solution of the {\em
+%  homogeneous electron gas}.  This functional can be invoked with the
+%  keyword,
+%\begin{verbatim}
+%   XC pw91lda
+%\end{verbatim}
+%
+%\item Perdew86 gradient-corrected functional; J.~P.~Perdew, Phys.~Rev.~B 
+%  {\bf33}, 8822 (1986).  Note that this is a nonlocal functional and
+%  in the absence of any local functional specification the local
+%  component is defaulted to the perdew81 local correlation
+%  functional. This functional can be invoked with the
+%  keyword,
+%\begin{verbatim}
+%   XC perdew86
+%\end{verbatim}
+%
+%\item Perdew91 gradient-corrected functional;  J.P.~Perdew,
+%  J.A.~Chevary, S.H.~Vosko, K.A.~Jackson, M.R.~Pederson, D.J.~Singh
+%  and C.~Fiolhais, Phys. Rev. B {\bf 46}, 6671 (1992). Note that this
+%  is a nonlocal functional and in the absence of any local functional 
+%  specification the local component is defaulted to the \verb+pw91lda+ local 
+%  correlation functional.  This functional can be invoked with the keyword,
+%\begin{verbatim}
+%   XC perdew91
+%\end{verbatim}
+%
+%\item the Perdew-Burke-Ernzerhof gradient-corrected correlation functional \\
+% (J.P.~Perdew, K.~Burke and M.~Ernzerhof, Physical Review Letters
+%{\bf 77}, 3865 (1996); {\bf 78}, 1396 (1997))), is invoked by specifying
+%
+%\begin{verbatim}
+%   XC cpbe96
+%\end{verbatim}
 
-  Note that functionals; \verb+vwn_2+, \verb+vwn_3+, and \verb+vwn_4+
-  require both sets of parameters (the Monte Carlo parameters of
-  Ceperley and Alder and VWN's RPA parameters) used in fitting the
-  homogeneous electron gas correlation energy.  Functionals
-  \verb+vwn_1+ and \verb+vwn_5+ require only the Monte Carlo fitting
-  parameters.  In order to reproduce results in the literature another
-  functional was added; the \verb+vwn_1_rpa+.  This is the original
-  \verb+vwn_1+ functional with RPA parameters as opposed to the
-  prescribed Monte Carlo parameters.  This functional can be invoked
-  with the keyword,
-\begin{verbatim}
-   XC vwn_1_rpa
-\end{verbatim}
-
-\item Perdew81 local density functional; J.~P.~Perdew and A.~Zunger,
-  Phys.~Rev.~B {\bf23}, 5048 (1981). This functional can be invoked with the
-  keyword,
-\begin{verbatim}
-   XC perdew81
-\end{verbatim}
-
-\item Perdew \& Wang 1991 local density functional;  J.P.~Perdew
-  and Y.~Wang, Phys. Rev. B {\bf 45}, 13244 (1992).  The parameters
-  used in this formula are obtained by fitting to the Ceperley and
-  Alder Quantum Monte Carlo solution of the {\em
-  homogeneous electron gas}.  This functional can be invoked with the
-  keyword,
-\begin{verbatim}
-   XC pw91lda
-\end{verbatim}
-
-\item Perdew86 gradient-corrected functional; J.~P.~Perdew, Phys.~Rev.~B 
-  {\bf33}, 8822 (1986).  Note that this is a nonlocal functional and
-  in the absence of any local functional specification the local
-  component is defaulted to the perdew81 local correlation
-  functional. This functional can be invoked with the
-  keyword,
-\begin{verbatim}
-   XC perdew86
-\end{verbatim}
-
-\item Perdew91 gradient-corrected functional;  J.P.~Perdew,
-  J.A.~Chevary, S.H.~Vosko, K.A.~Jackson, M.R.~Pederson, D.J.~Singh
-  and C.~Fiolhais, Phys. Rev. B {\bf 46}, 6671 (1992). Note that this
-  is a nonlocal functional and in the absence of any local functional 
-  specification the local component is defaulted to the \verb+pw91lda+ local 
-  correlation functional.  This functional can be invoked with the keyword,
-\begin{verbatim}
-   XC perdew91
-\end{verbatim}
-
-\item the Perdew-Burke-Ernzerhof gradient-corrected correlation functional \\
- (J.P.~Perdew, K.~Burke and M.~Ernzerhof, Physical Review Letters
-{\bf 77}, 3865 (1996); {\bf 78}, 1396 (1997))), is invoked by specifying
-
-\begin{verbatim}
-   XC cpbe96
-\end{verbatim}
-
-\item the Hamprecht-Cohen-Tozer-Handy  gradient-corrected correlation 
-functional
-(F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
-    J. Chem. Phys. {\bf 109}, 6264 (1998))
-\begin{verbatim}
-   XC chcth
-\end{verbatim}
-
-\item LYP gradient-corrected functional; C.~Lee, W.~Yang and
-   R.~G.~Parr, Phys.~Rev.~B {\bf 37}, 785 (1988).  Note that this
-  is a local and nonlocal functional but cannot be conveniently split
-  into the individual components.  The option to scale the total remains.
-  This functional can be invoked with the keyword,
-\begin{verbatim}
-   XC lyp
-\end{verbatim}
-
-\end{itemize}
+%\item LYP gradient-corrected functional; C.~Lee, W.~Yang and
+%   R.~G.~Parr, Phys.~Rev.~B {\bf 37}, 785 (1988).  Note that this
+%  is a local and nonlocal functional but cannot be conveniently split
+%  into the individual components.  The option to scale the total remains.
+%  This functional can be invoked with the keyword,
+%\begin{verbatim}
+%   XC lyp
+%\end{verbatim}
+%
+%\end{itemize}
 
 \fussy
 
@@ -413,28 +401,32 @@ XC vwn_1_rpa 0.19 lyp 0.81 HFexch 0.20  slater 0.80 becke88 nonlocal 0.72
 
 In addition to the options listed above for the exchange and correlation
 functionals, the user has the alternative of specifying combined exchange and 
-correlation functionals.
-  The available hybrid functionals consist of the Becke
+correlation functionals. A complete list of the available functionals
+appears in table \ref{tablexc}.
+
+  The available hybrid functionals 
+(where a Hartree-Fock Exchange component is present) consist of the Becke
 ``{\sl half and half}'' (see A.D.~Becke, J.~Chem.~Phys.~98, 1372 (1992)), the
 adiabatic connection method (see A.D.~Becke, J.~Chem.~Phys.~98, 5648
-(1993)),  b3lyp (popularized by Gaussian9X), Becke 1997 (``Becke V'' paper: A.D.Becke, J. Chem. Phys., {\bf 107}, 8554 (1997)
+(1993)),  b3lyp (popularized by Gaussian9X), Becke 1997 
+(``Becke V'' paper: A.D.Becke, J. Chem. Phys., {\bf 107}, 8554 (1997)
 
-These options can be invoked by specifying any of the following input lines,
-\begin{verbatim}
-   XC beckehandh
-   XC acm
-   XC b3lyp
-   XC becke97
-   Xc becke97-1
-   xc becke98
-   xc pbe0
-   xc hcth
-   xc hcth120
-   xc hcth147
-   xc hcth407
-   xc hcthp14
-   xc becke97gga1
-\end{verbatim}
+%These options can be invoked by specifying any of the following input lines,
+%\begin{verbatim}
+%   XC beckehandh
+%   XC acm
+%   XC b3lyp
+%   XC becke97
+%   Xc becke97-1
+%   xc becke98
+%   xc pbe0
+%   xc hcth
+%   xc hcth120
+%   xc hcth147
+%   xc hcth407
+%   xc hcthp14
+%   xc becke97gga1
+%\end{verbatim}
 
 The keyword \verb+beckehandh+ specifies that the exchange-correlation energy will be
 computed as 
@@ -446,8 +438,8 @@ We know this is NOT the correct Becke prescribed implementation which
 requires the XC potential in the energy expression.  But this is what
 is currently implemented as an approximation to it.
 
-\clearpage
-
+%\clearpage
+%
 
 The keyword \verb+acm+ specifies that the exchange-correlation energy
 is computed as
@@ -470,16 +462,16 @@ a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
 \end{eqnarray*}
 
 
-The keyword \verb+becke97-1+ specifies  the hybrid exchange-correlation energy
-derived by Handy et al by re-fitting the Becke 1997 functional
-(F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
-    J. Chem. Phys. {\bf 109}, 6264 (1998))
-
-The keyword \verb+hcth+ specifies the  exchange-correlation energy 
-functional derived by Hamprecht-Cohen-Tozer-Handy 
-(this is not a hybrid functional)
-(F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
-    J. Chem. Phys. {\bf 109}, 6264 (1998))
+%The keyword \verb+becke97-1+ specifies  the hybrid exchange-correlation energy
+%derived by Handy et al by re-fitting the Becke 1997 functional
+%(F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
+%    J. Chem. Phys. {\bf 109}, 6264 (1998))
+%
+%The keyword \verb+hcth+ specifies the  exchange-correlation energy 
+%functional derived by Hamprecht-Cohen-Tozer-Handy 
+%(this is not a hybrid functional)
+%(F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
+%    J. Chem. Phys. {\bf 109}, 6264 (1998))
 \twocolumn
 \begin{table}[htp]
 
@@ -529,6 +521,7 @@ pbe0       & $\star$    &   $\star$     &  $\star$  & $\star$  &[17]\\
 \hline
 \end{tabular}
 \caption{Table of available Exchange (X) and Correlation (C) functionals}
+\label{tablexc}
 \end{table}
 {\footnotesize
 \vspace{8.5cm}
@@ -542,7 +535,7 @@ Can.~J.~Phys.~{\bf 58}, 1200 (1980). \\
 (1981). \\
 \item  J.P.~Perdew and Y.~Wang, Phys. Rev. B {\bf 45},
 13244 (1992). \\
-\item   A.D.~Becke,  J. Chem. Phys. {\bf 88}, 3098 (1988). \\ 
+\item   A.D.~Becke,  Phys. Rev. A {\bf 88}, 3098 (1988). \\ 
 \item  J.P. Perdew,  J.A.~Chevary, S.H.~Vosko, K.A.~Jackson, 
 M.R.~Pederson, D.J.~Singh and C.~Fiolhais, Phys. Rev. B {\bf 46}, 6671
 (1992). \\
@@ -560,7 +553,7 @@ M.Sprik. J. Chem. Phys. {\bf 112}, 1670 (2000). \\
 \item  A.D.~Becke, J.~Chem.~Phys.~{\bf 98}, 5648 (1993). \\
 \item A.D.Becke, J. Chem. Phys. {\bf 107}, 8554 (1997). \\
 \item  H.L.Schmider and A.D.~Becke, J.~Chem.~Phys.~{\bf 108},
-9624 1998). \\
+9624 (1998). \\
 \item C.Adamo and V.Barone, J.~Chem.~Phys. {\bf 110}, 6158 (1998).\\
 \item  A.J.Cohen and N.C. Handy, Chem. Phys. Lett. {\bf 316}, 160 (2000).\\
 \item  A.D.Boese,  N.C.Handy, J. Chem. Phys. {\bf 114}, 5497
@@ -741,7 +734,7 @@ near the HOMO (eg metallic clusters)
 \end{verbatim}
 
 This  option allows fractional occupation of the molecular orbitals.
-A Gaussian broadening function of exponent {\tt smear} is used as desribed in 
+A Gaussian broadening function of exponent {\tt smear} is used as described in 
 the paper:
 R.W. Warren RW and B.I. Dunlap, Chem. Phys. Letters {\bf 262}, 384 (1996).\\
 The user must be aware that an additional energy term is added to the total
