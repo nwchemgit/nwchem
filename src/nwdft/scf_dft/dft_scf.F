@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.204 2001-12-12 00:54:48 edo Exp $
+c     $Id: dft_scf.F,v 1.205 2001-12-12 18:14:36 edo Exp $
 c     
       implicit none
 c
@@ -461,7 +461,7 @@ c
       if(ldmix) then
          tdots=0.d0
          call dft_densm(g_dens, g_movecs, 
-     &        nbf_ao, ipol, 
+     &        nbf_ao, nmo, ipol, 
      &        geom, AO_bas_han,noc,ntotel,
      &        Dbl_MB(k_eval(1)),dbl_mb(k_occ),
      &        ssmear,tdots,iter,.false.,
@@ -824,7 +824,7 @@ c
       if (oprint_time)
      &     call dft_tstamp(' calling densm ')
       call dft_densm(g_dens, g_movecs, 
-     &     nbf_ao, ipol, 
+     &     nbf_ao, nmo,ipol, 
      &     geom, AO_bas_han,noc,ntotel,
      &      Dbl_MB(k_eval(1)),dbl_mb(k_occ),
      &     ssmear,tdots,iter,.true.,

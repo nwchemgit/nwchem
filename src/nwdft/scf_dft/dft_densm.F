@@ -1,9 +1,9 @@
-      subroutine dft_densm(g_dens,g_vecs,nbf,ipol,
+      subroutine dft_densm(g_dens,g_vecs,nbf,nmo,ipol,
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon)
-C$Id: dft_densm.F,v 1.29 2001-12-07 17:36:44 edo Exp $
+C$Id: dft_densm.F,v 1.30 2001-12-12 18:14:36 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -17,7 +17,7 @@ C$Id: dft_densm.F,v 1.29 2001-12-07 17:36:44 edo Exp $
       integer ipol                  ! no. of spin states
       integer g_dens(2)
       integer g_vecs(2)
-      integer nbf
+      integer nbf,nmo(2)
       integer noc(2)             ! no. of occupied levels
       integer ntotel,iter
       double precision focc(nbf*ipol)! occupation no.
@@ -81,7 +81,7 @@ c     initialize ef
 c
            efermi=0.d0
          if(search0)then
-           call dft_zero(ipol,nbf,ntotel,efermi,evals,ssmear,toll)
+           call dft_zero(ipol,nbf,nmo,ntotel,efermi,evals,ssmear,toll)
            call dfill(nbf*ipol, 0.d0, focc, 1)
          endif
          g_tmp = 
@@ -90,7 +90,7 @@ c
          do isp=1,ipol
             ntot(isp)=0.d0
             ipoint=(isp-1)*nbf
-            do i = 1, nbf
+            do i = 1, nmo(isp)
                x=(evals(ipoint+i)-efermi)/ssmear
 #if defined(SGI)|| defined (DECOSF) || defined(WIN32) ||defined(LINUX)
               if(search0)
@@ -105,17 +105,19 @@ c
                   focc(i+ipoint)=0.d0
                endif
             enddo
-            do i=1+me,nbf,nproc
+            call ga_zero(g_tmp)
+            do i=1+me,nmo(isp),nproc
                if(focc(i+ipoint).gt.toll) then
                   call get_col(g_vecs(isp), nbf, i, DBL_MB(itmpm))
                   call dscal(nbf, focc(i+ipoint), DBL_MB(itmpm), 1)
                   call put_col(g_tmp, nbf, i, DBL_MB(itmpm))
                endif
             enddo
-            do i=1,nbf
+            do i=1,nmo(isp)
                ntot(isp)=ntot(isp)+focc(i+ipoint)
             enddo
             call ga_sync()
+!            call ga_dgemm('n', 't', nbf, nmo(isp), noc(isp),1.d0,g_tmp,
             call ga_dgemm('n', 't', nbf, nbf, noc(isp),1.d0,g_tmp,
      $           g_vecs(isp), zero, g_dens(isp))
          enddo                  ! end of loop over spins
@@ -128,7 +130,7 @@ c     compute entropy correction to total e
 c     
          if(.not.fon) then
          cksum=0.d0
-         do i=1,nbf
+         do i=1,nmo(1)
             x=(evals(i)-efermi)/ssmear
             cksum=cksum+exp(-x*x)/sqrtpi
             if(ipol.eq.2) then
@@ -150,13 +152,14 @@ C 1723       format(' Foccs ',(
       endif
       return
       end
-      subroutine dft_zero(ipol,nbf,ntotel,efermi,evals,ssmear,toll)
+      subroutine dft_zero(ipol,nbf,nmo,
+     ,     ntotel,efermi,evals,ssmear,toll)
       implicit none
 #include "global.fh"
 #include "msgids.fh"
 #include "stdio.fh"
       integer ipol
-      integer nbf
+      integer nbf,nmo(2)
       double precision evals(nbf*ipol) 
       double precision ssmear
       double precision toll
@@ -188,11 +191,11 @@ c
  11   emax=efermi+step
       emin=efermi-step
       fmax=fzero(
-     *     ipol,emax,evals,nbf,ntotel,ssmear)
+     *     ipol,emax,evals,nbf,nmo,ntotel,ssmear)
       fmin=fzero(
-     *     ipol,emin,evals,nbf,ntotel,ssmear)
+     *     ipol,emin,evals,nbf,nmo,ntotel,ssmear)
       fmed=fzero(
-     *     ipol,efermi,evals,nbf,ntotel,ssmear)
+     *     ipol,efermi,evals,nbf,nmo,ntotel,ssmear)
 C      if(abs(fmed).lt.toll) goto
       if(fmax*fmin.gt.0.d0) then
          attempts=attempts+1
@@ -250,7 +253,7 @@ C         endif
       endif
       
       fmed=fzero(
-     *     ipol,efermi,evals,nbf,ntotel,ssmear)
+     *     ipol,efermi,evals,nbf,nmo,ntotel,ssmear)
       if(abs(fmed).gt.toll.and.abs(emin-emax).gt.toll*0.1d0) goto 1
 1999  continue
 #ifdef DEBUG
@@ -261,10 +264,10 @@ C         endif
       return
       end
       double precision function fzero(
-     *     ipol,efermi,evals,nbf,ntotel,ssmear)
+     *     ipol,efermi,evals,nbf,nmo,ntotel,ssmear)
       implicit none
       integer ipol
-      integer nbf 
+      integer nbf,nmo(2) 
       double precision efermi
       double precision evals(nbf*ipol)
       integer ntotel 
@@ -285,7 +288,7 @@ c
       rhfuhf=2d0/ipol
       fzeroa=0d0
       fzerob=0d0
-      do i=1,nbf
+      do i=1,nmo(1)
          x=(evals(i)-efermi)/ssmear
          xb=(evals(i+nbf)-efermi)/ssmear
 #if defined(SGI)|| defined (DECOSF) || defined(WIN32) ||defined(LINUX)
