@@ -1,4 +1,4 @@
-*     $Id: intb_2e4c.F,v 1.19 1997-12-01 22:56:42 d3e129 Exp $
+*     $Id: intb_2e4c.F,v 1.20 1997-12-02 01:42:21 d3e129 Exp $
 c:tex-
 c:tex-\subsection{intb\_2e4c}
 c:tex-This logical function returns the integrals and labels based on the
@@ -81,6 +81,11 @@ c::   local
 c     
 c     Cannot do texas.
 c     
+      intb_2e4c = .false.
+      if (num_q.eq.0) then
+        nint = 0
+        return
+      endif
       if (brain.ne.ketin .or. (.not.txs_b2e4c)) then
          intb_2e4c = intb_nw_2e4c(
      $        brain, icl, jcl, ketin, kcl, lcl,
