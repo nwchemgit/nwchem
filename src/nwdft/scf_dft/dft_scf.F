@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.199 2001-11-16 02:12:41 edo Exp $
+c     $Id: dft_scf.F,v 1.200 2001-11-29 22:37:26 bert Exp $
 c     
       implicit none
 c
@@ -1259,6 +1259,9 @@ c
 c     Store energy and convergence status ... must store before
 c     write movecs since date of insertion is used.
 c     
+      if (.not. rtdb_put(rtdb,'uhf:coulomb', mt_dbl, 1, Ecoul)) call
+     $     errquit('uhf: writing ecoul failed', 0)
+c
       if (.not. rtdb_put(rtdb, 'dft:energy', MT_DBL, 1, (Etnew+Enuc)))
      &   call errquit('dft_scf: failed to store energy in rtdb', 0)
       if (.not. rtdb_put(rtdb, 'dft:converged', MT_LOG, 1, converged))
