@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.81 1996-07-09 22:32:44 vg038 Exp $
+c     $Id: nwchem.F,v 1.82 1996-07-10 10:07:49 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -285,6 +285,8 @@ c
       external scf, task_check_sum, selci, eopt, rjhtest, rimp2, oimp2
       logical nwdft, nwargos, mp2_grad, cphf, ccsd, moints_full
       external cphf, ccsd, moints_full
+      logical scf_gradient
+      external scf_gradient
       parameter (ntasks = 27)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', ! 1
