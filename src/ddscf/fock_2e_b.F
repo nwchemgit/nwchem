@@ -5,7 +5,7 @@
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_b.F,v 1.7 1995-11-27 02:14:03 d3g681 Exp $
+c     $Id: fock_2e_b.F,v 1.8 1995-12-03 00:45:07 rg240 Exp $
 c
 c     Called by fock_2e_task once density matrix blocks have 
 c     been fetched.
@@ -141,50 +141,77 @@ c
                         if (.not. bas_cn2bfr(basis, lsh,
      $                       lshbflo, lshbfhi)) call errquit
      $                       ('fock_2e_b: bas_cn2bfr', lsh)
-c
-c     New code with labels
 c     
 c     Compute the shell block of integrals with labels
 c     
                         call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
      $                       mem2, dbl_mb(k_scr), max2e, dbl_mb(k_g))
-                        call fock_2e_shell_to_labels(dtol2e,
-     $                       ishbflo, ishbfhi, jshbflo, jshbfhi,
-     $                       kshbflo, kshbfhi, lshbflo, lshbfhi,
-     $                       int_mb(k_i), int_mb(k_j),
-     $                       int_mb(k_k), int_mb(k_l), dbl_mb(k_g),
-     $                       dbl_mb(k_scr),  neri)
-c     
-c     Prescale ERIs
-c     
-                        call fock_eri_label_scale(neri, q4,
-     $                       int_mb(k_i), int_mb(k_j),
-     $                       int_mb(k_k), int_mb(k_l), dbl_mb(k_g))
+                        if (oerilabel) then
+c
+c     New code with labels
+c        - Prescale ERIs
+c        - Add shell-block ERI into Fock components
+c
+                          call fock_2e_shell_to_labels( dtol2e,
+     $                            ishbflo, ishbfhi, jshbflo, jshbfhi,
+     $                            kshbflo, kshbfhi, lshbflo, lshbfhi,
+     $                            int_mb(k_i), int_mb(k_j),
+     $                            int_mb(k_k), int_mb(k_l),
+     $                            dbl_mb(k_g), dbl_mb(k_scr),  neri)
+                          call fock_eri_label_scale(neri, q4,
+     $                                    int_mb(k_i), int_mb(k_j),
+     $                                    int_mb(k_k), int_mb(k_l),
+     $                                    dbl_mb(k_g))
+                          call fock_2e_label( nfock, dtol2e, neri,
+     $                         int_mb(k_i), int_mb(k_j),
+     $                         int_mb(k_k), int_mb(k_l), dbl_mb(k_g),
+     $                         ilo, ihi, jlo, jhi, klo, khi, llo, lhi,
+     $                         dij, dik, dli, djk, dlj, dlk,
+     $                         fij, fik, fli, fjk, flj, flk )
 c
 c     Cache integrals if desired
 c
-                        if (owritefile) then
-                           if (.not. int2e_file_write(neri,
-     $                       int_mb(k_i), int_mb(k_j),
-     $                       int_mb(k_k), int_mb(k_l), dbl_mb(k_g)))
-     $                          call errquit('Arrgggghh',0)
-                           if(util_print('int2efile write',print_never))
+                          if (owritefile) then
+                            if (.not. int2e_file_write(neri,
+     $                         int_mb(k_i), int_mb(k_j),
+     $                         int_mb(k_k), int_mb(k_l), dbl_mb(k_g)))
+     $                           call errquit('Arrgggghh',0)
+                        if (util_print('int2efile write',print_never))
      $                          call print_integ_list(neri, 
      $                          int_mb(k_i), int_mb(k_j),
      $                          int_mb(k_k), int_mb(k_l), dbl_mb(k_g))
-                        end if
-c     
-c     Add shell-block ERI into Fock components
-c     
-                        call fock_2e_label( nfock, dtol2e,
-     $                       neri,
-     $                       int_mb(k_i), int_mb(k_j),
-     $                       int_mb(k_k), int_mb(k_l), dbl_mb(k_g),
-     $                       ilo, ihi, jlo, jhi,
-     $                       klo, khi, llo, lhi,
-     $                       dij, dik, dli, djk, dlj, dlk,
-     $                       fij, fik, fli, fjk, flj, flk )
-
+                          end if
+                        else
+c
+c    Old code with no labels
+c        - Prescale ERIs
+c        - Add shell-block ERI into Fock components 
+c          (special code for 1 fock matrix)
+c
+                          call fock_eri_scale( ishbflo, ishbfhi,
+     $                                         jshbflo, jshbfhi,
+     $                                         kshbflo, kshbfhi,
+     $                                         lshbflo, lshbfhi,
+     $                                         dbl_mb(k_g) )
+                          if (nfock.eq.1) then
+                            call fock_2e_c1( dtol2e, q4, dbl_mb(k_g),
+     $                            ishbflo, ishbfhi, jshbflo, jshbfhi,
+     $                            kshbflo, kshbfhi, lshbflo, lshbfhi,
+     $                            ilo, ihi, jlo, jhi,
+     $                            klo, khi, llo, lhi,
+     $                            dij, dik, dli, djk, dlj, dlk,
+     $                            fij, fik, fli, fjk, flj, flk )
+                          else
+                            call fock_2e_c( nfock, dtol2e, q4,
+     $                            dbl_mb(k_g),
+     $                            ishbflo, ishbfhi, jshbflo, jshbfhi,
+     $                            kshbflo, kshbfhi, lshbflo, lshbfhi,
+     $                            ilo, ihi, jlo, jhi,
+     $                            klo, khi, llo, lhi,
+     $                            dij, dik, dli, djk, dlj, dlk,
+     $                            fij, fik, fli, fjk, flj, flk )
+                          endif
+                        endif
                         iscreen(5) = iscreen(5) + 1
                      else
                         iscreen(4) = iscreen(4) + 1
