@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.82 2000-09-20 22:49:41 d3j191 Exp $
+c $Id: cf_main.F,v 1.83 2000-09-20 22:59:53 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2244,7 +2244,8 @@ c
       if(target(j:j).eq.'?') tag(j:j)='?'
   101 continue
       if(target(1:1).eq.' '.or.target(1:len).eq.tag(1:len)) then
-      isdt(i)=ior(isdt(i),lfixed)
+      if(cf_atonum(isatt(i),int_mb(i_num)).ne.1)
+     + isdt(i)=ior(isdt(i),lfixed)
       number=number+1
       endif
       endif
