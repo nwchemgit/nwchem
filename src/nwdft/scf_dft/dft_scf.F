@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.43 1996-11-08 23:46:08 vg038 Exp $
+C$Id: dft_scf.F,v 1.44 1996-11-13 01:34:00 vg038 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -1188,6 +1188,8 @@ C     requested?
       call ecce_print_control(stat1, stat2) ! stat2 set to print status
       stat1 = stat2
       call ecce_print_control(stat1, stat2) ! restore previous setting
+C     we need the value from process 0
+      call ga_brdcst(12321, stat1, ma_sizeof(mt_int,1,mt_byte), 0)
       if ( stat1 .eq. 1 ) then
 C       allocate array for irreps
         status = ma_push_get ( mt_dbl, nbf_ao,'dft:irreps', 
