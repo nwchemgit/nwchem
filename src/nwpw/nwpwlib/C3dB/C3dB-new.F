@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.7 2001-12-20 00:30:52 bylaska Exp $
+* $Id: C3dB-new.F,v 1.8 2002-01-08 23:26:45 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -810,6 +810,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
          end do
       end if
 
+*     **** WAIT ****
+      call ga_sync()
+
       return
       end
 
@@ -878,6 +881,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
             end if
          end do
       end if
+
+*     **** WAIT ****
+      call ga_sync()
 
       return
       end
@@ -1424,6 +1430,7 @@ c     integer i2_start(NFFT3+1)
       integer p_from, p_here,q
       integer k,index
       integer dest,source,status,msglen
+      integer dum,dum_msglen
 
       call Parallel_taskid(taskid)
 
@@ -1445,6 +1452,9 @@ c     integer i2_start(NFFT3+1)
                source  = p_from
 
 #ifdef TCGMSG
+               dum = 99
+               dum_msglen = 1
+               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
                call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
      >                       source,rcv_proc,1)
 #endif
@@ -1467,12 +1477,18 @@ c     integer i2_start(NFFT3+1)
                dest    = MASTER
 
 #ifdef TCGMSG
+               dum_msglen = 1
+               call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
+     >                       dest,rcv_proc,1)
                call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
 #endif
             end if
 
          end do
       end if
+
+*     **** WAIT ****
+      call ga_sync()
 
       return
       end
