@@ -1,5 +1,5 @@
 *
-* $Id: pspw_dplot_iteration.F,v 1.1 2002-01-18 23:23:41 bylaska Exp $
+* $Id: pspw_dplot_iteration.F,v 1.2 2002-01-21 00:57:54 bylaska Exp $
 *
       subroutine dplot_iteration_init()
       implicit none
@@ -46,10 +46,15 @@
       integer iteration(2),iteration_count
       common / dplot_iteration_Block / iteration,iteration_count,exist
 
-*     **** free heap ****
-      if (.not. MA_free_heap(iteration(2))) then
-         call errquit('dplot_iteration_end:freeing heap',0)
+      if (exist) then
+
+*        **** free heap ****
+         if (.not. MA_free_heap(iteration(2))) then
+            call errquit('dplot_iteration_end:freeing heap',0)
+         end if
+
       end if
+
       return
       end
 
