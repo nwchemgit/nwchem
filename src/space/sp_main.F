@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.61 2001-11-09 17:17:34 d3j191 Exp $
+c $Id: sp_main.F,v 1.62 2001-11-09 20:04:34 d3j191 Exp $
 c
       implicit none
 c
@@ -867,9 +867,10 @@ c
       integer isl(msa,mis2)
       integer numsa,nfold
 c
-      integer isa,isaf,isal,jsa,ibox,inod
+      integer isa,isaf,isal,jsa,ibox,inod,k
       integer ibx,iby,ibz,i,ipx,ipy,ipz
-      real*8 xcgx,xcgy,xcgz,factor,boxi(3)
+      real*8 xcgx,xcgy,xcgz,boxi(3),xcg(3)
+      real*8 xcgmax,xcgmin
 c
       boxi(1)=one/box(1)
       boxi(2)=one/box(2)
@@ -887,19 +888,19 @@ c
       endif
 c
       if(isal.gt.0) then
-      xcgx=zero
-      xcgy=zero
-      xcgz=zero
+      do 22 k=1,3
+      xcgmin=xs(isaf,k)
+      xcgmax=xs(isaf,k)
       do 2 jsa=isaf,isal
-      xcgx=xcgx+xs(jsa,1)
-      xcgy=xcgy+xs(jsa,2)
-      xcgz=xcgz+xs(jsa,3)
+      xcgmin=min(xcgmin,xs(jsa,k))
+      xcgmax=max(xcgmax,xs(jsa,k))
     2 continue
-      factor=one/dble(isal-isaf+1)
-      xcgx=factor*xcgx
-      xcgy=factor*xcgy
-      xcgz=factor*xcgz
+      xcg(k)=0.5d0*(xcgmax+xcgmin)
+   22 continue
 c
+      xcgx=xcg(1)
+      xcgy=xcg(2)
+      xcgz=xcg(3)
       if(npbtyp.ne.0) then
       if(abs(xcgx).gt.boxh(1)) then
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
@@ -971,6 +972,7 @@ c
 c
       isaf=isa+1
       isal=0
+c
       endif
 c
     1 continue
