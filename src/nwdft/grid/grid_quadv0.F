@@ -1,6 +1,6 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc)
 c
-C$Id: grid_quadv0.F,v 1.1 1999-06-25 21:48:24 d3h449 Exp $
+C$Id: grid_quadv0.F,v 1.2 1999-06-25 22:04:15 edo Exp $
 c
       implicit none
 c
@@ -34,10 +34,11 @@ c
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
      &        nscr, lscr, iscr,lamat,iamat,icmat,lcmat
-      double precision rho_int, ex, ec
+      double precision rho_int, ex, ec,dummy(3)
+      equivalence (dummy(1),Ex), (dummy(2),Ec), (dummy(3),rho_int)
 #ifdef SOLARIS
 c     needed for -stackvar option
-      save rho_int
+      save ex, dummy, ec, rho_int
 #endif      
 c
       me = ga_nodeid()
@@ -175,12 +176,6 @@ c
      &                dbl_mb(irdens_atom), int_mb(icntoce),
      &                int_mb(icntobfr), int_mb(icetobfr),
      ,     ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc)
-      if (nExc.eq.1)then
-         Exc(1) = Exc(1) + Ec + Ex
-      else
-         Exc(1) = Exc(1) + Ex
-         Exc(2) = Exc(2) + Ec
-      endif
 c
       if (.not.ma_pop_stack(lcmat))
      &   call errquit('grid_den: cannot pop stack',0)
@@ -224,7 +219,13 @@ c
      &   call errquit('grid_den: cannot pop stack',0)
 c
       call ga_igop(Msg_nqtot,nqtot,1,'+')
-      call ga_dgop(Msg_Excrho,rho_int,1,'+')
+      call ga_dgop(Msg_Excrho,dummy,3,'+')
+      if (nExc.eq.1)then
+         Exc(1) = Exc(1) + Ec + Ex
+      else
+         Exc(1) = Exc(1) + Ex
+         Exc(2) = Exc(2) + Ec
+      endif
 c
       rho_n = rho_int
 c
