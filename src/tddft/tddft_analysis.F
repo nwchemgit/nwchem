@@ -1,9 +1,9 @@
       subroutine tddft_analysis(rtdb,geom,ao_bas_han,nroots,nbf_ao,
      1  ipol,nocc,nmo,nfc,nfv,ntrials,tda,g_trials,g_prod_p,
-     2  g_apbvec,apbval,g_ambvec,g_movecs,evl,singlet,triplet,
+     2  apbvec,apbval,ambvec,g_movecs,evl,singlet,triplet,
      3  target,targetsym,mult)
 c
-c $Id: tddft_analysis.F,v 1.4 2002-04-10 19:17:18 sohirata Exp $
+c $Id: tddft_analysis.F,v 1.5 2002-04-12 22:55:51 sohirata Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -44,8 +44,8 @@ c
       integer g_prod_p(2)      ! GA handle for (A+B) product vectors
       integer ntrials          ! Current number of trial vectors
       logical tda              ! True if Tamm-Dancoff approximation
-      integer g_apbvec         ! GA handle for (X+Y)
-      integer g_ambvec         ! GA handle for (X-Y)
+      double precision apbvec(ntrials,ntrials) ! (X+Y)
+      double precision ambvec(ntrials,ntrials) ! (X-Y)
       integer g_movecs(2)      ! GA handle for MO coefficients
       double precision apbval(ntrials)  ! (A-B)^(1/2)(A+B)(A-B)^(1/2) eigenvalues
       double precision evl(nbf_ao,2)    ! Orbital energies
@@ -130,8 +130,14 @@ c ------------
 c
       if (tda) then
         do i=1,ipol
-          call ga_dgemm('N','N',nov(i),nroots,ntrials,
-     1      1.0d0,g_trials(i),g_apbvec,0.0d0,g_x(i))
+          call ga_zero(g_x(i))
+          do n=1,nroots
+            do m=1,ntrials
+              call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
+     1                          1.0d0,g_x(i),1,nov(i),n,n,
+     2                                g_x(i),1,nov(i),n,n)
+            enddo
+          enddo
         enddo
 c
 c --------------------
@@ -140,10 +146,18 @@ c --------------------
 c
       else
         do i=1,ipol
-          call ga_dgemm('N','N',nov(i),nroots,ntrials,
-     1      1.0d0,g_trials(i),g_apbvec,0.0d0,g_x(i))
-          call ga_dgemm('N','N',nov(i),nroots,ntrials,
-     1      1.0d0,g_trials(i),g_ambvec,0.0d0,g_y(i))
+          call ga_zero(g_x(i))
+          call ga_zero(g_y(i))
+          do n=1,nroots
+            do m=1,ntrials
+              call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
+     1                          1.0d0,g_x(i),1,nov(i),n,n,
+     2                                g_x(i),1,nov(i),n,n)
+              call ga_add_patch(ambvec(m,n),g_trials(i),1,nov(i),m,m,
+     1                          1.0d0,g_y(i),1,nov(i),n,n,
+     2                                g_y(i),1,nov(i),n,n)
+            enddo
+          enddo
           call ga_add(0.5d0,g_x(i), 0.5d0,g_y(i),g_x(i))
           call ga_add(1.0d0,g_x(i),-1.0d0,g_y(i),g_y(i))
         enddo

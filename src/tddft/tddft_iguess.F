@@ -2,7 +2,7 @@
      1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_movecs,evl,
      2  ntrials,nproducts)
 c
-c $Id: tddft_iguess.F,v 1.2 2002-04-10 19:17:19 sohirata Exp $
+c $Id: tddft_iguess.F,v 1.3 2002-04-12 22:55:52 sohirata Exp $
 c
 c Generate simple initial guess vectors. First sorts 
 c the eigenvalue differences (epsilon_a - epsilon_i).
@@ -129,7 +129,7 @@ c ---------------------------------------------------
 c Print the smallest eigenvalue differences for debug
 c ---------------------------------------------------
 c
-      if (nodezero.and.util_print('initial guess',print_high)) then
+      if (nodezero.and.util_print('initial guess',print_debug)) then
         write(LuOut,*)
         write(LuOut,9000) n
         write(LuOut,9010)
@@ -206,7 +206,7 @@ c
       enddo
       ntrials=nroots
       nproducts=0
-      if (nodezero.and.util_print('initial guess',print_high))
+      if (nodezero.and.util_print('initial guess',print_debug))
      1  write(LuOut,9060) ntrials
  9060 format(10x,'Number of initial trial vectors generated ',i8)
 c           

@@ -1,9 +1,10 @@
       subroutine tddft_epsilon(ivector,g_trials,g_prod_s,
      1  ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
 c
-c $Id: tddft_epsilon.F,v 1.2 2002-04-10 19:17:19 sohirata Exp $
+c $Id: tddft_epsilon.F,v 1.3 2002-04-12 22:55:52 sohirata Exp $
 c
 c Add (epsilon_a-epsilon_i) contribution to the product vector.
+c This subroutine is explicitly parallelized.
 c
 c ! Caution ! Never destroy ivector
 c
@@ -29,6 +30,8 @@ c
       integer nocc(2)          ! Number of occupied orbitals
       integer nmo(2)           ! Number of orbitals
       integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
+      integer iproc            ! Processor number
+      integer ilo,ihi,jlo,jhi  ! Distribution of GA data
       double precision evl(nbf_ao,2)   ! Eigenvalues
 c
       integer i,j,k,l
@@ -38,18 +41,21 @@ c --------------------------------------------------------
 c Add (epsilon_a-epsilon_i)*trial vector diagonal elements
 c --------------------------------------------------------
 c
+      iproc=ga_nodeid()
       do i=1,ipol
-        l=0
-        do j=nfc(i)+1,nocc(i)
-          do k=nocc(i)+1,nmo(i)-nfv(i)
-            l=l+1
-            call ga_get(g_trials(i),l,l,ivector,ivector,t,1)
-            call ga_get(g_prod_s(i),l,l,ivector,ivector,p,1)
-            p=p+(evl(k,i)-evl(j,i))*t
-            call ga_put(g_prod_s(i),l,l,ivector,ivector,p,1)
-          enddo
+        call ga_distribution(g_trials(i),iproc,ilo,ihi,jlo,jhi)
+        if ((jlo.gt.ivector).or.(jhi.lt.ivector))
+     1    call errquit('tddft_epsilon: an internal error detected',0)
+        do l=ilo,ihi
+          k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
+          j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1
+          call ga_get(g_trials(i),l,l,ivector,ivector,t,1)
+          call ga_get(g_prod_s(i),l,l,ivector,ivector,p,1)
+          p=p+(evl(k,i)-evl(j,i))*t
+          call ga_put(g_prod_s(i),l,l,ivector,ivector,p,1)
         enddo
       enddo
+      call ga_sync()
 c
 c ------
 c Return

@@ -1,12 +1,12 @@
-      subroutine tddft_diagon(ntrials,tda,g_apb,g_apbvec,
-     1  apbval,g_amb,g_ambvec,ambval)
+      subroutine tddft_diagon(ntrials,tda,apb,apbvec,
+     1  apbval,amb,ambvec,ambval)
 c
-c $Id: tddft_diagon.F,v 1.1 2002-03-22 02:10:36 sohirata Exp $
+c $Id: tddft_diagon.F,v 1.2 2002-04-12 22:55:52 sohirata Exp $
 c
 c Diagonalize the subspace representation of (A-B) and
 c (A-B)^(1/2)(A+B)(A-B)^(1/2) matrices and return the
-c eigenvalues and eigenvectors.  (A+B) (g_apb) and (A-B)
-c (g_amb) will not be destroyed.
+c eigenvalues and eigenvectors.  (A+B) (apb) and (A-B)
+c (amb) will not be destroyed.
 c
 c When (not tda) g_ambvec contains subspace representation
 c of (X-Y) and g_apbvec contains subspace representation 
@@ -29,30 +29,57 @@ c
 c
       integer ntrials          ! Current number of trial vectors
       logical tda              ! True if Tamm-Dancoff approximation
-      integer g_apb            ! GA handle for subspace (A+B) matrix
-      integer g_apbvec         ! GA handle for (X+Y)
-      integer g_amb            ! GA handle for subspace (A-B) matrix
-      integer g_ambvec         ! GA handle for (X-Y)
+      double precision apb(ntrials,ntrials)     ! Subspace (A+B) matrix
+      double precision apbvec(ntrials,ntrials)  ! (X+Y)
+      double precision amb(ntrials,ntrials)     ! Subspace (A-B) matrix
+      double precision ambvec(ntrials,ntrials)  ! (X-Y)
       double precision apbval(ntrials) ! (A-B)^(1/2)(A+B)(A-B)^(1/2) eigenvalues
       double precision ambval(ntrials) ! (A-B) eigenvalues
 c
-      integer g_work1          ! GA handle for a work array
-      integer g_work2          ! GA handle for a work array
-      integer i,n,m
+      integer l_work1,k_work1  ! MA handle for a work array
+      integer l_work2,k_work2  ! MA handle for a work array
+      integer l_work3,k_work3  ! MA handle for a work array
+      integer l_work4,k_work4  ! MA handle for a work array
+      integer info
+      integer i,j,n,m
       double precision a
+      double precision dummy1(ntrials),dummy2
       logical nodezero
 c
       nodezero=(ga_nodeid().eq.0)
+      if (.not.ma_push_get(mt_dbl,ntrials*ntrials,'Work 1',
+     1  l_work1,k_work1)) call errquit
+     2  ('tddft_diagon: failed to allocate work1',0)
+      if (.not.ma_push_get(mt_dbl,ntrials*ntrials,'Work 2',
+     1  l_work2,k_work2)) call errquit
+     2  ('tddft_diagon: failed to allocate work2',0)
+      if (.not.ma_push_get(mt_dbl,10*ntrials,'Work 3',
+     1  l_work3,k_work3)) call errquit
+     2  ('tddft_diagon: failed to allocate work3',0)
+      if (.not.ma_push_get(mt_dbl,ntrials*ntrials,'Work 4',
+     1  l_work4,k_work4)) call errquit
+     2  ('tddft_diagon: failed to allocate work4',0)
 c
 c ------------------
 c Tamm-Dancoff AZ=wZ
 c ------------------
 c
       if (tda) then
-        call ga_diag_std(g_apb,g_apbvec,apbval)
-        if (util_print('diagonization',print_high)) then
-          if (nodezero) call ma_print(apbval,ntrials,1,'Eigenvalues')
-          call ga_print(g_apbvec)
+        do i=1,ntrials
+          do j=1,ntrials
+            dbl_mb(k_work4+(i-1)*ntrials+j-1)=apb(j,i)
+          enddo
+        enddo
+        call tddft_dgeev('N','V',ntrials,dbl_mb(k_work4),ntrials,
+     1    apbval,dummy1,dummy2,1,apbvec,ntrials,
+     2    dbl_mb(k_work3),10*ntrials,info)
+        call tddft_schmitt(ntrials,apbvec)
+        call tddft_sort(ntrials,apbval,apbvec,'A')
+        if (util_print('diagonization',print_debug)) then
+          if (nodezero) then
+            call ma_print(apbval,ntrials,1,'Eigenvalues')
+            call ma_print(apbvec,ntrials,ntrials,'Eigenvectors') 
+          endif
         endif
 c
 c --------------------------------------------------------
@@ -61,59 +88,72 @@ c --------------------------------------------------------
 c
       else
 c
-c Allocate work arrays for (A-B)^(1/2) and (A-B)^(-1/2)
-c
-        if (.not.ga_create(mt_dbl,ntrials,ntrials,'(A+B)^(1/2)',
-     1    -1,-1,g_work1)) call errquit
-     2    ('tddft_diagon: failed to create g_work1',0)
-        if (.not.ga_create(mt_dbl,ntrials,ntrials,'(A-B)^(-1/2)',
-     1    -1,-1,g_work2)) call errquit
-     2    ('tddft_diagon: failed to create g_work2',0)
-c
 c Diagonalize (A-B) (even when it is already diagonal)
 c
-        call ga_diag_std(g_amb,g_ambvec,ambval)
-        if (util_print('diagonization',print_high)) then
-          if (nodezero) call ma_print(ambval,ntrials,1,'Eigenvalues')
-          call ga_print(g_ambvec)
+        do i=1,ntrials
+          do j=1,ntrials
+            dbl_mb(k_work4+(i-1)*ntrials+j-1)=amb(j,i)
+          enddo
+        enddo
+        call tddft_dgeev('N','V',ntrials,dbl_mb(k_work4),ntrials,
+     1    ambval,dummy1,dummy2,1,ambvec,ntrials,
+     2    dbl_mb(k_work3),10*ntrials,info)
+        call tddft_schmitt(ntrials,ambvec)
+        call tddft_sort(ntrials,ambval,ambvec,'A')
+        if (util_print('diagonization',print_debug)) then
+          if (nodezero) then
+            call ma_print(ambval,ntrials,1,'Eigenvalues')
+            call ma_print(ambvec,ntrials,ntrials,'Eigenvectors') 
+          endif
         endif
 c
 c Make (A-B)^(1/2) and (A-B)^(-1/2)
 c
-        call ga_zero(g_work1)
-        call ga_zero(g_work2)
+        do i=1,ntrials*ntrials
+          dbl_mb(k_work1+i-1)=0.0d0
+          dbl_mb(k_work2+i-1)=0.0d0
+        enddo
         do i=1,ntrials
           if (ambval(i).lt.0.0d0) then
             call errquit
      1      ('tddft_diagon: A-B is not positive-definite; try TDA',0)
           else
-            call ga_put(g_work1,i,i,i,i,dsqrt(ambval(i)),1)
-            call ga_put(g_work2,i,i,i,i,1.0d0/dsqrt(ambval(i)),1)
+            dbl_mb(k_work1+(i-1)*ntrials+i-1)=dsqrt(ambval(i))
+            dbl_mb(k_work2+(i-1)*ntrials+i-1)=1.0d0/dsqrt(ambval(i))
           endif
         enddo
-        call ga_dgemm('N','N',ntrials,ntrials,ntrials,1.0d0,g_ambvec,
-     1    g_work1,0.0d0,g_apbvec)
-        call ga_dgemm('N','T',ntrials,ntrials,ntrials,1.0d0,g_apbvec,
-     1    g_ambvec,0.0d0,g_work1)
-        call ga_dgemm('N','N',ntrials,ntrials,ntrials,1.0d0,g_ambvec,
-     1    g_work2,0.0d0,g_apbvec)
-        call ga_dgemm('N','T',ntrials,ntrials,ntrials,1.0d0,g_apbvec,
-     1    g_ambvec,0.0d0,g_work2)
-        if (util_print('diagonization',print_high)) then
-          call ga_print(g_work1)
-          call ga_print(g_work2)
+        call dgemm('N','N',ntrials,ntrials,ntrials,1.0d0,ambvec,
+     1    ntrials,dbl_mb(k_work1),ntrials,0.0d0,apbvec,ntrials)
+        call dgemm('N','T',ntrials,ntrials,ntrials,1.0d0,apbvec,
+     1    ntrials,ambvec,ntrials,0.0d0,dbl_mb(k_work1),ntrials)
+        call dgemm('N','N',ntrials,ntrials,ntrials,1.0d0,ambvec,
+     1    ntrials,dbl_mb(k_work2),ntrials,0.0d0,apbvec,ntrials)
+        call dgemm('N','T',ntrials,ntrials,ntrials,1.0d0,apbvec,
+     1    ntrials,ambvec,ntrials,0.0d0,dbl_mb(k_work2),ntrials)
+        if (util_print('diagonization',print_debug)) then
+          call ma_print(dbl_mb(k_work1),ntrials,ntrials,'(A-B)^(1/2)')
+          call ma_print(dbl_mb(k_work2),ntrials,ntrials,'(A-B)^(-1/2)')
         endif
 c
 c Make (A-B)^(1/2)(A+B)(A-B)^(1/2)
 c
-        call ga_dgemm('N','N',ntrials,ntrials,ntrials,1.0d0,g_work1,
-     1    g_apb,0.0d0,g_apbvec)
-        call ga_dgemm('N','N',ntrials,ntrials,ntrials,1.0d0,g_apbvec,
-     1    g_work1,0.0d0,g_ambvec)
+        call dgemm('N','N',ntrials,ntrials,ntrials,1.0d0,
+     1    dbl_mb(k_work1),ntrials,apb,ntrials,0.0d0,apbvec,ntrials)
+        call dgemm('N','N',ntrials,ntrials,ntrials,1.0d0,
+     1    apbvec,ntrials,dbl_mb(k_work1),ntrials,0.0d0,ambvec,ntrials)
 c
 c Diagonalize (A-B)^(1/2)(A+B)(A-B)^(1/2)
 c
-        call ga_diag_std(g_ambvec,g_apbvec,apbval)
+        do i=1,ntrials
+          do j=1,ntrials
+            dbl_mb(k_work4+(i-1)*ntrials+j-1)=ambvec(j,i)
+          enddo
+        enddo
+        call tddft_dgeev('N','V',ntrials,dbl_mb(k_work4),ntrials,
+     1    apbval,dummy1,dummy2,1,apbvec,ntrials,
+     2    dbl_mb(k_work3),10*ntrials,info)
+        call tddft_schmitt(ntrials,apbvec)
+        call tddft_sort(ntrials,apbval,apbvec,'A')
         do i=1,ntrials
           if (apbval(i).lt.0.0d0) then
             call errquit
@@ -122,35 +162,46 @@ c
             apbval(i)=dsqrt(apbval(i))
           endif
         enddo
-        if (util_print('diagonization',print_high)) then
-          if (nodezero) call ma_print(apbval,ntrials,1,'Eigenvalues')
-          call ga_print(g_apbvec)
+        if (util_print('diagonization',print_debug)) then
+          if (nodezero) then
+            call ma_print(apbval,ntrials,1,'Eigenvalues')
+            call ma_print(apbvec,ntrials,ntrials,'Eigenvectors') 
+          endif
         endif
 c
 c Make (X-Y) = w(A-B)^(-1/2) Z
 c
-        call ga_dgemm('N','N',ntrials,ntrials,ntrials,1.0d0,g_work2,
-     1    g_apbvec,0.0d0,g_ambvec)
+        call dgemm('N','N',ntrials,ntrials,ntrials,1.0d0,
+     1    dbl_mb(k_work2),ntrials,apbvec,ntrials,0.0d0,ambvec,ntrials)
         do i=1,ntrials
-          call ga_scale_patch(g_ambvec,1,ntrials,i,i,apbval(i))
+          do j=1,ntrials
+            ambvec(j,i)=ambvec(j,i)*apbval(i)
+          enddo
         enddo
 c
 c Make (X+Y) = (A-B)^(1/2) Z
 c
-        call ga_dgemm('N','N',ntrials,ntrials,ntrials,1.0d0,g_work1,
-     1    g_apbvec,0.0d0,g_work2)
-        call ga_copy(g_work2,g_apbvec)
+        call dgemm('N','N',ntrials,ntrials,ntrials,1.0d0,
+     1    dbl_mb(k_work1),ntrials,apbvec,ntrials,0.0d0,dbl_mb(k_work2),
+     2    ntrials)
+        do i=1,ntrials
+          do j=1,ntrials
+            apbvec(j,i)=dbl_mb(k_work2+(i-1)*ntrials+j-1)
+          enddo
+        enddo
 c
 c Bi-orthogonalize
 c
         do n=1,ntrials
           do m=1,ntrials
             if (n.ne.m) then
-              a=ga_ddot_patch(g_apbvec,'N',1,ntrials,n,n,
-     1                        g_ambvec,'N',1,ntrials,m,m)
-              call ga_add_patch(1.0d0,g_apbvec,1,ntrials,n,n,
-     1                          -a,   g_ambvec,1,ntrials,m,m,
-     2                                g_apbvec,1,ntrials,n,n)
+              a=0.0d0
+              do j=1,ntrials
+                a=a+apbvec(j,n)*ambvec(j,m)
+              enddo
+              do j=1,ntrials
+                apbvec(j,n)=apbvec(j,n)-ambvec(j,m)*a
+              enddo
             endif
           enddo
         enddo
@@ -158,27 +209,33 @@ c
 c Normalize
 c
         do n=1,ntrials
-          a=ga_ddot_patch(g_apbvec,'N',1,ntrials,n,n,
-     1                    g_ambvec,'N',1,ntrials,n,n)
+          a=0.0d0
+          do j=1,ntrials
+            a=a+apbvec(j,n)*ambvec(j,n)
+          enddo
           if (a.eq.0.0d0) then
-            call errquit('tddft_diagon: failed to bi-orthonormalize',0)
+            call errquit
+     1        ('tddft_diagon: failed to bi-orthonormalize',0)
           else
-            call ga_scale_patch(g_apbvec,1,ntrials,n,n,1.0d0/dsqrt(a))
-            call ga_scale_patch(g_ambvec,1,ntrials,n,n,1.0d0/dsqrt(a))
+            do j=1,ntrials
+              apbvec(j,n)=apbvec(j,n)/dsqrt(a)
+              ambvec(j,n)=ambvec(j,n)/dsqrt(a)
+            enddo
           endif
         enddo
-c
-c Destroy work GA
-c
-        if (.not.ga_destroy(g_work1)) call errquit
-     1    ('tddft_diagon: failed to destroy g_work1',0)
-        if (.not.ga_destroy(g_work2)) call errquit
-     1    ('tddft_diagon: failed to destroy g_work2',0)
       endif
 c           
 c ------
 c Return
 c ------
 c
+      if (.not.ma_pop_stack(l_work4)) call errquit
+     1  ('tddft_diagon: failed to deallocate work4',0)
+      if (.not.ma_pop_stack(l_work3)) call errquit
+     1  ('tddft_diagon: failed to deallocate work3',0)
+      if (.not.ma_pop_stack(l_work2)) call errquit
+     1  ('tddft_diagon: failed to deallocate work2',0)
+      if (.not.ma_pop_stack(l_work1)) call errquit
+     1  ('tddft_diagon: failed to deallocate work1',0)
       return
       end

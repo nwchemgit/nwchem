@@ -1,6 +1,6 @@
       logical function tddft_energy(rtdb)
 c
-c $Id: tddft_energy.F,v 1.4 2002-04-10 19:17:18 sohirata Exp $
+c $Id: tddft_energy.F,v 1.5 2002-04-12 22:55:52 sohirata Exp $
 c 
 c Main routine for TDDFT excitation energy calculations.
 c
@@ -143,14 +143,14 @@ c ----------------------------------------------------
 c
       do i=1,ipol
         if (.not.ga_create(mt_dbl,nov(i),maxvecs,
-     1    'trial vectors',-1,-1,g_trials(i)))
+     1    'trial vectors',-1,maxvecs,g_trials(i)))
      2    call errquit('tddft_energy: failed to create g_trials',0)
-        if (.not.ga_create(mt_dbl,nov(i),maxvecs,
-     1    'product vectors',-1,-1,g_prod_p(i)))
+        if (.not.ga_duplicate(g_trials(i),g_prod_p(i),
+     1    'product vectors'))
      2    call errquit('tddft_energy: failed to create g_prod_p',0)
         if (.not.tda) then
-          if (.not.ga_create(mt_dbl,nov(i),maxvecs,
-     1      'product vectors',-1,-1,g_prod_m(i)))
+          if (.not.ga_duplicate(g_trials(i),g_prod_m(i),
+     1      'product vectors'))
      2      call errquit('tddft_energy: failed to create g_prod_m',0)
         endif
       enddo
@@ -197,7 +197,7 @@ c
           call tddft_iguess(rtdb,nbf_ao,ipol,nocc,nmo,nfc,nfv,
      1      nroots,maxvecs,g_trials,g_movecs,dbl_mb(k_evl),
      2      ntrials,nproducts)
-          if (nodezero.and.util_print('trial vectors',print_high)) then
+          if (nodezero.and.util_print('trial vectors',print_debug)) then
             do i=1,ntrials
               call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
      1          g_prod_p,g_prod_m,i,ntrials,nproducts,tda)
@@ -226,7 +226,7 @@ c
           call tddft_iguess(rtdb,nbf_ao,ipol,nocc,nmo,nfc,nfv,
      1      nroots,maxvecs,g_trials,g_movecs,dbl_mb(k_evl),
      2      ntrials,nproducts)
-          if (nodezero.and.util_print('trial vectors',print_high)) then
+          if (nodezero.and.util_print('trial vectors',print_debug)) then
             do i=1,ntrials
               call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
      1          g_prod_p,g_prod_m,i,ntrials,nproducts,tda)
@@ -255,7 +255,7 @@ c
         call tddft_iguess(rtdb,nbf_ao,ipol,nocc,nmo,nfc,nfv,
      1    nroots,maxvecs,g_trials,g_movecs,dbl_mb(k_evl),
      2    ntrials,nproducts)
-        if (nodezero.and.util_print('trial vectors',print_high)) then
+        if (nodezero.and.util_print('trial vectors',print_debug)) then
           do i=1,ntrials
             call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
      1        g_prod_p,g_prod_m,i,ntrials,nproducts,tda)

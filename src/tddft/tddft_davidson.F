@@ -4,7 +4,7 @@
      3  tda,oskel,singlet,triplet,tol2e,kfac,lhashf,thresh,
      4  maxiter,target,targetsym,algorithm,mult)
 c
-c $Id: tddft_davidson.F,v 1.5 2002-04-10 19:17:18 sohirata Exp $
+c $Id: tddft_davidson.F,v 1.6 2002-04-12 22:55:51 sohirata Exp $
 c
 c Iteratively solve TDDFT matrix eigenvalue problem using 
 c a modified Davidson trial vector subspace diagonalization
@@ -141,11 +141,11 @@ c
       integer l_residual_1,k_residual_1 ! MA handles for norm of residuals
       integer l_residual_2,k_residual_2 ! MA handles for norm of residuals
       integer iter             ! Iteration counter
-      integer g_apb            ! GA handles for (A+B) matrix
-      integer g_apbvec         ! GA handles for (A+B) eigenvector matrix
+      integer l_apb,k_apb      ! MA handles for (A+B) matrix
+      integer l_apbvec,k_apbvec! MA handles for (A+B) eigenvector matrix
       integer l_apbval,k_apbval! MA handles for (A+B) eigenvalue vector
-      integer g_amb            ! GA handles for (A-B) matrix
-      integer g_ambvec         ! GA handles for (A-B) eigenvector matrix
+      integer l_amb,k_amb      ! MA handles for (A-B) matrix
+      integer l_ambvec,k_ambvec! MA handles for (A-B) eigenvector matrix
       integer l_ambval,k_ambval! MA handles for (A-B) eigenvalue vector
       integer l_valsav,k_valsav! MA handles for eigenvalues from previous iteration
       double precision maxresidual       ! Max norm of residual vectors
@@ -187,12 +187,12 @@ c
      1    g_qd(i)=ga_create_atom_blocked
      2      (geom,ao_bas_han,'B product density')
         if (.not.ga_create(mt_dbl,nov(i),nroots,
-     1    'residual vectors 1',-1,-1,g_residuals_1(i)))
+     1    'residual vectors 1',-1,nroots,g_residuals_1(i)))
      2    call errquit
      3    ('tddft_davidson: failed to create g_residuals_1',0)
         if (.not.tda) then
           if (.not.ga_create(mt_dbl,nov(i),nroots,
-     1      'residual vectors 2',-1,-1,g_residuals_2(i)))
+     1      'residual vectors 2',-1,nroots,g_residuals_2(i)))
      2      call errquit
      3      ('tddft_davidson: failed to create g_residuals_2',0)
         endif
@@ -366,17 +366,15 @@ c
 c --------------------------------------
 c Add (epsilon_a-epsilon_i) contribution
 c --------------------------------------
-c CAUTION: only node 0 execute tddft_epsilon; perhaps I should parallelize
-c this subroutine in the future.
 c
           do n=nproducts+1,ntrials
-            if (nodezero) call tddft_epsilon(n,g_trials,g_prod_p,
+            call tddft_epsilon(n,g_trials,g_prod_p,
      1        ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
             if (.not.tda) then
-              if (nodezero) call tddft_epsilon(n,g_trials,g_prod_m,
+              call tddft_epsilon(n,g_trials,g_prod_m,
      1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
             endif
-            if (nodezero.and.util_print('trial vectors',print_high))
+            if (nodezero.and.util_print('trial vectors',print_debug))
      1        call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
      2        g_prod_p,g_prod_m,n,ntrials,n,tda)
           enddo
@@ -473,13 +471,11 @@ c
 c --------------------------------------
 c Add (epsilon_a-epsilon_i) contribution
 c --------------------------------------
-c CAUTION: only node 0 execute tddft_epsilon; perhaps I should parallelize
-c this subroutine in the future.
 c
-            if (nodezero) call tddft_epsilon(n,g_trials,g_prod_p,
+            call tddft_epsilon(n,g_trials,g_prod_p,
      1        ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
             if (.not.tda) then
-              if (nodezero) call tddft_epsilon(n,g_trials,g_prod_m,
+              call tddft_epsilon(n,g_trials,g_prod_m,
      1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
             endif
             ccpu=ccpu+util_cpusec()
@@ -491,7 +487,7 @@ c
             memleft=ga_memory_avail()/ma_sizeof(mt_dbl,1,mt_byte)
             if (nodezero.and.util_print('trial vectors',print_high))
      1        write(LuOut,9200) memleft
-            if (nodezero.and.util_print('trial vectors',print_high))
+            if (nodezero.and.util_print('trial vectors',print_debug))
      1        call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
      2        g_prod_p,g_prod_m,n,ntrials,n,tda)
           enddo
@@ -504,22 +500,22 @@ c ------------------------------------
 c Form (A+B) and (A-B) in the subspace
 c ------------------------------------
 c
-        if (.not.ga_create(mt_dbl,ntrials,ntrials,'(A+B)',
-     1    -1,-1,g_apb)) call errquit
-     2    ('tddft_davidson: failed to create g_apb',0)
-        if (.not.ga_create(mt_dbl,ntrials,ntrials,
-     1    '(A+B) eigenvectors',-1,-1,g_apbvec)) call errquit
-     2    ('tddft_davidson: failed to create g_apbvec',0)
+        if (.not.ma_push_get(mt_dbl,ntrials*ntrials,'(A+B)',
+     1    l_apb,k_apb)) call errquit
+     2    ('tddft_davidson: failed to allocate apb',0)
+        if (.not.ma_push_get(mt_dbl,ntrials*ntrials,
+     1    '(A+B) eigenvectors',l_apbvec,k_apbvec)) call errquit
+     2    ('tddft_davidson: failed to allocate apbvec',0)
         if (.not.ma_push_get(mt_dbl,ntrials,'(A+B) eigenvalues',
      1    l_apbval,k_apbval)) call errquit
      2    ('tddft_davidson: failed to allocate apbval',0)
         if (.not.tda) then
-          if (.not.ga_create(mt_dbl,ntrials,ntrials,'(A-B)',
-     1      -1,-1,g_amb)) call errquit
-     2      ('tddft_davidson: failed to create g_apb',0)
-          if (.not.ga_create(mt_dbl,ntrials,ntrials,
-     1      '(A-B) eigenvectors',-1,-1,g_ambvec)) call errquit
-     2      ('tddft_davidson: failed to create g_apbvec',0)
+          if (.not.ma_push_get(mt_dbl,ntrials*ntrials,'(A-B)',
+     1      l_amb,k_amb)) call errquit
+     2      ('tddft_davidson: failed to allocate amb',0)
+          if (.not.ma_push_get(mt_dbl,ntrials*ntrials,
+     1      '(A-B) eigenvectors',l_ambvec,k_ambvec)) call errquit
+     2      ('tddft_davidson: failed to allocate ambvec',0)
           if (.not.ma_push_get(mt_dbl,ntrials,'(A-B) eigenvalues',
      1      l_ambval,k_ambval)) call errquit
      2      ('tddft_davidson: failed to allocate ambval',0)
@@ -528,7 +524,7 @@ c
 c Make (A+B) and (A-B)
 c
         call tddft_subspace(ipol,nocc,nmo,nfc,nfv,g_trials,
-     1    g_prod_p,g_prod_m,ntrials,tda,g_apb,g_amb)
+     1    g_prod_p,g_prod_m,ntrials,tda,dbl_mb(k_apb),dbl_mb(k_amb))
         ccpu=ccpu+util_cpusec()
         cwall=cwall+util_wallsec()
         if (nodezero.and.util_print('timings',print_high))
@@ -543,8 +539,9 @@ c -----------------------------------------------------------
 c Diagonalize (A-B) then (A-B)^(1/2)(A+B)(A-B)^(1/2) matrices
 c -----------------------------------------------------------
 c
-        call tddft_diagon(ntrials,tda,g_apb,g_apbvec,
-     1    dbl_mb(k_apbval),g_amb,g_ambvec,dbl_mb(k_ambval))
+        call tddft_diagon(ntrials,tda,dbl_mb(k_apb),dbl_mb(k_apbvec),
+     1    dbl_mb(k_apbval),dbl_mb(k_amb),dbl_mb(k_ambvec),
+     2    dbl_mb(k_ambval))
         ccpu=ccpu+util_cpusec()
         cwall=cwall+util_wallsec()
         if (nodezero.and.util_print('timings',print_high))
@@ -560,8 +557,8 @@ c Form residual vectors, new trial vectors, and check convergence
 c ---------------------------------------------------------------
 c 
         call tddft_residual(nroots,nbf_ao,ipol,nocc,nmo,nfc,nfv,
-     1    ntrials,tda,g_trials,g_prod_p,g_prod_m,g_apbvec,
-     2    dbl_mb(k_apbval),g_ambvec,dbl_mb(k_residual_1),
+     1    ntrials,tda,g_trials,g_prod_p,g_prod_m,dbl_mb(k_apbvec),
+     2    dbl_mb(k_apbval),dbl_mb(k_ambvec),dbl_mb(k_residual_1),
      3    dbl_mb(k_residual_2),g_residuals_1,g_residuals_2,thresh,
      4    dbl_mb(k_valsav),maxresidual,maxomega,converged,maxvecs,
      5    evl,nconverged,nnewtrials)
@@ -602,9 +599,9 @@ c Analysis of the results
 c -----------------------
 c
           call tddft_analysis(rtdb,geom,ao_bas_han,nroots,nbf_ao,ipol,
-     1      nocc,nmo,nfc,nfv,ntrials,tda,g_trials,g_prod_p,g_apbvec,
-     2      dbl_mb(k_apbval),g_ambvec,g_movecs,evl,singlet,triplet,
-     3      target,targetsym,mult)
+     1      nocc,nmo,nfc,nfv,ntrials,tda,g_trials,g_prod_p,
+     2      dbl_mb(k_apbvec),dbl_mb(k_apbval),dbl_mb(k_ambvec),
+     3      g_movecs,evl,singlet,triplet,target,targetsym,mult)
           ccpu=ccpu+util_cpusec()
           cwall=cwall+util_wallsec()
           if (nodezero.and.util_print('timings',print_high))
@@ -617,17 +614,17 @@ c
           if (.not.tda) then
             if (.not.ma_pop_stack(l_ambval)) call errquit
      1        ('tddft_davidson: failed to deallocate ambval',0)
-            if (.not.ga_destroy(g_ambvec)) call errquit
-     1        ('tddft_davidson: failed to destroy g_ambvec',0)
-            if (.not.ga_destroy(g_amb)) call errquit
-     1        ('tddft_davidson: failed to destroy g_amb',0)
+            if (.not.ma_pop_stack(l_ambvec)) call errquit
+     1        ('tddft_davidson: failed to deallocate ambvec',0)
+            if (.not.ma_pop_stack(l_amb)) call errquit
+     1        ('tddft_davidson: failed to deallocate amb',0)
           endif
           if (.not.ma_pop_stack(l_apbval)) call errquit
      1      ('tddft_davidson: failed to deallocate apbval',0)
-          if (.not.ga_destroy(g_apbvec)) call errquit
-     1      ('tddft_davidson: failed to destroy g_apbvec',0)
-          if (.not.ga_destroy(g_apb)) call errquit
-     1      ('tddft_davidson: failed to destroy g_apb',0)
+          if (.not.ma_pop_stack(l_apbvec)) call errquit
+     1      ('tddft_davidson: failed to deallocate apbvec',0)
+          if (.not.ma_pop_stack(l_apb)) call errquit
+     1      ('tddft_davidson: failed to deallocate apb',0)
           goto 20
         else
           ntrials=nnewtrials
@@ -638,17 +635,17 @@ c
         if (.not.tda) then
           if (.not.ma_pop_stack(l_ambval)) call errquit
      1      ('tddft_davidson: failed to deallocate ambval',0)
-          if (.not.ga_destroy(g_ambvec)) call errquit
-     1      ('tddft_davidson: failed to destroy g_ambvec',0)
-          if (.not.ga_destroy(g_amb)) call errquit
-     1      ('tddft_davidson: failed to destroy g_amb',0)
+          if (.not.ma_pop_stack(l_ambvec)) call errquit
+     1      ('tddft_davidson: failed to deallocate ambvec',0)
+          if (.not.ma_pop_stack(l_amb)) call errquit
+     1      ('tddft_davidson: failed to deallocate amb',0)
         endif
         if (.not.ma_pop_stack(l_apbval)) call errquit
      1    ('tddft_davidson: failed to deallocate apbval',0)
-        if (.not.ga_destroy(g_apbvec)) call errquit
-     1    ('tddft_davidson: failed to destroy g_apbvec',0)
-        if (.not.ga_destroy(g_apb)) call errquit
-     1    ('tddft_davidson: failed to destroy g_apb',0)
+        if (.not.ma_pop_stack(l_apbvec)) call errquit
+     1    ('tddft_davidson: failed to deallocate apbvec',0)
+        if (.not.ma_pop_stack(l_apb)) call errquit
+     1    ('tddft_davidson: failed to deallocate apb',0)
 c
 c End of Davidson iterations
 c

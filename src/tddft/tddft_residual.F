@@ -1,10 +1,10 @@
       Subroutine tddft_residual(nroots,nbf_ao,ipol,nocc,nmo,nfc,nfv,
-     1  ntrials,tda,g_trials,g_prod_p,g_prod_m,g_apbvec,apbval,
-     2  g_ambvec,residual_1,residual_2,g_residuals_1,g_residuals_2,
+     1  ntrials,tda,g_trials,g_prod_p,g_prod_m,apbvec,apbval,
+     2  ambvec,residual_1,residual_2,g_residuals_1,g_residuals_2,
      3  thresh,valsav,maxresidual,maxomega,converged,maxvecs,evl,
      4  nconverged,nnewtrials)
 c
-c $Id: tddft_residual.F,v 1.2 2002-04-10 19:17:19 sohirata Exp $
+c $Id: tddft_residual.F,v 1.3 2002-04-12 22:55:52 sohirata Exp $
 c
 c Calculate the residual vector and create a new trial
 c vector, if convergence is not achieved.
@@ -19,6 +19,10 @@ c (X+Y) and (X-Y) are bi-orthonormalized
 c
 c R1 = (A+B)(X+Y) - w(X-Y)
 c R2 = (A+B)(X-Y) - w(X+Y)
+c
+c Some parts are explicitly parallelized, taking into account 
+c the specific distribution (see the ga_create calls for g_residuals_1
+c and g_residuals_2 in tddft_davidson).
 c
 c Written by So Hirata, Mar 2002. (c) Battelle, PNNL, 2002.
 c
@@ -47,8 +51,8 @@ c
       integer g_residuals_2(2) ! GA handle for the residual vectors 2
       integer ntrials          ! Current number of trial vectors
       logical tda              ! True if Tamm-Dancoff approximation
-      integer g_apbvec         ! GA handle for (X+Y)
-      integer g_ambvec         ! GA handle for (X-Y)
+      double precision apbvec(ntrials,ntrials)   ! (X+Y)
+      double precision ambvec(ntrials,ntrials)   ! (X-Y)
       double precision apbval(ntrials)  ! (A-B)^(1/2)(A+B)(A-B)^(1/2) eigenvalues
       double precision residual_1(nroots) ! Norm of the residual vectors 1
       double precision residual_2(nroots) ! Norm of the residual vectors 2
@@ -66,7 +70,10 @@ c
       integer nov(2)
       double precision r
       logical nodezero
+      integer iproc
+      integer ilo,ihi,jlo,jhi
 c
+      iproc=ga_nodeid()
       nodezero=(ga_nodeid().eq.0)
 c
 c --------------------------------
@@ -83,24 +90,31 @@ c Tamm-Dancoff AX=wX
 c ------------------
 c
       if (tda) then
+        do i=1,ipol
+          call ga_zero(g_residuals_1(i))
 c
 c Form X
 c
-        do i=1,ipol
-          call ga_dgemm('N','N',nov(i),nroots,ntrials,
-     1      1.0d0,g_trials(i),g_apbvec,0.0d0,g_residuals_1(i))
+          do n=1,nroots
+            do m=1,ntrials
+              call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
+     1                           1.0d0,g_residuals_1(i),1,nov(i),n,n,
+     2                                 g_residuals_1(i),1,nov(i),n,n)
+            enddo
 c
 c Multiply (-w) to X
 c
-          do n=1,nroots
             call ga_scale_patch
      1        (g_residuals_1(i),1,nov(i),n,n,-apbval(n))
-          enddo
 c
 c Add AX to form AX-wX
 c
-          call ga_dgemm('N','N',nov(i),nroots,ntrials,
-     1      1.0d0,g_prod_p(i),g_apbvec,1.0d0,g_residuals_1(i))
+            do m=1,ntrials
+              call ga_add_patch(apbvec(m,n),g_prod_p(i),1,nov(i),m,m,
+     1                           1.0d0,g_residuals_1(i),1,nov(i),n,n,
+     2                                 g_residuals_1(i),1,nov(i),n,n)
+            enddo
+          enddo
         enddo  
 c
 c ------------------------------------------------------------
@@ -108,31 +122,41 @@ c Full linear response (A+B)(X+Y)=w(X-Y) and (A-B)(X-Y)=w(X+Y)
 c ------------------------------------------------------------
 c
       else
-c
-c Form X+Y and X-Y
-c
         do i=1,ipol
-          call ga_dgemm('N','N',nov(i),nroots,ntrials,
-     1      1.0d0,g_trials(i),g_apbvec,0.0d0,g_residuals_1(i))
-          call ga_dgemm('N','N',nov(i),nroots,ntrials,
-     1      1.0d0,g_trials(i),g_ambvec,0.0d0,g_residuals_2(i))
+          call ga_zero(g_residuals_1(i))
+          call ga_zero(g_residuals_2(i))
+c
+c Form (X+Y) and (X-Y)
+c
+          do n=1,nroots
+            do m=1,ntrials
+              call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
+     1                           1.0d0,g_residuals_1(i),1,nov(i),n,n,
+     2                                 g_residuals_1(i),1,nov(i),n,n)
+              call ga_add_patch(ambvec(m,n),g_trials(i),1,nov(i),m,m,
+     1                           1.0d0,g_residuals_2(i),1,nov(i),n,n,
+     2                                 g_residuals_2(i),1,nov(i),n,n)
+            enddo
 c
 c Multiply (-w) to X+Y and X-Y
 c
-          do n=1,nroots
             call ga_scale_patch(g_residuals_1(i),1,nov(i),n,n,
      1        -apbval(n))
             call ga_scale_patch(g_residuals_2(i),1,nov(i),n,n,
-     1      -apbval(n))
-          enddo
+     1        -apbval(n))
 c
 c Add (A-B)(X-Y) and (A+B)(X+Y)
 c to form (A-B)(X-Y)-w(X+Y) and (A+B)(X+Y)-w(X-Y)
 c
-          call ga_dgemm('N','N',nov(i),nroots,ntrials,
-     1      1.0d0,g_prod_m(i),g_ambvec,1.0d0,g_residuals_1(i))
-          call ga_dgemm('N','N',nov(i),nroots,ntrials,
-     1      1.0d0,g_prod_p(i),g_apbvec,1.0d0,g_residuals_2(i))
+            do m=1,ntrials
+              call ga_add_patch(ambvec(m,n),g_prod_m(i),1,nov(i),m,m,
+     1                           1.0d0,g_residuals_1(i),1,nov(i),n,n,
+     2                                 g_residuals_1(i),1,nov(i),n,n)
+              call ga_add_patch(apbvec(m,n),g_prod_p(i),1,nov(i),m,m,
+     1                           1.0d0,g_residuals_2(i),1,nov(i),n,n,
+     2                                 g_residuals_2(i),1,nov(i),n,n)
+            enddo
+          enddo
         enddo  
       endif
 c
@@ -158,7 +182,7 @@ c
           residual_2(n)=dsqrt(residual_2(n))
         endif
       enddo
-      if (nodezero.and.util_print('convergence',print_high)) then
+      if (nodezero.and.util_print('convergence',print_debug)) then
         write(LuOut,9000)
         write(LuOut,9010) (residual_1(n),n=1,min(nroots,20))
         if (.not.tda)
@@ -209,27 +233,26 @@ c
 c ------------------------
 c Create new trial vectors
 c ------------------------
-c CAUTION: this part is performed only by node zero; perhaps I should
-c parallelize this part as well in the future.
 c
       nnewtrials=ntrials
       do n=1,nroots
         if (residual_1(n).gt.thresh) then
           if (ntrials.gt.maxvecs) call errquit
      1      ('Out of memory',ntrials)
-          if (nodezero) then
-            do i=1,ipol
-              l=0
-              do j=nfc(i)+1,nocc(i)
-                do k=nocc(i)+1,nmo(i)-nfv(i)
-                  l=l+1
-                  call ga_get(g_residuals_1(i),l,l,n,n,r,1)
-                  r=r/(evl(k,i)-evl(j,i)-apbval(n))
-                  call ga_put(g_residuals_1(i),l,l,n,n,r,1)
-                enddo
-              enddo
+          do i=1,ipol
+            call ga_distribution
+     1        (g_residuals_1(i),iproc,ilo,ihi,jlo,jhi)
+            if ((jlo.gt.n).or.(jhi.lt.n)) call errquit
+     1        ('tddft_epsilon: an internal error detected',0)
+            do l=ilo,ihi
+              k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
+              j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1
+              call ga_get(g_residuals_1(i),l,l,n,n,r,1)
+              r=r/(evl(k,i)-evl(j,i)-apbval(n))
+              call ga_put(g_residuals_1(i),l,l,n,n,r,1)
             enddo
-          endif
+          enddo
+          call ga_sync()
 c
 c Schmitt orthogonalize against other trial vectors
 c
@@ -275,19 +298,20 @@ c
 c
 c Scale by 1/{w(epsilon_a-epsilon_i)^(1/2)}
 c
-            if (nodezero) then
-              do i=1,ipol
-                l=0
-                do j=nfc(i)+1,nocc(i)
-                  do k=nocc(i)+1,nmo(i)-nfv(i)
-                    l=l+1
-                    call ga_get(g_residuals_2(i),l,l,n,n,r,1)
-                    r=r/(evl(k,i)-evl(j,i)-apbval(n))
-                    call ga_put(g_residuals_2(i),l,l,n,n,r,1)
-                  enddo
-                enddo
+            do i=1,ipol
+              call ga_distribution
+     1          (g_residuals_2(i),iproc,ilo,ihi,jlo,jhi)
+              if ((jlo.gt.n).or.(jhi.lt.n)) call errquit
+     1          ('tddft_epsilon: an internal error detected',0)
+              do l=ilo,ihi
+                k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
+                j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1
+                call ga_get(g_residuals_2(i),l,l,n,n,r,1)
+                r=r/(evl(k,i)-evl(j,i)-apbval(n))
+                call ga_put(g_residuals_2(i),l,l,n,n,r,1)
               enddo
-            endif
+            enddo
+            call ga_sync()
 c
 c Schmitt orthogonalize against other trial vectors
 c

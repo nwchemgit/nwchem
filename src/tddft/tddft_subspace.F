@@ -1,7 +1,7 @@
       subroutine tddft_subspace(ipol,nocc,nmo,nfc,nfv,g_trials,
-     1  g_prod_p,g_prod_m,ntrials,tda,g_apb,g_amb)
+     1  g_prod_p,g_prod_m,ntrials,tda,apb,amb)
 c
-c $Id: tddft_subspace.F,v 1.2 2002-04-10 19:17:19 sohirata Exp $
+c $Id: tddft_subspace.F,v 1.3 2002-04-12 22:55:52 sohirata Exp $
 c
 c Form subspace representation of (A+B) and (A-B) matrices
 c using trial and product vectors.  The elements of (A+B)
@@ -9,6 +9,12 @@ c and (A-B) matrices are simply:
 c
 c (A+B)_pq = (A+B) product vector (p) * trial vector (q)
 c (A-B)_pq = (A-B) product vector (p) * trial vector (q)
+c
+c This part is explicitly parallelized.  Note that the g_trials
+c and g_prod_p and g_prod_m are chunked in the first argument,
+c but each processor has contributions from all vectors. 
+c This subroutine will break, if someone changes the definition
+c of these vectors, especially how they are chunked.
 c
 c Written by So Hirata, Feb 2002. (c) Battelle, PNNL, 2002.
 c
@@ -33,12 +39,18 @@ c
       integer g_prod_m(2)      ! GA handle for A-B product vectors
       integer ntrials          ! Current number of trial vectors
       logical tda              ! True if Tamm-Dancoff approximation
-      integer g_apb            ! GA handle for subspace (A+B) matrix
-      integer g_amb            ! GA handle for subspace (A-B) matrix
+      double precision apb(ntrials,ntrials) ! Subspace (A+B) matrix
+      double precision amb(ntrials,ntrials) ! Subspace (A-B) matrix
 c
       integer nov(2)           ! Number of occupied-virtual pairs
-      double precision a
-      integer i,m,n
+      integer iproc            ! Process number
+      integer ilo,ihi,jlo,jhi  ! Range of distribution
+      integer maxnov           ! Leading dimension of work array
+      integer l_trial,k_trial  ! MA for trial vector strips
+      integer l_prod,k_prod    ! MA for product vector strips
+      integer g_apb_tmp        ! Temporary GA array to accumulate apb
+      integer g_amb_tmp        ! Temporary GA array to accumulate amb
+      integer i,l,m,n
 c
 c --------------------
 c Allocate work arrays
@@ -48,60 +60,100 @@ c
         nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
       enddo
       if (ipol.eq.1) nov(2)=0
+      maxnov=max(nov(1),nov(2))
+      if (.not.ma_push_get(mt_dbl,maxnov*ntrials,'trial',
+     1  l_trial,k_trial)) call errquit
+     2  ('tddft_subspace: failed to allocate trial',0)
+      if (.not.ma_push_get(mt_dbl,maxnov*ntrials,'product',
+     1  l_prod,k_prod)) call errquit
+     2  ('tddft_subspace: failed to allocate prod',0)
 c
-c -----------------
-c Form dot products
-c -----------------
-c
-c Orthonormality of trial vectors (debug)
-c
-      if (util_print('subspace',print_debug)) then
-        do m=1,ntrials
-          do n=1,ntrials
-            a=0.0d0
-            do i=1,ipol
-              a=a+ga_ddot_patch(g_trials(i),'N',1,nov(i),m,m,
-     1                          g_trials(i),'N',1,nov(i),n,n)
-            enddo
-            call ga_put(g_apb,m,m,n,n,a,1)
-          enddo
-        enddo
-        call ga_print(g_apb)
-      endif
-c
-c Form A+B and A-B
+c ---------------------------------------------
+c Form a local contribution of the dot products 
+c ---------------------------------------------
 c
       do m=1,ntrials
         do n=1,ntrials
-          a=0.0d0
-          do i=1,ipol
-            a=a+ga_ddot_patch(g_trials(i),'N',1,nov(i),m,m,
-     1                        g_prod_p(i),'N',1,nov(i),n,n)
-          enddo
-          call ga_put(g_apb,m,m,n,n,a,1)
-          if (.not.tda) then
-            a=0.0d0
-            do i=1,ipol
-              a=a+ga_ddot_patch(g_trials(i),'N',1,nov(i),m,m,
-     1                          g_prod_m(i),'N',1,nov(i),n,n)
-            enddo
-            call ga_put(g_amb,m,m,n,n,a,1)
-          endif
+          apb(m,n)=0.0d0
+          if (.not.tda) amb(m,n)=0.0d0
         enddo
       enddo
+      iproc=ga_nodeid()
+      do i=1,ipol
+        call ga_distribution(g_trials(i),iproc,ilo,ihi,jlo,jhi)
+        if ((jlo.gt.1).or.(jhi.lt.ntrials))
+     1    call errquit('tddft_subspace: an internal error detected',0)
+        call ga_get(g_trials(i),ilo,ihi,1,ntrials,
+     1    dbl_mb(k_trial),maxnov)
+        call ga_get(g_prod_p(i),ilo,ihi,1,ntrials,
+     1    dbl_mb(k_prod),maxnov)
+        do m=1,ntrials
+          do n=1,ntrials
+            do l=ilo,ihi
+              apb(m,n)=apb(m,n)
+     1          +dbl_mb(k_trial+(m-1)*maxnov+(l-ilo))
+     2          *dbl_mb(k_prod +(n-1)*maxnov+(l-ilo))
+            enddo
+          enddo
+        enddo
+        if (.not.tda) then
+          call ga_get(g_prod_m(i),ilo,ihi,1,ntrials,
+     1      dbl_mb(k_prod),maxnov)
+          do m=1,ntrials
+            do n=1,ntrials
+              do l=ilo,ihi
+                amb(m,n)=amb(m,n)
+     1            +dbl_mb(k_trial+(m-1)*maxnov+(l-ilo))
+     2            *dbl_mb(k_prod +(n-1)*maxnov+(l-ilo))
+              enddo
+            enddo
+          enddo
+        endif
+      enddo
+c
+c -----------------------------------------------------------------
+c Now we accumulate the local contributions to form the full matrix
+c -----------------------------------------------------------------
+c
+      if (.not.ga_create(mt_dbl,ntrials,ntrials,'Work A+B',
+     1  ntrials,ntrials,g_apb_tmp)) call errquit
+     2  ('tddft_subspace: failed to create g_apb_tmp',0)
+      call ga_zero(g_apb_tmp)
+      call ga_acc(g_apb_tmp,1,ntrials,1,ntrials,apb,ntrials,1.0d0)
+      if (.not.tda) then
+        if (.not.ga_create(mt_dbl,ntrials,ntrials,'Work A-B',
+     1    ntrials,ntrials,g_amb_tmp)) call errquit
+     2    ('tddft_subspace: failed to create g_amb_tmp',0)
+        call ga_zero(g_amb_tmp)
+        call ga_acc(g_amb_tmp,1,ntrials,1,ntrials,amb,ntrials,1.0d0)
+      endif
+      call ga_sync()
+      call ga_get(g_apb_tmp,1,ntrials,1,ntrials,apb,ntrials)
+      if (.not.tda)
+     1  call ga_get(g_amb_tmp,1,ntrials,1,ntrials,amb,ntrials)
+      if (.not.ga_destroy(g_apb_tmp)) call errquit
+     1  ('tddft_subspace: failed to destroy g_apb_tmp',0)
+      if (.not.tda) then
+        if (.not.ga_destroy(g_amb_tmp)) call errquit
+     1    ('tddft_subspace: failed to destroy g_amb_tmp',0)
+      endif
 c
 c --------------
 c Print matrices
 c --------------
 c
-      if (util_print('subspace',print_high)) then
-        call ga_print(g_apb)
-        if (.not.tda) call ga_print(g_amb)
+      if (util_print('subspace',print_debug)) then
+        call ma_print(apb,ntrials,ntrials,'A+B')
+        if (.not.tda) call ma_print(amb,ntrials,ntrials,'A-B')
       endif
 c           
 c ------
 c Return
 c ------
 c
+      if (.not.ma_pop_stack(l_prod)) call errquit
+     1  ('tddft_subspace: failed to deallocate prod',0)
+      if (.not.ma_pop_stack(l_trial)) call errquit
+     1  ('tddft_subspace: failed to deallocate trial',0)
       return
       end
