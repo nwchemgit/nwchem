@@ -1,0 +1,93 @@
+start basopt3
+
+# For the HF molecule at the cc-pVDZ MP2 geometry re-optimize 
+# the uncontracted spd functions on F and sp functions on H
+# at the MP2 frozen core level of theory.
+
+# In order to enforce the sign constraint on the exponents
+# perform an unconstrained minimization on the variables z[i]
+# where exponent[i]=z[i]*z[i].
+
+geometry 
+  symmetry c2v
+  F  0 0 0
+  H  0 0 0.91964
+end
+
+mp2
+  freeze core atomic
+  tight
+end
+
+set int:acc_std 1e-25
+
+print none
+
+python noprint
+  from util import *
+
+  # It should only be necessary to modify these three lines for 
+  # your system ... the exponents will be subsitituted in order
+
+  # It should only be necessary to modify these three definitions for 
+  # your system ... the exponents will be subsitituted in order
+  basis = '''
+             basis spherical noprint
+                h   s
+                     13.01          0.019685
+                      1.962         0.137977         
+                      0.4446        0.478148         
+                h   s
+                      %f         1.0
+                h   p
+                      %f         1.0
+                f   s
+                  14710.0           0.721e-03    -0.165e-03
+                   2207.0           0.5553e-02   -0.1308e-02
+                    502.8           0.28267e-01  -0.6495e-02
+                    142.6           0.106444     -0.26691e-01
+                     46.47          0.286814     -0.7369e-01
+                     16.70          0.448641     -0.170776         
+                      6.356         0.264761     -0.112327         
+                      1.316         0.15333e-01   0.562814         
+                f   s
+                      %f        1.0
+                f   p
+                     22.67          0.44878e-01
+                      4.977         0.235718         
+                      1.347         0.508521         
+                f   p
+                      %f        1.0
+                f   d
+                      %f          1.0
+             end
+          '''
+  exponents = [0.122, 0.727, 0.3897, 0.3471, 1.64]
+  theory = 'mp2'
+
+  # Should not need to modify below here
+  def energy(z):
+    exponents = array('d',range(len(z)))
+    for i in range(len(z)):
+      exponents[i] = z[i]*z[i]
+    input_parse(basis % tuple(exponents))
+    return task_energy(theory)
+
+  def printexp(z):
+    print "\n Exponents:"
+    for i in range(len(z)):
+      print " %14.8f" % (z[i]*z[i]),
+      if ((i+1)%5) == 0:
+        print ""
+    print " "
+
+  z = array('d',exponents)
+  for i in range(len(z)):
+    z[i] = sqrt(exponents[i])
+
+  #cgmin2(energy, z, 5e-4, 1e-9, printexp)
+  quasinr(energy, z, 5e-4, 1e-9, printexp)
+    
+end
+
+task python

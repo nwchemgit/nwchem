@@ -32,13 +32,16 @@ class Xrtdb:
       while (name):
         list.append(name)
         name = rtdb_next()
+			# end while
     except NWChemError:
       list.sort()
+		# end try
 
     i = 0
     for name in list:
       self.listbox.insert(i,name)
       i = i + 1
+		# end for
     
     self.button=Label(frame);
     self.button.quit=Button(self.button, text="Quit", command=frame.quit)
@@ -66,6 +69,7 @@ class Xrtdb:
     #wm iconname . "Xrtdb"
 
     self.root.mainloop()
+	# end def __init__
 
   def new(self):
     from SimpleDialog import *
@@ -87,17 +91,20 @@ class Xrtdb:
     else:
       self.set_text("")
       return
+		# end if
 
     name = tkSimpleDialog.askstring("xrtdb","Enter name")
     if (not name):
       self.set_text("")
       return
+		# end if
 
     self.set_text("Edit %s of type %s" % (name,self.ma_type_name(ma_type)))
     self.delete_tmpfile() 
     self.write_tmpfile("Replace this file with your data of type %s" % 
                         self.ma_type_name(ma_type), 1000)
     self.process_tmpfile(name, ma_type, 1)
+	# end def new
 
   def edit(self):
     from SimpleDialog import *
@@ -107,6 +114,7 @@ class Xrtdb:
     except:
       self.set_text("Select an entry then edit")
       return
+		# end try
 
     self.set_text("Editing %s" % name)
     try:
@@ -116,6 +124,7 @@ class Xrtdb:
       self.set_text("Failed to get %s" % name)
       self.selection_clear()
       return
+		# end try
     
     try:
       self.write_tmpfile(values, ma_type)
@@ -123,8 +132,10 @@ class Xrtdb:
       self.set_text("Failed writing file for edit")
       self.selection_clear()
       return
+		# end try
       
     self.process_tmpfile(name, ma_type, 0)
+	# end def edit
 
   def delete(self):
     try:
@@ -132,6 +143,7 @@ class Xrtdb:
     except:
       self.set_text("Select an entry then delete")
       return
+		# end try
 
     try:
       rtdb_delete(name)
@@ -139,7 +151,9 @@ class Xrtdb:
       self.listbox.delete(self.selection_index())
     except NWChemError:
       self.set_text("Failed to delete %s" % name)
+		# end try
     self.selection_clear()
+	# end def delete
 
   def help(self):
     from SimpleDialog import *
@@ -160,6 +174,7 @@ class Xrtdb:
                                "\t- character strings are terminated at EOL.",
                           buttons=["Done"])
     dialog.go()    
+	# end def help
   
   def select(self,event):
     name = self.selection_value()
@@ -170,30 +185,39 @@ class Xrtdb:
     except NWChemError:
       self.set_text("Failed to get info for %s" % name)
       self.selection_clear()
+		# end try
+	# end def select
 
   def selectdouble(self,event):
     self.select(event)
     self.edit()
+	# end def selectdouble
 
   def selection_clear(self):
     self.listbox.select_clear(0,"end")
+	# end def selection_clear
 
   def selection_index(self):
     item = self.listbox.curselection()
     return int(item[0])
+	# end def selection_index
 
   def selection_value(self):
     return self.listbox.get(self.selection_index())
+	# end def selection_value
     
 
   def set_text(self,string):
     self.text.delete("0.0","end")
     self.text.insert("0.0",string)
+	# end def set_text
 
   def edit_tmpfile(self):
     import os
     if (os.system('emacs xrtdbtmp.txt')):
        raise "Edit failed"
+		# end if
+	# end def edit_tmpfile
 
   def delete_tmpfile(self):
     import os
@@ -201,6 +225,8 @@ class Xrtdb:
       os.remove('xrtdbtmp.txt')
     except:
       pass
+		# end try
+	# end def delete_tmpfile
 
   def write_tmpfile(self, values, ma_type):
     import types
@@ -208,9 +234,12 @@ class Xrtdb:
     if (type(values) == type([])):
       for value in values:
         tmpfile.write(self.value_to_string(value,ma_type)+'\n')
+			# end for
     else:
        tmpfile.write(self.value_to_string(values,ma_type)+'\n')
+		# end if
     tmpfile.close()
+	# end def write_tmpfile
 
   def read_tmpfile(self, ma_type):
     import string
@@ -230,11 +259,17 @@ class Xrtdb:
                self.selection_clear()
                tmpfile.close()
                raise "Invalid type"
+						 # end try
+					 # end if
+				# end for
       else:
         result.append(" ")
+			# end if
       line = tmpfile.readline()
+		# end while
     tmpfile.close()
     return result
+	# end def read_tmpfile
 
   def process_tmpfile(self, name, ma_type, isnew):
     from SimpleDialog import *
@@ -249,6 +284,7 @@ class Xrtdb:
     except "Edit failed":
       self.set_text("Edit failed")
       self.selection_clear()
+		# end try
 
     dialog = SimpleDialog(self.root,text="Save edits?",buttons=["Yes","No"])
     status = dialog.go()    
@@ -258,19 +294,26 @@ class Xrtdb:
         result = self.read_tmpfile(ma_type)
       except "Invalid type":
         return  # msg set in read_tmpfile
+			# end try
 
       try:
         rtdb_put(name,result,ma_type)
         self.set_text("%s edits saved" % name)
       except NWChemError:
         self.set_text("%s save failed!" % name)
+			# end try
       if (isnew):
+			# end if
+		# end if
+	# end def process_tmpfile
 	n = 0
 	try:
 	  while (name > self.listbox.get(n)):
 	    n = n + 1
+		# end while
 	except:
 	  pass
+	# end try
 	self.listbox.insert(n,name)
 	self.listbox.see(n)
     else:
@@ -288,10 +331,13 @@ class Xrtdb:
         return "true"
       else:
         return "false"
+			# end if
     elif (ma_type == 1000):  # since Tk overwrites defn of CHAR
       return value
     else:
       return value
+		# end if
+	# end def value_to_string
 
   def string_to_value(self,value,ma_type):
     import string
@@ -306,10 +352,13 @@ class Xrtdb:
         return 0
       else:
         raise NWChemError,'invalid value'
+			# end if
     elif (ma_type == 1000):  # since Tk overwrites defn of CHAR
       return value
     else:
       raise NWChemError,'invalid type'
+		# end if
+	# end def string_to_value
 
   def ma_type_name(self, ma_type):
     if (ma_type == INT):
@@ -322,3 +371,6 @@ class Xrtdb:
       return "char"
     else:
       raise NWChemError,'invalid type'
+		# end if
+	# end def ma_type_name
+# end class Xrtdb

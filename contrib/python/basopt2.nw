@@ -1,0 +1,81 @@
+start basopt
+
+# Optimize a primitive basis set for water starting from the STO-3G
+# exponents using the quasi-Newton optimizer.
+
+# In order to enforce the sign constraint on the exponents
+# perform an unconstrained minimization on the variables z[i]
+# where exponent[i]=z[i]*z[i].
+
+geometry autosym
+  O     0  0      0
+  H     0  0.76 -0.64
+  H     0 -0.76 -0.64
+end
+
+scf
+  thresh 1e-8
+  tol2e 1e-12
+end
+
+set int:acc_std 1e-25
+
+print none
+
+python noprint
+  from util import *
+
+  # It should only be necessary to modify these three lines for 
+  # your system ... the exponents will be subsitituted in order
+
+  # It should only be necessary to modify these two definitions for 
+  # your system ... the exponents will be subsitituted in order
+  basis = '''
+             basis noprint
+               o s; %f 1
+               o s; %f 1
+               o s; %f 1
+               o s; %f 1
+               o s; %f 1
+               o s; %f 1
+               o p; %f 1
+               o p; %f 1
+               o p; %f 1
+               h s; %f 1
+               h s; %f 1
+               h s; %f 1
+             end
+          '''
+  exponents = [ \
+   1.30709320E+02, 2.38088610E+01, 6.44360830E+00, 5.03315130E+00, \
+   1.16959610E+00, 3.80389000E-01, 5.03315130E+00, 1.16959610E+00, \
+   3.80389000E-01, 3.42525091E+00,  6.23913730E-01,  1.68855400E-01 ]
+  theory = 'scf'
+
+
+  # Should not need to modify below here
+  def energy(z):
+    exponents = array('d',range(len(z)))
+    for i in range(len(z)):
+      exponents[i] = z[i]*z[i]
+    input_parse(basis % tuple(exponents))
+    return task_energy(theory)
+
+  def printexp(z):
+    print "\n Exponents:"
+    for i in range(len(z)):
+      print " %14.8f" % (z[i]*z[i]),
+      if ((i+1)%5) == 0:
+        print ""
+    print " "
+
+  z = array('d',exponents)
+  for i in range(len(z)):
+    z[i] = sqrt(exponents[i])
+
+  #cgmin2(energy, z, 5e-4, 1e-9, printexp)
+  quasinr(energy, z, 5e-4, 1e-9, printexp)
+    
+end
+
+task python

@@ -1,0 +1,57 @@
+start basopt
+
+# Optimize a primitive basis set for He starting from the sto-3g
+# set of exponents using the quasi-Newton optimizer.
+
+# In order to enforce the sign constraint on the exponents
+# perform an unconstrained minimization on the variables z[i]
+# where exponent[i]=z[i]*z[i].
+
+geometry 
+  He 0 0 0
+end
+
+scf
+  thresh 1e-8
+  tol2e 1e-12
+end
+
+print none
+
+python noprint
+  from util import *
+
+  # It should only be necessary to modify these three lines for 
+  # your system ... the exponents will be subsitituted in order
+
+  basis = 'basis noprint; He s; %f 1.0; He s; %f 1.0; He s; %f 1.0; end\n'
+  exponents = [6.362421390, 1.158923000, 0.313649790]
+  theory = 'scf'
+
+
+  # Should not need to modify below here
+  def energy(z):
+    exponents = array('d',range(len(z)))
+    for i in range(len(z)):
+      exponents[i] = z[i]*z[i]
+    input_parse(basis % tuple(exponents))
+    return task_energy(theory)
+
+  def printexp(z):
+    print "\n Exponents:"
+    for i in range(len(z)):
+      print " %14.8f" % (z[i]*z[i]),
+      if ((i+1)%5) == 0:
+        print ""
+    print " "
+
+  z = array('d',exponents)
+  for i in range(len(z)):
+    z[i] = sqrt(exponents[i])
+
+  #cgmin2(energy, z, 5e-4, 1e-9, printexp)
+  quasinr(energy, z, 5e-4, 1e-9, printexp)
+    
+end
+
+task python

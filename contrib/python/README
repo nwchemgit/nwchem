@@ -22,12 +22,33 @@ nwgeom.py - look in the file for (a little) more documentation
 
    - (xmin, fmin) = minimize1d(f, xlo, xhi, xtol, maxeval)
      Fairly robust minimization in 1d ... useful for crude
-     localization of saddle points.
+     localization of saddle points (look in util.py for
+     better optimizers, notably quasinr()).
 
    - results = scan_input(input,start,end,nstep,theory,task)
      Scan parameters from start to end, substituting into 
      the NWChem input string and calling the specified
      task(theory), returning results from each step in results.
+
+util.py - lots of useful python routines for manipulating vectors,
+     matrices, and minimizing functions. Look in the file for more
+     documentation, and at the end of the file for example usage.
+
+basopt.nw - example of optimizing the exponents in a primitive basis
+     set using the quasi-Newton optimizer quasinr() in util.py
+
+basopt2.nw - another example of optimizing basis set exponents. 
+     Uncontracts an STO-3G basis for water and optimizes the exponents.
+     (this one will take a few minutes to complete)
+
+basopt3.nw - yet another example. This time using MP2 for HF to 
+     optimize the uncontracted sp on H and spd on F in the
+     cc-pVDZ basis.
+
+basopt4.nw - and another example.  This optimizes a sequence of
+     even tempered primitive basis sets for Be with between 2 and
+     twenty s functions and then prints out the summary to demonstrate
+     exponential convergence to the Hartree-Fock basis set limit.
 
 ts_search.nw
      Example use of minimize1d from nwgeom.py

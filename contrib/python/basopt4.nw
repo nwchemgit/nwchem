@@ -1,0 +1,85 @@
+start basopt3
+
+# Optimize an even tempered set of primitive s functions 
+# for Be.
+
+# exponent[i] = alpha*beta^i, i=0..n-1
+
+# In order to enforce the positive definite constraint on alpha 
+# and beta perform an unconstrained minimization on the variables 
+# z[] with alpha = 0.001 + z[0]^2, beta = 0.001 + z[1]^2
+
+geometry 
+  Be 0 0 0
+end
+
+scf
+  thresh 1e-8
+  tol2e 1e-12
+end
+
+set lindep:n_dep 0
+
+set int:acc_std 1e-25
+
+print none
+
+python
+  from util import *
+
+  n = 6
+  alpha = 0.2
+  beta  = 3
+  
+  def make_alpha_beta(z):
+    alpha = z[0]*z[0] + 0.001
+    beta  = z[1]*z[1] + 0.001
+    return (alpha, beta)
+
+  def make_exp(z):
+    (alpha, beta) = make_alpha_beta(z)
+    exponents = zerovector(n)
+    ee = alpha
+    for i in range(n):
+      exponents[i] = ee
+      ee = ee * beta
+    return exponents
+
+  def energy(z):
+    exponents = make_exp(z)
+    basis = 'basis noprint;'
+    for i in range(n):
+       basis = basis + ("Be s; %f 1;" % exponents[i])
+    basis = basis + "end\n"
+    input_parse(basis)
+    return task_energy('scf')
+
+  def printexp(z):
+    exponents = make_exp(z)
+    print '\n alpha %f beta %f' % (z[0]*z[0],z[1]*z[1])
+    print ' Exponents:'
+    for i in range(n):
+      print " %14.8f" % exponents[i],
+      if ((i+1)%5) == 0:
+        print ""
+    print " "
+
+  z = zerovector(2)
+  z[0] = sqrt(alpha - 0.001)
+  z[1] = sqrt(beta - 0.001) 
+
+  results = {}
+  for n in range(2,21):
+    (value,z) = quasinr(energy, z, 1e-4, 1e-9, printexp)
+    (alpha, beta) = make_alpha_beta(z)
+    results[n] = (alpha, beta, value)
+  print '\n\n    Results\n'
+  print '  n     alpha      beta        energy       error '
+  print ' ---  ---------  ---------  ------------  -----------'
+  (alpha, beta, limit) = results[20]
+  for n in range(2,21):
+    (alpha, beta, value) = results[n]
+    print '%4i %10.6f %10.6f %12.6f %12.6f' % (n, alpha, beta, value, value-limit)
+end
+
+task python
