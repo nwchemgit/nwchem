@@ -39,3 +39,20 @@ c
 c
       return
       end
+      subroutine ga_zero_list(nz,handle)
+c
+      implicit none
+c
+      integer nz
+      integer handle(*)
+c
+      integer i
+c
+#include "global.fh"
+c
+      do 1 i=1,nz
+      call ga_zero(handle(i))
+    1 continue
+c
+      return
+      end
