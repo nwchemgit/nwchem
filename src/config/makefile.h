@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.299 1999-10-05 21:50:11 d3g681 Exp $
+# $Id: makefile.h,v 1.300 1999-10-13 00:21:09 nwchem Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -620,6 +620,15 @@ ifeq ($(TARGET),SGITFP)
 # Replaced -DLongInteger with -DEXT_INT for consistency with GA, DRA, PEIGS ...
 #
 # JN 99/05/26: MA now has its own library -lma
+#
+# TLW 99/10/08:
+# From Gerardo Cisneros
+#  - took out obsolete options
+#       "-OPT:fold_arith_limit=4000"
+#       "-OPT:fprop_limit=2000"
+#       "-OPT:global_limit=20000"
+#       "-SWP:if_conversion=OFF"
+
 
 	CPP = /usr/lib/cpp
   CORE_SUBDIRS_EXTRA = blas lapack
@@ -634,12 +643,13 @@ ifeq ($(TARGET),SGITFP)
   COPTIONS = -fullwarn -mips4 -64
 
 #optimization flags for R8000 (IP21)
- FOPTIMIZE_8K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
-FVECTORIZE_8K = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
+# FOPTIMIZE_8K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
+ FOPTIMIZE_8K = -O3 -OPT:const_copy_limit=20000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
+FVECTORIZE_8K = -O3 -TENV:X=3 -WK,-dr=AKC
 
 #optimization flags for R10000 (IP28)
- FOPTIMIZE_10K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:Olimit=4000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC
-FVECTORIZE_10K = -O3 -OPT:fold_arith_limit=4000 -TENV:X=1 -WK,-dr=AKC
+ FOPTIMIZE_10K = -O3 -OPT:const_copy_limit=20000:Olimit=4000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC
+FVECTORIZE_10K = -O3 -TENV:X=1 -WK,-dr=AKC
 
  COPTIMIZE = -O
  FOPTIMIZE = -O3
@@ -714,12 +724,12 @@ ifeq ($(TARGET),SGI_N32)
   COPTIONS = -n32 -mips4 -fullwarn
 
 #optimization flags for R8000 (IP21)
- FOPTIMIZE_8K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
-FVECTORIZE_8K = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
+ FOPTIMIZE_8K = -O3 -OPT:const_copy_limit=20000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
+FVECTORIZE_8K = -O3 -TENV:X=3 -WK,-dr=AKC
 
 #optimization flags for R10000 (IP28)
- FOPTIMIZE_10K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC -SWP:if_conversion=OFF
-FVECTORIZE_10K = -O3 -OPT:fold_arith_limit=4000 -TENV:X=1 -WK,-dr=AKC -SWP:if_conversion=OFF
+ FOPTIMIZE_10K = -O3 -OPT:const_copy_limit=20000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC 
+FVECTORIZE_10K = -O3 -TENV:X=1 -WK,-dr=AKC
 
  FOPTIMIZE = -O3
  COPTIMIZE = -O2
