@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.11 2000-08-10 03:05:54 windus Exp $
+C $Id: hess_cphf.F,v 1.12 2000-08-10 16:57:51 edo Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -113,13 +113,12 @@ c
 c print out some debug info, note that occ and evals are for the
 c beta orbitals if UHF
 c
-       if (out.and.ga_nodeid().eq.0) then
-           write(6,*) 'occupations, eigenvalues and vectors'
-           call hnd_prsq(dbl_mb(k_occ),1,num,num)
-           call hnd_prsq(dbl_mb(k_evals),1,num,num)
-           call ga_print(g_vecs(1))
-           if (scftype .eq. 'UHF') call ga_print(g_vecs(2))
-       endif
+       if (out.and.ga_nodeid().eq.0) 
+     .     write(6,*) 'occupations, eigenvalues and vectors'
+       call hnd_prsq(dbl_mb(k_occ),1,num,num)
+       call hnd_prsq(dbl_mb(k_evals),1,num,num)
+       call ga_print(g_vecs(1))
+       if (scftype .eq. 'UHF') call ga_print(g_vecs(2))
 c
 c give back unnecessary memory
 c
