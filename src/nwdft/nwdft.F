@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.46 2000-04-11 09:32:50 hvd Exp $
+C$Id: nwdft.F,v 1.47 2000-04-17 22:21:26 zzhang Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -41,6 +41,7 @@ c
 c
       logical dft_main0d, movecs_converged
       external dft_main0d, movecs_converged
+      character*80 theory, key, prefix
 c     
       nwdft = .false.
       iproc  = ga_nodeid()
@@ -103,22 +104,43 @@ c
 c     Can we check here to see if system if already converged?
 c
       if (movecs_in .eq. movecs_out) then
-         if (movecs_converged(rtdb, ao_bas_han, 'dft', movecs_in))then
-            if (.not. rtdb_get(rtdb, 'dft:energy', mt_dbl, 1, energy))
-     &         call errquit('dft_scf: failed getting converged energy',
-     &         0)
-            if (ga_nodeid().eq.0 .and. oprint)then
-               write(LuOut,1011)energy
- 1011          format(/'  The DFT is already converged '//,
-     &              '         Total DFT energy =', f20.12/)
-               call util_flush(LuOut)
+         if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $        call errquit('task:gradient: theory not specified',0)
+         if(theory .eq. 'dft')then 
+            if (movecs_converged(rtdb, ao_bas_han, 'dft', movecs_in))
+     &           then
+               if (.not. rtdb_get(rtdb, 'dft:energy', mt_dbl, 1, 
+     &              energy))     
+     &              call errquit('dft_scf: failed getting converged
+     &              energy',0)
+               if (ga_nodeid().eq.0 .and. oprint)then
+                  write(LuOut,1011)energy
+                  call util_flush(6)
+               endif
+               converged = .true.
+               nwdft = .true.
+               goto 1101
             endif
-            converged = .true.
-            nwdft = .true.
-            goto 1101
+         else if(theory .eq. 'sodft')then 
+            if (movecs_converged(rtdb, ao_bas_han, 'sodft', movecs_in))
+     &           then
+               if (.not. rtdb_get(rtdb, 'sodft:energy', mt_dbl, 1, 
+     &              energy))     
+     &              call errquit('dft_scf: failed getting converged
+     &              energy',0)
+               if (ga_nodeid().eq.0 .and. oprint)then
+                  write(LuOut,1011)energy
+                  call util_flush(6)
+               endif
+               converged = .true.
+               nwdft = .true.
+               goto 1101
+            endif
          endif
       endif
-c    
+ 1011 format(/'  The DFT is already converged '//,
+     &     '         Total DFT energy =', f20.12/)
+c     
 c     Initialize the integral object
 c    
       if(XCFIT.and.CDFIT) then
