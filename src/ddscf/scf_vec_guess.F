@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.16 1997-06-24 02:56:55 d3g681 Exp $
+c     $Id: scf_vec_guess.F,v 1.17 1997-07-15 19:56:20 d3h449 Exp $
 c
       implicit none
 c
@@ -91,7 +91,7 @@ c
 *      if (oprint)write(6,*)' Calling module = ',calling_module
       if (inp_compare(.false., 'DFT', calling_module))then
          nmo = nbf
-         if (oprint)write(6,*)' Skipping linear dependence check. '
+         if (oprint)write(6,*)' Skipping SCF linear dependence check. '
          goto 3212
       endif
 c
