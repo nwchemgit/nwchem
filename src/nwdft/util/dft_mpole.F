@@ -1,6 +1,6 @@
       subroutine dft_mpole( geom, i_basis, j_basis, lmax_pole, 
      &     iga_dens, ndens, rmoments, len_rmoments)
-C     $Id: dft_mpole.F,v 1.2 1995-05-04 05:00:17 og845 Exp $
+C     $Id: dft_mpole.F,v 1.3 1995-05-04 05:13:32 og845 Exp $
       implicit none
 
 #include "mafdecls.h"
@@ -24,6 +24,7 @@ c     arguments
 c     
       Integer geom ! geometry handle
       integer i_basis, j_basis ! [input] bra and ket basis sets
+      integer ndens, len_rmoments
       integer iga_dens(ndens) ! [input] array of GA handles to densities
       integer lmax_pole ! [input] up to 2^{lmax_pole} multipoles
       Double Precision centerl(3) ! [input] expansion center for multipoles
@@ -47,22 +48,22 @@ c-----------------------------------------------------------------------
 c     
 c     local variables
 c     
-      Integer i, j, k, ntemp, nmvals
+      Integer nmvals
       Integer nshell_i, nshell_j
-      Integer ishell, jshell, iproc, nproc, mem1, max1e, Next
-      Integer ijshell, ilo, ihi, jlo, jhi, jdim
-      Integer l_buf, l_scr
-      Integer k_buf, k_scr
+      Integer ishell, jshell, iproc, nproc, Next
+      Integer ijshell, ilo, ihi, jlo, jhi
+      Integer  l_scr
+      Integer  k_scr
       Character*8 mpole_ints_name 
       Character*1 coord_label(MAX_MPOLE_CARTESIAN_COMPONENTS)
 
       Integer isphere, jsphere, nshbf_j, nprimo_i, l_i, k_mp
       Integer nbf_shell_i,  nbf_shell_j
-      Integer l_mp, nprimo_j, l_j, ioff,  mp_reord
-      Integer idens, zero, n_ij_pairs, nshbf_i,  mp
-      Integer lmpint, k_mp_reord, ga_create_atom_blocked
+      Integer l_mp, nprimo_j, l_j, ioff
+      Integer idens, zero, n_ij_pairs, nshbf_i
+      Integer lmpint, k_mp_reord
       Integer mscratch_3ov
-      Integer maxbuf, len_rmoments, ndens
+      Integer maxbuf 
       Integer max_ij_pairs, lval, l_mp_reord, lmpmax,  lmax_i
       Integer i_nbf_max, j_nbf_max, nbf_ao
       Integer n_operators, lmax_j
@@ -73,11 +74,9 @@ c**** Integer iga_mpole(MAX_MPOLE_CARTESIAN_COMPONENTS) ! GA for m-pole integral
 
       Logical LResult
 
-      Integer iquad, ixyz, jxyz, kxyz, icent
-      Character*16 tag
-      Double Precision coord(3), q, rsquare, delta, total_nuc_charge
+      Integer ixyz
 
-      Integer ii  ! debug
+C      Integer ii  ! debug
 c-----------------------------------------------------------------------
 c**** 
 c**** Check input:  only dipoles for now
@@ -332,8 +331,8 @@ c****
 c-----------------------------------------------------------------------
 c**** arguments
 
-      Double Precision MP(imax,jmax,kmax), MP_reord(imax,kmax,jmax)
       Integer imax, jmax, kmax
+      Double Precision MP(imax,jmax,kmax), MP_reord(imax,kmax,jmax)
 c-----------------------------------------------------------------------
 c**** locals
 
