@@ -51,7 +51,7 @@ scf; print low; triplet; sym off; adapt off; end
 task scf
 
 title; case s8: Ozone --- ROHF triplet SCF energy with symmetry
-scf; triplet; sym on; adapt on; end
+scf; sym on; adapt on; end
 task scf
 
 title; case s9: Ozone --- ROHF triplet SCF analytic gradients with symmetry
@@ -70,11 +70,11 @@ mcscf; print none; end
 task mcscf gradient numerical
 
 title; case s16: Ozone --- UHF triplet SCF energy without symmetry
-scf; print low; uhf; triplet; sym off; adapt off; end
+scf; print low; uhf; sym off; adapt off; end
 task scf
 
 title; case s12: Ozone --- UHF triplet SCF energy with symmetry
-scf; uhf; triplet; sym on; adapt on; end
+scf; sym on; adapt on; end
 task scf
 
 title; case s14: Ozone --- UHF triplet SCF analytic gradients with symmetry
@@ -92,4 +92,3 @@ title; case m6: Ozone --- Semi-direct numerical UMP2 gradient with symmetry
 mp2; print none; end
 task mp2 gradient numerical
 
-eof
