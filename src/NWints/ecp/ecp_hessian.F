@@ -1,4 +1,4 @@
-C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
+C $Id: ecp_hessian.F,v 1.5 1998-04-01 17:54:00 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_hessian (
@@ -300,8 +300,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
      &          coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &          tol,0,scr(i_scr),l_scr,
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpbb,n_blk,.false.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
@@ -312,8 +312,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
      &          coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &          tol,sphcart,scr(i_scr),l_scr,
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &          zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpbb,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -338,8 +338,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
      &          coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &          tol,0,scr(i_scr),l_scr,
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_ab,n_blk,.false.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
@@ -350,8 +350,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
      &          coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &          tol,sphcart,scr(i_scr),l_scr,
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &          zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_ab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -386,8 +386,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &            R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
      &            coef_A,zeta_A,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &            ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &            tol,0,scr(i_scr),l_scr,
+     &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &            zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lp),n_intmbb,n_blk,.false.,ibug/10)
               if (DryRun) max_type1 = max(mem,max_type1)
@@ -398,8 +398,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &            R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
      &            coef_A,zeta_A,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &            ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &            tol,sphcart,scr(i_scr),l_scr,
+     &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &            zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lp),n_intmbb,n_blk,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)
@@ -463,8 +463,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
      &          coef_B,zeta_B,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &          tol,0,scr(i_scr),l_scr,
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpaa,n_blk,.true.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
@@ -475,8 +475,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &          R_AC,X_AC,Y_AC,Z_AC,l_A+2,n_prim_A,n_cont_A,
      &          scr(i_xxca),zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &          tol,sphcart,scr(i_scr),l_scr,
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &          zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpaa,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -501,8 +501,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
      &          coef_B,zeta_B,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &          tol,0,scr(i_scr),l_scr,
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_ab,n_blk,.true.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
@@ -513,8 +513,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
      &          scr(i_xca),zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &          tol,sphcart,scr(i_scr),l_scr,
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &          zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_ab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -549,8 +549,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &            R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
      &            coef_B,zeta_B,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &            ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &            tol,0,scr(i_scr),l_scr,
+     &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &            zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lp),n_intmaa,n_blk,.true.,ibug/10)
               if (DryRun) max_type1 = max(mem,max_type1)
@@ -561,8 +561,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &            R_AC,X_AC,Y_AC,Z_AC,l_A-2,n_prim_A,n_cont_A,
      &            coef_A,zeta_A,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &            ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &            tol,sphcart,scr(i_scr),l_scr,
+     &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &            zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lp),n_intmaa,n_blk,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)
@@ -626,8 +626,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &        R_AC,X_AC,Y_AC,Z_AC,l_A+1,n_prim_A,n_cont_A,
      &        scr(i_xca),zeta_A,
      &        l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &        ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &        tol,sphcart,scr(i_scr),l_scr,
+     &        ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &        zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
      &        csco,lcsco,
      &        scr(i_lp),n_intppab,n_blk,ibug/10)
           if (DryRun) max_type2 = max(mem,max_type2)
@@ -651,8 +651,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &          R_AC,X_AC,Y_AC,Z_AC,l_A-1,n_prim_A,n_cont_A,
      &          coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &          tol,sphcart,scr(i_scr),l_scr,
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &          zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_intmpab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -686,8 +686,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &          R_AC,X_AC,Y_AC,Z_AC,l_A+1,n_prim_A,n_cont_A,
      &          scr(i_xca),zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &          tol,sphcart,scr(i_scr),l_scr,
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &          zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpmab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -711,8 +711,8 @@ C $Id: ecp_hessian.F,v 1.4 1997-10-03 17:11:03 mg201 Exp $
      &            R_AC,X_AC,Y_AC,Z_AC,l_A-1,n_prim_A,n_cont_A,
      &            coef_A,zeta_A,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &            ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &            tol,sphcart,scr(i_scr),l_scr,
+     &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &            zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lm),n_intmmab,n_blk,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)

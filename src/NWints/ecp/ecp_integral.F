@@ -1,4 +1,4 @@
-C $Id: ecp_integral.F,v 1.10 1998-04-01 03:04:02 mg201 Exp $
+C $Id: ecp_integral.F,v 1.11 1998-04-01 17:53:59 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_integral (
@@ -51,9 +51,7 @@ C $Id: ecp_integral.F,v 1.10 1998-04-01 03:04:02 mg201 Exp $
 *   i_cent_C (inp) - indices of ECP centres C                          *
 *   n_C (inp) - number of ECP centres C                                *
 *   l_ecp_max (inp) - maximum angular momentum of any projector on any *
-*                     ECP centre. N.B. This is a different use from in *
-*                     ecp_int0 and ecp_int1 where it is one of the     *
-*                     values of l_C                                    *
+*                     ECP centre.                                      *
 *   sphcart - 0 for cartesian integrals, 1 for spherical integrals     *
 *   ecp_ints (out) - integrals over ECPs                               *
 *   n_int (inp) - number of ECP integrals. Should be equal to          *
@@ -255,8 +253,8 @@ C        end if
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
      &        l_C(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &        ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &        tol,sphcart,scr(i_scr),memscr,
+     &        ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &        zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),memscr,
      &        csco,lcsco,
      &        scr,n_intt,n_blk,.false.,ibug/10)
           if (DryRun) max_type1 = max(mem,max_type1)
@@ -269,8 +267,8 @@ C        end if
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &        l_C(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &        ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &        tol,sphcart,scr(i_scr),memscr,
+     &        ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &        zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),memscr,
      &        csco,lcsco,
      &        scr,n_intt,n_blk,.true.,ibug/10)
           if (DryRun) max_type1 = max(mem,max_type1)
@@ -283,8 +281,8 @@ C        end if
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
      &        l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &        ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &        tol,sphcart,scr(i_scr),memscr,
+     &        ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &        zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),memscr,
      &        csco,lcsco,
      &        scr,n_intt,n_blk,ibug/10)
           if (DryRun) max_type2 = max(mem,max_type2)

@@ -1,4 +1,4 @@
-C $Id: ecp_gradient.F,v 1.10 1997-10-03 17:11:03 mg201 Exp $
+C $Id: ecp_gradient.F,v 1.11 1998-04-01 17:54:00 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_gradient (
@@ -248,9 +248,9 @@ C $Id: ecp_gradient.F,v 1.10 1997-10-03 17:11:03 mg201 Exp $
      &          scr(i_xcb),zeta_B,
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
      &          coef_A,zeta_A,
-     &          l_ecp_max,n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &          tol,0,scr(i_scr),memscr,
+     &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),memscr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpb,n_blk,.false.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
@@ -261,8 +261,8 @@ C $Id: ecp_gradient.F,v 1.10 1997-10-03 17:11:03 mg201 Exp $
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
      &          coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &          tol,sphcart,scr(i_scr),memscr,
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &          zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),memscr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpb,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -285,9 +285,9 @@ C $Id: ecp_gradient.F,v 1.10 1997-10-03 17:11:03 mg201 Exp $
      &            coef_B,zeta_B,
      &            R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
      &            coef_A,zeta_A,
-     &            l_ecp_max,n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &            ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &            tol,0,scr(i_scr),memscr,
+     &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
+     &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &            zeta_C,coef_C,0,2,tol,0,scr(i_scr),memscr,
      &            csco,lcsco,
      &            scr(i_lm),n_intmb,n_blk,.false.,ibug/10)
               if (DryRun) max_type1 = max(mem,max_type1)
@@ -298,8 +298,8 @@ C $Id: ecp_gradient.F,v 1.10 1997-10-03 17:11:03 mg201 Exp $
      &            R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
      &            coef_A,zeta_A,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &            ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &            tol,sphcart,scr(i_scr),memscr,
+     &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &            zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),memscr,
      &            csco,lcsco,
      &            scr(i_lm),n_intmb,n_blk,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)
@@ -346,9 +346,9 @@ C $Id: ecp_gradient.F,v 1.10 1997-10-03 17:11:03 mg201 Exp $
      &          scr(i_xca),zeta_A,
      &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
      &          coef_B,zeta_B,
-     &          l_ecp_max,n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &          tol,0,scr(i_scr),memscr,
+     &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),memscr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpa,n_blk,.true.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
@@ -359,8 +359,8 @@ C $Id: ecp_gradient.F,v 1.10 1997-10-03 17:11:03 mg201 Exp $
      &          R_AC,X_AC,Y_AC,Z_AC,l_A+1,n_prim_A,n_cont_A,
      &          scr(i_xca),zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &          ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &          tol,sphcart,scr(i_scr),memscr,
+     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &          zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),memscr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpa,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -385,9 +385,9 @@ C $Id: ecp_gradient.F,v 1.10 1997-10-03 17:11:03 mg201 Exp $
      &            coef_A,zeta_A,
      &            R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
      &            coef_B,zeta_B,
-     &            l_ecp_max,n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &            ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &            tol,0,scr(i_scr),memscr,
+     &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
+     &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &            zeta_C,coef_C,0,2,tol,0,scr(i_scr),memscr,
      &            csco,lcsco,
      &            scr(i_lm),n_intma,n_blk,.true.,ibug/10)
               if (DryRun) max_type1 = max(mem,max_type1)
@@ -398,8 +398,8 @@ C $Id: ecp_gradient.F,v 1.10 1997-10-03 17:11:03 mg201 Exp $
      &            R_AC,X_AC,Y_AC,Z_AC,l_A-1,n_prim_A,n_cont_A,
      &            coef_A,zeta_A,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &            ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &            tol,sphcart,scr(i_scr),memscr,
+     &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &            zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),memscr,
      &            csco,lcsco,
      &            scr(i_lm),n_intma,n_blk,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)
