@@ -1,5 +1,5 @@
 /*
- $Id: inverse.c,v 1.4 2000-10-24 18:25:49 d3g270 Exp $
+ $Id: inverse.c,v 1.5 2004-10-20 16:39:57 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -53,6 +53,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 
 #include "globalp.c.h"
 
