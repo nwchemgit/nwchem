@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.139 2000-02-24 22:45:40 edo Exp $
+c     $Id: dft_scf.F,v 1.140 2000-02-28 16:38:25 jolguin Exp $
 c     
       implicit none
 c
@@ -1695,8 +1695,10 @@ c
 c Jorge Garza/Begin
 c
       if (condfukui.eq.1) then
-         call fukui(geom, nbf_ao, AO_bas_han, g_movecs,
-     &              noc, k_eval, ipol, oskel, tol2e)
+         call fukui(g_movecs, k_eval, tol2e, rtdb, nExc, iVxc_opt, 
+     &              g_xcinv, IOLGC, g_wght, g_xyz, g_nq, wght_GA,
+     &              rho_n, irdens_atom, icntoce, icntobfr, 
+     &              icetobfr, natoms)
       endif
 c
 c Jorge Garza/End
