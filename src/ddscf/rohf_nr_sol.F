@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.26 2000-11-22 23:00:10 edo Exp $
+c     $Id: rohf_nr_sol.F,v 1.27 2000-11-22 23:46:53 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -11,6 +11,7 @@ c     $Id: rohf_nr_sol.F,v 1.26 2000-11-22 23:00:10 edo Exp $
 #include "util.fh"
 #include "cscf.fh"
 #include "cfock.fh"
+#include "stdio.fh"
 c     
 c     Solve the ROHF equations using a hybrid NR/PCG method
 c     
@@ -66,7 +67,7 @@ c
       double precision egas
       double precision esol
 c
-      if (ga_nodeid().eq.0) call util_flush(6)
+      if (ga_nodeid().eq.0) call util_flush(LuOut)
 c
 c     Determine if using variable precision.  Turn it off if
 c     there is the slightest hint we might have problems
@@ -105,9 +106,9 @@ c
       oprint_eval = util_print('intermediate evals', print_debug)
 c
       if (ga_nodeid().eq.0.and. oprint_parm) then
-         write(6,1) gnorm_tol, maxiter, tol2e
-         if (ouser_changed_conv) write(6,11) shifts, nr_gswitch
-         write(6,111)
+         write(LuOut,1) gnorm_tol, maxiter, tol2e
+         if (ouser_changed_conv) write(LuOut,11) shifts,nr_gswitch
+         write(LuOut,111)
  1       format(//,
      $        1x,'----------------------------------------------',/
      $        1x,'        Quadratically convergent ROHF',//,
@@ -124,7 +125,7 @@ c
      $        1x,'NR  enabled at maxg       :',9x,f10.3)
  111     format(
      $        1x,'----------------------------------------------',/)
-         call util_flush(6)
+         call util_flush(LuOut)
       endif
 c
 c     ----- check cosmo ... if cosmo ... -----
@@ -135,7 +136,7 @@ c
       odbug=odbug.and.ga_nodeid().eq.0
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
          if(odbug) then
-            write(6,*) '-cosmo- ... found in rohf_nr_solve',
+            write(LuOut,*) '-cosmo- ... found in rohf_nr_solve',
      $                 ocosmo,ga_nodeid()
          endif
 c
@@ -143,7 +144,7 @@ c
             ogas_phase=.true.
             osol_phase=.true.
             if(odbug) then
-               write(6,*) '-cosmo- ... found , do gas & sol',
+               write(LuOut,*) '-cosmo- ... found , do gas & sol',
      $                    ocosmo,ga_nodeid()
             endif
             if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
@@ -152,7 +153,7 @@ c
             ogas_phase=.true.
             osol_phase=.false.
             if(odbug) then
-               write(6,*) '-cosmo- ... found , do gas only',
+               write(LuOut,*) '-cosmo- ... found , do gas only',
      $                    ocosmo,ga_nodeid()
             endif
          endif
@@ -162,7 +163,7 @@ c
          endif
          ogas_phase=.true.
          osol_phase=.false.
-         call util_flush(6)
+         call util_flush(LuOut)
       endif
       call ga_sync()
 c
@@ -197,10 +198,10 @@ c
       if(ogas_phase.and.osol_phase) then
          osome=ga_nodeid().eq.0
          if(osome) then
-            write(6,909)
+            write(LuOut,909)
          endif
          if(odbug) then
-            write(6,*) 'mode = ',mode
+            write(LuOut,*) 'mode = ',mode
          endif
       elseif(.not.ogas_phase.and..not.osol_phase) then
          iter     = 0
@@ -211,10 +212,10 @@ c
          converged=.false.
          osome=ga_nodeid().eq.0
          if(osome) then
-            write(6,910)
+            write(LuOut,910)
          endif
          if(odbug) then
-            write(6,*) 'mode = ',mode
+            write(LuOut,*) 'mode = ',mode
          endif
       endif
  909  format(2x,'   gas_phase')
@@ -229,9 +230,9 @@ c
 c
          if(odbug) then
             if(ga_nodeid().eq.0) then
-               write(6,*) 'before calling ga_pcg_minim ...'
-               write(6,*) 'mode = ',mode
-               write(6,*) 'iter, energy = ',iter,energy
+               write(LuOut,*) 'before calling ga_pcg_minim ...'
+               write(LuOut,*) 'mode = ',mode
+               write(LuOut,*) 'iter, energy = ',iter,energy
             endif
          endif
 c
@@ -241,9 +242,9 @@ c
 c
          if(odbug) then
             if(ga_nodeid().eq.0) then
-               write(6,*) 'after  calling ga_pcg_minim ...'
-               write(6,*) 'mode = ',mode
-               write(6,*) 'iter, energy = ',iter,energy
+               write(LuOut,*) 'after  calling ga_pcg_minim ...'
+               write(LuOut,*) 'mode = ',mode
+               write(LuOut,*) 'iter, energy = ',iter,energy
             endif
          endif
 c     
@@ -251,17 +252,17 @@ c
 c     
 c     Compute the energy and gradient at step*search direction
 c     
-*            write(6,*) ' TOL2E ', tol2e
-*            call util_flush(6)
+*            write(LuOut,*) ' TOL2E ', tol2e
+*            call util_flush(LuOut)
 c
             if(odbug) then
                if(ga_nodeid().eq.0) then
-                  write(6,*) 'before calling rohf_step_energy ...'
-                  write(6,*) 'mode = ',mode
-                  write(6,*) 'iter, energy = ',iter,energy
-                  write(6,*) 'iter, eone   = ',iter,eone  
-                  write(6,*) 'iter, etwo   = ',iter,etwo
-                  write(6,*) 'iter, enrep  = ',iter,enrep 
+                  write(LuOut,*) 'before calling rohf_step_energy ...'
+                  write(LuOut,*) 'mode = ',mode
+                  write(LuOut,*) 'iter, energy = ',iter,energy
+                  write(LuOut,*) 'iter, eone   = ',iter,eone  
+                  write(LuOut,*) 'iter, etwo   = ',iter,etwo
+                  write(LuOut,*) 'iter, enrep  = ',iter,enrep 
                endif
             endif
             call rohf_step_energy(rtdb, step, g_search,
@@ -270,20 +271,20 @@ c
 c
             if(odbug) then
                if(ga_nodeid().eq.0) then
-                  write(6,*) 'after  calling rohf_step_energy ...'
-                  write(6,*) 'mode = ',mode
-                  write(6,*) 'iter, energy = ',iter,energy
-                  write(6,*) 'iter, eone   = ',iter,eone  
-                  write(6,*) 'iter, etwo   = ',iter,etwo
-                  write(6,*) 'iter, enrep  = ',iter,enrep 
+                  write(LuOut,*) 'after  calling rohf_step_energy ...'
+                  write(LuOut,*) 'mode = ',mode
+                  write(LuOut,*) 'iter, energy = ',iter,energy
+                  write(LuOut,*) 'iter, eone   = ',iter,eone  
+                  write(LuOut,*) 'iter, etwo   = ',iter,etwo
+                  write(LuOut,*) 'iter, enrep  = ',iter,enrep 
                endif
             endif
 c
             call ecce_print1('total energy', mt_dbl, energy, 1)
             call ecce_print1('orbital gradient norm', mt_dbl, gnorm, 1)
             eprec = max(1d-7,gnorm*0.01d0, eprec_tol) ! Aovid noise in LS
-*            write(6,*) ' EPREC ', eprec
-*            call util_flush(6)
+*            write(LuOut,*) ' EPREC ', eprec
+*            call util_flush(LuOut)
             goto 10
 c     
          else if (mode .eq. 'precondition') then
@@ -319,12 +320,12 @@ c
                   if (tol2e .lt. 2.0d0*tol2e_save) tol2e = tol2e_save
                endif
                converged = .false. ! Only converge with full precision
-*               write(6,*) ' RESET ', tol2e
+*               write(LuOut,*) ' RESET ', tol2e
                if (util_print('parameters', print_high) .and.
      $              ga_nodeid() .eq. 0) then
-                  write(6,2310) tol2e
+                  write(LuOut,2310) tol2e
  2310             format(/' Increasing Fock-build accuracy to ',1p,d9.2)
-                  call util_flush(6)
+                  call util_flush(LuOut)
                endif
             else
 c     Reset eprec AFTER we have got a new start at the revised tolerance
@@ -339,11 +340,11 @@ c     go back to top of loop
 c     
                if (oprint_vecs) then
                   if (ga_nodeid() .eq. 0) then
-                     write(6,*)
-                     call util_print_centered(6,
+                     write(LuOut,*)
+                     call util_print_centered(LuOut,
      $                    'Intermediate MO vectors',40,.true.)
-                     write(6,*)
-                     call util_flush(6)
+                     write(LuOut,*)
+                     call util_flush(LuOut)
                   endif
                   call ga_print(g_movecs)
                endif
@@ -362,7 +363,7 @@ c
 c     
 c     End SCF minimisation
 c     
-      if (ga_nodeid().eq.0) call util_flush(6)
+      if (ga_nodeid().eq.0) call util_flush(LuOut)
 c
 c     ----- if sol_phase=.T. go back and do solution phase -----
 c
@@ -376,17 +377,17 @@ c
          if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.true.))
      $       call errquit('rohf_nr_solve: rtdb_put failed',0)
          if(odbug) then
-            write(6,*) 'gas_phase done, do sol-phase now ...'
+            write(LuOut,*) 'gas_phase done, do sol-phase now ...'
          endif
          call ga_sync()
          go to 9
       elseif(.not.ogas_phase.and..not.osol_phase) then
          esol      =energy
          if(ga_nodeid().eq.0) then
-            write(6,915)
-            write(6,912) egas
-            write(6,913) esol
-            write(6,914) (egas-esol),(egas-esol)*627.509451d+00
+            write(LuOut,915)
+            write(LuOut,912) egas
+            write(LuOut,913) esol
+            write(LuOut,914) (egas-esol),(egas-esol)*627.509451d+00
  912     format('                 gas_phase energy = ',f20.10)
  913     format('                 sol_phase energy = ',f20.10)
  914     format(' (electrostatic) solvation energy = ',f20.10,
@@ -416,7 +417,7 @@ c
       if (.not. ga_destroy(g_work)) call errquit
      $     ('rohf_nr_solve: ga_destroy work', 0)
 c     
-      if (ga_nodeid().eq.0) call util_flush(6)
+      if (ga_nodeid().eq.0) call util_flush(LuOut)
       call ga_sync()
 c     
       rohf_nr_solve = converged

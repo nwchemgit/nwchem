@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.348 2000-11-22 20:33:08 edo Exp $
+# $Id: makefile.h,v 1.349 2000-11-22 23:46:53 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -466,6 +466,7 @@ ifeq ($(TARGET),CRAY-T3E)
              FOPTIONS = -d p -F 
              COPTIONS =
                FDEBUG = -O scalar1
+#               FDEBUG = -g
             FOPTIMIZE = -O scalar3,aggress,unroll2,vector3
 #,pipeline3
                CDEBUG = -O 1
@@ -473,13 +474,14 @@ ifeq ($(TARGET),CRAY-T3E)
 #
 # to debug code you must remove the -s flag unless you know assembler
 #
+#            LDOPTIONS = -g -Xm  -lmfastv
             LDOPTIONS = -Wl"-s" -Xm  -lmfastv
 
               DEFINES = -DCRAY_T3E -DCRAY_T3D -D__F90__ -DPARALLEL_DIAG
 
                LINK.f = f90 $(LDFLAGS)
 
-            CORE_LIBS = -llapack $(BLASOPT) -lblas
+            CORE_LIBS += -llapack $(BLASOPT) -lblas
 #
 # 
 ifeq ($(BUILDING_PYTHON),python)
