@@ -259,6 +259,8 @@ c
       parameter (mrg_d31=msg_ftn_base-161) ! arg_record
       parameter (mrg_d39=msg_ftn_base-169) ! arg_record
 c
+      parameter (msg_hessmin = msg_ftn_base - 170 )         ! MCSCF orbital hessian min
+      parameter (msg_hessmax = msg_ftn_base - 171 )         ! MCSCF orbital hessian max
 
 
 
