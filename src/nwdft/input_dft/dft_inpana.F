@@ -5,7 +5,7 @@ c     Analyze input to deduce nature of system, and set key flags.
 c     
 c*********************************************************************
       subroutine dft_inpana(rtdb)
-C     $Id: dft_inpana.F,v 1.20 1997-02-22 22:28:48 d3h449 Exp $
+C     $Id: dft_inpana.F,v 1.21 1997-03-05 07:34:15 d3h449 Exp $
       implicit none
       logical even, cksetd
       integer noc(2)
@@ -16,6 +16,7 @@ C     $Id: dft_inpana.F,v 1.20 1997-02-22 22:28:48 d3h449 Exp $
       double precision anucl_charg, ckfac
       double precision EPSILON
       character*9 local_c, nonlocal_c, nineb_c
+      character*3 on_off_1, on_off_2
       Parameter ( EPSILON=1.d-13 )
 c     
 #include "stdio.fh"
@@ -134,6 +135,11 @@ c
             elseif(ipol.eq.2)then
                write(LuOut,9055)
             endif
+            on_off_1 = 'off'
+            if(oskel)on_off_1 = 'on'
+            on_off_2 = 'off'
+            if(oadapt)on_off_2 = 'on'
+            write(LuOut,9056)on_off_1, on_off_2
             write(LuOut,9030)iterations
             if(idirect.eq.1)write(LuOut,9110)
             if(nbf_xc.gt.0)write(LuOut,9120)
@@ -256,6 +262,8 @@ c
  9040 format(10x,'Convergence on density requested = ',d8.2,/)
  9050 format(10x,'Wavefunction type:  closed shell.',/)
  9055 format(10x,'Wavefunction type:  spin polarized.',/)
+ 9056 format(10x,'Use of symmetry is: ',a3,
+     &           '; symmetry adaption is: ',a3,/)
  9110 format(10x,'This is a Direct SCF calculation.',/)
  9120 format(10x,'An Exch-Corr fitting basis will be used.',/)
  9130 format(10x,'A Charge density fitting basis will be used.',/)

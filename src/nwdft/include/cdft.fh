@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.11 1997-02-22 22:28:40 d3h449 Exp $
+C$Id: cdft.fh,v 1.12 1997-03-05 07:34:14 d3h449 Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -21,7 +21,9 @@ c
       logical
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac, nlcfac, lxfac, 
-     &     nlxfac, xccomb, levelshift, damp, diis, direct
+     &     nlxfac, xccomb, levelshift, damp, diis, direct, oskel, 
+     &     oadapt
+
       integer
      &     iAOacc, iXCacc, irqmax, itol2e, imull, iangquad, 
      &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
@@ -49,7 +51,7 @@ c
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac(15), nlcfac(15),
      &     lxfac(15), nlxfac(15), xccomb(15), levelshift, damp, diis, 
-     &     direct,
+     &     direct, oskel, oadapt,
 c
 c     Integers
 c

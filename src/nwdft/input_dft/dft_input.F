@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.17 1997-02-18 01:27:31 d3h449 Exp $
+c     $Id: dft_input.F,v 1.18 1997-03-05 07:34:16 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -20,13 +20,13 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 19)
+      parameter (num_dirs = 21)
       character*12 dirs(num_dirs)
       character*255 test
       data dirs /'convergence', 'decomp', 'dft', 'direct', 'ecp', 
      $           'grid', 'vectors', 'incore', 'iterations', 'max_ovl', 
      $           'mulliken', 'mult', 'noio', 'noprint', 'odft', 
-     $           'print', 'tolerances', 'xc', 'end'/
+     $           'print', 'tolerances', 'xc', 'sym', 'adapt', 'end'/
       integer idecomp, mult, iterations, ipol, noio,
      &        idirect, nfock, ifield, imull
       logical pseudo, direct, lmaxov, incore
@@ -44,7 +44,7 @@ c
 c     
       goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
      $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
-     $     1900, 9999) ind
+     $     1900, 2000, 2100, 9999) ind
       call errquit('dft_input: unimplemented directive', ind)
 c
 c     convergence;
@@ -186,10 +186,26 @@ c
  1800 call xc_input(rtdb, 'dft')
 c
       goto 10
+c
+c     sym [off|on] (defaults to on)
+c
+ 1900 if (.not. inp_a(test)) test = 'on'
+      status = inp_compare(.false.,test,'on')
+      if (.not. rtdb_put(rtdb,'dft:skeleton', MT_LOG, 1, status))
+     &   call errquit('dft_input: rtdb_put failed', 1900)
+      goto 10
+c
+c     adapt [off|on] (defaults to on)
+c
+ 2000 if (.not. inp_a(test)) test = 'on'
+      status = inp_compare(.false.,test,'on')
+      if (.not. rtdb_put(rtdb,'dft:adapt', MT_LOG, 1, status))
+     &   call errquit('dft_input: rtdb_put failed', 2000)
+      goto 10
 c             
 c     end;
 c             
- 1900 continue
+ 2100 continue
  9999 continue
       return 
 c       

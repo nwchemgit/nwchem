@@ -1,6 +1,6 @@
       Subroutine dft_3cincor(rtdb, n_batch, n_bmax, iwhat, i3c_ERI, 
      &      n3c_dbl, iwhat_max, n_semi_bufs, fd)
-C$Id: dft_3cincor.F,v 1.7 1997-03-03 01:22:59 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.8 1997-03-05 07:34:03 d3h449 Exp $
       implicit none
             
 c****
@@ -25,6 +25,7 @@ c****
 #include "cdft.fh"
 #include "eaf.fh"
 #include "util.fh"
+#include "sym.fh"
 c     
 c     Compute the 3-center integrals and store as many of them 
 c     as possible in-core.
@@ -33,10 +34,10 @@ c
       integer me,nproc,ishp,
      ,     icount,Nao2,nERI,maxg,mscratch_2e3c,nscr,
      ,     n1,n2,ishc,ifirstc,ilastc,nshbfc,ishd,ifirstd,ilastd,
-     ,     nshbfd,ifirstp,ilastp,nint,
+     ,     nshbfd,ifirstp,ilastp,nintegrals,
      ,     nshbf_cd,ndone
       integer lscr,iscr, n_semi_bufs
-      integer nlast, ntasks, nxtbuf, nbufs
+      integer nlast, ntasks, nxtbuf, nbufs, n_chk
       integer iwhat_max, nao2_max, batch_max, neri_max
 c
       integer availkb, current_nbuf, n3c_b
@@ -47,6 +48,7 @@ c
       double precision offset
 c
       double precision THRESHOLD, ERI_est, ratio
+      double precision q1
       integer nxtask
       external nxtask
 C      write(0,*) ' in 3CINCO',itol2e
@@ -54,6 +56,7 @@ c
       THRESHOLD=10.d0**(-itol2e)
       oprint_semi_file = util_print('semi-direct info', print_default)
       me = ga_nodeid()
+      call dzero(i3c_eri, n3c_dbl)
 c
 c     Check whether of not to enable semi-direct; check direct & noio
 c
@@ -184,27 +187,36 @@ c
               nao2 = nshbfc*nshbfd
 c                           
               do 220 ishp = 1,nshells_cd
-c                
-                if( .not. bas_cn2bfr( cd_bas_han,ishp,
-     &            ifirstp,ilastp))
-     &            call errquit('exiting in fitvcoul.',5)
+c
+                if ( .not. bas_cn2bfr( cd_bas_han,ishp,ifirstp,ilastp))
+     &              call errquit('exiting in fitvcoul.',5)
                 nshbf_cd=ilastp-ifirstp+1
 c                  
-                nint=nshbf_cd*nao2
+                nintegrals=nshbf_cd*nao2
 c                 
 c               compute the 3 center 2e- integrals between this given pair 
 c               of ao shells and cd shell.
 c
-                if( (ndone+nint-1).gt.n3c_dbl) then
-                  write(LuOut,*) ' nlast n3cdbl ',ndone+nint-1,n3c_dbl
+                n_chk = ndone+nintegrals-1
+                if( (n_chk) .gt. n3c_dbl) then
+                  write(LuOut,*) ' nlast n3cdbl ',n_chk, n3c_dbl
                   call errquit('dft_3cincor: blew out buf of dbles',999)
                 endif
-                call int_2e3c(cd_bas_han,ishp,ao_bas_han,ishc,ishd,
-     &                        nscr,dbl_mb(iscr),nint,i3c_ERI(ndone))
-C                  write(0,*) ' i3c ',ndone,i3c_ERI(ndone)
-C                  call util_flush(LuOut)
 c
-                ndone=ndone+nint
+c               check for use of symmetry
+c
+                if (oskel) then
+                   if (sym_shell(cd_bas_han, ishp, q1))then
+                      call int_2e3c(cd_bas_han,ishp,ao_bas_han,ishc,
+     &                ishd,nscr,dbl_mb(iscr),nintegrals,i3c_ERI(ndone))
+                      call dscal(nintegrals, q1, i3c_ERI(ndone), 1)
+                   endif
+                else
+                   call int_2e3c(cd_bas_han,ishp,ao_bas_han,ishc,
+     &             ishd,nscr,dbl_mb(iscr),nintegrals,i3c_ERI(ndone))
+                endif                   
+c
+                ndone=ndone+nintegrals
 c
  220          continue
 c
@@ -414,7 +426,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: dft_3cincor.F,v 1.7 1997-03-03 01:22:59 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.8 1997-03-05 07:34:03 d3h449 Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k

@@ -1,46 +1,38 @@
-      Subroutine dft_getvc( rtdb,geom,AO_bas_han,CD_bas_han,
-     &                     CD_coef,g_vc,Ecoul,nbf_cd,
-     &                     iVcoul_opt,g_2ceri,g_dens,IOLGC,
-     &     itol2e,incore,
-     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,
-     &     iwhat_max, n_semi_bufs, fd)
+      Subroutine dft_getvc(CD_coef, i3c_ERI, Ecoul, rtdb, g_vc,
+     &                     iVcoul_opt, g_2ceri, g_dens, n_batch,
+     &                     n_bmax, iwhat, n3c_dbl, iwhat_max, 
+     &                     n_semi_bufs, fd, IOLGC)
 
-C$Id: dft_getvc.F,v 1.9 1997-03-03 01:23:02 d3h449 Exp $
+C$Id: dft_getvc.F,v 1.10 1997-03-05 07:34:06 d3h449 Exp $
       implicit none
-      
-
-c****
-c**** nwchem handles
-c****
-      integer rtdb, geom, AO_bas_han, CD_bas_han
-      integer nbf_cd
-      integer g_vc
-      integer g_2ceri
-      integer g_dens(2)
-      integer itol2e
-      double precision Ecoul
-      integer iVcoul_opt
-      logical incore ! true if 3c int are incore [input]
-      integer n_batch        ! no. batches computed by this node [out]
-      integer n_bmax  ! max no. batches
-      integer iwhat(n_bmax) ! what batches have been computed [out]
-      integer n3c_dbl, iwhat_max
-      integer n_semi_bufs, fd
-      double precision i3c_ERI(n3c_dbl)
 c
-c     Charge Density Expansion Coefficients
-c
-      double precision CD_coef(nbf_cd)
 #include "bas.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
-
+#include "cdft.fh"
+c
+      double precision CD_coef(nbf_cd)
+      double precision i3c_ERI(n3c_dbl)
+      double precision Ecoul
+      integer rtdb
+      integer g_vc
+      integer iVcoul_opt
+      integer g_2ceri
+      integer g_dens(2)
+      integer n_batch        ! no. batches computed by this node [out]
+      integer n_bmax  ! max no. batches
+      integer iwhat(n_bmax) ! what batches have been computed [out]
+      integer n3c_dbl
+      integer iwhat_max
+      integer n_semi_bufs
+      integer fd
       logical IOLGC
-      double precision tol2e,Ecoul2
-
+c
+      double precision Ecoul2
+      double precision tol2e
 c     
 c     This driver routine solves for the Coulomb potential (Vcoul) by one of the
 c     following methods:
@@ -52,41 +44,52 @@ c     3) solving Poisson's equation via (Delley,Becke,Feibelman,?)'s method.
 c     
 c******************************************************************************
       if( iVcoul_opt.eq.0 )then
-
+c
 c       Compute the Coulomb potential via evaluation of the AO set of 4-ctr ERIs.
+c
         tol2e=10.d0**(-itol2e)
         call ga_zero(g_vc)
         call rhf_fock_2e(geom, AO_bas_han, g_dens(1), g_vc, tol2e,
-     &       .true., .false., .false.)
+     &       .true., .false., oskel)
         call ga_sync
+c
+c       Symmetrize Vcoul?
+c
+        if (oskel)
+     &     call sym_symmetrize(geom, AO_bas_han, .false., g_vc)
 c
 c       Compute the Coulomb energy.
 c
         Ecoul = 0.5d0*ga_ddot(g_dens(1),g_vc)
-
+c
       else if( iVcoul_opt.eq.1 )then
 c       Compute the Coulomb potential via a LSQ fitting procedure.
-        call dft_fitvc( rtdb, geom, AO_bas_han, CD_bas_han,
-     &       CD_coef,g_vc,Ecoul2,nbf_cd,g_2ceri,IOLGC,itol2e,incore,
-     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,iwhat_max, 
-     &     n_semi_bufs, fd)
+        call dft_fitvc(CD_coef, i3c_ERI, Ecoul2, rtdb, g_vc,
+     &                 g_2ceri, n_batch, n_bmax, iwhat, n3c_dbl,
+     &                 iwhat_max, n_semi_bufs, fd, IOLGC)
+c
+c       Symmetrize Vcoul?
+c
+        if (oskel)
+     &     call sym_symmetrize(geom, AO_bas_han, .false., g_vc)
 c
 c       Compute the Coulomb energy.
 c
         Ecoul = Ecoul - Ecoul2 
-
+c
       else if( iVcoul_opt.eq.2 )then
-
+c
         write(LuOut,*) 'GETVCOUL:  Poisson Eq. solver (iVcoul_opt.eq.2)'
         write(LuOut,*) '           has yet to be implemented.'
         call errquit('Exiting in getvcoul.',1)
-
+c
       else
-
+c
         write(LuOut,*) 'GETVCOUL:  Unknown option indicated by the'
         write(LuOut,*) '           variable iVcoul_opt = ',iVcoul_opt
         call errquit('Exiting in getvcoul.',2)
-
+c
       end if
-
+c
+      return
       end

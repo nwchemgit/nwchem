@@ -1,34 +1,22 @@
-      Subroutine dft_fitvc(rtdb, geom, AO_bas_han, CD_bas_han, CD_coef, 
-     &     g_vc, Ecoul2, nbf_cd, g_2ceri,IOLGC,itol2e,incore,
-     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,iwhat_max,
-     &     n_semi_bufs, fd)
-C     $Id: dft_fitvc.F,v 1.13 1997-03-03 01:23:01 d3h449 Exp $
+      Subroutine dft_fitvc(CD_coef, i3c_ERI, Ecoul2, rtdb, g_vc, 
+     &                     g_2ceri, n_batch, n_bmax, iwhat, n3c_dbl,
+     &                     iwhat_max, n_semi_bufs, fd, IOLGC)
+c     $Id: dft_fitvc.F,v 1.14 1997-03-05 07:34:05 d3h449 Exp $
       implicit none
-      
-c**** 
-c**** nwchem handles
-c**** 
-      integer rtdb, geom, AO_bas_han, CD_bas_han
+c      
+      double precision CD_coef(nbf_cd)
+      double precision i3c_ERI(n3c_dbl)
+      double precision Ecoul2 ! [output]
+      integer rtdb
       integer g_vc    ! GA handle for V Coulomb [output]
       integer g_2ceri ! GA handle for repulsion int. [input]
-      integer nbf_cd    ! no. CD functions [input]
-      double precision Ecoul2 ! [output]
-      integer itol2e ! bi-el int tolerance [input]
-      logical incore ! true if 3c int are incore [input]
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax  ! max no. batches
       integer iwhat(n_bmax) ! what batches have been computed [out]
       integer n3c_dbl
-      integer n_semi_bufs, current_nbuf, n3c_b, fd, n_batch_read
-      double precision offset
-      double precision length
-      double precision i3c_ERI(n3c_dbl)
-c**** 
-c      
-c-->  Charge Density Expansion Coefficients
-c      
-      double precision CD_coef(nbf_cd)
-
+      integer iwhat_max
+      integer n_semi_bufs
+      integer fd
       Logical IOLGC
       
 #include "bas.fh"
@@ -41,6 +29,8 @@ c
 #include "schwarz.fh"
 #include "util.fh"
 #include "eaf.fh"
+#include "cdft.fh"
+#include "sym.fh"
 
 #if defined(DFT_TIMER)
 #include "timer.fh"
@@ -60,7 +50,10 @@ c
      ,     lsvec2,isvec2,iERI,lERI,lscr,iscr
       double precision THRESHOLD,CD_coef_max,shmax,
      ,     Vcoul_est,ERI_est,schw1,schw2
-      integer iwhat_max, ishc_be, ishd_be, nlast
+      integer current_nbuf, n3c_b, n_batch_read
+      double precision offset
+      double precision length, q1
+      integer ishc_be, ishd_be, nlast
       integer nxtask
       logical dowork
       logical oprint_ioinfo
@@ -374,9 +367,22 @@ c
 c                   
 c                 Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
 c                   
-                  call int_2e3c(CD_bas_han,ishp,AO_bas_han,
-     &                 ishc,ishd,nscr,Dbl_MB(iscr),Nintegrals,
-     &                 Dbl_MB(iERI))
+c                 check for use of symmetry
+c
+                  if (oskel) then
+                     if (sym_shell(cd_bas_han, ishp, q1))then
+                        call int_2e3c(CD_bas_han,ishp,AO_bas_han,
+     &                  ishc,ishd,nscr,Dbl_MB(iscr),Nintegrals,
+     &                  Dbl_MB(iERI))
+                        call dscal(Nintegrals, q1, Dbl_MB(iERI), 1)
+                     else
+                        call dzero(Dbl_MB(iERI),Nintegrals)
+                     endif
+                  else
+                     call int_2e3c(CD_bas_han,ishp,AO_bas_han,
+     &               ishc,ishd,nscr,Dbl_MB(iscr),Nintegrals,
+     &               Dbl_MB(iERI))
+                  endif
 c                   
 c                 Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
 c                   
@@ -412,7 +418,7 @@ c
         ishd_be = 1
   240 continue
   241 continue
-      
+c
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_fitvc: cannot pop stack',0)
       if(.not.ma_pop_stack(lERI))

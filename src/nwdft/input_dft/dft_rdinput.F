@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.36 1997-03-05 01:42:56 d3e129 Exp $
+C$Id: dft_rdinput.F,v 1.37 1997-03-05 07:34:17 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -607,10 +607,18 @@ c
      &   15, xcname))
      &   call errquit('dft_input: rtdb_put failed', 304) 
 c
+c     load geometry and symmetry info
+c
       if (.not. geom_create(geom, 'geometry'))
      &     call errquit('rdinput: geom_create?',70)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      &     call errquit('rdinput: no geometry ',72)
+      if (.not.rtdb_get(rtdb, 'dft:skeleton',MT_LOG, 1, oskel)) then
+         oskel = sym_number_ops(geom) .gt. 0
+      endif
+      if (.not.rtdb_get(rtdb, 'dft:adapt',MT_LOG, 1, oadapt)) then
+         oadapt = sym_number_ops(geom) .gt. 0
+      endif
 c
 c****
 c**** allocate space for M and T (rotational invariance; 

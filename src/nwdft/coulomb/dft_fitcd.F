@@ -1,40 +1,13 @@
-      Subroutine dft_fitcd( rtdb,AO_bas_han, CD_bas_han,geom,
-     &     CD_coef,  nbf_cd,
-     &     g_cdinv, g_dens, nTotEl, IOLGC,itol2e,
-     &     Ecoul1,incore,
-     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,iwhat_max,
-     &     n_semi_bufs, fd)
-      
+      Subroutine dft_fitcd(CD_coef, i3c_ERI, Ecoul1, rtdb, g_cdinv,
+     &                     g_dens, nTotEl, n_batch, n_bmax, iwhat,
+     &                     n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC)
+c      
       implicit none
-      
-c****
-c**** nwchem handles
-c****
-      integer AO_bas_han, CD_bas_han,geom,rtdb
-      integer g_dens       ! GA DM handle
-      integer g_cdinv
-      integer nTotEl
-      integer itol2e
-      integer nbf_cd
-      double precision Ecoul1
-      logical incore ! true if 3c int are incore [input]
-      integer n_batch        ! no. batches computed by this node [out]
-      integer n_bmax  ! max no. batches
-      integer iwhat(n_bmax) ! what batches have been computed [out]
-      integer n_semi_bufs, current_nbuf, n3c_b, fd, n_batch_read
-      double precision offset
-      double precision length
-      integer n3c_dbl
-      double precision i3c_ERI(n3c_dbl)
-c-->  Charge Density Expansion Coefficients
-      
-      double precision CD_coef(nbf_cd)
-c**** 
-      Logical IOLGC
-      
+c
 #include "bas.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "cdft.fh"
 #include "stdio.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -42,11 +15,31 @@ c****
 #include "schwarz.fh"
 #include "msgids.fh"
 #include "eaf.fh"
-
+#include "sym.fh"
+c
+      double precision CD_coef(nbf_cd)
+      double precision i3c_ERI(n3c_dbl)
+      double precision Ecoul1
+      integer rtdb
+      integer g_cdinv
+      integer g_dens         ! GA DM handle
+      integer nTotEl
+      integer n_batch        ! no. batches computed by this node [out]
+      integer n_bmax         ! max no. batches
+      integer iwhat(n_bmax)  ! what batches have been computed [out]
+      integer n3c_dbl
+      integer iwhat_max
+      integer n_semi_bufs
+      integer fd
+      Logical IOLGC
+c
+      integer current_nbuf, n3c_b, n_batch_read
+      double precision offset
+      double precision length, q1
       double precision F(2)
       double precision fac,THRESHOLD,Pmat_max,ERI_est,Q,AZ,alpha,
      ,     rho_int
-      integer nproc,me,nbf_ao,MXnshbf_ao,MXnshbf_cd,nshells_ao,
+      integer nproc,me,MXnshbf_ao,MXnshbf_cd,nshells_ao,
      ,     nshells_cd,ischw1,icount,Nao2,n1,n2,ishc,ifirstc,ilastc,
      ,     nshbfc,ishd,ifirstd, ilastd,nshbfd,istart,
      ,     ishp,ifirstp,ilastp,nshbfp,Nintegrals,nscr,
@@ -55,10 +48,10 @@ c****
       integer iTvec,lTvec,lgvec,igvec,lERI,iERI,lcgtf,icgtf,
      ,     lscr,iscr
       logical oprint,dowork,oprint_ioinfo
-      integer iwhat_max, nlast, ntasks
+      integer nlast, ntasks
       integer ishc_be, ishd_be
       integer ndone,ipoint
-      character*(nw_max_path_len) cdfit
+      character*(nw_max_path_len) cdfit_filename
       double precision dabsmax
       integer nxtask
       external dabsmax,nxtask
@@ -356,9 +349,22 @@ c
 c                  
                 Nintegrals = nshbfp*Nao2
                 nscr=mscratch_2e3c
-c                  
-                call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
-     &               ishd,nscr,Dbl_MB(iscr),Nintegrals,Dbl_MB(istart))
+c
+c               check for use of symmetry
+c
+                if (oskel) then
+                   if (sym_shell(cd_bas_han, ishp, q1))then
+                      call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
+     &                ishd,nscr,Dbl_MB(iscr),Nintegrals,Dbl_MB(istart))
+                      call dscal(Nintegrals, q1, Dbl_MB(istart), 1)
+                   else
+                      call dzero(Dbl_MB(istart),Nintegrals)
+                   endif
+                else
+                   call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
+     &             ishd,nscr,Dbl_MB(iscr),Nintegrals,Dbl_MB(istart))
+                endif                   
+c
                 istart=istart+Nintegrals
 c
   220         continue
@@ -409,6 +415,9 @@ c
       call tcllct(t_sub(1,2),ts2,ts1)
       call dft_second(ts1)
 #endif
+c
+      if (oskel)
+     &   call sym_vec_symmetrize(geom, cd_bas_han,  Dbl_MB(iTvec))
 c      
 c     Compute the CD expansion coefficients.
 c     
@@ -510,8 +519,8 @@ c
       call ga_dgop(Msg_CD_coef,CD_coef,nbf_cd,'+')
       call ga_sync 
       if(me.eq.0) then
-         call util_file_name('cdfit', .true., .false., cdfit)
-         open(unit=79,file=cdfit,access='sequential',
+         call util_file_name('cdfit', .true., .false., cdfit_filename)
+         open(unit=79,file=cdfit_filename,access='sequential',
      &         form='unformatted',status='unknown')
          write(79) (CD_coef(i),i=1,nbf_cd)
          close(79)

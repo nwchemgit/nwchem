@@ -5,7 +5,7 @@
      $     g_fock,g_svecs,isvals,
      $     g_cdinv,g_xcinv,g_2ceri)
 c     
-C     $Id: dft_scf.F,v 1.62 1997-03-03 01:23:13 d3h449 Exp $
+C     $Id: dft_scf.F,v 1.63 1997-03-05 07:34:21 d3h449 Exp $
 c     
       implicit none
       integer rtdb              ! [input]
@@ -32,7 +32,7 @@ c
 #endif
       Logical movecs_write, movecs_converged
       External movecs_write, movecs_converged
-      logical oprint,oprint_sym,oadapt
+      logical oprint, oprint_sym
       double precision Exc(2), rms(2), derr(2), n3c_dbl_r, availm_r
       double precision energy
       integer noc(2),nmo(2),icall(2)
@@ -537,13 +537,10 @@ c
      $        icd_coef))
      $        call errquit('dft_scf: cannot allocate cd_coef',0)
          
-         call dft_fitcd( rtdb,ao_bas_han, CD_bas_han,geom,
-     $        Dbl_MB(icd_coef),  nbf_cd,
-     $        g_cdinv, g_dens, nTotEl, IOLGC,itol2e,
-     $        Ecoul,incore,
-     $        n_batch,n3c_int,
-     $        int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl,
-     $        iwhat_max, n_semi_bufs, fd)
+         call dft_fitcd(Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul, rtdb,
+     $                  g_cdinv, g_dens, nTotEl, n_batch, n3c_int,
+     $                  int_mb(k_3cwhat), n3c_dbl, iwhat_max, 
+     $                  n_semi_bufs, fd, IOLGC)
       endif
 c     
 #if defined(DFT_TIMER)
@@ -554,13 +551,10 @@ c
 #endif
       if(oprint_time)
      $     call dft_tstamp(' Before call to GETVCOUL.')
-      call dft_getvc(rtdb,geom,ao_bas_han,CD_bas_han,
-     $     Dbl_MB(icd_coef),g_tmp,
-     $     Ecoul,nbf_cd,iVcoul_opt,
-     $     g_2ceri,g_dens,IOLGC,itol2e,incore,
-     $     n_batch,n3c_int,
-     $     int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl,
-     $     iwhat_max, n_semi_bufs, fd)
+      call dft_getvc(Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul, rtdb,
+     $               g_tmp, iVcoul_opt, g_2ceri, g_dens, n_batch, 
+     $               n3c_int, int_mb(k_3cwhat), n3c_dbl, iwhat_max,
+     $               n_semi_bufs, fd, IOLGC)
 c     
 c     Add V coul to Fock Matrix
 c     
