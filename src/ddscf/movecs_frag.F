@@ -36,8 +36,9 @@ c
       logical movecs_read_header, movecs_read
       external  movecs_read_header, movecs_read
 c
+      call ga_sync()
       oprint = util_print('mo guess', print_default) 
-     $     .and. ga_nodeid().eq.0
+     $     .and. (ga_nodeid().eq.0)
       if (oprint) then
          write(6,*)
          call util_print_centered(6,
@@ -168,7 +169,7 @@ c
 c
       enddo
 c
-      call output(evals,1,nmo,1,1,nmo,1,1)
+*      call output(evals,1,nmo,1,1,nmo,1,1)
 c
       if (closed_off .ne. nclosed+1) call errquit
      $     ('movecs_fragment: bad # closed shells',  closed_off-1)
@@ -176,6 +177,8 @@ c
      $     ('movecs_fragment: bad # open shells',  open_off-closed_off)
       if (virt_off .ne. nmo+1) call errquit
      $     ('movecs_fragment: bad # virtuals', virt_off-open_off)
+c
+      call ga_sync()
 c
       end
 
