@@ -71,16 +71,17 @@ c
 c     
 c        Does not match a keyword ... 
 c     
-         goto 10
+         goto 10000
       endif
 c
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 
-     &      1100, 1200, 1300, 1400, 1500, 1600, 1700, 1999) ind
+     &      1200, 1300, 1400, 1500, 1600, 1700, 1999) ind
       call errquit('xc_inp: unimplemented directive', ind)
 c     
 c     acm; adiabatic connection method
 c          AD Becke JCP 98, 5648 (1993)
-c          Exc(S+VWN) + A*(Ex(HF)-Ex(S) + B*Ex(B88) + C*Ec(P91) 
+c          Exc(S+VWN) + A*(Ex(HF)-Ex(S)) + B*Ex(B88(nl)) + 
+c          C*Ec(P91(nl)) 
 c          A=0.20, B=0.72, C=0.81               
 c             
   100 xccomb(1) = .true.
@@ -104,8 +105,9 @@ c
 c     
 c     b3lyp; Becke3LYP
 c            AD Becke JCP 98, 5648 (1993)
-c            Exc(S+VWN) + A*(Ex(HF)-Ex(S) + B*Ex(B88) + (1-C)*Ec(VWN)
-c            + C*Ec(VWN) 
+c            A*Ex(HF) + (1-A)*Ex(S) + B*Ex(B88(nl)) + 
+c            C*Ec(LYP(total)) + (1-C)*Ec(VWN_1_RPA)
+c            
 c            A=0.20, B=0.72, C=0.81               
 c             
   200 xccomb(2) = .true.
@@ -599,12 +601,27 @@ c
 c     
  1999 continue
 c     
+c    
+c      write(*,*) ' lcfac '
+c      write(*,*) (lcfac(iline),iline=1,15) 
+c      write(*,*) ' nlcfac '
+c      write(*,*) (nlcfac(iline),iline=1,15) 
+c      write(*,*) ' lxfac '
+c      write(*,*) (lxfac(iline),iline=1,15) 
+c      write(*,*) ' nlxfac '
+c      write(*,*) (nlxfac(iline),iline=1,15) 
+c      write(*,*) ' xccomb '
+c      write(*,*) (xccomb(iline),iline=1,15) 
+c      write(*,*) ' cfac '
+c      write(*,*) (cfac(iline),iline=1,15) 
+c      write(*,*) ' xfac '
+c      write(*,*) (xfac(iline),iline=1,15) 
 c
 c     No alternative but to dump all array's associated
 c     with type of XC into rtdb (whether specified or not).
 c     
 c>>>  place logical XC parameters in rtdb
-c     
+c
       if (.not. rtdb_put(rtdb, 'dft:lcfac', mt_log, 15, lcfac))
      &   call errquit('xc_inp: rtdb_put failed', 1)
       if (.not. rtdb_put(rtdb, 'dft:nlcfac', mt_log, 15, nlcfac))

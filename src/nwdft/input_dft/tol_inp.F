@@ -39,7 +39,7 @@ c
 c     
 c     Does not match a keyword ... 
 c     
-         goto 10
+         goto 10000
       endif
 c     
       goto (100, 200, 300, 400, 500, 600, 700, 999) ind

@@ -48,11 +48,11 @@ c
 c     
 c        Does not match a keyword ... 
 c     
-         goto 10
+         goto 10000
       endif
 c
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 
-     &      1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 
+     &      1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 
      &      1999) ind
       call errquit('conv_inp: unimplemented directive', ind)
 c     
