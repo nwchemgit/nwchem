@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.191 1997-01-14 00:16:04 twclark Exp $
+# $Id: makefile.h,v 1.192 1997-01-14 01:45:37 twclark Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -221,13 +221,13 @@ ifeq ($(TARGET),SUN)
 
    FOPTIONS = -Nl199 -fast -dalign
    COPTIONS = -Wall
-# -O4 breaks at least inp_* and seems no faster than -O3
-  FOPTIMIZE = -O3
+# -O4 breaks at least inp_* and seems no faster than -O1
+  FOPTIMIZE = -O1
   COPTIMIZE = -g -O2
 
     DEFINES = -DSUN -DHAVE_LOC
 
-       CORE_LIBS =  -lutil -lchemio -lglobal -llapack -lblas
+       CORE_LIBS =  -lutil -lchemio -lglobal -llapack -lblas 
 endif
 
 ifeq ($(TARGET),SOLARIS)
@@ -250,10 +250,10 @@ ifeq ($(TARGET),SOLARIS)
 # -xs allows debugging without .o files
    FOPTIONS = -Nl199 -fast -dalign -stackvar
    COPTIONS = -Wall
-# Under Solaris -O3 is the default with -fast (was -O2 with SUNOS)
+# Under Solaris -O1 is the default with -fast (was -O2 with SUNOS)
 # -fsimple=2 enables more rearranging of floating point expressions
 # -depend enables more loop restructuring
-  FOPTIMIZE = -O3 -fsimple=2 -depend 
+  FOPTIMIZE = -O1 -fsimple=2 -depend 
 # Under Solaris -g no longer disables optimization ... -O2 seems solid
 # but is slow and impairs debug ... use -O1 for speed and debugability
      FDEBUG = -g -O1
@@ -285,10 +285,10 @@ ifdef PURECOV
 # -xs allows debugging without .o files
    FOPTIONS = -Nl199 -fast -dalign -stackvar
    COPTIONS = -Wall
-# Under Solaris -O3 is the default with -fast (was -O2 with SUNOS)
+# Under Solaris -O1 is the default with -fast (was -O2 with SUNOS)
 # -fsimple=2 enables more rearranging of floating point expressions
 # -depend enables more loop restructuring
-#  FOPTIMIZE = -O3 -fsimple=2 -depend 
+#  FOPTIMIZE = -O1 -fsimple=2 -depend 
   FOPTIMIZE = -fsimple=2 -depend 
 # Under Solaris -g no longer disables optimization ... -O2 seems solid
 # but is slow and impairs debug ... use -O1 for speed and debugability
@@ -515,7 +515,7 @@ ifeq ($(TARGET),SGITFP)
 #         not on by default) ... can put everywhere.
 #     ... on -WK also add -r=3 (level of reduction) even with -o=1
 #     ... could benefit from -Wk on FOPTIMIZE ... actually have it on now.
-#     ... roundoff/ieee only modify pipelining which happens only at O3
+#     ... roundoff/ieee only modify pipelining which happens only at O1
 #
 # TPS 96/06/27:
 # Added -lutil to core libraries (again!)
@@ -537,13 +537,13 @@ ifeq ($(TARGET),SGITFP)
 
   FOPTIONS = -d8 -i8 -mips4 -64 -r8 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
   COPTIONS = -fullwarn -mips4 
- FOPTIMIZE = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
-FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
+ FOPTIMIZE = -O1 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
+FVECTORIZE = -O1 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
 
  COPTIMIZE = -O
 
     DEFINES = -DSGI -DSGITFP -DEXT_INT -DHAVE_LOC
-  CORE_LIBS = -lutil -lpeigs -lchemio -lglobal -llapack -lblas
+  CORE_LIBS = -lutil -lpfft -lpeigs -lchemio -lglobal -llapack -lblas 
 endif
 
 
@@ -602,15 +602,15 @@ ifeq ($(TARGET),SGI_N32)
  COPTIMIZE = -O2
 
 #optimization flags for R8000 (IP21)
- FOPTIMIZE_8K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
-FVECTORIZE_8K = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
+ FOPTIMIZE_8K = -O1 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
+FVECTORIZE_8K = -O1 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
 
 #optimization flags for R10000 (IP28)
- FOPTIMIZE_10K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC -SWP:if_conversion=OFF
-FVECTORIZE_10K = -O3 -OPT:fold_arith_limit=4000 -TENV:X=1 -WK,-dr=AKC -SWP:if_conversion=OFF
+ FOPTIMIZE_10K = -O1 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC -SWP:if_conversion=OFF
+FVECTORIZE_10K = -O1 -OPT:fold_arith_limit=4000 -TENV:X=1 -WK,-dr=AKC -SWP:if_conversion=OFF
 
 # optimization flags for R5000 (IP22)
- FOPTIMIZE_5K = -O3
+ FOPTIMIZE_5K = -O1
 
 #default optimization flag
  FOPTIMIZE = $(FOPTIMIZE_8K)
@@ -665,12 +665,12 @@ ifeq ($(TARGET),IBM)
    FOPTIONS = -qEXTNAME -qalign=4k -qnosave
 # -qinitauto=FF
    COPTIONS = 
-# -qstrict required with -O3 (according to Edo)
+# -qstrict required with -O1 (according to Edo)
 # -qfloat=rsqrt gives faster square roots (off by -qstrict)
 # -qfloat=fltint gives faster real-integer conversion (off by -qstrict)
 # -qhot seems to break a lot of things so don't ever use it
 # -qarch=pwr (for peril) com (for any) , pwr2  or ppc
-  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
+  FOPTIMIZE = -O1 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
   COPTIMIZE = -O
 
     DEFINES = -DIBM -DAIX -DEXTNAME -DHAVE_LOC
@@ -767,7 +767,7 @@ ifeq ($(TARGET),SP1)
 #
 #  LIBPATH += -L/sphome/harrison/peigs2.0
 
-  CORE_LIBS = -lglobal -lutil -lchemio -lpeigs -llapack
+  CORE_LIBS = -lglobal -lutil -lchemio -lpfft -lpeigs -llapack
 
 ifndef NOPIOFS
 # see inside chemio/elio
