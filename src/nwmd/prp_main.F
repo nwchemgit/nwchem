@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.74 2002-05-02 19:39:31 d3j191 Exp $
+c $Id: prp_main.F,v 1.75 2002-05-02 19:43:59 d3j191 Exp $
 c
       implicit none
 c
@@ -781,16 +781,16 @@ c
  1008 format(//' MULTISTEP THERMODYNAMIC PERTURBATION ',
      + 'EXCLUDING MASS CONTRIBUTIONS',t110,2a10,//,
      + ' Run Lambda   Size',
-     + '     Reverse Temperature     Forward    Ensemble Lambda',
+     + ' Temperature     Reverse     Forward    Ensemble Lambda',
      + ' Accumulated        Bias   Corrected',/,18x,
-     + '      kJ/mol           K      kJ/mol      kJ/mol       ',
+     + '           K      kJ/mol      kJ/mol      kJ/mol       ',
      + '      kJ/mol      kJ/mol      kJ/mol',/)
       else
       write(lfnout,1009) pdate,ptime
  1009 format(//' MULTISTEP THERMODYNAMIC PERTURBATION',
      + t110,2a10,//,
      + ' Run Lambda   Size',
-     + '     Reverse Temperature     Forward    Ensemble Lambda',
+     + ' Temperature     Reverse     Forward    Ensemble Lambda',
      + ' Accumulated        Bias   Corrected',/,18x,
      + '      kJ/mol           K      kJ/mol      kJ/mol       ',
      + '      kJ/mol      kJ/mol      kJ/mol',/)
@@ -801,7 +801,7 @@ c
  1010 format(//' MULTISTEP THERMODYNAMIC PERTURBATION ',
      + 'INCLUDING MASS CONTRIBUTIONS',t110,2a10,//,
      + ' Run Lambda   Size',
-     + '     Reverse Temperature     Forward    Ensemble Lambda',
+     + ' Temperature     Reverse     Forward    Ensemble Lambda',
      + ' Accumulated        Bias   Corrected',/,18x,
      + '      kJ/mol           K      kJ/mol      kJ/mol       ',
      + '      kJ/mol      kJ/mol      kJ/mol',/)
