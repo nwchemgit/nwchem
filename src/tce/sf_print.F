@@ -1,6 +1,6 @@
       subroutine sf_print(sf_handle,size)
 c
-c $Id: sf_print.F,v 1.4 2002-10-30 21:49:14 sohirata Exp $
+c $Id: sf_print.F,v 1.5 2002-11-09 06:03:53 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -20,7 +20,7 @@ c
      1  call errquit('sf_print: MA problem',0)
       call get_block(sf_handle,dbl_mb(k_sf),size,0)
       if (ga_nodeid().eq.0) then
-        call ma_print(dbl_mb(k_sf),size,1,'Shared file')
+        call ma_print(dbl_mb(k_sf),size,1,'Global file')
         checksum = 0.0d0
         do i = 1,size
           checksum = checksum + dbl_mb(k_sf+i-1)**2

@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.7 2002-11-07 19:02:21 sohirata Exp $
+c $Id: tce_input.F,v 1.8 2002-11-09 06:03:53 sohirata Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -15,7 +15,7 @@ c          MBPT2||MBPT3||MBPT4) default CCSD]
 c        [THRESH <double thresh default 1e-6>]
 c        [MAXITER <integer maxiter default 100>]
 c        [PRINT (none||low||medium||high||debug)]
-c        [IOALGORITHM (0||1||2) default 2]
+c        [IOALGORITHM (0||1||2||3) default 2]
 c     END
 c     
       implicit none
@@ -56,7 +56,7 @@ c
       if (.not.rtdb_put(rtdb,'tce:maxiter',mt_int,1,maxiter))
      1  call errquit('tce_input: failed writing to rtdb',0)
 c
-c     IOALGORITHM (I/O method, 0 = Fortran Direct Access, 1 = SF Library
+c     IOALGORITHM (I/O method, 0 = Fortran Direct Access, 1 = C Low-Level I/O,
 c                              2 = GA Library)
 c
       ioalg = 2
@@ -159,8 +159,8 @@ c
       else if (inp_compare(.false.,test,'ioalgorithm')) then
         if (.not.inp_i(ioalg)) then
           write(LuOut,*) 'tce_input: ioalgorithm value not found; ',
-     1      'default value of 0 will be used'
-          ioalg=0
+     1      'default value of 2 will be used'
+          ioalg=2
         endif
         if (.not.rtdb_put(rtdb,'tce:ioalg',mt_int,1,ioalg))
      1    call errquit('tce_input: failed writing to rtdb',0)

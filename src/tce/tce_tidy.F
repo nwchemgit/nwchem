@@ -1,6 +1,6 @@
       subroutine tce_tidy(rtdb)
 c
-c $Id: tce_tidy.F,v 1.2 2002-10-21 22:27:35 sohirata Exp $
+c $Id: tce_tidy.F,v 1.3 2002-11-09 06:03:53 sohirata Exp $
 c
 c     Terminate TCE modulem.
 c
@@ -19,7 +19,15 @@ c
 c
       integer rtdb             ! RTDB handle
       integer i
+      logical nodezero
 c
+      nodezero = (ga_nodeid().eq.0)
+      if (nodezero.and.util_print('time',print_debug)) then
+        write(LuOut,9000) cpusecs(1)
+        write(LuOut,9000) cpusecs(2)
+        write(LuOut,9000) cpusecs(3)
+        write(LuOut,9000) cpusecs(4)
+      endif
       do i=ipol,1,-1
         if (.not.ma_pop_stack(l_irs(i))) call errquit
      1    ('tce_tidy: MA problem',0)
@@ -35,5 +43,6 @@ c
       call fock_2e_tidy(rtdb)
       call int_terminate()
       call schwarz_tidy()
+ 9000 format(1x,'Clock #1:',f20.1)
       return
       end

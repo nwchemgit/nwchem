@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.12 2002-11-07 19:02:21 sohirata Exp $
+c $Id: tce_init.F,v 1.13 2002-11-09 06:03:53 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -45,6 +45,14 @@ c
       external ga_create_atom_blocked
 c
       nodezero=(ga_nodeid().eq.0)
+c
+c     -----------------------
+c     Initialize stop watches
+c     -----------------------
+c
+      do i = 1,max_clocks
+        cpusecs(i) = 0.0d0
+      enddo
 c
 c     ---------------------
 c     Geometry and symmetry
@@ -335,9 +343,11 @@ c
         if (ioalg.eq.0) then
           write(LuOut,9140) 'Fortran77 direct access'
         else if (ioalg.eq.1) then
-          write(LuOut,9140) 'Shared file library of ParSoft'
+          write(LuOut,9140) 'C low-level I/O'
         else if (ioalg.eq.2) then
           write(LuOut,9140) 'Global array library of ParSoft'
+        else if (ioalg.eq.3) then
+          write(LuOut,9140) 'Shared file library of ParSoft'
         else
           call errquit('tce_init: unknown I/O scheme',ioalg)
         endif

@@ -1,6 +1,6 @@
       subroutine sf_test
 c
-c $Id: sf_test.F,v 1.4 2002-10-31 10:52:06 sohirata Exp $
+c $Id: sf_test.F,v 1.5 2002-11-09 06:03:53 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -18,7 +18,7 @@ c
 c
       nodezero = (ga_nodeid() .eq. 0)
       if (nodezero.and.util_print('sf',print_default)) then
-        if ((ioalg.eq.0) .or. (ioalg.eq.1)) then
+        if ((ioalg.eq.0) .or. (ioalg.eq.1) .or. (ioalg.eq.3)) then
           write(LuOut,9000)
         else if (ioalg.eq.2) then
           write(LuOut,9100)
@@ -27,7 +27,7 @@ c
       size = ga_nnodes()
       if (.not.ma_push_get(mt_dbl,size,'sf',l_sf,k_sf))
      1  call errquit('sf_print: MA problem',0)
-      call util_file_name('sftest',.true.,.false.,filename)
+      call util_file_name('filetest',.true.,.false.,filename)
       call createfile(filename,d_test,size)
       dbl_mb(k_sf) = dfloat(ga_nodeid()+1)
       call put_block(d_test,dbl_mb(k_sf),1,ga_nodeid())
