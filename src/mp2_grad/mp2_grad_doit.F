@@ -24,6 +24,22 @@
       integer nbf
       integer num_i_perseg
       integer k_amos,k_bmos,l_amos,l_bmos
+c
+      integer k_toff_a,k_toff_b
+      integer l_toff_a,l_toff_b
+      integer noa,nva,nob,nvb,nir
+      integer maxireps, maxops
+      parameter (maxireps=20, maxops=120)
+      integer op_class_index(maxops)
+      integer iclass_dim(maxireps)
+      character*8 zir(maxireps), zclass(maxireps)
+      double precision chars(maxireps*maxireps)
+      character*8 group_name
+      integer nop,nir
+      logical sym_char_table
+      external sym_char_table
+
+c
       integer k_v,l_v
       integer k_temp,l_temp
       integer k_uv_ia,l_uv_ia
@@ -41,6 +57,19 @@ c
       integer oseg_lo,oseg_hi
       ocoul=.false.
       oexch=.true.
+      noa=noa_hi-noa_lo+1
+      nva=nva_hi-nva_lo+1
+      nob=nob_hi-nob_lo+1
+      nvb=nvb_hi-nvb_lo+1
+      write(6,*) 'inside mp2_grad_doit: noa,nva,nob,nvb',
+     $     noa,nva,nob,nvb
+c
+      call sym_group_name(geom,group_name)
+      if (.not. sym_char_table(group_name, nop, nir, iclass_dim,
+     $     zir, zclass, chars))
+     $     call errquit('sym_print_char_table: no char table',0)
+      write(6,*) 'inside mp2_grad_doit: nir is ',nir
+c
       num_i_perseg=noa_hi
       do oseg_lo=noa_lo,noa_hi,num_i_perseg
          oseg_hi=min((oseg_lo+num_i_perseg-1),noa_hi)
@@ -50,6 +79,12 @@ c
      $        call errquit('mp2_grad_doit: error with ma',1)
          if(.not.ma_push_get(mt_dbl,nbf*nbf,'bmos',l_bmos,k_bmos))
      $        call errquit('mp2_grad_doit: error with ma',1)
+         if(.not.ma_push_get(mt_int,nva*noa*nir,'toff_a',
+     $        l_toff_a,k_toff_a))
+     $        call errquit('could not alloc toff_a',1)
+         if(.not.ma_push_get(mt_int,nvb*nob*nir,'toff_b',
+     $        l_toff_b,k_toff_b))
+     $        call errquit('could not alloc toff_a',1)
          call ga_get(g_vecs_a,1,nbf,1,nbf,dbl_mb(k_amos),nbf)
          call ga_get(g_vecs_b,1,nbf,1,nbf,dbl_mb(k_bmos),nbf)
          call util_file_prefix('khalf',tmpname)
@@ -73,6 +108,8 @@ c
      $        basis,irs_a,dbl_mb(k_amos),irs_b,dbl_mb(k_bmos),
      $        dbl_mb(k_uv_ia),dbl_mb(k_jb_ia),
      $        eval_a,eval_b,
+     $        int_mb(k_toff_a),int_mb(k_toff_b),
+     $        nva,noa,nvb,nob,nir,
      $        dbl_mb(k_temp),ioff,nnbf,int_mb(k_v),
      $        nva_lo_local,nva_hi_local,e2)
          if(.not.ma_chop_stack(l_amos))call errquit(
