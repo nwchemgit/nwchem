@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.31 1997-08-19 17:18:46 d3g681 Exp $
+c  $Id: moints_2x.F,v 1.32 1997-10-28 18:52:41 d3g681 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -123,8 +123,11 @@ c
      $         call errquit('moints_2x: no memory for syms?',0)
           call sym_movecs_adapt(basis, 1d-8, g_movecs, int_mb(k_sym),
      $                          nmixed)
-          if (nmixed .ne. 0)
-     $         call errquit('moints_2x: symmetry contamination', nmixed)
+          if (nmixed.ne.0 .and. ga_nodeid().eq.0) then
+             write(6,*) ' !! warning: moints 2x: ',nmixed,
+     $            ' MO vectors were symmetry contaminated'
+             call util_flush(6)
+          endif
           do i =0, nbf-1
              int_mb(k_sym+i) = int_mb(k_sym+i) - 1
           enddo

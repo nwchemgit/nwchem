@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.41 1997-09-11 19:53:24 rg240 Exp $
+C$Id: direct_mp2.F,v 1.42 1997-10-28 18:52:43 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -30,7 +30,8 @@ c
        integer nbf, nsh, maxbfsh
        integer nelec, nact, nocc, nopen, nocc_correl
        integer occ_frozen, occ_lo, occ_hi
-       integer vir_frozen, vir_lo, vir_hi, nmo, nmo2
+       integer vir_frozen, vir_lo, vir_hi, nmoarray(2), 
+     $      nmo, nmo2
        integer noper, oseg_lo, oseg_hi, npass, blen, nocct
        integer g_coul, g_exch, g_epair
        integer i, j, ij, ii
@@ -168,12 +169,19 @@ c
 c
 c     Read in MO coefficients and apply swaps as appropriate.
 c
-       g_vecs = ga_create_atom_blocked(geom,basis,'Molecular orbital')
        if (.not. movecs_read_header(movecs_in, title_vecs,
-     $    basis_vecs, scftype_vecs, nbf_vecs, nsets, nmo, 2))
+     $    basis_vecs, scftype_vecs, nbf_vecs, nsets, nmoarray, 2))
      $    call errquit('direct_mp2: cannot read MO vectors header',0)
+       if (nsets .ne. 1) call errquit('direct_mp2: rhf only',0)
+       nmo = nmoarray(1)
+c
        if (nbf.ne.nbf_vecs)  call errquit(
      $    'direct_mp2: number of basis fun does not match input',0)
+c
+       if (.not. ga_create(mt_dbl, nbf, nmo, 'Molecular orbital', 
+     $      nbf, 1, g_vecs)) call errquit
+     $      ('direct_mp2: failed to create GA for MOs',0)
+c
        status = MA_push_get(MT_DBL, nbf, 'Evals', l_evals, k_evals)
        if (.not. movecs_read(movecs_in, 1, dbl_mb(k_occ),
      $                       dbl_mb(k_evals), g_vecs)) call
