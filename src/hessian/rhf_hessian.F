@@ -15639,7 +15639,7 @@ C
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs)
 
-c$Id: rhf_hessian.F,v 1.3 1997-02-04 04:17:04 bmeng Exp $
+c$Id: rhf_hessian.F,v 1.4 1997-02-06 07:04:21 d3j191 Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -16870,8 +16870,8 @@ C
       END
 C
       SUBROUTINE HND_CPFCM(FCM,NAT)
-#include "global.fh"
       IMPLICIT REAL*8 (A-H,O-Z)
+#include "global.fh"
       CHARACTER*4 DNAM
       common/hnd_iofile/ir,iw,ip
 C     COMMON/HND_IOFILE/IR,IW
