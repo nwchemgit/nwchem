@@ -568,11 +568,11 @@ sub-block.
         \item UNRESTRICTED - keyword specifying that the calculation is unrestricted.
 
         \item $<$restricted\_electrons$>$ - number of restricted electrons.
-               Not used if an UNRESTRICTED calculation  
+               Not used if an UNRESTRICTED calculation. 
          \item $<$up\_electrons$>$ - number of spin-up electrons.
-               Not used if a RESTRICTED calculation
+               Not used if a RESTRICTED calculation.
         \item $<$down\_electrons$>$ - number of spin-down electrons.
-              Not used if a RESTRICTED calculations
+              Not used if a RESTRICTED calculation.
 \end{itemize}
 
 \subsubsection{Old Style Input (version 3.3) to WAVEFUNCTION\_INTITIALIZER}
@@ -609,7 +609,7 @@ where
               RESTRICTED and number of spin-up molecular orbitals if 
               UNRESTRICTED.
         \item $<$down\_filling$>$ - number of spin-down moleclar orbitals if
-              UNRESTRICTED.  Not used if a RESTRICTED calculations
+              UNRESTRICTED.  Not used if a RESTRICTED calculation.
         \item $<$kx ky kz$>$ - specifies which planewave is to be filled. 
 \end{itemize}
 
@@ -1324,11 +1324,9 @@ $\{ \phi_j(\vec{r}) \}$.
                            \psi_{i,\sigma}(\phi_j) 
                             \phi_j(\vec{r})
 \end{equation}
-Which allows us to rewrite
-Eqs.~\ref{eqn:lda1}-\ref{eqn:lda2} as a function,
-$E(Y_{\uparrow},Y_{\downarrow})$,
-of two tall and skinny $N_{basis}$-by-$N_{\sigma}$ matrices
-which are
+Which allows us to rewrite the DFT energy functional as a function,
+$E(Y_{\uparrow},Y_{\downarrow})$, of two tall and skinny 
+$N_{basis}$-by-$N_{\sigma}$ matrices which are
 \begin{equation}
 Y_{\uparrow}=\left[\begin{array}{rrrr}
                     \psi_{1,\uparrow}(\phi_1) 
