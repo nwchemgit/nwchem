@@ -17,8 +17,8 @@
       character*8 task
       double precision threshscf
 c
-      logical cphf, scf
-      external cphf, scf
+      logical cphf, scf, int_normalize
+      external cphf, scf, int_normalize
 c
       status=rtdb_parallel(.true.)
       call util_print_push
@@ -81,7 +81,8 @@ c
             call util_flush(6)
          endif
       endif
-      call int_normalize(basis)
+      if (.not.int_normalize(basis))
+     &    call errquit('mp2_grad: int_normalize failed',0)
 c
 c     Make sure that we use the same vectors as the SCF
 c

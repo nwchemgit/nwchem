@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.56 1997-03-25 01:57:26 d3e129 Exp $
+c $Id: basis.F,v 1.57 1997-03-25 17:10:13 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -368,7 +368,8 @@ c 1s on H
       a_cof (1) = 0.15628500d00
       a_cof (2) = 0.90469100d00
       a_status = bas_add_ucnt (basis,
-     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+     &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
+     &    a_exp, a_cof, a_nprim, .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 2s on H
@@ -378,7 +379,8 @@ c 2s on H
       a_exp (1) = 0.18319200d00
       a_cof (1) = 1.00000000d00
       a_status = bas_add_ucnt (basis,
-     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+     &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
+     &    a_exp, a_cof, a_nprim, .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 1s on He
@@ -391,7 +393,8 @@ c 1s on He
       a_cof (1) =  0.17523000d00
       a_cof (2) =  0.89348300d00
       a_status = bas_add_ucnt (basis,
-     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+     &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
+     &    a_exp, a_cof, a_nprim, .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 2s on He
@@ -401,7 +404,8 @@ c 2s on He
       a_exp (1) = 0.38299300d00
       a_cof (1) = 1.00000000d00
       a_status = bas_add_ucnt (basis,
-     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+     &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
+     &    a_exp, a_cof, a_nprim, .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 1s on O
@@ -416,7 +420,8 @@ c 1s on O
       a_cof (2) =    0.35150000d00  
       a_cof (3) =    0.70765800d00  
       a_status = bas_add_ucnt (basis,
-     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+     &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
+     &    a_exp, a_cof, a_nprim, .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 1sp on O
@@ -430,7 +435,8 @@ c add s first
       a_cof (1) =   -0.40445300d00
       a_cof (2) =    1.22156000d00
       a_status = bas_add_ucnt (basis,
-     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+     &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
+     &    a_exp, a_cof, a_nprim, .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c add p now
@@ -443,7 +449,8 @@ c add p now
       a_cof (1) =   0.24458600d00
       a_cof (2) =   0.85395500d00
       a_status = bas_add_ucnt (basis,
-     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+     &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
+     &    a_exp, a_cof, a_nprim, .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 2sp on O
@@ -455,9 +462,10 @@ c add s first
       a_exp (1) =  0.37368400d00
       a_cof (1) =  1.00000000d00
       a_status = bas_add_ucnt (basis,
-     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+     &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
+     &    a_exp, a_cof, a_nprim, .false.)
       if (.not. a_status) call errquit
-     &      ('bas_321g_load: bas_add_ucnt failed',911)
+     &    ('bas_321g_load: bas_add_ucnt failed',911)
 c add p now
       a_tag   = 'O '
       a_lval  = 1
@@ -466,9 +474,10 @@ c add p now
       a_exp (1) =  0.37368400d00
       a_cof (1) =  1.00000000d00
       a_status = bas_add_ucnt (basis,
-     &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
+     &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
+     &    a_exp, a_cof, a_nprim, .false.)
       if (.not. a_status) call errquit
-     &      ('bas_321g_load: bas_add_ucnt failed',911)
+     &    ('bas_321g_load: bas_add_ucnt failed',911)
 *_old_checking_code:      bs_tags(1,usebas) = 'H'
 *_old_checking_code:      bs_tags(2,usebas) = 'He'
 *_old_checking_code:      bs_tags(3,usebas) = 'O'

@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.26 1996-10-16 22:40:47 d3e129 Exp $
+c $Id: exact_mem.F,v 1.27 1997-03-25 17:10:10 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -801,6 +801,7 @@ c:tex-primarily as a debugging tool
 c:tex-
 ***********************************************************************
 c:tex-{\it Syntax:}
+#if defined(API_DEBUG)
 c:tex-\begin{verbatim}
       subroutine emem_2e4c_full(brain, ketin, maxg, memsize)
 c:tex-\end{verbatim}
@@ -949,10 +950,11 @@ c
       endif
       maxg = max_nbf_bra*max_nbf_bra*max_nbf_ket*max_nbf_ket
 c
-      write(6,'(a,i10)')'emem_2e4c: memsize =',memsize
-      write(6,'(a,i10)')'emem_2e4c: maxg    =',maxg
+      write(6,'(a,i10)')'emem_2e4c_full: memsize =',memsize
+      write(6,'(a,i10)')'emem_2e4c_full: maxg    =',maxg
 c
       end
+#endif
 ***********************************************************************
 c:tex-% Part of the API internal routines.
 c:tex-\subsubsection{int\_nbf\_max}

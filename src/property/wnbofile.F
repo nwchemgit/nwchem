@@ -72,9 +72,11 @@ c
 c
 c>>>  Functions
 c
+      logical int_normalize
       logical  movecs_read, restricted, movecs_read_header
       integer  inp_strlen, ga_create_atom_blocked
 
+      external int_normalize
       external inp_strlen, ga_create_atom_blocked, movecs_read, 
      $     movecs_read_header
 
@@ -635,7 +637,8 @@ c
 c>>>  Create overlap matrix.
 c
       call int_init(rtdb,1,lbasis)
-      call int_normalize(lbasis)
+      if (.not.int_normalize(lbasis)) call errquit
+     &    ('wnbofile: int_normalize failed',911)
       g_over  = ga_create_atom_blocked(lgeom, lbasis,'Overlap')
 c
       call ga_zero(g_over)

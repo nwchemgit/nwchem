@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.63 1997-01-21 17:16:42 d3e129 Exp $
+c $Id: raktest.F,v 1.64 1997-03-25 17:10:17 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -1539,7 +1539,7 @@ c free memory
       call ga_sync()
       call ga_sync()
       call ga_sync()
-      if (stpr_walk('scf',rtdb)) then
+      if (stpr_walk(rtdb)) then
         write(6,*)' walk converged'
       else
         write(6,*)' walk NOT converged'
@@ -2796,7 +2796,7 @@ c
       if (.not.bas_print(ecpid)) stop ' print error'
       if (.not.gbs_map_print(basis)) stop ' gbs map print error'
 c
-      if (.not.int_ecp_init(ecpid)) stop ' error in int_ecp_init'
+      if (.not.int_ecp_init(ecpid,0)) stop ' error in int_ecp_init'
       call int_ecp_terminate()
 c
       if (.not.bas_destroy(basis)) stop ' bas_dest error 1'
@@ -3049,9 +3049,9 @@ c
       l2a = (atype+1)*(atype+2)/2
       l2b = (btype+1)*(btype+2)/2
       write(6,*)'from hf1'
-      call intintp(dbl_mb(kao),l2a,l2b)
+      call intintp(dbl_mb(kao),l2a,l2b,'from hf1')
       write(6,*)'from hf3pot'
-      call intintp(dbl_mb(k3p),l2a,l2b)
+      call intintp(dbl_mb(k3p),l2a,l2b,'from hf3pot')
 c      
       call int_terminate()
       ignore = bas_destroy(basao)
