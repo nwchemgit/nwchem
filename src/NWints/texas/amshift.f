@@ -1,4 +1,4 @@
-c $Id: amshift.f,v 1.6 1999-07-08 19:10:49 d3e129 Exp $
+c $Id: amshift.f,v 1.7 2000-07-26 23:24:49 windus Exp $
 c----------------------------------------------------
 C*
 C*  THESE ROUTINES SHIFT THE ANGULAR MOMENTUM
@@ -185,8 +185,8 @@ cccccc        jbuf0=ibuf0+(iqu-1)*nbls*l01*l02
               jbuf1=ider1+(iqu-1)*9*nbls*l01*l02
               iwij1=iwij +mnbls*lsmx*lsjl 
               ixij1=ixij +mnbls*nfu(nqi+1)*lqij*lnkl
-              iwij0=iwij1 +    9*lsmx*lsjl 
-              ixij0=ixij1 +    9*nfu(nqi+1)*lqij*lnkl
+              iwij0=iwij1 +    9*nbls*lsmx*lsjl 
+              ixij0=ixij1 +    9*nbls*nfu(nqi+1)*lqij*lnkl
               call shift0l_der2(bl(jbuf),bl(jbuf2),bl(jbuf1),bl(jbuf0),
      *                         l01,l02,bl(iwij),bl(iwij1),bl(iwij0),
      *                         lsmx,lsjl,
