@@ -1,6 +1,6 @@
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.24 1997-12-15 01:28:25 d3g681 Exp $
+C     $Id: ccsd_driver.F,v 2.25 1998-07-17 07:59:27 d3e129 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -73,13 +73,11 @@ capr
        data algo/'twofold'/
 capr
        Me = GA_NodeID()
-       status = ma_set_hard_fail(.true.)
-       status = ma_set_auto_verify(.true.)
 c
-       status = status.and.bas_numbf(basis, nbf)
+       status = bas_numbf(basis, nbf)
        status = status.and.bas_numcont(basis,nsh)
        if (.not. status)
-     $   call errquit('moint_driver: failed to get info', 0)
+     $   call errquit('ccsd_driver: failed to get info', 0)
 c
 c Reconcile number of electrons and occupied/virtual orbitals
 c
