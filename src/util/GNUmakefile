@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.124 2000-10-26 19:21:44 edo Exp $
+# $Id: GNUmakefile,v 1.125 2001-01-18 20:40:10 edo Exp $
 
 include ../config/makefile.h
 
@@ -64,7 +64,7 @@ ifeq ($(TARGET),HPUX64)
 endif
 
 ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS))
-  EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o
+  EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o linux_setfpucw.o
   LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 #
 # If you want to turn traps on for LINUX uncomment this line. That is it.
@@ -91,6 +91,9 @@ ifeq ($(TARGET),DECOSF)
   LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
   EXTRA_OBJ = dec_fpe.o
 endif
+ifeq ($(TARGET),LINUX64)
+  EXTRA_OBJ += dec_fpe.o
+endif                                                                           
 
 ifeq ($(TARGET),FUJITSU_VPP)
    LIB_DEFINES = -Wp,-DSCRATCH_DEF_DIR=$(SCRATCH_DEF_DIR) \
