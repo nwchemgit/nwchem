@@ -1,10 +1,14 @@
-# $Id: GNUmakefile,v 1.78 1997-11-14 00:23:23 d3g681 Exp $
+# $Id: GNUmakefile,v 1.79 1998-01-10 00:42:19 d3e129 Exp $
 
 include ../config/makefile.h
 
    LIB_DEFINES = -DSCRATCH_DEF_DIR=$(SCRATCH_DEF_DIR) \
-                 -DPERM_DEF_DIR=$(PERM_DEF_DIR) \
-                 -DBINDIR=\"$(BINDIR)\"
+                 -DPERM_DEF_DIR=$(PERM_DEF_DIR)
+ifdef JOBTIME_PATH
+   LIB_DEFINES += -DJOBTIMEPATH=\"$(JOBTIME_PATH)\"
+else
+   LIB_DEFINES += -DJOBTIMEPATH=\"$(BINDIR)\"
+endif
 
 ifeq ($(TARGET),SOLARIS)
   EXTRA_OBJ = ieeetrap.o

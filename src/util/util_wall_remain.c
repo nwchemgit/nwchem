@@ -10,7 +10,7 @@
 /* util_batch_job_time_remaining returns the wall time (>=0) in seconds
    remaining for job execution, or -1 if no information is available */
 
-#if (defined(SP1) && defined(BINDIR))
+#if (defined(SP1) && defined(JOBTIMEPATH))
 #define DONEIT 1  
 
 #include <unistd.h>
@@ -22,7 +22,7 @@ Integer util_batch_job_time_remaining_(void)
   char cmd[1024];
   int t, status;
 
-  sprintf(cmd,"%s/jobtime",BINDIR);
+  sprintf(cmd,"%s/jobtime",JOBTIMEPATH);
 
   if (access(cmd,F_OK|X_OK)) {	/* If cannot access perl script */
     /*(void) fprintf(stderr,"ujtr: cannot access %s\n",cmd);*/
