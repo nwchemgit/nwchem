@@ -40,6 +40,12 @@ c     ----------------------------
         return
       end if 
 
+      if(.not.cons_status(namespace,rtdb)) then
+        status = rtdb_put(rtdb, 'cons:active', mt_log, 1, .false.)
+        return
+      end if 
+
+
       if(.not.cons_activate(namespace,rtdb)) then
         status = rtdb_put(rtdb, 'cons:active', mt_log, 1, .false.)
         if(.not.status)
@@ -541,6 +547,7 @@ c
       character(255) namespace
 c
       call cons_get_namespace(namespace)
+      if(.not.cons_status(namespace,rtdb)) return
       if(.not.cons_hbonds(namespace,rtdb)) return
 c
       call cons_load_geom(rtdb)
@@ -567,6 +574,7 @@ c
       character(255) namespace
 c
       call cons_get_namespace(namespace)
+      if(.not.cons_status(namespace,rtdb)) return
       if(.not.cons_hbonds(namespace,rtdb)) return
 c
       call cons_load_geom(rtdb)
@@ -782,12 +790,15 @@ c
      >             r,e,f)
 
          if(master) then
-          write(6,*)"  spring #                    : ",inb
-          write(6,*)"  spring parameters (i,j,k,r0):",iat,jat,k,r0
-          write(6,*)"  spring length               :",r
-          write(6,*)"  spring energy               :",e
-          write(6,*)"  spring forces               :",(f(i),i=1,3)
-          write(6,*)"  "
+          write(6,'(A30,T32,I4)')"spring #                    :",inb
+          write(6,'(A30,T32,2I4,2(F6.3,2X))')
+     >      "spring parameters (i,j,k,r0):",iat,jat,k,r0
+          write(6,'(A30,T32,F6.3)')"spring length               :",r
+          write(6,'(A30,T32,F6.3)')"spring energy               :",e
+          write(6,'(A30,T32,3(F6.3,2X))')
+     >          "spring forces               :",
+     >          (f(i),i=1,3)
+          write(6,'(//)')"  "
          end if
          etot=etot+e
         end do
@@ -799,10 +810,16 @@ c
      $        call errquit('driver: could not get energy',0, RTDB_ERR)
 
       if(master) then
-      write(6,*)" Total energy with constraints        :",energy
-      write(6,*)" Energy contribution from constraints :",etot
-      write(6,*)" Total energy without constraints  :",energy-etot
-      write(6,*)" -----------------------------------"
+      write(6,'(A39,3X,F12.6)')
+     >       " Total energy with constraints        :",
+     >         energy
+      write(6,'(A39,3X,F12.6)')
+     >       " Energy contribution from constraints :",
+     >                       etot
+      write(6,'(A39,3X,F12.6)')
+     >       " Total energy without constraints     :",
+     >                       energy-etot
+      write(6,*) "--------------------------------------"
       end if
       call cons_unload_geom()
 

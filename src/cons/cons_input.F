@@ -1,4 +1,4 @@
-c $Id: cons_input.F,v 1.11 2004-04-21 19:43:25 marat Exp $
+c $Id: cons_input.F,v 1.12 2004-04-21 23:30:07 marat Exp $
       subroutine cons_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -7,6 +7,7 @@ c $Id: cons_input.F,v 1.11 2004-04-21 19:43:25 marat Exp $
 #include "rtdb.fh"
 #include "util.fh"
 #include "cons_params.fh"
+#include "cons.fh"
 c     
       integer rtdb
 c
@@ -16,17 +17,21 @@ c
       integer i_tmp_id,h_tmp_id
       integer nfp
       logical status
+      logical oactive
       integer id(2)
       double precision k,r
 c
       logical cons_harm_bond_input
       external cons_harm_bond_input
 c
-c     enable constraints by default
+c     tell main program that constraints might be present
       status = rtdb_put(rtdb, 'cons:active', mt_log, 1, .true.)
       if(.not.status)
-     &  call errquit('cons_input: cannot activate constraints',0,0) 
+     &  call errquit('cons_input: cannot set constraints status',0,0)
 c
+c     enable this set constraints by default
+      oactive = .true.
+
       max_fp = min( max_fixed_atoms*4, ma_inquire_avail(MT_INT))
       if ( .not. ma_push_get( MT_INT, max_fp, 
      &      'cons scratch fixed atoms',
@@ -65,6 +70,7 @@ c
 c     reset/clear
 c     ----------------------------
       else if (inp_compare(.false.,'clear', test)) then
+         oactive = .false.
          call cons_delete_hbonds(namespace,rtdb)
          call cons_delete_fixed_atoms(namespace,rtdb)
 
@@ -73,18 +79,14 @@ c     ----------------------------
 c      enable
 c     ----------------------------
       else if (inp_compare(.false.,'enable', test)) then
-         status = rtdb_put(rtdb, 'cons:active', mt_log, 1, .true.)
-         if(.not.status)
-     &    call errquit('cons_input: enable ',0,RTDB_ERR) 
+         oactive = .true.
 
       goto 100
 c
 c     disable 
 c     ----------------------------
       else if (inp_compare(.false.,'disable', test)) then
-         status = rtdb_put(rtdb, 'cons:active', mt_log, 1, .false.)
-         if(.not.status)
-     &    call errquit('cons_input: disable ',0,RTDB_ERR) 
+         oactive = .false.
 
       goto 100
 c
@@ -94,7 +96,7 @@ c     ----------------------------
         if (.not. inp_a(test))
      >      call errquit('cons_input: failed to read keyword', 0,
      >        0)
-         if (inp_compare(.false.,'pos', test)) then
+         if (inp_compare(.false.,'atom', test)) then
            status = inp_ilist(max_fp,int_mb(i_tmp_id),nfp)
            if(status) then
              call cons_add_fixed_atoms(namespace,nfp,
@@ -113,7 +115,7 @@ c     ----------------------------
         if (.not. inp_a(test))
      >      call errquit('cons_input: failed to read keyword', 0,
      >        0)
-         if (inp_compare(.false.,'pos', test)) then
+         if (inp_compare(.false.,'atom', test)) then
            status = inp_ilist(max_fp,int_mb(i_tmp_id),nfp)
            if(status) then
              call cons_unfix_atoms(namespace,nfp,int_mb(i_tmp_id),rtdb)
@@ -127,7 +129,7 @@ c
 c
 c     spring contraints
 c     ----------------------------
-      else if (inp_compare(.false.,'harm', test)) then
+      else if (inp_compare(.false.,'spring', test)) then
         if (.not. inp_a(test))
      >      call errquit('cons_input: failed to read keyword', 0,
      >        0)
@@ -150,7 +152,14 @@ c     -------------------
 c     
 c
 101   continue
-c
+      if(.not.cons_fixed_atoms(namespace,rtdb)) then
+        if(.not.cons_hbonds(namespace,rtdb)) then
+          oactive = .false.
+        end if
+      end if
+ 
+      call cons_set_status(namespace,oactive,rtdb)
+cc
 
       if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
      &    'cons_input_springs: unable to free h_tmp_id',

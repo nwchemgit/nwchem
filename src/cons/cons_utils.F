@@ -1,4 +1,4 @@
-c $Id: cons_utils.F,v 1.14 2004-04-21 19:43:25 marat Exp $
+c $Id: cons_utils.F,v 1.15 2004-04-21 23:30:07 marat Exp $
       function cons_print()
       implicit none
 #include "global.fh"
@@ -456,7 +456,9 @@ c
      >      0, MA_ERR)
        
        if(ga_nodeid().eq.0) then
-       write(*,*) "fixed atoms          ",(int_mb(i_tmp_id +i-1),i=1,n)
+          write(*,'(" fixed atoms",T31,":",(T32,4(I4,2X),:))')
+     >         (int_mb(i_tmp_id +i-1),i=1,n)
+          write(*,'(/)')
        end if
 
       if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
@@ -768,13 +770,13 @@ c
       return
       end
 c
-      function cons_active(namespace,rtdb)
+      function cons_status(namespace,rtdb)
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 c     
-      logical cons_active
+      logical cons_status
       character*(*) namespace
       integer rtdb
 c
@@ -782,8 +784,29 @@ c
 
       call cons_tag(namespace,tag)
 
-      if(.not.rtdb_get(rtdb,tag,mt_log,1,cons_active)) then
-        cons_active=.false.
+      if(.not.rtdb_get(rtdb,tag,mt_log,1,cons_status)) then
+        call errquit("cons_status",0,RTDB_ERR)
+      end if
+     
+      return
+      end
+
+      subroutine cons_set_status(namespace,cons_status,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+c     
+      logical cons_status
+      character*(*) namespace
+      integer rtdb
+c
+      character(255) tag
+
+      call cons_tag(namespace,tag)
+
+      if(.not.rtdb_put(rtdb,tag,mt_log,1,cons_status)) then
+        call errquit("cons_set_status",0,RTDB_ERR)
       end if
      
       return
