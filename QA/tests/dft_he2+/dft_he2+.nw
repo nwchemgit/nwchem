@@ -38,3 +38,18 @@ end
 
 task dft gradient
 
+title "XC perdew91 "
+dft
+XC xperdew91 perdew91
+end
+
+task dft gradient
+
+
+title "XC pbe96 "
+dft
+XC xpbe96 cpbe96
+end
+
+task dft gradient
+
