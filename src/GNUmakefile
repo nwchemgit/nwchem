@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.61 1998-01-14 09:56:33 d3e129 Exp $
+# $Id: GNUmakefile,v 1.62 1998-01-30 16:20:40 vg038 Exp $
 
 include config/makefile.h
 
@@ -7,6 +7,10 @@ include config/makefile.h
 
   LIB_DEFINES =  -DCOMPILATION_DATE="'`date`'" \
                  -DCOMPILATION_DIR="'$(TOPDIR)'"
+ifeq ($(TARGET),FUJITSU_VPP)
+  LIB_DEFINES =  -Wp,-DCOMPILATION_DATE="'`date`'" \
+                 -Wp,-DCOMPILATION_DIR="'$(TOPDIR)'"
+endif
 
 #
 # This should be the first target so that a simple make builds
