@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri)
 c
 c
-c $Id: sp_init.F,v 1.70 2000-05-12 19:57:07 d3j191 Exp $
+c $Id: sp_init.F,v 1.71 2000-06-02 17:18:09 d3j191 Exp $
 c
       implicit none
 c
@@ -2467,7 +2467,7 @@ c
       write(lfntrj,1001) stime,temp,pres,rdate,rtime
  1001 format(2f12.6,1pe12.5,1x,2a10)
       write(lfntrj,1002) ((vlat(i,j),j=1,3),i=1,3)
- 1002 format(9f12.6)
+ 1002 format(3f12.6)
       write(lfntrj,1003) lxw,lvw,lxs,lvs,nwm,nwa,nsa
  1003 format(4l1,3i10)
 c
