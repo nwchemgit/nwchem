@@ -535,13 +535,15 @@ c
       end
          
       subroutine uccsdt_triples_set_super_block
-     $     (alo, ahi, blo, bhi, clo, chi, spina, spinb, spinc)
+     $     (alo, ahi, blo, bhi, clo, chi, spina, spinb, spinc,
+     $     oprint)
       implicit none
 #include "cuccsdtP.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       integer alo, ahi, blo, bhi, clo, chi ! [input]
       integer spina, spinb, spinc
+      logical oprint
 c
 c     The outer-3-most loops of the triples are over blocks of virtual 
 c     indices.  The blocking is determined outside of this routine
@@ -643,19 +645,21 @@ c
          end do
       end do
 c
-      write(6,*) ' A super block ', alo, ahi, spina, nablock
-      write(6,1) (i,ablock(1,i),ablock(2,i),ablock(3,i),i=1,nablock)
-      write(6,*) ' B super block ', blo, bhi, spinb, nbblock
-      write(6,1) (i,bblock(1,i),bblock(2,i),bblock(3,i),i=1,nbblock)
-      write(6,*) ' C super block ', clo, chi, spinc, ncblock
-      write(6,1) (i,cblock(1,i),cblock(2,i),cblock(3,i),i=1,ncblock)
-      write(6,*) ' Alpha occupied blocking'
-      write(6,1) (i,oblock(1,i,1),oblock(2,i,1),oblock(3,i,1),
-     $     i=1,noblock(1))
-      write(6,*) ' Beta  occupied blocking'
-      write(6,1) (i,oblock(1,i,2),oblock(2,i,2),oblock(3,i,2),
-     $     i=1,noblock(2))
- 1    format(4x,i5,4x,3i5)
+      if (oprint) then
+         write(6,*) ' A super block ', alo, ahi, spina, nablock
+         write(6,1) (i,ablock(1,i),ablock(2,i),ablock(3,i),i=1,nablock)
+         write(6,*) ' B super block ', blo, bhi, spinb, nbblock
+         write(6,1) (i,bblock(1,i),bblock(2,i),bblock(3,i),i=1,nbblock)
+         write(6,*) ' C super block ', clo, chi, spinc, ncblock
+         write(6,1) (i,cblock(1,i),cblock(2,i),cblock(3,i),i=1,ncblock)
+         write(6,*) ' Alpha occupied blocking'
+         write(6,1) (i,oblock(1,i,1),oblock(2,i,1),oblock(3,i,1),
+     $        i=1,noblock(1))
+         write(6,*) ' Beta  occupied blocking'
+         write(6,1) (i,oblock(1,i,2),oblock(2,i,2),oblock(3,i,2),
+     $        i=1,noblock(2))
+ 1       format(4x,i5,4x,3i5)
+      endif
 c
 c     Now set up the addressing arrays for the by-sub-block
 c     addressing of the 1-d global arrays with contiguous sub-blocks
@@ -1008,19 +1012,23 @@ c
 c
 c     Print a summary of the lists
 c
-      write(6,2)
- 2    format('  Summary of block-sorted list of integrals',
-     $     ' and amplitudes',//,
-     $     '  list    name    #blocks  #elements   block dimensions',/
-     $     ' ----- ---------- ------- ---------- --------------------')
-      do list = 1, 23
-         write(6,3) list, listname(list), listinfo(1,list), 
-     $        listinfo(4,list), 
-     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
-     $        listinfo(9,list)
- 3       format(1x,i5,1x,a10,i8,i11,1x,4i5)
-      end do
-c
+      if (oprint) then
+         write(6,2)
+ 2       format('  Summary of block-sorted list of integrals',
+     $        ' and amplitudes',//,
+     $        '  list    name    #blocks  #elements   block',
+     $        ' dimensions',/
+     $        ' ----- ---------- ------- ----------',
+     $        ' --------------------')
+         do list = 1, 23
+            write(6,3) list, listname(list), listinfo(1,list), 
+     $           listinfo(4,list), 
+     $           listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $           listinfo(9,list)
+ 3          format(1x,i5,1x,a10,i8,i11,1x,4i5)
+         end do
+      endif
+c     
 c     Finally, we can allocate the arrays for the lists themselves
 c
       do list = 1, 23
@@ -1170,6 +1178,7 @@ c
 #include "util.fh"
 #include "bas.fh"
 #include "schwarz.fh"
+#include "rtdb.fh"
       integer rtdb
 c
 c     Assumes that super- and sub-block info is already set
@@ -1190,13 +1199,15 @@ c
       integer nxtval
       external nxtval
       double precision q2, tol
-      logical odoit, oskel
+      logical odoit, oskel, ocheck
       parameter (tol = 1d-12, oskel = .true.)
       logical sym_shell_pair
       external sym_shell_pair
 c
       me = ga_nodeid()
       nproc = ga_nnodes()
+      if (.not. rtdb_get(rtdb, 'uccsdt:ocheck', mt_log, 1, ocheck))
+     $     ocheck = .false.
 c
 c     This is written for the mixed-spin case in which 
 c     spin(a)=spin(b)=spin(i)=spin(j) and spin(c)=spin(k) 
@@ -1800,9 +1811,11 @@ c
      $        ('moints_triples: failed to destroy g_ai',0)
       end do
 c
-      do list = 1, 13
-         call uccsdt_check_list(list)
-      end do
+      if (ocheck) then
+         do list = 1, 13
+            call uccsdt_check_list(list)
+         end do
+      endif
 c
 *      call ma_summarize_allocated_blocks()
 c
