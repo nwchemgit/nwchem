@@ -36,12 +36,19 @@
 
   LIB_INCLUDES = -I../ddscf -I./detci
 
-  LIB_DEFINES = 
+  LIB_DEFINES = -DOLD_DAVIDSON
 
 
 
 include ../config/makefile.h
 include ../config/makelib.h
+
+
+
+
+
+
+
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
