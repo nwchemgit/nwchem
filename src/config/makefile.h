@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.183 1996-10-16 19:41:42 d3g681 Exp $
+# $Id: makefile.h,v 1.184 1996-10-30 00:19:20 d3g270 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -235,7 +235,7 @@ ifeq ($(TARGET),SOLARIS)
 # Sun runningS olaris 2.4 or later
 # if you want to use purecoverage tool you must
 #
-# setenv PURECOV 1
+PURECOV = 1
 # FLINT = 1
 #
       SHELL := $(NICE) /bin/sh
@@ -273,8 +273,8 @@ ifdef PURECOV
 #
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
-         CC = purecov gcc
-         FC = purecov f77
+         CC = purecov -cache-dir=/scratch/d3g270 -always-use-cache-dir gcc -g
+         FC = purecov -cache-dir=/scratch/d3g270 -always-use-cache-dir f77 -g
      RANLIB = echo
   MAKEFLAGS = -j 2 --no-print-directory
     INSTALL = echo $@ is built
@@ -288,7 +288,8 @@ ifdef PURECOV
 # Under Solaris -O3 is the default with -fast (was -O2 with SUNOS)
 # -fsimple=2 enables more rearranging of floating point expressions
 # -depend enables more loop restructuring
-  FOPTIMIZE = -O3 -fsimple=2 -depend 
+#  FOPTIMIZE = -O3 -fsimple=2 -depend 
+  FOPTIMIZE = -fsimple=2 -depend 
 # Under Solaris -g no longer disables optimization ... -O2 seems solid
 # but is slow and impairs debug ... use -O1 for speed and debugability
      FDEBUG = -g -O1
@@ -297,7 +298,6 @@ ifdef PURECOV
    LIBPATH += -L/afs/msrc/sun4m_54/apps/purecov
    DEFINES = -DSOLARIS
    OPTIONS = -xildoff -Bstatic
-   CORE_LIBS = -lutil -lglobal -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
 	   EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -lintl -lc -lc -lpurecov_stubs
 
