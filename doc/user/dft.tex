@@ -83,8 +83,7 @@ the DFT module are:
                [diis [nfock <integer nfock default 10>]] \
                [nodiis] [lshift <real lshift default 0.5>] \
                [nolevelshifting] \
-               [hl_tol <real hl_tol default 0.1>]\
-               [smear] <real smear  default 0.001]
+               [hl_tol <real hl_tol default 0.1>]
 
 
   GRID [(xcoarse||coarse||medium||fine||xfine) default medium] \
@@ -608,8 +607,7 @@ iterations is reached or convergence is met.
               [(diis [nfock <integer nfock default 10>]) || nodiis] \
               [levlon <real levlon default 0.0>] \
               [levloff <real levloff default 0.0>] \
-              [(lshift <real lshift default 0.5>) || nolevelshifting] \
-              [smear] <real smear  default 0.001]
+              [(lshift <real lshift default 0.5>) || nolevelshifting]
 \end{verbatim}
 
 Convergence is satisfied by meeting any or all of three criteria;
@@ -727,11 +725,16 @@ procedures deemed undesirable with the obvious keywords,
   CONVERGENCE [nodamping] [nodiis] [nolevelshifting]
 \end{verbatim}
 
-The {\tt \bf SMEAR} keyword is useful in case with many degenerate states
+
+
+\section{SMEAR --- Fractional Occupation of the Molecular Orbitals}
+\label{smear}
+
+The {\tt \bf SMEAR} keyword is useful in cases with many degenerate states
 near the HOMO (eg metallic clusters)
 
 \begin{verbatim}
-  CONVERGENCE smear <real smear default 0.001>
+  SMEAR <real smear default 0.001>
 \end{verbatim}
 
 This  option allows fractional occupation of the molecular orbitals.
