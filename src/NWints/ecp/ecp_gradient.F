@@ -1,4 +1,4 @@
-C $Id: ecp_gradient.F,v 1.1 1996-10-15 18:07:00 mg201 Exp $
+C $Id: ecp_gradient.F,v 1.2 1996-10-16 18:27:42 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_gradient (
@@ -103,10 +103,10 @@ C $Id: ecp_gradient.F,v 1.1 1996-10-15 18:07:00 mg201 Exp $
       data dbyd/'d/dx','d/dy','d/dz'/
       data printhead/'      U_ab  '/
 *
-      write (LuOut,*) ibug
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
       debug_arrays = mod(ibug,10)/2 .eq. 1
+      if (debug_gen) write (LuOut,*) ibug
 *
       if (debug_gen) write (LuOut,'(//A,/)') 'Entering ecp_gradient ...'
       if (debug_addresses) then
@@ -324,7 +324,7 @@ C        end if
           if (.not.DryRun) then
             call dcopy (n_ab3,zero,0,scr(i_scr),1)
             call ecp_grad_b (l_B,n_cartp_b,n_cart_b,n_cartm_b,n_cont_B,
-     &          scr(i_lp),scr(i_lm),scr(i_scr),n_all_a)
+     &          scr(i_lp),scr(i_lm),scr(i_scr),n_all_a,ibug/10)
             i_s = i_scr
             do j = 1,3
               call daxpy (n_ab,one,scr(i_s),1,ecp_grads(1,j,i_c_B),1)
@@ -418,7 +418,7 @@ C        end if
           if (.not.DryRun) then
             call dcopy (n_ab3,zero,0,scr(i_scr),1)
             call ecp_grad_a (l_A,n_cartp_a,n_cart_a,n_cartm_a,n_cont_A,
-     &          scr(i_lp),scr(i_lm),scr(i_scr),n_all_b)
+     &          scr(i_lp),scr(i_lm),scr(i_scr),n_all_b,ibug/10)
             i_s = i_scr
             do j = 1,3
               call daxpy (n_ab,one,scr(i_s),1,ecp_grads(1,j,i_c_A),1)
