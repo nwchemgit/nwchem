@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.32 1998-05-07 18:30:52 d3e129 Exp $
+#$Id: GNUmakefile,v 1.33 2000-04-18 00:21:44 edo Exp $
 
 include ../config/makefile.h
 
@@ -54,6 +54,9 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                zlarft.o      zlascl.o      zlaset.o       zlasr.o      \
                zlassq.o      zlatrd.o      zpotf2.o       zpotrf.o     \
                zsteqr.o      zung2l.o      zung2r.o       zungql.o     \
+               zspcon.o      zspmv.o       zspr.o         zsprfs.o     \
+               zspsvx.o      zsptrf.o      zsptrs.o       zgeru.o      \
+               zlacon.o      zlacpy.o      zlansp.o \
                zungqr.o      zungtr.o
 else
 ########################################################################
