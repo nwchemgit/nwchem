@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.42 2000-01-26 23:29:40 d3j191 Exp $
+c $Id: exact_mem.F,v 1.43 2000-02-04 01:19:32 mg201 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -648,7 +648,7 @@ c
 c relativistic?
 c
       status_rel = dyall_mod_dir .and. (.not.nesc_1e_approx)
-     &    .and. (bra .eq. ket) .and. (brain .eq. ao_bsh)
+     &    .and. (brain .eq. ketin) .and. (brain .eq. ao_bsh)
 c
       do 00100 ibc = 1, bra_ucont
         bra_type = infbs_cont(CONT_TYPE,ibc,bra)
@@ -703,7 +703,7 @@ c ...........                             canAB   canCD   canPQ
      &          dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
 c ...........   DryRun
      &          .true.,dbl_mb(mb_exndcf(1,1)),memdum,
-     &          bra_rel,ket_rel,ss_one_cent,0)
+     &          bra_rel,ket_rel,ss_one_cent,do_ssss,0)
           else
             call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
@@ -737,7 +737,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
      &          ket_prim,ket_gen,ket_type,ket_cent,
      &          dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
      &          .true.,dbl_mb(mb_exndcf(1,1)),memdum,
-     &          bra_rel,ket_rel,ss_one_cent,0)
+     &          bra_rel,ket_rel,ss_one_cent,do_ssss,0)
           else
             call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
@@ -772,7 +772,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
      &            ket_prim,ket_gen,ket_type,ket_cent,
      &            dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
      &            .true.,dbl_mb(mb_exndcf(1,1)),memdum,
-     &            bra_rel,bra_rel.and.ket_rel,ss_one_cent,0)
+     &            bra_rel,bra_rel.and.ket_rel,ss_one_cent,do_ssss,0)
             else
               call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
@@ -806,7 +806,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
      &            ket_prim,ket_gen,ket_type,ket_cent,
      &            dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
      &            .true.,dbl_mb(mb_exndcf(1,1)),memdum,
-     &            bra_rel.and.ket_rel,ket_rel,ss_one_cent,0)
+     &            bra_rel.and.ket_rel,ket_rel,ss_one_cent,do_ssss,0)
             else
               call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
@@ -1099,9 +1099,12 @@ c:tex-\end{verbatim}
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
+#include "geobasmapP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 #include "stdio.fh"
+#include "apiP.fh"
 c::functions
       logical cando_sp_u
       external cando_sp_u
@@ -1119,16 +1122,20 @@ c::local
       integer i_type, j_type, k_type, l_type
       integer i_prim, j_prim, k_prim, l_prim
       integer i_gen,  j_gen,  k_gen,  l_gen
+      integer i_cent, j_cent, k_cent, l_cent
       integer max_nbf_bra,max_nbf_ket
 c
       integer approx_maxg
       integer approx_memsize
 c
-      logical bra_cando_sp
-      logical ket_cando_sp
+      logical bra_cando_sp, bra_rel
+      logical ket_cando_sp, ket_rel
+      logical status_rel
+c
       double precision factor
 c
 #include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
 c
       call emem_2e4c(brain,ketin,approx_maxg, approx_memsize)
 c
@@ -1155,6 +1162,11 @@ c
         write(luout,*)' ket contractions ',ket_ucont
         call errquit('emem_2e4c_full: bad basis info ',911)
       endif
+c 
+c relativistic?
+c
+      status_rel = dyall_mod_dir .and. (.not.nesc_1e_approx)
+     &    .and. (brain .eq. ketin) .and. (brain .eq. ao_bsh)
 c
       do 00100 ibc = 1, bra_ucont
         i_type = infbs_cont(CONT_TYPE,ibc,bra)
@@ -1164,6 +1176,7 @@ c
           i_type = abs(i_type)
           i_gen  = 1
         endif
+        i_cent  = (sf_ibs_cn2ce(ibc,bra))
 c
         do 00200 jbc = 1, ibc
           j_type = infbs_cont(CONT_TYPE,jbc,bra)
@@ -1173,7 +1186,11 @@ c
             j_type = abs(j_type)
             j_gen  = 1
           endif
+          j_cent  = (sf_ibs_cn2ce(jbc,bra))
+c
           bra_cando_sp = cando_sp_u(brain,ibc,jbc)
+          bra_rel = infbs_cont(CONT_RELLS,ibc,bra) .ne. 0
+     &        .and. infbs_cont(CONT_RELLS,jbc,bra) .ne. 0
 c
           if (bra.eq.ket) then
             kbc_end = jbc
@@ -1189,6 +1206,8 @@ c
               k_type = abs(k_type)
               k_gen  = 1
             endif
+            k_cent  = (sf_ibs_cn2ce(kbc,ket))
+c
             do 00400 lbc = 1, kbc
               l_type = infbs_cont(CONT_TYPE,lbc,ket)
               l_prim = infbs_cont(CONT_NPRIM,lbc,ket)
@@ -1197,12 +1216,36 @@ c
                 l_type = abs(l_type)
                 l_gen  = 1
               endif
+              l_cent  = (sf_ibs_cn2ce(lbc,ket))
+c
               ket_cando_sp = cando_sp_u(ketin,kbc,jbc)
+              ket_rel = infbs_cont(CONT_RELLS,kbc,ket) .ne. 0
+     &            .and. infbs_cont(CONT_RELLS,lbc,ket) .ne. 0
               if (bra_cando_sp.and.ket_cando_sp) goto 00201
 c
               memdum = 14 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
-              call hf2(
+              if (status_rel .and. (bra_rel .or. ket_rel)) then
+                call rel_2e4c_sf (
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              i_prim, i_gen, i_type, i_cent,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              j_prim, j_gen, j_type, j_cent,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              k_prim, k_gen, k_type, k_cent,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              l_prim, l_gen, l_type, l_cent,
+c ...........                                 canAB   canCD   canPQ
+     &              dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+c ...........       DryRun
+     &              .true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &              bra_rel,ket_rel,ss_one_cent,do_ssss,0)
+              else
+                call hf2(
      &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &              dbl_mb(mb_exndcf(1,1)), i_prim, i_gen, i_type,
      &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
@@ -1214,6 +1257,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
      &              dbl_mb(mb_exndcf(1,1)), 1, .false., .false.,
      &              .false.,.true., dbl_mb(mb_exndcf(1,1)),
      &              memdum)
+              end if
 #if defined(API_DEBUG)
               write(luout,*)' coul ',ibc,jbc,kbc,lbc,memdum
 #endif
@@ -1221,7 +1265,27 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
 c
               memdum = 14 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
-              call hf2(
+              if (status_rel .and. (bra_rel .or. ket_rel)) then
+                call rel_2e4c_sf (
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              i_prim, i_gen, i_type, i_cent,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              l_prim, l_gen, l_type, l_cent,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              k_prim, k_gen, k_type, k_cent,
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &              j_prim, j_gen, j_type, j_cent,
+c ...........                                 canAB   canCD   canPQ
+     &              dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+c ...........       DryRun
+     &              .true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &              bra_rel,ket_rel,ss_one_cent,do_ssss,0)
+              else
+                call hf2(
      &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &              dbl_mb(mb_exndcf(1,1)), i_prim, i_gen, i_type,
      &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
@@ -1233,6 +1297,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
      &              dbl_mb(mb_exndcf(1,1)), 1, .false., .false.,
      &              .false., .true., dbl_mb(mb_exndcf(1,1)),
      &              memdum)
+              end if
               memsize = max(memsize,memdum)
 #if defined(API_DEBUG)
               write(luout,*)' exch ',ibc,jbc,kbc,lbc,memdum
@@ -1417,7 +1482,7 @@ c
       end
 ***********************************************************************
 c:tex-% part of API Internal Routines
-c:tex-\subsection{emem\_1e\_rel}
+c:tex-\subsection{emem\_1e\_pvp}
 c:tex-This routine computes the memory for the p.Vp type 1e
 c:tex-integrals based on the basis sets used. These integrals are
 c:tex-in essence double derivative potential energy integrals of which
