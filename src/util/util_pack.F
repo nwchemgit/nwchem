@@ -119,8 +119,8 @@ c
 c
       integer i, ilo, ihi, ndo
 c
-      do ilo = 1, nunpacked, 4096       ! 16 K cache
-         ihi = min(nunpacked, ilo+4096-1)
+      do ilo = 1, nunpacked, 32768       ! 128 K cache
+         ihi = min(nunpacked, ilo+32768-1)
          ndo = ihi - ilo + 1
          call ifill(ndo, 0, unpacked(1,ilo), 1)
          do i = ilo, ihi
