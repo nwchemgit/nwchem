@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.26 2000-10-18 21:32:58 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.27 2000-10-18 21:52:22 d3j191 Exp $
 c
       implicit none
 c
@@ -208,17 +208,17 @@ c
       d(3)=dr*d(3)/r
       if(nnn.eq.3) then
       if(abs(d(1)).le.abs(d(2)).and.abs(d(1)).le.abs(d(3))) then
-      t(1)=c(1)
+      t(1)=d(1)+c(1)
       t(2)=d(3)+c(2)
       t(3)=-d(2)+c(3)
       elseif(abs(d(2)).le.abs(d(1)).and.abs(d(2)).le.abs(d(3))) then
       t(1)=d(3)+c(1)
-      t(2)=c(2)
+      t(2)=d(2)+c(2)
       t(3)=-d(1)+c(3)
       else
       t(1)=d(2)+c(1)
       t(2)=-d(1)+c(2)
-      t(3)=c(3)
+      t(3)=d(3)+c(3)
       endif
       d(1)=d(1)+c(1)
       d(2)=d(2)+c(2)
