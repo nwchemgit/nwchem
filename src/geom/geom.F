@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.118 2002-05-10 02:14:53 bylaska Exp $
+C$Id: geom.F,v 1.119 2003-02-15 01:46:33 bylaska Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -1689,18 +1689,23 @@ c
       write(unit,2) names(geom)(1:inp_strlen(names(geom)))
  2    format(1x,a)
       do icent = 1, ncenter(geom)
-c
-c     Convert from cartesian to crystallographic coordinates
-c
-         do i = 1, 3
-            tmp(i) = 0.0d0
-            do j = 1, 3
-               tmp(i) = tmp(i) + 
-     $              amatrix_inv(i,j,geom)*coords(j,icent,geom)
-            end do
-            tmp(i) = tmp(i)*scale ! Scale to angstrom
-         end do
-         write(unit,3) tags(icent,geom), (tmp(j),j=1,3)
+
+cc EJB commented this out 
+cc     Convert from cartesian to crystallographic coordinates
+cc
+c         do i = 1, 3
+c            tmp(i) = 0.0d0
+c            do j = 1, 3
+c               tmp(i) = tmp(i) + 
+c     $              amatrix_inv(i,j,geom)*coords(j,icent,geom)
+c            end do
+c            tmp(i) = tmp(i)*scale ! Scale to angstrom
+c         end do
+c         write(unit,3) tags(icent,geom), (tmp(j),j=1,3)
+        write(unit,3) tags(icent,geom), 
+     $                (coords(j,icent,geom)*scale,j=1,3)
+
+
  3       format(1x,a16,1x,3f15.8)
       end do
 c
