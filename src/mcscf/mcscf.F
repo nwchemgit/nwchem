@@ -72,11 +72,9 @@ c
        double precision ga_trace_diag
        external ga_trace_diag
 c
-       data ocisolve/.true./
        data oorbsolve/.true./
        data ohalf/.true./
        data blen/16/
-       data ocilock/.false./
 c
 c
 c
@@ -133,6 +131,10 @@ c
          if (.not. rtdb_get(rtdb,'scf:lshift',MT_DBL,1,lshift0))
      $     lshift0 = 0.1d0
        endif
+       if (.not.rtdb_get(rtdb,'mcscf:cisolve',MT_LOG,1,ocisolve))
+     $      ocisolve = .true.
+       if (.not.rtdb_get(rtdb,'mcscf:cilock',MT_LOG,1,ocilock))
+     $      ocilock = .false.
        if (.not.rtdb_get(rtdb,'mcscf:conjugacy',MT_LOG,1,oconj))
      $      oconj = .true.
        if (.not.rtdb_get(rtdb,'mcscf:microci',MT_LOG,1,ostepci))

@@ -1,5 +1,5 @@
 c
-c  $Id: mcscf_orb.F,v 1.16 1996-06-17 18:59:07 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.17 1996-06-17 23:46:07 rg240 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -243,10 +243,11 @@ c
        olsrchprint = .false.
        ociprint = util_print('ci relax',print_high)
        if ((ga_nodeid().eq.0).and.(util_print('einfo',print_high)))
-     $   write(6,966) hmin,hmax,(snorm/gnorm), lshift
+     $   write(6,966) hmin,hmax,(snorm/gnorm), lshift, bshift
  966   format(/,'Min/Max Hessian diags:',2x,2e10.1,
      $        /,'Scaled search norm:',5x,e12.2,
-     $        /,'Level shift:',15x,f12.3)
+     $        /,'Level shift:',15x,f12.3,
+     $        /,'E2 shift:',18x,f12.3)
 c
 c  Begin line search...
 c
