@@ -32,45 +32,7 @@
 /*
   PeIGS internal routine:
   
-  not intended for external use; see the routine pstein
-  
-  Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imin, nacluster, icsplit, iscratch, scratch)
-  
-  Integer *n, *schedule, *num_clustr, *mapZ, *mapvecZ, *Zbegn, *nacluster,
-  *icsplit, *iscratch;
-  
-  DoublePrecision *d, *e, *eval, **vecZ, *scratch;
-  
-  
-  for computing eigenvectors by inverse iteration with cluster modified Gram Schmidt
-  with "de-tangling" of clusters.
-
-  returns 0     if everything seems ok.
-          k > 0 if k-th eigenvector (owned by processor mapZ[k-1], k = 1 to neigval,
-                failed to converge in inverse iteration.  In this case eigenvectors
-                1 to k-1 converged ok, eigenvector k failed to converge, and it is
-                possible that some eigenvectors numbered greater than k failed to
-                converge.  In any case, the first k-1 eigenvectors are good,
-                while eigenvectors k is bad, and eigenvectors k+1 to neigval are
-                probably bad too.  Note that the meaning of bad is not always clear,
-                in general, however, it means that the eigenvector is probably
-                not accurate to full precision.
-                
-
-  This code "de-tangles" clusters as follows.  Assume the eigenvalues in a cluster
-  are owned by more than one processor (as determined by mapZ).  Then, the processor
-  owing the first eigenvector in the cluster does all required iterations of
-  inverse iteration and mgs to compute the eigenvectors in this cluster.  It then
-  sends these finished eigenvectors to the second processor in mapZ which owns part
-  of this cluster.  At this point the clusters are de-tangled and all processors can
-  start working on their eigenvectors.
-  
-  This version of the code assumes that during de-tangling each processor owns the
-  first eigenvector in at most one multi-processor cluster  and receives the finished
-  eigenvalues from at most one other processor.  This assumptions are satified by
-  the current algorithm in clustrf and are checkd by this routine.
-
-  */
+*/
 
 #include <stdio.h>
 #include <math.h>

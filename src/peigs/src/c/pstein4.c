@@ -442,22 +442,23 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   nacluster = 0;
   numclstr = 0;
   isize = 0;
+  
   /*
-  isize = clustrf4_(&msize, dplus, lplus, &neigval,
-		    eval, mapZ, vecZ, iblock, nsplit, isplit,
-		    clustr_info,
-		    &numclstr, icsplit, i_scrat);
-		    */
-
+    isize = clustrf4_(&msize, dplus, lplus, &neigval,
+    eval, mapZ, vecZ, iblock, nsplit, isplit,
+    clustr_info,
+    &numclstr, icsplit, i_scrat);
+    */
+  
   isize = clustrfix_(msize, dd, ee, neigval, eval, iblock, *nsplit, isplit,
 		     &numclstr, clustr_info );
-
-
+  
+  
   /*
-  for ( ii = 0; ii < 4*numclstr; ii++ ){
+    for ( ii = 0; ii < 4*numclstr; ii++ ){
     printf(" me = %d ii %d clustrf_info %d \n", me, ii, clustr_info[ii]);
-  }
-  */
+    }
+    */
     
 
   nacluster = numclstr;

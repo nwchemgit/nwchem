@@ -145,7 +145,7 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
    char            msg[ 25 ];
    char            msg2[ 25 ];
 
-   Integer           **piwork, max_sz, sync_proc;
+   Integer           **piwork, max_sz, sync_proc, jj;
 
    DoublePrecision         *dwork, *ptbeval, *d_scrat, dbad, res;
    extern DoublePrecision tcgtime_();
@@ -428,6 +428,15 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   /*
    * Set up pointer to integer work arrays.
    */
+
+  k = 0;
+  for ( ii = 0; ii < msize; ii++ ) {
+    if ( mapZ[ii] == me ) {
+      for ( jj = 0; jj < msize ; jj++ )
+	vecZ[k][jj] = 0.0e0;
+      k++;
+    }
+  }
   
   nacluster = 0;
   isize = 0;
