@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.233 1997-04-26 00:41:10 d3g681 Exp $
+# $Id: makefile.h,v 1.234 1997-04-28 22:53:07 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -349,31 +349,33 @@ ifeq ($(TARGET),CRAY-T3D)
       FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
 endif
 
-
 ifeq ($(TARGET),CRAY-T3E)
 #
 #
-   CORE_SUBDIRS_EXTRA =	blas lapack # Only a couple of routines not in scilib
+   CORE_SUBDIRS_EXTRA = blas lapack # Only a couple of routines not in scilib
                RANLIB = echo
             MAKEFLAGS = -j 1 --no-print-directory
               INSTALL = @echo $@ is built
-        OUTPUT_OPTION = 
+        OUTPUT_OPTION =
 
-                   FC = f90 
+                   FC = f90
                   CPP = /opt/ctl/CC/CC/lib/mppcpp -P  -N
-             FOPTIONS = -d p -F  
-             COPTIONS = 
+             FOPTIONS = -d p -F
+             COPTIONS =
                FDEBUG = -O scalar1
-            FOPTIMIZE = -O scalar3,aggress,unroll2
+            FOPTIMIZE = -O scalar3,aggress,unroll2,vector3
                CDEBUG = -O 1
             COPTIMIZE = -O
-            LDOPTIONS = -L$(LIBDIR) 
+#
+# to debug code you must remove the -s flag unless you know assembler
+#
+            LDOPTIONS = -L$(LIBDIR) -Xm -Wl"-Dstreams=on -s" -lmfastv
 
-              DEFINES = -DCRAY_T3E -DCRAY_T3D -D__F90__
+              DEFINES = -DCRAY_T3E -DCRAY_T3D -D__F90__ -DPARALLEL_DIAG
 
                LINK.f = f90 $(LDOPTIONS)
 
-            CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
+            CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas -lpeigs
 
       FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
       EXPLICITF     = TRUE
