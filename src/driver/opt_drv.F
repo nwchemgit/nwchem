@@ -31,8 +31,8 @@ c
 c     Iterative loop
 c
       start = util_wallsec()
-      do istep = 1, nptopt
-         if (oprint) write(6,1) istep
+      do istep = 1, nptopt+1    ! +1 since first pass thru loop is not a step
+         if (oprint) write(6,1) istep-1
  1       format(/,10x,'--------',/,10x,'Step',i4,/,10x,'--------')
          if ((ga_nodeid() .eq. 0) .and.
      $        util_print('geometry',print_default)) then
@@ -70,7 +70,7 @@ c
 c     
 c     Update the Hessian
 c     
-         if (istep .ge. 2) call driver_hessian_update()
+         if (istep .gt. 1) call driver_hessian_update()
 c
 c     Compute step/gradient info and print for user
 c     (for current energy & gradient, and the previous alpha*step).
@@ -773,7 +773,7 @@ c
 c     This routine initializes the common /coptopt/ and
 c     also creates and returns the geometry handle
 c     
-      integer i, j, num
+      integer i, j, num, ma_type, nactive_atoms, l_actlist
       logical ignore
       character*80 title
       character*8 source, test
@@ -1043,7 +1043,42 @@ c
          endif
       endif
 c
-      if (.not. zcoord) then
+      if (zcoord) then
+c     have already called bandbi but must ensure no cartesian
+c     constraints have been imposed since then cannot use internals
+         if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type, 
+     $        nactive_atoms, l_actlist)) then
+            if (ga_nodeid() .eq. 0) then
+               write(6,666)
+ 666           format(/,/,
+     $              '!!! You are using internal coordinates for the ',
+     $              'optimization but applying',/,
+     $              '!!! constraints on the Cartesian coordinates by',
+     $              ' only computing gradients',/,
+     $              '!!! for a subset of the atoms (via geometry:act',
+     $              'list).  This does not ',/,
+     $              '!!! currently work.  Either,',/, '!!!',/,
+     $              '!!!   1) Retain the Cartesian constraints and p',
+     $              'erform the optimization ',/,
+     $              '!!!      entirely in Cartesians by specifying t',
+     $              'he coordinates in ',/,
+     $              '!!!      cartesians and using the NOAUTOZ keywo',
+     $              'rd on the GEOMETRY directive',/,
+     $              '!!!',/,'!!! or',/, '!!!',/,
+     $              '!!!   2) Remove the Cartesian constraints and p',
+     $              'erform the optimization',/,
+     $              '!!!      in redundant internal coordinates.  To',
+     $              ' remove the Cartesian',/,
+     $              '!!!      constraints remove the "set geometry:a',
+     $              'ctlist ..." directive from',/,
+     $              '!!!      startup jobs, or use "unset geometry:a',
+     $              'ctlist" in restart jobs.',/)
+               call util_flush(6)
+               call errquit('driver: cartesian constraints+internals',0)
+            endif
+            call ga_sync()
+         endif
+      else
          call driver_cart_pmat(rtdb, geom)
       endif
 c
@@ -1802,7 +1837,7 @@ c
          if (istep .gt. 1) mark = ' '
          write(6,1) mark, mark
          mark = '@'
-         write(6,2) mark, istep, energy, de,
+         write(6,2) mark, istep-1, energy, de,
      $     gmax, grms, xrms, xmax, util_wallsec(),
      $     cvg1, cvg2, cvg3, cvg4
  1       format(
@@ -2348,7 +2383,7 @@ c
 c     Screening with just /3d0 fails for Claisen rearrangement 
 c     case in peng & schelgel using some coord systems.
 c
-            tmp1 = abs(pg(idamax(nvar,pg,1))) / 10d0
+            tmp1 = abs(pg(idamax(nvar,pg,1))) / 5d0  ! was 10d0
             do i = 1, nvar
                saddir(i) = 0d0
                if (abs(pg(i)) .gt. tmp1) saddir(i) = pg(i)
