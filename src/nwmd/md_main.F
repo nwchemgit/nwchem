@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.140 2002-07-11 03:43:19 d3j191 Exp $
+c $Id: md_main.F,v 1.141 2002-07-11 04:01:36 d3j191 Exp $
 c
       implicit none
 c
@@ -1374,7 +1374,7 @@ c
       if(me.eq.0) then
       call sp_wrtmro(lfnmro,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),projct)
       endif
 c
       call prp_mcti_run(rlambd,dlambd,ndec)
@@ -2472,7 +2472,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.140 2002-07-11 03:43:19 d3j191 Exp $
+c $Id: md_main.F,v 1.141 2002-07-11 04:01:36 d3j191 Exp $
 c
       implicit none
 c

@@ -8,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl)
 c
 c
-c $Id: sp_init.F,v 1.108 2002-07-11 03:43:22 d3j191 Exp $
+c $Id: sp_init.F,v 1.109 2002-07-11 04:01:36 d3j191 Exp $
 c
       implicit none
 c
@@ -3282,7 +3282,7 @@ c
 c
       end
       subroutine sp_wrtmro(lfnmro,stime,pres,temp,tempw,temps,
-     + iwl,xw,vw,xwcr,isl,xs,vs)
+     + iwl,xw,vw,xwcr,isl,xs,vs,prjct)
 c
       implicit none
 c
@@ -3295,6 +3295,9 @@ c
       real*8 stime,pres,temp,tempw,temps
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
       real*8 xs(msa,3),vs(msa,3)
+      character*80 prjct
+c
+      project=prjct
 c
       call sp_wtmro(lfnmro,stime,pres,temp,tempw,temps,
      + iwl,int_mb(i_packw),xw,vw,xwcr,isl,int_mb(i_pack),xs,vs,
@@ -3321,8 +3324,15 @@ c
 c
       integer j,k,l,nwmn,nsan,node,ilp,ihp,jlp,jhp,ili,ihi,jli,jhi
       integer ilw,ihw,jlw,jhw,ils,ihs,jls,jhs
+      character*10 rdate,rtime
 c
-      write(lfnmro) nwm,nwa,nsa,stime,temp,pres,vlat
+      write(lfnmro) nwm,nwa,nsa,stime,temp,pres,vlat,nhist
+c
+      call swatch(rdate,rtime)
+      hist(nhist)(1:10)=rdate
+      hist(nhist)(11:20)=rtime
+      hist(nhist)(21:80)=project(1:60)
+      write(lfnmro) (hist(j),j=1,nhist)
 c
       do 1 node=np-1,0,-1
       call ga_distribution(ga_ip,node,ilp,ihp,jlp,jhp)
@@ -3412,7 +3422,8 @@ c
       real*8 rtemp(12)
 c
       if(me.eq.0) then
-      read(lfnmri,err=9,end=9) ltemp,rtemp
+      read(lfnmri,err=9,end=9) ltemp,rtemp,nhist
+      if(nhist.gt.0) read(lfnmri,err=9,end=9) (hist(j),j=1,nhist)
       do 1 node=np-1,0,-1
       read(lfnmri,err=9) ((ipl(j,k),j=1,mbox),k=1,mip2)
       nwmn=ipl(1,2)
