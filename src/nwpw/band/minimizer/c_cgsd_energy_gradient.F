@@ -1,5 +1,5 @@
 c
-c     $Id: c_cgsd_energy_gradient.F,v 1.2 2002-05-08 23:50:25 bylaska Exp $         c
+c     $Id: c_cgsd_energy_gradient.F,v 1.3 2004-02-01 01:10:03 bylaska Exp $         c
 
 *     *******************************
 *     *				    *
@@ -40,7 +40,7 @@ c     $Id: c_cgsd_energy_gradient.F,v 1.2 2002-05-08 23:50:25 bylaska Exp $     
       call dcopy(3*nion,0.0d0,0,G1,1)
 
       call cpsi_1force(G1)
-c      if (cpsp_semicore(0)) call c_electron_semicoreforce(G1)
+      if (cpsp_semicore(0)) call c_electron_semicoreforce(G1)
 
       call c_ewald_f(G1)
 

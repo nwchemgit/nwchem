@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.14 2003-10-17 22:56:21 carlfahl Exp $
+* $Id: C3dB-new.F,v 1.15 2004-02-01 01:10:03 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1015,6 +1015,35 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       end do
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *        C3dB_ccr_Mul             *
+*     *                                 *
+*     ***********************************
+
+*  This routine performs the operation  C = dble(A * B)
+
+      subroutine C3dB_ccr_Mul(nb,A,B,C)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     C(*)
+
+      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
+      common    / C3dB / nq,nx,ny,nz
+
+      integer i
+
+      do i=1,nx(nb)*ny(nb)*nq(nb)
+         C(i) = dble(A(i))*dble(B(i)) + dimag(A(i))*dimag(B(i))
+      end do
+      return
+      end
+
+
 
 *     ***********************************
 *     *					*

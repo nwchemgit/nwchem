@@ -1,5 +1,5 @@
 *
-* $Id: semicore.F,v 1.5 2003-10-17 22:57:38 carlfahl Exp $
+* $Id: semicore.F,v 1.6 2004-02-01 01:10:04 bylaska Exp $
 *
 
 #define TCGMSG
@@ -327,6 +327,7 @@ c     logical semicore(0:nkatmx)
      >          = dcmplx(dbl_mb(ncore(1)+(ia-1)*npack0*5+k-1),0.0d0)
            end do
            call Pack_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
+           
 
 *          **** Put put tmp into real space ****
            call Pack_c_unpack(0,dcpl_mb(tmp(1)))

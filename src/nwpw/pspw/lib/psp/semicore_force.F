@@ -1,5 +1,5 @@
 *
-* $Id: semicore_force.F,v 1.3 2003-10-17 22:57:38 carlfahl Exp $
+* $Id: semicore_force.F,v 1.4 2004-02-01 01:10:04 bylaska Exp $
 *
 
 #define TCGMSG
@@ -157,15 +157,16 @@ c    >                                  sumz*scal2*scal1
       end do
 
       value = MA_pop_stack(dngz(2))
-      value = MA_pop_stack(dngy(2))
-      value = MA_pop_stack(dngx(2))
-      value = MA_pop_stack(dng(2))
-      value = MA_pop_stack(Gz(2))
-      value = MA_pop_stack(Gy(2))
-      value = MA_pop_stack(Gx(2))
-      value = MA_pop_stack(vxcG(2))
-      value = MA_pop_stack(exi(2))
-
+      value = value.and.MA_pop_stack(dngy(2))
+      value = value.and.MA_pop_stack(dngx(2))
+      value = value.and.MA_pop_stack(dng(2))
+      value = value.and.MA_pop_stack(Gz(2))
+      value = value.and.MA_pop_stack(Gy(2))
+      value = value.and.MA_pop_stack(Gx(2))
+      value = value.and.MA_pop_stack(vxcG(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     > call errquit('semicore_force:error popping stack',0, MA_ERR)
 
       return
       end

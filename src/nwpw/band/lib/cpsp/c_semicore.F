@@ -1,5 +1,5 @@
 *
-* $Id: c_semicore.F,v 1.4 2003-10-17 22:56:03 carlfahl Exp $
+* $Id: c_semicore.F,v 1.5 2004-02-01 01:10:03 bylaska Exp $
 *
 
 #define TCGMSG
@@ -136,7 +136,7 @@
 
 *     *** local variables ***
       logical value
-      real*8 scal2
+      real*8 scal2,scal
       integer ii,ia
       integer npack0,nfft3d
       integer exi(2),tmp(2)
@@ -148,6 +148,7 @@
       external lattice_omega
 
       scal2 = 1.0d0/lattice_omega()
+      scal = scal2*scal2
       call Cram_npack(0,npack0)
       call C3dB_nfft3d(1,nfft3d)
 
@@ -178,15 +179,17 @@ c          call Cram_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
            call C3dB_cr_fft3b(1,dcpl_mb(tmp(1)))
 
 *          ****  square it and add to density ****
-           call C3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
-           call C3dB_rr_Sum(1,dbl_mb(dncore(1)),
-     >                        dcpl_mb(tmp(1)),
-     >                        dbl_mb(dncore(1)))
+c          call C3dB_cr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
+c          call C3dB_rr_Sum(1,dbl_mb(dncore(1)),
+c    >                        dcpl_mb(tmp(1)),
+c    >                        dbl_mb(dncore(1)))
+           call C3dB_cr_aSqrpy(1,scal,dcpl_mb(tmp(1)),
+     >                                 dbl_mb(dncore(1)))
         end if
 
       end do
-      call C3dB_r_SMul(1,scal2*scal2,dbl_mb(dncore(1)),
-     >                               dbl_mb(dncore(1)))
+c     call C3dB_r_SMul(1,scal2*scal2,dbl_mb(dncore(1)),
+c    >                               dbl_mb(dncore(1)))
 
       value = MA_pop_stack(tmp(2))
       value = MA_pop_stack(exi(2))
@@ -252,7 +255,7 @@ c          call Cram_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
            call C3dB_cr_fft3b(1,dcpl_mb(tmp(1)))
 
 *          ****  square it  ****
-           call C3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
+           call C3dB_cr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 *          ****  integrate it ****
            call C3dB_r_dsum(1,dcpl_mb(tmp(1)),sum)
