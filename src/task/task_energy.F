@@ -68,7 +68,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.24 2000-11-04 03:28:52 d3g681 Exp $
+* $Id: task_energy.F,v 1.25 2001-02-20 23:31:29 edo Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -137,7 +137,7 @@ c
       else if (theory .eq. 'oimp2') then
          status = oimp2(rtdb)
       else if (theory .eq. 'direct_mp2') then
-         prefix = 'mp2'
+cedo         prefix = 'mp2'
          status = direct_mp2(rtdb)
       else if (theory .eq. 'ccsd') then
          status = ccsd(rtdb)
