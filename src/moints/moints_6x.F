@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.20 1997-05-29 16:40:53 d3j191 Exp $
+c  $Id: moints_6x.F,v 1.21 1997-06-12 00:45:07 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -116,8 +116,8 @@ c
        status = status.and.bas_numcont(basis,nsh)
        status = status.and.bas_nbf_cn_max(basis,maxbfsh)
        if (.not.status) call errquit('moints: cannot get basis info',0)
-       qlo  = occ_start
-       qhi  = mo2_hi
+       qlo  = min(occ_start,mo2_lo,mo1_lo)
+       qhi  = max(mo1_hi,mo2_hi)
        nmo  = qhi - qlo + 1
        nmo1 = mo1_hi - mo1_lo + 1
        nmo2 = mo2_hi - mo2_lo + 1
@@ -287,7 +287,7 @@ c
                    tint = tint + util_cpusec() - tz
                    flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
                    tz = util_cpusec()
-                   call moints6x_trf1K(nbf, qlo, qhi, occ_start, mo1_hi, 
+                   call moints6x_trf1K(nbf, qlo, qhi, mo1_lo, mo1_hi, 
      $                                 ilen, jlen, kbflo, kbfhi, lbflo,
      $                                 lbfhi, scale, dbl_mb(k_ssbb),
      $                                 dbl_mb(k_ssbbt), dbl_mb(k_xmo),
@@ -295,13 +295,17 @@ c
                    t1kidx = t1kidx + util_cpusec() - tz
                  enddo
                enddo
+               
                tz = util_cpusec()
-               call moints6x_trf2K( nbf, qlo, qhi, mo1_lo, mo1_hi,
+               call moints6x_trf2K( nbf, qlo, qhi, 
+     $                              occ_start, mo1_lo, mo1_hi,
      $                              ibflo, ibfhi, jbflo, jbfhi,
      $                              dbl_mb(k_ssni),
      $                              dbl_mb(k_hlp), dbl_mb(k_ssbb),
      $                              dbl_mb(k_hlp), dbl_mb(k_ssbb),
      $                              dbl_mb(k_xmo), g_exch )
+
+                       
                t2kidx = t2kidx + util_cpusec() - tz
                next = moints_nxttask(num_nodes)
                ttask = util_cpusec() - ttask
@@ -406,7 +410,8 @@ c
                enddo
                  flop2j = flop2j+2*nbf*ilen*jlen*((nmo1*(nmo1+1))/2)
                  tz = util_cpusec()
-                 call moints_trf2J(nbf, qlo, qhi, mo1_lo, mo1_hi,
+                 call moints_trf2J(nbf, qlo, qhi, 
+     $                             occ_start, mo1_lo, mo1_hi,
      $                             ibflo, ibfhi, jbflo, jbfhi,
      $                             dbl_mb(k_ssni), dbl_mb(k_hlp),
      $                             dbl_mb(k_ssbb), dbl_mb(k_xmo),
@@ -475,7 +480,7 @@ c  Exchange 3 & 4 qtr transformation
 c
        if (oexch) then
          tz = util_cpusec()
-         call moints_Ktrf34(nbf, qlo, qhi, mo1_lo, mo1_hi, 
+         call moints_Ktrf34(nbf, qlo, qhi, occ_start, mo1_lo, mo1_hi, 
      $                      mo2_lo, mo2_hi, .false., dbl_mb(k_mo),
      $                      dbl_mb(k_hlp), osym, int_mb(k_sym),
      $                      g_exch)
@@ -488,9 +493,10 @@ C         call MOINTS_OP_PRINT(OCC_START,MO1_LO,MO1_HI,NMO2,G_EXCH)
 c
 c  Coulomb 3 & 4 qtr transformation
 c
+
        if (ocoul) then
          tz = util_cpusec()
-         call moints_Jtrf34(nbf, qlo, qhi, mo1_lo, mo1_hi,
+         call moints_Jtrf34(nbf, qlo, qhi, occ_start, mo1_lo, mo1_hi,
      $                      mo2_lo, mo2_hi, dbl_mb(k_mo),
      $                      dbl_mb(k_hlp), osym, int_mb(k_sym),
      $                      g_coul)
@@ -1444,13 +1450,13 @@ c
 
 
 
-      subroutine moints6x_trf2K(nbf, qlo, qhi, olo, ohi, 
+      subroutine moints6x_trf2K(nbf, qlo, qhi, ostart, olo, ohi, 
      $                          ilo, ihi, jlo, jhi, ssni, h1, h2, 
      $                          g1, g2, c, g_exch )
       implicit none
       integer nbf, qlo, qhi
       integer ostart, olo, ohi, ilo, ihi, jlo, jhi
-      double precision ssni(nbf,jlo:jhi,ilo:ihi,qlo:ohi)
+      double precision ssni(nbf,jlo:jhi,ilo:ihi,olo:ohi)
 #ifdef SCATTER_TRANSF
       double precision h1(*)
       integer iv(100),jv(100)
@@ -1466,7 +1472,6 @@ c
       integer nni, nnj, ijlo, ijhi, jilo, jihi
       integer aoff, ofroz, aa, bb, a, b, ab, i, j
 c
-      ostart = qlo
       ofroz = ostart - 1
       aoff = ((olo-ofroz)*(olo-ofroz-1))/2
       ilen = ihi - ilo + 1
@@ -1576,4 +1581,3 @@ c
  120  continue
       return
       end
-

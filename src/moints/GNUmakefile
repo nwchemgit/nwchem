@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.63 1997-05-15 22:13:02 rg240 Exp $
+#$Id: GNUmakefile,v 1.64 1997-06-12 00:45:05 rg240 Exp $
 
         OBJ = atwtest.o \
 	      direct_mp2.o \
@@ -17,11 +17,11 @@
 
 
 OBJ_OPTIMIZE = \
+	      moints_cutil.o \
+              moints_aodisk.o \
               moints_aux2.o \
 	      moints_2x.o \
-              moints_6x.o \
-              moints_aodisk.o \
-	      moints_cutil.o \
+              moints_6x.o 
 
 
     LIBRARY = libmoints.a

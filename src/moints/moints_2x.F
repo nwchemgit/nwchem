@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.27 1997-05-29 16:39:15 d3j191 Exp $
+c  $Id: moints_2x.F,v 1.28 1997-06-12 00:45:06 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -108,8 +108,8 @@ c
        status = status.and.bas_numcont(basis,nsh)
        status = status.and.bas_nbf_cn_max(basis,maxbfsh)
        if (.not.status) call errquit('moints: cannot get basis info',0)
-       qlo  = occ_start                       ! min MO index
-       qhi  = mo2_hi                          ! max MO index
+       qlo  = min(occ_start,mo2_lo,mo1_lo)    ! min MO index
+       qhi  = max(mo1_hi,mo2_hi)              ! max MO index
        nmo  = qhi - qlo + 1          
        nmo1 = mo1_hi - mo1_lo + 1
        nmo2 = mo2_hi - mo2_lo + 1
@@ -296,7 +296,8 @@ c
                enddo
                if (ocoul) then
                  tz = util_cpusec()
-                 call moints_trf2J( nbf, qlo, qhi, mo1_lo, mo1_hi,
+                 call moints_trf2J( nbf, qlo, qhi, 
+     $                              occ_start, mo1_lo, mo1_hi,
      $                              ibflo, ibfhi, jbflo, jbfhi,
      $                              dbl_mb(k_ssni), dbl_mb(k_hlp),
      $                              dbl_mb(k_ssbb), dbl_mb(k_xmo),
@@ -305,7 +306,8 @@ c
                endif
                if ((oexch).and.(ohalf)) then
                  tz = util_cpusec()
-                 call moints2x_trf2K( nbf, qlo, qhi, mo1_lo, mo1_hi,
+                 call moints2x_trf2K( nbf, qlo, qhi, 
+     $                                occ_start, mo1_lo, mo1_hi,
      $                                ibflo, ibfhi, jbflo, jbfhi,
      $                                int_mb(k_bfmap),
      $                                scale, dbl_mb(k_ssni),
@@ -316,7 +318,7 @@ c
                endif
                if ((oexch).and.(.not.(ohalf))) then
                  tz = util_cpusec()
-                 call moints2xv_trf23K( nbf, qlo, qhi,
+                 call moints2xv_trf23K( nbf, qlo, qhi, occ_start,
      $                                  mo1_lo, mo1_hi, mo2_lo, mo2_hi,
      $                                  ibflo, ibfhi, jbflo, jbfhi, 
      $                                  scale, dbl_mb(k_ssni),
@@ -382,7 +384,7 @@ c
          tz = util_cpusec()
          if (util_print('exchange half integral',print_debug))
      $     call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_exch)
-         call moints_Ktrf34( nbf, qlo, qhi, mo1_lo, mo1_hi,
+         call moints_Ktrf34( nbf, qlo, qhi, occ_start, mo1_lo, mo1_hi,
      $                       mo2_lo, mo2_hi, .true.,
      $                       dbl_mb(k_mo), dbl_mb(k_hlp),
      $                       osym, int_mb(k_sym), g_exch)
@@ -393,10 +395,10 @@ C	 CALL MOINTS_OP_PRINT(OCC_START,MO1_LO,MO1_HI,NMO2,G_EXCH)
        endif
        if ((oexch).and.(.not.(ohalf))) then
          tz = util_cpusec()
-         call moints2xv_Ktrf4( nbf, qlo, qhi, mo1_lo, mo1_hi,
-     $                         mo2_lo, mo2_hi, dbl_mb(k_mo),
-     $                         dbl_mb(k_hlp), osym, int_mb(k_sym),
-     $                         g_exch )
+         call moints2xv_Ktrf4(nbf, qlo, qhi, occ_start, mo1_lo, mo1_hi,
+     $                        mo2_lo, mo2_hi, dbl_mb(k_mo),
+     $                        dbl_mb(k_hlp), osym, int_mb(k_sym),
+     $                        g_exch )
          t4kidx = t4kidx + util_cpusec() - tz
 C	 CALL MOINTS_OP_PRINT(OCC_START,MO1_LO,MO1_HI,NMO2,G_EXCH)
          if (util_print('exchange integral',print_debug))
@@ -409,11 +411,10 @@ c
          tz = util_cpusec()
          if (util_print('coulomb half integral',print_debug))
      $      call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_coul)
-         call moints_Jtrf34( nbf, qlo, qhi, mo1_lo, mo1_hi,
-     $                       mo2_lo, mo2_hi, dbl_mb(k_mo),
-     $                       dbl_mb(k_hlp), osym, int_mb(k_sym),
-     $                       g_coul )
-
+         call moints_Jtrf34(nbf, qlo, qhi, occ_start, mo1_lo, mo1_hi,
+     $                      mo2_lo, mo2_hi, dbl_mb(k_mo),
+     $                      dbl_mb(k_hlp), osym, int_mb(k_sym),
+     $                      g_coul )
          t34jidx = util_cpusec() - tz
 C	 CALL MOINTS_OP_PRINT(OCC_START,MO1_LO,MO1_HI,NMO2,G_COUL)
          if (util_print('coulomb integral',print_debug))
@@ -639,23 +640,23 @@ c
 c
 c  Transform last index of K to virtual
 c
-      subroutine moints2xv_Ktrf4( nbf, qlo, qhi, olo, ohi, vlo, vhi,
-     $                            c, tmp, osym, syms, g_exch )
+      subroutine moints2xv_Ktrf4( nbf, qlo, qhi, ostart, olo, ohi, 
+     $                            vlo, vhi, c, tmp, osym, syms, 
+     $                            g_exch )
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
       integer nbf, qlo, qhi
-      integer olo, ohi, vlo, vhi
+      integer ostart, olo, ohi, vlo, vhi
       double precision c(nbf,qlo:qhi)
       double precision tmp(vlo:vhi,vlo:vhi)
       logical osym
       integer syms(nbf)
       integer g_exch
 c
-      integer nvir, clo, chi, rlo, rhi, my_id, ostart
+      integer nvir, clo, chi, rlo, rhi, my_id
       integer ofroz, a1, a2, aa1, aa2, aa, aoff, k_local, ld
 c
-      ostart = qlo
       ofroz = ostart - 1
       nvir = vhi - vlo + 1
       my_id = ga_nodeid()
@@ -704,12 +705,13 @@ c  2nd Index transformation to occupied for Exchange integrals
 c  Used when half-transformed integrals only
 c  are required.
 c
-       subroutine moints2x_trf2K( nbf, qlo, qhi, olo, ohi, ilo, ihi,
-     $                            jlo, jhi, bfmap, scale, ssni,
-     $                            h1, h2, h3, c, g_exch )
+       subroutine moints2x_trf2K( nbf, qlo, qhi, ostart, olo, ohi, 
+     $                            ilo, ihi, jlo, jhi, bfmap, 
+     $                            scale, ssni, h1, h2, h3, c, 
+     $                            g_exch )
        implicit none
        integer nbf, qlo, qhi
-       integer olo, ohi, ilo, ihi, jlo, jhi
+       integer ostart, olo, ohi, ilo, ihi, jlo, jhi
        integer bfmap(nbf)
        double precision scale
        double precision ssni(nbf,jlo:jhi,ilo:ihi,olo:ohi)
@@ -720,10 +722,9 @@ c
        integer g_exch
 c
        integer nni,nnj,ab,ijlo,ijhi,ofroz,ilen,jlen
-       integer aoff,a,b,i,j,iz, ostart
+       integer aoff,a,b,i,j,iz
        double precision xx
 c
-       ostart = qlo
        ofroz = ostart - 1
        aoff = ((olo-ofroz)*(olo-ofroz-1))/2
        ilen = ihi - ilo + 1
@@ -782,12 +783,12 @@ c  Exchange 2nd index & 3rd index transformations
 c  Note that the 2nd index is transformed to virtuals
 c  initially.
 c
-       subroutine moints2xv_trf23K( nbf, qlo, qhi, olo, ohi, vlo, vhi,
-     $                              ilo, ihi, jlo, jhi, scale, 
+       subroutine moints2xv_trf23K( nbf, qlo, qhi, ostart, olo, ohi, 
+     $                              vlo, vhi, ilo, ihi, jlo, jhi, scale, 
      $                              ssni, ssv, h1, h2, c, xc, g_exch )
        implicit none
        integer nbf, qlo, qhi
-       integer ohi, olo, nvir, vlo, vhi
+       integer ostart, ohi, olo, nvir, vlo, vhi
        integer ilo, ihi, jlo, jhi
        double precision scale
        double precision ssni(nbf,jlo:jhi,ilo:ihi,olo:ohi)
@@ -798,11 +799,10 @@ c
 
 c
        integer aoff,nni,nnij,nnj,ab,ivlo,ivhi,jvlo,jvhi,ofroz
-       integer ssij,ostart
+       integer ssij
        integer aa,bb,a,b,i,j,v
        double precision cc
 c     
-       ostart = qlo
        ofroz = ostart - 1
        nvir = vhi - vlo + 1
        ssij = (ihi - ilo + 1)*(jhi - jlo + 1)

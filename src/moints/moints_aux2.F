@@ -218,7 +218,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.27 1997-05-15 22:13:05 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.28 1997-06-12 00:45:08 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -532,7 +532,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.27 1997-05-15 22:13:05 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.28 1997-06-12 00:45:08 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -788,11 +788,12 @@ c
 c
 c Coulomb 2nd index transform
 c
-      subroutine moints_trf2J( nbf, qlo, qhi, olo, ohi, ilo, ihi,
-     $                         jlo, jhi, ssni, h1, h2, c, g_coul )
+      subroutine moints_trf2J( nbf, qlo, qhi, ostart, olo, ohi, 
+     $                         ilo, ihi, jlo, jhi, ssni, h1, h2, 
+     $                         c, g_coul )
       implicit none
       integer nbf, qlo, qhi
-      integer olo, ohi, ilo, ihi, jlo, jhi
+      integer ostart, olo, ohi, ilo, ihi, jlo, jhi
       double precision ssni(nbf,jlo:jhi,ilo:ihi,olo:ohi)
       double precision h1(nbf,ilo:ihi)
       double precision h2(jlo:jhi,ilo:ihi)
@@ -800,9 +801,8 @@ c
       integer g_coul
 c
       integer nni, ijlo, ijhi, ilen, jlen, ijlen
-      integer ab, aa, bb, a, b, i, aoff, ofroz, ostart
+      integer ab, aa, bb, a, b, i, aoff, ofroz
 c
-      ostart = qlo
       ofroz = ostart - 1
       aoff = ((olo-ofroz)*(olo-ofroz-1))/2
       ilen = ihi - ilo + 1
@@ -814,7 +814,7 @@ c
       ijhi = ihi*nbf
 #endif
       do a=olo,ohi
-        do b=qlo,a
+        do b=ostart,a
           call dgemm('t','n',ijlen,1,nbf,1.d0,ssni(1,jlo,ilo,a),
      $               nbf,c(1,b),nbf,0.d0,h2,ijlen)
 #ifndef NOCOMMS
@@ -887,23 +887,23 @@ c
 
 
 
-      subroutine moints_Ktrf34( nbf, qlo, qhi, olo, ohi, vlo, vhi,
-     $                          otrp, c, tmp, osym, syms, g_exch )
+      subroutine moints_Ktrf34( nbf, qlo, qhi, ostart, olo, ohi, 
+     $                          vlo, vhi, otrp, c, tmp, osym, syms, 
+     $                          g_exch )
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
       integer nbf, qlo, qhi
-      integer olo, ohi, vlo, vhi
+      integer ostart, olo, ohi, vlo, vhi
       logical otrp, osym
       double precision c(nbf,qlo:qhi)
       double precision tmp(nbf,qlo:qhi)
       integer syms(nbf)
       integer g_exch
 c
-      integer nvir, clo, chi, rlo, rhi, my_id, ostart
+      integer nvir, clo, chi, rlo, rhi, my_id
       integer ofroz, a1, a2, aa1, aa2, aa, aoff, k_local, ld
 
-      ostart = qlo
       ofroz = ostart - 1
       nvir = vhi - vlo + 1
       my_id = ga_nodeid()
@@ -916,7 +916,7 @@ c
           aa = (aa1*(aa1-1))/2 + aa2 - aoff
           if ((aa.ge.clo).and.(aa.le.chi)) then
             call ga_access(g_exch,rlo,rhi,aa,aa,k_local,ld)
-            call moints_Ktrf34a( otrp, nbf, ostart, vlo, vhi, c,
+            call moints_Ktrf34a( otrp, nbf, qlo, qhi, vlo, vhi, c,
      $                           dbl_mb(k_local), tmp )
             if (osym) call moints_sym_zero(nbf, vlo, vhi, syms,
      $                                     a1, a2, dbl_mb(k_local))
@@ -933,11 +933,12 @@ c
 c Note: May require transpose the half-transformed matrix
 c       to conform to convention for storage
 c
-      subroutine moints_Ktrf34a(otrp, nbf, ostart, vlo, vhi, c, x, tmp)
+      subroutine moints_Ktrf34a(otrp, nbf, qlo, qhi, 
+     $                          vlo, vhi, c, x, tmp)
       implicit none
       logical otrp
-      integer nbf, ostart, vlo, vhi
-      double precision c(nbf,ostart:vhi)
+      integer nbf, qlo, qhi, vlo, vhi
+      double precision c(nbf,qlo:qhi)
       double precision x(vlo:vhi,vlo:vhi)
       double precision tmp(vlo:vhi,nbf)
       integer nv
@@ -970,23 +971,22 @@ CRK  $           0.d0,x,nv)
 c
 c
 c
-      subroutine moints_Jtrf34( nbf, qlo, qhi, olo, ohi, vlo, vhi,
-     $                          c, tmp, osym, syms, g_coul )
+      subroutine moints_Jtrf34( nbf, qlo, qhi, ostart, olo, ohi, 
+     $                          vlo, vhi, c, tmp, osym, syms, g_coul )
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
       integer nbf, qlo, qhi
-      integer olo, ohi, vlo, vhi
+      integer ostart, olo, ohi, vlo, vhi
       logical osym
       integer syms(nbf)
       double precision c(nbf,qlo:qhi)
       double precision tmp(nbf,qlo:qhi)
       integer g_coul
 c
-      integer clo, chi, rlo, rhi, my_id, ostart
+      integer clo, chi, rlo, rhi, my_id
       integer ofroz, aoff, a1, a2, aa1, aa2, aa, k_local, ld
 c
-      ostart = qlo
       ofroz = ostart - 1
       aoff = ((olo-ofroz)*(olo-ofroz-1))/2
       my_id = ga_nodeid()
@@ -1102,7 +1102,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.27 1997-05-15 22:13:05 rg240 Exp $
+C$Id: moints_aux2.F,v 1.28 1997-06-12 00:45:08 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1146,7 +1146,7 @@ C$Id: moints_aux2.F,v 1.27 1997-05-15 22:13:05 rg240 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.27 1997-05-15 22:13:05 rg240 Exp $
+c$$$C$Id: moints_aux2.F,v 1.28 1997-06-12 00:45:08 rg240 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
