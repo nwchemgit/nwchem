@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.4 2004-12-01 01:59:04 edo Exp $
+C$Id: util_sgroup.F,v 1.5 2004-12-01 02:03:11 edo Exp $
       logical function util_sgstart(rtdb)
       implicit none
 #include "stdio.fh"
@@ -56,7 +56,7 @@ c     nasty hack stdoutput redirect to fort.90+group for
 c     groupid gt 0
 c
       luout_0=luout
-      if(mygroup.ne.1) then
+      if(mygroup.ne.1.and.gosmp) then
          luout=90+mygroup
          write(0,*) mygroup,'new value for luout',luout
          if(ga_nodeid().eq.0) then
