@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.59 1999-01-29 21:05:03 d3h449 Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.60 1999-02-16 18:29:36 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -620,6 +620,8 @@ c
      &      call errquit('rdinput: basis set error:', 86)
          if (.not. bas_numcont(CD_bas_han,nshells_cd))
      &      call errquit('rdinput: basis set error:', 86)
+         if (.not. rtdb_put(rtdb, 'dft:cdfit', mt_log, 1, .true.))
+     &      call errquit('rdinput: filed put_rtdb:', 99)
       else
          if (.not. bas_destroy(CD_bas_han))
      &      call errquit('rdinput:not able to destroy CD_bas:',86)
