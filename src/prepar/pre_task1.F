@@ -11,13 +11,13 @@ c
 c
       pre_task1=.false.
 c
-      if(.not.rtdb_cput(irtdb,'scf:print',1,'none'))
-     + call errquit('pre_task1: rtdb_cput failed',9999)
+c      if(.not.rtdb_cput(irtdb,'scf:print',1,'none'))
+c     + call errquit('pre_task1: rtdb_cput failed',9999)
 c
       if(scf(irtdb)) then
 c
-      if(.not.rtdb_cput(irtdb,'esp:print',1,'none'))
-     + call errquit('pre_task1: rtdb_cput failed',9999)
+c      if(.not.rtdb_cput(irtdb,'esp:print',1,'none'))
+c     + call errquit('pre_task1: rtdb_cput failed',9999)
 c
       if(esp(irtdb)) then
       pre_task1=.true.

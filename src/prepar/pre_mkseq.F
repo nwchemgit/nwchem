@@ -1,6 +1,6 @@
       logical function pre_mkseq(irtdb,lfnout,lprint,source,ffield,
-     + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,
-     + lfnfrg,lfnsgm,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl)
+     + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
+     + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl)
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -22,9 +22,9 @@ c
 #include "geom.fh"
 c
       integer irtdb
-      logical pre_pdbsiz,pre_pdbseq,pre_rtdbsq
+      logical pre_pdbsiz,pre_pdbseq,pre_rtdbsq,pre_wrtnam
       logical pre_namamb,pre_sgmnum,pre_sgmndx,pre_gensgm
-      external pre_pdbsiz,pre_pdbseq,pre_rtdbsq
+      external pre_pdbsiz,pre_pdbseq,pre_rtdbsq,pre_wrtnam
       external pre_namamb,pre_sgmnum,pre_sgmndx,pre_gensgm
       logical pre_mkfrg,pre_namiup,pre_links,pre_wrtseq
       external pre_mkfrg,pre_namiup,pre_links,pre_wrtseq
@@ -38,14 +38,14 @@ c
       integer l_latm,i_latm,l_catm,i_catm,l_xatm,i_xatm,l_qatm,i_qatm
       integer l_bnd,i_bnd,l_ang,i_ang,l_dih,i_dih,l_imp,i_imp
 c
-      character*255 filpdb,filpar,filseq
+      character*255 filpdb,filpar,filseq,filtmp
       character*255 dir_s,dir_x,dir_u,dir_t
       character*80 ffield
       character*3 slvnam
       character*80 source
       character*10 slvmdl
 c
-      integer lfnpdb,lfnout,lfnfrg,lfnpar,lfnseq,lfnsgm
+      integer lfnpdb,lfnout,lfnfrg,lfnpar,lfnseq,lfnsgm,lfntmp
       integer igeom
 c
       if(lprint.ge.5) write(lfnout,1000)
@@ -216,6 +216,12 @@ c
      + int_mb(i_latm),byte_mb(i_catm),matm,natm))
      + call errquit('pre_namamb failed',9999)
       endif
+c
+c     write atom names to temporary file
+c     ----------------------------------
+c
+      if(.not.pre_wrtnam(lfntmp,filtmp,byte_mb(i_catm),matm,natm))
+     + call errquit('pre_wrtnam failed',9999)
 c
 c     get number of unique segments
 c     -----------------------------

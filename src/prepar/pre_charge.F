@@ -1,5 +1,5 @@
-      logical function pre_charge(irtdb,source,latm,qatm,matm,natm,
-     + lbnd,mbnd,nbnd)
+      logical function pre_charge(irtdb,source,jlo,ilo,ihi,jhi,
+     + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd)
 c
       implicit none
 c
@@ -7,6 +7,13 @@ c
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "rtdb.fh"
+c
+c     conversion factor
+c
+c     cnm2au : from nm to bohr
+c
+      real*8 cnm2au
+      parameter(cnm2au=1.88972598786d+01)
 c
       logical pre_task1
       externall pre_task1
@@ -20,15 +27,17 @@ c
 c     out : qatm(matm)        = guestimated atomic partial charges
 c
       character*80 source
-      integer irtdb
+      integer irtdb,jlo,ilo,ihi,jhi
       integer matm,natm
       integer latm(5,matm)
-      real*8 qatm(matm)
+      character*6 catm(3,matm)
+      real*8 xatm(3,matm),qatm(matm)
       integer mbnd,nbnd
       integer lbnd(2,mbnd)
 c
-      integer i,j,ia,ja,it,jt,itmp,iab(20),nb,nox,nhx,itask
-      integer igeom2
+      integer i,j,ia,ja,ka,it,jt,itmp,iab(20),nb,nox,nhx,itask
+      integer igeom2,nout,icon(100),ncon,nconst
+      real*8 rcon
       character*16 tag
       real*8 coord(3),charge
 c
@@ -37,24 +46,107 @@ c
     1 continue
 c
       if(source(1:8).eq.'geometry') then
+      nout=natm
+      goto 100
+      endif
+c
+      if(ihi-ilo+1.gt.20) goto 200
+c
+      if(.not.geom_create(igeom2,'geometry'))
+     + call errquit('pre_charge: geom_create failed',9999)
+      if(.not.geom_set_user_units(igeom2,'nanometer'))
+     + call errquit('pre_charge: geom_set_user_units failed',9999)
+      nout=0
+      do 12 i=1,nbnd
+      ia=lbnd(1,i)
+      ja=lbnd(2,i)
+      ka=0
+      if((ia.lt.ilo.or.ia.gt.ihi).and.ja.ge.ilo.and.ja.le.ihi) ka=ja
+      if((ja.lt.ilo.or.ja.gt.ihi).and.ia.ge.ilo.and.ia.le.ihi) ka=ia
+      if(ka.gt.0) nout=nout+1
+   12 continue
+      nout=nout+ihi-ilo+1
+      write(*,'(a,i4)') 'nout=',nout
+      if(.not.geom_cart_set(igeom2,nout,tag,xatm,xatm))
+     + call errquit('pre_charge: geom_cart_set failed',9999)
+      do 10 i=ilo,ihi
+      tag='                '
+      if(latm(2,i).eq.1) then
+      tag(1:1)='H'
+      else
+      if(catm(1,i)(1:1).eq.' ') then
+      tag(1:1)=catm(1,i)(2:2)
+      else
+      tag(1:2)=catm(1,i)(1:2)
+      endif
+      endif
+      charge=dble(latm(2,i))
+      coord(1)=cnm2au*xatm(1,i)
+      coord(2)=cnm2au*xatm(2,i)
+      coord(3)=cnm2au*xatm(3,i)
+      if(.not.geom_cent_set(igeom2,i-ilo+1,tag,coord,charge))
+     + call errquit('pre_charge: geom_cent_set failed',9999)
+   10 continue
+      nout=ihi-ilo+1
+      do 11 i=1,nbnd
+      ia=lbnd(1,i)
+      ja=lbnd(2,i)
+      ka=0
+      if((ia.lt.ilo.or.ia.gt.ihi).and.ja.ge.ilo.and.ja.le.ihi) ka=ia
+      if((ja.lt.ilo.or.ja.gt.ihi).and.ia.ge.ilo.and.ia.le.ihi) ka=ja
+      if(ka.gt.0) then
+      nout=nout+1
+      tag='H               '
+      charge=1.0d0
+      coord(1)=cnm2au*xatm(1,ka)
+      coord(2)=cnm2au*xatm(2,ka)
+      coord(3)=cnm2au*xatm(3,ka)
+      if(.not.geom_cent_set(igeom2,nout,tag,coord,charge))
+     + call errquit('pre_charge: geom_cent_set failed',9999)      
+      endif
+   11 continue
+      if(.not.geom_rtdb_store(irtdb,igeom2,'geometry'))
+     + call errquit('pre_charge: geom_rtdb_store failed',9999)
+      if(.not.geom_destroy(igeom2))
+     + call errquit('pre_charge: geom_destroy failed',9999)
+      ncon=ihi-ilo+1
+      icon(1)=ncon
+      do 13 i=1,ncon
+      icon(i+1)=i
+   13 continue
+      ncon=ncon+1
+      nconst=1
+      rcon=0.0d0
+      if(.not.rtdb_put(irtdb,'esp:nconst',mt_int,1,nconst))
+     + call errquit('pre_charge: rtdb_put nconst failed',0)
+      if(.not.rtdb_put(irtdb,'esp:ncon',mt_int,1,ncon))
+     + call errquit('pre_charge: rtdb_put ncon failed',0)
+      if(.not.rtdb_put(irtdb,'esp:icon',mt_int,ncon,icon))
+     + call errquit('pre_charge: rtdb_put icon failed',0)
+      if(.not.rtdb_put(irtdb,'esp:rcon',mt_dbl,nconst,rcon))
+     + call errquit('pre_charge: rtdb_put rcon failed',0)
+  100 continue
       itask=1
       call ga_brdcst(pre_i00,itask,ma_sizeof(mt_int,1,mt_byte),0)
       if(itask.eq.1) then
       if(.not.pre_task1(irtdb)) call errquit('pre_task1 failed',9999)
       if(.not.geom_create(igeom2,'resp:geometry'))
      + call errquit('pre_charge: geom_create failed',0)
+      if(.not.geom_rtdb_load(irtdb,igeom2,'cresp:geometry')) then
       if(.not.geom_rtdb_load(irtdb,igeom2,'resp:geometry'))
      + call errquit('pre_charge: geom_rtdb_load failed',0)
-      do 9 i=1,natm
+      endif
+      do 9 i=1,nout
       if(.not.geom_cent_get(igeom2,i,tag,coord,charge))
      + call errquit('pre_charge: geom_cent_get failed',i)
-      qatm(i)=charge
+      qatm(ilo+i-1)=charge
     9 continue
       if(.not.geom_destroy(igeom2))
      + call errquit('pre_charge: geom_destroy failed',9999)
       endif
       return
-      endif
+c
+  200 continue
 c
       do 2 i=1,nbnd
       ia=lbnd(1,i)

@@ -104,8 +104,8 @@ c
 c
       jlo=1
       jhi=natm
-      if(csgm(i)(5:5).eq.'N'.or.csgm(i)(5:5).eq.'M') jlo=ilo
-      if(csgm(i)(5:5).eq.'C'.or.csgm(i)(5:5).eq.'M') jhi=ihi
+c      if(csgm(i)(5:5).eq.'N'.or.csgm(i)(5:5).eq.'M') jlo=ilo
+c      if(csgm(i)(5:5).eq.'C'.or.csgm(i)(5:5).eq.'M') jhi=ihi
 c
 c     determine the number of 'real' atoms
 c     ------------------------------------
@@ -119,7 +119,6 @@ c
 c     complete the list of bonds for the fragment
 c     -------------------------------------------
 c
-      write(*,'(2i5)') jlo,jhi
       nbnd=0
       if(.not.pre_bnd(xatm,latm,matm,jlo,jhi,lbnd,mbnd,nbnd))
      + call errquit('pre_bnd failed',9999)
@@ -193,8 +192,8 @@ c
 c     guestimate partial charges
 c     --------------------------
 c
-      if(.not.pre_charge(irtdb,source,latm,qatm,matm,natm,
-     + lbnd,mbnd,nbnd))
+      if(.not.pre_charge(irtdb,source,jlo,ilo,ihi,jhi,
+     + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd))
      + call errquit('pre_charge failed',9999)
 c
 c     write the fragment file

@@ -182,7 +182,7 @@ c
       if(pre_check) write(lfnout,1000)
       write(lfnout,1005) catm(1+j,limp(1,i)),
      + catm(1+j,limp(2,i)),catm(1+j,limp(3,i)),catm(1+j,limp(4,i))
- 1005 format('PARAMETERS COULD NOT BE FOUND FOR IMPROPER TYPE ',
+ 1005 format('Parameters could not be found for improper type ',
      + a6,'-',a6,'-',a6,'-',a6)
       endif
       pre_check=.false.

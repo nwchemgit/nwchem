@@ -15,3 +15,4 @@ Apr 21 1998	 Coordinates in nm
 		 Read coordinates from rtdb
 		 Add pre_hnames
 		 Call to scf and esp to get charges in pre_charge
+Apr 22 1998	 Driver routines for restart generation

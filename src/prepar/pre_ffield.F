@@ -41,7 +41,7 @@ c
      + status='old',err=9999)
 c
       if(lprint.ge.1) write(lfnout,1111) filpar(1:length)
- 1111 format('PARAMETER FILE ',a)
+ 1111 format('Parameter file ',a)
 c
       icomb=0
 c

@@ -74,7 +74,7 @@ c
      + status='old',err=9999)
 c
       if(lprint.ge.1) write(lfnout,2000) filnam(1:length)
- 2000 format('PDB FILE ',a)
+ 2000 format('PDB file ',a)
 c
     1 continue
 c
@@ -245,7 +245,7 @@ c
       if(lprint.ge.5) then
       write(lfnout,2002) nseq,filnam(1:length)
  2002 format(i20,' segments',//,
-     + 'PDB CLOSE ',a)
+     + 'PDB close ',a)
       endif
 c
 c     since mseq>nseq lseq(3,nseq+1) can hold natm+1
@@ -265,7 +265,7 @@ c
 c
       if(lprint.ge.1) then
       write(lfnout,2003) filnam(1:length)
- 2003 format('PDB ERROR ',a)
+ 2003 format('PDB error ',a)
       endif
 c
       pre_pdbseq=.false.

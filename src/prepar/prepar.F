@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.10 1998-04-21 21:07:22 d3j191 Exp $
+c $Id: prepar.F,v 1.11 1998-04-22 23:52:31 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -33,21 +33,21 @@ c
 #include "inp.fh"
 #include "msgids.fh"
 c
-      logical pre_rtdbin,pre_mkseq,pre_mktop,pre_task1
-      external pre_rtdbin,pre_mkseq,pre_mktop,pre_task1
+      logical pre_rtdbin,pre_mkseq,pre_mktop,pre_task1,pre_mkrst
+      external pre_rtdbin,pre_mkseq,pre_mktop,pre_task1,pre_mkrst
 c
       integer irtdb0,irtdb,itask
 c
-      character*255 filpdb,filseq,filtop,filpar
+      character*255 filpdb,filseq,filtop,filrst,filpar,filtmp,filcmd
       character*255 dir_s,dir_x,dir_u,dir_t
-      character*80 sysnam,ffield
+      character*80 sysnam,calc,ffield
       character*10 slvmdl
       character*3 slvnam
       character*80 source
 c
-      integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnpar
-      integer len,lend,lprint
-      integer newtop,newseq
+      integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
+      integer len,lenc,lend,lprint,lfntmp,lfncmd
+      integer newtop,newseq,newrst
 c
       irtdb=irtdb0
 c
@@ -82,7 +82,7 @@ c     get info from rtdb
 c     ------------------
 c
       if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,source,
-     + sysnam,slvnam,slvmdl,newtop,newseq))
+     + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst))
      + call errquit('pre_rtdbin failed',9999)
 c
 c     construct file names
@@ -93,10 +93,17 @@ c
       filpar=ffield(1:len)//'.par '
 c
       len=index(sysnam,' ')-1
+      lenc=index(calc,' ')-1
       lend=index(dir_t,' ')-1
       filpdb=sysnam(1:len)//'.pdb '
       filtop=sysnam(1:len)//'.top '
+      filrst=sysnam(1:len)//'_'//calc(1:lenc)//'.rst '
       filseq=dir_t(1:lend)//sysnam(1:len)//'.seq '
+      filtmp=sysnam(1:len)//'_tmp_pdb.nam '
+c
+      if(.not.rtdb_cget(irtdb,'file_prefix',1,filcmd))
+     + call errquit('rtdb_cget failed on file_prefix',9999)
+      filcmd=filcmd(1:index(filcmd,' ')-1)//'.cmd '
 c
 c     set logical file numbers to be used
 c     -----------------------------------
@@ -107,7 +114,10 @@ c
       lfnseq=14
       lfnsgm=15
       lfntop=16
-      lfnpar=17
+      lfnrst=17
+      lfnpar=18
+      lfntmp=19
+      lfncmd=20
 c
       lprint=10
       if(util_print('sequence',print_none)) lprint=0
@@ -123,13 +133,13 @@ c
      + form='formatted',status='old',err=1)
       if(newtop.eq.0) then
       close(unit=lfntop)
-      write(lfnout,1000) filtop(1:index(filtop,' ')-1)
- 1000 format('USING EXISTING TOPOLOGY FILE ',a)
+      write(lfnout,1001) filtop(1:index(filtop,' ')-1)
+ 1001 format('Using existing topology file ',a)
       goto 4
       else
       close(unit=lfntop,status='delete')
-      write(lfnout,1005) filtop(1:index(filtop,' ')-1)
- 1005 format('DELETED EXISTING TOPOLOGY FILE ',a)
+      write(lfnout,1002) filtop(1:index(filtop,' ')-1)
+ 1002 format('Deleted existing topology file ',a)
       endif
 c
     1 continue
@@ -141,26 +151,41 @@ c
      + form='formatted',status='old',err=2)
       if(newseq.eq.0) then
       close(unit=lfnseq)
-      write(lfnout,1001) filseq(1:index(filseq,' ')-1)
- 1001 format('USING EXISTING SEQUENCE FILE ',a)
+      write(lfnout,1003) filseq(1:index(filseq,' ')-1)
+ 1003 format('Using existing sequence file ',a)
       goto 3
       else
       close(unit=lfnseq,status='delete')
-      write(lfnout,1006) filseq(1:index(filseq,' ')-1)
- 1006 format('DELETED EXISTING SEQUENCE FILE ',a)
+      write(lfnout,1004) filseq(1:index(filseq,' ')-1)
+ 1004 format('Deleted existing sequence file ',a)
       endif
 c
     2 continue
+c
+c     check if the source file exists
+c     -------------------------------
+c
+      if(source(1:1).eq.' '.or.source(1:3).eq.'pdb') then
+      open(unit=lfnpdb,file=filpdb(1:index(filpdb,' ')-1),
+     + form='formatted',status='old',err=7)
+      if(source(1:1).eq.' ') source='pdb'
+      close(unit=lfnpdb)
+      goto 8
+    7 continue
+      if(source(1:3).eq.'pdb')
+     + call errquit('pdb file could not be found',9999)
+    8 continue
+      endif
 c
 c     generate sequence & segments from coordinates
 c     ---------------------------------------------
 c
       if(.not.pre_mkseq(irtdb,lfnout,lprint,source,ffield,
-     + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,
-     + lfnfrg,lfnsgm,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl))
+     + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
+     + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl))
      + call errquit('pre_mkseq failed',9999)
-      write(lfnout,1002) filseq(1:index(filseq,' ')-1)
- 1002 format('CREATED SEQUENCE FILE ',a)
+      write(lfnout,1005) filseq(1:index(filseq,' ')-1)
+ 1005 format('Created sequence file ',a)
 c
     3 continue
 c
@@ -171,11 +196,47 @@ c
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t))
      + call errquit('pre_mktop failed',9999)
-      write(lfnout,1003) filtop(1:index(filtop,' ')-1)
- 1003 format('CREATED TOPOLOGY FILE ',a)
+      write(lfnout,1006) filtop(1:index(filtop,' ')-1)
+ 1006 format('Created topology file ',a)
+      newrst=1
 c
     4 continue
 c
+c     check if the command file exists
+c     --------------------------------
+c
+      open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
+     + form='formatted',status='old',err=10)
+      close(unit=lfncmd)
+      goto 5
+   10 continue
+c
+c     check if the restart file exists
+c     --------------------------------
+c
+      open(unit=lfnrst,file=filrst(1:index(filrst,' ')-1),
+     + form='formatted',status='old',err=5)
+      if(newrst.eq.0) then
+      close(unit=lfnrst)
+      write(lfnout,1007) filseq(1:index(filseq,' ')-1)
+ 1007 format('Using existing restart file ',a)
+      goto 6
+      else
+      close(unit=lfnrst,status='delete')
+      write(lfnout,1008) filrst(1:index(filrst,' ')-1)
+ 1008 format('Deleted existing restart file ',a)
+      endif
+c
+    5 continue
+c
+c     generate restart file
+c     ---------------------
+c
+      if(.not.pre_mkrst(source,lfnout,lprint,lfntop,filtop,
+     + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd))
+     + call errquit('pre_mkrst failed',9999)
+c
+    6 continue
 c
       call util_print_pop
 c
