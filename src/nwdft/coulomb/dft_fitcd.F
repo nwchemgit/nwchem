@@ -50,7 +50,7 @@ c****
       integer iTvec,lTvec,lgvec,igvec,lERI,iERI,lcgtf,icgtf,
      ,     lscr,iscr
       logical oprint,dowork
-      integer iwhat_max, nlast
+      integer iwhat_max, nlast, ntasks
       integer ishc_be, ishd_be
       integer ndone,ipoint
       character*(nw_max_path_len) cdfit
@@ -59,7 +59,7 @@ c****
       external dabsmax,nxtask
       
 #if defined(DFT_TIMER)
-      integer nsh_blocks,niter,ntasks
+      integer nsh_blocks,niter
       double precision schw1
 #include "timer.fh"
 #endif
