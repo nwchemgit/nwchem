@@ -3,7 +3,7 @@ C NAME
 C     XForm_3cInts -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cints.F,v 1.5 1994-07-14 21:39:10 gg502 Exp $
+C     $Id: xform_3cints.F,v 1.6 1994-09-06 20:21:31 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XForm_3cInts(Type3ci, Geom, AOBas, FitBas, G_Int,
@@ -355,6 +355,12 @@ C
      $      I5, ':', I5, ' of integral block ', I5, ':', I5,
      $      ' of requested ', I5, ':', I5, '.')
 C
+C        Print out a progress report.  Eventually want to make this
+C        dependent on user desires and time required by each pass.
+C
+         Write (String1, 9200) JLo, JHi
+ 9200    Format('XForm_3cInts: Completed ', I5, ':', I5, ' pass.')
+         Call Progress_Report(LuOut, String1(:LNBlnk(String1)) )
       EndDo                     ! JLo
 C
       Call GA_Sync
@@ -365,5 +371,3 @@ C
 C
       Return
       End
-
-

@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.8 1994-09-02 01:09:11 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.9 1994-09-06 20:21:14 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
@@ -78,6 +78,8 @@ C EXTERNAL ROUTINES
 C
       external Sum_Pairs
       Double Precision Sum_Pairs
+      Integer LNBlnk
+      External LNBlnk
 c$$$C
 c$$$      External GA_DASum_Patch, GA_DAMax_Patch
 c$$$      Double precision GA_DASum_Patch, GA_DAMax_Patch
@@ -95,13 +97,14 @@ C LOCAL VARIBLES
       Integer A, B, Alo, Ahi, Blo, BHi, H_B, LDB, AB
       Integer Proc
       Double Precision DenIJ, Den, Fact, EPair, ESpin
-      Logical Status, PermSym
+      Logical Status, PermSym, SinglePass
       Integer Junk
       Integer G_bigI, ILo, IHi, NI, G_bigJ, JLo, JHi, NJ, G_bigA, G_BigB
       Integer IALo, IAHi, JBLo, JBHi, MyILo, MyIHi, MyJLo, MyJHi
       Integer Offset, BBot, BTop, ABot, ATop
       Integer HH_PairE, IH_PairE
 c$$$      Double precision ChkSum, MxElem
+      Character*255 String1
 C
       Call GA_Sync
       Call PStat_On(PS_Energy)
@@ -303,6 +306,11 @@ C
      $               FP_One, G_bigI, G_bigJ, FP_Zero, G_bigA)
                   Call PStat_Off( PS_form_4ci)
 C
+                  Write (String1, 9210) ILo, IHi, JLo, JHi
+                  Call Progress_Report(LuOut, String1(:LNBlnk(String1)))
+ 9210             Format('RIMP2_V_E2: Approx. ints. done (',
+     $               I5, ':', I5, ',', I5, ':', I5, ')')
+C
 C                 The J integral block is no longer needed and can
 C                 now be freed.  This alows us to reuse the space
 C                 to hold the temporary matrix B for the other
@@ -399,6 +407,11 @@ C
                   EndIf
                   Call PStat_Off( PS_form_ab)
 C
+                  Write (String1, 9220) ILo, IHi, JLo, JHi
+                  Call Progress_Report(LuOut, String1(:LNBlnk(String1)))
+ 9220             Format('RIMP2_V_E2: Copy to B done (',
+     $               I5, ':', I5, ',', I5, ':', I5, ')')
+C
 C                 ***************************
 C                 * Apply denominators to B *
 C                 ***************************
@@ -410,6 +423,11 @@ C
      $               Eig(1+NOcc(ISpin), ISpin),
      $               Eig(1+NOcc(JSpin), JSpin) )
                   Call PStat_Off( PS_denom)
+C
+                  Write (String1, 9230) ILo, IHi, JLo, JHi
+                  Call Progress_Report(LuOut, String1(:LNBlnk(String1)))
+ 9230             Format('RIMP2_V_E2: Denominators done (',
+     $               I5, ':', I5, ',', I5, ':', I5, ')')
 C
 C                 ***********************
 C                 * Form IJ pair energy *
@@ -436,6 +454,13 @@ C
                      RIMP2_V_E2 = .FALSE.
                      Return
                   EndIf
+C
+c$$$                  If ( .NOT. (ILo .eq. 1 .AND. IHi .eq. NOcc(ISpin))
+c$$$     $               .OR..NOT. (JLo .eq. 1 .AND. JHi .eq. NOcc(JSpin))))
+                  Write (String1, 9200) ILo, IHi, JLo, JHi
+                  Call Progress_Report(LuOut, String1(:LNBlnk(String1)))
+ 9200             Format('RIMP2_V_E2: Completed block (',
+     $               I5, ':', I5, ',', I5, ':', I5, ')')
 C
                EndDo            ! J (blocks)
             EndDo               ! JSpin

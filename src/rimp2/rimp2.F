@@ -28,7 +28,7 @@ C
       Integer MinChunk
       Parameter (MinChunk = 64)
 C
-      Integer NILimit
+      Integer MxTBatch, MxEBatch
 C
       Character*(*) Def_Int, Def_MOVec
       Parameter (Def_Int = 'mo3cint', Def_MOVec = 'movecs')
@@ -46,6 +46,7 @@ C
       Integer H_Eval, Eval_Idx, H_Contrib, Contrib_Idx
       Double precision Thresh, CorEner, RefEner, TotEner
       Character*(80) Title, SCFBasNam, FNVec, FNInt, String, Approx
+      Character*(255) AOName, AONameT, FitName, FitNameT
       Logical Status
 C
 C     Handles and indices to for the "correlated" basis
@@ -106,13 +107,19 @@ c$$$      EndIf
 C
 C     Get other controls -- threshold for neglect of integrals, etc.
 C
-      Call RIMP2_Get_Param( RTDB, Thresh, NILimit, Approx)
+      Call RIMP2_Get_Param( RTDB, Thresh, MxTBatch, MxEBatch, Approx)
 C
 C     Figure out file names
 C
       if (.not. context_rtdb_match(rtdb, 'mo 3-center integral file',
      $     FNInt)) FNInt = Def_Int
 C
+C     Get some info about the basis sets for later use
+C
+      Status = Status .AND. Bas_NumBF( AOBas, NAOBF)
+      Status = Status .AND. Bas_NumBF( FitBas, NFit)
+      Status = Status .AND. Bas_Name(AOBas, AOName, AONameT)
+      Status = Status .AND. Bas_Name(FitBas, FitName, FitNameT)
 C
 C     ****************************
 C     * Get/create SCF reference *
@@ -202,17 +209,50 @@ C
      $      Dbl_MB(I_Eval + MxNCorBF * (I-1) ), G_AOXF(I) )
       EndDo
 C
-C     While we've got both the full and the computational reference
-C     here, print out some info about them.
+C     Now we can get rid of the full reference
+C
+      Status = .TRUE.
+      Status = Status .AND. MA_Free_Heap( H_Full_Occ  )
+      Status = Status .AND. MA_Free_Heap( H_Full_Eval )
+      Do I = 1, TopSpin
+         Status = Status .AND. GA_Destroy(G_Full_AOXF(I) )
+      EndDo
+      If (.NOT. Status) Call ErrQuit(
+     $   'RIMP2: Unable destroy local arrays', 1)
+C
+C     **********************************************
+C     * Print out calculation information for user *
+C     **********************************************
 C
       If ( Me .eq. 0) then
-         Call Banner(LuOut, 'SCF Reference Information', '-',
-     $      .TRUE., .TRUE., .FALSE.)
+         Write (LuOut, 8500) 'RI integral approximation:',
+     $      Approx(:LNBlnk(Approx))
+         Write (LuOut, 8510) 'Threshold for Schwarz screening:', Thresh
+         Write (LuOut, 8520) 'Max. batch size for transformation:',
+     $      MxTBatch
+         Write (LuOut, 8520) 'Max. batch size for energy:',
+     $      MxEBatch
+         Write (LuOut, 8500) 'Base file name for MO integrals',
+     $      FNInt(:LNBlnk(FNInt))
+         Write (LuOut, 8500) 'AO basis set name:',
+     $      AONameT(:LNBlnk(AONameT))
+         Write (LuOut, 8520) 'Nr. of AO functions:', NAOBF
+         Write (LuOut, 8500) 'Fitting basis set name:',
+     $      FitName(:LNBlnk(FitName))
+         Write (LuOut, 8520) 'Nr. of fitting functions:', NFit
 C
-         Write (LuOut, 9000) Title(:LNBlnk(Title)),
-     $      SCFBasNam(:LNBlnk(SCFBasNam)), NAOBF, TopSpin,
+         Write (LuOut, 8500) 'SCF reference from file:',
+     $      FNVec(:LNBlnk(FNVec))
+         Write (LuOut, 8500) 'SCF reference title:',
+     $      Title(:LNBlnk(Title))
+         Write (LuOut, 8500) 'SCF reference basis:',
+     $      SCFBasNam(:LNBlnk(SCFBasNam))
+         Write (LuOut, 8520) 'Nr. of AOs in SCF reference:', NAOBF
+         Write (LuOut, 8520) 'Nr. of sets of orbitals:', TopSpin
+         Write (LuOut, 8520) 'Nr. of MOs in full reference:',
      $      (NMO(i), i = 1, TopSpin)
-         Write (LuOut, 9010) (NCorBF(i), i = 1, TopSpin)
+         Write (LuOut, 8520) 'Nr. of MOs to be correlated:',
+     $      (NCorBF(i), i = 1, TopSpin)
 C
 C        Warn users that everything from this point is labeled
 C        in a different basis.
@@ -230,13 +270,12 @@ C
      $         Dbl_MB(I_Eval), MxNCorBF, 'F12.3', 80)
          EndIf
       EndIF
+      Call Util_Flush(LuOut)
 C
- 9000 Format( 1X, 'Source job:                   ''', A, ''''
-     $       /1X, 'Basis:                        ''', A, '''',
-     $       /1X, 'Nr. of AOs:                   ', I5,
-     $       /1X, 'Nr. of sets:                  ', I5,
-     $       /1X, 'Nr. of MOs:                   ', 10I5)
- 9010 Format( 1X, 'Nr. of MOs to be correlated:  ', 10I5)
+ 8500 Format(1X, A35, 1X, '''', A, '''')
+ 8510 Format(1X, A35, 4(1X, 1PE10.3), (/36X, 4(1X, I10)) )
+ 8520 Format(1X, A35, 4(1X, I10), (/36X, 4(1X,I10)) )
+C
  9050 Format(1X, 'This correlated calculation is based on an SCF ',
      $       'reference in which'/
      $   1X, 'orbitals have been frozen or rearranged relative to ',
@@ -248,25 +287,9 @@ C
      $   1X, 'point on, orbitals are labeled in the ''correlated ',
      $       'basis''.'/)
 C
-C     Now we can get rid of the full reference
-C
-      Status = .TRUE.
-      Status = Status .AND. MA_Free_Heap( H_Full_Occ  )
-      Status = Status .AND. MA_Free_Heap( H_Full_Eval )
-      Do I = 1, TopSpin
-         Status = Status .AND. GA_Destroy(G_Full_AOXF(I) )
-      EndDo
-      If (.NOT. Status) Call ErrQuit(
-     $   'RIMP2: Unable destroy local arrays', 1)
-C
 C     *************************************
 C     * Integral transformation (to disk) *
 C     *************************************
-C
-C     Get the basis set sizes we need
-C
-      Status = Status .AND. Bas_NumBF( AOBas, NAOBF)
-      Status = Status .AND. Bas_NumBF( FitBas, NFit)
 C
 C     Determine ranges to transform
 C
@@ -285,7 +308,7 @@ C
 C
       Status = Status .AND.
      $   RIMP2_XF_Driver( Geom, AOBas, FitBas,
-     $   TopSpin, FNInt, ALo, AHi, ILo, IHi, NILimit, Thresh,
+     $   TopSpin, FNInt, ALo, AHi, ILo, IHi, MxTBatch, Thresh,
      $   Approx, G_AOXF)
 C
 C     Finished with the AO transformation
@@ -322,7 +345,7 @@ C
       Status = Status .AND.
      $   RIMP2_V_E2( FNInt, TopSpin, NCorBF, IHi, AHi, NFit, FitBas,
      $   Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx), CorEner,
-     $   NILimit, NILimit)
+     $   MxEBatch, MxEBatch)
 C
 C     Also get the SCF energy so we can report the total energy
 C
