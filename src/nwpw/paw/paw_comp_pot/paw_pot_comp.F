@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_comp.F,v 1.6 2003-02-16 07:38:04 marat Exp $
+c $Id: paw_pot_comp.F,v 1.7 2003-02-17 00:55:01 bylaska Exp $
 c
 
 !**************************************************
@@ -29,7 +29,8 @@ c
 c     !*** calculate the size and indexing ***
       ok = my_alloc(mt_int,ion_nion(),"i_paw_pot_comp",
      >                                     i_paw_pot_comp)
-      if (.not.ok) call errquit('init_paw_pot_comp: alloc heap',1)
+      if (.not.ok) 
+     > call errquit('init_paw_pot_comp:out of heap memory',0)
       paw_pot_comp_size = 0
       do in=1,ion_nion()
          int_mb(i_paw_pot_comp(1) + in - 1) = paw_pot_comp_size
@@ -42,7 +43,7 @@ c     !*** calculate the size and indexing ***
       ok = my_alloc(mt_dcpl,paw_pot_comp_size,
      >               "paw_pot_comp",paw_pot_comp)
       if (.not.ok)
-     > call errquit("init_paw_pot_comp: error allocating heap",1)
+     > call errquit("init_paw_pot_comp:out of heap memoryh",1)
   
       write(*,*) "initialized paw_comp_pot"
       end !subroutine init_paw_pot_comp
