@@ -1,6 +1,6 @@
       subroutine simulation_cell_input(rtdb)
 c
-c $Id: simulation_cell_input.F,v 1.7 2004-02-22 18:56:37 bylaska Exp $
+c $Id: simulation_cell_input.F,v 1.8 2005-01-15 23:41:13 bylaska Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -17,7 +17,7 @@ c
       logical bset,lset,nset
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 15)
+      parameter (num_dirs = 18)
       character*22 dirs(num_dirs)
       character*255 test
 
@@ -27,6 +27,10 @@ c
       double precision lat_a,lat_b,lat_c
       double precision alpha,beta,gamma
       double precision scale,ll
+
+      logical box_orient,b1set,b2set,b3set
+      integer box_type
+      double precision box_delta
 
       integer ntokens
       parameter (ntokens=7)
@@ -47,6 +51,9 @@ c
      >            'sc',
      >            'fcc',
      >            'bcc',
+     >            'box_delta',
+     >            'box_orient',
+     >            'box_different_lengths',
      >            'end'/
 
       data tokens /'lat_a', 'lat_b', 'lat_c',
@@ -71,10 +78,16 @@ c     **** intialize stuff ****
       unita(3,3) = 0.0d0
       boundry = 'periodic'
       name    = 'cell_default'
+      box_type = 0
+      box_orient = .false.
+      box_type = 0
 
       nset = .false.
       lset = .false.
       bset = .false.
+      b1set = .false.
+      b2set = .false.
+      b3set = .false.
 c
 c
 c
@@ -94,7 +107,8 @@ c
       goto ( 100,  200, 300, 400, 500, 
      >       100,  200, 300, 400,
      >       200,  200,
-     >       600, 700, 800,
+     >       600, 700, 800, 
+     >       1000, 1100, 1200,
      >      9999) ind
       call errquit(
      >      'simulation_cell_input: unimplemented directive', ind,
@@ -309,6 +323,33 @@ c
       lset = .true.
       goto 10
 
+c
+c  box_delta
+c
+ 1000 if (.not. inp_f(box_delta))
+     >     call errquit(
+     >     'simulation_cell_input: box_delta failed', 0,
+     &       INPUT_ERR)
+      b1set = .true.
+      goto 10
+
+c
+c  box_orient
+c
+ 1100 box_orient=.true.
+      b2set = .true.
+      goto 10
+
+c
+c  box_different_lengths
+c
+ 1200 box_type = 1
+      b3set = .true.
+      goto 10
+
+
+
+
 *     ***** add simulation_cell to rtdb ****
  9999 continue
       if (name.eq.' ') 
@@ -353,6 +394,33 @@ c
      >     'simulation_cell_input: rtdb_put(ngrid) failed', 0,
      &       INPUT_ERR)
       end if
+
+
+
+      if (b1set) then
+      box_delta = box_delta*scale
+      rtdb_name = name(1:l)//':box_delta'
+      if (.not. rtdb_put(rtdb,rtdb_name,mt_dbl,1,box_delta))
+     >     call errquit(
+     >     'simulation_cell_input: rtdb_put(box_delta) failed', 0,
+     &       INPUT_ERR)
+      end if
+      if (b2set) then
+      rtdb_name = name(1:l)//':box_orient'
+      if (.not. rtdb_put(rtdb,rtdb_name,mt_log,1,box_orient))
+     >     call errquit(
+     >     'simulation_cell_input: rtdb_put(box_orient) failed', 0,
+     &       INPUT_ERR)
+      end if
+      if (b3set) then
+      rtdb_name = name(1:l)//':box_type'
+      if (.not. rtdb_put(rtdb,rtdb_name,mt_int,1,box_type))
+     >     call errquit(
+     >     'simulation_cell_input: rtdb_put(box_type) failed', 0,
+     &       INPUT_ERR)
+      end if
+
+
       
 
       end
