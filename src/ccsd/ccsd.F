@@ -1,7 +1,7 @@
       Logical Function ccsd(rtdb)
        implicit none
 #include "errquit.fh"
-C     $Id: ccsd.F,v 2.10 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: ccsd.F,v 2.11 2004-07-01 20:08:02 bert Exp $
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -78,6 +78,7 @@ c
        ccsd = oconverged
        if (oconverged) then
           call ecce_print_module_exit('ccsd', 'ok')
+          status = rtdb_delete(rtdb,'ccsd:converged')
        else
           call ecce_print_module_exit('ccsd', 'failed')
        endif
