@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.81 1998-06-10 21:35:46 d3e129 Exp $
+c $Id: raktest.F,v 1.82 1998-09-03 23:51:37 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -9,8 +9,8 @@ c $Id: raktest.F,v 1.81 1998-06-10 21:35:46 d3e129 Exp $
 c::functions
       logical task_computeSld, task_printsoints, task_pderiv
       external task_computeSld, task_printsoints, task_pderiv
-      logical task_dddd
-      external task_dddd
+      logical task_dddd, task_accy
+      external task_dddd, task_accy
 c::passed
       integer rtdb          ! rtdb handle
 c::local
@@ -26,9 +26,10 @@ c
       call ga_sync()
       call ga_sync()
       me = ga_nodeid()
-      goto (00010,00020,00030,00040,00050,00060,00070,00080,
+      goto (
+     &    00010,00020,00030,00040,00050,00060,00070,00080,
      &    00090, 00100, 00110, 00120, 00130, 00140, 00150,
-     &    00160, 00170, 00180, 00190, 00200, 00210) raktask
+     &    00160, 00170, 00180, 00190, 00200, 00210, 00220) raktask
 c
       if (me.eq.0) then
         write(luout,*)' default raktest task '
@@ -105,6 +106,10 @@ c
 00210 if (me.eq.0)write(luout,*)
      &    ' raktest: task test dddd bug'
       raktest = task_dddd(rtdb)
+      goto 00002
+00220 if (me.eq.0)write(luout,*)
+     &    ' raktest: accuracy test for ints/grads '
+      raktest = task_accy(rtdb)
       goto 00002
 c
 00001 continue
