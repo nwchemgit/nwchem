@@ -1,9 +1,15 @@
 *
-* $Id: psi.F,v 1.58 2004-12-21 16:58:35 bylaska Exp $
+* $Id: psi.F,v 1.59 2005-01-17 20:51:33 edo Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.58.2.1  2005/01/17 20:51:06  edo
+* fixed a couple of FPEs
+*
+* Revision 1.58  2004/12/21 16:58:35  bylaska
+* various io fixes for dos...EJB
+*
 * Revision 1.57  2004/12/06 20:03:25  bylaska
 * RMM-DIIS diagonalizer added to pspw.
 * nwpw_list updated to handle multiple lists.
@@ -260,8 +266,9 @@
      >                    e0)
    
          e0 = -e0
-         
-           percent_error = dabs(e0-eold)/error0
+         percent_error=0d0
+         if(error0.ne.0d0)
+     A      percent_error = dabs(e0-eold)/error0
 
          done = ((it.gt.maxiteration) 
      >           .or.
@@ -743,7 +750,9 @@
          !  error0 = dabs(e0-eold)
          !  percent_error = 1.0d0
          !else
-           percent_error = dabs(e0-eold)/error0
+         percent_error=0d0
+         if(error0.ne.0d0)
+     A      percent_error = dabs(e0-eold)/error0
          !end if
 
          done = ((it.gt.maxiteration) 
