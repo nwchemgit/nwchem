@@ -14,7 +14,7 @@ c
      &                        qwght,ldew,func)
 #endif
 c
-c$Id: xc_xpbe96.F,v 1.8 2003-02-17 22:58:32 edo Exp $
+c$Id: xc_xpbe96.F,v 1.9 2004-09-10 18:52:08 edo Exp $
 c
       implicit none
 c
@@ -72,6 +72,9 @@ c
 c
 c        ======> SPIN-RESTRICTED <======
 c
+#ifdef IFCV81
+CDEC$ NOSWP
+#endif
          do 10 n = 1, nq
             if (rho(n,1).lt.tol_rho) goto 10
             rho43 = C*rho(n,1)**F43
@@ -137,6 +140,9 @@ c
 c
 c        ======> SPIN-UNRESTRICTED <======
 c
+#ifdef IFCV81
+CDEC$ NOSWP
+#endif
          do 20 n = 1, nq
             if (rho(n,1).lt.tol_rho) goto 20
 c
