@@ -1,7 +1,8 @@
-      subroutine grid_sympts0(geom,nops,k_symops,l_symops,
+      subroutine grid_sympts0(geom,nops,
+     ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.8 2000-04-25 02:08:44 edo Exp $
+c$Id: grid_sympts.F,v 1.9 2000-04-26 01:22:30 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -21,6 +22,7 @@ c
      ,        l_symops,k_symops)) call errquit(
      '        '     grid_sympt: mpush get failed',1)
          call sym_ops_get(geom,nops,dbl_mb(k_symops))
+         call grid_c5trash(nops,dbl_mb(k_symops))
       else
          l_symops=-999
       endif
@@ -127,7 +129,6 @@ cedo            write(6,'("  h0",i3,4(F12.6))') h,x1,y1,z1
                      x1=x1-xyz(1) 
                      y1=y1-xyz(2) 
                      z1=z1-xyz(3) 
-cedo            write(6,'("  h1",i3,4(F12.6))') h,x1,y1,z1
                      do k1=k+1,nq_left
                         if(k.ne.k1) then
                            ddd=(x1-gridscr(1,k1))**2+
@@ -137,8 +138,6 @@ cedo            write(6,'("  h1",i3,4(F12.6))') h,x1,y1,z1
                               if(gridscr(4,k1).ne.0d0) then
                                  if(abs(gridscr(4,k1)-gridscr(4,k)).
      .                                gt.1d-5) then
-cedo                              write(6,'(" w ",2(I4,1pe20.12))') 
-cedo     .                                k,gridscr(4,k),k1,gridscr(4,k1)
                                  endif
                                  gridscr(4,k1)=0d0
                                  n_equiv=n_equiv+1
@@ -180,9 +179,6 @@ c
 c
       nq=0
       do k = 1, nq_left
-cedo         xor=(gridscr(1,k)-xyz(1))*r+xyz(1)
-cedo         yor=(gridscr(2,k)-xyz(2))*r+xyz(2)
-cedo         zor=(gridscr(3,k)-xyz(3))*r+xyz(3)
          xor=gridscr(1,k)*r
          yor=gridscr(2,k)*r
          zor=gridscr(3,k)*r
@@ -196,6 +192,72 @@ cedo         zor=(gridscr(3,k)-xyz(3))*r+xyz(3)
             aqbuf(4,nq) = gridscr(4,k)*rwghts(irsh,ia_ictr)
 
          endif
+      enddo
+      return
+      end
+      subroutine grid_c5trash(nops,symops)
+      implicit none
+      integer nops,nops_red
+      double precision symops(3,nops,4)
+      double precision deter3
+      external deter3
+c
+      integer ii
+      double precision dd,matt(3,3),trtr
+      integer angle
+      double precision pi
+      double precision aa(3,120,4)
+      integer iscr(120)
+c     
+c     remove any 5-fold operation
+c     since it does not belong to Oh
+c
+      pi=4d0*atan(1d0)
+      nops_red=0
+      do ii=1,nops
+         matt(1,1)=symops(1,ii,1)
+         matt(2,1)=symops(2,ii,1)
+         matt(3,1)=symops(3,ii,1)
+         matt(1,2)=symops(1,ii,2)
+         matt(2,2)=symops(2,ii,2)
+         matt(3,2)=symops(3,ii,2)
+         matt(1,3)=symops(1,ii,3)
+         matt(2,3)=symops(2,ii,3)
+         matt(3,3)=symops(3,ii,3)
+         dd=deter3(matt)
+         trtr=matt(1,1)+matt(2,2)+matt(3,3)
+         angle=abs(nint(acos(mod(0.5d0*(trtr-dd),1d0))*180d0/pi))
+         if(mod(angle,36).eq.0.and.(angle/36).lt.5) then
+c     do nothing
+         else
+            nops_red=nops_red+1
+            iscr(nops_red)=ii
+         endif
+      enddo
+      call dcopy(3*4*nops,symops,1,aa,1)
+      call grid_symcomp(nops_red,symops,nops,aa,iscr)
+      nops=nops_red
+      return
+      end
+      subroutine grid_symcomp(nops_red,symops_red,nops,symops,iscr)
+      implicit none
+      integer nops,nops_red
+      double precision symops_red(3,nops_red,4)
+      double precision symops(3,nops,4)
+      integer kk,iscr(72)
+c
+c     compact array to get nops_red stride
+c
+      do kk=1,nops_red
+         symops_red(1,kk,1)=symops(1,iscr(kk),1)
+         symops_red(2,kk,1)=symops(2,iscr(kk),1)
+         symops_red(3,kk,1)=symops(3,iscr(kk),1)
+         symops_red(1,kk,2)=symops(1,iscr(kk),2)
+         symops_red(2,kk,2)=symops(2,iscr(kk),2)
+         symops_red(3,kk,2)=symops(3,iscr(kk),2)
+         symops_red(1,kk,3)=symops(1,iscr(kk),3)
+         symops_red(2,kk,3)=symops(2,iscr(kk),3)
+         symops_red(3,kk,3)=symops(3,iscr(kk),3)
       enddo
       return
       end

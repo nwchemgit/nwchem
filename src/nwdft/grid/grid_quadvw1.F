@@ -15,7 +15,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadvw1.F,v 1.1 2000-04-25 02:10:33 edo Exp $
+c$Id: grid_quadvw1.F,v 1.2 2000-04-26 01:22:30 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -37,21 +37,23 @@ c
       integer qsh(3,*)! [in]
       double precision aqbuf(4,*) ! [scr]
       integer nops              ! [in]
+      integer iang_done ![in/out]
       double precision symfact ![in]
       logical trunc_neigh
       double precision rij ! [scr] for ssw
       integer nqtotc,nq_cube ! [in/out]
       double precision rad_write ! [in]
 c
+      integer nq_left ! [local]
       integer ntot_cube,npts_per_ang
       integer iang,ictr,nq,ncu
       integer nq_out,nwrbuf
-      integer iang_done
-      integer nq_left
       integer grid_nxyz,nq_in
       external grid_nxyz
       integer grid_nsub4
       external grid_nsub4
+c
+      save nq_left
 c
       npts_per_ang=nqmax
       ictr = qsh(2,iqsh)
@@ -73,7 +75,6 @@ c
      ,        irsh, iang, 
      .        aqbuf, nq, 
      *        fnxyz,nxyz)
-         
       endif
 c     
 c     modify the weight to include the spatial weight (and symmetry factor)
