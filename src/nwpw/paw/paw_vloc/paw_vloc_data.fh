@@ -1,0 +1,5 @@
+*
+* $Id: paw_vloc_data.fh,v 1.1 2003-02-13 01:56:42 bylaska Exp $
+*
+      integer vl(4)
+      common /paw_vloc_common/ vl
