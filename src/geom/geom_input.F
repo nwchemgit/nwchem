@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.73 1998-04-14 18:15:14 mdupuis Exp $
+C     $Id: geom_input.F,v 1.74 1998-04-15 21:00:35 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -9466,7 +9466,7 @@ C
       DATA TEN06  /1.0D+06/
       DATA EPS    /1.01D+00/
 C
-      QZERO=(ZERO,ZERO)
+      QZERO=cmplx(ZERO,ZERO)
          PI=    FOUR*ATAN(ONE)
       TWOPI=TWO*FOUR*ATAN(ONE)
       DEGREE=360.00D+00/TWOPI
