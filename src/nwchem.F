@@ -15,7 +15,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.46 1995-03-02 18:03:26 d3g681 Exp $
+c     $Id: nwchem.F,v 1.47 1995-03-11 23:35:12 d3g681 Exp $
 c
       character*255 input_filename
 c
@@ -144,8 +144,11 @@ c
       call util_file_prefix_set(file_prefix)
       call util_file_prefix_rtdb_store(rtdb) ! Not ideal location for this
 c
-      write(6,1) file_prefix(1:inp_strlen(file_prefix))
- 1    format(' file prefix = ', a//)
+      if (ga_nodeid() .eq. 0) then
+         write(6,1) file_prefix(1:inp_strlen(file_prefix))
+ 1       format(' file prefix = ', a//)
+         call util_flush(6)
+      endif
 c
 c     Parse input data and shove into the database
 c
