@@ -1,5 +1,5 @@
 *
-* $Id: paw_electron.F,v 1.2 2004-08-13 01:16:43 bylaska Exp $
+* $Id: paw_electron.F,v 1.3 2004-08-13 04:20:08 bylaska Exp $
 *
 
 
@@ -657,6 +657,7 @@ c      write(*,*) "total_energy:",total_energy
 *     ***********************************
 
       subroutine paw_electron_get_Tgradient(psi_k,hml,THpsi_k)
+
       implicit none
       complex*16 psi_k(*)
       real*8     hml(*)
@@ -1806,11 +1807,31 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 #include "mafdecls.fh"
 #include "paw_electron.fh"
 
-       call paw_vloc_force(dng1,fion)
-       call paw_mult_pw_force(dcpl_mb(vh(1)),
+      !**** local variables ****
+      logical value
+      integer tmp(2),nemax
+
+      nemax = ne(1)+ne(2)
+      call paw_vloc_force(dng1,fion)
+      call paw_mult_pw_force(dcpl_mb(vh(1)),
      >                        dcpl_mb(vcomp(1)),
      >                        fion)
-       call paw_force_solve(psi1,fion)
+      call paw_force_solve(psi1,fion)
+
+      value = MA_push_get(mt_dbl,(8*nemax*nemax),
+     >                     'tmp',tmp(2),tmp(1))
+      if (.not. value) 
+     > call errquit('paw_electron_force:out of stack memory',0,0)
+
+
+      call paw_electron_gen_hml(psi1,dbl_mb(tmp(1)))
+      call paw_force_constraint(dbl_mb(tmp(1)),fion)
+
+      value = MA_pop_stack(tmp(2))
+      if (.not. value) 
+     > call errquit('paw_electron_force:popping stack memory',0,0)
+
+
 
        return
        end

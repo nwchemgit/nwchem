@@ -1,4 +1,4 @@
-c     $Id: paw_cgsd_energy.F,v 1.2 2004-08-13 01:16:42 bylaska Exp $                       
+c     $Id: paw_cgsd_energy.F,v 1.3 2004-08-13 04:20:08 bylaska Exp $                       
 
 
 *     ***************************
@@ -344,6 +344,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
 
       nion = ion_nion()
       call dcopy(3*nion,0.0d0,0,G1,1)
+      call paw_set_mult_energy_coeff()
       call paw_psi_1force(G1)
 
 *     **** remove ion forces using ion_FixIon ****

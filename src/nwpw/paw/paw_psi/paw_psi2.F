@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi2.F,v 1.2 2004-08-13 01:16:43 bylaska Exp $
+* $Id: paw_psi2.F,v 1.3 2004-08-13 04:20:08 bylaska Exp $
 *
 
 
@@ -2069,6 +2069,10 @@ c     real*8 sum1,sum2
 
 #include "mafdecls.fh"
 #include "paw_psi.fh"
+
+      call paw_electron_run(dcpl_mb(psi1(1)),
+     >                   dbl_mb(rho1(1)),
+     >                  dcpl_mb(dng1(1)))
 
       call paw_electron_force(dcpl_mb(psi1(1)),dcpl_mb(dng1(1)),fion)
       return
