@@ -1,6 +1,6 @@
       Subroutine a_dist(xyz, Rij, nctrs_no_pt_chgs)
 c
-C$Id: a_dist.F,v 1.8 1997-03-14 23:04:45 d3h449 Exp $
+C$Id: a_dist.F,v 1.9 1997-04-18 18:52:28 d3h449 Exp $
 c
       implicit none
 c
@@ -16,11 +16,15 @@ c---> Internuclear Distances
 c
       double precision Rij((nctrs_no_pt_chgs*(nctrs_no_pt_chgs+1))/2)
 c
-      integer i,j,ij
+      integer i,j,ij,rij_len
 c
 c     Evaluate the distance between each pair of centers.
 c
 c     eliminate pt charges from list
+c
+c      write(*,*)' Coordinates '
+c      call output(xyz, 1, 3, 1, nctrs_no_pt_chgs, 
+c     &                    3, nctrs_no_pt_chgs, 1)
 c
       i = 0
   123 i = i + 1
@@ -50,6 +54,9 @@ c
             endif
    10    continue
    20 continue
+c      rij_len = (nctrs_no_pt_chgs*(nctrs_no_pt_chgs+1))/2
+c      write(*,*)' Rij ',rij_len
+c      call output(Rij, 1, rij_len, 1, 1, rij_len, 1, 1)
 c
       return
       end
