@@ -1,5 +1,5 @@
 c
-c $Id: apiP.fh,v 1.17 1999-11-24 23:08:35 bert Exp $
+c $Id: apiP.fh,v 1.18 1999-12-08 01:09:09 bert Exp $
 c
 c common block that holds memory information
 c
@@ -74,7 +74,8 @@ c
       logical doug_kroll    ! Do we do Douglas-Kroll or not?
       integer dk_form_type  ! Type of Douglas-Kroll, see above.
       logical dk_even_bas   ! Create a more flexible fitting basis even tempered
-      double precision dk_ratio ! Ratio for the even tempered fitting basis
+      double precision dk_ratio  ! Ratio for the even tempered fitting basis
+      double precision dk_clight ! Speed of light
       common /DK_log/doug_kroll, dk_even_bas
       common /DK_int/dk_form_type
-      common /DK_real/dk_ratio
+      common /DK_real/dk_ratio, dk_clight
