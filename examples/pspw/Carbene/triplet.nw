@@ -2,7 +2,7 @@ title triplet
 
 start triplet
 
-memory global 10 mb stack 9 mb heap 25 mb
+memory global 20 heap 80 mb stack 20 mb
 
 geometry units au
 C  .10000000E+02  .00000000E+00  .00000000E+00 .000E+00  .000E+00  .000E+00
@@ -108,7 +108,9 @@ PSPW
       wavefunction_filename: triplet.00.elc
       cell_name: small
    END 
-
+END
+task pspw wavefunction_initializer
+PSPW
    STEEPEST_DESCENT
       cell_name: small
       formatted_filename: C.vpp
@@ -117,11 +119,24 @@ PSPW
       output_wavefunction_filename: triplet.00.elc
       fake_mass: 400000.0d0
       time_step: 51.8d0
-      loop: 100 10
+      loop: 10 10
       tolerances: 1.0d-9 1.0d-9 1.0d-4
    END 
 END
+task steepest_descent pspw
 
-task pspw wavefunction_initializer
-task pspw steepest_descent
-
+PSPW
+   CONJUGATE_GRADIENT
+      cell_name: small
+      formatted_filename: C.vpp
+      formatted_filename: H.vpp
+      input_wavefunction_filename:  triplet.00.elc
+      output_wavefunction_filename: triplet.00.elc
+      fake_mass: 400000.0d0
+      time_step: 51.8d0
+      loop: 15 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+   END 
+END
+task conjugate_gradient pspw
+task cg_pspw optimize

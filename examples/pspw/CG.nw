@@ -1,0 +1,121 @@
+title C2
+
+start C2
+
+memory global 56 mb stack 36 mb heap 20 mb
+
+geometry units au
+C 1.2000000000 0.00000000  0.00000000
+C -1.2000000000 0.00000000 0.00000000
+end
+
+
+PSPW 
+   PSP_GENERATOR
+      pseudopotential_filename: C.psp
+      element: C
+      charge: 6.0
+      mass_number: 12.0
+      solver_type: pauli
+      pseudopotential_type: hamann
+      exchange_type: pbe96
+      correlation_type: pbe96
+      atomic_filling: 1 2
+        1 s 2.0
+        2 s 2.0
+        2 p 2.0
+      cutoff: 3
+         s 0.8
+         p 0.85
+         d 0.85
+   END
+
+   SIMULATION_CELL
+      cell_name: small
+      boundry_conditions: periodic
+      lattice_vectors:
+         20.0  0.0  0.0 
+          0.0 20.0  0.0 
+          0.0  0.0 20.0 
+      ngrid: 16 16 16
+   END
+
+   PSP_FORMATTER
+      cell_name: small
+      psp_filename: C.psp
+      formatted_filename: C.vpp
+      locp: 0
+   END
+
+   WAVEFUNCTION_INITIALIZER
+      restricted
+      up_filling: 4
+               0 0 0     0
+               1 0 0    -1
+               0 1 0    -1
+               0 0 1    -1
+      wavefunction_filename: c2.small.00.elc
+      cell_name: small
+   END 
+END
+task psp_generator pspw
+task psp_formatter pspw
+task wavefunction_initializer pspw
+PSPW
+   STEEPEST_DESCENT
+      cell_name: small
+      formatted_filename: C.vpp
+      input_wavefunction_filename:  c2.small.00.elc
+      output_wavefunction_filename: C2.movecs
+      fake_mass: 400000.0d0
+      time_step: 51.8d0
+      loop: 10 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      energy_cutoff:       21.0d0
+      wavefunction_cutoff: 21.0d0
+      exchange_correlation: pbe96
+   END
+END
+task steepest_descent pspw
+
+
+PSPW
+   CONJUGATE_GRADIENT
+      cell_name: small
+      formatted_filename: C.vpp
+      input_wavefunction_filename:  C2.movecs
+      output_wavefunction_filename: C2.movecs
+      fake_mass: 400000.0d0
+      time_step: 51.8d0
+      loop: 5 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      energy_cutoff:       21.0d0
+      wavefunction_cutoff: 21.0d0
+      exchange_correlation: pbe96
+   END 
+END
+#task rtdbprint
+task pspw conjugate_gradient
+driver
+   xyz C2.xyz
+end
+task cg_pspw optimize
+task cg_pspw freq
+
+PSPW
+   STEEPEST_DESCENT
+      cell_name: small
+      geometry_optimize
+      formatted_filename: C.vpp
+      input_wavefunction_filename:  C2.movecs
+      output_wavefunction_filename: C2.movecs
+      fake_mass: 400000.0d0
+      time_step: 10.8d0
+      loop: 10 100
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      energy_cutoff:       21.0d0
+      wavefunction_cutoff: 21.0d0
+      exchange_correlation: pbe96
+   END
+END
+ task steepest_descent pspw
