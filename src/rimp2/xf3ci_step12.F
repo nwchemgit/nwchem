@@ -4,7 +4,7 @@ C     XF3cI_Step12 -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_step12.F,v 1.15 2003-10-17 22:58:10 carlfahl Exp $
+C     $Id: xf3ci_step12.F,v 1.16 2005-01-04 17:20:25 edo Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step12(RTDB, Geom, IntTyp,
@@ -99,6 +99,9 @@ C LOCAL VARIABLES
       Integer LIBuf, H_IBuf, I_IBuf
       Integer PMin, QMin, SMin, PMax, QMax, SMax, PDim, QDim, SDim
       Integer MemAvail, MemUsed
+#ifdef  BAD_GACCESS 
+      integer l_local
+#endif
       Double Precision FLOPs
 C
 C     Dimensions of A and I ranges
@@ -310,6 +313,14 @@ C     and a copy operation.  But the leading dimension
 C     of the local patch must be a multiple of NA, or the second
 C     transformation step will be wrong.
 C
+#ifdef  BAD_GACCESS 
+      if(.not.ma_push_get(MT_DBL,(iahi-ialo+1)*(nodeshi-nodeslo+1),
+     $  'scratch buff', l_local, local_idx)) call
+     $  errquit('step12: pushget failed',0,0)
+      ldlocal=na*ni
+      call ga_get(g_i,ialo,iahi,nodeslo,nodeshi,
+     $     dbl_mb(local_idx),ldlocal)
+#else
       Call GA_Access( G_I, IAlo, IAhi, NodeSLo, NodeSHi, Local_Idx,
      $   LDLocal)
 C
@@ -321,6 +332,7 @@ C
          XF3cI_Step12 = .FALSE.
          Return
       EndIf
+#endif
 C
 C     ***********************************************************
 C     * After all this preparation, we finally get to the work! *
@@ -346,7 +358,14 @@ C     ****************************
 C     * Clean up after ourselves *
 C     ****************************
 C
+#ifdef  BAD_GACCESS 
+      call ga_put(g_i,ialo,iahi,nodeslo,nodeshi,
+     $     dbl_mb(local_idx),ldlocal)
+      if(.not.ma_pop_stack(l_local)) call 
+     $  errquit('step12: popstack failed',0,0)
+#else
       Call GA_Release_Update( G_I, IAlo, IAhi, NodeSLo, NodeSHi)
+#endif
 C
       Status = .TRUE.
       Status = Status .AND. MA_Pop_Stack( H_IBuf)
