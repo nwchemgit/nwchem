@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.76 1994-11-10 17:59:38 d3g681 Exp $
+# $Id: makefile.h,v 1.77 1994-11-10 23:46:40 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -20,13 +20,6 @@ error1:
 	@exit 1
 endif
 
-     TOPDIR = $(NWCHEM_TOP)
-     SRCDIR = $(TOPDIR)/src
-     LIBDIR = $(TOPDIR)/lib
-     BINDIR = $(TOPDIR)/bin
-     INCDIR = $(TOPDIR)/src/include
-     CNFDIR = $(TOPDIR)/src/config
-
 #
 # Do a setenv for NWCHEM_TARGET to be the machine you wish to build for
 # (one of SUN, DELTA, IBM, KSR, PARAGON)
@@ -42,6 +35,13 @@ error2:
 endif
 
      TARGET = $(NWCHEM_TARGET)
+
+     TOPDIR = $(NWCHEM_TOP)
+     SRCDIR = $(TOPDIR)/src
+     LIBDIR = $(TOPDIR)/lib/$(TARGET)
+     BINDIR = $(TOPDIR)/bin/$(TARGET)
+     INCDIR = $(TOPDIR)/src/include
+     CNFDIR = $(TOPDIR)/src/config
 
 #
 # Define NWSUBDIRS to be list of subdirectories of SRC to be made
@@ -411,6 +411,10 @@ endif
   CPPFLAGS = $(INCLUDES) $(DEFINES) $(LIB_DEFINES)
    LDFLAGS = $(LDOPTIONS) -L$(LIBDIR) $(LIBPATH)
 
+# I think this will work everywhere, but it might have to become
+# machine-dependent 
+
+MKDIR = mkdir
 
 #
 # Define known suffixes mostly so that .p files don't cause pc to be invoked
@@ -430,7 +434,7 @@ ifeq ($(EXPLICITF),TRUE)
 .F.o:	
 	$(MAKE) $*.f
 	$(FC) -c $(FFLAGS) $*.f
-	/bin/rm -f $*.f
+	$(RM) $*.f
 
 .F.f:	
 ifeq ($(TARGET),IBM)
