@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc)
 c
-C$Id: grid_ssw.F,v 1.5 2000-01-26 00:36:16 edo Exp $
+C$Id: grid_ssw.F,v 1.6 2000-01-26 00:40:48 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -22,7 +22,7 @@ c
       double precision rq(nq,*)  ! sum of p(n) [ output]
 
 c
-      integer i, j, n,  ij
+      integer i, j,   ij
       integer  AA,NN,ipoint
       double precision mu, nu,radwgh
       double precision x, y, z, x0i, y0i, z0i

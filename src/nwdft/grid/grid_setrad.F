@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.18 2000-01-26 00:36:16 edo Exp $
+c$Id: grid_setrad.F,v 1.19 2000-01-26 00:40:48 edo Exp $
 c
       implicit none
 c      
@@ -161,7 +161,7 @@ c           midpoint=bsrad_atom_type(itype)*2
            call xc_interv(0d0,midpoint,
      ,           rpts(1,itype), rwghts(1,itype),n1,'chebyshe')
             call xc_tarad(iatype(itype), rpts(n1+1,itype), 
-     &       rwghts(n1+1,itype), ninf,midpoint,'chebyshe')
+     &       rwghts(n1+1,itype), ninf,midpoint,'chebyshe',0d0)
 c           call grid_gausslag(ninf, rpts(n1+1,itype), rwghts(n1+1,itype),
 c     ,          midpoint)
             write(6,*) ' itype midpoint n1',itype,midpoint,n1
@@ -206,7 +206,7 @@ c
            call xc_interv(0d0,midpoint,
      ,           rpts(1,itype), rwghts(1,itype),n1,'legendre')
             call xc_tarad(iatype(itype), rpts(n1+1,itype), 
-     &       rwghts(n1+1,itype), ninf,midpoint,'chebyshe')
+     &       rwghts(n1+1,itype), ninf,midpoint,'chebyshe',0d0)
             write(6,*) ' itype midpoint n1',itype,midpoint,n1
 
           elseif(wradgrid.eq.2) then
@@ -230,7 +230,7 @@ cedo     .            ' Murakn itype cutoff ',itype,range_mk
            call xc_interv(0d0,midpoint,
      ,           rpts(1,itype), rwghts(1,itype),n1,'legendre')
             call xc_tarad(iatype(itype), rpts(n1+1,itype), 
-     &       rwghts(n1+1,itype), ninf,midpoint,'legendre')
+     &       rwghts(n1+1,itype), ninf,midpoint,'legendre',0d0)
             write(6,*) ' itype midpoint n1',itype,midpoint,n1
          endif
             if (ga_nodeid().eq.0.and.oprint)then
