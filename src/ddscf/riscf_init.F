@@ -1,6 +1,6 @@
       logical function riscf_init (rtdb, geom, ao_basis, ri_basis, 
      $        tol2e)
-C$Id: riscf_init.F,v 1.14 2000-02-04 20:06:53 mg201 Exp $
+C$Id: riscf_init.F,v 1.15 2000-10-30 21:37:51 windus Exp $
 
 C     calculate three center ERIs, transform them with V**(-1/2)
 C     (V-approximation: V(i,j)=(i|j))
@@ -35,11 +35,14 @@ C
 
       integer k_T_tmp, l_T_tmp, k_V_row, l_V_row, nsh, nsh_F, npair, 
      $     nsqhalf, nbf, Nff, lbuf, l_buf, k_buf, l_scr, k_scr, lscr,
-     $     max_bf_ao, max_bf_ri, g_three, istat, nstore
+     $     max_bf_ao, max_bf_ri, g_three, nstore
 C     g_three is either GA or DA handle for transformed integrals
 C     (depending on odisk)
 
+#ifdef RISCF_USE_DRA
+      integer istat
       character*64 filename
+#endif
 C
       logical int_normalize
       external int_normalize

@@ -1,4 +1,4 @@
-/*$Id: rtdb_seq.c,v 1.13 1999-11-13 03:04:57 bjohnson Exp $*/
+/*$Id: rtdb_seq.c,v 1.14 2000-10-30 21:37:52 windus Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdio.h>
@@ -428,7 +428,11 @@ int rtdb_seq_first(const int handle, const int namelen, char *name)
   hdbm db;
 #endif
   int status;
-  DBT key, value;
+  DBT key;
+
+#ifdef USE_DB
+  DBT value;
+#endif
 
   if (!check_handle(handle)) {
     (void) fprintf(stderr, "rdtb_first: handle (%d) is invalid\n", handle);
@@ -492,8 +496,12 @@ int rtdb_seq_delete(const int handle, const char *name)
   hdbm db = rtdb[handle].db;
 #endif
   DBT key, info_key;
-  int flags = 0, status;
+  int status;
   char info_buf[256];
+
+#ifdef USE_DB  
+  int flags = 0;
+#endif
 
   if (!check_handle(handle)) {
     (void) fprintf(stderr, "rdtb_delete: handle (%d) is invalid\n", handle);
@@ -552,7 +560,11 @@ int rtdb_seq_next(const int handle, const int namelen, char *name)
   hdbm db = rtdb[handle].db;
 #endif
   int status;
-  DBT key, value;
+  DBT key;
+
+#ifdef USE_DB
+  DBT value;
+#endif
 
   if (!check_handle(handle)) {
     (void) fprintf(stderr, "rdtb_close: handle (%d) is invalid\n", handle);

@@ -1,6 +1,6 @@
       subroutine riscf_fock_2e(geom1, ao_basis, ri_basis, nfock,
      $     fcoul, fexch, tol2e1, oskeleton, g_dens, g_fock)
-C$Id: riscf_fock.F,v 1.12 2000-10-23 15:51:39 windus Exp $
+C$Id: riscf_fock.F,v 1.13 2000-10-30 21:37:51 windus Exp $
 C     calculate the coulomb and exchange contribution to the Fock matrix 
 C     from the density matrix and the transformed three-center ERIs
 
@@ -32,11 +32,13 @@ C     g_three can be GA or DA handle !!!
       integer Nff, nsh, lsq, lhalf, npair, n_t, nt, nocc, in, il,
      $     l_indx, k_indx, l_three, k_three, l_sthree, k_sthree,
      $     ifirst, ifirst1, ifirst2, ilast, ilast1, ilast2, ifk, mxbf, 
-     $     mxints, nloop, nrest, nproc, nt_dim, req, ic, 
-     $     g_three_io, first_t, last_t, num_t, istat, iarray, iarray2,
-     $     g_three_sq, next_t
+     $     mxints, nloop, nrest, nproc, nt_dim, ic, last_t, g_three_sq
 
+#ifdef RISCF_USE_DRA
+      integer req, g_three_io, first_t, num_t, istat, iarray, 
+     $     iarray2, next_t
       dimension g_three_io(2), req(2)
+#endif
 
       double precision mone, zero, one, sq2, W, factor
 

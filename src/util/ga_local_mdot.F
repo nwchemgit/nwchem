@@ -1,6 +1,6 @@
       subroutine ga_local_mdot(n, nva, nvb, c, ldc, g_a, g_b)
 *
-* $Id: ga_local_mdot.F,v 1.4 2000-10-26 19:21:44 edo Exp $
+* $Id: ga_local_mdot.F,v 1.5 2000-10-30 21:37:52 windus Exp $
 *
       implicit none
 #include "global.fh"
@@ -15,10 +15,10 @@ c
 c     A and B identically distributed down the columns.  All 
 c     of the second index local for both
 c
-      integer ailo, aihi, ajlo, ajhi, aind, ald, aoff
-      integer bilo, bihi, bjlo, bjhi, bind, bld, boff
-      integer i, j, k, ij, kdim
-      double precision sum, work(2500)
+      integer ailo, aihi, ajlo, ajhi, aind, ald
+      integer bilo, bihi, bjlo, bjhi, bind, bld
+      integer i, j, ij
+      double precision work(2500)
 c
       call ga_distribution(g_a, ga_nodeid(), ailo, aihi, ajlo, ajhi)
       call ga_distribution(g_b, ga_nodeid(), bilo, bihi, bjlo, bjhi)

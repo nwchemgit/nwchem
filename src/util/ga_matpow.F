@@ -3,7 +3,7 @@ C NAME
 C     GA_MatPow -- Form V^{-1/2}
 C
 C REVISION
-C     $Id: ga_matpow.F,v 1.8 1998-02-02 16:00:45 bernhold Exp $
+C     $Id: ga_matpow.F,v 1.9 2000-10-30 21:37:52 windus Exp $
 C
 C SYNOPSIS
       Subroutine GA_MatPow(G_V, Pow, MinEval)
@@ -55,7 +55,10 @@ C LOCAL VARIABLES
       Integer H_Eval, Eval_Idx
       Integer D, DiagLo, DiagHi
       Integer G_EV, G_Tmp
-      Integer I, J, G_Junk, VType, Rows, Cols, ILo, IHi, JLo, JHi
+      Integer I, J, VType, Rows, Cols, ILo, IHi, JLo, JHi
+#if defined(USE_GEN_DIAG)
+      Integer G_Junk
+#endif
       Double precision Elem
 C
 C     ***************************

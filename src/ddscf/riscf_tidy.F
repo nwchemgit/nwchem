@@ -1,5 +1,5 @@
       subroutine riscf_tidy ( geom, basis, riscf_basis )
-C$Id: riscf_tidy.F,v 1.5 1996-10-03 23:54:46 vg038 Exp $
+C$Id: riscf_tidy.F,v 1.6 2000-10-30 21:37:51 windus Exp $
       implicit none
 
 #include "geom.fh"
@@ -15,7 +15,9 @@ c     and destroys basis and geometry (and DAs)
 c
       integer geom, basis, riscf_basis
 
+#ifdef RISCF_USE_DRA
       integer istat
+#endif
       logical status, riscf_del_3c_ints
 
       status = riscf_del_3c_ints(-1)

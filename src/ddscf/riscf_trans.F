@@ -2,7 +2,7 @@
      $     bfsquare, npair, ri_basis, nsh_F, Nff, max_bf_ri, g_Vsqrt, 
      $     tol2e, g_indx, V_row, T_tmp, buf, lbuf, scr, lscr, odisk)
 
-C$Id: riscf_trans.F,v 1.6 1999-06-16 00:10:14 d3e129 Exp $
+C$Id: riscf_trans.F,v 1.7 2000-10-30 21:37:51 windus Exp $
       implicit none
 
 #include "mafdecls.fh"
@@ -29,8 +29,11 @@ C$Id: riscf_trans.F,v 1.6 1999-06-16 00:10:14 d3e129 Exp $
 
       integer icount, i, j, ifirst, ilast, jfirst, jlast, nfi, nfj, nfs, 
      $     ij, nij, next, indx, nproc, ic, is, nsqhalf, ndone, g_tmp,
-     $     req, ! request handle for dra
-     $     mycount, istat
+     $     mycount
+
+#ifdef RISCF_USE_DRA
+      integer istat, req
+#endif
 
       logical status, IeqJ
 

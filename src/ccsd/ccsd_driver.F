@@ -1,6 +1,6 @@
       subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.32 2000-10-26 19:22:45 edo Exp $
+C     $Id: ccsd_driver.F,v 2.33 2000-10-30 21:37:50 windus Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -440,7 +440,7 @@ c
       integer g_EPair, Alo, Ahi, Ijlo, Ijhi, ld,
      $     idum2, idum3, idum4, idum5, idum6
       double precision a(Alo:Alo+ld-1,ijlo:ijhi), EMP2
-      integer i, j 
+      integer j 
       do j=ijlo,ijhi
          emp2 = emp2 + a(alo,J)
       enddo

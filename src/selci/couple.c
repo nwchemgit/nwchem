@@ -1,5 +1,5 @@
 /*
- $Id: couple.c,v 1.8 1999-11-13 03:09:06 bjohnson Exp $
+ $Id: couple.c,v 1.9 2000-10-30 21:37:52 windus Exp $
  */
 
 #include <math.h>
@@ -321,7 +321,12 @@ static void MakeAxialDistances(int ns, int f[nsmax+1][nfmax+1],
   g[j][i] = sqrt(1-p[j][i]^2)
 */
 {
-  int i, j, k, jb, test;
+  int i, j, k, jb;
+
+#ifdef DEBUG
+  int test;
+#endif
+
   for (i=1; i<=nf; i++) {
     for (j=1; j<ns; j++) {
       

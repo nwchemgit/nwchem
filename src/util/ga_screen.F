@@ -1,5 +1,5 @@
        subroutine ga_screen(g_a, value)
-C$Id: ga_screen.F,v 1.5 2000-10-26 19:21:44 edo Exp $
+C$Id: ga_screen.F,v 1.6 2000-10-30 21:37:52 windus Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -11,8 +11,7 @@ c
 c     set all elements whose absolute value is less than
 c     value to a hard zero
 c
-       integer ilo, ihi, jlo, jhi, idim, jdim, ld
-       integer i, j, ij, ind
+       integer ilo, ihi, jlo, jhi
        integer ga_screenb
        external ga_screenb
 c
