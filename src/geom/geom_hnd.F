@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.37 2000-10-23 23:37:45 windus Exp $
+* $Id: geom_hnd.F,v 1.38 2000-11-08 00:43:26 d3g681 Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -1517,8 +1517,8 @@ c     check for disconnected clusters and attempt
 c     to join them by putting extra bonds into ijxtra
 c     
          call geom_check_all_connected(nat,nbnds,ijmods,
-     $        c, numijxtra, ijxtra, mxbond, 2d0*cvfac, okay,
-     $        oprint)
+     $        c, numijxtra, ijxtra, mxbond, 3d0*cvfac, 
+     $        cvr, okay, oprint)
 c     
          if (.not. okay) then
 *            if (cvfac .lt. 1.19d0) then
@@ -1543,7 +1543,7 @@ c
          nlnba=3*mxlnba
          if (.not. zdone) goto 55555 ! attempt to recover
 c
-         if (nzvar .gt. 4*(max(6,3*nat-6))) then
+         if (nzvar .gt. 10*(max(6,3*nat-6))) then
 c
 c     Made a z-matrix but it is asburdly big.  Nothing yet to fix this
 c
@@ -4545,14 +4545,15 @@ C
       RETURN
       END
       subroutine geom_check_all_connected(nat,nbnds,ijmods,
-     $     c, numijxtra, ijxtra, mxbond, close, okay, oprint)
+     $     c, numijxtra, ijxtra, mxbond, cvrfac, cvr, 
+     $     okay, oprint)
       implicit none
 #include "mafdecls.fh"
 #include "util.fh"
 #include "stdio.fh"
       integer nat, nbnds, numijxtra, mxbond
       integer ijmods(2,nbnds), ijxtra(2,mxbond)
-      double precision c(3,nat), close
+      double precision c(3,nat), cvrfac, cvr(*)
       logical okay              ! return true if all connected
       logical oprint
 c     
@@ -4575,7 +4576,7 @@ c
       integer i, j, k, k_m, l_m, k_clus, l_clus, ibig, test, nclus
       integer ninclus, iclus, jclus
       integer ind, imin, jmin, nnew
-      double precision toangs, r, dist, rmin
+      double precision toangs, r, dist, rmin, close
       parameter (toangs=0.52917724924d+00)
       ind(i,j) = k_m + (i-1) + (j-1)*nat
       dist(i,j)=sqrt((c(1,i)-c(1,j))**2+
@@ -4672,7 +4673,7 @@ c
 c
 c     Now have identified the clusters.  Loop thru pairs
 c     of clusters and find the closest atoms.  If this
-c     distance is less than close then attempt to join
+c     distance is less than cvrfac*(r1+r2) then attempt to join
 c     the clusters via this pair of atoms.
 c     
 c     If we have too many extra bonds then return with
@@ -4697,6 +4698,7 @@ c
                   enddo
                endif
             enddo
+            close = cvrfac*(cvr(imin)+cvr(jmin))
             if (rmin .le. close) then
                if (numijxtra .eq. mxbond) then
                   numijxtra = 0
@@ -4712,7 +4714,7 @@ c
                ijxtra(2,numijxtra) = jmin
                nnew = nnew + 1
             else
-               if (oprint .and. rmin.lt.(close+1d0))
+               if (oprint .and. rmin.lt.(close+2d0))
      $              write(LuOut,45) iclus, jclus, imin, jmin, rmin
  45            format(' Clusters',2i4,' closest atoms are',
      $              2i5,' r =',f5.2, ' ... close but too far?')
