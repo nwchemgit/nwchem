@@ -1,5 +1,5 @@
 /*
-   $Id: paw_basis.c,v 1.4 2004-12-16 16:50:59 edo Exp $
+   $Id: paw_basis.c,v 1.5 2004-12-23 01:12:43 edo Exp $
 */
 
  /************************************
@@ -111,6 +111,7 @@ void paw_init_paw_basis(
   int i_match;
   int Ngrid;
   int index;
+  int lcountmx=4;
   double *rgrid;
   double *psi;
   double *psi_prime;
@@ -140,7 +141,8 @@ void paw_init_paw_basis(
 
   orb_type    = (int *)    malloc( nbasis*      sizeof(int));  
   prin_n_ps   = (int *)    malloc( nbasis*      sizeof(int));
-  l_counter   = (int *)    malloc((max_orb_l+1)*sizeof(int));
+  if((max_orb_l+1)> lcountmx) lcountmx=max_orb_l+1; 
+  l_counter   = (int *)    malloc(lcountmx*sizeof(int));
   i_r_orbital = (int *)    malloc( nbasis*      sizeof(int));
   fill        = (double *) malloc( nbasis*      sizeof(double));
   e           = (double *) malloc( nbasis*      sizeof(double));
