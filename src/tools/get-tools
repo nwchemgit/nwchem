@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: get-tools,v 1.8 2000-12-30 00:04:14 windus Exp $
+# $Id: get-tools,v 1.9 2001-03-01 15:43:50 gg502 Exp $
 #
 # We need to rename CVS associated with nwchem repository while
 # checking out tools for the first time
@@ -9,21 +9,35 @@
 
 set repos = /msrc/proj/hpctools
 
+# Maybe everyone doesn't have an account on the same host
+if ( $?EMSL_HOST ) then
+    set emsl_host = $EMSL_HOST
+else
+    set emsl_host = corsair.emsl.pnl.gov
+endif
+
 # Try to be smart about setting CVSROOT
 
 if ( -d $repos ) then
     setenv CVSROOT $repos
 else
-    if ( $?EMSL_USER ) then
-	setenv CVSROOT :ext:${EMSL_USER}@corsair.emsl.pnl.gov:${repos}
+    # This supposes that the mss and hpctools CVS repositories live 
+    # next to each other, wherever they are. 
+    if ( -f CVS/Root ) then
+	setenv CVSROOT `cat CVS/Root | sed 's/mss$/hpctools/'`
+
+    # If the user has set an EMSL_USER variable, use that with a standard host
+    else if ( $?EMSL_USER ) then
+	setenv CVSROOT :ext:${EMSL_USER}@${emsl_host}:${repos}
     else if ($?USER) then
-        setenv CVSROOT :ext:${USER}@corsair.emsl.pnl.gov:${repos}
+        setenv CVSROOT :ext:${USER}@${emsl_host}:${repos}
         echo "${0}: Using $USER to set CVSROOT, if you want to override"
         echo "${0}: this choice set the EMSL_USER environment variable."
     else
 	echo "${0}: I can't figure out how to set CVSROOT for you."
-	echo "${0}: Try setting the EMSL_USER environment variable"
-	echo "${0}: or modify this script with a specific value."
+	echo "${0}: Try setting the EMSL_USER and/or EMSL_HOST"
+	echo "${0}: environment variables or modify this script"
+	echo "${0}: with a specific value."
 	exit 1
     endif
 endif
