@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.60 2002-05-08 22:46:35 bert Exp $
+c $Id: bas_input.F,v 1.61 2002-05-08 22:51:13 bert Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -263,6 +263,11 @@ c
 c     Now have processed the entire basis directive.  Print out
 c     info if desired, write it to the data base, tidy up and go home
 c
+c     Always print summary. Only print full basis when it does not
+c     contain any star tags. Do store the info that the basis should be 
+c     printed on rtdb, so taht it can be printed at the bas_rtdb_load 
+c     stage
+c
       if (oprint) then
          test = 'basisprint:'//name(1:inp_strlen(name))
          if (.not. rtdb_put(rtdb,test,mt_log,1,oHas_Star))
@@ -270,9 +275,9 @@ c
          if (.not. oHas_Star) then
             if (.not. bas_print(basis))
      $          call errquit('bas_input: print failed', 0)
-            if (.not.bas_summary_print(basis))
-     &        call errquit('scf: basis summary print failed',911)
          endif
+         if (.not.bas_summary_print(basis))
+     &      call errquit('scf: basis summary print failed',911)
       endif
 c
       if (.not. bas_rtdb_store(rtdb, name, basis)) call errquit
