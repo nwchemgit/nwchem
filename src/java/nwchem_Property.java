@@ -120,121 +120,14 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
 	appendData(chooser.getSelectedFile().toString());
       }});
 
-    /*  
-    JButton doneButton = new JButton("Done");
-    addComponent(header,doneButton,5,0,1,1,1,1,
-		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
-    doneButton.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e){ 
-	setVisible(false); }});
-    
-    JButton addButton = new JButton("Add");
-    addComponent(header,addButton,6,0,1,1,1,1,
-		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
-    addButton.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e){ 
-	chooser.showOpenDialog(dialogFrame);
-	try{
-	  setnumber++;
-	  BufferedReader br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
-	  String card;
-	  card=br.readLine();
-	  int np = Integer.parseInt(card.substring(1,5).trim());
-	  boolean first=true;
-	  while((card=br.readLine()) != null){
-	    card=br.readLine();
-	    type=Integer.parseInt(card.substring(1,5).trim());
-	    time=Double.valueOf(card.substring(6,17)).doubleValue();
-	    synt=Double.valueOf(card.substring(18,29)).doubleValue();
-	    stpt=Double.valueOf(card.substring(30,41)).doubleValue();
-	    synPlot.addData(setnumber,time,synt,!first,true);
-	    timPlot.addData(setnumber,time,stpt,!first,true); first=false;
-	    if(type==1){card=br.readLine();};
-	    for(int i=0; i<np; i++) {card=br.readLine();};
-	  };
-	  synPlot.fillPlot();
-	  timPlot.fillPlot();
-	  br.close();
-	} catch(Exception ee) {ee.printStackTrace();};
-      }});
-      */
-
     setLocation(25,225);	
     setSize(900,700);
     setVisible(true);
 
     appendData(chooser.getSelectedFile().toString());
 
-    /*
-    try{
-      br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
-      card=br.readLine();
-      numprop = Integer.parseInt(card.substring(1,7).trim());
-      for(int i=0; i<numprop; i++){ card=br.readLine(); propList.addElement(card.substring(1,card.indexOf("  ").trim())); };
-      numframes=0;
-      while((card=br.readLine()) != null){
-	int num=0;
-	data = new double[numprop];
-	for(int i=0; i<numprop; i++){
-	  if(num==4) { card=br.readLine(); num=0; };
-	  data[i]=Double.valueOf(card.substring(num*12+1,(num+1)*12)).doubleValue();
-	  num++;
-	};
-        data[0]=data[0]+offstep;
-        data[1]=data[1]+offstep;
-	frames.add(numframes,data);
-	//	frames.setElementAt(data,numframes);
-	numframes++;
-      };
-      offstep=data[0];
-      offtime=data[1];
-      sizeLabel.setText("Number of frames is "+frames.size());
-    } catch(Exception e) {e.printStackTrace();};
-    */
-
     pList.setVisibleRowCount(15);
 
-    /*
-    try{
-      addComponent(header,synPlot,0,1,5,5,1,1,
-    		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
-      addComponent(header,timPlot,0,7,5,5,1,1,
-    		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
-      synPlot.init();
-      synPlot.resize(500,300);
-      synPlot.setNumSets(5);
-      synPlot.setTitle("Accumulated Synchronization Time");
-      synPlot.setXLabel("Time");
-      timPlot.init();
-      timPlot.resize(500,300);
-      timPlot.setNumSets(5);
-      timPlot.setTitle("MD Step Wall Clock Time");
-      timPlot.setXLabel("Time");
-      validate();
-    } catch(Exception e) {e.printStackTrace();};
-
-    try{
-      BufferedReader br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
-      String card;
-      card=br.readLine();
-      int np = Integer.parseInt(card.substring(1,5).trim());
-      boolean first=true;
-      while((card=br.readLine()) != null){
-	card=br.readLine();
-	type=Integer.parseInt(card.substring(1,5).trim());
-	time=Double.valueOf(card.substring(6,17)).doubleValue();
-	synt=Double.valueOf(card.substring(18,29)).doubleValue();
-	stpt=Double.valueOf(card.substring(30,41)).doubleValue();
-	synPlot.addData(0,time,synt,!first,true);
-	timPlot.addData(0,time,stpt,!first,true); first=false;
-	if(type==1){card=br.readLine();};
-	for(int i=0; i<np; i++) {card=br.readLine();};
-      };
-      synPlot.fillPlot();
-      timPlot.fillPlot();
-      br.close();
-    } catch(Exception e) {e.printStackTrace();};
-    */
   }	
 
   void appendData(String dataFile){
@@ -249,18 +142,22 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
 	if(numframes==0) propList.addElement(card); 
       };
       while((card=br.readLine()) != null){
-	int num=0;
-	data = new double[numprop];
-	for(int i=0; i<numprop; i++){
-	  if(num==4) { card=br.readLine(); num=0; };
-	  data[i]=Double.valueOf(card.substring(num*12+1,(num+1)*12)).doubleValue();
-	  num++;
-	};
-        data[0]=data[0]+offstep;
-        data[1]=data[1]+offtime;
-	frames.add(numframes,data);
-	//	frames.setElementAt(data,numframes);
-	numframes++;
+	  int num=0;
+	  data = new double[numprop];
+	  for(int i=0; i<numprop; i++){
+	      if(num==4) { card=br.readLine(); num=0;};
+	      data[i]=Double.valueOf(card.substring(num*12+1,(num+1)*12).trim()).doubleValue();
+	      //
+	      // following is patch to correct sign of data: substring appears to lose the minus sign
+	      //
+	      if(card.charAt(num*12)=='-'){data[i]=-Math.abs(data[i]);};
+	      num++;
+	  };
+	  data[0]=data[0]+offstep;
+	  data[1]=data[1]+offtime;
+	  frames.add(numframes,data);
+	  //	frames.setElementAt(data,numframes);
+	  numframes++;
       };
       offstep=data[0];
       offtime=data[1];
