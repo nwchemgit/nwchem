@@ -3,7 +3,7 @@
      2  apbvec,apbval,ambvec,g_movecs,evl,singlet,triplet,
      3  target,targetsym,mult)
 c
-c $Id: tddft_analysis.F,v 1.7 2002-04-15 01:01:50 sohirata Exp $
+c $Id: tddft_analysis.F,v 1.8 2002-04-16 01:39:05 sohirata Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -166,7 +166,7 @@ c
      1    ('tddft_analysis: failed to destroy g_work',0)
         if (.not.ga_destroy(g_ovlp)) call errquit
      1    ('tddft_analysis: failed to destroy g_ovlp',0)
-        if (nodezero.and.util_print('excited state',print_debug))
+        if (util_print('excited state',print_debug))
      1    call ga_print(g_corr)
         call ga_get(g_corr,1,nmo(1),1,nmo(2),corr,nbf_ao)
       endif
@@ -603,13 +603,13 @@ c ------
 c Return
 c ------
 c
+      do i=ipol,1,-1
+        if (.not.ma_pop_stack(l_y(i))) call errquit
+     1    ('tddft_analysis: failed to deallocate y',0)
+        if (.not.ma_pop_stack(l_x(i))) call errquit
+     1    ('tddft_analysis: failed to deallocate x',0)
+      enddo
       if (ipol.eq.2) then
-        do i=ipol,1,-1
-          if (.not.ma_pop_stack(l_y(i))) call errquit
-     1      ('tddft_analysis: failed to deallocate y',0)
-          if (.not.ma_pop_stack(l_x(i))) call errquit
-     1      ('tddft_analysis: failed to deallocate x',0)
-        enddo
         if (.not.ga_destroy(g_corr)) call errquit
      1    ('tddft_analysis: failed to destroy g_corr',0)
       endif
