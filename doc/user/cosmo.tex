@@ -1,4 +1,4 @@
-% $Id: cosmo.tex,v 1.5 2002-02-13 19:58:55 sohirata Exp $
+% $Id: cosmo.tex,v 1.6 2003-01-30 01:26:01 bert Exp $
 \label{sec:cosmo}
 
 COSMO is the continuum solvation `COnductor-like Screening MOdel'
@@ -47,10 +47,7 @@ solution-phase energy, and returns the electrostatic contribution
 to the solvation free energy. 
 At the present gradients are calculated by finite
 difference of the energy.  Known problems include that the code does not 
-work with spherical basis functions or ECPs, and also 
-that, when a gas-phase HF or DFT calculation
-precedes a COSMO HF or DFT calculation in a compound (multiple-task) job,
-the requested solution-phase calculation may not be performed.
+work with spherical basis functions.
 The code does not calculate the
 non-electrostatic contributions to the free energy, except for
 the cavitation/dispersion contribution to the solvation free energy,
@@ -64,6 +61,7 @@ Invoking the COSMO solvation model is done by specifying the input
 COSMO input block with the input options as:
 \begin{verbatim}
 cosmo
+   [off]
    [dielec  <real dielec default 78.4>]
    [radius  <real atom1>
             <real atom2>
@@ -80,6 +78,11 @@ end
 followed by the task directive specifying the wavefunction and
 type of calculation, e.g., \verb+task scf energy+, \verb+task mp2 energy+,
 \verb+task dft optimize+, etc.
+
+\verb+off+ can be used to turn off COSMO in a compound (multiple task)
+run. By default, once the COSMO solvation model has been defined it will
+be used in subsequent calculations. Add the keyword \verb+off+ if COSMO
+is not needed in subsequent calculations.
 
 \verb+Dielec+ is the value of the dielectric constant of the medium, 
 with a default value of 78.4 (the dielectric constant for water).
