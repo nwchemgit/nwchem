@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2003-10-09 00:36:06 edo Exp $
+# $Id: GNUmakefile,v 1.4 2003-10-26 20:47:24 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = D3dB-new.o
@@ -13,6 +13,9 @@
   LIB_DEFINES = 
 
 
+ifeq ($(USE_MLIB),y)
+  FOPTIONS += -DMLIB
+endif
 
 include ../../../config/makefile.h
 ifeq ($(FC),pgf90)
