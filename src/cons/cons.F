@@ -25,6 +25,180 @@ c     check if constraints are enabled
       return
       end
 c
+      subroutine cons_inquire_fixed_atoms(status,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+      logical status
+      integer rtdb
+c
+      character*26 ma_date
+      integer ma_type
+      integer nact
+c
+c     check for existence of active list
+c     ----------------------------------
+      status=rtdb_get_info(rtdb, 'geometry:actlist', ma_type,
+     $        nact, ma_date)
+c
+c     return false if list of zero length
+c     -----------------------------------
+      if(status) then
+        if(nact.eq.0) status=.false.
+      end if
+      return
+      end
+
+      subroutine cons_save_fixed_atoms(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "geom.fh"
+#include "cons_params.fh"
+#include "cons.fh"
+#include "global.fh"
+      character*(*) namespace
+      integer rtdb
+c
+      logical ignore
+      logical status
+      integer ma_type
+      integer i
+      integer nat
+      integer nact
+      integer h_act,i_act
+      integer h_tmp_id,i_tmp_id 
+      logical geom_rtdb_ncent
+      external geom_rtdb_ncent
+
+c
+c     check if fixed atoms exist
+c     --------------------------
+      if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type,
+     $        nact, h_act)) then
+            if (.not. ma_get_index(h_act, i_act))
+     $           call errquit('cons_init: ma_get_index failed',h_act,
+     &       MA_ERR)
+      else
+c       nothing to process
+        return
+      end if
+c
+c     get number of atoms
+c     --------------------
+      status=geom_rtdb_ncent(rtdb,"geometry",nat)
+      if(.not.status) 
+     & call errquit('cons_init: geom_create?',70, GEOM_ERR)
+c
+      if ( .not. ma_push_get( MT_INT, nat, 'h_tmp_id',
+     &      h_tmp_id, i_tmp_id) ) call errquit(
+     &      'cons_init: unable to allocate scratch space',
+     &      nat, MA_ERR)
+
+c
+c     delete prior fixed atoms if any
+c     -------------------------------
+      call cons_delete_fixed_atoms(namespace,rtdb)
+
+      do i=1,nat
+         int_mb(i_tmp_id+i-1)=i
+      end do
+      call cons_add_fixed_atoms(namespace,nat,int_mb(i_tmp_id),rtdb)
+      call cons_unfix_atoms(namespace,nact,int_mb(i_act),rtdb)
+
+c     release memory
+        if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
+     &    'cons_init: unable to free h_tmp_id',
+     &    0, MA_ERR)
+        if (.not.ma_free_heap(h_act)) call errquit(
+     &    'cons_init: unable to free actlist',
+     &    0, MA_ERR)
+
+      return
+      end
+
+      subroutine cons_process_old_style(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "geom.fh"
+#include "cons_params.fh"
+#include "cons.fh"
+#include "global.fh"
+      character*(*) namespace
+      integer rtdb
+c
+      logical ignore
+      logical new_style
+      logical status
+      integer ma_type
+      integer i
+      integer nat
+      integer nact
+      integer h_act,i_act
+      integer h_tmp_id,i_tmp_id 
+      logical geom_rtdb_ncent
+      external geom_rtdb_ncent
+
+c
+c     check if fixed atoms were specified using old style
+c     ---------------------------------------------------
+      if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type,
+     $        nact, h_act)) then
+            if (.not. ma_get_index(h_act, i_act))
+     $           call errquit('cons_init: ma_get_index failed',h_act,
+     &       MA_ERR)
+      else
+c       nothing to process
+        return
+      end if
+c
+c     get number of atoms
+c     --------------------
+      status=geom_rtdb_ncent(rtdb,"geometry",nat)
+      if(.not.status) 
+     & call errquit('cons_init: geom_create?',70, GEOM_ERR)
+c
+      if ( .not. ma_push_get( MT_INT, nat, 'h_tmp_id',
+     &      h_tmp_id, i_tmp_id) ) call errquit(
+     &      'cons_init: unable to allocate scratch space',
+     &      nat, MA_ERR)
+
+c
+c     check of fixed atoms were specified using new style
+c     ---------------------------------------------------
+      if(cons_fixed_atoms(namespace,rtdb)) then
+        new_style = .true.
+      else
+        new_style = .false. 
+      end if
+
+      if(new_style) then
+        call cons_unfix_atoms(namespace,nact,int_mb(i_act),rtdb)
+      else
+        do i=1,nat
+          int_mb(i_tmp_id+i-1)=i
+        end do
+        call cons_add_fixed_atoms(namespace,nat,int_mb(i_tmp_id),rtdb)
+        call cons_unfix_atoms(namespace,nact,int_mb(i_act),rtdb)
+      end if
+
+c     release memory
+        if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
+     &    'cons_init: unable to free h_tmp_id',
+     &    0, MA_ERR)
+        if (.not.ma_free_heap(h_act)) call errquit(
+     &    'cons_init: unable to free actlist',
+     &    0, MA_ERR)
+
+      return
+      end
+
       subroutine cons_proces_old_style(rtdb)
       implicit none
 #include "errquit.fh"
@@ -45,10 +219,8 @@ c
       integer i
       integer nat
       integer nact
-      integer n
       integer h_act,i_act
       integer h_tmp_id,i_tmp_id 
-      character*255 tag_n
       character*255 namespace
       logical oprint
       logical ocons
@@ -186,18 +358,6 @@ c
 #include "global.fh"
       integer rtdb
 c
-      logical old_style
-      logical new_style
-      logical status
-      integer geom
-      integer ma_type
-      integer i
-      integer nat
-      integer nact
-      integer n
-      integer h_act,i_act
-      integer h_tmp_id,i_tmp_id 
-      character*255 tag_n
       character*255 namespace
       logical oprint
       logical ocons
@@ -207,7 +367,6 @@ c
           call errquit('cons_init',0, RTDB_ERR)
       end if
 c
-c      call cons_create(namespace,rtdb)
       call util_print_push()
       call util_print_rtdb_load(rtdb,'cons')
       oprint = util_print('information', print_debug)
@@ -225,6 +384,8 @@ c     initialize harmonic bobds
       call cons_load_hbonds(namespace,rtdb)
       end if
 c
+c
+c      call cons_process_old_style(namespace,rtdb)
       call cons_load_fixed_atoms(namespace,rtdb)
 
       call cons_print_gen_info(namespace,rtdb)
@@ -233,7 +394,6 @@ c
      >    write(*,*) "finished cons_init"
 c
       call util_print_pop()
-      write(*,*) "out cons init"
 
       return
       end
@@ -315,20 +475,6 @@ c
       return
       end
 
-      subroutine cons_load_constraints(namespace,rtdb)
-      implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "geom.fh"
-      integer rtdb
-      character*(*) namespace
-      
-      call cons_set_namespace(namespace)
-
-      end
-c
       subroutine cons_unload_fixed_atoms(rtdb)
       implicit none
 #include "errquit.fh"
@@ -443,6 +589,13 @@ c     --------------------
      >     'cons_load_fixed_atoms: unable to store fixed atoms',
      >      0, MA_ERR)
 
+c      status = rtdb_put(rtdb,'cons:inactlist',
+c     >     mt_int,nfa,int_mb(i_tmp_id))
+c        if(.not.status) call errquit(
+c     >     'cons_load_fixed_atoms: unable to store fixed atoms',
+c     >      0, MA_ERR)
+c
+
       if (.not. ma_pop_stack(h_active) ) call errquit(
      &    'cons_load_fixed_atoms:ma_pop_stack h_active',
      &    0, MA_ERR)
@@ -458,26 +611,6 @@ c     --------------------
 
       end
 c
-      subroutine cons_delete_fixed_atoms(namespace,rtdb)
-      implicit none
-#include "errquit.fh"
-#include "rtdb.fh"
-c     
-      character*(*) namespace
-      integer rtdb
-c
-      logical ignore
-      character*255 tag_id
-      character*255 tag_n
-c
-      call cons_fxd_atoms_id_tag(namespace,tag_id)
-      call cons_fxd_atoms_n_tag(namespace,tag_n)
-c
-      ignore = rtdb_delete(rtdb,tag_n)
-      ignore = rtdb_delete(rtdb,tag_id)
-c
-      end
-c
       subroutine cons_add_egrad(rtdb,energy,gx)
       implicit none
 #include "errquit.fh"
@@ -490,8 +623,6 @@ c
       integer rtdb
       double precision energy
       double precision gx(*)
-      logical status
-      integer nhb
       character*255 namespace
 c
       call cons_get_namespace(namespace,rtdb)
@@ -518,12 +649,9 @@ c
 c     
       integer rtdb
       double precision energy
-      logical status
-      integer nhb
       character*255 namespace
 c
       call cons_get_namespace(namespace,rtdb)
-      write(*,*) "cons_add_energy",namespace
       if(.not.cons_status(namespace,rtdb)) return
       if(.not.cons_hbonds(namespace,rtdb)) return
 c

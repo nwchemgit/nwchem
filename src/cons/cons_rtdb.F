@@ -1,4 +1,4 @@
-c $Id: cons_rtdb.F,v 1.1 2004-09-21 19:12:09 marat Exp $
+c $Id: cons_rtdb.F,v 1.2 2004-11-29 22:16:58 marat Exp $
       subroutine cons_create(namespace,rtdb)
       implicit none
 #include "errquit.fh"
@@ -643,5 +643,25 @@ c
       end if
      
       return
+      end
+
+      subroutine cons_delete_fixed_atoms(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+c     
+      character*(*) namespace
+      integer rtdb
+c
+      logical ignore
+      character*255 tag_id
+      character*255 tag_n
+c
+      call cons_fxd_atoms_id_tag(namespace,tag_id)
+      call cons_fxd_atoms_n_tag(namespace,tag_n)
+c
+      ignore = rtdb_delete(rtdb,tag_n)
+      ignore = rtdb_delete(rtdb,tag_id)
+c
       end
 

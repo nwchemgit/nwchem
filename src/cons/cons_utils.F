@@ -1,4 +1,4 @@
-c $Id: cons_utils.F,v 1.17 2004-09-21 19:12:09 marat Exp $
+c $Id: cons_utils.F,v 1.18 2004-11-29 22:16:58 marat Exp $
       function cons_print()
       implicit none
 #include "global.fh"
@@ -114,8 +114,7 @@ c     local variables:
      >     36,.true.)
 
       end
-
-c
+ 
       subroutine cons_fxd_atoms_id_tag(cons_name,tag)
       implicit none
 #include "util.fh"
@@ -145,7 +144,7 @@ c
       tag="cons:"//cons_name(1:n)//":fxd_atom_n"
 
       end
-c
+ 
       subroutine cons_tag(cons_name,tag)
       implicit none
 #include "util.fh"
