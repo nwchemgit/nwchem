@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.54 1996-10-01 18:50:50 d3e129 Exp $
+C$Id: geom.F,v 1.55 1996-10-22 09:28:15 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -2163,4 +2163,21 @@ c
           ecp_cent(num_ecp) = icent
         endif
       enddo
+      end
+      logical function geom_nuc_dipole(geom,dip)
+      implicit none
+#include "geomP.fh"
+      integer geom              ! [input]
+      double precision dip(3)   ! [output] Returns the nuclear dipole in AU
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_nuc_dipole = geom_check_handle(geom,'geom_nuc_dipole')
+      if (.not. geom_nuc_dipole) return
+c
+      dip(1) = ndipole(1,geom)
+      dip(2) = ndipole(2,geom)
+      dip(3) = ndipole(3,geom)
+c
       end
