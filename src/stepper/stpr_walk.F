@@ -1,5 +1,5 @@
-      logical function stpr_walk(prefix,rtdb)
-c $Id: stpr_walk.F,v 1.14 1995-03-31 01:45:46 d3g681 Exp $
+      logical function stpr_walk(flag,rtdb)
+c $Id: stpr_walk.F,v 1.15 1995-07-29 23:40:15 d3e129 Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -13,9 +13,12 @@ c
 #include "msgids.fh"
 #include "pstat.fh"
 #include "util.fh"
+#include "stpr_optimize.fh"
 c
+      integer flag    ! [input] integer identifier to set context
       integer rtdb    ! [input] run-time-data-base handle
-      character*3 prefix  ! context name
+c
+      character*3 prefix3  ! context name
 c
 c parameters read from rtdb
 c prefix:energy (later) rohf and uhf
@@ -85,11 +88,22 @@ c
            endif
         endif
 c      
-c     Push context down to 'prefix' later look for wavefunction!!
+c     Push context down to 'prefix3' later look for wavefunction!!
 c
-        if (.not. context_push(prefix))
-     &      call errquit('stpr_walk: context_push <'//
-     &       prefix//'> failed', 911)
+        if (flag.eq.stpr_scf_flag) then
+          prefix3='scf'
+          if (.not. context_push(prefix3))
+     &        call errquit('stpr_walk: context_push <'//
+     &        prefix3//'> failed', 911)
+        elseif (flag.eq.stpr_dft_flag) then
+          prefix3 = 'dft'
+          if (.not. context_push(prefix3))
+     &        call errquit('stpr_walk: context_push <'//
+     &        prefix3//'> failed', 911)
+        else
+          call errquit
+     &        ('stpr_walk does not understand prefix selection',flag)
+        endif
 c
         if (.not. context_prefix('converged', name))
      &      call errquit
@@ -106,13 +120,6 @@ c
         if (.not. rtdb_get(rtdb, name, MT_DBL, 1, energy))
      &      call errquit
      &      ('stpr_walk: failed to read energy in rtdb', 911)
-c... remove scf context
-        if (.not. context_pop(prefix))
-     &      call errquit('stpr_walk: context_pop failed',0)
-c
-        if (.not. context_push('stepper'))
-     &      call errquit('stpr_walk: context_push <'//
-     &       prefix//'> failed', 911)
 c
         if (.not. geom_create(geom, 'geometry'))
      &      call errquit('stpr_walk: geom_create?', 911)
@@ -148,7 +155,10 @@ c..... space for charge
      &        ('stpr_walk: allocation for geom charge failed?',911)
 c
 c..... read gradients
-        if (.not. rtdb_get(rtdb, prefix//':gradients', MT_DBL, 
+        if (.not. context_prefix('gradients', name))
+     &      call errquit
+     &      ('stpr_walk: context_prefix failed', 911)
+        if (.not. rtdb_get(rtdb, name, MT_DBL, 
      &       (3*nat),dbl_mb(k_grad)))
      &      call errquit
      &        ('stpr_walk: reading gradients failed',911)
@@ -235,9 +245,11 @@ c... clean up
         if (.not.MA_Pop_Stack(h_core))
      &      call errquit('stpr_walk: ma_pop_stack h_core failed',911)
 c
-c... remove stepper context
-        if (.not. context_pop('stepper'))
-     &      call errquit('stpr_walk: context_pop failed',0)
+c... remove Prefix context
+        if (flag.eq.stpr_dft_flag.or.flag.eq.stpr_scf_flag) then
+          if (.not. context_pop(prefix3))
+     &        call errquit('stpr_walk: context_pop failed',0)
+        endif
 c
         int_val = 0 
         if (stpr_walk) int_val = 1
