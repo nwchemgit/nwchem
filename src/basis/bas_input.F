@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.59 2002-05-07 18:15:15 bert Exp $
+c $Id: bas_input.F,v 1.60 2002-05-08 22:46:35 bert Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -59,6 +59,7 @@ c::local
       character*1000 errmsg
       logical status, ospherical, osegment, oprint
       logical o_add_ecpname, o_add_soname
+      logical oHas_Star
       logical oIs_ecp, oIs_so, oIs_rel
       integer ind, basis
       logical bas_add_ucnt_init, bas_set_spherical, bas_add_ucnt_tidy
@@ -100,6 +101,7 @@ c
       o_add_ecpname = .false. ! Default is to not associate an ecp name
       o_add_soname = .false.  ! Default is to not associate a so name
       oIs_rel = .false.    ! Default is nonrelativistic
+      oHas_Star = .false.  ! Default, not using star-tags 
 c
  10   if (inp_a(test)) then
 c
@@ -251,7 +253,7 @@ c    for basis functions or standard sets on specific tags
 c
       if (.not.bas_add_ucnt_init(basis)) call errquit
      &    ('bas_input: failed to init add_ucnt ',911)
-      call bas_input_body(basis, osegment, oIs_rel)
+      call bas_input_body(basis, osegment, oIs_rel, oHas_Star)
 c
       if (.not. bas_set_spherical(basis, ospherical))
      &      call errquit
@@ -262,10 +264,15 @@ c     Now have processed the entire basis directive.  Print out
 c     info if desired, write it to the data base, tidy up and go home
 c
       if (oprint) then
-         if (.not. bas_print(basis))
-     $        call errquit('bas_input: print failed', 0)
-         if (.not.bas_summary_print(basis))
+         test = 'basisprint:'//name(1:inp_strlen(name))
+         if (.not. rtdb_put(rtdb,test,mt_log,1,oHas_Star))
+     $          call errquit('bas_input: rtdb_put * failed', 0)
+         if (.not. oHas_Star) then
+            if (.not. bas_print(basis))
+     $          call errquit('bas_input: print failed', 0)
+            if (.not.bas_summary_print(basis))
      &        call errquit('scf: basis summary print failed',911)
+         endif
       endif
 c
       if (.not. bas_rtdb_store(rtdb, name, basis)) call errquit
@@ -288,7 +295,7 @@ c
 c
       end
 *.....................................................................
-      subroutine bas_input_body(basis, osegment, oIs_rel)
+      subroutine bas_input_body(basis, osegment, oIs_rel, oHas_Star)
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -303,6 +310,7 @@ c
 c::passed
       integer basis             ! [input]
       logical osegment          ! [input]
+      logical oHas_Star         ! [output] true if basis input contains star-tags
 c
 c     Read the body of a basis directive that describes the
 c     tags/exponents/contraction coefficients 
@@ -323,7 +331,8 @@ c       <r-exponent> <exponent> <contraction coefficients>
 c       ...
 c     end ecp
 c
-c
+c     Returning oIs_star to indicate that the basis had a star tag 
+c     for printing purposes
 c     
       character*16 tag, tag_in_lib
       character*16 type_of_cont, rel_shell
@@ -516,6 +525,7 @@ c
          star_file(star_nr_tags) = filename
          star_rel(star_nr_tags) = oshell_is_rel
          star_segment = osegment
+         oHas_Star = .true.
          goto 10
       endif
 c
