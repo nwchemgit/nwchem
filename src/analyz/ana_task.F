@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.68 2001-05-21 19:52:23 d3j191 Exp $
+c $Id: ana_task.F,v 1.69 2001-07-06 06:29:00 d3j191 Exp $
 c
       implicit none
 c
@@ -652,7 +652,8 @@ c     -----------
 c
       if(card(1:6).eq.'copy  '.or.card(1:6).eq.'copys ') then
       lsonly=card(1:6).eq.'copys '
-      read(card(8:80),'(a)') filcop
+      read(card(8:19),'(f12.6)') rangle
+      read(card(20:80),'(a)') filcop
       i=index(filcop,'.')
       fmt=filcop(i+1:i+3)
       root=filcop(1:i)
@@ -699,7 +700,8 @@ c     -----------
 c
       if(card(1:6).eq.'super '.or.card(1:6).eq.'supers') then
       lsonly=card(1:6).eq.'supers'
-      read(card(8:80),'(a)') filsup
+      read(card(8:19),'(f12.6)') rangle
+      read(card(20:80),'(a)') filsup
       i=index(filsup,'.')
       fmt=filsup(i+1:i+3)
       root=filsup(1:i)

@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.49 2001-05-16 22:44:19 d3j191 Exp $
+c $Id: ana_input.F,v 1.50 2001-07-06 06:29:00 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel,ivctr,iorder
       integer itag,iatag,jatag,ipbc
-      real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax
+      real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax,rang
       logical lref,lfil,lsol,lsuper
       integer iesppb,lent,idpdb,indx,icent
       character*8 option
@@ -199,7 +199,7 @@ c
       lsol=.true.
       goto 3301
       endif
-      if(filcop(1:6).eq.'super') then
+      if(filcop(1:5).eq.'super') then
       lsuper=.true.
       goto 3301
       endif
@@ -225,15 +225,20 @@ c
       if(.not.inp_a(filcop)) call errquit('Error in super',0)
       lsol=.true.
       endif
+      rang=0.0d0
+      if(filcop(1:6).eq.'rotate') then
+      if(.not.inp_f(rang)) call errquit('Error in rotation time',0)
+      if(.not.inp_a(filcop)) call errquit('Error in super',0)
+      endif
       if(index(filcop,'.').le.0)
      + filcop=filcop(1:index(filcop,' ')-1)//'.trj '
       if(filcop.eq.filtrj) call errquit('File name conflict',0)
       if(lsol) then
-      write(lfncmd,1004) filcop(1:index(filcop,' ')-1)
- 1004 format('copys  ',a)
+      write(lfncmd,1004) rang,filcop(1:index(filcop,' ')-1)
+ 1004 format('copys  ',f12.6,a)
       else
-      write(lfncmd,1024) filcop(1:index(filcop,' ')-1)
- 1024 format('copy   ',a)
+      write(lfncmd,1024) rang,filcop(1:index(filcop,' ')-1)
+ 1024 format('copy   ',f12.6,a)
       endif
       numcmd=numcmd+1
       goto 2
@@ -249,15 +254,20 @@ c
       if(.not.inp_a(filcop)) call errquit('Error in super',0)
       lsol=.true.
       endif
+      rang=0.0d0
+      if(filcop(1:6).eq.'rotate') then
+      if(.not.inp_f(rang)) call errquit('Error in rotation time',0)
+      if(.not.inp_a(filcop)) call errquit('Error in super',0)
+      endif
       if(index(filcop,'.').le.0)
      + filcop=filcop(1:index(filcop,' ')-1)//'.trj '
       if(filcop.eq.filtrj) call errquit('File name conflict',0)
       if(lsol) then
-      write(lfncmd,1005) filcop(1:index(filcop,' ')-1)
- 1005 format('supers ',a)
+      write(lfncmd,1005) rang,filcop(1:index(filcop,' ')-1)
+ 1005 format('supers ',f12.6,a)
       else
-      write(lfncmd,1025) filcop(1:index(filcop,' ')-1)
- 1025 format('super  ',a)
+      write(lfncmd,1025) rang,filcop(1:index(filcop,' ')-1)
+ 1025 format('super  ',f12.6,a)
       endif
       numcmd=numcmd+1
       goto 2

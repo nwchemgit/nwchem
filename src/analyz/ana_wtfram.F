@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.39 2001-07-06 03:43:44 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.40 2001-07-06 06:29:00 d3j191 Exp $
 c
       implicit none
 c
@@ -34,6 +34,10 @@ c
       integer pre_atnum
       character*255 atom_color
       external ana_atrad,pre_atnum,atom_color
+c
+      real*8 rv(3),rw(3),rotang,rx(3),ry(3),rxi(3),rxj(3),twopi
+c
+      twopi=8.0d0*tan(1.0d0)
 c
       if(me.eq.0) then
 c
@@ -302,7 +306,23 @@ c
       write(iunit,8000)
  8000 format('#include "camera.inc"',/,'#include "colors.inc"',/,
      + '#include "plane.inc"')
+      rv(1)=0.0d0
+      rv(2)=0.0d0
+      rv(3)=0.0d0
+      rw(1)=0.0d0
+      rw(2)=1.0d0
+      rw(3)=0.0d0
+      if(rangle.gt.0.0d0) rotang=(time/rangle)*twopi
       do 10 i=1,nsa
+      rx(1)=x(i,1)
+      rx(2)=x(i,2)
+      rx(3)=x(i,3)
+      if(rangle.gt.0.0d0) then
+      ry(1)=x(i,1)
+      ry(2)=x(i,2)
+      ry(3)=x(i,3)
+      call rotate(rv,rw,rotang,ry,rx)
+      endif
       if(isel(i).ne.0) then
       write(iunit,8003) sgmnam(i)
  8003 format('// ',a)
@@ -313,11 +333,11 @@ c
       if(tag(i,2)(1:5).eq.'atom ') color=atom_color(k) 
       if(k.gt.0) then
       if(tag(i,1)(1:3).eq.'cpk') then
-      write(iunit,8001) (scale*x(i,j),j=1,3),
+      write(iunit,8001) (scale*rx(j),j=1,3),
      + factor*abs(cpk)*ana_atrad(k),
      + color(1:index(color,' ')-1)
       else
-      write(iunit,8001) (scale*x(i,j),j=1,3),
+      write(iunit,8001) (scale*rx(j),j=1,3),
      + factor*abs(stick)*ana_atrad(1),
      + color(1:index(color,' ')-1)
       endif
@@ -336,16 +356,26 @@ c
       do 12 i=1,nsb
       read(44,6004) ib,jb
       if(isel(ib).gt.0.and.isel(jb).gt.0) then
-      xh(1)=0.5d0*(x(ib,1)+x(jb,1))
-      xh(2)=0.5d0*(x(ib,2)+x(jb,2))
-      xh(3)=0.5d0*(x(ib,3)+x(jb,3))
+      if(rangle.gt.0.0d0) then
+      ry(1)=x(ib,1)
+      ry(2)=x(ib,2)
+      ry(3)=x(ib,3)
+      call rotate(rv,rw,rotang,ry,rxi)
+      ry(1)=x(jb,1)
+      ry(2)=x(jb,2)
+      ry(3)=x(jb,3)
+      call rotate(rv,rw,rotang,ry,rxj)
+      endif
+      xh(1)=0.5d0*(rxi(1)+rxj(1))
+      xh(2)=0.5d0*(rxi(2)+rxj(2))
+      xh(3)=0.5d0*(rxi(3)+rxj(3))
       if(tag(ib,1)(1:3).ne.'cpk') then
       k=pre_atnum(sgmnam(ib)(6:7))
       color=atom_color(k)
       factor=scale*val(ib,1)
       if(tag(ib,2)(1:1).ne.' ') color=tag(ib,2)
       if(tag(ib,2)(1:5).eq.'atom ') color=atom_color(k) 
-      write(iunit,8002) (scale*x(ib,j),j=1,3),
+      write(iunit,8002) (scale*rxi(j),j=1,3),
      + (scale*xh(j),j=1,3),factor*abs(stick)*ana_atrad(1),
      + color(1:index(color,' ')-1)
  8002 format('cylinder {',/,'  <',f12.6,',',f12.6,',',f12.6,'>,',/,
@@ -358,7 +388,7 @@ c
       factor=scale*val(jb,1)
       if(tag(jb,2)(1:1).ne.' ') color=tag(jb,2)
       if(tag(jb,2)(1:5).eq.'atom ') color=atom_color(k) 
-      write(iunit,8002) (scale*x(jb,j),j=1,3),
+      write(iunit,8002) (scale*rxj(j),j=1,3),
      + (scale*xh(j),j=1,3),factor*abs(stick)*ana_atrad(1),
      + color(1:index(color,' ')-1)
       endif
@@ -368,6 +398,12 @@ c
       do 13 i=1,nwm
       if(iwsel(i).ne.0) then
       do 14 j=1,nwa
+      if(rangle.gt.0.0d0) then
+      ry(1)=w(i,j,1)
+      ry(2)=w(i,j,2)
+      ry(3)=w(i,j,3)
+      call rotate(rv,rw,rotang,ry,rx)
+      endif
       k=pre_atnum(wnam(j)(6:7))
       color=atom_color(k)
       factor=scale*wval(j,1)
@@ -375,11 +411,11 @@ c
       if(wtag(j,2)(1:5).eq.'atom ') color=atom_color(k) 
       if(k.gt.0) then
       if(wtag(j,1)(1:3).eq.'cpk') then
-      write(iunit,8001) (scale*w(i,j,k),k=1,3),
+      write(iunit,8001) (scale*rx(k),k=1,3),
      + factor*abs(cpk)*ana_atrad(k),
      + color(1:index(color,' ')-1)
       else
-      write(iunit,8001) (scale*w(i,j,k),k=1,3),
+      write(iunit,8001) (scale*rx(k),k=1,3),
      + factor*abs(stick)*ana_atrad(1),
      + color(1:index(color,' ')-1)
       endif
