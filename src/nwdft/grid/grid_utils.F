@@ -119,7 +119,7 @@ c
       end
       Subroutine mbf_ao_max(rtdb, qxyz, rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.10 2000-01-06 00:43:02 edo Exp $
+C$Id: grid_utils.F,v 1.11 2000-01-06 20:14:37 edo Exp $
 c
       implicit none
 c      
@@ -401,7 +401,7 @@ c
 #include "bas.fh"
 #include "cdft.fh"
 c
-      integer rtdb, me,ncenters,nproc
+      integer rtdb, me,nproc
       logical tol_reset, mul_reset
       double precision job_grid_acc, my_acc
       double precision range, range_max
@@ -675,7 +675,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq)
 c
-C$Id: grid_utils.F,v 1.10 2000-01-06 00:43:02 edo Exp $
+C$Id: grid_utils.F,v 1.11 2000-01-06 20:14:37 edo Exp $
 c
       implicit none
 c
