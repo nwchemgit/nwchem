@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
 c
       implicit none
 c
@@ -509,7 +509,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
 c
       implicit none
 c
@@ -1240,7 +1240,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
 c
       implicit none
 c
@@ -2193,7 +2193,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -2441,8 +2441,8 @@ c
       fderfc=-(ealpha*derfc(ealpha*rss))
       epmecs=epmecs-ferfc*qij*rssi
       if(lupden) then
-      ess(isf,isf,6,1)=ess(isf,isf,6,1)-half*ferfc*qij*rssi
-      ess(jsf,jsf,6,1)=ess(jsf,jsf,6,1)-half*ferfc*qij*rssi
+      ess(isf,isf,9,1)=ess(isf,isf,9,1)-half*ferfc*qij*rssi
+      ess(jsf,jsf,9,1)=ess(jsf,jsf,9,1)-half*ferfc*qij*rssi
       endif
       dfor=-(qij*rssi*rssi*(ferfc*rssi-fderfc))
       dfs1=dfor*xs1
@@ -2472,7 +2472,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2709,8 +2709,8 @@ c
       fderfc=-(ealpha*derfc(ealpha*rss))
       epmecs=epmecs-ferfc*qij*rsi
       if(lupden) then
-      ess(isf,isf,6,1)=ess(isf,isf,6,1)-half*ferfc*qij*rsi
-      ess(ksf,ksf,6,1)=ess(ksf,ksf,6,1)-half*ferfc*qij*rsi
+      ess(isf,isf,9,1)=ess(isf,isf,9,1)-half*ferfc*qij*rsi
+      ess(ksf,ksf,9,1)=ess(ksf,ksf,9,1)-half*ferfc*qij*rsi
       endif
       dfor=-(qij*rsi*rsi*(ferfc*rsi-fderfc))
       dfs1=dfor*xs1
@@ -2738,7 +2738,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -3071,7 +3071,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3388,7 +3388,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa)
 c
-c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3732,7 +3732,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.32 2000-09-05 16:28:15 d3j191 Exp $
 c
       implicit none
 c
@@ -3848,7 +3848,7 @@ c
       ferfc=one-erfc(ealpha*rww)
       fderfc=-(ealpha*derfc(ealpha*rww))
       epmecw=epmecw-ferfc*qij*rwi
-      eww(8,1)=eww(8,1)-ferfc*qij*rwi
+      eww(9,1)=eww(9,1)-ferfc*qij*rwi
       dfor=-(qij*rwi*rwi*(ferfc*rwi-fderfc))
       dfw1=dfor*rwx1
       dfw2=dfor*rwx2
@@ -3940,7 +3940,7 @@ c
       ferfc=one-erfc(ealpha*rww)
       fderfc=-(ealpha*derfc(ealpha*rww))
       epmecw=epmecw-ferfc*qij*rwi
-      eww(8,1)=eww(8,1)-ferfc*qij*rwi
+      eww(9,1)=eww(9,1)-ferfc*qij*rwi
       dfor=-(qij*rwi*rwi*(ferfc*rwi-fderfc))
       dfw1=dfor*rwx1
       dfw2=dfor*rwx2

@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg)
 c
-c $Id: prp_init.F,v 1.33 2000-07-17 21:27:10 d3j191 Exp $
+c $Id: prp_init.F,v 1.34 2000-09-05 16:28:28 d3j191 Exp $
 c
       implicit none
 c
@@ -188,6 +188,7 @@ c
       pronam( 76)='Particle mesh Ewald reciprocal energy       kJ/mol'
       lp(76)=lpme
       pronam( 77)='Particle mesh Ewald correction energy       kJ/mol'
+      lp(76)=lpme
       pronam( 78)='Virial tensor element (1,1)                 kJ/mol'
       pronam( 79)='Virial tensor element (1,2)                 kJ/mol'
       pronam( 80)='Virial tensor element (1,3)                 kJ/mol'

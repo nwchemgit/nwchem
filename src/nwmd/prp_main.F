@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.50 2000-07-14 19:54:04 d3j191 Exp $
+c $Id: prp_main.F,v 1.51 2000-09-05 16:28:29 d3j191 Exp $
 c
       implicit none
 c
@@ -38,7 +38,7 @@ c
 c
       integer mdstep
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme(3)
-      real*8 epot,epotw,epotsw,epots,vol,ekin,etot
+      real*8 epot,epotw,epotsw,epots,vol,ekin,etot,epmec
       real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3,edrs,epmf
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,npolit
@@ -51,13 +51,13 @@ c
       eww(i,1)=eww(i,1)+eww(i,2)
     1 continue
       do 2 i=1,msf
-      do 3 j=1,mpe
+      do 3 j=1,8
       esw(i,j,1)=esw(i,j,1)+esw(i,j,2)
     3 continue
     2 continue
       do 4 i=1,msf
       do 5 j=1,msf
-      do 6 k=1,mpe
+      do 6 k=1,8
       ess(i,j,k,1)=ess(i,j,k,1)+ess(i,j,k,2)
     6 continue
     5 continue
@@ -68,7 +68,7 @@ c
       eq=eww(6,1)+eww(8,1)
       ep=zero
       ewp=zero
-      do 9 i=1,mpe
+      do 9 i=1,8
       ep=ep+eww(i,1)
       ewp=ewp+eww(i,1)
       do 10 j=1,msf
@@ -78,12 +78,14 @@ c
    11 continue
    10 continue
     9 continue
+      epmec=eww(9,1)
       do 12 j=1,msf
       el=el+esw(j,5,1)
       eq=eq+esw(j,6,1)
       do 13 k=1,msf
       el=el+ess(k,j,5,1)
       eq=eq+ess(k,j,6,1)
+      epmec=epmec+ess(k,j,9,1)
    13 continue
    12 continue
 c
@@ -104,8 +106,8 @@ c
 c
       if(me.eq.0) ep=ep+edrs+epmf
 c
-      ep=ep+epme(iset)
-      eq=eq+epme(iset)
+      ep=ep+epme(iset)+epmec
+      eq=eq+epme(iset)+epmec
       ep2=ep2+epme(2)-epme(1)
       ep3=ep3+epme(3)-epme(1)
       ek=ewk
@@ -172,6 +174,7 @@ c
       p(69)=dwr
       if(lpmf) p(75)=epmf
       p(76)=epme(iset)
+      p(77)=epmec
       p(97)=timer_wall(2)
       p(98)=timer_wall(3)
       if(me.eq.0) p(99)=timer_wall(3)
