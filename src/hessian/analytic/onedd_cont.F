@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.20 2001-10-03 23:49:52 windus Exp $
+C $Id: onedd_cont.F,v 1.21 2002-01-01 00:14:06 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -26,7 +26,7 @@ c
       integer matb, lsqatom, l_dens, k_dens, l_wdens, k_wdens
       integer l_evals, k_evals, l_occ, k_occ
       integer k_pdm2, k_coeff
-      integer nbf2, nocc
+      integer nbf2, mxnocc
       integer alo(3), ahi(3), blo(3), bhi(3)
       logical doS, doT, doV, frac_occ, omp2
       logical oprint, oneprint
@@ -59,10 +59,11 @@ c
       g_wdens = ga_create_atom_blocked(geom, basis, 'weighted density')
       nbf2 = nbf
       if (scftype .eq. 'UHF') nbf2 = nbf + nbf
-      nocc = nopen + nclosed
+      mxnocc = nopen + nclosed
 c     eigenvalue diagonal matrix for forming energy weighted density
-      if (.not. ga_create(MT_DBL, nocc, nocc,'eigen_diag', 0, nocc,
-     $  g_eigen_diag)) call errquit('onedd_cont: ga diags?',nocc*nocc)
+      if (.not. ga_create(MT_DBL, mxnocc, mxnocc,'eigen_diag', 0, 
+     $  mxnocc, g_eigen_diag)) call errquit('onedd_cont: ga diags?',
+     $  mxnocc*mxnocc)
       call ga_zero(g_eigen_diag)                                                
 C     eigenvalues
       if (.not. ma_push_get(mt_dbl, nbf2,'MO evals', l_evals, k_evals))

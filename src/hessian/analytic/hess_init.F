@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.25 2001-12-22 02:07:06 edo Exp $
+C $Id: hess_init.F,v 1.26 2002-01-01 00:14:06 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -123,12 +123,8 @@ c
 c
 c  Initialization for each of the different types of wavefunctions.
 c
-c    Need to fix jfac and kfac for UHF
-c
       if (oprint) write(LuOut,*) 'HESS: getting wavefunction info'
-c     jfac(1) = 1.0d0   ! Only changed for DFT
-c     kfac(1) = 1.0d0
-      jfac(1) = 1.0d0   ! Only changed for DFT
+      jfac(1) = 1.0d0
       kfac(1) = -0.5d0
       if (theory .eq. 'hf') then
         if (.not. rtdb_get(rtdb, 'scf:nmo', MT_INT, 1, nmo))
@@ -153,6 +149,7 @@ c       nopen = nopen + 1
           if (.not. rtdb_get(rtdb, 'scf:nbeta', MT_INT, 1, nbeta))
      *      call errquit('hess_init: failed to get nbeta',555)
           jfac(2) = 1.0d0
+          kfac(1) = 1.0d0
           kfac(2) = 1.0d0
         endif
       elseif (theory .eq. 'dft') then
@@ -184,11 +181,16 @@ c
           scftype = 'RHF'
         else
           nalpha = dftnoc(1)
-          nbeta  = dftnoc(2) !Is this in the correct order?
-          nclosed = nbeta
+          nbeta  = dftnoc(2)
+          nclosed = nbeta    ! assumes that there are more alphas than betas
           scftype = 'UHF'
-          if (ocdfit) jfac(2) = 0.0d0
-          kfac(2) = xfac(1)  ! should this be xfac(2)?
+          if (ocdfit) then
+            jfac(2) = 0.0d0
+          else
+            jfac(2) = 1.0d0
+          endif
+          kfac(1) = -1.0d0*xfac(1)
+          kfac(2) = -1.0d0*xfac(1)
         endif
 
       endif
@@ -196,10 +198,13 @@ c
       if (scftype.eq.'UHF') then
          if (.not. rtdb_cput(rtdb, 'scf:scftype', 1, scftype))
      &        call errquit("hess_init: cannot put scftype", 0)
+         nocc(1) = nalpha
+         nocc(2) = nbeta
          nvirt(1) = nmo-nalpha
          nvirt(2) = nmo-nbeta
          vlen = nalpha*(nmo-nalpha) + nbeta*(nmo-nbeta)
       else if (scftype .eq. 'RHF' .or. scftype.eq.'ROHF') then
+         nocc(1) = nclosed
          nvirt(1) = nmo - nclosed - nopen
          vlen = nclosed*(nopen+nvirt(1)) + nopen*nvirt(1)
       else
@@ -344,7 +349,7 @@ c     kill symmetry for XC grid build
 c
         if (.not. rtdb_put(rtdb, 'dft:gridsym',
      $       MT_LOG, 1, .false.)) call errquit(
-     .        ' task_hessian: rtdb_put failed',0)
+     $        ' task_hessian: rtdb_put failed',0)
         whatever=grid_file_close(.false.)
       return
       end

@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.38 2001-12-28 20:49:09 windus Exp $
+C $Id: hess_cphf.F,v 1.39 2002-01-01 00:14:06 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -18,7 +18,7 @@ c
 c
       integer rtdb 
       integer ind, index
-      integer nocc(2), nc, nxyz, num, num2, norb, nc3 
+      integer nc, nxyz, num, num2, norb, nc3 
       integer num3, norb2, nbf2, ndns
       integer l_evals, k_evals, l_occ, k_occ
       integer g_vecs(2), g_modx
@@ -49,18 +49,9 @@ c
       oprint = oprint .and. (ga_nodeid().eq.0)
       ocphfprint = util_print('cphf_cont',print_debug)
       if (oprint) write(LuOut,*) 'HESS: setting up cphf'
-c
-c     ----- get nocc -----
 c 
-
-      if (ndens.eq.1) then  ! RHF case
-       nocc(1) = nclosed
-      else                  ! UHF case
-       nocc(1) = nalpha
-       nocc(2) = nbeta
-      endif
-c
 c     ----- define parameters -----
+c
  
       nc   = n3xyz
       nxyz = nc          ! substitue nc or nxyz for one or the other (later)
