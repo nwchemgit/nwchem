@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.123 1999-06-25 17:15:08 edo Exp $
+c     $Id: dft_scf.F,v 1.124 1999-06-25 21:23:18 edo Exp $
 c     
       implicit none
 c
@@ -539,13 +539,13 @@ C	if(ssmear.gt.1.d-9.and.movecs_in.ne.'atomic'.and.
 c
 c     compute the integrated density (numerical)
 c
-      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
-     &   grid_on_file))then
-         grid_on_file = .false.
-      endif
-      if (grid_on_file)then
-         call grid_den(rtdb, g_dens, rho_n)
-      endif
+!      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
+!     &   grid_on_file))then
+!         grid_on_file = .false.
+!      endif
+!      if (grid_on_file)then
+!         call grid_den(rtdb, g_dens, g_vxc, nexc, rho_n,Exc)
+!      endif
 
       if (me .eq. 0.and.oprint_eval)then
          if (util_print('intermediate evals', print_default))then
