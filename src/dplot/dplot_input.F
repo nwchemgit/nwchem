@@ -1,6 +1,6 @@
       SubRoutine DPlot_Input(rtdb)
 *
-* $Id: dplot_input.F,v 1.5 1999-11-11 03:22:58 edo Exp $
+* $Id: dplot_input.F,v 1.6 1999-11-16 03:51:15 edo Exp $
 *
       Implicit none
 *
@@ -54,13 +54,15 @@
 c
 c     try to get a scf movecs
 c
-      tag = 'scf:input vectors'
-      if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) then
-         tag = 'dft:input vectors'
-         if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) 
-     .        File_Vec  = 'movecs'
-      endif
+!      tag = 'scf:input vectors'
+!      if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) then
+!         tag = 'dft:input vectors'
+!         if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) 
+!     .        File_Vec  = 'movecs'
+!      endif
+!      write(0,*) ' FIle vec is ',File_Vec
       
+      File_Vec = ' '
       File_Vec2 = ' '
       File_Out  = 'dplot'
       Title     = 'Unknown Title'
@@ -219,6 +221,7 @@ c
 *---- Write the name of the vector file to rtdb
       If (.not.rtdb_cput(rtdb,'dplot:File_Vec',1,File_Vec))
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Vec',0)
+      write(0,*) ' vec1 and 2',File_vec,File_vec2
       If (.not.rtdb_cput(rtdb,'dplot:File_Vec2',1,File_Vec2))
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Vec2',0)
 *---- Write the name of the output file to rtdb

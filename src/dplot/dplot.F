@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.12 1999-11-14 02:59:24 d3g681 Exp $
+* $Id: dplot.F,v 1.13 1999-11-16 03:51:15 edo Exp $
 *
       Implicit None
 *     
@@ -41,6 +41,7 @@
       Character Coord(3)
       Character*8 Units,What,Spin,Where
       Character*80 File_Out
+      character*30 tag
       Character*255 Title
       Logical LResult, DeBug
       logical lgaussian
@@ -101,6 +102,13 @@ c
 *
       If (.not.rtdb_cget(rtdb,'dplot:File_Vec',1,File_Vec))
      &   Call ErrQuit('DPlot: rtdb_get failed - File_Vec',0)
+      tag = 'scf:input vectors'
+      if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) then
+         tag = 'dft:input vectors'
+         if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) 
+     .        File_Vec  = 'movecs'
+      write(0,*) ' FIle vec is ',File_Vec
+      endif
       Lth_Vec = Inp_StrLen(File_Vec)
       If (iProc.eq.0) 
      &   Write(LuOut,*)' 1-st set of MOs      : ',File_Vec(1:Lth_Vec)
@@ -135,6 +143,11 @@ c
             Write(LuOut,*)' Type of picture      : POTENTIAL'
          End If
       End If
+      if(lgaussian) then
+         Write(LuOut,*)' Format used          : Gaussian9x Cube'
+      else
+         Write(LuOut,*)' Format used          : InsightII'
+      endif
 *
       If (.not.rtdb_cget(rtdb,'dplot:Spin',1,Spin))
      &   Call ErrQuit('DPlot: rtdb_get failed - Spin',0)
@@ -221,17 +234,6 @@ c
       End If
 *
 *---- Write the title and the format to the output file
-      If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
-         if(lgaussian) then
-!            Write(Out_Unit,*)' Nwchem dplot run'
-            Write(Out_Unit,*)Title(1:Lth_Tit)
-            Write(Out_Unit,*) ' SCF Total Density'
-         else
-         Write(Out_Unit,*)Title(1:Lth_Tit)
-         Write(Out_Unit,115)
- 115     format('(1F15.10)')
-      endif
-      End If
 *
 *---- Get the geometry
       If (.not.Geom_Create(Geom,'geometry'))
@@ -431,34 +433,13 @@ c
 *---- Print out the values of the density matrix to the output
       Call GA_Get(g_Vls,1,nPoint,1,1,Dbl_mb(k_Vls),nPoint)
       Call GA_Sync
-      If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
-         if(lgaussian) then
-c
-c     truncation
-c
-            Do i = 0, nGrid-1
-               if(abs(Dbl_mb(k_Vls+i)).lt.1d-10) 
-     .              Dbl_mb(k_Vls+i)=0d0
-            enddo
-            Do i = 1, nGrid,No_Of_Spacings(3)+1
-               Write(Out_Unit,9498)(Dbl_mb(k_Vls+i-1+ii),ii=0,
-     .              No_Of_Spacings(3))
- 9498          format(6E13.5)
-            enddo
-            else
-            Sum = 0.d0
-            Do i = 1, nGrid
-               Sum = Sum + Dbl_mb(k_Vls-1+i)
-               Write(Out_Unit,'(f15.10)')Dbl_mb(k_Vls-1+i)
-            End Do
-            AppCh = Sum*Volume
-         endif
-         If (What.eq.'DENSITY') Then
-            Write(LuOut,*)
-            Write(LuOut,'(a,f8.2)')'  Aproximate Charge    = ',AppCh
-         End If
-      End If
 *
+      call dplot_dump(lgaussian,out_unit,iproc,luout,
+     ,     where,what,
+     ,     title(1:Lth_Tit),
+     ,     natom,dbl_mb(k_xyz),dbl_mb(k_charge),volume,
+     ,     Ext_From_To(1,1),Ext_From_To(1,2),
+     ,     no_of_spacings,ngrid,dbl_mb(k_vls))
       If (iProc.eq.0 .and. (Where.ne.'GRID'.or.What.eq.'CHARGES')) Then
          Write(LuOut,*)
          If (What.eq.'CHARGES') Then
