@@ -50,7 +50,9 @@
      Attempt to read the next field as an integer.
      Upon success return .true. and advance to the next field.
      Otherwise return .false., save an internal error message and do
-     not change the current field.
+     not change the current field.  The input argument (i) is not
+     changed unless an integer is successfully read (so that any
+     default value already present in i is not corrupted).
 
 
   logical function inp_f(double precision d)
@@ -58,7 +60,9 @@
      Attempt to read the next field as a floating point number.
      Upon success return .true. and advance to the next field.
      Otherwise return .false., save an internal error message and do
-     not change the current field.
+     not change the current field.  The input argument (d) is not
+     changed unless an integer is successfully read (so that any
+     default value already present in d is not corrupted).
 
 
   logical function inp_a(character*(*) a)

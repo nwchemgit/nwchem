@@ -410,8 +410,8 @@ c
       logical function inp_f (buf)
       implicit none
 #include "inpP.fh"
-      double precision ten, buf
-      integer i1, i2, ie2, isign, ie, iexp, ie1, ibuff, i, j
+      double precision ten, buf, dtmp
+      integer i1, i2, ie2, isign, ie, iexp, ie1, itmp, i, j
       integer i, j
       logical orep
       character*1 xchar(15)
@@ -421,7 +421,7 @@ c
 c     
       ierrpos = -1
       errmsg = ' '
-      buf=0.0d0
+      dtmp=0.0d0
       if (jrec.ge.jump) then
          inp_f = .false.
          errmsg = 'at end of line looking for floating point number'
@@ -448,15 +448,15 @@ c...  exponent
       if (ia(ie1:ie1).eq.xchar(12))iexp=-1
       if (ia(ie1:ie1).eq.xchar(12).or.ia(ie1:ie1).eq.xchar(11))
      *     ie1=ie1+1
-      ibuff=0
+      itmp=0
       do i=ie1,ie2
          do j=1,10
             if (ia(i:i).eq.xchar(j)) go to 41
          enddo
          goto 100
- 41      ibuff=ibuff*10+j-1
+ 41      itmp=itmp*10+j-1
       enddo
-      iexp=iexp*ibuff
+      iexp=iexp*itmp
 c.... the number itself
  50   orep=.false.
       do i=i1,i2
@@ -465,15 +465,16 @@ c.... the number itself
                if (ia(i:i).eq.xchar(j)) go to 70
             enddo
             goto 100
- 70         buf=buf*ten+ dfloat(j-1)
+ 70         dtmp=dtmp*ten+ dfloat(j-1)
          else
             if(orep)go to 100
             iexp=iexp+i-i2
             orep=.true.
          endif
       enddo
-      buf = buf * dfloat(isign) * ten**iexp
+      dtmp = dtmp * dfloat(isign) * ten**iexp
       inp_f = .true.
+      buf = dtmp
       return
 c
  100  inp_f = .false.
@@ -488,18 +489,18 @@ c
       character*1 xchar(12)
       integer n, ifact, ist, nstrt, i, j
       character*1 xtemp
-      integer jbuf
+      integer jbuf, jtmp
       data xchar /'0','1','2','3','4','5','6','7','8','9'
      1     ,'+','-'/
 c     
 c     subroutine for reading integers from the array ia,
 c     starting at ia(istrt(jrec)) and going on for inumb(jrec))
 c     elements. plus signs are ignored, the answer is accumulated
-c     in jbuf
+c     in jtmp
 c     
       ierrpos = -1
       errmsg = ' '
-      jbuf = 0
+      jtmp = 0
       if(jrec.ge.jump) then
          inp_i = .false.
          ierrpos = -1
@@ -520,15 +521,16 @@ c
 c
  130     if(j.ge.11) then
             if(nstrt.ne.ist)go to 120
-            if(j.ge.12)jbuf=-jbuf
+            if(j.ge.12)jtmp=-jtmp
             go to 160
          endif
-         jbuf=jbuf+(j-1)*ifact
+         jtmp=jtmp+(j-1)*ifact
          ifact = ifact * 10
          nstrt=nstrt-1
       enddo
  160  continue
       inp_i = .true.
+      jbuf = jtmp
       return
 c
  120  ierrpos = nstrt
