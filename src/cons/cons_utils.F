@@ -1,4 +1,4 @@
-c $Id: cons_utils.F,v 1.2 2004-03-29 20:59:13 marat Exp $
+c $Id: cons_utils.F,v 1.3 2004-03-30 02:24:22 marat Exp $
       subroutine cons_add_spring(i,j,k,r,rtdb)
       implicit none
 #include "errquit.fh"
@@ -109,7 +109,6 @@ c
       subroutine cons_add_fixed_atoms(nat,id,rtdb)
       implicit none
 #include "errquit.fh"
-#include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
@@ -120,7 +119,7 @@ c
       integer rtdb
 c
       logical status
-      integer i
+      integer i,j
       integer n0
       integer n
       integer h_tmp_id,i_tmp_id 
@@ -130,6 +129,9 @@ c
       character tag_n*(*) 
       parameter (tag_n = 'cons:fxd_at_n') 
 
+      write(*,*) "fixed atoms before sort",(id(i),i=1,nat)
+      call cons_sort_i(nat,id)
+      write(*,*) "fixed atoms after sort",(id(i),i=1,nat)
       if(.not.rtdb_get(rtdb,tag_n,mt_int,1,n0)) then
          n0 = 0
       end if
@@ -140,7 +142,7 @@ c
      &      'cons_add_fixed_atoms: unable to allocate scratch space',
      &      n, MA_ERR)
 
-       if(n0 .gt. 1) then
+       if(n0 .gt. 0) then
         status = rtdb_get(rtdb,tag_id,
      >     mt_int,n0,int_mb(i_tmp_id)) 
         if(.not.status) call errquit(
@@ -151,10 +153,24 @@ c
      >     'cons_add_fixed_atoms: unable to delete prior fixed atoms',
      >      0, MA_ERR)
        end if
-       
-       do i=1,nat
-         int_mb(i_tmp_id + n0+i-1)=id(i)
+       do i=1,n0
+        do j=1,nat
+           if(int_mb(i_tmp_id + i-1).eq.id(j)) then
+             id(j)=-1
+           end if
+        end do
        end do
+       
+       j=0
+       do i=1,nat
+         if(id(i) .ne. -1) then
+          int_mb(i_tmp_id + n0+j)=id(i)
+          j=j+1
+         end if
+       end do
+       n=n0+j
+
+       write(*,*) "fixed atoms clean",(int_mb(i_tmp_id +i-1),i=1,n)
 
        status = rtdb_put(rtdb,tag_n,mt_int,1,n)
        status = status . and. rtdb_put(rtdb,tag_id,
@@ -286,5 +302,37 @@ c
       if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
      &    'cons_info_springs: unable to free h_tmp_id',
      &    0, MA_ERR)
+      end
+
+      subroutine cons_sort_i(n,a)
+c     
+      integer n
+      integer a(n)
+c
+c     local variables:
+      integer i
+      integer pass  
+      integer sorted 
+      integer temp
+
+      pass = 1
+      sorted = 0
+      do while(sorted .eq. 0) 
+        sorted = 1
+        do 2 i = 1,n-pass
+          if(a(i) .gt. a(i+1)) then
+            temp = a(i)
+            a(i) = a(i+1)
+            a(i+1) = temp
+            sorted = 0
+          endif
+ 2      continue
+        pass = pass +1
+      end do
+      do i=1,n-1
+       if(a(i).eq.a(i+1)) a(i)=-1 
+      end do
+
+      return
       end
 
