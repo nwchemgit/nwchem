@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.38 2000-05-25 21:56:34 mdupuis Exp $
+C$Id: rohf.F,v 1.39 2000-05-25 22:57:26 mdupuis Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -65,7 +65,7 @@ c
             if(odbug) then
                osome=.true.
             else
-               osome=.true.
+               osome=.false.
             endif
             call cosmo_initialize(rtdb,osome)
             if(odbug) then
