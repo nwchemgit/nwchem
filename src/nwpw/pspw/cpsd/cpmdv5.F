@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.27 2003-08-01 23:44:55 bylaska Exp $
+* $Id: cpmdv5.F,v 1.28 2003-08-02 13:38:34 bylaska Exp $
 *
 
 ***********************************************************************
@@ -602,16 +602,19 @@
            call util_flush(6)
 
 *          **** write out EMOTION data ****
+           eave = E(25)/dble(icount)
+           evar = E(26)/dble(icount)
+           evar = evar - eave*eave
            if (control_Nose()) then
              write(31,1311) icount*it_in*dt + emotion_time_shift,
      >                    e(1),e(2),e(3),e(4),e(5),e(6),
      >                    e(7),e(8),e(9),e(10),
-     >                    e(25)/dble(icount),e(26)/dble(icount)
+     >                    eave,evar
            else
              write(31,1311) icount*it_in*dt + emotion_time_shift,
      >                    e(1),e(2),e(3),e(4),e(5),e(6),
      >                    e(7),e(8),
-     >                    e(25)/dble(icount),e(26)/dble(icount)
+     >                    eave,evar
            end if
            call util_flush(31)
 
@@ -899,7 +902,8 @@ c    >              dbl_mb(lmd(1)),ierr)
 
          eave = E(25)/dble(icount)
          evar = E(26)/dble(icount)
-         cv = (evar - eave*eave)/(kb*ion_Temperature()**2)
+         evar = evar - eave*eave
+         cv = (evar)/(kb*ion_Temperature()**2)
          cv = cv/dble(ion_nion())
          write(6,1492) eave
          write(6,1493) evar
