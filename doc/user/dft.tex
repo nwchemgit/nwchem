@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.73 2003-04-10 22:06:36 edo Exp $ 
+% $Id: dft.tex,v 1.74 2003-04-10 23:24:11 pollack Exp $ 
 %
 \label{sec:dft}
 
@@ -230,7 +230,10 @@ task dft
 
 The \verb+DECOMP+ directive causes the components of the energy
 corresponding to each functional to be printed, rather than just the
-total exchange-correlation energy which is the default.
+total exchange-correlation energy which is the default.  You can see
+an example of this directive in the sample input in 
+Section \ref{sec:DFTsample}.
+
 
 Many alternative exchange and correlation functionals are available to
 the user as listed in table \ref{tablexc}.  The following sections describe 
@@ -498,7 +501,8 @@ It is expected that meta-GGA energies obtained
 this way will be close to fully self consistent
 meta-GGA calculations. 
 This can be easily accomplished in NWChem,
-and is our current implementation.
+and is our current implementation, which is illustrated in
+the example below.
 
 This kind of calculation
 will obviously not converge the energy.
@@ -509,11 +513,8 @@ you must tell NWChem
 the returned result of the task, 
 which may be accomplished in the input file
  with \verb+ task dft ignore+
-
 You may still get a warning in the output to the effect,
-\begin{verbatim} 
-!! warning: dft energy failed 
-\end{verbatim}
+\verb+!! warning: dft energy failed+.
 This simply means the energy failed to converge
 since you  ran  only one iteration of
 the  functional.
@@ -547,6 +548,7 @@ basis
 end
  
 dft
+ print low kinetic_energy
  xc xpbe96 cpbe96
  decomp
 end
@@ -557,7 +559,7 @@ dft
  iterations 1
  xc xpkzb99
  decomp
- print kinetic_energy
+ print low quadrature kinetic_energy
 end
 task dft ignore
 \end{verbatim}
@@ -1477,7 +1479,9 @@ and not just {\tt bq}.
 \end{verbatim}
 
 The \verb+PRINT||NOPRINT+ options control the level of output in the
-DFT.  Known controllable print options are:
+DFT.  Please see some examples using this directive in
+section  \ref{sec:DFTsample}, a sample input file.
+  Known controllable print options are:
 
 \begin{table}[htbp]
 \begin{center}
