@@ -1,4 +1,4 @@
-C $Id: rel_pvp.F,v 1.1 1999-10-26 19:04:13 mg201 Exp $
+C $Id: rel_pvp.F,v 1.2 1999-10-26 23:12:05 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_pvp}
 c:tex-This routine generates the pV.p integrals needed for various
@@ -16,7 +16,8 @@ c:tex-\begin{verbatim}
       subroutine rel_pvp (
      &    Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
      &    Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &    Cxyz,zan,exinv,nat,pVp,lpvp,canAB,DryRun,scr,lscr,msg,ibug)
+     &    Cxyz,zan,exinv,nat,pVp,lpvp,canAB,DryRun,scr,lscr,
+     &    msg,ibug,ntyp)
 c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
@@ -36,6 +37,7 @@ c:tex-\begin{verbatim}
       integer lscr     ! [input] size of scratch array
       integer lpvp     ! [input] size of integral buffer
       integer ibug     ! [input] debug variable
+      integer ntyp    ! [input] potential energy integral type
       double precision Axyz(3)          ! [input] position of center A
       double precision zeta_A(n_prim_A) ! [input] exponents of shell A
       double precision coefS_A(n_prim_A,n_cont_A) ! [input] A small coeffs
@@ -46,7 +48,7 @@ c:tex-\begin{verbatim}
       double precision zan(nat)     ! [input] charges on all atoms
       double precision exinv(nat)   ! [input] inverse nuclear exponents
       double precision scr(lscr)    ! [scratch] scratch buffers
-      double precision pVp(lpvp)    ! [output] pV.p integrals
+      double precision pVp(lpvp,ntyp) ! [output] pV.p integrals
       logical canAB   ! [input] compute only canonical ints (false only)
       logical DryRun  ! [input] true means only compute required memory
       character*(*) msg ![input] calling func. identification message
@@ -256,7 +258,7 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
 *     Compute the relativistic potential energy integrals
 *
       call rel_pot (scr(i_pp),scr(i_pm),scr(i_mp),scr(i_mm),
-     &    pVp,n_ab,1,
+     &    pVp,lpvp,ntyp,
      &    l_A,n_cartp_a,n_cart_a,n_cartm_a,n_cont_A,
      &    l_B,n_cartp_b,n_cart_b,n_cartm_b,n_cont_B,
      &    DryRun,scr(i_scr),memscr,ibug/10)
