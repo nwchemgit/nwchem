@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.7 1995-04-11 18:38:07 rg240 Exp $
+c$Id: fock_2e_a.F,v 1.8 1995-04-18 05:33:20 d3e129 Exp $
 c
 #include "cfock.fh"
       data task_chunks/-1/
@@ -15,7 +15,7 @@ c     see scf_init for input of task_chunks
      $     tmp, vg_dens, vg_fock )
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.7 1995-04-11 18:38:07 rg240 Exp $
+c     $Id: fock_2e_a.F,v 1.8 1995-04-18 05:33:20 d3e129 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -64,6 +64,16 @@ c
       integer nxtask
       double precision dabsmax
       external dabsmax, nxtask
+#if defined(REPORT_LOOP)        
+#if defined(KSR) || defined(SUN)
+      logical reportit
+      character*26 fdate
+      external fdate
+#else
+* check to see if fdate exists on your system
+#endif
+#endif
+c
 c     How many atoms are there?
 c     
       if (.not. geom_ncent(geom, natoms)) call errquit
@@ -116,6 +126,21 @@ c     Loop thru atomic triplets (i,j,k)
 c     
       smax = schwarz_max()
       do kat = natoms, 1, -1
+#if defined(REPORT_LOOP)        
+#if defined(KSR) || defined(SUN)
+         if(ga_nodeid().eq.0) then
+            reportit = mod(kat,5).eq.0
+            reportit = reportit.or.(kat.eq.1)
+            reportit = reportit.or.(kat.eq.natoms)
+            if (reportit) then
+               write(6,*) ' kat = ',kat,' ',fdate()
+               call util_flush(6)
+            endif
+         endif
+#else
+* check to see if fdate exists on your system
+#endif
+#endif
          nkl = 0
          do lat = 1, kat
             skl(lat) =  schwarz_atom(kat,lat)
