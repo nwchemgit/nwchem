@@ -24,7 +24,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 
     File[] files;
     String[] dirs = {" ", " ", " ", " "};
-    Segment[] sgmDef;
+    SegmentDefinition[] sgmDef;
     
     JFileChooser chooser;
     ExtensionFilter sgmFilter;
@@ -34,6 +34,9 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
     boolean frBool = true;
 
     int frIndex, toIndex;
+    
+    Segment ToSgm = new Segment();
+    Segment FrSgm = new Segment();
     
     public nwchem_Segment(){
 	
@@ -101,7 +104,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 	    };
 	};
 
-	sgmDef = new Segment[sgmNumber];
+	sgmDef = new SegmentDefinition[sgmNumber];
 	sgmNumber=0;
 	for(int idir=0; idir<4; idir++){
 	    if(dirs[idir]!=" "){
@@ -111,7 +114,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		for(int i=0; i<files.length; i++) {
 		    name=files[i].getName(); 
 		    if(name.toLowerCase().endsWith(".sgm")) {
-			sgmDef[sgmNumber] = new Segment();
+			sgmDef[sgmNumber] = new SegmentDefinition();
 			sgmDef[sgmNumber].Name=name;
 			sgmDef[sgmNumber].Dir=dirs[idir];
 			segmentList.addElement(file_type[idir]+" "+name.substring(0,name.indexOf(".sgm")));
@@ -172,20 +175,6 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 	public void setReplacing(int num){
 	    replacing[num]=true;
 	}
-    }
-
-    void readSegment(String fileName){
-	System.out.println("Reading file "+fileName);
-	try{
-	    BufferedReader br = new BufferedReader(new FileReader(fileName));
-	    String card;
-	    while((card=br.readLine()) != null){
-		if(card.startsWith("$") || card.startsWith("#") ) {} else {
-		};
-		System.out.println(card);
-	    };
-	    br.close();
-	} catch(Exception e) {e.printStackTrace();};
     }
     
     void buildConstraints(GridBagConstraints gbc, int gx, int gy, int gw, int gh, 
@@ -250,9 +239,9 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		j=sgmList.getSelectedIndex();
 		fileName=sgmDef[j].Dir+sgmDef[j].Name;
 		if(frBool){
-		    readSegment(fileName);
+		    FrSgm.SegmentRead(fileName);
 		} else {
-		    readSegment(fileName);
+		    ToSgm.SegmentRead(fileName);
 		};
 	    };
 	};
