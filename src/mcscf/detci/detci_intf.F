@@ -5,8 +5,8 @@ c  Need this macro to exclude declarations
 c  in detci.fh
 c
 
-      subroutine detci_init( norb, nela, nelb, nsym, mul, osym,
-     $                     iprint, eps, h, g )
+      subroutine detci_init( norb, nela, nelb, nsym, symstate,
+     $                       mul, osym, iprint, eps, h, g )
       implicit none
 c
 #include "mafdecls.fh"
@@ -21,6 +21,7 @@ c
       integer nela
       integer nelb
       integer nsym
+      integer symstate
       integer mul(nsym,nsym)
       integer osym(norb)
       integer iprint
@@ -58,6 +59,7 @@ c
       cdetci_nela = nela
       cdetci_nelb = nelb
       cdetci_nsym = nsym
+      cdetci_symstate = symstate
       do i=1,norb
         cdetci_osym(i) = osym(i)
         cdetci_eps(i) = eps(i)
@@ -98,6 +100,7 @@ c
         write(6,902) norb, nsym, civlen,
      $               nela, nelb, nstra, nstrb,
      $               nexa, nexb, nekla, neklb,
+     $               cdetci_symstate,
      $               cdetci_spinadapt,
      $               cdetci_squant,
      $               cdetci_eref
@@ -110,8 +113,9 @@ c
      $        10x,'Strings:',14x,2i10,/,
      $        10x,'E_ij per string:',6x,2i10,/,
      $        10x,'Strings per E_ij:',5x,2i10,//,
+     $        10x,'State symmetry:',8x,i5,/,
      $        10x,'Spin adaption:',13x,l1,/,
-     $        10x,'S quantum number:',3x,f10.1,/,
+     $        10x,'S quantum number:',3x,f10.3,/,
      $        10x,'Reference energy:',5x,f15.8)
         call util_flush(6)
       endif
@@ -519,6 +523,7 @@ c
       integer nstra, nstrb
 c
       double precision xx, yy
+      double precision mxcnt
 c
 c  Check internals
 c
@@ -549,8 +554,17 @@ c
      $                      cdetci_mul, cdetci_ataba, cdetci_atabb,
      $                      cdetci_eref, cdetci_eps, g_civec )
 c
+c  Ensure vector is symmetry-adapted
 c
-c      
+      if (cdetci_nsym.gt.1) then
+        call detci_symmproject( cdetci_norb, cdetci_nsym,
+     $                          cdetci_nela, cdetci_nelb, nstra,
+     $                          nstrb, cdetci_osym, cdetci_mul,
+     $                          cdetci_ataba, cdetci_atabb,
+     $                          cdetci_symstate, .true.,
+     $                          mxcnt, g_civec )
+      endif
+
       return
       end
 
@@ -610,7 +624,7 @@ c
 c  Generate 1- and 2-particle density matrices
 c  for given CI vector (both RHS and LHS)
 c
-      subroutine detci_density( g_civec, onepdm, twopdm )
+      subroutine detci_density( g_civec, map, onepdm, twopdm )
       implicit none
 c
 #include "global.fh"
@@ -620,7 +634,7 @@ c
 #include "cdetci.fh"
 c
       integer g_civec
-c      double precision civec(*)
+      integer map(*)
       double precision onepdm(*)
       double precision twopdm(*)
 c
@@ -648,14 +662,14 @@ c
       call detci_onepdm( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                   cdetci_nelb, nstra, nstrb, nexa, nexb,
      $                   cdetci_osym, cdetci_mul, int_mb(k_detci_exa),
-     $                   int_mb(k_detci_exb), g_civec, onepdm )
+     $                   int_mb(k_detci_exb), map, g_civec, onepdm )
 c
 c
 c
       call detci_twopdm( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                   cdetci_nelb, nstra, nstrb, nexa, nexb,
      $                   cdetci_osym, cdetci_mul, int_mb(k_detci_exa),
-     $                   int_mb(k_detci_exb), g_civec, twopdm )
+     $                   int_mb(k_detci_exb), map, g_civec, twopdm )
 c
 c
 c
@@ -727,4 +741,46 @@ c
       
 
 
+
+
+
+
+
+
+      subroutine detci_symmproj( g_civec, mxcnt, oscreen )
+      implicit none
+#include "global.fh"
+#include "detciP.fh"
+#include "detci.fh"
+#include "cdetci.fh"
+c
+      integer g_civec
+      logical oscreen
+      double precision mxcnt
+      integer nstra, nstrb
+c
+c  Check internals
+c
+      if (cdetci_valid .ne. CDETCI_MAGIC)
+     $  call errquit('detci_symmproj with uninitialized common',0)
+c     
+c  CI parameters
+c     
+      nstra = detci_binomial( cdetci_norb, cdetci_nela )
+      nstrb = detci_binomial( cdetci_norb, cdetci_nelb )
+c
+c  Symmetry adapt
+c
+      mxcnt = 0.d0
+      if (cdetci_nsym.gt.1) then
+        call detci_symmproject( cdetci_norb, cdetci_nsym,
+     $                          cdetci_nela, cdetci_nelb, nstra,
+     $                          nstrb, cdetci_osym, cdetci_mul,
+     $                          cdetci_ataba, cdetci_atabb,
+     $                          cdetci_symstate, oscreen,
+     $                          mxcnt, g_civec )
+      endif
+
+      return
+      end
 

@@ -29,6 +29,7 @@ c
       integer cdetci_nelb                             ! Beta electrons
       integer cdetci_nsym                             ! Irreps
       integer cdetci_mul                              ! Direct product table
+      integer cdetci_symstate                         ! Wavefunction symmetry irrep
       integer cdetci_osym                             ! Orbital symmetries
       integer l_detci_exa, k_detci_exa                ! Alpha excitation table
       integer l_detci_exb, k_detci_exb                ! Beta excitation table
@@ -68,13 +69,14 @@ c
      $           cdetci_nela,
      $           cdetci_nelb,
      $           cdetci_nsym,
+     $           cdetci_symstate,
      $           cdetci_mul(detci_maxsy*detci_maxsy),
      $           cdetci_osym(detci_maxorb),
      $           cdetci_ataba(detci_maxtsize),
      $           cdetci_atabb(detci_maxtsize),
      $           l_detci_exa, k_detci_exa,
      $           l_detci_exb, k_detci_exb,
-     $           cdetci_ipad(2),
+     $           cdetci_ipad(3),
      $           cdetci_eref,
      $           cdetci_eps(detci_maxorb),
      $           l_detci_h,            k_detci_h,

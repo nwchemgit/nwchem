@@ -83,7 +83,7 @@ c
           k      = exb(5,iex,istr)
           l      = exb(6,iex,istr)
           iksym = mul(isym,ksym)
-          if (iksym.eq.1) then
+C          if (iksym.eq.1) then
             xx = 0.d0
             do j=1,norb
               kj = ijmap(k,j)
@@ -91,7 +91,7 @@ c
               xx = xx + g(kj,lj)
             enddo
             f(kstr) = f(kstr) + kphase*(h(kl) - 0.5d0*xx)
-          endif
+C          endif
 c
           do kex=1,nexb
             jstr   = exb(1,kex,kstr)
@@ -212,7 +212,7 @@ c
           k      = exa(5,iex,istr)
           l      = exa(6,iex,istr)
           iksym = mul(isym,ksym)
-          if (iksym.eq.1) then
+C          if (iksym.eq.1) then
             xx = 0.d0
             do j=1,norb
               kj = ijmap(k,j)
@@ -220,7 +220,7 @@ c
               xx = xx + g(kj,lj)
             enddo
             f(kstr) = f(kstr) + kphase*(h(kl) - 0.5d0*xx)
-          endif
+C          endif
 c
 c
           do kex=1,nexa
