@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.50 1996-10-21 22:43:02 rg240 Exp $
+C$Id: mointdriver.F,v 1.51 1996-10-21 22:45:55 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -34,6 +34,7 @@ c
        integer noper_core, seg_incr
        integer g_coul, g_exch, g_epair
        integer i, j, ij, ii, ipass
+       integer lmemreq, gmem, mxrlen, nvir
        logical oexch, ocoul, osym, oprint, status, ohalf, omemprint
        logical oblk
        double precision emp2, e2pair
@@ -51,6 +52,8 @@ c
        external moints_numoper
        integer moints_occrange
        external moints_occrange
+       integer moints_lmem
+       external moints_lmem
 c
        data g_coul,g_exch/-1,-1/
        data oexch,ocoul/.true.,.false./
@@ -355,17 +358,38 @@ c
        ocoul = .false.
        oexch = .true.
        oseg_hi = occ_lo - 1
+       nvir = vir_hi - vir_lo + 1
        ipass = 0
-       if (ga_nodeid().eq.0) write(6,978) 
+c
+c  Memory arithmetic to determine occ segment length
+c
+       lmemreq = moints_lmem(basis, nocc, nvir, ocoul, oexch, blen)
+       if ((.not.ga_uses_ma()).and.(.not.(ga_memory_limited())))
+     $   call errquit('cannot determine memory limit',0)
+       gmem = (ga_memory_avail() - lmemreq)*ga_nnodes()
+       mxrlen=maxbfsh*maxbfsh*ga_nnodes()*10
+       seg_incr = gmem/(nvir*mxrlen)
+       seg_incr = min(max(seg_incr,1),nact)
+
+       IF (GA_NODEID().EQ.0) THEN
+         WRITE(6,738) LMEMREQ, GMEM, MXRLEN, SEG_INCR
+ 738     FORMAT(' Local memory required:',2x,i20,/,
+     $          ' Global memory remaining:',i20,/,
+     $          ' Record length:',20x,i20,/,
+     $          ' Occupied segment length:',i20)
+       ENDIF
+
+       if (ga_nodeid().eq.0) write(6,978) seg_incr
  978   format(//,10x,25('='),
      $         /,10x,'Test semi-direct MP2 code'
-     $         /,10x,25('='))
+     $         /,10x,25('='),
+     $         //, 'Segment length = ',I5)
 c
  222   continue
        tpass = tcgtime()
        ipass = ipass + 1
        oseg_lo = oseg_hi + 1
-       oseg_hi = min((oseg_lo + seg_incr),occ_hi)
+       oseg_hi = min((oseg_lo + seg_incr - 1),occ_hi)
 c
        call moints_semi( basis, tol2e, ocoul, oexch, oseg_lo, oseg_hi,
      $                  occ_lo, occ_hi, vir_lo, vir_hi, g_vecs, oblk )
