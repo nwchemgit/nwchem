@@ -1,6 +1,6 @@
       logical function cf_hopping(issgm,isgan,ishop,xs,nsaloc)
 c
-c $Id: cf_hopping.F,v 1.1 2003-07-17 19:44:24 d3j191 Exp $
+c $Id: cf_hopping.F,v 1.2 2003-08-07 00:24:42 d3j191 Exp $
 c
       implicit none
 c
@@ -111,13 +111,13 @@ c
       call ga_dgop(mcf_78,rda,3*nldat,'+')
 c
 ctest
-      if(me.eq.0) then
-      print*,'Number of donor-acceptor pairs is ',nldat
+c      if(me.eq.0) then
+c      print*,'Number of donor-acceptor pairs is ',nldat
 c      do 12 i=1,nldat
 c      write(*,111) (lda(j,i),j=1,10),(rda(j,i),j=1,3)
 c  111 format(10i5,3f12.6)
 c   12 continue
-      endif
+c      endif
 ctest
       return
       end
@@ -138,18 +138,32 @@ c
       integer ndx(*)
 c
       integer i,j,k,ndxrel
+      real*8 dprob,drand
 c
       call ga_dgop(mcf_79,uda,4*nldat,'+')
 c
       if(me.eq.0) then
+      if(util_print('qhop',print_high)) then
+      write(*,110) 
+  110 format(/,
+     + ' QHOP  ----donor---   --acceptor-- ',
+     + '     pre-hop energies        post-hop energies  ',/,
+     + ' numb atom  res prot atom  res prot',
+     + '    donor      acceptor     donor      acceptor ',
+     + '     angle?  probability',/)
+      endif
       do 1 i=1,nldat
       call qhop_prob(lda(1,i),issgm(lda(2,i)),lseq(lda(3,i)),
      + lda(6,i),issgm(lda(7,i)),lseq(lda(8,i)),uda(1,i),rda(4,i),pda(i))
-      pda(i)=0.0d0
+c      pda(i)=0.0d0
+c
+      if(util_print('qhop',print_high)) then
       write(*,111) i,lda(1,i),issgm(lda(2,i)),lseq(lda(3,i)),
      + lda(6,i),issgm(lda(7,i)),lseq(lda(8,i)),
      + (uda(j,i),j=1,4),rda(4,i),pda(i)
-  111 format(7i5,6f12.6)
+  111 format(7i5,5f12.6,f12.9)
+      endif
+c
     1 continue
 c
       do 2 i=1,nldat
@@ -167,8 +181,11 @@ c
     3 continue
 c
       do 5 i=1,nldat
-      if(util_random(0).lt.pda(ndx(i))) then
-      write(*,'(a,i5,a,i5)') ' PROTON HOP FROM ',lda(3,ndx(i)),
+      drand=util_random(0)
+      dprob=pda(ndx(i))
+c      write(*,'(a,2f12.6)') 'RAND/PROB ',drand,dprob
+      if(drand.lt.dprob) then
+      write(*,'(/,a,i5,a,i5,/)') ' PROTON HOP FROM ',lda(3,ndx(i)),
      + ' TO ',lda(8,ndx(i))
       pda(ndx(i))=1.0d0
       do 6 j=i+1,nldat

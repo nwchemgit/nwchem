@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.51 2003-08-06 02:52:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.52 2003-08-07 00:24:42 d3j191 Exp $
 c
       implicit none
 c
@@ -759,7 +759,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.51 2003-08-06 02:52:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.52 2003-08-07 00:24:42 d3j191 Exp $
 c
       implicit none
 c
@@ -1889,7 +1889,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.51 2003-08-06 02:52:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.52 2003-08-07 00:24:42 d3j191 Exp $
 c
       implicit none
 c
@@ -3175,7 +3175,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.51 2003-08-06 02:52:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.52 2003-08-07 00:24:42 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3245,6 +3245,12 @@ c
 c     solute bonds
 c     ============
 c
+cx      write(*,'(4i7)') (i,(ibnd(i,j),j=1,3),i=1,msb)
+c
+cx      write(*,'(10i7)') (igan(j),j=1,natoms)
+cx      write(*,'(a,i7)') 'bonds  ',nbonds
+cx      write(*,'(10i7)') (indexl(j),j=1,nbonds)
+c
       do 1 i=1,nbonds
 c
 c     find index into list of bonds
@@ -3259,11 +3265,13 @@ c
       if(ibnd(isb,1).eq.igan(j)) isa=j
       if(ibnd(isb,2).eq.igan(j)) jsa=j
     2 continue
+c      write(*,'(a,5i5)') 'bond ',i,nbonds,isb,isa,jsa
 c
 c     find solute molecule numbers involved in this constrained
 c
       isf=imol(isa)
       jsf=imol(jsa)
+c      write(*,'(a,6i5)') 'bond ',i,nbonds,isa,jsa,isf,jsf
 c
 c     determine actual distance between the atoms
 c
@@ -3474,7 +3482,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.51 2003-08-06 02:52:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.52 2003-08-07 00:24:42 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3761,7 +3769,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.51 2003-08-06 02:52:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.52 2003-08-07 00:24:42 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -4105,7 +4113,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.51 2003-08-06 02:52:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.52 2003-08-07 00:24:42 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -4432,7 +4440,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,isgm,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa,lseq)
 c
-c $Id: cf_f.fh,v 1.51 2003-08-06 02:52:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.52 2003-08-07 00:24:42 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4795,7 +4803,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.51 2003-08-06 02:52:39 d3j191 Exp $
+c $Id: cf_f.fh,v 1.52 2003-08-07 00:24:42 d3j191 Exp $
 c
       implicit none
 c

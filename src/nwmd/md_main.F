@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.164 2003-07-23 20:37:32 d3j191 Exp $
+c $Id: md_main.F,v 1.165 2003-08-07 00:24:45 d3j191 Exp $
 c
       implicit none
 c
@@ -2213,6 +2213,9 @@ c
       ldone=.true.
       call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
       endif
+c      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+c     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+c     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
      + dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esa))
       goto 100
@@ -2593,7 +2596,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.164 2003-07-23 20:37:32 d3j191 Exp $
+c $Id: md_main.F,v 1.165 2003-08-07 00:24:45 d3j191 Exp $
 c
       implicit none
 c

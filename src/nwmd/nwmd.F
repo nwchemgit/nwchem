@@ -1,16 +1,20 @@
       logical function nwmd(irtdb0)
 c
-c $Id: nwmd.F,v 1.9 2001-08-10 17:51:49 d3j191 Exp $
+c $Id: nwmd.F,v 1.10 2003-08-07 00:24:45 d3j191 Exp $
 c
       implicit none
 c
 #include "rtdb.fh"
+#include "util.fh"
 #include "mafdecls.fh"
 #include "md_common.fh"
 c
       integer irtdb0
 c
       irtdb=irtdb0
+c
+      call util_print_push
+      call util_print_rtdb_load(irtdb,'md')
 c
       call timer_init()
 c
@@ -19,6 +23,8 @@ c
       call md_start()
       call md_main()
       call md_finish()
+c
+      call util_print_pop
 c
       nwmd=.true.
 c

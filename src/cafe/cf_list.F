@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.22 2003-08-06 02:52:39 d3j191 Exp $
+c $Id: cf_list.F,v 1.23 2003-08-07 00:24:42 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -380,6 +380,7 @@ c
 c
       real*8 xhop(4,3),xacc(5)
       integer idon,iacc,i
+c
 c
 c     this subroutine evaluates the solute-solute pairlist
 c

@@ -30,7 +30,7 @@ c     in/out int : lstptr          : list pointer
 c
 c     dimensions nwm,nwa and nsa need to have been given by a call to cf_initx
 c
-c $Id: cf_pairs.F,v 1.12 2003-07-17 19:44:24 d3j191 Exp $
+c $Id: cf_pairs.F,v 1.13 2003-08-07 00:24:42 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -238,6 +238,7 @@ c
       endif
 c
       llist=.true.
+      ndxp=lptr-i_list
 c
       return
       end
