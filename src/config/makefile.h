@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.49 1994-08-20 00:19:24 d3g681 Exp $
+# $Id: makefile.h,v 1.50 1994-08-22 00:03:20 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -44,15 +44,15 @@ endif
      TARGET = $(NWCHEM_TARGET)
 
 #
-# Define SUBDIRS to be list of subdirectories of SRC to be made
+# Define NWSUBDIRS to be list of subdirectories of SRC to be made
 #
 # The include directory should be first so that the include
 # files are all present and correct before any compilation
 #
 
-    SUBDIRS = include ddscf NWints develop global db rtdb basis inp util \
-              moints atomscf geom input ma tcgmsg gradients rimp2 \
-              stepper pstat $(SUBDIRS_EXTRA)
+    NWSUBDIRS = include ddscf NWints develop global db rtdb basis inp util \
+                moints atomscf geom input ma tcgmsg gradients rimp2 \
+                stepper pstat $(SUBDIRS_EXTRA)
 
 #
 # Define LIBPATH to be paths for libraries that you are linking in

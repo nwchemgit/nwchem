@@ -6,6 +6,8 @@
 
 include ../config/makefile.h
 
+SUBDIRS = $(NWSUBDIRS)
+
 includes:
 	for dir in $(SUBDIRS); do \
 		echo Making include_stamp in $(SRCDIR)/$$dir ; \

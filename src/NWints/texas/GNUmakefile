@@ -1,10 +1,7 @@
-# $Id: GNUmakefile,v 1.3 1994-08-21 22:00:37 d3e129 Exp $
+# $Id: GNUmakefile,v 1.4 1994-08-22 00:03:05 d3g681 Exp $
+
+  OBJ = 
+ LIBRARY = libnwints.a
 
 include ../../config/makefile.h
-
-TEXAS_OBJ = 
-
-texas_obj:	$(TEXAS_OBJ)
-
-clean:
-	/bin/rm -f $(TEXAS_OBJ)
+include ../../config/makelib.h

@@ -1,7 +1,9 @@
 
-# $Id: GNUmakefile,v 1.6 1994-08-15 17:46:34 d3g681 Exp $
+# $Id: GNUmakefile,v 1.7 1994-08-22 00:01:08 d3g681 Exp $
 
 include config/makefile.h
+
+  SUBDIRS = $(NWSUBDIRS)
 
 #
 # This should be the first target so that a simple make builds
@@ -31,33 +33,28 @@ nwchem_test:
 
 libraries:
 	for dir in $(SUBDIRS); do \
-		echo Making library in $$dir ; \
-		(cd $$dir; $(MAKE)) || exit 1 ; \
+		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir || exit 1 ;  \
 	done
 
 clean:
 	/bin/rm -f nwchem core *.o *.a *.trace
 	for dir in $(SUBDIRS) ../tests; do \
-		echo Making clean in $$dir ; \
-		(cd $$dir; $(MAKE) clean) || exit 1 ; \
+		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir clean || exit 1 ;  \
 	done
 
 realclean:	clean
 	/bin/rm -f *~ \#*\#
 	for dir in $(SUBDIRS) ../tests; do \
-		echo Making realclean in $$dir ; \
-		(cd $$dir; $(MAKE) realclean) || exit 1; \
+		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir realclean || exit 1 ;  \
 	done
 	/bin/rm -f $(LIBDIR)/*.a $(BINDIR)/*
 	/bin/rm -f *.db movecs 
 
 sngl_to_dbl dbl_to_sngl:
 	for dir in $(SUBDIRS); do \
-		echo Making $@ in $$dir ; \
-		(cd $$dir; $(MAKE) $@) || exit 1 ; \
+		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir $@ || exit 1 ;  \
 	done
         
-
 #
 # This rule to make necessary directories
 #

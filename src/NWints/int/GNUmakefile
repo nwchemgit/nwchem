@@ -1,8 +1,6 @@
-# $Id: GNUmakefile,v 1.6 1994-08-21 22:00:34 d3e129 Exp $
+# $Id: GNUmakefile,v 1.7 1994-08-22 00:02:43 d3g681 Exp $
 
-include ../../config/makefile.h
-
-INT_OBJ = defNxyz.o getNxyz.o hf1.o hf1mke3.o \
+    OBJ = defNxyz.o getNxyz.o hf1.o hf1mke3.o \
           hf1mkr.o hf1set3.o hf2.o hf2mkr.o \
           hf2oi.o hf3OIs.o hfabc.o hfctr3.o \
           hferi.o hfkei.o hfmke.o hfmkr.o \
@@ -11,7 +9,8 @@ INT_OBJ = defNxyz.o getNxyz.o hf1.o hf1mke3.o \
           hfmkr_4.o hfmkr_5.o hfmkr_6.o \
           hfmkr_7.o hfmkr_8.o hfmkr_9.o
 
-int_obj:	$(INT_OBJ)
+  LIBRARY = libnwints.a
 
-clean:
-	/bin/rm -f $(INT_OBJ)
+include ../../config/makefile.h
+include ../../config/makelib.h
+

@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.3 1994-08-20 00:19:26 d3g681 Exp $
+# $Id: makelib.h,v 1.4 1994-08-22 00:03:29 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -14,11 +14,14 @@
 # 6) optionally define LIB_DEFINES as any additional defines for
 #    the C preprocessor
 # 7) optionally define LIB_INCLUDES as any additional includes 
-# 8) include ../config/makelib.h
-# 9) define any additional targets (e.g., test programs)
-# 10)if the directory contains references to fortran BLAS
+# 8) optionally define SUBDIRS as any subdirectories to build
+# 9) include ../config/makelib.h
+# 10) define any additional targets (e.g., test programs)
+# 11)if the directory contains references to fortran BLAS
 #    define USES_BLAS to be the list of FORTRAN files that
 #    need converting (e.g., ddot -> sdot)
+#
+# Note that the library is now put directly into the LIBDIR directory.
 #
 # E.g.
 #
@@ -40,14 +43,31 @@
 # a.o b.o c.o test.o: simple.h
 #
 
-$(LIBRARY):	$(OBJ)
-	/bin/rm -f $@
+# Problem with library target is that adding into the library needs
+# to be single threaded but parallel make is important
+# LIBOBJ = $(patsubst %,$(LIBDIR)/$(LIBRARY)(%),$(OBJ))
+#
+#$(LIBDIR)/$(LIBRARY):	$(LIBOBJ)
+#	$(RANLIB) $@
+
+
+$(LIBDIR)/$(LIBRARY):	$(OBJ)
+ifdef SUBDIRS
+	for dir in $(SUBDIRS); do \
+		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir $@ || exit 1 ;  \
+	done
+endif
 	$(AR) $(ARFLAGS) $@ $(OBJ)
 	$(RANLIB) $@
-	cp -p $(LIBRARY) $(LIBDIR)
+
 
 ifdef HEADERS
 include_stamp:	$(HEADERS)
+ifdef SUBDIRS
+	for dir in $(SUBDIRS); do \
+		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir $@ || exit 1 ;  \
+	done
+endif
 	cp -p $(HEADERS) $(INCDIR)
 	touch include_stamp
 
@@ -55,22 +75,53 @@ $(OBJ):	$(HEADERS)
 
 else
 include_stamp:
+ifdef SUBDIRS
+	for dir in $(SUBDIRS); do \
+		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir $@ || exit 1 ;  \
+	done
+endif
 	touch include_stamp
 endif
 
 ifdef USES_BLAS
 sngl_to_dbl:
+ifdef SUBDIRS
+	for dir in $(SUBDIRS); do \
+		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir $@ || exit 1 ;  \
+	done
+endif
 	$(CNFDIR)/sngl_to_dbl $(USES_BLAS)
 dbl_to_sngl:
+ifdef SUBDIRS
+	for dir in $(SUBDIRS); do \
+		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir $@ || exit 1 ;  \
+	done
+endif
 	$(CNFDIR)/dbl_to_sngl $(USES_BLAS)
 else
 sngl_to_dbl dbl_to_sngl:
+ifdef SUBDIRS
+	for dir in $(SUBDIRS); do \
+		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir $@ || exit 1 ;  \
+	done
+endif
 	echo $@ : no conversion necessary
 endif
 
 clean:
-	/bin/rm -f $(LIBRARY) $(OBJ) core include_stamp $(LIB_TARGETS)
+ifdef SUBDIRS
+	for dir in $(SUBDIRS); do \
+		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir $@ || exit 1 ;  \
+	done
+endif
+	/bin/rm -f *.o *.a core include_stamp $(LIB_TARGETS)
 
 
 realclean:	clean
+ifdef SUBDIRS
+	for dir in $(SUBDIRS); do \
+		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir $@ || exit 1 ;  \
+	done
+endif
 	/bin/rm -f *~ \#*\#
+

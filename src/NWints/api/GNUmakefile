@@ -1,7 +1,6 @@
-# $Id: GNUmakefile,v 1.14 1994-08-21 22:00:27 d3e129 Exp $
+# $Id: GNUmakefile,v 1.15 1994-08-22 00:02:04 d3g681 Exp $
 
-include ../../config/makefile.h
-API_OBJ = int_init.o exact_mem.o int_mem.o \
+    OBJ = int_init.o exact_mem.o int_mem.o \
           int_terminate.o int_chk_sh.o int_2e4c.o \
           int_l2e4c.o int_canon.o int_chk_init.o \
           int_1eall.o int_l1eall.o int_1eh1.o \
@@ -13,10 +12,15 @@ API_OBJ = int_init.o exact_mem.o int_mem.o \
           intd_1eov.o intd_1eh1.o intd_2e4c.o \
           intd_init.o exactd_mem.o int_acc.o
 
-api_obj:	$(API_OBJ)
+   LIBRARY = libnwints.a
 
-clean:
-	/bin/rm -f $(API_OBJ)
+ USES_BLAS = int_hf1sp.F   int_l1e3ov.F   int_l1eall.F \
+             int_l2e2c.F   int_l2e3c.F    int_l2e4c.F \
+             int_lgen1e.F  int_pgen1e.F   intd_1eh1.F \
+             intd_2e4c.F
+
+include ../../config/makefile.h
+include ../../config/makelib.h
 
 exact_mem.o:	apiP.fh
 int_chk_init.o:	apiP.fh
@@ -25,8 +29,3 @@ int_mem.o:	apiP.fh
 int_terminate.o:	apiP.fh
 int_hf1sp.o:	apispP.fh
 
-# ARFLAGS = rv
-# LIBRARY = ../libnwints.a
-# LIBOBJ = $(patsubst %, $(LIBRARY)(%), $(API_OBJ))
-#
-# $(LIBRARY):	$(LIBOBJ)

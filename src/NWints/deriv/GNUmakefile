@@ -1,15 +1,15 @@
-# $Id: GNUmakefile,v 1.3 1994-08-17 07:12:36 d3e129 Exp $
+# $Id: GNUmakefile,v 1.4 1994-08-22 00:02:29 d3g681 Exp $
 
-include ../../config/makefile.h
-DERIV_OBJ = hf1PRtoAB.o hf1d.o   hf2PRtoAB.o \
+      OBJ = hf1PRtoAB.o hf1d.o   hf2PRtoAB.o \
             hf2QStoCD.o hf2d.o   hfd2oi.o \
             hfderi.o    hfdkei.o hfdnai.o \
             hfefi.o
 
-deriv_stamp:	$(DERIV_OBJ)
-	/bin/rm -f ../nwints_stamp
-	touch deriv_stamp 
 
-clean:
-	/bin/rm -f $(DERIV_OBJ) deriv_stamp 
+   LIBRARY = libnwints.a
+
+   USES_BLAS = hf1d.F hf2d.F
+
+include ../../config/makefile.h
+include ../../config/makelib.h
 
