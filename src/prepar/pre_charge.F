@@ -16,7 +16,7 @@ c
       parameter(cnm2au=1.88972598786d+01)
 c
       logical pre_task1
-      externall pre_task1
+      external pre_task1
 c
 c     in  : latm(2,matm)      = atomic number
 c           matm              = dimension atom list
