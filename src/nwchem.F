@@ -22,11 +22,12 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.139 2003-02-19 15:48:58 fruechtl Exp $
+c     $Id: nwchem.F,v 1.140 2003-02-20 23:14:03 windus Exp $
 *---------------------------------------------------------------------*
-* COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002  *
+*        COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,            *
+*                   2000, 2001, 2002, 2003                            *
 *              Pacific Northwest National Laboratory,                 * 
-*              Battelle Memorial Institute.                           *
+*                  Battelle Memorial Institute.                       *
 *---------------------------------------------------------------------*
 *---------------------> All Rights Reserved <-------------------------*
 *---------------------------------------------------------------------*
@@ -435,7 +436,7 @@ C
 C  Print version information to ecce.out file
 C
       compiled(inp_strlen(compiled)+1:inp_strlen(compiled)+25) = 
-     $         ' Version 4.1 development'
+     $         ' Version 4.5'
       call ecce_print_version(compiled(1:inp_strlen(compiled)))
 C
       If ( Inp_StrLen(BatchID) .gt. 0) then
