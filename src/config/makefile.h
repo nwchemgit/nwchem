@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.269 1998-09-04 18:04:14 d3e129 Exp $
+# $Id: makefile.h,v 1.270 1998-11-23 10:09:08 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1150,6 +1150,40 @@ NW_CORE_SUBDIRS = include basis geom inp input chemio ma \
       EXTRA_LIBS = -L /opt/tools/lib/ -lmp -lgen  -lpx -lelf -Wl,-J,-P,-t
 endif
 
+ifeq ($(TARGET),PGLINUX)
+#
+# Linux running on an x86 using g77
+# to use f2c/gcc, define environment variable USE_F2C
+#
+       NICE = nice
+      SHELL := $(NICE) /bin/sh
+    CORE_SUBDIRS_EXTRA = blas lapack
+         CC = gcc
+     RANLIB = ranlib
+  MAKEFLAGS = -j 1 --no-print-directory
+    INSTALL = @echo $@ is built
+
+  FOPTIONS  = -Mdalign -Minform,warn -Mnolist 
+#         FC = sleep 2;pgf77
+          FC = pgf77
+#         FC = sleep 2;pghpf -Mf90
+
+   COPTIONS =  -Wall -m486 -malign-double
+  FOPTIMIZE = -O2
+  COPTIMIZE = -g -02
+
+    DEFINES = -DLINUX -DPGLINUX
+
+  LDOPTIONS = -g
+     LINK.f = pgf77 $(LDFLAGS)
+  CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
+ EXTRA_LIBS = 
+
+        CPP = gcc -E -nostdinc -undef -P
+   FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
+			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
+			/bin/rm -f /tmp/$$$$.c) || exit 1
+endif
 ###################################################################
 #  All machine dependent sections should be above here, otherwise #
 #  some of the definitions below will be 'lost'                   #

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.94 1998-09-14 23:10:47 d3e129 Exp $
+# $Id: GNUmakefile,v 1.95 1998-11-23 10:09:18 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -40,6 +40,10 @@ ifeq ($(TARGET),IBM)
 endif
 
 ifeq ($(TARGET),LINUX)
+  EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o
+endif
+
+ifeq ($(TARGET),PGLINUX)
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o
 endif
 

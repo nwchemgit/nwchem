@@ -408,6 +408,27 @@ peigs_CPP = /usr/bin/cpp -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} \
 -D${peigs_TARGET_definition}
 endif
 
+ifeq ($(peigs_TARGET),PGLINUX)
+#
+# Linux running on an x86 using pgf77 and gcc
+#
+peigs_COMM = TCGMSG
+peigs_CODEOBJ = DBLE
+peigs_CPU = PENTIUM
+peigs_CC += -DSTD_DBL -DSTD_INT
+peigs_FC += -D$(peigs_CPU) -DSTD_DBL -DSTD_INT -D$(peigs_COMM)
+peigs_CPP += -DSTD_INT -DSTD_DBL -P
+peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
+#
+# on the hpcc? laptops add /usr/lib/gcc-lib/i486-linux/2.7.0 to your path
+# or make link from /usr/bin
+#
+# temporary slackware hack until george gets cpp/fconvert in the builds
+#
+peigs_CPP = /usr/bin/cpp -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} \
+-D${peigs_TARGET_definition}
+endif
+
 ifeq ($(peigs_TARGET),FUJITSU_VPP)
 peigs_CPU = VPP
 endif
