@@ -1,7 +1,7 @@
       Subroutine xc_perdew91(tol_rho,cfac,lcfac,nlcfac,
      *     rho,delrho,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.17 1996-10-18 21:50:19 d3h449 Exp $
+C     $Id: xc_perdew91.F,v 1.18 1996-10-23 01:15:56 gutowski Exp $
       Implicit none
 
       double precision TOLL,EXPTOL
@@ -15,8 +15,8 @@ C     $Id: xc_perdew91.F,v 1.17 1996-10-18 21:50:19 d3h449 Exp $
       double precision pi
       double precision eps
 c
-      double precision cfac(10)
-      logical lcfac(10), nlcfac(10)
+      double precision cfac(15)
+      logical lcfac(15), nlcfac(15)
       logical lfac, nlfac, lfacl, nlfacl
       double precision fac, facl
 c
@@ -174,6 +174,38 @@ c
              lfacl = lcfac(7)
             nlfacl = nlcfac(7)
             call xc_vwnrpa(facl,lfacl,nlfacl,rhoval,dp81drho,
+     &                     lnq,ipol,egas,lqwght,.false.,dummy)
+          endif
+c
+          if(abs(cfac(8)).gt.eps) then
+              facl = cfac(8)
+             lfacl = lcfac(8)
+            nlfacl = nlcfac(8)
+            call xc_vwn_1(facl,lfacl,nlfacl,rhoval,dp81drho,
+     &                     lnq,ipol,egas,lqwght,.false.,dummy)
+          endif
+c
+          if(abs(cfac(9)).gt.eps) then
+              facl = cfac(9)
+             lfacl = lcfac(9)
+            nlfacl = nlcfac(9)
+            call xc_vwn_2(facl,lfacl,nlfacl,rhoval,dp81drho,
+     &                     lnq,ipol,egas,lqwght,.false.,dummy)
+          endif
+c
+          if(abs(cfac(10)).gt.eps) then
+              facl = cfac(10)
+             lfacl = lcfac(10)
+            nlfacl = nlcfac(10)
+            call xc_vwn_3(facl,lfacl,nlfacl,rhoval,dp81drho,
+     &                     lnq,ipol,egas,lqwght,.false.,dummy)
+          endif
+c
+          if(abs(cfac(11)).gt.eps) then
+              facl = cfac(11)
+             lfacl = lcfac(11)
+            nlfacl = nlcfac(11)
+            call xc_vwn_4(facl,lfacl,nlfacl,rhoval,dp81drho,
      &                     lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
@@ -355,6 +387,38 @@ c
              lfacl = lcfac(7)
             nlfacl = nlcfac(7)
             call xc_vwnrpa(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+     &                     lnq,ipol,egas,lqwght,.false.,dummy)
+          endif
+c
+          if(abs(cfac(8)).gt.eps) then
+              facl = cfac(8)
+             lfacl = lcfac(8)
+            nlfacl = nlcfac(8)
+            call xc_vwn_1(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+     &                     lnq,ipol,egas,lqwght,.false.,dummy)
+          endif
+c
+          if(abs(cfac(9)).gt.eps) then
+              facl = cfac(9)
+             lfacl = lcfac(9)
+            nlfacl = nlcfac(9)
+            call xc_vwn_2(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+     &                     lnq,ipol,egas,lqwght,.false.,dummy)
+          endif
+c
+          if(abs(cfac(10)).gt.eps) then
+              facl = cfac(10)
+             lfacl = lcfac(10)
+            nlfacl = nlcfac(10)
+            call xc_vwn_3(facl,lfacl,nlfacl,rho(1,n),dp81drho,
+     &                     lnq,ipol,egas,lqwght,.false.,dummy)
+          endif
+c
+          if(abs(cfac(11)).gt.eps) then
+              facl = cfac(11)
+             lfacl = lcfac(11)
+            nlfacl = nlcfac(11)
+            call xc_vwn_4(facl,lfacl,nlfacl,rho(1,n),dp81drho,
      &                     lnq,ipol,egas,lqwght,.false.,dummy)
           endif
 c
