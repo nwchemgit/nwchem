@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.44 2000-03-17 00:29:26 edo Exp $
+C$Id: cdft.fh,v 1.45 2000-03-17 03:00:27 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -129,7 +129,7 @@ c
       integer dft_ntags_bsmx, dft_max_cent
       parameter (dft_ntags_bsmx = 20, dft_max_cent = nw_max_atom)
       integer mxpt_rect
-      integer ncubes_type
+      integer ncubes_type,ncubesmx
       integer l_nxyz,k_nxyz ! MA handler
       double precision l_rect
       parameter (mxpt_rect=800,l_rect=4d0)
@@ -145,7 +145,7 @@ c
      & sintheta(MXtheta,MXagrid), cosphi(MXphi,MXagrid),
      & sinphi(MXphi,MXagrid), awghts(MXtheta,MXagrid), qrot(3,3),
      & wa_leb(MX_l_ang,IAC_MAX), za_leb(3,MX_l_ang,IAC_MAX),
-     .     ncubes_type(nw_max_atom),
+     .     ncubes_type(nw_max_atom),ncubesmx,
 c
 c     Logicals
 c
