@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.5 2003-01-24 23:50:18 edo Exp $	
+#	$Id: MakeFile,v 1.6 2003-10-28 23:53:46 edo Exp $	
 #
 
 OBJ_OPTIMIZE = $(OBJDIR)\dbdsqr.obj \
@@ -65,6 +65,7 @@ OBJ_OPTIMIZE = $(OBJDIR)\dbdsqr.obj \
                $(OBJDIR)\dpotf2.obj \
                $(OBJDIR)\dpotrf.obj \
                $(OBJDIR)\dpotri.obj \
+               $(OBJDIR)\dpotrs.obj \
                $(OBJDIR)\dspcon.obj \
                $(OBJDIR)\dsprfs.obj \
                $(OBJDIR)\dspsvx.obj \
