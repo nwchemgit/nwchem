@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.16 1997-10-24 23:53:24 d3h449 Exp $
+C$Id: cdft.fh,v 1.17 1997-11-04 22:34:15 d3h449 Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -23,7 +23,6 @@ c
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac, nlcfac, lxfac, 
      &     nlxfac, xccomb, levelshift, damp, diis, direct, oskel, 
      &     oadapt
-
       integer
      &     iAOacc, iCDacc, iXCacc, irqmax, itol2e, imull, iangquad, 
      &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
@@ -44,7 +43,6 @@ c
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
      &     rcharge, rscale, cfac(15), xfac(15),
      &     tol_rho, radius, rm, hl_tol, e_conv, d_conv, g_conv,
-
 c
 c     Logicals
 c
