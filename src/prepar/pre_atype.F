@@ -2,7 +2,7 @@
      + dir_s,dir_x,dir_u,dir_t,latm,catm,matm,lbnd,mbnd,nbnd,
      + jlo,ilo,ihi,jhi,ltyp,mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6)
-c
+* $Id: pre_atype.F,v 1.5 1998-04-24 07:46:30 d3e129 Exp $
       implicit none
 c
 c     in  : lfnpar            = atom types file number
@@ -40,11 +40,11 @@ c
       character*6 catm(3,matm)
       integer mbnd,nbnd
       integer lbnd(2,mbnd)
+      integer jlo,ilo,ihi,jhi
       integer ltyp(15,jlo:jlo+mtyp-1)
       integer mring,nring3,nring4,nring5,nring6
       integer lring(6,mring)
       logical aring(mring)
-      integer jlo,ilo,ihi,jhi
 c
       integer i,j,k,kk,l,ll,m,ntype,lt,ld
       character*4 atype(maty)
