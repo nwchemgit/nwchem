@@ -1,6 +1,6 @@
 c     
 c     %A%
-c     $Id: mcscf_fock.F,v 1.8 1997-02-07 22:06:54 d3g681 Exp $
+c     $Id: mcscf_fock.F,v 1.9 1997-02-25 17:29:38 d3j191 Exp $
 c     
 c     Compute the MCSCF MO-Fock matrices;
 c     inactive, active and generalized
@@ -472,7 +472,6 @@ c
       integer pdmfile           ! EAF handle for 2pdm file
       character*255 pdmfilename ! EAF 2pdm filename
 c
-      double precision offset   ! Offset to write AO Fock matrix at
       double precision eone, etwo ! Energy components
       double precision ecore    ! Inactive core energy
       integer g_ifock           ! Inactive Fock
