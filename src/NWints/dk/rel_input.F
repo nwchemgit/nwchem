@@ -1,6 +1,6 @@
       subroutine rel_input(rtdb)
 *
-* $Id: rel_input.F,v 1.1 1999-12-15 22:46:48 bert Exp $
+* $Id: rel_input.F,v 1.2 1999-12-16 01:10:05 bert Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -10,6 +10,7 @@
 #include "inp.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "rel_consts.fh"
 c     
 c     Read input for the relativistic block
 c     
@@ -17,6 +18,10 @@ c
 c     
       character*255 test
       double precision clight
+c
+c     Set some relativistic variables we could need later on
+c
+      call rel_init_con
 c
    1  if (.not. inp_read()) call errquit('rel_input: inp_read failed',0)
       if (.not. inp_a(test))
@@ -27,9 +32,12 @@ c
          if (.not. inp_f(clight)) then
             call errquit('rel_input: failed reading clight', 0)
          else 
-           if (.not. rtdb_put(rtdb,'doug_kroll:clight',mt_dbl,1,clight))
+           if(.not.rtdb_put(rtdb,'doug_kroll:clight',mt_dbl,1,clight))
      $        call errquit('rel_input: rtdb_put failed', 0)
          endif
+         write(luout,10) clight
+  10        format(/,'The speed of light used in the relativistic ',
+     $               'calculations is ',F16.10, 'au.'//)
 c
       elseif (inp_compare(.false.,'douglas-kroll', test)) then
 c
