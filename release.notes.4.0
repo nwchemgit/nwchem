@@ -14,8 +14,10 @@ title <string title>
 Several new major capabilities are available in NWChem, including several new
 modules. The new modules are: 
 
-  o ONIOM
-  o COSMO
+  o ONIOM - ONIOM hybrid mthod of Morokuma and co-workers
+  o COSMO - the continuum solvation 'Conductor-Like Screening' Model
+    of A. Klamt and G. Schuurmann to describe dielectric screening effects in
+    solvents.
   o NBO - Natural Bond Orbital analysis is now available inside NWChem (not
     just the interface which was in the previous versions).
   o SODFT - Spin-orbit density functional theory.
