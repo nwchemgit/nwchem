@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.3 2000-05-31 19:53:12 windus Exp $
+C $Id: hess_anal.F,v 1.4 2000-05-31 21:49:34 edo Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -83,6 +83,10 @@ c
       call hess_cphf(rtdb)
       write(6,*) 'after the hess_cphf call'
       call flush(6)
+c
+c     dump hessian file
+c
+      call hess_wrt()
 c
 c  clean up any hessian specific stuff
 c

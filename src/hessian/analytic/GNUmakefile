@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.6 2000-05-31 00:15:27 edo Exp $
+# $Id: GNUmakefile,v 1.7 2000-05-31 21:49:34 edo Exp $
 
 SUBDIRS = dft 
 
@@ -16,6 +16,7 @@ OBJ_OPTIMIZE =  hess_anal.o \
                 hess_pxfy.o \
                 hess_sxsy.o \
                 sx_dra.o \
+                hess_wrt.o \
                 hess_tidy.o
 
      LIBRARY = libhessian.a
