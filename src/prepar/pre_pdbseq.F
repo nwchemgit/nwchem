@@ -2,7 +2,7 @@
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,altloc,chain)
 c
-c $Id: pre_pdbseq.F,v 1.18 1999-01-29 21:12:45 d3j191 Exp $
+c $Id: pre_pdbseq.F,v 1.19 1999-06-16 23:28:05 d3j191 Exp $
 c
 c     function to read sequence from a pdb formatted file
 c
@@ -275,7 +275,7 @@ c
    13 continue
       k=k+1
       do 14 j=k,5
-      cseq(1,i)(k:k)=' '
+      cseq(1,i)(j:j)=' '
    14 continue
    12 continue
 c
