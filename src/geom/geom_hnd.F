@@ -182,7 +182,7 @@ C
       LOGICAL DBUG
       COMMON/HND_IOFILE/IR,IW
 C
-      DBUG=.TRUE.
+      DBUG=.FALSE.
       OUT =.FALSE.
       OUT =OUT.OR.DBUG
 C
@@ -2796,9 +2796,9 @@ C
      1                   (C(2,IAT)-C(2,JAT))**2+
      2                   (C(3,IAT)-C(3,JAT))**2) * TOANGS
       BADZ(NUCZ) = NUCZ.LE.0.OR.NUCZ.GT.103
-C
+c
       DBUG1=.FALSE.
-      DBUG =.TRUE.
+      DBUG =.FALSE.
       OUT  =.FALSE.
       OUT  =OUT.OR.DBUG
       SOME =.TRUE.
@@ -2806,6 +2806,10 @@ C
       IF(SOME .and. oprint) THEN
          WRITE(IW,8888)
       ENDIF
+c
+      ncvrpass = 0
+10101 ncvrpass = ncvrpass + 1
+C
       IF(DBUG) THEN
          DO IAT=1,NAT
             WRITE(IW,9976) IAT,NUC(IAT),C(1,IAT),C(2,IAT),C(3,IAT)
@@ -2868,7 +2872,8 @@ c
          continue               ! No zcoord data input
       endif
 c
-      CVFAC=CVR_SCALING
+      if (ncvrpass .eq. 1) CVFAC=CVR_SCALING ! Use default on first pass
+c
       IF(DBUG) THEN
          WRITE(IW,*) 'CVFAC = ',CVFAC
       ENDIF
@@ -3238,6 +3243,18 @@ C
      1                   NAT,NBNDS,IJMODS,IIMODS,NIMODS,NUMBND,
      2                   IJKANG,NUMANG,IJKLTO,NUMTOR,
      3                   IJKLOP,NUMOOP,IJKLNB,NUMLNB,XYZLNB)
+c
+c     Attempt to recover from a failure by increasing cvfac.
+c
+         if (.not. zdone) then
+            if (cvfac .lt. 2.5d0) then
+               write(6,9876) ncvrpass, cvfac, cvfac+0.1d0
+ 9876          format(//i5,' AUTOZ failed with cvr_scaling =',f4.1,
+     $              ' increasing to',f4.1)
+               cvfac = cvfac + 0.1d0
+               goto 10101
+            endif
+         endif
 C
 C     ----- SAVE -IZMAT(1:NZMAT)-   -----
 C           SAVE -XYZLNB(1:MXLNBA)-
