@@ -6,3 +6,4 @@ Oct 06	Initial Electrostatic Potential (ESP) module
 		b) Constraints on total charge of atom groups
 		c) Restraints (cf RESP)
 
+Oct 09	Added USES_BLAS=esp_denmat

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 1997-10-09 15:47:00 d3j191 Exp $
+# $Id: GNUmakefile,v 1.4 1997-10-09 21:10:25 d3j191 Exp $
 #
 
  OBJ_OPTIMIZE =  esp.o\
@@ -23,7 +23,7 @@ LIBRARY=libesp.a
 
 HEADERS=
 
-USES_BLAS=esp_esp.F
+USES_BLAS=esp_esp.F esp_denmat.F
 
 include ../config/makefile.h
 
