@@ -1,5 +1,5 @@
 /*
- $Id: pdspevx.c,v 1.39 2000-05-22 23:11:07 d3g270 Exp $
+ $Id: pdspevx.c,v 1.40 2000-07-20 17:00:40 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -614,7 +614,6 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      * Initialize workspace.
      */
 
-    i_scrat = iscratch;
     perturbeval = scratch+msize;
     d_scrat = perturbeval + msize;
     buff_ptr = dblptr;
