@@ -1,6 +1,7 @@
-      subroutine sp_setup(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa)
+      subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
+     + isl,xs,vs,gs,numsa)
 c
-c $Id: sp_main.F,v 1.25 1999-10-08 19:22:36 d3j191 Exp $
+c $Id: sp_main.F,v 1.26 1999-10-26 19:32:30 d3j191 Exp $
 c
       implicit none
 c
@@ -11,8 +12,10 @@ c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xs(msa,3),xwcr(mwm,3)
       real*8 vw(mwm,3,mwa),vs(msa,3)
+      real*8 gw(mwm,3,mwa),gs(msa,3)
 c
       integer i_qlst,l_qlst
+      integer i,j,k
 c
       call sp_gagetixv(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa,
      + int_mb(i_ipl))
@@ -28,6 +31,19 @@ c
      + call errquit('Failed to deallocate memory for qlst',0)
       call sp_putix(me,iwl,xw,numwm,isl,xs,numsa)
       endif
+c
+      do 1 k=1,mwa
+      do 2 j=1,3
+      do 3 i=1,mwm
+      gw(i,j,k)=zero
+    3 continue
+    2 continue
+    1 continue
+      do 4 j=1,3
+      do 5 i=1,msa
+      gs(i,j)=zero
+    5 continue
+    4 continue
 c
       return
       end
@@ -486,7 +502,8 @@ c
 c
       return
       end
-      subroutine sp_travel(bx,xw,vw,xwcr,iwl,numwm,xs,vs,isl,numsa)
+      subroutine sp_travel(bx,xw,vw,xwcr,gw,iwl,numwm,
+     + xs,vs,gs,isl,numsa)
 c
       implicit none
 c
@@ -496,6 +513,7 @@ c
 c
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
       real*8 xs(msa,3),vs(msa,3),bx(3)
+      real*8 gw(mwm,3,mwa),gs(msa,3)
       integer iwl(mwm,miw2),isl(msa,mis2)
       integer numwm,numsa
 c
@@ -519,7 +537,7 @@ c
       if(.not.ma_push_get(mt_dbl,lenx,'rtmp',l_rtmp,i_rtmp))
      + call errquit('Failed to allocate rtmp',0)
 c
-      call sp_trvl(xw,vw,xwcr,iwl,xs,vs,isl,
+      call sp_trvl(xw,vw,xwcr,gw,iwl,xs,vs,gs,isl,
      + dbl_mb(i_boxs),int_mb(i_iown),int_mb(i_ipl),
      + int_mb(i_ndx),int_mb(i_itmp),dbl_mb(i_rtmp),lenx)
 c
@@ -540,7 +558,7 @@ c
 c
       return
       end
-      subroutine sp_trvl(xw,vw,xwcr,iwl,xs,vs,isl,
+      subroutine sp_trvl(xw,vw,xwcr,gw,iwl,xs,vs,gs,isl,
      + boxsiz,ibownr,ipl,ndx,itmp,rtmp,lenx)
 c
       implicit none
@@ -551,6 +569,7 @@ c
 c
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
       real*8 xs(msa,3),vs(msa,3)
+      real*8 gw(mwm,3,mwa),gs(msa,3)
       integer iwl(mwm,miw2),isl(msa,mis2)
       integer lenx
       real*8 boxsiz(maxbox,3)
@@ -659,6 +678,14 @@ c
       do 14 i=1,nwmloc
       vw(i,k,j)=rtmp(ndx(i))
    14 continue
+      if(iguide.gt.0) then
+      do 113 i=1,nwmloc
+      rtmp(i)=gw(i,k,j)
+  113 continue
+      do 114 i=1,nwmloc
+      gw(i,k,j)=rtmp(ndx(i))
+  114 continue
+      endif
    10 continue
     5 continue
       do 18 k=1,miw2
@@ -752,6 +779,14 @@ c
       do 30 i=1,nsaloc
       vs(i,k)=rtmp(ndx(i))
    30 continue
+      if(iguide.gt.0) then
+      do 2129 i=1,nsaloc
+      rtmp(i)=gs(i,k)
+ 2129 continue
+      do 2130 i=1,nsaloc
+      gs(i,k)=rtmp(ndx(i))
+ 2130 continue
+      endif
    26 continue
       do 40 k=1,mis2
       do 41 i=1,nsaloc
@@ -814,6 +849,9 @@ c
       call ga_put(ga_w,il,ih,jlw,jlw+3*mwa-1,xw(iwfr,1,1),mwm)
       call ga_put(ga_w,il,ih,jlw+3*mwa,jlw+6*mwa-1,vw(iwfr,1,1),mwm)
       call ga_put(ga_w,il,ih,jlw+6*mwa,jlw+6*mwa+2,xwcr(iwfr,1),mwm)
+      if(iguide.gt.0) then
+      call ga_put(ga_w,il,ih,jlw+6*mwa+3,jlw+9*mwa+2,gw(iwfr,1,1),mwm)
+      endif
       ipl(1,1)=indexw+1
       ipl(1,2)=indexw+nwgo
       indexw=indexw+nwgo
@@ -839,6 +877,9 @@ c
       call ga_put(ga_is,il,ih,jlis,jhis,isl(isfr,1),msa)
       call ga_put(ga_s,il,ih,jls,jls+2,xs(isfr,1),msa)
       call ga_put(ga_s,il,ih,jls+3,jls+5,vs(isfr,1),msa)
+      if(iguide.gt.0) then
+      call ga_put(ga_s,il,ih,jls+6,jls+8,gs(isfr,1),msa)
+      endif
       ipl(1,3)=indexs+1
       ipl(1,4)=indexs+nsgo
       indexs=indexs+nsgo
@@ -900,6 +941,10 @@ c
       call ga_get(ga_w,il,ih,jlw,jlw+3*mwa-1,xw(nwstay+1,1,1),mwm)
       call ga_get(ga_w,il,ih,jlw+3*mwa,jlw+6*mwa-1,vw(nwstay+1,1,1),mwm)
       call ga_get(ga_w,il,ih,jlw+6*mwa,jlw+6*mwa+2,xwcr(nwstay+1,1),mwm)
+      if(iguide.gt.0) then
+      call ga_get(ga_w,il,ih,jlw+6*mwa+3,jlw+9*mwa+2,
+     + gw(nwstay+1,1,1),mwm)
+      endif
 c
 c     update number of local solvent molecules
 c
@@ -919,6 +964,9 @@ c
       call ga_get(ga_is,il,ih,jlis,jhis,isl(nsstay+1,1),msa)
       call ga_get(ga_s,il,ih,jls,jls+2,xs(nsstay+1,1),msa)
       call ga_get(ga_s,il,ih,jls+3,jls+5,vs(nsstay+1,1),msa)
+      if(iguide.gt.0) then
+      call ga_get(ga_s,il,ih,jls+6,jls+8,gs(nsstay+1,1),msa)
+      endif
 c
       nsstay=nsstay+nsnew
       endif
@@ -1012,6 +1060,14 @@ c
       do 94 i=1,nwstay
       vw(i,k,j)=rtmp(ndx(i))
    94 continue
+      if(iguide.gt.0) then
+      do 193 i=1,nwstay
+      rtmp(i)=gw(i,k,j)
+  193 continue
+      do 194 i=1,nwstay
+      gw(i,k,j)=rtmp(ndx(i))
+  194 continue
+      endif
    90 continue
    85 continue
       do 98 k=1,miw2
@@ -1251,6 +1307,14 @@ c
       do 139 i=1,nsstay
       vs(i,k)=rtmp(ndx(i))
   139 continue
+      if(iguide.gt.0) then
+      do 1138 i=1,nsstay
+      rtmp(i)=gs(i,k)
+ 1138 continue
+      do 1139 i=1,nsstay
+      gs(i,k)=rtmp(ndx(i))
+ 1139 continue
+      endif
   135 continue
       do 149 k=1,mis2
       do 150 i=1,nsstay

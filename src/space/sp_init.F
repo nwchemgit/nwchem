@@ -3,10 +3,10 @@
      + npxi,npyi,npzi,nbxi,nbyi,nbzi,
      + npbt,nbxt,boxt,vlatt,lpbc,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
-     + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd)
+     + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd,iguidi)
 c
 c
-c $Id: sp_init.F,v 1.39 1999-10-25 17:43:39 d3j191 Exp $
+c $Id: sp_init.F,v 1.40 1999-10-26 19:32:29 d3j191 Exp $
 c
       implicit none
 c
@@ -24,7 +24,7 @@ c
       real*8 temp,tempw,temps,fld
       integer npxi,npyi,npzi,nbxi,nbyi,nbzi
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
-      integer lenscr,ldb,lbp,npbt,nbxt
+      integer lenscr,ldb,lbp,npbt,nbxt,iguidi
       logical lpol,lfre,ignore,lpbc,lqd
 c
       integer i,j
@@ -64,6 +64,8 @@ c
 c
       mwm=mwmi
       msa=msai
+c
+      iguide=iguidi
 c
       call sp_nrnode()
 c
