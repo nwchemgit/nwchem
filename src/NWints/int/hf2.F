@@ -1,4 +1,4 @@
-c $Id: hf2.F,v 1.14 2000-05-03 01:15:48 edo Exp $
+c $Id: hf2.F,v 1.15 2000-05-12 02:58:19 d3j191 Exp $
       Subroutine hf2(Axyz,Aprims,Acoefs,NPA,NCA,La,
      &               Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
      &               Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,
@@ -353,7 +353,7 @@ c Assign pointers to scratch space.
      &              MPP,MPQ,NPP,NPQ,Nints,La,Lb,Lc,Ld,Lr,MXD,
      &              canAB,canCD,canPQ)
               end if
-              call daxpy(ninti,1.0D0,W0(i_eri),1,beri,1)
+              call saxpy(ninti,1.0D0,W0(i_eri),1,beri,1)
             else
               if (GenCon) then
                 call hferi_gen(W0(i_Eq+3*ipq),W0(i_Ep+3*ipp),
@@ -371,7 +371,7 @@ c Assign pointers to scratch space.
               end if
               j = 1
               do i = 0,lszp-1
-                call daxpy(lszq,1.0d0,W0(i_eri+i),lszp,beri(j),1)
+                call saxpy(lszq,1.0d0,W0(i_eri+i),lszp,beri(j),1)
                 j = j+lszq
               end do
             endif
