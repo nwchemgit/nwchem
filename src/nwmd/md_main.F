@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.154 2002-11-14 18:18:52 d3j191 Exp $
+c $Id: md_main.F,v 1.155 2002-11-14 18:43:17 d3j191 Exp $
 c
       implicit none
 c
@@ -1527,6 +1527,7 @@ c
       endif
       endif
 c
+      if(lpair) call timer_reset(3)
       call timer_start(3)
 c
 c     reassign velocities
@@ -1574,7 +1575,6 @@ c
       endif
 c
       call sp_balanc(stime,syntim,wallt,frequency(mdstep,nfsync))
-      call timer_reset(3)
       call timer_reset(4)
 c
       call timer_stop(12)
@@ -2536,7 +2536,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.154 2002-11-14 18:18:52 d3j191 Exp $
+c $Id: md_main.F,v 1.155 2002-11-14 18:43:17 d3j191 Exp $
 c
       implicit none
 c
