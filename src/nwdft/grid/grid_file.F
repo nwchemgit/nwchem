@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.7 1999-06-15 20:16:25 edo Exp $
+* $Id: grid_file.F,v 1.8 1999-06-16 00:08:23 d3h449 Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -507,7 +507,7 @@ c     If either is size is positive then it has been user set.
 c     
       logical grid_file_open
       external grid_file_open
-      integer avail, localmemsize, nops
+      integer avail, localmemsize
       integer filesize, memsize
       character*255 gridfilename
       double precision nq
@@ -517,61 +517,60 @@ c
       grid_test_mem = .false.
 c
       if (file_opened) return
+c      write(6,*)' file_opened: ', file_opened
       if (.not. rtdb_get(rtdb, 'grid:filesize',
      $     MT_INT, 1, filesize)) filesize = 0
+c      write(6,*)' filesize: ', filesize
       if (.not. rtdb_get(rtdb, 'grid:memsize',
      $     MT_INT, 1, memsize)) memsize = 0
+c      write(6,*)' memsize: ', memsize
       if (filesize.lt.0 .and. memsize.lt.0) return
 c
 c     Determine if we should automatically run an in-core calculation
 c
       oinfo  = util_print('gridinfo', print_default) .and.
      $     ga_nodeid().eq.0
-      nops = sym_number_ops(geom) + 1
 c
       rec_len_in_dbl = 4*buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
 c
-c     How much memory?  Leave space for GAs, for the grid_pts code,
-c     and for 50,000 of misc. junk. 
+c     How much memory?  If not input by user, then try to 
+c     allocate memory for 250K gridpts; 250K*4 dble words or 250K*4*8 bytes = 8MB
 c
-      if (memsize .eq. 0) then
-         avail = MA_inquire_avail(mt_dbl)
-*      write(6,*) ' avail 1 ', avail
-         if (ga_uses_ma() .and. ga_memory_limited()) 
-     $        avail = avail - ga_memory_avail()
-*      write(6,*) ' avail 2 ', avail
-c         call intb_mem_2e4c(max2e, mem2)
-*      write(6,*) ' avail 3 ', avail
-c         avail = avail - 5*max(max2e,maxeri) - mem2
-*      write(6,*) ' avail 4 ', avail
-         avail = avail - 100000
-*      write(6,*) ' avail 5 ', avail
-         call ga_igop(msg_grid_file, avail, 1, 'min')
-*      write(6,*) ' avail 6 ', avail
+      if (memsize.eq.0)then
+         memsize = 1000000
+      else
+         memsize = memsize/8
+      endif
+      avail = MA_inquire_avail(mt_dbl)
+c      write(6,*) ' 1 avail ', avail
+      if (ga_uses_ma() .and. ga_memory_limited()) 
+     $   avail = avail - ga_memory_avail()
+c      write(6,*) ' 2 avail ', avail
+      call ga_igop(msg_grid_file, avail, 1, 'min')
+c      write(6,*) ' 3 avail ', avail
+      avail = min(avail, memsize)
+c      write(6,*) ' 4 avail ', avail
 c     
 c     Assume that for the small systems for which can hold the
 c     grid_pts, that there is no sparsity except for symmetry.
 c     Also, assume that the grid_pts will be evenly distributed
 c     apart from a 10% fluctuation
-c     
-c         nq = 0.125d0 * dble(nbf+1)**4 
-         nq=nq_tot
-*      write(6,*) ' nq 1 ', nq
-         if (nops .ne. 1) nq = (1.3 * nq) / nops ! 1.3 empircal from C6H6
-*      write(6,*) ' nq 1 ', nq
-         nq = nq / ga_nnodes()
-*      write(6,*) ' nq 1 ', nq
-         nq = nq * 1.1d0 + 2*rec_len_in_dbl ! Fudge factors for safety
-*      write(6,*) ' nq 1 ', nq
 c
-         if (nq .lt. avail) then
-            localmemsize = max(8*buffer_size,int(nq))
-         else
-            localmemsize = 0
-         endif
+c      write(6,*)' nq_tot = ', nq_tot     
+c
+c     need 4*nq_tot (x,y,z,w)
+c
+      nq=dble(4*nq_tot)
+      nq = nq / dble(ga_nnodes())
+      nq = nq * 1.1d0 + dble(2*rec_len_in_dbl) ! Fudge factors for safety
+c
+c      write(6,*) ' 5 nq, avail ', nq, avail
+      if (int(nq) .lt. avail) then
+         localmemsize = max(8*buffer_size,int(nq))
       else
          localmemsize = 0
       endif
+c      write(6,*)' localmemsize = ', localmemsize
 c
       if (.not. rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) 
      $        call errquit('grid_file: opening gridpts?', 0)
