@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.12 1994-11-08 23:15:26 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.13 1994-11-18 20:09:15 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
@@ -261,10 +261,21 @@ C
                   JHi = Min( JTop, JLo + JBlock - 1)
                   NJ = JHi - JLo + 1
 C
-C                 Create the global array for the J block
+C                 Create GAs for result of multiplication and
+C                 second set of integrals (J).  Do the result matrix
+C                 first so GA's are treated like a stack to avoid
+C                 a big hole when the J is freed and we continue using A.
 C
                   Call GA_Sync
                   Call PStat_On( PS_Create)
+                  If ( .NOT. GA_Create( MT_Dbl, NI*NVir(ISpin),
+     $               NJ*NVir(JSpin), 'Temporary matrix big A', MinChunk,
+     $               MinChunk, G_bigA) ) then
+                     Write (LuErr, *) ' Unable to allocate big A'
+                     RIMP2_V_E2 = .FALSE.
+                     Return
+                  EndIf
+C
                   Status = GA_Create_One_By_Shells( MT_Dbl,
      $               NJ * NVir(JSpin), FitBas,
      $               'Integral matrix 2', G_bigJ)
@@ -272,13 +283,6 @@ C
                   If ( .NOT. Status ) then
                      Write (LuErr, *) ' Unable to allocate integral ',
      $                  ' block ', J, JSpin
-                     RIMP2_V_E2 = .FALSE.
-                     Return
-                  EndIf
-                  If ( .NOT. GA_Create( MT_Dbl, NI*NVir(ISpin),
-     $               NJ*NVir(JSpin), 'Temporary matrix big A', MinChunk,
-     $               MinChunk, G_bigA) ) then
-                     Write (LuErr, *) ' Unable to allocate big A'
                      RIMP2_V_E2 = .FALSE.
                      Return
                   EndIf
