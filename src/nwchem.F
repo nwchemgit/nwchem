@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.102 1997-10-13 18:48:13 d3e129 Exp $
+c     $Id: nwchem.F,v 1.103 1997-10-22 16:41:59 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997           *
 *         Pacific Northwest National Laboratory, * 
@@ -150,6 +150,8 @@ C
          call ga_initialize_ltd(ma_sizeof(mt_dbl, global, mt_byte) )
       endif
 c
+*****      call nxtval_ga_initialize()
+c
 c     Trap SIGFPE after GA to override handler
 c
 **      call ieeetrap()
@@ -237,6 +239,8 @@ c     Tidy up pstat
 c
       if (.not. pstat_terminate()) call errquit
      $     ('nwchem: pstat_terminate failed', 0)
+c
+****      call nxtval_ga_terminate()
 c
 c     Print memory and other info
 c
