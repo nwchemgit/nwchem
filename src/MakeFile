@@ -50,7 +50,7 @@ pre_build:
 
 link: $(BINDIR) $(OBJDIR) $(OBJ)
 	$(FC) /Fe"$(WIN32_EXE)" $(OBJ) /link /stack:20000000 \
-	/debug:partial /debugtype:cv /pdb:none  /libpath:"$(LIB_DISTRIB)" \
+	/debug:full /debugtype:cv /pdb:none /libpath:"$(LIB_DISTRIB)" \
 	/libpath:"$(SRCDIR)\tools\lib\win32" /libpath:"$(MPI_LIB)" \
         $(LIBS) $(PYTHON_SYSLIB)
 
