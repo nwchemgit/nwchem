@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.93 2002-05-04 20:03:36 d3g681 Exp $
+* $Id: opt_drv.F,v 1.94 2002-05-06 22:36:09 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -1950,7 +1950,11 @@ c
          do i = 1, ncart
             xnew(i) = alpha*ds(i)
          enddo
+         write(6,*) ' DS', nat, nat_real, ncart
+         call output(ds,1,ncart,1,1,ncart,1,1)
          call sym_grad_symmetrize(geom, xnew)
+         write(6,*) ' xnew'
+         call output(xnew,1,ncart,1,1,ncart,1,1)
          do i = 1, ncart
             xnew(i) = xold(i) + xnew(i)
          enddo
@@ -2997,9 +3001,11 @@ c
      $        call errquit('driver: frac_to_cart?',0)
       end if
       if (ostress) then
-         if (.not. rtdb_get(rtdb, 'cg_pspw:stress', mt_dbl, 9,
+         if (.not. rtdb_get(rtdb, 'pspw:stress', mt_dbl, 9,
      $        gx(ncart+1))) call errquit
      $        ('driver: could not get stress',0)
+         write(6,*) ' STRESS GRADIENT'
+         call doutput(gx(ncart+1),1,9,1,1,9,1,1)
       endif
 c
       end
