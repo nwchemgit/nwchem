@@ -1,9 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.1 2003-02-06 06:09:05 marat Exp $
+# $Id: GNUmakefile,v 1.2 2003-02-19 23:43:40 marat Exp $
 #
 
           OBJ =  paw_gaunt.o
-          HEADERS =  
+          HEADERS = paw_gaunt.fh 
 
 
       LIBRARY =	libpaw.a
