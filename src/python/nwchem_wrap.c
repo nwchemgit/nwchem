@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.9 1999-10-26 04:25:19 d3g681 Exp $
+ $Id: nwchem_wrap.c,v 1.10 1999-10-26 23:35:23 d3g681 Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -103,103 +103,113 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
     int* int_array;
     double *dbl_array;
     char *char_array;
+    char cbuf[8192], *ptr;
     void *array = 0;
     PyObject *obj, *option_obj;
 
     if ((PyTuple_Size(args) == 2) || (PyTuple_Size(args) == 3)) {
-	obj = PyTuple_GetItem(args, 0);      /* get var name */
-	PyArg_Parse(obj, "s", &name);
-	obj = PyTuple_GetItem(args, 1);      /* get an array or single value */
-	
-	if (PyList_Check(obj)) 
-	    list = 1; 
-	else 
-	    list = 0;
-
-	if (list) {
-	    list_len = PyList_Size(obj);
-	    if (   PyInt_Check(PyList_GetItem(obj, 0)))  ma_type = MT_F_INT;
-	    if ( PyFloat_Check(PyList_GetItem(obj, 0)))  ma_type = MT_F_DBL;
-	    if (PyString_Check(PyList_GetItem(obj, 0)))  ma_type = MT_CHAR;
-	} else {
-	    list_len = 1;
-	    if (   PyInt_Check(obj))  ma_type = MT_F_INT;
-	    if ( PyFloat_Check(obj))  ma_type = MT_F_DBL;
-	    if (PyString_Check(obj))  ma_type = MT_CHAR; 
-	} 
+      obj = PyTuple_GetItem(args, 0);      /* get var name */
+      PyArg_Parse(obj, "s", &name);
+      obj = PyTuple_GetItem(args, 1);      /* get an array or single value */
       
-	if (PyTuple_Size(args) == 3) {
-	    option_obj = PyTuple_GetItem(args, 2);      /* get optional type */
-	    if (!(PyArg_Parse(option_obj, "i", &ma_type))) {
-		PyErr_SetString(PyExc_TypeError, 
-				"Usage: rtdb_put(value or values,[optional type])");
-		return NULL;
-	    }
+      if (PyList_Check(obj)) 
+	list = 1; 
+      else 
+	list = 0;
+      
+      if (list) {
+	list_len = PyList_Size(obj);
+	if (   PyInt_Check(PyList_GetItem(obj, 0)))  ma_type = MT_F_INT;
+	if ( PyFloat_Check(PyList_GetItem(obj, 0)))  ma_type = MT_F_DBL;
+	if (PyString_Check(PyList_GetItem(obj, 0)))  ma_type = MT_CHAR;
+      } else {
+	list_len = 1;
+	if (   PyInt_Check(obj))  ma_type = MT_F_INT;
+	if ( PyFloat_Check(obj))  ma_type = MT_F_DBL;
+	if (PyString_Check(obj))  ma_type = MT_CHAR; 
+      } 
+      
+      if (PyTuple_Size(args) == 3) {
+	option_obj = PyTuple_GetItem(args, 2);      /* get optional type */
+	if (!(PyArg_Parse(option_obj, "i", &ma_type))) {
+	  PyErr_SetString(PyExc_TypeError, 
+			  "Usage: rtdb_put(value or values,[optional type])");
+	  return NULL;
 	}
+      }
+      
+      if (ma_type != MT_CHAR) {
+	if (!(array = malloc(MA_sizeof(ma_type, list_len, MT_CHAR)))) {
+	  PyErr_SetString(PyExc_MemoryError,
+			  "rtdb_put failed allocating work array");
+	  return NULL;
+	}
+      }
+      
+      switch (ma_type) {
+      case MT_INT:
+      case MT_F_INT:  
+      case MT_BASE + 11:	/* Logical */
+	int_array = array;
+	for (i = 0; i < list_len; i++) {
+	  if (list) 
+	    PyArg_Parse(PyList_GetItem(obj, i), "i", int_array+i);
+	  else 
+	    PyArg_Parse(obj, "i", int_array+i);
+	}
+	break;
 	
-	if (ma_type != MT_CHAR) {
-	    if (!(array = malloc(MA_sizeof(ma_type, list_len, MT_CHAR)))) {
-		PyErr_SetString(PyExc_MemoryError,
-				"rtdb_put failed allocating work array");
-		return NULL;
-	    }
+      case MT_DBL:  
+      case MT_F_DBL:
+	dbl_array = array;
+	for (i = 0; i < list_len; i++) {
+	  if (list) 
+	    PyArg_Parse(PyList_GetItem(obj, i), "d", dbl_array+i);
+	  else 
+	    PyArg_Parse(obj, "d", dbl_array+i);
 	}
-	    
-	switch (ma_type) {
-	case MT_INT:
-	case MT_F_INT:  
-	case MT_BASE + 11:	/* Logical */
-	    int_array = array;
-	    for (i = 0; i < list_len; i++) {
-		if (list) 
-		    PyArg_Parse(PyList_GetItem(obj, i), "i", int_array+i);
-		else 
-		    PyArg_Parse(obj, "i", int_array+i);
-	    }
-	    break;
-
-	case MT_DBL:  
-	case MT_F_DBL:
-	    dbl_array = array;
-	    for (i = 0; i < list_len; i++) {
-		if (list) 
-		    PyArg_Parse(PyList_GetItem(obj, i), "d", dbl_array+i);
-		else 
-		    PyArg_Parse(obj, "d", dbl_array+i);
-	    }
-	    break;
-
-         case MT_CHAR: 
-	     if (list) 
-		 PyArg_Parse(PyList_GetItem(obj, 0), "s", &char_array); 
-	     else 
-		 PyArg_Parse(obj, "s", &char_array); 
-	     if (!(array = strdup(char_array))) {
-		 PyErr_SetString(PyExc_MemoryError,
-				"rtdb_put failed copying string");
-		 return NULL;
-	     }		 
-	     list_len = strlen(array) + 1;
-	     break;
-	     
-	default:
-	    PyErr_SetString(NwchemError, "rtdb_put: ma_type is incorrect");
-	    if (array) free(array);
-	    return NULL;
-	    break;
-	}                
-                    
-	if (!(rtdb_put(rtdb_handle, name, ma_type, list_len, array))) {
-	    PyErr_SetString(NwchemError, "rtdb_put failed");
-	    if (array) free(array);
-	    return NULL;
-	}
-
-    } else {
-	PyErr_SetString(PyExc_TypeError, 
-			"Usage: rtdb_put(value or values,[optional type])");
+	break;
+	
+      case MT_CHAR: 
+	ptr = cbuf;
+	*ptr = 0;
+	for (i = 0; i < list_len; i++) {
+	  if (list) 
+	    PyArg_Parse(PyList_GetItem(obj, i), "s", &char_array); 
+	  else 
+	    PyArg_Parse(obj, "s", &char_array); 
+	  printf("PROCESSED %s\n", char_array);
+	  if ((ptr+strlen(char_array)) >= (cbuf+sizeof(cbuf))) {
+	     PyErr_SetString(PyExc_MemoryError,"rtdb_put too many strings");
+	     return NULL;
+	   }
+	  strcpy(ptr,char_array);
+	  ptr = ptr+strlen(char_array);
+	  strcpy(ptr,"\n");
+	  ptr = ptr + 1;
+	}		 
+	list_len = strlen(cbuf) + 1;
+	array = cbuf;
+	break;
+	
+      default:
+	PyErr_SetString(NwchemError, "rtdb_put: ma_type is incorrect");
 	if (array) free(array);
 	return NULL;
+	break;
+      }                
+      
+      if (!(rtdb_put(rtdb_handle, name, ma_type, list_len, array))) {
+	PyErr_SetString(NwchemError, "rtdb_put failed");
+	if (array) free(array);
+	return NULL;
+      }
+      
+    } else {
+      PyErr_SetString(PyExc_TypeError, 
+		      "Usage: rtdb_put(value or values,[optional type])");
+      if (array) free(array);
+      return NULL;
     }
     Py_INCREF(Py_None);
     if (array) free(array);
@@ -211,7 +221,9 @@ PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
    int i;
    int nelem, ma_type;
    char *name;
-   char *format_str=0, format_char;
+#define MAXPTRS 2048
+   char *ptrs[MAXPTRS];
+   char *format_str=0, format_char, *next;
    PyObject *returnObj = 0;
    void *array=0;
    int ma_handle, ind;
@@ -253,23 +265,34 @@ PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
 	   return NULL;
        }
 
+       /* For character string need to build an array of pointers */
+
+       nelem = 0;
+       for (next=strtok((char *)array, "\n");
+	    next;
+	    next=strtok((char *) 0, "\n")) {
+	 if (strlen(next)) {
+	   if (nelem >= MAXPTRS) {
+	     PyErr_SetString(PyExc_MemoryError,"rtdb_get too many strings");
+	     (void) MA_free_heap(ma_handle);
+	     return NULL;
+	   }
+	   ptrs[nelem] = next;
+	   nelem++;
+	 }
+       }
+
        ind = 0;
        if (nelem > 1) format_str[ind++] = '[';
        for (i = 0; i < nelem; i++, ind++)
 	   format_str[ind] = format_char;
        if (nelem > 1) format_str[ind++] = ']';
        format_str[ind] = 0;
-
-       switch (ma_type) {
-       case MT_F_INT:
-       case MT_INT  : 
-       case MT_F_DBL: 
-       case MT_DBL  : 
-       case MT_BASE + 11  : 
-	   returnObj = Py_VaBuildValue(format_str, array); break; 
-       case MT_CHAR : 
-	   returnObj = Py_BuildValue("s#", array, nelem-1); break;
-       }
+       
+       if (ma_type == MT_CHAR)
+	 returnObj = Py_VaBuildValue(format_str, ptrs);
+       else
+	 returnObj = Py_VaBuildValue(format_str, array);
    }
    else {
        PyErr_SetString(PyExc_TypeError, "Usage: value = rtdb_get(name)");
@@ -288,7 +311,8 @@ PyObject *wrap_rtdb_delete(PyObject *self, PyObject *args)
 
    if (PyArg_Parse(args, "s", &name)) {
        if (rtdb_delete(rtdb_handle, name)) {
-	 returnObj = PyTuple_New(0);
+	 returnObj = Py_None;
+         Py_INCREF(Py_None);
        }
        else {
 	   PyErr_SetString(NwchemError, "rtdb_delete failed");
