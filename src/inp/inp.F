@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.36 2000-05-25 22:45:45 edo Exp $
+C$Id: inp.F,v 1.37 2000-08-01 19:54:43 d3g681 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -858,8 +858,8 @@ c
       equivalence (fdata(1),iread)
 c
 #ifdef SOLARIS
-c     Needed with -stackvar compilation option
-      save cdata, idata, fdata
+c     Needed with -stackvar compilation option in pre WS5 compilers
+c      save cdata, idata, fdata
 #endif
 c
       if (save_level.lt.0 .or. save_level.gt.3) call errquit
@@ -889,8 +889,8 @@ c
       equivalence (idata(1),jrec)
       equivalence (fdata(1),iread)
 #ifdef SOLARIS
-c     Needed with -stackvar compilation option
-      save cdata, idata, fdata
+c     Needed with -stackvar compilation option in pre WS5 compilers
+c      save cdata, idata, fdata
 #endif
 c
       if (save_level.lt.1 .or. save_level.gt.3) call errquit
