@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.38 1996-10-18 00:53:16 d3h449 Exp $
+C$Id: dft_scf.F,v 1.39 1996-10-18 19:07:02 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -23,12 +23,12 @@ c
 #include "bas.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
-#include "util.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "cdft.fh"
 #include "global.fh"
 #include "msgids.fh"
+#include "util.fh"
 c
 #if defined(DFT_TIMER)
 #include "timer.fh"
@@ -105,10 +105,10 @@ c-----------------------------------------------------------------------
       oprint = util_print('information',print_low)
       oprint_parm = util_print('parameters', print_default)
       oprint_conv = util_print('convergence', print_default)
-      oprint_vecs = util_print('intermediate vectors', print_high)
-      oprint_eval = util_print('intermediate evals', print_high)
+      oprint_vecs = util_print('intermediate vectors', print_debug)
+      oprint_eval = util_print('intermediate evals', print_debug)
       oprint_syma = util_print('intermediate vector symmetries',
-     ,     print_high)
+     ,     print_debug)
       oprint_time=util_print('dft timings',print_high)
 C
 C     oadapt true to get symm analysis
@@ -369,11 +369,10 @@ c
  3231 format(/,10x,'Convergence aids based upon iterative change in ',
      &       /,10x,'total energy or number of iterations. ')
  3232 format(/,10x,
-     &'       Damping(',i2,'%)  Levelshifting(',f3.1,')       DIIS',/,
-
-     &10x,'     --------------- ------------------- ---------------')
- 3233 format(10x,' on:',2x,a10,7x,a10,10x,a10,/,
-     &       10x,'off:',2x,a10,7x,a10,10x,a10,/)
+     &10x,'Damping(',i2,'%)  Levelshifting(',f3.1,')       DIIS',/,
+     &10x,8x,15('-'),1x,19('-'),1x,15('-'))
+ 3233 format(10x,'dE  on:',2x,a10,7x,a10,10x,a10,/,
+     &       10x,'dE off:',2x,a10,7x,a10,10x,a10,/)
 c
 c     Do not allow levelshifting initially until sure that the
 c     transformed Fock matrix will be diagonally dominant.
@@ -1153,7 +1152,7 @@ C
           endif
           call util_flush(6)
         endif
-        if (util_print('final vectors', print_debug)) then
+        if (util_print('final vectors', print_high)) then
           write(LuOut,*)
           call util_print_centered(
      (         LuOut,'Final MO vectors',40,.true.)
