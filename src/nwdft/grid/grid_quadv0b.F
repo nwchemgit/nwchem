@@ -17,7 +17,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf,l3d)
 c
-c$Id: grid_quadv0b.F,v 1.24 2001-11-16 02:12:41 edo Exp $
+c$Id: grid_quadv0b.F,v 1.25 2001-11-16 22:12:17 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -241,7 +241,7 @@ c
      &           rdens_atom, cetobfr)
             else if (do_cpks_l) then
 #ifdef QUADV0_REVERT
-               call xc_tabcd(tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
+               call xc_tabcd(l3d,tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
      &              Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
      &              Dbl_MB(idelchi_ao), ipol, nqpts, mbf_ao, 
      &              nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, 

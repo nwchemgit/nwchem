@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c 
-c$Id: grid_rtrunc.F,v 1.37 2001-05-16 01:50:46 edo Exp $
+c$Id: grid_rtrunc.F,v 1.38 2001-11-16 22:12:17 edo Exp $
 c
       implicit none
 c      
@@ -289,6 +289,7 @@ c
       external grid_rnegl
       double precision grid_rnegl,shift_2g,rrr
 c
+      oprint=.true.
       range_max=0d0
       shiftm_2g=0d0
       l_iat=ldiff(iat)
@@ -336,12 +337,14 @@ c               if(iat.ne.jat) range=range+6d0/rrr
      ,        ' lprod = ',l_iat+ldiff(iat_diff),
      ,        ' range = ',range_max, ' acc ',my_acc,
      ,        ' sh ',shiftm_2g
+               oprint=.false.
          return
  1234          format(A,2f15.9,A,I3,A,f12.2,A,d10.2)
          end
       subroutine grid_rtrunc0(zprim,job_grid_acc,cs)
       implicit none
 #include "bas.fh"
+#include "geom.fh"
 #include "cdft.fh"
 c
       double precision zprim(nbf_ao_mxprim)! [local]
@@ -352,6 +355,8 @@ c
      .     icset,ncontrset
       double precision min_exp,range_max,range
       double precision grid_rnegl
+      character*16 tag
+      double precision ictr_coord(3), ictr_chg
       external grid_rnegl
 c
       if (.not.bas_numcont(AO_bas_han, ncontrset))
@@ -367,8 +372,17 @@ c     get minimum exponent of all basis functions
 c
          if (.not.bas_ce2cnr(ao_bas_han,iat,ic1,ic2))
      &        call errquit('Exiting in radtur.',11)
-         if(ic2.lt.0) call errquit(
+         if(ic2.lt.0) then
+            if (.not. geom_cent_get(geom, iat, tag, 
+     &           ictr_coord, ictr_chg))call errquit
+     &           ('grid_atom_type_info: geom_cent_get failed', 0)
+            write(0,*) ' atom   ',iat
+            write(0,*) ' tag    ',tag
+            write(0,'(A,3F12.6)') ' coord  ',ictr_coord
+            write(0,*) ' charge ',ictr_chg
+            call errquit(
      .        'gridrtunc: no basis on ghost atom?',iat)
+         endif
          range_max=0d0
          do icset = ic1,ic2
             min_exp=1d20
@@ -382,7 +396,6 @@ c
             do  iprimo = 1,nprimo
                min_exp = min(zprim(iprimo),min_exp)
             enddo
-C            range = grid_rnegl(l+l+2, min_exp+min_exp, job_grid_acc)
             range = grid_rnegl(l+l+2, min_exp+min_exp, job_grid_acc)
             if(range.gt.range_max) then
                range_max =  range

@@ -1,6 +1,6 @@
       Subroutine grid_atom_type_info
 c
-c$Id: grid_atom_type_info.F,v 1.7 2000-04-11 10:08:38 hvd Exp $
+c$Id: grid_atom_type_info.F,v 1.8 2001-11-16 22:12:17 edo Exp $
 c
       implicit none
 c      
@@ -19,7 +19,7 @@ c
       parameter (eps = 1.d-20)
       integer itype, ictr, iaz, i_atomic_number, icenter, jcenter
 c
-      integer lcoord, icoord, lcharge, icharge, ltags, itags
+      integer lcoord, icoord, lcharge, icharge, ltags, itags,iptr
 c
       character*16 element
       character*16 tag
@@ -155,7 +155,10 @@ c
 c
 c           identify atom label following "bq"
 c
-            if (.not. geom_tag_to_element(tag(3:), symbol, 
+            iptr=3
+c hack for nbo
+            if(tag(3:4).eq.'gh') iptr=5
+            if (.not. geom_tag_to_element(tag(iptr:), symbol, 
      &           element, i_atomic_number)) then
                if (inp_compare(.false.,tag(1:2),'bq')) then 
                   i_atomic_number = 0

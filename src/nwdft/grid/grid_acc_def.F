@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.28 2001-03-08 03:01:23 edo Exp $
+c$Id: grid_acc_def.F,v 1.29 2001-11-16 22:12:17 edo Exp $
 c
       implicit none
 c      
@@ -46,7 +46,7 @@ c     fine    = 1d-7
 c     xfine   = 1d-8
 c
       integer  grid_params(5,2,2,105)
-      integer i,j,k,l
+      integer i,j,k,l,iptr
       integer xc_leb_acc2nrd
       external xc_leb_acc2nrd
       integer xc_dau_acc2nrd
@@ -395,7 +395,10 @@ c           add quadrature grids to uncharged ghost atoms (for BSSE calcs)
 c
 c           identify atom label following "bq"
 c
-            if (.not. geom_tag_to_element(tag(3:), symbol, 
+            iptr=3
+c hack for nbo
+            if(tag(3:4).eq.'gh') iptr=5
+            if (.not. geom_tag_to_element(tag(iptr:), symbol, 
      &           element, i_atomic_number)) then
                if (inp_compare(.false.,tag(1:2),'bq')) then 
                   i_atomic_number = 0
