@@ -1,5 +1,5 @@
 c
-c $Id: cpsd_input.F,v 1.5 2001-11-30 17:30:29 bylaska Exp $
+c $Id: cpsd_input.F,v 1.6 2002-01-14 17:55:07 bylaska Exp $
 c
       subroutine cpsd_input(rtdb)
       implicit none
@@ -12,25 +12,39 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 20)
+      parameter (num_dirs = 34)
  
       character*30 dirs(num_dirs)
       character*255 test, id
 
       data dirs / 'cell_name:',
+     >            'cell_name',
      >            'geometry_optimize',
      >            'formatted_filename:',
+     >            'formatted_filename',
      >            'input_wavefunction_filename:',
+     >            'input_wavefunction_filename',
      >            'output_wavefunction_filename:',
+     >            'output_wavefunction_filename',
      >            'fake_mass:',
+     >            'fake_mass',
      >            'time_step:',
+     >            'time_step',
      >            'loop:',
+     >            'loop',
      >            'tolerances:',
+     >            'tolerances',
      >            'energy_cutoff:',
+     >            'energy_cutoff',
      >            'wavefunction_cutoff:',
+     >            'wavefunction_cutoff',
      >            'ewald_rcut:',
+     >            'ewald_rcut',
      >            'ewald_ncut:',
+     >            'ewald_ncut',
      >            'exchange_correlation:',
+     >            'exchange_correlation',
+     >            'xc',
      >            'fractional_coordinates',
      >            'mulliken',
      >            'mult',
@@ -65,9 +79,10 @@ c
      >           'cpsd_input: unknown directive', 0)
 
 
-      goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900,
-     >       1000,1100,1200,1300,1400,1500,1600,
-     >       1700,1800,1900,
+      goto ( 100,100, 200, 300,300, 400,400, 500,500, 600,600, 
+     >       700,700, 800,800, 900,900, 1000,1000, 1100,1100,
+     >       1200,1200, 1300,1300, 1400,1400,1400,
+     >       1500,1600,1700,1800,1900,
      >      9999) ind
       call errquit(
      >      'cpsd_input: unimplemented directive', ind)
