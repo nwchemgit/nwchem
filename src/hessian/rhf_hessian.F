@@ -15567,31 +15567,31 @@ C
 C
 C     ------ SUBROUTINE TAKEN FROM CTL.F IN HONDO ------
 C
-      SUBROUTINE HND_RDGRD(G,N1,N2,N3,N4,N5)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER (MXIODA=255)
-      PARAMETER (MXATOM=500)
-      PARAMETER (MXCART=3*MXATOM)
-      PARAMETER (MXTEMP=MXCART+5)
-      COMMON/HND_DAFILE/IDAF,NAV,IODA(MXIODA)
-      COMMON/HND_MACHIN/ISINGL,NBITS
-      DIMENSION G(MXCART),X(MXTEMP),IX(1)
-      EQUIVALENCE (IX(1),X(1))
+c*    SUBROUTINE HND_RDGRD(G,N1,N2,N3,N4,N5)
+c*    IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c*    PARAMETER (MXIODA=255)
+c*    PARAMETER (MXATOM=500)
+c*    PARAMETER (MXCART=3*MXATOM)
+c*    PARAMETER (MXTEMP=MXCART+5)
+c*    COMMON/HND_DAFILE/IDAF,NAV,IODA(MXIODA)
+c*    COMMON/HND_MACHIN/ISINGL,NBITS
+c*    DIMENSION G(MXCART),X(MXTEMP),IX(1)
+c*    EQUIVALENCE (IX(1),X(1))
 C
-      NX=MXTEMP
-      CALL HND_DAREAD(IDAF,IODA,X,NX,3)
-      DO I=1,MXCART
-         G(I)=X(I)
-      ENDDO
-      I0=MXCART*ISINGL
+c*    NX=MXTEMP
+c*    CALL HND_DAREAD(IDAF,IODA,X,NX,3)
+c*    DO I=1,MXCART
+c*       G(I)=X(I)
+c*    ENDDO
+c*    I0=MXCART*ISINGL
 
-      N1=IX(1+I0)
-      N2=IX(2+I0)
-      N3=IX(3+I0)
-      N4=IX(4+I0)
-      N5=IX(5+I0)
-      RETURN
-      END
+c*    N1=IX(1+I0)
+c*    N2=IX(2+I0)
+c*    N3=IX(3+I0)
+c*    N4=IX(4+I0)
+c*    N5=IX(5+I0)
+c*    RETURN
+c*    END
 C
 C
 C     ------ SUBROUTINE TAKEN FROM CTL.F IN HONDO ------
@@ -15686,7 +15686,7 @@ C
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs)
 
-c$Id: rhf_hessian.F,v 1.7 1997-02-18 19:21:56 bmeng Exp $
+c$Id: rhf_hessian.F,v 1.8 1997-02-19 00:47:00 bmeng Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -15941,6 +15941,7 @@ C     IJ = (II*(II-1))/2 + JJ
 C---------------------------------------------------------------
       subroutine hnd_cphf_init(rtdb)
       implicit double precision (a-h,o-z)
+      integer rtdb
 #include "mafdecls.fh"
 #include "rtdb.fh"
       parameter (mxatom=500)

@@ -8074,6 +8074,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       character*8   wrd1,wrd2,wrd3,wrd4,wrd5
 c%%
       logical dbug
+      logical some
 c%%
       COMMON/HND_infoa/nat,ich,mul,num,nx,ne,na,nb,zan(mxatom),
      1                                         c(3,mxatom)
@@ -11137,6 +11138,7 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "stdio.fh"
 #include "rtdb.fh"
+#include "global.fh"
       integer rtdb,geom,basis
       parameter (max_center = 500)
       integer          ic 
