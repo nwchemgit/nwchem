@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.7 2001-12-20 00:30:52 bylaska Exp $
+* $Id: cram.F,v 1.8 2002-01-08 23:45:36 bylaska Exp $
 *
 
 *     ***********************************
@@ -495,7 +495,10 @@
      >                         B(1),      1)
       end do
 
-      if (np.gt.1) call C3dB_Vector_SumAll(2*ne,sum)
+      if (np.gt.1) then
+         call C3dB_Vector_SumAll(2*ne,sum)
+         call ga_sync()
+      end if
 
       call current_second(tim2)
       times(2) = times(2) + (tim2-tim1)
