@@ -1,0 +1,34 @@
+
+Several people have asked me how to move new directories or files
+from the development tree to the release tree.  Here's how
+
+Directories have no version information associated with them; only the
+files in directories are under control.   So, once you have added
+and commited your directory to the development tree as usual,
+all that you need to do to propagate this to the release tree is
+to insert the tag and branch information.  Still in your checked
+out DVELOPMENT version
+
+   cvs tag release-3-2-1 newdir
+   cvs tag -r release-3-2-1 -b release-3-2-1-patches newdir
+
+The repository has been modifed to include the tag and branch info
+but your copy of the files are STILL the development branch.
+
+To check out the release branch you need to follow the instructions
+frommy previous email.  Go into your release tree and
+
+  cvs update -d -r release-3-2-1-patches newdir
+
+You can verify the state of all files in the newdir by
+
+  cvs status newdir
+
+This will print out the version and sticky tag info for each file 
+in newdir.  If you have the release tree you should ssee sticky tags
+of release-3-2-1-patches, but in the development tree it should say
+none.
+
+Simple, isn't it.
+
+Robert
