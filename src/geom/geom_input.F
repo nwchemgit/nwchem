@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.151 2002-01-16 01:34:45 edo Exp $
+C     $Id: geom_input.F,v 1.152 2002-01-17 20:56:28 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -5988,7 +5988,7 @@ c
       double precision toll
       parameter (toll=1d-4)
       double precision x,y
-      integer in
+      integer in,n2
       logical itisbig,foundbig
       itisbig(x,in,y)=in*log(abs(x)).gt.log(y)
       
@@ -5999,6 +5999,11 @@ c
       endif
       if(abs(s).gt.toll) then
          foundbig=foundbig.or.itisbig(s,n,big)
+      endif
+      if(abs(c).gt.toll.and.abs(s).gt.toll) then
+         n2=n/2
+         if(mod(n,2).ne.0) n2=n2+1
+         foundbig=foundbig.or.itisbig(c*c+s*s,n2,big)
       endif
       if(foundbig) then
          geom_powcmpl=big
