@@ -8,11 +8,11 @@ c
 #include "util.fh"
 c
       integer ifr,ito,jfr,jto
-      real*8 dns(nbf,mbf)
+      real*8 dns(mbf,mbf)
 c
       integer i,j
 c
-      call ga_get(lg_d,ifr,ito,jfr,jto,dns,nbf)
+      call ga_get(lg_d,ifr,ito,jfr,jto,dns,mbf)
 c
       if(me.eq.0.and.util_print('where',print_debug)) then
       write(lfnout,1000)

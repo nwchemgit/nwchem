@@ -1,6 +1,6 @@
       subroutine esp_malloc
 c
-c $Id: esp_malloc.F,v 1.5 1998-12-28 21:54:37 d3j191 Exp $
+c $Id: esp_malloc.F,v 1.6 1999-01-29 21:15:34 d3j191 Exp $
 c
       implicit none
 c
@@ -88,7 +88,7 @@ c     l_d idptr 'd' : nbf*nbf : density matrix
 c     l_e ieptr 'e' :     nbf : orbital energies
 c     l_o ioptr 'o' :     nbf : orbital occupation
 c
-      if(.not.ma_push_get(mt_dbl,nbf*mbf,'d',l_d,idptr))
+      if(.not.ma_push_get(mt_dbl,mbf*mbf,'d',l_d,idptr))
      + call errquit('esp: ma_push_get d failed',me)
       if(.not.ma_push_get(mt_dbl,nbf,'e',l_e,ieptr))
      + call errquit('esp: ma_push_get e failed',me)

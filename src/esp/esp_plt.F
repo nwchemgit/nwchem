@@ -1,6 +1,6 @@
       subroutine esp_plt(x,q,g,t)
 c
-c $Id: esp_plt.F,v 1.1 1999-01-27 18:18:02 d3j191 Exp $
+c $Id: esp_plt.F,v 1.2 1999-01-29 21:15:35 d3j191 Exp $
 c
       implicit none
 c
@@ -72,8 +72,8 @@ c      endif
       call arg_swatch(today,now)
       write(lfnplt,1003) (g(ix),ix=1,mgrid(1)+2)
  1003 format(2e20.12)
-      write(*,1004) today,now,iy,iz
- 1004 format(2a10,': plot grid column ',2i10)
+c      write(*,1004) today,now,iy,iz
+c 1004 format(2a10,': plot grid column ',2i10)
       endif
     2 continue
     1 continue

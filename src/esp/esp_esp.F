@@ -1,6 +1,6 @@
       subroutine esp_esp(ene,occ,dns,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.9 1999-01-27 18:18:00 d3j191 Exp $
+c $Id: esp_esp.F,v 1.10 1999-01-29 21:15:34 d3j191 Exp $
 c
       implicit none
 c
@@ -18,7 +18,7 @@ c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
-      real*8 ene(nbf),occ(nbf),dns(nbf,mbf)
+      real*8 ene(nbf),occ(nbf),dns(mbf,mbf)
       real*8 x(3,natoms),q(natoms)
       real*8 grid(3,mxgrid),val(mxgrid)
 c
@@ -30,6 +30,20 @@ c
       integer imin,nval,jshi
       real*8 dmin,fact
       character*10 today,now
+c
+c      integer lmax2, lencart, lenprod
+c      parameter (lmax2 = 2*3) ! Twice max angular momentum
+c      parameter (lencart = ((lmax2+1)*(lmax2+2))/2)
+c      parameter (lenprod = ((lmax2+1)*(lmax2+2)*(lmax2+3))/6)
+c      real*8 dwk(lencart,-lmax2:lmax2,0:lmax2),
+c     $     diwk(lenprod, -lmax2:lmax2,0:lmax2)
+c
+      real*8 dwk(2548),diwk(7644)
+      integer npts
+c
+      call xlm_init()
+      call anl_fit_init()
+      call xlm_coeff_inv(6,dwk,diwk)
 c
 c     calculate density matrix, occupation and energies
 c
@@ -68,7 +82,6 @@ c
       do 3 jsh=jshi+1,nshell
       if(.not.bas_cn2bfr(ibasis,jsh,jlo,jhi))
      + call errquit('esp: bas_cn2bfr failed',me)
-      call esp_getden(dns,1,jhi,jlo,jhi)
       do 4 ish=1,jsh
       if(lscrn.ne.0) then
       if(schwarz_shell(ish,jsh).lt.1.0d-5) goto 4
@@ -76,18 +89,11 @@ c
       fact=1.0d0
       if(ish.ne.jsh) fact=2.0d0
       if(.not.bas_cn2bfr(ibasis,ish,ilo,ihi))
-     + call errquit('esp: bas_cn2bfr failed',me)     
-      do 5 i=ngfr,ngto
-      call int_1er(grid(1,i),1,one,ibasis,jsh,ibasis,ish,mem1,
-     + dbl_mb(istptr),max1e,dbl_mb(ibtptr))
-      ifr=ibtptr
-      do 6 jx=1,jhi-jlo+1
-      do 7 ix=ilo,ihi
-      val(i)=val(i)+fact*dns(ix,jx)*dbl_mb(ifr)
-      ifr=ifr+1
-    7 continue
-    6 continue
-    5 continue
+     + call errquit('esp: bas_cn2bfr failed',me)
+      npts=ngto-ngfr+1
+      call esp_getden(dns,jlo,jhi,ilo,ihi)
+      call potential_from_shell_pair(ibasis,jsh,ish,dns,mbf,
+     + 0.0d0,dwk,diwk,6,npts,grid(1,ngfr),val(ngfr),fact)
     4 continue
       call ga_dgop(mre_003,val,ngrid,'+')
       if(me.eq.0) then
