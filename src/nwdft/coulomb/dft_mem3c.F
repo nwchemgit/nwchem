@@ -2,7 +2,7 @@
      I     natoms,npol,oprint_parm,oprint_3c2e,
      O     n3c_int,n3c_dbl,n_semi_bufs,
      O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)
-* $Id: dft_mem3c.F,v 1.6 2003-10-17 22:55:35 carlfahl Exp $
+* $Id: dft_mem3c.F,v 1.7 2004-04-22 01:14:05 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -33,6 +33,7 @@
       integer me,nproc,icount
       integer maxg,scrmx
       integer ishc,itype,nprimo,nshbfc,isphere
+      integer deficit
       logical spherical_ao
 c
       me=ga_nodeid()
@@ -98,7 +99,13 @@ c
       endif
       availm_r = dble(availm)
       availm_r = min(availm_r,n3c_dbl_r)
+      deficit=0
       if (availm_r.lt.n3c_dbl_r)then
+         deficit=n3c_dbl_r-availm_r
+c
+c     get amount of local MA in Mbytes need to get incore done
+c
+         deficit=max((deficit*8+deficit/2)/1024/1024,1)
 c     
 c     cannot all be done incore so let's restrict memory use to a
 c     max of 5 MW for semi-direct (I/O)
@@ -113,6 +120,8 @@ c
       n3c_dbl = nint(availm_r)
       if (me.eq.0 .and. oprint_parm)
      &     write(LuOut,3228)avail, availm, n3c_dbl
+      
+      if(deficit.ne.0) write(luout,3230) deficit
 c     
 c     Loops are parallelized over the products of AO shells
 c     (check for zero ... must be at least 1).
@@ -171,6 +180,9 @@ c     if(me.eq.0) call MA_summarize_allocated_blocks()
  3228 format(10x,'Minimum dble words available (all nodes) is: ',i15,
      &     /,10x,'         This is reduced (for later use) to: ',i15,
      &     /,10x,'                   Suggested buffer size is: ',i15)
+ 3230 format(/7x,
+     &     'Extra Local Memory (stack+heap) needed for incore:',i6,
+     &     ' Mbytes ')
  3229 format(/,6x,f10.3,' MW buffer allocated for incore 3-center '
      &     /,10x,'2e- integral storage on stack. ')
          end
