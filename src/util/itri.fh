@@ -5,4 +5,7 @@ c
 c     This file must be include immediately before the first executable
 c     statement
 c
-      itri(i,j) = (max(i,j)*(max(i,j)-3))/2 + i + j
+      integer itri, iiitri, jjjtri
+      itri(iiitri,jjjtri) =
+     $     (max(iiitri,jjjtri)*(max(iiitri,jjjtri)-3))/2 +
+     $     iiitri + jjjtri
