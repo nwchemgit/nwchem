@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.104 1998-08-26 21:48:13 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.105 1998-09-09 13:29:32 bjohnson Exp $
 c     
       implicit none
 c
@@ -120,6 +120,10 @@ c
       character*4 scftype
       character*255 basis_name, basis_trans
       integer nopen, nclosed
+c !!! BGJ
+      logical cphf_poliz, do_poliz
+      external cphf_poliz
+c !!! BGJ
 c
       call ecce_print_module_entry('dft')
 c
@@ -144,6 +148,11 @@ c
       oprint_final_vecs = util_print('final vectors', print_high)
       me = ga_nodeid()
       nproc = ga_nnodes()
+c !!! BGJ
+c     Store SCF hamiltonian type as DFT for use in BGJ routines
+      if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 2))
+     $     call errquit('dft_scf: put of bgj:scf_type failed',0)
+c !!! BGJ
 c
 c     see if levelshifting monitoring is desired
 c
@@ -1527,6 +1536,17 @@ c
 c
       dft_scf = converged
 c
+c !!! BGJ
+      if (.not. rtdb_get(rtdb, 'bgj:poliz', mt_log,
+     &     1, do_poliz)) then
+         do_poliz = .false.
+      endif
+      if (do_poliz) then
+         write(*,*)'*** dft_scf: calling cphf_poliz'
+         if (.not. cphf_poliz(rtdb)) ! Never executed.
+     $        call errquit(' cphf_poliz: failed from dft_scf !',0)
+      endif
+c !!! BGJ
       return
 c     
  1111 format(15x,'Core Energy:              ',f20.10)
