@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.33 2000-12-04 18:13:11 edo Exp $
+$Id: INSTALL,v 1.34 2000-12-04 19:03:17 windus Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -23,6 +23,7 @@ installation before beginning.  The sections for this guide are
                                   contact (usually the one doing the build)
    Using a new version of GA   -  only for people that want to try out the
                                   latest version of GA
+   Running on Fujitsu VPP      -  some notes on the Fujitsu system
    Troubleshooting             -  if you have build problems
 
 SOURCE CODE PROTECTION:
@@ -505,6 +506,19 @@ version of GA, following these steps:
 
    8) If all of your environmental variables are set, start with step 5 of
       the Basic Build Instructions.  If they are not set, start with step 2.
+
+
+RUNNING ON FUJITSU VPP 300/500/700/5000
+----------------------------
+For compilation on the Fujitsu VPP vector computers, native versions of
+the Global Arrays and related libraries have to be installed. These can
+be downloaded from ftp section of the Fujitsu European Centre for
+Information Technology website at
+http://www.fecit.co.uk/common/index.html. NWCHEM_TARGET should be set to
+FUJITSU_VPP, and the environment variable GA_LIBDIR should point to the
+directory where the GA libraries are installed. Enquiries about
+installation issues may be directed to Ross Nobes (nobes@fecit.co.uk) or
+Herbert Fruchtl (fruechtl@fecit.co.uk).
 
 
 TROUBLESHOOTING:

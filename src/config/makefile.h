@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.351 2000-12-04 18:28:11 d3g681 Exp $
+# $Id: makefile.h,v 1.352 2000-12-04 18:59:18 windus Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1225,7 +1225,7 @@ ifeq ($(TARGET),FUJITSU_VPP)
        pstat rtdb task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
 
         CORE_LIBS = -lutil -lpeigs \
-                    -L/home/fecit/research/fruechtl/lib -lglobal -lpario -lma \
+                    -L$(GA_LIBDIR) -lglobal -lpario -lma \
                     -ltcgmsg-mpi -L/usr/lang/mpi2/lib32 -lmpi -lmp
        EXTRA_LIBS = -llapackvp -lblasvp -lsocket -Wl,-J,-P,-t,-dy
 endif

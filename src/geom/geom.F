@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.106 2000-11-04 03:23:12 d3g681 Exp $
+C$Id: geom.F,v 1.107 2000-12-04 18:59:45 windus Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -748,7 +748,11 @@ c
               rz = coords(3,i,geom)-coords(3,j,geom)
               rz = rz*rz
               r  = sqrt(rx+ry+rz)
-               e = e + charge(i,geom)*charge(j,geom)/r
+#ifdef FUJITSU_VPP
+              if (r > 1.d-10) e = e + charge(i,geom)*charge(j,geom)/r
+#else
+              e = e + charge(i,geom)*charge(j,geom)/r
+#endif
             endif
          end do
       end do
