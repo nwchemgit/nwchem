@@ -4,7 +4,7 @@ c
 c
 c
        subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-C$Id: moints_mp2.F,v 1.23 1997-03-12 22:00:48 d3e129 Exp $
+C$Id: moints_mp2.F,v 1.24 1997-03-13 20:49:17 d3e129 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -242,10 +242,3 @@ c$$$       endif
        moints_epair_eval = xx
        return
        end
-
-
-
-
-
-
-
