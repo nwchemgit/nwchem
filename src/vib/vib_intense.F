@@ -1,3 +1,4 @@
+* $Id: vib_intense.F,v 1.3 1997-06-13 00:54:36 d3e129 Exp $
       subroutine vib_intense(eigvec,eigval,nat,ddpolx,ddpolq,
      &    intensity,first_pass)
       implicit none
