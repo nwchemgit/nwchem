@@ -4,7 +4,7 @@
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.6 2001-11-01 01:26:49 edo Exp $
+c     $Id: dft_diagn.F,v 1.7 2003-01-09 22:13:37 edo Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -148,5 +148,25 @@ c
      &           ('dft_scf: could not destroy g_scr', 0)
          endif
       
+      return
+      end
+      subroutine dft_remshft(levelshifting,ipol,nbf_ao,noc,
+     ,     rlshift,eval)
+      implicit none
+      logical levelshifting
+      integer ipol
+      integer nbf_ao
+      double precision eval(nbf_ao,*),rlshift
+      integer noc(2)
+c
+      integer i,j
+c
+      if(levelshifting) then
+         do i=1,ipol
+            do j = noc(i)+1, nbf_ao
+               eval(j,i)=eval(j,i)- rlshift
+            enddo
+         enddo
+      endif
       return
       end
