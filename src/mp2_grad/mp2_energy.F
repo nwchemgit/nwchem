@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.52 2002-09-24 16:45:48 windus Exp $
+* $Id: mp2_energy.F,v 1.53 2002-10-14 16:21:53 windus Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -338,8 +338,6 @@ c
      $                  noa_frozen,1)
       call ecce_print1('number of active alpha electrons',mt_int,
      $                  noa_active,1)
-      call ecce_print1('number of active beta electrons',mt_int,
-     $                  nob_active,1)
       call ecce_print1('number of active beta electrons',mt_int,
      $                  nob_active,1)
 c
