@@ -1,5 +1,5 @@
 *
-* $Id: dlaebz2.F,v 1.3 1999-07-28 00:39:46 d3e129 Exp $
+* $Id: dlaebz2.F,v 1.4 2003-09-05 22:24:32 edo Exp $
 *
 *======================================================================
 *
@@ -461,13 +461,22 @@ CVD$           NOVECTOR
 CIBM           PREFER SCALAR
 *$PL$ CMCHAR='*'
 *
+!DEC$ NOVECTOR
+#ifdef NEWSTUFF
+               k=n
+               if(ijob.le.2) k=nab(ji,2)
+#endif
                DO 90 J = 2, N
                   TMP2 = D( J ) - E2( J-1 ) / TMP2 - TMP1
                   IF( TMP2.LE.PIVMIN ) THEN
                      ITMP1 = ITMP1 + 1
+#ifdef NEWSTUFF
+                     if(itmp1.ge.k) goto 91
+#endif
                      TMP2 = MIN( TMP2, -PIVMIN )
                   END IF
    90          CONTINUE
+   91          CONTINUE
 *
                IF( IJOB.LE.2 ) THEN
 *

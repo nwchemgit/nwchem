@@ -1,5 +1,5 @@
 *
-* $Id: sstebz3.F,v 1.9 2002-04-18 20:34:31 d3g270 Exp $
+* $Id: sstebz3.F,v 1.10 2003-09-05 22:24:32 edo Exp $
 *
 #include "blas_lapackf.h"
       SUBROUTINE SSTEBZ3( RANGE1, ORDER1, N, VL, VU, IL, IU,
@@ -219,7 +219,7 @@ CVD$           NOVECTOR
 *VOCL          LOOP,SCALAR
 CIBM           PREFER SCALAR
 *$PL$ CMCHAR='*'
-
+!DEC$ NOVECTOR
       INFO = 0
 c
       if ( range1 .eq. 1 ) range = 'A'

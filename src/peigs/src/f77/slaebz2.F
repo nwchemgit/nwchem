@@ -1,5 +1,5 @@
 *
-* $Id: slaebz2.F,v 1.2 1999-07-28 00:39:51 d3e129 Exp $
+* $Id: slaebz2.F,v 1.3 2003-09-05 22:24:32 edo Exp $
 *
 *======================================================================
 *
@@ -461,6 +461,7 @@ c*VOCL          LOOP,SCALAR
 cCIBM           PREFER SCALAR
 c*$PL$ CMCHAR='*'
 *
+!DEC$ NOVECTOR
                DO 90 J = 2, N
                   TMP2 = D( J ) - E2( J-1 ) / TMP2 - TMP1
                   IF( TMP2.LE.PIVMIN ) THEN
