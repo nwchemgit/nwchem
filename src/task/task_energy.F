@@ -57,7 +57,7 @@ c
             endif
          endif
       endif
-      if(rtdb_get(rtdb, 'harm_cons', mt_log, 1, status)) then
+      if(rtdb_get(rtdb, 'cons:active', mt_log, 1, status)) then
         if(ga_nodeid().eq.0) write(luout,*) "found constraints"
         call cons_add_energy(rtdb,energy)
       end if
@@ -93,7 +93,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.36 2004-03-13 00:07:41 marat Exp $
+* $Id: task_energy.F,v 1.37 2004-03-30 23:32:20 marat Exp $
 *
       implicit none
 #include "errquit.fh"
