@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.15 2001-04-05 22:25:06 windus Exp $
+C $Id: onedd_cont.F,v 1.16 2001-04-11 16:30:14 edo Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -40,7 +40,7 @@ c
       oprint = util_print('hess_follow',print_high)
       oprint = oprint .and. (ga_nodeid().eq.0)
       oneprint = util_print('onedd_cont',print_debug)
-      oneprint = oneprint .and. (ga_nodeid().eq.0)
+!      oneprint = oneprint .and. (ga_nodeid().eq.0)
 c
 c Get memory for the integral buffers
 c
@@ -107,15 +107,15 @@ C     free temporary arrays
      $     call errquit('onedd_cont:ma free eval',1)                                  
 c
       if (oneprint) then
-        write(LuOut,*)
-        write(LuOut,*) 'The weighted density is'
+        if(ga_nodeid().eq.0)write(LuOut,*)
+        if(ga_nodeid().eq.0)write(LuOut,*) 'The weighted density is'
         call ga_print(g_wdens)
-        write(LuOut,*)
-        write(LuOut,*) 'The density is'
+        if(ga_nodeid().eq.0)write(LuOut,*)
+        if(ga_nodeid().eq.0)write(LuOut,*) 'The density is'
         call ga_print(g_dens(1))
         if (ndens.gt.1) then
-          write(LuOut,*)
-          write(LuOut,*) 'the beta density is '
+          if(ga_nodeid().eq.0)write(LuOut,*)
+          if(ga_nodeid().eq.0)write(LuOut,*) 'the beta density is '
           call ga_print(g_dens(2))
         endif
       endif
@@ -133,16 +133,19 @@ c
 c  first print out the rhs values (should be all zeroes)!
 c
       if (oneprint) then
+         if(ga_nodeid().eq.0) then
         write(LuOut,*)
         write(LuOut,*) 'g_rhs before going into onedd_calc'
         write(LuOut,*) 'These values should all be zero'
+        endif
         do i = 1, ncent*3
-          write(LuOut,*) 'ndisplacement ', i
+          if(ga_nodeid().eq.0)write(LuOut,*) 'ndisplacement ', i
           call ga_print(g_rhs(i))
-          write(LuOut,*)
+          if(ga_nodeid().eq.0)write(LuOut,*)
         enddo
       endif
-      if (oprint) write(LuOut,*) 'HESS: before the onedd_calc call'
+      if (oprint.and.(ga_nodeid().eq.0)) 
+     .     write(LuOut,*) 'HESS: before the onedd_calc call'
 c
       doS = .true. 
       doV = .true.
@@ -155,9 +158,8 @@ c
      *  doS,doT,doV,g_wdens,g_dens,geom,basis,ncent,ndens,
      *  dbl_mb(k_dens),dbl_mb(k_wdens),matb)
 c
-c should put the next line in when done with some testing
-c     call sym_hess_symmetrize(geom,dbl_mb(k_exy))
-      if (oneprint) then
+      call sym_hess_symmetrize(geom,dbl_mb(k_exy))
+      if (oneprint.and.(ga_nodeid().eq.0)) then
         write(LuOut,*)
         call util_flush(LuOut)
         write(LuOut,*) 'The Hessian after onedd contributions:'
@@ -180,16 +182,17 @@ c
       doV = .false.
       doT = .false.
       call oned_calc(ncent*3,g_rhs,dbl_mb(k_buf),
-     *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
+     *  max1e,dbl_mb(k_scr),mscratch_1e,.false.,
+!     *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
      *  doS,doT,doV,geom,basis,ncent)
 c
       if (oneprint) then
-        write(LuOut,*)
-        write(LuOut,*) 'g_rhs for Sx term'
+        if(ga_nodeid().eq.0)write(LuOut,*)
+        if(ga_nodeid().eq.0)write(LuOut,*) 'g_rhs for Sx term'
         do i = 1, ncent*3
-          write(LuOut,*) 'ndisplacement ', i
+          if(ga_nodeid().eq.0)write(LuOut,*) 'ndisplacement ', i
           call ga_print(g_rhs(i))
-          write(LuOut,*)
+          if(ga_nodeid().eq.0)write(LuOut,*)
         enddo
       endif
 c
@@ -208,16 +211,17 @@ c
       doV = .true.
       doT = .true.
       call oned_calc(ncent*3,g_rhs,dbl_mb(k_buf),
-     *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
+!     *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
+     *  max1e,dbl_mb(k_scr),mscratch_1e,.false.,
      *  doS,doT,doV,geom,basis,ncent)
 c  first print out the rhs values 
       if (oneprint) then
-        write(LuOut,*)
-        write(LuOut,*) 'g_rhs for Hx term'
+        if(ga_nodeid().eq.0)write(LuOut,*)
+        if(ga_nodeid().eq.0)write(LuOut,*) 'g_rhs for Hx term'
         do i = 1, ncent*3
-          write(LuOut,*) 'ndisplacement ', i
+          if(ga_nodeid().eq.0)write(LuOut,*) 'ndisplacement ', i
           call ga_print(g_rhs(i))
-          write(LuOut,*)
+          if(ga_nodeid().eq.0)write(LuOut,*)
         enddo
       endif
 c

@@ -14,7 +14,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi, jfac, kfac)
-c     $Id: twodd_coul_ex.F,v 1.8 2000-08-31 05:33:03 windus Exp $
+c     $Id: twodd_coul_ex.F,v 1.9 2001-04-11 16:30:14 edo Exp $
 c
 c  This routine was essentially stolen from gradients/grad2.F.  I will work
 c  to make these routines one after I get things working.
@@ -25,6 +25,7 @@ c
 #include "schwarz.fh"
 #include "util.fh"
 #include "bas.fh"
+#include "stdio.fh"
 C-----------------------parameters---------------------------------
       integer blen              ! [input] max dimension of density block
       double precision          ! [scratch] 6 blocks per possible density
@@ -114,8 +115,9 @@ C-------------------------local variables-----------------------------
       external intbdd_init4c, intbdd_2e4c
       logical intbd_init4c, intbd_2e4c
       external intbd_init4c, intbd_2e4c
+      logical oprint
 c     
-      write(6,*) 'inside twodd_coul_ex'
+      oprint = util_print('twodd_cont',print_debug)
       smax  = schwarz_max()
       q4max = 8.0d0*(sym_number_ops(geom) + 1)*10000.0d0 ! 10000 for max(psum)
 c
@@ -135,12 +137,12 @@ c     MCSCF is the same as RHF except for the 2pdm piece
       ouhf  = (scftype .eq. 'UHF')
       orohf = (scftype .eq. 'ROHF')
       ogso = .false.    ! this is for SO contribution for gradient, not hessian
-      if (ouhf) write(6,*) 'This  is a UHF job'
 
       task_size = nshblocks*(nshblocks+1)/2
       task_size = task_size*(task_size+1)/2
       task_size = max(1,task_size/(20*nproc))
-      write(6,*) 'nshblocks and task_size ',nshblocks,task_size
+      if(oprint) write(luout,*) 
+     .     'nshblocks and task_size ',nshblocks,task_size
 c     
 c     Parallel loop over quartets of reordered shell blocks
 c     
@@ -244,34 +246,44 @@ c
 c     Check on sparsity, symmetry, active list, single center
 c     
                                  sijkl = sij*schwarz_shell(ksh,lsh)
-               write(6,*) 'sijkl, q4max and tol2e',sijkl,q4max,tol2e
-               call flush(6)
-c     
+                                 if(oprint) then
+               write(luout,*) 'sijkl, q4max and tol2e',sijkl,q4max,tol2e
+               call flush(luout)
+                                 endif
+C     
                                  if (sijkl*q4max .lt. tol2e) goto 200 ! next llsh
                                  scale = 1.0d0
-               write(6,*) 'before the oskel test'
-               call flush(6)
+                                 if(oprint) then
+               write(luout,*) 'before the oskel test'
+               call flush(luout)
+               endif
                                  if (oskel) then
                                     if (.not. sym_atom_quartet(geom,
      $                                   atoms(1), atoms(2), atoms(3), 
      $                                   atoms(4), scale)) goto 200
                                  endif
-               write(6,*) 'before the oactive test'
-               call flush(6)
+                                 if(oprint) then
+               write(luout,*) 'before the oactive test'
+               call flush(luout)
+               endif
                                  if (.not. (
      $                                oactive(atoms(1)) .or.
      $                                oactive(atoms(2)) .or.
      $                                oactive(atoms(3)) .or.
      $                                oactive(atoms(4)))) goto 200
-               write(6,*) 'before the atoms test ',atoms(1),
+                                 if (oprint) then
+               write(luout,*) 'before the atoms test ',atoms(1),
      $           atoms(2),atoms(3),atoms(4)
-               call flush(6)
+               call flush(luout)
+               endif
                                  if (
      $                                atoms(1).eq.atoms(2) .and.
      $                                atoms(2).eq.atoms(3) .and.
      $                                atoms(3).eq.atoms(4)) goto 200
-               write(6,*) 'after the atoms test'
-               call flush(6)
+                                 if (oprint) then
+               write(luout,*) 'after the atoms test'
+               call flush(luout)
+               endif
 c     
 c     Scale according to permutation symmetry of the shell labels
 c     
@@ -309,8 +321,10 @@ c
 c     Final screening including magnitude of the density
 c     
                                  sijkl = sijkl*psum*scale
-        write(6,*) 'sijkl,psum,scale ',sijkl,psum,scale
-        call flush(6)
+                                 if (oprint) then
+        write(luout,*) 'sijkl,psum,scale ',sijkl,psum,scale
+        call flush(luout)
+        endif
                                  if (sijkl .gt. tol2e) then
                                     nq = nq + 1
                                     q4(nq) = scale
@@ -333,9 +347,11 @@ c
      $                    block_eff)) call errquit
      $                    ('twodd_coul_ex:txs init?',nq)
 c     
-       write(6,*) 'basis, lists,nq,q4,tol2e,leri,lscr ',
+                     if (oprint) then
+       write(luout,*) 'basis, lists,nq,q4,tol2e,leri,lscr ',
      $  basis, list(1,1),list(1,2),list(1,3),list(1,4),
      $  nq,q4(1),tol2e,leri,lscr 
+       endif
  10                  omore = intbdd_2e4c(
      $                    basis, list(1,1), list(1,2),
      $                    basis, list(1,3), list(1,4),
@@ -345,7 +361,9 @@ c
      $                    eri, leri, nint, lscr, scr)
 c     
 c
-      write(6,*) ' nint ', nint, omore
+                     if (oprint) then
+      write(luout,*) ' nint ', nint, omore
+      endif
 c 
                      ibuf = 1
                      if (nint .gt. 0) then
@@ -354,19 +372,27 @@ c
                            j = labels(integ,2)
                            k = labels(integ,3)
                            l = labels(integ,4)
-      write(6,*) ' b ' ,i,j,k,l
+                           if (oprint) then
+      write(luout,*) ' b ' ,i,j,k,l
+      endif
                            atoms(1) = bftoat(i)
                            atoms(2) = bftoat(j)
                            atoms(3) = bftoat(k)
                            atoms(4) = bftoat(l)
-      write(6,*) ' a ' ,atoms
+                           if (oprint) then
+      write(luout,*) ' a ' ,atoms
+      endif
                            i = rbfmap(i) - ibflo + 1
                            j = rbfmap(j) - jbflo + 1
                            k = rbfmap(k) - kbflo + 1
                            l = rbfmap(l) - lbflo + 1
-      write(6,*) ' c ', i,j,k,l
+                           if (oprint) then
+      write(luout,*) ' c ', i,j,k,l
+      endif
                            p = pdm2d(l,k,j,i)
-      write(6,*) ' p ', p
+                           if (oprint) then
+      write(luout,*) ' p ', p
+      endif
                            do iiat1 = 1, 4
                            iat1 = atoms(iiat1)
                            do iiat2 = iiat1, 4
@@ -381,11 +407,13 @@ c                             if (iat2.eq.iat1) itemp = icart2
                               val = p*eri(ibuf)
                               if ((iat1.eq.iat2).and.
      $                          (icart1.eq.icart2)) val = val * half
+                              if (oprint) then
       if (abs(val).gt. 1.0d+00) then
-      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
-      write(6,*) 'val is ',val
-      write(6,*) 'icart1,iat1,icart2,iat2 ',icart1,iat1,icart2,iat2
-      call flush(6)
+      write(luout,*) 'p and eri is ',p,eri(ibuf),ibuf
+      write(luout,*) 'val is ',val
+      write(luout,*) 'icart1,iat1,icart2,iat2 ',icart1,iat1,icart2,iat2
+      call flush(luout)
+      endif
       endif
                               Hxy(icart1,iat1,icart2,iat2) =  
      $                             Hxy(icart1,iat1,icart2,iat2) + 
@@ -398,56 +426,68 @@ c                             if (iat2.eq.iat1) itemp = icart2
                            end do
                            else
                              val = p*eri(ibuf)*2.0d+00
+                             if (oprint) then
       if (abs(val).gt. 1.0d+00) then
-      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
-      write(6,*) 'val is ',val
-      call flush(6)
+      write(luout,*) 'p and eri is ',p,eri(ibuf),ibuf
+      write(luout,*) 'val is ',val
+      call flush(luout)
+      endif
       endif
                              Hxy(1,iat1,1,iat1) = Hxy(1,iat1,1,iat1)
      $                         + val
                              val = p*(eri(ibuf+1) + eri(ibuf+3))
+                             if (oprint) then
       if (abs(val).gt. 1.0d+00) then
-      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
-      write(6,*) 'val is ',val
-      call flush(6)
+      write(luout,*) 'p and eri is ',p,eri(ibuf),ibuf
+      write(luout,*) 'val is ',val
+      call flush(luout)
+      endif
       endif
                              Hxy(1,iat1,2,iat1) = Hxy(1,iat1,2,iat1)
      $                         + val
                              Hxy(2,iat1,1,iat1) = Hxy(2,iat1,1,iat1)
      $                         + val
                              val = p*(eri(ibuf+2) + eri(ibuf+6))
+                             if (oprint) then
       if (abs(val).gt. 1.0d+00) then
-      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
-      write(6,*) 'val is ',val
-      call flush(6)
+      write(luout,*) 'p and eri is ',p,eri(ibuf),ibuf
+      write(luout,*) 'val is ',val
+      call flush(luout)
+      endif
       endif
                              Hxy(1,iat1,3,iat1) = Hxy(1,iat1,3,iat1)
      $                         + val
                              Hxy(3,iat1,1,iat1) = Hxy(3,iat1,1,iat1)
      $                         + val
                              val = p*eri(ibuf+4)*2.0d+00
+                             if (oprint) then
       if (abs(val).gt. 1.0d+00) then
-      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
-      write(6,*) 'val is ',val
-      call flush(6)
+      write(luout,*) 'p and eri is ',p,eri(ibuf),ibuf
+      write(luout,*) 'val is ',val
+      call flush(luout)
+      endif
       endif
                              Hxy(2,iat1,2,iat1) = Hxy(2,iat1,2,iat1)
      $                         + val
                              val = p*(eri(ibuf+5) + eri(ibuf+7))
+                             if (oprint) then
       if (abs(val).gt. 1.0d+00) then
-      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
-      write(6,*) 'val is ',val
-      call flush(6)
+      write(luout,*) 'p and eri is ',p,eri(ibuf),ibuf
+      write(luout,*) 'val is ',val
+      call flush(luout)
+      endif
       endif
                              Hxy(2,iat1,3,iat1) = Hxy(2,iat1,3,iat1)
      $                         + val
                              Hxy(3,iat1,2,iat1) = Hxy(3,iat1,2,iat1)
      $                         + val
                              val = p *eri(ibuf+8)*2.0d+00
+                             if (oprint) then
       if (abs(val).gt. 1.0d+00) then
-      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
-      write(6,*) 'val is ',val
-      call flush(6)
+      write(luout,*) 'p and eri is ',p,eri(ibuf),ibuf
+      write(luout,*) 'val is ',val
+      call flush(luout)
+      endif
       endif
                              Hxy(3,iat1,3,iat1) = Hxy(3,iat1,3,iat1)
      $                         + val
@@ -457,8 +497,10 @@ c                             if (iat2.eq.iat1) itemp = icart2
                            end do
                         end do    ! 1 to nint
                      end if
-                     if (omore) write(6,*) 'going back for more ints'
-                     call flush(6)
+                     if (oprint) then
+                 if (omore) write(luout,*) 'going back for more ints'
+                     call flush(luout)
+                     endif
                      if (omore) goto 10
 c     
                      next = nxtask(nproc,task_size)

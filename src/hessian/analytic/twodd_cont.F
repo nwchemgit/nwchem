@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.16 2001-04-05 22:25:07 windus Exp $
+C $Id: twodd_cont.F,v 1.17 2001-04-11 16:30:14 edo Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -72,9 +72,9 @@ c
 c Set up printing
 c
       oprint = util_print('hess_follow',print_high)
-      oprint = oprint .and. (ga_nodeid().eq.0)
+!      oprint = oprint .and. (ga_nodeid().eq.0)
       otwoprint = util_print('twodd_cont',print_debug)
-      otwoprint = otwoprint .and. (ga_nodeid().eq.0)
+!      otwoprint = otwoprint .and. (ga_nodeid().eq.0)
 c
 c  First let's do the DFT part.
 c  For now we send in seperate memory, k_hess_xc and g_rhs_xc, to make sure
@@ -84,7 +84,8 @@ c  not zero out the matrices when they enter the routines.
 c  I will add the results into the actual "permanent" storage for now so
 c  the rest of the code will work properly.
 c
-      if (oprint) write (LuOut,*) 'HESS: DFT contribution'
+      if (oprint.and.(ga_nodeid().eq.0)) 
+     .     write (LuOut,*) 'HESS: DFT contribution'
       if (theory.eq.'dft') then
         call xc_hessian(geom,rtdb,nbf,basis,
      ,       g_dens, nactive, log_mb(k_act), 
@@ -94,15 +95,17 @@ c
         if (ocdfit) call j_cpks_rhs(g_dens, log_mb(k_act), nactive,
      *     g_rhs_xc)
       if (otwoprint) then
+         if(ga_nodeid().eq.0) then
         write(LuOut,*)
         write(LuOut,*) 'The Hessian dft contribution'
         call hess_hssout(dbl_mb(k_hess_xc),ncent*3,ncent*3,ncent*3)
         write(LuOut,*)
         write(LuOut,*) 'The g_rhs dft contribution'
+        endif
         do i = 1, ndens*n3xyz
-          write(LuOut,*) 'ndisplacement ', i
+          if(ga_nodeid().eq.0)write(LuOut,*) 'ndisplacement ', i
           call ga_print(g_rhs_xc(i))
-          write(LuOut,*)
+          if(ga_nodeid().eq.0)write(LuOut,*)
         enddo
       endif
 c
@@ -119,15 +122,17 @@ c
 c Print out the hessian before adding anything else
 c
       if (otwoprint) then
+         if(ga_nodeid().eq.0) then
         write(LuOut,*)
         write(LuOut,*) 'The full Hessian after the dft contribution'
         call hess_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
         write(LuOut,*)
         write(LuOut,*) 'The full g_rhs after the dft contribution'
+        endif
         do i = 1, ndens*n3xyz
-          write(LuOut,*) 'ndisplacement ', i
+          if(ga_nodeid().eq.0)write(LuOut,*) 'ndisplacement ', i
           call ga_print(g_rhs(i))
-          write(LuOut,*)
+          if(ga_nodeid().eq.0)write(LuOut,*)
         enddo
       endif
 c
@@ -136,7 +141,8 @@ c  Need to do a lot of setup for this.
 c
 c  Get some basis set and shell information.
 c
-      if (oprint) write(LuOut,*) 'HESS: setup and block order'
+      if (oprint.and.(ga_nodeid().eq.0)) 
+     .     write(LuOut,*) 'HESS: setup and block order'
       if (.not. bas_numcont(basis,nsh))
      $     call errquit('twodd_cont: could not get nsh',0)
       if (.not. bas_nbf_ce_max(basis,max_at_bf))
@@ -226,7 +232,7 @@ c
       if (.not.nga_create(MT_DBL,4,ndims,'Fockders',chunk,g_fock))
      *  call errquit('twodd_cont: Could not create g_fock',555)
       call ga_zero(g_fock)
-      if (otwoprint) then
+      if (otwoprint.and.(ga_nodeid().eq.0)) then
         write(LuOut,*) 'before going into shell_fock_build:'
         write(LuOut,*) 'geom, basis, n3xyz, ndens, tol2e', geom, basis, 
      *      n3xyz, ndens, tol2e
@@ -237,14 +243,17 @@ c
       call shell_fock_build (geom, basis, n3xyz, ndens, jfac, kfac,
      *   tol2e, g_dens, g_fock, log_mb(k_act))
       if (otwoprint) then
+         if(ga_nodeid().eq.0) then
         write(LuOut,*) 'after going into shell_fock_build:'
         write(LuOut,*) 'geom, basis, n3xyz, ndens, tol2e', geom, basis, 
      *      n3xyz, ndens, tol2e
+        endif
         do i = 1, ndens
-          write(LuOut,*) 'jfac and kfac and i ',jfac(i),kfac(i),i
+           if(ga_nodeid().eq.0)
+     .     write(LuOut,*) 'jfac and kfac and i ',jfac(i),kfac(i),i
         enddo
+        call ga_print(g_fock)
       endif
-      call ga_print(g_fock)
 c
       blen = min(nbf,maxblen,6*max_sh_bf) ! d(6)*6=36, 6**4=1296 quartets
 c
@@ -370,7 +379,7 @@ c
          call ga_reorder(g_dens(i), .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
          if (otwoprint) then
-           write(LuOut,*) 'Density after reordering'
+         if(ga_nodeid().eq.0)write(LuOut,*) 'Density after reordering'
            call ga_print(g_dens(i))
          endif
       end do
@@ -383,7 +392,8 @@ c
 c
 c  Actually do the deed
 c
-      if (oprint) write(LuOut,*) 'HESS: before twodd_coul_ex call'
+      if (oprint.and.(ga_nodeid().eq.0)) 
+     .     write(LuOut,*) 'HESS: before twodd_coul_ex call'
       if (jfac(1).ne.0.0d0 .or. kfac(1).ne.0.0d0) call twodd_coul_ex(
      $     dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
      $     dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk),
@@ -419,7 +429,7 @@ c    $     jfac, kfac,.false.)
 c
 c Print out the hessian before adding anything else
 c
-      if (otwoprint) then
+      if (otwoprint.and.(ga_nodeid().eq.0)) then
         write(LuOut,*)
         write(LuOut,*) 'The Hessian after the twodd contribution'
         call hess_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
@@ -453,9 +463,9 @@ cc       bhi(2) = j
         call ga_reorder(g_rhs(i), .true., int_mb(k_bfmap),
      *       .true., int_mb(k_bfmap))
         if (otwoprint) then
-          write(LuOut,*) 'fockder ', i
+          if(ga_nodeid().eq.0)write(LuOut,*) 'fockder ', i
           call ga_print(g_rhs(i))
-          write(LuOut,*) 
+          if(ga_nodeid().eq.0)write(LuOut,*) 
         endif
 cc     enddo
       enddo
