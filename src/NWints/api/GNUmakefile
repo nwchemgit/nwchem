@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.58 1997-06-17 19:25:58 d3e129 Exp $
+# $Id: GNUmakefile,v 1.59 1997-06-18 23:02:14 d3e129 Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -30,8 +30,8 @@ endif
     HEADERS = int_tim.fh apiP.fh int_nbf.fh
    LIBRARY = libnwints.a
 
- USES_BLAS = int_1e3ov.F int_hf1sp.F int_lgen1e.F intb_2e4c.F intd_1e3ov.F \
-             intd_1eh1.F intd_2e2c.F intd_2e4c.F  intp_txyz.F
+ USES_BLAS = int_1e3ov.F  int_hf1sp.F int_lgen1e.F intb_2e4c.F intbd_2e4c.F \
+             intd_1e3ov.F intd_1eh1.F intd_2e2c.F  intd_2e4c.F intp_txyz.F
 
 
 include ../../config/makefile.h
