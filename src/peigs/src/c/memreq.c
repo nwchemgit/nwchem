@@ -559,8 +559,24 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
   ppd_tmp = max(  ppd_tmp, ptr_pdspevx );
 
   *isize    =  i_tmp + nextra + 4*msize + 10*naproc + 16*naproc ;
+  i = *isize;
+  i = ( i + sizeof(DoublePrecision) ) % sizeof(DoublePrecision) ;
+  *isize = *isize + i;
+  
+  
   *rsize    =  d_tmp + nextra + 8*msize + msize*msize/naproc;
+  i = *rsize;
+  i = ( i + sizeof(DoublePrecision) ) % sizeof(DoublePrecision) ;
+  *rsize = *rsize + i;
+
   *ptr_size =  ppd_tmp + nextra + 8*msize + 10*msize;
+  i = *ptr_size;
+  i = ( i + sizeof(DoublePrecision) ) % sizeof(DoublePrecision) ;
+  *ptr_size = *ptr_size + i;
+
+  printf(" isize %d rsize %d ptr_size %d \n", *isize, *rsize, *ptr_size);
+  fflush(stdout);
+
   
   return;
 }
