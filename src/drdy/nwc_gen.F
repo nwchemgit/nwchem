@@ -1,4 +1,4 @@
-C $Id: nwc_gen.F,v 1.10 2003-10-29 00:14:47 edo Exp $
+C $Id: nwc_gen.F,v 1.11 2003-10-29 00:19:02 edo Exp $
       Subroutine nwc_gen (x,v,dx,fmat,hess,xs,natom,n3,n3tm,ndbar,op)
 C
 C  Run NWChem task to get potential and first and second derivatives
@@ -29,7 +29,7 @@ C
       character*16 groupname
       character*255 dummy_file
       Integer ncenter_B4_autosym, ncenter, nata
-      Integer current_print_level
+      Integer current_print_level,nops
       logical oautosym
 *     logical copy_sym, copy_c1, oautosym
 *
@@ -102,7 +102,7 @@ c     Apply system and symmetry info to the list of
 c     unique centers build mapping tables set up coord lists
 c
         nata = ncenter
-        call sym_nwc(geom,my_rtdb,nata,.false.,1.0d00,threquiv,
+        call sym_nwc(geom,my_rtdb,nata,.false.,1.0d00,threquiv,nops,
      %       .false.)
 c
 c     Check that if we used autosym that we ended up with the
