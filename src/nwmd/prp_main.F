@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.40 2000-05-16 07:06:31 d3j191 Exp $
+c $Id: prp_main.F,v 1.41 2000-05-25 20:39:58 d3j191 Exp $
 c
       implicit none
 c
@@ -33,8 +33,8 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
-      external timer_wall
-      real*8 timer_wall
+      external timer_wall,timer_wall_total
+      real*8 timer_wall,timer_wall_total
 c
       integer mdstep
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme(3)
@@ -220,6 +220,46 @@ c
       p(it)=gsm(i,iset)
       if(p(it).lt.tiny) lp(it)=.false.
    37 continue
+      endif
+c
+      if(iprof.eq.1) then
+      it=it+1
+      p(it)=timer_wall_total(10)
+      it=it+1
+      p(it)=timer_wall_total(11)
+      it=it+1
+      p(it)=timer_wall_total(12)
+      it=it+1
+      p(it)=timer_wall_total(13)
+      it=it+1
+      p(it)=timer_wall_total(14)
+      it=it+1
+      p(it)=timer_wall_total(15)
+      it=it+1
+      p(it)=timer_wall_total(16)
+      it=it+1
+      p(it)=timer_wall_total(17)
+      it=it+1
+      p(it)=timer_wall_total(18)
+      it=it+1
+      p(it)=timer_wall_total(19)
+      it=it+1
+      p(it)=timer_wall_total(20)
+      it=it+1
+      p(it)=timer_wall_total(21)
+      it=it+1
+      p(it)=timer_wall_total(22)
+      it=it+1
+      p(it)=timer_wall_total(23)
+      it=it+1
+      p(it)=timer_wall_total(24)
+      it=it+1
+      p(it)=timer_wall_total(25)
+      it=it+1
+      p(it)=timer_wall(2)
+      endif
+c
+      if(nsm.gt.0) then
       nprop=0
       do 137 i=1,maxpro
       if(lp(i)) then

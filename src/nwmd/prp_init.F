@@ -2,9 +2,9 @@
      + nf1,nf2,nf3,
      + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
-     + msmi,nsmi,ddi,edi)
+     + msmi,nsmi,ddi,edi,iprf)
 c
-c $Id: prp_init.F,v 1.24 2000-05-09 17:48:04 d3j191 Exp $
+c $Id: prp_init.F,v 1.25 2000-05-25 20:39:58 d3j191 Exp $
 c
       implicit none
 c
@@ -12,7 +12,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
-      integer nserie,ntyp,lfn,iout,iprp,igib
+      integer nserie,ntyp,lfn,iout,iprp,igib,iprf
       integer nwmtot,msfi,nsfi,mpei,nf1,nf2,nf3
       integer mdacq,mrn,ipset,isetp1,isetp2,msmi,nsmi
       logical lcf,lsp,ltwn,lpol,lpme,llpener,llpstep
@@ -49,6 +49,8 @@ c
       iset=ipset
       ipset1=isetp1
       ipset2=isetp2
+c
+      iprof=iprf
 c
       tstep=tstp
       ddacq=ddi
@@ -303,6 +305,60 @@ c
       write(pronam(it)(34:38),'(i5)') i
       lp(it)=.true.
     7 continue
+      endif
+c
+      if(iprof.eq.1) then
+      it=it+1
+      pronam(it)='Prof: replicated data interactions               s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: pme charge grid calculation                s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: pme subset synchronization 1               s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: reverse fft                                s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: pme reciprocal work                        s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: pme subset synchronization 2               s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: forward fft                                s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: i/o                                        s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: local coordinate retrieval                 s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: local force calculation                    s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: local force accumulation                   s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: remote coordinate retrieval                 s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: remote force calculation                    s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: remote force accumulation                   s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: pme wait                                    s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: pme forces calculation                      s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: synchronization                             s'
+      lp(it)=.true.
       endif
 c
       endif
