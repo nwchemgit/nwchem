@@ -1,0 +1,562 @@
+<HTML>
+  
+<HEAD>
+<TITLE>Notes on running NWChem on the MHPCC IBM SP2</TITLE>
+  </HEAD>
+  
+<BODY BGCOLOR="FAEBD7">
+<P><IMG SRC="/msrc/home/d3g681/html/nwchem/nwchem_logo.gif" ALT="NWChem - computational chemistry on parallel computers"> 
+ </P>
+	<HR>
+	  
+<H1>Notes on running NWChem on the MHPCC IBM SP2</H1>
+
+ <P>Much of the information below has been exracted from information
+available through the web at MHPCC or IBM SP man pages by Jeff Nichols
+(<EM>ja_nichols@pnl.gov</EM>).
+
+ <P>For NWChem support mail
+<EM>nwchem-support@emsl.pnl.gov</EM> or visit the <A
+HREF="http://www.emsl.pnl.gov:2080/docs/nwchem/nwchem.html"> NWChem
+homepage</A>.
+ <P>
+<HR>
+
+
+<H2>Useful adresses at MHPCC</H2>
+
+<EM>Note</EM> - Lon Waters is the designated support for chemistry and
+physics at MHPCC
+
+<UL>
+<LI> The MHPCC WWW <A HREF="http://www.mhpcc.edu/mhpcc.html">home page</A>.
+
+<LI> User related technical questions ... 
+     <EM>help@mail.mhpcc.edu</EM>
+
+<LI> To obtain a new userid ... <EM>accounts@mail.mhpcc.edu</EM>
+
+<LI> General MHPCC information (non-technical)
+     ... <EM>info@mail.mhpcc.edu</EM> 
+
+<LI> Maui High Performance Computing Center,
+     550 Lipoa Parkway, Kihei, HI  96753.                     
+
+<LI> Telephone: (808) 879-5077
+
+<LI> Telephone: 1-800-309-MAUI (6284)
+
+<LI> Facsimile: (808) 879-5018 
+
+</UL> 
+
+<H2>General SP information</H2>
+  
+ <P>  MHPCC uses LoadLeveler for scheduling batch use of the machine.  You
+log on to one of the SP2 interactive nodes (tsunami.sp2.mhpcc.edu) and
+from there proceed to launch 
+<OL>
+<LI> sequential interactive jobs just like
+you were logged on to an individual IBM RS6000 workstation, 
+
+<LI> interactive parallel jobs sharing the interactive pool resources using
+procedures described below, or 
+
+<LI> batch parallel jobs via LoadLeveler which will also be described
+below.
+</OL>
+
+ <P> You need to know about just a few facts and commands to get going.
+
+ <P> Each node of the SP is a Power2 cpu with varying amounts of
+physical memory and local scratch disk (named <TT>/localscratch</TT>)
+see the table below.  The O/S and I/O buffers consume about 17 MB
+(estimate), and the NWChem executable is about 7 MB.  MHPCC provides
+temporary disk space for all users in two locations:
+<DL>
+<DT> <TT>/localscratch</TT>
+<DD> Approximately 250 Megabytes on each node.  This temporary file
+     space provides the the best I/O performance because it is local
+     to each node.
+<DT> <TT>/scratch1, /scratch2, /scratch3, /scratch4</TT>
+<DD> Approximately 2 Gigabytes on each partition, shared across all
+     nodes. I/O is performed over the network -- not as efficient as
+     <TT>/localscratch </TT> temp space but much larger.
+ </DL>
+
+ <P>You should note that MHPCC will regularly remove "old" files from the 
+temporary directories. File removal is based upon the last time the file 
+was used/accessed. The schedule for when files are removed is subject to 
+change.  Currently, the schedule is: 
+<UL>
+<LI>  <TT>/localscratch</TT> - 2 days 
+<LI>  <TT>/scratch1, /scratch2, /scratch3, /scratch4</TT> - 1 day 
+</UL>
+Thus, in order for useful files to be saved by default and to make sure 
+that scratch files with high bandwidth requirements are in 
+<TT>/localscratch</TT>, you should always
+<UL>
+<LI> specify full path names for files, and
+<LI> ensure that any directory names are accessible from all nodes
+     (i.e., either just <TT>/localscratch</TT> for the local disk on
+     each node, or a subdirectory of your home or <TT>/scratch</TT>
+     directory).
+</UL>
+
+ <P> There are only a couple of commands which will give you per node
+activity information; "<TT>jmstat</TT>" and "<TT>jm_status -Pv</TT>".
+These commands tell you activity on the SP (by job and by node).
+Examples of information retrieved from these commands is given below.
+
+ <P><PRE>
+fr2n07% jmstat
+  Job started   Nodes    PID     Title    User
+Mar_25_09:49:52    1    17407 LoadLeveler vnatoli
+Mar_25_09:49:54    1    18609 LoadLeveler tang
+Mar_25_09:50:16    1    17805 LoadLeveler apsteffe
+Mar_25_09:50:20    1    21931 LoadLeveler jjyoh
+Mar_25_09:50:27    1    22109 LoadLeveler apsteffe
+Mar_25_09:50:27    1    22407 LoadLeveler swilke
+Mar_25_09:50:54    3    23759 LoadLeveler kairys
+Mar_25_09:51:25    1    20436 LoadLeveler vnatoli
+Mar_25_09:53:35    1    22047 LoadLeveler apsteffe
+Mar_25_09:55:53    1    19344 LoadLeveler petrisor
+Mar_25_09:55:56    1    22998 LoadLeveler petrisor
+Mar_25_10:15:47   16    22545 LoadLeveler daypn
+Mar_25_10:15:47    8    14361 LoadLeveler ansaria
+Mar_25_10:45:32    1    17596 LoadLeveler mgomez
+Mar_25_10:45:32    1    19436 LoadLeveler sinkovit
+Mar_25_10:45:39    1    21947 LoadLeveler keesh
+Mar_25_10:46:04    1    15970 LoadLeveler mgomez
+Mar_25_13:05:44   32    17034 LoadLeveler rlee
+Mar_25_13:25:35    5    18803 LoadLeveler hyun
+Mar_25_14:24:19    8    16199 LoadLeveler zhong
+Mar_25_14:53:32   64    17314 LoadLeveler calhoun
+Mar_25_15:03:04    1    19428 LoadLeveler gardnerk
+Mar_25_15:14:55    8    15820 LoadLeveler mws
+Mar_25_15:15:59    8    16138 LoadLeveler ansaria
+Mar_25_15:25:13   16    21248 LoadLeveler bogusz
+Mar_25_15:33:43    1    20652 LoadLeveler gardnerk
+Mar_25_15:35:45    3    19149 LoadLeveler kairys
+</PRE>
+
+ <P><PRE>
+fr2n07% jm_status -Pv
+Pool 0:    Free_for_all_pool
+  Subpool: GENERAL
+    Node:  fr1n05.mhpcc.edu
+    Node:  fr1n06.mhpcc.edu
+    Node:  fr1n07.mhpcc.edu
+    Node:  fr1n08.mhpcc.edu
+    Node:  fr1n09.mhpcc.edu
+    Node:  fr1n10.mhpcc.edu
+    Node:  fr1n11.mhpcc.edu
+    Node:  fr1n12.mhpcc.edu
+    Node:  fr1n13.mhpcc.edu
+    Node:  fr1n14.mhpcc.edu
+    Node:  fr1n15.mhpcc.edu
+    Node:  fr1n16.mhpcc.edu
+    Node:  fr2install1.mhpcc.edu
+    Node:  fr2n04.mhpcc.edu
+    Node:  fr2n05.mhpcc.edu
+    Node:  fr2n06.mhpcc.edu
+    Node:  fr2n07.mhpcc.edu
+    Node:  fr2n08.mhpcc.edu
+    Node:  fr2n09.mhpcc.edu
+    Node:  fr2n10.mhpcc.edu
+    Node:  fr2n11.mhpcc.edu
+    Node:  fr2n12.mhpcc.edu
+    Node:  fr2n13.mhpcc.edu
+    Node:  fr2n14.mhpcc.edu
+    Node:  fr2n15.mhpcc.edu
+    Node:  fr2n16.mhpcc.edu
+Pool 1:    LoadLeveler
+  Subpool: BATCH
+    Node:  fr3install1.mhpcc.edu
+      Job 108: time_allocated=Mon_Mar_25_10:45:32_1996
+        description=LoadLeveler
+        requestor=sinkovit requestor_pid=19436
+        requestor_node=fr3n01.mhpcc.edu
+        Adapter type=ETHERNET
+        Usage: cpu=SHARED adapter=SHARED
+        virtual task ids: 0 
+    Node:  fr3n02.mhpcc.edu
+...
+</PRE>
+
+<H2>MHPCC SP2 configuration</H2>
+
+ <P> The configuration of the MHPCC SP2 as of 22 March 1996
+
+ <P><PRE>
+----------------------------------------------------------------------------
+                               LOCAL-
+                    NODE  MEM SCRATCH MIN   MAX  TIME             
+ CLASS/USE   #NODES TYPE  MB     GB   PROC  PROC LIMIT  FRAMES
+----------------------------------------------------------------------------
+ bigmem         5   wide  1024   2.0    1     5   8 hr  28 (n07-n15)
+----------------------------------------------------------------------------
+ large        128   thin   128   1.0   64   128   8 hr  5,6,19,20,23,24,25,26
+                1   thin   128   1.0   64   128   8 hr  18
+----------------------------------------------------------------------------
+ medium        32   wide   256   2.0    8    64   4 hr  16,21 22,27
+               48   thin    64   .25    8    64   4 hr  10,11,12
+----------------------------------------------------------------------------
+ long           8   wide   256   2.0    1    32  24 hr  15
+               15   thin   128   1.0    1    32  24 hr  18
+               16   thin    64   .25    1    32  24 hr  9
+                8   thin    64   .25    1    32  24 hr  3   (n01-n08)
+----------------------------------------------------------------------------
+ small_long    16   thin   128   1.0    1     8   8 hr  17
+----------------------------------------------------------------------------
+ small_short   16   thin    64   .25    1     8   2 hr  4
+                8   wide   256   1.0    1     8   2 hr  7
+                8   thin    64   .25    1     8   2 hr  3   (n09-n16)
+----------------------------------------------------------------------------
+ Interactive   27   thin    64   .25   n/a   n/a  n/a   1,2 
+ Only        
+----------------------------------------------------------------------------
+ Staff         16   thin    64   .25   n/a   n/a  n/a   29
+ (reserved)
+----------------------------------------------------------------------------
+ Training      16   thin    64   .25   n/a   n/a  n/a   30
+ (reserved)
+----------------------------------------------------------------------------
+</PRE>
+
+ <P><PRE>
+Reserved Nodes: 
+  fr1n01,n02,n03,n04
+  fr2n02
+  fr8n01,n03,n05,n07,n09,n11,n13,n15
+  fr28n01, fr28n03, fr28n05
+  fr29n01 - n16
+  fr30n01 - n16
+  fr13n01,n03,n05,n07,n09,n11,n13,n15
+  fr14n01,n03,n05,n07,n09,n11,n13,n15
+
+Node Sharing Among Classes:
+  fr17n01-fr17n16 are shared between small_long (primary) and small_short
+  fr28n07-fr28n15 are shared between bigmem (primary) and medium
+
+</PRE>
+
+
+<H2>Running interactive parallel jobs</H2>
+
+ <P>Interactive parallel jobs are executed using IBM's Parallel
+Operating Environment (<TT>poe</TT>). This is IBM's environment for
+developing and running distributed memory, parallel Fortran, C or C++
+programs.
+
+ <H3>Executing Parallel Programs Using POE</H3>
+
+ <P>In order to execute a parallel program, you need to: 
+<OL>
+<LI> Set your path to include the necessary POE executables. 
+<LI> Create a .rhosts file 
+<LI> Compile and link the program using one of the POE compile scripts. 
+<LI> Set up your execution environment by setting the necessary POE 
+     environment variables. 
+<LI> Create a host list file (optional) 
+<LI> Invoke the executable.
+</OL>
+
+<H4>1. Setting Your Path</H4>
+
+ <P>The POE executables are usually located in the directory
+<TT>/usr/lpp/poe/bin</TT>.  There may be symbolic links pointing to
+them from <TT>/usr/bin</TT> or some other location. This may vary from
+system to system.
+
+ <P>To determine if the POE executables are in your path, use a
+command such as which poe or whence. If the poe executable can not be
+found, then you will need to include the directory
+<TT>/usr/lpp/poe/bin</TT> in your path. For example:
+<PRE>
+   set path = ($path /usr/lpp/poe/bin)
+</PRE>
+
+ <P>This can be done by typing at the Unix prompt or adding it to one of your
+startup files (<TT>.cshrc</TT>, <TT>.profile</TT> or <TT>.login</TT>): 
+
+ <P>If the POE executables are found with the which or whence command,
+you need to do nothing to your path.
+
+<H4>2. Creating a .rhosts File</H4>
+
+ <P>Copy the <TT>.rhosts</TT> file supplied in this directory to your home
+directory.
+
+<H4>3. Compiling and Linking a Parallel Program</H4>
+
+ <P>POE includes three compile scripts which will automatically link in
+the necessary POE libraries and then call the native IBM Fortran, C or
+C++ compiler (<TT>xlf, cc, CC</TT>); <TT>mpxlf</TT> for Fortran,
+<TT>mpcc</TT> for C, and <TT>mpCC</TT> for C++.  All three compiler
+scripts can take <TT>-ip</TT> or <TT>-us</TT> as options.  The
+<TT>-ip</TT> flag causes the IP CSS to be statically bound with the
+executable.  Communication during execution will use the Internet
+Protocol. The <TT>-us</TT> flag causes the US CSS library to be
+statically bound with the executable. This library uses the User Space
+protocol for dedicated use of the high-performance switch adapter. If
+neither flag is set, then no CSS library will be linked at compile
+time.  Instead it will be linked dynamically with the executable at
+run time. The library which will be linked is determined by the
+MP_EUILIB environment variable.
+
+ <P>Options include all valid options available with the native compiler
+(<TT>xlf, cc, CC</TT>). There are numerous compile options available
+with the IBM Fortran, C and C++ compilers, many of which can
+dramatically improve performance.  Users are advised to consult the
+IBM documentation (e.g., man pages) for details.
+
+<H4>4. Setting Environment Variables</H4>
+
+ <P>There are many environment variables and command line flags that
+you can set to influence the operation on PE tools and the execution
+of parallel programs. A complete discussion and list of the PE
+environment variables can be found in the IBM AIX Parallel Environment
+Operation and Use manual. They can also be reviewed (in less detail)
+in the POE man page.
+
+ <P>Environment variables may be set on the shell command line or
+placed within your shell's "dot" files (<TT>.cshrc</TT>,
+<TT>.profile</TT>). Alternately, they may be put into a file which is
+"sourced" prior to execution.  The relevant variables are found in the
+accompanying <TT>.cshrc</TT> (which can be included in your own).
+
+ <P>PE environment variables can be overridden by supplying the
+appropriate flag when the program executable is invoked. See the POE
+man page for details.
+
+<H4>5. The Host List File </H4>
+
+ <P>The host list file is not required if you let the Resource Manager
+allocate which nodes your job uses (<TT>MP_HOSTFILE</TT> set to NULL
+or ""). This is preferred.  The sophisticated user can see the
+appropriate documentation to do otherwise.
+
+<H4>6. Invoking the Executable</H4>
+
+ <P>Once the environment is setup and the executables are created,
+invoking the executables is relatively easy.
+
+ <P>For single program multiple data (SPMD) programs, simply issue the
+name of the executable, specifying any command line flags that may be
+required.  Command line flags may be used to temporarily override any
+MP environment variables that have been set. See the POE man page for
+a complete listing of flags.
+
+ <P>Interactive jobs are straightforward if you utilize NFS input, output, 
+and data files.  If you wish to use local file systems (which is more 
+efficient) it gets a bit more complicated.  Perl scripts have been written
+by MHPCC staff (Lon Waters) which make the interactive job scripts 
+resemble LoadLeveler (batch queueing) scripts.  These will be discussed
+in the context of running NWChem after the LoadLeveler discussion below.
+
+<H2>CPU and Communications Adapter Usage</H2>
+
+ <P>POE jobs typically require both CPU and communications adapter
+resources.  The manner in which a job uses these two resources effects
+both job performance and whether or not other users can run jobs on
+the same node.
+
+ <P>CPU Usage: may be either "unique" or "multiple" 
+<UL>
+<LI> IP specific node allocation: <EM>default = multiple</EM>.
+     Permits any number of other IP jobs and up to one US job to run
+     on the same node.
+<LI> US specific node allocation: <EM>default = multiple</EM>. Permits
+     any number of other IP jobs and NO other US job to run on the
+     same node.
+<LI> US non-specific node allocation: <EM>default = unique</EM>. No
+     other jobs permitted on same node - either IP or US. Set the
+     environment variable <TT>MP_CPU_USE</TT> to "<TT>multiple</TT>"
+     to override this.
+</UL>
+
+ <P>Communications Adapter Usage: may be either "shared" or "dedicated" 
+<UL>
+<LI>IP: <EM>default = shared</EM>. Permits any number of other IP jobs
+     and up to one US job to share the communications adapter on a node.  
+
+<LI> US: <EM>default = dedicated</EM>. Permits any number of other IP
+     jobs and <EM>no</EM> other US jobs to share the communications
+     adapter on a node. Can not be overridden.
+</UL>
+
+ <P>Best performance is usually obtained running with US communications
+when CPU use is "unique" and the adapter is "dedicated".
+
+ <P>The best "good neighbor" policy is for all POE jobs to run with IP
+communications using the defaults of CPU use "multiple" and adapter
+"shared".
+
+ <P>For the most part, users do not need to change the default settings
+for CPU usage and communications adapter usage. One instance where the
+default might be changed concerns the use of US communications in an
+interactive pool of nodes shared by many users. In this case, it might
+be considered "good neighbor policy" to set <TT>MP_CPU_USE</TT> to
+multiple so that at least other IP jobs can run also.
+
+<H2>Running batch parallel jobs via LoadLeveler</H2>
+
+ <P>LoadLeveler is a batch job scheduling application and program
+product of IBM. It provides the facility for building, submitting and
+processing batch jobs within a network of machines.  It attempts to
+match job requirements with the best available machine resources. It
+can schedule serial or parallel (PVMe, PVM, MPL, MPI) jobs.  It
+provides a graphical user interface called <TT>xloadl</TT> for job
+submission and monitoring.
+
+ <P>The entire collection of machines available for LoadLeveler
+scheduling is called a "pool".  Every machine in the pool has one or
+more LoadLeveler daemons running on it. There is one Central Manager
+machine for the LoadLeveler pool whose principal function is to
+coordinate LoadLeveler related activities on all machines in the pool;
+maintaining status information on all machines and jobs, making
+decisions on where jobs should be run, etc.  Other machines in the pool
+may be used to: submit jobs, execute jobs, or schedule submitted jobs
+(in cooperation with Central Manager)
+
+ <P>Every LoadLeveler job must be submitted through a job command file.
+LoadLeveler will not directly accept executable (<TT>a.out</TT>) files.
+Only after defining a job command file, may a user submit the job for
+scheduling and execution.  LoadLeveler scripts resemble shell scripts
+in appearance.  It contains LoadLeveler statement lines with
+LoadLeveler keywords that describe the job to run, comment lines (not
+executed), and may contain <TT>csh</TT>, <TT>ksh</TT>, or <TT>sh</TT>
+lines if desirable.  LoadLeveler keywords specify job information such
+as: executable name, class (queue), resource requirements, input/output
+files, number of processors required, job type (serial, parallel,
+pvm3), etc.
+
+ <P>With the LoadLeveler GUI (<TT>xloadl</TT>), jobs can be submitted
+by using the "File" menu on any of the 3 <TT>xloadl</TT> windows.
+
+ <P>In addition to submitting the job, there are LoadLeveler commands
+available to monitor and change characteristics of the job.  For
+example,
+
+<DL>
+<DT> <TT>llstatus</TT>
+<DD> Shows you information about the machines in the LoadLeveler 
+pool.
+
+<DT> <TT>llsubmit</TT>
+<DD>Submits a LoadLeveler job command file for scheduling 
+and execution.
+
+<DT> <TT>llq</TT>
+<DD> Gets information about jobs.
+
+<DT> <TT>llcancel</TT>
+<DD> Cancels a job.
+
+
+<DT> <TT>llhold</TT>
+<DD>Holds/releases a job.
+
+<DT> <TT>llprio</TT>
+<DD> Changes the priority of a job.
+
+<DT> <TT>xloadl</TT>
+<DD> Invokes LoadLeveler's graphical user interface.
+  </DL>
+
+<H2>Running NWChem</H2>
+
+ <P>In the directory <TT>/u/nichols/nwchem/contrib/ibm_sp@mhpcc</TT>
+are several files
+
+<DL>
+<DT> <TT>ibm_sp@mhpcc.html</TT>
+<DD> this file.
+
+<DT> <TT>LLnwchem</TT>
+<DD> a LoadLeveler script for running NWChem in batch.
+
+<DT> <TT>intnwchem</TT>
+<DD> a script for running nwchem interactively (under development).
+
+<DT> <TT>poesubmit</TT>
+<DD> a perl script for submitting LoadLeveler jobs 
+              interactively (under development).
+
+<DT> <TT>examples</TT>
+<DD> a directory with example inputs and outputs for NWChem.
+
+<DT> <TT>.rhosts</TT>
+<DD> a file containing the 400 IP names associated with the MHPCC.
+
+<DT> <TT>.cshrc</TT>
+<DD> a file containing the appropriate environment variable 
+              defaults.
+</DL>
+
+ <P>Append or copy the dot files to the dot files (<TT>.rhosts</TT> and
+<TT>.cshrc</TT>) in your login directory.  Copy the scripts for running
+nwchem (<TT>LLnwchem</TT> and <TT>intnwchem</TT>) into your login
+directory.
+
+ <P>Copy one of the example input files into your login directory
+(e.g.,
+<TT>/u/nichols/nwchem/contrib/ibm_sp@mhpcc/examples/scf_h2o.nw</TT> -
+input for a conventional SCF calculation on water).
+
+<H3>Running NWChem in batch</H3>
+
+Modify <TT>LLnwchem</TT> as appropriate (e.g., change "nichols" to your
+user id, etc.  Submit the job to the SP using LoadLeveler:
+<PRE>
+    "llsubmit LLnwchem"
+</PRE>
+
+<H3>Running NWChem interactively</H3>
+
+<H4>1. Using NFS file systems</H4>
+
+<PRE>
+  /u/nichols/nwchem/bin/SP1/nwchem scf_h2o.nw >& scf_h2o.out -rmpool 0 -procs 4
+</PRE>
+
+<H4>2. Using local file systems</H4>
+
+ <P>This is under development and currently not supported (4/10/96)
+Modify <TT>intnwchem</TT> as appropriate (e.g., change "nichols" to
+your user id, etc.  Launch the job using the perl script
+<TT>poesubmit</TT>.
+
+<PRE>
+  "poesubmit intnwchem"
+</PRE>
+
+<H2>Troubleshooting</H2>
+
+  This section under construction.
+
+<H2>NWChem support</H2>
+
+ <P> Report NWChem problems, suggestions, feedback, etc., to
+<EM>nwchem-support@emsl.pnl.gov</EM> or using the WWW <A
+HREF="http://www.emsl.pnl.gov:2080/docs/nwchem/support/support.html">support
+form</A>.
+
+ <P>  There is a mailing list for NWChem users that can be used for
+announcements and discussion amoung users.  To subscribe send email to
+<EM>majordomo@emsl.pnl.gov</EM> with the body "subscribe
+nwchem-users".  You can do this with the following command
+<PRE>
+     echo subscribe nwchem-users | mail majordomo@emsl.pnl.gov
+</PRE>
+
+ <P>  To post a message to the mailing list send it to
+<EM>nwchem-users@emsl.pnl.gov</EM>.
+
+
+<H2>Acknowledgements</H2>
+
+Lots of help from MHPCC support, specifically Lon Waters.
+
+</HTML>
