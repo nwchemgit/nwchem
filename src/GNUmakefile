@@ -1,12 +1,12 @@
 
-# $Id: GNUmakefile,v 1.58 1997-05-19 19:20:49 d3g681 Exp $
+# $Id: GNUmakefile,v 1.59 1997-06-28 20:10:36 d3e129 Exp $
 
 include config/makefile.h
 
   SUBDIRS =  $(NWSUBDIRS)
 
   LIB_DEFINES =  -DCOMPILATION_DATE="'`date`'" \
-                 -DCOMPILATION_DIR="'$(NWCHEM_TOP)'"
+                 -DCOMPILATION_DIR="'$(TOPDIR)'"
 
 #
 # This should be the first target so that a simple make builds
