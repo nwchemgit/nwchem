@@ -1,4 +1,4 @@
-c $Id: int_2e3c.F,v 1.16 1998-12-10 23:48:08 d3e129 Exp $
+c $Id: int_2e3c.F,v 1.17 1999-05-07 21:44:14 bjohnson Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e3c}
@@ -46,6 +46,9 @@ c::functions
       logical cando_txs
       external cando_txs
 #endif
+c::functions
+      integer int_nint_cart
+      external int_nint_cart
 c:: passed
 c:tex-\begin{verbatim}
       integer brain ! [input] bra basis set handle
@@ -72,9 +75,9 @@ c:: local
       integer num_quart, dummy_lab(2)
       double precision roff(3), q4 
       integer txs_i,txs_j,txs_k,txs_d
-      integer nint
       logical dum_log
 #endif
+      integer nint
       logical OFALSE
       logical any_spherical
 c
@@ -86,6 +89,15 @@ c
 #include "bas_ibs_sfn.fh"
 c
       OFALSE = .false.
+c
+c check if ERI is big enough - TLW
+c
+      nint = int_nint_cart(brain,ish,ketin,jsh,ketin,ksh,ketin,0)
+      if (nint.gt.leri) then
+        write(luout,*) 'nint = ',nint
+        write(luout,*) 'leri     = ',leri
+        call errquit('int_2e3c: nint>leri error',911)
+      endiF
 c
 c check initialization
 c
