@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.134 2000-05-04 23:53:50 mdupuis Exp $
+C     $Id: geom_input.F,v 1.135 2000-05-06 07:08:05 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -26,6 +26,7 @@ c
       logical ocosmo
       logical oready
       logical odbug
+      integer osome
       logical ocenter
       logical found_cart
       logical ofinite, oatomfinite
@@ -550,7 +551,8 @@ c
 c     ----- if ready ... initialize -cosmo- -----
 c
       if(oready) then
-         call cosmo_initialize(rtdb,geom)
+         osome=.true.
+         call cosmo_initialize(rtdb,osome)
       else
          if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
      $        call errquit('cosmo_input: rtdb_put failed',0)
