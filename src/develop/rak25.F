@@ -1,5 +1,6 @@
       logical function task_ecp_deriv_check(rtdb)
       implicit none
+* $Id: rak25.F,v 1.2 1999-03-16 22:52:45 d3e129 Exp $
 c
 #include "stdio.fh"
 #include "mafdecls.fh"
