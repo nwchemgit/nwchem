@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.32 2003-10-17 22:58:26 carlfahl Exp $
+* $Id: task_input.F,v 1.33 2004-03-11 15:42:29 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -116,6 +116,13 @@ c
          else if (inp_compare(.false.,test,
      >                        'wannier')) then
             operation='wannier'
+         else if (inp_compare(.false.,test,
+     >                        'expand_cell')) then
+            operation='expand_cell'
+         else if (inp_compare(.false.,test,
+     >                        'structure')) then
+            operation='structure'
+
          else if (theory .eq. ' ') then
             theory = test
             call inp_lcase(theory)

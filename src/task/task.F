@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.54 2003-10-17 22:58:26 carlfahl Exp $
+* $Id: task.F,v 1.55 2004-03-11 15:42:29 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -42,7 +42,7 @@ c
       logical task_qmmm, task_python, task_nbo,task_thermo
       logical task_version, task_vscf
       logical task_paw  ! no paw until conversion to f77 done
-      logical task_pspw
+      logical task_pspw,task_band
       logical task_drdy
       logical task_et
 c
@@ -56,7 +56,7 @@ c
       external task_version, task_python, task_nbo, task_thermo
       external kgdtest, task_vscf
       external task_paw ! no paw until conversion to f77 done
-      external task_pspw
+      external task_pspw,task_band
       external task_drdy
       external task_et
 c
@@ -212,6 +212,10 @@ c
 c     *** task_pspw handles pspw specific "operations" ***
       else if (inp_compare(.false.,'pspw',theory)) then
         status = task_pspw(rtdb)
+
+c     *** task_band handles band specific "operations" ***
+      else if (inp_compare(.false.,'band',theory)) then
+        status = task_band(rtdb)
 
 c no paw until conversion to f77 done
 c     *** task_paw handles paw specific "operations" ***
