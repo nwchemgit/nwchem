@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.46 2000-05-03 19:23:39 d3j191 Exp $
+c $Id: cf_main.F,v 1.47 2000-05-03 20:15:30 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2102,10 +2102,10 @@ c
       ndof(2)=0
 c
       do 11 i=1,numw
-      if(iand(iwdt(i),lfixed).eq.lfixed) ndof(1)=ndof(1)+1
+      if(iand(iwdt(i),lfixed).ne.lfixed) ndof(1)=ndof(1)+1
    11 continue
-      do 12 i=1,nsa
-      if(iand(isdt(i),lfixed).eq.lfixed) ndof(2)=ndof(2)+1
+      do 12 i=1,nums
+      if(iand(isdt(i),lfixed).ne.lfixed) ndof(2)=ndof(2)+1
    12 continue
 c
       call ga_igop(mrg_d46,ndof,2,'+')
@@ -2115,7 +2115,7 @@ c
       factmp=zero
       if(ndof(1)*(3*nwa-nwc)-3*islow.gt.0)
      + factmw=two/(rgas*dble(ndof(1)*(3*nwa-nwc)-3*islow))
-      if(3*nsa-nsc-3*islow.gt.0)
+      if(3*ndof(2)-nsc-3*islow.gt.0)
      + factms=two/(rgas*dble(3*ndof(2)-nsc-3*islow))
       if(ndof(1)*(3*nwa-nwc)+3*ndof(2)-nsc-3*islow.gt.0)
      + factmp=two/(rgas*dble(ndof(1)*(3*nwa-nwc)+3*ndof(2)-nsc-3*islow))
