@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.33 1998-08-26 16:24:56 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.34 1998-08-27 06:24:51 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -332,10 +332,10 @@ c
             denmax = max(denmax,rdens(jsh,ish))
          end do
       end do
-      if (owritefile) denmax = max(denmax,10.0d0)
+****      if (owritefile) denmax = max(denmax,10.0d0)
 c
 *******      dentolmax = 1d-3
-      dentol = min(dentolmax,tol2e/denmax) ! Threshold to screen integs only
+      dentol = min(dentolmax,tol2e/denmax,tol2e/denmax**2) ! Threshold to screen integs only
 c
 c     If this is the first call for a potential semi-direct calculation 
 c     then we must save the tol2e since the definition of the tasks 

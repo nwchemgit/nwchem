@@ -8,7 +8,7 @@
 #include "cscfps.fh"
 #include "cfock.fh"
 c
-c     $Id: fock_2e_file.F,v 1.10 1998-07-13 23:41:17 d3g681 Exp $
+c     $Id: fock_2e_file.F,v 1.11 1998-08-27 06:24:51 d3g681 Exp $
 c
 c     Accumulate the contribution to the fock matrices from
 c     integrals store in the integral file.  Simply read thru
@@ -129,6 +129,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 #include "cfock.fh"
+#include "global.fh"
       integer geom, basis
       integer nfock, nbf
       double precision jfac(nfock), kfac(nfock)
@@ -154,7 +155,8 @@ c
       end do
       den_tol = min(dentolmax,tol2e/denmax,tol2e/denmax**2) ! Threshold to screen integs only
 c
-**      write(6,*) tol2e, dentolmax, den_tol
+      if (ga_nodeid().eq.0 .and. util_print('fockfile',print_debug))
+     $     write(6,*) 'fockfile: tols ',tol2e, dentolmax, denmax,den_tol
 c
       call fock_init_cmul(nbf,nbf,nbf) ! lookup table for f build
 c
@@ -176,3 +178,5 @@ c
       if (oscfps) call pstat_off(ps_fock_io)
 c
       end
+
+
