@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.39 1997-04-23 01:11:19 d3g681 Exp $
+C$Id: uhf.F,v 1.40 1997-04-23 01:59:35 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -187,7 +187,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.39 1997-04-23 01:11:19 d3g681 Exp $
+C     $Id: uhf.F,v 1.40 1997-04-23 01:59:35 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -221,7 +221,7 @@ c
       double precision dwork(3*ls_max+5) ! PCG routine internal info
       character*16 mode         ! For communication with PCG routine 
 c
-      double precision tlastwrite  ! time last wrote the MO vectors
+      double precision tlastwrite,ttest  ! time last wrote the MO vectors
       double precision step     ! Step to take in search direction
 c
       double precision gnorm    ! measures for convergence
@@ -253,7 +253,7 @@ c
       oprint_vecs = util_print('intermediate vectors', print_debug)
       oprint_eval = util_print('intermediate evals', print_debug)
 c
-      tlastwrite = util_cpusec()
+      tlastwrite = util_wallsec()
 c     
       if (ga_nodeid().eq.0.and. oprint_parm) then
          write(6,1) gnorm_tol, maxiter, tol2e
@@ -333,7 +333,9 @@ c
                   call ga_print(g_movecs)
                   call ga_print(g_movecs(2))
                end if
-               if ((util_cpusec()-tlastwrite) .gt. 300) then
+               ttest = util_wallsec()-tlastwrite
+               call ga_dgop(1324,ttest,1,'max')
+               if (ttest .gt. 300) then
 *     if (olock) call scf_movecs_lock
                  call scf_movecs_write(rtdb)
                  tlastwrite = util_cpusec()
@@ -474,7 +476,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.39 1997-04-23 01:11:19 d3g681 Exp $
+C$Id: uhf.F,v 1.40 1997-04-23 01:59:35 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -565,7 +567,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.39 1997-04-23 01:11:19 d3g681 Exp $
+c     $Id: uhf.F,v 1.40 1997-04-23 01:59:35 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1051,7 +1053,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.39 1997-04-23 01:11:19 d3g681 Exp $
+C$Id: uhf.F,v 1.40 1997-04-23 01:59:35 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
