@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.7 2004-03-15 15:17:43 bylaska Exp $
+* $Id: pspw_wannier.F,v 1.8 2004-03-17 02:43:56 bylaska Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -352,7 +352,7 @@ c        end if
      >   call errquit('pspw_wannier:deallocating heap memory',2,0)
 
 
- 9000 call nwpw_message(4)
+ 9000 if (oprint) call nwpw_message(4)
       pspw_wannier = value
       return 
 
