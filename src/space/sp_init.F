@@ -8,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl)
 c
 c
-c $Id: sp_init.F,v 1.110 2002-07-12 16:57:05 d3j191 Exp $
+c $Id: sp_init.F,v 1.111 2002-11-11 14:26:47 d3j191 Exp $
 c
       implicit none
 c
@@ -96,7 +96,7 @@ c
 c
       call sp_alloc()
 c
-      call sp_decomp(int_mb(i_iown),dbl_mb(i_boxs))
+      call sp_decomp(int_mb(i_iown),dbl_mb(i_boxs),int_mb(i_buren))
 c
       call sp_initip(int_mb(i_iown),int_mb(i_ipl))
 c
@@ -416,6 +416,8 @@ c
 c
       integer isize
 c
+      if(.not.ma_push_get(mt_int,54*np,'buren',l_buren,i_buren))
+     + call errquit('Failed to allocate buren',0)
       if(.not.ma_push_get(mt_int,3*maxbox,'owner',l_iown,i_iown))
      + call errquit('Failed to allocate owner',0)
       if(.not.ma_push_get(mt_dbl,3*maxbox,'bxsiz',l_boxs,i_boxs))
@@ -490,6 +492,8 @@ c
      + call errquit('Failed to deallocate boxs',0)
       if(.not.ma_pop_stack(l_iown))
      + call errquit('Failed to deallocate iown',0)
+      if(.not.ma_pop_stack(l_buren))
+     + call errquit('Failed to deallocate buren',0)
 c
       return
       end
@@ -1008,7 +1012,7 @@ c
 c
       return
       end
-      subroutine sp_decomp(ibownr,boxsiz)
+      subroutine sp_decomp(ibownr,boxsiz,iburen)
 c
       implicit none
 c
@@ -1018,8 +1022,9 @@ c
 c
       integer ibownr(maxbox,3)
       real*8 boxsiz(maxbox,3)
+      integer iburen(np,27,2)
 c
-      integer ibx,iby,ibz,i,ix,jx,iy,jy,iz,jz,jnode,nrnod,nbiown
+      integer ibx,iby,ibz,i,j,ix,jx,iy,jy,iz,jz,jnode,nrnod,nbiown
 c
 c     check dimensions of ibownr
 c
@@ -1061,26 +1066,26 @@ c     neighb(n,2) is the node of which node me is the n-th neighbor
 c
 c     a value of -1 indicates that such node does not exist
 c
-      do 10 i=1,27
+      do 4 i=1,27
       neighb(i,1)=-1
       neighb(i,2)=-1
- 10   continue
+    4 continue
 c
-      do 11 ix=1,3
+      do 5 ix=1,3
       jx=mex+ix-2
       if(npbtyp.gt.0) then
       if(npx.gt.2.and.jx.lt.0) jx=jx+npx
       if(npx.gt.2.and.jx.ge.npx) jx=jx-npx
       endif
       if(jx.ge.0.and.jx.lt.npx) then
-      do 12 iy=1,3
+      do 6 iy=1,3
       jy=mey+iy-2
       if(npbtyp.gt.0) then
       if(npy.gt.2.and.jy.lt.0) jy=jy+npy
       if(npy.gt.2.and.jy.ge.npy) jy=jy-npy
       endif
       if(jy.ge.0.and.jy.lt.npy) then
-      do 13 iz=1,3
+      do 7 iz=1,3
       jz=mez+iz-2
       if(npbtyp.eq.1) then
       if(npz.gt.2.and.jz.lt.0) jz=jz+npz
@@ -1091,21 +1096,33 @@ c
       neighb(3*(3*(ix-1)+(iy-1))+iz,1)=jnode
       neighb(3*(3*(3-ix)+(3-iy))+4-iz,2)=jnode
       endif
-   13 continue
+    7 continue
       endif
-   12 continue
+    6 continue
       endif
-   11 continue
+    5 continue
 c
       nbiown=30
-      do 20 ibx=1,nbx
-      do 21 iby=1,nby
-      do 22 ibz=1,nbz
+      do 8 ibx=1,nbx
+      do 9 iby=1,nby
+      do 10 ibz=1,nbz
       nrnod=(ibownr(ibz,3)*npy+ibownr(iby,2))*npx+ibownr(ibx,1)
       if(me.eq.nrnod) nbiown=nbiown+1
-   22 continue
-   21 continue
-   20 continue
+   10 continue
+    9 continue
+    8 continue
+c
+      do 11 j=1,27
+      do 12 i=1,np
+      iburen(i,j,1)=0
+      iburen(i,j,2)=0
+   12 continue
+   11 continue
+      do 13 j=1,27
+      iburen(me+1,j,1)=neighb(j,1)
+      iburen(me+1,j,2)=neighb(j,2)
+   13 continue
+      call ga_igop(msp_27,iburen,np*54,'+')
 c
 c     broadcast the maximum number of sub-boxes per node to all nodes
 c
