@@ -4,7 +4,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb,
      + rdist,scale,cpk)
 c
-c $Id: pre_wrtpov.F,v 1.4 2000-10-23 15:53:16 windus Exp $
+c $Id: pre_wrtpov.F,v 1.5 2001-01-18 23:55:34 d3j191 Exp $
 c
       implicit none
 c
@@ -74,6 +74,8 @@ c
       k=pre_atnum(csa(i)(11:12))
       color=atom_color(k)
       if(k.gt.0) then
+      write(lfnpov,8003) isgm(i),csa(i)
+ 8003 format('// ',i5,':',a16)
       if(cpk.gt.0.0d0) then
       write(lfnpov,8001) (scale*xs(j,i),j=1,3),scale*cpk*atom_radius(k),
      + color(1:index(color,' ')-1)
