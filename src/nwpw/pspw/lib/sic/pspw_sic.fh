@@ -1,3 +1,7 @@
+*
+* $Id: pspw_sic.fh,v 1.5 2002-02-16 21:41:35 bylaska Exp $
+*
+
 *     **** PSPW_SIC common block ****
       logical relaxed
       real*8  rcut,pp,e_sic,p_sic
