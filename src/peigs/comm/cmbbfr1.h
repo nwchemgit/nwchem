@@ -4,7 +4,7 @@ c     (see mxcomb.cpp) 'bufdat' really ought to be integer*4.
 c
       integer bufsiz
 #ifndef NCUBE_NODE
-      parameter (bufsiz=10000)
+      parameter (bufsiz=1048576)
 #else
 c      parameter (bufsiz=512)
       parameter (bufsiz=1048576)
