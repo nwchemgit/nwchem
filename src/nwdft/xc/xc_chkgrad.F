@@ -8,8 +8,8 @@ c     see if any Gradient Corrected Functional is not null
 c
       double precision tot,eps
       parameter(eps=1.d-10)
-      tot = xfac(3) + xfac(4) + xfac(5) + xfac(6) +
-     +     cfac(2) + cfac(4) + cfac(5)
+      tot = xfac(3) + xfac(4) + xfac(5) + xfac(6) + xfac(7) +
+     +     cfac(2) + cfac(4) + cfac(5) +cfac(12)
       if (abs(tot).gt.eps)then
          xc_chkgrad = .true.
       else

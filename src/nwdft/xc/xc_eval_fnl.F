@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.5 1998-12-31 21:33:54 bjohnson Exp $
+c     $Id: xc_eval_fnl.F,v 1.6 1999-01-04 19:55:22 edo Exp $
 c
       implicit none
 c
@@ -54,11 +54,11 @@ c
          if (.not. do_2nd) then
             call xc_becke88(tol_rho, xfac(3), lxfac(3), nlxfac(3), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
-     &           Ex, qwght)
+     &           Ex, qwght,ldew,func)
          else
             call xc_becke88_d2(tol_rho, xfac(3), lxfac(3), nlxfac(3), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
-     &           Ex, qwght)
+     &           Ex, qwght,ldew,func)
          endif
       endif
 C
@@ -211,6 +211,28 @@ c
             call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
          endif
       endif
+c     
+c     PBE96 is special in that the GGA part is dependent on
+c     the E(LDA) ... so more info has to be passed in.
+c     
+      if (abs(cfac(12)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cpbe96(tol_rho, cfac, lcfac, nlcfac, rho, 
+     &           delrho, Amat, Cmat, nq, ipol, 
+     &           Ec, qwght, ldew, func)
+         else
+            call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
+         endif
+      endif
+      if (abs(xfac(7)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xpbe96(tol_rho, xfac(7), lxfac(7), nlxfac(7), 
+     &           rho, delrho, Amat, Cmat, nq, ipol, 
+     &           Ex, qwght,ldew,func)
+         else
+            call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
+         endif
+       endif
 c     
 c     Combine with quadrature weights
 c
