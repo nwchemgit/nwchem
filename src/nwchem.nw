@@ -1,8 +1,8 @@
 #
-# $Id: nwchem.nw,v 1.10 2000-01-19 17:20:05 windus Exp $
+# $Id: nwchem.nw,v 1.11 2000-08-01 17:11:34 d3g681 Exp $
 #
 
-title "Water in cc-pvdz basis set"
+title "Water geometry optimization in cc-pvdz basis set"
 
 start h2o
 
@@ -15,6 +15,10 @@ end
 basis
   H library cc-pvdz
   O library cc-pvdz
+end
+
+driver
+  clear
 end
 
 scf; print low; end
