@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.92 1999-05-24 23:39:55 d3g681 Exp $
+C     $Id: geom_input.F,v 1.93 1999-05-25 17:11:00 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -2091,7 +2091,7 @@ c$$$            call errquit('ztoc:twop',0)
 c$$$            iadd=iadd+6
 c$$$c     
 c$$$         else
-c$$$            call errquit('geom_zmat_to cart: ??', itype)
+c$$$            call errquit('geom_zmat_to cart: ?', itype)
 c$$$         endif    
 c$$$c
 c$$$      enddo
@@ -2182,7 +2182,7 @@ c
             iadd=iadd+6
 c     
          else
-            call errquit('geom_zmat_ico_scale: ??', itype)
+            call errquit('geom_zmat_ico_scale: ?', itype)
          endif    
 c
          if (itype .eq. 1) then
