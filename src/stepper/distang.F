@@ -1,17 +1,19 @@
       subroutine distan(nat,coord)
-C     $Id: distang.F,v 1.6 1997-05-30 19:08:47 d3g681 Exp $
+C     $Id: distang.F,v 1.7 1997-12-01 21:50:33 d3e129 Exp $
       implicit none
       integer nat,i,j
       double precision dist
       external dist
       double precision coord(3,*),rij
+      double precision au2ang
       write(6,1000)
+      au2ang = 0.529177249d00
       do 20 i=1,nat-1 
          write(6,1100)
          do 10 j=i+1,nat 
             rij=dsqrt(dist(i,j,coord))       
-            if (rij.le.5)
-     $           write(6,1200) ' ', i, ' ', j, rij, rij*0.529167d0	
+            if (rij.le.5.0d00)
+     $           write(6,1200) ' ', i, ' ', j, rij, rij*au2ang
  10      continue
  20   continue
       write(6,1100)
