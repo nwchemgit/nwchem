@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.39 2001-03-15 19:40:50 windus Exp $
+* $Id: geom_hnd.F,v 1.40 2001-08-10 00:05:59 edo Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -595,7 +595,9 @@ C
          DOTPK = DOTPK-EJK(M)*EKL(M)
   220 CONTINUE
       IF (ONE- ABS(DOTPJ)) 320,340,240
-  240 IF (ONE- ABS(DOTPK)) 360,380,260
+  240 continue
+      if((one-abs(dotpk)).lt.1d-10) goto 380
+      IF (ONE- ABS(DOTPK)) 360,380,260
   260 continue
       SINPJ =  SQRT(ONE-DOTPJ*DOTPJ)
       SINPK =  SQRT(ONE-DOTPK*DOTPK)
@@ -652,14 +654,17 @@ C
   320 WRITE (IW,9999) I,J,K,DOTPJ
       CALL HND_HNDERR(3,ERRMSG)
       RETURN
-  340 WRITE (IW,9998) I,J,K
+  340 continue
+      WRITE (IW,9998) I,J,K
       CALL HND_HNDERR(3,ERRMSG)
       RETURN
   360 WRITE (IW,9999) J,K,L,DOTPK
       CALL HND_HNDERR(3,ERRMSG)
       RETURN
-  380 WRITE (IW,9998) J,K,L
-      CALL HND_HNDERR(3,ERRMSG)
+  380 eqval=0d0               
+c     torsion angle equal to zero when atoms are collinear
+cedo  WRITE (IW,9998) J,K,L
+cedo  CALL HND_HNDERR(3,ERRMSG)
       RETURN
   400 WRITE (IW,9997) I,J,K,L
       CALL HND_HNDERR(3,ERRMSG)
