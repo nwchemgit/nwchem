@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.41 1995-06-20 20:11:24 gg502 Exp $
+# $Id: GNUmakefile,v 1.42 1995-07-10 17:02:17 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -8,6 +8,10 @@ endif
 
 ifeq ($(TARGET),IBM)
   EXTRA_OBJ = ibm_cputime.o
+endif
+
+ifeq ($(TARGET),KSR)
+  EXTRA_OBJ = ksr_cputime.o
 endif
 
        BLAS = dfill.o ifill.o rsg.o
@@ -31,6 +35,7 @@ endif
 	      banner.o util_print.o util_version.o \
               mk_fit_xf.o \
               int_2c_ga.o \
+              util_cpusec.o util_wallsec.o \
               $(EXTRA_OBJ) 
     LIBRARY = libutil.a
     HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh \
