@@ -4,7 +4,7 @@ c
 c
 c
        subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-C$Id: moints_mp2.F,v 1.21 1996-10-28 17:16:01 rg240 Exp $
+C$Id: moints_mp2.F,v 1.22 1997-03-12 17:30:07 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -106,16 +106,33 @@ C 902     format(4(f13.8,1x,'(',2i3,')',2x))
 
 
 
-
+c
+c  Evaluates MP2 pair energies from given
+c  exchange operator:
+c
+c            ab               a,b = virtual indices
+c           K                 i,j = correlated occ. orbitals for this pass
+c            ij
+c
+c  Care needed for frozen virtuals, where Kij dimension = nvir which is 
+c  less than nvir_corr.
+c  
 
        subroutine moints_e2pair( nocc, ostart, occ_lo, occ_hi,
      $                           nvir, nmo2, nbf, g_k, orbe, g_epair )
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
-       integer nocc, ostart, occ_lo, occ_hi, nvir, nmo2
-       double precision orbe(*)
-       integer g_k, g_epair
+       integer nocc                                  ! [input]  number of occupied orbitals (including frozen)
+       integer ostart                                ! [input]  first correlated occupied index
+       integer occ_lo, occ_hi                        ! [input]  range of correlated occupied indices for this pass 
+       integer nvir                                  ! [input]  number of virtual orbitals
+       integer nmo2                                  ! [input]  number of correlated virtual orbitals
+       integer nbf                                   ! [input]  number of basis functions
+       double precision orbe(*)                      ! [input]  orbital energies
+       integer g_k                                   ! [input]  exchange operator
+       integer g_epair                               ! [output] triangular array of pair energies
+c
        integer k_exch,ld_exch
        integer ii,i,jj,j,ij,vstart,nnt,nbf,ndim,ij0,ofroz
        integer ilo,ihi,jlo,jhi,my_id
@@ -163,9 +180,8 @@ c
            if ((ij.ge.jlo).and.(ij.le.jhi)) then
              denom = orbe(i) + orbe(j)
              call ga_access(g_k,1,ihi,ij,ij,k_exch,ld_exch)
-             xx = moints_epair_eval(ndim,vstart,nvir,
-     $                             dbl_mb(k_exch),orbe(nocc+1),
-     $                             denom)
+             xx = moints_epair_eval(ndim, vstart, nvir, dbl_mb(k_exch),
+     $                              orbe(nocc+1), denom)
              call ga_release(g_k,1,ihi,ij,ij)
              if (i.eq.j) xx = xx/2.d0
              call ga_put(g_epair,1,1,ij0,ij0,xx,1)
