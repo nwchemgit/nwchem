@@ -1,42 +1,52 @@
-      subroutine mp2_memory(basis,rtdb,tol2e,oskel,
+      subroutine mp2_memory(basis,geom,rtdb,tol2e,oskel,
      $     nbf,noa,nva,nob,nvb,
      $     batch_size,max_ma,max_ga,max_file,task)
 *
-* $Id: mp2_memory.F,v 1.11 1997-04-23 01:12:47 d3g681 Exp $
+* $Id: mp2_memory.F,v 1.12 1997-04-26 21:57:55 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
-      integer nbf,basis,rtdb
+      integer nbf,basis,rtdb,geom
       integer noa,nva
       double precision tol2e
       logical oskel
       integer nob,nvb
       integer max_ma
       integer max_ga
-      integer max_file
+      double precision max_file
       integer nnbf
       integer nva_local
       character*(*)task
-      integer k_file_size,t_file_size,p_file_size
-      integer shdim,shlo,shpairs,shpairslocal,map
+      double precision k_file_size,t_file_size,p_file_size
+      integer shdim(1),shlo(1),shpairs(1),shpairslocal(1)
+      integer map(1024)  ! No. of processors
       integer lengd,idum,lenscr,lenscrd,idum2,leng
       integer nshpairlocal,nshpair,batch_size,shmax
       integer nbfpairlocal,nbfpair
+c
+c  Hacked to impose 2 GB limit on a single file.
 c     
       nnbf=nbf*(nbf+1)/2
       nva_local=(nva-1)/ga_nnodes()+1
 c     
-      k_file_size=nnbf*batch_size*nva_local
+      k_file_size=dble(nnbf)*batch_size*nva_local
+      if (k_file_size .gt. 2.4d8) k_file_size = 1d100 
       if(task.eq.'energy')then
          max_file=k_file_size
       else
+         call int_init(rtdb,1,basis)
+         call schwarz_init(geom,basis)
          call mp2_backt_info(basis,tol2e,oskel,
      $        .false.,nshpair,nshpairlocal,
      $        nbfpair,nbfpairlocal,shmax,
      $        shdim,shlo,shpairs,shpairslocal,map)
-         t_file_size=(nob*nvb+noa*nva)*batch_size*nva_local
-         p_file_size=nbfpairlocal*nbf*batch_size
+         call int_terminate()
+         call schwarz_tidy()
+         t_file_size=dble((nob*nvb+noa*nva))*batch_size*nva_local
+         p_file_size=dble(nbfpairlocal)*nbf*batch_size
+         if (t_file_size .gt. 2.4d8) t_file_size = 1d100 
+         if (p_file_size .gt. 2.4d8) p_file_size = 1d100 
          max_file=max(k_file_size+t_file_size,t_file_size+p_file_size)
       endif
 c     

@@ -12,7 +12,7 @@
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
 *
-* $Id: mp2_back_transform.F,v 1.16 1997-04-25 23:18:00 d3g681 Exp $
+* $Id: mp2_back_transform.F,v 1.17 1997-04-26 21:57:54 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -125,6 +125,7 @@ c
 c     
 c     Now do the back transformation
 c
+      call ga_sync()
       call pstat_on(ps_backt)
       call mp2_back_transform_uhf(
      $     nbf, 
@@ -144,6 +145,7 @@ c
      $     dbl_mb(k_t), dbl_mb(k_iauv), dbl_mb(k_tmp),
      $     int_mb(k_map), g_buf)
       call pstat_off(ps_backt)
+      call ga_sync()
 c
 c     Free up some memory and then contract with gradient integrals.
 c
@@ -187,6 +189,7 @@ c
          enddo
       enddo
 c      
+      call ga_sync()
       call pstat_on(ps_nonsep)
       call mp2_nonsep(rtdb, basis,
      $     twopdmunit,
@@ -198,6 +201,7 @@ c
      $     tol2e, oskel,
      $     log_mb(k_actsh))
       call pstat_off(ps_nonsep)
+      call ga_sync()
 c
 c     Zero out gradients on inactive atoms
 c
@@ -464,11 +468,11 @@ c
       double precision q2, sss
 c     
       integer npairblock        ! Crude attempt to load balance the pairs
-      parameter (npairblock = 9)
+      parameter (npairblock = 7)
       integer pairblock(npairblock), ipairb, npairmin, npairmax
       integer logmin, logmax
       intrinsic log10
-      data pairblock /1,3,6,10,18,36,60,100,1000000/ ! Selected from s*s,s*p,p*p ...
+      data pairblock /1,3,6,9,18,36,1000000/ ! Selected from s*s,s*p,p*p ...
 c
       if (.not. bas_numbf(basis, nbf))
      $     call errquit('mp2_backt_info: bad basis handle', 0)
@@ -487,7 +491,7 @@ c
          call ifill(nproc, 0, map, 1)
          npairmin = 0
          logmax = 1000000
-         do logmin = -1,-9,-2
+         do logmin = -1,-9,-4
             do ipairb = 1, npairblock ! Loop thru types of pairs
                npairmax = pairblock(ipairb)
                do u = nsh, 1, -1
@@ -504,7 +508,7 @@ c
      $                    log10(sss).lt.logmax .and. 
      $                    log10(sss).ge.logmin) then
 c     
-                        odoit = sss .gt. tol2e
+                        odoit = sss .gt. tol2e*0.1d0
                         if (odoit .and. oskel) 
      $                       odoit = sym_shell_pair(basis,u,v,q2)
                         if (odoit) then
@@ -559,7 +563,7 @@ c
      $                 log10(sss).lt.logmax .and. 
      $                 log10(sss).ge.logmin) then
 c     
-                     odoit = sss.gt.tol2e
+                     odoit = sss.gt.tol2e*0.1d0
                      if (odoit .and. oskel) 
      $                    odoit = sym_shell_pair(basis,u,v,q2)
                      if (odoit) then
@@ -728,7 +732,7 @@ c
          do xsh = 1, nsh
             do ysh = 1, xsh
                odoit = schwarz_shell(xsh,ysh)*schwarz_shell(ush,vsh)
-     $              .gt. tol2e
+     $              .gt. tol2e*0.1d0
                odoit = odoit .and. 
      $              (oactive(ush).or.oactive(vsh).or.
      $               oactive(xsh).or.oactive(ysh))

@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.29 1997-04-23 01:12:44 d3g681 Exp $
+* $Id: mp2_grad_doit.F,v 1.30 1997-04-26 21:57:54 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -84,7 +84,8 @@ c
       integer g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,g_liy_b
       double precision grad(3,*)
       character*20 fstype
-      integer max_ga,max_file,max_ma,avail_ga,avail_ma,avail_file
+      integer max_ga,max_ma,avail_ga,avail_ma,iavail_file
+      double precision max_file, avail_file
       character*20 info
 c     
 c...  for texas blocking in moints_semi
@@ -119,9 +120,9 @@ c
      $     call errquit('mp2_grad: no char table',0)
 c     
       call util_file_name('kh',.true.,.true.,fnamek)
-      if(eaf_stat(fnamek,avail_file,fstype).ne.0)
+      if(eaf_stat(fnamek,iavail_file,fstype).ne.0)
      $     call errquit('mp2_grad:could not get availkb',1)
-      avail_file=avail_file*128
+      avail_file=iavail_file*128.0d0
       avail_ma = MA_inquire_avail(mt_dbl)
       if (ga_uses_ma() .and. ga_memory_limited()) 
      $     avail_ma = avail_ma - ga_memory_avail()
@@ -132,7 +133,7 @@ c
       end if
       call ga_igop(11,avail_ma,1,'min')
       call ga_igop(12,avail_ga,1,'min')
-      call ga_igop(13,avail_file,1,'min')
+      call ga_dgop(13,avail_file,1,'min')
 c     
       oprint_mem = util_print('multipass',print_default) .and. 
      $     ga_nodeid().eq.0
@@ -144,19 +145,20 @@ c
  201     format(/' GA uses MA = ',l1,'    GA memory limited = ',l1)
          write(6,21) avail_ma, avail_ga, avail_file
  21      format(/' Available: local mem=',i10,' global mem=',i10,
-     $        ' local disk=',i10)
+     $        ' local disk=',f10.0)
          call util_flush(6)
       end if
 c     
       do npasses = 1, noa_hi-noa_lo+1
          num_i_perseg = (noa_hi-noa_lo)/npasses + 1
-         call mp2_memory(basis,rtdb,tol2e,oskel,nbf,noa,nva,nob,nvb,
+         call mp2_memory(basis,geom,rtdb,tol2e,oskel,nbf,noa,nva,nob,
+     $        nvb,
      $        num_i_perseg,max_ma,max_ga,max_file,task)
          if(oprint_mem) then
             write(6,22) npasses, num_i_perseg, max_ma, max_ga, max_file
  22         format(1x,i3,' passes of',i4,':  ',
      $           ' ',i10,'            ',i10,
-     $           '            ',i10)
+     $           '            ',f10.0)
             call util_flush(6)
          end if
          if(ga_uses_ma().and..not.ga_memory_limited())then

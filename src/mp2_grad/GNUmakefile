@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.27 1997-04-23 01:12:39 d3g681 Exp $
+#$Id: GNUmakefile,v 1.28 1997-04-26 21:57:53 d3g681 Exp $
 
         OBJ = \
 	      mp2_grad.o \
@@ -9,7 +9,7 @@
 	      mp2_make_tot_wdens.o \
 	      mp2_make_dip_mom.o \
               mp2_pstat.o \
-	      mp2_memory.o mp2_input.o \
+	      mp2_input.o \
               mp2_make_piy.o
 
 OBJ_OPTIMIZE = mp2_back_transform.o \
@@ -18,7 +18,7 @@ OBJ_OPTIMIZE = mp2_back_transform.o \
                mp2_wijab_uhf.o \
                mp2_make_tuhf.o \
                mp2_lai_uhf.o \
-               mp2_lai_fock_uhf.o 
+               mp2_lai_fock_uhf.o mp2_memory.o
 
 USES_BLAS = mp2_energy.F mp2_lai_uhf.F \
             mp2_make_tuhf.F mp2_pijab_uhf.F \
