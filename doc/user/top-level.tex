@@ -397,11 +397,15 @@ input is processed.  If the last line of the input is not a
 \verb+TASK+ directive, a warning message is printed.  Since the
 database is persistent multiple tasks within one job behave {\em
   exactly} the same as multiple restart jobs with the same sequence of
-input.
+input.  By default, if a task does not complete successfully, then
+the program terminates with an error message.  This behaviour may
+be modified by including the \verb+IGNORE+ keyword on the \verb+TASK+
+directive, in which case if a task does not complete successfully, 
+only a warning message is printed, and execution continues.
 
 The \verb+TASK+ directive takes three forms.  The most common form,
 \begin{verbatim}
-  TASK <string theory> [<string operation = energy>]
+  TASK <string theory> [<string operation = energy>] [ignore]
 \end{verbatim}
 is used to perform most electronic structure calculations.  The
 \verb+theory+ is used to specify the level of theory to be used (SCF,
@@ -453,7 +457,7 @@ To perform a DFT geometry optimization
 
 The second form of the \verb+TASK+ directive
 \begin{verbatim}
-  TASK <string task>
+  TASK <string task> [ignore]
 \end{verbatim}
 is used in instances where either the task to be performed does not
 fit the model of the previous version (e.g., print the contents of the
@@ -470,7 +474,7 @@ evaluation).  The list of tasks supported in this fashion are
 
 The final form of the task directive
 \begin{verbatim}
-  TASK shell [(<integer-range processor = 0>|all)] <string command>
+  TASK shell [(<integer-range processor = 0>|all)] <string command> [ignore]
 \end{verbatim}
 is only supported on those machines that have a full UNIX-like
 operating system.  This directive causes selected processes to execute

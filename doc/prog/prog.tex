@@ -1,4 +1,4 @@
-% $Id: prog.tex,v 1.2 1996-08-27 22:39:26 d3g681 Exp $
+% $Id: prog.tex,v 1.3 1996-09-03 01:10:46 d3g681 Exp $
 \documentstyle[fullpage,12pt]{article}
 \setlength{\parskip}{6pt}
 
@@ -581,7 +581,7 @@ Not much more than the following is required.  E.g.,
 Or, e.g.,
 \begin{verbatim}
       subroutine sym_symmetrize(geom, basis, odensity, g_a)
-C$Id: prog.tex,v 1.2 1996-08-27 22:39:26 d3g681 Exp $
+C$Id: prog.tex,v 1.3 1996-09-03 01:10:46 d3g681 Exp $
       implicit none
       integer geom, basis  ! [input] Handles
       integer g_a          ! [input] Handle to input/output GA
@@ -989,29 +989,29 @@ arguments.
 
 Initialization: 
 \begin{itemize}
-\item {\tt MA\_init()}
-\item {\tt MA\_sizeof()}
+\item {\tt MA\_init(datatype, nominal\_stack, nominal\_heap)}
+\item {\tt MA\_sizeof(datatype1, nelem1, datatype2)}
 \item {\tt MA\_sizeof\_overhead()}
 \end{itemize}
 
 Allocation:
 \begin{itemize}
-\item {\tt MA\_alloc\_get()}
-\item {\tt MA\_allocate\_heap()}
-\item {\tt MA\_get\_index()}
-\item {\tt MA\_get\_pointer()}
-\item {\tt MA\_inquire\_avail()}
-\item {\tt MA\_inquire\_heap()}
-\item {\tt MA\_inquire\_stack()}
-\item {\tt MA\_push\_get()}
-\item {\tt MA\_push\_stack()}
+\item {\tt MA\_alloc\_get(datatype, nelem, name, memhandle, index)}
+\item {\tt MA\_allocate\_heap(datatype, nelem, name, memhandle)}
+\item {\tt MA\_get\_index(memhandle, index)}
+\item {\tt MA\_get\_pointer()} --- C only
+\item {\tt MA\_inquire\_avail(datatype)}
+\item {\tt MA\_inquire\_heap(datatype)}
+\item {\tt MA\_inquire\_stack(datatype)}
+\item {\tt MA\_push\_get(datatype, nelem, name, memhandle, index)}
+\item {\tt MA\_push\_stack(datatype, nelem, name, memhandle)}
 \end{itemize}
 
 Deallocation:
 \begin{itemize}
-\item {\tt MA\_chop\_stack()}
-\item {\tt MA\_free\_heap()}
-\item {\tt MA\_pop\_stack()}
+\item {\tt MA\_chop\_stack(memhandle)}
+\item {\tt MA\_free\_heap(memhandle)}
+\item {\tt MA\_pop\_stack(memhandle)}
 \end{itemize}
 
 Debugging:
@@ -1025,8 +1025,8 @@ Debugging:
 
 Iteration Over Allocated Blocks:
 \begin{itemize}
-\item {\tt MA\_get\_next\_memhandle()}
-\item {\tt MA\_init\_memhandle\_iterator()}
+\item {\tt MA\_get\_next\_memhandle(ithandle, memhandle)}
+\item {\tt MA\_init\_memhandle\_iterator(ithandle)}
 \end{itemize}
 
 Statistics:
