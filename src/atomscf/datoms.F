@@ -2,7 +2,7 @@
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
      $     odens, eatom)
-C     $Id: datoms.F,v 1.19 1996-12-13 22:30:15 d3e129 Exp $
+C     $Id: datoms.F,v 1.20 1997-10-31 19:49:14 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -218,7 +218,21 @@ c
       double precision expnt(mxnprim)
       double precision coeff(mxnprim*mxngen)
       double precision pi32
+c*debug-s
+*      integer di,dj
+*      integer mycalls
+*      save mycalls
+*      data mycalls /0/
+c*debug-e
       data pi32/5.56832799683170d0/
+c*debug-s
+*      mycalls = mycalls + 1
+*      write(6,*)'bas_gat:i:',mycalls,'  geom  : ',geom
+*      write(6,*)'bas_gat:i:',mycalls,'  basis : ',basis
+*      write(6,*)'bas_gat:i:',mycalls,'  iat   : ',iat
+*      write(6,*)'bas_gat:i:',mycalls,'  ic    : ',
+*     &    ((ic(di,dj),di=1,4),dj=1,nb)
+c*debug-s
 c     
 c     gather shell / symmetry info
 c     
@@ -336,11 +350,6 @@ c...  only the comments remain ...
 c...  
          enddo
       enddo
-c
-c call ecp integrals to fill hatom properly
-c
-      call atscf_ecp(geom,basis,tag,hatom,nbas,
-     &    zeta,cont,ucont,kkzc)
 c..   
 c..   all prepared call  atomd
 c..   zeta,cont,nbas,nbc,nbas,ic,zn are passed via cguess
@@ -351,5 +360,21 @@ c..
       status = geom_tag_to_element(tag, symbol, element, atn)
       zn = dble(atn)
       znps = charge
+c
+c call ecp integrals to fill hatom properly
+c
+      call atscf_ecp(geom,basis,tag,hatom,nbas,
+     &    zeta,cont,ucont,kkzc)
+*debug-s
+*      write(6,*)'bas_gat:o:',mycalls,'  ic    : ',
+*     &    ((ic(di,dj),di=1,4),dj=1,nb)
+*      write(6,*)'bas_gat:o:',mycalls,'  iiloc  : ',
+*     &    ((iiloc(di,dj),di=1,nb),dj=1,4)
+*      write(6,*)'bas_gat:o:',mycalls,'  isymax : ',isymax
+*      write(6,*)'bas_gat:o:',mycalls,'  znps   : ',znps
+*      write(6,*)'bas_gat:o:',mycalls,'  tag    : ',tag
+*      write(6,*)'bas_gat:o:',mycalls,'  element: ',element
+*      write(6,*)'bas_gat:o:',mycalls,'  ospherical: ',ospherical
+*debug-e
 c     
       end
