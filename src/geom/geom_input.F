@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.156 2003-02-05 19:50:58 bert Exp $
+C     $Id: geom_input.F,v 1.157 2003-02-11 00:12:44 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -1911,6 +1911,8 @@ C
       DIMENSION BLK(80)
       DIMENSION GH(4)
       DIMENSION ERRMSG(3)
+      external inp_compare
+      logical inp_compare 
       EQUIVALENCE (BLNK80,BLK(1))
       EQUIVALENCE (CHREND,WRDEND)
       DATA ERRMSG /'PROGRAM ','STOP IN ','- ZGEO -'/
@@ -2478,7 +2480,15 @@ C
                   ENDIF
                ENDIF
             ENDDO
-         ELSE
+         ELSEif(
+     .           inp_compare(.false.,atname(iat)(1:2),'bq').or.
+     .           inp_compare(.false.,atname(iat)(1:1),'x')
+     .           ) then
+c
+c     try to detect bq"atom symbol" or X"atom symbol"
+c
+            atnum(iat)=1d30
+         else
             WRITE(IW,8883) IAT,NCHR
             CALL HND_HNDERR(3,ERRMSG)
          ENDIF
@@ -2520,7 +2530,7 @@ C
          COORDS(3,ICENTER)=   ZZ(ICENTER)
          CHARGE(  ICENTER)=ATNUM(ICENTER)
            TAGS(  ICENTER)(1:16)=' '
-           TAGS(  ICENTER)(1: 2)=ATNAME(ICENTER)(1:2)
+           TAGS(  ICENTER)(1: 4)=ATNAME(ICENTER)(1:4)
         IF(TAGS(  ICENTER)(2: 2).EQ.'_') THEN         
            TAGS(  ICENTER)(2: 2)=' '                  
         ENDIF
