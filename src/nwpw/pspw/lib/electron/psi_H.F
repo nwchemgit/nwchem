@@ -1,15 +1,20 @@
-      subroutine psi_H(ispin,ne,
-     >                 psi_k,psi_r,vl,vc,xcp,Hpsi_k,
-     >                 move,fion)
+*
+* $Id: psi_H.F,v 1.4 2002-01-16 20:51:14 bylaska Exp $
+*
 
-*
-* $Id: psi_H.F,v 1.3 2002-01-11 17:55:34 bylaska Exp $
-*
+      subroutine psi_H(ispin,ne,
+     >                 psi_k,psi_r,
+     >                 vl,
+     >                 v_field,field_exist,
+     >                 vc,xcp,Hpsi_k,
+     >                 move,fion)
       implicit none
       integer    ispin,ne(2)
       complex*16 psi_k(*)
       real*8     psi_r(*)
       complex*16 vl(*)
+      real*8     v_field(*)
+      logical    field_exist
       complex*16 vc(*)
       real*8     xcp(*)
       complex*16 Hpsi_k(*)
@@ -90,14 +95,21 @@ c      call D3dB_cc_Sum(1,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
 c      call mask_C(0,dcpl_mb(vall(1)))
       call Pack_c_SMul(0,scal2,vl,dcpl_mb(vall(1)))
       call Pack_cc_Sum(0,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
-      call Pack_c_unpack(0,dcpl_mb(vall(1)))
       
 
 
 *     **********************************************
 *     **** fourier transform k-space potentials ****
 *     **********************************************
+      call Pack_c_unpack(0,dcpl_mb(vall(1)))
       call D3dB_cr_fft3b(1,dcpl_mb(vall(1)))
+
+*     ******************************
+*     **** add v_field to vall  ****
+*     ******************************
+      if (field_exist)
+     >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
+
 
          
       do ms=1,ispin

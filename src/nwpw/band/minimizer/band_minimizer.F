@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.15 2002-01-16 03:56:48 bylaska Exp $
+* $Id: band_minimizer.F,v 1.16 2002-01-16 20:51:13 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -474,7 +474,7 @@
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' initial position of ions:')
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
+ 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)

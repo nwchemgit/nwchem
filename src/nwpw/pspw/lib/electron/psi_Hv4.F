@@ -1,16 +1,21 @@
-      subroutine psi_Hv4(ispin,ne,
-     >                 psi_k,psi_r,vsr_l,vlr_l,vc,xcp,Hpsi_k,
-     >                 move,fion)
+*
+* $Id: psi_Hv4.F,v 1.4 2002-01-16 20:51:14 bylaska Exp $
+*
 
-*
-* $Id: psi_Hv4.F,v 1.3 2002-01-11 17:55:34 bylaska Exp $
-*
+      subroutine psi_Hv4(ispin,ne,
+     >                 psi_k,psi_r,
+     >                 vsr_l,vlr_l,
+     >                 v_field,field_exist,
+     >                 vc,xcp,Hpsi_k,
+     >                 move,fion)
       implicit none
       integer    ispin,ne(2)
       complex*16 psi_k(*)
       real*8     psi_r(*)
       complex*16 vsr_l(*)
       real*8     vlr_l(*)
+      real*8     v_field(*)
+      logical    field_exist
       real*8     vc(*)
       real*8     xcp(*)
       complex*16 Hpsi_k(*)
@@ -87,11 +92,13 @@ c     complex*16 vpsi(nfft3d)
       call D3dB_cr_fft3b(1,dcpl_mb(vall(1)))
 
 
-*     **********************************
-*     **** add vlr_l and vc to vall ****
-*     **********************************
+*     *******************************************
+*     **** add vlr_l, vc and v_field to vall ****
+*     *******************************************
       call D3dB_rr_Sum(1,dcpl_mb(vall(1)),vlr_l,dcpl_mb(vall(1)))
       call D3dB_rr_Sum(1,dcpl_mb(vall(1)),vc,   dcpl_mb(vall(1)))
+      if (field_exist)
+     >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
 
 
          

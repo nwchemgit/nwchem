@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop.F,v 1.8 2002-01-11 17:55:32 bylaska Exp $
+* $Id: inner_loop.F,v 1.9 2002-01-16 20:51:14 bylaska Exp $
 *
 
 *  ************************************************************
@@ -55,7 +55,7 @@
 
 
 *     **** MA local variables ****
-      logical value
+      logical value,field_exist
 *     real*8     tmp_L(8*nemax*nemax)
 *     complex*16 tmp1(nfft3d)
 *     complex*16 tmp2(nfft3d)
@@ -69,6 +69,7 @@ c     real*8     fion(3,natmx)
       integer tmp1(2),tmp2(2)
       integer vl(2),vc(2),dng(2)
       integer vlr_l(2),rho(2),r_grid(2)
+      integer v_field(2)
       integer xcp(2),xce(2),dnall(2)
       integer natmx,fion(2),ftest(2)
       integer sumi(2)
@@ -91,14 +92,14 @@ c     real*8     fion(3,natmx)
       external ion_ion_e
 
 *     ***** QM/MM external functions ****
-      logical  pspw_qmmm_found
+      logical  pspw_qmmm_found,pspw_charge_found
       real*8   pspw_qmmm_Energy_ionMM
       real*8   pspw_qmmm_Energy_QMMM
       real*8   pspw_qmmm_Energy_MMMM
       real*8   pspw_qmmm_Energy_pol
       real*8   pspw_qmmm_Energy_vib
       real*8   pspw_qmmm_Energy_cav
-      external pspw_qmmm_found
+      external pspw_qmmm_found,pspw_charge_found
       external pspw_qmmm_Energy_ionMM
       external pspw_qmmm_Energy_QMMM
       external pspw_qmmm_Energy_MMMM
@@ -111,6 +112,7 @@ c     real*8     fion(3,natmx)
       n2ft3d = 2*nfft3d
       deltamm = 0.0d0
 
+      field_exist = pspw_charge_found().or.pspw_qmmm_found()
 
       call nwpw_timing_start(12)
 *     **** allocate MA local variables ****
@@ -125,14 +127,21 @@ c     real*8     fion(3,natmx)
        value = value.and.
      >        MA_push_get(mt_dcpl,(npack0),'vc',  vc(2),  vc(1))
       end if
+
       if (control_version().eq.4) then
        value = value.and.
      >        MA_push_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
        value = value.and.
      >        MA_push_get(mt_dbl,(n2ft3d),'vlr_l',vlr_l(2),vlr_l(1))
+      end if
+
+      if ((field_exist).or.(control_version().eq.4)) then
        value = value.and.
      >    MA_push_get(mt_dbl,(3*n2ft3d),'r_grid',r_grid(2),r_grid(1))
       end if
+
+       value = value.and.
+     >  MA_push_get(mt_dbl,(n2ft3d),'v_field',v_field(2),v_field(1))
 
       value = value.and.
      >        MA_push_get(mt_dcpl,(npack0),'vloc', vl(2), vl(1))
@@ -174,7 +183,7 @@ c     real*8     fion(3,natmx)
       scal2 = 1.0d0/lattice_omega()
       dv    = scal1*lattice_omega()
 
-      if (control_version().eq.4) 
+      if ((control_version().eq.4).or.(field_exist))
      >   call lattice_r_grid(dbl_mb(r_grid(1)))
 
 *     ******************************************
@@ -301,10 +310,26 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >                      dbl_mb(xce(1)))
         end if
      
-*       **** generate QM/MM potential ****
-        if (pspw_qmmm_found()) then
-            call pspw_qmmm_Generate_V(n2ft3d,dbl_mb(r_grid(1)),
-     >                                      dbl_mb(vlr_l(1)))
+*       *******************************************
+*       ***** generate other real-space fields ****
+*       *******************************************
+        if (field_exist) then
+
+           call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
+
+*          **** generate QM/MM potential ****
+           if (pspw_qmmm_found()) then
+              call pspw_qmmm_Generate_V(n2ft3d,
+     >                                  dbl_mb(r_grid(1)),
+     >                                  dbl_mb(v_field(1)))
+           end if
+
+*          **** generate charge potential ****
+           if (pspw_charge_found()) then
+              call pspw_charge_Generate_V(n2ft3d,
+     >                                    dbl_mb(r_grid(1)),
+     >                                    dbl_mb(v_field(1)))
+           end if
         end if
 
         call nwpw_timing_start(13)
@@ -313,12 +338,15 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *       ******************
         if (control_version().eq.3) 
      >     call psi_H(ispin,ne,psi1,psi_r,
-     >             dcpl_mb(vl(1)),dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
+     >             dcpl_mb(vl(1)),
+     >             dbl_mb(v_field(1)),field_exist,
+     >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)))
 
         if (control_version().eq.4) 
      >     call psi_Hv4(ispin,ne,psi1,psi_r,
      >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
+     >             dbl_mb(v_field(1)),field_exist,
      >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)))
 
@@ -418,6 +446,7 @@ c              call D3dB_cc_dot(1,psi1(1,ii),Hpsi(1,jj),sum)
         
 
 *     **** get ewald energy ****
+      eion = 0.0d0
       if (control_version().eq.3) eion = ewald_e()
     
 *     **** get free-space ion-ion energy ****
@@ -478,6 +507,12 @@ c     if (ispin.eq.1) elocal = 2.0d0*elocal
 *     *** add in long range part ****
       if (control_version().eq.4) then
       call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vlr_l(1)),sum)
+      elocal = elocal + sum*dv
+      end if
+
+*     *** add in other real-space fields ****
+      if (field_exist) then
+      call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(v_field(1)),sum)
       elocal = elocal + sum*dv
       end if
 
@@ -599,8 +634,14 @@ c     end do
       value = MA_pop_stack(dng(2))
       value = MA_pop_stack(rho(2))
       value = MA_pop_stack(vl(2))
-      if (control_version().eq.4) value = MA_pop_stack(r_grid(2))
-      if (control_version().eq.4) value = MA_pop_stack(vlr_l(2))
+      value = MA_pop_stack(v_field(2))
+
+      if ((control_version().eq.4).or.(field_exist))
+     >   value = MA_pop_stack(r_grid(2))
+
+      if (control_version().eq.4) 
+     >   value = MA_pop_stack(vlr_l(2))
+
       value = MA_pop_stack(vc(2))
       value = MA_pop_stack(tmp2(2))
       value = MA_pop_stack(tmp1(2))

@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.13 2002-01-15 21:22:53 bylaska Exp $
+* $Id: cpsdv5.F,v 1.14 2002-01-16 20:51:14 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -754,7 +754,7 @@
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' initial position of ions:')
- 1190 FORMAT(5X, I4, A3, ' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
+ 1190 FORMAT(5X, I4, A3, ' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
  1191 FORMAT(5X, I4, A3, ' (',3F11.5,
      >       ' ) - atomic mass= ',F6.3,' - fixed')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')

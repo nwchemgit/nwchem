@@ -1,3 +1,6 @@
+*
+* $Id: electron.F,v 1.6 2002-01-16 20:51:14 bylaska Exp $
+*
 
 
 *     ***********************************
@@ -9,19 +12,8 @@
       implicit none
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
 
 *     **** electron_counter common block ****
       integer counter
@@ -33,7 +25,9 @@
       integer n2ft3d
 
 *     **** external functions ****
+      logical  ion_chargeexist,ion_mmexist
       integer  psi_ispin,psi_ne,control_version
+      external ion_chargeexist,ion_mmexist
       external psi_ispin,psi_ne,control_version
 
       counter = 0
@@ -41,6 +35,7 @@
       ispin = psi_ispin()
       ne(1) = psi_ne(1)
       ne(2) = psi_ne(2)
+      field_exist = ion_chargeexist().or.ion_mmexist()
 
 *     **** get nfft3d, and n2ft3d ****
       call Pack_npack(1,npack1)
@@ -60,6 +55,9 @@
       value = value.and.
      >        MA_alloc_get(mt_dbl,n2ft3d,
      >                     'vl_lr',vl_lr(2),vl_lr(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,n2ft3d,
+     >                     'v_field',v_field(2),v_field(1))
 
       if (control_version().eq.3) then
         value = value.and.
@@ -94,19 +92,8 @@
       implicit none
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
 
 *     **** local variables ****
       logical value
@@ -119,6 +106,8 @@
      >        MA_free_heap(vl(2))
       value = value.and.
      >        MA_free_heap(vl_lr(2))
+      value = value.and.
+     >        MA_free_heap(v_field(2))
       value = value.and.
      >        MA_free_heap(vc(2))
       value = value.and.
@@ -186,18 +175,8 @@
       real*8     dte
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
 
       call electron_sd_subupdate(npack1,(ne(1)+ne(2)),
      >                           psi1,psi2,dcpl_mb(Hpsi_k(1)),
@@ -242,19 +221,7 @@
       real*8     dnall(*)
 
 #include "mafdecls.fh"
-
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
+#include "electron_common.fh"
 
 
 *     **** local variables ****
@@ -304,6 +271,7 @@ c     >                       sum)
 
            
 *     **** get coulomb energy ****
+      ehartr = 0.0d0
       if (control_version().eq.3) ehartr = coulomb_e(dng)
       if (control_version().eq.4) ehartr = electron_ehartree2(dn)
         
@@ -351,19 +319,7 @@ c     >                       sum)
       complex*16 psi_k(*)
 
 #include "mafdecls.fh"
-
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
+#include "electron_common.fh"
 
 
 *     **** local variables ****
@@ -430,19 +386,8 @@ c     >                       sum)
       real*8     dn(*)
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
 
 *     **** local variables ****
       real*8 ehartr, ehart1,ehart2,dv
@@ -480,19 +425,8 @@ c     >                       sum)
       real*8 dnall(*)
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
 
 *     **** local variables ****
       integer nx,ny,nz
@@ -541,19 +475,8 @@ c     >                       sum)
       real*8 dn(*)
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
 
 *     **** local variables ****
       integer nx,ny,nz
@@ -603,19 +526,8 @@ c     >                       sum)
       complex*16 Hpsi_k_new(*)
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
 
       call dcopy(2*npack1*(ne(1)+ne(2)),
      >           dcpl_mb(Hpsi_k(1)),1,
@@ -633,18 +545,7 @@ c     >                       sum)
       integer function electron_ispin()
       implicit none
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
+#include "electron_common.fh"
 
       electron_ispin = ispin
       return
@@ -660,18 +561,7 @@ c     >                       sum)
       implicit none
       integer ms
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
+#include "electron_common.fh"
 
       electron_ne = ne(ms)
       return
@@ -691,19 +581,8 @@ c     >                       sum)
       complex*16 THpsi_k(*)
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
 
 *     ***** local variables ****
       integer ms,n,n1(2),shift
@@ -748,19 +627,8 @@ c     >                       sum)
       complex*16 THpsi_k(*)
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
 
 *     ***** local variables ****
       logical value
@@ -835,19 +703,8 @@ c     >                       sum)
       real*8     hml(*)
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
 
 *     **** local variables ****
       integer ms,n,n1(2),shift
@@ -889,19 +746,8 @@ c     >                       sum)
       complex*16 psi_k(*)
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
 
 *     **** local variables ****
       logical move
@@ -919,6 +765,7 @@ c     >                       sum)
      >  call psi_H(ispin,ne,psi_k,
      >             dbl_mb(psi_r(1)),
      >             dcpl_mb(vl(1)),
+     >             dbl_mb(v_field(1)),field_exist,
      >             dcpl_mb(vc(1)),
      >             dbl_mb(xcp(1)),
      >             dcpl_mb(Hpsi_k(1)),
@@ -930,6 +777,7 @@ c     >                       sum)
      >             dbl_mb(psi_r(1)),
      >             dcpl_mb(vl(1)),
      >             dbl_mb(vl_lr(1)),
+     >             dbl_mb(v_field(1)),field_exist,
      >             dcpl_mb(vc(1)),
      >             dbl_mb(xcp(1)),
      >             dcpl_mb(Hpsi_k(1)),
@@ -954,22 +802,9 @@ c     >                       sum)
       complex*16 psi_k(*)
 
 #include "mafdecls.fh"
-
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
+#include "electron_common.fh"
 
 *     **** local variables ****
-      logical value
       integer n,nemax,n2ft3d
 
 
@@ -1003,25 +838,14 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       real*8     dnall(*)
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
      
 *     **** local variables ****
-      integer i,j,k,indx
+      integer i
       integer ms,nx,ny,nz,n2ft3d
       integer n,n1(2),n2(2)
-      real*8  scal1,scal2,sum
+      real*8  scal1,scal2
       integer tmp1(2)
       logical value
 
@@ -1127,19 +951,8 @@ c      end do
       real*8     dnall(*)
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
 
 *     ***** local variables ****
       logical value
@@ -1204,19 +1017,8 @@ c      end do
       implicit none
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
 
 *     **** local variables ****
       logical move,value
@@ -1226,9 +1028,9 @@ c      end do
       integer r_grid(2)
 
 *     **** external functions *****
-      logical  pspw_qmmm_found
+      logical  pspw_qmmm_found,pspw_charge_found
       integer  control_version
-      external pspw_qmmm_found
+      external pspw_qmmm_found,pspw_charge_found
       external control_version
 
       value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
@@ -1250,21 +1052,39 @@ c      end do
      >  'electron_gen_vl_potential: error popping stack memory',0)
 
 
-*      *** long-range psp for charge systems ***
-      if (control_version().eq.4) then
+*     **** generate real-space fields ****
+      if ((control_version().eq.4).or.
+     >    (pspw_qmmm_found()).or.
+     >    (pspw_charge_found()))    then
+
          value = MA_push_get(mt_dbl,(6*nfft3d),'r_grid',
      >                       r_grid(2),r_grid(1)) 
 
          call lattice_r_grid(dbl_mb(r_grid(1)))
-         call v_lr_local(dbl_mb(r_grid(1)),
-     >                   dbl_mb(vl_lr(1)))
+
+*        **** generate long-range psp potential ****
+         if (control_version().eq.4) then
+            call v_lr_local(dbl_mb(r_grid(1)),
+     >                      dbl_mb(vl_lr(1)))
+         end if
 
 *        **** generate QM/MM potential ****
          if (pspw_qmmm_found()) then
+           field_exist = .true.
            n2ft3d = 2*nfft3d
            call pspw_qmmm_Generate_V(n2ft3d,dbl_mb(r_grid(1)),
-     >                                     dbl_mb(vl_lr(1)))
+     >                                     dbl_mb(v_field(1)))
          end if
+
+*        **** generate charge potential ****
+         if (pspw_charge_found()) then
+           field_exist = .true.
+           n2ft3d = 2*nfft3d
+           call pspw_charge_Generate_V(n2ft3d,
+     >                                 dbl_mb(r_grid(1)),
+     >                                 dbl_mb(v_field(1)))
+         end if
+
 
          value = MA_pop_stack(r_grid(2))
          if (.not. value) call errquit(
@@ -1291,19 +1111,8 @@ c      end do
       real*8     dn(*)
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
 
 *     **** local variables ****
       logical value
@@ -1370,7 +1179,7 @@ c    >                         sum)
       if (np.gt.1) call D3dB_SumAll(elocal)
       if (ispin.eq.1) elocal = 2.0d0*elocal
 
-*     *** add in long range part ****
+*     *** add in long range part of psp ****
       if (control_version().eq.4) then
        call D3dB_rr_dot(1,dn(1),dbl_mb(vl_lr(1)),sum)
        elocal = elocal + sum*dv
@@ -1379,6 +1188,15 @@ c    >                         sum)
        elocal = elocal + sum*dv
       end if
 
+*     **** add in other real-space fields ****
+      if (field_exist) then
+       call D3dB_rr_dot(1,dn(1),dbl_mb(v_field(1)),sum)
+       elocal = elocal + sum*dv
+       call D3dB_rr_dot(1,dn(1+(ispin-1)*n2ft3d),
+     >                    dbl_mb(v_field(1)),sum)
+       elocal = elocal + sum*dv
+      end if
+      
 
  
       value = MA_pop_stack(tmp2(2))
@@ -1404,19 +1222,8 @@ c    >                         sum)
       complex*16 psi1(*)
 
 #include "mafdecls.fh"
+#include "electron_common.fh"
 
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
 
 *     **** local variables ****
       logical value
@@ -1487,19 +1294,7 @@ c    >                         sum)
       real*8 fion(3,*)
 
 #include "mafdecls.fh"
-
-*     ***** electron common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer Hpsi_k(2)
-      integer psi_r(2)
-      integer vl(2)
-      integer vl_lr(2)
-      integer vc(2)
-      integer xcp(2)
-      integer xce(2)
-      common / electron_block / Hpsi_k,psi_r,
-     >                          vl,vl_lr,vc,xcp,xce,
-     >                          ne,ispin,nfft3d,npack1,npack0
+#include "electron_common.fh"
 
      
       call semicore_xc_F(ispin,dbl_mb(xcp(1)),fion)

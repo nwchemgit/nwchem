@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.16 2002-01-15 20:58:01 bylaska Exp $
+* $Id: cgsdv5.F,v 1.17 2002-01-16 20:51:13 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -225,6 +225,7 @@ c     value = psi_initialize()
 *     **** initialize QM/MM ****
       call pspw_init_APC(rtdb)
       call pspw_qmmm_init(rtdb)
+      call pspw_charge_init(rtdb)
 
       call linesearch_init()
 
@@ -281,6 +282,7 @@ c         ENDIF
          write(6,1210) gx,gy,gz
 
          call pspw_qmmm_Print(6)
+         call pspw_charge_Print(6)
 
          write(6,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
          write(6,1230)
@@ -398,6 +400,7 @@ c     end if
       value = psi_finalize()
 
 *     **** write geometry to rtdb ****
+      call pspw_charge_write(rtdb)
       call pspw_qmmm_write(rtdb)
       call ion_write(rtdb)
 
@@ -414,6 +417,7 @@ c     end if
       call Pack_end()
       call G_end()
       call pspw_end_APC()
+      call pspw_charge_end()
       call pspw_qmmm_end()
       call ion_end()
       call psp_end()
@@ -505,7 +509,7 @@ c     end if
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' initial position of ions:')
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
+ 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1220 FORMAT(/' number of active electrons: spin up=',I3,
