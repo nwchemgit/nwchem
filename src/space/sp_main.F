@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.77 2002-11-14 15:39:22 d3j191 Exp $
+c $Id: sp_main.F,v 1.78 2002-11-14 16:07:57 d3j191 Exp $
 c
       implicit none
 c
@@ -2878,8 +2878,8 @@ c
       call sp_cascad(nen,int_mb(i_bb))
 c
       if(me.eq.0.and.lpsyn) then
-      write(lfnsyn,3002) 2,stime,synsum,waltim
- 3002 format('synchronization',/,i5,3f12.6)
+      write(lfnsyn,3002) 2,stime,synsum,waltim,nldup,tslow
+ 3002 format('synchronization',/,i5,3f12.6,i5,f12.6)
       do 16 i=1,np
       write(lfnsyn,3003) nod(i),dlb(nod(i)+1)
  3003 format(i5,f12.6,i7,i5)
