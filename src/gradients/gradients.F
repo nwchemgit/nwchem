@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.19 1996-11-02 00:32:59 vg038 Exp $
+c$Id: gradients.F,v 1.20 1997-02-07 22:06:14 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -31,9 +31,9 @@ c
       call util_print_rtdb_load(rtdb,'gradients')
       call ecce_print_module_entry ('scf')
 c
-      status = rtdb_get(rtdb, 'scf:converged', MT_LOG, 1, converged) 
-      if ( .not.( status .and. converged )) call errquit
-     $     ('gradients: no converged SCF wavefunction available', 0)
+*      status = rtdb_get(rtdb, 'scf:converged', MT_LOG, 1, converged) 
+*      if ( .not.( status .and. converged )) call errquit
+*     $     ('gradients: no converged SCF wavefunction available', 0)
 c
 c     Extract high level info from the data-base setting defaults
 c     
