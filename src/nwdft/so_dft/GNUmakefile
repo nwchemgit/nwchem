@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.5 2000-04-27 15:50:34 edo Exp $
+# $Id: GNUmakefile,v 1.6 2000-05-01 05:37:35 zzhang Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -20,8 +20,7 @@
 	dzsum1.o izmax1.o movecs_anal_so.o \
 	sym_mo_adapt_so.o sym_char_tab_so.o scf_sym_adap_so.o \
 	sym_mo_ap_op_so.o sym_op_clsfy_so.o ga_orth_mos_so.o  \
-	ga_orthog_so.o sym_op_cname_so.o 
-
+	ga_orthog_so.o sym_op_cname_so.o grad_dens_so2.o 
 	OBJ_OPTIMIZE = ga_compl.o\
 
 
