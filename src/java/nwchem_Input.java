@@ -22,6 +22,7 @@ class nwchem_Input extends JFrame implements ActionListener, ChangeListener, Win
   JMenuItem energy, optimize, dynamics, thermodynamics;
 
   nwchem_MD md_Input;
+  nwchem_Prepare prepare_Input;
 
   public nwchem_Input(nwchem_Task task){
 
@@ -42,10 +43,10 @@ class nwchem_Input extends JFrame implements ActionListener, ChangeListener, Win
     super.setJMenuBar(menubar);
 
     addComponent(super.getContentPane(),taskLabel,0,0,5,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+		 GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 
     addComponent(super.getContentPane(),body,0,1,5,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTHWEST);
     body.setLayout(new GridBagLayout());
     body.setBackground(Color.yellow);
 
@@ -65,6 +66,9 @@ class nwchem_Input extends JFrame implements ActionListener, ChangeListener, Win
 	tsk.theory="prepare";
 	setLabels();
 	body.removeAll();
+    	prepare_Input = new nwchem_Prepare(tsk);
+	addComponent(body,prepare_Input,0,0,1,1,1,1,
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
 	validate();
       }});
     theory.add(md     = new JMenuItem("md"));
@@ -143,7 +147,7 @@ class nwchem_Input extends JFrame implements ActionListener, ChangeListener, Win
       }});
 
     setLocation(100,400);	
-    setSize(900,700);
+    setSize(800,400);
 
     body.removeAll();
 

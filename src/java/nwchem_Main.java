@@ -23,7 +23,7 @@ class nwchem_Main extends JFrame implements ActionListener, WindowListener {
 
     super("NWChem Computational Chemistry Software");
     super.setSize(400,200);
-    super.setLocation(100,1);
+    super.setLocation(100,100);
     super.setBackground(Color.lightGray);
     super.setForeground(Color.blue);
     super.addWindowListener(this);

@@ -78,103 +78,113 @@ class nwchem_Job extends JFrame implements ActionListener, ChangeListener, Windo
 	list_Task();
       }});
       
-    addComponent(super.getContentPane(),panel,0,0,1,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+    addComponent(super.getContentPane(),panel,0,0,1,1,1.0,1.0,
+		 GridBagConstraints.BOTH,GridBagConstraints.NORTHWEST);
     panel.setLayout(new GridBagLayout());
 
     JLabel titlelabel = new JLabel("Title ");
     addComponent(panel,titlelabel,0,0,1,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+		 GridBagConstraints.NONE,GridBagConstraints.WEST);
     titlefield = new TextField(title,30);
     addComponent(panel,titlefield,1,0,7,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.WEST);
     titlefield.addFocusListener(new FocusListener(){
       public void focusLost(FocusEvent e){title=titlefield.getText();};
       public void focusGained(FocusEvent e){}
     });
-    JLabel heaplabel = new JLabel("Memory heap ");
-    addComponent(panel,heaplabel,0,1,1,1,1,1,
+    JLabel rootlabel = new JLabel("RTDB ");
+    addComponent(panel,rootlabel,0,1,1,1,1,1,
+		 GridBagConstraints.NONE,GridBagConstraints.WEST);
+    rtdbfield = new TextField(root,10);
+    addComponent(panel,rtdbfield,1,1,1,1,1,1,
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.WEST);
+    rtdbfield.addFocusListener(new FocusListener(){
+      public void focusLost(FocusEvent e){root=rtdbfield.getText();};
+      public void focusGained(FocusEvent e){}
+    });
+    JLabel memorylabel = new JLabel("Memory:  ");
+    addComponent(panel,memorylabel,2,1,1,1,1,1,
+		 GridBagConstraints.NONE,GridBagConstraints.EAST);
+    JLabel heaplabel = new JLabel("heap ");
+    addComponent(panel,heaplabel,3,1,1,1,1,1,
 		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
     heapfield = new IntegerField(heap,1,5);
-    addComponent(panel,heapfield,1,1,1,1,1,1,
+    addComponent(panel,heapfield,4,1,1,1,1,1,
 		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
     heapfield.addFocusListener(new FocusListener(){
       public void focusLost(FocusEvent e){heap=heapfield.getValue();};
       public void focusGained(FocusEvent e){}
     });
-    JLabel stacklabel = new JLabel("mb   stack ");
-    addComponent(panel,stacklabel,2,1,1,1,1,1,
+    JLabel mb1label = new JLabel(" mb");
+    addComponent(panel,mb1label,5,1,1,1,1,1,
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+    JLabel stacklabel = new JLabel("stack ");
+    addComponent(panel,stacklabel,3,2,1,1,1,1,
 		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
     stackfield = new IntegerField(stack,24,5);
-    addComponent(panel,stackfield,3,1,1,1,1,1,
+    addComponent(panel,stackfield,4,2,1,1,1,1,
 		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
     stackfield.addFocusListener(new FocusListener(){
       public void focusLost(FocusEvent e){stack=stackfield.getValue();};
       public void focusGained(FocusEvent e){}
     });
-    JLabel globallabel = new JLabel("mb   global ");
-    addComponent(panel,globallabel,4,1,1,1,1,1,
+    JLabel mb2label = new JLabel(" mb");
+    addComponent(panel,mb2label,5,2,1,1,1,1,
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+    JLabel globallabel = new JLabel("global ");
+    addComponent(panel,globallabel,3,3,1,1,1,1,
 		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
     globalfield = new IntegerField(global,24,5);
-    addComponent(panel,globalfield,5,1,1,1,1,1,
+    addComponent(panel,globalfield,4,3,1,1,1,1,
 		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
     globalfield.addFocusListener(new FocusListener(){
       public void focusLost(FocusEvent e){global=globalfield.getValue();};
       public void focusGained(FocusEvent e){}
     });
-    JLabel mblabel = new JLabel("mb ");
-    addComponent(panel,mblabel,6,1,1,1,1,1,
+    JLabel mb3label = new JLabel(" mb");
+    addComponent(panel,mb3label,5,3,1,1,1,1,
 		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
     verifybutton = new JRadioButton("verify");
-    addComponent(panel,verifybutton,7,1,1,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+    addComponent(panel,verifybutton,2,2,1,1,1,1,
+		 GridBagConstraints.NONE,GridBagConstraints.EAST);
     verifybutton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){ 
 	verify=verifybutton.isSelected();
       }});
-    JLabel rootlabel = new JLabel("RTDB ");
-    addComponent(panel,rootlabel,0,2,1,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
-    rtdbfield = new TextField(root,10);
-    addComponent(panel,rtdbfield,1,2,1,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
-    rtdbfield.addFocusListener(new FocusListener(){
-      public void focusLost(FocusEvent e){root=rtdbfield.getText();};
-      public void focusGained(FocusEvent e){}
-    });
     JButton addTaskButton = new JButton("Add Task");
-    addComponent(panel,addTaskButton,2,2,1,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+    addComponent(panel,addTaskButton,4,5,1,1,1,1,
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTH);
     addTaskButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){
 	currentTask++; task=new nwchem_Task(); 
 	tasks.addElement(task); nwchemInput();
       }});
     JButton insTaskButton = new JButton("Insert Task");
-    addComponent(panel,insTaskButton,3,2,1,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+    addComponent(panel,insTaskButton,5,5,1,1,1,1,
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTH);
     insTaskButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){
 	if(currentTask<0) currentTask=0; task=new nwchem_Task(); 
 	tasks.insertElementAt(task,currentTask); nwchemInput();
       }});
     JButton writeJobButton = new JButton("Write Job");
-    addComponent(panel,writeJobButton,4,2,1,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+    addComponent(panel,writeJobButton,4,6,1,1,1,1,
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTH);
     writeJobButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){ 
 	writeJob(); 
       }});
+
     runJobButton = new JButton("Run Job");
     addComponent(panel,runJobButton,5,2,1,1,1,1,
 		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
     runJobButton.addActionListener(this);
 
-    addComponent(panel,taskPane,0,3,4,5,20,20,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+    addComponent(panel,taskPane,0,5,4,5,20,20,
+		 GridBagConstraints.BOTH,GridBagConstraints.CENTER);
     JButton editTaskButton = new JButton("Edit");
-    addComponent(panel,editTaskButton,4,3,1,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+    addComponent(panel,editTaskButton,4,7,1,1,1,1,
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTH);
     editTaskButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){
 	currentTask=taskList.getSelectedIndex();
@@ -182,8 +192,8 @@ class nwchem_Job extends JFrame implements ActionListener, ChangeListener, Windo
 	nwchemInput();
       }});
     JButton delTaskButton = new JButton("Delete");
-    addComponent(panel,delTaskButton,5,3,1,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+    addComponent(panel,delTaskButton,5,7,1,1,1,1,
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTH);
     delTaskButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){
 	try{task_Input.setVisible(false);} catch(Exception ee){};
@@ -192,20 +202,20 @@ class nwchem_Job extends JFrame implements ActionListener, ChangeListener, Windo
 	updateTaskList();
       }});
     JButton writeTaskButton = new JButton("Write");
-    addComponent(panel,writeTaskButton,4,4,1,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+    addComponent(panel,writeTaskButton,4,8,1,1,1,1,
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTH);
     JButton runTaskButton = new JButton("Run");
-    addComponent(panel,runTaskButton,5,4,1,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+    addComponent(panel,runTaskButton,5,8,1,1,1,1,
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTH);
     JButton upTaskButton = new JButton("Move up");
-    addComponent(panel,upTaskButton,4,5,1,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+    addComponent(panel,upTaskButton,4,9,1,1,1,1,
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTH);
     JButton downTaskButton = new JButton("Move down");
-    addComponent(panel,downTaskButton,5,5,1,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+    addComponent(panel,downTaskButton,5,9,1,1,1,1,
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTH);
 
     setLocation(500,1);	
-    setSize(800,400);
+    setSize(800,250);
 
   }
 
@@ -349,6 +359,11 @@ class nwchem_Job extends JFrame implements ActionListener, ChangeListener, Windo
       };
       nw.close();
     } catch (Exception e) { System.out.println("Error writing to file"); };
+  };
+
+  void runJob(){
+    writeJob();
+    System.out.println("Running Job");
   };
 
   void writeTaskMD(){
