@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.48 2000-02-25 01:06:24 windus Exp $
+* $Id: prp.F,v 1.49 2000-05-05 18:55:02 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -7,6 +7,7 @@
 #include "global.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
+      parameter  (mxefc=3*7*7*7)
       integer     rtdb, basis, geom
       logical     status
       LOGICAL     SOME
@@ -23,7 +24,8 @@
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_RUNOPT/RUNTYP
       COMMON/HND_SYMTRY/INVT(48),NT,NTMAX,NTWD,NOSYM
-      COMMON/HND_EFCPAR/EFCC(3,10),EFCZ(10),EFCLAB(10),NEFC,IEFC
+      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
+      COMMON/HND_EFCOPT/IEFC
       COMMON/HND_MMTDIP/DIPOL,DMX,DMY,DMZ
       COMMON/HND_DATDPL/DPOL( 6)
       COMMON/HND_DATDHP/HPOL(10)
@@ -347,6 +349,7 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
+      parameter  (mxefc=3*7*7*7)
       integer rtdb,basis,geom
       logical status
       PARAMETER   (MXIODA=255)
@@ -356,7 +359,8 @@ c
       CHARACTER*8 SCF, UHF, MP2, PROP
       LOGICAL     SOME,OUT
       COMMON/HND_MEMORY/MAXCOR,MAXLCM
-      COMMON/HND_EFCPAR/EFCC(3,10),EFCZ(10),EFCLAB(10),NEFC,IEFC
+      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
+      COMMON/HND_EFCOPT/IEFC
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_IOFILE/IR,IW,IP
@@ -1234,6 +1238,7 @@ C
 #include "global.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
+      parameter  (mxefc=3*7*7*7)
       integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
@@ -1243,7 +1248,8 @@ C
       CHARACTER*8 SCF, UHF, MP2
       LOGICAL OUT,QDPOUT
       COMMON/HND_MEMORY/MAXCOR,MAXLCM
-      COMMON/HND_EFCPAR/EFCC(3,10),EFCZ(10),EFCLAB(10),NEFC,IEFC
+      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
+      COMMON/HND_EFCOPT/IEFC
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_IOFILE/IR,IW,IP
@@ -1982,6 +1988,7 @@ C
 #include "global.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
+      parameter  (mxefc=3*7*7*7)
       integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
@@ -1991,7 +1998,8 @@ C
       CHARACTER*8 SCF, UHF, MP2
       LOGICAL OUT,OTPOUT
       COMMON/HND_MEMORY/MAXCOR,MAXLCM
-      COMMON/HND_EFCPAR/EFCC(3,10),EFCZ(10),EFCLAB(10),NEFC,IEFC
+      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
+      COMMON/HND_EFCOPT/IEFC
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_IOFILE/IR,IW,IP
@@ -4414,6 +4422,7 @@ C
 #include "global.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
+      parameter  (mxefc=3*7*7*7)
       integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
@@ -4434,7 +4443,8 @@ C     INTEGER SPIND
      1                  XYZG0(3)
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
-      COMMON/HND_EFCPAR/EFCC(3,10),EFCZ(10),EFCLAB(10),NEFC,IEFC
+      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
+      COMMON/HND_EFCOPT/IEFC
       COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM),BFLAB(MXBFN)
       COMMON/HND_SCFOPT/SCFTYP
       COMMON/HND_WFNOPT/WFNTYP
@@ -4992,6 +5002,7 @@ C
 #include "global.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
+      parameter  (mxefc=3*7*7*7)
       integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
@@ -5010,7 +5021,8 @@ C     INTEGER SPIND
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM),BFLAB(MXBFN)
-      COMMON/HND_EFCPAR/EFCC(3,10),EFCZ(10),EFCLAB(10),NEFC,IEFC
+      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
+      COMMON/HND_EFCOPT/IEFC
       COMMON/HND_SCFOPT/SCFTYP
       COMMON/HND_WFNOPT/WFNTYP
       DIMENSION X(1)
@@ -5477,6 +5489,7 @@ C
 #include "global.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
+      parameter  (mxefc=3*7*7*7)
       integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
@@ -5494,7 +5507,8 @@ C
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM),BFLAB(MXBFN)
-      COMMON/HND_EFCPAR/EFCC(3,10),EFCZ(10),EFCLAB(10),NEFC,IEFC
+      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
+      COMMON/HND_EFCOPT/IEFC
       COMMON/HND_SCFOPT/SCFTYP
       COMMON/HND_WFNOPT/WFNTYP
       DIMENSION X(1)
