@@ -1,13 +1,13 @@
 c
-c $Id: hnd_txyz.F,v 1.2 1999-04-10 00:15:18 windus Exp $
+c $Id: hnd_txyz.F,v 1.3 2004-07-21 16:24:36 bert Exp $
 c
       subroutine hnd_txyz(xt,yt,zt,xs,ys,zs,ni,nj,aj)
       implicit none
 c
       double precision xt, yt, zt, xs, ys, zs, aj
       integer ni, nj, i, j
-      dimension xt(5,*),yt(5,*),zt(5,*)
-      dimension xs(5,*),ys(5,*),zs(5,*)
+      dimension xt(ni,*),yt(ni,*),zt(ni,*)
+      dimension xs(ni,*),ys(ni,*),zs(ni,*)
 c
       do 10 i=1,ni
       xt(i,1)=(xs(i,1  )            -xs(i,3  )*(aj+aj))*aj

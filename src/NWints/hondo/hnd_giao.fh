@@ -1,0 +1,25 @@
+c $Id $
+c
+c     Data blocks used in GIAO two-electron integrals to communicate
+c     data between routines
+c     Include file depends on nwc_const.fh !!
+c
+      integer mxgsh2
+      parameter (mxgsh2=nw_max_prim*nw_max_prim)
+      double precision acharg,bcharg
+      double precision xi,yi,zi,xj,yj,zj,xk,yk,zk,xl,yl,zl
+      double precision tijx,tijy,tijz,tklx,tkly,tklz
+      double precision qijx,qijy,qijz,qklx,qkly,qklz
+      logical expndi,expndk,iieqjj,kkeqll
+      logical nmaxs,nmaxp,mmaxs,mmaxp
+      integer nij,nkl,lit,ljt,lkt,lmt,ijkl
+      integer numi,numj,numk,numl
+c
+      common/hnd_ijchrg/acharg(11,mxgsh2),nij
+      common/hnd_klchrg/bcharg(11,mxgsh2),nkl
+      common/hnd_atmgia/xi,yi,zi,xj,yj,zj,xk,yk,zk,xl,yl,zl,
+     1                  tijx,tijy,tijz,tklx,tkly,tklz,
+     2                  qijx,qijy,qijz,qklx,qkly,qklz
+      common/hnd_shlxpn/expndi,expndk,iieqjj,kkeqll
+      common/hnd_shlgia/lit,ljt,lkt,lmt,ijkl,numi,numj,numk,numl
+      common/hnd_shlgnm/nmaxs,nmaxp,mmaxs,mmaxp

@@ -1,6 +1,23 @@
       subroutine hnd_droot
 * $id: hess_quad.f,v 1.5 1998/10/01 20:47:26 windus exp $
       implicit none
+#include "hnd_rys.fh"
+c
+c Wrapper routine. 
+c
+      goto (1,1,1,2,3) nroots
+      call hnd_droot1
+      return
+    1 call hnd_rt123
+      return
+    2 call hnd_root4
+      return
+    3 call hnd_root5
+      return
+      end
+c
+      subroutine hnd_droot1
+      implicit none
 #if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
       double precision ff, r, ww, c, s, a, rt, pt5, zero, one, four
       double precision x, wsum, dum, root, poly
@@ -10,9 +27,10 @@
 #endif
 #include "hnd_rys.fh"
       integer n, n1, nn, i, j, k, k1, jmax, j1, m
-      common/hnd_rysff/ff(19)
-      common/hnd_rysrw/r(9,9),ww(9,9)
-      dimension c(10,10),s(10,10),a(10),rt(10)
+      common/hnd_rysff/ff(2*maxrys+1)
+      common/hnd_rysrw/r(maxrys,maxrys),ww(maxrys,maxrys)
+      dimension c(maxrys+1,maxrys+1),s(maxrys+1,maxrys+1)
+      dimension a(maxrys+1),rt(maxrys+1)
 #if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
       data pt5,zero,one,four /0.5d+00,0.0d+00,1.0d+00,4.0d+00/
 #else
@@ -23,7 +41,7 @@ c     this version uses christoffel formula for weights.
 c     ith root of the jth rys polynomial is returned in r(i,j) with
 c     the corresponding weight factor in ww(i,j).   j=1,2,...,n
 c
-      n=mroots
+      n=nroots
       x=yy
       if(n.lt.2) n=2
       n1=n+1
@@ -68,15 +86,16 @@ c
   100 poly=poly*root+c(j1-m,j1)
   110 dum=dum+poly*poly
   150 ww(i,k)=  one  /dum
-      do 160 k=1,mroots
-      dum=r(k,mroots)
+      do 160 k=1,nroots
+      dum=r(k,nroots)
       u9(k)=dum/(  one  -dum)
-  160 w9(k)=ww(k,mroots)
+  160 w9(k)=ww(k,nroots)
       return
       end
 c
       subroutine hnd_rysfun(x,n)
       implicit none
+#include "hnd_rys.fh"
 #if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
       double precision ff, pt5, one, two, x
       double precision tol, e, xx, facmin, term 
@@ -87,7 +106,7 @@ c
       real*16 a, sum, fac, t, s, tmax
 #endif
       integer n, m
-      common/hnd_rysff/ff(19)
+      common/hnd_rysff/ff(2*maxrys+1)
 #if defined(LINUX)  || defined(CRAY) || defined(WIN32) || defined(MACX)
       data pt5,one,two /0.5d+00,1.0d+00,2.0d+00/
       tol=1.0d-12
@@ -154,6 +173,7 @@ c
 c
       subroutine hnd_ryssmt(c,s,n)
       implicit none
+#include "hnd_rys.fh"
 #if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
       double precision c, s, v, y, zero, one
       double precision fac, dot
@@ -162,7 +182,8 @@ c
       real*16 fac, dot
 #endif
       integer n, i, j, k, kmax
-      dimension c(10,10),s(10,10),v(10),y(10)
+      dimension c(maxrys+1,maxrys+1),s(maxrys+1,maxrys+1)
+      dimension v(maxrys+1),y(maxrys+1)
 #if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
       data zero,one /0.0d+00,1.0d+00/
 #else
@@ -200,6 +221,7 @@ c
 c
       subroutine hnd_rysnod(a,rt,k)
       implicit none
+#include "hnd_rys.fh"
 #if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
       double precision a, rt, zero, tol, r1, p1, r2, p2
       double precision prod, r3, p3, r4, p4, r5, p5, r6, p6
@@ -212,7 +234,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
       integer k, k1, m, i
-      dimension a(10),rt(10)
+      dimension a(maxrys+1),rt(maxrys+1)
 #if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
       data zero /0.0d+00/
 #else

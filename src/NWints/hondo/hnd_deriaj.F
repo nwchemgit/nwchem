@@ -1,5 +1,5 @@
 C
-C $Id: hnd_deriaj.F,v 1.1 1999-05-06 17:25:50 windus Exp $
+C $Id: hnd_deriaj.F,v 1.2 2004-07-21 16:24:34 bert Exp $
 c
       subroutine hnd_deriaj(dxdi,dydi,dzdi,dxdj,dydj,dzdj,
      1                      x,y,z,lit,ljt,ai,aj)
@@ -14,9 +14,9 @@ c
       integer lit, ljt
       integer j, i
 c
-      dimension  x  (6,*), y  (6,*), z  (6,*)
-      dimension dxdi(5,1),dydi(5,1),dzdi(5,1)
-      dimension dxdj(5,1),dydj(5,1),dzdj(5,1)
+      dimension x(lit+1,ljt+1),y(lit+1,ljt+1),z(lit+1,ljt+1)
+      dimension dxdi(lit,ljt),dydi(lit,ljt),dzdi(lit,ljt)
+      dimension dxdj(lit,ljt),dydj(lit,ljt),dzdj(lit,ljt)
 c
 c     ----- dxdi ... -----
 c

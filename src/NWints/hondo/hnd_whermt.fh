@@ -1,8 +1,14 @@
 c
-c $Id: hnd_whermt.fh,v 1.1 1998-10-01 18:50:44 windus Exp $
+c $Id: hnd_whermt.fh,v 1.2 2004-07-21 16:24:37 bert Exp $
+c
+
+c
+c  Gauss-Hermite quadrature data for up to L=15
 c
       double precision h, w
-
-      common/hnd_hermit/h(28)
-      common/hnd_wermit/w(28)
+      integer min, max
+ 
+      common/hnd_hermit/h(120)
+      common/hnd_wermit/w(120)
+      common/hnd_herdat/min(15),max(15)
 

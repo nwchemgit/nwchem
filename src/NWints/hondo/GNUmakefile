@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.12 2002-10-25 16:06:25 edo Exp $
+# $Id: GNUmakefile,v 1.13 2004-07-21 16:24:33 bert Exp $
 
 include ../../config/makefile.h
 
@@ -21,20 +21,40 @@ include ../../config/makefile.h
                  hnd_tvd_ij.o \
                  hnd_ddtxyz.o \
                  hnd_hlf_ij.o \
-                 hnd_dvxyz.o  \
+                 hnd_dervxyz.o  \
                  hnd_initdd.o \
                  hnd_dd1emem.o \
                  hnd_stvintdd.o \
                  hnd_hlfd_ij.o \
-                 hnd_ddvxyz.o \
                  hnd_deriaj.o \
-                 hnd_to_nw_order.o \
-                 hnd_terminate.o 
+                 hnd_terminate.o \
+                 hnd_denxyz.o \
+                 hnd_elfder.o \
+                 hnd_giaoh01.o \
+                 hnd_giaoh11.o \
+                 hnd_giaol10.o \
+                 hnd_giaos10.o \
+                 hnd_giaotv10.o \
+                 hnd_giao_init.o \
+                 hnd_giao_1emem.o \
+                 hnd_giao_2emem.o \
+                 hnd_giagnm.o \
+                 hnd_giaspd.o \
+                 hnd_jkbcdf.o \
+                 hnd_oechrg.o \
+                 hnd_xyzgia.o \
+                 hnd_giahnd.o \
+                 hnd_giaxyz.o \
+                 hnd_jkwrys.o \
+                 hnd_spdgia.o 
 
-  OBJ = hnd_vstat.o 
+  OBJ = hnd_vstat.o \
+        
        HEADERS = hnd_whermt.fh \
                  hnd_rys.fh \
-                 hnd_tol.fh
+                 hnd_tol.fh \
+                 hnd_pointers.fh \
+                 hnd_giao.fh
 
        LIBRARY = libnwints.a
 
@@ -42,6 +62,6 @@ include ../../config/makefile.h
 include ../../config/makelib.h
   ifeq ($(FC),efc)
             FOPTIONS += -save
-#          FOPTIMIZE += -O0
+#           FOPTIMIZE += -O0 -g
   endif
 

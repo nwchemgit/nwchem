@@ -1,11 +1,62 @@
 c
-c $Id: hnd_stvint.F,v 1.5 2003-10-17 22:53:53 carlfahl Exp $
+c $Id: hnd_stvint.F,v 1.6 2004-07-21 16:24:36 bert Exp $
 c
-c Taken from HONDO
+c Modified from HONDO
 c
       subroutine hnd_stvint(xyzi,expi,coefi,i_nprim,i_ngen, Li, 
      1  xyzj,expj,coefj, j_nprim, j_ngen, Lj, 
-     1  xyz,zan,nat,s,ti,vi,lstv,doS,doT,doV,dij,lscr)
+     1  xyz,zan,nat,s,ti,vi,lstv,doS,doT,doV,scr,lscr)
+c
+c This is a wrapper routine, setting up scratch blocks used in actual
+c integral routine
+c
+      implicit none
+c
+      integer i_nprim  ! [input] num. prims on function i
+      integer i_ngen   ! [input] num general conts on func. i
+      integer Li       ! [input] angular momentum of func. i
+      integer j_nprim  ! [input] num. prims on function j
+      integer j_ngen   ! [input] num general conts on func. j
+      integer Lj       ! [input] angular momentum of func. j
+      integer nat      ! [input] number of atoms
+      integer lscr     ! [input] size of scratch array
+      integer lstv     ! [input] size of any integral buffer
+      double precision xyzi(3)  ! [input] position of center i
+      double precision expi(i_nprim) ! [input] exponents on i
+      double precision coefi(i_nprim,i_ngen) ! [input] i coeffs
+      double precision xyzj(3)  ! [input] position of center j
+      double precision expj(j_nprim)  ! [input] exponents on j
+      double precision coefj(j_nprim,j_ngen)  ! [input] j coeffs
+      double precision xyz(3,nat)  ! [input] all atom positions
+      double precision zan(nat)  ! [input] charges on all atoms
+      double precision s(lstv)  ! [output] overlap integrals
+      double precision ti(lstv)  ! [output] kinetic energy integrals
+      double precision vi(lstv)  ! [output] potential integrals
+      double precision scr(lscr)
+      logical doS, doT, doV  ! [input] type of integral
+c
+#include "hnd_pointers.fh"
+c
+c Use scratch for temps in integral calculation
+c Scratch needs are dependent on integral types:
+c doS : 3*(Li+1)*(Lj+3)
+c doT : 3*(Li+1)*(Lj+3)+3*(Li+1)*(Lj+1)
+c doV : 3*(Li+1)*(Lj+1)*((Li+Lj)/2+1)
+c
+c The pointers are defined in hnd_pointers.fh
+c
+      call hnd_stvint1(xyzi,expi,coefi,i_nprim,i_ngen, Li, 
+     1  xyzj,expj,coefj, j_nprim, j_ngen, Lj, 
+     1  xyz,zan,nat,s,ti,vi,lstv,doS,doT,doV,
+     3  scr(stp(1)),scr(stp(2)),scr(stp(3)),scr(stp(4)),scr(stp(5)),
+     4  scr(stp(6)),scr(stp(7)),scr(stp(8)),scr(stp(9)))
+c
+      return
+      end
+c
+      subroutine hnd_stvint1(xyzi,expi,coefi,i_nprim,i_ngen, Li, 
+     1  xyzj,expj,coefj, j_nprim, j_ngen, Lj, 
+     1  xyz,zan,nat,s,ti,vi,lstv,doS,doT,doV,xs,ys,zs,xt,yt,zt,xv,yv,zv)
 c
       implicit none
 #include "stdio.fh"
@@ -29,7 +80,6 @@ c
       double precision coefj(j_nprim,j_ngen)  ! [input] j coeffs
       double precision xyz(3,nat)  ! [input] all atom positions
       double precision zan(nat)  ! [input] charges on all atoms
-      double precision dij(lscr)  ! [scratch] scratch buffers
       double precision s(lstv)  ! [output] overlap integrals
       double precision ti(lstv)  ! [output] kinetic energy integrals
       double precision vi(lstv)  ! [output] potential integrals
@@ -44,38 +94,22 @@ c
       double precision xj, yj, zj, ccx, ccy, ccz 
       double precision rln10, zero, one, pi212
       double precision aax, aay, aaz, znuc, cx, cy, cz, uu, ww, tt
-      double precision xv, yv, zv
-      integer lit, ljt, mini, minj, maxi, maxj, ljtmod, jg
-      integer ijx, ijy, ijz, minprim, maxprim, ij, i, j
-      integer ni, nj, maxrys, i1, i2, j1, j2, ig, ic, iroot
-      integer ix, iy, iz, jx, jy, jz
+      double precision xv, yv, zv, dij
+      integer lit, ljt, maxi, maxj, ljtmod, jg
+      integer ijx, ijy, ijz,ij, i, j
+      integer ni, nj, i1, i2, j1, j2, ig, ic, iroot, nroots
+      integer ix, iy, iz, jx, jy, jz, Nxyz
       logical some
       common/hnd_xyzder/xint,yint,zint,t,x0,y0,z0,xi,yi,zi,xj,yj,zj,
      1                  ni,nj,ccx,ccy,ccz
-      dimension ijx(35),ijy(35),ijz(35)
-      dimension xs(5,7)  ,ys(5,7)  ,zs(5,7)
-      dimension xt(5,5)  ,yt(5,5)  ,zt(5,5)
-      dimension xv(5,5,5),yv(5,5,5),zv(5,5,5)
-      dimension minprim(5), maxprim(5)
-      data maxrys /5/
+      dimension xs(Li+1,Lj+3)  ,ys(Li+1,Lj+3)  ,zs(Li+1,Lj+3)
+      dimension xt(Li+1,Lj+1)  ,yt(Li+1,Lj+1)  ,zt(Li+1,Lj+1)
+      dimension xv(Li+1,Lj+1,*),yv(Li+1,Lj+1,*),zv(Li+1,Lj+1,*)
+      dimension Nxyz(3)
       data rln10  /2.30258d+00/
       data zero   /0.0d+00/
       data one    /1.0d+00/
       data pi212  /1.1283791670955d+00/
-      data ijx    / 1, 2, 1, 1, 3, 1, 1, 2, 2, 1,
-     1              4, 1, 1, 3, 3, 2, 1, 2, 1, 2,
-     2              5, 1, 1, 4, 4, 2, 1, 2, 1, 3,
-     3              3, 1, 3, 2, 2/
-      data ijy    / 1, 1, 2, 1, 1, 3, 1, 2, 1, 2,
-     1              1, 4, 1, 2, 1, 3, 3, 1, 2, 2,
-     2              1, 5, 1, 2, 1, 4, 4, 1, 2, 3,
-     3              1, 3, 2, 3, 2/
-      data ijz    / 1, 1, 1, 2, 1, 1, 3, 1, 2, 2,
-     1              1, 1, 4, 1, 2, 1, 2, 3, 3, 2,
-     2              1, 1, 5, 1, 2, 1, 2, 4, 4, 1,
-     3              3, 3, 2, 2, 3/
-      data minprim / 1, 2, 5,11,21/
-      data maxprim / 1, 4,10,20,35/
 c
       tol=rln10*itol
 c
@@ -89,22 +123,16 @@ c
       xi=xyzi(1)
       yi=xyzi(2)
       zi=xyzi(3)
-      i1=1
-      i2=i_nprim
       lit = Li + 1
-      mini=minprim(lit)
-      maxi=maxprim(lit)
+      maxi=lit*(lit+1)/2
 c
 c     ----- jshell -----
 c
       xj=xyzj(1)
       yj=xyzj(2)
       zj=xyzj(3)
-      j1=1
-      j2=j_nprim
       ljt = Lj + 1
-      minj=minprim(ljt)
-      maxj=maxprim(ljt)
+      maxj=ljt*(ljt+1)/2
       ljtmod=ljt+2
 c
       rr=(xi-xj)**2+(yi-yj)**2+(zi-zj)**2
@@ -121,99 +149,33 @@ c
 c
 c     ----- i primitive -----
 c
-      do 7000 ig=i1,i2
+      do 7000 ig=1,i_nprim
       ai=expi(ig)
       arri=ai*rr
       axi=ai*xi
       ayi=ai*yi
       azi=ai*zi
-      csi=zero
-      cpi=zero
-      cdi=zero
-      cfi=zero
-      cgi=zero
-      if(lit.eq.1) then
-        csi=coefi(ig,i_ngen)
-      elseif(lit.eq.2) then
-        cpi=coefi(ig,i_ngen)
-      elseif(lit.eq.3) then
-        cdi=coefi(ig,i_ngen)
-      elseif(lit.eq.4) then
-        cfi=coefi(ig,i_ngen)
-      elseif(lit.eq.5) then
-        cgi=coefi(ig,i_ngen)
-      else
-        call errquit('hnd_stv_int: illegal -lit- ', lit, INT_ERR)
-      endif
+      csi=coefi(ig,i_ngen)
 c
 c     ----- j primitive -----
 c
-      do 6000 jg=j1,j2
+      do 6000 jg=1,j_nprim
       aj=expj(jg)
       aa=ai+aj
       aa1=one/aa
       dum=aj*arri*aa1
       if(dum.gt.tol) go to 6000  ! the integral is zero
       fac= exp(-dum)
-      csj=zero
-      cpj=zero
-      cdj=zero
-      cfj=zero
-      cgj=zero
-      if(ljt.eq.1) then
-        csj=coefj(jg,j_ngen)
-      elseif(ljt.eq.2) then
-        cpj=coefj(jg,j_ngen)
-      elseif(ljt.eq.3) then
-        cdj=coefj(jg,j_ngen)
-      elseif(ljt.eq.4) then
-        cfj=coefj(jg,j_ngen)
-      elseif(ljt.eq.5) then
-        cgj=coefj(jg,j_ngen)
-      else
-        call errquit('hnd_stv_int: illegal -ljt- ', ljt, INT_ERR)
-      endif
+      csj=coefj(jg,j_ngen)
       ax=(axi+aj*xj)*aa1
       ay=(ayi+aj*yj)*aa1
       az=(azi+aj*zj)*aa1
 c
 c     ----- density factor -----
 c
-      ij=0
-      do 360 i=mini,maxi
-      go to (110,120,220,220,130,220,220,220,220,220,
-     1       150,220,220,220,220,220,220,220,220,220,
-     2       180,220,220,220,220,220,220,220,220,220,
-     3       220,220,220,220,220),i
-  110 dum1=csi*fac
-      go to 220
-  120 dum1=cpi*fac
-      go to 220
-  130 dum1=cdi*fac
-      go to 220
-  150 dum1=cfi*fac
-      go to 220
-  180 dum1=cgi*fac
-  220 continue
+      dij = fac * csi * csj
 c
-      do 360 j=minj,maxj
-      go to (230,250,350,350,260,350,350,350,350,350,
-     1       280,350,350,350,350,350,350,350,350,350,
-     2       310,350,350,350,350,350,350,350,350,350,
-     3       350,350,350,350,350),j
-  230 dum2=dum1*csj
-      go to 350
-  250 dum2=dum1*cpj
-      go to 350
-  260 dum2=dum1*cdj
-      go to 350
-  280 dum2=dum1*cfj
-      go to 350
-  310 dum2=dum1*cgj
-  350 continue
-c
-      ij=ij+1
-  360 dij(ij)=dum2
+      if (doS.or.doT) then
 c
 c     ----- overlap and kinetic energy -----
 c
@@ -231,32 +193,37 @@ c
       zs(i,j)=zint*t
   370 continue
 c
-      call hnd_txyz(xt,yt,zt,xs,ys,zs,lit,ljt,aj)
+      if (doT) call hnd_txyz(xt,yt,zt,xs,ys,zs,lit,ljt,aj)
 c
       ij=0
-      do 390 i=mini,maxi
-      ix=ijx(i)
-      iy=ijy(i)
-      iz=ijz(i)
-      do 380 j=minj,maxj
-      jx=ijx(j)
-      jy=ijy(j)
-      jz=ijz(j)
+      do 390 i=1,maxi
+      call getNxyz(Li,i,Nxyz)
+      ix = Nxyz(1) + 1
+      iy = Nxyz(2) + 1
+      iz = Nxyz(3) + 1
+      do 380 j=1,maxj
+      call getNxyz(Lj,j,Nxyz)
+      jx = Nxyz(1) + 1
+      jy = Nxyz(2) + 1
+      jz = Nxyz(3) + 1
       ij=ij+1
       dum =xs(ix,jx)*ys(iy,jy)*zs(iz,jz)
-      if (doS) s(ij)= s(ij)+ dum*dij(ij)
+      if (doS) s(ij)= s(ij)+ dum*dij
       if (doT) then
         dum =xt(ix,jx)*ys(iy,jy)*zs(iz,jz)
      1      +xs(ix,jx)*yt(iy,jy)*zs(iz,jz)
      2      +xs(ix,jx)*ys(iy,jy)*zt(iz,jz)
-        ti(ij)=ti(ij)+(dum*dij(ij))
+        ti(ij)=ti(ij)+(dum*dij)
       endif
   380 continue
   390 continue
 c
+      endif  ! of overlap and kinetic energy
+c
 c     ----- nuclear attraction -----
 c
       if (doV) then
+      dij=dij*aa1*pi212
       aax=aa*ax
       aay=aa*ay
       aaz=aa*az
@@ -265,13 +232,11 @@ c
       cx=xyz(1,ic)
       cy=xyz(2,ic)
       cz=xyz(3,ic)
-      xx=aa*((ax-cx)**2+(ay-cy)**2+(az-cz)**2)
-      if(nroots.le.3) call hnd_rt123
-      if(nroots.eq.4) call hnd_root4
-      if(nroots.eq.5) call hnd_root5
+      yy=aa*((ax-cx)**2+(ay-cy)**2+(az-cz)**2)
+      call hnd_droot
       do 420 iroot=1,nroots
-      uu=u(iroot)*aa
-      ww=w(iroot)*znuc
+      uu=u9(iroot)*aa
+      ww=w9(iroot)*znuc
       tt=one/(aa+uu)
       t = sqrt(tt)
       x0=(aax+uu*cx)*tt
@@ -289,20 +254,21 @@ c
   420 continue
 c
       ij=0
-      do 450 i=mini,maxi
-      ix=ijx(i)
-      iy=ijy(i)
-      iz=ijz(i)
-      do 440 j=minj,maxj
-      jx=ijx(j)
-      jy=ijy(j)
-      jz=ijz(j)
+      do 450 i=1,maxi
+      call getNxyz(Li,i,Nxyz)
+      ix = Nxyz(1) + 1
+      iy = Nxyz(2) + 1
+      iz = Nxyz(3) + 1
+      do 440 j=1,maxj
+      call getNxyz(Lj,j,Nxyz)
+      jx = Nxyz(1) + 1
+      jy = Nxyz(2) + 1
+      jz = Nxyz(3) + 1
       dum=zero
       do 430 iroot=1,nroots
   430 dum=dum+xv(ix,jx,iroot)*yv(iy,jy,iroot)*zv(iz,jz,iroot)
-      dum=dum*(aa1*pi212)
       ij=ij+1
-      vi(ij)=vi(ij)+dum*dij(ij)
+      vi(ij)=vi(ij)+dum*dij
   440 continue
   450 continue
 c
@@ -311,26 +277,6 @@ c
 c
  6000 continue
  7000 continue
-c
-c     ----- perform transformation to NWChem order if necessary ----
-c
-      if ((lit.gt.2).or.(ljt.gt.2)) then
-        if (doS) then
-          call hnd_to_nw_order(dij,s,minj,mini,maxj-minj+1,
-     1                         maxi-mini+1)
-          call dcopy (lstv,dij,1,s,1)
-        endif
-        if (doT) then
-          call hnd_to_nw_order(dij,ti,minj,mini,maxj-minj+1,
-     1                         maxi-mini+1)
-          call dcopy (lstv,dij,1,ti,1)
-        endif
-        if (doV) then
-          call hnd_to_nw_order(dij,vi,minj,mini,maxj-minj+1,
-     1                         maxi-mini+1)
-          call dcopy (lstv,dij,1,vi,1)
-        endif
-      endif
 c
       if(some) write(luout,9998)
       return

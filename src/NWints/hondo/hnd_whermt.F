@@ -1,122 +1,64 @@
 c
-c $Id: hnd_whermt.F,v 1.1 1998-10-01 18:50:43 windus Exp $
+c $Id: hnd_whermt.F,v 1.2 2004-07-21 16:24:37 bert Exp $
 c
       subroutine hnd_whermt
       implicit none
 
 #include "hnd_whermt.fh"
-      double precision h11, h21, h22, h31, h32, h33
-      double precision h41, h42, h43, h44
-      double precision h51, h52, h53, h54, h55
-      double precision h61, h62, h63, h64, h65, h66
-      double precision h71, h72, h73, h74, h75, h76, h77
-      double precision w11, w21, w22, w31, w32, w33
-      double precision w41, w42, w43, w44
-      double precision w51, w52, w53, w54, w55
-      double precision w61, w62, w63, w64, w65, w66
-      double precision w71, w72, w73, w74, w75, w76, w77
-   
-      data h11
-     1 / 0.000000000000000d+00/
-      data h21,h22
-     1 /-0.707106781186548d+00, 0.707106781186548d+00/
-      data h31,h32,h33
-     1 /-1.224744871391589d+00, 0.000000000000000d+00,
-     2   1.224744871391589d+00/
-      data h41,h42,h43,h44
-     1 /-1.650680123885785d+00,-0.524647623275290d+00,
-     2   0.524647623275290d+00, 1.650680123885785d+00/
-      data h51,h52,h53,h54,h55
-     1 /-2.020182870456086d+00,-0.958572464613819d+00,
-     2   0.000000000000000d+00, 0.958572464613819d+00,
-     3   2.020182870456086d+00/
-      data h61,h62,h63,h64,h65,h66
-     1 /-2.350604973674492d+00,-1.335849074013697d+00,
-     2  -0.436077411927617d+00, 0.436077411927617d+00,
-     3   1.335849074013697d+00, 2.350604973674492d+00/
-      data h71,h72,h73,h74,h75,h76,h77
-     1 /-2.651961356835233d+00,-1.673551628767471d+00,
-     2  -0.816287882858965d+00, 0.000000000000000d+00,
-     3   0.816287882858965d+00, 1.673551628767471d+00,
-     4   2.651961356835233d+00/
-      data w11
-     1 /1.772453850906d+00/
-      data w21,w22
-     1 /8.862269254528d-01,8.862269254528d-01/
-      data w31,w32,w33
-     1 /2.954089751509d-01,1.181635900604d+00,
-     2  2.954089751509d-01                   /
-      data w41,w42,w43,w44
-     1 /8.131283544725d-02,8.049140900055d-01,
-     2  8.049140900055d-01,8.131283544725d-02/
-      data w51,w52,w53,w54,w55
-     1 /1.995324205905d-02,3.936193231522d-01,
-     2  9.453087204829d-01,3.936193231522d-01,
-     3  1.995324205905d-02                   /
-      data w61,w62,w63,w64,w65,w66
-     1 /4.530009905509d-03,1.570673203229d-01,
-     2  7.246295952244d-01,7.246295952244d-01,
-     3  1.570673203229d-01,4.530009905509d-03/
-      data w71,w72,w73,w74,w75,w76,w77
-     1 /9.717812450995d-04,5.451558281913d-02,
-     2  4.256072526101d-01,8.102646175568d-01,
-     3  4.256072526101d-01,5.451558281913d-02,
-     4  9.717812450995d-04/
-      h( 1)=h11
-      h( 2)=h21
-      h( 3)=h22
-      h( 4)=h31
-      h( 5)=h32
-      h( 6)=h33
-      h( 7)=h41
-      h( 8)=h42
-      h( 9)=h43
-      h(10)=h44
-      h(11)=h51
-      h(12)=h52
-      h(13)=h53
-      h(14)=h54
-      h(15)=h55
-      h(16)=h61
-      h(17)=h62
-      h(18)=h63
-      h(19)=h64
-      h(20)=h65
-      h(21)=h66
-      h(22)=h71
-      h(23)=h72
-      h(24)=h73
-      h(25)=h74
-      h(26)=h75
-      h(27)=h76
-      h(28)=h77
-      w( 1)=w11
-      w( 2)=w21
-      w( 3)=w22
-      w( 4)=w31
-      w( 5)=w32
-      w( 6)=w33
-      w( 7)=w41
-      w( 8)=w42
-      w( 9)=w43
-      w(10)=w44
-      w(11)=w51
-      w(12)=w52
-      w(13)=w53
-      w(14)=w54
-      w(15)=w55
-      w(16)=w61
-      w(17)=w62
-      w(18)=w63
-      w(19)=w64
-      w(20)=w65
-      w(21)=w66
-      w(22)=w71
-      w(23)=w72
-      w(24)=w73
-      w(25)=w74
-      w(26)=w75
-      w(27)=w76
-      w(28)=w77
+c
+c     Pointer setting for the h and w lookup tables
+c
+      data min  /1,2,4, 7,11,16,22,29,37,46,56,67,79, 92,106/
+      data max  /1,3,6,10,15,21,28,36,45,55,66,78,91,105,120/
+c
+c     From Numerical Recipes: General formulation of abscissas (in h)
+c     and weights (in w) of Gauss-Hermite quadrature
+c
+      double precision eps, pim4
+      integer i,ioff,its,j,m,iang,maxit
+      parameter (eps=1.d-15,pim4=.7511255444649425d0,maxit=20)
+      double precision p1,p2,p3,pp,z,z1
+c
+      ioff = 0
+      do iang =  1, 15
+         m = (iang+1)/2
+         do i = 1, m
+            if (i.eq.1) then
+                z = sqrt(float(2*iang+1))-1.85575*(2*iang+1)**(-.16667)
+            elseif (i.eq.2) then
+                z = z-1.14*iang**.426/z
+            elseif (i.eq.3) then
+                z = 1.86*z-.86*h(ioff+1)
+            elseif (i.eq.4) then
+                z = 1.91*z-.91*h(ioff+2)
+            else
+                z = 2.00*z-h(ioff+i-2)
+            endif
+            do its=1,maxit
+                 p1 = pim4
+                 p2 = 0.0d0
+                 do j = 1, iang 
+                   p3 = p2
+                   p2 = p1
+                   p1 = z*sqrt(2.0d0/dble(j))*p2
+     &                   -sqrt(dble(j-1)/dble(j))*p3
+                 enddo
+                 pp = sqrt(2.0d0*iang)*p2
+                 z1 = z
+                 z = z1-p1/pp
+                 if (abs(z-z1).le.eps) goto 1
+            enddo
+            stop 'too many iterations'
+  1         h(ioff+i) =  z
+            h(ioff+iang+1-i) = -z
+            w(ioff+i) = 2.0d0/(pp*pp)
+            w(ioff+iang+1-i) = w(ioff+i)
+         enddo
+         do i = 1, m
+            h(ioff+i) = -h(ioff+i)
+            h(ioff+iang+1-i) = -h(ioff+iang+1-i)
+         enddo
+         ioff = ioff + iang
+      enddo
       return
       end

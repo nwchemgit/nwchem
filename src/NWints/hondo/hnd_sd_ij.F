@@ -1,11 +1,65 @@
 c
-c $Id: hnd_sd_ij.F,v 1.3 2003-10-17 22:53:53 carlfahl Exp $
+c $Id: hnd_sd_ij.F,v 1.4 2004-07-21 16:24:36 bert Exp $
 c
-c Taken from HONDO
+c Modified from HONDO
 c
       subroutine hnd_sd_ij2(xyzi,expi,coefi,i_nprim,i_ngen, Li,
      1  xyzj,expj,coefj, j_nprim, j_ngen, Lj,
-     1  disij,djsij,didisij,didjsij,djdjsij,nder,nint)
+     1  disij,djsij,didisij,didjsij,djdjsij,nder,nint,scr,lscr)
+c
+c This is a wrapper routine, setting up scratch blocks used in actual
+c integral routine
+c
+      implicit none
+c
+      integer i_nprim  ! [input] num. prims on function i
+      integer i_ngen   ! [input] num general conts on func. i
+      integer Li       ! [input] angular momentum of func. i
+      integer j_nprim  ! [input] num. prims on function j
+      integer j_ngen   ! [input] num general conts on func. j
+      integer Lj       ! [input] angular momentum of func. j
+      integer nder     ! [input] 1=1rst der; 2=2nd der
+      integer nint     ! [input] number of base integrals
+      integer lscr     ! [input] length of scratch space
+      double precision xyzi(3)  ! [input] position of center i
+      double precision expi(i_nprim) ! [input] exponents on i
+      double precision coefi(i_nprim,i_ngen) ! [input] i coeffs
+      double precision xyzj(3)  ! [input] position of center j
+      double precision expj(j_nprim)  ! [input] exponents on j
+      double precision coefj(j_nprim,j_ngen)  ! [input] j coeffs
+      double precision disij ! [output] 1rst derivative wrt i
+      double precision djsij ! [output] 1rst derivative wrt j
+      double precision didisij ! [output] 2nd derivative wrt i,i
+      double precision didjsij ! [output] 2nd derivative wrt i,j
+      double precision djdjsij ! [output] 2nd derivative wrt j,j
+      double precision scr(lscr) ! [input] scratch buffer
+c
+# include "hnd_pointers.fh"
+c
+c Use scratch for temps in integral calculation
+c Scratch needs are dependent on nder:
+c nder=1 (3*(Li+3)*(Lj+2) + 6*(Li+1)*(Lj+1)) + 9 zero length blocks
+c nder=2 (3*(Li+3)*(Lj+2) +15*(Li+1)*(Lj+1))
+c
+c The pointers are defined in hnd_pointers.fh
+c
+      call hnd_sd_ij21(xyzi,expi,coefi,i_nprim,i_ngen, Li,
+     1     xyzj,expj,coefj, j_nprim, j_ngen, Lj,
+     2     disij,djsij,didisij,didjsij,djdjsij,nder,nint,
+     3     scr(tvp(1)) ,scr(tvp(2)) ,scr(tvp(3)) ,scr(tvp(7)),
+     4     scr(tvp(8)) ,scr(tvp(9)) ,scr(tvp(10)),scr(tvp(11)),
+     5     scr(tvp(12)),scr(tvp(28)),scr(tvp(29)),scr(tvp(30)),
+     6     scr(tvp(31)),scr(tvp(32)),scr(tvp(33)),scr(tvp(34)),
+     7     scr(tvp(35)),scr(tvp(36)))
+c
+      return
+      end
+c
+      subroutine hnd_sd_ij21(xyzi,expi,coefi,i_nprim,i_ngen, Li,
+     1  xyzj,expj,coefj, j_nprim, j_ngen, Lj,
+     2  disij,djsij,didisij,didjsij,djdjsij,nder,nint,
+     3  xs,ys,zs,dxsdi,dysdi,dzsdi,dxsdj,dysdj,dzsdj,dxsdii,dysdii,
+     4  dzsdii,dxsdjj,dysdjj,dzsdjj,dxsdij,dysdij,dzsdij)
 c
 c  This is the routine that actually computes the 1rst and 2nd
 c  derivatives of the overlap.  It is assumed that the buffers
@@ -50,40 +104,21 @@ c
       double precision ax, ay, az, dum1, dum2, pij
       double precision dumx, dumy, dumz, dumxx, dumyy, dumzz
       double precision dumxy, dumxz, dumyz, dumyx, dumzx, dumzy
-      integer ni, nj, minprim, maxprim
-      integer i1, i2, lit, mini, maxi, litder, j1, j2, ljt, minj, maxj
+      integer ni, nj, Nxyz
+      integer lit, maxi, litder, ljt, maxj
       integer ljtder, ig, jg, ij, i, j, ix, iy, iz, jx, jy, jz
       dimension didisij(nint,3,3),didjsij(nint,3,3),djdjsij(nint,3,3)
       dimension disij(nint,3),djsij(nint,3)
-      dimension pij(225)
-      dimension ijx(35),ijy(35),ijz(35)
-      dimension  xs   (7,6), ys   (7,6), zs   (7,6)
-      dimension dxsdi (5,5),dysdi (5,5),dzsdi (5,5)
-      dimension dxsdj (5,5),dysdj (5,5),dzsdj (5,5)
-      dimension dxsdii(5,5),dysdii(5,5),dzsdii(5,5)
-      dimension dxsdjj(5,5),dysdjj(5,5),dzsdjj(5,5)
-      dimension dxsdij(5,5),dysdij(5,5),dzsdij(5,5)
-      dimension minprim(5), maxprim(5)
+      dimension xs(Li+3,Lj+2), ys(Li+3,Lj+2), zs(Li+3,Lj+2)
+      dimension dxsdi (Li+1,Lj+1),dysdi (Li+1,Lj+1),dzsdi (Li+1,Lj+1)
+      dimension dxsdj (Li+1,Lj+1),dysdj (Li+1,Lj+1),dzsdj (Li+1,Lj+1)
+      dimension dxsdii(Li+1,Lj+1),dysdii(Li+1,Lj+1),dzsdii(Li+1,Lj+1)
+      dimension dxsdjj(Li+1,Lj+1),dysdjj(Li+1,Lj+1),dzsdjj(Li+1,Lj+1)
+      dimension dxsdij(Li+1,Lj+1),dysdij(Li+1,Lj+1),dzsdij(Li+1,Lj+1)
+      dimension Nxyz(3)
       data rln10  /2.30258d+00/
       data zero   /0.0d+00/
       data one    /1.0d+00/
-c
-c     ----- order of components in shells in hondo -----
-c
-      data ijx    / 1, 2, 1, 1, 3, 1, 1, 2, 2, 1,
-     1              4, 1, 1, 3, 3, 2, 1, 2, 1, 2,
-     2              5, 1, 1, 4, 4, 2, 1, 2, 1, 3,
-     3              3, 1, 3, 2, 2/
-      data ijy    / 1, 1, 2, 1, 1, 3, 1, 2, 1, 2,
-     1              1, 4, 1, 2, 1, 3, 3, 1, 2, 2,
-     2              1, 5, 1, 2, 1, 4, 4, 1, 2, 3,
-     3              1, 3, 2, 3, 2/
-      data ijz    / 1, 1, 1, 2, 1, 1, 3, 1, 2, 2,
-     1              1, 1, 4, 1, 2, 1, 2, 3, 3, 2,
-     2              1, 1, 5, 1, 2, 1, 2, 4, 4, 1,
-     3              3, 3, 2, 2, 3/
-      data minprim / 1, 2, 5,11,21/
-      data maxprim / 1, 4,10,20,35/
 c
       tol =rln10*itol
 c
@@ -92,11 +127,8 @@ c
       xi=xyzi(1)
       yi=xyzi(2)
       zi=xyzi(3)
-      i1=1
-      i2=i_nprim
       lit = Li + 1
-      mini=minprim(lit)
-      maxi=maxprim(lit)
+      maxi=lit*(lit+1)/2
 c
       litder=lit+nder
 c
@@ -105,11 +137,8 @@ c
       xj=xyzj(1)
       yj=xyzj(2)
       zj=xyzj(3)
-      j1=1
-      j2=j_nprim
       ljt = Lj + 1
-      minj=minprim(ljt)
-      maxj=maxprim(ljt)
+      maxj=ljt*(ljt+1)/2
 c
       ljtder=ljt+nder
 c
@@ -117,100 +146,31 @@ c
 c
 c     ----- i primitive -----
 c
-      do 7000 ig=i1,i2
+      do 7000 ig=1,i_nprim
       ai=expi(ig)
       arri=ai*rr
       axi=ai*xi
       ayi=ai*yi
       azi=ai*zi
-      csi=zero
-      cpi=zero
-      cdi=zero
-      cfi=zero
-      cgi=zero
-      if(lit.eq.1) then
-        csi=coefi(ig,i_ngen)
-      elseif(lit.eq.2) then
-        cpi=coefi(ig,i_ngen)
-      elseif(lit.eq.3) then
-        cdi=coefi(ig,i_ngen)
-      elseif(lit.eq.4) then
-        cfi=coefi(ig,i_ngen)
-      elseif(lit.eq.5) then
-        cgi=coefi(ig,i_ngen)
-      else
-        call errquit('hnd_stv_int: illegal -lit- ', lit, INT_ERR)
-      endif
+      csi=coefi(ig,i_ngen)
 c
 c     ----- j primitive -----
 c
-      do 6000 jg=j1,j2
+      do 6000 jg=1,j_nprim
       aj=expj(jg)
       aa=ai+aj
       aa1=one/aa
       dum=aj*arri*aa1
       if(dum.gt.tol) go to 6000
       fac= exp(-dum)
-      csj=zero
-      cpj=zero
-      cdj=zero
-      cfj=zero
-      cgj=zero
-      if(ljt.eq.1) then
-        csj=coefj(jg,j_ngen)
-      elseif(ljt.eq.2) then
-        cpj=coefj(jg,j_ngen)
-      elseif(ljt.eq.3) then
-        cdj=coefj(jg,j_ngen)
-      elseif(ljt.eq.4) then
-        cfj=coefj(jg,j_ngen)
-      elseif(ljt.eq.5) then
-        cgj=coefj(jg,j_ngen)
-      else
-        call errquit('hnd_stv_int: illegal -ljt- ', ljt, INT_ERR)
-      endif
+      csj=coefj(jg,j_ngen)
       ax=(axi+aj*xj)*aa1
       ay=(ayi+aj*yj)*aa1
       az=(azi+aj*zj)*aa1
 c
 c     ----- density factor -----
 c
-      ij=0
-      do 360 i=mini,maxi
-      go to (110,120,220,220,130,220,220,220,220,220,
-     1       150,220,220,220,220,220,220,220,220,220,
-     2       180,220,220,220,220,220,220,220,220,220,
-     3       220,220,220,220,220),i
-  110 dum1=csi*fac
-      go to 220
-  120 dum1=cpi*fac
-      go to 220
-  130 dum1=cdi*fac
-      go to 220
-  150 dum1=cfi*fac
-      go to 220
-  180 dum1=cgi*fac
-  220 continue
-c
-      do 360 j=minj,maxj
-      go to (230,250,350,350,260,350,350,350,350,350,
-     1       280,350,350,350,350,350,350,350,350,350,
-     2       310,350,350,350,350,350,350,350,350,350,
-     3       350,350,350,350,350),j
-  230 dum2=dum1*csj
-      go to 350
-  250 dum2=dum1*cpj
-      go to 350
-  260 dum2=dum1*cdj
-      go to 350
-  280 dum2=dum1*cfj
-      go to 350
-  310 dum2=dum1*cgj
-  350 continue
-c
-      ij=ij+1
-      pij(ij)=dum2
-  360 continue
+      pij=csi*csj*fac
 c
 c     ----- overlap derivatives -----
 c
@@ -234,14 +194,16 @@ c
      3            xs,ys,zs,lit,ljt,ai,aj,nder)
 c
       ij=0
-      do 390 i=mini,maxi
-      ix=ijx(i)
-      iy=ijy(i)
-      iz=ijz(i)
-      do 380 j=minj,maxj
-      jx=ijx(j)
-      jy=ijy(j)
-      jz=ijz(j)
+      do 390 i=1,maxi
+      call getNxyz(Li,i,Nxyz)
+      ix = Nxyz(1) + 1
+      iy = Nxyz(2) + 1
+      iz = Nxyz(3) + 1
+      do 380 j=1,maxj
+      call getNxyz(Lj,j,Nxyz)
+      jx = Nxyz(1) + 1
+      jy = Nxyz(2) + 1
+      jz = Nxyz(3) + 1
 c
       ij=ij+1
 c
@@ -256,18 +218,18 @@ c
 c switching the ij and xyz breaks unit stride, but it works
 c for the moment - tlw
 c
-        disij(ij,1)=disij(ij,1)+ dumx*pij(ij)
-        disij(ij,2)=disij(ij,2)+ dumy*pij(ij)
-        disij(ij,3)=disij(ij,3)+ dumz*pij(ij)
+        disij(ij,1)=disij(ij,1)+ dumx*pij
+        disij(ij,2)=disij(ij,2)+ dumy*pij
+        disij(ij,3)=disij(ij,3)+ dumz*pij
 c
 c do derivative wrt the second atom
 c
         dumx =dxsdj (ix,jx)* ys   (iy,jy)* zs   (iz,jz)
         dumy = xs   (ix,jx)*dysdj (iy,jy)* zs   (iz,jz)
         dumz = xs   (ix,jx)* ys   (iy,jy)*dzsdj (iz,jz)
-        djsij(ij,1)=djsij(ij,1)+ dumx*pij(ij)
-        djsij(ij,2)=djsij(ij,2)+ dumy*pij(ij)
-        djsij(ij,3)=djsij(ij,3)+ dumz*pij(ij)
+        djsij(ij,1)=djsij(ij,1)+ dumx*pij
+        djsij(ij,2)=djsij(ij,2)+ dumy*pij
+        djsij(ij,3)=djsij(ij,3)+ dumz*pij
       endif
 c
       if (nder.eq.2) then
@@ -277,15 +239,15 @@ c
       dumxy=dxsdi (ix,jx)*dysdi (iy,jy)* zs   (iz,jz)
       dumxz=dxsdi (ix,jx)* ys   (iy,jy)*dzsdi (iz,jz)
       dumyz= xs   (ix,jx)*dysdi (iy,jy)*dzsdi (iz,jz)
-      didisij(ij,1,1)=didisij(ij,1,1)+ dumxx*pij(ij) 
-      didisij(ij,1,2)=didisij(ij,1,2)+ dumxy*pij(ij) 
-      didisij(ij,1,3)=didisij(ij,1,3)+ dumxz*pij(ij) 
-      didisij(ij,2,1)=didisij(ij,2,1)+ dumxy*pij(ij) 
-      didisij(ij,2,2)=didisij(ij,2,2)+ dumyy*pij(ij) 
-      didisij(ij,2,3)=didisij(ij,2,3)+ dumyz*pij(ij) 
-      didisij(ij,3,1)=didisij(ij,3,1)+ dumxz*pij(ij) 
-      didisij(ij,3,2)=didisij(ij,3,2)+ dumyz*pij(ij) 
-      didisij(ij,3,3)=didisij(ij,3,3)+ dumzz*pij(ij) 
+      didisij(ij,1,1)=didisij(ij,1,1)+ dumxx*pij 
+      didisij(ij,1,2)=didisij(ij,1,2)+ dumxy*pij 
+      didisij(ij,1,3)=didisij(ij,1,3)+ dumxz*pij 
+      didisij(ij,2,1)=didisij(ij,2,1)+ dumxy*pij 
+      didisij(ij,2,2)=didisij(ij,2,2)+ dumyy*pij 
+      didisij(ij,2,3)=didisij(ij,2,3)+ dumyz*pij 
+      didisij(ij,3,1)=didisij(ij,3,1)+ dumxz*pij 
+      didisij(ij,3,2)=didisij(ij,3,2)+ dumyz*pij 
+      didisij(ij,3,3)=didisij(ij,3,3)+ dumzz*pij 
 c
       dumxx=dxsdij(ix,jx)* ys   (iy,jy)* zs   (iz,jz)
       dumxy=dxsdi (ix,jx)*dysdj (iy,jy)* zs   (iz,jz)
@@ -296,15 +258,15 @@ c
       dumzx=dxsdj (ix,jx)* ys   (iy,jy)*dzsdi (iz,jz)
       dumzy= xs   (ix,jx)*dysdj (iy,jy)*dzsdi (iz,jz)
       dumzz= xs   (ix,jx)* ys   (iy,jy)*dzsdij(iz,jz)
-      didjsij(ij,1,1)=didjsij(ij,1,1)+ dumxx*pij(ij) 
-      didjsij(ij,1,2)=didjsij(ij,1,2)+ dumxy*pij(ij) 
-      didjsij(ij,1,3)=didjsij(ij,1,3)+ dumxz*pij(ij) 
-      didjsij(ij,2,1)=didjsij(ij,2,1)+ dumyx*pij(ij) 
-      didjsij(ij,2,2)=didjsij(ij,2,2)+ dumyy*pij(ij) 
-      didjsij(ij,2,3)=didjsij(ij,2,3)+ dumyz*pij(ij) 
-      didjsij(ij,3,1)=didjsij(ij,3,1)+ dumzx*pij(ij) 
-      didjsij(ij,3,2)=didjsij(ij,3,2)+ dumzy*pij(ij) 
-      didjsij(ij,3,3)=didjsij(ij,3,3)+ dumzz*pij(ij) 
+      didjsij(ij,1,1)=didjsij(ij,1,1)+ dumxx*pij 
+      didjsij(ij,1,2)=didjsij(ij,1,2)+ dumxy*pij 
+      didjsij(ij,1,3)=didjsij(ij,1,3)+ dumxz*pij 
+      didjsij(ij,2,1)=didjsij(ij,2,1)+ dumyx*pij 
+      didjsij(ij,2,2)=didjsij(ij,2,2)+ dumyy*pij 
+      didjsij(ij,2,3)=didjsij(ij,2,3)+ dumyz*pij 
+      didjsij(ij,3,1)=didjsij(ij,3,1)+ dumzx*pij 
+      didjsij(ij,3,2)=didjsij(ij,3,2)+ dumzy*pij 
+      didjsij(ij,3,3)=didjsij(ij,3,3)+ dumzz*pij 
 
       dumxx=dxsdjj(ix,jx)* ys   (iy,jy)* zs   (iz,jz)
       dumyy= xs   (ix,jx)*dysdjj(iy,jy)* zs   (iz,jz)
@@ -312,16 +274,16 @@ c
       dumxy=dxsdj (ix,jx)*dysdj (iy,jy)* zs   (iz,jz)
       dumxz=dxsdj (ix,jx)* ys   (iy,jy)*dzsdj (iz,jz)
       dumyz= xs   (ix,jx)*dysdj (iy,jy)*dzsdj (iz,jz)
-      djdjsij(ij,1,1)=djdjsij(ij,1,1)+ dumxx*pij(ij) 
-      djdjsij(ij,1,2)=djdjsij(ij,1,2)+ dumxy*pij(ij) 
-      djdjsij(ij,1,3)=djdjsij(ij,1,3)+ dumxz*pij(ij) 
-      djdjsij(ij,2,1)=djdjsij(ij,2,1)+ dumxy*pij(ij) 
-      djdjsij(ij,2,2)=djdjsij(ij,2,2)+ dumyy*pij(ij) 
-      djdjsij(ij,2,3)=djdjsij(ij,2,3)+ dumyz*pij(ij) 
-      djdjsij(ij,3,1)=djdjsij(ij,3,1)+ dumxz*pij(ij) 
-      djdjsij(ij,3,2)=djdjsij(ij,3,2)+ dumyz*pij(ij) 
-      djdjsij(ij,3,3)=djdjsij(ij,3,3)+ dumzz*pij(ij) 
-
+      djdjsij(ij,1,1)=djdjsij(ij,1,1)+ dumxx*pij 
+      djdjsij(ij,1,2)=djdjsij(ij,1,2)+ dumxy*pij 
+      djdjsij(ij,1,3)=djdjsij(ij,1,3)+ dumxz*pij 
+      djdjsij(ij,2,1)=djdjsij(ij,2,1)+ dumxy*pij 
+      djdjsij(ij,2,2)=djdjsij(ij,2,2)+ dumyy*pij 
+      djdjsij(ij,2,3)=djdjsij(ij,2,3)+ dumyz*pij 
+      djdjsij(ij,3,1)=djdjsij(ij,3,1)+ dumxz*pij 
+      djdjsij(ij,3,2)=djdjsij(ij,3,2)+ dumyz*pij 
+      djdjsij(ij,3,3)=djdjsij(ij,3,3)+ dumzz*pij 
+c
       endif ! nder=2
 
   380 continue

@@ -1,7 +1,7 @@
 c
-c $Id: hnd_rys.fh,v 1.2 1999-01-07 23:13:40 windus Exp $
+c $Id: hnd_rys.fh,v 1.3 2004-07-21 16:24:36 bert Exp $
 c
-      double precision xx, u, w, yy, u9, w9
-      integer nroots, mroots
-      common/hnd_rys/xx,u(5),w(5),nroots
-      common/hnd_hfk/yy,u9(9),w9(9),mroots
+      double precision yy, u9, w9
+      integer nroots, maxrys
+      parameter(maxrys=15)
+      common/hnd_hfk/yy,u9(maxrys),w9(maxrys),nroots

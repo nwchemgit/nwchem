@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvintdd.F,v 1.7 2000-10-23 23:37:42 windus Exp $
+c $Id: hnd_stvintdd.F,v 1.8 2004-07-21 16:24:36 bert Exp $
 c
 c Taken and modified from HONDO
 c
@@ -36,13 +36,10 @@ c
       logical doT     ! [input] compute kinetic (True/False)
       logical doV     ! [input] compute potential (True/False)
       logical some
-      integer nder, mini, maxi, minj, maxj, minprim, maxprim
+      integer nder, maxi, maxj
       integer i, index
-      dimension minprim(5), maxprim(5)
       double precision zero
       data zero   /0.0d+00/
-      data minprim / 1, 2, 5,11,21/
-      data maxprim / 1, 4,10,20,35/
 c
       nder = 2
 c
@@ -55,7 +52,7 @@ c
         call dfill(nint*3*3*4,zero,sder,1)
         call hnd_sd_ij2(xyzi,expi,coefi,i_nprim,i_ngen, Li,
      1    xyzj,expj,coefj, j_nprim, j_ngen, Lj, scr, scr, sder, 
-     2    sder(nint*3*3+1),sder(nint*3*3*3+1),nder,nint)
+     2    sder(nint*3*3+1),sder(nint*3*3*3+1),nder,nint,scr,lscr)
 c
 c to get the djdi term which is equal to the didj term which is calculated
 c
@@ -75,7 +72,7 @@ c
 c         write(luout,*) 'number of calls to hnd_hlf_ij2 ',i
           call hnd_hlf_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
      1      xyzj,expj,coefj,j_nprim,j_ngen,Lj,i,scr,
-     2      vder((i-1)*3*3*nint+1),zan,xyz,nder,nint)
+     2      vder((i-1)*3*3*nint+1),zan,xyz,nder,nint,scr,lscr)
         enddo
 c       write(6,*) 'Hel-Fey part'
 c        do i=1,nat*3*3*3*nint
@@ -91,7 +88,7 @@ c         write(luout,*) 'number of calls to hnd_hlfd_ij ',i
      1       xyzj,expj,coefj,j_nprim,j_ngen,Lj,i,
      2       vder((i-1)*3*3*nint+nint*3*3*nat+1),
      3       vder((i-1)*3*3*nint+nint*3*3*nat*2+1),
-     4       zan,xyz,nder,nint)
+     4       zan,xyz,nder,nint,scr,lscr)
          enddo
 c
 c        write(6,*) 'before the second doV, vder is'
@@ -111,46 +108,11 @@ c       if (doV) call dfill(nint*3*3,zero,scr,1)
      2    tder(nint*3*3+1),tder(nint*3*3*2+1),scr,scr,
      3    tder,tder(nint*3*3+1),
      4    tder(nint*3*3*2+1),nder,nint,
-     5    zan,nat,doT,doV,i_cent,j_cent)
+     5    zan,nat,doT,doV,i_cent,j_cent,scr,lscr)
 c        write(6,*) 'after the second doV, vder is'
 c        do i=1,nat*3*3*3*nint
 c          write(6,*) vder(i)
 c        enddo
-      endif
-c
-c     ----- perform transformation to NWChem order if necessary ----
-c  bring back after get everything else working
-c
-      if ((Li.gt.1).or.(Lj.gt.1)) then
-        mini = minprim(Li+1)
-        maxi = maxprim(Li+1)
-        minj = minprim(Lj+1)
-        maxj = maxprim(Lj+1)
-        if (doS) then
-          index = 1
-          do i=1,36
-            call hnd_to_nw_order(scr,sder(index),minj,mini,
-     1                           maxj-minj+1,maxi-mini+1)
-            call dcopy (nint,scr,1,sder(index),1)
-            index = index + nint
-          enddo
-        endif
-        if (doV) then
-          index = 1
-          do i=1,27
-            call hnd_to_nw_order(scr,tder(index),minj,mini,
-     1                           maxj-minj+1,maxi-mini+1)
-            call dcopy (nint,scr,1,tder(index),1)
-            index = index + nint
-          enddo
-          index = 1
-          do i=1,27*nat
-            call hnd_to_nw_order(scr,vder(index),minj,mini,
-     1                           maxj-minj+1,maxi-mini+1)
-            call dcopy (nint,scr,1,vder(index),1)
-            index = index + nint
-          enddo
-        endif
       endif
 c
       if(some) write(luout,9998)

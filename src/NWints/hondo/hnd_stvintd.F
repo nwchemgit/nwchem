@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvintd.F,v 1.4 1999-12-29 23:30:24 windus Exp $
+c $Id: hnd_stvintd.F,v 1.5 2004-07-21 16:24:36 bert Exp $
 c
 c Taken and modified from HONDO
 c
@@ -36,13 +36,10 @@ c
       logical doT     ! [input] compute kinetic (True/False)
       logical doV     ! [input] compute potential (True/False)
       logical some, doH1
-      integer nder, mini, maxi, minj, maxj, minprim, maxprim
+      integer nder, maxi, maxj
       integer i, index
-      dimension minprim(5), maxprim(5)
       double precision zero
       data zero   /0.0d+00/
-      data minprim / 1, 2, 5,11,21/
-      data maxprim / 1, 4,10,20,35/
 c
       doH1 = doT.and.doV.and..not.doS
       nder = 1
@@ -56,7 +53,7 @@ c
         call dfill(nint*3*2,zero,sder,1)
         call hnd_sd_ij2(xyzi,expi,coefi,i_nprim,i_ngen, Li,
      1    xyzj,expj,coefj, j_nprim, j_ngen, Lj, sder, sder(nint*3+1),
-     2    scr, scr, scr, nder,nint)
+     2    scr, scr, scr, nder,nint,scr,lscr)
       endif
 c
       if (doV) then
@@ -64,61 +61,23 @@ c
         do i=1,nat
           call hnd_hlf_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
      1      xyzj,expj,coefj,j_nprim,j_ngen,Lj,i,vder((i-1)*3*nint+1),
-     2      scr,zan,xyz,nder,nint)
+     2      scr,zan,xyz,nder,nint,scr,lscr)
         enddo
       endif
 
       if (doT.or.doV) then
         if (doT) call dfill(nint*3*2,zero,tder,1)
-c note that scr is where the vder ints are temporarily going
-        if (doV) call dfill(nint*3*2,zero,scr,1)
-        call hnd_tvd_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
-     1    xyzj,expj,coefj,j_nprim,j_ngen,Lj,xyz,tder,tder(nint*3+1),
-     2    scr,scr,scr,scr,scr((nint*3)+1),scr,scr,scr,nder,nint,zan,
-     3    nat,doT,doV,i_cent,j_cent)
-c
-c Combine the orbital and operator derivative parts
-c
         if (doV) then
-          call daxpy(nint*3,1.D0,scr,1,vder((i_cent-1)*3*nint+1),1)
-          call daxpy(nint*3,1.D0,scr(nint*3+1),1,
-     1                vder((j_cent-1)*3*nint+1),1)
-        endif
-      endif
-c
-c     ----- perform transformation to NWChem order if necessary ----
-c
-      if ((Li.gt.1).or.(Lj.gt.1)) then
-        mini = minprim(Li+1)
-        maxi = maxprim(Li+1)
-        minj = minprim(Lj+1)
-        maxj = maxprim(Lj+1)
-        if (doS) then
-          index = 1
-          do i=1,6
-            call hnd_to_nw_order(scr,sder(index),minj,mini,
-     1                           maxj-minj+1,maxi-mini+1)
-            call dcopy (nint,scr,1,sder(index),1)
-            index = index + nint
-          enddo
-        endif
-        if (doT) then
-          index = 1
-          do i=1,6
-            call hnd_to_nw_order(scr,tder(index),minj,mini,
-     1                           maxj-minj+1,maxi-mini+1)
-            call dcopy (nint,scr,1,tder(index),1)
-            index = index + nint
-          enddo
-        endif
-        if (doV) then
-          index = 1
-          do i=1,nat*3
-            call hnd_to_nw_order(scr,vder(index),minj,mini,
-     1                           maxj-minj+1,maxi-mini+1)
-            call dcopy (nint,scr,1,vder(index),1)
-            index = index + nint
-          enddo
+           call hnd_tvd_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
+     1       xyzj,expj,coefj,j_nprim,j_ngen,Lj,xyz,tder,tder(nint*3+1),
+     2       scr,scr,scr,vder((i_cent-1)*3*nint+1),
+     3       vder((j_cent-1)*3*nint+1),scr,scr,scr,nder,nint,zan,
+     4       nat,doT,doV,i_cent,j_cent,scr,lscr)
+        else
+           call hnd_tvd_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
+     1       xyzj,expj,coefj,j_nprim,j_ngen,Lj,xyz,tder,tder(nint*3+1),
+     2       scr,scr,scr,scr,scr,scr,scr,scr,nder,nint,zan,
+     3       nat,doT,doV,i_cent,j_cent,scr,lscr)
         endif
       endif
 c

@@ -1,10 +1,10 @@
-c $Id: hnd_initdd.F,v 1.4 2004-07-21 16:24:35 bert Exp $
+c $Id: hnd_giao_init.F,v 1.1 2004-07-21 16:24:34 bert Exp $
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
-c     hondo : initialization routine
+c     hondo : giao initialization routine
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine hnd_initdd(bases,nbas)
+      subroutine hnd_giao_init(bases,nbas)
       implicit none
 #include "hnd_tol.fh"
 #include "bas.fh"
@@ -28,11 +28,12 @@ c
       maxang = -1
       do 00300 ibas = 1,nbas
         if(.not.bas_high_angular(bases(ibas),angm))
-     &         call errquit('hnd_initdd: angm error',angm, INT_ERR)
+     &         call errquit('hnd_giao_init: angm error',angm, INT_ERR)
         maxang = max(maxang,angm)
 00300 continue
 c
-      call hnd_dd1emem(bases,nbas,maxang)
+      call hnd_giao_1emem(maxang)
+      call hnd_giao_2emem(maxang)
 c
       return
       end

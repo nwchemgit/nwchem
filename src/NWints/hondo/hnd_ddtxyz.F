@@ -1,12 +1,12 @@
       subroutine hnd_ddtxyz(xt,yt,zt,xs,ys,zs,ni,nj,aj)
-* $Id: hnd_ddtxyz.F,v 1.2 1999-07-29 01:03:58 d3e129 Exp $
+* $Id: hnd_ddtxyz.F,v 1.3 2004-07-21 16:24:33 bert Exp $
       implicit none
 c
       double precision xt, yt, zt, xs, ys, zs, aj
       integer ni, nj, i, j
 c
-      dimension xt(7,*),yt(7,*),zt(7,*)
-      dimension xs(7,*),ys(7,*),zs(7,*)
+      dimension xt(ni,nj),yt(ni,nj),zt(ni,nj)
+      dimension xs(ni,nj+2),ys(ni,nj+2),zs(ni,nj+2)
 c
       do 10 i=1,ni
       xt(i,1)=(xs(i,1  )            -xs(i,3  )*(aj+aj))*aj
