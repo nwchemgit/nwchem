@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.61 1996-10-21 06:49:58 d3e129 Exp $
+c $Id: raktest.F,v 1.62 1996-12-14 00:36:07 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -14,7 +14,7 @@ c
      &    raktask = rak_tmp
 c
       goto (00010,00020,00030,00040,00050,00060,00070,00080,
-     &    00090, 00100, 00110) raktask
+     &    00090, 00100, 00110, 00120) raktask
 c
       write(6,*)' default raktest task '
       write(6,*)' test semi empirical interface '
@@ -53,6 +53,9 @@ c
       goto 00001
 00110 write(6,*)' bug in integrals test '
       call raktest_bug(rtdb)
+      goto 00001
+00120 write(6,*)' geometry printing routines '
+      call raktest_geomprt(rtdb)
       goto 00001
 c
 00001 continue
@@ -3070,4 +3073,33 @@ c
         enddo
       enddo
 10000 format(1x,'(',i5,',',i5,')',1x,1pd20.10,a)
+      end
+      subroutine raktest_geomprt(rtdb)
+      implicit none
+#include "rtdb.fh"
+#include "geom.fh"
+#include "stdio.fh"
+      integer rtdb
+c
+*rak:      logical geom_print_distance
+*rak:      logical geom_print_angles
+*rak:      logical geom_print_dihedrals
+*rak:      external geom_print_distance
+*rak:      external geom_print_angles
+*rak:      external geom_print_dihedrals
+c
+      integer geom
+c
+      if (.not.geom_create(geom,'geometry'))
+     &    call errquit('raktest_geomprt:create error',911)
+      if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
+     &    call errquit('raktest_geomprt:load error',911)
+*rak:      if (.not.geom_print_distance(geom))
+*rak:     &    call errquit('raktest_geomprt:print_distance error',911)
+*rak:      if (.not.geom_print_angles(geom))
+*rak:     &    call errquit('raktest_geomprt:print_angles error',911)
+*rak:      if (.not.geom_print_dihedrals(geom))
+*rak:     &    call errquit('raktest_geomprt:print_dihedrals error',911)
+      if (.not.geom_destroy(geom))
+     &    call errquit('raktest_geomprt:destory',911)
       end
