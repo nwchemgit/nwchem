@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.44 2002-12-04 00:00:44 d3k958 Exp $
+c     $Id: scf_vec_guess.F,v 1.45 2002-12-17 02:39:29 edo Exp $
 c
       implicit none
 c
@@ -87,14 +87,13 @@ c
       if (.not. oinitialized) call errquit
      &     ('scf_v_g: not initialized?', 0)
 c
-      if (owritefile) then
-         tolguess = tol2e
-      else if (inp_compare(.false., 'DFT', calling_module))then
-         tolguess = 1d-5
-      else
-         tolguess = 1d-7        ! 1e-5 broke too many large basis SCFs
+      if(.not.rtdb_get(rtdb,'tolguess',mt_dbl,1,tolguess)) then
+        if (owritefile) then
+           tolguess = tol2e
+        else
+          tolguess = 1d-7        ! 1e-5 broke too many large basis SCFs
+        endif
       endif
-      status = rtdb_get(rtdb,'tolguess',mt_dbl,1,tolguess)
 c
       oprint = util_print('mo guess', print_default) .and.
      &     ga_nodeid().eq.0
@@ -227,7 +226,8 @@ c
       else if (movecs_in .eq. 'rotate') then
          nsets = 1
          if (scftype .eq. 'UHF') nsets = 2
-         call movecs_rotate(rtdb, geom, basis,nsets, g_movecs)
+         call movecs_rotate(rtdb, geom, basis,nsets, g_movecs,
+     .        dbl_mb(k_eval),dbl_mb(k_occ))
 c
       else if (movecs_in .eq. 'fragment') then
          if (scftype .ne. 'UHF') then

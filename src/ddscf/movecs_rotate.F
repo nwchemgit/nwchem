@@ -1,5 +1,6 @@
-      subroutine movecs_rotate(rtdb, geom, basis, nset, g_vecs)
-C$Id: movecs_rotate.F,v 1.7 2002-12-11 23:09:38 d3k958 Exp $
+      subroutine movecs_rotate(rtdb, geom, basis, nset, g_vecs,
+     .     evals, foccs)
+C$Id: movecs_rotate.F,v 1.8 2002-12-17 02:39:29 edo Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -13,6 +14,8 @@ c     Rotate the MO's calculated at an old geometry to the active geometry.
 c     Syntax: vectors input rotate geomname filename
 c
       integer rtdb, geom, basis, g_vecs(2)
+      double precision evals(*),foccs(*)
+c
       integer iset, nset ! [in] 1 = rhf, 2 = uhf (2 sets_
       integer file_nbf, nbf, i, j, nmo, nsets
       character*80 geomname, basisname, filename, title
@@ -29,9 +32,9 @@ c
       double precision xmid, ymid, zmid, norm
       double precision xrot, yrot, zrot
       double precision zan(1000) ! max # atoms
-      integer l_occ, k_occ, l_evals, k_evals, g_c, g_v
+      integer l_occ, k_occ,  g_c, g_v
       integer l_a, k_a, l_b, k_b
-      integer oldgeom, nat
+      integer oldgeom, nat,iptr
       logical movecs_read_header, movecs_read
       external movecs_read_header, movecs_read
       logical int_normalize
@@ -285,23 +288,12 @@ c
      $     ('movecs_rotate: nbf on file inconsistent with basis', 0)
       endif
 c
-      if (.not. ma_push_get(mt_dbl, nbf, 'occ',l_occ, k_occ))
-     $     call errquit('movecs_rotate: ma occ', nbf)
-c
-      if (.not. ma_push_get(mt_dbl, nbf, 'evals',l_evals, k_evals))
-     $     call errquit('movecs_rotate: ma occ', nbf)
-c
       do iset = 1,nset
-      if (.not. movecs_read(filename, iset, dbl_mb(k_occ),
-     $     dbl_mb(k_evals), g_vecs(iset))) call errquit
+         iptr=(iset-1)*nbf+1
+      if (.not. movecs_read(filename, iset, foccs(iptr),
+     $     evals(iptr), g_vecs(iset))) call errquit
      $     ('movecs_project: failed reading vectors', 0) 
       enddo
-c
-      if (.not. ma_pop_stack(l_evals)) call errquit
-     $     ('movecs_rotate: ma pop', 0)
-      if (.not. ma_pop_stack(l_occ)) call errquit
-     $     ('movecs_rotate: ma pop', 0)
-
 
 c     ---------------------------------------------------
 c     apply rotation matrix to MO vectors, one at a time
@@ -350,7 +342,7 @@ c
 c
 c
       subroutine sym_movecs_apply_rot(basis, matrix, v, t)
-C$Id: movecs_rotate.F,v 1.7 2002-12-11 23:09:38 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.8 2002-12-17 02:39:29 edo Exp $
       implicit none
 #include "geom.fh"
 #include "sym.fh"
@@ -479,7 +471,7 @@ c
       end
       subroutine sym_bas_rot(geom, matrix, r, maxf, ang_max,
      &    otransform)
-C$Id: movecs_rotate.F,v 1.7 2002-12-11 23:09:38 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.8 2002-12-17 02:39:29 edo Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
