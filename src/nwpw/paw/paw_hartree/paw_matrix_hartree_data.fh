@@ -1,0 +1,10 @@
+*
+* $Id: paw_matrix_hartree_data.fh,v 1.1 2003-02-13 20:23:04 marat Exp $
+*
+      integer paw_hartree_matrix(4)
+      integer i_paw_hartree_matrix(4)
+      integer s_paw_hartree_matrix(4)
+
+      common /paw_hartree_matrix/ paw_hartree_matrix,
+     >                      i_paw_hartree_matrix,
+     >                      s_paw_hartree_matrix
