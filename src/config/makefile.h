@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.59 1994-09-08 05:59:16 vg038 Exp $
+# $Id: makefile.h,v 1.60 1994-09-14 14:33:20 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -227,7 +227,7 @@ ifeq ($(TARGET),PARAGON)
 # real iPSC and Delta that is not applicable to the paragon, which is more
 # unixy since it runs OSF/1.
 #
-    DEFINES = -D__PARAGON__
+    DEFINES = -D__PARAGON__ -DPARALLEL_DIAG
     ARFLAGS = ru
 
 # CAUTION: PGI's linker thinks of -L as adding to the _beginning_ of the
@@ -245,7 +245,7 @@ ifeq ($(TARGET),DELTA)
 #
 # DELTA/IPSC running NX
 #
-    SUBDIRS_EXTRA = lapack
+    SUBDIRS_EXTRA = blas lapack
 
         FC = if77
         CC = icc
@@ -261,12 +261,12 @@ ifeq ($(TARGET),DELTA)
  FOPTIMIZE = -O2 -Minline=1000
  COPTIMIZE = -O2
 
-   DEFINES = -DNX -DIPSC -DNO_BCOPY  -D__IPSC__
+   DEFINES = -DNX -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
       LIBS = -L/home/delilah11/gifann/lib \
              -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
 	     -lstepper -lmoints \
              -lguess -lglobal -lutil \
-             -lglobal -lpeigs -ltcgmsg -llapack -lkmath -node
+             -lglobal -lpeigs -ltcgmsg $(LIBDIR)/liblapack.a -llapack -lkmath -node
 
  EXPLICITF = FALSE
 endif
