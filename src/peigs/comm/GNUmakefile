@@ -19,7 +19,7 @@ clean:
 		-rm -f mxbrod.f
 		-rm -f mxcombv1.f
 		-rm -f mxsubs.f
-		-rm -f sum.f
+		-rm -f sum.f peigs_dgop.f
 
 realclean:
 		clean
@@ -49,6 +49,12 @@ sum.o:		sum.cpp
 		-rm -f sum.f
 		$(peigs_CPP) < sum.cpp | sed '/^\#/D' > sum.f
 		$(peigs_FC) $(peigs_FOPT) -c sum.f
+
+peigs_dgop.o:	peigs_dgop.cpp
+		-rm -f peigs_dgop.f
+		$(peigs_CPP) < peigs_dgop.cpp | sed '/^\#/D' > peigs_dgop.f
+		$(peigs_FC) $(peigs_FOPT) -c peigs_dgop.f
+
 
 
 
