@@ -236,7 +236,9 @@ c
 c
 c        dft
 c
- 120     status = nwdft(rtdb)
+  120    continue 
+         write (6,*) "DFT code is not yet installed."
+c         status = nwdft(rtdb)
          goto 1000
       else
 c
