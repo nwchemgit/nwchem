@@ -1,5 +1,5 @@
 *
-* $Id: center.f,v 1.4 2004-08-01 02:02:44 bylaska Exp $
+* $Id: center.f,v 1.5 2005-01-26 23:57:22 bylaska Exp $
 *
 
       subroutine center_geom(cx,cy,cz)
@@ -236,6 +236,79 @@
       end do
 
       return 
+      end
+
+
+
+      subroutine remove_center_mass(R2,R1)
+      implicit none
+      real*8   R2(3,*)
+      real*8   R1(3,*)
+
+*     **** local variables ****
+      integer nion
+      integer i,i1
+      real*8 am
+      real*8   gx,gy,gz
+      real*8   hx,hy,hz
+
+*     **** external functions ****
+      logical  pspw_qmmm_found
+      integer  pspw_qmmm_nion
+      integer  ion_nion
+      real*8   ion_amass,pspw_qmmm_amass
+      external pspw_qmmm_found
+      external pspw_qmmm_nion
+      external ion_nion
+      external ion_amass,pspw_qmmm_amass
+
+      nion = ion_nion()
+      hx=0.0d0
+      hy=0.0d0
+      hz=0.0d0
+      gx=0.0d0
+      gy=0.0d0
+      gz=0.0d0
+      am=0.0d0
+      do i=1,nion
+        hx=hx+ion_amass(i)*R2(1,i)
+        hy=hy+ion_amass(i)*R2(2,i)
+        hz=hz+ion_amass(i)*R2(3,i)
+        gx=gx+ion_amass(i)*R1(1,i)
+        gy=gy+ion_amass(i)*R1(2,i)
+        gz=gz+ion_amass(i)*R1(3,i)
+        am=am+ion_amass(i)
+      end do
+      if (pspw_qmmm_found()) then
+         do i=1,pspw_qmmm_nion()
+            i1 = nion + i
+            hx = hx + pspw_qmmm_amass(i)*R2(1,i1)
+            hy = hy + pspw_qmmm_amass(i)*R2(2,i1)
+            hz = hz + pspw_qmmm_amass(i)*R2(3,i1)
+            gx = gx + pspw_qmmm_amass(i)*R1(1,i1)
+            gy = gy + pspw_qmmm_amass(i)*R1(2,i1)
+            gz = gz + pspw_qmmm_amass(i)*R1(3,i1)
+            am=am+pspw_qmmm_amass(i)
+
+         end do
+      end if
+      hx=hx/am
+      hy=hy/am
+      hz=hz/am
+      gx=gx/am
+      gy=gy/am
+      gz=gz/am
+
+      !**** remove center of mass motion ***
+      nion = ion_nion()
+      if (pspw_qmmm_found()) nion = nion + pspw_qmmm_nion()
+      do i=1,nion
+         R2(1,i) = R2(1,i) - hx + gx
+         R2(2,i) = R2(2,i) - hy + gy
+         R2(3,i) = R2(3,i) - hz + gz
+      end do
+
+      return
       end
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.36 2005-01-25 22:32:03 bylaska Exp $
+* $Id: ion.F,v 1.37 2005-01-26 23:57:22 bylaska Exp $
 *
 
 *     ***************************
@@ -1168,9 +1168,9 @@ c         eki1=0.5d0*eki1
       double precision sa1,sa2
 
 *     *** external functions ****
-      logical          control_rotation
+      logical          control_rotation,control_allow_translation
       double precision control_time_step,ion_amass
-      external         control_rotation
+      external         control_rotation,control_allow_translation
       external         control_time_step,ion_amass
 
       dt = control_time_step()
@@ -1193,6 +1193,8 @@ c         eki1=0.5d0*eki1
       end do
       call ion_same_FixIon(dbl_mb(r1(1)),dbl_mb(r2(1))) !** Stupid IBM **
 
+      call center_mass(vgx,vgy,vgz)
+      write(99,*) "CM:",vgx,vgy,vgz
 
 *     ***** impose molecular constraints ***
       call molecular_fix(dbl_mb(r2(1)), dbl_mb(r1(1)))
@@ -1201,6 +1203,10 @@ c         eki1=0.5d0*eki1
       call incell3(nion,dbl_mb(r2(1)),
      >                  dbl_mb(r1(1)),
      >                  dbl_mb(r0(1)))
+
+*     **** remove translation? ***
+      if (.not.control_allow_translation()) 
+     > call remove_center_mass(dbl_mb(r2(1)),dbl_mb(r1(1)))
 
 *     **** remove rotation? ***
       if (.not.control_rotation()) 
@@ -1398,7 +1404,9 @@ c         eki1=0.5d0*eki1
       double precision vgx,vgy,vgz
 
 *     *** external functions ****
+      logical          control_allow_translation
       double precision control_time_step,ion_amass
+      external         control_allow_translation
       external         control_time_step,ion_amass
 
       dt = control_time_step()
@@ -1425,6 +1433,9 @@ c         eki1=0.5d0*eki1
       call incell2(nion,dbl_mb(r2(1)),
      >                  dbl_mb(r1(1)))
 
+*     **** remove translation? ***
+      if (.not.control_allow_translation()) 
+     > call remove_center_mass(dbl_mb(r2(1)),dbl_mb(r1(1)))
 
 *     **** determine current kinetic energy and add to running average ***
       eki1 = 0.0d0
@@ -1472,9 +1483,9 @@ c         eki1=0.5d0*eki1
       double precision vgx,vgy,vgz,smr
 
 *     *** external functions ****
-      logical          control_rotation
+      logical          control_rotation,control_allow_translation
       double precision control_time_step,ion_amass
-      external         control_rotation
+      external         control_rotation,control_allow_translation
       external         control_time_step,ion_amass
 
       dt = control_time_step()
@@ -1496,6 +1507,9 @@ c         eki1=0.5d0*eki1
       end do
       call ion_same_FixIon(dbl_mb(r1(1)),dbl_mb(r2(1))) !** Stupid IBM **
 
+      call center_mass(vgx,vgy,vgz)
+      write(99,*) "CM:",vgx,vgy,vgz
+
 *     ***** impose molecular constraints ***
       call molecular_fix(dbl_mb(r2(1)), dbl_mb(r1(1)))
 
@@ -1503,6 +1517,10 @@ c         eki1=0.5d0*eki1
       call incell3(nion,dbl_mb(r2(1)),
      >                  dbl_mb(r1(1)),
      >                  dbl_mb(r0(1)))
+
+*     **** remove translation? ***
+      if (.not.control_allow_translation())
+     > call remove_center_mass(dbl_mb(r2(1)),dbl_mb(r1(1)))
 
 *     **** remove rotation? ***
       if (.not.control_rotation())

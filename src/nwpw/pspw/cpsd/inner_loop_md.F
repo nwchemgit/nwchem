@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.18 2004-11-10 23:05:32 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.19 2005-01-26 23:57:23 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -419,10 +419,10 @@ c     real*8     fion(3,natmx)
 *       *****************************************
         call ion_FixIon(dbl_mb(fion(1)))
 
-        !**** center of mass constraint ****
-        if (.not.allow_translation) then
-          call remove_center_F_mass(dbl_mb(fion(1)))
-        end if
+c        !**** center of mass constraint ****
+c        if (.not.allow_translation) then
+c          call remove_center_F_mass(dbl_mb(fion(1)))
+c        end if
 
 *       **************************
 *       **** do a verlet step ****
