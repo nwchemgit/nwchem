@@ -1,12 +1,21 @@
-      double precision function dft_dencvg(iga_dens,igdenso,nbf)
-C$Id: dft_dencvg.F,v 1.2 1995-10-17 08:54:52 d3g681 Exp $
-      implicit double precision(a-h,o-z)
+      double precision function dft_dencvg(g_dens,g_denso,nbf)
+C$Id: dft_dencvg.F,v 1.3 1995-12-20 03:27:03 og845 Exp $
+      implicit none
+
+      integer g_dens ! GA handle for Densit Matrix [input/output]
+      integer g_denso ! GA handle for old DM [input]
+      integer nbf
+
       logical LResult
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgids.fh"
-c     
+c
+      integer idone,me,nproc,i,j
+      integer ldm,idm,ldmo,idmo
+      double precision rms
+c
       idone=0
       me=ga_nodeid()
       nproc=ga_nnodes()
@@ -20,8 +29,8 @@ c
       LResult = MA_Push_Get(MT_Dbl,nbf,'dmat',ldm,idm)
       LResult = MA_Push_Get(MT_Dbl,nbf,'dmatold',ldmo,idmo)
       do i=1+me,nbf,nproc
-        call get_col(iga_dens,nbf,i,Dbl_MB(idm))
-        call get_col(igdenso,nbf,i,Dbl_MB(idmo))
+        call get_col(g_dens,nbf,i,Dbl_MB(idm))
+        call get_col(g_denso,nbf,i,Dbl_MB(idmo))
         do j=0,nbf-1
           rms=rms+(DBL_MB(idm+j)-DBL_MB(idmo+j))**2
         enddo

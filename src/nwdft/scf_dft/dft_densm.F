@@ -4,14 +4,21 @@ c-->  Construct the density matrix.
 c
 c***********************************************************************
 c
-      subroutine dft_densm(idens,ivecs,nbf,ipol,noc)
-C$Id: dft_densm.F,v 1.1 1995-04-27 03:16:18 og845 Exp $
-      implicit real*8 (a-h,o-z)
+      subroutine dft_densm(g_dens,g_vecs,nbf,ipol,noc)
+C$Id: dft_densm.F,v 1.2 1995-12-20 03:27:04 og845 Exp $
+      implicit none
 
+      integer g_dens
+      integer g_vecs
+      integer nbf
+      integer ipol
+      integer noc
+c
+      double precision zero,fact
+      parameter (zero=0.d0)
 c
       fact=2.d0/ipol
-      zero=0.d0
-         call ga_dgemm('n', 't', nbf, nbf, noc, fact, ivecs,
-     $        ivecs, zero, idens)
+         call ga_dgemm('n', 't', nbf, nbf, noc, fact, g_vecs,
+     $        g_vecs, zero, g_dens)
       return
       end
