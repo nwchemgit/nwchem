@@ -1,4 +1,4 @@
-c $Id: basP.fh,v 1.12 1998-04-29 07:29:50 d3e129 Exp $
+c $Id: basP.fh,v 1.13 1999-10-26 21:32:34 mg201 Exp $
 c:basP.fh
 c
 c basis set object/api  
@@ -119,8 +119,8 @@ c           ! 2 = num_cont_total     ! num of conts in basis
 c           ! 3 = num_prim_total     ! num of prims(ex) in basis
 c           ! 4 = num_coeff_total    ! num of coeffs in basis
 c           ! 5 = ex_off             ! next ptr in exndcf array
-c           ! 6 = shpherical         ! yes/no  1/o
-c           ! 7 = ECP_basis            ! yes/no  1/0
+c           ! 6 = spherical          ! yes/no  1/0
+c           ! 7 = ECP_basis          ! yes/no  1/0
 c  Integer infbs_tags(7,num_tags)      
 c           ! 1 = num_cont   ! Num of conts on tag
 c           ! 2 = nprim_tag  ! Num of prim exponents on tag
@@ -219,7 +219,7 @@ c.. stored structures
       character*80  bs_stdname
       integer exndcf   ! now allocated on heap not a real array anymore
       integer infbs_head,infbs_tags,infbs_cont
-c.. incore sturctures
+c.. incore structures
       double precision bsversion
       character*256 bs_trans,bs_names_rtdb, name_assoc
       integer len_bs_name, len_bs_trans, len_bs_rtdb, nbasis_rtdb
