@@ -2452,7 +2452,7 @@ c  version: 14-mar-89
 c
       implicit logical(a-z)
       integer nuw
-#if defined(CRAY)
+#if defined(CRAY)&& !defined(__crayx1)
       real*8 p(*)
       integer u(nuw)
 c
@@ -2544,7 +2544,7 @@ c  written by ron shepard.
 c
       implicit logical(a-z)
       integer nuw
-#if defined(CRAY)
+#if defined(CRAY)&& !defined(__crayx1)
       real*8 p(*)
       integer u(nuw)
 c
@@ -2637,7 +2637,7 @@ c  version: 14-mar-89
 c
       implicit logical(a-z)
       integer nuw
-#if defined(CRAY)
+#if defined(CRAY)&& !defined(__crayx1)
       real*8 p(*)
       integer u(nuw)
 c
@@ -2697,7 +2697,7 @@ c  written by ron shepard.
 c
       implicit logical(a-z)
       integer nuw
-#if defined(CRAY)
+#if defined(CRAY)&& !defined(__crayx1)
       real*8 p(*)
       integer u(nuw)
 c
@@ -2759,7 +2759,7 @@ c  version: 14-mar-89
 c
       implicit logical(a-z)
       integer nuw
-#if defined(CRAY)
+#if defined(CRAY)&& !defined(__crayx1)
       real*8 p(*)
       integer u(nuw)
 c
@@ -2818,7 +2818,7 @@ c  written by ron shepard.
 c
       implicit logical(a-z)
       integer nuw
-#if defined(CRAY)
+#if defined(CRAY)&& !defined(__crayx1)
       real*8 p(*)
       integer u(nuw)
 c
@@ -2877,7 +2877,7 @@ c  version: 5-jul-89
 c
       implicit logical(a-z)
       integer nuw
-#if defined(CRAY)
+#if defined(CRAY)&& !defined(__crayx1)
       real*8 p(*)
       integer u(nuw)
 c
@@ -3074,7 +3074,7 @@ c  version: 5-jul-89
 c
       implicit logical(a-z)
       integer nuw
-#if defined(CRAY)
+#if defined(CRAY)&& !defined(__crayx1)
       real*8 p(*)
       integer u(nuw)
 c
