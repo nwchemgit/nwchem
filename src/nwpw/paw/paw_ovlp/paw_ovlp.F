@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.13 2003-01-30 22:29:17 marat Exp $
+* $Id: paw_ovlp.F,v 1.14 2003-01-31 01:01:31 marat Exp $
 *
 
 !**************************************************
@@ -17,6 +17,7 @@
 #include "paw_proj.fh"
 #include "paw_ovlp.fh" 
 #include "paw_geom.fh" 
+#include "paw_ma.fh" 
   
 *     **** local variables ****
       logical value
@@ -50,11 +51,12 @@ c     !*** total number of electron states ***
      >                               'indx2',indx2(2),indx2(1))
       value = value.and.MA_alloc_get(mt_int,(total_nbasis*neall),
      >                               'sgn',sgn(2),sgn(1))
-      value = value.and.MA_alloc_get(mt_dcpl,(total_nbasis**2),
-     >                               'w',w(2),w(1))
+c      value = value.and.MA_alloc_get(mt_dcpl,(total_nbasis**2),
+c     >                               'w',w(2),w(1))
+      value = value.and.my_alloc(mt_dcpl,(total_nbasis**2),"w",w)
       if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
 
-      write(*,*) "paw_ovlp:w",w(2),total_nbasis
+      write(*,*) "paw_ovlp:w",w(3),total_nbasis
 
 c    !    atom=1                        atom=2
 c    !l : 0  1  1  1  2  2  2  2  2 ... 0  1  1  1 ... 
