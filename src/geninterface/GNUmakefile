@@ -1,10 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.1 2003-03-31 23:16:56 windus Exp $
+# $Id: GNUmakefile,v 1.2 2003-09-19 14:15:32 windus Exp $
 #
 
   LIBRARY = libgeninterface.a
   
-  OBJ = geninterface.o
+  OBJ = geninterface.o NWChemWrap.o
 
   HEADERS = geninterface.fh
 
