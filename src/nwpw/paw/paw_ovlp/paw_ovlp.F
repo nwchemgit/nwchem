@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.46 2003-10-21 02:05:17 marat Exp $
+* $Id: paw_ovlp.F,v 1.47 2003-10-21 15:15:36 edo Exp $
 *
 
 !**************************************************
@@ -453,8 +453,8 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       !*** deallocate temporary space ***
       value =           MA_pop_stack(tmp(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not.value) 
-     > call errquit('paw_ovlp_coeff_set: error freeing stack memory',0,1)
+      if (.not.value)  call errquit(
+     > 'paw_ovlp_coeff_set: error freeing stack memory',0,1)
 
       return
       end
