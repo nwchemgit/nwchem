@@ -1,12 +1,17 @@
       block data dscfps
 #include "cscfps.fh"
       data oscfps /.false./     ! So that other codes don't break
+c
+c     oscfps is overridden in rhf_get_param
+c
       end
       subroutine scf_pstat_init()
       implicit none
 #include "pstat.fh"
 #include "cscfps.fh"
       double precision junk
+c
+      if (.not. oscfps) return
 c
       if (.not. pstat_allocate('scf: solve', pstat_qstat, 0,junk,
      $     ps_solve)) call errquit('scf: scf_pstat_init', 0)
