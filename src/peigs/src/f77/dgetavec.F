@@ -79,6 +79,13 @@ c
 *     .. Executable Statements ..
 *      
 
+
+ 310  CONTINUE
+      IF( B1.EQ.1 ) THEN
+         T( B1 ) = -LAMBDA
+      ELSE
+         T( B1 ) = LD( B1-1 ) * L( B1-1 ) - LAMBDA
+      END IF
 *$PL$ CMCHAR=' '
 CDIR$          NEXTSCALAR
 C$DIR          SCALAR
@@ -90,13 +97,6 @@ CVD$           NOVECTOR
 *VOCL          LOOP,SCALAR
 CIBM           PREFER SCALAR
 *$PL$ CMCHAR='*'
-
- 310  CONTINUE
-      IF( B1.EQ.1 ) THEN
-         T( B1 ) = -LAMBDA
-      ELSE
-         T( B1 ) = LD( B1-1 ) * L( B1-1 ) - LAMBDA
-      END IF
       
       DO I = B1, BN-1
          DPLUS( I ) = ( D( I ) + T( I ) ) - DELTA
@@ -119,6 +119,17 @@ c     LPLUS( I ) = LD( I ) / DPLUS( I )
          ELSE
             T( B1 ) = LD( B1-1 ) * L( B1-1 ) - LAMBDA
          END IF
+*$PL$ CMCHAR=' '
+CDIR$          NEXTSCALAR
+C$DIR          SCALAR
+CDIR$          NEXT SCALAR
+CVD$L          NOVECTOR
+CDEC$          NOVECTOR
+CVD$           NOVECTOR
+*VDIR          NOVECTOR
+*VOCL          LOOP,SCALAR
+CIBM           PREFER SCALAR
+*$PL$ CMCHAR='*'
          
          DO I = B1, BN-1
             DPLUS( I ) = ( D( I ) + T( I ) ) - DELTA
@@ -241,6 +252,9 @@ c            LPLUS( I ) = LD( I ) /DPLUS( I )
 *     .. Executable Statements ..
 *      
 
+
+ 210  CONTINUE
+      P( BN ) = D( BN ) - LAMBDA
 *$PL$ CMCHAR=' '
 CDIR$          NEXTSCALAR
 C$DIR          SCALAR
@@ -253,8 +267,6 @@ CVD$           NOVECTOR
 CIBM           PREFER SCALAR
 *$PL$ CMCHAR='*'
 
- 210  CONTINUE
-      P( BN ) = D( BN ) - LAMBDA
       DO I = BN-1, B1, -1
          DMINUS( I+1 ) = ( LLD( I ) + P( I+1 ) ) - DELTA
          if ( dminus(i+1) .lt. DLAMCHU ) then
@@ -274,6 +286,18 @@ CIBM           PREFER SCALAR
       IF(.NOT.( ( DMINUS( B1 ).GT.ZERO) .OR.
      $          ( DMINUS( B1 ).LT.ONE ) ) ) THEN
          P( BN ) = D( BN ) - LAMBDA
+*$PL$ CMCHAR=' '
+CDIR$          NEXTSCALAR
+C$DIR          SCALAR
+CDIR$          NEXT SCALAR
+CVD$L          NOVECTOR
+CDEC$          NOVECTOR
+CVD$           NOVECTOR
+*VDIR          NOVECTOR
+*VOCL          LOOP,SCALAR
+CIBM           PREFER SCALAR
+*$PL$ CMCHAR='*'
+
          DO I = BN-1, B1, -1
             DMINUS( I+1 ) = ( LLD( I ) + P( I+1 ) ) - DELTA
             if ( dminus(i+1) .lt. DLAMCHS ) then
@@ -419,17 +443,6 @@ CIBM           PREFER SCALAR
 *     .. Executable Statements ..
 *      
 
-*$PL$ CMCHAR=' '
-CDIR$          NEXTSCALAR
-C$DIR          SCALAR
-CDIR$          NEXT SCALAR
-CVD$L          NOVECTOR
-CDEC$          NOVECTOR
-CVD$           NOVECTOR
-*VDIR          NOVECTOR
-*VOCL          LOOP,SCALAR
-CIBM           PREFER SCALAR
-*$PL$ CMCHAR='*'
 
        
       EPS = DLAMCHP
@@ -453,6 +466,18 @@ CIBM           PREFER SCALAR
           MINDIF = DIF
           K = BN
       END IF
+*$PL$ CMCHAR=' '
+CDIR$          NEXTSCALAR
+C$DIR          SCALAR
+CDIR$          NEXT SCALAR
+CVD$L          NOVECTOR
+CDEC$          NOVECTOR
+CVD$           NOVECTOR
+*VDIR          NOVECTOR
+*VOCL          LOOP,SCALAR
+CIBM           PREFER SCALAR
+*$PL$ CMCHAR='*'
+
        
       DO I = B1+1, BN-1
 *        DIF = P( I ) + ( (L( I-1 ) * L( I-1 )) * / DPLUS( I-1 ) ) * T(
@@ -616,17 +641,6 @@ c
       ZBEGIN = B1
       ZEND = BN
 
-*$PL$ CMCHAR=' '
-CDIR$          NEXTSCALAR
-C$DIR          SCALAR
-CDIR$          NEXT SCALAR
-CVD$L          NOVECTOR
-CDEC$          NOVECTOR
-CVD$           NOVECTOR
-*VDIR          NOVECTOR
-*VOCL          LOOP,SCALAR
-CIBM           PREFER SCALAR
-*$PL$ CMCHAR='*'
 
       CALL DDSTQDS( LAMBDA, DELTA, N, B1, BN, L, D, LD,
      $     LPLUS, DPLUS, T )
@@ -674,6 +688,18 @@ c
 c      
       I2 = IAND(MAX0(K - B1,0),3)
       I4 = IAND(MAX0(I2,0),3)
+*$PL$ CMCHAR=' '
+CDIR$          NEXTSCALAR
+C$DIR          SCALAR
+CDIR$          NEXT SCALAR
+CVD$L          NOVECTOR
+CDEC$          NOVECTOR
+CVD$           NOVECTOR
+*VDIR          NOVECTOR
+*VOCL          LOOP,SCALAR
+CIBM           PREFER SCALAR
+*$PL$ CMCHAR='*'
+
       DO I = K - 1, K - I4, -1
          IF (Z(I+1) .NE. 0.0D+0) THEN
             Z(I) = -LPLUS(I)*Z(I+1)
@@ -681,6 +707,18 @@ c
             Z(I) = -(LD(I+1)/LD(I))*Z(I+2)
          ENDIF
       END DO
+*$PL$ CMCHAR=' '
+CDIR$          NEXTSCALAR
+C$DIR          SCALAR
+CDIR$          NEXT SCALAR
+CVD$L          NOVECTOR
+CDEC$          NOVECTOR
+CVD$           NOVECTOR
+*VDIR          NOVECTOR
+*VOCL          LOOP,SCALAR
+CIBM           PREFER SCALAR
+*$PL$ CMCHAR='*'
+
       DO I = K - I4 - 1, K - I2, -4
          kk = i-3 
          dummy = z(kk)
@@ -707,6 +745,18 @@ c
             Z(I-3) = -(LD(I-2)/LD(I-3))*Z(I-1)
          ENDIF
       END DO
+*$PL$ CMCHAR=' '
+CDIR$          NEXTSCALAR
+C$DIR          SCALAR
+CDIR$          NEXT SCALAR
+CVD$L          NOVECTOR
+CDEC$          NOVECTOR
+CVD$           NOVECTOR
+*VDIR          NOVECTOR
+*VOCL          LOOP,SCALAR
+CIBM           PREFER SCALAR
+*$PL$ CMCHAR='*'
+
       DO I = K - I2 - 1, B1, -4
          kk = i-3 
          dummy = z(kk)
@@ -793,7 +843,8 @@ c     DO I = B1, BN
 c     ZTZ = ZTZ + Z( I ) * Z( I )
 c     END DO
 c      
-      ztz = dnrm2( bn-b1+1, z(b1), 1) + DLAMCHU
+      ztz = dnrm2( bn-b1+1, z(b1), 1)
+c + DLAMCHU
 c      
       RETURN
 101   format (E22.14)
