@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.40 2003-02-20 18:19:24 edo Exp $
+* $Id: paw_sd.F,v 1.41 2003-02-22 01:54:27 marat Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -630,18 +630,19 @@ Cedo      call init_paw_vloc_matrix()
          write(6,*)
          write(6,1321) en(1)+en(ispin),' (real space)'
 
-         write(6,1430) E(1),E(1)/ion_nion()
-         write(6,1440) E(2),E(2)/n2(ispin)
-         write(6,1450) E(3),E(3)/n2(ispin)
-         write(6,1460) E(4),E(4)/n2(ispin)
-         write(6,1470) E(5),E(5)/ion_nion()
-         write(6,1480) E(6),E(6)/n2(ispin)
-         write(6,1490) E(7),E(7)/n2(ispin)
-         write(6,1495) E(8),E(8)/n2(ispin)
-         write(6,1496) E(9),E(9)/n2(ispin)
-         write(6,1497) E(10),E(10)/n2(ispin)
-         virial = (E(10)+E(9)+E(8)+E(7))/E(6)
-         write(6,1498) virial
+         call paw_energy_output(6,ion_nion(),n2(ispin),E)
+c         write(6,1430) E(1),E(1)/ion_nion()
+c         write(6,1440) E(2),E(2)/n2(ispin)
+c         write(6,1450) E(3),E(3)/n2(ispin)
+c         write(6,1460) E(4),E(4)/n2(ispin)
+c         write(6,1470) E(5),E(5)/ion_nion()
+c         write(6,1480) E(6),E(6)/n2(ispin)
+c         write(6,1490) E(7),E(7)/n2(ispin)
+c         write(6,1495) E(8),E(8)/n2(ispin)
+c         write(6,1496) E(9),E(9)/n2(ispin)
+c         write(6,1497) E(10),E(10)/n2(ispin)
+c         virial = (E(10)+E(9)+E(8)+E(7))/E(6)
+c         write(6,1498) virial
 
 
 *        **** write out KS eigenvalues ****

@@ -1,10 +1,10 @@
 
-# $Id: GNUmakefile,v 1.4 2003-02-08 23:12:04 bylaska Exp $
+# $Id: GNUmakefile,v 1.5 2003-02-22 01:54:27 marat Exp $
 #
  OBJ_OPTIMIZE = \
 		paw_sd.o \
 		paw_inner_loop.o \
-		psi_marat_write.o
+		psi_marat_write.o paw_output.o
 
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.18 2003-02-21 18:41:12 marat Exp $
+* $Id: paw_inner_loop.F,v 1.19 2003-02-22 01:54:27 marat Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -485,31 +485,60 @@ c     get paw atom energies
       paw_ecore_ion_atom = paw_energy_core_ion_atom()
       paw_ecore_self_atom = paw_energy_core_self_atom()
       paw_exc_atom = paw_energy_xc_atom()
-      write(*,*) "paw atom kin energy",paw_ekin_atom
-      write(*,*) "paw atom vloc energy",paw_evloc_atom 
-      write(*,*) "paw atom ion energy",paw_eion_atom 
-      write(*,*) "paw atom core energy",paw_ecore_atom 
-      write(*,*) "paw atom hartree energy",paw_ehartree_atom 
-      write(*,*) "paw atom core_ion energy",paw_ecore_ion_atom
-      write(*,*) "paw atom core_self energy",paw_ecore_self_atom
-      write(*,*) "paw atom xc energy",paw_exc_atom
+c      write(*,*) "paw atom kin energy",paw_ekin_atom
+c      write(*,*) "paw atom vloc energy",paw_evloc_atom 
+c      write(*,*) "paw atom ion energy",paw_eion_atom 
+c      write(*,*) "paw atom core energy",paw_ecore_atom 
+c      write(*,*) "paw atom hartree energy",paw_ehartree_atom 
+c      write(*,*) "paw atom core_ion energy",paw_ecore_ion_atom
+c      write(*,*) "paw atom core_self energy",paw_ecore_self_atom
+c      write(*,*) "paw atom xc energy",paw_exc_atom
 
       call Pack_c_unpack(0,dn_cmp_smooth)
       call D3dB_cr_fft3b(1,dn_cmp_smooth)
       call D3dB_r_Zero_Ends(1,dn_cmp_smooth)
 
-*     **** total energy ****
+
+*     *** kinetic energy ***
+      E(2) = eke
+      E(3) = paw_ekin_atom 
+      E(4) = ehartr
+
+*     *** coulomb contributions ***      
+*      WARNING!!!!
+*      contributions from compensation charges are missing here
+      E(5) = paw_eion_atom + paw_ecore_atom + paw_ehartree_atom +
+     >       paw_ecore_ion_atom + paw_ecore_self_atom  
+*     E(6)=multipole interaction energy      
+      E(6)=0.0d0
+      
+*     *** exch-corr ***
+*     *** plane wave ?????***
+      E(7) = 0.0d0
+      E(8) = paw_exc_atom
+      
+*     *** local pseudopot ***
+*     *** plane wave ?????***
+      E(9) = 0.0d0
+      E(10) = paw_evloc_atom
+
+
+*     *** total energy ***
       Eold=E(1)
-      E(1) = eorbit + eion + exc - ehartr - pxc
-      E(2) = eorbit
-      E(3) = ehartr
-      E(4) = exc
-      E(5) = eion
-      E(6) = eke
-      E(7) = elocal
-      E(8) = enlocal
-      E(9) = 2.0d0*ehartr
-      E(10) = pxc
+      E(1) = 0.0d0
+      do i=2,10
+       E(1) = E(1) + E(i)
+      end do
+      
+c      E(2) = eorbit
+c      E(3) = ehartr
+c      E(4) = exc
+c      E(5) = eion
+c      E(6) = eke
+c      E(7) = elocal
+c      E(8) = enlocal
+c      E(9) = 2.0d0*ehartr
+c      E(10) = pxc
 
 
 
