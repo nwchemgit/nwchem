@@ -4,7 +4,7 @@ c
 c
 c
        subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-C$Id: moints_mp2.F,v 1.20 1996-10-23 20:31:45 rg240 Exp $
+C$Id: moints_mp2.F,v 1.21 1996-10-28 17:16:01 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -65,8 +65,9 @@ c
            if ((ij.ge.jlo).and.(ij.le.jhi)) then
              denom = orbe(i) + orbe(j)
              call ga_access(g_k,1,ihi,ij,ij,k_exch,ld_exch)
-             xx = moints_epair_eval(ndim,vstart,nocc,nvir,
-     $                             dbl_mb(k_exch),orbe,denom)
+             xx = moints_epair_eval(ndim,vstart,nvir,
+     $                             dbl_mb(k_exch),orbe(nocc+1),
+     $                             denom)
              call ga_release(g_k,1,ihi,ij,ij)
              if (i.eq.j) xx = xx/2.d0
              call ga_put(g_epair,ij,ij,1,1,xx,1)
@@ -162,8 +163,9 @@ c
            if ((ij.ge.jlo).and.(ij.le.jhi)) then
              denom = orbe(i) + orbe(j)
              call ga_access(g_k,1,ihi,ij,ij,k_exch,ld_exch)
-             xx = moints_epair_eval(ndim,vstart,nocc,nvir,
-     $                             dbl_mb(k_exch),orbe,denom)
+             xx = moints_epair_eval(ndim,vstart,nvir,
+     $                             dbl_mb(k_exch),orbe(nocc+1),
+     $                             denom)
              call ga_release(g_k,1,ihi,ij,ij)
              if (i.eq.j) xx = xx/2.d0
              call ga_put(g_epair,1,1,ij0,ij0,xx,1)
