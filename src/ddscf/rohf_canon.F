@@ -1,5 +1,5 @@
       subroutine rohf_canon(oaufbau, oprint)
-C$Id: rohf_canon.F,v 1.5 1997-03-30 20:58:48 d3g681 Exp $
+C$Id: rohf_canon.F,v 1.6 1997-03-31 05:38:42 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -231,11 +231,11 @@ c
 *      write(6,*) ' input '
 *      call output(evals,ilo,ihi,1,1,ihi,1,1)
       do i = ilo, ihi
-	 tmp(i) = evals(map(i))
+	 tmp(i) = evals(map(i)-ilo+1)
 	 work(i)= irs(map(i))
       enddo
       do i = ilo, ihi
-	 evals(i) = tmp(i)
+	 evals(i-ilo+1) = tmp(i)
 	 irs(i)   = work(i)
       enddo
 *      write(6,*) ' output '
