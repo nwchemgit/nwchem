@@ -1,5 +1,5 @@
 /*
- $Id: clustrf5.c,v 1.14 2000-10-24 18:25:47 d3g270 Exp $
+ $Id: clustrf5.c,v 1.15 2000-10-25 17:43:52 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -102,6 +102,26 @@
 #define TWO  2
 
 #define I_ZERO 0
+
+
+  static Integer clustr_check(c1, cn, imin, imax)
+     Integer c1, cn, imin, imax;
+{
+  /*
+    routine to determine if
+    the cluster is
+    actually in the desired region of the clustr finder
+    */
+
+  if ( cn < imin )
+    return(-1);
+
+  if ( imax  < c1 )
+    return(-1);
+
+  return(1);
+}
+
 
 Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, num_clustr,
 		   clustr_info,  imin, proclist , nacluster, icsplit, iscratch)
