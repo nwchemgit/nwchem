@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.38 1998-01-09 15:25:31 d3e129 Exp $
+C$Id: opt_drv.F,v 1.39 1998-02-26 01:30:05 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -84,8 +84,7 @@ c                mxcoor=max(mxcart,mxzmat)
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_molxyz/c(mxcart),zan(mxatom),nat
       character*16 atmlab
-      CHARACTER*8  BFLAB 
-      common/hnd_mollab/atmlab(mxatom),BFLAB(MXBFN)
+      common/hnd_mollab/atmlab(mxatom)
       dimension t0(mxcoor)
       data zero   /0.0d+00/
       data pt5    /0.5d+00/
@@ -112,20 +111,52 @@ c
          iatfrz(i)=0
       enddo
 c
-      if (.not. rtdb_get(rtdb,'driver:cvgopt',mt_dbl,1,cvgopt))
-     $     cvgopt=8.0d-04
-      if (.not. rtdb_get(rtdb,'driver:nptopt',mt_int,1,nptopt))
-     $     nptopt=20
-      if (.not. rtdb_get(rtdb,'driver:inhess',mt_int,1,inhess))
-     $     inhess=0
-      if (.not. rtdb_get(rtdb,'driver:linopt',mt_int,1,linopt))
-     $     linopt=10
-      if (.not. rtdb_get(rtdb,'driver:modupd',mt_int,1,modupd))
-     $     modupd=1
-      if (.not. rtdb_get(rtdb,'driver:moddir',mt_int,1,moddir))
-     $     moddir=1
-      if (.not. rtdb_get(rtdb,'driver:modsad',mt_int,1,modsad))
-     $     modsad=0
+      if (.not. rtdb_get(rtdb,'driver:cvgopt',mt_dbl,1,cvgopt)) then
+           cvgopt=8.0d-04
+           if(dbug) then
+              write(iw,*) 'using default value of -cvgopt-',cvgopt
+           endif
+      endif
+      if (.not. rtdb_get(rtdb,'driver:nptopt',mt_int,1,nptopt)) then
+           nptopt=20
+           if(dbug) then
+              write(iw,*) 'using default value of -nptopt-',nptopt
+           endif
+      endif
+      if (.not. rtdb_get(rtdb,'driver:inhess',mt_int,1,inhess)) then
+           inhess=0
+           if(dbug) then
+              write(iw,*) 'using default value of -inhess-',inhess
+           endif
+      endif
+      if (.not. rtdb_get(rtdb,'driver:linopt',mt_int,1,linopt)) then
+           linopt=10
+           if(dbug) then
+              write(iw,*) 'using default value of -linopt-',linopt
+           endif
+      endif
+      if (.not. rtdb_get(rtdb,'driver:modupd',mt_int,1,modupd)) then
+           modupd=1
+           if(dbug) then
+              write(iw,*) 'using default value of -modupd-',modupt
+           endif
+      endif
+      if (.not. rtdb_get(rtdb,'driver:moddir',mt_int,1,moddir)) then
+           moddir=1
+           if(dbug) then
+              write(iw,*) 'using default value of -moddir-',moddir
+           endif
+      endif
+      if (.not. rtdb_get(rtdb,'driver:modsad',mt_int,1,modsad)) then
+           modsad=0
+           if(dbug) then
+              write(iw,*) 'using default value of -modsad-',modsad
+           endif
+      else
+           if(dbug) then
+              write(iw,*) 'using -rtdb-  value of -modsad-',modsad
+           endif
+      endif
 c
       if (ga_nodeid().eq.0.or.dbug)  then
          write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd,
@@ -387,12 +418,28 @@ c
       integer  rtdb
       logical  status
       logical  opt_input
+      logical  dbug
+      integer  ir, iw
       double precision cvgopt
       integer nptopt,inhess,linopt,modupd,moddir,modsad
       common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
      1                                                     modsad
+      common/hnd_iofile/ir,iw
+c
+      dbug=.false.
 c
       call hnd_opt_input(rtdb)
+c
+      if(dbug) then
+         write(iw,*) 'in driver_input, before rtdb_put'
+         write(iw,*) 'cvgopt',cvgopt
+         write(iw,*) 'nptopt',nptopt
+         write(iw,*) 'linopt',linopt
+         write(iw,*) 'inhess',inhess
+         write(iw,*) 'modupd',modupd
+         write(iw,*) 'modsad',modsad
+         write(iw,*) 'moddir',moddir
+      endif
 c
       opt_input=.true.
       status=rtdb_put(rtdb,'opt:driver',mt_log,1,opt_input) ! This for task
@@ -414,6 +461,17 @@ c
          call errquit('driver_input : rtdb_put failed',911)
       endif
 c
+      if(dbug) then
+         write(iw,*) 'in driver_input, after  rtdb_put'
+         write(iw,*) 'cvgopt',cvgopt
+         write(iw,*) 'nptopt',nptopt
+         write(iw,*) 'linopt',linopt
+         write(iw,*) 'inhess',inhess
+         write(iw,*) 'modupd',modupd
+         write(iw,*) 'modsad',modsad
+         write(iw,*) 'moddir',moddir
+      endif
+c
       return
       end
       subroutine hnd_opt_input(rtdb)
@@ -427,7 +485,6 @@ c
       parameter (mxcoor=1500)
 c                mxcoor=max(mxcart,mxzmat)
       character*255 field
-c      logical       status  ! never used ?
       logical       ready
       logical       dbug
       common/hnd_iofile/ir,iw
@@ -435,7 +492,7 @@ c      logical       status  ! never used ?
      1                                                     modsad
       common/hnd_optfrz/icfrz(mxcoor),iatfrz(mxatom)
 c
-      dbug=.false. 
+      dbug=.false.
 c
 c     ----- default parameters for optimization driver -----
 c
@@ -552,6 +609,7 @@ c
 c
   100 continue
       if(dbug) then
+         write(iw,*) 'in hnd_opt_input, after reading the input'
          write(iw,*) 'cvgopt',cvgopt
          write(iw,*) 'nptopt',nptopt
          write(iw,*) 'linopt',linopt
@@ -2367,9 +2425,8 @@ C
       LOGICAL      DBUG
       LOGICAL      CVGED
       CHARACTER*16 ATMNAM
-      CHARACTER*8  BFLAB 
       COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_MOLLAB/ATMNAM(MXATOM),BFLAB(MXBFN)
+      COMMON/HND_MOLLAB/ATMNAM(MXATOM)
       COMMON/HND_MOLNUC/NUC(MXATOM)
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_OPTMIZ/X0(MXCOOR),X(MXCOOR),DX(MXCOOR),
