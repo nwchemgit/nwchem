@@ -1,0 +1,20 @@
+*     ***** pspw_qmmm common block ************************************
+      real*8 ekw,ekw_total
+      integer r2(2),r1(2),r0(2),mass(2)
+      integer frag_from_indx(2)
+      integer indx_from_frag(2),dsqm_frag(2)
+      integer size_frag(2),shake_frag(2)
+      integer ekw_count
+      integer nion,nfrag,max_frag_length
+      integer qmmm_type,geom
+      common / pspw_qmmm / ekw,ekw_total,r2,r1,r0,mass,
+     >                     frag_from_indx,
+     >                     indx_from_frag,dsqm_frag,
+     >                     size_frag,shake_frag,
+     >                     ekw_count,
+     >                     nion,              ! number QM/MM ions
+     >                     nfrag,             ! number of fragments
+     >                     max_frag_length,   ! maximum fragment size
+     >                     qmmm_type,         ! 1-model potential, 2-model charge
+     >                     geom
+*     ******************************************************************

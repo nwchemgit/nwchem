@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.3 2001-10-17 23:48:13 bylaska Exp $
+* $Id: cgsdv5.F,v 1.4 2001-10-21 14:42:36 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -74,17 +74,17 @@
       real*8      psp_zv,psp_rc,ewald_rcut
       real*8      ewald_mandelung
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
-      real*8      lattice_unitg
+      real*8      lattice_unitg,ion_amass
       integer     ewald_ncut,ewald_nshl3d,psp_npsp
       integer     psp_lmmax,psp_lmax,psp_locp
-      character*2 psp_atom
+      character*2 psp_atom,ion_aname
       external    psp_zv,psp_rc,ewald_rcut
       external    ewald_mandelung
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
-      external    lattice_unitg
+      external    lattice_unitg,ion_amass
       external    ewald_ncut,ewald_nshl3d,psp_npsp
       external    psp_lmmax,psp_lmax,psp_locp
-      external    psp_atom
+      external    psp_atom,ion_aname
 
 
       real*8   control_tole,control_tolc,control_tolr,ion_rion
@@ -266,8 +266,10 @@ c         ENDIF
          write(6,1160)
          write(6,1170) (psp_atom(K),ion_natm(K),K=1,psp_npsp())
          write(6,1180)
-         write(6,1190) (I,psp_atom(ion_katm(I)),
-     >                  (ion_rion(K,I),K=1,3),I=1,ion_nion())
+         write(6,1190) (I,ion_aname(I),
+     >                  (ion_rion(K,I),K=1,3),
+     >                  ion_amass(I)/1822.89d0,
+     >                 I=1,ion_nion())
          write(6,1200) cx,cy,cz
          write(6,1210) gx,gy,gz
 
@@ -485,7 +487,7 @@ c     end if
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' initial position of ions:')
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' )')
+ 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)

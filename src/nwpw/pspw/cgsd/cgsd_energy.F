@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.2 2001-09-29 00:28:06 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.3 2001-10-21 14:42:36 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -22,17 +22,17 @@ c     $Id: cgsd_energy.F,v 1.2 2001-09-29 00:28:06 bylaska Exp $
 
 *     **** external functions ****
       logical     psp_semicore,Waterpsp_found
-      character*2 psp_atom
+      character*2 psp_atom,ion_aname
       integer     control_it_in, control_it_out
       integer     ion_nion,ion_katm,psi_ne,psi_ispin
       real*8      control_tole,control_tolc
-      real*8      ion_rion,psi_eigenvalue
+      real*8      ion_rion,psi_eigenvalue,ion_amass
       external psp_semicore,Waterpsp_found
-      external psp_atom
+      external psp_atom,ion_aname
       external control_it_in, control_it_out
       external ion_nion,ion_katm,psi_ne,psi_ispin
       external control_tole,control_tolc
-      external ion_rion,psi_eigenvalue
+      external ion_rion,psi_eigenvalue,ion_amass
 
 
       call Parallel_taskid(taskid)
@@ -109,8 +109,10 @@ c     $Id: cgsd_energy.F,v 1.2 2001-09-29 00:28:06 bylaska Exp $
          write(6,1304)
          write(6,1410)
          write(6,1420)
-         write(6,1190)(i,psp_atom(ion_katm(I)),
-     >                  (ion_rion(K,I),K=1,3),I=1,ion_nion())
+         write(6,1190)(i,ion_aname(I),
+     >                 (ion_rion(K,I),K=1,3),
+     >                 ion_amass(i)/1822.89d0,
+     >                I=1,ion_nion())
          write(6,1200) CX,CY,CZ
          write(6,1210) GX,GY,GZ
 
@@ -162,7 +164,7 @@ c     $Id: cgsd_energy.F,v 1.2 2001-09-29 00:28:06 bylaska Exp $
 
 
 
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' )')
+ 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1300 FORMAT(//'======================')

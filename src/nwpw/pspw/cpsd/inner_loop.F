@@ -19,7 +19,7 @@
      >                      hml,lmd,
      >                      psi_r,Hpsi)
 *
-* $Id: inner_loop.F,v 1.4 2001-10-17 23:48:14 bylaska Exp $
+* $Id: inner_loop.F,v 1.5 2001-10-21 14:42:38 bylaska Exp $
 *
       implicit none
       integer    ispin,ne(2)
@@ -500,27 +500,6 @@ c     if (ispin.eq.1) elocal = 2.0d0*elocal
       if (ispin.eq.1) enlocal = 2.0d0*enlocal
 
 
-*     *********************************
-*     ******** Waterpsp energies ******
-*     *********************************
-      if (Waterpsp_found()) then
-*        **** get free-space electron-water energy ****
-         call dcopy(n2ft3d,0.0d0,0,dbl_mb(vlr_l(1)),1)
-         call Waterpsp_Generate_V(n2ft3d,dbl_mb(r_grid(1)),
-     >                                   dbl_mb(vlr_l(1)))
-         call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vlr_l(1)),e_elc_water)
-         e_elc_water = e_elc_water*dv
-
-*        **** subtract e_elc_water from elocal ****
-         elocal = elocal - e_elc_water
-
-*        **** get the ion-water energy ****
-         call Waterpsp_Energy_ion(e_ion_water)
-
-*        **** get the water-water energy ****
-         call Waterpsp_Energy_Water(e_water_water)
-      end if
-
 
 *     **** total energy ****
       Eold=E(1)
@@ -536,21 +515,28 @@ c     if (ispin.eq.1) elocal = 2.0d0*elocal
       E(10) = pxc
 
       if (Waterpsp_found()) then
+
+*        **** get the ion-water and water-water energies ****
+         call Waterpsp_Energy_ion(e_ion_water)
+         call Waterpsp_Energy_Water(e_water_water)
+
          E(1) = E(1) + e_ion_water + e_water_water
-         E(11) = e_elc_water
-         E(12) = e_ion_water
-         E(13) = e_water_water
+         E(11) = e_ion_water
+         E(12) = e_water_water
+         E(13) = 0.0d0
+         E(14) = 0.0d0
+         E(15) = 0.0d0
       end if
 
 *     **** SIC corrections ****
       if (pspw_SIC()) then
          call pspw_energy_SIC(ispin,psi_r,exc,pxc)
          E(1) = E(1) + exc
-         E(14) = exc
-         E(15) = 0.0d0
+         E(16) = exc
+         E(17) = 0.0d0
          if (pspw_SIC_relaxed()) then
             E(1)  = E(1) - pxc
-            E(15) = pxc
+            E(17) = pxc
          end if
       end if
 

@@ -6,7 +6,7 @@
 *     ***************************
       subroutine ion_end()
 *
-* $Id: ion.F,v 1.2 2001-10-17 23:48:11 bylaska Exp $
+* $Id: ion.F,v 1.3 2001-10-21 14:42:33 bylaska Exp $
 *
       implicit none
 
@@ -419,7 +419,7 @@ c     call ion_shift()
 *     *	     ion_aname			*
 *     *							*
 *     ***************************
-      character*16 function ion_aname(i)
+      character*2 function ion_aname(i)
       implicit none
       integer i
 
@@ -430,13 +430,17 @@ c     call ion_shift()
       common / ION2/ geom
 
 *     **** local variables ****
-      character*16 t
-      real*8 rxy(3),q
+      character*2  symbol
+      character*16 t,name
+      real*8 q
 
-      if (.not. geom_cent_get(geom,i,t,rxy,q))
+      if (.not. geom_cent_tag(geom,i,t))
+     >        call errquit(' ion_aname  failed ',i)
+
+      if (.not. geom_tag_to_element(t,symbol,name,q))
      >        call errquit(' ion_aname  failed ',i)
       
-      ion_aname = t
+      ion_aname = symbol
       return
       end
 

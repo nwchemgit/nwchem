@@ -14,7 +14,7 @@
 
       logical function cpmdv5(rtdb)
 *
-* $Id: cpmdv5.F,v 1.2 2001-10-17 23:48:14 bylaska Exp $
+* $Id: cpmdv5.F,v 1.3 2001-10-21 14:42:37 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -116,14 +116,14 @@
       real*8      lattice_unitg
       integer     ewald_ncut,ewald_nshl3d,psp_npsp
       integer     psp_lmmax,psp_lmax,psp_locp
-      character*2 psp_atom
+      character*2 psp_atom,ion_aname
       external    psp_zv,psp_rc,ewald_rcut,ion_amass
       external    ewald_mandelung
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg
       external    ewald_ncut,ewald_nshl3d,psp_npsp
       external    psp_lmmax,psp_lmax,psp_locp
-      external    psp_atom
+      external    psp_atom,ion_aname
 
 
       real*8   control_rti,control_rte,ion_rion
@@ -377,10 +377,10 @@
          write(6,1180)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
-           write(6,1191) I,psp_atom(ion_katm(I)),
+           write(6,1191) I,ion_aname(I),
      >                    (ion_rion(K,I),K=1,3),ion_amass(i)/1822.89d0
            else
-           write(6,1190) I,psp_atom(ion_katm(I)),
+           write(6,1190) I,ion_aname(I),
      >                    (ion_rion(K,I),K=1,3),ion_amass(i)/1822.89d0
            end if
          end do
@@ -390,7 +390,7 @@
          call Waterpsp_Print(6)
 
          write(6,1181)
-         write(6,1192) (I,psp_atom(ion_katm(I)),
+         write(6,1192) (I,ion_aname(I),
      >                  (ion_vion(K,I),K=1,3),I=1,ion_nion())
          write(6,1200) vcx,vcy,vcz
          write(6,1210) vgx,vgy,vgz
@@ -736,10 +736,10 @@
          write(6,1420)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
-           write(6,1191) I,psp_atom(ion_katm(I)),(ion_rion(k,i),K=1,3),
+           write(6,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0
            else
-           write(6,1190) I,psp_atom(ion_katm(I)),(ion_rion(k,i),K=1,3),
+           write(6,1190) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0
            end if
          end do
@@ -749,7 +749,7 @@
          call Waterpsp_Print(6)
 
          write(6,1421)
-         write(6,1192) (I,psp_atom(ion_katm(I)),
+         write(6,1192) (I,ion_aname(I),
      >                  (ion_vion(K,I),K=1,3),I=1,ion_nion())
          write(6,1200) vcx,vcy,vcz
          write(6,1210) vgx,vgy,vgz

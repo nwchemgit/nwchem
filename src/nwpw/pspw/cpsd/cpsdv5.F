@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.3 2001-10-17 23:48:14 bylaska Exp $
+* $Id: cpsdv5.F,v 1.4 2001-10-21 14:42:37 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -110,14 +110,14 @@
       real*8      lattice_unitg
       integer     ewald_ncut,ewald_nshl3d,psp_npsp
       integer     psp_lmmax,psp_lmax,psp_locp
-      character*2 psp_atom
+      character*2 psp_atom,ion_aname
       external    psp_zv,psp_rc,ewald_rcut,ion_amass
       external    ewald_mandelung
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg
       external    ewald_ncut,ewald_nshl3d,psp_npsp
       external    psp_lmmax,psp_lmax,psp_locp
-      external    psp_atom
+      external    psp_atom,ion_aname
 
 
       real*8   control_tole,control_tolc,control_tolr,ion_rion
@@ -350,10 +350,10 @@
          write(6,1180)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
-           write(6,1191) I,psp_atom(ion_katm(I)),(ion_rion(K,I),K=1,3),
+           write(6,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0
            else
-           write(6,1190) I,psp_atom(ion_katm(I)),(ion_rion(K,I),K=1,3),
+           write(6,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0
            end if
          end do
@@ -554,10 +554,10 @@
          write(6,1420)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
-           write(6,1191) I,psp_atom(ion_katm(I)),(ion_rion(k,i),K=1,3),
+           write(6,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0
            else
-           write(6,1190) I,psp_atom(ion_katm(I)),(ion_rion(k,i),K=1,3),
+           write(6,1190) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0
            end if
          end do
@@ -570,11 +570,17 @@
          write(6,1320) en(1),en(ispin),' (real space)'
 
          write(6,1430) E(1),E(1)/ion_nion()
+         if (Waterpsp_found()) then
+            write(6,1431) 
+            write(6,1432) 
+            write(6,1433) (E(1)-E(11)-E(12)-E(13)-E(14)-E(15)),
+     >         (E(1)-E(11)-E(12)-E(13)-E(14)-E(15))/ion_nion()
+         end if
          write(6,1440) E(2),E(2)/n2(ispin)
          write(6,1450) E(3),E(3)/n2(ispin)
          write(6,1460) E(4),E(4)/n2(ispin)
          if (pspw_SIC())
-     >     write(6,1455) E(14),E(14)/n2(ispin)
+     >     write(6,1455) E(16),E(16)/n2(ispin)
          write(6,1470) E(5),E(5)/ion_nion()
          write(6,1480) E(6),E(6)/n2(ispin)
          write(6,1490) E(7),E(7)/n2(ispin)
@@ -582,17 +588,19 @@
          write(6,1496) E(9),E(9)/n2(ispin)
          write(6,1497) E(10),E(10)/n2(ispin)
          if (pspw_SIC().and.pspw_SIC_relaxed())
-     >     write(6,1499) E(15),E(15)/n2(ispin)
+     >     write(6,1499) E(17),E(17)/n2(ispin)
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(6,1498) virial
  
          if (Waterpsp_found()) then
-            write(6,1700) E(11),E(11)/n2(ispin)
-            write(6,1701) E(12),E(12)/ion_nion()
-            write(6,1702) E(13)
+            write(6,1700) 
+            write(6,1701) 
+            write(6,1702) E(11) 
+            write(6,1703) E(12)
+            write(6,1704) E(13)
+            write(6,1705) E(14)
+            write(6,1706) E(15)
          end if
-
-
 
          write(6,1500)
          NN=NE(1)-NE(2)
@@ -748,8 +756,8 @@
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' initial position of ions:')
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
- 1191 FORMAT(5X, I4, A3  ,' (',3F11.5,
+ 1190 FORMAT(5X, I4, A3, ' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
+ 1191 FORMAT(5X, I4, A3, ' (',3F11.5,
      >       ' ) - atomic mass= ',F6.3,' - fixed')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
@@ -788,7 +796,10 @@
  1400 FORMAT(I3,3E18.8/3X,3E18.8)
  1410 FORMAT(10X,'=============  summary of results  =================')
  1420 FORMAT( ' final position of ions:')
- 1430 FORMAT(/' total     energy    :',E19.10,' (',E15.5,'/ion)')
+ 1430 FORMAT(//' total     energy    :',E19.10,' (',E15.5,'/ion)')
+ 1431 FORMAT(/' QM Energies')
+ 1432 FORMAT( '------------')
+ 1433 FORMAT( ' total  QM energy    :',E19.10,' (',E15.5,'/ion)')
  1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
  1455 FORMAT( ' SIC       energy    :',E19.10,' (',E15.5,'/electron)')
@@ -804,9 +815,14 @@
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1600 FORMAT(/' Total PSPW energy   :',E19.10)
- 1700 FORMAT(/' water-elc energy    :',E19.10,' (',E15.5,'/electron)')
- 1701 FORMAT( ' water-ion energy    :',E19.10,' (',E15.5,'/ion)')
- 1702 FORMAT( ' water-water energy  :',E19.10)
+
+ 1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
+ 1701 FORMAT( ' --------------------------')
+ 1702 FORMAT( ' QM/MM energy           :',E19.10)
+ 1703 FORMAT( ' MM/MM energy           :',E19.10)
+ 1704 FORMAT( ' MM Polarization energy :',E19.10)
+ 1705 FORMAT( ' MM Vibration energy    :',E19.10)
+ 1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
