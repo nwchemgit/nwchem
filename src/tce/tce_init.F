@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.24 2003-01-31 04:36:43 sohirata Exp $
+c $Id: tce_init.F,v 1.25 2003-01-31 04:44:13 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -441,10 +441,10 @@ c
      1  (LuOut,'The development of this portion of the program',
      2  40,.false.)
         call util_print_centered
-     1  (LuOut,'and TCE was supported by US Department of Energy,.',
+     1  (LuOut,'and TCE was supported by US Department of Energy,',
      2  40,.false.)
         call util_print_centered
-     1  (LuOut,'Office of Science, Division of Basic Energy Science',
+     1  (LuOut,'Office of Science, Division of Basic Energy Science.',
      2  40,.false.)
         call util_print_centered
      1  (LuOut,'TCE is a product of Battelle and PNNL.',
