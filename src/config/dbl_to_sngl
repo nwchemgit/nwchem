@@ -8,7 +8,9 @@ set sufx = .dbl
 foreach file ($argv)
 
    echo converting $file to single precision
-   sed -f $sed_script  < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file
-   sed -f $sed_script2 < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file
+   (sed -f $sed_script  < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file;\
+    sed -f $sed_script2 < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file)&
 
 end
+
+wait
