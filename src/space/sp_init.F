@@ -4,10 +4,10 @@
      + npbt,nbxt,boxt,vlatt,lpbc,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd,iguidi,
-     + ldbg,idbg,prjct,mbbi,nseri,isld)
+     + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.76 2000-09-02 03:37:47 d3j191 Exp $
+c $Id: sp_init.F,v 1.77 2000-11-07 01:06:13 d3j191 Exp $
 c
       implicit none
 c
@@ -24,7 +24,7 @@ c
       real*8 rsht,rlng,rinp,boxt(3),vlatt(3,3),rtemp(3)
       real*8 temp,tempw,temps,fld
       integer itemp(2)
-      integer npxi,npyi,npzi,nbxi,nbyi,nbzi,isld
+      integer npxi,npyi,npzi,nbxi,nbyi,nbzi,isld,irset
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer lenscr,ldb,lbp,npbt,nbxt,iguidi,mbbi,nseri
       logical lpol,lfre,ignore,lpbc,lqd
@@ -43,6 +43,7 @@ c
       lfnsyn=lsyn
       nfsync=nsyn
       isload=isld
+      ireset=irset
 c
       rshort=rsht
       rlong=max(rsht,rlng)
@@ -97,7 +98,9 @@ c
       if(sp_diffbb(dbl_mb(i_boxs),int_mb(i_rng)))
      + call sp_listbb(int_mb(i_iown),dbl_mb(i_boxs),int_mb(i_bb))
 c
-      ignore=sp_rdrest(lfnrst,filrst)
+      if(ireset.ne.0) then
+      ignore=sp_rdrest(lfnrst,filrst,dbl_mb(i_boxs))
+      endif
 c
       lenscr=3*max(mwm*mwa,msa)
       if(.not.ma_push_get(mt_dbl,lenscr,'x',l_x,i_x))
@@ -2247,13 +2250,14 @@ c
 c
       if(.not.ma_push_get(mt_int,(mbbl+1)*mbb2,'ltmp',l_ltmp,i_ltmp))
      + call errquit('Failed to allocate memory for ltmp',0)
-      call sp_wrest(lfn,int_mb(i_bb),int_mb(i_ltmp),mbbl+1)
+      call sp_wrest(lfn,int_mb(i_bb),int_mb(i_ltmp),mbbl+1,
+     + dbl_mb(i_boxs))
       if(.not.ma_pop_stack(l_ltmp))
      + call errquit('Failed to deallocate ltmp',0)
 c
       return
       end
-      subroutine sp_wrest(lfn,lbbl,ltemp,mdim)
+      subroutine sp_wrest(lfn,lbbl,ltemp,mdim,boxsiz)
 c
       implicit none
 c
@@ -2263,14 +2267,19 @@ c
 c
       integer lfn,mdim
       integer lbbl(mbbl,mbb2),ltemp(mdim,mbb2)
+      real*8 boxsiz(maxbox,3)
 c
       integer i,j,k
 c
       if(me.eq.0) then
       write(lfn,1000)
  1000 format('restart space')
-      write(lfn,1001) np,mbbl,npx,npy,npz,nbx,nby,nbz
- 1001 format(8i7)
+      write(lfn,1001) np,mbbl,npx,npy,npz,nbx,nby,nbz,np
+ 1001 format(9i7)
+      write(lfn,1002) (boxsiz(i,1),i=1,nbx)
+      write(lfn,1002) (boxsiz(i,2),i=1,nby)
+      write(lfn,1002) (boxsiz(i,3),i=1,nbz)
+ 1002 format(4e20.12)
       endif
 c
       do 1 i=1,np
@@ -2293,11 +2302,11 @@ c
       call ga_igop(msp_09,ltemp,mdim*mbb2,'+')
 c
       if(me.eq.0) then
-      write(lfn,1002) i-1,ltemp(1,1)
- 1002 format(2i7)
+      write(lfn,1003) i-1,ltemp(1,1)
+ 1003 format(2i7)
       do 6 j=1,ltemp(1,1)
-      write(lfn,1003) (ltemp(j+1,k),k=1,mbb2)
- 1003 format(8i10)
+      write(lfn,1004) (ltemp(j+1,k),k=1,mbb2)
+ 1004 format(8i10)
     6 continue
       endif
 c
@@ -2305,7 +2314,7 @@ c
 c
       return
       end
-      logical function sp_rdrest(lfn,fil)
+      logical function sp_rdrest(lfn,fil,boxsiz)
 c
       implicit none
 c
@@ -2314,6 +2323,7 @@ c
 c
       integer lfn
       character*255 fil
+      real*8 boxsiz(maxbox,3)
 c
       logical sp_rrest
       external sp_rrest
@@ -2322,13 +2332,14 @@ c
 c
       if(.not.ma_push_get(mt_int,(mbbl+1)*mbb2,'ltmp',l_ltmp,i_ltmp))
      + call errquit('Failed to allocate memory for ltmp',0)
-      sp_rdrest=sp_rrest(lfn,fil,int_mb(i_bb),int_mb(i_ltmp),mbbl+1)
+      sp_rdrest=sp_rrest(lfn,fil,int_mb(i_bb),int_mb(i_ltmp),mbbl+1,
+     + boxsiz)
       if(.not.ma_pop_stack(l_ltmp))
      + call errquit('Failed to deallocate ltmp',0)
 c
       return
       end
-      logical function sp_rrest(lfn,fil,lbbl,ltemp,mdim)
+      logical function sp_rrest(lfn,fil,lbbl,ltemp,mdim,boxsiz)
 c
       implicit none
 c
@@ -2340,9 +2351,10 @@ c
       character*255 fil
       integer lbbl(mbbl,mbb2),ltemp(mdim,mbb2)
 c
-      integer i,j,k,node,npp,nbl,nbytes
+      integer i,j,k,node,npp,nbl,nbytes,nbxs
       integer npxp,npyp,npzp,nbxp,nbyp,nbzp,mbblx
       character*13 string
+      real*8 boxsiz(maxbox,3)
 c
       if(me.eq.0) then
       open(unit=lfn,file=fil(1:index(fil,' ')-1),
@@ -2354,8 +2366,8 @@ c
       read(lfn,1000,end=9997) string
  1000 format(a13)
       if(string.ne.'restart space') goto 1
-      read(lfn,1001) npp,mbblx,npxp,npyp,npzp,nbxp,nbyp,nbzp
- 1001 format(8i7)
+      read(lfn,1001) npp,mbblx,npxp,npyp,npzp,nbxp,nbyp,nbzp,nbxs
+ 1001 format(9i7)
       if(mbblp.lt.mbblx) npp=0
       if(npxp.ne.npx) npp=0
       if(npyp.ne.npy) npp=0
@@ -2363,6 +2375,12 @@ c
       if(nbxp.ne.nbx) npp=0
       if(nbyp.ne.nby) npp=0
       if(nbzp.ne.nbz) npp=0
+      if(nbxs.gt.0) then
+      read(lfn,1002) (boxsiz(i,1),i=1,nbxp)
+      read(lfn,1002) (boxsiz(i,2),i=1,nbyp)
+      read(lfn,1002) (boxsiz(i,3),i=1,nbzp)
+ 1002 format(4e20.12)
+      endif
  9997 continue
       do 2 i=1,mbb2
       ltemp(1,i)=0
@@ -2374,18 +2392,21 @@ c
 c
       if(np.ne.npp) goto 9998
 c
+      nbytes=ma_sizeof(mt_dbl,3*maxbox,mt_byte)
+      call ga_brdcst(msp_10,boxsiz,nbytes,0)
+c
       nbytes=mdim*mbb2*ma_sizeof(mt_int,1,mt_byte)
 c
       do 3 i=1,np
 c
       if(me.eq.0) then
-      read(lfn,1002) node,nbl
- 1002 format(2i7)
+      read(lfn,1003) node,nbl
+ 1003 format(2i7)
       ltemp(1,1)=node
       ltemp(1,2)=nbl
       do 4 j=1,nbl
-      read(lfn,1003) (ltemp(j+1,k),k=1,mbb2)
- 1003 format(8i10)
+      read(lfn,1004) (ltemp(j+1,k),k=1,mbb2)
+ 1004 format(8i10)
     4 continue
       endif
 c
@@ -2402,11 +2423,13 @@ c
 c
     3 continue
 c
+      if(me.eq.0) write(*,8000)
+ 8000 format(/,' Read previous box pair list',/)
       sp_rrest=.true.
       return
  9998 continue
-      if(me.eq.0) write(*,8000)
- 8000 format(/,' Unable to pickup previous box pair list',/)
+      if(me.eq.0) write(*,8001)
+ 8001 format(/,' Unable to read previous box pair list',/)
       sp_rrest=.false.
       return
  9999 continue

@@ -1,5 +1,5 @@
 c
-c $Id: sp_common.fh,v 1.25 2000-10-25 17:29:44 d3j191 Exp $
+c $Id: sp_common.fh,v 1.26 2000-11-07 01:06:13 d3j191 Exp $
 c
 c     conversion factors
 c
@@ -85,6 +85,7 @@ c
       real*8 bxmin,bymin,bzmin,tsyncp,factld,third
       integer npbtyp,nbxtyp,neighb(27,2),loadb,lbpair,npprev,ntwin,nldup
       integer nbbdif,ipairf,ipairt,iguide,idebug,npack,npackw,isload
+      integer ireset
       integer misl(mis2),nbits(mis2),ipack(mis2)
       integer miwl(miw2),nbitw(miw2),ipackw(miw2)
       integer lfnsyn,nfsync,lfndbg,nhist,mbbreq
@@ -93,7 +94,7 @@ c
      + bxmin,bymin,bzmin,tsyncp,factld,third,
      + npbtyp,nbxtyp,neighb,loadb,lbpair,npprev,ntwin,nldup,nbbdif,
      + lfnsyn,nfsync,ipairf,ipairt,iguide,idebug,npack,npackw,lfndbg,
-     + misl,nbits,ipack,miwl,nbitw,ipackw,nhist,mbbreq,isload,
+     + misl,nbits,ipack,miwl,nbitw,ipackw,nhist,mbbreq,isload,ireset,
      + lpbc0,lpbc9,ltwin,lpola,lfree,llong,lnode0,lqmd,lpipo
 c
       integer mxhist
