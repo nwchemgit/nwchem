@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.34 2003-02-17 21:18:59 bylaska Exp $
+* $Id: paw_sd.F,v 1.35 2003-02-17 22:14:40 marat Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -224,8 +224,6 @@
       call init_paw_pot_hartree()
       call init_paw_pot_comp()
       call paw_mult_init()
-      call init_paw_density(0)
-      call init_paw_xc(0)
 
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
@@ -285,6 +283,8 @@
       !**** intialize overlap coefficient data structure ***
       call phafac()
       call paw_ovlp_init(ispin,ne)
+      call init_paw_density(0)
+      call init_paw_xc(ispin,0)
       call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
       call paw_ovlp_weights_set()
       call paw_comp_charge_update()
