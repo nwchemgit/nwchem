@@ -1,8 +1,26 @@
-
-Guide to Installing NWChem  
 ====================================================
-$Id: INSTALL,v 1.22 2000-05-23 21:16:19 windus Exp $
+$Id: INSTALL,v 1.23 2000-11-07 22:54:00 windus Exp $
 ----------------------------------------------------
+
+GUIDE TO INSTALLING NWChem
+---------------------------
+
+This Guide gives general directions for compiling and installing
+NWChem.  Please read through all sections pertaining to your
+installation before beginning.  The sections for this guide are
+
+   Soure Code Protection       -  required reading for everyone
+   Basic Build Instructions    -  required reading for everyone   
+   Alternative One-Time Build  -  only for one-time build, NOT
+                                  recommended for site installations
+   General Site Installation   -  tips to make NWChem useful for
+                                  many users
+   Building with MPI           -  alternative to the default TCGMSG build
+   Building with Python        -  tips for including Python in your build
+   Optimization Tips           -  how to compile NWChem to get better 
+                                  performance
+   Point of Contact Users      -  required reading for the site's point of
+                                  contact (usually the one doing the build)
 
 SOURCE CODE PROTECTION:
 ----------------------
@@ -14,14 +32,18 @@ lives):
 
 find . -exec chmod go-rwx "{}" ";"
 
-See the instructions below after you have built the code for
-installing the binaries and data files in a public place.
+See the General Site Installation instructions below after you have built 
+the code for installing the binaries and data files in a public place.
 
 
-BUILDING NWCHEM:
----------------
+BASIC BUILD INSTRUCTIONS:
+-------------------------
+
   DO THESE STEPS IN ORDER OR THE BUILD WILL FAIL
                                        ----
+Note: For general installations, it is often useful to add the
+environment variables described below to your shell script 
+(eg. your .cshrc file).
 
 
 1) You must use GNU make with a version of at least 3.71. You can
@@ -29,20 +51,45 @@ BUILDING NWCHEM:
    not matter what make is called (.i.e., gmake, gnumake, etc., are
    all OK).
 
-2) Set the environment variable, NWCHEM_TOP, to the top directory 
+2) You can set a few OPTIONAL environment variables or let NWChem
+   pick "reasonable" defaults:
+
+   SCRATCH_DEF_DIR              default scratch directory for 
+                                temporary files
+    ex. setenv SCRATCH_DEF_DIR "\'/scratch\'"
+    ex. setenv DFLT_TOT_MEM 44564480
+
+   NWCHEM_BASIS_LIBRARY_PATH    location of the basis set library (the
+                                builder is responsible to make sure that
+                                the library gets to the place)
+    ex. setenv NWCHEM_BASIS_LIBRARY_PATH "/u/nwchem/bin/library"
+
+   LARGE_FILES                  needed to get passed the 2 GB limit on IBM
+    ex. setenv LARGE_FILES TRUE
+
+   JOBTIME_PATH                 directory where jobtime and jobtime.pl will
+                                be placed by the builder on IBM SP
+    ex. setenv JOBTIME_PATH /u/nwchem/bin
+
+   LIB_DEFINES                  additional defines for the C preprocessor
+                                (for both Fortran and C)
+    ex. setenv LIB_DEFINES -DDFLT_TOT_MEM=16777216
+       This sets the dynamic memory available for NWChem to run,
+       where the units are in doubles.
+
+3) Set the environment variable, NWCHEM_TOP, to the top directory 
    of the NWChem tree (where *this* file lives), e.g.
 
        % setenv NWCHEM_TOP /home/adrian/nwchem
 
    All the following directions assume that the current working
-   directory is $NWCHEM_TOP/src.
-   so issue the command "cd $NWCHEM_TOP/src"
+   directory is $NWCHEM_TOP/src so issue the command 
+   "cd $NWCHEM_TOP/src"
 
-3)  The currently supported platforms are:
+4)  The currently supported platforms are:
 
     Symb.Name  Platform       Checked    OS/Version    Precision 
     -------------------------------------------------------------
-    SUN         Sun                      SunOS          double
     SOLARIS     Sun             ***      Solaris 2.X    double
     IBM         IBM RS/6000     ***      AIX 3.X 4.X    double
     DECOSF      DEC AXP         ***      Dig.Unix 4.0   double
@@ -52,10 +99,7 @@ BUILDING NWCHEM:
     SGITFP      SGI 64 bit os    *       IRIX           double
     CRAY-T3D    Cray T3D                 UNICOS         single
     CRAY-T3E    Cray T3E        ***      UNICOS         single
-    PARAGON     Intel Paragon            OSF/1          double
-    DELTA       Intel Delta              NX             double
     LAPI        IBM SP          ***      AIX/LAPI       double
-    SP          IBM SP          ***      AIX/MPL        double
     LINUX       IBM PC          ***      Slackware 4.0  double
                 IBM PC          ***      RedHat 5.2/6.0 double
                 PowerPC         ***      RedHat 6.0     double
@@ -71,41 +115,42 @@ BUILDING NWCHEM:
 
        % setenv NWCHEM_TARGET LAPI
 
-   Some systems also require that you set NWCHEM_TARGET_CPU
+   Some systems also allow you to set NWCHEM_TARGET_CPU
     Symb.Name      CPU type     NWCHEM_TARGET_CPU 
     ----------------------------------------------------------
     SGITFP         R8000           R8000
                    R10000          R10000
+                   R12000          R12000
     SGI_N32        R8000           R8000
                    R10000          R10000
+                   R12000          R12000
     LAPI* OR SP    Power 2         DO __NOT__ set NWCHEM_TARGET_CPU
                    Power 2 super   P2SC
                    604e chip       604
     LINUX          Intel Pentium   DO __NOT__ set NWCHEM_TARGET_CPU
                    Power Mac       POWERPC
-                   Alpha           ALPHA  (Build is currently broke)
+                   Alpha           ALPHA 
     LINUX using the Portland Group Compiler, pgf77, is available.  Simply
           set your environment as above and use "make FC=pgf77" and the 
           makefile system will take care of changing options/flags etc.  
-          We have tested with pgf77 Version 1.7 and have found that our
-          automatic z-matrix code hangs but other functionality works. 
-          This has not been robustly tested.
 
-4) Configure to build the modules you need.  As a first shot build
+5) Configure to build the modules you need.  As a first shot build
    everything, and if you start running out of memory you can exclude
    modules.  Choose one or more from
 
         Name        Description
         ---------------------------------------------------------
-        pnnl        Everything useful including NBO and python
+        pnnl        Everything useful including python
         all         Everything useful
         qm          All quantum mechanics modules
-	argos       MD only build 
+	md          MD only build 
         - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
           If you are familiar with building NWChem you 
           can be more selective with the modules you 
           really need.  If you are a novice at this then
-          use only one of the three above!
+          use only one of the three above!  Note that not
+          all of the possible builds have been tested 
+          using individual modules.
         - - - - - - - - - - - - - - - - - - - - - - - - -
 	ddscf       RHF and UHF SCF energies
         nwdft       DFT energies
@@ -119,6 +164,7 @@ BUILDING NWCHEM:
         property    Properties analysis
         pspw        Build the plane wave pseudo-potential code
         python      Build python interface to NWChem
+        gapss       Build the periodic DFT code
         ---------------------------------------------------------
 
     To configure to build everything use the command
@@ -131,36 +177,37 @@ BUILDING NWCHEM:
        % make nwchem_config
 
     Combinations of these tags are allowed.  For example,
-       % setenv NWCHEM_MODULES "all pspw python" 
+       % setenv NWCHEM_MODULES "all gapss python" 
     will build the union of these three modules identifiers.  
 
-5) Run the precision conversion according to the Precision column
-   above for your target. This is necessary only on machines where 64
-   bit is single precision in order to match BLAS routine names to
-   vendor-supplied libraries (or if converting back from such source
-   into the standard of 64 bit is double precision).
+6) Run the precision conversion according to the Precision column
+   in instruction 4 for your target. This is necessary only on machines 
+   where 64 bit is single precision in order to match BLAS routine 
+   names to vendor-supplied libraries (or if converting back from such 
+   source into the standard of 64 bit is double precision).
 
    For 64 bit single precision source
 
        % cd $NWCHEM_TOP/src
        % make dbl_to_sngl
 
-6) Finally, compile and link:
+7) Finally, compile and link:
 
        % make >& make.log
 
    This should install the executables and libraries into
    platform-specific subdirectories in the directory tree. For
-   example, if the target platform equals SP1 then the following
+   example, if the target platform equals LAPI then the following
    subdirectories are created:
 
-	$NWCHEM_TOP/bin/SP          (executables)
-        $NWCHEM_TOP/lib/SP          (libraries)
+	$NWCHEM_TOP/bin/LAPI          (executables)
+        $NWCHEM_TOP/lib/LAPI          (libraries)
 
-7) If you will be installing NWChem for general site use please also
+8) If you will be installing NWChem for general site use please also
    build the version info to help us determine exactly which version
    and patched version of NWChem you are using.  To do this you do the
    following: 
+
    cd $NWCHEM_TOP/src/util
    make version
    make
@@ -170,6 +217,7 @@ BUILDING NWCHEM:
    Note: Some compilers cannot build the full version file due to a
    lack of memory available to the compiler.  If the make in
    $NWCHEM_TOP/src/util fails try instead: 
+
    cd $NWCHEM_TOP/src/util
    make smallversion
    make
@@ -177,9 +225,9 @@ BUILDING NWCHEM:
    make link
 
 
-ALTERNATIVE BUILD MODE:
-----------------
-   An alternative to steps 2 thru 6 is to specify all variables
+ALTERNATIVE ONE-TIME BUILD:
+---------------------------
+   An alternative to steps 3 thru 7 is to specify all variables
    on the make command line.  This is recommended only for one
    time builds.  For instance, to build just the quantum mechanical
    codes on an IBM workstation
@@ -191,21 +239,9 @@ ALTERNATIVE BUILD MODE:
      make NWCHEM_TOP=/home/nwchem NWCHEM_MODULES=qm nwchem_config
      make NWCHEM_TOP=/home/nwchem NWCHEM_TARGET=IBM 
 
-POINT OF CONTACT USERS:
-----------------------
-   If you are the NWChem point-of-contact for a given site please
-build and use the java tool in $NWCHEM_TOP/contrib/javasupport.  The
-java class files and images are already built and available at the
-binary down load site.  If you have access to the source code you also
-have access to the binary down load site.  You need java 1.1.1 or
-higher to use the tool.  This form formats information and allows the
-attachment of input and output files via a simple browsing mechanism.
-Use of this tool will greatly facilitate any support you may need for
-using NWChem.
 
-
-INSTALLING NWCHEM FOR GENERAL SITE USE: 
---------------------------------------
+GENERAL SITE INSTALLATION: 
+--------------------------
    The build procedures outlined above will allow use of NWChem within
 the NWChem directory structure.  The code will look for the basis set
 library file in a default place within that directory structure.  To
@@ -221,14 +257,22 @@ B) make directories
    mkdir /usr/local/NWChem/data
 
 C) cp $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem /usr/local/NWChem/bin
-   cp $NWCHEM_TOP/bin/$NWCHEM_TARGET/parallel /usr/local/NWChem/bin 
+*  cp $NWCHEM_TOP/bin/$NWCHEM_TARGET/parallel /usr/local/NWChem/bin 
    cd /usr/local/NWChem/bin
    chmod 755 nwchem 
    chmod 755 parallel
-   Note: parallel does not exist for all builds.  To learn how to use
-         parallel consult the on-line documentation at:
-         http://www.emsl.pnl.gov/pub/docs/nwchem/doc/user/index.html
-	 or read the README files in $NWCHEM_TOP/src/tcgmsg    
+   *Note: parallel does not exist for all builds.  To learn how to use
+          parallel consult the on-line documentation at:
+          http://www.emsl.pnl.gov/pub/docs/nwchem/doc/user/index.html
+          or read the README files in $NWCHEM_TOP/src/tcgmsg    
+   For SPs:
+** cp $NWCHEM_TOP/bin/$NWCHEM_TARGET/jobtime usr/local/NWChem/bin
+   cp $NWCHEM_TOP/bin/$NWCHEM_TARGET/jobtime.pl usr/local/NWChem/bin
+   **Note: These scripts use perl to get information from LoadLeveller
+           to get time information.  jobtime may need to be modified
+           to find perl on your system.  If you can't get these to 
+           work, timing information will not be available for your
+           system.  However, jobs will still run.
 
 D) cp $NWCHEM_TOP/src/basis/library /usr/local/NWChem/data
    cd $NWCHEM_TOP/src/nwadata
@@ -254,13 +298,143 @@ F) Contents of the default.nwchemrc file based on the above
    link described above and change these defaults at their discretion.
 
 
-NOTE TO MPI USERS:
------------------
+BUILDING WITH MPI:
+------------------
 
    NWChem can be compiled to use MPI instead of TCGMSG for message
-   passing on many systems. Although this is still somewhat
-   experimental and not particularly tested it can be done.  Please
-   contact nwchem-support@emsl.pnl.gov to get assistance with this
-   procedure.  
+   passing on many systems.  Several environment variables need to be
+   set to compile with NWChem.  These are:
 
+     USE_MPI       -  set to "y" if you want to compile with MPI
+     LIBMPI        -  name of the library with -l (eg. -lmpich)
+     MPI_LIB       -  directory where the MPI library resides
+     MPI_INCLUDE   -  directory where the MPI include files reside
+
+   Below are some implementation specific settings:
+
+     MPICH
+        setenv MPI_LOC /usr/local #location of mpich
+        setenv MPI_LIB $MPI_LOC/lib
+        setenv MPI_INCLUDE $MPI_LOC/include
+        setenv LIBMPI -lmpich
+     MPIPro: 
+        setenv LIBMPI "-lmpipro -lpthread"
+     LAM 
+        setenv MPI_LIB $LAMHOME/lib
+        setenv LIBMPI "-lmpi -ltstdio -ltrillium -largs -lt"
+        setenv MPI_INCLUDE $LAMHOME/include/
+     MPICH/GM
+      same as for MPICH, plus
+        setenv GM_HOME /usr/local/gm-1.2/binary #location of GM software
+        setenv GM_INCLUDE $GM_HOME/include
+        setenv GM_LIB $GM_HOME/lib
+        setenv ARMCI_NETWORK GM
+        setenv GMPI_SHMEM_FILE /tmp/$USER.gm
+     QSW (SC Alpha series)
+        setenv LIBMPI "-lmpi -lelan"
+        setenv ARMCI_NETWORK QUADRICS
+        setenv LIBELAN_ALLOC_SIZE 530579456 # 506 mb 
+        setenv LIBELAN_TPORT_BIGMSG 1024
+        setenv LIBELAN_WAITTYPE 200 
+     HPUX
+        setenv MPI_INCLUDE /opt/mpi/include
+        setenv LIBMPI -lmpi
+        setenv MPI_LIB /opt/mpi/lib/pa20_64/
+     HPUX64
+        setenv MPI_INCLUDE /opt/mpi/include
+        setenv MPI_LIB /opt/mpi/lib/pa1.1/
+        setenv LIBMPI -lmpi
+     SGI_N32
+        setenv LIBMPI -lmpi
+
+   To run with MPI, "parallel" should not be used.  The way 
+   we usually run nwchem under MPI are the following:
+     1) using mpirun:
+
+     mpirun -np 8 $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem h2o.nw
+
+     2) If you have all nodes connected via shared memory 
+     and you have installed the ch_shmem version of MPICH, 
+     you can do
+
+     $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem -np 8 h2o.nw
+
+
+BUILDING WITH PYTHON:
+---------------------
+
+   Python programs may be embedded into the NWChem input and 
+   used to control the execution of NWChem.  The following are
+   the instructions for building NWChem with the Python interface
+   and for running jobs which include Python.
+
+   1)  To build with Python, you first need to have Python 
+       available on your machine.  If you don't have it, you can 
+       download it at http://www.python.org, following their
+       instructions for installation and testing.  We have tested 
+       NWChem with Python versions 1.5.1, 1.5.2, 1.6 and 2.0.
+
+   2)  Make sure that "python" is part of the definition of 
+       NWCHEM_MODULES before starting the build.  For example,
+
+       % setenv NWCHEM_MODULES "all python" 
+
+   3)  Set the environment variables PYTHONHOME and PYTHONVERSION.
+       For example,
+ 
+       % setenv PYTHONHOME /usr/local/Python-1.5.1
+       % setenv PYTHONVERSION 1.5
+
+   4)  Proceed with the rest of the build as described in the
+       Basic Build Instructions.
+
+   To run with Python, make sure that PYTHONHOME is set as 
+   mentioned above.  You will also need to set PYTHONPATH to
+   include any modules that you are using in your input.  Then,
+   run NWChem as usual.  Examples of Python within NWChem are
+   in the $NWCHEM_TOP/QA/tests/pyqa and $NWCHEM_TOP/contrib/python
+   directories.
+
+
+OPTIMIZATION TIPS:
+------------------ 
+
+   The basic build tries to optimize NWChem for most systems and
+   most operating systems.  Therefore, possible optimizations have
+   been excluded.  IF you want to further optimize NWChem, first be
+   warned that we will NOT be able to provide support for this
+   activity.  Also, if you have problems with your optimized code,
+   we will not be able to support you since we, in general, cannot
+   reproduce your environment.  That being said, here are some tips
+   for optimizing the code.
+
+   In general, NWChem uses its own basic linear algebra subroutines
+   (BLAS).  These are generally not as fast as vendor supplied BLAS
+   or other fast BLAS libraries.  For instance, we have found the
+   Automatically Tuned Linear Algebra Software (ATLAS) to be faster
+   on several platforms (http://www.netlib.org/atlas/).  To include
+   faster BLAS routines, set the environment variable BLASOPT before
+   building the code.  For example, with ATLAS
+
+   % setenv BLASOPT "-L/usr/local/ATLAS -lf77blas -latlas"
+
+   If you are interested in "tweaking" compile options, the 
+   appropriate place to do this is the $NWCHEM_TOP/config/makefile.h
+   file.  First find the appropriate section for your $NWCHEM_TARGET
+   and then edit the appropriate options.  Again, please note that
+   changes to the makefile are NOT supported and you are on your own
+   in this endeavor!
+
+
+POINT OF CONTACT USERS: 
+---------------------- 
+If you are the NWChem point-of-contact for a given site please build 
+and use the java tool in $NWCHEM_TOP/contrib/javasupport.  The
+java class files and images are already built and available at the
+binary down load site.  If you have access to the source code you also
+have access to the binary down load site.  You need java 1.1.1 or
+higher to use the tool.  This form formats information and allows the
+attachment of input and output files via a simple browsing mechanism.
+Use of this tool will greatly facilitate any support you may need for
+using NWChem.
 
