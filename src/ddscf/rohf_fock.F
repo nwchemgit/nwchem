@@ -3,7 +3,7 @@
      $     eone, etwo, g_fcv, g_fpv,
      $     g_fcp, oskel, iter)
 *
-* $Id: rohf_fock.F,v 1.18 2003-01-27 23:17:09 edo Exp $
+* $Id: rohf_fock.F,v 1.19 2003-01-30 01:16:57 bert Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -12,6 +12,7 @@
 #include "bas.fh"
 #include "util.fh"
 #include "cscfps.fh"
+#include "cosmo.fh"
 c     
 c     Build fock matrices and energies for ROHF wavefunction
 c     
@@ -52,8 +53,6 @@ c
       integer g_cos1e
       dimension g_cos1e(3)
       double precision ecosmo
-      logical ocosmo
-      logical odbug
       logical osome
 c
       integer itype_wfn
@@ -121,45 +120,6 @@ c
          endif
       endif
 c
-c     ----- cosmo charges and energy contribution -----
-c
-      odbug=.false.
-      odbug=odbug.and.ga_nodeid().eq.0
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-         if(odbug) then
-            write(6,*) '-cosmo- ... found in rohf_fock',
-     $                 ocosmo,ga_nodeid()
-            call util_flush(6)
-         endif
-         if(ocosmo) then
-            if(odbug) then
-               osome=.true.
-            else
-               osome=.false.
-            endif
-            osome=osome.and.ga_nodeid().eq.0
-c
-            itype_wfn=1
-            call cosmo_charges(rtdb,basis,geom,ecosmo,iter,osome,
-     $                         itype_wfn,g_vecs)
-c
-            osome=.false.
-         else
-            if(odbug) then
-               write(6,*) '-cosmo- ... found but .false.',
-     $                    ga_nodeid()
-               call util_flush(6)
-            endif
-         endif
-      else
-         if(odbug) then
-            write(6,*) '-cosmo- not found in rohf_fock',
-     $                 ga_nodeid()
-            call util_flush(6)
-         endif
-      endif
-      call ga_sync()
-c
 c     One-electron integrals and energies
 c     
       call ga_zero(g_hcore)
@@ -167,49 +127,16 @@ c
       call int_1e_ga(basis, basis, g_hcore, 'potential', oskel)
       if (util_print('rohf_fock',print_debug)) call ga_print(g_hcore)
 c
-c     ----- cosmo potential -----
+c     ----- cosmo charges, potential and energy contribution -----
 c
-      odbug=.false.
-      odbug=odbug.and.ga_nodeid().eq.0
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-         if(ocosmo) then
-c
-            if(odbug) then
-               osome=.true.
-            else
-               osome=.false.
-            endif
-            osome=osome.and.ga_nodeid().eq.0
-c
-            g_cos1e(1)  = ga_create_atom_blocked(geom, basis,
-     $                                       'rohf_fock:cos1e')
-            if(osome) then
-               write(6,*) 'rohf_fock ... g-cos1e'
-               if(odbug) then
-                  call ga_zero(g_cos1e(1))
-                  call int_1e_ga(basis,basis,g_cos1e(1),'cos_chg_pot',
-     $                                                        .false.)
-                  call ga_print(g_cos1e(1))
-               endif
-               call util_flush(6)
-            endif
-c
-            if(odbug) then
-               call ga_print(g_hcore)
-               call util_flush(6)
-            endif
-c
-            call int_1e_ga(basis,basis,g_hcore   ,'cos_chg_pot',
+      osome=.false.
+      osome=osome.and.ga_nodeid().eq.0
+      if(cosmo_on.and.cosmo_phase.eq.2) then
+        itype_wfn=1
+        call cosmo_charges(rtdb,basis,geom,ecosmo,iter,osome,
+     $                     itype_wfn,g_vecs)
+        call int_1e_ga(basis,basis,g_hcore   ,'cos_chg_pot',
      $                                                  .false.)
-c
-            if(odbug) then
-               call ga_print(g_hcore)
-               call util_flush(6)
-            endif
-c
-            if (.not. ga_destroy(g_cos1e)) call errquit
-     $         ('rohf_fock: ga_destroy cos1e', 0)
-         endif
       endif
       call ga_sync()
 c

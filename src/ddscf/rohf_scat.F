@@ -78,8 +78,6 @@ c
 c
       integer g_cos1e
       dimension g_cos1e(3)
-      double precision ecosmo
-      logical ocosmo
       logical odbug
       logical osome
 c

@@ -19,6 +19,7 @@ c
 #include "sym.fh"
 #include "util.fh"
 #include "cscf.fh"
+#include "cosmo.fh"
 c !!! BGJ
 #include "bgj.fh"
 c !!! BGJ
@@ -30,8 +31,7 @@ c
       integer len_occ
       external cscfdata ! For T3D linker
 c
-      logical ocosmo
-      logical odbug
+      logical osome
 c
       logical hf_job
       character*30 tag
@@ -205,37 +205,7 @@ c
       if (.not.rtdb_get(rtdb, 'scf:diis',MT_LOG, 1, odiis))
      $   odiis = .false.
 c
-c   check COSMO solvent ... if .true. then force diis
-c
-      odbug=.false.
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-         if(odbug) then
-            write(*,*) '-cosmo- ... found in scf_init ... ',
-     $                 ocosmo,ga_nodeid()
-         endif
-         if(ocosmo) then
-c           odiis=.true.
-c           if(.not. rtdb_put(rtdb,'scf:diis', MT_LOG, 1, odiis))
-c    $         call errquit('scf_init: rtdb_put of diis failed',0)
-c           if (.not.rtdb_get(rtdb,'scf:diis', MT_LOG, 1, odiis))
-c    $          odiis = .false.
-c           if(odbug) then
-c              write(*,*) 'force -diis- because of cosmo',
-c    $                    ga_nodeid()
-c           endif
-         else
-            if(odbug) then
-               write(*,*) '-cosmo- ... found but .false. ',
-     $                    ocosmo,ga_nodeid()
-            endif
-         endif
-      else
-         if(odbug) then
-            write(*,*) '-cosmo- not found in scf_init ... '
-         endif
-      endif
       call ga_sync()
-
 c
 c     For now set NMO = NBF, however this may change later when the 
 c     linear dependency analysis is done just before the starting guess
@@ -296,11 +266,29 @@ c
       call scf_get_conv_info(rtdb)
       call scf_get_fock_param(rtdb, tol2e)
 c
+c     ----- cosmo initialization ----
+c
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
+         if(cosmo_on) then
+            osome = util_print('information', print_low)
+            if (scftype .eq. 'UHF') then
+               write(6,*) 'COSMO cannot be used with UHF !!'
+               call errquit('cannot use COSMO and UHF', 911)
+            endif
+            call cosmo_initialize(rtdb,geom,basis,osome)
+c
+c           Turn cosmo on, we want to run the calculation
+c           Start with gas_phase run
+c
+            cosmo_on = .true.
+            cosmo_phase = 1
+         endif
+      endif
       oinitialized = .true.
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.53 2002-12-03 17:16:48 d3k958 Exp $
+C$Id: scf_get_info.F,v 1.54 2003-01-30 01:16:57 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -495,6 +483,7 @@ c
 #include "bas.fh"
 #include "cfock.fh"
 #include "rtdb.fh"
+#include "cosmo.fh"
       integer rtdb
 c
       logical status
@@ -519,6 +508,15 @@ c
       endif
 c
       call fock_2e_tidy(rtdb)
+c
+c     ----- cosmo cleanup and reset -----
+c
+      if(cosmo_on) then
+        call cosmo_tidy()
+        cosmo_on = .false.
+        cosmo_phase = 1
+      endif
+      oinitialized = .true.
 c
       end
       subroutine fock_2e_tidy(rtdb)

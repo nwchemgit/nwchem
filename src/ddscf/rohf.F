@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.41 2001-04-17 00:50:16 edo Exp $
+C$Id: rohf.F,v 1.42 2003-01-30 01:16:57 bert Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -24,6 +24,7 @@ c     local variables
 c
       logical oprint, oprint_sym
       logical converged
+      logical odbug
       integer nprint
       double precision eone     ! One electron energy
       double precision etwo     ! Two electron energy
@@ -41,48 +42,11 @@ c
       external ga_create_atom_blocked, rohf_nr_solve
       external rohf_diis_solve
 c
-c     cosmo flag
-c
-      logical odbug
-      logical ocosmo
-      logical osome
-c
       oprint = util_print('information',print_low)
 c
 c     Initialize the ROHF data structures and allocate memory
 c
       call rohf_init(rtdb)
-c
-c     ----- cosmo cavity -----
-c
-      odbug=.false.
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-         if(odbug) then
-            write(luout,*) '-cosmo- ... found in -rohf-',
-     $                     ocosmo,ga_nodeid()
-         endif
-         if(ocosmo) then
-            if(odbug) then
-               osome=.true.
-            else
-               osome=.false.
-            endif
-            call cosmo_initialize(rtdb,osome)
-            if(odbug) then
-               write(luout,*) 'done with cosmo_initialize',
-     $                        ga_nodeid()
-            endif
-         else
-            if(odbug) then
-               write(luout,*) '-cosmo- ... found but .false.',
-     $                        ocosmo,ga_nodeid()
-            endif
-         endif
-      else
-         if(odbug) then
-            write(luout,*) '-cosmo- not found in -rohf-'
-         endif
-      endif
 c
       call ga_sync()
 c

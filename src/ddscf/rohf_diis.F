@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.17 2000-06-28 22:01:55 mdupuis Exp $
+C     $Id: rohf_diis.F,v 1.18 2003-01-30 01:16:57 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -10,6 +10,7 @@ C     $Id: rohf_diis.F,v 1.17 2000-06-28 22:01:55 mdupuis Exp $
 #include "cscfps.fh"
 #include "util.fh"
 #include "cscf.fh"
+#include "cosmo.fh"
 c     
 c     Solve the ROHF equations using DIIS
 c     
@@ -51,18 +52,13 @@ c
 c     cosmo code
 c
       logical odbug
-      logical ocosmo
       logical osome
       double precision ecosmo
 c
-      logical ogas_phase
-      logical osol_phase
       double precision egas
       double precision esol
 c
       integer itype_wfn
-      integer   g_movecs_dum
-      dimension g_movecs_dum(2)
 c     
       vlen = crohf_vlen
       aoff = nclosed + 1
@@ -134,43 +130,6 @@ c
       call ga_zero(g_over)
       call int_1e_ga( basis, basis, g_over, 'overlap', .false. )
       call rohf_ao_orthonorm( nbf, g_over, g_xorth )
-c
-c     ----- check cosmo ... if cosmo ... -----
-c           pass 1 ... gas_phase
-c           pass 2 ... sol_phase
-c
-      odbug=.false.
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-         if(odbug) then
-            write(6,*) '-cosmo- ... found in rohf_diis_solve',
-     $                 ocosmo,ga_nodeid()
-         endif
-c
-         if(ocosmo) then
-            ogas_phase=.true.
-            osol_phase=.true.
-            if(odbug) then
-               write(6,*) '-cosmo- ... found , do gas & sol',
-     $                    ocosmo,ga_nodeid()
-            endif
-            if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
-     $         call errquit('rohf_diis_solve: rtdb_put failed',0)
-         else
-            ogas_phase=.true.
-            osol_phase=.false.
-            if(odbug) then
-               write(6,*) '-cosmo- ... found , do gas only',
-     $                    ocosmo,ga_nodeid()
-            endif
-         endif
-      else
-         if(odbug) then
-            write(6,*) '-cosmo- not found in rohf_diis_solve'
-         endif
-         ogas_phase=.true.
-         osol_phase=.false.
-      endif
-      call util_flush(6)
       call ga_sync()
 c
  1000 continue
@@ -181,43 +140,6 @@ c
       ndiis = 0
       call ga_zero(g_err)
       do iter=1,maxiter
-c
-c     ----- cosmo charges and energy contribution -----
-c
-        odbug=.false.
-        if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-           if(odbug) then
-              write(6,*) '-cosmo- ... found in rohf_diis_solve',
-     $                   ocosmo,ga_nodeid()
-              call util_flush(6)
-           endif
-           if(ocosmo) then
-              if(odbug) then
-                 osome=.true.
-              else
-                 osome=.false.
-              endif
-              osome=osome.and.ga_nodeid().eq.0
-c
-              itype_wfn=1
-              call cosmo_charges(rtdb,basis,geom,ecosmo,iter,osome,
-     $                           itype_wfn,g_movecs_dum)
-c
-              osome=.false.
-           else
-              if(odbug) then
-                 write(6,*) '-cosmo- ... found but .false.',      
-     $                      ga_nodeid()
-              endif
-           endif
-        else
-           if(odbug) then
-              write(6,*) '-cosmo- not found in rohf_diis_solve',
-     $                   ga_nodeid()
-           endif
-        endif
-        call ga_sync()
-c
         call rohf_energy( g_movecs, eone, etwo, enrep, energy, g_grad,
      $                    rtdb)
 c
@@ -252,18 +174,14 @@ c
 c   Print energy
 c
         if(iter.eq.1) then
-           if(ogas_phase.and.osol_phase) then
-              if(ga_nodeid().eq.0) then
-                 write(6,909)
-              endif
-           elseif(.not.ogas_phase.and..not.osol_phase) then
-              if(ga_nodeid().eq.0) then
-                 write(6,910)
-              endif
+           if(cosmo_on.and.cosmo_phase.eq.1) then
+              if(ga_nodeid().eq.0) write(6,909)
+           else
+              if(ga_nodeid().eq.0) write(6,910)
            endif
         endif
- 909    format(2x,'   gas_phase')
- 910    format(2x,'   sol_phase')
+ 909    format(2x,'   COSMO gas phase')
+ 910    format(2x,'   COSMO solvation phase')
 c
         if(ga_nodeid().eq.0) then
            write(6,911) iter, ndiis, energy, gnorm, diis_emax
@@ -301,26 +219,26 @@ c
 c     ----- if sol_phase=.T. go back and do solution phase -----
 c
       odbug=.false.
-      if(ogas_phase.and.osol_phase) then
+      if(cosmo_on.and.cosmo_phase.eq.1) then
          converged =.false.
          egas      =energy
-         ogas_phase=.false.
-         osol_phase=.false.
-         if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.true.))
-     $       call errquit('rohf_diis_solve: rtdb_put failed',0)
+         cosmo_phase = 2
          if(odbug) then
             write(6,*) 'gas_phase done, do sol-phase now ...'
          endif
          call ga_sync()
          go to 1000
-      elseif(.not.ogas_phase.and..not.osol_phase) then
+      elseif(cosmo_on.and.cosmo_phase.eq.2) then
          esol      =energy
          if(ga_nodeid().eq.0) then
+            write(6,*) '                 COSMO solvation results'
+            write(6,*) '                 -----------------------'
+            write(6,*) ''
             write(6,912) egas
             write(6,913) esol
             write(6,914) (egas-esol),(egas-esol)*627.509451d+00
- 912     format('                 gas_phase energy = ',f20.10)
- 913     format('                 sol_phase energy = ',f20.10)
+ 912     format('                 gas phase energy = ',f20.10)
+ 913     format('                 sol phase energy = ',f20.10)
  914     format(' (electrostatic) solvation energy = ',f20.10,
      $          ' (',f8.2,' kcal/mol)'                       )
          endif

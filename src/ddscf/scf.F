@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.65 2002-11-16 06:28:46 sohirata Exp $
+C$Id: scf.F,v 1.66 2003-01-30 01:16:57 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -33,7 +33,6 @@ c
       external int_normalize
       logical cphf_poliz, do_poliz
       external cphf_poliz
-      logical ocosmo
       integer necp
 c
 c     Make sure database is parallel, 
@@ -56,14 +55,6 @@ c     Store SCF hamiltonian type as HF for use in BGJ routines
      $     call errquit('scf: put of bgj:scf_type failed',0)
 c !!! BGJ
       call scf_init(rtdb)
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-         if(ocosmo.and.bas_is_spherical(basis)) call errquit(
-     .        ' cosmo does not handle spherical basis yet',0)
-         if(.not.geom_ncent_ecp(geom, necp)) call errquit(
-     .        'scf: failed call to geom_ncent_ecp',0)
-         if(ocosmo.and.necp.gt.0) call errquit(
-     .        ' cosmo does not support ECPs yet',0)
-      endif
 c
 c     Initialize performance statistics
 c

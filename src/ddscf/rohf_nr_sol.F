@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.28 2000-11-28 20:39:11 mdupuis Exp $
+c     $Id: rohf_nr_sol.F,v 1.29 2003-01-30 01:16:57 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -12,6 +12,7 @@ c     $Id: rohf_nr_sol.F,v 1.28 2000-11-28 20:39:11 mdupuis Exp $
 #include "cscf.fh"
 #include "cfock.fh"
 #include "stdio.fh"
+#include "cosmo.fh"
 c     
 c     Solve the ROHF equations using a hybrid NR/PCG method
 c     
@@ -60,10 +61,7 @@ c     cosmo code
 c
       logical odbug
       logical osome
-      logical ocosmo
 c
-      logical ogas_phase
-      logical osol_phase
       double precision egas
       double precision esol
 c
@@ -128,43 +126,6 @@ c
          call util_flush(LuOut)
       endif
 c
-c     ----- check cosmo ... if cosmo ... -----
-c           pass 1 ... gas_phase
-c           pass 2 ... sol_phase
-c
-      odbug=.false.
-      odbug=odbug.and.ga_nodeid().eq.0
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-         if(odbug) then
-            write(LuOut,*) '-cosmo- ... found in rohf_nr_solve',
-     $                 ocosmo,ga_nodeid()
-         endif
-c
-         if(ocosmo) then
-            ogas_phase=.true.
-            osol_phase=.true.
-            if(odbug) then
-               write(LuOut,*) '-cosmo- ... found , do gas & sol',
-     $                    ocosmo,ga_nodeid()
-            endif
-            if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
-     $         call errquit('rohf_nr_solve: rtdb_put failed',0)
-         else
-            ogas_phase=.true.
-            osol_phase=.false.
-            if(odbug) then
-               write(LuOut,*) '-cosmo- ... found , do gas only',
-     $                    ocosmo,ga_nodeid()
-            endif
-         endif
-      else
-         if(odbug) then
-            write(LuOut,*) '-cosmo- not found in rohf_nr_solve'
-            call util_flush(LuOut)
-         endif
-         ogas_phase=.true.
-         osol_phase=.false.
-      endif
       call ga_sync()
 c
 c     ----- -nr- options ... -----
@@ -195,7 +156,7 @@ c
    9  continue
       odbug=.false.
       odbug=odbug.and.ga_nodeid().eq.0
-      if(ogas_phase.and.osol_phase) then
+      if(cosmo_on.and.cosmo_phase.eq.1) then
          osome=ga_nodeid().eq.0
          if(osome) then
             write(LuOut,909)
@@ -203,7 +164,7 @@ c
          if(odbug) then
             write(LuOut,*) 'mode = ',mode
          endif
-      elseif(.not.ogas_phase.and..not.osol_phase) then
+      elseif(cosmo_on.and.cosmo_phase.eq.2) then
          iter     = 0
          energy   = 0.0d0
          eone     = 0.0d0
@@ -219,8 +180,8 @@ c
          endif
       endif
       if (ga_nodeid().eq.0) call util_flush(6)
- 909  format(2x,'   gas_phase')
- 910  format(2x,'   sol_phase')
+ 909    format(2x,'   COSMO gas phase')
+ 910    format(2x,'   COSMO solvation phase')
 c
  10   if (.not. converged) then
 c
@@ -375,27 +336,27 @@ c     ----- if sol_phase=.T. go back and do solution phase -----
 c
       odbug=.false.
       odbug=odbug.and.ga_nodeid().eq.0
-      if(ogas_phase.and.osol_phase) then
+      if(cosmo_on.and.cosmo_phase.eq.1) then
          converged =.false.
          egas      =energy
-         ogas_phase=.false.
-         osol_phase=.false.
-         if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.true.))
-     $       call errquit('rohf_nr_solve: rtdb_put failed',0)
+         cosmo_phase = 2
          if(odbug) then
             write(LuOut,*) 'gas_phase done, do sol-phase now ...'
          endif
          call ga_sync()
          go to 9
-      elseif(.not.ogas_phase.and..not.osol_phase) then
+      elseif(cosmo_on.and.cosmo_phase.eq.2) then
          esol      =energy
          if(ga_nodeid().eq.0) then
+            write(LuOut,915)
+            write(LuOut,*) '                 COSMO solvation results'
+            write(LuOut,*) '                 -----------------------'
             write(LuOut,915)
             write(LuOut,912) egas
             write(LuOut,913) esol
             write(LuOut,914) (egas-esol),(egas-esol)*627.509451d+00
- 912     format('                 gas_phase energy = ',f20.10)
- 913     format('                 sol_phase energy = ',f20.10)
+ 912     format('                 gas phase energy = ',f20.10)
+ 913     format('                 sol phase energy = ',f20.10)
  914     format(' (electrostatic) solvation energy = ',f20.10,
      $          ' (',f8.2,' kcal/mol)'                       )
  915     format(' ')

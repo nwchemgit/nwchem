@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.18 2000-11-28 20:39:12 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.19 2003-01-30 01:16:57 bert Exp $
 c     
 c     Invalidate data
 c     
@@ -19,7 +19,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.18 2000-11-28 20:39:12 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.19 2003-01-30 01:16:57 bert Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -63,7 +63,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.18 2000-11-28 20:39:12 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.19 2003-01-30 01:16:57 bert Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -93,8 +93,9 @@ c
 #include "util.fh"
 #include "global.fh"
 #include "rtdb.fh"
+#include "cosmo.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.18 2000-11-28 20:39:12 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.19 2003-01-30 01:16:57 bert Exp $
 c
       integer rtdb
 
@@ -107,7 +108,6 @@ c
 c
       logical odbug
       logical osome
-      logical ocosmo
       double precision ecosmo
 
       odbug=.false.
@@ -171,37 +171,19 @@ c     ----- cosmo energy term ... -----
 c
       odbug=.false.
       odbug=odbug.and.ga_nodeid().eq.0
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-         if(odbug) then
-            write(6,*) '-cosmo- ... found in rohf_energy',
-     $                  ocosmo,ga_nodeid()
-            write(6,33) energy, eone, etwo, enrep
-            call util_flush(6)
-         endif
-         if(ocosmo) then
-            if (.not. rtdb_get(rtdb,'cosmo:energy',mt_dbl,1,ecosmo))
-     $      call errquit('rohf_energy: rtdb get failed for ecosmo',911)
+      if(cosmo_on.and.cosmo_phase.eq.2) then
+         if (.not. rtdb_get(rtdb,'cosmo:energy',mt_dbl,1,ecosmo))
+     $     call errquit('rohf_energy: rtdb get failed for ecosmo',911)
 c
-            energy=energy+ecosmo
+         energy=energy+ecosmo
 c
-            osome=.false.
-            osome=osome.and.ga_nodeid().eq.0
-            if(osome) then
-               write(6,9999) (energy-ecosmo),ecosmo,energy
+         osome=.false.
+         osome=osome.and.ga_nodeid().eq.0
+         if(osome) then
+             write(6,9999) (energy-ecosmo),ecosmo,energy
  9999 format(' energ0 = ',f20.10,/,' ecosmo = ',f20.10,/,
      $       ' energy = ',f20.10)
-               call util_flush(6)
-            endif
-         else
-            if(odbug) then
-               write(6,*) '-cosmo- ... found but .false.',
-     $                     ga_nodeid()
-            endif
-         endif
-      else
-         if(odbug) then
-            write(6,*) '-cosmo- not found in rohf_energy',
-     $                 ga_nodeid()
+             call util_flush(6)
          endif
       endif
       if(ga_nodeid().eq.0) call util_flush(6)
@@ -213,7 +195,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.18 2000-11-28 20:39:12 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.19 2003-01-30 01:16:57 bert Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -257,7 +239,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.18 2000-11-28 20:39:12 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.19 2003-01-30 01:16:57 bert Exp $
 c
       integer g_x
       double precision solveshift
