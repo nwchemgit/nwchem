@@ -5,7 +5,7 @@
      $     g_fock,g_svecs,isvals,
      $     g_cdinv,g_xcinv,g_2ceri)
 c     
-C     $Id: dft_scf.F,v 1.60 1997-02-26 19:47:10 d3h449 Exp $
+C     $Id: dft_scf.F,v 1.61 1997-02-27 02:52:48 gutowski Exp $
 c     
       implicit none
       integer rtdb              ! [input]
@@ -105,10 +105,10 @@ c-----------------------------------------------------------------------
       oprint_info = util_print('common',print_debug)
       oprint_parm = util_print('parameters', print_default)
       oprint_conv = util_print('convergence', print_default)
-      oprint_vecs = util_print('intermediate vectors', print_debug)
-      oprint_eval = util_print('intermediate evals', print_debug)
-      oprint_syma = util_print('intermediate vector symmetries',
-     $     print_debug)
+      oprint_vecs = util_print('intermediate vectors', print_high)
+      oprint_eval = util_print('intermediate evals', print_high)
+      oprint_syma = util_print('interm vector symm',
+     $     print_high)
       oprint_time = util_print('dft timings',print_high)
       oprint_tol = util_print('screening parameters',print_high)
       oprint_energy_step = util_print('intermediate energy info',

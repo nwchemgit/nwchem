@@ -1,6 +1,6 @@
       subroutine dft_scfcvg(rms,etold,etnew,Enuc,e_conv,d_conv,
      &   g_conv,ipol,iter,iterations,idone,converged,rtdb)
-C     $Id: dft_scfcvg.F,v 1.8 1997-02-18 01:29:56 d3h449 Exp $
+C     $Id: dft_scfcvg.F,v 1.9 1997-02-27 02:52:50 gutowski Exp $
       implicit none
 
       double precision rms(2)   ! [input]
@@ -33,7 +33,7 @@ c
 c     
 c--   >  Check to see if convergence on density is required.
 c     
-      oprint_c=util_print('convergence',print_high)
+      oprint_c=util_print('convergence',print_default)
       oprint_i=util_print('information',print_low)
       DENSITY = d_conv.gt.0
 c     
