@@ -1,7 +1,7 @@
 
 Guide to Installing NWChem Binary Builds
 ====================================================
-$Id: INSTALL.binbuilds,v 1.1 1998-10-08 21:57:58 d3e129 Exp $
+$Id: INSTALL.binbuilds,v 1.2 1998-10-08 22:23:27 d3e129 Exp $
 ----------------------------------------------------
 
 INSTALLING NWCHEM FOR GENERAL SITE USE: 
@@ -10,7 +10,7 @@ INSTALLING NWCHEM FOR GENERAL SITE USE:
 commands (or any equivalent variant).
    1) tar xvf nwchem-*******.tar
    2) cat nwchem-******.tar.Z | uncompress | tar xvf -
-   3) gunzip -c nwchem-******.tar.gz | tar xvf -
+   3) gunzip -c nwchem-******.tgz | tar xvf -
 
    After the tar file has been expanded the following file and
 directory structure will exist.  
