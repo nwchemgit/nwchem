@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.18 1999-07-21 18:46:08 d3e129 Exp $
+# $Id: GNUmakefile,v 1.19 1999-07-29 01:03:13 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -8,10 +8,8 @@ include ../config/makefile.h
     OBJ_OPTIMIZE = rtdb_f2c.o rtdb.o rtdb_seq.o \
                    context.o context_f2c.o
 ifeq ($(TARGET),LINUX)
-ifeq ($(NWCHEM_TARGET_CPU),POWERPC)
     OBJ = rtdb_seq.o
     OBJ_OPTIMIZE = rtdb_f2c.o rtdb.o context.o context_f2c.o
-endif
 endif
          HEADERS = context.h rtdb.h rtdb.fh context.fh rtdb.cray.h
 
