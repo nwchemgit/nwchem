@@ -1,4 +1,4 @@
-c  $Id: hnd_util.F,v 1.4 2003-02-07 23:10:14 bert Exp $
+c  $Id: hnd_util.F,v 1.5 2003-02-07 23:43:55 bert Exp $
 c
 c  These are a bunch of utility routines that were in hessian/rhf_hessian.F
 c  that were moved here since the hessian code no longer depends on them.
@@ -310,7 +310,6 @@ C
       character*8 LAB
       DIMENSION LAB(1)
 C
-      IW = LuOut
       LIST=1
       IF(LIST.EQ.1) MAX=7
 C
