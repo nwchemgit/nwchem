@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.11 1994-10-03 20:43:07 pg511 Exp $
+c $Id: bas_input.F,v 1.12 1994-12-29 07:04:55 og845 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -28,6 +28,7 @@ c
       integer ind, basis
       data opts /'spherical', 'cartesian', 'segment', 'nosegment',
      $     'library', 'file', 'print'/
+      external basis_data
 c
 c     Check is a basis directive and read in name of the basis
 c
