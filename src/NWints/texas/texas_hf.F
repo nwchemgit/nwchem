@@ -1,4 +1,4 @@
-c $Id: texas_hf.F,v 1.10 1996-02-09 01:15:45 d3g681 Exp $
+c $Id: texas_hf.F,v 1.11 1996-05-14 17:53:51 d3g681 Exp $
 c=================================================================
       subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
@@ -98,6 +98,10 @@ c returning integrals and indeces :
       dimension icf(*),jcf(*),kcf(*),lcf(*)
 c
 c----------------------------------------------------------------
+c test only
+c     data integ_upto_sum /0/
+c     save integ_upto_sum
+c----------------------------------------------------------------
              call txs_second(tim_beg)
 c----------------------------------------------------------------
 c memory checking ;
@@ -116,6 +120,8 @@ c
 c----------------------------------------------------------------
       ncall_pnl=ncall_pnl+1
       nqrts_pnl=nqrts_pnl+nquart
+ctest
+c     if(ncall_pnl.eq.2) stop 'stopped by kw'
 c----------------------------------------------------------------
 c eri - PNL buffer for returning integrals 
 c----------------------------------------------------------------
@@ -136,7 +142,8 @@ c
       call txs_second(tim_1setup)
 c
       call txs_setup(bl,inx,ncs,leri,
-     *               nquart,icspnl,jcspnl,kcspnl,lcspnl,labels)
+     *               nquart,icspnl,jcspnl,kcspnl,lcspnl,labels,
+     *               more_int)
 c
 c  9 calls to getmem 
 c 10 calls to getmem
@@ -164,8 +171,19 @@ c----------------------------------------------------------------
 c
 c        calculate integrals without labels :
 c
-         call calcint2(bl,inx, q4,use_q4, icf,jcf,kcf,lcf,eri )
+*     ncfunct is not used on this call
+         call calcint2(bl,inx, q4,use_q4, icf,jcf,kcf,lcf,eri,
+     *        dbl_mb(ncfunct))
          integ_nx=integ_n0
+c--------------------------------------------------------
+c test only
+c       write(6,*)' from texas_hf_m : q4 vector :nquart=',nquart
+c       write(6,1234) (q4(iii),iii=1,nquart)
+c       if(ncall_pnl.eq.1 .and. nsplit.eq.1) then
+c       call print_int2(ncall_pnl,eri,leri,
+c    *             icspnl,jcspnl,kcspnl,lcspnl,integ_n0,nquart)
+c       endif
+c--------------------------------------------------------
 c
       else
 c
@@ -174,7 +192,8 @@ c
 c
 c        calculate integrals with labels :
 c
-         call calcint2(bl,inx, q4,use_q4, icf,jcf,kcf,lcf,eri )
+         call calcint2(bl,inx, q4,use_q4, icf,jcf,kcf,lcf,eri,
+     $        dbl_mb(ncfunct))
          integ_nx=integ_n0
 c
 c        find pnl-labels corresponding to the given set of 
@@ -183,22 +202,31 @@ c
             call txs_second(tim_1pt)
 c
 C@@@@@   call pnl_txs(bl(ncfunct),icf,jcf,kcf,lcf,integ_n0 )
-         call pnl_txs(dbl_mb(ncfunct),icf,jcf,kcf,lcf,integ_n0 )
+******    call pnl_txs(dbl_mb(ncfunct),icf,jcf,kcf,lcf,integ_n0 )
+c----------------------------------------------------------------
+c test only
+c       write(6,*)' from texas_hf_m : q4 vector :nquart=',nquart
+c       write(6,1234) (q4(iii),iii=1,nquart)
+c1234 format(10(f5.3,1x))
+c       if(ncall_pnl.eq.1 .and. nsplit.eq.1) then
+c       call print_int1(ncall_pnl,eri,leri,icf,jcf,kcf,lcf,integ_n0)
+c       endif
+c--------------------------------------------------------
 c
             call txs_second(tim_2pt)
             time_pt=time_pt+(tim_2pt - tim_1pt)
       endif
 c
-      if(nsplit.eq.isplit+1) more_int=.false.
+      if(isplit.gt.0) then
+         if(nsplit.eq.isplit+1) more_int=.false.
+      endif
 c
       if(.not.more_int) then
          if(.not.labels) then
-c013196     call retmem(10)
-            call retmem(11)
+            call retmem(12)
             call retint(1)
          else
-c013196     call retmem( 9)
-            call retmem(10)
+            call retmem(11)
             call retint(1)
          endif
 c-------------------------
@@ -215,6 +243,22 @@ c----------------------------------------------------------------
       call txs_second(tim_end)
       time_calc2=time_calc2+(tim_end -tim_beg)
 c----------------------------------------------------------------
+c test only :
+c
+c     integ_upto_sum=integ_upto_sum + integ_nx
+c     write(6,*)'FROM MUL_QUART(end):LERI=',leri,' call no=',ncall_pnl,
+c    *'req.size=',nquart,' split=',isplit+1,' repeat=',nsplit
+c     write(6,*)
+c    *'integrals: from this run=',integ_nx,',total=',integ_upto_sum,
+c    *' more_int=',more_int,' labels=',labels
+c-----
+c----------------------------------------------------------------
+      if(integ_nx.eq.0 .and. more_int) go to 999
+c----------------------------------------------------------------
+c-----
+c          write(8,*)'FROM MUL_QUART (end): call no.=',ncall_pnl,
+c    *               ' integ.buffer=',leri,' scratch size=',l_blscr
+c----------------------------------------------------------------
 c memory checking ;
 c
 c     call getmem(0,last12)
@@ -226,6 +270,7 @@ c          write(6,*)' isplit=',isplit,' nsplit=',nsplit
 c          write(6,*)' at the beginning of calc.=',last11
 c          write(6,*)' at the end of cal.       =',last12
 c        endif
+c----------------------------------------------------------------
 c
       end
 c==================================================================
@@ -289,10 +334,13 @@ c
       end
 c==================================================================
       subroutine txs_setup(bl,inx,ncs,leri,
-     *                     nquart,icspnl,jcspnl,kcspnl,lcspnl,labels)
+     *                     nquart,icspnl,jcspnl,kcspnl,lcspnl,labels,
+     *               more_int)
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical labels
+c more_int is needed only to execute (or not) part of supblks_split
+      logical more_int 
 c
       common /bl_txs_add/ ntxs_bl_scr 
 c
@@ -305,7 +353,7 @@ c
       common /pnl002/ ncshell,ncfunct,nblock2,integ_n0
       common /pnl003/ nqrtpnl,icstxs,jcstxs,kcstxs,lcstxs
       common /pnl004/ isize,jsize,ksize,lsize,itxspnl
-      common /pnl005/ isblsize,isblqrts
+      common /pnl005/ isblsize,isblqrts,isblpoint
       common /pnl006/ nsplit,isplit,isbl_split, isbl_part
       common /pnlRJH/ isblcall
       dimension icspnl(*),jcspnl(*),kcspnl(*),lcspnl(*)  ! dim=nquart
@@ -367,12 +415,13 @@ C@@@ *     bl(isupblk),bl(isblsize),bl(isblqrts),bl(nblock2),
 c  
       if(.not.labels) then
          call get_sizes(inx,icspnl,jcspnl,kcspnl,lcspnl,
-     *                      isize,jsize,ksize,lsize )
-         call getmem(isize*jsize*ksize*lsize,itxspnl)
+     *                      isize,jsize,ksize,lsize,ngcont,ngcq)
+ccc   write(6,*)'general contraction deep=',ngcont
+         call getmem(ngcont*isize*jsize*ksize*lsize,itxspnl)
 c
          call ordr_shells(icspnl,jcspnl,kcspnl,lcspnl,
      *                    isize,jsize,ksize,lsize,bl(itxspnl),
-     *                    bl(iqorder))
+     *                    bl(iqorder),ngcq)
 c       1 call to getmem
       endif
 c--------------------------------------------------------
@@ -390,7 +439,8 @@ c
       call getmem(nsupblk,isbl_part)
       call supblks_split(bl(mxsize),leri,inx,
      *                   bl(iisd),bl(jjsd),bl(ijbld),nbl2,
-     *     bl(ijpres2),bl(klpres2),bl(isblsize),bl(isbl_part))
+     *     bl(ijpres2),bl(klpres2),bl(isblsize),bl(isbl_part),
+     *     more_int)
 c
 c---------------------------------------------------------
 c calculate the size of the request and split it if needed
@@ -403,18 +453,47 @@ c
 c
       call retmem(1)
       call getmem(isplit+2, isbl_split)
+c---------------------------------------------------------
+c calculate the pointer to the block's quartets 
+c (to eliminate calcul. in the get_nbls_pnl routine)
 c
+      call getmem(nsupblk,isblpoint)
+      call supblks_point(nsupblk,bl(isblsize),bl(isblpoint))
 c--------------------------------------------------------
       end
 c==================================================================
       subroutine get_sizes(inx, icstxs,jcstxs,kcstxs,lcstxs,
-     *                     isize,jsize,ksize,lsize )
+     *                     isize,jsize,ksize,lsize,ngcont,ngcq)
       dimension inx(12,*),icstxs(*),jcstxs(*), kcstxs(*),lcstxs(*)
 c
-      isize=inx(3, icstxs(1) )
-      jsize=inx(3, jcstxs(1) )
-      ksize=inx(3, kcstxs(1) )
-      lsize=inx(3, lcstxs(1) )
+      ics=icstxs(1)
+      jcs=jcstxs(1)
+      ijcs=(ics-1)*ics/2 +jcs
+      kcs=kcstxs(1)
+      lcs=lcstxs(1)
+      klcs=(kcs-1)*kcs/2 +lcs
+c
+      igcon=inx(4, ics) + 1
+      jgcon=inx(4, jcs) + 1
+      kgcon=inx(4, kcs) + 1
+      lgcon=inx(4, lcs) + 1
+c
+      ngcont=igcon*jgcon*kgcon*lgcon
+c
+      ngcq=1
+      if(ngcont.gt.1) then
+         ijpg=igcon*jgcon
+         if(ics.eq.jcs) ijpg=igcon*(igcon+1)/2
+         klpg=kgcon*lgcon
+         if(kcs.eq.lcs) klpg=kgcon*(kgcon+1)/2
+         ngcq=ijpg*klpg
+         if(ijcs.eq.klcs) ngcq=ijpg*(ijpg+1)/2
+      endif
+c
+      isize=inx(3, ics)
+      jsize=inx(3, jcs)
+      ksize=inx(3, kcs)
+      lsize=inx(3, lcs)
 c
       end
 c==================================================================
@@ -560,7 +639,7 @@ c
 c==================================================================
       subroutine ordr_shells(icstxs,jcstxs,kcstxs,lcstxs,
      *                       isize,jsize,ksize,lsize,itxspnl,
-     *                       iqorder)
+     *                       iqorder,ngcq)
       dimension icstxs(*),jcstxs(*),kcstxs(*),lcstxs(*)
       dimension iqorder(*),itxspnl(*)
 c
@@ -580,7 +659,7 @@ c                  ijkl->ijkl
             jm=0
             km=0
             lm=1
-            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl)
+            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl,ngcq)
          endif
          if(iorder.eq.1243) then
 c                  ijkl->ijlk
@@ -592,7 +671,7 @@ c                  ijkl->ijlk
             jm=0
             km=1
             lm=0
-            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl)
+            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl,ngcq)
          endif
          if(iorder.eq.2134) then 
 c                  ijkl->jikl
@@ -604,7 +683,7 @@ c                  ijkl->jikl
             jm=0
             km=0
             lm=1
-            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl)
+            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl,ngcq)
          endif
          if(iorder.eq.2143) then 
 c                  ijkl->jilk
@@ -616,7 +695,7 @@ c                  ijkl->jilk
             jm=0
             km=1
             lm=0
-            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl)
+            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl,ngcq)
          endif
 c
          if(iorder.eq.3412) then
@@ -629,7 +708,7 @@ c                  ijkl->klij
             jm=1
             km=0
             lm=0
-            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl)
+            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl,ngcq)
          endif
          if(iorder.eq.4312) then 
 c                  ijkl->klji
@@ -641,7 +720,7 @@ c                  ijkl->klji
             jm=0
             km=0
             lm=0
-            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl)
+            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl,ngcq)
          endif
          if(iorder.eq.3421) then 
 c                  ijkl->lkij
@@ -653,7 +732,7 @@ c                  ijkl->lkij
             jm=1
             km=0
             lm=0
-            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl)
+            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl,ngcq)
          endif
          if(iorder.eq.4321) then
 c                  ijkl->lkji
@@ -665,7 +744,7 @@ c                  ijkl->lkji
             jm=0
             km=0
             lm=0
-            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl)
+            call txspnl(is,im, js,jm, ks,km ,ls,lm, itxspnl,ngcq)
          endif
 c
       end
@@ -719,26 +798,32 @@ c
 c
       end
 c=================================================================
-      subroutine txspnl(is,im, js,jm, ks,km ,ls,lm,itxspnl)
+      subroutine txspnl(is,im, js,jm, ks,km ,ls,lm,itxspnl,ngcq)
       common /pnl004/ isize,jsize,ksize,lsize,iiiiiii
       dimension itxspnl(*)
 c
 c Temprorarly re-order integrals txs-pnl
 c
+        increm=isize*jsize*ksize*lsize
         itxs=0
-        do 20 i=1,isize
-        ii=(i-1)*is +i*im 
-        do 20 j=1,jsize
-        jj=(j-1)*js +j*jm 
-        do 20 k=1,ksize
-        kk=(k-1)*ks +k*km
-        do 20 l=1,lsize
-        ll=(l-1)*ls +l*lm
-        itxs=itxs+1
-c
-        ipnl=ii+jj+kk+ll
-        itxspnl(itxs)=ipnl
-   20   continue
+        do 10 iqu=1,ngcq
+        integ=(iqu-1)*increm
+           do 20 i=1,isize
+           ii=(i-1)*is +i*im 
+           do 20 j=1,jsize
+           jj=(j-1)*js +j*jm 
+           ij=ii+jj
+           do 20 k=1,ksize
+           kk=(k-1)*ks +k*km
+           ijk=ij+kk
+           do 20 l=1,lsize
+           ll=(l-1)*ls +l*lm
+           itxs=itxs+1
+ccccc      ipnl=ijk+ll
+           ipnl=ijk+ll + integ
+           itxspnl(itxs)=ipnl
+   20      continue
+   10   continue
 c
 c     write(6 ,*)'itxs , ipnl ( itxspnl(itxs))'
 c      do 1111 ii=1,isize*jsize*ksize*lsize
@@ -824,8 +909,13 @@ c
       end
 c=====================================================================
       subroutine supblks_split(maxsize,leri,inx,iis,jjs,ijbl,nbl2,
-     *                         ijpres2,klpres2,isbl_s,isbl_part)
+     *                         ijpres2,klpres2,isbl_s,isbl_part,
+     *                         more_int)
 c--------------------------------------------------------------------
+c this routine is called for every new PNL request i.e when
+c more_int=.false.
+c--------------------------------------------------------------------
+      logical more_int
       common /pnl_nqrt/ ncall_pnl, nqrts_pnl
       dimension maxsize(*)
       dimension inx(12,*),iis(*),jjs(*),ijbl(nbl2,*)
@@ -833,67 +923,65 @@ c--------------------------------------------------------------------
       dimension ijpres2(*),klpres2(*)  ! dimension nquart
       dimension isbl_part(*)  ! dimension nbl2*(nbl2+1)/2
 c--------------------------------------------------------------------
-c first re-define maximum size according to leri :
-c
-      if(ncall_pnl.eq.1) then
          isupb=0
          do 10 ibl=1,nbl2
          ijcs1=ijbl(ibl,1)
          ics1=iis(ijcs1)
          jcs1=jjs(ijcs1)
+         icont_ij=(inx(4,ics1)+1)*(inx(4,jcs1)+1)
+         integ_ij=inx(3,ics1)*inx(3,jcs1)*icont_ij
          do 10 kbl=1,ibl
             isupb=isupb+1 
-            maxm_size=maxsize(isupb)
-            klcs1=ijbl(kbl,1)
-            kcs1=iis(klcs1)
-            lcs1=jjs(klcs1)
-            integ1=inx(3,ics1)*inx(3,jcs1)*inx(3,kcs1)*inx(3,lcs1)
-            integ=integ1*maxm_size
-            if(integ.gt.leri) then
-               nqrts=leri/integ1
-               if(nqrts.eq.0) nqrts=1
-               write(8,*)' maximum size of the super-block=',isupb,
-     *         ' changed from ',maxsize(isupb),' to ',nqrts,
-     *         ' according to LERI'
-               maxsize(isupb)=nqrts
-            endif
-   10    continue
-      endif
+            isbl_part(isupb)=1
+            isbl_size=isbl_s(isupb)
+            if(isbl_size.gt.0) then
+               maxm_size=maxsize(isupb)
+               klcs1=ijbl(kbl,1)
+               kcs1=iis(klcs1)
+               lcs1=jjs(klcs1)
+               icont_kl=(inx(4,kcs1)+1)*(inx(4,lcs1)+1)
+               integ_kl=inx(3,kcs1)*inx(3,lcs1)*icont_kl
+               integ1=integ_ij*integ_kl
+               integ=integ1*maxm_size
+c
+c first re-define maximum size according to leri :
+               if(integ.gt.leri) then
+                  nqrts=leri/integ1
+                  if(nqrts.eq.0) nqrts=1
+                  maxsize(isupb)=nqrts
+               endif
 c
 c split each super-block in parts if its current pnl-size is greater
 c than maximum-size allowed :
 c
-         nblock_split=0
-         nparts_total=0
-         do 60 ibl=1,nbl2
-         iibl=ibl*(ibl-1)/2
-         do 60 kbl=1,ibl
-         isupb=iibl+kbl
-         isbl_size=isbl_s(isupb)
-         maxm_size=maxsize(isupb)
-         isbl_part(isupb)=1
-         if(isbl_size.gt.maxm_size) then
-            nblock_split=nblock_split+1
+               maxm_size=maxsize(isupb)
+               if(isbl_size.gt.maxm_size) then
+                  nparts=isbl_size/maxm_size
+                  nrem=mod(isbl_size,maxm_size)
+                  if(nrem.gt.0) nparts=nparts+1
+                  isbl_part(isupb)=nparts
+               endif
+            endif
+   10    continue
+c---------------------------------------------------------
 c
-            nparts=isbl_size/maxm_size
-            nrem=mod(isbl_size,maxm_size)
-            if(nrem.gt.0) nparts=nparts+1
-            isbl_part(isupb)=nparts
-            nparts_total=nparts_total+nparts
-c           write(8,*)
-c    *      ' sup-blk no=',isupb,' too big; size=',isbl_size,
-c    *      ' max.=',maxm_size,';split into ',nparts,'parts'
-         endif
-   60    continue
-c---------------------------------------------------------
-c     if(nblock_split.gt.0) then
-c        write(8,*)'in pnl-request no.=',ncall_pnl,' ',nblock_split,
-c    *             ' blocks are too big ---> ',nparts_total,' parts'
-c     endif
-c---------------------------------------------------------
-c     write(8,*)' from supblks_split : isbl_part :'
-c     write(8,66)(isbl_part(ii),ii=1,nbl2*(nbl2+1)/2 )
-c 66  format(' isbl_part(ii)=',i3)
+c split each super-block in parts if its current pnl-size is greater
+c than maximum-size allowed :
+c
+c        isupb=0
+c        do 60 ibl=1,nbl2
+c        do 60 kbl=1,ibl
+c        isupb=isupb+1 
+c        isbl_size=isbl_s(isupb)
+c        maxm_size=maxsize(isupb)
+c        isbl_part(isupb)=1
+c        if(isbl_size.gt.maxm_size) then
+c           nparts=isbl_size/maxm_size
+c           nrem=mod(isbl_size,maxm_size)
+c           if(nrem.gt.0) nparts=nparts+1
+c           isbl_part(isupb)=nparts
+c        endif
+c  60    continue
 c---------------------------------------------------------
       end
 c=====================================================================
@@ -933,9 +1021,12 @@ c
            klcs1=klpres2(iq1)
            ics1=iis(ijcs1)
            jcs1=jjs(ijcs1)
+           icont_ij=(inx(4,ics1)+1)*(inx(4,jcs1)+1)
            kcs1=iis(klcs1)
            lcs1=jjs(klcs1)
+           icont_kl=(inx(4,kcs1)+1)*(inx(4,lcs1)+1)
            integ1=inx(3,ics1)*inx(3,jcs1)*inx(3,kcs1)*inx(3,lcs1)
+           integ1=integ1*icont_ij*icont_kl
 c
 c  splitting among super-blocks :
 c
@@ -951,9 +1042,10 @@ c
               endif
            else 
 c  splitting inside of one super-block :
+c force splitting :
+              integrals=leri
               itotal=itotal+nparts
               isplit=isplit+1
-              integrals=0
               isbl_split(isplit)=isupb
            endif
 c
@@ -965,15 +1057,40 @@ c
          isbl_split(isplit+1)=isblast+1
 c
 c---------------------------------------------------------
-      if( isplit.gt.0 ) then
-          write(8,*)'pnl-request no=',ncall_pnl,' size=',nqrtpnl,
-     *              ' split into ',itotal+1,' pieces'
+c     if( isplit.gt.0 ) then
+c      if(ncall_pnl.eq.3) then
+c         write(6,*)'FROM REQUEST_SPLIT : isplit=',isplit+1
+c         write(6,*)'pnl-request no=',ncall_pnl,' size=',nqrtpnl,
+c    *              ' split into ',itotal+1,' pieces'
 ccc  *              ' split into ',isplit+1,' pieces'
-      endif
+c         write(6,66)(isbl_split(ii),ii=0,isplit+1)
+c 66      format(' isbl_split(ii)=',i3)
+c
+c        write(6,*)' blocks in the request no=3'
+c        do isupb=1,nbl2*(nbl2+1)/2
+c        maxm_size=maxsize(isupb)
+c        isbl_size=isbl_s(isupb)
+c        nparts=isbl_part(isupb)
+c        write(6,77)isupb,maxm_size,isbl_size,nparts
+c 77     format('block=',i3,' maxsize=',i5,' pnlsize=',i5,' parts=',i5)   
+c        enddo
+c      endif
+c     endif
 c---------------------------------------------------------
-c     write(6,*)' from request_split : isplit=',isplit+1
-c     write(6,66)(isbl_split(ii),ii=0,isplit+1)
-c 66  format(' isbl_split(ii)=',i3)
-c---------------------------------------------------------
+      end
+c=====================================================================
+      subroutine supblks_point(nsupblk,isbl_size,isbl_point)
+      dimension isbl_size(*), isbl_point(*)
+c
+c calculates the pointer to block's quartets 
+c    - iq=isbl_q(IPOINT+iqp)
+c
+         ipoint=0
+         isbl_point(1)=0
+         do 10 isbl=2,nsupblk
+         ipoint=ipoint+isbl_size(isbl-1)
+         isbl_point(isbl)=ipoint
+   10    continue
+c
       end
 c=====================================================================

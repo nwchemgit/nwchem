@@ -1,4 +1,4 @@
-c $Id: zeroint.f,v 1.1 1995-10-30 20:58:06 d3e129 Exp $
+c $Id: zeroint.f,v 1.2 1996-05-14 17:53:52 d3g681 Exp $
 c* This is used to substitute ZERO in Buffers when some
 c* of quartets do not appear First time (they are neglected)
 c*
@@ -36,7 +36,6 @@ c
 c
       if(mmax.le.2) then
         ibut=ibuf
-        if(ngcd.gt.1) ibut=ibux
         call zerosp(lnijkl,nbls,bl(ibut),bl(idxnot),nbls2,ngcd)
         call retmem(1)
         return
@@ -47,7 +46,6 @@ c-------------------------------
 c-   --- for buf2  ---
 c
         ibut=ibuf2
-        if(ngcd.gt.1) ibut=ibux
          call zerout(nbls,nbls2,ngcd, bl(idxnot),
      *               bl(ibut ),l01,l02,nfu(nqij)+1,nfu(nqkl)+1 )
       IF(lshellt.eq.0) go to 100
@@ -188,39 +186,48 @@ c
 c
       return
       end
-c***************
+c=================================================
       subroutine zerosp(lnijkl,nbls,buf,idxnot,nbls2,ngcd)
       implicit real*8 (a-h,o-z)
       dimension idxnot(*)
-chang.dimension buf(nbls,lnijkl,ngcd)
-      dimension buf(ngcd,nbls,lnijkl)
-c
+      dimension buf(nbls,lnijkl,ngcd)
       data zero /0.d0/
 c
+            do 10 iqu=1,ngcd
             do 10 icx=1,lnijkl
             do 10 i=1,nbls2
             ijkl=idxnot(i)
-            do 10 iqu=1,ngcd
-            buf(iqu,ijkl,icx)=zero
+            buf(ijkl,icx,iqu)=zero
   10        continue
 c
-      return
       end
 c=================================================
       subroutine zerout(nbls,nbls2,ngcd, idxnot, azero,l1,l2,i1,i2)
       implicit real*8 (a-h,o-z)
       dimension idxnot(*)
-chang.dimension azero(nbls,l1,l2,ngcd)
-      dimension azero(ngcd,nbls,l1,l2)
-      data zero/0.0d0/
-c
-         do 100 kl=i2,l2
-         do 100 ij=i1,l1
-            do 100 i=1,nbls2
-            ijkl=idxnot(i)
-            do 100 iqu=1,ngcd
-            azero(iqu,ijkl,ij,kl)=zero
-  100 continue
-c
+      dimension azero(nbls,l1,l2,ngcd)
+c     
+      if (ngcd .gt. 1) then
+         do iqu=1,ngcd
+            do kl=i2,l2
+               do ij=i1,l1
+                  do i=1,nbls2
+                     ijkl=idxnot(i)
+                     azero(ijkl,ij,kl,iqu)=0.0d0
+                  enddo
+               enddo
+            enddo
+         enddo
+      else
+         do kl=i2,l2
+            do ij=i1,l1
+               do i=1,nbls2
+                  ijkl=idxnot(i)
+                  azero(ijkl,ij,kl,1)=0.0d0
+               enddo
+            enddo
+         enddo
+      endif
+c     
       end
 c=================================================

@@ -1,13 +1,19 @@
       SUBROUTINE GVBMP3
-c $Id: time.f,v 1.3 1996-02-09 01:15:47 d3g681 Exp $
+c $Id: time.f,v 1.4 1996-05-14 17:53:52 d3g681 Exp $
 C     EMPTY
       END
 C
       SUBROUTINE txs_SECOND(T)
+      common /intgop/ ncache,maxprice,iprint,iblock
       double precision T
 c     REAL*8 T
       double precision util_cpusec
       external util_cpusec
+*
+*     rjh ... no point timing if not printing
+*
+      if (iprint .le. 0) return
+*
 C      DIMENSION ITIME(4) 
 C     I1=TIMES(ITIME)
 C     WRITE(*,*) ITIME

@@ -1,5 +1,5 @@
       subroutine reorder(ncs,inx,iny,ncshell,ncfunct)
-c $Id: lab_reorder.f,v 1.4 1996-02-14 17:12:12 d3e129 Exp $
+c $Id: lab_reorder.f,v 1.5 1996-05-14 17:53:26 d3g681 Exp $
       implicit real*8 (a-h,o-z)
       dimension inx(12,*),iny(12,*)
       dimension ncshell(ncs), ncfunct(*)
@@ -150,5 +150,5 @@ c     write(8,*) 'from re-order : funct_txs -----> funct_pnl '
 c     do 110 icf=1,inx(10,ncs)
 c     write(8,*)'       icf_txs=',icf,'  icf_pnl=',ncfunct(icf)
 c 110 continue
-c
+c-----------------------------------------------------------
       end

@@ -1,5 +1,5 @@
       subroutine prec2ij(ibl, bl,inx,npar,nbl2, iis,jjs,ijbl)
-c $Id: precalc2.F,v 1.8 1996-02-12 19:44:35 d3g681 Exp $
+c $Id: precalc2.F,v 1.9 1996-05-14 17:53:29 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
@@ -170,154 +170,10 @@ c-----------------------------------
 c-----------------------------------
       end
 c====================================================================
-      subroutine specasg(bl,first,nbls,nbls1, index,indxij,indxkl,
-     *                   buf,buf1, const,rysx,xpqr,txxr,
-     *                   ngcd,indgc,gcoef,ijkln)
-c****
-c Works with Transpose BUF array 
-c****
-      implicit real*8 (a-h,o-z)
-      logical first
-      common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
-      common /rys/ xrys,rysr(10),rysw(10),t,f0,f1,f2,f3,f4,f5,nroots
 c
-      common/obarai/
-     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
-     * nqi,nqj,nqk,nql,nsij,nskl,
-     * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbeg,klbeg
+C moved into the gencon.f file :
+c     subroutine specasg(bl,first,nbls,nbls1, index,indxij,indxkl,
 c
-c******************************************************
-c
-      dimension bl(*)
-      dimension index(*),indxij(*),indxkl(*)
-      dimension xpqr(3,*),txxr(3,*)
-      dimension const(*),rysx(*)
-      dimension buf(ngcd,nbls,ijkln),buf1(nbls1,*)
-      dimension indgc(nbls)
-      dimension gcoef(ngcd,nbls)
-c
-c***************************************************************
-c**     FOR GENERAL CONTRACTED SHELLS
-c**  this subroutine constitues the special code for
-c**  two types of integrals over nbls quartets of primitive shells
-c**  1. (ss|ss)
-c**  2. (xs|ss),(sx|ss),(ss|xs),(ss|sx) where x=p 
-c**  these integrals are also contracted here.
-c**
-c**  input
-c**  ------
-c**  all precalculated values for whole block :
-c**
-c**  const(nbls) - contains consts=pi3*sabcd/(pq*sqrt(ppq)) for all int.
-c**  rysx(nbls) - contains  xrys i.e. arguments for fm,ft0 routines
-c**  xp,xp      - geometry for p,q
-c**
-c**  output
-c**  ------
-c**  buf(ngcd,nbls,ijkln) - contains final integrals
-c***************************************************************
-c
-c* memory for f00,f11 :
-c
-      call getmem(nbls1,if00)
-      call getmem(nbls1,if11)
-c
-      if00=if00-1
-      if11=if11-1
-c
-c*******
-c
-c*
-      do 100 i=1,nbls1
-      xrys=rysx(i)
-      call ft0
-      bl(if00+i)=f0
-      bl(if11+i)=f1
-  100 continue
-c
-c *** special code for (ss ss) integrals
-c
-      if(mmax.eq.1) then
-          do 2031 i=1,nbls1
-          buf1(i,1)=const(i)*bl(if00+i)
- 2031     continue
-      go to 203
-      endif
-c
-c *** special code for (ps ss), (sp ss) (ss ps) and (ss sp)
-c
-cxxxx if(mmax.eq.2) then
-      if (ityp.gt.1) then
-        do 101 i=1,nbls1
-        xpqr(1,i)=xpqr(1,i)*bl(if11+i) - txxr(1,i)*bl(if00+i)
-        xpqr(2,i)=xpqr(2,i)*bl(if11+i) - txxr(2,i)*bl(if00+i)
-        xpqr(3,i)=xpqr(3,i)*bl(if11+i) - txxr(3,i)*bl(if00+i)
- 101    continue
-      else if (jtyp.gt.1) then
-        do 102 i=1,nbls1
-        xpqr(1,i)=xpqr(1,i)*bl(if11+i) + txxr(1,i)*bl(if00+i)
-        xpqr(2,i)=xpqr(2,i)*bl(if11+i) + txxr(2,i)*bl(if00+i)
-        xpqr(3,i)=xpqr(2,i)*bl(if11+i) + txxr(3,i)*bl(if00+i)
- 102    continue
-      else if (ktyp.gt.1) then
-        do 103 i=1,nbls1
-        xpqr(1,i)=-xpqr(1,i)*bl(if11+i) - txxr(1,i)*bl(if00+i)
-        xpqr(2,i)=-xpqr(2,i)*bl(if11+i) - txxr(2,i)*bl(if00+i)
-        xpqr(3,i)=-xpqr(3,i)*bl(if11+i) - txxr(3,i)*bl(if00+i)
- 103    continue
-      else
-        do 104 i=1,nbls1
-        xpqr(1,i)=-xpqr(1,i)*bl(if11+i) + txxr(1,i)*bl(if00+i)
-        xpqr(2,i)=-xpqr(2,i)*bl(if11+i) + txxr(2,i)*bl(if00+i)
-        xpqr(3,i)=-xpqr(3,i)*bl(if11+i) + txxr(3,i)*bl(if00+i)
- 104    continue
-      endif
-c*************
-        do 106 i=1,nbls1
-          buf1(i,1)=-xpqr(1,i)*const(i)
-          buf1(i,2)=-xpqr(2,i)*const(i)
-          buf1(i,3)=-xpqr(3,i)*const(i)
-106     continue
-c
-c**********************************************************
-c
-  203 continue
-c
-      if(first) then
-c
-           do 204 icx=1,lnijkl
-           do 204 i=1,nbls1
-           xint=buf1(i,icx)
-             ijkl=index(i)
-             ngcq=indgc(ijkl)
-             do 2041 iqu=1,ngcq
-             buf(iqu,ijkl,icx)=xint*gcoef(iqu,ijkl)
- 2041        continue
-  204    continue
-c
-         first=.false.
-      else
-c
-           do 205 icx=1,lnijkl
-           do 205 i=1,nbls1
-           xint=buf1(i,icx)
-             ijkl=index(i)
-             ngcq=indgc(ijkl)
-             do 2051 iqu=1,ngcq
-             buf(iqu,ijkl,icx)=buf(iqu,ijkl,icx)+xint*gcoef(iqu,ijkl)
- 2051        continue
-  205    continue
-c
-      endif
-c
-c* relise memory
-c
-      call retmem(2)
-c*
-      return
-      end
 c====================================================================
       subroutine make_map(ibl,ijbl,nbl2,npar,bl,map_ij,ijcs_b,ijcs_e)
       implicit real*8 (a-h,o-z)
@@ -1741,7 +1597,7 @@ c
       dimension estab (npij,lcij)
       dimension coefij(npij,lcij), factij(lcij)
       dimension xa(3),xb(3),txab(npij,3,*)
-      dimension gcij(ngci1,ngcj1,lcij)
+      dimension gcij(ngcj1,ngci1,lcij)
       dimension aexp(100),bexp(100)
 c
       dimension ij_uniqe(nij_uniqe), map_ij(ijcs_b:ijcs_e)
@@ -1880,12 +1736,13 @@ c                 gen.contr.
 c
 c--------------------------------
 c for general contractions :
-               if(ngctot.gt.0 .and. ijpar.eq.1) then
+C 05/96        if(ngctot.gt.0 .and. ijpar.eq.1) then
+               if(ngctot.gt.0 .and. ij_u .eq.1) then
                   do 210 ig=0,ngcii
                   gci=datbas(ig+2,is)
                      do 210 jg=0,ngcjj
                        gcj=gci*datbas(jg+2,js)
-                       gcij(ig+1,jg+1,ji)=gcj
+                       gcij(jg+1,ig+1,ji)=gcj
   210                continue
                endif
 c--------------------------------
@@ -2174,14 +2031,14 @@ c
       end
 c====================================================================
       subroutine precspec_2(isbl_size,isbl_point,
-     *                      isbl_q,ijpres2,klpres2,
-     *                      npij,npkl,ndiag, ij,kl,
-     *                      lc12, lc34, indxij,indxkl,
-     *                      estab,estcd, apb,cpd,coefij,coefkl,xp,xq,
-     *                      rapb,rcpd,txab,txcd,
-     *                      map_ij,ijcs_b,ijcs_e,map_kl,klcs_b,klcs_e,
-c output
-     *                      rys,const,xpqr,txxr,nbls1,index)
+     *     isbl_q,ijpres2,klpres2,
+     *     npij,npkl,ndiag, ij,kl,
+     *     lc12, lc34, indxij,indxkl,
+     *     estab,estcd, apb,cpd,coefij,coefkl,xp,xq,
+     *     rapb,rcpd,txab,txcd,
+     *     map_ij,ijcs_b,ijcs_e,map_kl,klcs_b,klcs_e,
+c     output
+     *     rys,const,xpqr,txxr,nbls1,index)
 c-------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
@@ -2201,102 +2058,102 @@ c-------
       dimension xp(npij,3,*),xq(npkl,3,*)
       dimension        rys(*),const(*)
       dimension xpqr(3,*),txxr(3,*)
-c
+c     
       data zero,one /0.d0 , 1.d0/
 c---------------------------------------------------------------
       par268=     8.d0
 c---------------------------------------------------------------
-c NEWER
-         apb1=apb(ij)
-         cpd1=cpd(kl)
-c
-         abpcd1=apb1+cpd1
-         abxcd=apb1*cpd1
-         abpcd1r=abpcd1
-         abpcdr=one/abpcd1r
-         rho1=abxcd*abpcdr
-c        
-         sqrpold=sqrt(abpcdr)
+c     NEWER
+      apb1=apb(ij)
+      cpd1=cpd(kl)
+c     
+      abpcd1=apb1+cpd1
+      abxcd=apb1*cpd1
+      abpcd1r=abpcd1
+      abpcdr=one/abpcd1r
+      rho1=abxcd*abpcdr
+c     
+      sqrpold=sqrt(abpcdr)
 c------------
       ijkl1=0
       ijklp=0
       do 100 iqp=1,isbl_size
-      iq=isbl_q(isbl_point+iqp)
-      if(iq.eq.0) go to 100
-c
+         iq=isbl_q(isbl_point+iqp)
+         if(iq.eq.0) go to 100
+c     
          ijklp=ijklp+1
-c
+c     
          ijcsq=ijpres2(iq)
          klcsq=klpres2(iq)
          ijpar=map_ij(ijcsq)
          klpar=map_kl(klcsq)
-c
+c     
          coef1=coefij(ijpar,ij)
          esti1=estab (ijpar,ij)
-c
+c     
          coef2=coefkl(klpar,kl)
          esti2=estcd (klpar,kl)
-c
+c     
          estim=esti1*esti2*abpcdr
          if(estim.gt.epsr) then
             coef12=coef1*coef2
             if(ndiag.eq.0) coef12=coef12*par268
             ijkl1=ijkl1+1
             index(ijkl1)=ijklp
-c
+c     
             x1= xp(ijpar,1,ij) - xq(klpar,1,kl)
             x2= xp(ijpar,2,ij) - xq(klpar,2,kl)
             x3= xp(ijpar,3,ij) - xq(klpar,3,kl)
-c
+c     
             xpqr(1,ijkl1)=x1*rho1
             xpqr(2,ijkl1)=x2*rho1
             xpqr(3,ijkl1)=x3*rho1
-c
+c     
             rr2=x1*x1 + x2*x2 + x3*x3
             rys(ijkl1)=rr2*rho1
-c
+c     
             const(ijkl1)=coef12*sqrpold
-cpnl        if(ndiag.eq.0.and.ijpar.eq.klpar) then
-cpnl           const(ijkl1)=const(ijkl1)*0.5d0
-cpnl        endif
-c
+c     pnl        if(ndiag.eq.0.and.ijpar.eq.klpar) then
+c     pnl           const(ijkl1)=const(ijkl1)*0.5d0
+c     pnl        endif
+c     
          endif
  100  continue
-c
+c     
       nbls1=ijkl1
       if(nbls1.eq.0) return
-c
-cnew
+c     
+c     new
       if (ityp.gt.1 .or. jtyp.gt.1 ) then
-          rapbxxx=rapb(ij)
-        do 210 i=1,nbls1
-        ijkl=index(i)
-        ijpar=indxij(ijkl)
-        xpqr(1,i)=xpqr(1,i)*rapbxxx 
-        xpqr(2,i)=xpqr(2,i)*rapbxxx 
-        xpqr(3,i)=xpqr(3,i)*rapbxxx
-c
-        txxr(1,i)=txab(ijpar,1,ij)
-        txxr(2,i)=txab(ijpar,2,ij)
-        txxr(3,i)=txab(ijpar,3,ij)
-  210   continue
+         rapbxxx=rapb(ij)
+         do 210 i=1,nbls1
+            ijkl=index(i)
+            ijpar=indxij(ijkl)
+            xpqr(1,i)=xpqr(1,i)*rapbxxx 
+            xpqr(2,i)=xpqr(2,i)*rapbxxx 
+            xpqr(3,i)=xpqr(3,i)*rapbxxx
+c     
+            txxr(1,i)=txab(ijpar,1,ij)
+            txxr(2,i)=txab(ijpar,2,ij)
+            txxr(3,i)=txab(ijpar,3,ij)
+ 210     continue
       endif
-c
+c     
       if (ktyp.gt.1 .or. ltyp.gt.1 ) then
-          rcpdxxx=rcpd(kl)
-        do 220 i=1,nbls1
-        ijkl=index(i)
-        klpar=indxkl(ijkl)
-        xpqr(1,i)=xpqr(1,i)*rcpdxxx     
-        xpqr(2,i)=xpqr(2,i)*rcpdxxx    
-        xpqr(3,i)=xpqr(3,i)*rcpdxxx   
-c
-        txxr(1,i)=txcd(klpar,1,kl)
-        txxr(2,i)=txcd(klpar,2,kl)
-        txxr(3,i)=txcd(klpar,3,kl)
-  220   continue
+         rcpdxxx=rcpd(kl)
+         do 220 i=1,nbls1
+            ijkl=index(i)
+            klpar=indxkl(ijkl)
+            xpqr(1,i)=xpqr(1,i)*rcpdxxx     
+            xpqr(2,i)=xpqr(2,i)*rcpdxxx    
+            xpqr(3,i)=xpqr(3,i)*rcpdxxx   
+c     
+            txxr(1,i)=txcd(klpar,1,kl)
+            txxr(2,i)=txcd(klpar,2,kl)
+            txxr(3,i)=txcd(klpar,3,kl)
+ 220     continue
       endif
-c
+c     
       end
 c====================================================================
       subroutine xwpq_2(nbls1,xwp,xwq,p1234,

@@ -36,7 +36,7 @@ c
 c 
 c output iroute (=1 or =2) ( stored in the common /route/
 c
-      write(8,*)' blocking procedure route=',iroute
+      if(nprint.gt.0) write(8,*)' blocking procedure route=',iroute
 c------------------------------------------------
 c Constructe blocks of contracted shell pairs
 c ( calculates number of block-pairs nbl2 and 
@@ -60,6 +60,7 @@ c--------
          write(6,*) ' Memory problem in txs-bl-replacing scratch : '
          write(6,*) ' requested=',memneed,' ; available=',lcore  
          write(6,*) ' check in TXSARRAG : ntxs_scr_size too small '
+         write(6,*) ' nbl2=',nbl2,' last1=',last1,' last2=',last2
          if(icheck.eq.0)  stop 'Memory problem in Blockin2'
       endif
 c--------
@@ -218,6 +219,7 @@ c                    number of pairs in a pair-block
 c-----------------------------------------------------------
       implicit real*8 (a-h,o-z)
       logical cond1,cond2,cond3,cond4,cond5
+      common /intgop/ ncache,maxprice,iprint,iblock
       common /intlim/ limxmem,limblks,limpair
       dimension datnuc(5,*),datbas(13,*)
       dimension npar(*),ijbl1(*)
@@ -371,14 +373,14 @@ c--------------------------------
       endif
  2500 continue
 c---------------------------------------------------------------
-      write(8,495) nbl2,ncsp,maxpar,iblmax
+      if(iprint.gt.0) write(8,495) nbl2,ncsp,maxpar,iblmax
   495 format(/' Number of Blocks of Contracted Pairs =',i7/
      *        ' total number of contracted pairs     =',i7/ 
      *        ' maximum number of pairs =',i6,' in block=',i5/)
 c-------------------
       nbloks=nbl2*(nbl2+1)/2
       ntotq=ncsp*(ncsp+1)/2
-      write(8,496) nbloks,ntotq
+      if(iprint.gt.0) write(8,496) nbloks,ntotq
   496 format(/' Number of Blocks of Contracted Quartets =',i15/
      *        ' total number of contracted quartets     =',i15/)
 c---------------------------------------------------------------
@@ -818,6 +820,8 @@ c--------------
 c-----------------------------------------------------------
 c Print out info about maximum sizes of super-blocks (PNL):
 c
+      IF(nprint.gt.0) THEN
+c
       write(8,*)'--------------------------------------------------'
       write(8,*)' Maximum sizes of super-blocks upon restrictions :'
       write(8,*)'         cache memory < ',icache
@@ -829,6 +833,8 @@ c     write(8,*)' super-block=',isupb,' txs-size=',nasize(isupb),
 c    *                                ' max-size=',mxsize(isupb)
 c 200 continue
 c     write(8,*)'--------------------------------------------------'
+c
+      ENDIF
 c-----------------------------------------------------------
 c This is memory requested for one block
 c and it should be the same like maxme1 .
@@ -854,6 +860,8 @@ c
          maxme2=maxme2+memor2 + min4
 c-----------------------------------------------------------
 c Print out info concerning memory requiments :
+c-----------------------------------------------------------
+      IF(nprint.eq.0) RETURN
 c-----------------------------------------------------------
       write(8,*)
       write(8,497) nbl12,nblsmax,ispblq,nbloks
@@ -1668,10 +1676,10 @@ c
       dimension inx(12,*),iis(*),jjs(*),ijbl(nbl2,*), ncost(*),npar(*)
 c-------------------------
 c*
-      if(nprint.ne.0) then
+      if(nprint.gt.1) then
       write(8,505)
   505 format(
-     *' Block  MMAX   type     contr    nfun/q      Nqrt   Nfunc',2x,
+     *' Block  MMAX   type   G.contr    nfun/q      Nqrt   Nfunc',2x,
      * 'Price/i')
       endif
 c
@@ -1875,14 +1883,15 @@ c
 c
 c  end of price
 c
-       if(nprint.ne.0) then
+       if(nprint.gt.1) then
          if(mmax.ne.maxst) then
 c* for printing purpose only
            write(8,*)'   '
            maxst=mmax
          endif
          write(8,506) ikbl,mmax,itype,jtype,ktype,ltype,
-     *                icont,jcont,kcont,lcont,nfijkl,nquart,nfun,
+ctst *                icont,jcont,kcont,lcont,nfijkl,nquart,nfun,
+     *                ngci1,ngcj1,ngck1,ngcl1,nfijkl,nquart,nfun,
      *                nprice
          if(nsupb(ikbl).gt.1) then
             write(8,507) nsupb(ikbl)

@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.16 1996-02-14 17:12:40 d3e129 Exp $
+c $Id: texas_face.F,v 1.17 1996-05-14 17:53:48 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -31,6 +31,8 @@ c------------------------------pnl time--------------------------
       common /howmany/ ntotal,noijkl,nopres,nospec,nrimtot,nrimret
       common /ilepar/ lpartot,lpareal
 c----------------------------------------------------------------
+      common /intgop/ ncache,maxprice,iprint,iblock
+c----------------------------------------------------------------
 c efficiency of using block's suructure :
 c
       if (nbluse.eq.0) then
@@ -41,6 +43,9 @@ c
       endif
 c----------------------------------------------------------------
 c Information about integral's program performance :
+c
+c
+      IF(iprint.gt.0) THEN
 c
       write(8,*)'------------------------------------------------------'
       write(8,*)'Texas-int2 program has been called ',ncall_pnl,' times'
@@ -114,11 +119,13 @@ c
       write(8,*)' total memory available=',memtot_bl
       write(8,*)'-----------------------------------------------'
 c
-c------------------------------------
 c------------------------------pnl performance ------------------
 c
           call txs_for_pnl( dbl_mb(k_txs_prep2) )
 c
+c------------------------------------
+      ENDIF     !! end of iprint 
+c------------------------------------
 c----------------------------------------------------------------
 c free up memory allocated by texas_init      
 c
@@ -687,11 +694,15 @@ c setup common /cpu/ intsize,iacc,icache,memreal
 c
 c machine characteristics - integer size, cache memory, real fast
 c memory (as distinct from virtual memory)
+#if defined(SGITFP) || defined(KSR) || defined(CRAY) || defined(CRAY_T3D)
+      intsize=1
+#else
       intsize=2
+#endif
 c this above should not be used
       iacc=15
-c assume 64K cache - change it for best efficiency
-      icache=8192
+c assume 8Kb cache - change it for best efficiency
+      icache=1024
 c assume 32 M memory
       memreal=8 388 608
 c these variables can be changed
@@ -715,6 +726,8 @@ c 6 proportional to the NBL2 (no of block-pairs)
 c on return size of bl() - ntxs_scr_size
 c
       call txs_scratch_siz1(ncs,inx(inxx),nsym,ntxs_scr_size)
+ccc   call txs_scratch_siz1x(basnuc(ibas),basnuc(inuc),
+ccc  *                       ncs,inx(inxx),nsym,ntxs_scr_size)
 c
       lcore=ntxs_scr_size
 c
@@ -735,7 +748,7 @@ c this is starting address in dbl_mb() which repleaces original
 c texas scratch bl(). Since hereafter texas-bl is eliminated.
 c and lcore is now equal to ntxs_scr_size .
 c
-      write(8,*)' Memory allocated to repleace txs BL :',ntxs_scr_size
+cccc  write(8,*)' Memory allocated to repleace txs BL :',ntxs_scr_size
 c
 c------------------------------------
 c make setup like in Twoint :
@@ -789,14 +802,19 @@ c in the TXS-BL() :
 c
       call memstat(nreque_bl,nmark_bl,maxmem_bl,memtot_bl)
 c
+      IF(IPRINT.gt.0) THEN
       write(8,*)'-----------------------------------------------'
       write(8,*)' At the end of TXSARRAG in texas scratch BL() :'
-      write(8,*)'                                              :'
+      write(8,*)' --------------------------------------------- '
+      write(8,*)'                                               '
+      write(8,*)'   memory status after execution of prepint2   '
+      write(8,*)'   -----------------------------------------   '
       write(8,*)' number of allocations =',nreque_bl
       write(8,*)' number of marks       =',nmark_bl
-      write(8,*)' maximum memory overall=',maxmem_bl
+      write(8,*)' maximum memory overall=',maxmem_bl,'(high water)'
       write(8,*)' total memory available=',memtot_bl
       write(8,*)'-----------------------------------------------'
+      ENDIF
 c
 c------------------------------------
 c estimate memory requested in texas-scratch bl() by texas_hf2_m :
@@ -806,12 +824,15 @@ c
 c
       l_blsize=maxme1 + maxme2 + maxmem_bl
 c
+      IF(IPRINT.gt.0) THEN
+      write(8,*)'   prediction of memory requirement for TXS    '
+      write(8,*)'   -----------------------------------------   '
+      write(8,*)' maximum est. in blocking   =',maxme1   
+      write(8,*)' maximum est. in txs_setup  =',maxme2   
+      write(8,*)' maximum used in txs_arrag  =',maxmem_bl 
+      write(8,*)' maximum estim. for l_blsize=',l_blsize  
       write(8,*)'-----------------------------------------------'
-      write(8,*)' maximum est. in bloc2 =',maxme1   
-      write(8,*)' maximum in txs_setup  =',maxme2   
-      write(8,*)' maximum in txs_arrag  =',maxmem_bl 
-      write(8,*)' maximum size of BL_SCR=',l_blsize  
-      write(8,*)'-----------------------------------------------'
+      ENDIF
 c
 c maxme1 known from prepint2 execution (common /memmax/ )
 c maxme2 estimated as needed in texas_setup
@@ -851,8 +872,8 @@ c-------------
 ccccc open(unit=7,file='fort.7',status='unknown',form='formatted')
 c--------------------------------
 c ONLY FOR TESTS with test_calc2
-      open(unit=81,file='integ.81',status='unknown',form='formatted')
-      open(unit=82,file='integ.82',status='unknown',form='formatted')
+c     open(unit=81,file='integ.81',status='unknown',form='formatted')
+c     open(unit=82,file='integ.82',status='unknown',form='formatted')
 c------------------------------------
       iov=1
 c
@@ -1036,7 +1057,11 @@ c------------------------------------
         write(luout,*)' texas integral default override: icheck =',
      &      icheck
       endif
-      ncache=10     ! option name is NCAC
+#ifdef SGITFP
+      ncache=64    ! result of tuning on c12h14 6-31g*
+#else
+      ncache=32    ! Punt
+#endif
       if (rtdb_get(rtdb,'int:txs:ncache',MT_INT,1,int_tmp)) then
         ncache = int_tmp
         write(luout,*)' texas integral default override: ncache =',
@@ -1163,6 +1188,8 @@ c======================================================================
 c
 c estimate memory requested in texas-scratch bl() by prepint2
 c
+      common /route/ iroute
+      common /cpu/ intsize,iacc,icache,memreal
       common /intlim/ limxmem,limblks,limpair
       dimension inx(12,*)
 c
@@ -1193,15 +1220,25 @@ c estimate number of pair-blocks :
 c
       nbl2=iexch*(iexch+1)/2
       nbl2_size=ncspair/nbl2
+ctest
+c     write(6,*)' est.: nbl2=',nbl2,' size=',nbl2_size
+c     write(6,*)' limpar=',limpair
 c
 c if above size is greater than the limit then 
 c take 75% of the limpair as a size :
 c
-      if(nbl2_size.gt.limpair) nbl2=ncspair/(3*limpair/4)
+      if(nbl2_size.gt.limpair) then
+         nbl2=ncspair
+         if(limpair.gt.1) nbl2=ncspair/(3*limpair/4)
+      endif
+c
+      if(iroute.eq.2) nbl2=2*nbl2 !! stupid 
 c
 c estimate number of quartet-blocks (super-blocks):
 c 
       nbl4=nbl2*(nbl2+1)/2
+ctest
+c     write(6,*)' est.: nbl2=',nbl2
 c-------------------------------------------------------
 c Memory estimation for prepint2 (blocin2) :
 c 10 memory allocations :
@@ -1223,7 +1260,9 @@ c
          iretio=mem678/10000
          memtmp=3*(iretio+1)*10000
       else
-         memtmp=15 003     ! 3* 5001
+c        memtmp=15 003     ! 3* 5001
+c        if(intsize.eq.1) memtmp=30 000 
+         memtmp=30 000     ! 3* 10000
       endif
 c
       mem9=nbl4
@@ -1232,6 +1271,127 @@ c
 c-------------------------------------------------------
       ntxs_scr_size= mem1+mem2+mem3+mem4+mem5+mem6+mem7+mem8+mem9+mem0
       ntxs_scr_size= ntxs_scr_size + memtmp
+c
+c there is one more call to getmem to allocate isblcall
+c in PAIR_IN2 routine :
+c
+      ntxs_scr_size= ntxs_scr_size + nbl4
+c-------------------------------------------------------
+c test
+c
+c     write(8,*)' number of different shells is :',iexch
+c     write(8,*)' number of pair-blocks         :',nbl2 
+c     write(8,*)' number of quartet-blocks      :',nbl4 
+c     write(8,*)' maximum memory in txs-scratch :',ntxs_scr_size
+c-------------------------------------------------------
+c rjh
+      ntxs_scr_size= max(800000,ntxs_scr_size)
+      end
+c======================================================================
+      subroutine txs_scratch_siz1x(datbas,datnuc,
+     *                             ncs,inx,nsym,ntxs_scr_size)
+      implicit real*8 (a-h,o-z)
+c
+c estimate memory requested in texas-scratch bl() by prepint2
+c
+      common /cpu/ intsize,iacc,icache,memreal
+      common /intlim/ limxmem,limblks,limpair
+      common /route/ iroute
+      dimension datbas(13,*),datnuc(5,*)
+      dimension inx(12,*)
+c
+      iexch=1
+      do 55 ics0=1,ncs-1
+      icst0=inx(12,ics0)
+      icsc0=inx(5,ics0)-inx(1,ics0)
+      icsg0=inx(4,ics0)
+      ics1=ics0+1
+      icst1=inx(12,ics1)
+      icsc1=inx(5,ics1)-inx(1,ics1)
+      icsg1=inx(4,ics1)
+      if(icst0.ne.icst1) then
+        iexch=iexch+1
+      else
+        if(icsc0.ne.icsc1) then
+           iexch=iexch+1 
+        else
+           if(icsg0.ne.icsg1) then
+              iexch=iexch+1 
+           else
+              if(iroute.eq.2) then
+                 iat0=inx(2,ics0)
+                 iat1=inx(2,ics1)
+                 nzi0=datnuc(1,iat0)
+                 nzi1=datnuc(1,iat1)
+                 if(nzi0.ne.nzi1) iexch=iexch+1
+              endif
+           endif
+        endif
+      endif
+   55 continue
+c
+c  number of different shells is : iexch 
+c-------------------------------------------------------
+c number of pairs :
+c
+      ncspair=ncs*(ncs+1)/2
+c
+c estimate number of pair-blocks :
+c
+      nbl2=iexch*(iexch+1)/2
+c
+c estimate size of pair-blocks :
+c
+      nbl2_size=ncspair/nbl2
+ctest
+      write(6,*)' est.: nbl2=',nbl2,' size=',nbl2_size
+      write(6,*)' limpar=',limpair
+c
+c if above size is greater than the limit then 
+c take 75% of the limpair as a size :
+c
+      limp34=3*limpair/4
+      if(limpair.eq.1) limp34=1
+c
+      if(nbl2_size.gt.limpair) then
+         nbl2_size=limp34
+         nbl2=ncspair/limp34
+      endif
+c
+c estimate number of quartet-blocks (super-blocks):
+c 
+      nbl4=nbl2*(nbl2+1)/2
+ctest
+      write(6,*)' est.: nbl2=',nbl2,' size=',nbl2_size
+c-------------------------------------------------------
+c Memory estimation for prepint2 (blocin2) :
+c 10 memory allocations :
+c
+      mem1=ncspair
+      mem2=ncspair
+      mem3=ncspair*nsym
+      mem4=ncspair
+      mem5=nbl4
+c
+      mem6=nbl2
+      mem7=nbl2*limp34   !should be *max_pair in block (not known yet)
+      mem8=nbl4 
+c
+      mem678=mem6+mem7+mem8
+      max678=max(mem6,mem7,mem8)
+      if(max678.le.10 000) then
+         mem678=30 000
+      else
+        iratio= max678/10000 +1
+        mem678=iratio*30000
+      endif
+c
+      mem9=nbl4
+      mem0=nbl4
+c
+c-------------------------------------------------------
+cccc  ntxs_scr_size= mem1+mem2+mem3+mem4+mem5+mem6+mem7+mem8+mem9+mem0
+      ntxs_scr_size= mem1+mem2+mem3+mem4+mem5+mem678        +mem9+mem0
 c
 c there is one more call to getmem to allocate isblcall
 c in PAIR_IN2 routine :
@@ -1257,16 +1417,16 @@ c------------------------------------------------
 c maxme1 - max. memory needed for one block - calculated in blocin2
 c
 c maxme2 - max. memory needed in texas_setup :
-c          5*nquartets_pnl + 2*nbl2 + 2 *nbl4
+c          5*nquartets_pnl + 2*nbl2 + 3 *nbl4
 c------------------------------------------------
-c assumption : nquarts_pnl <= 100 000          
+c assumption : nquarts_pnl <= 10 000          
 c
-      data nquarts /100 000/
+      data nquarts /10 000/
 c------------------------------------------------
       nbl4=nbl2*(nbl2+1)/2
 c
       maxme1=maxmem1
-      maxme2=5*nquarts + 2*nbl2 + 2*nbl4
+      maxme2=5*nquarts + 2*nbl2 + 3*nbl4
 c
 c------------------------------------------------
       end

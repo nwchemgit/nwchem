@@ -168,95 +168,12 @@ c
       return
       end
 c===============================================================
-C***
-C***  Assembling for gen. contr.
-c***  It uses the Transpose buf2 array which is called BUT2 here.
-C***
-      subroutine assemblg(bl,firstc,nbls,nbls1,l01,l02,ngcd,ibut2)
-      implicit real*8 (a-h,o-z)
-      logical firstc
 c
-ccc   common /big/ bl(1)
-c
-      common /memor4/ iwt0,iwt1,iwt2,ibuf,ibuf2,
-     * ibfij1,ibfij2,ibfkl1,ibfkl2,
-     * ibf2l1,ibf2l2,ibf2l3,ibf2l4,ibfij3,ibfkl3,
-     * ibf3l,issss,
-     * ix2l1,ix2l2,ix2l3,ix2l4,ix3l1,ix3l2,ix3l3,ix3l4,
-     * ixij,iyij,izij, iwij,ivij,iuij,isij
-c
-      common /memor5b/ irppq,
-     * irho,irr1,irys,irhoapb,irhocpd,iconst,ixwp,ixwq,ip1234,
-     * idx1,idx2,indx
-c
-      common /memor5e/ igci,igcj,igck,igcl,indgc,igcoef,
-     *                 icfg,jcfg,kcfg,lcfg, igcij,igckl
-c
-      dimension bl(*)
-c--------------------------------------------------------
-c
-        call asselg(firstc,bl(iwt0),l01,l02,nbls, bl(ibut2),
-     *                bl(indx),nbls1, ngcd,bl(indgc),bl(igcoef) )
-c
-      end
-c======================
-      subroutine asselg(firstc,xt1,lt1,lt2,nbls,but2,indx,nbls1,
-     *                  ngcd,indgc,gcoef)
-      implicit real*8 (a-h,o-z)
-      logical firstc
-C
-      common/obarai/
-     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
-     * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
-     * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
-C
-      common /logic4/ nfu(1)
-cc
-      dimension indx(*)
-      dimension xt1(nbls1,lt1,lt2)
-cccc  dimension buf2(nbls,lt1,lt2,ngcd)
-      dimension but2(ngcd,nbls,lt1,lt2)
-c
-      dimension indgc(nbls) 
-      dimension gcoef(ngcd,nbls)
-C
-      ijs=nfu(nqij)+1
-      IF (FIRSTC) THEN
-        DO 501 KL=nfu(nqkl)+1,LNKL
-        DO 501 ij=ijs,LNIJ
-        do 501 i=1,nbls1
-        ijkl=indx(i)
-        ngcq=indgc(ijkl)
-        xint=xt1(i,ij,kl)
-        if(abs(xint).gt.0.d0) then
-          do 502 iqu=1,ngcq
-          but2(iqu,ijkl,ij,kl)=xint*gcoef(iqu,ijkl)
-  502     continue
-        else
-          do 503 iqu=1,ngcq
-          but2(iqu,ijkl,ij,kl)=0.d0
-  503     continue
-        endif
-  501   continue
-C
-           FIRSTC=.FALSE.
-      ELSE
-C
-        DO 601 KL=nfu(nqkl)+1,LNKL
-        DO 601 ij=ijs,LNIJ
-        do 601 i=1,nbls1
-        ijkl=indx(i)
-        ngcq=indgc(ijkl)
-        xint=xt1(i,ij,kl)
-        if(abs(xint).gt.0.d0) then
-          do 602 iqu=1,ngcq
-          but2(iqu,ijkl,ij,kl)=but2(iqu,ijkl,ij,kl)+xint*gcoef(iqu,ijkl)
-  602     continue
-        endif
-  601   continue
-c
-      ENDIF
-      end
+C moved into the gencon.f file :
+c     subroutine assemblg(bl,firstc,nbls,nbls1,l01,l02,ngcd,
+c new routines made out of former asselg :
+c     subroutine asselg_n(firstc,xt1,lt1,lt2,nbls,indx,nbls1,
+c     subroutine asselg_d(firstc,xt1,lt1,lt2,nbls,indx,nbls1,
 c===============================================================
 c======= Duplicated routines for different values of IROUTE ====
 c
