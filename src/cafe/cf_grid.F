@@ -1,5 +1,5 @@
       subroutine cf_alpha
-c $Id: cf_grid.F,v 1.18 2003-09-22 15:34:58 d3j191 Exp $
+c $Id: cf_grid.F,v 1.19 2004-09-13 15:19:40 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -159,6 +159,7 @@ c
       else
       charge=chg(isq(isa),1,lseq(isgm(isa)))
       endif
+      write(*,'(2i5,f12.5)') isa,isgm(isa),charge
       indx=indx+1
       k0=int(ys(isa,3))-morder
       do 8 ith3=1,morder

@@ -1,7 +1,7 @@
       logical function cf_hopping(stimei,issgm,isgan,ishop,
      + xs,nsaloc)
 c
-c $Id: cf_hopping.F,v 1.13 2003-10-19 03:30:56 d3j191 Exp $
+c $Id: cf_hopping.F,v 1.14 2004-09-13 15:19:40 d3j191 Exp $
 c
       implicit none
 c
@@ -246,9 +246,9 @@ c
       do 8 j=1,nsaloc
       if(lda(1,i).eq.isgan(j)) then
       call qhop_dsite(isgan(j),issgm(j),ndxrel)
-      xs(j,1)=0.9d0*xs(j+ndxrel,1)+0.1d0*xs(j,1)
-      xs(j,2)=0.9d0*xs(j+ndxrel,2)+0.1d0*xs(j,2)
-      xs(j,3)=0.9d0*xs(j+ndxrel,3)+0.1d0*xs(j,3)
+c      xs(j,1)=0.9d0*xs(j+ndxrel,1)+0.1d0*xs(j,1)
+c      xs(j,2)=0.9d0*xs(j+ndxrel,2)+0.1d0*xs(j,2)
+c      xs(j,3)=0.9d0*xs(j+ndxrel,3)+0.1d0*xs(j,3)
       ishop(j)=ior(ishop(j),1)
       if(lda(5,i).ne.0) then
       x(1)=xs(j,1)

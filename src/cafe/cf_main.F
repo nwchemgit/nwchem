@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.171 2004-04-13 15:23:15 d3j191 Exp $
+c $Id: cf_main.F,v 1.172 2004-09-13 15:19:40 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -449,7 +449,7 @@ c
       return
       end
       subroutine cf_mdstep(iwdt,xw,yw,vw,vwt,fw,numw,
-     + isdt,isat,xs,ys,vs,vst,fs,nums,iwgmn,isgan,issgm,tmpx)
+     + isdt,isat,xs,ys,vs,vst,fs,nums,iwgmn,isgan,issgm,tmpx,ishp)
 c
       implicit none
 c
@@ -458,7 +458,7 @@ c
 c
       integer numw,nums
       integer iwdt(mwm),isdt(msa),isat(msa),isgan(msa),issgm(msa)
-      integer iwgmn(mwm)
+      integer iwgmn(mwm),ishp(msa)
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa)
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),fw(mwm,3,mwa)
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),vst(msa,3),fs(msa,3)
@@ -471,7 +471,7 @@ c
       if(mdalgo.eq.1) then
       call cf_lpfrog(iwdt,xw,yw,vw,vwt,fw,numw,
      + isdt,isat,xs,ys,vs,vst,fs,nums,int_mb(i_iwa),
-     + dbl_mb(i_mas),iwgmn)
+     + dbl_mb(i_mas),iwgmn,ishp)
       elseif(mdalgo.eq.2) then
       call cf_lpfrog_bc(iwdt,xw,yw,vw,vwt,fw,numw,
      + isdt,isat,xs,ys,vs,vst,fs,nums,int_mb(i_iwa),
@@ -503,7 +503,7 @@ c
       return
       end
       subroutine cf_lpfrog(iwdt,xw,yw,vw,vwt,fw,numw,
-     + isdt,isat,xs,ys,vs,vst,fs,nums,iwat,wgt,iwgmn)
+     + isdt,isat,xs,ys,vs,vst,fs,nums,iwat,wgt,iwgmn,ishp)
 c
       implicit none
 c
@@ -511,7 +511,7 @@ c
 #include "mafdecls.fh"
 c
       integer numw,nums
-      integer iwdt(mwm),isdt(msa),isat(msa)
+      integer iwdt(mwm),isdt(msa),isat(msa),ishp(msa)
       integer iwgmn(mwm)
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa)
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),fw(mwm,3,mwa)
@@ -575,6 +575,9 @@ c
       xs(isa,2)=xs(isa,2)+vs(isa,2)*tstep
       xs(isa,3)=xs(isa,3)+vs(isa,3)*tstep
       endif
+c      write(lfnhop,222) isa,ishp(isa),ys(isa,1),ys(isa,2),ys(isa,3),
+c     + xs(isa,1),xs(isa,2),xs(isa,3),fs(isa,1),fs(isa,2),fs(isa,3)
+c  222 format(2i5,6f10.5,3e12.6)
     3 continue
 c
       endif
