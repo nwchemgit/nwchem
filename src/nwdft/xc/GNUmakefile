@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.70 2001-11-14 23:42:23 edo Exp $
+# $Id: GNUmakefile,v 1.71 2002-01-18 10:25:41 bjohnson Exp $
 
 	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o
 	OBJ_OPTIMIZE = \
@@ -33,7 +33,7 @@
 	xc_vwn_3.o \
 	xc_vwn_4.o \
 	xc_vwn_5.o \
-	xc_eval_fnl.o xc_pbe96.o  \
+	xc_eval_fnl.o xc_fd.o xc_pbe96.o  \
 	xc_hcth.o  xc_xpbe96.o xc_ssw.o  xc_xpw91.o xc_tarad.o xc_murakn.o \
 	xc_signf.o  xc_gill96.o \
 	xc_oep.o xc_sic_pert.o xc_sic.o localize_sic.o \
@@ -49,7 +49,7 @@ LIB_INCLUDES = -I../include
 
 
    USES_BLAS = xc_fitv.F xc_quadv0_a.F xc_quadv1.F xc_dirac.F xc_tabcd.F xc_rhogen.F xc_beckew.F xc_ssw.F xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \
-xc_eval_basis.F   ../include/xc_rhogen.fh ../include/xc_tabcd.fh xc_optc.F
+xc_eval_basis.F xc_fd.F  ../include/xc_rhogen.fh ../include/xc_tabcd.fh xc_optc.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
