@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.3 2000-11-25 15:42:44 bjohnson Exp $	
+#	$Id: MakeFile,v 1.4 2001-08-19 21:25:03 bjohnson Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -15,7 +15,6 @@ FOBJ =         $(OBJDIR)\damax.obj \
                $(OBJDIR)\dgetavec3.obj \
                $(OBJDIR)\dlarnv.obj \
                $(OBJDIR)\dlasq1.obj \
-               $(OBJDIR)\dlasrt.obj \
                $(OBJDIR)\dlasq2.obj \
                $(OBJDIR)\dlasq3.obj \
                $(OBJDIR)\dlasq4.obj \
