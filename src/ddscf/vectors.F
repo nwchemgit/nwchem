@@ -4,6 +4,7 @@
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
+#include "msgids.fh"
 c
 c     Temporary routine
 c
@@ -49,15 +50,15 @@ c
          ok = 1
       endif
 c
- 10   call ga_brdcst(1+MSGINT, ok, mitob(1), 0) ! Propagate status
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
       movecs_read_header = ok .eq. 1
       if (.not. movecs_read_header) return
 c
-*     call cbrdcst(1, title, 0)
-*     call cbrdcst(2, basis_name, 0)
-      call ga_brdcst(4+MSGINT, nbf, mitob(1), 0)
-      call ga_brdcst(5+MSGINT, nsets, mitob(1), 0)
-      call ga_brdcst(6+MSGINT, nmo, mitob(nsets), 0)
+*     call cbrdcst(Msg_Vec_Ttl, title, 0)
+*     call cbrdcst(Msg_Vec_Nam, basis_name, 0)
+      call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, mitob(1), 0)
+      call ga_brdcst(Msg_Vec_Set+MSGINT, nsets, mitob(1), 0)
+      call ga_brdcst(Msg_Vec_NMO+MSGINT, nmo, mitob(nsets), 0)
 c
       return
 c
@@ -84,6 +85,7 @@ c
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "mafdecls.fh"
+#include "msgids.fh"
 c
       character*(*) filename
       integer iset              ! No. (1,2) of set of vectors to read
@@ -139,11 +141,11 @@ c
          ok = 1
       endif
 c
- 10   call ga_brdcst(1+MSGINT, ok, mitob(1), 0) ! Propagate status
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
       if (ok .eq. 1) then
-	 call ga_brdcst(2+MSGINT, nbf, mitob(1), 0)
-	 call ga_brdcst(3+MSGDBL, evals, mdtob(nbf), 0)
-	 call ga_brdcst(4+MSGDBL, occ,   mdtob(nbf), 0)
+	 call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, mitob(1), 0)
+	 call ga_brdcst(Msg_Vec_EVal+MSGDBL, evals, mdtob(nbf), 0)
+	 call ga_brdcst(Msg_Vec_Occ+MSGDBL, occ,   mdtob(nbf), 0)
       endif
 c
       movecs_read = ok .eq. 1
@@ -174,6 +176,7 @@ c
 #include "msgtypesf.h"
 #include "mafdecls.fh"
 #include "inp.fh"
+#include "msgids.fh"
 c
 c     Temporary routine
 c
@@ -232,7 +235,7 @@ c
          ok = 1
       endif
 c
- 10   call ga_brdcst(1+MSGINT, ok, mitob(1), 0) ! Propagate status
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
 c
       movecs_write = ok .eq. 1
       return

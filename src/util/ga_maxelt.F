@@ -2,6 +2,7 @@
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
+#include "msgids.fh"
        integer g_a
        double precision value
 c
@@ -10,8 +11,6 @@ c     absolute magnitude
 c
        integer ilo, ihi, jlo, jhi, idim, jdim, ld
        integer i, j, ind, ind_max
-       integer msgtype
-       parameter(msgtype=1965)
        integer idamax
        external idamax
 c
@@ -34,7 +33,7 @@ c
 c     Finally a global max via message passing
 c
        call ga_sync()
-       call ga_dgop(msgtype, value, 1, 'absmax')
+       call ga_dgop(Msg_MxElt, value, 1, 'absmax')
        call ga_sync()
 c
        end

@@ -1,9 +1,10 @@
       subroutine int_chk_sum(basisin,print_ints)
-c $Id: int_chk_sum.F,v 1.7 1994-08-25 08:23:05 d3e129 Exp $
+c $Id: int_chk_sum.F,v 1.8 1994-08-27 23:21:46 gg502 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
 #include "bas.fh"
+#include "msgids.fh"
 c::passed
       integer basisin    ! [input] basis set handle 
       logical print_ints ! [input] also print integral and label values 
@@ -111,8 +112,8 @@ c
           endif
 00200   continue
 00100 continue
-      call ga_igop(564,numtot,1,'+')
-      call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
+      call ga_igop(Msg_IChkI,numtot,1,'+')
+      call ga_dgop(Msg_IChkD,dbl_mb(i_stats),(5*3),'+')
       if (me.eq.0)
      &    call prt_stat_sum('overlap',dbl_mb(i_stats),numtot)
       call ga_sync()
@@ -141,8 +142,8 @@ c
           endif
 00201   continue
 00101 continue
-      call ga_igop(564,numtot,1,'+')
-      call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
+      call ga_igop(Msg_IChkI,numtot,1,'+')
+      call ga_dgop(Msg_IChkD,dbl_mb(i_stats),(5*3),'+')
       if (me.eq.0)
      &    call prt_stat_sum('kinetic energy',dbl_mb(i_stats),numtot)
       call ga_sync()
@@ -171,8 +172,8 @@ c
           endif
 00202   continue
 00102 continue
-      call ga_igop(564,numtot,1,'+')
-      call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
+      call ga_igop(Msg_IChkI,numtot,1,'+')
+      call ga_dgop(Msg_IChkD,dbl_mb(i_stats),(5*3),'+')
       if (me.eq.0)
      &    call prt_stat_sum('pot. energy',dbl_mb(i_stats),numtot)
       call ga_sync()
@@ -201,8 +202,8 @@ c
           endif
 00203   continue
 00103 continue
-      call ga_igop(564,numtot,1,'+')
-      call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
+      call ga_igop(Msg_IChkI,numtot,1,'+')
+      call ga_dgop(Msg_IChkD,dbl_mb(i_stats),(5*3),'+')
       if (me.eq.0)
      &    call prt_stat_sum('h1',dbl_mb(i_stats),numtot)
       call ga_sync()
@@ -242,8 +243,8 @@ c
 03000     continue
 02000   continue
 01000 continue
-      call ga_igop(564,numtot,1,'+')
-      call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
+      call ga_igop(Msg_IChkI,numtot,1,'+')
+      call ga_dgop(Msg_IChkD,dbl_mb(i_stats),(5*3),'+')
       if (me.eq.0)
      &    call prt_stat_sum('two electron',dbl_mb(i_stats),numtot)      
       call ga_sync()
@@ -278,8 +279,8 @@ c
 03001     continue
 02001   continue
 01001 continue
-      call ga_igop(564,numtot,1,'+')
-      call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
+      call ga_igop(Msg_IChkI,numtot,1,'+')
+      call ga_dgop(Msg_IChkD,dbl_mb(i_stats),(5*3),'+')
       if (me.eq.0)
      &    call prt_stat_sum
      &    ('3 center two electron',dbl_mb(i_stats),numtot)      
@@ -314,8 +315,8 @@ c
           endif
 02002   continue
 01002 continue
-      call ga_igop(564,numtot,1,'+')
-      call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
+      call ga_igop(Msg_IChkI,numtot,1,'+')
+      call ga_dgop(Msg_IChkD,dbl_mb(i_stats),(5*3),'+')
       if (me.eq.0)
      &    call prt_stat_sum
      &    ('2 center two electron',dbl_mb(i_stats),numtot)      

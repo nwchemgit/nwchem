@@ -7,6 +7,7 @@
 #include "bas.fh"
 #include "geom.fh"
 #include "cguess.fh"
+#include "msgids.fh"
       integer geom, basis
 c
 c...   subroutine to coordinate atom-scf calls and d-matrix gathering
@@ -275,7 +276,7 @@ c
 c
       call ga_sync()
 c
-      call ga_dgop(11, toteng, 1, '+')
+      call ga_dgop(Msg_AtSCF, toteng, 1, '+')
       if (ga_nodeid().eq.0) then
          call util_print_centered(6,
      $        'Superposition of Atomic Density Guess', 20, .true.)

@@ -6,6 +6,7 @@
 #include "schwarz.fh"
 #include "global.fh"
 #include "geom.fh"
+#include "msgids.fh"
 c
       integer geom, basis       ! [input] handles
 c
@@ -131,9 +132,9 @@ c
 c     
 c     A global OR is required to piece together the parts made in parallel
 c
-      call ga_igop(3333, int_mb(k_cat), len_cat, 'or')
-      call ga_igop(3334, int_mb(k_csh), len_csh, 'or')
-      call ga_dgop(3335, sch_max, 1, 'max')
+      call ga_igop(Msg_SchAt, int_mb(k_cat), len_cat, 'or')
+      call ga_igop(Msg_SchSh, int_mb(k_csh), len_csh, 'or')
+      call ga_dgop(Msg_SchMx, sch_max, 1, 'max')
 c
       if (odebug) write(6,*) ' sch_max ', sch_max
 c
