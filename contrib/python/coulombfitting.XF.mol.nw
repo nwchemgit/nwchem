@@ -116,7 +116,7 @@ python
     for j in range(0,l+1):
        for i in range(0,n[j]):
           basis = basis + ('%s %s ; %f 1;' % (atom, function_type[j], exponents[i][j]))
-       basis = basis + "F library Ahlrichs_Coulomb_Fitting;"
+    basis = basis + "F library Ahlrichs_Coulomb_Fitting;"
     if (run_type == "scf"):
        basis = basis + "end\n\n" + type_setup('scf')
        input_parse(basis)
