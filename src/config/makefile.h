@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.292 1999-07-12 18:11:23 d3e129 Exp $
+# $Id: makefile.h,v 1.293 1999-07-14 16:42:43 d3j191 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -893,6 +893,7 @@ endif
 
 ifeq ($(TARGET),SP)
 #
+     OLD_GA = y 
     CORE_SUBDIRS_EXTRA = lapack blas
          FC = mpxlf -qnohpf
 # -F/u/d3g681/xlhpf.cfg:rjhxlf
