@@ -6,7 +6,7 @@ c
 c
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.68 2002-10-09 22:26:32 edo Exp $
+c $Id: texas_face.F,v 1.69 2002-10-23 18:11:32 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -55,12 +55,7 @@ c
 c
 c        efficiency of using block's suructure :
 c
-         if (nbluse.eq.0) then
-           bleffiy = 0.0d00
-         else
-           ysmallbl=dble(nbluse)
-           bleffiy=(xbluse/ysmallbl)*100.d0
-         endif
+         bleffiy=(xbluse/dble(ncall_pnl))*100.d0
       endif
 c----------------------------------------------------------------
       texas_max_ang_val = -565   ! reset on termination
@@ -179,7 +174,7 @@ c------------------------------------
       write(8,*)' -------------------------------------------'
 c
 c     call util_flush(8)
-      close(8)
+c      close(8)
 c------------------------------------
       ENDIF     !! end of iprint 
 c----------------------------------------------------------------
@@ -1451,7 +1446,7 @@ c
       endif
       if(int_type.eq.'der2_int') then 
         limblks=0  !   limblks=150
-        limpair= 50
+        limpair=50
       endif
 c
 c2002 NOTE : for limblks=0 max block size will be determined 
@@ -1690,7 +1685,7 @@ c store MEM_STAT in a common block for latter use
 c when TEXAS_MEMORY(m_static,nquarts,m_dynam) is called
 c------------------------------------------------
 c
-      if(iprint.gt.0) then
+      if(iprint.gt.1) then
         write(8,*)' -------------------------------------------'
         write(8,*)' PREDICTIONS FOR TEXAS MEMORY SCRATCH SIZE :'
         write(8,*)'           (in txs_scratch_siz2)            '
@@ -2112,12 +2107,12 @@ c
           write(8,*)' PREDICTIONS FOR TXS-95 BLOCKING PROCEDURE :'
         endif
 c
-        write(8,*)'           (in txs_scratch_siz1)            '
+c2002   write(8,*)'           (in txs_scratch_siz1)            '
         write(8,*)' -------------------------------------------'
         write(8,*)' number of shell-blocks        :',nbl1 
         write(8,*)' number of pair -blocks        :',nbl2 
         write(8,*)' number of quart-blocks        :',nbl4 
-        write(8,*)' MEMORY ESTIMATION FOR SCRATCH1:',memory2
+c2002   write(8,*)' MEMORY ESTIMATION FOR SCRATCH1:',memory2
         write(8,*)' -------------------------------------------'
 c       write(8,*)' '
       endif

@@ -4,7 +4,7 @@
      *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
      *                       more_int,blscr,l_blscr,zerotol,int_type)
 *
-* $Id: texas_hf.F,v 1.35 2000-10-25 22:50:07 windus Exp $
+* $Id: texas_hf.F,v 1.36 2002-10-23 18:11:32 pg481 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -461,8 +461,7 @@ c--------------------------------------------------------
       call memo1_int(nquart,isupblk)
       call memo1_int(nsupblk,isblpoin)
 *         call txs_second(time_beg)
-      call swap_shells(nquart,icspnl,jcspnl,kcspnl,lcspnl,
-     *     nbl2,
+      call swap_shells(nquart,icspnl,jcspnl,kcspnl,lcspnl,nbl2,
      *     bl(ijblock),bl(klblock),bl(ijpres2),bl(klpres2),
      *     bl(isupblk),bl(isblsize),bl(isblqrts),bl(nblock1_back),
      *     bl(iqorder),bl(isblpoin) )
@@ -511,6 +510,12 @@ c
 c
       call retmem(1)
       call memo1_int(isplit+2, isbl_split)
+c--------------------------------------------------------
+c2002 : efficeiency of using blocking capabilities of Texas:
+c
+      nquartot=ncs*(ncs+1)/2
+      nquartot=nquartot*(nquartot+1)/2
+      call blk_capab(nbl2,bl(npard),bl(isblsize),nquart,nquartot)
 c--------------------------------------------------------
       end
 c==================================================================
@@ -1546,6 +1551,37 @@ c                                                      1 to jncrem)
 c
       ics=ishell+ics_b -1
       jcs=jshell+jcs_b -1
+c
+      end
+c==================================================================
+      subroutine blk_capab(nbl2,npar,isbl_s,nquart_pnl,nquart_txs)
+      implicit real*8 (a-h,o-z)
+      common /pnl000/ xbluse,nbluse
+      dimension isbl_s(*) , npar(*)
+c
+      xquart_pnl=dble(nquart_pnl)
+      xquart_txs=dble(nquart_txs)
+c
+      ibluse=0
+      ikbl=0
+      do ibl=1,nbl2
+         do kbl=1,ibl
+            ikbl=ikbl+1
+            iquart_pnl=isbl_s(ikbl)
+            if(iquart_pnl.gt.0) ibluse=ibluse+1
+         enddo
+      enddo
+c
+      nbluse=nbluse+ibluse
+c
+      xblk_pnl=dble(ibluse)
+      xblk_txs=dble(ikbl)
+c
+      size_pnl=xquart_pnl/xblk_pnl
+      size_txs=xquart_txs/xblk_txs
+      bluse=size_pnl/size_txs
+      
+      xbluse=xbluse+bluse
 c
       end
 c==================================================================

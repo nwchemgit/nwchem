@@ -1,4 +1,4 @@
-* $Id: spec_block.F,v 1.29 2002-10-09 18:54:54 pg481 Exp $
+* $Id: spec_block.F,v 1.30 2002-10-23 18:11:32 pg481 Exp $
 c===============================================================
 c kw 22.05.97 : nsupb(*) has been eleminated.(not used for PNNL)
 c kw 22.05.97 : nasize(*)has been eleminated. 
@@ -53,7 +53,7 @@ c  number of pair-blocks  = NBL2
 c  number of quart-blocks = NBL4
 c  number of pairs in the block ibl is NPAR(ibl)
 c---
-c The number of contracted shell Quartets is
+c The number of Blocks of contracted shell Quartets is
 c NBL4=NBL2*(NBL2+1)/2. The maximum size for each of 
 c them is known and kept in array MAXSIZE(i=1,NSUPB) 
 c (bl(mxsize)) (no of quartets). According to this max.size
@@ -326,7 +326,8 @@ c
       call get_limit(mmax,icache,nfijkl,iforwhat,ibl,kbl,
      *               itype1,jtype1,ktype1,ltype1, nqrt_limit)
 c
-      maxsize=nqrt_limit
+c2002 maxsize=nqrt_limit
+      maxsize=min( nqrt_limit , nquart_all )
 c-------------------------------------------------
 c for average texas-block-size :
 c
