@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.43 1998-07-02 20:26:15 ng972 Exp $
+C     $Id: input_parse.F,v 1.44 1998-07-13 21:42:57 d3g681 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -96,6 +96,7 @@ c
                call ccsd_input(rtdb)
             else if (inp_compare(.false.,test,'print')) then
                call util_print_input(rtdb,' ')
+               call util_print_rtdb_load(rtdb,' ') ! High level print
             else if (inp_compare(.false.,test,'noprint')) then
                call util_print_input(rtdb,' ')
             else if (inp_compare(.false.,test,'set')) then
