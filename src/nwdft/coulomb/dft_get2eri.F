@@ -1,6 +1,6 @@
       Subroutine dft_get2eri(CD_bas_han, g_2ceri,oskel)
 c
-C$Id: dft_get2eri.F,v 1.14 2004-10-02 22:53:18 edo Exp $
+C$Id: dft_get2eri.F,v 1.15 2004-12-29 00:52:26 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -14,9 +14,12 @@ c
 #include "sym.fh"
 c      
       integer nshells_cd, MXnshbf_cd, me, nproc, icount,
-     &        maxg, mscratch_2e2c, n1, n2, Nintegrals,
+     &        maxg, mscratch_2e2c, Nintegrals,
      &        ishp, ifirstp, ilastp, nshp,
      &        ishq, ifirstq, ilastq, nshq
+#if 0
+      integer n1, n2
+#endif
       integer lbuf, ibuf, lscr, iscr, lvec, ivec
       integer nxtask
       integer ishpq
@@ -114,7 +117,9 @@ c
             endif
             ishpq=ishpq+1
 c
+#if 0
             n2 = n2 + 1
+#endif
 c
    10    continue
 c
