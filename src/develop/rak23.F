@@ -36,12 +36,14 @@ c
       if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis')) call errquit
      &    ('bas_rtdb_load failed',911)
 c
-      write(6,*)' geom/basis loaded'
+      write(luout,*)' geom/basis loaded'
 c
       if (.not.int_normalize(basis)) stop ' norm error 1'
 c
       if (.not. bas_print(basis))
      $    call errquit(' basis print failed', 0)
+      if (.not. gbs_map_print(basis))
+     $    call errquit(' gbs_map_print failed', 0)
 c
       if (.not.bas_numbf(basis,nbf)) call errquit
      &    ('numbf failed',911)
@@ -50,7 +52,7 @@ c
      &    ('numbf failed',911)
 c
       if (.not.geom_ncent(geom,nat)) stop 'geom_ncent fe'
-      write(6,*) 'number of atoms ', nat
+      write(luout,*) 'number of atoms ', nat
       nat3 = 3*nat
 c
       if (.not.bas_nbf_cn_max(basis,cn_nbf_max))
@@ -59,6 +61,9 @@ c
       size   = (cn_nbf_max**4)*78
       sizesq = (cn_nbf_max**4)*12*12
       sizeg  = (cn_nbf_max**4)*12
+      size   = size   + size  /10
+      sizesq = sizesq + sizesq/10
+      sizeg  = sizeg  + sizeg /10
 c
       call intdd_init(rtdb,1,basis)
       call int_mem_print()
@@ -133,6 +138,7 @@ c
 #include "stdio.fh"
 #include "bas.fh"
 #include "geomP.fh"
+#include "inp.fh"
 c::functions
       logical rakdd_checktrans
       external rakdd_checktrans
@@ -170,9 +176,12 @@ c::passed
       integer num_atoms2move, atom1, atom2
       integer nat3
       integer ixyz, zatom
-      double precision thresh, delta, scale
-      character*99 string
+      double precision thresh, delta, scale, normmax, normmin, norm
+      character*99 string,strings, stringe
 *
+      normmax = 0.0d00
+      normmin = 1.0d05
+      call int_acc_high()
 * store original coordintates
       nat3 = 3*nat
       call dcopy(nat3,coords(1,1,geom),1,xyz,1)
@@ -180,10 +189,13 @@ c::passed
       thresh = 1.0d-07
       delta  = 0.001d00
 *
+      write(luout,*)'  ',nshell,' total shells '
       do ish = 1, nshell
         if (.not.bas_cn2bfr(basis,ish,ilo,ihi))
      &      stop 'cn2bfr error i'
         inbf = ihi - ilo + 1
+        strings = ' '
+        call util_date(strings)
         if (.not.bas_cn2ce(basis,ish,iatom))
      &      stop 'bas_cn2ce error i'
         do jsh = 1, nshell
@@ -192,13 +204,13 @@ c::passed
           jnbf = jhi - jlo + 1
           if (.not.bas_cn2ce(basis,jsh,jatom))
      &        stop 'bas_cn2ce error j'
-          do ksh = 1, nshell
+          do ksh =  1, nshell
             if (.not.bas_cn2bfr(basis,ksh,klo,khi))
      &          stop 'cn2bfr error k'
             knbf = khi - klo + 1
             if (.not.bas_cn2ce(basis,ksh,katom))
      &          stop 'bas_cn2ce error k'
-            do lsh = 1, nshell
+            do lsh =  1, nshell
               if (.not.bas_cn2bfr(basis,lsh,llo,lhi))
      &            stop 'cn2bfr error l'
               lnbf = lhi - llo + 1
@@ -207,14 +219,17 @@ c::passed
               if (.not.(iatom.eq.jatom.and.
      &                           jatom.eq.katom.and.
      &                                    katom.eq.latom)) then
-*                write(luout,'(/)')
-*                write(luout,10000)
+*                write(79,'(/)')
+*                write(79,10000)
 *     &              'shells:s: ',ish,jsh,ksh,lsh
-                write(79,'(/)')
-                write(79,10000)
-     &              'shells:s: ',ish,jsh,ksh,lsh
                 nint  = inbf*jnbf*knbf*lnbf
+                nintg = nint*12
                 ninth = nint*78
+*rak:                write(luout,'(/)')
+*rak:                write(luout,10000)
+*rak:     &              'shells:s: ',ish,jsh,ksh,lsh,
+*rak:     &              'nbfX: ',inbf,jnbf,knbf,lnbf,
+*rak:     &              'nint:nintg:ninth:',nint,nintg,ninth
                 call dfill (lbuf,0.0d00,buf,1)
                 call dcopy(nat3,xyz,1,coords(1,1,geom),1)
                 call intdd_2e4c(basis,ish,jsh,basis,ksh,lsh,
@@ -321,16 +336,36 @@ c::passed
                   endif
                 enddo ! zatom
                 call rakdd_fill_b(buffdsq,nint)
-                call rakdd_print_both(80,buffdsq,bufsum,nint)
-                call rakdd_compare((nint*12*12),buffdsq,bufsum)
+*                call rakdd_print_both(80,buffdsq,bufsum,nint)
+                call rakdd_compare(
+     &              ish,jsh,ksh,lsh,
+     &              (nint*12*12),buffdsq,bufsum,norm)
+                normmax = max(normmax,norm)
+                normmin = min(normmin,norm)
               endif ! 4 atoms the same
             enddo   ! lsh
           enddo     ! ksh
         enddo       ! jsh
+        string  = ' '
+        stringe = ' '
+        call util_date(stringe)
+        write(string,'(1x,i5,a3,a27,a2,a27)')
+     &      ish,' ::',
+     &      strings(1:25),'::',
+     &      stringe(1:25)
+        do jsh = 1,inp_strlen(string)
+          ksh = ichar(string(jsh:jsh))
+          if (ksh.eq.10) string(jsh:jsh) = ' '
+        enddo
+        write(luout,'(1x,a)')string(1:inp_strlen(string))
       enddo         ! ish
+      write(luout,'(1x,a,1pd20.10)')
+     &    ' maximum difference norm over all quartets:',normmax
+      write(luout,'(1x,a,1pd20.10)')
+     &    ' minimum difference norm over all quartets:',normmin
 *
-10000 format(1x,a,4(i4),1x,a,4(i3),1x,a,4(i3),1x,a,i6,1x,
-     &    a,4(i3),1x,a,i2)
+10000 format(1x,a,4(i4),1x,a,4(i3),1x,a,4(1x,i5),1x,a,i6,/,
+     &    47x,a,4(1x,i5),1x,a,i2)
       end
       subroutine rakdd_fill(at4xyz,nint,buf,bufsum,idatom)
       implicit none
@@ -378,13 +413,14 @@ c
      &    'copy of bufsum',hbufsumcp,kbufsumcp)) stop ' ma alloc fail'
       call dcopy((12*12*nint),bufsum,1,dbl_mb(kbufsumcp),1)
       call rakdd_fill_a(bufsum,idatom,nint) ! sum atom parts together
-      call rakdd_printsum_b4a(79,bufsum,dbl_mb(kbufsumcp),nint,
-     &    idatom,idatomB4)
+*      call rakdd_printsum_b4a(79,bufsum,dbl_mb(kbufsumcp),nint,
+*     &    idatom,idatomB4)
       if (.not.ma_free_heap(hbufsumcp)) stop ' ma_free fail'
       call rakdd_fill_b(bufsum,nint) ! check if symmetric
       end
       subroutine rakdd_fill_b(bufsum,nint)
       implicit none
+#include "stdio.fh"
       integer nint
       double precision bufsum(12,12,nint)
 *
@@ -398,10 +434,10 @@ c
             diff = bufsum(i,j,iint)-bufsum(j,i,iint)
             diff = abs(diff)
             if (diff.gt.thresh) then
-              write(6,*)' bufsum not symmetric i,j,iint',i,j,iint
-              write(6,*)' bufsum(i,j,iint) :',bufsum(i,j,iint)
-              write(6,*)' bufsum(j,i,iint) :',bufsum(j,i,iint)
-              write(6,*)' diff            :',diff
+              write(luout,*)' bufsum not symmetric i,j,iint',i,j,iint
+              write(luout,*)' bufsum(i,j,iint) :',bufsum(i,j,iint)
+              write(luout,*)' bufsum(j,i,iint) :',bufsum(j,i,iint)
+              write(luout,*)' diff            :',diff
             endif
           enddo
         enddo
@@ -409,6 +445,7 @@ c
       end
       subroutine rakdd_fill_a(buf,idatom,nint)
       implicit none
+#include "stdio.fh"
       integer idatom(4)
       integer nint
       double precision buf(3,4,3,4,nint)
@@ -605,10 +642,11 @@ c
         endif
       endif
       if (num_sum.gt.2)
-     &    write(6,*)'number of sums done: ',num_sum
+     &    write(luout,*)'number of sums done: ',num_sum
       end
       subroutine rakdd_printsum(nint,bufsum,idatom)
       implicit none
+#include "stdio.fh"
       integer nint
       integer idatom(4)
       double precision bufsum(3,4,3,4,nint)
@@ -641,7 +679,7 @@ c
                 val = bufsum(ixyz,iatom,jxyz,jatom,iint)
                 if (abs(val).gt.thresh) then
                   count = count + 1
-                  write(6,10000)
+                  write(luout,10000)
      &                atoms(iatom),sxyz(ixyz),
      &                atoms(jatom),sxyz(jxyz),
      &                ixyz,iatom,jxyz,jatom,iint,
@@ -659,6 +697,7 @@ c
       end
       subroutine rakdd_print_dd(nint,buf,idatom)
       implicit none
+#include "stdio.fh"
       integer nint
       integer idatom(4)
       double precision buf(78,nint)
@@ -752,7 +791,7 @@ c
           val = buf(ider,iint)
           if (abs(val).gt.thresh) then
             count = count + 1
-            write(6,10000)sder(ider),
+            write(luout,10000)sder(ider),
      &          ider,iint,val,idatom,count
           endif
         enddo
@@ -764,6 +803,7 @@ c
 * true is okay
 * false is a problem
       implicit none
+#include "stdio.fh"
       integer nint
       double precision bufsum(3,4,3,4,nint)
 *
@@ -800,13 +840,15 @@ c
           enddo
         enddo
         if (.not.(abs(sum).lt.thresh)) then
-          write(6,*)' sum of 144 NOT OKAY iint:',iint,' sum:',sum
+          write(luout,*)
+     &        ' sum of 144 NOT OKAY iint:',iint,' sum:',sum
           if (rakdd_checktrans)rakdd_checktrans=.false.
         endif
       enddo
       end
       subroutine rakdd_checkt_78(nint,buf)
       implicit none
+#include "stdio.fh"
 *      
       integer nint
       double precision buf(78,nint)
@@ -838,7 +880,7 @@ c
      &        buf(52,iint)  + ! IDxBy bydx
      &        buf(67,iint)  + ! IDxCy cydx
      &        buf(74,iint)    ! IDxDy
-*        write(6,*)' sum of 78(1) :',sumjim(1)
+*        write(luout,*)' sum of 78(1) :',sumjim(1)
         sumjim(2) =
      &        buf( 5,iint)  + ! IAyAz
      &        buf(12,iint)  + ! IAyBz
@@ -856,7 +898,7 @@ c
      &        buf(56,iint)  + ! IDyBz bzdy
      &        buf(71,iint)  + ! IDyCz czdy
      &        buf(77,iint)    ! IDyDz
-*        write(6,*)' sum of 78(2) :',sumjim(2)
+*        write(luout,*)' sum of 78(2) :',sumjim(2)
         sumjim(3) =
      &        buf( 3,iint)  + ! IAzAx
      &        buf(13,iint)  + ! IAzBx
@@ -874,7 +916,7 @@ c
      &        buf(51,iint)  + ! IDzBx bxdz
      &        buf(66,iint)  + ! IDzCx cxdz
      &        buf(75,iint)    ! IDzDx dxdz
-*        write(6,*)' sum of 78(3) :',sumjim(3)
+*        write(luout,*)' sum of 78(3) :',sumjim(3)
         f = 2.0d00
         sumjim(4) =
      &        buf( 1,iint)  + ! IAxAx      
@@ -887,7 +929,7 @@ c
      &      f*buf(49,iint)  + !  2 * IDxBx  bxdx
      &      f*buf(64,iint)  + !  2 * IDxCx  cxdx
      &        buf(73,iint)    ! IDxDx     
-*        write(6,*)' sum of 78(4) :',sumjim(4)
+*        write(luout,*)' sum of 78(4) :',sumjim(4)
         f = 2.0d00
         sumjim(5) =
      &        buf( 4,iint)  + ! IAyAy     
@@ -900,7 +942,7 @@ c
      &      f*buf(53,iint)  + !  2 * IDyBy bydy
      &      f*buf(68,iint)  + !  2 * IDyCy cydy
      &        buf(76,iint)    ! IDyDy     
-*        write(6,*)' sum of 78(5) :',sumjim(5)
+*        write(luout,*)' sum of 78(5) :',sumjim(5)
         f = 2.0d00
         sumjim(6) =
      &        buf( 6,iint)  + ! IAzAz      
@@ -913,16 +955,16 @@ c
      &      f*buf(57,iint)  + !  2 * IDzBz bzdz
      &      f*buf(72,iint)  + !  2 * IDzCz czdz
      &        buf(78,iint)    ! IDzDz      
-*        write(6,*)' sum of 78(6) :',sumjim(6)
+*        write(luout,*)' sum of 78(6) :',sumjim(6)
         sum = 0.0d00
         do i = 1,6
           sum = sum + sumjim(i)
         enddo
         if (.not.(abs(sum).lt.thresh)) then
-          write(6,'(1x,a,i7,a,2x,6(1pd14.6))')
+          write(luout,'(1x,a,i7,a,2x,6(1pd14.6))')
      &        ' sum of 78(1-6):',iint,':',(sumjim(i),i=1,6)
-          write(6,*)' sum of 78 :',iint,':',sum78
-          write(6,'(1x,a,i7,a,2x,1pd14.6)')
+          write(luout,*)' sum of 78 :',iint,':',sum78
+          write(luout,'(1x,a,i7,a,2x,1pd14.6)')
      &        ' sum of 78(*) NOT OKAY  :',iint,':',sum
         endif
       enddo
@@ -940,7 +982,6 @@ c
       integer i, j, num_sum
       double precision before, after, thresh
       logical sum12, sum13, sum14, sum23, sum24, sum34
-      logical printit
 c
       j = 0
       do i=1,4
@@ -994,6 +1035,7 @@ c
      &    ixyz,zatom,
      &    idatoms,matom,buffd,nint)
       implicit none
+#include "stdio.fh"
       integer idatomp(4)
       integer idatomm(4)
       integer idatoms(4)
@@ -1015,16 +1057,16 @@ c
         endif
       enddo
       if (.not.okay) then
-        write(6,*)' something not okay '
-        write(6,*)' idatomp ',idatomp
-        write(6,*)' idatomm ',idatomm
-        write(6,*)' idatoms ',idatoms
+        write(luout,*)' something not okay '
+        write(luout,*)' idatomp ',idatomp
+        write(luout,*)' idatomm ',idatomm
+        write(luout,*)' idatoms ',idatoms
       endif
-*rak:      write(6,*)'grad_fill:zatom:',zatom
-*rak:      write(6,*)'grad_fill:matom:',matom
-*rak:      write(6,*)'grad_fill:ixyz :',ixyz
+*rak:      write(luout,*)'grad_fill:zatom:',zatom
+*rak:      write(luout,*)'grad_fill:matom:',matom
+*rak:      write(luout,*)'grad_fill:ixyz :',ixyz
 c
-*      write(6,*)' grad',grad
+*      write(luout,*)' grad',grad
       do iga = 1,4
         if (idatomp(iga).gt.0) then
           do igc = 1,3
@@ -1040,9 +1082,13 @@ c
       enddo
 c
       end
-      subroutine rakdd_compare(len,buffd,buf)
+      subroutine rakdd_compare(
+     &    ish,jsh,ksh,lsh,
+     &    len,buffd,buf,norm)
       implicit none
+#include "stdio.fh"
 #include "mafdecls.fh"
+      integer ish,jsh,ksh,lsh
       integer len
       double precision buffd(len), buf(len)
 *
@@ -1060,7 +1106,8 @@ c
       call daxpy(len,-1.0d00,buffd,1,dbl_mb(k_diff),1)
       norm = ddot(len,dbl_mb(k_diff),1,dbl_mb(k_diff),1)
       if (norm.gt.thresh)
-     &    write(6,*)' norm = ',norm
+     &    write(luout,*)' ',ish,jsh,ksh,lsh,
+     &    ' norm = ',norm
       if (.not.ma_free_heap(h_diff)) stop ' ma free fail'
       end
       subroutine rakdd_print_both(lu,buffd,buf,nint)
@@ -1072,6 +1119,7 @@ c
 c
       integer ia, ja, ca, cj, iint
 c
+      write(lu,*)'                     finit diff  analytic'
       do ca = 1,3
         do ia = 1,4
           do cj = 1,3
@@ -1092,6 +1140,7 @@ c
       end
       subroutine rakdd_printgrad(nint,grad,msg)
       implicit none
+#include "stdio.fh"
 #include "inp.fh"
       integer nint
       character*(*) msg
@@ -1102,7 +1151,7 @@ c
       do ia = 1,4
         do ic = 1,3
           do iint = 1, nint
-            write(6,10000)iint,ic,ia,grad(iint,ic,ia),
+            write(luout,10000)iint,ic,ia,grad(iint,ic,ia),
      &          msg(1:inp_strlen(msg))
           enddo
         enddo
