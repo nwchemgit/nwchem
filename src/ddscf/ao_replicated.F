@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.20 1997-03-04 06:15:55 d3e129 Exp $
+c     $Id: ao_replicated.F,v 1.21 1997-03-22 00:10:49 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -87,7 +87,7 @@ c
      $     'ao_rep: plist',    l_plist, k_plist)
       status = status .and. ma_push_get(MT_DBL, nbf*(nbf+1)/2,
      $     'ao_rep: plist',    l_ps, k_ps)
-      status = status .and. ma_push_get(MT_INT, tdim,
+      status = status .and. ma_push_get(MT_INT, 2*tdim,
      $     'ao_rep: pinfo',    l_pinfo, k_pinfo)
       if (.not. status) call errquit
      $     ('ao_replicated: insufficient memory', nfock*nbf*nbf*2)
