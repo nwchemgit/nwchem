@@ -5,7 +5,7 @@
 *     ***************************************
       subroutine psp_generator_input(rtdb)
 c
-c $Id: psp_generator_input.F,v 1.2 2001-10-26 21:05:05 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.3 2001-10-31 02:08:44 edo Exp $
 c
       implicit none
 #include "inp.fh"
@@ -394,12 +394,42 @@ c
 *     *          psp_generator_auto     	*
 *     *										*
 *     ***************************************
-      subroutine psp_generator_auto(atom)
+      subroutine psp_generator_auto(atom,lmax,locp,rlocal)
       implicit none
       character*2 atom
+      double precision rlocal
+      integer	    locp,lmax
+c
+      character*255 test,dir_name,sdir_name
+      character*64 psp_in,psp_out
+      integer h,i,j,k
+      integer nwpw_libglmax,nwpw_libglocp
+      double precision nwpw_libgrlocal
+      external nwpw_libglmax,nwpw_libglocp,nwpw_libgrlocal
+c
+      call util_directory_name(sdir_name,.true.,0)
+      call util_directory_name(dir_name,.false.,0)
+      psp_in='junk.inp'
+      psp_out = atom//'.psp'
+      h = index(sdir_name,' ') -1
+      i = index(dir_name,' ') -1
+      j = index(psp_in,' ')-1
+      k = index(psp_out,' ') -1
 
       write(*,*) "need to generate 1d psp for ",atom
-      stop
+      call nwpw_libgeninp(atom,'sdir_name/junk.inp')
+      write(0,*) ' atom ',atom,' in out ',psp_in,psp_out
+      call pspsolve(sdir_name(1:h),   h,
+     >     dir_name(1:i),    i,
+     >     psp_in,j,
+     >     psp_out, k)
+!      stop
+c     **** routines needed by psp_formatter_auto ****
+      lmax=nwpw_libglmax(atom)
+      locp=nwpw_libglocp(atom)
+      rlocal=nwpw_libgrlocal(atom)
+c  or
+c     call nwpw_library_get_parameter(atom,1,mt_type,value)
 
 
       return
