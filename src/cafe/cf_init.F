@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi)
-c $Id: cf_init.F,v 1.48 2000-05-31 18:57:16 d3j191 Exp $
+c $Id: cf_init.F,v 1.49 2000-06-01 19:50:33 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -182,6 +182,9 @@ c
 c
       if(npgdec.gt.1) then
       if(.not.ma_push_get(mt_dbl,5*nsatot,'sti',l_sti,i_sti))
+     + call errquit('Failed to allocate sti',me)
+      else
+      if(.not.ma_push_get(mt_dbl,1,'sti',l_sti,i_sti))
      + call errquit('Failed to allocate sti',me)
       endif
 c
