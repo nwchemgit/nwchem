@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.12 2002-01-11 18:26:00 bylaska Exp $
+* $Id: band_minimizer.F,v 1.13 2002-01-12 02:09:56 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -527,7 +527,7 @@
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
- 1600 FORMAT(/' Total PSPW energy   :',E19.10)
+ 1600 FORMAT(/' Total BAND energy   :',E19.10)
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
  9000 if (taskid.eq.MASTER) write(6,9010) ierr
