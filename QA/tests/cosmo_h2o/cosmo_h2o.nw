@@ -1,0 +1,20 @@
+echo
+ title "h2o"
+geometry nocenter noautosym
+o                  .0000000000         .0000000000        -.0486020332
+h                  .7545655371         .0000000000         .5243010666
+h                 -.7545655371         .0000000000         .5243010666
+end
+basis segment
+  o library 6-31g**
+  h library 6-31g**
+end
+ cosmo
+   dielec 78.0
+   radius 1.40
+          1.16
+          1.16
+   rsolv  0.50
+   lineq  0
+ end
+ task scf energy
