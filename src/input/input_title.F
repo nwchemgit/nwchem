@@ -1,5 +1,5 @@
       subroutine input_title(rtdb)
-C$Id: input_title.F,v 1.6 2000-04-10 10:52:35 hvd Exp $
+C$Id: input_title.F,v 1.7 2001-11-28 18:40:41 bert Exp $
       implicit none
 #include "rtdb.fh"
 #include "inp.fh"
@@ -7,7 +7,7 @@ C$Id: input_title.F,v 1.6 2000-04-10 10:52:35 hvd Exp $
 c
       integer rtdb
       character*255 title
-      character*80 blank, underline
+      character*255 blank, underline
       integer lent, i
       integer center
 c
@@ -33,7 +33,7 @@ c
 c     Write out centered and underlined title
 c
       lent = inp_strlen(title)
-      center = (80 - lent) / 2
+      center = (255 - lent) / 2
       blank = ' '
       do i = 1, lent
          underline(i:i) = '-'
