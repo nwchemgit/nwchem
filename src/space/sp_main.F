@@ -1,5 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa)
 c
+c $Id: sp_main.F,v 1.14 1999-07-27 21:09:08 d3e129 Exp $
+c
       implicit none
 c
 #include "sp_common.fh"

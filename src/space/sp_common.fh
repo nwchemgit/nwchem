@@ -1,4 +1,7 @@
 c
+c $Id: sp_common.fh,v 1.7 1999-07-27 21:09:07 d3e129 Exp $
+c
+c
       real*8 zero,half,one
       parameter(zero=0.0d0)
       parameter(half=5.0d-1)

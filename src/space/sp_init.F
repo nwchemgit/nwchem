@@ -4,6 +4,9 @@
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd)
 c
+c
+c $Id: sp_init.F,v 1.32 1999-07-27 21:09:07 d3e129 Exp $
+c
       implicit none
 c
 #include "sp_common.fh"
