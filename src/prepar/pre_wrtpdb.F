@@ -5,7 +5,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,iropt,irrand,nxrep,nyrep,nzrep,drep,
      + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,filmrg,irenum)
 c
-c $Id: pre_wrtpdb.F,v 1.31 2001-08-29 23:04:05 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.32 2001-11-15 17:23:04 d3j191 Exp $
 c
       implicit none
 c
@@ -210,7 +210,7 @@ c
       if(temp.gt.999.0) temp=999.989
       if(nzrep.gt.0) then
       write(lfnpdb,1001) i+iaoff,csa(i)(11:14),csa(i)(1:3),
-     + char(icharr),isgm(i)+ioff,+isoff,1.0d1*(y(1)+dbx),
+     + char(icharr),isgm(i)+ioff+isoff,1.0d1*(y(1)+dbx),
      + 1.0d1*(y(2)+dby),1.0d1*(y(3)+dbz),
      + temp,pre_atnam(num(isat(i)))
       else
