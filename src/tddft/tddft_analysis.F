@@ -3,7 +3,7 @@
      2  d_trials,apbvec,apbval,ambvec,g_movecs,evl,singlet,triplet,
      4  target,targetsym,mult,algorithm,l_irs,k_irs)
 c
-c $Id: tddft_analysis.F,v 1.13 2003-01-17 20:22:11 sohirata Exp $
+c $Id: tddft_analysis.F,v 1.14 2003-01-18 22:10:35 sohirata Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -83,10 +83,10 @@ c
       double precision xa1,xa2,ya1,ya2,xb1,xb2,yb1,yb2,rc1,rc2
       integer l_x(2),k_x(2)
       integer l_y(2),k_y(2)
-      double precision corr(nbf_ao,nbf_ao)
+      integer l_corr,k_corr
       integer dummy,request
 C     character*80 vector
-      logical vector_exists,fileerror
+C     logical vector_exists,fileerror
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -137,6 +137,9 @@ c
      2    call errquit('tddft_analysis: failed to create g_corr',0)
         if (.not.ga_create(mt_dbl,nbf_ao,nmo(2),'work',-1,-1,g_work))
      1    call errquit('tddft_analysis: failed to create g_work',0)
+        if (.not.ma_push_get(mt_dbl,nmo(1)*nmo(2),'corr',
+     1    l_corr,k_corr)) call errquit
+     2    ('tddft_analysis: failed to allocate corr',0)
         call ga_zero(g_ovlp)
         call int_1e_ga(ao_bas_han,ao_bas_han,g_ovlp,'overlap',oskel)
         if (oskel) call sym_symmetrize
@@ -151,7 +154,7 @@ c
      1    ('tddft_analysis: failed to destroy g_ovlp',0)
         if (util_print('excited state',print_debug))
      1    call ga_print(g_corr)
-        call ga_get(g_corr,1,nmo(1),1,nmo(2),corr,nbf_ao)
+        call ga_get(g_corr,1,nmo(1),1,nmo(2),dbl_mb(k_corr),nmo(1))
       endif
 c
 c --------------------
@@ -214,12 +217,12 @@ c
      2                                  g_x(i),1,nov(i),n,n)
               endif 
             enddo
-            if ((.not.fileerror).and.nodezero) then
-              do m=1,nov(i)
-                call ga_get(g_x(i),m,m,n,n,r,1)
-                write(69,*) r
-              enddo
-            endif
+C           if ((.not.fileerror).and.nodezero) then
+C             do m=1,nov(i)
+C               call ga_get(g_x(i),m,m,n,n,r,1)
+C               write(69,*) r
+C             enddo
+C           endif
           enddo
         enddo
 c
@@ -256,23 +259,23 @@ c
           enddo
           call ga_add(0.5d0,g_x(i), 0.5d0,g_y(i),g_x(i))
           call ga_add(1.0d0,g_x(i),-1.0d0,g_y(i),g_y(i))
-          if ((.not.fileerror).and.nodezero) then
-            do n=1,nroots
-              do m=1,nov(i)
-                call ga_get(g_x(i),m,m,n,n,r,1)
-                write(69,*) r
-              enddo
-            enddo
-            do n=1,nroots
-              do m=1,nov(i)
-                call ga_get(g_y(i),m,m,n,n,r,1)
-                write(69,*) r
-              enddo
-            enddo
-          endif
+C         if ((.not.fileerror).and.nodezero) then
+C           do n=1,nroots
+C             do m=1,nov(i)
+C               call ga_get(g_x(i),m,m,n,n,r,1)
+C               write(69,*) r
+C             enddo
+C           enddo
+C           do n=1,nroots
+C             do m=1,nov(i)
+C               call ga_get(g_y(i),m,m,n,n,r,1)
+C               write(69,*) r
+C             enddo
+C           enddo
+C         endif
         enddo
       endif
-      if (.not.fileerror) close(unit=69,status='keep')
+C     if (.not.fileerror) close(unit=69,status='keep')
 c
 c ---------
 c All roots
@@ -312,7 +315,7 @@ c ... frozen cores are irrelevant
         s2=na-(na-nb)/2.0d0+((na-nb)/2.0d0)**2
         do j=1,nocc(1)
           do k=1,nocc(2)
-            r=corr(j,k)
+            r=dbl_mb(k_corr+(j-1)*nmo(2)+k-1)
             s2=s2-r**2
           enddo
         enddo
@@ -409,8 +412,8 @@ c alpha excitation bra
                         xa2=dbl_mb(k_x(1)+la2-1)
                         ya2=0.0d0
                         if (.not.tda) ya2=dbl_mb(k_y(1)+la2-1)
-                        rc1=corr(ka2,jb1)
-                        rc2=corr(ka1,jb1)
+                        rc1=dbl_mb(k_corr+(ka2-1)*nmo(2)+jb1)
+                        rc2=dbl_mb(k_corr+(ka1-1)*nmo(2)+jb1)
                         s2=s2-(xa2-ya2)*(xa1+ya1)*rc1*rc2
                       endif
                     enddo
@@ -424,8 +427,8 @@ c beta excitation bra
                         xb2=dbl_mb(k_x(2)+lb2-1)
                         yb2=0.0d0
                         if (.not.tda) yb2=dbl_mb(k_y(2)+lb2-1)
-                        rc1=corr(ja1,jb2)
-                        rc2=corr(ka1,kb2)
+                        rc1=dbl_mb(k_corr+(ja1-1)*nmo(2)+jb2)
+                        rc2=dbl_mb(k_corr+(ka1-1)*nmo(2)+kb2)
                         s2=s2-(xb2-yb2)*(xa1+ya1)*rc1*rc2
                       endif
                     enddo
@@ -436,7 +439,7 @@ c i alpha and j beta exchange
                   if (ja3.ne.ja1) then
                     do jb1=nfc(2)+1,nocc(2)
 c same alpha excitation bra
-                      rc1=corr(ja3,jb1)
+                      rc1=dbl_mb(k_corr+(ja3-1)*nmo(2)+jb1)
                       s2=s2-(xa1-ya1)*(xa1+ya1)*rc1*rc1
                     enddo
                   endif
@@ -466,8 +469,8 @@ c beta excitation bra
                         xb2=dbl_mb(k_x(2)+lb2-1)
                         yb2=0.0d0
                         if (.not.tda) yb2=dbl_mb(k_y(2)+lb2-1)
-                        rc1=corr(ja1,kb1)
-                        rc2=corr(ja1,kb2)
+                        rc1=dbl_mb(k_corr+(ja1-1)*nmo(2)+kb1)
+                        rc2=dbl_mb(k_corr+(ja1-1)*nmo(2)+kb2)
                         s2=s2-(xb2-yb2)*(xb1+yb1)*rc1*rc2
                       endif
                     enddo
@@ -481,8 +484,8 @@ c alpha excitation bra
                         xa2=dbl_mb(k_x(1)+la2-1)
                         ya2=0.0d0
                         if (.not.tda) ya2=dbl_mb(k_y(1)+la2-1)
-                        rc1=corr(ja2,jb1)
-                        rc2=corr(ka2,kb1)
+                        rc1=dbl_mb(k_corr+(ja2-1)*nmo(2)+jb1)
+                        rc2=dbl_mb(k_corr+(ka2-1)*nmo(2)+kb1)
                         s2=s2-(xa2-ya2)*(xb1+yb1)*rc1*rc2
                       endif
                     enddo
@@ -493,7 +496,7 @@ c i alpha and j beta exchange
                   if (jb3.ne.jb1) then
                     do ja1=nfc(1)+1,nocc(1)
 c same beta excitation bra
-                      rc1=corr(ja1,jb3)
+                      rc1=dbl_mb(k_corr+(ja1-1)*nmo(2)+jb3)
                       s2=s2-(xb1-yb1)*(xb1+yb1)*rc1*rc1
                     enddo
                   endif
@@ -674,6 +677,10 @@ c ------
 c Return
 c ------
 c
+      if (ipol.eq.2) then
+        if (.not.ma_pop_stack(l_corr)) call errquit
+     1    ('tddft_analysis: failed to deallocate corr',0)
+      endif
       do i=ipol,1,-1
         if (.not.ma_pop_stack(l_y(i))) call errquit
      1    ('tddft_analysis: failed to deallocate y',0)
