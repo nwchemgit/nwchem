@@ -1,13 +1,12 @@
-      Subroutine nbf_to_mbf(geom_hand, basis_hand, rq0, mbf, mcenters, 
-     &                      iniz, ifin, zprim, nzprim, acc_gauss)
+      Subroutine nbf_to_mbf(basis_hand, rq0, mbf, mcenters, 
+     &                      iniz, ifin, zprim,  acc_gauss)
 c
-C$Id: nbf_to_mbf.F,v 1.11 1998-12-19 01:29:56 edo Exp $
+C$Id: nbf_to_mbf.F,v 1.12 1999-03-05 06:42:28 edo Exp $
 c
       implicit none
 c      
-      integer basis_hand, geom_hand
+      integer basis_hand
       integer mcenters ! [input]
-      integer nzprim ! [input]
       double precision acc_gauss ! [input]
       integer mbf  ! [input/output]
 c
@@ -17,7 +16,7 @@ c     Distance Squared between Sampling Points and Centers
 c
       double precision rq0(mcenters)
       integer  iniz(mcenters),ifin(mcenters)
-      double precision zprim(nzprim)
+      double precision zprim(*)
       integer ncontrset, n1, icset, ictr, itype, nprimo, ncontr, 
      &        isphere, ifirst, ilast, nshbf, l, nang, iprimo
       double precision zmin
