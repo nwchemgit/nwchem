@@ -1,4 +1,4 @@
-C $Id: ecp_int0.F,v 1.8 1998-04-03 01:40:39 mg201 Exp $
+C $Id: ecp_int0.F,v 1.9 1999-03-04 19:43:50 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int0 (mem_max,DryRun,
@@ -87,7 +87,7 @@ C $Id: ecp_int0.F,v 1.8 1998-04-03 01:40:39 mg201 Exp $
 *
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
-      debug_arrays = mod(ibug,10)/2 .eq. 1
+      debug_arrays = (mod(ibug,10)/2 .eq. 1) .and. .not.DryRun
 *
       if (debug_gen) write (LuOut,'(//A,/)') 'Entering ecp_int0 ...'
 *
@@ -103,7 +103,6 @@ C $Id: ecp_int0.F,v 1.8 1998-04-03 01:40:39 mg201 Exp $
       n_all_b = n_cont_b*n_nb
       if (debug_addresses) then
         write (LuOut,*) 'n_ab,nc_ab,ncab',n_ab,nc_ab,ncab
-        write (LuOut,*) 'mem_max',mem_max
       end if
       if (DryRun) mem_max = 0
 *
@@ -143,10 +142,11 @@ C $Id: ecp_int0.F,v 1.8 1998-04-03 01:40:39 mg201 Exp $
         i_coef = i_wrk+nc_ab
         i_free = i_coef+n_co_tot
         if (debug_addresses) write (LuOut,*) 
-     &      'i_Q_int,i_tmp,i_prm,i_wrk,i_coef,i_free,mem_max',
-     &      i_Q_int,i_tmp,i_prm,i_wrk,i_coef,i_free,mem_max
+     &      'i_Q_int,i_tmp,i_prm,i_wrk,i_coef,i_free',
+     &      i_Q_int,i_tmp,i_prm,i_wrk,i_coef,i_free
         if (DryRun) then
           mem_max = max(mem_max,i_free-1)
+          if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
         else
           if (i_free-1 .gt. l_tmp) call errquit(
      &        ' Insufficient memory in ecp_int0',99)
@@ -192,6 +192,7 @@ C $Id: ecp_int0.F,v 1.8 1998-04-03 01:40:39 mg201 Exp $
      &        i_free
           if (DryRun) then
             mem_max = max(mem_max,i_free-1)
+            if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
           else
             if (i_free-1 .gt. l_tmp) call errquit(
      &          ' Insufficient memory in ecp_int0',99)
