@@ -1,6 +1,6 @@
 #!/bin/csh 
 #
-# $Id: update_www,v 1.3 1998-09-08 18:55:58 d3e129 Exp $
+# $Id: update_www,v 1.4 1999-08-02 23:18:50 d3e129 Exp $
 
 # Script to automate updating of web pages for the
 # user and programmers manuals.
@@ -14,14 +14,13 @@ endif
 set document = $argv[1]
 
 echo Updating WWW pages for $document.tex
-#set WWWDIR=/dfs/www/pub/docs/nwchem/doc
 #...............   public                      internal/private
-foreach WWWDIR (/dfs/www/pub/docs/nwchem/doc /dfs/www/docs/nwchem/doc)
+foreach WWWDIR (/msrc/www/pub/docs/nwchem/doc /msrc/www/docs/nwchem/doc)
 #
 # Now copy the revised source into the EMSL private and public WWW tree
-  if ($WWWDIR == "/dfs/www/pub/docs/nwchem/doc") then
+  if ($WWWDIR == "/msrc/www/pub/docs/nwchem/doc") then
       echo "update_www: Public pages .. "
-  else if($WWWDIR == "/dfs/www/docs/nwchem/doc") then
+  else if($WWWDIR == "/msrc/www/docs/nwchem/doc") then
       echo "update_www: Internal/private pages .."
   endif
   if (! -e $WWWDIR) then
@@ -51,7 +50,7 @@ foreach WWWDIR (/dfs/www/pub/docs/nwchem/doc /dfs/www/docs/nwchem/doc)
 #
 # reset directory and file permissions
 #
-  echo "update_www: Making /dfs directories/files public"
+  echo "update_www: Making /msrc directories/files public"
   chmod go+rx $WWWDIR/$document
   if ($status) then
      echo "update_www: could not make $WWWDIR/$document public"
