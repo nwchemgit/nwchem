@@ -1,4 +1,4 @@
-c $Id: int_hf1sp.F,v 1.11 1997-09-05 22:25:05 d3e129 Exp $
+c $Id: int_hf1sp.F,v 1.12 1997-12-13 00:39:19 d3e129 Exp $
 *
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_hf1sp}
@@ -222,7 +222,8 @@ c * (s|s), (s|x), (s|y), (s|z)
       endif
 c
       if (any_ecp.and.doV) then
-        nintV = int_nbf_x(Li)*int_nbf_x(Lj)
+        nintV = int_nbf_x(Li)*i_ngen
+        nintV = nintV*int_nbf_x(Lj)*j_ngen
         offset = nintV + 1
 *       write(6,*)' lscr to ecp_hf1:',(lscr-nintV)
         if (ictri.lt.0.or.ictrj.lt.0) then
