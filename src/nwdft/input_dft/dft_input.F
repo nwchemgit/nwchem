@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.25 2000-06-08 02:06:29 edo Exp $
+c     $Id: dft_input.F,v 1.26 2001-03-30 00:00:47 edo Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -21,17 +21,19 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 22)
+      parameter (num_dirs = 23)
       character*12 dirs(num_dirs)
       character*255 test
       integer idecomp, mult, iterations, ipol, noio,
      &        idirect, imull
       integer nopen
       logical pseudo, direct, lmaxov, incore
+      double precision smear_sigma
       data dirs /'convergence', 'decomp', 'dft', 'direct', 'ecp', 
      $           'grid', 'vectors', 'incore', 'iterations', 'max_ovl', 
      $           'mulliken', 'mult', 'noio', 'noprint', 'odft', 
      $           'print', 'tolerances', 'xc', 'sym', 'adapt', 'sic', 
+     .           'smear',
      &           'end'/
 c
 c     Any DFT input causes calculation to be marked as not converged
@@ -219,10 +221,22 @@ c
  2100 call sic_input(rtdb, 'dft')
 c
       goto 10
+c
+c     smearing
+c
+ 2200 if (.not. inp_f(smear_sigma)) then
+         write(LuOut,*)'  smearing value not found;',
+     &             ' defaulting to 1d-3 Hartree.'
+         smear_sigma = 1.d-3
+      endif
+      if (.not.rtdb_put(rtdb, 'dft:smear_sigma',mt_dbl,1,smear_sigma))
+     &   call errquit('dft_inp: rtdb_put failed', 2200)
+      goto 10
+c
 c             
 c     end;
 c             
- 2200 continue
+ 2300 continue
  9999 continue
       return 
 c       
