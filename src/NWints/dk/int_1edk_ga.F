@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, kskel)
-c $Id: int_1edk_ga.F,v 1.17 1999-12-08 17:57:56 bert Exp $
+c $Id: int_1edk_ga.F,v 1.18 1999-12-08 22:04:54 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -88,7 +88,7 @@ c
 c
 c     Create an uncontracted basis from basis_in
 c
-      call bas_create_uncont(basis_in,'D-K basis',usebasis)
+      call bas_create_uncont(basis_in,'auto D-K basis',usebasis)
       call int_normalize(usebasis)
 c
 c     Re-initialize integrals so that pVp integral memory requirement is set
