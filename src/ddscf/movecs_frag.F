@@ -1,7 +1,7 @@
       subroutine movecs_fragment(rtdb, geom, basis, 
      $     module, iset, nclosed, nopen, g_vecs, evals)
 *
-* $Id: movecs_frag.F,v 1.9 2002-01-29 16:35:08 d3k958 Exp $
+* $Id: movecs_frag.F,v 1.10 2002-01-29 17:28:27 d3k958 Exp $
 *
       implicit none
 #include "util.fh"
@@ -147,11 +147,14 @@ c
             open_off = open_off + nopen_frag
             ioff = ioff + nopen_frag
          endif
+c
          if (nvirt_frag .gt. 0) then
 c            if (virt_off+nvirt_frag-1 .gt. nmo) call errquit
 c     $           ('movecs_fragment: virt shell mismatch', nvirt)
             if (virt_off+nvirt_frag-1 .gt. nmo) then
                excess = virt_off+nvirt_frag-1 - nmo
+            if (excess.LT.0) call errquit
+     $         ('movecs_fragment: virt shell mismatch',excess) 
              if(oprint) then
                write(6,*) '**************WARNING*****************'
                write(6,*) ' movecs_fragment: virt shell mismatch,'
