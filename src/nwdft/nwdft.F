@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.49 2000-04-19 23:50:29 edo Exp $
+C$Id: nwdft.F,v 1.50 2000-05-05 15:51:07 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -158,15 +158,6 @@ c
         i3 = 1
         bases(1) = AO_bas_han
       endif
-c
-c     Check if any spherical basis has been requested ... if so, abort in
-c     a friendly fashion
-c    
-cedo      if (XCFIT)then
-cedo         if (bas_is_spherical(XC_bas_han))
-cedo     &      call errquit
-cedo     &      ('nwdft: No current support for spherical bases',0)
-cedo      endif
 c
       if (i3 .gt. 1) call int_app_set_no_texas(rtdb)
       call int_init(rtdb, i3, bases)
