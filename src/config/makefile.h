@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.364 2001-06-18 18:04:06 edo Exp $
+# $Id: makefile.h,v 1.365 2001-06-18 19:15:20 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1069,7 +1069,7 @@ ifdef USE_INTEGER4
  CORE_LIBS += -lessl_r -llapack -lblas # need 64-bit essl
 else
    FOPTIONS += -qintsize=8
-        CDEFS = -DEXT_INT
+        DEFINES += -DEXT_INT
   CORE_LIBS +=  -llapack -lblas
 endif
 
