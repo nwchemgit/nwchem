@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.124 1999-06-25 21:23:18 edo Exp $
+c     $Id: dft_scf.F,v 1.125 1999-06-25 21:43:38 d3h449 Exp $
 c     
       implicit none
 c
@@ -544,7 +544,7 @@ c
 !         grid_on_file = .false.
 !      endif
 !      if (grid_on_file)then
-!         call grid_den(rtdb, g_dens, g_vxc, nexc, rho_n,Exc)
+!         call grid_den(rtdb, g_dens, rho_n)
 !      endif
 
       if (me .eq. 0.and.oprint_eval)then
