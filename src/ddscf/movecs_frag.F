@@ -106,12 +106,12 @@ c
      $           ' title    ', a/
      $           ' basis    ', a/
      $           ' scftype  ', a/
-     $           ' nbf      ', i/
-     $           ' nsets    ', i/
-     $           ' nmo      ', i/
-     $           ' nclosed  ', i/
-     $           ' nopen    ', i/
-     $           ' nvirtual ', i/)
+     $           ' nbf      ', i6/
+     $           ' nsets    ', i6/
+     $           ' nmo      ', i6/
+     $           ' nclosed  ', i6/
+     $           ' nopen    ', i6/
+     $           ' nvirtual ', i6/)
             call util_flush(6)
          endif
 c
