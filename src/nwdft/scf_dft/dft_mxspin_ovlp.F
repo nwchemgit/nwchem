@@ -1,6 +1,6 @@
       Subroutine dft_mxspin_ovlp(basis, noc, g_alpha, g_beta, g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.9 2002-01-07 21:11:38 d3k958 Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.10 2002-01-07 21:14:57 d3k958 Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap
@@ -59,6 +59,11 @@ c
 c
 c
 c-----------------------------------------------------------------
+c If the number of occupied alpha orbitals is greater than the
+c number of occupied beta orbitals, print some useful information
+c
+      if (noc(1).gt.noc(2)) then
+c
 c Find alpha orbital which best overlaps with each beta
 c orbital, then the remaining alpha orbitals are the un-partnered
 c ones:
@@ -273,6 +278,7 @@ c      call ga_print(g_ualpha)
 c
 c  resulting orbitals are printed after the alpha/beta overlap 
 c
+       endif !if na>nb
 c-----------------------------------------------------------------
 c
       if(me.eq.0) then
@@ -321,6 +327,7 @@ c  from diagonalization above
 c
       call ga_sync()
 c
+      if (noc(1).gt.noc(2)) then
        call movecs_print_anal(basis, 1, nalp, 0.15d0, g_ualpha,
      &'Alpha Orbitals without Beta Partners (after maximizing alpha/beta
      & overlap)', 
@@ -340,6 +347,8 @@ c
 c
       if (.not. ga_destroy(g_ualpha)) call errquit
      &   ('dft_mxspin_ovlp: could not destroy g_ualpha', 0)
+c
+      endif
 c
 c -------------------------------------------------------------
 c      call gadest(g_s)
