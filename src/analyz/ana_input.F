@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.8 1999-12-10 23:54:47 d3j191 Exp $
+c $Id: ana_input.F,v 1.9 1999-12-21 00:51:27 d3j191 Exp $
 c
       implicit none
 c
@@ -201,7 +201,8 @@ c
       endif
       if(.not.inp_a(atom)) atom=' '
     5 continue
-      write(lfncmd,1007) isel,jsel,rsel,atom(1:index(atom,' ')-1)
+      write(lfncmd,1007) itag,tag,isel,jsel,rsel,
+     + atom(1:index(atom,' ')-1)
  1007 format('label  ',i3,a24,2i7,f12.6,a)
       numcmd=numcmd+1
       if(atom(1:1).eq.' ') goto 2

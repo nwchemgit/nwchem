@@ -1,19 +1,21 @@
-      subroutine ana_tag(sgmnam)
+      subroutine ana_tag(card,sgmnam,x)
 c
-c $Id: ana_tag.F,v 1.1 1999-03-15 21:27:48 d3j191 Exp $
+c $Id: ana_tag.F,v 1.2 1999-12-21 00:51:27 d3j191 Exp $
 c
       implicit none
 c
 #include "ana_common.fh"
 #include "mafdecls.fh"
 c
+      character*80 card
       character*16 sgmnam(nsa)
+      real*8 x(nsa,3)
 c
-      call ana_settag(sgmnam,byte_mb(i_tag),dbl_mb(i_xref))
+      call ana_settag(card,sgmnam,byte_mb(i_tag),x)
 c
       return
       end
-      subroutine ana_settag(sgmnam,tag,x)
+      subroutine ana_settag(card,sgmnam,tag,x)
 c
       implicit none
 c
@@ -23,6 +25,7 @@ c
 #include "msgids.fh"
 #include "rtdb.fh"
 c
+      character*80 card
       character*16 sgmnam(nsa)
       character*24 ttag,tag(nsa,2)
       real*8 x(nsa,3)
@@ -37,21 +40,8 @@ c     do selection on node 0
 c
       if(me.eq.0) then
 c
-      do 1 i=1,nsa
-      tag(i,1)='                        '
-      tag(i,2)='                        '
-    1 continue
-c
-      if(.not.rtdb_cget(irtdb,'file_prefix',1,fpref))
-     + call errquit('rtdb_cget failed on file_prefix',9999)
-      filtag=fpref(1:index(fpref,' ')-1)//'.tag '
-      open(unit=69,file=filtag(1:index(filtag,' ')-1),
-     + form='formatted',status='old',err=9999)
-      rewind(unit=69)
-c
-  100 continue
-      read(69,6901,end=9998) itag,ttag,is,js,rtag,cs
- 6901 format(i3,a24,2i7,f12.6,a5)
+      read(card,6901,end=9999) itag,ttag,is,js,rtag,cs
+ 6901 format(7x,i3,a24,2i7,f12.6,a5)
       write(*,6901) itag,ttag,is,js,rtag,cs
       if(cs(1:1).eq.'_') cs(1:1)=' '
       do 3 i=1,nsa
@@ -71,12 +61,6 @@ c
       endif
       endif
     3 continue
-      goto 100
-c
- 9998 continue
-      close(unit=69)
-c
- 9999 continue
 c
       endif
 c
@@ -85,6 +69,28 @@ c
       if(np.gt.1) then
       call ga_brdcst(mag_d06,tag,48*nsa,0)
       endif
+c
+      return
+c
+ 9999 continue
+c
+      call errquit('Error in settag',0)
+      return
+      end
+      subroutine ana_initag(tag)
+c
+c     implicit none
+c
+#include "ana_common.fh"
+c
+      character*24 tag(nsa,2)
+c
+      integer i
+c
+      do 1 i=1,nsa
+      tag(i,1)='                        '
+      tag(i,2)='                        '
+    1 continue
 c
       return
       end

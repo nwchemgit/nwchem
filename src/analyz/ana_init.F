@@ -1,6 +1,6 @@
       subroutine ana_init(nsai,msai,ltask)
 c
-c $Id: ana_init.F,v 1.6 1999-12-10 23:54:47 d3j191 Exp $
+c $Id: ana_init.F,v 1.7 1999-12-21 00:51:27 d3j191 Exp $
 c
       implicit none
 c
@@ -65,6 +65,10 @@ c
 c     initialize rms and wt arrays
 c
       call ana_inirms(dbl_mb(i_xref),dbl_mb(i_xrms),dbl_mb(i_wt))
+c
+c     initialize tags
+c
+      call ana_initag(byte_mb(i_tag))
 c
 c     for task calls memory needs to be set aside for atom names,
 c     coordinates and global atom numbers

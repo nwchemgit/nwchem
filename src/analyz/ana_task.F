@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.4 1999-12-13 19:59:55 d3j191 Exp $
+c $Id: ana_task.F,v 1.5 1999-12-21 00:51:27 d3j191 Exp $
 c
       implicit none
 c
@@ -137,6 +137,14 @@ c
       endif
       call ana_select(card,byte_mb(i_snam),int_mb(i_isel),dbl_mb(i_wt),
      + dbl_mb(i_xref))
+      goto 1
+      endif
+c
+c     atom tag
+c     --------
+c
+      if(card(1:6).eq.'label ') then
+      call ana_tag(card,byte_mb(i_snam),dbl_mb(i_xref))
       goto 1
       endif
 c
