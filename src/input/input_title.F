@@ -1,5 +1,5 @@
       subroutine input_title(rtdb)
-C$Id: input_title.F,v 1.8 2003-10-17 22:55:18 carlfahl Exp $
+C$Id: input_title.F,v 1.9 2004-08-25 01:08:47 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
@@ -33,16 +33,18 @@ c
 c     
 c     Write out centered and underlined title
 c
-      lent = inp_strlen(title)
-      center = (255 - lent) / 2
-      blank = ' '
-      do i = 1, lent
-         underline(i:i) = '-'
-      enddo
-      write(LuOut,1) blank(1:center),title(1:lent)
-      write(LuOut,1) blank(1:center),underline(1:lent)
-      write(LuOut,*)
- 1    format(1x,a,a)
+       call util_print_centered(6,title(1:lent),40,.true.)
+c      lent = inp_strlen(title)
+c      center = 16
+cc      center = (255 - lent) / 2
+c      blank = ' '
+c      do i = 1, lent
+c         underline(i:i) = '-'
+c      enddo
+c      write(LuOut,1) blank(1:center),title(1:lent)
+c      write(LuOut,1) blank(1:center),underline(1:lent)
+c      write(LuOut,*)
+c 1    format(1x,a,a)
 c
 c     Store title in the database
 c
