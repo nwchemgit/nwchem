@@ -2,9 +2,9 @@
      + nf1,nf2,nf3,
      + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
-     + msmi,nsmi)
+     + msmi,nsmi,ddi,edi)
 c
-c $Id: prp_init.F,v 1.22 2000-04-25 17:20:17 d3j191 Exp $
+c $Id: prp_init.F,v 1.23 2000-05-08 19:29:25 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
       integer nwmtot,msfi,nsfi,mpei,nf1,nf2,nf3
       integer mdacq,mrn,ipset,isetp1,isetp2,msmi,nsmi
       logical lcf,lsp,ltwn,lpol,lpme,llpener,llpstep
-      real*8 tstp
+      real*8 tstp,ddi,edi
       character*255 fil
 c
       integer i,j,it
@@ -51,6 +51,11 @@ c
       ipset2=isetp2
 c
       tstep=tstp
+      ddacq=ddi
+      edacq=edi
+c
+      lauto=.false.
+      lappr=.false.
 c
       lpert2=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.2.or.isetp2.eq.2))
       lpert3=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.3.or.isetp2.eq.3))
@@ -352,6 +357,9 @@ c
 c
       lhdr=.false.
       lfhdr=.false.
+      lauto=.false.
+      lappr=.false.
+      samrat=one
 c
       return
       end

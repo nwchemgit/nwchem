@@ -1,5 +1,5 @@
 c
-c $Id: prp_common.fh,v 1.16 2000-04-25 17:20:17 d3j191 Exp $
+c $Id: prp_common.fh,v 1.17 2000-05-08 19:29:25 d3j191 Exp $
 c
 c
       real*8 zero,tiny,one
@@ -44,5 +44,9 @@ c
      + ixp,ntype,nprop,isprop,nsum,nsumt,nderiv,iset,ipset1,ipset2,
      + lp
 c
-      real*8 volume,temp,pres,tmpscl,tmsscl,prsscl
-      common/prp_prp/volume,temp,pres,tmpscl,tmsscl,prsscl
+      real*8 volume,temp,pres,tmpscl,tmsscl,prsscl,ddacq,edacq,samrat
+      common/prp_prp/volume,temp,pres,tmpscl,tmsscl,prsscl,ddacq,edacq,
+     + samrat
+c
+      logical lerror,lauto,lappr
+      common/prp_log/lerror,lauto,lappr

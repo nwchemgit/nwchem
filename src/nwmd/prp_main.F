@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.35 2000-05-03 19:22:49 d3j191 Exp $
+c $Id: prp_main.F,v 1.36 2000-05-08 19:29:25 d3j191 Exp $
 c
       implicit none
 c
@@ -280,8 +280,6 @@ c
       ekin=p(27)
       etot=ekin+epot
 c
-c      write(*,'(6e12.5)') epotw,epotsw,epots,epot,ekin,etot
-c
       return
       end
       subroutine prp_stat(mdstep,stime,eww,esw,ess,esk,epme)
@@ -437,7 +435,7 @@ c
 c
       return
       end
-      logical function prp_mcti_step(ida)
+      logical function prp_mcti_step(ida,lda)
 c
       implicit none
 c
@@ -446,23 +444,35 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
-      integer ida
+      logical prp_mcti_acc
+      external prp_mcti_acc
+c
+      integer ida,lda
 c
       real*8 fdata(26)
       real*8 aver,drift,stderr,corerr,ratio
+      logical done
+c
+      lerror=ida.gt.lda
 c
       call cf_mcti(fdata)
 c
       call ga_dgop(mrg_d44,fdata,26,'+')
 c
-      if(me.eq.0) call prp_mcti_acc(ida,dbl_mb(i_dfr),fdata,
+      if(me.eq.0) then
+      done=prp_mcti_acc(ida,dbl_mb(i_dfr),fdata,
      + aver,drift,stderr,corerr,ratio)
+      endif
 c
-      prp_mcti_step=.false.
+      if(np.gt.1) then
+      call ga_brdcst(mrg_d46,done,ma_sizeof(mt_log,1,mt_byte),0)
+      endif
+c
+      prp_mcti_step=done
 c
       return
       end
-      subroutine prp_mcti_acc(ida,dfr,fdata,
+      logical function prp_mcti_acc(ida,dfr,fdata,
      + aver,drift,stderr,corerr,ratio)
 c
       implicit none
@@ -471,9 +481,10 @@ c
 c
       integer ida
       real*8 dfr(mda),fdata(26)
-      real*8 aver,drift,stderr,corerr,ratio
+      real*8 aver,drift,stderr,corerr,ratio,cerror
 c
       integer i
+      logical done
 c
       dfree=zero
       do 1 i=1,24
@@ -485,9 +496,28 @@ c
       dfr(ida)=dfree
       nda=ida
 c
-      call error(.false.,.false.,1000,dfr,ida,
-     + aver,drift,stderr,corerr,ratio)
+    2 continue
 c
+      if(lerror) then
+      call error(lauto,lappr,1000,dfr,ida,
+     + aver,drift,stderr,corerr,ratio)
+      cerror=corerr
+      if(.not.lauto) cerror=samrat*corerr 
+      if(.not.lauto.and.cerror.lt.edacq) then
+      lauto=.true.
+      lappr=.true.
+      goto 2
+      else
+      if(lauto) samrat=ratio
+      lauto=.false.
+      lappr=.false.
+      endif
+      done=cerror.lt.edacq.and.drift.lt.ddacq
+      else
+      done=.false.
+      endif
+c
+      prp_mcti_acc=done
       return
       end
       subroutine prp_mcti_run(rlambd,dlambd)

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.80 2000-05-02 18:50:03 d3j191 Exp $
+c $Id: md_main.F,v 1.81 2000-05-08 19:29:25 d3j191 Exp $
 c
       implicit none
 c
@@ -1007,7 +1007,7 @@ c
       external frequency,prp_mcti_step
 c
       logical done
-      integer npp,irunp
+      integer npp,irunp,jequi,jdacq
 c
       if(me.eq.0) then
       if(mropt.ge.2) then
@@ -1057,10 +1057,12 @@ c
 c     equilibration
 c
       lequi=.true.
+      jequi=kequi
       do 2 iequi=kequi+1,mequi
       call timer_start(1)
       call md_newton()
       call timer_stop(1)
+      jequi=iequi
     2 continue
 c
 c     data gathering
@@ -1069,6 +1071,7 @@ c
       if(kdacq.eq.0) stime=zero
 c
       lequi=.false.
+      jdacq=kdacq
       do 3 idacq=kdacq+1,mdacq
 c
       call timer_start(1)
@@ -1077,7 +1080,7 @@ c
 c
       call cf_mcti_kin(int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_vs),nsaloc)
 c
-      done=prp_mcti_step(idacq)
+      done=prp_mcti_step(idacq,ldacq)
 c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
@@ -1111,13 +1114,14 @@ c
 c
       call timer_stop(1)
 c
-      if(done) goto 4
+      jdacq=idacq
+      if(idacq.gt.ldacq.and.done) goto 4
 c
     3 continue
     4 continue
 c
       if(me.eq.0) then
-      write(lfnmro) irun,mequi,mdacq
+      write(lfnmro) irun,jequi,jdacq
       call prp_wrtmro(lfnmro)
       call sp_wrtmro(lfnmro,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
@@ -2025,7 +2029,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.80 2000-05-02 18:50:03 d3j191 Exp $
+c $Id: md_main.F,v 1.81 2000-05-08 19:29:25 d3j191 Exp $
 c
       implicit none
 c
