@@ -1,199 +1,212 @@
       Subroutine hf2d(
-     &       Axyz,Aprims,Acoefs,NPA,NCA,La,ictra,
-     &       Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrb,
-     &       Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,ictrc,
-     &       Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
-     &       bERI,Nint,canAB,canCD,canPQ,dryrun,
-     &       W0,maxW0)
-c $Id: hf2d.F,v 1.5 1994-06-08 22:39:51 d3e129 Exp $
-
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
-
+     &    Axyz,Aprims,Acoefs,NPA,NCA,La,ictra,
+     &    Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrb,
+     &    Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,ictrc,
+     &    Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
+     &    bERI,Nint,canAB,canCD,canPQ,dryrun,
+     &    W0,maxW0)
+c $Id: hf2d.F,v 1.6 1994-07-29 22:35:27 d3e129 Exp $
+      
+      Implicit None
+      
       Logical canAB,canCD,canPQ,dryrun
-
+      
       Logical GENCON
-
-
+      
+      
 c--> Cartesian Coordinates, Primitives & Contraction Coefficients
-
-      Dimension Axyz(3),Aprims(NPA),Acoefs(NPA,NCA)
-      Dimension Bxyz(3),Bprims(NPB),Bcoefs(NPB,NCB)
-      Dimension Cxyz(3),Cprims(NPC),Ccoefs(NPC,NCC)
-      Dimension Dxyz(3),Dprims(NPD),Dcoefs(NPD,NCD)
-      integer ictra,ictrb,ictrc,ictrd
+      
+      Integer La, Lb, Lc, Ld, Nint, MaxW0
+      Integer NPA, NCA, NPB, NCB, NPC, NCC, NPD, NCD
+      Double Precision Axyz(3),Aprims(NPA),Acoefs(NPA,NCA)
+      Double Precision Bxyz(3),Bprims(NPB),Bcoefs(NPB,NCB)
+      Double Precision Cxyz(3),Cprims(NPC),Ccoefs(NPC,NCC)
+      Double Precision Dxyz(3),Dprims(NPD),Dcoefs(NPD,NCD)
+      Integer ictra,ictrb,ictrc,ictrd
 c--> Block of Electron Repulsion Integrals
-
-      Dimension bERI(Nint,*)
-
+      
+      Double Precision bERI(Nint,*)
+      
 c--> Scratch Space
-
-      Dimension W0(maxW0)
-
+      
+      Double Precision W0(maxW0)
+      
 c--> Derivative Indices
-
+      
+      Integer mxder, Nder1, Nder2, Nder3
       Parameter (mxder=3)
-      Dimension inder1(6,mxder),inder2(3,mxder),inder3(3,mxder)
+      Integer inder1(6,mxder),inder2(3,mxder),inder3(3,mxder)
+c:: local
+      integer maxmem
+      integer nd
+      integer MXD, NCP, NCQ
+      integer Lp, Lp3, Lq, Lq3, Lr, Lr3
+      integer NPP, NPQ, NPR
+      integer i_left, i_right, i_top
+      integer i_ALPHAp, i_IPAIRp, i_ESp, i_ALPHAq, i_IPAIRq, i_ESq
+      integer i_ERI, i_Eq, i_Ep, i_IJK, i_R0
+      integer i_pf, i_P, i_Q, i_PQ, i_ff, i_Rj, i_E3, i_sum
+      integer i_dP, i_dQ, i_dR, i_dS
 c
 c Compute gradients of 4-ctr electron repulsion integrals (ERI) for 4 shells 
 c of contracted Gaussian functions.
 c
 c******************************************************************************
-
+      
       MXD = 1
-
+      
 c Determine whether general or segmented contraction is used.
-
+      
       NCP = NCA*NCB
       NCQ = NCC*NCD
-
+      
       GENCON = (NCP.ne.1) .or. (NCQ.ne.1)
-
+      
       if( GENCON )then
-       write(*,*) 'HF2D:  Not prepared to handle general contractions.'
-       stop
+        write(*,*) 'HF2D:  Not prepared to handle general contractions.'
+        stop
       end if
-
+      
 c Define the angular momentum of the overlap distributions.
-
+      
       Lp = La + Lb
       Lq = Lc + Ld
       Lr = Lp + Lq
-
+      
 c Increment "Lr" to account for the order of differentiation.
-
+      
       Lr = Lr + MXD
-
+      
 c Define the accumulated number of angular momentum functions <= Lr.
-
+      
       Lr3 = ((Lr+1)*(Lr+2)*(Lr+3))/6
-
+      
 c Define the prefactor of the overlap distribution "P".
- 
-
+      
+      
 c Assign pointers to scratch space.
-
+      
       i_ALPHAp = 1
       i_IPAIRp = i_ALPHAp + 2*(NPA*NPB)
       i_left   = i_IPAIRp + 2*(NPA*NPB) - 1
-
+      
       i_ESp   = (maxW0+1) - 3*(NPA*NPB)
       i_right = i_ESp
-
+      
       if( i_left.ge.i_right )then
-
-       write(*,*) 'HF2:  Insufficient scratch space.'
-       write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
-       write(*,*) '      allocated ',maxW0
-
-       write(*,*) 'From the left '
-       write(*,*) 'ALPHAp:  ',i_ALPHAp 
-       write(*,*) 'IPAIRp:  ',i_IPAIRp 
-       write(*,*) 'From the right '
-       write(*,*) 'ESp   :  ',i_ESp 
-
-       stop
-
+        
+        write(*,*) 'HF2:  Insufficient scratch space.'
+        write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
+        write(*,*) '      allocated ',maxW0
+        
+        write(*,*) 'From the left '
+        write(*,*) 'ALPHAp:  ',i_ALPHAp 
+        write(*,*) 'IPAIRp:  ',i_IPAIRp 
+        write(*,*) 'From the right '
+        write(*,*) 'ESp   :  ',i_ESp 
+        
+        stop
+        
       end if
-
+      
       if (dryrun) then
         MaxMem = i_left + (maxW0-(i_right-1))
         NPP = NPA*NPB
       else
         call hfset(Axyz,Aprims,Acoefs,NPA,NCA,
-     &         Bxyz,Bprims,Bcoefs,NPB,NCB,
-     &         GENCON,W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ESp),NPP)
+     &      Bxyz,Bprims,Bcoefs,NPB,NCB,
+     &      GENCON,W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ESp),NPP)
       endif
-
+      
 c Define the prefactor of the overlap distribution "Q".
-
+      
 c Assign pointers to scratch space.
-
+      
       i_ALPHAq = i_IPAIRp + 2*(NPA*NPB)
       i_IPAIRq = i_ALPHAq + 2*(NPC*NPD)
       i_left   = i_IPAIRq + 2*(NPC*NPD) - 1
-
+      
       i_ESq   = i_right - 3*(NPC*NPD)
       i_right = i_ESq
-
+      
       if( i_left.ge.i_right )then
-
-       write(*,*) 'HF2:  Insufficient scratch space.'
-       write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
-       write(*,*) '      allocated ',maxW0
-
-       write(*,*) 'From the left '
-       write(*,*) 'ALPHAp:  ',i_ALPHAp 
-       write(*,*) 'IPAIRp:  ',i_IPAIRp 
-       write(*,*) 'ALPHAq:  ',i_ALPHAq 
-       write(*,*) 'IPAIRq:  ',i_IPAIRq 
-       write(*,*) 'From the right '
-       write(*,*) 'ESp   :  ',i_ESp 
-       write(*,*) 'ESq   :  ',i_ESq 
-
-       stop
-
+        
+        write(*,*) 'HF2:  Insufficient scratch space.'
+        write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
+        write(*,*) '      allocated ',maxW0
+        
+        write(*,*) 'From the left '
+        write(*,*) 'ALPHAp:  ',i_ALPHAp 
+        write(*,*) 'IPAIRp:  ',i_IPAIRp 
+        write(*,*) 'ALPHAq:  ',i_ALPHAq 
+        write(*,*) 'IPAIRq:  ',i_IPAIRq 
+        write(*,*) 'From the right '
+        write(*,*) 'ESp   :  ',i_ESp 
+        write(*,*) 'ESq   :  ',i_ESq 
+        
+        stop
+        
       end if
-
+      
       if( dryrun )then
-       MaxMem = max( MaxMem, i_left + (maxW0 - (i_right-1)) )
-       NPQ = NPC*NPD
+        MaxMem = max( MaxMem, i_left + (maxW0 - (i_right-1)) )
+        NPQ = NPC*NPD
       else
         call hfset(Cxyz,Cprims,Ccoefs,NPC,NCC,
-     &         Dxyz,Dprims,Dcoefs,NPD,NCD,
-     &         GENCON,W0(i_ALPHAq),W0(i_IPAIRq),W0(i_ESq),NPQ)
+     &      Dxyz,Dprims,Dcoefs,NPD,NCD,
+     &      GENCON,W0(i_ALPHAq),W0(i_IPAIRq),W0(i_ESq),NPQ)
       endif
-
+      
 c Define the Hermite linear expansion coefficients.
-
+      
 c Assign pointers to scratch space.
-
+      
       NPR = NPP*NPQ
-
+      
       i_ERI  = i_IPAIRq + 2*(NPC*NPD)
-      i_Ep   = i_ERI    + NPR*(Nint*12)
+      i_Ep   = i_ERI    + NPR*(Nint*6)
       i_Eq   = i_Ep     + 3*NPP*(MXD+1)*((Lp+1)*(La+1)*(Lb+1))
       i_pf   = i_Eq     + 3*NPQ*(MXD+1)*((Lq+1)*(Lc+1)*(Ld+1))
       i_left = i_pf     + 2*max(NPP,NPQ) - 1
-
+      
       if( i_left.ge.i_right )then
-
-       write(*,*) 'HF2:  Insufficient scratch space.'
-       write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
-       write(*,*) '      allocated ',maxW0
-
-       write(*,*) 'From the left '
-       write(*,*) 'ALPHAp:  ',i_ALPHAp 
-       write(*,*) 'IPAIRp:  ',i_IPAIRp 
-       write(*,*) 'ALPHAq:  ',i_ALPHAq 
-       write(*,*) 'IPAIRq:  ',i_IPAIRq 
-       write(*,*) 'ERI   :  ',i_ERI
-       write(*,*) 'Ep    :  ',i_Ep
-       write(*,*) 'Eq    :  ',i_Eq
-       write(*,*) 'pf    :  ',i_pf
-       write(*,*) 'From the right '
-       write(*,*) 'ESp   :  ',i_ESp 
-       write(*,*) 'ESq   :  ',i_ESq 
-
-       stop
-
+        
+        write(*,*) 'HF2:  Insufficient scratch space.'
+        write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
+        write(*,*) '      allocated ',maxW0
+        
+        write(*,*) 'From the left '
+        write(*,*) 'ALPHAp:  ',i_ALPHAp 
+        write(*,*) 'IPAIRp:  ',i_IPAIRp 
+        write(*,*) 'ALPHAq:  ',i_ALPHAq 
+        write(*,*) 'IPAIRq:  ',i_IPAIRq 
+        write(*,*) 'ERI   :  ',i_ERI
+        write(*,*) 'Ep    :  ',i_Ep
+        write(*,*) 'Eq    :  ',i_Eq
+        write(*,*) 'pf    :  ',i_pf
+        write(*,*) 'From the right '
+        write(*,*) 'ESp   :  ',i_ESp 
+        write(*,*) 'ESq   :  ',i_ESq 
+        
+        stop
+        
       end if
-
+      
       if( dryrun )then
         MaxMem = max( MaxMem, i_left + (maxW0 - (i_right-1)) )
       else
         do 100 nd = 0,MXD
           call hfmke(Axyz,Bxyz,W0(i_ALPHAp),W0(i_ESp),W0(i_Ep),
-     &           W0(i_pf),nd,NPP,MXD,La,Lb)
+     &        W0(i_pf),nd,NPP,MXD,La,Lb)
           call hfmke(Cxyz,Dxyz,W0(i_ALPHAq),W0(i_ESq),W0(i_Eq),
-     &           W0(i_pf),nd,NPQ,MXD,Lc,Ld)
+     &        W0(i_pf),nd,NPQ,MXD,Lc,Ld)
 100     continue
       endif
-
+      
 c Evaluate the auxiliary function integrals.
-
+      
 c Assign pointers to scratch space.
-
+      
       i_R0  = i_Eq  + 3*NPQ*(MXD+1)*((Lq+1)*(Lc+1)*(Ld+1))
       i_IJK = i_R0  + NPR*Lr3
       i_P   = i_IJK + (Lr+1)**3
@@ -202,41 +215,41 @@ c Assign pointers to scratch space.
       i_ff  = i_PQ  + NPR*3
       i_Rj  = i_ff  + 2*NPR
       i_top = i_Rj  + NPR*(Lr+1)*Lr3 - 1
-
+      
       if( i_top.gt.maxW0 )then
-
-       write(*,*) 'HF2:  Insufficient scratch space.'
-       write(*,*) '      needed    ',i_top
-       write(*,*) '      allocated ',maxW0
-
-       write(*,*) 'ALPHAp:  ',i_ALPHAp 
-       write(*,*) 'IPAIRp:  ',i_IPAIRp 
-       write(*,*) 'ALPHAq:  ',i_ALPHAq 
-       write(*,*) 'IPAIRq:  ',i_IPAIRq 
-       write(*,*) 'ERI   :  ',i_ERI
-       write(*,*) 'Ep    :  ',i_Ep
-       write(*,*) 'Eq    :  ',i_Eq
-       write(*,*) 'R0    :  ',i_R0
-       write(*,*) 'IJK   :  ',i_IJK
-       write(*,*) 'P     :  ',i_P
-       write(*,*) 'Q     :  ',i_Q
-       write(*,*) 'PQ    :  ',i_PQ
-       write(*,*) 'ff    :  ',i_ff
-       write(*,*) 'Rj    :  ',i_Rj
-
-       stop
-
+        
+        write(*,*) 'HF2:  Insufficient scratch space.'
+        write(*,*) '      needed    ',i_top
+        write(*,*) '      allocated ',maxW0
+        
+        write(*,*) 'ALPHAp:  ',i_ALPHAp 
+        write(*,*) 'IPAIRp:  ',i_IPAIRp 
+        write(*,*) 'ALPHAq:  ',i_ALPHAq 
+        write(*,*) 'IPAIRq:  ',i_IPAIRq 
+        write(*,*) 'ERI   :  ',i_ERI
+        write(*,*) 'Ep    :  ',i_Ep
+        write(*,*) 'Eq    :  ',i_Eq
+        write(*,*) 'R0    :  ',i_R0
+        write(*,*) 'IJK   :  ',i_IJK
+        write(*,*) 'P     :  ',i_P
+        write(*,*) 'Q     :  ',i_Q
+        write(*,*) 'PQ    :  ',i_PQ
+        write(*,*) 'ff    :  ',i_ff
+        write(*,*) 'Rj    :  ',i_Rj
+        
+        stop
+        
       end if
-
+      
       if( dryrun )then
         MaxMem = max( MaxMem, i_top)
       else
         call hf2mkr(
-     &         Axyz,Bxyz,Cxyz,Dxyz,W0(i_ALPHAp),W0(i_ALPHAq),
-     &         W0(i_R0),W0(i_IJK),W0(i_P),W0(i_Q),W0(i_PQ),
-     &         W0(i_ff),W0(i_Rj),NPP,NPQ,Lr,Lr3)
+     &      Axyz,Bxyz,Cxyz,Dxyz,W0(i_ALPHAp),W0(i_ALPHAq),
+     &      W0(i_R0),W0(i_IJK),W0(i_P),W0(i_Q),W0(i_PQ),
+     &      W0(i_ff),W0(i_Rj),NPP,NPQ,Lr,Lr3)
       endif
-
+      
 c Compute the gradient ERIs.
 c
 c Currently, the 12 gradient integrals can be grouped into 3 sets. The 
@@ -252,38 +265,39 @@ c
 c N.B. The routine "hfderi" cannot simultaneously evaluate integrals from
 c      different sets!
 c
-
+      
 c Assign pointers to scratch space.
-
+      
       Lp3 = ((Lp+1)*(Lp+2)*(Lp+3))/6
       Lq3 = ((Lq+1)*(Lq+2)*(Lq+3))/6
-
+      
       i_E3   = i_IJK + (Lr+1)**3
       i_sum  = i_E3  + max(NPP,NPQ)
-      i_top  = i_sum + NPR*6*Lq3 - 1
-
+      i_top  = i_sum + NPR*6*Lq3      ! use i_sum for i_ff (size=NPR*2) to save memory 
+      i_top  = i_top - 1              ! pointer offset of 1 removed
+      
       if( i_top.gt.maxW0 )then
-
-       write(*,*) 'HF2:  Insufficient scratch space.'
-       write(*,*) '      needed    ',i_top
-       write(*,*) '      allocated ',maxW0
-
-       write(*,*) 'ALPHAp:  ',i_ALPHAp 
-       write(*,*) 'IPAIRp:  ',i_IPAIRp 
-       write(*,*) 'ALPHAq:  ',i_ALPHAq 
-       write(*,*) 'IPAIRq:  ',i_IPAIRq 
-       write(*,*) 'ERI   :  ',i_ERI
-       write(*,*) 'Ep    :  ',i_Ep
-       write(*,*) 'Eq    :  ',i_Eq
-       write(*,*) 'R0    :  ',i_R0
-       write(*,*) 'IJK   :  ',i_IJK
-       write(*,*) 'E3    :  ',i_E3
-       write(*,*) 'sum   :  ',i_sum
-
-       stop
-
+        
+        write(*,*) 'HF2:  Insufficient scratch space.'
+        write(*,*) '      needed    ',i_top
+        write(*,*) '      allocated ',maxW0
+        
+        write(*,*) 'ALPHAp:  ',i_ALPHAp 
+        write(*,*) 'IPAIRp:  ',i_IPAIRp 
+        write(*,*) 'ALPHAq:  ',i_ALPHAq 
+        write(*,*) 'IPAIRq:  ',i_IPAIRq 
+        write(*,*) 'ERI   :  ',i_ERI
+        write(*,*) 'Ep    :  ',i_Ep
+        write(*,*) 'Eq    :  ',i_Eq
+        write(*,*) 'R0    :  ',i_R0
+        write(*,*) 'IJK   :  ',i_IJK
+        write(*,*) 'E3    :  ',i_E3
+        write(*,*) 'sum   :  ',i_sum
+        
+        stop
+        
       end if
-
+      
       if( dryrun )then
         MaxMem = max( MaxMem, i_top)
       else
@@ -322,26 +336,16 @@ c Define the derivative indices.
         inder3(1,1) = 0
         inder3(2,1) = 0
         inder3(3,1) = 0
-
+        
         call hfderi(
-     &         W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),W0(i_dP),
-     &         W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
-     &         MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
-     &         canAB,canCD,canPQ)
+     &      W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),W0(i_dP),
+     &      W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
+     &      MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
+     &      canAB,canCD,canPQ)
         
-c Integral derivatives wrt Q.
-        
-        i_dQ = i_dP + NPR*(Nint*3)
-        
-c Translation invariance requires d/dQ = -d/dP !
-c... replace with daxpy... rak
-        do 200 n = 1,NPR*(Nint*3)
-          W0(i_dQ+(n-1)) = -W0(i_dP+(n-1))
-200     continue
+        i_dR  = i_dP + NPR*(Nint*3) ! allocated with i_eri
         
 c Integral derivatives wrt R.
-        
-        i_dR = i_dQ + NPR*(Nint*3)
         
 c Define the derivative indices.
         
@@ -371,14 +375,24 @@ c Define the derivative indices.
         
         if (ictra.ne.ictrb) then
           call hfderi(W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),W0(i_dR),
-     &           W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
-     &           MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
-     &           canAB,canCD,canPQ)
+     &        W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
+     &        MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
+     &        canAB,canCD,canPQ)
         endif
         
+c Contract primitive integrals. for a and b centers
+        
+c Transform to obtain derivatives wrt (A,B).
+        
+        i_ff  = i_sum        ! iff size=2*NPR (use i_sum instead)
+        call hf2PRtoAB(
+     &      W0(i_dP),W0(i_dR),bERI(1,1),bERI(1,4),
+     &      W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ff),NPP,NPQ,Nint*3,
+     &      ictra,ictrb)
+c
 c Integral derivatives wrt S.
         
-        i_dS = i_dR + NPR*(Nint*3)
+        i_dS = i_dR 
         
 c Define the derivative indices.
         
@@ -408,51 +422,22 @@ c Define the derivative indices.
         
         if (ictrc.ne.ictrd) then
           call hfderi(W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),W0(i_dS),
-     &           W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
-     &           MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
-     &           canAB,canCD,canPQ)
+     &        W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
+     &        MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
+     &        canAB,canCD,canPQ)
         endif
-      endif
         
+c Contract primitive integrals. for centers c and d 
 
-c Contract primitive integrals.
-
-c Assign pointers to scratch space.
-
-      i_ff  = i_ERI + NPR*(Nint*12)
-      i_top = i_ff  + NPR*2 - 1
-
-      if( i_top.gt.maxW0 )then
-
-       write(*,*) 'HF2:  Insufficient scratch space.'
-       write(*,*) '      needed    ',i_top
-       write(*,*) '      allocated ',maxW0
-
-       write(*,*) 'ALPHAp:  ',i_ALPHAp 
-       write(*,*) 'IPAIRp:  ',i_IPAIRp 
-       write(*,*) 'ALPHAq:  ',i_ALPHAq 
-       write(*,*) 'IPAIRq:  ',i_IPAIRq 
-       write(*,*) 'ERI   :  ',i_ERI
-       write(*,*) 'ff    :  ',i_ff
-
-       stop
-
-      end if
-
-      if( dryrun )then
-        MaxMem = max( MaxMem, i_top)
-      else
-c Transform to obtain derivatives wrt (A,B,C,D).
-
-        call hf2PRtoAB(
-     &         W0(i_dP),W0(i_dR),bERI(1,1),bERI(1,4),
-     &         W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ff),NPP,NPQ,Nint*3,
-     &         ictra,ictrb)
+c Translation invariance requires d/dQ = -d/dP !
         
+        i_dQ  = i_dP
+        call dscal((NPR*(Nint*3)),-1.0d00,W0(i_dQ),1)
         call hf2QStoCD(
-     &         W0(i_dQ),W0(i_dS),bERI(1,7),bERI(1,10),
-     &         W0(i_ALPHAq),W0(i_IPAIRq),W0(i_ff),NPP,NPQ,Nint*3,
-     &         ictrc,ictrd)
+     &      W0(i_dQ),W0(i_dS),bERI(1,7),bERI(1,10),
+     &      W0(i_ALPHAq),W0(i_IPAIRq),W0(i_ff),NPP,NPQ,Nint*3,
+     &      ictrc,ictrd)
+c
       endif
 c
       if (dryrun) maxW0 = MaxMem
