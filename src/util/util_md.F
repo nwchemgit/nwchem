@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.6 1999-04-14 22:51:06 d3j191 Exp $
+c $Id: util_md.F,v 1.7 1999-04-29 18:41:59 d3j191 Exp $
 c
       implicit none
 c
@@ -748,3 +748,194 @@ c
 c
       return
       end
+      subroutine error(iopt,data,ndata,aver,drift,stderr,corerr,ratio)
+c
+      implicit none
+c
+      real*8 zero,one
+      parameter(zero=0.0d0)
+      parameter(one=1.0d0)
+c
+      integer iopt,ndata
+      real*8 data(ndata),aver,drift,stderr,corerr,ratio
+c
+      integer i
+      real*8 dsum,ddsum,dtsum,tsum,ttsum,dstep
+c
+c      integer nacf,kapprx(15),iapprx,klarge
+c      real*8 warg
+c      real*8 data(ndata),acf(ndata),approx(15),cdac(15),weight
+c
+c      integer i,j,k,l,m,nacfa,nfunc
+c      real*8 dsum,ddsum,dtsum,tsum,ttsum,dstep,dfsum,dvar
+c      real*8 cdap(15,15),cdaq(15,15),cdad(15),rfact
+c      real*8 xappm,xappi,xappj,wterm,wsum1,wsum2,cdawgt
+c
+c     arg_error iopt   = 0 : average
+c                            drift
+c                            standard error
+c                      = 1 : average
+c                            drift
+c                            standard error
+c                            autocorrelation function
+c                            correlation error from actual acf
+c                            sampling ration from actual acf
+c                      = 2 : average
+c                            drift
+c                            standard error
+c                            autocorrelation function
+c                            correlation error from approximated acf
+c                            sampling ration from approximated acf
+c               data   : 1-dimensional array with data
+c               ndata  : number of data
+c               nacf   : length of autocorrelation function
+c
+c               aver   : average
+c               stderr : standard error
+c               drift  : drift
+c               acf    : autocorrelation function
+c               corerr : correlated error
+c               ratio  : sampling ratio
+c
+      dsum=zero
+      ddsum=zero
+      dtsum=zero
+      tsum=zero
+      ttsum=zero
+      do 1 i=1,ndata
+      dstep=dble(i)
+      dsum=dsum+data(i)
+      ddsum=ddsum+data(i)*data(i)
+      dtsum=dtsum+dstep*data(i)
+      tsum=tsum+dstep
+      ttsum=ttsum+dstep*dstep
+    1 continue
+c
+c     average, drift and standard error
+c
+      aver=dsum/dble(ndata)
+      drift=(dble(ndata)*dtsum-dsum*tsum)/(dble(ndata)*ttsum-tsum*tsum)
+      stderr=sqrt(abs((ddsum-dsum*dsum/dble(ndata)))/
+     + (dble(ndata*(ndata-1))))
+c
+      corerr=stderr
+      ratio=one
+c
+c     autocorrelation function upto lag min(nacf,ndata)
+c
+c      if(iopt.gt.0) then
+c      warg=zero
+c      nacfa=nacf
+c      if(nacfa.gt.ndata) nacfa=ndata
+c      dfsum=zero
+c      do 2 i=1,ndata
+c      dfsum=dfsum+(data(i)-aver)**2
+c    2 continue
+c      dvar=dble(ndata)/dfsum
+c      do 3 i=1,nacfa-1
+c      dfsum=zero
+c      do 4 j=1,ndata-i
+c      dfsum=dfsum+(data(j)-aver)*(data(i+j)-aver)
+c    4 continue
+c      acf(i)=dvar*(dfsum/dble(ndata-i))*(one-dble(i-1)/dble(ndata-2))
+c    3 continue
+c      endif
+cc
+cc     approximate acf here
+cc
+c      if(iopt.gt.1) then
+c      rfact=two*sqrt(dble(klarge))/dble(nacfa-1)
+c      wsum1=zero
+c      wsum2=zero
+c      warg=zero
+c      do 5 i=1,nacfa-1
+c      acf(i)=abs(acf(i))
+c      if(acf(i).gt.zero) then
+c      wterm=exp(weight*dble(nacfa-i)/dble(nacfa-1))
+c      wsum1=wsum1+wterm
+c      wsum2=wsum2+wterm*log(acf(i))/(rfact*dble(i))
+c      endif
+c    5 continue
+c      if(abs(wsum1).gt.small) warg=wsum2/wsum1
+c      do 55 i=1,nacfa-1
+c      acf(i)=acf(i)-exp(warg*dble(i)*rfact)
+c   55 continue
+c      nfunc=iapprx
+c      if(nfunc.le.0) nfunc=15
+c      do 6 k=1,nfunc
+c      do 7 l=1,nfunc
+c      cdap(k,l)=zero
+c      do 8 m=1,nacfa-1
+c      xappm=dble(m)*rfact
+c      cdawgt=exp(weight*dble(nacfa-m)/dble(nacfa-1))
+c      cdap(k,l)=cdap(k,l)+cdawgt*exp((-xappm)*xappm)*
+c     + approx(k)*approx(l)*(xappm**(kapprx(k)+kapprx(l)))
+c    8 continue
+c      cdaq(k,l)=cdap(k,l)
+c    7 continue
+c    6 continue
+c      do 9 i=1,nfunc
+c      cdad(i)=zero
+c      do 10 j=1,nacfa-1
+c      xappj=dble(j)*rfact
+c      cdawgt=exp(weight*dble(nacfa-j)/dble(nacfa-1))
+c      cdad(i)=cdad(i)+cdawgt*exp((-half)*xappj*xappj)*
+c     + acf(j)*approx(i)*(xappj**kapprx(i))
+c   10 continue
+c    9 continue
+c      do 11 k=1,nfunc
+c      do 12 i=k,nfunc
+c      cdaq(i,k)=cdap(i,k)
+c      do 13 l=1,k-1
+c      cdaq(i,k)=cdaq(i,k)-cdaq(i,l)*cdaq(l,k)
+c   13 continue
+c   12 continue
+c      do 14 i=k+1,nfunc
+c      cdaq(k,i)=cdap(k,i)
+c      do 15 l=1,k-1
+c      cdaq(k,i)=cdaq(k,i)-cdaq(k,l)*cdaq(l,i)
+c   15 continue
+c      cdaq(k,i)=cdaq(k,i)/cdaq(k,k)
+c   14 continue
+c   11 continue
+c      do 16 j=1,nfunc
+c      cdac(j)=cdad(j)
+c      do 17 i=1,j-1
+c      cdac(j)=cdac(j)-cdaq(j,i)*cdac(i)
+c   17 continue
+c      cdac(j)=cdac(j)/cdaq(j,j)
+c   16 continue
+c      do 18 k=1,nfunc
+c      j=nfunc+1-k
+c      do 19 i=j+1,nfunc
+c      cdac(j)=cdac(j)-cdaq(j,i)*cdac(i)
+c   19 continue
+c   18 continue
+c      do 20 i=1,nacfa-1
+c      xappi=dble(i)*rfact
+c      acf(i)=exp(warg*xappi)
+c      do 21 j=1,nfunc
+c      acf(i)=acf(i)+exp((-half)*xappi*xappi)*
+c     + approx(j)*cdac(j)*(xappi**kapprx(j))
+c   21 continue
+c   20 continue
+c      endif
+cc
+cc     sampling ratio
+cc
+c      ratio=one
+c      if(iopt.gt.0) then
+c      ratio=half
+c      do 22 i=1,nacfa-1
+c      ratio=ratio+(one-(dble(i)/dble(ndata))**2)*abs(acf(i))
+c   22 continue
+c      ratio=sqrt(two*abs(ratio))
+c      endif
+cc
+c      if(ratio.lt.one) ratio=one
+cc
+c      corerr=ratio*stderr
+cc
+      return
+      end
+
