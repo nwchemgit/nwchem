@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.10 1996-12-05 23:30:14 mdupuis Exp $
+C$Id: opt_drv.F,v 1.11 1997-01-07 18:08:16 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -2849,7 +2849,7 @@ c
       DATA TOL  /1.0D-08/
 C
       DBUG=.FALSE.
-      OUT =.TRUE. 
+      OUT =.FALSE.
       OUT =OUT.OR.DBUG
       IF(DBUG) THEN
          WRITE(IW,9999)
