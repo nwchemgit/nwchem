@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.11 1995-11-16 20:38:24 d3g681 Exp $
+#$Id: GNUmakefile,v 1.12 1996-08-27 23:01:00 d3g681 Exp $
 #
 # This directory is a central repository for all include
 # files.  The makefile in each subdirectory should contain
@@ -27,7 +27,8 @@ cleanF:
 	
 depend:
 	
-
+src.F:
+	
 realclean:
 	$(RM) *.h *.fh
 	$(RM) *~ \#*\#
