@@ -1,6 +1,12 @@
+c $Id: int_pgen1e.F,v 1.7 1996-10-11 10:10:19 d3e129 Exp $
+*
+c:tex-% This is part of the standard API
+c:tex-This routine prints a generic one electron block of integrals.
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_pgen1e(msg, i_basis, ish, j_basis, jsh, 
      &       ilab, jlab, l1e, Gen1e, print_level)
-c $Id: int_pgen1e.F,v 1.6 1995-12-22 01:39:08 d3e129 Exp $
+c:tex-\end{verbatim}
       implicit none
 c
 c generic one electron printing routine
@@ -16,6 +22,7 @@ c::function
       logical int_chk_sh
       external int_chk_sh
 c::passed
+c:tex-\begin{verbatim}
       character*(*) msg           ! [input] informational message
       integer i_basis             ! [input] basis set handle for i shell
       integer j_basis             ! [input] basis set handle for j shell
@@ -28,6 +35,7 @@ c::passed
       integer print_level         ! [input] print level to be used
 c. . . . . . . . . . . . . .! print_level = 0 print lables and integrals
 c. . . . . . . . . . . . . .!             = 1 also print shell info.
+c:tex-\end{verbatim}
 c
 c::local
       integer ii

@@ -1,5 +1,6 @@
 C
-c $Id: apispP.fh,v 1.2 1996-10-07 16:49:39 d3e129 Exp $
+c $Id: apispP.fh,v 1.3 1996-10-11 10:10:15 d3e129 Exp $
+c
 C  This may be obsoleter rak/10/3/96
 c  I do not want to remove it since cvs will not allow
 C  reusing the name and there may be some sp specific code

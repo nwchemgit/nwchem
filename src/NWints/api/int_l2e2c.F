@@ -1,7 +1,19 @@
+c $Id: int_l2e2c.F,v 1.9 1996-10-11 10:10:17 d3e129 Exp $
+*
+c:tex-% this is part of the API Standard Integral routines.
+c:tex-\subsubsection{int\_2e2c}
+c:tex-this routine computes the 2 center 2 electron integrals
+c:tex-with labels and ``zero'' integrals removed: 
+c:tex-\[
+c:tex-({\mu}|{\nu}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2})dr_{1}dr_{2}
+c:tex-\]
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_l2e2c(brain, ish, ketin, jsh, 
      &       zerotol, leri, eri, nint, ilab, jlab, 
      &       lscr, scr)
-c $Id: int_l2e2c.F,v 1.8 1996-07-18 23:58:10 d3e129 Exp $
+c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -19,9 +31,20 @@ c::functions
       logical int_chk_sh
       external int_chk_sh
 c::passed
-      integer brain, ish, jsh, ketin, leri, lscr
-      double precision zerotol, eri(leri), scr(lscr)
-      integer ilab(leri), jlab(leri), nint
+c:tex-\begin{verbatim}
+      integer brain ! [input] bra basis set handle
+      integer ish   ! [input] shell/contraction index
+      integer ketin ! [input] ket basis set handle
+      integer jsh   ! [input] shell/contraction index
+      integer lscr  ! [input] length of scratch array
+      double precision scr(lscr) ! [scratch] array
+      double precision zerotol   ! [input] zero threshold
+      integer leri  ! [input] length of integral array
+      integer nint  ! [output] num of ints computed
+      integer ilab(leri) ! [output] i bas func label array
+      integer jlab(leri) ! [output] j bas func label array
+      double precision eri(leri) ! [output] 2c2e integrals
+c:tex-\end{verbatim}
 c::local
       logical shells_ok
       integer i,j,bra,ket,icount

@@ -1,14 +1,23 @@
+c $Id: int_nint.F,v 1.4 1996-10-11 10:10:19 d3e129 Exp $
+*
+c:tex-% this is an internal API routine
+c:tex-\subsubsection{int\_nint}
+c:tex-This routine computes the number of integrals for a given 
+c:tex-shell/contraction grouping; if an input shell is zero then 
+c:tex-the routine ignores this shell.  This routine will work 
+c:tex-for both cartesian and spherical basis sets.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       integer function int_nint(ibasin,icnt,jbasin,jcnt,
      &       kbasin,kcnt,lbasin,lcnt)
-c $Id: int_nint.F,v 1.3 1996-07-18 23:58:27 d3e129 Exp $
+c:tex-\end{verbatim}
       implicit none
 c
-c calculates the number of integrals for a given shell/contraction 
-c grouping if an input shell is zero then it ignores this shell.  This 
-c routine will work for all integral routines.  
 c
 #include "bas.fh"
 c::passed
+c:tex-\begin{verbatim}
       integer ibasin   ! [input] basis set handle for icnt
       integer icnt     ! [input] contraction index (e.g., ish)
       integer jbasin   ! [input] basis set handle for jcnt
@@ -17,6 +26,7 @@ c::passed
       integer kcnt     ! [input] contraction index (e.g., ksh)
       integer lbasin   ! [input] basis set handle for lcnt
       integer lcnt     ! [input] contraction index (e.g., lsh)
+c:tex-\end{verbatim}
 c::local
       integer hi,lo,nbf
 c
@@ -64,26 +74,35 @@ c..lcnt/lsh
         int_nint = int_nint*nbf
       endif
       end
+c:tex-% this is an internal API routine
+c:tex-\subsubsection{int\_unint}
+c:tex-This routine computes the number of integrals for a given 
+c:tex-shell/contraction grouping; if an input shell is zero then 
+c:tex-the routine ignores this shell.  The input shell must be a 
+c:tex-unique shell in the sense of the basis set API.  This 
+c:tex-routine will work for both cartesian and spherical basis sets.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       integer function int_unint(ibasin,icnt,jbasin,jcnt,
      &       kbasin,kcnt,lbasin,lcnt)
+c:tex-\end{verbatim}
       implicit none
-c
-c calculates the number of integrals for a given shell/contraction 
-c grouping if an input shell is zero then it ignores this shell.  This 
-c routine will work for all integral routines.  
 c
 c::functions
       integer nbf_from_ucont
       external nbf_from_ucont
 c::passed
+c:tex-\begin{verbatim}
       integer ibasin   ! [input] basis set handle for icnt
-      integer icnt     ! [input] contraction index (e.g., ish)
+      integer icnt     ! [input] unique contraction index (e.g., ish)
       integer jbasin   ! [input] basis set handle for jcnt
-      integer jcnt     ! [input] contraction index (e.g., jsh)
+      integer jcnt     ! [input] unique contraction index (e.g., jsh)
       integer kbasin   ! [input] basis set handle for kcnt
-      integer kcnt     ! [input] contraction index (e.g., ksh)
+      integer kcnt     ! [input] unique contraction index (e.g., ksh)
       integer lbasin   ! [input] basis set handle for lcnt
-      integer lcnt     ! [input] contraction index (e.g., lsh)
+      integer lcnt     ! [input] unique contraction index (e.g., lsh)
+c:tex-\end{verbatim}
 c::local
       integer nbf
 c
@@ -123,143 +142,26 @@ c..lcnt/lsh
         int_unint = int_unint*nbf
       endif
       end
-      integer function int_nint_raw(ibasin,icnt,jbasin,jcnt,
-     &       kbasin,kcnt,lbasin,lcnt)
-      implicit none
-#include "bas.fh"
-#include "int_nbf.fh"
-c
-c::passed
-      integer ibasin   ! [input] basis set handle for icnt
-      integer icnt     ! [input] contraction index (e.g., ish)
-      integer jbasin   ! [input] basis set handle for jcnt
-      integer jcnt     ! [input] contraction index (e.g., jsh)
-      integer kbasin   ! [input] basis set handle for kcnt
-      integer kcnt     ! [input] contraction index (e.g., ksh)
-      integer lbasin   ! [input] basis set handle for lcnt
-      integer lcnt     ! [input] contraction index (e.g., lsh)
-c:local
-      integer type, nprim, ngen, spcart
-      integer nbf
-
-      if (
-     &    icnt.eq.jcnt.and.
-     &    jcnt.eq.kcnt.and.
-     &    kcnt.eq.lcnt.and.
-     &    icnt.eq.0
-     &   ) then
-        int_nint_raw = 0
-        return
-      endif
-
-      int_nint_raw = 1
-
-      
-c..icnt/ish
-      if (icnt.gt.0) then
-        if (.not.bas_continfo(ibasin,icnt,type,nprim,ngen,spcart))
-     &         call errquit('int_nint_raw: bas_continfo failure',911)
-        nbf = int_nbf_x(type)
-        int_nint_raw = int_nint_raw*nbf
-      endif
-c
-c..jcnt/jsh
-      if (jcnt.gt.0) then
-        if (.not.bas_continfo(jbasin,jcnt,type,nprim,ngen,spcart))
-     &         call errquit('int_nint_raw: bas_continfo failure',911)
-        nbf = int_nbf_x(type)
-        int_nint_raw = int_nint_raw*nbf
-      endif
-c
-c..kcnt/ksh
-      if (kcnt.gt.0) then
-        if (.not.bas_continfo(kbasin,kcnt,type,nprim,ngen,spcart))
-     &         call errquit('int_nint_raw: bas_continfo failure',911)
-        nbf = int_nbf_x(type)
-        int_nint_raw = int_nint_raw*nbf
-      endif
-c
-c..lcnt/lsh
-      if (lcnt.gt.0) then
-        if (.not.bas_continfo(lbasin,lcnt,type,nprim,ngen,spcart))
-     &         call errquit('int_nint_raw: bas_continfo failure',911)
-        nbf = int_nbf_x(type)
-        int_nint_raw = int_nint_raw*nbf
-      endif
-      end
-      integer function int_unint_raw(ibasin,icnt,jbasin,jcnt,
-     &       kbasin,kcnt,lbasin,lcnt)
-      implicit none
-#include "int_nbf.fh"
-c
-c::passed
-      integer ibasin   ! [input] basis set handle for icnt
-      integer icnt     ! [input] contraction index (e.g., ish)
-      integer jbasin   ! [input] basis set handle for jcnt
-      integer jcnt     ! [input] contraction index (e.g., jsh)
-      integer kbasin   ! [input] basis set handle for kcnt
-      integer kcnt     ! [input] contraction index (e.g., ksh)
-      integer lbasin   ! [input] basis set handle for lcnt
-      integer lcnt     ! [input] contraction index (e.g., lsh)
-c::local
-      integer type, nprim, ngen, spcart
-      integer nbf
-c::functions
-      logical  bas_ucontinfo
-      external bas_ucontinfo
-
-      if (
-     &    icnt.eq.jcnt.and.
-     &    jcnt.eq.kcnt.and.
-     &    kcnt.eq.lcnt.and.
-     &    icnt.eq.0
-     &   ) then
-        int_unint_raw = 0
-        return
-      endif
-
-      int_unint_raw = 1
-
-      
-c..icnt/ish
-      if (icnt.gt.0) then
-        if (.not.bas_ucontinfo(ibasin,icnt,type,nprim,ngen,spcart))
-     &         call errquit('int_unint_raw: bas_ucontinfo failure',911)
-        nbf = int_nbf_x(type)
-        int_unint_raw = int_unint_raw*nbf
-      endif
-c
-c..jcnt/jsh
-      if (jcnt.gt.0) then
-        if (.not.bas_ucontinfo(jbasin,jcnt,type,nprim,ngen,spcart))
-     &         call errquit('int_unint_raw: bas_ucontinfo failure',911)
-        nbf = int_nbf_x(type)
-        int_unint_raw = int_unint_raw*nbf
-      endif
-c
-c..kcnt/ksh
-      if (kcnt.gt.0) then
-        if (.not.bas_ucontinfo(kbasin,kcnt,type,nprim,ngen,spcart))
-     &         call errquit('int_unint_raw: bas_ucontinfo failure',911)
-        nbf = int_nbf_x(type)
-        int_unint_raw = int_unint_raw*nbf
-      endif
-c
-c..lcnt/lsh
-      if (lcnt.gt.0) then
-        if (.not.bas_ucontinfo(lbasin,lcnt,type,nprim,ngen,spcart))
-     &         call errquit('int_unint_raw: bas_ucontinfo failure',911)
-        nbf = int_nbf_x(type)
-        int_unint_raw = int_unint_raw*nbf
-      endif
-      end
+c:tex-% this is an internal API routine
+c:tex-\subsubsection{int\_nint\_cart}
+c:tex-This routine computes the number of integrals for a given 
+c:tex-shell/contraction grouping; if an input shell is zero then 
+c:tex-the routine ignores this shell.  This 
+c:tex-routine will work for both cartesian and spherical basis 
+c:tex-sets, but {\it returns the cartesian size} (this is how the 
+c:tex-integrals are computed!).
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       integer function int_nint_cart(ibasin,icnt,jbasin,jcnt,
      &       kbasin,kcnt,lbasin,lcnt)
+c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
 #include "int_nbf.fh"
 c
 c::passed
+c:tex-\begin{verbatim}
       integer ibasin   ! [input] basis set handle for icnt
       integer icnt     ! [input] contraction index (e.g., ish)
       integer jbasin   ! [input] basis set handle for jcnt
@@ -268,6 +170,7 @@ c::passed
       integer kcnt     ! [input] contraction index (e.g., ksh)
       integer lbasin   ! [input] basis set handle for lcnt
       integer lcnt     ! [input] contraction index (e.g., lsh)
+c:tex-\end{verbatim}
 c:local
       integer type, nprim, ngen, spcart
       integer nbf
@@ -317,20 +220,35 @@ c..lcnt/lsh
         int_nint_cart = int_nint_cart*nbf
       endif
       end
+c:tex-% this is an internal API routine
+c:tex-\subsubsection{int\_unint\_cart}
+c:tex-This routine computes the number of integrals for a given 
+c:tex-shell/contraction grouping; if an input shell is zero then 
+c:tex-the routine ignores this shell.  The input shell must be a 
+c:tex-unique shell in the sense of the basis set API.  This 
+c:tex-routine will work for both cartesian and spherical basis 
+c:tex-sets, but {\it returns the cartesian size} (this is how the 
+c:tex-integrals are computed!).
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       integer function int_unint_cart(ibasin,icnt,jbasin,jcnt,
      &       kbasin,kcnt,lbasin,lcnt)
+c:tex-\end{verbatim}
       implicit none
 #include "int_nbf.fh"
 c
 c::passed
+c:tex-\begin{verbatim}
       integer ibasin   ! [input] basis set handle for icnt
-      integer icnt     ! [input] contraction index (e.g., ish)
+      integer icnt     ! [input] unique contraction index (e.g., ish)
       integer jbasin   ! [input] basis set handle for jcnt
-      integer jcnt     ! [input] contraction index (e.g., jsh)
+      integer jcnt     ! [input] unique contraction index (e.g., jsh)
       integer kbasin   ! [input] basis set handle for kcnt
-      integer kcnt     ! [input] contraction index (e.g., ksh)
+      integer kcnt     ! [input] unique contraction index (e.g., ksh)
       integer lbasin   ! [input] basis set handle for lcnt
-      integer lcnt     ! [input] contraction index (e.g., lsh)
+      integer lcnt     ! [input] unique contraction index (e.g., lsh)
+c:tex-\end{verbatim}
 c::local
       integer type, nprim, ngen, spcart
       integer nbf
@@ -382,4 +300,134 @@ c..lcnt/lsh
         nbf = int_nbf_x(type)*ngen
         int_unint_cart = int_unint_cart*nbf
       endif
+* not used :      end
+* not used :      integer function int_nint_raw(ibasin,icnt,jbasin,jcnt,
+* not used :     &       kbasin,kcnt,lbasin,lcnt)
+* not used :      implicit none
+* not used :#include "bas.fh"
+* not used :#include "int_nbf.fh"
+* not used :c
+* not used :c::passed
+* not used :      integer ibasin   ! [input] basis set handle for icnt
+* not used :      integer icnt     ! [input] contraction index (e.g., ish)
+* not used :      integer jbasin   ! [input] basis set handle for jcnt
+* not used :      integer jcnt     ! [input] contraction index (e.g., jsh)
+* not used :      integer kbasin   ! [input] basis set handle for kcnt
+* not used :      integer kcnt     ! [input] contraction index (e.g., ksh)
+* not used :      integer lbasin   ! [input] basis set handle for lcnt
+* not used :      integer lcnt     ! [input] contraction index (e.g., lsh)
+* not used :c:local
+* not used :      integer type, nprim, ngen, spcart
+* not used :      integer nbf
+* not used :
+* not used :      if (
+* not used :     &    icnt.eq.jcnt.and.
+* not used :     &    jcnt.eq.kcnt.and.
+* not used :     &    kcnt.eq.lcnt.and.
+* not used :     &    icnt.eq.0
+* not used :     &   ) then
+* not used :        int_nint_raw = 0
+* not used :        return
+* not used :      endif
+* not used :
+* not used :      int_nint_raw = 1
+* not used :
+* not used :      
+* not used :c..icnt/ish
+* not used :      if (icnt.gt.0) then
+* not used :        if (.not.bas_continfo(ibasin,icnt,type,nprim,ngen,spcart))
+* not used :     &         call errquit('int_nint_raw: bas_continfo failure',911)
+* not used :        nbf = int_nbf_x(type)
+* not used :        int_nint_raw = int_nint_raw*nbf
+* not used :      endif
+* not used :c
+* not used :c..jcnt/jsh
+* not used :      if (jcnt.gt.0) then
+* not used :        if (.not.bas_continfo(jbasin,jcnt,type,nprim,ngen,spcart))
+* not used :     &         call errquit('int_nint_raw: bas_continfo failure',911)
+* not used :        nbf = int_nbf_x(type)
+* not used :        int_nint_raw = int_nint_raw*nbf
+* not used :      endif
+* not used :c
+* not used :c..kcnt/ksh
+* not used :      if (kcnt.gt.0) then
+* not used :        if (.not.bas_continfo(kbasin,kcnt,type,nprim,ngen,spcart))
+* not used :     &         call errquit('int_nint_raw: bas_continfo failure',911)
+* not used :        nbf = int_nbf_x(type)
+* not used :        int_nint_raw = int_nint_raw*nbf
+* not used :      endif
+* not used :c
+* not used :c..lcnt/lsh
+* not used :      if (lcnt.gt.0) then
+* not used :        if (.not.bas_continfo(lbasin,lcnt,type,nprim,ngen,spcart))
+* not used :     &         call errquit('int_nint_raw: bas_continfo failure',911)
+* not used :        nbf = int_nbf_x(type)
+* not used :        int_nint_raw = int_nint_raw*nbf
+* not used :      endif
+* not used :      end
+* not used :      integer function int_unint_raw(ibasin,icnt,jbasin,jcnt,
+* not used :     &       kbasin,kcnt,lbasin,lcnt)
+* not used :      implicit none
+* not used :#include "int_nbf.fh"
+* not used :c
+* not used :c::passed
+* not used :      integer ibasin   ! [input] basis set handle for icnt
+* not used :      integer icnt     ! [input] contraction index (e.g., ish)
+* not used :      integer jbasin   ! [input] basis set handle for jcnt
+* not used :      integer jcnt     ! [input] contraction index (e.g., jsh)
+* not used :      integer kbasin   ! [input] basis set handle for kcnt
+* not used :      integer kcnt     ! [input] contraction index (e.g., ksh)
+* not used :      integer lbasin   ! [input] basis set handle for lcnt
+* not used :      integer lcnt     ! [input] contraction index (e.g., lsh)
+* not used :c::local
+* not used :      integer type, nprim, ngen, spcart
+* not used :      integer nbf
+* not used :c::functions
+* not used :      logical  bas_ucontinfo
+* not used :      external bas_ucontinfo
+* not used :
+* not used :      if (
+* not used :     &    icnt.eq.jcnt.and.
+* not used :     &    jcnt.eq.kcnt.and.
+* not used :     &    kcnt.eq.lcnt.and.
+* not used :     &    icnt.eq.0
+* not used :     &   ) then
+* not used :        int_unint_raw = 0
+* not used :        return
+* not used :      endif
+* not used :
+* not used :      int_unint_raw = 1
+* not used :
+* not used :      
+* not used :c..icnt/ish
+* not used :      if (icnt.gt.0) then
+* not used :        if (.not.bas_ucontinfo(ibasin,icnt,type,nprim,ngen,spcart))
+* not used :     &         call errquit('int_unint_raw: bas_ucontinfo failure',911)
+* not used :        nbf = int_nbf_x(type)
+* not used :        int_unint_raw = int_unint_raw*nbf
+* not used :      endif
+* not used :c
+* not used :c..jcnt/jsh
+* not used :      if (jcnt.gt.0) then
+* not used :        if (.not.bas_ucontinfo(jbasin,jcnt,type,nprim,ngen,spcart))
+* not used :     &         call errquit('int_unint_raw: bas_ucontinfo failure',911)
+* not used :        nbf = int_nbf_x(type)
+* not used :        int_unint_raw = int_unint_raw*nbf
+* not used :      endif
+* not used :c
+* not used :c..kcnt/ksh
+* not used :      if (kcnt.gt.0) then
+* not used :        if (.not.bas_ucontinfo(kbasin,kcnt,type,nprim,ngen,spcart))
+* not used :     &         call errquit('int_unint_raw: bas_ucontinfo failure',911)
+* not used :        nbf = int_nbf_x(type)
+* not used :        int_unint_raw = int_unint_raw*nbf
+* not used :      endif
+* not used :c
+* not used :c..lcnt/lsh
+* not used :      if (lcnt.gt.0) then
+* not used :        if (.not.bas_ucontinfo(lbasin,lcnt,type,nprim,ngen,spcart))
+* not used :     &         call errquit('int_unint_raw: bas_ucontinfo failure',911)
+* not used :        nbf = int_nbf_x(type)
+* not used :        int_unint_raw = int_unint_raw*nbf
+* not used :      endif
       end

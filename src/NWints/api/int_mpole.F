@@ -1,19 +1,30 @@
+c $Id: int_mpole.F,v 1.8 1996-10-11 10:10:18 d3e129 Exp $
+*
+c:tex-% This is part of the API Standard Integral routines
+c:tex-\subsubsection{int\_mpole}
+c:tex-This routine returns multipole integrals up to the level $lmax$
+c:tex-
+c:tex- The general form is $< shell | pole | shell >$. 
+c:tex- Integrals are returned in shell blocks of $<ish|L|jsh>$ $L$=0 to $lmax$
+c:tex- one block for each $L$ value.  
+c:tex- for example $ish$ = p and $L$ = 1 and $jsh$ = p you would get 
+c:tex- (3*1*3)+(3*3*3)=36 integrals.
+c:tex- The order would be:\\
+c:tex-  $<x|x>, <x|y>, <x|z>, <y|x> \ldots <z|z>$ (first nine) \\
+c:tex-  $<x|x|x>, <x|x|y>, <x|x|z>, <x|y|x>, <x|y|y> \dots <x|z|z>$ (second nine)\\
+c:tex-  $<y|x|x>, <y|x|y>, <y|x|z>, <y|y|x>, <y|y|y> ... <y|z|z>$ (third nine)\\
+c:tex-  $<z|x|x>, <z|x|y>, <z|x|z>, <z|y|x>, <z|y|y> ... <z|z|z>$ (fourth nine).
+c:tex-
+c:tex-
+c:tex-
+c:tex- See the int_order code inside $\ldots$/NWints/int for specific order of a 
+c:tex- set of shells and dipole order. 
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_mpole(i_basis, ish, j_basis, jsh, lmax, centerl,
      &    lscr, scr, lmpint, MP)
-c $Id: int_mpole.F,v 1.7 1996-07-18 23:58:25 d3e129 Exp $
-c
-c routine to compute multipole integrals up to level lmax
-c The general form is <shell|pole|shell>
-c
-c  Intgrals are returned in shell blocks of <ish|L|jsh> L=0 to lmax
-c  one block for each L value.  
-c  for ish = p and L = 1 and jsh = p you would get (3*1*3)+(3*3*3)=36 integrals
-c  order would be <x|x>, <x|y>, <x|z>, <y|x> ... <z|z> (first nine)
-c   <x|x|x>, <x|x|y>, <x|x|z>, <x|y|x>, <x|y|y> ... <x|z|z> (second nine)
-c   <y|x|x>, <y|x|y>, <y|x|z>, <y|y|x>, <y|y|y> ... <y|z|z> (third nine)
-c   <z|x|x>, <z|x|y>, <z|x|z>, <z|y|x>, <z|y|y> ... <z|z|z> (fourth nine)
-c
-c
+c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
 #include "basP.fh"
@@ -30,6 +41,7 @@ c::functions
       external int_chk_init
       external int_nint_cart
 c::passed
+c:tex-\begin{verbatim}
       integer i_basis             ! [input] basis set handle for ish
       integer ish                 ! [input] i shell/contraction
       integer j_basis             ! [input] basis set handle for jsh
@@ -40,6 +52,7 @@ c::passed
       double precision scr(lscr)  ! [input] scratch array
       integer lmpint              ! [input] length of multipole integrals array
       double precision MP(lmpint) ! [output] multipole integrals
+c:tex-\end{verbatim}
 c::local      
       logical shells_ok
       integer ibas, Li, i_prim, i_gen, i_iexp, i_icfp, i_cent, i_geom

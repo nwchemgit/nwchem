@@ -1,6 +1,18 @@
+c $Id: int_lgen1e.F,v 1.11 1996-10-11 10:10:17 d3e129 Exp $
+*
+c:tex-% this is part of the API Standard Integral routines
+c:tex-This routine generates labels for general 2 index one 
+c:tex-electron integrals.  This is mostly unused since the other 
+c:tex-integral type specific label routines are now used.  This 
+c:tex-routine requires that the integral block be computed prior 
+c:tex-to the label call.  Other routines now integrate label 
+c:tex-generation with computation.  
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_lgen1e(i_basis, ish, j_basis, jsh, zerotol,
      &       ilab, jlab, l1e, Gen1e, lscr, scr, numgen) 
-c $Id: int_lgen1e.F,v 1.10 1996-07-18 23:58:20 d3e129 Exp $
+c:tex-\end{verbatim}
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -14,10 +26,19 @@ c::function
       logical int_chk_sh
       external int_chk_sh
 c::passed
-      integer i_basis, j_basis, ish, jsh, l1e, numgen, lscr
-      integer ilab(l1e),jlab(l1e)
-      double precision zerotol, scr(lscr)
-      double precision Gen1e(l1e)
+      integer i_basis ! [input] bra basis set handle
+      integer ish     ! [input] bra shell lexical index
+      integer j_basis ! [input] ket basis set handle
+      integer jsh     ! [input] ket shell lexical index
+      double precision zerotol ! [input] zero threshold
+      integer ilab(l1e) ! [output] i bas func labels array
+      integer jlab(l1e) ! [output] j bas func labels array
+      integer l1e       ! [input] length of buffers for integrals
+      double precision Gen1e(l1e) ! [input/output] 1 electron integrals
+      integer lscr ! [input] length of scratch array
+      double precision scr(lscr) ! [scratch] array
+      integer numgen ! [output] number of integrals saved and returned
+c:tex-\end{verbatim}
 c::local
       integer ibas, jbas, icount, i, j
       logical ijbas

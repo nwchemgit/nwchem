@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.24 1996-10-07 16:49:43 d3e129 Exp $
+c $Id: exact_mem.F,v 1.25 1996-10-11 10:10:16 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -956,6 +956,7 @@ c
 c
       end
 ***********************************************************************
+c:tex-% Part of the API internal routines.
 c:tex-\subsubsection{int\_nbf\_max}
 c:tex-This routine computes the maximum cartesian nbf for a given basis
 c:tex-set.  Used in many memory computing routines to deterine maximum
@@ -1007,4 +1008,31 @@ c
         endif
         nbf_max = max(nbf_max,nbf)
       enddo
+      end
+c:tex-% Part of the API internal routines.
+c:tex-\subsubsection{int\_mem\_zero}
+c:tex-This routine zeros the memory pointers in the apiP.fh common
+c:tex-that pertain to the memory utilization of the integral suite.
+c:tex-This routine should not be called by application code. 
+c:tex-
+      subroutine int_mem_zero()
+      implicit none
+#include "stdio.fh"
+#include "apiP.fh"
+      mem_2e4c   = 0   ! scr memory size for 4 center integrals
+      isz_2e4c   = 0   ! max buffer size for 4 center integrals
+      mem_1e     = 0   ! scr memory size for 1 electron integrals
+      isz_1e     = 0   ! max buffer size for 1 electron integrals
+      mem_1e_h1  = 0   ! scr memory size for h1-1 electron integrals
+      isz_2e3c   = 0   ! max buffer size for 3 center integrals
+      mem_2e3c   = 0   ! scr memory size for 3 center integrals
+      isz_2e2c   = 0   ! max buffer size for 2 center integrals
+      mem_2e2c   = 0   ! scr memory size for 2 center integrals
+      isz_3ov    = 0   ! max buffer size for 3 center overlap integrals
+      mem_3ov    = 0   ! scr memory size for 3 center overlap integrals
+      iszb_2e4c  = 0   ! max buffer size for blocked 4 center integrals
+      memb_2e4c  = 0   ! scr memory size for blocked 4 center integrals
+      init_int   = 0   ! integral initialization flag
+      init_intd  = 0   ! derivative initialization flag
+c
       end

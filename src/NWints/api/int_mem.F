@@ -1,12 +1,27 @@
+c $Id: int_mem.F,v 1.8 1996-10-11 10:10:18 d3e129 Exp $
+*
+c:tex-% This is part of the API Standard Integral routines
+c:tex-\subsubsection{int\_mem}
+c:tex-This routine returns the maximum buffer and scratch array
+c:tex-sizes for both one electron and two electron (4 center) 
+c:tex-integrals.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_mem(max1e, maxg, mscratch_1e, mscratch_2e)
-c $Id: int_mem.F,v 1.7 1996-07-18 23:58:22 d3e129 Exp $
+c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
 c::passed
-      integer max1e, maxg, mscratch_1e, mscratch_2e
+c:tex-\begin{verbatim}
+      integer max1e       ! [output] max 1e buffer size
+      integer maxg        ! [output] max 2e4c buffer size
+      integer mscratch_1e ! [output] max scr for 1e ints
+      integer mscratch_2e ! [output] max scr for 2e ints
+c:tex-\end{verbatim}
 c
       if (int_chk_init('int_mem')) then
         max1e       = isz_1e
@@ -17,14 +32,26 @@ c
         call errquit('int_mem: int_init was not called' ,0)
       endif
       end
+c:tex-% This is part of the API Standard Integral routines
+c:tex-\subsubsection{int\_mem\_1e}
+c:tex-This routine returns the maximum buffer and scratch array
+c:tex-sizes for one electron (2 center)
+c:tex-integrals.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_mem_1e(max1e, mscratch_1e)
+c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
 c::passed
-      integer max1e, mscratch_1e
+c:tex-\begin{verbatim}
+      integer max1e       ! [output] max 1e buffer size
+      integer mscratch_1e ! [output] max scr for 1e ints
+c:tex-\end{verbatim}
 c
       if (int_chk_init('int_mem_1e')) then
         max1e       = isz_1e
@@ -33,14 +60,26 @@ c
         call errquit('int_mem_1e: int_init was not called' ,0)
       endif
       end
+c:tex-% This is part of the API Standard Integral routines
+c:tex-\subsubsection{int\_mem\_2e4c}
+c:tex-This routine returns the maximum buffer and scratch array
+c:tex-sizes for two electron (4 center)
+c:tex-integrals.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_mem_2e4c(maxg, mscratch_2e)
+c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
 c::passed
-      integer maxg, mscratch_2e
+c:tex-\begin{verbatim}
+      integer maxg        ! [output] max 2e4c buffer size
+      integer mscratch_2e ! [output] max scr for 2e ints
+c:tex-\end{verbatim}
 c
       if (int_chk_init('int_mem_2e4c')) then
         maxg        = isz_2e4c
@@ -49,14 +88,26 @@ c
         call errquit('int_mem_2e4c: int_init was not called' ,0)
       endif
       end
+c:tex-% This is part of the API Standard Integral routines
+c:tex-\subsubsection{int\_mem\_h1}
+c:tex-This routine returns the maximum buffer and scratch array
+c:tex-sizes for one electron hamiltonian 
+c:tex-integrals.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_mem_h1(maxh1, mscratch_h1)
+c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
 c::passed
-      integer maxh1, mscratch_h1
+c:tex-\begin{verbatim}
+      integer maxh1       ! [output] max buffer size for H1 ints
+      integer mscratch_h1 ! [output] max scr size for H1 ints
+c:tex-\end{verbatim}
 c
       if (int_chk_init('int_mem_h1')) then
         maxh1       = isz_1e
@@ -65,14 +116,26 @@ c
         call errquit('int_mem_h1: int_init was not called' ,0)
       endif
       end
+c:tex-% This is part of the API Standard Integral routines
+c:tex-\subsubsection{int\_mem\_2eec}
+c:tex-This routine returns the maximum buffer and scratch array
+c:tex-sizes for two electron (3 center)
+c:tex-integrals.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_mem_2e3c(maxg, mscratch_2e3c)
+c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
 c::passed
-      integer maxg, mscratch_2e3c
+c:tex-\begin{verbatim}
+      integer maxg           ! [output] max buf size for 2e3c ints
+      integer mscratch_2e3c  ! [output] max scr size for 2e3c ints
+c:tex-\end{verbatim}
 c
       if (int_chk_init('int_mem_2e3c')) then
         maxg          = isz_2e3c
@@ -81,14 +144,26 @@ c
         call errquit('int_mem_2e3c: int_init was not called' ,0)
       endif
       end
+c:tex-% This is part of the API Standard Integral routines
+c:tex-\subsubsection{int\_mem\_2e2c}
+c:tex-This routine returns the maximum buffer and scratch array
+c:tex-sizes for two electron (2 center)
+c:tex-integrals.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_mem_2e2c(maxg, mscratch_2e2c)
+c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
 c::passed
-      integer maxg, mscratch_2e2c
+c:tex-\begin{verbatim}
+      integer maxg          ! [output] max buf size for 2e2c ints
+      integer mscratch_2e2c ! [output] max scr size for 2e2c ints
+c:tex-\end{verbatim}
 c
       if (int_chk_init('int_mem_2e2c')) then
         maxg          = isz_2e2c
@@ -97,14 +172,26 @@ c
         call errquit('int_mem_2e2c: int_init was not called' ,0)
       endif
       end
+c:tex-% This is part of the API Standard Integral routines
+c:tex-\subsubsection{int\_mem\_3ov}
+c:tex-This routine returns the maximum buffer and scratch array
+c:tex-sizes for one electron (3 center)
+c:tex-integrals.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_mem_3ov(maxbuf, mscratch_3ov)
+c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
 c::passed
-      integer maxbuf, mscratch_3ov
+c:tex-\begin{verbatim}
+      integer maxbuf       ! [output] max buf size for 3 center ov
+      integer mscratch_3ov ! [output] max scr size for 3 center ov
+c:tex-\end{verbatim}
 c
       if (int_chk_init('int_mem_3ov')) then
         maxbuf       = isz_3ov
@@ -113,27 +200,14 @@ c
         call errquit('int_mem_3ov: int_init was not called' ,0)
       endif
       end
-      subroutine int_mem_zero()
-      implicit none
-#include "stdio.fh"
-#include "apiP.fh"
-      mem_2e4c   = 0   ! scr memory size for 4 center integrals
-      isz_2e4c   = 0   ! max buffer size for 4 center integrals
-      mem_1e     = 0   ! scr memory size for 1 electron integrals
-      isz_1e     = 0   ! max buffer size for 1 electron integrals
-      mem_1e_h1  = 0   ! scr memory size for h1-1 electron integrals
-      isz_2e3c   = 0   ! max buffer size for 3 center integrals
-      mem_2e3c   = 0   ! scr memory size for 3 center integrals
-      isz_2e2c   = 0   ! max buffer size for 2 center integrals
-      mem_2e2c   = 0   ! scr memory size for 2 center integrals
-      isz_3ov    = 0   ! max buffer size for 3 center overlap integrals
-      mem_3ov    = 0   ! scr memory size for 3 center overlap integrals
-      iszb_2e4c  = 0   ! max buffer size for blocked 4 center integrals
-      memb_2e4c  = 0   ! scr memory size for blocked 4 center integrals
-      init_int   = 0   ! integral initialization flag
-      init_intd  = 0   ! derivative initialization flag
-c
-      end
+c:tex-% This is part of the API Standard Integral routines
+c:tex-\subsubsection{int\_mem\_print}
+c:tex-This routine prints the maximum buffer and scratch array
+c:tex-sizes for all known classes of 
+c:tex-integrals.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_mem_print()
       implicit none
 #include "stdio.fh"
@@ -162,14 +236,26 @@ c
       write(luout,*)' memb_2e4c : ',memb_2e4c
 10000 format(//)
       end
+c:tex-% This is part of the API Standard Integral routines
+c:tex-\subsubsection{intb\_mem\_2e4c}
+c:tex-This routine returns the maximum buffer and scratch array
+c:tex-sizes for two electron (4 center)
+c:tex-integrals from the blocking interface.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine intb_mem_2e4c(maxg, mscratch_2e)
+c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
 c::passed
-      integer maxg, mscratch_2e
+c:tex-\begin{verbatim}
+      integer maxg        ! [output] max buf size for blocked 2e4c ints
+      integer mscratch_2e ! [output] max scr size for blocked 2e4c ints
+c:tex-\end{verbatim}
 c
       if (int_chk_init('intb_mem_2e4c')) then
         maxg        = iszb_2e4c
