@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.61 1996-01-25 01:13:47 rg240 Exp $
+# $Id: GNUmakefile,v 1.62 1996-02-01 00:41:18 rg240 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -62,7 +62,7 @@
 		movecs_proj.F fock_2e_b.F rohf.F rohf_nr_sol.F \
 		rohf_precon.F \
 		fock_2e_file.F rohf_fock.F rohf_h2e.F \
-		scf_get_info.F ao_fock_2e.F
+		scf_get_info.F ao_fock_2e.F rohf_diis.F
 
 HEADERS = schwarz.fh cscfps.fh cfock.fh
 
@@ -106,7 +106,7 @@ $(LIBRARY_PATH)(riscf_trans.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INC
 $(LIBRARY_PATH)(rohf.o):	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscf.fh ./crohf.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(rohf_canon.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cscfps.fh ./cscf.fh ./crohf.fh 
 $(LIBRARY_PATH)(rohf_dens.o):	 $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(rohf_diis_solve.o):	 $(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscfps.fh ./cscf.fh ./crohf.fh 
+$(LIBRARY_PATH)(rohf_diis.o):	 $(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscfps.fh ./cscf.fh ./crohf.fh 
 $(LIBRARY_PATH)(rohf_fock.o):	 $(INCDIR)/util.fh $(INCDIR)/global.fh ./cscfps.fh ./cscf.fh ./crohf.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(rohf_fock2g.o):	 $(INCDIR)/global.fh ./cscf.fh ./crohf.fh 
 $(LIBRARY_PATH)(rohf_h1e.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
