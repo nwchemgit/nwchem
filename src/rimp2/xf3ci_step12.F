@@ -4,7 +4,7 @@ C     XF3cI_Step12 -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_step12.F,v 1.2 1994-06-16 06:14:25 gg502 Exp $
+C     $Id: xf3ci_step12.F,v 1.3 1994-06-16 22:01:55 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step12(IntTyp, Alo, Ahi, Ilo, Ihi,
@@ -91,6 +91,7 @@ C LOCAL VARIABLES
       Integer H_CP, H_CQ, CP_Idx, CQ_Idx, LCP, LCQ
       Integer NCent, CenP, CenQ, MxBFCe, PBFLo, PBFHi, QBFLo,
      $   QBFHi
+      IntegerH_CP2, H_CQ2, CP2_Idx, CQ2_Idx
 C
 C     Dimensions of A and I ranges
 C
@@ -202,6 +203,11 @@ C
       Status = Status .AND. MA_Push_Get( MT_Dbl, LCQ, 'trans. scr',
      $   H_CQ, CQ_Idx)
 C
+      Status = Status .AND. MA_Push_Get( MT_Dbl, LCQ, 'trans. scr',
+     $   H_CP2, CP2_Idx)
+      Status = Status .AND. MA_Push_Get( MT_Dbl, LCP, 'trans. scr',
+     $   H_CQ2, CQ2_Idx)
+C
       If (.NOT. Status ) then
          Write (LuErr, *) 'XF3cI_Step12: Problem allocating local ',
      $      'memory.'
@@ -236,13 +242,22 @@ C
          Status = Bas_Ce2BFR( AOBas, CenP, PBFLo, PBFHi)
          Call GA_Get(G_C, PBFlo, PBFhi, Alo, Ahi,
      $      Dbl_MB(CP_Idx), MxBFCe)
-         Do CenQ = 1, NCent
+         Call GA_Get(G_C, PBFlo, PBFhi, Ilo, Ihi,
+     $      Dbl_MB(CP2_Idx), MxBFCe)
+C
+         Do CenQ = 1, CenP
+C
             Status = Bas_Ce2BFR( AOBas, CenQ, QBFLo, QBFHi)
             Call GA_Get(G_C, QBFlo, QBFhi, Ilo, Ihi,
      $         Dbl_MB(CQ_Idx), MxBFCe)
+            Call GA_Get(G_C, QBFlo, QBFhi, Alo, Ahi,
+     $         Dbl_MB(CQ2_Idx), MxBFCe)
 C
             Call XF3cI_Step12a(UseERI, AOBas, CenP, CenQ,
-     $         Dbl_MB(CP_Idx), MxBFCe, NA, Dbl_MB(CQ_Idx), MxBFCe, NI,
+     $         Dbl_MB(CP_Idx), MxBFCe, NA,
+     $         Dbl_MB(CP2_Idx), MxBFCe, NI,
+     $         Dbl_MB(CQ_Idx), MxBFCe, NI,
+     $         Dbl_MB(CQ2_Idx), MxBFCe, NA,
      $         FitBas, SShLo, SShhi, Dbl_MB(Local_Idx), LDLocal, 
      $         Dbl_MB(Int_Idx), LInt, Dbl_MB(Scr_Idx), LScr )
          EndDo
@@ -254,6 +269,8 @@ C     ****************************
 C
       Call GA_Release_Update( G_I, IAlo, IAhi, MySLo, MySHi)
 C
+      Status = Status .AND. MA_Pop_Stack( H_CQ2)
+      Status = Status .AND. MA_Pop_Stack( H_CP2)
       Status = Status .AND. MA_Pop_Stack( H_CQ)
       Status = Status .AND. MA_Pop_Stack( H_CP)
       Status = Status .AND. MA_Pop_Stack( H_Scr)
