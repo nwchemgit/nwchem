@@ -5,7 +5,7 @@ c     Makes contribution to J force from block of derivative integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.6 1999-02-15 17:00:41 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.7 1999-05-08 13:46:06 bjohnson Exp $
 c
       implicit none
 c
@@ -59,7 +59,7 @@ c     derivative integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.6 1999-02-15 17:00:41 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.7 1999-05-08 13:46:06 bjohnson Exp $
 c
       implicit none
 c
@@ -141,6 +141,135 @@ c
 c
 c
 c
+      subroutine dint_2e3c_block_jdmat(CD_coef, d_kla, nbf_cd, ldim,
+     &     g_dj, db, dfkl, dint, diagkl, idatom, nf1,
+     &     if3, il3, if4, il4)
+c
+c     Makes contribution to fitted J derivative matrices from block of
+c     derivative 2e3c integrals
+c
+c     BGJ - 3/99
+c
+c     $Id: dint_block_j.F,v 1.7 1999-05-08 13:46:06 bjohnson Exp $
+c
+      implicit none
+c
+      integer nbf_cd, ldim
+      integer nf1, if3, il3, if4, il4
+      logical diagkl
+      integer g_dj(3, *)
+      double precision CD_coef(*), d_kla(ldim,ldim)
+      double precision db(nbf_cd, 3, *), dfkl(if4:il4, if3:il3)
+      double precision dint(if4:il4, if3:il3, nf1, 3, 4)
+      integer idatom(4)
+c
+      integer i, icart
+      integer ip1, ip3, ip4
+      double precision scalekl, scalecd, g
+c
+c     Set up scale factors: 2's for permutational symmetry,
+c     and 1/2's to fix diagonal J matrix blocks because we fill out
+c     the matrices at the end by adding the transpose
+c
+      scalekl = 1d0
+      scalecd = 1d0
+      if (diagkl) then
+         scalecd = scalecd * 0.5d0
+      else
+         scalekl = scalekl * 2.0d0
+      endif
+c
+      do i = 1, 4
+         if (idatom(i).ge.1) then
+            do icart = 1, 3
+               call dfill((il4-if4+1)*(il3-if3+1), 0.0d0, dfkl, 1)
+               do ip1 = 1, nf1
+                  do ip3 = if3, il3
+                     do ip4 = if4, il4
+                        g = dint(ip4,ip3,ip1,icart,i)
+                        dfkl(ip4,ip3) = dfkl(ip4,ip3)
+     &                       + g * CD_coef(ip1) * scalecd
+                        db(ip1,icart,idatom(i))
+     &                       = db(ip1,icart,idatom(i))
+     &                       + g * d_kla(ip3-if3+1,ip4-if4+1) * scalekl
+                     enddo
+                  enddo
+               enddo
+c
+c     Update derivative J matrix block in GA
+c
+c     The routine fock_upd_blk takes a temporary array for space
+c     to rearrange blocks before updating.  This array is not used
+c     in the case of a single matrix.  The call below relies upon
+c     this and does not pass in a temporary array.  If the call
+c     below is ever changed to update more than one matrix at once,
+c     a temporary array will have to be provided.
+c
+               call fock_upd_blk(1, g_dj(icart,idatom(i)), if4, il4,
+     &              if3, il3, 1.d0, dfkl, 0.d0)
+            enddo
+         endif
+      enddo
+c
+      return
+      end
+c
+c
+c
+      subroutine dint_2e2c_block_jdmat(CD_coef, db, nbf_cd, dint,
+     &     idatom, if1, il1, if2, il2)
+c
+c     Makes contribution to fitted J derivative matrices from block of
+c     derivative 2e2c integrals
+c
+c     BGJ - 3/99
+c
+c     $Id: dint_block_j.F,v 1.7 1999-05-08 13:46:06 bjohnson Exp $
+c
+      implicit none
+c
+      integer nbf_cd
+      integer if1, il1, if2, il2
+      double precision CD_coef(nbf_cd)
+      double precision db(nbf_cd, 3, *)
+      double precision dint(if2:il2, if1:il1, 3, 2)
+      integer idatom(2)
+c
+      integer i, icart
+      integer ip1, ip2
+      double precision g
+c
+c     Don't need to do separate case for diagonal blocks since these
+c     give a zero contribution
+c
+      do i = 1, 2
+         if (idatom(i).ge.1) then
+            do icart = 1, 3
+               do ip1 = if1, il1
+                  do ip2 = if2, il2
+                     g = dint(ip2,ip1,icart,i)
+#if 0
+                     db(ip1,icart,idatom(i)) = db(ip1,icart,idatom(i))
+     &                    - g * CD_coef(ip2)
+                     db(ip2,icart,idatom(i)) = db(ip2,icart,idatom(i))
+     &                    - g * CD_coef(ip1)
+#else
+                     db(ip1,icart,idatom(i)) = db(ip1,icart,idatom(i))
+     &                    - g * CD_coef(ip2) * 0.5d0
+                     db(ip2,icart,idatom(i)) = db(ip2,icart,idatom(i))
+     &                    - g * CD_coef(ip1) * 0.5d0
+#endif
+                  enddo
+               enddo
+            enddo
+         endif
+      enddo
+c
+      return
+      end
+c
+c
+c
       subroutine d2int_block_jhess(d_ija, d_kla, ldim, hess, nat, d2int,
      &     scale, idatom, if1, il1, if2, il2, if3, il3, if4, il4)
 c
@@ -149,7 +278,7 @@ c     integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.6 1999-02-15 17:00:41 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.7 1999-05-08 13:46:06 bjohnson Exp $
 c
       implicit none
 c
@@ -310,7 +439,7 @@ c     3-center integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.6 1999-02-15 17:00:41 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.7 1999-05-08 13:46:06 bjohnson Exp $
 c
       implicit none
 c
@@ -467,7 +596,7 @@ c     2-center integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.6 1999-02-15 17:00:41 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.7 1999-05-08 13:46:06 bjohnson Exp $
 c
       implicit none
 c
