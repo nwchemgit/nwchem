@@ -1,6 +1,6 @@
       real*8 function ana_atrad(number)
 c
-c $Id: ana_atrad.F,v 1.1 2000-06-30 17:21:02 d3j191 Exp $
+c $Id: ana_atrad.F,v 1.2 2000-06-30 19:02:47 d3j191 Exp $
 c
       implicit none
       integer number
@@ -32,7 +32,7 @@ c
 c
       data indexc / 1,
      + 8, 1, 1, 1, 1, 5, 3, 2, 1, 1,
-     + 1, 1, 1, 1, 7, 6, 1, 1, 1, 9,
+     + 9, 1, 1, 1, 7, 6, 1, 1, 1, 9,
      + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
      + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
      + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,

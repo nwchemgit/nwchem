@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag)
 c
-c $Id: ana_wtfram.F,v 1.14 2000-06-29 19:39:26 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.15 2000-06-30 19:02:48 d3j191 Exp $
 c
       implicit none
 c
@@ -26,7 +26,7 @@ c
       character*255 color
       real*8 xh(3)
 c
-      real*8 xsmax,xsmin,ysmax,ysmin,zsmax,zsmin
+      real*8 xbmax,xbmin,ybmax,ybmin,zbmax,zbmin
 c
       real*8 ana_atrad
       integer pre_atnum
@@ -207,22 +207,22 @@ c
 c
       if(fmt.eq.'pov') then
       if(scale.le.0.0d0) then
-      xsmax=x(1,1)
-      xsmin=x(1,1)
-      ysmax=x(1,2)
-      ysmin=x(1,2)
-      zsmax=x(1,3)
-      zsmin=x(1,3)
+      xbmax=x(1,1)
+      xbmin=x(1,1)
+      ybmax=x(1,2)
+      ybmin=x(1,2)
+      zbmax=x(1,3)
+      zbmin=x(1,3)
       do 234 i=2,nsa
-      xsmax=max(xsmax,x(i,1))
-      xsmin=min(xsmin,x(i,1))
-      ysmax=max(ysmax,x(i,2))
-      ysmin=min(ysmin,x(i,2))
-      zsmax=max(zsmax,x(i,3))
-      zsmin=min(zsmin,x(i,3))
+      xbmax=max(xbmax,x(i,1))
+      xbmin=min(xbmin,x(i,1))
+      ybmax=max(ybmax,x(i,2))
+      ybmin=min(ybmin,x(i,2))
+      zbmax=max(zbmax,x(i,3))
+      zbmin=min(zbmin,x(i,3))
   234 continue
-      xsmax=max(xsmax-xsmin,ysmax-ysmin,zsmax-zsmin)
-      scale=2.0d0/xsmax
+      xbmax=max(xbmax-xbmin,ybmax-ybmin,zbmax-zbmin)
+      scale=2.0d0/xbmax
       if(me.eq.0) write(*,3333) scale
  3333 format(' Scaling set to ',f12.6)
       endif
