@@ -1,6 +1,6 @@
       logical function jvltest(rtdb)
 *     
-*     $Id: jvltest.F,v 1.2 1998-10-28 02:25:29 jhvan Exp $
+*     $Id: jvltest.F,v 1.3 1998-10-30 00:18:50 jhvan Exp $
 *      calling routine for CCSD(T) trials
 *
       implicit none
@@ -84,7 +84,7 @@ c...  real orbital energies from EVALS
 c
       implicit none
 c
-      integer nbasis,nbin,i
+      integer nbasis
       double precision orb(nbasis)
 c
       integer nbin,i
@@ -110,7 +110,7 @@ c...  real t2 amplitudes from T2
 c
       implicit none
 c
-      integer occ,virt,i
+      integer occ,virt
       double precision t2(occ,occ,virt,virt)
 c
       integer ocin,vin,i,j,a,b
@@ -139,7 +139,7 @@ c...  real t1 amplitudes from T1
 c
       implicit none
 c
-      integer occ,virt,i
+      integer occ,virt
       double precision t1(occ,virt)
 c
       integer ocin,vin,i,a
@@ -206,7 +206,7 @@ c
       double precision orb(nbasis)
 c..     intermediates
       double precision w1,w2,w3,w4,v,w1w1,w1w2,w1w3,w1w4
-      double precision vw1,vw2,vw2,vw3,vw4
+      double precision vw1,vw2,vw3,vw4
 c
       double precision e1,e2,energy,delta
       integer i,j,k,a,b,c,e,m
@@ -377,15 +377,17 @@ c..     intermediates
       double precision u1,u2,u3,u4,u5,u6,u7,u8,u9,v1
 c
       double precision e1,e2,energy,delta
-      integer i,j,k,a,b,c,e,m
+      integer i,j,k,a,b,c,e,f,m,n
 c
-c..     wab(occ,occ,virt,virt)=sum(ab)(ab||ei)*(ab||fj)
-c..     wtab(occ,occ,virt,virt)=sum(ab)t(ij,ab)*(ab||fj)
+c..     integral * integral
 c
       do e=1,virt
        do f=1,virt
         do i=1,occ
          do j=1,occ
+c
+c..     wab(occ,occ,virt,virt)=sum(ab)(ab||ei)*(ab||fj)
+c
           wab(i,j,e,f) = 0.0d0
           do a=1,virt
            do b=1,virt
@@ -393,76 +395,14 @@ c
      1                   * rint(a+occ,b+occ,f+occ,j)
            end do
           end do
-         end do
-        end do
-       end do
-      end do
-c..     wij(occ,occ,virt,virt)=sum(ij) (an||ij)*(bm||ij)
-      do 
-
-
-      do e=1,virt
-       do f=1,virt
-        do k=1,occ
-         wekfk = 0.0d0
-         do a=1,nvirt
-          do b=1,nvirt
-           wekfk = wekfk + rint(a,b,e,k)*rint(a,b,f,k)
-          end do
-         end do
-         do i=1,occ
-          do j=1,occ
-           do c=1,virt
-            tijcef = tijcef + t2(i,j,c,e)*t2(i,j,c,f) nopt rihgt
-       end do
-      end do
-      do i=1,occ
-       do j=1,occ
-        do k=1,occ
-         do a=1,virt
-          do b=1,virt
-           do c=1,virt
-            u1 = 0.0d0
-            u2 = 0.0d0
-            u3 = 0.0d0
-            u4 = 0.0d0
-            u5 = 0.0d0
-            u6 = 0.0d0
-            u7 = 0.0d0
-            u8 = 0.0d0
-            u9 = 0.0d0
-            do e=1,virt
-             u1 = u1 + t2(i,j,a,e)*rint(b,c,e,k)
-             u2 = u2 + t2(i,j,b,e)*rint(c,a,e,k)
-             u3 = u3 + t2(i,j,c,e)*rint(a,b,e,k)
-             u4 = u4 + t2(k,i,a,e)*rint(b,c,e,j)
-             u5 = u5 + t2(k,i,b,e)*rint(c,a,e,j)
-             u6 = u6 + t2(k,i,c,e)*rint(a,b,e,j)
-             u7 = u7 + t2(j,k,a,e)*rint(b,c,e,i)
-             u8 = u8 + t2(j,k,b,e)*rint(c,a,e,i)
-             u9 = u9 + t2(j,k,c,e)*rint(a,b,e,i)
-            end do
-            do m=1,occ
-             u1 = u1 + t2(i,m,a,b)*rint(c,m,j,k)
-             u2 = u2 + t2(i,m,b,c)*rint(a,m,j,k)
-             u3 = u3 + t2(i,m,c,a)*rint(b,m,j,k)
-             u4 = u4 + t2(j,m,a,b)*rint(c,m,k,i)
-             u5 = u5 + t2(j,m,b,c)*rint(a,m,k,i)
-             u6 = u6 + t2(j,m,c,a)*rint(b,m,k,i)
-             u7 = u7 + t2(k,m,a,b)*rint(c,m,i,j)
-             u8 = u8 + t2(k,m,b,c)*rint(a,m,i,j)
-             u9 = u9 + t2(k,m,c,a)*rint(b,m,i,j)
-            end do
-            v1 = t1(i,a)*rint(j,k,b,c) + t1(i,b)*rint(j,k,c,a) 
-     1         + t1(i,c)*rint(j,k,a,b) 
-     2         + t1(j,a)*rint(k,i,b,c) + t1(j,b)*rint(k,i,c,a)
-     3         + t1(j,c)*rint(k,i,a,b) 
-     2         + t1(k,a)*rint(i,j,b,c) + t1(k,b)*rint(i,j,c,a)
-     5         + t1(k,c)*rint(i,j,a,b) 
-            delta = (orb(i)+orb(j)+orb(k)-orb(a)-orb(b)-orb(c))
-            e1 = e1+ v1*(u1+u2+u3+u4+u5+u6+u7+u8+u9) / delta
-            e2 = e2+ (u1*u1+u2*u2+u3*u3+u4*u4+u5*u5+u6*u6+u7*u7
-     1           +u8*u8+u9*u9) / delta
+c
+c..     wij(occ,occ,virt,virt)=sum(ij)(ij||ei)*(ij||fj)
+c
+          wij(i,j,e,f) = 0.0d0
+          do m=1,occ
+           do n=1,occ
+            wij(i,j,e,f) = wij(i,j,e,f) + rint(m,n,e+occ,i)
+     1                                  * rint(m,n,f+occ,j)
            end do
           end do
          end do
@@ -470,13 +410,46 @@ c..     wij(occ,occ,virt,virt)=sum(ij) (an||ij)*(bm||ij)
        end do
       end do
 c
-c...  calculate energies
+c..      integral * t2
 c
-      e1 = e1 / 36.0d0
-      e2 = e2 / 36.0d0
-      energy = e1 + e2
+c...     wtab(occ,occ,occ,virt) = sum(ab) t2(ij,ab)(ab||fk)
 c
-      print *,' Pople  : e1= ',e1,' e2= ',e2,' e= ',energy
+      do f=1,virt
+       do i=1,occ
+        do j=1,occ
+         do k=1,occ
+          wtab(i,j,k,f) = 0.0d0
+          do a=1,virt
+           do b=1,virt
+            wtab(i,j,k,f) =  wtab(i,j,k,f) + t2(i,j,a,b)
+     1                                     * rint(a+occ,b+occ,f+occ,j)
+           end do
+          end do
+         end do
+        end do
+       end do
+      end do
+c
+c...     wtij(occ,virt,virt,virt) = sum(ij) t2(ij,ab)(ij||ck)
+c
+      do a=1,virt
+       do b=1,virt
+        do c=1,virt
+         do k=1,occ
+          wtij(k,a,b,c) = 0.0d0
+          do i=1,occ
+           do j=1,occ
+            wtij(k,a,b,c) = wtij(k,a,b,c) + t2(i,j,a,b)
+     1                                    * rint(i,j,c+occ,k)
+           end do
+          end do
+         end do
+        end do
+       end do
+      end do
+
+c
+      print *,' Cullen  : e1= ',e1,' e2= ',e2,' e= ',energy
 c
       end
 #endif
