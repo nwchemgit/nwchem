@@ -4,7 +4,7 @@ c
 c
 c
        subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-C$Id: moints_mp2.F,v 1.24 1997-03-13 20:49:17 d3e129 Exp $
+C$Id: moints_mp2.F,v 1.25 1997-05-01 18:14:43 d3g681 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -157,7 +157,9 @@ c Usually K matrix is (nvir,nvir) but could be (nbf,nbf)
 c
        ndim = nvir
        vstart = 0
-       if ((ihi.eq.(nbf*nbf)).and.(nmo2.eq.nbf)) then
+CRK    Temporary Rika bug fix
+CRK    if ((ihi.eq.(nbf*nbf)).and.(nmo2.eq.nbf)) then
+       if (ihi.eq.(nbf*nbf)) then
          ndim = nbf
          vstart = nocc
        else if ((jhi.ne.-1).and.(ihi.ne.(nvir*nvir))
@@ -189,7 +191,6 @@ c
          enddo
        enddo
        call ga_sync()
-
 c$$$c
 c$$$c *DEBUG*
 c$$$c Print out current set of pair energies
@@ -242,3 +243,4 @@ c$$$       endif
        moints_epair_eval = xx
        return
        end
+
