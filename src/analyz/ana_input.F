@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.27 2000-08-01 17:32:17 d3j191 Exp $
+c $Id: ana_input.F,v 1.28 2000-08-17 16:54:22 d3j191 Exp $
 c
       implicit none
 c
@@ -17,7 +17,7 @@ c
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,itag,iatag,jatag
       real*8 timoff,rsel,rtag,rcut,scale,cpk
       logical lref,lfil,lsol,lsuper
-      integer iesppb,lent,idpdb
+      integer iesppb,lent,idpdb,indx
       character*8 option
 c
       if(ga_nodeid().eq.0) then
@@ -461,6 +461,14 @@ c
  1011 format('espplt ',i4,i4,f12.6,a,' ',a)
       numcmd=numcmd+1
       goto 1
+      endif
+c
+      if(inp_compare(.false.,'index',item)) then
+      if(.not.inp_i(indx)) indx=1
+      write(lfncmd,1019) indx
+ 1019 format('index ',i10)
+      numcmd=numcmd+1
+      goto 2
       endif
 c 
       if(.not.inp_compare(.false.,'end',item)) then

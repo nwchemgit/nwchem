@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.37 2000-08-15 23:12:31 d3j191 Exp $
+c $Id: ana_task.F,v 1.38 2000-08-17 16:54:22 d3j191 Exp $
 c
       implicit none
 c
@@ -84,6 +84,7 @@ c
       rcut=1.0d0
 c
       ifr=1
+      indx=1
 c
       if(me.eq.0) then
       if(.not.rtdb_cget(irtdb,'ana:filcmd',1,filcmd))
@@ -213,6 +214,10 @@ c
  3003 format(' Selected',i5,' out of',i5,' atoms')
       endif
       goto 1
+      endif
+c
+      if(card(1:6).eq.'index ') then
+      read(card(7:16),'(i10)') indx
       endif
 c
 c     solvent selection
@@ -450,6 +455,7 @@ c
      + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),int_mb(i_wsel),
      + int_mb(i_ndxw))
       nwrit=nwrit+1
+      indx=indx+1
       endif
       nframe=nframe+1
       if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 2
@@ -499,6 +505,7 @@ c
      + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),int_mb(i_wsel),
      + int_mb(i_ndxw))
       nwrit=nwrit+1
+      indx=indx+1
       endif
       nframe=nframe+1
       if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 3
