@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.20 1996-05-14 17:53:27 d3g681 Exp $
+# $Id: GNUmakefile,v 1.21 1996-07-08 23:29:53 rg240 Exp $
  
 ifeq ($(USE_TEXAS),YEP)
       LIB_DEFINES = -DUSE_TEXAS
@@ -33,6 +33,10 @@ else
       OBJ = texas_stubs.o
       OBJ_OPTIMIZE = 
 endif
+
+      USES_BLAS = amshift.f \
+                  big_service.f \
+                  trobsa.f 
 
        LIBRARY = libnwints.a
 
