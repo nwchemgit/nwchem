@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.37 2002-03-23 00:28:43 edo Exp $
+C $Id: hess_init.F,v 1.38 2002-03-23 21:07:50 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -443,6 +443,7 @@ c
      $        MT_LOG, 1, .false.)) call errquit(
      $        ' task_hessian: rtdb_put failed',0)
          whatever=grid_file_close(.false.)
+       call dft_inpanae(rtdb)
       endif
 c
 c     make the Fock build go direct

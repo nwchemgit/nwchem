@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.58 2002-02-15 00:44:22 edo Exp $
+c     $Id: dft_inpana.F,v 1.59 2002-03-23 21:07:52 edo Exp $
 c
 c*********************************************************************
 c     
@@ -260,37 +260,9 @@ c
       if (ncysh.eq.0 .and. ncyds.eq.0 .and. ncydp.eq.2) 
      &   ncydp = iterations
 c
-c     check integral tolerances to make sure they match 
-c     requested convergence tolerances.
+c     check on 2-e integral and XC grid tolerances
 c
-c     make sure itol2e is less than 0.01*e_conv or (0.01*g_conv**2)
-c
-      if (10.d0**(-itol2e).gt.(1.0d-2*e_conv))then
-         itol2e = -nint(log10(5.0d-3*e_conv))
-         if (.not. rtdb_put(rtdb, 'dft:itol2e',
-     &      mt_int, 1, itol2e))
-     &      call errquit('dft_inpana: rtdb_put failed', 127)
-         if (me.eq.0.and.oprint_general)then
-            write(LuOut,*)' itol2e modified to match energy'
-            write(LuOut,*)' convergence criterion.'
-         endif
-      endif
-c
-c     check density tolerance to make sure it matches
-c     requested convergence tolerances.
-c
-c     make sure tol_rho is less than 0.01*e_conv or (0.01*g_conv**2)
-c
-      if (tol_rho.gt.(1.0d-3*e_conv))then
-         tol_rho = 1.0d-3*e_conv
-         if (.not. rtdb_put(rtdb, 'dft:tol_rho',
-     &      mt_dbl, 1, tol_rho))
-     &      call errquit('dft_inpana: rtdb_put failed', 127)
-         if (me.eq.0.and.oprint_general)then
-            write(LuOut,*)' tol_rho modified to match energy'
-            write(LuOut,*)' convergence criterion.'
-         endif
-      endif
+      call dft_inpanae(rtdb)
 c
 c     Check for no pruning; no_prune
 c
@@ -651,4 +623,50 @@ c 9139 format(10x,'Spatial weights used: Delley. ')
      &       10x,'XC Gaussian exp screening on grid/accXCfunc: ',i3,/,
      &       10x,'Schwarz screening/accCoul: ',1Pd8.2,/,
      &       10x,'Spatial weight screening/radius(au): ',1Pd8.2,/)
+      end
+      subroutine dft_inpanae(rtdb)
+      implicit none
+#include "cdft.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "rtdb.fh"
+#include "util.fh"
+      integer rtdb
+c
+      logical oprint_general
+c
+      oprint_general = util_print('general information',print_default)
+c     check integral tolerances to make sure they match 
+c     requested convergence tolerances.
+c
+c     make sure itol2e is less than 0.01*e_conv or (0.01*g_conv**2)
+c
+      if (10.d0**(-itol2e).gt.(1.0d-2*e_conv))then
+         itol2e = -nint(log10(5.0d-3*e_conv))
+         if (.not. rtdb_put(rtdb, 'dft:itol2e',
+     &      mt_int, 1, itol2e))
+     &      call errquit('dft_inpanae: rtdb_put failed', 127)
+         if (ga_nodeid().eq.0.and.oprint_general)then
+            write(LuOut,*)' itol2e modified to match energy'
+            write(LuOut,*)' convergence criterion.'
+         endif
+c
+c     check density tolerance to make sure it matches
+c     requested convergence tolerances.
+c
+c     make sure tol_rho is less than 0.01*e_conv or (0.01*g_conv**2)
+c
+      if (tol_rho.gt.(1.0d-3*e_conv))then
+         tol_rho = 1.0d-3*e_conv
+         if (.not. rtdb_put(rtdb, 'dft:tol_rho',
+     &      mt_dbl, 1, tol_rho))
+     &      call errquit('dft_inpanae: rtdb_put failed', 127)
+         if (ga_nodeid().eq.0.and.oprint_general)then
+            write(LuOut,*)' tol_rho modified to match energy'
+            write(LuOut,*)' convergence criterion.'
+         endif
+      endif
+      endif
+      return
       end
