@@ -1,5 +1,5 @@
 c
-c $Id: cpmd_input.F,v 1.5 2001-11-30 18:36:52 bylaska Exp $
+c $Id: cpmd_input.F,v 1.6 2002-01-14 17:47:14 bylaska Exp $
 c
 
 
@@ -14,35 +14,58 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 27)
+      parameter (num_dirs = 50)
  
       character*32 dirs(num_dirs)
       character*255 test, id
 
       data dirs / 'cell_name:',
+     >            'cell_name',
      >            'geometry_optimize',
      >            'formatted_filename:',
+     >            'formatted_filename ',
      >            'input_wavefunction_filename:',
+     >            'input_wavefunction_filename ',
      >            'output_wavefunction_filename:',
+     >            'output_wavefunction_filename',
      >            'fake_mass:',
+     >            'fake_mass',
      >            'time_step:',
+     >            'time_step',
      >            'loop:',
+     >            'loop',
      >            'scaling:',
+     >            'scaling',
      >            'energy_cutoff:',
+     >            'energy_cutoff',
      >            'wavefunction_cutoff:',
+     >            'wavefunction_cutoff',
      >            'input_v_wavefunction_filename:',
+     >            'input_v_wavefunction_filename',
      >            'output_v_wavefunction_filename:',
+     >            'output_v_wavefunction_filename',
      >            'ewald_rcut:',
+     >            'ewald_rcut',
      >            'ewald_ncut:',
+     >            'ewald_ncut',
      >            'xyz_filename:',
+     >            'xyz_filename',
      >            'exchange_correlation:',
+     >            'exchange_correlation',
+     >            'xc',
      >            'fractional_coordinates',
      >            'Nose-Hoover:',
+     >            'Nose-Hoover',
      >            'emotion_filename:',
+     >            'emotion_filename',
      >            'eigmotion_filename:',
+     >            'eigmotion_filename',
      >            'hmotion_filename:',
+     >            'hmotion_filename',
      >            'omotion_filename:',
+     >            'omotion_filename',
      >            'ion_motion_filename:',
+     >            'ion_motion_filename',
      >            'mulliken',
      >            'energy',
      >            'end'/
@@ -84,9 +107,12 @@ c
      >           'cpmd_input: unknown directive', 0)
 
 
-      goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900,
-     >       1000,1100,1200,1300,1400,1500,1600,1700,1800,
-     >       1900,2000,2100,2200,2300,2400,2500,2600,
+      goto ( 100,100,  200, 300,300, 400,400, 500,500, 600,600, 
+     >       700,700,  800,800, 900,900, 1000,1000, 1100,1100,
+     >       1200,1200, 1300,1300, 1400,1400, 1500,1500, 1600,1600,
+     >       1700,1700,1700, 1800, 1900,1900, 2000,2000, 2100,2100,
+     >       2200,2200, 2300,2300, 2400,2400,
+     >       2500,2600,
      >      9999) ind
       call errquit(
      >      'psp_formatter_input: unimplemented directive', ind)
