@@ -4,7 +4,7 @@ c
 c
 c
        subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-C$Id: moints_mp2.F,v 1.17 1995-10-17 08:54:16 d3g681 Exp $
+C$Id: moints_mp2.F,v 1.18 1996-01-26 23:49:42 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -108,11 +108,11 @@ C 902     format(4(f13.8,1x,'(',2i3,')',2x))
 
 
        subroutine moints_e2pair( nocc, ostart, occ_lo, occ_hi,
-     $                           nvir, nbf, g_k, orbe, g_epair )
+     $                           nvir, nmo2, nbf, g_k, orbe, g_epair )
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
-       integer nocc, ostart, occ_lo, occ_hi, nvir
+       integer nocc, ostart, occ_lo, occ_hi, nvir, nmo2
        double precision orbe(*)
        integer g_k, g_epair
        integer k_exch,ld_exch
@@ -123,28 +123,27 @@ C 902     format(4(f13.8,1x,'(',2i3,')',2x))
        double precision moints_epair_eval
 c
 c
-c
        ofroz = ostart - 1
        ooff = ((occ_lo-ofroz)*(occ_lo-ofroz-1))/2
        nnt = ((occ_hi-ofroz)*(occ_hi-ofroz+1))/2 - ooff
-       my_id = ga_nodeid()
-       call ga_distribution(g_k,my_id,ilo,ihi,jlo,jhi)
-
 c
 c Check if this node has any data
 c
+       my_id = ga_nodeid()
+       call ga_distribution(g_k,my_id,ilo,ihi,jlo,jhi)
        if ((ilo.ne.1).and.(ihi.ne.-1)) call 
      $ errquit('moints_mp2_eval: wrong distribution for exchange',my_id)
 c
 c Set to handle different exchange matrix sizes
+c Usually K matrix is (nvir,nvir) but could be (nbf,nbf) 
 c
-       if (ihi.eq.(nbf*nbf)) then
+       ndim = nvir
+       vstart = 0
+       if ((ihi.eq.(nbf*nbf)).and.(nmo2.eq.nbf)) then
          ndim = nbf
          vstart = nocc
-       else if ((ihi.eq.(nvir*nvir)).or.(ihi.eq.(nvir*nbf))) then
-         ndim = nvir
-         vstart = 0
-       else if (ihi.ne.-1) then
+       else if ((ihi.ne.(nvir*nvir)).and.(ihi.ne.(nvir*nbf)).and.
+     $          (ihi.ne.(nbf*nbf))) then
          call errquit('moints_mp2_eval: odd exchange matrix size',ihi)
        endif
 c
