@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.16 1999-07-28 00:39:43 d3e129 Exp $
+# $Id: GNUmakefile,v 1.17 1999-10-28 17:12:01 d3g270 Exp $
 #
 
 include ../../../config/makefile.h
@@ -83,12 +83,13 @@ clean:
 		neblw2.f sneblw2.f sstebz3.f
 		-rm -f F*.f
 
-.f.o:; $(peigs_FC) -c $<
-.F.o:; $(peigs_FC) -c $<
-.c.o:; $(peigs_CC) -c $<
 
 dlasq1.o:	dlasq1.F
 		$(peigs_FC) -c -g $<
 
 dlasq2.o:	dlasq2.F
 		$(peigs_FC) -c -g $<
+
+.f.o:; $(peigs_FC) -c $<
+.F.o:; $(peigs_FC) -c $<
+.c.o:; $(peigs_CC) -c $<
