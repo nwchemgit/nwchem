@@ -1,0 +1,14 @@
+#QSUB -o biphenyl.032
+#QSUB -eo
+#QSUB -l mpp_p=32
+#QSUB -l mpp_t=10000
+#
+#
+#
+setenv RUNDIR /u/nwchem/wong/atw/biphenyl
+setenv NWCHEM_EXE /afs/nersc.gov/u/nwchem/wong/nw/nwchem
+#
+#
+#
+cd $RUNDIR
+$NWCHEM_EXE -npes 32 biphenyl.nw
