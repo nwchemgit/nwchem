@@ -35,3 +35,7 @@ Dec 23 1998	Modified logic in esp calculation
 Dec 28 1998	Use 24 as lfn for lfngrd
 		Precalculate grid size before memory allocation
 		Remove unnecessary ga_get in esp_denmat.F
+
+Jan 27 1999	Write xyz and plt file
+		Write er file to recover previous runs
+		Bug fix in esp_grid.F

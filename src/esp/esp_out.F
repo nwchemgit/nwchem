@@ -1,6 +1,6 @@
       subroutine esp_out(tag,x,qf,g,v)
 c
-c $Id: esp_out.F,v 1.11 1998-12-23 19:41:23 d3j191 Exp $
+c $Id: esp_out.F,v 1.12 1999-01-27 18:18:01 d3j191 Exp $
 c
       implicit none
 c
@@ -22,6 +22,12 @@ c
 c
       if(me.eq.0) then
 c
+      call util_file_name('q',.false.,.false.,chgfil)
+      open(unit=lfnchg,file=chgfil,form='formatted',status='unknown')
+      rewind(lfnchg)
+c
+      write(lfnchg,'(i7,i3)') natoms,nf
+c
       if(util_print('output',print_medium)) then
       write(lfnout,600)
   600 format('    Atom',t17,'Coordinates',t71,'Charge',/)
@@ -41,10 +47,14 @@ c
      + i,tag(i)(1:6),(cau2nm*x(j,i),j=1,3),(qf(i,j),j=1,nf)
   603 format(i5,1x,a6,3f12.6,4f12.6)
       endif
+      write(lfnchg,703)
+     + tag(i)(1:2),(cau2nm*x(j,i),j=1,3),(qf(i,j),j=1,nf) 
+  703 format(a2,3f12.6,4f12.6)
       do 2 j=1,nf
       qsum(j)=qsum(j)+qf(i,j)
     2 continue
     1 continue
+      close(unit=lfnchg)
       if(util_print('output',print_medium)) then
       write(lfnout,604) ('------------',i=1,nf)
   604 format(48x,4a12)

@@ -1,6 +1,6 @@
       logical function esp(irtdb0)
 c
-c $Id: esp.F,v 1.8 1998-12-28 21:54:35 d3j191 Exp $
+c $Id: esp.F,v 1.9 1999-01-27 18:17:59 d3j191 Exp $
 c
       implicit none
 c
@@ -25,6 +25,10 @@ c
       irtdb=irtdb0
       lfnout=6
       lfngrd=24
+      lfner=25
+      lfnplt=26
+      lfnxyz=27
+      lfnchg=28
 c
 c     read input from rtdb
 c
@@ -79,6 +83,11 @@ c     calculate rms deviation
 c
       call esp_rms(dbl_mb(ixptr),dbl_mb(iqfptr),dbl_mb(igptr),
      + dbl_mb(ivptr))
+c
+c     electrostatic potential from partial charges on full grid
+c
+      call esp_plt(dbl_mb(ixptr),dbl_mb(iqfptr),dbl_mb(igptr),
+     + byte_mb(itptr))
 c
 c     write results
 c

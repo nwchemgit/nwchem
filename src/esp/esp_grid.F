@@ -1,6 +1,6 @@
       subroutine esp_grid(x,q,g,v)
 c
-c $Id: esp_grid.F,v 1.4 1998-12-28 21:54:37 d3j191 Exp $
+c $Id: esp_grid.F,v 1.5 1999-01-27 18:18:00 d3j191 Exp $
 c
       implicit none
 c
@@ -74,7 +74,7 @@ c
       if(np.gt.1) then
       ngfr=me*(ngrid/np)+1
       ngto=(me+1)*(ngrid/np)
-      if(me.eq.np) ngto=ngrid
+      if(me.eq.np-1) ngto=ngrid
       else
       ngfr=1
       ngto=ngrid

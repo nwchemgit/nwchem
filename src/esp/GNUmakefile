@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 1998-12-28 21:54:38 d3j191 Exp $
+# $Id: GNUmakefile,v 1.7 1999-01-27 18:18:02 d3j191 Exp $
 #
 
  OBJ_OPTIMIZE =  esp.o\
@@ -18,6 +18,7 @@
                  esp_malloc.o\
                  esp_matinv.o\
                  esp_out.o\
+                 esp_plt.o\
                  esp_rms.o\
                  esp_rtdbin.o\
                  esp_wrtinp.o

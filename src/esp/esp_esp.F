@@ -1,6 +1,6 @@
       subroutine esp_esp(ene,occ,dns,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.8 1998-12-23 19:41:21 d3j191 Exp $
+c $Id: esp_esp.F,v 1.9 1999-01-27 18:18:00 d3j191 Exp $
 c
       implicit none
 c
@@ -27,8 +27,9 @@ c
       integer i,j,ish,jsh,ix,jx,ifr
       integer ilo,ihi,jlo,jhi
       real*8 dist,vt
-      integer imin
+      integer imin,nval,jshi
       real*8 dmin,fact
+      character*10 today,now
 c
 c     calculate density matrix, occupation and energies
 c
@@ -45,11 +46,26 @@ c
 c
 c     get electrostatic potential on the grid points
 c
-      do 2 i=ngfr,ngto
+      do 2 i=1,ngrid
       val(i)=0.0d0
     2 continue
 c
-      do 3 jsh=1,nshell
+      jshi=0
+      if(me.eq.0) then
+      call util_file_name('er',.false.,.false.,erfil)
+      open(unit=lfner,file=erfil,form='unformatted',status='old',
+     + err=12)
+      read(lfner) jshi,nval
+      if(nval.ne.ngrid) call errquit('Incompatible er file',0)
+      read(lfner) (val(i),i=1,ngrid)
+      close(unit=lfner)
+   12 continue
+      write(lfnout,1000) jshi
+ 1000 format(/,' Recovering from shell ',i6)
+      endif
+      call ga_brdcst(mre_005,jshi,ma_sizeof(mt_int,1,mt_byte),0)
+c
+      do 3 jsh=jshi+1,nshell
       if(.not.bas_cn2bfr(ibasis,jsh,jlo,jhi))
      + call errquit('esp: bas_cn2bfr failed',me)
       call esp_getden(dns,1,jhi,jlo,jhi)
@@ -73,7 +89,32 @@ c
     6 continue
     5 continue
     4 continue
+      call ga_dgop(mre_003,val,ngrid,'+')
+      if(me.eq.0) then
+      open(unit=lfner,file=erfil,form='unformatted',status='unknown')
+      rewind(unit=lfner)
+      write(lfner) jsh,ngrid
+      write(lfner) (val(i),i=1,ngrid)
+      close(unit=lfner)
+      if(util_print('output',print_medium)) then
+      call arg_swatch(today,now)
+      write(lfnout,1001) today,now,jsh,nshell
+ 1001 format(/,2a10,' er shell ',i6,' of ',i6)
+      call util_flush(lfnout)
+      endif
+      else
+      do 13 i=1,ngrid
+      val(i)=zero
+   13 continue
+      endif
     3 continue
+c
+      if(me.eq.0) then
+      open(unit=lfner,file=erfil,form='unformatted',status='unknown')
+      close(unit=lfner,status='delete')
+      write(lfnout,1002)
+ 1002 format(/,' Recovery file deleted',/)
+      endif
 c
       do 8 i=ngfr,ngto
       vt=val(i)
@@ -105,17 +146,7 @@ c
 c     global sum of value array
 c
       if(np.gt.1) then
-      if(ngfr.gt.1) then
-      do 10 i=1,ngfr-1
-      val(i)=zero
-   10 continue
-      endif
-      if(ngto.lt.ngrid) then
-      do 11 i=ngto+1,ngrid
-      val(i)=zero
-   11 continue
-      endif
-      call ga_dgop(mre_003,val,ngrid,'+')
+      call ga_dgop(mre_006,val,ngrid,'+')
       endif
 c
 c     deallocate memory for the integrals

@@ -1,5 +1,5 @@
 c
-c $Id: esp_common.fh,v 1.8 1998-12-23 19:41:20 d3j191 Exp $
+c $Id: esp_common.fh,v 1.9 1999-01-27 18:17:59 d3j191 Exp $
 c
 c     esp_mpp : node and global array related variables
 c     -------------------------------------------------
@@ -26,21 +26,22 @@ c
       real*8 rcon(500),resa,resb,toler,dipmom(4),rms(2,4),quamom(3,3,4)
       integer natoms,nbf,mgrid(3),mxgrid,ngrid,nset,nmo,nocc,nconst,ndim
       integer ncon,icon(2500),irest,niter,maxit,ihfree,ngto,ngfr,idump
-      integer lfngrd,nf,mbf,lscrn,newgrd
+      integer lfngrd,nf,mbf,lscrn,newgrd,lfner,lfnplt,lfnxyz,lfnchg
       real*8 factor,probe,scrtol
       common/esp_atm/rcut,spac,xmin,xmax,charge,chgnuc,chgele,radius,
      + rcon,resa,resb,toler,dipmom,rms,quamom,factor,probe,scrtol,
      + natoms,nbf,mgrid,mxgrid,ngrid,nset,nmo,nocc,nconst,ndim,
      + ncon,icon,irest,niter,maxit,ihfree,ngto,ngfr,idump,lfngrd,nf,mbf,
-     + lscrn,newgrd
+     + lscrn,newgrd,lfner,lfnplt,lfnxyz,lfnchg
 c
 c     esp_chr : character variables
 c
       character*12 labelf(4),labelc(4)
       character*20 scftyp
-      character*80 movfil,grdfil
+      character*80 movfil,grdfil,erfil,pltfil,xyzfil,chgfil
       character*255 title,basnam
-      common/esp_chr/title,basnam,movfil,grdfil,labelf,labelc
+      common/esp_chr/title,basnam,movfil,grdfil,labelf,labelc,erfil,
+     + pltfil,xyzfil,chgfil
 c
 c     esp_bas : basis set information
 c
