@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.29 1995-04-21 18:51:06 rg240 Exp $
+C$Id: mointdriver.F,v 1.30 1995-05-31 17:20:34 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -138,10 +138,10 @@ c
 c
 c Get frozen core & virtual offsets
 c
-       if (.not.rtdb_get(rtdb,'occ_frozen',MT_INT,1,occ_frozen))
-     $      occ_frozen = 0
-       if (.not.rtdb_get(rtdb,'vir_frozen',MT_INT,1,vir_frozen))
-     $      vir_frozen = 0
+       if (.not.rtdb_get(rtdb,'fourindex:occ_frozen',MT_INT,1,
+     $     occ_frozen)) occ_frozen = 0
+       if (.not.rtdb_get(rtdb,'fourindex:vir_frozen',MT_INT,1,
+     $     vir_frozen)) vir_frozen = 0
 c
 c Set index ranges
 c
@@ -377,4 +377,10 @@ c
        moints_occrange = ihi
        return
        end
+
+
+
+
+
+
 

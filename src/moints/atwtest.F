@@ -1,5 +1,5 @@
        subroutine atwtest(rtdb)
-C$Id: atwtest.F,v 1.3 1995-03-31 01:42:11 d3g681 Exp $
+C$Id: atwtest.F,v 1.4 1995-05-31 17:20:36 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -15,8 +15,6 @@ c
        logical status
        character*255 title
        character*255 movecs_in, movecs
-       external moint_driver
-       logical moint_driver
 c
 c
        if (.not. context_push('atwtest'))
@@ -25,7 +23,6 @@ c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 c
 c     Extract high level info from the data-base setting defaults
-c
 c     
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
@@ -43,7 +40,7 @@ c
 c
 c
 c
-      status = moint_driver( rtdb, geom, basis, movecs_in )
+      call moint_driver( rtdb, geom, basis, movecs_in )
 c
 c
 c
