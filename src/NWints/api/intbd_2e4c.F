@@ -1,4 +1,4 @@
-c $Id: intbd_2e4c.F,v 1.5 1997-06-27 21:42:28 d3e129 Exp $
+c $Id: intbd_2e4c.F,v 1.6 1997-12-05 08:46:06 d3e129 Exp $
 *
       logical function intbd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,
@@ -238,7 +238,7 @@ c::local
       if (numgt1.eq.0) return
 *
       do i = 1,4
-        if (idatom(i).lt.1) then   ! insure that unused buffers from idatom are zero
+        if (idatom(i).lt.1) then   ! ensure that unused buffers from idatom are zero
           call dfill((3*nint_s),0.0d00,
      &        eri_nworder(llo,klo,jlo,ilo,1,i),1)
         endif
