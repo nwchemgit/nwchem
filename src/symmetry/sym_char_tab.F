@@ -2,7 +2,7 @@
       logical function sym_char_table(zname, nop, nir, iclass_dim,
      +     zir, zclass, chars)
 c     
-C$Id: sym_char_tab.F,v 1.5 1999-09-22 19:01:05 d3g681 Exp $
+C$Id: sym_char_tab.F,v 1.6 1999-09-23 17:51:31 d3j191 Exp $
       implicit double precision (a-h,p-w),integer (i-n),logical (o)
       implicit character *8 (z),character *1 (x)
       implicit character *4 (y)
@@ -2045,8 +2045,8 @@ c
          call util_flush(6)
       endif
 c
-      if (please_ecce_print) then
-         please_ecce_print = .false.
+      if (please_print_ecce) then
+         please_print_ecce = .false.
          call ecce_print1_char('group class names', zclass, nir)
          call ecce_print1_char('group irrep names', zir, nir)
       endif
