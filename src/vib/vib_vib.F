@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.9 1998-05-08 19:04:03 d3e129 Exp $
+* $Id: vib_vib.F,v 1.10 1998-05-29 23:02:46 ng972 Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -20,6 +20,7 @@
 *utah:C   by J. Anchell (12-DEC-1990).  Subroutines which generate the Cartesian
 *utah:C   to internal coordinate transformation matrix was lifted from GAMESS.
 *utah:C
+*
       IMPLICIT NONE ! REAL*8 (A-H,O-Z)
       LOGICAL PROJEC,ZEROPE,HESOUT,INTERN
 *      CHARACTER*7 INPFIL
