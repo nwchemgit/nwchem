@@ -5,14 +5,14 @@
      + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + latt,lats,catt,patt,ratt,matt,natt,nats)
 c
-c $Id: pre_params.F,v 1.12 2001-07-06 03:45:14 d3j191 Exp $
+c $Id: pre_params.F,v 1.13 2001-10-19 17:55:01 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
-      logical pre_ffield,pre_parcnv,pre_check
-      external pre_ffield,pre_parcnv,pre_check
+      logical pre_ffield,pre_parcnv,pre_check,pre_dummy
+      external pre_ffield,pre_parcnv,pre_check,pre_dummy
 c
       integer lfnpar,lfnout,ignore
       character*255 filpar,dir_s,dir_x,dir_u,dir_t
@@ -128,6 +128,14 @@ c     -------------------------------------------
 c
       if(.not.pre_parcnv(icomb,latt,patt,catt,matt,natt))
      + call errquit('pre_parcnv failed',9999)
+c
+c     copy bonded parameters for dummy atoms
+c     --------------------------------------
+c
+      if(.not.pre_dummy(lfnout,latt,catt,patt,ratt,matt,natt,
+     + latm,catm,matm,natm,lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
+     + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp))
+     + call errquit('pre_dummy failed',9999)
 c
 c     check if all required parameters have been found
 c     ------------------------------------------------

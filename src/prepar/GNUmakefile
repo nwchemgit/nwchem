@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.30 2001-08-29 23:04:04 d3j191 Exp $
+# $Id: GNUmakefile,v 1.31 2001-10-19 17:55:01 d3j191 Exp $
 #
 
 include ../config/makefile.h
@@ -26,6 +26,7 @@ OBJ_OPTIMIZE=prepar.o\
              pre_dihsel.o\
              pre_dimens.o\
              pre_disres.o\
+	     pre_dummy.o\
              pre_equiv.o\
              pre_excl.o\
              pre_ffield.o\
