@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.428 2003-10-17 22:54:27 carlfahl Exp $
+# $Id: makefile.h,v 1.429 2003-10-22 01:31:47 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1469,6 +1469,29 @@ endif
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
 endif
 
+    ifeq ($(_CPU),ppc64)
+      ifeq ($(FC),xlf)
+        FOPTIONS  =  -q64 -qextname -qfixed
+        FOPTIONS +=  -NQ40000 -NT80000 -qmaxmem=8192
+        FOPTIMIZE= -O3 -qstrict 
+        FDEBUG= -O2 -g
+        EXPLICITF = TRUE
+        FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+        DEFINES  +=   -DXLFLINUX
+        CPP=/usr/bin/cpp  -P -C -traditional
+        ifdef USE_INTEGER4
+          FOPTIONS += -qintsize=4
+        else
+          FOPTIONS += -qintsize=8
+        endif
+      endif
+      ifeq ($(CC),xlc)
+        COPTIONS  +=  -q64 -qlanglvl=extended
+      endif
+     CORE_LIBS +=  $(BLASOPT) -llapack -lblas
+    LDOPTIONS = -v
+    endif
+
 ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
    EXTRA_LIBS += -lpthread -ldl
@@ -1743,7 +1766,7 @@ ifdef EXPLICITF
 
 .F.f:
 	@echo Converting $*.F '->' $*.f
-	@$(FCONVERT)
+	$(FCONVERT)
 .f.o:
 	$(FC) -c $(FFLAGS) $<
 endif

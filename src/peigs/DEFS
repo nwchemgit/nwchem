@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.100 2003-10-07 20:11:17 edo Exp $
+# $Id: DEFS,v 1.101 2003-10-22 01:31:48 edo Exp $
 #
 #======================================================================
 #
@@ -492,64 +492,55 @@ endif
 
 ifeq ($(peigs_TARGET),LINUX64)
 #alpha with /tcgmsg
-     _CPU = $(shell uname -m  )
-ifeq ($(_CPU),alpha)
-peigs_CPU  = ALPHA
-peigs_COMM = TCGMSG
-peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL 
-peigs_CODEOBJ = DBLE
-ifeq ($(CC),gcc)
-peigs_CC  +=  -DSTD_DBL -O3  -mcpu=ev56
-else
-peigs_CC  +=  -DSTD_DBL -O2  -fast -tune host -arch host 
-endif
-peigs_FC +=  -O1 -DLINUX64  -DSTD_DBL  -D$(peigs_COMM) -DLINUX -tune host -arch host
+  _CPU = $(shell uname -m  )
+  peigs_COMM = TCGMSG
+  peigs_CODEOBJ = DBLE
+  peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL 
   ifdef USE_INTEGER4
      peigs_CPP += -DSTD_INT
      peigs_CC  += -DSTD_INT
      peigs_FC  += -DSTD_INT
   endif
-endif
-ifeq ($(_CPU),ia64)
-#ia64 with /tcgmsg
-peigs_CPU  = PENTIUM
-peigs_COMM = TCGMSG
-peigs_CPP =  $(CPP) -D${CPU} -DSTD_DBL
-peigs_CODEOBJ = DBLE
-peigs_CC  += -DSTD_DBL 
-peigs_FC +=  -DSTD_DBL    -D$(peigs_COMM)  -D$(peigs_CPU)
-ifeq ($(FC),efc)
-peigs_FC  +=  -O3  -tpp2 -ftz 
-endif
-ifeq ($(CC),ecc)
-#peigs_CC  +=  -O3   -ftz -hlo -unroll
-peigs_CC  +=  -O3  -mp1 -ftz -hlo -unroll
-endif
-  ifdef USE_INTEGER4
-     peigs_CPP += -DSTD_INT
-     peigs_CC  += -DSTD_INT
-     peigs_FC  += -DSTD_INT
+  peigs_CC  += -DSTD_DBL 
+  peigs_FC +=  -DSTD_DBL    -D$(peigs_COMM)  -D$(peigs_CPU)
+  ifeq ($(_CPU),alpha)
+    peigs_CPU  = ALPHA
+    ifeq ($(CC),gcc)
+      peigs_CC  += -O3  -mcpu=ev56
+    else
+      peigs_CC  += -O2  -fast -tune host -arch host 
+    endif
+    peigs_FC +=  -O1 -DLINUX64 -DLINUX -tune host -arch host
   endif
-endif
-endif
 
-ifeq ($(_CPU),x86_64)
+  ifeq ($(_CPU),ia64)
 #ia64 with /tcgmsg
-peigs_CPU  = PENTIUM
-peigs_COMM = TCGMSG
-peigs_CPP =  $(CPP) -D${CPU} -DSTD_DBL
-peigs_CODEOBJ = DBLE
-peigs_CC  += -DSTD_DBL 
-peigs_FC +=  -DSTD_DBL    -D$(peigs_COMM)  -D$(peigs_CPU)
-ifeq ($(FC),pgf90)
-peigs_FC  +=  -Kieee
-endif
-  ifdef USE_INTEGER4
-     peigs_CPP += -DSTD_INT
-     peigs_CC  += -DSTD_INT
-     peigs_FC  += -DSTD_INT
+    peigs_CPU  = PENTIUM
+    ifeq ($(FC),efc)
+      peigs_FC  +=  -O3  -tpp2 -ftz 
+    endif
+    ifeq ($(CC),ecc)
+      peigs_CC  +=  -O3  -mp1 -ftz -hlo -unroll
+    endif
   endif
-endif
+
+  ifeq ($(_CPU),x86_64)
+#ia64 with /tcgmsg
+    peigs_CPU  = PENTIUM
+    ifeq ($(FC),pgf90)
+      peigs_FC  +=  -Kieee
+    endif
+  endif
+  ifeq ($(_CPU),ppc64)
+#ppc64 with /tcgmsg
+    peigs_CPU = RS6000
+    ifeq ($(FC),xlf)
+       peigs_FC  = $(FC) -O3 -qextname -qstrict -q64 -qintsize=8  -I$(peigs_HDIR)  \
+       -WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) 
+    endif
+  endif
+
+endif#end of LINUX64
 
 ifeq ($(peigs_TARGET),cray-sv2)
 peigs_COMM = TCGMSG
