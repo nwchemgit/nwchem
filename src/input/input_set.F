@@ -1,5 +1,5 @@
       subroutine input_set(rtdb)
-C$Id: input_set.F,v 1.9 1996-07-01 16:27:24 d3g681 Exp $
+C$Id: input_set.F,v 1.10 1996-07-18 07:17:00 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -162,19 +162,37 @@ c
 #include "rtdb.fh"
 #include "inp.fh"
       integer rtdb
-c
-      character*255 test
-c
+c     
+      character*255 test, name
+      integer ltest
+      logical status
+c     
       if (.not. inp_a(test)) call errquit
      $     ('input_unset: first inp_a failed?',0)
       if (.not. inp_compare(.false.,'unset',test))
      $     call errquit('input_unset: not unset directive',0)
-c
+c     
       if (.not. inp_a(test)) call errquit
      $     ('input_unset: name missing',0)
-      if (.not. rtdb_delete(rtdb,test)) then
+c     
+c     Check for wildcard
+c     
+      ltest = inp_strlen(test)
+      if (test(ltest:ltest) .eq. '*') then
+	 ltest = ltest - 1
+	 status = rtdb_first(rtdb, name)
+ 10      if (status) then
+	    if (inp_compare(.true.,test(1:ltest),name(1:ltest))) then
+               write(6,*) ' unset: ', name(1:inp_strlen(name))
+	       if (.not. rtdb_delete(rtdb,name)) call errquit
+     $              ('input_unset: failed deleting existing entry',0)
+	    endif
+            status = rtdb_next(rtdb, name)
+            goto 10
+         endif
+      else if (.not. rtdb_delete(rtdb,test)) then
          write(6,*) ' unset: warning: ',test(1:inp_strlen(test)),
      $        ' is not in the database '
       endif
-c
+c     
       end
