@@ -1,6 +1,6 @@
 
 c
-c  $Id: moints_semi.F,v 1.49 1997-09-01 17:38:25 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.50 1997-09-11 19:53:28 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -50,16 +50,17 @@ c
        integer l_shmap, k_shmap, l_bfmap, k_bfmap, l_rbfmap, k_rbfmap
        integer l_glo, k_glo, l_ghi, k_ghi
        integer l_gloc, k_gloc
-       integer l_iopass, k_iopass
+       integer l_ionext, k_ionext
        integer l_rlen, k_rlen
        integer l_rloc, k_rloc
        integer nbf, nsh, maxbfsh, nseg, nocc, nvir
        integer ngrp, blen, nnbf
        integer pvlo, pvhi
-       integer polo, pohi
+       integer niofl
        integer myid, numnodes, rlo, rhi, clo, chi
        integer itmp, vtmp(10), mxrlen
        integer lmemreq
+       double precision integ_acc
        double precision gmem
        double precision iotmpptr
        integer g_kbuf
@@ -173,24 +174,17 @@ c
 c  Create GA exchange buffer
 c
 c
-      itmp = (nvir/numnodes + min(mod(nvir,numnodes),1))*nseg
-**          itmp = ((nvir-1)/numnodes+1)*nseg ! rjh
-      if (.not.(ga_create( MT_DBL, mxrlen, nseg*nvir, 'transp Kbuf',
-     $                     mxrlen, itmp, g_kbuf )))
+      itmp = nvir/numnodes + min(mod(nvir,numnodes),1)
+      if (.not.(ga_create( MT_DBL, mxrlen*nseg, nvir, 'transp Kbuf',
+     $                     (mxrlen*nseg), 1, g_kbuf )))
      $   call errquit('moints_semi: cannot allocate K buffer',0)
       call ga_distribution(g_kbuf, myid, rlo, rhi, clo, chi )
       if ((clo.eq.0).and.(chi.eq.-1)) then
         pvlo = 0
         pvhi = -1
       else
-        if ((nseg.ne.1).and.((mod(chi,nseg).ne.0).or.
-     $       (mod(clo,nseg).ne.1))) then
-          write(6,221) ga_nodeid(),clo,chi
- 221      format('ME:',i3,5x,' Range:',i3,'-',i3)
-          call errquit('moints_semi:wrong distrib. for K transp',0)
-        endif
-        pvlo = vlo + (clo-1)/nseg
-        pvhi = vlo + (chi/nseg) - 1
+        pvlo = vlo + clo - 1
+        pvhi = vlo + chi - 1
       endif
 c
 c  Reorder shells by descending shell-length
@@ -223,15 +217,15 @@ c  Generate locator and reverse map
 c
        itmp = (nsh*(nsh+1))/2+numnodes
        status = ma_push_get(MT_INT, (nbf*nbf), 'loc', l_gloc, k_gloc )
-       status = ma_push_get(MT_INT, itmp, 'io', l_iopass, k_iopass )
+       status = ma_push_get(MT_INT, itmp, 'io', l_ionext, k_ionext )
        status = ma_push_get(MT_INT, itmp, 'rec len', l_rlen, k_rlen )
        itmp = (nbf*(nbf+1))/2
        itmp = itmp + mod(itmp,2)
        status = ma_push_get(MT_INT, itmp, 'rev loc', l_rloc, k_rloc )
        call ifill(itmp, 0, int_mb(k_rloc), 1 )
        call moints_locmap( basis, nsh, nbf, tol2e, int_mb(k_shmap),
-     $                     g_kbuf, int_mb(k_gloc), nnbf,
-     $                     int_mb(k_rloc), int_mb(k_iopass),
+     $                     mxrlen, int_mb(k_gloc), nnbf,
+     $                     int_mb(k_rloc), niofl, int_mb(k_ionext),
      $                     int_mb(k_rlen))
 c
 c  Open local file and write initial info
@@ -256,22 +250,21 @@ c
 c
 c  Call the real stuff
 c
-       call moints_semi_a( basis, nbf, nsh, maxbfsh, tol2e,
-     $                   oseglo, oseghi, olo, ohi, vlo, vhi,
-     $                   polo, pohi, pvlo, pvhi, 
-     $                   osym, oblk, kunit, int_mb(k_shmap),
+       call moints_semi_a( basis, nbf, nsh, maxbfsh, tol2e, oseglo,
+     $                   oseghi, olo, ohi, vlo, vhi, pvlo, pvhi,
+     $                   mxrlen, osym, oblk, kunit, int_mb(k_shmap), 
      $                   ngrp, int_mb(k_glo), int_mb(k_ghi),
      $                   int_mb(k_bfmap), int_mb(k_rbfmap),
      $                   blen, int_mb(k_gmap), int_mb(k_gloc), 
-     $                   nnbf, int_mb(k_iopass),
+     $                   nnbf, niofl, int_mb(k_ionext),
      $                   int_mb(k_rlen), g_movecs, g_kbuf )
 c
 c  Clean up
 c
        if (.not. ma_pop_stack(l_rlen))
      $     call errquit('moints: failed to pop', l_rlen)
-       if (.not. ma_pop_stack(l_iopass))
-     $     call errquit('moints: failed to pop', l_iopass)
+       if (.not. ma_pop_stack(l_ionext))
+     $     call errquit('moints: failed to pop', l_ionext)
        if (.not. ma_pop_stack(l_gloc))
      $     call errquit('moints: failed to pop', l_gloc)
        if (.not. ma_pop_stack(l_gmap))
@@ -296,6 +289,8 @@ c
        if (util_print('statistics', print_high)) 
      $   call moints_stats_print( 'semi' )
 
+
+
        return
        end
        
@@ -314,12 +309,10 @@ c
 c
        subroutine moints_semi_a( basis, nbf, nsh, maxbfsh, tol2e,
      $                           oseglo, oseghi, olo, ohi, vlo, vhi,
-     $                           polo, pohi, pvlo, pvhi,
-     $                           osym, oblk,
-     $                           kunit, shmap, 
-     $                           ngrp, glo, ghi, bfmap, rbfmap,
-     $                           blen, gmap, gloc, nnbf, iopass,
-     $                           rlen, g_movecs, g_kbuf )
+     $                           pvlo, pvhi, mxrlen, osym, oblk, 
+     $                           kunit, shmap, ngrp, glo, ghi, bfmap, 
+     $                           rbfmap, blen, gmap, gloc, nnbf, 
+     $                           niofl, ionext, rlen, g_movecs, g_kbuf)
        implicit none
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -342,8 +335,8 @@ c
        integer oseglo, oseghi                 ! [input] Occupied segment range
        integer olo, ohi                       ! [input] Occupied index range
        integer vlo, vhi                       ! [input] Virtual index range
-       integer polo, pohi                     ! [input] Occupied index range for this processor
        integer pvlo, pvhi                     ! [input] Virtual index range for this processor
+       integer mxrlen                         ! [input] Max record length
        logical osym                           ! [input] Toggle symmetry
        logical oblk                           ! [input] Toggle AO integral blocking
        integer kunit                          ! [input] Unit numbers for IO
@@ -357,8 +350,9 @@ c
        integer gmap(4,ngrp)                   ! [input] Old AOBLOCK shell map
        integer gloc(nbf*nbf)                  ! [input] bf -> GA memory map
        integer nnbf                           ! [input] Number of screened basf pairs <= (nbf*(nbf+1))/2
-       integer iopass(0:*)                    ! [input] IO pass for each task
-       integer rlen(*)                        ! [input] Record lengths for IO writes
+       integer niofl                          ! [input] Total IO flushes required
+       integer ionext(niofl)                  ! [input] Next value for each IO flush
+       integer rlen(niofl)                    ! [input] Record lengths for IO writes
        integer g_movecs                       ! [input] MO coefficients
        integer g_kbuf                         ! [scratch] Buffer for half-trans exchange
 c
@@ -373,18 +367,18 @@ c
        integer kgr, lgr
        integer qlo, qhi
        integer l_ssbb, k_ssbb
-       integer l_ssbbt, k_ssbbt
+c$$$       integer l_ssbbt, k_ssbbt
        integer l_hlp, k_hlp, l_ssni,k_ssni
-       integer l_hlp2, k_hlp2
+       integer l_hlp2, k_hlp2, l_hlp3, k_hlp3
        integer l_eri, k_eri, l_iscr,k_iscr
        integer l_mo, k_mo, l_xmo, k_xmo, l_xmo_t, k_xmo_t
-       integer n_ssbb, n_ssbb1, n_ssni, n_hlp, n_hlp2
+       integer n_ssbb, n_ssbb1, n_ssni, n_hlp, n_hlp2, n_hlp3
        integer iz, jz, kz, bsize
        integer mem2, max2e, jopass
        double precision iocnt
-       integer num_nodes, ploop, next
+       integer num_nodes, ploop, next, iiofl
        double precision schw_ij
-       double precision tpass, tio, ttmp, nwrbytes, iorate
+       double precision tpass, nwrbytes, iorate
        double precision t0, t1, ttask
        logical st
 c
@@ -401,8 +395,8 @@ c
        qhi = vhi
        nmo = qhi - qlo + 1
 c
-c$$$       WRITE(6,221) GA_NODEID(),PVLO,PVHI,POLO,POHI
-c$$$ 221   FORMAT('ME:',I5,5X,' V-RANGE:',2I3,5X,' O-RANGE:',2I3)
+c$$$       WRITE(6,221) GA_NODEID(),PVLO,PVHI
+c$$$ 221   FORMAT('ME:',I5,5X,' V-RANGE:',2I3)
 c
 c  Local MO coefficients
 c  Integrals and temporary arrays sizes
@@ -411,13 +405,15 @@ c
        bsize = max(blen,maxbfsh)
        n_ssbb = maxbfsh*maxbfsh*bsize*bsize
        n_ssbb1 = max((nmo1*nmo1),n_ssbb)
-#ifdef NEW_SPARSE
+
        n_hlp = max(nmo1,maxbfsh*maxbfsh)*nbf
-       n_hlp2 = maxbfsh*maxbfsh
-#else
-       n_hlp = max((bsize*maxbfsh*maxbfsh*nmo1),(maxbfsh*nbf))
        n_hlp2 = maxbfsh*maxbfsh*nmo2
-#endif
+
+c$$$       n_hlp = max((bsize*maxbfsh*maxbfsh*nmo1),(maxbfsh*nbf))
+c$$$       n_hlp2 = maxbfsh*maxbfsh*nmo2
+
+       n_hlp3 = maxbfsh*maxbfsh*nmo2
+
        n_ssni = maxbfsh*maxbfsh*nbf*nmo1
        st=ma_push_get(MT_DBL,(nbf*vhi),'r movecs',l_xmo,k_xmo)
        st=st.and.ma_push_get(MT_DBL,(nbf*vhi),'movecs cols',l_mo,k_mo)
@@ -436,11 +432,10 @@ c
        st=st.and.ma_push_get(MT_DBL, max2e,'ibuf', l_eri, k_eri)
        st=st.and.ma_push_get(MT_DBL, mem2, 'int scr', l_iscr, k_iscr)
        st=st.and.ma_push_get(MT_DBL,n_ssbb1,'ssbb blk',l_ssbb,k_ssbb)
-#ifndef NEW_SPARSE
-       st=st.and.ma_push_get(MT_DBL,n_ssbb,'ssbbt',l_ssbbt,k_ssbbt)
-#endif
+c$$$       st=st.and.ma_push_get(MT_DBL,n_ssbb,'ssbbt',l_ssbbt,k_ssbbt)
        st=st.and.ma_push_get(MT_DBL,n_hlp,'hlp block',l_hlp,k_hlp)
        st=st.and.ma_push_get(MT_DBL,n_hlp2,'hlp2 blk',l_hlp2,k_hlp2)
+       st=st.and.ma_push_get(MT_DBL,n_hlp3,'hlp3 blk',l_hlp3,k_hlp3)
        st=st.and.ma_push_get(MT_DBL,n_ssni,'ssni blk',l_ssni,k_ssni)
        st=st.and.ma_push_get(MT_DBL,nbf*vhi,'xmot',l_xmo_t,k_xmo_t)
        if (.not.(st)) call errquit
@@ -453,10 +448,10 @@ c
 c Initialize
 c
        ploop = 0
+       iiofl = 1
        jopass = 1
        iocnt = ma_sizeof(MT_INT,10+nnbf,MT_BYTE)
        next = nxtval(num_nodes)
-       tio = 0.d0
        nwrbytes = 0.d0
        tpass = util_cpusec()
 c
@@ -476,36 +471,12 @@ c
 c
 c  -------------
 c  Parallel task
-c
-c
-c  Checkpoint for I/O
-c
                mi_ntasks = mi_ntasks + 1
                ttask = util_cpusec()
-               if (iopass(next).gt.jopass) then
-                 t0 = util_cpusec()
-                 call ga_sync()
-                 t1 = util_cpusec() - t0
-                 mi_minsynch = min(mi_minsynch,t1)
-                 mi_maxsynch = max(mi_maxsynch,t1)
-                 mi_aggsynch = mi_aggsynch + t1
-                 mi_nsynchs = mi_nsynchs + 1
-                 ttmp = util_cpusec()
-                 nwrbytes = nwrbytes + nmo1*(pvhi-pvlo+1)*rlen(jopass)
-                 call moints_wrbuf( kunit, oseglo, oseghi,
-     $                              vlo, pvlo,  pvhi, nnbf, iocnt,
-     $                              rlen(jopass), g_kbuf )
-                 call ga_zero(g_kbuf)
-                 tio = tio + util_cpusec() - ttmp
-                 tpass = util_cpusec() - tpass
-                 iocnt = iocnt + ma_sizeof(MT_DBL,rlen(jopass),MT_BYTE)
-                 jopass = jopass + 1
-                 tpass = util_cpusec()
-               endif
+               call dfill((ilen*jlen*nbf*nmo1),0.d0,dbl_mb(k_ssni),1)
 c
 c  Half-tranformed Integral generation
 c
-               call dfill((ilen*jlen*nbf*nmo1),0.d0,dbl_mb(k_ssni),1)
 #ifdef OLD_AOBLOCK
                do kgr=1,ngrp
                  call gr_sh_idx(ngrp,gmap,kgr,kshlo,kshhi)
@@ -552,36 +523,41 @@ c
                    t0 = util_cpusec()
                    mi_flop1 = mi_flop1 + 
      $                   4.d-6*ilen*jlen*kblen*lblen*(oseghi-oseglo+1)
-#ifdef NEW_SPARSE
+
                    call moints_trf1_new(nbf, qlo, qhi, oseglo, oseghi,
      $                  ilen, jlen, kbflo, kbfhi,
      $                  lbflo, lbfhi,
      $                  dbl_mb(k_ssbb),
      $                  dbl_mb(k_xmo_t),
      $                  dbl_mb(k_ssni), dbl_mb(k_hlp))
-#else
-                   if (lgr.ne.kgr) then
-                     call moints_blktr( ilen, jlen, kblen, lblen,
-     $                                  dbl_mb(k_ssbb),
-     $                                  dbl_mb(k_ssbbt))
-                     call moints_trf1( nbf, qlo, qhi, oseglo, oseghi,
-     $                                 ilen, jlen, kbflo, kbfhi,
-     $                                 lbflo, lbfhi, 1.d0,
-     $                                 dbl_mb(k_ssbb),
-     $                                 dbl_mb(k_ssbbt), dbl_mb(k_xmo),
-     $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )
-                   else
-                     call moints_trf1( nbf, qlo, qhi, oseglo, oseghi,
-     $                                 ilen, jlen, kbflo, kbfhi,
-     $                                 lbflo, lbfhi, 0.5d0,
-     $                                 dbl_mb(k_ssbb),
-     $                                 dbl_mb(k_ssbb), dbl_mb(k_xmo),
-     $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )
-                   endif
-#endif
+
+
+c$$$                   if (lgr.ne.kgr) then
+c$$$                     call moints_blktr( ilen, jlen, kblen, lblen,
+c$$$     $                                  dbl_mb(k_ssbb),
+c$$$     $                                  dbl_mb(k_ssbbt))
+c$$$                     call moints_trf1( nbf, qlo, qhi, oseglo, oseghi,
+c$$$     $                                 ilen, jlen, kbflo, kbfhi,
+c$$$     $                                 lbflo, lbfhi, 1.d0,
+c$$$     $                                 dbl_mb(k_ssbb),
+c$$$     $                                 dbl_mb(k_ssbbt), dbl_mb(k_xmo),
+c$$$     $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )
+c$$$                   else
+c$$$                     call moints_trf1( nbf, qlo, qhi, oseglo, oseghi,
+c$$$     $                                 ilen, jlen, kbflo, kbfhi,
+c$$$     $                                 lbflo, lbfhi, 0.5d0,
+c$$$     $                                 dbl_mb(k_ssbb),
+c$$$     $                                 dbl_mb(k_ssbb), dbl_mb(k_xmo),
+c$$$     $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )
+c$$$                   endif
+
+
                    mi_t1 = mi_t1 + util_cpusec() - t0
                   enddo
                enddo
+c
+c  Transform 2nd index and put into buffer
+c
                t0 = util_cpusec()
 #ifdef NEW_SPARSE
                call moints_trf2Kynew(nbf, qlo, qhi, oseglo, oseghi, 
@@ -592,8 +568,9 @@ c
 #else
                call moints_trf2Ky(nbf, qlo, qhi, oseglo, oseghi, 
      $                            vlo, vhi, ibflo, ibfhi, 
-     $                            jbflo, jbfhi, gloc, dbl_mb(k_ssni),
-     $                            dbl_mb(k_hlp), dbl_mb(k_hlp2),
+     $                            jbflo, jbfhi, rlen(iiofl), gloc, 
+     $                            dbl_mb(k_ssni),
+     $                            dbl_mb(k_hlp3), dbl_mb(k_hlp2),
      $                            dbl_mb(k_xmo), g_kbuf )
 #endif
                mi_t2k = mi_t2k + util_cpusec() - t0
@@ -610,37 +587,48 @@ c  -----------------
 c
              endif
              ploop = ploop + 1
+c
+c  Checkpoint for I/O
+c
+             if (ploop.eq.ionext(iiofl)) then
+               t0 = util_cpusec()
+               call ga_sync()
+               t1 = util_cpusec() - t0
+               mi_nsynchs = mi_nsynchs + 1
+               call summaxmin(t1, mi_aggsynch, mi_maxsynch, mi_minsynch)
+               t0 = util_cpusec()
+               call moints_wrbuf( kunit, oseglo, oseghi,
+     $                            vlo, pvlo, pvhi, nnbf, iocnt,
+     $                            rlen(iiofl), g_kbuf )
+               mi_tio = mi_tio + util_cpusec() - t0
+               nwrbytes = nwrbytes + nmo1*(pvhi-pvlo+1)*rlen(iiofl)
+               call ga_zero(g_kbuf)
+               iocnt = iocnt + ma_sizeof(MT_DBL,rlen(iiofl),MT_BYTE)
+               iiofl = iiofl + 1
+             endif
            endif
          enddo
        enddo
        t0 = util_cpusec()
-       call ga_sync()
+       next = nxtval(-num_nodes)
        t1 = util_cpusec() - t0
        mi_nsynchs = mi_nsynchs + 1
-       mi_aggsynch = mi_aggsynch + t1
-       mi_minsynch = min(mi_minsynch,t1)
-       mi_maxsynch = max(mi_maxsynch,t1)
-       ttmp = util_cpusec()
-       nwrbytes = nwrbytes + nmo1*(pvhi-pvlo+1)*rlen(jopass)
-       call moints_wrbuf( kunit, oseglo, oseghi, vlo, pvlo, pvhi,
-     $                    nnbf, iocnt, rlen(jopass), g_kbuf )
-       tio = tio + util_cpusec() - ttmp
+       call summaxmin(t1, mi_aggsynch, mi_maxsynch, mi_minsynch)
        tpass = util_cpusec() - tpass
-       next = nxtval(-num_nodes)
+
 c
 c I/O stats
 c
        nwrbytes = nwrbytes*8.e-6
-       iorate = nwrbytes/tio
+       iorate = nwrbytes/mi_tio
        call ga_dgop(MSG_SEMI_IO_RATE,iorate,1,'+')
        if ((ga_nodeid().eq.0).and.
      $     (util_print('io_stats',print_default))) then
-         write(6,886) nwrbytes, tio, iorate
+         write(6,886) nwrbytes, mi_tio, iorate
  886     format('Node 0 wrote ',f8.1,' Mb in ',f8.1,' s',5x,
      $          'Agg I/O rate:', f8.1, ' Mb/s')
          call util_flush(6)
        endif
-       mi_tio = mi_tio + tio
 c
 c Clean-up
 c
@@ -648,14 +636,14 @@ c
      $     call errquit('moints: failed to pop', l_xmo_t)
        if (.not. ma_pop_stack(l_ssni))
      $     call errquit('moints: failed to pop', l_ssni)
+       if (.not. ma_pop_stack(l_hlp3))
+     $     call errquit('moints: failed to pop', l_hlp3)
        if (.not. ma_pop_stack(l_hlp2))
      $     call errquit('moints: failed to pop', l_hlp2)
        if (.not. ma_pop_stack(l_hlp))
      $     call errquit('moints: failed to pop', l_hlp)
-#ifndef NEW_SPARSE
-       if (.not. ma_pop_stack(l_ssbbt))
-     $     call errquit('moints: failed to pop', l_ssbbt)
-#endif
+c$$$       if (.not. ma_pop_stack(l_ssbbt))
+c$$$     $     call errquit('moints: failed to pop', l_ssbbt)
        if (.not. ma_pop_stack(l_ssbb))
      $     call errquit('moints: failed to pop', l_ssbb)
        if (.not. ma_pop_stack(l_iscr))
@@ -681,55 +669,70 @@ c
 
 
 
-c
+
+
+
+
+
+
       subroutine moints_trf2Ky( nbf, qlo, qhi, oseglo, oseghi, 
-     $                          vlo, vhi, ilo, ihi, jlo, jhi, gloc,
-     $                          ssni, h, h2, c, g_buf )
+     $                          vlo, vhi, ilo, ihi, jlo, jhi, rlen,
+     $                          gloc, ssni, h, h2, c, g_buf )
       implicit none
 #include "global.fh"
       integer nbf, qlo, qhi, oseglo, oseghi, vlo, vhi
       integer ilo, ihi, jlo, jhi
+      integer rlen
       integer gloc(nbf,nbf)
       double precision ssni(nbf,jlo:jhi,ilo:ihi,oseglo:oseghi)
-      double precision h(jlo:jhi,ilo:ihi),h2(*)
+      double precision h(jlo:jhi,ilo:ihi,vlo:vhi),h2(*)
       double precision c(nbf,qlo:qhi)
       integer g_buf
-      integer ilen, jlen, ijlen
-      integer glo, ghi, i, j, ij
-      integer o, v, vo
+      integer ilen, jlen, ijlen, nvir
+      integer glo, ghi, i, j, ij, ijolo, ijohi
+      integer o, v
+      integer nij
 c
       ilen = ihi - ilo + 1
       jlen = jhi - jlo + 1
       ijlen = ilen*jlen
       glo = gloc(ilo,jlo)
       ghi = gloc(ihi,jhi)
-c$$$      WRITE(6,881) ILO,IHI,JLO,JHI,GLO,GHI,GA_NODEID()
-c$$$ 881  FORMAT('&&',2(2I4,2X), 'RANGE:',I4,1X,'-',1X,I4,10x,'[',i3,']')
+      nvir = vhi - vlo + 1
+
       do o=oseglo,oseghi
-        do v=vlo,vhi
-          vo = (v-vlo)*(oseghi-oseglo+1) + o - oseglo + 1
-          call dgemm('t','n',ijlen,1,nbf,1.d0,ssni(1,jlo,ilo,o),
-     $                nbf,c(1,v),nbf,0.d0,h,ijlen)
-          if (ihi.ne.jhi) then
-#ifndef NOCOMMS
-            call ga_put(g_buf,glo,ghi,vo,vo,h,1)
-#endif
-          else
-            ij = 0
+        call dgemm('t', 'n', ijlen, nvir, nbf, 1.d0, ssni(1,jlo,ilo,o),
+     $              nbf, c(1,vlo), nbf, 0.d0, h(jlo,ilo,vlo), ijlen)
+        ijolo = (o - oseglo)*rlen + glo
+        ijohi = (o - oseglo)*rlen + ghi
+        if (ihi.eq.jhi) then
+          ij = 0
+          do v=vlo,vhi
             do i=ilo,ihi
               do j=ilo,i
                 ij =   ij + 1
-                h2(ij) = h(i,j) 
+                h2(ij) = h(j,i,v)
               enddo
             enddo
+          enddo
+          nij = (ilen*(ilen+1))/2
 #ifndef NOCOMMS
-            call ga_put(g_buf,glo,ghi,vo,vo,h2,1)
+          call ga_put( g_buf, ijolo, ijohi, 1, nvir, h2, nij )
 #endif
-          endif
-        enddo
+        else
+#ifndef NOCOMMS
+          call ga_put( g_buf, ijolo, ijohi, 1, nvir, h, ijlen )
+#endif
+        endif
       enddo
       return
       end
+
+
+
+
+
+
 
 
 
@@ -871,7 +874,8 @@ C$$$             CALL MOINTS_MATPRINT(NVIR,NOCC,H1)
 
 
 
-      subroutine moints_wrbuf( munit, oseglo, oseghi, alo, plo, phi,
+
+      subroutine moints_wrbuf( munit, oseglo, oseghi, vlo, pvlo, pvhi,
      $                         nnbf, iocnt, rlen, g_buf )
       implicit none
 #include "mafdecls.fh"
@@ -879,33 +883,33 @@ C$$$             CALL MOINTS_MATPRINT(NVIR,NOCC,H1)
 #include "eaf.fh"
       integer munit                       ! I/O unit
       integer oseglo, oseghi              ! Segment range
-      integer alo                         ! Lowest index to compute GA index
-      integer plo, phi                    ! Index range for this processor
+      integer vlo                         ! Lowest virtual index
+      integer pvlo, pvhi                  ! Virtual index range for this processor
       integer nnbf, rlen            
       double precision iocnt              ! file header offset
       integer g_buf
 c
       double precision faddr
-      integer o, p, po, nocc, np
+      integer o, vv, pv, nocc, npv, ooffset
       integer myid, rlo, rhi, clo, chi, k_local, ld
 c
       nocc = oseghi - oseglo + 1
-      np = phi - plo + 1
+      npv = pvhi - pvlo + 1
       myid = ga_nodeid()
       call ga_distribution(g_buf, myid, rlo, rhi, clo, chi )
-      do o=oseglo,oseghi
-        do p=plo,phi
-          po = (p-alo)*nocc + o - oseglo + 1
+
+      do o=1,nocc
+        ooffset = (o-1)*rlen
+        do pv=pvlo,pvhi	
+	  vv = pv - vlo + 1
           faddr = iocnt + 
-     $            ma_sizeof(MT_DBL,((o-oseglo)*np+p-plo)*nnbf,MT_BYTE)
-          if ((po.ge.clo).and.(po.le.chi)) then
-            call ga_access(g_buf, rlo, rhi, po, po, k_local, ld )
-            if (eaf_write(munit, faddr, dbl_mb(k_local), 
+     $            ma_sizeof(MT_DBL,((o-1)*npv+pv-pvlo)*nnbf,MT_BYTE)
+          if ((vv.ge.clo).and.(vv.le.chi)) then
+            call ga_access(g_buf, rlo, rhi, vv, vv, k_local, ld )
+            if (eaf_write(munit, faddr, dbl_mb(k_local+ooffset), 
      $                    ma_sizeof(MT_DBL,rlen,MT_BYTE)).ne.0)
      $        call errquit('moints_wrbuf: failed on write',0)
-            call ga_release(g_buf, rlo, rhi, po, po )
-c$$$            WRITE(6,901) O,P,FADDR,FADDR+MA_SIZEOF(MT_DBL,RLEN,MT_BYTE)
-c$$$ 901        FORMAT(' [O,P]:',2I4,5X,'ADDR:',F10.0,'  EOR:',F10.0)
+            call ga_release(g_buf, rlo, rhi, vv, vv )
           else
             call errquit('moints_semi: wrong distrib for GA buffer',0)
           endif
@@ -914,6 +918,8 @@ c$$$ 901        FORMAT(' [O,P]:',2I4,5X,'ADDR:',F10.0,'  EOR:',F10.0)
       return
       end
           
+
+
 
 
 
@@ -1015,6 +1021,7 @@ c$$$ 920        FORMAT(/,' Operator: [',i4,',',i4,']')
 c$$$            CALL MOINTS_MATPRINT(NVIR,NVIR,DBL_MB(K_LOCAL))
 c$$$            CALL UTIL_FLUSH(6)
 c$$$
+
             xx = moints_epair_eval( nvir, 0, nvir, dbl_mb(k_local),
      $                              orbe(ohi+1), denom )
             call ga_release(g_exch, rlo, rhi, jj, jj )
@@ -1239,8 +1246,3 @@ c
          enddo
       enddo
       end
-
-            
-
-
-

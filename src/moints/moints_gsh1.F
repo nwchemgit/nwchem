@@ -1,5 +1,5 @@
        integer function moints_numgr( basis, blocklen )
-C$Id: moints_gsh1.F,v 1.9 1997-04-16 23:21:49 rg240 Exp $
+C$Id: moints_gsh1.F,v 1.10 1997-09-11 19:53:27 rg240 Exp $
        implicit none
 #include "bas.fh"
        integer basis, blocklen
@@ -331,8 +331,8 @@ c    Keep track of filling and flushing the buffer
 c    to IO
 c
       subroutine moints_locmap( basis, nsh, nbf, tol2e, shmap,
-     $                          g_buf, gloc, nnbf, rloc,
-     $                          iopass, rlen )
+     $                          ioreclen, gloc, nnbf, rloc,
+     $                          nioflush, ionext, rlen )
       implicit none
 #include "global.fh"
 #include "bas.fh"
@@ -340,25 +340,23 @@ c
       integer basis, nsh, nbf                    ! [input]  Usual meaning
       double precision tol2e                     ! [input]  Tolerance
       integer shmap(nsh)                         ! [input]  Map loop index -> shell index
-      integer g_buf                              ! [input]  GA buffer
+      integer ioreclen                              ! [input]  I/O reclen (double words)
       integer gloc(nbf,nbf)                      ! [output] Map basis -> GA memory
       integer nnbf                               ! [output] Screened basf pairs <= (nbf*(nbf+1))/2
       integer rloc(*)                            ! [output] Scatter array (IO record -> upper triangle)
-      integer iopass(*)                          ! [output] IO pass for each task
-      integer rlen(*)                            ! [output] Record length for IO write
-c
+      integer nioflush                           ! [output] Number of IO flushes
+      integer ionext(*)                          ! [output] Next values for IO flush
+      integer rlen(*)                            ! [output] Record length for IO flush
       integer ish0, jsh0, ish, jsh
       integer ibflo, ibfhi, jbflo, jbfhi
       integer i, j, ijlen, incr
-      integer ntask, ipass
-      integer gtype, ioreclen, dim2
+      integer ntask
       logical status
       
-      call ga_inquire(g_buf,gtype,ioreclen,dim2)
       nnbf = 0
       incr =  0
       ntask = 0
-      ipass = 1
+      nioflush = 0
       do ish0=1,nsh
         do jsh0=1,ish0
           ish = max(shmap(ish0),shmap(jsh0))
@@ -369,11 +367,12 @@ c
             status = bas_cn2bfr(basis,jsh,jbflo,jbfhi)
             ijlen = (ibfhi - ibflo + 1)*(jbfhi - jbflo + 1)
             if ((incr+ijlen).gt.ioreclen) then
-              rlen(ipass) = incr
-              ipass = ipass + 1
+              nioflush = nioflush + 1
+              rlen(nioflush) = incr
+              ionext(nioflush) = ntask - 1
               incr = 0
             endif
-            iopass(ntask) = ipass
+C            iopass(ntask) = ipass
             do i=ibflo,ibfhi
               do j=jbflo,jbfhi
                 if ((ish.ne.jsh).or.((ish.eq.jsh).and.(i.ge.j))) then
@@ -388,10 +387,14 @@ c
           endif
         enddo
       enddo
-      rlen(ipass) = incr
-      do i=1,ga_nnodes()
-        iopass(ntask+i) = ipass + 1
-      enddo		
+      if (incr.gt.0) then
+        nioflush = nioflush + 1
+        rlen(nioflush) = incr
+        ionext(nioflush) = ntask
+      endif
+C      do i=1,ga_nnodes()
+C        iopass(ntask+i) = ipass + 1
+C      enddo		
 
       IF (GA_NODEID().EQ.0) THEN
 c$$$      WRITE(6,901)
@@ -405,9 +408,9 @@ c$$$      WRITE(6,900) (RLOC(I),I=1,NNBF)
 c$$$      WRITE(6,*)
 c$$$        WRITE(6,903)
 c$$$ 903    FORMAT(/,'IO PASS:',/)
-c$$$        WRITE(6,900) (IOPASS(I),I=1,NTASK+GA_NNODES())
+c$$$        WRITE(6,900) (IONEXT(I),I=1,NIOFLUSH)
 c$$$        WRITE(6,*)
-c$$$      WRITE(6,904)
+CCc$$$      WRITE(6,904)
 c$$$ 904  FORMAT(/,'RECORD LENGTHS:',/)
 c$$$      WRITE(6,900) (RLEN(I),I=1,IPASS)
       ENDIF

@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.62 1997-08-13 19:18:38 rg240 Exp $
+C$Id: mointdriver.F,v 1.63 1997-09-11 19:53:25 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -64,7 +64,6 @@ c
        data oexch,ocoul/.true.,.false./
        data ohalf/.true./
        data charge/0.d0/
-       data tol2e/1.d-12/
 c
 c Print settings
 c
@@ -90,6 +89,8 @@ c Get algorithm choice
 c
        if (.not. rtdb_cget(rtdb, 'fourindex:method ', 1, algo))
      $      algo = 'twofold'
+      if (.not. rtdb_get(rtdb, 'mp2:aotol2e', mt_dbl, 1, tol2e))
+     $     tol2e = 1d-9  ! For screening integrals
 c
 c Check disk caching enabled
 c
@@ -153,10 +154,25 @@ c
 c
 c Get frozen core & virtual offsets
 c
-       if (.not.rtdb_get(rtdb,'fourindex:occ_frozen',MT_INT,1,
-     $     occ_frozen)) occ_frozen = 0
-       if (.not.rtdb_get(rtdb,'fourindex:vir_frozen',MT_INT,1,
-     $     vir_frozen)) vir_frozen = 0
+c
+c Get frozen core and virtual offset
+c
+       if (rtdb_get(rtdb,'mp2:frozen core:freeze by atoms',mt_log, 1, 
+     $              status)) then
+	  if (.not. geom_num_core(geom,occ_frozen)) 
+     $          call errquit('direct_mp2: geom_num_core?',0)
+       else if (rtdb_get(rtdb, 'mp2:frozen core', MT_INT, 1,
+     $                   occ_frozen)) then
+       else
+         occ_frozen = 0
+       endif
+       if (.not.rtdb_get(rtdb, 'mp2:frozen virtual', MT_INT, 1,
+     $                   vir_frozen)) vir_frozen = 0
+
+c$$$       if (.not.rtdb_get(rtdb,'fourindex:occ_frozen',MT_INT,1,
+c$$$     $     occ_frozen)) occ_frozen = 0
+c$$$       if (.not.rtdb_get(rtdb,'fourindex:vir_frozen',MT_INT,1,
+c$$$     $     vir_frozen)) vir_frozen = 0
 c
 c Set index ranges
 c

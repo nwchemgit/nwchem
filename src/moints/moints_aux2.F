@@ -218,7 +218,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.32 1997-09-01 17:38:08 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.33 1997-09-11 19:53:26 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -457,6 +457,7 @@ c
       integer ii, jj, kk, ll, ksh, lsh
       integer ilen, jlen, klen, ltop
       logical more, odoit
+      DOUBLE PRECISION TTOL2E
       logical sym_shell_quartet
       external sym_shell_quartet
 c
@@ -470,6 +471,7 @@ c
 c
 c  Fill out index arrays with interacting quartet labels
 c        
+      TTOL2E = 0.d0         ! this seems necessary for intb_2e4c bug with k12c4
       q4 = 1.d0
       nshq = 0
       do kk=kshlo,kshhi
@@ -505,7 +507,7 @@ c
 c  Loop through batches of integrals until exhausted
 c
  100  more = intb_2e4c( basis, ishv, jshv, basis, kshv, lshv,
-     $                  nshq, qv4, osym, tol2e, .false.,
+     $                  nshq, qv4, osym, TTOL2E, .false.,
      $                  ilab, jlab, klab, llab,
      $                  eri, erilen, neri, scrlen, iscr )
 c
@@ -559,7 +561,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.32 1997-09-01 17:38:08 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.33 1997-09-11 19:53:26 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -634,6 +636,8 @@ c$$$      CALL MOINTS_MATPRINT(LBLEN,KBLEN,SSBB(LBLO,KBLO,JBFLO,IBFLO))
       double precision hlp(mo1_lo:mo1_hi,nbf)
 c     
       double precision s
+      double precision tol
+      data tol/1.d-12/
 c     
       integer i, j, k, l, o
 c     
@@ -656,7 +660,7 @@ c
             do k = klo, khi
                do l = llo, lhi
                   s = ssbb(l,k,j,i)
-                  if (abs(s) .gt. 1d-12) then
+                  if (abs(s) .gt. tol) then
                      do o = mo1_lo, mo1_hi
                         hlp(o,l) = hlp(o,l) + s*ct(o,k)
                      enddo
@@ -1205,8 +1209,9 @@ c
 
 
 
+
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.32 1997-09-01 17:38:08 d3g681 Exp $
+C$Id: moints_aux2.F,v 1.33 1997-09-11 19:53:26 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1250,7 +1255,7 @@ C$Id: moints_aux2.F,v 1.32 1997-09-01 17:38:08 d3g681 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.32 1997-09-01 17:38:08 d3g681 Exp $
+c$$$C$Id: moints_aux2.F,v 1.33 1997-09-11 19:53:26 rg240 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
@@ -1366,3 +1371,17 @@ c
       end
  
  
+
+
+
+
+
+
+      subroutine summaxmin( arg, ysum, ymax, ymin )
+      implicit none
+      double precision arg, ysum, ymax, ymin
+      ysum = ysum + arg
+      ymax = max(ymax,arg)
+      ymin = min(ymin,arg)
+      end
+

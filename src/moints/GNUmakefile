@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.65 1997-08-19 17:18:45 d3g681 Exp $
+#$Id: GNUmakefile,v 1.66 1997-09-11 19:53:24 rg240 Exp $
 
         OBJ = atwtest.o \
 	      direct_mp2.o \
@@ -34,7 +34,7 @@ OBJ_OPTIMIZE = \
               moints_semi.F \
               sifs.F
 
-LIB_DEFINES = -DDEBUG_PRINT
+LIB_DEFINES = -DDEBUG_PRINT 
 
     HEADERS = moints_stats.fh
 

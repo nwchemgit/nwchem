@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.40 1997-08-08 07:15:31 rg240 Exp $
+C$Id: direct_mp2.F,v 1.41 1997-09-11 19:53:24 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -38,6 +38,7 @@ c
        logical ohalf, oblk, odisk, oaoreuse, oaokeep
        double precision emp2, e2pair
        double precision tpass, ttotal, scf_energy
+       double precision tol2e
        character*7 algo
 c
        logical movecs_read_header, movecs_read
@@ -57,9 +58,10 @@ c
        logical int_normalize
        external int_normalize
 c
+
        data g_coul,g_exch/-1,-1/
        data charge/0.d0/
-       data ohalf/.true./
+       data ohalf/.false./
 c
        if (.not. scf(rtdb)) then
           direct_mp2 = .false.
@@ -109,6 +111,8 @@ c
      $      call errquit('direct_mp2: cannot get basis info',0)
        if (.not. rtdb_get(rtdb, 'scf:energy', MT_DBL, 1, scf_energy))
      $      scf_energy = 0.0d0
+      if (.not. rtdb_get(rtdb, 'mp2:aotol2e', MT_DBL, 1, tol2e))
+     $     tol2e = 1d-9
 c
 c Get algorithm choice
 c
@@ -217,8 +221,8 @@ c Initialise integrals and screening
 c
        if (.not.int_normalize(basis))
      &     call errquit('direct_mp2: int_normalize failed',0)
-       call int_init(rtdb,1, basis)
-       call schwarz_init(geom,basis)
+       call int_init(rtdb, 1, basis)
+       call schwarz_init(geom, basis)
 c
 c Maximum number of operator matrices we can allocate
 c
@@ -322,6 +326,8 @@ c
      $                        g_coul, .false., g_exch, .true.,
      $                        blen, oblk )
        endif
+
+
 c
 c Evaluate and store pair energies
 c
