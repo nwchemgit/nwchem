@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.13 2004-09-11 01:22:51 marat Exp $
+c $Id: qmmm_geom.F,v 1.14 2004-09-11 06:40:46 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -12,6 +12,7 @@ c
 #include "mm_utils.fh"
       integer irtdb
 c     local variables
+      integer i,i1
       integer nqm,nlink
       integer igeom
       integer i_c
@@ -21,6 +22,9 @@ c     local variables
       integer i_num
       integer i_q
       character*255 basis_string
+      integer qmmm_geom_heavy_neighbor
+      external qmmm_geom_heavy_neighbor
+
 
       nqm   = qmmm_get_nqm()
       nlink = qmmm_get_nlink()
@@ -43,11 +47,21 @@ c
 c     adjust link atom names and
 c     basis set if needed
 c     --------------------------
+      do i=1,nqm
+        int_mb(i_num+i-1)=int(dbl_mb(i_q+i-1))
+      end do
       if(nlink.gt.0) then
        call qmmm_link_atoms(nlink,
+     >                      int_mb(i_num+(nqm-nlink)),
      >                      dbl_mb(i_q+(nqm-nlink)),
      >                      byte_mb(i_t+16*(nqm-nlink)),
+     >                      dbl_mb(i_c+3*(nqm-nlink)),
      >                      dbl_mb(i_m+(nqm-nlink)))
+       do i=1,nlink
+          i1=qmmm_geom_heavy_neighbor(nqm-nlink+i,nqm,int_mb(i_num),
+     >                                dbl_mb(i_c))
+          write(*,*) "qmmm link",i1,int_mb(i_num+i1-1)
+       end do
       end if
 
       if(.not.geom_create(igeom,'geometry'))
@@ -565,18 +579,21 @@ c     ----------
 
       end
 
-      subroutine qmmm_link_atoms(n,q,t,m)
+      subroutine qmmm_link_atoms(n,inum,q,t,c,m)
       implicit none
 #include "geom.fh"
 #include "errquit.fh"
       integer n
+      double precision inum(n)
       double precision q(n)
+      double precision c(3,n)
       character*16 t(n)
       double precision m(n)
 
 c     local variables
 c     ---------------
       integer i
+      integer i1
 
       do i=1,n
         q(i)=9.0
@@ -604,6 +621,40 @@ c     ---------------
 #include "qmmm.fh"
 
       call qmmm_restore_qm_geom(irtdb)
+
+      end
+
+      function qmmm_geom_heavy_neighbor(i,ntot,atn,c)
+
+      implicit none
+      integer i
+      integer ntot
+      double precision c(3,ntot)
+      integer atn(ntot)
+      integer qmmm_geom_heavy_neighbor
+c 
+      integer i1,k,j
+      double precision r,rmin
+
+      rmin=1000.0d0
+      do i1=1,ntot
+        if(atn(i1).ne.1) then
+          r=0.0d0
+          do k=1,3
+            r=r+(c(k,i)-c(k,i1))*(c(k,i)-c(k,i1))
+          end do
+          r=sqrt(r)
+          write(*,*) "qmmm nei r",r
+          if(r.lt.rmin) then
+           if(r.gt. 1.0e-2) then
+             write(*,*) "qmmm nei",r,atn(i1)
+             j=i1
+             rmin=r
+           endif
+          endif
+        endif
+      end do
+      qmmm_geom_heavy_neighbor=j
 
       end
 
