@@ -2,7 +2,7 @@
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,mult,check_deg)
-C$Id: dft_densm.F,v 1.19 2000-04-22 01:11:44 edo Exp $
+C$Id: dft_densm.F,v 1.20 2000-04-27 20:38:03 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -410,8 +410,13 @@ c     up
          do i=1,nnintg
             focc(i+nbf*(isp-1))=rhfuhf
          enddo
-c        write(0,*) ' nint eh ',nnintg,ehomo
-c        write(0,*) ' neldeg nlev ',neldeg,nlevdeg
+         if(nlevdeg.eq.0) then
+            write(0,*) ' nint eh ',nnintg,ehomo
+            write(0,*) ' neldeg nlev ',neldeg,nlevdeg
+           call errquit('dftcheckdg: zero levels?? ',0)
+cedo            dft_checkdg=.false.
+cedo            return
+         endif
          if(mod(neldeg,nlevdeg).ne.0) then
             dft_checkdg=.true.
 c
