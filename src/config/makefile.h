@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.271 1999-01-26 18:27:46 d3g270 Exp $
+# $Id: makefile.h,v 1.272 1999-01-26 18:28:32 d3g270 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -746,11 +746,11 @@ ifeq ($(TARGET),IBM)
 
     CORE_SUBDIRS_EXTRA = lapack
 #blas
-         FC = xlf -g
-         CC = xlc -g
+         FC = xlf
+         CC = xlc
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 6 --no-print-directory
+  MAKEFLAGS = -j 2 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
