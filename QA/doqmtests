@@ -1,12 +1,12 @@
 #!/bin/csh
 #
-# $Id: doqmtests,v 1.25 2003-01-28 01:30:27 edo Exp $
+# $Id: doqmtests,v 1.26 2003-02-11 00:15:30 nwchem Exp $
 #
 #---   small tests
-runtests.unix auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
+runtests.unix auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o #pyqa
 runtests.unix rimp2_ne sadsmall scf_feco5 small_intchk tagcheck testtab
 runtests.unix h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
-runtests.unix cosmo_trichloroethene esp
+runtests.unix cosmo_trichloroethene esp dft_bsse
 runtests.unix dplot neda_nbo
 
 #---   small tests that should fail!
