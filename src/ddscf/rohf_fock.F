@@ -3,7 +3,7 @@
      $     eone, etwo, g_fcv, g_fpv,
      $     g_fcp, oskel, iter)
 *
-* $Id: rohf_fock.F,v 1.15 2000-08-22 23:26:06 mdupuis Exp $
+* $Id: rohf_fock.F,v 1.16 2000-08-23 22:18:58 windus Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -56,7 +56,6 @@ c
       logical odbug
       logical osome
 c
-      integer iter
       integer itype_wfn
 c
       data jfactor / 1.0d0, 1.0d0, 0.0d0/
