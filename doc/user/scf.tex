@@ -216,6 +216,26 @@ beta orbital pair.
 \end{verbatim}
 
 
+\subsubsection{Atomic guess orbitals with charged atoms}
+
+It is possible to alter the charge of the atomic guess with set
+directives (c.g., \ref{sec:set}.  The input is as follows:
+
+\begin{verbatim}
+set atomscf:num_z integer <integer num_z >
+set atomscf:z     real    <real list of charges >
+set atomscf:tags_z ``t(1)'', ``t(2)'', ... ``t(num_z)''
+\end{verbatim}
+
+Where \verb+num_z+ is the number of centers with modified charge,
+\verb+z+ is a list of the actual charges to be applied to the
+``\verb+num_z+'' centers (e.g., for O+2 user a charge of 6.0), and
+\verb+tags_z+ is the list of element tags to be modified (\verb+num_z+
+of them).  There are limits to this procedure.  You cannot add
+electrons to closed shell atoms and you cannot remove all electrons
+from a given atom.  The sofware will error and quit reporting problems
+with modifying the charge if they are detected.
+
 \subsection{THRESH}
 
 \begin{verbatim}

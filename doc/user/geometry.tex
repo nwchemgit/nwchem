@@ -8,7 +8,7 @@
     
     [SYMMETRY GROUP <string group_name> [print]]
 
-    <string tag> <real x> <real y> <real z> [ecp] \
+    <string tag> <real x> <real y> <real z> \
         [charge <real charge>] [mass <real mass>]
     ...
   END
@@ -32,12 +32,12 @@ XMol.
 \subsection{Cartesian coordinate input}
 
 Each line in the body of the directive specifies the name or tag, and
-the coordinates of one center or atom.  If an effective core potential
-is to be used then the \verb+ECP+ keyword should be specified.  The
-charge associated with the center is inferred from the atom type
-(taking into account defaults for ECPs).  The charge may be explicitly
+the coordinates of one center or atom.  The charge associated with the
+center is inferred from the atom type.  The charge may be explicitly
 specified using the \verb+CHARGE+ keyword.  Default masses may be
-overriden by specifying the mass.
+overriden by specifying the mass.  The default masses are those of the
+highest naturally abundant isotope for the given atom, not the average
+mass of the element.  
 
 The tag associated with each center is interpreted as follows:
 \begin{itemize}
@@ -47,16 +47,14 @@ The tag associated with each center is interpreted as follows:
 \item If it begins with either the symbol or name of an element then
       it is thought to be an atom.  Atoms {\em must} have basis
       functions associated with them and the default charge is the
-      atomic number adjusted for the presence of ECPs.  The user
-      provided charges (of all centers, atomic and dummy) and the
-      total charge of the system are used to determine the number of
-      electrons
+      atomic number adjusted for the presence of ECPs (see
+      \ref{sec:ecp}).  The user provided charges (of all centers,
+      atomic and dummy) and the total charge of the system are used to
+      determine the number of electrons
 \item The tag of a center is used in the \verb+BASIS+ directive to
       associate functions with centers.  All centers with the same tag
       will have the same basis functions.  Atomic centers may have
       standard basis sets sited upon them.
-\item Similarly, the tag of a center is also used in the \verb+ECP+
-      directive to associate ECPs with centers.
 \item When automatic symmetry detection is functional only centers
       with the same tag will be candidates for testing for symmetry
       equivalence.
@@ -77,7 +75,7 @@ understand the latter, we provide many examples in Appendix
 \subsection{Z-matrix input}
 \label{sec:Z-matrix}
  
-If the \verb+geometry+ directive contains the \verb+zmat+ keyword, the
+If the \verb+GEOMETRY+ directive contains the \verb+zmat+ keyword, the
 structure of the molecule is defined by means of its Z-matrix, or
 the cartesian coordinates of the atoms, or a mixture of the two. A
 blank line terminates the list of the atoms.  Bond lengths,  bond

@@ -1,0 +1,108 @@
+\label{sec:ecp}
+\begin{verbatim}
+  ecp [<string name default "ecp basis">] \
+        [spherical||cartesian] \
+        [segment||nosegment] \
+        [print]
+
+     <string tag> library [<string tag_in_lib>] \
+                  <string standard set> [file <filename>]
+
+         or
+
+     <string tag> <string nelec> <integer number of electrons replace>
+ 
+         or
+
+     <string tag> <string shell_type>
+     <real r-exponent> <real gaussian-exponent> <real list_of_coefficients>
+        ...
+     
+  END
+\end{verbatim}    
+
+This directive describes an effective core potential (ECP) basis set
+of contracted gaussian functions.  These are fit to gaussians by the
+function:
+\[
+r^2V_l(r) = \sum_{k} A_{lk} r^{n_{lk}} e^{B_{lk}r^{2}}
+\]
+Where $A_{lk}$ is the contraction coefficient, $n_{lk}$ is the
+exponent of the ``r'' term (r-exponent), and $B_{lk}$ is the gaussian
+exponent.  The r-exponent is shifted by 2 as per most of the ECP
+literature, e.g., an r-exponent of 0 implies $r^{-2}$.
+
+By default basis sets are automatically segmented and cartesian even
+if general contractions are input.  Generally contracted ECP basis
+sets are not in wide use but the functionality is available.  ECP
+basis functions are associated with centers in geometries through the
+tags or names of centers which must match exactly (including case) and
+are limited to sixteen (16) characters.  Each center with the same tag
+will have the same ecp basis set.  By default the input module prints
+each ecp basis set encountered; use the \verb+NOPRINT+ option to
+disable printing.  There can be only one active ECP basis set even
+though several may exist in the input deck.  The ECP modules load
+``ecp basis'' with any ``ao basis'' present.  The ECP functionality
+works for energy and gradients.
+
+In the same fashion as for geometries or regular basis sets, ecp basis
+sets are named, with the default name being \verb+"ecp basis"+.  It
+should be clear from the above discussion on geometries and database
+entries how indirection is supported.
+
+Basis functions currently may not be drawn from a standard set in the
+EMSL basis set library; they must be specified explicitly.  All
+directives that are in common with the standard gaussian basis set
+input have the same function and syntax.  
+
+Che \verb+NELEC+ directive is the number of core electrons replaced by
+the ecp basis specification for the atom represented by the tag.  
+
+The shell type label of ``ul'' is used to describe the local part of
+the ECP basis.  This is equivalent to the highest angular momentum
+functions specified in the literature for most ecp basis sets.  The
+standard shell type delineates the angular momentum projector onto the
+local function.  The shell type label of ``s'' indicates the ``ul-s''
+projector input, ``p'' indicates the ``ul-p'', etc.  See the example
+below for clarification. 
+
+{\bf Note:} currently the atomic SCF code does not handle the guess
+generation for ECP centers.  Therefore, you may have trouble getting
+your initial set of orbitals for either the SCF or DFT.  You may need
+to use a smaller basis set and then project those orbitals to the
+basis set that will be used, (c.f. \ref{sec:vectors}).  Convergence
+and starting orbital guesses are being addressed.
+
+The following example illustrate the input of an ECP for H$_2$CO.
+
+\centerline{{\bf H$_2$CO }}
+
+\begin{verbatim}
+ecp print  
+C nelec 2     # ecp replaces 2 electrons on C
+C ul    # d
+        1       80.0000000       -1.60000000
+        1       30.0000000       -0.40000000
+        2        0.5498205       -0.03990210
+C s     # s - d 
+        0        0.7374760        0.63810832
+        0      135.2354832       11.00916230
+        2        8.5605569       20.13797020
+C p     # p - d
+        2       10.6863587       -3.24684280
+        2       23.4979897        0.78505765
+O nelec 2     # ecp replaces 2 electrons on O
+O ul    # d 
+        1       80.0000000       -1.60000000
+        1       30.0000000       -0.40000000
+        2        1.0953760       -0.06623814
+O s     # s - d
+        0        0.9212952        0.39552179
+        0       28.6481971        2.51654843
+        2        9.3033500       17.04478500
+O p     # p - s 
+        2       52.3427019       27.97790770
+        2       30.7220233      -16.49630500
+end
+\end{verbatim}
+

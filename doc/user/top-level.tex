@@ -4,11 +4,13 @@
 
 This is a startup directive (section \ref{sec:inputstructure}).
 
-A \verb+START+, \verb+CONTINUE+ or \verb+RESTART+ directive is optional but care must
-be taken if no directive is presented since the behaviour of the code
-will vary depending upon the existence of the database. 
+A \verb+START+, \verb+CONTINUE+ or \verb+RESTART+ directive is
+optional but care must be taken if no directive is presented since the
+behaviour of the code will vary depending upon the existence of the
+database.
 \begin{verbatim}
-(RESTART || CONTINUE || START) [<string file_prefix>] [rtdb <string rtdb_file_name>]
+(RESTART || CONTINUE || START) [<string file_prefix>] \
+                               [rtdb <string rtdb_file_name>]
 \end{verbatim}
 \verb+START+ indicates a startup calculation in which the database is
 created and any existing database is destroyed.  \verb+RESTART+ or
