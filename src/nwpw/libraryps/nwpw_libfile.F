@@ -5,7 +5,7 @@
 *      
 c the string library1 is appended by default for now
 c
-C $Id: nwpw_libfile.F,v 1.1 2001-10-31 02:07:51 edo Exp $
+C $Id: nwpw_libfile.F,v 1.2 2002-01-09 01:19:42 edo Exp $
       subroutine nwpw_libfile(filename,element)
       implicit none
 #include "inp.fh"
@@ -37,7 +37,7 @@ c
       libname = 
      &NWPW_LIBRARY
          lexist = .false.
-         inquire(file=libname,exist=lexist)
+         inquire(file=libname(1:inp_strlen(libname)),exist=lexist)
          if (.not.lexist)then
         write(luout,*)' warning:::::::::::::: from_compile'
         write(luout,*)' NWPW_BASIS_LIBRARY is: <',
@@ -60,7 +60,7 @@ c
 c
 c     check if file exists
 c
-      inquire(file=libname,exist=lexist)
+      inquire(file=filename,exist=lexist)
       if(.not.lexist) then
          write(luout,*) ' could not find library for ',element
          call errquit(

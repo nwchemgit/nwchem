@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2001-11-29 18:39:16 bylaska Exp $
+# $Id: GNUmakefile,v 1.3 2002-01-09 01:19:42 edo Exp $
 #
  OBJ_OPTIMIZE = nwpw_library.o nwpw_libfile.o
 
@@ -10,7 +10,7 @@
 
     USES_BLAS = 
 
-  LIB_DEFINES =  -DNWPW_LIBRARY="'$(SRCDIR)/nwpw/libraryps'"
+  LIB_DEFINES =  -DNWPW_LIBRARY="'$(SRCDIR)/nwpw/libraryps/'"
 
   LIB_INCLUDES = 
 
