@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.72 1997-06-25 18:07:35 d3e129 Exp $
+c $Id: raktest.F,v 1.73 1997-07-17 22:21:55 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -1578,6 +1578,7 @@ c
       integer geom
       integer mx1e, mxg, mxs1, mxs2
 c
+      logical status
 c
       integer nbas, bases(6)
 c
@@ -1602,6 +1603,8 @@ c
      &      bas_rtdb_load
      &      (rtdb,geom,bases(nbas),bs_names_rtdb(nbas)))
      &      call errquit('raktest4: bas_rtdb_load choked',911)
+        status = bas_print(bases(nbas))
+        status = gbs_map_print(bases(nbas))
 00200 continue
       call intd_init(rtdb,nbasis_rtdb,bases)
 c
@@ -1636,6 +1639,7 @@ c
       integer geom
       integer mx1e, mxg, mxs1, mxs2
 c
+      logical status
 c
       integer nbas, bases(6)
 c
@@ -1660,6 +1664,8 @@ c
      &      bas_rtdb_load
      &      (rtdb,geom,bases(nbas),bs_names_rtdb(nbas)))
      &      call errquit('raktest4: bas_rtdb_load choked',911)
+        status = bas_print(bases(nbas))
+        status = gbs_map_print(bases(nbas))
 00200 continue
       call int_init(rtdb,nbasis_rtdb,bases)
 c
