@@ -100,7 +100,7 @@ c     If the file is in the scratch directory then use the piece
 c     of it available for this process, otherwise use all that
 c     is available from eaf_stat.
 c
-         call util_directory_name(scratchdir, .true.)
+         call util_directory_name(scratchdir, .true., ga_nodeid())
          sdlen = inp_strlen(scratchdir)
          if (scratchdir(1:sdlen) .eq. actualname(1:sdlen)) then
             availkb = util_scratch_dir_avail_for_me()
