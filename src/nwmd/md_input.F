@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.40 2001-08-03 20:35:35 d3j191 Exp $
+c $Id: md_input.F,v 1.41 2001-08-10 15:05:29 d3j191 Exp $
 c
       implicit none
 c
@@ -1045,6 +1045,10 @@ c
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'zonly',item)) then
       icentr=1
+      if(.not.inp_a(item)) goto 1
+      endif
+      if(inp_compare(.false.,'xyonly',item)) then
+      icentr=2
       if(.not.inp_a(item)) goto 1
       endif
       if(inp_compare(.false.,'fraction',item)) then

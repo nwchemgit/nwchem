@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.95 2001-08-03 19:48:36 d3j191 Exp $
+c $Id: md_start.F,v 1.96 2001-08-10 15:05:29 d3j191 Exp $
 c
       implicit none
 c
@@ -1419,6 +1419,8 @@ c
  1018 format(' Frequency solute centering ',t55,i5)
       if(icentr.eq.1) write(lfnout,1818)
  1818 format(' Centering in z-direction only')
+      if(icentr.eq.2) write(lfnout,1819)
+ 1819 format(' Centering in xyplane only')
       write(lfnout,1009) nfoutp
  1009 format(' Frequency printing step information ',t55,i5)
       write(lfnout,1010) nfstat
