@@ -25,8 +25,6 @@ foreach document ($1)
 
   echo "   Cleaning and making $document.ps"
 
-goto doit
-
   make clean >& /dev/null
   make $document.ps >& $document.latex.log
 
