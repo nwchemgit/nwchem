@@ -1,7 +1,11 @@
 *
-* $Id: paw_sd.F,v 1.46 2003-02-24 21:03:30 bylaska Exp $
+* $Id: paw_sd.F,v 1.47 2003-02-26 02:13:50 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.46  2003/02/24 21:03:30  bylaska
+*  $Log: added to CVS output
+* ....EJB
+*
 
 ***********************************************************************
 *                      paw_sd                                         *
@@ -306,6 +310,7 @@
 *     *** intialize overlap coefficient data structure ***
       call phafac()
       call paw_ovlp_init(ispin,ne)
+      call paw_nonlocal_init(ispin,ne)
       call init_paw_density(0)
       call init_paw_xc(ispin,0)
       call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
@@ -697,6 +702,7 @@ c         write(6,1498) virial
       call dealloc_paw_basis_data()
       call paw_proj_end()
       call paw_ovlp_end()
+      call paw_nonlocal_end()
       call paw_comp_charge_end()
       call paw_mult_end()
       call paw_vloc_end()
