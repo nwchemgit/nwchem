@@ -8,7 +8,6 @@ OBJ_HESS = \
 
 OBJ_ENERGY = \
       ecp_3j_prod.o  \
-      ecp_Q2int1.o   \
       ecp_angint.o   \
       ecp_angrad.o   \
       ecp_bess_asy.o \
