@@ -8,8 +8,8 @@
 This compound directive provides input for the MCSCF module.
 Currently, only Complete Active Space SCF (CASSCF) wavefunctions are
 supported. The MCSCF module should ideally be invoked from a previously
-converged RHF/ROHF SCF calculation using \verb+RESTART+
-directive. The following input options have the same meaning
+converged RHF/ROHF SCF calculation.
+The following input options have the same meaning
 and syntax as with the SCF directive (\ref{SCF}); \verb+maxiter+,
 \verb+thresh+, \verb+tol2e+ and \verb+vectors+.  These options default to
 their corresponding SCF values if available, otherwise the SCF defaults
@@ -22,14 +22,10 @@ The following three directives; \verb+active+, \verb+actelec+ and
 the CASSCF wavefunction. The inactive and secondary orbitals are
 determined by reconciling the number of electrons and basis
 functions. Currently, there is no facility to designate frozen core or
-virtual orbitals. Although symmetry is used in various components, the
-MCSCF solution is not symmetry blocked and symmetry-forbidden
-rotations are quietly screened.
+virtual orbitals. 
 
 The CI submodule is determinant-based consequently L\"owdin spin
-projection is used for low-spin states. Moreover, the CI vector is
-not symmetry blocked but the correct state irreducible representation
-is maintained by symmetry projection.
+projection is used for low-spin states.
 
 \subsection{Inactive}
 \begin{verbatim}
@@ -71,7 +67,7 @@ Sets the desired state symmetry.
 Specifies the initial level shift applied the orbital Hessian. Note
 this also defaults to the SCF level shift if present. The level shift
 remains constant at each macroiteration until the gradient norm is
-less than $10^{-2}$~au whereupon it is rapidly reduced to zero.
+less than $10^{-2}$~au whereupon it is reduced to zero.
 
 \subsection{Profile}
 \begin{verbatim}
@@ -134,8 +130,6 @@ optimization of the inactive orbitals.
 Output items can selectively enabled or disabled using the
 \verb+print+ control mechanism~(\ref{sec:printcontrol}) with the
 available print options listed in table(\ref{MCSCF_print_options}).
-
-
 
 \begin{table}
 \caption{MCSCF Print Options}

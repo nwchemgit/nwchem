@@ -6,7 +6,6 @@
   geometry
     O     0.00000000    0.00000000    0.00000000
     H     0.00000000    1.43042809   -1.10715266
-
     symmetry group c2v
   end
 \end{verbatim}
@@ -21,11 +20,21 @@ in building a Fock matrix.
 \begin{verbatim}
   geometry
     symmetry group d2h
-
     C      0.000000000    0.000000000   -1.115108538
     H      0.000000000    0.000000000   -3.106737425
   end
 \end{verbatim}
+
+  \subsection{\protect$D_{2h}$ ethylene}
+
+\begin{verbatim}
+  geometry units angstrom
+    C 0 0 0.659250 
+    H 0 0.916366 1.224352 
+    symmetry d2h
+  end
+\end{verbatim}
+
 
   \subsection{\protect$T_d$ methane}
 
@@ -33,7 +42,6 @@ in building a Fock matrix.
   geometry
     c   0.0000000      0.0000000      0.0000000
     h   1.1828637      1.1828637      1.1828637
-
     symmetry group Td
   end
 \end{verbatim}
@@ -43,7 +51,6 @@ in building a Fock matrix.
 \begin{verbatim}
   geometry units angstrom # Bonds = 1.4445, 1.3945
     symmetry group Ih
-
     c   -1.2287651   0.0   3.3143121
   end
 \end{verbatim}
@@ -102,7 +109,7 @@ in building a Fock matrix.
   and hydrogen atoms.
 
 \begin{verbatim}
-  geometry print
+  geometry
     symmetry D3d
 
    NA     .0000000000    .0000000000   .0000000000
@@ -114,3 +121,99 @@ in building a Fock matrix.
   end
 \end{verbatim}
 
+  \subsection{\protect$C_{3v}$ ammonia}
+
+\begin{verbatim}
+  geometry units angstrom
+    N 0     0     -0.055 
+    H 0.665 0.665 -0.481 
+    symmetry c3v
+  end
+\end{verbatim}
+
+  \subsection{\protect$D_{6h}$ benzene}
+
+\begin{verbatim}
+  geometry
+    C 1.855 1.855 0 
+    H 3.289 3.289 0 
+    symmetry D6h
+  end
+\end{verbatim}
+
+  \subsection{\protect$C_{3h}$ \protect$BO_3H_3$}
+
+\begin{verbatim}
+  geometry
+    b 0 0 0 
+    o 2.27238285 1.19464491 0.00000000 
+    h 2.10895420 2.97347707 0.00000000 
+   symmetry C3h
+  end
+\end{verbatim}
+
+  \subsection{\protect$D_{5d}$ ferrocene}
+
+\begin{verbatim}
+  geometry units angstroms
+    symmetry d5d
+
+    fe 0 0     0 
+    c  0 1.194 1.789 
+    h  0 2.256 1.789 
+  end
+\end{verbatim}
+
+  \subsection{\protect$C_{4v}$ \protect$SF_5Cl$}
+
+\begin{verbatim}
+  geometry
+    S  0.00000000 0.00000000 -0.14917600 
+    Cl 0.00000000 0.00000000  4.03279700 
+    F  3.13694200 0.00000000 -0.15321800 
+    F  0.00000000 0.00000000 -3.27074500 
+
+    symmetry C4v
+  end
+\end{verbatim}
+
+  \subsection{\protect$C_{2h}$ trans-dichloroethylene}
+\begin{verbatim}
+  geometry units angstrom
+    C  0.65051239 -0.08305064 0 
+    Cl 1.75249381  1.30491767 0 
+    H  1.14820954 -1.04789741 0 
+    symmetry C2h
+  end
+\end{verbatim}
+
+  \subsection{\protect$D_{2d}$ \protect$CH_2CCH_2$}
+\begin{verbatim}
+  geometry units angstroms
+    symmetry d2d
+    c 0     0     0 
+    c 0     0     1.300 
+    h 0.656 0.656 1.857 
+  end
+\end{verbatim}
+
+  \subsection{\protect$D_{5h}$ cyclopentadiene anion}
+\begin{verbatim}
+  charge -1
+  geometry units angstroms
+    symmetry d5h
+    c 0 1.1853 0 
+    h 0 2.2654 0 
+  end
+\end{verbatim}
+
+
+  \subsection{\protect$D_{4h}$ gold tetrachloride}
+
+\begin{verbatim}
+  geometry
+    Au 0 0 0 
+    Cl 0 0 4.033
+    symmetry C4v
+  end
+\end{verbatim}

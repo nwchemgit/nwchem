@@ -1,8 +1,8 @@
 
-NWChem is quantum chemistry package that is under development and is
+NWChem is a quantum chemistry package that is
 designed to run on high-performance parallel supercomputers as well as
-workstation clusters.  It aims to be scalable both in the ability to
-treat large problems efficiently, and in its usage of available
+workstation clusters.  It aims to be scalable in both the ability to
+treat large problems efficiently, and in the usage of available
 parallel computing resources.  The suite utilizes parallel programming
 tools (TCGMSG and the Global Array library) developed by PNNL staff
 with funding from both the High Performance Computing and
@@ -306,22 +306,23 @@ things as how much memory to use, the name of the database, if it is a
 startup or restart job, where to put scratch/permanent files, etc..
 Rather than require all this information be at the top of the input
 file, NWChem scans through {\em all} of your input looking for these
-start-up directives (\ref{sec:startup}) and ignores everything else.
+start-up directives (section \ref{sec:inputstructure}) and ignores everything else.
 Since only process zero can read the input, these data are manually
-broadcast to the other nodes.  Once the database has been opened
+broadcast to the other nodes\footnote{Once the database has been opened
 process zero can insert data into the database which may be
-subsequently read by all processes.
+subsequently accessed directly by all processes.}.
 
 Next, the input file is rewound and read sequentially.  Input is
 processed either by the top-level parser (e.g., the directives
 \verb+TITLE+, \verb+SET+, \ldots) or by the computational modules
 (e.g., SCF, DFT, \ldots).  Anything that has already been processed
 (e.g., \verb+MEMORY+) is ignored.  Input is read until a \verb+TASK+
-directive (\ref{sec:task}) is encountered at which point the specified
+directive (section \ref{sec:task}) is encountered at which point the specified
 task is executed.  Processing of the input resumes upon the successful
 completion of the task.
 
 \subsection{The input file name and the {\tt .nw} suffix}
+\label{sec:inputfilename}
 
 The name of the input file is usally provided as an argument to
 NWChem.  If no input file name is provided, then the default name of

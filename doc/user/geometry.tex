@@ -1,3 +1,4 @@
+\label{sec:geom}
 
 \begin{verbatim}
   GEOMETRY [<string name geometry>] \
@@ -62,21 +63,6 @@ The tag associated with each center is interpreted as follows:
 By default NWCHEM does not include the interaction between dummy
 centers.  The \verb+BQBQ+ qualifier to the \verb+GEOMETRY+ directive
 causes these interactions to be included.
-
-Rather than just a simple list of centers, the \verb+GEOMETRY+
-directive should be thought of as describing the external potential
-applied to the electrons in the Hamiltonian.  In this light, it is
-seen that the geometry ``object'' is central to the correct storage
-of information such as
-\begin{itemize}
-\item the total charge of the system,
-\item any external electric or magnetic fields, and
-\item the symmetry of the Hamiltonian.
-\end{itemize}
-It is not decided exactly how this information will be stored, or what
-the input will look like. However, the intent is to store without
-confusion (for the either the user or NWChem itself) the information
-and results of multiple calculations within one database.
 
  The use of molecular symmetry in NWCHEM is not yet automated, thus,
 the user is responsible for detecting symmetry and specifying the

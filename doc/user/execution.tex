@@ -1,35 +1,40 @@
+A more complete description should be available at 
+\begin{verbatim}
+   http://emsl.pnl.gov:2080/docs/nwchem/nwchem.html
+\end{verbatim}
 
 The command required to invoke NWChem is machine dependent, whereas
 most of the NWChem input is machine independent\footnote{Machine
-dependence within the input arises from file names and machine
-specific resources.} .
+dependence within the input arises from file names, machine
+specific resources, and differing services provided by the operating system.} .
 
 \subsection{Sequential execution}
 
 To run NWChem sequentially on nearly all UNIX-based platforms simply
 use the command \verb+nwchem+ and provide the name of the input file
-as an argument.  If no file name is specified the default input file 
-\verb+"nwchem.nw"+ is used.  An input file must be provided.
+as an argument (section \ref{sec:inputfilename}).  
 
-Output is to standard output, standard error and Fortran unit 6.
-Files are created by default in the current directory.
+Output is to standard output, standard error and Fortran unit 6
+(usually the same as standard output).  Files are created by default
+in the current directory, though this may be overriden in the input
+(section \ref{sec:dirs}).
 
 \subsection{Parallel execution on UNIX-based parallel machines
 including workstation clusters using TCGMSG}
 \label{sec:procgrp}
 
  These platforms require the use of the TCGMSG\footnote{Where required
-TCGMSG is automatically built with NWChem} \verb+parallel+ command
+TCGMSG is automatically built with NWChem.} \verb+parallel+ command
 and thus also require the definition of a process-group (or procgroup)
 file.  The process-group file describes how many processes to start,
 what program to run, which machines to use, which directories to work
 in, and under which userid to run the processes.  By convention the
 process-group file has a \verb+.p+ suffix.
 
-The process-group file is read to EOF.  The character \verb+#+ (hash or
-pound sign) is used to indicate a comment which continues to the next
-new line character.  Each line describes a cluster of processes and
-consists of the following whitespace separated fields:
+The process-group file is read to end-of-file.  The character \verb+#+
+(hash or pound sign) is used to indicate a comment which continues to
+the next new-line character.  Each line describes a cluster of
+processes and consists of the following whitespace separated fields:
 
 \begin{verbatim}
   userid hostname nslave executable workdir
@@ -49,7 +54,7 @@ consists of the following whitespace separated fields:
              on the specified machine. Only ``clusters'' of identical processes
              specified in this fashion can use shared memory to communicate.
              If no shared memory is supported on machine \verb+<hostname>+ then
-             only the value one (1) is valid (e.g. on the Cray).
+             only the value one (1) is valid.
 
 \item \verb+executable+ --  Full path name on the host \verb+<hostname>+ of the image to execute.
              If \verb+<hostname>+ is the local machine then a local path will
@@ -84,8 +89,13 @@ Thus, if your file systems are physically distributed (e.g., most
 workstation clusters) you must ensure that process zero can correctly
 resolve the paths for the input and database files.
 
-{\em N.B.} : There are currently problems executing on workstation
-clusters that are being resolved.
+{\em N.B.} : If only one cluster is specified (one line in the
+process-group file) then all processes execute NWChem.  If multiple
+clusters are specified (multiple lines in the process-group file)
+then one process out of each cluster is devoted to sharing
+global-arrays between clusters, and therefore one more process than
+desired the number of application processes should be specified in
+each cluster.
 
 \subsection{Parallel execution on MPPs}
 
@@ -119,6 +129,73 @@ then you might use the following command
 A useful tool for monitoring usage of the KSR is xringinfo.  See the
 manual page for details.
 
+\subsection{IBM SP}
+
+If using POE (IBM's Parallel Operating Environment) interactively,
+simply create the list nodes to use in the file \verb+"host.list"+ in
+the current directory and invoke NWChem with
+\begin{verbatim}
+  nwchem <input_file> -procs <n>
+\end{verbatim}
+where \verb+n+ is the number of processes to use.  Process 0 will run
+on the first node in \verb+"host.list"+ and must have access to the
+input and other necessary files.  Very significant performance gains
+may be had by setting the following environment variables before
+running NWChem (or setting them using POE command line options).
+\begin{itemize}
+\item \verb+setenv MP_EUILIB us+ --- dedicated user space
+  communication over the switch (the default is IP over the switch
+  which is much slower).
+\item \verb+setenv MP_CSS_INTERRUPT yes+ --- enable interrupts when a 
+  message arrives (the default is to poll which significantly slows
+  down global array accesses).
+\end{itemize}
+
+The very simplest job to run NWChem in batch using Load Leveller is
+something like this
+\begin{verbatim}
+#!/bin/csh -x
+# @ job_type         =    parallel
+# @ class            =    small
+# @ requirements     =    (Adapter == "hps_user")
+# @ input            =    /dev/null
+# @ output           =    <OUTPUT_FILE_NAME>
+# @ error            =    <ERROUT_FILE_NAME>
+# @ environment      =    COPY_ALL; MP_EUILIB=us ; MP_CSS_INTERRUPT=yes
+# @ min_processors   =    7
+# @ max_processors   =    7
+# @ cpu_limit        =    1:00:00
+# @ queue
+#
+
+cd /scratch
+
+nwchem <INPUT_FILE_NAME>
+\end{verbatim}
+
+Substitute \verb+<OUTPUT_FILE_NAME>+, \verb+<ERROUT_FILE_NAME>+ and
+\verb+<INPUT_FILE_NAME>+ with the {\em full} path of the appropriate
+files.  These files and the NWChem executable must be in a filesystem
+accessible to all processes.  Put the above into a file (e.g.,
+\verb+"test.job"+) and submit it with the command
+\begin{verbatim}
+  llsubmit test.job
+\end{verbatim}
+It will run a 7 processor, 1 hour job in the queue \verb+small+.  It
+should be apparent how to change these values.
+
+Unfortunately, this simple job becomes very inefficient when running
+on many nodes (taking up to 15 minutes to commence execution) because
+POE saturates networked file systems when copying the executable to
+all of the nodes.  There is a script \verb+llnw+ that may be invoked
+either as a one line command or with interactive prompting that
+automates job creation and submission, and, by efficient copying of the
+executable, reduces startup time to about 1 minute.
+
+Note that on many IBM SPs, including that at EMSL, the local scratch
+disks are wiped clean at the beginning of each job and therefore
+persisent files should be stored elsewhere.  PIOFS is recommended for
+files larger than 1--2 MB.
 
 \subsection{Intel Paragon}
 
@@ -158,7 +235,7 @@ For example, to run using all 512 nodes on the Delta
 where \verb+n+ is the number of processors and \verb+input_file+ is the
 name of your input file.
 
-When compiling NWChem on Cray T3D, you need to setup the
+When compiling NWChem on the Cray T3D, you need to setup the
 environmental variable {\tt TARGET} for the correct cross-compilation
 of C routines by typing
 \begin{verbatim}
@@ -171,12 +248,12 @@ of C routines by typing
 \item KSR-2 
 \item Intel Delta 
 \item Intel Paragon 
-\item IBM SP1 and SP2
+\item IBM SP1 and SP2, AIX 3.2 and 4.1.
 \item Cray T3D
 \item SGI R8000
 \item SGI R4000
-\item IBM RS6000, AIX 
-\item SUN workstations, SunOS 4.1.3 and Solaris 5.4
+\item IBM RS6000, AIX 3.2 and 4.1.
+\item SUN workstations, SunOS 4.1.3 and Solaris 5.5
+\item x86 computers running Linux 1.2.13
 works
 \end{itemize}
-

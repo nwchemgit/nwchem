@@ -2,7 +2,7 @@
 \subsection{START and RESTART}
 \label{sec:start}
 
-This is a startup directive (\ref{sec:inputstructure}).
+This is a startup directive (section \ref{sec:inputstructure}).
 
 A \verb+START+ or \verb+RESTART+ directive is optional but care must
 be taken if no directive is presented since the behaviour of the code
@@ -44,7 +44,7 @@ accomplished by either of the following directives,
 \subsection{SCRATCH\_DIR and PERMANENT\_DIR}
 \label{sec:dirs}
 
-This is a startup directive (\ref{sec:inputstructure}).
+This is a startup directive (section \ref{sec:inputstructure}).
 
 NWChem distinguishes between permanent (or persistent) and scratch (or
 temporary) files and can optionally put them in different locations.
@@ -129,7 +129,7 @@ given list of directories
          [(nohardfail||hardfail)] \
 \end{verbatim}
 
-This is a startup directive (\ref{sec:inputstructure}).
+This is a startup directive (section \ref{sec:inputstructure}).
 
 This directive controls the memory available to the program.  Known
 memory units are \verb+real+, \verb+double+ (synonyms),
@@ -238,7 +238,7 @@ Sun             & 48 \\
   ECHO
 \end{verbatim}
 
-This is a startup directive (\ref{sec:inputstructure}).
+This is a startup directive (section \ref{sec:inputstructure}).
 
 This directive causes the entire input file to be printed to Fortran
 unit six.
@@ -398,7 +398,7 @@ verifying input.
 \subsection{TASK}
 \label{sec:task}
 
-As noted above (\ref{sec:inputstructure}), input is parsed
+As noted above (section \ref{sec:inputstructure}), input is parsed
 sequentially until a \verb+TASK+ directive is encountered at which
 point the requesed task is performed.  Subsequent to successful
 completion of the task, additional input is read up to the next
@@ -443,9 +443,10 @@ are:
    nuclear coordinates
  \item OPTIMIZE --- optimize the energy by variation of the molecular
    structure.  This is presently driven by the Stepper module
-   (\ref{sec:stepper}). 
+   (section \ref{sec:stepper}). 
  \item FREQUENCIES or FREQ --- compute second-derivatives and print
    out an analysis of molecular vibrations.
+  \item NWARGOS --- molecular dynamics using NWArgos.
 \end{itemize} 
 \end{itemize}
 Note that if an operation requires computation of derivatives of the
@@ -478,7 +479,6 @@ evaluation).  The list of tasks supported in this fashion are
   \item RTDBPRINT --- print the contents of the database
   \item MD --- molecular dynamics using Ideaz
   \item CPHF --- invoke the CPHF module
-  \item NWARGOS --- molecular dynamics using ARGOS
   \item PROPERTY --- miscellaneous property calculations
 \end{itemize}
 
@@ -501,7 +501,7 @@ and all processes using the keyword all.
 For example, for process zero to copy the molecular orbitals file to a
 backup location
 \begin{verbatim}
-  task shell "cp *.movecs /pnnlfs/save"
+  task shell "cp *.movecs /piofs/save"
 \end{verbatim}
 For all processes to list the contents of their \verb+/scratch+
 directory
