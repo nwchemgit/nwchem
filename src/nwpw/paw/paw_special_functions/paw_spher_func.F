@@ -1,7 +1,13 @@
 c
-c $Id: paw_spher_func.F,v 1.2 2003-02-10 02:33:32 marat Exp $
+c $Id: paw_spher_func.F,v 1.3 2003-02-21 03:02:19 bylaska Exp $
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.2  2003/02/10 02:33:32  marat
+c fixed bug with undeclared variables in theta_lm
+c
+c
+c MV
+c
 c Revision 1.1  2003/02/06 06:07:12  marat
 c initial version
 c
@@ -210,3 +216,141 @@ c
       endif
       end 
  
+!**************************************************
+!
+!	Name: find_Y_lm
+!
+!	Purpose: 
+!
+!	Created:	8/05/2002
+!**************************************************
+      function find_Y_lm(l,m,cos_theta,phi)
+      implicit none
+      integer l,m
+      real*8 cos_theta,phi
+      complex*16 find_Y_lm !* RESULT*
+
+      !*** external function ****
+      real*8   theta_lm
+      external theta_lm
+
+      find_Y_lm = theta_lm(l,m,cos_theta)
+     >            *dcmplx(dcos(m*phi),dsin(m*phi))
+      return
+      end 
+
+
+
+c  !*************************************************
+c  !
+c  !   Name    : find_Y_lm_deriv
+c  !
+c  !
+c  !   Purpose : to calculate derivative of the spherical harmonic
+c  !             for scalar argument,
+c  !             namely g_r*d(Ylm)/dx
+c  !                    g_r*d(Ylm)/dy
+c  !                    g_r*d(Ylm)/dz
+c  !
+c  !
+c  !
+c  !   Created : 1999
+c  !
+c  !   Notes:
+c  !
+c  !
+c  !*************************************************
+c      subroutine find_Y_lm_deriv(l,m,cos_theta,angle_phi,
+c     >                           Y_lm_x,Y_lm_y,Y_lm_z)
+c      implicit none
+c      integer     l,m
+c      real*8      cos_theta
+c      real*8      angle_phi
+c      complex*16  Y_lm_x
+c      complex*16  Y_lm_y
+c      complex*16  Y_lm_z
+c
+c      !*** local variables ***
+c      complex*16  f1, f2
+c
+c      !**** external functions ****
+c      real*8   dtheta_lm,theta_lm_div
+c      external dtheta_lm,theta_lm_div
+c
+c
+c      !*** derivative with respect to theta ***
+c      f1 = dtheta_lm(l,m,cos_theta)
+c     >     *dcmplx(cos(m*angle_phi),sin(m*angle_phi))
+c
+c      !*** derivative with respect to phi ***
+c      IF(m.eq.) THEN
+c        f2 = dcmplx(0.0d0,0.0d0)
+c      ELSE
+c        f2 = theta_lm_div(l,m,cos_theta)
+c     >       *dcmplx(cos(m*angle_phi),sin(m*angle_phi))
+c     >       m*dcmplx(0.0d0,1.0d0)
+c      END IF
+c
+c      !*** cartesian derivatives (see Ashkroft p.108, 3rd. ed)
+c      Y_lm_x =  f1*cos_theta*COS(angle_phi) - SIN(angle_phi)*f2
+c      Y_lm_y =  f1*cos_theta*SIN(angle_phi) + COS(angle_phi)*f2
+c      Y_lm_z = -f1*SQRT(1.0_DP - cos_theta**2)
+c
+c      return
+c      end
+c
+c
+c!**************************************************
+c!
+c!	Name: dtheta_lm
+c!
+c!	Purpose: 
+c!
+c!	Created:	8/05/2002
+c!**************************************************
+c      real*8 FUNCTION dtheta_lm(l,m,cos_theta)
+c      implicit none
+c      INTEGER l
+c      INTEGER m
+c      real*8  cos_theta
+c
+c      !*** local variables ***
+c      integer i
+c      integer mod_m
+c      real*8  coeff,tmp,fourpi
+c
+c      fourpi = 16.0d0*datan(1.0d0)
+c
+c      IF( m .gt.l ) THEN
+c      CALL errquit("parameter out of order in function theta_lm",1)
+c      END IF
+c
+c      mod_m = ABS(m)
+c
+c      !*** find coefficient ***
+c      if (mod_m.eq.0) then
+c        coeff = 1.0_DP
+c      else if(mod_m.gt.0) then
+c        coeff = 1.0_DP
+c        do i=1,2*mod_m
+c          coeff = coeff/(l-mod_m+i)
+c        end do
+c      end if
+c
+c      coeff = coeff*(2*l+1)/(fourpi)
+c      coeff = dsqrt(coeff)
+c
+c      tmp = coeff*dlegendre_lm(l,mod_m,cos_theta)
+c
+c      if (m.lt.0) then
+c        if( MOD(mod_m,2).eq.1) then
+c           tmp = -tmp
+c        end if
+c      end if
+c
+c      dtheta_lm = tmp
+c      return
+c      end
+
+
+
