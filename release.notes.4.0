@@ -275,8 +275,13 @@ List of Release 4.0.1 changes in the source and binary download files:
     when run in parallel
   o QM MD restarts no longer fail under MPI
   o MD restart files are no longer overwritten
+  o DNA and RNA fragments were missing some ring closure bonds.
+  o In the prepare module, the distance restraint definition is fixed.
+  o In the MD module, some printing has been removed when performing
+    distance restraints.
   o Order of variables for the LINK card in the PDB file is now correct
   o COSMO gradients are now always calculated numerically.
   o UDFT calculations with COSMO behave better.
   o NWChem now dies gracefully when COSMO is run with either spherical
     basis functions or with ECPs.
+  o Documentation has been updated based on the above changes.
