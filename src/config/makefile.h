@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.184 1996-10-30 00:19:20 d3g270 Exp $
+# $Id: makefile.h,v 1.185 1996-10-30 22:36:36 vg038 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -235,7 +235,7 @@ ifeq ($(TARGET),SOLARIS)
 # Sun runningS olaris 2.4 or later
 # if you want to use purecoverage tool you must
 #
-PURECOV = 1
+# PURECOV = 1
 # FLINT = 1
 #
       SHELL := $(NICE) /bin/sh
