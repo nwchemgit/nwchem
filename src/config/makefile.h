@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.231 1997-04-16 17:04:36 d3h325 Exp $
+# $Id: makefile.h,v 1.232 1997-04-16 17:08:18 d3h325 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -777,7 +777,7 @@ ifeq ($(NWCHEM_TARGET_CPU),P2SC)
         -qcache=type=i:level=1:size=32:line=128
   COPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
         -qcache=type=i:level=1:size=32:line=128
-#endif
+endif
 
     DEFINES = -DSP1 -DAIX -DEXTNAME -DPARALLEL_DIAG
 #
