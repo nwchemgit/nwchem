@@ -96,7 +96,6 @@ the DFT module are:
 
   TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-10>] \
               [accAOfunc <integer accAOfunc default 20>] \
-              [accCDfunc <integer accAOfunc default 20>] \
               [accXCfunc <integer accXCfunc default 20>] \
               [accCoul <integer accCoul default 10>] \
               [accQrad <integer accQrad default 12>] \
@@ -114,6 +113,7 @@ the DFT module are:
   NOIO
   PRINT||NOPRINT
 \end{verbatim}
+%              [accCDfunc <integer accAOfunc default 20>] \
 %       [store_wght] [nquad_task <integer nquad_task default 1>] \
 
 The following 
@@ -855,12 +855,12 @@ grid lebedev 80 5 H 70 4 12 O 90 5 15
 \begin{verbatim}
   TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-10>] \
               [accAOfunc <integer accAOfunc default 20>] \
-              [accCDfunc <integer accAOfunc default 20>] \
               [accXCfunc <integer accXCfunc default 20>] \
               [accCoul <integer accCoul default 10>] \
               [accQrad <integer accQrad default 12>] \
               [radius <real radius default 25.0>]]
 \end{verbatim}
+%              [accCDfunc <integer accAOfunc default 20>] \
 %
 %{\bf JEFF: tight needs explanation}
 %
@@ -874,34 +874,39 @@ The input to define a screening tolerance for evaluation of the AO
 Gaussian functions is specified with the keyword \verb+accAOfunc+, as
 follows,
 \begin{verbatim}
-  TOLERANCES accAOfunc <integer accAOfunc default 20>
+  TOLERANCES accAOfunc <integer accAOfunc>
 \end{verbatim}
-A Gaussian orbital basis (AO) function with exponent $\zeta$
-and radial factor $e^{-\zeta\cdot r_i^2}$ is 
-evaluated  at a point $r_i$ only if 
-$\zeta\cdot r_i^2$ is less than the value specified for ${\tt accAOfunc}$.
+A Gaussian Type Function of the Orbital basis set is 
+evaluated at a point $r_i$ if its value it is greater than 
+$exp(-${\tt accAOfunc}$)$ ;
+the default value is set to $-ln(\Delta E)$, where $\Delta E$ is the desired 
+accuracy on energy.
+%A Gaussian orbital basis (AO) function with exponent $\zeta$
+%and radial factor $e^{-\zeta\cdot r_i^2}$ is 
+%evaluated  at a point $r_i$ only if 
+%$\zeta\cdot r_i^2$ is less than the value specified for ${\tt accAOfunc}$.
 
-The input to define a screening tolerance for evaluation of the exchange-
-correlation (XC) Gaussian fitting functions is specified with the
-keyword \verb+accXCfunc+, as follows,
-\begin{verbatim}
-  TOLERANCES accXCfunc <integer accXCfunc default 20>
-\end{verbatim}
-An exchange-correlation (XC) fitting function with exponent $\zeta$
-and radial factor $e^{-\zeta\cdot r_i^2}$ is 
-evaluated  at a point $r_i$ only if 
-$\zeta\cdot r_i^2$ is less than the value specified for ${\tt accXCfunc}$.
-
-The input to define a screening tolerance for evaluation of the
-charge-density (CD) Gaussian fitting functions is specified with the
-keyword \verb+accCDfunc+, as follows,
-\begin{verbatim}
-  TOLERANCES accCDfunc <integer accCDfunc default 20>
-\end{verbatim}
-A  charge-density (CD) fitting function with exponent $\zeta$
-and radial factor $e^{-\zeta\cdot r_i^2}$ is evaluated  at a 
-point $r_i$ only if $\zeta\cdot r_i^2$ is less than the value 
-specified for ${\tt accCDfunc}$.
+%The input to define a screening tolerance for evaluation of the exchange-
+%correlation (XC) Gaussian fitting functions is specified with the
+%keyword \verb+accXCfunc+, as follows,
+%\begin{verbatim}
+%  TOLERANCES accXCfunc <integer accXCfunc default 20>
+%\end{verbatim}
+%An exchange-correlation (XC) fitting function with exponent $\zeta$
+%and radial factor $e^{-\zeta\cdot r_i^2}$ is 
+%evaluated  at a point $r_i$ only if 
+%$\zeta\cdot r_i^2$ is less than the value specified for ${\tt accXCfunc}$.
+%
+%The input to define a screening tolerance for evaluation of the
+%charge-density (CD) Gaussian fitting functions is specified with the
+%keyword \verb+accCDfunc+, as follows,
+%\begin{verbatim}
+%  TOLERANCES accCDfunc <integer accCDfunc default 20>
+%\end{verbatim}
+%A  charge-density (CD) fitting function with exponent $\zeta$
+%and radial factor $e^{-\zeta\cdot r_i^2}$ is evaluated  at a 
+%point $r_i$ only if $\zeta\cdot r_i^2$ is less than the value 
+%specified for ${\tt accCDfunc}$.
 
 The input
 parameter {\tt accCoul} is used to define the tolerance in Schwarz 
