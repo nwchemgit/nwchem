@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.27 2004-10-14 00:28:08 bylaska Exp $
+* $Id: paw_basis.F,v 1.28 2004-12-27 22:52:50 edo Exp $
 *
 
 !**************************************************
@@ -373,7 +373,7 @@ c     !*** set core charges ***
 
       call Parallel_taskid(taskid)
       oldmode =  rtdb_parallel(.false.)
-      if (taskid.eq.MASTER) then
+cedo      if (taskid.eq.MASTER) then
       do ia = 1, ion_nkatm()
        call ion_atom_plus_suffix(ia,'_basis',fname)
        call util_file_name_resolve(fname, .false.)
@@ -395,7 +395,7 @@ c          call util_file_copy(libfile,fname)
        end if
 
       end do
-      end if
+cedo      end if
       call ga_sync()
       oldmode =  rtdb_parallel(oldmode)
       !*** sync - hack ***
