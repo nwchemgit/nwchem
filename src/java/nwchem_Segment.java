@@ -39,6 +39,9 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 
     boolean frRead=false, toRead=false;
 
+    boolean ordering = false;
+    int iorder=0;
+
     int frIndex, toIndex;
     int atmNumber=0;
     int[][] id;
@@ -50,7 +53,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
     Segment FrSgm = new Segment();
 
     JButton writeButton = new JButton("Write");
-    JButton testButton = new JButton("Test");
+    JButton orderButton = new JButton("Order");
     
     public nwchem_Segment(){
 	
@@ -71,10 +74,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	
 	sgmList.addMouseListener(this);
-	sgmList.setVisibleRowCount(15);
+	sgmList.setVisibleRowCount(25);
 
 	atmList.addMouseListener(this);
-	atmList.setVisibleRowCount(15);
+	atmList.setVisibleRowCount(25);
 	
 	JButton doneButton = new JButton("Done");
 	
@@ -88,9 +91,9 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	writeButton.addActionListener(this);
 
-	addComponent(header,testButton,7,0,1,1,1,1,
+	addComponent(header,orderButton,7,0,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
-	writeButton.addActionListener(this);
+	orderButton.addActionListener(this);
 
 	frLabel.setBackground(Color.yellow);
 	toLabel.setBackground(Color.lightGray);
@@ -896,9 +899,16 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		sgmFile.close();
 	    } catch (Exception ee) { ee.printStackTrace(); };
 	};
-	if(e.getSource()==testButton){
-	    int j=atmList.getSelectedIndex();
-	    System.out.println("Test selected index is "+j);
+	if(e.getSource()==orderButton){
+	    if(ordering) {
+		orderButton.setText("Order");
+		ordering=false;
+		iorder=0;
+	    } else {
+		orderButton.setText("Select");
+		ordering=true;
+		iorder=0;
+	    };
 	};
     };
     
@@ -1010,28 +1020,42 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 	    };
 	    if(mouse.getSource()==atmList){
 		j=atmList.getSelectedIndex();
-	        if(id[j][0]>=0 && id[j][1]>=0){
-		    for(int k=atmNumber; k>j; k--){id[k][0]=id[k-1][0]; id[k][1]=id[k-1][1];};
-		    if(ToSgm.atom[id[j+1][1]].Name.substring(4,4)==" "){
-			ToSgm.atom[id[j+1][1]].Name=ToSgm.atom[id[j+1][1]].Name.substring(0,3)+"t";
+		if(ordering){
+		    if(iorder<atmNumber && j!=iorder){
+			    int tempo = id[iorder][0]; id[iorder][0]=id[j][0]; id[j][0]=tempo;
+			    tempo = id[iorder][1]; id[iorder][1]=id[j][1]; id[j][1]=tempo;
+			    atomListUpdate();
 		    };
-		    id[j][1]=-1; id[j+1][0]=-1;  atmNumber++;
-		};
-		if(selected>=0 && selected!=j){
-		    if(id[j][0]==-1 && id[j][1]>=0 && id[selected][0]>=0 && id[selected][1]==-1){
-			id[selected][1]=id[j][1];
-			atmNumber--;
-			for(int k=j; k<atmNumber; k++){
-			    id[k][0]=id[k+1][0];
-			    id[k][1]=id[k+1][1];
+		    iorder++;
+		    if(iorder>=atmNumber){
+			ordering=false;
+			iorder=0;
+			orderButton.setText("Order");
+		    };
+		} else {
+		    if(id[j][0]>=0 && id[j][1]>=0){
+			for(int k=atmNumber; k>j; k--){id[k][0]=id[k-1][0]; id[k][1]=id[k-1][1];};
+			if(ToSgm.atom[id[j+1][1]].Name.substring(4,4)==" "){
+			    ToSgm.atom[id[j+1][1]].Name=ToSgm.atom[id[j+1][1]].Name.substring(0,3)+"t";
 			};
+			id[j][1]=-1; id[j+1][0]=-1;  atmNumber++;
 		    };
-		    if(id[j][0]>=0 && id[j][1]==-1 && id[selected][0]==-1 && id[selected][1]>=0){
-			id[j][1]=id[selected][1];
-			atmNumber--;
-			for(int k=selected; k<atmNumber; k++){
-			    id[k][0]=id[k+1][0];
-			    id[k][1]=id[k+1][1];
+		    if(selected>=0 && selected!=j){
+			if(id[j][0]==-1 && id[j][1]>=0 && id[selected][0]>=0 && id[selected][1]==-1){
+			    id[selected][1]=id[j][1];
+			    atmNumber--;
+			    for(int k=j; k<atmNumber; k++){
+				id[k][0]=id[k+1][0];
+				id[k][1]=id[k+1][1];
+			    };
+			};
+			if(id[j][0]>=0 && id[j][1]==-1 && id[selected][0]==-1 && id[selected][1]>=0){
+			    id[j][1]=id[selected][1];
+			    atmNumber--;
+			    for(int k=selected; k<atmNumber; k++){
+				id[k][0]=id[k+1][0];
+				id[k][1]=id[k+1][1];
+			    };
 			};
 		    };
 		};
