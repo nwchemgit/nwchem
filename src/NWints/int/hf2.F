@@ -1,4 +1,4 @@
-c $Id: hf2.F,v 1.13 2000-05-02 22:50:23 mg201 Exp $
+c $Id: hf2.F,v 1.14 2000-05-03 01:15:48 edo Exp $
       Subroutine hf2(Axyz,Aprims,Acoefs,NPA,NCA,La,
      &               Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
      &               Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,
@@ -106,7 +106,7 @@ c Assign pointers to scratch space.
           write(*,*) 'IPAIRp:  ',i_IPAIRp 
           write(*,*) 'From the right '
           write(*,*) 'ESp   :  ',i_ESp 
-          stop
+          call errquit('hf2: out of scratch space',0)
         end if
         call hfset(Axyz,Aprims,Acoefs,NPA,NCA,
      &      Bxyz,Bprims,Bcoefs,NPB,NCB,
@@ -139,7 +139,7 @@ c Assign pointers to scratch space.
           write(*,*) 'From the right '
           write(*,*) 'ESp   :  ',i_ESp 
           write(*,*) 'ESq   :  ',i_ESq 
-          stop
+          call errquit('hf2: out of scratch space',1)
         end if
         call hfset(Cxyz,Cprims,Ccoefs,NPC,NCC,
      &      Dxyz,Dprims,Dcoefs,NPD,NCD,
@@ -192,7 +192,7 @@ c Assign pointers to scratch space.
           write(*,*) 'From the right '
           write(*,*) 'ESp   :  ',i_ESp 
           write(*,*) 'ESq   :  ',i_ESq 
-          stop
+          call errquit('hf2: out of scratch space',3)
         end if
 
         do nd = 0,MXD
@@ -226,7 +226,7 @@ c   If insufficient memory, do multipassing.
         write(*,*) 'Eq    :  ',i_Eq
         write(*,*) 'R0    :  ',i_R0
         write(*,*) 'IJK   :  ',i_IJK
-        stop
+          call errquit('hf2: out of scratch space',4)
       end if
 
       MaxPairs = Maxavail/MemPerPair
@@ -336,7 +336,7 @@ c Assign pointers to scratch space.
               write(*,*) 'IJK   :  ',i_IJK
               write(*,*) 'E3    :  ',i_E3
               write(*,*) 'sum   :  ',i_sum
-              stop
+              call errquit('hf2: out of scratch space',5)
             end if
             if (doit_PQ) then
               if (GenCon) then

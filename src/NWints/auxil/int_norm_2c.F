@@ -1,5 +1,5 @@
-      logical function int_norm_2c(basisin)
-c $Id: int_norm_2c.F,v 1.6 1999-07-14 00:28:45 d3e129 Exp $
+      logical function int_norm_2c(rtdb,basisin)
+c $Id: int_norm_2c.F,v 1.7 2000-05-03 01:15:46 edo Exp $
 c::assumptions
 *..   MA_init has been called
 c
@@ -11,6 +11,8 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "stdio.fh"
+#include "rtdb.fh"
+      integer rtdb ! [in]
       integer basisin             ! [input] basis handle
       integer basis, nucont, iucont, type, nprim, ngen, ept, cpt, igen
       integer maxg2c, mem2c, lscr, h_scr, i_scr, maxang
@@ -43,6 +45,8 @@ c
 c
 c...  get memory requirements for one electron integrals
 c
+      if (.not. rtdb_get(rtdb,'int:mem2emax',Mt_Int,1,mem2c))
+     &    mem2c = 14 000 000
       call emem_2e2c(basisin, basisin, maxg2c, mem2c)
       lscr = maxg2c + mem2c
       int_norm_2c =
