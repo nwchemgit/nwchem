@@ -1,5 +1,5 @@
 *
-* $Id: psi_history.F,v 1.4 2002-01-01 01:28:55 bylaska Exp $
+* $Id: psi_history.F,v 1.5 2002-01-01 11:07:51 bylaska Exp $
 *
 
 *     *******************************
@@ -39,7 +39,7 @@
         if (taskid.eq.MASTER) then
         write(*,*)
         write(*,*) "Number of psi histories used:",size
-        do i=1,psi_history_size()-1
+        do i=1,size-1
           write(*,*) "coef(i):",i,coef(i)
         end do
         write(*,*)
@@ -113,6 +113,7 @@
 
       call Parallel_taskid(taskid)
       size = psi_history_size()
+      ptr  = psi_history_pointer_start()
       call dcopy((size-1),0.0d0,0,coef,1)
 
       if (taskid.eq.MASTER) then
@@ -132,7 +133,6 @@
          dbl_mb(rion1(1)+3*(ii-1)+2) = ion_rion(3,ii)
       end do
 
-      ptr  = psi_history_pointer_start()
       do i=1,size
          ptr = ptr - 1
          if (ptr.le.0) ptr = size
