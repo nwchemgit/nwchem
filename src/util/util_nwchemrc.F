@@ -14,7 +14,7 @@
 c
       implicit none
 c
-c $Id: util_nwchemrc.F,v 1.5 2000-10-17 22:29:20 edo Exp $
+c $Id: util_nwchemrc.F,v 1.6 2000-10-17 23:12:15 edo Exp $
 c
 c Eventually these routines should use the inp modules
 c Currently these are (key,value) but later may have to be extended
@@ -70,7 +70,6 @@ c
       nwchrc=home(1:index(home,' ')-1)//'/.nwchemrc '
       open(unit=69,file=nwchrc(1:index(nwchrc,' ')-1),form='formatted',
      + status='old',err=9999)
-      write(6,*) ' key ',key
       rewind(unit=69)
       found=.false.
     1 continue
@@ -104,7 +103,6 @@ c
  9999 write(6,*) ' .nwchemrc not found !!'
       
 99999 continue
-      write(6,*) ' value not found !!',value,card
       util_nwchemrc_get=.false.
       return
       end
@@ -123,7 +121,6 @@ c
       do i=1,mxlgth
          if(.not.ois_ws(card(i:i))) then
             util_getblnk=i
-            write(0,*) ' bb ',i
             return
          endif
       enddo
