@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.26 2000-11-08 04:53:22 edo Exp $
+$Id: INSTALL,v 1.27 2000-11-09 19:59:34 windus Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -32,8 +32,9 @@ lives):
 
 find . -exec chmod go-rwx "{}" ";"
 
-See the General Site Installation instructions below after you have built 
-the code for installing the binaries and data files in a public place.
+After building the code using the Basic Build Instructions, the binary and 
+data files may be placed in a public place for users.  See the General Site 
+Installation instructions for more information about which files to move.
 
 
 BASIC BUILD INSTRUCTIONS:
@@ -41,18 +42,24 @@ BASIC BUILD INSTRUCTIONS:
 
   DO THESE STEPS IN ORDER OR THE BUILD WILL FAIL
                                        ----
-Note: For general installations, it is often useful to add the
-environment variables described below to your shell script 
-(eg. your .cshrc file).
-
 
 1) You must use GNU make with a version of at least 3.71. You can
-   check this by seeing if make understands the "-v" flag.  It does
-   not matter what make is called (.i.e., gmake, gnumake, etc., are
-   all OK).
+   check this by seeing if make understands the "-v" flag.  Type
 
-2) You can set a few OPTIONAL environment variables or let NWChem
-   pick "reasonable" defaults:
+   % make -v
+
+   If you get version information, you are using GNU make.  If you
+   get anything else, you will need to figure out where the GNU make
+   is on your system (it may possibly be call gmake or gnumake) or
+   you will need to install it yourself (See the web site
+   http://prep.ai.mit.edu/software/make/make.html.  It doesn't matter 
+   what the GNU make is called (i.e., gmake, gnumake, etc., are
+   all OK), just use this name instead of make in the instructions
+   below.
+
+2) You can set a few OPTIONAL environment variables to let NWChem know
+   more about your system.  If you don't set the variables listed below,
+   NWChem will pick "reasonable" defaults:
 
    SCRATCH_DEF_DIR              default scratch directory for 
                                 temporary files
@@ -80,6 +87,13 @@ environment variables described below to your shell script
        This sets the dynamic memory available for NWChem to run,
        where the units are in doubles.
 
+   Note: For general installations, it is often useful to add the
+   environment variables described in this Guide to your shell script 
+   (eg. your .cshrc file) so that you have a "record" of the environment
+   that you built in and so you can perform the build again in the same
+   manner.  You can either do this now and type "source .cshrc" or you 
+   can wait until you have decided the options that you will always use.
+
 3) Set the environment variable, NWCHEM_TOP, to the top directory 
    of the NWChem tree (where *this* file lives), e.g.
 
@@ -91,23 +105,23 @@ environment variables described below to your shell script
 
 4)  The currently supported platforms are:
 
-    Symb.Name  Platform       Checked    OS/Version    Precision 
-    -------------------------------------------------------------
-    SOLARIS     Sun             ***      Solaris 2.X    double
-    IBM         IBM RS/6000     ***      AIX 3.X 4.X    double
-    DECOSF      DEC AXP         ***      Dig.Unix 4.0   double
-    SGI_N32     SGI 64 bit os   ***      IRIX           double 
-                using 32 ints			       
-    SGI         SGI 32 bit os    *       IRIX 5.X 6.X   double
-    SGITFP      SGI 64 bit os    *       IRIX           double
-    CRAY-T3D    Cray T3D                 UNICOS         single
-    CRAY-T3E    Cray T3E        ***      UNICOS         single
-    LAPI        IBM SP          ***      AIX/LAPI       double
-    LINUX       IBM PC          ***      Slackware 4.0  double
-                IBM PC          ***      RedHat 5.2/6.0 double
-                PowerPC         ***      RedHat 6.0     double
-    LINUX64     Alpha            *       ReadHat 6.2    double
-    -------------------------------------------------------------
+    NWCHEM_TARGET  Platform       Checked    OS/Version    Precision 
+    -----------------------------------------------------------------
+    SOLARIS        Sun             ***      Solaris 2.X    double
+    IBM            IBM RS/6000     ***      AIX 3.X 4.X    double
+    DECOSF         DEC AXP         ***      Dig.Unix 4.0   double
+    SGI_N32        SGI 64 bit os   ***      IRIX           double 
+                   using 32 ints			       
+    SGI            SGI 32 bit os    *       IRIX 5.X 6.X   double
+    SGITFP         SGI 64 bit os    *       IRIX           double
+    CRAY-T3D       Cray T3D                 UNICOS         single
+    CRAY-T3E       Cray T3E        ***      UNICOS         single
+    LAPI           IBM SP          ***      AIX/LAPI       double
+    LINUX          IBM PC          ***      Slackware 4.0  double
+                   IBM PC          ***      RedHat 5.2/6.0 double
+                   PowerPC         ***      RedHat 6.0     double
+    LINUX64        Alpha            *       ReadHat 6.2    double
+    -----------------------------------------------------------------
    *Note: LAPI is now the primary way to use NWChem on an IBM SP system.
           If you don't have it get it from IBM.  Also, the environment
           variable LARGE_FILES should be set to YES during the compile to
@@ -120,7 +134,8 @@ environment variables described below to your shell script
        % setenv NWCHEM_TARGET LAPI
 
    Some systems also allow you to set NWCHEM_TARGET_CPU
-    Symb.Name      CPU type     NWCHEM_TARGET_CPU 
+
+    NWCHEM_TARGET  CPU type     NWCHEM_TARGET_CPU 
     ----------------------------------------------------------
     SGITFP         R8000           R8000
                    R10000          R10000
@@ -133,27 +148,31 @@ environment variables described below to your shell script
                    604e chip       604
     LINUX          Intel Pentium   DO __NOT__ set NWCHEM_TARGET_CPU
                    Power Mac       POWERPC
+
     LINUX using the Portland Group Compiler, pgf77, is available.  Simply
-          set your environment as above and use "make FC=pgf77" and the 
-          makefile system will take care of changing options/flags etc.  
+          set your environment as above and use "make FC=pgf77" in the
+          instructions below and the makefile system will take care of 
+          changing options/flags etc.  
 
-5) Configure to build the modules you need.  As a first shot build
-   everything, and if you start running out of memory you can exclude
-   modules.  Choose one or more from
+5) Configure to build the modules you need.  As a first shot you might
+   wnat to build everything (i.e. "all"), and if you start running out of 
+   memory you can exclude modules.  You can choose one or more from
 
-        Name        Description
+        Module      Description
         ---------------------------------------------------------
-        pnnl        Everything useful including python
         all         Everything useful
+        pnnl        Everything useful including python
         qm          All quantum mechanics modules
 	md          MD only build 
         - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
           If you are familiar with building NWChem you 
           can be more selective with the modules you 
           really need.  If you are a novice at this then
-          use only one of the three above!  Note that not
-          all of the possible builds have been tested 
-          using individual modules.
+          use only one of the four module names listed above!  
+          Note that not all of the possible builds have been 
+          tested using the individual modules listed below.
+
         - - - - - - - - - - - - - - - - - - - - - - - - -
 	ddscf       RHF and UHF SCF energies
         nwdft       DFT energies
@@ -181,18 +200,18 @@ environment variables described below to your shell script
 
     Combinations of these tags are allowed.  For example,
        % setenv NWCHEM_MODULES "all gapss python" 
-    will build the union of these three modules identifiers.  
+    will build the union of these three module identifiers.  
 
-6) Run the precision conversion according to the Precision column
-   in instruction 4 for your target. This is necessary only on machines 
-   where 64 bit is single precision in order to match BLAS routine 
-   names to vendor-supplied libraries (or if converting back from such 
-   source into the standard of 64 bit is double precision).
-
-   For 64 bit single precision source
+6) If your NWCHEM_TARGET is CRAY-T3E or CRAY-T3D, perform the
+   precision conversion:
 
        % cd $NWCHEM_TOP/src
        % make dbl_to_sngl
+
+   This is necessary only on machines where 64 bit is single 
+   precision in order to match BLAS routine names to vendor-supplied 
+   libraries (or if converting back from such source into the 
+   standard of 64 bit is double precision).
 
 7) Finally, compile and link:
 
