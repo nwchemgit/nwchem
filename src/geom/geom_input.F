@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.146 2001-12-18 00:52:27 edo Exp $
+C     $Id: geom_input.F,v 1.147 2001-12-18 21:14:16 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -3115,7 +3115,7 @@ c     DATA TENM02 /1.0D-02/
       DATA TENM04 /1.0D-04/
       DATA TENM05 /1.0D-05/
       DATA EPS    /1.01D+00/
-      logical sameatm
+      logical sameatm,ngotax(3)
       sameatm(JAT,IAT)=ATMLAB(JAT).EQ.ATMLAB(IAT)
       big=dlamch('o')**(0.125d0)
       QZERO=cmplx(ZERO,ZERO)
@@ -3265,6 +3265,9 @@ C           C4 AXES FOR -O - GROUP
 C           C4 AXES FOR -Oh- GROUP
 C
          NAXM=0
+         ngotax(1)=.true.
+         ngotax(2)=.true.
+         ngotax(3)=.true.
          DO IAT=1,NAT
             IF(IEQU(IAT).EQ.IAT) THEN
                DO JAT=1,NAT
@@ -3405,20 +3408,23 @@ C
                         ENDIF
                         GOTONE=.FALSE.
                         DO IAXIS=1,3
-                           IF((GRPTH.AND.
-     1                         C2AXS(IAXIS)                 ).OR. 
-     2                        (GRPOH.AND.
-     3                         C2AXS(IAXIS).AND.C4AXS(IAXIS))) THEN
-                              NAXM=NAXM+1
-c                             IF(NAXM.EQ.1) THEN
+                           if(ngotax(iaxis)) then
+                              IF((GRPTH.AND.
+     1                             C2AXS(IAXIS)                 ).OR. 
+     2                             (GRPOH.AND.
+     3                             C2AXS(IAXIS).AND.C4AXS(IAXIS))) THEN
+                                 NAXM=NAXM+1
+c                                IF(NAXM.EQ.1) THEN
 c                                GOTONE=.TRUE.
-c                             ENDIF
-                              IF(NAXM.LE.3) THEN
-                                 DO I=1,3
-                                    AXM(I,NAXM)=AXS(I,IAXIS)
-                                 ENDDO
+c                                ENDIF
+                                 IF(NAXM.LE.3) THEN
+                                    DO I=1,3
+                                       AXM(I,NAXM)=AXS(I,IAXIS)
+                                    ENDDO
+                                    ngotax(iaxis)=.false.
+                                 ENDIF
                               ENDIF
-                           ENDIF
+                           endif
                         ENDDO
                      ELSE
                         GRPTD=.FALSE.
