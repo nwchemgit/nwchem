@@ -1,6 +1,7 @@
 *
-* $Id: dstebz3.F,v 1.8 2002-04-18 20:34:31 d3g270 Exp $
+* $Id: dstebz3.F,v 1.9 2002-04-23 18:37:22 edo Exp $
 *
+#include "blas_lapackf.h"
       SUBROUTINE DSTEBZ3( RANGE1, ORDER1, N, VL, VU, IL, IU,
      $  ABSTOL, D, E,
      $                   M, NSPLIT, W, IBLOCK, ISPLIT, 
@@ -207,6 +208,7 @@
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS, INT, LOG, MAX, MIN, SQRT
 *     ..
+#include "blas_lapack.data"                                                     
 *     .. Executable Statements ..
 *
       INFO = 0
