@@ -2,7 +2,7 @@
       implicit none
 #include "errquit.fh"
 *     
-*     $Id: stpr_gh_at.F,v 1.23 2004-02-06 19:24:32 marat Exp $
+*     $Id: stpr_gh_at.F,v 1.24 2004-02-09 23:08:50 yuri Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -20,6 +20,7 @@
 #include "cstprfiles.fh"
 #include "sym.fh"
 c::   functions
+      logical numerical_single
       logical stpr_check_genat_restart
       external stpr_check_genat_restart
 c::   passed
@@ -70,6 +71,16 @@ c
       o_stepper_debug = util_print('debug_stepper',print_debug)
       o_directions    = util_print('directions', print_medium)
       o_debug_restart = util_print('debug_stepper_restart',print_debug)
+
+c     Check if single differencing is requested 
+      if (.not. rtdb_get(rtdb,'hessian:numerical_single',mt_log,1,
+     &    numerical_single)) then
+         numerical_single = .false.
+      else
+         write (6,*)
+         write (6,*) 'Single differencing is requested'
+         write (6,*)
+      endif
 c
       call util_print_get_level(print_level) ! Save for later
 c
@@ -212,6 +223,15 @@ c     set no xyz options
 c     all nodes work here 
 c
       if (.not. restart) then
+
+      if (numerical_single) then
+c
+c     Perform an energy+grad calculation at the central point and
+c     save wavefunction information for rapid convergence
+c
+        if (.not. task_gradient(rtdb)) call errquit
+     &      ('stpr_gen_hess_at: reference point energy+grad failed',7)
+      else
 c
 c     Perform an energy calculation at the central point and
 c     save wavefunction information for rapid convergence
@@ -319,6 +339,17 @@ c
 c     
 c     all nodes doing work here
 c     
+      if (numerical_single) then
+c
+c     Read gradient and dipole at the central point
+c
+            if(.not. rtdb_get(rtdb,'task:gradient',MT_DBL,
+     &          rank_hess,dbl_mb(k_gradm)))
+     &          call errquit('stpr_gen_hess_at: rtdb_get failed',38)
+            if(.not. rtdb_get(rtdb,'task:dipole',mt_dbl,
+     &          3,mdipole)) dipole_okay = .false.
+      endif
+
       call ga_sync()
       if(.not.restart) then
         iatom_start = 1
@@ -491,7 +522,14 @@ c
      &       RTDB_ERR)
             if(.not. rtdb_get(rtdb,'task:dipole',mt_dbl,
      &          3,pdipole)) dipole_okay = .false.
-c     
+c
+          endif
+
+         call ga_sync()
+         if (numerical_single) then
+c     Skip calculations            
+         else
+          if (whoiam.eq.master) then
             if (o_directions) then
               call util_date(date_string)
               date_len = inp_strlen(date_string)
@@ -564,6 +602,7 @@ c
           if (print_level.gt.print_low)
      &          call util_print_set_level(print_low) ! Minimize output
           time_taskg2 = (-1.0d00)*util_wallsec()
+
           if (.not. task_gradient(rtdb))
      &        call errquit('stpr_gen_hess_at: energy+grad failed',
      &        36, CALC_ERR)
@@ -578,6 +617,9 @@ c
             write(6,*)' going false 8',whoiam
             call util_flush(6)
           endif
+
+c      endif corresponds to skipped calculations
+       endif
 *
           call ga_sync()
           ignore_status = rtdb_parallel(.false.)
@@ -586,6 +628,11 @@ c
      &          call errquit
      &          ('stpr_gen_hess_at: geom_rtdb_delete (2) failed',37,
      &       RTDB_ERR)
+
+c      Read gradient at negative offset from disk
+         if (numerical_single) then
+c      Gradient is in k_gradm
+         else
             if(.not. rtdb_get(rtdb,'task:gradient',MT_DBL,
      &          rank_hess,dbl_mb(k_gradm)))
      &          call errquit('stpr_gen_hess_at: rtdb_get failed',38,
@@ -593,13 +640,23 @@ c
 c
             if(.not. rtdb_get(rtdb,'task:dipole',mt_dbl,
      &          3,mdipole)) dipole_okay = .false.
-c     
+         endif
+c      Compute hessian
+         if (numerical_single) then
+            call stpr_fd_upd_hess(rtdb,
+     &          dbl_mb(k_hess),dbl_mb(k_gradm),
+     &          dbl_mb(k_gradp),1.0d00,delta,nat,iatom,ixyz)
+            if (dipole_okay)
+     &          call stpr_fd_upd_dipole(dbl_mb(k_ddipole),
+     &          mdipole,pdipole,1.0d00,delta,nat,iatom,ixyz,q1)
+         else
             call stpr_fd_upd_hess(rtdb,
      &          dbl_mb(k_hess),dbl_mb(k_gradm),
      &          dbl_mb(k_gradp),2.0d00,delta,nat,iatom,ixyz)
             if (dipole_okay)
      &          call stpr_fd_upd_dipole(dbl_mb(k_ddipole),
      &          mdipole,pdipole,2.0d00,delta,nat,iatom,ixyz,q1)
+         endif
           endif
           ignore_status = rtdb_parallel(.true.)
           call ga_sync()
@@ -627,6 +684,7 @@ c
           endif
           ignore_status = rtdb_parallel(.true.)
           call ga_sync()
+
 *
           if (o_stepper_debug) then
             write(6,*)' gone true 9',whoiam
