@@ -138,14 +138,15 @@ c                     k m i n  a b  j c
      1               '<ij||an>(iajn)','<ij||an>(iajn)'/
 c======================================================================
       data a3a/'A3A'/
+c...  this one already corrected for compensating ij symm (cases 1,2)
 c...  cases contains the spin cases and the factor to multiply by
 c...  occ contains the occupations (1=occ,2=virt) and the divide factor
 c...  and (to be save) the inices to be weighted in the intermediate)
 c...  type contains types for intgrals/t's in first and second mult
 c                     1 2 3 4  5 6  7 8
 c                     a e c f  b k  i j, fac 
-      data cases_a3a/ 1,1,1,1, 0,0, 1,1,  1,
-     2                2,2,2,2, 0,0, 2,2,  1,
+      data cases_a3a/ 1,1,1,1, 0,0, 1,1,  2,
+     2                2,2,2,2, 0,0, 2,2,  2,
      3                1,2,1,2, 2,1, 1,2,  2,
      4                2,1,2,1, 1,2, 1,2,  2,
      5                1,1,2,2, 0,0, 1,2,  4/
@@ -611,7 +612,7 @@ c...    check if the I and the T are actually identical (A4A)
 c
             if (ab.eq.cb.and.ae.eq.ce.and.bb.eq.ib.and.kb.eq.jb.and.
      1         type(1,1).eq.type(1,2).and.type(2,1).eq.type(2,2)) then
-             sum = sum + cct_sum(g_RESULT,g_RESULT,na,nc,ne,nf)
+             sum = sum + cct_sum(g_RESULT,g_RESULT,na,nc,ne,nf) * factor
              go to  9
             end if
 c
@@ -640,38 +641,38 @@ c
 c
             call cct_scale_ac(g_TESULT,ab,ne,cb,nf)
 c           
-            sum = sum + cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf)
+            sum = sum + cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf) * factor
 c
             if (a1a.and.ab.eq.cb) then
              value_X1X = value_X1X +  
-     1                   cct_sum_a1a(g_RESULT,g_TESULT,na,ne)
+     1                   cct_sum_a1a(g_RESULT,g_TESULT,na,ne) * factor
             end if
  
 c
-            if (cb.eq.ab) then
-             sum = sum + cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf)
-            else
-             call ga_zero(g_TESULT)
-             spin = spini
-             spini = max(spini,1)
-             spinj = max(spinj,1)
-7            ib = s_occ_virt(sbk,spini,i)
-             jb = s_occ_virt(sbk,spinj,j)
-             call mult_cct(ib,jb,eb,fb,
-     1                     type(1,2),cb,ce,
-     1                     type(2,2),ab,ae,
-     1                      g_TESULT)
-             if (spin.eq.0) then
-              spin = 1
-              spini = 2
-              spinj = 2
-              go to 7 
-             end if
+c           if (cb.eq.ab) then
+c             sum = sum + cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf) * factor
+c            else
+c             call ga_zero(g_TESULT)
+c             spin = spini
+c             spini = max(spini,1)
+c             spinj = max(spinj,1)
+c7            ib = s_occ_virt(sbk,spini,i)
+c             jb = s_occ_virt(sbk,spinj,j)
+c             call mult_cct(ib,jb,eb,fb,
+c     1                     type(1,2),cb,ce,
+c     1                     type(2,2),ab,ae,
+c     1                      g_TESULT)
+c             if (spin.eq.0) then
+c              spin = 1
+c              spini = 2
+c              spinj = 2
+c              go to 7 
+c             end if
 c
-            call cct_scale_ac(g_TESULT,ab,ne,cb,nf)
+c            call cct_scale_ac(g_TESULT,ab,ne,cb,nf)
 c
-             sum = sum + cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf)
-            end if
+c             sum = sum + cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf) * factor
+c            end if
 c
             if (.not.ga_destroy(g_TESULT)) 
      1          call errquit('unable to destroy TESULT',0)
