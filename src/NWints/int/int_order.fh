@@ -1,3 +1,4 @@
+* $Id: int_order.fh,v 1.2 1996-09-30 19:00:33 d3e129 Exp $
 c
       integer num_types
       parameter (num_types = 8)

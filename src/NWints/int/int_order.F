@@ -1,3 +1,4 @@
+* $Id: int_order.F,v 1.2 1996-09-30 19:00:33 d3e129 Exp $
       program int_order
       implicit none
 c
