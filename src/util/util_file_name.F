@@ -176,6 +176,9 @@ c
 c
 *      write(LuOut,*) nodeid, ' dirlist in ufpd |',dirlist,'|'
 c
+#if defined(CYGNUS) || defined(WIN32)
+      call fix_windows_path(dirlist)
+#endif
       util_file_parse_dir = .true.
       ndef = 0                  ! No. of default dirs found
       nspe = 0                  ! No. of host specific dirs found
@@ -193,10 +196,14 @@ c
  10   if (inp_strtok(dirlist, ' ', istart, iend)) then ! While loop
 c
 c     Check if there is a host/id present ... a colon in the token
-c     
+c     On Windows platforms this could be part of a legitimate local
+c     path name, so we let it through - note that this precludes
+c     specification of hosts this way here
+#if !defined(CYGNUS) && !defined(WIN32)
          do i = istart, iend
             if (dirlist(i:i) .eq. ':') goto 20
          enddo
+#endif
          ndef = ndef + 1
          default(def1:) = dirlist(istart:iend) ! No colon=add to default list
          def1 = def1 + iend - istart + 2
@@ -267,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.15 2000-04-10 12:05:34 hvd Exp $
+C$Id: util_file_name.F,v 1.16 2000-08-02 15:28:59 bjohnson Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -619,4 +626,26 @@ c
          endif
       endif
 c
+      end
+      subroutine fix_windows_path(path)
+      implicit none
+#include "inp.fh"
+      character*(*) path        ! [input/output] 
+#if defined(CYGNUS) || defined(WIN32)
+      integer i, l
+c     On Windows platforms a backslash is a valid directory separator.
+c     Replace backslashes with forward slashes so these pathnames are
+c     accepted.
+      l = inp_strlen(path)
+      do i = 1, l
+#if defined(CYGNUS)
+         if (path(i:i) .eq. '\\') then
+#elif defined(WIN32)
+         if (path(i:i) .eq. '\') then
+#endif
+            path(i:i) = '/'
+         endif
+      enddo
+#endif
+      return
       end
