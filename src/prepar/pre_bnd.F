@@ -2,7 +2,7 @@
      + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf,
      + llnk,clnk,mlnk,nlnk,iconst,mang,lang,mdih,ldih,itmp)
 c
-c $Id: pre_bnd.F,v 1.11 2000-04-26 22:12:43 d3j191 Exp $
+c $Id: pre_bnd.F,v 1.12 2000-04-26 22:40:05 d3j191 Exp $
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
@@ -260,8 +260,10 @@ c
       do 3 j=1,ndih
       if((lang(1,i).eq.ldih(1,j).and.lang(3,i).eq.ldih(4,j)).or.
      + (lang(1,i).eq.ldih(4,j).and.lang(3,i).eq.ldih(1,j))) then
+      if(lato(3,lang(2,i)).ne.3) goto 3
       lato(4,lang(2,i))=lato(4,lang(2,i))+1
       do 4 k=1,4
+      if(lato(3,ldih(k,j)).ne.3) goto 3
       lato(4,ldih(k,j))=lato(4,ldih(k,j))+1
     4 continue
       endif
@@ -272,9 +274,12 @@ c
       do 7 j=i+1,ndih
       if((ldih(1,i).eq.ldih(1,j).and.ldih(4,i).eq.ldih(4,j)).or.
      + (ldih(1,i).eq.ldih(4,j).and.ldih(4,i).eq.ldih(1,j))) then
+      if(lato(3,ldih(2,i)).ne.3) goto 3
+      if(lato(3,ldih(3,i)).ne.3) goto 3
       lato(4,ldih(2,i))=lato(4,ldih(2,i))+2
       lato(4,ldih(3,i))=lato(4,ldih(3,i))+2
       do 8 k=1,4
+      if(lato(3,ldih(k,j)).ne.3) goto 3
       lato(4,ldih(k,j))=lato(4,ldih(k,j))+2
     8 continue
       endif
