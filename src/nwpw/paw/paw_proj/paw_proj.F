@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.8 2002-08-15 22:41:14 bylaska Exp $
+* $Id: paw_proj.F,v 1.9 2002-09-06 18:47:08 marat Exp $
 *
 
 !**************************************************
@@ -30,6 +30,7 @@
       external    ion_nkatm
       external    ion_atom
 
+*     *** get number of diff atom types ***
       nkatm = ion_nkatm()
       value = MA_alloc_get(mt_int,(nkatm),
      >                     'nbasis',nbasis(2),nbasis(1))
