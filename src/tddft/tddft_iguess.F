@@ -2,7 +2,7 @@
      1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_movecs,evl,
      2  ntrials,nproducts)
 c
-c $Id: tddft_iguess.F,v 1.3 2002-04-12 22:55:52 sohirata Exp $
+c $Id: tddft_iguess.F,v 1.4 2002-04-16 01:48:05 sohirata Exp $
 c
 c Generate simple initial guess vectors. First sorts 
 c the eigenvalue differences (epsilon_a - epsilon_i).
@@ -185,8 +185,8 @@ c
      1      call errquit('tddft_iguess: failed writing to rtdb',0)
         endif
       endif
- 9040 format(10x,'Number of roots decreased from  ',i8,' to ',i8)
- 9050 format(10x,'Number of roots increased from  ',i8,' to ',i8)
+ 9040 format(10x,'Number of roots decreased from  ',i8,' to ',i4)
+ 9050 format(10x,'Number of roots increased from  ',i8,' to ',i4)
 c
 c ------------------------------
 c Generate initial trial vectors
