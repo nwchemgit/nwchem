@@ -20,9 +20,10 @@ Additional major additions to the capabilities include:
   o The Douglas-Kroll(-Hess) approach is implemented. It can be used at all levels 
     of theory. Gradients have been implemented allowing geometry optimizations and 
     frequency calculations using the Douglas-Kroll Hamiltonian.
-  o Inclusion of code to evaluate relativistic integrals based on Dyall's modified Dirac
-    (DmD) equation. This provides a one-electron approximation very similar to the
-    Douglas-Kroll-Hess approach. Gradients are also available for this method.
+  o Inclusion of code to evaluate relativistic integrals based on Dyall's modified
+    Dirac (DmD) equation.  A one-electron approximation very similar to the 
+    Douglas-Kroll-Hess approach has been implemented with gradients. Two-electron
+    scalar relativistic corrections have been implemented for energies only.
 
 Again, for each of these capabilities, the user is referred to the User Manual for
 more information. 
@@ -34,7 +35,7 @@ information is generally available in the User Manual.
 Top level directives:
 
   o The TITLE directive has different syntax.  This change is incompatible
-    between with previous versions of the directive so the user will need to change
+    with previous versions of the directive so the user will need to change
     the TITLE directive in any current input files.
   o The CONTINUE directive is no longer supported.
   o Addition of RELATIVISTIC directive to control evaluation of relativistic integrals.
@@ -78,6 +79,8 @@ Properties:
   o The center for expansion for dipole, quadrupole and octupole has changed
     from the center of mass to the center of charge.  This behavior can be 
     changed by using the CENTER directive.
+  o Relativistic corrections to multipole integrals in the Dyall-modified-Dirac
+    approach have been added.
 
 MP2: 
 
@@ -102,7 +105,8 @@ MD:
 Integral changes: 
 
   o Douglas-Kroll(-Hess) integral routines have been added.
-  o Relativistic one-electron integral routines for the DmD approach have been added.
+  o Relativistic one- and two-electron integral routines for the DmD approach 
+    have been added.
 
 Tests, manuals and misc script changes: 
 
