@@ -5,7 +5,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, WindowListener, MouseListener {
+class nwchem_Rama extends JFrame implements ActionListener, ChangeListener, WindowListener, MouseListener {
   
     Font defaultFont;
     int setnumber=0;
@@ -19,17 +19,15 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
     Graph rmsPlot = new Graph();
     Graph rmsaPlot = new Graph();
     Graph rmsrPlot = new Graph();
-    Graph bfacaPlot = new Graph();
-    Graph bfacrPlot = new Graph();
 
     JLabel systemLabel = new JLabel();
     JButton doneButton = new JButton("done");
     
     double time,rms1,rms2;
     
-    public nwchem_RMS(){
+    public nwchem_Rama(){
 	
-	super("RMS Viewer");
+	super("Ramachandran Viewer");
 	
 	defaultFont = new Font("Dialog", Font.BOLD,12);
 	
@@ -67,23 +65,15 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 	rmsPlot.setTitle("RMS Deviation vs Time");
 	rmsaPlot.setTitle("Atomic RMS Deviation");
 	rmsrPlot.setTitle("Segment RMS Deviation");
-	bfacaPlot.setTitle("Atomic B factor");
-	bfacrPlot.setTitle("Segment B Factor");
 	rmsrPlot.setBars(1.0,0.0);
 	rmsPlot.setSize(700,300);
 	rmsaPlot.setSize(350,300);
 	rmsrPlot.setSize(350,300);
-	bfacaPlot.setSize(350,300);
-	bfacrPlot.setSize(350,300);
 	addComponent(header,rmsPlot,0,1,20,10,10,10,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	addComponent(header,rmsaPlot,0,11,10,10,10,10,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	addComponent(header,rmsrPlot,11,11,10,10,10,10,
-		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-	addComponent(header,bfacaPlot,0,21,10,10,10,10,
-		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-	addComponent(header,bfacrPlot,11,21,10,10,10,10,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	try{
 	    BufferedReader br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
@@ -105,10 +95,8 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 	    first=true;
 	    while(!card.startsWith("analysis")){
 		rms1=Double.valueOf(card.substring(32,43)).doubleValue();
-		rms2=Double.valueOf(card.substring(44,55)).doubleValue();
 		numa++;
-		rmsaPlot.addData(1,numa,rms1,!first,false);
-		bfacaPlot.addData(1,numa,rms2,!first,false); first=false;
+		rmsaPlot.addData(1,numa,rms1,!first,false); first=false;
 		card=br.readLine();
 	    };
 	    numa=0;
@@ -116,14 +104,9 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 	    first=true;
 	    while((card=br.readLine()) != null){
 		rms1=Double.valueOf(card.substring(12,23)).doubleValue();
-		rms2=Double.valueOf(card.substring(24,35)).doubleValue();
-		rmsrPlot.addData(0,numa,rms1,!first,false);
-		bfacrPlot.addData(0,numa,rms2,!first,false); numa++;
+		rmsrPlot.addData(0,numa,rms1,!first,false); numa++;
 	    };
 	    rmsaPlot.fillPlot();
-	    rmsrPlot.fillPlot();
-	    bfacaPlot.fillPlot();
-	    bfacrPlot.fillPlot();
 	    br.close();
 	    
 	} catch(Exception ee) {ee.printStackTrace();};
