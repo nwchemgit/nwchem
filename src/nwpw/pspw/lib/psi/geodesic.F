@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.11 2003-03-21 23:42:08 bylaska Exp $
+* $Id: geodesic.F,v 1.12 2003-03-23 22:21:54 bylaska Exp $
 *
 
 *     ***********************************
@@ -284,7 +284,12 @@ c     real*8 sum1,sumv
 
 *     ***** generate V and Sigma^2 ****
       call Grsm_ggm_sym_dot(npack,ne,A,A,V)
-      call eigen(ne,ne,V,S,dbl_mb(tmp1(1)),ierr)
+      !call eigen(ne,ne,V,S,dbl_mb(tmp1(1)),ierr)
+      call DSYEV('V','U',ne,
+     >           V,ne,
+     >           S,
+     >           dbl_mb(tmp1(1)),(4*ne*ne),
+     >           ierr)
 
          
 *     **** generate U*Sigma ****

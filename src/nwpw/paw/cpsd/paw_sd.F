@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.58 2003-03-22 20:15:15 bylaska Exp $
+* $Id: paw_sd.F,v 1.59 2003-03-23 22:21:53 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.58  2003/03/22 20:15:15  bylaska
+* paw_marat_write has been commented out...EJB
+*
 * Revision 1.57  2003/03/22 02:30:01  bylaska
 * paw cpsd program finished....
 * The nwpw directory structure is ready to be checked into 4.5 release tree.
@@ -648,10 +651,19 @@
       nn = n*n
       call dcopy(2*nemax,0.0d0,0,dbl_mb(eig(1)),1)
       do ms=1,ispin
-         call eigen(n,ne(ms),
-     >              dbl_mb(hml(1)+(ms-1)*nn),
+c        call eigen(n,ne(ms),
+c    >              dbl_mb(hml(1)+(ms-1)*nn),
+c    >              dbl_mb(eig(1)+(ms-1)*n),
+c    >              dbl_mb(lmd(1)),ierr)
+         call DSYEV('V','U',ne(ms),
+     >              dbl_mb(hml(1)+(ms-1)*nn),n,
      >              dbl_mb(eig(1)+(ms-1)*n),
-     >              dbl_mb(lmd(1)),ierr)
+     >              dbl_mb(lmd(1)),(2*nemax*nemax),
+     >              ierr)
+        call eigsrt(dbl_mb(eig(1)+(ms-1)*n),
+     >              dbl_mb(hml(1)+(ms-1)*nn),
+     >              ne(ms),n)
+
       end do
 
       call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi2(1)),1)

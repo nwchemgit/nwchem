@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi.F,v 1.4 2003-03-11 17:56:38 bylaska Exp $
+* $Id: paw_psi.F,v 1.5 2003-03-23 22:21:53 bylaska Exp $
 *
 
 
@@ -238,7 +238,11 @@
       real*8 Bs(n_max,n)
       real*8 D(n_max,n)
 
-      call eigen(n_max,n,Bs,D,D(1,2))
+      !*** local variables ***
+      integer ierr
+
+      !call eigen(n_max,n,Bs,D,D(1,2))
+      call DSYEV('V','U',n,Bs,n_max, D,D(1,2),n_max*(n-1),ierr)
       return
       end
 

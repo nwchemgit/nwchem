@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.26 2003-03-21 23:42:08 bylaska Exp $
+* $Id: psi.F,v 1.27 2003-03-23 22:21:54 bylaska Exp $
 *
 
 
@@ -2373,10 +2373,21 @@ c     >                           dcpl_mb(psi2(1)+(j-1+shift1)*nfft3d))
       do ms=1,ispin
          shift1 = (ms-1)*ne(1)
          shift2 = (ms-1)*ne(1)*ne(1)
-         call eigen(ne(ms),ne(ms),
-     >              dbl_mb(hml(1)+shift2),
+
+c        call eigen(ne(ms),ne(ms),
+c    >              dbl_mb(hml(1)+shift2),
+c    >              dbl_mb(eig(1)+shift1),
+c    >              dbl_mb(tmp1(1)),ierr)
+
+         call DSYEV('V','U',ne(ms),
+     >              dbl_mb(hml(1)+shift2),ne(ms), 
      >              dbl_mb(eig(1)+shift1),
-     >              dbl_mb(tmp1(1)),ierr)
+     >              dbl_mb(tmp1(1)),2*ne(1)*ne(1),
+     >              ierr)
+        call eigsrt(dbl_mb(eig(1)+shift1),
+     >              dbl_mb(hml(1)+shift2),
+     >              ne(ms),ne(ms))
+
       end do
 
       

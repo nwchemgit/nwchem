@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.22 2003-03-20 23:21:03 bylaska Exp $
+* $Id: cpmdv5.F,v 1.23 2003-03-23 22:21:53 bylaska Exp $
 *
 
 ***********************************************************************
@@ -728,10 +728,19 @@
       nn = n*n
       call dcopy(2*nemax,0.0d0,0,dbl_mb(eig(1)),1)
       do ms=1,ispin
-         call eigen(n,ne(ms),
-     >              dbl_mb(hml(1)+(ms-1)*nn),
+c        call eigen(n,ne(ms),
+c    >              dbl_mb(hml(1)+(ms-1)*nn),
+c    >              dbl_mb(eig(1)+(ms-1)*n),
+c    >              dbl_mb(lmd(1)),ierr)
+         call DSYEV('V','U',ne(ms),
+     >              dbl_mb(hml(1)+(ms-1)*nn),n,
      >              dbl_mb(eig(1)+(ms-1)*n),
-     >              dbl_mb(lmd(1)),ierr)
+     >              dbl_mb(lmd(1)),(2*nemax*nemax),
+     >              ierr)
+        call eigsrt(dbl_mb(eig(1)+(ms-1)*n),
+     >              dbl_mb(hml(1)+(ms-1)*nn),
+     >              ne(ms),n)
+
       end do
 
 *     *** rotate current psi ***

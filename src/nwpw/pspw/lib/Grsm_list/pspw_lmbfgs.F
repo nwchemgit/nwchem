@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_lmbfgs.F,v 1.9 2003-03-19 00:59:16 bylaska Exp $                       
+*     $Id: pspw_lmbfgs.F,v 1.10 2003-03-23 22:21:54 bylaska Exp $                       
 *
 
       subroutine pspw_lmbfgs_init(max_m0,g)
@@ -61,7 +61,6 @@
         if (.not.value) call errquit('pspw_lmbfgs: push stack',0)
       end if
 
-      !write(*,*) "tmin:",tmin
       call Grsm_gg_copy(npack1,neall,g,s)
       if (ondisk) then
         call pspw_Grsm_list_load(2*m-1,dbl_mb(yy(1)))
@@ -70,9 +69,6 @@
         call pspw_Grsm_list_ptr(2*m-1,yy(1))
         call pspw_Grsm_list_ptr(2*m,  ss(1))
       end if
-      call Grsm_gg_dScale(npack1,neall,tmin,
-     >                    dbl_mb(ss(1)),
-     >                    dbl_mb(ss(1)))
       call psi_1geodesic_Gtransport(tmin,dbl_mb(yy(1)))
       call psi_1geodesic_transport(tmin,dbl_mb(ss(1)))
       call Grsm_ggg_Sub(npack1,neall,g,dbl_mb(yy(1)),dbl_mb(yy(1)))
@@ -86,7 +82,6 @@
      >                   dbl_mb(ss(1)),
      >                   sum)
       rho(m) = 1.0d0/sum
-      
 
       call Grsm_gg_trace(npack1,neall,
      >                   dbl_mb(ss(1)),
@@ -147,8 +142,6 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
       beta = rho(m)*sum
       sum = alpha(m) - beta
       call Grsm_gg_daxpy(npack1,neall,sum,dbl_mb(ss(1)),s)
-      call Grsm_gg_dScale(npack1,neall,(-1.0d0),s,s)
-
 
       if (m.lt.max_m) then
          m = m+1
@@ -160,6 +153,7 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
          end do
       end if
 
+      call Grsm_gg_dScale(npack1,neall,(-1.0d0),s,s)
       call pspw_Grsm_list_store(2*m-1,g)
       call pspw_Grsm_list_store(2*m,s)
 
@@ -171,35 +165,6 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
       end if
 
       call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
-      !call pspw_lmbfgs_orthocheck(s)
-
       return 
       end
 
-
-      subroutine pspw_lmbfgs_orthocheck(s)
-      implicit none
-      complex*16 s(*)
-
-#include "mafdecls.fh"
-#include "pspw_lmbfgs_common.fh"
-
-      integer si_ptr,i,gi_ptr
-      real*8  sum,sumi,sum2
-
-      do i=1,m-1
-        call pspw_Grsm_list_ptr(2*i,   si_ptr)
-         call Grsm_gg_trace(npack1,neall,
-     >                   dbl_mb(si_ptr),
-     >                   s,
-     >                   sum)
-         call Grsm_gg_trace(npack1,neall,
-     >                   dbl_mb(si_ptr),
-     >                   dbl_mb(si_ptr),
-     >                   sumi)
-        call Grsm_gg_daxpy(npack1,neall,-(sum/sumi),dbl_mb(si_ptr),s)
-
-      end do
-
-      return
-      end

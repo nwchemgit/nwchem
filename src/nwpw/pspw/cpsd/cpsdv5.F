@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.20 2003-02-05 03:19:23 bylaska Exp $
+* $Id: cpsdv5.F,v 1.21 2003-03-23 22:21:54 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -521,10 +521,20 @@
       nn = n*n
       call dcopy(2*nemax,0.0d0,0,dbl_mb(eig(1)),1)
       do ms=1,ispin
-         call eigen(n,ne(ms),
-     >              dbl_mb(hml(1)+(ms-1)*nn),
+c        call eigen(n,ne(ms),
+c    >              dbl_mb(hml(1)+(ms-1)*nn),
+c    >              dbl_mb(eig(1)+(ms-1)*n),
+c    >              dbl_mb(lmd(1)),ierr)
+         call DSYEV('V','U',ne(ms),
+     >              dbl_mb(hml(1)+(ms-1)*nn),n, 
      >              dbl_mb(eig(1)+(ms-1)*n),
-     >              dbl_mb(lmd(1)),ierr)
+     >              dbl_mb(lmd(1)),(2*nemax*nemax),
+     >              ierr)
+        call eigsrt(dbl_mb(eig(1)+(ms-1)*n),
+     >              dbl_mb(hml(1)+(ms-1)*nn),
+     >              ne(ms),n)
+
+
       end do
 
       call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi2(1)),1)
