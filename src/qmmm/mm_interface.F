@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.26 2004-10-22 18:29:43 marat Exp $
+c $Id: mm_interface.F,v 1.27 2004-10-22 23:43:08 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -701,13 +701,15 @@ c     mm local variables
       call mm_get_msa(msa)
       call mm_get_nsaloc(nsa)
       call mm_get_pxs(pxs)
-      write(*,*) "mm_print_solute_coord"
-
-      do i=1,nsa
-          write(*,300) mm_solute_charge(i),
-     >      (dbl_mb(pxs+(i-1)+(k-1)*msa)*
-     >                  cnm2au*cau2ang,k=1,3)
-      end do
+      
+      if(qmmm_master()) then
+        write(*,*) "mm_print_solute_coord"
+        do i=1,nsa
+            write(*,300) mm_solute_charge(i),
+     >        (dbl_mb(pxs+(i-1)+(k-1)*msa)*
+     >                    cnm2au*cau2ang,k=1,3)
+        end do
+      end if
 
 300   FORMAT(4F12.6)
 

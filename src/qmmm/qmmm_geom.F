@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.28 2004-10-21 23:03:05 marat Exp $
+c $Id: qmmm_geom.F,v 1.29 2004-10-22 23:43:08 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -332,7 +332,6 @@ c    --------------------------------------
      >                    dbl_mb(i_q_all),
      >                    byte_mb(i_t_all))
 
-       call mm_print_solute_coord()
 
       if(.not.geom_create(igeom,'geometry'))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
@@ -639,7 +638,6 @@ c     ---------------
       double precision r1(3),r2(3)
       double precision qmmm_geom_distance
       external qmmm_geom_distance
-      integer ns
 
       h_link=qmmm_h_link()
       if(h_link) then
