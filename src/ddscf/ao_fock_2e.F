@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock, asym)
 c
-c$Id: ao_fock_2e.F,v 1.17 2000-04-28 01:07:12 zzhang Exp $
+c$Id: ao_fock_2e.F,v 1.18 2000-04-28 20:40:10 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -214,21 +214,3 @@ c
       endif
 c     
       end
-
-      subroutine asym_fock2e(g_fock)
-      implicit none
-#include "global.fh"
-      integer g_fock, g_tmp
-c
-      if (.not. ga_duplicate(g_fock, g_tmp, 'tmp'))
-     $     call errquit('asym_fock2e: ga duplicate?',0)
-c
-      call ga_transpose(g_fock,g_tmp)
-      call ga_add(0.5d0,g_fock,-0.5d0,g_tmp,g_fock)
-
-      if (.not. ga_destroy(g_tmp)) call errquit
-     $     ('asym_fock2e: ga corrupt?',0)
-c
-      return
-      end
-
