@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.14 1997-07-10 16:34:49 d3h449 Exp $
+C$Id: cdft.fh,v 1.15 1997-10-21 21:57:45 d3h449 Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -80,7 +80,7 @@ C
 c
 c-->  old quad.fh; Quadrature Points & Weights
 c
-c     MXnang = Lebedev max no. of pts
+c     MX_l_ang = Lebedev max no. of pts
 c     IAC_MAX = Lebedev max accuracy
 c     MAX_CHUNK = max value for nquad_task
 c
@@ -90,11 +90,12 @@ c
       logical 
      &     iatype_pt_chg
       integer 
-     &     iqshell, nqshells, nrad, ntheta, nphi, iatype, iqrot, ntypes
+     &     iqshell, nqshells, nrad, nang, ntheta, nphi, iatype, iqrot,
+     &     ntypes
 c
-      integer MXnang, IAC_MAX, MAX_CHUNK
+      integer MX_l_ang, IAC_MAX, MAX_CHUNK
 c
-      parameter(MXnang=434,IAC_MAX=7,MAX_CHUNK=20)
+      parameter(MX_l_ang = 434, IAC_MAX = 7, MAX_CHUNK = 20)
 c
 c     The following parameters must match those in geomP.fh and 
 c     bas_staticP.fh e.g., dft_max_cent = max_cent, and 
@@ -107,11 +108,11 @@ c
 c
 c     Doubles
 c
-     & rpts(MXrad*dft_ntags_bsmx), rwghts(MXrad*dft_ntags_bsmx),
+     & rpts(MXrad,dft_ntags_bsmx), rwghts(MXrad,dft_ntags_bsmx),
      & aratio(dft_ntags_bsmx,dft_ntags_bsmx), costheta(MXtheta,MXagrid),
      & sintheta(MXtheta,MXagrid), cosphi(MXphi,MXagrid),
      & sinphi(MXphi,MXagrid), awghts(MXtheta,MXagrid), qrot(3,3),
-     & wa_leb(MXnang,IAC_MAX), za_leb(3,MXnang,IAC_MAX),
+     & wa_leb(MX_l_ang,IAC_MAX), za_leb(3,MX_l_ang,IAC_MAX),
 c
 c     Logicals
 c
@@ -119,6 +120,7 @@ c
 c
 c     Integers
 c
-     & iqshell(4,MXqshells), nqshells, nrad(dft_ntags_bsmx), 
+     & iqshell(4,MXqshells), nqshells, 
+     & nrad(dft_ntags_bsmx), nang(dft_ntags_bsmx), 
      & ntheta(MXagrid), nphi(MXagrid), iatype(dft_max_cent), iqrot, 
      & ntypes

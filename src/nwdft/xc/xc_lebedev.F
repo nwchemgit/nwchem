@@ -1,7 +1,7 @@
-      subroutine xc_lebedev(nang, oprint)
+      subroutine xc_lebedev(l_ang, oprint)
       implicit none
 c
-C$Id: xc_lebedev.F,v 1.6 1997-07-10 16:35:18 d3h449 Exp $
+C$Id: xc_lebedev.F,v 1.7 1997-10-21 21:58:03 d3h449 Exp $
 c
 #include "cdft.fh"
 #include "stdio.fh"
@@ -21,7 +21,7 @@ c
       double precision fourpi
       parameter(fourpi = 4.d0*3.1415926535897932385d0)
 c
-      integer nop, n48, iv, k, ks, isi, j, ia, nang, iaz, jk, jk1, 
+      integer nop, n48, iv, k, ks, isi, j, ia, l_ang, iaz, jk, jk1, 
      &        nvjj, l
       double precision wtest, fasfj, x0, y0, z0, gjkt1, gjkt2, gjkt3
 c
@@ -326,14 +326,14 @@ c
       do ia = 1,iangquad
 c
          if (ia.le.0) then
-            nang = 1
+            l_ang = 1
             za_leb(1,1,ia) = 1.0d0
             za_leb(2,1,ia) = 0.0d0
             za_leb(3,1,ia) = 0.0d0
             wa_leb(1,ia) = fourpi
          else
             iaz = min(ia,IAC_MAX)
-            nang = 0
+            l_ang = 0
             wtest = 0.d0
             jk = jkv(iaz)
             jk1 = 0
@@ -355,19 +355,19 @@ c
      &                       goh(2,3,iv)*z0
                      gjkt3 = goh(3,1,iv)*x0 + goh(3,2,iv)*y0 + 
      &                       goh(3,3,iv)*z0
-                     nang = nang + 1
-                     za_leb(1,nang,iaz) = gjkt1*fasfj
-                     za_leb(2,nang,iaz) = gjkt2*fasfj
-                     za_leb(3,nang,iaz) = gjkt3*fasfj
-                     wa_leb(nang,iaz) = wleb(jk)*fourpi
-                     wtest = wtest + wa_leb(nang,ia)
-                     if (oprint)write(LuOut,209)wa_leb(nang,iaz),
-     &                  (za_leb(i,nang,iaz),i = 1,3)
+                     l_ang = l_ang + 1
+                     za_leb(1,l_ang,iaz) = gjkt1*fasfj
+                     za_leb(2,l_ang,iaz) = gjkt2*fasfj
+                     za_leb(3,l_ang,iaz) = gjkt3*fasfj
+                     wa_leb(l_ang,iaz) = wleb(jk)*fourpi
+                     wtest = wtest + wa_leb(l_ang,ia)
+                     if (oprint)write(LuOut,209)wa_leb(l_ang,iaz),
+     &                  (za_leb(i,l_ang,iaz),i = 1,3)
                   enddo
    20       continue
-            if (oprint)write(LuOut,410)nang, wtest/fourpi
+            if (oprint)write(LuOut,410)l_ang, wtest/fourpi
          endif
-         ntheta(ia) = nang
+         ntheta(ia) = l_ang
          nphi(ia) = -99
       enddo
       return

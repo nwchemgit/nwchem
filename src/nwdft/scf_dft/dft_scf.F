@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.87 1997-09-04 17:43:46 gutowski Exp $
+c     $Id: dft_scf.F,v 1.88 1997-10-21 21:58:00 d3h449 Exp $
 c     
       implicit none
 c
@@ -1354,7 +1354,10 @@ c
       if (.not.ma_pop_stack(l_occ))
      &   call errquit('dft_scf: cannot pop stack',0)
 c     
-      dft_scf = converged
+c     temp set converged to do multiple grid cks w/ 1 iter 
+c
+      dft_scf = .true.
+c      dft_scf = converged
 c
       return
 c     
@@ -1427,7 +1430,6 @@ c
       write(*,*)' MXagrid = ', MXagrid
       write(*,*)' MXtheta = ', MXtheta
       write(*,*)' MXphi = ', MXphi
-      write(*,*)' MXnang = ', MXnang
       write(*,*)' IAC_MAX = ', IAC_MAX
       write(*,*)' MAX_CHUNK = ', MAX_CHUNK
       write(*,*)' nqshells = ', nqshells

@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.46 1997-07-15 19:58:08 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.47 1997-10-21 21:57:57 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -36,17 +36,11 @@ c
       Logical int_normalize
       Logical int_norm_2c
       Logical atom_tag_check
-      integer num_gridtypes, ind 
-      parameter (num_gridtypes = 6)
-
+c
       External int_normalize
       External int_norm_2c
       External atom_tag_check
-
-      character*15 gridtypes(num_gridtypes)
-      data gridtypes /'coarse', 'medium', 'fine', 'xfine', 
-     &                'gausleg', 'lebedev'/
-c     
+c
       iproc  = ga_nodeid()
       do iline=1,15
           xfac(iline)=0.d0
@@ -423,90 +417,6 @@ c
      &      call errquit('dft_input: rtdb_put failed', 215)
       endif
 c
-c     get/set gridtype; set nagrid and nrad
-c
-      if (.not. rtdb_cget(rtdb, 'dft:gridtype', 1, gridtype))then
-c     
-c        set default grid to  'MEDIUM'
-c     
-         gridtype='medium'
-      endif
-      if (.not. inp_match(num_gridtypes, .false., gridtype, gridtypes, 
-     &   ind))then
-         write(6,*)' Unknown gridtype; defaulting to medium grid'
-         gridtype='medium'
-         ind = 2
-      endif
-      goto (10, 20, 30, 40, 50, 60, 99) ind
-      call errquit('dft_rdinput: unknown gridtype', ind)
-   10 continue
-c
-c     coarse grid;
-c
-      nagrid = 8
-      nradpts = 35
-      goto 99
-   20 continue
-c
-c     medium grid;
-c
-      nagrid = 10
-      nradpts = 50
-      goto 99
-   30 continue
-c
-c     fine grid;
-c
-      nagrid = 12
-      nradpts = 75
-      goto 99
-   40 continue
-c
-c     xfine grid;
-c
-      nagrid = 14
-      nradpts = 105
-      goto 99
-   50 continue
-c
-c     gausleg grid;
-c
-      if (.not. rtdb_get(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
-     &   nagrid = 10
-      if (.not. rtdb_get(rtdb,'dft:nradpts', mt_int, 1, nradpts))
-     &   nradpts = 50
-      goto 99
-   60 continue
-c
-c     lebedev grid;
-c
-      if (.not. rtdb_get(rtdb, 'dft:iangquad', mt_int, 1, iangquad))then
-         iangquad = 4
-      else
-         if (iangquad.lt.1)then
-           write(6,*)' IANGQUAD must be in the range: 1-7; resetting. '
-           iangquad = 1
-         endif
-         if (iangquad.gt.7)then
-           write(6,*)' IANGQUAD must be in the range: 1-7; resetting. '
-           iangquad = 7
-         endif
-      endif
-      if (.not. rtdb_get(rtdb,'dft:nradpts', mt_int, 1, nradpts))
-     &   nradpts = 50
-   99 continue
-      do n = 1, dft_ntags_bsmx
-         nrad(n) = nradpts
-      enddo 
-      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     &   call errquit('dft_input: rtdb_put failed', 301) 
-c
-      if (.not. rtdb_put(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
-     &   call errquit('dft_input: rtdb_put failed', 116)
-c
-      if (.not. rtdb_put(rtdb,'dft:nrad', mt_int, dft_ntags_bsmx, nrad))
-     &   call errquit('dft_input: rtdb_put failed', 115)
-c
 c     Get/set/put XC info.
 c
       if (.not. rtdb_get(rtdb, 'dft:cfac', mt_dbl, 15,
@@ -703,28 +613,6 @@ c
         nbf_xc=0
       endif
 c
-c     Read/set/put the numerical quadrature input parameters.
-c
-      nrinc = 1
-      nrmax = 0
-      do n = 1,dft_ntags_bsmx
-         nrmax = max(nrmax,nrad(n))
-      enddo 
-      if (.not. rtdb_put(rtdb, 'dft:nrinc',
-     &   mt_int, 1, nrinc))
-     &   call errquit('dft_input: rtdb_put failed', 118)
-      if (.not. rtdb_put(rtdb, 'dft:nrmax',
-     &   mt_int, 1, nrmax))
-     &   call errquit('dft_input: rtdb_put failed', 119)
-      if (nrmax.gt.MXrad)then
-         write(LuOut,*)'RDINPUT: Too many radial quadrature points.'
-         call errquit(' rdinput: raise MXrad',1)
-      end if
-      if (nagrid.gt.MXagrid)then
-         write(LuOut,*)'RDINPUT: Too many angular quadrature grids.'
-         call errquit(' rdinput: raise MXagrid',3)
-      end if
-c
 c     Set the switch to rotate the quadrature points.
 c     This switch controls whether the grid is
 c     rotationally invariant. For now, it is hard-wired to 
@@ -822,6 +710,30 @@ c
      &                dbl_mb(icharge),dbl_mb(irot),dbl_mb(irot+three),
      &                dbl_mb(irot+six))
 c
+c     Read/set/put the numerical quadrature input parameters.
+c
+c
+c     reset gridtype; set nagrid, nradpts, nrad, nang
+c
+      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
+     &   call errquit('dft_input: rtdb_put failed', 301) 
+c
+      if (.not. rtdb_put(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
+     &   call errquit('dft_input: rtdb_put failed', 116)
+c
+      if (.not. rtdb_put(rtdb,'dft:nradpts', mt_int, 1, nradpts))
+     &   call errquit('dft_input: rtdb_put failed', 115)
+c
+      if (.not. rtdb_put(rtdb,'dft:nrad', mt_int, dft_ntags_bsmx, nrad))
+     &   call errquit('dft_input: rtdb_put failed', 115)
+c
+      if (.not. rtdb_put(rtdb,'dft:nang', mt_int, dft_ntags_bsmx, nang))
+     &   call errquit('dft_input: rtdb_put failed', 115)
+c
+c     Check the user supplied input for any inconsistencies.
+c
+      call dft_inpana(rtdb, Dbl_MB(iratom))
+c
       if (.not. MA_Pop_Stack(lratom))
      &   call errquit('dft_rdinput: pop stack failed.',0)
       if (.not. MA_Pop_Stack(lznuc))
@@ -834,15 +746,6 @@ c
      &   call errquit('dft_rdinput: pop stack failed.',0)
       if (.not. MA_Pop_Stack(lrot))
      &   call errquit('dft_rdinput: pop stack failed.',0)
-c
-c     Check the user supplied input for any inconsistencies.
-c
-      call dft_inpana(rtdb)
-c
-c     inpana could have modified ipol
-c
-      if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
-     $     call errquit('inpana: dft:ipol put failed', 0)
 c
       call ga_sync
 c

@@ -1,6 +1,6 @@
-      subroutine dft_inpana(rtdb)
+      subroutine dft_inpana(rtdb, ratom)
 c
-c     $Id: dft_inpana.F,v 1.30 1997-07-15 19:58:06 d3h449 Exp $
+c     $Id: dft_inpana.F,v 1.31 1997-10-21 21:57:56 d3h449 Exp $
 c
 c*********************************************************************
 c     
@@ -11,20 +11,26 @@ c
 c*********************************************************************
       implicit none
 c
-      logical even, cksetd
+      double precision AUTOANG, ANGTOAU
+      Parameter (AUTOANG = 0.529177249d0, ANGTOAU = 1.d0/AUTOANG)
+      logical even, cksetd, no_prune
       integer noc(2)
       Integer rtdb              !  runtime database handle
       integer me,ichg,nel
       integer noc1
       integer n, na, nb
       integer nshells_cd, nshells_xc, nshells
+      integer ictr
+      double precision ratom(ntypes), bsr
       double precision anucl_charg, ckfac, t1, r1
-      character*9 local_c, nonlocal_c, nineb_c
+      double precision ictr_coord(3), ictr_chg
       character*3 on_off_1, on_off_2
       logical oprint_general, oprint_grid, oprint_xc, 
      &     oprint_convergence, oprint_tolerances
+      character*9 local_c, nonlocal_c, nineb_c
       character*10 start_10c, NA_10c, asap_10c
       character*10 strng1, strng2, strng3, strng4, strng5, strng6
+      character*16 tag
 c     
 #include "stdio.fh"
 #include "rtdb.fh"
@@ -90,6 +96,8 @@ c
          noc(1) = nel - noc(2)
          noc1  = noc(1) + noc(2)
       endif
+      if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
+     $     call errquit('inpana: dft:ipol put failed', 0)
 c     
 c     Check to see if there are enough electrons for this
 c     value of the multiplicity.
@@ -249,6 +257,11 @@ c
          endif
       endif
 c
+c     Check for no pruning; no_prune
+c
+      if (.not. rtdb_get(rtdb, 'dft:no_prune', mt_log, 1,
+     &         no_prune))no_prune = .false.
+c
       if (me.eq.0) then
 c     
 c        Write to output.
@@ -386,11 +399,39 @@ c
             write(LuOut,9135)gridtype
             write(LuOut,9136)
             if (iangquad.eq.0)then
-              write(LuOut,9137)nradpts,nagrid,2*nagrid
+               write(LuOut,9142)
             else
-              write(LuOut,9138)nradpts,nang_leb_pts
+               write(LuOut,9143)
             endif
+            write(LuOut,9144)
+            do n = 1, ntypes
+c
+c              Find an atom of this kind in the complete list.
+c
+               do ictr = 1, ncenters
+                  if (iatype(ictr).eq.n) then
+                     if (.not. geom_cent_get(geom, ictr, tag, 
+     &                  ictr_coord, ictr_chg))call errquit
+     &                  ('dft_inpana: geom_cent_get failed', 0)
+                     goto 40
+                  endif
+               enddo
+   40          continue
+               bsr = ratom(n)*AUTOANG
+               if (iangquad.eq.0)then
+                  write(LuOut,9137)tag,bsr,nrad(n),nang(n),2*nang(n)
+               else
+                  write(LuOut,9138)tag,bsr,nradpts,nang_leb_pts
+               endif
+            enddo
+            if (no_prune)then
+               on_off_1 = 'off'
+            else                
+               on_off_1 = 'on'
+            endif
+            write(LuOut,4005)on_off_1
             write(LuOut,4004)nqshells
+c
             if (ldelley)then
                write(LuOut,9139)
             else
@@ -454,6 +495,7 @@ c
      &                    r1, radius
          endif
       endif
+c
       return
  3231 format(10x,'Convergence aids based upon iterative change in ',/,
      &       10x,'total energy or number of iterations. ',/,
@@ -474,6 +516,7 @@ c
  4003 format(10x,'XC basis - number of functions: ',i5,/,
      &       10x,'           number of shells: ',i5)
  4004 format(10x,'Number of quadrature shells: ',i5)
+ 4005 format(10x,'Grid pruning is: ',a3)
  9020 format(10x,'SCF calculation type: DFT')
  9030 format(10x,'Maximum number of iterations: ',I3)
  9035 format(10x,'Convergence on energy requested: ',d8.2)
@@ -487,17 +530,17 @@ c
  9120 format(10x,'An Exch-Corr fitting basis will be used.')
  9130 format(10x,'A Charge density fitting basis will be used.')
  9135 format(10x,'Grid used for XC integration:  ',a)
- 9136 format(10x,'Radial quadrature: Euler-MacLaurin, ')
- 9137 format(10x,'Angular quadrature: Gauss-Legendre, with ',/,
-     &       10x,i4,' radial points, ',i3,' theta points, and ',
-     &           i3,' phi points.')
- 9138 format(10x,'Angular quadrature: Lebedev, with ',/,
-     &       10x,i4,' radial points and ',
-     &           i3,' angular points.')
+ 9136 format(10x,'Radial quadrature: Euler-MacLaurin. ')
+ 9137 format(10x,a16,2x,f6.2,6x,i3,6x,i2,1x,'*',1x,i2)
+ 9138 format(10x,a16,2x,f6.2,6x,i3,8x,i4)
  9139 format(10x,'Spatial weights used: Delley. ')
  9140 format(10x,'Spatial weights used: Becke. ')
  9141 format(10x,'Parallel task size associated with evaluation of ',/,
      &           'grid based components has been modified to: ',i2)
+ 9142 format(10x,'Angular quadrature: Gauss-Legendre. ')
+ 9143 format(10x,'Angular quadrature: Lebedev. ')
+ 9144 format(10x,'Tag',14x,'B.-S. Rad.',1x,'Rad. Pts.',1x,'Ang. Pts.',/,
+     &       10x,'---',14x,'----------',1x,'---------',1x,'---------')
  9223 format(10x,a40)
  9224 format(10x,a40,1x,f6.2,1x,a9)
  8150 format(10x,'No. of atoms     :',2x,i4)
