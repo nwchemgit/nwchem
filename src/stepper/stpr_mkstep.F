@@ -3,7 +3,7 @@
      &       ENERGY, CONVGE, CONVGG,
      &       E2NEW,NINTER,NAT3,NMODE,TRUSTI,BCKSTP,
      &       CNVGRD)
-c $Id: stpr_mkstep.F,v 1.3 1995-03-31 01:45:35 d3g681 Exp $
+c $Id: stpr_mkstep.F,v 1.4 1995-10-17 05:55:22 d3g681 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL BCKSTP,CNVGRD,LPRINT, oprint, oprint_step
 #include "chow.fh"
@@ -16,7 +16,7 @@ c $Id: stpr_mkstep.F,v 1.3 1995-03-31 01:45:35 d3g681 Exp $
 C
 C     Convergence/symmetry tolerances.
 C
-      DATA THRCLN/1.D-5/
+      DATA THRCLN/1.D-6/
       IATOM(I)  = (I+2)/3
 c      LPRINT = .TRUE.
       LPRINT = util_print('makestep',print_debug)
@@ -262,7 +262,7 @@ C
           SLNGTH = SLNGTH + STEP(I)**2
  90     CONTINUE
         SLNGTH = SQRT(SLNGTH)
-        THRCLN=1.0D-04
+*        THRCLN=1.0D-04   ! RJH ... use data set 1e-6 to keep symm better
       ENDIF
       if (oprint)
      $     WRITE(6,'(a,f10.6)')

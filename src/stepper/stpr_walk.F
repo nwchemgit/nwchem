@@ -1,5 +1,5 @@
       logical function stpr_walk(flag,rtdb)
-c $Id: stpr_walk.F,v 1.15 1995-07-29 23:40:15 d3e129 Exp $
+c $Id: stpr_walk.F,v 1.16 1995-10-17 05:55:23 d3g681 Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -209,6 +209,9 @@ c
            write(new_geom_name,'(''g-'',i4,''-step'')') 
      $          abs(step_number)
         endif
+c
+        call sym_geom_project(geom, 1d-4)
+c
 
         if (.not.geom_rtdb_store(rtdb,geom,new_geom_name))
      &      call errquit
