@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.49 1997-02-26 00:35:33 mdupuis Exp $
+C     $Id: geom_input.F,v 1.50 1997-02-27 09:12:39 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -2122,15 +2122,15 @@ C     ----- ORTHONORMALIZE -----
 C
       NTR=0
       DO ITR=1,6
-         DUM=DNRM2(NCART,TR(1,ITR),1)
+         DUM=dnrm2(NCART,TR(1,ITR),1)
          IF(ABS(DUM).GT.TOL) THEN
             NTR=NTR+1
             DUM=ONE/DUM
-            CALL DSCAL(NCART,DUM,TR(1,ITR),1)
+            CALL dscal(NCART,DUM,TR(1,ITR),1)
             IF(ITR.LT.6) THEN
                DO JTR=ITR+1,6
-                  DUM= -DDOT(NCART,    TR(1,ITR),1,TR(1,JTR),1)
-                  CALL DAXPY(NCART,DUM,TR(1,ITR),1,TR(1,JTR),1)
+                  DUM= -ddot(NCART,    TR(1,ITR),1,TR(1,JTR),1)
+                  CALL daxpy(NCART,DUM,TR(1,ITR),1,TR(1,JTR),1)
                ENDDO
             ENDIF
          ELSE
@@ -7980,7 +7980,7 @@ C
   140 CONTINUE
       DO 160 I = 1,J
       IJ = IJ+1
-      HIJ = DDOT(N,Q(1,I),1,T,1)
+      HIJ = ddot(N,Q(1,I),1,T,1)
       IF( ABS(HIJ).LT.SMALL) HIJ=ZERO
       H(IJ)=HIJ
   160 CONTINUE
