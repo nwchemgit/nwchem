@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.13 1995-10-30 20:58:53 d3e129 Exp $
+c$Id: gradients.F,v 1.14 1995-11-07 20:00:06 vg038 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -14,7 +14,7 @@ c     gradients module.
 c
 c     Context is '...:gradients'
 c
-c     Assumes SCF (currently only RHF) has been completed, MO vectors stored
+c     Assumes SCF has been completed, MO vectors stored
 C     and all information is still in the RTDB
 c
 c
@@ -112,7 +112,7 @@ c initialize for schwarz screening
       call intd_init(rtdb,1,basis)
       call schwarz_init (geom, basis)
 c
-      call force(rtdb,basis,geom,movecs_out)
+      call grad_force(rtdb,basis,geom,movecs_out)
 c
       call schwarz_tidy ()
 c

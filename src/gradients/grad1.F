@@ -1,37 +1,58 @@
       subroutine grad1 ( H, lbuf, scr, lscr, dens, wdens, frc, 
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
      $                   max_at_bf, rtdb, oskel )
-c$Id: grad1.F,v 1.10 1995-10-17 08:53:51 d3g681 Exp $
+c$Id: grad1.F,v 1.11 1995-11-07 19:59:59 vg038 Exp $
 
-      implicit real*8 (a-h,o-z)
+C     one electron contribution to RHF, ROHF and UHF gradients
+
+      implicit none
 
 #include "mafdecls.fh"
 #include "global.fh"
 #include "geom.fh"
 #include "bas.fh"
 #include "rtdb.fh"
+#include "tcgmsg.fh"
 #include "sym.fh"
 
-      dimension frc ( 3, nat ), idatom(2), scr(lscr)
-      dimension H ( lbuf ), 
-     $          dens(max_at_bf,max_at_bf), wdens(max_at_bf,max_at_bf),
-     $          crd1(3), crd2(3)
+C-------------------------parameters--------------------------------
+      integer lbuf, lscr,
+     $     g_dens,        ! density matrix (summed if ROHF, UHF)
+     $     g_wdens,       ! weighted density (Lagrangian)
+     $     basis, geom, nproc, nat, max_at_bf, rtdb
 
-      integer g_dens, g_wdens, basis, geom
-      integer rtdb
+      double precision H, ! integral derivatives
+     $     scr, 
+     $     dens,          ! local density block
+     $     wdens,         ! local weighted density block
+     $     frc            ! forces array
 
-      logical oskel
-      double precision qfac
+      dimension H ( lbuf ), frc ( 3, nat ), scr(lscr),
+     $          dens(max_at_bf,max_at_bf), wdens(max_at_bf,max_at_bf)
 
-      logical status, pointforce, point
+      logical oskel   ! symmetry?
+
+C-------------------------local variables--------------------------
+
+      integer iproc, ijatom, next, iat1, iat2, iat3, ish1, ish2,
+     $     iab1f, iab1l, iab2f, iab2l, iac1f, iac1l, iac2f, iac2l,
+     $     if1, il1, if2, il2,
+     $     icart, ic, nint, ip1, ip2
+
+      double precision crd1, crd2 ! atomic coordinates
+      dimension crd1(3), crd2(3)
+
+      integer idatom
+      dimension idatom(2)
+
+      double precision dE, dx, dy, dz, qfac, fact, q1, q2
+
+      logical status, pointforce
 
       character*16 name
 
-      iproc = nodeid()
+      iproc = ga_nodeid()
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
-
-*      pointforce = rtdb_get(rtdb,'gradients:point', MT_LOG, 1,point) 
-*      pointforce = (pointforce .and. point)
 
       pointforce = geom_include_bqbq(geom)
 
@@ -43,7 +64,6 @@ c$Id: grad1.F,v 1.10 1995-10-17 08:53:51 d3g681 Exp $
         do 80, iat2 = 1, iat1
 
           ijatom = ijatom + 1
-C         if (mod(ijatom, nproc) .eq. iproc) then
           if ( ijatom .eq. next ) then
 
             status = bas_ce2bfr(basis,iat1,iab1f,iab1l)
@@ -90,7 +110,7 @@ C               overlap derivatives
 C     Dw x S
 
                 if ( idatom(1) .ge. 1 ) then
-C               idatom(1).ge.0 <=> idatom(1).ge.0 (no check necessary)
+C               idatom(1).ge.0 <=> idatom(2).ge.0 (no check necessary)
                   ic = 1
                   do 28, icart = 1, 3
                     de = 0.D0
@@ -102,9 +122,9 @@ C               idatom(1).ge.0 <=> idatom(1).ge.0 (no check necessary)
  22                 continue
                     dE = dE * qfac
                     frc(icart,idatom(1)) = frc(icart,idatom(1)) 
-     $                                     - dE - dE
+     $                                      - dE - dE
                     frc(icart,idatom(2)) = frc(icart,idatom(2)) 
-     $                                     + dE + dE
+     $                                      + dE + dE
  28               continue
                 endif
 

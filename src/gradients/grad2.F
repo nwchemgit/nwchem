@@ -1,36 +1,78 @@
-      subroutine grad2(d_ij,d_kl,d_ik,d_jl,d_il,d_jk,frc,g_dens,ldim,
-     $                 basis,nproc,nat, scr, lscr, buf, lbuf, tol2e,
-     $                 s34, oactive, oskel)
-c$Id: grad2.F,v 1.13 1995-10-17 08:53:52 d3g681 Exp $
+      subroutine grad2 (d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
+     $                  d_ij2, d_kl2, d_ik2, d_jl2, d_il2, d_jk2, 
+     $                  frc, g_dens, ldim,
+     $                  basis, nproc, nat, scr, lscr, buf, lbuf, tol2e,
+     $                  s34, oactive, oskel, scftype)
+c$Id: grad2.F,v 1.14 1995-11-07 20:00:02 vg038 Exp $
 
-      implicit real*8 (a-h,o-z)
+      implicit none
 
 #include "sym.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "tcgmsg.fh"
 #include "bas.fh"
 #include "schwarz.fh"
+
+C-----------------------parameters---------------------------------
+      integer ldim,          ! max dimension of density block
+     $     g_dens,           ! array of global density handles
+     $     basis, geom,      ! handles
+     $     nproc, nat, lscr, lbuf
+
+      dimension g_dens(3)
+
+      double precision frc,  ! forces on atoms (local)
+     $     scr, buf, s34, ! buffers and intermediates
+     $     tol2e,
+     $     d_ij, d_kl, d_ik, d_jl, d_il, d_jk,       ! local density
+     $     d_ij2, d_kl2, d_ik2, d_jl2, d_il2, d_jk2  ! matrix blocks
+
+
+      dimension scr(lscr), buf(lbuf), frc ( 3, nat ), s34(nat),
+     $          d_ij(ldim,ldim),d_kl(ldim,ldim),d_ik(ldim,ldim),
+     $          d_jl(ldim,ldim),d_il(ldim,ldim),d_jk(ldim,ldim),
+     $          d_ij2(ldim,ldim), d_kl2(ldim,ldim),
+     $          d_ik2(ldim,ldim), d_jl2(ldim,ldim),
+     $          d_il2(ldim,ldim), d_jk2(ldim,ldim)
+
+
+      logical oactive, oskel
+
+      dimension oactive(nat)
+
+      character*4 scftype
+
+C-------------------------local variables-----------------------------
+      integer i, ijatom, next, icart, idatom, icount,
+     $     iat1, iat2, iat3, iat4, ihi4, ish1, ish2, ish3, ish4,
+     $     iab1f, iab1l, iab2f, iab2l, iab3f, iab3l, iab4f, iab4l, 
+     $     iac1f, iac1l, iac2f, iac2l, iac3f, iac3l, iac4f, iac4l,
+     $     itop3, itop4, if1, il1, if2, il2, if3, il3, if4, il4,
+     $     ip1, ip2, ip3, ip4, nshbfp, nshbfq, Nint
+
+      dimension idatom(4)
+
+      double precision dE, den2, q4, q2, s12, half, quart, eigh, sixh
+
+      logical status, oij, okl, oikjl, oschwarz12, osym, ouhf, orohf
+
+      parameter ( half = 0.5D0,
+     $            quart= 0.25D0,
+     $            eigh = 0.125D0,
+     $            sixh = 0.0625D0 )
+
+      
 #if defined(REPORT_LOOP)        
       logical reportit
       character*26 date_string
 #endif
-      logical oskel
-      integer g_dens, basis
-      double precision q4, q2
-      integer geom
-
-      logical status, oactive, oij, okl, oikjl, oschwarz12, osym
-
-      dimension scr(lscr), buf(lbuf), frc ( 3, nat ), idatom(4),
-     $          s34(nat)
-      dimension d_ij(ldim,ldim),d_kl(ldim,ldim),d_ik(ldim,ldim),
-     $          d_jl(ldim,ldim),d_il(ldim,ldim),d_jk(ldim,ldim)
-      dimension oactive(nat)
 
       if (.not. bas_geom(basis, geom)) 
      $     call errquit('grad2: bad basis',0)
 
-      iproc = ga_nodeid()
+      ouhf  = (scftype .eq. 'UHF')
+      orohf = (scftype .eq. 'ROHF')
 
       q4 = 1.0d0                ! If not using symmetry
 
@@ -121,10 +163,28 @@ c
               if ( next .eq. ijatom ) then
 
 C            get density matrix blocks
-             call get_dens ( d_ij, d_kl, d_ik, d_jl, d_il, d_jk, ldim,
-     $           iab1f, iab1l, iab2f, iab2l, iab3f, iab3l, iab4f, iab4l,
-     $           g_dens )
-
+                if ( ouhf ) then
+                  call grad_get_dens_uhf ( d_ij, d_kl, d_ik, 
+     $                               d_jl, d_il, d_jk,
+     $                               d_ik2, d_jl2, d_il2, d_jk2, ldim, 
+     $                               iab1f, iab1l, iab2f, iab2l, 
+     $                               iab3f, iab3l, iab4f, iab4l,
+     $                               g_dens )
+                else if ( orohf ) then
+                  call grad_get_dens_rohf ( d_ij, d_kl, d_ik, 
+     $                               d_jl, d_il, d_jk,
+     $                               d_ij2, d_kl2, d_ik2, 
+     $                               d_jl2, d_il2, d_jk2, ldim, 
+     $                               iab1f, iab1l, iab2f, iab2l, 
+     $                               iab3f, iab3l, iab4f, iab4l,
+     $                               g_dens )
+                else
+                  call grad_get_dens ( d_ij, d_kl, d_ik, 
+     $                            d_jl, d_il, d_jk, ldim,
+     $                            iab1f, iab1l, iab2f, iab2l, 
+     $                            iab3f, iab3l, iab4f, iab4l,
+     $                            g_dens(1) )
+                endif
                 oij = iat1.eq.iat2
                 okl = iat3.eq.iat4
                 oikjl = iat1.eq.iat3 .and. iat2.eq.iat4
@@ -172,34 +232,88 @@ C     2el. integral derivatives
       icount = 1
       do 38, i = 1, 4
         if ( idatom(i).ge.1 ) then
-          do 35, icart = 1, 3
-            dE = 0.D0
-            do 55, ip1 = if1, il1
-              do 50, ip2 = if2, il2
-                do 45, ip3 = if3, il3
-                  do 40, ip4 = if4, il4
-                    den2 = 0.5D0  * ( d_ij(ip1,ip2) * d_kl(ip3,ip4) )
-     $                   - 0.125D0 * (d_ik(ip1,ip3) * d_jl(ip2,ip4)
-     $                             +  d_il(ip1,ip4) * d_jk(ip2,ip3) )
-                    dE = dE + den2 * buf(icount)
-                    icount = icount + 1
+          if ( ouhf ) then
+            do 135, icart = 1, 3
+              dE = 0.D0
+              do 155, ip1 = if1, il1
+                do 150, ip2 = if2, il2
+                  do 145, ip3 = if3, il3
+                    do 140, ip4 = if4, il4
+                      den2 = half * ( d_ij(ip1,ip2) * d_kl(ip3,ip4) )
+     $                     - eigh  * (d_ik(ip1,ip3) * d_jl(ip2,ip4)
+     $                             +  d_il(ip1,ip4) * d_jk(ip2,ip3)
+     $                             +  d_ik2(ip1,ip3) * d_jl2(ip2,ip4)
+     $                             +  d_il2(ip1,ip4) * d_jk2(ip2,ip3))
+                      dE = dE + den2 * buf(icount)
+                      icount = icount + 1
 
- 40               continue
- 45             continue
- 50           continue
- 55         continue
-            if ( .not.oij .or. ish1.ne.ish2 ) dE = dE + dE
-            if ( .not.okl .or. ish3.ne.ish4 ) dE = dE + dE
-            if ( .not.oikjl .or. ish1.ne.ish3 .or. ish2.ne.ish4 )
-     $           dE = dE + dE
-*
-*            if (icart.eq.3 .and. idatom(i).eq.1) then
-*               write(6,17) iat1, iat2,iat3,iat4,dE, q4
-* 17            format(1x,4i5,f10.6,f6.1)
-*            endif
-            frc(icart,idatom(i)) = frc(icart,idatom(i)) + dE * q4
- 35       continue
-        else
+ 140                continue
+ 145              continue
+ 150            continue
+ 155          continue
+              if ( .not.oij .or. ish1.ne.ish2 ) dE = dE + dE
+              if ( .not.okl .or. ish3.ne.ish4 ) dE = dE + dE
+              if ( .not.oikjl .or. ish1.ne.ish3 .or. ish2.ne.ish4 )
+     $             dE = dE + dE
+              frc(icart,idatom(i)) = frc(icart,idatom(i)) + dE * q4
+ 135        continue
+          else if ( orohf ) then
+            do 235, icart = 1, 3
+              dE = 0.D0
+              do 255, ip1 = if1, il1
+                do 250, ip2 = if2, il2
+                  do 245, ip3 = if3, il3
+                    do 240, ip4 = if4, il4
+                      den2 = half * ( d_ij(ip1,ip2) * d_kl(ip3,ip4) )
+     $                     + quart* (d_ij(ip1,ip2) * d_kl2(ip3,ip4)
+     $                            +  d_ij2(ip1,ip2) * d_kl(ip3,ip4) )
+     $                     + eigh * (d_ij2(ip1,ip2) * d_kl2(ip3,ip4) )
+     $                     - eigh * (d_ik(ip1,ip3) * d_jl(ip2,ip4)
+     $                            +  d_il(ip1,ip4) * d_jk(ip2,ip3) )
+     $                     - sixh * (d_ik(ip1,ip3) * d_jl2(ip2,ip4)
+     $                            +  d_il2(ip1,ip4) * d_jk(ip2,ip3)
+     $                            +  d_ik2(ip1,ip3) * d_jl(ip2,ip4)
+     $                            +  d_il(ip1,ip4) * d_jk2(ip2,ip3)
+     $                            +  d_ik2(ip1,ip3) * d_jl2(ip2,ip4)
+     $                            +  d_il2(ip1,ip4) * d_jk2(ip2,ip3) )
+                      dE = dE + den2 * buf(icount)
+                      icount = icount + 1
+
+ 240                continue
+ 245              continue
+ 250            continue
+ 255          continue
+              if ( .not.oij .or. ish1.ne.ish2 ) dE = dE + dE
+              if ( .not.okl .or. ish3.ne.ish4 ) dE = dE + dE
+              if ( .not.oikjl .or. ish1.ne.ish3 .or. ish2.ne.ish4 )
+     $             dE = dE + dE
+              frc(icart,idatom(i)) = frc(icart,idatom(i)) + dE * q4
+ 235        continue
+          else   ! RHF
+            do 35, icart = 1, 3
+              dE = 0.D0
+              do 55, ip1 = if1, il1
+                do 50, ip2 = if2, il2
+                  do 45, ip3 = if3, il3
+                    do 40, ip4 = if4, il4
+                      den2 = half * ( d_ij(ip1,ip2) * d_kl(ip3,ip4) )
+     $                     - eigh * (d_ik(ip1,ip3) * d_jl(ip2,ip4)
+     $                            +  d_il(ip1,ip4) * d_jk(ip2,ip3) )
+                      dE = dE + den2 * buf(icount)
+                      icount = icount + 1
+
+ 40                 continue
+ 45               continue
+ 50             continue
+ 55           continue
+              if ( .not.oij .or. ish1.ne.ish2 ) dE = dE + dE
+              if ( .not.okl .or. ish3.ne.ish4 ) dE = dE + dE
+              if ( .not.oikjl .or. ish1.ne.ish3 .or. ish2.ne.ish4 )
+     $             dE = dE + dE
+              frc(icart,idatom(i)) = frc(icart,idatom(i)) + dE * q4
+ 35         continue
+          endif   ! rhf
+        else  ! idatom
           icount = icount + 3 * Nint
         endif
  38   continue
