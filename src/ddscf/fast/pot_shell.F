@@ -223,9 +223,9 @@ c
       end
       subroutine dens_sph_to_cart(itype, jtype, dens, ld, denc,
      $     work, numi, numj)
+      implicit none
 #include "mafdecls.fh"
 #include "spcartP.fh"
-      implicit none
       integer itype, jtype, ld, numi, numj
       double precision dens(ld,*)
       double precision work(numi,*)
