@@ -1,4 +1,4 @@
-/*$Id: rtdb_f2c.c,v 1.16 1999-07-14 00:29:10 d3e129 Exp $*/
+/*$Id: rtdb_f2c.c,v 1.17 1999-11-11 19:45:38 d3e129 Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -442,11 +442,13 @@ Logical rtdb_cget_(const Integer *handle, const char *name,
 
     if (i == *nelem) {
       (void) fprintf(stderr, "rtdb_cget: array has too few elements\n");
+      (void) fprintf(stderr, "rtdb_cget: name was <<%s>>\n",name);
       return FORTRAN_FALSE;
     }
 
     if (!string_to_fortchar(element, alen, next)) {
       (void) fprintf(stderr, "rtdb_cget: array element is too small\n");
+      (void) fprintf(stderr, "rtdb_cget: name was <<%s>>\n",name);
       return FORTRAN_FALSE;
     }
   }
