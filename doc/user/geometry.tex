@@ -121,10 +121,10 @@ Examples of expected input for the string \verb+group_name+ include
 such entries as
 
 \begin{itemize}
-\item \verb+c2v+ -- C\sub{2v}
-\item \verb+d2h+ -- D\sub{2h}
-\item \verb+Td+ -- T\sub{d}
-\item \verb+d6h+ -- D\sub{6h}
+\item \verb+c2v+ -- C\_{2v}
+\item \verb+d2h+ -- D\_{2h}
+\item \verb+Td+ -- T\_{d}
+\item \verb+d6h+ -- D\_{6h}
 \end{itemize}
 
 The user must know the symmetry of the molecule being modeled, and be able
@@ -150,8 +150,11 @@ the form,
 
 \end{verbatim}
 
-The string \verb+tag+ is the name of the atom, and must correspond to the
-name of an atom in one of the basis sets defined for the calculation. 
+The string \verb+tag+ is the name of the atom or center.  I is limited to
+16 characters, and must correspond to the
+name of an atom in one of the basis sets defined for the calculation.
+Atoms or centers with the same \verb+tag+ will use the same basis set in
+the calculation. 
 (See Section \ref{sec:basis} for a discussion of the input for the
 \verb+BASIS+ directive).  In most cases, the entry for \verb+tag+ is the
 chemical symbol for the element, such as \verb+O+ for oxygen, \verb+H+
@@ -307,7 +310,8 @@ entered?
 %    Only  the  name  of the first atom is required. 'ghost' is used
 %    only when specifying a 'ghost' atom.
     For the first atom in the molecule, the Z-matrix input requires only  
-    the name atom, which is usually the chemical symbol for the atom.
+    the name of the atom at it appears in the basis set.  This is usually 
+    the chemical symbol for the atom.
     However, if the atom is a 'dummy center', the chemical symbol must
     be preceeded by \verb+x+ or \verb+bq+. (The keyword 'ghost' is required
     only when specifying that the atom is to be defined as a 'ghost' atom.)
@@ -316,7 +320,8 @@ entered?
 
 %   Only a name and a bond distance is required for atom 2.  For 'ghost',
 %   same remark applies as before.
-    For the second atom, the Z-matrix input requires the name of the atom, 
+    For the second atom, the Z-matrix input requires the name of the atom
+    as it appears in the basis set, 
     plus the connectivity <$i1$> and the bond distance <$blength$> 
     connecting it to another atom. 
 
@@ -334,14 +339,16 @@ entered?
 %    Only  a  name, distance, and angle are required for atom 3.  For
 %    'ghost', same remark applies as before.
     For the third atom of the molecule, the Z-matrix input requires the
-    name of the atom, and the connectivity <$i1$> and bond distance 
+    name of the atom as it appears in the basis set and the connectivity 
+    <$i1$> and bond distance 
     <$blength$> connecting it to atom 2, plus the connectivity <$i2$>
     and angle <$alpha$> it makes with the plane of the first two atoms. 
 
    \item $<$atom$>$ $<$i1$>$ $<$blength$>$ $<$i2$>$ $<$alpha$>$ $<$i3$>$ $<$beta$>$ $<$i4$>$ [ghost] %
 
     For the fourth atom, and all subsequent atoms in the molecule (if it
-    has more than four atoms, the Z-matrix input requires the name of the atom,
+    has more than four atoms), the Z-matrix input requires the name 
+    of the atom as it appears in the basis set,
     plus the connectivities and bond length,
     bond angle, and either the dihedral angle or a second bond angle
     for the atom.
@@ -451,7 +458,7 @@ for the {\bf frozen} variables is also signaled with a blank line.
 
 The following example illustrates the Z-matrix input for the molecule
 $CH_3CF_3$.  This input uses integer numbers for the connectivities {\tt i1},
-{\tt i2}, {\tt i3} ldots, but has symbolic strings as entries for the Z-matrix
+{\tt i2}, {\tt i3} \ldots, but has symbolic strings as entries for the Z-matrix
 variables {\tt blength}, {\tt alpha}, and {\tt beta}.  It therefore must
 also include input lines defining the symbolic strings, following the blank
 line that terminates the Z-matrix input.  This example also includes a set
