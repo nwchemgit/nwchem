@@ -52,6 +52,7 @@ c
       double precision inter_p(maxbonds), inter_charge
       character*32 inter_tags(maxbonds)
       double precision p, real_charge
+      character*1024 high_input, medium_input, low_input
 c     
 c     For manipulating the geometry
 c     
@@ -137,7 +138,14 @@ c
      $     medium_ecp = ' ' 
       if (.not. rtdb_cget(rtdb, 'oniom:low:ecp', 1, low_ecp))
      $     low_ecp = ' '
-c     
+c
+      if (.not. rtdb_cget(rtdb, 'oniom:high:input', 1, high_input))
+     $     high_input = ' '
+      if (.not. rtdb_cget(rtdb, 'oniom:medium:input', 1, medium_input))
+     $     medium_input = ' ' 
+      if (.not. rtdb_cget(rtdb, 'oniom:low:input', 1, low_input))
+     $     low_input = ' '
+c
       if (.not. rtdb_cget(rtdb, 'oniom:v_low_real', 1, 
      $     v_low_real)) 
      $     call util_file_name('lrmos', .false.,.false., v_low_real)
@@ -237,6 +245,8 @@ c
      $           high_basis(1:inp_strlen(high_basis)),
      $           high_ecp(1:inp_strlen(high_ecp))
          end if
+         if (high_input .ne. ' ') 
+     $        write(6,101) high_input(1:inp_strlen(high_input))
          if (medium_theory .ne. ' ') then
             if (medium_ecp .eq. ' ') then
                write(6,1) ' medium', 
@@ -248,6 +258,8 @@ c
      $              medium_basis(1:inp_strlen(medium_basis)),
      $              medium_ecp(1:inp_strlen(medium_ecp))
             end if
+            if (medium_input .ne. ' ') 
+     $           write(6,101) medium_input(1:inp_strlen(medium_input))
          end if
          if (low_ecp .eq. ' ') then
             write(6,1) '    low', low_theory(1:inp_strlen(low_theory)), 
@@ -257,8 +269,11 @@ c
      $           low_basis(1:inp_strlen(low_basis)),
      $           low_ecp(1:inp_strlen(low_ecp))
          end if
+         if (low_input .ne. ' ') 
+     $        write(6,101) low_input(1:inp_strlen(low_input))
  1       format(6x,a7,2x,'theory=',a,2x,'basis="',a,'"',:,2x,
      $        'ecp="',a,'"')
+ 101     format(15x,'input string="',a,'"')
 c
          write(6,*)
          write(6,15)
@@ -432,7 +447,8 @@ c     Low + Real
 c     
       if (oprint_head)
      $     call util_print_centered(6, 'ONIOM LOW+REAL', 20, .true.)
-      call oniom_param(rtdb, ' ', low_basis, low_ecp, real_charge)
+      call oniom_param(rtdb, ' ', low_basis, low_ecp, real_charge,
+     $     low_input)
       call oniom_manage_mos(rtdb,low_theory,v_low_real)
       if (task .eq. 'energy') then
          status = task_energy_doit(rtdb, low_theory, e_low_real)
@@ -449,7 +465,7 @@ c
       if (oprint_head)
      $     call util_print_centered(6, 'ONIOM LOW+MODEL', 20, .true.)
       call oniom_param(rtdb, 'oniom model',low_basis, low_ecp,
-     $     model_charge)
+     $     model_charge, low_input)
       call oniom_manage_mos(rtdb,low_theory,v_low_model)
       if (task .eq. 'energy') then
          status = task_energy_doit(rtdb, low_theory, e_low_model)
@@ -467,7 +483,7 @@ c
       if (oprint_head)
      $     call util_print_centered(6, 'ONIOM HIGH+MODEL', 20, .true.)
       call oniom_param(rtdb, 'oniom model', 
-     $     high_basis, high_ecp, model_charge)
+     $     high_basis, high_ecp, model_charge, high_input)
       call oniom_manage_mos(rtdb,high_theory, v_high_model)
       if (task .eq. 'energy') then
          status = task_energy_doit(rtdb, high_theory, e_high_model)
@@ -487,7 +503,7 @@ c
          if (oprint_head)
      $        call util_print_centered(6, 'ONIOM LOW+INTER', 20, .true.)
          call oniom_param(rtdb, 'oniom inter', 
-     $        low_basis, low_ecp, inter_charge)
+     $        low_basis, low_ecp, inter_charge, low_input)
          call oniom_manage_mos(rtdb, low_theory, v_low_inter)
          if (task .eq. 'energy') then
             status = task_energy_doit(rtdb, low_theory, e_low_inter)
@@ -505,7 +521,7 @@ c
          if (oprint_head) call util_print_centered
      $        (6, 'ONIOM MEDIUM+INTER', 20, .true.)
          call oniom_param(rtdb, 'oniom inter', 
-     $        medium_basis, medium_ecp, inter_charge)
+     $        medium_basis, medium_ecp, inter_charge, medium_input)
          call oniom_manage_mos(rtdb,medium_theory,v_medium_inter)
          if (task .eq. 'energy') then
             status = task_energy_doit(rtdb,medium_theory,e_medium_inter)
@@ -524,7 +540,7 @@ c
          if (oprint_head) call util_print_centered
      $        (6, 'ONIOM MEDIUM+MODEL', 20, .true.)
          call oniom_param(rtdb, 'oniom model',
-     $        medium_basis, medium_ecp, model_charge)
+     $        medium_basis, medium_ecp, model_charge, medium_input)
          call oniom_manage_mos(rtdb,medium_theory,v_medium_model)
          if (task .eq. 'energy') then
             status = task_energy_doit(rtdb,medium_theory,e_medium_model)
@@ -749,11 +765,12 @@ c
       character*32 high_theory, high_basis, high_ecp
       character*32 medium_theory, medium_basis, medium_ecp
       character*32 low_theory, low_basis, low_ecp
-      integer bond, junk, i, j
+      character*1024 high_input, medium_input, low_input
 c
       character*256 v_low_real, v_low_model, v_high_model,
      $     v_medium_model, v_medium_inter, v_low_inter
 c
+      integer bond, junk, i, j
       character*2 symbol
       character*8 element
       integer atn
@@ -761,12 +778,15 @@ c
       high_theory = ' '
       high_basis = ' '
       high_ecp = ' '
+      high_input = ' '
       medium_theory = ' '
       medium_basis = ' '
       medium_ecp = ' ' 
+      medium_input = ' '
       low_theory = ' '
       low_basis = ' '
       low_ecp = ' '
+      low_input = ' '
       model_nat = 0
       model_nbonds = 0
       model_charge = -999.0     ! Used to indicate no charge
@@ -790,15 +810,18 @@ c
 c
       if (inp_compare(.false.,'high',test)) then
 c
-         call oniom_theory_input(high_theory,high_basis,high_ecp)
+         call oniom_theory_input(high_theory,high_basis,high_ecp,
+     $        high_input)
 c     
       else if (inp_compare(.false.,'medium',test)) then
 c
-         call oniom_theory_input(medium_theory,medium_basis,medium_ecp)
+         call oniom_theory_input(medium_theory,medium_basis,medium_ecp,
+     $        medium_input)
 c     
       else if (inp_compare(.false.,'low',test)) then
 c
-         call oniom_theory_input(low_theory,low_basis,low_ecp)
+         call oniom_theory_input(low_theory,low_basis,low_ecp,
+     $        low_input)
 c     
       else if (inp_compare(.false.,'print', test) .or.
      $        inp_compare(.false.,'noprint', test)) then
@@ -969,6 +992,16 @@ c
      $     medium_ecp).and. status
       if (low_ecp .ne. ' ') 
      $     status = rtdb_cput(rtdb, 'oniom:low:ecp', 1, low_ecp)
+     $     .and. status
+c
+      if (high_input .ne. ' ') 
+     $     status = rtdb_cput(rtdb, 'oniom:high:input', 1, high_input)
+     $     .and. status
+      if (medium_input .ne. ' ') 
+     $     status = rtdb_cput(rtdb, 'oniom:medium:input', 1, 
+     $     medium_input).and. status
+      if (low_input .ne. ' ') 
+     $     status = rtdb_cput(rtdb, 'oniom:low:input', 1, low_input)
      $     .and. status
 c
       if (v_low_real .ne. ' ') status = status .and. 
@@ -1149,12 +1182,12 @@ c
      $     ('oniom: free of actlist?',0)
 c
       end
-      subroutine oniom_theory_input(theory,basname,ecpname)
+      subroutine oniom_theory_input(theory,basname,ecpname,input)
       implicit none
-      character*(*) theory, basname, ecpname ! [output]
+      character*(*) theory, basname, ecpname, input ! [output]
 #include "inp.fh"
 c
-c     (high||medium||low) theory [basisname] [ecp ecpname]
+c     (high||medium||low) theory [basis basname] [ecp ecpname] [input inpstr]
 c
 c     Read oniom theory input ... defaults assumed set outside
 c
@@ -1164,24 +1197,32 @@ c
      $     ('oniom_input: failed reading theory',0)
 c
  10   if (.not. inp_a(test)) return
-      if (inp_compare(.false.,'ecp',test)) then
+      if (inp_compare(.false.,'basis',test)) then
+         if (.not. inp_a(basname)) call errquit
+     $        ('oniom_input: failed reading basname',0)
+      else if (inp_compare(.false.,'ecp',test)) then
          if (.not. inp_a(ecpname)) call errquit
      $        ('oniom_input: failed reading ecpname',0)
+      else if (inp_compare(.false.,'input',test)) then
+         if (.not. inp_a(input)) call errquit
+     $        ('oniom_input: failed reading input [input]',0)
       else
-         basname = test
+         call errquit('oniom: unknown keyword for high||medium||low',0)
       end if
       goto 10
 c
       end
-      subroutine oniom_param(rtdb, geom, basis, ecp, charge)
+      subroutine oniom_param(rtdb, geom, basis, ecp, charge, input)
       implicit none
       integer rtdb
-      character*(*) geom, basis, ecp
+      character*(*) geom, basis, ecp, input
       double precision charge
 #include "rtdb.fh"
 #include "mafdecls.fh"
 c
       logical ignore
+      logical nw_inp_from_character
+      external nw_inp_from_character
 c
       if (charge .ne. -999.0d0) then
          if (.not. rtdb_put(rtdb,'charge',mt_dbl,1,charge))
@@ -1198,12 +1239,15 @@ c
       end if
 c
       if (ecp .ne. ' ') then
-         write(6,*) ' SETTING ECP ', ecp
          if (.not. rtdb_cput(rtdb, 'ecp basis', 1, ecp)) 
      $        call errquit('oniom: setting ecp?',0)
       else
-         write(6,*) ' UNSETTING ECP'
          ignore = rtdb_delete(rtdb,'ecp basis')
       end if
+c
+      if (input .ne. ' ') then
+         if (.not. nw_inp_from_character(rtdb,input))
+     $        call errquit('oniom: error processing input string',0)
+      endif
 c     
       end
