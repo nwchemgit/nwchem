@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.13 1997-04-11 18:33:10 d3g681 Exp $
+* $Id: task_gradient.F,v 1.14 1997-05-14 20:08:34 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -99,7 +99,7 @@ c
       else if (theory .eq. 'oimp2') then
          status = .false.       ! No derivatives yet
       else if (theory .eq. 'ccsd') then
-         status = .false.       ! No derivatives yet
+         status = task_num_grad(rtdb) ! Only numerical
       else if (theory .eq. 'qmmm') then
          if (ga_nodeid().eq.0) then
            write(6,*)'task_gradient: qmmm should never be the theory '
