@@ -3,16 +3,22 @@
 \label{sec:modules}
 
 The molecular calcluation modules are the high level molecular
-calculation programs within NWChem.  They are essentially independent
-programs that perform the various functions invoked by the
-task directives, using the appropriate theory for a specified
+calculation programs within NWChem for performing {\em ab initio} 
+electronic structure calculations.  A wide range of computational
+chemistry methods have been implemented in NWChem, representing 
+the core functionality of a general purpose computational chemistry 
+package.  These modules are essentially independent
+programs that perform various functions (such as energy minimization,
+geometry optimization, normal mode vibrational analysis, and 
+molecular dynamics) 
+using the appropriate theory for a specified
 operation.  This chapter describes each module in detail under
 the appropriate theory heading below.  The various operations
 that can be performed with the different modules are also described.
 
 \section{Theories}
 
-There are modules in NWChem to support ten different theory options
+NWChem contains modules to support ten different theory options
 for molecular calculations.  
 \begin{itemize}
  \item Self-Consistent Field (SCF) or Hartree-Fock
@@ -31,21 +37,162 @@ for molecular calculations.
 The following subsections describe the internal program structure of each
 of these modules.
 
-\subsection{SCF}
+\subsection{Self-Consistent Field Module -- SCF}
+
+% Under construction.
+The essential core functionality of NWChem is provided by the direct self-consistent field
+(SCF) module.  SCF theory is based on the concept that in a system of N electrons 
+each electron interacts with a
+mean potential created by the entire system, rather than 
+explicity with the other (N-1) electrons.
+The self-consistent field (SCF) method is generally derived by assuming a specific
+form of the solution to the quantum mechanical equation as expressed in the
+electronic Schr\"{o}dinger equation.  This solution leads to a set of
+coupled integro-differential equations
+that can be solved numerically.
+Rather than actually solving these equations, however, the assumed solution is
+expanded in a finite set of primitive functions called the basis set, which is
+usually chosen to be the
+atomic orbitals.  This yields
+a set of coupled homogeneous equations (the Hartree-Fock equations) that can be
+written in matrix form.  The eigenvalues and eigenvectors of the matrix (which is
+the Fock matrix) descibe the particle interactions.
+
+The total energy of the molecular system is a function of the positions of the atoms
+and one-particle wavefunctions.
+A density matrix is defined over the occupied orbitals and can be used along
+with the one- and two-electron integrals of the atomic basis in an appropriate 
+representation of the Fock matrix.  In an SCF solution procedure, the molecular
+orbital coefficients are used to compute the density matrix, which in turn is
+used to construct the Fock matrix from the list of atomic orbital two-electron
+integrals.  A new set of coefficients is obtained by solving the eigenvalue
+equation, and the cycle is repeated.  Convergence of the wave function is
+satisfied when the molecular orbital coefficients in the matrix are self-consistent.
+
+The implementation of the parallel direct SCF method in NWChem 
+distributes the arrays describing the atoms and the corresponding basis
+functions across the aggregate memory of the system using the GA tools.
+The size of the system that can be modeled therefore scales with the
+size of the MPP and is not unduly constrained by the capacity of a single
+processor.
+
+The construction of the Fock matrix, which is the computationally dominant
+step in the method, is readily parallelized since the integrals can
+be computed concurrently.  A strip-mined approach is used, in which
+the integral contributions to small blocks of the Fock matrix are
+computed locally and accumulated asyncronously into the distributed matrix.
+
+The conventional SCF solution scheme is based on repeated diagonalizations of
+the Fock matrix, but in parallel this operation can become a severe bottleneck
+in parallel implementations of the method.  Quadratically convergent SCF is 
+implemented in NWChem.  In this approach, the
+equations are recast as a non-linear minimization.  This bypasses the
+diagonalization step, replacing it with a quadradically convergent 
+Newton-Raphson minimization.  The scheme consists only of data parallel operations
+and matrix multiplications.  This guarantees high efficiency on parallel
+machines.  The method is also amenable to performance enhancements that can
+substantially reduce computation expense with no effect on the final
+accuracy, such as computing the orbital-Hessian vector products only approximately.
+
+The scalability of this approach has been demonstrated on a wide variety
+of platforms.
+Solutions can be obtained for a closed-shell spin restricted (RHF) wavefunction,
+closed-shell spin unrestricted (UHF) wavefunction, or spin-restricted open
+shell (ROHF) wavefunction.
+
+\subsection{Gaussian Density Functional Theory Module -- DFT}
+
+%Under construction.
+Density functional theory (DFT) provides an approach to solving the Kohn-Sham 
+equation in which the total energy of the molecular system is a function
+of the postions of the atoms and one-particle densities.
+The approach in DFT is to assume
+a charge density and then obtain
+successively better approximations of the Hamiltonian.  In traditional
+{\em ab initio} methods, by contrast, the approach is to assume an exact 
+Hamiltonian and then obtain 
+successively better approximations of the wavefunction.
+When the total
+energy is minimized with respect to the variational parameters, the resulting
+one-particle equations are exactly the same as the Hartree-Fock method except
+for the handling of the exchange terms and the way the electron
+exchange correlation is incorporated.  The DFT method can yield results
+similar to those obtained with {\em ab initio} methods such as SCF, but 
+at a substantially reduced computational effort.
+
+NWChem contains a parallel implementation of the Hohenberg-Kohn-Sham formalism
+of density functional theory.
+The Gaussian basis DFT method breaks down the Hamiltonain into the same
+basic one-electron and two-electron components as traditional Hartree-Fock
+methods.  In DFT, the two-electron component is
+further broken down into a Coulomb term and an exchange correlation term.
+The electron density and the exchange-correlation functional can also be
+expanded in terms of Gaussian basis sets.
+
+DFT differs significantly from other methods in the treatment of the
+exchange-correlation term used in building the Fock matrix.  The computationally
+intensive components of a DFT calculation include the fitting of the charge
+density, construction of the Coulomb potential, construction of the exchange-
+correlation potential, and the subsequent diagonalization of the resulting
+equations.  The integrals required for the fitting of the charge density and 
+the construction of
+the Coulomb contribution to the Fock matrix are independent and therefore
+can be computed in parallel.  As with the SCF method, these independent
+integral contributions are computed locally using a strip-mined approach and
+accumulated asynchronously into the distributed matrix.  Very little communication
+is required between nodes, other than a shared counter and global array accumulation
+step.
+
+\subsection{M{\o}llier-Plesset Module -- MP2}
 
 Under construction.
 
-\subsection{DFT}
+\subsection{Resolution of the Identity Approximate Integral Method}
+
+The amount of time spent computing the two-electron four-center integrals
+over gaussian basis functions is a significant component of many {\em ab initio}
+algorithms.  Improvements in the computational efficiency of the
+base integral evaluation algorithms can have a significant effect on the
+overall speed of the calculation.  The resolution of the identity (RI) method
+is an option available in NWChem for obtaining an approximation of
+the two-elecrtron four-center integrals for M{\o}ller-Plesset theory (MP2).
+The method is also available as an extension to SCF calculations and DFT.
+
+The basic approach of the RI method is to factor the four-center integral into
+two parts;
+
+%\begin{equation}
+%(ij|kl) = \sumi\{\gamma}\N L_{ij \gamma}R_{\gamma kl}
+%\end{equation}
+
+
+This identity is inserted into the two-electron integrals and (then it gets
+really complicated... Do we really want to go into this here?)
+
+In the implementation of the RI method in NWChem the transformed three-center integrals
+are computed and then stored for repeated use.  The integrals are stored in
+a global array
+using a distributed in-core method or a disk-based method.
+The in-core array may be distributed over the distributed memory of a
+parallel computer.  The disk-based array is stored in a Disk Resident Array
+library.  This approach can be used if there is not enough memory available to
+store the global array in-core, but it will result in slower access times.
+
+\subsubsection{RI-MP2}
 
 Under construction.
 
-\subsection{MP2}
+\subsubsection{RISCF}
 
-Under construction.
-
-\subsection{RI-MP2}
-
-Under construction.
+The transformed integrals can be used in the calculation of the Coulomb and
+exchange contributions to the Fock matrix for any of the modules.
+In the case of restricted closed shell SCF calculations, the number of operations
+can be further reduced by inserting the definition of the density matrix
+and using the molecular orbital (MO) vectors instead.  In the second-order SCF
+procedure as implemented in NWChem, the MO vectors are available during
+the energy and gradient calculations, but not during the line-search algorithm.
+In a DIIS-based Restricted Hartree-Fock (RHF) or SCF procedure, these savings
+in computation time could be used for every Fock build.
 
 \subsection{CCSD}
 
@@ -57,9 +204,41 @@ Under construction.
 
 \subsection{CI}
 
-Under construction.
+%Under construction.
+In the configuration interaction method, the many-electron wave function
+is expanded in Slater determinants or spin-adapted configuration-state
+functions (CSF) usually constructed from orthonormal orbitals.
 
-\subsection{MM}
+The CI energy is the expectation value of the Hamiltonian operator.  Variation 
+of the expansion coefficients so as to minimize the energy leads to the
+matrix eigenvalue equation.  These matrix elements are relatively 
+simple in a determinant basis, but the use of spin symmetry typically
+makes the CSF expansions shorter by a factor of four.  There are
+advantages to either approach.
+
+Conventional CI methods explicitly construct the Hamiltonian matrix and
+apply an iterative eigenvalue method.  Most algorithms for the solution
+of the eigenvector problem require the formation of matrix-vector
+products for a set of intermedite vectors.  This feature is exploited in
+integral-driven direct-CI methods, which avoid explicit construction
+and storage of the potentially large Hamiltonian matrix.  For large-scale
+wavefunction expansions, the computation of these matrix-vector products
+dominates the overall procedure.
+
+Conventional and selected-CI methods are straighforwardly parallelized.
+The Hamiltonian matrix elements may be independently computed and
+stored on disk or in memory.  A replicated data approach may be adoped for the
+matrix-vector products.
+
+The full-CI wave function includes all possible CSFs of the appropriate 
+$S^{2}$ and $S_{z}$ (or determinates of $S_{z}$) spin quantum numbers.  Full CI is the
+exact solution of the non-relativistic Schr\"{o}dinger equation in the chosen
+one-particle basis, and the energy is invariant to orbital rotations.  The
+length of the full-CI expansion grows very rapidly with the number of
+electrons and molecular orbitals, and consequenty full-CI wave functions
+can be computed only for relatively small systems.
+
+\subsection{Molecular Mechanics (MM)}
 
 Under construction.
 
@@ -83,8 +262,8 @@ a z-matrix input.
 \item Compute second derivatives 
 and print out an analysis of molecular vibrations.
 \item Compute molecular dynamics using nwARGOS.
-\item Perform multi-con\-fig\-ura\-tion
-  thermo\-dynamic integ\-ration using nwARGOS.
+\item Perform multi-configuration
+  thermodynamic integration using nwARGOS.
 \end{itemize}
 
 
@@ -110,5 +289,102 @@ Under construction.
 
 \subsection{Dynamics}
 
-Under construction.
+%Under construction.
+Molecular dynamics simulation in NWChem is based on a spacial
+decomposition of the molecular volume.  This approach to parallelizing
+is based on a decomposition of the molecular simulation 
+volume over the processing elements available for the calculation.
+The main advantage of this approach is that memory requirements are significantly
+reduced, compared to replicating all data on all nodes.
+In addition, the locality of short-range interactions significantly 
+reduces the required communication between nodes to evaluate interatomic
+forces and energies.
+
+There are two major disadvantages to this type of decomposition, however.
+Periodic redistribution of the atoms over the simulation volume is necessary,
+since the atoms are not constrained to remain within the region boundaries.
+The distribution of atoms in a system is usually not homogeneous, so in
+general the computational work will not be uniformly distributed over all
+nodes.  Some nodes will be working hard while others are essentially idle.
+Periodic and dynamic balancing of the computation load is therefore required
+to reduce excessive synchronization times and increase parallel efficiency.
+
+Communication is implemented using the Global Arrays toolkit, which allows the
+physically distributed memory to be treated as a single logical data object,
+using logical topology independent array addressing for simple data communication 
+as well as for linear algebra operations.  Remote memory access is one-sided
+and asynchronous when using Global Arrays.  The data needed on one node
+can be retrieved by that node
+without actually communicating directly with the node that owns the
+data.  In the calculation of forces for a dynamics simulation, this allows
+a node to obtain the 
+remote coordinates needed for the calculation of the forces, to
+accumulate the local forces rapidly, and to 
+accumulate the the remote forces
+asynchronously.  All of these steps are executed without synchronization
+or remote node involvement in initiating the data transfer.
+Point-to-point communication is required only when an atom moves from its
+current domain to a domain assigned to another node.  This is implemented using
+a global synchronization to redistribute the atoms, and consists of the following
+five-step process:
+
+\begin{enumerate}
+\item Determine new node ownership of each local atom.
+\item Copy the atomic data for each atom leaving a node domain into the local portion
+of a global array.
+\item For each node that has atoms leaving its domain, send the
+pointers for the atomic data of the atoms changing domains to the global
+array space of the receiving node(s), in a one-sided communication.
+\item Perform a global synchronization to ensure that all nodes that have
+atoms leaving their domain have done
+Step 2 and Step 3.
+\item For each node that has atoms entering its domain, retreive the atomic data 
+from the global array (in a one-sided communication), using the pointers received
+in step 3.
+\end{enumerate}
+ 
+Dynamic load balancing is used in NWChem to increase the efficiency of the
+spacial decomposition molecular dynamics algorithm by trying to keep all nodes
+more or less equally busy.  Two methods are implemented in NWChem to accomplish
+this.  In one option, load balancing is collective.  The physical space
+assigned to the busiest node is decreased, reducing the size of its domain, and 
+the domain size of all other nodes is increased.   In the other option, the
+load balancing is local.  The physical space assigned to the busiest node
+is decreased, but the domain size is increased only for the least busy immediately
+adjacent node.  The collective method results in the most equitable allocation
+of work, but requires additional global communication.  The local method requires
+minimal additional communication, but may not do much in the way of load balancing
+if all nodes near the busiest node are also working hard.
+
+A molecular dynamics simulation in NWChem consists of the following major steps.
+
+\begin{enumerate}
+\item   perform dynamic load balancing using the option selected by input
+\item   determine particle ownership -- 
+\begin{itemize}
+\item perform asynchronous local one-sided communication to put atomic data and
+pointers into global arrays
+\item perform global synchronization so that all coordinates will be updated
+\end{itemize}
+\item   perform force evaluation, including the particle-mesh Ewald summation (pme)
+\item   perform synchronization required for dynamic load balancing
+\item   update coordinates, perform property evaluations, and record results
+\end{enumerate}
+
+This sequence is repeated until the simulation is complete.  Step 3, the force
+evaluation, is the most computationally intensive part of the calculation.      
+In particle-mesh Ewald summation, the calculation of electrostatic forces and
+energies is separated into short range interactions and
+long range interactions.  The short range interactions are calculated explicitly,
+and the long range interactions are approximated using a discrete convolution
+on an interpolating grid.  Three-dimensional fast Fourier tranforms are used
+to perform the convolution efficiently.  Additional efficiency is achieved by
+performing the calculation of energies and forces in reciprocal space on a subset
+of the available nodes.  All nodes must be involved in setting up the charge grid,
+but only a subset of the nodes have to perform the fast Fourier 
+transforms and the computations
+in reciprocal space.  Separating this work from the calculation of the pme atomic 
+forces allows nodes that are not involved in the reciprocal work to continue
+immediately with calculation of the real space forces.
+
 

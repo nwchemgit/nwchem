@@ -1,24 +1,55 @@
-% new section to introduce MA, GA, and ChemIO as the menage a trios known as NUMA
+% intro to Software Development Toolkit chapter
+\label{sec:sdt}
 
+The Software Development Toolkit is the foundation of the functional architecture
+in NWChem.  It consists of various useful elements for memory management and
+data manipulation that are needed to facilitate the
+development of parallel computational chemistry algorithms.  The 
+memory management elements implement the NUMA memory management module
+for efficient execution in parallel enviroments and provides the means 
+for interfacing between the calculation modules
+of the code and the system hardware.  Efficient data manipulation is
+accomplished using the runtime data base, which
+stores the information needed to run particular calculations and allows 
+different modules to have access to the same information.
+This chapter describes the various elements of the Software Development Toolkit
+in detail.
+
+
+
+\section{Non-Uniform Memory Allocation (NUMA)}
 \label{sec:numa}
 
+All computers have several levels of memory, with parallel computers generally
+having more than computers with only a single processor.  Typical memory levels
+in a parallel computer include the processor registers, 
+local cache memory, local main memory,
+and remote memory.  If the computer also supports virtual memory, local and
+remote disk memory are added to this heirarchy.  These levels vary in size,
+speed, and method of access, and in NWChem the differences among them are
+lumped under the general concept Non-Uniform Memory Access (NUMA).  This
+approach allows the developer to think of all memory anywhere in the system as
+accessible to any processor as needed.  It is then possible to focus
+independently on the questions of memory access methods and memory access costs.
+Memory access methods are determined by the programming model and available
+tools and the desired coding
+style for an application.  Memory access costs are determined by the 
+program structure and the performance characteristics of the computer system.
+The design of a code's major algorithms, therefore, is critical to 
+the creation of an efficient parallel program.
 
 In order to scale to massively parallel computer 
-architectures in all aspects of the hardware: CPU, disk,
-and memory, NWChem uses the principle of Non-Uniform Memory Access (NUMA)
-to distribute the data across all nodes.
-The MA tool allows the programmer to allocate memory that is local to
-the calling process.  This is data that will generally not be directly
-shared with other processes, such as workspace for a particular local
-calculation or for replication of very small sets of data.
+architectures in all aspects of the hardware (i.e., CPU, disk,
+and memory), NWChem uses Non-Uniform Memory Access
+to distribute the data across all nodes.  Memory access is achieved
+through explicit message passing using the TCGMSG interface.
+The Memory Allocator (MA) tool is used to allocate memory that is local to
+the calling process.  The Global Arrays (GA) tool is used to share
+arrays between processors as if the memory were physically shared.
+The complex I/O patterns required to accomplish efficient memory management
+are handled with the abstract programming interface ChemIO.
 
-The GA tool supports the NUMA model by allowing nodes to share arrays between
-processes as if the memory is physically shared.  It allows the
-programmer to use relatively simple routines to access and manipulate
-data in the shared arrays.  The trade-off with this approach is that
-access to shared data will be slower than access
-to local data, and the programmer must be aware of this in designing modules.
-
-The following subsections describe the Memory Allocator library and 
-the Global Arrays library and how they are used in NWChem.
+The following subsections discuss the TCGMSG message passing tool,
+the Memory Allocator library,  
+the Global Arrays library, and ChemIO, and describe how they are used in NWChem.
 

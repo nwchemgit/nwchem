@@ -3,9 +3,29 @@
 
 The Molecular Modeling Toolkit provides the basic functionality common to many
 chemistry algorithms in NWChem.  These tools include the geometry object,
-the basis set object, the linear algebra routines, symmetry, grids, and
-the integral API.  This chapter describes each of the tools
-in detail, so that developers can use them correctly when inserting new modules in
+the basis set object, the integral API, and the linear algebra routines.  
+These modules are not strictly
+"objects" in the sense usually used in an object oriented language, but
+they serve essentially the same purpose in that
+they encapsulate specific data and provide access to it through a well-defined
+abstract programming interface.  The geometry object specifies the
+physical makeup of the chemical system by defining atomic centers, 
+spatial location of the centers, and their nuclear charge.  It can include
+an applied electric field, the symmetry, and other characteristics of the
+system.  The basis set object handles the details of the Gaussian basis sets,
+and with the geometry object defines all information required by an 
+{\em ab initio} claculation that is not specific to a 
+particluar electonic state.  The integral API is a layer between the actual
+integral package and the application module.  It allows the developer to 
+essentially ignore the details of how the integrals are
+computed, which facilitates programming of new modules and allows 
+incorporation of new integral
+techniques with minimal distruption of applications that use those integrals.
+The explicit separation of these objects greatly simplifies the development
+of the chemistry modules of NWChem and allows more flexible use of the code
+and easier maintenance.
+This chapter describes each of the tools in detail,
+so that developers can use them correctly when inserting new modules in
 the code or modifying existing modules.  
 
 \section{The Geometry Object}
