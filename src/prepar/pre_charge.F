@@ -1,7 +1,7 @@
       logical function pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.20 1998-12-29 22:06:14 d3j191 Exp $
+c $Id: pre_charge.F,v 1.21 1999-07-09 14:46:03 d3j191 Exp $
 c
       implicit none
 c
@@ -117,8 +117,8 @@ c
       nout=natm
       if(util_print('sequence',print_default)) write(lfnout,1000) charge
  1000 format(' Fragment charge',t40,f12.6,/)
-      if(.not.rtdb_put(irtdb,'charge',mt_dbl,1,charge))
-     + call errquit('pre_charge: rtdb_put nconst failed',0)
+c      if(.not.rtdb_put(irtdb,'charge',mt_dbl,1,charge))
+c     + call errquit('pre_charge: rtdb_put nconst failed',0)
       goto 100
       endif
 c
