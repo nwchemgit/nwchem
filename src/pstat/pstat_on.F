@@ -33,7 +33,7 @@ C
       If ( PStat_Functions( Handle, PStat_QStat) ) then
 #if defined(ETIME)
          PStat_Start_Times( Handle, 1 ) = dble(etime(tarray))
-#elseif defined(IBM_USELESS)
+#elif defined(IBM_USELESS)
          PStat_Start_Times( Handle, 1 ) = ibm_cputime()
 #else
          PStat_Start_Times( Handle, 1 ) = Zero

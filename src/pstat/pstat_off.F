@@ -35,7 +35,7 @@ C
 #if defined(ETIME)
          PStat_Times( Handle, 1 ) = PStat_Times( Handle, 1 )
      $      + dble(etime(tarray)) - PStat_Start_Times( Handle, 1)
-#elseif defined(IBM_USELESS)
+#elif defined(IBM_USELESS)
          PStat_Times( Handle, 1 ) = PStat_Times( Handle, 1 )
      $      + ibm_cputime() - PStat_Start_Times( Handle, 1)
 #else
