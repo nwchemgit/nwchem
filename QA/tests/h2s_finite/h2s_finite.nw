@@ -5,8 +5,6 @@ start h2s
 
 memory global 40 mb stack 23 mb heap 5 mb
 
-set int:cando_hnd logical false 
-
 geometry "finite" units ang
 S 0.00000000 0.00000000 0.00000000 nucleus finite
 H 0.00000000  0.987951631325566 -0.905290878204984 nucleus finite
