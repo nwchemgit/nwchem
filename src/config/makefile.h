@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.105 1995-03-31 01:33:33 d3g681 Exp $
+# $Id: makefile.h,v 1.106 1995-04-11 03:03:04 og845 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -422,7 +422,7 @@ ifeq ($(TARGET),IBM)
 
    FOPTIONS = -qEXTNAME
    COPTIONS =
-  FOPTIMIZE = -O3
+  FOPTIMIZE = -O3 -NQ40000 -NT80000 -qstrict
   COPTIMIZE = -O
 
     DEFINES = -DIBM -DEXTNAM 
