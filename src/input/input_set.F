@@ -1,5 +1,5 @@
       subroutine input_set(rtdb)
-C$Id: input_set.F,v 1.12 1996-09-26 00:13:08 d3g681 Exp $
+C$Id: input_set.F,v 1.13 1997-12-18 19:29:01 d3e129 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -18,7 +18,7 @@ C$Id: input_set.F,v 1.12 1996-09-26 00:13:08 d3g681 Exp $
       double precision dtest
       integer i, nvalues, max_values, H_Values, I_Values, Space_Avail
       parameter (max_values = 100)
-      character*32     cvals(max_values)
+      character*64     cvals(max_values)
       character*8 test
       data types /'string', 'real', 'integer', 'logical', 'double'/
 c
