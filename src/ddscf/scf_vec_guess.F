@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.47 2003-01-22 23:50:04 edo Exp $
+c     $Id: scf_vec_guess.F,v 1.48 2003-05-28 19:59:47 edo Exp $
 c
       implicit none
 c
@@ -288,6 +288,10 @@ c
                      call dcopy(nbf,dbl_mb(k_occ),1,dbl_mb(k_occ+nbf),1)
                      call dcopy(nbf,dbl_mb(k_eval),1,dbl_mb(k_eval+nbf),
      &                          1)
+                     if (inp_compare(.false., 'dft', 
+     &                    calling_module)) 
+     &                    call dscal(2*nbf,0.5d0,dbl_mb(k_occ),1)
+                     
                   endif
                endif
 c               call scf_movecs_read
