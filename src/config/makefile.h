@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.490 2004-11-15 23:02:36 edo Exp $
+# $Id: makefile.h,v 1.491 2004-11-29 21:38:18 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -259,7 +259,7 @@ ifndef BLASOPT
 CORE_SUBDIRS_EXTRA = blas lapack 
 endif
 
-    DEFINES = -DSOLARIS  -DNOAIO  -DPARALLEL_DIAG
+    DEFINES = -DSOLARIS  -DNOAIO
 # Note that WS6 does not optimize robustly and if using this you must 
 #   - put "-nodpend -xvector=no" on FOPTIONS after -fast
 #   - remove "-fsimple=2 -depend -xvector=yes" from FOPTIMIZE.
@@ -328,7 +328,7 @@ ifeq ($(TARGET),SOLARIS64)
     CORE_SUBDIRS_EXTRA = blas lapack
          CC = cc
          FC = f77
-   DEFINES = -DSOLARIS  -DNOAIO -DSOLARIS64 -DPARALLEL_DIAG
+   DEFINES = -DSOLARIS  -DNOAIO -DSOLARIS64
 ifdef USE_INTEGER4
 else
    DEFINES  +=  -DEXT_INT
@@ -470,7 +470,7 @@ ifeq ($(TARGET),CRAY-T3D)
             LDOPTIONS = -s -Drdahead=on -L$(LIBDIR) 
 
 # Compilation also depends on compilers defining CRAY
-              DEFINES = -DCRAY_T3D -DPARALLEL_DIAG -DUSE_FCD
+              DEFINES = -DCRAY_T3D -DUSE_FCD
 
 #               LINK.f = /mpp/bin/mppldr $(LDOPTIONS)
                LINK.f = mppldr $(LDFLAGS)
@@ -506,7 +506,7 @@ ifeq ($(TARGET),CRAY-T3E)
 #            LDOPTIONS = -g -Xm  -lmfastv
             LDOPTIONS = -Wl"-s" -Xm  -lmfastv
 
-              DEFINES = -DCRAY_T3E -DCRAY_T3D -D__F90__ -DPARALLEL_DIAG -DUSE_FCD
+              DEFINES = -DCRAY_T3E -DCRAY_T3D -D__F90__ -DUSE_FCD
 
                LINK.f = f90 $(LDFLAGS)
 
@@ -627,7 +627,7 @@ endif
   FOPTIMIZE += -OPT:roundoff=3:IEEE_arithmetic=3
   FVECTORIZE += -OPT:roundoff=3:IEEE_arithmetic=3
 
-  DEFINES = -DSGI -DSGITFP -DEXT_INT -DPARALLEL_DIAG
+  DEFINES = -DSGI -DSGITFP -DEXT_INT
   CORE_LIBS += -llapack $(BLASOPT) -lblas
 ifeq ($(BUILDING_PYTHON),python)
 #needed for python 2.2.2
@@ -656,7 +656,7 @@ ifeq ($(TARGET),SGI_N32)
 
     INSTALL = @echo nwchem is built
   MAKEFLAGS = -j 4 --no-print-directory
-    DEFINES = -DSGI  -DSGI_N32 -DPARALLEL_DIAG
+    DEFINES = -DSGI  -DSGI_N32
 
 # RJH ... moved -OPT... to the FOPTIMIZE macro since it's an optimization!
 # (that breaks things).
@@ -743,7 +743,7 @@ ifeq ($(TARGET),HPUX)
   COPTIMIZE = -O
   RANLIB = echo
 
- DEFINES = -DHPUX -DEXTNAME -DPARALLEL_DIAG
+ DEFINES = -DHPUX -DEXTNAME
 ifeq ($(BUILDING_PYTHON),python)
 # needed if python was compiled with gcc (common)
       EXTRA_LIBS += -L/usr/local/lib/gcc-lib/hppa1.0-hp-hpux11.00/2.8.0 -lgcc
@@ -784,7 +784,7 @@ ifeq ($(TARGET),HPUX64)
   COPTIMIZE = -O
   RANLIB = echo
 
- DEFINES = -DHPUX -DEXTNAME -DPARALLEL_DIAG -DHPUX64 
+ DEFINES = -DHPUX -DEXTNAME -DHPUX64 
  ifdef USE_INTEGER4
  else
  DEFINES +=  -DEXT_INT
@@ -827,7 +827,7 @@ ifeq ($(TARGET),IBM)
     LDOPTIONS += -pg
   endif
 
-    DEFINES = -DIBM -DAIX -DEXTNAME -DPARALLEL_DIAG
+    DEFINES = -DIBM -DAIX -DEXTNAME
    CORE_LIBS +=  $(BLASOPT) 
 ifdef USE_ESSL
    DEFINES += -DESSL
@@ -924,7 +924,7 @@ ifeq ($(TARGET),IBM64)
   endif
    COPTIMIZE = -O -qmaxmem=8192
 
-    DEFINES = -DIBM -DAIX -DEXTNAME -DPARALLEL_DIAG
+    DEFINES = -DIBM -DAIX -DEXTNAME
     DEFINES += -DCHKUNDFLW
        LIBPATH += -L/usr/lib -L/lib 
 ifdef USE_INTEGER4
@@ -986,7 +986,7 @@ LARGE_FILES = YES
 	CC += -qarch=auto -qtune=auto -qcache=auto
 
 
-    DEFINES = -DLAPI -DSP1 -DAIX -DEXTNAME -DPARALLEL_DIAG
+    DEFINES = -DLAPI -DSP1 -DAIX -DEXTNAME
     DEFINES += -DCHKUNDFLW
 
 USE_ESSL = YES
@@ -1036,7 +1036,7 @@ LARGE_FILES = YES
   endif
   COPTIMIZE = -O
 
-    DEFINES = -DLAPI64 -DEXTNAME -DLAPI -DSP1 -DAIX -DPARALLEL_DIAG
+    DEFINES = -DLAPI64 -DEXTNAME -DLAPI -DSP1 -DAIX
     DEFINES += -DCHKUNDFLW
 ifdef USE_INTEGER4
    FOPTIONS += -qintsize=4
@@ -1087,7 +1087,7 @@ ifeq ($(TARGET),DECOSF)
              FVECTORIZE = -fast -O4 -tune host -arch host
              COPTIMIZE = -O
 
-               DEFINES = -DDECOSF -DPARALLEL_DIAG
+               DEFINES = -DDECOSF
 ifdef USE_INTEGER4
               FOPTIONS +=  -i4
              CORE_LIBS +=   -lcxml_ev6
@@ -1117,7 +1117,7 @@ endif
                INSTALL = @echo nwchem is built
                RANLIB = ranlib
              MAKEFLAGS = -j 1 --no-print-directory
-             DEFINES =-DMACX -DPARALLEL_DIAG
+             DEFINES =-DMACX
 
   ifeq ($(FC),xlf)
     XLFMAC=y
@@ -1207,7 +1207,7 @@ ifeq ($(BUILDING_PYTHON),python)
    EXTRA_LIBS += -lz  -lreadline -lncurses -lnwcutil  -lpthread -lutil -ldl
 endif
 
-  DEFINES = -DLINUX -DPARALLEL_DIAG
+  DEFINES = -DLINUX
 
 ifeq ($(LINUXCPU),x86) 
   ifeq ($(TARGET),CYGNUS)
@@ -1444,6 +1444,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
        ifdef USE_INTEGER4
          ifneq ($(_FC),g77)
            FOPTIONS += -i4 
+           DEFINES  += -DBAD_GACCESS
          endif
        else
          FOPTIONS += -i8
@@ -1453,7 +1454,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
      _CPU = $(shell uname -m  )
      CORE_SUBDIRS_EXTRA = blas lapack
      RANLIB = echo
-     DEFINES   +=   -DLINUX -DLINUX64 -DPARALLEL_DIAG
+     DEFINES   +=   -DLINUX -DLINUX64
      ifeq ($(_CPU),alpha)
 # using COMPAQ/DEC compilers (EA 3/13/2000)
        FC  = fort
@@ -1687,6 +1688,7 @@ LINK.f = /home/eapra/bin/ld  -L/home/eapra/nwchem/src/tools/lib/LINUX64 /opt/cro
       endif
         ifdef USE_INTEGER4
           FOPTIONS += -qintsize=4
+          DEFINES  +=   -DBAD_GACCESS
         else
           FOPTIONS += -qintsize=8
         endif
@@ -1940,7 +1942,12 @@ ifdef USE_SCALAPACK
   endif
 endif
 
-
+ifdef USE_SUBGROUPS
+  DEFINES += -DGANXTVAL -DUSE_SUBGROUPS
+#turn off peigs for now
+else
+  DEFINES += -DPARALLEL_DIAG
+endif
 ###################################################################
 #  All machine dependent sections should be above here, otherwise #
 #  some of the definitions below will be 'lost'                   #
