@@ -1,9 +1,10 @@
       subroutine tol_input(rtdb, module)
-C$Id: tol_inp.F,v 1.9 2000-02-23 23:13:41 edo Exp $
+C$Id: tol_inp.F,v 1.10 2000-04-11 15:39:26 hvd Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "stdio.fh"
       integer rtdb
       character*(*) module
 c     
@@ -62,7 +63,7 @@ c              of xc functional on a grid point and than be subsequently
 c              multiplied by a density element less than tol_rho.
 c     
   200 if (.not. inp_f(tol_rho)) then
-         write(6,*)' tol_inp: tol_rho value not found; defaulting ',
+         write(LuOut,*)' tol_inp: tol_rho value not found; defaulting ',
      &             ' to 1.d-10 '
          tol_rho=1.D-10
       endif            
@@ -75,8 +76,8 @@ c     accAOfunc; for use in int_eval_gbsets (called by quadvxcs),
 c                accuracy for evaluating AO gaussians
 c             
   300 if (.not. inp_i(iAOacc)) then
-         write(6,*)' tol_inp: accAOfunc value not found; defaulting ',
-     &             ' to 14.'
+         write(LuOut,*)' tol_inp: accAOfunc value not found; ',
+     &                 'defaulting to 14.'
          iAOacc = 14
       endif            
       if (.not. rtdb_put(rtdb, 'dft:iAOacc', mt_int, 1, iAOacc))
@@ -88,8 +89,8 @@ c     accCDfunc; for use in screening evaluation of CD gaussians
 c                on grid
 c             
   400 if (.not. inp_i(iCDacc)) then
-         write(6,*)' tol_inp: accCDfunc value not found; defaulting ',
-     &             ' to 20.'
+         write(LuOut,*)' tol_inp: accCDfunc value not found; ',
+     &                 'defaulting to 20.'
          iCDacc = 20
       endif            
       if (.not. rtdb_put(rtdb, 'dft:iCDacc', mt_int, 1, iCDacc))
@@ -100,7 +101,7 @@ c
 c     accCoul; for use in fitcd & fitvcoul for schwarz screening 
 c             
   500 if (.not. inp_i(itol2e)) then
-         write(6,*)' tol_inp: accCoul value not found; defaulting ',
+         write(LuOut,*)' tol_inp: accCoul value not found; defaulting ',
      &             ' to 10.'
          itol2e = 10
       endif
@@ -112,7 +113,7 @@ c
 c     accQrad; for use in setquad - r_max for quadrature points (distance in bohr)
 c             
   600 if (.not. inp_i(irqmax)) then
-         write(6,*)' tol_inp: accQrad value not found; defaulting ',
+         write(LuOut,*)' tol_inp: accQrad value not found; defaulting ',
      &             ' to 12.'
          irqmax = 12
       endif            
@@ -125,8 +126,8 @@ c     accXCfunc; for use in int_eval_gbsets (called by quadvxc1),
 c                accuracy for evaluating XC gaussians
 c             
   700 if (.not. inp_i(iXCacc)) then
-         write(6,*)' tol_inp: accXCfunc value not found; defaulting ',
-     &             ' to 20.'
+         write(LuOut,*)' tol_inp: accXCfunc value not found; ',
+     &                 'defaulting to 20.'
          iXCacc = 20
       endif            
       if (.not. rtdb_put(rtdb, 'dft:iXCacc', mt_int, 1, iXCacc))
@@ -137,7 +138,7 @@ c
 c     radius; screening radius used in computation of spatial weights (distance in bohr)
 c     
   800 if (.not. inp_f(radius)) then
-         write(6,*)' tol_inp: radius value not found; defaulting ',
+         write(LuOut,*)' tol_inp: radius value not found; defaulting ',
      &             ' to 25.d0.'
          radius=25.d0
       endif            
@@ -150,12 +151,12 @@ c
 c     
       return
 c     
-10000 write(6,10001)
+10000 write(LuOut,10001)
 10001 format(/,' tolerances [[tight], [tol_rho dtol], ',
      &       /,' [accAOfunc itol], [accCDfunc itol], ',
      &       /,' [accCoul itol], [accQrad itol], ',
      &       /,' [accXCfunc itol], [radius dtol] ')
-      call util_flush(6)
+      call util_flush(LuOut)
       call errquit('tol_input: invalid format', 0)
 c     
       end

@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.21 1999-07-02 17:35:25 d3e129 Exp $
+c     $Id: dft_input.F,v 1.22 2000-04-11 15:39:26 hvd Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -11,6 +11,7 @@ c
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "inp.fh"
+#include "stdio.fh"
 c     
 c     read input for DFT calculation.  All input is of the form:
 c     <keyword>  or   <keyword> <value>  or   <keyword> <value><units>
@@ -114,7 +115,7 @@ c
 c     iterations;
 c             
   900 if (.not. inp_i(iterations)) then
-         write(6,*)' dft_input: iterations value not found;',
+         write(LuOut,*)' dft_input: iterations value not found;',
      &             ' defaulting to 30'
          iterations = 30
       endif 
@@ -143,7 +144,7 @@ c
 c     mult;
 c             
  1200 if (.not. inp_i(mult)) then
-         write(6,*)' dft_input: spin multiplicity value not found;',
+         write(LuOut,*)' dft_input: spin multiplicity value not found;',
      &             ' ignoring option using default of singlet'
          mult = 1
       endif 

@@ -4,6 +4,7 @@ C     $Id:
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "stdio.fh"
       integer rtdb
       character*(*) module
 c     
@@ -162,16 +163,16 @@ c     HFexch; HF exact exchange
 c             
   400 if (inp_a(test) ) then
          if (inp_compare(.false.,'local', test) ) then
-            write(6,*)' HF exchange is by nature nonlocal',
+            write(LuOut,*)' HF exchange is by nature nonlocal',
      &                ' and cannot be conveniently split'
-            write(6,*)' into local and nonlocal pieces;',
+            write(LuOut,*)' into local and nonlocal pieces;',
      &                ' total HF exchange is assumed desired. '                   
             lxfac(1) = .true.
             nlxfac(1) = .true.
          elseif (inp_compare(.false.,'nonlocal', test) ) then
-            write(6,*)' HF exchange is by nature nonlocal',
+            write(LuOut,*)' HF exchange is by nature nonlocal',
      &                ' and cannot be conveniently split'
-            write(6,*)' into local and nonlocal pieces;',
+            write(LuOut,*)' into local and nonlocal pieces;',
      &                ' total HF exchange is assumed desired. '                   
             lxfac(1) = .true.
             nlxfac(1) = .true.
@@ -191,7 +192,8 @@ c
          nlxfac(1) = .true.
       endif
       if (.not. inp_f(xfac(1)) ) then
-         write(6,*)' xc_inp: hfexch multiplicative factor not found.'
+         write(LuOut,*)' xc_inp: hfexch multiplicative factor not ',
+     &                 'found.'
          xfac(1) = 1.0d0
       endif            
 c
@@ -201,9 +203,9 @@ c     becke88; Becke '88 functional for exchange
 c     
   500 if (inp_a(test)) then
          if (inp_compare(.false.,'local', test)) then
-            write(6,*)' becke88 "local" is equivalent to the',
+            write(LuOut,*)' becke88 "local" is equivalent to the',
      &                ' slater exchange local functional. '
-            write(6,*)' Resubmit using slater exchange. '
+            write(LuOut,*)' Resubmit using slater exchange. '
             call errquit(' xc_inp - functional description ',0)
          elseif (inp_compare(.false.,'nonlocal', test) ) then
             nlxfac(3) = .true.
@@ -379,15 +381,15 @@ c     lyp; LYP functional for correlation
 c             
   600 if (inp_a(test)) then
          if (inp_compare(.false.,'local', test)) then
-            write(6,*)' The lyp functional cannot be conveniently',
+            write(LuOut,*)' The lyp functional cannot be conveniently',
      &                ' split into local and nonlocal pieces; '
-            write(6,*)' total lyp is assumed desired. '                   
+            write(LuOut,*)' total lyp is assumed desired. '                   
             lcfac(2) = .true.
             nlcfac(2) = .true.
          elseif (inp_compare(.false.,'nonlocal', test)) then
-            write(6,*)' The lyp functional cannot be conveniently',
+            write(LuOut,*)' The lyp functional cannot be conveniently',
      &                ' split into local and nonlocal pieces; '
-            write(6,*)' total lyp is assumed desired. '                   
+            write(LuOut,*)' total lyp is assumed desired. '                   
             lcfac(2) = .true.
             nlcfac(2) = .true.
          else
@@ -417,7 +419,7 @@ c
          if (inp_compare(.false.,'local', test)) then
             lcfac(3) = .true.
          elseif (inp_compare(.false.,'nonlocal', test)) then
-            write(6,*)' perdew81 is a local functional;',
+            write(LuOut,*)' perdew81 is a local functional;',
      &                ' "nonlocal" descriptor is ignored. '                   
             nlcfac(3) = .false.
          else
@@ -445,7 +447,7 @@ c     perdew86; P86 functional for correlation
 c             
   800 if (inp_a(test)) then
          if (inp_compare(.false.,'local', test)) then
-            write(6,*)' perdew86 is a nonlocal functional;',
+            write(LuOut,*)' perdew86 is a nonlocal functional;',
      &                ' "local" descriptor is ignored. '                   
             lcfac(4) = .false.
          elseif (inp_compare(.false.,'nonlocal', test)) then
@@ -475,7 +477,7 @@ c     perdew91; P91 functional for correlation
 c             
   900 if (inp_a(test)) then
          if (inp_compare(.false.,'local', test)) then
-            write(6,*)' perdew91 is a nonlocal functional;',
+            write(LuOut,*)' perdew91 is a nonlocal functional;',
      &                ' "local" descriptor is ignored. '                   
 c
 c           This is also done by default inside xc_perdew91.F
@@ -511,7 +513,7 @@ c
          if (inp_compare(.false.,'local', test)) then
             lcfac(6) = .true.
          elseif (inp_compare(.false.,'nonlocal', test)) then
-            write(6,*)' pw91lda is a local functional;',
+            write(LuOut,*)' pw91lda is a local functional;',
      &                ' "nonlocal" descriptor is ignored. '                   
             nlcfac(6) = .false.
          else
@@ -542,7 +544,7 @@ c
             lxfac(2) = .true.
          elseif (inp_compare(.false.,'nonlocal', test)) then
             nlxfac(2) = .false.
-            write(6,*)' slater is a local functional;',
+            write(LuOut,*)' slater is a local functional;',
      &                ' "nonlocal" descriptor is ignored. '                   
          else
 c
@@ -571,7 +573,7 @@ c
          if (inp_compare(.false.,'local', test)) then
             lcfac(8) = .true.
          elseif (inp_compare(.false.,'nonlocal', test)) then
-            write(6,*)' vwn_1 is a local functional;',
+            write(LuOut,*)' vwn_1 is a local functional;',
      &                ' "nonlocal" descriptor is ignored. '                   
             nlcfac(8) = .false.
          else
@@ -601,7 +603,7 @@ c
          if (inp_compare(.false.,'local', test)) then
             lcfac(9) = .true.
          elseif (inp_compare(.false.,'nonlocal', test)) then
-            write(6,*)' vwn_2 is a local functional;',
+            write(LuOut,*)' vwn_2 is a local functional;',
      &                ' "nonlocal" descriptor is ignored. '                   
             nlcfac(9) = .false.
          else
@@ -631,7 +633,7 @@ c
          if (inp_compare(.false.,'local', test)) then
             lcfac(10) = .true.
          elseif (inp_compare(.false.,'nonlocal', test)) then
-            write(6,*)' vwn_3 is a local functional;',
+            write(LuOut,*)' vwn_3 is a local functional;',
      &                ' "nonlocal" descriptor is ignored. '                   
             nlcfac(10) = .false.
          else
@@ -661,7 +663,7 @@ c
          if (inp_compare(.false.,'local', test)) then
             lcfac(11) = .true.
          elseif (inp_compare(.false.,'nonlocal', test)) then
-            write(6,*)' vwn_4 is a local functional;',
+            write(LuOut,*)' vwn_4 is a local functional;',
      &                ' "nonlocal" descriptor is ignored. '                   
             nlcfac(11) = .false.
          else
@@ -691,7 +693,7 @@ c
          if (inp_compare(.false.,'local', test)) then
             lcfac(1) = .true.
          elseif (inp_compare(.false.,'nonlocal', test)) then
-            write(6,*)' vwn_5 is a local functional;',
+            write(LuOut,*)' vwn_5 is a local functional;',
      &                ' "nonlocal" descriptor is ignored. '                   
             nlcfac(1) = .false.
          else
@@ -721,7 +723,7 @@ c
          if (inp_compare(.false.,'local', test)) then
             lcfac(7) = .true.
          elseif (inp_compare(.false.,'nonlocal', test)) then
-            write(6,*)' vwn_1_rpa is a local functional;',
+            write(LuOut,*)' vwn_1_rpa is a local functional;',
      &                ' "nonlocal" descriptor is ignored. '                   
             nlcfac(7) = .false.
          else
@@ -790,7 +792,7 @@ c     cpbe96 Perdew-Burke-Ernzerhof functional for correlation
 c             
  2100 if (inp_a(test)) then
          if (inp_compare(.false.,'local', test)) then
-            write(6,*)' cpbe96 is a nonlocal functional;',
+            write(LuOut,*)' cpbe96 is a nonlocal functional;',
      &                ' "local" descriptor is ignored. '                   
 c
 c           This is also done by default inside xc_pbe96.F
@@ -824,9 +826,9 @@ c     xpbe96; Perdew-Burke-Ernzerhof functional for exchange
 c     
  2200 if (inp_a(test)) then
          if (inp_compare(.false.,'local', test)) then
-            write(6,*)' xpbe96 "local" is equivalent to the',
+            write(LuOut,*)' xpbe96 "local" is equivalent to the',
      &                ' slater exchange local functional. '
-            write(6,*)' Resubmit using slater exchange. '
+            write(LuOut,*)' Resubmit using slater exchange. '
             call errquit(' xc_inp - functional description ',0)
          elseif (inp_compare(.false.,'nonlocal', test) ) then
             nlxfac(7) = .true.
@@ -854,9 +856,9 @@ c     gill96; Gill '96 functional for exchange
 c     
  2300  if (inp_a(test)) then
          if (inp_compare(.false.,'local', test)) then
-            write(6,*)' gill96 "local" is equivalent to the',
+            write(LuOut,*)' gill96 "local" is equivalent to the',
      &                ' slater exchange local functional. '
-            write(6,*)' Resubmit using slater exchange. '
+            write(LuOut,*)' Resubmit using slater exchange. '
             call errquit(' xc_inp - functional description ',0)
          elseif (inp_compare(.false.,'nonlocal', test) ) then
             nlxfac(8) = .true.
@@ -884,9 +886,9 @@ c     xperdew91; Perdew '91 functional for exchange
 c     
  2400  if (inp_a(test)) then
          if (inp_compare(.false.,'local', test)) then
-            write(6,*)' xperdew91 "local" is equivalent to the',
+            write(LuOut,*)' xperdew91 "local" is equivalent to the',
      &                ' slater exchange local functional. '
-            write(6,*)' Resubmit using slater exchange. '
+            write(LuOut,*)' Resubmit using slater exchange. '
             call errquit(' xc_inp - functional description ',0)
          elseif (inp_compare(.false.,'nonlocal', test) ) then
             nlxfac(9) = .true.
@@ -927,12 +929,12 @@ c       functional is needed.
 c
         if(.not.ck_local)then
           if(nlcfac(4))then
-            write(6,*)' perdew86 is a nonlocal functional;',
+            write(LuOut,*)' perdew86 is a nonlocal functional;',
      &                ' adding perdew81 local functional. '                   
             lcfac(3) = .true.
             cfac(3) = cfac(4)
           elseif(nlcfac(5))then
-            write(6,*)' perdew91 is a nonlocal functional;',
+            write(LuOut,*)' perdew91 is a nonlocal functional;',
      &                ' adding pw91lda local functional. '
 c
 c           This is also done by default inside xc_perdew91.F
@@ -941,7 +943,7 @@ c
             lcfac(6) = .true.
             cfac(6) = 1.0d0
           elseif(nlcfac(12))then
-            write(6,*)' pbe96 is a nonlocal functional;',
+            write(LuOut,*)' pbe96 is a nonlocal functional;',
      &                ' adding pw91lda local functional. '
 c
 c           This is also done by default inside xc_perdew91.F
@@ -994,7 +996,7 @@ c
      &   call errquit('xc_inp: rtdb_put failed', 7)
       return
 c     
-10000 write(6,10001)
+10000 write(LuOut,10001)
 
 10001 format(/,' xc [[acm], [b3lyp], [beckehandh], [HFexch rval], ',
      &       /,' [becke88 local/nonlocal rval], ',
@@ -1024,7 +1026,7 @@ c
      &       /,' [chcth] ',
      &       /,' [hcth120] ',
      &       /,' [hcth147] ')
-      call util_flush(6)
+      call util_flush(LuOut)
       call errquit('xc_input: invalid format', 0)
 c     
       end

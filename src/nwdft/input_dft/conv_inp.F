@@ -4,6 +4,7 @@ C     $Id:
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "stdio.fh"
       integer rtdb
       character*(*) module
 c     
@@ -59,7 +60,7 @@ c
 c     energy; threshold for energy convergence
 c
   100 if (.not. inp_f(e_conv)) then
-         write(6,*)' conv_inp: energy convergence value not found;',
+         write(LuOut,*)' conv_inp: energy convergence value not found;',
      &             ' defaulting to 1d-6 Hartree.'
          e_conv = 1.d-6
       endif
@@ -71,7 +72,7 @@ c
 c     density; threshold for density convergence
 c
   200 if (.not. inp_f(d_conv)) then
-         write(6,*)' conv_inp: energy convergence value not found;',
+         write(LuOut,*)' conv_inp: energy convergence value not found;',
      &             ' defaulting to 1d-5.'
          d_conv = 1.d-5
       endif 
@@ -83,8 +84,8 @@ c
 c     gradient; threshold for gradient convergence
 c
   300 if (.not. inp_f(g_conv)) then
-         write(6,*)' conv_inp: gradient convergence value not found;',
-     &             ' defaulting to 5d-4.'
+         write(LuOut,*)' conv_inp: gradient convergence value not ',
+     &             'found; defaulting to 5d-4.'
          g_conv = 5.d-4
       endif 
       if (.not. rtdb_put(rtdb, 'dft:g_conv', mt_dbl, 1, g_conv))
@@ -96,7 +97,7 @@ c     dampon; turn damping on when change in energy
 c             per iteration is less than this value
 c
   400 if (.not. inp_f(dampon)) then
-         write(6,*)' conv_inp: dampon value not found; defaulting',
+         write(LuOut,*)' conv_inp: dampon value not found; defaulting',
      &             ' to 0.d0 Hartree'
          dampon = 0.0d0
       endif            
@@ -109,7 +110,7 @@ c     dampoff; turn damping off when change in energy
 c              per iteration is less than this value
 c
   500 if (.not. inp_f(dampoff)) then
-         write(6,*)' conv_inp: dampoff value not found; defaulting',
+         write(LuOut,*)' conv_inp: dampoff value not found; defaulting',
      &             ' to 0.0d0 Hartree'
          dampoff = 0.0d0
       endif            
@@ -122,7 +123,7 @@ c     diison; turn diis on when change in energy
 c             per iteration is less than this value
 c
   600 if (.not. inp_f(diison)) then
-         write(6,*)' conv_inp: diison value not found; defaulting',
+         write(LuOut,*)' conv_inp: diison value not found; defaulting',
      &             ' to 0.d0 Hartree'
          diison = 0.0d0
       endif            
@@ -135,7 +136,7 @@ c     diisoff; turn diis off when change in energy
 c              per iteration is less than this value
 c
   700 if (.not. inp_f(diisoff)) then
-         write(6,*)' conv_inp: diisoff value not found; defaulting',
+         write(LuOut,*)' conv_inp: diisoff value not found; defaulting',
      &             ' to 0.0d0 Hartree'
          diisoff = 0.0d0
       endif            
@@ -148,7 +149,7 @@ c     levlon; turn levelshifting on when change in energy
 c             per iteration is less than this value
 c
   800 if (.not. inp_f(levlon)) then
-         write(6,*)' conv_inp: levlon value not found; defaulting',
+         write(LuOut,*)' conv_inp: levlon value not found; defaulting',
      &             ' to 0.d0 Hartree'
          levlon = 0.0d0
       endif            
@@ -161,7 +162,7 @@ c     levloff; turn levelshifting off when change in energy
 c              per iteration is less than this value
 c
   900 if (.not. inp_f(levloff)) then
-         write(6,*)' conv_inp: levloff value not found; defaulting',
+         write(LuOut,*)' conv_inp: levloff value not found; defaulting',
      &             ' to 0.0d0 Hartree'
          levloff = 0.0d0
       endif            
@@ -173,7 +174,7 @@ c
 c     ncydp; use damping for this number of iterations
 c
  1000 if (.not. inp_i(ncydp)) then
-         write(6,*)' conv_inp: ncydp value not found; defaulting',
+         write(LuOut,*)' conv_inp: ncydp value not found; defaulting',
      &             ' to 2 iterations'
          ncydp = 2
       endif            
@@ -185,7 +186,7 @@ c
 c     ncyds; use diis for this number of iterations
 c
  1100 if (.not. inp_i(ncyds)) then
-         write(6,*)' conv_inp: ncyds value not found; defaulting',
+         write(LuOut,*)' conv_inp: ncyds value not found; defaulting',
      &             ' to 9999 iterations'
          ncyds = 9999
       endif            
@@ -197,7 +198,7 @@ c
 c     ncysh; use levelshifting for this number of iterations
 c
  1200 if (.not. inp_i(ncysh)) then
-         write(6,*)' conv_inp: ncysh value not found; defaulting',
+         write(LuOut,*)' conv_inp: ncysh value not found; defaulting',
      &             ' to 9999 iterations'
          ncysh = 9999
       endif            
@@ -213,7 +214,7 @@ c
       if (.not. rtdb_put(rtdb, 'dft:damp', mt_log, 1, damp))
      &   call errquit('conv_inp: rtdb_put failed', 1300)
       if (.not. inp_i(ndamp)) then
-         write(6,*)' conv_inp: ndamp value not found; defaulting',
+         write(LuOut,*)' conv_inp: ndamp value not found; defaulting',
      &             ' to 70%.'
          ndamp = 70
       endif            
@@ -240,7 +241,7 @@ c
       if (.not. rtdb_put(rtdb, 'dft:diis', mt_log, 1, diis))
      &   call errquit('conv_inp: rtdb_put failed', 1500)
       if (.not. inp_i(nfock)) then
-         write(6,*) ' conv_inp: nfock value not found; defaulting',
+         write(LuOut,*) ' conv_inp: nfock value not found; defaulting',
      &             ' to 10.'
          nfock = 10
       endif            
@@ -268,7 +269,7 @@ c
       if (.not. rtdb_put(rtdb, 'dft:levelshift', mt_log, 1, levelshift))
      &   call errquit('conv_inp: rtdb_put failed', 1700)
       if (.not. inp_f(rlshift)) then
-         write(6,*)' conv_inp: lshift value not found; defaulting',
+         write(LuOut,*)' conv_inp: lshift value not found; defaulting',
      &             ' to  0.5 Hartree'
          rlshift = 0.5d0
       endif            
@@ -295,7 +296,7 @@ c             levelshifting and also monitoring of misuse of maximum
 c             orbital overlaps
 c
  1900 if (.not. inp_f(hl_tol)) then
-         write(6,*)' conv_inp: hl_tol value not found; defaulting',
+         write(LuOut,*)' conv_inp: hl_tol value not found; defaulting',
      &             ' to 0.1 Hartree'
          hl_tol = 0.05d0
       endif            
@@ -308,7 +309,7 @@ c
 c     
       return
 c     
-10000 write(6,10001)
+10000 write(LuOut,10001)
 
 10001 format(/,' convergence [[energy rval], [density rval], ',
      &       /,' [gradient rval], [dampon rval], [dampoff rval], ',
@@ -317,7 +318,7 @@ c
      &       /,' [ncysh ival], [damp ival], [nodamping], ',
      &       /,' [diis nfock ival], [nodiis], [lshift rval], ',
      &       /,' [nolevelshifting], [hl_tol rval]] ')
-      call util_flush(6)
+      call util_flush(LuOut)
       call errquit('conv_input: invalid format', 0)
 c     
       end

@@ -6,6 +6,7 @@ C     $Id:
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "cdft.fh"
+#include "stdio.fh"
       integer rtdb
       character*(*) module
 c     
@@ -124,14 +125,14 @@ c
      &   call errquit('grid_inp: rtdb_put failed', 300) 
 c
       if (.not. inp_i(nradpts)) then
-         write(6,*)' grid_inp: nradpts value not found. '
+         write(LuOut,*)' grid_inp: nradpts value not found. '
       else
          if (.not. rtdb_put(rtdb, 'dft:nradpts', mt_int, 1, nradpts))
      &      call errquit('grid_inp: rtdb_put failed', 900)
       endif
 c
       if (.not. inp_i(nagrid)) then
-         write(6,*)' grid_inp: nagrid value not found. '
+         write(LuOut,*)' grid_inp: nagrid value not found. '
       else
          if (.not. rtdb_put(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
      &      call errquit('grid_inp: rtdb_put failed', 900)
@@ -150,7 +151,7 @@ c
      &   call errquit('grid_inp: rtdb_put failed', 400) 
 c
       if (.not. inp_i(nradpts)) then
-cedo         write(6,*)' grid_inp: nradpts value not found. '
+cedo         write(LuOut,*)' grid_inp: nradpts value not found. '
          goto 1400
       else
          if (.not. rtdb_put(rtdb, 'dft:nradpts', mt_int, 1, nradpts))
@@ -158,7 +159,7 @@ cedo         write(6,*)' grid_inp: nradpts value not found. '
       endif
 c
       if (.not. inp_i(iangquad)) then
-         write(6,*)' grid_inp: iangquad value not found. '
+         write(LuOut,*)' grid_inp: iangquad value not found. '
       else
          if (.not. rtdb_put(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
      &      call errquit('grid_inp: rtdb_put failed', 400)
@@ -174,7 +175,7 @@ c
      &   call errquit('grid_inp: rtdb_put failed', 400) 
 c
       if (.not. inp_i(nradpts)) then
-cedo         write(6,*)' grid_inp: nradpts value not found. '
+cedo         write(LuOut,*)' grid_inp: nradpts value not found. '
          goto 1400
       else
          if (.not. rtdb_put(rtdb, 'dft:nradpts', mt_int, 1, nradpts))
@@ -182,7 +183,7 @@ cedo         write(6,*)' grid_inp: nradpts value not found. '
       endif
 c
       if (.not. inp_i(iangquad)) then
-         write(6,*)' grid_inp: iangquad value not found. '
+         write(LuOut,*)' grid_inp: iangquad value not found. '
       else
          if (.not. rtdb_put(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
      &      call errquit('grid_inp: rtdb_put failed', 400)
@@ -236,13 +237,13 @@ c
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
      &   call errquit('grid_inp: rtdb_put failed', 1000) 
       if (.not. inp_i(nradpts)) then
-         write(6,*)' grid_inp: nradpts value not found. '
+         write(LuOut,*)' grid_inp: nradpts value not found. '
       else
          if (.not. rtdb_put(rtdb, 'dft:nradpts', mt_int, 1, nradpts))
      &      call errquit('grid_inp: rtdb_put failed', 1000)
       endif
       if (.not. inp_i(nagrid)) then
-         write(6,*)' grid_inp: nagrid value not found. '
+         write(LuOut,*)' grid_inp: nagrid value not found. '
       else
          if (.not. rtdb_put(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
      &      call errquit('grid_inp: rtdb_put failed', 1000)
@@ -261,7 +262,7 @@ c
 c     nquad_task; redefine granularity of tasks in parallelism of grid
 c     
  1200 if (.not. inp_i(nquad_task)) then
-         write(6,*)' grid_inp: nquad_task value not found; ',
+         write(LuOut,*)' grid_inp: nquad_task value not found; ',
      &             ' defaulting to 1 '
          nquad_task = 1
       endif            
@@ -273,7 +274,7 @@ c
 c     rm; the exponent in defining the Euler-Maclaurin radial quadrature
 c     
  1300 if (.not. inp_f(rm)) then
-         write(6,*)' grid_inp: rm value not found; defaulting ',
+         write(LuOut,*)' grid_inp: rm value not found; defaulting ',
      &             ' to 2.0d0 '
          rm = 2.0d0
       endif            
@@ -368,30 +369,30 @@ c            if (.not. inp_a(tag)) goto 1688
       ngridin=ngridin+1
       grtagin(ngridin)=test
       if (.not. inp_i(nradpts)) then
-         write(6,*)' grid_inp: nradpts value not found. '
+         write(LuOut,*)' grid_inp: nradpts value not found. '
       else
          nradin(ngridin)=nradpts
       endif
 c
       if (.not. inp_i(iangquad)) then
-         write(6,*)' grid_inp: iangquad value not found. '
+         write(LuOut,*)' grid_inp: iangquad value not found. '
       else
          nangin(ngridin)=iangquad
       endif
       if (.not. inp_i(accqrad)) then
-         write(6,*)' grid_inp: iangquad value not found. '
+         write(LuOut,*)' grid_inp: iangquad value not found. '
       else
          accqrin(ngridin)=accqrad
       endif
       goto 10
- 1688       write(6,10001)
+ 1688       write(LuOut,10001)
 10001 format(/,' grid [ [becke], [gausleg], 
      &       [lebedev ival ival], ',
      &       /,' [xcoarse], [coarse], [medium], [fine], [xfine], ',
      &       /,' [lebedev], [lebmed], [lebfine], [lebxfine], ',
      &       /,' [user ival ival], [store_wght], [nquad_task ival], ',
      &       /,' [rm rval] ')
-      call util_flush(6)
+      call util_flush(LuOut)
       call errquit('grid_input: invalid format', 0)
 c     
       end
