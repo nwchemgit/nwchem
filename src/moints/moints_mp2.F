@@ -4,7 +4,7 @@ c
 c
 c
        subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-C$Id: moints_mp2.F,v 1.22 1997-03-12 17:30:07 rg240 Exp $
+C$Id: moints_mp2.F,v 1.23 1997-03-12 22:00:48 d3e129 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -134,7 +134,7 @@ c
        integer g_epair                               ! [output] triangular array of pair energies
 c
        integer k_exch,ld_exch
-       integer ii,i,jj,j,ij,vstart,nnt,nbf,ndim,ij0,ofroz
+       integer ii,i,jj,j,ij,vstart,nnt,ndim,ij0,ofroz
        integer ilo,ihi,jlo,jhi,my_id
        integer ooff
        double precision xx,denom
