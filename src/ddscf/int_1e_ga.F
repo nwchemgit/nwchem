@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.37 2005-04-01 08:39:08 marat Exp $
+C$Id: int_1e_ga.F,v 1.38 2005-04-03 07:03:56 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "cint1cache.fh"
@@ -348,7 +348,7 @@ c
 c
 c     ----- restore ocache -----
 c
-      if(type.eq.6) then
+      if(type.eq.6 .or. type.eq.7) then
          ocache=ocache_save
       endif
 c     
