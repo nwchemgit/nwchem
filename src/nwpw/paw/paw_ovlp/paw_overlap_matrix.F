@@ -1,5 +1,5 @@
 c
-c $Id: paw_overlap_matrix.F,v 1.3 2003-02-11 18:35:02 bylaska Exp $
+c $Id: paw_overlap_matrix.F,v 1.4 2003-02-12 21:38:39 bylaska Exp $
 c
 
 !**************************************************
@@ -204,11 +204,11 @@ c
 !   created : 2/10/2003
 !
 !*************************************************
-      subroutine paw_overlap_matrix_gen(ne,psi1,psi2,Sij)
+      subroutine paw_overlap_matrix_gen(n,ne,psi1,psi2,Sij)
       implicit none
-      integer    ne
+      integer    n,ne
       complex*16 psi1(*),psi2(*)
-      real*8     Sij(ne,ne)
+      real*8     Sij(n,n)
 
 #include "mafdecls.fh"
 #include "paw_ma.fh"
@@ -228,6 +228,7 @@ c
 
 
       !*** calculate overlap1 ****
+
       call Pack_npack(1,npack1)
       call Grsm_ggm_dot(npack1,ne,
      >                  psi1,psi2,
@@ -243,56 +244,18 @@ c
      > call errquit('paw_overlap_matrix_gen: out of stack memory',0)
 
       !*** calculate overlap2 ****
-      call paw_ovlp_calc_scramble_coef(ne,psi1,dcpl_mb(ct(1)))
-      call paw_ovlp_unscramble_coef(ne,
-     >                              dcpl_mb(ct(1)),
-     >                              dcpl_mb(c1(1)))
-      call paw_ovlp_calc_scramble_coef(ne,psi2,dcpl_mb(ct(1)))
-      call paw_ovlp_unscramble_coef(ne,
-     >                              dcpl_mb(ct(1)),
-     >                              dcpl_mb(c2(1)))
 
-*     **** ct_r^a(j) = Sum(rs) (q_rs^a)*c_s^a(j) ****
-      call dcopy(2*ne*total_nbasis,0.0d0,0,dcpl_mb(ct(1)),1)
-      nion = ion_nion()
-      ii_shift=0
-      do ii=1,nion
-        ia           = ion_katm(ii)
-        nbasis       = paw_proj_nbasis(ia)
-        basis_nbasis = paw_basis_nbasis(ia)
-        matrx_ptr    = int_mb(i_overlap_matrix(1)+ia-1)
+      !**** ct_r^a(j) = Sum(rs) (q_rs^a)*c_s^a(j) ****
+      call paw_ovlp_calc_coef(ne,psi2,dcpl_mb(c2(1)))
+      call  paw_overlap_pv_gen(ne,total_nbasis,
+     >          dcpl_mb(c2(1)),
+     >          dcpl_mb(ct(1)))
 
-        r = 0
-        do a=1,basis_nbasis
-          la=paw_basis_orb_l(a,ia)
-          do ma=-la,la
-            r = r + 1 
-            s = 0
-            do b=1,basis_nbasis
-              lb    = paw_basis_orb_l(b,ia)
-              indx  = matrx_ptr + (b-1)*basis_nbasis + (a-1)
-              do mb=-lb,lb
-                 s = s + 1
-                 if (mb.eq.ma) then
-                   do j=1,ne
-                     indxr = (r-1+ii_shift)*ne + (j-1)
-                     indxs = (s-1+ii_shift)*ne + (j-1)
-                      dcpl_mb(ct(1)+indxr) 
-     >                  = dcpl_mb(ct(1)+indxr)
-     >                  + dbl_mb(overlap_matrix(1)+matrx_ptr)
-     >                   *dcpl_mb(c2(1)+indxs)
-                   end do !*j*
-                 end if  
-              end do !*mb*
-            end do !*b*
-          end do !*ma*
-        end do   !*a*
- 
-        ii_shift = ii_shift+nbasis
-      end do !*ii*
 
-*     **** S(i,j) = Sum(i,j,r) dconjg( c1_r^a(i) ) * ct_r^a(j) ****
+      !**** S(i,j) = Sum(i,j,r) dconjg( c1_r^a(i) ) * ct_r^a(j) ****
+      call paw_ovlp_calc_coef(ne,psi1,dcpl_mb(c1(1)))
       ii_shift = 0
+      nion = ion_nion()
       do ii=1,nion
         ia     = ion_katm(ii)
         nbasis = paw_proj_nbasis(ia)
@@ -311,11 +274,84 @@ c
         ii_shift = ii_shift+nbasis
       end do
 
+
       ok =        MA_pop_stack(ct(2))
       ok = ok.and.MA_pop_stack(c2(2))
       ok = ok.and.MA_pop_stack(c1(2))
       if (.not.ok)
      > call errquit('paw_overlap_matrix_gen: error popping stack',0)
+      return
+      end
+
+
+!*************************************************
+!
+!   name :   paw_overlap_pv_gen
+!
+!
+!   purpose : computes pv
+!
+!   created : 2/10/2003
+!
+!*************************************************
+
+      subroutine paw_overlap_pv_gen(ne,total_nbasis,c1,pv)
+      implicit none
+      integer    ne,total_nbasis
+      complex*16 c1(ne,total_nbasis)
+      complex*16 pv(ne,total_nbasis) !* RESULT *
+
+#include "mafdecls.fh"
+#include "paw_basis.fh"
+#include "paw_proj.fh"
+#include "paw_geom.fh"
+#include "paw_overlap_matrix.fh"
+
+      !*** local variables ***
+      integer indx
+      integer j,ii,ia,a,b,ma,mb,la,lb,r,s
+      integer nbasis,basis_nbasis,nion,ii_shift
+      integer matrx_ptr
+
+
+*     **** pv^a(j) = Sum(rs) (q_rs^a)*c_s^a(j) ****
+      call dcopy(2*ne*total_nbasis,0.0d0,0,pv,1)
+      nion = ion_nion()
+      ii_shift=0
+      do ii=1,nion
+        ia           = ion_katm(ii)
+        nbasis       = paw_proj_nbasis(ia)
+        basis_nbasis = paw_basis_nbasis(ia)
+        matrx_ptr    = int_mb(i_overlap_matrix(1)+ia-1)
+
+        r = 0
+        do a=1,basis_nbasis
+          la=paw_basis_orb_l(a,ia)
+          do ma=-la,la
+            r = r + 1
+
+            s = 0
+            do b=1,basis_nbasis
+              lb    = paw_basis_orb_l(b,ia)
+              indx  = matrx_ptr + (b-1)*basis_nbasis + (a-1)
+              do mb=-lb,lb
+                 s = s + 1
+                 if (mb.eq.ma) then
+                   do j=1,ne
+                     pv(j,r+ii_shift)
+     >                 = pv(j,r+ii_shift)
+     >                 + dbl_mb(overlap_matrix(1)+matrx_ptr)
+     >                  *c1(j,s+ii_shift)
+                   end do !*j*
+                 end if
+              end do !*mb*
+            end do !*b*
+          end do !*ma*
+        end do   !*a*
+
+        ii_shift = ii_shift+nbasis
+      end do !*ii*
+
       return
       end
 

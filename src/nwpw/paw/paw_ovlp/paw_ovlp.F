@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.26 2003-02-11 18:35:02 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.27 2003-02-12 21:38:39 bylaska Exp $
 *
 
 !**************************************************
@@ -386,11 +386,49 @@ c     *** calculate diagonal weights mi=mj***
       return
       end
 
+**************************************************
+!
+!	Name: paw_ovlp_calc_coef
+!
+!	Purpose: Calculate the projectors coefficients
+!
+!	Created:	2/10/2002
+!**************************************************
+      subroutine paw_ovlp_calc_coef(ne,psi,c1)
+      implicit none
+      integer ne
+      complex*16 psi(*)
+      complex*16 c1(ne,*)
+
+#include "mafdecls.fh"
+#include "paw_ovlp_data.fh"
+
+      !**** local variables ****
+      logical ok
+      integer ct(2)
+      !*** allocate space from stack ****
+      ok = MA_push_get(mt_dcpl,ne*total_nbasis,'ct',ct(2),ct(1))
+      if (.not.ok)
+     > call errquit('paw_ovlp_calc_coeffn: out of stack memory',0)
+
+
+      call paw_ovlp_calc_scramble_coef(ne,psi,dcpl_mb(ct(1)))
+      call paw_ovlp_unscramble_coef(ne,dcpl_mb(ct(1)),c1)
+
+
+      !*** deallocate temporary space ***
+      ok = MA_pop_stack(ct(2))
+      if (.not.ok)
+     > call errquit(
+     >  'paw_ovlp_calc_coeff: error freeing stack memory',1)
+
+      return
+      end
 
 
 **************************************************
 !
-!	Name: paw_ovlp_calc_scramble_coeff
+!	Name: paw_ovlp_calc_scramble_coef
 !
 !	Purpose: Calculate the scrambled coefficients
 !
@@ -451,7 +489,7 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       call D3dB_Vector_SumAll(2*ne*total_nbasis,ct)
 
 
-      !*** allocate temporary space ***
+      !*** deallocate temporary space ***
       value =           MA_pop_stack(tmp(2))
       value = value.and.MA_pop_stack(exi(2))
       if (.not.value) 
@@ -464,7 +502,7 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 
 **************************************************
 !
-!	Name: paw_ovlp_unscramble_coeff
+!	Name: paw_ovlp_unscramble_coef
 !
 !	Purpose: unscrambe the coefficients
 !
@@ -512,3 +550,89 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 
       return
       end
+
+**************************************************
+!
+!	Name: paw_ovlp_S
+!
+!	Purpose: Apply the overlap operator
+!
+!	Created:	2/10/2002
+!**************************************************
+      subroutine paw_ovlp_S(ne,psi,Spsi)
+      implicit none
+      integer ne
+      complex*16 psi(*)
+      complex*16 Spsi(*)
+
+#include "mafdecls.fh"
+#include "paw_ovlp_data.fh"
+#include "paw_proj.fh"
+#include "paw_geom.fh"
+#include "paw_basis.fh"
+
+      !*** local variables ***
+      logical ok
+      integer ii,ia,nbasis,nlm,nlmii
+      integer nion,prj,n,npack1
+      integer indx_psi,indx_prj,indx
+      integer c1(2),pv(2),exi(2),tmp(2)
+
+
+      !*** allocate temporary space ***
+      call Pack_npack(1,npack1)
+      ok =        MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
+      ok = ok.and.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
+      ok = ok.and.
+     >     MA_push_get(mt_dcpl,ne*total_nbasis,'c1',c1(2),c1(1))
+      ok = ok.and.
+     >     MA_push_get(mt_dcpl,ne*total_nbasis,'pv',pv(2),pv(1))
+      if (.not.ok)
+     > call errquit('paw_ovlp_S: out of stack memory',0)
+
+
+      !**** calculate pv ****
+      call paw_ovlp_calc_coef(ne,psi,dcpl_mb(c1(1)))
+      call  paw_overlap_pv_gen(ne,total_nbasis,
+     >          dcpl_mb(c1(1)),
+     >          dcpl_mb(pv(1)))
+
+
+      call dcopy(2*ne*npack1,psi,1,Spsi,1)
+      nlmii = 0
+      nion  = ion_nion()
+      do ii=1,nion
+        ia = ion_katm(ii)
+        call strfac_pack(1,ii,dcpl_mb(exi(1)))
+        nbasis = paw_proj_nbasis(ia)
+        prj = paw_proj_i_prj_atom(ia)
+        do nlm=1,nbasis
+           nlmii = nlmii + 1
+           indx_prj = (nlm-1)*npack1
+           call Pack_cc_Mul(1,
+     >                      dcpl_mb(exi(1)),
+     >                      dcpl_mb(prj+indx_prj),
+     >                      dcpl_mb(tmp(1)))
+
+           do n=1,ne
+             indx_psi = (n-1)*npack1    + 1
+             indx     = (nlmii-1)*ne + (n-1)
+             call Pack_cc_zaxpy(1,
+     >                         dcpl_mb(pv(1)+indx),
+     >                         dcpl_mb(tmp(1)),
+     >                         Spsi(indx_psi))
+           end do
+        end do
+      end do
+
+      !*** deallocate temporary space ***
+      ok =        MA_pop_stack(pv(2))
+      ok = ok.and.MA_pop_stack(c1(2))
+      ok = ok.and.MA_pop_stack(tmp(2))
+      ok = ok.and.MA_pop_stack(exi(2))
+      if (.not.ok) 
+     > call errquit('paw_ovlp_S: error freeing stack memory',1)
+
+      return
+      end
+
