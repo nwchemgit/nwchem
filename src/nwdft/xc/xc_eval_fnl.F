@@ -9,14 +9,14 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.23 2001-05-11 02:12:17 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.24 2001-08-19 21:34:33 bjohnson Exp $
 c
       implicit none
 c
 #include "cdft.fh"
 #include "dft2drv.fh"
 #ifdef BETTIS
-#include "bettis.fh"
+#include "screened_op.fh"
 #endif
 c
       integer nq
@@ -43,7 +43,7 @@ c
       if (ldew) call dfill(nq, 0.d0, func, 1)
 #ifdef BETTIS
 c     Update quantities that help in determining screening constant
-      call bettis_average(rho, qwght, nq, ipol, 1)
+      call density_average(rho, qwght, nq, ipol, 1)
 #endif
 c
 c     warning!! xc_dirac has to be called before all the other
@@ -59,6 +59,20 @@ c
      &           Amat, Amat2, nq, ipol, Ex, qwght, 
      &           .false., func)
          endif
+#ifdef BETTIS
+         if (screened_exchange()) then
+c        Add screened LDA exchange contribution
+         if (.not. do_2nd) then
+            call xc_dirac_screened(tol_rho, -xfac(2), lxfac(2),
+     &           nlxfac(2), rho, Amat, nq, ipol, Ex,
+     &           screened_operator_Ks(), qwght, ldew, func)
+         else
+            call xc_dirac_screened_d2(tol_rho, -xfac(2), lxfac(2),
+     &           nlxfac(2), rho, Amat, Amat2, nq, ipol, Ex,
+     &           screened_operator_Ks(), qwght, ldew, func)
+         endif
+         endif
+#endif
       endif
       if (abs(xfac(3)).gt.eps)then
          if (.not. do_2nd) then
@@ -216,17 +230,8 @@ c
 c     
       if (abs(cfac(6)).gt.eps)then
 #ifdef BETTIS
-c        Hijack this functional to mean screened LDA exchange for Bettis
-         if (.not. do_2nd) then
-            call xc_dirac_screened(tol_rho, cfac(6), lcfac(6),
-     &           nlcfac(6), rho, Amat, nq, ipol, Ex, bettis_Ks(),
-     &           qwght, ldew, func)
-         else
-            call xc_dirac_screened_d2(tol_rho, cfac(6), lcfac(6),
-     &           nlcfac(6), rho, Amat, Amat2, nq, ipol, Ex, bettis_Ks(),
-     &           qwght, ldew, func)
-         endif
-#else
+         call errquit('pw91lda on in input',0)
+#endif
          if (.not. do_2nd) then
             call xc_pw91lda(tol_rho, cfac(6), lcfac(6), nlcfac(6), 
      &           rho, Amat, nq, ipol, Ec, 
@@ -236,7 +241,6 @@ c        Hijack this functional to mean screened LDA exchange for Bettis
      &           rho, Amat, Amat2, nq, ipol, Ec, qwght, 
      &           ldew, func)
          endif
-#endif
       endif
 c     
       if (abs(cfac(2)).gt.eps)then
