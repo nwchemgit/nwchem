@@ -133,6 +133,9 @@ c
       if (.not. bas_name(basis, name, trans))
      $     call errquit('scf: bas_name?', 0)
       if (name .eq. ' ') name = 'mo basis'
+*      if (.not. geom_print(geom)) call errquit('scf: geom_print', 0)
+*      if (.not. bas_print(basis)) call errquit('scf: bas_print', 0)
+*      if (.not. gbs_map_print(basis)) call errquit('scf:gmp', 0)
 c
 c     Figure output input/output MO vectors ... all this should be
 c     context sensitive but that design is incomplete.
