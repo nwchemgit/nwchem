@@ -1,6 +1,6 @@
       subroutine dk_input(rtdb)
 *
-* $Id: dk_input.F,v 1.3 1999-11-19 21:29:17 bert Exp $
+* $Id: dk_input.F,v 1.4 1999-12-03 20:07:00 bert Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -31,7 +31,7 @@ c     Check if there has been a calculation before. If so, check if it
 c     was a Douglas-Kroll calculation
 c
       status = rtdb_get(rtdb, 'doug_kroll', MT_LOG, 1,dk_run)
-      status = rtdb_get(rtdb, 'doug_kroll:type', MT_LOG, 1,dk_type)
+      status = rtdb_get(rtdb, 'doug_kroll:type', MT_INT, 1,dk_type)
 c
 c     Read input data beyond douglas-kroll; store in rtdb
 c     
