@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.51 2003-03-11 17:57:10 bylaska Exp $
+* $Id: paw_sd.F,v 1.52 2003-03-11 18:09:35 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.51  2003/03/11 17:57:10  bylaska
+* updates...EJB
+*
 * Revision 1.50  2003/03/07 20:51:10  bylaska
 * Code cleanup...0.0 changed to 0.0d0 in paw_xc.F
 * Tangent vector now used for SD with Gram-schmidt.
@@ -62,7 +65,7 @@
 *     **** electronic variables ****
       integer ispin,icharge
       integer ne(2),n1(2),n2(2),nemax
-      real*8  en(2)
+      real*8  r_charge
       real*8  dipole(3)
 
 *     complex*16 psi1(nfft3d,nemax)
@@ -531,21 +534,25 @@
 
 *     **** check total number of electrons ****
 
-      !*** comp charge ****
-      call D3dB_r_dsum(1,dbl_mb(dn_cmp_smooth(1)),sum1)
-      sum1 = sum1*lattice_omega()
-     >      /dble(ngrid(1)*ngrid(2)*ngrid(3))
-
       !*** psi charge ****
+      r_charge = 0.0d0
       do ms =1,ispin
          call D3dB_r_dsum(1,dbl_mb(dn(1)+(ms-1)*n2ft3d),sumall)
-         en(ms) = ne(ms) + 0.5d0*sum1
+         r_charge = r_charge
      >          + sumall*lattice_omega()
      >             /dble(ngrid(1)*ngrid(2)*ngrid(3))
       end do
+      if (ispin.eq.1) r_charge = 2.0d0*r_charge
+
+      !*** add comp charge ****
+      call D3dB_r_dsum(1,dbl_mb(dn_cmp_smooth(1)),sum1)
+      sum1 = sum1*lattice_omega()
+     >      /dble(ngrid(1)*ngrid(2)*ngrid(3))
+      r_charge = r_charge + sum1
+
 
       if (taskid.eq.MASTER) then
-         write(17,1321) en(1)+en(ispin)
+         write(17,1321) r_charge
       end if
 
 *     **** comparison between hamiltonian an lambda matrix ****
@@ -650,7 +657,7 @@
 
 
          write(6,*)
-         write(6,1321) en(1)+en(ispin),' (real space)'
+         write(6,1321) r_charge,' (real space)'
 
          call paw_energy_output(6,ion_nion(),n2(ispin),E)
 c         write(6,1430) E(1),E(1)/ion_nion()
