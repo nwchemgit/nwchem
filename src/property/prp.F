@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.44 1999-11-30 01:21:03 mdupuis Exp $
+* $Id: prp.F,v 1.45 1999-12-10 17:37:35 windus Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -247,6 +247,91 @@ C
       hnd_prpDOT=DUM
       RETURN
       END
+c
+      subroutine prp_cent(rtdb,geom,cm,am,c,nat)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+      integer rtdb, geom, nat, iat, i, center
+      double precision cm(3), am(nat), c(3,nat), sum
+      double precision zero, tol
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      DATA ZERO    /0.0D+00/
+      DATA TOL     /1.0D-06/
+c
+      if (.not. rtdb_get(rtdb, 'prop:center', mt_int, 1, center))
+     $  center = 1    ! default of center of charge
+c
+      if (center.eq.4) then   ! arbitrary point of expansion
+        if (.not. rtdb_get(rtdb, 'prop:center_val',mt_dbl,3,cm))
+     $  call errquit('prp_cent: rtdb_get center_val failed',555)
+        if(ga_nodeid().eq.0)
+     &   write(6,9994) cm(1),cm(2),cm(3)
+c
+      elseif (center.eq.3) then   ! origin
+        do i = 1, 3
+          cm(i) = zero
+        end do
+        if(ga_nodeid().eq.0)
+     &   write(6,9995) cm(1),cm(2),cm(3)
+c
+      elseif (center.eq.2) then   ! center of mass
+        SUM=ZERO
+        DO 20 I=1,3
+   20   CM(I)=ZERO
+        DO 30 IAT=1,NAT
+          SUM=SUM+AM(IAT)
+          DO 30 I=1,3
+   30   CM(I)=CM(I)+AM(IAT)*C(I,IAT)
+        IF( ABS(SUM).LT.TOL) GO TO 45
+        DO 40 I=1,3
+   40   CM(I)=CM(I)/SUM
+   45   CONTINUE
+        if(ga_nodeid().eq.0)
+     &   write(6,9996) cm(1),cm(2),cm(3)
+c
+      elseif (center.eq.1) then   ! center of charge
+        if(.not. geom_check_handle(geom, 'prp_cent'))
+     $    call errquit('prp_cent:improper geometry',555)
+        call geom_compute_values(geom)
+        sum = zero
+        do i = 1, ncenter(geom)
+           sum = sum + charge(i,geom)
+        end do
+c
+        if (sum .eq. zero) then ! System is charge neutral
+          do i = 1, 3
+            cm(i) = zero
+          end do
+        else
+          do i = 1, 3
+             cm(i) = ndipole(i,geom)/sum
+          end do
+        endif
+        if(ga_nodeid().eq.0)
+     &   write(6,9997) cm(1),cm(2),cm(3)
+c
+      else
+        call errquit('prp_cent: improper center value',555)
+      endif
+c
+      return
+ 9994 FORMAT(/,' Center of expansion is the arbitrary point',
+     1 /,8X,' X = ',F15.7,' Y = ',F15.7,' Z = ',F15.7)
+ 9995 FORMAT(/,' Center of expansion is the origin',
+     1 /,8X,' X = ',F15.7,' Y = ',F15.7,' Z = ',F15.7)
+ 9996 FORMAT(/,' Center of mass is the expansion point',
+     1 /,8X,' X = ',F15.7,' Y = ',F15.7,' Z = ',F15.7)
+ 9997 FORMAT(/,' Center of charge is the expansion point',
+     1 /,8X,' X = ',F15.7,' Y = ',F15.7,' Z = ',F15.7)
+      end
+c
       SUBROUTINE HND_DIPOLE(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
@@ -324,17 +409,7 @@ C
       CALL HND_DIPAMS(AM,NCALL,NCODE,SOME)
       IF(NCODE.NE.0) GO TO 100
 C
-      SUM=ZERO
-      DO 20 I=1,3
-   20 CM(I)=ZERO
-      DO 30 IAT=1,NAT
-      SUM=SUM+AM(IAT)
-      DO 30 I=1,3
-   30 CM(I)=CM(I)+AM(IAT)*C(I,IAT)
-      IF( ABS(SUM).LT.TOL) GO TO 45
-      DO 40 I=1,3
-   40 CM(I)=CM(I)/SUM
-   45 CONTINUE
+      call prp_cent(rtdb,geom,cm,am,c,nat)
 C
 C     ----- CALCULATE DIPOLE MOMENT INTEGRALS -----
 C
@@ -407,8 +482,6 @@ C
       DMZTOT=DMZ+DMZEFC
       DIPTOT= SQRT(DMXTOT*DMXTOT+DMYTOT*DMYTOT+DMZTOT*DMZTOT)
       IF(SOME.and.ga_nodeid().eq.0)
-     &   WRITE(IW,9997) CM(1),CM(2),CM(3)
-      IF(SOME.and.ga_nodeid().eq.0)
      &   WRITE(IW,9995) DIPOL,DMX,DMXEFC,DMY,DMYEFC,DMZ,DMZEFC,
      1 DIPEFC,DIPTOT
       DMX=DMX*DEBYE
@@ -452,17 +525,13 @@ C
 C
  9999 FORMAT(/,2X,' DIPOLE MOMENTS ALONG INERTIAL AXES')
  9998 FORMAT(' NOT ENOUGH CORE IN -DIPOLE- . STOP ')
- 9997 FORMAT(/,2X,' Center of mass',
-     1 ' X = ',F15.7,' Y = ',F15.7,' Z = ',F15.7)
  9996 FORMAT(/,2X,' Dipole moment',F20.10,' Debye(s)',
-     1 ' ( W.R.T. center of mass) ',
      2 /,12X,' DMX',F20.10,' DMXEFC',F20.10,
      3 /,12X,' DMY',F20.10,' DMYEFC',F20.10,
      4 /,12X,' DMZ',F20.10,' DMZEFC',F20.10,
      5 /,2X,' -EFC- dipole ',F20.10,' DEBYE(S)',
      6 /,2X,' Total dipole ',F20.10,' DEBYE(S)')
  9995 FORMAT(/,2X,' Dipole moment',F20.10,' A.U.',
-     1 ' ( W.R.T. center of mass) ',
      2 /,12X,' DMX',F20.10,' DMXEFC',F20.10,
      3 /,12X,' DMY',F20.10,' DMYEFC',F20.10,
      4 /,12X,' DMZ',F20.10,' DMZEFC',F20.10,
@@ -1002,7 +1071,7 @@ C
       RETURN
  9999 FORMAT(/,8X,' PRINCIPLE MOMENTS OF INERTIA AND PRINCIPLE AXES',
      1       /,8X,'       (TRANSPOSE OF AXIS ROTATION MATRIX)')
- 9998 FORMAT(/,2X,' CENTER OF MASS',
+ 9998 FORMAT(/,2X,' CENTER OF EXPANSION',
      1 ' X = ',F15.7,' Y = ',F15.7,' Z = ',F15.7)
       END
       SUBROUTINE HND_DIAAXS(A,VEC,EIG,IA,NVEC,N,NDIM)
@@ -1218,17 +1287,7 @@ C
       CALL HND_QDPAMS(AM,NCALL,NCODE)
       IF(NCODE.NE.0) GO TO 100
 C
-      SUM=ZERO
-      DO 20 I=1,3
-   20 CM(I)=ZERO
-      DO 30 IAT=1,NAT
-      SUM=SUM+AM(IAT)
-      DO 30 I=1,3
-   30 CM(I)=CM(I)+AM(IAT)*C(I,IAT)
-      IF( ABS(SUM).LT.TOL) GO TO 45
-      DO 40 I=1,3
-   40 CM(I)=CM(I)/SUM
-   45 CONTINUE
+      call prp_cent(rtdb,geom,cm,am,c,nat)
 C
 C     ----- CALCULATE SECOND MOMENT INTEGRALS -----
 C
@@ -1307,7 +1366,6 @@ C
       QMXZT =QMXZ+QMXZEF
       QMYZT =QMYZ+QMYZEF
       if (ga_nodeid().eq.0) then
-         WRITE(IW,9998) CM(1),CM(2),CM(3)
          WRITE(IW,9999) QMXX,QMXXEF,QMXXT,QMYY,QMYYEF,QMYYT,
      1               QMZZ,QMZZEF,QMZZT,QMXY,QMXYEF,QMXYT,
      2               QMXZ,QMXZEF,QMXZT,QMYZ,QMYZEF,QMYZT
@@ -1367,17 +1425,13 @@ C
       RETURN
 C
  9999 FORMAT(/,2X,' Second moments in atomic units',
-     1 ' ( W.R.T. center of mass) ',
      2 /,2X,' QMXX',F20.10,' QMXXEF',F20.10,' QMXXT',F20.10,
      2 /,2X,' QMYY',F20.10,' QMYYEF',F20.10,' QMYYT',F20.10,
      2 /,2X,' QMZZ',F20.10,' QMZZEF',F20.10,' QMZZT',F20.10,
      2 /,2X,' QMXY',F20.10,' QMXYEF',F20.10,' QMXYT',F20.10,
      2 /,2X,' QMXZ',F20.10,' QMXZEF',F20.10,' QMXZT',F20.10,
      2 /,2X,' QMYZ',F20.10,' QMYZEF',F20.10,' QMYZT',F20.10)
- 9998 FORMAT(/,2X,' Center of mass',
-     1 ' X = ',F15.7,' Y = ',F15.7,' Z = ',F15.7)
  9997 FORMAT(/,2X,' Quadrupole moments in atomic units',
-     1 ' ( W.R.T. center of mass) ',
      2 /,2X,' THXX',F20.10,' THXXEF',F20.10,' THXXT',F20.10,
      2 /,2X,' THYY',F20.10,' THYYEF',F20.10,' THYYT',F20.10,
      2 /,2X,' THZZ',F20.10,' THZZEF',F20.10,' THZZT',F20.10,
@@ -1386,7 +1440,6 @@ C
      2 /,2X,' THYZ',F20.10,' THYZEF',F20.10,' THYZT',F20.10)
  9996 FORMAT(' Not enough core in -qdpole- . stop ')
  9995 FORMAT(/,2X,' Second moments in buckingham(s)',
-     1 ' ( W.R.T. center of mass) ',
      2 /,2X,' QMXX',F20.10,' QMXXEF',F20.10,' QMXXT',F20.10,
      2 /,2X,' QMYY',F20.10,' QMYYEF',F20.10,' QMYYT',F20.10,
      2 /,2X,' QMZZ',F20.10,' QMZZEF',F20.10,' QMZZT',F20.10,
@@ -1394,7 +1447,6 @@ C
      2 /,2X,' QMXZ',F20.10,' QMXZEF',F20.10,' QMXZT',F20.10,
      2 /,2X,' QMYZ',F20.10,' QMYZEF',F20.10,' QMYZT',F20.10)
  9994 FORMAT(/,2X,' Quadrupole moments in buckingham(s)',
-     1 ' ( W.R.T. center of mass) ',
      2 /,2X,' THXX',F20.10,' THXXEF',F20.10,' THXXT',F20.10,
      2 /,2X,' THYY',F20.10,' THYYEF',F20.10,' THYYT',F20.10,
      2 /,2X,' THZZ',F20.10,' THZZEF',F20.10,' THZZT',F20.10,
@@ -1988,17 +2040,7 @@ C
       CALL HND_OTPAMS(AM,NCALL,NCODE)
       IF(NCODE.NE.0) GO TO 100
 C
-      SUM=ZERO
-      DO 20 I=1,3
-   20 CM(I)=ZERO
-      DO 30 IAT=1,NAT
-      SUM=SUM+AM(IAT)
-      DO 30 I=1,3
-   30 CM(I)=CM(I)+AM(IAT)*C(I,IAT)
-      IF( ABS(SUM).LT.TOL) GO TO 45
-      DO 40 I=1,3
-   40 CM(I)=CM(I)/SUM
-   45 CONTINUE
+      call prp_cent(rtdb,geom,cm,am,c,nat)
 C
 C     ----- CALCULATE THIRD MOMENT INTEGRALS -----
 C
@@ -2116,7 +2158,6 @@ C
       RZZYT =RZZY+RZZYEF
       RXYZT =RXYZ+RXYZEF
       if (ga_nodeid().eq.0) then
-          WRITE(IW,9998) CM(1),CM(2),CM(3)
           WRITE(IW,9999) RXXX,RXXXEF,RXXXT,RYYY,RYYYEF,RYYYT,
      1               RZZZ,RZZZEF,RZZZT,RXXY,RXXYEF,RXXYT,
      2               RXXZ,RXXZEF,RXXZT,RYYX,RYYXEF,RYYXT,
@@ -2197,7 +2238,6 @@ C
       RETURN
 C
  9999 FORMAT(/,2X,' Third moments in atomic units',
-     1 ' ( W.R.T. center of mass) ',
      2 /,2X,' RXXX',F20.10,' RXXXEF',F20.10,' RXXXT',F20.10,
      2 /,2X,' RYYY',F20.10,' RYYYEF',F20.10,' RYYYT',F20.10,
      2 /,2X,' RZZZ',F20.10,' RZZZEF',F20.10,' RZZZT',F20.10,
@@ -2208,10 +2248,7 @@ C
      2 /,2X,' RZZX',F20.10,' RZZXEF',F20.10,' RZZXT',F20.10,
      2 /,2X,' RZZY',F20.10,' RZZYEF',F20.10,' RZZYT',F20.10,
      2 /,2X,' RXYZ',F20.10,' RXYZEF',F20.10,' RXYZT',F20.10)
- 9998 FORMAT(/,2X,' Center of mass',
-     1 ' X = ',F15.7,' Y = ',F15.7,' Z = ',F15.7)
  9997 FORMAT(/,2X,' Octupole moments in atomic units',
-     1 ' ( W.R.T. center of mass) ',
      2 /,2X,' OXXX',F20.10,' OXXXEF',F20.10,' OXXXT',F20.10,
      2 /,2X,' OYYY',F20.10,' OYYYEF',F20.10,' OYYYT',F20.10,
      2 /,2X,' OZZZ',F20.10,' OZZZEF',F20.10,' OZZZT',F20.10,
@@ -2224,7 +2261,6 @@ C
      2 /,2X,' OXYZ',F20.10,' OXYZEF',F20.10,' OXYZT',F20.10)
  9996 FORMAT(' Not enough core in -otpole- . stop ')
  9995 FORMAT(/,2X,' Third moments in 10**(-34) esu*cm**3',
-     1 ' ( W.R.T. center of mass) ',
      2 /,2X,' RXXX',F20.10,' RXXXEF',F20.10,' RXXXT',F20.10,
      2 /,2X,' RYYY',F20.10,' RYYYEF',F20.10,' RYYYT',F20.10,
      2 /,2X,' RZZZ',F20.10,' RZZZEF',F20.10,' RZZZT',F20.10,
@@ -2236,7 +2272,6 @@ C
      2 /,2X,' RZZY',F20.10,' RZZYEF',F20.10,' RZZYT',F20.10,
      2 /,2X,' RXYZ',F20.10,' RXYZEF',F20.10,' RXYZT',F20.10)
  9994 FORMAT(/,2X,' Octupole moments in 10**(-34) esu*cm**3',
-     1 ' ( W.R.T. center of mass) ',
      2 /,2X,' OXXX',F20.10,' OXXXEF',F20.10,' OXXXT',F20.10,
      2 /,2X,' OYYY',F20.10,' OYYYEF',F20.10,' OYYYT',F20.10,
      2 /,2X,' OZZZ',F20.10,' OZZZEF',F20.10,' OZZZT',F20.10,
