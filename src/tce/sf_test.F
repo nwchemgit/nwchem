@@ -1,6 +1,6 @@
       subroutine sf_test
 c
-c $Id: sf_test.F,v 1.3 2002-10-30 22:05:30 sohirata Exp $
+c $Id: sf_test.F,v 1.4 2002-10-31 10:52:06 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -17,8 +17,13 @@ c
       character*255 filename
 c
       nodezero = (ga_nodeid() .eq. 0)
-      if (nodezero.and.util_print('sf',print_default))
-     1  write(LuOut,9000)
+      if (nodezero.and.util_print('sf',print_default)) then
+        if ((ioalg.eq.0) .or. (ioalg.eq.1)) then
+          write(LuOut,9000)
+        else if (ioalg.eq.2) then
+          write(LuOut,9100)
+        endif
+      endif
       size = ga_nnodes()
       if (.not.ma_push_get(mt_dbl,size,'sf',l_sf,k_sf))
      1  call errquit('sf_print: MA problem',0)
@@ -38,7 +43,9 @@ c
      1  write(LuOut,9010)
       call deletefile(d_test)
  9000 format(/,1x,
-     1 'This module uses a global file system accessible by all nodes')
+     1 'A global file system accessible by all nodes assumed')
+ 9100 format(/,1x,
+     1 'Diskless GA virtual file algorithm will be used')
  9010 format(/,1x,'I/O self test is being performed ... passed')
       return
       end

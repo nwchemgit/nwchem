@@ -1,6 +1,6 @@
       subroutine add_block(d_file,array,size,offset)
 c
-c $Id: add_block.F,v 1.3 2002-10-30 21:49:14 sohirata Exp $
+c $Id: add_block.F,v 1.4 2002-10-31 10:52:05 sohirata Exp $
 c
 c     This subroutine reads a section of a file and adds
 c     the content of an array to it and write it back to
@@ -69,6 +69,9 @@ c
         call ga_unlock(0)
         if (.not.ma_pop_stack(l_temp))
      1    call errquit('add_block: MA problem',0)
+      else if (ioalg.eq.2) then
+        call ga_acc(d_file,offset+1,offset+size,1,1,
+     1    array,1,1.0d0)
       endif
  9000 format(1x,'node',i3,' add_block request to file:',i10,
      1  ' size:',i10,' offset:',i10)

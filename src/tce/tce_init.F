@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.9 2002-10-30 21:49:14 sohirata Exp $
+c $Id: tce_init.F,v 1.10 2002-10-31 10:52:06 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -322,6 +322,8 @@ c
           write(LuOut,9140) 'Fortran77 direct access'
         else if (ioalg.eq.1) then
           write(LuOut,9140) 'Shared file library of ParSoft'
+        else if (ioalg.eq.2) then
+          write(LuOut,9140) 'Global array library of ParSoft'
         else
           call errquit('tce_init: unknown I/O scheme',ioalg)
         endif

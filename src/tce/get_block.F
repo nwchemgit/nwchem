@@ -1,6 +1,6 @@
       subroutine get_block(d_file,array,size,offset)
 c
-c $Id: get_block.F,v 1.4 2002-10-30 21:49:14 sohirata Exp $
+c $Id: get_block.F,v 1.5 2002-10-31 10:52:05 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -46,6 +46,9 @@ c
         if (sf_wait(request).ne.0)
      1    call errquit('get_block: sf problem',1)
         call ga_unlock(0)
+      else if (ioalg.eq.2) then
+        call ga_get(d_file,offset+1,offset+size,1,1,
+     1    array,1)
       endif
  9000 format(1x,'node',i3,' get_block request to file:',i10,
      1  ' size:',i10,' offset:',i10)

@@ -1,6 +1,6 @@
       subroutine createfile(filename,d_sf,size)
 c
-c $Id: createfile.F,v 1.5 2002-10-30 21:49:14 sohirata Exp $
+c $Id: createfile.F,v 1.6 2002-10-31 10:52:05 sohirata Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -55,6 +55,11 @@ c
         if (sf_create(filename,dfloat(bytes*size),dfloat(bytes*size),
      1    1.0d4,d_sf).ne.0)
      2    call errquit('createfile: sf problem',0)
+        call tce_zero(d_sf,size)
+      else if (ioalg.eq.2) then
+        if (.not.ga_create(mt_dbl,size,1,filename,
+     1    -1,1,d_sf)) call errquit
+     2    ('createfile: GA problem',0)
         call tce_zero(d_sf,size)
       endif
  9000 format(1x,'create a file: size = ',i10,' file name = ',a)

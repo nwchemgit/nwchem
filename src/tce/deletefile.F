@@ -1,6 +1,6 @@
       subroutine deletefile(d_sf)
 c
-c $Id: deletefile.F,v 1.3 2002-10-30 21:49:14 sohirata Exp $
+c $Id: deletefile.F,v 1.4 2002-10-31 10:52:05 sohirata Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -58,6 +58,9 @@ c
       else if (ioalg.eq.1) then
         if (sf_destroy(d_sf).ne.0)
      1    call errquit('deletefile: sf problem',0)
+      else if (ioalg.eq.2) then
+        if (.not.ga_destroy(d_sf))
+     1    call errquit('deletefile: GA problem',0)
       endif
  9000 format(1x,'delete a file: file handle = ',i3)
  9010 format(1x,'file handle = ',i3,' file name = ',a)
