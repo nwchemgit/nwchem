@@ -132,11 +132,11 @@ c
 c
        status = ma_push_get(MT_DBL,(noper*(noper+1))/2,'pair e2',
      $                      l_epair,k_epair)
-       call moints_mp2_eval(nbf,noper,dbl_mb(k_evals),g_exch,
-     $                      emp2,dbl_mb(k_epair))
+       call moints_mp2_eval_a(nbf,noper,dbl_mb(k_evals),g_exch,
+     $                        emp2,dbl_mb(k_epair))
 
-C       call moints_mp2_eval_a(nbf,noper,nmo2,dbl_mb(k_evals),
-C     $                        g_exch,emp2,dbl_mb(k_epair))
+C       call moints_mp2_eval(nbf,noper,nmo2,dbl_mb(k_evals),
+C     $                      g_exch,emp2,dbl_mb(k_epair))
 c
 c
 c
