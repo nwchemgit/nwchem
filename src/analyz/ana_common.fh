@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.23 2000-05-04 20:54:50 d3j191 Exp $
+c $Id: ana_common.fh,v 1.24 2000-05-10 22:30:45 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -38,9 +38,9 @@ c
       character*255 filnam,filana,filref,filtrj,filcop,filsup,
      + filchg,filplt,filxyz,filrms,filprj,filval,filmax,filmin,
      + filcov,filvec,filtop,filhis
-      character*3 fmtcop,fmtsup
+      character*3 fmttrj,fmtcop,fmtsup
       common/ana_txt/filnam,filana,filref,filtrj,filcop,filsup,
-     + filchg,filplt,filxyz,fmtcop,fmtsup,filrms,filprj,filval,
+     + filchg,filplt,filxyz,fmttrj,fmtcop,fmtsup,filrms,filprj,filval,
      + filmax,filmin,filcov,filvec,filtop,filhis
 c
       integer i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt,i_isel,l_isel,
@@ -57,8 +57,8 @@ c
       integer nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel
       common/ana_dim/nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel
 c
-      logical lxw,lvw,lsx,lsv,lsel,lana,lrms,lsonly
-      common/ana_log/lxw,lvw,lsx,lsv,lsel,lana,lrms,lsonly
+      logical lxw,lvw,lsx,lsv,lsel,lana,lrms,lsonly,ltop
+      common/ana_log/lxw,lvw,lsx,lsv,lsel,lana,lrms,lsonly,ltop
 c
       character*16 wnam(100)
       common/ana_chr/wnam

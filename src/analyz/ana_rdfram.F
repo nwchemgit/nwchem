@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.7 2000-04-27 15:22:00 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.8 2000-05-10 22:30:46 d3j191 Exp $
 c
       implicit none
 c
@@ -25,6 +25,7 @@ c
       lsv=.false.
 c
       if(me.eq.0) then
+      if(fmttrj.eq.'trj') then
     1 continue
       read(lfntrj,1000,err=9999,end=9999) card
  1000 format(a)
@@ -56,6 +57,33 @@ c
       endif
       succes=.true.
       goto 9000
+      elseif(fmttrj.eq.'sco') then
+   11 continue
+      read(lfntrj,1000,err=9999,end=9999) card
+      if(card(1:5).ne.'time:') goto 11
+      read(lfntrj,2001) timp
+ 2001 format(f12.6)
+   12 continue
+      read(lfntrj,1000,err=9999,end=9999) card
+      if(card(1:15).ne.'box_dimensions:') goto 12
+      read(lfntrj,2002) box
+ 2002 format(3f12.6)
+      lxw=.false.
+      lvw=.false.
+      lsx=.true.
+      lsv=.false.
+   13 continue
+      read(lfntrj,1000,err=9999,end=9999) card
+      if(card(1:10).ne.'atom_list:') goto 13
+      do 14 i=1,nsa
+      read(lfntrj,1005) (x(i,j),j=1,3)
+      ix(i)=i
+   14 continue
+      succes=.true.
+      goto 9000
+      else
+      call errquit('Trajectory file format error',0)
+      endif
 c
  9999 continue 
 c

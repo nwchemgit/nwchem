@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.20 2000-05-04 20:54:50 d3j191 Exp $
+c $Id: ana_input.F,v 1.21 2000-05-10 22:30:46 d3j191 Exp $
 c
       implicit none
 c
@@ -99,7 +99,7 @@ c     -------------------------
 c
       if(inp_compare(.false.,'file',item)) then
       if(.not.inp_a(filtrj)) call errquit('Error in trajectory file',0)
-      if(index(filtrj,'.trj').le.0)
+      if(index(filtrj,'.trj').le.0.and.index(filtrj,'.sco').le.0)
      + filtrj=filtrj(1:index(filtrj,' ')-1)//'.trj '
       if(.not.inp_i(ifrst)) ifrst=0
       if(.not.inp_i(ilast)) ilast=0

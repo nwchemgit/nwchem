@@ -1,4 +1,4 @@
-      subroutine ana_rdtop(qs)
+      subroutine ana_rdtop(sgmnam,qs)
 c
       implicit none
 c
@@ -7,19 +7,23 @@ c
 #include "msgids.fh"
 #include "ana_common.fh"
 c
+      character*16 sgmnam(msa)
       real*8 qs(msa)
 c
       character*1 cdummy
       integer i,j,nat,naq,i_tmp,l_tmp
       integer naw,nbw,nhw,ndw,now,ntw,nnw
-      integer nas
+      integer nas,nbs,num
+      character*5 sname,aname
+c
+      ltop=.false.
 c
       if(me.eq.0) then
 c
       open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
-     + form='formatted',status='old')
+     + form='formatted',status='old',err=999)
 c
-      read(lfntop,1000) cdummy
+      read(lfntop,1000,end=999,err=999) cdummy
       read(lfntop,1000) cdummy
       read(lfntop,1000) cdummy
       read(lfntop,1000) cdummy
@@ -45,8 +49,18 @@ c
     4 continue
       read(lfntop,1003) naw,nbw,nhw,ndw,now,ntw,nnw
  1003 format(5i7,2i10)
-      read(lfntop,1003) nas
-      nat=naw+2*(nbw+nhw+ndw+now)
+      read(lfntop,1003) nas,nbs
+      open(unit=44,file='.header',form='formatted',
+     + status='unknown')
+      rewind(44)
+      write(44,2003) naw,nas,nbs
+ 2003 format(3i10)
+      do 7 i=1,naw
+      read(lfntop,1005) sname,aname,num,j
+      write(44,2004) sname,aname
+ 2004 format(2a5,i6)
+    7 continue
+      nat=2*(nbw+nhw+ndw+now)
       do 5 i=1,nat
       read(lfntop,1000) cdummy
     5 continue
@@ -61,20 +75,35 @@ c
       endif
       read(lfntop,1000) cdummy
       do 6 i=1,nas
-      read(lfntop,1005) j
- 1005 format(46x,i5)
+      read(lfntop,1005) sname,aname,num,j
+ 1005 format(a5,5x,a5,11x,i5,15x,i5)
+      write(44,2004) sname,aname,num
+      write(sgmnam(i),2004) sname,aname,num
       qs(i)=dbl_mb(i_tmp-1+j)
     6 continue
+      do 8 i=1,nbs
+      read(lfntop,1006) j,num
+      read(lfntop,1000) cdummy
+ 1006 format(2i7)
+      write(44,2005) j,num
+ 2005 format(2i8)
+    8 continue
+      close(unit=44)
       close(unit=lfntop)
       if(.not.ma_pop_stack(l_tmp))
      + call errquit('Failed to deallocate tmp',0)
 c
+      ltop=.true.
       endif
+  999 continue      
 c
 c     broadcast charges
 c
       if(np.gt.1) then
+      call ga_brdcst(mag_d02,ltop,ma_sizeof(mt_log,1,mt_byte),0)
+      if(ltop) then
       call ga_brdcst(mag_d01,qs,nsa*ma_sizeof(mt_dbl,1,mt_byte),0)
+      endif
       endif
 c
       return

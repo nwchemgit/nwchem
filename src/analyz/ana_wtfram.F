@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel)
 c
-c $Id: ana_wtfram.F,v 1.10 2000-04-28 18:02:50 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.11 2000-05-10 22:30:46 d3j191 Exp $
 c
       implicit none
 c
@@ -18,7 +18,8 @@ c
       character*2 elemnt
 c
       character*1 cdummy
-      integer nsb,ib,jb
+      character*7 string
+      integer nsb,ib,jb,nss
 c
       if(me.eq.0) then
 c
@@ -72,37 +73,53 @@ c
       call swatch(today,now)
       write(iunit,2000) time,today,now
  2000 format('title ',t67,f10.3,/,'!DATE ',2a10)
+      nss=0
       if(lsx) then
       do 4 i=1,nsa
+      string=sgmnam(i)(13:16)//'   '
+      if(sgmnam(i)(13:13).eq.' ') string=sgmnam(i)(14:16)//'    '
+      if(sgmnam(i)(14:14).eq.' ') string=sgmnam(i)(15:16)//'     '
+      if(sgmnam(i)(15:15).eq.' ') string=sgmnam(i)(16:16)//'      '
       if(sgmnam(i)(6:6).eq.' '.or.
      + sgmnam(i)(6:6).eq.'2'.or.sgmnam(i)(6:6).eq.'3'.or.
      + sgmnam(i)(6:6).eq.'4'.or.sgmnam(i)(6:6).eq.'1') then
       write(iunit,2001) sgmnam(i)(6:9),(1.0d1*x(i,j),j=1,3),
-     + sgmnam(i)(1:4),sgmnam(i)(13:16),'?',sgmnam(i)(7:7)//' ',0.0
+     + sgmnam(i)(1:4),string,'?',sgmnam(i)(7:7)//' ',0.0
       else
       write(iunit,2001) sgmnam(i)(6:9),(1.0d1*x(i,j),j=1,3),
-     + sgmnam(i)(1:4),sgmnam(i)(13:16),'?',sgmnam(i)(6:7),0.0
+     + sgmnam(i)(1:4),string,'?',sgmnam(i)(6:7),0.0
       endif
- 2001 format(a4,1x,3f15.9,1x,a4,a4,4x,a1,7x,a2,f7.3)
+ 2001 format(a4,1x,3f15.9,1x,a4,1x,a7,a1,7x,a2,f7.3)
     4 continue
+      write(iunit,2002)
+      read(sgmnam(nsa)(13:16),'(i4)') nss
       endif
       if(lxw.and..not.lsonly) then
       do 44 i=1,nwm
+      write(string,'(i7)') i+nss
+      if(string(1:1).eq.' ') string=string(2:6)//' '
+      if(string(1:1).eq.' ') string=string(2:6)//' '
+      if(string(1:1).eq.' ') string=string(2:6)//' '
+      if(string(1:1).eq.' ') string=string(2:6)//' '
+      if(string(1:1).eq.' ') string=string(2:6)//' '
+      if(string(1:1).eq.' ') string=string(2:6)//' '
+      if(string(1:1).eq.' ') string=string(2:6)//' '
       do 45 j=1,nwa
       if(wnam(j)(6:6).eq.' '.or.
      + wnam(j)(6:6).eq.'2'.or.wnam(j)(6:6).eq.'3'.or.
      + wnam(j)(6:6).eq.'4'.or.wnam(j)(6:6).eq.'1') then
       write(iunit,2001) wnam(j)(6:9),(1.0d1*w(i,j,k),k=1,3),
-     + wnam(j)(1:4),wnam(j)(13:16),'?',wnam(j)(7:7)//' ',0.0
+     + wnam(j)(1:4),string,'?',wnam(j)(7:7)//' ',0.0
       else
       write(iunit,2001) wnam(j)(6:9),(1.0d1*w(i,j,k),k=1,3),
-     + wnam(j)(1:4),wnam(j)(13:16),'?',wnam(j)(6:7),0.0
+     + wnam(j)(1:4),string,'?',wnam(j)(6:7),0.0
       endif
    45 continue
+      write(iunit,2002)
    44 continue
       endif
       write(iunit,2002)
- 2002 format('end',/,'end')
+ 2002 format('end')
       endif
 c
       if(fmt.eq.'amb') then

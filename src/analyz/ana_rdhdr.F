@@ -1,6 +1,6 @@
       subroutine ana_rdhdr(sgmnam)
 c
-c $Id: ana_rdhdr.F,v 1.8 2000-04-27 15:22:00 d3j191 Exp $
+c $Id: ana_rdhdr.F,v 1.9 2000-05-10 22:30:46 d3j191 Exp $
 c
       implicit none
 c
@@ -25,6 +25,8 @@ c
       fname=filtrj(1:lq-1)//cnum//filtrj(lq+1:index(filtrj,' ')-1)
       endif
 c
+      print*,fmttrj
+      if(fmttrj.eq.'trj') then
       open(unit=lfntrj,file=fname(1:index(fname,' ')-1),
      + status='old',err=9999)
       write(*,3333) fname(1:index(fname,' ')-1)
@@ -62,6 +64,58 @@ c
     4 continue
       endif
       close(unit=44)
+      elseif(fmttrj.eq.'sco') then
+      open(unit=lfntrj,file=fname(1:index(fname,' ')-1),
+     + status='old',err=9999)
+      write(*,3333) fname(1:index(fname,' ')-1)
+   11 continue
+      read(lfntrj,1000,err=9999,end=9999) card
+      if(card(1:18).eq.'num_solvent_atoms:')then
+      read(card(19:26),'(i8)') nwa
+      goto 11
+      endif
+      if(card(1:17).eq.'num_solute_atoms:') then
+      read(card(18:25),'(i8)') nsa
+      goto 11
+      endif
+      if(card(1:10).eq.'num_bonds:') then
+      read(card(11:19),'(i9)') nsb
+      else
+      goto 11
+      endif
+      rewind(lfntrj)
+      nwa=0
+      if(.not.ltop) then
+      open(unit=44,file='.header',form='formatted',
+     + status='unknown')
+      rewind(44)
+      write(44,1003) nwa,nsa,nsb
+      endif
+      if(nsa.gt.msa) call errquit('Error in trj',0)
+   12 continue
+      read(lfntrj,1000,err=9999,end=9999) card
+      if(card(1:11).ne.'atom_names:') goto 12
+      do 13 i=1,nsa
+      if(ltop) then
+      read(lfntrj,1000,err=9999,end=9999) card
+      else
+      read(lfntrj,1005) sgmnam(i)
+      write(44,1005) sgmnam(i)
+      endif
+   13 continue
+      if(nsb.gt.0) then
+   14 continue
+      read(lfntrj,1000,err=9999,end=9999) card
+      if(card(1:10).ne.'bond_list:') goto 14
+      do 15 i=1,nsb
+      read(lfntrj,1001) ib,jb
+      if(.not.ltop) write(44,1001) ib,jb
+   15 continue
+      endif
+      if(.not.ltop) close(unit=44)
+      else
+      call errquit('Trajectory file format error',0)
+      endif
 c
       endif
 c

@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.23 2000-05-04 20:54:51 d3j191 Exp $
+c $Id: ana_task.F,v 1.24 2000-05-10 22:30:46 d3j191 Exp $
 c
       implicit none
 c
@@ -137,11 +137,16 @@ c     ------------------
 c
       if(card(1:6).eq.'topol ') then
       filtop=card(8:80)
-      call ana_rdtop(dbl_mb(i_qdat))
+      call ana_rdtop(byte_mb(i_snam),dbl_mb(i_qdat))
 c
       if(me.eq.0) then
+      if(ltop) then
       write(*,'(a,a)') ' Topology read from ',
      + filtop(1:index(filtop,' ')-1)
+      else
+      write(*,'(a,a)') ' Topology could not be read from ',
+     + filtop(1:index(filtop,' ')-1)
+      endif
       endif
       goto 1
       endif
@@ -152,6 +157,9 @@ c
       if(card(1:6).eq.'file  ') then
       read(card(8:17),'(2i5)') ifrst,ilast
       filtrj=card(18:80)
+c
+      fmttrj='trj'
+      if(index(filtrj,'.sco').gt.0) fmttrj='sco'
 c
       call ana_rdhdr(byte_mb(i_snam))
 c
@@ -469,6 +477,7 @@ c
 c     charge histogram
 c
       if(ldist.gt.0) then
+      if(.not.ltop) call errquit('Topology needed',0)
       call ana_chgdst(dbl_mb(i_hist),dbl_mb(i_xdat),dbl_mb(i_qdat))
       endif
 c
