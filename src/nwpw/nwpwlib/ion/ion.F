@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.22 2003-07-30 17:42:38 bylaska Exp $
+* $Id: ion.F,v 1.23 2003-07-30 20:04:32 bylaska Exp $
 *
 
 *     ***************************
@@ -707,7 +707,7 @@ c     call ion_shift()
       real*8   psp_zv,cpsp_zv
       integer  ion_natm,ion_nkatm,control_code
       external psp_zv,cpsp_zv
-      external ion_natm,ion_nkatm,contol_code
+      external ion_natm,ion_nkatm,control_code
 
       !**** band structure code ****
       if (control_code().eq.5) then
