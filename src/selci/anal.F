@@ -1,7 +1,7 @@
       subroutine selci_anal(irange, roots, ept, ptnorm, enew, ncinew,
      &           ptnorm_mp, ept_mp)
 *
-* $Id: anal.F,v 1.4 1997-10-31 23:41:52 d3e129 Exp $
+* $Id: anal.F,v 1.5 1998-03-14 01:45:12 d3g681 Exp $
 *
 #include "implicit.fh"
 #include "ciinfo.fh"
@@ -40,15 +40,19 @@ c
 91    format(/
      $ '       Total Perturbation Corrections for CI energies '/
      $ '       ---------------------------------------------- '//
-     $ ' EN|  ci energy    pt correction   ci+pt energy   PT norm '/
-     $ ' EN| -------------  -------------  -------------  ---------'/
-     $ 20(:' EN:',f13.8,2x,f13.8,2x,f13.8,2x,f9.6/))
+     $ ' EN|   ci energy      pt correction     ci+pt energy',
+     $     '    PT norm '/
+     $ ' EN| ---------------  ---------------  ---------------',
+     $     '  ---------'/
+     $ 20(:' EN:',f15.8,2x,f15.8,2x,f15.8,2x,f9.6/))
 92    format(/
      $ '      Total Perturbation Corrections for CI energies '/
      $ '      ---------------------------------------------- '//
-     $ ' MP|  ci energy    pt correction   ci+pt energy   PT norm '/
-     $ ' MP| -------------  -------------  -------------  ---------'/
-     $ 20(:' MP:',f13.8,2x,f13.8,2x,f13.8,2x,f9.6/))
+     $ ' MP|   ci energy      pt correction     ci+pt energy',
+     $     '    PT norm '/
+     $ ' MP| ---------------  ---------------  ---------------',
+     $     '  ---------'/
+     $ 20(:' MP:',f15.8,2x,f15.8,2x,f15.8,2x,f9.6/))
 c
       write(ifllog,31) ncinew, noconf
  31   format(/
@@ -59,8 +63,8 @@ c
  12   format(/
      $     '           Predicted New CI Energies '/
      $     '           ------------------------- '//
-     $     '    ci energy    pt correction   ci+pt energy'/
-     $     '  -------------  -------------  -------------'/
-     $     20(:2x,f13.8,2x,f13.8,2x,f13.8/))
+     $ '   ci energy      pt correction     ci+pt energy'/
+     $ ' ---------------  ---------------  ---------------'/
+     $ 20(:f15.8,2x,f15.8,2x,f15.8,2x,f9.6/))
 c
       end

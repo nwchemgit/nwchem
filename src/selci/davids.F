@@ -1,6 +1,6 @@
       subroutine selci_davids(q, lword, nroot, thresh, roots)
 *
-* $Id: davids.F,v 1.8 1997-10-31 23:41:59 d3e129 Exp $
+* $Id: davids.F,v 1.9 1998-03-14 01:45:12 d3g681 Exp $
 *
 #include "implicit.fh"
 #include "cbuff.fh"
@@ -186,7 +186,7 @@ c     analyse the eigenvectors
 c
         do 50 iroot = 1,nroot
            write(6,7) iroot,roots(iroot)
- 7         format(//' Root ',i2,' final energy = ',f15.10/)
+ 7         format(//' Root ',i2,' final energy = ',f19.10/)
            call selci_analci(work((iroot-1)*nci+1),indxci,ioconf,
      $          nci,noconf, norbs,nintpo,nbitpi,0)
  50     continue
@@ -226,7 +226,7 @@ c
  1       format(/' Using trial vectors from disk '/)
          call selci_sread(iflciv,roots,nroot)
          write(6,2) (roots(i),i=1,nroot)
- 2       format(' Eigenvalues from disk '//10(1x,5f14.8/))
+ 2       format(' Eigenvalues from disk '//10(1x,5f19.8/))
          do 3 i = 1,nroot
             call selci_sread(iflciv, ci(1,i), nci)
  3       continue
@@ -429,7 +429,7 @@ c
       if (oprint) then
          write(6,1) iter,nnvec,(roots(i),de(i),conv(i),i=1,nroot)
  1       format(' iter=',i2,'  nvec=',i2,
-     &        10('  root=',f13.8,'  de=',f13.8,'  conv=',f13.8:/17x))
+     &        10('  root=',f15.8,'  de=',f15.8,'  conv=',f13.8:/17x))
          call util_flush(6)
       endif
 c

@@ -1,14 +1,14 @@
       subroutine selci_eijkl(e,i,j,k,l,ns,indbar,iocc,w1,w2,
      $     work,numf,numf2)
 *
-* $Id: eijkl.F,v 1.3 1997-10-31 23:42:01 d3e129 Exp $
+* $Id: eijkl.F,v 1.4 1998-03-14 01:45:13 d3g681 Exp $
 *
 #include "implicit.fh"
 #include "ciinfo.fh"
       dimension e(numf,*),indbar(*),iocc(*),w1(nfmax,nfmax,nsmax),
      $     w2(nfmax2,nfmax,nsmax-1),work(numf,*)
 c
-      parameter (idimt=48*48)
+      parameter (idimt=167*167) ! 167 = max nf for ns=12
       dimension temp(idimt)
 c
       dimension nsdel(4)
