@@ -1,6 +1,6 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.9 1999-08-11 18:57:32 edo Exp $
+c$Id: grid_gen_pts.F,v 1.10 2000-01-14 21:48:13 edo Exp $
 c
       implicit none
 c      
@@ -49,7 +49,7 @@ c
      &   call errquit('grid_gen: rtdb_get failed', 119)
 c
       nqlen = ncenters*mxnrad
-      if (.not.MA_Push_get(MT_int,3*nqlen,'shell list',
+      if (.not.MA_Push_get(MT_int,4*nqlen,'shell list',
      &                     lqs,iqs))
      &   call errquit('grid_gen: cannot allocate shell list',0)
       call grid_list(rtdb, int_mb(iqs), nqlen, nq_tot)
