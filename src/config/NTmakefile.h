@@ -5,7 +5,7 @@
 ##############################################################################
 
 #
-#	$Id: NTmakefile.h,v 1.10 2000-11-03 00:50:31 edo Exp $
+#	$Id: NTmakefile.h,v 1.11 2004-05-13 00:16:21 edo Exp $
 #
 
 #
@@ -68,7 +68,7 @@ FOPT = /fast /optimize:5 /noinline /nofltconsistency
 !ENDIF
 
 CFLAGS = -W3 $(COPT) $(INCLUDES) $(DEFINES) -Fo"$(OBJDIR)/" -c
-FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES)  /automatic /extend_source:132 /check:none /traceback /fpscomp=nogeneral /warn:argument_checking /warn:nofileopt /warn:nouncalled /object:"$(OBJDIR)/" /fpp:"/c /m" /nodefine /nokeep -c
+FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES)  /automatic /check:none /traceback /fpscomp=nogeneral /warn:argument_checking /warn:nofileopt /warn:nouncalled /object:"$(OBJDIR)/" /fpp:"/c /m" /nodefine /nokeep -c
 
 .SUFFIXES:
 .SUFFIXES:      .obj .s .F .c
