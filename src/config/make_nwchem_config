@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.105 1999-06-23 17:34:48 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.106 1999-06-28 22:34:10 d3e129 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -227,7 +227,7 @@ STUBROUTINES := $(patsubst ideaz,mdmain ideaz_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst cphf,cphf cphf_poliz mjdtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst scfaux,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vib,vib_vib,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst driver,drv_lst drv_opt driver_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst driver,driver drv_lst drv_opt driver_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst plane_wave,plnwv plnwv_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst prepar,prepar pre_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst analyz,analyz ana_input,$(STUBROUTINES) )
