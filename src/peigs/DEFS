@@ -268,17 +268,23 @@ peigs_COMM = TCGMSG
 peigs_CPU = HPPA
 peigs_CC += -DSTD_DBL -DSTD_INT
 endif
+
 ifeq ($(peigs_TARGET),IBM)
 #
 # IBM AIX
 #
-#blas	
 peigs_CODEOBJ = DBLE
 peigs_CPU = RS6000
-peigs_CC += -DSTD_INT -DSTD_DBL -DIBM -O
-peigs_FC += -O2 -qfloat=rsqrt:fltint 
-peigs_CPP += -P
 # -qarch=pwr (for peril) com (for any) , pwr2  or ppc
+peigs_COMM =TCGMSG
+peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 \
+-O3 -qstrict -qinline -qfloat=rsqrt:fltint:hssngl -qinline
+
+peigs_FC  += -d -I$(peigs_HDIR) -O3 -qstrict \
+-WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000 \
+-qfloat=rsqrt:fltint:hssngl -qinline
+
+peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR)
 endif
 
 
@@ -338,7 +344,7 @@ peigs_FC  += -d -I$(peigs_HDIR) -O3 -qstrict -qarch=pwr2 -qtune=pwr2s \
 -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
 -qcache=type=i:level=1:size=32:line=128
 
-peigs_CPP += -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR)
+peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR)
 endif
 
 ifeq ($(peigs_TARGET),DECOSF)
