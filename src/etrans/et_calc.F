@@ -1,10 +1,10 @@
-c $Id: et_calc.F,v 1.10 2002-03-15 15:55:37 d3k958 Exp $
+c $Id: et_calc.F,v 1.11 2002-03-27 22:16:51 d3k958 Exp $
       logical function et_calc(rtdb,Vba)
       implicit none
 c
 c     This function actually calculates Vba
 *
-* $Id: et_calc.F,v 1.10 2002-03-15 15:55:37 d3k958 Exp $
+* $Id: et_calc.F,v 1.11 2002-03-27 22:16:51 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -26,7 +26,6 @@ c     task:status (logical)- T/F for success/failure
 c     if (status) then
 c     .  task:et (real)   - Vba (electron transfer matrix element)
 c
-c     Also returns status through the function value
 c
       integer rtdb, me
       integer i, j, k
@@ -37,6 +36,7 @@ c
       integer g_av,g_bu,g_t,g_h1
       integer g_avecsa,g_avecsb,g_bvecsa,g_bvecsb
       integer mem2, max2e, lena, lenb
+      integer method_2e
 c
       logical et_movecs_read
       external et_movecs_read
@@ -52,12 +52,6 @@ c
       double precision Sba,pa_val,pb_val,omega1,h1_val
       double precision detu(2),detv(2),detprod,omega2
       double precision Haa,Hbb,Hba,val, dum
-c for use with fock builder:
-c      character*3 theory
-c      double precision jfac, kfac
-c      integer int_theory, g_ptemp, g_ptot, nfock, g_f
-c
-c
 c
       me=ga_nodeid()
 c
@@ -102,7 +96,6 @@ c     ------------------
 c
       call int_init(rtdb, 1, basis)
       call int_acc_std()
-c      call int_acc_set(1.0d-09)
       call int_normalize(rtdb,basis)
 c
 c     calculate the overlap integrals
@@ -535,11 +528,9 @@ c
          call ga_get(g_phandle(2), i, i, j, j, pb_val, 1)
          call ga_get(g_h1, i, i, j, j, h1_val, 1)
          omega1 = omega1 + (pa_val+pb_val)*h1_val
-c         write(6,1111) i,j,pa_val+pb_val,h1_val,(pa_val+pb_val)*h1_val,
-c     &                  omega1
        enddo
        enddo
- 1111  format (2i4,1x,4F25.16)
+c
        omega1 = omega1*detprod
 c
       if(me.eq.0) then
@@ -550,7 +541,6 @@ c
 c
       call util_flush(6) 
 c
-c       write(6,*)'omega1',omega1
 c  H1 array is no longer needed.
       if (.not.ga_destroy(g_h1))
      &  call errquit('could not destroy H1 array',g_h1)
@@ -562,12 +552,25 @@ c
        call int_mem_2e4c(mem2,max2e)
        mem2 = max(mem2,max2e)
 c
-c       call et_fock(rtdb,nbf,basis,geom,mem2,max2e,
-c     &     nocc,g_ahandle(1),g_phandle(1),g_phandle(2))
-       call et_2e(rtdb,nbf,basis,geom,max2e,mem2
-     &           ,g_phandle(1),g_phandle(2),omega2)
+      if (.not. rtdb_get(rtdb, 'et:tol2e', MT_DBL, 1, tol2e)) then
+       tol2e    =  min(1.0d-7,dabs(Sba)*1.0d-7)
+       tol2e    =  max(1.0d-12,tol2e)
+      endif
 c
-c       write(6,*)'omega2',omega2
+      if (.not.rtdb_get(rtdb,'et:method_2e',MT_INT,1,method_2e)) then
+       method_2e = 1  !default uses fock builder for omega2
+      endif
+c
+      if (method_2e.EQ.1) then
+      call et_fock(rtdb,geom,basis,
+     &  g_phandle(1),g_phandle(2),nbf,tol2e,omega2)
+      endif
+c
+      if (method_2e.EQ.2) then
+       call et_2e(rtdb,nbf,basis,geom,max2e,mem2,tol2e,
+     &           g_phandle(1),g_phandle(2),omega2)
+      endif
+c
 c  pa and pb arrays are no longer needed.
       if (.not.ga_destroy(g_phandle(1)))
      &  call errquit('could not destroy P array',g_phandle(1))
@@ -594,6 +597,10 @@ c
        Vba =  Hba - Sba*(Haa+Hbb)*0.5d0
        Vba = Vba/(1.0d0-Sba*Sba)
        Vba = dabs (Vba)
+c
+       if (.not. rtdb_put(rtdb,'et:Vrp', MT_DBL, 1, Vba))
+     $        call errquit('et_calc: rtdb_put of Vrp failed',0)
+c
 c
 c      =============
 c      Print results

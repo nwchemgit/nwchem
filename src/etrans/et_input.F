@@ -1,4 +1,4 @@
-c $Id: et_input.F,v 1.5 2002-03-15 15:55:37 d3k958 Exp $
+c $Id: et_input.F,v 1.6 2002-03-27 22:16:51 d3k958 Exp $
       subroutine et_input(rtdb)
       implicit none
 c
@@ -7,9 +7,9 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 c     
-      integer rtdb
+      integer rtdb, method_2e
       character*255 test
-      double precision toldens, tol2e
+      double precision tol2e
 c
  100  if (.not. inp_read()) call errquit('et_input: inp_read failed',0)
 c
@@ -40,12 +40,21 @@ c     -----------------------------
 c 
          goto 100
 c
-      else if (inp_compare(.false.,'toldens', test)) then
-         if (.not. inp_f(toldens)) call errquit
-     $        ('et_input: toldens <thresh>',0)
-         if (.not. rtdb_put(rtdb,'et:toldens', MT_DBL, 1, toldens))
-     $        call errquit('et_input: rtdb_put of tol2e failed',0)
-c 
+c     choice of 2e method is read
+c     ---------------------------
+      else if (inp_compare(.false.,'fock', test)) then
+        method_2e = 1
+         if (.not. rtdb_put(rtdb,'et:method_2e', MT_INT, 1, method_2e))
+     $        call errquit('et_input: rtdb_put of method_2e failed',0)
+c
+      goto 100
+c
+      else if (inp_compare(.false.,'nofock', test)) then
+        method_2e = 2
+c
+         if (.not. rtdb_put(rtdb,'et:method_2e', MT_INT, 1, method_2e))
+     $        call errquit('et_input: rtdb_put of method_2e failed',0)
+c
          goto 100
 c
 c
