@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.25 2002-11-08 17:23:45 d3j191 Exp $
+c $Id: pme_grid.F,v 1.26 2002-11-08 21:16:20 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -21,7 +21,8 @@ c
 c
       call pme_grid(ipset,xw,nwmloc,xs,isq,nsaloc,
      + int_mb(i_nodp),int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
-     + int_mb(i_lnod),log_mb(i_lsld),dbl_mb(i_grd1),dbl_mb(i_grd2))
+     + int_mb(i_lnod),log_mb(i_lsld),int_mb(i_slmax),
+     + dbl_mb(i_grd1),dbl_mb(i_grd2))
 c
       epme=ecorr(ipset)
 c
@@ -105,7 +106,8 @@ c
 c
       call pme_grid(ipset,xw,nwmloc,xs,isq,nsaloc,
      + int_mb(i_nodp),int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
-     + int_mb(i_lnod),log_mb(i_lsld),dbl_mb(i_grd1),dbl_mb(i_grd2))
+     + int_mb(i_lnod),log_mb(i_lsld),int_mb(i_slmax),
+     + dbl_mb(i_grd1),dbl_mb(i_grd2))
 c
       epme=ecorr(ipset)
 c
@@ -129,7 +131,7 @@ c
       return
       end
       subroutine pme_grid(ipset,xw,nwmloc,xs,isq,nsaloc,
-     + nodep,knode,kfrom,kto,lnode,lsldo,gridr,gridc)
+     + nodep,knode,kfrom,kto,lnode,lsldo,maxsl,gridr,gridc)
 c
       implicit none
 c
@@ -141,6 +143,7 @@ c
       real*8 xw(mwm,3,mwa),xs(msa,3)
       integer isq(msa)
       logical lsldo(np,mgz)
+      integer maxsl(4,np,mgz)
       integer nodep(nodpme),knode(ngz),kfrom(np),kto(np),lnode(np)
       real*8 gridr(mgx,mgy,mgz),gridc(2,mgx,mgy,mgz)
 c
@@ -182,6 +185,15 @@ c
       call ga_distribution(lslab(k),node,ilsl,ihsl,jlsl,jhsl)
       call ga_acc(lslab(k),ilsl+minx-1,ilsl+maxx-1,jlsl+miny-1,
      + jlsl+maxy-1,gridr(minx,miny,k),mgx,one)
+      maxsl(1,node+1,k)=minx
+      maxsl(2,node+1,k)=maxx
+      maxsl(3,node+1,k)=miny
+      maxsl(4,node+1,k)=maxy
+      else
+      maxsl(1,node+1,k)=0
+      maxsl(2,node+1,k)=0
+      maxsl(3,node+1,k)=0
+      maxsl(4,node+1,k)=0
       endif
    21 continue
       call timer_stop(35)
@@ -242,7 +254,7 @@ c
 c
       return
       end
-      subroutine pme_getgrd(node,nsl,grid)
+      subroutine pme_getgrd(node,nsl,lsldo,maxsl,grid)
 c
       implicit none
 c
@@ -250,14 +262,18 @@ c
 #include "global.fh"
 c
       integer node,nsl
+      logical lsldo(np,mgz)
+      integer maxsl(4,np,mgz)
       real*8 grid(2,mgx,mgy,*)
 c
       integer k,ilsl,ihsl,jlsl,jhsl
 c
       do 1 k=1,nsl
+      if(lsldo(node+1,k)) then
       call ga_distribution(lslab(k),node,ilsl,ihsl,jlsl,jhsl)
       call ga_get(lslab(k),ilsl,ilsl+2*ngx-1,jlsl,jlsl+ngy-1,
      + grid(1,1,1,k),2*mgx)
+      endif
     1 continue
 c
       return
@@ -316,7 +332,8 @@ c
 c
       call timer_stop(51)
       call timer_start(52)
-      call pme_getgrd(node,ngznon,dbl_mb(i_grd1))
+      call pme_getgrd(node,ngznon,log_mb(i_lsld),int_mb(i_slmax),
+     + dbl_mb(i_grd1))
       call timer_stop(52)
       call timer_start(51)
 c

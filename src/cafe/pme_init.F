@@ -1,6 +1,6 @@
       subroutine pme_start(a,m,imffti,nodpmi,
      + ngxi,ngyi,ngzi,nwm,nwa,nsa,ictrl)
-c $Id: pme_init.F,v 1.18 2000-10-03 19:50:28 d3j191 Exp $
+c $Id: pme_init.F,v 1.19 2002-11-08 21:16:20 d3j191 Exp $
       implicit none
 c
       integer nodpmi,ngxi,ngyi,ngzi,imffti,nwm,nwa,nsa,m
@@ -73,6 +73,8 @@ c
 c
       if(.not.ma_push_get(mt_log,mgz*np,'lsldo',l_lsld,i_lsld))
      + call errquit('Failed to allocate ldldo',0)
+      if(.not.ma_push_get(mt_int,4*mgz*np,'slmax',l_slmax,i_slmax))
+     + call errquit('Failed to allocate slmax',0)
 c
 c     allocate memory for fft node maps
 c
@@ -131,6 +133,8 @@ c
      + call errquit('Failed to deallocate map2',0)
       if(.not.ma_pop_stack(l_map1))
      + call errquit('Failed to deallocate map1',0)
+      if(.not.ma_pop_stack(l_slmax))
+     + call errquit('Failed to deallocate slmax',0)
       if(.not.ma_pop_stack(l_lsld))
      + call errquit('Failed to deallocate lsldo',0)
       if(.not.ma_pop_stack(l_knod))
