@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.46 1994-08-18 17:15:48 gg502 Exp $
+# $Id: makefile.h,v 1.47 1994-08-19 01:24:39 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -130,7 +130,7 @@ ifeq ($(TARGET),KSR)
      RANLIB = echo
       SHELL = /bin/sh
        MAKE = make
-  MAKEFLAGS = -j 40
+  MAKEFLAGS = -j 20
     INSTALL = echo $@ is built
 
        FOPT = -g -r8
