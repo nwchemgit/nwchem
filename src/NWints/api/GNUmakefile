@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.76 1999-12-08 01:21:43 bert Exp $
+# $Id: GNUmakefile,v 1.77 1999-12-30 22:07:49 mg201 Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -6,6 +6,36 @@ ifeq ($(USE_TEXAS),YEP)
 endif
 
     OBJ = cando_sp.o     exact_mem.o    exactd_mem.o \
+          int_1cg.o      int_1e3ov.o    int_1estv.o \
+          int_2e2c.o     int_2e3c.o \
+          int_acc.o      int_canon.o \
+          int_chk_init.o int_chk_sh.o   int_func_c.o\
+          int_init.o     int_l1e3ov.o   int_l1eall.o \
+          int_l1eh1.o    int_l1eke.o    int_l1eov.o \
+          int_l1epe.o    int_l2e2c.o    int_l2e3c.o \
+          int_lgen1e.o   int_mem.o      int_mpolel.o \
+          int_mpole.o    int_nint.o     int_pgen1e.o \
+          int_projpole.o int_term.o \
+          intd_1eh1.o    intd_1eov.o    intd_1eke.o \
+          int_1er.o \
+          intd_2e2c.o \
+          intd_2e3c.o    intd_2e4c.o    intd_init.o \
+          intd_1e3ov.o   intbd_init4c.o intbd_2e4c.o \
+          intd_mpolel.o \
+          intdd_1eh1.o   intdd_1eov.o   intdd_2e2c.o \
+          intdd_2e4c.o   intdd_2e3c.o   intdd_init.o \
+          intp_1eke.o    intp_1eov.o    intp_1epe.o \
+          intp_2e2c.o    intp_2e3c.o    intp_mpole.o \
+          intp_1e1cpe.o  intp_2e3ct.o   intp_mpolel.o \
+          intp_txyz.o \
+          intpd_1e1cpe.o intpd_1eke.o   intpd_1eov.o \
+          intpd_1epe.o   intpd_2e2c.o   intpd_2e3c.o \
+          intpd_2e3ct.o  intpd_mpolel.o \
+	  intso_1e.o     intd_1eso.o \
+          int_1epvpe.o   int_1epxvpe.o
+
+
+    OBJ_OLD = cando_sp.o     exact_mem.o    exactd_mem.o \
           int_1cg.o      int_1e3ov.o    int_1eall.o \
           int_1eh1.o     int_1eke.o     int_1eov.o \
           int_1epe.o     int_2e2c.o     int_2e3c.o \

@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.3 1999-12-08 01:22:00 bert Exp $	
+#	$Id: MakeFile,v 1.4 1999-12-30 22:07:50 mg201 Exp $	
 #
 
 !MESSAGE *** Unresolved issues in this nmake file ***
@@ -11,6 +11,76 @@ OBJ_OPTIMIZE = $(OBJDIR)\int_hf1sp.obj \
                $(OBJDIR)\int_2e4c.obj
 
 OBJ =          $(OBJDIR)\cando_sp.obj \
+               $(OBJDIR)\exact_mem.obj \
+               $(OBJDIR)\exactd_mem.obj \
+               $(OBJDIR)\int_1cg.obj \
+               $(OBJDIR)\int_1e3ov.obj \
+               $(OBJDIR)\int_1estv.obj \
+               $(OBJDIR)\int_2e2c.obj \
+               $(OBJDIR)\int_2e3c.obj \
+               $(OBJDIR)\int_acc.obj \
+               $(OBJDIR)\int_canon.obj \
+               $(OBJDIR)\int_chk_init.obj \
+               $(OBJDIR)\int_chk_sh.obj \
+               $(OBJDIR)\int_func_c.obj \
+               $(OBJDIR)\int_init.obj \
+               $(OBJDIR)\int_l1e3ov.obj \
+               $(OBJDIR)\int_l1eall.obj \
+               $(OBJDIR)\int_l1eh1.obj \
+               $(OBJDIR)\int_l1eke.obj \
+               $(OBJDIR)\int_l1eov.obj \
+               $(OBJDIR)\int_l1epe.obj \
+               $(OBJDIR)\int_l2e2c.obj \
+               $(OBJDIR)\int_l2e3c.obj \
+               $(OBJDIR)\int_lgen1e.obj \
+               $(OBJDIR)\int_mem.obj \
+               $(OBJDIR)\int_mpolel.obj \
+               $(OBJDIR)\int_mpole.obj \
+               $(OBJDIR)\int_nint.obj \
+               $(OBJDIR)\int_pgen1e.obj \
+               $(OBJDIR)\int_projpole.obj \
+               $(OBJDIR)\int_term.obj \
+               $(OBJDIR)\intd_1eh1.obj \
+               $(OBJDIR)\intd_1eov.obj \
+               $(OBJDIR)\intd_1eke.obj \
+               $(OBJDIR)\intd_2e2c.obj \
+               $(OBJDIR)\intd_2e3c.obj \
+               $(OBJDIR)\intd_2e4c.obj \
+               $(OBJDIR)\intd_init.obj \
+               $(OBJDIR)\intd_1e3ov.obj \
+               $(OBJDIR)\intbd_init4c.obj \
+               $(OBJDIR)\intbd_2e4c.obj \
+               $(OBJDIR)\intd_mpolel.obj \
+               $(OBJDIR)\intdd_1eh1.obj \
+               $(OBJDIR)\intdd_1eov.obj \
+               $(OBJDIR)\intdd_2e2c.obj \
+               $(OBJDIR)\intdd_2e4c.obj \
+               $(OBJDIR)\intdd_2e3c.obj \
+               $(OBJDIR)\intdd_init.obj \
+               $(OBJDIR)\intp_1eke.obj \
+               $(OBJDIR)\intp_1eov.obj \
+               $(OBJDIR)\intp_1epe.obj \
+               $(OBJDIR)\intp_2e2c.obj \
+               $(OBJDIR)\intp_2e3c.obj \
+               $(OBJDIR)\intp_mpole.obj \
+               $(OBJDIR)\intp_1e1cpe.obj \
+               $(OBJDIR)\intp_2e3ct.obj \
+               $(OBJDIR)\intp_mpolel.obj \
+               $(OBJDIR)\intp_txyz.obj \
+               $(OBJDIR)\intpd_1e1cpe.obj \
+               $(OBJDIR)\intpd_1eke.obj \
+               $(OBJDIR)\intpd_1eov.obj \
+               $(OBJDIR)\intpd_1epe.obj \
+               $(OBJDIR)\intpd_2e2c.obj \
+               $(OBJDIR)\intpd_2e3c.obj \
+               $(OBJDIR)\intpd_2e3ct.obj \
+               $(OBJDIR)\intpd_mpolel.obj \
+               $(OBJDIR)\int_1epvpe.obj \
+               $(OBJDIR)\int_1epxvpe.obj \
+               $(OBJDIR)\int_1er.obj \
+               $(OBJDIR)\intso_1e.obj
+
+OBJ_OLD =      $(OBJDIR)\cando_sp.obj \
                $(OBJDIR)\exact_mem.obj \
                $(OBJDIR)\exactd_mem.obj \
                $(OBJDIR)\int_1cg.obj \
