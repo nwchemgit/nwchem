@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi)
 c
 c
-c $Id: sp_init.F,v 1.125 2003-11-07 17:44:45 d3j191 Exp $
+c $Id: sp_init.F,v 1.126 2004-01-31 00:38:31 d3j191 Exp $
 c
       implicit none
 c
@@ -1032,7 +1032,7 @@ c
       call ga_get(ga_ip,ilp,ilp+1,jlp,jhp,ipl,mbox)
       nold=ipl(2,2)
       if(nold+new.gt.msa)
-     + call md_abort('Dimension msa too small',nold+new)
+     + call md_abort('Dimension msa too small (1)',nold+new)
       ipl(2,2)=ipl(2,2)+new
       call ga_put(ga_ip,ilp,ilp+1,jlp,jhp,ipl,mbox)
       call ga_distribution(ga_is,node,ili,ihi,jli,jhi)
@@ -1627,7 +1627,7 @@ c
       if(np.gt.1) call ga_igop(msp_20,mbbl,1,'max')
       if(mbblp.eq.0) then
       mbbl=max(mbbl,mbbreq)
-      if(.not.ma_push_get(mt_int,15*mbbl,'bb',l_bb,i_bb))
+      if(.not.ma_push_get(mt_int,mbb2*mbbl,'bb',l_bb,i_bb))
      + call md_abort('Failed to allocate memory for bb',0)
       mbblp=mbbl
       else
@@ -2771,8 +2771,13 @@ c
       ltemp(1,1)=node
       ltemp(1,2)=nbl
       do 4 j=1,nbl
-      read(lfn,1004) (ltemp(j+1,k),k=1,mbb2)
+      read(lfn,1004) (ltemp(j+1,k),k=1,4)
  1004 format(8i10)
+      if(mbb2.gt.4) then
+      do 44 k=5,mbb2
+      ltemp(j+1,k)=0
+   44 continue
+      endif
     4 continue
       endif
 c

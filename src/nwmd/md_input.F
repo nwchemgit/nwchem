@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.81 2003-12-09 02:07:27 d3j191 Exp $
+c $Id: md_input.F,v 1.82 2004-01-31 00:38:28 d3j191 Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ c
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
       integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ,npforc
       integer iprop,iprpmf,nfhop,ipbtyp,iradgy,idifco,nfnewf,ncolt
-      integer icmopt,imembr
+      integer icmopt,imembr,icrit,nbget
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -151,6 +151,7 @@ c
       ngy=nby
       ngz=nbz
       len=0
+      nbget=0
       iprop=0
       nfhop=0
       rhop=0.35d0
@@ -197,6 +198,7 @@ c      iunfix=0
       ipbtyp=1
       iradgy=0
       idifco=0
+      icrit=0
       fcoll=1.0d0
       rsgm=-1.0d0
 c
@@ -293,6 +295,11 @@ c
 c
       if(inp_compare(.false.,'resume',item)) then
       istart=2
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'prefetch',item)) then
+      nbget=1
       goto 2
       endif
 c
@@ -404,6 +411,10 @@ c
       if(.not.inp_f(dxmsd)) call md_abort('md_input: error sd max',2)
       goto 101
       endif
+      if(inp_compare(.false.,'criterion',item)) then
+      if(.not.inp_i(icrit)) call md_abort('md_input: error sd crit',2)
+      goto 101
+      endif
       endif
 c
 c     conjugate gradient
@@ -426,6 +437,10 @@ c
       endif
       if(inp_compare(.false.,'cy',item)) then
       if(.not.inp_i(ncgcy)) call md_abort('md_input: error cg cy',2)
+      goto 103
+      endif
+      if(inp_compare(.false.,'criterion',item)) then
+      if(.not.inp_i(icrit)) call md_abort('md_input: error cg crit',2)
       goto 103
       endif
       endif
@@ -661,7 +676,12 @@ c     membrane setup options
 c
       if(inp_compare(.false.,'membrane',item)) then
       imembr=1
+      if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'rotations',item)) then
+      imembr=2
       goto 2
+      endif
+      goto 3
       endif
 c
 c     solute center of mass options
@@ -1630,6 +1650,8 @@ c
      + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:mcgit',mt_int,1,mcgit))
      + call md_abort('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:icrit',mt_int,1,icrit))
+     + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ncgcy',mt_int,1,ncgcy))
      + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:mrun',mt_int,1,mrun))
@@ -1877,6 +1899,8 @@ c     + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:idifco',mt_int,1,idifco))
      + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfnewf',mt_int,1,nfnewf))
+     + call md_abort('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:nbget',mt_int,1,nbget))
      + call md_abort('md_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'md:fguide',mt_dbl,1,fguide))

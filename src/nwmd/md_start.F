@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.158 2003-12-09 02:07:27 d3j191 Exp $
+c $Id: md_start.F,v 1.159 2004-01-31 00:38:28 d3j191 Exp $
 c
       implicit none
 c
@@ -132,6 +132,8 @@ c
      + call md_abort('Failed to allocate memory for fss',0)
       if(.not.ma_push_get(mt_dbl,msf,'esk',l_esk,i_esk))
      + call md_abort('Failed to allocate memory for esk',0)
+      if(.not.ma_push_get(mt_dbl,mwa+msa,'wws',l_wws,i_wws))
+     + call md_abort('Failed to allocate memory for wws',me)
       if(npener.eq.0) then
       if(.not.ma_push_get(mt_dbl,1,'esa',l_esa,i_esa))
      + call md_abort('Failed to allocate memory for esa',0)
@@ -160,6 +162,13 @@ c
       if(icmopt.gt.0) then
       if(.not.ma_push_get(mt_dbl,5*msm,'fcm',l_fcm,i_fcm))
      + call md_abort('Failed to allocate memory for fcm',0)
+      endif
+c
+      if(imembr.gt.0) then
+      if(.not.ma_push_get(mt_int,2*msa,'mm',l_mm,i_mm))
+     + call md_abort('Failed to allocate memory for mm',me)
+      if(.not.ma_push_get(mt_dbl,7*msm,'fm',l_fm,i_fm))
+     + call md_abort('Failed to allocate memory for fm',me)
       endif
 c
 c     retrieve current coordinates for this node
@@ -705,6 +714,8 @@ c
      + call md_abort('md_rtdbin: rtdb_get failed',12)
       if(.not.rtdb_get(irtdb,'md:mcgit',mt_int,1,mcgit))
      + call md_abort('md_rtdbin: rtdb_get failed',13)
+      if(.not.rtdb_get(irtdb,'md:icrit',mt_int,1,icrit))
+     + call md_abort('md_rtdbin: rtdb_get failed',13)
       if(.not.rtdb_get(irtdb,'md:ncgcy',mt_int,1,ncgcy))
      + call md_abort('md_rtdbin: rtdb_get failed',14)
       if(.not.rtdb_get(irtdb,'md:mrun',mt_int,1,mrun))
@@ -951,6 +962,8 @@ c     + call md_abort('md_rtdbin: rtdb_get failed',92)
       if(.not.rtdb_get(irtdb,'md:idifco',mt_int,1,idifco))
      + call md_abort('md_rtdbin: rtdb_get failed',89)
       if(.not.rtdb_get(irtdb,'md:nfnewf',mt_int,1,nfnewf))
+     + call md_abort('md_rtdbin: rtdb_get failed',89)
+      if(.not.rtdb_get(irtdb,'md:nbget',mt_int,1,nbget))
      + call md_abort('md_rtdbin: rtdb_get failed',89)
 c
       if(.not.rtdb_get(irtdb,'md:fguide',mt_dbl,1,fguide))

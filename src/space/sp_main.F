@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.85 2003-10-19 03:30:57 d3j191 Exp $
+c $Id: sp_main.F,v 1.86 2004-01-31 00:38:31 d3j191 Exp $
 c
       implicit none
 c
@@ -2030,6 +2030,327 @@ c
 c
       return
       end
+      subroutine sp_prefetch(n,iwl,xw,isl,xs)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+c
+      integer n
+      integer iwl(mwm,miw2),isl(msa,mis2)
+      real*8 xw(mwm,3,mwa),xs(msa,3)
+      real*8 pw(2),ps(2)
+      real*8 pwp(2),psp(2)
+c
+      n=nbbl
+      if(lqmd) n=0
+c
+      call sp_lbbl_prefetch(int_mb(i_bb),int_mb(i_ipl),int_mb(i_jpl),
+     + iwl,int_mb(i_packw),xw,pw,pwp,isl,int_mb(i_pack),xs,ps,psp,
+     + .false.)
+c
+      return
+      end
+      subroutine sp_prefetch_p(n,iwl,xw,pw,pwp,isl,xs,ps,psp)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+c
+      integer n
+      integer iwl(mwm,miw2),isl(msa,mis2)
+      real*8 xw(mwm,3,mwa),xs(msa,3)
+      real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
+      real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
+c
+      n=nbbl
+      if(lqmd) n=0
+c
+      call sp_lbbl_prefetch(int_mb(i_bb),int_mb(i_ipl),int_mb(i_jpl),
+     + iwl,int_mb(i_packw),xw,pw,pwp,isl,int_mb(i_pack),xs,ps,psp,
+     + .true.)
+c
+      return
+      end
+      subroutine sp_lbbl_prefetch(lbbl,ipl,jpl,
+     + iwl,iwlp,xw,pw,pwp,isl,islp,xs,ps,psp,lpp)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+c
+      integer lbbl(mbbl,mbb2),ipl(mbox,mip2),jpl(mbox,mip2)
+      integer iwl(mwm,miw2),iwlp(mwm,npackw)
+      integer isl(msa,mis2),islp(msa,npack)
+      real*8 xw(mwm,3,mwa),xs(msa,3)
+      real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
+      real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
+      logical lpp
+c
+      integer ibbl,i,j,indexw,indexs,indx,jndx,nndexw,nndexs
+      integer jproc,jcell,icell
+      integer jcproc,jccell,iccell
+      integer ih,il,jh,jl
+      integer nsnon,nwnon
+      integer jwfr,jwto,jsfr,jsto
+      integer handle_is,handle_iw,handle_s,handle_w
+      character*80 string
+c
+      jcproc=-1
+      jccell=-1
+      iccell=-1
+      indexw=nwmloc+1
+      indexs=nsaloc+1
+      nndexw=indexw
+      nndexs=indexs
+      do 1 ibbl=1,nbbl
+      handle_iw=0
+      handle_is=0
+      handle_w=0
+      handle_s=0
+      jproc=lbbl(ibbl,1)
+      jcell=lbbl(ibbl,2)
+      icell=lbbl(ibbl,3)
+c
+      if(iccell.ne.icell) then
+      indx=0
+      do 2 i=1,ipl(1,1)
+      if(ipl(30+i,1).eq.icell) indx=30+i
+    2 continue
+      if(indx.eq.0) then
+      write(*,1000) me,(ipl(30+i,1),i=1,ipl(1,1))
+ 1000 format(/,'Cells on proc',i5,':',t20,20i5,/,(t20,20i5))
+      write(string,1001) icell,me
+ 1001 format('SP0001: Could not find icell',i5,' on proc',i5)
+      call md_abort(string,0)
+      endif
+      iccell=icell
+      endif
+      lbbl(ibbl, 7)=ipl(indx,2)
+      lbbl(ibbl, 8)=ipl(indx,3)
+      lbbl(ibbl, 9)=ipl(indx,4)
+      lbbl(ibbl,10)=ipl(indx,5)
+c
+      if(jproc.eq.me) then
+c
+      if(jccell.ne.jcell) then
+      jndx=0
+      do 3 i=1,ipl(1,1)
+      if(ipl(30+i,1).eq.jcell) jndx=30+i
+    3 continue
+      if(jndx.eq.0) then
+      write(*,1000) me,(ipl(30+i,1),i=1,ipl(1,1))
+      write(string,1002) jcell,me
+ 1002 format('SP0001: Could not find jcell',i5,' on proc',i5)
+      call md_abort(string,0)
+      endif
+      jccell=jcell
+      endif
+      lbbl(ibbl,11)=ipl(jndx,2)
+      lbbl(ibbl,12)=ipl(jndx,3)
+      lbbl(ibbl,13)=ipl(jndx,4)
+      lbbl(ibbl,14)=ipl(jndx,5)
+c
+      else
+c
+      if(jproc.ne.jcproc) then
+      call ga_distribution(ga_ip,jproc,il,ih,jl,jh)
+      call ga_get(ga_ip,il,ih,jl,jh,jpl,mbox)
+      jcproc=jproc
+      endif
+c
+      if(jcell.ne.jccell) then
+      indexw=nndexw
+      indexs=nndexs
+      jndx=0
+      do 4 i=1,jpl(1,1)
+      if(jpl(30+i,1).eq.jcell) jndx=30+i
+    4 continue
+      if(jndx.eq.0) then
+      if(idebug.gt.0) then
+      write(lfndbg,1003) jcell,jproc
+ 1003 format('Could not find cell',i5,' on proc',i5,' in sp_lbbl')
+      write(lfndbg,1004) jproc,(jpl(30+i,1),i=1,jpl(1,1))
+ 1004 format('Cell list obtained from proc',i5,' is',/,(20i5))
+      call util_flush(lfndbg)
+      endif
+c
+      write(*,1005) jproc,(jpl(30+i,1),i=1,jpl(1,1))
+ 1005 format(/,'Cells on proc',i5,':',t20,20i5,/,(t20,20i5))
+      write(string,1006) jcell,jproc
+ 1006 format('SP0002: Could not find remote jcell',i5,' on proc',i5)
+      call md_abort(string,me)
+      endif
+c
+      jwfr=jpl(jndx,2)
+      jwto=jpl(jndx,3)
+      jsfr=jpl(jndx,4)
+      jsto=jpl(jndx,5)
+c
+      if(jwfr.gt.0) then
+      nwnon=jwto-jwfr+1
+      if(indexw+nwnon.gt.mwm)
+     + call md_abort('Dimension mwm too small',indexw+nwnon)
+      call ga_distribution(ga_iw,jproc,il,ih,jl,jh)
+      if(npackw.eq.0) then
+      call ga_nbget(ga_iw,il+jwfr-1,il+jwto-1,jl,jh,
+     + iwl(indexw,1),mwm,handle_iw)
+      else
+      call ga_nbget(ga_iw,il+jwfr-1,il+jwto-1,jl,jl+npackw-1,
+     + iwlp(indexw,1),mwm,handle_iw)
+      endif
+      call ga_distribution(ga_w,jproc,il,ih,jl,jh)
+      call ga_nbget(ga_w,il+jwfr-1,il+jwto-1,jl,jl+3*mwa-1,
+     + xw(indexw,1,1),mwm,handle_w)
+      if(lpp) then
+      call ga_get(ga_w,il+jwfr-1,il+jwto-1,jl+12*mwa+3,jl+18*mwa+2,
+     + pw(indexw,1,1,1),mwm)
+      if(lfree) call ga_get(ga_w,il+jwfr-1,il+jwto-1,
+     + jl+18*mwa+3,jl+30*mwa+2,pwp(indexw,1,1,1,1),mwm)
+      endif
+c      jwfr=nwmloc+1
+c      jwto=nwmloc+1+jpl(ndx,3)-jpl(ndx,2)
+      nndexw=indexw+nwnon
+      endif
+      if(jsfr.gt.0) then
+      nsnon=jsto-jsfr+1
+      if(indexs+nsnon.gt.msa)
+     + call md_abort('Dimension msa too small (2)',indexs+nsnon)
+      call ga_distribution(ga_is,jproc,il,ih,jl,jh)
+      if(npack.eq.0) then
+      call ga_nbget(ga_is,il+jsfr-1,il+jsto-1,jl,jh,
+     + isl(indexs,1),msa,handle_is)
+      else
+      call ga_nbget(ga_is,il+jsfr-1,il+jsto-1,jl,jl+npack-1,
+     + islp(indexs,1),msa,handle_is)
+      endif
+      call ga_distribution(ga_s,jproc,il,ih,jl,jh)
+      call ga_nbget(ga_s,il+jsfr-1,il+jsto-1,jl,jl+2,
+     + xs(indexs,1),msa,handle_s)
+      if(lpp) then
+      call ga_get(ga_s,il+jsfr-1,il+jsto-1,jl+12,jl+14,
+     + ps(indexs,1,1),msa)
+      if(lfree) call ga_get(ga_s,il+jsfr-1,il+jsto-1,jl+15,jl+20,
+     + psp(indexs,1,1,1),msa)
+      endif
+c      jsfr=nsaloc+1
+c      jsto=nsaloc+1+jpl(ndx,5)-jpl(ndx,4)
+      nndexs=indexs+nsnon
+      endif
+cc
+c
+      endif
+      jccell=jcell
+      lbbl(ibbl,11)=jpl(jndx,2)
+      lbbl(ibbl,12)=jpl(jndx,3)
+      lbbl(ibbl,13)=jpl(jndx,4)
+      lbbl(ibbl,14)=jpl(jndx,5)
+c
+      endif
+c
+      lbbl(ibbl, 5)=indexw
+      lbbl(ibbl, 6)=indexs
+      lbbl(ibbl,15)=handle_iw
+      lbbl(ibbl,16)=handle_w
+      lbbl(ibbl,17)=handle_is
+      lbbl(ibbl,18)=handle_s
+c
+    1 continue
+c
+      if(idebug.gt.0) then
+      write(lfndbg,2000)
+ 2000 format(' Cell-cell list lbbl',/)
+      write(lfndbg,2001) ((lbbl(i,j),j=1,18),i=1,nbbl)
+ 2001 format(18i6)
+      endif
+c
+      return
+      end
+      subroutine sp_nbwait(ibbl,lhandl,lself,lpbcs,
+     + iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto,iwl,isl)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      integer ibbl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto,lhandl
+      integer isl(msa,mis2),iwl(mwm,miw2)
+      logical lself,lpbcs
+c
+      lpbcs=lpbc9
+      call sp_nbwait2(ibbl,int_mb(i_bb),lhandl,lself,
+     + iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto,
+     + iwl,int_mb(i_packw),isl,int_mb(i_pack))
+c
+      return
+      end
+      subroutine sp_nbwait2(ibbl,lbbl,lhandl,lself,
+     + iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto,iwl,iwlp,isl,islp)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      integer ibbl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto,lhandl
+      integer lbbl(mbbl,mbb2)
+      integer isl(msa,mis2),islp(msa,npack)
+      integer iwl(mwm,miw2),iwlp(mwm,npackw)
+      logical lself
+      integer indexs,indexw
+      integer handle_iw,handle_w,handle_is,handle_s
+c
+      indexw=lbbl(ibbl,5)
+      indexs=lbbl(ibbl,6)
+      iwfr=lbbl(ibbl, 7)
+      iwto=lbbl(ibbl, 8)
+      isfr=lbbl(ibbl, 9)
+      isto=lbbl(ibbl,10)
+      jwfr=lbbl(ibbl,11)
+      jwto=lbbl(ibbl,12)
+      jsfr=lbbl(ibbl,13)
+      jsto=lbbl(ibbl,14)
+      if(lbbl(ibbl,1).ne.me) then
+      if(lbbl(ibbl,11).gt.0) then
+      jwfr=lbbl(ibbl,5)
+      jwto=jwfr+lbbl(ibbl,12)-lbbl(ibbl,11)
+      endif
+      if(lbbl(ibbl,13).gt.0) then
+      jsfr=lbbl(ibbl,6)
+      jsto=jsfr+lbbl(ibbl,14)-lbbl(ibbl,13)
+      endif
+      endif
+      lself=lbbl(ibbl,2).eq.lbbl(ibbl,3)
+      lhandl=lbbl(ibbl,4)
+c
+      handle_iw=lbbl(ibbl,15)
+      handle_w=lbbl(ibbl,16)
+      handle_is=lbbl(ibbl,17)
+      handle_s=lbbl(ibbl,18)
+c
+      if(handle_iw.ne.0.or.handle_w.ne.0) then
+      call ga_nbwait(handle_iw)
+      call ga_nbwait(handle_w)
+      if(npackw.ne.0) then
+      call sp_unpackw(jwto-jwfr+1,iwl(indexw,1),iwlp(indexw,1))
+      endif
+      endif
+      if(handle_is.ne.0.or.handle_s.ne.0) then
+      call ga_nbwait(handle_is)
+      call ga_nbwait(handle_s)
+      if(npackw.ne.0) then
+      call sp_unpack(jsto-jsfr+1,isl(indexs,1),islp(indexs,1))
+      endif
+      endif
+c
+      return
+      end
       subroutine sp_gethdl(ibbl,lhandl,lself,iwfr,iwto,isfr,isto)
 c
       implicit none
@@ -2314,7 +2635,7 @@ c
       if(jsfr.gt.0) then
       nsnon=jsto-jsfr+1
       if(nsaloc+nsnon.gt.msa)
-     + call md_abort('Dimension msa too small',nsaloc+nsnon)
+     + call md_abort('Dimension msa too small (3)',nsaloc+nsnon)
       call ga_distribution(ga_is,jnode,il,ih,jl,jh)
       if(npack.eq.0) then
       call ga_get(ga_is,il+jsfr-1,il+jsto-1,jl,jh,isl(nsaloc+1,1),msa)
@@ -2425,7 +2746,7 @@ c      endif
       if(jsfr.gt.0) then
       nsnon=jsto-jsfr+1
       if(nsaloc+nsnon.gt.msa)
-     + call md_abort('Dimension msa too small',nsaloc+nsnon)
+     + call md_abort('Dimension msa too small (4)',nsaloc+nsnon)
       call ga_distribution(ga_s,jnode,il,ih,jl,jh)
       call ga_acc(ga_s,il+jsfr-1,il+jsto-1,jl+12,jl+14,
      + ps(nsaloc+1,1,1),msa,one)
@@ -2531,7 +2852,7 @@ c
       if(jsfr.gt.0) then
       nsnon=jsto-jsfr+1
       if(nsaloc+nsnon.gt.msa)
-     + call md_abort('Dimension msa too small',nsaloc+nsnon)
+     + call md_abort('Dimension msa too small (5)',nsaloc+nsnon)
       call ga_distribution(ga_s,jnode,il,ih,jl,jh)
       call ga_acc(ga_s,il+jsfr-1,il+jsto-1,jl+6,jl+8,
      + fs(nsaloc+1,1,1),msa,one)
@@ -2568,6 +2889,135 @@ c
       do 11 i=nsaloc+1,msa
       isz(i)=0
    11 continue
+c
+      return
+      end
+      subroutine sp_nbaccfbl(ibbl,lhandl,fw,fs,lpair,iwz,isz)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+c
+      integer ibbl,lhandl
+      real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
+      logical lpair
+      integer iwz(mwm),isz(msa)
+c
+      call sp_nbacfbl(ibbl,lhandl,fw,fs,int_mb(i_bb),int_mb(i_jpl),
+     + lpair,iwz,isz)
+c
+      return
+      end
+      subroutine sp_nbacfbl(ibbl,lhandl,fw,fs,lbbl,jpl,lpair,iwz,isz)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+c
+      integer ibbl,lhandl
+      real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
+      integer lbbl(mbbl,mbb2)
+      integer jpl(mbox,mip2)
+      logical lpair
+      integer iwz(mwm),isz(msa)
+c
+      integer i,j,k,l,m,ibox,jbox,jnode,il,ih,jl,jh,ndx,nwnon,nsnon
+      integer jwfr,jwto,jsfr,jsto,indexw,indexs
+c
+      if(ibbl.le.0.or.ibbl.gt.nbbl)
+     + call md_abort('Index to lbbl out of range',ibbl)
+c
+      jnode=lbbl(ibbl,1)
+      jbox=lbbl(ibbl,2)
+      ibox=lbbl(ibbl,3)
+      lbbl(ibbl,4)=lhandl
+c
+      if(jnode.eq.me) return
+      if(ibbl.lt.nbbl) then
+      if(lbbl(ibbl+1,1).eq.jnode.and.lbbl(ibbl+1,2).eq.jbox) return
+      endif
+c
+      ndx=0
+      do 3 i=1,jpl(1,1)
+      if(jpl(30+i,1).eq.jbox) ndx=30+i
+    3 continue
+      if(ndx.eq.0) call md_abort('Remote node box not found',0)
+c
+      jwfr=lbbl(ibbl,11)
+      jwto=lbbl(ibbl,12)
+      jsfr=lbbl(ibbl,13)
+      jsto=lbbl(ibbl,14)
+c
+c      if(lbbl(ibbl,1).ne.me) then
+c      if(lbbl(ibbl,12).gt.0) then
+c      jwfr=lbbl(ibbl,5)
+c      jwto=jwfr+lbbl(ibbl,12)-lbbl(ibbl,11)
+c      endif
+c      if(lbbl(ibbl,14).gt.0) then
+c      jsfr=lbbl(ibbl,6)
+c      jsto=jsfr+lbbl(ibbl,14)-lbbl(ibbl,13)
+c      endif
+c      endif
+c
+      indexw=lbbl(ibbl,5)
+      indexs=lbbl(ibbl,6)
+c
+      m=1
+      if(llong) m=2
+c
+      if(jwfr.gt.0) then
+      nwnon=jwto-jwfr+1
+      if(indexw+nwnon.gt.mwm)
+     + call md_abort('Dimension mwm too small',indexw+nwnon)
+      call ga_distribution(ga_w,jnode,il,ih,jl,jh)
+      call ga_acc(ga_w,il+jwfr-1,il+jwto-1,jl+6*mwa+3,jl+9*mwa+2,
+     + fw(indexw,1,1,1),mwm,one)
+      if(llong) call ga_acc(ga_w,il+jwfr-1,il+jwto-1,jl+9*mwa+3,
+     + jl+12*mwa+2,fw(indexw,1,1,2),mwm,one)
+      if(lpair) then
+      call ga_distribution(ga_iwz,jnode,il,ih,jl,jh)
+      call ga_acc(ga_iwz,il+jwfr-1,il+jwto-1,jl,jl,iwz(indexw),mwm,1)
+      endif
+      do 9 l=1,m
+      do 4 k=1,mwa
+      do 5 j=1,3
+      do 6 i=indexw,indexw+nwnon-1
+      fw(i,j,k,l)=zero
+    6 continue
+    5 continue
+    4 continue
+    9 continue
+      do 10 i=indexw,indexw+nwnon-1
+      iwz(i)=0
+   10 continue
+      endif
+c
+      if(jsfr.gt.0) then
+      nsnon=jsto-jsfr+1
+      if(indexs+nsnon.gt.msa)
+     + call md_abort('Dimension msa too small (5)',indexs+nsnon)
+      call ga_distribution(ga_s,jnode,il,ih,jl,jh)
+      call ga_acc(ga_s,il+jsfr-1,il+jsto-1,jl+6,jl+8,
+     + fs(indexs,1,1),msa,one)
+      if(llong) call ga_acc(ga_s,il+jsfr-1,il+jsto-1,jl+9,jl+11,
+     + fs(indexs,1,2),msa,one)
+      if(lpair) then
+      call ga_distribution(ga_isz,jnode,il,ih,jl,jh)
+      call ga_acc(ga_isz,il+jsfr-1,il+jsto-1,jl,jl,isz(indexs),msa,1)
+      endif
+      do 12 l=1,m
+      do 7 j=1,3
+      do 8 i=indexs,indexs+nsnon-1
+      fs(i,j,l)=zero
+    8 continue
+    7 continue
+   12 continue
+      do 11 i=indexs,indexs+nsnon-1
+      isz(i)=0
+   11 continue
+      endif
 c
       return
       end

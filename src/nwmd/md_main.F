@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.184 2003-12-10 15:38:57 d3j191 Exp $
+c $Id: md_main.F,v 1.185 2004-01-31 00:38:28 d3j191 Exp $
 c
       implicit none
 c
@@ -51,8 +51,6 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
-      integer i_wws,l_wws
-c
       lpair=.true.
       lhop=.false.
       llong=ltwin
@@ -73,9 +71,6 @@ c
       call sp_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_gs),int_mb(i_is),nsaloc)
-c
-      if(.not.ma_push_get(mt_dbl,mwa+msa,'wws',l_wws,i_wws))
-     + call md_abort('Failed to allocate memory for wws',me)
 c
       call cf_mass(dbl_mb(i_wws),dbl_mb(i_wws+mwa),
      + int_mb(i_is+(lsatt-1)*msa),nsaloc)
@@ -99,9 +94,6 @@ c
       call prp_print()
 c
       call rtdb_put(irtdb,'md:energy',mt_dbl,1,epot)
-c
-      if(.not.ma_pop_stack(l_wws))
-     + call md_abort('Failed to deallocate memory for wws',me)
 c
 c     print energies
 c
@@ -129,7 +121,6 @@ c
       external sp_rdtrj,sp_skip,frequency
       logical sp_rdtrj,sp_skip,frequency
 c
-      integer i_wws,l_wws
       integer import
 c
       if(impfr.gt.1) then
@@ -172,9 +163,6 @@ c
      + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_gs),int_mb(i_is),nsaloc)
 c
-      if(.not.ma_push_get(mt_dbl,mwa+msa,'wws',l_wws,i_wws))
-     + call md_abort('Failed to allocate memory for wws',me)
-c
       call cf_mass(dbl_mb(i_wws),dbl_mb(i_wws+mwa),
      + int_mb(i_is+(lsatt-1)*msa),nsaloc)
 c
@@ -200,9 +188,6 @@ c
 cx      call prp_print()
 c
       call rtdb_put(irtdb,'md:energy',mt_dbl,1,epot)
-c
-      if(.not.ma_pop_stack(l_wws))
-     + call md_abort('Failed to deallocate memory for wws',me)
 c
 c     print energies
 c
@@ -232,15 +217,7 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
-      integer i_pcgw,l_pcgw,i_pcgs,l_pcgs,i_wws,l_wws
-      integer i_mm,l_mm,i_fm,l_fm
-c
-      if(imembr.gt.0) then
-      if(.not.ma_push_get(mt_int,2*msa,'mm',l_mm,i_mm))
-     + call md_abort('Failed to allocate memory for mm',me)
-      if(.not.ma_push_get(mt_dbl,7*msm,'fm',l_fm,i_fm))
-     + call md_abort('Failed to allocate memory for fm',me)
-      endif
+      integer i_pcgw,l_pcgw,i_pcgs,l_pcgs
 c
       llong=ltwin
 c
@@ -260,9 +237,6 @@ c
       call sp_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_gs),int_mb(i_is),nsaloc)
-c
-      if(.not.ma_push_get(mt_dbl,mwa+msa,'wws',l_wws,i_wws))
-     + call md_abort('Failed to allocate memory for wws',me)
 c
       call cf_mass(dbl_mb(i_wws),dbl_mb(i_wws+mwa),
      + int_mb(i_is+(lsatt-1)*msa),nsaloc)
@@ -293,20 +267,10 @@ c
      + call md_abort('Failed to deallocate memory for pcgw',me)
       endif
 c
-      if(.not.ma_pop_stack(l_wws))
-     + call md_abort('Failed to deallocate memory for wws',me)
-c
       call cf_print_energy(lfnout)
 c
       call sp_printf(lfnout,filtop,lfntop,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs),npener,dbl_mb(i_esa))
-c
-      if(imembr.gt.0) then
-      if(.not.ma_pop_stack(l_fm))
-     + call md_abort('Failed to deallocate memory for fm',me)
-      if(.not.ma_pop_stack(l_mm))
-     + call md_abort('Failed to deallocate memory for mm',me)
-      endif
 c
       return
       end
@@ -377,47 +341,15 @@ c
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),fs(msa,3)
       real*8 ww(mwa),ws(msa),xsm(msm,3),fm(msm,7)
 c
-      integer i,j,k,numg
+      integer i,j,k
       logical ldone
-      real*8 edif,epsd,epsdw,epsdsw,epsds
-      real*8 da,damsd,dk,dx,dxf,dxmax,factor,dxstep,eqrs
+      real*8 edif,epsd,epsdw,epsdsw,epsds,ecrit
+      real*8 da,damsd,dx,dxf,dxmax,factor,dxstep,eqrs
       character*1 cqrs
       real*8 angle,o(3),p(3),x(3),y(3)
 c
       damsd=0.1d0
-      numg=0
-      if(imembr.gt.0) then
-      do 11 i=1,msm
-      mm(i,1)=0
-   11 continue
-      do 12 i=1,nsaloc
-      mm(ismol(i),1)=mm(ismol(i),1)+1
-      mm(i,2)=ismol(i)
-   12 continue
-      if(np.gt.1) call ga_dgop(mrg_d49,mm,msm,'+')
-      do 13 i=1,nsaloc
-      if(mm(ismol(i),1).eq.1) then
-      k=0
-      dk=zero
-      do 14 j=1,nsm
-      if(ismol(i).ne.j) then
-      dx=(xs(i,1)-xsm(j,1))**2+(xs(i,2)-xsm(j,2))**2+
-     + (xs(i,3)-xsm(j,3))**2
-      if(k.eq.0.or.dx.lt.dk) then
-      dk=dx
-      k=j
-      endif
-      endif
-   14 continue
-      mm(i,2)=k
-      numg=numg+1
-      endif
-   13 continue
-      if(numg.gt.0.and.me.eq.0) then
-      write(*,2000) numg
- 2000 format(' Regrouping of',i5,' atoms',/)
-      endif
-      endif
+      if(imembr.gt.0) call md_membrane_init(ismol,mm,xs,xsm,fm)
 c
       if(me.eq.0) write(lfnout,1000)
  1000 format(/,' STEEPEST DESCENT MINIMIZATION',//,
@@ -591,7 +523,10 @@ c
 c
 c     if energy goes up restore coordinates and forces
 c
-      if(epot.gt.epsd.and.isdit.lt.msdit.and.dxmax.gt.dxsdmx) then
+      ecrit=epot
+      if(icrit.eq.1) ecrit=epot
+c
+      if(ecrit.gt.epsd.and.isdit.lt.msdit.and.dxmax.gt.dxsdmx) then
 c
       call cf_restor(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_fw),
      + dbl_mb(i_vw),nwmloc,dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_fs),
@@ -603,8 +538,8 @@ c
       goto 1
       endif
 c
-      edif=epot-epsd
-      epsd=epot
+      edif=ecrit-epsd
+      epsd=ecrit
       epsdw=epotw
       epsdsw=epotsw
       epsds=epots
@@ -1833,6 +1768,10 @@ c
       call timer_stop(48)
       endif
 c
+      if(imembr.ne.0) call md_membrane_forces(int_mb(i_mm),
+     + dbl_mb(i_fm),dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_fs),
+     + dbl_mb(i_wws))
+c
 c     time step
 c
       call timer_start(49)
@@ -2293,7 +2232,7 @@ c
       logical lself,local,lpbcs
 c
       integer ibbl,lhandl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
-      integer nbbl
+      integer nbbl,i,j,k
       integer itcom1,itforc,itcom2
 c
       logical lforce,ldone
@@ -2303,7 +2242,18 @@ c
       itforc=34
       itcom2=35
 c
+      if(nbget.eq.0) then
       call sp_nbbl(nbbl)
+      else
+      call timer_start(36)
+      if(ipolt.eq.0) then
+      call sp_prefetch(nbbl,iwl,xw,isl,xs)
+      else
+      call sp_prefetch_p(nbbl,iwl,xw,dbl_mb(i_pw),dbl_mb(i_pwp),
+     + isl,xs,dbl_mb(i_ps),dbl_mb(i_psp))
+      endif
+      call timer_stop(36)
+      endif
 c
       lforce=.true.
       ldone=.true.
@@ -2325,6 +2275,7 @@ c
       endif
 c
       call timer_start(itcom1)
+      if(nbget.eq.0) then
       if(ipolt.eq.0) then
       call sp_getxbl(ibbl,lhandl,
      + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
@@ -2334,6 +2285,10 @@ c
      + iwl,xw,dbl_mb(i_pw),dbl_mb(i_pwp),iwfr,iwto,jwfr,jwto,
      + isl,xs,dbl_mb(i_ps),dbl_mb(i_psp),isfr,isto,jsfr,jsto,
      + lself,lpbcs)
+      endif
+      else
+      call sp_nbwait(ibbl,lhandl,lself,lpbcs,
+     + iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto,iwl,isl)
       endif
       call timer_stop(itcom1)
 c
@@ -2362,8 +2317,13 @@ c
       call timer_stop(itforc)
 c
       call timer_start(itcom2)
+      if(nbget.eq.0) then
       call sp_accfbl(ibbl,lhandl,fw,fs,
      + lpair,int_mb(i_iwz),int_mb(i_isz))
+      else
+      call sp_nbaccfbl(ibbl,lhandl,fw,fs,
+     + lpair,int_mb(i_iwz),int_mb(i_isz))
+      endif
       call timer_stop(itcom2)
 c
     1 continue
@@ -2790,7 +2750,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.184 2003-12-10 15:38:57 d3j191 Exp $
+c $Id: md_main.F,v 1.185 2004-01-31 00:38:28 d3j191 Exp $
 c
       implicit none
 c
@@ -2943,6 +2903,108 @@ c
  1001 format(i7,5x,3f12.3,3x,3f12.3)
 c
     4 continue
+c
+      return
+      end
+      subroutine md_membrane_init(ismol,mm,xs,xsm,fm)
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer ismol(msa),mm(msa,2)
+      real*8 xs(msa,3),xsm(msm,3),fm(msm,7)
+c
+      integer i,j,k,numg
+      real*8 dx,dk
+c
+      numg=0
+c
+      do 1 i=1,msm
+      mm(i,1)=0
+    1 continue
+      do 2 i=1,nsaloc
+      mm(ismol(i),1)=mm(ismol(i),1)+1
+      mm(i,2)=ismol(i)
+    2 continue
+      if(np.gt.1) call ga_dgop(mrg_d49,mm,msm,'+')
+      do 3 i=1,nsaloc
+      if(mm(ismol(i),1).eq.1) then
+      k=0
+      dk=zero
+      do 4 j=1,nsm
+      if(ismol(i).ne.j) then
+      dx=(xs(i,1)-xsm(j,1))**2+(xs(i,2)-xsm(j,2))**2+
+     + (xs(i,3)-xsm(j,3))**2
+      if(k.eq.0.or.dx.lt.dk) then
+      dk=dx
+      k=j
+      endif
+      endif
+    4 continue
+      mm(i,2)=k
+      numg=numg+1
+      endif
+    3 continue
+      if(numg.gt.0.and.me.eq.0) then
+      write(*,2000) numg
+ 2000 format(' Regrouping of',i5,' atoms',/)
+      endif
+c
+      return
+      end
+      subroutine md_membrane_forces(mm,fm,xs,xsm,fs,ws)
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer mm(msa,2)
+      real*8 fm(msm,7),xs(msa,3),xsm(msm,3),fs(msa,3),ws(msa)
+c
+      integer i,j
+      real*8 factor
+c
+      do 1 i=1,msm
+      fm(i,1)=zero
+      fm(i,2)=zero
+      fm(i,3)=zero
+      fm(i,4)=zero
+      fm(i,5)=zero
+      fm(i,6)=zero
+      fm(i,7)=zero
+    1 continue
+c
+      do 2 i=1,nsaloc
+      factor=one/ws(i)
+      fm(mm(i,2),1)=fm(mm(i,2),1)+factor*fs(i,1)
+      fm(mm(i,2),2)=fm(mm(i,2),2)+factor*fs(i,2)
+      fm(mm(i,2),3)=fm(mm(i,2),3)+factor*fs(i,3)
+      fm(mm(i,2),4)=fm(mm(i,2),4)+factor*
+     + ((xs(i,1)-xsm(mm(i,2),1))*fs(i,2)-
+     +  (xs(i,2)-xsm(mm(i,2),2))*fs(i,1))
+    2 continue
+      if(np.gt.1) call ga_dgop(mrg_d50,fm,4*msm,'+')
+c
+      do 3 i=1,nsm
+      fm(i,4)=fm(i,3)
+      if(me.eq.0) write(lfnout,1000) i,(fm(i,j)/dble(mm(i,1)),j=1,3)
+ 1000 format(i5,3f12.3)
+    3 continue
+c
+c     molecular rotations only
+c
+      if(imembr.eq.2) then
+      do 4 i=1,nsaloc
+      fs(i,1)=fs(i,1)-ws(i)*fm(mm(i,2),1)/dble(mm(i,1))
+      fs(i,2)=fs(i,2)-ws(i)*fm(mm(i,2),2)/dble(mm(i,1))
+      fs(i,3)=fs(i,3)-ws(i)*fm(mm(i,2),3)/dble(mm(i,1))
+    4 continue
+      endif
 c
       return
       end
