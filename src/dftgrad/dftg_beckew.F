@@ -4,7 +4,7 @@
      .     nq_orig,nq,
      &                       iandex)
 c
-C     $Id: dftg_beckew.F,v 1.10 2000-04-15 01:24:22 edo Exp $
+C     $Id: dftg_beckew.F,v 1.11 2000-07-10 23:02:43 edo Exp $
 c
       implicit none
 c
@@ -268,7 +268,7 @@ c
       enddo
       n=1
  111  if(n.le.nq) then
-      if(qwght(n).lt.1d-16) then
+      if(abs(qwght(n)).lt.1d-16) then
          do j=n,nq
             qwght(j)=qwght(j+1)
             qxyz(1,j)=qxyz(1,j+1)

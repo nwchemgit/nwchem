@@ -14,7 +14,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr)
 c      
-c     $Id: dftg_gridv0b.F,v 1.6 2000-05-01 21:32:09 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.7 2000-07-10 23:02:43 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -237,6 +237,7 @@ c
                if (do_force) then
 c 
                  call dftg_quadv0_b(ictr_buf, ldew, AO_bas_han, ipol,
+!                 call dftg_quadv0_b(ictr_buf, .false., AO_bas_han, ipol,
      &                            grad, nbf_ao, mbf_ao, natoms, nqpts,
      &                            dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
      &                            dbl_mb(iheschi_ao), Amat, Cmat,
@@ -322,14 +323,14 @@ c
 c
                if (do_force.and.ldew)then
                   natoms_l=natoms
-                     call dftg_gridssw(d_qwght,qwght, qxyz, xyz,xyzm, 
-     .                    rq, ictr_buf, natoms_l, iandex,
-     .                    nqpts,whichssw,
-     ,                    rad,expo)
-                  call dftg_wderiv(ictr_buf, natoms_l, nqpts, nqpts, 
+                  call dftg_gridpart(d_qwght,qwght, qxyz, xyz,xyzm, 
+     .                 rq, ictr_buf, natoms_l, iandex,
+     .                 nqpts,whichssw,
+     ,                 rad,expo)
+                  call dftg_wderiv(ictr_buf, natoms, nqpts, nqpts, 
      .                 iandex, 
-     &                             natoms, func, d_qwght,
-     &                             force, oactive, nactive)
+     &                 natoms_l, func, d_qwght,
+     &                 force, oactive, nactive)
                endif
 c         
 c
