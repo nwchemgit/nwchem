@@ -3,7 +3,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.26 2002-01-18 17:51:07 edo Exp $
+c$Id: xc_hcth.F,v 1.27 2002-01-18 21:31:59 edo Exp $
 c
       Implicit none
 c
@@ -110,7 +110,7 @@ c
      &                      Amat, Amat2, Cmat, Cmat2, nq, ipol,
      &                      Ex, Ec,  qwght, ldew,func,funcname)
 c
-c$Id: xc_hcth.F,v 1.26 2002-01-18 17:51:07 edo Exp $
+c$Id: xc_hcth.F,v 1.27 2002-01-18 21:31:59 edo Exp $
 c
       Implicit none
 c
@@ -161,7 +161,7 @@ c
       npert = 5
       call xc_hcth(tol_rho, xfac, lxfac, nlxfac, cfac, lcfac, nlcfac,
      &     dbl_mb(i_prho), dbl_mb(i_pdelrho), dbl_mb(i_pAmat),
-     &     dbl_mb(i_pCmat), nq*2*npert, 2, ExDum, EcDum,
+     &     dbl_mb(i_pCmat), nq*2*npert, ipol, ExDum, EcDum,
      &     dbl_mb(i_qwght_copy), ldew, dbl_mb(i_pfunc), funcname)
       call xc_make_fd(Amat2, Cmat2, nq, .true., dbl_mb(i_pAmat),
      &     dbl_mb(i_pCmat))
