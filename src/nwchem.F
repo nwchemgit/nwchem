@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.84 1996-07-17 16:24:50 d3g681 Exp $
+c     $Id: nwchem.F,v 1.85 1996-07-19 23:06:46 mg141 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -275,7 +275,7 @@ c
       logical  scf, task_check_sum, selci, eopt, rjhtest, rimp2, oimp2
       external scf, task_check_sum, selci, eopt, rjhtest, rimp2, oimp2
       logical nwdft, nwargos, mp2_grad, cphf, ccsd, moints_full, gapss
-      external cphf, ccsd, moints_full
+      external cphf, ccsd, moints_full, mp2_grad
       logical scf_gradient, direct_mp2
       external scf_gradient, direct_mp2
       parameter (ntasks = 28)
@@ -409,7 +409,7 @@ c
 c     Miles test 
 c     
  160     continue
-C        status=cphf(rtdb)
+         status=cphf(rtdb)
          goto 1000
 c     
 c     CCSD
