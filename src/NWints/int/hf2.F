@@ -1,4 +1,4 @@
-c $Id: hf2.F,v 1.18 2000-05-26 19:40:08 mg201 Exp $
+c $Id: hf2.F,v 1.19 2000-06-01 18:50:32 mg201 Exp $
       Subroutine hf2(Axyz,Aprims,Acoefs,NPA,NCA,La,
      &               Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
      &               Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,
@@ -8,6 +8,7 @@ c $Id: hf2.F,v 1.18 2000-05-26 19:40:08 mg201 Exp $
 
       Implicit none
 #include "stdio.fh"
+#include "nwc_const.fh"
 
       Integer NPA,NCA,La
       Integer NPB,NCB,Lb
@@ -48,7 +49,7 @@ c--> Local variables
       Integer lszp,lszq,ninti
       Integer i_R0,i_IJK,i_P,i_Q,i_PQ,i_ff,i_Rj
       Integer i_E3,i_t1,i_t2,i_t3,i_t4,i_eri,i_top
-      Integer i,j
+      Integer i,j,istep
 
       Logical doit_PQ
 
@@ -59,6 +60,7 @@ c
 c******************************************************************************
 
       MXD = 0
+      istep = 2/nw_int_per_real
 
 c Determine whether general or segmented contraction is used.
 
@@ -107,7 +109,7 @@ c Assign pointers to scratch space.
           write(LuOut,*) 'IPAIRp:  ',i_IPAIRp 
           write(LuOut,*) 'From the right '
           write(LuOut,*) 'ESp   :  ',i_ESp 
-          call errquit('hf2: out of scratch space',0)
+          call errquit('hf2: Not enough scratch space for hfset AB',911)
         end if
         call hfset(Axyz,Aprims,Acoefs,NPA,NCA,
      &      Bxyz,Bprims,Bcoefs,NPB,NCB,
@@ -140,14 +142,14 @@ c Assign pointers to scratch space.
           write(LuOut,*) 'From the right '
           write(LuOut,*) 'ESp   :  ',i_ESp 
           write(LuOut,*) 'ESq   :  ',i_ESq 
-          call errquit('hf2: out of scratch space',1)
+          call errquit('hf2: Not enough scratch space for hfset CD',911)
         end if
         call hfset(Cxyz,Cprims,Ccoefs,NPC,NCC,
      &      Dxyz,Dprims,Dcoefs,NPD,NCD,
      &      GenCon,W0(i_ALPHAq),W0(i_IPAIRq),W0(i_ESq),NPQ)
       end if
 
-c Zero out integral block. Return in NPR = 0, i.e. no integrals
+c Zero out integral block. Return if NPR = 0, i.e. no integrals
 
       NPR = NPP*NPQ
       if (.not.DryRun) call dfill(Nints,0.0d00,beri,1)
@@ -193,7 +195,7 @@ c Assign pointers to scratch space.
           write(LuOut,*) 'From the right '
           write(LuOut,*) 'ESp   :  ',i_ESp 
           write(LuOut,*) 'ESq   :  ',i_ESq 
-          call errquit('hf2: out of scratch space',3)
+          call errquit('hf2: Not enough scratch space for hfmke',911)
         end if
 
         do nd = 0,MXD
@@ -228,7 +230,7 @@ c   If insufficient memory, do multipassing.
         write(LuOut,*) 'Eq    :  ',i_Eq
         write(LuOut,*) 'R0    :  ',i_R0
         write(LuOut,*) 'IJK   :  ',i_IJK
-          call errquit('hf2: out of scratch space',4)
+        call errquit('hf2: Not enough scratch space for hf2mkr',911)
       end if
 
       MaxPairs = Maxavail/MemPerPair
@@ -299,7 +301,7 @@ c   If insufficient memory, do multipassing.
      &            W0(i_R0),W0(i_IJK),W0(i_Q),W0(i_P),W0(i_PQ),
      &            W0(i_ff),W0(i_Rj),
      &            MPQ,MPP,Lr,Lr3)
-            endif
+            end if
           end if
 
 c Compute the ERI.
@@ -328,68 +330,65 @@ c Assign pointers to scratch space.
           end if
           if( DryRun )then
             MaxMem = max( MaxMem, i_top )
-          else
-            if (i_top.gt.maxW0) then
-              write(LuOut,*) 'HF2:  Insufficient scratch space.'
-              write(LuOut,*) '      needed    ',i_top
-              write(LuOut,*) '      allocated ',maxW0
-              write(LuOut,*) 'ALPHAp:  ',i_ALPHAp 
-              write(LuOut,*) 'IPAIRp:  ',i_IPAIRp 
-              write(LuOut,*) 'ALPHAq:  ',i_ALPHAq 
-              write(LuOut,*) 'IPAIRq:  ',i_IPAIRq 
-              write(LuOut,*) 'Ep    :  ',i_Ep
-              write(LuOut,*) 'Eq    :  ',i_Eq
-              write(LuOut,*) 'IJK   :  ',i_IJK
-              write(LuOut,*) 'R0    :  ',i_R0
-              write(LuOut,*) 'eri   :  ',i_eri
-              write(LuOut,*) 't2    :  ',i_t2
-              write(LuOut,*) 'E3    :  ',i_E3
-              if (gencon) then
-                write(LuOut,*) 't1  :  ',i_t1
-                write(LuOut,*) 't3  :  ',i_t3
-                write(LuOut,*) 't4  :  ',i_t4
-              end if
-              call errquit('hf2: out of scratch space',5)
+          else if (i_top.gt.maxW0) then
+            write(LuOut,*) 'HF2:  Insufficient scratch space.'
+            write(LuOut,*) '      needed    ',i_top
+            write(LuOut,*) '      allocated ',maxW0
+            write(LuOut,*) 'ALPHAp:  ',i_ALPHAp 
+            write(LuOut,*) 'IPAIRp:  ',i_IPAIRp 
+            write(LuOut,*) 'ALPHAq:  ',i_ALPHAq 
+            write(LuOut,*) 'IPAIRq:  ',i_IPAIRq 
+            write(LuOut,*) 'Ep    :  ',i_Ep
+            write(LuOut,*) 'Eq    :  ',i_Eq
+            write(LuOut,*) 'IJK   :  ',i_IJK
+            write(LuOut,*) 'R0    :  ',i_R0
+            write(LuOut,*) 'eri   :  ',i_eri
+            write(LuOut,*) 't2    :  ',i_t2
+            write(LuOut,*) 'E3    :  ',i_E3
+            if (gencon) then
+              write(LuOut,*) 't1  :  ',i_t1
+              write(LuOut,*) 't3  :  ',i_t3
+              write(LuOut,*) 't4  :  ',i_t4
             end if
-            if (doit_PQ) then
-              if (GenCon) then
-                call hferi_gen(W0(i_Ep+3*ipp),W0(i_Eq+3*ipq),
-     &              W0(i_IPAIRp+2*ipp),W0(i_IPAIRq+2*ipq),W0(i_R0),
-     &              W0(i_IJK),W0(i_eri),W0(i_E3),
-     &              W0(i_t1),W0(i_t2),W0(i_t3),W0(i_t4),
-     &              MPP,MPQ,NPP,NPQ,La,Lb,Lc,Ld,La2,Lb2,Lc2,Ld2,
-     &              Lq,Lq3,Lr,Acoefs,Bcoefs,Ccoefs,Dcoefs,
-     &              NPA,NPB,NPC,NPD,NCA,NCB,NCC,NCD,
-     &              MXD,canAB,canCD,canPQ)
-              else
-                call hferi(W0(i_Ep+3*ipp),W0(i_Eq+3*ipq),
-     &              W0(i_R0),W0(i_IJK),W0(i_eri),W0(i_E3),W0(i_t2),
-     &              MPP,MPQ,NPP,NPQ,Nints,La,Lb,Lc,Ld,Lr,MXD,
-     &              canAB,canCD,canPQ)
-              end if
-              call daxpy(ninti,1.0D0,W0(i_eri),1,beri,1)
+            call errquit('hf2: Not enough scratch space for hferi',911)
+          else if (doit_PQ) then
+            if (GenCon) then
+              call hferi_gen(W0(i_Ep+3*ipp),W0(i_Eq+3*ipq),
+     &            W0(i_IPAIRp+istep*ipp),W0(i_IPAIRq+istep*ipq),
+     &            W0(i_R0),W0(i_IJK),W0(i_eri),W0(i_E3),
+     &            W0(i_t1),W0(i_t2),W0(i_t3),W0(i_t4),
+     &            MPP,MPQ,NPP,NPQ,La,Lb,Lc,Ld,La2,Lb2,Lc2,Ld2,
+     &            Lq,Lq3,Lr,Acoefs,Bcoefs,Ccoefs,Dcoefs,
+     &            NPA,NPB,NPC,NPD,NCA,NCB,NCC,NCD,
+     &            MXD,canAB,canCD,canPQ)
             else
-              if (GenCon) then
-                call hferi_gen(W0(i_Eq+3*ipq),W0(i_Ep+3*ipp),
-     &              W0(i_IPAIRq+2*ipq),W0(i_IPAIRp+2*ipp),W0(i_R0),
-     &              W0(i_IJK),W0(i_eri),W0(i_E3),
-     &              W0(i_t1),W0(i_t2),W0(i_t3),W0(i_t4),
-     &              MPQ,MPP,NPQ,NPP,Lc,Ld,La,Lb,Lc2,Ld2,La2,Lb2,
-     &              Lp,Lp3,Lr,Ccoefs,Dcoefs,Acoefs,Bcoefs,
-     &              NPC,NPD,NPA,NPB,NCC,NCD,NCA,NCB,
-     &              MXD,canCD,canAB,canPQ)
-              else
-                call hferi(W0(i_Eq+3*ipq),W0(i_Ep+3*ipp),
-     &              W0(i_R0),W0(i_IJK),W0(i_eri),W0(i_E3),W0(i_t2),
-     &              MPQ,MPP,NPQ,NPP,Ninti,Lc,Ld,La,Lb,Lr,MXD,
-     &              canCD,canAB,canPQ)
-              end if
-              j = 1
-              do i = 0,lszp-1
-                call daxpy(lszq,1.0d0,W0(i_eri+i),lszp,beri(j),1)
-                j = j+lszq
-              end do
+              call hferi(W0(i_Ep+3*ipp),W0(i_Eq+3*ipq),
+     &            W0(i_R0),W0(i_IJK),W0(i_eri),W0(i_E3),W0(i_t2),
+     &            MPP,MPQ,NPP,NPQ,Nints,La,Lb,Lc,Ld,Lr,MXD,
+     &            canAB,canCD,canPQ)
             end if
+            call daxpy(ninti,1.0D0,W0(i_eri),1,beri,1)
+          else
+            if (GenCon) then
+              call hferi_gen(W0(i_Eq+3*ipq),W0(i_Ep+3*ipp),
+     &            W0(i_IPAIRq+istep*ipq),W0(i_IPAIRp+istep*ipp),
+     &            W0(i_R0),W0(i_IJK),W0(i_eri),W0(i_E3),
+     &            W0(i_t1),W0(i_t2),W0(i_t3),W0(i_t4),
+     &            MPQ,MPP,NPQ,NPP,Lc,Ld,La,Lb,Lc2,Ld2,La2,Lb2,
+     &            Lp,Lp3,Lr,Ccoefs,Dcoefs,Acoefs,Bcoefs,
+     &            NPC,NPD,NPA,NPB,NCC,NCD,NCA,NCB,
+     &            MXD,canCD,canAB,canPQ)
+            else
+              call hferi(W0(i_Eq+3*ipq),W0(i_Ep+3*ipp),
+     &            W0(i_R0),W0(i_IJK),W0(i_eri),W0(i_E3),W0(i_t2),
+     &            MPQ,MPP,NPQ,NPP,Ninti,Lc,Ld,La,Lb,Lr,MXD,
+     &            canCD,canAB,canPQ)
+            end if
+            j = 1
+            do i = 0,lszp-1
+              call daxpy(lszq,1.0d0,W0(i_eri+i),lszp,beri(j),1)
+              j = j+lszq
+            end do
           end if
 
         end do
