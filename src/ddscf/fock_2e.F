@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, nfock, facj, fack,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
-c$Id: fock_2e.F,v 1.21 2001-11-29 20:24:33 edo Exp $
+c$Id: fock_2e.F,v 1.22 2001-11-29 22:33:52 bert Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -31,6 +31,7 @@ c     !!! BGJ test !!!
       parameter(maxfocks=1000)
       integer g_xc ! Assume no more than 1000 fock matrices !!!
       double precision kfac(maxfocks), jfac(maxfocks),ffac
+      double precision lfac(maxfocks)
       integer ga_create_atom_blocked
       integer vg_fockc
       integer dims(3), chunk(3)
@@ -93,6 +94,21 @@ c
          if (.not.ga_destroy(vg_fockc))
      .      call errquit('fock_2e: problem destroying test array',1)
          return
+      else if (nriscf.eq.10) then
+        do ifock=1,nfock
+            lfac(ifock)=0d0
+        enddo
+c
+c       get HF exchange part in normal way
+c
+        call ao_fock_2e( geom1, ao_basis, nfock, lfac, kfac,
+     $        tol2e1, oskel1, vg_dens, vg_fock, asym )
+c
+c       get HF coulomb part from RISCF integrals
+c
+        call riscf_fock_2e( geom1, ao_basis, riscf_basis, nfock,
+     $       jfac, lfac, tol2e1, oskel1, vg_dens, vg_fock )
+c
       else if (nriscf.gt.1) then
         call riscf_fock_2e( geom1, ao_basis, riscf_basis, nfock, 
      $       jfac, kfac, tol2e1, oskel1, vg_dens, vg_fock )
@@ -193,7 +209,7 @@ c     !!! BGJ test !!!
       return
       end
       subroutine dft_3dget(g_fock,buf,imat,nbf)
-C$Id: fock_2e.F,v 1.21 2001-11-29 20:24:33 edo Exp $
+C$Id: fock_2e.F,v 1.22 2001-11-29 22:33:52 bert Exp $
       implicit none
       integer g_fock
       integer imat
