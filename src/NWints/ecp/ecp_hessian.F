@@ -1,0 +1,774 @@
+C $Id: ecp_hessian.F,v 1.1 1996-10-19 00:25:06 mg201 Exp $
+************************************************************************
+*                                                                      *
+      subroutine ecp_hessian (
+     &    xyz_A,zeta_A,coef_A,n_prim_A,n_cont_A,l_A,i_c_A,
+     &    xyz_B,zeta_B,coef_B,n_prim_B,n_cont_B,l_B,i_c_B,
+     &    xyz_C,zeta_C,coef_C,n_prim_C,n_coef_C,ind_C,n_tot_C,n_zeta_C,
+     &    l_C,i_cent_C,n_C,l_ecp_max,
+     &    sphcart,csco,lcsco,
+     &    ecp_hess,n_int,n_cent,
+     &    DryRun,scr,lscr,ibug)
+*                                                                      *
+*   Calculate ecp gradient integrals.                                  *
+*                                                                      *
+*   Argument (status) - description                                    *
+*                                                                      *
+*   xyz_A (inp) - coordinates of centre A                              *
+*   zeta_A (inp) - exponents of primitive gaussians on centre A        *
+*   coef_A (inp) - contraction coefficients on centre A                *
+*   n_prim_A (inp) - number of primitive gaussians on centre A         *
+*   n_cont_A (inp) - number of contracted functions on centre A        *
+*   l_A (inp) - angular momentum of functions on centre A              *
+*   i_c_A (inp) - index of centre A                                    *
+*   xyz_B (inp) - coordinates of centre B                              *
+*   zeta_B (inp) - exponents of primitive gaussians on centre B        *
+*   coef_B (inp) - contraction coefficients on centre B                *
+*   n_prim_B (inp) - number of primitive gaussians on centre B         *
+*   n_cont_B (inp) - number of contracted functions on centre B        *
+*   l_B (inp) - angular momentum of functions on centre B              *
+*   i_c_B (inp) - index of centre B                                    *
+*   xyz_C (inp) - coordinates of ECP centres C                         *
+*   zeta_C (inp) - array of exponents of primitive gaussians on all    *
+*                  centres C. These are stored in an array of single   *
+*                  dimension, i.e. packed.                             *
+*   coef_C (inp) - array of contraction coefficients on all centres C  *
+*   n_prim_C (inp) - array of number of primitive gaussians for each   *
+*                    power of r, l value and ECP centre. The highest   *
+*                    l value is for the local part, thus the second    *
+*                    dimension is l_ecp_max+2 (or 0:l_ecp_max+1)       *
+*   n_coef_C (inp) - array of number of coefficients for each l value  *
+*                    and ECP centre. This is n_prim_C summed over the  *
+*                    first dimension.                                  *
+*   ind_C (inp) - array of addresses of first coefficient/exponent for *
+*                 each l value and ECP centre. This is the progressive *
+*                 sum of n_coef_C                                      *
+*   n_tot_C (inp) - total number of coefficients for each ECP centre.  *
+*                   This is n_coef_C summed over the first dimension.  *
+*   n_zeta_C (inp) - total number of ECP exponents/coefficients. This  *
+*                    is n_tot_C summed over centres.                   *
+*   l_C (inp) - maximum angular momentum of projectors on centres C    *
+*   i_cent_C - indices of ECP centres C                                *
+*   n_C (inp) - number of ECP centres C                                *
+*   l_ecp_max (inp) - maximum angular momentum of any projector on any *
+*                 ECP centre                                           *
+*   sphcart - 0 for cartesian integrals, 1 for spherical integrals     *
+*   ecp_hess (out) - hessian integrals over ECPs                       *
+*   n_int (inp) - number of ECP hessian integrals for a given centre   *
+*                 and cartesian derivative pair. Should be equal to    *
+*                 NCA*NCB*[(La+1)*(La+2)/2]*[(Lb+1)*(Lb+2)/2]          *
+*   n_cent (inp) - total number of centres in the molecule             *
+*   DryRun (inp) - logical for dry run. If true, routine only returns  *
+*                  maximum scratch space needed, if false, integrals   *
+*                  are returned.                                       *
+*   scr (scr) - scratch array for work space                           *
+*   lscr (i/o) - length of scratch array. Value returned if DryRun is  *
+*                true, used as dimension if false.                     *
+*   ibug - debug flag. 0 for no debug, 1 for address printing, 2 for   *
+*          array printing, 3 for both.                                 *
+*                                                                      *
+*   Written by K. G. Dyall                                             *
+*                                                                      *
+************************************************************************
+      implicit none
+#include "stdio.fh"
+#include "ecp_consts.fh"
+      integer i,j,k,l,m,n,
+     &    n_prim_A,n_cont_A,l_A,i_c_A,
+     &    n_prim_B,n_cont_B,l_B,i_c_B,
+     &    n_zeta_C,n_C,l_ecp_max,n_int,n_cent,i_c_C,
+     &    sphcart,lscr,ibug
+      integer n_prim_C(0:2,-1:l_ecp_max,n_C),
+     &    n_coef_C(-1:l_ecp_max,n_C),ind_C(-1:l_ecp_max,n_C),
+     &    n_tot_C(n_C),l_C(n_C),i_cent_C(n_C)
+      integer i_xca,i_xxca,i_xcb,i_xxcb,i_lp,i_lm,i_grdp,i_grdm,
+     &    n_cartp1_A,n_cartp1_B,n_cartp2_A,n_cartp2_B,
+     &    n_cartm1_A,n_cartm1_B,n_cartm2_A,n_cartm2_B,
+     &    n_allp1_A,n_allp1_B,n_allp2_A,n_allp2_B,
+     &    n_allm1_A,n_allm1_B,n_allm2_A,n_allm2_B,
+     &    n_intpa,n_intpb,n_intma,n_intmb,
+     &    n_intpaa,n_intmaa,n_intpbb,n_intmbb,
+     &    n_intppab,n_intpmab,n_intmpab,n_intmmab
+      integer i_scr,i_s,i_zeta,i_zeta0,i_zeta1,n_prim0,n_prim1,
+     &    mem,max_loc,max_type1,max_type2,l_scr,
+     &    n_cart_a,n_cart_b,n_cont_ab,
+     &    n_all_a,n_all_b,n_ab,n_ab9
+      integer lcsco
+      logical DryRun,debug_gen,debug_addresses,debug_arrays
+      double precision 
+     &    xyz_A(3),zeta_A(n_prim_A),coef_A(n_prim_A,n_cont_A),
+     &    xyz_B(3),zeta_B(n_prim_B),coef_B(n_prim_B,n_cont_B),
+     &    xyz_C(3,n_C),zeta_C(n_zeta_C),coef_C(n_zeta_C),
+     &    scr(lscr),ecp_hess(n_int,3,n_cent,3,n_cent)
+      double precision 
+     &    X_AC,Y_AC,Z_AC,R_AC,X_BC,Y_BC,Z_BC,R_BC,
+     &    tol
+      double precision csco(lcsco)
+      character*4 dbyd(3)
+      character*16 printhead
+      data tol/1.0d-16/
+      data dbyd/'d/dx','d/dy','d/dz'/
+      data printhead/'          U_ab  '/
+*
+      write (LuOut,*) ibug
+      debug_gen = ibug .gt. 0
+      debug_addresses = mod(ibug,2) .eq. 1
+      debug_arrays = mod(ibug,10)/2 .eq. 1
+*
+      if (debug_gen) write (LuOut,'(//A,/)') 'Entering ecp_hessian ...'
+      if (debug_addresses) then
+        write(LuOut,*)' lscr in ecp_integral:',lscr
+        write (LuOut,*) 'n_prim_A,n_cont_A,l_A',n_prim_A,n_cont_A,l_A
+        write (LuOut,*) 'n_prim_B,n_cont_B,l_B',n_prim_B,n_cont_B,l_B
+        write (LuOut,*) 'l_ecp_max,n_c,n_cent',l_ecp_max,n_c,n_cent
+      end if
+      n_cart_a = (l_a+1)*(l_a+2)/2
+      n_cart_b = (l_b+1)*(l_b+2)/2
+      n_all_b = n_cart_b*n_cont_b
+      n_all_a = n_cart_a*n_cont_a
+      n_cont_ab = n_cont_a*n_cont_b
+      n_ab = n_all_a*n_all_b
+      n_ab9 = n_ab*9
+      if (debug_addresses) write (LuOut,*) 
+     &    'n_cart_a,n_cart_b,n_cont_ab,n_ab',
+     &    n_cart_a,n_cart_b,n_cont_ab,n_ab
+      if (n_int .ne. n_ab) call errquit (
+     &    'Mismatch of integral count in ecp_gradient',99)
+      if (sphcart .ne. 0) call errquit(
+     &    'Do your own spherical transformation, lazy bum!',99)
+      if (DryRun) then
+        max_type1 = 0
+        max_type2 = 0
+        max_loc = 0
+      else
+        call dcopy (n_int*9*n_cent**2,zero,0,ecp_hess,1)
+      end if
+*
+*   Set up pointers to scratch space for coefficients multiplied by 
+*   exponents and for integrals with shifted l values
+*
+      n_cartp1_A = n_cart_A+l_A+2
+      n_cartp1_B = n_cart_B+l_B+2
+      n_cartp2_A = n_cartp1_A+l_A+3
+      n_cartp2_B = n_cartp1_B+l_B+3
+      n_cartm1_A = n_cart_A-l_A-1
+      n_cartm1_B = n_cart_B-l_B-1
+      n_cartm2_A = n_cartm1_A-l_A-2
+      n_cartm2_B = n_cartm1_B-l_B-2
+*
+      n_allp1_A = n_cartp1_A*n_cont_A
+      n_allp1_B = n_cartp1_B*n_cont_B
+      n_allp2_A = n_cartp2_A*n_cont_A
+      n_allp2_B = n_cartp2_B*n_cont_B
+      n_allm1_A = n_cartm1_A*n_cont_A
+      n_allm1_B = n_cartm1_B*n_cont_B
+      n_allm2_A = n_cartm2_A*n_cont_A
+      n_allm2_B = n_cartm2_B*n_cont_B
+*
+      n_intpa = n_allp1_A*n_all_B
+      n_intpb = n_all_A*n_allp1_B
+      n_intma = n_allm1_A*n_all_B
+      n_intmb = n_all_A*n_allm1_B
+      n_intpaa = n_allp2_A*n_all_B
+      n_intmaa = n_allm2_A*n_all_B
+      n_intpbb = n_all_A*n_allp2_B
+      n_intmbb = n_all_A*n_allm2_B
+      n_intppab = n_allp1_A*n_allp1_B
+      n_intpmab = n_allp1_A*n_allm1_B
+      n_intmpab = n_allm1_A*n_allp1_B
+      n_intmmab = n_allm1_A*n_allm1_B
+*
+      i_xca = 1
+      i_xxca = i_xca+n_prim_A*n_cont_A
+      i_xcb = i_xxca+n_prim_A*n_cont_A
+      i_xxcb = i_xcb+n_prim_B*n_cont_B
+      i_lp = i_xxcb+n_prim_B*n_cont_B
+      i_lm = i_lp+max(n_intpaa,n_intpbb,n_intppab)
+      i_grdp = i_lm+max(n_ab,n_intpmab,n_intmpab)
+      i_grdm = i_grdp+max(n_intpa,n_intpb)*3
+      i_scr = i_grdm+max(n_intpa,n_intpb)*3
+      if (debug_addresses) then
+        write (LuOut,*) 'i_xca,i_xcb',i_xca,i_xcb
+        write (LuOut,*) 'i_lp,i_lm',i_lp,i_lm
+        write (LuOut,*) 'i_scr',i_scr
+      end if
+*
+*   Set up coefficients multiplied by exponents
+*
+      if (.not.DryRun) then
+        l_scr = lscr-i_scr+1
+        if (l_scr .lt. 0) call errquit (
+     &      'Insufficient scratch memory in ecp_integral',99)
+        k = i_xca-1
+        m = n_prim_A*n_cont_A
+        do j = 1,n_cont_a
+          do i = 1,n_prim_A
+            scr(k+i) = zeta_A(i)*coef_A(i,j)
+            scr(k+m+i) = zeta_A(i)*scr(k+i)
+          end do
+          k = k+n_prim_A
+        end do
+        k = i_xcb-1
+        m = n_prim_B*n_cont_B
+        do j = 1,n_cont_B
+          do i = 1,n_prim_B
+            scr(k+i) = zeta_B(i)*coef_B(i,j)
+            scr(k+m+i) = zeta_B(i)*scr(k+i)
+          end do
+          k = k+n_prim_B
+        end do
+      end if
+*
+*   Loop over ECP centres
+*
+      if (debug_arrays) call ecp_matpr (xyz_C,1,3,1,n_C,1,3,1,n_C,
+     &    'coordinate array',81,5)
+      if (debug_gen) write (LuOut,*) 'Number of ECP centers =',n_C
+      do i = 1,n_C
+        n = n_tot_C(i)
+        l = l_C(i)
+        i_c_C = i_cent_C(i)
+        if (debug_gen) write (LuOut,*) 'ECP center',i
+        if (debug_gen) write (LuOut,*) '   Maximum angular momentum',l
+*
+*     Set up relative cartesian coordinates
+*
+        X_AC = xyz_C(1,i)-xyz_A(1)
+        Y_AC = xyz_C(2,i)-xyz_A(2)
+        Z_AC = xyz_C(3,i)-xyz_A(3)
+        R_AC = sqrt(X_AC**2+Y_AC**2+Z_AC**2)
+        X_BC = xyz_C(1,i)-xyz_B(1)
+        Y_BC = xyz_C(2,i)-xyz_B(2)
+        Z_BC = xyz_C(3,i)-xyz_B(3)
+        R_BC = sqrt(X_BC**2+Y_BC**2+Z_BC**2)
+        if (debug_arrays) then
+          write (LuOut,'(3x,A,3F10.6)') 'Relative coords of center A:',
+     &        X_AC,Y_AC,Z_AC
+          write (LuOut,'(3x,A,3F10.6)') 'Relative coords of center B:',
+     &        X_BC,Y_BC,Z_BC
+          write (LuOut,'(3x,A,3F10.6)') 'Distance to center A and B:',
+     &        R_AC,R_BC
+        end if
+*
+*     Pointers for local part
+*
+        i_zeta = ind_C(-1,i)
+        n_prim0 = n_prim_C(2,-1,i)
+        n_prim1 = n_prim_C(1,-1,i)
+        i_zeta1 = i_zeta+n_prim_C(0,-1,i)
+        i_zeta0 = i_zeta1+n_prim1
+*
+        if (debug_arrays) then
+          write (LuOut,*) 'Parameters of ECP'
+          write (LuOut,*) '   n_tot_C',n_tot_C(i)
+          call ecp_matpi (n_prim_C,0,2,-1,l_ecp_max,0,2,0,l_C,
+     &        'n_prim_C',81,15)
+          call ecp_matpi (ind_C,-1,l_ecp_max,1,1,0,l_C,1,1,
+     &        'ind_C',81,15)
+          call ecp_matpi (n_coef_C,-1,l_ecp_max,1,1,0,l_C,1,1,
+     &        'n_coef_C',81,15)
+          call ecp_matpr (zeta_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
+     &        'zeta_C','E',81,5)
+          call ecp_matpr (coef_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
+     &        'coef_C','E',81,5)
+        end if
+*
+*       Contributions from second derivative wrt centre B
+*       =================================================
+*
+        if (i_c_C .ne. i_c_B) then
+*
+*         Calculate integrals for l_B+2 with coeffs * zeta**2
+*
+          call ecp_local (mem,DryRun,
+     &        xyz_A,zeta_A,coef_A,
+     &        n_prim_A,n_cont_A,n_cart_A,l_A,
+     &        xyz_B,zeta_B,scr(i_xxcb),
+     &        n_prim_B,n_cont_B,n_cartp2_B,l_B+2,
+     &        xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
+     &        zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
+     &        scr(i_lp),scr(i_scr),l_scr,
+     &        ibug)
+          if (DryRun) max_loc = max(mem,max_loc)
+          if (i_c_C .eq. i_c_A) then
+            call ecp_int1 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B+2,n_prim_B,n_cont_B,
+     &          scr(i_xxcb),zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
+     &          coef_A,zeta_A,
+     &          l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &          n_zeta_C,coef_C,zeta_C,0,2,
+     &          tol,0,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lp),n_intpbb,.false.,ibug/10)
+            if (DryRun) max_type1 = max(mem,max_type1)
+          else
+            call ecp_int2 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B+2,n_prim_B,n_cont_B,
+     &          scr(i_xxcb),zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
+     &          coef_A,zeta_A,
+     &          l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &          n_zeta_C,coef_C,zeta_C,0,2,
+     &          tol,sphcart,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lp),n_intpbb,ibug/10)
+            if (DryRun) max_type2 = max(mem,max_type2)
+          end if
+*
+*         Calculate integrals for l_B with coeffs * zeta
+*
+          call ecp_local (mem,DryRun,
+     &        xyz_A,zeta_A,coef_A,
+     &        n_prim_A,n_cont_A,n_cart_A,l_A,
+     &        xyz_B,zeta_B,scr(i_xcb),
+     &        n_prim_B,n_cont_B,n_cart_B,l_B,
+     &        xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
+     &        zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
+     &        scr(i_lm),scr(i_scr),l_scr,
+     &        ibug)
+          if (DryRun) max_loc = max(mem,max_loc)
+          if (i_c_C .eq. i_c_A) then
+            call ecp_int1 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
+     &          scr(i_xcb),zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
+     &          coef_A,zeta_A,
+     &          l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &          n_zeta_C,coef_C,zeta_C,0,2,
+     &          tol,0,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lm),n_ab,.false.,ibug/10)
+            if (DryRun) max_type1 = max(mem,max_type1)
+          else
+            call ecp_int2 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
+     &          scr(i_xcb),zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
+     &          coef_A,zeta_A,
+     &          l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &          n_zeta_C,coef_C,zeta_C,0,2,
+     &          tol,sphcart,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lm),n_ab,ibug/10)
+            if (DryRun) max_type2 = max(mem,max_type2)
+          end if
+*
+*         Construct gradient for l_b+1 with coeffs * zeta.
+*
+          if (.not.DryRun) then
+            call dcopy (n_intpb*3,zero,0,scr(i_grdp),1)
+            call ecp_grad_b (l_B+1,n_cartp2_b,n_cartp1_b,n_cart_b,
+     &          n_cont_B,scr(i_lp),scr(i_lm),scr(i_grdp),n_all_a)
+          end if
+*
+*         Calculate integrals for l_B-2
+*
+          if (l_B .gt. 1) then
+            call ecp_local (mem,DryRun,
+     &          xyz_A,zeta_A,coef_A,
+     &          n_prim_A,n_cont_A,n_cart_A,l_A,
+     &          xyz_B,zeta_B,coef_B,
+     &          n_prim_B,n_cont_B,n_cartm2_B,l_B-2,
+     &          xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
+     &          zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
+     &          scr(i_lp),scr(i_scr),l_scr,
+     &          ibug)
+            if (DryRun) max_loc = max(mem,max_loc)
+            if (i_c_C .eq. i_c_A) then
+              call ecp_int1 (mem,DryRun,
+     &            R_BC,X_BC,Y_BC,Z_BC,l_B-2,n_prim_B,n_cont_B,
+     &            coef_B,zeta_B,
+     &            R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
+     &            coef_A,zeta_A,
+     &            l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &            n_zeta_C,coef_C,zeta_C,0,2,
+     &            tol,0,scr(i_scr),l_scr,
+     &            csco,lcsco,
+     &            scr(i_lp),n_intmbb,.false.,ibug/10)
+              if (DryRun) max_type1 = max(mem,max_type1)
+            else
+              call ecp_int2 (mem,DryRun,
+     &            R_BC,X_BC,Y_BC,Z_BC,l_B-2,n_prim_B,n_cont_B,
+     &            coef_B,zeta_B,
+     &            R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
+     &            coef_A,zeta_A,
+     &            l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &            n_zeta_C,coef_C,zeta_C,0,2,
+     &            tol,sphcart,scr(i_scr),l_scr,
+     &            csco,lcsco,
+     &            scr(i_lp),n_intmbb,ibug/10)
+              if (DryRun) max_type2 = max(mem,max_type2)
+            end if
+          end if
+*
+*         Construct gradient for l_B-1
+*
+          if (.not.DryRun) then
+            if (l_B .gt. 0) then
+              call dcopy (n_intmb*3,zero,0,scr(i_grdm),1)
+              call ecp_grad_b (l_B-1,n_cart_b,n_cartm1_b,n_cartm2_b,
+     &            n_cont_B,scr(i_lm),scr(i_lp),scr(i_grdm),n_all_a)
+            end if
+*
+*         Construct Hessian and add to final array
+*
+            call dcopy (n_ab9,zero,0,scr(i_scr),1)
+            call ecp_grad_b (l_B,n_cartp1_b,n_cart_b,n_cartm1_b,
+     &          n_cont_B,scr(i_grdp),scr(i_grdm),scr(i_scr),n_all_a*3)
+            i_s = i_scr
+            do j = 1,3
+              do k = 1,3
+                call daxpy (n_ab,one,scr(i_s),1,
+     &              ecp_hess(1,k,i_c_B,j,i_c_B),1)
+                call daxpy (n_ab,one,scr(i_s),1,
+     &              ecp_hess(1,k,i_c_C,j,i_c_C),1)
+                call daxpy (n_ab,-one,scr(i_s),1,
+     &              ecp_hess(1,k,i_c_B,j,i_c_C),1)
+                call daxpy (n_ab,-one,scr(i_s),1,
+     &              ecp_hess(1,k,i_c_C,j,i_c_B),1)
+                i_s = i_s+n_ab
+              end do
+            end do
+          end if
+        end if
+*
+*       Contributions from second derivative wrt centre A
+*       =================================================
+*
+        if (i_c_C .ne. i_c_A) then
+*
+*         Calculate integrals for l_A+2 with coeffs * zeta**2
+*
+          call ecp_local (mem,DryRun,
+     &        xyz_A,zeta_A,scr(i_xxca),
+     &        n_prim_A,n_cont_A,n_cartp2_A,l_A+2,
+     &        xyz_B,zeta_B,coef_B,
+     &        n_prim_B,n_cont_B,n_cart_B,l_B,
+     &        xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
+     &        zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
+     &        scr(i_lp),scr(i_scr),l_scr,
+     &        ibug)
+          if (DryRun) max_loc = max(mem,max_loc)
+          if (i_c_C .eq. i_c_B) then
+            call ecp_int1 (mem,DryRun,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A+2,n_prim_A,n_cont_A,
+     &          scr(i_xxca),zeta_A,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
+     &          coef_B,zeta_B,
+     &          l_ecp_max,n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &          n_zeta_C,coef_C,zeta_C,0,2,
+     &          tol,0,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lp),n_intpaa,.true.,ibug/10)
+            if (DryRun) max_type1 = max(mem,max_type1)
+          else
+            call ecp_int2 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
+     &          coef_B,zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A+2,n_prim_A,n_cont_A,
+     &          scr(i_xxca),zeta_A,
+     &          l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &          n_zeta_C,coef_C,zeta_C,0,2,
+     &          tol,sphcart,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lp),n_intpaa,ibug/10)
+            if (DryRun) max_type2 = max(mem,max_type2)
+          end if
+*
+*         Calculate integrals for l_A with coeffs * zeta
+*
+          call ecp_local (mem,DryRun,
+     &        xyz_A,zeta_A,scr(i_xca),
+     &        n_prim_A,n_cont_A,n_cart_A,l_A,
+     &        xyz_B,zeta_B,coef_B,
+     &        n_prim_B,n_cont_B,n_cart_B,l_B,
+     &        xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
+     &        zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
+     &        scr(i_lm),scr(i_scr),l_scr,
+     &        ibug)
+          if (DryRun) max_loc = max(mem,max_loc)
+          if (i_c_C .eq. i_c_B) then
+            call ecp_int1 (mem,DryRun,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
+     &          scr(i_xca),zeta_A,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
+     &          coef_B,zeta_B,
+     &          l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &          n_zeta_C,coef_C,zeta_C,0,2,
+     &          tol,0,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lm),n_ab,.true.,ibug/10)
+            if (DryRun) max_type1 = max(mem,max_type1)
+          else
+            call ecp_int2 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
+     &          coef_B,zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,
+     &          scr(i_xca),zeta_A,
+     &          l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &          n_zeta_C,coef_C,zeta_C,0,2,
+     &          tol,sphcart,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lm),n_ab,ibug/10)
+            if (DryRun) max_type2 = max(mem,max_type2)
+          end if
+*
+*         Construct gradient for l_A+1 with coeffs * zeta.
+*
+          if (.not.DryRun) then
+            call dcopy (n_intpa*3,zero,0,scr(i_grdp),1)
+            call ecp_grad_a (l_A+1,n_cartp2_a,n_cartp1_a,n_cart_a,
+     &          n_cont_A,scr(i_lp),scr(i_lm),scr(i_grdp),n_all_b)
+          end if
+*
+*         Calculate integrals for l_A-2
+*
+          if (l_A .gt. 1) then
+            call ecp_local (mem,DryRun,
+     &          xyz_A,zeta_A,coef_A,
+     &          n_prim_A,n_cont_A,n_cartm2_A,l_A-2,
+     &          xyz_B,zeta_B,coef_B,
+     &          n_prim_B,n_cont_B,n_cart_B,l_B,
+     &          xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
+     &          zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
+     &          scr(i_lp),scr(i_scr),l_scr,
+     &          ibug)
+            if (DryRun) max_loc = max(mem,max_loc)
+            if (i_c_C .eq. i_c_B) then
+              call ecp_int1 (mem,DryRun,
+     &            R_AC,X_AC,Y_AC,Z_AC,l_A-2,n_prim_A,n_cont_A,
+     &            coef_A,zeta_A,
+     &            R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
+     &            coef_B,zeta_B,
+     &            l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &            n_zeta_C,coef_C,zeta_C,0,2,
+     &            tol,0,scr(i_scr),l_scr,
+     &            csco,lcsco,
+     &            scr(i_lp),n_intmaa,.true.,ibug/10)
+              if (DryRun) max_type1 = max(mem,max_type1)
+            else
+              call ecp_int2 (mem,DryRun,
+     &            R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,
+     &            coef_B,zeta_B,
+     &            R_AC,X_AC,Y_AC,Z_AC,l_A-2,n_prim_A,n_cont_A,
+     &            coef_A,zeta_A,
+     &            l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &            n_zeta_C,coef_C,zeta_C,0,2,
+     &            tol,sphcart,scr(i_scr),l_scr,
+     &            csco,lcsco,
+     &            scr(i_lp),n_intmaa,ibug/10)
+              if (DryRun) max_type2 = max(mem,max_type2)
+            end if
+          end if
+*
+*         Construct gradient for l_A-1
+*
+          if (.not.DryRun) then
+            if (l_A .gt. 0) then
+              call dcopy (n_intma*3,zero,0,scr(i_grdm),1)
+              call ecp_grad_a (l_A-1,n_cart_a,n_cartm1_a,n_cartm2_a,
+     &            n_cont_A,scr(i_lm),scr(i_lp),scr(i_grdm),n_all_b)
+            end if
+*
+*         Construct Hessian and add to final array
+*
+            call dcopy (n_ab9,zero,0,scr(i_scr),1)
+            call ecp_grad_a (l_A,n_cartp1_a,n_cart_a,n_cartm1_a,
+     &          n_cont_A*3,scr(i_grdp),scr(i_grdm),scr(i_scr),n_all_b)
+            i_s = i_scr
+            do j = 1,3
+              do k = 1,3
+                call daxpy (n_ab,one,scr(i_s),1,
+     &              ecp_hess(1,k,i_c_B,j,i_c_B),1)
+                call daxpy (n_ab,one,scr(i_s),1,
+     &              ecp_hess(1,k,i_c_A,j,i_c_A),1)
+                call daxpy (n_ab,-one,scr(i_s),1,
+     &              ecp_hess(1,k,i_c_B,j,i_c_A),1)
+                call daxpy (n_ab,-one,scr(i_s),1,
+     &              ecp_hess(1,k,i_c_A,j,i_c_B),1)
+                i_s = i_s+n_ab
+              end do
+            end do
+          end if
+*
+        end if
+*
+*     Mixed gradient terms
+*     ====================
+*
+        if ((i_c_C .ne. i_c_A) .and. (i_c_C .ne. i_c_B)) then
+*
+*         Calculate integrals for l_A+1, l_B+1
+*
+          call ecp_local (mem,DryRun,
+     &        xyz_A,zeta_A,scr(i_xca),
+     &        n_prim_A,n_cont_A,n_cartp1_A,l_A+1,
+     &        xyz_B,zeta_B,scr(i_xcb),
+     &        n_prim_B,n_cont_B,n_cartp1_B,l_B+1,
+     &        xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
+     &        zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
+     &        scr(i_lp),scr(i_scr),l_scr,
+     &        ibug)
+          if (DryRun) max_loc = max(mem,max_loc)
+          call ecp_int2 (mem,DryRun,
+     &        R_BC,X_BC,Y_BC,Z_BC,l_B+1,n_prim_B,n_cont_B,
+     &        scr(i_xcb),zeta_B,
+     &        R_AC,X_AC,Y_AC,Z_AC,l_A+1,n_prim_A,n_cont_A,
+     &        scr(i_xca),zeta_A,
+     &        l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &        n_zeta_C,coef_C,zeta_C,0,2,
+     &        tol,sphcart,scr(i_scr),l_scr,
+     &        csco,lcsco,
+     &        scr(i_lp),n_intppab,ibug/10)
+          if (DryRun) max_type2 = max(mem,max_type2)
+*
+*         Calculate integrals for l_A-1, l_B+1
+*
+          if (l_A .gt. 0) then
+            call ecp_local (mem,DryRun,
+     &          xyz_A,zeta_A,coef_A,
+     &          n_prim_A,n_cont_A,n_cartm1_A,l_A-1,
+     &          xyz_B,zeta_B,scr(i_xcb),
+     &          n_prim_B,n_cont_B,n_cartp1_B,l_B+1,
+     &          xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
+     &          zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
+     &          scr(i_lm),scr(i_scr),l_scr,
+     &          ibug)
+            if (DryRun) max_loc = max(mem,max_loc)
+            call ecp_int2 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B+1,n_prim_B,n_cont_B,
+     &          scr(i_xcb),zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A-1,n_prim_A,n_cont_A,
+     &          coef_A,zeta_A,
+     &          l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &          n_zeta_C,coef_C,zeta_C,0,2,
+     &          tol,sphcart,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lm),n_intmpab,ibug/10)
+            if (DryRun) max_type2 = max(mem,max_type2)
+          end if
+*
+*         Construct gradient wrt A for l_A, l_B+1.
+*
+          if (.not.DryRun) then
+            call dcopy (n_intpb,zero,0,scr(i_grdp),1)
+            call ecp_grad_a (l_A,n_cartp1_A,n_cart_A,n_cartm1_A,
+     &          n_cont_A,scr(i_lp),scr(i_lm),scr(i_grdp),n_allp1_B)
+          end if
+*
+*         Calculate integrals for l_A+1, l_B-1
+*
+          if (l_B .gt. 0) then
+            call ecp_local (mem,DryRun,
+     &          xyz_A,zeta_A,scr(i_xca),
+     &          n_prim_A,n_cont_A,n_cartp1_A,l_A+1,
+     &          xyz_B,zeta_B,coef_B,
+     &          n_prim_B,n_cont_B,n_cartm1_B,l_B-1,
+     &          xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
+     &          zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
+     &          scr(i_lp),scr(i_scr),l_scr,
+     &          ibug)
+            if (DryRun) max_loc = max(mem,max_loc)
+            call ecp_int2 (mem,DryRun,
+     &          R_BC,X_BC,Y_BC,Z_BC,l_B-1,n_prim_B,n_cont_B,
+     &          coef_B,zeta_B,
+     &          R_AC,X_AC,Y_AC,Z_AC,l_A+1,n_prim_A,n_cont_A,
+     &          scr(i_xca),zeta_A,
+     &          l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &          n_zeta_C,coef_C,zeta_C,0,2,
+     &          tol,sphcart,scr(i_scr),l_scr,
+     &          csco,lcsco,
+     &          scr(i_lp),n_intpmab,ibug/10)
+            if (DryRun) max_type2 = max(mem,max_type2)
+*
+*         Calculate integrals for l_A-1, l_B-1
+*
+            if (l_A .gt. 0) then
+              call ecp_local (mem,DryRun,
+     &            xyz_A,zeta_A,coef_A,
+     &            n_prim_A,n_cont_A,n_cartm1_A,l_A-1,
+     &            xyz_B,zeta_B,coef_B,
+     &            n_prim_B,n_cont_B,n_cartm1_B,l_B-1,
+     &            xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
+     &            zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
+     &            scr(i_lm),scr(i_scr),l_scr,
+     &            ibug)
+              if (DryRun) max_loc = max(mem,max_loc)
+              call ecp_int2 (mem,DryRun,
+     &            R_BC,X_BC,Y_BC,Z_BC,l_B-1,n_prim_B,n_cont_B,
+     &            coef_B,zeta_B,
+     &            R_AC,X_AC,Y_AC,Z_AC,l_A-1,n_prim_A,n_cont_A,
+     &            coef_A,zeta_A,
+     &            l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &            n_zeta_C,coef_C,zeta_C,0,2,
+     &            tol,sphcart,scr(i_scr),l_scr,
+     &            csco,lcsco,
+     &            scr(i_lm),n_intmmab,ibug/10)
+              if (DryRun) max_type2 = max(mem,max_type2)
+            end if
+*
+*         Construct gradient wrt A for l_A, l_B-1.
+*
+            if (.not.DryRun) then
+              call dcopy (n_intmb,zero,0,scr(i_grdm),1)
+              call ecp_grad_a (l_A,n_cartp1_A,n_cart_A,n_cartm1_A,
+     &            n_cont_A,scr(i_lp),scr(i_lm),scr(i_grdm),n_allm1_B)
+            end if
+          end if
+*
+*         Construct gradient wrt B
+*
+          if (.not.DryRun) then
+            call dcopy (n_ab9,zero,0,scr(i_scr),1)
+            call ecp_grad_b (l_B,n_cartp1_b,n_cart_b,n_cartm1_b,
+     &          n_cont_B,scr(i_grdp),scr(i_grdm),scr(i_scr),n_all_a*3)
+            i_s = i_scr
+            do j = 1,3 ! centre B
+              do k = 1,3 ! centre A
+                call daxpy (n_ab,one,scr(i_s),1,
+     &              ecp_hess(1,k,i_c_A,j,i_c_B),1)
+                call daxpy (n_ab,one,scr(i_s),1,
+     &              ecp_hess(1,j,i_c_B,k,i_c_A),1)
+                call daxpy (n_ab,one,scr(i_s),1,
+     &              ecp_hess(1,k,i_c_C,j,i_c_C),1)
+                call daxpy (n_ab,one,scr(i_s),1,
+     &              ecp_hess(1,j,i_c_C,k,i_c_C),1)
+                call daxpy (n_ab,-one,scr(i_s),1,
+     &              ecp_hess(1,k,i_c_A,j,i_c_C),1)
+                call daxpy (n_ab,-one,scr(i_s),1,
+     &              ecp_hess(1,j,i_c_C,k,i_c_A),1)
+                call daxpy (n_ab,-one,scr(i_s),1,
+     &              ecp_hess(1,k,i_c_C,j,i_c_B),1)
+                call daxpy (n_ab,-one,scr(i_s),1,
+     &              ecp_hess(1,j,i_c_B,k,i_c_C),1)
+                i_s = i_s+n_ab
+              end do
+            end do
+          end if
+*
+        end if
+      end do
+      if (debug_arrays) then
+        write (LuOut,*) 'Final ECP hessian'
+        do i = 1,n_cent
+          do j = 1,n_cent
+            write (LuOut,*) ' Centres',i,j
+            do k = 1,3
+              printhead(6:9) = dbyd(k)
+              do m = 1,3
+                printhead(1:4) = dbyd(m)
+                call ecp_matpr (ecp_hess(1,m,j,k,i),
+     &              1,n_all_b,1,n_all_a,1,n_all_b,1,n_all_a,
+     &              printhead,'E',78,4)
+              end do
+            end do
+          end do
+        end do
+      end if
+      if (DryRun) lscr = i_scr-1
+     &    +max(max_loc,max_type1,max_type2,n_ab9)
+      if (debug_gen) write (LuOut,*) 'Exiting ecp_hessian'
+*
+      return
+      end
