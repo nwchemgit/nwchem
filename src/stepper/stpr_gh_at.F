@@ -1,6 +1,6 @@
       logical function stpr_gen_hess_at(rtdb,delta,flag)
       implicit none
-* $Id: stpr_gh_at.F,v 1.2 1996-02-16 00:47:35 d3e129 Exp $
+* $Id: stpr_gh_at.F,v 1.3 1996-02-17 00:55:04 d3e129 Exp $
 * routine to generate hessian at current geometry using default basis set
 * ra kendall 7/95 PNL
 *
@@ -41,6 +41,7 @@ c::local
       logical ignore_status
       logical restart
       logical xyz_pass
+      logical no_x, no_y, no_z
       integer vecin_len
       double precision xyz(3), chg
       character*255 tmpname
@@ -101,6 +102,7 @@ c.. set vector scope for computation (assumes central scf point has been compute
      &          ('stpr_gen_hess_at: not scf or dft mode ',flag)
         endif
       endif
+c.. all nodes working here
       ignore_status = rtdb_parallel(.true.)
       if (.not.rtdb_ma_get(rtdb,'gen_hess:active atoms',MT_INT,
      &       nat_active,h_active)) then
@@ -110,6 +112,16 @@ c.. set vector scope for computation (assumes central scf point has been compute
         if (.not.MA_get_index(h_active,i_active)) call errquit
      &         ('stpr_gen_hess_at: ma_get_index error',911)
       endif
+c set no xyz options
+      if (.not.rtdb_get(rtdb,'vib:no_x',mt_log,1,no_x))
+     &          no_x = .false.
+      if (.not.rtdb_get(rtdb,'vib:no_y',mt_log,1,no_y))
+     &          no_y = .false.
+      if (.not.rtdb_get(rtdb,'vib:no_z',mt_log,1,no_z))
+     &          no_z = .false.
+      if (no_x) write(luout,*)' stpr_gen_hess_at: no X steps taken '
+      if (no_y) write(luout,*)' stpr_gen_hess_at: no Y steps taken '
+      if (no_z) write(luout,*)' stpr_gen_hess_at: no Z steps taken '
 c all nodes work here 
       restart = .false.
       restart = stpr_check_genat_restart(iatom_start,ixyz_start)
@@ -177,6 +189,9 @@ c... all nodes doing work here
           xyz_pass = .true.
         endif
         do 00200 ixyz = ixyz_start,3
+          if (ixyz.eq.1 .and. no_x) goto 00199
+          if (ixyz.eq.2 .and. no_y) goto 00199
+          if (ixyz.eq.3 .and. no_z) goto 00199
           ignore_status = rtdb_parallel(.false.)
           if(whoiam.eq.master) then
             write(luout,*)' iatom = ',iatom, ' ixyz = ',ixyz,' plus '
@@ -305,10 +320,13 @@ c... remove Prefix context
 c...
             call stpr_fd_upd_hess(dbl_mb(k_hess),dbl_mb(k_gradm),
      &          dbl_mb(k_gradp),2.0d00,delta,nat,iatom,ixyz)
+          endif
+00199     continue
+          if (whoiam.eq.master) then
             call stpr_put_genat_restart(rank_hess,dbl_mb(k_hess),
      &          dbl_mb(k_gradm),iatom,ixyz,nat,.false.)
+            ignore_status = rtdb_parallel(.true.)
           endif
-          ignore_status = rtdb_parallel(.true.)
 00200   continue
 00201   continue
 00100 continue
