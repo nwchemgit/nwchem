@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.31 1999-07-06 18:32:44 d3g681 Exp $
+c     $Id: scf_vec_guess.F,v 1.32 1999-09-21 22:29:52 d3g681 Exp $
 c
       implicit none
 c
@@ -102,8 +102,8 @@ c
 c     check if smearing is on
 c
       if (.not. rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
-     &   ssmear))then
-      ssmear=0.d0
+     &   ssmear)) then
+         ssmear=0.d0
       endif
       if (inp_compare(.false., 'DFT', calling_module))then
          nmo = nbf
@@ -140,12 +140,22 @@ c
       endif
 c
 c     Need to force higher accuracy if linear dependence is
-c     detected.  Also turn off density screening.
+c     detected.  Also turn off density screening.  Have to do 
+c     this also in the datebase so that subsequent invocations
+c     of scf_get_fock_param() do the right thing no matter where
+c     they are called from (e.g., scf, mp2, cphf, ...).
 c
       if (nmo .ne. nbf) then
          tol2e = min(tol2e, 1d-10)
          dentolmax = 1d-9
          odensityscreen = .false.
+         if (.not. rtdb_put(rtdb,'scf:tol2e',mt_dbl,1,tol2e))
+     $        call errquit('scf_vec_guess: rtdb failed?',0)
+         if (.not. rtdb_put(rtdb,'fock:dentolmax',mt_dbl,1,dentolmax))
+     $        call errquit('scf_vec_guess: rtdb failed?',0)
+         if (.not. rtdb_put(rtdb,'fock:densityscreen',mt_log,1,
+     $        odensityscreen))
+     $        call errquit('scf_vec_guess: rtdb failed?',0)
       endif
 c
  3212 continue
