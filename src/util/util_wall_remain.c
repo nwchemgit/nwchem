@@ -1,5 +1,5 @@
 /*
- $Id: util_wall_remain.c,v 1.14 2004-01-28 01:24:47 edo Exp $
+ $Id: util_wall_remain.c,v 1.15 2004-02-06 23:00:22 edo Exp $
 */
 #include <stdio.h>
 #include "typesf2c.h"
@@ -16,16 +16,40 @@
 #if (defined(USE_LL) && defined(JOBTIMEPATH)) || defined(LSF) || defined (PBS)
 #define DONEIT 1  
 
+#ifdef LSF
+#include <stdlib.h>
+#  include <sndrcv.h>
+Integer FATR util_batch_job_time_remaining_(void)
+{
+  Integer wallspent, lsflimit;
+  char *uval;
+  uval = getenv("JOB_RLIMIT_RUN"); 
+  if(uval != NULL){
+    sscanf(uval,"%ld",&lsflimit);
+    wallspent = (Integer) TCGTIME_();
+#ifdef DEBUG
+    (void) fprintf(stderr,"ujtr: returning time= %d -- %d \n", lsflimit,wallspent);
+#endif
+    /* subtract  a minute spent in initialization biz */
+    return ((Integer) lsflimit - wallspent - 60);
+  } else {
+#ifdef DEBUG
+    (void) fprintf(stderr,"ujtr: returnig time= %d  \n", -1);
+#endif
+    return -1;
+  }
+  
+}
+#else
 #include <unistd.h>
 #include <sys/wait.h>
-
 Integer FATR util_batch_job_time_remaining_(void)
 {
   FILE *p;
   char cmd[1024];
   int t, status;
 
-#ifdef LSF
+#ifdef LSFOLD
   sprintf(cmd,"%s/jobtime_lsf",JOBTIMEPATH);
 #elif defined(PBS)
   sprintf(cmd,"%s/jobtime_pbs",JOBTIMEPATH);
@@ -34,17 +58,27 @@ Integer FATR util_batch_job_time_remaining_(void)
 #endif
 
   if (access(cmd,F_OK|X_OK)) {	/* If cannot access perl script */
-    /*(void) fprintf(stderr,"ujtr: cannot access %s\n",cmd);*/
+#ifdef DEBUG
+    (void) fprintf(stderr,"ujtr: cannot access %s\n",cmd);
+#endif
     return NOT_AVAILABLE;
   }
 
   if (!(p = popen(cmd,"r"))) {
-    /*(void) fprintf(stderr,"ujtr: popen %s failed\n",cmd);*/
+#ifdef DEBUG
+    (void) fprintf(stderr,"ujtr: popen %s failed\n",cmd);
+#endif
     return NOT_AVAILABLE;
   }
   
+#ifdef DEBUG
+    (void) fprintf(stderr,"ujtr: before read time from pipe\n");
+#endif
   if (fscanf(p,"%d",&t) != 1) {
-    /*(void) fprintf(stderr,"ujtr: failed to read time from pipe\n");*/
+#ifdef DEBUG
+    (void) fprintf(stderr,"ujtr: failed to read time from pipe\n");
+    (void) fprintf(stderr,"ujtr: returnig time= %d \n", t);
+#endif
     (void) fclose(p);
     (void) wait(&status);
     return NOT_AVAILABLE;
@@ -55,9 +89,12 @@ Integer FATR util_batch_job_time_remaining_(void)
 
   if (t < 0) t = 0;
 
+#ifdef DEBUG
+    (void) fprintf(stderr,"ujtr: returnig time= %d \n", t);
+#endif
   return t;
 }
-
+#endif
 #endif
 
 
