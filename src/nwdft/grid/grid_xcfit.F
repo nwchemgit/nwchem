@@ -6,7 +6,7 @@
      ,     acc_xc_gauss)
       implicit none
 c
-c$Id: grid_xcfit.F,v 1.6 2003-01-10 02:30:37 edo Exp $
+c$Id: grid_xcfit.F,v 1.7 2003-01-15 19:01:00 edo Exp $
 c
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -54,7 +54,7 @@ c
      &                mbf_xc,natoms,
      &                iniz,ifin,ibf,
      &                Expo,nbf_xc_mxprim,
-     .        docsetx,exp(acc_xc_gauss))
+     .        docsetx,acc_xc_gauss)
          if (mbf_xc.eq.0) return
       else
          iniz(1)=1
@@ -155,7 +155,7 @@ c
      &                      iniz, ifin, ibf, zprim, nzprim, 
      .     docset, acc_gauss)
 c
-C$Id: grid_xcfit.F,v 1.6 2003-01-10 02:30:37 edo Exp $
+C$Id: grid_xcfit.F,v 1.7 2003-01-15 19:01:00 edo Exp $
 c
       implicit none
 c      
@@ -232,7 +232,7 @@ c
           else
             nshbf=ncontr*(((l+1)*(l+2))/2)
           endif
-          r_arg=rq0(ictr)**2
+          r_arg=sqrt(rq0(ictr))
         if (r_arg.lt.gaussian_range(l,acc_loc,zmin)) then
 
           do m=1,nshbf
