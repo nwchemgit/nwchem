@@ -1,6 +1,6 @@
       logical function selci(rtdb)
 *
-* $Id: selci.F,v 1.10 1999-07-08 19:11:01 d3e129 Exp $
+* $Id: selci.F,v 1.11 2002-01-19 02:57:12 zzhang Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -44,6 +44,9 @@ c
       character*10 reference
       logical scf, mcscf, moints_full
       external scf, mcscf, moints_full
+      logical cckohn_ci
+      if (.not. rtdb_get(rtdb,'selci:cckohn_ci',mt_log,1,cckohn_ci))
+     $     cckohn_ci=.false.
 c
       call ga_sync()
 c
@@ -55,6 +58,8 @@ c
      $     reference = 'scf'
       if (reference .eq. 'scf') then
          selci = scf(rtdb)
+      else if (reference .eq. 'kohn') then
+         selci = .true. 
       else
          selci = mcscf(rtdb)
       endif
@@ -123,15 +128,16 @@ c
       if (.not. rtdb_cget(rtdb, 'selci:roname', 1, names(2)))
      $     call util_file_name('roname', .false.,.false., names(2))
       if (.not. rtdb_cget(rtdb, 'selci:hamdg', 1, hamdg))
-     $     call util_file_name('hamdg', .true.,.false., hamdg)
+     $     call util_file_name('hamdg', .false.,.false., hamdg)
 c
 c     This file is opened by all processes
 c
       if (.not. rtdb_cget(rtdb, 'selci:hamil', 1, ctmp)) then
-         call util_file_name('hamil', .true.,.true., hamil)
+         call util_file_name('hamil', .false.,.true., hamil)
       else
          call util_pname(ctmp, hamil)
       endif
+      write(*,*)"hamiltonian matrices changed to permanant"
 c
 c     Should we delete the existing ciconf file?  (not checking this now). 
 c     If it does not exisit then generate a default.
@@ -190,9 +196,10 @@ c
 c
 c     What files need deleting?
 c
-      call util_file_unlink(hamil)
+      if(.not.cckohn_ci)
+     &     call util_file_unlink(hamil)
       if (ga_nodeid() .eq. 0) then
-         call util_file_unlink(hamdg)
+         if(.not.cckohn_ci)call util_file_unlink(hamdg)
          call util_file_unlink(wmatrx)
       endif
 c

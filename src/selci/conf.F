@@ -1,6 +1,6 @@
       subroutine selci_conf(rtdb, q, lword)
 *
-* $Id: conf.F,v 1.10 1997-10-31 23:41:57 d3e129 Exp $
+* $Id: conf.F,v 1.11 2002-01-19 02:57:12 zzhang Exp $
 *
 #include "implicit.fh"
 #include "cconf.fh"
@@ -87,6 +87,11 @@ c
 c
       character*10 intfmt
 c
+      logical cckohn_ci
+c
+      if (.not. rtdb_get(rtdb,'selci:cckohn_ci',mt_log,1,cckohn_ci))
+     $   cckohn_ci=.false.
+c
 c     read in title, nelec, multi, symmetry, norbs, nbpsy, conf, refgen
 c
       write(6,1)
@@ -142,6 +147,11 @@ c
       if (.not. rtdb_get(rtdb,'scf:nopen', mt_int, 1, nopen))
      $     nopen = 0
       multi = nopen + 1
+      if(cckohn_ci)then
+         write(*,*)"one more electron are added to the scf case"
+         multi=multi+1
+         nelec=nelec+1
+      endif
 c
 c     symmetry ... make nbpsy, isym, norbs, nelpi, nintpo
 c

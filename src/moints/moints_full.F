@@ -1,5 +1,5 @@
       logical function moints_full(rtdb)
-C     $Id: moints_full.F,v 1.26 2000-02-04 20:04:27 mg201 Exp $
+C     $Id: moints_full.F,v 1.27 2002-01-19 02:58:41 zzhang Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -87,10 +87,14 @@ c
       logical int_normalize
       external int_normalize
 c     
+      logical cckohn_ci
+c
       data g_coul/-1/
       data ohalf/.true./
       data tol2e/1.d-12/
 c
+      if (.not. rtdb_get(rtdb,'selci:cckohn_ci',mt_log,1,cckohn_ci))
+     $     cckohn_ci=.false.
       moints_full = .true.
 c     
 c     Print settings
@@ -107,11 +111,18 @@ c
      $     call errquit('moints: geom failed',0)
       if (.not. geom_rtdb_load(rtdb,geom,'geometry'))
      $     call errquit('moints: geometry not found',0)
-      if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('moints: basis failed',0)
-      if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
-     $     call errquit('moints: ao basis not found',0)
-c     
+      if(cckohn_ci)then
+         if (.not. bas_create(basis, 'all'))
+     $        call errquit('moints: basis all failed',0)
+         if (.not. bas_rtdb_load(rtdb, geom, basis, 'all'))
+     $        call errquit('moints: basis all not found',0)   
+      else
+         if (.not. bas_create(basis, 'ao basis'))
+     $        call errquit('moints: basis failed',0)
+         if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
+     $        call errquit('moints: ao basis not found',0)
+      endif
+c
       if (.not. bas_numbf(basis, nbf)) 
      $     call errquit('moints: failed to get nbf', 0)
       if (.not. bas_numcont(basis,nsh))
@@ -124,12 +135,21 @@ c
          if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_in))
      $        call util_file_name('movecs',.false.,.false.,movecs_in)
       end if
+c
+      if(cckohn_ci)then
+         if (.not.rtdb_cget(rtdb,'cckohn:movecs',1,movecs_in))
+     $        then
+            call util_file_name
+     &           ('kohn_movecs',.false.,.false.,movecs_in)
+         end if
+      endif
+c     
       if (.not. movecs_read_header(movecs_in, title_vecs,
      $     basis_vecs, scftype_vecs, nbf_vecs, nsets, nmo, 2))
      $     call errquit('moints: cannot read MO vectors header',0)
       if (nbf.ne.nbf_vecs) call errquit
      $     ('moints: number of basis fun does not match input',0)
-*      if (nsets .ne. 1) call errquit('moints: cannot do UHF?',0)
+*     if (nsets .ne. 1) call errquit('moints: cannot do UHF?',0)
 c     
       if (.not. ma_push_get(MT_DBL, nbf, 'Evals', l_work, k_work))
      $     call errquit('moints: failed to alloc work ',nbf)
