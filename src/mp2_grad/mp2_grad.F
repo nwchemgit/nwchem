@@ -13,6 +13,7 @@
       integer geom, basis
       character*255 title
       character*255 movecs_out
+      character*255 movecs_in
       logical status,converged
       status=rtdb_parallel(.true.)
       if(.not.context_push('mp2_grad'))
@@ -57,11 +58,11 @@
             call util_flush(6)
          endif
       endif
-      call util_file_prefix('movecs', movecs_out)
+      call util_file_prefix('movecs', movecs_in)
       call int_init(rtdb,1,basis)
       call int_normalize(basis)
       call schwarz_init(geom,basis)
-      call mp2_energy(rtdb,geom,basis,movecs_out)
+      call mp2_energy(rtdb,geom,basis,movecs_in)
       call schwarz_tidy()
       if(.not.((bas_destroy(basis)).and.(geom_destroy(geom))))
      &    call errquit

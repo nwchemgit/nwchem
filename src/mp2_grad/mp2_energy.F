@@ -26,7 +26,6 @@ c
       integer nmixed
       integer rtdb,basis,geom
       integer g_vecs_a,g_vecs_b,nalpha,nbeta
-      integer g_epair_aa,g_epair_bb
       integer nocc
       character*4 scftype
       integer i,nbf_vecs,nsets,nmo,nbf
@@ -36,7 +35,7 @@ c
       integer noa_correl,nob_correl
       integer nmo2_a,nmo2_b
       integer k_irs_a,k_irs_b,l_irs_a,l_irs_b
-      integer k_occ_a,k_occ_b
+      integer k_occ_a,k_occ_b,l_occ_a,l_occ_b
       integer noa,nob,nva,nvb
       integer noper_a,noper_b
       double precision tol2e,e2
@@ -44,7 +43,8 @@ c
       external ga_create_atom_blocked
       logical movecs_read,movecs_read_header
       external movecs_read,movecs_read_header
-      character*(*) movecs
+c      character*(*) movecs
+      character*255 movecs
       character*255 title_vecs,basis_vecs
       integer maxireps, maxops
       parameter (maxireps=20,maxops=120)
@@ -77,14 +77,19 @@ c
       endif
 c
       if(.not.ga_create(mt_dbl,nbf,nbf,'alpha_vecs',nbf,1,
-     $     g_vecs_a)) call errquit(
-     $     'mp2_make_t: ga_create failed',0)
+     $     g_vecs_a)) call errquit('mp2_energy: ga_create failed',0)
       if(scftype.eq.'UHF')then
          if(.not.ga_create(mt_dbl,nbf,nbf,'beta_vecs',nbf,1,g_vecs_b))
-     $        call errquit('mp2_make_t: ga_create failed',0)
+     $        call errquit('mp2_energy: ga_create failed',0)
       endif
-      if(.not.movecs_read_header(movecs, title_vecs, basis_vecs,
-     $     nbf_vecs, nsets, nmo, 2))
+      if(.not.ma_push_get(mt_dbl,nbf,'occ alpha',
+     $     l_occ_a,k_occ_a))
+     $     call errquit('mp2_energy ma problem with alpha occ',1)
+      if(.not.ma_push_get(mt_dbl,nbf,'occ beta',
+     $     l_occ_b,k_occ_b))
+     $     call errquit('mp2_energy ma problem with beta occ',1)
+      if(.not.movecs_read_header(movecs,title_vecs,basis_vecs,
+     $     nbf_vecs,nsets,nmo,2))
      $     call errquit('problem with movecs_read_header',1)
       if(.not.ma_push_get(mt_dbl,nbf,'alpha evals',
      $     l_eval_a,k_eval_a))
@@ -204,19 +209,13 @@ c
       endif
       if(ga_nodeid().eq.0)write(6,*) 'MP2 Correction = ', e2
 c
-      if(.not.ma_chop_stack(l_eval_a))call errquit(
+      if(.not.ma_chop_stack(l_occ_a))call errquit(
      $     'could not chop stack in mp2_energy',1)
       if(.not.ga_destroy(g_vecs_a))call errquit(
      $     'could not destroy g_vecs_a',1)
       if(scftype.eq.'UHF')then
          if(.not.ga_destroy(g_vecs_b))
      $        call errquit('could not destroy g_vecs_b',1)
-      if(.not.ga_destroy(g_epair_aa))call errquit(
-     $     'could not destroy g_epair_aa',1)
-      if(scftype.eq.'UHF')then
-         if(.not.ga_destroy(g_epair_bb))call errquit(
-     $        'could not destroy g_epair_bb',1)
-      endif
       endif
       end
 
