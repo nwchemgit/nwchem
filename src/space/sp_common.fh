@@ -1,5 +1,5 @@
 c
-c $Id: sp_common.fh,v 1.46 2004-02-24 06:24:56 d3j191 Exp $
+c $Id: sp_common.fh,v 1.47 2004-03-26 23:40:24 d3j191 Exp $
 c
 c     conversion factors
 c
@@ -61,17 +61,16 @@ c
       parameter(lqsoft=64)
       parameter(lqhigh=128)
 c
-      integer madbox
-      parameter(madbox=6)
-c
       integer me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,nsf,
      + npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,msm,
      + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc,mbblp,nserie,
-     + nbxin,nbyin,nbzin,nred(3),nable,icntrl,mseq,nseq,ndums,icbbl
+     + nbxin,nbyin,nbzin,nred(3),nable,icntrl,mseq,nseq,ndums,icbbl,
+     + nbget,ibget,madbox
       common/sd_dim/me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,
      + nsf,npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,
      + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc,mbblp,nserie,msm,
-     + nbxin,nbyin,nbzin,nred,nable,icntrl,mseq,nseq,ndums,icbbl
+     + nbxin,nbyin,nbzin,nred,nable,icntrl,mseq,nseq,ndums,icbbl,nbget,
+     + ibget,madbox
 c
       integer i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr
       integer i_ipl,l_ipl,i_jpl,l_jpl,i_xscr,l_xscr
@@ -97,14 +96,14 @@ c
       integer ireset
       integer misl(mis2),nbits(mis2),ipack(mis2)
       integer miwl(miw2),nbitw(miw2),ipackw(miw2)
-      integer lfnsyn,nfsync,lfndbg,nhist,mbbreq
+      integer lfnsyn,nfsync,lfndbg,nhist,mbbreq,nrempr
       logical lpbc0,lpbc9,ltwin,lpola,lfree,llong,lnode0,lqmd,lpipo
       common/sd_var/rshort,rlong,rbox,box,boxh,bsize,vlat,vlati,
      + bxmin,bymin,bzmin,tsyncp,factld,third,tmp,prs,rsgm,rbbl,tslow,
      + npbtyp,nbxtyp,neighb,loadb,lbpair,npprev,ntwin,nldup,nbbdif,
      + lfnsyn,nfsync,ipairf,ipairt,iguide,idebug,npack,npackw,lfndbg,
-     + misl,nbits,ipack,miwl,nbitw,ipackw,nhist,mbbreq,isload,ireset,
-     + lpbc0,lpbc9,ltwin,lpola,lfree,llong,lnode0,lqmd,lpipo
+     + misl,nbits,ipack,miwl,nbitw,ipackw,nhist,mbbreq,nrempr,isload,
+     + ireset,lpbc0,lpbc9,ltwin,lpola,lfree,llong,lnode0,lqmd,lpipo
 c
       integer mxhist
       parameter(mxhist=100)

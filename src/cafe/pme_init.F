@@ -1,10 +1,10 @@
       subroutine pme_start(a,m,imffti,nodpmi,
-     + ngxi,ngyi,ngzi,nwm,nwa,nsa,ictrl)
-c $Id: pme_init.F,v 1.22 2003-10-19 03:30:56 d3j191 Exp $
+     + ngxi,ngyi,ngzi,nwm,nwa,nsa,ictrl,nbgeti)
+c $Id: pme_init.F,v 1.23 2004-03-26 23:40:28 d3j191 Exp $
       implicit none
 c
       integer nodpmi,ngxi,ngyi,ngzi,imffti,nwm,nwa,nsa,m
-      integer ictrl
+      integer ictrl,nbgeti
       real*8 a
 c
       integer mem
@@ -22,6 +22,7 @@ c
       morder=m
       nodpme=nodpmi
       icntrl=ictrl
+      nbget=nbgeti
 c
       imfft=imffti
       lcorr(1)=.false.
@@ -64,6 +65,17 @@ c
      + call md_abort('Failed to allocate grid2',0)
       if(.not.ma_push_get(mt_dbl,mgrx*mgry*mgz,'grid',l_grd,i_grd))
      + call md_abort('Failed to allocate grid',0)
+      if(nbget.gt.0) then
+      if(.not.ma_push_get(mt_dbl,mgrx*mgry*mgz,'gridt',l_grdt,i_grdt))
+     + call md_abort('Failed to allocate gridt',0)
+      if(.not.ma_push_get(mt_int,mgz,'gridh',l_grdh,i_grdh))
+     + call md_abort('Failed to allocate gridh',0)
+      else
+      if(.not.ma_push_get(mt_dbl,1,'gridt',l_grdt,i_grdt))
+     + call md_abort('Failed to allocate gridt',0)
+      if(.not.ma_push_get(mt_int,1,'gridh',l_grdh,i_grdh))
+     + call md_abort('Failed to allocate gridh',0)
+      endif
 c
 c     allocate memory for node arrays
 c
@@ -155,6 +167,10 @@ c
      + call md_abort('Failed to deallocate kfrom',0)
       if(.not.ma_pop_stack(l_lnod))
      + call md_abort('Failed to deallocate lnode',0)
+      if(.not.ma_pop_stack(l_grdh))
+     + call md_abort('Failed to deallocate gridh',0)
+      if(.not.ma_pop_stack(l_grdt))
+     + call md_abort('Failed to deallocate gridt',0)
       if(.not.ma_pop_stack(l_grd))
      + call md_abort('Failed to deallocate grid',0)
       if(.not.ma_pop_stack(l_grd2))

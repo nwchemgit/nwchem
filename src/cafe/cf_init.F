@@ -6,8 +6,8 @@
      + sclq,fpmf,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,thopi,ndumsi,
-     + ipbtpi,lfnhopi,iradgi)
-c $Id: cf_init.F,v 1.103 2004-02-04 20:09:17 d3j191 Exp $
+     + ipbtpi,lfnhopi,iradgi,nbgeti)
+c $Id: cf_init.F,v 1.104 2004-03-26 23:40:28 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -21,7 +21,7 @@ c
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf,nipmf,npgi
       real*8 spmet,step,tols,bx(3),fldi,fvec(3),ffrq,sclq,rhopi,thopi
       integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal,ictrl,incl
-      integer nfhopi,ipbtpi,iradgi
+      integer nfhopi,ipbtpi,iradgi,nbgeti
       real*8 rcs,rcl,rqm,compr,delta,fpmf
       integer iitmps,iiprss,iislow,iipopt,nseqi,i_lseqi
       integer nodpme,ntyp,idset,ipset1,ipset2,ndumsi
@@ -57,6 +57,7 @@ c
       prsrlx=rpres
       scaleq=sclq
       facpmf=fpmf
+      nbget=nbgeti
 c
       ntype=ntyp
       mdalgo=mdalg
@@ -350,7 +351,7 @@ c
       if(morder.gt.25) call md_abort('morder too large',0)
       call cf_alpha
       call pme_start(alpha,morder,1,nodpme,
-     + ngx,ngy,ngz,mwm,mwa,msa,icntrl)
+     + ngx,ngy,ngz,mwm,mwa,msa,icntrl,nbget)
       endif
 c
       call cf_pardif(dbl_mb(i_mas),dbl_mb(i_vdw),dbl_mb(i_chg),

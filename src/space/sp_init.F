@@ -6,10 +6,10 @@
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd,iguidi,
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl,nseqi,
-     + i_lseqi,ndumsi)
+     + i_lseqi,ndumsi,nbgeti,madbxi)
 c
 c
-c $Id: sp_init.F,v 1.131 2004-02-27 20:24:40 d3j191 Exp $
+c $Id: sp_init.F,v 1.132 2004-03-26 23:40:24 d3j191 Exp $
 c
       implicit none
 c
@@ -29,6 +29,7 @@ c
       integer npxi,npyi,npzi,nbxi,nbyi,nbzi,isld,irset,nseqi,i_lseqi
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer lenscr,ldb,lbp,npbt,nbxt,iguidi,mbbi,nseri,ictrl,ndumsi
+      integer nbgeti,madbxi
       logical lpol,lfre,ignore,lpbc,lqd
       character*80 prjct
 c
@@ -51,6 +52,9 @@ c
       nfsync=nsyn
       isload=isld
       ireset=irset
+      nbget=nbgeti
+      ibget=nbget
+      madbox=madbxi
 c
       rshort=rsht
       rlong=max(rsht,rlng)
@@ -110,6 +114,8 @@ c
 c
       if(sp_diffbb(dbl_mb(i_boxs),int_mb(i_rng)))
      + call sp_listbb(int_mb(i_iown),dbl_mb(i_boxs),int_mb(i_bb))
+c
+      call sp_alloc2()
 c
       if(ireset.eq.0) then
       ignore=sp_rdrest(lfnrst,filrst,dbl_mb(i_boxs))
@@ -421,6 +427,8 @@ c
       msa=min(msa,2*nsa+1)
       mwm=min(mwm,2*nwm+1)
 c
+c      if(nbget.ne.0) hiero
+c
       if(lnode0) then
       msa=nsa+1
       mwm=nwm+1
@@ -467,6 +475,26 @@ c
 c
       if(.not.ga_create(mt_int,np*mbox,mip2,'ip',mbox,mip2,ga_ip))
      + call md_abort('Failed to create global array ip',0)
+c
+      return
+      end
+      subroutine sp_alloc2
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      integer isize
+c
+      if(nbget.ne.0) then
+      msa=max(1,msa,nrempr*(mbox-30)*((nwm*nwa+nsa)/nbtot+1)+1)
+      mwm=max(1,mwm,msa/mwa+1)
+      msa=min(msa,2*nsa+1)
+      mwm=min(mwm,2*nwm+1)
+      endif
+c
       if(.not.ga_create(mt_int,np*mwm,miw2,'iw',mwm,miw2,ga_iw))
      + call md_abort('Failed to create global array iw',0)
       isize=6+12*mwa
@@ -1820,6 +1848,14 @@ c
     7 continue
       if(lbbl(nbbl,1).eq.me) nbbloc=nbbl
 c
+      nrempr=0
+      if(nbget.ne.0) then
+      do 9 i=2,nbbl
+      if(lbbl(i,1).ne.me.and.lbbl(i,1).ne.lbbl(i-1,1)) nrempr=nrempr+1
+ 9    continue
+      endif
+      nrempr=min(2*nrempr,np)
+c
       if(iand(idebug,2).eq.2) then
       write(lfndbg,8000) (i,(lbbl(i,j),j=1,3),i=1,nbbl)
  8000 format('lbbl',/,(4i5))
@@ -1828,7 +1864,6 @@ c
 c
       return
       end
-
       subroutine sp_finish()
 c
       implicit none
@@ -2379,6 +2414,9 @@ c
  1000 format(/,' Initial distribution p:b(w+s)',/)
       write(lfnout,1001) (i-1,(lcnt(i,j),j=1,3),i=1,np)
  1001 format(4(3x,i4,':',i5,'(',i7,'+',i7,')'))
+      write(lfnout,1002) mwm,msa
+ 1002 format(/,' Dimension workarrays solvent ',i6,/,
+     + 22x,'solute  ',i6)
       endif
 c
       return

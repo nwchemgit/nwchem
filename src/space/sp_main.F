@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.90 2004-02-24 06:24:56 d3j191 Exp $
+c $Id: sp_main.F,v 1.91 2004-03-26 23:40:24 d3j191 Exp $
 c
       implicit none
 c
@@ -2052,14 +2052,14 @@ c
 c
       return
       end
-      subroutine sp_prefetch(nbget,n,iwl,xw,isl,xs)
+      subroutine sp_prefetch(n,iwl,xw,isl,xs)
 c
       implicit none
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
 c
-      integer nbget,n
+      integer n
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xs(msa,3)
       real*8 pw(2),ps(2)
@@ -2071,7 +2071,7 @@ c
       if(lqmd) n=0
 c
       nfetched=0
-      if(nbget.lt.0) nbget=nbbl+1
+      if(ibget.lt.0) nbget=nbbl+1
 c
       do 1 ibbl=1,nbbl
       call sp_ibbl_prefetch(ibbl,int_mb(i_bb),int_mb(i_ipl),
@@ -2689,10 +2689,12 @@ c
       endif
       jccell=jcell
 c
+      if(nbget.ne.0) then
       indexw=nndexw
       indexs=nndexs
       if(jpl(jndx,2).gt.0) nndexw=indexw+jpl(jndx,3)-jpl(jndx,2)+1
       if(jpl(jndx,4).gt.0) nndexs=indexs+jpl(jndx,5)-jpl(jndx,4)+1
+      endif
 c
       endif
 c
@@ -2707,8 +2709,16 @@ c
 c
     1 continue
 c
-      if(nndexw.gt.mwm) call md_abort('Increase dimension mwm ',nndexw)
-      if(nndexs.gt.msa) call md_abort('Increase dimension msa ',nndexs)
+      if(nndexw.gt.mwm) then
+      write(string,1007) mwm,nndexw
+ 1007 format('Increase dimension mwm from ',i7,' to ',i7)
+      call md_abort(string,me)
+      endif
+      if(nndexs.gt.msa) then
+      write(string,1008) msa,nndexs
+ 1008 format('Increase dimension msa from ',i7,' to ',i7)
+      call md_abort(string,me)
+      endif
 c
       return
       end

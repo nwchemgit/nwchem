@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.191 2004-03-13 00:30:42 marat Exp $
+c $Id: md_main.F,v 1.192 2004-03-26 23:40:22 d3j191 Exp $
 c
       implicit none
 c
@@ -2251,7 +2251,7 @@ c
       if(nbget.lt.0) then
       call sp_prefetch_all(nbbl,iwl,xw,isl,xs)
       else
-      call sp_prefetch(nbget,nbbl,iwl,xw,isl,xs)
+      call sp_prefetch(nbbl,iwl,xw,isl,xs)
       endif
       else
       call sp_prefetch_p(nbbl,iwl,xw,dbl_mb(i_pw),dbl_mb(i_pwp),
@@ -2771,7 +2771,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.191 2004-03-13 00:30:42 marat Exp $
+c $Id: md_main.F,v 1.192 2004-03-26 23:40:22 d3j191 Exp $
 c
       implicit none
 c

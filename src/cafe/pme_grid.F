@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,epme)
-c $Id: pme_grid.F,v 1.34 2003-09-22 15:34:58 d3j191 Exp $
+c $Id: pme_grid.F,v 1.35 2004-03-26 23:40:28 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -22,7 +22,8 @@ c
       call pme_grid(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,
      + int_mb(i_nodp),int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
      + int_mb(i_lnod),log_mb(i_lsld),int_mb(i_slmax),
-     + dbl_mb(i_grd1),dbl_mb(i_grd2),dbl_mb(i_grd))
+     + dbl_mb(i_grd1),dbl_mb(i_grd2),dbl_mb(i_grd),
+     + int_mb(i_grdh),dbl_mb(i_grdt))
 c
       epme=ecorr(ipset)
 c
@@ -107,7 +108,8 @@ c
       call pme_grid(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,
      + int_mb(i_nodp),int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
      + int_mb(i_lnod),log_mb(i_lsld),int_mb(i_slmax),
-     + dbl_mb(i_grd1),dbl_mb(i_grd2),dbl_mb(i_grd))
+     + dbl_mb(i_grd1),dbl_mb(i_grd2),dbl_mb(i_grd),
+     + int_mb(i_grdh),dbl_mb(i_grdt))
 c
       epme=ecorr(ipset)
 c
@@ -131,7 +133,8 @@ c
       return
       end
       subroutine pme_grid(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,
-     + nodep,knode,kfrom,kto,lnode,lsldo,maxsl,gridr,gridc,grid)
+     + nodep,knode,kfrom,kto,lnode,lsldo,maxsl,gridr,gridc,grid,
+     + lgridh,gridt)
 c
       implicit none
 c
@@ -147,15 +150,23 @@ c
       integer nodep(nodpme),knode(ngz),kfrom(np),kto(np),lnode(np)
       real*8 gridr(mgx,mgy,mgz),gridc(2,mgx,mgy,mgz)
       real*8 grid(mgrx,mgry,mgrz)
+      integer lgridh(mgz)
+      real*8 gridt(mgrx,mgry,mgrz)
 c
       integer node,inode,ngznon
-      integer i,j,k,ig,jg,minx,maxx,miny,maxy,minz,maxz
+      integer i,j,k,ix,iy,ig,jg,minx,maxx,miny,maxy,minz,maxz
       integer ilsl,ihsl,jlsl,jhsl
       logical lset,lgrid
 c
       call timer_start(25)
 c
       lset=.true.
+c
+      if(nbget.gt.0) then
+      do 321 i=1,mgz
+      lgridh(i)=0
+  321 continue
+      endif
 c
 c     loop over all nodes
 c
@@ -181,6 +192,7 @@ c
       call timer_stop(25)
       call timer_start(26)
 c
+      if(nbget.eq.0) then
       do 21 k=1,ngznon
       if(lsldo(node+1,k)) then
       call ga_distribution(lslab(k),node,ilsl,ihsl,jlsl,jhsl)
@@ -197,12 +209,46 @@ c
       maxsl(4,node+1,k)=0
       endif
    21 continue
+      else
+      do 224 i=1,mgz
+      if(lgridh(i).gt.0) call ga_nbwait(lgridh(i))
+      lgridh(i)=0
+  224 continue
+      do 221 k=1,ngznon
+      if(lsldo(node+1,k)) then
+      do 222 iy=miny,maxy 
+      do 223 ix=minx,maxx
+      gridt(ix,iy,k)=grid(ix,iy,k)
+  223 continue
+  222 continue
+      call ga_distribution(lslab(k),node,ilsl,ihsl,jlsl,jhsl)
+      call ga_nbacc(lslab(k),ilsl+minx-1,ilsl+maxx-1,jlsl+miny-1,
+     + jlsl+maxy-1,gridt(minx,miny,k),mgrx,one,lgridh(k))
+      maxsl(1,node+1,k)=minx
+      maxsl(2,node+1,k)=maxx
+      maxsl(3,node+1,k)=miny
+      maxsl(4,node+1,k)=maxy
+      else
+      maxsl(1,node+1,k)=0
+      maxsl(2,node+1,k)=0
+      maxsl(3,node+1,k)=0
+      maxsl(4,node+1,k)=0
+      lgridh(k)=0
+      endif
+  221 continue
+      endif
       call timer_stop(26)
       call timer_start(25)
 c
       endif
 c
     1 continue
+c
+      if(nbget.gt.0) then
+      do 333 i=1,mgz
+      if(lgridh(i).gt.0) call ga_nbwait(lgridh(i))
+  333 continue
+      endif
 c
 c     pmenodes should wait until all nodes have finished contributions to the grid
 c

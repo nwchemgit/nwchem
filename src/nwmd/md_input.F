@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.84 2004-03-09 18:32:57 d3j191 Exp $
+c $Id: md_input.F,v 1.85 2004-03-26 23:40:22 d3j191 Exp $
 c
       implicit none
 c
@@ -136,7 +136,7 @@ c
       nfnewf=0
       ibinar=0
       iformt=1
-      madbox=6
+      madbox=2
       loadb=3
       ireset=0
       mropt=1

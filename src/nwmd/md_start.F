@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.161 2004-02-24 06:24:53 d3j191 Exp $
+c $Id: md_start.F,v 1.162 2004-03-26 23:40:22 d3j191 Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,lqmd,
      + iguide,lfndbg,idebug,projct,mbbreq,nserie,isload,ireset,icntrl,
-     + nseq,i_lseq,ndums,nfnewf,ibatch)
+     + nseq,i_lseq,ndums,nbget,madbox)
       endif
 c
 c     start the analysis API
@@ -49,7 +49,9 @@ c
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
      + npener,icntrl,nbias,mropt,includ,ltwin,
-     + nseq,i_lseq,nfhop,rhop,thop,ndums,ipbtyp,lfnhop,iradgy)
+     + nseq,i_lseq,nfhop,rhop,thop,ndums,ipbtyp,lfnhop,iradgy,
+     + 0)
+c     + nbget)
 c
       if(mlambd.gt.0.and.ilambd.gt.0.and.ilambd.le.mlambd)
      + call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
@@ -667,8 +669,6 @@ c
       iformt=1
 c
 c     parallel execution defaults
-c
-      madbox=4
 c
 c     many of the above defaults are superceded by defaults in the rtdb
 c
