@@ -1,6 +1,9 @@
-!$Id: paw_xc.F,v 1.10 2003-02-24 01:13:55 bylaska Exp $
+!$Id: paw_xc.F,v 1.11 2003-02-24 23:35:04 marat Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.10  2003/02/24 01:13:55  bylaska
+!Memory deallocation completed...EJB
+!
 !Revision 1.9  2003/02/21 21:09:38  marat
 !...
 !MV
@@ -406,7 +409,7 @@ c        write(*,*) "paw_exc: rho_do_ps(1)",dbl_mb(rho_ps(1)+n_s)
 
         end do !ig
 
-        write(*,*) "paw_exc: rho_up_ae(1)+core",dbl_mb(rho_ae(1))
+c        write(*,*) "paw_exc: rho_up_ae(1)+core",dbl_mb(rho_ae(1))
        
 *       *** find exchange-correlation on spher grid ***
 c        call paw_dirac_x(n_s,ic,paw_xc_ispin,
@@ -445,7 +448,7 @@ c        write(*,*) "paw_exc: exc_up_ps(1)",dbl_mb(exc_ps(1))
 
         end do
 
-        write(*,*) "paw_exc: xc_temp(1)",dbl_mb(xc_temp(1))
+c        write(*,*) "paw_exc: xc_temp(1)",dbl_mb(xc_temp(1))
 
         exc_tmp = def_integr(0,dbl_mb(xc_temp(1)),2,dbl_mb(i_r),
      >                       log_amesh,ic)
@@ -597,7 +600,6 @@ cc          write(*,*) "exc_matrix_up",tmp
         end do !l
 
 
-        write(*,*) "calculating exc pot elements"
 
         i_pot0 = int_mb(i_paw_xc_pot(1) + in - 1)
         nlmi = 0
@@ -662,9 +664,9 @@ c            write(*,*) "xc_pot",dcpl_mb(paw_xc_pot_u(1)+i_pot)
 
 
 
-            write(*,*) "i,mi,j,mj,na",i,mi,j,mj,in
-            write(*,*) "paw_xc_pot_up",dcpl_mb(paw_xc_pot_u(1)+i_pot)
-            write(*,*) "paw_xc_pot_down",dcpl_mb(paw_xc_pot_u(1)+i_pot)
+c            write(*,*) "i,mi,j,mj,na",i,mi,j,mj,in
+c            write(*,*) "paw_xc_pot_up",dcpl_mb(paw_xc_pot_u(1)+i_pot)
+c            write(*,*) "paw_xc_pot_down",dcpl_mb(paw_xc_pot_u(1)+i_pot)
              
             
 
