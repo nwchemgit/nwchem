@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.22 1997-02-08 00:12:26 d3g681 Exp $
+C$Id: geom.fh,v 1.23 1997-02-13 01:16:04 d3g681 Exp $
       logical geom_check_cent
       logical geom_rtdb_load
       logical geom_rtdb_store
@@ -21,6 +21,7 @@ C$Id: geom.fh,v 1.22 1997-02-08 00:12:26 d3g681 Exp $
       logical geom_nuc_rep_energy
       logical geom_verify_coords
       logical geom_set_user_units
+      logical geom_checksum
 cnew ones
       logical geom_systype_get
       logical geom_latang_get
@@ -132,3 +133,4 @@ c
 c
       external geom_get_user_scale
       external geom_get_user_units
+      external geom_checksum
