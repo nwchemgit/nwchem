@@ -1,6 +1,6 @@
       subroutine wvfnc_expander_input(rtdb)
 c
-c $Id: wvfnc_expander_input.F,v 1.1 2001-08-30 00:39:46 edo Exp $
+c $Id: wvfnc_expander_input.F,v 1.2 2002-03-01 20:52:21 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -11,7 +11,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 4)
+      parameter (num_dirs = 7)
       integer NMAX              ! maximum wavfunctions
       parameter (NMAX = 100)
  
@@ -24,6 +24,9 @@ c
       data dirs / 'old_wavefunction_filename:',
      >            'new_wavefunction_filename:',
      >            'new_ngrid:',
+     >            'old_wavefunction_filename',
+     >            'new_wavefunction_filename',
+     >            'new_ngrid',
      >            'end'/
 
 
@@ -48,7 +51,7 @@ c
      >           'wvfnc_expander_input: unknown directive', 0)
 
 
-      goto ( 100,  200, 300, 
+      goto ( 100,  200, 300, 100, 200, 300,
      >      9999) ind
       call errquit(
      >   'wvfnc_expander_input: unimplemented directive', ind)
