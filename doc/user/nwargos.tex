@@ -657,13 +657,12 @@ maximum allowed step size in nm for which the default is 0.05.
 \item
 To specify conjugate gradient steps
 \begin{verbatim}
-cg <i mcgit> [init <r dx0cg>] [min <r dxcgmx>] [max <r dxmcg>] [cy <i ncgcy>]
+cg <i mcgit> [init <r dx0cg>] [min <r dxcgmx>] [cy <i ncgcy>]
 \end{verbatim}
 where {\bf mcgit} is the maximum number of conjugate gradient steps taken,
 for which the default is 100, {\bf dx0cg} is the initial step size in nm
 for which the default is 0.001, {\bf dxcgmx} is the threshold for the
-step size in nm for which the default is 0.0001, {\bf dxmcg} is the
-maximum allowed step size in nm for which the default is 0.05, and {\bf ncgcy}
+step size in nm for which the default is 0.0001, and {\bf ncgcy}
 is the number of conjugate gradient steps after which the gradient history
 is discarded for which the default is 10.
 \end{itemize}
