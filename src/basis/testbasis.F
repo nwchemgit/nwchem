@@ -1,5 +1,5 @@
       program testbasis
-c $Id: testbasis.F,v 1.3 1994-04-04 20:20:28 d3e129 Exp $
+c $Id: testbasis.F,v 1.4 1994-05-03 00:19:25 d3g681 Exp $
       implicit none
 c
 #include "bas.fh"
@@ -91,7 +91,7 @@ c
       status = bas_print(basis)
       status = gbs_map_print(basis)
 c
-      status = bas_continfo(basis,1,nprim,ngen,sphcart)
+      status = bas_continfo(basis,1,iang,nprim,ngen,sphcart)
       write(6,*)' f:query: nprim   cont 1 ',nprim
       write(6,*)' f:query: ngen    cont 1 ',ngen
       write(6,*)' f:query: sphcart cont 1 ',sphcart

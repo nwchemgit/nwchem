@@ -1,5 +1,5 @@
       block data basis_data
-c $Id: basis.F,v 1.10 1994-04-26 19:46:12 d3g681 Exp $
+c $Id: basis.F,v 1.11 1994-05-03 00:19:23 d3g681 Exp $
 c
 c Block data structure to initialize the common block variables in the
 c  internal basis set object data structures
@@ -1377,7 +1377,7 @@ c
       end
 c
       logical function bas_continfo(basisin,icont,
-     &       nprimo,ngeno,sphcart)
+     &       type,nprimo,ngeno,sphcart)
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -1386,7 +1386,12 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin, icont, nprimo, ngeno, sphcart
+      integer basisin           ! [input] basis handle
+      integer icont             ! [input] contraction index
+      integer type              ! [output] type (sp/s/p/d/..)
+      integer nprimo            ! [output] no. of primitives
+      integer ngeno             ! [output] no. of contractions
+      integer sphcart           ! [output] 0/1 for cartesian/shperical
 c::local
       integer basis,myucont,icontmax
 c
@@ -1413,8 +1418,9 @@ c
       myucont = ibs_cn2ucn(icont,basis)
 c... no spherical yet 3/94 only cart. 
       sphcart = 0
+      type    = infbs_cont(CONT_TYPE, myucont,basis)
       nprimo  = infbs_cont(CONT_NPRIM,myucont,basis)
-      ngeno   = infbs_cont(CONT_NGEN,myucont,basis)
+      ngeno   = infbs_cont(CONT_NGEN, myucont,basis)
       bas_continfo=.true.
       return
       end
