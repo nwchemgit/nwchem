@@ -1,6 +1,6 @@
       subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.34 2000-11-03 00:47:05 edo Exp $
+C     $Id: ccsd_driver.F,v 2.35 2001-08-01 20:49:44 windus Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -127,6 +127,9 @@ c
      $        occ_frozen = 0
          occ_frozen = 0
       endif
+      if (.not. rtdb_put(rtdb,'ccsd:number frozen core',MT_INT,1,
+     $     occ_frozen))
+     $   call errquit('ccsddriver: rtdb failure for occ_frozen',555)
       if (.not.rtdb_get(rtdb, 'ccsd:frozen virtual', MT_INT, 1,
      $     vir_frozen)) then
          if (.not.rtdb_get(rtdb,'vir_frozen',MT_INT,1,vir_frozen))

@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.49 1999-06-16 00:10:23 d3e129 Exp $
+* $Id: mp2_energy.F,v 1.50 2001-08-01 20:49:21 windus Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -121,6 +121,11 @@ c
       else
          noa_frozen = 0
       endif
+c
+      if(.not.rtdb_put(rtdb,'mp2:number frozen core',MT_INT,1,
+     $      noa_frozen))
+     $     call errquit('mp2_grad: rtdb failure for frozen core',555)
+c
       if (.not.rtdb_get(rtdb, 'mp2:frozen virtual', MT_INT, 1,
      $     nva_frozen)) nva_frozen = 0
       if ((task.eq.'gradient') .and. (nva_frozen.gt.0)) call errquit
