@@ -4,7 +4,7 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.26 2000-05-22 23:32:07 bert Exp $
+* $Id: task_num_grad.F,v 1.27 2000-06-16 20:24:42 edo Exp $
 *
 #include "inp.fh"
       logical analytic
@@ -568,8 +568,9 @@ c     by diagonalizing the metric
 c     
       call dgemm('t','n',natoms3,natoms3,natoms3,1.0d0, 
      $     vectors, natoms3, vectors, natoms3, 0.0d0, temp, natoms3)
-      call dsyev('v','u',natoms3,temp,natoms3,eval,work,
-     $     3*nwork*maxat,info)
+      call util_jacobi(natoms3,temp,natoms3,eval)
+!      call dsyev('v','u',natoms3,temp,natoms3,eval,work,
+!     $     3*nwork*maxat,info)
       if (info .ne. 0) call errquit('fd_make_vectors: dsyev failed',0)
 *      write(6,*) ' Eigen values of the projected vectors metric '
 *      call output(eval, 1, natoms3, 1, 1, natoms3, 1, 1)
