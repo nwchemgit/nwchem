@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.212 2001-12-21 23:13:39 edo Exp $
+c     $Id: dft_scf.F,v 1.213 2001-12-22 02:02:32 edo Exp $
 c     
       implicit none
 c
@@ -81,7 +81,7 @@ cc    Jorge Garza/End
      &                 save_wall, current_cpu, start_cpu,
      &                 wall_time_reqd
       integer int_wall_time_reqd
-      double precision pp, delta
+      double precision pp
       double precision anucl_charg, anel
       double precision etnew, tol2e, tol2e_sleazy,tdots
 c     
