@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.181 1996-10-15 20:32:08 d3g270 Exp $
+# $Id: makefile.h,v 1.182 1996-10-15 23:59:25 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -904,13 +904,13 @@ endif
 # Preceding line has a tab to make an empty rule
 
 
-#ifdef FLINT
+ifdef FLINT
 
 .F.o:; flint $(CPPFLAGS) -m -P SGI,SUN,CRAY -u $<
 
 .f.o:; flint $(CPPFLAGS) -m -P SGI,SUN,CRAY -u $<
 
-#endif
+endif
 
 
 
