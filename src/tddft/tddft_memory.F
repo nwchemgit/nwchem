@@ -1,7 +1,7 @@
       subroutine tddft_memory(rtdb,nroots,maxvecs,maxiter,
      1  ipol,nbf_ao,nocc,nmo,nov,tda,algorithm)
 c
-c $Id: tddft_memory.F,v 1.1 2002-03-22 02:10:37 sohirata Exp $
+c $Id: tddft_memory.F,v 1.2 2002-03-28 01:11:49 sohirata Exp $
 c
 c Itemize all the outstanding memory usage and determine
 c how many trial and product vectors we can handle with the
@@ -82,7 +82,7 @@ c
 c
 c (A+B) (A-B) eigenvalues, last eigenvalues, 2 residual vectors
 c
-      n=n+3*(nroots*maxiter*2)
+      n=n+3*(nroots*30*2)
       do i=1,ipol
         n=n+2*(nmo(i)-nocc(i))*nocc(i)*nroots
       enddo
@@ -108,8 +108,8 @@ c
 c
 c (A+B) (A-B) and their eigenvector matrices
 c
-      m=m+2*(maxvecs*2)**2
-      if (.not.tda) m=m+2*(maxvecs*2)**2
+      m=m+2*(nroots*30)**2
+      if (.not.tda) m=m+2*(nroots*30)**2
 c
 c Symmetrized density matrix and NGA trial and product vectors
 c
