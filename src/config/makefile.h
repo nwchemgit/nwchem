@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.458 2004-04-28 00:14:56 edo Exp $
+# $Id: makefile.h,v 1.459 2004-04-29 23:01:51 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1468,6 +1468,11 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
         FVECTORIZE =  -noalign -O3 -pad  -mP2OPT_hlo_level=2  -tpp1
         FOPTIMIZE =  -O3 -pad -mP2OPT_hlo_level=2  #-mP2OPT_align_array_to_cache_line=TRUE 
         LDOPTIONS =   -Qoption,link,--relax # -Qoption,link,-Bstatic  
+        ifeq ($(_IFCV8),Y)
+          LDOPTIONS += -O0 -g 
+        else
+          LDOPTIONS += $(FDEBUG)
+        endif
         LINK.f = efc   -Qoption,link,-v  $(LDFLAGS)  
         ifeq ($(_IFCV8),Y)
          FOPTIMIZE += -ip
