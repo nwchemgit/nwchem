@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.13 2000-05-23 05:39:06 mdupuis Exp $
+C     $Id: rohf_diis.F,v 1.14 2000-05-23 07:32:25 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -54,6 +54,11 @@ c
       logical ocosmo
       logical osome
       double precision ecosmo
+c
+      logical ogas_phase
+      logical oliq_phase
+      double precision egas
+      double precision eliq
 c     
       vlen = crohf_vlen
       aoff = nclosed + 1
@@ -121,6 +126,27 @@ c
       call ga_zero(g_over)
       call int_1e_ga( basis, basis, g_over, 'overlap', .false. )
       call rohf_ao_orthonorm( nbf, g_over, g_xorth )
+c
+c     ----- check cosmo ... if cosmo ... -----
+c           pass 1 ... gas_phase
+c           pass 2 ... liq_phase
+c
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+         if(ocosmo) then
+            ogas_phase=.true.
+            oliq_phase=.true.
+            if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
+     $         call errquit('rohf_diis_solve: rtdb_put failed',0)
+         else
+            ogas_phase=.true.
+            oliq_phase=.false.
+         endif
+      else
+         ogas_phase=.true.
+         oliq_phase=.false.
+      endif
+c
+ 1000 continue
 c     
 c  SCF-DIIS loop
 c
@@ -197,7 +223,26 @@ c
         call rohf_errvec( g_fock, g_movecs, g_over, g_xorth,
      $                    g_tmp, g_tmp2, g_err )
         call ga_maxelt( g_err, diis_emax )
-        write(6,911) iter, ndiis, energy, gnorm, diis_emax
+c
+c   Print energy
+c
+        if(iter.eq.1) then
+           if(ogas_phase.and.oliq_phase) then
+              if(ga_nodeid().eq.0) then
+                 write(6,909)
+              endif
+           elseif(.not.ogas_phase.and..not.oliq_phase) then
+              if(ga_nodeid().eq.0) then
+                 write(6,910)
+              endif
+           endif
+        endif
+ 909    format(2x,'   gas_phase')
+ 910    format(2x,'liquid_phase')
+c
+        if(ga_nodeid().eq.0) then
+           write(6,911) iter, ndiis, energy, gnorm, diis_emax
+        endif
  911    format(5x,i5,i3,5x,f20.12,5x,2e10.2)
 c
 c   DIIS extrapolation
@@ -227,6 +272,29 @@ c
       call movecs_fix_phase(g_movecs)
       call scf_movecs_write(rtdb)
       if (olagr) call rohf_lagr()
+c
+c     ----- if liq_phase=.T. go back and do liquid phase -----
+c
+      if(ogas_phase.and.oliq_phase) then
+         converged =.false.
+         egas      =energy
+         ogas_phase=.false.
+         oliq_phase=.false.
+         if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.true.))
+     $       call errquit('rohf_diis_solve: rtdb_put failed',0)
+         go to 1000
+      elseif(.not.ogas_phase.and..not.oliq_phase) then
+         eliq      =energy
+         if(ga_nodeid().eq.0) then
+            write(6,912) egas
+            write(6,913) eliq
+            write(6,914) (egas-eliq),(egas-eliq)*627.509451d+00
+ 912     format('                 gas_phase energy = ',f20.10)
+ 913     format('                 liq_phase energy = ',f20.10)
+ 914     format(' (electrostatic) solvation energy = ',f20.10,
+     $          ' (',f8.2,' kcal/mol)'                       )
+         endif
+      endif
 c     
 c     Free globals
 c     
