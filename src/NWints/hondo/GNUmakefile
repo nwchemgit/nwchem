@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.10 2000-06-05 17:38:33 edo Exp $
+# $Id: GNUmakefile,v 1.11 2002-01-19 04:05:49 zzhang Exp $
 
 include ../../config/makefile.h
 
@@ -31,6 +31,7 @@ include ../../config/makefile.h
                  hnd_to_nw_order.o \
                  hnd_terminate.o 
 
+  OBJ = hnd_vstat.o 
        HEADERS = hnd_whermt.fh \
                  hnd_rys.fh \
                  hnd_tol.fh
