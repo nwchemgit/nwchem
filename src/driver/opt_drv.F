@@ -1,10 +1,11 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.20 1997-04-09 21:17:12 mdupuis Exp $
+C$Id: opt_drv.F,v 1.21 1997-04-18 17:31:58 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "global.fh"
 #include "stdio.fh"
+#include "util.fh"
       integer  rtdb
       integer  idriver
       logical  hnd_optx
@@ -12,6 +13,9 @@ C$Id: opt_drv.F,v 1.20 1997-04-09 21:17:12 mdupuis Exp $
       integer  ir, iw
       logical  some, dbug
       common/hnd_iofile/ir,iw
+c
+      call util_print_push
+      call util_print_rtdb_load(rtdb, 'driver')
 c
       dbug=.false.
       some=.false.
@@ -27,6 +31,7 @@ c
       idriver=0
 c
       drv_opt = hnd_optx(rtdb,idriver)
+      call util_print_pop
 c
       end
       logical function hnd_optx(rtdb,idriver)
@@ -339,8 +344,8 @@ c     ----- go back to next search direction -----
 c
       go to 100
 c
-      hnd_optx=.false.
-      return
+***      hnd_optx=.false.  ! cannot be reached with default compilation
+***      return
  9999 format(/,10x,21(1h-),
      1       /,10x,'Geometry Optimization',
      2       /,10x,21(1h-))
@@ -370,7 +375,7 @@ c
       common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
      1                                                     modsad
 c
-      call hnd_opt_input
+      call hnd_opt_input(rtdb)
 c
       opt_input=.true.
       status=rtdb_put(rtdb,'opt:driver',mt_log,1,opt_input)
@@ -386,17 +391,18 @@ c
 c
       return
       end
-      subroutine hnd_opt_input
+      subroutine hnd_opt_input(rtdb)
       implicit double precision (a-h,o-z)
 #include "inp.fh"
 c
+      integer rtdb
       parameter (mxatom=500)
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=1500)
 c                mxcoor=max(mxcart,mxzmat)
       character*255 field
-      logical       status
+c      logical       status  ! never used ?
       logical       ready
       logical       dbug
       common/hnd_iofile/ir,iw
@@ -510,6 +516,10 @@ c
                else
                   call errquit('hnd_opt_input: moddir',911)
                endif
+            elseif(inp_compare(.false.,'print',field)) then
+               call util_print_input(rtdb,'driver')
+            elseif(inp_compare(.false.,'noprint',field)) then
+               call util_print_input(rtdb,'driver')
             endif
          endif
 c
@@ -787,8 +797,8 @@ c
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
       dimension d(mxcoor)
-      dimension z(mxzmat)
-      dimension t(mxzmat)
+c      dimension z(mxzmat) ! never used
+c      dimension t(mxzmat) ! never used
       data zero /0.0D+00/
       data tol  /1.0d-03/
 c
@@ -906,32 +916,32 @@ c
 c
       integer     rtdb
       integer     geom
-      logical     status
+c      logical     status ! never used
 c
 c parameters read from rtdb
 c prefix:energy (later) rohf and uhf
 c
       integer nat                ! number of atoms
-      character*255 name         ! name buffer for rtdb context
-      character*255 title        ! title buffer
-      double precision energy    ! energy (scf, rohf, uhf)
-      logical converged          ! energy convergence flag
+c      character*255 name         ! name buffer for rtdb context never used
+c      character*255 title        ! title buffer never used
+c      double precision energy    ! energy (scf, rohf, uhf)
+c      logical converged          ! energy convergence flag
 c
       integer h_first, k_first   ! MA handle/index of first mem location
-      integer h_hss  , k_hss     ! MA handle/index 
-      integer h_hssx , k_hssx    ! MA handle/index 
-      integer h_hssq , k_hssq    ! MA handle/index 
-      integer h_binv , k_binv    ! MA handle/index 
-      integer h_t    , k_t       ! MA handle/index 
-      integer h_zmat , k_zmat    ! MA handle/index 
-      integer h_izmat, k_izmat   ! MA handle/index 
-      integer h_h    , k_h       ! MA handle/index 
-      integer h_g    , k_g       ! MA handle/index
-      integer h_v    , k_v       ! MA handle/index
-      integer h_ia   , k_ia      ! MA handle/index
-      integer h_last , k_last    ! MA handle/index of last  mem location
+c      integer h_hss  , k_hss     ! MA handle/index 
+c      integer h_hssx , k_hssx    ! MA handle/index 
+c      integer h_hssq , k_hssq    ! MA handle/index 
+c      integer h_binv , k_binv    ! MA handle/index 
+c      integer h_t    , k_t       ! MA handle/index 
+c      integer h_zmat , k_zmat    ! MA handle/index 
+c      integer h_izmat, k_izmat   ! MA handle/index 
+c      integer h_h    , k_h       ! MA handle/index 
+c      integer h_g    , k_g       ! MA handle/index
+c      integer h_v    , k_v       ! MA handle/index
+c      integer h_ia   , k_ia      ! MA handle/index
+c      integer h_last , k_last    ! MA handle/index of last  mem location
 c
-      logical geom_zmt_get_binv
+c      logical geom_zmt_get_binv
       logical geom_zmt_get_zmat
       logical geom_zmt_get_zsym
       logical geom_zmt_get_izmat
@@ -1096,7 +1106,6 @@ c
 #include "msgtypesf.h"
 #include "global.fh"
 #include "rtdb.fh"
-#include "context.fh"
 C
 C      -----        INITIALIZE THE HESSIAN MATRIX           -----
 C      ----- IF -INHESS- EQUALS 1, INPUT THE HESSIAN MATRIX -----
@@ -1105,7 +1114,7 @@ C              IN CARTESIAN OR INTERNAL COORDINATES
 C
       LOGICAL   DRIVER_OPT_OPN_HESS
       LOGICAL   DRIVER_OPT_PUT_HESS
-      LOGICAL   DRIVER_OPT_GET_HESS
+c      LOGICAL   DRIVER_OPT_GET_HESS
       LOGICAL   STATUS
 C
       PARAMETER (MXATOM=500)
@@ -1238,9 +1247,9 @@ C
       LOGICAL SOME
       LOGICAL DBUG
       LOGICAL BADZ
-      LOGICAL NATURL 
-      LOGICAL SYMTRC
-      LOGICAL INDEP
+c      LOGICAL NATURL 
+c      LOGICAL SYMTRC
+c      LOGICAL INDEP
       CHARACTER*8 HGUESS
       CHARACTER*8 GUESS
       CHARACTER*8 GUESS1
@@ -1551,11 +1560,12 @@ C
 #include "msgtypesf.h"
 #include "global.fh"
 #include "rtdb.fh"
-#include "context.fh"
+#include "util.fh"
+
 c
       character*255 opt_hess_fil
       character*8   errmsg
-      logical       status
+c      logical       status
 c
       integer       ir
       integer       iw
@@ -1567,7 +1577,7 @@ c
       data errmsg   /'program ','stop in ','opn_hess'/
       data ift      /31/
 c
-      dbug=.false.
+      dbug=util_print("hess_fil", print_debug)
 c
       call util_file_name('driver',.false.,.false.,opt_hess_fil)
       open(unit=ift,file=opt_hess_fil,form='unformatted',
@@ -1593,11 +1603,11 @@ c
 #include "msgtypesf.h"
 #include "global.fh"
 #include "rtdb.fh"
-#include "context.fh"
+#include "util.fh"
 c
       character*255 opt_hess_fil
       character*8   errmsg
-      logical       status
+c      logical       status
 c
       integer       ir
       integer       iw
@@ -1609,7 +1619,7 @@ c
       data errmsg   /'program ','stop in ','cls_hess'/
       data ift      /31/
 c
-      dbug=.false.
+      dbug=util_print("hess_fil", print_debug)
 c
       close(unit=ift,status='keep',err=911)
       if(dbug) then
@@ -1633,24 +1643,24 @@ c
 #include "msgtypesf.h"
 #include "global.fh"
 #include "rtdb.fh"
-#include "context.fh"
+#include "util.fh"
 c
-      logical status
+c      logical status
 c
       integer nint 
       integer mint
-      integer i
-      integer j
+c      integer i
+c      integer j
       integer ir
       integer iw
-      integer ip
+c      integer ip
       integer ift
       logical dbug
       common/hnd_iofile/ir,iw
       double precision hess(mint,mint)  
       data ift /31/
 c
-      dbug=.false.
+      dbug=util_print("hess_fil", print_debug)
 c
       if(dbug) then
          write(iw,*) ' _put_hess '
@@ -1670,24 +1680,24 @@ c
 #include "msgtypesf.h"
 #include "global.fh"
 #include "rtdb.fh"
-#include "context.fh"
+#include "util.fh"
 c
-      logical status
+c      logical status
 c    
       integer nint
       integer mint
-      integer i
-      integer j
+c      integer i
+c      integer j
       integer ir
       integer iw
-      integer ip
+c      integer ip
       integer ift
       logical dbug
       common/hnd_iofile/ir,iw
       double precision hess(mint,mint) 
       data ift /31/
 c
-      dbug=.false.
+      dbug=util_print("hess_fil", print_debug)
 c
       rewind ift
       read(ift) hess
@@ -1707,9 +1717,8 @@ c
 #include "msgtypesf.h"
 #include "global.fh"
 #include "geom.fh"
-#include "geomP.fh"
+c   #include "geomP.fh"   ! should not need this?
 #include "rtdb.fh"
-#include "context.fh"
 c
       integer    rtdb
       logical    status
@@ -2493,9 +2502,8 @@ c
 #include "msgtypesf.h"
 #include "global.fh"
 #include "geom.fh"
-#include "geomP.fh"
+c   #include "geomP.fh"   ! should not need this?
 #include "rtdb.fh"
-#include "context.fh"
 C
 C     ----- ONE DIMENSIONAL SEARCH.  -----
 C
@@ -2845,9 +2853,8 @@ C
 #include "msgtypesf.h"
 #include "global.fh"
 #include "geom.fh"
-#include "geomP.fh"
+c      #include "geomP.fh"    ! should not need this?
 #include "rtdb.fh"
-#include "context.fh"
       INTEGER RTDB
       LOGICAL STATUS
       LOGICAL DRIVER_OPT_PUT_HESS
