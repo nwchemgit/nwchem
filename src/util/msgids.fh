@@ -87,6 +87,8 @@ c
       integer mrg_d28
       integer mrg_d29
       integer mrg_d31
+      integer mrg_d32
+      integer mrg_d33
       integer mrg_d39
       integer msg_hessmin
       integer msg_hessmax
@@ -259,6 +261,8 @@ c
       parameter (mrg_d28=msg_ftn_base-158) ! arg_collct
       parameter (mrg_d29=msg_ftn_base-159) ! arg_collct
       parameter (mrg_d31=msg_ftn_base-161) ! arg_record
+      parameter (mrg_d32=msg_ftn_base-162) ! arg_dldbal
+      parameter (mrg_d33=msg_ftn_base-163) ! arg_dldbal
       parameter (mrg_d39=msg_ftn_base-169) ! arg_record
 c
       parameter (msg_hessmin = msg_ftn_base - 170 )         ! MCSCF orbital hessian min
