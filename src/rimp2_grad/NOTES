@@ -1,3 +1,5 @@
+$Id: NOTES,v 1.8 1999-05-28 17:30:15 gg502 Exp $
+
 In some cases, the current implementation has been left with some
 holes to fill in for generality.
 
