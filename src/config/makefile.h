@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.344 2000-11-15 20:57:54 edo Exp $
+# $Id: makefile.h,v 1.345 2000-11-16 21:46:31 d3h449 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -295,7 +295,7 @@ endif
 ifndef BLASOPT
   CORE_LIBS +=  -xlic_lib=sunperf -lmvec
 else
-  CORE_LIBS +=  -llapack -$(BLASOPT) -lblas  
+  CORE_LIBS +=  -llapack $(BLASOPT) -lblas  
 endif
 
       EXTRA_LIBS = -ldl 
