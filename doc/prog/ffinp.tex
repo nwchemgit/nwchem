@@ -37,33 +37,37 @@ translate it by the syntax rules defined in the functions.
 \begin{verbatim}
   logical function inp_read()
 \end{verbatim}
-Read a line from the input and split it into white space (blank or
+This routine reads a line from the input and splits it into white space (blank or
 tab) separated fields.  White space may be incorporated into a field
-by enclosing it in quotes (\verb+"+).  The case of input is preserved.
-Blank lines are ignored, and text from a pound or hash symbol
-(\verb+#+) to the end of the line is treated as a comment.  A
-backslash(\verb+\+) at the end of a line (only white space may appear
-after it) may be used to concatentate physical input lines into one
+by enclosing it in quotes (for example, \verb+"new name"+).  The case of input is preserved.
+Blank lines are ignored and text beginning with a pound or hash symbol
+(\verb+#+) is treated as a comment.  A
+backslash(\verb+\+) at the end of a line (followed only by white space)
+can be used to concatentate physical input lines into one
 logical input line.  A semicolon (\verb+;+) may be used to split a
-physical input line into multiple logical input lines.  The special
-meaning of hash (\verb+#+), semicolon (\verb+;+) and quotation
-(\verb+"+) characters may be avoided only by prefacing them with a
-backslash (this must be done even if the character is inside a quoted
-character string).
+single physical input line into multiple logical input lines.  The special
+command characters hash (\verb+#+), semicolon (\verb+;+) and quotation mark
+(\verb+"+) will be treated simply as characters only if prefaced by a
+backslash. (NOTE:  This must be done even when the character appears within a
+character string enclosed in quotes.)
 
-The number of fields read is set to 0, there being a total of
+The number of fields read is initially set to 0, there being a total of
 \verb+inp_n_field()+ fields in the line.
 
-If a non-blank line is successfully parsed then \TRUE is returned.
-Otherwise an internal error message is set and \FALSE is returned.
-
-Possible errors include detection of EOF ({\tt inp\_eof()} may be used to
-check for this condition) or failure to parse the line (e.g., a
+If a non-blank line is successfully parsed then \TRUE is returned;
+otherwise an internal error message is set and \FALSE is returned.
+Possible errors include such actions as detection of unexpected EOF 
+(which can be checked for with 
+function {\tt inp\_eof()}),
+or failure to parse the line (e.g., a
 character string without a terminating quote).
 
-EOF may be indicated by end of the physical input file, or by a
-physical input line that begins with either asterisk (*), period,
-or EOF (ignoring case), and has only trailing white space.
+End of file (EOF) is usually indicated by reaching the actual 
+end of the physical input file.  Alternatively, the user can specify
+the end of file location at any point by inserting a
+physical input line that begins with an asterisk (*), or a period,
+or the letters EOF (which may be in upper or lower case), and is followed
+only by trailing white space.
 
 The maximum input line width is 1024 characters.
 
@@ -72,33 +76,33 @@ The maximum input line width is 1024 characters.
   logical function inp_i(i)
   integer i        [output]
 \end{verbatim}
-Attempt to read the next field as an integer.  Upon success return
-\TRUE and advance to the next field.  Otherwise return \FALSE,
-save an internal error message and do not change the
+This function attempts to read the next field as an integer.  Upon success, it returns
+\TRUE and advances to the next field.  Otherwise it returns \FALSE,
+saves an internal error message and does not change the
 current field.  The input argument ({\tt i}) is not changed unless an
 integer is successfully read (so that any default value already
-present in i is not corrupted).
+present in variable \verb+i+ is not corrupted).
 
 \subsubsection{{\tt inp\_f}}
 \begin{verbatim}
   logical function inp_f(d)
   double precision d       [output]
 \end{verbatim}
-Attempt to read the next field as a floating point number.  Upon
-success return \TRUE and advance to the next field.  Otherwise
-return \FALSE, save an internal error message and do not change
+This function attempts to read the next field as a floating point number.  Upon
+success it returns \TRUE and advances to the next field.  Otherwise it
+returns \FALSE, saves an internal error message and does not change
 the current field.  The input argument ({\tt d}) is not changed unless
-an integer is successfully read (so that any default value already
-present in {\tt d} is not corrupted).
+a double precision number is successfully read (so that any default value already
+present in variable {\tt d} is not corrupted).
 
 \subsubsection{{\tt inp\_a}}
 \begin{verbatim}
   logical function inp_a(a)
   character *(*) a         [output]
 \end{verbatim}
-Attempt to read the next field as a character string.  Upon success
-return \TRUE and advance to the next field.  Otherwise return
-\FALSE, save an internal error message and do not change the
+This function attempts to read the next field as a character string.  Upon success
+it returns \TRUE and advances to the next field.  Otherwise it returns
+\FALSE, saves an internal error message and does not change the
 current field.
 
 \subsubsection{{\tt inp\_a\_trunc}}
@@ -106,10 +110,10 @@ current field.
   logical function inp_a_trunc(a)
   character *(*) a         [output]
 \end{verbatim}
-Attempt to read the next field as a character string, quietly
+This function attempts to read the next field as a character string, quietly
 discarding any data that does not fit in the user provided buffer.
-Upon success return \TRUE and advance to the next field.
-Otherwise return \FALSE, save an internal error message and do
+Upon success, it returns \TRUE and advances to the next field.
+Otherwise it returns \FALSE, saves an internal error message and does
 not change the current field.
 
 \subsubsection{{\tt inp\_line}}
@@ -117,9 +121,9 @@ not change the current field.
   logical function inp_line(z)
   character*(*) z          [output]
 \end{verbatim}
-Return in {\tt z} as much of the entire input line as it will hold and
-quietly discard any overflow.  Upon success return \TRUE,
-otherwise save an internal error message and return \FALSE
+This function returns in {\tt z} as much of the entire input line as it will hold and
+quietly discards any overflow.  Upon success returns \TRUE,
+otherwise saves an internal error message and returns \FALSE.
 
 \subsubsection{{\tt inp\_cline}}
 \begin{verbatim}
@@ -128,10 +132,10 @@ otherwise save an internal error message and return \FALSE
   integer len              [input]
   logical success          [input]
 \end{verbatim}
-A C-callable equivalent of inp\_line, which puts {\tt len -1} characters of
+This is a C-callable equivalent of inp\_line, which puts ({\tt len - 1}) characters of
 the input line into the character string {\tt z}. Trailing spaces are
 eliminated and the string is terminated with a 0 character, as is
-standard for C,
+standard for C.
 
 
 \subsubsection{{\tt inp\_irange}}
@@ -139,10 +143,10 @@ standard for C,
   logical function inp_irange(first, last, stride)
   integer first, last, stride     [output]
 \end{verbatim}
-Attempt to read the next field as a Fortran90-style triplet specifying
-a range with optional stride.  Upon success return \TRUE and
-advance to the next field.  Otherwise, return \FALSE, save
-internal error message, and do not change the current field.  The
+This function attempts to read the next field as a Fortran90-style triplet specifying
+a range with optional stride.  Upon success returns \TRUE and
+advances to the next field.  Otherwise, returns \FALSE, saves an
+internal error message, and does not change the current field.  The
 input arguments are not changed unless an integer range is
 successfully read.
 
@@ -159,12 +163,12 @@ routine.  The result will be as if the input had been
   integer list(maxlist)    [output]
   integer n                [output]
 \end{verbatim}
-Reads the remainder of the line as a list of integers and puts the
+This routine reads the remainder of the line as a list of integers and puts the
 results in {\tt list}.  Ranges of integers may be input compactly
 using the notation of \verb+inp_irange()+. The number of elements set
 from the input is returned in \verb+n+.
 
-\verb+inp_ilist+ returns \TRUE if the input is a valid integer
+The function \verb+inp_ilist+ returns \TRUE if the input is a valid integer
 list, and \FALSE otherwise, also setting an appropriate error
 message.  If $n > $ ~{\tt maxlist}, it indicates that there is too
 much data on the line to fit in {\tt list}.
@@ -176,16 +180,16 @@ much data on the line to fit in {\tt list}.
   integer nz               [input]
   character*(*) z(nz)      [input]
 \end{verbatim}
-Position the input file at the next logical input line which has a
+This function positions the input file at the next logical input line which has a
 first input field that matches the leading non-blank characters of one
-of the elements of \verb+z+.  If ocase is \TRUE then matches are case
+of the elements of \verb+z+.  If \verb+ocase+ is \TRUE then matches are case
 sensitive.
 
-If such a line is found then return \TRUE, and reset the
+The function returns \TRUE if such a line is found, and resets the
 current input field to 0 (i.e., as if \verb+inp_read()+ had just been
 called).
 
-If no such line is found return \FALSE\@.  The file will be
+The function returns \FALSE if no such line is found.  The file will be
 either at EOF or at a line which was not successfully parsed.  EOF may
 be detected by \verb+inp_eof()+.
 
@@ -195,7 +199,7 @@ be detected by \verb+inp_eof()+.
 \begin{verbatim}
   integer function inp_n_field()
 \end{verbatim}
-Returns the number of fields in the current input line (1, \ldots).  A
+This function returns the number of fields in the current input line (1, \ldots).  A
 value of 0 implies either that EOF or some other error was detected or
 {\tt inp\_read()} has not yet been called.
 
@@ -203,29 +207,30 @@ value of 0 implies either that EOF or some other error was detected or
 \begin{verbatim}
   integer function inp_cur_field()
 \end{verbatim}
-Returns the number of fields in the input line that have been processed
-so far (0, \ldots).  Thus if {\tt inp\_cur\_field()} returns 2, then the next
-field read by {\tt inp\_f()} etc.\ will be field 3.
+This function returns the number of fields in the input line that have been processed
+so far (0, \ldots).  For example, if {\tt inp\_cur\_field()} returns 2, then the next
+field read by {\tt inp\_f()} will be field 3.
 
 \subsubsection{{\tt inp\_set\_field}}
 \begin{verbatim}
   subroutine inp_set_field(value)
   integer value            [input]
 \end{verbatim}
-Sets the current field (as returned by \verb+inp_cur_field+) to be
-value.  $0 \le$~{\tt value}~$\le$ {\tt inp\_n\_field()}.  An out of
-range value results in error termination.
+This function sets the current field (as returned by \verb+inp_cur_field+) to be
+\verb+value+, where  $0 \le$~{\tt value}~$\le$ {\tt inp\_n\_field()}.  An out of
+range value results in an error and termination of execution.
 
 \subsubsection{{\tt inp\_prev\_field}}
 \begin{verbatim}
   subroutine inp_prev_field()
 \end{verbatim}
-A convenience routine that positions you to read the field (on the
-current input line) that was last read.  It is simply implemented as
+This is a convenience routine that makes it possible to read the field
+that was last read on the current input line.  It is simply implemented as
 \begin{verbatim}
         call inp_set_field(max(0,inp_cur_field()-1))
 \end{verbatim}
-At the beginning of the line this is a null operation.
+If the current field is at the beginning of the line, however,
+this is a null operation.
 
 
 \subsection{String routines}
@@ -237,22 +242,22 @@ interpreting input or formatting output.
   integer function inp_strlen(z)
   character*(*) z          [input]
 \end{verbatim}
-Return the index of the last non-blank character in {\tt z}, 0 being
-returned for a fully blank string.
+This routine returns the index of the last non-blank character in {\tt z}.  It
+returns zero for a fully blank string.
 
 \subsubsection{{\tt inp\_lcase}}
 \begin{verbatim}
   subroutine inp_lcase(z)
   character*(*) z          [input/oputput]
 \end{verbatim}
-Lowercase the character string {\tt z}.
+This routine converts the character string {\tt z} to all lower case.
 
 \subsubsection{{\tt inp\_ucase}}
 \begin{verbatim}
   subroutine inp_ucase(z)
   character*(*) z          [input/output]
 \end{verbatim}
-Uppercase the character string {\tt z}.
+This routine converts the character string {\tt z} to all upper case.
 
 \subsubsection{{\tt inp\_compare}}
 \begin{verbatim}
@@ -260,8 +265,9 @@ Uppercase the character string {\tt z}.
   logical ocase            [input]
   character*(*) a, b       [input]
 \end{verbatim}
-Return \TRUE iff all the characters in A match the first len(A)
-characters of B.  If ocase is \TRUE then comparisons are case
+This routine returns \TRUE if all the characters in {\tt a} 
+match the first {\tt len(a)}
+characters of {\tt b}.  If {\tt ocase} is \TRUE then comparisons are case
 sensitive, otherwise comparisons ignore case.
 
 \subsubsection{{\tt inp\_match}}
@@ -273,17 +279,19 @@ sensitive, otherwise comparisons ignore case.
   character*(*) array(nrec)[input]
   integer ind              [output]
 \end{verbatim}
-Let {\tt L} be the length of the character string test ignoring
-trailing blanks.  Attempt to find a unique match of \verb+test(1:L)+
-against elements of \verb+array(*)+.  If \verb+ocase+ is \TRUE then
+This routine attempts to find a unique match of \verb+test(1:L)+
+against elements of \verb+array(*)+, where
+{\tt L} is the length of the character string {\tt test}, ignoring
+trailing blanks.
+If \verb+ocase+ is \TRUE then
 comparisons are case sensitive, otherwise comparisons ignore case.
 
-If a unique match is made return the index of the element in
-\verb+ind+ and return \TRUE
+If a unique match is found, the routine assigns the index of the element to
+\verb+ind+ and returns \TRUE.
 
-If the match is ambiguous set \verb+ind+ to 0, and return \FALSE.
+If the match is ambiguous, \verb+ind+ is set to 0, and the function returns \FALSE.
 
-If no match is found set \verb+ind+ to -1 and return \FALSE.
+If no match is found, \verb+ind+ is set to -1, and the function returns \FALSE.
 
 \subsubsection{{\tt inp\_strtok}}
 \begin{verbatim}
@@ -292,20 +300,21 @@ If no match is found set \verb+ind+ to -1 and return \FALSE.
   character*(*) sep         ! [input] token separators
   integer istart, iend      ! [output] start/end of next token
 \end{verbatim}
-Returns the number of the start and end character of the next token in
+This routine returns the number of the start and end character of the next token in
 the character string.  Tokens are separated by one of the characters
-in \verb+sep+.  Note that all characters in \verb+sep+ are used including any
+in \verb+sep+.  Note that all characters in \verb+sep+ are used, including any
 trailing blanks.
 
-Before the first call initialize \verb+istart+ to zero, and leave
-\verb+istart+ and \verb+iend+ {\em unchanged} for subsequent calls.
-Repeated calls return the next token and \TRUE, or \FALSE if there are
+Before the first call to this routine, \verb+istart+ must be initialized to zero,
+and both
+\verb+istart+ and \verb+iend+ must remain {\em unchanged} for subsequent calls.
+Repeated calls return the next token and \TRUE.  It returns \FALSE if there are
 no more tokens.  The separators may be changed between calls.  No
 internal state is maintained (which is why \verb+istart+ and
 \verb+iend+ must not be modified between calls) so multiple strings
 may be parsed simultaneously.
 
-E.g., to split the character string \verb+list+ into tokens separated 
+For example, to split the character string \verb+list+ into tokens separated 
 by \verb+':'+ and print each token out, you might execute
 \begin{verbatim}
      istart = 0
@@ -321,21 +330,21 @@ by \verb+':'+ and print each token out, you might execute
 \begin{verbatim}
   subroutine inp_errout()
 \end{verbatim}
-If there is an internal error message, print out its value, the
-current line number and its contents.  If appropriate indicate the
+If there is an internal error message, this routine prints out its value, the
+current line number and its contents.  If appropriate, it also indicates the
 problematic position in the current input line.
 
 \subsubsection{{\tt inp\_outrec}}
 \begin{verbatim}
   subroutine inp_outrec()
 \end{verbatim}
-Print out the current input line.
+Prints out the current input line.
 
 \subsubsection{{\tt inp\_clear\_err}}
 \begin{verbatim}
   subroutine inp_clear_err()
 \end{verbatim}
-Clear error conditions and messages that may no longer be relevant.
+This routine clears error conditions and messages that may no longer be relevant.
 For instance, if values are read from a line until no more are
 available, the error message ``at end of line looking for \ldots''
 will be internally recorded.  A call to this routine will clear this state.
@@ -344,6 +353,6 @@ will be internally recorded.  A call to this routine will clear this state.
 \begin{verbatim}
   logical function inp_eof()
 \end{verbatim}
-Return \TRUE if EOF has been detected, \FALSE otherwise.
+This routine returns \TRUE if EOF has been detected, \FALSE otherwise.
 
 

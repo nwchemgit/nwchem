@@ -233,7 +233,7 @@ is/was used by some of the iterative equation solvers.
   Solve the eigenvalue equation ${\bf A}x = \lambda x$ with the
 vectors $x$ in GA and a routine (product) to form a matrix vector
 product to a required precision.  Return \TRUE\ if converged, \FALSE
-otherwise. The function rnorm returns the actual attained precision for each root.
+otherwise. The function \verb+rnorm+ returns the actual attained precision for each root.
      
 The block-Davidson-like algorithm solves for the best solution for
 each eigenvector in the iterative subspace ($x_i, i = 1, k$) with
@@ -244,7 +244,7 @@ each eigenvector in the iterative subspace ($x_i, i = 1, k$) with
 %%% {\em NB:} The matrix vector products ${\bf A}x_i$ are performed by the user
 % NB == nota bene -- due to the sad decline in classical learning among the
 % educated elite, this has been changed to simply 'Note'
-{\em Note:} The matrix vector products ${\bf A}x_i$ are performed by the user
+{\em Note:} The matrix vector products ${\bf A}x_i$ are performed by the user-
 provided routine \verb+product()+ to a precision specified by this routine
 (currently products are performed one at a time, but it is easy to
 improve the routine to perform many in one call).
@@ -258,15 +258,15 @@ New expansion vectors are added by multiplying the residual
   r = ({\bf A} - s {\bf I}) x, \mbox{ where } s \mbox{ is the shift},
 \end{displaymath}
 with some approximation ($P$) to the inverse of ${\bf A}-s{\bf I}$.
-This preconditioning is performed by the user provided routine
+This preconditioning is performed by the user-provided routine
 \verb+precond()+.  If \verb+eval0+ is a hard zero then the shift ($s$) is
 chosen as the current estimate for the eigenvalue that the next update
 strives to improve.  Otherwise the shift is fixed as \verb+eval0+
 which is appropriate for convergence to a known energy spectrum from
 some poor initial guess.
      
-  The program cyles through the lowest nroot roots updating each that
-does not yet satisfy the convergence criterion which is
+  The program cyles through the lowest \verb+nroot+ roots, updating each that
+does not yet satisfy the convergence criterion, which is
 \begin{displaymath}
    {\tt rnorm(root)} = ||r|| < {\tt tol}
 \end{displaymath}
@@ -288,8 +288,8 @@ The use must proivde these routines:
      
 If the initial guess is zero no redundant matrix product is formed.
     
-Temporary global arrays of dimension \verb+n*maxsub+, \verb+n*maxsub+, 
-\verb+n+ and \verb+n+ are created.
+Temporary global arrays of dimension \verb+n*maxsub+
+ and \verb+n+ are created.
 
 
 \subsubsection{{\tt ga\_iter\_lsolve}}
