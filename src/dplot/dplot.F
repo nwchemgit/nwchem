@@ -71,7 +71,7 @@
          Write(LuOut,*)'       From        To      # of spacings'
       End If
       Scale = 1.8897265d0
-      If (Units.eq.'ANGSTROM') Call DScal(6,Scale,Ext_From_To,1)
+      If (Units.eq.'ANGSTROM') Call dscal(6,Scale,Ext_From_To,1)
       nGrid = 1
       Do i = 1, 3
          nGrid = nGrid*(No_Of_Spacings(i)+1)

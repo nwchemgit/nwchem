@@ -30,7 +30,7 @@
       Do iCol = 1, nBF
          Call GA_Get(g_Scr,1,nBF,iCol,iCol,Dbl_mb(k_Scr),nBF)
          Scale = nOcc(iCol)
-         Call DScal(nBF,Scale,Dbl_mb(k_Scr),1)
+         Call dscal(nBF,Scale,Dbl_mb(k_Scr),1)
          Call GA_Sync
          Call GA_Put(g_Scr,1,nBF,iCol,iCol,Dbl_mb(k_Scr),nBF)
       End Do
