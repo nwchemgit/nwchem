@@ -1,6 +1,6 @@
       subroutine qhop_init(lfntop,filtop,lfnout,me)
 c
-c $Id: qhop_init.F,v 1.3 2003-08-18 17:35:32 d3j191 Exp $
+c $Id: qhop_init.F,v 1.4 2003-10-27 20:37:39 marat Exp $
 c
       implicit none
 c
@@ -54,17 +54,17 @@ c
 c     allocate memory for parameter arrays
 c
       if(.not.ma_push_get(mt_int,2*maxseq,'iptseq',l_ptseq,i_ptseq))
-     + call errquit('Failed to allocate iptseq',0)
+     + call md_abort('Failed to allocate iptseq',0)
       if(.not.ma_push_get(mt_int,mxseq,'iptarat',l_ptarat,i_ptarat))
-     + call errquit('Failed to allocate iptarat',0)
+     + call md_abort('Failed to allocate iptarat',0)
       if(.not.ma_push_get(mt_int,4*mxar,'iarat',l_iarat,i_iarat))
-     + call errquit('Failed to allocate iarat',0)
+     + call md_abort('Failed to allocate iarat',0)
       if(.not.ma_push_get(mt_dbl,2*mxar,'racs',l_racs,i_racs))
-     + call errquit('Failed to allocate racs',0)
+     + call md_abort('Failed to allocate racs',0)
       if(.not.ma_push_get(mt_int,maxpar,'iptpar',l_ptpar,i_ptpar))
-     + call errquit('Failed to allocate iptpar',0)
+     + call md_abort('Failed to allocate iptpar',0)
       if(.not.ma_push_get(mt_dbl,31*maxpar,'par',l_par,i_par))
-     + call errquit('Failed to allocate par',0)
+     + call md_abort('Failed to allocate par',0)
 c
       call qhop_init2(lfntop,lfnout,me,
      + int_mb(i_ptseq),int_mb(i_ptarat),int_mb(i_iarat),
@@ -96,14 +96,14 @@ c     + dbl_mb(i_par+17*maxpar),dbl_mb(i_par+23*maxpar),
 c     + dbl_mb(i_par+28*maxpar))
 c
       return
- 9999 call errquit('Error reading qhop data from topology file',me)
+ 9999 call md_abort('Error reading qhop data from topology file',me)
       return
       end
       subroutine qhop_init2(lfntop,lfnout,me,
      + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
      + tdsgl,tstval,e12fxy)
 c
-c $Id: qhop_init.F,v 1.3 2003-08-18 17:35:32 d3j191 Exp $
+c $Id: qhop_init.F,v 1.4 2003-10-27 20:37:39 marat Exp $
 c
       implicit none
 c
@@ -203,11 +203,11 @@ c
       endif
 c
       return
-  112 call errquit('err opening input file',0)
+  112 call md_abort('err opening input file',0)
       return
-  113 call errquit( 'err opening output file',0)
+  113 call md_abort( 'err opening output file',0)
       return
- 9999 call errquit('Error reading qhop data from topology file',me)
+ 9999 call md_abort('Error reading qhop data from topology file',me)
       return
       end
       subroutine qhop_test(lfnout,me,
