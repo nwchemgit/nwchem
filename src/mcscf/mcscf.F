@@ -1,6 +1,6 @@
       logical function mcscf( rtdb )
 *
-* $Id: mcscf.F,v 1.58 1997-11-14 22:40:11 d3g681 Exp $
+* $Id: mcscf.F,v 1.59 1997-11-19 05:23:01 d3j191 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -297,7 +297,7 @@ c
       status = detci_memsiz(nact, nela, nelb, nsym,
      $     int_mb(k_sym+nclosed), nci )
       if (oprinfo) write(6,7761) nci
- 7761 format(7x,'No. of determinants:'6x,i8/)
+ 7761 format(7x,'No. of determinants:',6x,i8/)
 c     
 c     Print orbital info
 c     
