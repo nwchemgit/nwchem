@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.117 2000-05-09 22:27:13 edo Exp $
+# $Id: make_nwchem_config,v 1.118 2000-05-18 02:07:37 edo Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -143,7 +143,7 @@ MODULES := $(patsubst drdy,drdy ddscf gradients stepper,$(MODULES) )
 MODULES := $(patsubst dplot,dplot nwdft ddscf,$(MODULES) )
 MODULES := $(patsubst pspw,pspw fft,$(MODULES) )
 
-MODULES := $(patsubst ddscf,ddscf nwdft atomscf NWints,$(MODULES) )
+MODULES := $(patsubst ddscf,ddscf  atomscf NWints,$(MODULES) )
 # This dependency is the other way round (matchnxyz used by symmetry)
 # but is required for correct linking on SOLARIS.  Nasty kludge.
 #
@@ -221,7 +221,7 @@ STUBROUTINES := $(patsubst hessian, scf_hessian xc_init_index xc_exit_index hess
 STUBROUTINES := $(patsubst ccsd,ccsd ccsd_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mcscf,mcscf mcscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst moints,atwtest direct_mp2 moints_full,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst nwdft,nwdft dft_input xc_quadv0_gen,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst nwdft,nwdft dft_fitcd grid_cleanup dft_fitvc grid_quadv0_gen dft_input xc_quadv0_gen,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gapss,gapss gap_parse,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rimp2,rimp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rimp2_grad,rimp2g,$(STUBROUTINES) )
