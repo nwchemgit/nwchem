@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.8 2004-09-02 23:55:41 marat Exp $
+c $Id: qmmm_geom.F,v 1.9 2004-09-03 20:07:56 marat Exp $
 c
 c
       subroutine qmmm_create_qm_geom(irtdb)
@@ -25,6 +25,7 @@ c     local variables
       character(255) basis_string
 
       nqm   = qmmm_get_nqm()
+      nlink = qmmm_get_nlink()
       i_ind = qmmm_get_i_ai()
       i_num = qmmm_get_i_num()
       i_c   = qmmm_get_i_c()
@@ -32,19 +33,6 @@ c     local variables
       i_qf  = qmmm_get_i_qf()
       i_t   = qmmm_get_i_t()
       i_m   = qmmm_get_i_m()
-      call mm_get_tot_nlink(nlink)
-
-c 
-c     establish persistent mapping between mm and qm atoms
-c     ----------------------------------------------------
-      call mm_get_solute_quant_ind(nqm-nlink,int_mb(i_ind))
-c     include link atoms if any
-c     -------------------------
-      if(nlink.gt.0) then
-        write(*,*) "found link atoms",nlink
-        call mm_get_solute_link_ind(nlink,int_mb(i_ind+nqm-nlink))
-      end if
-
 
       call mm_get_solute_geom_gen(nqm,
      >                 mm_quant_link,
@@ -55,10 +43,11 @@ c     -------------------------
      >                 dbl_mb(i_q),
      >                 dbl_mb(i_m))
 
-      do i=1,nqm
-       dbl_mb(i_qf+i-1)=dble(int_mb(i_num+i-1))
-      end do
 
+c
+c     adjust link atom names and
+c     basis set if needed
+c     --------------------------
       if(nlink.gt.0) then
        call qmmm_link_atoms(nlink,
      >                      int_mb(i_num+(nqm-nlink)),
@@ -66,6 +55,9 @@ c     -------------------------
      >                      dbl_mb(i_m+(nqm-nlink)))
       end if
 
+c
+c     set formal charges
+c     -----------------
       do i=1,nqm
        dbl_mb(i_qf+i-1)=dble(int_mb(i_num+i-1))
       end do

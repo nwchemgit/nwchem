@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.12 2004-09-02 23:55:41 marat Exp $
+c $Id: qmmm.F,v 1.13 2004-09-03 20:07:56 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -16,7 +16,6 @@ c
       logical qmmm_init
 c
       integer nqm
-c      integer i_ind
 
       qmmm_init = .true.
 
@@ -25,13 +24,8 @@ c     (note it will also want operation)
 c     --------------------------------------------
       call mm_init(irtdb)
 
-c     get total number of quantum atoms
-c     --------------------------------
-      call mm_get_tot_nqm(nqm)
-
 c     allocate and initialize qmmm data structure
 c     -------------------------------------------
-      call qmmm_data_alloc(nqm)
       call qmmm_data_init(irtdb)
 
 c     create initial qm geometry

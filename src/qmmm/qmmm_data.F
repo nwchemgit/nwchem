@@ -1,3 +1,51 @@
+      subroutine qmmm_data_init(irtdb)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_data.fh"
+#include "rtdb.fh"
+
+      integer irtdb
+
+
+      call mm_get_tot_nqm(nqm)
+      call mm_get_tot_nlink(nlink)
+c
+c     allocate data arrays
+c     --------------------
+      call qmmm_data_alloc(nqm)
+
+c 
+c     establish persistent mapping between mm and qm atoms
+c     ----------------------------------------------------
+c 
+c     first we do quantum non-link atoms
+      call mm_get_solute_quant_ind(nqm-nlink,int_mb(i_ai))
+c     and then link atoms if any
+c     -------------------------
+      if(nlink.gt.0) then
+        call mm_get_solute_link_ind(nlink,int_mb(i_ai+nqm-nlink))
+      end if
+
+
+      if(.not.rtdb_get(irtdb,'charge',mt_dbl,1,qcharge)) then
+        qcharge = 0.0d0    
+      end if
+
+       if (.not.rtdb_get(irtdb,'qmmm:linkatm',mt_int,1,link_atom))
+     + call errquit('qmmm_data_init: qmmm:linkatm',link_atom,
+     &       RTDB_ERR)
+
+       if (.not.rtdb_get(irtdb,'qmmm:bq_exclude',mt_int,1,bq_exclude))
+     + call errquit('qmmm_data_init: qmmm:bq_exclude',bq_exclude,
+     &       RTDB_ERR)
+
+      nbqs  = 0
+      nbqw  = 0
+
+      end
+
       subroutine qmmm_data_alloc(nat)
       implicit none
 c
@@ -71,31 +119,63 @@ c     -------------------
        
       end
 
-      subroutine qmmm_data_init(irtdb)
+      subroutine qmmm_data_bq_alloc(nbq)
       implicit none
 c
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm_data.fh"
-#include "rtdb.fh"
+      integer nbq
 
-      integer irtdb
+      if(.not.ma_alloc_get(mt_dbl,3*nbq,'cbq',h_cbq,i_cbq))
+     + call errquit('qmmm: Failed to allocate memory for cbq',3*nbq,
+     +       MA_ERR)
+      call dfill(3*nbq,0.00,dbl_mb(i_cbq),1)
+      if(.not.ma_alloc_get(mt_dbl,nbq,'qbq',h_qbq,i_qbq))
+     + call errquit('qmmm: Failed to allocate memory for qbq',nbq,
+     &       MA_ERR)
+      call dfill(nbq,0.00,dbl_mb(i_qbq),1)
+      if(.not.ma_alloc_get(mt_int,nbq,'ibq',h_ibq,i_ibq))
+     + call errquit('qmmm: Failed to allocate memory for ibq',nbq,
+     &       MA_ERR)
+      call ifill(nbq,0,int_mb(i_ibq),1)
+      if(.not.ma_alloc_get(MT_BYTE, 16*nbq, 'bq tag array',
+     &      h_tbq, i_tbq) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      nbq, MA_ERR)
 
-      nbqs = 0
-      nbqw = 0
+      
+      end
 
-      if(.not.rtdb_get(irtdb,'charge',mt_dbl,1,qcharge)) then
-        qcharge = 0.0d0    
-      end if
+      subroutine qmmm_data_bq_dealloc()
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_data.fh"
 
-       if (.not.rtdb_get(irtdb,'qmmm:linkatm',mt_int,1,link_atom))
-     + call errquit('qmmm_data_init: qmmm:linkatm',link_atom,
-     &       RTDB_ERR)
+      integer nbq
+      nbq=nbqs+nbqw
+      if(nbqs+nbqw.eq.0) return
 
-       if (.not.rtdb_get(irtdb,'qmmm:bq_exclude',mt_int,1,bq_exclude))
-     + call errquit('qmmm_data_init: qmmm:bq_exclude',bq_exclude,
-     &       RTDB_ERR)
+        if(.not.ma_free_heap(h_tbq))
+     +   call errquit('qmmm:memory deallocation for qbq',nbq,
+     &         MA_ERR)
 
+        if(.not.ma_free_heap(h_ibq))
+     +   call errquit('qmmm:memory deallocation for qbq',nbq,
+     &         MA_ERR)
+      
+        if(.not.ma_free_heap(h_qbq))
+     +   call errquit('qmmm:memory deallocation for qbq',nbq,
+     &         MA_ERR)
+
+        if(.not.ma_free_heap(h_cbq))
+     +   call errquit('qmmm: memory deallocation for cbq',3*nbq,
+     +         MA_ERR)
+
+        nbqs=0
+        nbqw=0
 
       end
  
@@ -124,6 +204,16 @@ c
       integer qmmm_get_nqm
 
       qmmm_get_nqm = nqm
+
+      end 
+
+      function qmmm_get_nlink()
+      implicit none
+#include "qmmm_data.fh"
+
+      integer qmmm_get_nlink
+
+      qmmm_get_nlink = nlink
 
       end 
 
@@ -250,6 +340,24 @@ c
 
       end 
 
+      function qmmm_get_i_ibq()
+      implicit none
+#include "qmmm_data.fh"
+      integer qmmm_get_i_ibq
+
+      qmmm_get_i_ibq = i_ibq
+
+      end 
+
+      function qmmm_get_i_tbq()
+      implicit none
+#include "qmmm_data.fh"
+      integer qmmm_get_i_tbq
+
+      qmmm_get_i_tbq = i_tbq
+
+      end 
+
       function qmmm_get_h_cbqs()
       implicit none
 #include "qmmm_data.fh"
@@ -296,16 +404,15 @@ c
 
       end 
 c
-      subroutine qmmm_set_bqi(a_i_bqi,a_h_bqi)
+      subroutine qmmm_set_ibq(a_i_ibq,a_h_ibq)
       implicit none
 #include "qmmm_data.fh"
-      integer a_i_bqi,a_h_bqi
+      integer a_i_ibq,a_h_ibq
 
-      i_bqi=a_i_bqi
-      h_bqi=a_h_bqi
+      i_ibq=a_i_ibq
+      h_ibq=a_h_ibq
 
       end 
-
 
       subroutine qmmm_set_qbq(a_i_qbq,a_h_qbq)
       implicit none
@@ -415,6 +522,16 @@ c
       integer qmmm_get_link_atom
 
       qmmm_get_link_atom = link_atom
+
+      end 
+
+      subroutine qmmm_set_nlink(anlink)
+      implicit none
+#include "qmmm_data.fh"
+
+      integer anlink
+
+      nlink=anlink
 
       end 
 

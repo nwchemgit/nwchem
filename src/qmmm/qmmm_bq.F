@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_bq.F,v 1.6 2004-09-02 23:55:41 marat Exp $
+c $Id: qmmm_bq.F,v 1.7 2004-09-03 20:07:56 marat Exp $
 c
 c
 
@@ -10,14 +10,17 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "qmmm.fh"
+#include "mm_utils.fh"
       integer irtdb
 c     local variables
+      integer i
       integer nbq
       integer nbqs
       integer nbqw
       integer i_cbq,h_cbq
       integer i_qbq,h_qbq
-      integer i_bqi,h_bqi
+      integer i_ibq,h_ibq
+      integer i_tbq
       character*4 bqtag
       character*16 myname
 
@@ -27,10 +30,14 @@ c     information
 c     ---------------------
       call qmmm_unload_bq()
 c
+c     remove bq atoms bonded to link
+c     atoms per input specifications
+c     -----------------------------
+      call mm_prune_bqzone()
+c
 c     get total number of solute and
 c     solvent Bq's from MM and save them
 c     -----------------------------
-      call mm_prune_bqzone()
       call mm_get_tot_nbqs(nbqs)
       call qmmm_set_nbqs(nbqs)
 
@@ -49,26 +56,20 @@ c
 c     allocate memory for coord and charges
 c     and indexing
 c     -------------------------------------
-      if(.not.ma_alloc_get(mt_dbl,3*nbq,'cbq',h_cbq,i_cbq))
-     + call errquit('qmmm: Failed to allocate memory for cbq',3*nbq,
-     +       MA_ERR)
-      if(.not.ma_alloc_get(mt_dbl,nbq,'qbq',h_qbq,i_qbq))
-     + call errquit('qmmm: Failed to allocate memory for qbq',nbq,
-     &       MA_ERR)
-      if(.not.ma_alloc_get(mt_int,nbq,'bqi',h_bqi,i_bqi))
-     + call errquit('qmmm: Failed to allocate memory for bqi',nbq,
-     &       MA_ERR)
+      call qmmm_data_bq_alloc(nbq)
 
-
-      call qmmm_set_cbq(i_cbq,h_cbq)
-      call qmmm_set_qbq(i_qbq,h_qbq)
-      call qmmm_set_bqi(i_qbq,h_qbq)
 c
 c     load solute bq coord and charges from MM
 c     ---------------------------------------    
+      
+      i_cbq = qmmm_get_i_cbq()
+      i_qbq = qmmm_get_i_qbq()
+      i_ibq = qmmm_get_i_ibq()
+      i_tbq = qmmm_get_i_ibq()
       if(nbqs.ne.0) then
+c        call mm_get_solute_bq_ind(nbqs,int_mb(i_ibq))
         call mm_get_geom_bqs(nbqs,
-     >                       int_mb(i_bqi),
+     >                       int_mb(i_ibq),
      >                       dbl_mb(i_cbq),
      >                       dbl_mb(i_qbq))
         myname = "test-bqs.pdb"
@@ -82,7 +83,7 @@ c     append solvent bq coord and charges from MM
 c     -------------------------------------------    
       if(nbqw.ne.0) then
         call mm_get_geom_bqw(nbqw,
-     >                       int_mb(i_bqi+nbqs),
+     >                       int_mb(i_ibq+nbqs),
      >                       dbl_mb(i_cbq+3*nbqs),
      >                       dbl_mb(i_qbq+nbqs))
         myname = "test-bqw.pdb"
@@ -103,21 +104,7 @@ c     local variables
       integer h_cbq
       integer h_qbq
 
-      nbq   = qmmm_get_nbq()
-      if(nbq.gt.0) then
-        h_cbq = qmmm_get_h_cbq()
-        h_qbq = qmmm_get_h_qbq()
-
-        if(.not.ma_free_heap(h_cbq))
-     +   call errquit('qmmm: memory deallocation for cbq',3*nbq,
-     +         MA_ERR)
-
-        if(.not.ma_free_heap(h_qbq))
-     +   call errquit('qmmm:memory deallocation for qbq',nbq,
-     &         MA_ERR)
-        call qmmm_set_nbqs(0)
-        call qmmm_set_nbqw(0)
-      end if
-     
+      call qmmm_data_bq_dealloc()
+    
       end
  

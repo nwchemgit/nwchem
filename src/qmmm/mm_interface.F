@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.12 2004-09-02 23:55:41 marat Exp $
+c $Id: mm_interface.F,v 1.13 2004-09-03 20:07:56 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -550,6 +550,20 @@ c     local variables
       integer ind(nt)
       
       call mm_get_solute_ind_gen(nt,mm_link,ind)
+      end
+
+      subroutine mm_get_solute_bq_ind(nt,ind)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "mm_utils.fh"
+#include "msgids.fh"
+      integer nt
+      integer ind(nt)
+      
+      call mm_get_solute_ind_gen(nt,mm_bqzone,ind)
       end
 
       subroutine mm_get_solute_quant_ind(nt,ind)
