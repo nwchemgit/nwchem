@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.77 2003-12-22 17:30:35 edo Exp $ 
+% $Id: dft.tex,v 1.78 2004-04-22 07:21:42 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -90,10 +90,10 @@ the DFT module are:
 
   GRID [(xcoarse||coarse||medium||fine||xfine) default medium] \
        [(gausleg||lebedev ) default lebedev ] \
-       [(old||new) default new ] \
        [(becke||erf1||erf2||ssf) default erf1] \
        [(euler||mura||treutler) default mura] \
-       [rm <real rm default 2.0>]
+       [rm <real rm default 2.0>] \
+       [nodisk]
         
 
   TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-10>] \
@@ -919,10 +919,10 @@ energies and gradients consistent.
 \begin{verbatim}
   GRID [(xcoarse||coarse||medium||fine||xfine) default medium] \
        [(gausleg||lebedev ) default lebedev ] \
-       [(old||new) default new ] \
        [(becke||erf1||erf2||ssf) default erf1] \
        [(euler||mura||treutler) default mura] \
-       [rm <real rm default 2.0>]
+       [rm <real rm default 2.0>] \
+       [nodisk]
 \end{verbatim}
 
 A numerical integration is necessary for the evaluation of the
@@ -1162,11 +1162,6 @@ As an example, here is a grid input line for the water molecule
 grid lebedev 80 11 H 70 8  O 90 11 
 \end{verbatim}
 
-%       [store_wght] [nquad_task <integer nquad_task default 1>] \
-%{\bf JEFF: store\_weight and nquad\_task need explaining}
-%store\_weight and nquad_task keywords will remain as expert user only
-% and not advertised until further tested. -jan
-%
 
 % Delley weights do not work .. need to replace with SSWs after input is
 %changed  
@@ -1222,19 +1217,13 @@ in this paper).\\
   by O.Treutler and R.Alrhichs, J.Chem.Phys {\bf 102}, 346 (1995).\\
 \end{description}
 
-\subsection{Grid Scheme}
+\subsection{Disk usage for Grid}
 
 \begin{verbatim}
-  GRID [[old||new]  default new]
+  NODISK
 \end{verbatim}
 
-In NWChem 4.0 the XC integration code has been re-written using a
-space decomposiition scheme similar to the one proposed in R.E.Stratmann, G.Scuseria and  M.J.Frisch,
-Chem. Phys. Lett. {\bf 257}, 213 (1996) (keyword
-{\bf \tt new}). 
-
-To use the XC integration routines available in
-older version of NWChem, use the keyword {\bf \tt old}.
+This keyword turns off storage of grid points and weights on disk.
 
 
 \section{{\tt TOLERANCES} --- Screening tolerances}
