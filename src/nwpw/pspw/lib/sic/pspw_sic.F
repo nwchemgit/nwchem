@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.24 2003-10-24 18:57:00 marat Exp $
+* $Id: pspw_sic.F,v 1.25 2003-10-24 19:01:35 bylaska Exp $
 *
 
 *     *************************
@@ -864,7 +864,8 @@ c    >                        Hpsi_k(index2))
         end do
         value = MA_pop_stack(ipv(2))
         if (.not. value) 
-     >    call errquit('pspw_potential_SIC_OEP:popping stack memory',2,0)
+     >    call errquit(
+     >    'pspw_potential_SIC_OEP:popping stack memory',2,0)
 
         do ms=1,ispin
         do i=1,ne(ms)
@@ -913,7 +914,8 @@ c    >                        Hpsi_k(index2))
         value = value.and.MA_pop_stack(xcp(2))
         value = value.and.MA_pop_stack(dn(2))
         if (.not. value) 
-     >    call errquit('pspw_potential_SIC_OEP:popping stack memory',3,0)
+     >    call errquit(
+     >     'pspw_potential_SIC_OEP:popping stack memory',3,0)
 
       return
       end

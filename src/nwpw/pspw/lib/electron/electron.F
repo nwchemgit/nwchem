@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.27 2003-10-24 18:56:59 marat Exp $
+* $Id: electron.F,v 1.28 2003-10-24 19:01:35 bylaska Exp $
 *
 
 
@@ -1521,7 +1521,8 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       value = MA_pop_stack(v_oep(2))
       if (.not. value)
-     >  call errquit('electron_add_oep_to_vall:popping stack memory',1,0)
+     >  call errquit(
+     >  'electron_add_oep_to_vall:popping stack memory',1,0)
 
       return
       end
