@@ -1,6 +1,9 @@
 *
-* $Id: paw_cpmd.F,v 1.2 2003-09-26 01:16:48 bylaska Exp $
+* $Id: paw_cpmd.F,v 1.3 2003-09-26 16:31:16 bylaska Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.2  2003/09/26 01:16:48  bylaska
+* io bug fix...EJB
+*
 * Revision 1.1  2003/09/25 23:46:23  bylaska
 * PAW Car-Parrinello added...EJB
 *
@@ -46,7 +49,7 @@
       integer npack1
 
 *     **** electronic variables ****
-      logical first_iteration,psi_nogrid,mulliken
+      logical first_iteration,psi_nogrid
       integer ispin,icharge
       integer ne(2),n1(2),n2(2),nemax
       real*8  r_charge
@@ -119,11 +122,11 @@
 
 
 
-      real*8   control_rti,control_rte,ion_rion
+      real*8   control_rti,control_rte
       real*8   ion_vion,ion_com_ke,ion_ke
       real*8   ion_Temperature,ion_com_Temperature
       real*8   pspw_qmmm_Temperature
-      external control_rti,control_rte,ion_rion
+      external control_rti,control_rte
       external ion_vion,ion_com_ke,ion_ke
       external ion_Temperature,ion_com_Temperature
       external pspw_qmmm_Temperature
@@ -156,8 +159,8 @@
       real*8       nwpw_timing,paw_psi_CheckOrtho
       external     nwpw_timing,paw_psi_CheckOrtho
 
-      logical  control_Nose,control_Mulliken,pspw_qmmm_found
-      external control_Nose,control_Mulliken,pspw_qmmm_found
+      logical  control_Nose,pspw_qmmm_found
+      external control_Nose,pspw_qmmm_found
 
       real*8   control_Nose_Te,Nose_Qe,control_Nose_Pe,Nose_Ee0
       external control_Nose_Te,Nose_Qe,control_Nose_Pe,Nose_Ee0
