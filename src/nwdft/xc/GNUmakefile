@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.9 1994-12-29 06:36:07 og845 Exp $
+# $Id: GNUmakefile,v 1.10 1994-12-31 01:18:38 og845 Exp $
 ifeq ($(NWCHEM_TARGET),SGITFP)
 	OBJ = getvxc.o quadvxc0.o quadvxc1.o fitvxc.o gaget2oi.o
 	OBJ_OPTIMIZE = \
@@ -26,6 +26,7 @@ else
 endif
 
      LIBRARY = libnwdft.a
+   LIB_DEFINES = -DDFT_TIMER
 
    USES_BLAS = fitvxc.F quadvxc0.F quadvxc1.F dirac.F tabcd.F rho_gen.F
 
