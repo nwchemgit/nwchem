@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.117 2002-02-01 00:50:49 windus Exp $
+c $Id: basis.F,v 1.118 2002-05-08 22:51:24 bert Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -726,18 +726,20 @@ c
 *.....................................................................
       logical function bas_rtdb_load(rtdb, geom, basisin, name)
       implicit none
+#include "rtdb.fh"
 #include "mafdecls.fh"
+#include "context.fh"
 #include "stdio.fh"
 #include "inp.fh"
 c::functions
       logical  bas_rtdb_do_load, bas_get_ecp_name, bas_set_ecp_name
       logical  bas_create, bas_do_destroy, bas_set_ecp_handle
-      logical  ecp_set_parent_handle
-      logical  bas_name_exist_rtdb
+      logical  ecp_set_parent_handle, bas_summary_print
+      logical  bas_name_exist_rtdb, bas_print
       external bas_rtdb_do_load, bas_get_ecp_name, bas_set_ecp_name
       external bas_create, bas_do_destroy, bas_set_ecp_handle
-      external ecp_set_parent_handle
-      external bas_name_exist_rtdb
+      external ecp_set_parent_handle, bas_summary_print
+      external bas_name_exist_rtdb, bas_print
       logical bas_get_so_name, bas_set_so_name, bas_set_so_handle
       logical so_set_parent_handle
       external bas_get_so_name, bas_set_so_name, bas_set_so_handle
@@ -851,6 +853,28 @@ c
             call errquit('bas_rtdb_load: bas_do_destroy failed',911)
           endif
         endif
+      endif
+c
+c Check if we need to print the basis set. The basis set might not 
+c have been printed, this happens when the user asks for the basis
+c to be printed but the basis set contains star tags, which only can 
+c can be resolved at the task level.
+c
+c Reusing ecp_name and so_name and status
+c
+      if (.not.context_rtdb_match(rtdb,name,ecp_name))
+     &       ecp_name = name
+      so_name = 'basisprint:'//ecp_name(1:inp_strlen(ecp_name))
+      if (rtdb_get(rtdb,so_name,mt_log,1,status)) then
+         if (status) then
+            if (.not. bas_print(basisin))
+     $         call errquit('bas_rtdb_load: print failed', 0)
+            if (.not.bas_summary_print(basisin)) call 
+     $         errquit('bas_rtdb_load: basis summary print failed',911)
+            status = .false.
+            if (.not. rtdb_put(rtdb,so_name,mt_log,1,status))
+     $         call errquit('bas_rtdb_load: rtdb_put failed',911)
+         endif
       endif
 c
       call bas_ecce_print_basis(basisin,'bas_input')
