@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.61 2002-03-24 20:55:25 edo Exp $
+c     $Id: dft_inpana.F,v 1.62 2002-03-26 07:00:01 edo Exp $
 c
 c*********************************************************************
 c     
@@ -634,10 +634,11 @@ c 9139 format(10x,'Spatial weights used: Delley. ')
 #include "util.fh"
       integer rtdb
 c
-      logical oprint_general
+      logical oprint_general,oprint_tolgr
       double precision tol2e
 c
       oprint_general = util_print('general information',print_default)
+      oprint_tolgr = util_print('grid_tol_info', print_high)                    
 c
 c     get e_conv from rtdb because hess_init
 c
@@ -658,6 +659,7 @@ c
             write(LuOut,*)' itol2e modified to match energy'
             write(LuOut,*)' convergence criterion.'
          endif
+      endif
 c
 c     check density tolerance to make sure it matches
 c     requested convergence tolerances.
@@ -674,16 +676,23 @@ c
             write(LuOut,*)' convergence criterion.'
          endif
       endif
-      endif
       if (.not. rtdb_get(rtdb, 'dft:iAOacc', mt_int, 1,
      &   iAOacc))then
          iAOacc=-nint(log(e_conv))
-         if (.not. rtdb_put(rtdb, 'dft:iAOacc',
+      else
+        iAOacc=max(iAOacc,-nint(log(e_conv)))
+      endif	
+       call util_flush(6)
+       if (.not. rtdb_put(rtdb, 'dft:iAOacc',
      &      mt_int, 1, iAOacc))
      &      call errquit('dft_inpanae: rtdb_put failed', 124)
-      endif
       tol2e = 10.d0**(-itol2e)
       if (.not. rtdb_put(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)) 
      .     call errquit('dftinpanae:rtdbput failed',0)
+      if(oprint_tolgr.and.ga_nodeid().eq.0) then
+        write(luout,*) ' dftinpanae: itol2e ',itol2e,
+     ,     ' iaoacc ',iaoacc,
+     ,    ' tol_rho ',tol_rho
+      endif
       return
       end
