@@ -1,6 +1,6 @@
       subroutine tce_zero(d_sf,size)
 c
-c $Id: tce_zero.F,v 1.10 2003-08-05 05:07:24 sohirata Exp $
+c $Id: tce_zero.F,v 1.11 2003-09-16 21:50:12 sohirata Exp $
 c
 c     Zero scratch a file
 c
@@ -28,9 +28,13 @@ c
       if (ioalg.eq.2) then
         call ga_zero(d_sf)
       else if (ioalg.eq.5) then
-        call dratoga(d_sf)
-        call ga_zero(filehandles(d_sf))
-        call gatodra(d_sf)
+        if (fileisga(d_sf)) then
+          call ga_zero(filehandles(d_sf))
+        else
+          call dratoga(d_sf)
+          call ga_zero(filehandles(d_sf))
+          call gatodra(d_sf)
+        endif
       else if ((ioalg.eq.6).and.fileisga(d_sf)) then
         call ga_zero(filehandles(d_sf))
       else

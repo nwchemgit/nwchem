@@ -1,6 +1,6 @@
       subroutine tce_mod1(g_aod1,d_mod1,dipole)
 c
-c $Id: tce_mod1.F,v 1.2 2003-08-05 00:37:54 sohirata Exp $
+c $Id: tce_mod1.F,v 1.3 2003-09-16 21:50:12 sohirata Exp $
 c
 c     Spin-spatial-symmetry blocked dipole matrix transformations.
 c
@@ -98,9 +98,7 @@ c
             endif
           enddo
         enddo
-        call dratoga(d_mod1(axis))
         call put_block(d_mod1(axis),dbl_mb(k_mod1),sf_size,0)
-        call gatodra(d_mod1(axis))
         if (.not.ma_pop_stack(l_mod1))
      1    call errquit('tce_mod1: MA problem',6)
         if (nodezero.and.util_print('mod1',print_debug))

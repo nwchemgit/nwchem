@@ -1,6 +1,6 @@
       subroutine gatodra(d_sf)
 c
-c $Id: gatodra.F,v 1.1 2003-08-05 00:37:52 sohirata Exp $
+c $Id: gatodra.F,v 1.2 2003-09-16 21:50:11 sohirata Exp $
 c
 c     Unload data from GA to DRA
 c
@@ -22,8 +22,9 @@ c
       if (ioalg.eq.5) then
         if (.not.fileisga(d_sf))
      1    call errquit('gatodra: no GA found',0)
-        if (dra_open(filenames(d_sf),DRA_W,d_temp).ne.0)
-     1    call errquit('gatodra: dra problem',0)
+        if (dra_create(mt_dbl,filesizes(d_sf),1,filenames(d_sf),
+     1    filenames(d_sf),DRA_RW,-1,1,d_temp).ne.0)
+     2    call errquit ('gatodra: dra problem',1)
         if (dra_write(filehandles(d_sf),d_temp,request).ne.0)
      1    call errquit('gatodra: dra problem',1)
         if (dra_wait(request).ne.0)
@@ -32,6 +33,7 @@ c
      1    call errquit('gatodra: dra problem',3)
         if (.not.ga_destroy(filehandles(d_sf)))
      1    call errquit('gatodra: GA problem',0)
+        filehandles(d_sf) = d_temp
         fileisga(d_sf) = .false.
         if (nodezero.and.util_print('files',print_debug))
      1    call filesummary

@@ -1,6 +1,6 @@
       subroutine tce_mo1e(g_ao1e,d_mo1e)
 c
-c $Id: tce_mo1e.F,v 1.8 2003-08-05 00:37:54 sohirata Exp $
+c $Id: tce_mo1e.F,v 1.9 2003-09-16 21:50:12 sohirata Exp $
 c
 c     Spin-spatial-symmetry blocked Fock matrix transformations.
 c
@@ -95,9 +95,7 @@ c     ===========
 c     Write to SF
 c     ===========
 c
-      call dratoga(d_mo1e)
       call put_block(d_mo1e,dbl_mb(k_mo1e),sf_size,0)
-      call gatodra(d_mo1e)
 c
 c     ===================
 c     Close SF and return
@@ -201,9 +199,7 @@ c     ===========
 c     Write to SF
 c     ===========
 c
-      call dratoga(d_mo1e)
       call put_block(d_mo1e,dbl_mb(k_mo1e),sf_size,0)
-      call gatodra(d_mo1e)
 c
 c     ===================
 c     Close SF and return

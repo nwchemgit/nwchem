@@ -1,6 +1,6 @@
       subroutine deletefile(d_sf)
 c
-c $Id: deletefile.F,v 1.10 2003-08-05 00:37:51 sohirata Exp $
+c $Id: deletefile.F,v 1.11 2003-09-16 21:50:11 sohirata Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -139,10 +139,6 @@ c
         if (fileisga(d_sf)) then
           if (.not.ga_destroy(filehandles(d_sf)))
      1      call errquit('deletefile: GA problem',0)
-          if (dra_open(filenames(d_sf),DRA_R,d_temp).ne.0)
-     1      call errquit('deletefile: dra problem',0)
-          if (dra_delete(d_temp).ne.0)
-     1      call errquit('deletefile: dra problem',1)
         else
           if (dra_open(filenames(d_sf),DRA_R,d_temp).ne.0)
      1      call errquit('deletefile: dra problem',0)

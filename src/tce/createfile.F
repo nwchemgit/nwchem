@@ -1,6 +1,6 @@
       subroutine createfile(filename,d_sf,size)
 c
-c $Id: createfile.F,v 1.14 2003-08-05 00:37:51 sohirata Exp $
+c $Id: createfile.F,v 1.15 2003-09-16 21:50:11 sohirata Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -140,27 +140,16 @@ c
       else if (ioalg.eq.5) then
         if (nfiles.eq.max_files)
      1    call errquit('createfile: exceeded max_files',nfiles)
-        if (dra_create(mt_dbl,size,1,filename,filename,
-     1    DRA_RW,-1,1,d_temp).ne.0)
-     2    call errquit ('createfile: dra problem',1)
-        nfiles = nfiles + 1
-        filehandles(nfiles) = d_temp
-        filenames(nfiles) = filename
-        filesizes(nfiles) = size
-        fileisga(nfiles) = .false.
-        d_sf = nfiles
         if (.not.ga_create(mt_dbl,size,1,filename,
      1    -1,1,d_temp))
      2    call errquit ('createfile: ga problem',1)
         call ga_zero(d_temp)
-        if (dra_write(d_temp,filehandles(d_sf),request).ne.0)
-     1    call errquit('createfile: dra problem',1)
-        if (dra_wait(request).ne.0)
-     1    call errquit('createfile: dra problem',2)
-        if (dra_close(filehandles(d_sf)).ne.0)
-     1    call errquit ('createfile: dra problem',3)
-        if (.not.ga_destroy(d_temp))
-     1    call errquit('createfile: GA problem',0)
+        nfiles = nfiles + 1
+        filehandles(nfiles) = d_temp
+        filenames(nfiles) = filename
+        filesizes(nfiles) = size
+        fileisga(nfiles) = .true.
+        d_sf = nfiles
       else if (ioalg.eq.6) then
         if (nfiles.eq.max_files)
      1    call errquit('createfile: exceeded max_files',nfiles)

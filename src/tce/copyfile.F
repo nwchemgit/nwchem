@@ -1,6 +1,6 @@
       subroutine copyfile(d_1,d_2,size)
 c
-c $Id: copyfile.F,v 1.4 2003-08-05 00:37:51 sohirata Exp $
+c $Id: copyfile.F,v 1.5 2003-09-16 21:50:11 sohirata Exp $
 c
 c     Duplicate a file
 c
@@ -30,8 +30,6 @@ c
       if (.not.ma_push_get(mt_dbl,blocksize,'temporary',
      1  l_temp,k_temp))
      2  call errquit('copyfile: MA problem',0)
-      call dratoga(d_1)
-      call dratoga(d_2)
       do i = 1,nblocks
         if (nodezero.and.util_print('copyfile',print_debug))
      1    write(LuOut,9210) (i-1)*blocksize,
@@ -41,8 +39,6 @@ c
         call put_block(d_2,dbl_mb(k_temp),
      1    min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
       enddo
-      call gatodra(d_2)
-      call gatodra(d_1)
       if (.not.ma_pop_stack(l_temp))
      1  call errquit('copyfile: MA problem',1)
       call ga_sync()
