@@ -3,7 +3,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.20 2001-03-21 23:22:44 edo Exp $
+c$Id: xc_hcth.F,v 1.21 2001-04-12 02:17:03 edo Exp $
 c
       Implicit none
 c
@@ -487,6 +487,8 @@ C      DOUBLE PRECISION du_cab_by_dzb_dzb
       double precision e_crs1
       double precision drsbydrh
       double precision decrsdrs
+      double precision eps
+      parameter (eps=1d-19)
 C
 C     F_xs computes HCTH contribution to exchange Energy
 C     using Dirac functional as LDA part
@@ -702,10 +704,14 @@ C
 
       zeta = (rhoa-rhob)/rho
 
-      fzeta = (-2.d0 + (1.d0 - zeta)**
-     -     (4.D0/3.D0) +
-     -    (1.d0 + zeta)**(4.D0/3.D0))/
-     -  (-2.d0 + 2.d0*2.d0**(1.D0/3.D0))
+      if(abs(1d0-zeta).gt.eps) then
+         fzeta = (-2.d0 + (abs(1.d0 - zeta))**
+     -        (4.D0/3.D0) +
+     -        (1.d0 + zeta)**(4.D0/3.D0))/
+     -        (-2.d0 + 2.d0*2.d0**(1.D0/3.D0))
+         else
+            fzeta = 0d0
+         endif
 
 C     
 C     pw91 LDA Ecorr
@@ -846,7 +852,7 @@ Cfah -      rhob**(8.D0/3.D0))**3
       dzeta_by_drhoa = 2.d0*rhob/rho**2
       dzeta_by_drhob = -2.d0*rhoa/rho**2
 
-      dfzeta_by_dzeta = ((-4.d0*(1.d0 - zeta)**(1.D0/3.D0))/
+      dfzeta_by_dzeta = ((-4.d0*(abs(1.d0 - zeta))**(1.D0/3.D0))/
      -     3.d0 + (4.d0*(1.d0 + zeta)**
      -        (1.D0/3.D0))/3.)/
      -  (-2.d0 + 2d0*2**(1.D0/3.D0))
@@ -891,7 +897,7 @@ Cfah -      rhob**(8.D0/3.D0))**3
 
 
       de_crsabzeta_by_drsab = 1.124999956683108D0*(1.d0 - zeta**4)*
-     -   (-2.d0 + (1.d0 - zeta)**(4.D0/3.D0) + 
+     -   (-2.d0 + (abs(1.d0 - zeta))**(4.D0/3.D0) + 
      -     (1.d0 + zeta)**(4.D0/3.D0))*
      -   da_crsab_by_drsab + 
      -  de_crsab0_by_drsab + 
@@ -900,12 +906,12 @@ Cfah -      rhob**(8.D0/3.D0))**3
      -      de_crsab1_by_drsab  )
 
       de_crsabzeta_by_dzeta = 1.499999942244144D0*(-1.d0 + zeta**4)*
-     -   ((1.d0 - zeta)**(1.D0/3.D0) - 
+     -   ((abs(1.d0 - zeta))**(1.D0/3.D0) - 
      -     (1.d0 + zeta)**(1.D0/3.D0))*a_crsab - 
      -  4.499999826732434D0*zeta**3*
-     -   (-2.d0 + (1.d0 - zeta)**(4.D0/3.D0) + 
+     -   (-2.d0 + (abs(1.d0 - zeta))**(4.D0/3.D0) + 
      -     (1.d0 + zeta)**(4.D0/3.D0))*a_crsab + 
-     -  (2*zeta**4*((1.d0 - zeta)**(1.D0/3.D0) - 
+     -  (2*zeta**4*((abs(1.d0 - zeta))**(1.D0/3.D0) - 
      -       (1.d0 + zeta)**(1.D0/3.D0))*
      -     (e_crsab0 - e_crsab1))/
      -   (3.*(-1.d0 + 2**(1.D0/3.D0))) + 
