@@ -4,7 +4,7 @@
      &                       cntobfr, cetobfr, natoms,
      &                       g_movecs, noc, k_eval, totsic)
 c
-C$Id: xc_sic_pert.F,v 1.3 1999-08-11 18:30:03 jolguin Exp $
+C$Id: xc_sic_pert.F,v 1.4 1999-08-12 20:29:40 jolguin Exp $
 c
       implicit none
 c      
@@ -141,6 +141,7 @@ c
      &        call errquit('xc_sic_pert: cannot pop stack',0)
 c
            totsic = tot_sic_xc + tot_sic_coul
+           sic_orb_occ = 0
 c
            if (me.eq.0.and.oprint_sic) write(LuOut,*) 
      &                                            ' tot_sic=',totsic

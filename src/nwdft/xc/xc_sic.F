@@ -4,7 +4,7 @@
      &                  cntobfr, cetobfr, natoms,
      &                  g_movecs, noc, k_eval, totsic)
 c
-C$Id: xc_sic.F,v 1.2 1999-08-11 01:22:14 d3j191 Exp $
+C$Id: xc_sic.F,v 1.3 1999-08-12 20:29:40 jolguin Exp $
 c
       implicit none
 c      
@@ -16,7 +16,7 @@ c    &        g_sic_dens(2),g_orb,g_vxc_orb(4),g_movecs(2),
      &        g_matm, g_vectu, k_eval(2), g_coul_orb, g_vxc_sig(2),
      &        g_aux_sig(10), l_vec_aux, i_vec_aux, j, tot_homo,
      &        l_vec_u, i_vec_u, l_consti, i_consti, i_degen, l_degen,
-     &        aux_ij, aux_ik, fac_oc
+     &        aux_ij, aux_ik
       double precision Exc_orb(2), tot_sic_xc, tot_sic_coul, ecoul_orb,
      &                 u_array, res_int,const_ci, start,
      &                 homo, totsic
@@ -101,10 +101,10 @@ c
 c
           if (ipol.eq.2) then
             naux_ipol = 2
-            fac_oc = 1
+            sic_orb_occ = 1
           else
             naux_ipol = 1
-            fac_oc = 2
+            sic_orb_occ = 2
           end if
 c
           do 300 isp = 1,ipol
@@ -190,7 +190,8 @@ c
 c
 c   ecoul_orb is the orbital coulomb energy 
 c
-                tot_sic_coul = tot_sic_coul - dble(fac_oc)*ecoul_orb
+                tot_sic_coul = tot_sic_coul - 
+     &                                  dble(sic_orb_occ)*ecoul_orb
                 call ga_copy(g_vxc_orb(1), g_coul_orb)
               end if
 c
@@ -201,7 +202,6 @@ c
               if (oprint_time)call dft_tstamp
      &                             ('Before call to xc_quadv0.')
               sic_orb_spin = isp
-              sic_orb_occ = 0
               sic_orb_index = 0
               call xc_quadv0(rtdb, nExc, g_vxc_orb, g_sic_dens,
      &                           g_wght, g_xyz, g_nq, wght_GA, Exc_orb,
@@ -211,7 +211,7 @@ c    &                           cetobfr, natoms, g_dens)
 c
 c   Exc_orb(1) is the exchange-correlation energy by orbital
 c
-              tot_sic_xc = tot_sic_xc - dble(fac_oc)*Exc_orb(1)
+              tot_sic_xc = tot_sic_xc - dble(sic_orb_occ)*Exc_orb(1)
 c
               if (aux_ik.ne.1) then
                 call ga_zero(g_orb)
@@ -228,7 +228,6 @@ c
               call ga_zero(g_vxc_orb(1))
               call ga_zero(g_vxc_orb(2))
               sic_orb_spin = isp
-              sic_orb_occ = fac_oc
               sic_orb_index = 1
               call xc_quadv0(rtdb, nExc, g_vxc_orb, g_dens,
      &                           g_wght, g_xyz,g_nq, wght_GA, Exc_orb,
@@ -335,6 +334,7 @@ c
   300     continue
 
           totsic = tot_sic_xc + tot_sic_coul
+          sic_orb_occ = 0
           if (me.eq.0.and.oprint_sic) write(LuOut,*) 
      &                                           ' tot_sic=',totsic
 c
