@@ -1,6 +1,6 @@
       subroutine uccsdt_acefterms()
 c
-c$Id: acefterms.F,v 1.6 2002-10-05 01:22:25 bert Exp $
+c$Id: acefterms.F,v 1.7 2002-10-08 00:17:47 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -23,12 +23,14 @@ c     natural order ... and corresponding blocked range
 c     also get v block info as we need to transform this whole block at once
 c
       call soints_shblock_info(basis, 1, sh_n_uq, vrange)
+      call init_iv_block_info(vrange)
 c
 c     do blocks of SOs u (integer urange(2,0:7)
 c
       do u_sh = 1, sh_n_uq, u_block_size
          u_sh_hi = u_sh+u_block_size
          call soints_shblock_info(basis, u_sh, u_sh_hi, urange)
+         call init_iu_block_info(urange)
          call cctrans(u_sh,u_sh_hi,lists)
          call uccsdt_fterm(urange,vrange,lists)
          call uccsdt_aterm(urange,vrange,lists)
@@ -52,7 +54,7 @@ c
 #include "cuccsdtP.fh"
 
       integer qO_handles(0:7,8), qV_handles(0:7,8)
-      integer symiui, handles, ih
+      integer symiu, handles, ih, is
       integer nr_handle(5), spin_handle(5)
       data nr_handle /1,2,4,5,8/
       data spin_handle /1,1,2,2,2/
@@ -76,5 +78,57 @@ c
      &        errquit('uccsd: failed to allocate qV',ih)
          enddo
       enddo
+c
+      end
+c
+      subroutine init_iv_block_info(vrange)
+      implicit none
+#include "mafdecls.fh"
+#include "bas.fh"
+#include "global.fh"
+#include "cuccsdtP.fh"
+c
+      integer vrange(2,0:7)
+      integer spini,symiv,symv,symi,iv,ind
+c
+      do spini = 1, 2
+         do symiv = 0, nir-1
+            ind = 0
+            do symv = 0, nir-1
+               symi = ieor(symv,symiv)
+               do iv = vrange(1,symv), vrange(2,symv)
+                  oso_v_off(iv,symiv,spini) = ind
+                  ind = ind + no_sym(symi,spini)
+               enddo
+            end do
+            oso_v_len(symiv,spini) = ind
+         end do
+      end do
+c
+      end
+c
+      subroutine init_iu_block_info(urange)
+      implicit none
+#include "mafdecls.fh"
+#include "bas.fh"
+#include "global.fh"
+#include "cuccsdtP.fh"
+c
+      integer urange(2,0:7)
+      integer spini,symiu,symu,symi,iu,ind
+c
+      do spini = 1, 2
+         do symiu = 0, nir-1
+            ind = 0
+            do symu = 0, nir-1
+               symi = ieor(symu,symiu)
+               do iu = urange(1,symu), urange(2,symu)
+                  oso_u_off(iu,symiu,spini) = ind
+                  ind = ind + no_sym(symi,spini)
+               enddo
+            end do
+            oso_u_len(symiu,spini) = ind
+         end do
+      end do
 c
       end

@@ -46,6 +46,14 @@ c     GA handles for hole/particle matrices
 c
       integer g_part(2), g_hole(2)
 c
+c     Info about symmetry packed OSO pairs
+c     Both for full SO range (v) and incomplete SO range (u)
+c
+      integer oso_v_len(0:7,2)
+      integer oso_v_off(nw_max_nbf_small,0:7,2)
+      integer oso_u_len(0:7,2)
+      integer oso_u_off(nw_max_nbf_small,0:7,2)
+c
 c     Info about symmetry packed OV pairs
 c
 c     lenia = ov_len(symia,spini,spina)

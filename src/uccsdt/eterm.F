@@ -1,6 +1,6 @@
       subroutine uccsdt_eterm(qO_handles,qV_handles)
 c
-c$Id: eterm.F,v 1.4 2002-09-25 21:54:34 bert Exp $
+c$Id: eterm.F,v 1.5 2002-10-08 00:17:48 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -37,71 +37,141 @@ c
       do symf = 0, nir-1
          syma = symf
          call ga_add(-1.0d0,qO(2,symf),-0.5d0,qO(1,symf),qO(2,symf))
-         call ga_add( 1.0d0,qO(2,symf), 1.0d0,fO(a,a,symf),qO(2,symf))   # (1)
+         call ga_add( 1.0d0,qO(2,symf), 1.0d0,fO(a,a,symf),qO(2,symf))   
          call ga_add(-1.0d0,qO(5,symf),-0.5d0,qO(4,symf),qO(5,symf))
-         call ga_add( 1.0d0,qO(5,symf), 1.0d0,fO(b,b,symf),qO(5,symf))   # (2)
+         call ga_add( 1.0d0,qO(5,symf), 1.0d0,fO(b,b,symf),qO(5,symf))   
          call ga_add( 1.0d0,qV(2,symf), 0.5d0,qV(1,symf),qV(2,symf))
-         call ga_add( 1.0d0,qV(2,symf), 1.0d0,fV(a,a,symf),qV(2,symf))   # (3)
+         call ga_add( 1.0d0,qV(2,symf), 1.0d0,fV(a,a,symf),qV(2,symf))  
          call ga_add( 1.0d0,qV(5,symf), 0.5d0,qV(4,symf),qV(5,symf))
-         call ga_add( 1.0d0,qV(5,symf), 1.0d0,fV(b,b,symf),qV(5,symf))   # (4)
+         call ga_add( 1.0d0,qV(5,symf), 1.0d0,fV(b,b,symf),qV(5,symf)) 
          call ga_add(-1.0d0,qO(8,symf),-0.5d0,qO(4,symf),qO(8,symf))
-         call ga_add( 1.0d0,qO(8,symf), 1.0d0,fO(a,a,symf),qO(8,symf))   # (5)
+         call ga_add( 1.0d0,qO(8,symf), 1.0d0,fO(a,a,symf),qO(8,symf))  
       end do
       do symnf = 0, nir-1
          symme = symnf
          symna = symnf
-         call get_T(g_t2_mena_pure,symnf,0,0,0,0,x)   #note, no backtransform needed
+         alo_a = v_sym(1,0,1)
+         ahi_a = v_sym(2,nir-1,1)
+         alo_b = v_sym(1,0,2)
+         ahi_b = v_sym(2,nir-1,2)
+         call uccsdt_ampfile_read_t2(D_AMP,1,1,1,1,symna,alo_a,ahi_a,
+     &                               g_t2_mena_pure,.true.,'block')
+C23456789012345678901234567890123456789012345678901234567890123456789012
          do symf = 0, nir-1
             syma = symf
             symn = ieor(symf,symnf)
-            do loop over a
-               matmul(g_t2_mena_pure,qO(2,symf)) into R(E1) aa   #(1)
+            symi = symn
+            if (.not. ma_push_get(mt_dbl,no_sym(symn,1),'n array',
+     &          l_n,k_n)) call errquit('eterm: n alloc failed',0)
+            do a = v_sym(1,syma,1), v_sym(2,syma,1)
+               t_ilo = 1
+               t_ihi = ov_len(symnf,1,1)
+               t_jlo = ov_off(a,symnf,1,1)+1
+               t_jhi = t_jlo + no_sym(symi,1)
+c              matmul(g_t2_mena_pure,qO(2,symn)) into R(E1) aa   #(1)
+               call ga_get(qO(symn,2),o_sym(1,symn,1),o_sym(2,symn,1),
+     &                     a,a,dbl_mb(k_n),no_sym(symn,1)
+               do n = 1, no_sym(symn,1)
+                  t_jlo = ov_off(a,symnf,1,1)+1
+                  t_jhi = t_jlo + no_sym(symi,1)
+                  call ga_add_patch(dbl_mb(k_n+n-1),g_t2_mena_pure,
+     &                              t_ilo,t_hi,t_jlo,t_jhi,1.0d0,
+     &                              Raa,t_ilo,t_ihi,t_flo,t_fhi,
+     &                              Raa,t_ilo,t_ihi,t_flo,t_fhi)
+               enddo
+c              matmul(g_t2_mena_pure,qV(2,symn)) into R(E2) aa   #(3)
+               q_ijlo = o_sym(1,symi,1)
+               q_ijhi = o_sym(2,symi,1)
+               call ga_matmul_patch('n','n',1.0d0,1.0d0,
+     &                g_t2_mena_pure,t_ilo,t_iho,t_jlo,t_jhi,
+     &                qV(symn,2),q_ijlo,q_ijhi,q_ijlo,q_ijhi,
+     &                g_raa,t_ilo,t_iho,t_jlo,t_jhi)
             end do
-            do loop over i
-               matmul(g_t2_mena_pure,qV(2,symn)) into R(E2) aa   #(3)
-            end do
+            if (.not. ma_pop_stack(l_n)) call
+     &          errquit('eterm: n dealloc failed',0)
          end do 
-         if (.not. ga_destroy(g_t2_mena_pure)) call errquit()
-         call get_T(g_t2_mena_pure,symnf,1,1,1,1,x)   #note, no backtransform needed
+         if (.not. ga_destroy(g_t2_mena_pure)) call 
+     &       errquit('eterm: g_t2_mena_pure aa dealloc failed',0)
+c
+         call uccsdt_ampfile_read_t2(D_AMP,2,2,2,2,symna,alo_b,ahi_b,
+     &                               g_t2_mena_pure,.true.,'block')
          do symf = 0, nir-1
             syma = symf
             symn = ieor(symf,symnf)
-            do loop over a
-               matmul(g_t2_mena_pure,qO(5,symf)) into R(E1) bb   #(2)
+            symi = symn
+            if (.not. ma_push_get(mt_dbl,no_sym(symn,1),'n array',
+     &          l_n,k_n)) call errquit('eterm: n alloc failed',0)
+            do a = v_sym(1,syma,1), v_sym(2,syma,1)
+               t_ilo = 1
+               t_ihi = ov_len(symnf,2,2)
+               t_jlo = ov_off(a,symnf,2,2)+1
+               t_jhi = t_jlo + no_sym(symi,2)
+c              matmul(g_t2_mena_pure,qO(5,symf)) into R(E1) bb   #(2)
+               call ga_get(qO(symn,5),o_sym(1,symn,1),o_sym(2,symn,1),
+     &                     a,a,dbl_mb(k_n),no_sym(symn,1)
+               do n = 1, no_sym(symn,2)
+                  t_jlo = ov_off(a,symnf,2,2)+1
+                  t_jhi = t_jlo + no_sym(symi,2)
+                  call ga_add_patch(dbl_mb(k_n+n-1),g_t2_mena_pure,
+     &                              t_ilo,t_hi,t_jlo,t_jhi,1.0d0,
+     &                              Raa,t_ilo,t_ihi,t_flo,t_fhi,
+     &                              Raa,t_ilo,t_ihi,t_flo,t_fhi)
+               enddo
+c              matmul(g_t2_mena_pure,qV(5,symn)) into R(E2) bb   #(4)
+               q_ijlo = o_sym(1,symi,2)
+               q_ijhi = o_sym(2,symi,2)
+               call ga_matmul_patch('n','n',1.0d0,1.0d0,
+     &                g_t2_mena_pure,t_ilo,t_iho,t_jlo,t_jhi,
+     &                qV(symn,5),q_ijlo,q_ijhi,q_ijlo,q_ijhi,
+     &                g_raa,t_ilo,t_iho,t_jlo,t_jhi)
             end do
-            do loop over i
-               matmul(g_t2_mena_pure,qV(5,symn)) into R(E2) bb   #(4)
-            end do
+            if (.not. ma_pop_stack(l_n)) call
+     &          errquit('eterm: n dealloc failed',0)
          end do
-         if (.not. ga_destroy(g_t2_mena_pure)) call errquit()
-         call get_T(g_t2_mena_mix,symnf,0,0,1,1,x)   #note, no backtransform needed
+         if (.not. ga_destroy(g_t2_mena_pure)) call 
+     &       errquit('eterm: g_t2_mena_pure bb dealloc failed',0)
+c
+         call uccsdt_ampfile_read_t2(D_AMP,1,1,2,2,symna,alo_b,ahi_b,
+     &                               g_t2_mena_pure,.true.,'block')
          do symf = 0, nir-1
             syma = symf
             symn = ieor(symf,symnf)
+            symi = symn
             do loop over a
                matmul(g_t2_mena_mix,qO(2,syma)) into R(E1) ab   #(1)
             end do  
             do loop over a
                matmul(g_t2_mena_mix,qV(2,symn)) into R(E4) ab   #(3)
             end do
-            do loop over i
-               matmul(g_t2_mena_mix,qV(5,symn)) into R(E3) ab   #(4)
+            do a = v_sym(1,syma,2), v_sym(2,syma,2)
+c              matmul(g_t2_mena_mix,qV(5,symn)) into R(E3) ab   #(4)
+               t_ilo = 1
+               t_ihi = ov_len(symna,1,1)
+               t_jlo = ov_off(a,symna,2,2)+1
+               t_jhi = t_jlo + no_sym(symi,2) 
+               q_ijlo = o_sym(1,symi,2)
+               q_ijhi = o_sym(2,symi,2)
+               call ga_matmul_patch('n','n',1.0d0,1.0d0,
+     &                g_t2_mena_pure,t_ilo,t_iho,t_jlo,t_jhi,
+     &                qV(2,symn),q_ijlo,q_ijhi,q_ijlo,q_ijhi,
+     &                g_raa,t_ilo,t_iho,t_jlo,t_jhi)
             end do
             do loop over i
                matmul(g_t2_mena_mix,qV(8,symn)) into R(E2) ab   #(5)
             end do
          end do
-         if (.not. ga_destroy(g_t2_mena_mix)) call errquit()
+         if (.not. ga_destroy(g_t2_mena_mix)) call 
+     &       errquit('eterm: g_t2_mena_mix ab dealloc failed',0)
       end do
 
       do symf = 0, nir-1
          do inum = 1, 8
             if (qO_handle(inum,symf) .gt. -1) then
                 if (.not. ga_destroy(qO_handle(inum,symf))
-     &             call errquit()
+     &             call errquit('eterm: qQ dealloc failed',inum)
             if (qV_handle(inum,symf) .gt. -1) then
                 if (.not. ga_destroy(qV_handle(inum,symf))
-     &             call errquit()
+     &             call errquit('eterm: qV dealloc failed',inum)
             end if
          end do
       end do
@@ -114,6 +184,9 @@ c
       double precision ha(nmo,nmo)
       double precision iaa(nmo,nmo,nmo,nmo), iab(nmo,nmo,nmo,nmo)
       double precision fa(nmo,nmo)
+C
+C     MAKE FOCK MATRIX ALPHA AND BETA IN AO BASIS AND TRANSFORM WITH
+C     G_PART(LEFT SIDE) AND G_HOLE(RIGHT SIDE) TO FOCK MATRIX IN MO BASIS
 c
 c     fij = hij + <ik||jk> = hij + <ik||jk>(same spin) + <ik|jk>(diff spin)
 c

@@ -1,6 +1,6 @@
       subroutine uccsdt_fterm(urange,vrange,lists)
 c
-c$Id: fterm.F,v 1.4 2002-10-05 01:22:26 bert Exp $
+c$Id: fterm.F,v 1.5 2002-10-08 00:17:48 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -75,9 +75,9 @@ C
      &                      'ef list',l_eflist, k_eflist)) call
      &                      errquit('fterm: ef list alloc failed',0)
                         n_address = o_sym(1,symn,nspin)+n-1
-     &                              +oso_off(v,symnv,nspin)
+     &                              +oso_v_off(v,symnv,nspin)
                         m_address = o_sym(1,symm,mspin)+m-1
-     &                              +oso_off(u,symmu,mspin)
+     &                              +oso_u_off(u,symmu,mspin)
                         call ga_get_strided(lists(symmu,list_nr),
      &                             n_address,dimv,dimn,
      &                             m_address,dimu,dimm,

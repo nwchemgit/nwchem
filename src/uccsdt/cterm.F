@@ -1,6 +1,6 @@
       subroutine uccsdt_cterm(urange,vrange,qO_handles,qV_handles)
 c
-c$Id: cterm.F,v 1.6 2002-10-05 01:22:26 bert Exp $
+c$Id: cterm.F,v 1.7 2002-10-08 00:17:47 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -253,8 +253,8 @@ c     Z4(iu,nf) = <ij||ub>*T(jb,nf) i=j=u=b=n=f=beta (integral list 4)
      &       call errquit('cterm: alloc z4 failed',0)
          call ga_dgemm('t','n',dimnf,dimiu_a,dimjb_a,1.0d0,
      &      g_t2_jbnf_pure,list(symiu,4),0.0d0,g_z4)
-         call make_qO(qO_handles(0,1),g_z4,symnf,2,2)
-         call make_qV(qV_handles(0,1),g_z4,symnf,2,2)
+         call make_qO(qO_handles(0,4),g_z4,symnf,2,2)
+         call make_qV(qV_handles(0,4),g_z4,symnf,2,2)
          call ga_add(0.5d0,g_z4,1.0d0,g_z5,g_z5)
          call ga_dgemm('n','n',dimnf,dimnf,dimiu_a,1.0d0,
      &      g_t2_iume_pure,g_z5,1.0d0,g_rbb)
@@ -472,6 +472,7 @@ c
 c
 c     WE NEED TO ACCUMULATE THE Q's DURING THE BLOCKING LOOP IN acefterms.F
 c     HENCE ADD CONTRIBUTIONS TO qO_handles
+c     spini=spinj and spinf=spina
 c     do sum_i C_hole(ua) Z2(iu,if) and store in q_2_O(a,f) -> qO_handles(2)
 c     
       call ga_distribution(g_z,ga_nodeid(),ilo,ihi,jlo,jhi)
@@ -488,7 +489,7 @@ c
             call ga_get(c_hole(spinf),urange(1,symu),urange(2,symu),
      &               v_sym(1,symf,spinf),v_sym(2,symf,spinf),
      &               dbl_mb(k_uf),len_u)
-            iindx = 0 <- SHOULD THIS GO TO ZERO -> NO SHOULD BE OFFSET
+            iindx = oso_u_off(u,symif,spini)
             do f = v_sym(1,symf,spinf), v_sym(2,symf,spinf)
                i_match = ilo.le.(iindx+len_i).and.ihi.gt.(iindx)
                j_match = jlo.le.(jindx+len_i).and.jhi.gt.(jindx)
@@ -524,19 +525,9 @@ c
       logical i_match,j_match
 c
 c     WE NEED TO ACCUMULATE THE Q's DURING THE BLOCKING LOOP IN acefterms.F
-c     HENCE ADD CONTRIBUTIONS TO qO_handles
+c     HENCE ADD CONTRIBUTIONS TO qV_handles
 c     spini=spinj and spinf=spina
 c     do sum_u C_hole(ua) Z2(ma,iu) and store in q_2_V(i,m) -> qV_handles(2)
-c     need to do dgemm with c_hole first and then do sum
-c     do both of them local on a node with get's puts and local sums
-c
-c     symmetry wise i=i and hence u=f as iu=if, hence
-c     do symf = 0, nir-1
-c        symu = syma = symf
-c        symi = ieor(symnf=symif,symf)
-c        do loop over f
-c            do loop over a
-c               sum iho,ihi (symi) and transform with c_hole(u,a)^t * Z2(u,f)
 c
       call ga_distribution(g_z,ga_nodeid(),ilo,ihi,jlo,jhi)
       jindx = 0
@@ -554,7 +545,7 @@ c
             call ga_get(c_hole(spinf),urange(1,symu),urange(2,symu),
      &               v_sym(1,symf,spinf),v_sym(2,symf,spinf),
      &               dbl_mb(k_uf),len_u)
-            iindx = 0 <- SHOULD THIS GO TO ZERO -> NO SHOULD BE OFFSET
+            iindx = oso_u_off(u,symif,spini)
             do f = v_sym(1,symf,spinf), v_sym(2,symf,spinf)
                i_match = ilo.le.(iindx+len_i).and.ihi.gt.(iindx)
                j_match = jlo.le.(jindx+len_i).and.jhi.gt.(jindx)
@@ -572,7 +563,6 @@ c
             jindx = jindx + len_i
          end do
       end do 
-c23456789012345678901234567890123456789012345678901234567890123456789012
 c  
       end
 
