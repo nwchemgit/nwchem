@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.40 2003-10-17 22:58:35 carlfahl Exp $
+c $Id: util_md.F,v 1.41 2003-10-19 04:55:19 d3j191 Exp $
 c
       implicit none
 c
@@ -492,7 +492,6 @@ c     compute eigenvectors and eigenvalues for real symmetric
 c     matrix using the Jacobi diagonalization
 c
       implicit none
-#include "errquit.fh"
 c
       integer nrmax
       parameter(nrmax=100)
@@ -586,7 +585,7 @@ c
     9 continue
     3 continue
 c
-      call errquit('md_jacobi: maximum iterations reached',0, INPUT_ERR)
+      call md_abort('md_jacobi: maximum iterations reached',0)
 c
       return
       end
@@ -713,8 +712,7 @@ c
       subroutine matinv(a,n,ndim)
 c
       implicit none
-#include "errquit.fh"
-c
+
       integer maxdim
       real*8 zero,small,one
       parameter(maxdim=3)
@@ -730,8 +728,7 @@ c
       integer idim,i,j,k,l,m
       real*8 b,e
 c
-      if(ndim.gt.maxdim) call errquit('matinv dimension error',0,
-     &       INPUT_ERR)
+      if(ndim.gt.maxdim) call md_abort('matinv dimension error',0)
 c
       do 1 idim=1,n
       ia(1,idim)=0
@@ -758,8 +755,7 @@ c
       ic(i)=k
       b=a(i,k)
 c
-      if(dabs(b).lt.small) call errquit('arg_matinv singular matrix',0,
-     &       INPUT_ERR)
+      if(dabs(b).lt.small) call md_abort('arg_matinv singular matrix',0)
       a(i,k)=one/b
       do 6 l=1,n
       if(l.ne.k) a(i,l)=-a(i,l)/b
@@ -865,7 +861,6 @@ c
       subroutine timer(itime,iopt)
 c
       implicit none
-#include "errquit.fh"
 c
       integer itime,iopt
 c
@@ -892,7 +887,7 @@ c
       ttime(i,3)=1.0d9
     1 continue
       elseif(itime.le.0.or.itime.gt.mtime) then
-      call errquit('Timer index out of range',0, INPUT_ERR)
+      call md_abort('Timer index out of range',0)
       elseif(iopt.eq.-2) then
       ncall(itime)=0
       ctime(itime,1)=0.0d0
@@ -923,7 +918,7 @@ c
       ctime(itime,3)=min(ctime(itime,2),ctime(itime,3))
       ttime(itime,3)=min(ttime(itime,2),ttime(itime,3))
       else
-      call errquit('Unimplemented timer option',0, INPUT_ERR)
+      call md_abort('Unimplemented timer option',0)
       endif
 c
       return
@@ -931,7 +926,6 @@ c
       real*8 function timer_cpu(itime)
 c
       implicit none
-#include "errquit.fh"
 c
       integer itime
 c
@@ -942,7 +936,7 @@ c
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
-     + call errquit('Illegal timer index',0, INPUT_ERR)
+     + call md_abort('Illegal timer index',0)
 c
       if(ncall(itime).le.0) then
       timer_cpu=0.0d0
@@ -955,7 +949,6 @@ c
       real*8 function timer_wall(itime)
 c
       implicit none
-#include "errquit.fh"
 c
       integer itime
 c
@@ -966,7 +959,7 @@ c
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
-     + call errquit('Illegal timer index',0, INPUT_ERR)
+     + call md_abort('Illegal timer index',0)
 c
       if(ncall(itime).le.0) then
       timer_wall=0.0d0
@@ -987,7 +980,7 @@ c
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
-     + call errquit('Illegal timer index',0, INPUT_ERR)
+     + call md_abort('Illegal timer index',0)
 c
       timer_calls=ncall(itime)
 c
@@ -996,7 +989,6 @@ c
       real*8 function timer_cpu_minimum(itime)
 c
       implicit none
-#include "errquit.fh"
 c
       integer itime
 c
@@ -1007,7 +999,7 @@ c
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
-     + call errquit('Illegal timer index',0, INPUT_ERR)
+     + call md_abort('Illegal timer index',0)
 c
       if(ncall(itime).le.0) then
       timer_cpu_minimum=0.0d0
@@ -1020,7 +1012,6 @@ c
       real*8 function timer_wall_minimum(itime)
 c
       implicit none
-#include "errquit.fh"
 c
       integer itime
 c
@@ -1031,7 +1022,7 @@ c
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
-     + call errquit('Illegal timer index',0, INPUT_ERR)
+     + call md_abort('Illegal timer index',0)
 c
       if(ncall(itime).le.0) then
       timer_wall_minimum=0.0d0
@@ -1044,7 +1035,6 @@ c
       real*8 function timer_cpu_average(itime)
 c
       implicit none
-#include "errquit.fh"
 c
       integer itime
 c
@@ -1055,7 +1045,7 @@ c
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
-     + call errquit('Illegal timer index',0, INPUT_ERR)
+     + call md_abort('Illegal timer index',0)
 c
       if(ncall(itime).le.0) then
       timer_cpu_average=0.0d0
@@ -1068,7 +1058,6 @@ c
       real*8 function timer_wall_average(itime)
 c
       implicit none
-#include "errquit.fh"
 c
       integer itime
 c
@@ -1079,7 +1068,7 @@ c
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
-     + call errquit('Illegal timer index',0, INPUT_ERR)
+     + call md_abort('Illegal timer index',0)
 c
       if(ncall(itime).le.0) then
       timer_wall_average=0.0d0
@@ -1092,7 +1081,6 @@ c
       real*8 function timer_cpu_total(itime)
 c
       implicit none
-#include "errquit.fh"
 c
       integer itime
 c
@@ -1103,7 +1091,7 @@ c
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
-     + call errquit('Illegal timer index',0, INPUT_ERR)
+     + call md_abort('Illegal timer index',0)
 c
       if(ncall(itime).le.0) then
       timer_cpu_total=0.0d0
@@ -1116,7 +1104,6 @@ c
       real*8 function timer_wall_total(itime)
 c
       implicit none
-#include "errquit.fh"
 c
       integer itime
 c
@@ -1127,7 +1114,7 @@ c
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
-     + call errquit('Illegal timer index',0, INPUT_ERR)
+     + call md_abort('Illegal timer index',0)
 c
       if(ncall(itime).le.0) then
       timer_wall_total=0.0d0
@@ -1141,7 +1128,6 @@ c
      + aver,drift,stderr,corerr,ratio)
 c
       implicit none
-#include "errquit.fh"
 c
       real*8 zero,one
       parameter(zero=0.0d0)
@@ -1220,12 +1206,12 @@ c
       if(.not.lauto) return
 c
       if(.not.ma_push_get(mt_dbl,lenacf,'acf',l_acf,i_acf))
-     + call errquit('Failed to allocate memory for acf',0, MA_ERR)
+     + call md_abort('Failed to allocate memory for acf',0)
 c
       call auto_corr(data,ndata,aver,dbl_mb(i_acf),lenacf,ratio)
 c
       if(.not.ma_pop_stack(l_acf))
-     + call errquit('Failed to deallocate memory for acf',0, MA_ERR)
+     + call md_abort('Failed to deallocate memory for acf',0)
 c
       corerr=ratio*stderr
 c
@@ -1513,5 +1499,12 @@ c
     3 continue
 c
       md_zmat=.true.
+      return
+      end
+      subroutine md_abort(string, icode)
+      implicit none
+      character*(*) string
+      integer icode
+      call errquit(string,icode,0)
       return
       end
