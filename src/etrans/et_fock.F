@@ -15,7 +15,7 @@ c
 #include "msgids.fh"
 #include "stdio.fh"
 c
-      integer i,j
+      integer i
       integer rtdb             ! Runtime database
       integer geom             ! Geometry handle
       integer basis            ! AO basis set handle
@@ -27,7 +27,7 @@ c
       integer g_dens(4)        ! GA handles for (anti-)symmetrized density matrix
       double precision jfac(4) ! Prefactor for HF Coulomb for fock_2e
       double precision kfac(4) ! Prefactor for HF exchange for fock_2e
-      double precision omega2, pa, pb, fJa, fJb, fKa, fKb
+      double precision omega2
       integer itype
       character*3 theory
 c
@@ -137,7 +137,7 @@ c        call ga_get(g_fock(3), i, i, j, j,fKa,1)
 c        call ga_get(g_fock(4), i, i, j, j,fKb,1)
 c        call ga_get(g_dens(1), i, i, j, j,pa,1)
 c        call ga_get(g_dens(2), i, i, j, j,pb,1)
-cc
+c
 c        omega2 = omega2 + pa*fJa
 c        omega2 = omega2 + pb*fJa
 c        omega2 = omega2 + pb*fJb
