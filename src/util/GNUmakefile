@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.154 2002-11-20 21:23:44 bylaska Exp $
+# $Id: GNUmakefile,v 1.155 2002-12-10 22:03:41 edo Exp $
 
 include ../config/makefile.h
 
@@ -201,6 +201,11 @@ ifdef LSF
   DEFINES += -DLSF
   LIB_ALSO_BUILD = $(BINDIR)/jobtime_lsf $(BINDIR)/jobtime_lsf.pl
 endif
+ifdef PBS
+  WHICHQSTAT  += $(shell which qstat)
+  DEFINES += -DPBS
+  LIB_ALSO_BUILD = $(BINDIR)/jobtime_pbs $(BINDIR)/jobtime_pbs.pl
+endif
 
 include ../config/makelib.h
 
@@ -260,5 +265,18 @@ jobtime_lsf.pl:
 	cat botlsf.pl >> jobtime_lsf.pl
 
 $(BINDIR)/jobtime_lsf.pl:	jobtime_lsf.pl
+	/bin/cp $^ $@
+endif
+ifdef PBS
+$(BINDIR)/jobtime_pbs:	jobtime_pbs
+	/bin/cp $^ $@
+
+jobtime_pbs.pl:	
+	/bin/rm -f jobtime_pbs.pl
+	cat toplsf.pl > jobtime_pbs.pl
+	echo "$$"qstat=\"$(WHICHQSTAT)\"\;  >> jobtime_pbs.pl
+	cat botpbs.pl >> jobtime_pbs.pl
+
+$(BINDIR)/jobtime_pbs.pl:	jobtime_pbs.pl
 	/bin/cp $^ $@
 endif
