@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.51 2003-02-01 07:57:46 edo Exp $
+* $Id: grid_file.F,v 1.52 2003-02-04 02:33:12 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -114,8 +114,10 @@ c
      $              ('grid_file_open:unable to stat available disk',0)
                 endif
              endif
-C     write(LuOut,*) ' non-SCRATCH ', availkb
 c     
+             if(availkb.le.0d0) call errquit(
+     '            'gridfileopen: insuff space in scratchdir',
+     '            nint(availkb))
             max_file_rec = nint((0.95*1024.0d0*availkb) / 
      $           (8.0d0*rec_len_in_dbl))
             max_file_rec = max(0,max_file_rec)
@@ -123,15 +125,9 @@ c
             if (filesize.gt.0) max_file_rec = 
      =           min(max_file_rec,filesize/rec_len_in_dbl)
          else 
-c     
-c     Filesize < 0 means user forced no filespace at all.
-c
-            max_file_rec = 0
-         end if
-         if (max_file_rec .gt. 0) then ! For the semidirect logic
-            max_file_rec = max_file_rec - 1
-         else if (max_cache_rec .gt. 0) then
-            max_cache_rec = max_cache_rec - 1
+             call errquit(
+     '            'gridfileopen: filesize lt 0',911)
+            
          endif
 c     
          if (max_file_rec.eq.0 .and. max_cache_rec.eq.0) then
