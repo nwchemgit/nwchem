@@ -944,3 +944,52 @@ c
       enddo
 c
       end
+      logical function geom_create_copy(geom_exist,geom_new,new_name)
+      implicit none
+c
+c routine to copy a current/loaded geometry to a new one. 
+c
+#include "geomP.fh"
+#include "inp.fh"
+c::functions
+      logical geom_create
+      external geom_create
+c::passed
+      integer geom_exist  ! handle that exists
+      integer geom_new    ! handle of new geometry
+      character *(*) new_name  ! name of new geometry
+c::local
+      integer i
+c
+      if (.not.active(geom_exist)) call errquit
+     &    ('geom_create_copy: existing geometry not active',911)
+c
+      if (.not.geom_create(geom_new,new_name)) call errquit
+     &    ('geom_create_copy: new handle not available',911)
+c
+      call dcopy((3*ncenter(geom_exist)),coords(1,1,geom_exist),1,
+     &    coords(1,1,geom_new),1)
+      call dcopy(ncenter(geom_exist),charge(1,geom_exist),1,
+     &    charge(1,geom_new),1)
+      call dcopy(3,efield(1,geom_exist),1,efield(1,geom_new),1)
+      call dcopy((3*3),latvec(1,1,geom_exist),1,latvec(1,1,geom_new),1)
+      erep(geom_new) = erep(geom_exist)
+      call dcopy(3,ndipole(1,geom_exist),1,ndipole(1,geom_new),1)
+      ncenter(geom_new) = ncenter(geom_exist)
+      lenn(geom_new) = inp_strlen(new_name)
+      lent(geom_new) = inp_strlen(new_name)
+      lenr(geom_new) = inp_strlen(new_name)
+      operiodic(geom_new) = operiodic(geom_exist)
+      oefield(geom_new) = oefield(geom_exist)
+      do 00100 i = 1,ncenter(geom_exist)
+        tags(i,geom_new) = tags(i,geom_exist)
+00100 continue
+c     compute effective nuclear repulsion energy, dipole and
+c     interaction with external fields
+c
+      call geom_compute_values(geom_new)
+      geom_create_copy = .true.
+      return
+10000 continue
+      geom_create_copy = .false.
+      end
