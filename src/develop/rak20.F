@@ -1,6 +1,6 @@
       logical function task_pderiv(rtdb)
 *
-* $Id: rak20.F,v 1.1 1998-05-06 00:55:09 d3e129 Exp $
+* $Id: rak20.F,v 1.2 1998-05-12 18:12:11 d3e129 Exp $
 *
 ***********************************************************************
 * This is about the nuclear coordinate derivatives of multicenter 
@@ -366,8 +366,8 @@ c
         write(6,*)'  c: non-zero  :2:', ((nbf*3*nat)-nzero2)
         write(6,*)'  c: possible  : :', (nbf*3*nat)
 c
-10000   format(1x,'p1fd(',i3,',',i2,',',i3,') = ',pd20.10)
-10001   format(1x,' p1c(',i3,',',i2,',',i3,') = ',pd20.10)
+10000   format(1x,'p1fd(',i3,',',i2,',',i3,') = ',1pd20.10)
+10001   format(1x,' p1c(',i3,',',i2,',',i3,') = ',1pd20.10)
 c
         call daxpy((nbf*3*nat),-1.0d00,p1fd,1,p1c,1)
         norm = ddot((nbf*3*nat),p1c,1,p1c,1)
@@ -582,8 +582,8 @@ c
         write(6,*)'  c: non-zero  :2:', ((nbf*nbf*3*nat)-nzero2)
         write(6,*)'  c: possible  : :', (nbf*nbf*3*nat)
 c
-10000   format(1x,'ovfd(',i3,',',i3,',',i2,',',i3,') = ',pd20.10)
-10001   format(1x,' ovc(',i3,',',i3,',',i2,',',i3,') = ',pd20.10)
+10000   format(1x,'ovfd(',i3,',',i3,',',i2,',',i3,') = ',1pd20.10)
+10001   format(1x,' ovc(',i3,',',i3,',',i2,',',i3,') = ',1pd20.10)
 c
         call daxpy((nbf*nbf*3*nat),-1.0d00,ovfd,1,ovc,1)
         norm = ddot((nbf*nbf*3*nat),ovc,1,ovc,1)
@@ -798,8 +798,8 @@ c
         write(6,*)'  c: non-zero  :2:', ((nbf*nbf*3*nat)-nzero2)
         write(6,*)'  c: possible  : :', (nbf*nbf*3*nat)
 c
-10000   format(1x,'kefd(',i3,',',i3,',',i2,',',i3,') = ',pd20.10)
-10001   format(1x,' kec(',i3,',',i3,',',i2,',',i3,') = ',pd20.10)
+10000   format(1x,'kefd(',i3,',',i3,',',i2,',',i3,') = ',1pd20.10)
+10001   format(1x,' kec(',i3,',',i3,',',i2,',',i3,') = ',1pd20.10)
 c
         call daxpy((nbf*nbf*3*nat),-1.0d00,kefd,1,kec,1)
         norm = ddot((nbf*nbf*3*nat),kec,1,kec,1)
@@ -1024,8 +1024,8 @@ c
         write(6,*)'  c: non-zero  :2:', ((nbf*nbf*3*nat)-nzero2)
         write(6,*)'  c: possible  : :', (nbf*nbf*3*nat)
 c
-10000   format(1x,'pefd(',i3,',',i3,',',i2,',',i3,') = ',pd20.10)
-10001   format(1x,' pec(',i3,',',i3,',',i2,',',i3,') = ',pd20.10)
+10000   format(1x,'pefd(',i3,',',i3,',',i2,',',i3,') = ',1pd20.10)
+10001   format(1x,' pec(',i3,',',i3,',',i2,',',i3,') = ',1pd20.10)
 c
         call daxpy((nbf*nbf*3*nat),-1.0d00,pefd,1,pec,1)
         norm = ddot((nbf*nbf*3*nat),pec,1,pec,1)
@@ -1241,8 +1241,8 @@ c
         write(6,*)'  c: non-zero  :2:', ((nbf*nbf*3*nat)-nzero2)
         write(6,*)'  c: possible  : :', (nbf*nbf*3*nat)
 c
-10000   format(1x,'eri2fd(',i3,',',i3,',',i2,',',i3,') = ',pd20.10)
-10001   format(1x,' eri2c(',i3,',',i3,',',i2,',',i3,') = ',pd20.10)
+10000   format(1x,'eri2fd(',i3,',',i3,',',i2,',',i3,') = ',1pd20.10)
+10001   format(1x,' eri2c(',i3,',',i3,',',i2,',',i3,') = ',1pd20.10)
 c
         call daxpy((nbf*nbf*3*nat),-1.0d00,eri2fd,1,eri2c,1)
         norm = ddot((nbf*nbf*3*nat),eri2c,1,eri2c,1)
@@ -1500,9 +1500,9 @@ c
         write(6,*)'  c: possible  : :', (nbf*nbf*nbf*3*nat)
 c
 10000   format(1x,'eri3fd(',i3,',',i3,',',i3,',',i2,',',i3,
-     &      ') = ',pd20.10)
+     &      ') = ',1pd20.10)
 10001   format(1x,' eri3c(',i3,',',i3,',',i3,',',i2,',',i3,
-     &      ') = ',pd20.10)
+     &      ') = ',1pd20.10)
 c
         call daxpy((nbf*nbf*nbf*3*nat),-1.0d00,eri3fd,1,eri3c,1)
         norm = ddot((nbf*nbf*nbf*3*nat),eri3c,1,eri3c,1)
