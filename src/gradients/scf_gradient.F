@@ -1,5 +1,5 @@
-      subroutine scf_gradient(rtdb)
-c$Id: scf_gradient.F,v 1.3 1995-02-03 01:01:55 vg038 Exp $
+      logical function scf_gradient(rtdb)
+c$Id: scf_gradient.F,v 1.4 1996-07-09 22:31:33 vg038 Exp $
       implicit none
 c
       integer rtdb
@@ -12,4 +12,5 @@ c
       if (.not. gradients(rtdb))
      $     call errquit('scf_gradient: gradients failed', 0)
 c
+      scf_gradient = .true.
       end
