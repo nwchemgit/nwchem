@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.472 2004-07-01 20:12:14 windus Exp $
+# $Id: makefile.h,v 1.473 2004-08-31 16:45:21 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -203,9 +203,6 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
 #                 are needed for top-level modules on this machine.
 #		  (Should not normally be used)
 #
-# SCRATCH_DEF_DIR = Site specific default directory for scratch files
-# PERM__DEF_DIR   = Site specific default directory for permanent files
-#
 # The following are defined for all machines at the bottom of this file
 #
 #   C/FFLAGS = all options to the C/Fortran compilers (note CPPFLAGS are 
@@ -237,13 +234,6 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
           FDEBUG = -g
           CDEBUG = -g
               AR = ar
-
-ifndef SCRATCH_DEF_DIR
- SCRATCH_DEF_DIR = "'.'"
-endif
-ifndef PERM_DEF_DIR
- PERM_DEF_DIR   = "'.'"
-endif
 
        CORE_LIBS =  -lnwcutil -lpario -lglobal -lma -lpeigs 
 #

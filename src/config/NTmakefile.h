@@ -5,7 +5,7 @@
 ##############################################################################
 
 #
-#	$Id: NTmakefile.h,v 1.11 2004-05-13 00:16:21 edo Exp $
+#	$Id: NTmakefile.h,v 1.12 2004-08-31 16:45:21 edo Exp $
 #
 
 #
@@ -38,13 +38,6 @@ BINDIR = $(TOPDIR)\bin\win32
 INCDIR = $(TOPDIR)\src\include
 CNFDIR = $(TOPDIR)\src\config
 OBJDIR = .\obj
-
-!IFNDEF SCRATCH_DEF_DIR
-SCRATCH_DEF_DIR = "'.'"
-!ENDIF
-!IFNDEF PERM_DEF_DIR
-PERM_DEF_DIR = "'.'"
-!ENDIF
 
 GLOB_DEFINES =-DWIN32 -DUSE_FCD
 DEFINES = $(GLOB_DEFINES) $(LIB_DEFINES)
