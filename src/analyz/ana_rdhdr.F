@@ -1,6 +1,6 @@
       subroutine ana_rdhdr(sgmnam)
 c
-c $Id: ana_rdhdr.F,v 1.3 1999-09-20 20:15:39 d3j191 Exp $
+c $Id: ana_rdhdr.F,v 1.4 1999-10-27 02:47:58 d3j191 Exp $
 c
       implicit none
 c
@@ -14,7 +14,6 @@ c
       character*1 cdum
 c
       integer ib,jb,nsb
-      logical lxw,lvw,lsx,lsv
 c
       if(me.eq.0) then
 c
