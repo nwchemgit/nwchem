@@ -634,7 +634,8 @@ c
       call ecce_print1('two-electron energy', mt_dbl, etwo, 1)
       call ecce_print1('one-electron energy', mt_dbl, eone, 1)
       call ecce_print1('nuclear repulsion energy', mt_dbl, enrep, 1)
-      call movecs_ecce(nbf, nbf, 1, nbf, dbl_mb(k_evals),
+      call movecs_ecce(nbf, nbf, 1, min(nclosed+nact+20,nbf),
+     $     dbl_mb(k_evals),
      $     dbl_mb(k_occ), int_mb(k_sym), 
      $     g_movecs, 'mcscf', ' ')
 c

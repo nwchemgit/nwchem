@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.76 1997-05-19 19:11:32 d3g681 Exp $
+c     $Id: dft_scf.F,v 1.77 1997-05-20 00:16:00 d3g681 Exp $
 c     
       implicit none
 c
@@ -1229,7 +1229,8 @@ c
          else
             call ifill (nbf_ao, 1, int_mb(k_ir), 1)
          endif
-         call movecs_ecce(nbf_ao, nmo, 1, nmo, dbl_mb(k_eval(1)),
+         call movecs_ecce(nbf_ao, nmo, 1, min(noc(1)+20,nmo), 
+     $                    dbl_mb(k_eval(1)),
      &                    dbl_mb(k_occ), int_mb(k_ir), 
      &                    g_movecs(1), 'dft', 'alpha')
          if (ipol.eq.2)then ! spin-unrestricted
@@ -1238,7 +1239,8 @@ c
      &                                   .false., nbf_ao, '- alpha',
      &                                   .true., int_mb(k_ir))
             endif
-            call movecs_ecce(nbf_ao, nmo, 1, nmo, dbl_mb(k_eval(2)),
+            call movecs_ecce(nbf_ao, nmo, 1, min(noc(1)+20,nmo),
+     $                       dbl_mb(k_eval(2)),
      &                       dbl_mb(k_occ+nbf_ao), int_mb(k_ir), 
      &                       g_movecs(2), 'dft', 'alpha')
          endif
