@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.10 2000-05-20 22:21:55 mdupuis Exp $
+C     $Id: rohf_diis.F,v 1.11 2000-05-21 05:46:42 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -51,6 +51,7 @@ c
 c     cosmo code
 c
       integer g_cos1e
+      dimension g_cos1e(3)
       logical odbug
       logical ocosmo
       logical osome
@@ -155,8 +156,6 @@ c     ----- cosmo 1-electron potential operator -----
 c
         if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
            if(ocosmo) then
-              g_cos1e  = ga_create_atom_blocked(geom, basis, 
-     $                                         'rohf_diis_solve:cos1e')
 c
               odbug=.true.
               if(odbug) then
@@ -169,13 +168,28 @@ c
 c
               if(odbug) then
                  write(6,*) 'cos1e-pot ... try g_over'
-                 call ga_zero(g_over)
-                 call int_1e_ga(basis,basis,g_over,'overlap',.false.)
-                 write(6,*) 'cos1e-pot ... try g-cos1e'
+              endif
+              call ga_zero(g_over)
+              call int_1e_ga(basis,basis,g_over,'overlap',.false.)
+              if(odbug) then
+                 call ga_print(g_over)
               endif
 c
-              call ga_zero(g_cos1e)
-c             call int_1e_ga(basis,basis,g_cos1e,'cos_chg_pot',.false.)
+              g_cos1e(1)  = ga_create_atom_blocked(geom, basis, 
+     $                                         'rohf_diis_solve:cos1e')
+c             if (.not. ga_create(MT_DBL, nbf, nbf, 
+c    $            'rohf_diis_solve:cos1e', 0, 0, g_cos1e(1))) 
+c    $            call errquit('rohf_diis_solve: ga failed for cos1e',0)
+              if(odbug) then
+                 write(6,*) 'cos1e-pot ... try g-cos1e'
+              endif
+              call ga_zero(g_cos1e(1))
+              call int_1e_ga(basis,basis,g_cos1e(1),'cos_chg_pot',
+     $                                                    .false.)
+              if(odbug) then
+                 call ga_print(g_cos1e(1))
+              endif
+c
               odbug=.false.
               osome=.false.
 c
