@@ -106,7 +106,7 @@ c
         call ga_copy(g_dens(i_dif),g_rho_zero(1))
         g_rho_zero(2) = g_rho_zero(1)
         call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
-     &               tol2e, oskel, g_rho_zero(1), g_vxc_aux(1))
+     &               tol2e, oskel, g_rho_zero(1), g_vxc_aux(1),.false.)
         ecoul = 0.5d00*ga_ddot(g_rho_zero(1),g_vxc_aux(2))
         call ga_scale(g_vxc_aux(2),fer_amal)
         call ga_dadd(1.0d00, g_vxc(i_dif), 1.0d00, g_vxc_aux(2),
@@ -120,7 +120,7 @@ c
      &                  g_rho_exact(i_dif), g_rho_diff(1))
            g_rho_diff(2) = g_rho_diff(1)
            call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
-     &                  tol2e, oskel, g_rho_diff(1), g_vxc_aux(1))
+     &          tol2e, oskel, g_rho_diff(1), g_vxc_aux(1),.false.)
            ecoul_aux(i_dif) = 0.5d0*ga_ddot(g_rho_diff(1),
      &                                      g_vxc_aux(2))
            call ga_scale(g_vxc_aux(2),dif_lamda)
