@@ -1,6 +1,6 @@
       logical function task_num_grad(rtdb)
 *
-* $Id: task_num_grad.F,v 1.12 1997-04-02 23:25:06 d3e129 Exp $
+* $Id: task_num_grad.F,v 1.13 1997-04-04 21:26:50 d3g681 Exp $
 *
       implicit none
 #include "geom.fh"
@@ -102,7 +102,7 @@ c
 *         write(6,*)
       endif
 c
-      call fd_make_vectors(geom, natoms, natoms3,
+      call fd_make_vectors(rtdb, geom, natoms, natoms3,
      $     dbl_mb(k_coord), dbl_mb(k_tmp),
      $     dbl_mb(k_vec), nvec, oprint_mode)
 c
@@ -305,10 +305,11 @@ c
      $     call errquit('task_num_grad: rtdb corrupt',0)
 c
       end
-      subroutine fd_make_vectors(geom, natoms, natoms3, 
+      subroutine fd_make_vectors(rtdb, geom, natoms, natoms3, 
      $     coords, temp, 
      $     vectors, nvec, oprint)
       implicit none
+      integer rtdb
       integer geom
       integer natoms,natoms3    ! [input]
       double precision coords(3,natoms) ! [input]
@@ -328,12 +329,33 @@ c
       integer maxat, nwork, maxat3
       parameter (maxat = 100, nwork=12) ! Nwork must be at least 6
       parameter (maxat3 = 3*maxat)
+      logical oactive(maxat)
+      integer nactive
       double precision work(maxat3,nwork), eval(maxat3)
       double precision centroid(3), x, y, z, xx, yy, zz, fx
       double precision ddot
       external ddot
 c
       if (natoms.gt.maxat) call errquit('fd_make_vec: hard dim', natoms)
+c
+c     Get list of active atoms.  If there are ANY frozen atoms then
+c     we cannot use symmetry, or translational, or rotational invariance
+c     and we will just use the cartesian coordinates of the active atoms
+c
+      call grad_active_atoms(rtdb, natoms, oactive, nactive)
+      if (nactive .ne. natoms) then
+         call dfill(natoms3*natoms3,0.0d0,vectors,1)
+         nvec = 0
+         do i = 1, natoms
+            if (oactive(i)) then
+               do k = 1,3
+                  vectors((i-1)*3+k,nvec+k) = 1.0d0
+               enddo
+               nvec = nvec+3
+            endif
+         enddo
+         return
+      endif
 c
 c     Make linearly indep. vectors, project totally symmetric component
 c
@@ -437,6 +459,7 @@ c
             call dscal(natoms3,1.0d0/sqrt(eval(i)),vectors(1,nvec),1)
          endif
       enddo
+c
       if (oprint) then
          write(6,*) ' Independent symmetric all-internal modes ',  nvec
          call output(vectors, 1, natoms3, 1, nvec, natoms3, nvec, 1)
