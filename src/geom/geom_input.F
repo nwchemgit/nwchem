@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.140 2001-01-12 19:38:44 d3g681 Exp $
+C     $Id: geom_input.F,v 1.141 2001-03-22 01:00:25 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -3061,6 +3061,9 @@ C
       LOGICAL     GRPTD
       LOGICAL     GRPT
       LOGICAL     GRPO
+      logical     stopordrx
+      logical     stopordry
+      logical     stopordrz
       INTEGER     AXORDR 
       COMPLEX*16  QX,QY,QZ
       COMPLEX*16  QZERO
@@ -3585,17 +3588,29 @@ C
 C
 C     ----- DETERMINE ORDER OF PROPER/IMPROPER PRINCIPAL AXES -----  
 C
+      stopordrx = .false.
+      stopordry = .false.
+      stopordrz = .false.
       DO IORDR=1,MXORDR
          QX(IORDR)=QZERO 
          QY(IORDR)=QZERO 
          QZ(IORDR)=QZERO 
          DO IAT=1,NAT
-            QDUMX=(CMPLX(C2(2,IAT),C2(3,IAT)))**IORDR
-            QDUMY=(CMPLX(C2(1,IAT),C2(3,IAT)))**IORDR
-            QDUMZ=(CMPLX(C2(1,IAT),C2(2,IAT)))**IORDR
-            QX(IORDR)=QX(IORDR)+QDUMX
-            QY(IORDR)=QY(IORDR)+QDUMY
-            QZ(IORDR)=QZ(IORDR)+QDUMZ
+            if (.not.stopordrx) then
+             QDUMX=(CMPLX(C2(2,IAT),C2(3,IAT)))**IORDR
+             QX(IORDR)=QX(IORDR)+QDUMX
+             if (abs(qx(iordr)).gt.one) stopordrx = .true.
+            endif
+            if (.not.stopordry) then
+             QDUMY=(CMPLX(C2(1,IAT),C2(3,IAT)))**IORDR
+             QY(IORDR)=QY(IORDR)+QDUMY
+             if (abs(qy(iordr)).gt.one) stopordry = .true.
+            endif
+            if (.not.stopordrz) then
+             QDUMZ=(CMPLX(C2(1,IAT),C2(2,IAT)))**IORDR
+             QZ(IORDR)=QZ(IORDR)+QDUMZ
+             if (abs(qz(iordr)).gt.one) stopordrz = .true.
+            endif
             IF(MUCH) THEN
                WRITE(IW,9996) IORDR,IAT
                WRITE(IW,9995) QDUMX,QDUMY,QDUMZ
