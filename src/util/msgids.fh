@@ -117,6 +117,9 @@ c
       integer mrg_d56
       integer mrg_d57
       integer mrg_d58
+      integer mrg_d59
+      integer mrg_d60
+      integer mrg_d61
       integer mrg_d99
 c
       integer mrg_i01
@@ -148,6 +151,7 @@ c
       integer mrg_i27
       integer mrg_i28
       integer mrg_i29
+      integer mrg_i30
       integer mrg_i50
 c
       integer mre_000
@@ -581,9 +585,13 @@ c
       parameter(mrg_i27=msg_ftn_base-338) ! arg_rdstrt
       parameter(mrg_i28=msg_ftn_base-339) ! arg_rdstrt
       parameter(mrg_i29=msg_ftn_base-340) ! arg_rdstrt
+      parameter(mrg_i30=msg_ftn_base-341) ! arg_param1
       parameter(mrg_i50=msg_ftn_base-361) ! arg_wrstrt
 c
       parameter(mrg_d56=msg_ftn_base-362) ! arg_rdstrt
       parameter(mrg_d57=msg_ftn_base-363) ! arg_rdstrt
       parameter(mrg_d58=msg_ftn_base-364) ! arg_rdstrt
+      parameter(mrg_d59=msg_ftn_base-365) ! arg_param1
+      parameter(mrg_d60=msg_ftn_base-366) ! arg_param1
+      parameter(mrg_d61=msg_ftn_base-367) ! arg_ininoe
       parameter(mrg_d99=msg_ftn_base-405) ! arg_rdstrt
