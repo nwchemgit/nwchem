@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2001-08-30 17:57:13 bylaska Exp $
+# $Id: GNUmakefile,v 1.3 2001-08-30 18:42:34 bylaska Exp $
 #
  SUBDIRS = shake
 
@@ -16,7 +16,7 @@
 
 	  OBJ = 
 
-      LIBRARY = libnwpwlib.a
+      LIBRARY = libpspw.a
 
     USES_BLAS = ion.F fcoord.f ewald.F
 

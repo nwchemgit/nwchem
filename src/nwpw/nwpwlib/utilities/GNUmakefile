@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-08-30 18:31:40 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2001-08-30 18:42:35 bylaska Exp $
 #
 # intf and aux break on IBM SP xlhpf with optimization ... why? 
 
@@ -12,7 +12,7 @@
 
 	  OBJ = 
 
-      LIBRARY = libnwpwlib.a
+      LIBRARY = libpspw.a
 
     USES_BLAS = auto_corr.F
 
