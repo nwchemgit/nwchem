@@ -1,6 +1,6 @@
       Logical Function PStat_Allocate( Name, Functions, NAcc,
      $   Accums, Handle )
-C$Id: pstat_alloc.F,v 1.1 1995-12-13 01:36:29 d3g681 Exp $
+C$Id: pstat_alloc.F,v 1.2 1996-10-22 08:31:14 d3g681 Exp $
       Implicit NONE
       Character*(*) Name
       Integer Functions, Handle, NAcc, Accums(*)
@@ -26,6 +26,10 @@ C
          PStat_Functions( Handle, I) =
      &        1.eq.(IAnd( Functions, 2**(I-1) ))
       EndDo
+      pstat_times(handle,1) = 0.0d0
+      pstat_times(handle,2) = 0.0d0
+      pstat_nr_calls(handle) = 0
+      pstat_unmatched_starts(handle) = 0
 C     
       PStat_Allocate = .TRUE.
 c
