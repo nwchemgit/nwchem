@@ -1350,11 +1350,26 @@ Record directive may be combined to a single directive.
 \item
 Load balancing is determined by
 \begin{verbatim}
-  load (none || size || pairs)
+  load [reset] ( none || size [<real factld>] || pairs ||
+	(pairs [<integer ldpair>] size [<real factld>]) )
 \end{verbatim}
 where the default is {\tt none}. Load balancing option {\tt size}
 is resizing boxes on a node, and {\tt pairs} redistributes the
-box-box interactions over nodes.
+box-box interactions over nodes. Keyword \verb+reset+ will reset the
+load balancing read from the restart file. The level of box resizing
+can be influenced with $factld$. The boxes on the busiest node are
+resized with a factor
+\begin{equation}
+ \left( 1 - factld * { {T_{sync} \over n_p} - t^{min}_{sync} \over t_{wall}}
+\right)^{1\over 3}
+\end{equation}
+where $T_{sync}$ is the accumulated synchronization time of all nodes,
+$n_p$ is the total number of nodes, $t^{min}_{sync}$ is the synchronization
+time of the busiest node, and $t_{wall}$ is the wall clock time of the
+molecular dynamics step.\\
+For the combined load balancing, $ldpair$ is the number of successive pair 
+redistribution load balancing steps in which the accumulated synchronization
+time increases, before a resizing load balancing step will be attempted. 
 \item
 The distribution of the available nodes over the three Cartesian
 dimensions is performed automatically such that, 
@@ -1386,6 +1401,13 @@ boxes in x, y and z direction, respectively.
 If the number of boxes in a dimension is less than the number of
 processors in that dimension, the number of boxes is set to the number
 of processors.
+\item
+For the determination of the number of boxes and the load balancing method
+based on box resizing, the following keyword may be used to set a lower
+limit to the size of the individual boxes.
+\begin{verbatim}
+  boxmin <real rbox>
+\end{verbatim}
 \item
 In rare events the amount of memory set aside per node is insufficient
 to hold all atomic coordinates assigned to that node. This leads to 
