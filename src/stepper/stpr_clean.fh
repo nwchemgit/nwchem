@@ -1,0 +1,3 @@
+      double precision thrcln
+      parameter (thrcln=1.0d-06)
+*     DATA THRCLN/1.D-6/

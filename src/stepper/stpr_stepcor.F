@@ -1,6 +1,6 @@
       SUBROUTINE stpr_stepcor(A,INEED,G,C,ETOT,NATD,CONVGE,CONVGG,
      &    cnvgrd, rtdb, step_number)
-c $Id: stpr_stepcor.F,v 1.3 1995-04-06 08:29:08 d3e129 Exp $
+c $Id: stpr_stepcor.F,v 1.4 1996-06-22 00:53:30 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
       integer rtdb
@@ -91,7 +91,7 @@ C
       IF(ICALC.EQ.1.AND..NOT.BCKSTP)THEN
         CALL stpr_FORMUP (
      &         A(IPT(1)),  A(IPT(2)),  A(IPT(8)),  A(IPT(5)),
-     &         A(IPT(3)), A(IPT(13)) )
+     &         A(IPT(3)), A(IPT(13)) , rtdb)
       ENDIF
 C
 C     Obtain step.
@@ -103,7 +103,7 @@ C
      &       A(IPT(13)), A(IPT(14)), A(IPT(16)), A(IPT(17)),
      &       A(IPT(18)), A(IPT(19)), ENERGY, E2NEW, TRUST,
      &       CONVGE, CONVGG,
-     &       NMODE, TRACK, RPATH, BCKSTP, CNVGRD )
+     &       NMODE, TRACK, RPATH, BCKSTP, CNVGRD, rtdb )
 C
 C     Switch between first and second derivatives.
 C

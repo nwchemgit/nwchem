@@ -5,11 +5,12 @@
      &       VECSQ, ATMASS, P, HMP,
      &       CMASS, TENIN, ENERGY, E2NEW, TRUST,
      &       CONVGE, CONVGG,
-     &       NMODE, TRACK, RPATH, BCKSTP, CNVGRD )
-c $Id: stpr_driver.F,v 1.6 1995-04-06 08:29:05 d3e129 Exp $
+     &       NMODE, TRACK, RPATH, BCKSTP, CNVGRD, rtdb )
+c $Id: stpr_driver.F,v 1.7 1996-06-22 00:53:25 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK,BCKSTP,CNVGRD,RPATH
 #include "chow.fh"
+      integer rtdb
       LOGICAL SECO, SWSEC, SWFIR
       PARAMETER( ZERO=0.D0, ONE=1.D0 )
       COMMON / CFACE / IWCTR,NATOM,ICALC
@@ -70,7 +71,8 @@ C
       IF(NINTER.NE.0)THEN
         CALL stpr_mkstep(HIEIGS,GISR,VC,STEP,SELECT,SCRSQ,ATMASS,ENERGY,
      &              CONVGE, CONVGG,
-     &              E2NEW,NINTER,NAT3,NMODE,TRUST,BCKSTP,CNVGRD)
+     &              E2NEW,NINTER,NAT3,NMODE,TRUST,BCKSTP,CNVGRD,
+     &              rtdb)
 *      write(6,*)' step after mkstep '
 *      do jjjj = 1,nat3
 *      write(6,'(1x,i5,1x,f20.10)')jjjj,step(jjjj)

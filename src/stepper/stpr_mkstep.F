@@ -2,12 +2,13 @@
      &       HIEIGS,GISR,VC,STEP,SELECT,SCRVEC,ATMASS,
      &       ENERGY, CONVGE, CONVGG,
      &       E2NEW,NINTER,NAT3,NMODE,TRUSTI,BCKSTP,
-     &       CNVGRD)
-c $Id: stpr_mkstep.F,v 1.4 1995-10-17 05:55:22 d3g681 Exp $
+     &       CNVGRD,rtdb)
+c $Id: stpr_mkstep.F,v 1.5 1996-06-22 00:53:28 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL BCKSTP,CNVGRD,LPRINT, oprint, oprint_step
 #include "chow.fh"
 #include "util.fh"
+      integer rtdb
       COMMON / THRESH / RCONVG,RSTD
       COMMON / CFACE / IWCTR,NATOM,ICALC
       DIMENSION HIEIGS(NINTER),GISR(NINTER),VC(NAT3,NINTER),
@@ -16,7 +17,7 @@ c $Id: stpr_mkstep.F,v 1.4 1995-10-17 05:55:22 d3g681 Exp $
 C
 C     Convergence/symmetry tolerances.
 C
-      DATA THRCLN/1.D-6/
+#include "stpr_clean.fh"
       IATOM(I)  = (I+2)/3
 c      LPRINT = .TRUE.
       LPRINT = util_print('makestep',print_debug)
@@ -388,6 +389,8 @@ C
       DO 160 I = 1,NAT3
         STEP(I) = SCRVEC(I)
   160 CONTINUE
+c
+      call stpr_active(rtdb,step,nat3)
 C
 C     Put step parameters to save common and write them to tape 41.
 C
@@ -396,3 +399,77 @@ C
      &           E2NEW,NWALK,NNEG)
       RETURN
       END
+      subroutine stpr_active(rtdb,step,nat3)
+      implicit none
+#include "stdio.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+      integer rtdb    ! [input] rtdb handle
+      integer nat3    ! [input] 3*number of atoms (dimen. of step)
+      double precision step(nat3) ! step vector
+c
+      logical oprint  ! print info here
+      integer nat       ! number of atoms
+      integer nactive   ! number of active atoms
+      integer h_actlist ! ma handle for actlist
+      integer k_actlist ! ma index for actlist
+      integer h_step    ! ma handle for copy of step
+      integer k_step    ! ma index for copy of step
+      logical status    ! logical for return of rtdb functions
+      integer i         ! loop index
+      integer atom      ! atom index
+      integer indx      ! offset in step and h_step
+c
+* check for active atom list
+      status = rtdb_get(rtdb,'geometry:nactive', mt_int, 1, nactive)
+      if (.not.status) return
+*..
+      oprint = util_print('step',print_debug)
+      if (oprint) then
+        write(luout,*)' step before removal of active atoms'
+        call output(step,1,nat3,1,1,nat3,1,1)
+      endif
+c
+      nat = nat3/3
+      if (nactive.le.0 .or. nactive.gt.nat) call errquit
+     &    ('stpr_active: invalid number of active atoms',nactive)
+      if (.not.rtdb_ma_get
+     &    (rtdb,'geometry:actlist', mt_int, nactive,h_actlist))
+     &    call errquit
+     &    ('stpr_active: rtdb_ma_get failed for actlist',911)
+      if (.not.MA_get_index(h_actlist,k_actlist)) call errquit
+     &    ('stpr_active: ma_get_index failed for actlist',911)
+*
+* .. get space for step
+*
+      if (.not.MA_push_get(mt_dbl,nat3,'stpr:alloc:active:step',
+     &    h_step,k_step)) call errquit
+     &    ('stpr_active: ma_push_get failed for step',911)
+*
+* .. copy step to scratch space
+*
+      call dcopy(nat3,step,1,dbl_mb(k_step),1)
+      call dfill(nat3,0.0d00,step,1)
+*
+*.. modify step to have active atoms with steps
+*
+      do i = 0,(nactive-1)
+        atom = int_mb(k_actlist+i)
+        indx = 3*(atom-1) + 1
+        step(indx)   = dbl_mb(k_step+indx-1)
+        step(indx+1) = dbl_mb(k_step+indx)
+        step(indx+2) = dbl_mb(k_step+indx+1)
+      enddo
+      if (.not.MA_free_heap(h_actlist)) call errquit
+     &    ('stpr_active: ma_free_heap failed for actlist',911)
+      if (.not.MA_pop_stack(h_step)) call errquit
+     &    ('stpr_active: ma_pop_stack failed for h_step',911)
+c
+      if (oprint) then
+        write(luout,*)' '
+        write(luout,*)' step after removal of active atoms'
+        call output(step,1,nat3,1,1,nat3,1,1)
+      endif
+c
+      end
