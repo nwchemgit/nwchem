@@ -1,6 +1,10 @@
-      block data inp_data
+      subroutine inp_init(ir,iw)
       implicit none
 #include "inpP.fh"
+      integer ir, iw
+c     
+c
+c      block data inp_data
 c
       data iread   /5/
       data iwrite  /6/
@@ -20,13 +24,6 @@ c
       data xback /'\\'/         ! Backslash ... note backslash for cpp
       data xquote/'"'/
 c
-      end
-      subroutine inp_init(ir,iw)
-      implicit none
-#include "inpP.fh"
-      integer ir, iw
-c     
-      external inp_data
       iread = ir
       iwrite = iw
       jrec = -1
