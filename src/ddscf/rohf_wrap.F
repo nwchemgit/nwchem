@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.3 1995-12-01 16:58:12 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.4 1996-01-19 07:29:24 d3g681 Exp $
 c     
 c     Invalidate data
 c     
@@ -19,7 +19,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.3 1995-12-01 16:58:12 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.4 1996-01-19 07:29:24 d3g681 Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -37,14 +37,14 @@ c     FCV = closed-virtual fock matrix
 c     FCV = closed-partial fock matrix
 c     FPV = partial-virtual fock matrix
 c
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_init: FCV',
+      if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_init: FCV',
      $     1, 1, crohf_g_fcv)) call errquit('rohf_init: FCV', 0)
 c     
       if (nopen .gt. 0) then
-         if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_init: FPV',
+         if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_init: FPV',
      $        1, 1, crohf_g_fpv)) call errquit('rohf_init: FPV', 0)
 c     
-         if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_init: FCP',
+         if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_init: FCP',
      $        1, 1, crohf_g_fcp)) call errquit('rohf_init: FCP', 0)
       endif
 c     
@@ -59,7 +59,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.3 1995-12-01 16:58:12 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.4 1996-01-19 07:29:24 d3g681 Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -87,7 +87,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.3 1995-12-01 16:58:12 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.4 1996-01-19 07:29:24 d3g681 Exp $
 c
       integer g_vecs
       double precision energy
@@ -105,11 +105,11 @@ c
      $     call errquit('rohf_energy: invalid vector length',0)
 c     
       call rohf_fock(geom, basis,
-     $     nclosed, nopen, tol2e, g_vecs,
+     $     nclosed, nopen, nmo, tol2e, g_vecs,
      $     eone, etwo,
      $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp, oskel )
 c
-      call rohf_fock2grad( nbf, nclosed, nopen,
+      call rohf_fock2grad( nmo, nclosed, nopen,
      $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
      $     g_grad)
 c
@@ -123,7 +123,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.3 1995-12-01 16:58:12 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.4 1996-01-19 07:29:24 d3g681 Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -143,7 +143,7 @@ c
 c     
 c     Call internal routine
 c     
-      call rohf_hessv_xx( basis, geom, nbf,
+      call rohf_hessv_xx( basis, geom, nbf, nmo,
      $     nclosed, nopen,
      $     pflg, g_movecs, oskel, 
      $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
@@ -157,7 +157,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.3 1995-12-01 16:58:12 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.4 1996-01-19 07:29:24 d3g681 Exp $
 c
       integer g_x
       double precision solveshift
@@ -175,7 +175,7 @@ c
      $     call errquit('rohf_hessv_precond: invalid vector length',0)
 c     
       crohf_lshift = lshift - solveshift
-      call rohf_hdiag_scale(nbf, nclosed, nopen,
+      call rohf_hdiag_scale(nmo, nclosed, nopen,
      $     lshift,
      $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
      $     g_x )

@@ -1,11 +1,11 @@
-# $Id: GNUmakefile,v 1.58 1996-01-11 07:44:51 d3g681 Exp $
+# $Id: GNUmakefile,v 1.59 1996-01-19 07:29:02 d3g681 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
 
   OBJ = comp4_bins.o              rhf_dens_mo.o \
         comp4_insert.o            scf_sym_adap.o \
-        rhf_fock_2e.o \
+        rhf_fock_2e.o             scf_lindep.o \
         ga_atom_blk.o  scf.o \
         schwarz_init.o \
         int_1e_ga.o               schwarz_pr.o \

@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.14 1996-01-11 07:44:48 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.15 1996-01-19 07:28:59 d3g681 Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -208,7 +208,7 @@ c
       double precision sij(max_sh*max_sh) ! Should be just max shell block
 c
       integer max_q, max_at
-      parameter (max_q = 110001, max_at=20) ! For debug only
+      parameter (max_q = 3001, max_at=20) ! For debug only
       integer ijkl(max_q,4)
       double precision q4(max_q), q4_at(max_at,max_at,max_at,max_at)
       double precision denmax(max_at,max_at,max_at,max_at)
@@ -303,6 +303,7 @@ c
                enddo
             enddo
             if (nij .eq. 0) goto 1010
+            write(6,*) ' nij ', nij
 c
             do kt = 1, k_nt
                do lt = 1, l_nt
@@ -429,7 +430,7 @@ c
       double precision q4(*)
 c
       integer lenscr, leneri, lenlab
-      parameter (lenscr=8000000, leneri=1000003) ! Eventually dynamic
+      parameter (lenscr=1600000, leneri=100003) ! Eventually dynamic
       parameter (lenlab=4*leneri)
       integer l_eri, k_eri, l_lab, k_lab, l_scr, k_scr
       integer k_i, k_j, k_k, k_l
@@ -509,7 +510,7 @@ c
       integer type(max_sh), nprim(max_sh), ngen(max_sh), spch
       integer ilo, ihi, junk
 c
-      integer i, ii, jj, tmp
+      integer i, ii, jj, tmp, ind
       logical otype, ongen
 c
       if (.not. bas_ce2cnr(basis, iatlo, ilo, junk)) call errquit
@@ -552,22 +553,25 @@ c
 c     Now form the ranges for each distinct shell block
 c
       i_nt = 0
-      ii = -9999
+      ii = 5551212
       do i = 1, ihi-ilo+1
-         if (type(i) .ne. ii) then
+         ind = nprim(i)+100*(ngen(i)+10*type(i))
+         if (ind .ne. ii) then
             if (i_nt.ne.0) i_sh_r(2,i_nt) = i-1
             i_nt = i_nt + 1
             i_sh_r(1,i_nt) = i
-            ii = type(i)
+            ii = ind
          endif
       enddo
       if (i_nt.ne.0) i_sh_r(2,i_nt) = ihi-ilo+1
 c
 *      write(6,*) ' Final sorted info for shell range ', ilo, ihi
 *      do i = 1, i_nt
-*         write(6,*) i, ' sorted shell range ',
+*         write(6,*) ' sorted shell range ', i,
 *     $        i_sh_r(1,i),i_sh_r(2,i)
-*         write(6,*) (i_sh(ii),ii=i_sh_r(1,i),i_sh_r(2,i))
+*         write(6,31) (i_sh(ii),type(ii),nprim(ii),ngen(ii),
+*     $        ii=i_sh_r(1,i),i_sh_r(2,i))
+* 31      format(1x,i5,5x,3i5)
 *      enddo
 c
       end

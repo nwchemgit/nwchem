@@ -1,4 +1,4 @@
-      subroutine rohf_fock(geom, basis, nclosed, nopen,
+      subroutine rohf_fock(geom, basis, nclosed, nopen, nmo,
      $     tol2e, g_vecs,
      $     eone, etwo, g_fcv, g_fpv,
      $     g_fcp, oskel)
@@ -14,6 +14,7 @@ c     Arguments
 c     
       integer geom, basis       ! [input] Handles to environment
       integer nclosed, nopen    ! [input] no. of closed and open shells
+      integer nmo               ! [input] no. of MO vectors
       integer g_vecs            ! [input] MO vectors
       double precision tol2e    ! [input] Integral tolerance
       double precision eone, etwo ! [output] Energy terms
@@ -49,7 +50,7 @@ c     Initialise
 c     
       if (.not. bas_numbf(basis, nbf))
      $     call errquit('rohf_solve: bas_numbf failed',0)
-      nvir = nbf - nclosed - nopen
+      nvir = nmo - nclosed - nopen
 c     
 c     hcore = 1-e integrals
 c     cdens = closed shell AO density
@@ -259,11 +260,11 @@ c
      $        crohf_g_fcp, 1, nclosed, nclosed+1, nclosed+nopen,  
      $        g_fock,      1, nclosed, nclosed+1, nclosed+nopen)
          call ga_copy_patch('n',
-     $        crohf_g_fpv,nclosed+1,nclosed+nopen,nclosed+nopen+1,nbf,
-     $        g_fock,     nclosed+1,nclosed+nopen,nclosed+nopen+1,nbf)
+     $        crohf_g_fpv,nclosed+1,nclosed+nopen,nclosed+nopen+1,nmo,
+     $        g_fock,     nclosed+1,nclosed+nopen,nclosed+nopen+1,nmo)
          call ga_copy_patch('n',
-     $        crohf_g_fpv,nclosed+nopen+1,nbf,nclosed+1,nclosed+nopen, 
-     $        g_fock,     nclosed+nopen+1,nbf,nclosed+1,nclosed+nopen)
+     $        crohf_g_fpv,nclosed+nopen+1,nmo,nclosed+1,nclosed+nopen, 
+     $        g_fock,     nclosed+nopen+1,nmo,nclosed+1,nclosed+nopen)
       endif
 c
       end

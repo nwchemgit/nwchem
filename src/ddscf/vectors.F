@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.19 1995-11-13 06:41:22 d3g681 Exp $
+C$Id: vectors.F,v 1.20 1996-01-19 07:29:34 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -202,79 +202,78 @@ c
       goto 10
 c
       end
-      logical function movecs_gather(filename, iset, NWant, Want,
+      logical function movecs_gather(filename, iset, nwant, want,
      $   occ, evals, g_vecs)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
 c
-      character*(*) filename        ! [in] Name of movecs file
-      integer iset                  ! [in] No. (1,2) of set of vectors to read
-      integer NWant                 ! [in] length of gather vector
-      integer Want(NWant)           ! [in] list of MOs to be gathered
-      double precision occ(NWant)   ! [out] Occupation numbers
-      double precision evals(NWant) ! [out] Eigenvalues
-      integer g_vecs                ! [in] Handle for GA to hold results
+      character*(*) filename        ! [in] name of movecs file
+      integer iset                  ! [in] no. (1,2) of set of vectors to read
+      integer nwant                 ! [in] length of gather vector
+      integer want(nwant)           ! [in] list of mos to be gathered
+      double precision occ(nwant)   ! [out] occupation numbers
+      double precision evals(nwant) ! [out] eigenvalues
+      integer g_vecs                ! [in] handle for ga to hold results
 c
-      integer nsets                 ! No. of sets of vectors
-      integer nbf                   ! No. of functions in basis
-      integer ldnmo                 ! Size of nmo
+      integer nsets                 ! no. of sets of vectors
+      integer nbf                   ! no. of functions in basis
+      integer ldnmo                 ! size of nmo
       parameter (ldnmo = 2)
-      integer nmo(ldnmo)            ! No. of vectors in each set
-      integer i, l_FullOcc, k_FullOcc, l_FullEval, k_FullEval, G_Tmp
-      Character*255 Title, Basis
-      integer MinChunk              ! For data distirbution in GA
-      parameter (MinChunk = -1)     ! Let GA determine even distrib.
-C
-      Logical MOVecs_Read_Header, MOVecs_Read
-      External MOVecs_Read_Header, MOVecs_Read
-c     
-      If ( .NOT. MOVecs_Read_Header(Filename, title, basis, nbf,
-     $   nsets, nmo, ldnmo) ) Call ErrQuit(
-     $   'MOVecs_Gather: failed to read movecs file', 1)
+      integer nmo(ldnmo)            ! no. of vectors in each set
+      integer i, l_fullocc, k_fullocc, l_fulleval, k_fulleval, g_tmp
+      character*255 title, basis
+      integer minchunk              ! for data distirbution in ga
+      parameter (minchunk = -1)     ! let ga determine even distrib.
 c
-C     Allocate memory to be used while reading info
-C
+      logical movecs_read_header, movecs_read
+      external movecs_read_header, movecs_read
+c     
+      if ( .not. movecs_read_header(filename, title, basis, nbf,
+     $   nsets, nmo, ldnmo) ) call errquit(
+     $   'movecs_gather: failed to read movecs file', 1)
+c
+c     allocate memory to be used while reading info
+c
       if (.not. ma_push_get(mt_dbl,nmo(iset),'movecs_gather',
-     $   l_FullOcc, k_FullOcc)) call errquit(
+     $   l_fullocc, k_fullocc)) call errquit(
      $   'movecs_gather: ma failed', nmo(iset))
-C
+c
       if (.not. ma_push_get(mt_dbl,nmo(iset),'movecs_gather',
-     $   l_FullEval, k_FullEval)) call errquit(
+     $   l_fulleval, k_fulleval)) call errquit(
      $   'movecs_gather: ma failed', nmo(iset))
-C
-      if ( .NOT. GA_Create( MT_Dbl, NBF, NMO(ISet), 'Full vectors',
-     $   MinChunk, MinChunk, G_Tmp) ) Call ErrQuit(
-     $   'MOVecs_Gather: ga_create failed', NBF*NMO(ISet) )
-C
-C     Read the full data
-C
-      If ( .NOT. MOVecs_Read(Filename, ISet, Dbl_MB(k_FullOcc),
-     $   Dbl_MB(k_FullEval), G_Tmp) ) Call ErrQUit(
-     $   'MOVecs_Gather: failed reading movecs file', 2)
-C
-C     Gather the data into the requested subset
-C
-      Do i = 1, NWant
-         Occ(i)   = Dbl_MB( k_FullOcc  + Want(i) - 1)
-         Evals(i) = Dbl_MB( k_FullEval + Want(i) - 1)
-         Call GA_Copy_Patch('N', G_Tmp, 1, NBF, Want(I), Want(I),
-     $      G_Vecs, 1, NBF, I, I)
-      EndDo
-C
-C     Free temporaries
-C
-      If ( .NOT. GA_Destroy(G_Tmp)) Call ErrQuit(
-     $   'MOVecs_Gather: ga_destroy failed', G_Tmp)
-      If (.NOT. MA_Pop_Stack(l_FullEVal)) Call ErrQuit(
-     $   'movecs_gather: pop failed', l_FullEval)
-      If (.NOT. MA_Pop_Stack(l_FullOcc)) Call ErrQuit(
-     $   'movecs_gather: pop failed', l_FullOcc)
-C
-      MOVecs_Gather = .TRUE.
-C
-      Return
-      End
+c
+      if ( .not. ga_create( mt_dbl, nbf, nmo(iset), 'full vectors',
+     $   minchunk, minchunk, g_tmp) ) call errquit(
+     $   'movecs_gather: ga_create failed', nbf*nmo(iset) )
+c
+c     read the full data
+c
+      if ( .not. movecs_read(filename, iset, dbl_mb(k_fullocc),
+     $   dbl_mb(k_fulleval), g_tmp) ) call errquit(
+     $   'movecs_gather: failed reading movecs file', 2)
+c
+c     gather the data into the requested subset
+c
+      do i = 1, nwant
+         occ(i)   = dbl_mb( k_fullocc  + want(i) - 1)
+         evals(i) = dbl_mb( k_fulleval + want(i) - 1)
+         call ga_copy_patch('n', g_tmp, 1, nbf, want(i), want(i),
+     $      g_vecs, 1, nbf, i, i)
+      enddo
+c
+c     free temporaries
+c
+      if ( .not. ga_destroy(g_tmp)) call errquit(
+     $   'movecs_gather: ga_destroy failed', g_tmp)
+      if (.not. ma_pop_stack(l_fulleval)) call errquit(
+     $   'movecs_gather: pop failed', l_fulleval)
+      if (.not. ma_pop_stack(l_fullocc)) call errquit(
+     $   'movecs_gather: pop failed', l_fullocc)
+c
+      movecs_gather = .true.
+c
+      end
       logical function movecs_write(filename, title, basis_name, 
      $     nbf, nsets, nmo, occ, ldocc, evals, ldevals, g_vecs)
       implicit none

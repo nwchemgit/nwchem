@@ -1,6 +1,6 @@
-      subroutine rohf_hessv_2e( basis, geom, nbf, nclosed, nopen,
+      subroutine rohf_hessv_2e( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_h2e.F,v 1.1 1995-12-13 01:25:49 d3g681 Exp $
+C     $Id: rohf_h2e.F,v 1.2 1996-01-19 07:29:12 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -11,6 +11,7 @@ c     Return the ROHF orbital 2e-Hessian vector product, g_ax = A * g_x
 c     
       integer basis, geom       ! basis & geom handle
       integer nbf, nclosed, nopen ! Basis size and occupation
+      integer nmo               ! No. of linearly dependent MOs
       integer g_movec           ! MO coefficients
       logical oskel
       integer g_x               ! Argument
@@ -45,7 +46,7 @@ c
       odebug = util_print('rohf_hessv', print_debug)
 c     
       tol2e = min(max(acc,itol_floor),itol_ceil)
-      nvir = nbf - nclosed - nopen
+      nvir = nmo - nclosed - nopen
       voff = nclosed + nopen + 1
       ooff = nclosed + 1
       oend = nclosed + nopen
@@ -78,7 +79,7 @@ c
      $     g_movec, 1, nclosed, 1, nbf,
      $     g_tmp2, 1, nvir, 1, nbf )
       call ga_matmul_patch('n','n',one,zero,
-     $     g_movec, 1, nbf, voff, nbf,
+     $     g_movec, 1, nbf, voff, nmo,
      $     g_tmp2, 1, nvir, 1, nbf,
      $     g_dcv, 1, nbf, 1, nbf)
 c     
@@ -99,7 +100,7 @@ c
      $        g_movec, ooff, oend, 1, nbf,
      $        g_tmp2, 1, nvir, 1, nbf )
          call ga_matmul_patch('n', 'n', one, zero,
-     $        g_movec, 1, nbf, voff, nbf,
+     $        g_movec, 1, nbf, voff, nmo,
      $        g_tmp2, 1, nvir, 1, nbf,
      $        g_dpv, 1, nbf, 1, nbf )
 c     
@@ -203,7 +204,7 @@ c
      $     g_movec, 1, nbf, 1, nclosed,
      $     g_tmp1, 1, nbf, 1, nclosed )
       call ga_matmul_patch('t','n',one,zero,
-     $     g_movec, voff, nbf, 1, nbf, 
+     $     g_movec, voff, nmo, 1, nbf, 
      $     g_tmp1, 1, nbf, 1, nclosed,
      $     g_tmp2, 1, nvir, 1, nclosed )
       xoff = 1
@@ -221,7 +222,7 @@ c
      $        g_movec, 1, nbf, ooff, oend,
      $        g_tmp1, 1, nbf, 1, nopen )
          call ga_matmul_patch('t','n',one,zero,
-     $        g_movec, voff, nbf, 1, nbf,
+     $        g_movec, voff, nmo, 1, nbf,
      $        g_tmp1, 1, nbf, 1, nopen,
      $        g_tmp2, 1, nvir, 1, nopen )
          xoff = xend + 1

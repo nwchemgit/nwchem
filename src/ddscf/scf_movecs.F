@@ -33,16 +33,18 @@ c
       logical movecs_write
       external movecs_write
 c
-      integer nset
+      integer nset, nmo2(2)
 c
+      nmo2(1) = nmo
       if (scftype .eq. 'UHF') then
          nset = 2
+         nmo2(2) = nmo
       else
          nset = 1
       endif
 c
       if (.not. movecs_write(movecs_out, title, trans,
-     $     nbf, nset, nbf,
+     $     nbf, nset, nmo2,
      $     dbl_mb(k_occ), nbf, dbl_mb(k_eval),
      $     nbf, g_movecs)) call errquit
      $     ('scf_movecs_write: movecs_write failed', 0)

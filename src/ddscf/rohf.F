@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.6 1995-11-15 20:05:27 gg502 Exp $
+C$Id: rohf.F,v 1.7 1996-01-19 07:29:05 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -85,8 +85,8 @@ C
          if (util_print('final evals', print_default)) then
             call util_print_centered(6,'Final eigenvalues',20,.true.)
             call output(dbl_mb(k_eval),
-     $           1, min(nclosed+nopen+10,nbf),
-     $           1, 1, nbf, 1, 1)
+     $           1, min(nclosed+nopen+10,nmo),
+     $           1, 1, nmo, 1, 1)
             call util_flush(6)
          endif
 C
@@ -99,9 +99,9 @@ C
       endif
 c
       if (oadapt) then
-         nprint = min(nclosed+nopen+10,nbf)
+         nprint = min(nclosed+nopen+10,nmo)
          if (util_print('all vector symmetries', print_high))
-     $        nprint = nbf
+     $        nprint = nmo
          oprint_sym = util_print('final vector symmetries',
      $        print_default)
          call scf_movecs_sym_adapt(basis, g_movecs, oprint_sym,

@@ -13,11 +13,11 @@ c
       double precision scale
 c
       if (step .ne. 0.0d0) then
-         if (.not. ga_create(MT_DBL, nbf, nbf, 
+         if (.not. ga_create(MT_DBL, nbf, nmo, 
      $        'rohf_rotate_movecs: tmp', 1, 1, g_tmp)) call errquit
      $        ('rohf_rotate_movecs: ga create failed', nbf)
          call ga_dscal(g_search, step)
-         call rohf_k2cf(basis, nbf, nclosed,
+         call rohf_k2cf(basis, nbf, nmo, nclosed,
      $        nopen, g_search, g_movecs, g_tmp)
          scale = 1.0d0/step
          call ga_dscal(g_search, scale)

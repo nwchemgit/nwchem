@@ -69,10 +69,6 @@ c
         riscf_basis = 0
       endif
 c
-c     For now just set NMO=NBF but need to detect linear dependence
-c
-      nmo = nbf
-c
 c     Figure input/output MO vectors ... all this should be
 c     context sensitive but that design is incomplete.
 c     
@@ -134,6 +130,11 @@ c
       nalpha = nclosed + nopen
       nbeta  = nclosed
 c
+c     For now set NMO = NBF, however this may change later just
+c     when the dependency analysis is done just before the starting guess
+c
+      nmo = nbf
+c
 c     Store the derived info in the database for other wavefunction
 c     modules and/or restart to access
 c
@@ -145,6 +146,8 @@ c
      $     call errquit('scf_init: put of nclosed failed',0)
       if (.not. rtdb_put(rtdb, 'scf:nelec', MT_INT, 1, nelec))
      $     call errquit('scf_init: put of nelec failed',0)
+      if (.not. rtdb_put(rtdb, 'scf:nmo', MT_INT, 1, nmo))
+     $     call errquit('scf_init: put of nmo failed',0)
       if (scftype .eq. 'UHF') then
          if (.not. rtdb_put(rtdb, 'scf:nalpha', MT_INT, 1, nalpha))
      $        call errquit('scf_init: put of nalpha failed',0)
@@ -152,19 +155,20 @@ c
      $        call errquit('scf_init: put of nbeta failed',0)
       endif
 c     
-c     Allocate persistent local and global arrays
+c     Allocate persistent local and global arrays ... these may
+c     be reallocated later when the dependency analysis is done
 c
       if (scftype .eq. 'UHF') then
-         if (.not. ga_create(MT_DBL, nbf, nbf, 'scf_init: alpha MOs',
+         if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_init: alpha MOs',
      $        1, 1, g_movecs)) call errquit('scf_init: alpha MOs', 0)
-         if (.not. ga_create(MT_DBL, nbf, nbf, 'scf_init: beta MOs',
+         if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_init: beta MOs',
      $        1, 1, g_movecs(2))) call errquit('scf_init: beta MOs', 0)
       else
-         if (.not. ga_create(MT_DBL, nbf, nbf, 'scf_init: MOs',
+         if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_init: MOs',
      $        1, 1, g_movecs)) call errquit('scf_init: MOs', 0)
       endif
 c     
-      len_occ = nbf
+      len_occ = nmo
       if (scftype .eq. 'UHF') len_occ = nbf * 2
       if (.not. ma_push_get(mt_dbl, len_occ, 'scf_init: mo evals',
      $     l_eval, k_eval)) call errquit
@@ -183,7 +187,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.21 1995-12-13 01:26:10 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.22 1996-01-19 07:29:26 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

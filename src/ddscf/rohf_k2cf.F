@@ -1,6 +1,6 @@
-      subroutine rohf_k2cf(basis, nbf, nclosed, nopen,
+      subroutine rohf_k2cf(basis, nbf, nmo, nclosed, nopen,
      $     g_kvec, g_vecs, g_result)
-C     $Id: rohf_k2cf.F,v 1.4 1995-10-21 19:39:34 d3g681 Exp $
+C     $Id: rohf_k2cf.F,v 1.5 1996-01-19 07:29:18 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -9,7 +9,7 @@ c     Transform mo-coeffs from k-vector using exp(K)
 c     
 c     Arguments
 c
-      integer nbf, basis, nclosed, nopen
+      integer nbf, basis, nmo, nclosed, nopen
       integer g_kvec, g_vecs, g_result
 c     
       integer g_temp
@@ -24,11 +24,11 @@ c
 c     
 c     Form K-matrix from vector
 c     
-      nvir = nbf - nclosed - nopen
+      nvir = nmo - nclosed - nopen
       ivoff = nclosed + nopen + 1
       tmp_siz =  max(nvir,nopen)
 c
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'k2cf: temp',
+      if (.not. ga_create(MT_DBL, nmo, nmo, 'k2cf: temp',
      $     1, 1, g_temp)) call errquit('rohf_k2cf: GA temp',0)
 c
       if (.not. ma_push_get(MT_DBL,tmp_siz,'temp k',l_tmp,k_tmp))
@@ -38,9 +38,9 @@ c
       do i=ga_nodeid()+1,nclosed+nopen,nnnodes
          iioff = (i-1)*nvir
          call ga_get(g_kvec,iioff+1,iioff+nvir,1,1,dbl_mb(k_tmp),nvir)
-         call ga_put(g_temp,ivoff,nbf,i,i,dbl_mb(k_tmp),nvir)
+         call ga_put(g_temp,ivoff,nmo,i,i,dbl_mb(k_tmp),nvir)
          call dscal(nvir,mone,dbl_mb(k_tmp),1)
-         call ga_put(g_temp,i,i,ivoff,nbf,dbl_mb(k_tmp),1)
+         call ga_put(g_temp,i,i,ivoff,nmo,dbl_mb(k_tmp),1)
       enddo
       if (nopen .gt. 0) then
          do i=ga_nodeid()+1,nclosed,nnnodes
@@ -68,7 +68,7 @@ c
 c     
 c     Transform MO's
 c     
-      call ga_dgemm('n', 'n', nbf, nbf, nbf, one, g_vecs,
+      call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_vecs,
      $     g_temp, zero, g_result)
 c
       if (.not.ga_destroy(g_temp))

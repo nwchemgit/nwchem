@@ -1,5 +1,5 @@
       subroutine rohf_canon(oaufbau, oprint)
-C$Id: rohf_canon.F,v 1.2 1995-10-21 19:39:33 d3g681 Exp $
+C$Id: rohf_canon.F,v 1.3 1996-01-19 07:29:07 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -29,10 +29,10 @@ c     Transform Fock matrices and MO coefficients into the new canonical basis
 c
       if (oscfps) call pstat_on(ps_diag)
 c
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_canon: u',
+      if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_canon: u',
      $     1, 1, g_u)) call errquit('rohf_canon: ga failed for u', 0)
       call ga_zero(g_u)
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_canon: fock',
+      if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_canon: fock',
      $     1, 1, g_fock)) call errquit
      $     ('rohf_canon: ga failed for fock', 0)
 c
@@ -64,7 +64,7 @@ c     virt-virt piece
 c     
          call rohf_canon_subspace(g_fock, g_u,
      $        dbl_mb(k_eval+nclosed+nopen),
-     $        nclosed+nopen+1, nbf)
+     $        nclosed+nopen+1, nmo)
 
       endif
 c
@@ -74,27 +74,35 @@ c
 c
 c     Apply rotation to orbitals and fock matrix
 c
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_canon: tmp',
+      if (.not. ga_create(MT_DBL, nbf, nmo, 'rohf_canon: tmp',
      $     1, 1, g_tmp)) call errquit
      $     ('rohf_canon: ga failed for tmp', 0)
 c
       call ga_copy(g_movecs, g_tmp)
-      call ga_dgemm('n', 'n', nbf, nbf, nbf, one, g_tmp, g_u,
+      call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_tmp, g_u,
      $     zero, g_movecs)
 c
-      call ga_dgemm('n', 'n', nbf, nbf, nbf, one, crohf_g_fcv, g_u,
+      if (nbf .ne. nmo) then
+         if (.not. ga_destroy(g_tmp)) 
+     $        call errquit('rohf_canon: ga_destroy?',0)
+         if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_canon: tmp',
+     $        1, 1, g_tmp)) call errquit
+     $        ('rohf_canon: ga failed for tmp', 0)
+      endif
+c
+      call ga_dgemm('n', 'n', nmo, nmo, nmo, one, crohf_g_fcv, g_u,
      $     zero, g_tmp)
-      call ga_dgemm('t', 'n', nbf, nbf, nbf, one, g_u, g_tmp, 
+      call ga_dgemm('t', 'n', nmo, nmo, nmo, one, g_u, g_tmp, 
      $     zero, crohf_g_fcv)
 c
       if (nopen .gt. 0) then
-         call ga_dgemm('n', 'n', nbf, nbf, nbf, one, crohf_g_fcp, g_u,
+         call ga_dgemm('n', 'n', nmo, nmo, nmo, one, crohf_g_fcp, g_u,
      $        zero, g_tmp)
-         call ga_dgemm('t', 'n', nbf, nbf, nbf, one, g_u, g_tmp, 
+         call ga_dgemm('t', 'n', nmo, nmo, nmo, one, g_u, g_tmp, 
      $        zero, crohf_g_fcp)
-         call ga_dgemm('n', 'n', nbf, nbf, nbf, one, crohf_g_fpv, g_u,
+         call ga_dgemm('n', 'n', nmo, nmo, nmo, one, crohf_g_fpv, g_u,
      $        zero, g_tmp)
-         call ga_dgemm('t', 'n', nbf, nbf, nbf, one, g_u, g_tmp, 
+         call ga_dgemm('t', 'n', nmo, nmo, nmo, one, g_u, g_tmp, 
      $        zero, crohf_g_fpv)
       endif
 c
@@ -102,8 +110,8 @@ c
          write(6,*)
          write(6,*)
          call util_print_centered(6, 'Eigenvalues', 20, .true.)
-         call output(dbl_mb(k_eval), 1, min(nclosed+nopen+5,nbf), 
-     $        1, 1, nbf, 1, 1)
+         call output(dbl_mb(k_eval), 1, min(nclosed+nopen+5,nmo), 
+     $        1, 1, nmo, 1, 1)
          call util_flush(6)
       endif
 c

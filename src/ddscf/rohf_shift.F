@@ -13,9 +13,9 @@ c
       integer l_diag, k_diag
       double precision shift_cv, shift_pv, shift_cp
 c
-      if (.not. ma_push_get(mt_dbl, nbf, 'rohf_m_s: diag', 
+      if (.not. ma_push_get(mt_dbl, nmo, 'rohf_m_s: diag', 
      $     l_diag, k_diag)) call errquit
-     $     ('rohf_make_shift: insufficient memory', nbf)
+     $     ('rohf_make_shift: insufficient memory', nmo)
 c
       call ga_sync()
 c
@@ -24,11 +24,11 @@ c
       shift_cp = 0.0d0
 c
       call rohf_make_shift_2(crohf_g_fcv, dbl_mb(k_diag),
-     $     1, nclosed, nclosed+nopen+1, nbf,
+     $     1, nclosed, nclosed+nopen+1, nmo,
      $     4.0d0, shift_cv)
       if (nopen .gt. 0) then
          call rohf_make_shift_2(crohf_g_fpv, dbl_mb(k_diag),
-     $        nclosed+1, nclosed+nopen, nclosed+nopen+1, nbf, 
+     $        nclosed+1, nclosed+nopen, nclosed+nopen+1, nmo, 
      $        2.0d0, shift_pv)
          call rohf_make_shift_2(crohf_g_fcv, dbl_mb(k_diag),
      $        1, nclosed, nclosed+1, nclosed+nopen, 

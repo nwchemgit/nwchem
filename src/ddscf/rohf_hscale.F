@@ -1,12 +1,12 @@
-      subroutine rohf_hdiag_scale( nbf, nclosed, nopen, lshift,
+      subroutine rohf_hdiag_scale( nmo, nclosed, nopen, lshift,
      $     g_fcv, g_fpv, g_fcp, g_x )
-C     $Id: rohf_hscale.F,v 1.1 1995-12-13 01:25:54 d3g681 Exp $
+C     $Id: rohf_hscale.F,v 1.2 1996-01-19 07:29:13 d3g681 Exp $
       implicit none
 c
 #include "global.fh"
 #include "mafdecls.fh"
 c     
-      integer nbf, nclosed, nopen
+      integer nmo, nclosed, nopen
       double precision lshift
       integer g_fcv, g_fpv, g_fcp
       integer g_x
@@ -46,21 +46,21 @@ c
       fpv(i) = dbl_mb(k_fpv + i - 1)
       fcp(i) = dbl_mb(k_fcp + i - 1)
 c     
-      nvir = nbf - nclosed - nopen
+      nvir = nmo - nclosed - nopen
       cbase = 0                 ! Offsets into diagonals
       obase = nclosed
       vbase = nclosed + nopen
 c     
 c     Get diagonals of each matrix
 c
-      if (.not.ma_push_get(MT_DBL,nbf,'rohf: tmp',l_fcv,k_fcv))
+      if (.not.ma_push_get(MT_DBL,nmo,'rohf: tmp',l_fcv,k_fcv))
      $     call errquit('rohf_hdiag_scale: cannot allocate',0)
-      if (.not.ma_push_get(MT_DBL,nbf,'rohf: tmp',l_x,k_x))
+      if (.not.ma_push_get(MT_DBL,nmo,'rohf: tmp',l_x,k_x))
      $     call errquit('rohf_hdiag_scale: cannot allocate',0)
       if (nopen .gt. 0) then
-         if (.not.ma_push_get(MT_DBL,nbf,'rohf: tmp',l_fcp,k_fcp))
+         if (.not.ma_push_get(MT_DBL,nmo,'rohf: tmp',l_fcp,k_fcp))
      $        call errquit('rohf_hdiag_scale: cannot allocate',0)
-         if (.not.ma_push_get(MT_DBL,nbf,'rohf: tmp',l_fpv,k_fpv))
+         if (.not.ma_push_get(MT_DBL,nmo,'rohf: tmp',l_fpv,k_fpv))
      $        call errquit('rohf_hdiag_scale: cannot allocate',0)
       endif
 c     

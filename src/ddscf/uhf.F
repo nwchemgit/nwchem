@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.17 1995-12-29 02:04:17 vg038 Exp $
+C$Id: uhf.F,v 1.18 1996-01-19 07:29:31 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -93,14 +93,14 @@ C
             call util_print_centered(6,'Final alpha eigenvalues',
      $           20,.true.)
             call output(dbl_mb(k_eval),
-     $           1, min(nalpha+10,nbf),
-     $           1, 1, nbf, 1, 1)
+     $           1, min(nalpha+10,nmo),
+     $           1, 1, nmo, 1, 1)
             write(6,*)
             call util_print_centered(6,'Final beta eigenvalues',
      $           20,.true.)
             call output(dbl_mb(k_eval+nbf),
-     $           1, min(nalpha+10,nbf),
-     $           1, 1, nbf, 1, 1)
+     $           1, min(nalpha+10,nmo),
+     $           1, 1, nmo, 1, 1)
             call util_flush(6)
          end if
          if (util_print('final vectors', print_debug)) then
@@ -111,9 +111,9 @@ C
          end if
       end if
       if (oadapt) then
-         nprint = min(nalpha+10,nbf)
+         nprint = min(nalpha+10,nmo)
          if (util_print('all vector symmetries', print_high))
-     $        nprint = nbf
+     $        nprint = nmo
          oprint_sym = util_print('final vector symmetries',
      $        print_default)
          call scf_movecs_sym_adapt(basis, g_movecs, oprint_sym,
@@ -141,11 +141,11 @@ c
 #include "mafdecls.fh"
       integer rtdb
 c
-      cuhf_vlen = nalpha*(nbf-nalpha) + nbeta*(nbf-nbeta)
+      cuhf_vlen = nalpha*(nmo-nalpha) + nbeta*(nmo-nbeta)
 c
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_init: Falpha',
+      if (.not. ga_create(MT_DBL, nmo, nmo, 'uhf_init: Falpha',
      $     1, 1, cuhf_g_falpha)) call errquit('uhf_init: Fa', 0)
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_init: Fbeta',
+      if (.not. ga_create(MT_DBL, nmo, nmo, 'uhf_init: Fbeta',
      $     1, 1, cuhf_g_fbeta)) call errquit('uhf_init: Fb', 0)
 c
       cuhf_init_flag = .true.
@@ -167,7 +167,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.17 1995-12-29 02:04:17 vg038 Exp $
+C     $Id: uhf.F,v 1.18 1996-01-19 07:29:31 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -360,10 +360,11 @@ c
 c
 c     Apply rotation
 c
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_s_e: alpha MOs',
+      if (.not. ga_create(MT_DBL, nbf, nmo, 'uhf_s_e: alpha MOs',
      $     1, 1, g_tmp(1))) call errquit('uhf_s_e: MOs', 0)
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_s_e: beta MOs',
+      if (.not. ga_create(MT_DBL, nbf, nmo, 'uhf_s_e: beta MOs',
      $     1, 1, g_tmp(2))) call errquit('uhf_s_e: MOs', 0)
+c
       call uhf_rotate(step, g_search, g_movecs, g_tmp)
 c
 c     Compute energy and gradient
@@ -394,9 +395,9 @@ c
 c
 c     Apply rotation
 c
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_s_e: alpha MOs',
+      if (.not. ga_create(MT_DBL, nbf, nmo, 'uhf_s_e: alpha MOs',
      $     1, 1, g_tmp(1))) call errquit('uhf_s_e: MOs', 0)
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_s_e: beta MOs',
+      if (.not. ga_create(MT_DBL, nbf, nmo, 'uhf_s_e: beta MOs',
      $     1, 1, g_tmp(2))) call errquit('uhf_s_e: MOs', 0)
 c
       call uhf_rotate(step, g_search, g_movecs, g_tmp)
@@ -422,7 +423,7 @@ c
       if (step .ne. 0.0d0) then
          call ga_dscal(g_k, step)
          call uhf_k2cf(basis,
-     $        nbf, nalpha, nbeta,
+     $        nbf, nmo, nalpha, nbeta,
      $        g_k, g_mos_in, g_mos_out)
          scale = 1.0d0 / step
          call ga_dscal(g_k, scale)
@@ -432,9 +433,9 @@ c
       end if
 c
       end
-      subroutine uhf_k2cf(basis, nbf, nalpha, nbeta, g_kvec,
+      subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.17 1995-12-29 02:04:17 vg038 Exp $
+C$Id: uhf.F,v 1.18 1996-01-19 07:29:31 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -446,20 +447,22 @@ c     currently the step is interpreted as being the alpha rotations
 c     followed by the beta rotations ... this will change when the
 c     singlet/triplet rotations are adopted.
 c     
-      integer nbf, basis, nalpha, nbeta
+      integer nbf, nmo, basis, nalpha, nbeta
       integer g_kvec
       integer g_mocf_out(2), g_mocf_in(2)
 c     
       integer nocc, nvir, nocc1, ioff
-      integer g_tmp
+      integer g_kmat
       integer i, l_tmp, k_tmp, iset
       double precision mone, one, zero
       parameter(mone=-1.0d0, one=1.0d0, zero=0.0d0)
 c     
       call ga_sync()
 c     
-      if (.not. ma_push_get(mt_dbl,nbf,'temp k',l_tmp,k_tmp))
-     $     call errquit('uhf_k2cf: ma failed on tmp',  nbf)
+      if (.not. ma_push_get(mt_dbl,nmo,'temp k',l_tmp,k_tmp))
+     $     call errquit('uhf_k2cf: ma failed on tmp',  nmo)
+      if (.not. ga_create(mt_dbl, nmo, nmo, 'uhf_k2cf:kmat',
+     $     1, 1, g_kmat)) call errquit('uhf_k2cf:ga_create?', nmo)
 c
       do iset = 1, 2            ! 1= alpha, 2= beta
 c
@@ -468,49 +471,40 @@ c
             ioff = 0
          else
             nocc = nbeta
-            ioff = nalpha*(nbf - nalpha)
+            ioff = nalpha*(nmo - nalpha)
          end if
-         nvir  = nbf - nocc
+         nvir  = nmo - nocc
          nocc1 = nocc + 1
 c     
 c     form k-matrix from vector
 c
-         call ga_zero(g_mocf_out(iset))
+         call ga_zero(g_kmat)
          do i=ga_nodeid()+1,nocc,ga_nnodes()
             call ga_get(g_kvec, ioff+1+(i-1)*nvir, ioff+i*nvir, 1, 1,
      $           dbl_mb(k_tmp), 1)
-            call ga_put(g_mocf_out(iset), nocc1, nbf, i, i,
+            call ga_put(g_kmat, nocc1, nmo, i, i,
      $           dbl_mb(k_tmp), 1)
             call dscal(nvir, mone, dbl_mb(k_tmp), 1)
-            call ga_put(g_mocf_out(iset), i, i, nocc1, nbf,
+            call ga_put(g_kmat, i, i, nocc1, nmo,
      $           dbl_mb(k_tmp), 1)
          end do
 c
 c     Make near zeoes exactly zero so that sparsity tests in the
 c     matrix multiply work well
 c
-         call ga_screen(g_mocf_out(iset), 1d-12)
+         call ga_screen(g_kmat, 1d-12)
 c
-c     exponentiate the matrix
+c     Exponentiate the matrix and apply the rotation
 c
-         call matrix_exp(g_mocf_out(iset))
+         call matrix_exp(g_kmat)
+         call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_mocf_in(iset),
+     $        g_kmat, zero, g_mocf_out(iset))
 c
-c     apply the rotation
-c
-         if (.not. ga_create(mt_dbl, nbf, nbf, 'uhf_k2cf:tmp',
-     $        1, 1, g_tmp)) call errquit('uhf_k2cf:ga_create?', nbf)
-c
-         call ga_dgemm('n', 'n', nbf, nbf, nbf, one, g_mocf_in(iset),
-     $        g_mocf_out(iset),
-     $        zero, g_tmp)
-         call ga_copy(g_tmp, g_mocf_out(iset))
-c
-         if (.not. ga_destroy(g_tmp))
-     $        call errquit('uhf_k2cf: ga_destroy?', 0)
-c     
-*         call ga_orthog_mos(basis, g_mocf_out(iset))
+*     call ga_orthog_mos(basis, g_mocf_out(iset)) ! No longer necessary
       end do
 c
+      if (.not. ga_destroy(g_kmat))
+     $     call errquit('uhf_k2cf: ga_destroy?', 0)
       if (.not. ma_pop_stack(l_tmp))
      $     call errquit('uhf_k2cf: pop failed', 0)
 c     
@@ -526,7 +520,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.17 1995-12-29 02:04:17 vg038 Exp $
+c     $Id: uhf.F,v 1.18 1996-01-19 07:29:31 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -703,6 +697,7 @@ c
 c
 c     Free up dead global arrays
 c
+c
       if (.not. ga_destroy(g_a_dens)) call errquit('uhf_e: destroy',0)
       if (.not. ga_destroy(g_b_dens)) call errquit('uhf_e: destroy',0)
       if (.not. ga_destroy(g_a_exch)) call errquit('uhf_e: destroy',0)
@@ -735,13 +730,13 @@ c
       integer ioff
 c
       call ga_copy_patch('n',
-     $     cuhf_g_falpha, nalpha+1, nbf, 1, nalpha,
-     $     g_grad, 1, (nbf-nalpha)*nalpha, 1, 1)
+     $     cuhf_g_falpha, nalpha+1, nmo, 1, nalpha,
+     $     g_grad, 1, (nmo-nalpha)*nalpha, 1, 1)
 c
-      ioff = (nbf-nalpha)*nalpha
+      ioff = (nmo-nalpha)*nalpha
       call ga_copy_patch('n',
-     $     cuhf_g_fbeta, nbeta+1, nbf, 1, nbeta,
-     $     g_grad, ioff+1, ioff+(nbf-nbeta)*nbeta, 1, 1)
+     $     cuhf_g_fbeta, nbeta+1, nmo, 1, nbeta,
+     $     g_grad, ioff+1, ioff+(nmo-nbeta)*nbeta, 1, 1)
 c
       call ga_dscal(g_grad, 2.0d0)
 c
@@ -833,16 +828,16 @@ c
       nocc(1) = nalpha
       nocc(2) = nbeta
 c
-      if (.not.ma_push_get(MT_DBL,nbf,'uhf: tmp',l_diag,k_diag))
+      if (.not.ma_push_get(MT_DBL,nmo,'uhf: tmp',l_diag,k_diag))
      $     call errquit('uhf_precond: cannot allocate',0)
-      if (.not.ma_push_get(MT_DBL,nbf,'uhf: tmp',l_x,k_x))
+      if (.not.ma_push_get(MT_DBL,nmo,'uhf: tmp',l_x,k_x))
      $     call errquit('uhf_hdiag_scale: cannot allocate',0)
 c
       shift = lshift - solveshift
 c
       ibase = 1
       do iset = 1, 2
-         nvir = nbf - nocc(iset)
+         nvir = nmo - nocc(iset)
          call ga_get_diagonal(g_f(iset), dbl_mb(k_diag))
 c
          do i = ga_nodeid()+1, nocc(iset), ga_nnodes()
@@ -855,7 +850,7 @@ c
             end do
             call ga_put(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
          end do
-         ibase = ibase + nocc(1)*(nbf-nocc(1))
+         ibase = ibase + nocc(1)*(nmo-nocc(1))
       end do
 c
       if (.not. ma_pop_stack(l_x)) call errquit('uhf:pop x',0)
@@ -877,9 +872,9 @@ c
       integer l_diag, k_diag
       double precision shift_a, shift_b
 c
-      if (.not. ma_push_get(mt_dbl, nbf, 'uhf_m_s: diag', 
+      if (.not. ma_push_get(mt_dbl, nmo, 'uhf_m_s: diag', 
      $     l_diag, k_diag)) call errquit
-     $     ('uhf_make_shift: insufficient memory', nbf)
+     $     ('uhf_make_shift: insufficient memory', nmo)
 c
       call ga_sync()
 c
@@ -887,10 +882,10 @@ c
       shift_b = 0.0d0
 c
       call rohf_make_shift_2(cuhf_g_falpha, dbl_mb(k_diag),
-     $     1, nalpha, nalpha+1, nbf,
+     $     1, nalpha, nalpha+1, nmo,
      $     2.0d0, shift_a)
       call rohf_make_shift_2(cuhf_g_fbeta, dbl_mb(k_diag),
-     $     1, nbeta, nbeta+1, nbf,
+     $     1, nbeta, nbeta+1, nmo,
      $     2.0d0, shift_b)
 c
       shift = max(shift_a, shift_b)
@@ -899,7 +894,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.17 1995-12-29 02:04:17 vg038 Exp $
+C$Id: uhf.F,v 1.18 1996-01-19 07:29:31 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -921,15 +916,15 @@ c
 c     Diagonalize the UHF 'Fock' matrices
 c     
 c     If (oaufbau) 
-c        diagonalize the whole thing and allow mixing of closed-open-virt
+c        diagonalize the whole thing and allow mixing of occ-virt
 c     else
 c        diagonalize separately the occ-occ, and virt-virt parts
 c
 c     Transform Fock matrices and MO coefficients into the new canonical basis
 c
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_canon: u',
+      if (.not. ga_create(MT_DBL, nmo, nmo, 'uhf_canon: u',
      $     1, 1, g_u)) call errquit('uhf_canon: ga failed for u', 0)
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_canon: fock',
+      if (.not. ga_create(MT_DBL, nmo, nmo, 'uhf_canon: fock',
      $     1, 1, g_fock)) call errquit
      $     ('uhf_canon: ga failed for fock', 0)
 c
@@ -964,7 +959,7 @@ c     virt-virt piece
 c     
             call rohf_canon_subspace(g_fock, g_u,
      $           dbl_mb(k_eval+ioff+nocc(iset)),
-     $           nocc(iset)+1, nbf)
+     $           nocc(iset)+1, nmo)
 
          end if
 c
@@ -976,17 +971,24 @@ c
 c
 c     Apply rotation to orbitals and fock matrix
 c
-         if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_canon: tmp',
+         if (.not. ga_create(MT_DBL, nbf, nmo, 'uhf_canon: tmp',
      $        1, 1, g_tmp)) call errquit
      $        ('uhf_canon: ga failed for tmp', 0)
-c
          call ga_copy(g_movecs(iset), g_tmp)
-         call ga_dgemm('n', 'n', nbf, nbf, nbf, one, g_tmp, g_u,
+         call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_tmp, g_u,
      $        zero, g_movecs(iset))
 c
-         call ga_dgemm('n', 'n', nbf, nbf, nbf, one, g_f(iset), g_u,
+         if (nbf .ne. nmo) then
+            if (.not. ga_destroy(g_tmp))
+     $           call errquit('uhf_canon: destroy', 0)
+            if (.not. ga_create(MT_DBL, nmo, nmo, 'uhf_canon: tmp',
+     $           1, 1, g_tmp)) call errquit
+     $           ('uhf_canon: ga failed for tmp', 0)
+         endif
+c
+         call ga_dgemm('n', 'n', nmo, nmo, nmo, one, g_f(iset), g_u,
      $        zero, g_tmp)
-         call ga_dgemm('t', 'n', nbf, nbf, nbf, one, g_u, g_tmp, 
+         call ga_dgemm('t', 'n', nmo, nmo, nmo, one, g_u, g_tmp, 
      $        zero, g_f(iset))
 c
          if (.not. ga_destroy(g_tmp))
@@ -998,13 +1000,13 @@ c
          write(6,*)
          call util_print_centered(6, 'Alpha-spin eigenvalues',
      $        20, .true.)
-         call output(dbl_mb(k_eval), 1, min(nalpha+5,nbf), 
-     $        1, 1, nbf, 1, 1)
+         call output(dbl_mb(k_eval), 1, min(nalpha+5,nmo), 
+     $        1, 1, nmo, 1, 1)
          write(6,*)
          call util_print_centered(6, 'Beta-spin eigenvalues',
      $        20, .true.)
-         call output(dbl_mb(k_eval+nbf), 1, min(nalpha+5,nbf), 
-     $        1, 1, nbf, 1, 1)
+         call output(dbl_mb(k_eval+nbf), 1, min(nalpha+5,nmo), 
+     $        1, 1, nmo, 1, 1)
          call util_flush(6)
       end if
 c
@@ -1024,7 +1026,7 @@ c
 c
 c     Return the expection values of Sz and S^2
 c
-      integer g_over, g_work, l_x, k_x, i, j
+      integer g_smo, g_over, g_work, l_x, k_x, i, j
 c
       sz = 0.5d0 * (nalpha - nbeta)
 c     
@@ -1032,22 +1034,26 @@ c     Form Sab
 c
       if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_spin: overlap',
      $     1, 1, g_over)) call errquit('uhf_spin: overlap', 0)
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_spin: work',
+      if (.not. ga_create(MT_DBL, nbf, nmo, 'uhf_spin: work',
      $     1, 1, g_work)) call errquit('uhf_spin: work', 0)
+      if (.not. ga_create(MT_DBL, nmo, nmo, 'uhf_spin: overlap',
+     $     1, 1, g_smo)) call errquit('uhf_spin: overlap', 0)
+c      
       call ga_zero(g_over)
       call int_1e_ga(basis, basis, g_over, 'overlap', .false.)
       call two_index_transf(g_over, g_movecs(1), g_movecs(2),
-     $     g_work, g_over)
+     $     g_work, g_smo)
       if (.not. ga_destroy(g_work)) call errquit('uhf_spin:ga?',0)
+      if (.not. ga_destroy(g_over)) call errquit('uhf_spin:ga?',0)
 c
 c     Sum overlap of occupied orbitals
 c
-      if (.not. ma_push_get(mt_dbl,nbf,'uhf_spin:x',l_x,k_x))
+      if (.not. ma_push_get(mt_dbl,nalpha,'uhf_spin:x',l_x,k_x))
      $     call errquit('uhf_spin: ma failed on x',  nalpha)
 c
       s2 = 0
       do i = 1+ga_nodeid(), nbeta, ga_nnodes()
-         call ga_get(g_over, 1, nalpha, i, i, dbl_mb(k_x), 1)
+         call ga_get(g_smo, 1, nalpha, i, i, dbl_mb(k_x), 1)
          do j = 1, nalpha
             s2 = s2 + dbl_mb(k_x+j-1)**2
          enddo
@@ -1056,6 +1062,6 @@ c
       s2 = sz*(sz+1) + nbeta - s2
 c
       if (.not. ma_pop_stack(l_x)) call errquit('uhf_spin:ma?',0)
-      if (.not. ga_destroy(g_over)) call errquit('uhf_spin:ga?',0)
+      if (.not. ga_destroy(g_smo)) call errquit('uhf_spin:ga?',0)
 c
       end
