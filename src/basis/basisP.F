@@ -1,6 +1,6 @@
       subroutine print_exndcf(msg)
       implicit none
-c $Id: basisP.F,v 1.17 1997-04-02 00:42:10 d3e129 Exp $
+c $Id: basisP.F,v 1.18 1997-04-02 22:44:19 d3e129 Exp $
 #include "basP.fh"
       character *(*) msg
       integer i,j
@@ -167,6 +167,7 @@ c
       integer basis             ! [local] index into basis arrays
       logical bas_check_handle
       external bas_check_handle
+      integer tmp
 c
 c     Add the unique tag to the list of tags in the basis,
 c     incrementing the no. of tags if necessary.
@@ -180,6 +181,12 @@ c
         if (bs_tags(itag,basis) .eq. tag) then
           if (bs_stdname(itag,basis).eq.'unknown') then
             bs_stdname(itag,basis) = stdtag
+          else if (bs_stdname(itag,basis) .ne. stdtag) then
+            if (.not.(bs_stdname(itag,basis)(1:9).eq.'modified:')) then
+              tmp = inp_strlen(bs_stdname(itag,basis))
+              bs_stdname(itag,basis) =
+     &            'modified:'//bs_stdname(itag,basis)(1:tmp)
+            endif
           endif
           return             
         endif

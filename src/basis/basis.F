@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.60 1997-04-02 19:38:22 d3g681 Exp $
+c $Id: basis.F,v 1.61 1997-04-02 22:44:17 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -679,6 +679,7 @@ c::-local
       integer mylcont ! loop range value (last)
       integer mycont  ! number of contractions
       integer mynbf   ! number of functions
+      integer tmp1, tmp2
 *
 #include "ecp_sfnP.fh"
 *
@@ -712,10 +713,17 @@ c::-local
           mynbf = mynbf + nbf_from_ucont(i_cont,basisin)
         enddo
         dum_tag = bs_tags(i_tag,basis)
-        dum_stdtag = bs_stdname(i_tag,basis)
+        tmp1 = inp_strlen(bs_stdname(i_tag,basis))
+        if (tmp1 .lt. (30-1)) then
+          tmp2 = (30-tmp1)/2
+        else
+          tmp2 = 1
+        endif
+        dum_stdtag = ' '
+        dum_stdtag(tmp2:) = bs_stdname(i_tag,basis)
         write(luout,10001)
      &      dum_tag,
-     &      dum_stdtag(1:21),
+     &      dum_stdtag(1:30),
      &      mycont,
      &      mynbf
       enddo
@@ -724,10 +732,13 @@ c::-local
       bas_summary_print = .true.
 *
 10000 format(' Summary of "',a,'" -> "',a,'"',a/
-     $    ' ---------------------------------------------------------'/
-     $    '       Tag             Description       Shells  Functions'/
-     $    ' ---------------- ---------------------  ------  ---------')
-10001 format(1x,a16,1x,a21,2x,i4,5x,i4)
+     $    ' -------------------------------------------------',
+     &    '-----------------'/
+     $    '       Tag                 Description            ',
+     &    'Shells  Functions'/
+     $    ' ---------------- ------------------------------  ',
+     &    '------  ---------')
+10001 format(1x,a16,1x,a30,2x,i4,5x,i4)
 *
       end
 *.....................................................................
