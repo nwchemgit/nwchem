@@ -16402,7 +16402,7 @@ as d
 as d
  0.14000000e+00 1.00000000
 end
-basis selenium_cd-demon
+basis se_cd-demon
 se s
  0.52160000e+05 1.00000000
 se s
@@ -23027,7 +23027,7 @@ as d
 as d
  0.0466667  1.00000000
 end
-basis selenium_xc-demon
+basis se_xc-demon
 se s
  17386.7  1.00000000
 se s
