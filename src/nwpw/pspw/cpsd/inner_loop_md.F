@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.9 2002-03-05 03:47:35 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.10 2002-04-22 23:37:00 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -460,7 +460,9 @@ c     real*8     fion(3,natmx)
                 eke = eke+sum
              end do
              if (np.gt.1) call D3dB_SumAll(eke)
-             eke = 0.5d0*(fmass/(dt*dt))*(ne(1)+ne(2) - eke)
+             eke = (ne(1)+ne(2) - eke)
+             if (ispin.eq.1) eke = 2.0d0*eke
+             eke = 0.5d0*(fmass/(dt*dt))*eke
              eki = ion_ke()
              call Nose_Verlet_Step(eke,eki)
           else
@@ -470,6 +472,7 @@ c     real*8     fion(3,natmx)
                 eke = eke+sum
               end do
               if (np.gt.1) call D3dB_SumAll(eke)
+              if (ispin.eq.1) eke = 2.0d0*eke
               eke = eke*fmass
               eki = ion_ke()
               call Nose_Newton_Step(eke,eki)
@@ -579,6 +582,7 @@ c     real*8     fion(3,natmx)
       end do
       if (np.gt.1) call D3dB_SumAll(eke)
       eke = eke*fmass
+      if (ispin.eq.1) eke = 2.0d0*eke
 
  
 
