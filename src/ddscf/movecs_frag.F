@@ -66,6 +66,7 @@ c
       call ga_zero(g_vecs)
 c
       do frag = 1, nfrag
+         call util_file_name_resolve(fragments(frag),.false.)
          if (.not. movecs_read_header(fragments(frag), 
      $        title_frag, basis_name_frag, scftype_frag, nbf_frag, 
      $        nsets_frag, nmo_frag,2)) call errquit

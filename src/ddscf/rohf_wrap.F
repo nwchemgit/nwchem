@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.11 1997-04-16 16:52:27 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.12 1997-05-29 20:38:12 d3g681 Exp $
 c     
 c     Invalidate data
 c     
@@ -19,7 +19,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.11 1997-04-16 16:52:27 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.12 1997-05-29 20:38:12 d3g681 Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -63,7 +63,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.11 1997-04-16 16:52:27 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.12 1997-05-29 20:38:12 d3g681 Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -90,8 +90,10 @@ c
 #include "geom.fh"
 #include "crohf.fh"
 #include "cscf.fh"
+#include "util.fh"
+#include "global.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.11 1997-04-16 16:52:27 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.12 1997-05-29 20:38:12 d3g681 Exp $
 c
       integer g_vecs
       double precision energy
@@ -122,13 +124,23 @@ c
      $     call errquit('rohf_energy: no repulsion energy?', 0)
       energy = eone + etwo + enrep
 c
+      if (ga_nodeid().eq.0 .and.
+     $    util_print("rohf energy",print_debug)) then
+       write(6,33) energy, eone, etwo, enrep
+33     format(' total energy = ',f20.12/
+     $        ' 1-e energy   = ',f20.12/
+     $        ' 2-e energy   = ',f20.12/
+     $        ' nucl. energy = ',f20.12/)
+       call util_flush(6)
+      endif 
+c
       end
       subroutine rohf_hessv( acc, g_x, g_ax )
       implicit none
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.11 1997-04-16 16:52:27 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.12 1997-05-29 20:38:12 d3g681 Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -172,7 +184,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.11 1997-04-16 16:52:27 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.12 1997-05-29 20:38:12 d3g681 Exp $
 c
       integer g_x
       double precision solveshift

@@ -96,20 +96,19 @@ c
          max_file_rec = filesize/rec_len_in_dbl
       else if (filesize .eq. 0) then
 c
-c     If the file is in the scratch directory then use the estimate
-c     of available scratch space from util_scratch_dir_avail_for_me()
-c     otherwise use the result from eaf_stat.
+c     If the file is in the scratch directory then use the piece
+c     of it available for this process, otherwise use all that
+c     is available from eaf_stat.
 c
-         call util_file_name('x',.true.,.false.,scratchdir)
-         sdlen = inp_strlen(scratchdir) - 2 ! ignore trailing ".x"
+         call util_directory_name(scratchdir, .true.)
+         sdlen = inp_strlen(scratchdir)
          if (scratchdir(1:sdlen) .eq. actualname(1:sdlen)) then
             availkb = util_scratch_dir_avail_for_me()
-*            write(6,*) ' SCRATCH ', availkb
          else
-            if (eaf_stat(actualname, availkb, fstype) .ne. 0) 
+            if (eaf_stat(actualname, availkb, fstype) .ne. 0)
      $           call errquit
-     $        ('int2e_file_open:unable to determine available disk',0)
-*            write(6,*) ' non-SCRATCH ', availkb
+     $           ('int2e_file_open:unable to stat available disk',0)
+            write(6,*) ' non-SCRATCH ', availkb
          endif
 c
          max_file_rec = nint((0.95*1024.0d0*availkb) / 

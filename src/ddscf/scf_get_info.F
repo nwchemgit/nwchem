@@ -95,6 +95,17 @@ c
             movecs_out = movecs_in
          endif
       endif
+c
+c     Resolve names of MO files to full paths defaulting to the
+c     permanent directory
+c
+      if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore' .or. 
+     $     movecs_in.eq.'project' .or. movecs_in.eq.'fragment') then
+         continue
+      else
+         call util_file_name_resolve(movecs_in, .false.)
+      endif
+      call util_file_name_resolve(movecs_out, .false.)
 c     
 c     Figure out the number of electrons from the required total
 c     charge and the sum of nuclear charges
@@ -220,7 +231,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.42 1997-05-08 21:59:00 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.43 1997-05-29 20:38:12 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
