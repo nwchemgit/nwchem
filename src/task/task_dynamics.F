@@ -1,6 +1,6 @@
       logical function task_dynamics(rtdb)
 *
-* $Id: task_dynamics.F,v 1.2 1999-05-28 14:46:47 d3j191 Exp $
+* $Id: task_dynamics.F,v 1.3 1999-06-14 14:43:55 d3j191 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -53,7 +53,7 @@ c
 c     Actually do the deed
 c
       prefix=theory           ! Most common scenario
-      if(theory.eq.'md') then
+      if(theory.eq.'md'.or.theory.eq.'scf'.or.theory.eq.'dft') then
       status=nwmd(rtdb)
       elseif(theory.eq.'nwargos'.or.theory.eq.'scf'
      + .or.theory.eq.'dft') then

@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.32 1999-03-15 21:16:29 d3j191 Exp $
+* $Id: task.F,v 1.33 1999-06-14 14:43:55 d3j191 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -67,7 +67,8 @@ c
       if (task_qmmm) then
         if (theory.eq.'nwmd'.or.theory.eq.'md'.or.theory.eq.'nwargos')
      + call errquit('task:theory must be a QM method for QMMM',911)
-        status = nwargos(rtdb)
+c        status = nwargos(rtdb)
+        status = nwmd(rtdb)
         if ((ga_nodeid().eq.0) .and. (.not. status)) then
           errmsg = ' '
           write(errmsg,'(''QMMM '',a,'' failed '')')
