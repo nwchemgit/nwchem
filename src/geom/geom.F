@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.66 1997-10-23 22:41:49 d3g681 Exp $
+C$Id: geom.F,v 1.67 1997-11-01 00:09:13 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -2096,6 +2096,7 @@ c
       logical function geom_ecp_set(geom,icent,oecp)
       implicit none
 c
+#include "stdio.fh"
 #include "geomP.fh"
 c
       integer geom     ! [input] geometry handle
@@ -2107,10 +2108,11 @@ c
 c
       geom_ecp_set = geom_check_handle(geom, 'geom_ecp_set')
 c
-      if (.not.(icent.gt.0.and.icent.le.ncenter(geom)))
-     &    call errquit
-     &    (' icent out of range ncenter = ',
-     &    ncenter(geom))
+      if (.not.(icent.gt.0.and.icent.le.ncenter(geom))) then
+        write(luout,*)' icent   = ',icent
+        write(luout,*)' ncenter = ',ncenter(geom)
+        call errquit('geom_ecp_set: icent out of range ncenter = ',911)
+      endif
 c
       oecpcent(icent,geom) = oecp
 c
@@ -2118,6 +2120,7 @@ c
       logical function geom_ecp_get(geom,icent)
       implicit none
 c
+#include "stdio.fh"
 #include "geomP.fh"
 c
       integer geom     ! [input] geometry handle
@@ -2129,10 +2132,11 @@ c
 c
       geom_ecp_get = geom_check_handle(geom, 'geom_ecp_get')
 c
-      if (.not.(icent.gt.0.and.icent.le.ncenter(geom)))
-     &    call errquit
-     &    (' icent out of range ncenter = ',
-     &    ncenter(geom))
+      if (.not.(icent.gt.0.and.icent.le.ncenter(geom))) then
+        write(luout,*)' icent   = ',icent
+        write(luout,*)' ncenter = ',ncenter(geom)
+        call errquit('geom_ecp_get: icent out of range ncenter = ',911)
+      endif
 c
       geom_ecp_get = oecpcent(icent,geom) 
 c
