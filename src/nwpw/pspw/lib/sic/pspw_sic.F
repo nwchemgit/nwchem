@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.8 2002-03-03 21:16:59 bylaska Exp $
+* $Id: pspw_sic.F,v 1.9 2002-05-16 00:07:42 bylaska Exp $
 *
 
 *     *************************
@@ -162,7 +162,7 @@
       end
 
 *     ****************************
-*     *                    	     *
+*     *                    	 *
 *     *     pspw_potential_SIC   *
 *     *                          *
 *     ****************************
@@ -188,8 +188,10 @@
       external lattice_omega,coulomb_screened_e
 
 
-      e_sic = 0.0d0
-      p_sic = 0.0d0
+      eh_sic = 0.0d0
+      ph_sic = 0.0d0
+      ex_sic = 0.0d0
+      px_sic = 0.0d0
       if ((norbs.ne.0).and.relaxed) then
         call Pack_npack(1,npack)
         call D3dB_nx(1,n1)
@@ -240,31 +242,43 @@
            exc = exc*dv
            pxc = pxc*dv
 
-           e_sic = e_sic - exc
-           p_sic = p_sic - pxc
+           ex_sic = ex_sic - exc
+           px_sic = px_sic - pxc
 
 
-*          **** generate dng ****
-           if (ispin.eq.1) 
-     >       call D3dB_rr_Sum(1,dbl_mb(dn(1)),
-     >                        dbl_mb(dn(1)),
-     >                        dbl_mb(dn(1)))
-           call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+*          ***** screened coulomb solver ****
+           if (solver_type.eq.1) then
+
+*            **** generate dng ****
+             if (ispin.eq.1) 
+     >         call D3dB_rr_Sum(1,dbl_mb(dn(1)),
+     >                            dbl_mb(dn(1)),
+     >                            dbl_mb(dn(1)))
+             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
      >                              dbl_mb(dn(1)))
-           call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
-           call Pack_c_pack(0,dbl_mb(dn(1)))
+             call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
+             call Pack_c_pack(0,dbl_mb(dn(1)))
 
-*          **** get Ecoul energy ****
-           eh = coulomb_screened_e(dbl_mb(dn(1)))
-           ph = 2.0d0*eh
-           e_sic = e_sic + eh
-           p_sic = p_sic + ph
+*            **** get Ecoul energy ****
+             eh = coulomb_screened_e(dbl_mb(dn(1)))
+             ph = 2.0d0*eh
+
+*            **** generate Vcoul ****
+             call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
+             call Pack_c_unpack(0,dbl_mb(tmp1(1)))
+             call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
 
 
-*          **** generate Vcoul ****
-           call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
-           call Pack_c_unpack(0,dbl_mb(tmp1(1)))
-           call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+*          ***** free-space coulomb solver ****
+           else
+              call coulomb2_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
+              call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(tmp1(1)),eh)
+              eh = 0.5d0*eh*dv
+              if (ispin.eq.1) eh = eh + eh
+              ph = 2.0d0*eh
+           end if
+           eh_sic = eh_sic + eh
+           ph_sic = ph_sic + ph
 
 
 *          **** generate (Vcoul-Vxc)*psi_r ***
@@ -279,7 +293,7 @@
 *          **** add to Hpsi_k ***
            call D3dB_rc_fft3f(1,dbl_mb(tmp1(1)))
            call Pack_c_pack(1,dbl_mb(tmp1(1)))
-           call Pack_cc_daxpy(1,(-scal1),
+           call Pack_cc_daxpy(1,(scal1),
      >                        dbl_mb(tmp1(1)),
      >                        Hpsi_k(index2))
 
@@ -321,7 +335,10 @@
       external control_gga
       external lattice_omega,coulomb_screened_e
 
-
+      ehsic = eh_sic
+      phsic = ph_sic
+      exsic = ex_sic
+      pxsic = px_sic
       if ((norbs.ne.0).and.(.not.relaxed)) then
         ehsic = 0.0d0
         phsic = 0.0d0
@@ -380,6 +397,7 @@
            exsic = exsic - exc
            pxsic = pxsic - pxc
 
+           write(*,*) "pxc:",i,pxc
 
 *          ***** screened coulomb solver ****
            if (solver_type.eq.1) then
@@ -406,6 +424,7 @@
 
            ehsic = ehsic - eh
            phsic = phsic - ph
+           write(*,*) "ph:",i,ph
 
           end do
 

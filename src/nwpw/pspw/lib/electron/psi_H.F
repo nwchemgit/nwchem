@@ -1,5 +1,5 @@
 *
-* $Id: psi_H.F,v 1.4 2002-01-16 20:51:14 bylaska Exp $
+* $Id: psi_H.F,v 1.5 2002-05-16 00:07:42 bylaska Exp $
 *
 
       subroutine psi_H(ispin,ne,
@@ -86,6 +86,7 @@ c     complex*16 vpsi(nfft3d)
       if (pspw_SIC().and.pspw_SIC_relaxed()) then
          call pspw_potential_SIC(ispin,psi_r,Hpsi_k)
       end if
+
 
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****

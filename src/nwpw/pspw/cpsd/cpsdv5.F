@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.17 2002-02-16 00:55:35 bylaska Exp $
+* $Id: cpsdv5.F,v 1.18 2002-05-16 00:07:42 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -504,7 +504,19 @@
          end do
       end do
 
-*     ***** diagonalize the hamiltonian matrix *****
+*     **** close check file ****
+      if (taskid.eq.MASTER) then
+         close(17)
+      end if
+
+*     ***** do not diagonalize the hamiltonian matrix *****
+      if (pspw_SIC()) then
+        call dcopy(2*npack1*nemax,
+     >             dcpl_mb(psi1(1)),1,
+     >             dcpl_mb(psi2(1)),1)
+
+*     ***** diagonalize the hamiltonian matrix ****
+      else
       n = ne(1)
       nn = n*n
       call dcopy(2*nemax,0.0d0,0,dbl_mb(eig(1)),1)
@@ -529,12 +541,7 @@
             end do
          end do
       end do
-
-*     **** close check file ****
-      if (taskid.eq.MASTER) then
-         close(17)
       end if
-
 
 
 
@@ -603,6 +610,25 @@
             write(6,1706) E(15)
          end if
 
+*        **** write out <psi|H|psi> matrix ****
+         if (pspw_SIC()) then
+           n = ne(1)
+           nn = n*n
+           write(6,1331)
+           do ms=1,ispin
+           do i=n1(ms),n2(ms)
+             ii = i-n1(ms)
+             do j=n1(ms),n2(ms)
+               jj = j-n1(ms)
+               index = (ii+1) + jj*n +(ms-1)*nn
+               write(6,1341) ms,ii+1,jj+1,
+     >                       dbl_mb(hml(1)+index-1)
+             end do
+           end do
+           end do
+
+*        **** write out KS eigenvalues ****
+         else
          write(6,1500)
          NN=NE(1)-NE(2)
          EV=27.2116d0
@@ -611,10 +637,11 @@
          end do
          do i=1,ne(2)
            write(6,1510) dbl_mb(EIG(1)+i-1+NN),
-     >                    dbl_mb(EIG(1)+i-1+NN)*EV,
-     >                    dbl_mb(EIG(1)+i-1+n1(2)-1),
-     >                    dbl_mb(EIG(1)+i-1+n1(2)-1)*EV
+     >                   dbl_mb(EIG(1)+i-1+NN)*EV,
+     >                   dbl_mb(EIG(1)+i-1+n1(2)-1),
+     >                   dbl_mb(EIG(1)+i-1+n1(2)-1)*EV
          end do
+         end if
 
 *        ***** extra energy output for QA test ****
          write(6,1600) E(1)
@@ -777,7 +804,6 @@
      &       '( ',I8,' waves ',I8,' per task)')
  1251 FORMAT(5X,' wavefnc cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
-  
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   mandelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
@@ -789,7 +815,9 @@
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
+ 1331 FORMAT(/' Hamiltonian matrix')
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
+ 1341 FORMAT(I3,2I3,' H=',E16.6)
  1350 FORMAT(/' orthonormality')
  1360 FORMAT(I3,2I3,E18.7)
  1370 FORMAT(I3)
