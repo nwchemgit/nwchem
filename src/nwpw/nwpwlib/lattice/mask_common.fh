@@ -1,0 +1,8 @@
+*
+* $Id: mask_common.fh,v 1.1 2002-01-14 19:20:31 bylaska Exp $
+*
+
+*     **** common block for masker ****
+      integer masker(2,0:1),nwave(0:1),nwave_entire(0:1)
+      common / mask_block / masker,nwave,nwave_entire
+

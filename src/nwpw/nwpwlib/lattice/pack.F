@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.4 2002-01-12 00:50:16 bylaska Exp $
+* $Id: pack.F,v 1.5 2002-01-14 19:20:31 bylaska Exp $
 *
 
 
@@ -14,10 +14,7 @@
 
 
 #include "mafdecls.fh"
-
-*     **** common block for masker ****
-      integer masker(2,0:1),nwave(0:1)
-      common / mask_block / masker,nwave
+#include "mask_common.fh"
 
 
 *     **** common block for pack ****

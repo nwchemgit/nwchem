@@ -1,15 +1,12 @@
 *
-* $Id: mask_init.F,v 1.3 2002-01-12 00:50:16 bylaska Exp $
+* $Id: mask_init.F,v 1.4 2002-01-14 19:20:31 bylaska Exp $
 *
 
       subroutine mask_end()
       implicit none
 
 #include "mafdecls.fh"
-
-*     **** common block for masker ****
-      integer masker(2,0:1),nwave(0:1),nwave_all(0:1)
-      common / mask_block / masker,nwave,nwave_all
+#include "mask_common.fh"
 
       logical value
 
@@ -27,11 +24,8 @@
       implicit none
 
 #include "mafdecls.fh"
+#include "mask_common.fh"
 
-*     **** common block for masker ****
-*     logical masker(nfft3d,0:1)
-      integer masker(2,0:1),nwave(0:1),nwave_all(0:1)
-      common / mask_block / masker,nwave,nwave_all
 
 *     **** local variables ****
       integer nfft3d
@@ -119,8 +113,8 @@
                end do
             end do
          end do
-         nwave_all(nb) = nwave(nb)
-         call D3dB_ISumAll(nwave_all(nb))
+         nwave_entire(nb) = nwave(nb)
+         call D3dB_ISumAll(nwave_entire(nb))
       end do
 
       return
@@ -132,10 +126,7 @@
       complex*16 A(*)
 
 #include "mafdecls.fh"
-
-*     **** common block for masker ****
-      integer masker(2,0:1),nwave(0:1),nwave_all(0:1)
-      common / mask_block / masker,nwave,nwave_all
+#include "mask_common.fh"
 
 *     **** local variables ****
       integer i,nfft3d
@@ -162,10 +153,7 @@
       real*8    A(*)
 
 #include "mafdecls.fh"
-
-*     **** common block for masker ****
-      integer masker(2,0:1),nwave(0:1),nwave_all(0:1)
-      common / mask_block / masker,nwave,nwave_all
+#include "mask_common.fh"
 
 *     **** local variables ****
       integer i,nfft3d
@@ -183,9 +171,7 @@
       implicit none
       integer nb
 
-*     **** common block for masker ****
-      integer masker(2,0:1),nwave(0:1),nwave_all(0:1)
-      common / mask_block / masker,nwave,nwave_all
+#include "mask_common.fh"
 
       mask_nwave = nwave(nb)
       return
@@ -195,10 +181,8 @@
       implicit none
       integer nb
 
-*     **** common block for masker ****
-      integer masker(2,0:1),nwave(0:1),nwave_all(0:1)
-      common / mask_block / masker,nwave,nwave_all
+#include "mask_common.fh"
 
-      mask_nwave_all = nwave_all(nb)
+      mask_nwave_all = nwave_entire(nb)
       return
       end
