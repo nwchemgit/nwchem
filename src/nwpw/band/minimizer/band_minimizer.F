@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.31 2004-11-13 02:22:06 bylaska Exp $
+* $Id: band_minimizer.F,v 1.32 2004-11-13 02:33:18 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -115,8 +115,8 @@
       external pspw_reformat_c_wvfnc
       integer  control_mapping,control_minimizer
       external control_mapping,control_minimizer
-      integer  control_minimizer,control_scf_algorithm
-      external control_minimizer,control_scf_algorithm
+      integer  control_scf_algorithm
+      external control_scf_algorithm
       real*8   control_ks_alpha
       external control_ks_alpha
     
