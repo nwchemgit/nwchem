@@ -6,11 +6,13 @@
 # module name -> produce a write statement for the module name
 # other       -> produce nothing
 # 
-# $Id: ids.awk,v 1.3 1995-02-02 20:21:59 d3g681 Exp $
+# $Id: ids.awk,v 1.4 1997-07-15 19:52:52 d3e129 Exp $
 
 BEGIN {
 		underline = "---------------------------------------------------------";
 		printf("      subroutine util_version\n");
+                printf("#include \"global.fh\"\n");
+                printf("      if (ga_nodeid().eq.0) then\n");
 		printf("      write(6,*)\n");
 		printf("      write(6,*) ' Software version information'\n");
 		printf("      write(6,*) ' ----------------------------'\n");
@@ -34,6 +36,8 @@ BEGIN {
 END {
 		printf("      write(6,*)\n");
 		printf("      call util_flush(6)\n");
+                printf("      endif\n");
+                printf("      call ga_sync()\n");
 		printf("      end\n");
 }
 
