@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.2 2002-07-31 20:45:08 bylaska Exp $
+* $Id: paw_proj.F,v 1.3 2002-08-01 01:05:03 bylaska Exp $
 *
 
 !**************************************************
@@ -117,10 +117,8 @@
 
 *     **** external functions ****
       logical     nwpw_filefind,paw_proj_format_ok
-      character*2 ion_atom
       integer     ion_nkatm
       external    nwpw_filefind,paw_proj_format_ok
-      external    ion_atom
       external    ion_nkatm
 
       nkatm = ion_nkatm()
@@ -138,7 +136,7 @@
 
 *         **** generate formatted projectors atom.jpp ****
           if (.not.found) then
-            call paw_proj_formatter_auto(ion_atom(ia))
+            call paw_proj_formatter_auto(ia)
           end if
         end do
 
@@ -278,3 +276,31 @@
       end
 
 
+
+!**************************************************
+!
+!	Name: paw_proj_formatter_auto
+!
+!	Purpose: read in the header of the formatted 
+!                projector file.
+!
+!	Created:	7/30/2002
+!**************************************************
+      subroutine paw_proj_formatter_auto(ia)
+      implicit none
+      integer ia
+
+      !*** local variables ***
+      character*20 jppname,atomname
+
+      call ion_atom_plus_suffix(ia,'_basis',atomname)
+      call ion_atom_plus_suffix(ia,'.jpp',jppname)
+
+      write(*,*) "atomname,jppname:",atomname,jppname
+
+      !*** read in projectors from _basis file ***
+
+      stop
+
+      return
+      end

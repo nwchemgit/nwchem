@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.1 2002-07-03 19:00:39 bylaska Exp $
+* $Id: paw_sd.F,v 1.2 2002-08-01 01:04:48 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -204,6 +204,8 @@
 
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
+       call paw_proj_init()  !*** initialize projectors ***
+
 !      call psp_init()
 !      call psp_readall()
 !      if (psp_semicore(0)) call semicore_check()
