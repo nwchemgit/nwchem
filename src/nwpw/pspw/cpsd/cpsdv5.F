@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.11 2002-01-11 17:55:32 bylaska Exp $
+* $Id: cpsdv5.F,v 1.12 2002-01-15 20:58:01 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -738,7 +738,7 @@
  1111 FORMAT(/' number of processors used:',I3)
  1115 FORMAT(/' options:')
  1120 FORMAT(5X,' ionic motion         = ',A)
- 1121 FORMAT(5X,' boundry conditions   = ',A,'(version', I1,')')
+ 1121 FORMAT(5X,' boundary conditions   = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')
@@ -777,7 +777,7 @@
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   mandelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
- 1280 FORMAT(5X, ' time step=',F10.2,5X,'fictacious mass=',F10.1)
+ 1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (electron)',E12.3,' (ion)')
  1300 FORMAT(//)

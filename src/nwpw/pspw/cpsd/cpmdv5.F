@@ -13,7 +13,7 @@
 
       logical function cpmdv5(rtdb)
 *
-* $Id: cpmdv5.F,v 1.10 2002-01-11 17:55:32 bylaska Exp $
+* $Id: cpmdv5.F,v 1.11 2002-01-15 20:58:01 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -926,7 +926,7 @@
  1110 FORMAT(10X,'================ input data ========================')
  1111 FORMAT(/' number of processors used:',I3)
  1115 FORMAT(/' options:')
- 1121 FORMAT(5X,' boundry conditions   = ',A,'(version', I1,')')
+ 1121 FORMAT(5X,' boundary conditions   = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')
@@ -977,7 +977,7 @@
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   mandelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
- 1280 FORMAT(5X, ' time step=',F10.2,5X,'fictacious mass=',F10.1)
+ 1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' cooling/heatting rates: ',e12.5,' (psi)',2x,
      >                                       e12.5,' (ion)')
  1294 format(/' Constant Energy Simulation                     ')

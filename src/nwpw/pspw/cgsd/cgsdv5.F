@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.15 2002-01-15 19:43:41 bylaska Exp $
+* $Id: cgsdv5.F,v 1.16 2002-01-15 20:58:01 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -489,7 +489,7 @@ c     end if
  1111 FORMAT(/' number of processors used:',I3)
  1115 FORMAT(/' options:')
  1120 FORMAT(5X,' ionic motion         = ',A)
- 1121 FORMAT(5X,' boundry conditions   = ',A,'(version', I1,')')
+ 1121 FORMAT(5X,' boundary conditions   = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')
