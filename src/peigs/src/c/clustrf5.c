@@ -1,5 +1,5 @@
 /*
- $Id: clustrf5.c,v 1.10 1999-07-28 00:39:21 d3e129 Exp $
+ $Id: clustrf5.c,v 1.11 1999-10-28 17:11:12 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -476,7 +476,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	    printf(" got here 4 me = %d sep xj %20.16g xjm %20.16g  sep %20.16g \n", me, xj, xjm, sep-sepfine*MAX(fabs(xj), fabs(xjm)));
 	    */
 	  
-	  if (fabs(sep) > 2.*fabs(sepfine*MAX(fabs(xj),fabs(xjm)))) {
+	  if (fabs(sep) > 1.*fabs(sepfine*MAX(fabs(xj),fabs(xjm)))) {
 	    if ( clustr_check(clustrptr, j-1, *imin, imax) == 1 ) {
 	      *(c_ptr++) = clustrptr;
 	      *(c_ptr++) = j-1;

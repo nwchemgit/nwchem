@@ -1,5 +1,5 @@
 /*
- $Id: memreq.c,v 1.17 1999-10-12 23:25:40 nwchem Exp $
+ $Id: memreq.c,v 1.18 1999-10-28 17:11:13 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -563,17 +563,17 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
   *isize    =  i_tmp + nextra + 4*msize + 10*naproc + 16*naproc ;
   i = *isize;
   i = ( i + sizeof(DoublePrecision) ) % sizeof(DoublePrecision) ;
-  *isize += *isize + i + 16*msize;
+  *isize += *isize + i + 32*msize;
   
   
-  *rsize    =  d_tmp + nextra + 8*msize + msize*msize/naproc;
+  *rsize    =  d_tmp + 10*msize + 2*(msize*msize/naproc);
   i = *rsize;
   i = ( i + sizeof(DoublePrecision) ) % sizeof(DoublePrecision) ;
-  *rsize += + i + 40*msize;
-
+  *rsize += + i ;
+  
   *ptr_size =  ppd_tmp + nextra + 8*msize + 20*msize;
   i = *ptr_size + 5*msize;
-  *ptr_size += *ptr_size + 20*msize ;
+  *ptr_size += *ptr_size + 40*msize ;
 
   
   return;

@@ -1,5 +1,5 @@
 /*
- $Id: pdspevx.c,v 1.32 1999-07-28 00:39:30 d3e129 Exp $
+ $Id: pdspevx.c,v 1.33 1999-10-28 17:11:13 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -733,15 +733,15 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    iscale = 0;
    
    /*
-     sigma = 0.;
-     if (( anrm > 0.0 ) && ( anrm < rmin)) {
+   sigma = 0.;
+   if (( anrm > 0.0 ) && ( anrm < rmin)) {
      iscale = 1;
      sigma = rmin/anrm;
-     }
-     else
+   }
+   else
      if ( anrm > rmax ) {
-     iscale = 1;
-     sigma = rmax/anrm;
+       iscale = 1;
+       sigma = rmax/anrm;
      }
    */
    
@@ -750,6 +750,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      fflush(stdout);
    */
    
+   /*
    if ( iscale == 1 && sigma > 0.0 ){
      k = 0;
      for ( iii = 0; iii < msize; iii++){
@@ -760,7 +761,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
        }
      }
    }
-
+   */
+   
    /*
      k = 0;
      for ( iii = 0; iii < *n; iii++ )
@@ -872,11 +874,11 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 	if ( mapZ[0] == me ) {
 	  vecZ[0][0] = 1;
 	}
-	*info == 0;
+	*info = 0;
 	return;
       }
       
-	  
+      
 	
       
       /*
@@ -1177,18 +1179,6 @@ END:
     }
 */
 
-    if ( iscale == 1 ){
-      if ( sigma != 0 ){
-	sigma = 1.0/sigma;
-	for ( iii = 0; iii < msize; iii++){
-	  if ( mapA[iii] == me ) {
-	    isize = msize - iii;
-	    dscal_(&isize, &sigma, eval, IONE );
-	    k++;
-	  }
-	}
-      }
-    }
 
 #ifdef DEBUG99
     k = 0;    
