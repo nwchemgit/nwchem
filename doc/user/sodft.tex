@@ -3,39 +3,23 @@
 
 
 Intro: what is SODFT
+       Variational inclusion of one-electron spin-orbit operator
+       uses ECP and SO potentials
+       no symmetry
        uses data from input block dft (see Section \ref{sec:dft} for specifications).
-       dft block options that are not working
+       list dft block options that are not working
 
  
 
 The actual SODFT calculation will be performed when the input module
 encounters the \verb+TASK+ directive (Section \ref{sec:task}).  
+
 \begin{verbatim}
   TASK SODFT
 \end{verbatim}
 
-\section{Specification of SO potentials}
-
+Input parameters are the same as for the DFT, see section \ref{sec:dft}
 Tell user that besides using the standard ECP and basis sets, see Section \ref{sec:ecp} 
-for details, one also has to specify a spin-orbit potential.
+for details, one also has to specify a spin-orbit potential. \ref{sec:spinorb_ecp}
 
-CHECK DEFINITION BELOW !!!!!!
-
-\begin{verbatim}
-  SO [<string name default "so basis">] \
-        [print || noprint default print]
-
-     <string tag> library [<string tag_in_lib>] \
-                  <string standard_set> [file <filename>]
-
-     <string tag> [nelec] <integer number_of_electrons_replaced>
-
-        ...
-
-     <string tag> <string shell_type>
-     <real r-exponent> <real Gaussian-exponent> <real list_of_coefficients>
-        ...
-
-  END
-\end{verbatim}
 
