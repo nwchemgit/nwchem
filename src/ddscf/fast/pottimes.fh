@@ -1,3 +1,6 @@
+*
+* $Id: pottimes.fh,v 1.2 1999-07-29 00:53:57 d3e129 Exp $
+*
       double precision time_init, time_make_poles, time_poles,
      $     time_direct
       logical otime

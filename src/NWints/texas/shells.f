@@ -1,3 +1,4 @@
+* $Id: shells.f,v 1.3 1999-07-29 01:05:49 d3e129 Exp $
 c--------------------------------------------------------------------
       subroutine txs_shells(inx,ics1,jcs1,kcs1,lcs1)
       common /types/itype,jtype,ktype,ltype,itype1,jtype1,ktype1,ltype1 

@@ -1,6 +1,9 @@
 *      call anl_fit_init
 *      end
       double precision function anl_fit(n, l, x)
+*
+* $Id: anlfit.F,v 1.8 1999-07-29 00:53:56 d3e129 Exp $
+*
       implicit none
 #include "canlfit.fh"
       integer n, l

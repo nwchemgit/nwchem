@@ -1,3 +1,4 @@
+* $Id: precalc2.F,v 1.22 1999-07-29 01:05:48 d3e129 Exp $
 c--------------------------------------------------------------------
       subroutine prec2ij(ibl,nblock1, bl,inx)
       implicit real*8 (a-h,o-z)

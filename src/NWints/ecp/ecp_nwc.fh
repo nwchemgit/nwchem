@@ -1,3 +1,4 @@
+* $Id: ecp_nwc.fh,v 1.4 1999-07-29 01:03:34 d3e129 Exp $
 c
       integer h_xyzecp              ! MA handle for ecp center coordinates
       integer k_xyzecp              ! MA index  for ecp center coordinates

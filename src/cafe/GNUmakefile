@@ -1,4 +1,6 @@
 #
+# $Id: GNUmakefile,v 1.6 1999-07-29 00:57:13 d3e129 Exp $
+#
 OBJ_OPTIMIZE=cf_d.o cf_fp.o cf_f.o\
              cf_finish.o\
              cf_forces.o cf_forcep.o\

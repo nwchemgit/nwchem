@@ -1,3 +1,4 @@
+* $Id: spec_block.F,v 1.24 1999-07-29 01:05:49 d3e129 Exp $
 c===============================================================
 c kw 22.05.97 : nsupb(*) has been eleminated.(not used for PNNL)
 c kw 22.05.97 : nasize(*)has been eleminated. 

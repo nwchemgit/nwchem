@@ -1,5 +1,8 @@
       double precision function fmm_potential(depth,lmax,tree, 
      $     dimx, dimy, dimz, x, y, z)
+*
+* $Id: newfmm.F,v 1.2 1999-07-29 00:53:57 d3e129 Exp $
+*
       implicit none
       integer tree(300)
       integer lmax, depth

@@ -4,6 +4,7 @@
      &                     g_nt2,g_nz2,g_ncoul,g_nexch,g_x,g_c,
      &                     g_sht2,g_zx,g_zc,g_shz2,g_aitm,g_qitm,
      &                     g_tz1,g_tz2,g_tz3,iprt)
+* $Id: ccsd_zsig1.F,v 2.5 1999-07-29 00:56:32 d3e129 Exp $
       implicit none
       integer nocc,nvir,nbf,g_nt2,g_nz2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &        g_zx,g_zc,g_shz2,g_aitm,g_qitm,g_tz1,g_tz2,g_tz3,iprt

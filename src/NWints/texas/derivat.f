@@ -1,5 +1,6 @@
+* $Id: derivat.f,v 1.5 1999-07-29 01:05:48 d3e129 Exp $
 c===================================================================
-c This fiel contains all dintegral derivatives routines :
+c This file contains all dintegral derivatives routines :
 c for nmr/giao integral derivatives
 c for first derivatives (gradient) integrals
 c for second derivatives (hessian) integrals

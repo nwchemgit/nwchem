@@ -1,5 +1,7 @@
       subroutine ana_super(x,ix,nx,mx,y,w,sdev,ny,my,mod,rms0,rms1)
 c
+c $Id: ana_super.F,v 1.3 1999-07-29 01:07:23 d3e129 Exp $
+c
 c     superimpose x(1:n,1:3) onto y(1:n,1:3)
 c
       implicit none

@@ -1,3 +1,4 @@
+# $Id: HOW_TO_CONFIGURE,v 1.7 1999-07-29 00:56:04 d3e129 Exp $
 EXAMPLE:  To configure for dft geometry optimization only, 
 from the directory .../nwchem/src use the command:
  make nwchem_config NWCHEM_MODULES='stepper dftgrad gradients'

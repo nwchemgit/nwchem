@@ -1,3 +1,6 @@
+*
+* $Id: testsolver.F,v 1.5 1999-07-29 00:53:58 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
       integer nx, ny, nz, lmax, depth, lenxlm, nnx, nny, nnz

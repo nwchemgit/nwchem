@@ -1,3 +1,4 @@
+* $Id: convert.f,v 1.2 1999-07-29 01:05:48 d3e129 Exp $
 c-----------------------------------------------------------------------
 C This files contains a set of routines used to convert pair
 c quantities into quartet quantities. These routines used to

@@ -1,4 +1,7 @@
       subroutine fastj_direct_sum_init(basis, g_dens, eps, data)
+*
+* $Id: fastj_direct.F,v 1.7 1999-07-29 00:53:57 d3e129 Exp $
+*
       implicit none
 #include "bas.fh"
 #include "mafdecls.fh"

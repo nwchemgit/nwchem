@@ -20,6 +20,7 @@
 *   Written by K. G. Dyall                                             *
 *                                                                      *
 ************************************************************************
+* $Id: ecp_matpi.F,v 1.2 1999-07-29 01:03:34 d3e129 Exp $
       implicit none
 #include "stdio.fh"
       integer i,j,k,mlo,mhi,m1,m2,nlo,nhi,n1,n2,nwid,ncol,nfield

@@ -1,4 +1,5 @@
       Subroutine Module_Census
+* $Id: census.skeleton,v 1.2 1999-07-29 00:56:04 d3e129 Exp $
 C
 C     Eventually this routine should print out a list of modules or
 C     tasks or something which are incorporated into the present

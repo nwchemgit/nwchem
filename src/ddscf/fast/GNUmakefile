@@ -1,3 +1,6 @@
+#
+# $Id: GNUmakefile,v 1.13 1999-07-29 00:53:57 d3e129 Exp $
+#
 
  LIBRARY = libddscf.a
 

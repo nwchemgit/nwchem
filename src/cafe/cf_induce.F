@@ -31,6 +31,7 @@ c     in/out int : lstptr          : list pointer
 c
 c     dimensions nwm,nwa and nsa need to have been given by a call to cf_initx
 c
+c $Id: cf_induce.F,v 1.4 1999-07-29 00:57:12 d3e129 Exp $
       implicit none
 c
 #include "cf_common.fh"

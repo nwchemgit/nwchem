@@ -1,3 +1,4 @@
+* $Id: memoha.f,v 1.8 1999-07-29 01:05:48 d3e129 Exp $
 c====================================================================
 c kw Feb. 18,1994
 c there is the new subroutine memo5 (memory handling for pairs)

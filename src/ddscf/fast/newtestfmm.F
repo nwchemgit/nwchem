@@ -1,4 +1,7 @@
       program test
+*
+* $Id: newtestfmm.F,v 1.2 1999-07-29 00:53:57 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 c

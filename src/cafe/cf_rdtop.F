@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop)
-c
+c $Id: cf_rdtop.F,v 1.8 1999-07-29 00:57:13 d3e129 Exp $
       implicit none
 c
 #include "cf_common.fh"

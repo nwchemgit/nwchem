@@ -1,3 +1,4 @@
+* $Id: src.orig,v 1.2 1999-07-29 01:01:14 d3e129 Exp $
       function osatod(iat,ic,iiloc,iisch,nbb)
 c
       implicit none

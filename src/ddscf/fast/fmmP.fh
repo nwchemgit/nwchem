@@ -1,3 +1,6 @@
+*
+* $Id: fmmP.fh,v 1.3 1999-07-29 00:53:57 d3e129 Exp $
+*
       integer well_separated
       parameter (well_separated = 2)
 c

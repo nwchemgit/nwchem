@@ -1,3 +1,4 @@
+* $Id: time.f,v 1.7 1999-07-29 01:05:50 d3e129 Exp $
       SUBROUTINE txs_SECOND(T)
       common /intgop/ ncache,maxprice,iprint,iblock
       double precision T

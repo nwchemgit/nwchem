@@ -1,4 +1,7 @@
       program test
+*
+* $Id: testcheby.f,v 1.2 1999-07-29 00:53:58 d3e129 Exp $
+*
       implicit none
 c
       integer n, order

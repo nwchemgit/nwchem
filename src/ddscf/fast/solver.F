@@ -1,5 +1,8 @@
       subroutine solver(g, nx, ny, nz, tree, depth, lmax, levelbc,
      $     xlo, xhi, ylo, yhi, zlo, zhi, offt1done, otree)
+*
+* $Id: solver.F,v 1.5 1999-07-29 00:53:57 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "util.fh"

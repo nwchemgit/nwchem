@@ -1,3 +1,4 @@
+* $Id: uniq_pairs.F,v 1.11 1999-07-29 01:05:50 d3e129 Exp $
       subroutine uniq_pairs_1(from,ibl,kbl,bl,ijpres2,klpres2, 
      *                        isbl_size,isbl_q,isbl_point)
       implicit real*8 (a-h,o-z)

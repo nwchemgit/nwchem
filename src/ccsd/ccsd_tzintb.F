@@ -1,6 +1,7 @@
       subroutine ccsd_tzintb(nocc,nvir,nbf,t1,tzoo,scra,scrb,scrc,
      &                       g_nt2,g_nz2,g_ncoul,g_nexch,g_c,g_x,
      &                       g_sht2,g_aitm,g_qitm,g_tz3,iprt)
+* $Id: ccsd_tzintb.F,v 2.5 1999-07-29 00:56:32 d3e129 Exp $
       implicit none
       integer nocc,nvir,nbf,lnoo,lnov,lnvv,g_nt2,g_nz2,g_ncoul,g_nexch,
      &        g_c,g_x,g_sht2,g_aitm,g_qitm,g_tz3,g_tmp,iprt

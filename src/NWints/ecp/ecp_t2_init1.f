@@ -27,6 +27,7 @@
 *   Written by K. G. Dyall                                             *
 *                                                                      *
 ************************************************************************
+* $Id: ecp_t2_init1.f,v 1.7 1999-07-29 01:03:35 d3e129 Exp $
       implicit none
       integer h,i,j,ja,jb,jl,js,k,ldQ,m,m_min,m_max,mm,mp,n,na,nb,nl,
      &    ns,nq,ind(n)

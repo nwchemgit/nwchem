@@ -1,3 +1,4 @@
+* $Id: spec_destiny.F,v 1.14 1999-07-29 01:05:49 d3e129 Exp $
 c==============================================================
 c K.Wolinski : May,1997 : the use of 
 c       ics=iis(ijcs)    

@@ -1,3 +1,4 @@
+* $Id: rel_consts.fh,v 1.3 1999-07-29 01:05:02 d3e129 Exp $
 *
       double precision cau         ! Value of c in atomic units
       double precision csq         ! Value of c**2 in atomic units

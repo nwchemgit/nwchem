@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c
+c $Id: cf_main.F,v 1.19 1999-07-29 00:57:13 d3e129 Exp $
       implicit none
 c
 #include "cf_common.fh"

@@ -1,3 +1,4 @@
+* $Id: destdul.f,v 1.2 1999-07-29 01:05:48 d3e129 Exp $
       subroutine destdul(ikbl,nbls,nblok1,ncs,inx,buf,
      *     buffer, icfx,jcfx,kcfx,lcfx, q4, use_q4,
      *     icfg,jcfg,kcfg,lcfg,ngcd,lnijkl,indxp,ipres,iqorder,

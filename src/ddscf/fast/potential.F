@@ -1,4 +1,7 @@
       double precision function potential(basis, g_dens, x, y, z)
+*
+* $Id: potential.F,v 1.7 1999-07-29 00:53:57 d3e129 Exp $
+*
       implicit none
 #include "bas.fh"
 #include "mafdecls.fh"

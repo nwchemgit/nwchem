@@ -1,5 +1,8 @@
       double precision function fmm_potential(lmax, depth,
      $     dimx, dimy, dimz, potential, x, y, z)
+*
+* $Id: fmm.F,v 1.6 1999-07-29 00:53:57 d3e129 Exp $
+*
       implicit none
       integer lmax, depth
       double precision dimx, dimy, dimz, x, y, z

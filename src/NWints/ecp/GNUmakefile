@@ -1,3 +1,7 @@
+#
+# $Id: GNUmakefile,v 1.22 1999-07-29 01:03:35 d3e129 Exp $
+# 
+
 HEADERS   = ecp_nwc.fh
 OBJ_GRAD = \
       ecp_gradient.o \

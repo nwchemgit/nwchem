@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta)
-c
+c $Id: cf_init.F,v 1.24 1999-07-29 00:57:12 d3e129 Exp $
       implicit none
 c
 #include "cf_common.fh"

@@ -5,6 +5,9 @@
       subroutine potential_from_shell_pair(basis, ish, jsh,
      $     den, ld, tol, d, dinv, lmaxd, npts, xyz, pot, fact,
      $     omask, opresent, ldp)
+*
+* $Id: pot_shell.F,v 1.12 1999-07-29 00:53:57 d3e129 Exp $
+*
       implicit none
 c
 #include "bas.fh"

@@ -1,4 +1,7 @@
       SUBROUTINE VSINT(M,N,X,XT,MDIMX,WSAVE)
+*
+* $Id: vsint.orig.f,v 1.2 1999-07-29 00:53:58 d3e129 Exp $
+*
       implicit double precision (a-h, o-z)
 C***BEGIN PROLOGUE  VSINT
 C***DATE WRITTEN   860701   (YYMMDD)

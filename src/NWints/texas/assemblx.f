@@ -1,3 +1,4 @@
+* $Id: assemblx.f,v 1.8 1999-07-29 01:05:48 d3e129 Exp $
 c----------------------------------------------------------------
 c All routines of the type name_2 are used when 
 c          IROUTE=2

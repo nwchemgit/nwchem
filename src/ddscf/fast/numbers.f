@@ -1,3 +1,6 @@
+*
+* $Id: numbers.f,v 1.2 1999-07-29 00:53:57 d3e129 Exp $
+*
       implicit integer (a-z)
 c
       maxdiff = 0

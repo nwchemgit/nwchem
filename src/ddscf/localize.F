@@ -1,4 +1,7 @@
       subroutine testlocalize(rtdb)
+*
+* $Id: localize.F,v 1.4 1999-07-29 00:54:38 d3e129 Exp $
+*
       implicit none
 #include "cscf.fh"
 #include "mafdecls.fh"

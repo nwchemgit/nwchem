@@ -1,4 +1,7 @@
       subroutine fastj(rtdb, basis, g_dens, eps, data)
+*
+* $Id: fastj.F,v 1.11 1999-07-29 00:53:57 d3e129 Exp $
+*
       implicit none
 #include "rtdb.fh"
 #include "bas.fh"
