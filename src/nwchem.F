@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.82 1996-07-10 10:07:49 d3e129 Exp $
+c     $Id: nwchem.F,v 1.83 1996-07-15 17:59:38 gutowski Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -283,11 +283,11 @@ c
       logical status 
       logical  scf, task_check_sum, selci, eopt, rjhtest, rimp2, oimp2
       external scf, task_check_sum, selci, eopt, rjhtest, rimp2, oimp2
-      logical nwdft, nwargos, mp2_grad, cphf, ccsd, moints_full
+      logical nwdft, nwargos, mp2_grad, cphf, ccsd, moints_full, gapss
       external cphf, ccsd, moints_full
       logical scf_gradient
       external scf_gradient
-      parameter (ntasks = 27)
+      parameter (ntasks = 28)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', ! 1
      $     'raktest',           ! 2
@@ -315,7 +315,8 @@ c
      $     'dplot',             ! 24
      $     'mp2_grad',          ! 25
      $     'optimize',          ! 26
-     $     'property'           ! 27
+     $     'property',          ! 27
+     $     'gapss'              ! 28
      $     /
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
@@ -328,7 +329,7 @@ c
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
          goto (10,  20,  30,  40,  50,  60,  70,  80,  90, 100, 
      $        110, 120, 130, 140, 150, 160, 170, 180, 190, 200,
-     $        210, 220, 230, 240, 250, 260, 270) ind
+     $        210, 220, 230, 240, 250, 260, 270, 280) ind
 c     
          write(6,*) ' Unimplemented task ', 
      $        task_name(1:inp_strlen(task_name))
@@ -474,6 +475,12 @@ c
 c     evaluate physical properties
 c
  270     call property(rtdb)
+         goto 1000
+c
+c     gaussian approach to polymers, surfaces, and solids
+c
+ 280     continue
+         status = gapss(rtdb)
          goto 1000
 c
       else

@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.36 1996-06-05 17:07:47 ng716 Exp $
+# $Id: make_nwchem_config,v 1.37 1996-07-15 18:00:40 gutowski Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -80,6 +80,8 @@ MODULES := $(patsubst rimp2,rimp2 ddscf NWints,$(MODULES) )
 
 MODULES := $(patsubst nwdft,nwdft ddscf NWints,$(MODULES) )
 
+MODULES := $(patsubst gapss,gapss atomscf nwdft ddscf NWints,$(MODULES) )
+
 MODULES := $(patsubst ddscf,ddscf atomscf NWints,$(MODULES) )
 MODULES := $(patsubst NWints,NWints symmetry,$(MODULES) )
 
@@ -107,6 +109,7 @@ MOD_LIBS := $(patsubst ccsd,-lccsd,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst mcscf,-lmcscf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst moints,-lmoints,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwdft,-lnwdft,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst gapss,-lgapss,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst rimp2,-lrimp2,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst oimp2,-loimp2,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst stepper,-lstepper,$(MOD_LIBS) )
@@ -137,6 +140,7 @@ STUBROUTINES := $(patsubst ccsd,ccsd,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mcscf,mcscf,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst moints,atwtest direct_mp2 moints_full,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwdft,nwdft dft_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst gapss,gapss,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rimp2,rimp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst oimp2,oimp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst stepper,stpr_walk scf_optimize dft_optimize stepper_input scf_freq dft_freq eopt,$(STUBROUTINES) )
