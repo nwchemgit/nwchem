@@ -16,11 +16,12 @@ c
 c     The lattice angles are input in Degrees
 c***********************************************************************
       subroutine geom_3d(geom,c2au)
-C$Id: geom_3d.F,v 1.8 1999-07-14 00:28:57 d3e129 Exp $
+C$Id: geom_3d.F,v 1.9 2000-04-10 16:30:10 hvd Exp $
       implicit none
 #include "global.fh"
 #include "inp.fh"
 #include "geom.fh"
+#include "stdio.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 c
@@ -80,8 +81,8 @@ c
 *        dperm=dperm*gmat(i,i)
 *  245 continue
       if (me.eq.0) then 
-        write(6,*)
-        write(6,*) ' !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! '
+        write(LuOut,*)
+        write(LuOut,*) ' !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! '
       endif
       dperm = deter3(gmat)
 *

@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.101 2000-01-25 19:32:26 mg201 Exp $
+C$Id: geom.F,v 1.102 2000-04-10 16:30:10 hvd Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -86,6 +86,7 @@ c
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "stdio.fh"
 c     
       integer geom              ! [input]
       character*(*) msg         ! [input]
@@ -95,7 +96,7 @@ c
      $     .and. active(geom)
 c     
       if (.not. geom_check_handle) then
-         write(6,*) msg,': geometry handle invalid ', geom
+         write(LuOut,*) msg,': geometry handle invalid ', geom
          call geom_err_info(msg)
       end if
 c     
@@ -104,6 +105,7 @@ c
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "stdio.fh"
 c     
       integer geom              ! [input]
       character*(*) msg         ! [input]
@@ -113,7 +115,7 @@ c
 c     
       geom_check_cent = icent.gt.0 .and. icent.le.ncenter(geom)
       if (.not. geom_check_cent) then
-         write(6,*) msg,': icent invalid ', icent,
+         write(LuOut,*) msg,': icent invalid ', icent,
      $        names(geom)(1:lenn(geom))
          call geom_err_info(msg)
          status = geom_print(geom)
@@ -128,6 +130,7 @@ c
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "global.fh"
+#include "stdio.fh"
 c     
       integer rtdb              ! [input]
 c     
@@ -139,15 +142,15 @@ c
 c
       ignore = geom_rtdb_in(rtdb)
       if (ga_nodeid() .eq. 0) then
-         write(6,*)
-         call util_print_centered(6,'Geometries in the database',
+         write(LuOut,*)
+         call util_print_centered(LuOut,'Geometries in the database',
      $        23,.true.)
-         write(6,*)
+         write(LuOut,*)
          if (ngeom_rtdb .le. 0) then
-            write(6,*) ' There are no geometries in the database'
-            write(6,*)
+            write(LuOut,*) ' There are no geometries in the database'
+            write(LuOut,*)
          else
-            if (ngeom_rtdb .gt. 0) write(6,3)
+            if (ngeom_rtdb .gt. 0) write(LuOut,3)
  3          format(
      $           1x,4x,2x,'Name',28x,2x,'Natoms',2x,
      $           'Last Modified',/,
@@ -157,32 +160,32 @@ c
                write(key,'(''geometry:'',a,'':ncenter'')')
      $              names_rtdb(geom)(1:lenr(geom))
                if (.not. rtdb_get(rtdb, key, mt_int, 1, natom)) then
-                  write(6,*) ' Warning: geometry ', geom, 
+                  write(LuOut,*) ' Warning: geometry ', geom, 
      $                 ' may be corrupt'
                   natom = -1
                endif
                if (.not. rtdb_get_info(rtdb, key, ma_type, 
      $              nelem, date)) then
-                  write(6,*) ' Warning: geometry ', geom, 
+                  write(LuOut,*) ' Warning: geometry ', geom, 
      $                 ' may be corrupt'
                   date = 'unknown'
                endif
                name32 = names_rtdb(geom)(1:lenr(geom))
-               write(6,4) geom, name32, natom, date
+               write(LuOut,4) geom, name32, natom, date
  4             format(1x,i4,2x,a32,2x,i6,2x,a26)
             end do
             if (ngeom_rtdb .gt. 0) then
                if (.not. rtdb_cget(rtdb,'geometry',1,key)) 
      $              key = 'geometry'
-               write(6,*)
-               write(6,5) key(1:inp_strlen(key))
+               write(LuOut,*)
+               write(LuOut,5) key(1:inp_strlen(key))
  5             format(2x,'The geometry named "',a,
      $              '" is the default for restart')
             endif
-            write(6,*)
-            write(6,*)
+            write(LuOut,*)
+            write(LuOut,*)
          endif
-         call util_flush(6)
+         call util_flush(LuOut)
       endif
 c     
       end
@@ -193,6 +196,7 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
+#include "stdio.fh"
 c     
       integer rtdb              ! [input]
       integer geom
@@ -207,7 +211,7 @@ c
          if (ngeom_rtdb . gt. 0) then
             if (.not. rtdb_cget(rtdb, 'geometry:names', ngeom_rtdb,
      $           names_rtdb)) then
-               write(6,*) 'geom_rtdb_in: rtdb corrupt'
+               write(LuOut,*) 'geom_rtdb_in: rtdb corrupt'
             else
                do geom = 1, ngeom_rtdb
                   lenr(geom) = inp_strlen(names_rtdb(geom))
@@ -225,6 +229,7 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
+#include "stdio.fh"
 c     
       integer rtdb              ! [input]
 c     
@@ -237,7 +242,7 @@ c
      $        rtdb_cput(rtdb, 'geometry:names', ngeom_rtdb, names_rtdb)
       endif
       if (.not. geom_rtdb_out) 
-     $     write(6,*) ' geom_rtdb_out: rtdb is corrupt '
+     $     write(LuOut,*) ' geom_rtdb_out: rtdb is corrupt '
 c     
       end
       logical function geom_rtdb_add(rtdb, name)
@@ -247,6 +252,7 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
+#include "stdio.fh"
 c     
       integer rtdb              ! [input]
       character*(*) name        ! [input]
@@ -271,7 +277,8 @@ c
 c     Name is not present ... add and rewrite info
 c     
       if (ngeom_rtdb .eq. max_geom_rtdb) then
-         write(6,*) ' geom_rtdb_add: too many geometries on rtdb ', name
+         write(LuOut,*) ' geom_rtdb_add: too many geometries on rtdb ',
+     &                    name
          geom_rtdb_add = .false.
          return
       end if
@@ -280,7 +287,7 @@ c
       lenr(ngeom_rtdb) = ln
 c     
       if (.not. geom_rtdb_out(rtdb)) then
-         write(6,*) ' geom_rtdb_add: rtdb error adding ', name(1:ln)
+         write(LuOut,*) ' geom_rtdb_add: rtdb error adding ', name(1:ln)
          geom_rtdb_add = .false.
          return
       end if
@@ -292,6 +299,7 @@ c
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "stdio.fh"
 c     
       character*(*) info        ! [input]
       integer geom
@@ -304,21 +312,21 @@ c
       do geom = 1, max_geom
          if (active(geom)) ngeom = ngeom + 1
       end do
-      write(6,1) info, ngeom
+      write(LuOut,1) info, ngeom
  1    format(' ',a,': open geometies: ',i2)
       ngeom = 0
       do geom = 1, max_geom
          if (active(geom)) then
-            write(6,2) geom, info, names(geom)(1:lenn(geom)),
+            write(LuOut,2) geom, info, names(geom)(1:lenn(geom)),
      $           trans(geom)(1:lent(geom))
  2          format(' ',i2,' ',a,': "',a, '" -> "', a,'"')
          end if
       end do
       if (ngeom_rtdb .gt. 0) then
-         write(6,3) info, ngeom_rtdb
+         write(LuOut,3) info, ngeom_rtdb
  3       format(' ',a,': geometries in last accessed data base: ', i2)
          do geom = 1, ngeom_rtdb
-            write(6,4) names_rtdb(geom)(1:lenr(geom))
+            write(LuOut,4) names_rtdb(geom)(1:lenr(geom))
  4          format(' ',a)
          end do
       end if
@@ -333,6 +341,7 @@ c
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
 *      integer node
 c     
       integer rtdb              ! [input]
@@ -555,7 +564,7 @@ c
       endif
 c     
       if (.not. s) then
-         write(6,*) ' geom_rtdb_load: not found or rtdb corrupt: ',
+         write(LuOut,*) ' geom_rtdb_load: not found or rtdb corrupt: ',
      $        names(geom)(1:lenn(geom)), ' -> ',
      $        trans(geom)(1:lent(geom))
          call geom_err_info('geom_rtdb_load')
@@ -596,9 +605,9 @@ c
 *      do node = 0, ga_nnodes()-1
 *         call ga_sync
 *         if (ga_nodeid() .eq. node) then
-*            write(6,*) ' node ', ga_nodeid()
+*            write(LuOut,*) ' node ', ga_nodeid()
 *            call sym_print_all(geom, .true., .true., .true., .true., .true.)
-*            call util_flush(6)
+*            call util_flush(LuOut)
 *         endif
 *         call ga_sync
 *      enddo
@@ -611,6 +620,7 @@ c
 #include "geomP.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "stdio.fh"
       integer geom              ! [input]
 c
 c     compute effective nuclear repulsion energy, dipole and
@@ -666,7 +676,7 @@ c     add in interaction of nuclear dipole with external field
 c
       e_nd_ef = ddot(3, ndipole(1,geom), 1, efield(1,geom), 1)
 *:debug-s      
-*debug:      write(6,*)' interaction of nuclear dipole ',
+*debug:      write(LuOut,*)' interaction of nuclear dipole ',
 *debug:     &    'with external field is ',e_nd_ef
 *:debug-e
       e = e + e_nd_ef
@@ -713,6 +723,7 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "util.fh"
+#include "stdio.fh"
 *****#include "context.fh"
 #include "inp.fh"
 c     
@@ -929,7 +940,7 @@ c
 c     check that all rtdb operations were successful
 c
       if (.not. s) then
-         write(6,*) ' geom_rtdb_store: write to rtdb failed',
+         write(LuOut,*) ' geom_rtdb_store: write to rtdb failed',
      $        names(geom)(1:lenn(geom)), ' -> ',
      $        trans(geom)(1:lent(geom))
          call geom_err_info('geom_rtdb_store')
@@ -1125,6 +1136,7 @@ c
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "stdio.fh"
 c     
       integer geom              ! [input]
       integer ncent             ! [input]
@@ -1139,7 +1151,7 @@ c
       if (.not. geom_cart_set) return
 c
       if (ncent.le.0 .or. ncent.gt.max_cent) then
-         write(6,*) ' geom_cart_set: too many centers ',ncent,
+         write(LuOut,*) ' geom_cart_set: too many centers ',ncent,
      $        names(geom)(1:lenn(geom))
          return
       end if
@@ -1448,6 +1460,7 @@ c
 #include "geomP.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "stdio.fh"
       integer geom, unit
       integer i, j, icent
       double precision scale, tmp(3)
@@ -1489,6 +1502,7 @@ c
 #include "geomP.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "stdio.fh"
 c     
 c     Basic printing of cartesian geometry 
 c     needs support for internal coords, different formats, ...
@@ -1528,20 +1542,20 @@ c
      $        names(geom)(1:lenn(geom)), 
      $        trans(geom)(1:lent(geom))
  1    format(a,' "',a,'" -> "',a,'"')
-      write(6,*)
-      write(6,*)
-      call util_print_centered(6,buf,40,.true.)
-      write(6,*)
-      write(6,2) user_units(geom)(1:inp_strlen(user_units(geom))),
+      write(LuOut,*)
+      write(LuOut,*)
+      call util_print_centered(LuOut,buf,40,.true.)
+      write(LuOut,*)
+      write(LuOut,2) user_units(geom)(1:inp_strlen(user_units(geom))),
      $     scale
  2    format(' Output coordinates in ', a,
      $     ' (scale by ',f12.9,' to convert to a.u.)')
       if (include_bqbq(geom))
-     $     write(6,*) ' Include Bq-Bq interactions'
+     $     write(LuOut,*) ' Include Bq-Bq interactions'
 c
-      write(6,*)
+      write(LuOut,*)
 c     
-      write(6,3) 
+      write(LuOut,3) 
  3    format('  No.       Tag          Charge          X',
      $     '              Y              Z'/
      $     ' ---- ---------------- ---------- --------------',
@@ -1550,7 +1564,7 @@ c
          do i = 1, 3
             tmp(i) = coords(i,icent,geom)/scale ! Scale units as necessary
          end do
-         write(6,4) icent, tags(icent,geom), charge(icent,geom),
+         write(LuOut,4) icent, tags(icent,geom), charge(icent,geom),
      $        (tmp(i),i=1,3)
  4       format(' ',i4,' ',a16,' ',f10.4,3f15.8)
       end do
@@ -1558,12 +1572,12 @@ c
       if (ddot(3*ncenter(geom),velocities(1,1,geom),1,
      $     velocities(1,1,geom),1) .gt. 1d-10) then
 
-         write(6,*)
-         write(6,*)
-         call util_print_centered(6,'Velocities',40,.true.)
-         write(6,3) 
+         write(LuOut,*)
+         write(LuOut,*)
+         call util_print_centered(LuOut,'Velocities',40,.true.)
+         write(LuOut,3) 
          do icent = 1, ncenter(geom)
-            write(6,4) icent, tags(icent,geom), charge(icent,geom),
+            write(LuOut,4) icent, tags(icent,geom), charge(icent,geom),
      $           (velocities(i,icent,geom),i=1,3)
          end do
       endif
@@ -1573,45 +1587,45 @@ c     should actually only store the data for unique tags.
 c     Also, keep all common output within 80 columns
 c
       ofinite = geom_any_finuc(geom)
-      write(6,*)
+      write(LuOut,*)
       if (ofinite) then
-        write(6,*) '     Atomic Mass and Nuclear Exponent '
-        write(6,*) '     -------------------------------- '
+        write(LuOut,*) '     Atomic Mass and Nuclear Exponent '
+        write(LuOut,*) '     -------------------------------- '
       else
-        write(6,*) '     Atomic Mass '
-        write(6,*) '     ----------- '
+        write(LuOut,*) '     Atomic Mass '
+        write(LuOut,*) '     ----------- '
       end if
-      write(6,*)
+      write(LuOut,*)
       do icent = 1, ncenter(geom)
         if (abs(geom_mass(icent,geom)).lt.1.0d-07) goto 765
         do jcent = 1, icent-1
           if (tags(icent,geom) .eq. tags(jcent,geom)) goto 765
         enddo
         if (geom_invnucexp(icent,geom) .gt. 0.0d0) then
-          write(6,43) tags(icent,geom), geom_mass(icent,geom),
+          write(LuOut,43) tags(icent,geom), geom_mass(icent,geom),
      &        1.0d0/geom_invnucexp(icent,geom)
    43     format('      ',a16,' ',f10.6,1pe20.6)
         else
-          write(6,44) tags(icent,geom), geom_mass(icent,geom)
+          write(LuOut,44) tags(icent,geom), geom_mass(icent,geom)
    44     format('      ',a16,' ',f10.6)
         end if
 765     continue
       enddo
-      write(6,*)
+      write(LuOut,*)
 c     
-      write(6,41) erep(geom)
+      write(LuOut,41) erep(geom)
    41 format(/' Effective nuclear repulsion energy (a.u.) ', f18.10/)
 c     
-      write(6,91)
+      write(LuOut,91)
  91   format('            Nuclear Dipole moment (a.u.) ')
-      write(6,101)
+      write(LuOut,101)
  101  format('            ----------------------------')
-      write(6,7)
+      write(LuOut,7)
  7    format('        X                 Y               Z'/
      $     ' ---------------- ---------------- ----------------')
-      write(6,8) (ndipole(i,geom), i=1,3)
+      write(LuOut,8) (ndipole(i,geom), i=1,3)
  8    format(3(1x,f16.10))
-      write(6,*)
+      write(LuOut,*)
 c     
       oprint_uniq = sym_num_ops(geom) .gt. 0
       if (oprint_uniq) then
@@ -1945,7 +1959,7 @@ c
 00100 continue
       dist_min = sqrt(dist_min)
       geom_verify_coords = dist_min.gt.dist_thresh
-*      write(6,*)' distance minimum =',
+*      write(LuOut,*)' distance minimum =',
 *     &    dist_min, geom_verify_coords
 c
       if (geom_verify_coords) return
@@ -2289,6 +2303,7 @@ c
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "stdio.fh"
 c
       integer geom                   ! [input] geometry handle
       integer ncent                  ! [input] number of centers
@@ -2303,7 +2318,7 @@ c
       if (.not. geom_masses_set) return
 c
       if (ncent.le.0 .or. ncent.gt.max_cent) then
-         write(6,*) ' geom_masses_set: too many centers ',ncent,
+         write(LuOut,*) ' geom_masses_set: too many centers ',ncent,
      $        names(geom)(1:lenn(geom))
          return
       end if
@@ -2340,6 +2355,7 @@ c
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "stdio.fh"
 c
       integer geom            ! [input] geometry handle
       integer icent           ! [input] number of center for mass
@@ -2352,7 +2368,7 @@ c
       if (.not. geom_mass_set) return
 c
       if (icent.le.0 .or. icent.gt.ncenter(geom)) then
-         write(6,*) ' geom_mass_set: icent out of range',icent,
+         write(LuOut,*) ' geom_mass_set: icent out of range',icent,
      &        ncenter(geom),
      $        names(geom)(1:lenn(geom))
          return
@@ -2365,6 +2381,7 @@ c
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "stdio.fh"
 c
       integer geom            ! [input] geometry handle
       integer icent           ! [input] number of center for mass
@@ -2377,7 +2394,7 @@ c
       if (.not. geom_mass_get) return
 c
       if (icent.le.0 .or. icent.gt.ncenter(geom)) then
-         write(6,*) ' geom_mass_get: icent out of range',icent,
+         write(LuOut,*) ' geom_mass_get: icent out of range',icent,
      &        ncenter(geom),
      $        names(geom)(1:lenn(geom))
          return
@@ -2581,6 +2598,7 @@ c
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "stdio.fh"
 c     
       integer geom                              ! [input]
       integer ncent_in                          ! [input]
@@ -2600,23 +2618,23 @@ c
           if (ncent_ecp.gt.ncent_in) call errquit
      &        ('geom_coords_ecp: number of ecp centers is greater'//
      &         ' than the coord array dimension which is:',ncent_in)
-*          write(6,*)' geom       = ',geom
-*          write(6,*)' ncent_ecp  = ',ncent_ecp
-*          write(6,*)' icent      = ',icent
-*          write(6,*)' coords geom 1',coords(1,icent,geom)
-*          write(6,*)' coords geom 2',coords(2,icent,geom)
-*          write(6,*)' coords geom 3',coords(3,icent,geom)
+*          write(LuOut,*)' geom       = ',geom
+*          write(LuOut,*)' ncent_ecp  = ',ncent_ecp
+*          write(LuOut,*)' icent      = ',icent
+*          write(LuOut,*)' coords geom 1',coords(1,icent,geom)
+*          write(LuOut,*)' coords geom 2',coords(2,icent,geom)
+*          write(LuOut,*)' coords geom 3',coords(3,icent,geom)
           
           coords_ecp(1,ncent_ecp) = coords(1,icent,geom)
           coords_ecp(2,ncent_ecp) = coords(2,icent,geom)
           coords_ecp(3,ncent_ecp) = coords(3,icent,geom)
 
-*          write(6,*)' coords ecp 1',coords_ecp(1,ncent_ecp)
-*          write(6,*)' coords ecp 2',coords_ecp(2,ncent_ecp)
-*          write(6,*)' coords ecp 3',coords_ecp(3,ncent_ecp)
+*          write(LuOut,*)' coords ecp 1',coords_ecp(1,ncent_ecp)
+*          write(LuOut,*)' coords ecp 2',coords_ecp(2,ncent_ecp)
+*          write(LuOut,*)' coords ecp 3',coords_ecp(3,ncent_ecp)
         endif
       enddo
-*      write(6,*)' coordinates inside geom_coords_ecp'
+*      write(LuOut,*)' coordinates inside geom_coords_ecp'
 *      call output(coords_ecp,1,3,1,ncent_ecp,3,ncent_ecp,1)
 c      
       end
@@ -3210,9 +3228,9 @@ c initialize variables
           endif
         enddo
       enddo
-*rak:      write(6,*)' xlist: ', xlist
+*rak:      write(LuOut,*)' xlist: ', xlist
 *rak:      do iat = 1,nat
-*rak:        write(6,*)' xnet: ',iat,':',(xnet(jat,iat),jat=1,max_net)
+*rak:        write(LuOut,*)' xnet: ',iat,':',(xnet(jat,iat),jat=1,max_net)
 *rak:      enddo
 *
       lmtag = 0
@@ -3846,11 +3864,11 @@ c
           endif
         enddo
       enddo
-*rak:      write(6,*)' xlist: ', xlist
+*rak:      write(LuOut,*)' xlist: ', xlist
 *rak:      do iat = 1,nat
-*rak:        write(6,*)' xnet: ',iat,':',(xnet(jat,iat),jat=1,max_net)
+*rak:        write(LuOut,*)' xnet: ',iat,':',(xnet(jat,iat),jat=1,max_net)
 *rak:      enddo
-*rak:      write(6,*)'b4 dih loop'
+*rak:      write(LuOut,*)'b4 dih loop'
 *rak:      itmp = 0
 *rak:      do iat = 1,nat
 *rak:        do jtmp = 1,xlist(iat)
@@ -3863,21 +3881,21 @@ c
 *rak:                  lat = xnet(ltmp,iat)
 *rak:                  if (lat.ne.kat.and.lat.ne.jat.and.lat.ne.iat) then
 *rak:                    itmp = itmp + 1
-*rak:                    write(6,*)'dihang:i:  ',itmp,':',iat,jat,kat,lat
+*rak:                    write(LuOut,*)'dihang:i:  ',itmp,':',iat,jat,kat,lat
 *rak:                  endif
 *rak:                enddo
 *rak:*rak:                do ltmp = 1,xlist(jat)
 *rak:*rak:                  lat = xnet(ltmp,jat)
 *rak:*rak:                  if (lat.ne.kat.and.lat.ne.jat.and.lat.ne.iat) then
 *rak:*rak:                    itmp = itmp + 1
-*rak:*rak:                    write(6,*)'dihang:j:  ',itmp,':',iat,jat,kat,lat
+*rak:*rak:                    write(LuOut,*)'dihang:j:  ',itmp,':',iat,jat,kat,lat
 *rak:*rak:                  endif
 *rak:*rak:                enddo
 *rak:                do ltmp = 1,xlist(kat)
 *rak:                  lat = xnet(ltmp,kat)
 *rak:                  if (lat.ne.kat.and.lat.ne.jat.and.lat.ne.iat) then
 *rak:                    itmp = itmp + 1
-*rak:                    write(6,*)'dihang:k:  ',itmp,':',iat,jat,kat,lat
+*rak:                    write(LuOut,*)'dihang:k:  ',itmp,':',iat,jat,kat,lat
 *rak:                  endif
 *rak:                enddo
 *rak:              endif
@@ -3885,7 +3903,7 @@ c
 *rak:          endif
 *rak:        enddo
 *rak:      enddo
-*rak:      write(6,*)'after dih loop'
+*rak:      write(LuOut,*)'after dih loop'
       do iat = 1,nat
         if (.not.geom_cent_get(geom,iat,tagi,ci,chg)) call errquit
      &      ('geom_prt_dihedrals:geom_cent_get:i ',911)
@@ -4012,11 +4030,11 @@ c
      &                    ipat,ptagi,jpat,ptagj,
      &                    kpat,ptagk,lpat,ptagl,
      &                    diangle
-*rak:                        write(6,*)'i',pci
-*rak:                        write(6,*)'j',pcj
-*rak:                        write(6,*)'k',pck
-*rak:                        write(6,*)'l',pcl
-*rak:                        write(6,*)'dihang::i::',num_prt,':',
+*rak:                        write(LuOut,*)'i',pci
+*rak:                        write(LuOut,*)'j',pcj
+*rak:                        write(LuOut,*)'k',pck
+*rak:                        write(LuOut,*)'l',pcl
+*rak:                        write(LuOut,*)'dihang::i::',num_prt,':',
 *rak:     &                      ipat,jpat,kpat,lpat,diangle
                     endif
                   enddo
@@ -4103,11 +4121,11 @@ c
 *rak:     &                    ipat,ptagi,jpat,ptagj,
 *rak:     &                    kpat,ptagk,lpat,ptagl,
 *rak:     &                    diangle
-*rak:*rak:                      write(6,*)'i',pci
-*rak:*rak:                      write(6,*)'j',pcj
-*rak:*rak:                      write(6,*)'k',pck
-*rak:*rak:                      write(6,*)'l',pcl
-*rak:*rak:                      write(6,*)'dihang::j::',num_prt,':',
+*rak:*rak:                      write(LuOut,*)'i',pci
+*rak:*rak:                      write(LuOut,*)'j',pcj
+*rak:*rak:                      write(LuOut,*)'k',pck
+*rak:*rak:                      write(LuOut,*)'l',pcl
+*rak:*rak:                      write(LuOut,*)'dihang::j::',num_prt,':',
 *rak:*rak:     &                    ipat,jpat,kpat,lpat,diangle
 *rak:                    endif
 *rak:                  enddo
@@ -4194,11 +4212,11 @@ c
      &                    ipat,ptagi,jpat,ptagj,
      &                    kpat,ptagk,lpat,ptagl,
      &                    diangle
-*rak:                      write(6,*)'i',pci
-*rak:                      write(6,*)'j',pcj
-*rak:                      write(6,*)'k',pck
-*rak:                      write(6,*)'l',pcl
-*rak:                      write(6,*)'dihang::k::',num_prt,':',
+*rak:                      write(LuOut,*)'i',pci
+*rak:                      write(LuOut,*)'j',pcj
+*rak:                      write(LuOut,*)'k',pck
+*rak:                      write(LuOut,*)'l',pcl
+*rak:                      write(LuOut,*)'dihang::k::',num_prt,':',
 *rak:     &                    ipat,jpat,kpat,lpat,diangle
                     endif
                   enddo
@@ -4573,6 +4591,7 @@ C data for 87-103 RA Kendall
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "inp.fh"
+#include "stdio.fh"
 c     
       integer geom              ! [output]
       character*(*) name        ! [input]
@@ -4585,7 +4604,7 @@ c
       do geom = 1, max_geom
          if (.not. active(geom)) goto 10
       end do
-      write(6,1) name
+      write(LuOut,1) name
  1    format(' geom_create: too many geoms trying to create ', a)
       call geom_err_info('geom_create')
       geom_create = .false.

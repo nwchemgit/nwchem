@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.131 2000-04-10 09:23:56 hvd Exp $
+C     $Id: geom_input.F,v 1.132 2000-04-10 16:30:11 hvd Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -188,7 +188,7 @@ c
       if (oadjust) then
          if (.not. geom_rtdb_load(rtdb, geom, name)) call errquit
      $        ('geom_input: cannot find geometry to adjust',0)
-         if (oprint) write(6,778) name(1:inp_strlen(name))
+         if (oprint) write(LuOut,778) name(1:inp_strlen(name))
  778     format(/,' Adjusting existing geometry named ',a,/)
       endif
 c
@@ -419,7 +419,8 @@ c
      $              ('geom_input: autosym bug : number of atoms wrong',
      $              ncenter)
             else
-               write(6,*) ' autosym detected uknown group ', groupname
+               write(LuOut,*) ' autosym detected unknown group ', 
+     &                        groupname
                call errquit('geom_input: autosym: invalid group',0)
             endif
          endif
@@ -772,6 +773,7 @@ c
      $     max_zcoord, cvr_scaling,maxtor,oprint,scale)
       implicit none
 #include "inp.fh"
+#include "stdio.fh"
 c
       double precision scale    ! user units to AU to angstrom
       double precision cvr_scaling
@@ -824,7 +826,7 @@ c
          ijklnb_frz(i) = .false.
       enddo
 c
-      if (oprint) write(6,1)
+      if (oprint) write(LuOut,1)
  1    format(' User specification of redundant internal variables ',/,
      $     1x,50('-'),/,/,
      $     1x,'  i   j   k   l     value       name   frz',/,
@@ -862,7 +864,7 @@ c
      $        (ijbond_val(nbond), ijbond_nam(nbond), ijbond_frz(nbond),
      $        nuser,fff)
          if (fff.ne.' ') ijbond_val(nbond) = ijbond_val(nbond)*scale
-         if (oprint) write(6,2) ijbond(1,nbond), ijbond(2,nbond),
+         if (oprint) write(LuOut,2) ijbond(1,nbond), ijbond(2,nbond),
      $        fff, ijbond_nam(nbond), ijbond_frz(nbond)
       else if(inp_compare(.false.,'ijkang',field) .or.
      $        inp_compare(.false.,'angle',field)) then
@@ -879,7 +881,7 @@ c
          call geom_autoz_input_varinfo
      $        (ijkang_val(nangl), ijkang_nam(nangl), ijkang_frz(nangl),
      $        nuser,fff)
-         if (oprint) write(6,3) ijkang(1,nangl), ijkang(2,nangl), 
+         if (oprint) write(LuOut,3) ijkang(1,nangl), ijkang(2,nangl), 
      $        ijkang(3,nangl),
      $        fff, ijkang_nam(nangl), ijkang_frz(nangl)
       else if(inp_compare(.false.,'ijklto',field) .or.
@@ -899,7 +901,7 @@ c
          call geom_autoz_input_varinfo
      $        (ijklto_val(ntors), ijklto_nam(ntors), ijklto_frz(ntors),
      $        nuser,fff)
-         if (oprint) write(6,4) ijklto(1,ntors), ijklto(2,ntors), 
+         if (oprint) write(LuOut,4) ijklto(1,ntors), ijklto(2,ntors), 
      $        ijklto(3,ntors), ijklto(4,ntors),
      $        fff, ijklto_nam(ntors), ijklto_frz(ntors)
 c$$$      else if(inp_compare(.false.,'ijklop',field)) then
@@ -931,11 +933,11 @@ c$$$     $        ('hnd_autoz_input: reading ijklnb',4)
       goto 10                   ! Read next line
 c
  999  if (cvr_scaling.ne.cvr_factor .and. oprint) 
-     $     write(6,9) cvr_scaling
+     $     write(LuOut,9) cvr_scaling
  9    format('  cvr_scaling: ', f6.2)
-      if (maxtor.ne.100 .and. oprint) write(6,5) maxtor
+      if (maxtor.ne.100 .and. oprint) write(LuOut,5) maxtor
  5    format('  maxtor:      ',i5)
-      if (oprint) write(6,*)
+      if (oprint) write(LuOut,*)
 c
       end
       subroutine geom_autoz_input_varinfo(val, nam, frz, nuser, fff)
@@ -1231,6 +1233,7 @@ c
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "inp.fh"
+#include "stdio.fh"
       integer geom
       logical odata
       character*(*) string      ! Only 8 characters used
@@ -1249,12 +1252,12 @@ c
       geom_print_zmatrix = geom_compute_zmatrix(geom, zmat)
       if (.not. geom_print_zmatrix) return
 c
-      write(6,11) zmt_source(geom)(1:inp_strlen(zmt_source(geom)))
+      write(LuOut,11) zmt_source(geom)(1:inp_strlen(zmt_source(geom)))
  11   format(//32x,'Z-matrix (',a,')',/
      $         32x,'-------- ',/,/,
      $     ' Units are Angstrom for bonds and degrees for angles')
 c
-      if (zmt_nzfrz(geom) .gt. 0) write(6,12)
+      if (zmt_nzfrz(geom) .gt. 0) write(LuOut,12)
  12   format(/'  Constants are marked with an asterisk (*).')
 c
       nequiv = 0
@@ -1266,15 +1269,15 @@ c
             enddo
          endif
       enddo
-      if (nequiv .gt. 0) write(6,13)
+      if (nequiv .gt. 0) write(LuOut,13)
  13   format(/'  Constrained variables are marked with a plus sign',
      $     ' (+).'/)
-      write(6,*)
+      write(LuOut,*)
 c
       if (odata) then
-         write(6,10) string(1:min(8,inp_strlen(string)))
+         write(LuOut,10) string(1:min(8,inp_strlen(string)))
       else
-         write(6,9)
+         write(LuOut,9)
       endif
  10   format(6x,'Type          Name      I     J     K     L     M',
 
@@ -1319,10 +1322,10 @@ c     ----- bond stretch -----
 c     
             iadd = iadd + 3
             if (odata) then
-               write(6,1) izvar, v, s, name, i, j, zmat(izvar),
+               write(LuOut,1) izvar, v, s, name, i, j, zmat(izvar),
      $              data(izvar)
             else
-               write(6,1) izvar, v, s, name, i, j, zmat(izvar)
+               write(LuOut,1) izvar, v, s, name, i, j, zmat(izvar)
             endif
          elseif(itype.eq.2) then
 c     
@@ -1330,10 +1333,10 @@ c     ----- angle bend -----
 c     
             iadd = iadd + 4
             if (odata) then
-               write(6,2) izvar, v, s, name, i, j, k, zmat(izvar), 
+               write(LuOut,2) izvar, v, s, name, i, j, k, zmat(izvar), 
      $              data(izvar)
             else
-               write(6,2) izvar, v, s, name, i, j, k, zmat(izvar)
+               write(LuOut,2) izvar, v, s, name, i, j, k, zmat(izvar)
             endif
          elseif(itype.eq.3) then
 c     
@@ -1341,10 +1344,10 @@ c     ----- torsion -----
 c     
             iadd = iadd + 5
             if (odata) then
-               write(6,3) izvar, v, s, name, i, j, k, l, zmat(izvar), 
+               write(LuOut,3) izvar, v, s, name, i,j,k,l, zmat(izvar), 
      $              data(izvar)
             else
-               write(6,3) izvar, v, s, name, i, j, k, l, zmat(izvar)
+               write(LuOut,3) izvar, v, s, name, i, j, k, l, zmat(izvar)
             endif
          elseif(itype.eq.4) then
 c     
@@ -1352,10 +1355,10 @@ c     ----- out of plane angle bend -----
 c     
             iadd = iadd + 5
             if (odata) then
-               write(6,4) izvar, v, s, name, i, j, k, l, zmat(izvar), 
+               write(LuOut,4) izvar,v, s, name, i, j, k, l, zmat(izvar), 
      $              data(izvar)
             else
-               write(6,4) izvar, v, s, name, i, j, k, l, zmat(izvar)
+               write(LuOut,4) izvar, v, s, name, i, j, k, l, zmat(izvar)
             endif
          elseif(itype.eq.5) then
 c     
@@ -1363,10 +1366,10 @@ c     ----- linear angle bend -----
 c     
             iadd=iadd+5
             if (odata) then
-               write(6,5) izvar, v, s, name, i, j, k, l, zmat(izvar), 
+               write(LuOut,5) izvar,v, s, name, i, j, k, l, zmat(izvar), 
      $              data(izvar)
             else
-               write(6,5) izvar, v, s, name, i, j, k, l, zmat(izvar)
+               write(LuOut,5) izvar, v, s, name, i, j, k, l, zmat(izvar)
             endif
          elseif(itype.eq.6) then
 c     
@@ -1374,10 +1377,10 @@ c     ----- dihedral angle between two planes sharing one atom -----
 c     
             iadd=iadd+6
             if (odata) then
-               write(6,6) izvar, v, s, name, i, j, k, l, m,zmat(izvar),
+               write(LuOut,6) izvar,v,s,name, i, j, k, l, m,zmat(izvar),
      $              data(izvar)
             else
-               write(6,6) izvar, v, s, name, i, j, k, l, m, zmat(izvar)
+               write(LuOut,6) izvar,v,s,name, i, j, k, l, m, zmat(izvar)
             endif
 c     
          elseif(itype.eq.7) then
@@ -1386,16 +1389,16 @@ c     ----- angle bend -----
 c     
             iadd = iadd + 5
             if (odata) then
-               write(6,7) izvar, v, s, name, i, j, k, l, zmat(izvar), 
+               write(LuOut,7) izvar,v, s, name, i, j, k, l, zmat(izvar), 
      $              data(izvar)
             else
-               write(6,7) izvar, v, s, name, i, j, k, l, zmat(izvar)
+               write(LuOut,7) izvar, v, s, name, i, j, k, l, zmat(izvar)
             endif
          else
             call errquit('geom_print_zmatrix: unknown type?', itype)
          endif    
       enddo
-      write(6,*)
+      write(LuOut,*)
 c      
  1    format(1x,i4,a1,'Stretch     ',a1,a8,2(i5,1x),18x,2f11.5)
  2    format(1x,i4,a1,'Bend        ',a1,a8,3(i5,1x),12x,2f11.5)
@@ -1410,6 +1413,7 @@ c
       implicit none
 #include "nwc_const.fh"
 #include "global.fh"
+#include "stdio.fh"
       integer nzvar
       double precision s(nzvar), c(3,*)
 c
@@ -1453,7 +1457,7 @@ c
          itype = izmat(iadd)
          i = izmat(iadd+1)
          j = izmat(iadd+2)
-**         write(6,*) izvar, itype, i, j, s(izvar)
+**         write(LuOut,*) izvar, itype, i, j, s(izvar)
          c(1,2) = 0d0
          c(2,2) = 0d0
          c(3,2) = s(izvar)*angs_to_au
@@ -1464,14 +1468,14 @@ c
          itype = izmat(iadd)
          i = izmat(iadd+1)
          j = izmat(iadd+2)
-**         write(6,*) izvar, itype, i, j, s(izvar)
+**         write(LuOut,*) izvar, itype, i, j, s(izvar)
          rij = s(izvar)*angs_to_au
          iadd = iadd + 3
          izvar = izvar + 1
 c
          itype = izmat(iadd)
          k = izmat(iadd+3)
-**         write(6,*) izvar, itype, i, j, k, s(izvar)
+**         write(LuOut,*) izvar, itype, i, j, k, s(izvar)
          if (s(izvar).lt.0d0 .or. s(izvar).gt.180d0) goto 1000
          aijk = s(izvar)*deg_to_rad
          iadd = iadd + 4
@@ -1486,14 +1490,14 @@ c
          itype = izmat(iadd)
          i = izmat(iadd+1)
          j = izmat(iadd+2)
-**         write(6,*) izvar, itype, i, j, s(izvar)
+**         write(LuOut,*) izvar, itype, i, j, s(izvar)
          rij = s(izvar)*angs_to_au
          iadd = iadd + 3
          izvar = izvar + 1
 c
          itype = izmat(iadd)
          k = izmat(iadd+3)
-**         write(6,*) izvar, itype, i, j, k, s(izvar)
+**         write(LuOut,*) izvar, itype, i, j, k, s(izvar)
          if (s(izvar).lt.0d0 .or. s(izvar).gt.180d0) goto 1000
          aijk = s(izvar)*deg_to_rad
          iadd = iadd + 4
@@ -1502,13 +1506,13 @@ c
          itype = izmat(iadd)
          if (itype.eq.3) then
             l = izmat(iadd+4)
-**         write(6,*) izvar, itype, i, j, k, l, s(izvar)
+**         write(LuOut,*) izvar, itype, i, j, k, l, s(izvar)
             aijkl = s(izvar)*deg_to_rad
          else if (itype.eq.7) then
             l = izmat(iadd+3)
             orient= izmat(iadd+4)
             aijl  = s(izvar)*deg_to_rad
-**            write(6,*) izvar, itype, i, j, k, l, orient, s(izvar)
+**            write(LuOut,*) izvar, itype, i, j, k, l, orient, s(izvar)
          else
             call errquit('geom_zmat_to_cart: unknown 3rd type',itype)
          endif
@@ -1604,7 +1608,7 @@ c$$$c     ----- bond stretch -----
 c$$$c     
 c$$$            i = izmat(iadd+1)
 c$$$            j = izmat(iadd+2)
-c$$$            write(6,*) izvar, ' bond ', i, j
+c$$$            write(LuOut,*) izvar, ' bond ', i, j
 c$$$            rij = 
 c$$$            iadd = iadd + 3
 c$$$         elseif(itype.eq.2) then
@@ -1614,7 +1618,7 @@ c$$$c
 c$$$            i = izmat(iadd+1)
 c$$$            j = izmat(iadd+2)   ! Central atom
 c$$$            k = izmat(iadd+3)
-c$$$            write(6,*) izvar
+c$$$            write(LuOut,*) izvar
 c$$$            iadd = iadd + 4
 c$$$         elseif(itype.eq.3) then
 c$$$c     
@@ -1655,7 +1659,7 @@ c
 c     Jump here if an angle is out of range ... try to help the user
 c
  1000 if (ga_nodeid() .eq. 0) then
-         write(6,3) izvar, s(izvar)
+         write(LuOut,3) izvar, s(izvar)
  3       format(//' Error ... internal coordinate number',i5,' is out',
      $        ' of range.'/
      $        ' Bond-angle = ',f12.6,' but we require 0<angle<180.'//
@@ -1672,7 +1676,7 @@ c
      $        ' 3. Respecify the internal coordinates so that linear'/
      $        '    bond angles will be avoided.  Note that the range',/
      $        '    of dihedral angles is not restricted.'/)
-         call util_flush(6)
+         call util_flush(LuOut)
       endif
       call ga_sync()
       call errquit('geom_zmat_to_cart: invalid bond angle',0)
@@ -1682,6 +1686,7 @@ c
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "stdio.fh"
 c     
       integer geom
       double precision s(*)
@@ -1693,11 +1698,11 @@ c
 c     
       iadd=1
 c
-*      write(6,*) ' ICO SCALE ', nzvar, bscale, ascale
+*      write(LuOut,*) ' ICO SCALE ', nzvar, bscale, ascale
 c
       do izvar=1,zmt_nzvar(geom)
          itype=zmt_izmat(iadd,geom)
-*         write(6,*) izvar, ' is ', itype
+*         write(LuOut,*) izvar, ' is ', itype
          if(itype.eq.1) then
 c     
 c     ----- bond stretch -----
@@ -2963,6 +2968,7 @@ c     .       for noisy geometries, and groupname to return value
 C
 #include "util.fh"
 #include "nwc_const.fh"
+#include "stdio.fh"
       LOGICAL     ODONE
       PARAMETER   (MXORDR=24)
       PARAMETER   (MXATOM=nw_max_atom)
@@ -3839,9 +3845,9 @@ c
             call rot_theta_z (theta,c2,nat)
 c
             if(out) then
-            write(6,*) 'New coordinates after theta of ',theta*degree
+            write(LuOut,*)'New coordinates after theta of ',theta*degree
             do jat = 1, nat
-              write(6,*) c2(1,jat), c2(2,jat), c2(3,jat)
+              write(LuOut,*) c2(1,jat), c2(2,jat), c2(3,jat)
             enddo
             endif
 c
@@ -4027,7 +4033,7 @@ C
 c fix a few symmetries after the fact to go into nwchem order
 c
       if (out) then
-      write(6,*) 'before I muck with the geometry'
+      write(LuOut,*) 'before I muck with the geometry'
       DO IAT=1,NAT
         WRITE(IW,9989) IAT,(C3(I,IAT),I=1,3)
       ENDDO
@@ -5326,6 +5332,7 @@ C
 #include "util.fh"
 #include "global.fh"
 #include "nwc_const.fh"
+#include "stdio.fh"
       integer geom
       double precision alpha, ds(*)
       double precision err      ! [output] Returns the error
@@ -5387,9 +5394,9 @@ c
          err = max(err, abs(dq(i)))
       enddo
       if (odebug) then
-         write(6,*) ' Target internals '
+         write(LuOut,*) ' Target internals '
          call output(q,1,nzvar,1,1,nzvar,1,1)
-         call util_flush(6)
+         call util_flush(LuOut)
       endif
 c
       if (.not. ma_push_get(mt_dbl,ncart*nzvar,'mem bi',l_bi,k_bi))
@@ -5421,7 +5428,7 @@ c
             xmax1 = xmax
          endif
 c
-         if (oprint) write(6,77) ipass, xmax, err
+         if (oprint) write(LuOut,77) ipass, xmax, err
  77      format(' Cartesian to internals: iter =',i2,'  dxmax =',
      $        1p,d8.1,'  dqmax =',d8.1)
 c
@@ -5431,7 +5438,7 @@ c
          if (.not. geom_compute_zmatrix(geom, p))
      $        call errquit('driver_u_c_f_i: geom?',0)
          if (odebug) then 
-            write(6,*) ' Current internals '
+            write(LuOut,*) ' Current internals '
             call output(p,1,nzvar,1,1,nzvar,1,1)
          endif
 c
@@ -5442,12 +5449,12 @@ c
             dq(i) = q(i) - p(i)
          enddo
          if (odebug) then 
-            write(6,*) ' Step in internals before angle restrict'
+            write(LuOut,*) ' Step in internals before angle restrict'
             call doutput(dq,1,nzvar,1,1,nzvar,1,1)
          endif
          call geom_zmat_sane_step(geom,dq)
          if (odebug) then 
-            write(6,*) ' Step in internals after angle restrict'
+            write(LuOut,*) ' Step in internals after angle restrict'
             call doutput(dq,1,nzvar,1,1,nzvar,1,1)
          endif
 c
@@ -5462,7 +5469,7 @@ c
          do i = 1, nzvar
             err = max(err, abs(dq(i)))
          enddo
-         if (odebug) write(6,*) ' ERR in internals ', err
+         if (odebug) write(LuOut,*) ' ERR in internals ', err
 c
          if (ipass .eq. 1) err1 = err
 c
@@ -5478,7 +5485,7 @@ c
      $        call errquit('opt_int_to_cart: geom get/set',0)
          call sym_geom_project(geom, max(0.1d0*xmax1,1d-6))
          err = err1
-         if (oprint) write(6,78)
+         if (oprint) write(LuOut,78)
  78      format(' Cartesian to internals: did not converge. Taking',
      $        ' first order step')
       endif
@@ -5502,6 +5509,7 @@ c
 #include "util.fh"
 #include "global.fh"
 #include "nwc_const.fh"
+#include "stdio.fh"
       integer geom
       external impose_constraints
 c     
@@ -5556,7 +5564,7 @@ c     Get current q, impose constraints. Compute dq
 c     
          if (.not. geom_compute_zmatrix(geom, q))
      $        call errquit('driver_u_c_f_i: geom?',0)
-*         write(6,*) ' CURRENT q '
+*         write(LuOut,*) ' CURRENT q '
 *         call output(q,1,nvar,1,1,nvar,1,1)
          call dcopy(nzvar, q, 1, p, 1)
          call impose_constraints(geom,q) ! q is the target
@@ -5565,14 +5573,14 @@ c
          enddo
          call geom_zmat_sane_step(geom,dq)
          call geom_zmat_ico_scale(geom, dq, 1d0/bohr, 1d0/deg)
-*         write(6,*) ' CURRENT dq '
+*         write(LuOut,*) ' CURRENT dq '
 *         call output(dq,1,nvar,1,1,nvar,1,1)
          err = 0.0d0
          do i = 1, nzvar
             err = max(err, abs(dq(i)))
          enddo
          if (err .gt. 0.25d0) then ! Small steps move coupled angles together?
-            if (oprint) write(6,*) '   restricting step', err
+            if (oprint) write(LuOut,*) '   restricting step', err
             call dscal(nzvar, 0.5d0/err, dq, 1)
          endif
 c     
@@ -5595,14 +5603,14 @@ c
          call sym_geom_project(geom, max(1d-6,xmax*0.1d0))
 c     
          if (oprint) then
-            write(6,33) ipass, err
+            write(LuOut,33) ipass, err
  33         format(' Imposing constraints:   iter =',i2,'  dqmax =',
      $           1p,d8.1)
          endif
          if (err .lt. 1d-6) goto 100
       enddo
       if (ga_nodeid().eq.0 .and. util_print('warnings',print_low))then
-         write(6,44) err
+         write(LuOut,44) err
  44      format(/,'!! warning, imposition of constraints did not',
      $        ' converge.  dqmax=',1p,d8.1)
       endif
@@ -5739,6 +5747,7 @@ c
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "util.fh"
+#include "stdio.fh"
 c
       integer geom
       double precision s(*)
@@ -5755,7 +5764,7 @@ c
 c
       do izvar=1,zmt_nzvar(geom)
          itype=zmt_izmat(iadd,geom)
-*         write(6,*) izvar, ' is ', itype
+*         write(LuOut,*) izvar, ' is ', itype
          if(itype.eq.1) then
 c     
 c     ----- bond stretch -----
@@ -5807,10 +5816,10 @@ c     appearing to be close to 360.
 c
             if (s(izvar).gt.180d0) then
                s(izvar) = -(360d0 - s(izvar))
-               if (oprint) write(6,1) izvar, 'angle 1 ', s(izvar)
+               if (oprint) write(LuOut,1) izvar, 'angle 1 ', s(izvar)
             else if (s(izvar) .lt. -180d0) then
                s(izvar) =  (360d0 + s(izvar))
-               if (oprint) write(6,1) izvar, 'angle 2 ', s(izvar)
+               if (oprint) write(LuOut,1) izvar, 'angle 2 ', s(izvar)
             end if
          else if (itype.eq.3) then
 c
@@ -5827,18 +5836,22 @@ c
             if (abs(s(izvar)) .ge. 270d0) then
                if (s(izvar).gt.180d0) then
                   s(izvar) = s(izvar) - 360d0
-                  if (oprint) write(6,1) izvar, 'torsion 1 ', s(izvar)
+                  if (oprint) write(LuOut,1) izvar, 'torsion 1 ', 
+     &                                       s(izvar)
                else if (s(izvar) .lt. -180d0) then
                   s(izvar) = s(izvar) + 360d0
-                  if (oprint) write(6,1) izvar, 'torsion 2 ', s(izvar)
+                  if (oprint) write(LuOut,1) izvar, 'torsion 2 ', 
+     &                                       s(izvar)
                end if
             else
                if (s(izvar).gt.90d0) then
                   s(izvar) = -(s(izvar) - 180d0)
-                  if (oprint) write(6,1) izvar, 'torsion 3 ', s(izvar)
+                  if (oprint) write(LuOut,1) izvar, 'torsion 3 ', 
+     &                                       s(izvar)
                else if (s(izvar).lt.-90d0) then
                   s(izvar) = -(s(izvar) + 180d0)
-                  if (oprint) write(6,1) izvar, 'torsion 4 ', s(izvar)
+                  if (oprint) write(LuOut,1) izvar, 'torsion 4 ', 
+     &                                       s(izvar)
                end if
             endif
          else
@@ -5877,6 +5890,7 @@ c
 c     check for a c2 axis perpendicular to the z axis
 c
       implicit none
+#include "stdio.fh"
 c
       integer nat, i, j, k, iat, jat, iaxis, nuc(nat)
       logical symc2x, symc2y, prpaxs, proper(2)
@@ -5916,19 +5930,19 @@ c
                  PRPAXS=(ABS(DD).LT.THREQUIV).AND.
      1                  (ABS(DZ).LT.THREQUIV)
                  IF(DBUG) THEN
-                    WRITE(6,*) ' IAT,JAT,PRPAXS = ',
+                    WRITE(LuOut,*) ' IAT,JAT,PRPAXS = ',
      1                            IAT,JAT,PRPAXS,RR,DD,DZ
                  ENDIF
               ENDIF
            ENDDO
            PROPER(IAXIS)=PROPER(IAXIS).AND.PRPAXS
            IF(DBUG) THEN
-              WRITE(6,*) ' IAT,PRPAXS,PROPER(IAXIS) = ',
+              WRITE(LuOut,*) ' IAT,PRPAXS,PROPER(IAXIS) = ',
      1                      IAT,PRPAXS,PROPER(IAXIS)
            ENDIF
         ENDDO
         IF(SOME) THEN
-           WRITE(6,9982) IAXIS,PROPER(IAXIS)
+           WRITE(LuOut,9982) IAXIS,PROPER(IAXIS)
         ENDIF
       enddo
 c

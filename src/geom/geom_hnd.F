@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.30 2000-04-10 09:23:54 hvd Exp $
+* $Id: geom_hnd.F,v 1.31 2000-04-10 16:30:10 hvd Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -260,6 +260,7 @@ C
       implicit none
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
 c
       integer nvar              ! [input] Expected #indep variables
       integer nzvar             ! [input] No. of (redundant) internals
@@ -279,7 +280,7 @@ c
      $     util_print('geom_binvr',print_never)
       call geom_hnd_get_data('b', x, ncart*nzvar) ! B -> x
       if (odebug) then
-         write(6,*) ' B matrix '
+         write(LuOut,*) ' B matrix '
          call output(x, 1, ncart, 1, nzvar, ncart, nzvar, 1)
       endif
       call dgemm('t', 'n', nzvar, nzvar, ncart, 1d0,  
@@ -287,9 +288,9 @@ c
       call dsyev('v', 'u', nzvar, y, nzvar, e, z, ndim**2, info)
       if (info .ne. 0) call errquit('geom_binvr: dsyev failed', info)
       if (odebug) then
-         write(6,*) ' Eigenvalues of G '
+         write(LuOut,*) ' Eigenvalues of G '
          call doutput(e, 1, nzvar, 1, 1, nzvar, 1, 1)
-         write(6,*) ' Eigenvectors of G'
+         write(LuOut,*) ' Eigenvectors of G'
          call output(y, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
       endif
 c
@@ -330,7 +331,7 @@ c
      $     z, nzvar, x, nzvar, 0d0, y, nzvar) ! P = (G^-1)G -> y
       call geom_hnd_put_data('p', y, nzvar*nzvar)
       if (odebug) then
-         write(6,*) ' Projector P without constraints'
+         write(LuOut,*) ' Projector P without constraints'
          call output(y, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
       endif
 c
@@ -344,11 +345,11 @@ c
 c     Verify inverse property
 c
       if (odebug) then
-         write(6,*) ' B inverse'
+         write(LuOut,*) ' B inverse'
          call output(z, 1, ncart, 1, nzvar, ncart, nzvar, 1)
          call dgemm('n', 't', ncart, ncart, nzvar, 1d0, 
      $        y, ncart, z, ncart, 0d0, x, ncart) ! B*B^-1
-         write(6,*) ' B*B^-1 '
+         write(LuOut,*) ' B*B^-1 '
          call output(x, 1, ncart, 1, ncart, ncart, ncart, 1)
       endif
 c
@@ -363,7 +364,7 @@ c
       call geom_hnd_get_data('p', x, nzvar*nzvar) ! P -> x
       call geom_hnd_get_data('c', y, nzvar*nzvar) ! complement(C) -> y
       if (odebug) then
-         write(6,*) ' Complement(C)', nzvar
+         write(LuOut,*) ' Complement(C)', nzvar
          call output(y, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
       endif
       call dscal(nzvar*nzvar, -1d0, y, 1)
@@ -371,7 +372,7 @@ c
          y(i + (i-1)*nzvar) = y(i + (i-1)*nzvar) + 1d0
       enddo
       if (odebug) then
-         write(6,*) ' C'
+         write(LuOut,*) ' C'
          call output(y, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
       endif
 c
@@ -386,9 +387,9 @@ c
       call dsyev('v', 'u', nzvar, x, nzvar, e, z, ndim**2, info)
       if (info .ne. 0) call errquit('geom_binvr: dsyev2 failed', info)
       if (odebug) then
-         write(6,*) ' Eigenvalues of CPC '
+         write(LuOut,*) ' Eigenvalues of CPC '
          call doutput(e, 1, nzvar, 1, 1, nzvar, 1, 1)
-         write(6,*) ' Eigenvectors of CPC'
+         write(LuOut,*) ' Eigenvectors of CPC'
          call output(x, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
       endif
 c
@@ -398,7 +399,7 @@ c
             nindep = nindep + 1
             e(i) = 1d0 / sqrt(e(i))
          else
-            if (e(i) .lt. -1d-12) write(6,*)
+            if (e(i) .lt. -1d-12) write(LuOut,*)
      $           ' warning: negative eval in CPC ', i, e(i)
             e(i) = 0.0d0
          endif
@@ -422,12 +423,12 @@ c
      $     x, nzvar, y, nzvar, 0d0, z, nzvar) ! P*C*(CPC)^-1*C*P -> z
 c
       if (odebug) then
-         write(6,*) ' Correction to P from constraints '
+         write(LuOut,*) ' Correction to P from constraints '
          call output(z, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
       endif
       call daxpy(nzvar*nzvar, -1d0, z, 1, y, 1)
       if (odebug) then
-         write(6,*) ' P corrected for constraints '
+         write(LuOut,*) ' P corrected for constraints '
          call output(y, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
       endif
       call geom_hnd_put_data('p', y, nzvar*nzvar)
@@ -753,6 +754,7 @@ C           THE FIRST OF THE TWO INTERNAL COORDINATES IS IN THE I-A-K
 C           PLANE AND THE SECOND IN A PLANE PERPENDICULAR TO THE FIRST
 C           THROUGH POINTS I,J, AND K -----
 C
+#include "stdio.fh"
       CHARACTER*8 ERRMSG
       DIMENSION B(NCART,1),C(3,1)
       DIMENSION AA(3,1),A(3)
@@ -765,7 +767,7 @@ C
       DATA TOL,PIDEG /5.0D-05,180.00D+00/
       DATA PT0001    /0.0001D+00/
 c
-      IW = 6
+      IW = LuOut
 C
       IF(L.LE.NA) GO TO 120
       WRITE(IW,9048) L
@@ -856,6 +858,7 @@ C
       SUBROUTINE HND_DIHPLA(DIHANG,NOINT,IZMAT,CARTC,BMAT,NCART,
      1                      DTORAD)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "stdio.fh"
       CHARACTER*8 ERRMSG
       DIMENSION IZMAT(5), CARTC(3,1), BMAT(NCART,1),
      1          A(3), B(3), C(3), D(3), E1(3), E2(3), E3(3)
@@ -886,7 +889,7 @@ C     THE FIRST THREE ATOMS DEFINE THE FIRST PLANE,
 C     THE LAST THREE ATOMS DEFINE THE SECOND PLANE,
 C     THE MIDDLE ATOM IS IN BOTH PLANES.
 C
-      IW = 6
+      IW = LuOut
 C
       IATOM = IZMAT(1)
       JATOM = IZMAT(2)
@@ -1132,7 +1135,7 @@ c
      $        radius = 2d0/toangs ! Radius = 2 angstrom if no other info
          cvr(iat) = radius * toangs
          cvr(iat) = max(0.4d0,cvr(iat)) ! Default too small for H
-*         write(6,*) ' Radius ', iat, cvr(iat)
+*         write(LuOut,*) ' Radius ', iat, cvr(iat)
       enddo
 c     
 c     these bonds are used to join disconnected
@@ -1385,13 +1388,13 @@ c
          if(nibond(iat).gt.1) then
             endatm(iat)=.false.
             if (nibond(iat).gt.6 .and. oprint) 
-     $           write(6,30304) nibond(iat),iat
+     $           write(LuOut,30304) nibond(iat),iat
 30304       format(1x,'     warning. autoz generated',i5,
      $           ' bonds for atom',i5)
          else 
             endatm(iat)=.true.
 c$$$  else if (nibond(iat).le.0) then ! check for unconnected atoms
-c$$$  write(6,30303) iat
+c$$$  write(LuOut,30303) iat
 c$$$  30303       format(1x,'      autoz did not connect atom ',i5)
 c$$$  goto 55555
          endif
@@ -1507,7 +1510,7 @@ c
             if (numijxtra .eq. 0) then
                goto 55555       ! reconnection failed
             else
-               if (oprint) write(6,*) 
+               if (oprint) write(LuOut,*) 
      $              ' autoz: regenerating connections with new bonds'
                goto 10101
             endif
@@ -1527,7 +1530,7 @@ c
 c
 c     Made a z-matrix but it is asburdly big.  Nothing yet to fix this
 c
-            write(6,*) ' autoz: excessive number of variables ',
+            write(LuOut,*) ' autoz: excessive number of variables ',
      $           nzvar, 3*nat-6
             zdone = .false.
             goto 66666          ! abandon autoz
@@ -1787,7 +1790,7 @@ c     by adjusting cvr_scaling.
 c     
 55555 continue
       if (cvfac .lt. (cvr_scaling + 0.5d0)) then ! used to be 2.5 upper bound
-         if (oprint) write(6,9876) ncvrpass, cvfac, cvfac+0.1d0
+         if (oprint) write(LuOut,9876) ncvrpass, cvfac, cvfac+0.1d0
  9876    format(1x,i5,' autoz failed with cvr_scaling =',f4.1,
      $        ' changing to',f4.1)
          cvfac = cvfac + 0.1d0
@@ -1800,7 +1803,7 @@ c     Give up.  Punt to cartesians.
 c
 66666 zdone = .false.
       geom_zmtmak = .false.
-      if (oprint) write(6,5505) 
+      if (oprint) write(LuOut,5505) 
  5505 format(/' AUTOZ failed to generate good internal coordinates.',
      $     /' Cartesian coordinates will be used in optimizations.'/)
       return                    ! failure
@@ -2005,7 +2008,7 @@ c
 c     ----- done -----
 c
       if (nzvar .lt. max(1,3*nat-6)) then
-         write(6,*) ' autoz: insufficient variables ',nzvar,3*nat-6
+         write(LuOut,*) ' autoz: insufficient variables ',nzvar,3*nat-6
          zdone=.false.
       else
          zdone=.true.
@@ -2230,7 +2233,7 @@ c
 c     
 c     No connection was found and no alternatives for I
 c     
-                                    if (oprint) write(6,*)
+                                    if (oprint) write(LuOut,*)
      $                                   ' autoz: angle generation',
      $                                   ' failed due to 4 colinear',
      $                                   ' atoms ', iat, jat, kat, lat
@@ -2327,7 +2330,8 @@ c
             nzvar =nzvar +1
             numang=numang+1
          else
-*            write(6,303) ijkang(1,iang), ijkang(2,iang), ijkang(3,iang), 
+*            write(LuOut,303) ijkang(1,iang), ijkang(2,iang), 
+*     &           ijkang(3,iang), 
 *     $           linbnd
 * 303        format(' rejecting bond angle due to linearity ',
 *     $           (2x,3i4,2x,l1))
@@ -2362,7 +2366,7 @@ c
       return
 c     
 c     Jump here if have too many of something
- 808  if (oprint) write(6,*)' autoz: too many angles'
+ 808  if (oprint) write(LuOut,*)' autoz: too many angles'
       zdone = .true.
       return
 c     
@@ -2489,14 +2493,14 @@ c
 c     both bonds are linear.  go fishing for ilmn.  also add ijml
 c     which is needed for h-c-c-h-X (x not colinear)
 c     
-*     write(6,*) ' four colinear centers ',
+*     write(LuOut,*) ' four colinear centers ',
 *     $                          iat, jat, kat, lat
                            do lmbnd=iibond(lat)+1,
      $                          iibond(lat)+nibond(lat)
                               mat=ijbond(2,lmbnd)
                               if (mat.ne.iat .and. mat.ne.jat
      $                             .and. mat.ne.kat) then
-*     write(6,*) ' IJML ',iat,jat,mat,lat
+*     write(LuOut,*) ' IJML ',iat,jat,mat,lat
                                  if (.not. geom_add_tor(
      $                                iat,jat,mat,lat,
      $                                ntor, ijklto, mxtors, 
@@ -2507,7 +2511,7 @@ c
                                     if (nat.ne.iat .and. nat.ne.jat
      $                                   .and. nat.ne.kat .and.
      $                                   nat.ne.lat) then
-*     write(6,*) ' colinear ijkl -',
+*     write(LuOut,*) ' colinear ijkl -',
 *     $                                      ' use ilmn', 
 *     $                                   iat, jat, kat, lat, mat, nat
                                        if (.not. geom_add_tor(
@@ -2524,7 +2528,7 @@ c     ijk is linear.  instead of ijkl use ijlk.  don't do this
 c     now since it will be done as lkji.
 c     
                            continue
-c$$$  write(6,*) ' linear ijk ', iat, jat, kat, lat
+c$$$  write(LuOut,*) ' linear ijk ', iat, jat, kat, lat
 c$$$  iii = iat
 c$$$  jjj = jat
 c$$$  kkk = lat
@@ -2539,7 +2543,7 @@ c
                               mat=ijbond(2,lmbnd)
                               if (mat.ne.iat .and. mat.ne.jat
      $                             .and. mat.ne.kat) then
-*     write(6,*) ' linear jkl - use ijlm', 
+*     write(LuOut,*) ' linear jkl - use ijlm', 
 *     $                                iat, jat, kat, lat, mat
                                  if (.not. geom_add_tor(iat,jat,lat,mat,
      $                                ntor, ijklto, mxtors,ntor_for_ij))
@@ -2613,7 +2617,7 @@ c
                               linjkl = sin(acos(min(1d0,abs(cosbk)))) 
      $                             .le. tol
                               if (.not. linjkl) then
-*                                 write(6,*) ' OOPB ',
+*                                 write(LuOut,*) ' OOPB ',
 *     $                                iat, jat, kat, lat
                                  if (.not. geom_add_tor(iat, jat, kat,
      $                                lat, ntor, ijklto, mxtors,
@@ -2632,7 +2636,7 @@ c
       enddo                     ! do iat
 c
       if (numatom.gt.3 .and. (.not. oopb) .and. (ntornonlin.eq.0)) then
-         if (oprint) write(6,*) ' Looking for out-of-plane bends'
+         if (oprint) write(LuOut,*) ' Looking for out-of-plane bends'
          oopb = .true.
          goto 55555
       endif
@@ -2752,7 +2756,7 @@ c$$$  endif
             nizmat=nizmat+5
             nzvar =nzvar +1
          else
-*     write(6,303) ijklto(1,itor), ijklto(2,itor), ijklto(3,itor), 
+*     write(LuOut,303) ijklto(1,itor), ijklto(2,itor), ijklto(3,itor), 
 *     $           linijk, ijklto(2,itor), ijklto(3,itor), ijklto(4,itor),
 *     $           linjkl
 *     303        format(' rejecting torsion due to linear angle ',
@@ -2784,7 +2788,7 @@ c
       zdone = .true.
       return
 c     
- 8000 if (oprint) write(6,*) ' autoz: too many torsions '
+ 8000 if (oprint) write(LuOut,*) ' autoz: too many torsions '
       zdone = .false.
 c     
  9999 format(' in -zmtyp3- ',/,' ----------- ')
@@ -3183,10 +3187,11 @@ c
       end
       SUBROUTINE HND_HNDERR(LERR,ERRMSG)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "stdio.fh"
       CHARACTER*8  ERRMSG
       DIMENSION    ERRMSG(LERR)
 c
-      iw = 6
+      iw = LuOut
 C
       WRITE(IW,9999)
       WRITE(IW,9998) ERRMSG
@@ -3199,10 +3204,11 @@ C
       END
       SUBROUTINE HND_GEOCLS(NFT)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "stdio.fh"
       CHARACTER*8  ERRMSG
       DIMENSION    ERRMSG(3)
       DATA ERRMSG  /'PROGRAM ','STOP IN ','-GEOCLS-'/
-      IW=6
+      IW=LuOut
       CLOSE(UNIT=NFT,STATUS='KEEP',ERR=10)
       RETURN
    10 WRITE(IW,9999) NFT
@@ -3212,11 +3218,12 @@ C
       END
       SUBROUTINE HND_GEOOPN(NFT,GEOFIL)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "stdio.fh"
       CHARACTER*80 GEOFIL
       CHARACTER*8  ERRMSG
       DIMENSION    ERRMSG(3)
       DATA ERRMSG  /'PROGRAM ','STOP IN ','-GEOOPN-'/
-      IW = 6
+      IW = LuOut
       OPEN(UNIT=NFT,FILE=GEOFIL,STATUS='OLD',
      1     ACCESS='SEQUENTIAL',FORM=  'FORMATTED',ERR=10)
       RETURN
@@ -4036,6 +4043,7 @@ C
       END
       SUBROUTINE HND_PRSQ(V,M,N,NDIM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "stdio.fh"
 C
 C     ----- PRINT OUT A SQUARE MATRIX -----
 C
@@ -4045,7 +4053,7 @@ C
       DATA VTOL  /1.5D-01/
       DATA ICMAX /5/
 c
-      IW = 6
+      IW = LuOut
 C
       LIST=1
       IF(LIST.EQ.0) MAX=10
@@ -4103,6 +4111,7 @@ C
       END
       SUBROUTINE HND_PREV(V,E,M,N,NDIM)
       IMPLICIT REAL*8 (A-H,O-Z)
+#include "stdio.fh"
 C
 C     ----- PRINT OUT E AND V-MATRICES
 C
@@ -4112,7 +4121,7 @@ C
       DATA VTOL  /1.5D-01/
       DATA ICMAX /5/
 C
-      IW = 6
+      IW = LuOut
       LIST=1
       IF(LIST.EQ.0) MAX=10
       IF(LIST.EQ.1) MAX=7
@@ -4176,13 +4185,14 @@ C
       END
       SUBROUTINE HND_PRTR(D,N)
       IMPLICIT REAL*8 (A-H,O-Z)
+#include "stdio.fh"
 C
 C     ----- PRINT OUT A TRIANGULAR MATRIX -----
 C
 ***      COMMON/HND_LISTNG/LIST
       DIMENSION D(1),DD(10)
 C
-      IW = 6
+      IW = LuOut
       LIST=1
       IF(LIST.EQ.0) MAX=10
       IF(LIST.EQ.1) MAX=7
@@ -4254,6 +4264,7 @@ C
       END
       SUBROUTINE HND_DIAGIV(A,VEC,EIG,IA,NVEC,N,NDIM)
       IMPLICIT REAL*8 (A-H,O-Z)
+#include "stdio.fh"
 C
 C     ----- GENERAL CALLING  ROUTINE FOR -----
 C               -GIVEIS- OR -GIVDIA-
@@ -4267,7 +4278,7 @@ C
 c
 c     ----- memory -----
 c
-      IW = 6
+      IW = LuOut
       status=ma_push_get(MT_DBL,4*ndim,'mem_dbl dia',i_idbl,idbl)
       status=ma_push_get(MT_INT,3*ndim,'mem_int dia',i_iint,iint)
 c
@@ -4523,6 +4534,7 @@ C
       implicit none
 #include "mafdecls.fh"
 #include "util.fh"
+#include "stdio.fh"
       integer nat, nbnds, numijxtra, mxbond
       integer ijmods(2,nbnds), ijxtra(2,mxbond)
       double precision c(3,nat), close
@@ -4602,9 +4614,9 @@ c
       enddo
 c     
       if (util_print('connection matrix',print_debug)) then
-         write(6,*) ' No. of bonds between each pair of atoms'
+         write(LuOut,*) ' No. of bonds between each pair of atoms'
          do j = 1, nat
-            write(6,1) (int_mb(ind(i,j)),i=1,nat)
+            write(LuOut,1) (int_mb(ind(i,j)),i=1,nat)
  1          format(1x,150i3)
          enddo
       endif
@@ -4613,7 +4625,7 @@ c
 c     
 c     First identify the connected fragments
 c     
-      if (oprint) write(6,*) 
+      if (oprint) write(LuOut,*) 
      $     ' autoz: The atoms group into disjoint clusters'
       call ifill(nat, 0, int_mb(k_clus), 1)
       nclus = 0
@@ -4621,25 +4633,25 @@ c
          if (int_mb(k_clus+j-1) .eq. 0) then
             nclus = nclus + 1
             ninclus = 0
-            if (oprint) write(6,2) nclus
+            if (oprint) write(LuOut,2) nclus
  2          format(' cluster ',i3,':',$)
             do i = j, nat
                if (int_mb(k_clus+i-1) .eq. 0) then
                   if (int_mb(ind(i,j)).ne.-1) then
                      ninclus = ninclus + 1
                      int_mb(k_clus+i-1) = nclus
-                     if (oprint) write(6,3) i
+                     if (oprint) write(LuOut,3) i
  3                   format(i5,$)
                      if (ninclus .gt. 10) then
-                        if (oprint) write(6,*)
-                        if (oprint) write(6,22)
+                        if (oprint) write(LuOut,*)
+                        if (oprint) write(LuOut,22)
  22                     format('             ',$)
                         ninclus = 0
                      endif
                   endif
                endif
             enddo
-            if (oprint) write(6,*)
+            if (oprint) write(LuOut,*)
          endif
       enddo
 c
@@ -4676,7 +4688,8 @@ c
                   okay = .false.
                   return
                endif
-               if (oprint) write(6,44) iclus, jclus, imin, jmin, rmin
+               if (oprint) write(LuOut,44) iclus, jclus, 
+     &                     imin, jmin, rmin
  44            format(' Connecting clusters',2i4,' via atoms',
      $              2i5,' r =',f5.2)
                numijxtra = numijxtra + 1
@@ -4685,7 +4698,7 @@ c
                nnew = nnew + 1
             else
                if (oprint .and. rmin.lt.(close+1d0))
-     $              write(6,45) iclus, jclus, imin, jmin, rmin
+     $              write(LuOut,45) iclus, jclus, imin, jmin, rmin
  45            format(' Clusters',2i4,' closest atoms are',
      $              2i5,' r =',f5.2, ' ... close but too far?')
             endif
@@ -4743,6 +4756,7 @@ c
 #include "global.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "stdio.fh"
 c
       character*(*) name
       integer n
@@ -4765,7 +4779,7 @@ c
          call swrite(32, a, n)
          close(32)
          if (odebug) then
-            write(6,*) ' WROTE ', name, n, 
+            write(LuOut,*) ' WROTE ', name, n, 
      $           filename(1:inp_strlen(filename))
             call doutput(a,1,n,1,1,n,1,1)
          endif
@@ -4773,7 +4787,7 @@ c
 c
       return
 c
- 100  write(6,*) ' name = ', name
+ 100  write(LuOut,*) ' name = ', name
       call errquit('geom_hnd_put_data: open failed',0)
 c
       end
@@ -4783,6 +4797,7 @@ c
 #include "tcgmsg.fh"
 #include "util.fh"
 #include "geomhnd.fh"
+#include "stdio.fh"
 c
       character*(*) name
       integer n
@@ -4801,7 +4816,7 @@ c
          call util_file_name(name,oscratch,.false.,filename)
          open(32, file=filename, form='unformatted', 
      $        status='old', err=100)
-         if (odebug) write(6,*) ' READ  ', name, n
+         if (odebug) write(LuOut,*) ' READ  ', name, n
          read(32,err=101) m
          if (n .ne. m) goto 102
          call sread(32, a, n)
@@ -4812,11 +4827,11 @@ c
 c
       return
 c
- 100  write(6,*) ' name = ', name
+ 100  write(LuOut,*) ' name = ', name
       call errquit('geom_hnd_get_data: open failed',0)
- 101  write(6,*) ' name = ', name
+ 101  write(LuOut,*) ' name = ', name
       call errquit('geom_hnd_get_data: reading m failed',0)
- 102  write(6,*) ' name = ', name, ' n = ', n, ' m = ', m
+ 102  write(LuOut,*) ' name = ', name, ' n = ', n, ' m = ', m
       call errquit('geom_hnd_get_data: dimension mismatch',0)
 c
       end
@@ -4915,6 +4930,7 @@ c
      $     nconstraint)
       implicit none
 #include "nwc_const.fh"
+#include "stdio.fh"
       integer geom, nzvar       ! input
       double precision cmat(nzvar, nzvar) ! scratch
       integer nconstraint       ! output
@@ -4999,7 +5015,7 @@ c
          endif
       enddo
 c
-*      write(6,*) ' Constraint matrix ', nzvar, nconstraint
+*      write(LuOut,*) ' Constraint matrix ', nzvar, nconstraint
 *      call output(cmat, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
 c
       call geom_hnd_put_data('c',cmat, nzvar**2)
