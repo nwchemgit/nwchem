@@ -1,7 +1,7 @@
       subroutine tddft_memory(rtdb,nroots,maxvecs,maxiter,
      1  ipol,nbf_ao,nocc,nmo,nfc,nfv,nov,tda,algorithm)
 c
-c $Id: tddft_memory.F,v 1.5 2002-06-21 17:13:41 sohirata Exp $
+c $Id: tddft_memory.F,v 1.6 2002-06-21 22:49:06 sohirata Exp $
 c
 c Itemize all the outstanding memory usage and determine
 c how many trial and product vectors we can handle with the
@@ -127,19 +127,27 @@ c algorithm decision
         if (m.gt.dfloat(j*(nroots*30)
      1           +((2*nbf_ao*ipol)**2)*(2*nroots))) then
           algorithm = 1
-          write(LuOut,9140) 'Incore multiple tensor contraction' 
+          if (nodezero.and.util_print('memory information',
+     1      print_default))
+     2      write(LuOut,9140) 'Incore multiple tensor contraction' 
         else if (m.gt.dfloat(j*(nroots*30)
      1           +((2*nbf_ao*ipol)**2))) then
           algorithm = 2
-          write(LuOut,9140) 'Incore single tensor contraction' 
+          if (nodezero.and.util_print('memory information',
+     1      print_default))
+     2      write(LuOut,9140) 'Incore single tensor contraction' 
         else if (m.gt.1.0d7/dfloat(ma_sizeof(mt_dbl,1,mt_byte))
      1           +dfloat(((2*nbf_ao*ipol)**2)*(2*nroots))) then
           algorithm = 3
-          write(LuOut,9140) 'Disk-based multiple tensor contraction' 
+          if (nodezero.and.util_print('memory information',
+     1      print_default))
+     2      write(LuOut,9140) 'Disk-based multiple tensor contraction' 
         else if (m.gt.1.0d7/dfloat(ma_sizeof(mt_dbl,1,mt_byte))
      1           +dfloat(((2*nbf_ao*ipol)**2))) then
           algorithm = 4
-          write(LuOut,9140) 'Disk-based single tensor contraction' 
+          if (nodezero.and.util_print('memory information',
+     1      print_default))
+     2      write(LuOut,9140) 'Disk-based single tensor contraction' 
         else
           call errquit
      1    ('tddft_memory: no algorithm for the memory size',0)

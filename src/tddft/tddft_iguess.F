@@ -3,7 +3,7 @@
      2  d_trials,g_movecs,evl,ntrials,nproducts,algorithm,targetsym,
      3  symmetry,l_irs,k_irs,tda)
 c
-c $Id: tddft_iguess.F,v 1.6 2002-06-21 17:13:41 sohirata Exp $
+c $Id: tddft_iguess.F,v 1.7 2002-06-21 22:49:06 sohirata Exp $
 c
 c Generate simple initial guess vectors. First sorts 
 c the eigenvalue differences (epsilon_a - epsilon_i).
@@ -185,7 +185,8 @@ c
                 endif
               enddo
             enddo
-            write(LuOut,1010) vector
+            if (nodezero.and.util_print('initial guess',print_default))
+     1        write(LuOut,1010) vector
             return
           endif
         endif
@@ -196,7 +197,8 @@ c --------------------
 c Allocate work arrays
 c --------------------
 c
-90000 if (vector.ne.'') write(LuOut,1000) 
+90000 if (nodezero.and.util_print('initial guess',print_default)
+     1  .and.(vector.ne.'')) write(LuOut,1000) 
  1000 format(/,2x,'Unable to retrieve initial guess from a file')
       if (.not.ma_push_get(mt_dbl,nov(1)+nov(2),
      1  'eigenvalue differences',l_ediff,k_ediff)) call errquit

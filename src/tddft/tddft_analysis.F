@@ -3,7 +3,7 @@
      2  d_trials,apbvec,apbval,ambvec,g_movecs,evl,singlet,triplet,
      4  target,targetsym,mult,algorithm,l_irs,k_irs)
 c
-c $Id: tddft_analysis.F,v 1.10 2002-06-21 17:13:40 sohirata Exp $
+c $Id: tddft_analysis.F,v 1.11 2002-06-21 22:49:06 sohirata Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -163,25 +163,30 @@ c
       inquire(file=vector,exist=vector_exists)
       fileerror=.false.
       if (vector_exists) then
-        open(unit=69,file=vector,form='formatted',status='old',
-     1    err=90000,access='sequential')
+        if (nodezero)
+     1    open(unit=69,file=vector,form='formatted',status='old',
+     2    err=90000,access='sequential')
           goto 90010
       else
-        open(unit=69,file=vector,form='formatted',status='new',
-     1    err=90000,access='sequential')
+        if (nodezero)
+     1    open(unit=69,file=vector,form='formatted',status='new',
+     2    err=90000,access='sequential')
           goto 90010
       endif
 90000 fileerror=.true.
 90010 continue
       if (fileerror) then
-        write(LuOut,2000)
+        if (nodezero.and.util_print('CI vector',print_default))
+     1    write(LuOut,2000)
       else
-        write(LuOut,2010) vector
-        rewind(69)
-        write(69,*) tda
-        write(69,*) ipol
-        write(69,*) nroots
-        write(69,*) nov(1),nov(2)
+        if (nodezero.and.util_print('CI vector',print_default)) then
+          write(LuOut,2010) vector
+          rewind(69)
+          write(69,*) tda
+          write(69,*) ipol
+          write(69,*) nroots
+          write(69,*) nov(1),nov(2)
+        endif
       endif
  2000 format(/,2x,'No CI vector file is created')
  2010 format(/,2x,'CI vectors are stored in ',a20)
@@ -209,7 +214,7 @@ c
      2                                  g_x(i),1,nov(i),n,n)
               endif 
             enddo
-            if (.not.fileerror) then
+            if ((.not.fileerror).and.nodezero) then
               do m=1,nov(i)
                 call ga_get(g_x(i),m,m,n,n,r,1)
                 write(69,*) r
@@ -251,7 +256,7 @@ c
           enddo
           call ga_add(0.5d0,g_x(i), 0.5d0,g_y(i),g_x(i))
           call ga_add(1.0d0,g_x(i),-1.0d0,g_y(i),g_y(i))
-          if (.not.fileerror) then
+          if ((.not.fileerror).and.nodezero) then
             do n=1,nroots
               do m=1,nov(i)
                 call ga_get(g_x(i),m,m,n,n,r,1)
