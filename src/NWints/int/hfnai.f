@@ -1,5 +1,5 @@
       Subroutine hfnai(E,R0,IJK,Vab,Nints,NPP,La,Lb,Li,Lp,Lp3,canAB)
-c $Id: hfnai.f,v 1.6 2000-05-02 19:47:55 mg201 Exp $
+c $Id: hfnai.f,v 1.7 2000-05-20 04:43:20 edo Exp $
       
       Implicit none
       
@@ -240,10 +240,10 @@ c Contract over A shell
       
       end
 ************************************************************************
-      subroutine canon_ab (Vcanon,NC,Vsquare,NB,NA)
+      subroutine canon_ab (Vcanon,Vsquare,NB,NA)
       implicit none
-      integer NA,NB,NC,i,j,k
-      double precision Vcanon(NC),Vsquare(NB,NA)
+      integer NA,NB,i,j,k
+      double precision Vcanon(*),Vsquare(NB,NA)
 
       k = 1
       do i = 1,NA
