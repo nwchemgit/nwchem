@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.31 2000-04-10 16:30:10 hvd Exp $
+* $Id: geom_hnd.F,v 1.32 2000-07-17 19:58:37 edo Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -4262,7 +4262,7 @@ C
   180 CONTINUE
       RETURN
       END
-      SUBROUTINE HND_DIAGIV(A,VEC,EIG,IA,NVEC,N,NDIM)
+      SUBROUTINE HND_DIAGIV(A,VVEC,EIG,IA,NVEC,N,NDIM)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "stdio.fh"
 C
@@ -4273,21 +4273,20 @@ C
 #include "global.fh"
       logical status
       DIMENSION A(1),VEC(NDIM,1),EIG(1),IA(1)
-      dimension x(1),ix(1)
-      equivalence (dbl_mb(1),x(1)),(int_mb(1),ix(1))
 c
 c     ----- memory -----
 c
       IW = LuOut
       status=ma_push_get(MT_DBL,4*ndim,'mem_dbl dia',i_idbl,idbl)
-      status=ma_push_get(MT_INT,3*ndim,'mem_int dia',i_iint,iint)
+      status=ma_push_get(MT_INT,3*ndim,'mem_int dia',i_iint,k_iint)
 c
 c     ----- call -----
 c
-      CALL HND_GIVDIA(A,VEC,EIG,IA,N,NDIM,
-     1     x(idbl), x(idbl+  ndim), x(idbl+2*ndim), x(idbl+3*ndim),
-     2                              x(idbl+2*ndim), x(idbl+2*ndim),
-     3    ix(iint),ix(iint+  ndim),ix(iint+2*ndim)                )
+      call hnd_givdia(a,vvec,eig,ia,n,ndim,
+     1 dbl_mb(idbl),dbl_mb(idbl+ndim),
+     . dbl_mb(idbl+2*ndim),dbl_mb(idbl+3*ndim),
+     2                 dbl_mb(idbl+2*ndim),dbl_mb(idbl+2*ndim),
+     3    int_mb(k_iint),int_mb(k_iint+ndim),int_mb(k_iint+2*ndim))
 c
 c     ----- memory -----
 c
