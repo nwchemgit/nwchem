@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.29 2002-09-26 21:02:01 bylaska Exp $
+* $Id: control.F,v 1.30 2002-10-09 19:11:18 bylaska Exp $
 *
 
 *     ***********************************
@@ -153,6 +153,10 @@
         SA = .false.
         sa_decay(1) = 1.0d0
         sa_decay(2) = 1.0d0
+      end if
+
+      if (.not.rtdb_get(rtdb,'cpmd:fei',mt_log,1,fei)) then
+        fei = .false.
       end if
 
 
@@ -1612,6 +1616,19 @@ c      end
       return
       end
 
+*     ***************************
+*     *                	   	*
+*     *        control_Fei	*
+*     *                  	*
+*     ***************************
+      logical function control_Fei()
+      implicit none
+
+#include "control.fh"
+
+      control_Fei=fei
+      return
+      end
 
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: control.fh,v 1.8 2002-09-26 21:02:01 bylaska Exp $
+* $Id: control.fh,v 1.9 2002-10-09 19:11:18 bylaska Exp $
 *
 
 *     **** control common block ****
@@ -20,7 +20,7 @@ c     character*20 pspnames(MAXPSP)
       integer     code,gga
       integer	  ispin,multiplicity
       integer     est_finish_time,est_step_time
-      logical     move,frac_coord,SA
+      logical     move,frac_coord,SA,fei
       common / control_block / 
      >                         unita,tolerances,scaling,sa_decay,
      >                         time_step,fake_mass,
@@ -29,7 +29,7 @@ c     character*20 pspnames(MAXPSP)
      >                         loop,ngrid,npsp,
      >                         code,
      >                         ispin,multiplicity,
-     >                         move,frac_coord,SA
+     >                         move,frac_coord,SA,fei
       common / control_blkchar / 
      >                         output_wavefunction_filename,
      >                         input_wavefunction_filename,
