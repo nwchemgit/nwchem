@@ -1,0 +1,156 @@
+#!/msrc/apps/bin/perl
+###############################################################################
+# Usage: uncontract [file]
+#
+# Converts NWChem basis set specifications in file into completely
+# uncontracted primitive sets (facilitates construction of fitting
+# basis sets for DFT and RI methods).  It can be applied to a NWChem
+# input deck or to a basis set library file.  Repeated exponents are
+# ignored. "l" shells are properly handled.
+#
+# Operational notes
+# -----------------
+# "basis <name> <options>" becomes "basis <name>-uncon <options>"
+# WARNING: If <name> is a quoted string, the effect is not quite what
+# would be desired.
+#
+# Library references are left unmodified.
+#
+# $Id: uncontract,v 1.1 1995-06-24 22:32:42 gg502 Exp $
+###############################################################################
+$last_atom = "ZZ";
+$in_basis = 0;
+
+while ( <> ) {
+
+    # Preserve blank lines and comment lines
+    if (/^$/ || /\s*#/ ) { print; next }
+
+    # Look for the start of a basis directive and modify the name
+    if ( /^\s*basis/i ) {
+	if ( $in_basis) { die "Ill-formed basis set input"; }
+	else { 
+	    # Break the directive up so we can locate the basis name
+	    # WARNING:  This does not handle basis set names that are
+	    # quoted strings properly!
+	    @directive = split;
+	    $directive[1] .= "-uncon";
+	    print join(" ", @directive), "\n";
+	    $in_basis = 1; 
+	    next;
+	}
+    }
+
+    # Look for the end of a basis set directive, but simply ignore it
+    # if it is the end of a different directive.
+    if ( /^\s*end/i && $in_basis) { 
+	# Process the contractions accumulated
+	do output($atom, *s, *p, *d, *f, *g, *h, *i);
+	$last_atom = "ZZ";	# End of spec, therefore no real last_atom
+	# End this basis set spec;
+	print; 
+	$in_basis = 0; 
+	next; 
+    }  
+
+    # If we're not in the midst of a basis spec, just echo the output
+    if ( ! $in_basis ) { print; next; }
+
+    # Library references are echoed, but this may also be a new atom
+    if ( /^\s*[A-Za-z]+\s+library/i ) { 
+	($atom, $rest) = split(' ');
+	# If this is a new atom, print what we've got and reset.
+	if ( $atom ne $last_atom ) {
+	    do output($last_atom, *s, *p, *d, *f, *g, *h, *i);
+	    $last_atom = $atom;
+	}
+	print; next; 
+    }
+
+    # Look for a contraction spec
+    if ( /^\s*[A-Za-z]+\s+[spldfghi]/i ) {
+	($atom, $ang_mom) = split(' ');
+
+	# If this is a new atom, print what we've got and reset.
+	if ( $atom ne $last_atom ) {
+	    do output($last_atom, *s, *p, *d, *f, *g, *h, *i);
+	    $last_atom = $atom;
+	}
+        next;
+    }
+
+    # The only other possibility is a contraction.
+    ($exp, @coefs) = split(' ');
+
+    # We only care about the exponents.  Add them to the appropriate lists
+    if ( $ang_mom eq "s" || $ang_mom eq "l" ) { push(@s, $exp); }
+    if ( $ang_mom eq "p" || $ang_mom eq "l" ) { push(@p, $exp); }
+    if ( $ang_mom eq "d" )                    { push(@d, $exp); }
+    if ( $ang_mom eq "f" )                    { push(@f, $exp); }
+    if ( $ang_mom eq "g" )                    { push(@g, $exp); }
+    if ( $ang_mom eq "h" )                    { push(@h, $exp); }
+    if ( $ang_mom eq "i" )                    { push(@i, $exp); }
+}
+
+sub output {
+    local($atom, *s, *p, *d, *f, *g, *h, *i) = @_;
+
+    # Write out exponents in descending order, avoiding duplicates
+    $last_exp = 0.0;
+    foreach $i ( sort { $b <=> $a} @s ) {
+	if ( $i != $last_exp ) {
+	    printf("%s %s\n   %20.10f 1.0\n", $atom, "s", $i);
+	    $last_exp = $i;
+	}
+    }
+
+    $last_exp = 0.0;
+    foreach $i ( sort { $b <=> $a} @p ) {
+	if ( $i != $last_exp ) {
+	    printf("%s %s\n   %20.10f 1.0\n", $atom, "p", $i);
+	    $last_exp = $i;
+	}
+    }
+
+    $last_exp = 0.0;
+    foreach $i ( sort { $b <=> $a} @d ) {
+	if ( $i != $last_exp ) {
+	    printf("%s %s\n   %20.10f 1.0\n", $atom, "d", $i);
+	    $last_exp = $i;
+	}
+    }
+
+    $last_exp = 0.0;
+    foreach $i ( sort { $b <=> $a} @f ) {
+	if ( $i != $last_exp ) {
+	    printf("%s %s\n   %20.10f 1.0\n", $atom, "f", $i);
+	    $last_exp = $i;
+	}
+    }
+
+    $last_exp = 0.0;
+    foreach $i ( sort { $b <=> $a} @g ) {
+	if ( $i != $last_exp ) {
+	    printf("%s %s\n   %20.10f 1.0\n", $atom, "g", $i);
+	    $last_exp = $i;
+	}
+    }
+
+    $last_exp = 0.0;
+    foreach $i ( sort { $b <=> $a} @h ) {
+	if ( $i != $last_exp ) {
+	    printf("%s %s\n   %20.10f 1.0\n", $atom, "h", $i);
+	    $last_exp = $i;
+	}
+    }
+
+    $last_exp = 0.0;
+    foreach $i ( sort { $b <=> $a} @i ) {
+	if ( $i != $last_exp ) {
+	    printf("%s %s\n   %20.10f 1.0\n", $atom, "i", $i);
+	    $last_exp = $i;
+	}
+    }
+
+    undef @s; undef @p; undef @d; undef @f; undef @g; undef @h; undef @i;
+}
