@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.71 2000-08-07 22:54:41 d3j191 Exp $
+c $Id: cf_main.F,v 1.72 2000-08-30 04:17:18 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -873,10 +873,9 @@ c
       if(numw.gt.0) then
       do 1 k=1,mwa
       vvsum=zero
-      if(mdalgo.eq.3) then
+      if(mdalgo.eq.1) then
       do 2 j=1,3
       do 3 i=1,numw
-      vwt(i,j,k)=vw(i,j,k)
       vw(i,j,k)=(xw(i,j,k)-yw(i,j,k))*tstepi
       vwt(i,j,k)=half*(vw(i,j,k)+vwt(i,j,k))
       vvsum=vvsum+vwt(i,j,k)*vwt(i,j,k)

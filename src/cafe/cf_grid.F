@@ -1,5 +1,5 @@
       subroutine cf_alpha
-c $Id: cf_grid.F,v 1.7 2000-02-18 07:02:29 d3j191 Exp $
+c $Id: cf_grid.F,v 1.8 2000-08-30 04:17:17 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -383,7 +383,7 @@ c
     2 continue
       endif
 c
-      energy=epme
+      energy=0.5d0*epme
 c
       return
       end
