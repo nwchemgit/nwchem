@@ -1,3 +1,4 @@
+c $Id: ga_it2.F,v 1.4 2001-10-24 21:36:56 windus Exp $
       subroutine test_product(acc,g_x, g_Ax)
       implicit none
       double precision acc
