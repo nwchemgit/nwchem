@@ -9,6 +9,9 @@ include ../config/makefile.h
 
        VPATH = double:single
 
+ifeq ($(TARGET),CRAY-T3D)
+       PRECISION = single
+endif
 ifeq ($(TARGET),SUN)
        PRECISION = double
 endif
@@ -24,7 +27,7 @@ endif
 ifeq ($(TARGET),KSR)
        PRECISION = double
 endif
-ifeq ($(TARGET),CRAY)
+ifeq ($(TARGET),CRAY-T3D)
        PRECISION = single
 endif
 ifeq ($(TARGET),PARAGON)
@@ -75,5 +78,12 @@ OBJ_OPTIMIZE = sgesvd.o   slarf.o    slassq.o   sorml2.o \
 
 endif
 
+ifeq ($(TARGET),CRAY-T3D)
+OBJ_OPTIMIZE = slagtf.o   slagts.o   
+endif
+
 
 include ../config/makelib.h
+
+
+
