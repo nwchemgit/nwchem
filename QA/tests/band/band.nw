@@ -84,6 +84,7 @@ nwpw
    loop 10 100
    ewald_ncut 8
    energy_cutoff 10.0
+   tolerances 1.0d-9 1.0d-9
 end
 task band energy
 
