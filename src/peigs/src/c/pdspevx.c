@@ -720,24 +720,25 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 #ifdef DEBUG7
    printf(" in pdspevx pstebz10 me = %d \n", mxmynd_());
 #endif
-
+      
 /*      if (nproc < 24 ) {
+ */
 	pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol,
-		   dd, ee, dplus, lplus,
-		   mapZ, &neigval, &nsplit, eval, iblock, isplit,
-		   d_scrat, i_scrat, info);
-	
-/*      }
-      else {
-	pstebz9_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee,
-		  dplus, lplus,
-		  mapZ, &neigval, &nsplit, eval, iblock, isplit,
-		  d_scrat, i_scrat, info);
-	
+	dd, ee, dplus, lplus,
+	mapZ, &neigval, &nsplit, eval, iblock, isplit,
+	d_scrat, i_scrat, info);
+/*
       }
-      */
-
-
+	else {
+	pstebz9_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee,
+	dplus, lplus,
+		mapZ, &neigval, &nsplit, eval, iblock, isplit,
+		d_scrat, i_scrat, info);
+      
+		}
+		*/
+      
+      
 #ifdef DEBUG7
    printf(" out pdspevx pstebz10 me = %d \n", mxmynd_());
 #endif
