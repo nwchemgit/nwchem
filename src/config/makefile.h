@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.169 1996-09-24 20:45:40 d3g270 Exp $
+# $Id: makefile.h,v 1.170 1996-09-24 21:51:28 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -761,7 +761,7 @@ ifeq ($(TARGET),LINUX)
   MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
 
-   FOPTIONS = 
+   FOPTIONS = -Nc40 
    COPTIONS = -Wall -m486
   FOPTIMIZE = -g -O2
   COPTIMIZE = -g -O2
