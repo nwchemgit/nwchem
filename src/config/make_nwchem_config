@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.143 2001-06-27 21:25:49 edo Exp $
+# $Id: make_nwchem_config,v 1.144 2001-06-29 17:01:24 d3h449 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -19,7 +19,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf prepar \
         esp hessian plane_wave selci dplot mp2_grad oimp2 \
         property gapss pspw fft rimp2_grad nbo python analyz nwmd cafe space \
-        drdy vscf uccsdt qmmm qmd
+        drdy vscf uccsdt qmmm qmd mcstep
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -30,7 +30,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lcphf -lscfaux -lgapss -lesp -lddscf -lguess -lhessian \
                     -lvib -lutil -lrimp2g -lrimp2 -lproperty -lnwints -lideaz \
 		    -lprepar -lnwmd -lpspw -lcafe -lspace -lanalyze\
-                    -lpfft -ldplot -loimp2 -lnbo -lpython -ldrdy -lvscf -lqmmm -lqmd
+                    -lpfft -ldplot -loimp2 -lnbo -lpython -ldrdy -lvscf -lqmmm -lqmd -lmcstep
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -68,7 +68,7 @@ EXP_pnnl = $(EXP_all) python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian \
-          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp
+          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp 
 EXP_ver2 = prepar gradients mp2_grad dftgrad stepper vib mcscf \
            driver analyz
 #plane_wave ... broken? RJH
@@ -204,6 +204,7 @@ MOD_LIBS := $(patsubst vscf,-lvscf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst driver,-ldriver,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst pspw,-lpspw,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst fft,-lpfft,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst mcstep,-lmcstep,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
 #-----------------------------------------------------------------------------
