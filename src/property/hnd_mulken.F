@@ -1,5 +1,5 @@
       subroutine hnd_mulken(rtdb,basis,geom)
-* $Id: hnd_mulken.F,v 1.3 2004-09-30 04:10:34 edo Exp $
+* $Id: hnd_mulken.F,v 1.4 2004-12-03 21:50:20 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
@@ -54,7 +54,7 @@ c
       if(.not. bas_numbf(basis,nbf))
      &   call errquit('hnd_mulken: geom_numbf failed',1, BASIS_ERR)
       if (.not.bas_high_angular(basis,lmax))
-     &   call errquit('int_mem_1eelec: lmax error',lmax, INT_ERR)
+     &   call errquit('hnd_mulken: lmax error',lmax, INT_ERR)
 c
 c     Node zero collects data in MA's
 c
@@ -69,13 +69,13 @@ c
 c
          if(.not.ma_push_get(mt_dbl,nbf*ndens,'aogross',l_aogr,k_aogr))
      &      call errquit('hnd_mulken, alloc aogr failed',0, MA_ERR)
-         call dfill(nbf*ndens, 0.0d0, dbl_mb(k_aogr), 1)
+         call dcopy(nbf*ndens, 0.0d0, 0, dbl_mb(k_aogr), 1)
          if(.not.ma_push_get(mt_dbl,natoms*natoms,'atgross',l_atov,
      &      k_atov)) call errquit('hnd_mulken, atov failed',0, MA_ERR)
          if(.not.ma_push_get(mt_dbl,natoms*(lmax+2)*ndens,'atshell',
      &      l_atsh,k_atsh)) call errquit('hnd_mulken, atsh failed',0,
      &      MA_ERR)
-         call dfill(natoms*(lmax+2)*ndens, 0.0d0, dbl_mb(k_atsh), 1)
+         call dcopy(natoms*(lmax+2)*ndens, 0.0d0, 0, dbl_mb(k_atsh), 1)
          if(.not.ma_push_get(mt_dbl,nbf,'scratch',l_scr,k_scr))
      &     call errquit('hnd_mulken, alloc scr failed',911, MA_ERR)
       endif
@@ -125,7 +125,7 @@ c     Calculate gross population for ao's and atoms
 c     For each row also print the gross population
 c
          write(luout,2298) thedens
-         call dfill(natoms*natoms, 0.0d0, dbl_mb(k_atov), 1)
+         call dcopy(natoms*natoms, 0.0d0, 0, dbl_mb(k_atov), 1)
          do irow = 1, nbf
 c
             if(.not.bas_bf2ce(basis,irow,iatom)) call
@@ -291,13 +291,13 @@ c     ----- -b-, valency , and free electron -----
 c
       if (.not.ma_push_get(mt_dbl,natoms*natoms,'b mat',l_b,k_b)) 
      &   call errquit('hnd_mulken, b mat failed',0, MA_ERR)
-      call dfill(natoms*natoms, 0.0d0, dbl_mb(k_b), 1)
+      call dcopy(natoms*natoms, 0.0d0, 0, dbl_mb(k_b), 1)
       if(.not.ma_push_get(mt_dbl,natoms,'v vec',l_v,k_v)) 
      &   call errquit('hnd_mulken, v vec failed',0, MA_ERR)
-      call dfill(natoms, 0.0d0, dbl_mb(k_v), 1)
+      call dcopy(natoms, 0.0d0, 0, dbl_mb(k_v), 1)
       if(.not.ma_push_get(mt_dbl,natoms,'f vec',l_f,k_f)) 
      &   call errquit('hnd_mulken, f vec failed',0, MA_ERR)
-      call dfill(natoms, 0.0d0, dbl_mb(k_f), 1)
+      call dcopy(natoms, 0.0d0, 0, dbl_mb(k_f), 1)
 c
       do iatom = 1, natoms
          ii = (iatom-1)*natoms+iatom-1

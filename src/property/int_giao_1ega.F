@@ -1,6 +1,6 @@
       subroutine int_giao_1ega(ibas,jbas,g,integ_type,xyzpt,nat,
      &                         oskel)
-C$Id: int_giao_1ega.F,v 1.1 2004-07-21 17:28:27 bert Exp $
+C$Id: int_giao_1ega.F,v 1.2 2004-12-03 21:50:20 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -26,20 +26,22 @@ c
       character*(*) integ_type      ! [input] Name of integrals to compute
       logical oskel                 ! [input] If true generate symmetry unique list
       integer nat                   ! [input] number of atoms for which we get the integrals (if needed)
-      double precision xyzpt(3,nat) ! [input] coordinates of requested atoms (if needed)
+      double precision xyzpt(3,*)   ! [input] coordinates of requested atoms (if needed)
 c     
 c     local variables
 c     
+      integer mone, two
+      parameter (mone=-1, two=2)
       integer nshell_i, nshell_j
       integer ishell, jshell, iproc, nproc, mem1, max1e
-      integer ijshell, ilo, ihi, jlo, jhi, idim
+      integer ijshell, ilo, ihi, jlo, jhi, idim, ilen, jlen
       integer l_buf, l_scr
       integer k_buf, k_scr
       integer alo(3), ahi(3), ld(2)
       integer type
       logical odoit
       double precision q2
-      integer i, nblocks
+      integer i, j, nblocks
 c
       logical odbug
       logical osome
@@ -84,6 +86,18 @@ c
       else if (inp_compare(.false., integ_type, 'h11 all'))then 
          type = 7 
          nblocks = 9 * nat
+      else if (inp_compare(.false., integ_type, 'dso'))then 
+         type = 8 
+         nblocks = 9 * nat ! nat is number of pairs in this case : nat * (nat-1)
+      else if (inp_compare(.false., integ_type, 'pso'))then 
+         type = 9         
+         nblocks = 3 * nat
+      else if (inp_compare(.false., integ_type, 'fc'))then 
+         type = 10
+         nblocks = nat
+      else if (inp_compare(.false., integ_type, 'sd+fc'))then 
+         type = 11
+         nblocks = 6 * nat
       else
          write(6,*) ' integ_type = ', integ_type,ga_nodeid()
          call errquit('int_giao_1ega: unknown integ_type', 0, INT_ERR)
@@ -107,8 +121,16 @@ c
 c     k_* are the offsets corrsponding to the l_* handles
 c     
 c
-      call int_mem_1e(max1e, mem1)  
-      max1e = max1e*nblocks
+      if (type.lt.8) then
+         call int_mem_1e(max1e, mem1)  
+         max1e = max1e*nblocks
+      elseif (type.eq.8) then
+         call int_init_dso(max1e,mem1,ibas,nat)
+      elseif (type.eq.9) then
+         call int_init_pso(max1e,mem1,ibas,nat)
+      else
+         call int_init_1eelec(max1e,mem1,ibas,2,nat)
+      endif
 c
       if(.not.MA_push_get(MT_DBL,max1e,'int_giao_1ega:buf',l_buf,k_buf))
      $     call errquit('int_giao_1ega: ma failed', max1e, MA_ERR)
@@ -136,10 +158,12 @@ c
                   if (.not. bas_cn2bfr(jbas, jshell, jlo, jhi))
      $                 call errquit('int_1e_ga: bas_cn2bfr ?', jbas,
      &       BASIS_ERR)
+c
+                  ilen = ihi-ilo+1
+                  jlen = jhi-jlo+1
 c     
 c     Generate the integrals
 c     
-                  call dfill(max1e,0.0d0,dbl_mb(k_buf),1)
                   if (type .eq. 1) then      ! 3
                      call int_giaos10 (jbas, jshell, ibas, ishell, 
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
@@ -165,6 +189,22 @@ c
                      call int_giaoh11 (jbas, jshell, ibas, ishell,
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
      $                    xyzpt, nat, .true.,.true.)
+                  else if (type .eq. 8) then ! 9*nat*(nat-1)
+                     call int_dso (jbas, jshell, ibas, ishell,
+     $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
+     $                    xyzpt, nat)
+                  else if (type .eq. 9) then ! 3*nat
+                     call int_pso (jbas, jshell, ibas, ishell,
+     $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
+     $                    xyzpt, nat)
+                  else if (type .eq. 10) then ! nat
+                     call int_1eelec(jbas, jshell, ibas,ishell,
+     &                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
+     &                    mone,xyzpt,nat)
+                  else if (type .eq. 11) then ! 6*nat
+                     call int_1eelec(jbas, jshell, ibas,ishell,
+     &                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
+     &                    two,xyzpt,nat)
                   else
                      call errquit('int_giao_1ega: invalid type?', type,
      &       GA_ERR)
@@ -178,8 +218,8 @@ c
                   ahi(2) = ihi
                   alo(3) = 1
                   ahi(3) = nblocks
-                  ld(1) = jhi-jlo+1
-                  ld(2) = ihi-ilo+1
+                  ld(1) = jlen
+                  ld(2) = ilen
                   call nga_acc(g,alo,ahi,dbl_mb(k_buf),ld,1.0d0)
                end if
             endif

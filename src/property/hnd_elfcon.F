@@ -1,6 +1,6 @@
       subroutine hnd_elfcon(basis,geom,g_dens,points,npt,elfval,nder)
 c
-c $Id: hnd_elfcon.F,v 1.2 2004-07-22 16:55:25 bert Exp $
+c $Id: hnd_elfcon.F,v 1.3 2004-12-03 21:50:20 bert Exp $
 c
 c     This routine calculates the electronic contribution of the
 c     electronic integral defined by nder for a given density at 
@@ -57,7 +57,7 @@ c
 c
 c     Zero elfval result array
 c
-      call dfill(max(nder*3,1)*npt,0.0d0,elfval,1)
+      call dcopy(max(nder*3,1)*npt,0.0d0,0,elfval,1)
 c
 c     ----- calculate electronic integral component(s) at all points -----
 c

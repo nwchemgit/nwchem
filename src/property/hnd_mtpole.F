@@ -1,6 +1,6 @@
       subroutine hnd_mtpole(rtdb,basis,geom,mpole)
 c
-c $Id: hnd_mtpole.F,v 1.4 2004-07-23 21:34:46 bert Exp $
+c $Id: hnd_mtpole.F,v 1.5 2004-12-03 21:50:20 bert Exp $
 c
 c     This routine calculates the multipole moments around
 c     choosen center of expansion
@@ -61,7 +61,7 @@ c
 c     Determine number of components and zero mptval
 c
       ncomp = (mpole+1)*(mpole+2)/2
-      call dfill(2*maxcomp,0.0d0,mptval,1)
+      call dcopy(2*maxcomp,0.0d0,0,mptval,1)
 c
 c     Get center of expansion
 c

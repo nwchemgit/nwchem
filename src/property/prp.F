@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.60 2004-07-23 21:34:46 bert Exp $
+* $Id: prp.F,v 1.61 2004-12-03 21:50:20 bert Exp $
 *
       subroutine hnd_propty(rtdb,basis,geom)
       implicit double precision (a-h,o-z)
@@ -53,6 +53,7 @@ c
       status=rtdb_get(rtdb,'prop:electrondensity',MT_INT,1,noden)   !done
       status=rtdb_get(rtdb,'prop:stoneanalysis',MT_INT,1,noston)
       status=rtdb_get(rtdb,'prop:giao',MT_INT,1,nogiao)             !done
+      status=rtdb_get(rtdb,'prop:spinspin',MT_INT,1,nospinspin)
 c
       runtyp=blank
       wfntyp=scf  
@@ -65,6 +66,7 @@ c
      2                        nosos,noelp,noelf,noelfg,noden,nogiao,
      3                        noston
       if(out ) write(luout,9998) runtyp,scftyp
+      if(nospinspin.eq.0) call hnd_spinspin(rtdb,basis,geom)
 c
 c     ----- dipole moment -----
 c

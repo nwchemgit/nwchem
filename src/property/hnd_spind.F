@@ -1,6 +1,6 @@
       subroutine hnd_spind(rtdb,basis,geom)
 c
-c $Id: hnd_spind.F,v 1.2 2004-07-22 19:37:23 bert Exp $
+c $Id: hnd_spind.F,v 1.3 2004-12-03 21:50:20 bert Exp $
 c
 c     This routine calculates the Fermi Contact Term and
 c     Spin-Dipolar terms for a given (spin) density at the
@@ -21,23 +21,23 @@ c
 c
       character*2  symbol
       character*16 element, at_tag
-      integer iat, atn, nat, g_spin, i, j, ij, iaz
+      integer iat, atn, nat, g_spin, i, j, ij, isonr
       integer l_xyzpt, k_xyzpt, l_zanpt, k_zanpt, l_efgs, k_efgs
       integer l_elds, k_elds
       integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)
       character*3 scftyp
       double precision xp, yp, zp, xn, yn, zn, zan, fac, fac1, fac2
       double precision pi, betae, betan, convf, con, aiso, spnden
-      double precision ge, emf, vl, auev, evmhz, gmhz, gn, gnu, hbar
+      double precision ge, emf, vl, auev, evmhz, gmhz, gnu, hbar
       double precision gnuc
       double precision spndxx, spndyy, spndzz, spndxy, spndxz, spndyz
       double precision a(6),vec(3,3),eig(3),val
       logical status
 c
+      logical atom_gfac
       integer ga_create_atom_blocked
-      external ga_create_atom_blocked
+      external ga_create_atom_blocked,atom_gfac
 c
-      dimension gn(18)
       data gnuc   /5.05078343d-27/      ! Nuclear magneton
       data hbar   /1.05457168d-34/      ! Planck constant over 2 pi
       data ge     /2.002319304386d+00/  ! Electron g-factor
@@ -46,15 +46,6 @@ c
       data auev   /27.2113961d+00/      ! Conversion from au to eV
       data evmhz  /2.41798836d+08/      ! Conversion from eV to MHz
       data gmhz   /2.8025d+00/          ! Conversion from Gauss to MHz
-c
-c GET TABLE WITH ALL ATOMIC CONSTANTS GOING
-c Logic here: gn defined as magnetogyric ratio * h-bar / nuclear magneton
-c
-      data gn /5.58556d+00  , -4.255d+00 ,2.1709333d+00,-0.7800666d+00,
-     1         1.7923333d+00,  1.4048d+00,0.4036d+00   ,-0.75748d+00  ,
-     2         5.2576d+00   , -0.4412d+00,1.4783333d+00,-0.34212d+00  ,
-     3         1.45656d+00  ,-1.11106d+00,2.2634d+00   , 0.4288666d+00,
-     4         0.5478866d+00,-0.3714285d+00/
 c
 c     Get density matrix (needs to be uhf or udft to be useful)
 c
@@ -74,7 +65,6 @@ c
       call schwarz_init(geom, basis)
 c
       if (ga_nodeid().eq.0) write(luout,9999)
-      if (ga_nodeid().eq.0) write(luout,9985)
 c
 c     --- calculate constants and conversion terms ---
 c
@@ -135,14 +125,15 @@ c
      &      errquit('hnd_efgmap: geom_cent_tag failed',0,GEOM_ERR)
          if (.not. geom_tag_to_element(at_tag,symbol,element,atn)) call
      &      errquit('hnd_efgmap: geom_tag_to_element failed',0,GEOM_ERR)
+         if (.not. atom_gfac(dbl_mb(k_zanpt+iat-1),gnu,isonr)) call
+     &       errquit('hnd_efgmap: atom_gfac failed',0, UERR)
          xp  = dbl_mb(k_xyzpt  +3*(iat-1))
          yp  = dbl_mb(k_xyzpt+1+3*(iat-1))
          zp  = dbl_mb(k_xyzpt+2+3*(iat-1))
-         iaz = dbl_mb(k_zanpt+iat-1)
-         gnu = gn(atn)
          spnden=dbl_mb(k_elds+iat-1)
          aiso  =2.0d0*fac*con*gnu*spnden
-         write(luout,9995) iat,symbol,iaz,xp,yp,zp,spnden,aiso,aiso/gmhz
+         write(luout,9995) iat,isonr,symbol,xp,yp,zp,spnden,aiso,
+     &                     aiso/gmhz
          call ecce_print1_char('atom name',symbol,1)
          call ecce_print1('fermi contact',MT_DBL,aiso,1)
   370 continue
@@ -172,10 +163,11 @@ c
      &      errquit('hnd_efgmap: geom_cent_tag failed',0,GEOM_ERR)
          if (.not. geom_tag_to_element(at_tag,symbol,element,atn)) call
      &      errquit('hnd_efgmap: geom_tag_to_element failed',0,GEOM_ERR)
+         if (.not. atom_gfac(dbl_mb(k_zanpt+iat-1),gnu,isonr)) call
+     &       errquit('hnd_efgmap: atom_gfac failed',0, UERR)
          xp  = dbl_mb(k_xyzpt  +3*(iat-1))
          yp  = dbl_mb(k_xyzpt+1+3*(iat-1))
          zp  = dbl_mb(k_xyzpt+2+3*(iat-1))
-         iaz = dbl_mb(k_zanpt+iat-1)
 c
 c        Do remember to take out the isotropic Fermi Contact Term
 c        (which you get for free from the EFG)
@@ -205,11 +197,10 @@ c
          call hnd_diag(vec,eig,3,.false.,.false.)
          call ecce_print1('spin-dipole eigenvalues',MT_DBL,eig,3)
          call ecce_print2('spin-dipole eigenvectors',MT_DBL,vec,3,3,3)
-         gnu = gn(atn)
          fac1 = con*gnu
          fac2 = con*gnu/gmhz
          write(luout,9992)
-         write(luout,9991) iat,symbol,iaz,xp,yp,zp
+         write(luout,9991) iat,isonr,symbol,xp,yp,zp
          write(luout,9984)
          write(luout,9983) spndxx,spndyy,spndzz,spndxy,spndxz,spndyz
          write(luout,9990)
@@ -257,15 +248,15 @@ c
      1       /,10x,22(1h-),/)
  9994 format(/,' Total Spin Density (Fermi Contact Term)',/,
      1         ' ------------------ --------------------')
- 9997 format(5x,'Atom ','Znuc ',6x,'x',9x,'y',9x,'z',7x,
+ 9997 format(5x,'Atom ',11x,'x',9x,'y',9x,'z',7x,
      1          'Density (a.u.)',6x,'Aiso(MHz)',5x,'Aiso(Gauss)')
- 9995 format(1x,i5,1x,a2,i4,2x,3f10.5,2x,f13.6,5x,f13.6,2x,f13.6)
+ 9995 format(1x,i5,1x,i3,'-',a2,2x,3f10.5,2x,f13.6,5x,f13.6,2x,f13.6)
  9996 format(/,/,10x,' -------------------------------------------',
      1       /,10x,' Anisotropic Interaction (Spin-Dipolar Term)',
      2       /,10x,' -------------------------------------------',/)
- 9992 format(1x,60(1h-),/,5x,'Atom ','Znuc ',6x,'x',9x,'y',9x,'z',/,
+ 9992 format(1x,60(1h-),/,5x,'Atom ',11x,'x',9x,'y',9x,'z',/,
      1       1x,60(1h-))
- 9991 format(1x,i5,1x,a2,i4,2x,3f10.5)
+ 9991 format(1x,i5,1x,i3,'-',a2,2x,3f10.5)
  9984 format(/,3x,'Spin-Dipolar term (a.u.)',/,8x,'xx',13x,'yy',
      1       13x,'zz',13x,'xy',13x,'xz',13x,'yz',/,1x,90(1h-))
  9983 format(6f15.6)
@@ -277,7 +268,4 @@ c
      1         ' of Hyperfine Tensor w.r.t absolute (molecular) frame',
      2         /,1x,122(1h-))
  9986 format(1x,3f13.6)
- 9985 format(' ..... for atoms with z.gt.18 , neither the -aiso- ',
-     1       ' nor the anisotropic -hfcc- have been multiplied',
-     2       ' by -g(n)- ')
       end

@@ -1,6 +1,6 @@
       subroutine hnd_eldmap(rtdb,basis,geom)
 c
-c $Id: hnd_eldmap.F,v 1.2 2004-07-22 17:26:45 edo Exp $
+c $Id: hnd_eldmap.F,v 1.3 2004-12-03 21:50:20 bert Exp $
 c
 c     This routine calculates the electron density and spin
 c     density for a given density at the atomic positions.
@@ -74,11 +74,11 @@ c           do for both total dens and spin dens if ndens.gt.1
 c
       if (spindens) then
          call hnd_elfcon(basis,geom,g_dens(3),dbl_mb(k_xyzpt),nat,
-     &                   dbl_mb(k_eden),0)
+     &                   dbl_mb(k_eden),-1)
          g_spin=ga_create_atom_blocked(geom,basis,'hnd_spind:spindens')
          call ga_add(1.0d0,g_dens(1),-1.0d0,g_dens(2),g_spin)
          call hnd_elfcon(basis,geom,g_spin,dbl_mb(k_xyzpt),nat,
-     &                   dbl_mb(k_eden+nat),0)
+     &                   dbl_mb(k_eden+nat),-1)
          if (.not.ga_destroy(g_spin)) call errquit
      &      ('hnd_hnd_eldmap, ga_destroy of g_spin failed',911,GA_ERR)
       else

@@ -172,12 +172,12 @@ c
                      call new_get_giaodens_block(g_dens, blen, 
      $                    jbflo, jbfhi, kbflo, kbfhi, d_jk)
 c
-                     call dfill(3*blen*blen, 0d0, f_ij, 1)
-                     call dfill(3*blen*blen, 0d0, f_ji, 1)
-                     call dfill(3*blen*blen, 0d0, f_ik, 1)
-                     call dfill(3*blen*blen, 0d0, f_jl, 1)
-                     call dfill(3*blen*blen, 0d0, f_il, 1)
-                     call dfill(3*blen*blen, 0d0, f_jk, 1)
+                     call dcopy(3*blen*blen, 0d0, 0, f_ij, 1)
+                     call dcopy(3*blen*blen, 0d0, 0, f_ji, 1)
+                     call dcopy(3*blen*blen, 0d0, 0, f_ik, 1)
+                     call dcopy(3*blen*blen, 0d0, 0, f_jl, 1)
+                     call dcopy(3*blen*blen, 0d0, 0, f_il, 1)
+                     call dcopy(3*blen*blen, 0d0, 0, f_jk, 1)
 c     
                      call int_giao_2e(
      $                    basis,ish,jsh,basis,ksh,lsh,
@@ -225,7 +225,7 @@ c
       integer  g_dens, blen, ibflo, ibfhi, jbflo, jbfhi
       double precision buf(*)
 c
-      call dfill(blen*blen,0d0,buf,1)
+      call dcopy(blen*blen,0d0,0,buf,1)
       call ga_get(g_dens,ibflo,ibfhi,jbflo,jbfhi,buf,blen)
 c
       end

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.21 2004-07-23 21:34:45 bert Exp $
+# $Id: GNUmakefile,v 1.22 2004-12-03 21:50:20 bert Exp $
 #
 
 
@@ -21,11 +21,15 @@
          hnd_prop_dens_make.o \
          hnd_property.o \
          cosmo.o \
-         int_prpinit.o \
          giaofock.o \
          hnd_giaox.o \
          int_giao_1ega.o \
-         hnd_diag.o
+         hnd_diag.o \
+         hnd_spinspin.o \
+         hnd_sdfc.o \
+         hnd_pso.o \
+         hnd_dso.o \
+         prop_atom.o
 
    LIBRARY = libproperty.a
    LIB_DEFINES = 
@@ -34,7 +38,7 @@
 
 USES_BLAS = 
 
-HEADERS = prop.fh 
+HEADERS = prop.fh atomdata.fh
 
 include ../config/makefile.h
 include ../config/makelib.h

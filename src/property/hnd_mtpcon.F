@@ -1,6 +1,6 @@
       subroutine hnd_mtpcon(basis,geom,g_dens,mtpval,mpole,centerl)
 c
-c $Id: hnd_mtpcon.F,v 1.1 2004-07-22 16:59:30 bert Exp $
+c $Id: hnd_mtpcon.F,v 1.2 2004-12-03 21:50:20 bert Exp $
 c
 c     This routine calculates the electronic contribution of a given
 c     multipole for a given density at the grid points defined in points
@@ -58,7 +58,7 @@ c
 c     Zero mtpval result array
 c
       ncomp = (mpole+1)*(mpole+2)/2
-      call dfill(ncomp,0.0d0,mtpval,1)
+      call dcopy(ncomp,0.0d0,0,mtpval,1)
 c
 c     ----- calculate multipole integral component(s) at all points -----
 c
@@ -87,7 +87,8 @@ c
                call ga_get(g_dens, ilo, ihi, jlo, jhi,
      $                     dbl_mb(k_dens), idim)
 c
-               call dfill(maxbuf,0.0d0,dbl_mb(k_buf),1)
+
+               call dcopy(maxbuf,0.0d0,0,dbl_mb(k_buf),1)
                call int_mpolel(basis,ishell,basis,jshell,mpole,centerl,
      &                         maxscr,dbl_mb(k_scr),maxbuf,
      &                         dbl_mb(k_buf),mtpint)

@@ -30,7 +30,7 @@ c>>>  that gennbo already exists and has been ported to a number of
 c>>>  platforms.
 c
 *
-* $Id: wnbofile.F,v 1.15 2003-12-06 01:36:29 bert Exp $
+* $Id: wnbofile.F,v 1.16 2004-12-03 21:50:20 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -452,7 +452,7 @@ c
 c>>>      Reuse array space pointed to by iexp to print out
 c>>>      s, p, d, f and g coefficients.
 c
-          call dfill(nprim,0.0d0,dbl_mb(iexp),1)
+          call dcopy(nprim,0.0d0,0,dbl_mb(iexp),1)
           index = 0
           do icont = 1,ncont
             
