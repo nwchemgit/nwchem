@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.3 2002-08-13 23:24:14 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.4 2002-08-13 23:57:59 bylaska Exp $
 *
 
 !**************************************************
@@ -69,7 +69,7 @@
               i2 = i1 - 2*m*neall
               write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
               int_mb(indx2(1)+i1) = i2     ! conjugate array
-              int_mb(sgn(1) +i1) = isgn   ! sign array
+              int_mb(sgn(1)  +i1) = isgn   ! sign array
             end do
          end do 
       end do    
@@ -88,8 +88,7 @@
 !	Created:	8/07/2002
 !**************************************************
       subroutine paw_ovlp_end()
-      implicit none
-      
+      implicit none      
 #include "mafdecls.fh"
 #include "paw_ovlp.fh"
 
@@ -157,11 +156,13 @@
      >                      dcpl_mb(tmp(1)))
            do n=1,neall
              indx_psi   = (n-1)*npack1    + 1
-             indx_coeff = (nlmii-1)*neall + n
+             indx_coeff = (nlmii-1)*neall + (n-1)
              call Pack_cc_izdot(1,
      >                         dcpl_mb(tmp(1)),
      >                         psi(indx_psi),
      >                         dcpl_mb(toeff(1)+indx_coeff))
+           write(*,*) "toeff:",n,nlmii,'(',nlm,ii,')',
+     >                 dcpl_mb(toeff(1)+indx_coeff)
            end do
         end do
       end do 
@@ -170,9 +171,9 @@
       !*** unsrcramble to get true overlap coefficients ***
       do i1=1,total_nbasis*neall
          i2 = int_mb(indx2(1)+i1-1)
-         dcpl_mb(coeff(1)+i1) 
-     >     = 0.5d0*( dcpl_mb(toeff(1)+i1)
-     >             + int_mb(sgn(1)+i1)
+         dcpl_mb(coeff(1)+i1-1) 
+     >     = 0.5d0*( dcpl_mb(toeff(1)+i1-1)
+     >             + int_mb(sgn(1)+i1-1)
      >              *dconjg(dcpl_mb(toeff(1)+i2)))
       end do     
 
@@ -182,7 +183,7 @@
       write(*,*) "Overlap coefficients:"
       do i2=1,neall
       do i1=1,total_nbasis
-         indx_coeff = i2 + (i1-1)*neall
+         indx_coeff = (i2-1) + (i1-1)*neall
          write(*,*) "nlm n c(n,nlm):",i1,i2,dcpl_mb(coeff(1)+indx_coeff)
       end do
       end do
