@@ -38,7 +38,7 @@ void FATR util_debug_(Integer *rtdb)
     strcpy(display, disp);
   }
 
-  argv[0] = xterm;
+  argv[0] = "xterm";
   argv[1] = "-T";
   argv[2] = title;
   argv[3] = "-display";
