@@ -1,9 +1,8 @@
-C $Id: ecp_sph_tens.f,v 1.3 1996-10-12 00:56:28 mg201 Exp $
+C $Id: ecp_sph_tens.f,v 1.4 1997-09-08 18:13:12 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_sph_tens (l,n_n,n_t,R,X,Y,Z,xn,yn,zn,tmp,G_kq,
      &    csco,lcsco)
-Cold     &    c_to_s,s_to_c,ldt,lstart)
 *                                                                      *
 *   Set up spherical tensors which arise from expansion of exponential *
 *   about a new centre. Limit on angular momentum depends on projector *
@@ -30,6 +29,8 @@ Cold     &    c_to_s,s_to_c,ldt,lstart)
 *
 *   Set up monomials in X, Y and Z
 *
+      if (R .eq. 0.0d00) call errquit ('Zero distance in ecp_sph_tens',
+     &    99)
       xn(0) = 1.0d00
       yn(0) = 1.0d00
       zn(0) = 1.0d00
