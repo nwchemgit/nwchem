@@ -12,10 +12,14 @@ c
 c
       character*255 token
       real*8 eatoms,qatoms
+      logical xyz,xyzq
       integer linkatm,nobq
 c
       call inp_set_field(0)
 c
+c**** default values for parameters
+      xyz  = .false.
+      xyzq = .false.
       linkatm=0
       nobq=1
 c
@@ -38,6 +42,16 @@ c
       goto 2
       endif
 c
+      if (token.eq.'xyz') then
+       xyz = .true.
+       write(*,*) " found xyz",xyz
+       goto 2 
+      end if
+      if (token.eq.'xyzq') then
+       xyzq = .true.
+       write(*,*) " found xyzq",xyzq
+       goto 2 
+      end if
       if (token.eq.'qatoms') then
       if (.not.inp_f(qatoms))
      +  call errquit('qmmm_input: failed to read qatoms',0, INPUT_ERR)
@@ -83,6 +97,12 @@ c
      &       RTDB_ERR)
       if (.not.rtdb_put(rtdb,'qmmm:linkatm',mt_int,1,linkatm))
      + call errquit('qmmm_input: failed to store qmmm:linkatm',linkatm,
+     &       RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'qmmm:xyz',mt_log,1,xyz))
+     + call errquit('qmmm_input: failed to store qmmm:xyz',xyz,
+     &       RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'qmmm:xyzq',mt_log,1,xyzq))
+     + call errquit('qmmm_input: failed to store qmmm:xyzq',xyzq,
      &       RTDB_ERR)
       if (.not.rtdb_put(rtdb,'qmmm:nobq',mt_int,1,nobq))
      + call errquit('qmmm_input: failed to store qmmm:nobq',nobq,

@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq,lesp)
 c
-c $Id: qmmm_main.F,v 1.13 2003-10-17 22:58:07 carlfahl Exp $
+c $Id: qmmm_main.F,v 1.14 2004-01-06 01:43:06 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -29,6 +29,8 @@ c
       integer i_i,l_i,i_j,l_j,i_m,l_m
       integer nzatom,nqatom,nzatomt,nqatomt
       logical lesp
+      logical xyz, xyzq
+      character*(nw_max_path_len) filename
 c
       np=ga_nnodes()
       me=ga_nodeid()
@@ -103,6 +105,26 @@ c
       if(.not.geom_masses_set(igeom,nqatomt+nzatomt,dbl_mb(i_m)))
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
+
+      if (.not.rtdb_get(inrtdb,'qmmm:xyz',mt_log,1,xyz)) xyz=.false.
+      if (.not.rtdb_get(inrtdb,'qmmm:xyzq',mt_log,1,xyzq)) xyzq=.false.
+
+      if(xyz) then
+        call util_file_name('xyz', .false., .false., filename)
+        open(unit=43,status="replace",form="formatted",file=filename)
+        if(.not.geom_print_xyz(igeom,43))
+     +    call errquit('qmmm: Failed to xyz file',0)
+        close(43)
+      end if
+
+      if(xyzq) then
+        call util_file_name('xyzq', .false., .false., filename)
+        open(unit=43,status="replace",form="formatted",file=filename)
+        if(.not.geom_print_xyzq(igeom,43))
+     +    call errquit('qmmm: Failed to xyzq file',0)
+        close(43)
+      end if
+
 c
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
@@ -181,6 +203,7 @@ c
       if(.not.geom_masses_set(igeom,nqatomt,dbl_mb(i_m)))
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
+
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
       if(.not.ma_pop_stack(l_t))
