@@ -23,7 +23,7 @@ set SECS = 5
 set STEAL = 0
 
 if ($#argv == 2) then
-  if ($1 == "-steal") then
+  if ("$1" == "-steal") then
     set STEAL = 1
     shift
   else
