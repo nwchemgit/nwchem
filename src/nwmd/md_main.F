@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.68 2000-03-17 17:41:41 d3j191 Exp $
+c $Id: md_main.F,v 1.69 2000-04-04 18:45:19 d3j191 Exp $
 c
       implicit none
 c
@@ -1899,7 +1899,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.68 2000-03-17 17:41:41 d3j191 Exp $
+c $Id: md_main.F,v 1.69 2000-04-04 18:45:19 d3j191 Exp $
 c
       implicit none
 c
@@ -1931,7 +1931,17 @@ c
 c
       else
 c
-c     quantum MD
+      if(ntype.eq.1) then
+      write(lfntst,2000) etot
+ 2000 format('Energy           = ',1pe12.3)
+      endif
+c
+      if(ntype.eq.2) then
+      write(lfntst,2100) stime,temp,etot
+ 2100 format('Time             = ',0pf9.3,/,
+     + 'Temperature      = ',0pf8.2,/,
+     + 'Energy           = ',1pe12.3,/)
+      endif
 c
       endif
 c
