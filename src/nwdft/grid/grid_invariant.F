@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.12 2000-12-14 01:26:13 edo Exp $
+c$Id: grid_invariant.F,v 1.13 2001-01-05 01:17:11 edo Exp $
 c
       implicit none
 c      
@@ -118,15 +118,16 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.12 2000-12-14 01:26:13 edo Exp $
+c$Id: grid_invariant.F,v 1.13 2001-01-05 01:17:11 edo Exp $
 c
       implicit none
 c
 #include "stdio.fh"
 #include "cdft.fh"
+#include "global.fh"
 c      
       double precision eps
-      parameter (eps = 1.d-9)
+      parameter (eps = 1.d-16)
       double precision coord(3,ncenters), charge(ncenters)
 c
 c     allocate space for M and T (rotational invariance; 
@@ -134,9 +135,11 @@ c     see B.G. Johnson et al, CPL, 220, 377 (1994), and auxiliary
 c     species R_a - T and (R_a -T)(R_a - T)^T
 c
       double precision tvec(3), ramt(3), ramtm(3,3), eigs(3), work(12)
-      double precision ztot, lramt
+      double precision ztot, lramt,coss,dett
 c
       integer ictr, icart, jcart, info
+      double precision deter3
+      external deter3
 c
       call dzero(qrot, 9)
       call dzero(tvec, 3)
@@ -164,7 +167,7 @@ c
             tvec(icart) = tvec(icart)/ztot
             lramt=lramt+abs(tvec(icart))
          enddo
-         if(lramt.lt.eps) goto 111
+         if(lramt*ztot.lt.eps) goto 111
       else
          write(LuOut,*)
          write(LuOut,*) 'grid_invariant:  ',
@@ -214,6 +217,19 @@ c
          write(LuOut,*)
          write(LuOut,*) 'grid_invariant:  failure in dsyev.'
          call errquit('Exiting in grid_invariant.',5)
+      endif
+      dett=deter3(qrot)
+      coss=(qrot(1,1)+qrot(2,2)+qrot(3,3)-1d0)*.5d0
+      if ((dett-coss*coss).lt.0) then
+         if(ga_nodeid().eq.0) then
+            write(LuOut,*) ' WARNING: nonsense rotational matrix'
+            write(LuOut,*) ' cosine      ',coss
+            write(LuOut,*) ' sine square ',dett-coss*coss
+            write(LuOut,*) ' Identity matrix is used '
+            write(LuOut,*) '     '
+         endif
+         call dfill(9,0,qrot,1)
+         goto 111
       endif
       return
  111  qrot(1,1)=1d0
