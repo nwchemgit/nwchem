@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.18 1997-11-07 01:46:07 d3e129 Exp $
+c $Id: int_spcart.F,v 1.19 1997-12-10 23:56:16 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997           *
 *         Pacific Northwest National Laboratory, *
@@ -550,27 +550,27 @@ c
 
 #include "spcartP.fh"
 
-      data sph_cart_init     /0/
-      data lmax_init         /0/
       data h_sp2c            /0/
       data k_sp2c            /0/
       data h_sp2c_cmp        /0/
       data k_sp2c_cmp        /0/
-      data h_sp2c_lindx      /0/
-      data k_sp2c_lindx      /0/
       data h_invsp2c_cmp     /0/
       data k_invsp2c_cmp     /0/
-      data h_invsp2c_lindx   /0/
-      data k_invsp2c_lindx   /0/
+      data lmax_init         /0/
       data h_cart_norm_scale /0/
       data k_cart_norm_scale /0/
-      data active_cart_norm_scale /.false./
+      data sph_cart_init     /0/
+      data h_sp2c_lindx      /0/
+      data k_sp2c_lindx      /0/
+      data h_invsp2c_lindx   /0/
+      data k_invsp2c_lindx   /0/
       data sph_cart_allsph        /.false./
       data active_sp2c            /.false./
       data active_sp2c_cmp        /.false./
-      data active_sp2c_lindx      /.false./
       data active_invsp2c_cmp     /.false./
+      data active_sp2c_lindx      /.false./
       data active_invsp2c_lindx   /.false./
+      data active_cart_norm_scale /.false./
       data trust_dgemm            /.false./
       end
 *.......................................................................
