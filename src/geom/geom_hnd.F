@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.45 2004-04-29 03:31:14 edo Exp $
+* $Id: geom_hnd.F,v 1.46 2004-09-24 17:46:15 edo Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -3884,6 +3884,7 @@ C
       DIMENSION   NZMT(5,MAXGEO)
       DIMENSION   ZVAL(3,MAXGEO)
       DIMENSION   ERRMSG(3)
+      double precision numd
       DATA ERRMSG    /'PROGRAM ','STOP IN ','- ZXYZ -'/
       DATA ZERO,ONE  /0.0D+00,1.0D+00/
       DATA TWO,THREE /2.0D+00,3.0D+00/
@@ -4057,8 +4058,11 @@ C
                         BET=ZVAL(3,IAT)*PIFAC
                         ALP=PHI
                         GAM  =ACOS((RCB**2+RCA**2-RAB**2)/(TWO*RCB*RCA))
-                        THETA=ACOS(( COS(BET)- COS(ALP)* COS(GAM))/
-     1                             (           SIN(ALP)* SIN(GAM))  )
+                     numd=(COS(BET)- COS(ALP)* COS(GAM))/
+     /                    (SIN(ALP)* SIN(GAM))
+                     if(numd.gt.1d0) numd=1d0
+                     if(numd.lt.1d0) numd=-1d0
+                       THETA=ACOS(numd)
                         IF(NZMT(5,IAT).EQ.-1) THEN
                            THETA=-THETA
                         ENDIF
