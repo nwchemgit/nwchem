@@ -1,4 +1,4 @@
-#     $Id: GNUmakefile,v 2.15 1998-08-21 18:33:53 d3g270 Exp $
+#     $Id: GNUmakefile,v 2.16 2003-11-15 00:31:26 bert Exp $
 
  OBJ = 		ccden_driver.o \
 		ccden_interm2.o \
@@ -42,7 +42,8 @@
 		ccsd_z2pm.o \
 		ccsd_aosig.o \
 		ccsd_tzinta.o \
-		ccsd_tzintb.o
+		ccsd_tzintb.o \
+                ccsd_mem.o
 
     LIBRARY = libccsd.a
 

@@ -1,6 +1,6 @@
       subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.39 2003-10-27 02:25:11 edo Exp $
+C     $Id: ccsd_driver.F,v 2.40 2003-11-15 00:31:26 bert Exp $
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -12,6 +12,7 @@ C     $Id: ccsd_driver.F,v 2.39 2003-10-27 02:25:11 edo Exp $
 #include "schwarz.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "inp.fh"
 #include "msgids.fh"
 c
 c
@@ -31,7 +32,7 @@ c
        integer noper, oseg_lo, oseg_hi, npass, blen, max_noper, nocct
        integer noper_core
        integer g_coul, g_exch, g_epair, g_ncoul, g_nexch
-       logical oexch,ocoul,status,ohalf
+       logical oexch,ocoul,status,ohalf,do_trip
        double precision emp2, RefEner, TotEner
        double precision tpass
        character*7 algo
@@ -54,8 +55,8 @@ c
        external ga_create_atom_blocked
        integer ga_create_JKblocked
        external ga_create_JKblocked
-       integer moints_numoper
-       external moints_numoper
+       integer ccsd_memory_fit
+       external ccsd_memory_fit
        integer moints_occrange
        external moints_occrange
        logical int_normalize
@@ -174,35 +175,30 @@ c
 c
 c Maximum number of operator matrices we can allocate
 c
+       call ga_summarize(.true.)
+       call ma_summarize_allocated_blocks()
        nocct = (nocc_correl*(nocc_correl+1))/2
        if ((ocoul).and.(oexch)) nocct = 2*nocct
-       max_noper = moints_numoper( basis, algo, nmo, nocc, nmo2,
-     $                             blen, .false.)
-C       MAX_NOPER = 10
-capr change gt to ge
-       if (max_noper.ge.nocct) then
-         noper =  (nocc_correl*(nocc_correl+1))/2
-       else
-capr
-         call errquit('ccsd: increase global memory by this pctg ',
-     .        100-(100*max_noper/nocct), GA_ERR)
-capr
-         if ((ocoul).and.(oexch)) then
-           noper = max_noper/2
-         else
-           noper = max_noper
-         endif
-       endif
-       noper_core = noper
-       if ((ocoul).and.(oexch)) noper_core = noper*2
-capr
+c
       lnoo=nocc_correl*nocc_correl
       lnov=nocc_correl*nvir_correl
       lnvv=nvir_correl*nvir_correl
       lnoov=lnoo*nvir_correl
       lnooo=lnoo*nocc_correl
       lnovv=lnvv*nocc_correl
-capr
+c
+      call ccsd_get_param(rtdb,maxit,convi,iprt, CC_Theory, MaxVec,
+     $     Tol2E, occd)
+      do_trip =  Inp_Compare(.FALSE., 'ccsd(t)', CC_Theory)
+     $   .OR. Inp_Compare(.FALSE., 'ccsd+t(ccsd)', CC_Theory)
+c
+      if (.not. ccsd_memory_fit(basis,algo,nmo,nocc,nmo2,blen,maxvec,
+     $   do_trip)) call errquit('ccsd_driver:memory error',0, GA_ERR)
+c
+      noper =  (nocc_correl*(nocc_correl+1))/2
+      noper_core = noper
+      if ((ocoul).and.(oexch)) noper_core = noper*2
+c
       lnof=nmo2*nocc
       if (.not.ga_create(MT_DBL,lnof,lnof,'ncoul',
      &                   nmo2,nmo2,g_ncoul))
@@ -261,7 +257,6 @@ c
 c Clear 4-index statistics
 c
        call moints_stats_clear()
-
 c
 c Loop over segments of occupied orbitals
 c
@@ -392,8 +387,6 @@ c
 c Start CCSD part here
 c
 c
-      call ccsd_get_param(rtdb,maxit,convi,iprt, CC_Theory, MaxVec,
-     $     Tol2E, occd)
       ncor=occ_frozen
       ndel=vir_frozen
 c
