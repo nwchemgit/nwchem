@@ -1,5 +1,5 @@
 c
-c  $Id: mcscf_orb.F,v 1.17 1996-06-17 23:46:07 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.18 1996-06-19 01:13:35 rg240 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -195,8 +195,8 @@ c
        else
          lshift = 0.d0
        endif
-       bshift = lshift*0.1d0
-C       bshift = 0.d0
+C       bshift = lshift*0.1d0
+       bshift = 0.d0
 c
 c  Check on vanishing/negative Hessian diagonals
 c
