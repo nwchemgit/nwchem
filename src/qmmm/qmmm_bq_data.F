@@ -61,7 +61,7 @@ c      if(bq_exclude.eq.qmmm_all_atoms) return
 
         if(bq_exclude.eq.qmmm_all_atoms) then
           do i=1,nbqs
-             dbl_mb(i_qbq) = 0.0d0
+             dbl_mb(i_qbq+i-1) = 0.0d0
           end do
         end if
       end if
