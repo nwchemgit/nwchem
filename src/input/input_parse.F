@@ -12,14 +12,14 @@ c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
       logical status, echo
-      parameter (num_dirs = 18)
+      parameter (num_dirs = 19)
       character*8 dirs(num_dirs)
       character*255 test
       data dirs /
      $     'memory',   'rtdb',     'geometry', 'basis',    'scf',
      $     'task',     'time',     'set'     , 'enter',    'stop',
      $     'title',    'start',    'restart' , 'stepper',  'echo',
-     $     'charge', 'dft','md'/
+     $     'charge',   'dft',      'md',       'gradient'/
       data echo /.false./
 c
 c     Only process 0 is involved here
@@ -49,7 +49,7 @@ c
 c
          call inp_prev_field
          goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
-     $        1100, 1200, 1300, 1400, 1500, 1600, 1700,1800) ind
+     $        1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900) ind
          call errquit('input_parse: unimplemented directive', ind)
 c
 c     Memory ... already handled by input_mem_size() but will soon
@@ -137,6 +137,12 @@ c        MD
 c    
  1800    call md_input(rtdb)
          goto 10
+c    
+c        Gradients
+c    
+ 1900    call gradients_input(rtdb)
+         goto 10
+c
 c
       endif
 c
