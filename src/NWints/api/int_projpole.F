@@ -1,6 +1,6 @@
       subroutine int_projpole(i_basis, ish, centerl, lmax, 
      &    lscr, scr, lmpint, MP)
-c $Id: int_projpole.F,v 1.4 1996-07-12 21:07:40 d3e129 Exp $
+c $Id: int_projpole.F,v 1.5 1996-07-13 00:10:29 d3e129 Exp $
 c
 c routine to compute projected multipole integrals up to level lmax (0->lmax)
 c The general form is <pole|shell>
@@ -45,6 +45,7 @@ c::local
       integer ucont, lval
       integer l_int, i_int, num_int
       integer int_point, int_size
+      integer lpole
       logical inline_chk_sh      
 c
 #include "bas_exndcf_sfn.fh"
@@ -63,6 +64,11 @@ c
       shells_ok = inline_chk_sh(ibas,ish)
       if (.not. shells_ok)
      &       call errquit('int_projpole: invalid contraction/shell',0)
+c
+***   set defNxyz such that it can handle the maximum multi-pole
+c
+      lpole = lmax/4 + 1
+      call defNxyz(lpole)
 c
       ucont   = (sf_ibs_cn2ucn(ish,ibas))
       Li      = infbs_cont(CONT_TYPE ,ucont,ibas)

@@ -1,6 +1,6 @@
       subroutine int_mpole(i_basis, ish, j_basis, jsh, lmax, centerl,
      &    lscr, scr, lmpint, MP)
-c $Id: int_mpole.F,v 1.5 1996-01-22 21:46:35 d3e129 Exp $
+c $Id: int_mpole.F,v 1.6 1996-07-13 00:10:25 d3e129 Exp $
 c
 c routine to compute multipole integrals up to level lmax
 c The general form is <shell|pole|shell>
@@ -48,6 +48,7 @@ c::local
       integer l_int, ij_int, num_int
       integer int_point, int_size
       logical inline_chk_sh      
+      integer lpole
       integer lmpsiz            ! Local copy of lmpint
 c
       integer WarnP
@@ -75,6 +76,11 @@ c
       shells_ok = shells_ok .and. inline_chk_sh(jbas,jsh)
       if (.not. shells_ok)
      &       call errquit('int_mpole: invalid contraction/shell',0)
+c
+***   set defNxyz such that it can handle the maximum multi-pole
+c
+      lpole = lmax/4 + 1
+      call defNxyz(lpole)
 c
       ucont   = (sf_ibs_cn2ucn(ish,ibas))
       Li      = infbs_cont(CONT_TYPE ,ucont,ibas)

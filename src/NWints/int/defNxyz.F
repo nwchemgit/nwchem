@@ -1,5 +1,5 @@
       Subroutine defNxyz(lambda)
-c $Id: defNxyz.F,v 1.2 1995-12-01 16:57:42 d3g681 Exp $
+c $Id: defNxyz.F,v 1.3 1996-07-13 00:10:32 d3e129 Exp $
       implicit none
 
       integer lambda
@@ -46,7 +46,11 @@ c******************************************************************************
 
 c Multiply by a factor of 4 to intialize for 4-ctr ERIs.
 
-      lR = 4*lambda
+      if (lambda.eq.0) then
+        lR = 4    ! minimum specification for s (s functions multi-pole=4)
+      else
+        lR = 4*lambda
+      endif
 
 c Determine whether initialization up through the specified angular momentum
 c has already occurred.

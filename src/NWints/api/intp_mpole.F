@@ -1,7 +1,7 @@
       subroutine intp_mpole(i_basis, ish, j_basis, jsh, R,
      &    lmax, centerl,
      &    lscr, scr, lmpint, MP, num_mpint)
-c $Id: intp_mpole.F,v 1.4 1996-01-22 21:46:53 d3e129 Exp $
+c $Id: intp_mpole.F,v 1.5 1996-07-13 00:10:30 d3e129 Exp $
 c
 c routine to compute multipole integrals up to level lmax with the
 c jsh translated by the fractional coordinate vector R.
@@ -49,7 +49,7 @@ c::passed
       integer jsh                 ! [input] j shell/contraction
 c...     translation vectors are in fractional coordinates 
       double precision R(3)       ! [input] translation vec on j cont.
-      integer lmax                ! [input] maximum lvalue for 
+      integer lmax ! [input] maximum lvalue for 
 *.......................................... multipole integrals 
 *.......................................... in this batch
       double precision centerl(3) ! [input] coordinates of multipole
@@ -66,6 +66,7 @@ c::local
       integer ucont, lval
       integer l_int, ij_int, num_int
       integer int_point, int_size
+      integer lpole
       double precision xyz_new(3)
       logical inline_chk_sh      
 c
@@ -92,6 +93,11 @@ c
       shells_ok = shells_ok .and. inline_chk_sh(jbas,jsh)
       if (.not. shells_ok)
      &       call errquit('intp_mpole: invalid contraction/shell',0)
+c
+***   set defNxyz such that it can handle the maximum multi-pole
+c
+      lpole = lmax/4 + 1
+      call defNxyz(lpole)
 c
       ucont   = (sf_ibs_cn2ucn(ish,ibas))
       Li      = infbs_cont(CONT_TYPE ,ucont,ibas)
