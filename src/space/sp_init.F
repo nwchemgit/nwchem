@@ -1652,6 +1652,7 @@ c
 c
 #include "sp_common.fh"
 #include "msgids.fh"
+#include "global.fh"
 c
       integer lfn,mdim
       integer lbbl(mbbl,mbb2),ltemp(mdim,mbb2)
@@ -1675,14 +1676,14 @@ c
     2 continue
       ltemp(1,1)=nbbl
       else
-      do 4 k=1,mdim
-      do 5 j=1,mbbl
+      do 4 k=1,mbb2
+      do 5 j=1,mdim
       ltemp(j,k)=0
     5 continue
     4 continue
       endif
 c
-      call ga_igop(mrg_d04,ltemp,mbbl*mdim,'+')
+      call ga_igop(mrg_d04,ltemp,mdim*mbb2,'+')
 c
       if(me.eq.0) then
       write(lfn,1002) i-1,ltemp(1,1)
