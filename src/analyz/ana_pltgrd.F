@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(card)
 c
-c $Id: ana_pltgrd.F,v 1.6 2000-03-14 21:15:21 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.7 2000-05-02 18:51:08 d3j191 Exp $
 c
       implicit none
 c
@@ -13,9 +13,10 @@ c
       string=card(8:80)
 c
       read(string(1:4),'(i4)') mgrd
-      read(string(5:16),'(f12.6)') rcut
+      read(string(5:8),'(i4)') iesppb
+      read(string(9:20),'(f12.6)') rcut
       spac=rcut/dble(mgrd-1)
-      string=card(24:80)
+      string=card(28:80)
       i=index(string,' ')
       filchg=string(1:i)
       filplt=string(i+1:80)
@@ -28,15 +29,18 @@ c
      + filchg(1:index(filchg,' ')-1),
      + filplt(1:index(filplt,' ')-1)
  2000 format(' Electrostatic potential on ',i4,' cubed grid extending',
-     + f12.6,' nm for charges from ',a,' written to ',a)
+     + f12.6,' nm',/,' Charges from ',a,' written to ',a)
+      if(iesppb.gt.0) write(*,2001)
+ 2001 format(' Periodic boundary conditions')
 c
 c     open the charge file
 c
+      print*,filchg(1:index(filchg,' ')-1)
       open(unit=lfnchg,file=filchg(1:index(filchg,' ')-1),
      + form='formatted',status='old',err=9999)
 c
-      read(lfnchg,1000) nsa,nq
- 1000 format(i7,i3)
+      read(lfnchg,1000) nsa,nq,box
+ 1000 format(i7,i3,3f12.6)
 c
 c     allocate memory for coordinates and charges
 c
@@ -150,6 +154,8 @@ c
 c
       integer ix,iy,iz,i,j,k,mgrd,nxfr,nxto
       real*8 xg,yg,zg
+      real*8 dx,dy,dz
+      real*8 boxh(3)
 c
       write(*,3000) filplt(1:index(filplt,' ')-1)
  3000 format(' filplt= ',a)
@@ -169,6 +175,10 @@ c
       if(nxto.gt.ngx) nxto=ngx
       endif
 c
+      boxh(1)=0.5d0*box(1)
+      boxh(2)=0.5d0*box(2)
+      boxh(3)=0.5d0*box(3)
+c
       do 1 i=1,ngx
       do 2 j=1,ngy
       do 3 k=1,ngz
@@ -185,8 +195,36 @@ c
       zg=dble(iz-1)*spac+xmin(3)
 c      write(*,'(3e20.12)') xg,yg,zg
       do 7 i=1,nsa
+      dx=xg-x(i,1)
+      dy=yg-x(i,2)
+      dz=zg-x(i,3)
+      if(iesppb.gt.0) then
+      if(abs(dx).gt.boxh(1)) then
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      dx=dx-cf_anint(dx/box(1))*box(1)
+#else
+      dx=dx-anint(dx/box(1))*box(1)
+#endif
+      endif
+      if(abs(dy).gt.boxh(2)) then
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      dy=dy-cf_anint(dy/box(2))*box(2)
+#else
+      dy=dy-anint(dy/box(2))*box(2)
+#endif
+      endif
+      if(iesppb.eq.3) then
+      if(abs(dz).gt.boxh(3)) then
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      dz=dz-cf_anint(dz/box(3))*box(3)
+#else
+      dz=dz-anint(dz/box(3))*box(3)
+#endif
+      endif
+      endif
+      endif
       g(ix,iy,iz)=g(ix,iy,iz)+138.9354d0*
-     + q(i,lplt)/sqrt((xg-x(i,1))**2+(yg-x(i,2))**2+(zg-x(i,3))**2)
+     + q(i,lplt)/sqrt(dx**2+dy**2+dz**2)
 c      write(*,'(4i5,3e20.12)') ix,iy,iz,i,g(ix,iy,iz),q(i,lplt),
 c     + sqrt((xg-x(i,1))**2+(yg-x(i,2))**2+(zg-x(i,3))**2)
     7 continue
