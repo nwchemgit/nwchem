@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.28 1995-04-05 19:51:38 d3g681 Exp $
+# $Id: GNUmakefile,v 1.29 1995-04-06 21:59:35 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -46,7 +46,8 @@
 
       LIBRARY =	libddscf.a
 
-    USES_BLAS =	movecs_fix_phase.F rohf_k2cf.F fock_2e.F k2cf.F
+    USES_BLAS =	movecs_fix_phase.F rohf_k2cf.F fock_2e.F k2cf.F \
+                uhf.F scf_movecs.F scf_vectors_guess.F
 
 
 #
