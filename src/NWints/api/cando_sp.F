@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.24 1997-02-20 09:08:51 d3e129 Exp $
+c $Id: cando_sp.F,v 1.25 1997-02-20 23:17:22 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -367,7 +367,7 @@ c:tex-\begin{verbatim}
       integer rtdb ! [input] Run Time Data Base (RTDB) handle
 c:tex-\end{verbatim}
 c
-      integer user_status
+      logical user_status
 c
       if (rtdb_get(rtdb,'int:cando_sp',MT_LOG,1,user_status)) then
         app_stored_txs = user_status
