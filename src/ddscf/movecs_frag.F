@@ -1,7 +1,7 @@
       subroutine movecs_fragment(rtdb, geom, basis, 
      $     module, iset, nclosed, nopen, g_vecs, evals)
 *
-* $Id: movecs_frag.F,v 1.8 2001-06-06 19:31:04 edo Exp $
+* $Id: movecs_frag.F,v 1.9 2002-01-29 16:35:08 d3k958 Exp $
 *
       implicit none
 #include "util.fh"
@@ -22,7 +22,7 @@ c     Assemble initial guess MOs from the MO vectors of
 c     fragments.
 c
       integer nmo, nbf, nvirt, closed_off, open_off, virt_off, bf_off
-      integer g_frag, l_eval, k_eval, l_occ, k_occ
+      integer g_frag, l_eval, k_eval, l_occ, k_occ, excess
       integer nclosed_frag, nopen_frag, nvirt_frag, ioff
       integer i
       integer maxfrag
@@ -148,12 +148,24 @@ c
             ioff = ioff + nopen_frag
          endif
          if (nvirt_frag .gt. 0) then
-            if (virt_off+nvirt_frag-1 .gt. nmo) call errquit
-     $           ('movecs_fragment: virt shell mismatch', nvirt)
+c            if (virt_off+nvirt_frag-1 .gt. nmo) call errquit
+c     $           ('movecs_fragment: virt shell mismatch', nvirt)
+            if (virt_off+nvirt_frag-1 .gt. nmo) then
+               excess = virt_off+nvirt_frag-1 - nmo
+             if(oprint) then
+               write(6,*) '**************WARNING*****************'
+               write(6,*) ' movecs_fragment: virt shell mismatch,'
+               write(6,*) ' probably due to linear dependence.'
+               write(6,*) ' virtual orbitals excluded: ', excess
+               write(6,*) '**************************************'
+             endif
+            else 
+               excess=0
+            endif
             call ga_copy_patch('n',
-     $           g_frag, 1, nbf_frag, ioff, ioff+nvirt_frag-1,
+     $           g_frag, 1, nbf_frag, ioff, ioff+nvirt_frag-1-excess,
      $           g_vecs, bf_off, bf_off+nbf_frag-1,
-     $                   virt_off,virt_off+nvirt_frag-1)
+     $                   virt_off,virt_off+nvirt_frag-1-excess)
             call dcopy(nvirt_frag,dbl_mb(k_eval+ioff-1),1,
      $           evals(virt_off), 1)
             virt_off = virt_off + nvirt_frag
@@ -179,8 +191,8 @@ c
      $     ('movecs_fragment: bad # closed shells',  closed_off-1)
       if (open_off .ne. nclosed+nopen+1) call errquit
      $     ('movecs_fragment: bad # open shells',  open_off-closed_off)
-      if (virt_off .ne. nmo+1) call errquit
-     $     ('movecs_fragment: bad # virtuals', virt_off-open_off)
+c      if (virt_off .ne. nmo+1) call errquit
+c     $     ('movecs_fragment: bad # virtuals', virt_off-open_off)
 c
       call ga_sync()
 c
