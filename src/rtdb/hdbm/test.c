@@ -6,7 +6,7 @@
 int random(void);
 int srandom(int);
 
-#define INNER 200
+#define INNER 1000
 
 int datum_to_int(d)
      datum d;
@@ -108,11 +108,11 @@ void Test1(int argc, char **argv)
 
   if (argc != 1) use_random = 0;
 
-#define INDEX(a) (use_random ? random() : (a))
+#define INDEX(a) (use_random ? (random()&0x0f) : (a))
 
 /*   PrintTableStats(); */
 
-  for (outer=0; outer<20; outer++) {
+  for (outer=0; outer<200; outer++) {
     int ilo = outer*INNER;
     int ihi = ilo + INNER;
 
@@ -143,7 +143,7 @@ void Test1(int argc, char **argv)
   if (!(hdbm_open("test.db", 1, &h) && hdbm_open("test2.db", 1, &h2)))
     exit(1);
 
-  for (outer=19; outer>=0; outer--) {
+  for (outer=190; outer>=0; outer--) {
     int ilo = outer*INNER;
     int ihi = ilo + INNER;
 

@@ -36,6 +36,11 @@ typedef struct entry {
     long rec_ptr;		/* Points to header record on disk if ... */
 } entry;
 
+typedef struct fflentry {	/* File free list entry */
+    int size;
+    long ptr;
+} fflentry;
+
 typedef struct {		/* Record that is stored on disk */
     int key_size;
     int val_size;
@@ -50,6 +55,8 @@ static struct {
     int cur_bin;			/* Current bin for iterator */
     entry *cur_entry;		/* Pointer into current bin for iterator */
     FILE *file;			/* Stream for disk resident data bases */
+    fflentry *ffl;		/* Will point to file free list */
+    int nffl;			/* No. of entries in file free list */
 } hash_tables[MAXHDBM];
 
 static char cookie[] = "hdbm v1.0"; /* First characters in file */
@@ -67,6 +74,7 @@ static struct {			/* Curiosity */
     int replaces;
     int extracts;
     int deletes;
+    int reuses;
 } call_stats;
 
 static struct {			/* Used to track I/O operations */
@@ -76,6 +84,12 @@ static struct {			/* Used to track I/O operations */
     unsigned long nread;
     unsigned long nwrite;
 } io_stats;
+
+/* Maximum size of the circular list of free file space.
+   Note that the file is assumed dense so that space is only reused
+   if it is an exact fit.  This occurs often within NWChem. */
+
+#define MAX_FILE_FREE_LIST 512
 
 /* Next few routines are wrappers for standard operations 
    so that have a hook to gather statistics, cache, ... */
@@ -285,7 +299,8 @@ static int datum_fread(FILE *file, size_t file_ptr, size_t size, datum *d)
 	return 0;
     }
     if (hdbm_fseek(file, file_ptr, SEEK_SET)) {
-	fprintf(stderr, "datum_fread: failed to position file %ld\n", file_ptr);
+	fprintf(stderr, "datum_fread: failed to position file %ld\n", 
+		(long) file_ptr);
 	return 0;
     }
     if (hdbm_fread((char *) d->dptr, (size_t) 1, (size_t) size, file) != size) {
@@ -429,6 +444,15 @@ int hdbm_open(const char *name, int use_file, hdbm *db)
 	    return 0;
 	}
 	
+	if (!(hash_tables[i].ffl = 
+	      (fflentry *)hdbm_malloc(
+		  (size_t)(MAX_FILE_FREE_LIST*sizeof(fflentry))))){
+	    (void) fprintf(stderr, "hdbm_open: malloc of free list failed\n");
+	    return 0;
+	}
+    
+	hash_tables[i].nffl = 0;
+
 	if (ftell(hash_tables[i].file) > 0) {
 	    /* There is information in the file ... attempt to load it */
 	    
@@ -549,6 +573,8 @@ int hdbm_close(hdbm db)
     }
     
     if (hash_tables[db].file) {
+	hdbm_free(hash_tables[db].ffl, MAX_FILE_FREE_LIST*sizeof(fflentry));
+
 	(void) fclose(hash_tables[db].file);
 	hash_tables[db].file = (FILE *) 0; /* So that delete called from clear
 					      only destroys incore data*/
@@ -564,16 +590,18 @@ int hdbm_close(hdbm db)
     return 1;
 }
 
-static int delete_file_entry(FILE *file, entry *e)
+static int delete_file_entry(hdbm db, entry *e)
 /*
-  Delete the corresponding entry on disk.
+  Delete the corresponding entry on disk.  Record it in the file_free_list.
   */
 {
+    FILE *file = hash_tables[db].file;
     file_entry fe;
     long act_ptr = e->rec_ptr + 
 	(long) (((char *) &fe.active) - ((char *) &fe));
     int false = 0;
-    
+    int ind;
+
     if (hdbm_fseek(file, act_ptr, SEEK_SET)) {
 	fprintf(stderr, "delete_file_entry: failed to position file %ld\n",
 		act_ptr);
@@ -584,35 +612,88 @@ static int delete_file_entry(FILE *file, entry *e)
 	fprintf(stderr, "delete_file_entry: failed to inactivate header\n");
 	return 0;
     }
-    
+
+    /* If room, put the file pointer into the free list for reuse */
+
+    ind = hash_tables[db].nffl; /* No. of free list entries */
+    if (ind < MAX_FILE_FREE_LIST) {
+	hash_tables[db].ffl[ind].size = e->key.dsize+e->value.dsize;
+	hash_tables[db].ffl[ind].ptr  = e->rec_ptr;                 
+	hash_tables[db].nffl++;
+	/* printf("saving %ld\n", e->rec_ptr); */
+    }
+    else {
+	int i;	/* List is full ... if there is a smaller entry replace it */
+
+	for (i=0; i<ind; i++) {
+	    fflentry *t = hash_tables[db].ffl+i;
+	    if ((e->value.dsize+e->key.dsize) > t->size) {
+		t->size = e->key.dsize+e->value.dsize;
+		t->ptr  = e->rec_ptr;                 
+		/* printf("saving %ld\n", e->rec_ptr); */
+		break;
+	    }
+	}
+    }
+
     return 1;
 }
 
-static int append_file_entry(FILE *file, entry *e)
+static int write_file_entry(hdbm db, entry *e)
 /*
-  Store the key/value pair in the entry at the end of the file
+  Store the key/value pair in the entry in free space of exactly the same 
+  size or at the end of the file
   */
 {
+    FILE *file = hash_tables[db].file;
     file_entry fe;
+    int ind, found=0;
     
     fe.key_size = e->key.dsize;
     fe.val_size = e->value.dsize;
     fe.active   = 1;
-    
-    if (hdbm_fseek(file, 0L, SEEK_END)) {
-	fprintf(stderr, "append_file_entry: failed to position file\n");
-	return 0;
+
+    /* Look for free space of the same size */
+
+    for (ind=0; ind<hash_tables[db].nffl; ind++) {
+	fflentry *tmp = hash_tables[db].ffl+ind;
+	if (tmp->size == (fe.key_size +  fe.val_size)) {
+	    if (hdbm_fseek(file, tmp->ptr, SEEK_SET)) {
+		fprintf(stderr, "write_file_entry: seek failed%ld\n",
+			tmp->ptr);
+		return 0;
+	    }
+
+	    call_stats.reuses++;
+	    found = 1;
+	    hash_tables[db].nffl--;
+
+	    /* Move last element over one just used to keep list dense */
+
+	    *tmp = hash_tables[db].ffl[hash_tables[db].nffl];
+
+	    break;
+	}
     }
+
+    if (!found) { /* No free space ... must append */
+	/* printf("appending\n"); */
+	if (hdbm_fseek(file, 0L, SEEK_END)) {
+	    fprintf(stderr, "write_file_entry: failed to position file\n");
+	    return 0;
+	}
+    }
+
     e->rec_ptr = ftell(file);
     
     if (hdbm_fwrite((char *) &fe, sizeof(fe), (size_t) 1, file) != 1) {
-	fprintf(stderr, "append_file_entry: failed to write header\n");
+	fprintf(stderr, "write_file_entry: failed to write header\n");
 	return 0;
     }
     
     if (hdbm_fwrite((char *) e->key.dptr, (size_t) 1, 
 		    (size_t) e->key.dsize, file) != e->key.dsize) {
-	fprintf(stderr, "append_file_entry: failed to write key\n");
+	fprintf(stderr, "write_file_entry: failed to write key\n");
 	return 0;
     }
     
@@ -620,7 +701,7 @@ static int append_file_entry(FILE *file, entry *e)
     
     if (hdbm_fwrite((char *) e->value.dptr, (size_t) 1, 
 		    (size_t) e->value.dsize, file) != e->value.dsize) {
-	fprintf(stderr, "append_file_entry: failed to write value\n");
+	fprintf(stderr, "write_file_entry: failed to write value\n");
 	return 0;
     }
     
@@ -649,9 +730,9 @@ int hdbm_insert(hdbm db, datum key, datum value)
     }
     
     if (hash_tables[db].file) {
-	/* If using a file append key/pair to file and free memory for value */
+	/* If using a file write key/pair to file and free memory for value */
 	
-	int status = append_file_entry(hash_tables[db].file, top);
+	int status = write_file_entry(db, top);
 	datum_free(top->value); top->value.dptr = 0;
 	if (!status) return 0;
     }
@@ -891,7 +972,7 @@ int hdbm_delete(hdbm db, datum key)
 	datum_free(cur->value);
 	
 	if (hash_tables[db].file)
-	    delete_file_entry(hash_tables[db].file, cur);
+	    delete_file_entry(db, cur);
 	
 	datum_free(cur->key);	/* Free up memory for key/value/entry */
 	datum_free(cur->value);
@@ -1082,6 +1163,7 @@ void hdbm_print_usage(void)
     printf(" Replaces      = %d\n", call_stats.replaces);
     printf(" Extracts      = %d\n", call_stats.extracts);
     printf(" Deletes       = %d\n", call_stats.deletes);
+    printf(" Reuses        = %d\n", call_stats.reuses);
     printf("\n");
     printf(" Memory allocs = %d\n", hdbm_malloc_stats.allocs);
     printf(" Memory frees  = %d\n", hdbm_malloc_stats.frees);
