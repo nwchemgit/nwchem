@@ -123,7 +123,6 @@ c
 c
 C       g_coul = ga_create_moblocked(noper,nmo2,'Coulomb operator')
        g_exch = ga_create_moblocked(noper,nmo2,'exchange operator')
-       call dbg_mark('allocate operator arrays')
 c
 c
 c       
