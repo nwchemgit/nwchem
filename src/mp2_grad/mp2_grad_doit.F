@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.37 1997-08-22 23:37:31 d3g681 Exp $
+* $Id: mp2_grad_doit.F,v 1.38 1997-10-15 19:20:24 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -40,7 +40,7 @@
       integer nbf,nmo
       logical oskel
       character*(*) scftype
-      integer num_i_perseg,npass,npasses,ierr
+      integer num_i_perseg,npass,npasses
       integer k_amos,k_bmos,l_amos,l_bmos
       integer k_toff_a,k_toff_b
       integer l_toff_a,l_toff_b
@@ -83,7 +83,6 @@ c
       integer g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,g_liy_a
       integer g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,g_liy_b
       double precision grad(3,*)
-      character*20 fstype
       integer util_scratch_dir_avail_for_me
       external util_scratch_dir_avail_for_me
       integer max_ga,max_ma,avail_ga,avail_ma,iavail_file
@@ -157,7 +156,7 @@ c
          num_i_perseg = (noa_hi-noa_lo)/npasses + 1
          call mp2_memory(basis,geom,rtdb,tol2e,oskel,nbf,noa,nva,nob,
      $        nvb,
-     $        num_i_perseg,max_ma,max_ga,max_file,task)
+     $        num_i_perseg,max_ma,max_ga,max_file,task,scftype)
          if(oprint_mem) then
             write(6,22) npasses, num_i_perseg, max_ma, max_ga, max_file
  22         format(1x,i3,' passes of',i4,':  ',
@@ -217,11 +216,18 @@ c
          end if
 c     
 c     make t-pure-spin in tunita, t-mixed-spin in tunitb
+c
+c     Note that for RHF we share memory between alpha and beta mos
 c     
          if(.not.ma_push_get(mt_dbl,nbf*nmo,'amos',l_amos,k_amos))
      $        call errquit('mp2_grad_doit: error with ma',1)
-         if(.not.ma_push_get(mt_dbl,nbf*nmo,'bmos',l_bmos,k_bmos))
-     $        call errquit('mp2_grad_doit: error with ma',1)
+         if (scftype .eq. 'UHF') then
+            if(.not.ma_push_get(mt_dbl,nbf*nmo,'bmos',l_bmos,k_bmos))
+     $           call errquit('mp2_grad_doit: error with ma',1)
+         else
+            k_bmos = k_amos
+         endif
+c
          if(.not.ma_push_get(mt_int,nva*nir,'toff_a',
      $        l_toff_a,k_toff_a))
      $        call errquit('mp2_grad_doit: could not alloc toff_a',1)
@@ -231,10 +237,12 @@ c
 c
          if (ga_nodeid() .eq. 0) then
             call ga_get(g_vecs_a,1,nbf,1,nmo,dbl_mb(k_amos),nbf)
-            call ga_get(g_vecs_b,1,nbf,1,nmo,dbl_mb(k_bmos),nbf)
+            if (scftype .eq. 'UHF') 
+     $           call ga_get(g_vecs_b,1,nbf,1,nmo,dbl_mb(k_bmos),nbf)
          endif
          call ga_brdcst(134, dbl_mb(k_amos), nbf*nmo*8, 0)
-         call ga_brdcst(134, dbl_mb(k_bmos), nbf*nmo*8, 0)
+         if (scftype .eq. 'UHF') 
+     $        call ga_brdcst(135, dbl_mb(k_bmos), nbf*nmo*8, 0)
 c     
          call util_file_name('kh',.true.,.true.,fnamek)
          if (eaf_open(fnamek, EAF_RW, kunit).ne.0)
@@ -319,16 +327,22 @@ c
                call util_flush(6)
             end if
 c     
-            if(.not.ma_pop_stack(l_t_eps_b))
-     $           call errquit('could not pop stack',1)
-            if(.not.ma_pop_stack(l_t_eps_a))
-     $           call errquit('could not pop stack',1)
+            if (.not. ma_chop_stack(l_t_a_in)) call errquit
+     $            ('mp2_grad: failed chopping at t_a_in', 0)
+*            if(.not.ma_pop_stack(l_t_eps_b))
+*     $           call errquit('could not pop stack',1)
+*            if(.not.ma_pop_stack(l_t_eps_a))
+*     $           call errquit('could not pop stack',1)
 c     
 c...  Form the terms in the Lagrangian which are not Fock builds:
-c     
-            if(.not.ma_push_get(mt_dbl,nbf*nbf,'vvvo',l_vvvo,k_vvvo))
+c
+c     (logic assumes noa_frozen=nob_frozen, noa>=nob, nva<=nvb)
+c
+            if(.not.ma_push_get(mt_dbl, max(nvb,nob_frozen)*nvb,
+     $           'vvvo',l_vvvo,k_vvvo))
      $           call errquit('mp2_grad: could not alloc vvvo',1)
-            if(.not.ma_push_get(mt_dbl,nbf*nbf,'vooo',l_vooo,k_vooo))
+            if(.not.ma_push_get(mt_dbl, max(noa,noa_frozen)*noa,
+     $           'vooo',l_vooo,k_vooo))
      $           call errquit('mp2_grad: could not alloc vooo',1)
 c
             if(.not.ma_push_get(mt_dbl,noa*nva,'lai3_a',
@@ -337,6 +351,10 @@ c
             if(.not.ma_push_get(mt_dbl,nob*nvb,'lai3_b',
      $           l_lai3_b,k_lai3_b))call errquit
      $           ('mp2_grad: could not alloc lai3_b',1)
+c
+            if(.not.ma_push_get(mt_dbl,max(noa*nva,nob*nvb),
+     $           't_a_in',l_t_a_in,k_t_a_in))call errquit
+     $           ('mp2_grad: could not alloc t_a',1)
 c
             if (noa_frozen .gt. 0) then
                if(.not.ma_push_get(mt_dbl,noa_frozen*noa,'lyi3_a',
@@ -358,7 +376,7 @@ c
      $           'could not alloc lai1_b',1)
 c
             if(.not.ma_push_get(mt_dbl,nbf*nbf,'jb_ia',l_jb_ia,k_jb_ia))
-     $           call errquit('mp2_grad: could not alloc jb_ia',1)
+     $           call errquit('mp2_grad: could not alloc jb_ia',1) ! ia_uv
             if(.not.ma_push_get(mt_dbl,nbf*nbf,'temp',l_temp,k_temp))
      $           call errquit('mp2_grad: could not alloc temp',1)
 c     
@@ -372,7 +390,7 @@ c
      $           dbl_mb(k_amos),dbl_mb(k_bmos),int_mb(k_v),
      $           nbf,ioff,nnbf,nva_lo_local,nva_hi_local,
      $           noa_lo,noa_hi,nob_lo,nob_hi,nva,nvb,
-     $           noa,nob,dbl_mb(k_t_a_in),dbl_mb(k_t_b_in),
+     $           noa,nob,dbl_mb(k_t_a_in),
      $           dbl_mb(k_vvvo),dbl_mb(k_vooo),
      $           dbl_mb(k_jb_ia),dbl_mb(k_temp),
      $           tunita,tunitb,dbl_mb(k_lai3_a),dbl_mb(k_lai3_b),
@@ -388,9 +406,8 @@ c
                call util_flush(6)
             end if
 c     
-            if(.not. ma_chop_stack(l_t_a_in))
-     $           call errquit(
-     $           'mp2_grad_doit: failed chopping t_a_in',0)
+            if(.not. ma_chop_stack(l_toff_a)) call errquit(
+     $           'mp2_grad_doit: failed chopping l_toff_a',0)
 c     
             if (eaf_close(kunit).ne.0)
      $        call errquit('mp2_grad_doit: close half int file',0)

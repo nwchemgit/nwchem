@@ -7,13 +7,13 @@
      $     c_a,c_b,indx_v,nbf,ioff,nnbf,
      $     nva_lo_local,nva_hi_local,noa_lo,noa_hi,
      $     nob_lo,nob_hi,nva,nvb,
-     $     noa,nob,t_a,t_b,ia_cb,ia_jk,ia_uv,tmp,tunita,tunitb,
+     $     noa,nob,t,ia_cb,ia_jk,ia_uv,tmp,tunita,tunitb,
      $     l_ai3_a,l_ai3_b,l_ai1_a,l_ai1_b,
      $     l_iy3_a, l_iy3_b,
      $     g_lai_a,g_lai_b,
      $     g_wai_a,g_wai_b,g_liy_a, g_liy_b,kunit)
 *     
-*     $Id: mp2_lai_uhf.F,v 1.10 1997-04-23 01:12:45 d3g681 Exp $
+*     $Id: mp2_lai_uhf.F,v 1.11 1997-10-15 19:20:24 d3g681 Exp $
 *     
       implicit none
 #include "global.fh"
@@ -49,7 +49,7 @@ c
       double precision l_iy3_a(noa_lo:noa_hi,1:*)
       double precision l_iy3_b(nob_lo:nob_hi,1:*)
 c     
-      double precision t_a(*),t_b(*),ia_cb(*),ia_jk(*),tmp(*),ia_uv(*)
+      double precision t(*),ia_cb(*),ia_jk(*),tmp(*),ia_uv(*)
       integer g_lai_a,g_lai_b,g_liy_a, g_liy_b
       integer tunita,tunitb
       double precision tunitptra,tunitptrb
@@ -97,7 +97,7 @@ c
 c...  form pure spin t*(vv|vo) and t*(vo|oo) terms 
 c     
             call mp2_read_tijab(nva_lo, nva_hi, irs_a, symia,
-     $           num_oa, sym_hi_oa, sym_lo_oa, tunita, tunitptra, t_a)
+     $           num_oa, sym_hi_oa, sym_lo_oa, tunita, tunitptra, t)
 c     
             tcounta=1
             do symb=0,nir-1
@@ -116,7 +116,7 @@ c     Ljc <- sum(iab) Tjb,ia*(cb|ia)
 c     
                   call dgemm('n','t',num_oa(symj),
      $                 num_va(symc),num_va(symb),
-     $                 one,t_a(tcounta),num_oa(symj),
+     $                 one,t(tcounta),num_oa(symj),
      $                 ia_cb,num_va(symc),one,
      $                 l_ai3_a(sym_lo_oa(symj),sym_lo_va(symc)),noa)
                end if
@@ -141,7 +141,7 @@ c     Ljy <- sum(iab) Tjb,ia*(yb|ia)
 c     
                      call dgemm('n','t',num_oa(symj),
      $                    num_foa(symy),num_va(symb),
-     $                    one,t_a(tcounta),num_oa(symj),
+     $                    one,t(tcounta),num_oa(symj),
      $                    ia_cb,num_foa(symy),one,
      $                    l_iy3_a(sym_lo_oa(symj),sym_lo_foa(symy)),noa)
                   end if
@@ -167,7 +167,7 @@ c
                   call dgemm('t','n',num_oa(symk),
      $                 num_va(symb),num_oa(symj),
      $                 minusone,ia_jk,num_oa(symj),
-     $                 t_a(tcounta),num_oa(symj),one,
+     $                 t(tcounta),num_oa(symj),one,
      $                 l_ai1_a(sym_lo_oa(symk),sym_lo_va(symb)),noa_hi)
                end if
                tcounta=tcounta+num_oa(symj)*num_va(symb)
@@ -192,7 +192,7 @@ c
                      call dgemm('t','n',num_foa(symk),
      $                    num_va(symb),num_oa(symj),
      $                    minusone,ia_jk,num_oa(symj),
-     $                    t_a(tcounta),num_oa(symj),one,
+     $                    t(tcounta),num_oa(symj),one,
      $                    l_ai1_a(sym_lo_foa(symk),sym_lo_va(symb)),
      $                    noa_hi)
                   end if
@@ -203,7 +203,7 @@ c
 c...  form mixed spin t*(vv|vo) and t*(vo|oo) terms
 c     
             call mp2_read_tijab(nvb_lo, nvb_hi, irs_b, symia,
-     $           num_ob, sym_hi_ob, sym_lo_ob, tunitb, tunitptrb, t_b)
+     $           num_ob, sym_hi_ob, sym_lo_ob, tunitb, tunitptrb, t)
 c     
             tcountb=1
             do symb=0,nir-1
@@ -222,7 +222,7 @@ c     Ljc <- sum(iab) Tjb,ia*(cb|ia)
 c     
                   call dgemm('n','t',num_ob(symj),
      $                 num_vb(symc),num_vb(symb),
-     $                 one,t_b(tcountb),num_ob(symj),
+     $                 one,t(tcountb),num_ob(symj),
      $                 ia_cb,num_vb(symc),one,
      $                 l_ai3_b(sym_lo_ob(symj),sym_lo_vb(symc)),nob)
                end if
@@ -247,7 +247,7 @@ c     Ljy <- sum(iab) Tjb,ia*(yb|ia)
 c     
                      call dgemm('n','t',num_ob(symj),
      $                    num_fob(symy),num_vb(symb),
-     $                    one,t_b(tcountb),num_ob(symj),
+     $                    one,t(tcountb),num_ob(symj),
      $                    ia_cb,num_fob(symy),one,
      $                    l_iy3_b(sym_lo_ob(symj),sym_lo_fob(symy)),nob)
                   end if
@@ -273,7 +273,7 @@ c
                   call dgemm('t','n',num_ob(symk),
      $                 num_vb(symb),num_ob(symj),
      $                 minusone,ia_jk,num_ob(symj),
-     $                 t_b(tcountb),num_ob(symj),one,
+     $                 t(tcountb),num_ob(symj),one,
      $                 l_ai1_b(sym_lo_ob(symk),sym_lo_vb(symb)),
      $                 nob_hi)
                end if
@@ -299,7 +299,7 @@ c
                      call dgemm('t','n',num_fob(symk),
      $                    num_vb(symb),num_ob(symj),
      $                    minusone,ia_jk,num_ob(symj),
-     $                    t_b(tcountb),num_ob(symj),one,
+     $                    t(tcountb),num_ob(symj),one,
      $                    l_ai1_b(sym_lo_fob(symk),sym_lo_vb(symb)),
      $                    nob_hi)
                   end if

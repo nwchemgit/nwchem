@@ -12,7 +12,7 @@
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
 *
-* $Id: mp2_back_transform.F,v 1.20 1997-06-28 05:15:49 d3g681 Exp $
+* $Id: mp2_back_transform.F,v 1.21 1997-10-15 19:20:22 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -64,7 +64,7 @@ c
       double precision tol2e
 c
       if (.not. rtdb_get(rtdb, 'mp2:backtol', mt_dbl, 1, tol2e))
-     $     tol2e = 1d-7
+     $     tol2e = 1d-9
 c
       if (.not. bas_numcont(basis, nsh)) call errquit
      $     ('mp2: backt bad basis handle ', basis)
@@ -826,6 +826,7 @@ c
      $        eri, leneri, nint, lenscr, scratch)
 
          if (nint .eq. 0) goto 1001
+         if (nint .gt. leneri) call errquit('mp2_nonsep: nint', nint)
 c     
          ush_prev = -1
          vsh_prev = -1

@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.42 1997-07-29 17:19:37 d3g681 Exp $
+* $Id: mp2_energy.F,v 1.43 1997-10-15 19:20:23 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -612,7 +612,7 @@ c
      $        scftype, noa_frozen, title_vecs)
 c     
          call pstat_on(ps_wijfock)
-         call mp2_wij_fock_uhf(rtdb, geom,basis, tol2e,
+         call mp2_wij_fock_uhf(rtdb, geom,basis, tol2e_fock,
      $        g_p_tot_a,g_p_tot_b,noa,nob,g_vecs_a,g_vecs_b,
      $        g_w_ij_a,g_w_ij_b)
          call pstat_off(ps_wijfock)
