@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.40 2003-07-18 20:51:42 bylaska Exp $
+* $Id: control.F,v 1.41 2003-07-29 20:54:24 bylaska Exp $
 *
 
 *     ***********************************
@@ -1890,3 +1890,31 @@ c      end
       control_oep = oep
       return
       end
+
+
+
+*     *****************************
+*     *                	 	  *
+*     *    control_new_vpsi       *
+*     *                 	  *
+*     *****************************
+      logical function control_new_vpsi()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical new_vpsi
+
+      if (.not.rtdb_get(rtdb,'nwpw:new_vmovecs',mt_log,1,new_vpsi)) then
+         new_vpsi = .false.
+      end if
+
+      control_new_vpsi = new_vpsi
+      return
+      end
+
