@@ -2,7 +2,7 @@
      1  g_td,g_pd,g_qd,nbf_ao,ipol,tol2e,tda,oskel,kfac,
      2  lhashf,triplet)
 c
-c $Id: tddft_contract.F,v 1.2 2002-03-23 20:15:34 sohirata Exp $
+c $Id: tddft_contract.F,v 1.3 2002-08-07 17:21:45 edo Exp $
 c
 c Contract trial density matrices with 2-e integrals.
 c (1) A trial density matrix will be decomposed into 
@@ -267,7 +267,7 @@ c
      1  g_ntrl,g_nprd_p,g_nprd_m,nbf_ao,ipol,tol2e,tda,oskel,kfac,
      2  lhashf,triplet,nvectors)
 c
-c $Id: tddft_contract.F,v 1.2 2002-03-23 20:15:34 sohirata Exp $
+c $Id: tddft_contract.F,v 1.3 2002-08-07 17:21:45 edo Exp $
 c
 c Contract trial density matrices with 2-e integrals.
 c Multiple trial density matrices are processed simultaneously,
@@ -368,7 +368,7 @@ c
       blo(3)=1
       bhi(3)=nbf_ao
       call nga_copy_patch('N',g_ntrl,alo,ahi,g_nsym,blo,bhi)
-      call nga_symmetrize(g_nsym)
+      call ga_symmetrize(g_nsym)
       if (ipol.eq.1) call ga_dscal(g_nsym,2.0d0)
       if (util_print('contract',print_debug))
      1  call ga_print(g_nsym)
