@@ -13,9 +13,9 @@
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, 
-     &                         cetobfr)
+     &                         cetobfr,donewbf)
 c      
-c     $Id: dftg_gridv0b.F,v 1.12 2000-10-14 01:46:14 bjohnson Exp $
+c     $Id: dftg_gridv0b.F,v 1.13 2000-10-17 21:21:39 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -164,8 +164,6 @@ c
      &            (' exiting in dftg_quadv0: insuff stack',19)
 c
                call qdist(rq0, rq, qxyz, xyz, nqpts, natoms)
-      if (.not. rtdb_get(bgj_get_rtdb_handle(), 'bgj:new_bf', mt_log,
-     &     1, donewbf)) donewbf = .true.
       if (donewbf) then
                call xc_eval_basis(ao_bas_han, maxdbas, dbl_mb(ichi_ao),
      &              dbl_mb(idelchi_ao), dbl_mb(iheschi_ao),

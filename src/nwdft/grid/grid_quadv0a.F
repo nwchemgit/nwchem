@@ -7,9 +7,10 @@
      ,     ibf_ao,rqbuf,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,     donewbf)
 c
-c$Id: grid_quadv0a.F,v 1.24 2000-09-21 15:23:53 bjohnson Exp $
+c$Id: grid_quadv0a.F,v 1.25 2000-10-17 21:21:03 edo Exp $
 c
       implicit none
 c
@@ -36,6 +37,7 @@ c
       external grid_file_rewind
       logical xc_chkgrad
       external xc_chkgrad
+      logical donewbf           !!! !!!! *** temp
 c
 c     see if any Gradient Corrected Functional is not null
 c
@@ -46,22 +48,25 @@ c     rewind grid pts file
 c
       if (.not. grid_file_rewind())
      $   call errquit('grid_quadv0a: rewinding gridpts?', 0)
+      if (.not.bas_numcont(AO_bas_han, ncontrset))
+     &     call errquit('Exiting in grid_quadv0a',0)
+      if (donewbf) then
 c
 c     Allocate and create info for new basis function evaluator
 c
       if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
      &     lbas_cent_info, ibas_cent_info))
      &     call errquit('grid_quadv0a: cannot allocate bas_cent_info',0)
-      if (.not.bas_numcont(AO_bas_han, ncontrset))
-     &     call errquit('Exiting in grid_quadv0a',0)
       if (.not.MA_Push_Get(mt_int, 6*ncontrset, 'bas_cset_info',
      &     lbas_cset_info, ibas_cset_info))
      &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0)
-      if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
-     &     ldocset, idocset))
-     &     call errquit('grid_quadv0a: cannot allocate docset',0)
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
+      endif
+      if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
+     &     ldocset, idocset))
+     &     call errquit('grid_quadv0a: cannot allocate docset',
+     .     ncontrset)
 c
       ntot_cube=0
       do 200 iqsh = 1, n_rec_in_file
@@ -92,19 +97,26 @@ c
      ,           ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
      ,           log_mb(idocset),bp,rscr,rchi_atom,rdelchi_atom,
      ,           Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
-     ,           nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
+     ,           nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,           donewbf)
             ntot_cube=ntot_cube+1
          endif
       enddo
  200  continue
- 100  continue
 c
-      if (.not.MA_Pop_Stack(ldocset))
-     &     call errquit('grid_quadv0a: pop stack failed.',3)
+      if (.not.MA_Pop_Stack(ldocset)) then
+      write(6,'(A,2i10,A,3i10)') ' 0Afme ',ga_nodeid(), 
+     .     ' ld id lgth ',ldocset,idocset,ncontrset
+         call MA_summarize_allocated_blocks()
+          call errquit('grid_quadv0a: pop stack failed.',3)
+      endif
+ 100  continue
+      if(donewbf) then
       if (.not.MA_Pop_Stack(lbas_cset_info))
      &     call errquit('grid_quadv0a: pop stack failed.',2)
       if (.not.MA_Pop_Stack(lbas_cent_info))
      &     call errquit('grid_quadv0a: pop stack failed.',1)
+      endif
 c
       call ga_sync
       return

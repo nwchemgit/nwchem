@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.16 2000-08-25 20:27:45 edo Exp $
+C$Id: grid_quadv0.F,v 1.17 2000-10-17 21:21:03 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(4)
@@ -67,6 +67,7 @@ c
       integer len_rho, len_delrho, len_Amat2, len_Cmat2
       logical do_scf, do_cpks_l, do_cpks_r
       logical oldway
+      logical donewbf           !!! !!!! *** temp
       integer max_elem_ang_scr, max_component
       integer nexpo,nibf
       double precision rho_int, ex, ec,dummy(3),job_grid_acc,rho_err
@@ -277,6 +278,8 @@ c
       Ex=0d0
       Ec=0d0
       call ga_sync()
+      if (.not. rtdb_get(rtdb, 'bgj:new_bf', mt_log,
+     &     1, donewbf)) donewbf = .false.
       if(grid_written) then
          call grid_quadv0a(g_dens,ncoef_max,nctrs,rho_int,nqtot, 
      &        int_mb(iniz), int_mb(ifin), 
@@ -292,7 +295,7 @@ c
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r, tmat)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r, tmat,donewbf)
       else
          if (.not. rtdb_get(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
      &        call errquit('gridv0: rtdb_get failed', 119)
@@ -349,7 +352,7 @@ c
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf)
          endif
          if (.not. MA_chop_Stack(lqs))
      &        call errquit('gridv0: pop stack failed.',1)

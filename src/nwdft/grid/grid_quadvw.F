@@ -10,9 +10,9 @@
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf)
 c
-c$Id: grid_quadvw.F,v 1.22 2000-08-25 20:27:45 edo Exp $
+c$Id: grid_quadvw.F,v 1.23 2000-10-17 21:21:05 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -63,6 +63,7 @@ c
       double precision grid_lcube,enuc
       external grid_lcube
       logical oprint
+      logical donewbf           !!! !!!! *** temp
 C      
       nproc=ga_nnodes()
       me=ga_nodeid()
@@ -180,7 +181,8 @@ c
      ,                    ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,                    Ex, Ec, amat,cmat,g_vxc,
      ,                    Amat2, Cmat2,
-     ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
+     ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,                    donewbf)
 
                   endif
  100           continue ! end loop over angular shells
@@ -199,7 +201,7 @@ c
      &                 Pmat, rq, rdens_atom, cetobfr, 
      ,                 ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,                 Ex, Ec, amat,cmat,g_vxc, amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf)
                   ncubenz=ncubenz+1
                endif
                n1 = n1 + 1

@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.12 2000-09-21 15:32:49 bjohnson Exp $
+c     $Id: dftg_gridv0a.F,v 1.13 2000-10-17 21:21:39 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -20,6 +20,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "msgids.fh"
+#include "rtdb.fh"
 #include "cgridfile.fh"
 c
 #include "dft2drv.fh"
@@ -94,20 +95,23 @@ c
      &        ldocset, idocset
       logical grid_file_rewind,grid_file_read
       external grid_file_rewind,grid_nbfm,grid_file_read
+      logical donewbf           !!! !!!! *** temp
 c
 c     
       me = ga_nodeid()
       Ec = 0.d0
       Ex = 0.d0
+      if (.not. rtdb_get(bgj_get_rtdb_handle(), 'bgj:new_bf', mt_log,
+     &     1, donewbf)) donewbf = .false.
       if (bgj_print() .gt. 0)
-     &    write(*,*)'*** dftg_quadv0a: logicals ',
+     &    write(*,*)'*** dftg_gridv0a: logicals ',
      &    do_force,do_hess,do_cpks_r
 c
 c     Determine the XC energy functionals.
 c
 c
       if (.not.bas_nbf_cn_max(AO_bas_han, nbf_max))
-     &   call errquit('exiting in dftg_quadv0.',7)
+     &   call errquit('exiting in dftg_gridv0.',7)
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
 c
 c     Define the max number of basis functions, contractions,
@@ -143,29 +147,32 @@ c
          hesschi = do_hess
          der3chi = .false.
       endif
-c      write(6,*)'*** dftg_quadv0a: hesschi der3chi',hesschi,der3chi
+c      write(6,*)'*** dftg_gridv0a: hesschi der3chi',hesschi,der3chi
 c
 c     Allocate and create info for new basis function evaluator
 c
-      if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
-     &     lbas_cent_info, ibas_cent_info))
-     &     call errquit('grid_quadv0a: cannot allocate bas_cent_info',0)
       if (.not.bas_numcont(AO_bas_han, ncontrset))
-     &     call errquit('Exiting in grid_quadv0a',0)
-      if (.not.MA_Push_Get(mt_int, 6*ncontrset, 'bas_cset_info',
-     &     lbas_cset_info, ibas_cset_info))
-     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0)
+     &     call errquit('Exiting in dftg_gridv0a',0)
       if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
      &     ldocset, idocset))
-     &     call errquit('grid_quadv0a: cannot allocate docset',0)
+     &     call errquit('dftg_gridv0a: cannot allocate docset',
+     ,     ncontrset)
+      if(donewbf) then
+      if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
+     &     lbas_cent_info, ibas_cent_info))
+     &     call errquit('dftg_gridv0a: cannot allocate bas_cent_info',0)
+      if (.not.MA_Push_Get(mt_int, 6*ncontrset, 'bas_cset_info',
+     &     lbas_cset_info, ibas_cset_info))
+     &     call errquit('dftg_gridv0a: cannot allocate bas_cset_info',0)
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
+      endif
 c     
 c     rewind grid pts file
 c
       if (.not.MA_Push_get(MT_dbl, 4*buffer_size+4, 
-     &                     'quad pts buffer', lrqbuf, irqbuf))
-     &   call errquit('grid_gen: cannot allocate quad pt buffer', 3)
+     &                     'grid pts buffer', lrqbuf, irqbuf))
+     &   call errquit('dftg_gen: cannot allocate grid pt buffer', 3)
       if(n_rec_in_file.eq.0) goto 2001
       if (.not. grid_file_rewind())
      $   call errquit('grid_setspac: rewinding gridpts?', 0)
@@ -204,20 +211,22 @@ c
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, 
-     &                         cetobfr)
+     &                         cetobfr,donewbf)
 
  110      ntot_cube=ntot_cube+1
   200 continue  ! bottom of shell loop
  2001 continue
       if (.not.ma_pop_stack(lrqbuf))
-     &     call errquit('dftg_quadv0a: cannot pop stack', 0)
+     &     call errquit('dftg_gridv0a: cannot pop stack', 0)
 c
       if (.not.MA_Pop_Stack(ldocset))
-     &     call errquit('dftg_quadv0a: pop stack failed.',3)
+     &     call errquit('dftg_gridv0a: pop stack failed.',3)
+      if(donewbf) then
       if (.not.MA_Pop_Stack(lbas_cset_info))
-     &     call errquit('dftg_quadv0a: pop stack failed.',2)
+     &     call errquit('dftg_gridv0a: pop stack failed.',2)
       if (.not.MA_Pop_Stack(lbas_cent_info))
-     &     call errquit('dftg_quadv0a: pop stack failed.',1)
+     &     call errquit('dftg_gridv0a: pop stack failed.',1)
+      endif
 c
       return
       end

@@ -14,9 +14,10 @@
      ,     ibf_ao,bas_cent_info,bas_cset_info,docset,
      ,     bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,     donewbf)
 c
-c$Id: grid_quadv0b.F,v 1.16 2000-10-14 01:37:43 bjohnson Exp $
+c$Id: grid_quadv0b.F,v 1.17 2000-10-17 21:21:04 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -74,10 +75,10 @@ c
      &        minexp,ldiff,acc_ao_gauss)
          if (mbf_ao.eq.0) return
       else
+      if (.not.bas_numcont(AO_bas_han, ncontrset))
+     &     call errquit('Exiting in grid_quadv0b',0)
          iniz(1)=1
          ifin(1)=nbf_ao
-         if (.not.bas_numcont(AO_bas_han, ncontrset))
-     &        call errquit('Exiting in grid_quadv0b',0)
          do i=1,ncontrset
             docset(i)=.true.
          enddo
@@ -102,8 +103,6 @@ c
 c     
 c     
       call qdist(rchi_atom, rq, qxyz, xyz, nqpts, natoms)
-      if (.not. rtdb_get(bgj_get_rtdb_handle(), 'bgj:new_bf', mt_log,
-     &     1, donewbf)) donewbf = .true.
       if (donewbf) then
       call xc_eval_basis(ao_bas_han, maxdbas, dbl_mb(ichi_ao),
      &     dbl_mb(idelchi_ao), 0d0, 0d0, rq, qxyz, xyz, nqpts, natoms,
@@ -269,7 +268,11 @@ c
          if(.not.grid_sicend(l_vect1,ldelrho_sig))
      ,        call errquit(' grid_quadv0b: grid_sicend failed',0)
       endif
-      if (.not.ma_chop_stack(lchi_ao))
+      if(grad)then
+         if (.not.ma_pop_stack(ldelchi_ao))
+     &        call errquit('grid_quadv0b: cannot pop stack', 2)
+      endif
+      if (.not.ma_pop_stack(lchi_ao))
      &     call errquit('grid_quadv0b: cannot pop stack', 3)
       return
       end

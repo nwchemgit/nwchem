@@ -10,14 +10,16 @@
      &     Pmat, rq, rdens_atom, cetobfr, 
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
-C$Id: grid_quadvc.F,v 1.9 2000-09-21 15:23:53 bjohnson Exp $
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,     donewbf)
+C$Id: grid_quadvc.F,v 1.10 2000-10-17 21:21:05 edo Exp $
       implicit none
 #include "cdft.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "cgridfile.fh"
 #include "grid_quad.fh"
+#include "global.fh"
 c
 c     copy to buffer for XC and compute XC if npts=buff_size
 c
@@ -34,22 +36,26 @@ c
      &        lbas_cset_info, ibas_cset_info,
      &        ldocset, idocset
       logical buffwrite
+      logical donewbf           !!! !!!! *** temp
 c
 c     Allocate and create info for new basis function evaluator
 c
+      if (.not.bas_numcont(AO_bas_han, ncontrset))
+     &     call errquit('Exiting in grid_quadv0c',0)
+      if(donewbf) then
       if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
      &     lbas_cent_info, ibas_cent_info))
-     &     call errquit('grid_quadv0a: cannot allocate bas_cent_info',0)
-      if (.not.bas_numcont(AO_bas_han, ncontrset))
-     &     call errquit('Exiting in grid_quadv0a',0)
+     &     call errquit('grid_quadv0c: cannot allocate bas_cent_info',0)
       if (.not.MA_Push_Get(mt_int, 6*ncontrset, 'bas_cset_info',
      &     lbas_cset_info, ibas_cset_info))
-     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0)
-      if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
-     &     ldocset, idocset))
-     &     call errquit('grid_quadv0a: cannot allocate docset',0)
+     &     call errquit('grid_quadv0c: cannot allocate bas_cset_info',0)
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
+      endif
+      if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
+     &     ldocset, idocset))
+     &     call errquit('grid_quadv0c: cannot allocate docset',
+     .     ncontrset)
 c
 c     pack aqbuf to qxyz and compute when bufsize exceeded
 c
@@ -79,7 +85,8 @@ c
      ,        ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
      '        log_mb(idocset),bp,rscr,rchi_atom,rdelchi_atom,
      ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,        donewbf)
          ntot_cube=ntot_cube+1
          if(cube_done) then
             nwrbuf=nwrbuf+1
@@ -104,12 +111,18 @@ cedo            nwrbuf=1
       if(n.lt.nq) goto 30            
 !      write(0,*) ' endc ',nwrbuf+1,nq,nq_out
  100  continue
-      if (.not.MA_Pop_Stack(ldocset))
-     &     call errquit('grid_quadvc: pop stack failed.',3)
+      if (.not.MA_Pop_Stack(ldocset)) then
+      write(6,'(A,i10,A,3i10)') ' fme ',ga_nodeid(),
+     .     ' ld id lgth ',ldocset,idocset,ncontrset
+         call MA_summarize_allocated_blocks()
+          call errquit('grid_quadvc: pop stack failed.',3)
+       endif
+      if(donewbf) then
       if (.not.MA_Pop_Stack(lbas_cset_info))
      &     call errquit('grid_quadvc: pop stack failed.',2)
       if (.not.MA_Pop_Stack(lbas_cent_info))
      &     call errquit('grid_quadvc: pop stack failed.',1)
+      endif
 c
       return
       end

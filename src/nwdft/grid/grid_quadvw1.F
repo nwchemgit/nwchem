@@ -13,9 +13,10 @@
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,     donewbf)
 c
-c$Id: grid_quadvw1.F,v 1.5 2000-07-12 20:36:59 edo Exp $
+c$Id: grid_quadvw1.F,v 1.6 2000-10-17 21:21:05 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -49,6 +50,7 @@ c
       integer nq_out,nwrbuf
       integer grid_nxyz,nq_in
       external grid_nxyz
+      logical donewbf           !!! !!!! *** temp
 c
       save nq_left
 c
@@ -103,7 +105,8 @@ c
      &        Pmat, rq, rdens_atom, cetobfr, 
      ,        ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
-     ,        nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
+     ,        nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,        donewbf)
          
 c     
 c     now pack this aqbuf into the write buffer 
