@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c
-c$Id: grid_rtrunc.F,v 1.24 2000-02-24 22:47:40 edo Exp $
+c$Id: grid_rtrunc.F,v 1.25 2000-02-29 23:38:25 edo Exp $
 c
       implicit none
 c      
@@ -12,12 +12,14 @@ c
 #include "msgids.fh"
 #include "bas.fh"
 #include "cdft.fh"
+#include "stdio.fh"
+#include "util.fh"
 c
       integer rtdb, me,nproc
       logical tol_reset
       logical llind,check_s ! [in]
       integer ll(*) ! [out] for lindh grid
-      double precision exex(*) ! [out] for lindh grid
+      double preci sion exex(*) ! [out] for lindh grid
       double precision shiftm(*) ! [out] for lindh grid
       double precision job_grid_acc
       double precision range_max
@@ -33,6 +35,11 @@ c
       integer lla,llb,itype,maxangg
       integer xc_leb_nrd2acc
       external xc_leb_nrd2acc
+      logical oprint
+c
+c     Set print options.
+c
+      oprint = util_print('griddebug', print_high)
       
 c
 c     determine node id
@@ -101,7 +108,8 @@ c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
          do itype=1,ntypes
             iat=ityp2ctr(itype)
             iat_diff=rad_cutoff(2,itype)
-            if(me.eq.0) write(0,*) ' A and B are ',iat,iat_diff
+            if(me.eq.0.and.oprint)
+     .           write(LuOut,*) ' A and B are ',iat,iat_diff
             alphab=dbl_mb(k_minexp+iat_diff-1)
             alphaa=exex(itype)-alphab
             llb=int_mb(k_ldiff+iat_diff-1)
@@ -243,7 +251,7 @@ c
       subroutine grid_rtrunc1(iat,expo,l,g_s,pmat,my_acc,
      .     iat_diff,range_max,
      .     coord,
-     .     ll_at,exex_at,shiftm_2g)
+     .     ll_at,exex_at,shiftm_2g,oprint,LuOut)
       implicit none
 #include "cdft.fh"
       integer iat ! [in]
@@ -257,6 +265,8 @@ c
       integer ll_at ! [out]
       double precision exex_at ! [out]
       double precision shiftm_2g ! [out]
+      logical oprint ! [in]
+      integer LuOut ! [in]
       
 c
       integer jat,dimi,dimj,l_iat
@@ -279,7 +289,9 @@ c
                s_max=dabsmax(dimi*dimj,pmat)
             endif
             if(abs(s_max).gt.ov_trunc) then
-              write(0,*) ' atom ',iat,' - neighbor  & S ',jat,
+              if(oprint) 
+     .              write(LuOut,*) 
+     .              ' atom ',iat,' - neighbor  & S ',jat,
      .              s_max,' exp AB ',exp_iat,expo(jat)
               range=grid_rnegl(l_iat+l(jat)+2,exp_iat+expo(jat),
      .              my_acc) 
@@ -307,7 +319,8 @@ c               if(iat.ne.jat) range=range+6d0/rrr
                endif
             endif
          enddo
-         write(0,1234)' zmins = ',exp_iat,expo(iat_diff),
+         if(oprint)
+     .    write(LuOut,1234)' zmins = ',exp_iat,expo(iat_diff),
      ,        ' lprod = ',l_iat+l(iat_diff),
      ,        ' range = ',range_max, ' acc ',my_acc,
      ,        ' sh ',shiftm_2g
