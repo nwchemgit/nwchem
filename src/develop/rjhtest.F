@@ -1,6 +1,6 @@
       logical function rjhtest(rtdb)
 *     
-*     $Id: rjhtest.F,v 1.21 1999-06-16 00:10:15 d3e129 Exp $
+*     $Id: rjhtest.F,v 1.22 2000-02-04 01:30:25 mg201 Exp $
 *
       implicit none
 #include "global.fh"
@@ -39,7 +39,7 @@ c
      $     call errquit('scf_init: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis')) 
      $        call errquit('scf_init: no ao basis set', 0)
-      if (.not.int_normalize(basis))
+      if (.not.int_normalize(basis,rtdb))
      $           call errquit('scf:int_normalize failed', 0)
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('scf_init: basis info',0)

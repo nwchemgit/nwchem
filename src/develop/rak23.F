@@ -1,5 +1,5 @@
 *
-* $Id: rak23.F,v 1.7 1999-07-28 00:42:14 d3e129 Exp $
+* $Id: rak23.F,v 1.8 2000-02-04 01:30:24 mg201 Exp $
 *
       logical function raktask_intdd(rtdb)
 * test the second derivative integrals api
@@ -41,7 +41,7 @@ c
 c
       write(luout,*)' geom/basis loaded'
 c
-      if (.not.int_normalize(basis)) stop ' norm error 1'
+      if (.not.int_normalize(basis,rtdb)) stop ' norm error 1'
 c
       if (.not. bas_print(basis))
      $    call errquit(' basis print failed', 0)

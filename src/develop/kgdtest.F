@@ -1,4 +1,4 @@
-c $Id: kgdtest.F,v 1.7 2000-01-25 20:21:59 mg201 Exp $
+c $Id: kgdtest.F,v 1.8 2000-02-04 01:30:24 mg201 Exp $
       logical function kgdtest (rtdb)
       implicit none
 #include "mafdecls.fh"
@@ -87,7 +87,7 @@ c
 c
       basis_id = basis + BASIS_HANDLE_OFFSET
       nshell = ncont_tot_gb(basis_id)
-      if (.not.int_normalize(basis)) call errquit
+      if (.not.int_normalize(basis,rtdb)) call errquit
      &    ('kgdtest_rel1e: error normalizing ',911)
 c
       call int_init(rtdb,1,basis)

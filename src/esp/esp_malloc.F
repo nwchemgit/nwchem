@@ -1,6 +1,6 @@
       subroutine esp_malloc
 c
-c $Id: esp_malloc.F,v 1.6 1999-01-29 21:15:34 d3j191 Exp $
+c $Id: esp_malloc.F,v 1.7 2000-02-04 01:32:48 mg201 Exp $
 c
       implicit none
 c
@@ -61,7 +61,7 @@ c
 c
 c     initialize integrals
 c
-      if(.not.int_normalize(ibasis))
+      if(.not.int_normalize(ibasis,irtdb))
      + call errquit('esp: int_normalize failed',me)
       call int_init(irtdb,1,ibasis)
 c

@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.13 1999-11-16 03:51:15 edo Exp $
+* $Id: dplot.F,v 1.14 2000-02-04 01:32:11 mg201 Exp $
 *
       Implicit None
 *     
@@ -258,7 +258,7 @@ c
      &   Call ErrQuit('DPlot: Bas_Create failed',0)
       If (.not.Bas_RTDB_Load(rtdb,Geom,AO_Bas_Han,'ao basis'))
      &   Call ErrQuit('DPlot: Bas_RTDB_Load failed',0)
-      If (.not.Int_Normalize(AO_Bas_Han))
+      If (.not.Int_Normalize(AO_Bas_Han,rtdb))
      &   Call ErrQuit('DPlot: Int_Normalize failed',0)
       If (.not.Bas_NumBF(AO_bas_han,nBF_AO))
      &   Call ErrQuit('DPlot: Bas_NumBF failed',0)

@@ -37,7 +37,7 @@ c
      $     call errquit('scf_init: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis')) 
      $        call errquit('scf_init: no ao basis set', 0)
-      if (.not.int_normalize(basis))
+      if (.not.int_normalize(basis,rtdb))
      $           call errquit('scf:int_normalize failed', 0)
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('scf_init: basis info',0)

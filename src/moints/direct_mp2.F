@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.44 1999-06-16 00:10:22 d3e129 Exp $
+C$Id: direct_mp2.F,v 1.45 2000-02-04 01:39:11 mg201 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -206,7 +206,7 @@ c
 c
 c Initialise integrals and screening
 c
-       if (.not.int_normalize(basis))
+       if (.not.int_normalize(basis,rtdb))
      &     call errquit('direct_mp2: int_normalize failed',0)
        call int_init(rtdb, 1, basis)
        call schwarz_init(geom, basis)

@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.2 1999-12-29 23:31:18 windus Exp $
+C $Id: hess_init.F,v 1.3 2000-02-04 01:36:57 mg201 Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -52,7 +52,7 @@ c
       call intdd_init(rtdb,1,basis)
       write(6,*) 'after the call to intdd_init'
       call flush(6)
-      status = int_normalize(basis)
+      status = int_normalize(basis,rtdb)
       write(6,*) 'after the call to int_normalize'
       call flush(6)
 c

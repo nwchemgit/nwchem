@@ -1,5 +1,5 @@
 *
-* $Id: rak22.F,v 1.4 1999-07-28 00:42:14 d3e129 Exp $
+* $Id: rak22.F,v 1.5 2000-02-04 01:30:24 mg201 Exp $
 *
       logical function task_accy(rtdb)
       implicit none
@@ -35,7 +35,7 @@ c
         if (.not.bas_print(basis)) stop ' print error'
         if (.not.gbs_map_print(basis)) stop ' gbs_map_print 2?'
       endif
-      if (.not.int_normalize(basis)) stop ' norm error 1'
+      if (.not.int_normalize(basis,rtdb)) stop ' norm error 1'
       if (.not.bas_numcont(basis,nshell)) stop 'bas_numcont fe'
       if (.not.bas_high_angular(basis,Lmax)) stop 'bas_ha fe'
 c

@@ -1,5 +1,5 @@
       logical function scf_hessian(rtdb)
-* $Id: scf_hessian.F,v 1.5 1998-09-16 21:19:43 mdupuis Exp $
+* $Id: scf_hessian.F,v 1.6 2000-02-04 01:36:26 mg201 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -49,7 +49,7 @@ c
      $     call errquit('hessian: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      $     call errquit('hessian: no ao basis ', 0)
-      if(.not. int_normalize(basis))
+      if(.not. int_normalize(basis,rtdb))
      $     call errquit('hessian: normalization failed',911)
 c
       if (ga_nodeid().eq.0) then

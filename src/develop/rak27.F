@@ -1,6 +1,6 @@
       logical function task_hondo_deriv_check(rtdb)
       implicit none
-* $Id: rak27.F,v 1.2 1999-07-14 00:28:54 d3e129 Exp $
+* $Id: rak27.F,v 1.3 2000-02-04 01:30:24 mg201 Exp $
 c
 c For testing hondo gradient integrals.  It is currently set up to test
 c the potential derivative integrals.  Comments are sprinkled through the
@@ -40,7 +40,7 @@ c
 c
       write(6,*)' geom/basis loaded'
 c
-      if (.not.int_normalize(basis)) stop ' norm error 1'
+      if (.not.int_normalize(basis,rtdb)) stop ' norm error 1'
 c
       if (.not. bas_print(basis))
      $    call errquit(' basis print failed', 0)

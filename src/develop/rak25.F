@@ -1,6 +1,6 @@
       logical function task_ecp_deriv_check(rtdb)
       implicit none
-* $Id: rak25.F,v 1.4 1999-07-14 00:28:53 d3e129 Exp $
+* $Id: rak25.F,v 1.5 2000-02-04 01:30:24 mg201 Exp $
 c
 #include "stdio.fh"
 #include "mafdecls.fh"
@@ -36,7 +36,7 @@ c
 c
       write(6,*)' geom/basis loaded'
 c
-      if (.not.int_normalize(basis)) stop ' norm error 1'
+      if (.not.int_normalize(basis,rtdb)) stop ' norm error 1'
 c
       if (.not. bas_print(basis))
      $    call errquit(' basis print failed', 0)

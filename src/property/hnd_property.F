@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.9 1999-07-27 17:46:49 d3e129 Exp $
+* $Id: hnd_property.F,v 1.10 2000-02-04 01:44:16 mg201 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -43,7 +43,7 @@ c
      $     call errquit('property: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      $     call errquit('property: no ao basis ', 0)
-      if (.not. int_normalize(basis))
+      if (.not. int_normalize(basis,rtdb))
      $     call errquit('property: normalization failed',911)
 c
       if (ga_nodeid().eq.0) then

@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.24 1998-08-30 17:55:30 d3g681 Exp $
+c$Id: gradients.F,v 1.25 2000-02-04 01:35:29 mg201 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -40,7 +40,7 @@ c
      $     call errquit('gradients: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      $     call errquit('gradients: no ao basis ', 0)
-      if(.not. int_normalize(basis))
+      if(.not. int_normalize(basis,rtdb))
      $     call errquit('gradients: normalization failed',911)
 c
 c     Figure out the numer of electrons from the required total

@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.93 1999-07-26 22:26:10 d3e129 Exp $
+c $Id: raktest.F,v 1.94 2000-02-04 01:30:24 mg201 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -351,11 +351,11 @@ c
       if (.not. bas_print(basis))
      $      call errquit(' basis print failed', 0)
       write(6,*)' first normalize'
-      if (.not.int_normalize(basis)) stop ' norm error 1'
+      if (.not.int_normalize(basis,rtdb)) stop ' norm error 1'
       if (.not. bas_print(basis))
      $      call errquit(' basis print failed', 0)
       write(6,*)' second normalize'
-      if (.not.int_normalize(basis)) stop ' norm error 2'
+      if (.not.int_normalize(basis,rtdb)) stop ' norm error 2'
       if (.not. bas_print(basis))
      $      call errquit(' basis print failed', 0)
 c
@@ -452,7 +452,7 @@ c
       if (.not. bas_print(sp_basis))
      $      call errquit(' sp_basis print failed', 0)
       write(6,*)' first normalize'
-      if (.not.int_normalize(sp_basis)) stop ' norm error 1'
+      if (.not.int_normalize(sp_basis,rtdb)) stop ' norm error 1'
       if (.not. bas_print(sp_basis))
      $      call errquit(' sp_basis print failed', 0)
       if (.not.bas_numbf(sp_basis,nbf_sp)) call errquit
@@ -1199,7 +1199,7 @@ c
 c
       basis_id = basis + BASIS_HANDLE_OFFSET
       nshell = ncont_tot_gb(basis_id)
-      if (.not.int_normalize(basis)) call errquit
+      if (.not.int_normalize(basis,rtdb)) call errquit
      &    ('raktest_3ctr: error normalizing ',911)
 c
       call int_init(rtdb,1,basis)
@@ -2409,9 +2409,9 @@ c... get memory requirements for non-segmented basis
       write(luout,*)'  ns: two electron scratch buffer size:',mxs2
       call int_terminate()
       call int_init(rtdb,2,bases)
-      if(.not.int_normalize(basisseg)) call errquit
+      if(.not.int_normalize(basisseg,rtdb)) call errquit
      &      ('raktest_gc: int_normalize seg failed',911)
-      if(.not.int_normalize(basisns)) call errquit
+      if(.not.int_normalize(basisns,rtdb)) call errquit
      &      ('raktest_gc: int_normalize ns failed',911)
       write(6,*)' after normalization'
       status = bas_print(basisseg)
@@ -2809,7 +2809,7 @@ c
       if (.not.bas_rtdb_load(rtdb,geom,basis,'ao sp_basis'))
      &    call errquit
      &      ('bas_rtdb_load failed',911)
-      if (.not.int_normalize(basis)) stop ' norm error 1'
+      if (.not.int_normalize(basis,rtdb)) stop ' norm error 1'
 c
       if (.not.geom_print(geom)) stop ' print error'
       if (.not.bas_print(basis)) stop ' print error'
@@ -2915,7 +2915,7 @@ c
 *ecp:     &      ('bas_rtdb_load failed',911)
       if (.not.bas_print(ecpid)) stop ' print error'
 c
-      if (.not.int_normalize(basis)) stop ' norm error 1'
+      if (.not.int_normalize(basis,rtdb)) stop ' norm error 1'
       if (.not.bas_print(basis)) stop ' print error'
       if (.not.gbs_map_print(basis)) stop ' gbs map print error'
       if (.not.bas_print(ecpid)) stop ' print error'
@@ -2983,7 +2983,7 @@ c
       ignore = ignore.and.geom_rtdb_load(rtdb,geom,'geometry')
       ignore = ignore.and.bas_create(basao,'ao basis')
       ignore = ignore.and.bas_rtdb_load(rtdb,geom,basao,'ao basis')
-      ignore = ignore.and.int_normalize(basao)
+      ignore = ignore.and.int_normalize(basao,rtdb)
       ignore = ignore.and.geom_print(geom)
       ignore = ignore.and.bas_print(basao)
       ignore = ignore.and.gbs_map_print(basao)
@@ -3259,7 +3259,7 @@ c
      &      ('bas_rtdb_load failed',911)
       if (.not.bas_print(basis)) stop ' print error'
       if (.not.rtdb_print(rtdb,.false.)) stop ' rtdb_p 2?'
-      if (.not.int_normalize(basis)) stop ' norm error 1'
+      if (.not.int_normalize(basis,rtdb)) stop ' norm error 1'
       call int_init(rtdb,1,basis)
 c
       if (.not.geom_ncent(geom,nat)) stop 'geom_ncent fe'
@@ -3910,7 +3910,7 @@ c
       if (.not.bas_print(basis)) stop ' print error'
       if (.not.gbs_map_print(basis)) stop ' print error'
       if (.not.rtdb_print(rtdb,.false.)) stop ' rtdb_p 2?'
-      if (.not.int_normalize(basis)) stop ' norm error 1'
+      if (.not.int_normalize(basis,rtdb)) stop ' norm error 1'
       call intd_init(rtdb,1,basis)
       call int_mem_print()
 c
@@ -4195,7 +4195,7 @@ c
      &      ('bas_rtdb_load failed',911)
       if (.not.bas_print(basis)) stop ' print error'
       if (.not.rtdb_print(rtdb,.false.)) stop ' rtdb_p 2?'
-      if (.not.int_normalize(basis)) stop ' norm error 1'
+      if (.not.int_normalize(basis,rtdb)) stop ' norm error 1'
 c
       call intd_init(rtdb,1,basis)
       if (.not.geom_ncent(geom,nat)) stop 'geom_ncent fe'
@@ -4795,7 +4795,7 @@ c
         if (.not.bas_print(basis)) stop ' print error'
         if (.not.gbs_map_print(basis)) stop ' gbs_map_print 2?'
       endif
-      if (.not.int_normalize(basis)) stop ' norm error 1'
+      if (.not.int_normalize(basis,rtdb)) stop ' norm error 1'
       if (.not.bas_numcont(basis,nshell)) stop 'bas_numcont fe'
       if (.not.bas_high_angular(basis,Lmax)) stop 'bas_ha fe'
 c

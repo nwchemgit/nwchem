@@ -1,6 +1,6 @@
       logical function semi_dir_mp2(rtdb)
 *
-* $Id: mp2_grad.F,v 1.22 1997-07-30 02:06:45 d3g681 Exp $
+* $Id: mp2_grad.F,v 1.23 2000-02-04 01:39:58 mg201 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -88,7 +88,7 @@ c
             call util_flush(6)
          endif
       endif
-      if (.not.int_normalize(basis))
+      if (.not.int_normalize(basis,rtdb))
      &    call errquit('mp2_grad: int_normalize failed',0)
 c
 c     Make sure that we use the same vectors as the SCF

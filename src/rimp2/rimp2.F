@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.42 1999-12-14 16:59:55 gg502 Exp $
+C$Id: rimp2.F,v 1.43 2000-02-04 01:45:12 mg201 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -155,14 +155,14 @@ C
      $   Call ErrQuit('rimp2: aobas bas_create failed', AOBas)
       If ( .NOT. Bas_RTDB_Load( RTDB, Geom, AOBas, AOBasName) )
      $   Call ErrQuit('rimp2: aobas bas_rtdb_load failed', AOBas)
-      If ( .NOT. Int_Normalize( AOBas) )
+      If ( .NOT. Int_Normalize( AOBas, RTDB) )
      $   Call ErrQuit('rimp2: aobas int_normalize failed', AOBas)
 C
       If ( .NOT. Bas_Create( FitBas, FitBasName) )
      $   Call ErrQuit('rimp2: fitbas bas_create failed', FitBas)
       If ( .NOT. Bas_RTDB_Load( RTDB, Geom, FitBas, FitBasName) )
      $   Call ErrQuit('rimp2: fitbas bas_rtdb_load failed', FitBas)
-      If ( .NOT. Int_Normalize( FitBas) )
+      If ( .NOT. Int_Normalize( FitBas, RTDB) )
      $   Call ErrQuit('rimp2: fitbas int_normalize failed', FitBas)
 C
 C     Get other controls -- threshold for neglect of integrals, etc.

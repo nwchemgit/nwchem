@@ -30,7 +30,7 @@ c>>>  that gennbo already exists and has been ported to a number of
 c>>>  platforms.
 c
 *
-* $Id: wnbofile.F,v 1.9 1999-06-16 00:10:27 d3e129 Exp $
+* $Id: wnbofile.F,v 1.10 2000-02-04 01:44:16 mg201 Exp $
 *
       implicit none
 #include "bas.fh"
@@ -681,7 +681,7 @@ c
 c>>>  Create overlap matrix.
 c
       call int_init(rtdb,1,lbasis)
-      if (.not.int_normalize(lbasis)) call errquit
+      if (.not.int_normalize(lbasis,rtdb)) call errquit
      &    ('wnbofile: int_normalize failed',911)
       g_over  = ga_create_atom_blocked(lgeom, lbasis,'Overlap')
 c

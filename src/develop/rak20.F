@@ -1,6 +1,6 @@
       logical function task_pderiv(rtdb)
 *
-* $Id: rak20.F,v 1.6 1999-07-14 00:28:53 d3e129 Exp $
+* $Id: rak20.F,v 1.7 2000-02-04 01:30:24 mg201 Exp $
 *
 ***********************************************************************
 * This is about the nuclear coordinate derivatives of multicenter 
@@ -101,7 +101,7 @@ c
 c
       write(6,*)' geom/basis loaded'
 c
-      if (.not.int_normalize(basis)) stop ' norm error 1'
+      if (.not.int_normalize(basis,rtdb)) stop ' norm error 1'
 c
       if (.not. bas_print(basis))
      $    call errquit(' basis print failed', 0)
