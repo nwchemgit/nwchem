@@ -1,0 +1,75 @@
+CHARACTER(6) paw_suffix
+PARAMETER (paw_suffix = "_basis")
+INTEGER DP
+PARAMETER(DP=8)
+
+
+  INTEGER  :: nbasis
+  INTEGER  :: i_cut
+  INTEGER  :: ngrid
+  INTEGER  :: mult_l
+
+
+  REAL(DP)  :: r1
+  REAL(DP)  :: rmax
+  REAL(DP)  :: amesh
+  REAL(DP)  :: logamesh 
+
+  REAL(DP)  :: sigma
+
+  REAL(DP)  :: ion_charge 
+
+  REAL(DP)  :: core_kin_energy
+
+  INTEGER :: pr_n(4)
+  INTEGER :: pr_n_ps(4)
+  INTEGER :: eig(4)
+  INTEGER :: orb_l(4)
+
+  INTEGER :: phi_ae(4)
+  INTEGER :: phi_ps(4)
+  INTEGER :: phi_ae_prime(4)
+  INTEGER :: phi_ps_prime(4)
+  INTEGER :: prj_ps(4)
+  INTEGER :: core_density(4)
+  INTEGER ::  ps_core_density(4)
+  INTEGER :: v_ps(4)
+  INTEGER :: prj_ps0(4)
+
+            
+  REAL(DP), ALLOCATABLE  :: r(:)
+
+
+  COMMON /paw_basis/  nbasis, i_cut, ngrid, mult_l
+
+  COMMON /paw_basis/ pr_n, pr_n_ps,&
+                      eig,&
+                      orb_l,&
+                      phi_ae,&
+                      phi_ps,&
+                      phi_ae_prime,&
+                      phi_ps_prime,&
+                      prj_ps,&
+                      core_density,&
+                      ps_core_density,&
+                      v_ps,&
+                      prj_ps0
+
+!  COMMON /paw_basis/  nbasis, i_cut, at_ngrid, mult_l, &
+!                      sigma, &
+!                      ion_charge , &
+!                      pr_n, &
+!                      pr_n_ps, &
+!                      orb_l, &
+!                      eig, &  
+!                      v_ps , &       
+!                      r, &
+!                      phi_ae, &
+!                      phi_ps, &
+!                      phi_ae_prime, &
+!                      phi_ps_prime, &
+!                      prj_ps, &
+!                      prj_ps0, &
+!                      core_density, &
+!                      ps_core_density
+
