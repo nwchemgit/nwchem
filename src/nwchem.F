@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.108 1998-07-13 23:51:53 d3g681 Exp $
+c     $Id: nwchem.F,v 1.109 1998-07-31 23:48:10 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -304,7 +304,7 @@ c
       logical ostartup
       logical ocontinue
 c
-      character*80 hostname, compiled
+      character*80 hostname, compiled, batchid
       character*(nw_max_path_len) executable, srcdir, file_prefix
       character*26 date
 #if defined(CRAY)
@@ -366,6 +366,16 @@ c
       compiled = COMPILATION_DATE
       srcdir   = 
      $ COMPILATION_DIR
+C
+C     See if we can get the batch system id.  We understand NQS and
+C     LoadLeveler at present
+C
+      BatchID = ' '
+      Call Util_GetEnv('QSUB_REQID', batchid)
+      If ( Inp_StrLen(batchid) .eq. 0 ) then
+         Call Util_GetEnv('LOADL_JOB_NAME', batchid)
+      EndIf
+C
       call util_print_centered(6, 'Job information', 20, .true.)
       write(6,2) 
      $     hostname(1:inp_strlen(hostname)),
@@ -379,18 +389,27 @@ c
      $     cstart(1:inp_strlen(cstart)),
      $     nproc,
      $     util_batch_job_time_remaining()
+C
+      If ( Inp_StrLen(BatchID) .gt. 0) then
+         Write(6,22) BatchID(:Inp_StrLen(BatchID))
+      Else
+         Write(6,'(//)') 
+      EndIf
+C
  2    format(/
-     $     '    hostname  = ', a/
-     $     '    program   = ', a/
-     $     '    date      = ', a/
-     $     '    compiled  = ', a/
-     $     '    source    = ', a/
-     $     '    input     = ', a/
-     $     '    prefix    = ', a/
-     $     '    data base = ', a/
-     $     '    status    = ', a/
-     $     '    nproc     = ', i4/,
-     $     '    time left = ', i6,'s'//)
+     $     '    hostname      = ', a/
+     $     '    program       = ', a/
+     $     '    date          = ', a/
+     $     '    compiled      = ', a/
+     $     '    source        = ', a/
+     $     '    input         = ', a/
+     $     '    prefix        = ', a/
+     $     '    data base     = ', a/
+     $     '    status        = ', a/
+     $     '    nproc         = ', i4/,
+     $     '    time left     = ', i6,'s')
+ 22   format(
+     $     '    batch job id  = ', a//)
 c
 c     Determine, without altering, setting of memory verification
 c     and hardfail.
