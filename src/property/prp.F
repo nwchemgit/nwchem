@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.34 1998-11-24 18:36:11 mdupuis Exp $
+* $Id: prp.F,v 1.35 1998-12-04 08:34:09 d3e129 Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -11614,6 +11614,7 @@ c
       parameter (mxatom=500)
       parameter (mxprim=2048)
       parameter (mxshel=512)
+      parameter (mxsym=48)
       parameter (mxnbf =2048)
       parameter (mxtype=5)
       logical  status
@@ -11658,7 +11659,7 @@ c
       common/hnd_shlord/modshl(mxshel),invshl(mxshel)
       common/hnd_lcapid/nap,iap
       common/hnd_symtry/invt(48),nt,ntmax,ntwd,nosym
-      common/hnd_symshl/mapshl(mxshel,48),mapctr(mxatom,48)
+      common/hnd_symshl/mapshl(mxshel,mxsym),mapctr(mxatom,mxsym)
 c
 #include "global.fh"
 #include "basdeclsP.fh"
