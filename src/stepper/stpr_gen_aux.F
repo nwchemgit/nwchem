@@ -1,5 +1,5 @@
 *
-* $Id: stpr_gen_aux.F,v 1.7 1997-06-12 22:52:25 d3e129 Exp $
+* $Id: stpr_gen_aux.F,v 1.8 1997-08-20 17:07:39 rg240 Exp $
 * 
 * this file contains auxilary routines to stpr_gen functions
 *
@@ -169,7 +169,8 @@ c assume not a restart
       int_restart = 0
       call util_get_rtdb_state(rtdb,ostart,ocontinue,orestart)
       if (ostart) then
-        call util_file_unlink(FILEATR)
+        if (ga_nodeid().eq.0)
+     &    call util_file_unlink(FILEATR)
       else if (ocontinue.or.orestart) then
         if (ga_nodeid().eq.0) then
           does_it_exist = .false.
