@@ -1,5 +1,5 @@
 %
-% $Id: tddft.tex,v 1.4 2004-04-22 04:50:29 edo Exp $
+% $Id: tddft.tex,v 1.5 2004-05-17 20:05:57 edo Exp $
 %
 \label{sec:tddft}
 
@@ -33,6 +33,14 @@ by numerical differentiation,
 \item Multiple and single trial-vector processing algorithms,
 \item Frozen core and virtual approximation.
 \end{itemize}
+
+New capability added in the latest version (4.6) is:
+\begin{itemize}
+\item Asymptotically correct exchange-correlation potential by van Leeuwen and Baerends,\footnote{R. van Leeuwen and E. J. Baerends, Phys.\ Rev.\ A {\bf 49,} 2421 (1994).}
+\item Asymptotic correction by Casida and Salahub,\footnote{M. E. Casida, C. Jamorski, K. C. Casida, and D. R. Salahub, J.\ Chem.\ Phys. {\bf 108,} 4439 (1998).}
+\item Asymptotic correction by Hirata, Zhan, Apr\`{a}, Windus, and Dixon.\footnote{S. Hirata, C.-G. Zhan, E. Apr\`{a}, T. L. Windus, and D. A. Dixon, J.\ Phys.\ Chem.\ A {\bf 107,} 10154 (2003).} 
+\end{itemize}
+These are very effective way to rectify the shortcomings of TDDFT when applied to Rydberg excited states (see below).
 
 \section{Performance of CIS, TDHF, and TDDFT methods}
 
@@ -69,6 +77,18 @@ character and less spin contamination, and hence the excitation thereof is descr
 as a simple one electron transition.  The computational cost per state of TDDFT calculations 
 scales as the same as the ground state DFT calculations, although the prefactor of the scaling
 may be much greater in the former.
+
+A very simple and effecive way to rectify the TDDFT's failure for Rydberg excited states
+has been proposed by Tozer and Handy\footnote{D. J. Tozer and N. C. Handy, J.\ Chem.\ Phys. {\bf 109,} 10180 (1998).} and by Casida and Salahub (see previous reference).  They proposed to splice a $-1/r$ asymptotic
+tail to an exchange-correlation potential that does not have the correct asymptotic behavior.
+Because the approximate exchange-correlation potentials are too shallow everywhere, a negative constant
+must be added to them before they can be spliced to the $-1/r$ tail seamlessly in a region that is not
+sensitive to chemical effects or to the long-range behavior.  The negative constant or the shift is usually
+taken to be the difference of the HOMO energy from the true ionization potential, which can be obtained
+either from experiment or from a $\Delta$SCF calculation.  Recently, we proposed a new, expedient, and
+self-contained asymptotic correction that does not require an ionization potential (or shift) as an external parameter from a separate calculation.\footnote{S. Hirata, C.-G. Zhan, E. Apr\`{a}, T. L. Windus, and D. A. Dixon, J.\ Phys.\ Chem.\ A {\bf 107,} 10154 (2003).}  In this scheme, the shift is computed by a semi-empirical
+formula proposed by Zhan, Nichols, and Dixon.\footnote{C.-G. Zhan, J. A. Nichols, and D. A. Dixon, J.\ Phys.\ Chem. A {\bf 107,} 4184 (2003).}  Both Casida-Salahub scheme and this new asymptotic correction scheme give considerably improved (Koopmans type) ionization potentials and Rydberg excitation energies.
+The latter, however, supply the shift by itself unlike to former.
 
 \section{Input syntax}
 
@@ -137,6 +157,11 @@ Since each keyword has a default value, a minimal input file will be
 
   TASK TDDFT ENERGY
 \end{verbatim}
+
+Note that the keyword for the asymptotic correction must be given in the 
+DFT input block, since all the effects of the correction (and also changes in the 
+computer program) occur in the SCF calculation stage.  See Chapter 11 (keyword \verb+CS00+ and
+\verb+LB94+) for details.
 
 \section{Keywords of {\tt TDDFT} input block}
 
@@ -413,4 +438,60 @@ END
 TASK TDDFT OPTIMIZE
 
 TASK TDDFT FREQUENCIES
+\end{verbatim}
+
+TDDFT with an asymptotically corrected SVWN exchange-correlation potential.
+Casida-Salahub scheme has been used with the shift value of 0.1837 a.u. supplied 
+as an input parameter.
+\begin{verbatim}
+START tddft_ac_co
+ 
+GEOMETRY
+O 0.0 0.0  0.0000
+C 0.0 0.0  1.1283
+END
+ 
+BASIS SPHERICAL
+C library aug-cc-pVDZ
+O library aug-cc-pVDZ
+END
+ 
+DFT
+XC Slater VWN_5
+CS00 0.1837
+END
+ 
+TDDFT
+NROOTS 12
+END
+ 
+TASK TDDFT ENERGY
+\end{verbatim}
+
+TDDFT with an asymptotically corrected B3LYP exchange-correlation potential.
+Hirata-Zhan-Apra-Windus-Dixon scheme has been used (this is only meaningful
+with B3LYP functional).
+\begin{verbatim}
+START tddft_ac_co
+ 
+GEOMETRY
+O 0.0 0.0  0.0000
+C 0.0 0.0  1.1283
+END
+ 
+BASIS SPHERICAL
+C library aug-cc-pVDZ
+O library aug-cc-pVDZ
+END
+ 
+DFT
+XC B3LYP
+CS00
+END
+ 
+TDDFT
+NROOTS 12
+END
+ 
+TASK TDDFT ENERGY
 \end{verbatim}

@@ -1,5 +1,5 @@
 %
-% $Id: tce.tex,v 1.5 2004-04-22 04:50:29 edo Exp $
+% $Id: tce.tex,v 1.6 2004-05-17 20:05:57 edo Exp $
 %
 \label{sec:tce}
 
@@ -31,7 +31,16 @@ Hartree--Fock references,
 \item Unrestricted coupled-cluster theory (LCCD, CCD, LCCSD, CCSD, QCISD, CCSDT, CCSDTQ),
 \item Unrestricted iterative many-body perturbation theory [MBPT(2), MBPT(3), MBPT(4)] in its tensor formulation,
 \end{itemize}
-and the following optimizations have been used in the module:
+New capabilities added in the version 4.6 are:
+\begin{itemize}
+\item Unrestricted coupled-cluster singles and doubles with perturbative connected triples \{CCSD(T), CCSD[T]\},
+\item Unrestricted equation-of-motion coupled-cluster theory (EOM-CCSD, EOM-CCSDT, EOM-CCSDTQ) for excitation energies, transition moments and oscillator strengths, and excited-state dipole moments,
+\item Unrestricted coupled-cluster theory (CCSD, CCSDT, CCSDTQ) for dipole moments.
+\end{itemize}
+Version 4.6 and onwards the distributed binary executables do not contain CCSDTQ and its
+derivative methods, owing to their large volume.  The source code includes them, so a user
+can reinstate them by \verb+setenv CCSDTQ yes+ and recompile TCE module.
+The following optimizations have been used in the module:
 \begin{itemize}
 \item Spin symmetry (spin integration is performed wherever possible within the
 unrestricted framework, making the present unrestricted program 
@@ -65,6 +74,13 @@ referred to:
 \item R. J. Bartlett and J. F. Stanton, Applications of Post-Hartree-Fock Methods: A Tutorial, in Reviews in Computational Chemistry, Volume V,
 \item R. J. Bartlett, Coupled-Cluster Theory: An Overview of Recent Developments, in Modern Electronic Structure Theory, Part II,
 \item B. O. Roos (editor), Lecture Notes in Quantum Chemistry I and II.
+\end{itemize}
+
+For algorithms and applications of TCE, see:
+\begin{itemize}
+\item S. Hirata, J.\ Phys.\ Chem.\ A {\bf 107,} 9887 (2003).
+\item S. Hirata, T. Yanai, W. A. de Jong, T. Nakajima, and K. Hirao, J.\ Chem.\ Phys. {\bf 120,} 3297 (2004).
+\item S. Hirata, J.\ Chem. Phys. (in press) (2004).
 \end{itemize}
 
 \section{Algorithms of CI, MBPT, and CC methods}
@@ -116,17 +132,25 @@ that details the calculations:
 \begin{verbatim}
   TCE
     [(DFT||HF||SCF) default HF=SCF]
+    [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
+             [virtual <integer nfzv default 0>]]
     [(LCCD||CCD||CCSD||LCCSD||CCSDT||CCSDTQ|| \
-      QCISD||CISD||CISDT||CISDTQ|| \
+      CCSD(T)||CCSD[T]||QCISD||CISD||CISDT||CISDTQ|| \
       MBPT2||MBPT3||MBPT4||MP2||MP3||MP4) default CCSD]
     [THRESH <double thresh default 1e-6>]
     [MAXITER <integer maxiter default 100>]
-    [IO (fortran||eaf||ga||sf||replicated) default ga]
-    [DIIS <integer diis default 5>]
-    [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
-             [virtual <integer nfzv default 0>]]
     [PRINT (none||low||medium||high||debug)
       <string list_of_names ...>]
+    [IO (fortran||eaf||ga||sf||replicated||dra||ga_eaf) default ga]
+    [DIIS <integer diis default 5>]
+    [NROOTS <integer nroots default 0>]
+    [TARGET <integer target default 1>]
+    [TARGETSYM <character targetsym default 'none'>]
+    [SYMMETRY]
+    [DIPOLE]
+    [TILESIZE <no default (automatically adjusted)>]
+    [(NO)FOCK <logical recompf default .true.>]
+    [FRAGMENT <default -1 (off)>]
   END
 \end{verbatim}
 Also supported are energy gradient calculation, geometry optimization,
@@ -169,14 +193,22 @@ canonical MP2 implementation) already in place in NWChem.
 \begin{verbatim}
   (UCCSDT||UCC)
     [(DFT||HF||SCF) default HF=SCF]
-    [THRESH <double thresh default 1e-6>]
-    [MAXITER <integer maxiter default 100>]
-    [IO (fortran||c||ga||sf||replicated) default ga]
-    [DIIS <integer diis default 5>]
     [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
              [virtual <integer nfzv default 0>]]
-    [PRINT (none||low||medium||high||debug)
+    [THRESH <double thresh default 1e-6>]
+    [MAXITER <integer maxiter default 100>]
+    [PRINT (none||low||medium||high||debug)]
       <string list_of_names ...>]
+    [IO (fortran||eaf||ga||sf||replicated||dra||ga_eaf) default ga]
+    [DIIS <integer diis default 5>]
+    [NROOTS <integer nroots default 0>]
+    [TARGET <integer target default 1>]
+    [TARGETSYM <character targetsym default 'none'>]
+    [SYMMETRY]
+    [DIPOLE]
+    [TILESIZE <no default (automatically adjusted)>]
+    [(NO)FOCK <logical recompf default .true.>]
+    [FRAGMENT <default -1 (off)>]
   END
 \end{verbatim}
 When a method (CCSDT in this example) is specified in the task directive, 
@@ -326,9 +358,11 @@ These keywords stand for the following models:
 \item LCCD: linearized coupled-cluster doubles,
 \item CCD: coupled-cluster doubles,
 \item LCCSD: linearized coupled-cluster singles \& doubles,
-\item CCSD: coupled-cluster singles \& doubles,
-\item CCSDT: coupled-cluster singles, doubles, \& triples,
-\item CCSDTQ: coupled-cluster singles, doubles, triples, \& quadruples,
+\item CCSD: coupled-cluster singles \& doubles (also EOM-CCSD),
+\item CCSDT: coupled-cluster singles, doubles, \& triples (also EOM-CCSDT),
+\item CCSDTQ: coupled-cluster singles, doubles, triples, \& quadruples (also EOM-CCSDTQ),
+\item CCSD(T): CCSD and perturbative connected triples,
+\item CCSD[T]: CCSD and perturbative connected triples,
 \item QCISD: quadratic configuration interaction singles \& doubles,
 \item CISD: configuration interaction singles \& doubles,
 \item CISDT: configuration interaction singles, doubles, \& triples,
@@ -387,6 +421,9 @@ wisely chosen for a particular problem and computer architecture.
 \item \verb+ga+ : Fully incore, Global Array virtual file,
 \item \verb+sf+ : Shared File library,
 \item \verb+replicated+ : Semi-replicated file on distributed file system with EAF library.
+\item \verb+dra+ : Distributed file on distributed file system with DRA library.
+\item \verb+ga_eaf+ : Semi-replicated file on distributed file system with EAF library. GA is used 
+to speedup the file reconciliation.
 \end{itemize}
 The GA algorithm, which is default, stores all input (integrals and
 excitation amplitudes), output (residuals), and intermediate tensors in the shared memory area
@@ -407,6 +444,13 @@ the Fortran77 direct access scheme does not usually exhibit scalability unless s
 the global file system also share the same I/O buffer.  For sequential executions, the 
 SF, EAF, and replicated schemes are interchangeable, while the Fortran77 scheme is appreciably
 slower.
+
+Two new I/O algorithms \verb+dra+ and \verb+ga_eaf+ combines GA and DRA or EAF based replicated 
+algorithm.  In the former, arrays that are not active (e.g., prior $T$ amplitudes used in DIIS
+or EOM-CC trial vectors) in GA algorithm will be moved to DRA.  In the latter, the intermediates
+that are formed by tensor contractions are initially stored in GA, thereby avoiding the need to
+accumulate the fragments of the intermediate scattered in EAFs in the original EAF algorithm.
+Once the intermediate is formed completely, then it will be replicated as EAFs.
 
 \subsection{{\tt DIIS} --- the convergence acceleration}
 
@@ -442,6 +486,66 @@ keyword.  For instance, to freeze the top 5 virtuals
 \begin{verbatim}
   FREEZE virtual 5
 \end{verbatim}
+
+\subsection{{\tt NROOTS} --- the number of excited states}
+ 
+One can specify the number of excited state roots to be determined.  The default
+value is \verb+1+.  It is advised that the users request several more roots than actually
+needed, since owing to the nature of the trial vector algorithm, some low-lying
+roots can be missed when they do not have sufficient overlap with the initial guess
+vectors.
+
+\subsection{{\tt TARGET} and {\tt TARGETSYM} --- the target root and its symmetry}
+ 
+At the moment, the first and second geometrical derivatives of excitation
+energies that are needed in force, geometry, and frequency calculations are
+obtained by numerical differentiation.  These keywords may be used to specify
+which excited state root is being used for the geometrical derivative calculation.
+For instance, when \verb+TARGET 3+ and \verb+TARGETSYM a1g+ are included in the
+input block, the total energy (ground state energy plus excitation energy)
+of the third lowest excited state root (excluding the ground state) transforming as
+the irreducible representation \verb+a1g+ will be passed to the module which performs
+the derivative calculations.  The default values of these keywords are \verb+1+ and \verb+none+,
+respectively.
+ 
+The keyword \verb+TARGETSYM+ is essential in excited state geometry
+optimization, since it is very common that the order of excited states changes due to
+the geometry changes in the course of optimization.  Without specifying the \verb+TARGETSYM+,
+the optimizer could (and would likely) be optimizing the geometry of an excited state that
+is different from the one the user had intended to optimize at the starting geometry.
+On the other hand, in the frequency calculations, \verb+TARGETSYM+ must be \verb+none+,
+since the finite displacements given in the course of frequency calculations will lift
+the spatial symmetry of the equilibrium geometry.  When these finite displacements can
+alter the order of excited states including the target state, the frequency calculation
+is not be feasible.
+
+\subsection{{\tt SYMMETRY} --- restricting the excited state symmetry}
+ 
+By adding this keyword to the input block, the user can request the module to
+seek just the roots of the specified irreducible representation as 
+\verb+TARGETSYM+.  By default, this option is not set.
+\verb+TARGETSYM+ must be specified when \verb+SYMMETRY+ is invoked.
+
+\subsection{{\tt DIPOLE} --- the ground- and excited-state dipole moments}
+
+When this is set, the ground-state CC calculation will enter another round 
+of iterative step for the so-called $\Lambda$ equation to obtain the one-particle
+density matrix and dipole moments.  Likewise, for excited-states (EOM-CC), the 
+transition moments and dipole moments will be computed when (and only when) this
+option is set.  In the latter case, EOM-CC left hand side solutions will be sought
+incurring approximately three times the computational cost of excitation energies 
+alone (note that the EOM-CC effective Hamiltonian is not Hermitian and has distinct
+left and right eigenvectors).
+
+\subsection{{\tt (NO)FOCK} --- (not) recompute Fock matrix}
+
+The default is \verb+FOCK+ meaning that the Fock matrix will
+be reconstructed (as opposed to using the orbital energies as the diagonal part of
+Fock).  This is essential in getting correct correlation energies with ROHF or DFT
+reference wave functions.  However, currently, this module cannot reconstruct the
+Fock matrix when one-component relativistic effects are operative.  So when a user
+wishes to run TCE's correlation methods with DK or other relativistic reference,
+\verb+NOFOCK+ must be set and orbital energies must be used for the Fock matrix.
 
 \subsection{{\tt PRINT} --- the verbosity}
 
@@ -538,4 +642,34 @@ TOL2E  1.0e-10
 END
 
 TASK UCCSD ENERGY
+\end{verbatim}
+
+EOM-CCSDT calculation for excitation energies, excited-state
+dipole, and transition moments.
+\begin{verbatim}
+START tce_h2o_eomcc
+ 
+GEOMETRY UNITS BOHR
+H    1.474611052297904   0.000000000000000   0.863401706825835
+O    0.000000000000000   0.000000000000000  -0.215850436155089
+H   -1.474611052297904   0.000000000000000   0.863401706825835
+END
+ 
+BASIS
+* library sto-3g
+END
+ 
+SCF
+SINGLET
+RHF
+END
+ 
+TCE
+CCSDT
+DIPOLE
+FREEZE CORE ATOMIC
+NROOTS 1
+END
+ 
+TASK TCE ENERGY
 \end{verbatim}
