@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.94 2001-11-15 05:59:39 d3j191 Exp $
+c $Id: sp_init.F,v 1.95 2001-11-18 05:21:13 d3j191 Exp $
 c
       implicit none
 c
@@ -292,34 +292,45 @@ c
       nby=int(box(2)/bsize)
       nbz=int(box(3)/bsize)
       endif
-      if(nbx.eq.0) nbx=1
-      if(nby.eq.0) nby=1
-      if(nbz.eq.0) nbz=1
 c
-      bsize=
-     + min(bsize,box(1)/dble(nbx),box(2)/dble(nby),box(3)/dble(nbz))
+      nbx=max(1,nbx,npx)
+      nby=max(1,nby,npy)
+      nbz=max(1,nbz,npz)
 c
-      bxmin=bsize
-      bymin=bsize
-      bzmin=bsize
-      if(nbx.lt.npx) then
-      i=npx/nbx
-      if(mod(npx,nbx).gt.0) i=i+1
-      bxmin=min(bsize,box(1)/dble(i))
-      nbx=npx
-      endif
-      if(nby.lt.npy) then
-      i=npy/nby
-      if(mod(npy,nby).gt.0) i=i+1
-      bymin=min(bsize,box(2)/dble(i))
-      nby=npy
-      endif
-      if(nbz.lt.npz) then
-      i=npz/nbz
-      if(mod(npz,nbz).gt.0) i=i+1
-      bzmin=min(bsize,box(3)/dble(i))
-      nbz=npz
-      endif
+      bxmin=bsize/dble(int((dble(nbx)*bsize)/box(1))+1)
+      bymin=bsize/dble(int((dble(nby)*bsize)/box(2))+1)
+      bzmin=bsize/dble(int((dble(nbz)*bsize)/box(3))+1)
+c
+c      if(nbx.eq.0) nbx=1
+c      if(nby.eq.0) nby=1
+c      if(nbz.eq.0) nbz=1
+c
+c      bsize=
+c     + min(bsize,box(1)/dble(nbx),box(2)/dble(nby),box(3)/dble(nbz))
+c
+cx      bxmin=bsize
+cx      bymin=bsize
+cx      bzmin=bsize
+c
+c      
+c      if(nbx.lt.npx) then
+c      i=npx/nbx
+c      if(mod(npx,nbx).gt.0) i=i+1
+c      bxmin=min(bsize,box(1)/dble(i))
+c      nbx=npx
+c      endif
+c      if(nby.lt.npy) then
+c      i=npy/nby
+c      if(mod(npy,nby).gt.0) i=i+1
+c      bymin=min(bsize,box(2)/dble(i))
+c      nby=npy
+c      endif
+c      if(nbz.lt.npz) then
+c      i=npz/nbz
+c      if(mod(npz,nbz).gt.0) i=i+1
+c      bzmin=min(bsize,box(3)/dble(i))
+c      nbz=npz
+c      endif
 c
       if(nbxin.eq.0) then
       if(nbx.gt.npx.and.mod(nbx,npx).gt.0) then
