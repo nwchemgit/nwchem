@@ -1,0 +1,15 @@
+title; nwargos
+
+memory noverify heap 1 mb stack 21 mb global 8 mb
+
+start myo_em
+
+md
+cutoff 0.9
+sd 5 init 0.01 min 0.00001 max 0.05
+cg 5 init 0.01 min 0.00001 cy 10
+test 10
+end
+
+task md optimize
+
