@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.29 2003-11-07 02:17:42 bylaska Exp $
+* $Id: electron.F,v 1.30 2004-01-28 00:08:46 bylaska Exp $
 *
 
 
@@ -711,9 +711,10 @@ c      end
 
 *     **** no preconditioning ***
       do ms=1,ispin
+            n     = ne(ms)
+            if (n.le.0) go to 30
             shift1 = 1 + (ms-1)*ne(1)*npack1
             shift2 = 1 + (ms-1)*ne(1)*ne(1)
-            n     = ne(ms)
 c           call Grsm_gmg_Mul(npack1,n,
 c    >                        psi_k(1+(ms-1)*ne(1)*npack1),
 c    >                        hml(shift2+1),
@@ -724,6 +725,7 @@ c    >                        THpsi_k(1+(ms-1)*ne(1)*npack1))
      >                hml(shift2),    n,
      >                (0.0d0),
      >                THpsi_k(shift1),2*npack1)
+  30        continue
       end do
 c     call Grsm_ggg_Sub(npack1,(ne(1)+ne(2)),
 c    >                  dcpl_mb(Hpsi_k(1)),
@@ -760,15 +762,17 @@ c    >                    THpsi_k)
       integer ms,n,shift1,shift2
      
       do ms=1,ispin
+         n     = ne(ms)
+         if (n.le.0) go to 30
          shift1 = 1 + (ms-1)*ne(1)*npack1
          shift2 = 1 + (ms-1)*ne(1)*ne(1)
-         n     = ne(ms)
          call DGEMM('N','N',2*npack1,n,n,
      >             (1.0d0),
      >             psi_k(shift1),  2*npack1,
      >             hml(shift2),    n,
      >             (-1.0d0),
      >             THpsi_k(shift1),2*npack1)
+   30    continue
       end do
       return
       end
@@ -919,6 +923,7 @@ c    >                    THpsi_k)
       do ms=1,ispin
          shift = (ms-1)*ne(1)*ne(1)
          n     = ne(ms)
+         if (n.le.0) go to 30
 c        call Grsm_ggm_sym_dot(npack1,n,
 c    >                     psi_k(1+(ms-1)*ne(1)*npack1),
 c    >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
@@ -927,6 +932,7 @@ c    >                     hml(shift+1))
      >                     psi_k(1+(ms-1)*ne(1)*npack1),
      >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
      >                     hml(shift+1))
+  30     continue
       end do
 
 
@@ -997,8 +1003,9 @@ c    >                     hml(shift+1))
 
 
       do ms=1,ispin
-         shift = (ms-1)*ne(1)*ne(1)
          n     = ne(ms)
+         if (n.le.0) go to 30
+         shift = (ms-1)*ne(1)*ne(1)
 c        call Grsm_ggm_sym_dot(npack1,n,
 c    >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
 c    >                     psi_k(1+(ms-1)*ne(1)*npack1),
@@ -1007,6 +1014,7 @@ c    >                     hmlt(shift+1))
      >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
      >                     psi_k(1+(ms-1)*ne(1)*npack1),
      >                     hmlt(shift+1))
+   30    continue
       end do
 
 
@@ -1035,12 +1043,14 @@ c    >                     hmlt(shift+1))
       integer ms,n,shift
 
       do ms=1,ispin
-         shift = (ms-1)*ne(1)*ne(1)
          n     = ne(ms)
+         if (n.le.0) go to 30
+         shift = (ms-1)*ne(1)*ne(1)
          call Pack_ccm_sym_dot(1,n,
      >                     psi_k(1+(ms-1)*ne(1)*npack1),
      >                     THpsi_k(1+(ms-1)*ne(1)*npack1),
      >                     hml(shift+1))
+   30    continue
       end do
 
       return

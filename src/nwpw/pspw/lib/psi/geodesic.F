@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.19 2003-12-02 19:17:10 bylaska Exp $
+* $Id: geodesic.F,v 1.20 2004-01-28 00:08:47 bylaska Exp $
 *
 
 *     ***********************************
@@ -162,6 +162,7 @@ c      integer ierr
          shift1 = (ms-1)*psi_ne(1)
          shift2 = (ms-1)*psi_ne(1)*psi_ne(1)
          n = psi_ne(ms)
+         if (n.le.0) go to 30
 
          call Pack_SVD(npack1,n,
      >                  A(1+shift1*npack1),
@@ -229,7 +230,8 @@ c         end do
      >     =  dbl_mb(V(1)+i-1+(j-1)*n + shift2) 
          end do
          end do
-         
+
+  30     continue         
       end do
 
 *     **** calculate 2*<A|H|psi> ****

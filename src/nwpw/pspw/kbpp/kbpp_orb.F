@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_orb.F,v 1.9 2003-12-02 19:17:10 bylaska Exp $
+* $Id: kbpp_orb.F,v 1.10 2004-01-28 00:08:46 bylaska Exp $
 *
 *     **************************************
 *     *                                    *
@@ -15,6 +15,7 @@
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
+#include "util.fh"
 
       logical          oprint
       integer          version
@@ -55,14 +56,20 @@
       double precision unitg(3,3),omega
       integer nsize,i,l,ierr
       integer nfft1,nfft2,nfft3
+      logical mprint,dprint
 
 *     **** external functions ****
+      logical  control_print
+      external control_print
       double precision simp
       external         simp
 
 
       call Parallel_init()
       call Parallel_taskid(taskid)
+      mprint = (taskid.eq.MASTER).and.control_print(print_medium)
+      dprint = (taskid.eq.MASTER).and.control_print(print_debug)
+      oprint = oprint.or.dprint
 
       value = .false.
   
@@ -245,10 +252,12 @@
      >                    .false.,
      >                    full_filename)
       l = index(full_filename,' ') - 1
+      if (mprint) then
       write(*,*)
       write(*,*) "Generated formatted atomic orbitals, filename: ",
      >            full_filename(1:l)
       write(*,*)
+      end if
       call openfile(2,full_filename,l,'w',l)     
          call iwrite(2,version,1)
          call iwrite(2,ngrid,3)

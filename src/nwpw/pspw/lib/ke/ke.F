@@ -1,5 +1,5 @@
 *
-* $Id: ke.F,v 1.10 2003-12-13 21:07:41 bylaska Exp $
+* $Id: ke.F,v 1.11 2004-01-28 00:08:46 bylaska Exp $
 *
       subroutine ke_init()
       implicit none 
@@ -195,7 +195,7 @@ c     complex*16 tmp1(nfft3d)
 
       subroutine ke_euv(ispin,ne,psi,euv)
 *
-* $Id: ke.F,v 1.10 2003-12-13 21:07:41 bylaska Exp $
+* $Id: ke.F,v 1.11 2004-01-28 00:08:46 bylaska Exp $
 *
       implicit none 
 #include "errquit.fh"
@@ -349,43 +349,44 @@ c      value = MA_push_get(mt_dcpl,npack,'tmp1',tmp1(2),tmp1(1))
 c      if (.not. value) call errquit('out of stack memory',0)
 
       sum = lattice_wggcut()
-c      do n=1,neall
-c         call Pack_tc_Mul(1,dbl_mb(tg_indx),psi(1,n),dcpl_mb(tmp1(1)))
-c         call Pack_cc_dot(1,psi(1,n),dcpl_mb(tmp1(1)),sum)
-c         do k=1,npack
-c           x = dbl_mb(tg_indx+k-1)
-c           x = x*dconjg(psi(k,n))*psi(k,n)
-c           x = x/sum
-c
-c           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
-c           dm = (cm + 16.0d0* x**4)
-c           cm = cm/dm
-c
-cc          x = 2.0d0*dabs(dbl_mb(tg_indx+k-1)/sum)
-cc          cm = dexp(-0.15d0*x*x) 
-cc          cm = dexp(-0.5d0*(x-0.5)**2) 
-c
-c           gradk(k,n) = gradk(k,n)*(cm)
-c         end do
-c      end do
+      do n=1,neall
+         call Pack_tc_Mul(1,dbl_mb(tg_indx),psi(1,n),dcpl_mb(tmp1(1)))
+         call Pack_cc_dot(1,psi(1,n),dcpl_mb(tmp1(1)),sum)
+         do k=1,npack
+           x = dbl_mb(tg_indx+k-1)
+           x = x*dconjg(psi(k,n))*psi(k,n)
+           x = x/sum
 
-*     **** Preconditioner of Tassone, Mauri, and Car ****
-*      ispin = psi_ispin()
-*      ne(1) = psi_ne(1)
-*      ne(2) = psi_ne(2)
-*      call ke_ave(ispin,ne,gradk,Ep)
-*      write(*,*) "E(R):",Ep
-*      Ep = control_Ep()-Ep
-*      cm = 1.0d0/(Ep)
-*      do k=1,npack       
-*         x = -dbl_mb(tg_indx+k-1)
-*        dm = (x*cm)
-*         if (x.gt.Ep) then
-*           do n=1,neall
-*              gradk(k,n) = gradk(k,n)/dm
-*           end do
-*         end if
-*      end do
+           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
+           dm = (cm + 16.0d0* x**4)
+           cm = cm/dm
+
+c          x = 2.0d0*dabs(dbl_mb(tg_indx+k-1)/sum)
+c          cm = dexp(-0.15d0*x*x) 
+c          cm = dexp(-0.5d0*(x-0.5)**2) 
+
+           gradk(k,n) = gradk(k,n)*(cm)
+         end do
+      end do
+
+
+c*     **** Preconditioner of Tassone, Mauri, and Car ****
+c      ispin = psi_ispin()
+c      ne(1) = psi_ne(1)
+c      ne(2) = psi_ne(2)
+c      call ke_ave(ispin,ne,gradk,Ep)
+c      write(*,*) "E(R):",Ep
+c      Ep = control_Ep()-Ep
+c      cm = 1.0d0/(Ep)
+c      do k=1,npack       
+c         x = -dbl_mb(tg_indx+k-1)
+c        dm = (x*cm)
+c         if (x.gt.Ep) then
+c           do n=1,neall
+c              gradk(k,n) = gradk(k,n)/dm
+c           end do
+c         end if
+c      end do
 
  
 c*     **** My preconditioner ****
@@ -406,21 +407,21 @@ c          end if
 c        end do
 c      end do
 
-*     **** preconditioner #5 ****
-      ispin = 2
-      ne(1) = 1
-      ne(2) = 0
-      do n=1,neall
-        call ke_ave(ispin,ne,gradk(1,n),Ep)
-        Ep = 1.5d0*Ep
-        do k=1,npack
-           x = -dbl_mb(tg_indx+k-1)/Ep
-           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
-           dm = (cm + 16.0d0* x**4)
-           cm = (cm/dm)*(2.0d0/Ep)
-           gradk(k,n) = gradk(k,n)*cm
-        end do
-      end do
+c*     **** preconditioner #5 ****
+c      ispin = 2
+c      ne(1) = 1
+c      ne(2) = 0
+c      do n=1,neall
+c        call ke_ave(ispin,ne,gradk(1,n),Ep)
+c        Ep = 1.5d0*Ep
+c        do k=1,npack
+c           x = -dbl_mb(tg_indx+k-1)/Ep
+c           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
+c           dm = (cm + 16.0d0* x**4)
+c           cm = (cm/dm)*(2.0d0/Ep)
+c           gradk(k,n) = gradk(k,n)*cm
+c        end do
+c      end do
 
 c      value = MA_pop_stack(tmp1(2))
 c      if (.not. value) call errquit('error popping stack memory',0)

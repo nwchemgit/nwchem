@@ -1,9 +1,18 @@
 *
-* $Id: psi.F,v 1.49 2003-12-13 21:07:41 bylaska Exp $
+* $Id: psi.F,v 1.50 2004-01-28 00:08:47 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.49  2003/12/13 21:07:41  bylaska
+* Kohn-Sham scf minimizer added to pspw. Mixing includes
+* 	- simple mixing
+* 	- Anderson mixing
+* 	- Johnson-Pulay mixing
+* 	- Kerker preconditioner
+*
+* ....EJB
+*
 * Revision 1.48  2003/12/02 23:55:34  bylaska
 * density of state generation added...EJB
 *
@@ -1107,7 +1116,7 @@ c      write(*,*) "TIME ALL=",tim
       logical value,done,oneloop
       integer it
       real*8 e0,eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
-      real*8 theta
+      real*8 theta,sigma
       integer r1(2),t0(2),t(2),g(2)
       integer psi_ptr
 
@@ -1146,20 +1155,6 @@ c      write(*,*) "TIME ALL=",tim
      >                    e0)
          e0 = -e0
          
-         !if (it.eq.1) then
-         !  percent_error = 1.0d0
-         !else if (it.eq.2) then
-         !  error0 = dabs(e0-eold)
-         !  percent_error = 1.0d0
-         !else
-         !  percent_error = dabs(e0-eold)/error0
-         !end if
-
-         
-c        done = ((it.gt.maxiteration) 
-c    >           .or.
-c    >           ((percent_error.lt.perror)
-c    >           .and.(dabs(e0-eold).lt.maxerror)))
 
          done = ((it.gt.maxiteration) 
      >           .or.
@@ -1167,20 +1162,22 @@ c    >           .and.(dabs(e0-eold).lt.maxerror)))
 
          if (done) go to 4
 
-         call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(r1(1)))
-         call Pack_cc_daxpy(1,(e0),
-     >                 dcpl_mb(psi_ptr+(i-1)*npack1),
-     >                 dcpl_mb(r1(1)))
-     
 *        **** preconditioning ****
          if (precondition) then
            call ke_Precondition(npack1,1,
-     >                     dcpl_mb(r1(1)),
-     >                     dcpl_mb(r1(1)))
+     >                     dcpl_mb(g(1)),
+     >                     dcpl_mb(g(1)))
        
-*          *** project out components from other bands in the residual ***
-           call psi_project_out_orb(psi_number,i,dcpl_mb(r1(1)))
          end if
+
+c        call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(r1(1)))
+c        call Pack_cc_daxpy(1,(e0),
+c    >                 dcpl_mb(psi_ptr+(i-1)*npack1),
+c    >                 dcpl_mb(r1(1)))
+         call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(r1(1)))
+         call psi_project_out_orb(psi_number,i,dcpl_mb(r1(1)))
+
+     
 
 
 *        *** determine conjuagate direction ***
@@ -1199,13 +1196,28 @@ c    >           .and.(dabs(e0-eold).lt.maxerror)))
  3       call Pack_c_Copy(1,dcpl_mb(t(1)),dcpl_mb(t0(1)))
 
 
+
+c!*        **** project out psi components from t ****
+c!        call psi_project_out_orb(psi_number,i,dcpl_mb(t(1)))
+c!        call Pack_cc_dot(1,dcpl_mb(psi_ptr+(i-1)*npack1),
+c!    >                   dcpl_mb(t(1)),
+c!    >                    de0)
+c!        de0 = -de0
+c!        call Pack_cc_daxpy(1,(de0),
+c!    >                 dcpl_mb(psi_ptr+(i-1)*npack1),
+c!    >                 dcpl_mb(t(1)))
+
+
 *        *** normalize search direction, t ****
-         call psi_project_out_orb(psi_number,i,dcpl_mb(t(1)))
          call Pack_cc_dot(1,dcpl_mb(t(1)),
      >                   dcpl_mb(t(1)),
-     >                   de0)
-         de0 = 1.0d0/dsqrt(de0)
+     >                   sigma)
+         sigma = dsqrt(sigma)
+         de0 = 1.0d0/sigma
          call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+
+
+*        **** compute de0 = <t|g> ****
          call Pack_cc_dot(1,dcpl_mb(t(1)),
      >                   dcpl_mb(g(1)),
      >                   de0)
@@ -1218,11 +1230,13 @@ c    >           .and.(dabs(e0-eold).lt.maxerror)))
          end if
 
          de0 = -2.0d0*de0
-         call psi_linesearch_update(psi_number,i,
-     >                              theta,e0,de0,dcpl_mb(t(1)))
+         call psi_linesearch_update2(psi_number,i,
+     >                              theta,e0,de0,
+     >                              dcpl_mb(t(1)),
+     >                              sigma,
+     >                              dcpl_mb(t0(1)))
 
       go to 2
-
 
 
 *     **** release stack memory ****
@@ -1239,63 +1253,6 @@ c     >           theta
       return
       end
 
-c*     ***********************************
-c*     *                                 *
-c*     *       orb_geodesic_energy       *
-c*     *                                 *
-c*     ***********************************
-c*    This routine performs returns the energy of
-c* a linesearch on orbital i, in the direction t.  
-c* This routine is needed for a KS minimizer.
-c*  e0 = <orb|g>
-c*  de0 = 2*<t|g>
-c*
-c
-c      real*8 function orb_geodesic_energy(theta)
-c      implicit none
-c#include "errquit.fh"
-c      real*8 theta
-c     
-c#include "mafdecls.fh"
-c#include "psi.fh"
-c
-c      integer t(2),psi_ptr
-c      common / orb_geodesic/ t, i,psi_ptr
-c  
-c
-c*     **** allocate stack memory ****
-c      value = MA_push_get(mt_dcpl,npack1,'orb',
-c     >                       orb(2),orb(1))
-c      value = value.and. 
-c     >        MA_push_get(mt_dcpl,npack1,'g',
-c     >                       g(2),g(1))
-c      if (.not. value) call errquit(
-c     >     'psi_linesearch_update: out of stack memory',0)
-c 
-c
-c      call Pack_c_Copy(1,dcpl_mb(psi_ptr),
-c     >                   dcpl_mb(orb(1)))
-c
-c*     **** orb2 = orb*cos(theta) + t*sin(theta) ****
-c      x = cos(theta)
-c      y = sin(theta)
-c      call Pack_c_SMul(1,x,
-c     >                  dcpl_mb(psi_ptr),
-c     >                  dcpl_mb(orb(1)))
-c      call Pack_cc_daxpy(1,y,
-c     >                   dcpl_mb(t(1)),
-c     >                   dcpl_mb(orb(1))
-c
-c*     *** determine theta ***
-c      call psi_get_gradient_orb(psi_number,i,dcpl_mb(g(1)))
-c      call Pack_cc_dot(1,dcpl_mb(psi_ptr+(i-1)*npack1),
-c     >                   dcpl_mb(g(1)),
-c     >                   e1)
-c      e1 = -e1
-c
-c      org_geodesic_energy = e1
-c      return
-c      end
 
 
 *     ***********************************
@@ -1413,6 +1370,113 @@ c     write(*,*)
       return
       end
 
+*     ***********************************
+*     *				        *
+*     *	     psi_linesearch_update2	*
+*     *				        *
+*     ***********************************
+
+*    This routine performs a linesearch on orbital i, in the direction t.  
+* This routine is needed for a KS minimizer.
+*  e0 = <orb|g>
+*  de0 = 2*<t|g>
+*
+      subroutine psi_linesearch_update2(psi_number,i,theta,e0,de0,t,
+     >                                  sigma,tau_t)
+      implicit none
+#include "errquit.fh"
+      integer psi_number
+      integer i
+      real*8  theta
+      real*8  e0,de0
+      complex*16 t(*)     !search direction
+
+      real*8     sigma
+      complex*16 tau_t(*) !parallel transported search direction
+      
+#include "mafdecls.fh"
+#include "psi.fh"
+   
+*     **** local variables ****
+      logical value
+      integer orb(2),g(2),psi_ptr
+      real*8 x,y,pi,e1,de1
+      real*8 theta2,e2,de2
+
+      if (psi_number.eq.1) then
+         psi_ptr=psi1(1)
+      else 
+         psi_ptr=psi2(1)
+      end if
+
+      pi = 4.0d0*datan(1.0d0)
+
+*     **** allocate stack memory ****
+      value = MA_push_get(mt_dcpl,npack1,'orb',
+     >                       orb(2),orb(1))
+      value = value.and. 
+     >        MA_push_get(mt_dcpl,npack1,'g',
+     >                       g(2),g(1))
+      if (.not. value) call errquit(
+     >     'psi_linesearch_update: out of stack memory',0, MA_ERR)
+ 
+
+      call Pack_c_Copy(1,dcpl_mb(psi_ptr+(i-1)*npack1),
+     >                   dcpl_mb(orb(1)))
+
+*     **** orb2 = orb*cos(pi/300) + t*sin(pi/300) ****
+      !theta = pi/300.0d0
+      x = cos(theta)
+      y = sin(theta)
+      call Pack_c_SMul(1,x,
+     >                  dcpl_mb(orb(1)),
+     >                  dcpl_mb(psi_ptr+(i-1)*npack1))
+      call Pack_cc_daxpy(1,y,
+     >                   t,
+     >                   dcpl_mb(psi_ptr+(i-1)*npack1))
+
+*     *** determine theta ***
+      call psi_get_gradient_orb(psi_number,i,dcpl_mb(g(1)))
+
+      call Pack_cc_dot(1,dcpl_mb(psi_ptr+(i-1)*npack1),
+     >                   dcpl_mb(g(1)),
+     >                   e1)
+      e1 = -e1
+      x = (e0 - e1 + 0.5d0*de0*sin(2*theta))
+     >    /(1.0d0-cos(2*theta))
+      theta = 0.5d0*datan(0.5d0*de0/x) 
+
+      x = cos(theta)
+      y = sin(theta)
+
+*     **** tau_t = (-orb*sin(theta) + t*cos(theta))*sigma ****
+      call Pack_c_SMul(1,(-y),
+     >                  dcpl_mb(orb(1)),
+     >                  tau_t)
+      call Pack_cc_daxpy(1,x,
+     >                   t,
+     >                   tau_t)
+      call Pack_c_SMul(1,sigma,
+     >                  tau_t,
+     >                  tau_t)
+
+*     **** orb2 = orb*cos(theta) + t*sin(theta) ****
+      call Pack_c_SMul(1,x,
+     >                  dcpl_mb(orb(1)),
+     >                  dcpl_mb(psi_ptr+(i-1)*npack1))
+      call Pack_cc_daxpy(1,y,
+     >                   t,
+     >                   dcpl_mb(psi_ptr+(i-1)*npack1))
+
+
+*     **** release stack memory ****
+      value =           MA_pop_stack(g(2))
+      value = value.and.MA_pop_stack(orb(2))      
+      if (.not. value) call errquit(
+     >     'psi_linesearch_update: popping stack memory',1, MA_ERR)
+
+      return
+      end
 
 
 
@@ -1566,13 +1630,23 @@ c     write(*,*)
       if (i.le.ne(1)) then
 
         ii = i
-        do n=1,(ii)
-           call Pack_cc_dot(1,
-     >            dcpl_mb(psi_ptr +(n-1)*npack1),
+!       do n=1,(ii)
+!          call Pack_cc_dot(1,
+!    >            dcpl_mb(psi_ptr +(n-1)*npack1),
+!    >            Horb,
+!    >            sum)
+!          call daxpy(2*npack1,
+!    >               (-sum),
+!    >               dcpl_mb(psi_ptr+(n-1)*npack1),1,
+!    >               Horb,1) 
+!       end do     
+        call Pack_cc_ndot(1,ii,
+     >            dcpl_mb(psi_ptr),
      >            Horb,
-     >            sum)
+     >            dbl_mb(x(1)))
+        do n=1,(ii)
            call daxpy(2*npack1,
-     >               (-sum),
+     >               (-dbl_mb(x(1)+n-1)),
      >               dcpl_mb(psi_ptr+(n-1)*npack1),1,
      >               Horb,1) 
         end do     
@@ -3651,15 +3725,17 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 
       call electron_gen_hml(dcpl_mb(psi1(1)),dbl_mb(hml(1)))
       do ms=1,ispin
+            n     = ne(ms)
+            if (n.le.0) go to 30
             shift1 = 1 + (ms-1)*ne(1)*npack1
             shift2 =     (ms-1)*ne(1)*ne(1)
-            n     = ne(ms)
             call DGEMM('N','N',2*npack1,n,n,
      >                (1.0d0),
      >                S0(shift1),            2*npack1,
      >                dbl_mb(hml(1)+shift2), n,
      >                (0.0d0),
      >                S0hml(shift1),         2*npack1)
+   30       continue
       end do
       return
       end
@@ -3853,6 +3929,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 
       !call dcopy(2*npack1*(ne(1)+ne(2)),0.0d0,0,dcpl_mb(psi2(1)),1)
       do ms=1,ispin
+         if (ne(ms).le.0) go to 30
          shift1 = (ms-1)*ne(1)
          shift2 = (ms-1)*ne(1)*ne(1)
 
@@ -3875,6 +3952,7 @@ c    >                           dcpl_mb(psi2(1)+(j-1+shift1)*npack1))
 c          end do
 c        end do
 
+   30   continue
       end do
 
       return
@@ -3895,6 +3973,7 @@ c        end do
       integer ms,index,i,j,shift1,shift2
 
       do ms=1,ispin
+         if (ne(ms).le.0) go to 30
          shift1 = (ms-1)*ne(1)
          shift2 = (ms-1)*ne(1)*ne(1)
 
@@ -3905,6 +3984,7 @@ c        end do
      >              (0.0d0),
      >              dcpl_mb(psi1(1)+shift1*npack1),2*npack1)
 
+   30    continue
       end do
 
       return
@@ -3941,6 +4021,7 @@ c        end do
       do ms=1,ispin
          shift1 = (ms-1)*ne(1)
          shift2 = (ms-1)*ne(1)*ne(1)
+         if (ne(ms).le.0) go to 30
 
 c        call eigen(ne(ms),ne(ms),
 c    >              dbl_mb(hml(1)+shift2),
@@ -3956,6 +4037,7 @@ c    >              dbl_mb(tmp1(1)),ierr)
      >              dbl_mb(hml(1)+shift2),
      >              ne(ms),ne(ms))
 
+  30    continue
       end do
 
       
@@ -3999,6 +4081,7 @@ c    >              dbl_mb(tmp1(1)),ierr)
       do ms=1,ispin
          shift1 = (ms-1)*ne(1)
          shift2 = (ms-1)*ne(1)*ne(1)
+         if (ne(ms).le.0) go to 30
 
          call DSYEV('V','U',ne(ms),
      >              dbl_mb(hml(1)+shift2),ne(ms), 
@@ -4006,6 +4089,7 @@ c    >              dbl_mb(tmp1(1)),ierr)
      >              dbl_mb(tmp1(1)),2*ne(1)*ne(1),
      >              ierr)
 
+   30    continue
       end do
 
       

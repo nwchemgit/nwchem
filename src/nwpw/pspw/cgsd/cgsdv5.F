@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.38 2003-12-13 21:07:41 bylaska Exp $
+* $Id: cgsdv5.F,v 1.39 2004-01-28 00:08:46 bylaska Exp $
 *
 
 ***********************************************************************
@@ -22,6 +22,7 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "inp.fh"
+#include "util.fh"
 
 #include "nwpw_timing.fh"
       
@@ -52,6 +53,7 @@
       integer ierr
 
 *     **** local variables ****
+      logical oprint,lprint,hprint
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
       integer i,k,ia,nion,icharge,minimizer
@@ -121,6 +123,8 @@
       external control_minimizer,control_scf_algorithm
       real*8   control_ks_alpha
       external control_ks_alpha
+      logical  control_print
+      external control_print
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -137,10 +141,19 @@
       call Parallel_Init()
       call Parallel_np(np)
       call Parallel_taskid(taskid)
-      if (taskid.eq.MASTER) call current_second(cpu1)
+
+      value = control_read(3,rtdb)
+      if (.not. value) 
+     > call errquit('error reading control',0, INPUT_ERR)
+
+      oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
+      lprint= ((taskid.eq.MASTER).and.control_print(print_low))
+      hprint= ((taskid.eq.MASTER).and.control_print(print_high))
+
+      if (oprint) call current_second(cpu1)
 
 *     ***** print out header ****
-      if (taskid.eq.MASTER) then
+      if (oprint) then
          write(6,1000)
          write(6,1010)
          write(6,1020)
@@ -160,9 +173,6 @@
          write(6,1110)
       end if
       
-      value = control_read(3,rtdb)
-      if (.not. value) 
-     > call errquit('error reading control',0, INPUT_ERR)
 
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
@@ -259,7 +269,7 @@ c     value = psi_initialize()
 ******************   summary of input data  **********************
 *                |**************************|
 
-      if (taskid.eq.MASTER) then
+      if (oprint) then
          write(6,1111) np
          write(6,1115)
 
@@ -298,6 +308,7 @@ c     value = psi_initialize()
      >           + ion_TotalCharge()
          write(6,1159) icharge
 
+         if (hprint) then
          write(6,1160)
          write(6,1170) (psp_atom(K),ion_natm(K),K=1,psp_npsp())
          write(6,1180)
@@ -315,6 +326,7 @@ c     value = psi_initialize()
 
          call pspw_qmmm_Print(6)
          call pspw_charge_Print(6)
+         end if
 
          write(6,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
          write(6,1230)
@@ -388,7 +400,7 @@ c     end if
       call cgsd_oep_eigenvalues()
 
 *     **** extra energy output for QA test ****
-      if (taskid.eq.MASTER) write(6,1600) EV
+      if (lprint) write(6,1600) EV
 
 *     **** calculate the spin contamination ****
       if (flag.gt.-1) call psi_spin2(dipole(1))
@@ -499,7 +511,7 @@ c     end if
 *                |***************************|
 ****************** report consumed cputime   **********************
 *                |***************************|
-      if (taskid.eq.MASTER) then
+      if (lprint) then
          CALL current_second(cpu4)
 
          T1=CPU2-CPU1
@@ -517,6 +529,7 @@ c     end if
          write(6,*) 'cputime/step: ',AV,
      >              '   (',electron_count(),' evalulations, ', 
      >                     linesearch_count(),' line searches)'
+         if (oprint) then
          write(6,*)
          write(6,*) '-------------------------------'
          write(6,*) 'Time spent doing:'
@@ -538,6 +551,7 @@ c     end if
      >                          nwpw_timing(8)/dble(electron_count())           
          write(6,*) '  masking and packing        : ', nwpw_timing(9),
      >                          nwpw_timing(9)/dble(electron_count())           
+         end if
          write(6,*)
          CALL nwpw_MESSAGE(4)
       end if 

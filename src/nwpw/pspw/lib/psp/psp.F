@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.14 2003-12-03 23:36:11 bylaska Exp $
+* $Id: psp.F,v 1.15 2004-01-28 00:08:47 bylaska Exp $
 *
 
 #define TCGMSG
@@ -1550,6 +1550,8 @@ c       close(11)
 #include "errquit.fh"
       
 #include "mafdecls.fh"
+#include "util.fh"
+
 #include "psp.fh"
 
 *     **** version4 common block ****
@@ -1579,12 +1581,12 @@ c     logocal semicore(0:nkatmx)
       parameter(MASTER=0)
 
 *     **** external functions ****
-      logical      nwpw_filefind
+      logical      nwpw_filefind,control_print
       integer      control_ngrid
       real*8       control_unita
       character*12 control_boundry
       character*2  ion_atom
-      external     nwpw_filefind
+      external     nwpw_filefind,control_print
       external     control_ngrid
       external     control_unita
       external     control_boundry
@@ -1677,7 +1679,8 @@ c     logocal semicore(0:nkatmx)
      >       ((boundry(1:l).eq.'periodic').and.(version.ne.3)).or.
      >       ((boundry(1:l).eq.'aperiodic').and.(version.ne.4))) then
               correct_box = .false.
-              if (taskid.eq.MASTER) then
+              if ((taskid.eq.MASTER).and.
+     >           control_print(print_medium)) then
               write(6,*) "pseudopotential is not correctly formatted:",
      >                    fname
               end if

@@ -1,5 +1,5 @@
 *
-* $Id: lcao_write_psi.F,v 1.4 2003-10-24 18:56:59 marat Exp $
+* $Id: lcao_write_psi.F,v 1.5 2004-01-28 00:08:46 bylaska Exp $
 *
 
 *     *******************************************
@@ -25,21 +25,25 @@
 
 #include "mafdecls.fh"
 #include "global.fh"
+#include "util.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
       parameter (MASTER=0)
-      logical value
+      logical value,oprint
       integer n,l,nbasis,ms,nfft3d
       integer psi(2),tmp(2),coef(2)
       character*255 full_filename
 
 
 *     ***** external functions ****
+      logical  control_print
+      external control_print
       integer  aorbs_nbasis
       external aorbs_nbasis
 
       call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER).and.control_print(print_medium)
       call D3dB_nfft3d(1,nfft3d)
       nbasis = aorbs_nbasis()
 
@@ -53,10 +57,12 @@
 
 
 *     **** open ELCIN binary file ****
-      if (taskid.eq.MASTER) then
+      if (oprint) then
          write(*,*) "lcao guess, initial psi:",filename
          write(*,*) "-   spin, nalpha, nbeta:",ispin,ne
+      end if
 
+      if (taskid.eq.MASTER) then
          call util_file_name_noprefix(filename,.false.,
      >                                .false.,
      >                       full_filename)
@@ -127,21 +133,25 @@
 
 #include "mafdecls.fh"
 #include "global.fh"
+#include "util.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
       parameter (MASTER=0)
-      logical value
+      logical value,oprint
       integer n,l,nbasis,ms,nfft3d
       integer psi(2),tmp(2),coef(2)
       character*255 full_filename
 
 
 *     ***** external functions ****
+      logical  control_print
+      external control_print
       integer  aorbs_nbasis
       external aorbs_nbasis
 
       call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER).and.control_print(print_medium)
       call D3dB_nfft3d(1,nfft3d)
       nbasis = aorbs_nbasis()
 
@@ -155,10 +165,12 @@
 
 
 *     **** open ELCIN binary file ****
-      if (taskid.eq.MASTER) then
+      if (oprint) then
          write(*,*) "lcao guess, initial epsi:",filename
          write(*,*) "-   spin, nalpha, nbeta:",ispin,ne_excited
+      end if
 
+      if (taskid.eq.MASTER) then
          call util_file_name_noprefix(filename,.false.,
      >                                .false.,
      >                       full_filename)

@@ -1,5 +1,5 @@
 *
-* $Id: psi_new.F,v 1.9 2003-04-22 18:05:11 bylaska Exp $
+* $Id: psi_new.F,v 1.10 2004-01-28 00:08:47 bylaska Exp $
 *
 
 *     ***********************************
@@ -13,6 +13,7 @@
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "util.fh"
 
 
 *    *** local variables ***
@@ -41,8 +42,8 @@
       external control_totalcharge
       real*8   ion_totalcharge
       external ion_totalcharge
-      logical  lcao_wvfnc
-      external lcao_wvfnc
+      logical  lcao_wvfnc,control_print
+      external lcao_wvfnc,control_print
       integer  control_rtdb,control_version
       external control_rtdb,control_version
 
@@ -106,9 +107,11 @@
       if (.not.rtdb_get(rtdb,
      >         'nwpw:lcao_iterations',mt_int,1,lcao_iterations))
      >   lcao_iterations = 10
+
       if (.not.rtdb_get(rtdb,
      >         'nwpw:lcao_print',mt_log,1,lcao_print))
      >   lcao_print = .false.
+      lcao_print = lcao_print.or.control_print(print_high)
       if (.not.rtdb_get(rtdb,
      >         'nwpw:lcao_skip',mt_log,1,lcao_skip))
      >   lcao_skip = .false.

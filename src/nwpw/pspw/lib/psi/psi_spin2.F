@@ -11,15 +11,23 @@
       complex*16 psi(nfft3d,*)
       real*8 Sab
 
+#include "util.fh"
+
 *     **** local variables ****
+      logical oprint
       integer i,j
       real*8  Sexact,SS
        
       integer taskid,MASTER
       parameter (MASTER=0)
 
+*     **** external functions ****
+      logical  control_print
+      external control_print
+
 
       call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER).and.control_print(print_medium)
 
 *     ****************************
 *     ***** calculate <S^2> ******
@@ -42,7 +50,7 @@
          Sab    = 0.0d0
       end if
 
-      if (taskid.eq.MASTER) then
+      if (oprint) then
          WRITE(*,'(//A)') '=== Spin Contamination ==='
          write(*,*)
          write(*,*) "<Sexact^2> = ", Sexact

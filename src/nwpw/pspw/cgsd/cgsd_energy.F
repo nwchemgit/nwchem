@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.44 2003-12-13 21:07:41 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.45 2004-01-28 00:08:46 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -10,6 +10,7 @@ c     $Id: cgsd_energy.F,v 1.44 2003-12-13 21:07:41 bylaska Exp $
 #include "errquit.fh"
 
 #include "stdio.fh"
+#include "util.fh"
 
 
 c#include "global.fh"
@@ -20,7 +21,7 @@ c#include "rtdb.fh"
       integer MASTER
       parameter (MASTER=0)
 
-      logical stalled,value
+      logical stalled,value,oprint
       integer taskid
       integer minimizer
       integer i,j,ms,neall,NN
@@ -36,6 +37,7 @@ c#include "rtdb.fh"
 *     **** external functions ****
       logical     psp_semicore,pspw_qmmm_found,pspw_charge_found
       logical     control_out_of_time,pspw_SIC,control_DOS
+      logical     control_print
       character*2 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
       integer     ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
@@ -46,11 +48,13 @@ c#include "rtdb.fh"
       external ion_aname
       external control_it_in, control_it_out,control_minimizer
       external ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
+      external    control_print
       external control_tole,control_tolc
       external ion_rion,psi_eigenvalue,psi_hml,ion_amass
 
 
       call Parallel_taskid(taskid)
+      oprint = ((taskid.eq.MASTER).and.control_print(print_medium))
 
 *     **** set the minimizer ****
       minimizer = control_minimizer()
@@ -62,7 +66,7 @@ c#include "rtdb.fh"
 
 
 *     :::::::::::  begin electron iteration  :::::::::::::::::::::::
-      if (taskid.eq.MASTER) then
+      if (oprint) then
          !write(luout,1300)
          write(luout,1301)
          !write(luout,1302)
@@ -85,7 +89,7 @@ c#include "rtdb.fh"
       tole   = control_tole()
       tolc   = control_tolc()
       E(1)=0.0d0
-      if (taskid.eq.MASTER) then
+      if (oprint) then
         if (minimizer.eq.5) then
           call nwpw_message(7)
         else
@@ -93,7 +97,7 @@ c#include "rtdb.fh"
         end if
       end if
 
-      if (taskid.eq.MASTER) call util_flush(luout)
+      if (oprint) call util_flush(luout)
       if (minimizer.gt.1) call pspw_Grsm_list_start()
       if (minimizer.eq.5) it_out = 1
       if (newpsi) then
@@ -137,12 +141,12 @@ c#include "rtdb.fh"
          end if
          !stalled = .false. !debug
         
-         if ((taskid.eq.MASTER).and.(minimizer.ne.5)) then 
+         if ((oprint).and.(minimizer.ne.5)) then 
            write(luout,1310) icount*it_in,E(1),deltae,deltac
            call util_flush(luout)
          end if
          if (deltae.gt.0.0d0) then
-            if (taskid.eq.MASTER) 
+            if (oprint) 
      >       write(luout,*) 
      >       ' *** energy going up. iteration not terminated'
              stalled = .true.
@@ -151,25 +155,25 @@ c#include "rtdb.fh"
          deltae = dabs(deltae)
          if ((deltae.lt.tole).and.
      >       (deltac.lt.tolc)) then
-            if (taskid.eq.MASTER) 
+            if (oprint) 
      >       write(luout,*) ' *** tolerance ok. iteration terminated'
             go to 3
          end if
          if (control_out_of_time()) then
-            if (taskid.eq.MASTER) 
+            if (oprint) 
      >       write(luout,*) ' *** out of time. iteration terminated'
            go to 3
          end if
 
       if (icount.lt.it_out) go to 2
-      if (taskid.eq.MASTER) 
+      if (oprint) 
      > write(luout,*) '*** arived at the Maximum iteration.  terminated'
 
 *     :::::::::::  end of electron iteration loop  :::::::::::::::::::::
 
    3  continue
       if (minimizer.gt.1) call pspw_Grsm_list_end()
-      if (taskid.eq.MASTER) CALL NWPW_MESSAGE(3)
+      if (oprint) CALL NWPW_MESSAGE(3)
 
 
 *     **** diagonalize hamiltonian and rotate psi  ****
@@ -193,7 +197,7 @@ c#include "rtdb.fh"
       call center_mass(gx,gy,gz)
 
 *:::::::::::::::::   report summary of results  :::::::::::::::::::::::
-      if (taskid.eq.MASTER) then
+      if (oprint) then
          neall = (psi_ne(1)+psi_ne(2))
          write(luout,1304)
          write(luout,1410)
@@ -399,10 +403,12 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
 
       subroutine cgsd_energy_gradient(G1)
       implicit none
-#include "stdio.fh"
       real*8 G1(3,*)
 
-      logical allow_translation
+#include "stdio.fh"
+#include "util.fh"
+
+      logical allow_translation,lprint,mprint
       integer MASTER
       parameter (MASTER=0)
       integer i,k,taskid,nion,nion1
@@ -413,13 +419,13 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
 
 *     **** external functions ****
       logical     psp_semicore,pspw_qmmm_found,pspw_charge_found
-      logical     control_allow_translation,ion_q_FixIon
+      logical     control_allow_translation,ion_q_FixIon,control_print
       character*2 ion_aname,pspw_qmmm_aname,pspw_charge_aname
       integer     ion_katm,ion_nion,control_version
       integer     pspw_qmmm_nion,pspw_charge_nion
       real*8      ion_rion,pspw_qmmm_rion,pspw_charge_rion
       external psp_semicore,pspw_qmmm_found,pspw_charge_found
-      external control_allow_translation,ion_q_FixIon
+      external control_allow_translation,ion_q_FixIon,control_print
       external ion_aname,pspw_qmmm_aname,pspw_charge_aname
       external ion_katm,ion_nion,control_version
       external pspw_qmmm_nion,pspw_charge_nion
@@ -470,14 +476,24 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       end do
 
       call Parallel_taskid(taskid)
+      mprint = ((taskid.eq.MASTER).and.control_print(print_medium))
+      lprint = ((taskid.eq.MASTER).and.control_print(print_low))
+
       if (taskid.eq.MASTER) then
+        if (mprint) then
         !write(luout,1300)
         write(luout,1301)
         !write(luout,1302)
+        end if
+
+        if (lprint) then
         write(luout,1304)
         if (.not.allow_translation) write(luout,1400) fmx,fmy,fmz
         write(luout,1304)
         write(luout,1410)
+        end if
+
+        if (mprint) then
         write(luout,1420)
         do I=1,ion_nion()
           if (ion_q_FixIon(I)) then
@@ -515,7 +531,9 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
             end if
           end do
         end if
+        end if
 
+        if (lprint) then
         write(luout,1421)
         write(luout,1190)(i,ion_aname(I),
      >                  (G1(K,I),K=1,3),I=1,ion_nion())
@@ -541,6 +559,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
         write(luout,1210) fmx2,fmy2,fmz2  
         write(luout,1425)
         write(luout,1426) dsqrt(GG)
+        end if
       end if
 
 c     call dscal(3*nion,(-1.0d0),G1,1)

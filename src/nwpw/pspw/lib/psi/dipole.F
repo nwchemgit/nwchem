@@ -1,5 +1,5 @@
 *
-* $Id: dipole.F,v 1.6 2003-10-17 22:57:36 carlfahl Exp $
+* $Id: dipole.F,v 1.7 2004-01-28 00:08:47 bylaska Exp $
 *
 
 *     ******************************
@@ -17,10 +17,11 @@
       real*8 dipole(3)
 
 #include "mafdecls.fh"
+#include "util.fh"
 
 
 *     **** local variables ****
-      logical value
+      logical value,oprint
       integer ii
       integer nx,ny,nz
       integer n1,n2,n3,ncut
@@ -43,14 +44,18 @@
       parameter (autoDebye=2.5416d0)
  
 *     **** external functions ****
+      logical  control_print
       integer  ion_katm,ion_nion,control_ncut
       real*8   ion_amass,psp_zv,ion_rion,lattice_omega
       real*8   lattice_unita
+      external control_print
       external ion_katm,ion_nion,control_ncut
       external ion_amass,psp_zv,ion_rion,lattice_omega
       external lattice_unita
 
       call Parallel_taskid(taskid)
+      oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
+
 
 *     ***** center of mass  ****
       GX=0.0d0
@@ -232,7 +237,7 @@
       cdy3=cdy3/rmax
       cdz3=cdz3/rmax
 
-      if (taskid.eq.MASTER) then
+      if (oprint) then
         WRITE(*,1200)
         WRITE(*,1220) 'spin up   ',CDX1,CDY1,CDZ1
         if (ne(ispin).ne.0) 
@@ -252,7 +257,7 @@
       dipole(2) = -ncharge*cdy3 + pcharge*cqGY 
       dipole(3) = -ncharge*cdz3 + pcharge*cqGZ 
       cdx1 = dsqrt(dipole(1)**2 + dipole(2)**2 + dipole(3)**2)
-      if (taskid.eq.MASTER) then
+      if (oprint) then
          WRITE(*,1240)
          WRITE(*,1231) dipole
          WRITE(*,1232) cdx1,cdx1*autoDebye
@@ -265,7 +270,7 @@
       dipole(2) = -ncharge*cdy3 + pcharge*qGY - GY*(pcharge-ncharge)
       dipole(3) = -ncharge*cdz3 + pcharge*qGZ - GZ*(pcharge-ncharge)
       cdx1 = dsqrt(dipole(1)**2 + dipole(2)**2 + dipole(3)**2)
-      if (taskid.eq.MASTER) then
+      if (oprint) then
          WRITE(*,1230)
          WRITE(*,1231) dipole
          WRITE(*,1232) cdx1,cdx1*autoDebye

@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3.F,v 1.9 2003-12-02 19:17:10 bylaska Exp $
+* $Id: kbppv3.F,v 1.10 2004-01-28 00:08:46 bylaska Exp $
 *
 
 *     **************************************
@@ -16,6 +16,7 @@
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
+#include "util.fh"
 
       logical          oprint
       integer          version
@@ -26,7 +27,7 @@
       real*8  rlocal
       character*255 full_filename
 
-      logical value
+      logical value,mprint,hprint
 
       integer taskid,MASTER,msglen
       parameter (MASTER=0)
@@ -62,12 +63,17 @@
       integer nmax,nprj
 
 *     **** external functions ****
+      logical  control_print
+      external control_print
       double precision simp
       external         simp
 
 
       call Parallel_init()
       call Parallel_taskid(taskid)
+      hprint = (taskid.eq.MASTER).and.control_print(print_high)
+      mprint = (taskid.eq.MASTER).and.control_print(print_medium)
+      oprint = oprint.or.hprint
 
       value = .false.
   
@@ -281,9 +287,11 @@
      >                    .false.,
      >                    full_filename)
       l = index(full_filename,' ') - 1
+      if (mprint) then
       write(*,*)
       write(*,*) "Generated formatted_filename: ",full_filename(1:l)
       write(*,*)
+      end if
       call openfile(2,full_filename,l,'w',l)     
 
          call cwrite(2,comment,80)

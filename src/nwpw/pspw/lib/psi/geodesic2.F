@@ -1,5 +1,5 @@
 *
-* $Id: geodesic2.F,v 1.5 2003-10-17 22:57:36 carlfahl Exp $
+* $Id: geodesic2.F,v 1.6 2004-01-28 00:08:47 bylaska Exp $
 *
 
 *     ***********************************
@@ -154,17 +154,20 @@ c        call Grsm_ggm_dot(npack1,ne(ms),
 c    >                     Y(1+(ms-1)*ne(1)*npack1),
 c    >                     H(1+(ms-1)*ne(1)*npack1),
 c    >                     dbl_mb(A(1)+(ms-1)*ne(1)*ne(1)))
+         if (ne(ms).le.0) go to 30
          call Pack_ccm_dot(1,ne(ms),
      >                     Y(1+(ms-1)*ne(1)*npack1),
      >                     H(1+(ms-1)*ne(1)*npack1),
      >                     dbl_mb(A(1)+(ms-1)*ne(1)*ne(1)))
+   30    continue
       end do
 
 
 *     **** calculate Q=(I-YYt)H - should be necessary but just in case ****
       do ms=1,ispin
-         shift = (ms-1)*ne(1)*ne(1)
          n     = ne(ms)
+         if (n.le.0) go to 35
+         shift = (ms-1)*ne(1)*ne(1)
 c        call Grsm_ggm_dot(npack1,n,                  ! R=Yt*H
 c    >                     Y(1+(ms-1)*ne(1)*npack1),
 c    >                     H(1+(ms-1)*ne(1)*npack1),
@@ -178,6 +181,7 @@ c    >                     dbl_mb(R(1)+shift))
      >                     Y(1+(ms-1)*ne(1)*npack1),
      >                     dbl_mb(R(1)+shift),
      >                     dcpl_mb(Q(1)+(ms-1)*ne(1)*npack1))
+   35    continue
       end do
       call Grsm_ggg_Sub(npack1,(ne(1)+ne(2)),         ! Q=H-Q = H-Y*R =H-Y*Yt*H
      >                  H,
@@ -186,11 +190,13 @@ c    >                     dbl_mb(R(1)+shift))
 
 *     **** calculate QR using Modified Gram-Schmidt ****
       do ms=1,ispin
+         if (ne(ms).le.0) go to 40
          shift  = (ms-1)*ne(1)*ne(1)
          shift2 = (ms-1)*ne(1)*npack1
          call Grsm_g_QR(npack1,ne(ms),
      >                  dcpl_mb(Q(1)+shift2),
      >                  dbl_mb(R(1) +shift))
+   40    continue
       end do
 
 
@@ -198,14 +204,17 @@ c    >                     dbl_mb(R(1)+shift))
 *     **** generate T ****
       do ms=1,ispin
          shift = (ms-1)*ne(1)*ne(1)
+         if (ne(ms).le.0) go to 50
          call geodesic2_generate_T(ne(ms),
      >                             dbl_mb(A(1)+shift),
      >                             dbl_mb(R(1)+shift),
      >                             dbl_mb(T(1)+4*shift))
+   50    continue
       end do
 
 *     **** Factor T--> V,W,and S ****
       do ms=1,ispin
+         if (ne(ms).le.0) go to 60
          shift  = (ms-1)*4*ne(1)*ne(1)
          shift2 = (ms-1)*2*ne(1)
          n = 2*ne(ms)
@@ -214,6 +223,7 @@ c    >                     dbl_mb(R(1)+shift))
      >                    dbl_mb(V(1)+shift),
      >                    dbl_mb(W(1)+shift),
      >                    dbl_mb(S(1)+shift2))
+   60    continue
       end do
       
 
@@ -451,6 +461,7 @@ c       end do
 *     **** TT(t) = -R^t*NN(t) ****
       do ms=1,ispin
         n=ne(ms)
+        if (n.eq.0) go to 100  !*** ferromagnetic case ***
         shift2 = (ms-1)*ne(1)*ne(1)
 
         call DGEMM('T','N',n,n,n,
@@ -471,13 +482,14 @@ c          end do
 c          dbl_mb(TT(1)+shift) = -sum
 c       end do
 c       end do
+ 100    continue
 
       end do
 
 *     *** Hnew <-- Hold*M(t) + Yold*TT(t) ***
       do ms=1,ispin
         n = ne(ms)
-        if (n.eq.0) go to 100  !*** ferromagnetic case ***
+        if (n.eq.0) go to 200  !*** ferromagnetic case ***
         shift1 = (ms-1)*ne(1)
         shift2 = (ms-1)*ne(1)*ne(1)
 
@@ -508,7 +520,7 @@ c    >                         Hnew(1+(k-1+shift1)*npack1))
 c         end do
 c       end do
 
- 100    continue
+ 200    continue
 
       end do
 
@@ -604,9 +616,10 @@ c       end do
      >   call errquit('geodesic2_get_MandN: pushing stack',0, MA_ERR)
 
       do ms=1,ispin
+         nn = ne(ms)
+         if (nn.le.0) go to 100
          shift  = (ms-1)*4*ne(1)*ne(1)
          shift2 = (ms-1)*2*ne(1)
-         nn = ne(ms)
          call Rotate_Skew(2*nn,
      >                    dbl_mb(V(1)+shift),
      >                    dbl_mb(W(1)+shift),
@@ -623,6 +636,7 @@ c       end do
             N(1+shift) = dbl_mb(RR(1)+shift3)
          end do
          end do
+ 100    continue
       end do
 
 

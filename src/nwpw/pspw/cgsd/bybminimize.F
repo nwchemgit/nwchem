@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.11 2003-12-13 21:07:41 bylaska Exp $                       
+c     $Id: bybminimize.F,v 1.12 2004-01-28 00:08:46 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -22,6 +22,7 @@ c
 
 #include "stdio.fh"
 #include "mafdecls.fh"
+#include "util.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
@@ -43,7 +44,7 @@ c
 
       integer it,it_in,i,ispin,bfgscount,icount,sd_it,cg_it
 
-      logical value,precondition,done,stalled,deltav_bad(4)
+      logical value,precondition,done,stalled,deltav_bad(4),oprint
       integer n2ft3d
       real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
@@ -51,7 +52,7 @@ c
 
 
 *     **** external functions ****
-      integer  control_ispin,control_scf_algorithm
+      integer  control_ispin,control_scf_algorithm,control_print
       integer  control_it_in,control_it_out,psi_ne,control_version
       real*8   control_tole,control_tolc,control_ks_alpha
       real*8   rho_error,psi_1energy,psi_error
@@ -65,7 +66,7 @@ c
       real*8   psi_1eorbit
       real*8   ddot
    
-      external control_ispin,control_scf_algorithm
+      external control_ispin,control_scf_algorithm,control_print
       external control_it_in,control_it_out,psi_ne,control_version
       external control_tole,control_tolc,control_ks_alpha
       external rho_error,psi_1energy,psi_error
@@ -108,6 +109,7 @@ c
    
       Ein = E(1)
       call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER).and.control_print(print_medium)
 
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -278,7 +280,7 @@ c
       deltac = rho_error()
       E(1)   = Enew+eion
 
-      if ((taskid.eq.MASTER).and.(.not.set_iterations)) then 
+      if ((oprint).and.(.not.set_iterations)) then 
         write(luout,1310) it,E(1),deltae,deltac,deltav
         call util_flush(luout)
       end if
