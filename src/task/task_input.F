@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.34 2004-07-31 21:53:11 bylaska Exp $
+* $Id: task_input.F,v 1.35 2004-12-08 23:59:05 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -39,6 +39,8 @@ c
  10   if (inp_a(test)) then
          if (inp_compare(.false.,test,'energy')) then
             operation = 'energy'
+         else if (inp_compare(.false.,test,'property')) then
+            operation = 'property'
          else if (inp_compare(.false.,test,'optimize')) then
             operation = 'optimize'
          else if (inp_compare(.false.,test,'saddle')) then

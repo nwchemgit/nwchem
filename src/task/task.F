@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.65 2004-11-30 03:44:42 edo Exp $
+* $Id: task.F,v 1.66 2004-12-08 23:59:05 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -49,6 +49,7 @@ c
       logical qmmm_init
       logical qmmm_end
       logical cons_active
+      logical task_property
 c
       external qmmm_init
       external cons_active
@@ -66,6 +67,7 @@ c
       external task_pspw,task_band
       external task_drdy
       external task_et
+      external task_property
 c
       logical task_qmmm_optimize
       external task_qmmm_optimize
@@ -142,8 +144,6 @@ c
             status = nwmd(rtdb)
          else if (inp_compare(.false.,'cphf', theory)) then
             status = cphf(rtdb)
-         else if (inp_compare(.false.,'property', theory)) then
-            status = property(rtdb)
          else if (inp_compare(.false.,'drdy', theory).or.
      &            inp_compare(.false.,'dirdyvtst', theory).or.
      &            inp_compare(.false.,'drdy_nwchem', theory)) then
@@ -186,6 +186,8 @@ c
          status = task_energy(rtdb)
       else if (inp_compare(.false., 'gradient', operation)) then
          status = task_gradient(rtdb)
+      else if (inp_compare(.false., 'property', operation)) then
+         status = task_property(rtdb)
       else if (inp_compare(.false., 'hessian', operation)) then
          status = task_hessian(rtdb)
       else if (inp_compare(.false., 'optimize', operation)) then
