@@ -16,7 +16,7 @@
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadv0b.F,v 1.15 2000-09-21 15:23:53 bjohnson Exp $
+c$Id: grid_quadv0b.F,v 1.16 2000-10-14 01:37:43 bjohnson Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -28,12 +28,16 @@ c
 #include "util.fh"
 #include "grid_quad.fh"
 #include "grid_sic.fh"
+c !!! temp !!! ***
+#include "rtdb.fh"
+#include "bgj.fh"
+c !!! temp !!! ***
       integer  nqpts    ! [in] no. grid points  to be processed
       integer  ictr_buf ! [in] ctr of grid
       integer bas_cent_info(3,natoms),bas_cset_info(6,*)
       logical docset(*)
       double precision acc_AO_gauss, rad, dummy(1),rho0
-      integer nbf_ao_mxnbf_ce2, mbf_ao, npol, ncontrset
+      integer nbf_ao_mxnbf_ce2, mbf_ao, npol, ncontrset, maxdbas
       integer lchi_ao, ichi_ao, ldelchi_ao, idelchi_ao
       integer ldmat,idmat,i, grid_nbfm
       double precision dabsmax,wmax
@@ -43,12 +47,18 @@ c
       logical grid_sicinit,grid_sicend
       external grid_sicinit,grid_sicend
       double precision acc_xc_gauss
+      logical donewbf           !!! !!!! *** temp
 C
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if(nqpts.eq.0) return
-C     
+      if (GRAD) then
+         maxdbas = 1
+      else
+         maxdbas = 0
+      endif
+c
 c     Evaluate the AO basis set at each of the quad. points.
 c     allocate arrays for exponents and contraction coefficients
 c     within int_eval_gbsets
@@ -92,6 +102,14 @@ c
 c     
 c     
       call qdist(rchi_atom, rq, qxyz, xyz, nqpts, natoms)
+      if (.not. rtdb_get(bgj_get_rtdb_handle(), 'bgj:new_bf', mt_log,
+     &     1, donewbf)) donewbf = .true.
+      if (donewbf) then
+      call xc_eval_basis(ao_bas_han, maxdbas, dbl_mb(ichi_ao),
+     &     dbl_mb(idelchi_ao), 0d0, 0d0, rq, qxyz, xyz, nqpts, natoms,
+     &     iniz, docset, bas_cent_info, bas_cset_info)
+      else
+c !!! Can delete this and donewbf logic once confident in new basis fn code
       call new_eval_gbsets(ao_bas_han, grad, .false., 
      &     dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
      &     hess, ibf_ao, 0, rchi_atom, 
@@ -99,6 +117,7 @@ c
      &     mbf_ao, natoms, iscr, nscr, 
      &     expo, nbf_ao_mxprim, ccoef, ncoef_max, 
      &     iniz,ifin)
+      endif
 c     
 c     
 c     get reduced Xi(r) and dXi(r) over atoms
