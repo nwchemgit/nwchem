@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, nfock, jfac, kfac,
      $                    tol2e1, oskel1, vg_dens, vg_fock )
-c$Id: fock_2e.F,v 1.8 1998-09-09 13:07:02 bjohnson Exp $
+c$Id: fock_2e.F,v 1.9 1999-05-08 13:10:44 bjohnson Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -28,7 +28,7 @@ c     !!! BGJ test !!!
       integer g_xc(100) ! Assume no more than 100 fock matrices !!!
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
-      logical xc_active
+      logical xc_active, jfit
 c     !!! BGJ test !!!
 
 c     !!! BGJ test !!!
@@ -42,16 +42,22 @@ c
 
 c     Set K contribution to 0 for DFT - not good enough in general,
 c     e.g. for hybrids, but will do for testing pure DFT.
-
+c
       if (xc_active .and. bgj_have_xc()) then
          if (bgj_print().gt.0)
      &      write(*,*)'*** fock_2e: zeroing kfac ',kfac
          call dfill(nfock, 0.0d0, kfac, 1)
       endif
+c
+c     Determine whether J fitting is involved
+c
+      jfit = bgj_have_j_fit()
 
 c     !!! BGJ test !!!
 
-      if (nriscf.gt.1) then
+      if (jfit) then
+         call fock_j_fit(nfock, vg_dens, vg_fock)
+      else if (nriscf.gt.1) then
         call riscf_fock_2e( geom1, ao_basis, riscf_basis, nfock, 
      $       jfac, kfac, tol2e1, oskel1, vg_dens, vg_fock )
       else if (nriscf.eq.1) then
