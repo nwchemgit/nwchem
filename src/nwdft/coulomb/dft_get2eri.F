@@ -1,6 +1,6 @@
       Subroutine dft_get2eri(CD_bas_han, g_2ceri,oskel)
 c
-C$Id: dft_get2eri.F,v 1.13 2003-10-17 22:55:35 carlfahl Exp $
+C$Id: dft_get2eri.F,v 1.14 2004-10-02 22:53:18 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -19,6 +19,7 @@ c
      &        ishq, ifirstq, ilastq, nshq
       integer lbuf, ibuf, lscr, iscr, lvec, ivec
       integer nxtask
+      integer ishpq
       logical oskel,odoit
       external nxtask
       double precision q2
@@ -42,8 +43,11 @@ c
       me  = ga_nodeid()
       nproc  = ga_nnodes()
 c     niter  = (nshells_cd*(nshells_cd+1))/2
+!      icount = nshells_cd/nproc/4
       icount = (nshells_cd + mod(nshells_cd,2))/(2*nproc)
+      icount = (nshells_cd + mod(nshells_cd,2))/dsqrt(4d0*nproc)
       icount = max(icount,1)
+!      icount=1
       call int_mem_2e2c(maxg, mscratch_2e2c)
 c
 c      write(6,*)' nproc, me, icount, maxg, mscratch_2e2c: ',
@@ -56,8 +60,11 @@ c
       if (.not.MA_Push_Get(MT_Dbl,mscratch_2e2c,'scr',lscr,iscr))
      &   call errquit('dft_get2eri: cannot allocate scr',0, MA_ERR)
 c
+#if 0
       n1 = nxtask(nproc,icount)
       n2 = 0
+#endif
+      ishpq=0
 c
       do 20 ishp = 1, nshells_cd
 c
@@ -73,7 +80,10 @@ c
             q2=1d0
             if (oskel.and.(.not.
      .           sym_shell_pair(cd_bas_han,ishp,ishq,q2))) goto 10
+#if 0
             if ( n2.eq.n1 )then
+#endif
+            if (mod(ishpq, nproc) .eq. me) then
                if (.not. bas_cn2bfr(CD_bas_han, ishq, ifirstq, ilastq))
      &            call errquit('dft_get2eri: problem with bas_cn2bfr',0,
      &       BASIS_ERR)
@@ -97,9 +107,12 @@ c
      &                          g_2ceri, DBL_MB(ibuf), DBL_MB(ivec),
      .              'put')
 c
+#if 0
                n1 = nxtask(nproc,icount)
+#endif
 c
             endif
+            ishpq=ishpq+1
 c
             n2 = n2 + 1
 c
@@ -110,7 +123,9 @@ c
       if (.not.ma_chop_stack(lbuf))
      &   call errquit('dft_get2eri: cannot pop stack',0, MA_ERR)
 c
+#if 0
       n1 = nxtask(-nproc,icount)
+#endif
 c
       return
       end

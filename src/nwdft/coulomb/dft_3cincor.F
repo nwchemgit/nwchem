@@ -1,7 +1,7 @@
       Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd) 
 c 
-C$Id: dft_3cincor.F,v 1.31 2004-09-07 06:11:45 windus Exp $
+C$Id: dft_3cincor.F,v 1.32 2004-10-02 22:53:17 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -48,6 +48,8 @@ c
 c
       double precision THRESHOLD, ERI_est, ratio
       double precision q1
+      external nxtask
+      integer nxtask
 c
       THRESHOLD=10.d0**(-itol2e)
       oprint_semi_file = util_print('semi-direct info', print_high)
@@ -133,8 +135,8 @@ cedo      call ga_sync
 c
       nxtbuf = batch_max
       nbufs = icount
-      call nxtask_nleft (nproc, icount, n1, nbufs)
-c      n1 = nxtask(nproc,icount)
+cedo      call nxtask_nleft (nproc, icount, n1, nbufs)
+      n1 = nxtask(nproc,icount)
       n2 = 0
 c      
       ndone=1
@@ -225,8 +227,8 @@ c     &                     ' n_batch, iwhat(n_batch), ndone ',/,10i5)
 c              call util_flush(LuOut)
 c
               if( nxtbuf.lt.n3c_dbl) then
-                call nxtask_nleft (nproc, icount, n1, nbufs)
-c                n1 = nxtask(nproc,icount)
+cedo                call nxtask_nleft (nproc, icount, n1, nbufs)
+                n1 = nxtask(nproc,icount)
               else
 c
 c               The most simplest of semi-direct implementations.
@@ -282,7 +284,8 @@ c                  get next task
 c
                    if(oprint_semi_file) write(LuOut,*) 
      .                  ' me ',ga_nodeid(),' asking task '
-                   call nxtask_nleft (nproc, icount, n1, nbufs)
+cedo                   call nxtask_nleft (nproc, icount, n1, nbufs)
+                n1 = nxtask(nproc,icount)
                    if(oprint_semi_file) write(LuOut,*) 
      .                  ' me ',ga_nodeid(),' got task ',n1
                 else
@@ -380,7 +383,8 @@ c
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_3cincor: cannot pop stack',0, MA_ERR)
 c
-      call nxtask_nleft (-nproc, icount, n1, nbufs)
+                n1 = nxtask(-nproc,icount)
+cedo      call nxtask_nleft (-nproc, icount, n1, nbufs)
  3241 format(10x,'The percent of 3c 2e- integrals held in-core is: ',
      &       f6.2,/)
  3242 format(10x,'The percent of 3c 2e- integrals held on-disk is: ',
