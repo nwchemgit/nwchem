@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.50 1996-08-02 01:57:48 d3g681 Exp $
+C$Id: geom.F,v 1.51 1996-08-22 21:33:39 d3e863 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -1620,6 +1620,23 @@ c
           amatinv(i,j)=amatrix_inv(i,j,geom)
         end do
       end do
+      end
+      logical function geom_uniquecent_get(geom,ncent,uniquecent)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom,ncent             ! [input]
+      integer uniquecent(ncent)      ! [output] indicies of unique centers
+      integer i
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_uniquecent_get=geom_check_handle(geom,'geom_uniquecent_get')
+      if (.not. geom_uniquecent_get) return
+c
+      do i=1,ncent
+         uniquecent(i)=unique_cent(i,geom)
+      enddo
       end
       logical function geom_set_user_units(geom, units)
       implicit none
