@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.18 2002-12-18 01:13:34 edo Exp $
+c$Id: grid_invariant.F,v 1.19 2003-01-18 03:58:34 edo Exp $
 c
       implicit none
 c      
@@ -117,7 +117,7 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.18 2002-12-18 01:13:34 edo Exp $
+c$Id: grid_invariant.F,v 1.19 2003-01-18 03:58:34 edo Exp $
 c
       implicit none
 c
@@ -135,7 +135,7 @@ c     allocate space for M and T (rotational invariance;
 c     see B.G. Johnson et al, CPL, 220, 377 (1994), and auxiliary 
 c     species R_a - T and (R_a -T)(R_a - T)^T
 c
-      double precision tvec(3), ramt(3), ramtm(3,3), eigs(3), work(12)
+      double precision tvec(3), ramt(3), ramtm(3,3), eigs(3)
       double precision ztot, lramt,coss,dett
 c
       integer ictr, icart, jcart
@@ -210,10 +210,6 @@ c
             enddo
          enddo
       enddo
-      if(ga_nodeid().eq.0.and.oprint) then
-         write(LuOut,*)' nuclear charge qrot: '
-         call output(qrot, 1, 3, 1, 3, 3, 3, 1)
-      endif
       valratio=abs(qrot(1,2)+qrot(1,3)+qrot(2,3))/
      /     (qrot(1,1)+qrot(2,2)+qrot(3,3))
       if(ga_nodeid().eq.0.and.oprint) then
@@ -230,9 +226,14 @@ c
 c     diagonalize M
 c
       call dcopy(9,qrot,1,qin,1)
-      call dcopy(12,0d0,0,work, 1)
       call dcopy(3,0d0,0,eigs, 1)
-      call util_jacobi(3, qrot,3, eigs)
+      call util_jacobinosort(3, qrot,3, eigs)
+      if(ga_nodeid().eq.0.and.oprint) then
+         write(LuOut,*)' nuclear charge qrot: '
+         call output(qin, 1, 3, 1, 3, 3, 3, 1)
+         write(LuOut,*)'eig: ',eigs
+      endif
+      
       ddiag=abs(eigs(1)-qin(1,1))+abs(eigs(2)-qin(2,2))+
      +     abs(eigs(3)-qin(3,3))
       if(abs(ddiag).lt.eps) then
@@ -248,6 +249,7 @@ c
          if(ga_nodeid().eq.0.and.oprint) then
             write(LuOut,*)'wqrot: '
             call output(qrot, 1, 3, 1, 3, 3, 3, 1)
+            write(LuOut,*)'eig: ',eigs
          
             write(LuOut,*) ' WARNING: nonsense rotational matrix'
             write(LuOut,*) ' cosine      ',coss

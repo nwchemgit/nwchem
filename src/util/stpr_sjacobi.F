@@ -1,5 +1,5 @@
-      subroutine stpr_sjacobi(nm,n,a,w,eivr,ierr)
-c $Id: stpr_sjacobi.F,v 1.1 2000-08-28 23:27:41 edo Exp $
+      subroutine stpr_sjacobi(nm,n,a,w,eivr,ierr,sorting)
+c $Id: stpr_sjacobi.F,v 1.2 2003-01-18 03:58:31 edo Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       dimension a(n*(n+1)/2),w(n),eivr(nm,n)
 c
@@ -10,6 +10,7 @@ c     the routine is much faster than the old hdiag routine written
 c     at m.i.t. that uses the jacobi method but not the variable
 c     threshold technique that is applied here
 c
+      logical sorting
 c-----parameters---------------
       sq2inv = 1.d0/sqrt(2.d0)
       t1     = 1.d-12
@@ -176,6 +177,7 @@ c
         idiag = idiag + i
         w(i) = a(idiag)
   170 continue
+      if(sorting) then
 c
 c     Arrange eigenvalues & vectors in ascending order.
 c
@@ -197,6 +199,7 @@ c
           endif
   200   continue
         goto 180
+      endif
       endif
       return
       end

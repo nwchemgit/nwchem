@@ -4,7 +4,7 @@
      &       ATMASS, CMASS, TENIN, ENERGY,
      &       CONVGE, CONVGG, CONVGGM,
      &       NINTER, NMODE, RPATH, TRACK, BCKSTP)
-c $Id: stpr_partit.F,v 1.10 2000-10-30 22:40:00 d3e129 Exp $
+c $Id: stpr_partit.F,v 1.11 2003-01-18 03:58:34 edo Exp $
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK, BCKSTP, RPATH, TROUB
@@ -396,7 +396,8 @@ C
 *debug:      write(6,*)' hessian ninternal print'
 *debug:      call stpr_prntpd(hess,(ninter*(ninter+1)/2),ninter,6)
 *debug:      call stpr_datestp(6,'partit: before jacobi')
-      CALL stpr_sjacobi(NAT3,NINTER,HESS,HIEIGS,SCRSQ,IERR)
+      CALL stpr_sjacobi(NAT3,NINTER,HESS,HIEIGS,SCRSQ,IERR,
+     .     .true.)
 *debug:      call stpr_datestp(6,'partit: after  jacobi')
 *debug:      write(6,*)'hess stpr_partit after jacobi',nat3tr
 *debug:      do i=1,nat3tr
