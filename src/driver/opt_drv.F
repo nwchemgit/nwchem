@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.6 1996-10-23 22:07:14 mdupuis Exp $
+C$Id: opt_drv.F,v 1.7 1996-11-14 22:55:32 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -27,6 +27,7 @@ c
       logical function hnd_optx(rtdb)
       implicit double precision (a-h,o-z)
 #include "rtdb.fh"
+#include "msgtypesf.h"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
@@ -63,10 +64,10 @@ c                mxcoor=max(mxcart,mxzmat)
       data alphmn /0.4d+00/
       data alphmx /2.5d+00/
 c
-      dbug=.false.
+      dbug=.false.  
       some=.false.
       some=some.or.dbug
-      if(some) then
+      if (ga_nodeid().eq.0.or.some)  then
          write(iw,9999)
       endif
 c
@@ -74,30 +75,69 @@ c     ----- parameters for optimization driver -----
 c           may have been read in already. if
 c           not, use default.
 c
-      status=rtdb_get(rtdb,'driver:opt',mt_log,1,opt_input)
-      if(.not.status) then
-         cvgopt=8.0d-04
-         nptopt=20
-         linopt=10
-         inhess=0
-         modupd=1
-         do i=1,mxcoor
-            icfrz(i)=0
-         enddo
-         do i=1,mxatom
-            iatfrz(i)=0
-         enddo
+      status = rtdb_parallel(.false.)
+      if (ga_nodeid().eq.0)  then
+         status=rtdb_get(rtdb,'driver:opt',mt_log,1,opt_input)
+         if(.not.status) then
+            cvgopt=8.0d-04
+            nptopt=20
+            linopt=10
+            inhess=0
+            modupd=1
+            do i=1,mxcoor
+               icfrz(i)=0
+            enddo
+            do i=1,mxatom
+               iatfrz(i)=0
+            enddo
+         endif
+         call ga_brdcst( 1+msgdbl,cvgopt,mdtob(1     ),0)
+         call ga_brdcst( 2+msgint,nptopt,mitob(1     ),0)
+         call ga_brdcst( 3+msgint,linopt,mitob(1     ),0)
+         call ga_brdcst( 4+msgint,inhess,mitob(1     ),0)
+         call ga_brdcst( 5+msgint,modupd,mitob(1     ),0)
+         call ga_brdcst( 6+msgint,icfrz ,mitob(mxcoor),0)
+         call ga_brdcst( 7+msgint,iatfrz,mitob(mxatom),0)
+      else
+         call ga_brdcst( 1+msgdbl,cvgopt,mdtob(1     ),0)
+         call ga_brdcst( 2+msgint,nptopt,mitob(1     ),0)
+         call ga_brdcst( 3+msgint,linopt,mitob(1     ),0)
+         call ga_brdcst( 4+msgint,inhess,mitob(1     ),0)
+         call ga_brdcst( 5+msgint,modupd,mitob(1     ),0)
+         call ga_brdcst( 6+msgint,icfrz ,mitob(mxcoor),0)
+         call ga_brdcst( 7+msgint,iatfrz,mitob(mxatom),0)
+      endif
+      call ga_sync()
+      status = rtdb_parallel(.true.) 
+c
+      if (ga_nodeid().eq.0.or.dbug)  then
+         write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd
       endif
 c
-      write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd
-c
 c     ----- get going ... -----
+c
+      if (ga_nodeid().eq.0)  then
+         call ga_brdcst( 8+msgint,nzmat ,mitob(1     ),0)
+         call ga_brdcst( 9+msgint,nzvar ,mitob(1     ),0)
+         call ga_brdcst(10+msgint,nvar  ,mitob(1     ),0)
+         call ga_brdcst(11+msgint,nat   ,mitob(1     ),0)
+         call ga_brdcst(12+msgdbl,c     ,mdtob(mxcart),0)
+         call ga_brdcst(13+msgdbl,zan   ,mdtob(mxatom),0)
+      else
+         call ga_brdcst( 8+msgint,nzmat ,mitob(1     ),0)
+         call ga_brdcst( 9+msgint,nzvar ,mitob(1     ),0)
+         call ga_brdcst(10+msgint,nvar  ,mitob(1     ),0)
+         call ga_brdcst(11+msgint,nat   ,mitob(1     ),0)
+         call ga_brdcst(12+msgdbl,c     ,mdtob(mxcart),0)
+         call ga_brdcst(13+msgdbl,zan   ,mdtob(mxatom),0)
+      endif
 c
       rstart=.false.
       excess=.false.
       zcoord=.false.
       zcoord=nzmat.gt.0
       if(zcoord) then
+         call geom_zmt_icoord
          ncart =3*nat
          ncoord=nvar                  
          mcoord=nzvar
@@ -109,9 +149,10 @@ c
          ncoord=ncart
          mcoord=ncart
       endif
-      if(dbug) then
+      if(dbug)  then
          write(iw,9997) nzvar,nvar,ncart,ncoord,mcoord
       endif
+c
 c
 c     ----- fresh start : initialize hessian matrix -----
 c
@@ -147,9 +188,13 @@ c
       do i=1,ncart
          x(i)=c(i)
       enddo
+c
       call hnd_opt_energy(rtdb)
+c
       func=e
+c
       call hnd_opt_gradient(rtdb)
+c
       do i=1,ncart
          g(i)=eg(i)
       enddo
@@ -170,7 +215,9 @@ c
 c     ----- exit if converged -----                     
 c
       if(cvged) then
-         write(iw,9998)
+         if (ga_nodeid().eq.0.or.dbug)  then
+            write(iw,9998)
+         endif
          hnd_optx=.true.
          return
       endif
@@ -199,7 +246,9 @@ c
       endif
       call hnd_opt_search_lin(rtdb,geom,rstart,excess)
       if(excess) then
-         write(iw,9995)
+         if (ga_nodeid().eq.0.or.dbug)  then
+            write(iw,9995)
+         endif
          return
       endif
       do i=1,ncoord
@@ -217,7 +266,9 @@ c
       call hnd_opt_converge(rtdb,cvged)
       call hnd_opt_print(rtdb)
       if(cvged) then
-         write(iw,9998)
+         if (ga_nodeid().eq.0.or.dbug)  then
+            write(iw,9998)
+         endif
          hnd_optx=.true.
          return
       endif
@@ -269,15 +320,12 @@ c
       logical  status
       logical  opt_input
 c
-      if(ga_nodeid().eq.0) then
+      call hnd_opt_input
 c
-         call hnd_opt_input
-c
-         opt_input=.true.
-         status=rtdb_put(rtdb,'driver:opt',mt_log,1,opt_input)
-         if(.not.status) then
-            call errquit('optdrv_input : rtdb_put failed',911)
-         endif
+      opt_input=.true.
+      status=rtdb_put(rtdb,'driver:opt',mt_log,1,opt_input)
+      if(.not.status) then
+         call errquit('optdrv_input : rtdb_put failed',911)
       endif
 c
       return
@@ -439,6 +487,11 @@ c
       end
       subroutine hnd_opt_converge(rtdb,cvged)
       implicit double precision (a-h,o-z)
+#include "rtdb.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "geom.fh"
       integer    rtdb
       logical    cvged
       parameter (mxatom=500)
@@ -451,7 +504,9 @@ c
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
       common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir
 c
-      write(iw,9999) gmax,cvgopt,gmax0
+      if( ga_nodeid().eq.0) then
+         write(iw,9999) gmax,cvgopt,gmax0
+      endif
 c
       cvged=gmax.lt.cvgopt
 c
@@ -483,12 +538,15 @@ c
 c
       dbug=.false.
 c
-      write(iw,9999) nserch,npts
-      write(iw,9996)
-      do iat=1,nat
-         write(iw,9995) iat,(c(i,iat),i=1,3)
-      enddo
-      write(iw,9997)
+      if( ga_nodeid().eq.0.or.dbug) then
+         write(iw,9999) nserch,npts
+         write(iw,9996)
+         do iat=1,nat
+            write(iw,9995) iat,(c(i,iat),i=1,3)
+         enddo
+         write(iw,9997)
+      endif
+c
       if(nzmat.gt.0) then
          call hnd_bandbi(nat,c)
          call hnd_zmtprt
@@ -795,11 +853,9 @@ c
       dbug=.false.
       out =.false.
       out =out.or.dbug
-      if(dbug) then
+      if(dbug)  then
          write(iw,9999)
       endif
-c
-c     ----- set broadcast off -----                     
 c
       status = rtdb_parallel(.false.)
       if (ga_nodeid().eq.0)  then
@@ -809,85 +865,114 @@ c
      &       call errquit('hnd_opt: no geometry ', 911)
          if (.not. geom_ncent(geom,nat))
      &       call errquit('hnd_opt: geom_ncent?',911)
-         if(dbug) then
-             write(iw,*)'   in hnd_opt_hss_init, nat =',nat
-             if (.not.geom_print(geom)) stop 'tmp error'
-         endif
+         call ga_brdcst(14+msgint,nat   ,mitob(1     ),0)
+      else
+         call ga_brdcst(14+msgint,nat   ,mitob(1     ),0)
+      endif
+      call ga_sync()
+      status = rtdb_parallel(.true.) 
+      if (dbug)  then
+          write(iw,*)'   in hnd_opt_hss_init, nat =',nat
+      endif
 c
 c     ----- define memory pointers -----
 c
-         ndimx=3*nat
-         ndimq=nzvar
-         ndim =mcoord           
+      ndimx=3*nat
+      ndimq=nzvar
+      ndim =mcoord           
 c
-         need=     ndim *ndim 
-         need=need+ndimx*ndimx
-         need=need+ndimq*ndimq
-         need=need+ndimq
-         need=need+abs(nzmat)
-         if (.not.
+      need=     ndim *ndim 
+      need=need+ndimx*ndimx
+      need=need+ndimq*ndimq
+      need=need+ndimq
+      need=need+abs(nzmat)
+      if (.not.
      &   MA_Push_Get(mt_dbl,need       ,'mem first',h_first ,k_first ))
      &   call errquit('hnd_opt_hss_init: malloc of first  failed?',911)
-         k_hss  =k_first
-         k_hssx =k_hss  +ndim *ndim 
-         k_hssq =k_hssx +ndimx*ndimx
-         k_zmat =k_hssq +ndimq*ndimq
-         k_izmat=k_zmat +ndimq
-         k_last =k_izmat+abs(nzmat)
+      k_hss  =k_first
+      k_hssx =k_hss  +ndim *ndim 
+      k_hssq =k_hssx +ndimx*ndimx
+      k_zmat =k_hssq +ndimq*ndimq
+      k_izmat=k_zmat +ndimq
+      k_last =k_izmat+abs(nzmat)
 c
-         if(dbug) then
-            write(iw,9997) k_first,k_last
-            write(iw,*) ' k_first   = ',k_first
-            write(iw,*) ' k_hss     = ',k_hss  
-            write(iw,*) ' k_hssx    = ',k_hssx 
-            write(iw,*) ' k_hssq    = ',k_hssq 
-            write(iw,*) ' k_zmat    = ',k_zmat 
-            write(iw,*) ' k_izmat   = ',k_izmat 
-            write(iw,*) ' k_last    = ',k_last 
-            do iat=1,mxatom
-               zan(iat)=zero
-               do ixyz=1,3
-                  c(ixyz,iat)=zero
-               enddo
+      if(dbug) then
+         write(iw,9997) k_first,k_last
+         write(iw,*) ' k_first   = ',k_first
+         write(iw,*) ' k_hss     = ',k_hss  
+         write(iw,*) ' k_hssx    = ',k_hssx 
+         write(iw,*) ' k_hssq    = ',k_hssq 
+         write(iw,*) ' k_zmat    = ',k_zmat 
+         write(iw,*) ' k_izmat   = ',k_izmat 
+         write(iw,*) ' k_last    = ',k_last 
+         do iat=1,mxatom
+            zan(iat)=zero
+            do ixyz=1,3
+               c(ixyz,iat)=zero
             enddo
-         endif
+         enddo
+      endif
 c
 c     ----- get cartesian coordinates -----  
 c
+      status = rtdb_parallel(.false.)
+      if (ga_nodeid().eq.0)  then
          if(.not.
      &   geom_cart_get(geom,nat,atom_tags,c,zan))
      &   call errquit('hnd_opt_hss_init: geom_cart_get failed?',911)
-         if(dbug) then
-            write(iw,*) 'in hnd_opt_hss_init , z and c = '
-            write(iw,9996) (zan(iat),(c(ixyz,iat),ixyz=1,3),iat=1,nat)
-         endif
+         call ga_brdcst(15+msgint,nat   ,mitob(1     ),0)
+         call ga_brdcst(16+msgdbl,c     ,mdtob(mxcart),0)
+         call ga_brdcst(17+msgdbl,zan   ,mdtob(mxatom),0)
+      else
+         call ga_brdcst(15+msgint,nat   ,mitob(1     ),0)
+         call ga_brdcst(16+msgdbl,c     ,mdtob(mxcart),0)
+         call ga_brdcst(17+msgdbl,zan   ,mdtob(mxatom),0)
+      endif
+      call ga_sync()
+      status = rtdb_parallel(.true.) 
+      if(dbug) then
+         write(iw,*) 'in hnd_opt_hss_init , z and c = '
+         write(iw,9996) (zan(iat),(c(ixyz,iat),ixyz=1,3),iat=1,nat)
+      endif
 c
 c     ----- create -zmat- data if requested -----
 c
-         if(nzmat.gt.0) then
-            call hnd_bandbi(nat,c)
+      if(nzmat.gt.0) then
+         call hnd_bandbi(nat,c)
+         status=rtdb_parallel(.false.)
+         if( ga_nodeid().eq.0) then
             if(.not.geom_zmt_get_zmat(dbl_mb(k_zmat),nzvar))                 
      &      call errquit('hnd_opt_hss_init:zmt_get_zmat failed?',911)
             if(.not.geom_zmt_get_izmat(dbl_mb(k_izmat),nzmat))                 
      &      call errquit('hnd_opt_hss_init:zmt_get_izmat failed?',911)
+            call ga_brdcst(24+msgdbl,dbl_mb(k_zmat ),mdtob(nzvar),0)
+            call ga_brdcst(25+msgdbl,dbl_mb(k_izmat),mdtob(nzmat),0)
+         else
+            call ga_brdcst(24+msgdbl,dbl_mb(k_zmat ),mdtob(nzvar),0)
+            call ga_brdcst(25+msgdbl,dbl_mb(k_izmat),mdtob(nzmat),0)
          endif
+         call ga_sync()
+         status=rtdb_parallel(.true.)
+      endif
 c
 c     ----- initial guess hessian ( cartesian or internal ) -----
 c
-         call hnd_opt_hss_init_x(dbl_mb(k_hss),ndim,
-     &                dbl_mb(k_hssx),ndimx,dbl_mb(k_hssq),ndimq,          
-     &                dbl_mb(k_zmat),dbl_mb(k_izmat))
+      call hnd_opt_hss_init_x(dbl_mb(k_hss),ndim,
+     &             dbl_mb(k_hssx),ndimx,dbl_mb(k_hssq),ndimq,          
+     &             dbl_mb(k_zmat),dbl_mb(k_izmat))
 c
 c     ----- release memory -----
 c
-         if (.not.MA_Pop_Stack(h_first))
+      if (.not.MA_Pop_Stack(h_first))
      &   call errquit('hnd_opt_hss_init: ma_pop_stack k_first   ?',911)
+      status=rtdb_parallel(.false.)
+      if( ga_nodeid().eq.0) then
          if (.not.geom_destroy(geom))
      &   call errquit('hnd_opt: geom_destroy?', 911)
-c
       endif
       call ga_sync()
-      status = rtdb_parallel(.true.) 
+      status=rtdb_parallel(.true.)
+c
       if(dbug) then
          write(iw,9998)
       endif
@@ -992,7 +1077,12 @@ C
       IF(.NOT.STATUS) THEN
          CALL ERRQUIT('HSS_INIT_X:GA_CREATE?',911)
       ENDIF
-      STATUS=DRIVER_OPT_PUT_HESS(HSS,NCOOR,NCOOR)
+      STATUS=RTDB_PARALLEL(.FALSE.)
+      IF( GA_NODEID().EQ.0) THEN
+         STATUS=DRIVER_OPT_PUT_HESS(HSS,NCOOR,NCOOR)
+      ENDIF
+      CALL GA_SYNC()
+      STATUS=RTDB_PARALLEL(.TRUE.)
 C
       RETURN
  9999 FORMAT(/,' IN  OPT_HSS-INIT_X , ', 
@@ -1425,151 +1515,189 @@ c
 c
 c     ----- set broadcast off -----
 c
-      status=rtdb_parallel(.false.)
-      if(ga_nodeid().eq.0) then
+      baker=.false.
+      if(out) then
+         write(iw,*) 'start of hnd_opt_search_dir, baker = ',
+     1                                             baker
+      endif
 c
-         baker=.false.
-         if(out) then
-            write(iw,*) 'start of hnd_opt_search_dir, baker = ',
-     1                                                baker
-         endif
+      ndimx=3*nat
+      ndimq=nzvar
+      ndimi=ncoord
+      ndim =mcoord           
+      if(baker) then
+         ndim1=ndimi+1
+      else
+         ndim1=ndimi
+      endif
+      if(dbug) then
+         write(iw,*) 'in search_dir,',
+     1   ' ndimx,ndimq,ndimi,ndim,ndim1 = ', 
+     2     ndimx,ndimq,ndimi,ndim,ndim1
+      endif
 c
-         ndimx=3*nat
-         ndimq=nzvar
-         ndimi=ncoord
-         ndim =mcoord           
-         if(baker) then
-            ndim1=ndimi+1
-         else
-            ndim1=ndimi
-         endif
-         if(dbug) then
-            write(iw,*) 'in search_dir,',
-     1      ' ndimx,ndimq,ndimi,ndim,ndim1 = ', 
-     2        ndimx,ndimq,ndimi,ndim,ndim1
-         endif
-c
-         need=      ndim1* ndim1
-         need=need+ ndim1* ndim1
-         need=need+(ndim1*(ndim1+1))/2
-         need=need+ ndim1
-         need=need+ ndim1
-         need=need+ ndim1
-         need=need+ ndim1
-         if(zcoord) then
-            need=need+ ndim *ndim 
-            need=need+ ndim *ndim 
-            need=need+ ndim 
-         endif
+      need=      ndim1* ndim1
+      need=need+ ndim1* ndim1
+      need=need+(ndim1*(ndim1+1))/2
+      need=need+ ndim1
+      need=need+ ndim1
+      need=need+ ndim1
+      need=need+ ndim1
+      if(zcoord) then
+         need=need+ ndim *ndim 
+         need=need+ ndim *ndim 
+         need=need+ ndim 
+      endif
 c
 c     ----- get memory -----
 c
-         if(.not.ma_push_get(mt_dbl,
-     1                  need,'mem first',i_ifirst,ifirst))
+      if(.not.ma_push_get(mt_dbl,
+     1               need,'mem first',i_ifirst,ifirst))
      2   call errquit('hnd_opt_search_dir: get first failed?',911)
 c
-         i10=ifirst 
-         i20=i10+ ndim1* ndim1
-         i30=i20+ ndim1* ndim1
-         i40=i30+(ndim1*(ndim1+1))/2
-         i50=i40+ ndim1
-         i60=i50+ ndim1
-         i70=i60+ ndim1
-         i80=i70+ ndim1
-         if(zcoord) then
-            j10=i80
-            j20=j10+ ndim *ndim 
-            j30=j20+ ndim *ndim 
-            j40=j30+ ndim 
-         endif
+      i10=ifirst 
+      i20=i10+ ndim1* ndim1
+      i30=i20+ ndim1* ndim1
+      i40=i30+(ndim1*(ndim1+1))/2
+      i50=i40+ ndim1
+      i60=i50+ ndim1
+      i70=i60+ ndim1
+      i80=i70+ ndim1
+      if(zcoord) then
+         j10=i80
+         j20=j10+ ndim *ndim 
+         j30=j20+ ndim *ndim 
+         j40=j30+ ndim 
+      endif
 c
 c     ----- get current hessian matrix -----
 c
-         if(zcoord) then
+      if(zcoord) then
+         status=rtdb_parallel(.false.)
+         if( ga_nodeid().eq.0) then
             status=driver_opt_get_hess(x(j10),ndimq,ndim)     
-            if(dbug) then
-               write(iw,*) 'in -search_dir- , int.coord. hessian = '
-               call hnd_prsq(x(j10),ndimq,ndimq,ndim)
-            endif
-            status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
-            if(dbug) then
-               write(iw,*) 'in -search_dir- , zsym = '                 
-               call hnd_prsq(x(j20),ndimq,ndimq,ndim)
-            endif
-            call hnd_tfhs(x(j10),x(j20),x(j30),ndimq,ndimq,ndim)
-            if(out) then
-               write(iw,*) 'in -search_dir- , transformed hessian = '
-               call hnd_prsq(x(j10),ndimq,ndimq,ndim)
-            endif
-            do j=1,ndimi
-               do i=1,ndimi
-                  x(i+ndim1*(j-1)+i10-1)=x(i+ndim*(j-1)+j10-1)
-               enddo
-            enddo
+            call ga_brdcst(26+msgdbl,x(j10),mdtob(ndim*ndim),0)
          else
-            status=driver_opt_get_hess(x(i10),ndimx,ndim1)       
-            if(dbug) then
-               write(iw,*) 'in -search_dir- , cartesian hessian = '
-               call hnd_prsq(x(i10),ndimx,ndimx,ndim1)
-            endif
+            call ga_brdcst(26+msgdbl,x(j10),mdtob(ndim*ndim),0)
          endif
+         call ga_sync()
+         status=rtdb_parallel(.true.) 
+         if(dbug) then
+            write(iw,*) 'in -search_dir- , int.coord. hessian = '
+            call hnd_prsq(x(j10),ndimq,ndimq,ndim)
+         endif
+         status=rtdb_parallel(.false.)
+         if( ga_nodeid().eq.0) then
+            status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
+            call ga_brdcst(27+msgdbl,x(j20),mdtob(ndim*ndim),0)
+         else
+            call ga_brdcst(27+msgdbl,x(j20),mdtob(ndim*ndim),0)
+         endif
+         call ga_sync()
+         status=rtdb_parallel(.true.) 
+         if(dbug) then
+            write(iw,*) 'in -search_dir- , zsym = '                 
+            call hnd_prsq(x(j20),ndimq,ndimq,ndim)
+         endif
+         call hnd_tfhs(x(j10),x(j20),x(j30),ndimq,ndimq,ndim)
+         if(out) then
+            write(iw,*) 'in -search_dir- , transformed hessian = '
+            call hnd_prsq(x(j10),ndimq,ndimq,ndim)
+         endif
+         do j=1,ndimi
+            do i=1,ndimi
+               x(i+ndim1*(j-1)+i10-1)=x(i+ndim*(j-1)+j10-1)
+            enddo
+         enddo
+      else
+         status=rtdb_parallel(.false.)
+         if( ga_nodeid().eq.0) then
+            status=driver_opt_get_hess(x(i10),ndimx,ndim1)       
+            call ga_brdcst(28+msgdbl,x(i10),mdtob(ndim1*ndim1),0)
+         else
+            call ga_brdcst(28+msgdbl,x(i10),mdtob(ndim1*ndim1),0)
+         endif
+         call ga_sync()
+         status=rtdb_parallel(.true.) 
+         if(dbug) then
+            write(iw,*) 'in -search_dir- , cartesian hessian = '
+            call hnd_prsq(x(i10),ndimx,ndimx,ndim1)
+         endif
+      endif
 c
 c     --- search direction (quasi-newton or augmented hessian) ---
 c
-            if(baker) then
-               call hnd_opt_bkr_search(ncoord,
-     1         x(i10),x(i20),x(i30),x(i40),x(i50),x(i60),x(i70),
-     2         ndim1)
-            else
-               call hnd_opt_dir_search(ncoord,
-     1         x(i10),x(i20),x(i30),x(i40),x(i50),x(i60),x(i70),
-     2         ndim1)
-            endif
+         if(baker) then
+            call hnd_opt_bkr_search(ncoord,
+     1      x(i10),x(i20),x(i30),x(i40),x(i50),x(i60),x(i70),
+     2      ndim1)
+         else
+            call hnd_opt_dir_search(ncoord,
+     1      x(i10),x(i20),x(i30),x(i40),x(i50),x(i60),x(i70),
+     2      ndim1)
+         endif
 c
 c     ----- transform back if needed and store hessian -----
 c
-         if(zcoord) then
-            do j=1,ndimq
-               do i=1,ndimq
-                  x(i+ndim*(j-1)+j10-1)=Zero                  
-               enddo
+      if(zcoord) then
+         do j=1,ndimq
+            do i=1,ndimq
+               x(i+ndim*(j-1)+j10-1)=Zero                  
             enddo
-            do j=1,ndimi
-               do i=1,ndimi
-                  x(i+ndim*(j-1)+j10-1)=x(i+ndim1*(j-1)+i10-1)
-               enddo
+         enddo
+         do j=1,ndimi
+            do i=1,ndimi
+               x(i+ndim*(j-1)+j10-1)=x(i+ndim1*(j-1)+i10-1)
             enddo
-            if(dbug) then
-               call hnd_prsq(x(j10),ndimq,ndimq,ndim)
-            endif
+         enddo
+         if(dbug) then
+            call hnd_prsq(x(j10),ndimq,ndimq,ndim)
+         endif
+         status=rtdb_parallel(.false.)
+         if( ga_nodeid().eq.0) then
             status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
-            call hnd_tfhsi(x(j10),x(j20),x(j30),ndimq,ndimq,ndim)
-            if(out) then
-               write(iw,*) 'in -search_dir- , ',
-     1                     'back-transformed hessian = '
-               call hnd_prsq(x(j10),ndimq,ndimq,ndim)
-               if(dbug) then
-                  call hnd_tfhs(x(j10),x(j20),x(j30),ndimq,ndimq,ndim)
-                  call hnd_prsq(x(j10),ndimq,ndimq,ndim)
-               endif
-            endif
-            status=driver_opt_put_hess(x(j10),ndimq,ndim)       
+            call ga_brdcst(29+msgdbl,x(j20),mdtob(ndim*ndim),0)
          else
-            status=driver_opt_put_hess(x(i10),ndimx,ndim1)       
+            call ga_brdcst(29+msgdbl,x(j20),mdtob(ndim*ndim),0)
+         endif
+         call ga_sync()
+         status=rtdb_parallel(.true.) 
+c
+         call hnd_tfhsi(x(j10),x(j20),x(j30),ndimq,ndimq,ndim)
+c
+         if(out) then
+            write(iw,*) 'in -search_dir- , ',
+     1                  'back-transformed hessian = '
+            call hnd_prsq(x(j10),ndimq,ndimq,ndim)
             if(dbug) then
-               write(iw,*) 'in -search_dir- , cartesian hessian = '
-               call hnd_prsq(x(i10),ndimx,ndimx,ndim1)
+               call hnd_tfhs(x(j10),x(j20),x(j30),ndimq,ndimq,ndim)
+               call hnd_prsq(x(j10),ndimq,ndimq,ndim)
             endif
          endif
+         status=rtdb_parallel(.false.)
+         if( ga_nodeid().eq.0) then
+            status=driver_opt_put_hess(x(j10),ndimq,ndim)       
+         endif
+         call ga_sync()
+         status=rtdb_parallel(.true.) 
+      else
+         status=rtdb_parallel(.false.)
+         if( ga_nodeid().eq.0) then
+            status=driver_opt_put_hess(x(i10),ndimx,ndim1)       
+         endif
+         call ga_sync()
+         status=rtdb_parallel(.true.) 
+         if(dbug) then
+            write(iw,*) 'in -search_dir- , cartesian hessian = '
+            call hnd_prsq(x(i10),ndimx,ndimx,ndim1)
+         endif
+      endif
 c
 c     ----- release memory -----
 c
-             if(.not.ma_pop_stack(i_ifirst))
+      if(.not.ma_pop_stack(i_ifirst))
      1   call errquit('hnd_opt_search_dir: pop first failed?',911)
 c
-      endif
-      call ga_sync()
-      status = rtdb_parallel(.true.) 
       if(dbug) then
          write(iw,*) '   end of hnd_opt_search_dir '
       endif
@@ -1872,12 +2000,16 @@ C
       END
       SUBROUTINE HND_OPT_PRINT(RTDB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "global.fh"
       INTEGER   RTDB
       PARAMETER (MXBFN=3072)
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (MXZMAT=1500)
       PARAMETER (MXCOOR=1500)
+      LOGICAL      DBUG
       LOGICAL      CVGED
       CHARACTER*16 ATMNAM
       CHARACTER*8  BFLAB 
@@ -1893,11 +2025,15 @@ C
       COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
       COMMON/HND_OPTFUN/E,EG(MXCART)
 C
+      DBUG=.FALSE.
+C
 C     ----- PRINT OPTIMIZATION SUMMARY -----
 C
       DELF=FUNC-FUNC0
-      WRITE(IW,9999) NSERCH,NUPDAT,NPTS,FUNC,
-     1               GNORM,ALPHA,CVGED,FUNC0,DELF 
+      IF( GA_NODEID().EQ.0.OR.DBUG) THEN
+         WRITE(IW,9999) NSERCH,NUPDAT,NPTS,FUNC,
+     1                  GNORM,ALPHA,CVGED,FUNC0,DELF 
+      ENDIF
       RETURN
  9999 FORMAT(1H1,/,1X,
      1       'nserch  nupdat   npts       func             ',
@@ -2147,6 +2283,7 @@ C
       LOGICAL LOWER,ILLCON,RECALC,RETRY
       LOGICAL CVGED
       LOGICAL DBUG
+      LOGICAL OUT
       COMMON/HND_IOFILE/IR,IW
       COMMON/RESTAR/NREST
       COMMON/HND_MOLXYZ/C(MXCART),ZAN(MXATOM),NAT         
@@ -2165,7 +2302,9 @@ C
       DATA DALNOR,DALMAX        /0.9D+00,0.5D+00/
 C
       DBUG=.FALSE.
-      IF(DBUG) THEN
+      OUT =.FALSE.
+      OUT =OUT.OR.DBUG
+      IF(OUT) THEN
          WRITE(IW,9994)
          WRITE(IW,9992) ALPHA
       ENDIF
@@ -2201,7 +2340,7 @@ C
 C     ----- SEARCH ALONG -DX-DIRECTION. -----
 C
   200 CONTINUE
-      IF(DBUG) THEN
+      IF(OUT) THEN
          WRITE(IW,9991) ALPH
       ENDIF
       DO I = 1,NCART 
@@ -2222,26 +2361,48 @@ C
          STATUS=GEOM_RTDB_LOAD(RTDB,GEOM,'geometry')
          STATUS=GEOM_CART_GET(GEOM,NAT_NW,TAGS_NW,COORDS_NW,
      1                                            CHARGE_NW)
-         IF(DBUG) THEN
-            WRITE(IW,9997)
-            WRITE(IW,9998) (       X0(I),I=1,NCART)
-            WRITE(IW,9996)
-            WRITE(IW,9998) (       DX(I),I=1,NCART)
-            WRITE(IW,9995) ALPH
-            WRITE(IW,9998) (        X(I),I=1,NCART)
-            WRITE(IW,9999)
-            WRITE(IW,9998) (COORDS_NW(I),I=1,NCART)
-         ENDIF
-         DO I = 1,NCART
-            COORDS_NW(I)=X(I)
-         ENDDO
+         CALL GA_BRDCST(30+MSGINT,  NAT_NW ,MITOB(1    ),0)
+         CALL GA_BRDCST(31+MSGDBL,  TAGS_NW,   16*NCART ,0)
+         CALL GA_BRDCST(32+MSGDBL,COORDS_NW,MDTOB(NCART),0)
+         CALL GA_BRDCST(33+MSGDBL,CHARGE_NW,MDTOB(NCART),0)
+      ELSE
+         CALL GA_BRDCST(30+MSGINT,  NAT_NW ,MITOB(1    ),0)
+         CALL GA_BRDCST(31+MSGDBL,  TAGS_NW,   16*NCART ,0)
+         CALL GA_BRDCST(32+MSGDBL,COORDS_NW,MDTOB(NCART),0)
+         CALL GA_BRDCST(33+MSGDBL,CHARGE_NW,MDTOB(NCART),0)
+      ENDIF
+      CALL GA_SYNC()
+      STATUS=RTDB_PARALLEL(.TRUE.)
+C
+      IF(DBUG) THEN
+         WRITE(IW,9997)
+         WRITE(IW,9998) (       X0(I),I=1,NCART)
+         WRITE(IW,9996)
+         WRITE(IW,9998) (       DX(I),I=1,NCART)
+         WRITE(IW,9995) ALPH
+         WRITE(IW,9998) (        X(I),I=1,NCART)
+         WRITE(IW,9999)
+         WRITE(IW,9998) (COORDS_NW(I),I=1,NCART)
+      ENDIF
+      DO I = 1,NCART
+         COORDS_NW(I)=X(I)
+      ENDDO
+      STATUS=RTDB_PARALLEL(.FALSE.)
+      IF(GA_NODEID().EQ.0) THEN
          STATUS=GEOM_CART_SET(GEOM,NAT_NW,TAGS_NW,COORDS_NW,
      1                                            CHARGE_NW)
          STATUS=GEOM_RTDB_STORE(RTDB,GEOM,'geometry')
-         IF(DBUG) THEN
-            WRITE(IW,9999)
-            WRITE(IW,9998) (COORDS_NW(I),I=1,NCART)
-         ENDIF
+      ENDIF
+      CALL GA_SYNC()
+      STATUS=RTDB_PARALLEL(.TRUE.)
+C
+      IF(OUT) THEN
+         WRITE(IW,9999)
+         WRITE(IW,9998) (COORDS_NW(I),I=1,NCART)
+      ENDIF
+C
+      STATUS=RTDB_PARALLEL(.FALSE.)
+      IF(GA_NODEID().EQ.0) THEN
          STATUS=GEOM_DESTROY(GEOM)
       ENDIF
       CALL GA_SYNC()
@@ -2510,8 +2671,6 @@ c
      1                nat, nzvar, ncoord, mcoord
       endif
 c
-      status=rtdb_parallel(.false.)
-      if(ga_nodeid().eq.0) then
       ndimx=3*nat
       ndimq=nzvar
       ndimi=ncoord
@@ -2540,8 +2699,19 @@ c
 c     ----- get current hessian matrix -----
 c
       if(zcoord) then
-         status=driver_opt_get_hess(x(j10),ndimq,ndim) 
-         status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
+         status=rtdb_parallel(.false.)
+         if( ga_nodeid().eq.0) then
+            status=driver_opt_get_hess(x(j10),ndimq,ndim) 
+            status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
+            call ga_brdcst(35+msgdbl,x(j10),mdtob(ndim),0)
+            call ga_brdcst(36+msgdbl,x(j20),mdtob(ndim),0)
+         else
+            call ga_brdcst(35+msgdbl,x(j10),mdtob(ndim),0)
+            call ga_brdcst(36+msgdbl,x(j20),mdtob(ndim),0)
+         endif
+         call ga_sync()
+         status=rtdb_parallel(.true.)
+c
          if(dbug) then
             write(iw,*) 'in hss_update, current hessian = '
             call hnd_prsq(x(j10),ndimq,ndimq,ndim)
@@ -2559,7 +2729,15 @@ c
             call hnd_prsq(x(i10),ndimi,ndimi,ndimi)
          endif
       else
-         status=driver_opt_get_hess(x(i10),ndimx,ndim)
+         status=rtdb_parallel(.false.)
+         if( ga_nodeid().eq.0) then
+            status=driver_opt_get_hess(x(i10),ndimx,ndim)
+            call ga_brdcst(37+msgdbl,x(i10),mdtob(ndim),0)
+         else
+            call ga_brdcst(37+msgdbl,x(i10),mdtob(ndim),0)
+         endif
+         call ga_sync()
+         status=rtdb_parallel(.true.)
          if(dbug) then
             write(iw,*) 'in hss_update, cartesian hessian = '
             call hnd_prsq(x(i10),ndimx,ndimx,ndim)
@@ -2587,15 +2765,35 @@ c
                x(i+ndim*(j-1)+j10-1)=x(i+ndimi*(j-1)+i10-1)
             enddo
          enddo
-         status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
+         status=rtdb_parallel(.false.)
+         if( ga_nodeid().eq.0) then
+            status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
+            call ga_brdcst(38+msgdbl,x(j20),mdtob(ndim),0)
+         else
+            call ga_brdcst(38+msgdbl,x(j20),mdtob(ndim),0)
+         endif
+         call ga_sync()
+         status=rtdb_parallel(.true.)
+c
          call hnd_tfhsi(x(j10),x(j20),x(j30),ndimq,ndimq,ndim)
-         status=driver_opt_put_hess(x(j10),ndimq,ndim)
+c
+         status=rtdb_parallel(.false.)
+         if( ga_nodeid().eq.0) then
+            status=driver_opt_put_hess(x(j10),ndimq,ndim)
+         endif
+         call ga_sync()
+         status=rtdb_parallel(.true.)
          if(out) then
             write(iw,*) 'in hss_update, transformed updated hessian = '
             call hnd_prsq(x(j10),ndimq,ndimq,ndim)
          endif
       else
-         status=driver_opt_put_hess(x(i10),ndimx,ndim)
+         status=rtdb_parallel(.false.)
+         if( ga_nodeid().eq.0) then
+            status=driver_opt_put_hess(x(i10),ndimx,ndim)
+         endif
+         call ga_sync()
+         status=rtdb_parallel(.true.)
          if(dbug) then
             write(iw,*) 'in hss_update, updated hessian = '
             call hnd_prsq(x(i10),ndimx,ndimx,ndim)
@@ -2606,9 +2804,6 @@ c     ----- release memory -----
 c
       status=ma_pop_stack(i_ifirst)
 c
-      endif
-      call ga_sync()
-      status=rtdb_parallel(.true.)
       if(dbug) then
          write(iw,*) '  end of hnd_opt_hss_update'
       endif
