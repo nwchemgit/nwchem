@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.13 1997-02-13 19:01:36 d3h449 Exp $
+c     $Id: dft_input.F,v 1.14 1997-02-14 06:34:16 gutowski Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -500,19 +500,19 @@ c
 c
 c  Input for correlation functionals read here.
 c
-            elseif ( inp_compare(.false., 'vwn', test)) then
+            elseif ( inp_compare(.false., 'vwn_5', test)) then
 c             
-c>>>          VWN f for Corr
+c>>>          VWN_5 f for Corr
 c             
               if ( inp_a(test) ) then
                 if ( inp_compare(.false.,'local', test) ) then
 c                  write(6,*)
-c     &            ' dft_input: vwn local descriptor found.'
+c     &            ' dft_input: vwn_5 local descriptor found.'
                   lcfac(1) = .true.
                 elseif ( inp_compare(.false.,'nonlocal', test) ) then
 c                  write(6,*)
-c     &            ' dft_input: vwn nonlocal descriptor found.'
-                  write(6,*)' vwn is a local functional;',
+c     &            ' dft_input: vwn_5 nonlocal descriptor found.'
+                  write(6,*)' vwn_5 is a local functional;',
      &                      ' "nonlocal" descriptor is ignored. '                   
                   nlcfac(1) = .false.
                 else
@@ -533,7 +533,7 @@ c
               endif
               if ( .not. inp_f(cfac(1)) ) then
 c                write(6,*)
-c     &          ' dft_input: vwn multiplicative factor not found.'
+c     &          ' dft_input: vwn_5 multiplicative factor not found.'
                 cfac(1) = 1.0d0
               endif
             elseif ( inp_compare(.false., 'lyp', test)) then
@@ -739,19 +739,19 @@ c                write(6,*)
 c     &          ' dft_input: p91LDA multiplicative factor not found.'
                 cfac(6) = 1.0d0
               endif            
-            elseif ( inp_compare(.false., 'vwnrpa', test)) then
+            elseif ( inp_compare(.false., 'vwn_1_rpa', test)) then
 c             
-c>>>          VWNRPA f for Corr
+c>>>          VWN_1_RPA f for Corr
 c             
               if ( inp_a(test) ) then
                 if ( inp_compare(.false.,'local', test) ) then
 c                  write(6,*)
-c     &            ' dft_input: vwnrpa local descriptor found.'
+c     &            ' dft_input: vwn_1_rpa local descriptor found.'
                   lcfac(7) = .true.
                 elseif ( inp_compare(.false.,'nonlocal', test) ) then
 c                  write(6,*)
-c     &            ' dft_input: vwnrpa nonlocal descriptor found.'
-                  write(6,*)' vwnrpa is a local functional;',
+c     &            ' dft_input: vwn_1_rpa nonlocal descriptor found.'
+                  write(6,*)' vwn_1_rpa is a local functional;',
      &                      ' "nonlocal" descriptor is ignored. '                   
                   nlcfac(7) = .false.
                 else
@@ -772,7 +772,7 @@ c
               endif
               if ( .not. inp_f(cfac(7)) ) then
 c                write(6,*)
-c     &          ' dft_input: vwnrpa multiplicative factor not found.'
+c     &          ' dft_input: vwn_1_rpa multiplicative factor not found.'
                 cfac(7) = 1.0d0
               endif            
 c
@@ -808,8 +808,8 @@ c
                 call inp_prev_field()
               endif
               if ( .not. inp_f(cfac(8)) ) then
-c                write(6,*)
-c     &          ' dft_input: vwnrpa multiplicative factor not found.'
+c               write(6,*)
+c     &         ' dft_input: vwn_1_rpa multiplicative factor not found.'
                 cfac(8) = 1.0d0
               endif            
 c
@@ -845,8 +845,8 @@ c
                 call inp_prev_field()
               endif
               if ( .not. inp_f(cfac(9)) ) then
-c                write(6,*)
-c     &          ' dft_input: vwnrpa multiplicative factor not found.'
+c               write(6,*)
+c     &         ' dft_input: vwn_1_rpa multiplicative factor not found.'
                 cfac(9) = 1.0d0
               endif            
 c
@@ -882,8 +882,8 @@ c
                 call inp_prev_field()
               endif
               if ( .not. inp_f(cfac(10)) ) then
-c                write(6,*)
-c     &          ' dft_input: vwnrpa multiplicative factor not found.'
+c               write(6,*)
+c     &         ' dft_input: vwn_1_rpa multiplicative factor not found.'
                 cfac(10) = 1.0d0
               endif    
 c
@@ -919,8 +919,8 @@ c
                 call inp_prev_field()
               endif
               if ( .not. inp_f(cfac(11)) ) then
-c                write(6,*)
-c     &          ' dft_input: vwnrpa multiplicative factor not found.'
+c               write(6,*)
+c     &         ' dft_input: vwn_1_rpa multiplicative factor not found.'
                 cfac(11) = 1.0d0
               endif    
 c

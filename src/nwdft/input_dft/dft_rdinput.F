@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.25 1997-02-13 19:01:38 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.26 1997-02-14 06:34:17 gutowski Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -514,17 +514,17 @@ c
 c
 c     Correlation functional name defaults.
 c
-      cname(1)='Vosko-Wilk-Nusair Correlation Functional'
-      cname(2)='    Lee-Yang-Parr Correlation Functional'
-      cname(3)='      Perdew 1981 Correlation Functional'
-      cname(4)='      Perdew 1986 Correlation Functional'
-      cname(5)='      Perdew 1991 Correlation Functional'
-      cname(6)='  Perdew 1991 LDA Correlation Functional'
-      cname(7)='          VWN RPA Correlation Functional'
-      cname(8)='            VWN I Correlation Functional'
-      cname(9)='           VWN II Correlation Functional'
-      cname(10)='          VWN III Correlation Functional'
-      cname(11)='           VWN IV Correlation Functional'
+      cname(1)='Vosko-Wilk-Nusair V Correlation Functional'
+      cname(2)='      Lee-Yang-Parr Correlation Functional'
+      cname(3)='        Perdew 1981 Correlation Functional'
+      cname(4)='        Perdew 1986 Correlation Functional'
+      cname(5)='        Perdew 1991 Correlation Functional'
+      cname(6)='    Perdew 1991 LDA Correlation Functional'
+      cname(7)='          VWN I RPA Correlation Functional'
+      cname(8)='              VWN I Correlation Functional'
+      cname(9)='             VWN II Correlation Functional'
+      cname(10)='           VWN III Correlation Functional'
+      cname(11)='            VWN IV Correlation Functional'
 c
 c     Exchange functional name defaults.
 c
