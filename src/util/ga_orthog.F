@@ -27,6 +27,11 @@ c
          uhi = -1
          ld  = 1
       end if
+*      write(6,*) ' node ulo uhi ', ga_nodeid(), ulo, uhi
+*      call util_flush(6)
+*      call ga_sync
+*      call ga_print(g_vecs)
+*      if (ometric) call ga_print(g_over)
 c
 c     Allocate local workspace
 c
@@ -101,6 +106,10 @@ c
 c     Orthogonalize columns of a matrix distributed so that
 c     each process has vecs(ulo:uhi,1:ni) ... uses global sums only.
 c     
+*      write(6,*) ga_nodeid(), ometric, nu, ni
+*      call util_flush(6)
+*      call ga_sync
+c
       do i = 1, ni
          npass = 0
  10      npass = npass + 1
@@ -118,6 +127,11 @@ c
                w(u) = vecs(u,i)
             enddo
          endif
+
+*         write(6,*) ga_nodeid(), (w(u),u=1,nu)
+*         call util_flush(6)
+*         call ga_sync
+         
 c     
 c     Now form overlap between vector i and vectors 1...i
 c     
@@ -125,6 +139,13 @@ c
          if ((uhi-ulo+1) .gt. 0) 
      $        call dgemv('t', (uhi-ulo+1), i, 1.0d0,
      $        vecs(ulo,1), ld, w(ulo), 1, 0.0d0, s(1), 1)
+
+         call ga_dgop(11, s, i, '+')
+
+*         write(6,*) ga_nodeid(), (s(u),u=1,nu)
+*         call util_flush(6)
+*         call ga_sync
+
 c
 c     Apply the rotation
 c     
