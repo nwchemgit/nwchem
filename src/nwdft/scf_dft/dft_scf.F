@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.75 1997-05-12 20:05:32 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.76 1997-05-19 19:11:32 d3g681 Exp $
 c     
       implicit none
 c
@@ -1053,7 +1053,7 @@ c         call gacrea(geom,ao_bas_han,nbf_ao,nbf_ao,'ovl ',g_s,'atom')
          if (me.eq.0)
      &      call dft_header
      &      (' Total Density - Mulliken Population Analysis')
-         call mull_pop(geom,ao_bas_han,g_dens(1),g_s)
+         call mull_pop(geom,ao_bas_han,g_dens(1),g_s, 'total')
          if (ipol.eq.2)then
 c     
 c           analysis of spin density
@@ -1061,7 +1061,7 @@ c
             if (me.eq.0)call dft_header
      &         (' Spin Density - Mulliken Population Analysis')
             call ga_dadd(one,g_dens(1),-2.d0,g_dens(2),g_dens(2))
-            call mull_pop(geom,ao_bas_han,g_dens(2),g_s)
+            call mull_pop(geom,ao_bas_han,g_dens(2),g_s,'spin')
             call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
             call ga_dscal(g_dens(2),0.5d0)
          endif

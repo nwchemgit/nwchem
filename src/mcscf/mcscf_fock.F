@@ -1,6 +1,6 @@
 c     
 c     %A%
-c     $Id: mcscf_fock.F,v 1.12 1997-04-23 01:27:12 d3g681 Exp $
+c     $Id: mcscf_fock.F,v 1.13 1997-05-19 19:11:18 d3g681 Exp $
 c     
 c     Compute the MCSCF MO-Fock matrices;
 c     inactive, active and generalized
@@ -480,9 +480,12 @@ c
       integer g_ifock           ! Inactive Fock
       integer g_afock           ! Active Fock
       integer g_gfock           ! Generalized Fock
+      integer g_over            ! Overlap matrix
 c
       integer l_buf, k_buf, p, q, r, s, nocc
       logical odebug
+      logical ga_create_atom_blocked
+      external ga_create_atom_blocked
 c
       nocc = nclosed+nact
       odebug = util_print('graddebug',print_debug)
@@ -618,12 +621,43 @@ c
 c
       call ga_sync()
 c
+c     Analyze the total density
+c
       call mcscf_mpole(rtdb, geom, basis, g_gfock)
+c
+      g_over  = ga_create_atom_blocked(geom, basis, 'cas_mull:over')
+      call ga_zero(g_over)
+      call int_1e_ga(basis, basis, g_over, 'overlap', .false.)
+      if (ga_nodeid() .eq. 0) then
+         write(6,*)
+         call util_print_centered(6,
+     $        'Mulliken analysis of the total density', 20,.true.)
+      endif
+      call mull_pop(geom, basis, g_gfock, g_over, 'total')
+c     
+      if (ga_nodeid() .eq. 0) then
+         write(6,*)
+         call util_print_centered(6,
+     $        'Mulliken analysis of the active space density',25,.true.)
+      endif
+c
+      call ga_zero(g_gfock)
+      if (ga_nodeid() .eq. 0) then
+         call ga_put(g_gfock,
+     $        nclosed+1,nclosed+nact,nclosed+1,nclosed+nact, dm1, nact)
+      endif
+      call ga_dgemm('n','t',nocc,nbf,nocc,1.0d0,g_gfock,g_movecs,
+     $     0.0d0,g_afock)
+      call ga_dgemm('n','n',nbf,nbf,nocc,1.0d0,g_movecs,g_afock,
+     $     0.0d0,g_gfock)
+c
+      call mull_pop(geom, basis, g_gfock, g_over, 'open shell')
 c
       if (.not. ma_pop_stack(l_buf)) call errquit('mcscf: dump MA?',0)
       if (.not. ga_destroy(g_gfock)) call errquit('mcscf: dump GA?',0)
       if (.not. ga_destroy(g_ifock)) call errquit('mcscf: dump GA?',0)
       if (.not. ga_destroy(g_afock)) call errquit('mcscf: dump GA?',0)
+      if (.not. ga_destroy(g_over))  call errquit('mcscf: dump GA?',0)
 c
       end
       subroutine mcscf_mpole(rtdb, geom, basis, g_dens)
