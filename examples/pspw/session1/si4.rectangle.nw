@@ -1,0 +1,102 @@
+################################################################################
+#
+# Optimized Energies (au)  and bond distances (Angstroms) 
+# for D2h rectangular {1}^Ag Si_4 cluster
+#
+#  Grid             Energy  r(short)  r(long)
+#  ------------------------------------------
+#  24x24x24   -15.54137208     2.235    2.378
+#  32x32x32   -15.54827709     2.233    2.378
+#  40x40x40   -15.55068449     2.230    2.386
+#  48x48x48   -15.55147121     2.230    2.386
+#  64x64x64   -15.55163772     2.230    2.386
+#
+#
+#
+# Energy Differences between rectangular and linear Si_4 cluster
+#
+#  Grid          DeltaE=Rectangle-Linear
+#  ------------------------------------------
+#  24x24x24         -0.027560 (-0.750 eV)
+#  32x32x32         -0.026064 (-0.709 eV)
+#  40x40x40         -0.024282 (-0.661 eV)
+#  48x48x48         -0.024367 (-0.663 eV)
+#  64x64x64         -0.024345 (-0.662 eV)
+#
+#
+#
+# Energy Differences between rectangular and rhombic Si_4 cluster
+#
+#  Grid          DeltaE=Rectangle-Rhombus
+#  ------------------------------------------
+#  24x24x24         -0.017676 (-0.481 eV)
+#  32x32x32         -0.016977 (-0.462 eV)
+#  40x40x40         -0.015145 (-0.412 eV)
+#  48x48x48         -0.015218 (-0.414 eV)
+#  64x64x64         -0.015197 (-0.414 eV)
+#
+#
+################################################################################
+
+
+title "Rectangular Si_4 Cluster"
+
+start Si4.rectangle
+
+
+geometry
+Si       -1.11379670     1.19224135     0.00000000
+Si        1.11379670     1.19224135     0.00000000
+Si       -1.11379670    -1.19224135     0.00000000
+Si        1.11379670    -1.19224135     0.00000000
+end
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 16 16 16
+    end
+end
+set nwpw:minimizer 2
+task pspw energy
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 24 24 24
+    end
+end
+task pspw optimize
+
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 32 32 32
+    end
+end
+task pspw optimize
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 40 40 40
+    end
+end
+task pspw optimize
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 48 48 48
+    end
+end
+task pspw optimize
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 64 64 64
+    end
+end
+task pspw optimize

@@ -1,0 +1,88 @@
+#######################################################################****#########
+#
+# Optimized Energies (au) and bond distances (Angstroms) for {3}^Sigma_g Si_4 cluster
+#
+#  Grid	             Energy   r(outer)	r(inner)
+#  ---------------------------------------------
+#  24x24x24    -15.51381245      2.191     2.200
+#  32x32x32    -15.52221319      2.179     2.199
+#  40x40x40    -15.52640239      2.185     2.195
+#  48x48x48    -15.52710411      2.185     2.196
+#  64x64x64    -15.52729261      2.185     2.196
+#
+#
+#
+# Energy Differences between rectangular and linear Si_4 cluster
+#
+#  Grid          DeltaE=Rectangle-Linear
+#  ------------------------------------------
+#  24x24x24         -0.027560 (-0.750 eV)
+#  32x32x32         -0.026064 (-0.709 eV)
+#  40x40x40         -0.024282 (-0.661 eV)
+#  48x48x48         -0.024367 (-0.663 eV)
+#  64x64x64         -0.024345 (-0.662 eV)
+#
+##########################################################################****######
+
+title "triplet Linear Si_4 Cluster"
+start si4.linear
+
+
+geometry 
+Si        0.00000000     0.00000000    -3.277
+Si        0.00000000     0.00000000    -1.100
+Si        0.00000000     0.00000000     1.100
+Si        0.00000000     0.00000000     3.277
+end
+
+nwpw
+    simulation_cell 
+       SC 20.0
+       ngrid 16 16 16
+    end
+    mult 3
+end
+set nwpw:minimizer 2
+task pspw energy
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 24 24 24
+    end
+end
+task pspw optimize
+
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 32 32 32
+    end
+end
+task pspw optimize
+
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 40 40 40
+    end
+end
+task pspw optimize
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 48 48 48
+    end
+end
+task pspw optimize
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 64 64 64
+    end
+end
+task pspw optimize

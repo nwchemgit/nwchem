@@ -1,0 +1,99 @@
+title "S2 MD LDA/25Ry"
+
+start s2.md.drift
+
+
+
+
+geometry
+S 0.0 0.0 0.0
+S 0.0 0.0 1.95
+end
+
+pspw
+  car-parrinello
+     time_step 5.0
+     fake_mass 600.0
+     loop 10 1
+   end
+   mult 3
+end
+set nwpw:new_vmovecs .true.
+set nwpw:minimizer 2
+task pspw energy
+task pspw car-parrinello
+task pspw energy
+
+
+
+
+geometry
+S 0.0 0.0 0.0
+S 0.0 0.0 1.95
+end
+pspw
+  car-parrinello
+     time_step 5.0
+     fake_mass 600.0
+     loop 10 2
+   end
+   mult 3
+end
+task pspw energy
+task pspw car-parrinello
+task pspw energy
+
+geometry
+S 0.0 0.0 0.0
+S 0.0 0.0 1.95
+end
+pspw
+  car-parrinello
+     time_step 5.0
+     fake_mass 600.0
+     loop 10 3
+   end
+   mult 3
+end
+task pspw energy
+task pspw car-parrinello
+task pspw energy
+
+
+geometry
+S 0.0 0.0 0.0
+S 0.0 0.0 1.95
+end
+pspw
+  car-parrinello
+     time_step 5.0
+     fake_mass 600.0
+     loop 10 4
+   end
+end
+task pspw energy
+task pspw car-parrinello
+task pspw energy
+
+
+
+
+geometry
+S 0.0 0.0 0.0
+S 0.0 0.0 1.95
+end
+pspw
+  car-parrinello
+     time_step 5.0
+     fake_mass 600.0
+     loop 10 5
+   end
+   mult 3
+end
+task pspw energy
+task pspw car-parrinello
+task pspw energy
+
+
+
+

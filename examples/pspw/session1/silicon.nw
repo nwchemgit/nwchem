@@ -1,0 +1,72 @@
+title "Silicon  unitcell optimization - 8 atom cubic cell"
+
+start Si8.crystal
+
+#permanent_dir ./perm
+#scratch_dir   ./perm
+
+#**** Enter the experimental geometry using fractional coordinates ****
+geometry units angstroms center noautosym noautoz print
+  system crystal
+    lat_a 5.57d0
+    lat_b 5.57d0
+    lat_c 5.57d0
+    alpha 90.0d0
+    beta  90.0d0
+    gamma 90.0d0
+  end
+Si    -0.50000d0  -0.50000d0  -0.50000d0
+Si     0.00000d0   0.00000d0  -0.50000d0
+Si     0.00000d0  -0.50000d0   0.00000d0
+Si    -0.50000d0   0.00000d0   0.00000d0
+Si    -0.25000d0  -0.25000d0  -0.25000d0
+Si     0.25000d0   0.25000d0  -0.25000d0
+Si     0.25000d0  -0.25000d0   0.25000d0
+Si    -0.25000d0   0.25000d0   0.25000d0
+end
+
+#***** setup the nwpw gamma point code ****
+nwpw
+   simulation_cell
+     ngrid 8  8  8
+   end
+   ewald_ncut 8
+   ewald_rcut 3.0
+   energy_cutoff 56.0
+   #xc pbe96
+end
+set nwpw:minimizer 2                 # use lmbfgs minimizer
+set nwpw:excited_ne 9 0              # include 9 virtual orbitals
+set nwpw:cif_filename silicon.00     # create CIF file
+
+task pspw energy
+
+nwpw
+   simulation_cell
+     ngrid 16 16 16
+   end
+end
+task pspw energy
+
+nwpw
+   simulation_cell
+     ngrid 24 24 24    #extremely high cutoff energy is being used
+   end
+   #tolerances 1.0d-9 1.0d-9
+end
+task pspw energy
+
+
+
+##### unit cell optimization using driver #####
+driver
+   clear
+   #eprec 1.0d-9
+   #tight
+end
+set nwpw:cif_filename silicon.01  # create CIF file
+set includestress .true.          # tell driver to optimize unit cell
+task pspw optimize
+
+
+

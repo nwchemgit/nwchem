@@ -1,0 +1,108 @@
+#######################################################################################
+#
+#  S2 diatomic constants
+#
+#    		De  		re 		 we
+# experiment    ?.?? eV     1.8892 Ang           725.65 cm-1
+# 
+# LDA/25 Ry		    1.878 Ang		 747 cm-1
+#                                                725 cm-1 (Car-Parrinello Period = 1900 au)
+#
+#
+#
+# LDA Results
+# S2 total energy, bond distances, and frequencies.
+# ({3}^Sigma_g state)
+#
+#  Method     Grid      cell          Energy     re   FD we  CP Period     CP we 
+#                                       (au)  (ang)  (cm-1)       (au)    (cm-1)
+#  -----------------------------------------------------------------------------
+#  SC cells
+#  LDA/6  Ry  16x16x16 (SC 20.0)  -20.374426  1.861    1359       950      1452
+#  LDA/14 Ry  24x24x24 (SC 20.0)  -20.307756  1.907     764      1850       745
+#  LDA/25 Ry  32x32x32 (SC 20.0)  -20.430813  1.878     747      1900       725
+#  LDA/39 Ry  40x40x40 (SC 20.0)  -20.425845  1.881     781
+#  LDA/57 Ry  48x48x48 (SC 20.0)  -20.422410  1.889     723
+#  LDA/101Ry  64x64x64 (SC 20.0)  -20.423898  1.889     727
+#  LDA/158Ry  80x80x80 (SC 20.0)  -20.424026  1.889     728
+#  LDA/227Ry  96x96x96 (SC 20.0) 
+#
+#  FCC cells
+#  LDA/5  Ry  16x16x16 (FCC 38.0) -20.554744
+#  LDA/12 Ry  24x24x24 (FCC 38.0) -20.346841
+#  LDA/21 Ry  32x32x32 (FCC 38.0) -20.346322
+#  LDA/33 Ry  40x40x40 (FCC 38.0) -20.427980  
+#  LDA/47 Ry  48x48x48 (FCC 38.0) 
+#  LDA/84 Ry  64x64x64 (FCC 38.0) 
+#  LDA/131Ry  80x80x80 (FCC 38.0) 
+#
+# 
+# S Atomic Energies
+# ({3}^S state)
+#
+#  Method     Grid      cell         Energy
+#                                      (au)
+#  -----------------------------------------
+#  SC cells
+#  LDA/6  Ry  16x16x16 (SC 20.0)   -9.961528
+#  LDA/14 Ry  24x24x24 (SC 20.0)  -10.049607
+#  LDA/25 Ry  32x32x32 (SC 20.0)  -10.106449
+#  LDA/39 Ry  40x40x40 (SC 20.0)  -10.103901
+#  LDA/57 Ry  48x48x48 (SC 20.0)  -10.103806
+#  LDA/101Ry  64x64x64 (SC 20.0)  -10.104349
+#  LDA/158Ry  80x80x80 (SC 20.0)  -10.104412
+#  LDA/227Ry  96x96x96 (SC 20.0) 
+#
+#  FCC cells
+#  LDA/5  Ry  16x16x16 (FCC 38.0)  -9.846605
+#  LDA/12 Ry  24x24x24 (FCC 38.0) -10.068214
+#  LDA/21 Ry  32x32x32 (FCC 38.0) -10.074958
+#  LDA/33 Ry  40x40x40 (FCC 38.0) -10.104338
+#  LDA/47 Ry  48x48x48 (FCC 38.0) -10.105875
+#  LDA/84 Ry  64x64x64 (FCC 38.0) -10.104146
+#  LDA/131Ry  80x80x80 (FCC 38.0) -10.104403
+#  LDA/???Ry  96x96x96 (FCC 38.0) 
+#
+#
+#   Car-Parrinello Frequency can be estimated using the following equation
+#
+#   we = 1.0/(au_Period*2.41889e-17*2.997e+10)
+# 
+#######################################################################################
+title "S2 MD LDA/25Ry"
+
+start s2.md
+
+
+geometry
+S 0.0 0.0 0.0
+S 0.0 0.0 1.88
+end
+
+pspw
+   simulation_cell 
+      SC 20.0
+      ngrid 32 32 32
+   end
+   mult 3
+end
+set nwpw:minimizer 2
+task pspw optimize
+task pspw freq
+
+
+
+geometry
+S 0.0 0.0 0.0
+S 0.0 0.0 1.95
+end
+
+pspw
+  car-parrinello
+     time_step 5.0
+     fake_mass 600.0
+     loop 10 100
+   end
+end
+task pspw energy
+task pspw car-parrinello

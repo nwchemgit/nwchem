@@ -1,0 +1,54 @@
+title "Diamond  unitcell optimization - 8 atom cubic cell"
+
+start C8.crystal.band
+
+#**** Enter the experimental geometry using fractional coordinates ****
+geometry units angstroms center noautosym noautoz print
+  system crystal
+    lat_a 3.57d0
+    lat_b 3.57d0
+    lat_c 3.57d0
+    alpha 90.0d0
+    beta  90.0d0
+    gamma 90.0d0
+  end
+C     -0.50000d0  -0.50000d0  -0.50000d0
+C      0.00000d0   0.00000d0  -0.50000d0
+C      0.00000d0  -0.50000d0   0.00000d0
+C     -0.50000d0   0.00000d0   0.00000d0
+C     -0.25000d0  -0.25000d0  -0.25000d0
+C      0.25000d0   0.25000d0  -0.25000d0
+C      0.25000d0  -0.25000d0   0.25000d0
+C     -0.25000d0   0.25000d0   0.25000d0
+end
+
+#***** setup the nwpw gamma point code ****
+nwpw
+   simulation_cell
+     ngrid 8  8  8
+   end
+   brillouin_zone
+      kvector 0.125 0.125 0.125    0.125
+      kvector 0.375 0.125 0.125    0.375
+      kvector 0.375 0.375 0.125    0.375
+      kvector 0.375 0.375 0.375    0.125
+   end
+   ewald_ncut 8
+   ewald_rcut 3.0
+   energy_cutoff 56.0
+end
+task band energy
+
+nwpw
+   simulation_cell
+     ngrid 16 16 16
+   end
+end
+task band energy
+
+nwpw
+   simulation_cell
+     ngrid 8 8 8
+   end
+end
+task band energy

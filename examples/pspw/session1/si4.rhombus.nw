@@ -1,0 +1,88 @@
+################################################################################
+#
+# Optimized Energies (au), bond distance (Angstroms) and acute angle (degrees)
+# for D2h rhombahedral {1}^Ag Si_4 cluster
+#
+#  Grid             Energy        r     theta
+#  ------------------------------------------
+#  24x24x24   -15.52369607    2.228	74.47 
+#  32x32x32   -15.53129995    2.222     74.54
+#  40x40x40   -15.53553902    2.220     74.56
+#  48x48x48   -15.53625329    2.220     74.58
+#  64x64x64   -15.53644049    2.220     74.58
+#
+#
+#
+# Energy Differences between rectangular and rhombic Si_4 cluster
+#
+#  Grid          DeltaE=Rectangle-Rhombus
+#  ------------------------------------------
+#  24x24x24         -0.017676 (-0.481 eV)
+#  32x32x32         -0.016977 (-0.462 eV)
+#  40x40x40         -0.015145 (-0.412 eV)
+#  48x48x48         -0.015218 (-0.414 eV)
+#  64x64x64         -0.015197 (-0.414 eV)
+#
+################################################################################
+
+title "Rhombic Si_4 Cluster"
+
+start Si4.rhombus
+
+
+geometry
+Si       -1.77371696     0.00000000     0.00000000
+Si        1.77371696     0.00000000     0.00000000
+Si        0.00000000     1.34797259     0.00000000
+Si        0.00000000    -1.34797259     0.00000000
+end
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 16 16 16
+    end
+end
+set nwpw:minimizer 2
+task pspw energy
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 24 24 24
+    end
+end
+task pspw optimize
+
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 32 32 32
+    end
+end
+task pspw optimize
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 40 40 40
+    end
+end
+task pspw optimize
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 48 48 48
+    end
+end
+task pspw optimize
+
+nwpw
+    simulation_cell
+       SC 20.0
+       ngrid 64 64 64
+    end
+end
+task pspw optimize
