@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.4 2002-10-03 17:34:32 windus Exp $	
+#	$Id: MakeFile,v 1.5 2003-01-24 23:50:18 edo Exp $	
 #
 
 OBJ_OPTIMIZE = $(OBJDIR)\dbdsqr.obj \
@@ -34,6 +34,7 @@ OBJ_OPTIMIZE = $(OBJDIR)\dbdsqr.obj \
                $(OBJDIR)\dlarfb.obj \
                $(OBJDIR)\dlarfg.obj \
                $(OBJDIR)\dlarft.obj \
+               $(OBJDIR)\dlarfx.obj \
                $(OBJDIR)\dlarnv.obj \
                $(OBJDIR)\dlartg.obj \
                $(OBJDIR)\dlaruv.obj \
@@ -97,6 +98,7 @@ OBJ_OPTIMIZE = $(OBJDIR)\dbdsqr.obj \
                $(OBJDIR)\zlacgv.obj \
                $(OBJDIR)\zladiv.obj \
                $(OBJDIR)\zlanhe.obj \
+               $(OBJDIR)\dlanhs.obj \
                $(OBJDIR)\zlarf.obj \
                $(OBJDIR)\zlarfb.obj \
                $(OBJDIR)\zlarfg.obj \
@@ -113,6 +115,21 @@ OBJ_OPTIMIZE = $(OBJDIR)\dbdsqr.obj \
                $(OBJDIR)\zung2r.obj \
                $(OBJDIR)\zungql.obj \
                $(OBJDIR)\zungqr.obj \
+               $(OBJDIR)\dlabad.obj \
+               $(OBJDIR)\dgebal.obj \
+               $(OBJDIR)\dgehrd.obj \
+               $(OBJDIR)\dgehd2.obj \
+               $(OBJDIR)\dorghr.obj \
+               $(OBJDIR)\dhseqr.obj \
+               $(OBJDIR)\dtrevc.obj \
+               $(OBJDIR)\ztrevc.obj \
+               $(OBJDIR)\zlaswp.obj \
+               $(OBJDIR)\dgebak.obj \
+               $(OBJDIR)\dlaln2.obj \
+               $(OBJDIR)\dlahqr.obj \
+               $(OBJDIR)\dlahrd.obj \
+               $(OBJDIR)\dlanv2.obj \
+               $(OBJDIR)\dgeev.obj \
                $(OBJDIR)\zungtr.obj
 
 LIBRARY = lapack.lib
