@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.30 2000-04-19 16:47:17 edo Exp $
+c $Id: int_spcart.F,v 1.31 2000-11-29 19:25:55 edo Exp $
 *::cr::7
 *--------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999 *
@@ -164,9 +164,9 @@ c
       lmax_init = lmaxin
       spcart_init = .true.
 c
-#if defined(LINUX)
-      trust_dgemm = .true.
-#endif
+Cedo#if defined(LINUX)
+Cedo      trust_dgemm = .true.
+Cedo#endif
 c
       end
 *.......................................................................
