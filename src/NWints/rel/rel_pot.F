@@ -1,4 +1,4 @@
-C $Id: rel_pot.F,v 1.10 2000-01-03 21:43:22 mg201 Exp $
+C $Id: rel_pot.F,v 1.11 2000-04-26 17:48:42 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_pot}
 c:tex-This routine assembles the relativistic (small-small) potential 
@@ -79,7 +79,7 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
       integer i_grdp ! address of gradient integrals for l_B+1
       integer i_grdm ! address of gradient integrals for l_B+1
       integer i_free ! address of free space in scr
-      integer k ! integer variable
+      integer j,k ! integer variables
       logical debug_gen       ! do general debug printing
       logical debug_addresses ! do address debug printing
       logical debug_arrays    ! do array debug printing
@@ -88,7 +88,10 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
       debug_addresses = mod(ibug,2) .eq. 1
       debug_arrays = mod(ibug,10)/2 .eq. 1
 *
-      if (debug_gen) write (LuOut,'(//A,/)') 'Entering rel_pot ...'
+      if (debug_gen) then
+        write (LuOut,'(//A,/)') 'Entering rel_pot ...'
+        write (LuOut,*) 'ibug = ',ibug
+      end if
       n_all_A = n_cont_A*n_A
       n_all_B = n_cont_B*n_B
       n_allp_B = n_cont_B*np_B
@@ -113,19 +116,28 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
         call dfill (np,zero,scr(i_grdp),1)
         call ecp_grad_a (l_A,np_A,n_A,nm_A,n_cont_A,Vpp,Vpm,
      &      scr(i_grdp),n_allp_B,ibug/10)
+        if (debug_arrays)  call ecp_matpr (scr(i_grdp),1,n_allp_b,
+     &      1,n_all_a*3,1,n_allp_b,1,n_all_a*3,'Grad A +','E',120,6)
         call dfill (nm,zero,scr(i_grdm),1)
         if (l_B .gt. 0) call ecp_grad_a (l_A,np_A,n_A,nm_A,n_cont_A,
      &      Vmp,Vmm,scr(i_grdm),n_allm_B,ibug/10)
+        if (debug_arrays)  call ecp_matpr (scr(i_grdp),1,n_allp_b,
+     &      1,n_all_a*3,1,n_allp_b,1,n_all_a*3,'Grad A -','E',120,6)
         call dfill (nn,zero,scr,1)
         call ecp_grad_b (l_B,np_b,n_b,nm_b,n_cont_B,
      &      scr(i_grdp),scr(i_grdm),scr(i_scr),n_all_a*3,ibug/10)
+        if (debug_arrays)  call ecp_matpr (scr(i_scr),1,n_all_b,
+     &      1,n_all_a*9,1,n_all_b,1,n_all_a*9,'Gradients','E',120,6)
         call dfill (nints*ntyp,zero,Vrel,1)
 *
 *   Return with derivative integrals only
 *
         if (ntyp .eq. 9) then
-          do k = 1,9
-            call dcopy (nab,scr(i_scr+(k-1)*nab),1,Vrel(1,k),1)
+          do j = 1,3
+            do k = 0,6,3
+              call dcopy (nab,scr(i_scr),1,Vrel(1,k+j),1)
+              i_scr = i_scr+nab
+            end do
           end do
           return
         end if 
