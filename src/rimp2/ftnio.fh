@@ -7,7 +7,7 @@ C
 #if defined(sun) || defined(_AIX) || defined(_CRAY) || defined(__ksr__)
       Parameter ( MT_DAFRecL = MT_BYTE )
 #endif
-#if defined(__PARAGON__)
+#if defined(__PARAGON__) || defined(__IPSC__)
       Parameter ( MT_DAFRecL = MT_BYTE )
 #endif
 #if defined(sgi) || defined(__alpha)
