@@ -1,6 +1,6 @@
       logical function grad_dft(rtdb)
 *
-* $Id: grad_dft.F,v 1.25 1997-11-04 10:12:17 d3e129 Exp $
+* $Id: grad_dft.F,v 1.26 1998-03-03 02:13:24 d3h449 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -15,7 +15,7 @@
 c
 c     dftgrad module.
 c
-c     Context is '...:dftgrad'
+c     Context is '...:dftgrad' --> changed to '...:dft'   JAN
 c
 c     Assumes DFT has been completed, MO vectors stored
 c     and all information is still in the RTDB
@@ -32,11 +32,11 @@ c
 c
 c----------------------------------------------------------------------- 
 c
-c     Push context down to DFTGRAD
+c     Push context down to DFT
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
       call util_print_push()
-      call util_print_rtdb_load(rtdb,'dftgrad')
+      call util_print_rtdb_load(rtdb,'dft')
       call ecce_print_module_entry ('dft')
 c
       status = rtdb_get(rtdb, 'dft:converged', MT_LOG, 1, converged) 
