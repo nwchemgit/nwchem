@@ -6,7 +6,7 @@
      &    bERI,Nint,canAB,canCD,canPQ,dryrun,
      &    W0,maxW0)
       Implicit None
-C $Id: hf2d.F,v 1.13 1998-04-30 01:03:01 d3e129 Exp $
+C $Id: hf2d.F,v 1.14 2000-02-04 01:20:48 mg201 Exp $
 #include "global.fh"
 #include "apiP.fh"
       Logical canAB,canCD,canPQ,dryrun
@@ -223,7 +223,7 @@ c Assign pointers to scratch space.
       i_ESp   = (maxW0+1) - 3*(NPA*NPB)
       i_right = i_ESp
       
-      if( i_left.ge.i_right )then
+      if( i_left.ge.i_right .and. .not.dryrun )then
         
         write(*,*) 'HF2D:  Insufficient scratch space.'
         write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
@@ -259,7 +259,7 @@ c Assign pointers to scratch space.
       i_ESq   = i_right - 3*(NPC*NPD)
       i_right = i_ESq
       
-      if( i_left.ge.i_right )then
+      if( i_left.ge.i_right .and. .not.dryrun )then
         
         write(*,*) 'HF2D:  Insufficient scratch space.'
         write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
@@ -304,7 +304,7 @@ c... no integrals because one charge distribution P or Q has no overlap
       i_pf   = i_Eq     + 3*NPQ*(MXD+1)*((Lq+1)*(Lc+1)*(Ld+1))
       i_left = i_pf     + 2*max(NPP,NPQ) - 1
       
-      if( i_left.ge.i_right )then
+      if( i_left.ge.i_right .and. .not.dryrun )then
         
         write(*,*) 'HF2D:  Insufficient scratch space.'
         write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
@@ -351,7 +351,7 @@ c Assign pointers to scratch space.
       i_Rj  = i_ff  + 2*NPR
       i_top = i_Rj  + NPR*(Lr+1)*Lr3 - 1
       
-      if( i_top.gt.maxW0 )then
+      if( i_top.gt.maxW0 .and. .not.dryrun )then
         
         write(*,*) 'HF2D:  Insufficient scratch space.'
         write(*,*) '      needed    ',i_top
@@ -411,7 +411,7 @@ c Assign pointers to scratch space.
       i_top  = i_sum + NPR*6*Lq3      ! use i_sum for i_ff (size=NPR*2) to save memory 
       i_top  = i_top - 1              ! pointer offset of 1 removed
       
-      if( i_top.gt.maxW0 )then
+      if( i_top.gt.maxW0 .and. .not.dryrun )then
         
         write(*,*) 'HF2D:  Insufficient scratch space.'
         write(*,*) '      needed    ',i_top
