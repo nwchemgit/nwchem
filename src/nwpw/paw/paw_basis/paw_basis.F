@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.14 2003-02-04 01:52:02 marat Exp $
+* $Id: paw_basis.F,v 1.15 2003-02-08 03:38:12 bylaska Exp $
 *
 
 !**************************************************
@@ -22,7 +22,7 @@ c      include "myma.fh"
       integer  nb,ng
       integer l_nb,l_ng
       integer i_nb,i_ng
-      integer i_lo,i_hi
+      integer i_lo,i_hi,ii,mult_l
       integer  max_mult_l
       logical ok
       double precision log_amesh,amesh
@@ -91,8 +91,13 @@ c      !*** external functions ***
          i_lo =  paw_basis_i_orb_l(it)
 	 i_hi =  paw_basis_i_orb_l(it)  
      >        + int_mb(paw_basis_i_nbasis(it)) - 1
-	 int_mb(paw_basis_i_mult_l(it)) = 
-     >        2*dabsmax(i_hi-i_lo+1,int_mb(i_lo))
+         mult_l = int_mb(i_lo)
+         do ii=i_lo+1,i_hi
+           if (int_mb(ii).gt.mult_l) mult_l = int_mb(ii)
+         end do
+	 int_mb(paw_basis_i_mult_l(it)) = 2*mult_l
+
+         write(*,*) "mult_l:",it, int_mb(paw_basis_i_mult_l(it))
            
       end do
 
