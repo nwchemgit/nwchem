@@ -640,7 +640,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    psigma = 0.;
    if ( leig <= 0. ){
      psgn = 1.;
-     psigma = -(ffabs(leig)+100.0*eps*onenrm);
+     psigma = -(ffabs(leig)+1000.0*eps);
    }
    
    /*
