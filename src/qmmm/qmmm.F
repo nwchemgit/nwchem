@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.16 2004-09-11 01:22:51 marat Exp $
+c $Id: qmmm.F,v 1.17 2004-09-13 19:57:14 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -224,6 +224,7 @@ c
 c     now do mm part
 c     ----------------------------------
       call qmmm_geom_finish(rtdb)
+      call qmmm_update_mm_coord(rtdb)
       call mm_task_sp()
       i_ai = qmmm_get_i_ai()
 
