@@ -1,7 +1,7 @@
 c
 c  Solve orbital MCSCF equations using PCG/NR
 c
-c  $Id: mcscf_orb.F,v 1.9 1996-03-13 22:52:32 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.10 1996-03-15 22:41:00 rg240 Exp $
 c
        subroutine mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed,
      $                           nact, oskel, orbsym, dm1, dm2,
@@ -44,15 +44,17 @@ c
        parameter(maxlinsrch=16)
        integer iter, vlen, maxiter, pflg
        integer molo, mohi, i, ismall, nstep
-       double precision tol2e, enrep, energy
-       double precision snorm, lshift, lshift0, p_acc
-       double precision alpha, gsscale, gnorm0
+       double precision tol2e, enrep, energy, lshift0
+       double precision snorm, p_acc, alpha, gsscale, gnorm0
        double precision eev(0:maxlinsrch), gsv(0:maxlinsrch)
        double precision av(0:maxlinsrch)
        double precision xx, yy, eold, hmax, hmin, maxx
        integer g_afock, g_ifock, g_gfock
        integer g_newvecs, g_grad, g_kvec, g_srch, g_hdiag
        logical olsrchprint
+       logical ostepci
+       double precision lshift
+       save lshift
 c
        double precision linesrch
        external linesrch
@@ -60,7 +62,10 @@ c
        external line_search
        double precision linesrch1
        external linesrch1
+c
+       data lshift/1.0d0/
        data pflg/2/
+       data ostepci/.false./
 c
 c
 c
@@ -73,7 +78,6 @@ c
          if (.not. rtdb_get(rtdb,'scf:lshift',MT_DBL,1,lshift0))
      $     lshift0 = 0.1d0
        endif
-       lshift = lshift0
        if (.not.geom_nuc_rep_energy( geom, enrep ))
      $   call errquit('mcscf: cannot retrieve nuclear repulsion',0)
        molo = nclosed + 1
@@ -209,42 +213,32 @@ c
        do iter=1,maxlinsrch
          nstep = iter
          if (line_search( nstep, maxlinsrch, eev, gsv, av, 1.d-8,
-     $       2.d-1, olsrchprint )) goto 100
+     $                    2.d-1, olsrchprint )) goto 100
          alpha = av(nstep-1)
          call ga_dadd( alpha, g_srch, 0.d0, g_kvec, g_kvec )
          call rohf_k2cf( basis, nbf, nbf, nclosed, nact, g_kvec,
      $                   g_movecs, g_newvecs )
 c
-c   Resolve secular eqn for each step?
-c   Have to regenerate J and K for STEPCI
-c   only J required otherwise
+c   Both J and K are regenerated
 c
-#ifdef STEPCI
-         if (gnorm0.gt.1.d-2) then
+         call moints_build_6x( basis, oskel,
+     $                         molo, molo, mohi, 1, nbf,
+     $                         g_newvecs, g_coul, .true.,
+     $                         g_exch, .true., 16 )
+c
+c   Resolve secular eqn for each step?
+c
+         if ((ostepci).and.(gnorm0.gt.1.d-2)) then
            write(6,771) 
  771       format(20x,'CI resolved')
-           call moints_build_6x( basis, oskel,
-     $                           molo, molo, mohi, 1, nbf,
-     $                           g_newvecs, g_coul, .true.,
-     $                           g_exch, .true., 16 )
            call mcscf_fcore( basis, nbf, nclosed, nact, g_newvecs,
      $                       g_coul, g_exch, g_hcore )
            call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
      $                         orbe, g_hcore, g_coul, dm1, dm2,
      $                         .false., .false. )
-        else
-         call moints_build_6x( basis, oskel,
-     $                         molo, molo, mohi, 1, nbf,
-     $                         g_newvecs, g_coul, .true.,
-     $                         g_exch, .false., 16 )
-        endif
-#else
-         call moints_build_6x( basis, oskel,
-     $                         molo, molo, mohi, 1, nbf,
-     $                         g_newvecs, g_coul, .true.,
-     $                         g_exch, .false., 16 )
-#endif
+         endif
 c
+c   New energy and gradient
 c
          call mcscf_fock( geom, basis, nbf, nclosed, nact,
      $                    oskel, tol2e, dm1, dm2,
@@ -304,7 +298,7 @@ c
 
 
        subroutine lsrch_proj( g_grad, g_srch, gs0, alpha1, alpha0 )
-C$Id: mcscf_orb.F,v 1.9 1996-03-13 22:52:32 rg240 Exp $
+C$Id: mcscf_orb.F,v 1.10 1996-03-15 22:41:00 rg240 Exp $
        implicit none
 #include "global.fh"
        integer g_grad, g_srch

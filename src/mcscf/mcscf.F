@@ -190,7 +190,7 @@ c
        if (.not.ga_duplicate(g_movecs,g_hcore,'1e hamiltonian'))
      $   call errquit('mcscf: cannot dup MO vectors',0)
 c
-c  Create conjugacy vectors
+c   Create conjugacy vectors
 c
        if (.not.ga_create(MT_DBL,orlen,1,'Conj',1,1,g_conj))
      $      call errquit('mcscf: cannot allocate',0)
@@ -201,14 +201,23 @@ c
        pfac = 1.d0
        oconj = .false.
 c
-c  Allocate operator matrices
-c  Memory test required here!
+c   Allocate operator matrices
+c   Memory test required here!
 c
        mo_lo = nclosed + 1
        mo_hi = nclosed + nact
        noper = (nact*(nact+1))/2
        g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb Oper')
        g_exch = ga_create_JKblocked(noper,nbf,nbf,'X Oper')
+c
+c   Initial 4-Index Tranformation
+c
+       if (omcscfprof) call pstat_on(ps_4index)
+       call moints_build_6x( basis, oskel,
+     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
+     $                       g_movecs, g_coul, .true.,
+     $                       g_exch, .true., 16 )
+       if (omcscfprof) call pstat_off(ps_4index)
 c
 c
 c  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -225,19 +234,10 @@ c
          if (oprinfo) write(6,996) iter
  996     format(/,10x,'%%%%% Iteration ',i3,' %%%%%',/)
 c
-c  4-Index Tranform 
+c   CI solver
 c
-         if (omcscfprof) call pstat_on(ps_4index)
-         call moints_build_6x( basis, oskel,
-     $                         mo_lo, mo_lo, mo_hi, 1, nbf,
-     $                         g_movecs, g_coul, .true.,
-     $                         g_exch, .true., 16 )
-         if (omcscfprof) call pstat_off(ps_4index)
          call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
      $                     g_coul, g_exch, g_hcore )
-c
-c  CI solver
-c
          ttmp = util_cpusec()
          if (omcscfprof) call pstat_on(ps_ci)
          call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
@@ -247,7 +247,7 @@ c
          if (omcscfprof) call pstat_off(ps_ci)
          tci = tci + util_cpusec() - ttmp
 c
-c  Orbital solver
+c   Orbital solver
 c
          oconj = .true.
          if ((oconj).and.(mod(iter,icgreset).eq.0)) then
@@ -275,6 +275,9 @@ c
  927     format(//,10x,'####',i5,5x,f22.14,5x,e16.9)
          if (gnorm.lt.thresh) goto 27
        enddo
+c
+c   End macroiteration loop
+c
  27    continue
        ttotal = util_cpusec() - ttotal
        if (oprinfo) then
@@ -289,7 +292,7 @@ c
  930     format(15x,'== MCSCF Timing:',3(5x,f14.3))
        endif
 c
-c  Transform to natural orbitals
+c   Transform to natural orbitals
 c
        call mcscf_naturalorb( nbf, nclosed, nact, dbl_mb(k_dm1),
      $                        dbl_mb(k_occ), g_movecs )
