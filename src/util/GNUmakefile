@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.112 2000-05-10 22:55:39 edo Exp $
+# $Id: GNUmakefile,v 1.113 2000-05-11 19:44:23 edo Exp $
 
 include ../config/makefile.h
 
@@ -40,6 +40,9 @@ ifeq ($(TARGET),IBM)
 endif
 ifeq ($(TARGET),IBM64)
   EXTRA_OBJ = ibm_cputime.o
+endif
+ifeq ($(TARGET),HPUX64)
+  EXTRA_OBJ = util_erfc.o
 endif
 
 ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS))
