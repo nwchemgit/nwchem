@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.146 2002-06-26 21:00:58 d3j191 Exp $
+c $Id: cf_main.F,v 1.147 2002-06-26 21:02:40 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1390,7 +1390,7 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer nums,lfnpmf,iprppmf
+      integer nums,lfnpmf,iprpmf
       real*8 xs(msa,3),fs(msa,3),ess(msf,msf,mpe,2)
       real*8 fss(msf,msf,3,2)
       integer isgan(msa),isatt(msa),isfrc(msa),isdyn(msa),isct1(msa)
