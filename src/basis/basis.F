@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.71 1997-07-17 22:21:49 d3e129 Exp $
+c $Id: basis.F,v 1.72 1997-10-23 01:03:37 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -3376,4 +3376,26 @@ c
 c
       bas_cando_mpoles = .true.
 c
+      end
+      logical function bas_is_spherical(basisin)
+      implicit none
+#include "basP.fh"      
+#include "stdio.fh"
+*::passed
+      integer basisin ! [input] basis set handle
+*::local
+      integer basis   ! lexical index of basis set handle
+*::functions
+      logical bas_check_handle
+      external bas_check_handle
+*::code
+      bas_is_spherical = bas_check_handle(basisin,'bas_is_spherical')
+      if (.not.bas_is_spherical) then
+        write(luout,*)'invalid/inactive basis handle:',basisin
+        call errquit('bas_is_spherical: fatal error',911)
+      endif
+      basis = basisin + Basis_Handle_Offset
+      bas_is_spherical = bas_spherical(basis)
+      return 
+*      
       end

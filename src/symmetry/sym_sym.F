@@ -1,5 +1,5 @@
       subroutine sym_symmetrize(geom, basis, odensity, g_a)
-C$Id: sym_sym.F,v 1.3 1996-10-06 20:14:34 d3g681 Exp $
+C$Id: sym_sym.F,v 1.4 1997-10-23 01:03:49 d3e129 Exp $
       implicit none
 #include "global.fh"
 #include "geom.fh"
@@ -36,6 +36,19 @@ c
 c
       integer next, ijcent, nproc
 c
+*: ang_max used below
+      if (.not. bas_high_angular(basis, ang_max))
+     $     call errquit('sym_symmetrize: bas_high_angular', basis)
+      status = bas_is_spherical(basis)
+      if (status.and.(ang_max.gt.1)) then
+        write(6,*)' spherical basis set and symmetry ',
+     &      'are not allowed yet'
+        write(6,*)' you can use no symmetry and spherical basis sets '
+        write(6,*)'or'
+        write(6,*)' cartesian basis sets with symmetry'
+        call errquit('sym_symmetrize: fatal error',911)
+      endif
+*
       call ga_sync()
       if (.not. ga_duplicate(g_a, g_b, 'sym_sym: b')) call errquit
      $     ('sym_symmetrize: failed to allocate temp GA', 0)
@@ -72,8 +85,6 @@ c
       end do
       maxd = max_at_bf**2       ! Size of largest atom block
 c
-      if (.not. bas_high_angular(basis, ang_max))
-     $     call errquit('sym_symmetrize: bas_high_angular', basis)
       maxf = ((ang_max+1)*(ang_max+2))/2 ! Size of largest cart. shell
       maxr = (ang_max+1)*maxf*maxf ! Size of transformation matrices
 c

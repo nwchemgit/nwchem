@@ -1,4 +1,4 @@
-c $Id: bas.fh,v 1.17 1997-04-02 00:42:05 d3e129 Exp $
+c $Id: bas.fh,v 1.18 1997-10-23 01:03:36 d3e129 Exp $
 c:bas.fh
 c
       logical bas_checksum
@@ -61,6 +61,7 @@ c
       logical ecp_get_parent_handle
 c
       logical bas_cont_tag
+      logical bas_is_spherical
 c
       external bas_version        
       external bas_create         
@@ -123,3 +124,4 @@ c
 c
       external bas_checksum
       external bas_cando_mpoles
+      external bas_is_spherical
