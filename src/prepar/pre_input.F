@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.12 1998-06-11 18:51:52 d3j191 Exp $
+c $Id: pre_input.F,v 1.13 1998-07-09 20:20:57 d3j191 Exp $
 c
       implicit none
 c
@@ -24,6 +24,8 @@ c
       real*8 touch,xpndw,rgrid,edge,edges(3),dnoe(5),qscale,charge
       real*8 polar
       character*4  cnoe(2)
+      character*11 cfix
+      real*8 rfix
 c
       logical ltouch,lrdcoo,lslvnt
 c
@@ -224,6 +226,34 @@ c
       if(inp_compare(.false.,'grid',item)) then
       if(.not.inp_i(mgrid)) call errquit('pre_input: grid',9999)
       if(.not.inp_f(rgrid)) call errquit('pre_input: grid',9999)
+      goto 2
+      endif
+c
+c     fix commands
+c     ------------
+c
+      if(inp_compare(.false.,'fix',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: fix',9999)
+      if(inp_compare(.false.,'atoms',item)) then
+      cfix(8:11)='atm '
+      else if(inp_compare(.false.,'segments',item)) then
+      cfix(8:11)='sgm '
+      else
+      call errquit('pre_input: fix',9999)
+      endif
+      if(.not.inp_a(item)) call errquit('pre_input: fix',9999)
+      if(inp_compare(.false.,'beyond',item)) then
+      cfix(1:7)='fixout '
+      else if(inp_compare(.false.,'within',item)) then
+      cfix(1:7)='fixwin '
+      else
+      call errquit('pre_input: fix',9999)
+      endif
+      if(.not.inp_f(rfix)) call errquit('pre_input: fix',9999)
+      if(.not.inp_a(item)) call errquit('pre_input: fix',9999)
+      write(68,6841) cfix,rfix,item
+ 6841 format(a11,f12.6,1x,a)
+      numcmd=numcmd+1
       goto 2
       endif
 c

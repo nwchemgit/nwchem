@@ -4,7 +4,7 @@
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
      + natm,lbnd,mbnd,lang,mang,ldih,mdih,limp,mimp,maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.14 1998-06-08 23:29:33 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.15 1998-07-09 20:20:57 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -195,6 +195,13 @@ c
      + latm(5,j),latm(4,j),1,1,qatm(j),0.0
       endif
    17 continue
+      do 117 ibnd=1,nbnd
+      if(lbnd(1,ibnd).ge.ilo.and.lbnd(1,ibnd).le.ihi.and.
+     + lbnd(2,ibnd).ge.ilo.and.lbnd(2,ibnd).le.ihi) then
+      write(lfnout,3104) lbnd(1,ibnd)-ilo+1,lbnd(2,ibnd)-ilo+1
+ 3104 format(i5,'-',i5)
+      endif
+  117 continue
       write(lfnout,3006) csgm(i)(1:length)
       goto 9999
       endif

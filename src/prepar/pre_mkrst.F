@@ -2,7 +2,7 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
-c $Id: pre_mkrst.F,v 1.12 1998-06-24 20:06:37 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.13 1998-07-09 20:20:58 d3j191 Exp $
 c
       implicit none
 c
@@ -15,8 +15,8 @@ c
       external pre_rdgeom,pre_orient,pre_slvsiz,pre_slvrd,pre_slvnum
       logical pre_pdbsiz,pre_solvat,pre_boxsiz,pre_misfit,pre_wrtpdb
       external pre_pdbsiz,pre_solvat,pre_boxsiz,pre_misfit,pre_wrtpdb
-      logical pre_rdrst,pre_disres
-      external pre_rdrst,pre_disres
+      logical pre_rdrst,pre_disres,pre_fix
+      external pre_rdrst,pre_disres,pre_fix
       logical util_nwchemrc_get
       external util_nwchemrc_get
 c
@@ -25,12 +25,12 @@ c
       character*255 filtop,filpdb,filrst,filtmp,filcmd,filnam,filslv
       character*10 slvmdl
       character*3 slvnam
-      character*80 source,card
+      character*80 source,card,cfix
 c
       integer nsa,nwa,nwm,nmis,npbtyp,noe,nwms,nwas,mwmc,nwmc,mat
       integer msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
-      integer nnoe
-      real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist
+      integer nnoe,ifix,jfix
+      real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist,rfix
 c
       integer l_cwa,i_cwa,l_mas,i_mas,l_num,i_num,l_sat,i_sat
       integer l_csa,i_csa,l_sar,i_sar,l_sgm,i_sgm,l_qsa,i_qsa
@@ -739,6 +739,33 @@ c
       write(lfnout,1016) touch
  1016 format(' Envelope',t40,f12.6,/)
       endif
+      endif
+c
+c     fix
+c     ---
+c
+      if(card(1:3).eq.'fix') then
+      if(card(4:7).eq.'out ') then
+      ifix=1
+      else if(card(4:7).eq.'win ') then
+      ifix=-1
+      else
+      call errquit('Error in fix command',9999)
+      endif
+      if(card(8:11).eq.'atm ') then
+      jfix=1
+      else if(card(8:11).eq.'sgm ') then
+      jfix=-1
+      else
+      call errquit('Error in fix command',9999)
+      endif
+      read(card(12:23),'(f12.6)') rfix
+      cfix=card(25:80)
+      if(.not.pre_fix(lfnout,ifix,jfix,rfix,cfix,
+     + int_mb(i_iwmr),dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+     + int_mb(i_wcmr),dbl_mb(i_xwc),mwmc,nwmc,
+     + int_mb(i_sar),int_mb(i_sgm),byte_mb(i_csa),dbl_mb(i_xs),msa,nsa))
+     + call errquit('pre_fix failed',9999)
       endif
 c
 c     end
