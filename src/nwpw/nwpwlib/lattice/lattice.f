@@ -1,5 +1,5 @@
 *
-* $Id: lattice.f,v 1.6 2003-07-12 21:54:28 bylaska Exp $
+* $Id: lattice.f,v 1.7 2003-07-12 22:12:31 bylaska Exp $
 *
 
       real*8 function lattice_wcut()
@@ -331,6 +331,58 @@ c               r(3,index) = a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3
 
       return
       end
+
+      subroutine lattice_mask_sym(r)
+      implicit none
+      real*8 r(*)
+
+*     **** local variables ****
+      integer nfft3d,n2ft3d
+      integer i,j,k,p,q,taskid
+      integer index,k1,k2,k3
+      integer np1,np2,np3
+      integer nph1,nph2,nph3
+
+
+*     **** constants ****
+      call Parallel_taskid(taskid)
+      call D3dB_nfft3d(1,nfft3d)
+      n2ft3d = 2*nfft3d
+      call D3dB_nx(1,np1)
+      call D3dB_ny(1,np2)
+      call D3dB_nz(1,np3)
+
+      nph1 = np1/2
+      nph2 = np2/2
+      nph3 = np3/2
+
+
+      call dcopy(n2ft3d,0.0d0,0,r,1)
+
+*     **** grid points in coordination space ****
+      do k3 = -nph3+1, nph3-1
+        do k2 = -nph2+1, nph2-1
+          do k1 = -nph1+1, nph1-1
+
+               i = k1 + nph1
+               j = k2 + nph2
+               k = k3 + nph3
+
+               call D3dB_ktoqp(1,k+1,q,p)
+               if (p .eq. taskid) then
+                  index = (q-1)*(np1+2)*np2
+     >                  + j    *(np1+2)
+     >                  + i+1
+
+                r(index) =  1.0d0
+               end if
+          end do
+        end do
+      end do
+
+      return
+      end
+
 
 
 
