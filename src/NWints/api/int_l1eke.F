@@ -1,4 +1,4 @@
-c $Id: int_l1eke.F,v 1.6 1996-10-08 22:43:10 d3e129 Exp $
+c $Id: int_l1eke.F,v 1.7 1996-10-08 22:44:29 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsubsection{int\_l1eke}
@@ -32,6 +32,7 @@ c:tex-\begin{verbatim}
       integer jsh     ! [input] j shell/contraction
       integer lscr    ! [input] length of scratch array
       double precision scr(lscr) ! [scratch] scratch array
+      double precision zerotol   ! [input] zero threshold
       integer lke                ! [input] length of one electron buffers
       integer numgen             ! [output] number of Ke integrals
       integer ilab(lke)          ! [output] i bas fun labels array
