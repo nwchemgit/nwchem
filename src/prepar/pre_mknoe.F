@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf)
 c
-c $Id: pre_mknoe.F,v 1.11 2000-04-24 14:44:12 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.12 2000-06-09 23:27:00 d3j191 Exp $
 c
       implicit none
 c
@@ -32,8 +32,12 @@ c
 c
       integer igroup(maxgrp,maxatm),lgroup(maxgrp)
       integer numpmf,ipmf(maxpmf,5),rpmf(maxpmf,4)
+      integer npmfr,ipmfr
 c
       integer i
+c
+      npmfr=0
+      ipmfr=0
 c
       do 2 i=1,maxgrp
       lgroup(i)=0
@@ -155,6 +159,14 @@ c
      + call errquit('pre_disres failed',9999)
       endif
 c
+c     read pmf replication
+c     ====================
+c
+      if(card(1:7).eq.'rep_pmf') then
+      read(card(8:12),'(i5)') npmfr
+      ipmfr=numpmf
+      endif
+c
 c     read group selection
 c     ====================
 c
@@ -194,7 +206,7 @@ c
 c
       if(numpmf.gt.0) then
       call pre_wrtpmf(lfntop,filtop,numpmf,
-     + maxpmf,ipmf,rpmf,maxgrp,maxatm,igroup,lgroup)
+     + maxpmf,ipmf,rpmf,maxgrp,maxatm,igroup,lgroup,npmfr,ipmfr,nsa)
       write(lfnout,1005)
  1005 format(/,' Potential of mean force appended to topology')
       endif
