@@ -1,5 +1,5 @@
 c
-c $Id: onedd_calc.F,v 1.1 1999-05-06 17:29:35 windus Exp $
+c $Id: onedd_calc.F,v 1.2 1999-12-21 23:52:39 windus Exp $
 c
       subroutine onedd_calc(Hxy,nxyz,g_rhs,nrhs,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,
@@ -33,10 +33,10 @@ c
       double precision wdens(matb,matb) ! [input] scratch for wdensity blocks
       
 c
-      integer task_size, ijatom, next, iat1, iat2
+      integer task_size, ijatom, next, iat1, iat2, attemp1
       integer iac1f, iac1l, iac2f, iac2l, idatom(2)
       integer iab1f, iab1l, iab2f, iab2l, ish1, ish2, if1, il1, if2, il2
-      integer ic, icart1, icart2, ip1, ip2, iat3, i, j, at1, at2
+      integer ic, icart1, icart2, ip1, ip2, i, j, at1, at2
       integer nproc
       logical status
       double precision qfac, de
@@ -136,8 +136,40 @@ c
 c
 C     D x ddH
 c
-                ic=1
-                do 50 at1 = 1, nat
+c
+c    Handle (i|d2V|j) first.  This also has (d2i|V|j), (i|V|d2j),
+c    (d2i|T|j) and (i|T|d2j) terms
+c
+                ic = 1
+                do at1 = 1, nat
+                  do icart2 = 1, 3
+                    do icart1 = 1, 3
+                      dE = 0.0D0
+                      do ip1 = if1, il1
+                        do ip2 = if2, il2
+                          dE = dE + dens(ip1,ip2)*Ibuf(ic)
+c                         write(6,*) 'dens,Ibuf,ip1,ip2,ic ',
+c    *        dens(ip1,ip2),Ibuf(ic),ip1,ip2,ic
+                          ic = ic + 1
+                        enddo
+                      enddo
+                      dE = dE * qfac
+                      Hxy(icart1,at1,icart2,at1) =
+     *                 Hxy(icart1,at1,icart2,at1) + dE
+                    enddo
+                  enddo
+                enddo
+c
+c    Handle (di|dV|j), (i|dV|dj) which also has the (di|V|dj) and
+c    the (di|T|dj) components
+c
+c               ic=1
+                do 50 attemp1 = 1, 2
+                if (attemp1.eq.1) then
+                  at1 = iat1
+                else
+                  at1 = iat2
+                endif 
                 do 50 at2 = 1, nat
                   do 40 icart2 = 1, 3
                   do 40 icart1 = 1, 3
@@ -145,10 +177,12 @@ c
                     do 31 ip1 = if1, il1
                       do 30 ip2 = if2, il2
                         dE = dE + dens(ip1,ip2) * Ibuf(ic)
+c                         write(6,*) 'dens,Ibuf,ip1,ip2,ic ',
+c    *        dens(ip1,ip2),Ibuf(ic),ip1,ip2,ic
                         ic = ic + 1
  30                   continue
  31                 continue
-                    if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
+c                   if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
                     dE = dE * qfac
                     Hxy(icart1,at1,icart2,at2) = 
      *               Hxy(icart1,at1,icart2,at2) + dE

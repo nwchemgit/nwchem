@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.1 1999-05-06 17:29:35 windus Exp $
+C $Id: onedd_cont.F,v 1.2 1999-12-21 23:52:40 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -58,15 +58,16 @@ c
 c
 c  Call the actual routine to add the S, V and T contributions
 c
-      doS = .true.
-      doV = .false.
-      doT = .false.
+      doS = .false.
+      doV = .true.
+      doT = .true.
       call onedd_calc(dbl_mb(k_exy),ncent*3,g_rhs,ncent*3,dbl_mb(k_buf),
      *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
      *  doS,doT,doV,g_wdens,g_dens,geom,basis,ncent,dbl_mb(k_dens),
      *  dbl_mb(k_wdens),matb)
 c
-      call sym_hess_symmetrize(geom,dbl_mb(k_exy))
+c should put the next line in when done with some testing
+c     call sym_hess_symmetrize(geom,dbl_mb(k_exy))
       write(6,*) 'The Hessian after derivative S contributions:'
       call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
 c
