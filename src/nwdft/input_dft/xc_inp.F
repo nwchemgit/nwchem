@@ -55,7 +55,7 @@ c
 c
 c     XC functionals coefficients
 c     
-      double precision cfac(numfunc),xfac(numfunc),delta_ac
+      double precision cfac(numfunc),xfac(numfunc)
       data dirs /'acm', 'b3lyp', 'beckehandh', 'HFexch', 'becke88',  
      &           'lyp', 'perdew81', 'perdew86', 'perdew91', 'pw91lda', 
      &           'slater', 'vwn_1', 'vwn_2', 'vwn_3', 'vwn_4', 
