@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.100 2000-01-05 17:04:44 windus Exp $
+C$Id: geom.F,v 1.101 2000-01-25 19:32:26 mg201 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -4761,13 +4761,12 @@ c
       double precision mass      ! [input] nuclear mass
       double precision invnucexp ! [output] inverse nuclear exponent
 c--local
-      double precision massno,athird
+      double precision athird
 c
       geom_mass_to_invnucexp = mass .gt. 0.0d0
 c
       if (mass .gt. 0.0d0) then
-        massno = int(mass+0.2d0)
-        athird = massno**(1.0d0/3.0d0)
+        athird = anint(mass)**(1.0d0/3.0d0)
         if (angstrom_to_au .eq. 0.0d0) call errquit(
      &      'geom_mass_to_invnucexp:zero conversion factor',911)
         invnucexp = ((0.836d0*athird+0.570d0)*angstrom_to_au)**2/1.5d10
