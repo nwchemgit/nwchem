@@ -1,6 +1,7 @@
-      Subroutine grid_qpts(xyz, ictr, irsh, iang, aqbuf, nq, leb)
+      Subroutine grid_qpts(xyz, ictr, irsh, iang, aqbuf, nq, leb,
+     *     rad)
 c
-c$Id: grid_qpts.F,v 1.1 1999-04-23 16:30:34 d3h449 Exp $
+c$Id: grid_qpts.F,v 1.2 1999-05-01 17:28:10 edo Exp $
 c
       implicit none
 c      
@@ -18,10 +19,11 @@ c
 c---> Cartesian Coordinates of Quadrature Points & Weights
 c
       logical leb
-      double precision aqbuf(4,nq), qwght_nq
+      double precision aqbuf(4,nq), qwght_nq,rad
 c
 c     Compute the quadrature points & weights for a given 
 c     set of radial shells.
+c     compute rad
 c
       integer k, l, ia_ictr
       double precision r, tx, ty, tz, xor, yor, zor
@@ -31,6 +33,7 @@ c
       ia_ictr = iatype(ictr)
 c
       r = rpts(irsh,ia_ictr)
+      rad=r
       if (leb) then
 c         
          do k = 1, ntheta(iang)

@@ -2,16 +2,16 @@
      &                      wqbuf, npts_per_task,
      &                      aqbuf, npts_per_ang)
 c
-c$Id: grid_tasks.F,v 1.2 1999-04-29 16:36:59 d3h449 Exp $
+c$Id: grid_tasks.F,v 1.3 1999-05-01 17:28:11 edo Exp $
 c
       implicit none
 c
 c     npts_per_task = target grid points per task
 c
       integer rtdb, qsh, nqlen, npts_per_task, npts_per_ang
-      integer lrij, irij, lrq, irq, lp, ip
+      integer lrij, irij, lrq, irq, lp, ip, lexpo, iexpo
       integer ndbl
-      double precision coord, wqbuf, aqbuf
+      double precision coord, wqbuf, aqbuf, rad
       dimension coord(3,ncenters)
       dimension qsh(3,nqlen)
       dimension wqbuf(4,npts_per_task)
@@ -24,10 +24,11 @@ c
       logical oreadfile, owritefile
       integer filesize, memsize
       character*255 gridfilename
+      character*4 whichf
 c
       integer iqsh, irsh, ictr, iang, npts_iqsh
       integer nq
-      logical leb
+      logical leb,lssw
       logical grid_file_open
       external grid_file_open
       logical grid_file_close
@@ -74,16 +75,27 @@ c
       leb = .false.
       if (iangquad.ne.0) leb = .true.
 c
+c     get partitioning function
+c
+      lssw=.true.
+      whichf='dumm'
+      if (.not.rtdb_cget(rtdb, 'dft:ssweights',  1, whichf))then
+        lssw=.false.
+      endif
+      if(lssw) call xc_interp(whichf)
+c
 c     Allocate some scratch space for construction of the spatial weights
 c
       ndbl = (ncenters*(ncenters+1))/2
       if (.not.MA_Push_Get(MT_Dbl,ndbl,'Rij',lRij,iRij))
-     &   call errquit('  in grid_setspac: cannot allocate Rij',0)
-      call a_dist(coord, Dbl_MB(iRij), ncenters)
+     &   call errquit('  in grid_tasks: cannot allocate Rij',0)
+C      call a_dist(coord, Dbl_MB(iRij), ncenters)
       if (.not.MA_Push_get(mt_dbl,ncenters*npts_per_ang,'rq',lrq,irq))
-     &   call errquit('grid_setspac: cannot allocate rq',0)
+     &   call errquit('grid_tasks: cannot allocate rq',0)
       if (.not.MA_Push_get(mt_dbl,ncenters*npts_per_ang,'p',lp,ip))
-     &   call errquit('grid_setspac: cannot allocate rq',0)
+     &   call errquit('grid_tasks: cannot allocate rq',0)
+      if (.not.MA_Push_get(mt_dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
+     &   call errquit('grid_tasks: cannot allocate rq',4)
 c
       do 100 iqsh = 1, nqshells
 c
@@ -94,13 +106,15 @@ c
 c
 c        Generate all angular quadrature points for this radial shell
 c
-         call grid_qpts(coord(1,ictr), ictr, irsh, iang, aqbuf, nq, leb)
+         call grid_qpts(coord(1,ictr), ictr, irsh, iang, aqbuf, nq, leb,
+     ,        rad)
          npts_iqsh = nq
 c
 c        modify the weight to include the spatial weight (and symmetry factor)
 c
          call grid_setspac(rtdb, coord, aqbuf, dbl_mb(irij), 
-     &                     dbl_mb(irq), dbl_mb(ip), ictr, npts_iqsh)
+     &                     dbl_mb(irq), dbl_mb(ip), ictr, npts_iqsh,
+     ,        lssw, whichf, dbl_mb(iexpo), rad)
 c
 c        since only generating symmetry unique quadrature 
 c        scale weights with symmetry factor if desired
@@ -109,7 +123,7 @@ c
 c            
 c        now pack this aqbuf into the write buffer (write and update task counter as needed)
 c
-         call grid_file_write(npts_iqsh, ictr, aqbuf)
+         call grid_file_write(npts_iqsh, ictr, rad, aqbuf)
 c
   100 continue
 c
@@ -117,7 +131,7 @@ c     Write last buffer of grid pts and close file
 c
       nq = 1
       n_tot_tasks = 0 ! sets nctr to 0; writes last buf and returns #tasks
-      call grid_file_write(nq, n_tot_tasks, aqbuf)
+      call grid_file_write(nq, n_tot_tasks, rad, aqbuf)
       write(6,*)' n_tot_tasks = ', n_tot_tasks
 c  
 c      if (.not. grid_file_close(.true.))
@@ -126,11 +140,13 @@ c
 c
 c     clean up
 c
+      if (.not. MA_Pop_Stack(lexpo))
+     &   call errquit('grid_tasks: pop stack failed.',1)
       if (.not. MA_Pop_Stack(lp))
-     &   call errquit('grid_setspac: pop stack failed.',0)
+     &   call errquit('grid_tasks: pop stack failed.',2)
       if (.not. MA_Pop_Stack(lrq))
-     &   call errquit('grid_setspac: pop stack failed.',0)
+     &   call errquit('grid_tasks: pop stack failed.',3)
       if (.not. MA_Pop_Stack(lrij))
-     &   call errquit('grid_setspac: pop stack failed.',0)
+     &   call errquit('grid_tasks: pop stack failed.',4)
       return
       end 

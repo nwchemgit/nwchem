@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.2 1999-04-29 16:36:54 d3h449 Exp $
+* $Id: grid_file.F,v 1.3 1999-05-01 17:28:10 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -57,6 +57,7 @@ c
       rec_len_in_dbl = buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
       call grid_buf_clear()
       call dfill(buffer_size, 0.0d0, values, 1)
+      cur_rec_rad=0d0
 #ifdef NOAIO
       oasyncio = .false.
 #else
@@ -448,6 +449,7 @@ c
       call dcopy(ncopy, buf, 1, values, 1)
       cur_rec_ctr = nint(values(1,1))
       n_in_rec = nint(values(2,1))
+      cur_rec_rad = values(3,1)
 c
       end
       subroutine grid_buf_pack()
@@ -462,6 +464,7 @@ c
 c
       values(1,1) = dble(cur_rec_ctr)
       values(2,1) = dble(n_in_rec)
+      values(3,1) = cur_rec_rad
 c
 c     Total dbls to copy is 4*(n_per_rec + 1)
 c
@@ -587,7 +590,7 @@ c
       ofirst = .false.
 c
       end
-      logical function grid_file_write(nqpts, nctr, aqbuf)
+      logical function grid_file_write(nqpts, nctr, rad, aqbuf)
 c      logical function grid_file_write(nints, i, j, k, l, g)
       implicit none
 #include "cgridfile.fh"
@@ -599,6 +602,7 @@ c
       integer nqpts
       integer nctr
       double precision aqbuf(4,nqpts)
+      double precision rad
       logical grid_buf_write
       external grid_buf_write
 c
@@ -615,6 +619,7 @@ c
       n_in_rec      = next_value - 1
       n_rec_in_file = cur_rec - 1
       if(n_in_rec .eq. 1) cur_rec_ctr = nctr
+      cur_rec_rad = max(rad,cur_rec_rad)
 c
 c     Check to see if buffer needs dumping before adding more pts.
 c
@@ -624,6 +629,7 @@ c
          cur_rec_ctr = nctr
          if (nctr.eq.0)nctr =  n_rec_in_file
          if (.not. grid_file_write) return
+         cur_rec_rad=0d0
       end if
 c
 c     This copy can be made a lot more efficient
@@ -645,7 +651,7 @@ c
       end do
 c
       end
-      logical function grid_file_read(maxqpts, nqpts, nctr, aqbuf)
+      logical function grid_file_read(maxqpts, nqpts, nctr,rad,aqbuf)
       implicit none
 c
 #include "cgridfile.fh"
@@ -653,7 +659,7 @@ c
       integer maxqpts
       integer nqpts
       integer nctr
-      double precision aqbuf(4,maxqpts)
+      double precision aqbuf(4,maxqpts),rad
 c
 c     Return grid pts corresponding to the same atom center.
 c     Return in nqpts the number of grid pts read.  
@@ -674,6 +680,7 @@ c
       call dcopy(ncopy, values(1,2), 1, aqbuf(1,1), 1)
       nctr = cur_rec_ctr
       nqpts = n_in_rec - 1
+      rad =cur_rec_rad
 c
       if (otrace) then
          write(6,*) ' grid_file read: nqpts,nctr,n_in_rec,next_value', 

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.2 1999-04-29 16:37:00 d3h449 Exp $
+# $Id: GNUmakefile,v 1.3 1999-05-01 17:28:11 edo Exp $
 
       OBJ = \
 	grid_atom_type_info.o \
@@ -20,6 +20,9 @@
 	grid_prescreen_1.o \
 	grid_prescreen_2.o \
 	grid_read_ck.o \
+	grid_neighb.o \
+	grid_signf.o \
+	grid_ssw.o \
 	grid_sym.o \
 	grid_utils.o
 

@@ -1,6 +1,6 @@
       subroutine grid_read_ck(rtdb)
 c
-c$Id: grid_read_ck.F,v 1.1 1999-04-29 16:36:57 d3h449 Exp $
+c$Id: grid_read_ck.F,v 1.2 1999-05-01 17:28:10 edo Exp $
 c
       implicit none
       integer rtdb
@@ -16,6 +16,7 @@ c
       integer nqpts_per_buf
       logical grid_file_rewind
       external grid_file_rewind
+      double precision rad
 c
       if (.not.MA_Push_get(MT_dbl, buffer_size, 
      &                     'quad pts buffer', lrqbuf, irqbuf))
@@ -30,8 +31,9 @@ c
 c
       do 100 iqt = 1, n_tot_tasks
 c
-         call grid_file_read(nqpts_per_buf, nqpts, ictr, dbl_mb(irqbuf))
-         write(6,*)' ictr, nqpts: ', ictr, nqpts
+         call grid_file_read(nqpts_per_buf, nqpts, ictr, rad,
+     ,        dbl_mb(irqbuf))
+c         write(6,*)' ictr, nqpts: ', ictr, nqpts
 c
   100 continue
 c

@@ -1,6 +1,7 @@
-      Subroutine grid_beckew(xyzw, xyz, Rij, rq, p, ictr, nq)
+      Subroutine grid_beckew(xyzw, xyz,  rq, p, ictr, nq,iscr,
+     , ncenters_scr)
 c
-C$Id: grid_beckew.F,v 1.2 1999-04-29 16:36:54 d3h449 Exp $
+C$Id: grid_beckew.F,v 1.3 1999-05-01 17:28:10 edo Exp $
 c
       implicit none
 c
@@ -8,8 +9,9 @@ c
 c
       integer nq      
       double precision xyzw(4,nq), xyz(3,*)
+      integer iscr(*)
+      integer ncenters_scr
 c
-      double precision Rij(*)
       integer ictr
       double precision p(nq,*)
       double precision rq(nq,*)  ! sum of p(n) [ output]
@@ -22,14 +24,13 @@ c
       double precision aaij, rrij
 c
       double precision TOLL,toll_scr
-      parameter(TOLL=0.95d0)
+      parameter(TOLL=0.95d0,toll_scr=1d-14)
 c     
 c     Evaluate Becke space partitioning weight. Then, incorporate it
 c     with weights from the single-center quadratures to form the total 
 c     multi-center quadrature weight.
 c     
-      toll_scr=max((tol_rho*1d-5),1d-33)
-      do 20 i = 1, ncenters
+      do 20 i = 1, ncenters_scr
 c
          x0i = xyz(1,i)
          y0i = xyz(2,i)
@@ -48,7 +49,7 @@ c
    10    continue
    20 continue
 c
-      do 50 i = 1, ncenters
+      do 50 i = 1, ncenters_scr
 c         iind = iandex(i)
          iind = i
          iti = iatype(iind)
@@ -59,8 +60,11 @@ c
 c            jind = iandex(j)
             jind = j
 c
-            ij = istep + jind
-            rrij = Rij(ij)
+c            ij = istep + jind
+c            rrij = Rij(ij)
+            rrij = 1.0d0/sqrt(  (xyz(1,i) - xyz(1,j))**2 +
+     &                                (xyz(2,i) - xyz(2,j))**2 +
+     &                                (xyz(3,i) - xyz(3,j))**2   )
 c          
             aaij = aratio(iti,iatype(jind))
 c
@@ -112,14 +116,48 @@ c
 c
 c     compute sum of Becke weights for normalization
 c
-      call dfill(nq*ncenters,0.d0,rq,1)
+      call dfill(nq*ncenters_scr,0.d0,rq,1)
 c      
-      do i = 1, ncenters
+      do i = 1, ncenters_scr
          call daxpy(nq, 1.d0, p(1,i), 1, rq(1,1), 1)
       enddo
 c
       do 90 n = 1, nq
          xyzw(4,n) = (p(n,ictr)*xyzw(4,n))/rq(n,1)
    90 continue
+c
+c     remove small wieghts
+c
+      call grid_compress(nq,xyzw,iscr,toll_scr)
+      return
+      end
+      subroutine grid_compress(nq,xyzw,iscr,toll)
+      implicit none
+      integer nq
+      double precision xyzw(4,*)
+      integer iscr(*)
+      double precision toll ![input]
+c
+      integer nsign,i,q
+c        
+c       compress grid
+c
+      if(nq.eq.0 )return
+      nsign=0
+      do i=1,nq
+      if(abs(xyzw(4,i)).gt.toll) then
+       nsign=nsign+1
+       iscr(nsign)=i
+       endif
+      enddo
+      if(nq.eq.nsign) return
+      nq=nsign
+      if(nq.eq.0)  return
+      do q=1,nq
+        xyzw(1,q)=xyzw(1,iscr(q))
+        xyzw(2,q)=xyzw(2,iscr(q))
+        xyzw(3,q)=xyzw(3,iscr(q))
+        xyzw(4,q)=xyzw(4,iscr(q))
+      enddo
       return
       end
