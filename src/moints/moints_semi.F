@@ -198,7 +198,7 @@ c$$$      end
 
 
 c
-c  $Id: moints_semi.F,v 1.40 1997-08-08 07:15:34 rg240 Exp $
+c  $Id: moints_semi.F,v 1.41 1997-08-08 18:03:48 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -841,7 +841,7 @@ c ... is this ever called ?
      $                              dbl_mb(k_xmo), g_jbuf )
                if (oexch) then
                  t0 = util_cpusec()
-     $           call moints_trf2Kynew(nbf, qlo, qhi, oseglo, oseghi, 
+                 call moints_trf2Kynew(nbf, qlo, qhi, oseglo, oseghi, 
      $                              vlo, vhi, ibflo, ibfhi, 
      $                              jbflo, jbfhi, gloc, dbl_mb(k_ssni),
      $                              dbl_mb(k_hlp), dbl_mb(k_hlp2),
