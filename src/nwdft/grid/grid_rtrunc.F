@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c
-c$Id: grid_rtrunc.F,v 1.25 2000-02-29 23:38:25 edo Exp $
+c$Id: grid_rtrunc.F,v 1.26 2000-03-07 20:03:11 edo Exp $
 c
       implicit none
 c      
@@ -79,7 +79,7 @@ c
          call grid_rtrunc1(iat,dbl_mb(k_minexp),int_mb(k_ldiff),
      .        g_s, dbl_mb(ipmat),job_grid_acc,iat_diff,range_max,
      .        dbl_mb(k_coord),
-     .        ll_at,exex_at,shiftm_2g)
+     .        ll_at,exex_at,shiftm_2g,oprint,LuOut)
          if (tol_reset)then
             if((nint(range_max)).gt.rad_cutoff(1,iatype(iat))) then
                if(llind) then

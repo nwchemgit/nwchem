@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.20 2000-03-07 02:09:07 edo Exp $
+c$Id: grid_acc_def.F,v 1.21 2000-03-07 20:03:11 edo Exp $
 c
       implicit none
 c      
@@ -356,6 +356,7 @@ c
          gridtype='medium'
          grid_acc_index = 3
       endif      
+      goto 8
  77   continue
 c
 c     Daul grid;
