@@ -1,7 +1,13 @@
 *
-* $Id: paw_sd.F,v 1.57 2003-03-22 02:30:01 bylaska Exp $
+* $Id: paw_sd.F,v 1.58 2003-03-22 20:15:15 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.57  2003/03/22 02:30:01  bylaska
+* paw cpsd program finished....
+* The nwpw directory structure is ready to be checked into 4.5 release tree.
+*
+* ....EJB
+*
 * Revision 1.56  2003/03/21 23:41:13  bylaska
 *
 * paw updates ...EJB
@@ -393,7 +399,7 @@
         end if
      
       end do
-      call psi_marat_write("marat.elc",ispin,ne,dcpl_mb(psi2(1)))
+      !call psi_marat_write("marat.elc",ispin,ne,dcpl_mb(psi2(1)))
 
 
 *                |**************************|
@@ -738,7 +744,7 @@ c         write(6,1498) virial
 !
 !*     ***** write psi2 wavefunctions ****
        call psi_write(ispin,ne,dcpl_mb(psi2(1)))
-       call psi_marat_write("marat3.elc",ispin,ne,dcpl_mb(psi2(1)))
+       !call psi_marat_write("marat3.elc",ispin,ne,dcpl_mb(psi2(1)))
 
 
 !*     **** write geometry to rtdb ****
