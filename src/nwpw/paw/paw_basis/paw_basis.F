@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.17 2003-02-12 15:23:18 bylaska Exp $
+* $Id: paw_basis.F,v 1.18 2003-02-13 02:11:49 bylaska Exp $
 *
 
 !**************************************************
@@ -19,7 +19,6 @@
   
 *     !*** local variables ***
       integer it, ir, nt
-      integer  nb,ng
       integer l_nb,l_ng
       integer i_nb,i_ng
       integer i_lo,i_hi,ii,mult_l
@@ -216,22 +215,24 @@ c     !*** set core charges ***
       double precision v_ps(ngrid)
       character*(*)    aname
 
+#include "stdio.fh"
 
 *     !*** local variables
       integer i,j
       integer fp
-      character*40 filename
+      !character*255 filename
 
 *     !*** external functions ***
       logical  assert_file
       external assert_file
 
-      filename = aname
-      if( .not. assert_file(filename)) then
-        call errquit("cannot find "//filename,0)
+      !filename = aname
+      if( .not. assert_file(aname)) then
+        write(luout,*)  ' cannot find ',aname
+        call errquit('paswbasis: cannot find file',2)
       end if
 
-      call open_file(filename,"r",fp)
+      call open_file(aname,"r",fp)
         READ(fp,*) r1,rmax,ngrid,nbasis
         READ(fp,*) i_cut
         READ(fp,*) core_kin_energy
