@@ -3798,7 +3798,7 @@ C
       DATA VTOL  /1.5D-01/
       DATA ICMAX /5/
 c
-      IR = 6
+      IW = 6
 C
       LIST=1
       IF(LIST.EQ.0) MAX=10
