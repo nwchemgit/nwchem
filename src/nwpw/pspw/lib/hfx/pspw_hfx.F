@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.5 2004-11-08 23:37:42 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.6 2004-11-10 00:13:23 bylaska Exp $
 *
 
 *     *************************
@@ -33,9 +33,11 @@
       ehfx = 0.0d0
       hfx_on = .false.
 
+      if (.not.rtdb_get(rtdb,'pspw:HFX',mt_log,1,hfx_on))
+     >   hfx_on = .false.
 
 *     **** get the number of HFX orbitals ****
-      if (rtdb_get(rtdb,'pspw:HFX',mt_log,1,value)) then
+      if (hfx_on) then
          hfx_on = .true.
          do ms=1,ispin
            norbs(ms) = ne(ms)

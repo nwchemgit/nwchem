@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.29 2004-06-16 18:01:10 bylaska Exp $
+* $Id: pspw_sic.F,v 1.30 2004-11-10 00:13:23 bylaska Exp $
 *
 
 *     *************************
@@ -30,9 +30,11 @@
       e_sic = 0.0d0
       p_sic = 0.0d0
       sic_on = .false.
+      if (.not.rtdb_get(rtdb,'pspw:SIC_all',mt_log,1,sicall)) 
+     >   sicall=.false.
 
 *     **** get the number of SIC orbitals ****
-      if (rtdb_get(rtdb,'pspw:SIC_all',mt_log,1,sicall)) then
+      if (sicall) then
          sic_on = .true.
          norbs = ne(1)+ne(2)
          if(.not.MA_alloc_get(mt_int,norbs,
@@ -68,12 +70,14 @@
          if (.not. rtdb_get(rtdb,
      >                      'pspw:SIC_relax',
      >                      mt_log,1,relaxed)) 
-     >       relaxed = .false.
+     >       relaxed = .true.
 
          if (.not. rtdb_get(rtdb,
      >                      'pspw:SIC_solver_type',
-     >                      mt_int,1,solver_type)) 
-     >       solver_type = 1
+     >                      mt_int,1,solver_type))  then
+           if (control_version().eq.3) solver_type = 1
+           if (control_version().eq.4) solver_type = 2
+         end if
 
          if (.not. rtdb_get(rtdb,
      >                      'pspw:SIC_xc_parameter',
@@ -325,8 +329,9 @@
      >                      dbl_mb(tmp1(1)))
            else
              call v_bwexc(n2ft3d,2,dbl_mb(dn(1)),
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xce(1)))
+     >                    1.0d0,1.0d0,
+     >                    dbl_mb(xcp(1)),
+     >                    dbl_mb(xce(1)))
            end if
 
 *          **** apply the xc_parameter ****
@@ -519,8 +524,9 @@ c    >                        Hpsi_k(index2))
      >                      dbl_mb(tmp1(1)))
            else
              call v_bwexc(n2ft3d,2,dbl_mb(dn(1)),
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xce(1)))
+     >                    1.0d0,1.0d0,
+     >                    dbl_mb(xcp(1)),
+     >                    dbl_mb(xce(1)))
            end if
 
 *          **** apply the xc_parameter ****
@@ -717,8 +723,9 @@ c    >                        Hpsi_k(index2))
      >                      dbl_mb(tmp1(1)))
            else
              call v_bwexc(n2ft3d,2,dbl_mb(dn(1)),
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xce(1)))
+     >                    1.0d0,1.0d0,
+     >                    dbl_mb(xcp(1)),
+     >                    dbl_mb(xce(1)))
            end if
 
 *          **** apply the xc_parameter ****

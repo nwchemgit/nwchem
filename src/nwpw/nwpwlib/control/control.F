@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.56 2004-11-08 23:37:41 bylaska Exp $
+* $Id: control.F,v 1.57 2004-11-10 00:13:23 bylaska Exp $
 *
 
 *     ***********************************
@@ -61,27 +61,56 @@
      >        rtdb_cget(rtdb,'cpsd:exchange_correlation',
      >                  1,exchange_correlation)
 
+      value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
+      value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+      value = value.and.
+     >        rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,1.0d0)
+      value = value.and.
+     >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.0d0)
       if (exchange_correlation.eq.'off') then
-         gga = -1
+        gga = -1
       else if (exchange_correlation.eq.'vosko') then
-         gga = 0
+        gga = 0
       else if (exchange_correlation.eq.'lda') then
-         gga = 0
+        gga = 0
+      else if (exchange_correlation.eq.'lsda') then
+        gga = 0
+        value = rtdb_put(rtdb,'cpsd:ispin',mt_int,1,2)
       else if (exchange_correlation.eq.'pbe96') then
-         gga = 1
+        gga = 1
       else if (exchange_correlation.eq.'hf') then
-         gga = 2
-         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        gga = 2
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
       else if (exchange_correlation.eq.'hartree-fock') then
-         gga = 2
-         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        gga = 2
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
       else if (exchange_correlation.eq.'pbe0') then
-         gga = 3
-         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
-         value = value.and.
-     >           rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+        gga = 3
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+      else if (exchange_correlation.eq.'lda-sic') then
+        gga = 0
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+      else if (exchange_correlation.eq.'pbe96-sic') then
+        gga = 1
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+      else if (exchange_correlation.eq.'lda-0.4sic') then
+        gga = 0
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.40d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.40d0)
+      else if (exchange_correlation.eq.'pbe96-0.4sic') then
+        gga = 1
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.40d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.40d0)
       else
-         gga = 0
+        gga = 0
       end if
 
       value = value.and.
@@ -141,10 +170,43 @@
       value = value.and.
      >        rtdb_cget(rtdb,'cpmd:exchange_correlation',
      >                  1,exchange_correlation)
+
       if (exchange_correlation.eq.'vosko') then
-         gga = 0
+        gga = 0
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
+      else if (exchange_correlation.eq.'pbe96') then
+        gga = 1
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
+      else if (exchange_correlation.eq.'lda-sic') then
+        gga = 0
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+      else if (exchange_correlation.eq.'pbe96-sic') then
+        gga = 1
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+      else if (exchange_correlation.eq.'lda-0.4sic') then
+        gga = 0
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.40d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.40d0)
+      else if (exchange_correlation.eq.'pbe96-0.4sic') then
+        gga = 1
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.40d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.40d0)
       else
-         gga = 1
+        gga = 0
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
       end if
 
       value = value.and.
@@ -236,31 +298,66 @@ c
      >        rtdb_cget(rtdb,'cgsd:output_ewavefunction_filename',
      >                  1,output_ewavefunction_filename)
 
-      value = value.and.
-     >        rtdb_cget(rtdb,'cgsd:exchange_correlation',
-     >                  1,exchange_correlation)
+      if (.not.rtdb_cget(rtdb,'cgsd:exchange_correlation',
+     >                   1,exchange_correlation))
+     >  exchange_correlation = 'vosko'
 
+      value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+      value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
+      value = value.and.
+     >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
+      value = value.and.
+     >        rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,1.0d0)
+      value = value.and.
+     >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.0d0)
       if (exchange_correlation.eq.'off') then
-         gga = -1
+        gga = -1
       else if (exchange_correlation.eq.'vosko') then
-         gga = 0
+        gga = 0
       else if (exchange_correlation.eq.'lda') then
-         gga = 0
+        gga = 0
+      else if (exchange_correlation.eq.'lsda') then
+        gga = 0
+        value = rtdb_put(rtdb,'cgsd:ispin',mt_int,1,2)
       else if (exchange_correlation.eq.'pbe96') then
-         gga = 1
+        gga = 1
       else if (exchange_correlation.eq.'hf') then
-         gga = 2
-         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        gga = 2
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
       else if (exchange_correlation.eq.'hartree-fock') then
-         gga = 2
-         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        gga = 2
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
       else if (exchange_correlation.eq.'pbe0') then
-         gga = 3
-         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
-         value = value.and.
-     >           rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+        gga = 3
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+      else if (exchange_correlation.eq.'lda-sic') then
+        gga = 0
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.rtdb_put(rtdb,'nwpw:minimizer',mt_int,1,4)
+      else if (exchange_correlation.eq.'pbe96-sic') then
+        gga = 1
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.rtdb_put(rtdb,'nwpw:minimizer',mt_int,1,4)
+      else if (exchange_correlation.eq.'lda-0.4sic') then
+        gga = 0
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.40d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.40d0)
+        value = value.and.rtdb_put(rtdb,'nwpw:minimizer',mt_int,1,4)
+      else if (exchange_correlation.eq.'pbe96-0.4sic') then
+        gga = 1
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.40d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.40d0)
+        value = value.and.rtdb_put(rtdb,'nwpw:minimizer',mt_int,1,4)
       else
-         gga = 0
+        gga = 0
       end if
 
 *     **** set Kohn-Sham scf parameters ***
@@ -379,13 +476,18 @@ c
       end if
 
 
-      value = value.and.
-     >        rtdb_cget(rtdb,'band:exchange_correlation',
-     >                  1,exchange_correlation)
+      if (.not.rtdb_cget(rtdb,'band:exchange_correlation',
+     >                   1,exchange_correlation))
+     >  exchange_correlation = 'vosko'
+
       if (exchange_correlation.eq.'vosko') then
          gga = 0
-      else
+      else if (exchange_correlation.eq.'lda') then
+         gga = 0
+      else if (exchange_correlation.eq.'pbe96') then
          gga = 1
+      else
+         gga = 0
       end if
 
       value = value.and.
@@ -428,13 +530,19 @@ c
       value = value.and.
      >        rtdb_cget(rtdb,'cgsd:output_wavefunction_filename',
      >                  1,output_wavefunction_filename)
-      value = value.and.
-     >        rtdb_cget(rtdb,'cgsd:exchange_correlation',
-     >                  1,exchange_correlation)
+
+      if (.not.rtdb_cget(rtdb,'cgsd:exchange_correlation',
+     >                   1,exchange_correlation))
+     >  exchange_correlation = 'vosko'
+
       if (exchange_correlation.eq.'vosko') then
          gga = 0
-      else
+      else if (exchange_correlation.eq.'lda') then
+         gga = 0
+      else if (exchange_correlation.eq.'pbe96') then
          gga = 1
+      else
+         gga = 0
       end if
       value = value.and.
      >        rtdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp)
@@ -486,13 +594,18 @@ c
      >        rtdb_cget(rtdb,'cpmd:xyz_filename',
      >                  1,xyz_filename)
 
-      value = value.and.
-     >        rtdb_cget(rtdb,'cpmd:exchange_correlation',
-     >                  1,exchange_correlation)
+      if (.not.rtdb_cget(rtdb,'cpmd:exchange_correlation',
+     >                   1,exchange_correlation))
+     >  exchange_correlation = 'vosko'
+
       if (exchange_correlation.eq.'vosko') then
          gga = 0
-      else
+      else if (exchange_correlation.eq.'lda') then
+         gga = 0
+      else if (exchange_correlation.eq.'pbe96') then
          gga = 1
+      else
+         gga = 0
       end if
 
       value = value.and.
