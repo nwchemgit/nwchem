@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.46 1998-03-26 18:40:02 mdupuis Exp $
+C$Id: opt_drv.F,v 1.47 1998-04-07 23:40:11 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -2142,6 +2142,7 @@ c
       integer iw
       integer ift
       logical dbug
+      logical out
       common/hnd_iofile/ir,iw
       double precision hess(mint,mint)  
       character*255 opt_hess_fil
@@ -2149,19 +2150,24 @@ c
 c
       dbug=.false.
       dbug=dbug.or.util_print('hess_fil', print_debug)
+      out =.false.
+      out =out.or.dbug
 c
       call util_file_name('drv.hess',
      1     .false.,.false.,opt_hess_fil)
       open(unit=ift, file=opt_hess_fil, form='unformatted',
      1     access='sequential', status='unknown', err=911)
 c
+      if(out) then
+         write(iw,*) ' _put_hess', opt_hess_fil
+         write(iw,*) 'nint, mint = ',nint,mint 
+      endif
       if(dbug) then
-         write(iw,*) ' _put_hess ', opt_hess_fil
          call hnd_prsq(hess,nint,nint,mint)    
       endif
 c
       rewind ift
-      write(ift) ((hess(i,j),i=1,nint),j=1,nint)
+      write(ift) ((hess(i,j),i=1,mint),j=1,mint)
 c
       close(ift,status='keep')
 c
@@ -2188,6 +2194,7 @@ c
       integer iw
       integer ift
       logical dbug
+      logical out
       common/hnd_iofile/ir,iw
       double precision hess(mint,mint) 
       character*255 opt_hess_fil
@@ -2195,19 +2202,24 @@ c
 c
       dbug=.false.
       dbug=dbug.or.util_print('hess_fil', print_debug)
+      out =.false.
+      out =out.or.dbug
 c
       call util_file_name('drv.hess',
      1     .false.,.false.,opt_hess_fil)
       open(unit=ift, file=opt_hess_fil, form='unformatted',
      1     access='sequential', status='unknown', err=911)
+      if(out) then
+         write(iw,*) ' _get_hess', opt_hess_fil
+         write(iw,*) 'nint, mint = ',nint,mint 
+      endif
 c
       rewind ift
-      read(ift,end=910,err=910) ((hess(i,j),i=1,nint),j=1,nint)
+      read(ift,end=910,err=910) ((hess(i,j),i=1,mint),j=1,mint)
 c
       close(ift,status='keep')
 c
       if(dbug) then
-         write(iw,*) ' _get_hess', opt_hess_fil
          call hnd_prsq(hess,nint,nint,mint)    
       endif
 c
@@ -2217,9 +2229,8 @@ c
 c     ----- unable to complete the read ---
 c
  910  close(ift,status='keep')
-      if(dbug) then
+      if(out) then
          write(iw,*) 'unable to complete the read in _get_hess'
-         write(iw,*) 'nint, mint = ',nint,mint
       endif
       driver_opt_get_hess=.false.
       return 
@@ -3716,7 +3727,6 @@ C
 #include "msgtypesf.h"
 #include "global.fh"
 #include "geom.fh"
-c      #include "geomP.fh"    ! should not need this?
 #include "rtdb.fh"
       INTEGER RTDB
       LOGICAL DRIVER_OPT_PUT_HESS
@@ -3777,8 +3787,8 @@ c     ----- get current hessian matrix -----
 c
       if(zcoord) then
          if( ga_nodeid().eq.0) then
-            if (.not. driver_opt_get_hess(x(j10),ndimq,ndim))
-     $           call errquit('hnd_opt_hss_update: get_hess',ndimq*ndim)
+            if (.not. driver_opt_get_hess(x(j10),ndim,ndim))
+     $           call errquit('hnd_opt_hss_update: get_hess',ndim *ndim)
             if (.not. geom_zmt_get_zind(x(j20),ndimq,ndim))
      $           call errquit('hnd_opt_hss_update: get_zind',ndimq*ndim)
          endif
