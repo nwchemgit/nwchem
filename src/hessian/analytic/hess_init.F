@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.11 2000-08-14 17:13:38 windus Exp $
+C $Id: hess_init.F,v 1.12 2000-08-14 20:27:00 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -144,7 +144,7 @@ c
         else
           nalpha = dftnoc(1)
           nbeta  = dftnoc(2) !Is this in the correct order?
-          nclosed = nalpha
+          nclosed = nbeta
           scftype = 'UHF'
         endif
 
