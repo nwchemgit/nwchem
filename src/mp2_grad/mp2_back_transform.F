@@ -12,7 +12,7 @@
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
 *
-* $Id: mp2_back_transform.F,v 1.13 1997-04-04 21:25:25 d3g681 Exp $
+* $Id: mp2_back_transform.F,v 1.14 1997-04-06 20:59:18 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -53,7 +53,7 @@ c
       integer l_act, k_act, l_actsh, k_actsh
       integer twopdmunit
       integer junk, ninseg, ierr, i, j, ish, ishlo, ishhi, shmax, tdim
-      integer nsh, natoms
+      integer nsh, natoms, nactive
       character*(nw_max_path_len) fname
 c
       double precision tol2e
@@ -171,7 +171,7 @@ c
      $     ('mp2_backt: geom ?',0)
       if (.not. ma_push_get(mt_log, natoms, 'mp2:back act',
      $     l_act, k_act)) call errquit('mp2:back ma ', natoms)
-      call grad_active_atoms(rtdb, natoms, log_mb(k_act))
+      call grad_active_atoms(rtdb, natoms, log_mb(k_act), nactive)
 c
 c     Turn this into a list of active shells
 c
