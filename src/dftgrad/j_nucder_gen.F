@@ -5,7 +5,7 @@ c     dfth_cdfit for J hessian with fitting
 c
 c     BGJ - 9/98
 c
-c     $Id: j_nucder_gen.F,v 1.4 1999-02-15 17:00:41 bjohnson Exp $
+c     $Id: j_nucder_gen.F,v 1.5 1999-02-19 02:37:57 bjohnson Exp $
 c
       subroutine j_hessian(g_dens, oactive, nactive, hess)
 c
@@ -44,7 +44,7 @@ c
       subroutine j_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
      &                       calc_type)
 c
-c     $Id: j_nucder_gen.F,v 1.4 1999-02-15 17:00:41 bjohnson Exp $
+c     $Id: j_nucder_gen.F,v 1.5 1999-02-19 02:37:57 bjohnson Exp $
 c
 c     General routine for J hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -77,8 +77,8 @@ c
       logical do_hess, do_cpks_r
       integer rtdb
       integer natoms
-      integer l_d_ija, k_d_ija, l_d_kla, k_d_kla, ldim, l_scr, k_scr,
-     &        lscr, l_buf, k_buf, lbuf, l_s34, k_s34
+      integer l_d_ija, k_d_ija, l_d_kla, k_d_kla, ldim1, ldim2,
+     &        l_scr, k_scr, lscr, l_buf, k_buf, lbuf, l_s34, k_s34
       integer i, nproc
       double precision tol2e
       integer g_t
@@ -120,8 +120,8 @@ c
 c     Set up temporary arrays needed by dftg_grad2_gen / dfth_cdfit
 c
       call j_nucder_alloc(l_d_ija, k_d_ija, l_d_kla, k_d_kla,
-     &                    ldim, l_scr, k_scr, lscr, l_buf, k_buf,
-     &                    lbuf, l_s34, k_s34, natoms)
+     &                    ldim1, ldim2, l_scr, k_scr, lscr, l_buf,
+     &                    k_buf, lbuf, l_s34, k_s34, natoms)
 c
       tol2e = 10.d0**(-itol2e)
 c
@@ -134,15 +134,15 @@ c     fitted case (allocation is set up properly in j_nucder_alloc)
 c
          call dfth_cdfit(rtdb, geom, AO_bas_han, CD_bas_han,
      &                   nbf_ao, nbf_cd, natoms, tol2e, dbl_mb(k_scr),
-     &                   lscr, dbl_mb(k_buf), lbuf, dbl_mb(k_d_ija),
-     &                   dbl_mb(k_d_kla), ldim,
+     &                   lscr, dbl_mb(k_buf), lbuf, dbl_mb(k_d_kla),
+     &                   dbl_mb(k_d_ija), ldim1, ldim2,
      &                   g_dens, hess, dbl_mb(k_s34), oskel)
 c 
       else
 c
          nproc = ga_nnodes()
          call dftg_grad2_gen(dbl_mb(k_d_ija), dbl_mb(k_d_kla), 0d0,
-     &                       hess, g_rhs, g_dens, ldim, ao_bas_han,
+     &                       hess, g_rhs, g_dens, ldim1, ao_bas_han,
      &                       nproc, natoms, dbl_mb(k_scr), lscr,
      &                       dbl_mb(k_buf), lbuf, tol2e, oactive,
      &                       nactive, geom, dbl_mb(k_s34), oskel,
@@ -244,8 +244,8 @@ c
 c
 c
       subroutine j_nucder_alloc(l_d_ija, k_d_ija, l_d_kla, k_d_kla,
-     &                          ldim, l_scr, k_scr, lscr, l_buf, k_buf,
-     &                          lbuf, l_s34, k_s34, nat)
+     &                          ldim1, ldim2, l_scr, k_scr, lscr, l_buf,
+     &                          k_buf, lbuf, l_s34, k_s34, nat)
 c
 c     Allocates temporary storage needed by J nuclear derivative routines
 c
@@ -255,13 +255,13 @@ c
 #include "bas.fh"
 #include "cdft.fh"
 c
-      integer l_d_ija, k_d_ija, l_d_kla, k_d_kla, ldim, l_scr, k_scr,
-     &        lscr, l_buf, k_buf, lbuf, l_s34, k_s34
+      integer l_d_ija, k_d_ija, l_d_kla, k_d_kla, ldim1, ldim2,
+     &        l_scr, k_scr, lscr, l_buf, k_buf, lbuf, l_s34, k_s34
       integer nat
 c
 c     Local variables
 c
-      integer max_at_bf, i, ilo, ihi, max_sh_bf, ls34
+      integer max_at_bf, i, ilo, ihi, max_sh_bfcd, ls34
       integer max1e, max2e, max2e3c, mscratch_1e, mscratch_2e,
      &        mscratch_2e3c
 c
@@ -274,17 +274,18 @@ c
      &        call errquit('j_nucder_alloc: bas_ce2bfr failed', i)
          max_at_bf = max(max_at_bf, ihi-ilo+1)
       enddo
-      if (.not. bas_nbf_cn_max(ao_bas_han, max_sh_bf))
-     &   call errquit('j_nucder_alloc: could not get max_sh_bf',0)
+      ldim1 = max_at_bf
       if (.not.CDFIT) then
-         ldim = max_at_bf
+         ldim2 = max_at_bf
       else
-         ldim = max_sh_bf
+         if (.not. bas_nbf_cn_max(cd_bas_han, max_sh_bfcd))
+     &      call errquit('j_nucder_alloc: could not get max_sh_bfcd',0)
+         ldim2 = max_sh_bfcd
       endif
-      if (.not. MA_push_get(MT_DBL, ldim*ldim, 'd_ija', l_d_ija,
+      if (.not. MA_push_get(MT_DBL, ldim1*ldim1, 'd_ija', l_d_ija,
      &     k_d_ija))
      &     call errquit('j_nucder_alloc: could not alloc d_ija',0)
-      if (.not. MA_push_get(MT_DBL, ldim*ldim, 'd_kla', l_d_kla,
+      if (.not. MA_push_get(MT_DBL, ldim2*ldim2, 'd_kla', l_d_kla,
      &     k_d_kla))
      &     call errquit('j_nucder_alloc: could not alloc d_kla',0)
 c
