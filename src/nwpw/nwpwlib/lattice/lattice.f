@@ -1,5 +1,5 @@
 *
-* $Id: lattice.f,v 1.4 2002-04-26 20:37:41 bylaska Exp $
+* $Id: lattice.f,v 1.5 2003-02-14 22:59:04 bylaska Exp $
 *
 
       real*8 function lattice_wcut()
@@ -175,7 +175,7 @@ c     call D3dB_nz(1,nz)
 
 *     *******************************
 *     *                             *
-*     *         lattice_r           *
+*     *         lattice_r_grid      *
 *     *                             *
 *     *******************************
 *
@@ -261,6 +261,7 @@ c               r(3,index) = a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3
 
       return
       end
+
 
       subroutine get_cube(unita,unitg,volume)
 

@@ -1,5 +1,5 @@
 *
-* $Id: strfac.F,v 1.6 2002-06-07 14:16:59 bylaska Exp $
+* $Id: strfac.F,v 1.7 2003-02-14 22:59:04 bylaska Exp $
 *
 
 *     ***********************************
@@ -154,15 +154,30 @@ C
 
 *::::::::::::::::::  phase factor of ion positions  :::::::::::::::::::
       do i=1,ion_nion()
+       !***DEBUG ***
+        write(*,*) "Warning: paw box center being used:"
+c       sw1= lattice_unitg(1,1)*ion_rion(1,i)
+c    >     + lattice_unitg(2,1)*ion_rion(2,i)
+c    >     + lattice_unitg(3,1)*ion_rion(3,i) + pi
+c       sw2= lattice_unitg(1,2)*ion_rion(1,i)
+c    >     + lattice_unitg(2,2)*ion_rion(2,i)
+c    >     + lattice_unitg(3,2)*ion_rion(3,i) + pi
+c       sw3= lattice_unitg(1,3)*ion_rion(1,i)
+c    >     + lattice_unitg(2,3)*ion_rion(2,i)
+c    >     + lattice_unitg(3,3)*ion_rion(3,i) + pi
+
         sw1= lattice_unitg(1,1)*ion_rion(1,i)
      >     + lattice_unitg(2,1)*ion_rion(2,i)
-     >     + lattice_unitg(3,1)*ion_rion(3,i) + pi
+     >     + lattice_unitg(3,1)*ion_rion(3,i) 
         sw2= lattice_unitg(1,2)*ion_rion(1,i)
      >     + lattice_unitg(2,2)*ion_rion(2,i)
-     >     + lattice_unitg(3,2)*ion_rion(3,i) + pi
+     >     + lattice_unitg(3,2)*ion_rion(3,i) 
         sw3= lattice_unitg(1,3)*ion_rion(1,i)
      >     + lattice_unitg(2,3)*ion_rion(2,i)
-     >     + lattice_unitg(3,3)*ion_rion(3,i) + pi
+     >     + lattice_unitg(3,3)*ion_rion(3,i) 
+       !***DEBUG ***
+
+
         cw1=dcmplx(dcos(sw1),-dsin(sw1))
         cw2=dcmplx(dcos(sw2),-dsin(sw2))
         cw3=dcmplx(dcos(sw3),-dsin(sw3))
