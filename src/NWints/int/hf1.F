@@ -3,7 +3,7 @@
      &               Cxyz,zan,ncenters,
      &               bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1.F,v 1.11 1996-07-11 22:21:24 d3e129 Exp $
+c $Id: hf1.F,v 1.12 1996-09-24 21:39:43 d3e129 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -81,11 +81,11 @@ c******************************************************************************
         write(6,*)' int_hf1: ma verify 1-af'
         call util_flush(6)
       endif
+      if (.not.dryrun) then
+        call hf_print('hf1: a shell',axyz,aprims,acoefs,npa,nca,la)
+        call hf_print('hf1: b shell',bxyz,bprims,bcoefs,npb,ncb,lb)
+      endif
 #endif
-*      if (.not.dryrun) then
-*        call hf_print('hf1: a shell',axyz,aprims,acoefs,npa,nca,la)
-*        call hf_print('hf1: b shell',bxyz,bprims,bcoefs,npb,ncb,lb)
-*      endif
       MXD = 0
 
 c Determine whether general or segmented contraction is used.
