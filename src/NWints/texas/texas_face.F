@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.9 1996-01-05 18:10:31 pg481 Exp $
+c $Id: texas_face.F,v 1.10 1996-01-12 07:30:05 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -1180,19 +1180,15 @@ c
       mem7=nbl2*limpair
       mem8=nbl4 
 c
-      mem678=max(mem6,mem7,mem8)
-      if(mem678.lt.5001) then
 c       see blockin2 where 10K/intsize is used in preliminary res.
-        mem6=5 001
-        mem7=5 001
-        mem8=5 001
-      endif
+        mem678=15 003     ! 3* 5001
 c
       mem9=nbl4
       mem0=nbl4
 c
 c-------------------------------------------------------
       ntxs_scr_size= mem1+mem2+mem3+mem4+mem5+mem6+mem7+mem8+mem9+mem0
+      ntxs_scr_size= ntxs_scr_size + mem678
 c
 c there is one more call to getmem to allocate isblcall
 c in PAIR_IN2 routine :
