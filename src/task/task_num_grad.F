@@ -1,6 +1,6 @@
       logical function task_num_grad(rtdb)
 *
-* $Id: task_num_grad.F,v 1.21 1997-12-08 18:39:12 d3g681 Exp $
+* $Id: task_num_grad.F,v 1.22 1998-07-08 22:04:23 d3g681 Exp $
 *
       implicit none
 #include "geom.fh"
@@ -24,10 +24,11 @@ c
       integer l_ncoord, k_ncoord, l_grad, k_grad, l_q, k_q, l_t, k_t
       integer natoms, natoms3, ecce_old_print, ecce_junk_print
       logical oprint_mode, oprint_step, oprint_info, osaved
-      logical analytic
+      logical analytic, ofivept
       character*128 name, key, theory
       character*16 thetag
       double precision eref, eplus, eminus, grad, crd(3), q
+      double precision eplus2, eminus2, grad3
       double precision delta    ! finite-difference step
       logical task_energy, task_save_state, task_restore_state, 
      $     task_delete_state, fd_step_energy
@@ -36,6 +37,7 @@ c
 c
       task_num_grad = .false.
       osaved = .false.
+      ofivept = .false.
 c
 c check for analytic user input 
 c
@@ -140,49 +142,95 @@ c
       if (.not. task_save_state(rtdb, 'numg')) goto 100 
       osaved = .true.
 c
+      if (.not.rtdb_get(rtdb,'tng:fivept', mt_log, 1,
+     &    ofivept)) ofivept = .false.
+c
       if (.not. rtdb_get(rtdb, 'tng:delta', mt_dbl, 1, delta)) 
      $     delta = 0.01d0
       if (oprint_info) then
-         write(6,12) delta
- 12      format(' Finite difference step ',1p,d12.5/)
+         write(6,12) delta, ofivept
+ 12      format(' Finite difference step ',1p,d12.5/
+     $          ' Use five point formula ', l1/)
          call util_flush(6)
       endif
 c
       call dfill(natoms3, 0.0d0, dbl_mb(k_grad), 1)
       do ivec = 1, nvec
 c
-c     Currently only two-point central differences
-c
-         if (.not. fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
-     $        dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
-     $        dbl_mb(k_grad), dbl_mb(k_q),
-     $        byte_mb(k_t), delta, eplus)) goto 100
-         if (oprint_step) then
-            write(6,13) ivec, eplus
- 13         format(' step ', i5,' energy ',f20.8)
-            call util_flush(6)
+         if (ofivept) then
+            if (.not.fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
+     $           dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
+     $           dbl_mb(k_grad), dbl_mb(k_q),
+     $           byte_mb(k_t), 2.0d0*delta, eplus2)) goto 100
+            if (oprint_step) then
+               write(6,'('' step '',i3, '' +2 '',f20.8)') ivec, eplus2
+               call util_flush(6)
+            endif
+            if (.not.fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
+     $           dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
+     $           dbl_mb(k_grad), dbl_mb(k_q),
+     $           byte_mb(k_t), delta, eplus)) goto 100
+            if (oprint_step) then
+               write(6,'('' step '',i3, '' +1 '',f20.8)') ivec, eplus
+               call util_flush(6)
+            endif
+            if (.not.fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
+     $           dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
+     $           dbl_mb(k_grad), dbl_mb(k_q),
+     $           byte_mb(k_t), -delta, eminus)) goto 100
+            if (oprint_step) then
+               write(6,'('' step '',i3, '' -1 '',f20.8)') ivec, eminus
+               call util_flush(6)
+            endif
+            if (.not.fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
+     $           dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
+     $           dbl_mb(k_grad), dbl_mb(k_q),
+     $           byte_mb(k_t), -2.0d0*delta, eminus2)) goto 100
+            if (oprint_step) then
+               write(6,'('' step '',i3, '' -2 '',f20.8)') ivec, eminus2
+               call util_flush(6)
+            endif
+            grad3 = (eplus-eminus) / (2.0d0*delta)
+            grad  = (eplus-eminus)*(2.0d0/(3.0d0*delta)) - 
+     $           (eplus2-eminus2)/(12.0d0*delta)
+            if (oprint_step) then
+               write(6,141) grad, grad3
+ 141           format('            gradient ',7x,f9.6,
+     $              ' (3pt was ',f9.6,')')
+               call util_flush(6)
+            endif
+         else
+            if (.not.fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
+     $           dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
+     $           dbl_mb(k_grad), dbl_mb(k_q),
+     $           byte_mb(k_t), delta, eplus)) goto 100
+            if (oprint_step) then
+               write(6,13) ivec, eplus
+ 13            format(' step ', i5,' energy ',f20.8)
+               call util_flush(6)
+            endif
+            if (.not.fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
+     $           dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
+     $           dbl_mb(k_grad), dbl_mb(k_q),
+     $           byte_mb(k_t),-delta, eminus)) goto 100
+            if (oprint_step) then
+               write(6,13) -ivec, eminus
+               call util_flush(6)
+            endif
+c     
+            grad = (eplus - eminus) / (2.0d0*delta)
+            if (oprint_step) then
+               write(6,14) grad
+ 14            format('            gradient ',7x,f9.6)
+               call util_flush(6)
+            endif
          endif
-         if (.not. fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
-     $        dbl_mb(k_ncoord), dbl_mb(k_vec+(ivec-1)*natoms3), 
-     $        dbl_mb(k_grad), dbl_mb(k_q),
-     $        byte_mb(k_t),-delta, eminus)) goto 100
-         if (oprint_step) then
-            write(6,13) -ivec, eminus
-            call util_flush(6)
-         endif
-c
-         grad = (eplus - eminus) / (2.0d0*delta)
-         if (oprint_step) then
-            write(6,14) grad
- 14         format('            gradient ',7x,f9.6)
-            call util_flush(6)
-         endif
-c
+c     
 c     logic should be here to diagnose too large/small energy change
-c
+c     
          call daxpy(natoms3, grad, dbl_mb(k_vec+(ivec-1)*natoms3), 1,
      $        dbl_mb(k_grad), 1)
-c
+c     
       enddo
 c
 c     Symmetrize the gradient to get rid of symmetry breaking noise
