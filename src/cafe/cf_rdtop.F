@@ -21,7 +21,7 @@ c
       integer i,ia,iq,j,k,itemp(4),i_i,i_j,l_i,l_j
       integer naw,nbw,nhw,ndw,now,ntw,nnw
       integer nas,nbt,nhs,nds,nos,nts,nxs
-      integer numbi,numbd
+      integer numbl,numbi,numbd
 c
       if(me.eq.0) then
 c
@@ -193,6 +193,7 @@ c
 c
       if(np.gt.1) then
 c
+      numbl=ma_sizeof(mt_log,1,mt_byte)
       numbi=ma_sizeof(mt_int,1,mt_byte)
       numbd=ma_sizeof(mt_dbl,1,mt_byte)
 c
@@ -270,10 +271,13 @@ c
       call ga_brdcst(mcf_27,int_mb(i_ixcl(1)),2*(mxt(1)+1)*numbi,0)
       call ga_brdcst(mcf_28,int_mb(i_ixcl(2)),2*(mxt(2)+1)*numbi,0)
       call ga_brdcst(mcf_29,nmult,4*numbi,0)
+      call ga_brdcst(mcf_30,ith,24*numbl,0)
+      call ga_brdcst(mcf_31,ip2,24*numbl,0)
+      call ga_brdcst(mcf_32,ip3,24*numbl,0)
 c
       itemp(1)=nwc
       itemp(2)=nsc
-      call ga_brdcst(mcf_30,itemp,2*ma_sizeof(mt_int,1,mt_byte),0)
+      call ga_brdcst(mcf_33,itemp,2*ma_sizeof(mt_int,1,mt_byte),0)
       nwc=itemp(1)
       nsc=itemp(2)
 c

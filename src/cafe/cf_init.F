@@ -137,7 +137,7 @@ c
 c
       wbox=zero
 c
-      ithint=.false.
+      ithint=ntype.eq.3
       ipert2=.false.
       ipert3=.false.
       do 2 i=1,24
@@ -329,6 +329,10 @@ c
       if(ia.lt.1.or.ia.gt.mqt) call errquit('Error in parq',0)
 c
       call cf_copyq(ia,chgi,dbl_mb(i_chg))
+c
+      if(abs(chgi(1)-chgi(2)).gt.tiny) ip2((ia-1)*12+4)=.true.
+      if(abs(chgi(1)-chgi(3)).gt.tiny) ip3((ia-1)*12+4)=.true.
+      if(abs(chgi(2)-chgi(3)).gt.tiny) ith((ia-1)*12+4)=.true.
 c
       return
       end
@@ -1305,17 +1309,18 @@ c
  1000 format(/,' SOLUTE',//)
       return
       end
-      subroutine cf_lambda(lamtyp,lambda,maxlam,explam)
+      subroutine cf_lambda(lamtyp,lambda,maxlam,explam,lfnout,
+     + rlambd,dlambd)
 c
       implicit none
 c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer lamtyp,lambda,maxlam
-      real*8 explam
+      integer lamtyp,lambda,maxlam,lfnout
+      real*8 explam,rlambd,dlambd
 c
-      call cf_lam(lamtyp,lambda,maxlam,explam,
+      call cf_lam(lamtyp,lambda,maxlam,explam,lfnout,rlambd,dlambd,
      + dbl_mb(i_mas),dbl_mb(i_vdw),dbl_mb(i_chg),
      + mbt(1),numb(1),mbp(1),dbl_mb(i_bnd(1)),
      + mht(1),numh(1),mhp(1),dbl_mb(i_ang(1)),
@@ -1326,7 +1331,8 @@ c
 c
       return
       end
-      subroutine cf_lam(lamtyp,lambda,maxlam,explam,
+      subroutine cf_lam(lamtyp,lambda,maxlam,explam,lfnout,
+     + rlambd,dlambd,
      + wgt,vdw,chg,mwb,nwb,nbp,bndw,
      + mwh,nwh,nhp,angw,mwd,nwd,ndp,dihw,mwo,nwo,nop,oopw,
      + msb,npb,bnds,msh,nph,angs,msd,npd,dihs,mso,npo,oops)
@@ -1335,8 +1341,8 @@ c
 c
 #include "cf_common.fh"
 c
-      integer lamtyp,lambda,maxlam
-      real*8 explam
+      integer lamtyp,lambda,maxlam,lfnout
+      real*8 explam,rlambd,dlambd
       real*8 wgt(mat,6),vdw(mat,mat,map,6),chg(mqt,mqp,6)
       integer mwb,mwh,mwd,mwo,nbp,nhp,ndp,nop
       integer nwb,nwh,nwd,nwo
@@ -1348,11 +1354,12 @@ c
 c
       real*8 tlam(3),rlam(3),slam(3)
       integer i,j,k,l
+      character*10 pdate,ptime
 c
-      tlam(1)=(dble(lambda-1)-half)/dble(maxlam-1)
-      tlam(2)=dble(lambda-1)/dble(maxlam-1)
+      tlam(1)=dble(lambda-1)/dble(maxlam-1)
+      tlam(2)=(dble(lambda-1)-half)/dble(maxlam-1)
       tlam(3)=(dble(lambda-1)+half)/dble(maxlam-1)
-      if(tlam(1).lt.zero) tlam(1)=zero
+      if(tlam(2).lt.zero) tlam(2)=zero
       if(tlam(3).gt.one) tlam(3)=one
 c
       if(iabs(lamtyp).eq.1) then
@@ -1432,7 +1439,16 @@ c
    22 continue
    21 continue
     1 continue
+c
+      if(me.eq.0) then
+      call swatch(pdate,ptime)
+      write(lfnout,1000) rlam(1),ith,pdate,ptime
+ 1000 format(/' THERMODYNAMIC INTEGRATION, LAMBDA=',f10.5,
+     + 5x,24l2,t110,2a10)
+      endif
+c
+      rlambd=rlam(1)
+      dlambd=rlam(3)-rlam(2)
+c
       return
       end
-
-
