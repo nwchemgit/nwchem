@@ -10093,7 +10093,7 @@ c$$$      RETURN
       END
       SUBROUTINE HND_SPHSET
       IMPLICIT REAL*8 (A-H,O-Z)
-vvv      LOGICAL DBUG
+      LOGICAL DBUG
 C
 C     -----  THIS ROUTINE DEFINES THE SPHERICAL HARMONICS -----
 C     -----  AND THE INVERSE TRANSFORMATION               -----
@@ -10132,7 +10132,7 @@ C
      2   0,  0,  0,  0,  1,  0, -1,  0,  0,  0,
      3  -1,  0,  0,  0,  0, -1,  0,  4,  0,  0,
      4   0,  0,  2,  0, -3,  0, -3,  0,  0,  0,
-v     5   0, -1,  0, -1,  0,  0,  0,  0,  4,  0,
+     5   0, -1,  0, -1,  0,  0,  0,  0,  4,  0,
      6   0,  0,  0,  0,  0,  0,  0,  0,  0,  1,
      7   0, -1,  0,  3,  0,  0,  0,  0,  0,  0,
      8   1,  0,  0,  0,  0,  1,  0,  1,  0,  0,
