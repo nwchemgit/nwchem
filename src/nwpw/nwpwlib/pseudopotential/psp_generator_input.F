@@ -5,7 +5,7 @@
 *     ***************************************
       subroutine psp_generator_input(rtdb)
 c
-c $Id: psp_generator_input.F,v 1.3 2001-10-31 02:08:44 edo Exp $
+c $Id: psp_generator_input.F,v 1.4 2001-11-03 01:14:40 edo Exp $
 c
       implicit none
 #include "inp.fh"
@@ -396,6 +396,7 @@ c
 *     ***************************************
       subroutine psp_generator_auto(atom,lmax,locp,rlocal)
       implicit none
+#include "inp.fh"
       character*2 atom
       double precision rlocal
       integer	    locp,lmax
@@ -411,14 +412,13 @@ c
       call util_directory_name(dir_name,.false.,0)
       psp_in='junk.inp'
       psp_out = atom//'.psp'
-      h = index(sdir_name,' ') -1
-      i = index(dir_name,' ') -1
-      j = index(psp_in,' ')-1
-      k = index(psp_out,' ') -1
+      h = inp_strlen(sdir_name)
+      i = inp_strlen(dir_name)
+      j = inp_strlen(psp_in)
+      k = inp_strlen(psp_out)
 
       write(*,*) "need to generate 1d psp for ",atom
-      call nwpw_libgeninp(atom,'sdir_name/junk.inp')
-      write(0,*) ' atom ',atom,' in out ',psp_in,psp_out
+      call nwpw_libgeninp(atom,sdir_name(1:h)//'/junk.inp')
       call pspsolve(sdir_name(1:h),   h,
      >     dir_name(1:i),    i,
      >     psp_in,j,
