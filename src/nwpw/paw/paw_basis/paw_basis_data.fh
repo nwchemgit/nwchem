@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis_data.fh,v 1.4 2002-08-01 01:16:42 marat Exp $
+* $Id: paw_basis_data.fh,v 1.5 2002-08-07 18:00:25 marat Exp $
 *
 
       integer tot_ntype
@@ -55,7 +55,7 @@
       integer i_ngb(4)
 
 
-      COMMON /paw_basis_data/ max_mult_l , 
+      COMMON /paw_basis_data/ max_mult_l,
      >                      tot_ntype,
      >                      tot_ngrid,
      >                      tot_nbasis,

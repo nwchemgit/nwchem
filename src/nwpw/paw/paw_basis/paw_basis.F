@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.4 2002-08-01 21:27:27 bylaska Exp $
+* $Id: paw_basis.F,v 1.5 2002-08-07 18:00:25 marat Exp $
 *
 
 !**************************************************
@@ -10,44 +10,37 @@
 !
 !	Created:	7/11/2002
 !**************************************************
-      subroutine init_paw_basis()
+      subroutine init_paw_basis(nt, ion_type)
       implicit none
+      integer      nt
+      character(*) ion_type(*)
 
       include "paw_basis.fh"
       include "myma.fh"
   
 *     !*** local variables ***
-      integer it, ir, nt
+      integer it, ir
       integer  nb,ng
       integer l_nb,l_ng
       integer i_nb,i_ng
-	integer l_lo,l_hi
+	integer i_lo,i_hi
 	integer  max_mult_l
       logical ok
       double precision log_amesh,amesh
-      character*20 fname
-
-      !*** external functions ***
-      integer  ion_nkatm
-      external ion_nkatm
-
-      nt = ion_nkatm()
 
       ok = MA_push_get(MT_INT,nt, "nb_tmp_array", l_nb,i_nb)
       ok = MA_push_get(MT_INT,nt, "ng_tmp_array", l_ng,i_ng)
   
       do it = 1, nt
-       call ion_atom_plus_suffix(it,'_basis',fname)
        call read_paw_basis_dims(int_mb(i_nb-1 + it),
      >                          int_mb(i_ng-1 + it),
-     >                          fname)
+     >                          ion_type(it)//"_basis")
       end do
 
       call alloc_paw_basis_data(nt,int_mb(i_nb),int_mb(i_ng))
 
 
       do it = 1,nt 
-         call ion_atom_plus_suffix(it,'_basis',fname)
          call read_paw_basis  ( dbl_mb(get_i_r1(it)),
      >                         dbl_mb(get_i_rmax(it)),
      >                         int_mb(get_i_ngrid(it)),
@@ -69,7 +62,7 @@
      >                         dbl_mb(get_i_core_density(it)),
      >                         dbl_mb(get_i_ps_core_density(it)),
      >                         dbl_mb(get_i_v_ps(it)),
-     >                         fname)
+     >                         ion_type(it)//"_basis")
 
   
          log_amesh = LOG(dbl_mb(get_i_rmax(it))
@@ -84,21 +77,22 @@
           dbl_mb(get_i_rgrid(it)+ir)= amesh*dbl_mb(get_i_rgrid(it)+ir-1)
          end do
          
-         l_lo =  get_i_orb_l(it)
-	   l_hi =  get_i_orb_l(it) +  int_mb(get_i_nbasis(it)) - 1
-	   int_mb(get_i_mult_l(it)) = maxval(int_mb(l_lo:l_hi))
+         i_lo =  get_i_orb_l(it)
+	   i_hi =  get_i_orb_l(it) +  int_mb(get_i_nbasis(it)) - 1
+	   int_mb(get_i_mult_l(it)) = 2*maxval(int_mb(i_lo:i_hi))
            
       end do
 
       ok = MA_chop_stack(l_nb)
 
-      l_lo =  get_i_orb_l(1)
-      l_hi =  get_i_orb_l(1) +  get_tot_nbasis() - 1
-
-      max_mult_l = maxval(int_mb(l_lo:l_hi))
-
+!*****determine max orbital moment     
+      i_lo =  get_i_orb_l(1)
+      i_hi =  get_i_orb_l(1) +  get_tot_nbasis() - 1
+      max_mult_l = maxval(int_mb(i_lo:i_hi))
+!*****enter max orbital moment into paw_basis_data structure
       call set_max_mult_l(max_mult_l)
       
+
       return
       end 
 

@@ -1,6 +1,4 @@
-!
-! $Id: paw_basis_data.F,v 1.4 2002-08-07 00:15:48 bylaska Exp $
-!
+! $Id: paw_basis_data.F,v 1.5 2002-08-07 18:00:25 marat Exp $
 
 !**************************************************
 !
@@ -237,6 +235,27 @@
 
 !**************************************************
 !
+!	Name: get_i_nbasis
+!
+!	Purpose 
+!
+!	Created:	7/9/2002
+!**************************************************
+        INTEGER FUNCTION  get_nbasis(it)
+        implicit none
+        integer it
+     
+#include "myma.fh"
+#include "paw_basis_data.fh"
+  
+  
+        get_nbasis = int_mb(nbasis(1) +  it-1)
+        return
+        END 
+  
+
+!**************************************************
+!
 !	Name: get_i_ngrid
 !
 !	Purpose 
@@ -271,6 +290,26 @@
 
 
       get_i_mult_l = mult_l(1) +  it-1
+      return
+      END 
+
+!**************************************************
+!
+!	Name:
+!
+!	Purpose 
+!
+!	Created:	7/9/2002
+!**************************************************
+      INTEGER FUNCTION  get_mult_l(it)
+      implicit none
+      integer it
+    
+#include "myma.fh"
+#include "paw_basis_data.fh"
+
+
+      get_mult_l = int_mb(mult_l(1) +  it-1)
       return
       END 
 
@@ -906,30 +945,7 @@
       return
       END 
 
-!**************************************************
-!
-!	Name: get_nbasis
-!
-!	Purpose 
-!
-!	Created:	7/9/2002
-!**************************************************
-      SUBROUTINE  get_nbasis(nbasis_out)
-      implicit none
-      integer nbasis_out(*)
 
-#include "myma.fh"
-#include "paw_basis_data.fh"
-
-*     !*** local variables ***
-      integer it 
-
-      do it=1,tot_ntype
-        nbasis_out(it) = int_mb(nbasis(1) + it - 1)
-      end do
-    
-      return
-      END !SUBROUTINE get_nbasis
 
       subroutine set_max_mult_l(l)
       implicit none
