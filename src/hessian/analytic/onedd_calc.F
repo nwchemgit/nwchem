@@ -1,5 +1,5 @@
 c
-c $Id: onedd_calc.F,v 1.8 2000-07-26 23:37:04 windus Exp $
+c $Id: onedd_calc.F,v 1.9 2000-08-23 01:02:49 windus Exp $
 c
       subroutine onedd_calc(Hxy,nxyz,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,
@@ -108,8 +108,8 @@ c                 at2 = idatom(2)
                   do 28 j = 1, 2   ! for both atoms
                     at1 = idatom(i) ! switch atom numbers for the second half
                     at2 = idatom(j)
-                    do 27 icart1 = 1, 3 
-                    do 26 icart2 = 1, 3
+                    do 27 icart2 = 1, 3 
+                    do 26 icart1 = 1, 3
                       de = 0.D0           ! contract wdensity and integrals
                       do 22 ip1 = if1, il1
                         do 20 ip2 = if2, il2
@@ -142,8 +142,8 @@ c    (d2i|T|j) and (i|T|d2j) terms
 c
                 ic = 1
                 do at1 = 1, nat
-                  do icart1 = 1, 3
-                    do icart2 = 1, 3
+                  do icart2 = 1, 3
+                    do icart1 = 1, 3
                       dE = 0.0D0
                       do ip1 = if1, il1
                         do ip2 = if2, il2
@@ -169,8 +169,8 @@ c
                   at1 = iat2
                 endif 
                 do 50 at2 = 1, nat
-                  do 40 icart1 = 1, 3
                   do 40 icart2 = 1, 3
+                  do 40 icart1 = 1, 3
                     dE = 0.D0
                     do 31 ip1 = if1, il1
                       do 30 ip2 = if2, il2
@@ -205,8 +205,8 @@ c
                   else
                     at1 = iat2
                   endif
-                  do icart1 = 1, 3
                   do icart2 = 1, 3
+                  do icart1 = 1, 3
                     dE = 0.D0
                     do ip1 = if1, il1
                       do ip2 = if2, il2
