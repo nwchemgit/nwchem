@@ -1,4 +1,4 @@
-C$Id: ecp_3j_prod.f,v 1.2 1996-10-11 16:47:45 d3e129 Exp $
+C$Id: ecp_3j_prod.f,v 1.3 1997-05-14 17:57:09 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_3j_prod (l1,l2,l3,m1,m2,result)
@@ -6,9 +6,6 @@ C$Id: ecp_3j_prod.f,v 1.2 1996-10-11 16:47:45 d3e129 Exp $
 *   Calculate product of 3j symbols which appears in the angular       * 
 *   integral over three spherical tensors. Product is                  *
 *   (l1 l2 l3 / m1 m2 m3) (l1 l2 l3 / 0 0 0).                          *
-*   Note that because the maximum angular momentum in the projectors   *
-*   is 3, the only cases needed are l1+l2=l3 and l1+l2-2=l3 and cyclic *
-*   permutations of these.                                             *
 *                                                                      *
 *   l1,l2,l3 - l values                                                *
 *   m1,m2 - m values; m3 = -(m1+m2)                                    *
@@ -20,14 +17,12 @@ C$Id: ecp_3j_prod.f,v 1.2 1996-10-11 16:47:45 d3e129 Exp $
       implicit none
       integer l1,l2,l3,m1,m2,m3
       integer l_min,l_mid,l_max,m_min,m_mid,m_max,
-     &    ll_min,ll_mid,ll_max,l_sum
+     &    ll,ll_min,ll_mid,ll_max,l_sum
       integer i,j,k,l,m,n,phase
       double precision result,wa,wb,wc
 *
       result = 0.0d00
       m3 = -(m1+m2)
-C      write (6,'(3I4)') l1,l2,l3
-C      write (6,'(3I4)') m1,m2,m3
       if (abs(m1) .gt. l1) return
       if (abs(m2) .gt. l2) return
       if (abs(m3) .gt. l3) return
@@ -60,15 +55,11 @@ C      write (6,'(3I4)') m1,m2,m3
         m_mid = m3
       end if
       phase = (abs(m1)+abs(m2)+abs(m3))/2
-C      phase = 0
       if (m_min .lt. 0) then
         m_min = -m_min
         m_mid = -m_mid
         m_max = -m_max
       end if
-C      write (6,*) 'reordered arguments'
-C      write (6,'(3I4)') l_min,l_mid,l_max
-C      write (6,'(3I4)') m_min,m_mid,m_max
 *
 *   Special code for l_min = 0
 *
@@ -86,14 +77,16 @@ C      write (6,'(3I4)') m_min,m_mid,m_max
         else
           wb = (l_max+m_mid)*(l_max+m_mid+1)/2
         end if
-C        write (6,*) wa,wb
         result = sqrt(wb)/wa
 *
 *   General code for l_min > 1
 *
       else
+*
+*     (a+b-c-1)!!(b+c-a-1)!!(c+a-b-1)!!/(a+b+c+1)!!
+*
         l_sum = l1+l2+l3
-        ll_max = l_sum
+        ll_max = 2*l_max
         ll_min = 2*l_min
         ll_mid = 2*l_mid
         m = 1
@@ -105,9 +98,13 @@ C        write (6,*) wa,wb
         do l = 3,l_sum-ll_mid-1,2
           m = m*l
         end do
+        do l = 3,l_sum-ll_max-1,2
+          m = m*l
+        end do
         wb = m
         result = wb/wa
-C        write (6,*) wb,wa,result
+*
+*     [(c+gamma)!(c-gamma)!/(a+alpha)!(a-alpha)!(b+beta)!(b-beta)!]^1/2
 *
         m = 1
         n = 1
@@ -142,21 +139,43 @@ C        write (6,*) wb,wa,result
         wa = m
         wb = n
         result = result*sqrt(wa/wb)
-C        write (6,*) wa,wb,result
 *
-        if (l_max .ne. l_min+l_mid) then
+*     Remaining factor
+*
+        ll = l_min+l_mid-l_max
+        if (ll .gt. 0) then
           i = l_min+m_min
           j = l_min-m_min
-          k = l_mid+m_mid
-          l = l_mid-m_mid
-          wc = i*j*k*l-(i*(i-1)*l*(l-1)+j*(j-1)*k*(k-1))/2
-          result = result*wc
-C          write (6,*) wc,result
+          m = l_mid+m_mid
+          n = l_mid-m_mid
+          ll_min = max(0,ll-i,ll-n)
+          ll_max = min(ll,j,m)
+          k = 1
+          do l = 1,ll_min
+            k = -k*j*m/l
+            j = j-1
+            m = m-1
+          end do
+          do l = 1,ll-ll_min
+            k = k*i*n/l
+            i = i-1
+            n = n-1
+          end do
+          l_sum = k
+          do l = ll_min+1,ll_max
+            i = i+1
+            n = n+1
+            k = -k*j*m*(ll-l+1)/(i*n*l)
+            j = j-1
+            m = m-1
+            l_sum = l_sum+k
+          end do
+          wa = l_sum
+          result = result*wa
         end if
       end if
 *
-C      write (6,*) phase,m_max
-      if (mod(abs(phase+m_max),2) .eq. 1) result = -result
+      if (mod(abs(phase+m_max+ll/2),2) .eq. 1) result = -result
 *
       return
       end
