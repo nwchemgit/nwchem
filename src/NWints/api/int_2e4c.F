@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.19 1996-02-09 22:35:54 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.20 1996-04-08 16:52:57 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -150,10 +150,10 @@ c... stat nw
       if (status_sp) then
 c
         call genr70(
-     &         brain,ish,coords(1,a_cent,bra),
-     &               jsh,coords(1,b_cent,bra),
-     &         ketin,ksh,coords(1,c_cent,ket),
-     &               lsh,coords(1,d_cent,ket),
+     &         brain,ish,coords(1,a_cent,ab_geom),
+     &               jsh,coords(1,b_cent,ab_geom),
+     &         ketin,ksh,coords(1,c_cent,cd_geom),
+     &               lsh,coords(1,d_cent,cd_geom),
      &         eri)
 c        
       elseif(status_txs)  then
