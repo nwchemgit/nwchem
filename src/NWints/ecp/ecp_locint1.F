@@ -1,4 +1,4 @@
-C $Id: ecp_locint1.F,v 1.2 1999-03-08 23:21:05 mg201 Exp $
+C $Id: ecp_locint1.F,v 1.3 1999-03-31 02:20:47 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_locint1 (p_min,p_max,l_max,n_prim_a,n_prim_b,
@@ -48,11 +48,10 @@ C $Id: ecp_locint1.F,v 1.2 1999-03-08 23:21:05 mg201 Exp $
      &    p,p_max,p_min
       integer ind(n_abc),n_prim_c(p_min:p_max)
       logical debug_gen,debug_addresses,debug_arrays
-      double precision bi(n_abc),a_sqrt(n_abc),x(n_abc),
-     &    prefactor(n_abc),temp(n_abc,6),Qabc(n_abc),
-     &    Qa(n_ab,0:l_max),
-     &    Q_int(n_prim_a*n_prim_b,n_int),
-     &    coeff_c(n_c),tol,wa
+      double precision bi(n_abc),a_sqrt(n_ab,n_c),x(n_ab,n_c),
+     &    prefactor(n_ab,n_c),temp(n_abc,6),Qabc(n_ab,n_c),
+     &    Qa(n_ab,0:l_max),Q_int(n_prim_a*n_prim_b,n_int),
+     &    coeff_c(n_c),tol,wa,wb,wc,prefac
 *
 Cbug
 C      debug_gen = .true.
@@ -77,25 +76,27 @@ Cend
         do p = p_min,p_max
           n_p = n_prim_c(p)
           n_abp = n_ab*n_p
-          if (n_abp .gt. 0) then
+          if (n_p .gt. 0) then
             if (p .eq. 2) then
-              call ecp_t1_Q2int (n_abp,l,x(ind_p),a_sqrt(ind_p),
-     &            Qabc(ind_p))
+              call ecp_t1_Q2int (n_abp,l,x(1,ind_p),a_sqrt(1,ind_p),
+     &            Qabc(1,ind_p))
             else if (p .eq. 1) then
-              call ecp_t1_Q1int (n_abp,l,x(ind_p),a_sqrt(ind_p),
-     &            Qabc(ind_p),temp,ind,tol)
+              call ecp_t1_Q1int (n_abp,l,x(1,ind_p),a_sqrt(1,ind_p),
+     &            Qabc(1,ind_p),temp,ind,tol)
             else if (p .eq. 0) then 
-              call ecp_t1_Q0int (n_abp,l,x(ind_p),a_sqrt(ind_p),
-     &            Qabc(ind_p),temp,ind,tol)
+              call ecp_t1_Q0int (n_abp,l,x(1,ind_p),a_sqrt(1,ind_p),
+     &            Qabc(1,ind_p),temp,ind,tol)
             else
               call errquit(
      &            'Illegal p value in routine ecp_locint1',99)
             end if
           end if
-          ind_p = ind_p+n_abp
+          ind_p = ind_p+n_p
         end do
-        do i = 1,n_abc
-          Qabc(i) = Qabc(i)*prefactor(i)
+        do i = 1,n_c
+          do j = 1,n_ab
+            Qabc(j,i) = Qabc(j,i)*prefactor(j,i)
+          end do
         end do
         if (debug_arrays) call ecp_matpr (Qabc,1,n_ab,
      &      1,n_c,1,n_ab,1,n_c,'Primitive integrals',
@@ -137,27 +138,36 @@ Cend
 *   Special code if beta = 0
 *
       do j = 1,n_ab
-        if (x(j) .eq. zero) then
+        if (bi(j) .eq. zero) then
           do l = 2,n_int
             Q_int(j,l) = zero
           end do
-          do m = 1,m_count
-            l = (m+1)**2
-            ind_l = j
-            ind_p = 0
-            do p = p_min,p_max
-              n_p = n_prim_c(p)
-              wa = m+m+p-1
-              wa = wa*half
-              do i = 1,n_p
-                Qabc(ind_l) = Qabc(ind_l)*wa*(a_sqrt(ind_l)**2)
-                Q_int(j,l) = Q_int(j,l)+Qabc(ind_l)*coeff_c(ind_p+i)
-                ind_l = ind_l+n_ab
+*
+          ind_p = 0
+          do p = p_min,p_max
+            n_p = n_prim_c(p)
+            if (n_p .gt. 0) then
+              if (p .eq. 0) then
+                prefac = qpirt+qpirt
+              else if (p .eq. 1) then
+                prefac = half
+              else if (p .eq. 2) then
+                prefac = qpirt
+              end if
+              do i = ind_p+1,ind_p+n_p
+                wa = p+1
+                wa = wa*half
+                wb = prefac*prefactor(j,i)*a_sqrt(j,i)**(p+1)
+                wc = a_sqrt(j,i)**2
+                do m = 1,m_count
+                  l = (m+1)**2
+                  wb = wb*wa*wc
+                  Q_int(j,l) = Q_int(j,l)+wb*coeff_c(i)
+                  wa = wa+one
+                end do
               end do
-              ind_p = ind_p+n_p
-            end do
-            if (debug_arrays) call ecp_matpr (Qabc(j),1,n_ab,
-     &          1,n_c,1,1,1,n_c,'Primitive integrals','E',78,4)
+            end if
+            ind_p = ind_p+n_p
           end do
         end if
       end do
