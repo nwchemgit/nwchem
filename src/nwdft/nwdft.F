@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.63 2003-04-01 23:21:45 edo Exp $
+C$Id: nwdft.F,v 1.64 2003-04-02 01:05:03 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -139,7 +139,7 @@ c
       if (movecs_in .eq. movecs_out) then
          if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
      $        call errquit('dft: theory not specified',0)
-         if(theory .eq. 'dft')then 
+         if(theory .eq. 'dft'.or.theory.eq.'sodft')then 
             if(.not.xc_gotxc()) then
                grid_ok=.true.
             else
@@ -150,34 +150,20 @@ c
             call ga_igop(999,igok,1,'+')
             grid_ok=igok.eq.ga_nnodes()
             if(.not.grid_ok) call grid_cleanup(rtdb,.true.)
-            if (movecs_converged(rtdb, ao_bas_han, 'dft', movecs_in).
+            if (movecs_converged(rtdb, ao_bas_han,theory, movecs_in).
      &      and.grid_ok)     then
 c
 c     check if we can get the grid from a file
 c         
-               if (.not. rtdb_get(rtdb, 'dft:energy', mt_dbl, 1, 
-     &              energy)) call errquit(
-     .              'dft_scf: failed getting converged energy',0)
-               if (iproc.eq.0 .and. oprint)then
-                  write(LuOut,1011)energy
-                  call util_flush(Luout)
-               endif
-               converged = .true.
-               nwdft = .true.
-               goto 1101
-            endif
-         else if(theory .eq. 'sodft')then 
-            grid_ok=grid_reopen(rtdb,geom)
-            igok=0
-            if(grid_ok) igok=1
-            call ga_igop(999,igok,1,'+')
-            grid_ok=igok.eq.ga_nnodes()
-            if(.not.grid_ok) call grid_cleanup(rtdb,.true.)
-            if (movecs_converged(rtdb, ao_bas_han, 'sodft', movecs_in).
-     &      and.grid_ok)     then
+               if(theory.eq.'sodft') then
                if (.not. rtdb_get(rtdb, 'sodft:energy', mt_dbl, 1, 
      &              energy)) call errquit(
-     .             'dft_scf: failed getting converged energy',0)
+     .             'nwdft: failed getting converged energy',0)
+               else
+               if (.not. rtdb_get(rtdb, 'dft:energy', mt_dbl, 1, 
+     &              energy)) call errquit(
+     .              'nwdft: failed getting converged energy',0)
+               endif
                if (iproc.eq.0 .and. oprint)then
                   write(LuOut,1011)energy
                   call util_flush(Luout)
@@ -211,9 +197,7 @@ c
         bases(1) = AO_bas_han
       endif
 c
-!      if (i3 .gt. 1) call int_app_set_no_texas(rtdb)
       call int_init(rtdb, i3, bases)
-!      call errquit(' bailing out ',0)
 c
 c     get 1-el in cache
 c
@@ -254,7 +238,6 @@ c
       if(l1ecache) call int_1e_uncache_ga()
       call schwarz_tidy
       call int_terminate
-!      if (i3 .gt. 1) call int_app_unset_no_texas(rtdb)
 c
 c     Go here if already converged
 c
