@@ -1,9 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.1 2003-02-16 21:40:00 marat Exp $
+# $Id: GNUmakefile,v 1.2 2003-02-18 02:11:31 bylaska Exp $
 #
 
           OBJ =  paw_density.o
-#          HEADERS = paw_comp_charge_data.fh
+          HEADERS = paw_density_data.fh
 
 
       LIBRARY =	libpaw.a
