@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.13 2002-01-12 02:09:56 bylaska Exp $
+* $Id: band_minimizer.F,v 1.14 2002-01-15 21:22:53 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -475,12 +475,12 @@
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,' volume : ',F10.1)
- 1241 FORMAT(5x,' lattice: a1=<',3f8.3,' >')
- 1242 FORMAT(5x,'          a2=<',3f8.3,' >')
- 1243 FORMAT(5x,'          a3=<',3f8.3,' >')
- 1244 FORMAT(5x,'          b1=<',3f8.3,' >')
- 1245 FORMAT(5x,'          b2=<',3f8.3,' >')
- 1246 FORMAT(5x,'          b3=<',3f8.3,' >')
+ 1241 FORMAT(5x,' lattice:    a1=<',3f8.3,' >')
+ 1242 FORMAT(5x,'             a2=<',3f8.3,' >')
+ 1243 FORMAT(5x,'             a3=<',3f8.3,' >')
+ 1244 FORMAT(5x,' reciprocal: b1=<',3f8.3,' >')
+ 1245 FORMAT(5x,'             b2=<',3f8.3,' >')
+ 1246 FORMAT(5x,'             b3=<',3f8.3,' >')
 
  1249 FORMAT(/' computational grids:')
  1250 FORMAT(5X,' density     cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
