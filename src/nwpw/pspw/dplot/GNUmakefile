@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2002-01-18 23:23:41 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2002-02-11 19:26:06 edo Exp $
 #
  OBJ_OPTIMIZE = \
 				pspw_dplot_input.o \
@@ -11,7 +11,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = 
+    USES_BLAS = pspw_dplot.F
 
   LIB_DEFINES = 
 

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 2001-12-14 20:02:48 bylaska Exp $
+# $Id: GNUmakefile,v 1.6 2002-02-11 19:20:57 edo Exp $
 #
  OBJ_OPTIMIZE = \
                 wvfnc_init_input.o \
@@ -17,7 +17,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = wvfnc_init.F v_wvfnc_init.F wvfnc_expander.F
+    USES_BLAS = wvfnc_init.F v_wvfnc_init.F wvfnc_expander.F v_wvfnc_new.F wvfnc_new.F
 
   LIB_DEFINES = 
 
