@@ -1,6 +1,6 @@
       Subroutine dft_mxspin_ovlp(basis, g_alpha, g_beta, g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.4 1997-04-21 23:43:06 d3h449 Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.5 2000-10-23 15:52:41 windus Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap
@@ -20,7 +20,7 @@ c     local
 c
       integer me,nproc
 c
-      integer i,j,jbig,n,m,mend,ichunks,nbe,nend
+      integer i,j,jbig,n,ichunks,nbe,nend
       integer k_tmpr1, l_tmpr1, k_tmpr2, l_tmpr2, k_tmpi1, l_tmpi1
 c     
       integer  ga_create_atom_blocked

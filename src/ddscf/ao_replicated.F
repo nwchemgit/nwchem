@@ -1,7 +1,7 @@
       subroutine ao_replicated(geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock, asym)
 c     
-c     $Id: ao_replicated.F,v 1.39 2000-08-01 18:05:57 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.40 2000-10-23 15:51:39 windus Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -667,7 +667,8 @@ c     fock matrix, optionally caching them on disk/memory.
 c     
       integer lenscr, leneri, lenlab
       integer l_eri, k_eri, l_lab, k_lab, l_scr, k_scr
-      integer k_i, k_j, k_k, k_l, kkk
+      integer k_i, k_j, k_k, k_l 
+*      integer kkk
 c     
       integer neri, ntries
       double precision block_eff

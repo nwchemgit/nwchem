@@ -1,6 +1,6 @@
       Subroutine xc_exso(rtdb,Exc,ecoul,nExc,g_densso,g_fockso)
 c
-C$Id: xc_exso.F,v 1.12 2000-06-09 23:59:51 zzhang Exp $
+C$Id: xc_exso.F,v 1.13 2000-10-23 15:52:56 windus Exp $
 c
       implicit none
 c      
@@ -37,7 +37,7 @@ c     fock matrix test using jan_all_ao_integrals
 c
       logical jantest
       integer l_aoint,k_aoint, i,j,k,l,
-     &     l_fock, k_fock, l_dens, k_dens,basis
+     &     l_fock, k_fock, l_dens, k_dens
 c
       call ga_inquire(g_densso(1),type,nao,nao)
       nao=nao/2

@@ -1,5 +1,5 @@
 *
-* $Id: nwfft3d.F,v 1.10 1997-11-04 10:07:52 d3e129 Exp $
+* $Id: nwfft3d.F,v 1.11 2000-10-23 15:52:01 windus Exp $
 *
 c************************************************************************
 c Complex 3D FFT interface.
@@ -48,7 +48,7 @@ c  rwrklen,iwrklen: if <> 0, use for EMSL routine scratch memory
 c  ffttype:  1=>EMSL fft;  2=>ESSL fft
 c
 c *** local variables
-      integer d1,d2,d3,owner
+      integer d1,d3,owner
       double precision scale
       integer blksz,computedMap
       integer n123
@@ -62,7 +62,7 @@ c *** local variables
       integer  dblh,inth, idbl,iint 
       integer  initSCRATCH, mamem 
 #endif
-        integer isize
+c       integer isize
 c       parameter (isize=128*128*128)
 c       integer iwork(isize)
 c	double precision work(isize)

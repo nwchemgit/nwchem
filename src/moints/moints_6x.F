@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.24 1997-12-14 20:20:02 d3g681 Exp $
+c  $Id: moints_6x.F,v 1.25 2000-10-23 15:52:29 windus Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -65,12 +65,12 @@ c
        integer nblk, bsize, ngrp
        integer ii, jj, iz, kz, jz
        integer l_gmap, k_gmap
-       integer ish0, jsh0, ish, jsh, ilen, jlen
+       integer ish, jsh, ilen, jlen
        integer ibflo,ibfhi,jbflo,jbfhi,kbflo,kbfhi,lbflo,lbfhi
        integer kshlo, kshhi, lshlo, lshhi
        integer kblen, lblen
        integer kgr, lgr
-       integer kb, lb, i, nmixed
+       integer i, nmixed
        integer l_ssbb, k_ssbb, l_ssbbt, k_ssbbt
        integer l_hlp, k_hlp, l_ssni,k_ssni
        integer l_eri, k_eri, l_iscr,k_iscr

@@ -4,7 +4,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb,
      + rdist,scale,cpk)
 c
-c $Id: pre_wrtpov.F,v 1.3 2000-07-06 20:39:00 d3j191 Exp $
+c $Id: pre_wrtpov.F,v 1.4 2000-10-23 15:53:16 windus Exp $
 c
       implicit none
 c
@@ -33,12 +33,7 @@ c
       integer length,ib,jb
       character*255 color
 c
-      integer i,j,k,nats,nums,numslv,isoff,iaoff
-      integer ixrep,iyrep,izrep
-      real*8 temp,dbx,dby,dbz,dist,dbz0
-      character*3 sname
-      character*1 charr
-      integer icharr
+      integer i,j,k
 c
       real*8 xbmax,xbmin,ybmax,ybmin,zbmax,zbmin
 c

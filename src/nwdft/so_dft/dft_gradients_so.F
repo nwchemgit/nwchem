@@ -1,5 +1,5 @@
       subroutine dft_gradients_so(rtdb)
-c     $Id: dft_gradients_so.F,v 1.5 2000-07-26 01:59:18 edo Exp $
+c     $Id: dft_gradients_so.F,v 1.6 2000-10-23 15:52:45 windus Exp $
 c
 c calculate energy gradients with respect to nuclear coordinates
 c modified from scf version for use in DFT gradients
@@ -63,7 +63,7 @@ c
       character*20 scftype_vecs
       logical status
       integer me, nproc, max_sh_bf, max_at_bf, nat, max_sh_bfcd,
-     $     nocc, lforce, nactive, i, nbf_vecs, nsets, ispin, 
+     $     nocc, lforce, nactive, i, nbf_vecs,
      $     max1e, max2e, mscratch_1e, mscratch_2e, 
      $     max2e3c, mscratch_2e3c, lbuf, lscratch, lsqa
       integer l_force, k_force, l_occ, k_occ, l_act, k_act, 

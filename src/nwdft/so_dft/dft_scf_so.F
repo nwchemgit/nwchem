@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.15 2000-10-14 06:45:57 zzhang Exp $
+c     $Id: dft_scf_so.F,v 1.16 2000-10-23 15:52:45 windus Exp $
 c     
       implicit none
 c     
@@ -27,8 +27,7 @@ c     so
       integer info 
       integer lbuff, ibuff, lso,iso
       integer nbf_mo 
-      logical  modiag
-      logical numerical 
+c      logical numerical 
       integer g_s
 c
 c     declarations for fractional occupation 
@@ -39,7 +38,6 @@ c
       logical fon 
       double precision scale 
       integer kfon_occ, lfon_occ
-      integer ioff,joff
       logical det_eng 
 c
 c     so
@@ -70,10 +68,10 @@ c
       external ga_create_atom_blocked
 c     
       logical oprint, status
-      double precision Exc(2), rms(2), derr, n3c_dbl_r, availm_r
-      integer noc(2), nmo(2), icall, nva
+      double precision Exc(2), rms(2), derr
+      integer noc(2), nmo(2), icall
+c      integer nva
       integer n3c_dbl, n3c_int, n_batch
-      integer avail, availm
       integer iwhat_max
       integer l_3cwhat, k_3cwhat, l_3cERI, k_3cERI
       integer dft_n3cint, n_semi_bufs, fd
@@ -88,8 +86,8 @@ c
 
       integer l_occ, k_occ
       integer i, j,  i1, jstart 
-      integer tot
-      double precision vso(1,1)
+c      integer tot
+c      double precision vso(1,1)
       integer me, nproc
       integer g_tmp, g_fockt, g_wght, g_xyz,g_nq
 c     so
@@ -102,12 +100,11 @@ c     so
       integer itol_max, iaoacc_max
       integer itol_min, iAOacc_min
       double precision tol_rho_min, tol_rho_max
-      integer nao2_max, batch_max, icount
       integer npol
       integer leneval, lcd_coef, icd_coef
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &     lcetobfr, icetobfr, lrdens_atom, irdens_atom,
-     &     nscr, lscr, iscr, max_component, max_elem_ang_scr
+     &     nscr, lscr, iscr
       double precision start_wall, current_wall, elapsed_wall,
      &     save_wall, current_cpu, start_cpu,
      &     wall_time_reqd
@@ -130,7 +127,8 @@ c
       logical diising, damping, levelshifting
       logical keep_damp_on,keep_levl_on, keep_diis_on
       Logical LResult, IOLGC, mulliken, lSPM
-      logical converged, wght_GA, oconverged 
+      logical converged, wght_GA
+c      logical oconverged 
       logical oprint_parm, oprint_conv, oprint_vecs, 
      &     oprint_eval, oprint_syma, oprint_time, 
      &     oprint_info, oprint_tol, oprint_final_vecs, 
@@ -168,10 +166,7 @@ c     !!! BGJ
       character*255 basis_name1  ! Returns name of basis set
       character*255 scftype1     ! Returns the SCF type of the vectors
       integer nbf1               ! Returns no. of functions in basis
-      integer nsets1             ! Returns no. of functions in each set
-      integer ldnmo              ! Inputs size of nmo
-      integer nmo1(2)            ! Returns no. of vectors in each set
-      integer ijk
+c      integer ijk
 c     
       logical spinor
       logical dft_mem3c

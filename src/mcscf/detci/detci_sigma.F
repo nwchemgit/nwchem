@@ -10,7 +10,7 @@ c
      $     ataba, atabb, ntij, nsblk,
      $     h, g, f, g_civec, g_sigma )
 *
-* $Id: detci_sigma.F,v 1.16 1997-11-04 09:59:52 d3e129 Exp $
+* $Id: detci_sigma.F,v 1.17 2000-10-23 15:52:25 windus Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -53,11 +53,12 @@ c
       integer rlo, rhi, cilo, cihi
       integer k_ci, k_sig, ldc, lds
       integer myid, numnodes
-      integer i, j, k, l
+      integer j, k, l
+c$$$  integer i
       integer kl, ij, kj, lj
       integer kphase, jphase
-      integer isym, ksym, jsym, iksym
-      double precision xx, yy, tx, tff, tdot, tgop
+      double precision xx, tff, tdot, tgop
+*      double precision tx
       double precision h1(detci_maxorb*detci_maxorb)
 c$$$  double precision sdot
 c$$$  external sdot
@@ -243,10 +244,9 @@ c
       integer g_sigma                         ! [input/output] Sigma vector
 c
 c
-      integer i, ij, kl, ii, iii
+      integer i, ij, kl, iii
       integer ak, al, iph
-      integer ksym
-      integer jstr, kstr
+      integer jstr
       integer ne_kl, nidx, iex
       integer relv(detci_maxelec)
       integer lelv(detci_maxelec)
@@ -255,7 +255,8 @@ c
       integer ploop, numnodes, next, myid
       integer nsblk, isblk, slo, shi, sseg
       double precision phase
-      double precision tstr, tgath, tdotab, tscat, tsync, tx
+      double precision tstr, tgath, tdotab, tscat
+*      double precision tsync, tx
       integer k_ci, l_ci, k_sig, l_sig
       logical oreplicated
       integer nxtval

@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.15 2000-02-04 19:54:25 mg201 Exp $
+* $Id: dplot.F,v 1.16 2000-10-23 15:51:48 windus Exp $
 *
       Implicit None
 *     
@@ -24,7 +24,7 @@
       Character*80 File_Vec,File_Vec2
       character*20 scftype, scftype2
       Character*255 Title_Vec, Title_Vec2, Basis_Name, Basis_Name2
-      Integer nBF,nBF2,iBF,nSet,nSet2,iSet,nSetTri,
+      Integer nBF,nBF2,nSet,nSet2,iSet,nSetTri,
      &        nMO(2),nMO2(2)
       Integer g_Vec(2),g_Dns(2),g_Dns2(2)
 *---- Local variables
@@ -36,7 +36,7 @@
       Integer k_Ene,l_Ene,k_Occ,l_Occ
       Integer Lth_Vec,Lth_Out
       Integer nOrb,k_Orb,l_Orb
-      Double Precision Ext_From_To(3,2),Scale,Volume,Factor,Sum,AppCh
+      Double Precision Ext_From_To(3,2),Scale,Volume
       Double Precision STD,Tot_Charge
       Character Coord(3)
       Character*8 Units,What,Spin,Where
@@ -48,7 +48,7 @@
       Integer Inp_StrLen
       External Inp_StrLen
 c     
-      integer  ga_create_atom_blocked,ii,nwr
+      integer  ga_create_atom_blocked
       external ga_create_atom_blocked
 c
 *

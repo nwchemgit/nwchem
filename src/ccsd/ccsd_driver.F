@@ -1,6 +1,6 @@
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.29 2000-02-04 19:45:55 mg201 Exp $
+C     $Id: ccsd_driver.F,v 2.30 2000-10-23 15:51:29 windus Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -31,7 +31,7 @@ c
        integer noper, oseg_lo, oseg_hi, npass, blen, max_noper, nocct
        integer noper_core
        integer g_coul, g_exch, g_epair, g_ncoul, g_nexch
-       integer i, ij
+       integer ij
        logical oexch,ocoul,status,ohalf
        double precision emp2, RefEner, TotEner
        double precision tpass

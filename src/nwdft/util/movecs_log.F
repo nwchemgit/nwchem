@@ -1,7 +1,7 @@
       logical function movecs_to_logfile( rtdb, n_homo, n_lumo,
      $     nbf, nsets, nmo, occ, ldocc, evals, ldevals, g_vecs)
       implicit none
-C$Id: movecs_log.F,v 1.3 1996-07-09 00:04:27 d3h449 Exp $
+C$Id: movecs_log.F,v 1.4 2000-10-23 15:52:51 windus Exp $
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "global.fh"
@@ -38,10 +38,9 @@ c****
       double precision occ_number
       integer noc(2) ! no. of occupied orbitals
       integer iorb, i_homo, i_lumo
-      integer lentit
-      integer lenbas
       integer l_vecs, k_vecs
-      integer ok, iset, i, j
+c****      integer ok 
+      integer iset, j
       integer i_below_gap
       character*6 alpha_or_beta(2)
 c----------------------------------------------------------------------- 

@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.35 2000-10-14 16:15:52 d3g681 Exp $
+c  $Id: moints_2x.F,v 1.36 2000-10-23 15:52:29 windus Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -76,7 +76,8 @@ c
        integer mem2, max2e
        integer num_nodes, ploop, next
        integer nmixed
-       double precision tol2e, scale, schw_ij, integ_acc
+       double precision tol2e, scale, schw_ij
+*       double precision integ_acc
        double precision tz, thalf, tint, t1idx, t2kidx, t3kidx, t4kidx
        double precision t34jidx, ttotal, t2jidx, tsynch
        double precision ttask, ttaskmax, ttaskmin, ttaskagg

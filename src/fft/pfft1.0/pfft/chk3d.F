@@ -1,5 +1,5 @@
 *
-* $Id: chk3d.F,v 1.4 1997-11-04 10:07:34 d3e129 Exp $
+* $Id: chk3d.F,v 1.5 2000-10-23 15:51:57 windus Exp $
 *
 *======================================================================
 *
@@ -58,7 +58,7 @@ c	external caller
      $                  M2
       LOGICAL           RCFFT
 
-      INTEGER           LSTCNT, junk(1)
+      INTEGER           LSTCNT
       EXTERNAL          LSTCNT
 
       INTEGER           MXNPRC, MXMYND, MXLBUF, MAPCHK, IGDIFF

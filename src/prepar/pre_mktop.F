@@ -3,7 +3,7 @@
      + lfnmod,filmod,lfnmat,dir_s,dir_x,dir_u,dir_t,ignore,
      + slvnam)
 c
-c $Id: pre_mktop.F,v 1.24 2000-09-22 17:55:32 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.25 2000-10-23 15:53:16 windus Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -78,8 +78,6 @@ c
 c
       real*8 timer_wall_total
       external timer_wall_total
-c
-      integer i
 c
       if(util_print('where',print_debug)) then
       write(lfnout,1000)

@@ -5,17 +5,17 @@ C****************************************************************
 C
       subroutine drftb1 (n,c,ch,wa,ifac)
 *      
-* $Id: drftb1.F,v 1.3 1997-12-10 01:21:07 d3g270 Exp $
+* $Id: drftb1.F,v 1.4 2000-10-23 15:51:52 windus Exp $
 *      
 *      
-* $Id: drftb1.F,v 1.3 1997-12-10 01:21:07 d3g270 Exp $
+* $Id: drftb1.F,v 1.4 2000-10-23 15:51:52 windus Exp $
 *      
       double precision c(1), ch(1), wa(1)
       integer ifac(1)
 c      
       integer i1
       doubleprecision d1, d2, d3, d4
-      logical l3, l4, l5, l6, l7, l8, l9, l10, l11, l12
+      logical l3, l11, l12
       nf = ifac(2)
       na = 0
       l1 = 1

@@ -1,6 +1,6 @@
       subroutine fastj(rtdb, basis, g_dens, eps, data)
 *
-* $Id: fastj.F,v 1.11 1999-07-29 00:53:57 d3e129 Exp $
+* $Id: fastj.F,v 1.12 2000-10-23 15:51:43 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -43,7 +43,9 @@ c
       integer ngrid, nnx, nny, nnz, lenpoles
       double precision c(3), charge, x, y, z, xlo, xhi, ylo, yhi,
      $     zlo, zhi, range, side, resolution, pi, exponent, xx, yy, zz,
-     $     hx, hy, hz, hx_fmm, hy_fmm, hz_fmm, test1, test2, test3,
+     $     hx, hy, hz, hx_fmm, hy_fmm, hz_fmm, 
+*     $     test1, 
+     $     test2, test3,
      $     errmax, errrelmax, errrelrms, errrms, err, rneglect, resn
       integer nbig, nprimtot
 c
@@ -1215,7 +1217,8 @@ c
       integer order, ninterp, twol
       integer tree(300)
       integer l_list, k_list, l_pairs2, k_pairs2, npairs, g_dens, basis
-      double precision tn_interp_3d_point, fmm_potential
+      double precision tn_interp_3d_point
+*      double precision fmm_potential
 c
       integer k_map, l_map, k_list_info, l_list_info, k_next, l_next,
      $     k_coords_r, kx, ky, kz, ptr, numr, k_v_r, l_v_r,

@@ -30,7 +30,7 @@ c>>>  that gennbo already exists and has been ported to a number of
 c>>>  platforms.
 c
 *
-* $Id: wnbofile.F,v 1.11 2000-02-04 20:12:48 mg201 Exp $
+* $Id: wnbofile.F,v 1.12 2000-10-23 15:53:26 windus Exp $
 *
       implicit none
 #include "bas.fh"
@@ -45,7 +45,7 @@ c>>>  handles
 c
 
       integer lbasis, lchg, lcoef,lcoord, leval, lexp, lgeom, lind1, 
-     $    lind2, locc, lprim, lptr, lscr, lscr2, ltags, ltri, ltype,
+     $    lind2, locc, lprim, lptr, lscr, ltags, ltype,
      &    lncomp
       integer g_bo(2), g_fock(2), g_movecs(2),  g_over, g_scr
 c
@@ -57,7 +57,7 @@ c
 c
 c>>>  basis set objects
 c
-      integer atn, charge, maxL, mult, nat, nbf, ncont, ngeno, nmo, 
+      integer atn, charge, maxL, nat, nbf, ncont, ngeno, nmo, 
      $     nprim, sphcart, type
       character*2   sym, elem
       character*255 name, title, trans
@@ -89,8 +89,8 @@ c
 c>>>  miscellaneous variables
 c
       character*5 cname(5)
-      integer i, iat, icol, icont, ilo, ihi, index, irow, ix, iy ,iz, j,
-     $     jrow, l, len
+      integer i, iat, icol, icont, ilo, ihi, index, ix, iy ,iz, j,
+     $     l, len
       logical sshell, pshell, dshell, fshell, gshell
       data cname / 'CS = ', 'CP = ', 'CD = ', 'CF = ', 'CG = ' /
 

@@ -2,7 +2,7 @@
      &     nbf, geom, AO_bas_han, g_fock, g_dens, 
      &     g_svecs, isvals, diis, nodiis)
 c
-C$Id: diis_driver_so.F,v 1.2 2000-05-01 21:32:48 edo Exp $
+C$Id: diis_driver_so.F,v 1.3 2000-10-23 15:52:46 windus Exp $
 c
       implicit none
 c      
@@ -43,7 +43,7 @@ c
       integer n_n2_objs
       double precision one, mone, zero
       parameter (one = 1.d0, mone = -1.0d0, zero = 0.d0)
-      integer i
+c      integer i
 cso
 cso   initialize some variables 
 cso 

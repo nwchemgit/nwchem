@@ -1,9 +1,8 @@
-* $Id: precalc2.F,v 1.23 2000-03-23 22:51:21 edo Exp $
+* $Id: precalc2.F,v 1.24 2000-10-23 15:51:14 windus Exp $
 c--------------------------------------------------------------------
       subroutine prec2ij(ibl,nblock1, bl,inx)
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
-      logical firstd
       common /route/ iroute
       common /infob/ inuc,ibas,na,nbf,nsh,ncf,ncs
       common /primij/ iabprim, ijdim ,ijpar1 
@@ -51,7 +50,6 @@ c=======================
       subroutine prec2kl(kbl,nblock1, bl,inx)
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
-      logical firstd
       common /route/ iroute
       common /infob/ inuc,ibas,na,nbf,nsh,ncf,ncs
       common /primkl/ kabprim, kldim ,klpar1 

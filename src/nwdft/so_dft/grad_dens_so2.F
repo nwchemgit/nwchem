@@ -3,7 +3,7 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs, omp2, pdm2, coeff)
 
-c     $Id: grad_dens_so2.F,v 1.2 2000-05-24 22:39:32 zzhang Exp $
+c     $Id: grad_dens_so2.F,v 1.3 2000-10-23 15:52:46 windus Exp $
 
 C     get densities for exact-exchange sodft: Im(Daa), Im(Dbb), 
 c     Re(Dab), Im(Dab)
@@ -21,10 +21,6 @@ C
       double precision evals(*), occ(*), pdm2(*), coeff(*)
       character*(*) scftype
       character*(*) movecs
-      double precision offset   ! EAF file offset
-      character*255 pdmfilename ! EAF file name
-      integer pdmfile           ! EAF file handle
-      integer l_buf, k_buf
 
       logical omp2
 
@@ -33,11 +29,10 @@ C
       logical movecs_read_so, file_read_ga
       external movecs_read_so, file_read_ga
 
-      character*255 fname       ! filename for lagrangian (ROHF) 
                                 ! or second-order contributions (MP2)
 
 C     local variables
-      integer nocc, l_ind, k_ind, l_ind2, k_ind2, g_vecs(2), i
+      integer nocc, g_vecs(2)
       double precision zero, one, mone, two, mtwo
       logical status
 

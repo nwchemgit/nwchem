@@ -2,7 +2,7 @@
      &    use_ma,use_ga,basis)
       implicit none
 *
-* $Id: int_spcart2.F,v 1.4 1999-06-18 20:34:22 d3e129 Exp $
+* $Id: int_spcart2.F,v 1.5 2000-10-23 15:51:08 windus Exp $
 *
 *
 *::include files::
@@ -513,7 +513,6 @@ c
       integer cart_offset, sph_offset
       integer l2c, l2s
       integer ig, ilo, ihi, jlo, jhi, ld
-      integer ims, imc
       integer ma_index_ptr
 *      
       call dfill((4*4),0.0d00,ident4,1)

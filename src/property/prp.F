@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.49 2000-05-05 18:55:02 mdupuis Exp $
+* $Id: prp.F,v 1.50 2000-10-23 15:53:25 windus Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -351,7 +351,6 @@ c
 #include "nwc_const.fh"
       parameter  (mxefc=3*7*7*7)
       integer rtdb,basis,geom
-      logical status
       PARAMETER   (MXIODA=255)
       PARAMETER   (MXATOM=NW_MAX_ATOM)
       CHARACTER*8 ERRMSG
@@ -988,7 +987,7 @@ C
      4   260.1053D+00,261.1087D+00,  0.0000D+00,  0.0000D+00/
       DATA ZERO /0.0D+00/
 C
-      NAMELIST /MASS/ AMASS
+c%%      NAMELIST /MASS/ AMASS
 C
       DO 10 IAT=1,NAT
          NUCZ=NUC(IAT)
@@ -1240,7 +1239,6 @@ C
 #include "nwc_const.fh"
       parameter  (mxefc=3*7*7*7)
       integer rtdb,basis,geom
-      logical status
       PARAMETER (MXIODA=255)
       PARAMETER (MXATOM=NW_MAX_ATOM)
       CHARACTER*8 ERRMSG
@@ -1937,7 +1935,7 @@ C
      4   260.1053D+00,261.1087D+00,  0.0000D+00,  0.0000D+00/
       DATA ZERO /0.0D+00/
 C
-      NAMELIST /MASS/ AMASS
+C%%      NAMELIST /MASS/ AMASS
 C
       DO 10 IAT=1,NAT
          NUCZ=NUC(IAT)
@@ -1990,7 +1988,6 @@ C
 #include "nwc_const.fh"
       parameter  (mxefc=3*7*7*7)
       integer rtdb,basis,geom
-      logical status
       PARAMETER (MXIODA=255)
       PARAMETER (MXATOM=NW_MAX_ATOM)
       CHARACTER*8 ERRMSG
@@ -2817,7 +2814,7 @@ C
      4   260.1053D+00,261.1087D+00,  0.0000D+00,  0.0000D+00/
       DATA ZERO /0.0D+00/
 C
-      NAMELIST /MASS/ AMASS
+C%%      NAMELIST /MASS/ AMASS
 C
       DO 10 IAT=1,NAT
          NUCZ=NUC(IAT)
@@ -2871,7 +2868,6 @@ C
       integer   rtdb, basis, geom
       logical   status
       integer   g_s
-      integer   g_dens(3)
       integer   ga_create_atom_blocked
       external  ga_create_atom_blocked
       PARAMETER (MXIODA=255)
@@ -4424,7 +4420,6 @@ C
 #include "nwc_const.fh"
       parameter  (mxefc=3*7*7*7)
       integer rtdb,basis,geom
-      logical status
       PARAMETER (MXIODA=255)
       PARAMETER (MXBFN=3072)
       PARAMETER (MXATOM=NW_MAX_ATOM)
@@ -5004,7 +4999,6 @@ C
 #include "nwc_const.fh"
       parameter  (mxefc=3*7*7*7)
       integer rtdb,basis,geom
-      logical status
       PARAMETER (MXIODA=255)
       PARAMETER (MXBFN=3072)
       PARAMETER (MXATOM=NW_MAX_ATOM)
@@ -5491,7 +5485,6 @@ C
 #include "nwc_const.fh"
       parameter  (mxefc=3*7*7*7)
       integer rtdb,basis,geom
-      logical status
       PARAMETER (MXIODA=255)
       PARAMETER (MXBFN=3072)
       PARAMETER (MXATOM=NW_MAX_ATOM)
@@ -6131,12 +6124,11 @@ C
       PARAMETER (MXATOM=NW_MAX_ATOM)
       PARAMETER (MXBFN=3072)
       integer  rtdb,geom,basis
-      logical  status
+c*      logical  status
       CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP, RUNTYP
       CHARACTER*8 RHF, UHF, MP2, GVB, SCF, PROP
       LOGICAL SOME,OUT,DBUG
-      INTEGER SPIND
       COMMON/HND_MEMORY/MAXCOR,MAXLCM
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_IOFILE/IR,IW,IP
@@ -7147,7 +7139,6 @@ C
 #include "mafdecls.fh"
 #include "nwc_const.fh"
       integer rtdb,basis,geom
-      logical status
       PARAMETER (MXIODA=255)
       PARAMETER (MXATOM=NW_MAX_ATOM)
       CHARACTER*8 ERRMSG
@@ -11213,12 +11204,9 @@ c
 
       integer       rtdb              ! [input] database handle
       integer       geom, basis       ! handles
-      logical       status
-      integer       g_dens
       character*255 title
       character*255 movecs_in, movecs_out
       character*8   scftyp 
-      dimension     g_dens(3)         ! max # of density matrices
       dimension     da(*),db(*),d1nw(*),d2nw(*)
 c
 c     Extract high level info from the data-base setting defaults
@@ -11281,7 +11269,7 @@ c
       integer max_sh_bf, max_at_bf 
       integer nat, nbf, nopen , nclosed , nvirt 
       integer           nopenu, nclosedu, nvirtu  
-      integer ndens, nbf2, nocc, i, iset
+      integer ndens, nbf2, i, iset
       character*255 title_molec, basis_name_molec
       character*20  scftype_molec
       integer       nbf_molec, nsets_molec, nmo_molec(2)
@@ -11488,7 +11476,7 @@ c     calculate the density matrices from the movecs
       dimension da(*), db(*), d1nw(*), d2nw(*)
 
 C     local variables
-      integer nocc, l_ind, k_ind, l_ind2, k_ind2, g_vecs, g_vecs2
+      integer g_vecs, g_vecs2
       integer i, j, ij
       integer iopen
       logical status

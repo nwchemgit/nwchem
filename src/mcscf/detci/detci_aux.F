@@ -19,7 +19,7 @@ c
       subroutine detci_vatable( norb, nel, nsym, osym,
      $                          vtxtab, arctab )
 *
-* $Id: detci_aux.F,v 1.13 1997-11-04 09:59:49 d3e129 Exp $
+* $Id: detci_aux.F,v 1.14 2000-10-23 15:52:24 windus Exp $
 *
       implicit none
 #include "detciP.fh"
@@ -555,7 +555,7 @@ c
       integer osym(norb)
       integer nij
       integer ijmap(norb,norb)
-      integer isym, i, j
+      integer i, j
 c
       nij = 0
       do i=1,norb
@@ -674,7 +674,7 @@ c
       integer g_x
       integer iv(nv)
       double precision y(n,*)
-      integer i,j,ii,iq
+      integer i,ii
 
       do i=1,nv
         ii = iv(i)
@@ -1150,7 +1150,7 @@ c
       double precision cgs(ngs)               ! [input] Coefficients
       integer g_civec                         ! [output] GA CI-vector
 c
-      integer astr, bstr, i, j
+      integer astr, bstr, i
       integer elva(detci_maxelec), elvb(detci_maxelec)
       double precision xx
       double precision dnrm2

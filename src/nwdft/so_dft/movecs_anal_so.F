@@ -2,7 +2,7 @@
      $     g_vecs, title, 
      $     oevals, evals, oirs, irs, oocc, occ)
 *
-* $Id: movecs_anal_so.F,v 1.1 2000-04-17 21:46:05 zzhang Exp $
+* $Id: movecs_anal_so.F,v 1.2 2000-10-23 15:52:46 windus Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -40,7 +40,6 @@ c
       integer nop, nir,  class_dim(maxireps)
       character*8 zir(maxireps), zclass(maxireps)
       character*20 zname
-      character*1 spin(2)
       double precision chars(maxireps*maxireps)
       logical sym_char_table_so
       external sym_char_table_so 

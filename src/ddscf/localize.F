@@ -7,7 +7,7 @@
 #include "rtdb.fh"
 c
       integer rtdb
-      integer g_over, g_sc, g_tmp
+      integer g_over, g_sc
       integer ga_create_atom_blocked
 c
       g_over = ga_create_atom_blocked(geom, basis, 'tmp')
@@ -20,7 +20,7 @@ c
       end
       subroutine testlocalize(rtdb)
 *
-* $Id: localize.F,v 1.8 2000-10-12 18:33:00 d3g681 Exp $
+* $Id: localize.F,v 1.9 2000-10-23 15:51:39 windus Exp $
 *
       implicit none
 #include "cscf.fh"
@@ -39,7 +39,8 @@ c
       character*8 loctype
       double precision y, w, ef, scale
 c
-      integer g_uc(4), x, g_mosc
+      integer g_uc(4), x
+*      integer  g_mosc
 c
       if (.not. rtdb_cget(rtdb, 'scf:loctype', 1, loctype)) 
      $     loctype = 'PM'

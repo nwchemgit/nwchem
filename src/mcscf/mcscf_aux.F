@@ -307,13 +307,13 @@ C      integer nclosed, nact
       character*255 movecs_out
       character*20 scftype_vecs
       integer i, nbf_vecs, nsets, nmo_vecs(2)
-      integer l_oph, k_oph
+c$$$      integer l_oph, k_oph
       integer l_v, k_v
       integer j, j1, j2, nn
       integer nmo
       logical oskel, oprint, status, ovecs, oldvectors
       double precision tol2e, charge, nuclear_charge
-      double precision vphase
+c$$$      double precision vphase
 c
 c     externals
 c
@@ -664,7 +664,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.29 2000-07-19 20:55:52 edo Exp $
+c  $Id: mcscf_aux.F,v 1.30 2000-10-23 15:52:21 windus Exp $
 c
 c
 c Return the gradient vector from the generalized

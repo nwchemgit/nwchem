@@ -1,5 +1,5 @@
 c
-c $Id: oned_calc.F,v 1.7 2000-08-30 05:45:18 windus Exp $
+c $Id: oned_calc.F,v 1.8 2000-10-23 15:52:10 windus Exp $
 c
       subroutine oned_calc(nxyz,g_rhs,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,geom,basis,nat)
@@ -24,13 +24,13 @@ c
       integer geom                 ! [input] the current geometry handle
       integer basis                ! [input] the current basis handle
 c
-      integer task_size, ijatom, next, iat1, iat2, attemp1
+      integer task_size, ijatom, next, iat1, iat2
       integer iac1f, iac1l, iac2f, iac2l, idatom(2)
       integer iab1f, iab1l, iab2f, iab2l, ish1, ish2, if1, il1, if2, il2
-      integer ic, icart1, icart2, ip1, ip2, i, j, at1, at2
-      integer nproc, atx, nint, natom
+      integer ic, icart1, i
+      integer nproc, atx, nint
       logical status
-      double precision qfac, de
+      double precision qfac
 c
       integer nxtask
       external nxtask

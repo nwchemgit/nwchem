@@ -1,4 +1,4 @@
-* $Id: spec_destiny.F,v 1.15 2000-08-10 21:13:09 windus Exp $
+* $Id: spec_destiny.F,v 1.16 2000-10-23 15:51:15 windus Exp $
 c==============================================================
 c K.Wolinski : May,1997 : the use of 
 c       ics=iis(ijcs)    
@@ -372,7 +372,7 @@ c23456789.123456789.123456789.123456789.123456789.123456789.123456789.12
       dimension inx(12,*)
       dimension iix(4)
       dimension der2(45)
-      dimension atom_pairs(10,3 , 10,3)
+c$$$      dimension atom_pairs(10,3 , 10,3)
 c
          iat=inx(2,ics)
          jat=inx(2,jcs)

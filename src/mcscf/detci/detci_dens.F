@@ -2,7 +2,7 @@
      $                         nexa, nexb, osym, exa, exb, map,
      $                         g_civec, g_civect, onepdm )
 *
-* $Id: detci_dens.F,v 1.10 1999-06-16 00:10:22 d3e129 Exp $
+* $Id: detci_dens.F,v 1.11 2000-10-23 15:52:25 windus Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -28,10 +28,10 @@
 c
       integer ia, ja, ib, jb
       integer myid, rlo, rhi, cilo, cihi, dilo, dihi
-      integer l_t, k_t, l_s, k_s, lds
+      integer l_t, k_t, k_s, lds
       integer g_dtmp
       integer ii, jj, iex, ph
-      double precision xx, yy, zz
+      double precision xx
 c
 c
 c
@@ -152,9 +152,9 @@ c
 c
 c     
       integer ia, ib, ja, jb, ka, kb
-      integer iex, jex, ij, kl, ji, lk, jl
-      integer i, j, l, k, jj
-      double precision xx, yy, zz, p1, p2
+      integer iex, jex, ij, kl, jl
+      integer i, j, l, k
+      double precision xx, yy, p1, p2
       integer l_t, k_t, l_s, k_s, lds
 **      integer g_dentmp
       integer myid, nn, rlo, rhi, cilo, cihi, dilo, dihi
@@ -401,7 +401,7 @@ c
       integer g_civec                                  ! [input] CI-vector                            
       double precision twopdm(norb,norb,norb,norb)     ! [output] Two-particle density 
 c
-      integer i, j, k, l
+      integer i, k, l
       integer ii, jj, kk, ll
       integer ij, ji, kl, lk
       integer ai, aj

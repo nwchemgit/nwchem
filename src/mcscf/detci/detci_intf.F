@@ -7,7 +7,7 @@ c
       subroutine detci_init( norb, nela, nelb, nsym, symstate,
      $                       osym, iprint, eps, h, g )
 *
-* $Id: detci_intf.F,v 1.26 1999-06-16 00:10:22 d3e129 Exp $
+* $Id: detci_intf.F,v 1.27 2000-10-23 15:52:25 windus Exp $
 *
       implicit none
 c
@@ -39,8 +39,9 @@ c
       integer ntij, civlen
       integer ijmap(detci_maxorb*detci_maxorb)
       integer vtab((detci_maxorb+1)*(detci_maxelec+1)*(detci_maxsy))
-      integer i, j, ij, ii
-      integer memuse, memuse01, memuse02, memuse03
+      integer i, j, ii
+c$$$      integer ij
+      integer memuse03
       integer mseg
 c
 c  Reset statistics
@@ -539,7 +540,6 @@ c
       integer ijmap(detci_maxorb*detci_maxorb)
       integer g_ct, g_st
       integer mseg
-      DOUBLE PRECISION XX
 c
 c  Check internals
 c
@@ -663,7 +663,8 @@ c
       integer g_workvec
       integer nstra, nstrb
 c
-      double precision xx, yy, tx
+c$$$  double precision xx, yy
+      double precision tx
       double precision mxcnt
 c
 c  Check internals

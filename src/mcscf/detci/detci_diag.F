@@ -5,7 +5,7 @@ c
       subroutine detci_dvddiag( mxv, precon, maxiter, tol, oprint,
      $                          g_x, g_x0, g_q, g_s, g_s0, g_sq, e )
 *
-* $Id: detci_diag.F,v 1.11 1997-11-04 09:59:50 d3e129 Exp $
+* $Id: detci_diag.F,v 1.12 2000-10-23 15:52:25 windus Exp $
 *
       implicit none
 #include "global.fh"
@@ -41,7 +41,7 @@ c
       double precision ov(n3,n3)               ! Subspace overlap matrix 
       double precision ee(n3)                  ! Subspace eigenvalues
       double precision scr(nscr)
-      double precision rnorm, rnormscal, xx, eold, totale
+      double precision rnorm, rnormscal, xx, eold
       integer info, iter, nz
       DOUBLE PRECISION TX, TY
 c

@@ -2,7 +2,7 @@
      $                               dm2, g_coul, g_exch,
      $                               g_x, g_ax )
 *
-* $Id: mcscf_ohvmo.F,v 1.3 1997-11-04 09:59:45 d3e129 Exp $
+* $Id: mcscf_ohvmo.F,v 1.4 2000-10-23 15:52:21 windus Exp $
 *
        implicit none
 #include "global.fh"
@@ -22,7 +22,6 @@ c
 c
        integer nvir, vlen, voff, aoff, aend
        integer l_xit, k_xit, l_xua, k_xua, l_xju, k_xju
-       logical status
 c
 c
 c

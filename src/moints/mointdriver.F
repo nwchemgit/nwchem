@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.67 2000-02-04 20:04:27 mg201 Exp $
+C$Id: mointdriver.F,v 1.68 2000-10-23 15:52:29 windus Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -23,18 +23,21 @@ c
        double precision nuclear_charge, charge
        integer nbf_vecs, nsets
        integer k_occ, l_occ, k_evals, l_evals, g_vecs
-       integer k_epair, l_epair
+*skip       integer k_epair, l_epair
        integer k_x, l_x
-       integer npairs
+*skip       integer npairs
        integer nbf, nsh, maxbfsh, nelec
        integer nact, nocc, nopen, nocc_correl
        integer occ_frozen, occ_lo, occ_hi
        integer vir_frozen, vir_lo, vir_hi, nmo, nmo2
        integer qlo, qhi
-       integer noper, oseg_lo, oseg_hi, npass, blen, max_noper, nocct
+       integer noper, oseg_lo, oseg_hi
+*skip       integer npass 
+       integer blen, max_noper, nocct
        integer noper_core, seg_incr
        integer g_coul, g_exch, g_epair
-       integer i, j, ij, ii, ipass
+       integer i, j, ij, ipass
+*skip       integer ii
        integer lmemreq, gmem, mxrlen, nvir
        logical oexch, ocoul, osym, oprint, status, ohalf, omemprint
        logical oblk, odisk, oaoreuse, oaokeep

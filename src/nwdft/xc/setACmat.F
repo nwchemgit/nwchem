@@ -11,7 +11,7 @@ c
      &                       ipol, nq, GRAD, xform_Cmat)
 #endif
 c
-C$Id: setACmat.F,v 1.13 2000-04-11 16:40:39 hvd Exp $
+C$Id: setACmat.F,v 1.14 2000-10-23 15:52:55 windus Exp $
 c
       implicit none
 c
@@ -40,7 +40,6 @@ c
       double precision qwght(nq)
 c
       integer ii, jj
-      double precision gaa, gab, gbb
 c
 #if 0
       if (bgj_print() .gt. 1) then

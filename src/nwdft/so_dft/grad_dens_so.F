@@ -3,7 +3,7 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs, omp2, pdm2, coeff)
 
-c     $Id: grad_dens_so.F,v 1.4 2000-06-15 00:59:51 edo Exp $
+c     $Id: grad_dens_so.F,v 1.5 2000-10-23 15:52:46 windus Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -27,9 +27,6 @@ C     movecs (and Lagrangian in ROHF case) on disk
       external ga_create_atom_blocked
       logical movecs_read_so, file_read_ga
       external movecs_read_so, file_read_ga
-
-      character*255 fname       ! filename for lagrangian (ROHF) 
-                                ! or second-order contributions (MP2)
 
 C     local variables
       integer nocc, l_ind, k_ind, l_ind2, k_ind2, g_vecs(2), i

@@ -1,7 +1,7 @@
       logical function movecs_read_header_so
      $    (filename, title, basis_name, 
      $     scftype, nbf)
-C$Id: vectors_so.F,v 1.3 2000-10-14 06:46:29 zzhang Exp $
+C$Id: vectors_so.F,v 1.4 2000-10-23 15:52:46 windus Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -22,7 +22,7 @@ c
       parameter (unitno = 67)   ! These need to be managed !!!
       integer lentit
       integer lenbas
-      integer ok, i
+      integer ok
       character*20 scftype20
 c
       if (oscfps) call pstat_on(ps_vecio)
@@ -100,14 +100,12 @@ c
 #include "util.fh"
 c
       character*(*) filename
-      integer iset              ! No. (1,2) of set of vectors to read
       double precision occ(*)   ! Must be at least nbf long (not nmo)
       double precision evals(*) ! Must be at least nbf long (not nmo)
       integer g_vecs(2)
 c
-      integer nsets             ! No. of sets of vectors
       integer nbf               ! No. of functions in basis
-      integer ok, jset, i, j
+      integer ok, i, j
       integer l_vecs, k_vecs
       integer unitno
       parameter (unitno = 67)
@@ -208,7 +206,6 @@ c
       double precision evals(nwant) ! [out] eigenvalues
       integer g_vecs                ! [in] handle for ga to hold results
 c
-      integer nsets                 ! no. of sets of vectors
       integer nbf                   ! no. of functions in basis
       integer ldnmo                 ! size of nmo
       parameter (ldnmo = 2)
@@ -430,7 +427,7 @@ c
       double precision tmp
       integer type, nelem, handle, index
       integer l_veci, k_veci, l_vecj, k_vecj, dim1, dim2
-      integer pair, i, j, ioff, joff, set, nset, mlen
+      integer pair, i, j, ioff, joff, mlen
       logical oprint
       character*40 name
       character*8 text
@@ -813,7 +810,7 @@ c
 c
       end
       logical function spinor_guess(filename)
-C$Id: vectors_so.F,v 1.3 2000-10-14 06:46:29 zzhang Exp $
+C$Id: vectors_so.F,v 1.4 2000-10-23 15:52:46 windus Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -828,7 +825,7 @@ c
 c
       integer unitno            ! Unit no. for reading
       parameter (unitno = 67)   ! These need to be managed !!!
-      integer ok, i
+      integer ok
       character*20 scftype20
 c
       ok = 0

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.85 2000-10-10 16:04:25 d3j191 Exp $
+c $Id: cf_main.F,v 1.86 2000-10-23 15:51:25 windus Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2112,7 +2112,7 @@ c
       integer i,j,ndof(3),ifix,ifr,ito,l,len,number
       real*8 fact(3)
       character*80 string,target,residu
-      character*16 tag,res
+      character*16 tag
 c
       if(me.eq.0) then
       write(*,1000) numfix
@@ -2977,7 +2977,7 @@ c
       integer ibnd(msb,3)
       real*8 bnd(msb,msp,6),rbnd(msb,2),esa(nsa,2)
 c
-      integer i,j
+      integer i
 c
       do 1 i=1,nsb
       if(ibnd(i,3).eq.0) then
@@ -3000,7 +3000,7 @@ c
       integer iang(msh,4)
       real*8 ang(msh,msp,6),rang(msh,2),esa(nsa,2)
 c
-      integer i,j
+      integer i
 c
       do 1 i=1,nsh
       esa(iang(i,1),2)=esa(iang(i,1),2)+third*rang(i,2)
@@ -3022,7 +3022,7 @@ c
       integer idih(msd,5)
       real*8 dih(msd,msp,6),rdih(msd,2),esa(nsa,2)
 c
-      integer i,j
+      integer i
 c
       do 1 i=1,nsd
       esa(idih(i,1),2)=esa(idih(i,1),2)+fourth*rdih(i,2)
@@ -3045,7 +3045,7 @@ c
       integer ioop(mso,5)
       real*8 oop(mso,msp,6),roop(mso,2),esa(nsa,2)
 c
-      integer i,j
+      integer i
 c
       do 1 i=1,nso
       esa(ioop(i,1),2)=esa(ioop(i,1),2)+fourth*roop(i,2)

@@ -1,6 +1,6 @@
       subroutine riscf_fock_2e(geom1, ao_basis, ri_basis, nfock,
      $     fcoul, fexch, tol2e1, oskeleton, g_dens, g_fock)
-C$Id: riscf_fock.F,v 1.11 1999-06-16 00:10:13 d3e129 Exp $
+C$Id: riscf_fock.F,v 1.12 2000-10-23 15:51:39 windus Exp $
 C     calculate the coulomb and exchange contribution to the Fock matrix 
 C     from the density matrix and the transformed three-center ERIs
 
@@ -348,7 +348,7 @@ C     from the available memory
       integer nbf, nsh, nocc, npair, basis
       logical dovecs, odisk
 
-      integer mfree, nvec, ndens, ndim, nnodes, mxbf
+      integer mfree, ndim, nnodes, mxbf
       logical status
 
       nnodes = ga_nnodes()

@@ -6,7 +6,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_mkfrg.F,v 1.34 2000-06-21 03:48:16 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.35 2000-10-23 15:53:16 windus Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -67,7 +67,7 @@ c
       integer mtyp,i_ltyp,l_ltyp
       integer nring3,nring4,nring5,nring6
 c
-      integer i,j,natoms,ilo,ihi,iseq,jlo,jhi,ilist,k
+      integer i,j,natoms,ilo,ihi,iseq,jlo,jhi,ilist
       integer ibnd,nbnd,nang,ndih,nconn,linkid
       logical found
 c

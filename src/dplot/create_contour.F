@@ -3,7 +3,7 @@
      &                          Grid,Values,g_Vls,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.11 2000-04-05 20:43:16 edo Exp $
+* $Id: create_contour.F,v 1.12 2000-10-23 15:51:48 windus Exp $
 *
       Implicit None
 *
@@ -46,7 +46,7 @@
      &        l_DelRho,k_DelRho,l_gamma,k_gamma,l_bp,k_bp,
      &        l_MOVec,k_MOVec
 *---- Other variables
-      Integer i,j,iOff,iProc,nProc,nGrPP,lthPP,iOffG,iii,
+      Integer j,iOff,iProc,nProc,nGrPP,lthPP,iOffG,
      .     k_ibf,l_ibf,lrscr, irscr,lrchi_atom, irchi_atom,
      .       lrdelchi_atom, irdelchi_atom,k_cetobfr,l_cetofbr,
      .     k_rdat,l_rdat,lcntoce, icntoce, 
@@ -447,7 +447,7 @@ c
       Subroutine oldnbf_to_mbf(basis_hand, rq0, mbf, mcenters, 
      &                      iniz, ifin, ibf, zprim, nzprim, acc_gauss)
 c
-C$Id: create_contour.F,v 1.11 2000-04-05 20:43:16 edo Exp $
+C$Id: create_contour.F,v 1.12 2000-10-23 15:51:48 windus Exp $
 c
       implicit none
 c      
@@ -464,8 +464,8 @@ c
       double precision rq0(mcenters)
       integer  iniz(mcenters),ifin(mcenters)
       double precision zprim(nzprim)
-      integer ncontrset, n1, icset, ictr, itype, nprimo, ncontr, 
-     &        isphere, ifirst, ilast, nshbf, l, nang, iprimo
+      integer ncontrset, n1, icset, ictr, nprimo, ncontr, 
+     &        isphere, nshbf, l, nang, iprimo
       integer n,npt,m
       integer ibf(*) ! [output]
       double precision zmin

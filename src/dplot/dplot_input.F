@@ -1,6 +1,6 @@
       SubRoutine DPlot_Input(rtdb)
 *
-* $Id: dplot_input.F,v 1.6 1999-11-16 03:51:15 edo Exp $
+* $Id: dplot_input.F,v 1.7 2000-10-23 15:51:48 windus Exp $
 *
       Implicit none
 *
@@ -12,7 +12,7 @@
 *
       Integer rtdb
       Integer ind,indUnits,indWhat,indSpin,indWhere,i,j
-      Integer Lth,iLth,jLth,Lth_Tit
+      Integer Lth,jLth,Lth_Tit
       Integer No_Of_Spacings(3),ValueI
       Integer nOrb,iOrb,k_Orb,l_Orb
       Double Precision Ext_From_To(3,2),ValueR
@@ -30,11 +30,9 @@
      &              Allowed_Where(Num_Where)
       Character*8   Units,What,Spin,Where
       Character*3   Charges
-      character*30 tag
+!      character*30 tag
       Character*80  File_Vec,File_Vec2,File_Out
       logical lgaussian
-*
-      Logical status
 *
       Data Dirs / 'LimitXYZ','Vectors','Output','Title','Orbitals',
      &            'Spin','Where','Charges','Gaussian','End' /

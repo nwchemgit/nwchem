@@ -1,6 +1,6 @@
 c**********************************************************************
 c     subroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.31 2000-06-07 23:39:02 windus Exp $
+c $Id: rhf_hessian.F,v 1.32 2000-10-23 15:52:05 windus Exp $
 c**********************************************************************
       subroutine hnd_der_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
@@ -696,7 +696,6 @@ c
 c
       integer       rtdb              ! [input] database handle
       integer       geom, basis       ! handles
-      logical       status
       character*255 title
       character*255 movecs_in, movecs_out
       character*8   scftyp 
@@ -773,7 +772,7 @@ c
       integer       max_sh_bf, max_at_bf 
       integer       nat, nbf, nopen , nclosed , nvirt 
       integer                 nopenu, nclosedu, nvirtu  
-      integer       ndens, nbf2, nocc, i, iset
+      integer       ndens, nbf2, i, iset
       character*255 title_molec, basis_name_molec
       character*20  scftype_molec
       integer       nbf_molec, nsets_molec, nmo_molec(2)
@@ -942,7 +941,7 @@ c     read mo vecs
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
-      integer geom, basis, ndens
+      integer geom, basis
       integer nbf, nbf2, nclosed, nopen, nclosedu, nopenu
       double precision evals, occ
       double precision d1nw ,d2nw 
@@ -962,7 +961,6 @@ c     read mo vecs
 C     local variables
       integer g_vecs, g_vecs2
       integer g_dens, g_dens2
-      integer nocc, l_ind, k_ind, l_ind2, k_ind2
       integer i, j, ij
       integer iopen
       logical status
@@ -1185,7 +1183,6 @@ c
 c
       integer       rtdb              ! [input] database handle
       integer       geom, basis       ! handles
-      logical       status
       character*255 title
       character*255 movecs_in, movecs_out
       character*8   scftyp 
@@ -1249,7 +1246,7 @@ c
       integer       max_sh_bf, max_at_bf 
       integer       nat, nbf, nopen , nclosed , nvirt 
       integer                 nopenu, nclosedu, nvirtu  
-      integer       ndens, nbf2, nocc, i, iset
+      integer       ndens, nbf2, i, iset
       character*255 title_molec, basis_name_molec
       character*20  scftype_molec
       integer       nbf_molec, nsets_molec, nmo_molec(2)
@@ -1424,7 +1421,7 @@ c     read mo vecs
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
-      integer geom, basis, ndens
+      integer geom, basis
       integer nbf, nbf2, nclosed, nopen, nclosedu, nopenu
       double precision evals, occ
       double precision d1nw ,d2nw 
@@ -1444,7 +1441,6 @@ c     read mo vecs
 C     local variables
       integer g_vecs, g_vecs2
       integer g_wdens, g_wdens2
-      integer nocc, l_ind, k_ind, l_ind2, k_ind2
       integer i, j, ij
       integer iclosed,iopen
       logical status
@@ -4425,7 +4421,6 @@ C
       PARAMETER (MXSHEL=512)
       CHARACTER*8 ERRMSG
       LOGICAL IANDJ
-      LOGICAL NORM
       LOGICAL OUT
       LOGICAL DBUG
       COMMON/HND_IOFILE/IR,IW,IP
@@ -5983,7 +5978,6 @@ C
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
       LOGICAL IANDJ
-      LOGICAL NORM
       LOGICAL OUT
       COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
@@ -7258,7 +7252,6 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
       parameter (mxatom=nw_max_atom)
-      logical status
       integer rtdb,geom,basis 
       character*8 scftyp
       logical dbug
@@ -16565,7 +16558,6 @@ c*    integer  g_fc
       integer  g_aods(3*mxatom), g_mods(3*mxatom)
       integer  g_dsta(3*mxatom), g_tmpta(3*mxatom)
       integer  g_modfwa(3*mxatom)
-      integer  g_eval
       integer  g_newaods,g_tmpaods
       integer  g_mafock(1),g_mmfock(1),g_tmpfock(1)
       double precision occ(mxnbf)

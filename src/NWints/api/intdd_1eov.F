@@ -1,6 +1,6 @@
       subroutine intdd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intdd_1eov.F,v 1.4 2000-08-17 18:56:43 windus Exp $
+c $Id: intdd_1eov.F,v 1.5 2000-10-23 15:50:57 windus Exp $
       implicit none
 #include "stdio.fh"
 c::functions
@@ -135,7 +135,7 @@ c::local
 c
 c  Temporary variable that needs to be taken out after testing!
 c
-      integer itemp
+c     integer itemp
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"

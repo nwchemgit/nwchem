@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.11 2000-02-04 20:12:48 mg201 Exp $
+* $Id: hnd_property.F,v 1.12 2000-10-23 15:53:25 windus Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -25,8 +25,6 @@ c
       integer geom, basis       ! handles
       logical status
       character*255 title
-      double precision charge
-      double precision energy
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
       call util_print_push

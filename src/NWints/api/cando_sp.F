@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.37 2000-05-02 19:51:40 mg201 Exp $
+c $Id: cando_sp.F,v 1.38 2000-10-23 15:50:57 windus Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -119,7 +119,7 @@ c:tex-\end{verbatim}
 c:tex-A zero [i|j]sh means ignore this shell. this allows one function 
 c:tex-for all 2e permutations and multiple basis sets.
 c::local
-      integer basis, mytype, mygen, ucont
+      integer basis, mytype, ucont
 c
 #include "bas_ibs_sfn.fh"
 c

@@ -1,4 +1,4 @@
-c $Id: prepint.f,v 1.15 1998-07-31 21:27:53 d3g681 Exp $
+c $Id: prepint.f,v 1.16 2000-10-23 15:51:15 windus Exp $
 cccc  subroutine prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
       subroutine prepint2(bl,    inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
      *                    lcore,maxprice,scftype)
@@ -27,7 +27,7 @@ c     parameter (lpar1=42,lpar2=12341,lpar3=11480,lpar4=12,lpar5=41)
 c---------------------------------------------------------------
 c
       implicit real*8 (a-h,o-z)
-      logical first,firstd
+      logical firstd
       character*11 scftype
 c
       common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p

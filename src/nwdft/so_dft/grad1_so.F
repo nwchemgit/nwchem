@@ -4,7 +4,7 @@
      $     g_dens, g_wdens, basis, geom, nproc, nat, 
      $     max_at_bf, rtdb, oskel, 
      &     frc_so, densx, densy, densz)
-c$Id: grad1_so.F,v 1.2 2000-06-08 00:34:25 zzhang Exp $
+c$Id: grad1_so.F,v 1.3 2000-10-23 15:52:46 windus Exp $
 
 C     one electron contribution to RHF, ROHF and UHF gradients
 C     now also UMP2
@@ -57,7 +57,6 @@ C-------------------------local variables--------------------------
       logical status, pointforce
 
       character*16 name
-      integer i,j,k,l,offset
       integer nxtask, task_size
       external nxtask
 

@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.25 2000-05-23 15:49:42 edo Exp $
+* $Id: cphf_solve.F,v 1.26 2000-10-23 15:51:34 windus Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -269,7 +269,7 @@ c
 c
       return
 c
-      if (.not. cphf_poliz(rtdb))     ! Never executed.
-     $     call errquit(' cphf: not possible!',0)
+c     if (.not. cphf_poliz(rtdb))     ! Never executed.
+c    $     call errquit(' cphf: not possible!',0)
 c
       end

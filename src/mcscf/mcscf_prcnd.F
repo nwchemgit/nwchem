@@ -6,7 +6,7 @@
      $                           g_ifock, g_afock, g_gfock,
      $                           g_hdiag, g_rhs, g_soln, acc )
 *
-* $Id: mcscf_prcnd.F,v 1.10 1999-06-16 00:10:22 d3e129 Exp $
+* $Id: mcscf_prcnd.F,v 1.11 2000-10-23 15:52:21 windus Exp $
 *
        implicit none
 #include "global.fh"
@@ -50,7 +50,7 @@ c
        double precision rnorm, bnorm, proj, scale, deltasoln
        double precision rnorm_old, ratio
        double precision maxx
-       DOUBLE PRECISION XX
+c$$$       DOUBLE PRECISION XX
        integer info
 c
 c

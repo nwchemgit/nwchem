@@ -16,7 +16,7 @@ c     Computes explicit nuclear 2nd derivatives of the XC energy
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_d2expl.F,v 1.5 1999-05-08 13:13:14 bjohnson Exp $
+c     $Id: xc_d2expl.F,v 1.6 2000-10-23 15:52:17 windus Exp $
 c
       Subroutine xc_d2expl(tol_rho, scr, Amat, Amat2, Bmat, Cmat, Cmat2,
      &     Dmat, F, Pmat, ff, s, chi, delchi, heschi, d3chi, curatoms,
@@ -87,7 +87,7 @@ c
 c     local declarations
 c
       double precision A_MAX, C_MAX, AC_MAX, FUNC_MAXI,
-     &                 B_MAX, D_MAX, BD_MAX, FUNC_MAXJ
+     &                 FUNC_MAXJ
       double precision FUNC_MAX, DELFUNC_MAX, tol_rho_tmp
       integer iatcur, jatcur
       integer iat, inizia, ifinia, nbfia, nnia, ifirst, ilast, idim

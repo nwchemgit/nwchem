@@ -1,6 +1,6 @@
       subroutine ana_rama(x,iram)
 c
-c $Id: ana_rama.F,v 1.3 2000-09-20 00:54:34 edo Exp $
+c $Id: ana_rama.F,v 1.4 2000-10-23 15:51:20 windus Exp $
 c
       implicit none
 c
@@ -17,7 +17,7 @@ c
       integer iram(msgm,7)
 c
       real*8 phi,psi,rhb1,rhb2,dist
-      integer i,j,ihb1,ihb2,k
+      integer i,j,ihb1,ihb2
       logical lphi,lpsi
 c
       if(me.eq.0) then

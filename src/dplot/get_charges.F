@@ -3,7 +3,7 @@
      &                       XYZ,Charge,Tags,AMt,BMt,Dst,
      &                       STD,Tot_Charge)
 *
-* $Id: get_charges.F,v 1.5 1999-11-10 03:47:09 edo Exp $
+* $Id: get_charges.F,v 1.6 2000-10-23 15:51:48 windus Exp $
 *
       Implicit None
 *
@@ -27,10 +27,10 @@
       Double Precision Dst(nGrid,nAtom)
       Character*16 Tags
 *---- Local variables
-      Integer iAtom,jAtom,iCart,k_Wrk,l_Wrk,lWrk
-      Integer iPoint,jPoint,iGrid,iProc,nProc,nGrPP,lthPP,iOffG
+      Integer iAtom,jAtom,iCart
+      Integer iPoint,iGrid,iProc,nProc,nGrPP,lthPP,iOffG
       Integer l_Pot,k_Pot,l_Dns,k_Dns,l_Pivot,k_Pivot,Info_var
-      Double Precision Sum,SumA,SumB,XX,YY,ZZ
+      Double Precision Sum,SumA,SumB
       Logical LResult,DeBug
 *
       Double Precision ddot

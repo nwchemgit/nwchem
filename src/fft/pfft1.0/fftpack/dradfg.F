@@ -10,10 +10,10 @@ C****************************************************************
 C      
       subroutine dradfg (ido,ip,l1,idl1,cc,c1,c2,ch,ch2,wa)
 *      
-* $Id: dradfg.F,v 1.6 1997-12-11 08:30:43 d3e129 Exp $
+* $Id: dradfg.F,v 1.7 2000-10-23 15:51:52 windus Exp $
 *      
 *      
-* $Id: dradfg.F,v 1.6 1997-12-11 08:30:43 d3e129 Exp $
+* $Id: dradfg.F,v 1.7 2000-10-23 15:51:52 windus Exp $
 *      
       double precision cc(ido,ip,l1), c1(ido,l1,ip), c2(idl1,ip),
      1  ch(ido,l1,ip), ch2(idl1,ip), wa(1), ai1, ai2, ar1, ar1h, ar2,
@@ -22,9 +22,8 @@ C
 c      
       integer j1, j3, j4, j5, j6, k1, k2, j7, j8, i1, i2, ik1, ik2, ik3,
      . j9, ik4
-      doubleprecision d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12,
-     . d13, d14, d15, d16, d17, d18, d19, d20, d21, d22, d23, d24, d25,
-     .d26, d27, d28, d29, d30, d31, d32, d33, d34
+      doubleprecision 
+     . d16, d17, d18, d20, d21, d22
       integer j10, j11, k3, k4, j12, j13, j14, j15, j16, i3, i4, i5, i6,
      . ik5, ik6, ik7, ik8, k5, j17, j18, ik9, ik10
       doubleprecision d35, d36, d37, d38, d39, d40, d41, d42, d43, d44, 
