@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.378 2002-02-14 00:34:14 edo Exp $
+# $Id: makefile.h,v 1.379 2002-02-15 19:42:03 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1201,11 +1201,10 @@ ifeq ($(LINUXCPU),x86)
   EGCS = YES
   ifdef EGCS
     FOPTIONS  += -Wno-globals
-    FOPTIONS  += -fno-globals -Wunused -fno-silent  -malign-double
-    FOPTIONS  +=  -Wunused -fno-silent  -malign-double
+#    FOPTIONS  += -fno-globals -Wunused -fno-silent  -malign-double
     FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
     FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs 
-    FOPTIMIZE += -fno-rerun-loop-opt -fforce-mem -fforce-addr #-ffloat-store
+    FOPTIMIZE += -fforce-mem -fforce-addr #-ffloat-store
   endif
 
   ifeq ($(FC),pgf77)
@@ -1301,6 +1300,7 @@ CORE_LIBS += -llapack $(BLASOPT) -lblas
 endif
 
 ifeq ($(NWCHEM_TARGET),LINUX64)
+  MAKEFLAGS = -j 1 --no-print-directory
      _CPU = $(shell uname -m  )
      CORE_SUBDIRS_EXTRA = blas lapack
      RANLIB = echo
@@ -1331,26 +1331,38 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
 
     ifeq ($(_CPU),ia64)
 # Itanium cross compiled on i386 with Intel Compilers 
-# i4 not working 
+# i4 (need for g77) not working 
 #
       FC=efc
-      CC=ecc
+      CC=gcc
       DEFINES   +=   -DLINUXIA64 
       COPTIMIZE = -O1
 
       ifeq ($(FC),efc)
-        FOPTIONS   =  -align  -132   -w  -vec_report3 -ftz 
+        FOPTIONS   =  -auto -align  -132   -w  -vec_report3 -ftz 
         DEFINES  +=   -DIFCLINUX
         FVECTORIZE = -O3 -hlo -pad
         FOPTIMIZE =  -O3 -hlo -unroll
-        LINK.f = efc  -O -Qoption,link,-v  $(LDFLAGS)  
+#        FOPTIMIZE =  -O2 #-hlo -unroll
+        LDOPTIONS =   -Qoption,link,--relax  -Qoption,link,-Bstatic  
+        LINK.f = efc  -g -Qoption,link,-v  $(LDFLAGS)  
         EXTRA_LIBS +=  -ml   -Vaxlib 
+      endif
+      ifeq ($(FC),g77)
+        FOPTIONS  += -Wno-globals
+        FOPTIONS  += -fno-globals -Wunused -fno-silent  
+        FOPTIONS  += -fno-second-underscore  -g
+        LDOPTIONS =   -Wl,--relax  -Wl,-Bstatic  
       endif
       ifeq ($(FC),ecc)
         COPTIONS   =   -vec_report3 -ftz
       endif
-     FOPTIONS += -i8 
-     DEFINES  += -DEXT_INT  
+     ifdef USE_INTEGER4
+       FOPTIONS += -i4
+     else
+       FOPTIONS += -i8 
+       DEFINES  += -DEXT_INT  
+     endif
 
      CORE_LIBS += -llapack $(BLASOPT) -lblas
 endif

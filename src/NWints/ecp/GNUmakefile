@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.25 2002-01-29 20:50:53 windus Exp $
+# $Id: GNUmakefile,v 1.26 2002-02-15 19:42:06 edo Exp $
 # 
 
 HEADERS   = ecp_nwc.fh
@@ -104,9 +104,12 @@ USES_BLAS = ecp_bess_pow.f \
 LIBRARY = libnwints.a
  LIB_TARGETS = test_drive
 
+
 include ../../config/makefile.h
 include ../../config/makelib.h
-
 test_drive:	test_drive.o 
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ test_drive.o $(LIBS)
+  ifeq ($(FC),efc)
+     FOPTIMIZE += -O0
+  endif
 
