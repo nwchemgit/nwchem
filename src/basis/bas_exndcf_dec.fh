@@ -1,6 +1,7 @@
 c----------------------------------------------------------------------
 c.. this include only has the declarations
 c----------------------------------------------------------------------
+* $Id: bas_exndcf_dec.fh,v 1.2 1996-01-23 08:34:09 d3e129 Exp $
 c
 c... statement functions to get exndcf from heap
 c... exndcf_sf gives value of index

@@ -4,6 +4,7 @@ c This cannot be used in a routine with a data statement.
 c .... you must separately include the _dec and _sfn include files
 c .... if you have data statements.
 c----------------------------------------------------------------------
+* $Id: bas_ibs.fh,v 1.2 1996-01-23 08:34:11 d3e129 Exp $
 c
 c... statement functions to get ibs arrays from heap
 c... sf_ibs_??? gives value of index
