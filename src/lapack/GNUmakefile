@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.43 2002-10-03 17:34:32 windus Exp $
+#$Id: GNUmakefile,v 1.44 2003-04-04 01:42:11 edo Exp $
 
 include ../config/makefile.h
 
@@ -44,6 +44,7 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dsygv.o       dsytd2.o      dsytrd.o       dtrtri.o     \
                dlasq1.o      dlasq2.o      dlasq3.o       dlasq5.o     \
                dlasq4.o      dlasq6.o      dposv.o        dtrtrs.o     \
+               dpotrs.o           \
                ilaenv.o      lsamen.o                                  \
                zheev.o       zhegs2.o      zhegst.o       zhegv.o      \
                zhetd2.o      zhetrd.o      zlacgv.o       zladiv.o     \
