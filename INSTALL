@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.35 2000-12-04 23:22:21 windus Exp $
+$Id: INSTALL,v 1.36 2000-12-18 21:13:54 windus Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -25,6 +25,12 @@ installation before beginning.  The sections for this guide are
                                   latest version of GA or are having problems
                                   with GA on their platform
    Running on Fujitsu VPP      -  some notes on the Fujitsu system
+   Building and Running NWChem -  system information for clusters
+     on Myrinet clusters          using Myrinet interconnect
+   Building and Running NWChem -  system information for clusters
+     on Giganet clusters          using Giganet interconnect
+   Building for Windows        -  brief instructions for compiling under
+                                  Windows NT or Windows 98
    Memory Script               -  information about a script that can help
                                   you set the default memory for your system
    Troubleshooting             -  if you have build problems
@@ -484,7 +490,7 @@ OPTIMIZATION TIPS:
 
 
 POINT OF CONTACT USERS: 
----------------------- 
+----------------------- 
 If you are the NWChem point-of-contact for a given site please build 
 and use the java tool in $NWCHEM_TOP/contrib/javasupport.  The
 java class files and images are already built and available at the
@@ -497,7 +503,7 @@ using NWChem.
 
 
 GA RELATED ISSUES:
---------------------------
+-------------------
 Occasionally, bugs in NWChem are associated with the Global Array tools
 (http://www.emsl.pnl.gov:2080/docs/global/ga.html).  Check out the URL
 http://www.emsl.pnl.gov:2080/docs/global/support.html for GA installation
@@ -526,8 +532,8 @@ To compile the latest version of GA for NWChem, following these steps:
       the Basic Build Instructions.  If they are not set, start with step 2.
 
 
-RUNNING ON FUJITSU VPP 300/500/700/5000
-----------------------------
+RUNNING ON FUJITSU VPP 300/500/700/5000:
+----------------------------------------
 For compilation on the Fujitsu VPP vector computers, native versions of
 the Global Arrays and related libraries have to be installed. These can
 be downloaded from ftp section of the Fujitsu European Centre for
@@ -537,6 +543,76 @@ FUJITSU_VPP, and the environment variable GA_LIBDIR should point to the
 directory where the GA libraries are installed. Enquiries about
 installation issues may be directed to Ross Nobes (nobes@fecit.co.uk) or
 Herbert Fruchtl (fruechtl@fecit.co.uk).
+
+
+BUILDING AND RUNNING NWCHEM ON MYRINET CLUSTERS:
+------------------------------------------------
+Prior to installing NWChem, you must have installed the GM and the MPICH
+over GM softwares (http://www.myri.com/scs/index.html) on the system. 
+Before starting the NWChem compilation, the following environmental 
+variables must be defined:
+
+USE_MPI=y
+GM_HOME="location of GM software"
+GM_INCLUDE=$GM_HOME/include  
+GM_LIB=$GM_HOME/lib
+ARMCI_NETWORK=GM
+MPI_LOC="location of MPICH-GM software"
+MPI_LIB=$MPI_LOC/lib
+MPI_INCLUDE=$MPI_LOC/include
+LIBMPI=-lmpich             
+
+To run NWChem, you need to set the following enviromental variable:
+
+GMPI_SHMEM_FILE /tmp/$USER.gm 
+
+and you need to have a $HOME/.gmpi/conf file that allocates GM ports in
+the following order (in this example, we are using an 8 node dual system). 
+
+8
+node1 2
+node1 4
+node2 2
+node2 4
+node3 2
+node3 4
+node4 2
+node4 4
+
+
+BUILDING AND RUNNING NWCHEM ON GIGANET CLUSTERS:
+------------------------------------------------
+Before starting the NWChem compilation, the following environmental
+variables must be defined:
+
+ARMCI_NETWORK=VIA 
+LIBMPI="-lmpipro -lpthread"
+
+To run NWChem, you need to set the following environmental variable:
+
+MPI_COMM=VIA
+
+
+BUILDING FOR WINDOWS:
+---------------------
+The right target is WIN32. Before starting the compilation, you must have
+installed the Compaq Visual Fortran compiler (version 6.0 and 6.1 have been
+successfully tested) and the NT.MPICH library
+(http://www-unix.mcs.anl.gov/~ashton/mpich.nt/ ). Then, you need to have
+defined this series of variables (that you can set in autoexec.bat):
+
+set NWCHEM_TOP=c:\nwchem
+set NWCHEM_TARGET=WIN32
+set MPI_INCLUDE=c:\PROGRA~1\ARGONN~1\MPICHN~1.4\SDK\INCLUDE
+set MPI_LIB=c:\PROGRA~1\ARGONN~1\MPICHN~1.4\SDK\lib
+set NWCHEM_EXTRA_LIBS=%MPI_LIB%\mpich.lib
+
+To start the compilation, start the Microsoft makefile utility from the 
+top level source directory by typing 
+
+nmake
+
+The name of the executable is nw32.exe.
 
 
 MEMORY SCRIPT:
