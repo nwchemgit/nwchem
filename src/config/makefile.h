@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.214 1997-02-27 18:04:44 d3h325 Exp $
+# $Id: makefile.h,v 1.215 1997-02-27 18:32:50 d3j191 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -857,7 +857,7 @@ endif
   FOPTIMIZE = -g -O2
   COPTIMIZE = -g -O2
 
-    DEFINES = -DLINUX -DNEED_LOC
+    DEFINES = -DLINUX
 
   LDOPTIONS = -g
      LINK.f = gcc $(LDFLAGS)
