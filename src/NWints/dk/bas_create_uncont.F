@@ -1,5 +1,5 @@
       subroutine bas_create_uncont(usertdb,basis_in,name,basis_out)
-c $Id: bas_create_uncont.F,v 1.12 2000-05-18 17:34:44 bert Exp $
+c $Id: bas_create_uncont.F,v 1.13 2000-05-18 20:14:12 bert Exp $
       implicit none
 #include "nwc_const.fh"
 #include "mafdecls.fh"
@@ -23,10 +23,12 @@ c
       logical bas_add_ucnt_tidy
       logical bas_add_ucnt
       logical bas_set_spherical
+      logical bas_get_spherical
       external bas_add_ucnt_init
       external bas_add_ucnt_tidy
       external bas_add_ucnt
       external bas_set_spherical
+      external bas_get_spherical
 c
 c     arguments
 c
