@@ -154,7 +154,7 @@ PSPW
    Car-Parrinello
       cell_name: small
       formatted_filename: C.vpp
-      formatted_filename: si.vpp
+      formatted_filename: Si.vpp
       input_wavefunction_filename:    sic2.00.elc
       output_wavefunction_filename:   sic2.01.elc
       input_v_wavefunction_filename:  sic2.00.velc
@@ -173,6 +173,12 @@ END
 task pspw Car-Parrinello
 
 
+geometry units au
+Si 0.000000000 2.00000000  0.00000000
+C 1.2400000000 0.00000000  0.00000000
+C -1.2400000000 0.00000000 0.00000000
+end
+
 PSPW
    #***** optimize the wavefunctions and ion positions ********
    Car-Parrinello
@@ -189,7 +195,7 @@ PSPW
       scaling: 1.0d0 1.0d0
       energy_cutoff:       21.0d0
       wavefunction_cutoff: 21.0d0
-      xyz_filename: c2.hoover.xyz
+      xyz_filename: sic2.hoover.xyz
       Mulliken
       Nose-Hoover:
       omotion_filename: sic2.hoover.omov
