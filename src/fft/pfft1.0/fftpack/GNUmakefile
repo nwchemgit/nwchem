@@ -40,39 +40,40 @@ LIB_DEFINES = -D${IO_STYLE} -DIBM ${GENDEFS}
 
 #CPP		= /usr/lib/cpp -P -C -D${COMM_PKG} -D${IO_STYLE} -DIBM ${GENDEFS}
 
-OBJ= 	dcfftb.o \
-	dcfftf.o \
-	dcffti.o \
-	dcftb1.o \
-	dcftf1.o \
-	dcfti1.o \
-	dpssb.o \
-	dpssb2.o \
-	dpssb3.o \
-	dpssb4.o \
-	dpssb5.o \
-	dpssf.o \
-	dpssf2.o \
-	dpssf3.o \
-	dpssf4.o \
-	dpssf5.o \
-	drfftb.o \
-	drfftf.o \
-	drffti.o \
-	drftb1.o \
-	drftf1.o \
-	drfti1.o \
-	dradb2.o \
-	dradb3.o \
-	dradb4.o \
-	dradb5.o \
-	dradbg.o \
-	dradf2.o \
-	dradf3.o \
-	dradf4.o \
-	dradf5.o \
-	dradfg.o
+OBJ_OPTIMIZE=	dcfftb.o \
+		dcfftf.o \
+		dcffti.o \
+		dcftb1.o \
+		dcftf1.o \
+		dcfti1.o \
+		dpssb.o \
+		dpssb2.o \
+		dpssb3.o \
+		dpssb4.o \
+		dpssb5.o \
+		dpssf.o \
+		dpssf2.o \
+		dpssf3.o \
+		dpssf4.o \
+		dpssf5.o \
+		drfftb.o \
+		drfftf.o \
+		drffti.o \
+		drftb1.o \
+		drftf1.o \
+		drfti1.o \
+		dradb2.o \
+		dradb3.o \
+		dradb4.o \
+		dradb5.o \
+		dradbg.o \
+		dradf2.o \
+		dradf3.o \
+		dradf4.o \
+		dradf5.o \
+		dradfg.o
 
 include $(NWCHEM_TOP)/src/config/makefile.h
 include $(CNFDIR)/makelib.h
 
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY

@@ -40,32 +40,36 @@ LIB_DEFINES = -D${IO_STYLE} -DIBM ${GENDEFS} -DTCGMSG -DFFTPACK
 
 #CPP		= /usr/lib/cpp -P -C -D${COMM_PKG} -D${IO_STYLE} -DIBM ${GENDEFS}
 
-OBJ=	blktrn.o \
-	dcopy.o \
-	drain.o \
-	fillup.o \
-	mapfil.o \
-	mapchk.o \
-	prlst2.o \
-	xstop.o \
-	pairup.o \
-	gexit.o \
-	igdiff.o \
-	lstcnt.o \
-	lstind.o \
-	pfft.o \
-	pfft3d.o \
-	prfft3.o \
-	prfft.o \
-	prffti.o \
-	chk3d.o \
-	mfftc1.o \
-	mfftr1.o \
-	mcfftr.o \
-	mrfftr.o \
-	pfft1i.o \
-	pfft1.o
+OBJ_OPTIMIZE=	blktrn.o \
+		dcopy.o \
+		drain.o \
+		fillup.o \
+		mapfil.o \
+		mapchk.o \
+		prlst2.o \
+		xstop.o \
+		pairup.o \
+		gexit.o \
+		igdiff.o \
+		lstcnt.o \
+		lstind.o \
+		pfft.o \
+		pfft3d.o \
+		prfft3.o \
+		prfft.o \
+		prffti.o \
+		chk3d.o \
+		mfftc1.o \
+		mfftr1.o \
+		mcfftr.o \
+		mrfftr.o \
+		pfft1i.o \
+		pfft1.o
 
 include $(NWCHEM_TOP)/src/config/makefile.h
 include $(NWCHEM_TOP)/src/config/makelib.h
 
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+$(LIBRARY_PATH)(prfft.o):	./const.h 
+$(LIBRARY_PATH)(chk3d.o):	./datasize.h 
+$(LIBRARY_PATH)(blktrn.o):	./datasize.h 
