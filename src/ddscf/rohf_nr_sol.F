@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.12 1997-02-17 17:53:52 d3g681 Exp $
+c     $Id: rohf_nr_sol.F,v 1.13 1997-04-04 21:01:51 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -29,7 +29,7 @@ c
 c     Local variables
 c     
       integer ls_max            ! Max. no. of points for line search
-      parameter (ls_max=10)
+      parameter (ls_max=20)
       integer iwork(10)         ! PCG routine internal info
       double precision dwork(3*ls_max+5) ! PCG routine internal info
       character*16 mode         ! For communication with PCG routine 

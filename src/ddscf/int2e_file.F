@@ -735,6 +735,8 @@ c
       integer nbitv             ! For pretty output
       integer maxrec
       double precision offset
+      integer ierr
+      character*80 errmsg
 c
 c     test for overflowing the file and memory cache
 c
@@ -795,8 +797,13 @@ c
 c     Should really detect failures in writing and return false
 c
          offset = 8.0d0*rec_len_in_dbl*(cur_rec-max_cache_rec-1)
-         if (eaf_write(fd, offset, buf, 8*rec_len_in_dbl) .ne. 0)
-     $        call errquit('int2e_packed_buf_write: write failed',0)
+         ierr = eaf_write(fd, offset, buf, 8*rec_len_in_dbl)
+         if (ierr .ne. 0) then
+            call eaf_errmsg(ierr, errmsg)
+            write(6,*) ' IO offset ', offset
+            write(6,*) ' IO error message ',errmsg(1:inp_strlen(errmsg))
+            call errquit('int2e_packed_buf_write: write failed',0)
+         endif
       end if
 c
       if (otrace) then
