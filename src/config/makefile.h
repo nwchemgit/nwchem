@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.303 1999-11-13 02:15:47 bjohnson Exp $
+# $Id: makefile.h,v 1.304 1999-11-15 17:39:23 d3j191 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -961,7 +961,7 @@ endif
   CORE_LIBS = -lchemio -lglobal -lma -lutil -lpeigs -llapack -lblas
 
 
-   USE_ESSL = YES
+#   USE_ESSL = YES
 #   USE_BLAS = YES
 ifdef USE_ESSL
    DEFINES += -DESSL
@@ -1057,6 +1057,10 @@ ifeq ($(NWCHEM_TARGET_CPU),604)
 	FC += -qarch=604 -qtune=604 -qthreaded
 	CC += -qarch=ppc -qtune=604
 endif
+ifeq ($(NWCHEM_TARGET_CPU),PWR3)
+	FC += -qarch=pwr3 -qtune=pwr3 -qcache=auto -qthreaded
+	CC += -qarch=pwr3 -qtune=pwr3 -qcache=auto
+endif
 
 
     DEFINES = -DLAPI -DSP1 -DAIX -DEXTNAME -DPARALLEL_DIAG
@@ -1068,7 +1072,7 @@ endif
   CORE_LIBS = -lchemio -lglobal -lma -lutil -lpeigs -llapack -lblas
 
 
-   USE_ESSL = YES
+#   USE_ESSL = YES
 #   USE_BLAS = YES
 ifdef USE_ESSL
    DEFINES += -DESSL
