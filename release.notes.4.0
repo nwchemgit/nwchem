@@ -7,6 +7,14 @@ fixes that are available in NWChem Version 4.0. When there is a conflict
 between the release notes and the User Manual, the User Manual takes
 precedence. 
 
+Bugs in version 3.3.1 that have been fixed in version 4.0:
+
+  o A bug was found in the distribution of multidimensional Global Array's. This 
+    bug created uneven distributions of array elements (i.e. some nodes got many 
+    and some nodes got a few elements), and this had a significant impact on the 
+    parallel performance through-out the code. Note: the final calculated results
+    were correct, the perfomrance was not as good as could be expected. 
+
 Several new major capabilities are available in NWChem, including several new
 modules. The new modules are: 
 
