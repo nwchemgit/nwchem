@@ -22,7 +22,6 @@ OBJ_ENERGY = \
       ecp_cstrans.o  \
       ecp_down_m.o   \
       ecp_gaussq.o   \
-      ecp_ind_var.o  \
       ecp_init_c2s.o \
       ecp_init_con.o \
       ecp_int0.o     \
@@ -36,7 +35,6 @@ OBJ_ENERGY = \
       ecp_radint2.o  \
       ecp_s2ccoef.o  \
       ecp_s2cnorm.o  \
-      ecp_sph_tens.o \
       ecp_so_ang.o   \
       ecp_t1_Q0asy.o \
       ecp_t1_Q0int.o \
@@ -55,12 +53,13 @@ OBJ_ENERGY = \
       ecp_local.o    \
       int_ecp.o      
 
+OBJ = ecp_sph_tens.o
+
 ifdef NWCHEM_DEBUG
-OBJ =  $(OBJ_ENERGY) $(OBJ_GRAD)
+OBJ +=  $(OBJ_ENERGY) $(OBJ_GRAD)
 
 OBJ_OPTIMIZE = 
 else
-OBJ =  
 
 OBJ_OPTIMIZE = $(OBJ_ENERGY) $(OBJ_GRAD)
 endif
