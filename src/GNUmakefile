@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.66 1998-03-10 19:53:17 d3e129 Exp $
+# $Id: GNUmakefile,v 1.67 1998-03-11 09:13:29 d3e129 Exp $
 
 include config/makefile.h
 
@@ -139,8 +139,9 @@ directories:
 	test -d $(BINDIR) || $(MKDIR) -p $(BINDIR)
 
 auxiliary:
-	$(MAKE) -C nwaprep $(LIB_TARGETS)
+	$(MAKE) -C nwaprep targets
 	$(MAKE) -C nwajava
+#
 # This target will change config/nwchem_config.h include file which
 # controls what we're going to build.
 $(CNFDIR)/nwchem_config.h nwchem_config:
