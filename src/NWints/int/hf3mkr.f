@@ -1,7 +1,7 @@
       Subroutine hf3mkr(Axyz,Bxyz,Cxyz,alpha,Gxyz,
      &    RS,GC,ff,R,R0,IJK,Nabc,Lg,Lg3)
 c
-c $Id: hf3mkr.f,v 1.2 1996-10-11 10:13:01 d3e129 Exp $
+c $Id: hf3mkr.f,v 1.3 1996-10-18 22:05:08 d3e129 Exp $
 c
       Implicit none 
 c::passed
@@ -33,7 +33,11 @@ c
 *rak:      Double Precision Px, Py, Pz
       double precision GCx, GCy, GCz 
       double precision alpha_t
+*acc_debug:      double precision accy
+*acc_debug:      integer accy_cnt
+*acc_debug:      logical reached
       integer mp, j, m, n
+
 c
 c Define the auxiliary function integrals necessary to compute the three 
 c center nuclear attraction integrals (NAIs). These integrals are scaled 
@@ -115,9 +119,21 @@ c auxiliary functions.
 00200  continue
        
 c Evaluate the incomplete gamma function.
-       
+
        call igamma(R,Nabc,Lg)
-       
+
+*acc_debug:       accy = 1.0d-30
+*acc_debug:       accy_cnt = 0
+*acc_debug:       reached = .false.
+*acc_debug:00001  continue
+*acc_debug:       call igamma_acc(R,Nabc,Lg,accy,reached)
+*acc_debug:       if (.not.reached) then
+*acc_debug:         accy_cnt = accy_cnt + 1
+*acc_debug:         accy = accy/5.0d00
+*acc_debug:         write(6,*)' accy reset to ',accy,' count is ',accy_cnt
+*acc_debug:         goto 00001
+*acc_debug:       endif
+
 c Define the initial auxiliary functions (i.e., R000j, j=1,Lg).
        
        do 00300 j = 0,Lg
