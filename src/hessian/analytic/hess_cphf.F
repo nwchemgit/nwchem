@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.10 2000-08-09 21:55:04 windus Exp $
+C $Id: hess_cphf.F,v 1.11 2000-08-10 03:05:54 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -13,6 +13,7 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "nwc_const.fh"
+#include "msgids.fh"
 c
       integer rtdb 
       integer i, ij, jnd
@@ -401,6 +402,10 @@ c
         call hess_pxfy(dbl_mb(k_exy),g_sol,g_wax,log_mb(k_act),ncent,
      $    ind, hf_job)
       enddo
+c
+c Do final summation of the hessian to get result
+c
+      call ga_dgop(msg_hess_exy,dbl_mb(k_exy),n3xyz2,'+') 
 c
 c Get rid of some extra memory
 c
