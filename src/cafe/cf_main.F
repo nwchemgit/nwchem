@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.172 2004-09-13 15:19:40 d3j191 Exp $
+c $Id: cf_main.F,v 1.173 2004-12-17 02:20:49 marat Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -4049,3 +4049,20 @@ c
 c
       return
       end
+       subroutine cf_get_msb(msb)
+         implicit none
+#include "cf_common.fh"
+         integer msb
+         
+         msb=mbt(2)
+
+       end
+       subroutine cf_get_psb(psb)
+         implicit none
+#include "cf_common.fh"
+         integer psb
+         
+         psb=i_ibnd(2)
+
+       end
+
