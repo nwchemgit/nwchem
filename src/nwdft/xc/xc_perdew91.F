@@ -1,7 +1,7 @@
       Subroutine xc_perdew91(tol_rho,fac,
      *     rho,delrho,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.11 1996-05-08 21:12:51 og845 Exp $
+C     $Id: xc_perdew91.F,v 1.12 1996-06-17 16:17:05 og845 Exp $
       Implicit none
 
       double precision TOLL,EXPTOL
@@ -92,9 +92,6 @@ c***************************************************************************
       atwob2=1.d0/twoab2
       grad_corr=.false.
       if(abs(fac-1.d0).gt.1.e-8) grad_corr=.true.
-c       
-c       call to Perdew81 for LDA bit 
-c       
         rsfact=(0.75d0/pi)**ONE3
         if( ipol.eq.1 )then
 
@@ -128,7 +125,9 @@ C
 C
 C         call for LDA bit
 C
+C          call xc_pw91lda(1.d0,rhoval,dp81drho,1,1,egas,1.d0)
           call xc_p81(1.d0,rhoval,dp81drho,1,1,egas,1.d0)
+C          call xc_vwn(1.d0,rhoval,dp81drho,1,1,egas,1.d0,.false.)
 
           degasda=arho*(dp81drho(1) - egas*arho)
           
@@ -264,7 +263,9 @@ C
 C
 C         call for LDA bit
 C
+C          call xc_pw91lda(1.d0,rho(1,n),dp81drho,1,2,egas,1.d0)
           call xc_p81(1.d0,rho(1,n),dp81drho,1,2,egas,1.d0)
+C          call xc_vwn(1.d0,rhoval,dp81drho,1,1,egas,1.d0,.false.)
 
           degasda=arho*(dp81drho(1) - egas*arho)
           degasdb=arho*(dp81drho(2) - egas*arho)

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.31 1996-05-01 23:31:27 og845 Exp $
+# $Id: GNUmakefile,v 1.32 1996-06-17 16:17:04 og845 Exp $
 ifeq ($(TARGET),SGITFP)
 	OBJ = xc_getv.o xc_quadv0.o xc_quadv0_a.o xc_quadv1.o xc_fitv.o xc_get2oi.o qpts.o gat_mat.o	xc_beckew.o setACmat.o xc_neighb.o 
 	OBJ_OPTIMIZE = xc_tabcd.o  xc_rhogen.o\
@@ -7,7 +7,7 @@ ifeq ($(TARGET),SGITFP)
 	eumac.o	\
 	scat_mat.o	 \
 	qpts.o		gausquad.o			   \
-	a_dist.o	qdist.o		 xc_delleyw.o xc_lebedev.o
+	a_dist.o	qdist.o		 xc_delleyw.o xc_lebedev.o xc_vwnrpa.o
 else
       OBJ = xc_getv.o  xc_quadv1.o  qpts.o  xc_quadv0.o xc_quadv0_a.o xc_perdew91.o 
 
@@ -21,7 +21,7 @@ else
 	gausquad.o	xc_lebedev.o		   \
 	qdist.o	\
 	setACmat.o		xc_tabcd.o	\
-	gat_mat.o		   scat_mat.o xc_delleyw.o
+	gat_mat.o		   scat_mat.o xc_delleyw.o xc_vwnrpa.o
 endif
 
      LIBRARY = libnwdft.a
