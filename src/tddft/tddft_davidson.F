@@ -4,7 +4,7 @@
      3  tda,oskel,singlet,triplet,tol2e,kfac,lhashf,thresh,
      4  maxiter,target,algorithm,mult)
 c
-c $Id: tddft_davidson.F,v 1.2 2002-03-22 23:10:49 sohirata Exp $
+c $Id: tddft_davidson.F,v 1.3 2002-03-27 19:56:20 sohirata Exp $
 c
 c Iteratively solve TDDFT matrix eigenvalue problem using 
 c a modified Davidson trial vector subspace diagonalization
@@ -371,7 +371,7 @@ c
             if (nodezero) call tddft_epsilon(n,g_trials,g_prod_p,
      1        ipol,nbf_ao,nocc,nmo,evl)
             if (.not.tda) then
-              call tddft_epsilon(n,g_trials,g_prod_m,
+              if (nodezero) call tddft_epsilon(n,g_trials,g_prod_m,
      1          ipol,nbf_ao,nocc,nmo,evl)
             endif
             if (nodezero.and.util_print('trial vectors',print_high))
