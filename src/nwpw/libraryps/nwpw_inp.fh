@@ -1,0 +1,5 @@
+C $Id: nwpw_inp.fh,v 1.1 2001-11-03 01:12:50 edo Exp $
+      integer lmax_read
+      integer locp_read
+      double precision rlocal_read
+      common /nwpw_read/lmax_read,locp_read,rlocal_read
