@@ -1,0 +1,13 @@
+#!/bin/csh
+
+spsubmit <<EOF
+
+10
+4
+B
+M
+Y
+/sphome/harrison/hpcci/runnwchem
+/sphome/harrison /sphome/harrison/hpcci/examples/scf_h2o.in
+C
+EOF

@@ -1,0 +1,79 @@
+#!/bin/csh
+
+echo "NWChem ANL SP Script"
+echo "--------------------"
+echo "                    "
+echo " Contact nwchem-support@emsl.pnl.gov with problems "
+echo "                    "
+
+#
+# argument 1 = work directory (made if ncessary)
+# argument 2 = full pathname of input file
+
+# e.g.
+#     interactive /tmp /sphome/harrison/test.in 
+#
+
+#
+# Extract arguments
+#
+setenv DIR $argv[1]
+setenv INPUT $argv[2]
+#
+# Path to executable
+#
+setenv NWCHEM /sphome/harrison/hpcci/nwchem
+#
+# Make sure that the work directory exists
+#
+if (! -e $DIR) then
+  mkdir -p $DIR
+  if ($status != 0) then
+    echo Failed to make work directory $DIR
+    exit 1
+  endif
+endif
+cd $DIR
+if ($status != 0) then
+  echo Failed to change to work directory $DIR
+  exit 1
+endif
+#
+# Ensure the input file exists
+#
+if (! -e $INPUT) then
+  echo Input file $INPUT is not accessible
+  exit 1
+endif
+#
+# Partition info
+#
+set ME = `whoami`
+set JID = `/usr/local/bin/getjid`
+set SPNODES = `cat /sphome/$ME/SPnodes.$JID`
+setenv MP_HOSTFILE /sphome/$ME/SPnodes.$JID
+setenv MP_INFOLEVEL 1
+setenv MP_EUILIB us
+setenv MP_PULSE 0
+setenv MP_CSS_INTERRUPT yes
+set NUMNODES = `wc -l $MP_HOSTFILE`
+setenv MP_PROCS $NUMNODES[1]
+#
+# Echo info
+#
+echo "NWChem   =" $NWCHEM
+echo "Work dir =" $DIR
+echo "Input    =" $INPUT
+echo "Job id   =" $JID
+echo "User     =" $ME
+echo "Nproc    =" $MP_PROCS
+echo "Nodes    =" $SPNODES
+echo "Hostfile =" $MP_HOSTFILE
+echo "Date     =" `date`
+echo " "
+#
+# start job run
+#
+echo poe $NWCHEM $INPUT
+     poe $NWCHEM $INPUT
+#
