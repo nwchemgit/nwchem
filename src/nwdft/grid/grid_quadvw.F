@@ -12,7 +12,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadvw.F,v 1.17 2000-07-10 23:00:19 edo Exp $
+c$Id: grid_quadvw.F,v 1.18 2000-07-10 23:03:53 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -104,7 +104,7 @@ c
 c
 c     get partitioning function
 c
-      if(lssw) do_interp = xc_interp(whichssw)
+cedo      if(lssw) do_interp = xc_interp(whichssw)
 
       ntot_cube=0
 c
