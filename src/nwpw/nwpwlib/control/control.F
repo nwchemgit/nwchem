@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.69 2005-02-09 02:38:51 bylaska Exp $
+* $Id: control.F,v 1.70 2005-02-17 22:30:56 bylaska Exp $
 *
 
 *     ***********************************
@@ -985,7 +985,7 @@ c      end if
       integer n,m
       integer f,nn
 
-      nn = n;
+      nn = n
       f = 0
       do while (mod(nn,m).eq.0)
         f = f + 1

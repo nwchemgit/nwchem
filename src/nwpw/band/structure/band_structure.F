@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.10 2005-02-10 00:29:51 bylaska Exp $
+* $Id: band_structure.F,v 1.11 2005-02-17 22:31:51 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -1280,19 +1280,19 @@ c      end do
         e41 = ee(4) - ee(1)
         ds = 3.0d0*e1*e1/(e21*e31*e41)
       else if ((ee(2).le.e).and.(e.lt.ee(3))) then
-        e2 = e-ee(2);
-        e21 = ee(2) - ee(1);
-        e31 = ee(3) - ee(1);
-        e41 = ee(4) - ee(1);
-        e32 = ee(3) - ee(2);
-        e42 = ee(4) - ee(2);
+        e2 = e-ee(2) 
+        e21 = ee(2) - ee(1) 
+        e31 = ee(3) - ee(1) 
+        e41 = ee(4) - ee(1) 
+        e32 = ee(3) - ee(2) 
+        e42 = ee(4) - ee(2) 
         ds = (3.0d0*e21+6.0d0*e2-3.0d0*(e31+e42)*e2*e2/(e32*e42))
      >       /(e31*e41)
       else if ((ee(3).le.e).and.(e.lt.ee(4))) then
-        e4 = ee(4)-e;
-        e41 = ee(4) - ee(1);
-        e42 = ee(4) - ee(2);
-        e43 = ee(4) - ee(3);
+        e4 = ee(4)-e 
+        e41 = ee(4) - ee(1) 
+        e42 = ee(4) - ee(2) 
+        e43 = ee(4) - ee(3) 
         ds = 3.0d0*e4*e4/(e41*e42*e43)
       else
         ds = 0.0d0
@@ -1360,22 +1360,22 @@ c      end do
         e41 = ee(4) - ee(1)
         ds = e1*e1*e1/(e21*e31*e41)
       else if ((ee(2).le.e).and.(e.lt.ee(3))) then
-        e2 = e-ee(2);
-        e21 = ee(2) - ee(1);
-        e31 = ee(3) - ee(1);
-        e41 = ee(4) - ee(1);
-        e32 = ee(3) - ee(2);
-        e42 = ee(4) - ee(2);
+        e2 = e-ee(2) 
+        e21 = ee(2) - ee(1) 
+        e31 = ee(3) - ee(1) 
+        e41 = ee(4) - ee(1) 
+        e32 = ee(3) - ee(2) 
+        e42 = ee(4) - ee(2) 
         ds = (e21*e21 
      >        + 3.0d0*e21*e2
      >        + 3.0d0*e2*e2
      >        - (e31+e42)*e2*e2*e2/(e32*e42))
      >       /(e31*e41)
       else if ((ee(3).le.e).and.(e.lt.ee(4))) then
-        e4 = ee(4)-e;
-        e41 = ee(4) - ee(1);
-        e42 = ee(4) - ee(2);
-        e43 = ee(4) - ee(3);
+        e4 = ee(4)-e 
+        e41 = ee(4) - ee(1) 
+        e42 = ee(4) - ee(2) 
+        e43 = ee(4) - ee(3) 
         ds = 1.0d0 - e4*e4*e4/(e41*e42*e43)
       else if (e.ge.ee(4)) then
         ds = 1.0d0
