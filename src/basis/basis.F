@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.42 1996-07-26 16:21:31 d3g681 Exp $
+c $Id: basis.F,v 1.43 1996-08-06 05:26:43 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -587,6 +587,7 @@ c:: local
       character*3 ctype(0:6),cltype(2)
       character*3 shell_type
       character*35 buffer  ! Room for tag+space+(+element+) = 16+1+1+16+1
+      character*12 polynomial
 c
 #include "bas_exndcf.fh"
 c
@@ -607,12 +608,15 @@ c
 c
 c print basis set information
 c      
+      if (bas_spherical(basis)) then
+         polynomial = ' (spherical)'
+      else
+         polynomial = ' (cartesian)'
+      endif
       write(6,1)bs_name(basis)(1:inp_strlen(bs_name(basis))), 
-     $     bs_trans(basis)(1:inp_strlen(bs_trans(basis)))
- 1    format('                      Basis "',a,'" -> "',a,'"'/
+     $     bs_trans(basis)(1:inp_strlen(bs_trans(basis))), polynomial
+ 1    format('                      Basis "',a,'" -> "',a,'"',a/
      $       '                      -----')
-      if (bas_spherical(basis)) write(6,2)
-2     format('         Basis is spherical, 5d, 7f, 9g ... ')
       mytags  = infbs_head(HEAD_NTAGS,basis)
       if (mytags.le.0) then
         write(6,*)' Empty basis set '
