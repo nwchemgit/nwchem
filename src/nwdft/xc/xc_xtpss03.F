@@ -1,0 +1,358 @@
+c    Tao,Perdew, Staroverov, Scuseria exchange functional 
+c           META GGA
+C         utilizes ingredients:
+c                              rho   -  density
+c                              delrho - gradient of density
+c                              tau - K.S kinetic energy density
+c                              tauW - von Weiszacker kinetic energy density
+c                              tauU - uniform-gas KE density
+c     References:
+c     [a] J. Tao, J.P. Perdew, V.N.Staroverov, G. Scuseria
+c         PRL 91, 146401 (2003).
+
+
+      Subroutine xc_xtpss03(tol_rho, fac, lfac, nlfac, rho, delrho, 
+     &                     Amat, Cmat, nq, ipol, Ex, 
+     &                     qwght, ldew, func, tau,Mmat)
+
+
+c   
+c$Id: xc_xtpss03.F,v 1.1 2003-12-18 21:53:35 pollack Exp $
+c
+      implicit none
+c
+c      
+      double precision fac, Ex
+      integer nq, ipol
+      logical lfac, nlfac,ldew
+      double precision func(*)  ! value of the functional [output]
+c
+c     Charge Density & Its Cube Root
+c
+      double precision rho(nq,ipol*(ipol+1)/2)
+c
+c     Charge Density Gradient
+c
+      double precision delrho(nq,3,ipol)
+c
+c     Quadrature Weights
+c
+      double precision qwght(nq)
+c
+c     Sampling Matrices for the XC Potential & Energy
+c
+      double precision Amat(nq,ipol), Cmat(nq,*)
+ 
+
+      double precision tol_rho, pi
+
+c
+      integer n
+      double precision rrho, rho43, rho13, gamma
+c
+c     kinetic energy density   or  tau
+c
+      double precision tau(nq,3,ipol), Mmat(nq,*)
+
+      double precision tauN, tauW, tauU
+
+       double precision  p, qtil, x,  al, mt, z
+       double precision   rho53, rho83
+       double precision   F83, F23, F53, F43, F13
+       double precision   G920 
+       double precision  b,c,e,es
+       double precision    C1, C2, C3
+       double precision    kap, mu
+       double precision xa, xb,xc,xd
+       double precision x1,x2,x3,x4,x5,x6,x7
+
+c       double precision    CX1, CX2, CX3, CX4
+c       double precision   bigD, uk, ruk
+
+
+       double precision   P32, Ax
+
+c      functional derivatives below
+d          double precision   d1p(3), d1x(3)
+d          double precision   rg2, d1mt(3)
+c          double precision   d1qtil(3), T1
+c      functional derivatives above
+
+
+       parameter( pi = 3.1415926535897932384626433832795d0 )
+
+        parameter(kap=0.8040d0, mu=0.21951d0)
+        parameter (F43=4.d0/3.d0, F13=1.d0/3.d0)
+        parameter (F83=8.d0/3.d0, F23=2.d0/3.d0, F53=5.d0/3.d0)
+        parameter (G920  =9.d0/20.d0 )
+
+       parameter(b=0.40d0, c=1.59096d0, e=1.537d0)
+        parameter (C1  =  10.d0/81.d0, 
+     &             C2  = 146.d0/2025.d0,
+     &             C3  = -73.d0/405.d0 )
+
+ 
+
+         
+c
+      Ax = (-0.75d0)*(3d0/pi)**F13
+      P32 = (3.d0*pi**2)**F23
+      es=dsqrt(e)
+
+
+c
+      if (ipol.eq.1 )then
+c
+c        ======> SPIN-RESTRICTED <======
+c                     or
+c                SPIN-UNPOLARIZED
+c
+c
+
+         do 10 n = 1, nq
+            if (rho(n,1).lt.tol_rho) goto 10
+
+c  rho43= n*e_x^unif=exchange energy per electron for uniform electron gas
+c       = n* Ax*n^(1/3)   or n*C*n^(1/3) 
+
+            rho43 = Ax*rho(n,1)**F43  ! Ax*n^4/3
+            rrho = 1d0/rho(n,1)       ! reciprocal of rho
+            rho13 = F43*rho43*rrho   !functional deriv of rho43
+
+            rho53 = rho(n,1)**F53
+            rho83 = rho(n,1)**F83
+
+
+C  Below we just sum up the LDA contribution to the functional
+c            if (lfac) then
+               Ex = Ex + rho43*qwght(n)*fac
+c                Amat(n,1) = Amat(n,1) + rho13*fac
+c            endif
+c
+            gamma = delrho(n,1,1)*delrho(n,1,1) +
+     &              delrho(n,2,1)*delrho(n,2,1) +
+     &              delrho(n,3,1)*delrho(n,3,1)
+c            gam12 = dsqrt(gamma)
+
+
+            tauN = tau(n,1,1) + 
+     &             tau(n,2,1) + 
+     &             tau(n,3,1)
+
+            tauW=0.125d0*gamma*rrho
+
+            tauU=0.3d0*P32*rho53 
+c
+c     Evaluate the Fx, i.e. mt(x) = Fx - 1
+c           
+            p=gamma/(rho83*P32*4.d0)
+            al=(tauN-tauW)/tauU
+            al=dabs(al)
+            qtil=(G920*(al-1.d0)/((1.d0+b*al*(al-1.d0))**.5d0))
+     &      + F23*p
+            z=tauW/tauN
+            
+c          xa= (C1)
+           xb=(c*z**2)/( (1+z**2)**2 )
+           x1=(C1 + xb)*p
+           x2=C2*qtil*qtil
+           xc=C3*qtil
+c          note below we left off the p**2 term
+           xd=(0.5d0*(.6d0*z)**2  + .5d0*p*p)**.5d0
+           x3=xc*xd
+           x4=C1*C1*p*p/kap
+           x5=2.d0*es*C1*(.6d0*z)**2
+           x6= e*mu*p*p*p
+           x7 = (1.d0+es*p)**2
+
+           x=(x1+x2+x3 +x4 +x5+x6)/x7
+
+c            if (.not.(nlfac.and.x.gt.tol_rho)) goto 10
+
+            mt = kap - kap/(1.d0 + x/kap)
+            
+            Ex = Ex + mt*rho43*qwght(n)*fac
+
+
+ 10      continue
+
+
+
+
+
+
+
+c UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUnrestricted
+      else  ! ipol=2
+c
+c        ======> SPIN-UNRESTRICTED <======
+
+c
+c  use spin density functional theory ie n-->2n
+c                               Ex=(1/2)Ex[2*alpha] + (1/2)Ex[2*beta]
+
+
+         do 20 n = 1, nq
+             if (rho(n,1).lt.tol_rho) goto 20
+c
+c     Alpha            ALPHA               ALPHA
+c
+            if (rho(n,2).lt.tol_rho) goto 25
+            rho43 = Ax*(2d0*rho(n,2))**F43 ! spin scaled
+            rrho = 0.5d0/rho(n,2)          ! spin scaled
+            rho13 = F43*rho43*rrho  !spin scaled & (1/2)factor
+            rho53 = (2.d0*rho(n,2))**F53   ! spin scaled
+            rho83 = (2.d0*rho(n,2))**F83   ! spin scaled
+c  note all the "rho"  quantities ARE spin scaled, for later use
+
+c            if (lfac) then
+               Ex = Ex + rho43*qwght(n)*fac*0.5d0
+c                Amat(n,1) = Amat(n,1) + rho13*fac
+c            endif
+
+            gamma = delrho(n,1,1)*delrho(n,1,1) +
+     &              delrho(n,2,1)*delrho(n,2,1) +
+     &              delrho(n,3,1)*delrho(n,3,1)
+c NOTE  gamma above  is not spin scaled.  that is why
+c                           -there is 4.d0*gamma in p
+c                           -there is 2.0 in the gam12 term
+
+c            gam12 = 2d0*dsqrt(gamma)
+c            if (.not.(nlfac.and.gam12.gt.tol_rho)) goto 25
+
+
+c   below note factor of two for spin scaling
+            tauN = 2.d0*( tau(n,1,1) + 
+     &                    tau(n,2,1) + 
+     &                    tau(n,3,1)   )
+            
+            tauW=0.125*(4.d0*gamma)*rrho
+c            tauW=(4.d0*gamma)/(8.d0*2.d0*rho(n,2))
+c                      this 2.0 above for spin scaling
+
+            tauU=0.3d0*P32*rho53 ! rho53 spin scaled already
+c
+c     Evaluate the GC part of Fx, i.e. mt(x) = Fx - 1
+c           
+            p=(4.d0*gamma)/(rho83*P32*4.d0)
+            al=(tauN-tauW)/tauU
+            al=dabs(al)
+            qtil=(G920*(al-1.d0)/((1.d0+b*al*(al-1.d0))**.5d0))
+     &      + F23*p
+            z=tauW/tauN
+            
+c           xa= (C1)
+           xb=(c*z**2)/( (1+z**2)**2 )
+           x1=(C1+xb)*p
+           x2=C2*qtil*qtil
+           xc=C3*qtil
+           xd=dsqrt(0.5d0*(.6d0*z)**2  + .5d0*p*p)
+           x3=xc*xd
+           x4=C1*C1*p**2/kap
+           x5=2.d0*es*C1*(.6d0*z)**2
+           x6= e*mu*p*p*p
+           x7 = (1.d0+es*p)**2
+
+           x=(x1+x2+x3 +x4 +x5+x6)/x7
+
+c            if (.not.(nlfac.and.x.gt.tol_rho)) goto 25
+
+            mt = kap - kap/(1.d0 + x/kap)
+            
+            Ex = Ex + mt*rho43*qwght(n)*0.5d0*fac
+
+
+          
+c
+c     Beta               BETA           BETA
+c
+
+25         continue
+
+c
+c     Beta
+c
+            if (rho(n,3).lt.tol_rho) goto 20
+            rho43 = Ax*(2d0*rho(n,3))**F43 ! spin scaled
+            rrho = 0.5d0/rho(n,3)          ! spin scaled
+            rho13 = F43*rho43*rrho  !spin scaled & (1/2)factor
+            rho53 = (2.d0*rho(n,3))**F53   ! spin scaled
+            rho83 = (2.d0*rho(n,3))**F83   ! spin scaled
+c  note all the "rho"  quantities ARE spin scaled, for later use
+
+c            if (lfac) then
+               Ex = Ex + rho43*qwght(n)*fac*0.5d0
+c                Amat(n,1) = Amat(n,1) + rho13*fac
+c            endif
+
+            gamma = delrho(n,1,2)*delrho(n,1,2) +
+     &              delrho(n,2,2)*delrho(n,2,2) +
+     &              delrho(n,3,2)*delrho(n,3,2)
+c NOTE  gamma above  is not spin scaled.  that is why
+c                           -there is 4.d0*gamma in p
+c                           -there is 2.0 in the gam12 term
+
+c            gam12 = 2d0*dsqrt(gamma)
+c            if (.not.(nlfac.and.gam12.gt.tol_rho)) goto 20
+
+
+c   below note factor of two for spin scaling
+            tauN = 2.d0*( tau(n,1,2) + 
+     &                    tau(n,2,2) + 
+     &                    tau(n,3,2)   )
+            
+
+            tauW=(4.d0*gamma)*rrho/8.d0
+c            tauW=(4.d0*gamma)/(8.d0*2.d0*rho(n,3))
+c                      this 2.0 above for spin scaling
+c             but rrho is alread spin scaled
+
+            tauU=0.3d0*P32*rho53 ! rho53 spin scaled already
+c
+c           
+c           4gamma for spin scaling below
+            p=(4.d0*gamma)/(rho83*P32*4.d0)
+            al=(tauN-tauW)/tauU
+            al=dabs(al)
+            qtil=(G920*(al-1.d0)/((1.d0+b*al*(al-1.d0))**.5d0))
+     &      + F23*p
+            z=tauW/tauN
+            
+c           xa= (C1)
+           xb=(c*z**2)/( (1+z**2)**2 )
+           x1=(C1+xb)*p
+           x2=C2*qtil*qtil
+           xc=C3*qtil
+c          note below we left off the p**2 term
+           xd=dsqrt(0.5d0*(.6d0*z)**2  + .5d0*p*p)
+           x3=xc*xd
+           x4=C1*C1*p**2/kap
+           x5=2.d0*es*C1*(.6d0*z)**2
+           x6= e*mu*p*p*p
+           x7 = (1.d0+es*p)**2
+
+           x=(x1+x2+x3 +x4 +x5+x6)/x7
+
+c            if (.not.(nlfac.and.x.gt.tol_rho)) goto 25
+
+            mt = kap - kap/(1.d0 + x/kap)
+            
+            Ex = Ex + mt*rho43*qwght(n)*0.5d0*fac
+
+
+c
+20      continue
+      endif
+c
+      return
+      end
+
+
+
+
+      Subroutine xc_xtpss03_d2()
+      call errquit(' not coded ',0,0)
+      return
+      end
+
+
