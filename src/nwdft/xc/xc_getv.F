@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.22 1999-05-10 22:42:33 edo Exp $
+C$Id: xc_getv.F,v 1.23 1999-06-01 21:58:46 edo Exp $
 c
       implicit none
 c      
@@ -182,7 +182,7 @@ c
       endif
 c
       tot=-xfac(1)
-      do i=1,10
+      do i=1,15
         tot=tot+xfac(i)+cfac(i)
       enddo
 c
