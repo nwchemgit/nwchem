@@ -1,7 +1,7 @@
       subroutine int_l2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       zerotol, canonicalize, leri, eri, nint, ilab, jlab, klab,
      &       llab, lscr, scr)
-c $Id: int_l2e4c.F,v 1.8 1994-09-22 13:34:12 d3e129 Exp $
+c $Id: int_l2e4c.F,v 1.9 1995-05-09 18:00:58 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -25,6 +25,7 @@ c::local
       integer ijsh, klsh
       integer isym2
       integer i,j,k,l,bra,ket,icount,ij,kl
+      integer numint, newlscr
 c
 c:statement function
 c
@@ -61,15 +62,25 @@ c
         call errquit('int_l2e4c: shells not in canonical order',0)
       endif
 c
-c copy eri's to scr
-      call dcopy(leri,eri,1,scr,1)
-c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
+c
+*c copy eri's to scr
+*      call dcopy(leri,eri,1,scr,1)
+*
+c compute eri's (instead of copy) in front of scr()
+c
+      numint =         ibs_cn2bfr(2,ish,bra)-ibs_cn2bfr(1,ish,bra)+1
+      numint = numint*(ibs_cn2bfr(2,jsh,bra)-ibs_cn2bfr(1,jsh,bra)+1)
+      numint = numint*(ibs_cn2bfr(2,ksh,ket)-ibs_cn2bfr(1,ksh,ket)+1)
+      numint = numint*(ibs_cn2bfr(2,lsh,ket)-ibs_cn2bfr(1,lsh,ket)+1)
+      newlscr = lscr - numint
+      call int_2e4c(brain,ish,jsh,ketin,ksh,lsh,
+     &    newlscr,scr(numint+1),numint,scr)
+c
       braket = bra .eq. ket
       allshl = isym2(ish,jsh) .eq. isym2(ksh,lsh)
       ignore_ij_kl = (.not.braket) .or. (.not.allshl)
-
 c
       nint = 0
       icount = 0

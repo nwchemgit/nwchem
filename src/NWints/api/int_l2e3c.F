@@ -1,7 +1,7 @@
       subroutine int_l2e3c(brain, ish, ketin, jsh, ksh,
      &       zerotol, canket, leri, eri, nint, ilab, jlab, klab,
      &       lscr, scr)
-c $Id: int_l2e3c.F,v 1.5 1994-09-22 13:34:11 d3e129 Exp $
+c $Id: int_l2e3c.F,v 1.6 1995-05-09 18:00:57 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -23,6 +23,7 @@ c::passed
 c::local
       logical shells_ok
       integer i,j,k,bra,ket,icount
+      integer numint, newlscr
 c
 c check shells 
 c
@@ -45,11 +46,21 @@ c
         call errquit('int_l2e3c: shells not in canonical order',0)
       endif
 c
-c copy eri's to scr
-      call dcopy(leri,eri,1,scr,1)
-c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
+c
+c
+c copy eri's to scr
+*      call dcopy(leri,eri,1,scr,1)
+*
+c compute eri's (instead of copy) in front of scr()
+c
+      numint =         ibs_cn2bfr(2,ish,bra)-ibs_cn2bfr(1,ish,bra)+1
+      numint = numint*(ibs_cn2bfr(2,jsh,ket)-ibs_cn2bfr(1,jsh,ket)+1)
+      numint = numint*(ibs_cn2bfr(2,ksh,ket)-ibs_cn2bfr(1,ksh,ket)+1)
+      newlscr = lscr - numint
+      call int_2e3c(brain,ish,ketin,jsh,ksh,
+     &    newlscr,scr(numint+1),numint,scr)
 c
       nint = 0
       icount = 0

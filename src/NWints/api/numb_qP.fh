@@ -1,0 +1,4 @@
+c
+      integer num_q_start, num_q_last
+      common /c_intb/ num_q_start, num_q_last
+c

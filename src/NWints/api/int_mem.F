@@ -1,5 +1,5 @@
       subroutine int_mem(max1e, maxg, mscratch_1e, mscratch_2e)
-c $Id: int_mem.F,v 1.4 1994-04-09 15:46:33 d3e129 Exp $
+c $Id: int_mem.F,v 1.5 1995-05-09 18:00:59 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 c::functions
@@ -112,4 +112,30 @@ c
       else
         call errquit('int_mem_3ov: int_init was not called' ,0)
       endif
+      end
+      subroutine int_mem_print()
+      implicit none
+#include "stdio.fh"
+#include "apiP.fh"
+c
+      write(luout,*)' memory parameters for integral api:'
+      write(luout,10000)
+c
+      if (init_int.eq.1)
+     &    write(luout,*)' int_init was called '
+      if (init_intd.eq.1)
+     &    write(luout,*)' intd_init was called '
+
+      write(luout,*)' mem_2e4c : ',mem_2e4c
+      write(luout,*)' mem_1e   : ',mem_1e
+      write(luout,*)' isz_2e4c : ',isz_2e4c
+      write(luout,*)' isz_1e   : ',isz_1e
+      write(luout,*)' mem_1e_h1: ',mem_1e_h1
+      write(luout,*)' isz_2e3c : ',isz_2e3c
+      write(luout,*)' isz_2e2c : ',isz_2e2c
+      write(luout,*)' mem_2e3c : ',mem_2e3c
+      write(luout,*)' mem_2e2c : ',mem_2e2c
+      write(luout,*)' isz_3ov  : ',isz_3ov
+      write(luout,*)' mem_3ov  : ',mem_3ov
+10000 format(//)
       end

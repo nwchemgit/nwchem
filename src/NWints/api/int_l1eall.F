@@ -1,6 +1,6 @@
       subroutine int_l1eall(i_basis, ish, j_basis, jsh, zerotol,
      &       ilab, jlab, lstv, S, T, V, lscr, scr, numstv) 
-c $Id: int_l1eall.F,v 1.7 1994-09-22 13:34:08 d3e129 Exp $
+c $Id: int_l1eall.F,v 1.8 1995-05-09 18:00:49 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -19,6 +19,7 @@ c::local
       integer ibas, jbas, iscrS, iscrT, iscrV, icount, i, j
       logical ijbas, shells_ok
       logical nonzero
+      integer numint, newlscr
 c
 c check shells
 c
@@ -47,12 +48,23 @@ c
       ibas  = i_basis + BASIS_HANDLE_OFFSET
       jbas  = j_basis + BASIS_HANDLE_OFFSET
 c
+c copy integrals to scratch
+*      iscrS = 1
+*      call dcopy(lstv,S,1,scr(iscrS),1)
+*      iscrT = iscrS + lstv
+*      call dcopy(lstv,T,1,scr(iscrT),1)
+*      iscrV = iscrT + lstv
+*      call dcopy(lstv,V,1,scr(iscrV),1)
+c
+      numint =         ibs_cn2bfr(2,ish,ibas)-ibs_cn2bfr(1,ish,ibas)+1
+      numint = numint*(ibs_cn2bfr(2,jsh,jbas)-ibs_cn2bfr(1,jsh,jbas)+1)
       iscrS = 1
-      call dcopy(lstv,S,1,scr(iscrS),1)
-      iscrT = iscrS + lstv
-      call dcopy(lstv,T,1,scr(iscrT),1)
-      iscrV = iscrT + lstv
-      call dcopy(lstv,V,1,scr(iscrV),1)
+      iscrT = iscrS + numint
+      iscrV = iscrT + numint
+      newlscr = lscr - 3*numint
+      call int_1eall(i_basis,ish,j_basis,jsh,
+     &    newlscr,scr(3*numint+1),
+     &    scr(iscrS),scr(iscrT),scr(iscrV))
 c
       numstv = 0
       icount = 0
