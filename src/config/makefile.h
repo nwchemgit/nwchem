@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.354 2001-04-13 22:25:25 edo Exp $
+# $Id: makefile.h,v 1.355 2001-04-16 00:11:47 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -913,7 +913,7 @@ ifeq ($(TARGET),IBM64)
   FVECTORIZE = -O5 -qhot -qfloat=rsqrt:fltint:hssngl -NQ40000 -NT80000  -qarch=auto -qtune=auto 
    COPTIMIZE = -O -qmaxmem=8192
 
-    DEFINES = -DIBM -DAIX -DEXTNAME -DEXT_INT -DIBM64
+    DEFINES = -DIBM -DAIX -DEXTNAME -DEXT_INT 
        LIBPATH += -L/usr/lib -L/lib 
 
        CORE_LIBS += -llapack $(BLASOPT) -lblas
@@ -941,7 +941,7 @@ ifeq ($(NWCHEM_TARGET_CPU),604)
   LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map
    LINK.f   = mpxlf_r   $(LDFLAGS)
 else
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x40000000 -bloadmap:nwchem.lapi_map
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map
    LINK.f   = mpcc_r   $(LDFLAGS)
 endif
    FOPTIONS = -qEXTNAME -qnosave -qalign=4k 
@@ -1039,18 +1039,18 @@ ifeq ($(TARGET),LAPI64)
      MPILIB = 
 LARGE_FILES = YES
 
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -g -bmaxdata:0x40000000 -bloadmap:nwchem.lapi64_map
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi64_map
    LINK.f   = mpcc_r   $(LDFLAGS)
 
-   FOPTIONS = -qEXTNAME -qnosave -q64 #-qalign=4k 
+   FOPTIONS = -qEXTNAME -qnosave -q64 -qintsize=8 -qalign=4k 
        AR   = ar -X 64
    COPTIONS = -q64
   FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
   FOPTIMIZE += -qarch=auto -qtune=auto
   COPTIMIZE = -O
 
-    DEFINES = -DEXT_INT -DLAPI64  -DIBM64 -DEXTNAME -DLAPI -DSP1 -DAIX -DEXTNAME -DPARALLEL_DIAG
- CORE_LIBS += -lessl_r # need 64-bit essl
+    DEFINES = -DEXT_INT -DLAPI64 -DEXTNAME -DLAPI -DSP1 -DAIX -DPARALLEL_DIAG
+# CORE_LIBS += -lessl_r # need 64-bit essl
 
 CORE_LIBS +=  -llapack -lblas
 
