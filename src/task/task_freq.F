@@ -75,7 +75,7 @@ c
 
       if (.not.numerical.and.theory.eq.'scf') then
        if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
-     $     call errquit('scf:scftype not defined',0)
+     $     call errquit('task_freq:scftype not defined',0)
        call inp_ucase(scftype)
       endif
 c
@@ -100,6 +100,7 @@ c
 * overide numerical since task gradient knows what to do for theory
         if (numerical) then
           if (.not. rtdb_put(rtdb,'task:numerical',mt_log,1,.false.))
+     &     call errquit('task_freq:numerical store failed',0)
         endif
 
 
@@ -120,6 +121,7 @@ c
 * reset numerical since task may not be the only task
         if (numerical) then
           if (.not. rtdb_put(rtdb,'task:numerical',mt_log,1,numerical))
+     &     call errquit('task_freq:numerical store failed',0)
         endif
       endif
 c     

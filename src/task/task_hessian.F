@@ -31,7 +31,7 @@ c
 c
       logical status
       double precision cpu, wall
-      character*80 theory, key, prefix
+      character*80 theory, prefix
 
 c
       task_hessian = .false.
