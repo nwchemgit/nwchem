@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.31 2004-05-05 19:33:50 bylaska Exp $
+* $Id: D3dB-new.F,v 1.32 2004-05-16 18:17:51 edo Exp $
 *
 
 *     ***********************************************************
@@ -5137,7 +5137,7 @@ c      end
 *     *          D3dB_ic_Mul            *
 *     *                                 *
 *     ***********************************
-
+cpgi$r opt=1
       subroutine D3dB_ic_Mul(nb,A,B,C)
       implicit none
       integer    nb
