@@ -1,6 +1,6 @@
       subroutine uccsdt_fterm(urange,vrange,lists)
 c
-c$Id: fterm.F,v 1.3 2002-09-25 21:54:34 bert Exp $
+c$Id: fterm.F,v 1.4 2002-10-05 01:22:26 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -13,13 +13,12 @@ c
       integer symv,symn,symf,symm,syme,symu
       integer symiu,symmu,symnf,symnv,symme
       integer k_vulist,l_vulist
-      integer k_uhole,l_uhole
-      integer k_vhole,l_vhole
-      integer k_fhole,l_fhole
+      integer k_upart,l_upart
+      integer k_vpart,l_vpart
+      integer k_fpart,l_fpart
       integer k_eflist,l_eflist
       integer m_address,n_address, offset_me,offset_n,offset_nf
       integer dimu,dimv,dimf,dimn,dimm,dime,dimme,dimnf
-      integer leniu_a,leniu_b,lennv_a,lennv_b,iu_len
       integer g_r_array,g_r
       integer dim_mx,list_nr,lists(0:7,14),mnpairs,mn
 C
@@ -56,22 +55,18 @@ C
                      symm = ieor (symme, syme)
                      dime = nv_sym(syme,espin)
                      dimf = nv_sym(symf,fspin)
-                     dimm = nv_sym(symm,mspin)
-                     dimn = nv_sym(symn,nspin)
-                     lennv_a = iso_len(symnv,0)
-                     lennv_b = iso_len(symnv,1)
-                     leniu_a = iu_len(symiu,0)
-                     leniu_b = iu_len(symiu,1)
+                     dimm = no_sym(symm,mspin)
+                     dimn = no_sym(symn,nspin)
                      ulo = urange(1,symu)
                      uhi = urange(2,symu)
                      vlo = vrange(1,symv)
                      vhi = vrange(2,symv)
                      dimv = vhi - vlo + 1
                      dimu = uhi - ulo + 1
-                     mnpairs = no_sym(symm,mspin)*no_sym(symn,nspin)
-                     do mn = 1, mnpairs, ga_nodeid()+1 
-                        m = (mnpairs / (no_sym(symn,nspin)+1)) + 1
-                        n = mnpairs - (no_sym(symm,mspin) * (m-1))
+                     mnpairs = dimm*dimn
+                     do mn = ga_nodeid()+1, mnpairs, ga_nnodes() 
+                        m = (mnpairs / (dimn+1)) + 1
+                        n = mnpairs - (dimm * (m-1))
                         if (.not. ma_push_get(mt_dbl,dimv*dimu,
      &                      'vu list',l_vulist,k_vulist)) call
      &                      errquit('fterm: vu list alloc failed',0)
@@ -79,40 +74,40 @@ C
                         if (.not. ma_push_get(mt_dbl,dim_mx*dim_mx,
      &                      'ef list',l_eflist, k_eflist)) call
      &                      errquit('fterm: ef list alloc failed',0)
-                        n_address = 1+n-v_sym(1,symn,nspin)
+                        n_address = o_sym(1,symn,nspin)+n-1
      &                              +oso_off(v,symnv,nspin)
-                        m_address = 1+m-v_sym(1,symm,mspin)
+                        m_address = o_sym(1,symm,mspin)+m-1
      &                              +oso_off(u,symmu,mspin)
                         call ga_get_strided(lists(symmu,list_nr),
      &                             n_address,dimv,dimn,
      &                             m_address,dimu,dimm,
      &                             dbl_mb(k_vulist))
                         if (.not. ma_push_get(mt_dbl,dimu*dime,
-     &                      'c hole ue',l_uhole,k_uhole)) call
-     &                      errquit('fterm: ue hole alloc failed',0)
+     &                      'c particle ue',l_upart,k_upart)) call
+     &                      errquit('fterm: ue part alloc failed',0)
                         if (.not. ma_push_get(mt_dbl,dimv*dimf,
-     &                      'c hole vf',l_vhole,k_vhole)) call
-     &                      errquit('fterm: vf hole alloc failed',0)
-                        call ga_get(g_hole(espin),ulo,uhi,
+     &                      'c particle vf',l_vpart,k_vpart)) call
+     &                      errquit('fterm: vf part alloc failed',0)
+                        call ga_get(g_part(espin),ulo,uhi,
      &                             v_sym(1,syme,espin),
      &                             v_sym(2,syme,espin),
-     &                             dbl_mb(k_uhole),dimu)  
-                        call ga_get(g_hole(fspin),vlo,vhi,
+     &                             dbl_mb(k_upart),dimu)  
+                        call ga_get(g_part(fspin),vlo,vhi,
      &                             v_sym(1,symf,fspin),
      &                             v_sym(2,symf,fspin),
-     &                             dbl_mb(k_vhole),dimv)  
+     &                             dbl_mb(k_vpart),dimv)  
                         call dgemm('n','n',dimv,dime,dimu,1.0d0,
      &                             dbl_mb(k_vulist),dimv,
-     &                             dbl_mb(k_uhole),dimu,1.0d0,
+     &                             dbl_mb(k_upart),dimu,1.0d0,
      &                             dbl_mb(k_eflist),dimv)
                         call dgemm('t','n',dime,dimf,dimv,1.0d0,
      &                             dbl_mb(k_eflist),dimv,
-     &                             dbl_mb(k_vhole),dimv,1.0d0,
+     &                             dbl_mb(k_vpart),dimv,1.0d0,
      &                             dbl_mb(k_eflist),dime)
-                        if (.not. ma_pop_stack(l_vhole)) call 
-     &                      errquit('fterm: vf hole dealloc failed',0)
-                        if (.not. ma_pop_stack(l_uhole)) call 
-     &                      errquit('fterm: ue hole dealloc failed',0)
+                        if (.not. ma_pop_stack(l_vpart)) call 
+     &                      errquit('fterm: vf part dealloc failed',0)
+                        if (.not. ma_pop_stack(l_upart)) call 
+     &                      errquit('fterm: ue part dealloc failed',0)
                         call ga_put_strided(g_r_array,
      &                             m_address,dime,dimm,
      &                             n_address,dimf,dimn,

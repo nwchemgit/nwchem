@@ -1,6 +1,6 @@
       subroutine uccsdt_cterm(urange,vrange,qO_handles,qV_handles)
 c
-c$Id: cterm.F,v 1.5 2002-09-25 21:54:34 bert Exp $
+c$Id: cterm.F,v 1.6 2002-10-05 01:22:26 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -127,202 +127,214 @@ c     now generate tiumepure and tiumemix and combine with Z-terms into r-term
 c     deallocate t-terms
 c 
          dimnf = ov_len(symnf,1,1)
-         dimiu_a = iu_len(symiu,0)
-         dimiu_b = iu_len(symiu,1)
-         dimjv_a = iso_len(symjv,0)
-         dimjv_b = iso_len(symjv,1)
+         dimiu_a = iu_len(symiu,1)
+         dimiu_b = iu_len(symiu,2)
+         dimjv_a = iso_len(symjv,1)
+         dimjv_b = iso_len(symjv,2)
 c        allocate TJBNFmix
-c        if (.not. ga_create(MT_DBL,dimjv_b,dimnf,'Tjvnf mix',0,0,
-c    &       g_t2_jbnf_mix) call errquit()
 c        get T(jb,nf,symnf) or T(jv,nf,symnf) j=b=beta n=f=alpha
-c        subroutine get_T(symcd,spina,spinb,spinc,spind) does get and transforms one index back to SO basis
-         call get_T(g_t2_jbnf_mix,symnf,1,1,0,0,urange)
+         call get_T(g_t2_jbnf_mix,symnf,2,2,1,1,urange)
 c
-c     Here b could be v and T(jv,nf)
 c     Z2(iu,nf) = <ij|ub>*T(jb,nf) i=u=alpha j=b=beta (integral list 2)
 c     Z2(iu,nf) = I(jv,iu)^t * T(jv,nf)
 c     Q2 from Z2
 c     <if||un> += Z2 i=u=f=n=alpha (integral list 9 modified) = I(nf,iu)
 c
-         if (.not. ga_create(MT_DBL,dimiu_a,dimnf,'z2',0,0,g_z2) 
-     &      call errquit()
-         call ga_dgemm('t','n',dimiu_a,dimnf,dimjv_b,1.0d0,
-     &                 list(symiu,2),g_t2_jbnf_mix,1.0d0,g_z2)
-c        do sum_i C_hole(ua) Z2(iu,if) and store in q_2_O(a,f) -> qO_handles(2)
-c           do sum over i first to get u,f and then do dgemm with c_hole
-c        do sum_u C_hole(ua) Z2(iu,ma) and store in q_2_V(i,m) -> qV_handles(2)
-c           need to do dgemm with c_hole first and then do sum
-c            do both of them local on a node with get's puts and local sums
-         call make_qO(qO_handles(0,2),g_z2,symnf,0,0)
-         call make_qV(qV_handles(0,2),g_z2,symnf,0,0)
-c        add Z2 to integral list 9, But list 9 is (nv,iu) !!!!!
-c        transform v index in list 9 and transpose matrix
-c        add Z2 to new transformed and transposed list 9
-         call ga_add(1.0d0,g_z2,1.0,list(symiu,9),list(symiu,9)) 
-c        no, transform v index in list(symiu,9) and add to Z2,
-c        delete list 9 and use Z2 in aaC1 and abC4
-         if (.not. ga_destroy(list(symiu,9))) call errquit()
+         if (.not. ga_create(MT_DBL,dimnf,dimiu_a,'z2',0,0,g_z2) 
+     &      call errquit('cterm: alloc z2 failed',0)
+         call ga_dgemm('t','n',dimnf,dimiu_a,dimjv_b,1.0d0,
+     &                 g_t2_jbnf_mix,list(symiu,2),0.0d0,g_z2)
+         call make_qO(qO_handles(0,2),g_z2,symnf,1,1)
+         call make_qV(qV_handles(0,2),g_z2,symnf,1,1)
+         call oso_moindx2_add(g_z2,list(symnf,9),symnf,1,1,1,1)
 c
-c     Here b could be v and T(jv,nf)
 c     Z3(iu,nf) = <ij||ub> * T(jb,nf)  i=u=j=b=beta  (integral list 4)
-c     R(me,nf)  = T(iu,me)*[<fi|nu> + Z3(iu,nf)]     (integral list 11)
+c     R(me,nf)  = T(iu,me)*[<fi|nu> + 0.5*Z3(iu,nf)]     (integral list 11)
 c
-c     allocate Z3
-         if (.not. ga_create(MT_DBL,dimiu_b,dimnf,'z3',0,0,g_z3) 
-     &       call errquit()
-c        MxM I*T -> Z3(iu,nf) i=u=beta n=f=alpha
-         call ga_dgemm('t','n',dimiu_b,dimnf,dimjv_b,1.0d0,
-     &      list(symiu,4),g_t2_jbnf_mix,1.0d0,g_z3)
-c        free t2_jbnf_mix
-         if (.not. ga_destroy(g_t2_jbnf_mix)) call errquit()
-c        add I(nf,iu)=<fi|nu>=(iu|nf) (list 11) to Z3 after transforming third index v->f
-c        transform v index in list 11 and transpose matrix and add to Z3
-c        because of strided data get all iu for one nf per procesor
-c        do a local dgemm to transform and add it to g_z3
-         call ga_add(1.0d0,g_z3,1.0d0,list(symiu,11),g_z3) 
+         if (.not. ga_create(MT_DBL,dimnf,dimiu_b,'z3',0,0,g_z3) 
+     &       call errquit('cterm: alloc z3 failed',0)
+         call ga_dgemm('t','n',dimnf,dimiu_b,dimjv_b,1.0d0,
+     &      g_t2_jbnf_mix,list(symiu,4),0.0d0,g_z3)
+         if (.not. ga_destroy(g_t2_jbnf_mix)) call 
+     &       errquit('cterm: dealloc g_t2_jbnf_mix failed',0)
+         call ga_scale(g_z3,0.5d0)
+         call oso_moindx2_add(g_z3,list(symnf,11),symnf,1,1,2,2)
 c        MxM T*Z3 -> R(me,nf) all me, nf in block
-c        first create t2_iume_mix
-c        if (.not. ga_create(MT_DBL,dimiu_b,dimme,'Tiume mix',0,0,
-c    &       g_t2_iume_mix) call errquit()
-c        get T(iu,me,symme) 
-         call get_T(g_t2_iume_mix,symme,1,1,0,0,urange)
-         call ga_dgemm('t','n',dimme,dimnf,dimiu_b,1.0d0,
+c        get T(me,iu,symiu/symme)
+         call get_T(g_t2_iume_mix,symiu,1,1,2,2,urange)
+         call ga_dgemm('n','t',dimme,dimnf,dimiu_b,1.0d0,
      &      g_t2_iume_mix,g_z3,1.0d0,g_raa)
-c        free t2_iume_mix
-         if (.not. ga_destroy(g_t2_iume_mix)) call errquit()
-c        free Z3
-         if (.not. ga_destroy(g_z3)) call errquit()
+         if (.not. ga_destroy(g_t2_iume_mix)) call 
+     &       errquit('cterm: dealloc g_t2_iume_mix failed',0)
+         if (.not. ga_destroy(g_z3)) call
+     &       errquit('cterm: dealloc g_z3 failed',0)
 
 c     Here b could be v and T(jv,nf)
 c     Z1(iu,nf) = <ij||ub>*T(jb,nf) i=j=u=b=n=f=alpha (integral list 1)
 c     Q1
 c     R(me,nf) = T(iu,me)*(<if||un>+Z2(iu,nf)+0.5*Z1(iu,nf))
-c     <if||un> += Z2(iu,nf) (modified list 9)
+c     <if||un> += Z2(iu,nf) (modified Z2)
 c
-c     allocate TJBNFpure
-c     get T(jb,nf) j=b=n=f=alpha
-         call get_T(g_t2_jbnf_pure,symnf,0,0,0,0,urange)
-c     allocate Z1
-         if (.not. ga_create(MT_DBL,dimiu,dimnf,'z1',blockiu,
-     &      blocknf,g_z1) call errquit()
-c        MxM I*T -> Z1(iu,nf) 
-         call ga_dgemm('t','n',dimiu,dimnf,dimjb,1.0d0,
-     &      list(symiu,1),g_t2_jbnf_pure,1.0d0,g_z1)
-c        free TJBNFpure
-         if (.not. ga_destroy(g_t2_jbnf_pure)) call errquit()
-c        do sum_i C_hole(ua) Z1(iu,if) and store in q_1_O(a,f) -> qO_handles(1)
-c           do sum over i first to get u,f and then do dgemm with c_hole
-c        do sum_u C_hole(ua) Z1(iu,ma) and store in q_1_V(i,m) -> qV_handles(1)
-c           need to do dgemm with c_hole first and then do sum
-c            do both of them local on a node with get's puts and local sums
-         call make_qO(qO_handles(0,1),g_z1,symnf,0,0)
-         call make_qV(qV_handles(0,1),g_z1,symnf,0,0)
-c        scale Z1 by 0.5
-         call ga_scale(g_z1,0.5d0)
-c        add Z2 to Z1
-         call ga_add(1.0d0,g_z1,1.0d0,g_z2,g_z1)
-c        MxM T*Z1 -> R(me,nf) all me, nf in block pure spin
-         call ga_dgemm('t','n',dimme,dimnf,dimiu,1.0d0,
+         call get_T(g_t2_jbnf_pure,symnf,1,1,1,1,urange)
+         if (.not. ga_create(MT_DBL,dimnf,dimiu_a,'z1',0,0,g_z1,
+     &      call errquit('cterm: alloc z1 failed',0)
+         call ga_dgemm('t','n',dimnf,dimiu_a,dimjb_a,1.0d0,
+     &      g_t2_jbnf_pure,list(symiu,1),0.0d0,g_z1)
+         call make_qO(qO_handles(0,1),g_z1,symnf,1,1)
+         call make_qV(qV_handles(0,1),g_z1,symnf,1,1)
+         call ga_add(0.5d0,g_z1,1.0d0,g_z2,g_z1)
+         call ga_dgemm('n','n',dimnf,dimnf,dimiu_a,1.0d0,
      &      g_t2_iume_pure,g_z1,1.0d0,g_raa)
-c        free Z1
-         if (.not. ga_destroy(g_z1)) call errquit()
-c        free t2_iume_pure
-         if (.not. ga_destroy(g_t2_iume_pure)) call errquit()
+         if (.not. ga_destroy(g_t2_jbnf_pure)) call 
+     &       errquit('cterm: dealloc g_t2_jbnf_pure failed',0)
+         if (.not. ga_destroy(g_z2)) call 
+     &       errquit('cterm: dealloc g_z2 failed',0)
+         if (.not. ga_destroy(g_z1)) call 
+     &       errquit('cterm: dealloc g_z1 failed',0)
       end do
-c
-c     Pure bb C terms (e=f=m=n=beta)
-c
 C
-C     GENERATION OF C-TERMS OF BETA-BETA SPIN-BLOCK. 
+C     GENERATION OF C-TERMS OF BETA-BETA SPIN-BLOCK PLUS
+C     GENERATION OF C1- and C2-TERMS OF MIXED SPIN-BLOCK
 C     Z-INTERMEDIATES ARE USED TO GENERATE NECESSARY Q-INTERMEDIATES FOR E-TERMS
 C
       do symnf = 0, nir-1
-         symme = symnf
          symiu = symnf
-
+         symme = symnf
+         symjv = symiu
+         dimnf = ov_len(symnf,2,2)
+         dimiu_a = iu_len(symiu,1)
+         dimiu_b = iu_len(symiu,2)
+         dimjv_a = iso_len(symjv,1)
+         dimjv_b = iso_len(symjv,2)
 c        allocate TIUMEpure
 c        get T(iu,me) i=u=m=e=beta
-         call get_T(g_t2_iume_pure,symme,1,1,1,1,urange)
+         call get_T(g_t2_iume_pure,symme,2,2,2,2,urange)
 c        allocate TIUMEmix
 c        get T(iu,me) i=u=alpha, m=e=beta
-         call get_T(g_t2_iume_mix,symme,0,0,1,1,urange)
+         call get_T(g_t2_iume_mix,symme,1,1,2,2,urange)
 c
-c        do blocks nf n=f=beta
-
 c     Here b could be v and T(jv,nf)
 c     Z5(iu,nf) = <ij|ub>*T(jb,nf) i=u=beta j=b=alpha (integral list 3)
-            if (.not. ga_create(MT_DBL,dimiu,dimnf,'z5',blockiu,
-     &         blocknf,g_z5) call errquit()
-            call ga_dgemm('t','n',dimiu,dimnf,dimjb,1.0d0,
-     &         list(symiu,3),g_t2_jbnf_mix,1.0d0,g_z5)
-c        do sum_i C_hole(ua) Z5(iu,if) and store in q_5_O(a,f) -> qO_handles(5)
-c        do sum_u C_hole(ua) Z5(iu,ma) and store in q_5_V(i,m) -> qV_handles(5)
-         call make_qO(qO_handles(0,5),g_z5,symnf,1,1)
-         call make_qV(qV_handles(0,5),g_z5,symnf,1,1)
-c
+         if (.not. ga_create(MT_DBL,dimnf,dimiu_b,'z5',0,0,
+     &       g_z5) call errquit('cterm: alloc z5 failed',0)
+         call ga_dgemm('t','n',dimnf,dimiu_a,dimjv_b,1.0d0,
+     &                 g_t2_jbnf_mix,list(symiu,3),0.0d0,g_z5)
+         call make_qO(qO_handles(0,5),g_z5,symnf,2,2)
+         call make_qV(qV_handles(0,5),g_z5,symnf,2,2)
 c     <if||un> += Z5(iu,nf) (modified list 12)
-            call ga_add(1.0d0,g_z5,1.0,list(symiu,12),list(symiu,12)) 
-c
-c                 Here b could be v and T(jv,nf)
+         call oso_moindx2_add(g_z5,list(symnf,12),symnf,2,2,2,2)
+         if (.not. ga_destroy(list(symiu,12))) call
+     &       errquit('cterm: dealloc list 12 failed',0)
 c     Z6(iu,nf) = <ij||ub> * T(jb,nf)  i=u=j=b=alpha  (integral list 1)
-            if (.not. ga_create(MT_DBL,dimiu,dimnf,'z6',blockiu,
-     &         blocknf,g_z6) call errquit()
-            call ga_dgemm('t','n',dimiu,dimnf,dimjb,1.0d0,
-     &         list(symiu,1),g_t2_jbnf_mix,1.0d0,g_z6)
-c     <if|un>  += Z6(iu,nf) (modified list 10)
-            call ga_add(1.0d0,g_z6,1.0,list(symiu,10),list(symiu,10)) 
-c     R(me,nf)  = T(iu,me)*[<fi|nu> + Z6(iu,nf)]     (integral list 10)
-            call ga_dgemm('t','n',dimme,dimnf,dimiu,1.0d0,
-     &         g_t2_iume_mix,list(symiu,10),1.0d0,g_rbb)
-c
-c                 Here b could be v and T(jv,nf)
+         if (.not. ga_create(MT_DBL,dimnf,dimiu_a,'z6',0,0,g_z6)
+     &       call errquit('cterm: alloc z6 failed',0)
+         call ga_dgemm('t','n',dimnf,dimiu_a,dimjv_a,1.0d0,
+     &      g_t2_jbnf_mix,list(symiu,1),0.0d0,g_z6)
+         if (.not. ga_destroy(g_t2_jbnf_mix)) call
+     &       errquit('cterm: dealloc g_t2_jbnf_mix failed',0)
+         if (.not. ga_create(MT_DBL,dimnf,dimiu_a,'z7',0,0,g_z7)
+     &       call errquit('cterm: alloc z7 failed',0)
+c     copy z6 to z7 for use in mixed spin
+         call ga_copy(g_z6,g_z7)
+         call ga_scale(g_z6,0.5d0)
+         call oso_moindx2_add(g_z6,list(symnf,10),symnf,2,2,1,1)
+c        MxM T*Z3 -> R(me,nf) all me, nf in block
+c        get T(me,iu,symiu/symme)
+         call get_T(g_t2_iume_mix,symiu,1,1,2,2,urange)
+         call ga_dgemm('n','t',dimme,dimnf,dimiu_a,1.0d0,
+     &      g_t2_iume_mix,g_z6,1.0d0,g_rbb)
+         if (.not. ga_destroy(g_z6)) call
+     &       errquit('cterm: dealloc g_z6 failed',0)
+         if (.not. ga_destroy(g_t2_iume_mix)) call
+     &       errquit('cterm: dealloc g_t2_iume_mix failed',0)
 c     Z4(iu,nf) = <ij||ub>*T(jb,nf) i=j=u=b=n=f=beta (integral list 4)
-            if (.not. ga_create(MT_DBL,dimiu,dimnf,'z4',blockiu,
-     &         blocknf,g_z4) call errquit()
-            call ga_dgemm('t','n',dimiu,dimnf,dimjb,1.0d0,
-     &         list(symiu,4),g_t2_jbnf_pure,1.0d0,g_z4)
-c        do sum_i C_hole(ua) Z4(iu,if) and store in q_4_O(a,f) -> qO_handles(4)
-c        do sum_u C_hole(ua) Z4(iu,ma) and store in q_4_V(i,m) -> qV_handles(4)
-         call make_qO(qO_handles(0,4),g_z4,symnf,1,1)
-         call make_qV(qV_handles(0,4),g_z4,symnf,1,1)
+         call get_T(g_t2_jbnf_pure,symnf,1,1,1,1,urange)
+         if (.not. ga_create(MT_DBL,dimnf,dimiu_a,'z4',0,0,g_z4,
+     &       call errquit('cterm: alloc z4 failed',0)
+         call ga_dgemm('t','n',dimnf,dimiu_a,dimjb_a,1.0d0,
+     &      g_t2_jbnf_pure,list(symiu,4),0.0d0,g_z4)
+         call make_qO(qO_handles(0,1),g_z4,symnf,2,2)
+         call make_qV(qV_handles(0,1),g_z4,symnf,2,2)
+         call ga_add(0.5d0,g_z4,1.0d0,g_z5,g_z5)
+         call ga_dgemm('n','n',dimnf,dimnf,dimiu_a,1.0d0,
+     &      g_t2_iume_pure,g_z5,1.0d0,g_rbb)
+c     need the additional contribution of 1/2 Z4 for C2 term in mixed spin
+         call ga_add(0.5d0,g_z4,1.0d0,g_z5,g_z5)
+         if (.not. ga_destroy(g_t2_jbnf_pure)) call
+     &       errquit('cterm: dealloc g_t2_jbnf_pure failed',0)
+         if (.not. ga_destroy(g_z4)) call
+     &       errquit('cterm: dealloc g_z4 failed',0)
+         if (.not. ga_destroy(list(symiu,1))) call 
+     &       errquit('cterm: dealloc list 1 failed',0)
+         if (.not. ga_destroy(list(symiu,4))) call 
+     &       errquit('cterm: dealloc list 4 failed',0)
+C
+C   WE WILL DO SOME MIXED TERMS AS WE ARE REUSING SOME BETA Z-BLOCKS
+C
+c 
+c g_z5 (which is z4+z5+<if||an>) and g_z7 (which contains z6)
+c are still active. We will use those in C2 and C1 mixed spin terms
 c
-c     <if||un> += (1/2)*Z4(iu,nf) (modified list 12 again)
-            call ga_add(0.5d0,g_z4,1.0,list(symiu,12),list(symiu,12)) 
+c   
+c   C2 += t(me,ia)([if|an> + Z4 + Z5] 
+c   term in [] already stored in g_z5, just matmul with t
 c
-c     R(me,nf) = T(iu,me)*(<if||un>+Z5(iu,nf)+0.5*Z4(iu,nf)) (list 12)
-            call ga_dgemm('t','n',dimme,dimnf,dimiu,1.0d0,
-     &         g_t2_iume_pure,list(symiu,4),1.0d0,g_rbb)
-c     <if||un> += (1/2)*Z4(iu,nf) (modified list 12 again) to be used in mixed spin
-               call ga_add(0.5d0,g_z4,1.0,list(symiu,12),list(symiu,12)) 
+         call get_T(g_t2_meia_mix,symnf,1,1,2,2,urange)
+         call ga_dgemm('n','n',dimnf,dimnf,dimiu_b,1.0d0,
+     &      g_t2_iume_pure,g_z5,1.0d0,g_rab)
+         if (.not. ga_destroy(g_t2_jbnf_pure)) call
+     &       errquit('cterm: dealloc g_t2_jbnf_pure failed',0)
+         if (.not. ga_destroy(g_z7)) call
+     &       errquit('cterm: dealloc g_z1 failed',0)
 c
+c   Make Z7 with T is pure beta
+c   Add to g_z6 and matmul with t
+c   C1 += -t(ie,ma)*[<if|an> + Z6 + Z7] with T is pure alpha
 c
-c        end do
-c        free lists 1 and 4
-         if (.not. ga_destroy(list(symiu,1))) call errquit()
-         if (.not. ga_destroy(list(symiu,4))) call errquit()
+         call get_T(g_t2_jbnf_pure,symnf,2,2,2,2,urange)
+         call ga_dgemm('t','n',dimnf,dimiu_a,dimjv_b,1.0d0,
+     &                 g_t2_jbnf_pure,list(symiu,2),1.0d0,g_z7)
+         call oso_moindx2_add(g_z7,list(symnf,10),symnf,1,1,1,1)
+         call get_T(g_t2_iema_pure,symnf,1,1,1,1,urange)
+         call ga_dgemm('n','n',dimnf,dimnf,dimiu_a,1.0d0,
+     &      g_t2_iume_pure,g_z7,1.0d0,g_rab)
+         if (.not. ga_destroy(g_t2_iema_pure)) call
+     &       errquit('cterm: dealloc g_t2_jbnf_pure failed',0)
+         if (.not. ga_destroy(g_t2_jbnf_pure)) call
+     &       errquit('cterm: dealloc g_t2_jbnf_pure failed',0)
+         if (.not. ga_destroy(g_z7)) call
+     &       errquit('cterm: dealloc g_z1 failed',0)
       end do
 c
 c
 c     Mixed-spin terms (e=m=alpha n=f=beta)
 c
 C
-C     GENERATION OF C-TERMS OF MIXED ALPHA-BETA SPIN BLOCK
+C     GENERATION OF C-TERMS OF REMAINING MIXED ALPHA-BETA SPIN BLOCK
 C
       do symnf = 0, nir-1
+         symiu = symnf
          symme = symnf
-         symiu = symnf 
+         symjv = symiu
+         dimnf = ov_len(symnf,2,2)
+         dimnf = ov_len(symnf,2,2)
+         dimiu_a = iu_len(symiu,1)
+         dimiu_b = iu_len(symiu,2)
+         dimjv_a = iso_len(symjv,1)
+         dimjv_b = iso_len(symjv,2)
+c
 c        do blocks nf n=f=beta
 c
          allocate R(me,nf)
 c
-c     C4
+c     C4 : I DON'T THINK WE NEED THIS TERM, REARRANGEMENT REMOVED THIS ONE
 c     R(me,nf) += t(iu,nf)*[<ie||um> + Z2(iu,me)] 
 c            I think we have the term inside [] in Z2, only multiply with T
 c     .      e=m=i=u=alpha n=f=beta  (use modified list 9)
 c
 c        allocate TIUNFmix
 c        get T(iu,nf) i=u=alpha, n=f=beta
-         call get_T(g_t2_iunf_mix,symnf,0,0,1,1,urange)
+         call get_T(g_t2_iunf_mix,symnf,1,1,2,2,urange)
          MxM I(iu,me)*T(iu,nf) -> R  (list 9)
          call ga_dgemm('t','n',dimiu,dimnf,dimjb,1.0d0,
      &      list(symiu,9),g_t2_iunf_mix,1.0d0,g_rab)
@@ -420,16 +432,6 @@ c
 c   C3 += -t(ie,na)*[(if|ma) - Z8]
 c
 
-c
-c   Make Z7
-c   C1 += -t(ie,ma)*[<if|an> + Z6 + Z7]
-c
-
-
-c   
-c   C2 += t(me,ia)([if|an> + Z4 + Z5]
-c
-
       end
  
       subroutine get_T(g_t2,symjb,spini,spina,spinj,spinb,urange)
@@ -456,46 +458,75 @@ c     do dgemm with inverse of c_hole to get u back
 c
       end
 
-      subroutine make_qO(qO_handles,g_z,symif,spini,spinf)
+      subroutine make_qO(qO_handles,g_z,symif,spini,spinf,urange)
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "global.fh"
 #include "cuccsdtP.fh"
 c
-      integer qO_handles(0:7)
+      integer qO_handles(0:7),urange(1:2,0:7),g_z,symif,spini
+      integer spinf,symf,symu,symi,len_i,iindx,jindx,u,f
+      double precision fu_val, ifiu_val
+      logical i_match,j_match
 c
 c     WE NEED TO ACCUMULATE THE Q's DURING THE BLOCKING LOOP IN acefterms.F
 c     HENCE ADD CONTRIBUTIONS TO qO_handles
-c     spini=spinj and spinf=spina
 c     do sum_i C_hole(ua) Z2(iu,if) and store in q_2_O(a,f) -> qO_handles(2)
-c     do sum over i first to get u,f and then do dgemm with c_hole
-c
-c     symmetry wise i=i and hence u=f as iu=if, hence
-c     do symf = 0, nir-1
-c        symu = syma = symf
-c        symi = ieor(symnf=symif,symf)
-c        do loop over f
-c            do loop over a
-c               sum iho,ihi (symi) and transform with c_hole(u,a)^t * Z2(u,f)
-c        
-
+c     
+      call ga_distribution(g_z,ga_nodeid(),ilo,ihi,jlo,jhi)
+      jindx = 0
+      do symf = 0, nir-1
+         symu = symf
+         symi = ieor(symif,symf)
+         len_i = no(symi,spini)
+         len_u = urange(2,symu)-urange(1,symu)+1
+         len_f = v_sym(2,symf,spinf)-v_sym(1,symf,spinf)+1
+         if (.not. ma_push_get(mt_dbl,len_f,'uf block',l_uf,
+     &         k_uf)) call errquit('cterm: uf block alloc failed',0)
+         do u = urange(1,symu), urange(2,symu)
+            call ga_get(c_hole(spinf),urange(1,symu),urange(2,symu),
+     &               v_sym(1,symf,spinf),v_sym(2,symf,spinf),
+     &               dbl_mb(k_uf),len_u)
+            iindx = 0 <- SHOULD THIS GO TO ZERO -> NO SHOULD BE OFFSET
+            do f = v_sym(1,symf,spinf), v_sym(2,symf,spinf)
+               i_match = ilo.le.(iindx+len_i).and.ihi.gt.(iindx)
+               j_match = jlo.le.(jindx+len_i).and.jhi.gt.(jindx)
+               if (i_match.and.j_match) then
+                  do i = max(il0,iindx), min(ihi,iindx+len_i)
+                     do j = max(jl0,jindx), min(jhi,jindx+len_i)
+                        call ga_get(g_z,i,i,j,j,ifiu_val)
+                        fu_val = fu_val + ifiu_val
+                     end do
+                  end do
+                  call ga_acc(qO_handles(symf),alo,ahi,f,f,
+      &                       dbl_mb(k_uf),len_f,fu_val)
+               endif
+               iindx = iindx + len_i
+            end do
+            jindx = jindx + len_i
+         end do
+      end do 
 c 
+      return
       end
 
-      subroutine make_qV(qV_handles,g_z,symif,spini,spinf)
+      subroutine make_qV(qV_handles,g_z,symif,spini,spinf,urange)
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "global.fh"
 #include "cuccsdtP.fh"
 c
-      integer qV_handles(0:7)
+      integer qV_handles(0:7),urange(1:2,0:7),g_z,symif,spini
+      integer spinf,symf,symu,symi,len_i,iindx,jindx,u,f
+      double precision fu_val, ifiu_val
+      logical i_match,j_match
 c
 c     WE NEED TO ACCUMULATE THE Q's DURING THE BLOCKING LOOP IN acefterms.F
 c     HENCE ADD CONTRIBUTIONS TO qO_handles
 c     spini=spinj and spinf=spina
-c     do sum_u C_hole(ua) Z2(iu,ma) and store in q_2_V(i,m) -> qV_handles(2)
+c     do sum_u C_hole(ua) Z2(ma,iu) and store in q_2_V(i,m) -> qV_handles(2)
 c     need to do dgemm with c_hole first and then do sum
 c     do both of them local on a node with get's puts and local sums
 c
@@ -507,8 +538,95 @@ c        do loop over f
 c            do loop over a
 c               sum iho,ihi (symi) and transform with c_hole(u,a)^t * Z2(u,f)
 c
-
+      call ga_distribution(g_z,ga_nodeid(),ilo,ihi,jlo,jhi)
+      jindx = 0
+      do symf = 0, nir-1
+         symu = symf
+         symi = ieor(symif,symf)
+         len_i = no(symi,spini)
+         len_u = urange(2,symu)-urange(1,symu)+1
+         len_f = v_sym(2,symf,spinf)-v_sym(1,symf,spinf)+1
+         if (.not. ma_push_get(mt_dbl,len_i*len_i,'im block',l_im,
+     &         k_im)) call errquit('cterm: im block alloc failed',0)
+         if (.not. ma_push_get(mt_dbl,len_f,'uf block',l_uf,
+     &         k_uf)) call errquit('cterm: uf block alloc failed',0)
+         do u = urange(1,symu), urange(2,symu)
+            call ga_get(c_hole(spinf),urange(1,symu),urange(2,symu),
+     &               v_sym(1,symf,spinf),v_sym(2,symf,spinf),
+     &               dbl_mb(k_uf),len_u)
+            iindx = 0 <- SHOULD THIS GO TO ZERO -> NO SHOULD BE OFFSET
+            do f = v_sym(1,symf,spinf), v_sym(2,symf,spinf)
+               i_match = ilo.le.(iindx+len_i).and.ihi.gt.(iindx)
+               j_match = jlo.le.(jindx+len_i).and.jhi.gt.(jindx)
+               if (i_match.and.j_match) then 
+                  alo = max(il0,iindx)
+                  ahi = min(ihi,iindx+len_i)
+                  mlo = max(jl0,jindx)
+                  mhi = min(jhi,jindx+len_i)
+                  call ga_get(g_z,alo,ahi,mlo,mhi,dbl_mb(k_im),ahi-alo+1)
+                  call ga_acc(qV_handles(symf),alo,ahi,mlo,mhi,
+      &                       dbl_mb(k_im),ahi-alo+1,dbl_mb(k_uf+fpointer)
+               endif
+               iindx = iindx + len_i
+            end do
+            jindx = jindx + len_i
+         end do
+      end do 
+c23456789012345678901234567890123456789012345678901234567890123456789012
 c  
       end
 
 
+      subroutine oso_moindx2_add(g_a,g_b,sym,sa,sb,sc,sd)
+      implicit none
+#include "mafdecls.fh"
+#include "bas.fh"
+#include "global.fh"
+#include "cuccsdtP.fh"
+c
+      integer g_a,g_b,sym,sa,sb,sc,sd
+      integer iu,symf,symn,dimf,dimn,dimv,dimiu
+      integer l_nv,k_nv,l_nf,k_nf,l_vf,k_vf
+      integer nvlo,nvhi,vlo,vhi,flo,fhi,nflo,nfhi
+c
+c     Do the transformation (nv,iu) -> (nf,iu) 
+c     Transformation is for C_part
+c     Hence nv -> nf or v -> f 
+c     Loop over iu on the nodes and do a complete nv block at a time
+c
+      dimiu = iu_len(symiu,sc)
+      do iu = ga_nodeid()+1, dimiu, ga_nnodes()
+         do symf = 0, nir-1
+            symn = ieor(sym,symf)
+            dimf = nv_sym(symf,sb)
+            dimn = no_sym(symn,sa)
+            dimv = bf_per_ir(symf)
+            if (.not. ma_push_get(mt_dbl,dimn*dimv,'nv block',l_nv,
+     &         k_nv)) call errquit('cterm: nv block alloc failed',0)
+            if (.not. ma_push_get(mt_dbl,dimn*dimf,'nf block',l_nf,
+     &         k_nf)) call errquit('cterm: nf block alloc failed',0)
+            if (.not. ma_push_get(mt_dbl,dimv*dimf,'vf block',l_vf,
+     &         k_vf)) call errquit('cterm: vf block alloc failed',0)
+            nvlo = oso_off(bf_per_ir_cum(symf)+1,sym,1) + 1
+            nvhi = vlo + dimn*dimv
+            vlo = bf_per_ir_cum(symf)+1
+            vhi = vlo + dimv
+            flo = v_sym(1,symf,sb)
+            fhi = v_sym(2,symf,sb)
+            call ga_get(g_b,vlo,vhi,iu,iu,dbl_mb(k_nv),dimn)
+            call ga_get(g_part(sb),vlo,vhi,flo,fhi,dbl_mb(k_vf),dimv)
+            call dgemm('n','n',dimn,dimf,dimv,1.0d0,dbl_mb(k_nv),
+     &                 dimn,dbl_mb(k_vf),dimv,1.0d0,dbl_mb(k_nf),dimn)
+            nflo = ov_off(v_sym(1,symf,1),0:7,sa,sb) + 1
+            nfhi = flo + dimn*dimf
+            call ga_acc(g_a,nflo,nfhi,iu,iu,dbl_mb(k_nf),dimn*dimf,1.0d0)
+            if (.not. ma_pop_stack(l_vf)) call
+     &          errquit('oso_moindx2_add: vf block dealloc failed',0)
+            if (.not. ma_pop_stack(l_nf)) call
+     &          errquit('oso_moindx2_add: nf block dealloc failed',0)
+            if (.not. ma_pop_stack(l_nv)) call
+     &          errquit('oso_moindx2_add: nv block dealloc failed',0)
+         end do
+      end do
+c
+      end

@@ -1,6 +1,6 @@
       subroutine uccsdt_aterm(urange,vrange)
 c
-c$Id: aterm.F,v 1.3 2002-09-25 21:54:33 bert Exp $
+c$Id: aterm.F,v 1.4 2002-10-05 01:22:26 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -12,7 +12,7 @@ c
       integer nspin,mspin,ispin,jspin
       integer symnj,symnv,symmi,symmu,symj,symv,symn,symi,symu,symm
       integer dimmi,dimnj,dimi,dimj,dimu,dimv,dimm,dimn
-      integer lennv_a,lennv_b,leniu_a,leniu_b,ulo,vlo
+      integer ulo,vlo
       integer list_offset,mnpairs,m,n
       integer n_address,m_address
       integer g_t2_iejf, g_x
@@ -56,7 +56,8 @@ c
 c     here use list_offset
 c
 c     So has already made the X-terms in his B-term routines. Maybe I should do a partial
-c     A term here while so does the other part coming from the X-term
+c     A term here while so does the other part coming from the X-term, read them in from 
+c     GA or disk
 c
                call ga_scale(g_x,prefactor)
 c
@@ -70,24 +71,20 @@ c     here use list_offset+4
                   do symi = 0, nir-1
                      symu = symi
                      symm = ieor (symmi, symi)
+                     dimi = nv_sym(symi,ispin)
+                     dimj = nv_sym(symj,jspin)
+                     dimm = nv_sym(symm,mspin)
+                     dimn = nv_sym(symn,nspin)
+                     ulo = urange(1,symu)
+                     uhi = urange(2,symu)
+                     vlo = vrange(1,symv)
+                     vhi = vrange(2,symv)
+                     dimv = vhi - vlo + 1
+                     dimu = uhi - ulo + 1
                      mnpairs = no_sym(symm,mspin)*no_sym(symn,nspin)
-                     do mn = 1, mnpairs, ga_nodeid()+1
+                     do mn = ga_nodeid()+1, mnpairs, ga_nnodes()
                         m = (mnpairs / (no_sym(symn,nspin)+1)) + 1
                         n = mnpairs - (no_sym(symm,mspin) * (m-1))
-                        dimv = vrange(2,symv)-vrange(1,symv)+1
-                        dimu = urange(2,symu)-urange(1,symu)+1
-                        ispin = mspin
-                        jspin = nspin
-                        dimi = nv_sym(symi,ispin)
-                        dimj = nv_sym(symj,jspin)
-                        dimm = nv_sym(symm,mspin)
-                        dimn = nv_sym(symn,nspin)
-                        lennv_a = iso_len(symnv,0)
-                        lennv_b = iso_len(symnv,1)
-                        leniu_a = iu_len(symiu,0)
-                        leniu_b = iu_len(symiu,1)
-                        ulo = urange(1,symi)
-                        vlo = vrange(1,symv)
                         if (.not. ma_push_get(mt_dbl,dimv*dimu,
      &                      'vu list',l_vulist,k_vulist))
                         dim_mx = max(dimi,dimj)

@@ -1,6 +1,6 @@
       subroutine uccsdt_acefterms()
 c
-c$Id: acefterms.F,v 1.5 2002-09-25 21:54:33 bert Exp $
+c$Id: acefterms.F,v 1.6 2002-10-05 01:22:25 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -53,25 +53,27 @@ c
 
       integer qO_handles(0:7,8), qV_handles(0:7,8)
       integer symiui, handles, ih
-      integer nr_handle(5)
+      integer nr_handle(5), spin_handle(5)
       data nr_handle /1,2,4,5,8/
+      data spin_handle /1,1,2,2,2/
 c
 c     do 2 * 8 * nir allocations of fock matrices of appropriate sizes
 c     hence for each symmetry block:
 c        get # of occ and # of virt
-c        qO is dimension occ*occ
-c        qV is dimension virt*virt
+c        qO is dimension virt*virt
+c        qV is dimension occ*occ   
 c        store handle in array
 c
       do symiu = 0, nir-1
          do handles = 1, 5
            ih = nr_handle(handles)
-           if (.not. ga_create(MT_DBL,no_sym(symiu,ih)*no_sym(symiu,ih),
+           is = spin_handle(handles)
+           if (.not. ga_create(MT_DBL,no_sym(symiu,is)*no_sym(symiu,is),
      &        'qO',0,0,qO_handles(symiu,ih))) call 
-     &        errquit('uccsd: failed to allocate qO', ih)
-           if (.not. ga_create(MT_DBL,nv_sym(symiu,ih)*nv_sym(symiu,ih),
+     &        errquit('uccsd: failed to allocate qO',ih)
+           if (.not. ga_create(MT_DBL,nv_sym(symiu,is)*nv_sym(symiu,is),
      &        'qV',0,0,qV_handles(symiu,ih))) call 
-     &        errquit('uccsd: failed to allocate qV', ih)
+     &        errquit('uccsd: failed to allocate qV',ih)
          enddo
       enddo
 c
