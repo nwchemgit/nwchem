@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.7 2002-05-08 23:50:27 bylaska Exp $
+* $Id: geodesic.F,v 1.8 2002-05-10 01:45:11 bylaska Exp $
 *
 
 *     ***********************************
@@ -90,6 +90,18 @@
 *     *					*
 *     ***********************************
 *
+*     This routine initializes the geodesic module
+* for a linesearch.  Basically this routine just
+* calculates the SVD decomposition of the search direction, 
+* A=HY-Y(Y^tHY) or A=(determined from CG). The only requirement
+* of the search direction is that it is tangent to the direction
+* spanned by Y.   It returns the maximum value in the diagonal 
+* Sigma matrix, and it also returns the linegradient determined
+* by the direction A.
+* 
+*     Entry - A: gradient
+*     Exit  - max_sigma:
+*             dE:
 *     Uses - geodesic common block
 *
 

@@ -1,5 +1,5 @@
 *
-* $Id: stress_fd.F,v 1.3 2002-04-26 20:37:41 bylaska Exp $
+* $Id: stress_fd.F,v 1.4 2002-05-10 01:45:10 bylaska Exp $
 *
       logical function stress_fd(rtdb)
       implicit none
@@ -32,6 +32,7 @@
 *     *** external functions ****
       logical  pspw_noit_energy
       external pspw_noit_energy
+
 
 *     **** cell: stuff ****
       value = rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)
@@ -69,6 +70,7 @@
 *     **** update geometry object ****
       write(*,*) "Ion positions adjusted......"
       call adjust_cellgeometry(rtdb,unita,unita2)
+
       value = value.and.
      >        rtdb_put(rtdb,rtdb_unita,mt_dbl,9,unita2)
 
@@ -77,7 +79,6 @@
       call adjust_cellgeometry(rtdb,unita2,unita)
       value = value.and.
      >        rtdb_put(rtdb,rtdb_unita,mt_dbl,9,unita)
-
 
       value = value.and.
      >        rtdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
@@ -113,9 +114,14 @@
 *     **** update geometry object ****
       write(*,*) "Ion positions adjusted......"
       call adjust_cellgeometry(rtdb,unita,unita3)
+
+
       value = value.and.
      >        rtdb_put(rtdb,rtdb_unita,mt_dbl,9,unita3)
 
+      if (.not.value) then
+        write(*,*) "huh?",rtdb,rtdb_unita
+      end if
       value = pspw_noit_energy(rtdb)
 
       call adjust_cellgeometry(rtdb,unita3,unita)

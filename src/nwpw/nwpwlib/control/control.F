@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.22 2002-05-08 23:50:25 bylaska Exp $
+* $Id: control.F,v 1.23 2002-05-10 01:45:10 bylaska Exp $
 *
 
 *     ***********************************
@@ -321,7 +321,9 @@ c     end do
       value = value.and.
      >        rtdb_cget(rtdb,rtdb_boundry,1,boundry)
 
+
       call check_unita_for_default(rtdb,unita)
+
 
 *     **** set out of time variables ****
       est_step_time   = -1
