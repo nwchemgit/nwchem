@@ -1,3 +1,8 @@
+c
+c     The following macros are conveniently used to turn various
+c     2nd derivative terms on and off to help with debugging.  When
+c     the code is stable they can be removed.
+c
 #if 1
 #define TERM_1A
 #define TERM_1B
@@ -10,13 +15,13 @@ c     Computes explicit nuclear 2nd derivatives of the XC energy
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_d2expl.F,v 1.3 1998-10-13 02:06:37 bjohnson Exp $
+c     $Id: xc_d2expl.F,v 1.4 1999-01-04 04:01:53 bjohnson Exp $
 c
       Subroutine xc_d2expl(tol_rho, scr, Amat, Amat2, Bmat, Cmat, Cmat2,
-     &     Dmat, F, Pmat, ff, chi, delchi, heschi, curatoms, ncuratoms,
-     &     ipol, nq, nbf, max_at_bf, GRAD, basis, natoms, iniz, ifin, 
-     &     rho, delrho, g_dens, hess, ibf, rchi_atom, rdelchi_atom,
-     &     rdens_atom, cetobfr)
+     &     Dmat, F, Pmat, ff, s, chi, delchi, heschi, d3chi, curatoms,
+     &     ncuratoms, ipol, nq, nbf, max_at_bf, GRAD, basis, natoms,
+     &     iniz, ifin, rho, delrho, g_dens, hess, ibf, rchi_atom,
+     &     rdelchi_atom, rdens_atom, cetobfr)
 c
 #include "dft2drv.fh"
 c
@@ -52,7 +57,7 @@ c
 c
       double precision Pmat(max_at_bf*max_at_bf) ! scratch vector
       double precision F(max_at_bf*max_at_bf)    ! scratch vector
-      double precision ff(nq,3)   ! scratch array
+      double precision ff(nq,3), s(nq)   ! scratch arrays
 c
 c     Sampling Matrices for the XC Functional Derivatives
 c
@@ -65,9 +70,10 @@ c
       double precision Dmat(nq,3,max_at_bf)
       integer iniz(natoms), ifin(natoms)
 c
-c     Basis Functions & Gradients
+c     Basis Functions & Derivatives
 c
-      double precision chi(nq,nbf), delchi(nq,3,nbf), heschi(nq,6,nbf)
+      double precision chi(nq,nbf), delchi(nq,3,nbf), heschi(nq,6,nbf),
+     &                 d3chi(nq,10,nbf)
 c
       integer ibf(nbf)
 c
@@ -82,26 +88,41 @@ c
       integer ii, mu, nu, icount
       integer ind2(2,2)
       integer n
-      double precision a21, a22, aaa, fdchix, fdchiy, fdchiz
+      double precision a21, a22, aaa, fdchix, fdchiy, fdchiz,
+     &                 ccc1, ccc2, ccc3
       double precision T(3,3)
       integer idir, jdir
+c
+c     The following parameter definitions must be consistent with
+c     those in routine new_eval_gbsets_d3, or this routine will
+c     not work
+c
+      integer iixxx,iixxy,iixxz,
+     &              iixyy,iixyz,
+     &                    iixzz,
+     &                          iiyyy,iiyyz,
+     &                                iiyzz,
+     &                                      iizzz
+c
+      parameter ( iixxx=1,iixxy=2,iixxz=3,
+     &                    iixyy=4,iixyz=5,
+     &                            iixzz=6,
+     &                                    iiyyy=7,iiyyz=8,
+     &                                            iiyzz=9,
+     &                                                    iizzz=10 )
+c
       double precision dabsmax
       external dabsmax
 c
-c     d2Exc                /      d2fxc      drho(i) drho(j)
-c     ----- =  sum   sum   | --------------- ------- -------
-c     dx dy   i=a,b j=a,b /  drho(i) drho(j)   dx      dy
+c     d2Exc             /    d2fxc    dp(i) dp(j)          / dfxc  d2p(i)
+c     ----- =  sum sum  | ----------- ----- -----  +  sum  | ----- ------
+c     dx dy     i   j  /  dp(i) dp(j)  dx    dy        i  /  dp(i) dx dy
 c
-c                          /  dfxc   d2rho(i)
-c                 +  sum   | ------- --------
-c                   i=a,b /  drho(i)  dx dy
-c
-      if (GRAD) then
-         call errquit('xc_d2expl: 2nds not yet implemented for GC',0)
-      endif
+c     where "p" represents a density parameter in the set
+c     { ra, rb, gaa, gab, gbb }, and the i, j indices run over this set
 c
 c     First step: terms involving functional second derivatives
-c                 and density first derivatives
+c                 and density parameter first derivatives
 c
 c     Indices for 2nd derivs of functionals
 c
@@ -190,7 +211,7 @@ c
 #endif
 c
 c     Second step: terms involving functional first derivatives
-c                  and density second derivatives
+c                  and density parameter second derivatives
 c
       A_MAX = dabsmax(nq*ipol,Amat)
       C_MAX = dabsmax(nq*3*ipol,Cmat)
@@ -240,7 +261,6 @@ c     !!! Cutoff temporarily commented out !!!
          do 220 jat = 1, iat
             inizja = iniz(jat)
             if (inizja.eq.0)goto 220
-c !!! Reconcile with above lines
             jatcur = curatoms(jat)
             if (iatcur .eq. 0 .and. jatcur .eq. 0) goto 220
             ifinja = ifin(jat)
@@ -282,23 +302,47 @@ c
 c
 c     Three terms to compute
 c
-c     First term: Xiat(r)*hessXjat(r)*Diat,jat -> hess(jat,jat)
+c     First term:    Xiat(r)*hessXjat(r)*Diat,jat -> hess(jat,jat)
+c             GC: delXiat(r)*hessXjat(r)*Diat,jat -> hess(jat,jat)
+c             GC:    Xiat(r)*  d3Xjat(r)*Diat,jat -> hess(jat,jat)
 c
 #ifdef TERM_1B
                if (jatcur .ne. 0) then
                   call dfill(9,0.d0,T,1)
                   icount = 0
                   do mu = inizja, ifinja
-                     call dfill(nq,0.d0,ff,1)
+                     call dfill(nq,0.d0,s,1)
+                     if (GRAD) then
+                        call dfill(nq*3,0.d0,ff,1)
+                     endif
                      do nu = inizia, ifinia
                         icount = icount+1
                         aaa = F(icount)
                         if (abs(aaa).gt.tol_rho_tmp)then
-                           call daxpy(nq,aaa,chi(1,nu),1,ff,1)
+                           call daxpy(nq,aaa,chi(1,nu),1,s,1)
+                           if (GRAD) then
+                              call daxpy(nq*3,aaa,delchi(1,1,nu),1,ff,1)
+                           endif
                         endif
                      enddo
+c
+c     Prepare coefficient of hessXjat
+c
+                     if (GRAD) then
+                        do n = 1, nq
+                           ff(n,1) = Amat(n,ii)*s(n)
+     &                             + Cmat(n,1,ii)*ff(n,1)
+     &                             + Cmat(n,2,ii)*ff(n,2)
+     &                             + Cmat(n,3,ii)*ff(n,3)
+                        enddo
+                     else
+                        do n = 1, nq
+                           ff(n,1) = Amat(n,ii)*s(n)
+                        enddo
+                     endif
+c
                      do n = 1, nq
-                        aaa = Amat(n,ii)*ff(n,1)
+                        aaa = ff(n,1)
                         T(1,1) = T(1,1) + heschi(n,1,mu)*aaa
                         T(1,2) = T(1,2) + heschi(n,2,mu)*aaa
                         T(1,3) = T(1,3) + heschi(n,3,mu)*aaa
@@ -306,6 +350,31 @@ c
                         T(2,3) = T(2,3) + heschi(n,5,mu)*aaa
                         T(3,3) = T(3,3) + heschi(n,6,mu)*aaa
                      enddo
+                     if (GRAD) then
+                        do n = 1, nq
+                           ccc1 = Cmat(n,1,ii)*s(n)
+                           ccc2 = Cmat(n,2,ii)*s(n)
+                           ccc3 = Cmat(n,3,ii)*s(n)
+                           T(1,1) = T(1,1) + d3chi(n,iixxx,mu)*ccc1
+     &                                     + d3chi(n,iixxy,mu)*ccc2
+     &                                     + d3chi(n,iixxz,mu)*ccc3
+                           T(1,2) = T(1,2) + d3chi(n,iixxy,mu)*ccc1
+     &                                     + d3chi(n,iixyy,mu)*ccc2
+     &                                     + d3chi(n,iixyz,mu)*ccc3
+                           T(1,3) = T(1,3) + d3chi(n,iixxz,mu)*ccc1
+     &                                     + d3chi(n,iixyz,mu)*ccc2
+     &                                     + d3chi(n,iixzz,mu)*ccc3
+                           T(2,2) = T(2,2) + d3chi(n,iixyy,mu)*ccc1
+     &                                     + d3chi(n,iiyyy,mu)*ccc2
+     &                                     + d3chi(n,iiyyz,mu)*ccc3
+                           T(2,3) = T(2,3) + d3chi(n,iixyz,mu)*ccc1
+     &                                     + d3chi(n,iiyyz,mu)*ccc2
+     &                                     + d3chi(n,iiyzz,mu)*ccc3
+                           T(3,3) = T(3,3) + d3chi(n,iixzz,mu)*ccc1
+     &                                     + d3chi(n,iiyzz,mu)*ccc2
+     &                                     + d3chi(n,iizzz,mu)*ccc3
+                        enddo
+                     endif
                   enddo
 c
                   if (iat.ne.jat) call dscal(9,2.d0,T,1)
@@ -322,23 +391,47 @@ c
                endif
 #endif
 c
-c     Second term: hessXiat(r)*Xjat(r)*Diat,jat -> hess(iat,iat)
+c     Second term: hessXiat(r)*   Xjat(r)*Diat,jat -> hess(iat,iat)
+c              GC: hessXiat(r)*delXjat(r)*Diat,jat -> hess(iat,iat)
+c              GC:   d3Xiat(r)*   Xjat(r)*Diat,jat -> hess(iat,iat)
 c
 #ifdef TERM_2B
                if (iatcur .ne. 0) then
                   call dfill(9,0.d0,T,1)
                   do nu = inizia, ifinia
-                     call dfill(nq,0.d0,ff,1)
+                     call dfill(nq,0.d0,s,1)
+                     if (GRAD) then
+                        call dfill(nq*3,0.d0,ff,1)
+                     endif
                      icount = nu-inizia+1
                      do mu = inizja, ifinja
                         aaa = F(icount)
                         icount = icount+nnia
                         if (abs(aaa).gt.tol_rho_tmp)then
-                           call daxpy(nq,aaa,chi(1,mu),1,ff,1)
+                           call daxpy(nq,aaa,chi(1,mu),1,s,1)
+                           if (GRAD) then
+                              call daxpy(nq*3,aaa,delchi(1,1,mu),1,ff,1)
+                           endif
                         endif
                      enddo
+c
+c     Prepare coefficient of hessXiat
+c
+                     if (GRAD) then
+                        do n = 1, nq
+                           ff(n,1) = Amat(n,ii)*s(n)
+     &                             + Cmat(n,1,ii)*ff(n,1)
+     &                             + Cmat(n,2,ii)*ff(n,2)
+     &                             + Cmat(n,3,ii)*ff(n,3)
+                        enddo
+                     else
+                        do n = 1, nq
+                           ff(n,1) = Amat(n,ii)*s(n)
+                        enddo
+                     endif
+c
                      do n = 1, nq
-                        aaa = Amat(n,ii)*ff(n,1)
+                        aaa = ff(n,1)
                         T(1,1) = T(1,1) + heschi(n,1,nu)*aaa
                         T(1,2) = T(1,2) + heschi(n,2,nu)*aaa
                         T(1,3) = T(1,3) + heschi(n,3,nu)*aaa
@@ -346,6 +439,31 @@ c
                         T(2,3) = T(2,3) + heschi(n,5,nu)*aaa
                         T(3,3) = T(3,3) + heschi(n,6,nu)*aaa
                      enddo
+                     if (GRAD) then
+                        do n = 1, nq
+                           ccc1 = Cmat(n,1,ii)*s(n)
+                           ccc2 = Cmat(n,2,ii)*s(n)
+                           ccc3 = Cmat(n,3,ii)*s(n)
+                           T(1,1) = T(1,1) + d3chi(n,iixxx,nu)*ccc1
+     &                                     + d3chi(n,iixxy,nu)*ccc2
+     &                                     + d3chi(n,iixxz,nu)*ccc3
+                           T(1,2) = T(1,2) + d3chi(n,iixxy,nu)*ccc1
+     &                                     + d3chi(n,iixyy,nu)*ccc2
+     &                                     + d3chi(n,iixyz,nu)*ccc3
+                           T(1,3) = T(1,3) + d3chi(n,iixxz,nu)*ccc1
+     &                                     + d3chi(n,iixyz,nu)*ccc2
+     &                                     + d3chi(n,iixzz,nu)*ccc3
+                           T(2,2) = T(2,2) + d3chi(n,iixyy,nu)*ccc1
+     &                                     + d3chi(n,iiyyy,nu)*ccc2
+     &                                     + d3chi(n,iiyyz,nu)*ccc3
+                           T(2,3) = T(2,3) + d3chi(n,iixyz,nu)*ccc1
+     &                                     + d3chi(n,iiyyz,nu)*ccc2
+     &                                     + d3chi(n,iiyzz,nu)*ccc3
+                           T(3,3) = T(3,3) + d3chi(n,iixzz,nu)*ccc1
+     &                                     + d3chi(n,iiyzz,nu)*ccc2
+     &                                     + d3chi(n,iizzz,nu)*ccc3
+                        enddo
+                     endif
                   enddo
 c
                   if (iat.ne.jat) call dscal(9,2.d0,T,1)
