@@ -1,8 +1,13 @@
 *
-* $Id: paw_nonlocal.F,v 1.10 2003-03-05 23:16:32 bylaska Exp $
+* $Id: paw_nonlocal.F,v 1.11 2003-03-14 01:20:10 marat Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.10  2003/03/05 23:16:32  bylaska
+* Commented out write statements and other minor fixes.....
+* self-consistent loop looks like it is working.....
+* ....EJB
+*
 * Revision 1.9  2003/03/05 20:36:17  bylaska
 * multipole potential added...Eigenvalues agree between this code and
 * F90 code....EJB
@@ -431,4 +436,49 @@
 !
 !      end
 !
+
+**************************************************
+!
+!	Name: 
+!
+!	Purpose: 
+!
+!	Created:	2/10/2002
+!**************************************************
+      subroutine paw_nonloc_Gop_u_ptr(ptr)
+      implicit none
+      integer ptr(4)
+
+#include "paw_nonlocal_data.fh"
+
+      integer i
+
+      do i=1,4
+      ptr(i) = paw_Gop_u(i)
+      end do
+      return
+      end 
+
+**************************************************
+!
+!	Name: 
+!
+!	Purpose: 
+!
+!	Created:	2/10/2002
+!**************************************************
+      subroutine paw_nonloc_Gop_d_ptr(ptr)
+      implicit none
+      integer ptr(4)
+
+#include "paw_nonlocal_data.fh"
+
+      integer i
+
+      do i=1,4
+      ptr(i) = paw_Gop_d(i)
+      end do
+      return
+      end 
+
 
