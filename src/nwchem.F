@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.60 1996-01-12 01:54:15 d3g681 Exp $
+c     $Id: nwchem.F,v 1.61 1996-01-27 02:04:27 d3g681 Exp $
 c
       character*255 input_filename
       double precision total_wall, total_cpu
@@ -226,43 +226,44 @@ c
       logical status 
       logical scf
       external scf
-      parameter (ntasks = 21)
+      parameter (ntasks = 22)
       character*10 task_list(ntasks)
-      data task_list /'rjhtest',         ! 1
-     $                'raktest',         ! 2
-     $                'rtdbprint',       ! 3
-     $                'scf',             ! 4
-     $                'debtest',         ! 5
-     $                'gradients',       ! 6
-     $                'optscf',          ! 7
-     $                'atwtest',         ! 8
-     $                'rimp2',           ! 9
-     $                'checksum',        ! 10
-     $                'dft',             ! 11
-     $                'md',              ! 12
-     $                'dftgrad',         ! 13
-     $                'optdft',          ! 14
-     $                'direct_mp2',      ! 15
-     $                'mjdtest',         ! 16
-     $                'ccsd',            ! 17
-     $                'freqscf',         ! 18
-     $                'freqdft',         ! 19
-     $                'mcscf',           ! 20
-     $                'nwargos'          ! 21
-     $                /
+      data task_list /'rjhtest', ! 1
+     $     'raktest',           ! 2
+     $     'rtdbprint',         ! 3
+     $     'scf',               ! 4
+     $     'debtest',           ! 5
+     $     'gradients',         ! 6
+     $     'optscf',            ! 7
+     $     'atwtest',           ! 8
+     $     'rimp2',             ! 9
+     $     'checksum',          ! 10
+     $     'dft',               ! 11
+     $     'md',                ! 12
+     $     'dftgrad',           ! 13
+     $     'optdft',            ! 14
+     $     'direct_mp2',        ! 15
+     $     'mjdtest',           ! 16
+     $     'ccsd',              ! 17
+     $     'freqscf',           ! 18
+     $     'freqdft',           ! 19
+     $     'mcscf',             ! 20
+     $     'nwargos',           ! 21
+     $     'fourindex'          ! 22
+     $     /
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
-c
+c     
 c     Default action ... do nothing
-c
+c     
          return
       endif
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
          goto (10, 20, 30, 40, 50, 60, 70, 80, 90, 110, 120, 130,
-     &         140, 150, 160, 170, 180, 190, 200, 210, 220)
-     $   ind
-c
+     &        140, 150, 160, 170, 180, 190, 200, 210, 220, 230)
+     $        ind
+c     
          write(6,*) ' Unimplemented task ', 
      $        task_name(1:inp_strlen(task_name))
          goto 1000
@@ -287,105 +288,108 @@ c     scf ... eventually there will be no such task name
 c     
  40      status = scf(rtdb)
          goto 1000
-C
+C     
 C     debtest ... I want my own task! (SCF + RI-MP2 at the moment)
-C
+C     
  50      call debtest(rtdb)
          goto 1000
-c
-c    gradients (scf has to be done first)
-c
+c     
+c     gradients (scf has to be done first)
+c     
  60      call scf_gradient(rtdb)
          goto 1000
-c
+c     
 c     optscf ... scf optimization
-c
+c     
  70      call scf_optimize(rtdb)
          goto 1000
-c
+c     
 c     atwtest (4-index)
-c
+c     
  80      call atwtest(rtdb)
          goto 1000
-c
-C        RI-MP2 energy (SCF must be done separately first)
-c
+c     
+C     RI-MP2 energy (SCF must be done separately first)
+c     
  90      call rimp2(rtdb)
          goto 1000
-c$$$c
-c$$$C        RI-SCF
-c$$$c
-c$$$ 100     call ri_scf(rtdb)
-c$$$         goto 1000
-c
-c integral check sum
-c
+c$$$  c
+c$$$  C        RI-SCF
+c$$$  c
+c$$$  100     call ri_scf(rtdb)
+c$$$  goto 1000
+c     
+c     integral check sum
+c     
  110     call task_check_sum(rtdb)
          goto 1000
-c
-c        dft
-c
-  120    continue 
+c     
+c     dft
+c     
+ 120     continue 
          call nwdft(rtdb)
          goto 1000
-c
+c     
 c     MD
-c
-  130    continue
+c     
+ 130     continue
          call mdmain(rtdb)
          goto 1000
-c
+c     
 c     dft gradient
-c
-  140    continue
-C         write(6,*) 'NWdft gradient not linked into this executable'
+c     
+ 140     continue
+C     write(6,*) 'NWdft gradient not linked into this executable'
          call dft_grad_top(rtdb)
          goto 1000
-c
-c        optdft ... dft optimization
-c
-  150    call dft_optimize(rtdb)
+c     
+c     optdft ... dft optimization
+c     
+ 150     call dft_optimize(rtdb)
          goto 1000
-c
+c     
 c     conventional direct MP2 (requires moints module)
-c
-  160    call direct_mp2(rtdb)
+c     
+ 160     call direct_mp2(rtdb)
          goto 1000
-
-c
+c     
 c     Miles test 
-c
-  170    call mjdtest(rtdb)
+c     
+ 170     call mjdtest(rtdb)
          goto 1000
-c
+c     
 c     CCSD
-c
-  180    call ccsd(rtdb)
+c     
+ 180     call ccsd(rtdb)
          goto 1000
-
-c
-c  SCF frequencies by finite difference (in stepper)
-c
-  190    call scf_freq(rtdb)
+c     
+c     SCF frequencies by finite difference (in stepper)
+c     
+ 190     call scf_freq(rtdb)
          goto 1000
-c
-c  DFT frequencies by finite difference (in stepper)
-c
-  200    call dft_freq(rtdb)
+c     
+c     DFT frequencies by finite difference (in stepper)
+c     
+ 200     call dft_freq(rtdb)
          goto 1000
-c
-c  MCSCF 
-c
-  210    call mcscf(rtdb)
+c     
+c     MCSCF 
+c     
+ 210     call mcscf(rtdb)
          goto 1000
-c
-c  NW_ARGOS the md package supurbum
-c
+c     
+c     NW_ARGOS the md package supurbum
+c     
  220     call nwargos(rtdb)
          goto 1000
-c
+c     
+c     Four index
+c     
+ 230     call moints_full(rtdb)
+         goto 1000
+c     
       else
-c
+c     
          write(6,*) ' task_name = ', 
      $        task_name(1:inp_strlen(task_name))
          call errquit('control: unknown task name', 0)
@@ -394,12 +398,12 @@ c
 c     Eventually this will be where the next task is identified
 c     
  1000 continue
-c
+c     
 c     Finished ... eventually need to track status of tasks so that
 c     restarts happen correctly.  For now assume that the task completed
 c     and delete task from the database so that a restart will have no
 c     effect.
-c
+c     
       status = rtdb_delete(rtdb, 'task') ! quietly discard the status
 c     
       end
@@ -431,14 +435,16 @@ c
      $     40, .true.)
       write(6,*)
       write(6,*)
-      call util_print_centered(6, 'North West CHEM (NWCHEM)',
+      call util_print_centered(6,
+     $     'North-west Computational Chemisty Package (NWChem)',
      $     40, .true.)
       write(6,*)
       write(6,*)
       call util_print_centered(6,
      $      'Environmental Molecular Sciences Laboratory',
      $     40, .false.)
-      call util_print_centered(6,'Pacific Northwest Laboratory',
+      call util_print_centered(6,
+     $     'Pacific Northwest National Laboratory',
      $     40, .false.)
       call util_print_centered(6,'Richland, WA 99352',
      $     40, .false.)
