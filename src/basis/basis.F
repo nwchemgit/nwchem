@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.49 1996-10-25 22:11:13 d3e129 Exp $
+c $Id: basis.F,v 1.50 1996-12-13 21:55:27 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1012,6 +1012,7 @@ c::local
       integer atn
       character*16 element
       character*2  symbol
+*      character*2 geom_sym, bas_sym
       logical status
       logical foundit
       integer int_dummy, num_elec
@@ -1075,8 +1076,17 @@ c
       endif
       do 00100 i=1,nat
         foundit = .false.
+*rak:        if (.not.geom_tag_to_element
+*rak:     &      (tags(i,geom),geom_sym,element,atn))
+*rak:     &      call errquit
+*rak:     &      ('bas_geobas_build: could not map geo tag to element',911)
         do 00101 j = 1,infbs_head(HEAD_NTAGS,basis)
+*rak:          if (.not.geom_tag_to_element
+*rak:     &        (bs_tags(j,basis),bas_sym,element,atn))
+*rak:     &        call errquit
+*rak:     &        ('bas_geobas_build: could not map bstag to element',911)
           if(tags(i,geom) .eq. bs_tags(j,basis)) then
+*rak:          if(geom_sym .eq. bas_sym) then
             int_mb(mb_ibs_ce2uce(i,basis)) = j
             foundit = .true.
             goto 00102
@@ -2256,6 +2266,36 @@ c
       bas_get_exponent = .true.
 c
       return
+      end
+*.....................................................................
+      logical function bas_cont_tag(basisin,icont,tagout)
+      implicit none
+#include "basP.fh"
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "geobasmapP.fh"
+#include "bas_ibs_dec.fh"
+c::-function
+      logical bas_check_handle
+      external bas_check_handle
+c::-passed
+      integer basisin
+      integer icont
+      character*(*) tagout
+c::-local
+      integer center, ucenter, basis
+      integer len_tagout
+#include "bas_ibs_sfn.fh"
+c
+      bas_cont_tag = bas_check_handle(basisin,'bas_cont_tag')
+      if (.not.bas_cont_tag) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+      
+      center = sf_ibs_cn2ce(icont,basis)
+      ucenter = sf_ibs_ce2uce(center,basis)
+      len_tagout = len(tagout)
+      tagout = bs_tags(ucenter,basis)(1:len_tagout)
       end
 *.....................................................................
       logical function bas_continfo(basisin,icont,

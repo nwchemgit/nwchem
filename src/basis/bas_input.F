@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.26 1996-10-01 18:49:50 d3e129 Exp $
+c $Id: bas_input.F,v 1.27 1996-12-13 21:55:26 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -325,7 +325,7 @@ c
  26            if (.not. inp_a(filename)) goto 10000
                goto 22
 c
-c number of electrons for ecp
+c...  nelec  ...  =>  number of electrons for ecp
 c
  28            if (.not.inp_i(num_elec)) goto 10000
 *debug:               write(6,*)' basis    = ',basis

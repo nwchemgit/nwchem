@@ -1,4 +1,4 @@
-c $Id: bas.fh,v 1.13 1996-10-01 18:49:49 d3e129 Exp $
+c $Id: bas.fh,v 1.14 1996-12-13 21:55:25 d3e129 Exp $
 c:bas.fh
 c
       logical bas_version        
@@ -57,6 +57,8 @@ c
       logical ecp_set_parent_handle
       logical ecp_get_parent_handle
 c
+      logical bas_cont_tag
+c
       external bas_version        
       external bas_create         
       external bas_destroy        
@@ -112,4 +114,6 @@ c
       external ecp_get_num_elec
       external ecp_set_parent_handle
       external ecp_get_parent_handle
+c
+      external bas_cont_tag
 c
