@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.121 1999-07-06 17:08:40 d3g681 Exp $
+C     $Id: geom_input.F,v 1.122 1999-07-13 18:01:27 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -882,6 +882,7 @@ c
 c
 c     Read [value] [name] [<constant>] from the end of a
 c     redundant variable input and set data accordingly
+c     The fields can be in any order.
 c
 c     If the name is not given generate a default based on the
 c     order input by the user.
@@ -890,14 +891,17 @@ c     If the value is not set by the user a default of 555.1212
 c     is being  used to indicate this.  To avoid printing this
 c     out, write a value from the user into fff
 c     
-      character*10 field
+      character*10 field, tmp
       if (.not. inp_f(val)) call inp_clear_err
       if (.not. inp_a(nam)) call inp_clear_err
+      if (.not. inp_f(val)) call inp_clear_err
       field = ' '
       if (.not. inp_a(field)) call inp_clear_err
+      if (.not. inp_f(val)) call inp_clear_err
       if (inp_compare(.false.,nam,'constant')) then
+         tmp = field
          field = 'constant'
-         nam = ' '
+         nam = tmp
       endif
       frz = inp_compare(.false.,field,'constant')
 c
