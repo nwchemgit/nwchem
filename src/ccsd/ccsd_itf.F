@@ -2,7 +2,7 @@
      &                    hiu,giu,habe,gabe,hia,ht1,
      &                    idiis,cmo,eorb,iprt,
      &                    g_t2,g_ht2,g_ncoul,g_nexch,tklst)
-C     $Id: ccsd_itf.F,v 2.4 1997-04-14 06:34:56 gg502 Exp $
+C     $Id: ccsd_itf.F,v 2.5 1997-10-14 00:47:56 d3e129 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        idiis,iprt,g_t2,g_ht2
@@ -42,10 +42,10 @@ c create new GAs with proposed final ordering
 c ------------------------------------------------------------
       if (.not.ga_create(MT_DBL,lnov,lnov,'nt2',
      &                   nvir,nvir,g_nt2))
-     &     call errquit('ga_create g_nt2 failed',0)
+     &     call errquit('ccsd_itm: ga_create g_nt2 failed',0)
       if (.not.ga_create(MT_DBL,lnov,lnov,'nht2',
      &                   nvir,nvir,g_nht2))
-     &     call errquit('ga_create g_nht2 failed',0)
+     &     call errquit('ccsd_itm: ga_create g_nht2 failed',0)
 c ------------------------------------------------------------
 c fill new GAs
 c ------------------------------------------------------------

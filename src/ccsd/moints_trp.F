@@ -3,7 +3,7 @@ c
 c
 c
 c
-c  $Id: moints_trp.F,v 2.6 1997-06-05 17:45:41 gg502 Exp $
+c  $Id: moints_trp.F,v 2.7 1997-10-14 00:47:58 d3e129 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -105,7 +105,7 @@ c
           if (.not. ma_push_get(MT_INT, nbf, 'movec syms',l_sym, k_sym))
      $         call errquit('moints_trp: no memory for syms?',0)
           if (.not.ga_create(MT_DBL,nbf,nbf,'tmp',nbf,1,g_tmp))
-     $      call errquit('cannot create tmp',0)
+     $      call errquit('moints_trp: cannot ga_create tmp',0)
           call ga_put(g_tmp,1,nbf,1,nbf,cmo,nbf)
           call sym_movecs_adapt( basis, 1d-8, g_tmp,
      $                            int_mb(k_sym), nmixed )

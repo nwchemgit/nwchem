@@ -2,7 +2,7 @@
      &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
      &                       hia,t1,ht1,idiis,g_nt2,g_nht2,
      &                       g_ncoul,g_nexch,tklst)
-C     $Id: ccsd_pampt3.F,v 2.7 1997-05-29 16:42:53 gg502 Exp $
+C     $Id: ccsd_pampt3.F,v 2.8 1997-10-14 00:47:57 d3e129 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        iprt,iam,nodes,idiis,g_nt2,g_nht2,
@@ -43,20 +43,20 @@ c create global arrays
 c ------------------------------------------------------------
       if (.not.ga_create(MT_DBL,nbf*nbf,nocc*nocc,'x',
      &                   nbf*nbf,1,g_x))
-     &     call errquit('ga_create g_x failed',0)
+     &     call errquit('ccsd_pampt3: ga_create g_x failed',0)
 c
       if (.not.ga_create(MT_DBL,nbf*nbf,nocc*nocc,'c',
      &                   nbf*nbf,1,g_c))
-     &     call errquit('ga_create g_c failed',0)
+     &     call errquit('ccsd_pampt3: ga_create g_c failed',0)
 c -- global array for ht2 with 2 ao indices
       if (.not.ga_create(MT_DBL,nocc*nocc,nbf*nbf,'sht2',
      &                   nocc*nocc,1,g_sht2))
-     &     call errquit('ga_create g_sht2 failed',0)
+     &     call errquit('ccsd_pampt3: ga_create g_sht2 failed',0)
 c
 c -- global array for t2 with 2 ao indices
       if (.not.ga_create(MT_DBL,nocc*nocc,nbf*nbf,'st2',
      &                   nocc*nocc,1,g_st2))
-     &     call errquit('ga_create g_st2 failed',0)
+     &     call errquit('ccsd_pampt3: ga_create g_st2 failed',0)
 c
 c ------------------------------------------------------------
 c - Make t2+/- with 2 ao and 2 occ indices

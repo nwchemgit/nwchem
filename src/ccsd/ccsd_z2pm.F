@@ -1,6 +1,6 @@
       subroutine ccsd_z2pm(basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2,cmo,
      &                     scra,scrb)
-C     $Id: ccsd_z2pm.F,v 2.2 1997-06-05 17:40:15 gg502 Exp $
+C     $Id: ccsd_z2pm.F,v 2.3 1997-10-14 00:47:57 d3e129 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2
       double precision cmo(nbf,nbf),scra(nbf*nbf),scrb(nbf*nbf)
@@ -25,7 +25,7 @@ C
 c
       if (.not.ga_create(MT_DBL,nbf*nbf,lnoo,'sz2t',
      &                   nbf*nbf,1,g_sz2t))
-     &     call errquit('ga_create g_sz2t failed',0)
+     &     call errquit('ccsd_z2pm: ga_create g_sz2t failed',0)
 c
       call ga_distribution(g_nz2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
@@ -201,7 +201,7 @@ c ------------------------------------------------------------
 
       if (.not.ga_create(MT_DBL,nbf*nbf,lnoo,'shz2t',
      &                   nbf*nbf,1,g_shz2t))
-     &     call errquit('ga_create g_shz2t failed',0)
+     &     call errquit('ccsd_hz2pm: ga_create g_shz2t failed',0)
 
       call ga_transpose(g_shz2,g_shz2t)
 c - redefine g_shz2
@@ -209,7 +209,7 @@ c - redefine g_shz2
      &    call errquit('ga_dest g_shz2 fail',0)
       if (.not.ga_create(MT_DBL,nbf*nbf,lnoo,'shz2',
      &                   nbf*nbf,1,g_shz2))
-     &     call errquit('ga_create g_shz2 failed',0)
+     &     call errquit('ccsd_hz2pm: ga_create g_shz2 failed',0)
 
       call ga_distribution(g_nhz2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc

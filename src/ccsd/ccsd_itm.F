@@ -3,7 +3,7 @@
      &                    scra,scrb,scrc,scrd,scre,scrf,
      &                    g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &                    iprt)
-C     $Id: ccsd_itm.F,v 2.6 1997-05-29 16:42:52 gg502 Exp $
+C     $Id: ccsd_itm.F,v 2.7 1997-10-14 00:47:56 d3e129 Exp $
       implicit none
       integer nocc,nvir,nact,g_nt2,g_nht2,g_ncoul,g_nexch,
      &        g_x,g_c,g_sht2,iprt
@@ -40,13 +40,13 @@ c
 c - test x and c by doing its contribution to (2j-k)*(2t-t)
       if (.not.ga_create(MT_DBL,lnoo,lnoo,'aitm',
      &                   nocc,nocc,g_aitm))
-     &     call errquit('ga_create g_aitm failed',0)
+     &     call errquit('ccsd_itm: ga_create g_aitm failed',0)
       if (.not.ga_create(MT_DBL,lnvv,lnoo,'tmt1',
      &                   lnvv,1,g_tmt1))
-     &     call errquit('ga_create g_tmt1 failed',0)
+     &     call errquit('ccsd_itm: ga_create g_tmt1 failed',0)
       if (.not.ga_create(MT_DBL,lnvv,lnoo,'tmt2',
      &                   lnvv,1,g_tmt2))
-     &     call errquit('ga_create g_tmt2 failed',0)
+     &     call errquit('ccsd_itm: ga_create g_tmt2 failed',0)
 c
       call dfill(lnvv,0.0d00,habe,1)
       call ga_distribution(g_nexch,iam,g_jlo,g_jhi,g_ilo,g_ihi)
@@ -448,13 +448,13 @@ c
 c
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmt',
      &                   nvir,nvir,g_tmt))
-     &     call errquit('ga_create g_tmt failed',0)
+     &     call errquit('ccsd_itm: ga_create g_tmt failed',0)
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmp',
      &                   nvir,nvir,g_tmp))
-     &     call errquit('ga_create g_tmp failed',0)
+     &     call errquit('ccsd_itm: ga_create g_tmp failed',0)
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmp2',
      &                   nvir,nvir,g_tmp2))
-     &     call errquit('ga_create g_tmp2 failed',0)
+     &     call errquit('ccsd_itm: ga_create g_tmp2 failed',0)
 c-----------------------------------------------------------------------
 c  K4 intermediate
 c-----------------------------------------------------------------------
