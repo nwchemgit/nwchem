@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.4 2004-07-23 10:58:09 edo Exp $
+* $Id: cosmo.F,v 1.5 2004-07-23 20:39:40 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -191,15 +191,16 @@ c
 c
       integer iat, nfield, nrad, irad 
       integer iscren, ifscrn, minbem, maxbem, ificos, lineq
-      integer l_rad, k_rad, l_tag, k_tag, l_zan, k_zan, l_coor, k_coor
+      integer l_rad, k_rad, l_costag, k_costag, l_coszan, k_coszan
+      integer l_coscoor, k_coscoor
 c
       logical odbug, osome
       integer me
 c
       common/hnd_cospar/dielec,screen,rsolv
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
-      dimension vdwr(103)
-      dimension vander(36)
+      double precision vdwr(103)
+      double precision vander(36)
 c
       data zero   /0.0d+00/
       data one    /1.0d+00/
@@ -271,26 +272,26 @@ c
 c
       if(.not.ma_push_get(mt_dbl,nat,'cosmo rads',l_rad,k_rad))
      & call errquit('cosmo_initialize malloc k_rad failed',911)
-      if(.not.ma_push_get(mt_dbl,nat*3,'cosmo coord',l_coor,k_coor))
-     & call errquit('cosmo_initialize malloc k_coor failed',911)
-      if(.not.ma_push_get(mt_dbl,nat,'cosmo zan',l_zan,k_zan))
-     & call errquit('cosmo_initialize malloc k_zan failed',911)
-      if(.not.ma_push_get(mt_byte,nat*16,'cosmo tags',l_tag,k_tag))
-     & call errquit('cosmo_initialize malloc k_tag failed',911)
+      if(.not.ma_push_get(mt_dbl,nat*3,'coord',l_coscoor,k_coscoor))
+     & call errquit('cosmo_initialize malloc k_coscoor failed',911)
+      if(.not.ma_push_get(mt_dbl,nat,'cosmo zan',l_coszan,k_coszan))
+     & call errquit('cosmo_initialize malloc k_coszan failed',911)
+      if(.not.ma_push_get(mt_byte,nat*16,'tags',l_costag,k_costag))
+     & call errquit('cosmo_initialize malloc k_costag failed',911)
 c
-      if(.not.geom_cart_get(geom,nat,byte_mb(k_tag),dbl_mb(k_coor),
-     $   dbl_mb(k_rad))) call errquit
+      if(.not.geom_cart_get(geom,nat,byte_mb(k_costag),
+     &   dbl_mb(k_coscoor),dbl_mb(k_coszan))) call errquit
      $    (' cosmo_initialize: geom_cart_get failed.',911, GEOM_ERR)
 c
       do i=1,36
          vdwr(i)=vander(i) 
       enddo
       do iat=1,nat
-         rad=vdwr(nint(dbl_mb(k_zan+iat-1)))
+         rad=vdwr(nint(dbl_mb(k_coszan+iat-1)))
          if (geom_any_ecp(geom).and.geom_ecp_get(geom,iat)) then
             rad = zero
-            status = geom_tag_to_default_mass(byte_mb(k_tag+16*(iat-1)),
-     $                                        rad)
+            status=geom_tag_to_default_mass(byte_mb(k_costag+16*(iat-1))
+     $                                      ,rad)
          endif
          if(rad.eq.zero) then
             rad=def
@@ -298,7 +299,7 @@ c
          dbl_mb(k_rad+iat-1)=rad
       enddo
 c
-      if(.not.ma_pop_stack(l_tag))
+      if(.not.ma_pop_stack(l_costag))
      & call errquit('cosmo_initialize,ma_pop_stack of l_tag failed',911)
 c
       do_cosmo = .true.
@@ -392,16 +393,17 @@ c
             dbl_mb(k_rad+iat-1)=zero
          endif
          if(osome.and.me.eq.0) then
-           write(luout,9987) iat,dbl_mb(k_zan+iat-1),dbl_mb(k_rad+iat-1)
+           write(luout,9987) iat,dbl_mb(k_coszan+iat-1),
+     &                           dbl_mb(k_rad+iat-1)
          endif
       enddo
 c
-      if(.not.ma_pop_stack(l_zan))
+      if(.not.ma_pop_stack(l_coszan))
      & call errquit('cosmo_initialize,ma_pop_stack of l_zan failed',911)
 c
 c     ----- create boundary elements of cavity -----
 c
-      call hnd_cosset(rtdb,nat,dbl_mb(k_coor),dbl_mb(k_rad))
+      call hnd_cosset(rtdb,nat,dbl_mb(k_coscoor),dbl_mb(k_rad))
 c
 c     ----- done -----
 c
@@ -412,7 +414,7 @@ c
 c
       if(me.eq.0) call util_flush(Luout)
 c
-      if(.not.ma_pop_stack(l_coor))
+      if(.not.ma_pop_stack(l_coscoor))
      & call errquit('cosmo_initialize,ma_pop_stack l_coor failed',911)
       if(.not.ma_pop_stack(l_rad))
      & call errquit('cosmo_initialize,ma_pop_stack l_rad failed',911)
@@ -440,7 +442,7 @@ c
       end
 c
       subroutine cosmo_tidy()
-      implicit double precision (a-h,o-z)
+      implicit none
 #include "errquit.fh"
 #include "prop.fh"
 #include "geom.fh"
@@ -904,7 +906,7 @@ c
          dbl_mb(k_efcz+ief-1)=zero
       enddo
       do ief=1,nefc
-         byte_mb(k_efclab+(ief-1)*8)='        '
+         byte_mb(k_efclb+(ief-1)*8)='        '
       enddo
 c
 c     ----- write out to -rtdb- -----
@@ -928,7 +930,15 @@ c     if(.not.rtdb_cput(rtdb,'char variable',nefc,byte_mb(k_efclb)))
 c    $   call errquit('hnd_cossas: rtdb put failed for efclab',916,
 c    &       rtdb_err)
 c
-      if(.not.ma_chop_stack(l_efcc)) call
+      if(.not.ma_pop_stack(l_efclb)) call
+     &   errquit('cosmo_cossas chop stack k_efclb failed',911)
+      if(.not.ma_pop_stack(l_efcz)) call
+     &   errquit('cosmo_cossas chop stack k_efcz failed',911)
+      if(.not.ma_pop_stack(l_efciat)) call
+     &   errquit('cosmo_cossas chop stack k_efciat failed',911)
+      if(.not.ma_pop_stack(l_efcs)) call
+     &   errquit('cosmo_cossas chop stack k_efcs failed',911)
+      if(.not.ma_pop_stack(l_efcc)) call
      &   errquit('cosmo_cossas chop stack k_efcc failed',911)
 c
       return
@@ -1640,6 +1650,7 @@ c
 #include "mafdecls.fh"
 #include "nwc_const.fh"
 #include "stdio.fh"
+#include "prop.fh"
 c
       integer rtdb
       integer basis
@@ -1737,7 +1748,7 @@ c
 c     ----- get -cosmo- charges -----
 c
       call hnd_coschg(g_dens,ndens,rtdb,geom,basis,nefc,dbl_mb(k_efcc),
-     &                dbl_mb(k_efcs),dbl_mb(k_efcz))
+     &                dbl_mb(k_efcs),dbl_mb(k_efcz),ecos)
 c
 c     ----- release memory block -----
 c
@@ -1745,8 +1756,8 @@ c
          if (.not.ga_destroy(g_dens(i))) call
      &       errquit('hnd_coschg: ga_destroy failed g_dens',0,GA_ERR)
       enddo
-      if(.not.ma_chop_stack(l_occ))
-     & call errquit('cosmo_charges, ma_chop_stack of l_occ failed',911,
+      if(.not.ma_chop_stack(l_efcc))
+     & call errquit('cosmo_charges, ma_chop_stack of l_efcc failed',911,
      &       ma_err)
 c
       return
@@ -1756,16 +1767,16 @@ c
       end
 c
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nefc,
-     &                      efcc,efcs,efcz)
+     &                      efcc,efcs,efcz,ecos)
       implicit double precision (a-h,o-z)
 #include "errquit.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
-#include "prop.fh"
 #include "geom.fh"
 #include "stdio.fh"
+#include "prop.fh"
 c
       integer  rtdb
       integer  geom
@@ -1860,15 +1871,16 @@ c
          xp = efcc(1,ipt)
          yp = efcc(2,ipt)
          zp = efcc(3,ipt)
+         x(i11+ipt-1) = 0.0d0
          do 210 i = 1,nat
             xn  = dbl_mb(k_xyzpt  +3*(i-1)) - xp
             yn  = dbl_mb(k_xyzpt+1+3*(i-1)) - yp
             zn  = dbl_mb(k_xyzpt+2+3*(i-1)) - zp
             zan = dbl_mb(k_zanpt+i-1)
             rr =  sqrt(xn*xn + yn*yn + zn*zn)
-            if (rr.lt.1.0d-3) go to 210
             x(i11+ipt-1) = x(i11+ipt-1) + zan/rr
   210    continue
+         x(i12+ipt-1) = -x(i12+ipt-1)
          x(i10+ipt-1) = x(i11+ipt-1) + x(i12+ipt-1)
   230 continue
 c

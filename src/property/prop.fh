@@ -1,9 +1,9 @@
 *
-* $Id: prop.fh,v 1.1 2003-01-30 01:00:16 bert Exp $
+* $Id: prop.fh,v 1.2 2004-07-23 20:39:40 bert Exp $
 *
 c
 c     Include file that contains information used by the property routines
 c     when connecting to other parts of the code
 c
       integer cosmo_geom_efc
-      common /cosmo_prop/ cosmo_geom_efc
+      common /cosmo_prop/cosmo_geom_efc
