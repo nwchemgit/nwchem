@@ -1,5 +1,5 @@
 c
-c $Id: sp_common.fh,v 1.20 2000-02-18 06:01:03 d3j191 Exp $
+c $Id: sp_common.fh,v 1.21 2000-04-19 20:38:09 d3j191 Exp $
 c
 c     conversion factors
 c
@@ -87,13 +87,13 @@ c
       integer nbbdif,ipairf,ipairt,iguide,idebug,npack,npackw
       integer misl(mis2),nbits(mis2),ipack(mis2)
       integer miwl(miw2),nbitw(miw2),ipackw(miw2)
-      integer lfnsyn,nfsync,lfndbg,nhist
+      integer lfnsyn,nfsync,lfndbg,nhist,mbbreq
       logical lpbc0,lpbc9,ltwin,lpola,lfree,llong,lnode0,lqmd,lpipo
       common/sd_var/rshort,rlong,rbox,box,boxh,bsize,vlat,vlati,
      + bxmin,bymin,bzmin,tsyncp,factld,third,
      + npbtyp,nbxtyp,neighb,loadb,lbpair,npprev,ntwin,nldup,nbbdif,
      + lfnsyn,nfsync,ipairf,ipairt,iguide,idebug,npack,npackw,lfndbg,
-     + misl,nbits,ipack,miwl,nbitw,ipackw,nhist,
+     + misl,nbits,ipack,miwl,nbitw,ipackw,nhist,mbbreq,
      + lpbc0,lpbc9,ltwin,lpola,lfree,llong,lnode0,lqmd,lpipo
 c
       integer mxhist

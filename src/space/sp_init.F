@@ -4,10 +4,10 @@
      + npbt,nbxt,boxt,vlatt,lpbc,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd,iguidi,
-     + ldbg,idbg,prjct)
+     + ldbg,idbg,prjct,mbbi)
 c
 c
-c $Id: sp_init.F,v 1.63 2000-04-12 00:03:35 d3j191 Exp $
+c $Id: sp_init.F,v 1.64 2000-04-19 20:38:09 d3j191 Exp $
 c
       implicit none
 c
@@ -25,7 +25,7 @@ c
       real*8 temp,tempw,temps,fld
       integer npxi,npyi,npzi,nbxi,nbyi,nbzi
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
-      integer lenscr,ldb,lbp,npbt,nbxt,iguidi
+      integer lenscr,ldb,lbp,npbt,nbxt,iguidi,mbbi
       logical lpol,lfre,ignore,lpbc,lqd
       character*80 prjct
 c
@@ -71,6 +71,7 @@ c
 c
       mwm=mwmi
       msa=msai
+      mbbreq=mbbi
 c
       iguide=iguidi
 c
@@ -1341,6 +1342,7 @@ c     allocate memory for the box-box list
 c
       if(mbblp.eq.0) then
       if(np.gt.1) call ga_igop(msp_20,mbbl,1,'max')
+      mbbl=max(mbbl,mbbreq)
       if(.not.ma_push_get(mt_int,15*mbbl,'bb',l_bb,i_bb))
      + call errquit('Failed to allocate memory for bb',0)
       else
