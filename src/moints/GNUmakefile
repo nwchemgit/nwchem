@@ -10,7 +10,7 @@
 
     LIBRARY = libmoints.a
 
-  USES_BLAS = moints.F
+  USES_BLAS = moints.F moints_a.F moints_xx.F
 
  LIB_DEFINES =  -DDEBUG_PRINT 
 #              -DMOINTS_INTS_DUMMY
