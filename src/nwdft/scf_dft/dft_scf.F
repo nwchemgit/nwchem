@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.73 1997-04-25 23:11:49 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.74 1997-05-04 05:32:03 d3h449 Exp $
 c     
       implicit none
 c
@@ -100,6 +100,7 @@ c
       double precision homo, lumo, homo_lumo_gap
       integer stat1, stat2, l_ir, k_ir
       logical status, last_time, last_time_vecs, last_time_energy
+      logical check_shift
       character*7 name
 c
       call ecce_print_module_entry('dft')
@@ -122,6 +123,13 @@ c
       oprint_final_vecs = util_print('final vectors', print_high)
       me = ga_nodeid()
       nproc = ga_nnodes()
+c
+c     see if levelshifting monitoring is desired
+c
+      if (.not. rtdb_get(rtdb, 'dft:check_shift', mt_log, 1,
+     &   check_shift))then
+         check_shift = .false.      
+      endif
 c     
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
 c     (from NWdft data structures, not the nwchem objects)
@@ -139,7 +147,7 @@ c
 c     determine pattern of orbitals' occupancy
 c     
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     &   call errquit('dft_scf: rtdb_put of noc failed', 0)
+     &   call errquit('dft_scf: rtdb_get of noc failed', 0)
       if (.not. MA_Push_Get(MT_Dbl,nbf_ao*ipol,'mo occ',l_occ,k_occ))
      &   call errquit('dft_scf: failed to alloc',999)
 c      
@@ -227,7 +235,7 @@ c
 c         availm = avail - ipol*(nbf_ao + nbf_cd + nbf_xc) - 125000
 c     
          availm = avail - ipol*(nbf_ao + nbf_cd + nbf_xc) - 
-     &                    ((nfock+4)*nbf_ao*nbf_ao)/nproc - 125000
+     &                    ((nfock+4)*nbf_ao*nbf_ao)/nproc - 1250000
 c
          availm_r = dble(availm)
          availm_r = min(availm_r,n3c_dbl_r)
@@ -907,14 +915,13 @@ c
          if (homo_lumo_gap.lt.hl_tol)then
             levelshifting = .true.
             rlshift = rlshift_input
-            if (lumo .lt. homo)then
-               levelshifting = .false.
-               if (me.eq.0 .and. oprint_conv)write(LuOut,2224)homo, lumo
- 2224          format(10x,'HOMO = ',f6.2,' LUMO (with shift) = ',f6.2,
-     &              /,10x,'Unshifted LUMO is less than HOMO.',
-     &              /,10x,'Turning levelshifting OFF this iteration.')
+            if (check_shift)then
+               if (lumo .lt. homo)then
+                  levelshifting = .false.
+                  if (me.eq.0 .and. oprint_conv)
+     &               write(LuOut,2224)homo, lumo
+               endif
             endif
-c
          else
             levelshifting = .false.
             rlshift = rlshift_def
@@ -923,6 +930,9 @@ c
          levelshifting = .false.
          rlshift = rlshift_def
       endif
+ 2224 format(10x,'HOMO = ',f6.2,' LUMO (with shift) = ',f6.2,
+     &     /,10x,'Unshifted LUMO is less than HOMO.',
+     &     /,10x,'Turning levelshifting OFF this iteration.')
 c     
       if ((delta.lt.diison.and.delta.gt.diisoff).or.
      &     iter.le.ncyds.or.keep_diis_on)then
