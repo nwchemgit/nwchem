@@ -1,4 +1,4 @@
-c $Id: intdd_init.F,v 1.2 1998-09-24 00:18:00 d3e129 Exp $
+c $Id: intdd_init.F,v 1.3 1998-09-28 16:53:13 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intdd\_init}
@@ -46,6 +46,7 @@ c::local
       parameter (nqmax_texas = 10000)
       integer txs_mem_min
       integer type
+      integer nbf2use, nbf2use_test, maxgdd
       logical cando_txs_deriv
 c
 c
@@ -181,8 +182,8 @@ c
      &    ('only basis sets with s through h functions are allowed',
      &    911)
 *
-c.. for first derivatives add 1
-      call defNxyz(ang2use+1)
+c.. for second derivatives add 2
+      call defNxyz(ang2use+2)
 c
 c initialize spcart stuff 
 c
@@ -212,6 +213,21 @@ c
          call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min,
      &        'der2_int')
       endif
+c
+c    confirm basis set maximum buffer size for second derivatives
+c
+      nbf2use = 0
+      do ibas = 1,nbas
+        if (bas_nbf_cn_max(bases(ibas),nbf2use_test))
+     &      call errquit('intdd_init: bas_nbf_cn_max failed',911)
+        nbf2use = max(nbf2use,nbf2use_test)
+      enddo
+      maxgdd  = 78*nbf2use*nbf2use*nbf2use*nbf2use  ! maxg for 2e2nd derivs
+      nbf2use = maxgdd + maxgdd/10  ! add 10%
+      isz_2e4c = max(isz_2e4c,nbf2use)
+      mem_2e4c = max(mem_2e4c,isz_2e4c)
+      isz_2e3c = maxgdd/nbf2use
+      isz_2e2c = maxgdd/nbf2use/nbf2use
 c
 c See if any basis has an attached ECP
 c
