@@ -1,6 +1,6 @@
       logical function semi_dir_mp2(rtdb)
 *
-* $Id: mp2_grad.F,v 1.18 1997-03-27 08:47:51 d3e129 Exp $
+* $Id: mp2_grad.F,v 1.19 1997-04-10 02:05:10 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -26,6 +26,7 @@ c
       status=rtdb_parallel(.true.)
       call util_print_push
       call util_print_rtdb_load(rtdb,'mp2')
+      call ecce_print_module_entry('mp2')
 c
 c     Make sure the SCF is being converged accurately enough
 c
@@ -40,6 +41,7 @@ c
 c
       if (.not. scf(rtdb)) then
          semi_dir_mp2 = .false.
+         call ecce_print_module_exit('mp2', 'failed')
          return
       endif
 c
@@ -103,5 +105,6 @@ c
       call util_print_pop
 c
       semi_dir_mp2 = .true.
+      call ecce_print_module_exit('mp2', 'ok')
 c
       end

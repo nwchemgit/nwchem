@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.36 1997-03-27 08:47:47 d3e129 Exp $
+* $Id: mp2_energy.F,v 1.37 1997-04-10 02:05:09 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -120,7 +120,7 @@ c
       endif
       if (.not.rtdb_get(rtdb, 'mp2:frozen virtual', MT_INT, 1,
      $     nva_frozen)) nva_frozen = 0
-      if ((task.eq.'gradient') .and. (noa_frozen.gt.0)) call errquit
+      if ((task.eq.'gradient') .and. (nva_frozen.gt.0)) call errquit
      $     ('mp2_gradient: unable to freeze virtuals for gradient',0)
 c
       nob_frozen = noa_frozen
@@ -286,6 +286,11 @@ c
       do i=nob_lo,nvb_hi
          dbl_mb(k_eval_b-1+int_mb(k_map_b+i-1))=dbl_mb(k_work+i-1)
       end do
+c
+*      write(6,*) ' reordering vector ', (int_mb(k_map_a+i-1),i=1,nmo)
+*      write(6,*) ' reordering vector ', (int_mb(k_map_b+i-1),i=1,nmo)
+*      call output(dbl_mb(k_eval_a),1,nmo,1,1,nmo,1,1)
+*      call output(dbl_mb(k_eval_b),1,nmo,1,1,nmo,1,1)
 c     
       if (.not. ma_pop_stack(l_work)) call errquit
      $     ('mp2_grad: ma failed popping workspace(1)', 0)
