@@ -1,17 +1,17 @@
-      Subroutine hf1d(Axyz,Aprims,Acoefs,NPA,NCA,La,
-     &                Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
-     &                Cxyz,zan,ncenters,ictrA,ictrB,
-     &                bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,W0,maxW0)
-c $Id: hf1d.F,v 1.3 1994-06-02 20:33:13 d3e129 Exp $
+      Subroutine hf1d(
+     &       Axyz,Aprims,Acoefs,NPA,NCA,La,ictrA,
+     &       Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrB,
+     &       Cxyz,zan,ncenters,
+     &       bO2I,bKEI,bNAI,Nint,
+     &       O2I,KEI,NAI,canAB,dryrun,W0,maxW0)
+c $Id: hf1d.F,v 1.4 1994-06-08 22:39:49 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
+      Logical dryrun
       Logical O2I,KEI,NAI,canAB,GenCon
 
-#if defined(MSS_TIMER)
-#include <timer.fh>
-#endif
 c--> Cartesian Coordinates, Primitives & Contraction Coefficients
 
       Dimension Axyz(3),Aprims(NPA),Acoefs(NPA,NCA)
@@ -94,10 +94,6 @@ c Define the accumulated number of angular momentum functions <= Lp.
 
       Lp3 = ((Lp+1)*(Lp+2)*(Lp+3))/6
 
-#if defined(MSS_TIMER)
-                     call second(t1)
-#endif
-
 c Define the prefactor of the overlap distribution "P".
 
 c Assign pointers to scratch space.
@@ -125,16 +121,14 @@ c Assign pointers to scratch space.
  
       end if
  
-      call hfset(Axyz,Aprims,Acoefs,NPA,NCA,
-     &           Bxyz,Bprims,Bcoefs,NPB,NCB,
-     &           GenCon,W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ESp),NPP)
-
-#if defined(MSS_TIMER)
-                     call second(t2)
-                     if(itime.eq.1) time(1) = time(1) + (t2-t1)
-
-                     call second(t1)
-#endif
+      if (dryrun) then
+        MaxMem = i_left + (maxW0 - (i_right-1))
+        NPP = NPA*NPB
+      else
+        call hfset(Axyz,Aprims,Acoefs,NPA,NCA,
+     &         Bxyz,Bprims,Bcoefs,NPB,NCB,
+     &         GenCon,W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ESp),NPP)
+      endif
 
 c Define the Hermite linear expansion coefficients.
 
@@ -164,23 +158,20 @@ c Assign pointers to scratch space.
 
       end if
 
-      do 100 nd = 0,MXD
+      if (dryrun) then
+        MaxMem = max(MaxMem, (i_left+(maxW0-(i_right-1))))
+      else
+        do 100 nd = 0,MXD
 
-       call hfmke(Axyz,Bxyz,W0(i_ALPHAp),W0(i_ESp),W0(i_Ep),W0(i_pf),
-     &            nd,NPP,MXD,La+Li,Lb+Li)
+          call hfmke(Axyz,Bxyz,W0(i_ALPHAp),W0(i_ESp),W0(i_Ep),
+     &           W0(i_pf),nd,NPP,MXD,La+Li,Lb+Li)
 
-  100 continue
-       
-#if defined(MSS_TIMER)
-                     call second(t2)
-                     if(itime.eq.1) time(2) = time(2) + (t2-t1)
-
-                     call second(t1)
-#endif
+100     continue
+      endif
 
 c Compute the 2-center overlap integrals, <a|S|b>.
 
-      if( O2I )then
+      if( O2I.and.(.not.dryrun))then
 
        Nder = 3
 
@@ -194,13 +185,6 @@ c Compute the 2-center overlap integrals, <a|S|b>.
   200  continue
 
       end if
-       
-#if defined(MSS_TIMER)
-                     call second(t2)
-                     if(itime.eq.1) time(3) = time(3) + (t2-t1)
-
-                     call second(t1)
-#endif
        
 c Compute kinetic energy integrals, <a|T|b>.
 
@@ -226,26 +210,23 @@ c Assign pointers to scratch space.
 
        end if
 
-       Nder = 3
+       if (dryrun) then
+         MaxMem = max( MaxMem, i_top)
+       else
+         Nder = 3
 
-       call hfdkei(W0(i_ALPHAp),W0(i_Ep),bKEI,W0(i_Ti),
-     &             NPP,Nint,La,Lb,Li,MXD,inder1,Nder,canAB)
+         call hfdkei(W0(i_ALPHAp),W0(i_Ep),bKEI,W0(i_Ti),
+     &          NPP,Nint,La,Lb,Li,MXD,inder1,Nder,canAB)
 
-       do 300 n = 1,Nint
-        bKEI(n,4) = -bKEI(n,1)
-        bKEI(n,5) = -bKEI(n,2)
-        bKEI(n,6) = -bKEI(n,3)
-  300  continue
+         do 300 n = 1,Nint
+           bKEI(n,4) = -bKEI(n,1)
+           bKEI(n,5) = -bKEI(n,2)
+           bKEI(n,6) = -bKEI(n,3)
+300      continue
 
+       endif
       end if
        
-#if defined(MSS_TIMER)
-                     call second(t2)
-                     if(itime.eq.1) time(4) = time(4) + (t2-t1)
-
-                     call second(t1)
-#endif
-
 c Compute nuclear attraction integrals, <a|V|b>.
 
       if( NAI )then
@@ -286,18 +267,22 @@ c Assign scratch space.
 
        end if
 
-       call hf1mkr(Axyz,Bxyz,Cxyz,zan,ncenters,
-     &             W0(i_ALPHAp),W0(i_P),W0(i_RS),W0(i_PC),W0(i_ff),
-     &             W0(i_Rj),W0(i_R0),W0(i_R0C),W0(i_IJK),
-     &             NPP,Lp,Lp3,.TRUE.)
+       if (dryrun) then
+         MaxMem = max(MaxMem, i_top)
+       else
+         call hf1mkr(Axyz,Bxyz,Cxyz,zan,ncenters,
+     &          W0(i_ALPHAp),W0(i_P),W0(i_RS),W0(i_PC),W0(i_ff),
+     &          W0(i_Rj),W0(i_R0),W0(i_R0C),W0(i_IJK),
+     &          NPP,Lp,Lp3,.TRUE.)
 
 c Compute the derivative wrt to each of the nuclear attraction centers.
 c This accounts for the operator's dependence on the the nuclear coordinates.
 
-       call hfefi_d(W0(i_Ep),W0(i_R0C),W0(i_IJK),bNAI,
-     &        NPP,Nint,La,Lb,Li,Lp,Lp3,ncenters,
-     &        MXD,canAB,ictra,ictrb)
+         call hfefi(W0(i_Ep),W0(i_R0C),W0(i_IJK),bNAI,
+     &          NPP,Nint,La,Lb,Li,Lp,Lp3,ncenters,
+     &          MXD,canAB,ictra,ictrb)
 
+       endif
 c Compute compute the derivative wrt to the centers of the Gaussian functions.
 
 c Assign scratch space.
@@ -330,39 +315,42 @@ c Assign scratch space.
 
        end if
 
+       if (dryrun) then
+         MaxMem = max(MaxMem, i_top)
+       else
 c Compute the derivatives wrt to (P,R).
 
 c Compute the derivatives of the primitive integrals.
 
-       Nder = 6
-
-       call hfdnai(W0(i_Ep),W0(i_R0),W0(i_IJK),W0(i_VP),
-     &             NPP,Nint,La,Lb,Li,Lp,Lp3,ncenters,
-     &             MXD,inder2,Nder,canAB)
-
+         Nder = 6
+         
+         call hfdnai(W0(i_Ep),W0(i_R0),W0(i_IJK),W0(i_VP),
+     &          NPP,Nint,La,Lb,Li,Lp,Lp3,ncenters,
+     &          MXD,inder2,Nder,canAB)
+         
 c Transform to obtain derivatives wrt (A,B).
-
-       call hf1PRtoAB(W0(i_VP),W0(i_VR),W0(i_VA),W0(i_VB),
-     &        W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ff),NPP,Nint*3,
-     &        ictrA,ictrB)
-
+         
+         call hf1PRtoAB(W0(i_VP),W0(i_VR),W0(i_VA),W0(i_VB),
+     &          W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ff),NPP,Nint*3,
+     &          ictrA,ictrB)
+         
 c Combine the two components of the derivatives of NAIs.
 c
 c   (1) the derivative wrt to each of the nuclear attraction centers,
 c   (2) the derivative wrt to the centers of the Gaussian functions.
-
-       if( ictrA.eq.ictrB )then
-         call daxpy(Nint*3,1.D0,W0(i_VA),1,bNAI(1,((ictrA-1)*3+1)),1)         
-       else
-         call daxpy(Nint*3,1.D0,W0(i_VA),1,bNAI(1,((ictrA-1)*3+1)),1)
-         call daxpy(Nint*3,1.D0,W0(i_VB),1,bNAI(1,((ictrB-1)*3+1)),1)
-       end if
-
+         
+         if( ictrA.eq.ictrB )then
+           call daxpy(Nint*3,1.D0,W0(i_VA),1,bNAI(1,((ictrA-1)*3+1)),1)         
+         else
+           call daxpy(Nint*3,1.D0,W0(i_VA),1,bNAI(1,((ictrA-1)*3+1)),1)
+           call daxpy(Nint*3,1.D0,W0(i_VB),1,bNAI(1,((ictrB-1)*3+1)),1)
+         end if
+         
+       endif
       end if
+      
+c Return the maximum amount of scratch space required by a "dry run".
 
-#if defined(MSS_TIMER)
-                      call second(t2)
-                      if(itime.eq.1) time(5) = time(5) + (t2-t1)
-#endif
-
+      if( DryRun ) maxW0 = MaxMem
+c
       end

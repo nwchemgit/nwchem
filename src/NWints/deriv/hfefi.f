@@ -1,7 +1,7 @@
-      Subroutine hfefi_d(E,R0C,IJK,bEFI,
+      Subroutine hfefi(E,R0C,IJK,bEFI,
      &       NPP,Nint,La,Lb,Li,Lp,Lp3,ncenters,
      &       MXD,canAB,ictrA,ictrB)
-c $Id: hfefi.f,v 1.3 1994-06-02 20:33:16 d3e129 Exp $
+c $Id: hfefi.f,v 1.4 1994-06-08 22:39:52 d3e129 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 

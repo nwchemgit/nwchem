@@ -4,7 +4,7 @@
      &               Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,
      &               bERI,Nint,canAB,canCD,canPQ,
      &               DryRun,W0,maxW0)
-c $Id: hf2.F,v 1.2 1994-05-24 21:56:00 d3e129 Exp $
+c $Id: hf2.F,v 1.3 1994-06-08 22:39:59 d3e129 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -12,9 +12,6 @@ c $Id: hf2.F,v 1.2 1994-05-24 21:56:00 d3e129 Exp $
 
       Logical GenCon,DryRun
 
-#if defined(MSS_TIMER)
-#include <timer.fh>
-#endif
 c--> Cartesian Coordinates, Primitives & Contraction Coefficients
 
       Dimension Axyz(3),Aprims(NPA),Acoefs(NPA,NCA)
@@ -65,10 +62,6 @@ c Define the accumulated number of angular momentum functions <= Lr.
 
 c Define the prefactor of the overlap distribution "P".
  
-#if defined(MSS_TIMER)
-      call second(t1)
-#endif
-
 c Assign pointers to scratch space.
 
       i_ALPHAp = 1
@@ -150,16 +143,7 @@ c Assign pointers to scratch space.
 
        end if
 
-#if defined(MSS_TIMER)
-      call second(t2)
-      if(itime.eq.1) time(1) = time(1) + (t2-t1)
-#endif
-
 c Define the Hermite linear expansion coefficients.
-
-#if defined(MSS_TIMER)
-      call second(t1)
-#endif
 
 c Assign pointers to scratch space.
 
@@ -210,16 +194,7 @@ c Assign pointers to scratch space.
 
       end if
 
-#if defined(MSS_TIMER)
-      call second(t2)
-      if(itime.eq.1) time(2) = time(2) + (t2-t1)
-#endif
-
 c Evaluate the auxiliary function integrals.
-
-#if defined(MSS_TIMER)
-      call second(t1)
-#endif
 
 c Assign pointers to scratch space.
 
@@ -268,16 +243,7 @@ c Assign pointers to scratch space.
 
       end if
 
-#if defined(MSS_TIMER)
-      call second(t2)
-      if(itime.eq.1) time(3) = time(3) + (t2-t1)
-#endif
-
 c Compute the ERI.
-
-#if defined(MSS_TIMER)
-      call second(t1)
-#endif
 
 c Assign pointers to scratch space.
 
@@ -324,10 +290,5 @@ c Assign pointers to scratch space.
 c Return the maximum amount of scratch space required by a "dry run".
 
       if( DryRun ) maxW0 = MaxMem
-
-#if defined(MSS_TIMER)
-      call second(t2)
-      if(itime.eq.1) time(4) = time(4) + (t2-t1)
-#endif
-
+c
       end

@@ -1,20 +1,19 @@
-      Subroutine hf2d(Axyz,Aprims,Acoefs,NPA,NCA,La,ictra,
-     &                Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrb,
-     &                Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,ictrc,
-     &                Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
-     &                bERI,Nint,canAB,canCD,canPQ,W0,maxW0)
-c $Id: hf2d.F,v 1.4 1994-06-07 00:31:18 d3e129 Exp $
+      Subroutine hf2d(
+     &       Axyz,Aprims,Acoefs,NPA,NCA,La,ictra,
+     &       Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrb,
+     &       Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,ictrc,
+     &       Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
+     &       bERI,Nint,canAB,canCD,canPQ,dryrun,
+     &       W0,maxW0)
+c $Id: hf2d.F,v 1.5 1994-06-08 22:39:51 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
-      Logical canAB,canCD,canPQ
+      Logical canAB,canCD,canPQ,dryrun
 
       Logical GENCON
 
-#if defined(MSS_TIMER)
-#include <timer.fh>
-#endif
 
 c--> Cartesian Coordinates, Primitives & Contraction Coefficients
 
@@ -71,9 +70,6 @@ c Define the accumulated number of angular momentum functions <= Lr.
 
 c Define the prefactor of the overlap distribution "P".
  
-#if defined(MSS_TIMER)
-                     call second(t1)
-#endif
 
 c Assign pointers to scratch space.
 
@@ -100,10 +96,15 @@ c Assign pointers to scratch space.
 
       end if
 
-      call hfset(Axyz,Aprims,Acoefs,NPA,NCA,
-     &           Bxyz,Bprims,Bcoefs,NPB,NCB,
-     &           GENCON,W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ESp),NPP)
- 
+      if (dryrun) then
+        MaxMem = i_left + (maxW0-(i_right-1))
+        NPP = NPA*NPB
+      else
+        call hfset(Axyz,Aprims,Acoefs,NPA,NCA,
+     &         Bxyz,Bprims,Bcoefs,NPB,NCB,
+     &         GENCON,W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ESp),NPP)
+      endif
+
 c Define the prefactor of the overlap distribution "Q".
 
 c Assign pointers to scratch space.
@@ -134,20 +135,16 @@ c Assign pointers to scratch space.
 
       end if
 
-      call hfset(Cxyz,Cprims,Ccoefs,NPC,NCC,
-     &           Dxyz,Dprims,Dcoefs,NPD,NCD,
-     &           GENCON,W0(i_ALPHAq),W0(i_IPAIRq),W0(i_ESq),NPQ)
-
-#if defined(MSS_TIMER)
-                     call second(t2)
-                     if(itime.eq.1) time(1) = time(1) + (t2-t1)
-#endif
+      if( dryrun )then
+       MaxMem = max( MaxMem, i_left + (maxW0 - (i_right-1)) )
+       NPQ = NPC*NPD
+      else
+        call hfset(Cxyz,Cprims,Ccoefs,NPC,NCC,
+     &         Dxyz,Dprims,Dcoefs,NPD,NCD,
+     &         GENCON,W0(i_ALPHAq),W0(i_IPAIRq),W0(i_ESq),NPQ)
+      endif
 
 c Define the Hermite linear expansion coefficients.
-
-#if defined(MSS_TIMER)
-                     call second(t1)
-#endif
 
 c Assign pointers to scratch space.
 
@@ -182,26 +179,18 @@ c Assign pointers to scratch space.
 
       end if
 
-      do 100 nd = 0,MXD
-
-       call hfmke(Axyz,Bxyz,W0(i_ALPHAp),W0(i_ESp),W0(i_Ep),W0(i_pf),
-     &            nd,NPP,MXD,La,Lb)
-
-       call hfmke(Cxyz,Dxyz,W0(i_ALPHAq),W0(i_ESq),W0(i_Eq),W0(i_pf),
-     &            nd,NPQ,MXD,Lc,Ld)
-
-  100 continue
-
-#if defined(MSS_TIMER)
-                     call second(t2)
-                     if(itime.eq.1) time(2) = time(2) + (t2-t1)
-#endif
+      if( dryrun )then
+        MaxMem = max( MaxMem, i_left + (maxW0 - (i_right-1)) )
+      else
+        do 100 nd = 0,MXD
+          call hfmke(Axyz,Bxyz,W0(i_ALPHAp),W0(i_ESp),W0(i_Ep),
+     &           W0(i_pf),nd,NPP,MXD,La,Lb)
+          call hfmke(Cxyz,Dxyz,W0(i_ALPHAq),W0(i_ESq),W0(i_Eq),
+     &           W0(i_pf),nd,NPQ,MXD,Lc,Ld)
+100     continue
+      endif
 
 c Evaluate the auxiliary function integrals.
-
-#if defined(MSS_TIMER)
-                     call second(t1)
-#endif
 
 c Assign pointers to scratch space.
 
@@ -239,14 +228,14 @@ c Assign pointers to scratch space.
 
       end if
 
-      call hf2mkr(Axyz,Bxyz,Cxyz,Dxyz,W0(i_ALPHAp),W0(i_ALPHAq),
-     &            W0(i_R0),W0(i_IJK),W0(i_P),W0(i_Q),W0(i_PQ),
-     &            W0(i_ff),W0(i_Rj),NPP,NPQ,Lr,Lr3)
-
-#if defined(MSS_TIMER)
-                     call second(t2)
-                     if(itime.eq.1) time(3) = time(3) + (t2-t1)
-#endif
+      if( dryrun )then
+        MaxMem = max( MaxMem, i_top)
+      else
+        call hf2mkr(
+     &         Axyz,Bxyz,Cxyz,Dxyz,W0(i_ALPHAp),W0(i_ALPHAq),
+     &         W0(i_R0),W0(i_IJK),W0(i_P),W0(i_Q),W0(i_PQ),
+     &         W0(i_ff),W0(i_Rj),NPP,NPQ,Lr,Lr3)
+      endif
 
 c Compute the gradient ERIs.
 c
@@ -263,9 +252,6 @@ c
 c N.B. The routine "hfderi" cannot simultaneously evaluate integrals from
 c      different sets!
 c
-#if defined(MSS_TIMER)
-                     call second(t1)
-#endif
 
 c Assign pointers to scratch space.
 
@@ -298,141 +284,138 @@ c Assign pointers to scratch space.
 
       end if
 
+      if( dryrun )then
+        MaxMem = max( MaxMem, i_top)
+      else
 c Integral derivatives wrt P.
-
-      i_dP = i_ERI
-
+        
+        i_dP = i_ERI
+        
 c Define the derivative indices.
+        
+        Nder1 = 3
+        inder1(1,1) = 1
+        inder1(2,1) = 0
+        inder1(3,1) = 0
+        inder1(4,1) = 0
+        inder1(5,1) = 0
+        inder1(6,1) = 0
+        inder1(1,2) = 0
+        inder1(2,2) = 1
+        inder1(3,2) = 0
+        inder1(4,2) = 0
+        inder1(5,2) = 0
+        inder1(6,2) = 0
+        inder1(1,3) = 0
+        inder1(2,3) = 0
+        inder1(3,3) = 1
+        inder1(4,3) = 0
+        inder1(5,3) = 0
+        inder1(6,3) = 0
+        
+        Nder2 = 1
+        inder2(1,1) = 0
+        inder2(2,1) = 0
+        inder2(3,1) = 0
+        
+        Nder3 = 1
+        inder3(1,1) = 0
+        inder3(2,1) = 0
+        inder3(3,1) = 0
 
-      Nder1 = 3
-      inder1(1,1) = 1
-      inder1(2,1) = 0
-      inder1(3,1) = 0
-      inder1(4,1) = 0
-      inder1(5,1) = 0
-      inder1(6,1) = 0
-      inder1(1,2) = 0
-      inder1(2,2) = 1
-      inder1(3,2) = 0
-      inder1(4,2) = 0
-      inder1(5,2) = 0
-      inder1(6,2) = 0
-      inder1(1,3) = 0
-      inder1(2,3) = 0
-      inder1(3,3) = 1
-      inder1(4,3) = 0
-      inder1(5,3) = 0
-      inder1(6,3) = 0
-
-      Nder2 = 1
-      inder2(1,1) = 0
-      inder2(2,1) = 0
-      inder2(3,1) = 0
-
-      Nder3 = 1
-      inder3(1,1) = 0
-      inder3(2,1) = 0
-      inder3(3,1) = 0
-
-      call hfderi(W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),W0(i_dP),
-     &            W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
-     &            MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
-     &            canAB,canCD,canPQ)
-
+        call hfderi(
+     &         W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),W0(i_dP),
+     &         W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
+     &         MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
+     &         canAB,canCD,canPQ)
+        
 c Integral derivatives wrt Q.
-
-      i_dQ = i_dP + NPR*(Nint*3)
-
+        
+        i_dQ = i_dP + NPR*(Nint*3)
+        
 c Translation invariance requires d/dQ = -d/dP !
 c... replace with daxpy... rak
-      do 200 n = 1,NPR*(Nint*3)
-       W0(i_dQ+(n-1)) = -W0(i_dP+(n-1))
-  200 continue
-
+        do 200 n = 1,NPR*(Nint*3)
+          W0(i_dQ+(n-1)) = -W0(i_dP+(n-1))
+200     continue
+        
 c Integral derivatives wrt R.
-
-      i_dR = i_dQ + NPR*(Nint*3)
-
+        
+        i_dR = i_dQ + NPR*(Nint*3)
+        
 c Define the derivative indices.
-
-      Nder1 = 1
-      inder1(1,1) = 0
-      inder1(2,1) = 0
-      inder1(3,1) = 0
-      inder1(4,1) = 0
-      inder1(5,1) = 0
-      inder1(6,1) = 0
-
-      Nder2 = 3
-      inder2(1,1) = 1
-      inder2(2,1) = 0
-      inder2(3,1) = 0
-      inder2(1,2) = 0
-      inder2(2,2) = 1
-      inder2(3,2) = 0
-      inder2(1,3) = 0
-      inder2(2,3) = 0
-      inder2(3,3) = 1
-
-      Nder3 = 1
-      inder3(1,1) = 0
-      inder3(2,1) = 0
-      inder3(3,1) = 0
-
-      if (ictra.ne.ictrb) then
-        call hfderi(W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),W0(i_dR),
-     &         W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
-     &         MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
-     &         canAB,canCD,canPQ)
-      endif
-
+        
+        Nder1 = 1
+        inder1(1,1) = 0
+        inder1(2,1) = 0
+        inder1(3,1) = 0
+        inder1(4,1) = 0
+        inder1(5,1) = 0
+        inder1(6,1) = 0
+        
+        Nder2 = 3
+        inder2(1,1) = 1
+        inder2(2,1) = 0
+        inder2(3,1) = 0
+        inder2(1,2) = 0
+        inder2(2,2) = 1
+        inder2(3,2) = 0
+        inder2(1,3) = 0
+        inder2(2,3) = 0
+        inder2(3,3) = 1
+        
+        Nder3 = 1
+        inder3(1,1) = 0
+        inder3(2,1) = 0
+        inder3(3,1) = 0
+        
+        if (ictra.ne.ictrb) then
+          call hfderi(W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),W0(i_dR),
+     &           W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
+     &           MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
+     &           canAB,canCD,canPQ)
+        endif
+        
 c Integral derivatives wrt S.
-
-      i_dS = i_dR + NPR*(Nint*3)
-
+        
+        i_dS = i_dR + NPR*(Nint*3)
+        
 c Define the derivative indices.
-
-      Nder1 = 1
-      inder1(1,1) = 0
-      inder1(2,1) = 0
-      inder1(3,1) = 0
-      inder1(4,1) = 0
-      inder1(5,1) = 0
-      inder1(6,1) = 0
-
-      Nder2 = 1
-      inder2(1,1) = 0
-      inder2(2,1) = 0
-      inder2(3,1) = 0
-
-      Nder3 = 3
-      inder3(1,1) = 1
-      inder3(2,1) = 0
-      inder3(3,1) = 0
-      inder3(1,2) = 0
-      inder3(2,2) = 1
-      inder3(3,2) = 0
-      inder3(1,3) = 0
-      inder3(2,3) = 0
-      inder3(3,3) = 1
-
-      if (ictrc.ne.ictrd) then
-        call hfderi(W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),W0(i_dS),
-     &         W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
-     &         MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
-     &         canAB,canCD,canPQ)
+        
+        Nder1 = 1
+        inder1(1,1) = 0
+        inder1(2,1) = 0
+        inder1(3,1) = 0
+        inder1(4,1) = 0
+        inder1(5,1) = 0
+        inder1(6,1) = 0
+        
+        Nder2 = 1
+        inder2(1,1) = 0
+        inder2(2,1) = 0
+        inder2(3,1) = 0
+        
+        Nder3 = 3
+        inder3(1,1) = 1
+        inder3(2,1) = 0
+        inder3(3,1) = 0
+        inder3(1,2) = 0
+        inder3(2,2) = 1
+        inder3(3,2) = 0
+        inder3(1,3) = 0
+        inder3(2,3) = 0
+        inder3(3,3) = 1
+        
+        if (ictrc.ne.ictrd) then
+          call hfderi(W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),W0(i_dS),
+     &           W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
+     &           MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
+     &           canAB,canCD,canPQ)
+        endif
       endif
-
-#if defined(MSS_TIMER)
-                     call second(t2)
-                     if(itime.eq.1) time(4) = time(4) + (t2-t1)
-#endif
+        
 
 c Contract primitive integrals.
-
-#if defined(MSS_TIMER)
-                     call second(t1)
-#endif
 
 c Assign pointers to scratch space.
 
@@ -456,25 +439,22 @@ c Assign pointers to scratch space.
 
       end if
 
+      if( dryrun )then
+        MaxMem = max( MaxMem, i_top)
+      else
 c Transform to obtain derivatives wrt (A,B,C,D).
 
-#if defined(MSS_TIMER)
-                     call second(t1)
-#endif
-
-      call hf2PRtoAB(
-     &      W0(i_dP),W0(i_dR),bERI(1,1),bERI(1,4),
-     &      W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ff),NPP,NPQ,Nint*3,
-     &      ictra,ictrb)
-
-      call hf2QStoCD(
-     &       W0(i_dQ),W0(i_dS),bERI(1,7),bERI(1,10),
-     &       W0(i_ALPHAq),W0(i_IPAIRq),W0(i_ff),NPP,NPQ,Nint*3,
-     &       ictrc,ictrd)
-
-#if defined(MSS_TIMER)
-                     call second(t2)
-                     if(itime.eq.1) time(5) = time(5) + (t2-t1)
-#endif
-
+        call hf2PRtoAB(
+     &         W0(i_dP),W0(i_dR),bERI(1,1),bERI(1,4),
+     &         W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ff),NPP,NPQ,Nint*3,
+     &         ictra,ictrb)
+        
+        call hf2QStoCD(
+     &         W0(i_dQ),W0(i_dS),bERI(1,7),bERI(1,10),
+     &         W0(i_ALPHAq),W0(i_IPAIRq),W0(i_ff),NPP,NPQ,Nint*3,
+     &         ictrc,ictrd)
+      endif
+c
+      if (dryrun) maxW0 = MaxMem
+c
       end
