@@ -1,5 +1,5 @@
       subroutine cf_rdgeom(snam)
-c $Id: cf_rdgeom.F,v 1.6 2000-07-13 19:08:19 d3j191 Exp $
+c $Id: cf_rdgeom.F,v 1.7 2000-08-07 22:54:42 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -190,6 +190,12 @@ c
       call ga_brdcst(mcf_31,ip2,24*numbl,0)
       call ga_brdcst(mcf_32,ip3,24*numbl,0)
       call ga_brdcst(mcf_56,qfac,numbd,0)
+c
+      do 6 i=1,nsatot
+      tag=snam(i)
+      call util_char_ga_brdcst(mcf_66,tag,0)
+      if(me.ne.0) snam(i)=tag
+    6 continue
 c
 c      call ga_brdcst(mcf_66,byte_mb(i_snam),16*nsatot,0)
 c

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.70 2000-08-07 18:54:52 d3j191 Exp $
+c $Id: cf_main.F,v 1.71 2000-08-07 22:54:41 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2106,14 +2106,17 @@ c
       integer iwdt(mwm),iwgmn(mwm),isgan(msa),isatt(msa),isdt(msa)
       character*16 snam(nsatot)
 c
-      integer i,ndof(3),ifix,ifr,ito,l
+      integer i,j,ndof(3),ifix,ifr,ito,l,len,number
       real*8 fact(3)
       character*80 string,target
+      character*16 tag
 c
       if(me.eq.0) then
       write(*,1000) numfix
  1000 format('Number of fix directives is ',i5)
       endif
+c
+      number=0
 c
       do 1 l=1,numfix
 c
@@ -2128,6 +2131,7 @@ c
 c
       read(string(6:28),'(i3,2i10)') ifix,ifr,ito
       target=string(29:80)
+      len=index(target,' ')-1
       write(*,'(i3,2i10)') ifix,ifr,ito
 c
 c     solvent
@@ -2163,17 +2167,38 @@ c
       if(ifr.eq.0.or.ito.eq.0) then
       if(ifix.eq.0) then
       do 5 i=1,nums
+      tag=snam(i)
+      do 51 j=1,16
+      if(target(j:j).eq.'?') tag(j:j)='?'
+   51 continue
+      if(target(1:1).eq.' '.or.target(1:len).eq.tag(1:len)) then
       isdt(i)=iand(isdt(i),not(lfixed))
+      number=number+1
+      endif
     5 continue
       endif
       if(ifix.eq.1) then
       do 6 i=1,nums
+      tag=snam(i)
+      do 61 j=1,16
+      if(target(j:j).eq.'?') tag(j:j)='?'
+   61 continue
+      if(target(1:1).eq.' '.or.target(1:len).eq.tag(1:len)) then
       isdt(i)=ior(isdt(i),lfixed)
+      number=number+1
+      endif
     6 continue
       endif
       else
       do 7 i=1,nums
+      tag=snam(i)
+      do 71 j=1,16
+      if(target(j:j).eq.'?') tag(j:j)='?'
+   71 continue
+      if(target(1:1).eq.' '.or.target(1:len).eq.tag(1:len)) then
+      number=number+1
 c      isdt(i)=ior(isdt(i),lfixed)
+      endif
     7 continue
       endif
       endif
@@ -2186,19 +2211,40 @@ c
       if(ifr.eq.0.or.ito.eq.0) then
       if(ifix.eq.0) then
       do 8 i=1,nums
+      tag=snam(i)
+      do 81 j=1,16
+      if(target(j:j).eq.'?') tag(j:j)='?'
+   81 continue
+      if(target(1:1).eq.' '.or.target(1:len).eq.tag(1:len)) then
       if(cf_atonum(isatt(i),int_mb(i_num)).ne.1)
      + isdt(i)=iand(isdt(i),not(lfixed))
+      number=number+1
+      endif
     8 continue
       endif
       if(ifix.eq.1) then
       do 9 i=1,nums
+      tag=snam(i)
+      do 91 j=1,16
+      if(target(j:j).eq.'?') tag(j:j)='?'
+   91 continue
+      if(target(1:1).eq.' '.or.target(1:len).eq.tag(1:len)) then
       if(cf_atonum(isatt(i),int_mb(i_num)).ne.1)
      + isdt(i)=ior(isdt(i),lfixed)
+      number=number+1
+      endif
     9 continue
       endif
       else
       do 10 i=1,nums
+      tag=snam(i)
+      do 101 j=1,16
+      if(target(j:j).eq.'?') tag(j:j)='?'
+  101 continue
+      if(target(1:1).eq.' '.or.target(1:len).eq.tag(1:len)) then
 c      isdt(i)=ior(isdt(i),lfixed)
+      number=number+1
+      endif
    10 continue
       endif
       endif
@@ -2212,6 +2258,11 @@ c
       endif
 c
     1 continue
+c
+      if(np.gt.1) then
+      call ga_igop(mrg_d48,number,ma_sizeof(mt_int,1,mt_byte),'+')
+      endif
+      if(me.eq.0) write(*,'(a,i8)') 'Solute fix applied to ',number
 c
 c      if(numw.gt.0) then
 c      if(iand(ifix,1).eq.1) then
