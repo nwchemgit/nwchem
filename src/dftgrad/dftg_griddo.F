@@ -12,7 +12,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_griddo.F,v 1.2 2004-03-31 00:25:28 edo Exp $
+c     $Id: dftg_griddo.F,v 1.3 2004-12-16 18:44:13 bert Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -191,7 +191,7 @@ c
      ,                    ibf_ao,dbl_mb(ibp),rchi_atom,rdelchi_atom,
      ,                    Ex, Ec, amat,cmat,idum1,
      ,                    Amat2, Cmat2,
-     ,                    idum1, ldum1, ldum1, do_cpks_r,ddum1,
+     ,                    idum1, ldum1, ldum1, do_cpks_r,ldum1,ddum1,
      ,                    ldum1,ldum1,
      &                    tau, kske,Mmat,
      ,     int_mb(k_qat),

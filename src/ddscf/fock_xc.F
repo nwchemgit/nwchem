@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      &   nfock, g_dens, g_xc, l3d)
 c
-c     $Id: fock_xc.F,v 1.25 2004-03-31 00:25:28 edo Exp $
+c     $Id: fock_xc.F,v 1.26 2004-12-16 18:44:05 bert Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -33,6 +33,7 @@ c                               !         = 4 * No. of density matx (UDFT)
 c                               !         = 1 XC contrib to Fock
 c                               !         = 2 XC contrib to CPKS LHS
 c                               !         = 3 XC contrib to CPKS RHS
+c                               !         = 4 XC NMR contrib
       logical l3d               ! [input] Whether 3-D NGA density
 c                               !         and fock matrices are used.
 c                               !         Must be true when and only when 
@@ -174,9 +175,9 @@ c
      &         g_dens_xc,blo,bhi)      
          endif
       else
-c     ------------------
-c     calc_type = 1 or 3
-c     ------------------
+c     -----------------------
+c     calc_type = 1 or 3 or 4
+c     -----------------------
          g_dens_xc(1)=g_dens(1)
 c
 c     pick 3rd
