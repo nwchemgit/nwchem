@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.2 2002-07-30 21:19:56 marat Exp $
+* $Id: paw_basis.F,v 1.3 2002-08-01 01:07:25 marat Exp $
 *
 
 !**************************************************
@@ -23,6 +23,8 @@
       integer  nb,ng
       integer l_nb,l_ng
       integer i_nb,i_ng
+	integer l_lo,l_hi
+	integer  max_mult_l
       logical ok
       double precision log_amesh,amesh
 
@@ -37,7 +39,6 @@
 
       call alloc_paw_basis_data(nt,int_mb(i_nb),int_mb(i_ng))
 
-      ok = MA_chop_stack(l_nb)
 
       do it = 1,nt 
          call read_paw_basis  ( dbl_mb(get_i_r1(it)),
@@ -75,9 +76,22 @@
          do ir=1,int_mb(get_i_ngrid(it))-1
           dbl_mb(get_i_rgrid(it)+ir)= amesh*dbl_mb(get_i_rgrid(it)+ir-1)
          end do
-
+         
+         l_lo =  get_i_orb_l(it)
+	   l_hi =  get_i_orb_l(it) +  int_mb(get_i_nbasis(it)) - 1
+	   int_mb(get_i_mult_l(it)) = maxval(int_mb(l_lo:l_hi))
+           
       end do
 
+      ok = MA_chop_stack(l_nb)
+
+      l_lo =  get_i_orb_l(1)
+      l_hi =  get_i_orb_l(1) +  get_tot_nbasis() - 1
+
+      max_mult_l = maxval(int_mb(l_lo:l_hi))
+
+      call set_max_mult_l(max_mult_l)
+      
       return
       end 
 
@@ -210,6 +224,7 @@
       close(fp)
       return
       end 
+
 
 
 
