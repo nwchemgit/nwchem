@@ -6,7 +6,7 @@
      &    bERI,Nint,canAB,canCD,canPQ,dryrun,
      &    W0,maxW0)
       Implicit None
-C $Id: hf2d.F,v 1.9 1995-02-08 21:27:18 d3e129 Exp $
+C $Id: hf2d.F,v 1.10 1995-04-05 23:55:09 d3e129 Exp $
 #include "global.fh"
 #include "apiP.fh"
       Logical canAB,canCD,canPQ,dryrun
@@ -376,6 +376,11 @@ c Assign pointers to scratch space.
       
       NPR = NPP*NPQ
       
+      if (NPR.eq.0) then
+c... no integrals because one charge distribution P or Q has no overlap
+        call dfill((nint*12),0.0d00,bERI,1)
+        return
+      endif
       i_ERI  = i_IPAIRq + 2*(NPC*NPD)
       i_Ep   = i_ERI    + NPR*(Nint*6)
       i_Eq   = i_Ep     + 3*NPP*(MXD+1)*((Lp+1)*(La+1)*(Lb+1))
