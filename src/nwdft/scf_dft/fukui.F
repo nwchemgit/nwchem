@@ -1,7 +1,7 @@
       Subroutine fukui(geom, nbf_ao, AO_bas_han, g_movecs,
      &                 noc, k_eval,  ipol)
 c     
-c     $Id: fukui.F,v 1.1 1999-08-10 21:21:11 jolguin Exp $
+c     $Id: fukui.F,v 1.2 1999-08-11 16:16:43 jolguin Exp $
 c     
       implicit none
       integer g_dens_HOMO(2), g_dens_LUMO(2), g_orb, g_dens_ss, ik,
@@ -45,12 +45,12 @@ c
      &                  Dbl_MB(i_temp_vec), nbf_ao)
             if (ik.eq.noc(isp)) then
                eig_homo(isp) = dbl_mb(k_eval(isp) + 
-     &                         dble(noc(isp)) - 1.0d0)
+     &                         noc(isp) - 1)
                call ga_dgemm('n', 't', nbf_ao, nbf_ao, nbf_ao,
      &                       1.0d00, g_orb, g_orb, 0.d00, 
      &                       g_dens_HOMO(isp))
             else
-               eig_lumo(isp) = dbl_mb(k_eval(isp) + dble(noc(isp)))
+               eig_lumo(isp) = dbl_mb(k_eval(isp) + noc(isp))
                call ga_dgemm('n', 't', nbf_ao, nbf_ao, nbf_ao,
      &                       1.0d00, g_orb, g_orb, 0.d00,
      &                       g_dens_LUMO(isp))
