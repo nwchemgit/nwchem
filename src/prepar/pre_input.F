@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.96 2002-02-09 05:48:17 d3j191 Exp $
+c $Id: pre_input.F,v 1.97 2002-02-26 00:35:53 d3j191 Exp $
 c
       implicit none
 c
@@ -534,6 +534,12 @@ c
       if(inp_compare(.false.,'self',item)) then
       write(67,6708) (isgm,mset(i),i=1,nset)
  6708 format('segment ',i5,t19,i1,' ego ')
+      nummod=nummod+1
+      goto 3313
+      endif
+      if(inp_compare(.false.,'uncharged',item)) then
+      write(67,6719) (isgm,mset(i),i=1,nset)
+ 6719 format('segment ',i5,t19,i1,' noq ')
       nummod=nummod+1
       goto 3313
       endif

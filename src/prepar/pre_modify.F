@@ -3,7 +3,7 @@
      + lbnd,rbnd,mbnd,nbnd,nbndt,lang,rang,mang,nang,nangt,
      + ldih,kdih,rdih,mdih,ndih,ndiht,limp,rimp,mimp,nimp,nimpt)
 c
-c     $Id: pre_modify.F,v 1.11 2002-02-09 05:48:17 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.12 2002-02-26 00:35:53 d3j191 Exp $
 c
       implicit none
 c
@@ -214,6 +214,19 @@ c
    17 continue
       endif
    16 continue
+      endif
+      if(card(21:23).eq.'noq') then
+      if(util_print('where',print_default)) then
+      write(lfnout,2108) isgm,mset
+ 2108 format(' modify segment ',i5,' set',i2,' nocharge ')
+      endif
+      do 218 i=1,natm
+      if(latm(5,i).eq.isgm) then
+      do 219 j=1,3
+      if(mset.eq.0.or.mset.eq.j) qatm(2*j-1,i)=0.0d0
+  219 continue
+      endif
+  218 continue
       endif
       if(card(21:23).eq.'qtm') then
       if(util_print('where',print_default)) then
