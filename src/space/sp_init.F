@@ -8,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl)
 c
 c
-c $Id: sp_init.F,v 1.112 2002-11-12 22:06:56 d3j191 Exp $
+c $Id: sp_init.F,v 1.113 2002-11-19 11:45:40 d3j191 Exp $
 c
       implicit none
 c
@@ -217,7 +217,7 @@ c
       msmi=max(1,nsm)
 c
       third=1.0d0/3.0d0
-      nldup=-1
+      nldup=-2
       ipairf=-1
       ipairt=-1
       lpipo=.false.

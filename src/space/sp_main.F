@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.80 2002-11-14 18:27:12 d3j191 Exp $
+c $Id: sp_main.F,v 1.81 2002-11-19 11:45:41 d3j191 Exp $
 c
       implicit none
 c
@@ -2729,7 +2729,7 @@ c
 c
       if(nldup.lt.0) then
       tslow=synsum
-      nldup=0
+      nldup=nldup+1
       else
       if(synsum.gt.tslow) then
       nldup=nldup+1
