@@ -1,4 +1,9 @@
       program nwchem
+#ifdef CRAY_T3D
+#ifdef __F90__
+      use cri_ieee_definitions
+#endif
+#endif
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -17,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.95 1996-11-02 02:59:00 d3g681 Exp $
+c     $Id: nwchem.F,v 1.96 1996-11-06 18:06:57 rg240 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -84,6 +89,12 @@ c     Initialize timers so they are relative to job start
 c
 #ifdef DECOSF
       call dec_fpe  ! To avoid underflow problems on Alpha in Texas
+#endif
+#ifdef CRAY_T3D
+#ifdef __F90__
+      call set_d_stream(0)         ! disable memory to cache streaming
+      call disable_ieee_interrupt(IEEE_NTPT_ALL)
+#endif
 #endif
       total_wall = -util_wallsec()
       total_cpu  = -util_cpusec()

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.25 1996-10-19 18:41:57 d3g681 Exp $
+#$Id: GNUmakefile,v 1.26 1996-11-06 18:07:01 rg240 Exp $
 
 include ../config/makefile.h
 
@@ -11,6 +11,9 @@ include ../config/makefile.h
        VPATH = double:single
 
 ifeq ($(TARGET),CRAY-T3D)
+       PRECISION = single
+endif
+ifeq ($(TARGET),CRAY-T3E)
        PRECISION = single
 endif
 ifeq ($(TARGET),SUN)
@@ -109,6 +112,13 @@ OBJ_OPTIMIZE = slagtf.o slagts.o lsamen.o slaset.o \
                ssyev.o slansy.o ssteqr.o ssterf.o slae2.o \
                slaev2.o slasr.o slazro.o \
                ssygv.o ssygst.o ssygs2.o
+else
+ifeq ($(TARGET),CRAY-T3E)
+OBJ_OPTIMIZE = slagtf.o slagts.o lsamen.o slaset.o \
+               ssyev.o slansy.o ssteqr.o ssterf.o slae2.o \
+               slaev2.o slasr.o slazro.o \
+               ssygv.o ssygst.o ssygs2.o
+endif
 endif
 
 

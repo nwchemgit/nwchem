@@ -1,4 +1,4 @@
-/*$Id: rtdb_f2c.c,v 1.10 1995-10-17 08:56:07 d3g681 Exp $*/
+/*$Id: rtdb_f2c.c,v 1.11 1996-11-06 18:07:02 rg240 Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -424,7 +424,11 @@ logical rtdb_cget_(const integer *handle, char const *name,
   return FORTRAN_TRUE;
 }
 
+#ifdef _CRAY
+logical rtdb_first_(const integer *handle, _fcd name, int nlen)
+#else
 logical rtdb_first_(const integer *handle, char *name, int nlen)
+#endif
 {
   char nbuf[256];
   
@@ -435,7 +439,11 @@ logical rtdb_first_(const integer *handle, char *name, int nlen)
     return FORTRAN_FALSE;
 }
 
+#ifdef _CRAY
+logical rtdb_next_(const integer *handle, _fcd name, int nlen)
+#else
 logical rtdb_next_(const integer *handle, char *name, int nlen)
+#endif
 {
   char nbuf[256];
   

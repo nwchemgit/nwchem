@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.19 1996-10-19 18:41:50 d3g681 Exp $
+#$Id: GNUmakefile,v 1.20 1996-11-06 18:06:58 rg240 Exp $
 
 include ../config/makefile.h
 
@@ -32,6 +32,9 @@ ifeq ($(TARGET),KSR)
        PRECISION = single   
 endif
 ifeq ($(TARGET),CRAY-T3D)
+       PRECISION = single
+endif
+ifeq ($(TARGET),CRAY-T3E)
        PRECISION = single
 endif
 ifeq ($(TARGET),DELTA)
@@ -82,7 +85,13 @@ OBJ_OPTIMIZE =  sdot.o    snrm2.o    sspr.o    isamax.o \
 endif
 ifeq ($(TARGET),CRAY-T3D)
 OBJ_OPTIMIZE = idamax.o
+else
+ifeq ($(TARGET),CRAY-T3E)
+OBJ_OPTIMIZE = idamax.o
 endif
+endif
+
+
 
 
 include ../config/makelib.h

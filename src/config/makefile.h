@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.185 1996-10-30 22:36:36 vg038 Exp $
+# $Id: makefile.h,v 1.186 1996-11-06 18:07:00 rg240 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -357,6 +357,35 @@ ifeq ($(TARGET),CRAY-T3D)
              FCONVERT = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
 endif
 
+
+
+ifeq ($(TARGET),CRAY-T3E)
+#
+#
+   CORE_SUBDIRS_EXTRA =	blas lapack # Only a couple of routines not in scilib
+               RANLIB = echo
+            MAKEFLAGS = -j 4 --no-print-directory
+              INSTALL = @echo $@ is built
+        OUTPUT_OPTION = 
+
+                   FC = f90 
+                  CPP = cpp -P  -N
+             FOPTIONS = -d p -F  
+             COPTIONS = 
+               FDEBUG = -O scalar1
+            FOPTIMIZE = -O scalar3,aggress,unroll2
+               CDEBUG = -O 1
+            COPTIMIZE = -O
+            LDOPTIONS = -L$(LIBDIR) 
+
+              DEFINES = -DCRAY_T3D -D__F90__
+
+               LINK.f = f90 $(LDOPTIONS)
+
+            CORE_LIBS = -lchemio -lglobal -llapack -lblas
+
+             FCONVERT = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
+endif
 
 ifeq ($(TARGET),KSR)
 #
@@ -895,7 +924,11 @@ endif
 ifeq ($(TARGET),CRAY-T3D)
 	$(FC) -c $(FFLAGS) $<
 else
+ifeq ($(TARGET),CRAY-T3E)
+	$(FC) -c $(FFLAGS) $<
+else
 	$(FC) -c $(FFLAGS) -o $% $<
+endif
 endif
 endif
 
