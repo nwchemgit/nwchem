@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.10 1999-05-12 15:05:06 d3j191 Exp $
+c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
 c
       implicit none
 c
@@ -512,7 +512,7 @@ c     + lswndx,lswjpt,lswin,lswj,qwa,iwatm,idwa,xi,xj,rwx,rwi1,rwi2,
 c     + rwi6,rw,rwc,f,fi,fj,isal,fs,facu,rdf,xs,xsm,qsa,ngt,iagc,jagc,
 c     + igrc,u,uwms,list,rtos,isrx,pwai,psai)
 c
-c $Id: cf_f.fh,v 1.10 1999-05-12 15:05:06 d3j191 Exp $
+c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
 c
       implicit none
 c
@@ -716,8 +716,8 @@ c      endif
       rwx(iax,2)=xi(iax,2)-xj(iax,2,iwa)
       rwx(iax,3)=xi(iax,3)-xj(iax,3,iwa)
       rwi2(iax)=one/(rwx(iax,1)**2+rwx(iax,2)**2+rwx(iax,3)**2)
-      if(isrx(iax).eq.1) rwi2(iax)=one/(one/rwi2(iax)+shift1(1))
-      if(isrx(iax).eq.2) rwi2(iax)=one/(one/rwi2(iax)+shift0(1))
+      if(isrx(iax).eq.1) rwi2(iax)=one/(one/rwi2(iax)+shift0(1))
+      if(isrx(iax).eq.2) rwi2(iax)=one/(one/rwi2(iax)+shift1(1))
    27 continue
       iwatmi=iwatm(iwa)
       eterml=zero
@@ -859,11 +859,11 @@ c
       if(isrx(iax).eq.1) then
       c64=half*three*vdw(isatm,iwatm(iwa),1,iset)
       c124=three*vdw(isatm,iwatm(iwa),3,iset)
-      dercon=dercon+shift1(4)*rwi2(iax)*rwi6(iax)*(c64-c124*rwi6(iax))
+      dercon=dercon+shift0(4)*rwi2(iax)*rwi6(iax)*(c64-c124*rwi6(iax))
       elseif(isrx(iax).eq.2) then
       c64=half*three*vdw(isatm,iwatm(iwa),1,iset)
       c124=three*vdw(isatm,iwatm(iwa),3,iset)
-      dercon=dercon+shift0(4)*rwi2(iax)*rwi6(iax)*(c64-c124*rwi6(iax))
+      dercon=dercon+shift1(4)*rwi2(iax)*rwi6(iax)*(c64-c124*rwi6(iax))
       else
       c64=vdw(isatm,iwatm(iwa),1,4)
       c124=vdw(isatm,iwatm(iwa),3,4)
@@ -900,10 +900,10 @@ c
       derco2=derco2+drvco2
       drvco3=zero
       if(isrx(iax).eq.1) then
-      drvco3=(-half)*shift1(4)*chg(isq1(isa),1,iset)*
+      drvco3=(-half)*shift0(4)*chg(isq1(isa),1,iset)*
      + qj*rwi1(iax)*rwi2(iax)
       elseif(isrx(iax).eq.2) then
-      drvco3=(-half)*shift0(4)*chg(isq1(isa),1,iset)*
+      drvco3=(-half)*shift1(4)*chg(isq1(isa),1,iset)*
      + qj*rwi1(iax)*rwi2(iax)
       endif
       derco3=derco3+drvco3
@@ -932,10 +932,10 @@ c
       derco2=derco2+drvco2
       drvco3=zero
       if(isrx(iax).eq.1) then
-      drvco3=(-half)*shift1(4)*chg(isq1(isa),1,iset)*
+      drvco3=(-half)*shift0(4)*chg(isq1(isa),1,iset)*
      + qj*rwi1(iax)*rwi2(iax)
       elseif(isrx(iax).eq.2) then
-      drvco3=(-half)*shift0(4)*chg(isq1(isa),1,iset)*
+      drvco3=(-half)*shift1(4)*chg(isq1(isa),1,iset)*
      + qj*rwi1(iax)*rwi2(iax)
       endif
       derco3=derco3+drvco3
@@ -965,9 +965,9 @@ c
       c6p=vdw(isat(isa),iwatyp,1,2)
       c12p=vdw(isat(isa),iwatyp,3,2)
       if(isrx(iax).eq.1) then
-      rwi6(iax)=(one/(one/rwi2(iax)-shift1(1)+shift1(2)))**3
-      elseif(isrx(iax).eq.2) then
       rwi6(iax)=(one/(one/rwi2(iax)-shift0(1)+shift0(2)))**3
+      elseif(isrx(iax).eq.2) then
+      rwi6(iax)=(one/(one/rwi2(iax)-shift1(1)+shift1(2)))**3
       else
       rwi6(iax)=rwi2(iax)**3
       endif
@@ -997,9 +997,9 @@ c
       rwx(iax,3)=xi(iax,3)-xj(iax,3,iwa)
       rwi6(iax)=one/(rwx(iax,1)**2+rwx(iax,2)**2+rwx(iax,3)**2)
       if(isrx(iax).eq.1) then
-      rwi6(iax)=one/(one/rwi6(iax)+shift1(2))
-      elseif(isrx(iax).eq.2) then
       rwi6(iax)=one/(one/rwi6(iax)+shift0(2))
+      elseif(isrx(iax).eq.2) then
+      rwi6(iax)=one/(one/rwi6(iax)+shift1(2))
       endif
       rwi1(iax)=sqrt(rwi6(iax))
       ep2(ipsw)=ep2(ipsw)+facu(iax)*chg(isq1(isa),1,2)*qj*rwi1(iax)
@@ -1025,9 +1025,9 @@ c
       rwx(iax,3)=xi(iax,3)-xj(iax,3,iwa)
       rwi6(iax)=one/(rwx(iax,1)**2+rwx(iax,2)**2+rwx(iax,3)**2)
       if(isrx(iax).eq.1) then
-      rwi6(iax)=one/(one/rwi6(iax)+shift1(2))
-      elseif(isrx(iax).eq.2) then
       rwi6(iax)=one/(one/rwi6(iax)+shift0(2))
+      elseif(isrx(iax).eq.2) then
+      rwi6(iax)=one/(one/rwi6(iax)+shift1(2))
       endif
       rwi1(iax)=sqrt(rwi6(iax))
       ep2(ipsw)=ep2(ipsw)+facu(iax)*erfc(ealpha/rwi1(iax))*
@@ -1057,9 +1057,9 @@ c
       c6p=vdw(isat(isa),iwatyp,1,3)
       c12p=vdw(isat(isa),iwatyp,3,3)
       if(isrx(iax).eq.1) then
-      rwi6(iax)=(one/(one/rwi2(iax)-shift1(1)+shift1(3)))**3
-      elseif(isrx(iax).eq.2) then
       rwi6(iax)=(one/(one/rwi2(iax)-shift0(1)+shift0(3)))**3
+      elseif(isrx(iax).eq.2) then
+      rwi6(iax)=(one/(one/rwi2(iax)-shift1(1)+shift1(3)))**3
       else
       rwi6(iax)=rwi2(iax)**3
       endif
@@ -1089,9 +1089,9 @@ c
       rwx(iax,3)=xi(iax,3)-xj(iax,3,iwa)
       rwi6(iax)=one/(rwx(iax,1)**2+rwx(iax,2)**2+rwx(iax,3)**2)
       if(isrx(iax).eq.1) then
-      rwi6(iax)=one/(one/rwi6(iax)+shift1(3))
-      elseif(isrx(iax).eq.2) then
       rwi6(iax)=one/(one/rwi6(iax)+shift0(3))
+      elseif(isrx(iax).eq.2) then
+      rwi6(iax)=one/(one/rwi6(iax)+shift1(3))
       endif
       rwi1(iax)=sqrt(rwi6(iax))
       ep3(ipsw)=ep3(ipsw)+facu(iax)*chg(isq1(isa),1,3)*qj*rwi1(iax)
@@ -1117,9 +1117,9 @@ c
       rwx(iax,3)=xi(iax,3)-xj(iax,3,iwa)
       rwi6(iax)=one/(rwx(iax,1)**2+rwx(iax,2)**2+rwx(iax,3)**2)
       if(isrx(iax).eq.1) then
-      rwi6(iax)=one/(one/rwi6(iax)+shift1(3))
-      elseif(isrx(iax).eq.2) then
       rwi6(iax)=one/(one/rwi6(iax)+shift0(3))
+      elseif(isrx(iax).eq.2) then
+      rwi6(iax)=one/(one/rwi6(iax)+shift1(3))
       endif
       rwi1(iax)=sqrt(rwi6(iax))
       ep3(ipsw)=ep3(ipsw)+facu(iax)*erfc(ealpha/rwi1(iax))*
@@ -1190,7 +1190,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.10 1999-05-12 15:05:06 d3j191 Exp $
+c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
 c
       implicit none
 c
@@ -1344,9 +1344,15 @@ c      if(iasst.eq.2.and.(isrxt.eq.2.or.jsrxt.eq.2)) isrx(nax+jnum)=1
 c      endif
 c
       if(lssscl) then
-      if(ism.ne.jsm) then
-      isrx(nax+jnum)=isss(isa)+isss(lssptr)
-      endif
+      if(isss(isa).eq.1.and.isss(lssptr).ne.2) isrx(nax+jnum)=1
+      if(isss(isa).ne.2.and.isss(lssptr).eq.1) isrx(nax+jnum)=1
+      if(isss(isa).eq.2.and.isss(lssptr).ne.1) isrx(nax+jnum)=2
+      if(isss(isa).ne.1.and.isss(lssptr).eq.2) isrx(nax+jnum)=2
+c
+c      if(ism.ne.jsm) then
+c      isrx(nax+jnum)=isss(isa)+isss(lssptr)
+c      endif
+c
       endif
    16 continue
 c
@@ -1455,9 +1461,9 @@ c
       rwx(iax,3)=xi(iax,3)-xj(iax,3)
       rwi2(iax)=one/(rwx(iax,1)**2+rwx(iax,2)**2+rwx(iax,3)**2)
       if(isrx(iax).eq.1) then
-      rwi2(iax)=one/(one/rwi2(iax)+shift1(1))
-      elseif(isrx(iax).eq.2) then
       rwi2(iax)=one/(one/rwi2(iax)+shift0(1))
+      elseif(isrx(iax).eq.2) then
+      rwi2(iax)=one/(one/rwi2(iax)+shift1(1))
       endif
       rwi1(iax)=sqrt(rwi2(iax))
       isa=isal(iax)
@@ -1636,12 +1642,12 @@ c
       if(isrx(nax+jnum).eq.1) then
       c64=three*vdw(isat(isfr+isa),isat(jsa),1,iset)
       c124=six*vdw(isat(isfr+isa),isat(jsa),3,iset)
-      dercon=dercon+shift1(4)*
+      dercon=dercon+shift0(4)*
      + rwi2(nax+jnum)*rwi6(nax+jnum)*(c64-c124*rwi6(nax+jnum))
       elseif(isrx(nax+jnum).eq.2) then
       c64=three*vdw(isat(isfr+isa),isat(jsa),1,iset)
       c124=six*vdw(isat(isfr+isa),isat(jsa),3,iset)
-      dercon=dercon+shift0(4)*
+      dercon=dercon+shift1(4)*
      + rwi2(nax+jnum)*rwi6(nax+jnum)*(c64-c124*rwi6(nax+jnum))
       endif
       deriv(15,ipss)=deriv(15,ipss)+dercon
@@ -1660,7 +1666,7 @@ c
       if(.not.lssscl) then
       do 42 jnum=1,lssin(isa,ipss)
       jsa=lssj(jsaptr+jnum)
-      if(ismf(jsa).ne.isf) then
+      if(isml(jsa).ne.ism) then
       dercon=(chg(isq2(isfr+isa),1,iset)*chg(isq2(jsa),1,4)
      + +chg(isq2(isfr+isa),1,4)*chg(isq2(jsa),1,iset))
       else
@@ -1675,24 +1681,24 @@ c
       else
       do 43 jnum=1,lssin(isa,ipss)
       jsa=lssj(jsaptr+jnum)
-      if(ismf(jsa).ne.isf) then
+      if(isml(jsa).ne.ism) then
       dercon=(chg(isq2(isfr+isa),1,iset)*chg(isq2(jsa),1,4)
      + +chg(isq2(isfr+isa),1,4)*chg(isq2(jsa),1,iset))
       if(isrx(nax+jnum).eq.1) then
-      dercon=dercon-half*shift1(4)*
+      dercon=dercon-half*shift0(4)*
      + chg(isq2(isfr+isa),1,iset)*chg(isq2(jsa),1,iset)*rwi2(nax+jnum)
       elseif(isrx(nax+jnum).eq.2) then
-      dercon=dercon-half*shift0(4)*
+      dercon=dercon-half*shift1(4)*
      + chg(isq2(isfr+isa),1,iset)*chg(isq2(jsa),1,iset)*rwi2(nax+jnum)
       endif
       else
       dercon=(chg(isq3(isfr+isa),1,iset)*chg(isq3(jsa),1,4)
      + +chg(isq3(isfr+isa),1,4)*chg(isq3(jsa),1,iset))
       if(isrx(nax+jnum).eq.1) then
-      dercon=dercon-half*shift1(4)*
+      dercon=dercon-half*shift0(4)*
      + chg(isq3(isfr+isa),1,iset)*chg(isq3(jsa),1,iset)*rwi2(nax+jnum)
       elseif(isrx(nax+jnum).eq.2) then
-      dercon=dercon-half*shift0(4)*
+      dercon=dercon-half*shift1(4)*
      + chg(isq3(isfr+isa),1,iset)*chg(isq3(jsa),1,iset)*rwi2(nax+jnum)
       endif
       endif
@@ -1706,7 +1712,7 @@ c
       if(.not.lssscl) then
       do 142 jnum=1,lssin(isa,ipss)
       jsa=lssj(jsaptr+jnum)
-      if(ismf(jsa).ne.isf) then
+      if(isml(jsa).ne.ism) then
       dercon=(chg(isq2(isfr+isa),1,iset)*chg(isq2(jsa),1,4)
      + +chg(isq2(isfr+isa),1,4)*chg(isq2(jsa),1,iset))*
      + erfc(ealpha/rwi1(nax+jnum))
@@ -1723,22 +1729,22 @@ c
       else
       do 143 jnum=1,lssin(isa,ipss)
       jsa=lssj(jsaptr+jnum)
-      if(ismf(jsa).ne.isf) then
+      if(isml(jsa).ne.ism) then
       dercon=(chg(isq2(isfr+isa),1,iset)*chg(isq2(jsa),1,4)
      + +chg(isq2(isfr+isa),1,4)*chg(isq2(jsa),1,iset))
       if(isrx(nax+jnum).eq.1) then
-      dercon=dercon-half*shift1(4)*
+      dercon=dercon-half*shift0(4)*
      + chg(isq2(isfr+isa),1,iset)*chg(isq2(jsa),1,iset)*rwi2(nax+jnum)
       elseif(isrx(nax+jnum).eq.2) then
-      dercon=dercon-half*shift0(4)*
+      dercon=dercon-half*shift1(4)*
      + chg(isq2(isfr+isa),1,iset)*chg(isq2(jsa),1,iset)*rwi2(nax+jnum)
       endif
       else
       dercon=(chg(isq3(isfr+isa),1,iset)*chg(isq3(jsa),1,4)
      + +chg(isq3(isfr+isa),1,4)*chg(isq3(jsa),1,iset))
-      if(isrx(nax+jnum).eq.1) dercon=dercon-half*shift1(4)*
+      if(isrx(nax+jnum).eq.1) dercon=dercon-half*shift0(4)*
      + chg(isq3(isfr+isa),1,iset)*chg(isq3(jsa),1,iset)*rwi2(nax+jnum)
-      if(isrx(nax+jnum).eq.2) dercon=dercon-half*shift0(4)*
+      if(isrx(nax+jnum).eq.2) dercon=dercon-half*shift1(4)*
      + chg(isq3(isfr+isa),1,iset)*chg(isq3(jsa),1,iset)*rwi2(nax+jnum)
       endif
       deriv(17,ipss)=deriv(17,ipss)+dercon*rwi1(nax+jnum)*
@@ -1772,9 +1778,9 @@ c
       jsa=jsal(iax)
       rwi6(iax)=rwi2(iax)**3
       if(isrx(iax).eq.1) then
-      rwi6(iax)=(one/(one/rwi2(iax)-shift1(1)+shift1(2)))**3
-      elseif(isrx(iax).eq.2) then
       rwi6(iax)=(one/(one/rwi2(iax)-shift0(1)+shift0(2)))**3
+      elseif(isrx(iax).eq.2) then
+      rwi6(iax)=(one/(one/rwi2(iax)-shift1(1)+shift1(2)))**3
       endif
       ep2(ipss)=ep2(ipss)
      + +facu(iax)*(vdw(isat(isa),isat(jsa),3,2)*rwi6(iax)
@@ -1789,7 +1795,7 @@ c
       do 46 iax=1,nax
       isa=isal(iax)
       jsa=jsal(iax)
-      if(jfal(iax).ne.isf) then
+      if(jmal(iax).ne.0) then
       q14=chg(isq2(isa),1,2)*chg(isq2(jsa),1,2)
       else
       q14=chg(isq3(isa),1,2)*chg(isq3(jsa),1,2)
@@ -1808,7 +1814,7 @@ c
       do 47 iax=1,nax
       isa=isal(iax)
       jsa=jsal(iax)
-      if(jfal(iax).ne.isf) then
+      if(jmal(iax).ne.0) then
       q14=chg(isq2(isa),1,2)*chg(isq2(jsa),1,2)
       else
       q14=chg(isq3(isa),1,2)*chg(isq3(jsa),1,2)
@@ -1818,9 +1824,9 @@ c
       rwx(iax,3)=xi(iax,3)-xj(iax,3)
       rwi6(iax)=one/(rwx(iax,1)**2+rwx(iax,2)**2+rwx(iax,3)**2)
       if(isrx(iax).eq.1) then
-      rwi6(iax)=one/(one/rwi6(iax)+shift1(2))
-      elseif(isrx(iax).eq.2) then
       rwi6(iax)=one/(one/rwi6(iax)+shift0(2))
+      elseif(isrx(iax).eq.2) then
+      rwi6(iax)=one/(one/rwi6(iax)+shift1(2))
       endif
       rwi1(iax)=sqrt(rwi6(iax))
       ep2(ipss)=ep2(ipss)+facu(iax)*q14*rwi1(iax)
@@ -1834,7 +1840,7 @@ c
       do 146 iax=1,nax
       isa=isal(iax)
       jsa=jsal(iax)
-      if(jfal(iax).ne.isf) then
+      if(jmal(iax).ne.0) then
       q14=chg(isq2(isa),1,2)*chg(isq2(jsa),1,2)*
      + erfc(ealpha/rwi1(nax+jnum))
       else
@@ -1855,7 +1861,7 @@ c
       do 147 iax=1,nax
       isa=isal(iax)
       jsa=jsal(iax)
-      if(jfal(iax).ne.isf) then
+      if(jmal(iax).ne.0) then
       q14=chg(isq2(isa),1,2)*chg(isq2(jsa),1,2)*
      + erfc(ealpha/rwi1(nax+jnum))
       else
@@ -1867,9 +1873,9 @@ c
       rwx(iax,3)=xi(iax,3)-xj(iax,3)
       rwi6(iax)=one/(rwx(iax,1)**2+rwx(iax,2)**2+rwx(iax,3)**2)
       if(isrx(iax).eq.1) then
-      rwi6(iax)=one/(one/rwi6(iax)+shift1(2))
-      elseif(isrx(iax).eq.2) then
       rwi6(iax)=one/(one/rwi6(iax)+shift0(2))
+      elseif(isrx(iax).eq.2) then
+      rwi6(iax)=one/(one/rwi6(iax)+shift1(2))
       endif
       rwi1(iax)=sqrt(rwi6(iax))
       ep2(ipss)=ep2(ipss)+facu(iax)*q14*rwi1(iax)
@@ -1901,9 +1907,9 @@ c
       jsa=jsal(iax)
       rwi6(iax)=rwi2(iax)**3
       if(isrx(iax).eq.1) then
-      rwi6(iax)=(one/(one/rwi2(iax)-shift1(1)+shift1(3)))**3
-      elseif(isrx(iax).eq.2) then
       rwi6(iax)=(one/(one/rwi2(iax)-shift0(1)+shift0(3)))**3
+      elseif(isrx(iax).eq.2) then
+      rwi6(iax)=(one/(one/rwi2(iax)-shift1(1)+shift1(3)))**3
       endif
       ep3(ipss)=ep3(ipss)
      + +facu(iax)*(vdw(isat(isa),isat(jsa),3,3)*rwi6(iax)
@@ -1918,7 +1924,7 @@ c
       do 50 iax=1,nax
       isa=isal(iax)
       jsa=jsal(iax)
-      if(jfal(iax).ne.isf) then
+      if(jmal(iax).ne.0) then
       q14=chg(isq2(isa),1,3)*chg(isq2(jsa),1,3)
       else
       q14=chg(isq3(isa),1,3)*chg(isq3(jsa),1,3)
@@ -1937,7 +1943,7 @@ c
       do 51 iax=1,nax
       isa=isal(iax)
       jsa=jsal(iax)
-      if(jfal(iax).ne.isf) then
+      if(jmal(iax).ne.0) then
       q14=chg(isq2(isa),1,3)*chg(isq2(jsa),1,3)
       else
       q14=chg(isq3(isa),1,3)*chg(isq3(jsa),1,3)
@@ -1947,9 +1953,9 @@ c
       rwx(iax,3)=xi(iax,3)-xj(iax,3)
       rwi6(iax)=one/(rwx(iax,1)**2+rwx(iax,2)**2+rwx(iax,3)**2)
       if(isrx(iax).eq.1) then
-      rwi6(iax)=one/(one/rwi6(iax)+shift1(3))
-      elseif(isrx(iax).eq.2) then
       rwi6(iax)=one/(one/rwi6(iax)+shift0(3))
+      elseif(isrx(iax).eq.2) then
+      rwi6(iax)=one/(one/rwi6(iax)+shift1(3))
       endif
       rwi1(iax)=sqrt(rwi6(iax))
       ep3(ipss)=ep3(ipss)+facu(iax)*q14*rwi1(iax)
@@ -1963,7 +1969,7 @@ c
       do 150 iax=1,nax
       isa=isal(iax)
       jsa=jsal(iax)
-      if(jfal(iax).ne.isf) then
+      if(jmal(iax).ne.0) then
       q14=chg(isq2(isa),1,3)*chg(isq2(jsa),1,3)*
      + erfc(ealpha/rwi1(nax+jnum))
       else
@@ -1984,7 +1990,7 @@ c
       do 151 iax=1,nax
       isa=isal(iax)
       jsa=jsal(iax)
-      if(jfal(iax).ne.isf) then
+      if(jmal(iax).ne.0) then
       q14=chg(isq2(isa),1,3)*chg(isq2(jsa),1,3)*
      + erfc(ealpha/rwi1(nax+jnum))
       else
@@ -1996,9 +2002,9 @@ c
       rwx(iax,3)=xi(iax,3)-xj(iax,3)
       rwi6(iax)=one/(rwx(iax,1)**2+rwx(iax,2)**2+rwx(iax,3)**2)
       if(isrx(iax).eq.1) then
-      rwi6(iax)=one/(one/rwi6(iax)+shift1(3))
-      elseif(isrx(iax).eq.2) then
       rwi6(iax)=one/(one/rwi6(iax)+shift0(3))
+      elseif(isrx(iax).eq.2) then
+      rwi6(iax)=one/(one/rwi6(iax)+shift1(3))
       endif
       rwi1(iax)=sqrt(rwi6(iax))
       ep3(ipss)=ep3(ipss)+facu(iax)*q14*rwi1(iax)
@@ -2043,7 +2049,7 @@ c
       subroutine cf_fsb(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.10 1999-05-12 15:05:06 d3j191 Exp $
+c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
 c
 c     cf_forsb returns forces and energies for solute bonds
 c
@@ -2316,7 +2322,7 @@ c
       subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.10 1999-05-12 15:05:06 d3j191 Exp $
+c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2575,7 +2581,7 @@ c
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.10 1999-05-12 15:05:06 d3j191 Exp $
+c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -2901,7 +2907,7 @@ c
       subroutine cf_fso(nimprs,indexl,mso,msp,iimp,dimp,rimp,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.10 1999-05-12 15:05:06 d3j191 Exp $
+c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3212,7 +3218,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc)
 c
-c $Id: cf_f.fh,v 1.10 1999-05-12 15:05:06 d3j191 Exp $
+c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3528,7 +3534,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.10 1999-05-12 15:05:06 d3j191 Exp $
+c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
 c
       implicit none
 c

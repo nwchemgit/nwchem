@@ -613,7 +613,8 @@ c
       if(id.eq.2.and.ip(3).lt.0) nmult(1)=nmult(1)+1
 c
       call cf_pcopy(idp,ip,p,4,mbp(id),int_mb(i_ibnd(id)),
-     + dbl_mb(i_bnd(id)),mbt(id))
+     + dbl_mb(i_bnd(id)),mbt(id),
+     + ip2(6+(id-1)*12),ip3(6+(id-1)*12),ith(6+(id-1)*12))
 c
       return
       end
@@ -632,7 +633,8 @@ c
       if(id.eq.2.and.ip(4).lt.0) nmult(2)=nmult(2)+1
 c
       call cf_pcopy(idp,ip,p,5,mhp(id),int_mb(i_iang(id)),
-     + dbl_mb(i_ang(id)),mht(id))
+     + dbl_mb(i_ang(id)),mht(id),
+     + ip2(6+(id-1)*12),ip3(6+(id-1)*12),ith(6+(id-1)*12))
 c
       return
       end
@@ -651,7 +653,8 @@ c
       if(id.eq.2.and.ip(5).lt.0) nmult(3)=nmult(3)+1
 c
       call cf_pcopy(idp,ip,p,6,mdp(id),int_mb(i_idih(id)),
-     + dbl_mb(i_dih(id)),mdt(id))
+     + dbl_mb(i_dih(id)),mdt(id),
+     + ip2(6+(id-1)*12),ip3(6+(id-1)*12),ith(6+(id-1)*12))
 c
       return
       end
@@ -670,15 +673,18 @@ c
       if(id.eq.2.and.ip(5).lt.0) nmult(4)=nmult(4)+1
 c
       call cf_pcopy(idp,ip,p,6,mip(id),int_mb(i_iimp(id)),
-     + dbl_mb(i_imp(id)),mit(id))
+     + dbl_mb(i_imp(id)),mit(id),
+     + ip2(6+(id-1)*12),ip3(6+(id-1)*12),ith(6+(id-1)*12))
 c
       return
       end
-      subroutine cf_pcopy(id,ipari,pari,idimi,idimp,ipar,par,idimt)
+      subroutine cf_pcopy(id,ipari,pari,idimi,idimp,ipar,par,idimt,
+     + ip2log,ip3log,ithlog)
 c
       integer id,idimi,idimp,idimt
       integer ipari(idimi),ipar(idimt,idimi)
       real*8 pari(idimp,3),par(idimt,idimp,6)
+      logical ip2log,ip3log,ithlog
 c
       do 1 i=1,idimi
       ipar(id,i)=ipari(i)
@@ -690,6 +696,9 @@ c
       par(id,i,4)=pari(i,3)-pari(i,2)
       par(id,i,5)=pari(i,2)
       par(id,i,6)=pari(i,3)
+      if(abs(pari(i,1)-pari(i,2)).gt.tiny) ip2log=.true.
+      if(abs(pari(i,1)-pari(i,3)).gt.tiny) ip3log=.true.
+      if(abs(pari(i,2)-pari(i,3)).gt.tiny) ithlog=.true.
     2 continue
 c
       return
@@ -1506,3 +1515,4 @@ c
 c
       return
       end
+

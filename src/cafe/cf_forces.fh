@@ -302,7 +302,7 @@ c
       if(npairs.gt.0) then
       call cf_fst(npairs,int_mb(lptr+1),mtt(2),int_mb(i_itrd(2)),
      + dbl_mb(i_vdw),dbl_mb(i_chg),
-     + max(isto,jsto),msa,isat,isga,isml,isdt,isq2,
+     + max(isto,jsto),msa,isat,isga,isml,isdt,isq3,
      + xs,fs,ess,lpbc)
       lptr=lptr+1+npairs
       else
