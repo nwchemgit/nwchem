@@ -8,7 +8,7 @@ include ../../config/makefile.h
 include ../../config/makelib.h
 
 ftest:	ftest.o $(OBJ)
-	$(F77) -o $@ $(FFLAGS) $^ -lm
+	$(LINK.f) -o $@ $^ $(LIBS) $(LIBS) $(LIBS) -lm
 
 mddriver:	mddriver.o $(OBJ)
 	$(CC) -o $@ $^ -lm

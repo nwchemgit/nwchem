@@ -56,7 +56,7 @@ void checksum_final(char csum[33])
 {
     unsigned char sum[16];
 
-    MD5Final(sum, context);
+    MD5Final(sum, &context);
     checksum_sum_to_string(sum, csum);
 }
 
