@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.27 2002-11-08 22:27:55 d3j191 Exp $
+c $Id: pme_grid.F,v 1.28 2002-11-09 03:46:55 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -280,9 +280,13 @@ c
       maxx=maxsl(2,node+1,k)
       miny=maxsl(3,node+1,k)
       maxy=maxsl(4,node+1,k)
+c      minx=1
+c      maxx=ngx
+c      miny=1
+c      maxy=ngy
       call ga_distribution(lslab(k),node,ilsl,ihsl,jlsl,jhsl)
       call ga_get(lslab(k),ilsl+minx-1,ilsl+maxx-1,jlsl+miny-1,
-     + jlsl+maxy-1,grid(1,1,k),mgx)
+     + jlsl+maxy-1,grid(minx,miny,k),mgx)
       endif
     1 continue
 c

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.150 2002-08-21 14:55:12 d3j191 Exp $
+c $Id: cf_main.F,v 1.151 2002-11-09 03:46:55 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -859,6 +859,7 @@ c
       rdata(3)=pscx(3)
       rdata(4)=pscale
       call ga_brdcst(mcf_39,rdata,ma_sizeof(mt_dbl,4,mt_byte),0)
+c      write(*,'(i5,4f12.6)') me,rdata
       pscx(1)=rdata(1)
       pscx(2)=rdata(2)
       pscx(3)=rdata(3)
