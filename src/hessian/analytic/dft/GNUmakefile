@@ -1,7 +1,7 @@
-# $Id: GNUmakefile,v 1.7 2002-01-29 21:34:45 windus Exp $
+# $Id: GNUmakefile,v 1.8 2003-09-11 16:59:16 edo Exp $
 
+OBJ =  		xc_d2expl.o 
 OBJ_OPTIMIZE =  xc_cpks_coeff.o \
-		xc_d2expl.o \
 		xc_exit_index.o \
 		xc_init_index.o \
 		xc_nucder_gen.o \
@@ -28,4 +28,18 @@ LIB_INCLUDES = -I../../../nwdft/include
 
 include ../../../config/makefile.h
 include ../../../config/makelib.h
+
+      FOPTIONS+= $(FOPTIMIZE)
+      FDEBUG=
+  ifeq ($(_FC),ifc) 
+    ifeq ($(_IFCV8),Y)
+      FOPTIONS+= -ansi_alias-
+    endif	
+  endif
+  ifeq ($(_FC),efc) 
+    ifeq ($(_IFCV8),Y)
+      FOPTIONS+= -ansi_alias-
+    endif	
+  endif
+
 
