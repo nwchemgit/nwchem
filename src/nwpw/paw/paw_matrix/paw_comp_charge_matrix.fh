@@ -1,0 +1,7 @@
+integer comp_charge_matrix(4)
+integer i_comp_charge_matrix(4)
+integer s_comp_charge_matrix(4)
+
+common /paw_comp_charge_matrix/ comp_charge_matrix,&
+                            i_comp_charge_matrix,&
+                            s_comp_charge_matrix
