@@ -39,6 +39,7 @@ c
       call int_acc_std()
       call schwarz_init(geom,basis)
       call scf_get_fock_param(rtdb,tol2e)
+      call fock_force_direct(rtdb)
 c
 c --------------------------------------------------------------------
 c Allocate work arrays, set bgj theory (fock_2e won't work without it)
@@ -179,8 +180,8 @@ c
         call ga_get(g_dens(1), i, i, j, j,pa,1)
         call ga_get(g_dens(2), i, i, j, j,pb,1)
 c
-        omega2 = omega2 + pa*fKa 
-        omega2 = omega2 + pb*fKb 
+        omega2 = omega2 - pa*fKa 
+        omega2 = omega2 - pb*fKb 
       enddo
       enddo
 c
