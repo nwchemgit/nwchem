@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.53 2000-05-12 17:29:27 d3j191 Exp $
+c $Id: cf_main.F,v 1.54 2000-05-16 01:17:47 edo Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -713,7 +713,7 @@ c
       z(1,1)=zw(1,1)
       z(1,2)=zero
       z(1,3)=zero
-      z(2,2)=zero
+      z(2,1)=zero
       z(2,2)=zw(2,1)
       z(2,3)=zero
       z(3,1)=zero
