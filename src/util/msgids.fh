@@ -13,7 +13,7 @@ C
 C     We'll go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Integer MSG_Ftn_Base
-C$Id: msgids.fh,v 1.17 1995-10-24 18:55:34 rg240 Exp $
+C$Id: msgids.fh,v 1.18 1995-10-24 19:25:15 rg240 Exp $
       Parameter (MSG_Ftn_Base = 25000)
 C
       Integer Msg_PrSum
@@ -47,6 +47,7 @@ C
       Integer Msg_dftg_cdf,Msg_schw2,Msg_schw3
       Integer Msg_Mull1,Msg_Mull2
       Integer Msg_Act_Energy
+      Integer Msg_Trace_Diag
 C-----------------------------------------------------------------------
       Parameter (Msg_PrSum = MSG_Ftn_Base -  1) ! Sum_Pairs
 C
@@ -167,4 +168,5 @@ C
 c
 c
       Parameter (Msg_Act_Energy     = MSG_Ftn_Base - 86)  ! MCSCF: Active energy sum
-
+C
+      Parameter (Msg_Trace_Diag     = MSG_Ftn_Base - 87)  ! UTIL: Trace of GA
