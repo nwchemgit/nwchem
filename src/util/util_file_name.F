@@ -274,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.24 2002-10-15 22:16:16 edo Exp $
+C$Id: util_file_name.F,v 1.25 2002-10-15 23:27:47 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -564,6 +564,7 @@ c
       integer fd
       character*8 fstype
       integer l1megabyte,i_k,l_k
+      character*255 dirscr
       parameter(l1megabyte=1000000)
       logical util_file_parse_dir,oprint
       external util_file_parse_dir
@@ -590,15 +591,18 @@ c
       ierr = eaf_write(fd, 0, dbl_mb(i_k),8*l1megabyte)
       if (.not.ma_pop_stack(l_k))
      &   call errquit('utilfname: cannot deallocate ',0)
-      call ga_sync()
       ierr=eaf_close(fd)
+      call ga_sync()
       ierr = eaf_stat(mine, avail1, fstype)
       if (ierr .ne. 0) call errquit('util_scratch_avail: eaf_stat',ierr)
       ierr=eaf_delete(mine)
       nuse=nint((avail0-avail1)/8d0)
       if(oprint) then
-         write(luout,11) ga_nodeid(),nuse,avail0/nuse
- 11      format(i4,': nuse =',i4,' available disk =',i10,'Mb')
+         call util_directory_name(dirscr, .true., ga_nodeid())
+         write(luout,11) ga_nodeid(),nuse,avail0/nuse,
+     .     dirscr(1:inp_strlen(dirscr))
+ 11      format(i4,': nuse =',i4,' available disk =',i10,'Mb on ',
+     .     A)
       endif
 c
 c     now eaf_stat returns Mb instead of kb
