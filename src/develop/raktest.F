@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.37 1995-05-09 21:53:29 d3e129 Exp $
+c $Id: raktest.F,v 1.38 1995-06-14 07:38:26 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -13,7 +13,7 @@ c
       if (rtdb_get(rtdb,'raktask',MT_INT,1,rak_tmp))
      &    raktask = rak_tmp
 c
-      goto (00100,00200,00300,00400) raktask
+      goto (00100,00200,00300,00400,00500) raktask
 c
       write(6,*)' default raktest task '
       call raktest0(rtdb)
@@ -31,7 +31,10 @@ c
       call raktest3(rtdb)
       goto 00001
 00400 write(6,*)' raktest task 4 check intd_init'
-      call raktest4(rtdb)
+      call raktest_initd(rtdb)
+      goto 00001
+00500 write(6,*)' raktest task 4 check int_init'
+      call raktest_init(rtdb)
       goto 00001
 c
 00001 continue
@@ -3870,7 +3873,8 @@ c free memory
         write(6,*)' walk NOT converged'
       endif
       end
-      subroutine raktest4(rtdb)
+      subroutine raktest_initd(rtdb)
+c raktest = 4
       implicit none
 #include "rtdb.fh"
 #include "geom.fh"
@@ -3908,6 +3912,55 @@ c
      &      call errquit('raktest4: bas_rtdb_load choked',911)
 00200 continue
       call intd_init(rtdb,nbasis_rtdb,bases)
+c
+      call int_mem(mx1e, mxg, mxs1, mxs2)
+      write(6,*)' one electron buffer size        :',mx1e
+      write(6,*)' two electron buffer size        :',mxg
+      write(6,*)' one electron scratch buffer size:',mxs1
+      write(6,*)' two electron scratch buffer size:',mxs2
+c
+      call int_mem_print()
+c
+      end
+      subroutine raktest_init(rtdb)
+c raktest = 5
+      implicit none
+#include "rtdb.fh"
+#include "geom.fh"
+#include "bas.fh"
+#include "basP.fh"
+#include "mafdecls.fh"
+c
+      integer rtdb
+      integer geom
+      integer mx1e, mxg, mxs1, mxs2
+c
+c
+      integer nbas, bases(6)
+c
+      if (.not.bas_rtdb_in(rtdb))
+     &    call errquit('raktest4: error loading known basis sets',911)
+c
+      write(6,*)' number of basis sets in rtdb ',nbasis_rtdb
+c
+      do 00100 nbas = 1,nbasis_rtdb
+        write(6,*)' basis ',nbas,' is ',bs_names_rtdb(nbas)
+00100 continue
+c
+      if (.not.geom_create(geom,'geometry'))
+     &    call errquit('raktest4: geom_create failed',911)
+      if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
+     &    call errquit('raktest4: geom_create failed',911)
+c
+      do 00200 nbas = 1,nbasis_rtdb
+        if(.not.bas_create(bases(nbas),bs_names_rtdb(nbas)))
+     &      call errquit('raktest4: bas_create choked',911)
+        if(.not.
+     &      bas_rtdb_load
+     &      (rtdb,geom,bases(nbas),bs_names_rtdb(nbas)))
+     &      call errquit('raktest4: bas_rtdb_load choked',911)
+00200 continue
+      call int_init(rtdb,nbasis_rtdb,bases)
 c
       call int_mem(mx1e, mxg, mxs1, mxs2)
       write(6,*)' one electron buffer size        :',mx1e
