@@ -18,6 +18,8 @@ c..
 crz   order of d's and f's in GAMESS is completely different
 crz   from MOLECULE !!
 c
+crjh  NWCHEM is even more whacked out ... normalization differs
+c
 c     dmult consists of :
 c     nothing for s;
 c      p functions (1 line)
@@ -28,10 +30,10 @@ c
       data dmult/ 1.0d0, 3*0.0d0, 1.0d0, 3*0.0d0, 1.0d0,
 
      $        1d0,   0d0,    0d0, -0.5d0,    0d0,  -0.5d0,
-     $        0d0,   1d0,    0d0,    0d0,    0d0,     0d0,
-     $        0d0,   0d0,    1d0,    0d0,    0d0,     0d0,
+     $        0d0,   3d0,    0d0,    0d0,    0d0,     0d0,
+     $        0d0,   0d0,    3d0,    0d0,    0d0,     0d0,
      $     -0.5d0,   0d0,    0d0,    1d0,    0d0,  -0.5d0,
-     $        0d0,   0d0,    0d0,    0d0,    1d0,     0d0,
+     $        0d0,   0d0,    0d0,    0d0,    3d0,     0d0,
      $     -0.5d0,   0d0,    0d0, -0.5d0,    0d0,     1d0,
 
      x  1.0d0,   4*0.0d0, -0.670820393d0, 0.0d0,-0.670820393d0, 2*0.0d0,
@@ -99,8 +101,7 @@ c.......................................................................
             kpoint = kmone*(kmone+1)*(((6*kmone+24)*kmone+26)*kmone+4)
      +               /120
             factor = 1.d0/(k+k-1)
-*            if (k .eq. 3) factor = factor / 3.0d0
-            if (k .eq. 3) factor = factor * 5.0d0 / 9.0d0
+            if (k .eq. 3) factor = factor / 3.0d0
             call pdfded(k,kdim,g_dens,dt,factor,dmult(kpoint),lm,nbci,
      +                  iiloc(1,k))
          end if
