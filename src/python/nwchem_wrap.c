@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.20 2002-05-06 22:38:25 windus Exp $
+ $Id: nwchem_wrap.c,v 1.21 2004-12-28 18:04:51 edo Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <math.h>
 
 #include <Python.h>
 #include <abstract.h>
