@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.99 1999-06-09 00:31:34 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.100 1999-06-09 23:56:50 d3e129 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -140,7 +140,7 @@ MODULES := $(patsubst develop,develop ddscf,$(MODULES) )
 
 MODULES := $(patsubst dplot,dplot nwdft ddscf,$(MODULES) )
 
-MODULES := $(patsubst ddscf,ddscf atomscf NWints,$(MODULES) )
+MODULES := $(patsubst ddscf,ddscf nwdft atomscf NWints,$(MODULES) )
 # This dependency is the other way round (matchnxyz used by symmetry)
 # but is required for correct linking on SOLARIS.  Nasty kludge.
 #
