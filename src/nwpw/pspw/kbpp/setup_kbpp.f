@@ -1,3 +1,7 @@
+*
+* $Id: setup_kbpp.f,v 1.2 2002-08-21 21:56:13 bylaska Exp $
+*
+
 *     *****************************************************
 *     *                                                   *
 *     *                setup_kbpp                         *
@@ -5,9 +9,6 @@
 *     *****************************************************
 
       subroutine setup_kbpp(nfft1,nfft2,nfft3,unita,unitg,G)
-*
-* $Id: setup_kbpp.f,v 1.1 2001-08-30 00:38:59 edo Exp $
-*
       implicit none
       integer nfft1,nfft2,nfft3
       double precision unita(3,3),unitg(3,3)

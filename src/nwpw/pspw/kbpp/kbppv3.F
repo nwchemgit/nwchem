@@ -1,3 +1,7 @@
+*
+* $Id: kbppv3.F,v 1.7 2002-08-21 21:56:13 bylaska Exp $
+*
+
 *     **************************************
 *     *                                    *
 *     *           kbppv3                   *
@@ -7,9 +11,6 @@
       logical function kbppv3(oprint,version,
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax,rlocal)
-*
-* $Id: kbppv3.F,v 1.6 2002-02-13 20:02:07 edo Exp $
-*
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

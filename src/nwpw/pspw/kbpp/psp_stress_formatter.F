@@ -1,6 +1,7 @@
 c
-c $Id: psp_stress_formatter.F,v 1.2 2002-01-21 06:31:35 bylaska Exp $
+c $Id: psp_stress_formatter.F,v 1.3 2002-08-21 21:56:13 bylaska Exp $
 c
+
       logical function psp_stress_formatter(rtdb)
       implicit none
 #include "mafdecls.fh"

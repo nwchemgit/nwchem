@@ -1,3 +1,7 @@
+*
+* $Id: integrate_kbppv3.f,v 1.3 2002-08-21 21:56:12 bylaska Exp $
+*
+
 
       subroutine integrate_kbppv3(version,rlocal,
      >                            nrho,drho,lmax,locp,zv,
@@ -6,9 +10,6 @@
      >                            G,vl,vnl,vnlnrm,
      >                            semicore,rho_sc_r,rho_sc_k,
      >                            ierr)
-*
-* $Id: integrate_kbppv3.f,v 1.2 2001-12-13 03:49:54 bylaska Exp $
-*
       implicit none
       integer          version
       double precision rlocal

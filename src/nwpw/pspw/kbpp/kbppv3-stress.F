@@ -1,3 +1,8 @@
+*
+* $Id: kbppv3-stress.F,v 1.5 2002-08-21 21:56:13 bylaska Exp $
+*
+
+
 *     **************************************
 *     *                                    *
 *     *           kbppv3_stress            *
@@ -7,9 +12,6 @@
       logical function kbppv3_stress(oprint,version,
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax,rlocal)
-*
-* $Id: kbppv3-stress.F,v 1.4 2002-04-24 01:16:27 bylaska Exp $
-*
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -32,8 +34,8 @@
 *     **** 1d pseudopotential data ****
       character*2 atom
       double precision zv,amass
-      integer lmax0,lmmax
-      double precision rc(0:9)
+      integer lmax0,lmmax,lmax1,locp1
+      double precision rc(0:9),rlocal1
       integer nrho
       double precision drho
       integer rho_indx,vp_indx,wp_indx,sc_r_indx,sc_k_indx
@@ -73,7 +75,7 @@
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
       read(11,'(A2)',ERR=9999,END=9999) atom
-      read(11,*,ERR=9999,END=9999) zv,amass,lmax0
+      read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
       read(11,*,ERR=9999,END=9999) nrho,drho
       end if
@@ -82,6 +84,8 @@
       call BRDCST(9+MSGDBL,zv,mdtob(msglen),MASTER)
       call BRDCST(9+MSGDBL,amass,mdtob(msglen),MASTER)
       call BRDCST(9+MSGINT,lmax0,mitob(msglen),MASTER)
+      call BRDCST(9+MSGINT,lmax1,mitob(msglen),MASTER)
+      call BRDCST(9+MSGINT,locp1,mitob(msglen),MASTER)
       msglen = lmax0+1
       call BRDCST(9+MSGDBL,rc,mdtob(msglen),MASTER)
       msglen = 1
@@ -90,11 +94,14 @@
 
 
 *     **** set the maximum angular momentum ****
+      if (lmax.eq.-1)    lmax = lmax1
       if (lmax.gt.lmax0) lmax = lmax0
       if (lmax.lt.0)     lmax = lmax0
 
 *     **** set the local potential ****
-      if (locp.lt.0) locp=lmax
+      if (locp.eq.-1)   locp = locp1
+      if (locp.gt.lmax) locp = lmax
+      if (locp.lt.0)    locp = lmax
 
       
 
@@ -201,7 +208,7 @@
 
       if (semicore) then
         write(*,*)
-        write(*,115) "  SEMI-CORE stress not implemented"
+        write(*,115) "  semi-core stress derivative added"
       end if
       write(*,*)
       write(*,*) "Simulation Cell"
@@ -237,6 +244,9 @@
          call dwrite(2,unita,9)
          call dwrite(2,dbl_mb(vl_indx),nsize)
          call dwrite(2,dbl_mb(vnl_indx),nsize*lmmax*3)
+         if (semicore) then
+           call dwrite(2,dbl_mb(sc_k_indx),nsize)
+         end if
       call closefile(2)
       end if
      
