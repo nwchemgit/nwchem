@@ -1,6 +1,6 @@
       logical function jvltest2(rtdb)
 *     
-*     $Id: rjhtrans.F,v 1.7 2000-02-04 19:53:17 mg201 Exp $
+*     $Id: rjhtrans.F,v 1.8 2000-03-21 21:28:19 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -182,15 +182,26 @@ c
 c
 c     Trying reading something from a file ... all 3-c integrals
 c
-*ga:1:0
-      if (.not. ga_create(mt_dbl, nvirta*nocca, nvirta*nvirta, 
+      if (.not. ga_create(mt_dbl, nvirta*nocca, nvirtb*nvirtb, 
      $     'tmp', 0, 0, g_tmp))
      &     call errquit('scf_v_g: tmp', 0)
+c
       call get_cct(g_tmp, '<ba||ek>(bkea)', 
      $     1, nvirta*nocca, 1, 1, 
-     $     nocca+1, nactive, 1, 
-     $     nocca+1, nactive, 1)
-
+     $     nactive+noccb+1, nactive+nactive, 2, 
+     $     nactive+noccb+1, nactive+nactive, 2)
+c
+      write(6,*) ' spins b k a e = ', 1, 1, 2, 2
+      call ga_print(g_tmp)
+c
+      call get_cct(g_tmp, '<ba||ek>(bkea)', 
+     $     1, nvirta*nocca, 2, 2, 
+     $     noccb+1, nactive, 1, 
+     $     noccb+1, nactive, 1)
+c
+      write(6,*) ' spins b k a e = ', 2, 2, 1, 1
+      call ga_print(g_tmp)
+c
       if (.not. ga_destroy(g_tmp)) call errquit('ga?',0)
 c
       status = cct_uhf(rtdb)
@@ -897,7 +908,7 @@ c
          if (fds(i) .ne. -1) then
             if (stub(1:ls).eq.stubs(i)(1:ls)) then
                filenum = i
-*               write(6,*) stub, ' -> ', i, filenames(i)
+               write(6,*) stub, ' -> ', i, filenames(i)
                return
             endif
          endif

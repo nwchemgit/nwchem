@@ -456,12 +456,22 @@ c
             do r = 1, s
                do q = 1, n2
                   do p = 1, n1
-cwrong                     tmp = full(p,q,r,s) - full(q,p,s,r)
-                     tmp = full(p,q,r,s) - full(p,q,s,r)
-                     full(p,q,r,s) = tmp
-                     full(p,q,s,r) =-tmp
+                     full(p,q,r,s) = full(p,q,r,s) - full(p,q,s,r)
                   enddo
                enddo
+               if (r .ne. s) then
+                  do q = 1, n2
+                     do p = 1, n1
+                        full(p,q,s,r) = -full(p,q,r,s)
+                     enddo
+                  enddo
+               else
+                  do q = 1, n2
+                     do p = 1, n1
+                        full(p,q,s,r) = 0.0d0
+                     enddo
+                  enddo
+               endif
             enddo
          enddo
       endif
@@ -718,7 +728,7 @@ c
                do p = 1, n1
                   if (abs(full(p,q,r,s)).gt.1e-6) then
                      write(6,1) p,q,r,s,full(p,q,r,s)
- 1                   format(4i5,2x,f12.6)
+ 1                   format(4i5,2x,f14.8)
                   end if
                end do
             end do
@@ -2327,8 +2337,6 @@ c
 c
 c     Particle transformation
 c
-c      write(6,*) ' INPUT MOS'
-c      call output(ct, 1, nmo, 1, nbf, nmo, nbf, 1)
       call dfill(nmo*nmo, 0.0d0, work, 1)
       call dfill(nmo, 1.0d0, work, nmo+1)
       do i = 1, no
@@ -2336,13 +2344,9 @@ c      call output(ct, 1, nmo, 1, nbf, nmo, nbf, 1)
             work(i,a+no) = work(i,a+no) - t1(a,i)
          end do
       end do
-c      write(6,*) ' pure PARTICLE'
-c      call output(work, 1, nmo, 1, nmo, nmo, nbf, 1)
       call dgemm('t','n',nmo,nbf,nmo,
      $     1.0d0, work, nmo, ct, nmo, 
      $     0.0d0, pt, nmo)
-c      write(6,*) ' PARTICLE'
-c      call output(pt, 1, nmo, 1, nbf, nmo, nbf, 1)
 c
 c     Hole transformation
 c
@@ -2353,13 +2357,9 @@ c
             work(a+no,i) = work(a+no,i) + t1(a,i)
          end do
       end do
-c      write(6,*) ' pure HOLE'
-c      call output(work, 1, nmo, 1, nmo, nmo, nbf, 1)
       call dgemm('t','n',nmo,nbf,nmo,
      $     1.0d0, work, nmo, ct, nmo, 
      $     0.0d0, ht, nmo)
-c      write(6,*) ' HOLE'
-c      call output(ht, 1, nmo, 1, nbf, nmo, nbf, 1)
 c
       end
       subroutine get_new_f_g(rtdb, basis, fock, g_mo, t1, nso, nmo)

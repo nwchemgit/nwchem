@@ -1,0 +1,1987 @@
+      logical function uccsdtest(rtdb)
+*     
+*     $Id: uccsdtest.F,v 1.1 2000-03-21 21:28:19 d3g681 Exp $
+*
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "inp.fh"
+      integer rtdb
+c
+      integer basis, geom, nbf
+      character*255 movecs      ! Name of movector file
+      character*80 title, name_of_basis, scftype
+      integer nbf_file, nsets, nmo_file(2)
+      logical movecs_read, movecs_read_header
+      external movecs_read, movecs_read_header
+c
+      integer nmo, nalpha, nbeta, g_tmp, l_occ, k_occ,
+     $     l_aeval, k_aeval, l_beval, k_beval, l_amos, k_amos,
+     $     l_bmos, k_bmos
+      integer noa, nob, nva, nvb
+      integer l_aa, l_ab, l_ba, l_bb, k_iaa, k_iab, k_iba, k_ibb
+      integer l_t2aa, l_t2ab, l_t2bb, l_t1a, l_t1b, l_t2ba
+      integer k_t2aa, k_t2ab, k_t2bb, k_t1a, k_t1b, k_t2ba
+      integer l_r2aa, l_r2ab, l_r2bb, l_r1a, l_r1b
+      integer k_r2aa, k_r2ab, k_r2bb, k_r1a, k_r1b
+      integer l_fa, k_fa, l_fb, k_fb
+      integer l_alp, l_alh, l_blp, l_blh, l_ha, l_hb, l_work
+      integer k_alp, k_alh, k_blp, k_blh, k_ha, k_hb, k_work
+      integer l_z1, l_z2, l_z3, l_z4, l_z5, l_z6, l_z7, l_z8, 
+     $     l_x1, l_x2, l_x3
+      integer k_z1, k_z2, k_z3, k_z4, k_z5, k_z6, k_z7, k_z8, 
+     $     k_x1, k_x2, k_x3
+      integer iter
+c
+      double precision energyaaa, energybbb, energyaab, energybba
+      double precision uccsdtest_triples_pure, uccsdtest_triples_mixed
+      logical int_normalize
+      external int_normalize
+c     
+c     load the geometry/basis set and get info
+c
+      if (.not. geom_create(geom, 'geometry'))
+     $     call errquit('scf_init: geom_create?', 0)
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     $     call errquit('scf_init: no geometry ', 0)
+      if (.not. bas_create(basis, 'ao basis'))
+     $     call errquit('scf_init: bas_create?', 0)
+      if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis')) 
+     $        call errquit('scf_init: no ao basis set', 0)
+      if (.not.int_normalize(rtdb, basis))
+     $           call errquit('scf:int_normalize failed', 0)
+      if (.not. bas_numbf(basis, nbf)) call errquit
+     $     ('scf_init: basis info',0)
+c
+c     Read the MO vectors and evals from a UHF calculation
+c
+      call util_file_name('movecs',.false.,.false.,movecs)
+      if (.not. movecs_read_header(movecs, title, name_of_basis,
+     $     scftype, nbf_file, nsets, nmo_file, 2)) call errquit
+     $     ('rjhtest: failed to read movecs header',0)
+      if (nsets.ne.2) call errquit('UHF ONLY!',0)
+      nmo = nmo_file(1)
+      if (nmo .ne. nbf) call errquit('NO LINEAR DEPENDNCE PERMITTED',0)
+      write(6,*) ' Read movecs header from ', movecs
+      write(6,*) ' Job title :                ', 
+     $     title(1:inp_strlen(title))
+      write(6,*) ' Basis name:                ', 
+     $     name_of_basis(1:inp_strlen(name_of_basis))
+      if (nmo_file(1).ne.nmo_file(2)) call errquit('Uh?',0)
+      if (.not. rtdb_get(rtdb, 'scf:nalpha', mt_int, 1, nalpha))
+     $     call errquit('nalpha?',0)
+      if (.not. rtdb_get(rtdb, 'scf:nbeta', mt_int, 1, nbeta))
+     $     call errquit('nbeta?',0)
+
+      noa = nalpha
+      nob = nbeta
+      nva = nmo - nalpha
+      nvb = nmo - nbeta
+
+      write(6,*) ' No. of alpha electrons:    ', nalpha
+      write(6,*) ' No. of beta  electrons:    ', nbeta
+      write(6,*) ' No. of molecular orbitals: ', nmo
+      write(6,*) ' No. of basis functions:    ', nbf
+c
+      if (.not. ga_create(mt_dbl, nbf, nmo, 'tmp', 1, 1, g_tmp))
+     &     call errquit('scf_v_g: tmp', 0)
+      if (.not. ma_push_get(mt_dbl, nbf,'occ',l_occ, k_occ))
+     $     call errquit('ma occ', nbf)
+      if (.not. ma_push_get(mt_dbl, nbf,'aeval',l_aeval, k_aeval))
+     $     call errquit('ma eval', nbf)
+      if (.not. ma_push_get(mt_dbl, nbf,'beval',l_beval, k_beval))
+     $     call errquit('ma eval', nbf)
+      if (.not. ma_push_get(mt_dbl, nbf*nbf,'amos', l_amos, k_amos))
+     $     call errquit('ma amos', nbf*nbf)
+      if (.not. ma_push_get(mt_dbl, nbf*nbf,'bmos', l_bmos, k_bmos))
+     $     call errquit('ma bmos', nbf*nbf)
+c
+      if (.not. movecs_read(movecs, 1, dbl_mb(k_occ), dbl_mb(k_aeval), 
+     $     g_tmp)) call errquit('movecs_read of amos failed ',0)
+      call ga_get(g_tmp, 1, nbf, 1, nmo, dbl_mb(k_amos), nbf)
+      if (.not. movecs_read(movecs, 2, dbl_mb(k_occ), dbl_mb(k_beval), 
+     $     g_tmp)) call errquit('movecs_read of amos failed ',0)
+      call ga_get(g_tmp, 1, nbf, 1, nmo, dbl_mb(k_bmos), nbf)
+c
+      write(6,*) ' Alpha eigenvalues '
+      call output(dbl_mb(k_aeval),1,nmo,1,1,nmo,1,1)
+      write(6,*) ' Beta  eigenvalues '
+      call output(dbl_mb(k_beval),1,nmo,1,1,nmo,1,1)
+c$$$      write(6,*) ' Alpha MOs'
+c$$$      call output(dbl_mb(k_amos),1,nbf,1,nmo,nbf,nmo,1)
+c$$$      write(6,*) ' Beta  MOs'
+c$$$      call output(dbl_mb(k_bmos),1,nbf,1,nmo,nbf,nmo,1)
+c
+      if (.not. ga_destroy(g_tmp)) call errquit(' ga bad?',0)
+c
+      call util_inplace_transpose(nmo, dbl_mb(k_amos))
+      call util_inplace_transpose(nmo, dbl_mb(k_bmos))
+c
+      if (.not. ma_push_get(mt_dbl, nbf**4,'moints', l_aa, k_iaa))
+     $     call errquit('ma aa moints', nbf**4)
+      if (.not. ma_push_get(mt_dbl, nbf**4,'moints', l_ab, k_iab))
+     $     call errquit('ma ab moints', nbf**4)
+      if (.not. ma_push_get(mt_dbl, nbf**4,'moints', l_ba, k_iba))
+     $     call errquit('ma ba moints', nbf**4)
+      if (.not. ma_push_get(mt_dbl, nbf**4,'moints', l_bb, k_ibb))
+     $     call errquit('ma bb moints', nbf**4)
+c
+c     Canonical UHF MP2 as a test and to get starting amplitudes.
+c
+      if (.not. ma_push_get(mt_dbl, (noa*nva), 't1', l_t1a, k_t1a))
+     $     call errquit('ma t1a', (noa*nva))
+      if (.not. ma_push_get(mt_dbl, (nob*nvb), 't1', l_t1b, k_t1b))
+     $     call errquit('ma t1b', (nob*nvb))
+      if (.not. ma_push_get(mt_dbl, (noa*nva)**2, 't2', l_t2aa, k_t2aa))
+     $     call errquit('ma t2_aa', (noa*nva)**2)
+      if (.not. ma_push_get(mt_dbl, (nob*nvb)**2, 't2', l_t2bb, k_t2bb))
+     $     call errquit('ma t2_bb', (nob*nvb)**2)
+      if (.not. ma_push_get(mt_dbl, (noa*nva)*(nob*nvb), 
+     $     't2', l_t2ab, k_t2ab))
+     $     call errquit('ma t2_ab', (noa*nva)*(nob*nvb))
+c
+         call jan_full_transform(
+     $        rtdb, basis, 
+     $        nmo, nmo, nmo, nmo,
+     $        nmo, nmo, nmo, nmo,
+     $        dbl_mb(k_amos),dbl_mb(k_amos),
+     $        dbl_mb(k_amos),dbl_mb(k_amos), 
+     $        dbl_mb(k_iaa), 'RightAsymDirac')
+         call jan_full_transform(
+     $        rtdb, basis, 
+     $        nmo, nmo, nmo, nmo,
+     $        nmo, nmo, nmo, nmo,
+     $        dbl_mb(k_bmos),dbl_mb(k_bmos),
+     $        dbl_mb(k_bmos),dbl_mb(k_bmos), 
+     $        dbl_mb(k_ibb), 'RightAsymDirac')
+         call jan_full_transform(
+     $        rtdb, basis, 
+     $        nmo, nmo, nmo, nmo,
+     $        nmo, nmo, nmo, nmo,
+     $        dbl_mb(k_amos),dbl_mb(k_bmos),
+     $        dbl_mb(k_amos),dbl_mb(k_bmos), 
+     $        dbl_mb(k_iab), 'Dirac')
+      call uccsdtest_mp2(
+     $     nmo,
+     $     noa, nob, nva, nvb, 
+     $     dbl_mb(k_aeval), dbl_mb(k_beval),
+     $     dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
+     $     dbl_mb(k_t1a), dbl_mb(k_t1b),
+     $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
+c
+      call dfill((noa*nva)**2,0.0d0,dbl_mb(k_t2aa),1)
+      call dfill((nob*nvb)**2,0.0d0,dbl_mb(k_t2bb),1)
+      call dfill((noa*nva)*(nob*nvb),0.0d0,dbl_mb(k_t2ab),1)
+      call dfill((noa*nva), 0.0d0, dbl_mb(k_t1a), 1)
+      call dfill((nob*nvb), 0.0d0, dbl_mb(k_t1b), 1)
+c
+      if (.not. ma_push_get(mt_dbl, nmo**2, 'fa', l_fa, k_fa))
+     $     call errquit('ma fa', nmo**2)
+      if (.not. ma_push_get(mt_dbl, nmo**2, 'fb', l_fb, k_fb))
+     $     call errquit('ma fb', nmo**2)
+      if (.not. ma_push_get(mt_dbl, nmo**2, 'fa', l_ha, k_ha))
+     $     call errquit('ma ha', nmo**2)
+      if (.not. ma_push_get(mt_dbl, nmo**2, 'fb', l_hb, k_hb))
+     $     call errquit('ma hb', nmo**2)
+c$$$      call dfill(nmo*nmo, 0.0d0, dbl_mb(k_fa), 1)
+c$$$      call dfill(nmo*nmo, 0.0d0, dbl_mb(k_fb), 1)
+c$$$      call dcopy(nmo, dbl_mb(k_aeval), 1, dbl_mb(k_fa), nmo+1)
+c$$$      call dcopy(nmo, dbl_mb(k_beval), 1, dbl_mb(k_fb), nmo+1)
+c
+c     Space for the residual vectors
+c
+      if (.not. ma_push_get(mt_dbl, (noa*nva), 'r1', l_r1a, k_r1a))
+     $     call errquit('ma r1a', (noa*nva))
+      if (.not. ma_push_get(mt_dbl, (nob*nvb), 'r1', l_r1b, k_r1b))
+     $     call errquit('ma r1b', (nob*nvb))
+      if (.not. ma_push_get(mt_dbl, (noa*nva)**2, 'r2', l_r2aa, k_r2aa))
+     $     call errquit('ma r2_aa', (noa*nva)**2)
+      if (.not. ma_push_get(mt_dbl, (nob*nvb)**2, 'r2', l_r2bb, k_r2bb))
+     $     call errquit('ma r2_bb', (nob*nvb)**2)
+      if (.not. ma_push_get(mt_dbl, (noa*nva)*(nob*nvb), 
+     $     'r2', l_r2ab, k_r2ab))
+     $     call errquit('ma r2_ab', (noa*nva)*(nob*nvb))
+c
+c     Temporary workspace for transposed t2ab and
+c     particle & hole transformation matrices and workspace
+c
+      if (.not. ma_push_get(mt_dbl, (noa*nva)*(nob*nvb), 
+     $     't2', l_t2ba, k_t2ba))
+     $     call errquit('ma t2_ba', (noa*nva)*(nob*nvb))
+      if (.not. ma_push_get(mt_dbl, nbf*nmo, 'a lamda p', l_alp, k_alp))
+     $     call errquit('ma alp', nbf*nmo)
+      if (.not. ma_push_get(mt_dbl, nbf*nmo, 'a lamda h', l_alh, k_alh))
+     $     call errquit('ma alh', nbf*nmo)
+      if (.not. ma_push_get(mt_dbl, nbf*nmo, 'b lamda p', l_blp, k_blp))
+     $     call errquit('ma alp', nmo*nmo)
+      if (.not. ma_push_get(mt_dbl, nbf*nmo, 'b lamda h', l_blh, k_blh))
+     $     call errquit('ma alh', nbf*nmo)
+      if (.not. ma_push_get(mt_dbl, nmo*nmo, 'work', l_work, k_work))
+     $     call errquit('ma work', nmo*nmo)
+c
+c     For the n^6 algorithm we need some more intermediates
+c
+      if (.not. ma_push_get(mt_dbl, noa*nva*noa*nva, 'z1', l_z1, k_z1))
+     $     call errquit(' ma z1 ', 0)
+      if (.not. ma_push_get(mt_dbl, noa*nva*noa*nva, 'z2', l_z2, k_z2))
+     $     call errquit(' ma z2 ', 0)
+      if (.not. ma_push_get(mt_dbl, nob*nvb*noa*nva, 'z3', l_z3, k_z3))
+     $     call errquit(' ma z3 ', 0)
+      if (.not. ma_push_get(mt_dbl, nob*nvb*nob*nvb, 'z4', l_z4, k_z4))
+     $     call errquit(' ma z4 ', 0)
+      if (.not. ma_push_get(mt_dbl, nob*nvb*nob*nvb, 'z5', l_z5, k_z5))
+     $     call errquit(' ma z5 ', 0)
+      if (.not. ma_push_get(mt_dbl, noa*nva*nob*nvb, 'z6', l_z6, k_z6))
+     $     call errquit(' ma z6 ', 0)
+      if (.not. ma_push_get(mt_dbl, noa*nva*nob*nvb, 'z7', l_z7, k_z7))
+     $     call errquit(' ma z7 ', 0)
+      if (.not. ma_push_get(mt_dbl, noa*nvb*noa*nvb, 'z8', l_z8, k_z8))
+     $     call errquit(' ma z8 ', 0)
+      if (.not. ma_push_get(mt_dbl, noa*noa*noa*noa, 'x1', l_x1, k_x1))
+     $     call errquit(' ma x1 ', 0)
+      if (.not. ma_push_get(mt_dbl, nob*nob*nob*nob, 'x2', l_x2, k_x2))
+     $     call errquit(' ma x2 ', 0)
+      if (.not. ma_push_get(mt_dbl, noa*nob*noa*nob, 'x3', l_x3, k_x3))
+     $     call errquit(' ma x3 ', 0)
+c
+c     Iterate
+c
+      call dfill((noa*nva)**2,0.0d0,dbl_mb(k_t2aa),1)
+      call dfill((nob*nvb)**2,0.0d0,dbl_mb(k_t2bb),1)
+      call dfill((noa*nva)*(nob*nvb),0.0d0,dbl_mb(k_t2ab),1)
+      call dfill((noa*nva), 0.0d0, dbl_mb(k_t1a), 1)
+      call dfill((nob*nvb), 0.0d0, dbl_mb(k_t1b), 1)
+c
+      do iter = 1, 90
+c
+c     Transform the MO coefficients with the particle and hole matrices
+c
+         call uccsdtest_lambda(nbf, nmo, noa, nva, 
+     $        dbl_mb(k_t1a), dbl_mb(k_amos), 
+     $        dbl_mb(k_alp), dbl_mb(k_alh), dbl_mb(k_work))
+         call uccsdtest_lambda(nbf, nmo, nob, nvb, 
+     $        dbl_mb(k_t1b), dbl_mb(k_bmos), 
+     $        dbl_mb(k_blp), dbl_mb(k_blh), dbl_mb(k_work))
+c
+c     Transform the integrals
+c
+c     Generate the 3 sets of integrals in Dirac order
+c
+c     For simplicity also generate transpose of mixed spin integrals
+c
+         call jan_full_transform(
+     $        rtdb, basis, 
+     $        nmo, nmo, nmo, nmo,
+     $        nmo, nmo, nmo, nmo,
+     $        dbl_mb(k_alp),dbl_mb(k_alp),
+     $        dbl_mb(k_alh),dbl_mb(k_alh), 
+     $        dbl_mb(k_iaa), 'RightAsymDirac')
+         call jan_full_transform(
+     $        rtdb, basis, 
+     $        nmo, nmo, nmo, nmo,
+     $        nmo, nmo, nmo, nmo,
+     $        dbl_mb(k_blp),dbl_mb(k_blp),
+     $        dbl_mb(k_blh),dbl_mb(k_blh), 
+     $        dbl_mb(k_ibb), 'RightAsymDirac')
+         call jan_full_transform(
+     $        rtdb, basis, 
+     $        nmo, nmo, nmo, nmo,
+     $        nmo, nmo, nmo, nmo,
+     $        dbl_mb(k_alp),dbl_mb(k_blp),
+     $        dbl_mb(k_alh),dbl_mb(k_blh), 
+     $        dbl_mb(k_iab), 'Dirac')
+         call jan_full_transform(
+     $        rtdb, basis, 
+     $        nmo, nmo, nmo, nmo,
+     $        nmo, nmo, nmo, nmo,
+     $        dbl_mb(k_blp),dbl_mb(k_alp),
+     $        dbl_mb(k_blh),dbl_mb(k_alh), 
+     $        dbl_mb(k_iba), 'Dirac')
+c
+         call jan_h(rtdb, basis, nmo, nmo, nmo, nmo,
+     $        dbl_mb(k_alp), dbl_mb(k_alh), dbl_mb(k_ha))
+         call jan_h(rtdb, basis, nmo, nmo, nmo, nmo,
+     $        dbl_mb(k_blp), dbl_mb(k_blh), dbl_mb(k_hb))
+c
+c     Assemble the transformed Fock matrices
+c
+         call uccsdtest_fock(nmo, noa, nob,
+     $        dbl_mb(k_ha), dbl_mb(k_iaa), dbl_mb(k_iab), 
+     $        dbl_mb(k_fa))
+         call uccsdtest_fock(nmo, nob, noa,
+     $        dbl_mb(k_hb), dbl_mb(k_ibb), dbl_mb(k_iba), 
+     $        dbl_mb(k_fb))
+c
+         call dfill((noa*nva)**2,0.0d0,dbl_mb(k_r2aa),1)
+         call dfill((nob*nvb)**2,0.0d0,dbl_mb(k_r2bb),1)
+         call dfill((noa*nva)*(nob*nvb),0.0d0,dbl_mb(k_r2ab),1)
+         call dfill((noa*nva), 0.0d0, dbl_mb(k_r1a), 1)
+         call dfill((nob*nvb), 0.0d0, dbl_mb(k_r1b), 1)
+c
+c     Alpha pure spin
+c
+         call uccsdtest_product_pure(
+     $        nmo,
+     $        noa, nob, nva, nvb, 
+     $        dbl_mb(k_fa), dbl_mb(k_fb),
+     $        dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
+     $        dbl_mb(k_t1a), dbl_mb(k_t1b),
+     $        dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab),
+     $        dbl_mb(k_r1a), dbl_mb(k_r1b),
+     $        dbl_mb(k_r2aa))
+c
+c     Beta pure spin ... use the transposed mixed spin amplitudes
+c     and integrals and then call the pure spin routine with spins flipped
+
+         call uccsdtest_transpose_tab(noa, nob, nva, nvb, 
+     $        dbl_mb(k_t2ab), dbl_mb(k_t2ba))
+         call uccsdtest_product_pure(
+     $        nmo,
+     $        nob, noa, nvb, nva, 
+     $        dbl_mb(k_fb), dbl_mb(k_fa),
+     $        dbl_mb(k_ibb), dbl_mb(k_iaa), dbl_mb(k_iba),
+     $        dbl_mb(k_t1b), dbl_mb(k_t1a),
+     $        dbl_mb(k_t2bb),dbl_mb(k_t2aa),dbl_mb(k_t2ba),
+     $        dbl_mb(k_r1b), dbl_mb(k_r1a),
+     $        dbl_mb(k_r2bb))
+c
+c     Mixed
+c
+         call uccsdtest_product_mixed(
+     $        nmo,
+     $        noa, nob, nva, nvb, 
+     $        dbl_mb(k_fa), dbl_mb(k_fb),
+     $        dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
+     $        dbl_mb(k_t1a), dbl_mb(k_t1b),
+     $        dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab),
+     $        dbl_mb(k_r1a), dbl_mb(k_r1b),
+     $        dbl_mb(k_r2ab))
+c
+c$$$         call jan_debug_print('Ta', dbl_mb(k_t1a), nva, noa, 1, 1)
+c$$$         call jan_debug_print('Tb', dbl_mb(k_t1b), nvb, nob, 1, 1)
+c$$$         call jan_debug_print('Taa',dbl_mb(k_t2aa), nva, nva, noa, noa)
+c$$$         call jan_debug_print('Tbb',dbl_mb(k_t2bb), nvb, nvb, nob, nob)
+c$$$         call jan_debug_print('Tab',dbl_mb(k_t2ab), nva, nvb, noa, nob)
+c$$$         call jan_debug_print('Ra', dbl_mb(k_r1a), nva, noa, 1, 1)
+c$$$         call jan_debug_print('Rb', dbl_mb(k_r1b), nvb, nob, 1, 1)
+c$$$         call jan_debug_print('Raa',dbl_mb(k_r2aa), nva, nva, noa, noa)
+c$$$         call jan_debug_print('Rbb',dbl_mb(k_r2bb), nvb, nvb, nob, nob)
+c$$$         call jan_debug_print('Rab',dbl_mb(k_r2ab), nva, nvb, noa, nob)
+c
+c     Now run the n^6 algorithm
+c
+         call uccsdtest_intermediates(
+     $        nmo,
+     $        noa, nob, nva, nvb, 
+     $        dbl_mb(k_fa), dbl_mb(k_fb),
+     $        dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
+     $        dbl_mb(k_t1a), dbl_mb(k_t1b),
+     $        dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab),
+     $        dbl_mb(k_z1), dbl_mb(k_z2), dbl_mb(k_z3), dbl_mb(k_z4), 
+     $        dbl_mb(k_z5), dbl_mb(k_z6), dbl_mb(k_z7), dbl_mb(k_z8), 
+     $        dbl_mb(k_x1), dbl_mb(k_x2), dbl_mb(k_x3))
+         call dfill((noa*nva)**2,0.0d0,dbl_mb(k_r2aa),1)
+         call dfill((nob*nvb)**2,0.0d0,dbl_mb(k_r2bb),1)
+         call dfill((noa*nva)*(nob*nvb),0.0d0,dbl_mb(k_r2ab),1)
+         call dfill((noa*nva), 0.0d0, dbl_mb(k_r1a), 1)
+         call dfill((nob*nvb), 0.0d0, dbl_mb(k_r1b), 1)
+         call uccsdtest_new_product(
+     $        nmo,
+     $        noa, nob, nva, nvb, 
+     $        dbl_mb(k_fa), dbl_mb(k_fb),
+     $        dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
+     $        dbl_mb(k_t1a), dbl_mb(k_t1b),
+     $        dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab),
+     $        dbl_mb(k_z1), dbl_mb(k_z2), dbl_mb(k_z3), dbl_mb(k_z4), 
+     $        dbl_mb(k_z5), dbl_mb(k_z6), dbl_mb(k_z7), dbl_mb(k_z8), 
+     $        dbl_mb(k_x1), dbl_mb(k_x2), dbl_mb(k_x3),
+     $        dbl_mb(k_r1a), dbl_mb(k_r1b),
+     $        dbl_mb(k_r2aa),dbl_mb(k_r2bb),dbl_mb(k_r2ab))
+c$$$         call jan_debug_print('Na', dbl_mb(k_r1a), nva, noa, 1, 1)
+c$$$         call jan_debug_print('Nb', dbl_mb(k_r1b), nvb, nob, 1, 1)
+c$$$         call jan_debug_print('Naa',dbl_mb(k_r2aa), nva, nva, noa, noa)
+c$$$         call jan_debug_print('Nbb',dbl_mb(k_r2bb), nvb, nvb, nob, nob)
+c$$$         call jan_debug_print('Nab',dbl_mb(k_r2ab), nva, nvb, noa, nob)
+c
+c     Update
+c
+         call uccsdtest_update(
+     $        nmo,
+     $        noa, nob, nva, nvb, 
+     $        dbl_mb(k_fa), dbl_mb(k_fb),
+     $        dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
+     $        dbl_mb(k_t1a), dbl_mb(k_t1b),
+     $        dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab),
+     $        dbl_mb(k_r1a), dbl_mb(k_r1b),
+     $        dbl_mb(k_r2aa),dbl_mb(k_r2bb),dbl_mb(k_r2ab),
+     $        dbl_mb(k_aeval), dbl_mb(k_beval))
+c
+c$$$         call jan_debug_print('Taa',dbl_mb(k_t2aa), nva, nva, noa, noa)
+c$$$         call jan_debug_print('Tbb',dbl_mb(k_t2bb), nvb, nvb, nob, nob)
+c$$$         call jan_debug_print('Tab',dbl_mb(k_t2ab), nva, nvb, noa, nob)
+c
+      end do
+c
+c     Triples
+c
+      call jan_full_transform(
+     $     rtdb, basis, 
+     $     nmo, nmo, nmo, nmo,
+     $     nmo, nmo, nmo, nmo,
+     $     dbl_mb(k_amos),dbl_mb(k_amos),
+     $     dbl_mb(k_amos),dbl_mb(k_amos), 
+     $     dbl_mb(k_iaa), 'RightAsymDirac')
+      call jan_full_transform(
+     $     rtdb, basis, 
+     $     nmo, nmo, nmo, nmo,
+     $     nmo, nmo, nmo, nmo,
+     $     dbl_mb(k_bmos),dbl_mb(k_bmos),
+     $     dbl_mb(k_bmos),dbl_mb(k_bmos), 
+     $     dbl_mb(k_ibb), 'RightAsymDirac')
+      call jan_full_transform(
+     $     rtdb, basis, 
+     $     nmo, nmo, nmo, nmo,
+     $     nmo, nmo, nmo, nmo,
+     $     dbl_mb(k_amos),dbl_mb(k_bmos),
+     $     dbl_mb(k_amos),dbl_mb(k_bmos), 
+     $     dbl_mb(k_iab), 'Dirac')
+      call jan_full_transform(
+     $     rtdb, basis, 
+     $     nmo, nmo, nmo, nmo,
+     $     nmo, nmo, nmo, nmo,
+     $     dbl_mb(k_bmos),dbl_mb(k_amos),
+     $     dbl_mb(k_bmos),dbl_mb(k_amos), 
+     $     dbl_mb(k_iba), 'Dirac')
+c
+      energyaaa = uccsdtest_triples_pure(
+     $     nmo,
+     $     noa, nva, 
+     $     dbl_mb(k_iaa), 
+     $     dbl_mb(k_t1a), 
+     $     dbl_mb(k_t2aa),
+     $     dbl_mb(k_aeval))
+      energybbb = uccsdtest_triples_pure(
+     $     nmo,
+     $     nob, nvb, 
+     $     dbl_mb(k_ibb), 
+     $     dbl_mb(k_t1b), 
+     $     dbl_mb(k_t2bb),
+     $     dbl_mb(k_beval))
+      energyaab = uccsdtest_triples_mixed(
+     $     nmo,
+     $     noa, nob, nva, nvb, 
+     $     dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
+     $     dbl_mb(k_t1a), dbl_mb(k_t1b),
+     $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab),
+     $     dbl_mb(k_aeval), dbl_mb(k_beval))
+      call uccsdtest_transpose_tab(noa, nob, nva, nvb, 
+     $     dbl_mb(k_t2ab), dbl_mb(k_t2ba))
+      energybba = uccsdtest_triples_mixed(
+     $     nmo,
+     $     nob, noa, nvb, nva, 
+     $     dbl_mb(k_ibb), dbl_mb(k_iaa), dbl_mb(k_iba),
+     $     dbl_mb(k_t1b), dbl_mb(k_t1a),
+     $     dbl_mb(k_t2bb),dbl_mb(k_t2aa),dbl_mb(k_t2ba),
+     $     dbl_mb(k_beval), dbl_mb(k_aeval))
+c
+      write(6,*) energyaaa, energybbb
+      write(6,*) energyaab, energybba
+      write(6,*) energyaaa+energybbb+energyaab+energybba
+c
+      if (.not. ma_chop_stack(l_occ)) call errquit('ma?',0)
+c
+      uccsdtest = .true.
+c
+      end
+      subroutine uccsdtest_product_pure(
+     $     nmo,
+     $     noa, nob, nva, nvb, 
+     $     fa, fb,
+     $     iaa, ibb, iab,
+     $     t1a, t1b,
+     $     t2aa,t2bb,t2ab,
+     $     r1a, r1b,
+     $     r2aa)
+      implicit none
+      integer nmo, noa, nob, nva, nvb
+      double precision fa(nmo,nmo), fb(nmo,nmo)
+      double precision iaa(nmo, nmo, nmo, nmo)
+      double precision ibb(nmo, nmo, nmo, nmo)
+      double precision iab(nmo, nmo, nmo, nmo)
+      double precision t1a(nva, noa)
+      double precision t1b(nvb, nob)
+      double precision t2aa(nva, nva, noa, noa)
+      double precision t2bb(nvb, nvb, nob, nob)
+      double precision t2ab(nva, nvb, noa, nob)
+      double precision r1a(nva, noa)
+      double precision r1b(nvb, nob)
+      double precision r2aa(nva, nva, noa, noa)
+c
+      integer i, j, m, n
+      integer a, b, e, f
+c
+c     The formulae in comments denote beta spin with an asterisk
+c
+c     R1 
+c
+      do m = 1, noa
+         do e = 1, nva
+c
+            r1a(e,m) = fa(e+noa,m)
+c
+            do j = 1, noa
+               do b = 1, nva
+                  r1a(e,m) = r1a(e,m) + fa(j,b+noa)*t2aa(e,b,m,j)
+               end do
+            end do
+            do j = 1, nob
+               do b = 1, nvb
+                  r1a(e,m) = r1a(e,m) + fb(j,b+nob)*t2ab(e,b,m,j)
+               end do
+            end do
+c
+            do j = 1, noa
+               do i = 1, noa
+                  do b = 1, nva
+                     r1a(e,m) = r1a(e,m) 
+     $                    - 0.5d0*iaa(i,j,m,b+noa)*t2aa(e,b,i,j)
+                  end do
+               end do
+            end do
+c
+            do j = 1, nob
+               do i = 1, noa
+                  do b = 1, nvb
+                     r1a(e,m) = r1a(e,m)
+     $                    - iab(i,j,m,b+nob)*t2ab(e,b,i,j)
+                  end do
+               end do
+            end do
+c
+            do i = 1, noa
+               do b = 1, nva
+                  do a = 1, nva
+                     r1a(e,m) = r1a(e,m)
+     $                    + 0.5d0*iaa(i,e+noa,a+noa,b+noa)*t2aa(a,b,i,m)
+                  end do
+               end do
+            end do
+c
+            do i = 1, nob
+               do b = 1, nva
+                  do a = 1, nvb
+                     r1a(e,m) = r1a(e,m)
+     $                    + iab(e+noa,i,b+noa,a+nob)*t2ab(b,a,m,i)
+                  end do
+               end do
+            end do
+c
+         end do
+      end do
+c
+c     R2 
+c
+      do n = 1, noa
+         do m = 1, noa
+            do f = 1, nva
+               do e = 1, nva
+c
+c     <ef||mn>
+c
+                  r2aa(e,f,m,n) = iaa(e+noa,f+noa,m,n)
+c
+c     Ffa*t(e,a,m,n)-Fea*t(f,a,m,n)
+c
+                  do a = 1, nva
+                     r2aa(e,f,m,n) = r2aa(e,f,m,n)
+     $                    + fa(f+noa,a+noa)*t2aa(e,a,m,n) 
+     $                    - fa(e+noa,a+noa)*t2aa(f,a,m,n) 
+                  end do
+c
+c     -Fjn*t(e,f,m,j)+Fjm*t(e,f,n,j)
+c
+                  do j = 1, noa
+                     r2aa(e,f,m,n) = r2aa(e,f,m,n)
+     $                    - fa(j,n)*t2aa(e,f,m,j) 
+     $                    + fa(j,m)*t2aa(e,f,n,j) 
+                  end do
+c
+c     (1-(ef))(1-(mn)) <if||an>*t(e,a,m,i)
+c
+                  do i = 1, noa
+                     do a = 1, nva
+                        r2aa(e,f,m,n) = r2aa(e,f,m,n)
+     $                       + iaa(i,f+noa,a+noa,n)*t2aa(e,a,m,i)
+     $                       - iaa(i,e+noa,a+noa,n)*t2aa(f,a,m,i)
+     $                       - iaa(i,f+noa,a+noa,m)*t2aa(e,a,n,i)
+     $                       + iaa(i,e+noa,a+noa,m)*t2aa(f,a,n,i)
+                     end do
+                  end do
+c
+c     (1-(ef))(1-(mn)) <fi*|na*>*t(e,a*,m,i*)
+c
+                  do i = 1, nob
+                     do a = 1, nvb
+                        r2aa(e,f,m,n) = r2aa(e,f,m,n)
+     $                       + iab(f+noa,i,n,a+nob)*t2ab(e,a,m,i)
+     $                       - iab(e+noa,i,n,a+nob)*t2ab(f,a,m,i)
+     $                       - iab(f+noa,i,m,a+nob)*t2ab(e,a,n,i)
+     $                       + iab(e+noa,i,m,a+nob)*t2ab(f,a,n,i)
+                     end do
+                  end do
+c
+c     (1/2)<ij||mn>*t(e,f,i,j)
+c
+                  do j = 1, noa
+                     do i = 1, noa
+                        r2aa(e,f,m,n) = r2aa(e,f,m,n) 
+     $                       + 0.5d0*iaa(i,j,m,n)*t2aa(e,f,i,j)
+                     end do
+                  end do
+c
+c     (1/2)<ef||ab>*t(a,b,m,n)
+c
+                  do b = 1, nva
+                     do a = 1, nva
+                        r2aa(e,f,m,n) = r2aa(e,f,m,n)
+     $                       + 0.5d0*iaa(e+noa,f+noa,a+noa,b+noa)*
+     $                       t2aa(a,b,m,n)
+                     end do
+                  end do
+c     
+c     (1/2)*<ij||ab>[+(1-(ef))(1-(mn))t(f,b,j,n)t(e,a,i,m)
+c     .              -(1-(ef))t(f,b,m,n)*t(e,a,i,j)
+c     .              -(1-(mn))t(e,f,m,i)*t(a,b,n,j)
+c     .              +(1/2)t(e,f,i,j)*t(a,b,m,n)]
+c
+                  do j = 1, noa
+                     do i = 1, noa
+                        do b = 1, nva
+                           do a = 1, nva
+                              r2aa(e,f,m,n) = r2aa(e,f,m,n) + 
+     $                             0.5d0*iaa(i,j,a+noa,b+noa)*(
+                              
+     $                             + t2aa(f,b,j,n)*t2aa(e,a,i,m)
+     $                             - t2aa(e,b,j,n)*t2aa(f,a,i,m)
+     $                             - t2aa(f,b,j,m)*t2aa(e,a,i,n)
+     $                             + t2aa(e,b,j,m)*t2aa(f,a,i,n)
+                              
+     $                             - t2aa(f,b,m,n)*t2aa(e,a,i,j)
+     $                             + t2aa(e,b,m,n)*t2aa(f,a,i,j)
+                              
+     $                             - t2aa(e,f,m,i)*t2aa(a,b,n,j)
+     $                             + t2aa(e,f,n,i)*t2aa(a,b,m,j)
+                              
+     $                             + 0.5d0*t2aa(e,f,i,j)*t2aa(a,b,m,n))
+                           end do
+                        end do
+                     end do
+                  end do
+c
+c     (1/2)<i*j*||a*b*>(1-(ef))(1-(mn))t(f,b*,n,j*)t(e,a*,m,i*)
+c
+                  do j = 1, nob
+                     do i = 1, nob
+                        do b = 1, nvb
+                           do a = 1, nvb
+                              r2aa(e,f,m,n) = r2aa(e,f,m,n) + 
+     $                             0.5d0*ibb(i,j,a+nob,b+nob)*(0.0d0
+     $                             + t2ab(f,b,n,j)*t2ab(e,a,m,i)
+     $                             - t2ab(e,b,n,j)*t2ab(f,a,m,i)
+     $                             - t2ab(f,b,m,j)*t2ab(e,a,n,i)
+     $                             + t2ab(e,b,m,j)*t2ab(f,a,n,i))
+                           end do
+                        end do
+                     end do
+                  end do
+c
+c     <ij*||ab*>[(1-(ef))t(f,a,m,n)t(e,b*,i,j*)
+c     .         -(1-(mn))t(e,f,m,i)*t(a,b*,n,j*)
+c     .         -(1-(ef))(1-(mn))t(f,b*,n,j*)t(e,a,i,m)]
+c
+                  do j = 1, nob
+                     do i = 1, noa
+                        do b = 1, nvb
+                           do a = 1, nva
+                              r2aa(e,f,m,n) = r2aa(e,f,m,n) + 
+     $                             iab(i,j,a+noa,b+nob)*(0.0d0
+
+     $                             + t2aa(f,a,m,n)*t2ab(e,b,i,j)
+     $                             - t2aa(e,a,m,n)*t2ab(f,b,i,j)
+
+     $                             - t2aa(e,f,m,i)*t2ab(a,b,n,j)
+     $                             + t2aa(e,f,n,i)*t2ab(a,b,m,j)
+
+     $                             - t2ab(f,b,n,j)*t2aa(e,a,i,m)
+     $                             + t2ab(e,b,n,j)*t2aa(f,a,i,m)
+     $                             + t2ab(f,b,m,j)*t2aa(e,a,i,n)
+     $                             - t2ab(e,b,m,j)*t2aa(f,a,i,n))
+                           end do
+                        end do
+                     end do
+                  end do
+c
+               end do
+            end do
+         end do
+      end do
+c                  
+      end
+      subroutine uccsdtest_product_mixed(
+     $     nmo,
+     $     noa, nob, nva, nvb, 
+     $     fa, fb,
+     $     iaa, ibb, iab,
+     $     t1a, t1b,
+     $     t2aa,t2bb,t2ab,
+     $     r1a, r1b,
+     $     r2ab)
+      implicit none
+      integer nmo, noa, nob, nva, nvb
+      double precision fa(nmo,nmo), fb(nmo,nmo)
+      double precision iaa(nmo, nmo, nmo, nmo)
+      double precision ibb(nmo, nmo, nmo, nmo)
+      double precision iab(nmo, nmo, nmo, nmo)
+      double precision t1a(nva, noa)
+      double precision t1b(nvb, nob)
+      double precision t2aa(nva, nva, noa, noa)
+      double precision t2bb(nvb, nvb, nob, nob)
+      double precision t2ab(nva, nvb, noa, nob)
+      double precision r1a(nva, noa)
+      double precision r1b(nvb, nob)
+      double precision r2ab(nva, nvb, noa, nob)
+c
+      integer i, j, m, n
+      integer a, b, e, f
+c
+c     The formulae in comments denote beta spin with an asterisk
+c
+      do n = 1, nob
+         do m = 1, noa
+            do f = 1, nvb
+               do e = 1, nva
+c
+c     <ef||mn>
+c
+                  r2ab(e,f,m,n) = iab(e+noa,f+nob,m,n)
+c
+c     .  F(f*,a*)t(e,a*,m,n*) + F(e,a)t(a,f*,m,n*) 
+c     . -F(i*,n*)t(e,f*,m,i*) - F(i,m)t(e,f*,i,n*)
+c
+                  do a = 1, nvb
+                     r2ab(e,f,m,n) = r2ab(e,f,m,n) 
+     $                    + fb(f+nob,a+nob)*t2ab(e,a,m,n) 
+                  end do
+                  do a = 1, nva
+                     r2ab(e,f,m,n) = r2ab(e,f,m,n) 
+     $                    + fa(e+noa,a+noa)*t2ab(a,f,m,n) 
+                  end do
+                  do i = 1, nob
+                     r2ab(e,f,m,n) = r2ab(e,f,m,n) 
+     $                 - fb(i,n)*t2ab(e,f,m,i) 
+                  end do
+                  do i = 1, noa
+                     r2ab(e,f,m,n) = r2ab(e,f,m,n) 
+     $                 - fa(i,m)*t2ab(e,f,i,n)
+                  end do
+c
+c     <i*f*||a*n*>t(e,a*,m,i*)
+c
+                  do i = 1, nob
+                     do a = 1, nvb
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) 
+     $                       + ibb(i,f+nob,a+nob,n)*t2ab(e,a,m,i)
+                     end do
+                  end do
+c
+c     <if*|an*>t(e,a,m,i)
+c
+                  do i = 1, noa
+                     do a = 1, nva
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) 
+     $                       + iab(i,f+nob,a+noa,n)*t2aa(e,a,m,i)
+                     end do
+                  end do
+c
+c     -<ei*|an*>t(a,f*,m,i*)
+c
+                  do i = 1, nob
+                     do a = 1, nva
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) 
+     $                       - iab(e+noa,i,a+noa,n)*t2ab(a,f,m,i)
+                     end do
+                  end do
+c
+c     -<if*|ma*>t(e,a*,i,n*)
+c
+                  do i = 1, noa
+                     do a = 1, nvb
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) 
+     $                       - iab(i,f+nob,m,a+nob)*t2ab(e,a,i,n)
+                     end do
+                  end do
+c
+c     +<ie||am>t(a,f,i,n)
+c
+                  do i = 1, noa
+                     do a = 1, nva
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) 
+     $                       + iaa(i,e+noa,a+noa,m)*t2ab(a,f,i,n)
+                     end do
+                  end do
+c
+c     +<ei*|ma*>t(f*,a*,n*,i*)
+c
+                  do i = 1, nob
+                     do a = 1, nvb
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) 
+     $                       + iab(e+noa,i,m,a+nob)*t2bb(f,a,n,i)
+                     end do
+                  end do
+c
+c     <ij*|mn*>t(e,f*,i,j*)
+c
+                  do i = 1, noa
+                     do j = 1, nob
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) 
+     $                       + iab(i,j,m,n)*t2ab(e,f,i,j)
+                     end do
+                  end do
+c
+c     <ef*|ab*>t(a,b*,m,n*)
+c
+                  do b = 1, nvb
+                     do a = 1, nva
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) 
+     $                       +iab(e+noa,f+nob,a+noa,b+nob)*t2ab(a,b,m,n)
+                     end do
+                  end do
+c
+c     <ij||ab>[-t(b,f*,j,n*)t(e,a,i,m) 
+c     .   +(1/2)t(b,f*,m,n*)t(e,a,i,j)
+c     .   -(1/2)t(e,f*,i,n*)t(a,b,m,j)
+c
+                  do j = 1, noa
+                     do i = 1, noa
+                        do b = 1, nva
+                           do a = 1, nva
+                              r2ab(e,f,m,n) = r2ab(e,f,m,n) 
+     $                             + iaa(i,j,a+noa,b+noa)*(0.0d0
+                              
+     $                             - t2ab(b,f,j,n)*t2aa(e,a,i,m)
+     $                             + 0.5d0*t2ab(b,f,m,n)*t2aa(e,a,i,j)
+     $                             - 0.5d0*t2ab(e,f,i,n)*t2aa(a,b,m,j))
+                           end do
+                        end do
+                     end do
+                  end do
+c
+c     <i*j*||a*b*>[-t(e,a*,m,i*)t(f*,b*,j*,n*)
+c     .      +(1/2)t(e,b*,m,n*)t(f*,a*,i*,j*)
+c     .      -(1/2)t(e,f*,m,i*)t(a*,b*,n*,j*)]
+c
+                  do b = 1, nvb
+                     do a = 1, nvb
+                        do j = 1, nob
+                           do i = 1, nob
+                              r2ab(e,f,m,n) = r2ab(e,f,m,n) 
+     $                             + ibb(i,j,a+nob,b+nob)*(0.0d0
+     $                             - t2ab(e,a,m,i)*t2bb(f,b,j,n)
+     $                             + t2ab(e,b,m,n)*t2bb(f,a,i,j)*0.5d0
+     $                             - t2ab(e,f,m,i)*t2bb(a,b,n,j)*0.5d0)
+                           end do
+                        end do
+                     end do
+                  end do
+c
+c     <ij*|ab*>[-t(a,f*,m,n*)t(e,b*,i,j*)
+c     .         -t(e,f*,m,j*)t(a,b*,i,n*)
+c     .         -t(e,b*,m,n*)t(a,f*,i,j*)
+c     .         -t(e,f*,i,n*)t(a,b*,m,j*)
+c     .         +t(e,f*,i,j*)t(a,b*,m,n*)
+c     .         +t(f*,b*,j*,n*)t(e,a,i,m)
+c     .         +t(a,f*,i,n*)t(e,b*,m,j*)
+c     .         +t(a,f*,m,j*)t(e,b*,i,n*)
+c
+                  do b = 1, nvb
+                     do a = 1, nva
+                        do j = 1, nob
+                           do i = 1, noa
+                              r2ab(e,f,m,n) = r2ab(e,f,m,n) 
+     $                             + iab(i,j,a+noa,b+nob)*(0.0d0
+     $                             - t2ab(a,f,m,n)*t2ab(e,b,i,j)
+     $                             - t2ab(e,f,m,j)*t2ab(a,b,i,n)
+     $                             - t2ab(e,b,m,n)*t2ab(a,f,i,j)
+     $                             - t2ab(e,f,i,n)*t2ab(a,b,m,j)
+     $                             + t2ab(e,f,i,j)*t2ab(a,b,m,n)
+     $                             + t2bb(f,b,j,n)*t2aa(e,a,i,m)
+     $                             + t2ab(a,f,i,n)*t2ab(e,b,m,j)
+     $                             + t2ab(a,f,m,j)*t2ab(e,b,i,n))
+                           end do
+                        end do
+                     end do
+                  end do
+c
+               end do
+            end do
+         end do
+      end do
+c
+      end
+      subroutine uccsdtest_mp2(
+     $     nmo,
+     $     noa, nob, nva, nvb, 
+     $     ea, eb,
+     $     iaa, ibb, iab,
+     $     t1a, t1b,
+     $     t2aa,t2bb,t2ab)
+      implicit none
+      integer nmo, noa, nob, nva, nvb
+      double precision ea(nmo), eb(nmo)
+      double precision iaa(nmo, nmo, nmo, nmo)
+      double precision ibb(nmo, nmo, nmo, nmo)
+      double precision iab(nmo, nmo, nmo, nmo)
+      double precision t1a(nva, noa)
+      double precision t1b(nvb, nob)
+      double precision t2aa(nva, nva, noa, noa)
+      double precision t2bb(nvb, nvb, nob, nob)
+      double precision t2ab(nva, nvb, noa, nob)
+c
+c     t1 = 0
+c     t2 = <ef||mn>/(em+en-ee-ef)
+c     
+      integer m, n, e, f
+      double precision eaa, ebb, eab, energy
+c
+      call dfill(noa*nva, 0.0d0, t1a, 1)
+      call dfill(nob*nvb, 0.0d0, t1b, 1)
+c
+c     Pure alpha
+c
+      eaa = 0.0d0
+      do n = 1, noa
+         do m = 1, noa
+            do f = 1, nva
+               do e = 1, nva
+                  t2aa(e,f,m,n) = iaa(noa+e,noa+f,m,n) / 
+     $                 (ea(m)+ea(n)-ea(noa+e)-ea(noa+f))
+                  eaa = eaa + t2aa(e,f,m,n)*iaa(m,n,noa+e,noa+f)
+               end do
+            end do
+         end do
+      end do
+c
+c     Pure beta
+c
+      ebb = 0.0d0
+      do n = 1, nob
+         do m = 1, nob
+            do f = 1, nvb
+               do e = 1, nvb
+                  t2bb(e,f,m,n) = ibb(nob+e,nob+f,m,n) / 
+     $                 (eb(m)+eb(n)-eb(nob+e)-eb(nob+f))
+                  ebb = ebb + t2bb(e,f,m,n)*ibb(m,n,nob+e,nob+f)
+               end do
+            end do
+         end do
+      end do
+c
+c     Mixed
+c
+      eab = 0.0d0
+      do n = 1, nob
+         do m = 1, noa
+            do f = 1, nvb
+               do e = 1, nva
+                  t2ab(e,f,m,n) = iab(noa+e,nob+f,m,n) / 
+     $                 (ea(m)+eb(n)-ea(noa+e)-eb(nob+f))
+                  eab = eab + t2ab(e,f,m,n)*iab(m,n,noa+e,nob+f)
+               end do
+            end do
+         end do
+      end do
+c
+      energy = eaa/4.0d0 + ebb/4.0d0 + eab
+c
+      write(6,1) energy
+ 1    format(//,'  The UMP2 energy is ', f20.8)
+      write(6,*) eaa/4.0d0, ebb/4.0d0, eab
+c
+      end
+      subroutine uccsdtest_transpose_tab(noa, nob, nva, nvb, t2ab, t2ba)
+      implicit none
+      integer noa, nob, nva, nvb
+      double precision t2ab(nva, nvb, noa, nob)
+      double precision t2ba(nvb, nva, nob, noa)
+c
+      integer i, j, a, b
+c
+      do j = 1, nob
+         do i = 1, noa
+            do b = 1, nvb
+               do a = 1, nva
+                  t2ba(b,a,j,i) = t2ab(a,b,i,j)
+               end do
+            end do
+         end do
+      end do
+c
+      end
+      subroutine uccsdtest_update(
+     $     nmo,
+     $     noa, nob, nva, nvb, 
+     $     fa, fb,
+     $     iaa, ibb, iab,
+     $     t1a, t1b,
+     $     t2aa,t2bb,t2ab,
+     $     r1a, r1b,
+     $     r2aa,r2bb,r2ab, ea, eb)
+      implicit none
+      integer nmo, noa, nob, nva, nvb
+      double precision fa(nmo,nmo), fb(nmo,nmo)
+      double precision iaa(nmo, nmo, nmo, nmo)
+      double precision ibb(nmo, nmo, nmo, nmo)
+      double precision iab(nmo, nmo, nmo, nmo)
+      double precision t1a(nva, noa)
+      double precision t1b(nvb, nob)
+      double precision t2aa(nva, nva, noa, noa)
+      double precision t2bb(nvb, nvb, nob, nob)
+      double precision t2ab(nva, nvb, noa, nob)
+      double precision r1a(nva, noa)
+      double precision r1b(nvb, nob)
+      double precision r2aa(nva, nva, noa, noa)
+      double precision r2bb(nvb, nvb, nob, nob)
+      double precision r2ab(nva, nvb, noa, nob)
+      double precision ea(nmo), eb(nmo)
+c
+c     t1 = t1 + R(e,m)/(em-ee)
+c     t2 = t2 + R(e,f,m,n)/(em+en-ee-ef)
+c     
+      integer m, n, e, f
+      double precision eaa, ebb, eab, energy
+      double precision delta, r1norm, r2norm 
+c
+      r1norm = 0.0d0
+      r2norm = 0.0d0
+c
+*      call dfill(noa*nva, 0.0d0, r1a, 1)
+*      call dfill(nob*nvb, 0.0d0, r1b, 1)
+c
+c     Singles
+c
+      do m = 1, noa
+         do e = 1, nva
+            delta = r1a(e,m) / (ea(m) - ea(e+noa))
+            r1norm = r1norm + delta**2
+            t1a(e,m) = t1a(e,m) + delta
+         end do
+      end do
+      do m = 1, nob
+         do e = 1, nvb
+            delta = r1b(e,m) / (eb(m) - eb(e+nob))
+            r1norm = r1norm + delta**2
+            t1b(e,m) = t1b(e,m) + delta
+         end do
+      end do
+c
+c     Pure alpha
+c
+      eaa = 0.0d0
+      do n = 1, noa
+         do m = 1, noa
+            do f = 1, nva
+               do e = 1, nva
+                  delta = r2aa(e,f,m,n) / 
+     $                 (ea(m)+ea(n)-ea(noa+e)-ea(noa+f))
+                  r2norm = r2norm + delta*delta
+                  t2aa(e,f,m,n) = t2aa(e,f,m,n) + delta
+                  eaa = eaa + (
+     $                 t2aa(e,f,m,n) + 
+     $                 t1a(e,m)*t1a(f,n) - t1a(e,n)*t1a(f,m))*
+     $                 iaa(m,n,noa+e,noa+f)
+               end do
+            end do
+         end do
+      end do
+c
+c     Pure beta
+c
+      ebb = 0.0d0
+      do n = 1, nob
+         do m = 1, nob
+            do f = 1, nvb
+               do e = 1, nvb
+                  delta = r2bb(e,f,m,n) /
+     $                 (eb(m)+eb(n)-eb(nob+e)-eb(nob+f))
+                  r2norm = r2norm + delta*delta
+                  t2bb(e,f,m,n) = t2bb(e,f,m,n) + delta
+                  ebb = ebb + (
+     $                 t2bb(e,f,m,n) + 
+     $                 t1b(e,m)*t1b(f,n) - t1b(e,n)*t1b(f,m))*
+     $                 ibb(m,n,nob+e,nob+f)
+               end do
+            end do
+         end do
+      end do
+c
+c     Mixed
+c
+      eab = 0.0d0
+      do n = 1, nob
+         do m = 1, noa
+            do f = 1, nvb
+               do e = 1, nva
+                  delta = r2ab(e,f,m,n) /
+     $                 (ea(m)+eb(n)-ea(noa+e)-eb(nob+f))
+*                  write(6,*) ' denom ', 
+*     $                 (ea(m)+eb(n)-ea(noa+e)-eb(nob+f))
+                  r2norm = r2norm + delta*delta
+                  t2ab(e,f,m,n) = t2ab(e,f,m,n) + delta
+                  eab = eab + (
+     $                 t2ab(e,f,m,n) + 
+     $                 t1a(e,m)*t1b(f,n))*
+     $                 iab(m,n,noa+e,nob+f)
+               end do
+            end do
+         end do
+      end do
+c
+      energy = eaa/4.0d0 + ebb/4.0d0 + eab
+c
+      write(6,1) energy, sqrt(r2norm), sqrt(r1norm)
+ 1    format('  Energy = ', f20.8,'  residual norm = ',1p,2d9.2)
+c
+      end
+      subroutine uccsdtest_fock(nmo, noa, nob, ha, iaa, iab, fa)
+      implicit none
+      integer nmo, noa, nob
+      double precision ha(nmo,nmo)
+      double precision iaa(nmo,nmo,nmo,nmo), iab(nmo,nmo,nmo,nmo)
+      double precision fa(nmo,nmo)
+c
+c     fij = hij + <ik||jk> = hij + <ik||jk>(same spin) + <ik|jk>(diff spin)
+c
+      integer i, j, k
+c
+      call dfill(nmo*nmo, 0.0d0, fa, 1)
+c
+      do j = 1, nmo
+         do i = 1, nmo
+            fa(i,j) = ha(i,j)
+            do k = 1, noa
+               fa(i,j) = fa(i,j) + iaa(i,k,j,k)
+            end do
+            do k = 1, nob
+               fa(i,j) = fa(i,j) + iab(i,k,j,k)
+            end do
+         end do
+      end do
+c
+c$$$      write(6,*) ' FOCK'
+c$$$      call output(fa, 1, nmo, 1, nmo, nmo, nmo, 1)
+c
+      end
+      subroutine uccsdtest_intermediates(
+     $     nmo,
+     $     noa, nob, nva, nvb, 
+     $     fa, fb,
+     $     iaa, ibb, iab,
+     $     t1a, t1b,
+     $     t2aa,t2bb,t2ab,
+     $     z1, z2, z3, z4, z5, z6, z7, z8, x1, x2, x3)
+      implicit none
+      integer nmo, noa, nob, nva, nvb
+      double precision fa(nmo,nmo), fb(nmo,nmo)
+      double precision iaa(nmo, nmo, nmo, nmo)
+      double precision ibb(nmo, nmo, nmo, nmo)
+      double precision iab(nmo, nmo, nmo, nmo)
+      double precision t1a(nva, noa)
+      double precision t1b(nvb, nob)
+      double precision t2aa(nva, nva, noa, noa)
+      double precision t2bb(nvb, nvb, nob, nob)
+      double precision t2ab(nva, nvb, noa, nob)
+c
+      double precision z1(noa, nva, noa, nva)
+      double precision z2(noa, nva, noa, nva)
+      double precision z3(nob, nvb, noa, nva)
+      double precision z4(nob, nvb, nob, nvb)
+      double precision z5(nob, nvb, nob, nvb)
+      double precision z6(noa, nva, nob, nvb)
+      double precision z7(noa, nva, nob, nvb)
+      double precision z8(noa, nvb, noa, nvb)
+      double precision x1(noa, noa, noa, noa)
+      double precision x2(nob, nob, nob, nob)
+      double precision x3(noa, nob, noa, nob)
+c
+      integer i, j, a, b, f, m, n
+c
+      call dfill(noa*nva*noa*nva, 0.0d0, z1, 1)
+      call dfill(noa*nva*noa*nva, 0.0d0, z2, 1)
+      call dfill(nob*nvb*noa*nva, 0.0d0, z3, 1)
+      call dfill(nob*nvb*nob*nvb, 0.0d0, z4, 1)
+      call dfill(nob*nvb*nob*nvb, 0.0d0, z5, 1)
+      call dfill(noa*nva*nob*nvb, 0.0d0, z6, 1)
+      call dfill(noa*nva*nob*nvb, 0.0d0, z7, 1)
+      call dfill(noa*nvb*noa*nvb, 0.0d0, z8, 1)
+      call dfill(noa*noa*noa*noa, 0.0d0, x1, 1)
+      call dfill(nob*nob*nob*nob, 0.0d0, x2, 1)
+      call dfill(noa*nob*noa*nob, 0.0d0, x3, 1)
+c
+      do i = 1, noa
+         do a = 1, nva
+            do n = 1, noa
+               do f = 1, nva
+                  do j = 1, noa
+                     do b = 1, nva
+                        z1(i,a,n,f) = z1(i,a,n,f) + 
+     $                       iaa(i,j,a+noa,b+noa)*t2aa(f,b,n,j)
+                     end do
+                  end do
+                  do j = 1, nob
+                     do b = 1, nvb
+                        z2(i,a,n,f) = z2(i,a,n,f) + 
+     $                       iab(i,j,a+noa,b+nob)*t2ab(f,b,n,j)
+                     enddo
+                  enddo
+               end do
+            end do
+         end do
+      end do
+c
+      do i = 1, nob
+         do a = 1, nvb
+            do n = 1, noa
+               do f = 1, nva
+                  do b = 1, nvb
+                     do j = 1, nob
+                        z3(i,a,n,f) = z3(i,a,n,f) + 
+     $                       ibb(i,j,a+nob,b+nob)*t2ab(f,b,n,j)
+                     end do
+                  end do
+               end do
+            end do
+         end do
+      end do
+c
+      do i = 1, nob
+         do a = 1, nvb
+            do n = 1, nob
+               do f = 1, nvb
+                  do j = 1, nob
+                     do b = 1, nvb
+                        z4(i,a,n,f) = z4(i,a,n,f) + 
+     $                       ibb(i,j,a+nob,b+nob)*t2bb(f,b,n,j)
+                     end do
+                  end do
+                  do j = 1, noa
+                     do b = 1, nva
+                        z5(i,a,n,f) = z5(i,a,n,f) + 
+     $                       iab(j,i,b+noa,a+nob)*t2ab(b,f,j,n)
+                     end do
+                  end do
+               end do
+            end do
+         end do
+      end do
+c
+      do i = 1, noa
+         do a = 1, nva
+            do n = 1, nob
+               do f = 1, nvb
+                  do j = 1, noa
+                     do b = 1, nva
+                        z6(i,a,n,f) = z6(i,a,n,f) + 
+     $                       iaa(i,j,a+noa,b+noa)*t2ab(b,f,j,n)
+                     end do
+                  end do
+                  do j = 1, nob
+                     do b = 1, nvb
+                        z7(i,a,n,f) = z7(i,a,n,f) + 
+     $                       iab(i,j,a+noa,b+nob)*t2bb(f,b,n,j)
+                     end do
+                  end do
+               end do
+            end do
+         end do
+      end do
+c
+      do i = 1, noa
+         do a = 1, nvb
+            do m = 1, noa
+               do f = 1, nvb
+                  do j = 1, nob
+                     do b = 1, nva
+                        z8(i,a,m,f) = z8(i,a,m,f) + 
+     $                       iab(i,j,b+noa,a+nob)*t2ab(b,f,m,j)
+                     end do
+                  end do
+               end do
+            end do
+         end do
+      end do
+c
+      do i = 1, noa
+         do j = 1, noa
+            do m = 1, noa
+               do n = 1, noa
+                  do a = 1, nva
+                     do b = 1, nva
+                        x1(i,j,m,n) = x1(i,j,m,n) + 
+     $                       iaa(i,j,a+noa,b+noa)*t2aa(a,b,m,n)
+                     end do
+                  end do
+               end do
+            end do
+         end do
+      end do
+c
+      do i = 1, nob
+         do j = 1, nob
+            do m = 1, nob
+               do n = 1, nob
+                  do a = 1, nvb
+                     do b = 1, nvb
+                        x2(i,j,m,n) = x2(i,j,m,n) + 
+     $                       ibb(i,j,a+nob,b+nob)*t2bb(a,b,m,n)
+                     end do
+                  end do
+               end do
+            end do
+         end do
+      end do
+c
+      do i = 1, noa
+         do j = 1, nob
+            do m = 1, noa
+               do n = 1, nob
+                  do a = 1, nva
+                     do b = 1, nvb
+                        x3(i,j,m,n) = x3(i,j,m,n) + 
+     $                       iab(i,j,a+noa,b+nob)*t2ab(a,b,m,n)
+                     end do
+                  end do
+               end do
+            end do
+         end do
+      end do
+c
+      end
+      subroutine uccsdtest_new_product(
+     $     nmo,
+     $     noa, nob, nva, nvb, 
+     $     fa, fb,
+     $     iaa, ibb, iab,
+     $     t1a, t1b,
+     $     t2aa,t2bb,t2ab,
+     $     z1, z2, z3, z4, z5, z6, z7, z8, x1, x2, x3,
+     $     r1a, r1b,
+     $     r2aa,r2bb,r2ab)
+      implicit none
+#include "mafdecls.fh"
+      integer nmo, noa, nob, nva, nvb
+      double precision fa(nmo,nmo), fb(nmo,nmo)
+      double precision iaa(nmo, nmo, nmo, nmo)
+      double precision ibb(nmo, nmo, nmo, nmo)
+      double precision iab(nmo, nmo, nmo, nmo)
+      double precision t1a(nva, noa)
+      double precision t1b(nvb, nob)
+      double precision t2aa(nva, nva, noa, noa)
+      double precision t2bb(nvb, nvb, nob, nob)
+      double precision t2ab(nva, nvb, noa, nob)
+c
+      double precision z1(noa, nva, noa, nva)
+      double precision z2(noa, nva, noa, nva)
+      double precision z3(nob, nvb, noa, nva)
+      double precision z4(nob, nvb, nob, nvb)
+      double precision z5(nob, nvb, nob, nvb)
+      double precision z6(noa, nva, nob, nvb)
+      double precision z7(noa, nva, nob, nvb)
+      double precision z8(noa, nvb, noa, nvb)
+      double precision x1(noa, noa, noa, noa)
+      double precision x2(nob, nob, nob, nob)
+      double precision x3(noa, nob, noa, nob)
+c
+      double precision r1a(nva, noa)
+      double precision r1b(nvb, nob)
+      double precision r2aa(nva, nva, noa, noa)
+      double precision r2bb(nvb, nvb, nob, nob)
+      double precision r2ab(nva, nvb, noa, nob)
+c
+      integer i, j, a, b, e, f, m, n
+      double precision tmp
+c
+c$$$      call jan_debug_print('z1', z1, noa, nva, noa, nva)
+c$$$      call jan_debug_print('z2', z2, noa, nva, noa, nva)
+c$$$      call jan_debug_print('z3', z3, nob, nvb, noa, nva)
+c$$$      call jan_debug_print('z4', z4, nob, nvb, nob, nvb)
+c$$$      call jan_debug_print('z5', z5, nob, nvb, nob, nvb)
+c$$$      call jan_debug_print('z6', z6, noa, nva, nob, nvb)
+c$$$      call jan_debug_print('z7', z7, noa, nva, nob, nvb)
+c$$$      call jan_debug_print('z8', z8, noa, nvb, noa, nvb)
+c$$$      call jan_debug_print('x1', x1, noa, noa, noa, noa)
+c$$$      call jan_debug_print('x2', x2, nob, nob, nob, nob)
+c$$$      call jan_debug_print('x3', x3, noa, nob, noa, nob)
+c
+c     R1 alpha
+c
+      if (.not. ma_verify_allocator_stuff())
+     $     call errquit('x',1)
+      do m = 1, noa
+         do e = 1, nva
+c
+            r1a(e,m) = fa(e+noa,m)
+c
+            do j = 1, noa
+               do b = 1, nva
+                  r1a(e,m) = r1a(e,m) + fa(j,b+noa)*t2aa(e,b,m,j)
+               end do
+            end do
+            do j = 1, nob
+               do b = 1, nvb
+                  r1a(e,m) = r1a(e,m) + fb(j,b+nob)*t2ab(e,b,m,j)
+               end do
+            end do
+c
+            do j = 1, noa
+               do i = 1, noa
+                  do b = 1, nva
+                     r1a(e,m) = r1a(e,m) 
+     $                    - 0.5d0*iaa(i,j,m,b+noa)*t2aa(e,b,i,j)
+                  end do
+               end do
+            end do
+c
+            do j = 1, nob
+               do i = 1, noa
+                  do b = 1, nvb
+                     r1a(e,m) = r1a(e,m)
+     $                    - iab(i,j,m,b+nob)*t2ab(e,b,i,j)
+                  end do
+               end do
+            end do
+c
+            do i = 1, noa
+               do b = 1, nva
+                  do a = 1, nva
+                     r1a(e,m) = r1a(e,m)
+     $                    + 0.5d0*iaa(i,e+noa,a+noa,b+noa)*t2aa(a,b,i,m)
+                  end do
+               end do
+            end do
+c
+            do i = 1, nob
+               do b = 1, nva
+                  do a = 1, nvb
+                     r1a(e,m) = r1a(e,m)
+     $                    + iab(e+noa,i,b+noa,a+nob)*t2ab(b,a,m,i)
+                  end do
+               end do
+            end do
+c
+         end do
+      end do
+c
+c     R1 beta
+c
+      do m = 1, nob
+         do e = 1, nvb
+c
+            r1b(e,m) = fb(e+nob,m)
+c
+            do j = 1, nob
+               do b = 1, nvb
+                  r1b(e,m) = r1b(e,m) + fb(j,b+nob)*t2bb(e,b,m,j)
+               end do
+            end do
+            do j = 1, noa
+               do b = 1, nva
+                  r1b(e,m) = r1b(e,m) + fa(j,b+noa)*t2ab(b,e,j,m) !(e,b,m,j)
+               end do
+            end do
+c
+            do j = 1, nob
+               do i = 1, nob
+                  do b = 1, nvb
+                     r1b(e,m) = r1b(e,m) 
+     $                    - 0.5d0*ibb(i,j,m,b+nob)*t2bb(e,b,i,j)
+                  end do
+               end do
+            end do
+c
+            do j = 1, noa
+               do i = 1, nob
+                  do b = 1, nva
+                     r1b(e,m) = r1b(e,m)
+     $                    - iab(j,i,b+noa,m)*t2ab(b,e,j,i)
+                  end do
+               end do
+            end do
+c
+            do i = 1, nob
+               do b = 1, nvb
+                  do a = 1, nvb
+                     r1b(e,m) = r1b(e,m)
+     $                    + 0.5d0*ibb(i,e+nob,a+nob,b+nob)*t2bb(a,b,i,m)
+                  end do
+               end do
+            end do
+c
+            do i = 1, noa
+               do b = 1, nvb
+                  do a = 1, nva
+                     r1b(e,m) = r1b(e,m)
+     $                    + iab(i,e+nob,a+noa,b+nob)*t2ab(a,b,i,m)
+                  end do
+               end do
+            end do
+c
+         end do
+      end do
+c
+      if (.not. ma_verify_allocator_stuff())
+     $     call errquit('x',2)
+c
+c     Pure spin alpha
+c
+      do m = 1, noa
+         do n = 1, noa
+            do e = 1, nva
+               do f = 1, nva
+c
+                  do i = 1, noa ! A
+                     do j = 1, noa
+                        r2aa(e,f,m,n) = r2aa(e,f,m,n) + 
+     $                       0.5d0*t2aa(e,f,i,j)*
+     $                       (iaa(i,j,m,n) + 0.5d0*x1(i,j,m,n))
+                     end do
+                  end do
+c
+                  do a = 1, nva ! B
+                     do b = 1, nva
+                        r2aa(e,f,m,n) = r2aa(e,f,m,n) + 0.5d0*
+     $                       iaa(e+noa,f+noa,a+noa,b+noa)*t2aa(a,b,m,n)
+                     end do
+                  end do
+c
+                  do i = 1, noa ! C1
+                     do a = 1, nva
+                        tmp = t2aa(e,a,m,i) * (iaa(i,f+noa,a+noa,n) + 
+     $                       0.5d0*z1(i,a,n,f) + z2(i,a,n,f))
+                        r2aa(e,f,m,n) = r2aa(e,f,m,n) + tmp
+                        r2aa(f,e,m,n) = r2aa(f,e,m,n) - tmp
+                        r2aa(e,f,n,m) = r2aa(e,f,n,m) - tmp
+                        r2aa(f,e,n,m) = r2aa(f,e,n,m) + tmp
+                     end do
+                  end do
+c
+                  do i = 1, nob ! C2
+                     do a = 1, nvb
+                        tmp = t2ab(e,a,m,i) * (iab(f+noa,i,n,a+nob) + 
+     $                       0.5d0*z3(i,a,n,f))
+                        r2aa(e,f,m,n) = r2aa(e,f,m,n) + tmp
+                        r2aa(f,e,m,n) = r2aa(f,e,m,n) - tmp
+                        r2aa(e,f,n,m) = r2aa(e,f,n,m) - tmp
+                        r2aa(f,e,n,m) = r2aa(f,e,n,m) + tmp
+                     end do
+                  end do
+c
+                  do a = 1, nva ! E1
+                     tmp = 0.0d0
+                     do i = 1, noa
+                        tmp = tmp - 0.5d0*z1(i,a,i,f) - z2(i,a,i,f)
+                     enddo
+                     tmp = t2aa(e,a,m,n) * (fa(f+noa,a+noa) + tmp)
+                     r2aa(e,f,m,n) = r2aa(e,f,m,n) + tmp
+                     r2aa(f,e,m,n) = r2aa(f,e,m,n) - tmp
+                  end do
+c
+                  do i = 1, noa ! E2
+                     tmp = 0.0d0
+                     do a = 1, nva
+                        tmp = tmp + 0.5d0*z1(i,a,n,a) + z2(i,a,n,a)
+                     end do
+                     tmp = t2aa(e,f,m,i) * (fa(i,n) + tmp)
+                     r2aa(e,f,m,n) = r2aa(e,f,m,n) - tmp
+                     r2aa(e,f,n,m) = r2aa(e,f,n,m) + tmp
+                  enddo
+c
+                  r2aa(e,f,m,n) = r2aa(e,f,m,n) + iaa(e+noa,f+noa,m,n) ! F
+c
+               end do
+            end do
+         end do
+      end do
+      if (.not. ma_verify_allocator_stuff())
+     $     call errquit('x',4)
+c
+c     Pure spin beta
+c
+c     This is just the alpha code with spins flipped, x1 -> x2, and
+c     z1/2/3 -> z4/5/6.  For mixed spin quantities have to transpose
+c     the indices so that end up with beta spin in the correct position.
+c
+      do m = 1, nob
+         do n = 1, nob
+            do e = 1, nvb
+               do f = 1, nvb
+c
+                  do i = 1, nob ! A
+                     do j = 1, nob
+                        r2bb(e,f,m,n) = r2bb(e,f,m,n) + 
+     $                       0.5d0*t2bb(e,f,i,j)*
+     $                       (ibb(i,j,m,n) + 0.5d0*x2(i,j,m,n))
+                     end do
+                  end do
+c
+                  do a = 1, nvb ! B
+                     do b = 1, nvb
+                        r2bb(e,f,m,n) = r2bb(e,f,m,n) + 0.5d0*
+     $                       ibb(e+nob,f+nob,a+nob,b+nob)*t2bb(a,b,m,n)
+                     end do
+                  end do
+c
+                  do i = 1, nob ! C1
+                     do a = 1, nvb
+                        tmp = t2bb(e,a,m,i) * (ibb(i,f+nob,a+nob,n) + 
+     $                       0.5d0*z4(i,a,n,f) + z5(i,a,n,f))
+                        r2bb(e,f,m,n) = r2bb(e,f,m,n) + tmp
+                        r2bb(f,e,m,n) = r2bb(f,e,m,n) - tmp
+                        r2bb(e,f,n,m) = r2bb(e,f,n,m) - tmp
+                        r2bb(f,e,n,m) = r2bb(f,e,n,m) + tmp
+                     end do
+                  end do
+c
+                  do i = 1, noa ! C2
+                     do a = 1, nva
+                        tmp = t2ab(a,e,i,m) * (iab(i,f+nob,a+noa,n) + 
+     $                       0.5d0*z6(i,a,n,f))
+                        r2bb(e,f,m,n) = r2bb(e,f,m,n) + tmp
+                        r2bb(f,e,m,n) = r2bb(f,e,m,n) - tmp
+                        r2bb(e,f,n,m) = r2bb(e,f,n,m) - tmp
+                        r2bb(f,e,n,m) = r2bb(f,e,n,m) + tmp
+                     end do
+                  end do
+c
+                  do a = 1, nvb ! E1
+                     tmp = 0.0d0
+                     do i = 1, nob
+                        tmp = tmp - 0.5d0*z4(i,a,i,f) - z5(i,a,i,f)
+                     enddo
+                     tmp = t2bb(e,a,m,n) * (fb(f+nob,a+nob) + tmp)
+                     r2bb(e,f,m,n) = r2bb(e,f,m,n) + tmp
+                     r2bb(f,e,m,n) = r2bb(f,e,m,n) - tmp
+                  end do
+c
+                  do i = 1, nob ! E2
+                     tmp = 0.0d0
+                     do a = 1, nvb
+                        tmp = tmp + 0.5d0*z4(i,a,n,a) + z5(i,a,n,a)
+                     end do
+                     tmp = t2bb(e,f,m,i) * (fb(i,n) + tmp)
+                     r2bb(e,f,m,n) = r2bb(e,f,m,n) - tmp
+                     r2bb(e,f,n,m) = r2bb(e,f,n,m) + tmp
+                  enddo
+c
+                  r2bb(e,f,m,n) = r2bb(e,f,m,n) + ibb(e+nob,f+nob,m,n) ! F
+c
+               end do
+            end do
+         end do
+      end do
+      if (.not. ma_verify_allocator_stuff())
+     $     call errquit('x',5)
+c
+c     Mixed spin
+c
+      do m = 1, noa
+         do n = 1, nob
+            do e = 1, nva
+               do f = 1, nvb
+c
+                  do i = 1, noa ! A
+                     do j = 1, nob
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) + 
+     $                       t2ab(e,f,i,j)*
+     $                       (iab(i,j,m,n) + x3(i,j,m,n))
+                     end do
+                  end do
+c
+                  do a = 1, nva ! B
+                     do b = 1, nvb
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) + 
+     $                       iab(e+noa,f+nob,a+noa,b+nob)*t2ab(a,b,m,n)
+                     end do
+                  end do
+c
+                  do a = 1, nva ! C1
+                     do i = 1, noa
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) - t2aa(e,a,i,m)*
+     $                       (iab(i,f+nob,a+noa,n) + 
+     $                       z6(i,a,n,f) + z7(i,a,n,f))
+                     end do
+                  end do
+c
+                  do a = 1, nvb ! C2
+                     do i = 1, nob
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) + t2ab(e,a,m,i)*
+     $                       (ibb(i,f+nob,a+nob,n) + z4(i,a,n,f))
+                     end do
+                  end do
+c
+                  do a = 1, nvb ! C3
+                     do i = 1, noa
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) - t2ab(e,a,i,n)*
+     $                       (iab(i,f+nob,m,a+nob) - z8(i,a,m,f))
+                     end do
+                  end do
+c
+                  do a = 1, nva ! C4
+                     do i = 1, noa
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) + t2ab(a,f,i,n)*
+     $                       (iaa(i,e+noa,a+noa,m) + z2(i,a,m,e))
+                     end do
+                  end do
+c
+                  do a = 1, nvb ! C5
+                     do i = 1, nob
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) + 
+     $                       iab(e+noa,i,m,a+nob)*t2bb (f,a,n,i)
+                     end do
+                  end do
+c
+                  do a = 1, nva ! C5
+                     do i = 1, nob
+                        r2ab(e,f,m,n) = r2ab(e,f,m,n) -
+     $                       iab(e+noa,i,a+noa,n)*t2ab(a,f,m,i)
+                     end do
+                  end do
+c
+                  do a = 1, nva ! E1
+                     tmp = 0.0d0
+                     do i = 1, noa
+                        tmp = tmp - z2(i,a,i,e) - 0.5d0*z1(i,a,i,e)
+                     end do
+                     r2ab(e,f,m,n) = r2ab(e,f,m,n) + t2ab(a,f,m,n)*
+     $                       (fa(e+noa,a+noa) + tmp)
+                  end do
+c
+                  do a = 1, nvb ! E2
+                     tmp = 0.0d0
+                     do i = 1, noa
+                        tmp = tmp - z8(i,a,i,f)
+                     end do
+                     do i = 1, nob
+                        tmp = tmp - 0.5d0*z4(i,a,i,f)
+                     end do
+                     r2ab(e,f,m,n) = r2ab(e,f,m,n) + t2ab(e,a,m,n)*
+     $                    (fb(f+nob,a+nob) + tmp)
+                  end do
+c
+                  do i = 1, nob ! E3
+                     tmp = 0.0d0
+                     do a = 1, nvb
+                        tmp = tmp + z5(i,a,n,a) + 0.5d0*z4(i,a,n,a)
+                     end do
+                     r2ab(e,f,m,n) = r2ab(e,f,m,n) - t2ab(e,f,m,i)*
+     $                    (fb(i,n) + tmp)
+                  end do
+c
+                  do i = 1, noa ! E4
+                     tmp = 0.0d0
+                     do a = 1, nva
+                        tmp = tmp + z2(i,a,m,a) + 0.5d0*z1(i,a,m,a)
+                     end do
+                     r2ab(e,f,m,n) = r2ab(e,f,m,n) - t2ab(e,f,i,n)*
+     $                    (fa(i,m) + tmp)
+                  end do
+c
+                  r2ab(e,f,m,n) = r2ab(e,f,m,n) + iab(e+noa,f+nob,m,n) ! F
+c
+               end do
+            end do
+         end do
+      end do
+      if (.not. ma_verify_allocator_stuff())
+     $     call errquit('x',6)
+c
+      end
+      double precision function uccsdtest_triples_pure(
+     $     nmo,
+     $     noa, nva, 
+     $     iaa, 
+     $     t1a,
+     $     t2aa,
+     $     evals)
+      implicit none
+      integer nmo, noa, nva
+      double precision iaa(nmo, nmo, nmo, nmo)
+      double precision t1a(nva, noa)
+      double precision t2aa(nva, nva, noa, noa)
+      double precision evals(nmo)
+c
+      integer i, j, k, m, a, b, c, e
+      double precision w, v, d
+      double precision energy
+c
+      double precision ge, gm, gs
+      ge(i,j,k,a,b,c,e) = t2aa(c,e,i,j)*iaa(a+noa,b+noa,e+noa,k)
+      gm(i,j,k,a,b,c,m) =-t2aa(a,b,m,k)*iaa(c+noa,m,i,j)
+      gs(i,j,k,a,b,c)   = t1a(c,k)*iaa(i,j,a+noa,b+noa)
+c
+      call output(evals,1,nmo,1,1,nmo,1,1)
+c
+      energy = 0.0d0
+      do a = 1, nva
+         do b = 1, a-1
+            do c = 1, b-1
+               do i = 1, noa
+                  do j = 1, i-1
+                     do k = 1, j-1
+                        w = 0.0d0
+                        do e = 1, nva
+                           w = w 
+     $                          + ge(i,j,k,a,b,c,e)
+     $                          - ge(k,j,i,a,b,c,e)
+     $                          - ge(i,k,j,a,b,c,e)
+     $                          - ge(i,j,k,c,b,a,e)
+     $                          - ge(i,j,k,a,c,b,e)
+     $                          + ge(k,j,i,c,b,a,e)
+     $                          + ge(k,j,i,a,c,b,e)
+     $                          + ge(i,k,j,c,b,a,e)
+     $                          + ge(i,k,j,a,c,b,e)
+                        end do
+                        do m = 1, noa
+                           w = w 
+     $                          + gm(i,j,k,a,b,c,m)
+     $                          - gm(k,j,i,a,b,c,m)
+     $                          - gm(i,k,j,a,b,c,m)
+     $                          - gm(i,j,k,c,b,a,m)
+     $                          - gm(i,j,k,a,c,b,m)
+     $                          + gm(k,j,i,c,b,a,m)
+     $                          + gm(k,j,i,a,c,b,m)
+     $                          + gm(i,k,j,c,b,a,m)
+     $                          + gm(i,k,j,a,c,b,m)
+                        end do
+                        v = w 
+     $                       + gs(i,j,k,a,b,c)
+     $                       - gs(k,j,i,a,b,c)
+     $                       - gs(i,k,j,a,b,c)
+     $                       - gs(i,j,k,c,b,a)
+     $                       - gs(i,j,k,a,c,b)
+     $                       + gs(k,j,i,c,b,a)
+     $                       + gs(k,j,i,a,c,b)
+     $                       + gs(i,k,j,c,b,a)
+     $                       + gs(i,k,j,a,c,b)
+                        d = evals(a+noa)+evals(b+noa)+evals(c+noa)
+     $                       -evals(i)-evals(j)-evals(k)
+                        energy = energy - v*w/d
+c
+                     end do
+                  end do
+               end do
+            end do
+         end do
+      end do
+c
+      write(6,*) ' E ', energy
+c
+      uccsdtest_triples_pure = energy
+c
+      end
+      double precision function uccsdtest_triples_mixed(
+     $     nmo,
+     $     noa, nob, nva, nvb, 
+     $     iaa, ibb, iab,
+     $     t1a, t1b,
+     $     t2aa,t2bb,t2ab,
+     $     evalsa, evalsb)
+c
+      implicit none
+      integer nmo, noa, nob, nva, nvb
+      double precision iaa(nmo, nmo, nmo, nmo)
+      double precision ibb(nmo, nmo, nmo, nmo)
+      double precision iab(nmo, nmo, nmo, nmo)
+      double precision t1a(nva, noa)
+      double precision t1b(nvb, nob)
+      double precision t2aa(nva, nva, noa, noa)
+      double precision t2bb(nvb, nvb, nob, nob)
+      double precision t2ab(nva, nvb, noa, nob) 
+      double precision evalsa(nmo), evalsb(nmo)
+c
+      integer i, j, k, m, a, b, c, e
+      double precision w, v, d, energy
+c
+      call output(evalsa,1,nmo,1,1,nmo,1,1)
+      call output(evalsb,1,nmo,1,1,nmo,1,1)
+c
+      energy = 0.0d0
+      do a = 1, nva
+         do b = 1, a-1
+            do c = 1, nvb
+               do i = 1, noa
+                  do j = 1, i-1
+                     do k = 1, nob
+                        w = 0.0d0
+                        do e = 1, nva
+                           w = w 
+     $                          - t2ab(e,c,j,k)*iaa(a+noa,b+noa,e+noa,i)
+     $                          + t2ab(e,c,i,k)*iaa(a+noa,b+noa,e+noa,j)
+     $                          + t2aa(a,e,i,j)*iab(b+noa,c+nob,e+noa,k)
+     $                          - t2aa(b,e,i,j)*iab(a+noa,c+nob,e+noa,k)
+                        end do
+                        do e = 1, nvb
+                           w = w 
+     $                          - t2ab(a,e,j,k)*iab(b+noa,c+nob,i,e+nob)
+     $                          + t2ab(b,e,j,k)*iab(a+noa,c+nob,i,e+nob)
+     $                          + t2ab(a,e,i,k)*iab(b+noa,c+nob,j,e+nob)
+     $                          - t2ab(b,e,i,k)*iab(a+noa,c+nob,j,e+nob)
+                        end do
+                        do m = 1, noa
+                           w = w
+     $                          + t2aa(a,b,m,i)*iab(m,c+nob,j,k)
+     $                          - t2aa(a,b,m,j)*iab(m,c+nob,i,k)
+     $                          - t2ab(b,c,m,k)*iaa(a+noa,m,i,j)
+     $                          + t2ab(a,c,m,k)*iaa(b+noa,m,i,j)
+                        end do
+                        do m = 1, nob
+                           w = w 
+     $                          + t2ab(b,c,i,m)*iab(a+noa,m,j,k)
+     $                          - t2ab(a,c,i,m)*iab(b+noa,m,j,k)
+     $                          - t2ab(b,c,j,m)*iab(a+noa,m,i,k)
+     $                          + t2ab(a,c,j,m)*iab(b+noa,m,i,k)
+                        end do
+                        v = w +
+     $                       + t1b(c,k)*iaa(i,j,a+noa,b+noa)
+     $                       + t1a(a,i)*iab(j,k,b+noa,c+nob)
+     $                       - t1a(b,i)*iab(j,k,a+noa,c+nob)
+     $                       - t1a(a,j)*iab(i,k,b+noa,c+nob)
+     $                       + t1a(b,j)*iab(i,k,a+noa,c+nob)
+c
+                        d = evalsa(a+noa)+evalsa(b+noa)+evalsb(c+noa)
+     $                       -evalsa(i)-evalsa(j)-evalsb(k)
+c
+                        energy = energy - v*w/d
+c
+c$$$                        if (abs(v*w/d) .gt. 1e-10) then
+c$$$                           write(6,1) i,j,k,a,b,c,v,w,d,energy
+c$$$ 1                         format(6i5,1p,4d16.8)
+c$$$                        end if
+                     end do
+                  end do
+               end do
+            end do
+         end do
+      end do
+c
+      write(6,*) ' energy mixed ', energy
+c
+      uccsdtest_triples_mixed = energy
+c
+      end
+
+
+                           
+
