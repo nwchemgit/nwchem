@@ -2,7 +2,7 @@
 #define NEW_SPARSE
 #endif
 c
-c  $Id: moints_semi.F,v 1.62 2005-01-05 01:28:34 edo Exp $
+c  $Id: moints_semi.F,v 1.63 2005-01-17 19:49:54 edo Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -828,10 +828,10 @@ c
           if ((vv.ge.clo).and.(vv.le.chi)) then
 #ifdef  BAD_GACCESS
       ld=rhi-rlo+1
-      howmy=max(ld,ooffset+faddr)
+      howmy=max(ld,ooffset+rlen)
       if(.not.ma_push_get(MT_DBL,howmy,
      $  'scratch buff', l_local, k_local)) call
-     $  errquit('mointsemi: pushget failed',0,0)
+     $  errquit('mointsemi: pushget failed',howmy,0)
             call ga_get(g_buf,rlo,rhi,vv,vv,dbl_mb(k_local),ld)
 #else
             call ga_access(g_buf, rlo, rhi, vv, vv, k_local, ld )
