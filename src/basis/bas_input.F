@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.33 1997-06-26 18:33:47 mdupuis Exp $
+c $Id: bas_input.F,v 1.34 1997-07-01 18:41:14 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -600,6 +600,7 @@ c
       external inp_search_fast
       integer spvalues(nsptypes)
       integer l_value, ind
+      integer num_elec
       data ltypes /'s','p','d','f','g','h','i'/
       data sptypes / 'sp', 'l ', 'ul'/
       data spvalues/  -1 , -1  ,  -1 /
@@ -672,6 +673,16 @@ c
       if (.not. inp_a(field)) goto 10000
 c     
       if (inp_compare(.false., 'end', field)) goto 9000 ! End
+      if (inp_compare(.false.,'nelec', field)) then
+         if (.not.inp_i(num_elec)) goto 10000
+         if (.not.ecp_set_num_elec(basis,tag,num_elec,'unknown'))
+     &       call errquit
+     &       ('bas_tag_lib: ecp_set_num_elec failed',911)
+         if (.not.inp_read())
+     &       call errquit
+     &       ('bas_tag_lib: premature end of input in library',911)
+         goto 20
+      endif
       if (.not. inp_a(cont_type)) goto 10000
       if (inp_match(nltypes, .false., cont_type, ltypes, ind)) then
 c     
