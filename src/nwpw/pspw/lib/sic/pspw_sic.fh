@@ -1,0 +1,5 @@
+*     **** PSPW_SIC common block ****
+      real*8  rcut
+      integer norbs
+      integer orbital_list(2)
+      common / PSPW_SIC_Block / rcut,orbital_list,norbs
