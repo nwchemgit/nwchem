@@ -586,6 +586,26 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    isplit[i1split] = *n;
    *nsplit = i1split+1;
    
+   /*
+     if ( me == 0 ){
+     for (i = 0; i < *nsplit; i++ )
+     printf(" ours i= %d isplit = %d nsplit %d  \n", i, isplit[i], *nsplit);
+     for (i = 0; i < *n; i++ )
+     printf(" ours i= %d eval %f  \n", i, eval[i]);
+     for (i = 0; i < *n; i++ )
+     printf(" ours i= %d iblock %d  \n", i, iblock[i]);
+     for (i = 0; i < *n; i++ )
+     printf(" ours i= %d isplit %d  \n", i, isplit[i]);
+     
+     }
+     */
+   
+   
+   /*
+     for (i = 0; i < *n; i++ )
+     printf(" original i= %d eval = %f  \n", i, eval[i]);
+     */
+   
    
    /*
      eps = 2.0*DLAMCHE;
@@ -609,6 +629,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      else {
      psigma = reig +  shift;
      psgn = -1.0;
+
      }
      */
 
@@ -616,8 +637,8 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    if ( psigma = 0.0e0 )
      psigma = DLAMCHE;
    
-   psgn = 1.0;
-   psigma = 0.;
+   psgn = 1.0e0;
+   psigma = 0.e0;
    if ( leig <= 0. ){
      psgn = 1.;
      if (onenrm > 1.0e0 )
@@ -625,6 +646,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      else
        psigma = -(ffabs(leig)+1.0e3*DLAMCHE);
    }
+   
    
    /*
      should delete this and reshift all psigma back after inverse iteration
@@ -692,6 +714,19 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
        i1split = jsplit;
      }
      
+     /*
+       for (i = 0; i < *n; i++ )
+       printf(" i= %d shifted eval = %f \n", i, eval[i] );
+       
+       for (i = 0; i < *n; i++ )
+       printf(" i= %d dplus = %20.16f lplus %20.16f  \n", i, dplus[i], lplus[i] );
+       
+       for (i = 0; i < *n; i++ )
+       printf(" i= %d iblock %d shifted eval = %20.16f \n", i, iblock[i], eval[i] );
+       
+       for (i = 0; i < *n; i++ )
+       printf(" i= %d isplit %d \n", i, isplit[i] );
+       */
 	
    
    /* The following assumes that the matrix does not split */

@@ -39,6 +39,7 @@
 
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define min(a,b) ((a) < (b) ? (a) : (b))
+#define ffabs(a) ((a) > (0.) ? (a) : (-a))
 
 /*
    Internal PeIGS routine
@@ -138,19 +139,22 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
      /* mgs local block and return */
      
      k = *nvecsZ;
-    for ( jndx = k; jndx < k + nvecs; jndx++ ){
-      dptr = &colF[jndx][bb];
-	t = dnrm2_( &vec_len, dptr, &IONE );
-	t = 1.0e0/t;
-	dscal_( &vec_len, &t, dptr, &IONE);
-	for ( indx = jndx + 1; indx < k + nvecs; indx++ ){
-	  dptr1 = &colF[indx][bb];
-	  t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
-	if ( fabs(t) > DLAMCHE ) 
-	  daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
-	}
-    }
-    return;
+     for ( jndx = k; jndx < k + nvecs; jndx++ ){
+       dptr = &colF[jndx][bb];
+       t = dnrm2_( &vec_len, dptr, &IONE );
+       if ( fffabs(t) > DLAMCHS ) 
+	 t = 1.0e0/t;
+       else
+	 t = 1.0e0/DLAMCHS;
+       dscal_( &vec_len, &t, dptr, &IONE);
+       for ( indx = jndx + 1; indx < k + nvecs; indx++ ){
+	 dptr1 = &colF[indx][bb];
+	 t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
+	 if ( fffabs(t) > DLAMCHE ) 
+	   daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
+       }
+     }
+     return;
   }
       
   k = *nvecsZ;
@@ -184,8 +188,8 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
     dptr1 = in_buffer;
     for ( jndx = 0; jndx < nvecs_in; jndx++ ){
       t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE);
-if ( fabs(t) > DLAMCHE )
-      daxpy_( &vec_len, &t, dptr1, &IONE, dptr, &IONE );
+      if ( ffabs(t) > DLAMCHE )
+	daxpy_( &vec_len, &t, dptr1, &IONE, dptr, &IONE );
       dptr1 += vec_len;
     }
   }
@@ -223,42 +227,38 @@ if ( fabs(t) > DLAMCHE )
         continue;
 
       nleft[i] -= mvecs;
-      
+
       if ( me_indx == i ) {
-        for ( jndx = kk; jndx < kk + mvecs; jndx++ ){
- 	  dptr = &colF[jndx][bb];
- 	  t = dnrm2_( &vec_len, dptr, &IONE );
-	  t = 1.0e0/t;
-	  dscal_( &vec_len, &t, dptr, &IONE);
-	  for ( indx = jndx + 1; indx < kk + mvecs; indx++ ){
-	    dptr1 = &colF[indx][bb];
-	    t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
-	    if ( fabs(t) > DLAMCHE )
-	      daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
+	  for ( jndx = kk; jndx < kk + mvecs; jndx++ ){
+	      dptr = &colF[jndx][bb];
+	      t = dnrm2_( &vec_len, dptr, &IONE );
+	      if ( fffabs(t) > DLAMCHS )
+		  t = 1.0e0/t;
+	      else
+		  t = 1.0e0/DLAMCHS;
+	      dscal_( &vec_len, &t, dptr, &IONE);
+	      for ( indx = jndx + 1; indx < kk + mvecs; indx++ ){
+		  dptr1 = &colF[indx][bb];
+		  t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
+		  if ( ffabs(t) > DLAMCHE )
+		      daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
+	      }
 	  }
-        }
-	
-        /* load up buffer */
-	
-   	dptr = in_buffer;
-	for ( indx = kk; indx < kk + mvecs; indx++ ){
-	  dcopy_( &vec_len, &colF[indx][bb], &IONE, dptr, &IONE);
-	  dptr += vec_len;
-        }
-	
-        kk += mvecs;
+	  
+	  /* load up buffer */
+	  
+	  dptr = in_buffer;
+	  for ( indx = kk; indx < kk + mvecs; indx++ ){
+	      dcopy_( &vec_len, &colF[indx][bb], &IONE, dptr, &IONE);
+	      dptr += vec_len;
+	  }
+	  kk += mvecs;
       }
       
       rsize = mvecs * vec_len * sizeof(DoublePrecision);
       
       bbcast00( (char *) in_buffer, rsize, 11113,  proclist[i],
-		nproc-1, proclist+1 );    
-      
-      /*      
-	      bbcast00( (char *) in_buffer, rsize, 11113,  proclist[i],
-	      nproc-1, proclist );
-	      */
-      
+                nproc-1, proclist+1 );    
       
       /*
        * the buffer contains incoming orthonormal vectors
@@ -266,14 +266,14 @@ if ( fabs(t) > DLAMCHE )
       
       dptr = in_buffer;
       for ( iii = kk; iii < k + nvecs; iii++ ){
-        dptr = &colF[iii][bb];
-        dptr1 = in_buffer;
-        for ( jndx = 0; jndx < mvecs; jndx++ ){
-          t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE);
-	  if ( fabs(t) > DLAMCHE )
-	    daxpy_( &vec_len, &t, dptr1, &IONE, dptr, &IONE );
-          dptr1 += vec_len;
-        }
+	  dptr = &colF[iii][bb];
+	  dptr1 = in_buffer;
+	  for ( jndx = 0; jndx < mvecs; jndx++ ){
+	      t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE);
+	      if ( ffabs(t) > DLAMCHE )
+		  daxpy_( &vec_len, &t, dptr1, &IONE, dptr, &IONE );
+	      dptr1 += vec_len;
+	  }
       }
     }
   }

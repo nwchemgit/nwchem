@@ -530,7 +530,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
     
     dbad = (DoublePrecision) ibad;
     
-    gmax00( (char *) &dbad, 1, 1, 1, sync_proc, nn_proc, proclist, dwork );
+    gmax00( (char *) &dbad, 1, 1, 1, proclist[0], nn_proc, proclist, dwork );
     
     ibad = (Integer) dbad;
     ibad = -ibad;

@@ -307,7 +307,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     extern DoublePrecision dnrm2_();
 
     extern Integer  tred2();
-    extern void     pstebz_(), mxm25(), sfnorm(), pstein4(), pstein5(), pscale_(), ga_sync_();
+    extern void     pstebz_(), mxm25(), sfnorm(), pstein4(), pstein5(), pscale_();
 
 /*
  *  ---------------------------------------------------------------
@@ -712,17 +712,17 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    printf(" in pdspevx pstebz10 me = %d \n", mxmynd_());
 #endif
       
-   peigs_shift = 0.0e0;
-   peigs_scale = 0.0e0;
-	ee[0] = 0.0e0;
-   
+      peigs_shift = 0.0e0;
+      peigs_scale = 0.0e0;
+      ee[0] = 0.0e0;
+      
 #ifdef PSCALE
-   pscale_( irange, &msize, lb, ub, ilb, iub, abstol,
+      pscale_( irange, &msize, lb, ub, ilb, iub, abstol,
 	      dd, ee, dplus, lplus,
 	      mapZ, &neigval, &nsplit, eval, iblock, isplit,
 	      d_scrat, i_scrat, &linfo);
 #endif
-   
+      
    pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol,
 	      dd, ee, dplus, lplus,
 	      mapZ, &neigval, &nsplit, eval, iblock, isplit,
@@ -852,12 +852,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       /*
 	 mgs looks cluster
 	 */
-      
-      
+
       ga_sync_();
-      /*
-      mxsync_();
-      */
       
       /*
 	loose cluster
@@ -871,9 +867,6 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 		&neigval, eval, iblock, &nsplit, isplit,
 		mapZ, vecZ, d_scrat,i_scrat, iptr, info);
       
-      /*
-      mxsync_();
-      */
       ga_sync_();
       
 #ifdef DEBUG7
@@ -888,11 +881,11 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       }
       
     }
-    
+      
 #ifdef TIMING
-    mxsync_();
-    t2 = mxclock_();
-    test_timing.pstein = t2 - t1;
+      mxsync_();
+      t2 = mxclock_();
+      test_timing.pstein = t2 - t1;
 #endif
     
     

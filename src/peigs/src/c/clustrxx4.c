@@ -116,7 +116,7 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
   Integer itime;
   Integer send_num, send_cl, send_to,
           recv_num, recv_cl, recv_from,
-          myindx, ime,itype, nvecs, isize, ival, first, ibad, itmp;
+          myindx, itype, nvecs, isize, ival, first, ibad, itmp;
   
   DoublePrecision stpcrt, onenrm, eps;
   DoublePrecision tmp, *dscrat, *first_buf;
@@ -143,41 +143,6 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
   ibad = 0;
 
   dscrat = scratch;
-
-#ifdef DEBUG5
-
-  if( me == mapZ[0] ){
-    fprintf(stderr, " nacluster = %d \n", *nacluster );
-    cn = -1;
-    for( j = 0; j < *nacluster; j++ ) {
-      c1 = cn + 1;
-      cn = icsplit[j];
-       if( cn > c1 ) 
-        fprintf( stderr, " cluster[%d] = %d to %d  owned by %d to %d \n",
-                 j,c1,cn, mapZ[c1], mapZ[cn] );
-    }
-    for( j = 0; j < *n; j++ )
-      fprintf( stderr, " eval[%d] = %g \n", j, eval[j]);
-    for( j = 0; j < *n; j++ )
-      fprintf( stderr, " d[%d] = %g e[%d] = %g \n", j, d[j], j, e[j] );
-  }
-  mxsync_();
-  exit(-1);
-#endif
-#ifdef DEBUG1
-  fprintf(stderr, " in clustrxx me = %d \n", me );
-
-  if( me == mapZ[0] ){
-    cn = -1;
-    for( j = 0; j < *nacluster; j++ ) {
-      c1 = cn + 1;
-      cn = icsplit[j];
-       if( cn > c1 ) 
-        fprintf( stderr, " cluster[%d] = %d to %d  owned by %d to %d \n",
-                 j,c1,cn, mapZ[c1], mapZ[cn] );
-    }
-  }
-#endif
   
   /*
     Get machine constants. should set this up somewhere to call it only once
@@ -222,8 +187,6 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
 
   send_num = 0; 
   recv_num = 0;
-  send_to = -1;
-  recv_from = -1;
   if( naproc > 1 ) {
     for (clustr_ptr= 0;  clustr_ptr < cl_num ; clustr_ptr++) {
 
@@ -274,8 +237,8 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
      */
 
     if( send_num > 1 || recv_num > 1 ) {
-      fprintf( stderr, " me = %d Internal Error in PEIGS clustrinv. \n", me );
-      fprintf( stderr, " me = %d recv_num and/or send_num > 1. \n", me);
+      printf(" me = %d Internal Error in PEIGS clustrinv. \n", me );
+      printf(" me = %d recv_num and/or send_num > 1. \n", me);
       exit( -1 );
     }
     if( ( send_num > 0 ) && ( send_cl != cl_num - 1) ) {
@@ -327,13 +290,6 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
       j = iscratch[j];
     }
 
-	ime = -1;
-	for ( i =c1; i <= cn; i++) {
-	ime ++;
-	if ( mapZ[c1] == me )
-	break;
-	}
-
     if( iscratch[j] != -1 ) {
       fprintf( stderr, " me = %d Internal Error in PEIGS clustrinv. \n", me );
       fprintf( stderr, " me = %d Swapping of initial cluster data \n", me);
@@ -344,31 +300,20 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
 
     if( send_num == 0 ) {
       itype = 9;
-
       c1     = schedule[4*recv_cl];
       csiz   = schedule[4*recv_cl+1] - c1 + 1;
-
       blksiz = schedule[4*recv_cl+3] - schedule[4*recv_cl+2] + 1;
-
       nvecs  = count_list( recv_from, &mapZ[c1], &csiz);
-
       isize  = sizeof( DoublePrecision ) * blksiz * nvecs;
-
       first_buf = dscrat;
       dscrat += nvecs * blksiz;
 
-#ifdef DEBUG1
-  fprintf(stderr, " me = %d Just before mxread isize = %d nvecs = %d \n", me, isize, nvecs );
+#ifdef DEBUG7
+      fprintf(stderr, " me = %d Just before mxread isize = %d nvecs = %d recv_from %d \n", me, isize, nvecs , recv_from );
 #endif
-  
+      
       ival = mxread_( first_buf, &isize, &recv_from, &itype );
 
-#ifdef DEBUG1
-  fprintf(stderr, " me = %d Just after mxread \n", me );
-  for( j = 0; j < nvecs*blksiz; j++)
-       fprintf(stderr, " me = %d first_buf[%d] = %g \n",
-                     me, j, first_buf[j]);
-#endif
   
     }
   }
@@ -426,19 +371,21 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
     iseed[3] = 1;
     
     indx = 0;
-    /*    for (j = c1; j <= cn; j++ ){
-	  if ( mapZ[j] == me ) {
-	  i = indx + Zvec;
-	  
-	  mapvecZ[ i ] = j;
-	  fil_dbl_lst (*n, vecZ[i], 0.0e0);
-	  dlarnv_(&three, &iseed[0], &blksiz, &vecZ[i][bb1]);
-	  indx++;
-	  }
-	  }
-	  */
     
-#ifdef DEBUG1
+    /*
+       for (j = c1; j <= cn; j++ ){
+       if ( mapZ[j] == me ) {
+       i = indx + Zvec;
+       
+       mapvecZ[ i ] = j;
+       fil_dbl_lst (*n, vecZ[i], 0.0e0);
+       dlarnv_(&three, &iseed[0], &blksiz, &vecZ[i][bb1]);
+       indx++;
+       }
+       }
+       */
+    
+#ifdef DEBUG7
     fprintf(stderr, " just before inv_it and mgs of clustrxx me = %d c1 = %d cn = %d \n", me, c1, cn );
 #endif
     
@@ -448,19 +395,7 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
     
     itime = 1;
     for ( j = 0; j < INV_TIME; j++ ) {
-      /*
-	itmp = inv_it4( n, &c1, &cn, &bb1, &bn, &Zvec, mapZ, mapvecZ, vecZ,
-	dplus, lplus, eval, &eps, &stpcrt, &onenrm, iscratch, dscrat);
-	
-	if( itmp >  0 )
-        if( ibad == 0 || itmp < ibad ) 
-	ibad = itmp;
-	*/
-      
       if ( c1 != cn ) {
-#ifdef DEBUG
-	printf(" coarse cluster csiz = %d c1 = %d cn = %d \n", cn - c1 + 1, c1, cn );
-#endif
 	for ( i = 0; i < itime ; i++ ) {
 	  mgs_3( &csiz, vecZ, &mapZ[c1], &bb1, &bn, &Zvec, &first, first_buf, iscratch, dscrat);
 	}
@@ -468,8 +403,8 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
       }
     }
     
-#ifdef DEBUG1
-    fprintf(stderr, " clustrxx3 me = %d before send/rec \n", me );
+#ifdef DEBUG7
+    printf(" clustrxx4 me = %d before send/rec \n", me );
 #endif
     
     /*
@@ -477,11 +412,11 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
      * across more than one processor.
      */
     
-      if( clustr_ptr == 0 && send_num > 0 ) {
+    if( clustr_ptr == 0 && send_num > 0 ) {
       
       itype = 9;
       
-      if( recv_num > 0  &&  (( ime % 2 ) == 0 ) ) { 
+      if( recv_num > 0  &&  (( myindx % 2 ) == 0 ) ) { 
 	xc1     = schedule[4*recv_cl];
 	xcsiz   = schedule[4*recv_cl+1] - xc1 + 1;
 	
@@ -492,11 +427,6 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
 	
 	first_buf = dscrat;
 	dscrat += nvecs * xblksiz;
-	
-#ifdef DEBUG1
-	fprintf(stderr, " me = %d Just before mxread 2 isize = %d nvecs = %d \n", me, isize, nvecs );
-#endif
-	
 	ival = mxread_( first_buf, &isize, &recv_from, &itype );
       }
       
@@ -510,46 +440,34 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
       }
       
       isize = sizeof( DoublePrecision ) * blksiz * nvecs;
-#ifdef DEBUG1
-      fprintf(stderr, " me = %d Just before mxwrit isize = %d nvecs = %d \n", me, isize, nvecs );
-      for( j = 0; j < nvecs*blksiz; j++)
-	fprintf(stderr, " me = %d sending dscrat[%d] = %g \n",
-		me, j, dscrat[j]);
-#endif
-      
       ival = mxwrit_( dscrat, &isize, &send_to, &itype );
       
-      if( recv_num > 0  &&  (( ime % 2 ) != 0 ) ) { 
+      if( recv_num > 0  &&  (( myindx % 2 ) != 0 ) ) { 
         xc1     = schedule[4*recv_cl];
         xcsiz   = schedule[4*recv_cl+1] - xc1 + 1;
-	
         xblksiz = schedule[4*recv_cl+3] - schedule[4*recv_cl+2] + 1;
-	
         nvecs  = count_list( recv_from, &mapZ[xc1], &xcsiz);
         isize = sizeof( DoublePrecision ) * xblksiz * nvecs;
 	
         first_buf = dscrat;
         dscrat += nvecs * xblksiz;
-	
-#ifdef DEBUG1
-	fprintf(stderr, " me = %d Just before mxread 3 isize = %d nvecs = %d \n", me, isize, nvecs );
-#endif
-	
         ival = mxread_( first_buf, &isize, &recv_from, &itype );
       }
     }
-
-#ifdef DEBUG1
-      fprintf(stderr, " clustrxx3 me = %d after send/rec \n", me );
+#ifdef DEBUG7
+    printf(" clustrxx4 me = %d after send/rec \n", me );
 #endif
     
   }
   
+  mxsync_();
   
-  
-#ifdef DEBUG1
-  fprintf(stderr, " me = %d Exiting clustrinv_ \n", me );
+#ifdef DEBUG7
+  printf(" me = %d Exiting clustrinv_ \n", me );
 #endif
   
   return(ibad);
 }
+
+
+

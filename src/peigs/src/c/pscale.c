@@ -44,8 +44,8 @@
 extern DoublePrecision psigma, psgn, peigs_scale, peigs_shift;
 
 void pscale_( job, n, lb, ub, jjjlb, jjjub, abstol,
-	      d, e, dplus, lplus, mapZ, neigval,
-	      nsplit, eval, iblock, isplit, work, iwork, info)
+	     d, e, dplus, lplus, mapZ, neigval,
+	     nsplit, eval, iblock, isplit, work, iwork, info)
      
      Integer            *job, *n, *jjjlb, *jjjub, *mapZ, *neigval, *nsplit,
   *iblock, *isplit, *iwork, *info;
@@ -288,78 +288,94 @@ void pscale_( job, n, lb, ub, jjjlb, jjjub, abstol,
 
    maxinfo = 0;
    
-   il = 1;
-   iu = 1;
-   range = 3;
-   order = 1;
-   m = 0;
-   *info = 0;
-
-
-   dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
-	     &m, nsplit, eval, iblock, isplit, work, iwork, &linfo);
-   if ( *info != 0 ) {
-     printf(" error in stebz3 %d info %d leig %g  \n", me, *info, leig);
-   }
-   peigs_leig = eval[0]; /* left most e-val */
+   msize = *n;
    
-   il = msize;
-   iu = msize;
-   range = 3;
-   order = 1;
-   m = 0;
-   *info = 0;
-   dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
-	    &m, nsplit, eval, iblock, isplit, work, iwork, &linfo);
-   
-   if ( *info != 0 ) {
-     printf(" error in stebz3 %d info %d leig %g  \n", me, *info, reig);
-   }
-   
-   peigs_reig = eval[0];
-   peigs_leig -= DLAMCHE;
-   peigs_reig += DLAMCHE;
-   peigs_scale = peigs_reig - peigs_leig;
-
-   tmp  = 0.0e0;
    onenrm = ffabs( d[0] ) + ffabs( e[1] );
-   for (i = 1; i < msize-1; ++i) {
-      tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
-      onenrm = max(onenrm, tmp);
+   for (i = 1; i < msize-1; i++) {
+     tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
+     onenrm = max(onenrm, tmp);
    }
    tmp = ffabs(d[msize-1]) + ffabs(e[msize-1]);
    onenrm = max(onenrm, tmp);
-   
-   
-   dummy = onenrm;
-   idummy = 1;
-   peigs_shift = 0.0e0;
-   peigs_scale = 1.0e0;
-   for ( il=0; il < msize; il++ ){
-     peigs_scale = max(ffabs(d[i]), peigs_scale);
-   }
-   
-   for ( il=1; il < msize; il++ ){
-     peigs_scale = max(ffabs(e[il]), peigs_scale);
-   }
-   
-   if ( peigs_leig <= 0.0e0 ){
-     idummy = -1;
-     peigs_shift = -(onenrm + DLAMCHE) ;
-   }
 
-   
-   if ( idummy == -1 ) {
-     for ( il=0; il < msize; il++ ){
-       d[il] = (d[il] - peigs_shift );
+   idummy = 0.0e0;
+   peigs_scale =DLAMCHS;
+   for (i = 0; i < msize; ++i) {
+     peigs_scale = max(peigs_scale, ffabs(d[i]));
+     if ( d[i] < 0.0e0 ){
+       idummy = -1;
      }
    }
+
+   for (i = 1; i < msize; ++i)
+     peigs_scale = max(peigs_scale, ffabs(e[i]));
    
-   dummy = 1.0e0/peigs_scale;
-   for ( il = 0; il < msize; il++ ){
-     d[il] *= dummy;
+   peigs_shift = 0.0e0;
+   if ( idummy == -1 ) {
+     peigs_shift = -onenrm;
+     peigs_scale = peigs_scale + onenrm;
+   }
+   
+   /*
+     il = 1;
+     iu = 1;
+     range = 3;
+     order = 1;
+     m = 0;
+     *info = 0;
+     
+     dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
+     &m, nsplit, eval, iblock, isplit, work, iwork, &linfo);
+     if ( *info != 0 ) {
+     printf(" error in stebz3 %d info %d leig %g  \n", me, *info, leig);
+     }
+     peigs_leig = eval[0];
+     
+     il = msize;
+     iu = msize;
+     range = 3;
+     order = 1;
+     m = 0;
+     *info = 0;
+     dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
+     &m, nsplit, eval, iblock, isplit, work, iwork, &linfo);
+     
+     if ( *info != 0 ) {
+     printf(" error in stebz3 %d info %d leig %g  \n", me, *info, reig);
+     }
+     
+     peigs_reig = eval[0];
+     peigs_leig -= DLAMCHE;
+     peigs_reig += DLAMCHE;
+     peigs_scale = peigs_reig - peigs_leig;
+     eps = DLAMCHE;
+   */
+   
+   /*
+     if ( ffabs( peigs_leig ) <= ffabs( peigs_reig )) {
+     peigs_shift = peigs_leig - 2.0e0*eps*onenrm + onenrm;
+     peigs_scale = 1.0e0;
+     }
+     else
+     peigs_shift = peigs_reig + 2.0e0 * eps * onenrm + onenrm;
+     peigs_scale = -1.0e0;
+     }
+     printf(" peigs_leig %g peigs_reig %g \n", peigs_leig, peigs_reig );
+   */
+   
+
+   printf(" peigs_shift %g peigs_scale %g \n", peigs_shift, peigs_scale );
+   
+   dummy = 1.0e0/peigs_scale;   
+   for ( il=0; il < msize; il++ ){
+     d[il] = dummy*(d[il] - peigs_shift );
+   }
+   
+   
+   for ( il = 1; il < msize; il++ ){
      e[il] *= dummy;
    }
+   
    *info = 0;
    
  }
