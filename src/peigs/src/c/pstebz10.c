@@ -593,12 +593,6 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      shift = sqrt(DLAMCHE);
    
    
-   if ( me == 0 ){
-     printf(" shift %g psigma  %g \n", shift, psigma );
-     fflush(stdout);
-   }
-
-   
    for (i = 0; i < msize; i++ )
      work[i] = d[i] - psgn*psigma;
    
