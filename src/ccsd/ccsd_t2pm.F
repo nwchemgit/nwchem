@@ -1,6 +1,6 @@
       subroutine ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,
      &                      g_nht2,cmo,scra,scrb,offsh)
-C     $Id: ccsd_t2pm.F,v 2.7 1997-04-14 06:35:01 gg502 Exp $
+C     $Id: ccsd_t2pm.F,v 2.8 1997-05-29 16:42:54 gg502 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
      &        offsh(nsh,nsh)
@@ -333,7 +333,8 @@ c ------------------------------------------------------------
 c
       call ga_sync()
       tx(1)=tcgtime()
-      if (iprt.gt.5)print *,' begin parallel integral generation'
+      if (iam.eq.0.and.iprt.gt.5)
+     &    print *,' begin parallel integral generation'
       call ga_zero(g_sht2)
       call ga_zero(g_c)
       next=nxtval(-nodes)

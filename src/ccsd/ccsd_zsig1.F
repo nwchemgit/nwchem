@@ -4,7 +4,7 @@
      &                     g_nt2,g_nz2,g_ncoul,g_nexch,g_x,g_c,
      &                     g_sht2,g_zx,g_zc,g_shz2,g_aitm,g_tz1,g_tz2,
      &                     g_tz3,iprt)
-C     $Id: ccsd_zsig1.F,v 2.2 1997-04-14 06:35:05 gg502 Exp $
+C     $Id: ccsd_zsig1.F,v 2.3 1997-05-29 16:42:56 gg502 Exp $
       implicit none
       integer nocc,nvir,nbf,g_nt2,g_nz2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &        g_zx,g_zc,g_shz2,g_tz1,g_tz2,g_tz3,iprt
@@ -32,7 +32,13 @@ C
       lnoo=nocc*nocc
       lnov=nocc*nvir
 c
-      call daxpy(lnov,-2.0d00,hia,1,hz1,1)
+      if(iam.eq.0)then
+        call daxpy(lnov,-2.0d00,hia,1,hz1,1)
+        call dgemm('n','n',nocc,nvir,nocc,1.0d00,hiu,nocc,z1,nocc,
+     &             1.0d00,hz1,nocc)
+        call dgemm('n','t',nocc,nvir,nvir,-1.0d00,z1,nocc,habe,nvir,
+     &             1.0d00,hz1,nocc)
+      endif
 c
       call ga_distribution(g_c,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
@@ -105,17 +111,11 @@ c
       enddo
       enddo
 c
-      call dgemm('n','n',nocc,nvir,nocc,1.0d00,hiu,nocc,z1,nocc,1.0d00,
-     &           hz1,nocc)
-      call dgemm('n','t',nocc,nvir,nvir,-1.0d00,z1,nocc,habe,nvir,
-     &            1.0d00,hz1,nocc)
-c
       call ga_distribution(g_zc,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
       do j=1,nocc
         ij=(i-1)*nocc+j
         if (ij.ge.g_ilo.and.ij.le.g_ihi)then
-c
           ad1=(i-1)*nocc+j
           call ga_get(g_zc,1,nbf*nbf,ad1,ad1,scra,nbf*nbf)
           call ga_get(g_zx,1,nbf*nbf,ad1,ad1,scrb,nbf*nbf)
@@ -141,8 +141,9 @@ c
       enddo
       enddo
 c
-      call dgemm('n','t',nocc,nvir,nvir,-2.0d00,t1,nocc,tzvv,nvir,
-     &            0.0d00,scrd,nbf)
+      call dfill(nbf*nbf,0.0d0,scrd,1)
+      if(iam.eq.0)call dgemm('n','t',nocc,nvir,nvir,-2.0d00,t1,nocc,
+     &            tzvv,nvir,0.0d00,scrd,nbf)
 c
       call ga_distribution(g_nt2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
@@ -165,6 +166,7 @@ c
           enddo
         endif
       enddo
+      call ga_dgop(914,scrd,nbf*nbf, '+')
 c
       call ga_distribution(g_nexch,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
@@ -194,42 +196,46 @@ c
         endif
       enddo
 c
-      call ga_distribution(g_aitm,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+      call ga_distribution(g_nz2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
-      do j=1,nocc
-        ij=(i-1)*nocc+j
-        if (ij.ge.g_ilo.and.ij.le.g_ihi)then
-          call ga_get(g_aitm,1,lnoo,ij,ij,scra,lnoo)
-          call dgemm('n','n',nocc,nvir,nocc,1.0d00,scra,nocc,t1,nocc,
-     &               0.0d00,scrd,nocc)
-          ad1=(i-1)*nvir
-          ad2=(j-1)*nvir
-          call ga_get(g_nz2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
-          call dgemm('n','t',nocc,nvir,nvir,4.0d00,scrd,nocc,scra,nvir,
-     &               1.0d00,hz1,nocc)
+        ad1=(i-1)*nvir
+        if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
+         do j=1,nocc
+           ad2=(j-1)*nvir
+           if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
+             ij=(i-1)*nocc+j
+             call ga_get(g_aitm,1,lnoo,ij,ij,scra,lnoo)
+             call dgemm('n','n',nocc,nvir,nocc,1.0d00,scra,nocc,t1,
+     &                  nocc,0.0d00,scrd,nocc)
+             call ga_get(g_nz2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
+             call dgemm('n','t',nocc,nvir,nvir,4.0d00,scrd,nocc,scra,
+     &                  nvir,1.0d00,hz1,nocc)
+          endif
+         enddo
         endif
-      enddo
       enddo
 c
-      call ga_distribution(g_tz3,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+      call ga_distribution(g_nexch,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
-      do j=1,nocc
-        ij=(i-1)*nocc+j
-        if (ij.ge.g_ilo.and.ij.le.g_ihi)then
-          call ga_get(g_tz3,1,lnoo,ij,ij,scra,lnoo)
-          ad1=(i-1)*nbf
-          ad2=(j-1)*nbf
-          call ga_get(g_nexch,ad2+1,ad2+nbf,ad1+1,ad1+nbf,scrb,nbf)
-          do c=1,nvir
-          do k=1,nocc
-          do l=1,nocc
-            hz1(l,c)=hz1(l,c)+2.0d0*scrb((nocc+c-1)*nbf+k)
-     &                         *scra((l-1)*nocc+k)
-          enddo
-          enddo
+        ad1=(i-1)*nbf
+        if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
+         do j=1,nocc
+           ad2=(j-1)*nbf
+           if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
+             ij=(i-1)*nocc+j
+             call ga_get(g_tz3,1,lnoo,ij,ij,scra,lnoo)
+             call ga_get(g_nexch,ad2+1,ad2+nbf,ad1+1,ad1+nbf,scrb,nbf)
+             do c=1,nvir
+             do k=1,nocc
+             do l=1,nocc
+               hz1(l,c)=hz1(l,c)+2.0d0*scrb((nocc+c-1)*nbf+k)
+     &                           *scra((l-1)*nocc+k)
+             enddo
+             enddo
+             enddo
+           endif
           enddo
         endif
-      enddo
       enddo
 c
       call ga_distribution(g_tz3,iam,g_ilo,g_ihi,g_jlo,g_jhi)

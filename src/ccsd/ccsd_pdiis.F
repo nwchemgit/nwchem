@@ -1,14 +1,15 @@
       subroutine ccsd_pdiis(nocc,nvir,idiis,ndiis,t1,ht1,scra,
      $                      scrb,mxvec,bbkp,bb,iprt,iter,rms,
-     $                      g_t2,g_ht2)
+     $                      g_newt2,g_newht2,lhoov)
 c
 c -- on input t1a contains t1: t1b contains error vector
       implicit none
 c
 #include "ccsd_len.fh"
-      double precision t1(lnov),ht1(lnov),scra(lnoov),scrb(lnoov),
+      integer lhoo,lhoov
+      double precision t1(lnov),ht1(lnov),scra(lhoov),scrb(lhoov),
      &                 bbkp(*),bb(*),rms
-      integer nocc,nvir,idiis,ndiis,mxvec,iprt,iter,g_t2,g_ht2
+      integer nocc,nvir,idiis,ndiis,mxvec,iprt,iter,g_newt2,g_newht2
 c
       double precision sum(2),xmax,ddot,det
       integer i,j,av,bv,jlo,jhi,ilo,ihi,idp1,ndp1,nvp1,oft2,
@@ -27,7 +28,9 @@ c
       IAm = GA_NodeID()
       call qenter('pdiis',0)
 c
-      call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)
+      lhoo=nocc*(nocc+1)/2
+      lhoov=nvir*nocc*(nocc+1)/2
+      call ga_distribution(g_newt2,iam,jlo,jhi,ilo,ihi)
 c
       idp1=idiis+1
       if (idp1.gt.mxvec)idp1=1
@@ -38,8 +41,8 @@ c
       nvp1=nvir+1
       sum(1)=zip
       sum(2)=zip
-      oft2=(idiis-1)*lnoov
-      oft2p1=(idp1-1)*lnoov
+      oft2=(idiis-1)*lhoov
+      oft2p1=(idp1-1)*lhoov
 c -- t1 error already in t1
       if (iam.eq.0)then
        do i=1,lnov
@@ -52,10 +55,10 @@ c
 c -- t2 error in global array
       do av=1,nvir
        if (av.ge.ilo.and.av.le.ihi)then
-        call ga_get(g_ht2,oft2+1,oft2+lnoov,av,av,scra,lnoov)
+        call ga_get(g_newht2,oft2+1,oft2+lhoov,av,av,scra,lhoov)
 c        print *,' t2 error ',scra
         do bv=1,av
-         do i=(bv-1)*lnoo+1,bv*lnoo
+         do i=(bv-1)*lhoo+1,bv*lhoo
           sum(1)=sum(1)+scra(i)
           sum(2)=sum(2)+scra(i)*scra(i)
          enddo
@@ -70,8 +73,8 @@ c        print *,' t2 error ',scra
 c -- compute new bb matrix elements
       if (iam.eq.0)then      
        do it=1,ndiis
-        ad1=(it-1)*lnoov
-        call ga_get(g_ht2,ad1+1,ad1+lnov,nvp1,nvp1,ht1,lnov)
+        ad1=(it-1)*lhoov
+        call ga_get(g_newht2,ad1+1,ad1+lnov,nvp1,nvp1,ht1,lnov)
         ad1=max(idiis,it)*(max(idiis,it)-1)/2+min(idiis,it)
         bbkp(ad1)=ddot(lnov,ht1,1,t1,1)
        enddo
@@ -81,12 +84,12 @@ c -- compute new bb matrix elements
 c
       do av=1,nvir
        if (av.ge.ilo.and.av.le.ihi)then
-        call ga_get(g_ht2,oft2+1,oft2+lnoov,av,av,scra,lnoov)
+        call ga_get(g_newht2,oft2+1,oft2+lhoov,av,av,scra,lhoov)
         do it=1,ndiis
          offbb=max(idiis,it)*(max(idiis,it)-1)/2+min(idiis,it)
-         ad1=(it-1)*lnoov
-         call ga_get(g_ht2,ad1+1,ad1+lnoov,av,av,scrb,lnoov)
-         bbkp(offbb)=bbkp(offbb)+ddot(av*lnoo,scra,1,scrb,1)
+         ad1=(it-1)*lhoov
+         call ga_get(g_newht2,ad1+1,ad1+lhoov,av,av,scrb,lhoov)
+         bbkp(offbb)=bbkp(offbb)+ddot(av*lhoo,scra,1,scrb,1)
         enddo
        endif
       enddo
@@ -138,23 +141,23 @@ c -- compute new t1 vector
       if (iam.eq.0)then
        offbb=ndp1*ndp1
        do it=1,ndiis
-        ad1=(it-1)*lnoov
-        call ga_get(g_t2,ad1+1,ad1+lnov,nvp1,nvp1,ht1,lnov)
+        ad1=(it-1)*lhoov
+        call ga_get(g_newt2,ad1+1,ad1+lnov,nvp1,nvp1,ht1,lnov)
         call daxpy(lnov,bb(offbb+it),ht1,1,t1,1)
        enddo
-       call ga_put(g_t2,oft2p1+1,oft2p1+lnov,nvp1,nvp1,t1,lnov)
+       call ga_put(g_newt2,oft2p1+1,oft2p1+lnov,nvp1,nvp1,t1,lnov)
       endif
 c
       offbb=ndp1*ndp1
       do av=1,nvir
        if (av.ge.ilo.and.av.le.ihi)then
-        call dfill(lnoov,zip,scra,1)
+        call dfill(lhoov,zip,scra,1)
         do it=1,ndiis
-         ad1=(it-1)*lnoov
-         call ga_get(g_t2,ad1+1,ad1+lnoov,av,av,scrb,lnoov)
-         call daxpy(lnoov,bb(offbb+it),scrb,1,scra,1)
+         ad1=(it-1)*lhoov
+         call ga_get(g_newt2,ad1+1,ad1+lhoov,av,av,scrb,lhoov)
+         call daxpy(lhoov,bb(offbb+it),scrb,1,scra,1)
         enddo
-        call ga_put(g_t2,oft2p1+1,oft2p1+lnoov,av,av,scra,lnoov)
+        call ga_put(g_newt2,oft2p1+1,oft2p1+lhoov,av,av,scra,lhoov)
        endif
       enddo
 c

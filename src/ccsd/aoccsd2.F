@@ -1,9 +1,9 @@
       subroutine aoccsd(basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,
-     &                  convi,iprt,cmo,eorb,blen,g_objv,
-     &                  g_coul,g_exch,g_ncoul, g_nexch, RefEner,
+     &                  convi,iprt,cmo,eorb,blen,
+     &                  g_ncoul, g_nexch, RefEner,
      $   CC_Theory, rtdb, mxvec, geom)
       implicit none
-C     $Id: aoccsd2.F,v 2.12 1997-04-14 06:34:49 gg502 Exp $
+C     $Id: aoccsd2.F,v 2.13 1997-05-29 16:42:49 gg502 Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,convi,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -34,6 +34,7 @@ c ccsd
      &        k_hiu,k_hia,k_habe,k_giu,k_gabe,
      &        k_bbkp,k_bb
       integer g_t2,g_ht2
+      integer ad1,ad2,ad3,ad4
 c triples
       integer lbfo,lbfv,lbfscr,mem_avail
       integer l_f1n,l_f1t,l_f2n,l_f2t,l_f3n,l_f3t,l_f4n,l_f4t,
@@ -49,6 +50,7 @@ c triples
       Integer Nodes, IAm
 C
       double precision zip
+      integer ii,jj,lhoo,lhoov
 C
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -68,7 +70,7 @@ C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 c gradient
       integer l_z1
       integer k_z1
-      integer g_ct2,g_z2,g_hz2
+      integer g_nt2,g_z2,g_hz2
       integer av,ilo,ihi,jlo,jhi,offt2,nvp1
       Logical Do_Z
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -136,18 +138,14 @@ c
       if(iam.eq.0)write(6,*)'memory',mem_avail
       call int_mem_2e4c(max2e, mem2)
       mem2=max(mem2,nbf*nbf)
-      lnobj=lnoo*nbf
-      if (iprt.gt.10)then
-         write(6,*)'lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv',
-     &              lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
+      if (iprt.gt.10.and.iam.eq.0)then
+         write(6,*)'lnoo,lnov,lnvv,lnoov,lnooo,lnovv',
+     &              lnoo,lnov,lnvv,lnoov,lnooo,lnovv
       endif
+      lnobj=max(lnoov,nbf*nbf)
       stat=.true.
       stat=stat.and.ma_push_get(MT_DBL,lnov,'t1',l_t1,k_t1)
-      stat=stat.and.ma_push_get(MT_DBL,2*lnoov,'t2',l_t2,k_t2)
       stat=stat.and.ma_push_get(MT_DBL,lnov,'ht1',l_ht1,k_ht1)
-      stat=stat.and.ma_push_get(MT_DBL,lnoov,'ht2',l_ht2,k_ht2)
-      stat=stat.and.ma_push_get(MT_DBL,lnobj,'scra',l_scra,k_scra)
-      stat=stat.and.ma_push_get(MT_DBL,lnobj,'scrb',l_scrb,k_scrb)
       stat=stat.and.ma_push_get(MT_DBL,lnoo,'hiu',l_hiu,k_hiu)
       stat=stat.and.ma_push_get(MT_DBL,lnov,'hia',l_hia,k_hia)
       stat=stat.and.ma_push_get(MT_DBL,lnvv,'habe',l_habe,k_habe)
@@ -158,97 +156,125 @@ c
       stat=stat.and.ma_push_get(MT_DBL,(mxvec+1)*(mxvec+2),'bb',
      &                          l_bb,k_bb)
       stat=stat.and.ma_push_get(MT_INT,nsh*(nsh+1),'tklst',l_tk,k_tk)
+      stat=stat.and.ma_push_get(MT_DBL,lnobj,'scra',l_scra,k_scra)
+      stat=stat.and.ma_push_get(MT_DBL,lnobj,'scrb',l_scrb,k_scrb)
       if (.not.stat)call errquit('ccsd: failed to allocate ',0)
 c
-      if (.not.ga_create(MT_DBL,mxvec*lnoov,nvir+1,'g_t2', 
-     &                   mxvec*lnoov,1,g_t2))
+        lhoo=nocc*(nocc+1)/2
+        lhoov=nvir*nocc*(nocc+1)/2
+      if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_t2', 
+     &                   mxvec*lhoov,1,g_t2))
      &     call errquit('ga_create failed',0)
-      if (.not.ga_create(MT_DBL,mxvec*lnoov,nvir+1,'g_ht2', 
-     &                   mxvec*lnoov,1,g_ht2))
+      if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_ht2', 
+     &                   mxvec*lhoov,1,g_ht2))
      &     call errquit('ga_create failed',0)
 c      
       call ccsd_iterdrv2(basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                  maxit,convi,iprt,cmo,eorb,
-     &                  dbl_mb(k_t1),dbl_mb(k_t2),
-     &                  dbl_mb(k_ht1),dbl_mb(k_ht2),
+     &                  dbl_mb(k_t1),dbl_mb(k_ht1),
      &                  dbl_mb(k_scra),dbl_mb(k_scrb),
      &                  dbl_mb(k_hiu),dbl_mb(k_hia),dbl_mb(k_habe),
      &                  dbl_mb(k_giu),dbl_mb(k_gabe),
      &                  dbl_mb(k_bbkp),dbl_mb(k_bb),
-     &                  g_t2,g_ht2,g_objv,
+     &                  g_t2,g_ht2,
      &                  mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
      &                  int_mb(k_tk),offt2,nvp1, refener)
+c
+         if (.not.ga_create(MT_DBL,lnov,lnov,'g_nt2',
+     &      nvir,nvir,g_nt2))
+     &      call errquit('ga_create failed',0)
+c
+      call ga_get(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,
+     $            dbl_mb(k_t1),lnov)
+c
+      call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)
+      do a=1,nvir
+        if (a.ge.ilo.and.a.le.ihi)then
+          call ga_get(g_t2,offt2+1,offt2+lhoov,a,a,
+     &                 dbl_mb(k_scra),lhoov)
+          do i=1,nocc
+            call dfill(lnov,0.0d00,dbl_mb(k_scrb),1)
+            do j=1,i
+              do b=1,nvir
+                ad1=(b-1)*lhoo+i*(i-1)/2+j
+                ad2=(j-1)*nvir+b
+                dbl_mb(k_scrb+ad2-1)=dbl_mb(k_scra+ad1-1)
+              enddo
+            enddo
+            ad1=(i-1)*nvir+a
+            call ga_put(g_nt2,1,i*nvir,ad1,ad1,dbl_mb(k_scrb),i*nvir)
+          enddo
+        endif
+      enddo
+c
+      call ga_distribution(g_nt2,iam,jlo,jhi,ilo,ihi)
+      do i=1,nocc
+        ad1=(i-1)*nvir
+        if (ad1+1.ge.ilo.and.ad1+1.le.ihi)then
+          do j=1,i-1
+            ad2=(j-1)*nvir
+            if (ad2+1.ge.jlo.and.ad2+1.le.jhi)then
+              call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
+     &                    dbl_mb(k_scra),nvir)
+              do a=1,nvir
+              do b=1,nvir
+                ad3=(b-1)*nvir+a
+                ad4=(a-1)*nvir+b
+                dbl_mb(k_scrb+ad4-1)=dbl_mb(k_scra+ad3-1)
+              enddo
+              enddo
+              call ga_put(g_nt2,ad1+1,ad1+nvir,ad2+1,ad2+nvir,
+     &                    dbl_mb(k_scrb),nvir)
+            endif
+          enddo
+        endif
+      enddo
+c
+         if (iam.eq.0.and.iprt.gt.5)then
+            print *,'starting t1 vector'
+            write(6,139)(dbl_mb(k_t1-1+i),i=1,lnov)
+ 139        format(4e14.4)
+            call ga_print(g_nt2)
+         endif
+c
+      stat=stat.and.ma_pop_stack(l_scrb)
+      stat=stat.and.ma_pop_stack(l_scra)
+c
+      lnobj=2*lnoov+max(lnoov,lnooo)
+      if (.not.ga_create(MT_DBL,lnobj,nvir+1,'objv',lnobj,1,
+     &                   g_objv))
+     &     call errquit('ga_create g_objv failed',0)
+c
+      lnobj=lnoov+max(lnooo,lnoov)
+      stat=stat.and.ma_push_get(MT_DBL,lnobj,'scra',l_scra,k_scra)
+      stat=stat.and.ma_push_get(MT_DBL,nocc*nact,'scrb',l_scrb,k_scrb)
+      call ccsd_trpmo(ncor,nocc,nvir,nact,nbf,dbl_mb(k_scra),
+     $            dbl_mb(k_scrb),dbl_mb(k_t1),g_nt2,g_objv,g_ncoul,
+     $            g_nexch,iprt)
+      stat=stat.and.ma_pop_stack(l_scrb)
+      stat=stat.and.ma_pop_stack(l_scra)
+c
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 CRK
 CRK   Gradient driver to go in here for development purposes 
 CRK 
-      If ( Do_Z) then
-         if (.not.ga_create(MT_DBL,lnoov,nvir+1,'g_ct2',
-     &      lnoov,1,g_ct2))
-     &      call errquit('ga_create failed',0)
-         call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)
-         if (iam.eq.0)then
-            call ga_get(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,
-     $         dbl_mb(k_t1),lnov)
-            call ga_put(g_ct2,1,lnov,nvp1,nvp1,dbl_mb(k_t1),lnov)
-         endif
-         do av=1,nvir
-            if (av.ge.ilo.and.av.le.ihi)then
-               write(6,*)'offt2+1,offt2+lnoov',offt2+1,offt2+lnoov
-               call ga_get(g_t2,offt2+1,offt2+lnoov,av,av,
-     $            dbl_mb(k_scra),lnoov)
-               call ga_put(g_ct2,1,lnoov,av,av,dbl_mb(k_scra),lnoov)
-            endif
-         enddo
-c
-         if (iam.eq.0.and.iprt.gt.5)then
-            call ga_get(g_ct2,1,lnov,nvp1,nvp1,dbl_mb(k_t1),lnov)
-            print *,'starting t1 vector'
-            write(6,139)(dbl_mb(k_t1-1+i),i=1,lnov)
-            do av=1,nvir
-               call ga_get(g_ct2,1,lnoov,av,av,dbl_mb(k_scra),lnoov)
-               print *,'starting t2 for av ',av
-               write(6,139)(dbl_mb(k_scra-1+i),i=1,lnoov)
- 139           format(4e14.4)
-            enddo
-         endif
-      EndIf
-c
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      if (.not. ga_destroy(g_ht2))
-     &     call errquit('ga_destroy failed',0)
-      if (.not. ga_destroy(g_t2))
-     &     call errquit('ga_destroy failed',0)
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 c
       If ( Do_Z) then
-         if (.not.ga_create(MT_DBL,mxvec*lnoov,nvir+1,'g_z2',
-     &      mxvec*lnoov,1,g_z2))
-     &      call errquit('ga_create failed',0)
-         if (.not.ga_create(MT_DBL,mxvec*lnoov,nvir+1,'g_hz2',
-     &      mxvec*lnoov,1,g_hz2))
-     &      call errquit('ga_create failed',0)
+        lnobj=max(lnoov,nbf*nbf)
+        stat=stat.and.ma_push_get(MT_DBL,lnobj,'scra',l_scra,k_scra)
+        stat=stat.and.ma_push_get(MT_DBL,lnobj,'scrb',l_scrb,k_scrb)
          stat=stat.and.ma_push_get(MT_DBL,lnov,'z1',l_z1,k_z1)
          call ccsd_graddrv(basis,nsh,ncor,nocc,nvir,nact,nbf,
-     &      maxit,convi,iprt,cmo,eorb,dbl_mb(k_t1),
-     &      dbl_mb(k_ht1),dbl_mb(k_ht2),
+     &      maxit,convi,iprt,cmo,eorb,dbl_mb(k_t1),dbl_mb(k_ht1),
      &      dbl_mb(k_scra),dbl_mb(k_scrb),dbl_mb(k_z1),
      &      dbl_mb(k_hiu),dbl_mb(k_hia),dbl_mb(k_habe),
      &      dbl_mb(k_giu),dbl_mb(k_gabe),
      &      dbl_mb(k_bbkp),dbl_mb(k_bb),
-     &      g_ct2,g_z2,g_hz2,g_objv,
+     &      g_nt2,g_t2,g_ht2,
      &      mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
      &      int_mb(k_tk))
-         if (.not. ga_destroy(g_hz2))
-     &      call errquit('ga_destroy failed',0)
-         if (.not. ga_destroy(g_z2))
-     &      call errquit('ga_destroy failed',0)
       EndIf
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -260,6 +286,8 @@ C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       If ( Do_Z ) then
          stat=stat.and.ma_pop_stack(l_z1)
+         stat=stat.and.ma_pop_stack(l_scrb)
+         stat=stat.and.ma_pop_stack(l_scra)
       EndIf
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -272,14 +300,17 @@ C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       stat=stat.and.ma_pop_stack(l_habe)
       stat=stat.and.ma_pop_stack(l_hia)
       stat=stat.and.ma_pop_stack(l_hiu)
-      stat=stat.and.ma_pop_stack(l_scrb)
-      stat=stat.and.ma_pop_stack(l_scra)
-      stat=stat.and.ma_pop_stack(l_ht2)
       stat=stat.and.ma_pop_stack(l_ht1)
-      stat=stat.and.ma_pop_stack(l_t2)
       stat=stat.and.ma_pop_stack(l_t1)
       if (.not.stat)call errquit('ccsd: cannot pop stack?',0)
       call ga_sync()
+      if (.not. ga_destroy(g_nt2))
+     &     call errquit('ga_destroy failed',0)
+      if (.not. ga_destroy(g_ht2))
+     &     call errquit('ga_destroy failed',0)
+      if (.not. ga_destroy(g_t2))
+     &     call errquit('ga_destroy failed',0)
+c
       call qexit('aoccsd',0)
 c
       If ( GA_NodeID() .eq. 0 .AND.
@@ -603,7 +634,9 @@ C
       if (.not.stat)call errquit('trpdrv: cannot pop stack?',0)
 c
       if (.not. ga_destroy(g_objo))
-     &     call errquit('g_obj ga_destroy failed',0)
+     &     call errquit('g_objo ga_destroy failed',0)
+      if (.not. ga_destroy(g_objv))
+     &     call errquit('g_objv ga_destroy failed',0)
 c
 c -- end of triples calculation
 c

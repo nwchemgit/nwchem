@@ -3,7 +3,7 @@
      &                      mem2,max2e,tol2e,g_nt2,g_nz2,g_nhz2,g_tz1,
      &                      g_tz2)
       implicit none
-C     $Id: ccsd_aosig.F,v 2.1 1997-04-14 06:34:52 gg502 Exp $
+C     $Id: ccsd_aosig.F,v 2.2 1997-05-29 16:42:50 gg502 Exp $
       integer nsh,nocc,nvir,nbf,next,icnt,basis,max2e,mem2
       integer ish,jsh,ksh,lsh,ilo,ihi,jlo,jhi,klo,khi,llo,lhi
       integer g_ilo,g_ihi,g_jlo,g_jhi
@@ -203,15 +203,20 @@ c // parallel task here
         enddo
       enddo
 c
-      do p=1,nbf
-      do q=1,nbf
-      do k=1,nocc
-      do c=1,nvir
-        hz1(k,c)=hz1(k,c)+hzao(p,q)*cmo(p,k)*cmo(q,nocc+c)
-      enddo
-      enddo
-      enddo
-      enddo
+      call ga_sync()
+      call ga_dgop(910,hzao,nbf*nbf, '+')
+c
+      if(iam.eq.0)then
+        do p=1,nbf
+        do q=1,nbf
+        do k=1,nocc
+        do c=1,nvir
+          hz1(k,c)=hz1(k,c)+hzao(p,q)*cmo(p,k)*cmo(q,nocc+c)
+        enddo
+        enddo
+        enddo
+        enddo
+      endif
 c
       call ga_zero(g_nhz2)
       call ga_distribution(g_tmp4,iam,g_jlo,g_jhi,g_ilo,g_ihi)
@@ -251,9 +256,6 @@ c
      &    call errquit('ga_dest g_tmp2 fail',0)
       if (.not.ga_destroy(g_tmp))
      &    call errquit('ga_dest g_tmp fail',0)
-c
-      call ga_dgop(913,hz1,nocc*nvir, '+')
-c
       return
       end
       subroutine z2eri(ilo,ihi,jlo,jhi,klo,khi,llo,lhi,eri1,eri2,
@@ -286,13 +288,10 @@ C
       enddo
       enddo
 c
-      call ga_distribution(g_tmp,iam,g_ilo,g_ihi,g_jlo,g_jhi)
       do i=1,nocc
         ad1=(i-1)*nbf
-        if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
           do j=1,nocc
             ad2=(j-1)*nbf
-            if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
               call ga_get(g_tmp,ad1+1,ad1+nbf,ad2+1,ad2+nbf,
      &                    scra,nbf)
               do p=ilo,ihi
@@ -307,18 +306,13 @@ c
               enddo
               enddo
               enddo
-            endif
           enddo
-        endif
       enddo
 c
-      call ga_distribution(g_tmp2,iam,g_ilo,g_ihi,g_jlo,g_jhi)
       do i=1,nocc
         ad1=(i-1)*nbf
-        if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
           do j=1,nocc
             ad2=(j-1)*nbf
-            if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
               call ga_get(g_tmp2,ad1+1,ad1+nbf,ad2+1,ad2+nbf,
      &                    scra,nbf)
               do p=ilo,ihi
@@ -333,18 +327,13 @@ c
               enddo
               enddo
               enddo
-            endif
           enddo
-        endif
       enddo
 c
-      call ga_distribution(g_tmp3,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
         ad1=(i-1)*nbf
-        if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
           do j=1,nocc
             ad2=(j-1)*nbf
-            if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
               call ga_get(g_tmp3,ad2+1,ad2+nbf,ad1+1,ad1+nbf,
      &                    scra,nbf)
               call dfill(nbf*nbf,0.0d00,scrb,1)
@@ -359,9 +348,8 @@ c
               enddo
               call ga_acc(g_tmp4,ad2+1,ad2+nbf,ad1+1,ad1+nbf,
      &                    scrb,nbf,1.0d0)
-            endif
           enddo
-        endif
       enddo
+c
       return
       end

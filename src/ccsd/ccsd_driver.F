@@ -1,6 +1,5 @@
-
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in )
-C     $Id: ccsd_driver.F,v 2.16 1997-05-15 22:15:40 rg240 Exp $
+C     $Id: ccsd_driver.F,v 2.17 1997-05-29 16:42:50 gg502 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -216,17 +215,11 @@ capr
       lnovv=lnvv*nocc_correl
 capr
       lnof=nmo2*nocc
-      lnobj=max(lnoov+lnoov+lnoov,nmo2*lnoo)
-      lnobj=max(lnoov+lnoov+lnooo,lnobj)
-      lnobj=max(lnobj,nbf*nocc)
-      if (.not.ga_create(MT_DBL,lnobj,nvir_correl+1,'objv',lnobj,1,
-     &                   g_objv))
-     &     call errquit('ga_create g_objv failed',0)
       if (.not.ga_create(MT_DBL,lnof,lnof,'ncoul',
-     &                   nbf,nbf,g_ncoul))
+     &                   nmo2,nmo2,g_ncoul))
      &     call errquit('ga_create g_ncoul failed',0)
       if (.not.ga_create(MT_DBL,lnof,lnof,'nexch',
-     &                   nbf,nbf,g_nexch))
+     &                   nmo2,nmo2,g_nexch))
      &     call errquit('ga_create g_nexch failed',0)
 c
 c Allocate operator matrices
@@ -415,12 +408,11 @@ c
       ncor=occ_frozen
       ndel=vir_frozen
 c
-      lnobj=max(lnoo*nbf,nbf*nbf)
-c
-      status=status.and.ma_push_get(MT_DBL,2*lnobj,'scr',l_scr,k_scr)
+      lnobj=nbf*nbf+nmo2*nmo2
+      status=status.and.ma_push_get(MT_DBL,lnobj,'scr',l_scr,k_scr)
       if (.not.status)call errquit('error before ccsd_sortmo',0)
       call ccsd_sortmo(ncor,nocc_correl,nvir_correl,nmo2,nbf,
-     $                 dbl_mb(k_scr),lnobj,g_objv,g_coul,
+     $                 dbl_mb(k_scr),dbl_mb(k_scr+nbf*nbf),g_coul,
      $                 g_exch,g_ncoul,g_nexch,iprt)
           status=status.and.ga_destroy(g_coul)
           status=status.and.ga_destroy(g_exch)
@@ -433,14 +425,13 @@ c
       call aoccsd(basis,ncor,nocc_correl,nvir_correl,ndel,nmo2,nbf,
      &            maxit,convi,iprt,
      &            dbl_mb(k_mo),dbl_mb(k_evals),
-     &            blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, RefEner,
+     &            blen,g_ncoul,g_nexch, RefEner,
      $   CC_Theory, RTDB, MaxVec, Geom)
       status = ma_pop_stack(l_mo)
       if (.not.ga_destroy(g_nexch))
      &    call errquit('ga_dest g_nexch fail',0)
       if (.not.ga_destroy(g_ncoul))
      &    call errquit('ga_dest g_ncoul fail',0)
-      status=status.and.ga_destroy(g_objv)
       if (.not.status)call errquit('deallocate after aoccsd',0)
 c
       if (.not.status) call errquit('error after aoccsd',0)

@@ -10,7 +10,8 @@
       double precision tol2e,cmo(nbf,nbf),eorb(nbf),
      &                 hiu(*),giu(*),habe(*),gabe(*),hia(*),
      &                 t1(nocc*nvir),hz1(nocc*nvir),z1(nocc,nvir)
-
+c
+c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -28,6 +29,10 @@ c
      &        g_tz1,g_tz2,g_tz3
       integer lnoo,lnov
       logical stat
+c
+      Integer Nodes, IAm
+      Nodes = GA_NNodes()
+      IAM = GA_NodeID()
 c
       lnoo=nocc*nocc
       lnov=nocc*nvir

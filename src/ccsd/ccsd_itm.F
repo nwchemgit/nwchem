@@ -3,7 +3,7 @@
      &                    scra,scrb,scrc,scrd,scre,scrf,
      &                    g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &                    iprt)
-C     $Id: ccsd_itm.F,v 2.5 1997-04-14 06:34:57 gg502 Exp $
+C     $Id: ccsd_itm.F,v 2.6 1997-05-29 16:42:52 gg502 Exp $
       implicit none
       integer nocc,nvir,nact,g_nt2,g_nht2,g_ncoul,g_nexch,
      &        g_x,g_c,g_sht2,iprt
@@ -485,19 +485,20 @@ c
 c
       call ga_distribution(g_nexch,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
-        do j=1,nocc
-          ij=(i-1)*nocc+j
-          if (ij.ge.g_ilo.and.ij.le.g_ihi)then
-            ad1=(i-1)*nact
+        ad1=(i-1)*nact
+        if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
+          do j=1,nocc
             ad2=(j-1)*nact
+            if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
             ad3=(i-1)*nvir
             ad4=(j-1)*nvir
             call ga_get(g_nexch,ad2+nocc+1,ad2+nact,ad1+nocc+1,ad1+nact,
      &                  scra,nvir)
             call ga_put(g_tmp,ad3+1,ad3+nvir,ad4+1,ad4+nvir,
      &                  scra,nvir)
-          endif
-        enddo
+            endif
+          enddo
+        endif
       enddo
 c
       call ga_dgemm('n','n',lnov,lnov,lnov,

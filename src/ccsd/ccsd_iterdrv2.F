@@ -1,19 +1,19 @@
       subroutine ccsd_iterdrv2(basis,nsh,ncor,nocc,nvir,nact,nbf,
-     &                        maxit,convi,iprt,cmo,eorb,t1,t2,
-     &                        ht1,ht2,scra,scrb,hiu,hia,habe,giu,gabe,
+     &                        maxit,convi,iprt,cmo,eorb,t1,
+     &                        ht1,scra,scrb,hiu,hia,habe,giu,gabe,
      &                        bbkp,bb,g_t2,g_ht2,
-     &                        g_moint,mxvec,eccsd,max2e,mem2,
+     &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener)
-C     $Id: ccsd_iterdrv2.F,v 2.9 1997-04-14 06:34:56 gg502 Exp $
+C     $Id: ccsd_iterdrv2.F,v 2.10 1997-05-29 16:42:51 gg502 Exp $
       implicit none
 c
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,convi,iprt,
-     &        g_t2,g_ht2,g_moint,mxvec,g_ncoul,g_nexch,
+     & g_t2,g_ht2,g_nt2,g_nht2,mxvec,g_ncoul,g_nexch,
      &        tklst(nsh*(nsh+1)/2,2)
 c
-       double precision cmo(nbf,nbf),eorb(nbf),t1(*),t2(*),
-     &                  ht1(*),ht2(*),scra(*),scrb(*),
+       double precision cmo(nbf,nbf),eorb(nbf),t1(*),
+     &                  ht1(*),scra(*),scrb(*),
      &                  hiu(*),hia(*),habe(*),giu(*),gabe(*),
      &                  bbkp(*),bb(*),eccsd, refener
 c
@@ -23,7 +23,7 @@ c
 #include "ccsd_len.fh"
 c
       integer iter,idiis,ndiis,bev,jhi,jlo,ihi,ilo,offt2,nvp1,
-     &        i,av
+     &        i,j,a,b,av,lhoo,lhoov,ad1,ad2,ad3,ad4
       integer max2e,mem2
       double precision eold,thre,dabs,tx(4),rms,deccsd,
      &                 tstart,tend
@@ -43,20 +43,32 @@ c
 C
       call ga_sync()
       call qenter('iterdrv',0)
-      call ga_distribution(g_ht2,iam,jlo,jhi,ilo,ihi)
 c
-c      print *,' arrays ',g_t2,g_ht2,g_moint,g_aoint
-c      print *,'basis set handle ',basis
+      lhoo=nocc*(nocc+1)/2
+      lhoov=nvir*nocc*(nocc+1)/2
+c
       nvp1=nvir+1
 c - starting vectors
       call dfill(lnov,zip,t1,1)
 c
+      call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)
       if (nvp1.ge.ilo.and.nvp1.le.ihi)then
        call ga_put(g_t2,1,lnov,nvp1,nvp1,t1,1)
       endif
-      call ccsd_mkt2(ncor,nocc,nvir,eorb,g_t2,g_moint,t2,iprt)
+c
+      call ccsd_mkt2(ncor,nocc,nvir,nact,eorb,scra,
+     &               scrb,g_nexch,g_t2,iprt)
       call ccsd_mktask(basis,nsh,tklst)
-
+c
+c ------------------------------------------------------------
+c create square GAs with proposed final ordering
+c ------------------------------------------------------------
+      if (.not.ga_create(MT_DBL,lnov,lnov,'nt2',
+     &                   nvir,nvir,g_nt2))
+     &     call errquit('ga_create g_nt2 failed',0)
+      if (.not.ga_create(MT_DBL,lnov,lnov,'nht2',
+     &                   nvir,nvir,g_nht2))
+     &     call errquit('ga_create g_nht2 failed',0)
 c
       call ga_sync()
       iter=0
@@ -80,7 +92,7 @@ c ----------------------------------------------------------
       if (idiis.gt.mxvec)idiis=1
       ndiis=ndiis+1
       if (ndiis.gt.mxvec)ndiis=mxvec
-      offt2=(idiis-1)*lnoov
+      offt2=(idiis-1)*lhoov
       if (dabs(rms).lt.thre.and.dabs(deccsd).lt.thre)then
         if (iam.eq.0)write(6,1236)
  1236   format(18x,'*************converged*************',18x,
@@ -93,7 +105,7 @@ c ----------------------------------------------------------
      &         /,71(1h-),/)
         goto 999
       endif
-      if (iprt.gt.5)write(6,134)iter,idiis,ndiis
+      if (iprt.gt.5.and.iam.eq.0)write(6,134)iter,idiis,ndiis
  134  format(' iteration ',i3,' idiis ',i3,' ndiis ',i3)
       if (iam.eq.0)then
        call ga_get(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,t1,lnov)
@@ -102,11 +114,11 @@ c
       if (iam.eq.0.and.iprt.gt.5)then
        print *,'starting t1 vector'
        write(6,139)(t1(i),i=1,lnov)
-       do av=1,nvir
-        call ga_get(g_t2,offt2+1,offt2+lnoov,av,av,scra,lnoov)
-        print *,'starting t2 for av ',av
-        write(6,139)(scra(i),i=1,lnoov)
   139   format(4e14.4)
+       do av=1,nvir
+        call ga_get(g_t2,offt2+1,offt2+lhoov,av,av,scra,lhoov)
+        print *,'starting t2 for av ',av
+        write(6,139)(scra(i),i=1,lhoov)
        enddo
       endif
 c
@@ -117,33 +129,34 @@ c ----------------------------------------------------------
 c form ``sigma'' vector
 c ----------------------------------------------------------
       call dfill(lnov,zip,ht1,1)
-      call dfill(lnoov,zip,ht2,1)
+      call dfill(lhoov,zip,scra,1)
+      call ga_distribution(g_ht2,iam,jlo,jhi,ilo,ihi)
       do bev=1,nvir+1
       if (bev.ge.ilo.and.bev.le.ihi)then
-        call ga_put(g_ht2,offt2+1,offt2+lnoov,bev,bev,ht2,1)
+        call ga_put(g_ht2,offt2+1,offt2+lhoov,bev,bev,scra,1)
       endif
       enddo
       if (nvp1.ge.ilo.and.nvp1.le.ihi)then
-       call ga_put(g_ht2,offt2+1,offt2+lnov,nvp1,nvp1,ht2,1)
+       call ga_put(g_ht2,offt2+1,offt2+lnov,nvp1,nvp1,scra,1)
       endif
       call ga_sync()
       tx(1)=tcgtime()
       call ccsd_pampt2(basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,
-     &                iprt,cmo,eorb,t1,t2,t2(lnoov+1),ht1,ht2,
+     &                iprt,cmo,eorb,t1,ht1,
      $                scra,scrb,hiu,hia,habe,giu,gabe,
-     &                g_t2,g_ht2,g_moint,eccsd,
-     &                max2e,mem2,g_ncoul,g_nexch,tklst)
+     &                g_t2,g_ht2,g_nt2,g_nht2,eccsd,
+     &                g_ncoul,g_nexch,tklst)
       call ga_sync()
       tx(2)=tcgtime()
       tstart=tx(2)
       call ccsd_pdiis(nocc,nvir,idiis,ndiis,t1,ht1,scra,scrb,mxvec,
-     &                 bbkp,bb,iprt,iter,rms,g_t2,g_ht2)
+     &                 bbkp,bb,iprt,iter,rms,g_t2,g_ht2,lhoov)
       call ga_sync()
       deccsd=eccsd-eold
       eold=eccsd
       tx(4)=tcgtime()
       tend=tx(4)
-      if (iprt.gt.5.and.iam.eq.0)print *,' time pdiis2 ',tend-tstart
+      if (iprt.gt.5.and.iam.eq.0)print *,' time pdiis ',tend-tstart
       if (iam.eq.0)then
       write(6,1235)iter,eccsd,deccsd,rms,tx(2)-tx(1),tx(4)-tx(3)-
      &                                       (tx(2)-tx(1))
@@ -157,18 +170,11 @@ c
       goto 99
  999  continue
 c
-c - put vectors in g_moint for use in triples, overwrite [vvoo] ints
-      lnobj=lnoov+lnooo
-      if (iam.eq.0)then
-       call ga_get(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,t1,lnov)
-       call ga_put(g_moint,lnobj+1,lnobj+lnov,nvp1,nvp1,t1,lnov)
-      endif
-      do av=1,nvir
-       if (av.ge.ilo.and.av.le.ihi)then
-        call ga_get(g_t2,offt2+1,offt2+lnoov,av,av,scra,lnoov)
-        call ga_put(g_moint,lnobj+1,lnobj+lnoov,av,av,scra,lnoov)
-       endif
-      enddo
+      if (.not.ga_destroy(g_nht2))
+     &    call errquit('ga_dest g_nht2 fail',0)
+      if (.not.ga_destroy(g_nt2))
+     &    call errquit('ga_dest g_nt2 fail',0)
+c
       call ga_sync()
       call qexit('iterdrv',0)
       return

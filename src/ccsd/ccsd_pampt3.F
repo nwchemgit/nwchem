@@ -2,13 +2,13 @@
      &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
      &                       hia,t1,ht1,idiis,g_nt2,g_nht2,
      &                       g_ncoul,g_nexch,tklst)
-C     $Id: ccsd_pampt3.F,v 2.6 1997-04-14 06:34:59 gg502 Exp $
+C     $Id: ccsd_pampt3.F,v 2.7 1997-05-29 16:42:53 gg502 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
-     &        iprt,idiis,g_nt2,g_nht2,
+     &        iprt,iam,nodes,idiis,g_nt2,g_nht2,
      &        g_ncoul,g_nexch,tklst(nsh*(nsh+1)/2,2)
 
-      double precision tol2e,cmo(nbf,nbf),eorb(nbf),
+      double precision tol2e,cmo(nbf,nbf),eorb(nbf),xx,
      &                 hiu(*),giu(*),habe(*),gabe(*),hia(*),
      &                 t1(nocc*nvir),ht1(nocc*nvir)
 
@@ -29,7 +29,10 @@ C
      &        g_x,g_c,g_st2,g_sht2
       logical stat
 c
-      if (iprt.gt.5)print *,' ccsd_vvvv '
+      Nodes = GA_NNodes()
+      IAm = GA_NodeID()
+c
+      if (iam.eq.0.and.iprt.gt.5)print *,' ccsd_vvvv '
       stat = bas_numcont(basis,nsh)
       stat=stat.and.bas_nbf_cn_max(basis,maxbfsh)
       if (.not. stat)
@@ -145,20 +148,6 @@ c remove global arrays associated with B intermediate
 c ------------------------------------------------------------
       if (.not.ga_destroy(g_sht2))
      &    call errquit('ga_dest g_sht2 fail',0)
-c ------------------------------------------------------------
-c - Compute 2*j-k term
-c ------------------------------------------------------------
-c
-CRK   lscr=nbf*nbf
-CRK   stat=.true.
-CRK   stat=stat.and.ma_push_get(MT_DBL,lscr,'scra',l_sc1, k_sc1)
-CRK   stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
-CRK   if (.not.stat)call errquit('ma_get ccsd_jmk ',0)
-CRK   call ccsd_jmk(nocc,nvir,nbf,t1,dbl_mb(k_sc1),dbl_mb(k_sc2),
-CRK  &              g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,iprt)
-CRK   stat=stat.and.ma_pop_stack(l_sc2)
-CRK   stat=stat.and.ma_pop_stack(l_sc1)
-CRK   if (.not.stat)call errquit('ma_pop ccsd_jmk ',0)
 c ------------------------------------------------------------
 c remove global arrays associated with vvvo integrals (g_x and g_c)
 c ------------------------------------------------------------

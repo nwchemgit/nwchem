@@ -1,13 +1,13 @@
       subroutine ccsd_tzintb(nocc,nvir,nbf,t1,tzoo,scra,scrb,scrc,
      &                       g_nt2,g_nz2,g_nexch,g_x,g_sht2,g_aitm,
      &                       g_tz3,iprt)
-C     $Id: ccsd_tzintb.F,v 2.2 1997-04-14 06:35:03 gg502 Exp $
+C     $Id: ccsd_tzintb.F,v 2.3 1997-05-29 16:42:55 gg502 Exp $
       implicit none
       integer nocc,nvir,nbf,lnoo,lnov,g_nt2,g_nz2,g_nexch,g_x,g_sht2,
      &        g_aitm,g_tz3,g_tmp,iprt
       integer i,j,k,l,a,b,ij,kl,ad1,ad2,ad3,ad4,g_jlo,g_jhi,g_ilo,g_ihi
       double precision t1(nocc,nvir),tzoo(nocc,nocc),scra(nbf*nbf),
-     &                 scrb(nbf*nbf),scrc(nocc*nocc),x,ddot
+     &                 scrb(nbf*nbf),scrc(nocc*nocc)
       Integer IAm
 #include "mafdecls.fh"
 #include "global.fh"
@@ -18,13 +18,13 @@ C
       lnoo=nocc*nocc
       lnov=nocc*nvir
 c
-      call dfill(lnoo,0.0d00,tzoo,1)
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmp',
      &                   nvir,nvir,g_tmp))
      &     call errquit('ga_create g_tmp failed',0)
       call ga_dgemm('n','t',lnov,lnov,lnov,
      &              1.0d00,g_nt2,g_nz2,0.0d00,g_tmp)
 c
+      call dfill(lnoo,0.0d00,tzoo,1)
       call ga_distribution(g_tmp,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
         ad1=(i-1)*nvir
@@ -41,6 +41,8 @@ c
           enddo
         endif
       enddo
+c
+      call ga_dgop(912,tzoo,lnoo, '+')
 c
       if (.not.ga_destroy(g_tmp))
      &    call errquit('ga_dest g_tmp fail',0)

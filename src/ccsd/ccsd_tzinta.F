@@ -1,6 +1,6 @@
       subroutine ccsd_tzinta(nocc,nvir,nbf,t1,tzvv,scra,scrb,scrc,g_nt2,
      &                       g_nz2,g_tz1,g_tz2,iprt)
-C     $Id: ccsd_tzinta.F,v 2.2 1997-04-14 06:35:03 gg502 Exp $
+C     $Id: ccsd_tzinta.F,v 2.3 1997-05-29 16:42:55 gg502 Exp $
       implicit none
       integer nocc,nvir,nbf,lnov,lnvv,g_nt2,g_nz2,g_tz1,g_tz2,
      &        g_tmp,g_tmp2,iprt
@@ -35,6 +35,8 @@ c
           enddo
         endif
       enddo
+c
+      call ga_dgop(911,tzvv,lnvv, '+')
 c
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmp',
      &                   nvir,nvir,g_tmp))
