@@ -1,7 +1,7 @@
 #
-# $Id: GNUmakefile,v 1.2 2001-08-30 01:56:19 bylaska Exp $
+# $Id: GNUmakefile,v 1.3 2001-10-31 23:20:51 edo Exp $
 #
-      SUBDIRS = pspw nwpwlib
+      SUBDIRS = pspw nwpwlib library
 
 
 
