@@ -1,6 +1,6 @@
       logical function sym_abelian_group(geom)
 *
-* $Id: sym_abelian.F,v 1.3 2000-05-04 21:18:40 d3g681 Exp $
+* $Id: sym_abelian.F,v 1.4 2000-05-05 15:56:50 d3g681 Exp $
 *
       implicit none
       integer geom              ! [input]
@@ -30,7 +30,7 @@ c
      $     bf_per_ir_cum,
      $     bf_so_ir,
      $     zir,
-     $     so_uq_to_lab, so_lab1, so_lab2)
+     $     so_uq_to_lab, so_lab1, so_lab2, oprint)
       implicit none
 #include "bas.fh"
 #include "mafdecls.fh"
@@ -50,6 +50,7 @@ c
       integer so_uq_to_lab(2,8,*)
       integer so_lab1(3,*)
       integer so_lab2(8,*)
+      logical oprint            ! [input]
 c
 c     Returns:
 c     
@@ -158,14 +159,10 @@ c
             dbl_mb(k_a+i-1) = 1.0d0
             do op = 2,nop
                call dfill(nbf, 0.0d0, dbl_mb(k_b), 1)
-*               write(6,*) ' BF ', i, ' OP ', op
-*               call output(dbl_mb(k_a), 1, nbf, 1, 1, nbf, 1, 1)
                call sym_movecs_apply_op(basis, op-1,
      $              dbl_mb(k_a), dbl_mb(k_b)) 
-*               call output(dbl_mb(k_b), 1, nbf, 1, 1, nbf, 1, 1)
                do j = 1, nbf
                   if (abs(abs(dbl_mb(k_b+j-1))-1.0d0) .lt. 1d-12) then
-*                     write(6,*) ' J ', j
                      bf_op_map(op,i) = j
                      bf_phase(op,i) = dbl_mb(k_b+j-1)
                      goto 10
@@ -175,7 +172,6 @@ c
  10            continue
                if (.not. bas_bf2cn(basis, j, jsh))
      $              call errquit('sym_abelian_bas_info: basis?', basis)
-*               write(6,*) ' JSH ', jsh
                sh_op_map(op,ish) = jsh
             end do
          end do
@@ -184,15 +180,17 @@ c
       if (.not. ma_chop_stack(l_a)) call errquit
      $     ('sym_abelian: ma corrupted', 0)
 c
-      write(6,*) ' Abelian group shell symmetry _op_map'
-      do ish = 1, nsh
-         write(6,11) ish,(sh_op_map(op,ish),op=1,nop)
- 11       format(i5,3x,8i5)
-      end do
-      write(6,*) ' Abelian group basis function symmetry _op_map'
-      do i = 1, nbf
-         write(6,11) i,(nint(bf_op_map(op,i)*bf_phase(op,i)),op=1,nop)
-      end do
+      if (oprint) then
+         write(6,*) ' Abelian group shell symmetry _op_map'
+         do ish = 1, nsh
+            write(6,11) ish,(sh_op_map(op,ish),op=1,nop)
+ 11         format(i5,3x,8i5)
+         end do
+         write(6,*) ' Abelian group basis function symmetry _op_map'
+         do i = 1, nbf
+            write(6,11)i,(nint(bf_op_map(op,i)*bf_phase(op,i)),op=1,nop)
+         end do
+      endif
 c
 c     Determine for each shell/bf the operations that generate 
 c     all symmetry related shells.
@@ -217,15 +215,17 @@ c
          end do
       end do
 c
-      write(6,*) ' Abelian symmetry unique operations by shell'
-      do ish = 1, nsh
-         write(6,22) ish, (sh_uq_op(opuq,ish), opuq=1,sh_n_uq_op(ish))
- 22      format(i5,2x,8i3)
-      end do
-      write(6,*) ' Abelian symmetry unique operations by function'
-      do i = 1, nbf
-         write(6,22) i, (bf_uq_op(opuq,i), opuq=1,bf_n_uq_op(i))
-      end do
+      if (oprint) then
+         write(6,*) ' Abelian symmetry unique operations by shell'
+         do ish = 1, nsh
+            write(6,22) ish,(sh_uq_op(opuq,ish), opuq=1,sh_n_uq_op(ish))
+ 22         format(i5,2x,8i3)
+         end do
+         write(6,*) ' Abelian symmetry unique operations by function'
+         do i = 1, nbf
+            write(6,22) i, (bf_uq_op(opuq,i), opuq=1,bf_n_uq_op(i))
+         end do
+      endif
 c
 c     Determine the lexically highest symmetry related shells/bf
 c
@@ -246,11 +246,13 @@ c
  30      continue
       end do
 c     
-      write(6,*) ' Abelian symmetry unique shells', sh_n_uq
-      write(6,33) (sh_uq(ish),ish=1,sh_n_uq)
- 33   format(15i5)
-      write(6,*) ' Abelian symmetry unique functions', bf_n_uq
-      write(6,33) (bf_uq(i),i=1,bf_n_uq)
+      if (oprint) then
+         write(6,*) ' Abelian symmetry unique shells', sh_n_uq
+         write(6,33) (sh_uq(ish),ish=1,sh_n_uq)
+ 33      format(15i5)
+         write(6,*) ' Abelian symmetry unique functions', bf_n_uq
+         write(6,33) (bf_uq(i),i=1,bf_n_uq)
+      endif
 c
 c     Symmetry orbitals (SO) are formed by applying a projector
 c     to the generating functions (the symmetry unique or lexically
@@ -303,18 +305,22 @@ c
          bf_per_ir_cum(ir) = nbfir
          nbfir = nbfir + bf_per_ir(ir)
       end do
-      write(6,123) ' bf_per_ir_cum ', (bf_per_ir_cum(ir),ir=1,nop)
-      write(6,123) ' bf_per_ir     ', (bf_per_ir(ir),ir=1,nop)
- 123  format(1x,a,8i5)
+      if (oprint) then
+         write(6,123) ' bf_per_ir_cum ', (bf_per_ir_cum(ir),ir=1,nop)
+         write(6,123) ' bf_per_ir     ', (bf_per_ir(ir),ir=1,nop)
+ 123     format(1x,a,8i5)
+      endif
 c
-      write(6,*) ' Symmetry of SOs in natural order '
-      nbfir = 1
-      do iuq = 1, bf_n_uq
-         i = bf_uq(iuq)
-         write(6,124) nbfir, (zir(bf_so_ir(ir,iuq)),ir=1,bf_n_uq_op(i))
- 124     format(i5,2x,8(a4,1x))
-         nbfir = nbfir + bf_n_uq_op(i)
-      end do
+      if (oprint) then
+         write(6,*) ' Symmetry of SOs in natural order '
+         nbfir = 1
+         do iuq = 1, bf_n_uq
+            i = bf_uq(iuq)
+            write(6,124)nbfir,(zir(bf_so_ir(ir,iuq)),ir=1,bf_n_uq_op(i))
+ 124        format(i5,2x,8(a4,1x))
+            nbfir = nbfir + bf_n_uq_op(i)
+         end do
+      end if
 c
 c     The SO coefficients of the functions arsing from basis funciton i
 c     are given by the projector
@@ -381,27 +387,29 @@ c
          end do
       end do
 c
-      write(6,*) ' Map from unique bf to lab1 and lab2'
-      do iuq = 1, bf_n_uq
-         i = bf_uq(iuq)
-         write(6,77) iuq,
-     $        (so_uq_to_lab(1,bf_so_ir(ir,iuq),iuq),
-     $         so_uq_to_lab(2,bf_so_ir(ir,iuq),iuq),
-     $        ir=1,bf_n_uq_op(i))
- 77      format(i5,8(2x,2i4))
-      end do
-      write(6,*) ' Map from lab1 to ir, lab2 and unique'
-      do lab1 = 1, nbf
-         write(6,78) lab1, (so_lab1(i,lab1), i=1,3)
- 78      format(i5,2x,3i4)
-      end do
-      write(6,*) ' Map from ir+lab2 to lab1 '
-      do ir = 1, 8
-         do i = 1, bf_per_ir(ir)
-            write(6,79) ir, i, so_lab2(ir,i)
- 79         format(2i5,2x,i5)
+      if (oprint) then
+         write(6,*) ' Map from unique bf to lab1 and lab2'
+         do iuq = 1, bf_n_uq
+            i = bf_uq(iuq)
+            write(6,77) iuq,
+     $           (so_uq_to_lab(1,bf_so_ir(ir,iuq),iuq),
+     $           so_uq_to_lab(2,bf_so_ir(ir,iuq),iuq),
+     $           ir=1,bf_n_uq_op(i))
+ 77         format(i5,8(2x,2i4))
          end do
-      end do
+         write(6,*) ' Map from lab1 to ir, lab2 and unique'
+         do lab1 = 1, nbf
+            write(6,78) lab1, (so_lab1(i,lab1), i=1,3)
+ 78         format(i5,2x,3i4)
+         end do
+         write(6,*) ' Map from ir+lab2 to lab1 '
+         do ir = 1, 8
+            do i = 1, bf_per_ir(ir)
+               write(6,79) ir, i, so_lab2(ir,i)
+ 79            format(2i5,2x,i5)
+            end do
+         end do
+      end if
 c
       end
       subroutine sym_abelian_char_tab(geom, char_tab, zir)
