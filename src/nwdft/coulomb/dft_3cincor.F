@@ -1,7 +1,7 @@
       Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd)
 c 
-C$Id: dft_3cincor.F,v 1.21 2000-05-26 18:44:42 edo Exp $
+C$Id: dft_3cincor.F,v 1.22 2000-05-26 21:49:07 edo Exp $
 c
       implicit none
 c    
@@ -187,10 +187,10 @@ c               of ao shells and cd shell.
 c
 c                n_chk = ndone+nintegrals-1
                 n_chk = ndone+maxg-1
-#ifdef(DEBUG)
-                write(6,'(A,I6,A,2I6)') 
-     ,               ' me ',me,' ndone ',ndone,n_chk
-#endif
+cedo#ifdef(DEBUG)
+cedo                write(6,'(A,I6,A,2I6)') 
+cedo     ,               ' me ',me,' ndone ',ndone,n_chk
+cedo#endif
                 call flush(6)
                 if( (n_chk) .gt. n3c_dbl) then
                   write(LuOut,*) ' ishc ishd ishp ',ishc,ishd,Ishp
