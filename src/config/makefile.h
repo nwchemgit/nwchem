@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.462 2004-05-04 22:25:02 edo Exp $
+# $Id: makefile.h,v 1.463 2004-05-05 23:58:13 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1132,12 +1132,19 @@ endif
     DEFINES  +=-DXLFLINUX -DCHKUNDFLW
      FOPTIONS += $(INCLUDES) -WF,"$(DEFINES)" $(shell echo $(LIB_DEFINES) | sed -e "s/-D/-WF,-D/g"   | sed -e 's/\"/\\\"/g'  | sed -e "s/\'/\\\'/g")
   else
+#g77, only decent one form Fink http://fink.sf.net
+#gcc version 3.4 20031015 (experimental)
+    _G77V33= $(shell g77 -v  2>&1|egrep spec|head -1|awk ' /3.3/  {print "Y"}')
     FDEBUG= -O1 -g
     FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
     FOPTIMIZE  = -O3 -fno-inline-functions -funroll-loops
     FOPTIMIZE += -falign-loops=16 -falign-jumps=16 -falign-functions=16
     FOPTIMIZE += -ffast-math -mpowerpc-gpopt
     FOPTIMIZE += -maltivec
+    ifeq ($(_G77V33),Y)
+      FOPTIONS += -fno-force-mem 
+      FOPTIMIZE += -fno-force-mem 
+    endif
     ifeq ($(_CPU),ppc970)
 #G5
       FOPTIMIZE += -mtune=970 -mcpu=970 -mpowerpc64
@@ -1150,7 +1157,7 @@ endif
     ifeq ($(CC),xlc)
       COPTIONS  +=  -qlanglvl=extended
     else
-      COPTIONS   = -Wall
+      COPTIONS   = -Wall -no-cpp-precomp
       COPTIMIZE  = -g -O2
     endif
 ifdef USE_VECLIB
