@@ -1,5 +1,5 @@
 *
-* $Id: v_psi_new.F,v 1.1 2001-11-28 22:15:21 bylaska Exp $
+* $Id: v_psi_new.F,v 1.2 2003-07-29 20:55:36 bylaska Exp $
 *
 
 *     ***********************************
@@ -56,6 +56,60 @@
      >               ispin,
      >               ne)
 
+
+      return
+      end
+
+
+*     ***********************************
+*     *             			*
+*     *           v_psi_delete		*
+*     *             			*
+*     ***********************************
+
+      subroutine v_psi_delete()
+      implicit none 
+
+#include "mafdecls.fh"
+
+*     *** local variables ***
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      integer      l
+      character*30  filename
+      character*34  filename2
+      character*255 full_filename,full_filename2
+
+*     ***** local functions ****
+      character*30 control_input_v_psi
+      external     control_input_v_psi
+
+
+      call Parallel_taskid(taskid)
+      if (taskid.eq.MASTER) then
+         filename = control_input_v_psi()
+
+         l = index(filename,' ') - 1
+         filename2 = filename(1:l)//".old"
+
+         call util_file_name_noprefix(filename,
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+         call util_file_name_noprefix(filename2,
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename2)
+
+         write(*,109) filename2
+         write(*,110) filename 
+  109    format(' vmovecs filename moved to: ',A)
+  110    format(' vmovecs deleted          : ',A)
+
+         call util_file_copy(full_filename,full_filename2)
+         call util_file_unlink(full_filename)
+      end if
 
       return
       end
