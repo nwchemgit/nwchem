@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.5 2000-08-08 23:38:58 bjohnson Exp $
+#	$id: MakeFile,v 1.5 2000/08/08 23:38:58 bjohnson Exp $
 #
 
 !INCLUDE config\nwchem_config_win32.h
