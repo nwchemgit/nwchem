@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.2 1999-02-20 18:58:36 d3j191 Exp $
+c $Id: util_md.F,v 1.3 1999-02-24 04:09:45 d3j191 Exp $
 c
       implicit none
 c
@@ -365,8 +365,8 @@ c
       now=string(11:20)
 #endif
 #if defined(LINUX)
-      call arg_date(today(1:10))
-      call arg_time(now(1:10))
+      today='          '
+      now='          '
 #endif
 #if defined(SGI)
       call date(string)
