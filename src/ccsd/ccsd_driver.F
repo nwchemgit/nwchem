@@ -135,10 +135,10 @@ c
 c
 c Get frozen core & virtual offsets
 c
-       if (.not.rtdb_get(rtdb,'occ_frozen',MT_INT,1,occ_frozen))
-     $      occ_frozen = 0
-       if (.not.rtdb_get(rtdb,'vir_frozen',MT_INT,1,vir_frozen))
-     $      vir_frozen = 0
+       if (.not.rtdb_get(rtdb,'fourindex:occ_frozen',MT_INT,1,
+     $      occ_frozen)) occ_frozen = 0
+       if (.not.rtdb_get(rtdb,'fourindex:vir_frozen',MT_INT,1,
+     $      vir_frozen)) vir_frozen = 0
 c
 c Set index ranges
 c
@@ -155,7 +155,7 @@ c$$$       vir_hi = nbf - vir_frozen
 c
 c Get Block-length
 c
-       if (.not.rtdb_get(rtdb,'block',MT_INT,1,blen))
+       if (.not.rtdb_get(rtdb,'fourindex:block',MT_INT,1,blen))
      $      blen = 10
 c
 c Initialise integrals and screening
@@ -286,9 +286,9 @@ c
 c Evaluate and store pair energies
 c
 capr insert oexch
-       if (oexch)then
+       if (oexch) then
         call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nvir,
-     $                      g_exch, dbl_mb(k_evals), g_epair )
+     $                      nbf, g_exch, dbl_mb(k_evals), g_epair )
        endif
 c
 c
