@@ -1,6 +1,6 @@
       subroutine intd_1epot(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1epot.F,v 1.1 2005-04-02 02:04:09 marat Exp $
+C $Id: intd_1epot.F,v 1.2 2005-04-04 23:33:51 marat Exp $
       implicit none
 #include "stdio.fh"
 #include "errquit.fh"
@@ -271,8 +271,6 @@ c     ------------------------------
       if(.not.ma_push_get(mt_dbl,nb,'xbq',h_xbq0,i_xbq0))
      +     call errquit( 'intd1_epot',0,0)
 
-c      call dfill(3*nb,0.d0,dbl_mb(i_cbq0),1)
-c      call dfill(nb,0.d0,dbl_mb(i_qbq0),1)
       call dfill(nb,0.d0,dbl_mb(i_xbq0),1)
 
       call dcopy(3*ncenter(igeom),coords(1,1,igeom),1,
@@ -285,10 +283,6 @@ c      call dfill(nb,0.d0,dbl_mb(i_qbq0),1)
      >           dbl_mb(i_qbq0+ncenter(igeom)),1)
       call dcopy(ncenter(igeom),geom_invnucexp(1,igeom),1,
      >           dbl_mb(i_xbq0),1)
-
-      write(*,*) "grad1:coord:",(dbl_mb(i_cbq0+ib-1),ib=1,3*nb) 
-      write(*,*) "grad1:charge",(dbl_mb(i_qbq0+ib-1),ib=1,nb) 
-      write(*,*) "grad1:exp",(dbl_mb(i_xbq0+ib-1),ib=1,nb) 
 
 c        
       if (orel) then
@@ -303,8 +297,8 @@ c
      &      dbl_mb(mb_exndcf(jcfS,jsbas)),jnp,jgen,jtype,jatom,
 c     &      coords(1,1,igeom),charge(1,igeom),
 c     &      geom_invnucexp(1,igeom),ncenter(igeom),
-     &      dbl_mb(i_cbq),dbl_mb(i_qbq),
-     &      geom_invnucexp(1,igeom),bq_ncent,
+     &      dbl_mb(i_cbq0),dbl_mb(i_qbq0),
+     &      dbl_mb(i_xbq0),nb,
 c........................     doS   doT  doV    canAB  
      &      scr,Ta,H1a,nint,.false.,doT,.true.,.false.,onw_ok,
 c...........       nonrel dryrun
