@@ -1,4 +1,4 @@
-c $Id: hf2.F,v 1.12 2000-05-02 22:07:37 mg201 Exp $
+c $Id: hf2.F,v 1.13 2000-05-02 22:50:23 mg201 Exp $
       Subroutine hf2(Axyz,Aprims,Acoefs,NPA,NCA,La,
      &               Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
      &               Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,
@@ -336,7 +336,8 @@ c Assign pointers to scratch space.
               write(*,*) 'IJK   :  ',i_IJK
               write(*,*) 'E3    :  ',i_E3
               write(*,*) 'sum   :  ',i_sum
-            stop
+              stop
+            end if
             if (doit_PQ) then
               if (GenCon) then
                 call hferi_gen(W0(i_Ep+3*ipp),W0(i_Eq+3*ipq),
