@@ -1,10 +1,10 @@
 c
-c     $Id: pspw_Grsm_list_common.fh,v 1.2 2001-12-28 01:32:03 bylaska Exp $
+c     $Id: pspw_Grsm_list_common.fh,v 1.3 2001-12-28 23:17:54 bylaska Exp $
 c
       integer max_list
-      parameter (max_list=20)
+      parameter (max_list=40)
       logical ondisk
-      integer grsm_mem(2,2,max_list)
+      integer grsm_mem(2,max_list)
       integer indx(max_list),nsize,size_list
       character*20 tag_list(max_list)
       character*20 tag_list2(max_list)

@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.7 2001-12-28 20:23:57 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.8 2001-12-28 23:17:54 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -124,6 +124,7 @@ c     dte = 1.0d0
 
 *        ***** use the initial gradient for the direction ****
          call pspw_lmbfgs_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
+c        call pspw_diis_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
          call Grsm_gg_Copy(npack1,neall,
      >                      dcpl_mb(G0(1)),
      >                      dcpl_mb(S0(1)))
@@ -131,6 +132,7 @@ c     dte = 1.0d0
       else
          call psi_1get_Tgradient(dcpl_mb(G0(1)),E0)
          call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
+c        call pspw_diis(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
       end if
 
 *     ******************************************
@@ -167,6 +169,7 @@ c     dte = 1.0d0
 *        **** get the new gradient - also updates densities****
          call psi_2get_Tgradient(2,dcpl_mb(G0(1)),E0)
          call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
+c        call pspw_diis(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
 
 
 *        **** make psi1 <--- psi2(tmin) ****

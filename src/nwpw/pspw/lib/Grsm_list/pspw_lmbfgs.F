@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_lmbfgs.F,v 1.6 2001-12-28 01:32:03 bylaska Exp $                       
+*     $Id: pspw_lmbfgs.F,v 1.7 2001-12-28 23:17:54 bylaska Exp $                       
 *
 
       subroutine pspw_lmbfgs_init(max_m0,g)
@@ -19,16 +19,15 @@
       call Pack_npack(1,npack1)
       neall = psi_ne(1)+psi_ne(2)
       nsize = neall*npack1
-      call pspw_Grsm_list_init('lmbfgs',max_m,2*nsize)
+      call pspw_Grsm_list_init('lmbfgs',2*max_m,2*nsize)
 
       m = 1
       call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
-      call pspw_Grsm_list_store(m,g,g)
+      call pspw_Grsm_list_store(2*m-1,g)
+      call pspw_Grsm_list_store(2*m,g)
       call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
       return
       end
-
-
 
 
 
@@ -57,11 +56,13 @@
 
 
       call Grsm_gg_copy(npack1,neall,g,s)
-      call pspw_Grsm_list_load(m,dcpl_mb(yy(1)),dcpl_mb(ss(1)))
+      call pspw_Grsm_list_load(2*m-1,dcpl_mb(yy(1)))
+      call pspw_Grsm_list_load(2*m,  dcpl_mb(ss(1)))
       call psi_1geodesic_Gtransport(tmin,dcpl_mb(yy(1)))
       call psi_1geodesic_transport(tmin,dcpl_mb(ss(1)))
       call Grsm_ggg_Sub(npack1,neall,g,dcpl_mb(yy(1)),dcpl_mb(yy(1)))
-      call pspw_Grsm_list_store(m,dcpl_mb(yy(1)),dcpl_mb(ss(1)))
+      call pspw_Grsm_list_store(2*m-1,dcpl_mb(yy(1)))
+      call pspw_Grsm_list_store(2*m,  dcpl_mb(ss(1)))
 
       call Grsm_gg_trace(npack1,neall,
      >                   dcpl_mb(yy(1)),
@@ -84,10 +85,12 @@ c     h0 = sum/h0
       call Grsm_gg_daxpy(npack1,neall,-alpha(m),dcpl_mb(yy(1)),s)
 
       do k=(m-1),1, -1
-         call pspw_Grsm_list_load(k,dcpl_mb(yy(1)),dcpl_mb(ss(1)))
+         call pspw_Grsm_list_load(2*k-1,dcpl_mb(yy(1)))
+         call pspw_Grsm_list_load(2*k,  dcpl_mb(ss(1)))
          call psi_1geodesic_Gtransport(tmin,dcpl_mb(yy(1)))
          call psi_1geodesic_Gtransport(tmin,dcpl_mb(ss(1)))
-         call pspw_Grsm_list_store(k,dcpl_mb(yy(1)),dcpl_mb(ss(1)))
+         call pspw_Grsm_list_store(2*k-1,dcpl_mb(yy(1)))
+         call pspw_Grsm_list_store(2*k,  dcpl_mb(ss(1)))
          call Grsm_gg_trace(npack1,neall,
      >                   dcpl_mb(ss(1)),
      >                   s,
@@ -117,7 +120,8 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
          sum = beta - alpha(m)
          sum = alpha(k) - beta
          call Grsm_gg_daxpy(npack1,neall,sum,dcpl_mb(ss(1)),s)
-         call pspw_Grsm_list_load(k+1,dcpl_mb(yy(1)),dcpl_mb(ss(1)))
+         call pspw_Grsm_list_load(2*(k+1)-1,dcpl_mb(yy(1)))
+         call pspw_Grsm_list_load(2*(k+1),  dcpl_mb(ss(1)))
       end do
       call Grsm_gg_trace(npack1,neall,
      >                dcpl_mb(yy(1)),
@@ -132,13 +136,15 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
          m = m+1
       else
          call pspw_Grsm_list_shift()
+         call pspw_Grsm_list_shift()
          do k=1,(m-1)
             rho(k) = rho(k+1)
          end do
       end if
 
       call Grsm_gg_dScale(npack1,neall,(-1.0d0),s,s)
-      call pspw_Grsm_list_store(m,g,s)
+      call pspw_Grsm_list_store(2*m-1,g)
+      call pspw_Grsm_list_store(2*m,s)
 
       value = MA_pop_stack(ss(2))
       value = value.and.
