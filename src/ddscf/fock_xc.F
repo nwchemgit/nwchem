@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
-     ,  nfock, g_dens, g_xc,scftype,l3d)
+     ,  nfock, g_dens, g_xc,l3d)
 c
-c     $Id: fock_xc.F,v 1.19 2002-01-17 23:33:07 edo Exp $
+c     $Id: fock_xc.F,v 1.20 2002-02-19 02:10:37 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -22,7 +22,6 @@ c!!! BGJ
 c
       integer geom              ! [in]
       integer nbf_ao,ao_bas_han ! [in]
-      character*4 scftype       ! [in]
       integer nfock             ! [input] number of XC matrices
       integer ndens             ! [in] number of DM
       integer g_dens(*)        ! [input] array of handles to densities

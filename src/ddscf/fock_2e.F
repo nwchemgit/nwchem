@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, mfock, jfac, kfac,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
-c$Id: fock_2e.F,v 1.26 2002-01-17 02:47:22 edo Exp $
+c$Id: fock_2e.F,v 1.27 2002-02-19 02:10:37 edo Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -162,9 +162,9 @@ c
 c     works with nfock=1 for CS and nfock=4 for OS
 c
       if(nfock.ne.1.and.nfock.ne.4) call errquit(
-     '     '    f2e: unexpected nfock value = ',nfock)
+     '     '    fock_2e: unexpected nfock value = ',nfock)
       call fock_xc(geom1, nbf,ao_basis,
-     ,     nfock, vg_dens, g_xc,scftype,.false.)
+     ,     nfock, vg_dens, g_xc,.false.,.false.)
       ffac=1d0
       if (xc_active) then
          odft=nfock.eq.4
@@ -182,9 +182,9 @@ c
          blo(1) = 1
          bhi(1) = nbf
          blo(2) = 1
-         bhi(3) = nbf
-         blo(3) = 1
          bhi(2) = nbf
+         blo(3)=-33
+         bhi(3)=-33
          call nga_add_patch(ffac,g_xc,alo,ahi,
      .        1d0,vg_fock(ifock),blo,bhi,
      .        vg_fock(ifock),blo,bhi)
