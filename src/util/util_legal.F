@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.12 1999-07-27 00:45:52 windus Exp $
+* $Id: util_legal.F,v 1.13 1999-09-29 21:12:05 windus Exp $
 *------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999     *
 *         Pacific Northwest National Laboratory,       * 
@@ -151,7 +151,7 @@ c
      &    /,12x,
      &    'Computational Chemistry Package for Parallel Computers, ',
      &    /,12x,
-     &    'Version 3.3" (1999), ',
+     &    'Version 3.3.1" (1999), ',
      &    'Pacific Northwest National Laboratory,',
      &    /,12x,
      &    'Richland, Washington 99352-0999, USA.'
@@ -164,7 +164,7 @@ c
      &    /,/,12x,
      &    'Anchell, J.; Apra, E.; Bernholdt, D.; Borowski, P.; ',
      &    'Bylaska, E.; ',
-     &    /,12x,'Clark, T.; Clerc, D.; Dachsel, H.; de Jong, B.; ',
+     &    /,12x,'Clark, T.; Clerc, D.; Dachsel, H.; de Jong, W.; ',
      &    'Deegan, M.; ',
      &    /,12x,'Dupuis, M.; Dyall, K.; Elwood, D.; Fann, G.; ',
      &    'Fruchtl, H.; ',
@@ -183,7 +183,7 @@ c
      &    /,12x,'Computational Chemistry Package for Parallel ',
      &    'Computers, ',
      &    /,12x,
-     &    'Version 3.3" (1999),',
+     &    'Version 3.3.1" (1999),',
      &    /,22x,'Pacific Northwest National Laboratory,',
      &    /,22x,'Richland, Washington 99352-0999, USA.'
      &    /,/)
