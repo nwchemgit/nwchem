@@ -2,7 +2,7 @@
      ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.22 2004-02-06 20:42:12 edo Exp $
+c$Id: grid_sympts.F,v 1.23 2004-02-10 17:33:02 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -188,10 +188,10 @@ c
 c     remove any 5-fold operation
 c     since it does not belong to Oh
 c
-      if (.not.MA_push_Get(MT_Dbl,nops*3*4,'symopsaa',
+      if (.not.MA_push_Get(mt_dbl,nops*3*4,'symopsaa',
      ,     l_aa,k_aa)) call errquit(
      '     '     grid_c5trash: mpush get failed',1, MA_ERR)
-      if (.not.MA_push_Get(MT_Dbl,nops*3*4,'symopsiscr',
+      if (.not.MA_push_Get(mt_int,nops*3*4,'symopsiscr',
      ,     l_iscr,k_iscr)) call errquit(
      '     '     grid_c5trash: mpush get failed',1, MA_ERR)
       pi=4d0*atan(1d0)
