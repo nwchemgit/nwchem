@@ -13,9 +13,10 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.125 2001-01-23 19:17:08 windus Exp $
+c     $Id: msgids.fh,v 1.126 2002-02-20 18:36:19 d3k958 Exp $
       parameter (msg_ftn_base = 25000)
 c     
+      integer msg_et_2e
       integer msg_hess_exy
       integer msg_vec_type
       integer msg_prsum
@@ -1050,3 +1051,4 @@ c
       parameter (msg_hess_exy = msg_ftn_base - 797) ! hessian summation
 c
       parameter(msg_nbo_icd = msg_ftn_base - 800) ! NBO messages
+      parameter(msg_et_2e = msg_ftn_base - 801) ! et 2e summation
