@@ -7,10 +7,13 @@
 #include "global.fh"
 #include "bas.fh"
 #include "schwarz.fh"
+#include "tcgmsg.fh"
 
       integer g_dens, basis
 
       logical status, oij, okl,oikjl
+
+      external nxtval
 
       dimension scr(lscr), buf(lbuf), frc ( 3, nat ), idatom(4)
       dimension d_ij(ldim,ldim),d_kl(ldim,ldim),d_ik(ldim,ldim),
@@ -27,7 +30,7 @@
               ihi4 = iat3
               if ( iat1.eq.iat3 ) ihi4 = iat2
               do 80, iat4 = ihi4, 1, -1
-                if ( schwarz_atom(iat,jat) * schwarz_atom(kat,lat) 
+                if ( schwarz_atom(iat1,iat2) * schwarz_atom(iat3,iat4) 
      $               .ge. tol2e ) then
 
               ijatom = ijatom + 1
@@ -74,13 +77,17 @@ C            get density matrix blocks
                 do 75, ish1 = iac1f, iac1l
                   if ( oij ) iac2l = ish1
                   do 70, ish2 = iac2f, iac2l
-                    itop3 = iac3l
-                    if ( iat1.eq.iat3 .and. iat2.eq.iat4 ) itop3 = ish1
-                    do 65, ish3 = iac3f, itop3
-                      itop4 = iac4l
-                      if ( okl ) itop4 = ish3
-                      if ( oikjl .and. ish1.eq.ish3 ) itop4 = ish2
-                      do 60, ish4 = iac4f, itop4
+                    if (schwarz_shell(ish1,ish2)*schwarz_max().ge.tol2e) 
+     $                  then
+                      itop3 = iac3l
+                      if ( iat1.eq.iat3 .and. iat2.eq.iat4 ) itop3 =ish1
+                      do 65, ish3 = iac3f, itop3
+                        itop4 = iac4l
+                        if ( okl ) itop4 = ish3
+                        if ( oikjl .and. ish1.eq.ish3 ) itop4 = ish2
+                        do 60, ish4 = iac4f, itop4
+                          if (schwarz_shell(ish1,ish2)*
+     $                        schwarz_shell(ish3,ish4) .ge. tol2e) then
 C---------------------------------------------------------------------
 
 C     find contraction in atomic block
@@ -139,9 +146,10 @@ C     2el. integral derivatives
  38   continue
 
 C---------------------------------------------------------------------
-C                       endif
- 60                   continue
- 65                 continue
+                          endif   !schwarz
+ 60                     continue
+ 65                   continue
+                    endif         !schwarz
  70               continue
  75             continue
                 next = nxtval(nproc)

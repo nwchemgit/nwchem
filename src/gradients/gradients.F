@@ -6,6 +6,7 @@
 #include "geom.fh"
 #include "rtdb.fh"
 #include "context.fh"
+#include "schwarz.fh"
 c
 c     gradients module.
 c
@@ -134,7 +135,12 @@ c
          call util_flush(6)
       endif
 c
+c initialize for schwarz screening
+      call schwarz_init (geom, basis)
+c
       call force(rtdb,basis,geom,movecs)
+c
+      call schwarz_tidy ()
 c
 c gradients is done destroy basis and geomtry handles  
 c (e.g., preserve the memory available to other modules!!)
