@@ -1,18 +1,15 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.14 1995-11-07 20:00:06 vg038 Exp $
+c$Id: gradients.F,v 1.15 1996-07-26 16:28:31 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-#include "context.fh"
 #include "schwarz.fh"
 #include "util.fh"
 c
 c     gradients module.
-c
-c     Context is '...:gradients'
 c
 c     Assumes SCF has been completed, MO vectors stored
 C     and all information is still in the RTDB
@@ -30,11 +27,7 @@ c
 c
       character*255 movecs_in, movecs_out
 c
-c     Push context down to GRADIENTS
-c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
-      if (.not. context_push('gradients'))
-     $     call errquit('gradients: context_push failed', 0)
       call util_print_push
       call util_print_rtdb_load(rtdb,'gradients')
 c
@@ -56,10 +49,6 @@ c
      $     call errquit('gradients: no ao basis ', 0)
       if(.not. int_normalize(basis))
      $     call errquit('gradients: normalization failed',911)
-
-c
-c     Figure output input/output MO vectors ... all this should be
-c     context sensitive but that design is incomplete.
 c
       if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
      $     movecs_in = 'atomic'
@@ -132,8 +121,6 @@ c
       call intd_terminate()
 c
       call util_print_pop
-      if (.not. context_pop('gradients')) 
-     $     call errquit('context_pop failed',0)
       gradients = .true.
 c
       return

@@ -1,7 +1,7 @@
       subroutine grad_store ( rtdb, geom, g_force, chktime, nat, nquad, 
      $     frc, oinit, ofinish, oactive, oskel )
 
-c$Id: grad_store.F,v 1.1 1995-12-07 23:03:20 vg038 Exp $
+c$Id: grad_store.F,v 1.2 1996-07-26 16:28:30 d3g681 Exp $
 C=======================================================================
 C     Syncs and writes the partially calculated forces to rtdb if either:
 C     - checkpointing is requested and the specified time has elapsed. 
@@ -72,12 +72,12 @@ C           symmetrize
             endif
           endif
 
-          call util_print_centered ( luout,
-     $         'writing forces to rtdb', 35, .false.)
-          call util_flush(luout)
+*          call util_print_centered ( luout,
+*     $         'writing forces to rtdb', 35, .false.)
+*          call util_flush(luout)
 
 C         store forces and # of atom quadruples in the database
-          status = rtdb_put ( rtdb, 'scf:gradients', MT_DBL, 3*nat, frc)
+          status = rtdb_put ( rtdb, 'scf:gradient', MT_DBL, 3*nat, frc)
           if ( .not. status ) 
      $         call errquit('could not store gradients',1)
           status = rtdb_put ( rtdb, 'gradients:ndone', MT_INT, 1, 
@@ -143,7 +143,7 @@ C           node 0 gets the old forces
             call util_flush(luout)
 
             status = rtdb_parallel (.false.)
-            status = rtdb_get ( rtdb, 'scf:gradients', mt_dbl, 3*nat, 
+            status = rtdb_get ( rtdb, 'scf:gradient', mt_dbl, 3*nat, 
      $           frc )
             if ( .not. status ) 
      $           call errquit('could not read gradients',1)
