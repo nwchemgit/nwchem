@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_diis.F,v 1.5 2003-12-02 19:17:09 bylaska Exp $                       
+*     $Id: nwpw_diis.F,v 1.6 2003-12-03 00:26:47 bylaska Exp $                       
 *
 
 *     *****************************************
@@ -117,11 +117,11 @@
          B(m+1,i+1) = sum
       end do
 
-      !*** swap vectors and residuals ***
-      if ((B(m+1,m+1).gt.B(m,m)).and.
-     >   (B(m,m)     .gt.0.0d0)) then
-         call nwpw_diis_swap(m,m-1)
-      end if
+c     !*** swap vectors and residuals ***
+c     if ((B(m+1,m+1).gt.B(m,m)).and.
+c    >   (B(m,m)     .gt.0.0d0)) then
+c        call nwpw_diis_swap(m,m-1)
+c     end if
 
 
 c DEBUG
