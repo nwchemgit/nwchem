@@ -13,8 +13,8 @@ C
 #include "rimp2_timers.fh"
 #include "numerical_constants.fh"
 C
-      Logical MOVecs_Read_Header, Int_Normalize
-      External MOVecs_Read_Header, Int_Normalize
+      Logical MOVecs_Read_Header, MOVecs_Read, Int_Normalize
+      External MOVecs_Read_Header, MOVecs_Read, Int_Normalize
 C
       Integer LNBlnk
       External LNBlnk
@@ -25,8 +25,10 @@ C
       Integer MaxSpin
       Parameter (MaxSpin = 2)
 C
+      Integer MinChunk
+      Parameter (MinChunk = 64)
+C
       Integer NILimit
-c$$$      Parameter (NILimit = 10)
 C
       Character*(*) Def_Int, Def_MOVec
       Parameter (Def_Int = 'mo3cint', Def_MOVec = 'movecs')
@@ -46,6 +48,26 @@ C
       Character*(80) Title, SCFBasNam, FNVec, FNInt, String, Approx
       Logical Status
 C
+C     Handles and indices to for the "correlated" basis
+C
+      Integer H_Occ, H_EVal, H_CorMap
+      Integer I_Occ, I_EVal, I_CorMap
+      Integer G_AOXF(MaxSpin)
+      Integer NCorBF(MaxSpin), MxNCorBF
+C
+C     Handles and indices for the full SCF reference basis
+C     These are used only briefly to hold the full info
+C     while the map to the correlated basis is constructed and
+C     everything is gathered into the correlated basis stuff
+C     above.
+C
+      Integer H_Full_Occ, H_Full_EVal
+      Integer I_Full_Occ, I_Full_EVal
+      Integer G_Full_AOXF(MaxSpin)
+      Integer MxNMO
+C
+      Logical FullRef
+C
       Status = .TRUE.
       Status = Status .AND. Context_Push(My_Ctx)
 C
@@ -64,34 +86,194 @@ C     Load the geometry and basis sets
 C
       Status = Status .AND. Geom_Create( Geom, Geom_Name)
       Status = Status .AND. Geom_RTDB_Load( RTDB, Geom, Geom_Name)
-      If ( Me .eq. 0 )
-     $   Status = Status .AND. Geom_Print(Geom)
+c$$$      If ( Me .eq. 0 )
+c$$$     $   Status = Status .AND. Geom_Print(Geom)
 C
       Status = Status .AND. Bas_Create( AOBas, AOBasName)
       Status = Status .AND. Bas_RTDB_Load( RTDB, Geom, AOBas, AOBasName)
-c$$$      Call Banner( LuOut, 'AO basis prior to normalization', '-',
-c$$$     $   .TRUE., .TRUE., .FALSE.)
-c$$$      Status = Status .AND. Bas_Print( AOBas)
       Status = Status .AND. Int_Normalize( AOBas)
-c$$$      Call Banner( LuOut, 'AO basis after normalization', '-',
-c$$$     $   .TRUE., .TRUE., .FALSE.)
-c$$$      Status = Status .AND. Bas_Print( AOBas)
-c$$$      Status = Status .AND. GBS_Map_Print( AOBas)
 C
       Status = Status .AND. Bas_Create( FitBas, FitBasName)
       Status = Status .AND. Bas_RTDB_Load( RTDB, Geom, FitBas,
      $   FitBasName)
-c$$$      If ( Me .eq. 0)
-c$$$     $   Call Banner( LuOut, 'Fitting basis prior to normalization',
-c$$$     $   '-', .TRUE., .TRUE., .FALSE.)
-c$$$      Status = Status .AND. Bas_Print( FitBas)
       Status = Status .AND. Int_Normalize( FitBas)
+c$$$      If ( Me .eq. 0) then
+c$$$         Call Banner( LuOut, 'Fitting basis after normalization',
+c$$$     $      '-', .TRUE., .TRUE., .FALSE.)
+c$$$         Status = Status .AND. Bas_Print(FitBas)
+c$$$c$$$         Status = Status .AND. GBS_Map_Print( FitBas)
+c$$$      EndIf
+C
+C     Get other controls -- threshold for neglect of integrals, etc.
+C
+      Call RIMP2_Get_Param( RTDB, Thresh, NILimit, Approx)
+C
+C     Figure out file names
+C
+      if (.not. context_rtdb_match(rtdb, 'mo 3-center integral file',
+     $     FNInt)) FNInt = Def_Int
+C
+C
+C     ****************************
+C     * Get/create SCF reference *
+C     ****************************
+C
+      if (.not. context_rtdb_match(rtdb, 'input mo vector file',
+     $     FNVec)) FNVec = Def_movec
+C
+C     Check MOVecs file for number of spin cases
+C
+      If ( .NOT.  MOVecs_Read_Header(FNVec, Title, SCFBasNam, NAOBF,
+     $   TopSpin, NMO, MaxSpin) )
+     $   Call ErrQuit('RIMP2: Unable to open SCF eigenvectors', 0)
+C
+C
+C     Create space for all of the data from the MOVECS file
+C     and for the mapping functions
+C
+      MxNMO = 0
+      Do I = 1, TopSpin
+         MxNMO = Max( MxNMO, NMO(I) )
+      EndDo
+C
+      Status = .TRUE.
+      Status = Status .AND. MA_Alloc_Get(MT_Dbl, MxNMO * TopSpin,
+     $   'SCF occupation', H_Full_Occ, I_Full_Occ)
+      Status = Status .AND. MA_Alloc_Get(MT_Dbl, MxNMO * TopSpin,
+     $   'SCF eigenvalues', H_Full_Eval, I_Full_Eval)
+C
+      Do I = 1, TopSpin
+         Status = Status .AND.  GA_Create(MT_Dbl, NAOBF, NMO(I),
+     $      'AO transformation', MinChunk, MinChunk, G_Full_AOXF(I))
+      EndDo
+C
+      Status = Status .AND. MA_Push_Get(MT_Int, MxNMO * TopSpin,
+     $      'Correlation->SCF basis map', H_CorMap, I_CorMap)
+C
+      If ( .NOT. Status) Call ErrQuit(
+     $   'RIMP2: Insufficient space for SCF reference info', 0)
+C
+C     Read in the MOVECS data
+C
+      Status = .TRUE.
+      Do I = 1, TopSpin
+         Status = Status .AND. MOVecs_Read( FNVec, I,
+     $      Dbl_MB( I_Full_Occ + MxNMO * (I-1) ),
+     $      Dbl_MB(I_Full_EVal + MxNMO * (I-1) ), G_Full_AOXF(I) )
+      EndDo
+      If ( .NOT. Status) Call ErrQuit(
+     $   'RIMP2: Unable to read SCF reference info', 0)
+C
+C     Create the mapping functions
+C
+      Call Mk_Correl_Map(RTDB, MxNMO, TopSpin, NMO, Dbl_MB(I_Full_Occ),
+     $   Dbl_MB(I_Full_Eval), NCorBF, Int_MB(I_CorMap), FullRef )
+C
+C     Create space for all of the data we'll use in the calculation
+C
+      MxNCorBF = 0
+      Do I = 1, TopSpin
+         MxNCorBF = Max( MxNCorBF, NCorBF(I) )
+      EndDo
+C
+      Status = .TRUE.
+      Status = Status .AND. MA_Alloc_Get(MT_Dbl, MxNCorBF * TopSpin,
+     $   'SCF occupation', H_Occ, I_Occ)
+      Status = Status .AND. MA_Push_Get(MT_Dbl, MxNCorBF * TopSpin,
+     $   'SCF eigenvalues', H_Eval, I_Eval)
+C
+      Do I = 1, TopSpin
+         Status = Status .AND.  GA_Create(MT_Dbl, NAOBF, NCorBF(I),
+     $      'AO transformation', MinChunk, MinChunk, G_AOXF(I))
+      EndDo
+C
+      If ( .NOT. Status) Call ErrQuit(
+     $   'RIMP2: Insufficient space for SCF reference info', 1)
+C
+C     Form the new occupation, eigenvalues, and orbitals for
+C     the correlated calculation
+C
+      Do I = 1, TopSpin
+         Call Drop_Orbitals(
+     $      Dbl_MB(I_Full_Occ + MxNMO * (I-1) ),
+     $      Dbl_MB(I_Full_Eval + MxNMO * (I-1) ), G_Full_AOXF(I),
+     $      NCorBF(I), Int_MB(I_CorMap + MxNMO * (I-1) ),
+     $      Dbl_MB(I_Occ + MxNCorBF * (I-1) ),
+     $      Dbl_MB(I_Eval + MxNCorBF * (I-1) ), G_AOXF(I) )
+      EndDo
+C
+C     While we've got both the full and the computational reference
+C     here, print out some info about them.
+C
       If ( Me .eq. 0) then
-         Call Banner( LuOut, 'Fitting basis after normalization',
-     $      '-', .TRUE., .TRUE., .FALSE.)
-         Status = Status .AND. Bas_Print(FitBas)
-c$$$         Status = Status .AND. GBS_Map_Print( FitBas)
-      EndIf
+         Call Banner(LuOut, 'SCF Reference Information', '-',
+     $      .TRUE., .TRUE., .FALSE.)
+C
+         Write (LuOut, 9000) Title(:LNBlnk(Title)),
+     $      SCFBasNam(:LNBlnk(SCFBasNam)), NAOBF, TopSpin,
+     $      (NMO(i), i = 1, TopSpin)
+         Write (LuOut, 9010) (NCorBF(i), i = 1, TopSpin)
+C
+C        Warn users that everything from this point is labeled
+C        in a different basis.
+C
+         If ( .NOT. FullRef ) then
+            Write (LuOut, '(A)')
+            Call Banner(LuOut, 'IMPORTANT NOTE', '*',
+     $         .TRUE., .TRUE., .TRUE.)
+C
+            Write (LuOut, 9050)
+C
+            Call Print_Correl_Map(LuOut, TopSpin, NCorBF,
+     $         Int_MB(I_CorMap), MxNCorBF, 'I5',
+     $         Dbl_MB(I_Occ), MxNCorBF, 'F3.1',
+     $         Dbl_MB(I_Eval), MxNCorBF, 'F12.3', 80)
+         EndIf
+      EndIF
+C
+ 9000 Format( 1X, 'Source job:                   ''', A, ''''
+     $       /1X, 'Basis:                        ''', A, '''',
+     $       /1X, 'Nr. of AOs:                   ', I5,
+     $       /1X, 'Nr. of sets:                  ', I5,
+     $       /1X, 'Nr. of MOs:                   ', 10I5)
+ 9010 Format( 1X, 'Nr. of MOs to be correlated:  ', 10I5)
+ 9050 Format(1X, 'This correlated calculation is based on an SCF ',
+     $       'reference in which'/
+     $   1X, 'orbitals have been frozen or rearranged relative to ',
+     $        'the result of the'/
+     $   1X, 'SCF calculation.  The following mapping relates the ',
+     $       '''correlated'/
+     $   1X, 'basis'' used from here on out to the original SCF ',
+     $       'basis.  From this'/
+     $   1X, 'point on, orbitals are labeled in the ''correlated ',
+     $       'basis''.'/)
+C
+C     Now we can get rid of the full reference
+C
+      Status = .TRUE.
+      Status = Status .AND. MA_Free_Heap( H_Full_Occ  )
+      Status = Status .AND. MA_Free_Heap( H_Full_Eval )
+      Do I = 1, TopSpin
+         Status = Status .AND. GA_Destroy(G_Full_AOXF(I) )
+      EndDo
+      If (.NOT. Status) Call ErrQuit(
+     $   'RIMP2: Unable destroy local arrays', 1)
+C
+C     *************************************
+C     * Integral transformation (to disk) *
+C     *************************************
+C
+C     Get the basis set sizes we need
+C
+      Status = Status .AND. Bas_NumBF( AOBas, NAOBF)
+      Status = Status .AND. Bas_NumBF( FitBas, NFit)
+C
+C     Determine ranges to transform
+C
+      Do I = 1, TopSpin
+         Call Occ_Ranges( NCorBF(I), Dbl_MB(I_Occ + MxNCorBF * (I-1) ),
+     $      ILo(I), IHi(I), ALo(I), AHi(I) )
+      EndDo
 C
 C     Initialize integrals
 C
@@ -100,61 +282,24 @@ C
 C
       Call Int_Init( 2, Bases)
 C
-C     Figure out file names
 C
-*      if (.not. context_rtdb_match(rtdb, 'mo vector file', movecs))
-*     $     movecs = file_prefix_name('movecs')
-      if (.not. context_rtdb_match(rtdb, 'input mo vector file',
-     $     FNVec)) FNVec = Def_movec
-C
-      if (.not. context_rtdb_match(rtdb, 'mo 3-center integral file',
-     $     FNInt)) FNInt = Def_Int
-C
-C     Check MOVecs file for number of spin cases
-C
-      If ( .NOT.  MOVecs_Read_Header(FNVec, Title, SCFBasNam, NAOBF,
-     $   TopSpin, NMO, MaxSpin) )
-     $   Call ErrQuit('RIMP2: Unable to open SCF eigenvectors', 0)
-C
-      If ( Me .eq. 0) then
-         Call Banner(LuOut, 'SCF Eigenvector information', '-',
-     $      .TRUE., .TRUE., .FALSE.)
-C
-         Write (LuOut, 9000) Title(:LNBlnk(Title)),
-     $      SCFBasNam(:LNBlnk(SCFBasNam)), NAOBF, TopSpin,
-     $      (NMO(i), i = 1, TopSpin)
-      EndIF
-C
- 9000 Format(1X, 'Source job: ''', A, ''''
-     $   /1X,    'Basis:      ''', A, '''',
-     $   /1X,    'Nr. of AOs:  ', I5,
-     $   /1X,    'Nr. of sets: ', I5,
-     $   /1X,    'Nr. of MOs:  ', 10I5)
-
-C
-C     Get the basis set sizes we need
-C
-      Status = Status .AND. Bas_NumBF( AOBas, NAOBF)
-      Status = Status .AND. Bas_NumBF( FitBas, NFit)
-C
-C     Create space for eigenvalues
-C
-      Status = Status .AND. MA_Push_Get( MT_Dbl, NAOBF*TopSpin,
-     $   'SCF eigenvalues', H_EVal, EVal_Idx)
-C
-C     Get other controls -- threshold for neglect of integrals, etc.
-C
-      Call RIMP2_Get_Param( RTDB, Thresh, NILimit, Approx)
-C
-C     *************************************
-C     * Integral transformation (to disk) *
-C     *************************************
-C
-c$$$      Write (LuOut, *) 'About to call transformation'
       Status = Status .AND.
-     $   RIMP2_XF_Driver( Geom, AOBas, FitBas, Dbl_MB(EVal_Idx), NAOBF,
-     $   TopSpin, FNVec, FNInt, ALo, AHi, ILo, IHi, NILimit, Thresh,
-     $   Approx)
+     $   RIMP2_XF_Driver( Geom, AOBas, FitBas,
+     $   TopSpin, FNInt, ALo, AHi, ILo, IHi, NILimit, Thresh,
+     $   Approx, G_AOXF)
+C
+C     Finished with the AO transformation
+C
+      Status = .TRUE.
+      Do I = TopSpin, 1, -1
+         Status = Status .AND.  GA_Destroy( G_AOXF(I))
+      EndDo
+      If ( .NOT. Status) Call ErrQuit(
+     $   'RIMP2: Unable to destroy AO transformation', 0)
+C
+C     Done computing integrals
+C
+      Call Int_Terminate
 C
 C     Shift ranges of virtual and occupieds into the _number_ of each
 C
@@ -174,11 +319,10 @@ C     **********************
 C     * Energy calculation *
 C     **********************
 C
-c$$$      Write (LuOut, *) 'About to compute energy'
       Status = Status .AND.
-     $   RIMP2_V_E2( FNInt, TopSpin, NAOBF, IHi, AHi, NFit, FitBas,
-     $   Dbl_MB(EVal_Idx), Dbl_MB(Contrib_Idx), CorEner, NILimit,
-     $   NILimit)
+     $   RIMP2_V_E2( FNInt, TopSpin, NCorBF, IHi, AHi, NFit, FitBas,
+     $   Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx), CorEner,
+     $   NILimit, NILimit)
 C
 C     Also get the SCF energy so we can report the total energy
 C
@@ -213,21 +357,26 @@ C     ***********
 C     * Cleanup *
 C     ***********
 C
-c$$$      Write (LuOut, *) 'Cleaning up'
+      Status = .TRUE.
       Status = Status .AND. MA_Pop_Stack( H_Contrib)
-      Status = Status .AND. MA_Pop_Stack( H_EVal)
-C
-      Call Int_Terminate
+      Status = Status .AND.  MA_Pop_Stack(H_Eval)
+      Status = Status .AND.  MA_Pop_Stack(H_CorMap)
+      If ( .NOT. Status) Call ErrQuit(
+     $   'RIMP2: Unable to destroy local arrays', 0)
 C
       Status = Status .AND. Geom_Destroy( Geom)
       Status = Status .AND. Bas_Destroy( FitBas)
       Status = Status .AND. Bas_Destroy( AOBas)
+      If (.NOT. Status) Call ErrQuit(
+     $   'RIMP2: Failed to destroy geometry and  basis sets', 0)
 C
       Call PStat_Off( PS_Overall)
       Call RIMP2_PStat_Print
       Call RIMP2_PStat_Term
 C
       Status = Status .AND. Context_Pop(My_Ctx)
+      If (.NOT. Status) Call ErrQuit(
+     $   'RIMP2: Failed to pop context', 0)
 C
       RIMP2 = .TRUE.
       Return

@@ -3,17 +3,19 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.7 1994-08-28 01:37:17 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.8 1994-09-02 01:09:11 gg502 Exp $
 C
 C SYNOPSIS
-      Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO, NOcc, NVir,
-     $   NFit, FitBas, Eig, Contrib, E2, IBlock, JBlock)
+      Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
+     $   NOcc, NVir, NFit, FitBas, Eig, LDEig, Contrib, E2,
+     $   IBlock, JBlock)
       Implicit NONE
 C
       Character*(*) FNInt
-      Integer TopSpin, NMO, NFit, FitBas, IBlock, JBlock
+      Integer TopSpin, NMO(TopSpin), NFit, FitBas, IBlock, JBlock, LDEig
       Integer NOcc(TopSpin), NVir(TopSpin)
-      Double precision Eig(NMO, TopSpin), Contrib(TopSpin, TopSpin), E2
+      Double precision Eig(LDEig, TopSpin), Contrib(TopSpin, TopSpin)
+      Double precision E2
 C
 C ARGUMENTS
 C     FNInt    File name for MO basis 3-center integrals [IN]
@@ -113,8 +115,8 @@ C
          RIMP2_V_E2 = .FALSE.
          Return
       EndIf
-      If (NMO .lt. 1) then
-         Write (LuErr, *) ' Bad value of NMO ', NMO
+      If (LDEig .lt. 1) then
+         Write (LuErr, *) ' Bad value of LDEig ', LDEig
          RIMP2_V_E2 = .FALSE.
          Return
       EndIf
@@ -128,8 +130,8 @@ C
          RIMP2_V_E2 = .FALSE.
          Return
       EndIf
-      If (NOcc(1) + NVir(1) .gt. NMO
-     $   .OR. NOcc(TopSpin) + NVir(TopSpin) .gt. NMO ) then
+      If (NOcc(1) + NVir(1) .gt. NMO(1)
+     $   .OR. NOcc(TopSpin) + NVir(TopSpin) .gt. NMO(TopSpin) ) then
          Write (LuErr, *) ' Bad value of NOcc+NVir ', NOcc, '+', NVir
          RIMP2_V_E2 = .FALSE.
          Return
@@ -149,9 +151,6 @@ C
 C     Clear out the energy contribution matrix
 C
       Call DGEZER(TopSpin, TopSpin, Contrib, TopSpin)
-c$$$C
-c$$$      Call DGEWr(NMO, TopSpin, Eig, NMO, 0, 0, LuOut,
-c$$$     $   'SCF eigenvalues', 80, 'E15.6', Junk)
 C
       Status = .TRUE.
       Status = Status .AND. MA_Push_Get(MT_Int, 2*TopSpin-1,
