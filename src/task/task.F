@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.58 2004-04-20 22:33:33 marat Exp $
+* $Id: task.F,v 1.59 2004-04-21 06:32:02 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -264,7 +264,6 @@ c     *** task_paw handles paw specific "operations" ***
       endif
 
       if(ocons) call cons_end(rtdb)
-      if(ocons) call cons_print_summary(rtdb)
 c
       call ga_sync()
 99999 continue

@@ -13,6 +13,7 @@ c     Fortran does not like recursive calls, so for ease of coding
 c     ONIOM do ONIOM out here so that it call call task_energy_doit().
 c
       logical status, ignore
+      logical ocons
       character*32 theory
       double precision cpu, wall, energy, dipole(3)
       logical task_energy_doit, oniom_energy
@@ -57,7 +58,7 @@ c
             endif
          endif
       endif
-      if(rtdb_get(rtdb, 'cons:active', mt_log, 1, status)) then
+      if(rtdb_get(rtdb, 'cons:active', mt_log, 1, ocons)) then
         call cons_add_energy(rtdb,energy)
       end if
 
@@ -92,7 +93,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.38 2004-04-01 07:43:33 marat Exp $
+* $Id: task_energy.F,v 1.39 2004-04-21 06:32:02 marat Exp $
 *
       implicit none
 #include "errquit.fh"

@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.39 2004-03-30 23:32:20 marat Exp $
+* $Id: task_gradient.F,v 1.40 2004-04-21 06:32:02 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -15,6 +15,7 @@ c
       integer rtdb
 c
       logical status, ignore, numerical
+      logical ocons
       logical task_qmmm
       character*32 theory
       double precision cpu, wall, energy, dipole(3), 
@@ -81,7 +82,7 @@ c
          endif
       endif
 c
-      if(rtdb_get(rtdb, 'cons:active',mt_log, 1, status)) then
+      if(rtdb_get(rtdb, 'cons:active',mt_log, 1, ocons)) then
         call cons_add_egrad(rtdb,energy,gradient)
       end if
 c
@@ -137,7 +138,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.39 2004-03-30 23:32:20 marat Exp $
+* $Id: task_gradient.F,v 1.40 2004-04-21 06:32:02 marat Exp $
 *
       implicit none
 #include "errquit.fh"
