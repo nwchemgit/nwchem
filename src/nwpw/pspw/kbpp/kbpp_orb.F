@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_orb.F,v 1.10 2004-01-28 00:08:46 bylaska Exp $
+* $Id: kbpp_orb.F,v 1.11 2004-02-24 21:47:31 bylaska Exp $
 *
 *     **************************************
 *     *                                    *
@@ -7,22 +7,23 @@
 *     *                                    *
 *     **************************************
 
-      logical function kbpp_orb(oprint,version,
+      logical function kbpp_orb(oprint_in,version,
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax)
       implicit none
+      logical          oprint_in
+      integer          version
+      character*25     psp_filename,formatted_filename
+      integer          ngrid(3)
+      double precision unita(3,3)
+      integer locp,lmax
+
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "util.fh"
 
-      logical          oprint
-      integer          version
-      character*25     psp_filename,formatted_filename
-      integer          ngrid(3)
-      double precision unita(3,3)
-      integer locp,lmax
       character*255 full_filename
 
       logical value
@@ -56,7 +57,7 @@
       double precision unitg(3,3),omega
       integer nsize,i,l,ierr
       integer nfft1,nfft2,nfft3
-      logical mprint,dprint
+      logical mprint,dprint,oprint
 
 *     **** external functions ****
       logical  control_print
@@ -69,7 +70,7 @@
       call Parallel_taskid(taskid)
       mprint = (taskid.eq.MASTER).and.control_print(print_medium)
       dprint = (taskid.eq.MASTER).and.control_print(print_debug)
-      oprint = oprint.or.dprint
+      oprint = (oprint_in.or.dprint)
 
       value = .false.
   
