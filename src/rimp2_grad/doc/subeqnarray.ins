@@ -1,0 +1,87 @@
+%%
+%% This file will generate fast loadable files and documentation
+%% driver files from the doc files in this package when run through
+%% LaTeX or TeX.
+%%
+%% 
+%%  This file is distributed in the hope that it will be useful,
+%%  but WITHOUT ANY WARRANTY; without even the implied warranty of
+%%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% Copyright (C) 1994,1995 Johannes Braams
+%% All rights reserved.
+%% For additional copyright information see further down in this file.
+%% 
+%% Permission is granted to distributed verbatim copies of this file.
+%% 
+%% No other permissions to copy or distribute this file in any form
+%% are granted and in particular no permission to modify its contents.
+%%
+%% --------------- start of docstrip commands ------------------
+%%
+\def\batchfile{subeqnarray.ins}
+\input docstrip.tex
+\preamble
+
+
+ This file is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+IMPORTANT NOTICE:
+
+Copyright (C) 1994,1995 Johannes Braams
+All rights reserved.
+For additional copyright information see further down in this file.
+
+Permission is granted to distributed verbatim copies of this file.
+
+No other permissions to copy or distribute this file in any form
+are granted and in particular no permission to modify its contents.
+\endpreamble
+% ignored commands
+\def\batchfile{subeqnarray.dst}
+\input docstrip.tex
+
+
+%  package file
+
+\generateFile{subeqnarray.sty}{t}{\from{subeqnarray.dtx}{package}}
+
+% The sample file
+
+\preamble
+
+This file is part of the subeqnarray package.
+---------------------------------------------
+
+Copyright (C) 1988--1995 Johannes Braams. All rights reserved.  
+
+You are not allowed to change this file. 
+
+Run this file through LaTeX to demonstrate the features
+of the subeqnarray package.
+
+\endpreamble
+
+\generateFile{subeqnarray.tex}{t}{\from{subeqnarray.dtx}{sample}}
+
+\Msg{***********************************************************}
+\Msg{*}
+\Msg{* To finish the installation you have to move the following}
+\Msg{* file into a directory searched by TeX:}
+\Msg{*}
+\Msg{* \space\space subeqnarray.sty}
+\Msg{*}
+\Msg{* To produce the documentation run the file subeqnarray.dtx}
+\Msg{* through LaTeX.}
+\Msg{*}
+\Msg{* To produce a sample run the file subeqnarray.tex}
+\Msg{* through LaTeX.}
+\Msg{*}
+\Msg{* Happy TeXing}
+\Msg{***********************************************************}
+
+\endinput

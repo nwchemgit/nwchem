@@ -1,0 +1,107 @@
+%    Supported drivers sofar:
+%         dvitops           (James Clark)
+%         dvips             (Tom Rokicki)
+%         dvitoln03         (Brian {Hamilton Kelly})
+%         emTeX (dvidrv)    (Eberhard Mattes)
+%
+% change history
+%
+%       Revisions:
+%               Support for twosided.sty added. January, 1987.
+%
+%               Warning message added to indicate that another pass is
+%               required. May, 1987.
+%
+%               Converted to work with dvitops.  March 1990.
+%               Neil Winton (nwinton@axion.bt.co.uk)
+%
+%               Usage by several drivers SPQR spqr@uk.ac.soton.ecs
+%
+% v2.0 22-11-90 JLB  merged the original file with  Niel Winton's mods
+%        now supports both DVI2LN3 and DVItoPS specials. This introduces 
+%        one extra user-command, \device{<device>}. If he says \device{PS} 
+%        the PostScript \specials (DVItoPS by James Clark) will be used, 
+%        anything else gives the original LN03 \specials.
+%
+% v2.1 06-04-91 SPQR changed the \ifPS statements to be case
+%        statements which check the value of a counter called \driver@setup, 
+%        and issue specials accordingly. dvitops, dvips and LN03 are only
+%        drivers supported.
+% v2.2 07-03-91 JLB  Located all \specials in one place by defining
+%        the use of three new macros. Supplied a user command to select 
+%        the driver and added code to \document for initializing the 
+%        \special-macros.
+% v2.2a 08-03-91 JLB \ps@scale needs a different value for DVItoPS and DVIPS
+%        so moved initialization of it inside \setup@specials
+% v2.2b 08-03-91 JLB The definitions of the \connect macro needed extra
+%        \space commands, because its arguments can be control sequences.
+% v2.2c 08-04-91 JLB Removed use of \cb@beginSaves and \cb@saveBeginPoint
+%        because - it didn't work as specified
+%                - seemed unnecessary
+%                - broke PostScript support because of use of \xdef
+%        \cb@processActive now calls \cb@setBeginPoint instead of 
+%        \cb@saveBeginPoint. Left the code and comment in for now 
+%        until I'm sure this change doesn't break anything else...
+% v2.2d 30-4-91  EN  changed resolution dependent parameters in dvips 
+%        specials so it will work on any device using the device's resolution.
+%        Additionally added \newif\ifouterbars. \outerbarstrue will put 
+%        the bars to the outside of the pages.
+%        Without the twoside option this will give right hand side bars.
+%        The positioning of right edge changebars was off by \changebarsep, 
+%        this has been corrected also.
+%        I do not know if there are changes needed in other than Tom Rokicki's 
+%        drivers since this is the only one I can test.
+% v2.2e 13-6-91  JB  The documentation stated that the greylevel of the 
+%        changebar could be modified with the command 
+%        \setcounter{\changebargrey}{percentage}.
+%        This was a mistake, \changebargrey was allocated using \newcount 
+%        (always). Now modified to use \newcount for plain TeX and 
+%        \newcounter for LaTeX.
+% v2.2f 15-10-91 JB  Added support for the emTeX drivers, based on
+%        information from Eberhard Mattes about version 1.4j of the dvidrv
+%        program. Also started updating the documentation towards doc.sty
+%        standards.
+% v2.3  15-10-91 JB  Started merging this version of changebar.sty with
+%        version, dated 1988, distributed with DVItoLN03. This will eventually
+%        result in version 3.0, hopefully documented using doc.sty.
+%        Removed vain attempt to make file compatile with plain.
+% v2.4  16-10-91 JB Reduced the number of points defined to two per
+%        bar, removed the need for \cb@tempcnt while removing the problem
+%        with incorrect changebars across pageboundaries in PostScript
+%        mode. Also \ps@scale has been removed.
+% v3.0  14-nov-91 JB Completed converting the documentation to doc.sty
+%        format. Also solved the problem with bars appearing on the wrong
+%        side.
+% 
+% v3.1  02-07-93 JB Finally got round to include Erich Neuwirth's comments
+%	and made a new distribution. Erich corrected the placement of the
+%	bars and the conversion of the coordinates when DVIps (Rokicki)
+%	is used. Also included Hal Peterson's comments about spaces
+%	creeping into the output.
+% 
+% v3.1b 11-10-93 Spurious white space crept into footnotes because of
+%	a missing %-sign. Found by Norm Walsh <walsh@cs.umass.edu>.
+%       Fixed.
+%
+% v3.2b 30-06-95 Finally got the LaTeX2e version working; see \changes
+%       entries in the .dtx file to see what changed.
+%       Changebar now uses the LaTeX option mechanism; so \driver 
+%       disappeared.
+%       New options are leftbars and rightbars, tracon and traceoff.
+%
+% v3.2c 26-03-96 Reintroduced the \driver command in compatibility
+%       mode. Fixed the checksum.
+%       Juergen Vollmer <vollmer@ipd.info.uni-karlsruhe.de> enhanced
+%       the shell script which automatically adds changebar commands
+%       to your document.
+%
+% Known problems
+%        - With PostScript a dictstack overflow seems to occur with
+%          many changebars. cb@maxpoint=20 seems to help
+%        - A change bar that begins or ends very near to where TeX
+%          decides to break the page may lead to unexpected results. 
+%          A solution has not been found yet.
+%        - I have received the file chgbar.sty, which was written by
+%          David B. Johnson (dbj@titan.rice.edu) back in 1990. It uses
+%          LaTeX marginpar mechanism to implement change bars. I Haven't
+%          yet dared to see if I can merge these two packages into one

@@ -1,0 +1,15 @@
+%
+% CONTENTS OF THE CHANGEBAR BUNDLE
+% ================================
+%
+% changebar.dtx   -- A LaTeX2e package that provides commands to add
+%                    change bars to a document. Relies on \specials.
+%
+% changebar.ins   -- The installation script.
+%
+% changebar.bug   -- A (historical) list of changes and of known
+%                    (existing) problems.
+%
+% chbar.sh        -- A Unix sh script to compare two version of a
+%                    document and automatically add changebars to the
+%                    modified document.

@@ -1,0 +1,111 @@
+%%
+%% This file will generate fast loadable files and documentation
+%% driver files from the doc files in this package when run through
+%% LaTeX or TeX.
+%%
+%% 
+%%  This file is distributed in the hope that it will be useful,
+%%  but WITHOUT ANY WARRANTY; without even the implied warranty of
+%%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% Copyright (C) 1994,1996 Johannes Braams
+%% All rights reserved.
+%% For additional copyright information see further down in this file.
+%% 
+%% Permission is granted to distributed verbatim copies of this file.
+%% 
+%% No other permissions to copy or distribute this file in any form
+%% are granted and in particular no permission to modify its contents.
+%%
+%% --------------- start of docstrip commands ------------------
+%%
+\def\batchfile{changebar.ins}
+\input docstrip.tex
+\preamble
+
+
+This is a generated file.
+
+Copyright 1994-1996 Johannes Braams.  All rights reserved.
+
+For further copyright information see any other copyright notices in
+this file.
+
+  This file is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+  For error reports concerning UNCHANGED versions of this file no more
+  than one year old, send a bug report, using latex-bugs.tex to me at
+  the address jlbraams@cistron.nl.
+
+  Please do not request updates from me directly.  Primary
+  distribution is through the CTAN archives.
+
+
+IMPORTANT COPYRIGHT NOTICE:
+
+You are NOT ALLOWED to distribute this file alone.
+
+You are allowed to distribute this file under the condition that it is
+distributed together with all the files listed in manifest.txt.
+
+If you receive only some of these files from someone, complain!
+
+Permission is granted to copy this file to another file with a clearly
+different name and to customize the declarations in that copy to serve
+the needs of your installation.
+
+However, NO PERMISSION is granted to generate or to distribute a
+modified version of this file under its original name.
+ 
+You are NOT ALLOWED to change this file.
+
+
+MODIFICATION ADVICE:
+
+If you want to customize this file, it is best to make a copy of the
+source file(s) from which it was produced.  Use a different name for
+your copy(ies) and modify the copy(ies); this will ensure that your
+modifications do not get overwritten when you install a new release of
+the standard system.  You should also ensure that your modified source
+file does not generate any modified file with the same name as a
+standard file.  You can then easily distribute your modifications by
+distributing the modified and renamed copy of the source file; this
+will ensure that other users can safely use your modifications.
+
+You will also need to produce your own, suitably named, .ins file to
+control the generation of files from your source file; this file
+should contain your own preambles for the files it generates, not
+those in the standard .ins file.
+
+The names of the source files used are shown above.
+
+
+
+\endpreamble
+\def\batchfile{changebar.dst}
+\input docstrip.tex
+\keepsilent
+
+%  package file
+
+\generateFile{changebar.sty}{t}{\from{changebar.dtx}{package}}
+
+\Msg{***********************************************************}
+\Msg{*}
+\Msg{* To finish the installation you have to move the following}
+\Msg{* file into a directory searched by TeX:}
+\Msg{*}
+\Msg{* \space\space changebar.sty}
+\Msg{*}
+\Msg{* To produce the documentation run the file changebar.dtx}
+\Msg{* through LaTeX, then run makeindex -s gind.ist changebar}
+\Msg{  produce the index in a second LaTeX run.}
+\Msg{*}
+\Msg{* Happy TeXing}
+\Msg{***********************************************************}
+
+\endinput

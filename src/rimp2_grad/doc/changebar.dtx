@@ -1,0 +1,1566 @@
+% \iffalse meta-comment
+%
+% Copyright 1994-1996 Johannes Braams.  All rights reserved.
+% 
+% For further copyright information see and any other copyright notices
+% in this file.
+% 
+%   This file is distributed in the hope that it will be useful,
+%   but WITHOUT ANY WARRANTY; without even the implied warranty of
+%   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+% 
+%   For error reports concerning UNCHANGED versions of this file no more
+%   than one year old, send a bug report, using latex-bugs.tex to me at
+%   the address jlbraams@cistron.nl.
+% 
+%   Please do not request updates from me directly.  Primary
+%   distribution is through the CTAN archives.
+% 
+% 
+% IMPORTANT COPYRIGHT NOTICE:
+% 
+% You are NOT ALLOWED to distribute this file alone.
+% 
+% You are allowed to distribute this file under the condition that it is
+% distributed together with all the files listed in manifest.txt.
+% 
+% If you receive only some of these files from someone, complain!
+% 
+% Permission is granted to copy this file to another file with a clearly
+% different name and to customize the declarations in that copy to serve
+% the needs of your installation.
+% 
+% However, NO PERMISSION is granted to produce or to distribute a
+% modified version of this file under its original name.
+%  
+% You are NOT ALLOWED to change this file.
+% 
+% 
+% \fi
+% \CheckSum{973}
+%
+%\iffalse
+%    This file is built for \LaTeXe, so we make sure an error is
+%    generated when it is used with another format
+%    \begin{macrocode}
+%<+package>\NeedsTeXFormat{LaTeX2e}
+%    \end{macrocode}
+%
+%    Now announce the package name and its version:
+%    \begin{macrocode}
+%<*dtx>
+\ProvidesFile{changebar.dtx}
+%</dtx>
+%<+package>\ProvidesPackage{changebar}
+           [1996/03/26 v3.2c Indicate changes with marginal bars]
+%    \end{macrocode}
+%
+% \section{A driver for this document}
+%
+%    The next bit of code contains the documentation driver file for
+%    \TeX{}, i.e., the file that will produce the documentation you
+%    are currently reading. It will be extracted from this file by the
+%    \textsc{docstrip} program.
+%
+%    \begin{macrocode}
+%<*driver>
+\documentclass{ltxdoc}
+%    \end{macrocode}
+%    We do want an index, using linenumbers
+%    \begin{macrocode}
+\EnableCrossrefs
+\CodelineIndex
+%    \end{macrocode}
+%    This document uses some extra \texttt{doc} style macros.
+%    \begin{macrocode}
+\makeatletter
+\def\DescribeVar#1{\leavevmode\@bsphack
+    \marginpar{\raggedleft\PrintDescribeEnv{#1}}%
+    \SpecialVarUsageIndex{#1}\@esphack\ignorespaces}
+\def\SpecialVarMainIndex#1{\@bsphack
+    \index{#1\actualchar\texttt{#1}\encapchar main}%
+    \@esphack}
+\def\SpecialVarUsageIndex#1{\@bsphack
+    \index{#1\actualchar\texttt{#1}\encapchar usage}%
+    \@esphack}
+\let\@SpecialMainIndex\SpecialMainIndex
+\def\Var{\let\SpecialMainIndex\SpecialVarMainIndex\macro}
+\def\endVar{\endmacro\let\SpecialMainIndex\@SpecialMainIndex}
+\makeatother
+%    \end{macrocode}
+%    Some commonly used abbreviations
+%    \begin{macrocode}
+\newcommand\Lopt[1]{\textsf {#1}}
+\newcommand\Lenv[1]{\textsf {#1}}
+\newcommand\file[1]{\texttt {#1}}
+\newcommand\Lcount[1]{\textsl {\small#1}}
+\newcommand\pstyle[1]{\textsl {#1}}
+%    \end{macrocode}
+%    We also want the full details.
+%    \begin{macrocode}
+\begin{document}
+\DocInput{changebar.dtx}
+\end{document}
+%</driver>
+%    \end{macrocode}
+%\fi
+%
+% \GetFileInfo{changebar.dtx}
+%
+% \changes{3.1}{1993/07/02}{Removed a number of typos}
+% \changes{3.1a}{1993/08/03}{Uncommented \cs{filedate} and
+%    \cs{fileversion}}
+% \changes{3.2}{1994/04/21}{Incorporated Robin Fairbairns suggestions
+%    for the upgrade for \LaTeX2e}
+% \changes{3.2a}{1995/03/20}{Fixed bug about cross-page bars}
+% \changes{v3.2b}{1995/06/26}{Removed use of \cs{file...} commands}
+% \changes{v3.2b}{1995/06/26}{Use \LaTeX's Warning mechanisms}
+% \changes{v3.2c}{1996/03/26}{Reinserted \cs{driver} for compatibility
+%    reasons} 
+%
+% \title{The Changebar package
+%         \thanks{This file has version number \fileversion,
+%                 last revised \filedate.}}
+%
+% \author{Michael Fine\\Distributed Systems Architecture}
+%
+% \author{Johannes Braams\\
+%         Kooienswater 62\\
+%         2215 AK Zoetermeer\\
+%         The Netherlands\\
+%         \texttt{JLBraams@cistron.nl}}
+%
+% \date{Printed \today}
+%
+% \maketitle
+%
+% \begin{multicols}{2}
+%  \tableofcontents
+% \end{multicols}
+%
+% \begin{abstract}
+%    This package implements a way to indicate
+%    modifications in a \LaTeX-document by putting bars in the
+%    margin. It realizes this by making use of the |\special|
+%    commands supported by `dvi drivers'.  Currently four different
+%    drivers are supported. More can easily be added.
+% \end{abstract}
+%
+% \section{Introduction}
+%
+%    IMPORTANT NOTE: Just as with cross references and labels, you
+%    usually need to process the document twice (and sometimes three
+%    times) to ensure that the changebars come out correctly.
+%    However, a warning will be given if another pass is required.
+%
+%
+%    FEATURES:
+%    \begin{itemize}
+%    \item Changebars may be nested within each other.  Each level of
+%    nesting can be given a different thickness bar. 
+%
+%    \item Changebars may be nested in other environments including
+%    floats and footnotes.
+%
+%    \item Changebars are applied to all the material within the
+%    ``barred'' environment, including floating bodies regardless of
+%    where the floats float to.  An exeception to this are margin
+%    floats.
+%
+%    \item Changebars may cross page boundaries.
+%    \end{itemize}
+%
+% \section{The user interface}
+%
+%    This package has options to specify some details of its
+%    operation, and also defines several macros.
+%
+% \subsection{The package options}
+%
+%    One set of package options/footnote{For older documents the
+%    command \cs{driver} is available in the preamble of the document.
+%    It takes the options as defined for \LaTeXe\ as argument.}
+%    specify the driver that will be used to print the document can be
+%    indicated. The driver may be one of: 
+%    \begin{itemize}
+%      \item DVItoLN03
+%      \item DVItoPS
+%      \item DVIps
+%      \item em\TeX
+%    \end{itemize}
+%    The drivers are represented in the normal typewriter method of
+%    typing these names, or by the same entirely in lower case.
+%
+%    The position of the bars may either be on the inner edge of the
+%    page (the left column on a recto or single-sided page, the right
+%    column of a verso page) by use of the \Lopt{innerbars} package
+%    option (the default), or on the outer edge of the page by use of
+%    the the \Lopt{outerbars} package option.
+%
+%    The package also implements tracing for its own debugging.  The
+%    package options \Lopt{traceon} and \Lopt{traceoff} control
+%    tracing.
+%
+% \subsection{Macros defined by the package}
+%
+% \DescribeMacro{\cbstart}
+% \DescribeMacro{\cbend}
+%    All material between the macros |\cbstart| and |\cbend| is
+%    barred.  The nesting of multiple changebars is allowed.  The
+%    macro |\cbstart| has an optional parameter that specifies the
+%    width of the bar. The syntax is |\cbstart[|\meta{dimension}|]|.
+%    If no width is specified, the current value of the parameter
+%    |\changebarwidth| is used.  Note that |\cbstart| and |\cbend| can
+%    be used anywhere but must be correctly nested with floats and
+%    footnotes.  That is, one cannot have one end of the bar inside a
+%    floating insertion and the other outside, but that would be a
+%    meaningless thing to do anyhow.
+%
+% \DescribeEnv{changebar}
+%    Apart from the macros |\cbstart| and |\cbend| a proper \LaTeX\
+%    environment is defined. The advantage of using the environment
+%    whenever possible is that \LaTeX\ will do all the work of
+%    checking the correct nesting of different environments.
+%
+% \DescribeMacro{\cbdelete}
+%    The macro |\cbdelete| puts a square bar in the margin to indicate
+%    that some text was removed from the document. The macro has an
+%    optional argument to specify the width of the bar. When no
+%    argument is specified the current value of the parameter
+%    |\deletebarwidth| will be used.
+%
+% \DescribeMacro{\nochangebars}
+%    The macro |\nochangebars| disables the changebar commands.
+%
+% \subsection{Changebar parameters}
+%
+% \DescribeMacro{\changebarwidth}
+%    The width of the changebars is controlled with the \LaTeX\ length
+%    parameter |\changebarwidth|.
+%    Its value can be changed with the |\setlength| command.
+%    Changing the value of |\changebarwidth| affects all subsequent
+%    changebars subject to the scoping rules of |\setlength|.
+%
+% \DescribeMacro{\deletebarwidth}
+%    The width of the deletebars is controlled with the \LaTeX\ length
+%    parameter |\deletebarwidth|.
+%    Its value can be changed with the |\setlength| command.
+%    Changing the value of |\changebarwidth| affects all subsequent
+%    deletebars subject to the scoping rules of |\setlength|.
+%
+% \DescribeMacro{\changebarsep}
+%    The separation between the text and the changebars is determined
+%    by the value of the \LaTeX\ length parameter |\changebarsep|.
+%
+% \DescribeVar{changebargrey}
+%    When one of the supported dvi to PostScript translators is used
+%    the `blackness' of the bars can be controlled. The \LaTeX\
+%    counter \texttt{changebargrey} is used for this purpose. Its
+%    value can be changed with a command like:
+%    \begin{verbatim}
+%    \setcounter{changebargrey}{85}
+%    \end{verbatim}
+%    The value of the counter is a percentage, where the value 0 yields
+%    black bars, the value 100 yields white bars.
+%
+% \DescribeVar{outerbars}
+%    The changebars will be printed in the `inside' margin of your
+%    document.  This means they appear on the left side of the
+%    page. When \Lopt{twoside} is in effect the bars will be printed
+%    on the right side of even pages.  This behaviour can be changed
+%    by including the command |\outerbarstrue| in your document.
+%
+%
+% \section{Deficiencies and bugs}
+%
+% \begin{itemize}
+% \item The macros blindly use specials points |\cb@minpoint| through
+%    |\cb@maxpoint|. If this conflicts with another set of macros, the
+%    results will be unpredictable.  (What is really needed is a
+%    |\newspecialpoint|, analogous to |\newcount| etc.~--- it's not
+%    provided because the use of the points is rather rare.)
+%
+% \item There is a limit of 
+%    $(\mbox{\texttt{\bslash cb@maxpoint}}-
+%    \mbox{\texttt{\bslash cb@minpoint}}+1)/2$ bars per page
+%    (two special points per bar).  Using more than this number yeilds
+%    unpredictable results (but that could be called a feature for a
+%    page with so many bars).  This limitation could be increased if
+%    desired.
+%
+% \item Internal macro names are all of the form |\cb@xxxx|.  No
+%    checking for conflicts with other macros is done.
+%
+% \item This implementation does not work with two (or more) column
+%    printing.
+%
+% \item The algorithms may fail if a floating insertion is split over
+%    multiple pages.  In \LaTeX\ floats are not split but footnotes
+%    may be.  The simplest fix to this is to prevent footnotes from
+%    being split but this may make \TeX\ very unhappy.
+%
+% \item The |\cbend| normally gets ``attached'' to the token after it
+%    rather than the one before it.  This may lead to a longer bar
+%    than intended.  For example, consider the sequence `word1
+%    |\cbend| word2'.  If there is a line break between `word1' and
+%    `word2' the bar will incorrectly be extended an extra line.  This
+%    particular case can be fixed with the incantation
+%    `word1|\cbend{}| word2'.
+%  \end{itemize}
+%
+% \section{The basic algorithm}
+%
+%    The changebars are implemented using the |\specials| of various
+%    \texttt{dvi} interpreting programs like \texttt{DVItoLN03} or
+%    \texttt{DVIps}.  In essence, the start of changebar defines a
+%    |\special| point in the margin at the current vertical position
+%    on the page.  The end of a changebar defines another point and
+%    then joins the two using the ``connect'' |\special|.
+%
+%    This works fine as long as the two points being connected lie on
+%    the same page.  However, if they don't, the bar must be
+%    artificially terminated at the page break and restarted at the
+%    top of the next page.  The only way to do this (that I can think
+%    of) is to modify the output routine so that it checks if any bar
+%    is in progress when it ships out a page and, if so, adds the
+%    necessary artificial end and begin.
+%
+%    The obvious way to indicate to the output routine that a bar is
+%    in progress is to set a flag when the bar is begun and to unset
+%    this flag when the bar is ended.  This works most of the time
+%    but, because of the asynchronous behavior of the output routine,
+%    errors occur if the bar begins or ends near a page break.  To
+%    illustrate, consider the following scenario.
+%
+%    \begin{verbatim}
+%    blah blah blah          % page n
+%    blah blah blah
+%    \cbstart                % this does its thing and set the flag
+%    more blah
+%               <-------------- pagebreak occurs here
+%    more blah
+%    \cbend                  % does its thing and unsets flag
+%    blah blah
+%    \end{verbatim}
+%
+%    Since \TeX\ processes ahead of the page break before invoking the
+%    output routine, it is possible that the |\cbend| is
+%    processed, and the flag unset, before the output routine is
+%    called.  If this happens, special action is required to generate
+%    an artificial end and begin to be added to page $n$ and $n+1$
+%    respectively, as it is not possible to use a flag to signal
+%    the output routine that a bar crosses a page break.
+%
+%    The method used by these macros is to create a list of the
+%    beginning and end points of each bar in the document together
+%    with the page number corresponding to each point.  Then, as a
+%    page is completed, a modified output routine checks the list to
+%    determine if any bars begun on or before the current page are
+%    terminated on subsequent pages, and handles those bars
+%    appropriately.  To build the list, information about each
+%    changebar is written to the \file{.aux} file as bars are processed.
+%    This information is re-read when the document is next processed.
+%    Thus, to ensure that changebars are correct, the document must
+%    be processed twice.  Luckily, this is generally required for
+%    \LaTeX\ anyway.
+%
+%    This approach is sufficiently general to allow nested bars, bars
+%    in floating insertions, and bars around floating insertions.
+%    Bars inside floats and footnotes are handled in the same way as
+%    bars in regular text.  Bars that encompass floats or footnotes
+%    are handled by creating an additional bar that floats with the
+%    floating material.  Modifications to the appropriate \LaTeX\
+%    macros check for this condition and add the extra bar.
+%
+%\StopEventually{
+% \IndexPrologue{\section*{Index}%
+%  \markboth{Index}{Index}%
+%     Numbers in \emph{italics} indicate the page where the
+%     macro is described, the underlined numbers indicate
+%     the number of the line of code where the macro is defined,
+%     all other numbers indicate where a macro is used.}
+%
+% \GlossaryPrologue{\section*{History of changes}%
+%    \markboth{History of changes}{History of changes}%
+%    The numbers behind the changes indicate the page where
+%    the macrocode is described.\hfil\null}
+%
+%  \PrintIndex
+%^^AA \PrintChanges
+% }
+% \section{The implementation}
+%
+%    We begin by identifying ourselves by writing a message in the
+%    transcript of the session.
+%
+% \subsection{Declarations And Initializations}
+%
+% \begin{macro}{\cb@maxpoint}
+%    The original version of \texttt{changebar.sty} only supported the
+%    \texttt{DVItoLN03} specials. The \texttt{LN03} printer has a
+%    maximum number of points that can be defined on a page. Also for
+%    some PostScript printers the number of points that can be defined
+%    can be limited by the amount of memory used. Therefore, the
+%    consecutive numbering of points has to be reset when the maximum
+%    is reached. This maximum can be adapted to the printers needs.
+%    \begin{macrocode}
+%<*package>
+\def\cb@maxpoint{80}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@minpoint}
+%    When resetting the point number we need to know what to reset it
+%    to, this is minimum number is stored in |\cb@minpoint|.
+%    \textbf{This number has to be ODD} because the algorithm that
+%    decides whether a bar has to be continued on the next page
+%    depends on this.
+%    \begin{macrocode}
+\def\cb@minpoint{1}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@nil}
+%    Sometimes a void value for a point has to be returned by one
+%    of the macros. For this purpose |\cb@nil| is used.
+%    \begin{macrocode}
+\def\cb@nil{0}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@nextpoint}
+% \begin{macro}{\cb@currentpoint}
+%    The number of the next special point is stored in the count
+%    register |\cb@nextpoint| and initially equal to
+%    |\cb@minpoint|. The number of the current point is stored in
+%    |\cb@currentpoint|.
+%    \begin{macrocode}
+\newcount\cb@nextpoint
+\cb@nextpoint=\cb@minpoint
+\newcount\cb@currentpoint
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\cb@page}
+% \begin{macro}{\cb@pagecount}
+%    The macros need to keep track of the number of pages output so
+%    far.  To this end the counter |\cb@pagecount| is used.  When a
+%    pagenumber is read from the history list, it is stored in the
+%    counter |\cb@page|. The counter |cb@pagecount| is initially $0$;
+%    it gets incremented during the call to |\@makebox| (see
+%    section~\ref{pagebreak}).
+%    \begin{macrocode}
+\newcount\cb@page
+\newcount\cb@pagecount
+\cb@pagecount=0
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{Var}{outerbars}
+%    A switch is provided to control where the changebars will be
+%    printed.
+%    \begin{macrocode}
+\newif\ifouterbars
+%    \end{macrocode}
+% \end{Var}
+%
+%  \begin{Var}{@cb@trace}
+%    A switch to enable tracing of the actions of this package
+%    \begin{macrocode}
+\newif\if@cb@trace
+%    \end{macrocode}
+%  \end{Var}
+%
+% \begin{macro}{\cb@positions}
+%
+%    This macro calculates the (horizontal) positions of the
+%    changebars.  The calculations take \Lopt{twoside} into
+%    account. Also the setting of the switch \Lopt{outerbars} is
+%    checked.
+%
+%    Because the margins can differ for even and odd pages and because
+%    changebars are sometimes on different sides of the paper we need
+%    two dimensions to store the result.
+%
+%    Since the changebars are drawn with the \textsc{PostScript}
+%    command \texttt{lineto} and not as \TeX{}-like rules the
+%    reference points lie on the center of the changebar, therefore
+%    the calculation has to add or subtract half of the width of the
+%    bar to keep |\changebarsep| whitespace between the bar and the
+%    body text.
+%    \begin{macrocode}
+\newdimen\cb@odd
+\newdimen\cb@even
+%    \end{macrocode}
+%    First the position for odd pages is calculated. In this case the
+%    use of the \Lopt{twoside} option does not effect the positioning
+%    of the changebars.
+% \changes{3.1}{1993/07/02}{Corrected positioning of PostScript bars}
+%    \begin{macrocode}
+\def\cb@positions{%
+  \global\cb@odd =\hoffset
+  \global\advance\cb@odd by \oddsidemargin
+  \ifouterbars
+    \global\advance\cb@odd by \textwidth
+    \global\advance\cb@odd by \changebarsep
+    \global\advance\cb@odd by 0.5\changebarwidth
+  \else
+    \global\advance\cb@odd by -\changebarsep
+    \global\advance\cb@odd by -0.5\changebarwidth
+  \fi
+%    \end{macrocode}
+%    On even pages the use of the \Lopt{twoside} option results in a
+%    different placement of the bars.
+%    \begin{macrocode}
+  \global\cb@even =\hoffset
+  \global\advance\cb@even by \evensidemargin
+  \if@twoside
+    \ifouterbars
+      \global\advance\cb@even by -\changebarsep
+      \global\advance\cb@even by -0.5\changebarwidth
+    \else
+      \global\advance\cb@even by \textwidth
+      \global\advance\cb@even by \changebarsep
+      \global\advance\cb@even by 0.5\changebarwidth
+    \fi
+  \else
+    \ifouterbars
+      \global\advance\cb@even by \textwidth
+      \global\advance\cb@even by \changebarsep
+      \global\advance\cb@even by 0.5\changebarwidth
+    \else
+      \global\advance\cb@even by -\changebarsep
+      \global\advance\cb@even by -0.5\changebarwidth
+    \fi
+  \fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@removedim}
+%    In PostScript code length specifications are without dimensions.
+%    Therefore we need a way to remove the letters `pt' from the
+%    result of the operation |\the\|\meta{dimen}.
+%    This can be done by defining a command that has a delimited
+%    argument like:
+%    \begin{verbatim}
+%    \def\cb@removedim#1pt{#1}
+%    \end{verbatim}
+%    We encounter one problem though, the category code of the letters
+%    `pt' is 12 when produced as the output from |\the\|\meta{dimen}.
+%    Thus the characters that delimit the argument of |\cb@removedim|
+%    also have to have category code 12. To keep the changes local
+%    the macro |\cb@removedim| is defined in a group.
+%    \begin{macrocode}
+{\catcode`\p=12\catcode`\t=12 \gdef\cb@removedim#1pt{#1}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Option Processing}
+%
+%    The user should select the specials that should be used by
+%    specifying the driver name as an option to the
+%    |\usepackage| call.
+%    Possible choices are:
+%    \begin{itemize}
+%    \item DVItoLN03
+%    \item DVItoPS
+%    \item DVIps
+%    \item em\TeX
+%    \end{itemize}
+%
+%    The ambition is that the driver names should be case-insensitive,
+%    but the following code doesn't achieve this: it only permits the
+%    forms given above and their lower-case equivalents.
+%    \begin{macrocode}
+\DeclareOption{DVItoLN03}{\global\chardef\cb@driver@setup=0\relax}
+\DeclareOption{dvitoln03}{\global\chardef\cb@driver@setup=0\relax}
+\DeclareOption{DVItoPS}{\global\chardef\cb@driver@setup=1\relax}
+\DeclareOption{dvitops}{\global\chardef\cb@driver@setup=1\relax}
+\DeclareOption{DVIps}{\global\chardef\cb@driver@setup=2\relax}
+\DeclareOption{dvips}{\global\chardef\cb@driver@setup=2\relax}
+\DeclareOption{emTeX}{\global\chardef\cb@driver@setup=3\relax}
+\DeclareOption{emtex}{\global\chardef\cb@driver@setup=3\relax}
+%    \end{macrocode}
+%
+%    The new features of \LaTeXe\ make it possible to implement the
+%    \Lopt{outerbars} option.
+%
+%    \begin{macrocode}
+\DeclareOption{outerbars}{\outerbarstrue}
+\DeclareOption{innerbars}{\outerbarsfalse}
+%    \end{macrocode}
+%
+%    It is also possible to specify that the change bars should
+%    \emph{always} be printed on either the left or the right side of
+%    the text. For this we have the options \Lopt{leftbars} and
+%    \Lopt{rightbars}. Specifying \emph{either} of these options will
+%    overrule a possible \Lopt{twoside} option at the document level.
+% \changes{v3.2b}{1995/06/27}{Added the options\Lopt{leftbars} and
+%    \Lopt{rightbars}}
+%    \begin{macrocode}
+\DeclareOption{leftbars}{%
+  \def\cb@positions{%
+    \global\cb@odd\hoffset
+    \global\advance\cb@odd by \oddsidemargin
+    \global\advance\cb@odd by -\changebarsep
+    \global\advance\cb@odd by -0.5\changebarwidth
+    \global\cb@even\hoffset
+    \global\advance\cb@even by \evensidemargin
+    \global\advance\cb@even by -\changebarsep
+    \global\advance\cb@even by -0.5\changebarwidth
+    }}
+\DeclareOption{rightbars}{%
+  \def\cb@positions{%
+    \global\cb@odd =\hoffset
+    \global\advance\cb@odd by \oddsidemargin
+    \global\advance\cb@odd by \textwidth
+    \global\advance\cb@odd by \changebarsep
+    \global\advance\cb@odd by 0.5\changebarwidth
+    \global\cb@even\hoffset
+    \global\advance\cb@even by \evensidemargin
+    \global\advance\cb@even by \textwidth
+    \global\advance\cb@even by \changebarsep
+    \global\advance\cb@even by 0.5\changebarwidth
+    }}
+%    \end{macrocode}
+%    \begin{macrocode}
+\DeclareOption{traceon}{\@cb@tracetrue}
+\DeclareOption{traceoff}{\@cb@tracefalse}
+%    \end{macrocode}
+%    Signal an error if an unknown option was specified.
+%    \begin{macrocode}
+\DeclareOption*{\OptionNotUsed\PackageError
+      {Unrecognised option `\CurrentOption'}%
+      {known options are dvitoln03, dvitops, dvips
+        and emtex,\MessageBreak
+        outerbars, innerbars, leftbars and rightbars.}}
+%    \end{macrocode}
+%
+%    The default is to have the change bars on the left side of the
+%    text on odd pages.
+% \changes{v3.2c}{1996/03/26}{Added `dvips' to the list of default
+%    options} 
+%    \begin{macrocode}
+\ExecuteOptions{innerbars,traceoff,dvips}
+%    \end{macrocode}
+%    \begin{macrocode}
+\ProcessOptions\relax
+%    \end{macrocode}
+%
+% \subsection{User Level Commands And Parameters}
+%
+% \begin{macro}{\driver}
+%    The user can select the specials that should be used by calling
+%    the command |\driver{|\meta{drivername}|}|.
+%    Possible choices are:
+%    \begin{itemize}
+%    \item DVItoLN03
+%    \item DVItoPS
+%    \item DVIps
+%    \item em\TeX
+%    \end{itemize}
+%    This command can only be used in the preamble of the document.
+%
+%    The argument should be case-insensitive, so it is turned into
+%    a string containing all uppercase characters. To keep some definitions
+%    local, everything is done within a group.
+% \changes{v3.1}{1993/07/02}{Removed some spurious spaces}
+% \changes{v3.2c}{1996/03/26}{Reintroduced \cs{driver} in
+%    compatibility mode} 
+%    \begin{macrocode}
+\if@compatibility
+  \def\driver#1{%
+    \bgroup\edef\next{\def\noexpand\tempa{#1}}%
+      \uppercase\expandafter{\next}%
+      \def\LN{DVITOLN03}%
+      \def\DVItoPS{DVITOPS}%
+      \def\DVIPS{DVIPS}%
+      \def\emTeX{EMTEX}%
+%    \end{macrocode}
+%    The choice has to be communicated to the macro
+%    \verb=\cb@setup@specials= that will be called from within
+%    \verb=\document=. For this puprose the control sequence
+%    \verb=\cb@driver@setup= is used. It receives a numeric value
+%    using \verb=\chardef=. 
+%    \begin{macrocode}
+      \global\chardef\cb@driver@setup=0\relax
+      \ifx\tempa\LN      \global\chardef\cb@driver@setup=0\fi
+      \ifx\tempa\DVItoPS \global\chardef\cb@driver@setup=1\fi
+      \ifx\tempa\DVIPS   \global\chardef\cb@driver@setup=2\fi
+      \ifx\tempa\emTeX   \global\chardef\cb@driver@setup=3\fi
+    \egroup}
+%    \end{macrocode}
+%    We add \verb+\driver+ to \verb+\@preamblecmds+, which is a
+%    list of commands to be used only in the preamble of a document.
+%    \begin{macrocode}
+  {\def\do{\noexpand\do\noexpand}
+    \xdef\@preamblecmds{\@preamblecmds \do\driver}
+    }
+\fi
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@setup@specials}
+%    The macro |\cb@setup@specials| defines macros containing the
+%    driver specific |\special| macros. It will be called from
+%    within the |\begin{document}| command.
+%
+%  \begin{macro}{\cb@trace@defpoint}
+%    When tracing is on write information about the point being defined
+%    to the log file.
+%    \begin{macrocode}
+\def\cb@trace@defpoint#1#2{%
+  \wlog{Changebar trace: defining point \the#1 at position \the#2}
+  \wlog{Changebar trace: cb@pagecount: \the\cb@pagecount;
+    page \thepage}}
+%    \end{macrocode}
+%  \end{macro}
+%
+%
+%  \begin{macro}{\cb@trace@connect}
+%    When tracing is on write information about the points being
+%    connected to the log file.
+%    \begin{macrocode}
+\def\cb@trace@connect#1#2#3{%
+  \wlog{Changebar trace: connecting points \the#1 and \the#2;
+      barwidth: \the#3}
+  \wlog{Changebar trace: cb@pagecount: \the\cb@pagecount;
+    page \thepage}}
+%    \end{macrocode}
+%  \end{macro}
+%
+% \begin{macro}{\cb@defpoint}
+%    The macro |\cb@defpoint| is used to define one of the two
+%    points of a bar. It has two arguments, the number of the point
+%    and the distance from the left side of the paper; so its syntax
+%    is:
+%    |\cb@defpoint{|\meta{number}|}{|\meta{length}|}|.
+% \begin{macro}{\cb@resetpoints}
+%    The macro |\cb@resetpoints| can be used to instruct the printer
+%    driver that it should send a corresponding instruction to the
+%    printer. This is really only used for the \textsf{LN03} printer.
+%
+% \begin{macro}{\cb@connect}
+%    The macro |\cb@connect| is used to instruct the printer driver
+%    to connect two points with a bar. The syntax is
+%    |\cb@connect{|\meta{number}|}{|\meta{number}|}{|\meta{length}|}|
+%    The two \meta{number}s indicate the two points to be connected;
+%    the \meta{length} is the width of the bar.
+%
+%    \begin{macrocode}
+\def\cb@setup@specials{%
+%    \end{macrocode}
+%    The control sequence |\cb@driver@setup| expands to a number which
+%    indicates the driver that will be used.  The original
+%    \file{changebar.sty} was written with only the the |\special|
+%    syntax of the program \texttt{DVItoLN03} (actually one of its
+%    predecessors, \texttt{ln03dvi}). Therefore this syntax is defined
+%    first.
+%    \begin{macrocode}
+\ifcase\cb@driver@setup
+  \def\cb@defpoint##1##2{%
+    \special{ln03:defpoint \the##1(\the##2,)}%
+    \if@cb@trace\cb@trace@defpoint##1##2\fi}
+  \def\cb@connect##1##2##3{%
+    \special{ln03:connect \the##1\space\space \the##2\space \the##3}%
+    \if@cb@trace\cb@trace@connect##1##2##3\fi}
+  \def\cb@resetpoints{%
+    \special{ln03:resetpoints \cb@minpoint \space\cb@maxpoint}}
+%    \end{macrocode}
+%    The first extension to the {changebar} option was for the
+%    |\special| syntax of the program \texttt{DVItoPS} by James Clark.
+%    \begin{macrocode}
+\or
+  \def\cb@defpoint##1##2{%
+    \special{dvitops: inline
+                \expandafter\cb@removedim\the##2\space 6.5536 mul\space
+                /CBarX\the##1\space exch def currentpoint exch pop
+                /CBarY\the##1\space exch def}%
+    \if@cb@trace\cb@trace@defpoint##1##2\fi}
+  \def\cb@connect##1##2##3{%
+    \special{dvitops: inline
+                gsave \thechangebargrey\space 100 div setgray
+                \expandafter\cb@removedim\the##3\space 6.5536 mul\space
+                CBarX\the##1\space\space CBarY\the##1\space\space moveto
+                CBarX\the##2\space\space CBarY\the##2\space\space lineto
+                stroke grestore}%
+    \if@cb@trace\cb@trace@connect##1##2##3\fi}
+  \let\cb@resetpoints\relax
+%    \end{macrocode}
+%    Also the program \texttt{DVIps} by Thomas Rockicki is
+%    supported. The PostScript code is nearly the same as for
+%    \texttt{DVItoPS}, but the coordinate space has a different
+%    dimension. Also this code has been made resolution independent,
+%    whereas the code for \texttt{DVItoPS} might still be resolution
+%    dependent.
+%
+%    So far all the positions have been calculated in \texttt{pt}
+%    units.  DVIps uses pixels internally, so we have to convert
+%    \texttt{pt}s into pixels which of course is done by dividing by
+%    72.27 (\texttt{pt}s per inch) and multiplying by
+%    \texttt{Resolution} giving the resolution of the
+%    \textsc{PostScript} device in use as a \textsc{PostScript}
+%    variable.
+%    \begin{macrocode}
+\or
+  \def\cb@defpoint##1##2{%
+     \special{ps:
+                \expandafter\cb@removedim\the##2\space
+                Resolution\space mul\space 72.27\space div\space
+                /CBarX\the##1\space exch def currentpoint exch pop
+                /CBarY\the##1\space exch def}%
+    \if@cb@trace\cb@trace@defpoint##1##2\fi}
+    \def\cb@connect##1##2##3{%
+      \special{ps:
+                gsave \thechangebargrey\space 100 div setgray
+                \expandafter\cb@removedim\the##3\space
+                Resolution\space mul\space 72.27\space div\space
+                setlinewidth
+                CBarX\the##1\space\space CBarY\the##1\space\space moveto
+                CBarX\the##2\space\space CBarY\the##2\space\space lineto
+                stroke grestore}%
+    \if@cb@trace\cb@trace@connect##1##2##3\fi}
+    \let\cb@resetpoints\relax
+%    \end{macrocode}
+%    The latest addition is for the drivers written by Eberhard
+%    Mattes.  The |\special| syntax used here will be supported with
+%    version 1.5 of his driver programs. This version will probably be
+%    released late in 1991, therefore we add a warning for now.
+%    \begin{macrocode}
+\or
+  \PackageWarning{Changebar}%
+    {changebars only supported for v1.5+ of dvidrv}%
+  \def\cb@defpoint##1##2{%
+    \special{em:point \the##1,\the##2}%
+    \if@cb@trace\cb@trace@defpoint##1##2\fi}
+  \def\cb@connect##1##2##3{%
+    \special{em:line \the##1,\the##2,\the##3}%
+    \if@cb@trace\cb@trace@connect##1##2##3\fi}
+  \let\cb@resetpoints\relax
+%    \end{macrocode}
+%    When code for other drivers should be added it can be inserted
+%    here.  When someone makes a mistake and somehow selects an
+%    unknown driver a warning is issued and the macros are defined to
+%    be noops.
+%    \begin{macrocode}
+\else
+  \PackageWarning{Changebar}{changebars not supported in unknown setup}
+  \def\cb@defpoint##1##2{%
+    \if@cb@trace\cb@trace@defpoint##1##2\fi
+    }
+  \def\cb@connect##1##2##3{%
+    \if@cb@trace\cb@trace@connect##1##2##3\fi
+    }
+  \let\cb@resetpoints\relax
+\fi
+%    \end{macrocode}
+%    The last thing to do is to forget about |\cb@setup@specials|.
+%    \begin{macrocode}
+\global\let\cb@setup@specials\relax}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\cbstart}
+%
+%    The macro |\cbstart| starts a new changebar. It has an (optional)
+%    argument that will be used to determine the width of the bar.
+%    The default width is |\changebarwidth|.
+%    \begin{macrocode}
+\newcommand\cbstart{\@ifnextchar [{\cb@start}%
+                                  {\cb@start[\changebarwidth]}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cbend}
+%    The macro |\cbend| (surprisingly) ends a changebar. The macros
+%    |\cbstart| and |\cbend| can be used when the use of a
+%    proper \LaTeX\ environment is not possible.
+%    \begin{macrocode}
+\newcommand\cbend{\cb@end}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cbdelete}
+%    The macro |\cbdelete| inserts a `deletebar' in the margin.
+%    It too has an optional argument to determine the width of the bar.
+%    The default width (and length) of it are stored in
+%    |\deletebarwidth|.
+%    \begin{macrocode}
+\newcommand\cbdelete{\@ifnextchar [{\cb@delete}
+                                   {\cb@delete[\deletebarwidth]}}
+%    \end{macrocode}
+%
+% \begin{macro}{\cb@delete}
+%    Deletebars are implemented as a special `change bar'. The bar
+%    is started and immediately ended. It is as long as it is wide.
+%    \begin{macrocode}
+\def\cb@delete[#1]{\vbox to \z@{\vss\cb@start[#1]\vskip #1\cb@end}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\changebar}
+% \begin{macro}{\endchangebar}
+%    The macros |\changebar| and |\endchangebar| have the same
+%    function as |\cbstart| and |\cbend| but they can be used as a
+%    \LaTeX\ environment to enforce correct nesting.  They can
+%    \emph{not} be used in the \textsf{tabular} and \textsf{tabbing}
+%    environments.
+%    \begin{macrocode}
+\newenvironment{changebar}%
+               {\@ifnextchar [{\cb@start}%
+                              {\cb@start[\changebarwidth]}}%
+               {\cb@end}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\nochangebars}
+%    To disable changebars altogether without having to remove them
+%    from the document the macro |\nochangebars| is provided. It makes
+%    noops from a couple of internal macros.
+%    \begin{macrocode}
+\newcommand\nochangebars{%
+  \def\cb@start[##1]{}%
+  \def\cb@delete[##1]{}%
+  \let\cb@end\relax}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\changebarwidth}
+%    The default width of the changebars is stored in the dimen register
+%    |\changebarwidth|.
+%    \begin{macrocode}
+\newlength{\changebarwidth}
+\setlength{\changebarwidth}{2pt}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\deletebarwidth}
+%    The default width of the deletebars is stored in the dimen register
+%    |\deletebarwidth|.
+%    \begin{macrocode}
+\newlength{\deletebarwidth}
+\setlength{\deletebarwidth}{4pt}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\changebarsep}
+%    The default separation between all bars and the text is stored in
+%    the dimen register |\changebarsep|.
+%    \begin{macrocode}
+\newlength{\changebarsep}
+\setlength{\changebarsep}{30pt}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{Var}{changebargrey}
+%    When the document is printed using one of the PostScript drivers
+%    the bars do not need to be black; with PostScript is possible to
+%    have grey bars. The pecentage of greyness of the bar is stored
+%    in the count register |\changebargrey|. It can have values
+%    between $0$ (meaning white) and $100$ (meaning black).
+%
+%    \begin{macrocode}
+\newcounter{changebargrey}
+\setcounter{changebargrey}{65}
+%    \end{macrocode}
+% \end{Var}
+%
+% \subsection{Macros for beginning and ending bars}
+%
+%
+% \begin{macro}{\cb@start}
+%    This macro starts a change bar.  It assigns a new value to the
+%    current point and advances the counter for the next point to be
+%    assigned.  It pushes this info onto |\cb@currentlist| and then
+%    sets the point by calling |\cb@setBeginPoint| with the point
+%    number.  Finally, it writes the aux file.
+%
+%    \begin{macrocode}
+\def\cb@start[#1]{%
+  \cb@currentpoint=\cb@nextpoint
+%    \end{macrocode}
+%    |\cb@push| expects the width of the bar to be stored in
+%    |\@tempdima|.
+%    \begin{macrocode}
+  \@tempdima#1\relax
+  \cb@push\cb@currentlist
+  \ifvmode 
+    \cb@setBeginPoint\cb@currentpoint
+  \else
+   \vbox to \z@{%
+%    \end{macrocode}
+%    When we are in horizontal mode we jump up a line to set the
+%    starting point of the changebar.
+%    \begin{macrocode}
+     \vskip -\ht\strutbox
+     \cb@setBeginPoint\cb@currentpoint
+     \vskip \ht\strutbox}\fi
+  \cb@writeAux\cb@advancePoint}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@advancePoint}
+%    The macro |\cb@advancePoint| advances the count register
+%    |\cb@nextpoint|. When the maximum number is reached, the
+%    numbering is reset.
+%    \begin{macrocode}
+\def\cb@advancePoint{%
+  \global\advance\cb@nextpoint by 2\relax
+  \ifnum\cb@nextpoint>\cb@maxpoint
+    \global\cb@nextpoint=\cb@minpoint\relax
+  \fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@end}
+%    This macro ends a changebar. It pops the current point and
+%    nesting level off |\cb@currentlist| and sets the end point by
+%    calling |\cb@setEndPoint| with the parameter corresponding to the
+%    \textbf{beginning} point number. It writes the \file{.aux} file
+%    and joins the points.
+%
+%    \begin{macrocode}
+\def\cb@end{%
+  \cb@pop\cb@currentlist
+  \ifnum\cb@currentpoint=\cb@nil
+    \PackageWarning{Changebar}%
+      {Badly nested changebars; Expect erroneous results}%
+  \else
+    \cb@setEndPoint\cb@currentpoint
+    \global\advance\cb@currentpoint by1\cb@writeAux
+  \fi}
+%    \end{macrocode}
+%\end{macro}
+%
+% \begin{macro}{\cb@setBeginPoint}
+%    The macro |\cb@setBeginPoint| assigns a position to point number
+%    $\#1$. It determines wether the point is on an even or an odd
+%    page and uses the right dimension to position the point.  Keep in
+%    mind that the value of |\cb@pagecount| is one less than the value
+%    of |\c@page| unless the latter has been reset by the user.
+%
+%    \begin{macrocode}
+\def\cb@setBeginPoint#1{%
+  \ifodd\cb@pagecount
+    \cb@defpoint{#1}{\cb@even}%
+  \else
+    \cb@defpoint{#1}{\cb@odd}%
+  \fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@setEndPoint}
+%    The macro |\cb@setEndPoint| assigns a position
+%    to point $\#1+1$. It then instructs the driver to connect points
+%    $\#1$ and $\#1+1$ with a bar.
+%    The macro assumes that the width of bar is stored in |\@tempdima|.
+%
+%    \begin{macrocode}
+\def\cb@setEndPoint#1{%
+  \@tempcnta=#1\advance\@tempcnta by1\relax
+  \ifodd\cb@pagecount
+    \cb@defpoint{\@tempcnta}{\cb@even}%
+  \else
+    \cb@defpoint{\@tempcnta}{\cb@odd}%
+  \fi
+  \cb@connect{#1}{\@tempcnta}{\@tempdima}}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@writeAux}
+%    The macro |\cb@writeAux| writes information about a changebar
+%    point to the auxiliary file. The number of the point, the
+%    pagenumber and the width of the bar are written out as arguments
+%    to |\cb@barpoint|. This latter macro will be expanded when the
+%    auxiliary file is read in.  The macro assumes that the width of
+%    bar is stored in |\@tempdima|.
+%
+%    The code is only executed when auxiliary files are enabled, as
+%    there's no sense in trying to write to an unopened file.
+%    \begin{macrocode}
+\def\cb@writeAux{%
+  \if@filesw
+    \begingroup
+      \edef\point{\the\cb@currentpoint}%
+      \edef\level{\the\@tempdima}%
+      \let\the=0%
+      \edef\cb@temp{\write\@auxout
+        {\string\cb@barpoint{\point}{\the\cb@pagecount}{\level}}}%
+      \cb@temp
+    \endgroup
+  \fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Macros for Making It Work Across Page Breaks}
+% \label{pagebreak}
+%
+% \begin{macro}{\@makecol}
+% \begin{macro}{\@vtryfc}
+%
+%    Modifies the \LaTeX\ macros to end the changebars spanning the
+%    current page (if any) and restart them on the next page.  Does
+%    the following: It resets special points for this page.  Adds
+%    begin bars to top of box255.  The bars carried over from the
+%    previous page, and hence to be restarted on this page, have been
+%    saved in |\cb@beginSaves|, and are then executed.  Then it builds
+%    the list |\cb@spanlist|, then calls |\cb@processActive| to
+%    process the elements on the list, then it executes the original
+%    |\@makecol| (saved as |\cb@makecol|).
+%
+% \changes{3.2}{1994/04/21}{Added setting of \cs{boxmaxdepth}}
+%    \begin{macrocode}
+\let\cb@makecol\@makecol
+\def\@makecol{%
+  \setbox\@cclv \vbox{%
+    \cb@resetpoints
+    \cb@beginSaves
+    \unvbox\@cclv
+    \boxmaxdepth\maxdepth}%
+  \gdef\cb@beginSaves{}
+  \global\advance\cb@pagecount by 1\relax
+  \cb@buildActive\cb@processActive
+  \cb@makecol}
+%    \end{macrocode}
+%   When \LaTeX makes a page with only floats it doesn't use
+%   |\@makecol|; instead it calls |\@vtryfc|, so we have to modify
+%   this macro as well.
+%    \begin{macrocode}
+\let\cb@vtryfc\@vtryfc
+\def\@vtryfc{%
+  \setbox\@outputbox \vbox{%
+    \cb@resetpoints
+    \cb@beginSaves
+    \unvbox\@cclv
+    \boxmaxdepth\maxdepth}%
+  \gdef\cb@beginSaves{}
+  \global\advance\cb@pagecount by 1\relax
+  \cb@buildActive\cb@processActive
+  \cb@vtryfc}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\cb@processActive}
+%
+%    Processes each element on span list. Each element represents a
+%    bar that crosses the page break. There could be more than one if
+%    bars are nested. Works as folows:
+%
+% \begin{verbatim}
+%       pop top element of span list
+%       if point null (i.e., list empty) then done
+%       else
+%           do an end bar on box255
+%           save start for new bar at top of next page in \cb@startSaves
+%           push active point back onto history list (need to reprocess
+%               on next page).
+% \end{verbatim}
+%
+%    \begin{macrocode}
+\def\cb@processActive{%
+  \cb@pop\cb@spanlist
+  \ifnum\cb@currentpoint=\cb@nil
+  \else
+    \setbox\@cclv\vbox{%
+      \unvbox\@cclv
+      \boxmaxdepth\maxdepth
+      \advance\cb@pagecount by -1\relax
+      \cb@setEndPoint\cb@currentpoint}%
+    \cb@saveBeginPoint\cb@currentpoint
+    \cb@push\cb@history
+    \cb@processActive
+  \fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@saveBeginPoint}
+%
+%    Saves a |\special| to begin a point in expanded macro
+%    |\cb@beginSaves|.  This is then used to start all spanning bars
+%    at the top of the next page.  It is almost the same as
+%    |\cb@setBeginPoint|.
+%
+%    \begin{macrocode}
+\def\cb@saveBeginPoint#1{%
+  \ifodd\cb@pagecount
+    \xdef\cb@beginSaves{\cb@defpoint{#1}{\cb@even}\cb@beginSaves}%
+  \else
+    \xdef\cb@beginSaves{\cb@defpoint{#1}{\cb@odd}\cb@beginSaves}%
+  \fi}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\def\cb@beginSaves{}                % initially empty
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@buildActive}
+%
+% Initializes the spanlist to null.
+%
+%    \begin{macrocode}
+\def\cb@buildActive{\cb@initlist\cb@spanlist\cb@pushNextActive}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@pushNextActive}
+%    Pops top of history list.  If point is on future page,
+%    push back onto history list.  If point on current
+%    or previous page and odd, add point to span list; if even, pop span
+%    list since this bar has terminated on current page.
+%    \begin{macrocode}
+\def\cb@pushNextActive{%
+  \cb@pop\cb@history
+  \ifnum\cb@currentpoint=\cb@nil
+  \else
+    \ifnum\cb@page>\cb@pagecount
+      \cb@push\cb@history
+    \else
+      \ifodd\cb@currentpoint
+        \cb@push\cb@spanlist
+      \else
+        \cb@pop\cb@spanlist
+      \fi
+      \cb@pushNextActive
+    \fi
+  \fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Macros For Managing The Lists of Bar points}
+%
+%    The macros make use of three lists corresponding to |\special|
+%    defpoints.  Each list takes the form \texttt{<element>
+%    ... <element>}
+%
+%    Each element is of the form \texttt{xxxnyyypzzzl} where
+%    \texttt{xxx} is the number of the special point, \texttt{yyy} is
+%    the page on which this point is set, and \texttt{zzz} is the
+%    dimension used when connecting this point.
+%
+%    The list |\cb@history| is built from the log information and
+%    initially lists all the points.  As pages are processed, points
+%    are popped off the list and discarded.
+%
+%    The list |\cb@spanlist| is a temporary list used by the
+%    output routine and contains the list of all bars crossing the
+%    current page (there may be more than one with nested bars).
+%    It is built by popping elements off the history list.
+%
+%    The list |\cb@currentlist| contains all the current bars.
+%    A |\cb@start| pushes an element onto this list.
+%    A |\cb@end| pops the top element off the list and uses the
+%    info to terminate the bar.
+%
+%    For performance and memory reasons, the history list, which can
+%    be very long, is special cased and a file is used to store this
+%    list rather than an internal macro.  The ``external'' interface
+%    to this list is identical to what is described above.  However,
+%    when the history list is popped, a line from the file is first
+%    read and appended to the macro |\cb@history|.
+%
+% \begin{macro}{\cb@initlist}
+%    A macro to (globally) initialize a list.
+%    \begin{macrocode}
+\def\cb@initlist#1{\xdef#1{}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@history}
+% \begin{macro}{\cb@write}
+% \begin{macro}{\cb@read}
+%    We need to initialise a list to store the entries read from the
+%    external history file.
+%    \begin{macrocode}
+\cb@initlist\cb@history
+%    \end{macrocode}
+%    We also need to allocate a read and a write stream for the
+%    history file.
+%    \begin{macrocode}
+\newwrite\cb@write
+\newread\cb@read
+%    \end{macrocode}
+%    And we open the histroy file for writing.
+%    \begin{macrocode}
+\immediate\openout\cb@write=\jobname.cb\relax
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\cb@spanlist}
+%    Allocate a list for the bars that span the current page.
+%    \begin{macrocode}
+\cb@initlist\cb@spanlist
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@currentlist}
+%    And we allocate an extra list that is needed to implement nesting
+%    without having to rely on \TeX's grouping mechanism.
+%    \begin{macrocode}
+\cb@initlist\cb@currentlist
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@pop}
+%
+%    This pops the top element off the named list and puts the point
+%    value into |\cb@currentpoint|, the page value into |\cb@page| and
+%    the bar width into |\@tempdima|. If the list is empty, returns a
+%    void value (|\cb@nil|) in |\cb@currentpoint| and sets
+%    |\cb@page=0|.
+%
+%    \begin{macrocode}
+\def\cb@pop#1{%
+  \ifx #1\cb@history
+    \ifeof\cb@read
+    \else
+      {\endlinechar=-1\read\cb@read to\@temp
+       \xdef\cb@history{\cb@history\@temp}%
+      }%
+    \fi
+  \fi
+  \ifx#1\@empty
+    \cb@currentpoint=\cb@nil\cb@page=0\relax
+  \else
+    \expandafter\cb@carcdr#1e#1%
+  \fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@carcdr}
+%    Used to `decode' a list entry.
+%    \begin{macrocode}
+\def\cb@carcdr#1n#2p#3l#4e#5{%
+  \cb@currentpoint=#1\cb@page=#2\relax\@tempdima=#3\xdef#5{#4}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@push}
+%
+%    Pushes |\cb@currentpoint|, |\cb@page| and |\@tempdima|
+%    onto the top of the named list.
+%
+%    \begin{macrocode}
+\def\cb@push#1{%
+  \xdef#1{\the\cb@currentpoint n\the\cb@page p\the\@tempdima l#1}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@barpoint}
+%
+%    For populating the history file.  Writes one line to \file{.cb}
+%    file which is equivalent to one \meta{element} described above.
+%    \begin{macrocode}
+\def\cb@barpoint#1#2#3{\immediate\write\cb@write{#1n#2p#3l}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Macros For Checking That The \file{.aux} File Is Stable}
+%
+% \begin{macro}{\AtBeginDocument}
+%
+%    While reading the \file{.aux}-file \LaTeX{} has created the
+%    history list in a separate file. We need to close that file and
+%    open it for reading. Also the `initialistion' of the
+%    |\special| commands has to take place.  While we are
+%    modifying the macro we also include the computation of the
+%    possible positions of the changebars
+%
+%    For these actions we need to add to the \LaTeX\ begin-document
+%    hook.
+% \changes{3.2}{1994/04/21}{Use the \cs{AtBeginDocument} instead of
+%    redefining \cs{document}}
+%    \begin{macrocode}
+\AtBeginDocument{%
+  \cb@setup@specials
+  \cb@positions
+  \immediate\closeout\cb@write
+  \immediate\openin\cb@read=\jobname.cb}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\AtEndDocument}
+%
+%    Does a |\clearpage| to flush rest of document.  (Note that I
+%    believe there is contention in this area: are there in fact
+%    situations in which the end-document hooks need to be called
+%    \emph{before} the final |\clearpage|? --- the documentation of
+%    LaTeX itself implies that there are.)  Then closes \file{.cb}
+%    file and reopens it for checking.  Inits history list (to be read
+%    from file).  Lets |\cb@barpoint=\cb@checkhistory| for checking.
+% \changes{3.2}{1994/04/21}{Use \cs{AtEndDocument} now instead of
+%    redefining \cs{enddocument}}
+%
+%    \begin{macrocode}
+\AtEndDocument{%
+  \clearpage
+  \cb@initlist\cb@history
+  \immediate\closein\cb@read
+  \immediate\openin\cb@read=\jobname.cb%
+  \let\cb@barpoint=\cb@checkHistory}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@checkHistory}
+%
+%    Pops the top of the history list (|\jobname.cb|) and checks to
+%    see if the point and page numbers are the same as the arguments
+%    $\#1$ and $\#2$ respectively.  Prints a warning message if
+%    different.
+%
+%    \begin{macrocode}
+\def\cb@checkHistory#1#2#3{%
+  \cb@pop\cb@history
+  \ifnum #1=\cb@currentpoint\relax
+    \ifnum #2=\cb@page\relax
+%    \end{macrocode}
+%    Both page and point numbers are equal; do nothing,
+%    \begin{macrocode}
+    \else
+%    \end{macrocode}
+%    but generate a warning when page numbers don't mach, or
+%    \begin{macrocode}
+      \cb@error
+    \fi
+  \else
+%    \end{macrocode}
+%    when point numbers don't mach.
+%    \begin{macrocode}
+    \cb@error
+  \fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cb@error}
+%    When a mismatch between the changebar information in the
+%    auxiliary file and the history list is detected a warning is
+%    issued; further checking is disabled.
+%    \begin{macrocode}
+\def\cb@error{%
+  \PackageWarning{Changebar}%
+    {Changebar info has changed.\MessageBreak
+     Rerun to get the bars right}
+  \gdef\cb@checkHistory##1##2##3{}%
+  \let\cb@barpoint=\cb@checkHistory}
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Macros For Making It Work With Nested Floats/Footnotes}
+%
+%
+% \begin{macro}{\end@float}
+%
+%    This is a replacement for the \LaTeX-macro of the same name.  All
+%    it does is check to see if changebars are active and, if so, it
+%    puts changebars around the box containing the float.  Then it
+%    calls the original \LaTeX\ |\end@float|.
+%
+%    \begin{macrocode}
+\let\cb@endfloat=\end@float
+%    \end{macrocode}
+%    \begin{macrocode}
+\def\end@float{%
+  \cb@pop\cb@currentlist
+  \ifnum\cb@currentpoint=\cb@nil
+  \else
+    \cb@push\cb@currentlist
+    \global\@tempdima=\@tempdima
+    \egroup
+    \global\setbox\@currbox=%
+        \vbox\bgroup\cb@start[\@tempdima]\unvbox\@currbox\cb@end
+  \fi
+  \cb@endfloat}
+%    \end{macrocode}
+%    This only works if this new version of |\end@float| is really
+%    used. With \LaTeX2.09 the documentstyles used to contain:
+% \begin{verbatim}
+%    \let\endfigure\end@float
+% \end{verbatim}
+%    In that case this binding has to be repeated after the
+%    redefinition of |\end@float|. However, the \LaTeXe\ class files
+%    use |\newenvironment| to define the \Lenv{figure} and
+%    \Lenv{table} environments. In that case there is no need to
+%    rebind |\endfigure|.
+% \changes{3.2}{1994/04/21}{Removed
+%    \cs{let}\cs{endfigure}\cs{end@float}, no longer necessary}
+% \end{macro}
+%
+% \begin{macro}{\@footnotetext}
+%
+%    Replacement for the \LaTeX\ macro of the same name.  Simply
+%    checks to see if changebars are active and if so wraps the macro
+%    argument (i.e., the footnote) in changebars.
+%
+% \changes{3.1b}{1993/10/11}{Added missing percent sign to prevent
+%    spurious white space in the output.}
+%    \begin{macrocode}
+\let\cb@footnote=\@footnotetext
+%    \end{macrocode}
+%    \begin{macrocode}
+\long\def\@footnotetext#1{%
+  \cb@pop\cb@currentlist
+  \ifnum\cb@currentpoint=\cb@nil
+    \cb@footnote{#1}%
+  \else
+    \cb@push\cb@currentlist
+    \edef\cb@temp{\the\@tempdima}%
+    \cb@footnote{\cb@start[\cb@temp]#1\cb@end}%
+  \fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@mpfootnotetext}
+%
+%    Replacement for the \LaTeX\ macro of the same name.  Same thing
+%    as |\@footnotetext|.
+%
+% \changes{3.1b}{1993/10/11}{Added missing percent sign to prevent
+%    spurious white space in the output.}
+%    \begin{macrocode}
+\let\cb@mpfootnote=\@mpfootnotetext
+%    \end{macrocode}
+%    \begin{macrocode}
+\long\def\@mpfootnotetext#1{%
+  \cb@pop\cb@currentlist
+  \ifnum\cb@currentpoint=\cb@nil
+    \cb@mpfootnote{#1}%
+  \else
+    \cb@push\cb@currentlist
+    \edef\cb@temp{\the\@tempdima}%
+    \cb@mpfootnote{\cb@start[\cb@temp]#1\cb@end}%
+  \fi}
+%</package>
+%    \end{macrocode}
+% \end{macro}
+%
+% 
+% \Finale
+%
+\endinput
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+%%
+%%

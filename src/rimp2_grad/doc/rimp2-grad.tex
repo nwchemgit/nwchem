@@ -1,0 +1,1207 @@
+\documentclass[fleqn,12pt]{article}
+\usepackage{geometry}
+\usepackage{changebar}
+\usepackage{subeqnarray}
+
+% Equivalent to Latex2.09 'fullpage.sty'
+\geometry{textheight=8.9in, textwidth=6.5in} 
+
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\delsq}{\nabla^2}
+\newcommand{\bra}{<\!}
+\newcommand{\ket}{\!>}
+\newcommand{\Core}{{\cal C}}
+\newcommand{\Active}{{\cal A}}
+\newcommand{\Virtual}{{\cal V}}
+\newcommand{\tijab}{{t_{ij}^{ab}}}
+\newcommand{\tjiba}{{t_{ji}^{ba}}}
+\newcommand{\tijba}{{t_{ij}^{ba}}}
+\newcommand{\Ptwo}{P^{(2)}}
+\newcommand{\Wtwo}{W^{(2)}}
+\newcommand{\Fx}{F^{(x)}}
+
+% Antisymmetrized Dirac <12||12> integral with RI subscript
+\newcommand{\intari}[2]{\bra #1 || #2 \ket_{RI}}
+% Dirac <12|12> integral with RI subscript
+\newcommand{\intdri}[2]{\bra #1 | #2 \ket_{RI}}
+% Mulliken (11|22) integral with RI subscript
+\newcommand{\intmri}[2]{( #1 | #2 )_{RI}}
+
+% Antisymmetrized Dirac <12||12> integral (exact)
+\newcommand{\inta}[2]{\bra #1 || #2 \ket}
+% Dirac <12|12> integral (exact)
+\newcommand{\intd}[2]{\bra #1 | #2 \ket}
+% Mulliken (11|22) integral (exact)
+\newcommand{\intm}[2]{( #1 | #2 )}
+
+\newcommand{\Czero}{C^{(0)}}
+\newcommand{\Pscf}{P^{SCF}}
+\newcommand{\Wscf}{W^{SCF}}
+
+\title{MP2 and RI-MP2 analytic gradients with frozen core}
+
+\author{Robert J. Harrison and David E. Bernholdt}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\clearpage
+
+\section{Introduction}
+
+These notes serve to save the derivation and final formulae for MP2
+UHF and RHF analytic gradients with frozen core (and potentially
+frozen virtuals).  I had to rederive everything since I could not find
+the equations for frozen core that were consistent with the Frisch
+direct MP2 gradient equations originally used for the all electron
+code.
+
+\begin{changebar}
+The RI-MP2 analytic gradient derivation has been added to this
+document by David Bernholdt.  Since in many respects the RI-MP2
+derivation is identical to the exact case, it seemed most logical to
+intersperse the small changes with the original exact MP2 derivation
+by Robert Harrison where appropriate.  RI-MP2-related additions are
+marked with changebars in the margins.
+\end{changebar}
+
+
+\subsection{Notation}
+
+Most of the following is in spin orbitals.  Only at the end will we
+restrict to spin-adapted forms.  Summation of repeated indices is
+assumed.
+
+The three orbital spaces will be denoted as follows
+\begin{itemize}
+\item frozen core (occupied in SCF, not correlated) --- $\Core$
+\item active occupied (occupied in SCF, correlated) --- $\Active$
+\item virtual (unoccupied in SCF, used for correlation) --- $\Virtual$
+\end{itemize}
+To freeze virtuals the derivation would have to be repeated with an
+additional space of frozen virtual orbitals.
+
+Indices are used as follows
+\begin{itemize}
+\item $y$, $z$ --- $\Core$
+\item $i$, $j$, $k$, $l$ --- $\Active$
+\item $m$, $n$, $o$ --- $\Core + \Active$, i.e., any orbital occupied
+\item $a$, $b$, $c$, $d$ --- $\Virtual$
+  in the SCF
+\item $p$, $q$, $r$, $s$ --- $\Core + \Active + \Virtual$, i.e., any
+  orbital.
+\item $x$ --- the degree of freedom with respect to which we are
+  differentiating.
+\cbstart
+\item lowercase Greek indices --- AO basis set.
+\item uppercase Greek indices --- fitting basis set.
+\cbend
+\end{itemize}
+
+If $A$ is a quantity in the molecular orbital basis, then $A^x$ is
+used to denote $\frac{\partial A}{\partial x}$.  $A^{(x)}$ is used to
+indicate a partial derivative quantity in which derivative AO
+integrals (including differentiation of both the operator and the AO
+basis) have been transformed into the undifferentiated molecular
+orbital basis at the reference geometry (see Section
+\ref{sec:orbdiff}).
+
+\section{MP2 Energy expression}
+
+For numerical stability we do not enforce the condition that the
+orbtials are canonical at all geometries, and therefore we must use an
+expression that preserves the orbital invariance.  Several are
+possible, and we use
+\begin{equation}
+\label{eqn1}
+  E = \bra 0 | H | 0 \ket + 2 \bra 0 | V-E_1 | 1 \ket +
+      \bra 1 | H_0 - E_0 | 1 \ket
+\end{equation}
+in which 
+\begin{eqnarray}
+  | 1 \ket & = & \sum_{
+\begin{array}{cc}
+i > j \\
+  a > b
+\end{array}}
+a^{\dagger}b^{\dagger}ji | 0
+  \ket \tijab  \nonumber \\
+           & = & \frac{1}{4} a^{\dagger}b^{\dagger}ji | 0 \ket \tijab \\
+  H_0 & = & F_{pq} p^{\dagger}q \\
+  E_0 & = & \bra 0 | H_0 | 0 \ket \nonumber \\
+      & = & F_{nn} \\
+   V  & = & H - H_0
+\end{eqnarray}
+
+The energy is minimized by variation of the amplitudes, thus
+\begin{equation}
+\label{eqn:varia}
+  \frac{\partial E}{\partial \tijab} = 0
+\end{equation}
+at all geometries.  
+
+We can chose the orbitals to be canonical ({\bf F} diagonal) at the
+reference geometry but can only exploit this fact {\em after}
+differentiating.  However, at all geometries we will have by
+construction of the first-order wavefunction and the orthogonality of
+the orbitals
+\begin{eqnarray*}
+  \bra 0 | 1 \ket & = & 0 \\
+  \bra 0 | H_0 | 1 \ket & = & 0 
+\end{eqnarray*}
+and that the SCF condition (Equation \ref{eqn:brillouin}, $F_{an}=0$) is
+satisfied, which can be used to simplify equation \ref{eqn1} to
+\begin{equation}
+\label{eqn:energy}
+  E = \bra 0 | H | 0 \ket + 2 \bra 0 | H | 1 \ket +
+      \bra 1 | H_0 - E_0 | 1 \ket
+\end{equation}
+
+The terms in the energy expression are straightforwardly
+evaluated (using Equation \ref{eqn:brillouin}, $F_{an}=0$)
+\begin{eqnarray}
+  \bra 0 | H | 0 \ket & = & E_{SCF}  \nonumber \\
+  & = & h_{mm} + \half \bra mn||mn \ket \\
+  F_{pq} & = & h_{pq} + \bra pn||qn \ket \\
+\label{eqn:ri-change}
+ 2 \bra 0 | H | 1 \ket & = & \half \bra ij || ab \ket \tijab \\
+ \bra 1 | H_0 - E_0 | 1 \ket & = & \half \left[
+    F_{ab} t_{ij}^{ac} t_{ij}^{bc} - F_{ij}t_{ik}^{ab}t_{jk}^{ab}
+  \right]  \nonumber \\
+  & = & F_{ab}\Ptwo_{ab} + F_{ij}\Ptwo_{ij} 
+\end{eqnarray}
+in which we have defined
+\begin{eqnarray}
+\label{eqn:ptwoabij}
+  \Ptwo_{ij} & = & -\half t_{ik}^{ab} t_{jk}^{ab} \\
+  \Ptwo_{ab} & = & \half t_{ij}^{ac} t_{ij}^{bc} 
+\end{eqnarray}
+Note that these pieces of $\Ptwo$ are symmetric and depend only upon
+the amplitudes.
+
+\begin{changebar}
+For RI-MP2, the only change is that the RI-approximated four-center
+integral is substituted for the exact one in Eq. \ref{eqn:ri-change} giving
+\begin{equation}
+ 2 \bra 0 | H | 1 \ket = \half \intari{ij}{ab} \tijab.
+\end{equation}
+The SCF reference is still computed exactly, and the MP2 amplitudes
+$\tijab$ are still determined in the same way (but with RI integrals
+instead of exact).
+
+The approximate four-center integral is defined in the obvious way, 
+\begin{eqnarray}
+\intari{pq}{rs} & = & \intdri{pq}{rs} - \intdri{pq}{sr} \\
+                & = & \intmri{pr}{qs} - \intmri{ps}{qr}
+\end{eqnarray}
+with
+\begin{equation}
+\intmri{pq}{rs} = (pq|\Delta) V^{-1}_{\Delta\Theta} (\Theta|rs)
+\end{equation}
+
+Actually the RI approximation can take several different forms
+depending on the metric used to optimize the fit (see Vahtras,
+Alml{\"o}f and Feyereisen, CPL 213, 514 (1993)).  The one used here is
+usually referred to as the ``V approximation'' and arises from
+minimizing the Coulomb repulsion of the fit residuals.  This metric is
+presently used by most workers in the field based on on scant
+``experimental'' evidence and argument by analogy with the DFT Dunlap
+fit.  Other metrics result produce approximations in which one or both
+of the three center integrals are overlaps rather than ERIs and where
+two-center overlaps or a combination of overlaps and ERIs appear in
+place of $V^{-1}$.
+
+\end{changebar}
+
+Thus,
+\begin{equation}
+\label{eqn:invenergy}
+  E = E_{SCF} + \half \bra ij || ab \ket \tijab + 
+          F_{ab}\Ptwo_{ab} + F_{ij}\Ptwo_{ij} 
+\end{equation}
+\begin{changebar}
+For RI-MP2,
+\begin{displaymath}
+\label{eqn:ri-invenergy}
+  E = E_{SCF} + \half \intari{ij}{ab} \tijab + 
+          F_{ab}\Ptwo_{ab} + F_{ij}\Ptwo_{ij} 
+\end{displaymath}
+\end{changebar}
+This expression makes it apparent that $E$ is invariant to orbital
+rotations within each of the three subspaces.  To demonstrate this,
+simply replace each orbital $\phi_p$ with $\phi_q U_{qp}$ where $U$ is
+any unitary rotation {\em restricted} to the appropriate subspace.
+The unitary property of $U$ is used to recover the original
+expression.
+
+\section{Orbital parameterization}
+
+The independent parameters of the SCF are the $\{ \Core + \Active \}
+\leftrightarrow \Virtual$ orbital rotations, with the constraint that
+the orbitals are orthonormal.  In addition, we are concerned with
+maintaining the distinction between core and active orbitals since the
+MP2 energy is not invariant with respect to these rotations.
+
+The associated transformations of the Hamiltonian are accomplished
+with 
+\begin{equation}
+  e^{-Z} e^{-K} H e^K e^Z
+\end{equation}
+in which the antisymmetric operators are defined as
+\begin{eqnarray}
+  K & = & K_{am} ( a^{\dagger}m - m^{\dagger}a ) \\
+  Z & = & Z_{iy} ( i^{\dagger}y - y^{\dagger}i )
+\end{eqnarray}
+The SCF energy is parameterized by $K$ and is invariant to the
+rotations of $Z$.  The MP2 energy is not invariant to the rotations
+included with $Z$.  Note that $K$ and $Z$ include disjoint pieces of
+the operator space.  They do {\em not}, however, commute but this is
+not important at first order. 
+
+The SCF condition is
+\begin{eqnarray}
+\label{eqn:brillouin}
+  \frac{\partial E_{SCF}}{\partial K_{am}} & = & 0 \mbox{ or }\\
+  2F_{am} = 0
+\end{eqnarray}
+
+The necessary core-active canonicalization condition is (with a factor
+of two for complete similarity with the above)
+\begin{equation}
+\label{eqn:canon}
+  2 F_{iy} = 0
+\end{equation}
+
+Finally, the orthonormality condition is
+\begin{equation}
+\label{eqn:ortho}
+  \bra p | q \ket = \delta_{pq}
+\end{equation}
+
+\section{Differentiating orbitals and MO basis integrals}
+\label{sec:orbdiff}
+
+A molecular orbital ($\phi_p$) is expanded in the underlying
+1-particle basis ($\chi$) as
+\begin{equation}
+  \phi_p = \chi_{\mu} C^{(0)}_{\mu p} U e^K e^Z
+\end{equation}
+where $C^{(0)}$ are the molecular orbital coefficients at the
+reference geometry (and therefore do not depend upon $x$).  $U(x)$ is
+the non-unitary transformation that ensures that the orbitals are
+orthonormal. Since the reference orbitals are orthonormal we have
+$U(0) = 1$.  $K$ and $Z$ are as above, and since the reference
+orbitals are chosen to satisfy the SCF condition and be canonical we
+also have $K(0)=0$ and $Z(0)=0$.
+
+Hence,
+\begin{eqnarray}
+  \phi^x_p & = & \left. \frac{\partial \phi_p}{\partial x}
+  \right|_{x=0} \\
+  & = & \phi_q \left( 
+    U^x_{qp} + K^x_{pq} + Z^x_{pq} \right) +
+  \phi_p^{(x)}
+\end{eqnarray}
+where we use the notation
+\begin{equation}
+  \phi_p^{(x)} = \chi^x_{\mu} C^{(0)}_{\mu p}
+\end{equation}
+For future convenience we also define
+\begin{equation}
+\label{eqn:v}
+   V^x_{pq} =  U^x_{pq} + K^x_{pq} + Z^x_{pq}
+\end{equation}
+
+Differentiating an arbitrary 1-electron Hermitian operator $A$ we obtain
+\begin{equation}
+  A^x_{pq} = V^x_{rp} A_{rq} + A_{pr} V^x_{rq} + A^{(x)}_{pq}
+\end{equation}
+Where, 
+\begin{equation}
+  A^{(x)}_{pq} = C^{(0)}_{\mu p} \bra \mu | A | \nu \ket^{x} C^{(0)}_{\nu q}
+\end{equation}
+which are derivative AO integrals transformed into the MO basis.
+Two-electron integrals are differentiated in a similar fashion.
+
+Applying this to the orthonormality condition (Equation
+\ref{eqn:ortho}) we obtain
+\begin{equation}
+  U^x_{pq} + U^x_{qp} + S^{(x)}_{pq} = 0
+\end{equation}
+Any choice for $U$ which satisfies this condition is okay, and we
+chose
+\begin{equation}
+  U^x_{pq} = - \half S^{(x)}_{pq} 
+\end{equation}
+
+\begin{changebar}
+\subsection{Differentiating RI MO integrals}
+
+Derivatives of the two-electron integrals can be expanded as
+\begin{equation}
+( pq | rs )^{x} = V^{x}_{up} ( uq | rs ) + V^{x}_{uq} ( pu | rs )
+                     + ( pq | us ) V^{x}_{ur} + ( pq | ru) V^{x}_{us}
+                     + ( pq | rs )^{(x)},
+\end{equation}
+regardless of whether or not the RI approximation is used.  The only
+difference is in the $( pq | rs )^{(x)}$ term.  In the exact case, it
+is simply the AO derivative integral transformed into the unperturbed
+MO basis,
+\begin{equation}
+( pq | rs )^{(x)} = \Czero_{\mu p} \Czero_{\nu q} 
+                    (\mu \nu | \lambda \sigma )^{x}
+                    \Czero_{\lambda r} \Czero_{\sigma s}
+\end{equation}
+while in the RI case, the AO basis derivative integral must be
+expanded according to the RI approximation,
+\begin{eqnarray}
+\label{eqn:riaoderivint}
+( \mu\nu | \lambda\sigma )^{(x)}_{RI} & = &
+   (\mu \nu | \Delta)^{x} V^{-1}_{\Delta\Theta} (\Theta | \lambda \sigma)
+   + (\mu \nu | \Delta) V^{-1}_{\Delta\Theta} (\Theta | \lambda \sigma)^{x} \\
+ & - & (\mu \nu | \Delta) V^{-1}_{\Delta\Phi} V^{x}_{\Phi\Omega}
+             V^{-1}_{\Omega\Theta} (\Theta | \lambda \sigma) \nonumber
+\end{eqnarray}
+\end{changebar}
+
+\section{Orbital response equations}
+
+The conditions that the orbitals minimize the SCF energy (Equation
+\ref{eqn:brillouin}) and fulfill the necessary core-active canonicalization
+(Equation \ref{eqn:canon}) are both of the form $2F_{pq} = 0$.
+Differentiation of this general expression yields
+\begin{eqnarray}
+  2F^x_{pq} & = & 2\Fx_{pq} + 2V^x_{rp}F_{rq} + 2F_{pr}V^x_{rq} +
+  2\left[ \bra pr||qm \ket + \bra pm||qr \ket \right] V^x_{rm} \\
+    & = & 2\Fx_{pq} + 2V^x_{rp} \epsilon_r \delta_{rq} + 
+   2V^x_{rq} \epsilon_r \delta_{pr} +
+  2\left[ \bra pr||qm \ket + \bra pm||qr \ket \right] V^x_{rm}
+\end{eqnarray}
+Note that the two-electron component in square brackets is symmetric
+in the indices $rm$ or $pq$, which implies that for the summation
+index $r$ within the occupied space, only the symmetric part of $V$
+survives (i.e., only $U$).
+
+Thus, the derivative of the SCF condition becomes (with canonical
+reference orbitals, and using $V^x_{an} = K^x_{an} + U^x_{an}$)
+\begin{eqnarray}
+  -2\Fx_{an} & = & 2V^x_{na} \epsilon_n +  2V^x_{an} \epsilon_a +
+       2\left[ \bra ar||nm \ket + \bra am||nr \ket \right] V^x_{rm} \\
+  & = & 2 \left( \epsilon_a - \epsilon_n \right) K^x_{an}  +
+  2 \left( \epsilon_a + \epsilon_n \right) U^x_{an}  \nonumber \\
+  & & + 2\left[ \bra ao||nm \ket + \bra am||no \ket \right] U^x_{om}
+   \nonumber \\
+  & & + 2\left[ \bra ab||nm \ket + \bra am||nb \ket \right] V^x_{bm} \\
+  & = & 2 \left( \epsilon_a - \epsilon_n \right) V^x_{an} 
+      + 2\left[ \bra ab||nm \ket + \bra am||nb \ket \right] V^x_{bm}
+      \nonumber \\ 
+  & & + 2\left[ \bra ao||nm \ket + \bra am||no \ket \right] U^x_{om} 
+      + 4 \epsilon_n U^x_{an} \\
+  & = & B_{an,bm} V^x_{bm} +  2\left[ \bra ao||nm \ket + 
+        \bra am||no \ket \right] U^x_{om} + 4 \epsilon_n U^x_{an},
+      \mbox{ , hence } \\
+  B_{an,bm} V^x_{bm} & = &   -2\Fx_{an} - 2\left[ \bra ao||nm \ket
+    + \bra am||no \ket \right] U^x_{om} - 4 U^x_{an} \epsilon_n 
+     \mbox{ , or } \\
+  B V^x & = & -q^x
+\end{eqnarray}
+For clarity, the Kronecker deltas have been eliminated and there is no
+implied summation over $a$ or $n$.  This sloppiness will disappear
+when we sum over $a$ and $n$ below.  $B$ is the usual SCF
+occupied-virtual orbital Hessian.
+
+Repeating the same steps for the core--active component (noting
+$V^x_{iy} = K^x_{iy} + U^x_{iy}$
+\begin{eqnarray}
+  -\Fx_{iy} & = & V^x_{ri} \epsilon_r \delta_{ry} + 
+   V^x_{ry} \epsilon_r \delta_{ir} +
+  \left[ \bra ir||ym \ket + \bra im||yr \ket \right] V^x_{rm} \\
+  & = &  V^x_{yi} \epsilon_y +  V^x_{iy} \epsilon_i + 
+  \left[ \bra ir||ym \ket + \bra im||yr \ket \right] V^x_{rm} \\
+  & = &   \left( \epsilon_i -  \epsilon_y \right) Z^x_{iy} +  
+          \left( \epsilon_i +  \epsilon_y \right) U^x_{iy}  \nonumber         \\ 
+  & & + \left[ \bra io||ym \ket + \bra im||yo \ket \right] U^x_{om} \nonumber \\ 
+  & & + \left[ \bra ib||ym \ket + \bra im||yb \ket \right] V^x_{bm}
+  \mbox{ , hence }\\
+  Z^x_{iy} & = & - \left( \epsilon_i -  \epsilon_y \right)^{-1} \left( \rule{0in}{0.15in}
+    \Fx_{iy} + \left( \epsilon_i +  \epsilon_y \right) U^x_{iy}
+  + \left[ \bra io||ym \ket + \bra im||yo \ket \right] U^x_{om}
+   \right.  \nonumber\\ 
+  & & + \left. \left[ \bra ib||ym \ket + \bra im||yb \ket \right]
+    V^x_{bm}  \rule{0in}{0.15in} \right) \mbox{ , or equivalently} \\
+  V^x_{iy} & = & - \left( \epsilon_i -  \epsilon_y \right)^{-1} \left( \rule{0in}{0.15in}
+    \Fx_{iy} + 2 U^x_{iy}  \epsilon_y 
+  + \left[ \bra io||ym \ket + \bra im||yo \ket \right] U^x_{om}
+   \right.  \nonumber\\ 
+  & & + \left. \left[ \bra ib||ym \ket + \bra im||yb \ket \right]
+    V^x_{bm}  \rule{0in}{0.15in} \right) \label{eqn:viy}
+\end{eqnarray}
+with, again for clarity, no implied summation over $i$ or $y$.
+
+Note that $K^x$ may be determined without $Z^x$, and that $Z^x$ may
+then be determined without solving any nasty equations.
+
+\subsection{Occupied--Virtual Lagrangian terms}
+\label{sec:ovlag}
+
+Contributions to the MP2 gradient of the form $L_{an}V^x_{an}$ may be
+reformulated using the above results as follows
+\begin{eqnarray}
+  L . V^x & = & L.\left( -B^{-1}q^x \right) \\
+  & = & \left( -L B^{-1} \right). q^x \\
+  & = & \Ptwo . q^x
+\end{eqnarray}
+Now being more explicit and including indices, we must solve for
+$\Ptwo_{an}$ from
+\begin{equation}
+\label{eqn:ptwoan} 
+  B_{an,bm} \Ptwo_{bm} = -L_{an}
+\end{equation}
+and the contribution to the gradient is computed as
+\begin{eqnarray}
+  L_{an}V^x_{an} & = &  2 \Ptwo_{an} \left(
+    \Fx_{an} + \left[ \bra ao||nm \ket
+      + \bra am||no \ket \right] U^x_{om} + 2 U^x_{an} \epsilon_n
+  \right) 
+\end{eqnarray}
+
+\subsubsection{Core--Active Lagrangian terms}
+\label{sec:calag}
+
+Contributions to the MP2 gradient of the form $L_{iy}V^x_{iy}$ 
+need a little more rearrangement since $V^x_{iy}$ contains 
+$V^x_{an}$.  
+Defining
+\begin{equation}
+\label{eqn:l4}
+  L^4_{pq} = - L_{iy} \left( \epsilon_i -  \epsilon_y
+  \right)^{-1} \left[ \bra ip||yq \ket + \bra iq||yp \ket \right]
+\end{equation}
+Direct subsitution of the definition of $V^x_{iy}$ (Equation 
+\ref{eqn:viy}) yields
+
+\begin{eqnarray}
+\label{eqn:xxx}
+  L_{iy} V^x_{iy} & = & - L_{iy} \left( \epsilon_i -  \epsilon_y  \right)^{-1} 
+     \left(\Fx_{iy} + 2 U^x_{iy}  \epsilon_y \right)
+    + L^4_{om} U^x_{om} + L^4_{bm}V^x_{bm}\\
+\end{eqnarray}
+The final term is contracted against $V^x_{bm}$ and therefore gives
+rise to a contribution to the corresponding piece of the Lagrangian.
+
+Thus, when we have computed the core--active Lagrangian we must add
+$L^4_{an}$ into $L_{an}$ and we have only to compute directly the
+remaining terms.
+
+The matrix $L^4_{pq}$ can be computed in one direct Fock build in
+the AO basis as follows.
+\begin{eqnarray}
+  T_{\mu \nu} & = & - \left(C_{\mu i} C_{\nu y} + C_{\nu i} C_{\mu y}
+  \right) L_{iy} \left( \epsilon_i - \epsilon_y \right) \\ L^4_{pq} &
+  = & J[T]_{pq} - K[T]_{pq}
+\end{eqnarray}
+$J$ and $K$ being the usual Coulomb and exchange matrices and $T$
+being a symmetric effective density.
+
+\section{Derivative of the SCF energy}
+
+Since $E_{SCF}$ is fully variational we only need to differentiate the
+integrals including just the variation of the orbitals due to
+enforcement of the orthonormality condition (the symmetric component
+of the Lagrangian).
+\begin{eqnarray}
+  E_{SCF}^x & = & h_{mm}^x + \half \bra mn||mn \ket^x \\
+  & = & h_{mm}^{(x)} + \half \bra mn||mn \ket^{(x)} 
+       + 2 U^x_{pm} \left[ h_{pm} + \bra pn||mn \ket \right] \\
+  & = & h_{mm}^{(x)} + \half \bra mn||mn \ket^{(x)} + 2 U^x_{mm}
+  \epsilon_m 
+\end{eqnarray}
+which may be cast into the AO basis as
+\begin{equation}
+\label{eqn:scfderiv}
+  E_{SCF}^x = h^x_{\mu \nu} P^{SCF}_{\mu \nu} + 
+     (\mu \nu | \lambda \sigma)^x \Gamma^{SCF}_{\mu \nu \lambda \sigma} +
+     S^x_{\mu \nu} W^{SCF}_{\mu \nu}
+\end{equation}
+in which the one-particle, two-particle and energy-weighted density
+matrices are respectively defined as
+\begin{eqnarray}
+  P^{SCF}_{\mu\nu} & = & C_{\mu m} C_{\nu m} \label{eqn:pscf}\\
+  \Gamma^{SCF}_{\mu\nu\lambda\sigma} & = & 
+    \half P^{SCF}_{\mu\nu}P^{SCF}_{\lambda\sigma} - 
+    \half P^{SCF}_{\mu\sigma}P^{SCF}_{\lambda\nu} \\
+  W^{SCF}_{\mu\nu} & = & - C_{\mu m} C_{\nu m} \epsilon_m \label{eqn:wscf}
+\end{eqnarray}
+We also need to add in the derivative of the nuclear repulsion energy.
+
+We will express the MP2 gradient in a similar form.
+
+
+\section{Derivative of the MP2 Energy}
+
+Taking note of the variational property (Equation \ref{eqn:varia}) we
+observe that the energy (Equation \ref{eqn:invenergy}) only depends
+upon the geometry through the one- and two-electron integrals upon
+which it depends linearly.  
+
+We need the derivative of a Fock-matrix element
+\begin{equation}
+  F^x_{pq} = \Fx_{pq} + V^x_{rp}F_{rq} + F_{pr}V^x_{rq} +
+  \left[ \bra pr||qn \ket + \bra pn || qr \ket \right] V^x_{rn}
+\end{equation}
+and care must be taken to ensure indices correspond to the appropriate
+subspaces.  Otherwise, the differentiation is straightforward and when
+completed, the canonical nature of the orbitals at the reference
+geometry may be exploited.
+
+\begin{eqnarray}
+  E^x & = & E^x_{SCF} + \half \bra ij || ab \ket^x \tijab + F^x_{ab} \Ptwo_{ab}
+  + F^x_{ij} \Ptwo_{ij} \\
+ & = & E^x_{SCF} + \half \bra ij || ab \ket^{(x)} \tijab + \Fx_{ab} \Ptwo_{ab}
+  + \Fx_{ij} \Ptwo_{ij} \\
+ & & + \bra pj || ab \ket \tijab V^x_{pi} + \bra ij || pb \ket \tijab
+ V^x_{pa} \nonumber\\
+ & & + 2 \Ptwo_{ab} \left( \epsilon_b V^x_{ba} + \bra ap || bn \ket
+   V^x_{pn} \right) +
+   2 \Ptwo_{ij} \left( \epsilon_j V^x_{ji} + \bra ip || jn \ket
+   V^x_{pn} \right) \nonumber
+\end{eqnarray}
+
+
+\begin{changebar}
+\begin{eqnarray}
+  E^x & = & E^x_{SCF} + \half \intari{ij}{ab}^{x} \tijab + F^x_{ab} \Ptwo_{ab}
+  + F^x_{ij} \Ptwo_{ij} \\
+ & = & E^x_{SCF} + \half \intari{ij}{ab}^{(x)} \tijab + \Fx_{ab} \Ptwo_{ab}
+  + \Fx_{ij} \Ptwo_{ij} \\
+ & & + \intari{pj}{ab} \tijab V^x_{pi} + \intari{ij}{pb} \tijab
+ V^x_{pa} \nonumber\\
+ & & + 2 \Ptwo_{ab} \left( \epsilon_b V^x_{ba} + \bra ap || bn \ket
+   V^x_{pn} \right) +
+   2 \Ptwo_{ij} \left( \epsilon_j V^x_{ji} + \bra ip || jn \ket
+   V^x_{pn} \right) \nonumber
+\end{eqnarray}
+Note that the last two terms, involving $\Ptwo$, come from expanding
+the derivative of the Fock matrix and so involve exact integrals,
+while the two preceeding terms arise from expanding the derivative of
+the RI integral derivative.
+\end{changebar}
+
+This is simplified if we define pieces of what will become the
+Lagrangian and energy weighted density matrix,
+\begin{eqnarray}
+  L^1_{pi} & = & \bra pj || ab \ket \tijab \\
+  L^2_{ap} & = & - \bra ij || pb \ket \tijab \\
+  L^3_{pn} & = & 2 \Ptwo_{ab} \bra ap || bn \ket + 2 \Ptwo_{ij} \bra ip
+  || jn \ket 
+\end{eqnarray}
+\begin{changebar}
+\begin{eqnarray}
+  L^1_{pi} & = & \intari{pj}{ab} \tijab \\
+  L^2_{ap} & = & - \intari{ij}{pb} \tijab \\
+  L^3_{pn} & = & 2 \Ptwo_{ab} \bra ap || bn \ket + 2 \Ptwo_{ij} \bra ip
+  || jn \ket 
+\end{eqnarray}
+Noting once again the distinction between exact and RI integrals.
+\end{changebar}
+Substituting and also rearranging slightly the derivative two-electron
+term,
+\begin{eqnarray}
+ E^x & = & E^x_{SCF} + \bra ij || ab \ket^{(x)} \tijab + \Fx_{ab} \Ptwo_{ab}
+  + \Fx_{ij} \Ptwo_{ij} \\
+ & & + L^1_{pi} V^x_{pi} - L^2_{ap} V^x_{pa} + L^3_{pn}V^x_{pn} +
+ 2 \Ptwo_{ab} \epsilon_b V^x_{ba} + 
+   2 \Ptwo_{ij} \epsilon_j V^x_{ji} \label{eqn:deriv1}\nonumber
+\end{eqnarray}
+\begin{changebar}
+\begin{eqnarray}
+ E^x & = & E^x_{SCF} + \intari{ij}{ab}^{(x)} \tijab + \Fx_{ab} \Ptwo_{ab}
+  + \Fx_{ij} \Ptwo_{ij} \\
+ & & + L^1_{pi} V^x_{pi} - L^2_{ap} V^x_{pa} + L^3_{pn}V^x_{pn} +
+ 2 \Ptwo_{ab} \epsilon_b V^x_{ba} + 
+   2 \Ptwo_{ij} \epsilon_j V^x_{ji} \label{eqn:deriv1-ri}\nonumber
+\end{eqnarray}
+\end{changebar}
+
+We now collect the terms corresponding to mixing each of the three
+orbital spaces.  We also use the form of $V$ (Equation \ref{eqn:v})
+and the symmetry properties of $K$, $Z$ and $V$ to restrict terms to
+include just the unique variables $V^x_{iy}$, $V^x_{an}$ and $U^x_{pq}$.
+We also use that the trace of a symmetric and antisymmetric matrix is
+zero.  Also, close examination of $L^1_{ij} + 2 \Ptwo_{ij} \epsilon_j$
+and $-L^2_{ab} + 2 \Ptwo_{ab} \epsilon_b$ reveals that these
+combinations are symmetric.
+
+$\Core \leftrightarrow \Core$
+\begin{equation}
+  L^3_{yz} V^x_{yz} = L^3_{yz} U^x_{yz}
+\end{equation}
+
+$\Active \leftrightarrow \Active$
+\begin{equation}
+  \left[ L^1_{ij} + 2 \Ptwo_{ij} \epsilon_j + L^3_{ji} \right]
+  V^x_{ji} = \left[ L^1_{ij} + 2 \Ptwo_{ij} \epsilon_j + L^3_{ji}
+  \right] U^x_{ij}
+\end{equation}
+
+$\Virtual \leftrightarrow \Virtual$
+\begin{equation}
+  \left[ -L^2_{ab} + 2 \Ptwo_{ab} \epsilon_b \right] V^x_{ba} = 
+  \left[ -L^2_{ab} + 2 \Ptwo_{ab} \epsilon_b \right] U^x_{ab}
+\end{equation}
+
+$\Core \leftrightarrow \Active$
+\begin{eqnarray}
+  \left[ L^1_{yi} + L^3_{yi} \right]V^x_{yi} + L^3_{iy}V^x_{iy} 
+  & = & \left[ L^1_{yi} + L^3_{yi} \right]\left( -K^x_{iy} + U^x_{iy}
+    \right) + L^3_{iy}V^x_{iy} \nonumber \\
+  & = & \left[ L^1_{yi} + L^3_{yi} \right]\left( -V^x_{iy} + 2U^x_{iy}
+    \right) + L^3_{iy}V^x_{iy} \nonumber \\
+  & = & -L^1_{yi}V^x_{iy} + 2 \left[ L^1_{yi} + L^3_{yi} \right]
+  U^x_{iy} \label{eqn:l1yi}
+\end{eqnarray}
+
+$\Core \leftrightarrow \Virtual$
+\begin{equation}
+\label{eqn:cv1}
+  -L^2_{ay}V^x_{ya} + L^3_{ay}V^x_{ay} =
+  \left[L^2_{ay} + L^3_{ay}\right] V^x_{ay} - 2L^2_{ay}U^x_{ay}
+\end{equation}
+
+$\Active \leftrightarrow \Virtual$
+\begin{equation}
+\label{eqn:av1}
+  -L^2_{ai} V^x_{ia} + \left[ L^1_{ai} + L^3_{ai} \right] V^x_{ai} = 
+ \left[ L^1_{ai} + L^2_{ai} + L^3_{ai} \right] V^x_{ai} - 2 L^2_{ai} U^x_{ia}
+\end{equation}
+
+The necessary orbital invariances are immediately apparent since 
+the Lagranian within each of the three orbital spaces is symmetric.
+
+The coefficients of $V^x_{iy}$ and $V^x_{an}$ are the {\em initial}
+components of the Lagrangian
+\begin{eqnarray}
+  L_{iy} & = & -L^1_{yi} \\
+  L_{ay} & = & L^2_{ay} + L^3_{ay} \\
+  L_{ai} & = & L^1_{ai} + L^2_{ai} + L^3_{ai} 
+\end{eqnarray}
+and those of $U^x$ form the {\em initial} components of the
+energy-weighted density (using here that $U^x = -\half S^x$
+and constructing a symmetric density so that off diagonal pieces must
+be duplicated and divided by two)
+\begin{eqnarray}
+  \Wtwo_{yz} & = & -\half L^3_{yz} \\
+  \Wtwo_{ij} & = & -\half \left[ L^1_{ij} + 2 \Ptwo_{ij} \epsilon_j +
+    L^3_{ji} \right] \\
+  \Wtwo_{ab} & = & -\half \left[ -L^2_{ab} + 2 \Ptwo_{ab} \epsilon_b
+  \right] \\
+  \Wtwo_{iy} & = & -\half\left[ L^1_{yi} + L^3_{yi} \right] \\
+         & = & \Wtwo_{yi} \\
+  \Wtwo_{ay} & = & \half L^2_{ay} \\
+         & = & \Wtwo_{ya} \\
+  \Wtwo_{ai} & = & \half L^2_{ai} \\
+         & = & \Wtwo_{ia}
+\end{eqnarray}
+
+Section \ref{sec:calag} discussed contributions of the form
+$L_{iy}V^x_{iy}$ which were reformulated to eliminate $V^x_{iy}$
+resulting in Equation \ref{eqn:xxx}.  The terms in this equation may
+then be distributed between the various components of the desired form
+of the energy expression including an additional term ($L^4$) in the
+occupied--virtual Lagrangian.  Section \ref{sec:ovlag} discussed
+treatment of the occupied--virtual Lagrangian which requires solution
+of the CPHF equations to determine $\Ptwo_{an}$ and again
+redistribution of all of those terms.  
+
+The additional terms from both of these pieces are (with $L^4_{an}$
+added into the RHS of the CPHF equations defining $\Ptwo_{an}$)
+\begin{eqnarray}
+  L_{iy}V^x_{iy} + L_{an}V^x_{an} & = & 
+   - L_{iy} \left( \epsilon_i -  \epsilon_y  \right)^{-1} 
+     \left(\Fx_{iy} + 2 U^x_{iy}  \epsilon_y \right)
+    + L^4_{om} U^x_{om}  \nonumber \\
+  & &  + 2 \Ptwo_{an} \left(\Fx_{an} +\left[ \bra ao||nm \ket
+    + \bra am||no \ket \right] U^x_{om} + 2 U^x_{an} \epsilon_n
+      \right) \\
+  & = & \left( L^4_{om}  +2 \Ptwo_{an} \left[ \bra ao||nm \ket
+    + \bra am||no \ket \right] \right) U^x_{om}  \nonumber \\
+  & & - 2 L_{iy} \left( \epsilon_i -  \epsilon_y  \right)^{-1} 
+      U^x_{iy}  \epsilon_y \nonumber \\
+  & &   + 4 \Ptwo_{an} U^x_{an} \epsilon_n \nonumber \\
+  & &   - L_{iy} \left( \epsilon_i -  \epsilon_y  \right)^{-1}
+  \Fx_{iy} 
+  + 2 \Ptwo_{an} \Fx_{an} \label{eqn:addtnl}
+\end{eqnarray}
+
+We define (noting $L_{iy}=-L^1_{yi}$), 
+\begin{equation}
+\label{eqn:cadens}
+  \Ptwo_{iy} = \half L^1_{yi} \left( \epsilon_i -  \epsilon_y  \right)^{-1}
+\end{equation}
+
+Our final expressions for the Lagrangian and energy weighted density
+become
+\begin{eqnarray}
+  L_{iy} & = & -L^1_{yi} \\
+  L_{ay} & = & L^2_{ay} + L^3_{ay} + L^4_{ay} \\
+  L_{ai} & = & L^1_{ai} + L^2_{ai} + L^3_{ai} + L^4_{ai}
+\end{eqnarray}
+and
+\begin{eqnarray}
+  \Wtwo_{yz} & = & -\half L^3_{yz} \label{eqn:wtwofirst}\\
+  \Wtwo_{ij} & = & -\half \left[ L^1_{ij} + L^3_{ji} \right]  -
+  \Ptwo_{ij} \epsilon_j   \\
+  \Wtwo_{ab} & = & \half L^2_{ab} - \Ptwo_{ab} \epsilon_b \\
+  \Wtwo_{iy} & = & -\half\left[ L^1_{yi} + L^3_{yi} \right] -
+  \Ptwo_{iy} \epsilon_y  \\
+         & = & \Wtwo_{yi} \\
+  \Wtwo_{an} & = & \half L^2_{an} - \Ptwo_{an} \epsilon_n \\
+         & = & \Wtwo_{na} \\
+  \Wtwo_{om} & += & -\half L^4_{om}  - \Ptwo_{an} \left[ \bra ao||nm \ket
+    + \bra am||no \ket \right] \label{eqn:wtwolast}
+\end{eqnarray}
+
+
+Observe that the terms above completely define the $\Wtwo$ matrix, so
+we can summarize our work so far by rewriting Eq. \ref{eqn:deriv1} as
+\begin{eqnarray}
+ E^x & = & E^x_{SCF} + \bra ij || ab \ket^{(x)} \tijab + \Fx_{ab} \Ptwo_{ab}
+  + \Fx_{ij} \Ptwo_{ij} \\
+ & & + \Wtwo_{pq} S^{x}_{pq} + 2 \Ptwo_{iy} \Fx_{iy} + 2 \Ptwo_{an}
+  \Fx_{an} \nonumber
+\end{eqnarray}
+\begin{changebar}
+\begin{eqnarray}
+ E^x & = & E^x_{SCF} + \intari{ij}{ab}^{(x)} \tijab + \Fx_{ab} \Ptwo_{ab}
+  + \Fx_{ij} \Ptwo_{ij} \\
+ & & + \Wtwo_{pq} S^{x}_{pq} + 2 \Ptwo_{iy} \Fx_{iy} + 2 \Ptwo_{an}
+  \Fx_{an} \nonumber
+\end{eqnarray}
+\end{changebar}
+where the last two terms come from Eq \ref{eqn:addtnl} in combination
+with \ref{eqn:cadens}.
+
+We now need to collect together terms that multiply the 
+partial-derivative Fock matrix ($\Fx$) which will give rise to the
+effective 1-particle density and the separable two-electron derivative
+component.
+\begin{equation}
+  \Fx_{ab} \Ptwo_{ab} + \Fx_{ij} \Ptwo_{ij} + 2\Fx_{iy}
+  \Ptwo_{iy} + 2 \Ptwo_{an} \Fx_{an} = \Fx_{pq} \Ptwo_{pq}
+\end{equation}
+in which we define $\Ptwo$ to be symmetric.  
+
+\begin{equation}
+ E^x = E^x_{SCF} + \bra ij || ab \ket^{(x)} \tijab + \Fx_{pq} \Ptwo_{pq}
+ + \Wtwo_{pq} S^{x}_{pq}
+\end{equation}
+\begin{changebar}
+\begin{equation}
+ E^x = E^x_{SCF} + \intari{ij}{ab}^{(x)} \tijab + \Fx_{pq} \Ptwo_{pq}
+ + \Wtwo_{pq} S^{x}_{pq}
+\end{equation}
+\end{changebar}
+
+\subsection{Backtransformation to the AO basis}
+
+To produce final working expressions we must backtransform most of
+these terms to the AO basis.
+
+\begin{eqnarray}
+\inta{ij}{ab}^{(x)} \tijab 
+ & = & ( \intd{ij}{ab}^{(x)} - \intd{ij}{ba}^{(x)} ) \tijab \\
+ & = & ( \intm{ia}{jb}^{(x)} - \intm{ib}{ja}^{(x)} ) \tijab \\
+ & = & ( \Czero_{\mu i} \Czero_{\nu a} \Czero_{\lambda j} \Czero_{\sigma b}
+   - \Czero_{\mu i} \Czero_{\nu b} \Czero_{\lambda j} \Czero_{\sigma a} )
+   \intm{\mu \nu}{\lambda \sigma}^{x} \tijab \\
+ & = & \intm{\mu \nu}{\lambda \sigma}^{x} \Gamma^{NS}_{\mu\nu\lambda\sigma}
+\end{eqnarray}
+where we have defined
+\begin{equation}
+\Gamma^{NS}_{\mu\nu\lambda\sigma} = 
+( \Czero_{\mu i} \Czero_{\nu a} \Czero_{\lambda j} \Czero_{\sigma b}
+  - \Czero_{\mu i} \Czero_{\nu b} \Czero_{\lambda j} \Czero_{\sigma a}) 
+\tijab .
+\end{equation}
+\begin{changebar}
+The above equations are identical for the RI case, except that all of
+the integrals are approximate, with a final result of
+\begin{equation}
+\intari{ij}{ab}^{(x)} \tijab 
+ = \intmri{\mu \nu}{\lambda \sigma}^{x} \Gamma^{NS}_{\mu\nu\lambda\sigma}
+\end{equation}
+and the expansion of $\intmri{\mu\nu}{\lambda\sigma}^{x}$ is given
+in Eq. \ref{eqn:riaoderivint}
+\end{changebar}
+
+\begin{eqnarray}
+  \Fx_{pq} \Ptwo_{pq} & = & h^x_{\mu\nu}\Ptwo_{\mu\nu}  +
+    \left[(\mu\nu|\lambda\sigma)^x - (\mu\lambda|\nu\sigma)^x\right]
+    \Ptwo_{\mu\nu} P^{SCF}_{\lambda\sigma} \\
+  & = & h^x_{\mu\nu}\Ptwo_{\mu\nu}  + (\mu\nu|\lambda\sigma)^x \left( 
+    \Ptwo_{\mu\nu} P^{SCF}_{\lambda\sigma} - 
+    \Ptwo_{\mu\sigma} P^{SCF}_{\lambda\nu} \right)
+\end{eqnarray}
+\begin{changebar}
+Since the two-electron derivative integrals here come from the
+derivative Fock matrix, this expression holds as written for both the
+exact and RI cases, the only difference being in the internal details
+of $\Ptwo$.
+\end{changebar}
+
+\begin{equation}
+\Wtwo_{pq} S^{x}_{pq} = \Wtwo_{\mu\nu} S^{x}_{\mu\nu}
+\end{equation}
+
+\section{Final SCF+MP2 derivative expressions}
+
+\begin{equation}
+ E^x = E^x_{SCF} 
+ + \intm{\mu\nu}{\lambda\sigma}^{x} \Gamma^{NS}_{\mu\nu\lambda\sigma}
+ + h^{x}_{\mu\nu} \Ptwo_{\mu\nu} 
+ + \intm{\mu\nu}{\lambda\sigma}^{x} 
+   ( \Ptwo_{\mu\nu} \Pscf_{\lambda\sigma} 
+   - \Ptwo_{\mu\sigma} \Pscf_{\lambda\nu} )
+ + \Wtwo_{\mu\nu} S^{x}_{\mu\nu}
+\end{equation}
+\begin{changebar}
+\begin{equation}
+ E^x = E^x_{SCF} 
+ + \intmri{\mu\nu}{\lambda\sigma}^{x} \Gamma^{NS}_{\mu\nu\lambda\sigma}
+ + h^{x}_{\mu\nu} \Ptwo_{\mu\nu} 
+ + \intm{\mu\nu}{\lambda\sigma}^{x} 
+   ( \Ptwo_{\mu\nu} \Pscf_{\lambda\sigma} 
+   - \Ptwo_{\mu\sigma} \Pscf_{\lambda\nu} )
+ + \Wtwo_{\mu\nu} S^{x}_{\mu\nu}
+\end{equation}
+\end{changebar}
+and recalling Eq \ref{eqn:scfderiv}, we have
+\begin{eqnarray}
+  E^x & = & h^x_{\mu \nu} P^{SCF}_{\mu \nu} + h^{x}_{\mu\nu} \Ptwo_{\mu\nu}
+ + S^x_{\mu \nu} W^{SCF}_{\mu \nu} +  S^{x}_{\mu\nu} \Wtwo_{\mu\nu} \\
+ & + & \intm{\mu\nu}{\lambda\sigma}^{x}  \Gamma^{SCF}_{\mu\nu\lambda\sigma}
+     + \intm{\mu\nu}{\lambda\sigma}^{x} \Gamma^{NS}_{\mu\nu\lambda\sigma}
+     + \intm{\mu\nu}{\lambda\sigma}^{x} 
+   ( \Ptwo_{\mu\nu} \Pscf_{\lambda\sigma} 
+   - \Ptwo_{\mu\sigma} \Pscf_{\lambda\nu} ) \nonumber
+\end{eqnarray}
+\begin{changebar}
+\begin{eqnarray}
+  E^x & = & h^x_{\mu \nu} P^{SCF}_{\mu \nu} + h^{x}_{\mu\nu} \Ptwo_{\mu\nu}
+ + S^x_{\mu \nu} W^{SCF}_{\mu \nu} +  S^{x}_{\mu\nu} \Wtwo_{\mu\nu} \\
+ & + & \intm{\mu\nu}{\lambda\sigma}^{x}  \Gamma^{SCF}_{\mu\nu\lambda\sigma}
+     + \intmri{\mu\nu}{\lambda\sigma}^{x} \Gamma^{NS}_{\mu\nu\lambda\sigma}
+     + \intm{\mu\nu}{\lambda\sigma}^{x} 
+   ( \Ptwo_{\mu\nu} \Pscf_{\lambda\sigma} 
+   - \Ptwo_{\mu\sigma} \Pscf_{\lambda\nu} ) \nonumber
+\end{eqnarray}
+Notice that only the $\Gamma^{NS}$ term involves an RI integral!
+\end{changebar}
+
+\begin{eqnarray}
+  E^x & = & h^x_{\mu \nu} P^{MP2}_{\mu \nu} + 
+     (\mu \nu | \lambda \sigma)^x \Gamma^{MP2}_{\mu \nu \lambda \sigma} +
+     S^x_{\mu \nu} W^{MP2}_{\mu \nu} + \mbox{ nuclear repulsion } \\
+  P^{MP2} & = & P^{SCF} + \Ptwo \mbox{ see \ref{eqn:pscf},
+    \ref{eqn:ptwoabij} and \ref{eqn:ptwoan} } \\ 
+  \Gamma^{MP2} & = & \Gamma^{NS} + \Gamma^{S} \\
+  \Gamma^{NS}_{\mu \nu \lambda \sigma} & = & \tijab C_{\mu i}
+  C_{\lambda j} C_{\nu a} C_{\sigma b} \mbox{ which may be
+    symmetrized} \\
+  \Gamma^{S}_{\mu \nu \lambda \sigma} & = &   
+  \half\left(P^{SCF}_{\mu\nu} + 2 \Ptwo_{\mu\nu}\right)
+  P^{SCF}_{\lambda\sigma} -  
+  \half \left(P^{SCF}_{\mu\sigma} + 2 \Ptwo_{\mu\sigma}
+  \right)P^{SCF}_{\lambda\nu}  \\
+  W^{MP2} & = & W^{SCF} + \Wtwo \mbox{ equations \ref{eqn:wscf} and
+    \ref{eqn:wtwofirst}--\ref{eqn:wtwolast} }
+\end{eqnarray}
+\begin{changebar}
+In the RI case, we cannot define a $\Gamma^{MP2}$ because the
+separable and non-separable pieces contract with different integrals,
+so we end up with
+\begin{eqnarray}
+  E^x & = & h^x_{\mu \nu} P^{MP2}_{\mu \nu}
+     + (\mu \nu | \lambda \sigma)^x \Gamma^{S}_{\mu \nu \lambda \sigma}
+     + S^x_{\mu \nu} W^{MP2}_{\mu \nu} + \mbox{ nuclear repulsion } \\
+& + & \intmri{\mu\nu}{\lambda\sigma}^{x} \Gamma^{NS}_{\mu \nu \lambda
+     \sigma} \nonumber
+\end{eqnarray}
+with all constituent terms having the same definition as in the exact case.
+\end{changebar}
+
+\section{Comparison with Frisch no frozen-core, CPL 166 (1990) 275}
+
+\begin{enumerate}
+\item The amplitudes are the same, including phase.
+
+\item $\Ptwo_{ij}$ and $\Ptwo_{ab}$ are identical.
+
+\item $L^1_{ai}$ and $L^2_{ai}$ differ by a factor of $-2$
+
+\item $L^3_{ai}$ differs by a factor of $+2$.
+
+\item $L$ seems to differ by more than a factor because of the sign
+  difference between $L^1$, $L^2$ and $L^3$.  {\em This appears to be
+    an error in Frisch's paper} (i.e., the $L^3$ term in the paper is
+  given the wrong sign) and that our $L$ should differ by a factor of
+  $-2$.
+
+\item Our Hessian is $2$ times larger, and the CPHF equation has a sign
+  change on the RHS which in combination with the difference in $L$
+  result in our $\Ptwo_{ai}$ being the same.
+
+\item Thus all of our $\Ptwo$ is the same.
+
+\item In $\Wtwo_{ij}$ the terms involving all of $\Ptwo$ come out the
+  same.  The first term also is the same, thus $\Wtwo_{ij}$ is
+  identical.
+
+\item $\Wtwo_{ab}$ is the same.
+
+\item $\Wtwo_{ai}$ is the same.
+
+\item Thus all of our $\Wtwo$ is the same.
+
+\item The other terms are easily seen to be identical.
+
+\end{enumerate}
+
+\section{What new terms do we need?}
+
+Anything with a core ($y$ or $z$) or general occupied ($m$, $n$, and
+$o$), or unrestricted ($p$, $q$, $r$, $s$) label, will introduce new
+terms.  
+
+The diagonal density blocks $\Ptwo_{ij}$ and $\Ptwo_{ab}$ are
+unchanged.
+
+New blocks of $L$ are $L^1_{iy}$, $L^2_{ay}$ and $L^3_{ay}$.  
+\begin{itemize}
+\item $L^3$ is formed by a Fock-build in the AO basis after
+  $\Ptwo_{ij}$ and $\Ptwo_{ab}$ become available.  We merely have
+  to change the limits on the back transformation.
+\item $L^2_{an} = -2 \tijab (in|jb)$ which is formed from $(\mu \nu |
+  jb)$.  Thus, we merely need to widen the in-core transformation to
+  include the core.
+\item $-L^1_{yi} = 2 (ya|jb) \tijab$ which is also formed from 
+  $(\mu \nu | jb)$.  
+\end{itemize}
+The completely new block $L^4$ is formed with Fock-build with a
+density that is defined by $L^1$, and thus may be done at the same
+time as the Fock-build for $L^3$, requiring no new passes over the AO
+integrals. 
+
+
+\begin{changebar}
+\section{Summary of RI-MP2 derivative equations}
+\begin{eqnarray}
+  E^x & = & h^x_{\mu \nu} P^{MP2}_{\mu \nu}
+     + (\mu \nu | \lambda \sigma)^x \Gamma^{S}_{\mu \nu \lambda \sigma}
+     + S^x_{\mu \nu} W^{MP2}_{\mu \nu} + \mbox{ nuclear repulsion } \\
+& + & \intmri{\mu\nu}{\lambda\sigma}^{x} \Gamma^{NS}_{\mu \nu \lambda
+     \sigma} \nonumber
+\end{eqnarray}
+\begin{eqnarray}
+  P^{MP2} & = & P^{SCF} + \Ptwo \mbox{ see \ref{eqn:pscf},
+    \ref{eqn:ptwoabij} and \ref{eqn:ptwoan} } \\ 
+  \Gamma^{NS}_{\mu \nu \lambda \sigma} & = & \tijab C_{\mu i}
+  C_{\lambda j} C_{\nu a} C_{\sigma b} \mbox{ which may be
+    symmetrized} \\
+  \Gamma^{S}_{\mu \nu \lambda \sigma} & = &   
+  \half\left(P^{SCF}_{\mu\nu} + 2 \Ptwo_{\mu\nu}\right)
+  P^{SCF}_{\lambda\sigma} -  
+  \half \left(P^{SCF}_{\mu\sigma} + 2 \Ptwo_{\mu\sigma}
+  \right)P^{SCF}_{\lambda\nu}  \\
+  W^{MP2} & = & W^{SCF} + \Wtwo \mbox{ equations \ref{eqn:wscf} and
+    \ref{eqn:wtwofirst}--\ref{eqn:wtwolast} }
+\end{eqnarray}
+\begin{eqnarray}
+  \Wtwo_{yz} & = & -\half L^3_{yz} \\
+  \Wtwo_{ij} & = & -\half \left[ L^1_{ij} + L^3_{ji} \right]  -
+  \Ptwo_{ij} \epsilon_j   \\
+  \Wtwo_{ab} & = & \half L^2_{ab} - \Ptwo_{ab} \epsilon_b \\
+  \Wtwo_{iy} & = & -\half\left[ L^1_{yi} + L^3_{yi} \right] -
+  \Ptwo_{iy} \epsilon_y  \\
+         & = & \Wtwo_{yi} \\
+  \Wtwo_{an} & = & \half L^2_{an} - \Ptwo_{an} \epsilon_n \\
+         & = & \Wtwo_{na} \\
+  \Wtwo_{om} & += & -\half L^4_{om}  - \Ptwo_{an} \left[ \bra ao||nm \ket
+    + \bra am||no \ket \right]
+\end{eqnarray}
+\begin{eqnarray}
+  L_{iy} & = & -L^1_{yi} \\
+  L_{ay} & = & L^2_{ay} + L^3_{ay} + L^4_{ay} \\
+  L_{ai} & = & L^1_{ai} + L^2_{ai} + L^3_{ai} + L^4_{ai}
+\end{eqnarray}
+\begin{eqnarray}
+  L^1_{pi} & = & \intari{pj}{ab} \tijab \\
+  L^2_{ap} & = & - \intari{ij}{pb} \tijab \\
+  L^3_{pn} & = & 2 \Ptwo_{ab} \bra ap || bn \ket + 2 \Ptwo_{ij} \bra ip
+  || jn \ket 
+\end{eqnarray}
+\begin{eqnarray}
+  T_{\mu \nu} & = & - \left(C_{\mu i} C_{\nu y} + C_{\nu i} C_{\mu y}
+  \right) L_{iy} \left( \epsilon_i - \epsilon_y \right) \\ L^4_{pq} &
+  = & J[T]_{pq} - K[T]_{pq}
+\end{eqnarray}
+
+\begin{equation}
+  \Ptwo_{iy} = \half L^1_{yi} \left( \epsilon_i -  \epsilon_y  \right)^{-1}
+\end{equation}
+\begin{equation}
+  B_{an,bm} \Ptwo_{bm} = -L_{an}
+\end{equation}
+
+\begin{eqnarray}
+  \Ptwo_{ij} & = & -\half t_{ik}^{ab} t_{jk}^{ab} \\
+  \Ptwo_{ab} & = & \half t_{ij}^{ac} t_{ij}^{bc} 
+\end{eqnarray}
+
+\begin{eqnarray}
+( \mu\nu | \lambda\sigma )^{(x)}_{RI} & = &
+   (\mu \nu | \Delta)^{x} V^{-1}_{\Delta\Theta} (\Theta | \lambda \sigma)
+   + (\mu \nu | \Delta) V^{-1}_{\Delta\Theta} (\Theta | \lambda \sigma)^{x} \\
+ & - & (\mu \nu | \Delta) V^{-1}_{\Delta\Phi} V^{x}_{\Phi\Omega}
+             V^{-1}_{\Omega\Theta} (\Theta | \lambda \sigma) \nonumber
+\end{eqnarray}
+
+\section{Notes on implementation of RI-MP2 derivatives}
+
+The following terms involve four-index quantities.  We want to avoid
+the need to store any four-index quantities.
+
+\begin{eqnarray}
+  \Wtwo_{om} & += & -\half L^4_{om}  - \Ptwo_{an} \left[ \bra ao||nm \ket
+    + \bra am||no \ket \right]
+\end{eqnarray}
+\begin{eqnarray}
+  L^1_{pi} & = & \intari{pj}{ab} \tijab \\
+  L^2_{ap} & = & - \intari{ij}{pb} \tijab \\
+  L^3_{pn} & = & 2 \Ptwo_{ab} \bra ap || bn \ket + 2 \Ptwo_{ij} \bra ip
+  || jn \ket 
+\end{eqnarray}
+
+\begin{eqnarray}
+  T_{\mu \nu} & = & - \left(C_{\mu i} C_{\nu y} + C_{\nu i} C_{\mu y}
+  \right) L_{iy} \left( \epsilon_i - \epsilon_y \right) \\ L^4_{pq} &
+  = & J[T]_{pq} - K[T]_{pq}
+\end{eqnarray}
+
+\begin{eqnarray}
+  \Ptwo_{ij} & = & -\half t_{ik}^{ab} t_{jk}^{ab} \\
+  \Ptwo_{ab} & = & \half t_{ij}^{ac} t_{ij}^{bc} 
+\end{eqnarray}
+
+\begin{equation}
+\intari{ij}{ab}^{(x)} \tijab 
+ = \intmri{\mu \nu}{\lambda \sigma}^{x} \Gamma^{NS}_{\mu\nu\lambda\sigma}
+\end{equation}
+
+Of these terms, we observe that three ($\Wtwo_{om}$, $L^{3}_{pn}$, and
+$L^{4}_{pq}$) involve exact four-center two-electron integrals and can
+be handled as Fock builds, which can be done directly.
+
+The remaining terms all involve $t$ amplitudes, contracting either
+with itself or with (derivative) RI integrals.  The $P^{(2)}$ terms,
+quadratic in $t$, are the hardest ones to deal with.  Despite the fact
+that $t$ is formed from RI integrals, the presence of the denominator
+in both factors makes it impossible to use the RI approximation to
+reformulate these terms.  The only viable approach to avoid storing
+$t$ for these terms is to compute the $P^{(2)}$ contributions
+immediately on formation of $t$.  Since $P^{(2)}_{ab}$ involves
+produces of matrices $t_{ij}$ with themselves, this term is
+straightforward to compute on the fly using the current RI-MP2 data
+structure for $t$.  The $P^{(2)}_{ij}$ term, however, is a bit more
+complicated.  It can be done on the fly using the existing data
+structures iff the entire $t$ tensor (for a given spin case) can be
+held in memory.  Failing that, the best approach would seem to be a
+special loop to produce $t$ and $P^{(2)}_{ij}$ specifically, for
+example using a $t$ data structure holding all $ij$ for a subset of
+$ab$.
+
+The three terms which involve contraction of $t$ with an RI
+(derivative) integral can be simplified by taking advantage of the RI
+approximation as follows.
+
+\begin{eqnarray}
+  L^1_{pi} & = & \intari{pj}{ab} \tijab \\
+           & = & ( \intmri{pa}{jb} - \intmri{pb}{ja} ) \tijab \\
+           & = &   (pa|\Delta) V^{-1}_{\Delta\Theta} (\Theta|jb) \tijab
+                 - (pb|\Delta) V^{-1}_{\Delta\Theta} (\Theta|ja) \tijab \\
+           & = & 2 (pa|\Delta) 
+                   \underbrace{V^{-1}_{\Delta\Theta} (\Theta|jb) \tijab}
+\end{eqnarray}
+\begin{eqnarray}
+  L^2_{ap} & = & - \intari{ij}{pb} \tijab \\
+           & = & - ( \intmri{ip}{jb} - \intmri{ib}{jp} ) \tijab \\
+           & = & -  (ip|\Delta) V^{-1}_{\Delta\Theta} (\Theta|jb) \tijab
+                 +  (ib|\Delta) V^{-1}_{\Delta\Theta} (\Theta|jp) \tijab \\
+           & = & -2 (ip|\Delta) 
+                    \underbrace{V^{-1}_{\Delta\Theta} (\Theta|jb) \tijab}
+\end{eqnarray}
+
+
+\begin{eqnarray}
+\intmri{\mu \nu}{\lambda \sigma}^{x} \Gamma^{NS}_{\mu\nu\lambda\sigma}
+   & = & \intari{ij}{ab}^{(x)} \tijab \\
+   & = & ( \intmri{ia}{jb}^{(x)} - \intmri{ib}{ja}^{(x)} ) \tijab \\
+   & = & (i a | \Delta)^{x} V^{-1}_{\Delta\Theta} (\Theta | j b) \tijab
+       + (i a | \Delta) V^{-1}_{\Delta\Theta} (\Theta | j b)^{x} \tijab\nonumber \\
+   &   & - (i a | \Delta) V^{-1}_{\Delta\Phi} V^{x}_{\Phi\Omega}
+             V^{-1}_{\Omega\Theta} (\Theta | j b) \tijab
+         - (i b | \Delta)^{x} V^{-1}_{\Delta\Theta} (\Theta | j a) \tijab\nonumber \\
+   &  &- (i b | \Delta) V^{-1}_{\Delta\Theta} (\Theta | j a)^{x} \tijab
+       + (i b | \Delta) V^{-1}_{\Delta\Phi} V^{x}_{\Phi\Omega}
+             V^{-1}_{\Omega\Theta} (\Theta | j a)                \tijab \\
+   & = & (i a | \Delta)^{x} V^{-1}_{\Delta\Theta} (\Theta | j b) \tijab
+       + (i a | \Delta) V^{-1}_{\Delta\Theta} (\Theta | j b)^{x} \tjiba\nonumber \\
+   &&   - (i b | \Delta)^{x} V^{-1}_{\Delta\Theta} (\Theta | j a) \tijab
+     - (i b | \Delta) V^{-1}_{\Delta\Theta} (\Theta | j a)^{x} \tjiba\nonumber \\
+   & & - (i a | \Delta) V^{-1}_{\Delta\Phi} V^{x}_{\Phi\Omega}
+             V^{-1}_{\Omega\Theta} (\Theta | j b) \tijab
+       + (i b | \Delta) V^{-1}_{\Delta\Phi} V^{x}_{\Phi\Omega}
+             V^{-1}_{\Omega\Theta} (\Theta | j a)                \tijab \\
+   & = & (i a | \Delta)^{x} V^{-1}_{\Delta\Theta} (\Theta | j b) \tijab
+       + (jb | \Delta) V^{-1}_{\Delta\Theta} (\Theta | ia)^{x} \tijab\nonumber \\
+   & &   - (i a | \Delta)^{x} V^{-1}_{\Delta\Theta} (\Theta | j b) \tijba
+     - (j b | \Delta) V^{-1}_{\Delta\Theta} (\Theta | i a)^{x} \tijba\nonumber \\
+  & & - (i a | \Delta) V^{-1}_{\Delta\Phi} V^{x}_{\Phi\Omega}
+             V^{-1}_{\Omega\Theta} (\Theta | j b) \tijab
+       + (i a | \Delta) V^{-1}_{\Delta\Phi} V^{x}_{\Phi\Omega}
+             V^{-1}_{\Omega\Theta} (\Theta | j b)                \tijba \\
+   & = & 2 (i a | \Delta)^{x} V^{-1}_{\Delta\Theta} (\Theta | j b) \tijab
+       + 2 (i a | \Delta)^{x} V^{-1}_{\Delta\Theta} (\Theta | j b) \tijab\nonumber \\
+   &&    - 2 (i a | \Delta)^{x} V^{-1}_{\Delta\Phi} V^{x}_{\Phi\Omega}
+             V^{-1}_{\Omega\Theta} (\Theta | j b) \tijab \\
+   & = & 4 (i a | \Delta)^{x} 
+           \underbrace{V^{-1}_{\Delta\Theta} (\Theta | j b) \tijab}
+       - 2 (i a | \Delta) V^{-1}_{\Delta\Phi} V^{x}_{\Phi\Omega}
+             \underbrace{V^{-1}_{\Omega\Theta} (\Theta | j b) \tijab}
+\end{eqnarray}
+
+Observe that the indicated expression is common to all three terms.
+The contraction can be done as soon as $t$ is produced, and the result
+is a three-index intermediate.  This is not of great advantage for the
+$L$ terms, but it is significant for the $\Gamma^{NS}$ contribution,
+which requires backtransformation and contraction with derivative
+integrals to complete.
+
+It is worth pointing out that only two of the three indices of the
+partially contracted $\Gamma^{NS}$ must be backtransformed, compared
+to four indices in the exact MP2.  Note too that the final term in the
+$\Gamma^{NS}$ contribution can be further contracted, so that only the
+$V^{x}_{\Phi\Omega}$ itself remains to contracted.  This entirely
+avoids the backtransformation, but it is not yet clear if this step is
+useful in practice or not.
+
+
+
+\end{changebar}
+
+
+
+\end{document}
