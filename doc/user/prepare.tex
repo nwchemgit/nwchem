@@ -418,6 +418,13 @@ only quantum atoms are involved are removed from the bonded lists using
 update lists
 \end{verbatim}
 
+Error messages resulting from parameters not being defined for bonded
+interaction in which only quantum atoms are involved are ignored using
+
+\begin{verbatim}
+ignore
+\end{verbatim}
+
 \section{Generating a restart file}
 
 The directives in this section control the manipulation of restart
@@ -521,11 +528,3 @@ fix ( atoms | segments ) ( beyond | within ) <real rfix> <string atmfix>
 
 The \verb+fix+ keyword may be used to specify that the identified
 atoms should remain fixed during any operation.
-
-
-
-
-
-
-
-
