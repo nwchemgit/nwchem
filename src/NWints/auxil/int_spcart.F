@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.9 1996-03-12 10:27:18 d3e129 Exp $
+c $Id: int_spcart.F,v 1.10 1996-03-20 00:53:50 d3e129 Exp $
 * 
 * initialization of spherical to cartesean tranformation array
 *... stored on heap.  
@@ -201,6 +201,11 @@ c::statement function ----- start
      &           + iic - 1)
 c::statement function ----- end
 c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_print_both: spcart not initialized properly',
+     &    sph_cart_init)
+c
+c
       do lval = 0,ld
         write(6,*)' d matrix '
         l2s = (lval+1)*(lval+2)/2
@@ -213,6 +218,22 @@ c
       enddo
       end
 *.......................................................................
+      subroutine spcart_print_dtrans(ld)
+      implicit none
+#include "mafdecls.fh"
+#include "spcartP.fh"
+      integer ld
+c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_print_dtrans: spcart not initialized properly',
+     &    sph_cart_init)
+c
+      write(6,*)' trans matrix used for Lval =',ld
+      call output(dbl_mb((int_mb(k_sp2c_lindx+ld))),1,
+     &    ((ld+1)*(ld+2)/2),1,(2*ld+1),
+     &    ((ld+1)*(ld+2)/2),(2*ld+1),1)
+      end
+*.......................................................................
       integer function spcart_trns_ptr(lval,lcart,lsp)
 c return pointer in ma to transformation matrix for lval
       implicit none
@@ -222,6 +243,10 @@ c return pointer in ma to transformation matrix for lval
       integer lval  ! [input] l-value of requested matrix
       integer lcart ! [output] number of cartesian components
       integer lsp   ! [output] number of spherical components
+c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_trns_ptr: spcart not initialized properly',
+     &    sph_cart_init)
 c
       spcart_trns_ptr = int_mb(k_sp2c_lindx+lval)
       lcart = ((lval+1)*(lval+2))/2
@@ -266,6 +291,7 @@ c: passed
       double precision blockout(ndima,-ls:ls)           ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
 c: local
+#define SPECIAL
 #if defined(USE_LOOPS)
       integer i,j,k
 #endif
@@ -285,6 +311,10 @@ c
 *rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
 *rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
 c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_a_s: spcart not initialized properly',
+     &    sph_cart_init)
+c
       if (ls.lt.2) then
 c...        ((ls+1)*(ls+2)/2)) = 2*ls + 1
         call dcopy((ndima*(2*ls+1)),blockin,1,blockout,1)
@@ -295,6 +325,9 @@ c
         write (6,*)' in place transformations are not ready yet '
       endif
 c
+*      call spcart_print_Dtrans(ls)
+c
+#if defined(SPECIAL)
       if (ls.eq.2) then
         call spcart_a_sd(blockin,blockout,ndima,in_place)
         return
@@ -305,15 +338,7 @@ c
         call spcart_a_sg(blockin,blockout,ndima,in_place)
         return
       endif
-c
-
-c
-c dgemm call for blockin(ndima,l2s)*dtrans(l2s,2l+1) = blockout(ndima,2l+1)
-c
-      L2s = ((ls+1)*(ls+2)/2)
-      call dgemm('n','n',ndima,(2*ls+1),L2s,1.0d00,blockin,ndima,
-     &    dbl_mb(int_mb(k_sp2c_lindx+Ls)),L2s,0.0d00,blockout,ndima)
-c
+#endif
 #if defined(USE_LOOPS)
 c
 c  blockout(ndima,2l+1) = blockin(ndima,l2s)*d_spcart(l2s,2l+1,lp=ls)
@@ -327,6 +352,15 @@ c
 00300     continue
 00200   continue
 00100 continue
+#else
+c
+c
+c dgemm call for blockin(ndima,l2s)*dtrans(l2s,2l+1) = blockout(ndima,2l+1)
+c
+      L2s = ((ls+1)*(ls+2)/2)
+      call dgemm('n','n',ndima,(2*ls+1),L2s,1.0d00,blockin,ndima,
+     &    dbl_mb(int_mb(k_sp2c_lindx+Ls)),L2s,0.0d00,blockout,ndima)
+c
 #endif
       end
 *.......................................................................
@@ -365,6 +399,10 @@ c
 *rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
 *rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
 c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_s_a: spcart not initialized properly',
+     &    sph_cart_init)
+c
       if (ls.lt.2) then
 c...        ((ls+1)*(ls+2)/2)) = 2*ls + 1
         call dcopy((ndima*(2*ls+1)),blockin,1,blockout,1)
@@ -375,6 +413,9 @@ c
         write (6,*)' in place transformations are not ready yet '
       endif
 c
+*      call spcart_print_Dtrans(ls)
+c
+#if defined(SPECIAL)
       if (ls.eq.2) then
         call spcart_sd_a(blockin,blockout,ndima,in_place)
         return
@@ -385,14 +426,7 @@ c
         call spcart_sg_a(blockin,blockout,ndima,in_place)
         return
       endif
-c
-c dgemm call for:
-c  Transpose(d_spcart(l2s,2l+1))*blockin(l2s,ndima) = blockout(2l+1,ndima)
-c
-      L2s = ((ls+1)*(ls+2)/2)
-      call dgemm('t','n',(2*ls+1),ndima,L2s,1.0d00,
-     &      dbl_mb(int_mb(k_sp2c_lindx+Ls)),L2s,
-     &      blockin,L2s,0.0d00,blockout,(2*ls+1))
+#endif
 #if defined(USE_LOOPS)
 c
 c blockout(2l+1,ndima) = blockin(l2s,ndima)*d_spcart(l2s,2l+1,lp=ls)
@@ -406,6 +440,15 @@ c
 00300     continue
 00200   continue
 00100 continue
+#else
+c
+c dgemm call for:
+c  Transpose(d_spcart(l2s,2l+1))*blockin(l2s,ndima) = blockout(2l+1,ndima)
+c
+      L2s = ((ls+1)*(ls+2)/2)
+      call dgemm('t','n',(2*ls+1),ndima,L2s,1.0d00,
+     &      dbl_mb(int_mb(k_sp2c_lindx+Ls)),L2s,
+     &      blockin,L2s,0.0d00,blockout,(2*ls+1))
 #endif
       end
 *.......................................................................
@@ -448,6 +491,11 @@ c
 *rak:      call output(dbl_mb((int_mb(k_sp2c_lindx+ls))),1,
 *rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
 *rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
+c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_a_s_b: spcart not initialized properly',
+     &    sph_cart_init)
+c
       if (ls.lt.2) then
 c...        ((ls+1)*(ls+2)/2)) = 2*ls + 1
         call dcopy((ndima*ndimb*(2*ls+1)),blockin,1,blockout,1)
@@ -458,6 +506,9 @@ c
         write (6,*)' in place transformations are not ready yet '
       endif
 c
+*      call spcart_print_Dtrans(ls)
+c
+#if defined(SPECIAL)
       if (ls.eq.2) then
         call spcart_a_sd_b(blockin,blockout,ndima,ndimb,in_place)
         return
@@ -468,16 +519,8 @@ c
         call spcart_a_sg_b(blockin,blockout,ndima,ndimb,in_place)
         return
       endif
+#endif
 c
-c dgemm for all ndimb
-c
-      L2s = ((ls+1)*(ls+2)/2)
-      do 00100 m = 1,ndimb
-        call dgemm('n','n',ndima,(2*ls+1),L2s,
-     &        1.0d00,blockin(1,1,m),ndima,
-     &        dbl_mb(int_mb(k_sp2c_lindx+Ls)),L2s,
-     &        0.0d00,blockout(1,1,m),ndima)
-00100 continue
 #if defined(USE_LOOPS)
       L2s = ((ls+1)*(ls+2)/2)
       do 00100 m = 1,ndimb
@@ -490,6 +533,16 @@ c
 00400       continue
 00300     continue
 00200   continue
+00100 continue
+#else
+c dgemm for all ndimb
+c
+      L2s = ((ls+1)*(ls+2)/2)
+      do 00100 m = 1,ndimb
+        call dgemm('n','n',ndima,(2*ls+1),L2s,
+     &        1.0d00,blockin(1,1,m),ndima,
+     &        dbl_mb(int_mb(k_sp2c_lindx+Ls)),L2s,
+     &        0.0d00,blockout(1,1,m),ndima)
 00100 continue
 #endif        
       end
@@ -528,6 +581,10 @@ c
 *rak:      call output(dbl_mb((int_mb(k_sp2c_lindx+ls))),1,
 *rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
 *rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
+c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_a_sd: spcart not initialized properly',
+     &    sph_cart_init)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -597,6 +654,10 @@ c
 *rak:      call output(dbl_mb((int_mb(k_sp2c_lindx+ls))),1,
 *rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
 *rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
+c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_sd_a: spcart not initialized properly',
+     &    sph_cart_init)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -668,6 +729,10 @@ c
 *rak:      call output(dbl_mb((int_mb(k_sp2c_lindx+ls))),1,
 *rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
 *rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
+c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_a_sd_b: spcart not initialized properly',
+     &    sph_cart_init)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -742,6 +807,10 @@ c
 *rak:      call output(dbl_mb((int_mb(k_sp2c_lindx+ls))),1,
 *rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
 *rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
+c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_a_sf:spcart not initialized properly',
+     &    sph_cart_init)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -828,6 +897,10 @@ c
 *rak:      call output(dbl_mb((int_mb(k_sp2c_lindx+ls))),1,
 *rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
 *rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
+c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_sf_a: spcart not initialized properly',
+     &    sph_cart_init)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -916,6 +989,10 @@ c
 *rak:      call output(dbl_mb((int_mb(k_sp2c_lindx+ls))),1,
 *rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
 *rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
+c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_a_sf_b: spcart not initialized properly',
+     &    sph_cart_init)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -1008,6 +1085,10 @@ c
 *rak:      call output(dbl_mb((int_mb(k_sp2c_lindx+ls))),1,
 *rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
 *rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
+c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_a_sg: spcart not initialized properly',
+     &    sph_cart_init)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -1125,6 +1206,10 @@ c
 *rak:      call output(dbl_mb((int_mb(k_sp2c_lindx+ls))),1,
 *rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
 *rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
+c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_sg_a: spcart not initialized properly',
+     &    sph_cart_init)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -1245,6 +1330,10 @@ c
 *rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
 *rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
 c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_a_sg_b: spcart not initialized properly',
+     &    sph_cart_init)
+c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
       endif
@@ -1326,6 +1415,7 @@ c
 00200   continue
 00100 continue
       end
+*.......................................................................
       subroutine spcart_tran1e(
      &    buf, scr,
      &    nbf_xr,nbf_xc,type_r,
@@ -1429,6 +1519,7 @@ c.................................. both r and c need to be transformed
       endif
 c
       end
+*.......................................................................
       subroutine spcart_bra2etran(
      &    buf, scr,
      &    nbf_xj,nbf_xi,
@@ -1629,6 +1720,7 @@ c
 10000 format('<ket=',i7,'|j=',i6,'|i=',i6,':count=',i10,
      &    '> =',1pd20.10)
       end
+*.......................................................................
       subroutine spcart_ket2etran(
      &    buf, scr,
      &    nbf_xl,nbf_xk,
@@ -1761,7 +1853,7 @@ c........................ both k and l need to be transformed
 * print cartesian matrix  
 * buf is buf(k_cartesian,l_cartesian,ndim_bra)
         if (print) then
-          write(luout,*)' (cartesian:cartesian:ket) matrix '
+          write(luout,*)' (l-cartesian:k-cartesian:bra) matrix '
           count = 1
           do ibra = 1,ndim_bra
             do lr = 1,nbf_xl
