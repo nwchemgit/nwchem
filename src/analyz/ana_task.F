@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.84 2002-07-21 16:29:40 d3j191 Exp $
+c $Id: ana_task.F,v 1.85 2002-07-21 18:01:20 d3j191 Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
       real*8 ana_bond,ana_angle,ana_torsion
       external ana_rdfram
       external ana_bond,ana_angle,ana_torsion
-      integer idpdb
+      integer idpdb,i_temp,l_temp
       logical lsuper,lsaver
       character*8 option
 c
@@ -127,6 +127,7 @@ c
       hbdmax=3.1416d0
       hbamin=1.9d0
       hbamax=3.1416d0
+      numwhb=0
 c
       ngroup=0
       ngroups=0
@@ -335,16 +336,20 @@ c
 c     set hydrogen bond criteria
 c     --------------------------
 c
-      if(card(1:6).eq.'hbdist ') then
-      read(card(7:30),'(2f12.6)') rhbmin,rhbmax
+      if(card(1:7).eq.'hbdist ') then
+      read(card(8:31),'(2f12.6)') rhbmin,rhbmax
       goto 1
       endif
-      if(card(1:6).eq.'hbdang ') then
-      read(card(7:30),'(2f12.6)') hbdmin,hbdmax
+      if(card(1:7).eq.'hbdang ') then
+      read(card(8:31),'(2f12.6)') hbdmin,hbdmax
       goto 1
       endif
-      if(card(1:6).eq.'hbaang ') then
-      read(card(7:30),'(2f12.6)') hbamin,hbamax
+      if(card(1:7).eq.'hbaang ') then
+      read(card(8:31),'(2f12.6)') hbamin,hbamax
+      goto 1
+      endif
+      if(card(1:7).eq.'numwhb ') then
+      read(card(8:12),'(i5)') numwhb
       goto 1
       endif
       if(card(1:6).eq.'hbond  ') then
@@ -858,6 +863,8 @@ c
      + form='formatted',status='unknown')
       call ana_hbond_header(byte_mb(i_snam),int_mb(i_isel),
      + int_mb(i_hbnd))
+      if(.not.ma_push_get(mt_int,mwm,'temp',l_temp,i_temp))
+     + call errquit('Could not allocate temp',0)
       endif
       if(ngroups.gt.0) then
       open(unit=lfngrp,file=filgrp(1:index(filgrp,' ')-1),
@@ -962,7 +969,7 @@ c     hydrogen bond analysis
 c
       if(lhbond) then
       call ana_hbond(dbl_mb(i_xdat),dbl_mb(i_wdat),int_mb(i_isel),
-     + int_mb(i_hbnd))
+     + int_mb(i_hbnd),int_mb(i_temp))
       endif
 c
       if(ngroup.gt.0) then
@@ -1010,6 +1017,11 @@ c
       if(.not.ma_pop_stack(l_hist))
      + call errquit('Failed to deallocate hist',0)
       close(unit=lfnhis)
+      endif
+c
+      if(lhbond) then
+      if(.not.ma_pop_stack(l_temp))
+     + call errquit('Failed to deallocate temp',0)
       endif
 c
       if(me.eq.0) then

@@ -1,6 +1,6 @@
       subroutine ana_groups(card,sgmnam,imol,isel,wt,x)
 c
-c $Id: ana_groups.F,v 1.9 2002-06-25 22:43:10 d3j191 Exp $
+c $Id: ana_groups.F,v 1.10 2002-07-21 18:01:20 d3j191 Exp $
 c
       implicit none
 c
@@ -45,7 +45,7 @@ c
       end
       subroutine ana_group(card,sgmnam,imol,isel,wt,x,iwrk)
 c
-c $Id: ana_groups.F,v 1.9 2002-06-25 22:43:10 d3j191 Exp $
+c $Id: ana_groups.F,v 1.10 2002-07-21 18:01:20 d3j191 Exp $
 c
       implicit none
 c
@@ -153,7 +153,7 @@ c
 #include "msgids.fh"
 c
       character*16 sgmnam(nsa)
-      integer imol(msa),isel(nsa),igr
+      integer imol(msa),isel(nsa)
 c
       integer i,num,igrp,ito,ia,j
 c
@@ -396,10 +396,9 @@ c
       real*8 x(nsa,3)
 c
       integer igrp,jgrp
-      integer i,j,ito,jfrom,ia,ja
+      integer i,ia,ja
       real*8 dist,dx,dy,dz
       real*8 cogi(3),cogj(3),factor
-      integer numi,numj
       real*8 boxh(3)
 c
       boxh(1)=half*box(1)
@@ -476,10 +475,9 @@ c
       real*8 x(nsa,3)
 c
       integer igrp,jgrp,kgrp
-      integer i,j,ito,jfrom,ia,ja,ka
-      real*8 dist,dx,dy,dz
+      integer i,ia,ja,ka
+      real*8 dx
       real*8 cogi(3),cogj(3),cogk(3),factor
-      integer numi,numj
       real*8 boxh(3)
       real*8 xsijx,xskjx,xsijy,xskjy,xsijz,xskjz,rsij2,rskj2
       real*8 cphi,rsij2i,rskj2i,rsikji,phi

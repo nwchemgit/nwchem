@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.61 2002-07-21 16:16:29 d3j191 Exp $
+c $Id: ana_input.F,v 1.62 2002-07-21 18:01:20 d3j191 Exp $
 c
       implicit none
 c
@@ -20,7 +20,7 @@ c
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax,rang
       real*8 arota
       logical lref,lfil,lsol,lsuper
-      integer iesppb,lent,idpdb,indx,icent,jcent
+      integer iesppb,lent,idpdb,indx,icent,jcent,nwhb
       character*8 option
 c
       if(ga_nodeid().eq.0) then
@@ -696,6 +696,12 @@ c
       endif
       write(lfncmd,1068) rmin,rmax
  1068 format('hbaang ',2f12.6)
+      if(inp_a(item)) goto 6644
+      elseif(inp_compare(.false.,'solvent',item)) then
+      if(.not.inp_i(nwhb)) nwhb=1
+      print*,'INPUT NUMWHB IS ',nwhb
+      write(lfncmd,1168) nwhb
+ 1168 format('numwhb ',i5)
       if(inp_a(item)) goto 6644
       endif
       endif
