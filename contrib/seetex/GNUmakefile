@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.1 1996-07-02 18:41:03 d3e129 Exp $
+# $Id: GNUmakefile,v 1.2 1996-07-02 23:02:13 d3e129 Exp $
 
 OBJ = seetex.o
 
@@ -8,3 +8,4 @@ LIB_TARGETS = seetex $(OBJ)
 
 target:
 	$(MAKE) seetex
+	seetex sample.th sample.F sample.tex

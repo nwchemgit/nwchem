@@ -1,0 +1,5 @@
+*:tex-begin
+*:tex-\section{george}
+*:tex-\subsection{bob}
+*:tex-\nopar
+*:tex-end
