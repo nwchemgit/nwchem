@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.136 2000-10-24 02:39:42 d3j191 Exp $
+# $Id: make_nwchem_config,v 1.137 2000-10-24 05:44:57 d3j191 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -196,6 +196,7 @@ MOD_LIBS := $(patsubst esp,-lesp,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cafe,-lcafe,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst space,-lspace,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwmd,-lnwmd,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst qmd,-lqmd,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst qmmm,-lqmmm,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst analyz,-lanalyze,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dplot,-ldplot,$(MOD_LIBS) )
