@@ -2,7 +2,7 @@
      &                     n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.29 2000-04-25 20:09:10 edo Exp $
+c     $Id: dft_fitvc.F,v 1.30 2000-04-26 19:03:05 edo Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -395,7 +395,7 @@ c
                      endif
                   else
                      call int_2e3c(CD_bas_han,ishp,AO_bas_han,
-     &               ishc,ishd,nscr,Dbl_MB(iscr),Nintegrals,
+     &               ishc,ishd,nscr,Dbl_MB(iscr),Ninteg_api,
      &               Dbl_MB(iERI))
 c                   
 c                    Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
