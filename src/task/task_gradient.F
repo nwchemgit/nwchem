@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.22 2000-05-01 18:17:27 windus Exp $
+* $Id: task_gradient.F,v 1.23 2000-06-02 17:41:18 zzhang Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -87,6 +87,8 @@ c
 c     cleanup any grid parameters
          call grid_cleanup(rtdb)
       else if (theory .eq. 'sodft') then
+         if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, 2))
+     &       call errquit('dft_input: rtdb_put failed', 1)
          status = nwdft(rtdb)
          if (status) status = grad_dft(rtdb)
 c     cleanup any grid parameters

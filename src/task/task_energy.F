@@ -1,6 +1,6 @@
       logical function task_energy(rtdb)
 *
-* $Id: task_energy.F,v 1.19 2000-05-01 18:17:26 windus Exp $
+* $Id: task_energy.F,v 1.20 2000-06-02 17:41:07 zzhang Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -65,6 +65,8 @@ c
          status = nwdft(rtdb)
          call grid_cleanup(rtdb)
       else if (theory .eq. 'sodft')then 
+         if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, 2))
+     &       call errquit('dft_input: rtdb_put failed', 1)
          status = nwdft(rtdb) 
          call grid_cleanup(rtdb)
       else if (theory .eq. 'rimp2') then
