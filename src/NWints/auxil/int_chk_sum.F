@@ -1,5 +1,5 @@
       subroutine int_chk_sum(basisin,print_ints)
-c $Id: int_chk_sum.F,v 1.9 1994-09-22 13:34:48 d3e129 Exp $
+c $Id: int_chk_sum.F,v 1.10 1994-09-25 08:04:31 d3e129 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
@@ -379,9 +379,9 @@ c::local
       write(6,10002)stats
       write(6,10001)
       call util_flush(6)
-10000 format(/,75('-'))
-10001 format(75('-'))
-10002 format(5(1pd12.5,3x))
+10000 format(/,90('-'))
+10001 format(90('-'))
+10002 format(5(1pd15.8,3x))
       end      
       subroutine stsum1(num,numtot,Gen,ilab,jlab,stats)
       implicit none

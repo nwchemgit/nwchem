@@ -1,5 +1,5 @@
       Subroutine hfmke(Axyz,Bxyz,alpha,ES,E,pf,nd,NPP,MXD,La,Lb)
-c $Id: hfmke.F,v 1.1 1994-09-22 13:34:58 d3e129 Exp $
+c $Id: hfmke.F,v 1.2 1994-09-25 08:04:36 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -65,7 +65,7 @@ c******************************************************************************
 c Compute the vector between the centers.
 #if defined(INT_TIMING)
       if(o_int_time.and.(int_time_level.ge.3))
-     &   call pstat_on(intt_hfmke)
+     &   call pstat_on(intt_arr(intt_hfmke))
 #endif
 
       Rx = Axyz(1) - Bxyz(1)
@@ -608,6 +608,6 @@ c    ===>   Ip = Ia+Ib-1,Ia+Ib; Ia = Ia1,La; Ib = 1,Lb   <===
 
 #if defined(INT_TIMING)
       if(o_int_time.and.(int_time_level.ge.3))
-     &   call pstat_off(intt_hfmke)
+     &   call pstat_off(intt_arr(intt_hfmke))
 #endif
       end

@@ -4,7 +4,7 @@
      &       Cxyz,zan,ncenters,
      &       bO2I,bKEI,bNAI,Nint,
      &       O2I,KEI,NAI,canAB,dryrun,W0,maxW0)
-c $Id: hf1d.F,v 1.6 1994-09-22 13:34:50 d3e129 Exp $
+c $Id: hf1d.F,v 1.7 1994-09-25 08:04:33 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -63,7 +63,7 @@ c
 c******************************************************************************
 #if defined(INT_TIMING)
       if((.not.dryrun).and.o_int_time.and.(int_time_level.ge.2))
-     &   call pstat_on(intt_hf1d)
+     &   call pstat_on(intt_arr(intt_hf1d))
 #endif
 
 *     call hf_print('hf1d: a shell',axyz,aprims,acoefs,npa,nca,la)
@@ -364,7 +364,7 @@ c Return the maximum amount of scratch space required by a "dry run".
 c
 #if defined(INT_TIMING)
       if((.not.dryrun).and.o_int_time.and.(int_time_level.ge.2))
-     &   call pstat_off(intt_hf1d)
+     &   call pstat_off(intt_arr(intt_hf1d))
 #endif
 c
       end

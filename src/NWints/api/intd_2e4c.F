@@ -1,6 +1,6 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.4 1994-09-22 13:34:18 d3e129 Exp $
+c $Id: intd_2e4c.F,v 1.5 1994-09-25 08:03:57 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -152,7 +152,7 @@ c
 c
 #if defined(INT_TIMING)
       if(o_int_time.and.(int_time_level.ge.2))
-     &   call pstat_on(intt_hf2d)
+     &   call pstat_on(intt_arr(intt_hf2d))
 #endif
 c
       call hf2d(
@@ -175,7 +175,7 @@ c
 c
 #if defined(INT_TIMING)
       if(o_int_time.and.(int_time_level.ge.2))
-     &   call pstat_off(intt_hf2d)
+     &   call pstat_off(intt_arr(intt_hf2d))
 #endif
       end
       subroutine intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)

@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.10 1994-09-22 13:34:03 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.11 1994-09-25 08:03:54 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -89,7 +89,7 @@ c
 c
 #if defined(INT_TIMING)
       if(o_int_time.and.(int_time_level.ge.1))
-     &   call pstat_on(intt_hf2)
+     &   call pstat_on(intt_arr(intt_hf2))
 #endif
       if (cando_sp(brain,ish,jsh).and.cando_sp(ketin,ksh,lsh)) then
 c
@@ -156,6 +156,6 @@ c
       endif
 #if defined(INT_TIMING)
       if(o_int_time.and.(int_time_level.ge.1))
-     &   call pstat_off(intt_hf2)
+     &   call pstat_off(intt_arr(intt_hf2))
 #endif
       end

@@ -1,5 +1,5 @@
       Subroutine igamma(Fj,N,L)
-c $Id: igamma.F,v 1.2 1994-09-22 13:35:15 d3e129 Exp $
+c $Id: igamma.F,v 1.3 1994-09-25 08:04:39 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -25,7 +25,7 @@ c
 c******************************************************************************
 #if defined(INT_TIMING)
       if(o_int_time.and.(int_time_level.ge.3))
-     &   call pstat_on(intt_igamma)
+     &   call pstat_on(intt_arr(intt_igamma))
 #endif
 
       do 100 m = 1,N
@@ -79,6 +79,6 @@ c ... downward recursion.
 
 #if defined(INT_TIMING)
       if(o_int_time.and.(int_time_level.ge.3))
-     &   call pstat_off(intt_igamma)
+     &   call pstat_off(intt_arr(intt_igamma))
 #endif
       end
