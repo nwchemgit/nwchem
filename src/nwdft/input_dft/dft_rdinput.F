@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.116 2004-03-25 00:39:43 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.117 2004-05-06 07:37:24 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -89,10 +89,12 @@ c
      &      mt_log, 1, direct))
      &      call errquit('dft_rdinput: rtdb_put failed', 3, RTDB_ERR)
       endif
+#ifdef STATICLB
 c
 c     load dlb info
 c
       call nxtask_init(rtdb)
+#endif
 c
       if (.not. rtdb_get(rtdb, 'dft:diis', mt_log, 1,
      &   diis))then
