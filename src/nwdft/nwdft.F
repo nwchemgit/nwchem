@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.69 2004-03-31 00:25:27 edo Exp $
+C$Id: nwdft.F,v 1.70 2004-04-29 03:09:59 edo Exp $
       implicit none
 #include "errquit.fh"
 c****
@@ -73,6 +73,15 @@ c
 c     
       nwdft = .false.
       iproc  = ga_nodeid()
+c
+c     Make sure database is parallel, push context down to DFT.
+c
+      LResult = rtdb_parallel(.true.)
+      call util_print_push
+      call util_print_rtdb_load(rtdb, 'dft')
+c
+c     init pstat
+c	
       call dft_pstat_init(rtdb)
 c
 c     If Dyall-mod-dir is set, exit with error
@@ -82,12 +91,6 @@ c
      &      'Cannot do DFT calculation with Dyall-modified-Dirac method'
      &      ,99, RTDB_ERR)
       end if
-c
-c     Make sure database is parallel, push context down to DFT.
-c
-      LResult = rtdb_parallel(.true.)
-      call util_print_push
-      call util_print_rtdb_load(rtdb, 'dft')
       oprint = util_print('information', print_low)
       if (oprint) then
         if (.not. rtdb_cget(rtdb, 'title', 1, title))
