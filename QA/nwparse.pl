@@ -1,5 +1,5 @@
 #
-# $Id: nwparse.pl,v 1.2 1997-04-24 06:26:10 d3e129 Exp $
+# $Id: nwparse.pl,v 1.3 1997-06-23 17:35:10 d3e129 Exp $
 #
 #
 #
@@ -39,6 +39,7 @@ foreach $argument (@ARGV) {
     if ($get_suffix){
 	$suffix = $argument;
 	if (!($suffix =~ /^\./)) {$suffix = '.' . $suffix;}
+        $get_suffix = 0;
     }
     elsif ($argument eq '-d') {print "debug: debug turned on at command line\n";$debug = 1;}
     elsif ($argument eq '-s') {$get_suffix = 1;}
