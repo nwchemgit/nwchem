@@ -13,7 +13,7 @@ c     spare arrays needed
 c     
       dimension eptn(50), enewn(50), ptnormn(50), irangen(21)
       dimension eptn_mp(50), ptnormn_mp(50)
-      integer pmap(0:1023)        ! 1024 max process count
+      integer pmap(0:1023)      ! 1024 max process count
 c     
 c     irest = unit for restart tape 'selci.r.?'
 c     ? is 1 or 2
@@ -28,12 +28,14 @@ c
       data icall/0/
 c     
       its = mtime()
-      if (nroot.gt.50) call errquit('STOOL: hard dimension fail',nroot)
+      if (nroot.gt.50) call errquit('STOOL: hard dimension fail',
+     $     nroot)
       me = ga_nodeid()
       master = 0
-      if (ga_nnodes() .gt. 1024) call errquit('ptidy: too many procs',0)
+      if (ga_nnodes() .gt. 1024) call errquit('ptidy: too many procs',
+     $     0)
       call ga_list_nodeid(pmap, ga_nnodes()) ! Map to msg passing layer
-*      write(6,*) ga_nodeid(),' processor map ', 
+*     write(6,*) ga_nodeid(),' processor map ', 
 *     $     (pmap(i),i=0,ga_nnodes()-1)
       node0 = pmap(0)
 c     
@@ -72,7 +74,6 @@ c
          call dfill(nroot,0.0d0,ptnorm,1)
          call dfill(nroot,0.0d0,ptnorm_mp,1)
          call ifill(21,0,irange,1)
-         goto 90000
       else
          ipt = noconf+1
          do iislave=1,ga_nnodes()-1
@@ -110,44 +111,45 @@ c
                irange(i) = irange(i) + irangen(i)
             enddo
          enddo
-      endif
-      open(unit=irest,file=names(ifile),access='sequential',
-     &     form='unformatted',status='unknown',
-     &     err=90911)
-      close(unit=irest,status='delete')
-      open(unit=irest,file=names(ifile),access='sequential',
-     &     form='unformatted',status='unknown',
-     &     err=90911)
-      rewind irest
+         open(unit=irest,file=names(ifile),access='sequential',
+     &        form='unformatted',status='unknown',
+     &        err=90911)
+         close(unit=irest,status='delete')
+         open(unit=irest,file=names(ifile),access='sequential',
+     &        form='unformatted',status='unknown',
+     &        err=90911)
+         rewind irest
 c     
-      write(irest)iconf,ncold,nroot,nrange,noconf,nintpo,nconmx,iwpt
-      write(irest)(irange(ii),ii=1,nrange)
-      write(irest)(ept(ii),ii=1,nroot)
-      write(irest)(ept_mp(ii),ii=1,nroot)
-      write(irest)(enew(ii),ii=1,nroot)
-      write(irest)(ptnorm(ii),ii=1,nroot)
-      write(irest)(ptnorm_mp(ii),ii=1,nroot)
-      nloop = noconf
-      do jj = 1,nloop
-         write(irest)(ioconf(ii,jj),ii=1,nintpo)
-      enddo
-      write(istdo,'(a,i6,a,i6)')
-     &     ' checkpointed at iconf = ',iconf,' of ',ncold
+         write(irest)iconf,ncold,nroot,nrange,noconf,nintpo,nconmx,
+     $        iwpt
+         write(irest)(irange(ii),ii=1,nrange)
+         write(irest)(ept(ii),ii=1,nroot)
+         write(irest)(ept_mp(ii),ii=1,nroot)
+         write(irest)(enew(ii),ii=1,nroot)
+         write(irest)(ptnorm(ii),ii=1,nroot)
+         write(irest)(ptnorm_mp(ii),ii=1,nroot)
+         nloop = noconf
+         do jj = 1,nloop
+            write(irest)(ioconf(ii,jj),ii=1,nintpo)
+         enddo
+         write(istdo,'(a,i6,a,i6)')
+     &        ' checkpointed at iconf = ',iconf,' of ',ncold
 c     
 c     close restart tape
 c     
-      close(unit=irest,status='keep')
-      call util_flush(istdo)
+         close(unit=irest,status='keep')
+         call util_flush(istdo)
 c     
 c     delete other restart tape
 c     
-      open(unit=irest,file=names(idfile),access='sequential',
-     &     form='unformatted',status='unknown',
-     &     err=90912)
-      close(unit=irest,status='delete')
-      itf = mtime()
-90000 continue
-      call ga_sync(88)
+         open(unit=irest,file=names(idfile),access='sequential',
+     &        form='unformatted',status='unknown',
+     &        err=90912)
+         close(unit=irest,status='delete')
+         itf = mtime()
+      endif
+c
+      call ga_sync()
 c     
       return
 c     

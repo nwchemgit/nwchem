@@ -103,17 +103,17 @@ c
 c     These files only opened by process 0
 c
       if (.not. rtdb_cget(rtdb, 'selci:ciconf', 1, ciconf))
-     $     call util_file_name('ciconf', .true.,.false., ciconf)
+     $     call util_file_name('ciconf', .false.,.false., ciconf)
       if (.not. rtdb_cget(rtdb, 'selci:civecs', 1, civecs))
-     $     call util_file_name('civecs', .true.,.false., civecs)
+     $     call util_file_name('civecs', .false.,.false., civecs)
       if (.not. rtdb_cget(rtdb, 'selci:wmatrx', 1, wmatrx))
      $     call util_file_name('wmatrx', .true.,.false., wmatrx)
       if (.not. rtdb_cget(rtdb, 'selci:eigins', 1, eigins))
      $     call util_file_name('eigins', .true.,.false., eigins)
       if (.not. rtdb_cget(rtdb, 'selci:rtname', 1, names(1)))
-     $     call util_file_name('rtname', .true.,.false., names(1))
+     $     call util_file_name('rtname', .false.,.false., names(1))
       if (.not. rtdb_cget(rtdb, 'selci:roname', 1, names(2)))
-     $     call util_file_name('roname', .true.,.false., names(2))
+     $     call util_file_name('roname', .false.,.false., names(2))
       if (.not. rtdb_cget(rtdb, 'selci:hamdg', 1, hamdg))
      $     call util_file_name('hamdg', .true.,.false., hamdg)
 c

@@ -29,4 +29,6 @@ c     lenibf = length of ibuff in i*2
 c     lenbuf = total length of buffer in r*8
 c     nrinb = no. of real values in buffer
 c     niinb = no. of integer values in buffer
+c     nrec  = no. of records in the local file
+c     nval  = no. of values in the local file
 c

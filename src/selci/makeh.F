@@ -113,9 +113,11 @@ c     if running in parallel need to get all the diags together
       endif
       call ga_igop(991, nrec, 1, '+')
       call ga_igop(992, nval, 1, '+')
-      write(6,99) nrec,nval
- 99   format(/' total no. of hamiltonian records  ',i9/
-     $     ' total no. of hamiltonian elements ',i9/)
+      if (me .eq. 0) then
+         write(6,99) nrec,nval
+ 99      format(/' total no. of hamiltonian records  ',i9/
+     $        ' total no. of hamiltonian elements ',i9/)
+      endif
       close(iflham, status='keep')
 c
       end
