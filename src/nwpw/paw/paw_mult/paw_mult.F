@@ -1,8 +1,13 @@
 *
-* $Id: paw_mult.F,v 1.21 2003-03-05 23:16:32 bylaska Exp $
+* $Id: paw_mult.F,v 1.22 2003-03-11 17:56:03 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.21  2003/03/05 23:16:32  bylaska
+* Commented out write statements and other minor fixes.....
+* self-consistent loop looks like it is working.....
+* ....EJB
+*
 * Revision 1.20  2003/03/05 20:35:04  bylaska
 * bug fix.....(m.eq.(mi-mj)) changed to (m.eq.(mj-mi)) in the  paw_pot_mult loop...
 * Eigevalues now agree!
@@ -161,28 +166,27 @@
       sigma_smooth = control_rcut()
       ncut         = control_ncut()
       if (ncut.lt.0)     ncut=0
-      sigma_smooth = 1.5d0
-c      if (sigma_smooth.le.0.0d0) then
-c         rs = lattice_unita(1,1)**2
-c     >      + lattice_unita(2,1)**2
-c     >      + lattice_unita(3,1)**2
-c         rs = dsqrt(rs)
-c         sigma_smooth=4.0d0*rs/fourpi
-c
-c         rs = lattice_unita(1,2)**2
-c     >      + lattice_unita(2,2)**2
-c     >      + lattice_unita(3,2)**2
-c         rs = dsqrt(rs)
-c         w=4.0d0*rs/fourpi
-c         if (w.lt.sigma_smooth) sigma_smooth = w
-c
-c         rs = lattice_unita(1,3)**2
-c     >      + lattice_unita(2,3)**2
-c     >      + lattice_unita(3,3)**2
-c         rs = dsqrt(rs)
-c         w=4.0d0*rs/fourpi
-c         if (w.lt.sigma_smooth) sigma_smooth = w
-c      end if
+      if (sigma_smooth.le.0.0d0) then
+         rs = lattice_unita(1,1)**2
+     >      + lattice_unita(2,1)**2
+     >      + lattice_unita(3,1)**2
+         rs = dsqrt(rs)
+         sigma_smooth=4.0d0*rs/fourpi
+
+         rs = lattice_unita(1,2)**2
+     >      + lattice_unita(2,2)**2
+     >      + lattice_unita(3,2)**2
+         rs = dsqrt(rs)
+         w=4.0d0*rs/fourpi
+         if (w.lt.sigma_smooth) sigma_smooth = w
+
+         rs = lattice_unita(1,3)**2
+     >      + lattice_unita(2,3)**2
+     >      + lattice_unita(3,3)**2
+         rs = dsqrt(rs)
+         w=4.0d0*rs/fourpi
+         if (w.lt.sigma_smooth) sigma_smooth = w
+      end if
 
 
 
@@ -675,13 +679,13 @@ c      end if
         do m=-l,l
 
           i_cp = i_cp0
-          do i=1,nb
-          li = paw_basis_orb_l(i,ia)
-          do mi=-li,li
-
           do j=1,nb
           lj = paw_basis_orb_l(j,ia)
           do mj=-lj,lj
+
+          do i=1,nb
+          li = paw_basis_orb_l(i,ia)
+          do mi=-li,li
  
             if ( (l.le.(li+lj)   )    .and.
      >           (l.ge.abs(li-lj))    .and.
