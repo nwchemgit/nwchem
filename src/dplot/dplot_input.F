@@ -15,7 +15,7 @@
       Double Precision Ext_From_To(3,2),ValueR
 *
       Integer   Num_Dirs,Num_Units,Num_What,Num_Spin,Num_Where
-      Parameter (Num_Dirs  = 8)
+      Parameter (Num_Dirs  = 9)
       Parameter (Num_Units = 3)
       Parameter (Num_What  = 2)
       Parameter (Num_Spin  = 4)
@@ -26,12 +26,13 @@
      &              Allowed_What(Num_What),Allowed_Spin(Num_Spin),
      &              Allowed_Where(Num_Where)
       Character*8   Units,What,Spin,Where
+      Character*3   Charges
       Character*80  File_Vec,File_Vec2,File_Out
 *
       Logical status
 *
       Data Dirs / 'LimitXYZ','Vectors','Output','Title','Orbitals',
-     &            'Spin','Where','End' /
+     &            'Spin','Where','Charges','End' /
       Data Allowed_Units / 'angstrom','au','bohr' /
       Data Allowed_What  / 'density','view' /
       Data Allowed_Spin  / 'total','spindens','alpha','beta' /
@@ -51,6 +52,7 @@
       File_Out  = 'dplot'
       Title     = 'Unknown Title'
       Lth_Tit   = 13
+      Charges   = 'no '
       nOrb=999999
       Do i = 1, 3
          No_Of_Spacings(i) = 0
@@ -68,7 +70,7 @@
 *
       If (.not.inp_match(Num_Dirs,.false.,test,Dirs,ind))
      &   Call ErrQuit('DPlot_Input: unknown directive',0)
-      GoTo (100, 200, 300, 400, 500, 600, 700, 9999) ind
+      GoTo (100, 200, 300, 400, 500, 600, 700, 800, 9999) ind
       Call ErrQuit('DPlot_Input: unimplemented directive',ind)
 *
 *---- Read the information about the limits of the grid
@@ -178,7 +180,14 @@
      &   indWhere)) Call ErrQuit('DPlot_Input: unknown where',0)
       GoTo 10
 *
+*---- Read the charges info
+  800 Continue
+      Charges = 'yes'
+      GoTo 10
+*
  9999 Continue
+*
+      If (Charges.eq.'yes') What = 'charges'
 *
 *---- Write limits to the rtdb
       Call Inp_UCase(Units)
