@@ -1,11 +1,11 @@
-# $Id: GNUmakefile,v 1.11 1994-08-19 01:25:22 d3g681 Exp $
+# $Id: GNUmakefile,v 1.12 1994-08-27 13:35:51 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
         comp4_extract.o           rhf_energy.o \
         comp4_insert.o            rhf_fock_2e_a.o \
                                   rhf_fock_2e_b.o \
-        dabsmax.o                 rhf_fock_2e_c.o \
+        dabsmax.o                 \
         rhf_do_canon.o            rhf_get_param.o \
         rhf_fock_2e.o             \
         ga_create_atom_blocked.o  scf.o \
@@ -22,19 +22,21 @@
         ri_v_fit_cd.o             ri_v_fit_j.o \
         ri_drive.o                dabssum.o \
         matrix_exp.o              scf_pstat.o
-      
+
+  OBJ_OPTIMIZE = rhf_fock_2e_c.o
 
     LIBRARY = libddscf.a
 
-  USES_BLAS = ga_conform.F ga_mxv.F k2cf.F matrix_exp.F rhf_dens_to_mo.F rhf_do_canon.F \
-              rhf_energy.F rhf_fock_2e.F rhf_hessv.F rhf_nr_solve.F ri_invert_v.F \
+  USES_BLAS = ga_conform.F ga_mxv.F k2cf.F matrix_exp.F rhf_dens_to_mo.F \
+              rhf_do_canon.F \
+              rhf_energy.F rhf_fock_2e.F rhf_hessv.F rhf_nr_solve.F \
+              ri_invert_v.F \
               ri_v_fit_cd.F ri_v_fit_j.F
 
 HEADERS = schwarz.fh
 
 include ../config/makefile.h
 include ../config/makelib.h
-
 
 rhf.o:		schwarz.fh
 schwarz.o:	schwarz.fh cschwarz.fh

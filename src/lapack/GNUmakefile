@@ -31,8 +31,14 @@ ifeq ($(TARGET),IPSC)
        PRECISION = double
 endif
 
+ifndef PRECISION
+error:
+	@echo Lapack makefile does not have PRECISION defined
+	@exit 1
+endif
+
 ifeq ($(PRECISION),double)
-         OBJ = dlabrd.o   dlarfb.o   dlasv2.o   dormlq.o \
+OBJ_OPTIMIZE = dlabrd.o   dlarfb.o   dlasv2.o   dormlq.o \
                dbdsqr.o   dlacon.o   dlarfg.o   dorg2r.o   dormqr.o \
                dgebd2.o   dlacpy.o   dlarft.o   dorgbr.o   dspcon.o \
                dgebrd.o   dlaev2.o   dlartg.o   dorgl2.o   dsprfs.o \
@@ -44,7 +50,7 @@ ifeq ($(PRECISION),double)
                dgesv.o    dgetrs.o   dgetrf.o   dlaswp.o \
                dgetf2.o
 else
-         OBJ = sgesvd.o   slarf.o    slassq.o   sorml2.o \
+OBJ_OPTIMIZE = sgesvd.o   slarf.o    slassq.o   sorml2.o \
                ilaenv.o   slabrd.o   slarfb.o   slasv2.o   sormlq.o \
                sbdsqr.o   slacon.o   slarfg.o   sorg2r.o   sormqr.o \
                sgebd2.o   slacpy.o   slarft.o   sorgbr.o   sspcon.o \

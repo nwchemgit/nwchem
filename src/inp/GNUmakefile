@@ -1,8 +1,8 @@
-# $Id: GNUmakefile,v 1.2 1994-08-22 03:10:01 d3g681 Exp $
+# $Id: GNUmakefile,v 1.3 1994-08-27 13:36:03 d3g681 Exp $
 
       LIBRARY = libutil.a
 #     LIBRARY = libinp.a
-          OBJ = inp.o
+ OBJ_OPTIMIZE = inp.o
   LIB_TARGETS = test.o test
       HEADERS = inp.fh
 

@@ -1,10 +1,10 @@
-# $Id: GNUmakefile,v 1.5 1994-08-22 00:02:54 d3g681 Exp $
+# $Id: GNUmakefile,v 1.6 1994-08-27 13:33:40 d3g681 Exp $
 
 
-      OBJ = genr70.o init70.o qout70.o \
-            sinfo.o sp0000.o sp0001.o \
-            sp0011.o sp0101.o sp0111.o \
-            sp1111.o tabgen.o 
+      OBJ_OPTIMIZE = genr70.o init70.o qout70.o \
+                     sinfo.o sp0000.o sp0001.o \
+                     sp0011.o sp0101.o sp0111.o \
+                     sp1111.o tabgen.o 
 
     LIBRARY = libnwints.a
 

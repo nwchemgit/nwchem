@@ -1,7 +1,7 @@
-# $Id: GNUmakefile,v 1.4 1994-08-22 00:03:05 d3g681 Exp $
+# $Id: GNUmakefile,v 1.5 1994-08-27 13:33:50 d3g681 Exp $
 
-  OBJ = 
- LIBRARY = libnwints.a
+  OBJ_OPTIMIZE = 
+       LIBRARY = libnwints.a
 
 include ../../config/makefile.h
 include ../../config/makelib.h
