@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.3 1998-04-26 18:58:41 bernhold Exp $
+C$Id: rimp2g.F,v 1.4 1998-06-26 21:50:07 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -32,8 +32,12 @@ C
 C
       Integer MxTBatch, MxEBatch(2)
 C
-      Character*(*) Def_Int, Def_MOVec
-      Parameter (Def_Int = 'mo3cint', Def_MOVec = 'movecs')
+      Logical Gradient
+      Parameter (Gradient = .TRUE.)
+C
+      Character*(*) Def_Int, Def_MOVec, Def_Gam3
+      Parameter (Def_Int = 'mo3cint', Def_MOVec = 'movecs',
+     $     Def_Gam3 = 'gam3')
       Character*(*) Geom_Name, AOBasName, FitBasName
       Parameter (Geom_Name = 'geometry', AOBasName = 'ao basis',
      $   FitBasName = 'ri-mp2 basis')
@@ -48,7 +52,7 @@ C
       Integer I, Me
       Integer H_Contrib, Contrib_Idx
       Double precision Thresh, CorEner, RefEner, TotEner, MinEVal
-      Character*(80) FNInt, Approx
+      Character*(80) FNInt, Approx, FNGam3
       Character*(255) AOName, AONameT, FitName, FitNameT, JobTitle
       Logical Status
       Character*(1) Mem_Opt
@@ -69,7 +73,7 @@ C     Print controls
 C
       Logical PrInfo
 C
-      Integer MaxDASiz, TotDASiz, Size, SizeB
+      Integer MaxDASiz, TotDASiz, Size, SizeB, NrDA
 C
       Data NFrz/0, 0/
 C
@@ -120,11 +124,12 @@ C
       Call RIMP2G_Get_Param( RTDB, Thresh, MxTBatch, Mem_Opt, MxEBatch,
      $   Approx, MinEVal)
 C
-C     Figure out file names.  Munging to get the full name is done in
-C     open_3ci, not here!
+C     Figure out file names.  Munging to get the full name is done later!
 C
       if (.not. RTDB_CGet(rtdb, 'mp2:mo 3-center integral file',
      $     1, FNInt)) FNInt = Def_Int
+      if (.not. RTDB_CGet(rtdb, 'mp2:mo 3-center gamma file',
+     $     1, FNGam3)) FNGam3 = Def_Gam3
 C
 C     Get some info about the basis sets for later use
 C
@@ -162,6 +167,11 @@ C
       If ( Me .eq. 0 .AND. PrInfo) then
 C
          Write (LuOut,'(1X, A)' ) 'RI-MP2 Calculation Information:'
+         If ( Gradient ) then
+            Write (LuOut, 8505) 'Calculation Type:', 'Energy + Gradient'
+         Else
+            Write (LuOut, 8505) 'Calculation Type:', 'Energy + Gradient'
+         EndIf
          Write (LuOut, 8520) 'Nr. of AO basis functions:', NAOBF
          Write (LuOut, 8520) 'Nr. of fitting basis functions:', NFit
          Write (LuOut, 8520) 'Nr. of MO spin cases:', TopSpin
@@ -186,10 +196,11 @@ C
             Write (LuOut, 8520) 'Max. batch size for energy:',
      $         MxEBatch
          EndIf
-         Write (LuOut, 8500) 'Base file name for MO integrals',
+         Write (LuOut, 8500) 'Base file name for MO integrals:',
      $      FNInt(:Inp_StrLen(FNInt))
-         Write (LuOut, 8500) 'Type of storage for MO integrals',
-     $      'disk arrays'
+         If ( Gradient )Write (LuOut, 8500) 'Base file name for gamma:',
+     $      FNGam3(:Inp_StrLen(FNGam3))
+         Write (LuOut, 8505) 'Files stored as', 'disk arrays'
          Write (LuOut, *)
 C
          if (util_print('geometry',print_high)) then
@@ -245,10 +256,19 @@ C
          MaxDASiz = Max( MaxDASiz, SizeB)
          TotDASiz = TotDASiz + SizeB
       EndDo
+      NrDA = TopSpin
+C
+C     If we have to do gradients, we'll also need to store the
+C     3-index Gamma.  Its the same size as the integrals.
+C
+      If ( Gradient ) then
+         TotDASiz = 2 * TotDASiz
+         NrDA = 2 * NrDA
+      EndIf
 C
 C     Initialize DAs.  We know everything but how much memory to give it.
 C
-      If (DRA_Init(TopSpin, MaxDASiz, TotDASiz, -1) .ne. 0)
+      If (DRA_Init(NrDA, MaxDASiz, TotDASiz, -1) .ne. 0)
      $   Call ErrQuit('RIMP2G: DRA_Init failed', 0)
 C
 C     Initialize integrals
@@ -296,10 +316,10 @@ C     * Energy calculation *
 C     **********************
 C
       Status = Status .AND.
-     $   RIMP2_Driver_EG( D_Int, FNInt, TopSpin, NCorBF,
+     $   RIMP2_Driver_EG( D_Int, FNInt, FNGam3, TopSpin, NCorBF,
      $     NFrz, IHi, AHi, NFit,
      $   FitBas, Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx),
-     $   CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2))
+     $   CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2), Gradient)
 C
 C     Also get the SCF energy so we can report the total energy
 C
