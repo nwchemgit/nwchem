@@ -39,6 +39,8 @@ c
      $     'Plutonium', 'Americium', 'Curium', 'Berkelium',
      $     'Californium', 'Einsteinium', 'Fermium', 'Mendelevium',
      $     'Nobelium', 'Lawrencium'/
+c
+      data angstrom_to_au /1.8897265d0/
 c     
       end
       logical function geom_check_handle(geom, msg)
@@ -55,7 +57,7 @@ c
       if (.not. geom_check_handle) then
          write(6,*) msg,': geometry handle invalid ', geom
          call geom_err_info(msg)
-      endif
+      end if
 c     
       end
       logical function geom_check_cent(geom, msg, icent)
@@ -72,7 +74,7 @@ c
      $        names(geom)(1:lenn(geom))
          call geom_err_info(msg)
          call geom_print(geom)
-      endif
+      end if
 c     
       end
       logical function geom_rtdb_in(rtdb)
@@ -98,10 +100,10 @@ c
          else
             do geom = 1, ngeom_rtdb
                lenr(geom) = inp_strlen(names_rtdb(geom))
-            enddo
+            end do
             geom_rtdb_in = .true.
-         endif
-      endif
+         end if
+      end if
 c     
       end
       logical function geom_rtdb_out(rtdb)
@@ -145,7 +147,7 @@ c
       geom_rtdb_add = .true.
       do geom = 1, ngeom_rtdb
          if (name(1:ln) .eq. names_rtdb(geom)(1:lenr(geom))) return
-      enddo
+      end do
 c     
 c     Name is not present ... add and rewrite info
 c     
@@ -153,7 +155,7 @@ c
          write(6,*) ' geom_rtdb_add: too many geometries on rtdb ', name
          geom_rtdb_add = .false.
          return
-      endif
+      end if
       ngeom_rtdb = ngeom_rtdb + 1
       names_rtdb(ngeom_rtdb) = name
       lenr(ngeom_rtdb) = ln
@@ -162,7 +164,7 @@ c
          write(6,*) ' geom_rtdb_add: rtdb error adding ', name(1:ln)
          geom_rtdb_add = .false.
          return
-      endif
+      end if
 c     
       geom_rtdb_add = .true.
 c     
@@ -181,7 +183,7 @@ c
       ngeom = 0
       do geom = 1, max_geom
          if (active(geom)) ngeom = ngeom + 1
-      enddo
+      end do
       write(6,1) info, ngeom
  1    format(' ',a,': open geometies: ',i2)
       ngeom = 0
@@ -190,16 +192,16 @@ c
             write(6,2) ngeom, info, names(geom)(1:lenn(geom)),
      $           trans(geom)(1:lent(geom))
  2          format(' ',i2,' ',a,': "',a, '" -> "', a,'"')
-         endif
-      enddo
+         end if
+      end do
       if (ngeom_rtdb .gt. 0) then
          write(6,3) info, ngeom_rtdb
  3       format(' ',a,': geometries in last accessed data base: ', i2)
          do geom = 1, ngeom_rtdb
             write(6,4) names_rtdb(geom)(1:lenr(geom))
  4          format(' ',a)
-         enddo
-      endif
+         end do
+      end if
 c     
       end
       logical function geom_rtdb_load(rtdb, geom, name)
@@ -268,6 +270,12 @@ c
       tmp(k:) = ':group number'
       status = status .and. 
      $     rtdb_get(rtdb, tmp, mt_int, 1, group_number(geom))
+      tmp(k:) = ':group name'
+      status = status .and.
+     $     rtdb_cget(rtdb, tmp, 1, group_name(geom))
+      tmp(k:) = ':user units'
+      status = status .and.
+     $     rtdb_cget(rtdb, tmp, 1, user_units(geom))
       tmp(k:) = ':setting number'
       status = status .and. 
      $     rtdb_get(rtdb, tmp, mt_int, 1, setting_number(geom))
@@ -302,11 +310,6 @@ c
       status = status .and. 
      $     rtdb_ma_get(rtdb, tmp, ma_type, nelem,
      $     sym_center_map_handle(geom))
-      if (nelem .ne. sym_num_ops(geom)*ncenter(geom)) call errquit
-     $     ('geom_rtdb_load: invalid no. of element in sym map', nelem)
-      if (.not. ma_get_index(sym_center_map_handle(geom),
-     $     sym_center_map_index(geom)))call errquit
-     $     ('geom_rtdb_load: bad ma handle', 0)
 c     
       if (.not. status) then
          write(6,*) ' geom_rtdb_load: not found or rtdb corrupt: ',
@@ -315,7 +318,13 @@ c
          call geom_err_info('geom_rtdb_load')
          geom_rtdb_load = .false.
          return
-      endif
+      end if
+c
+      if (nelem .ne. sym_num_ops(geom)*ncenter(geom)) call errquit
+     $     ('geom_rtdb_load: invalid no. of element in sym map', nelem)
+      if (.not. ma_get_index(sym_center_map_handle(geom),
+     $     sym_center_map_index(geom)))call errquit
+     $     ('geom_rtdb_load: bad ma handle for sym map', 0)
 c     
 c     Determine if external fields are applied
 c     
@@ -354,21 +363,25 @@ c
          do j = 1, 3
             ndipole(j,geom) = ndipole(j,geom) +
      $           charge(i,geom)*coords(j,i,geom)
-         enddo
+         end do
          do j = i+1, ncenter(geom)
             r = dsqrt(
      $           (coords(1,i,geom)-coords(1,j,geom))**2 + 
      $           (coords(2,i,geom)-coords(2,j,geom))**2 + 
      $           (coords(3,i,geom)-coords(3,j,geom))**2)
             e = e + charge(i,geom)*charge(j,geom)/r
-         enddo
-      enddo
+         end do
+      end do
 c
 c     add in interaction of nuclear dipole with external field
 c
       e = e + ddot(3, ndipole(1,geom), 1, efield(1,geom), 1)
 c
       erep(geom) = e
+c
+      if (isystype(geom) .eq. 3) then
+         call geom_3d(geom)
+      endif
 c
       end
       logical function geom_rtdb_store(rtdb, geom, name)
@@ -395,7 +408,7 @@ c
       if (name .ne. ' ') then
          names(geom) = name
          lenn(geom) = inp_strlen(name)
-      endif
+      end if
 c
 c     If not process 0 return ... this is so that input routines
 c     can be completely single threaded
@@ -444,6 +457,12 @@ c
       tmp(k:) = ':group number'
       status = status .and. 
      $     rtdb_put(rtdb, tmp, mt_int, 1, group_number(geom))
+      tmp(k:) = ':group name'
+      status = status .and.
+     $     rtdb_cput(rtdb, tmp, 1, group_name(geom))
+      tmp(k:) = ':user units'
+      status = status .and.
+     $     rtdb_cput(rtdb, tmp, 1, user_units(geom))
       tmp(k:) = ':setting number'
       status = status .and. 
      $     rtdb_put(rtdb, tmp, mt_int, 1, setting_number(geom))
@@ -492,7 +511,7 @@ c
          call geom_err_info('geom_rtdb_store')
          geom_rtdb_store = .false.
          return
-      endif
+      end if
       geom_rtdb_store = .true.
 c
       end
@@ -523,12 +542,12 @@ c
       do geom = 1, ngeom_rtdb
          if (names_rtdb(geom)(1:lenr(geom)) .eq. translation(1:lt))
      $        goto 10
-      enddo
+      end do
       write(6,*) ' geom_rtdb_delete: no such geometry ',
      $     name(1:inp_strlen(name)),' -> ', translation(1:lt)
  10   do geom2 = geom+1, ngeom_rtdb
          names_rtdb(geom2-1) = names_rtdb(geom2)
-      enddo
+      end do
       ngeom_rtdb = ngeom_rtdb - 1
       status = geom_rtdb_out(rtdb)
 c
@@ -545,8 +564,6 @@ c
       status = status .and. rtdb_delete(rtdb, tmp)
       tmp(k:) = ':efield'
       status = status .and. rtdb_delete(rtdb, tmp)
-      tmp(k:) = ':latvec'
-      status = status .and. rtdb_delete(rtdb, tmp)
       tmp(k:) = ':tags'
       status = status .and. rtdb_delete(rtdb, tmp)
 c
@@ -557,7 +574,7 @@ c
          call geom_err_info('geom_rtdb_delete')
          geom_rtdb_delete = .false.
          return
-      endif
+      end if
 c
       geom_rtdb_delete = .true.
 c
@@ -576,7 +593,7 @@ c     Assign the next free slot for a geometry
 c
       do geom = 1, max_geom
          if (.not. active(geom)) goto 10
-      enddo
+      end do
       write(6,1) name
  1    format(' geom_create: too many geoms trying to create ', a)
       call geom_err_info('geom_create')
@@ -599,6 +616,8 @@ c
       group_number(geom) = 1
       setting_number(geom) = 0
       sym_center_map_handle(geom) = -1
+      group_name(geom) = 'C1'
+      user_units(geom) = 'a.u.'
 c
       do i = 1, 3
         lattice_vectors(i,geom) = 0
@@ -606,10 +625,10 @@ c
         do j = 1, 3
            amatrix(j,i,geom) = 0.0d0
            amatrix_inv(j,i,geom) = 0.0d0
-        enddo
+        end do
         amatrix(i,i,geom) = 1.0d0
         amatrix_inv(i,i,geom) = 1.0d0
-      enddo
+      end do
 c
       end
       logical function geom_destroy(geom)
@@ -629,7 +648,7 @@ c
       if (sym_center_map_handle(geom) .ne. -1) then
          if (.not. ma_free_heap(sym_center_map_handle(geom)))
      $        call errquit('geom_destroy: free of atom map', 0)
-      endif
+      end if
 c
       end
       logical function geom_cart_set(geom, ncent, t, c, q)
@@ -652,7 +671,7 @@ c
          write(6,*) ' geom_cart_set: too many centers ',ncent,
      $        names(geom)(1:lenn(geom))
          return
-      endif
+      end if
 c
       ncenter(geom) = ncent
       ncenter_unique(geom) = ncent
@@ -663,7 +682,7 @@ c
          coords(2,i,geom) = c(2,i)
          coords(3,i,geom) = c(3,i)
          unique_cent(i,geom) = i
-      enddo
+      end do
 c
 c
 c     compute effective nuclear repulsion energy, dipole and
@@ -695,7 +714,7 @@ c
          c(1,i) = coords(1,i,geom)
          c(2,i) = coords(2,i,geom)
          c(3,i) = coords(3,i,geom)
-      enddo
+      end do
 c
       end
       logical function geom_cent_get(geom, icent, t, c, q)
@@ -786,16 +805,6 @@ c
       geom_cent_tag = .true.
 c
       end
-      logical function geom_latvec_set(geom, vectors)
-      implicit none
-      integer geom              ! [input]
-      double precision vectors(3,3) ! [input]
-c
-#include "geomP.fh"
-c     
-      call errquit('geom_latvec_set: not yet!', 0)
-      geom_latvec_set = .false.
-      end
       logical function geom_efield_set(geom, ef)
       implicit none
 #include "geomP.fh"
@@ -821,6 +830,7 @@ c
       implicit none
 #include "geomP.fh"
 #include "util.fh"
+#include "inp.fh"
 c
 c     Basic printing of cartesian geometry ... needs support for
 c     user defined units, internal coords, different formats, ...
@@ -829,36 +839,108 @@ c
       integer icent
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
-      integer i
+      integer i, j
+      double precision scale, tmp(3)
+      character*80 buf
+      character*10 csys
 c
       if (.not. geom_check_handle(geom, 'geom_print')) then
          geom_print = .false.
          return
-      endif
+      end if
 c
-      write(6,1) names(geom)(1:lenn(geom)), trans(geom)(1:lent(geom))
- 1    format(//'                      Geometry (au) "',a,'" -> "',a,'"')
-      write(6,2)
- 2    format(  '                      -------------'/)
+      if (user_units(geom) .eq. 'a.u.') then
+         scale = 1.0d0
+      else if (user_units(geom) .eq. 'fractional') then
+         scale = 1.0d0
+      else if (user_units(geom) .eq. 'angstrom') then
+         scale = 1.0d0 / angstrom_to_au
+      else
+         call errquit('geom_print: user_units are unspecified', 0)
+      end if
+c
+      if (isystype(geom) .eq. 0) then
+         csys = 'Molecule'
+      else if (isystype(geom) .eq. 1) then
+         csys = 'Polymer'
+      else if (isystype(geom) .eq. 2) then
+         csys = 'Slab'
+      else if (isystype(geom) .eq. 3) then
+         csys = 'Crystal'
+      else
+         call errquit('geom_print: unknown system type', isystype(geom))
+      end if
+c
+      buf = ' '
+      write(buf,1) 
+     $     csys(1:inp_strlen(csys)),
+     $     names(geom)(1:lenn(geom)), 
+     $     trans(geom)(1:lent(geom))
+ 1    format(a,' "',a,'" -> "',a,'"')
+      write(6,*)
+      write(6,*)
+      call util_print_centered(6,buf,40,.true.)
+      write(6,*)
+      write(6,2) user_units(geom)(1:inp_strlen(user_units(geom)))
+ 2    format(' Units of output coordinates              ', a)
+      if (isystype(geom) .eq. 3) then
+         write(6,21) 
+     $        volume_direct(geom),
+     $        (lattice_vectors(i,geom),i=1,3),
+     $        (lattice_angles(i,geom),i=1,3),
+     $        (recip_lat_vectors(i,geom),i=1,3),
+     $        (recip_lat_angles(i,geom),i=1,3)
+ 21      format(
+     $        ' Direct space cell volume (angstrom^3)   ', f12.6/
+     $        ' Lattice vectors (angstrom)              ', 3f12.6/
+     $        ' Lattice angles (degrees)                ', 3f12.6/
+     $        ' Reciprocal lattice vectors (angs^-1)    ', 3f12.6/
+     $        ' Reciprocal lattice angles (degrees)     ', 3f12.6/)
+c
+         write(6,*) ' Crystallographic to cartesian (angstrom) matrix'
+         write(6,*)
+         write(6,22) ((amatrix(i,j,geom)/angstrom_to_au,j=1,3),i=1,3)
+ 22      format(3(5x,3f12.6/))
+c
+         write(6,*) ' Cartesian (angstrom) to crystallographic matrix'
+         write(6,*)
+         write(6,22)((amatrix_inv(i,j,geom)*angstrom_to_au,j=1,3),i=1,3)
+c
+         write(6,*) ' Metric matrix (angstrom^2) for the direct lattice'
+         write(6,*)
+         write(6,22)((metric_matrix(i,j,geom),j=1,3),
+     $        i=1,3)
+c
+      endif
+      write(6,*)
+c
       write(6,3) 
  3    format('  No.       Tag          Charge          X',
      $     '              Y              Z'/
      $       ' ---- ---------------- ---------- --------------',
      $     ' -------------- --------------')
       do icent = 1, ncenter(geom)
+c
+c     Convert from cartesian to crystallographic coordinates
+c
+         do i = 1, 3
+            tmp(i) = 0.0d0
+            do j = 1, 3
+               tmp(i) = tmp(i) + 
+     $              amatrix_inv(i,j,geom)*coords(j,icent,geom)
+            end do
+            tmp(i) = tmp(i)*scale ! Scale units as necessary
+         end do
          write(6,4) icent, tags(icent,geom), charge(icent,geom),
-     $        coords(1,icent,geom),coords(2,icent,geom),
-     $        coords(3,icent,geom)
+     $        (tmp(i),i=1,3)
  4       format(' ',i4,' ',a16,' ',f10.6,3f15.8)
-      enddo
+      end do
+      write(6,*)
 c
-      write(6,41) erep(geom)
- 41   format(/' Effective nuclear repulsion energy (au) ', f18.10/)
+      if (isystype(geom) .eq. 0) then
+         write(6,41) erep(geom)
+ 41      format(/' Effective nuclear repulsion energy (au) ', f18.10/)
 c
-c     Nuclear dipole moment is usually zero ... only print it if it
-c     is not.
-c
-      if (ddot(3,ndipole(1,geom),1,ndipole(1,geom),1) .gt. 1.0d-10) then
          write(6,91)
  91      format('             Nuclear Dipole moment (au) ')
          write(6,101)
@@ -869,7 +951,7 @@ c
          write(6,8) (ndipole(i,geom), i=1,3)
  8       format(3(1x,f16.10))
          write(6,*)
-      endif
+      end if
 c
       if (oefield(geom)) then
          write(6,9)
@@ -879,9 +961,9 @@ c
          write(6,7)
          write(6,8) (efield(i,geom), i=1,3)
          write(6,*)
-      endif
+      end if
 c
-***      call sym_print_all(geom)
+      call sym_print_all(geom, .true., .true., .false., .false.)
 c
       geom_print = .true.
 c
@@ -921,7 +1003,7 @@ c
          symbol  = 'bq'
          atn     = 0
          return
-      endif
+      end if
 c
 c     Attempt to match the first 4 characters of the
 c     full names of the elements
@@ -934,8 +1016,8 @@ c
             atn     = ind
             geom_tag_to_element = .true.
             return
-         endif
-      endif
+         end if
+      end if
 c
 c     Failed ... attempt to match the first two characters
 c     against two character element names
@@ -947,8 +1029,8 @@ c
             atn     = ind
             geom_tag_to_element = .true.
             return
-         endif
-      endif
+         end if
+      end if
 c
 c     Last ditch attempt ... match against 1 character symbols
 c
@@ -959,7 +1041,7 @@ c
          atn     = ind
          geom_tag_to_element = .true.
          return
-      endif
+      end if
 c
 c     Nothing matched
 c
@@ -988,18 +1070,18 @@ c
       qsum = 0.0d0
       do i = 1, ncenter(geom)
          qsum = qsum + charge(i,geom)
-      enddo
+      end do
 c
       if (qsum .eq. 0.0d0) return ! System is charge neutral
 c
       do k = 1, 3
          shift(k) = ndipole(k,geom)/qsum
-      enddo
+      end do
       do i = 1, ncenter(geom)
          do k = 1, 3
             coords(k,i,geom) = coords(k,i,geom) - shift(k)
-         enddo
-      enddo
+         end do
+      end do
 c     
       call geom_compute_values(geom)
 c
@@ -1034,7 +1116,7 @@ c
       total_charge = 0.0d0
       do i = 1, ncenter(geom)
          total_charge = total_charge + charge(i,geom)
-      enddo
+      end do
 c
       end
 c
@@ -1082,7 +1164,7 @@ c
      &          call errquit
      &          ('geom_verify_coords: geom_cent_get<2> failed',911)
             dist_min = min(dist_min, dist2(atomi,atomj))
-          endif
+          end if
 00200   continue
 00100 continue
       dist_min = sqrt(dist_min)
@@ -1129,7 +1211,7 @@ c
 
       do i=1,3
         vectors(i)=lattice_vectors(i,geom)
-      enddo
+      end do
       geom_latvec_get = .true.
       end
       logical function geom_latang_get(geom,angles)
@@ -1146,7 +1228,7 @@ c
 c
       do i=1,3
         angles(i)=lattice_angles(i,geom)
-      enddo
+      end do
       geom_latang_get = .true. 
       end
       logical function geom_recipvec_get(geom,rvectors)
@@ -1163,8 +1245,8 @@ c
 
       do i=1,3
         rvectors(i)=recip_lat_vectors(i,geom)
-      enddo
-      write(*,*) 'in geom printing rcectors'
+      end do
+      write(*,*) 'in geom printing rvectors'
       write(*,*) (rvectors(i),i=1,3)
       geom_recipvec_get = .true.
       end
@@ -1182,7 +1264,7 @@ c
 
       do i=1,3
         rangles(i)=recip_lat_angles(i,geom)
-      enddo
+      end do
       geom_recipang_get = .true.
       end
       logical function geom_volume_get(geom,volume)
@@ -1215,8 +1297,8 @@ c
       do i=1,3
         do j=1,3
           amat(i,j)=amatrix(i,j,geom)
-        enddo
-      enddo
+        end do
+      end do
       end
       logical function geom_amatinv_get(geom,amatinv)
       implicit none
@@ -1233,10 +1315,15 @@ c
       do i=1,3
         do j=1,3
           amatinv(i,j)=amatrix_inv(i,j,geom)
-        enddo
-      enddo
+        end do
+      end do
       end
-
-
-
-
+      logical function geom_set_user_units(geom, units)
+      implicit none
+#include "geomP.fh"
+      integer geom
+      character*(*) units
+c
+      user_units(geom) = units
+c
+      end

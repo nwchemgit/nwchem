@@ -23,10 +23,9 @@ c***********************************************************************
 
       integer geom,i,j,iang,indx(3)
       real*8 cdist(3),cang(3),gmat(3,3),amat(3,3),dperm,vol,
-     &       angbor,c1,c2,c3,s1,s2,s3,rad,ainv(3,3),rdist(3),
+     &       c1,c2,c3,s1,s2,s3,rad,ainv(3,3),rdist(3),
      &       rang(3)
-      parameter(rad=57.2957795131)
-
+      parameter(rad=57.295779513082343d0)
 c
 c--> get direct space lattice vectors
 c
@@ -82,20 +81,19 @@ c
 c  Note this matrix is implicitly built to convert the input coordinates
 c  from angstroms to bohr.
 c
-      angbor=1.0/0.52917706
       c1=dcos(cang(1))
       c2=dcos(cang(2))
       c3=dcos(cang(3))
       s3=dsin(cang(3))
-      amat(1,1) = cdist(1)*s3*angbor
+      amat(1,1) = cdist(1)*s3*angstrom_to_au
       amat(1,2) = 0.0d+00
-      amat(1,3) = (cdist(3)*(c2-c1*c3)/s3)*angbor
-      amat(2,1) = cdist(1)*c3*angbor
-      amat(2,2) = cdist(2)*angbor
-      amat(2,3) = cdist(3)*c1*angbor
+      amat(1,3) = (cdist(3)*(c2-c1*c3)/s3)*angstrom_to_au
+      amat(2,1) = cdist(1)*c3*angstrom_to_au
+      amat(2,2) = cdist(2)*angstrom_to_au
+      amat(2,3) = cdist(3)*c1*angstrom_to_au
       amat(3,1) = 0.0d+00
       amat(3,2) = 0.0d+00
-      amat(3,3) = (vol/(cdist(1)*cdist(2)*s3))*angbor
+      amat(3,3) = (vol/(cdist(1)*cdist(2)*s3))*angstrom_to_au
 c     
 c     load it into common
 c
@@ -112,15 +110,15 @@ c
       c3=dcos(cang(3))
       s3=dsin(cang(3))
 
-      ainv(1,1) = (1.0d+00/(cdist(1)*s3))/angbor
+      ainv(1,1) = (1.0d+00/(cdist(1)*s3))/angstrom_to_au
       ainv(1,2) = 0.0d+00
-      ainv(1,3) = (cdist(2)*cdist(3)*(c1*c3-c2)/(vol*s3))/angbor
-      ainv(2,1) = (-c3/(cdist(2)*s3))/angbor
-      ainv(2,2) = (1.0d+00/cdist(2))/angbor
-      ainv(2,3) = (cdist(1)*cdist(3)*(c2*c3-c1)/(vol*s3))/angbor
+      ainv(1,3) = (cdist(2)*cdist(3)*(c1*c3-c2)/(vol*s3))/angstrom_to_au
+      ainv(2,1) = (-c3/(cdist(2)*s3))/angstrom_to_au
+      ainv(2,2) = (1.0d+00/cdist(2))/angstrom_to_au
+      ainv(2,3) = (cdist(1)*cdist(3)*(c2*c3-c1)/(vol*s3))/angstrom_to_au
       ainv(3,1) = 0.0d+00
       ainv(3,2) = 0.0d+00
-      ainv(3,3) = (cdist(1)*cdist(2)*s3/vol)/angbor
+      ainv(3,3) = (cdist(1)*cdist(2)*s3/vol)/angstrom_to_au
 c     
 c     load it into common
 c
@@ -152,7 +150,7 @@ c--> load
 c
       do 2000 i=1,3
         recip_lat_vectors(i,geom)=rdist(i)
-        recip_lat_angles(i,geom)=rang(i)
+        recip_lat_angles(i,geom)=rang(i)*rad
  2000 continue
 
 c

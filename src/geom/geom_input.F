@@ -11,10 +11,10 @@ c
       character*12 units        ! holds units of coordinates
       integer ncenter           ! counts no. of centers as input
       integer geom              ! handle for geometry
-      integer lpr_sym           ! print sym operators or not (1 yes,2 no)
       integer nata              ! num. of unique atoms 
       logical status            ! scratch for return codes
       logical oprint
+      logical oprint_sym
       integer max_center        ! parameter for local array dimension
       double precision scale    ! For unit conversion
       parameter (max_center = 500)
@@ -24,7 +24,7 @@ c
       character*2 symbol
       character*16 element
       logical osymmetry
-      integer atn
+      integer atn, isys
 c
 c     read a geometry from the input deck and output it
 c     to the rtdb.
@@ -58,6 +58,7 @@ c
       name  = ' '
       oprint = .false.
       osymmetry = .true.
+      oprint_sym = .false.
 c
  10   if (inp_a(field)) then
          if (inp_compare(.false.,'print', field)) then
@@ -75,26 +76,25 @@ c
             if (name .ne. ' ') call errquit
      $          ('geom_input: geometry [<name>] [units <units>]', 0)
             name = field
-         endif
+         end if
          goto 10
-      endif
+      end if
 c
       if (units(1:2) .eq. 'au' .or. units(1:2) .eq. 'bo' .or.
      $     units(1:2) .eq. 'at') then
          scale = 1.0d0
+         status = geom_set_user_units(geom,'a.u.')
       else if (units(1:2) .eq. 'an') then
-         scale = 1.8897265d0
+         scale  = 1.8897265d0
+         status = geom_set_user_units(geom,'angstrom')
       else
          call errquit('geom_input: unknown units', 0)
-      endif
-
+      end if
+c
       if (name .eq. ' ') name = 'geometry'
       if (.not. geom_create(geom, name)) call errquit
      $     ('geom_input: geom_create failed !', 0)
-
-      if (scale.ne.1.0d0) write(6,1) name(1:inp_strlen(name)), scale
- 1    format(/'Scaling coordinates for geometry "',a,'" by ',f10.8/)
-c     
+c
 c     system ...
 c     symmetry ...
 c     tag charge x y z
@@ -106,7 +106,7 @@ c
             goto 30
          else if (inp_compare(.false.,'symmetry',field)) then
             osymmetry = .true.
-            call geom_sym_input(geom)
+            call geom_sym_input(geom, oprint_sym)
             goto 20
          else if (inp_compare(.false.,'system', field)) then
             osymmetry = .true.
@@ -121,9 +121,9 @@ c
             status = status .and. inp_f(coords(2,ncenter+1))
             status = status .and. inp_f(coords(3,ncenter+1))
 
-            coords(1,ncenter+1) = coords(1,ncenter+1)*scale
-            coords(2,ncenter+1) = coords(2,ncenter+1)*scale
-            coords(3,ncenter+1) = coords(3,ncenter+1)*scale
+            coords(1,ncenter+1) = coords(1,ncenter+1)
+            coords(2,ncenter+1) = coords(2,ncenter+1)
+            coords(3,ncenter+1) = coords(3,ncenter+1)
 
             ncenter = ncenter + 1
 
@@ -142,38 +142,48 @@ c
                   call util_flush(6)
                   call errquit
      $                 ('geom_input: charge-atom type mismatch',atn)
-               endif
-            endif
-         endif
+               end if
+            end if
+         end if
          goto 20
       else
          call errquit('geom_input: premature end of file', 0)
-      endif
+      end if
 c
- 30   if (.not. geom_cart_set(geom, ncenter, tags, coords, charge))
+c     Apply requested conversion of units after we have
+c     all of the information
+c
+ 30   if (.not. geom_systype_get(geom, isys)) call errquit
+     $     ('geom_input: systype?', 0)
+      if (isys.eq.0) then
+         if (scale.ne.1.0d0) then
+            write(6,1) name(1:inp_strlen(name)), scale
+ 1          format(/'Scaling coordinates for geometry "',a,'" by ',
+     $           f10.8/)
+            call dscal(3*ncenter, scale, coords, 1)
+         end if
+      else if (isys .eq. 3) then
+         if (scale .ne. 1.0d0) call errquit
+     $        ('geom_input: specified units for fractional coords', 0)
+      else
+         call errquit('geom_input: invalid system type', 0)
+      end if
+c
+      if (.not. geom_cart_set(geom, ncenter, tags, coords, charge))
      $     call errquit('geom_input: geom_cart_set failed', 0)
-c
-***      if (osymmetry) then
 c
 c     Apply system and symmetry info to the list of
 c     unique centers build mapping tables set up coord lists
 c
-        if(oprint) then
-          lpr_sym=1
-        else
-          lpr_sym=0
-        endif
         nata=ncenter
-        call sym_nwc(geom,rtdb,nata,lpr_sym)
-**      else 
-**         if (.not. geom_charge_center(geom)) call errquit
-**     $     ('geom_input: geom_charge_center failed', 0)
-**      endif
+        call sym_nwc(geom,rtdb,nata,oprint_sym)
+c
+        call geom_compute_values(geom)
 c
       if (oprint) then
          if (.not. geom_print(geom))
      $        call errquit('geom_input: print failed ', 0)
-      endif
+      end if
 c
       if (.not. geom_rtdb_store(rtdb, geom, name))
      $     call errquit('geom_input: geom_rtdb_store failed', 0)
@@ -200,6 +210,7 @@ c      if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
 c
       integer nopt_system, ntokens, ind
       double precision value
+      logical status
       parameter (nopt_system=4, ntokens=7)
       character*10 opt(nopt_system), tokens(ntokens)
       data opt /'molecule', 'polymer', 'surface', 'crystal'/
@@ -215,10 +226,10 @@ c
           isystype(geom) = ind - 1
         else
           goto 1000
-        endif
+        end if
       else
         goto 1000
-      endif
+      end if
 c
 c     Read new line of input
 c
@@ -248,10 +259,10 @@ c
           goto 10
         else if(ind.eq.7) then
           goto 30
-        endif
+        end if
       else
         goto 1000
-      endif
+      end if
 c
  1000 call errquit('system_input: invalid/missing system', 0)
 c
@@ -266,43 +277,45 @@ c--> 2d and 1d systems not active yet
 c
    30 if(isystype(geom).eq.3) then
         call geom_3d(geom)
+        status = geom_set_user_units(geom,'fractional')
 c      elseif (isystype(geom).eq.2) then
 c        call geom_2d(geom)
 c      elseif (isystype(geom).eq.1) then
 c        call geom_1d(geom)
-      endif
+      end if
       return
       end
-      subroutine geom_sym_input(geom)
+      subroutine geom_sym_input(geom, oprint_sym)
       implicit none
 #include "inp.fh"
 #include "geom.fh"
 #include "geomP.fh"
-c
+c     
       integer geom
       character*10 test
-c
+      logical oprint_sym
+c     
       if (.not. geom_check_handle(geom,'system_input'))
      $     call errquit('system_input: geom handle invalid', 0)
-c
+c     
       group_number(geom) = 1
       setting_number(geom) = 1
-c
-   10 if (inp_a(test)) then
-        if (inp_compare(.false.,'setting',test)) then
-          if (.not. inp_i(setting_number(geom))) call errquit
-     $         ('symmetry_input: bad setting value', 0)
-        else if (inp_compare(.false.,'group',test)) then
-          if (.not. inp_i(group_number(geom))) call errquit
-     $         ('symmetry_input: bad setting value', 0)
-        else
-          call errquit('symmetry_input: invalid option', 0)
-        endif
-      endif
-c
-c      write(6,*) ' group/setting ', group_number(geom), 
-c     $     setting_number(geom)
-c
+      oprint_sym = .false.
+c     
+ 10   if (inp_a(test)) then
+         if (inp_compare(.false.,'setting',test)) then
+            if (.not. inp_i(setting_number(geom))) call errquit
+     $           ('symmetry_input: bad setting value', 0)
+         else if (inp_compare(.false.,'group',test)) then
+            if (.not. inp_i(group_number(geom))) call errquit
+     $           ('symmetry_input: bad setting value', 0)
+         else if (inp_compare(.false.,'print',test)) then
+            oprint_sym = .true.
+         else
+            call errquit('symmetry_input: invalid option', 0)
+         end if
+      end if
+c     
       end
 
 

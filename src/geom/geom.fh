@@ -21,6 +21,7 @@
       logical geom_nuc_charge
       logical geom_nuc_rep_energy
       logical geom_verify_coords
+      logical geom_set_user_units
 cnew ones
       logical geom_systype_get
       logical geom_latvec_get
@@ -54,6 +55,7 @@ c
       external geom_nuc_charge
       external geom_nuc_rep_energy
       external geom_verify_coords
+      external geom_set_user_units
 cnew ones
       external geom_systype_get
       external geom_latvec_get
