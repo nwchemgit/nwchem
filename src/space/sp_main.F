@@ -1536,8 +1536,8 @@ c
       dlb(me+1)=syntim
       synsum=syntim
 c
-      call ga_dgop(mrg_d03,dlb,np,'+')
-      call ga_dgop(mrg_d03,synsum,1,'+')
+      call ga_dgop(msp_14,dlb,np,'+')
+      call ga_dgop(msp_15,synsum,1,'+')
       if(synsum.lt.1.0d-5) return
 c
 c     count load balancing steps with increasing synsum
@@ -1600,7 +1600,7 @@ c
       nen(me+1,n)=lbbl(i,1)+1
     7 continue
 c
-      call ga_igop(mrg_d04,nen,mbbl*np,'+')
+      call ga_igop(msp_16,nen,mbbl*np,'+')
 c
 c     determine the least busy neighbor of each node
 c
@@ -1624,7 +1624,7 @@ c
       nen(nod(i)+1,1)=nlst(i)
    13 continue
 c
-      call ga_brdcst(mrg_d05,nen,np*ma_sizeof(mt_int,1,mt_byte),0)
+      call ga_brdcst(msp_17,nen,np*ma_sizeof(mt_int,1,mt_byte),0)
 c
 c     cascade box-box pairs
 c
@@ -1727,7 +1727,7 @@ c
       endif
 c
       call ga_brdcst
-     + (mrg_d16,boxsiz,ma_sizeof(mt_dbl,3*maxbox,mt_byte),0)
+     + (msp_18,boxsiz,ma_sizeof(mt_dbl,3*maxbox,mt_byte),0)
 c
       return
       end
@@ -1773,7 +1773,7 @@ c
       endif
 c
     4 continue
-      call ga_igop(mrg_i15,ltran(1,2),2*np,'+')
+      call ga_igop(msp_19,ltran(1,2),2*np,'+')
 c
       do 5 i=1,np
       if(ltran(i,1).eq.me.and.ltran(i,2).ge.0) then

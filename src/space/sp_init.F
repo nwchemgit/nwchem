@@ -145,11 +145,11 @@ c
       rtemp(1)=temp
       rtemp(2)=tempw
       rtemp(3)=temps
-      call ga_brdcst(mrg_d02,rtemp,ma_sizeof(mt_dbl,3,mt_byte),0)
+      call ga_brdcst(msp_01,rtemp,ma_sizeof(mt_dbl,3,mt_byte),0)
       temp=rtemp(1)
       tempw=rtemp(2)
       temps=rtemp(3)
-      call ga_brdcst(mrg_d02,nsf,ma_sizeof(mt_int,1,mt_byte),0)
+      call ga_brdcst(msp_02,nsf,ma_sizeof(mt_int,1,mt_byte),0)
       endif
 c
       nsfi=nsf
@@ -257,10 +257,10 @@ c
       rtemp(2)=bxmin
       rtemp(3)=bymin
       rtemp(4)=bzmin
-      call ga_brdcst(mrg_d01,itemp,ma_sizeof(mt_int,9,mt_byte),0)
-      call ga_brdcst(mrg_d04,rtemp,ma_sizeof(mt_dbl,4,mt_byte),0)
-      call ga_brdcst(mrg_d05,box,ma_sizeof(mt_dbl,3,mt_byte),0)
-      call ga_brdcst(mrg_d05,vlat,ma_sizeof(mt_dbl,9,mt_byte),0)
+      call ga_brdcst(msp_03,itemp,ma_sizeof(mt_int,9,mt_byte),0)
+      call ga_brdcst(msp_04,rtemp,ma_sizeof(mt_dbl,4,mt_byte),0)
+      call ga_brdcst(msp_05,box,ma_sizeof(mt_dbl,3,mt_byte),0)
+      call ga_brdcst(msp_06,vlat,ma_sizeof(mt_dbl,9,mt_byte),0)
       nwm=itemp(1)
       nwa=itemp(2)
       nsm=itemp(3)
@@ -296,7 +296,7 @@ c
     2 continue
       mbxloc=mbox-30
 c
-      if(np.gt.1) call ga_igop(mrg_d14,mbox,1,'max')
+      if(np.gt.1) call ga_igop(msp_07,mbox,1,'max')
 c
       mwa=max(1,nwa)
       msa=max(1,msa,(mbox-30+madbox)*((nwm*nwa+nsa)/nbtot+1)+1)
@@ -1666,7 +1666,7 @@ c
       lcnt(me+1,2)=nwmloc*nwa
       lcnt(me+1,3)=nsaloc
 c
-      if(np.gt.1) call ga_igop(mrg_d12,lcnt,3*np,'+')
+      if(np.gt.1) call ga_igop(msp_08,lcnt,3*np,'+')
 c
       if(me.eq.0) then
       write(lfnout,1000)
@@ -1733,7 +1733,7 @@ c
     4 continue
       endif
 c
-      call ga_igop(mrg_d04,ltemp,mdim*mbb2,'+')
+      call ga_igop(msp_09,ltemp,mdim*mbb2,'+')
 c
       if(me.eq.0) then
       write(lfn,1002) i-1,ltemp(1,1)
@@ -1806,7 +1806,7 @@ c
       endif
 c
       nbytes=ma_sizeof(mt_int,1,mt_byte)
-      call ga_brdcst(mrg_d23,npp,nbytes,0)
+      call ga_brdcst(msp_10,npp,nbytes,0)
 c
       if(np.ne.npp) goto 9998
 c
@@ -1825,7 +1825,7 @@ c
     4 continue
       endif
 c
-      call ga_brdcst(mrg_d24,ltemp,nbytes,0)
+      call ga_brdcst(msp_11,ltemp,nbytes,0)
 c
       if(ltemp(1,1).eq.me) then
       nbbl=ltemp(1,2)
@@ -2179,8 +2179,8 @@ c
     1 continue
       endif
 c
-      call ga_brdcst(mrg_d25,ltemp,3*ma_sizeof(mt_int,1,mt_byte),0)
-      call ga_brdcst(mrg_d26,rtemp,12*ma_sizeof(mt_dbl,1,mt_byte),0)
+      call ga_brdcst(msp_12,ltemp,3*ma_sizeof(mt_int,1,mt_byte),0)
+      call ga_brdcst(msp_13,rtemp,12*ma_sizeof(mt_dbl,1,mt_byte),0)
       nwm=ltemp(1)
       nwa=ltemp(2)
       nsa=ltemp(3)
