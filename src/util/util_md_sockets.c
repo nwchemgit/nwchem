@@ -1,5 +1,5 @@
 /*
- $Id: util_md_sockets.c,v 1.5 1999-08-26 14:45:47 d3j191 Exp $
+ $Id: util_md_sockets.c,v 1.6 1999-09-02 22:35:44 d3j191 Exp $
  */
 
 #include <sys/types.h>
@@ -12,7 +12,7 @@
 #ifdef CRAY
 #define create_server_socket_ CREATE_SERVER_SOCKET
 #define create_client_socket_ CREATE_CLIENT_SOCKET
-#define client_socket_write CLIENT_SOCKET_WRITE
+#define client_socket_write_ CLIENT_SOCKET_WRITE
 #define write_socket_ WRITE_SOCKET
 #define close_socket_ CLOSE_SOCKET
 #endif
