@@ -624,6 +624,13 @@ c
       zs(i,j,1)=zs(i,j,1)+zs(i,j,2)
    10 continue
     9 continue
+      ep2(1)=ep2(1)+ep2(2)
+      ep3(1)=ep3(1)+ep3(2)
+      if(ntype.eq.3) then
+      do 11 i=1,24
+      deriv(i,1)=deriv(i,1)+deriv(i,2)
+   11 continue
+      endif
       endif
 c
       z=zw(1,1)+zw(2,1)+zw(3,1)
@@ -1245,6 +1252,24 @@ c
    11 continue
    10 continue
       endif
+c
+      return
+      end
+      subroutine cf_mcti(fdata)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      real*8 fdata(26)
+c
+      integer i
+c
+      do 1 i=1,24
+      fdata(i)=deriv(i,1)
+    1 continue
+      fdata(25)=ep2(1)
+      fdata(26)=ep3(1)
 c
       return
       end

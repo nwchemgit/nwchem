@@ -1315,7 +1315,7 @@ c
       integer lamtyp,lambda,maxlam
       real*8 explam
 c
-      call cf_lam(lamtyp,lambda,maxlam,
+      call cf_lam(lamtyp,lambda,maxlam,explam,
      + dbl_mb(i_mas),dbl_mb(i_vdw),dbl_mb(i_chg),
      + mbt(1),numb(1),mbp(1),dbl_mb(i_bnd(1)),
      + mht(1),numh(1),mhp(1),dbl_mb(i_ang(1)),
