@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.71 1998-01-09 15:25:35 d3e129 Exp $
+C$Id: geom.F,v 1.72 1998-05-14 21:17:28 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -2678,6 +2678,8 @@ c initialize variables
 *rak:      do iat = 1,nat
 *rak:        write(6,*)' xnet: ',iat,':',(xnet(jat,iat),jat=1,max_net)
 *rak:      enddo
+*
+      lmtag = 0
 *
       do iat = 1,nat
         if (.not.geom_cent_get(geom,iat,tagi,ci,chg)) call errquit

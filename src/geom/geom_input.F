@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.76 1998-04-25 00:45:54 mdupuis Exp $
+C     $Id: geom_input.F,v 1.77 1998-05-14 21:17:30 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -5566,7 +5566,8 @@ C
                   NUBOND=.TRUE.
                   IF(DBUG1) THEN
                      WRITE(IW,9992) IAT,JAT,IZ,JZ,RIJ,RCV,MBNDS,
-     1                              IJBNDS(1,MBNDS),IJBNDS(2,MBNDS),NUBOND
+     1                              IJBNDS(1,MBNDS),IJBNDS(2,MBNDS),
+     2                              NUBOND
                   ENDIF
 C
 C     ----- CHECK FOR DUPLICATES AND ELIMINATE -----
@@ -6509,7 +6510,8 @@ C
                            IF(LAT.NE.JAT) THEN
                               IF(NTOR.EQ.MXTORS) THEN
                                  WRITE(IW,*) 'TOO MANY TORSIONS',
-     1                                       ' NTOR, MXTORS = ',NTOR,MXTORS
+     1                                       ' NTOR, MXTORS = ',NTOR,
+     2                                       MXTORS
                                  CALL HND_HNDERR(3,ERRMSG)
                               ENDIF
                               NTOR=NTOR+1
@@ -7126,6 +7128,8 @@ C
       OUT =OUT.OR.DBUG
 C
       LST =.FALSE.
+c
+      title = ' '
 C
 C     ----- PROGRAM TO READ THE -Z- MATRIX IN FREE-FORMAT INPUT -----
 C

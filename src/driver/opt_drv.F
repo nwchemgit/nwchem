@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.48 1998-04-14 19:12:57 mdupuis Exp $
+C$Id: opt_drv.F,v 1.49 1998-05-14 21:16:54 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -139,7 +139,7 @@ c
       if (.not. rtdb_get(rtdb,'driver:modupd',mt_int,1,modupd)) then
            modupd=1
            if(dbug) then
-              write(iw,*) 'using default value of -modupd-',modupt
+              write(iw,*) 'using default value of -modupd-',modupd
            endif
       endif
       if (.not. rtdb_get(rtdb,'driver:moddir',mt_int,1,moddir)) then

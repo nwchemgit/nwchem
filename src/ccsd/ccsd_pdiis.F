@@ -4,7 +4,7 @@
 c
 c -- on input t1a contains t1: t1b contains error vector
       implicit none
-C     $Id: ccsd_pdiis.F,v 2.8 1997-06-05 17:39:32 gg502 Exp $
+C     $Id: ccsd_pdiis.F,v 2.9 1998-05-14 21:16:28 d3e129 Exp $
 c
 #include "ccsd_len.fh"
       integer lhoo,lhoov
@@ -26,6 +26,7 @@ c
       double precision zip,one
       data zip/0.0d00/,one/1.0d00/
 c
+      det = 0.0d00
       IAm = GA_NodeID()
       call qenter('pdiis',0)
 c

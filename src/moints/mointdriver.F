@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.63 1997-09-11 19:53:25 rg240 Exp $
+C$Id: mointdriver.F,v 1.64 1998-05-14 21:19:19 d3e129 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -288,114 +288,114 @@ c
          write(6,*)
          call util_flush(6)
        endif
-       goto 333    ! skip direct MP2 section
-c
-c  Initialize aodisk
-c
-       if (.not.moints_aodisk_init( odisk, oaoreuse ))
-     $    call errquit('direct_mp2: cannot initiliaze ao cache',0)
-c
-c   Clear 4-index statistics
-c
-       call moints_stats_clear()
-
-c
-c   Loop over segments of occupied orbitals
-c
-       npass = 0
-       oseg_hi = occ_lo - 1
- 22    continue
-       tpass = tcgtime()
-       npass = npass + 1
-       oseg_lo = oseg_hi + 1
-       oseg_hi = moints_occrange( noper, occ_lo, oseg_lo, occ_hi )
-c
-c  J & K build routines
-c
-       if (algo.eq.'sixfold') then
-         call moints_build_6x( basis, osym, occ_lo,
-     $                         oseg_lo, oseg_hi,
-     $                         vir_lo, vir_hi, g_vecs,
-     $                         g_coul, ocoul, g_exch, oexch,
-     $                         blen, oblk )
-       else
-         call moints_build_2x( basis,  ohalf, osym, occ_lo,
-     $                         oseg_lo, oseg_hi,
-     $                         vir_lo, vir_hi, g_vecs,
-     $                         g_coul, ocoul, g_exch, oexch,
-     $                         blen, oblk )
-         call moints_build_2x( basis,  ohalf, osym, occ_lo,
-     $                         oseg_lo, oseg_hi,
-     $                         vir_lo, vir_hi, g_vecs,
-     $                         g_coul, ocoul, g_exch, oexch,
-     $                         blen, oblk )
-       endif
-c
-c Evaluate and store pair energies
-c
-c$$$       call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nmo2,
-c$$$     $                     nmo2, nbf, g_exch, dbl_mb(k_evals),
-c$$$     $                     g_epair )
-       call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, 
-     $                     vir_lo, vir_hi, vir_lo, vir_hi,
-     $                     g_exch, dbl_mb(k_evals), g_epair )
-c
-c
-c
-       tpass = tcgtime() - tpass
-       if ((ga_nodeid().eq.0).and.
-     $     (util_print('progress reports',print_default)))
-     $     write(6,772) npass, oseg_lo, oseg_hi, tpass
- 772   format(5x,'Pass:',i5,5x,'Index range:',i5,2x,'-',i5,
-     $        5x,'Time:',f10.2)
-       if (oseg_hi.lt.occ_hi) goto 22
-c
-c End multipass loop
-c
-       call moints_aodisk_close( oaokeep )
-       if (util_print('statistics',print_high))
-     $   call moints_stats_print(algo)
-c
-c Evaluate mp2 correction from pair energies
-c
-       if ((oexch).and.(ga_nodeid().eq.0).
-     $    and.(util_print('mp2',print_default))) then
-         npairs = (nocc_correl*(nocc_correl+1))/2
-         status = ma_push_get(MT_DBL, npairs, 'Pair energies',
-     $                        l_epair, k_epair)
-         ii = 0
-         emp2 = 0.0d0
-         do i=occ_lo,nocc
-           do j=occ_lo,i
-             ij = ((i-occ_frozen)*(i-occ_frozen-1))/2 + j - occ_frozen
-             call ga_get(g_epair,1,1,ij,ij,e2pair,1)
-             dbl_mb(k_epair+ii) = e2pair
-             emp2 = emp2 + e2pair
-             ii = ii + 1
-           enddo
-         enddo
-c
-c Print out pair energies
-c
-         if (util_print('pair energies',print_debug)) then
-           write(6,997)
- 997       format(//,15x,'Pair Energies',/)
-           write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
- 998       format(5x,f12.6)
-         endif
-c
-c Print out total correlation correction
-c
-         write(6,999) emp2
+*skip:       goto 333    ! skip direct MP2 section
+*skip:c
+*skip:c  Initialize aodisk
+*skip:c
+*skip:       if (.not.moints_aodisk_init( odisk, oaoreuse ))
+*skip:     $    call errquit('direct_mp2: cannot initiliaze ao cache',0)
+*skip:c
+*skip:c   Clear 4-index statistics
+*skip:c
+*skip:       call moints_stats_clear()
+*skip:
+*skip:c
+*skip:c   Loop over segments of occupied orbitals
+*skip:c
+*skip:       npass = 0
+*skip:       oseg_hi = occ_lo - 1
+*skip: 22    continue
+*skip:       tpass = tcgtime()
+*skip:       npass = npass + 1
+*skip:       oseg_lo = oseg_hi + 1
+*skip:       oseg_hi = moints_occrange( noper, occ_lo, oseg_lo, occ_hi )
+*skip:c
+*skip:c  J & K build routines
+*skip:c
+*skip:       if (algo.eq.'sixfold') then
+*skip:         call moints_build_6x( basis, osym, occ_lo,
+*skip:     $                         oseg_lo, oseg_hi,
+*skip:     $                         vir_lo, vir_hi, g_vecs,
+*skip:     $                         g_coul, ocoul, g_exch, oexch,
+*skip:     $                         blen, oblk )
+*skip:       else
+*skip:         call moints_build_2x( basis,  ohalf, osym, occ_lo,
+*skip:     $                         oseg_lo, oseg_hi,
+*skip:     $                         vir_lo, vir_hi, g_vecs,
+*skip:     $                         g_coul, ocoul, g_exch, oexch,
+*skip:     $                         blen, oblk )
+*skip:         call moints_build_2x( basis,  ohalf, osym, occ_lo,
+*skip:     $                         oseg_lo, oseg_hi,
+*skip:     $                         vir_lo, vir_hi, g_vecs,
+*skip:     $                         g_coul, ocoul, g_exch, oexch,
+*skip:     $                         blen, oblk )
+*skip:       endif
+*skip:c
+*skip:c Evaluate and store pair energies
+*skip:c
+*skip:c$$$       call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nmo2,
+*skip:c$$$     $                     nmo2, nbf, g_exch, dbl_mb(k_evals),
+*skip:c$$$     $                     g_epair )
+*skip:       call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, 
+*skip:     $                     vir_lo, vir_hi, vir_lo, vir_hi,
+*skip:     $                     g_exch, dbl_mb(k_evals), g_epair )
+*skip:c
+*skip:c
+*skip:c
+*skip:       tpass = tcgtime() - tpass
+*skip:       if ((ga_nodeid().eq.0).and.
+*skip:     $     (util_print('progress reports',print_default)))
+*skip:     $     write(6,772) npass, oseg_lo, oseg_hi, tpass
+*skip: 772   format(5x,'Pass:',i5,5x,'Index range:',i5,2x,'-',i5,
+*skip:     $        5x,'Time:',f10.2)
+*skip:       if (oseg_hi.lt.occ_hi) goto 22
+*skip:c
+*skip:c End multipass loop
+*skip:c
+*skip:       call moints_aodisk_close( oaokeep )
+*skip:       if (util_print('statistics',print_high))
+*skip:     $   call moints_stats_print(algo)
+*skip:c
+*skip:c Evaluate mp2 correction from pair energies
+*skip:c
+*skip:       if ((oexch).and.(ga_nodeid().eq.0).
+*skip:     $    and.(util_print('mp2',print_default))) then
+*skip:         npairs = (nocc_correl*(nocc_correl+1))/2
+*skip:         status = ma_push_get(MT_DBL, npairs, 'Pair energies',
+*skip:     $                        l_epair, k_epair)
+*skip:         ii = 0
+*skip:         emp2 = 0.0d0
+*skip:         do i=occ_lo,nocc
+*skip:           do j=occ_lo,i
+*skip:             ij = ((i-occ_frozen)*(i-occ_frozen-1))/2 + j - occ_frozen
+*skip:             call ga_get(g_epair,1,1,ij,ij,e2pair,1)
+*skip:             dbl_mb(k_epair+ii) = e2pair
+*skip:             emp2 = emp2 + e2pair
+*skip:             ii = ii + 1
+*skip:           enddo
+*skip:         enddo
+*skip:c
+*skip:c Print out pair energies
+*skip:c
+*skip:         if (util_print('pair energies',print_debug)) then
+*skip:           write(6,997)
+*skip: 997       format(//,15x,'Pair Energies',/)
+*skip:           write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
+*skip: 998       format(5x,f12.6)
+*skip:         endif
+*skip:c
+*skip:c Print out total correlation correction
+*skip:c
+*skip:         write(6,999) emp2
  999     format(//,15x,31('-'),
      $          /,15x,'MP2 Correction:',f16.10,
      $          /,15x,31('-'),/)
-         status = ma_pop_stack(l_epair)
-       endif
-       call ga_sync()
-c
-c
- 333   continue
+*skip:         status = ma_pop_stack(l_epair)
+*skip:       endif
+*skip:       call ga_sync()
+*skip:c
+*skip:c
+*skip: 333   continue
        if (ocoul) status = ga_destroy(g_coul)
        if (oexch) status = ga_destroy(g_exch)
 C       goto 444          !skip semi-direct code
