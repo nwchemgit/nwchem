@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.13 2002-02-26 22:45:55 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.14 2002-02-27 02:15:59 bylaska Exp $
 c
 
 ***********************************************************
@@ -179,6 +179,7 @@ c
         call pspw_LJ_init(rtdb)
         call pspw_Q_init(rtdb)
         if (qmmm_type.eq.1) call Model_Potential_init(rtdb)
+        if (qmmm_type.eq.2) call Switching_Charge_init(rtdb)
       end if
 
       return
@@ -605,6 +606,7 @@ c
         if (.not.value) call errquit('cannot free heap memory',0)
 
         if (qmmm_type.eq.1) call Model_Potential_end()
+        if (qmmm_type.eq.2) call Switching_Charge_end()
         call pspw_LJ_end()
         call pspw_Q_end()
       end if
@@ -884,6 +886,10 @@ c     >                                   n2ft3d,rgrid,Vqm)
 *         **** Model Potential ****
           if (qmmm_type.eq.1)
      >      call Model_Potential_Generate_V(n2ft3d,rgrid,Vqm)
+
+*         **** Switching Charge Potential ****
+          if (qmmm_type.eq.2)
+     >      call Switching_Charge_Generate_V(n2ft3d,rgrid,Vqm)
  
       end if
 
@@ -1171,6 +1177,8 @@ c     >                                   n2ft3d,rgrid,Vqm)
          if (qmmm_type.eq.1)
      >      call Model_Potential_Fmm(n2ft3d,rgrid,rho,dv,f_mm)
  
+         if (qmmm_type.eq.2)
+     >    call Switching_Charge_Potential_Fmm(n2ft3d,rgrid,rho,dv,f_mm)
 
 *        **** get LJ forces ****
          call pspw_LJ_Fmm(f_mm)

@@ -1,5 +1,5 @@
 c
-c $Id: pspw_Q.F,v 1.7 2001-11-02 00:49:46 bylaska Exp $
+c $Id: pspw_Q.F,v 1.8 2002-02-27 02:16:00 bylaska Exp $
 c
 
 
@@ -196,8 +196,6 @@ c
       return
       end
 
-
-      
 *     ***************************
 *     *							*
 *     *   pspw_Q_Energy_MM  	*
