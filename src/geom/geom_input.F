@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.135 2000-05-06 07:08:05 mdupuis Exp $
+C     $Id: geom_input.F,v 1.136 2000-05-06 21:52:29 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -26,7 +26,7 @@ c
       logical ocosmo
       logical oready
       logical odbug
-      integer osome
+      logical osome
       logical ocenter
       logical found_cart
       logical ofinite, oatomfinite
