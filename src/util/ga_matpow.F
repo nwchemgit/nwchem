@@ -3,7 +3,7 @@ C NAME
 C     GA_MatPow -- Form V^{-1/2}
 C
 C REVISION
-C     $Id: ga_matpow.F,v 1.3 1996-04-18 16:35:32 gg502 Exp $
+C     $Id: ga_matpow.F,v 1.4 1996-04-19 21:02:27 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine GA_MatPow(G_V, Pow, MinEval)
@@ -142,8 +142,8 @@ C
 C
       If ( Util_Print('ga_matpow details', Print_Debug) ) then
          If ( GA_NodeID() .eq. 0 ) then
-            Call DGeWr(1, Rows, Dbl_MB(Eval_Idx), 1, 0, 0, LuOut,
-     $           'GA_MatPow Eigenvalues', 80, 'E15.6', Junk)
+c$$$            Call DGeWr(1, Rows, Dbl_MB(Eval_Idx), 1, 0, 0, LuOut,
+c$$$     $           'GA_MatPow Eigenvalues', 80, 'E15.6', Junk)
             Call Util_Print_Centered(LuOut, 'GA_MatPow Vectors', 40,
      $           .TRUE.)
          EndIf
