@@ -96,9 +96,15 @@ PSPW
    #******* Generate a initial wavefunction based on planewaves ****
    WAVEFUNCTION_INITIALIZER
       restricted
-      restricted_electrons: 12
       wavefunction_filename: sic2.00.elc
       cell_name: small
+      up_filling: 6
+        0  0  0  0
+        0  1  0 -1
+        1 -1  0 -1
+        1  1  1 -1
+        1 -1 -1 +1
+        0  2  0 -1
    END 
 END
 task pspw wavefunction_initializer
@@ -174,7 +180,7 @@ PSPW
       output_v_wavefunction_filename: sic2.01.velc
       fake_mass: 500.0d0
       time_step: 5.0d0
-      loop: 10 100
+      loop: 10 10
       scaling: 1.0d0 1.0d0
       energy_cutoff:       21.0d0
       wavefunction_cutoff: 21.0d0
@@ -184,7 +190,6 @@ PSPW
    END 
 END
 task pspw Car-Parrinello
-task cg_pspw freq
 
 
 geometry units au
@@ -205,7 +210,7 @@ PSPW
       output_v_wavefunction_filename: sic2.01.velc
       fake_mass: 500.0d0
       time_step: 5.0d0
-      loop: 10 100
+      loop: 10 10
       scaling: 1.0d0 1.0d0
       energy_cutoff:       21.0d0
       wavefunction_cutoff: 21.0d0
@@ -216,4 +221,3 @@ PSPW
    END 
 END
 task pspw Car-Parrinello
-task cg_pspw freq
