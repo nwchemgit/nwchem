@@ -1,4 +1,5 @@
-      subroutine rhf_fock_2e(geom, basis, g_dens, g_fock, tol2e)
+      subroutine rhf_fock_2e(geom, basis, g_dens, g_fock, tol2e,
+     &       ocoul, oexch)
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
@@ -10,6 +11,8 @@ c     arguments
 c     
       integer geom, basis, g_dens, g_fock ! [input] handles
       double precision tol2e    ! [input] integral selection threshold
+      logical ocoul, oexch      ! [input] compute coulomb/exchange 
+c                               !         contribution to fock matrix
 c     
 c     local variables
 c     
@@ -63,7 +66,7 @@ c
      $     dbl_mb(k_djk), dbl_mb(k_djl), dbl_mb(k_dkl), 
      $     dbl_mb(k_fij), dbl_mb(k_fik), dbl_mb(k_fil), 
      $     dbl_mb(k_fjk), dbl_mb(k_fjl), dbl_mb(k_fkl), maxd,
-     $     tol2e)
+     $     tol2e, ocoul, oexch)
 c     call ga_print(g_fock)
 c     
       status = ma_pop_stack(l_fkl)

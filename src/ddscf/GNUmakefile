@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.3 1994-05-16 19:00:28 d3g681 Exp $
+# $Id: GNUmakefile,v 1.4 1994-05-24 18:46:46 d3e129 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -18,7 +18,11 @@
                                   schwarz_tidy.o \
         rhf.o                     upd_atom_block.o \
         nxtask.o                  bad.o rhf_nr_solve.o \
-        vectors.o
+        vectors.o \
+	ri_invert_v.o             ga_create_cont_blocked.o \
+        ri_v_fit_cd.o             ri_v_fit_j.o \
+        ri_drive.o
+      
 
     LIBRARY = libddscf.a
 
