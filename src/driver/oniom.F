@@ -257,7 +257,7 @@ c
      $           i=1,model_nbonds)
          endif
  2       format(6x,a7,2x,i4,' atoms')
- 3       format(12x,2i4,f6.2,2x,a)
+ 3       format(12x,2i4,f6.2,2x,'"',a,'"')
          call util_flush(6)
       endif
 c     
