@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.102 1995-02-24 18:03:47 mg141 Exp $
+# $Id: makefile.h,v 1.103 1995-02-24 18:14:54 rg240 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -209,34 +209,45 @@ ifeq ($(TARGET),SUN)
   EXPLICITF = FALSE
 endif
 
+
 ifeq ($(TARGET),CRAY-T3D)
 #
-# CRAY-T3D cross-compiled
-# remember to run make sngl_to_dbl to use CRAY blas and lapack
-# and to setenv TARGET CRAY-T3D (for C compiler)
+# Requires single-precision BLAS
+# CRAY-T3D cross-compiled on YMP (atw)
 #
-    CORE_SUBDIRS_EXTRA = blas lapack 
-       LINK.f = /mpp/bin/mppldr -Drdahead=on \
-                -Dbin=inp/inp.o,basis/basisP.o,ddscf/rhf_fock_2e_a.o,ddscf/scf_pstat.o,NWints/api/int_init.o\
-                -L$(LIBDIR) 
-     RANLIB = @echo
-  MAKEFLAGS = -j 6
-    INSTALL = @echo $@ is built
+      CORE_SUBDIRS_EXTRA = blas lapack 
+                  RANLIB = @echo
+               MAKEFLAGS = -j 4
+                 INSTALL = @echo $@ is built
+           OUTPUT_OPTION = 
 
-         FC = /mpp/bin/cf77 
-       CPP = /mpp/lib/cpp -P  -N
-   FOPTIONS = -Wf"-dp" 
-   COPTIONS = 
-  FOPTIMIZE = -O scalar3
-  COPTIMIZE = 
+                      FC = /mpp/bin/cf77 
+                     CPP = /mpp/lib/cpp -P  -N
+                FOPTIONS = -Wf"-dp" -Ccray-t3d
+                COPTIONS = -Tcray-t3d
+               FOPTIMIZE = -O scalar3
+               COPTIMIZE = -O
+               LDOPTIONS = 
+                 DEFINES = -DCRAY_T3D
 
-    DEFINES =  -DPARALLEL_DIAG
+                  LINK.f = /mpp/bin/mppldr $(LDOPTIONS) \
+                           -Drdahead=on \
+                           -Dbin=inp/inp.o,basis/basisP.o \
+                           -Dbin=ddscf/rhf_fock_2e_a.o \
+                           -Dbin=ddscf/scf_pstat.o \
+                           -Dbin=NWints/api/int_init.o \
+                           -L$(LIBDIR) 
 
-       CORE_LIBS =  -lglobal -lpeigs \
-                -ltcgmsg -llapack -lblas
+               CORE_LIBS = -lglobal \
+                           -lpeigs \
+                           -ltcgmsg \
+                           -llapack \
+                           -lblas
 
-  EXPLICITF = TRUE
+               EXPLICITF = TRUE
 endif
+
+
 ifeq ($(TARGET),KSR)
 #
 # KSR running OSF
