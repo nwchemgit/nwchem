@@ -1,0 +1,46 @@
+#!/bin/csh
+
+#
+# This command is useful to strip makefiles of dependency information
+# that has been corrupted by CVS.  After running this command run
+# 'make depend'
+
+# Find all makefiles in or below the current directory and delete
+# all stuff below and including the line
+
+set LINE = "# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY"
+
+foreach MAKEFILE (`find . \( -name Makefile -o -name makefile \) -print`)
+
+  echo stripping $MAKEFILE
+  set BACKUP = $MAKEFILE.bak
+  /bin/rm -f $BACKUP
+  /bin/cp $MAKEFILE $BACKUP
+
+  if ($status) then
+    echo Failed copying $MAKEFILE to $BACKUP
+    exit 1
+  endif
+
+  onintr restore
+
+  /bin/rm -f $MAKEFILE
+  sed "/$LINE/"',$ d' < $BACKUP > $MAKEFILE
+  if ($status) then
+    echo sed failed
+    goto restore
+  endif
+
+  onintr
+
+end
+
+exit 0
+
+restore:
+/bin/rm -f $MAKEFILE
+/bin/cp $BACKUP $MAKEFILE
+echo restored original makefile
+exit 1
+
+  
