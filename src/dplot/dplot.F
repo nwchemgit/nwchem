@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.18 2001-02-06 19:04:14 windus Exp $
+* $Id: dplot.F,v 1.19 2001-02-08 23:45:14 windus Exp $
 *
       Implicit None
 *     
@@ -46,8 +46,6 @@
       Character*255 Title
       Logical LResult, DeBug
       logical lgaussian
-      Integer Inp_StrLen
-      External Inp_StrLen
 c     
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
