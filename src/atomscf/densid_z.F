@@ -4,7 +4,7 @@ c.......................................................................
 c
 c     driver routine for density matrix processing
 c.......................................................................
-C$Id: densid_z.F,v 1.2 1997-04-29 19:50:30 d3e129 Exp $
+C$Id: densid_z.F,v 1.3 1997-12-04 22:53:27 d3g681 Exp $
       implicit none
 #include "atomz.fh"
 #include "inp.fh"
@@ -28,14 +28,16 @@ c
         endif
       endif
 c
+      call dfill(50, 0.0d0, occ_vec, 1)
+c
       k=1
       do i = 1 , nsym
         occucl = 4*i - 2
         occuop = nccup(i)
-        if (delta_n.gt.0.0d00.and.nosh(i).ne.0) then
+        if (delta_n.gt.0.01d00.and.nosh(i).ne.0) then
           occuop = occuop + delta_n
           delta_n = 0.0d00
-        else if ((delta_n.lt.0.0d00).and.(nosh(i).ne.0)) then
+        else if ((delta_n.lt.-0.01d00).and.(nosh(i).ne.0)) then
           occ_remove = max(-occuop,delta_n)
           occuop     = occuop  + occ_remove
           delta_n    = delta_n - occ_remove
@@ -49,12 +51,14 @@ c
           k = k + 1
         endif
       enddo
-      if (delta_n.gt.0.0d00) call errquit
+      if (delta_n.gt.0.01d00) call errquit
      &('atomscf:densid_z: cannot add electrons to closed shell atom ',
      &    911)
+c
+      num_occupied = k - 1
+c
 00001   continue
-      if (delta_n.lt.0.0d00) then
-        num_occupied = k - 1
+      if (delta_n.lt.-0.01d00) then
 *  assume first orbital will be a 1s and will have lowest energy
         indx = 1
         do k = 2,num_occupied
@@ -70,6 +74,9 @@ c
      &      911)
         goto 00001
       endif
+c
+*      call output(occ_vec, 1, num_occupied, 1, 1, num_occupied, 1, 1)
+c
       nstep1 = 1
       nstep2 = 1
       k = 0
