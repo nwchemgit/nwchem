@@ -1,6 +1,6 @@
       subroutine testlocalize(rtdb)
 *
-* $Id: localize.F,v 1.4 1999-07-29 00:54:38 d3e129 Exp $
+* $Id: localize.F,v 1.5 2000-09-12 23:27:04 d3g681 Exp $
 *
       implicit none
 #include "cscf.fh"
@@ -19,7 +19,7 @@ c
       character*8 loctype
       double precision y, w, ef, scale
 c
-      integer g_uc(4), x
+      integer g_uc(4), x, g_mosc
 c
       if (.not. rtdb_cget(rtdb, 'scf:loctype', 1, loctype)) 
      $     loctype = 'PM'
@@ -189,6 +189,9 @@ c
       end if
 c
       call ga_sync()
+c
+      call moints_screen(basis, ncore+1, nclosed, g_movecs(1), g_mosc)
+      if (.not. ga_destroy(g_mosc)) call errquit('fred did it!',0)
 c
       end
 c
