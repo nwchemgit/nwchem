@@ -1,8 +1,8 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.37 2004-02-07 02:14:48 nwchem Exp $
+* $Id: util_legal.F,v 1.38 2004-04-22 23:01:08 edo Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,                  *
-*              2000, 2001, 2002, 2003                                *
+*              2000, 2001, 2002, 2003, 2004                          *
 *              Pacific Northwest National Laboratory,                *
 *              Battelle Memorial Institute.                          *
 *--------------------------------------------------------------------*
@@ -26,7 +26,7 @@ c
      & 'COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, ',
      &    center_pt+1, FF)
       call util_print_centered(luout,
-     & '1999, 2000, 2001, 2002, 2003',
+     & '1999, 2000, 2001, 2002, 2003, 2004',
      &    center_pt+1, FF)
       call util_print_centered(luout,
      &    '    Pacific Northwest National Laboratory, ',
@@ -161,7 +161,7 @@ c
      &    /,12x,
      &    'Computational Chemistry Package for Parallel Computers, ',
      &    /,12x,
-     &    'Version 4.5" (2003), ',
+     &    'Version 4.6" (2004), ',
      &    'Pacific Northwest National Laboratory,',
      &    /,12x,
      &    'Richland, Washington 99352-0999, USA.'
