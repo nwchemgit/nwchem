@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize.F,v 1.15 2002-03-05 03:47:34 bylaska Exp $                       
+c     $Id: cgminimize.F,v 1.16 2003-06-29 16:01:21 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -129,12 +129,14 @@ c      complex*16 G1(nfft3d,nemax)
          precondition = control_precondition()
       end if
 
+
 *     ***** get the initial gradient and direction ****
       if (precondition) then
          call psi_1get_TMgradient(dcpl_mb(G1(1)),E0)
       else
          call psi_1get_Tgradient(dcpl_mb(G1(1)),E0)
       end if
+
 
       call Grsm_gg_trace(npack1,neall,
      >                   dcpl_mb(G1(1)),
@@ -260,6 +262,7 @@ c              scale = sum3/sum0
 *     **** initialize the geoedesic line data structure ****
       call geodesic_start(dcpl_mb(H0(1)),max_sigma,dE0)
 
+
 *     ******* line search *********
       if (tmin.gt.deltat_min) then
          deltat = tmin
@@ -277,8 +280,10 @@ c    >                        psi_geodesic_energy,
 c    >                        psi_geodesic_denergy,
 c    >                        0.5d0,tmin,deltae,2)
 
+
       call psi_geodesic_final(tmin)
       deltac = rho_error()
+
 
  30   call psi_2to1()
       call psi_1toelectron() 

@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.5 2003-03-21 23:42:08 bylaska Exp $                       
+c     $Id: bybminimize.F,v 1.6 2003-06-29 16:01:21 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -27,7 +27,7 @@ c
       real*8  deltat_min
       parameter (deltat_min=1.0d-3)
        
-      integer vall_in(2),vall_out(2),vall_junk(2)
+      integer vall_in(2),vall_out(2),vall_junk(2),rho_in(2)
       real*8  E0,dE0,deltae_old,Ein
       real*8  ks_deltae,deltav,dV
       integer nx,ny,nz
@@ -127,6 +127,9 @@ c
       value = value.and.
      >        MA_push_get(mt_dbl,2*n2ft3d,
      >                   'vall_junk',vall_junk(2),vall_junk(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,2*n2ft3d,
+     >                     'rho_in',rho_in(2),rho_in(1))
       if (.not. value) 
      >   call errquit('bybminimize:out of stack memory',0)
 
@@ -148,17 +151,20 @@ c
          deltae = -9232323299.0d0
          ks_deltae = tole
          call electron_gen_vall()
-         call electron_get_vall(dbl_mb(vall_out(1))) !call psi_get_density(1,dbl_mb(vall_out(1)))
+         call electron_get_vall(dbl_mb(vall_out(1))) 
+         !call psi_get_density(1,dbl_mb(rho_in(1)))
 c        call psi_1gen_hml()
 c        call psi_diagonalize_hml()
 c        call psi_1rotate2()
 c        call psi_2to1()
       else
-         call electron_get_vall(dbl_mb(vall_out(1))) !call psi_get_density(1,dbl_mb(vall_out(1)))
+         call electron_get_vall(dbl_mb(vall_out(1))) 
+         !call psi_get_density(1,dbl_mb(rho_in(1)))
       end if
   
 *     **** iniitialize DIIS ****    
-      call nwpw_diis_init(15,ispin*n2ft3d,dbl_mb(vall_out(1)))
+      !call nwpw_diis_init(10,ispin*n2ft3d,dbl_mb(rho_in(1)))
+      call nwpw_diis_init(10,ispin*n2ft3d,dbl_mb(vall_out(1)))
       !call nwpw_kain_init(10,ispin*n2ft3d,dbl_mb(vall_out(1)))
 
 
@@ -179,18 +185,21 @@ c        call psi_2to1()
       Enew = psi_1energy()
 
       deltae = Enew-Eold
-      if (deltae.gt.0.0d0) alpha = 0.5d0*alpha
 
 
-*     **** update vall ***
-      call electron_gen_vall()
-      call electron_get_vall(dbl_mb(vall_in(1))) !call psi_get_density(1,dbl_mb(vall_in(1)))
-
-      if (dabs(deltae).lt.1.0d-2) then
-        call nwpw_diis(dbl_mb(vall_in(1)),dbl_mb(vall_out(1)),deltav)
+*     **** update vall ****
+      if (dabs(deltae).lt.1.0d-3) then
+        call electron_gen_vall()
+        call electron_get_vall(dbl_mb(vall_in(1))) 
+        call nwpw_diis(dbl_mb(vall_in(1)),
+     >                 dbl_mb(vall_in(1)),
+     >                 dbl_mb(vall_out(1)),
+     >                 deltav)
         !call nwpw_kain(dbl_mb(vall_in(1)),dbl_mb(vall_out(1)))
 
-      else
+      else if (dabs(deltae).lt.1.0d-1) then
+         call electron_gen_vall()
+         call electron_get_vall(dbl_mb(vall_in(1))) 
          call dcopy(ispin*n2ft3d,
      >              dbl_mb(vall_in(1)),1,
      >              dbl_mb(vall_junk(1)),1)
@@ -207,6 +216,23 @@ c        call psi_2to1()
          call dscal(2*n2ft3d,(1.0d0-alpha),dbl_mb(vall_out(1)),1)
          call daxpy(2*n2ft3d,alpha,dbl_mb(vall_in(1)),1,
      >                              dbl_mb(vall_out(1)),1)
+         if (deltae.gt.0.0d0) alpha = 0.5d0*alpha
+
+      else
+ 10      call sdminimize(25)
+         Eold   = Enew
+         Enew   = psi_1energy()
+         deltae = (Enew-Eold)/25.0d0
+         if ((dabs(deltae).gt.(1.0d-4)).or.
+     >      (deltae.gt.0.0d0))  go to 10
+
+         call electron_gen_vall()
+         call electron_get_vall(dbl_mb(vall_out(1))) 
+         alpha = control_ks_alpha()
+
+         call nwpw_diis_reset(dbl_mb(vall_out(1)))
+         deltav = 0.0d0
+
       end if
       call electron_set_vall(dbl_mb(vall_out(1))) !call psi_set_density(1,dbl_mb(vall_out(1)))      
           
@@ -225,11 +251,12 @@ c        call psi_2to1()
 
       !**** set ks_deltae ****
       ks_deltae = 0.001d0*dabs(deltae)
-      if (ks_deltae.lt.tole) ks_deltae = tole
+      if (ks_deltae.lt.(0.1d0*tole)) ks_deltae = 0.1d0*tole
       if (ks_deltae.gt.1.0d-4) ks_deltae = 1.0d-4
 
+        
 
-      precondition = precondition.and.(dabs(deltae).gt.100*tole)
+      precondition = precondition.and.(dabs(deltae).gt.1*tole)
 
       done = ( (    (dabs(deltae).lt.tole)
      >         .and.(deltae.lt.0.0d0)
@@ -242,7 +269,8 @@ c        call psi_2to1()
 
 *     **** free memory ****
       call nwpw_list_end()
-      value =           MA_pop_stack(vall_junk(2))
+      value =           MA_pop_stack(rho_in(2))
+      value = value.and.MA_pop_stack(vall_junk(2))
       value = value.and.MA_pop_stack(vall_out(2))
       value = value.and.MA_pop_stack(vall_in(2))
       if (.not. value) 
