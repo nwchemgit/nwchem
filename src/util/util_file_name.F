@@ -264,7 +264,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.13 1999-06-30 22:48:36 d3e129 Exp $
+C$Id: util_file_name.F,v 1.14 2000-01-19 00:38:36 windus Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -329,6 +329,8 @@ c
             ocontinue = .false.
             call util_read_start_dir(file_prefix, rtdb_name)
          else if (inp_compare(.false.,'continue',field)) then
+            call errquit('continue directive is no longer supported',
+     *        555)
             odirective = .true.
             ostartup = .false.
             ocontinue = .true.
