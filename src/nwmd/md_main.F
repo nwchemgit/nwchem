@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.88 2000-05-31 03:47:35 d3j191 Exp $
+c $Id: md_main.F,v 1.89 2000-05-31 05:34:17 d3j191 Exp $
 c
       implicit none
 c
@@ -1127,7 +1127,9 @@ c
 c
       if(me.eq.0) then
       write(lfnmro) irun,jequi,jdacq
+      endif
       call prp_wrtmro(lfnmro,ndec)
+      if(me.eq.0) then
       call sp_wrtmro(lfnmro,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
@@ -2063,7 +2065,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.88 2000-05-31 03:47:35 d3j191 Exp $
+c $Id: md_main.F,v 1.89 2000-05-31 05:34:17 d3j191 Exp $
 c
       implicit none
 c

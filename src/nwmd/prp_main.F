@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.43 2000-05-31 03:47:35 d3j191 Exp $
+c $Id: prp_main.F,v 1.44 2000-05-31 05:34:17 d3j191 Exp $
 c
       implicit none
 c
@@ -802,6 +802,7 @@ c
 c
       integer i
 c
+      if(me.eq.0) then
       write(lfnmro) nderiv,nda,nprop,nsum,nsumt,ndec
       write(lfnmro) deriv
       write(lfnmro) (dfr(i),i=1,nda)
@@ -812,6 +813,7 @@ c
       write(lfnmro) (psumt(i),i=1,nprop)
       write(lfnmro) (p2sumt(i),i=1,nprop)
       write(lfnmro) (pslopt(i),i=1,nprop)
+      endif
       if(ndec.gt.0) call cf_wrtmro(lfnmro)
 c
       return
@@ -842,3 +844,4 @@ c
 c
       return
       end
+
