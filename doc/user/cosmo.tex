@@ -1,0 +1,133 @@
+% $Id: cosmo.tex,v 1.1 2000-11-13 19:35:26 windus Exp $
+\label{sec:cosmo}
+
+COSMO is the continuum solvation 'Conductur-Like Screening' Model 
+of A. Klamt and G. Schuurmann to describe dielectric screening
+effects in solvents.
+
+\begin{enumerate}
+\item A. Klamt and G. Schuurmann, J.Chem.Soc. Perkin Trans. 2, 1993,
+p799-805.
+\end{enumerate}
+
+The NWChem COSMO module implements algorithm for calculation of the
+energy for Hartree-Fock (RHF and UHF) and Kohn-Sham (DFT and UDFT)
+wavefunctions. At the present gradients are calculated by finite
+difference of the energy. In the current implementation the code
+calculates the gas-phase energy of the system followed by the
+solution-phase energy, and returns the electrostatic contribution
+to the solvation free energy. The codes does not calculate the
+non-electrostatic contributions to the free energy.
+
+Invoking the COSMO solvation model is done by specifying the input
+COSMO input block with the input options as follows:
+
+\begin{verbatim}
+cosmo
+    dielec  <real dielec default 78.4>
+    radius  <real atom1>
+            <real atom2>
+       . . .
+            <real atomN>
+    rsolv   <real rsolv default 0.00>
+    iscren  <integer iscren default 0>
+    minbem  <integer minbem default 2>
+    maxbem  <integer maxbem default 3>
+    ificos  <integer ificos default 0>
+    lineq   <integer leneq default 0>
+END
+\end{verbatim}
+
+\verb+Dielec+ is the value of the dielectric constant of the medium, 
+with a default value of 78.4 (the dielectric constant for water).
+
+\verb+Radius+ is an array that specifies the radius of the spheres
+associated with each atom and that make up the molecule-shaped cavity.
+Default values are Van der Waals radii. Values are in units of angstroms.
+The codes uses the following Van der Waals radii by default:
+
+\begin{verbatim}
+      data vdwr /
+     1   0.80,0.49,0.00,0.00,0.00,1.65,1.55,1.50,1.50,0.00,
+     2   2.30,1.70,2.05,2.10,1.85,1.80,1.80,0.00,2.80,2.75,
+     3   0.00,0.00,1.20,0.00,0.00,0.00,2.70,0.00,0.00,0.00,
+     4   0.00,0.00,0.00,1.90,1.90,0.00,0.00,0.00,0.00,1.55,
+     5   0.00,1.64,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
+     6   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
+     7   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
+     8   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
+     9   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
+     1   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,1.65,
+     2   0.00,0.00,0.00/
+\end{verbatim}
+
+with 0.0 values replaced by 1.80 . Other radii can be used as well.
+See for examples:
+
+\begin{enumerate}
+\item E. V. Stefanovich and T. N. Truong, Chem. Phys. Lett. 244 (1995)
+p65-74.
+\item V. Barone, M. Cossi, and J. Tomasi, J. Chem. Phys. 107 (1997)
+p3210-3221.
+\end{enumerate}
+
+\verb+Rsolv+ is a parameter used to define the solvent accessible
+surface. See the original reference of Klamt and Schuurmann for a
+description. The default value is 0.00 (in angstroms).
+
+\verb+Iscren+ is a flag to define the dielectric charge scaling option.
+"iscren 1" implies the original scaling from Klamt and Schuurmann,
+mainly "(eps-1)/(eps+1/2)", where 'eps' is the dielectric constant.
+"iscren 0" implies the modified scaling suggested by Stefanovich and
+Truong, mainly "(eps-1)/eps". Default is to use the modified scaling.
+For high dielectric the difference between the scaling is not 
+significant.
+
+The next three parameters define the tesselation of the unit sphere.
+The approach follows the original proposal by Klamt and Schuurmann.
+A very fine tesselation is generated from \verb+maxbem+ refining 
+passes starting from either an octahedron or an icosahedron. The
+boundary elements created with the fine tesselation are condensed
+down to a coarser tesselation based on \verb+minbem+. The induced
+point charges from the polarization of the medium are assigned to
+the centers of the coarser tesselation. Default values are
+"minbem 2" and "maxbem 3". The flag \verb+ificos+ serves to
+select the original tesselation, "ificos 0" for an octahedron
+(default) and "ificos 1" for an icoshedron. Starting from an icosahedron
+yields a somewhat finer tesselation that converges somewhat faster.
+Solvation energies are not really sensitive to this choice for
+sufficiently fine tesselations.
+
+The \verb+lineq+ parameter serves to select the numerical algorithm to solve
+the linear equations yielding the effective charges that represent
+the polarization of the medium. "lineq 0" selects an iterative method 
+(default), "lineq 1" selects a dense matrix linear equation solver.
+For large molecules where the number of effective charges is large,
+the codes selects the iterative method.
+
+The following example is for a water molecule in 'water', using
+the HF/6-31G** level of theory:
+
+\begin{verbatim}
+start
+echo
+ title "h2o"
+geometry nocenter noautosym
+o                  .0000000000         .0000000000        -.0486020332
+h                  .7545655371         .0000000000         .5243010666
+h                 -.7545655371         .0000000000         .5243010666
+end
+basis segment
+  o library 6-31g**
+  h library 6-31g**
+end
+cosmo
+  dielec 78.0
+  radius 1.40
+         1.16
+         1.16
+  rsolv  0.50
+  lineq  0
+end
+task scf energy
+\end{verbatim}
