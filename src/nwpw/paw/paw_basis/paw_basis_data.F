@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.14 2003-02-16 21:00:15 marat Exp $
+! $Id: paw_basis_data.F,v 1.15 2003-02-16 22:45:27 marat Exp $
 
 !**************************************************
 !
@@ -254,7 +254,6 @@
         return
         END 
   
-
 !**************************************************
 !
 !	Name: paw_basis_i_ngrid
@@ -270,6 +269,25 @@
 #include "paw_basis_data.fh"
 
       paw_basis_i_ngrid = ngrid(1) +  it-1
+      return
+      END
+ 
+!**************************************************
+!
+!	Name: paw_basis_ngrid
+!
+!	Purpose 
+!
+!	Created:	7/9/2002
+!**************************************************
+      INTEGER FUNCTION  paw_basis_ngrid(it)
+      implicit none
+      integer it
+    
+#include "paw_basis_data.fh"
+#include "mafdecls.fh"
+
+      paw_basis_ngrid = int_mb(ngrid(1) +  it-1)
       return
       END
  
