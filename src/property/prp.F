@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.15 1997-06-24 16:56:34 mdupuis Exp $
+* $Id: prp.F,v 1.16 1997-06-24 18:35:34 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -11564,10 +11564,16 @@ C  get MO vectors from file
       if (scftype .eq. 'RHF') then
 c       density matrix
 
-        call ga_matmul_patch('n', 't', 2.0d0, 0.0d0,
-     $       g_vecs,    1, nbf, 1, nclosed,
-     $       g_vecs,    1, nclosed, 1, nbf,
-     $       g_dens(1), 1, nbf, 1, nbf)
+        call ga_matmul_patch('n', 't', 2.0D0, 0.0d0  ,
+     $       g_vecs,    1, nbf,            1, nclosed,
+     $       g_vecs,    1, nclosed,        1, nbf    ,
+     $       g_dens(1), 1, nbf,            1, nbf    )
+        if (nopen .gt. 0) then
+             call ga_matmul_patch('n', 't', 1.0D0, 1.0d0  ,
+     $       g_vecs,1, nbf, nclosed+1, nclosed+nopen,
+     $       g_vecs,nclosed+1, nclosed+nopen,1,nbf  ,
+     $       g_dens(1), 1, nbf,              1,nbf  )
+        endif
         call ga_symmetrize(g_dens(1))
 
         call ga_get(g_dens(1),1,nbf,1,nbf,d1nw,nbf)
@@ -11585,15 +11591,18 @@ c       square to triangular format
               da(ij)=d2nw(i+nbf*(j-1))
            enddo
         enddo
+        if(dbug) then
+           call hnd_prtr(da,nbf)
+        endif
 
       else  ! UHF
 c       density matrix  D_up and D_down
 
-        call ga_matmul_patch('n', 't', 1.0d0, 0.0d0,
+        call ga_matmul_patch('n', 't', 1.0d0     , 0.0d0,
      $    g_vecs,    1, nbf,             1, nopen +nclosed ,
      $    g_vecs,    1, nopen +nclosed , 1, nbf,
      $    g_dens(1), 1, nbf,             1, nbf)
-        call ga_matmul_patch('n', 't', 1.0d0, 0.0d0,
+        call ga_matmul_patch('n', 't', 1.0d0     , 0.0d0,
      $    g_vecs2,   1, nbf,             1, nopenu+nclosedu,
      $    g_vecs2,   1, nopenu+nclosedu, 1, nbf,
      $    g_dens(2), 1, nbf,             1, nbf)
