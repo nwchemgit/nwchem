@@ -71,11 +71,12 @@ c
       integer rtdb              ! [input] database handle
       integer geom, basis       ! handles
       logical converged
-      logical status
+      logical status, print_debug
       character*255 title
       double precision charge
 c
       character*255 movecs_in, movecs_out
+      data print_debug /.false./
 c
 c     Push context down to GRADIENTS
 c
@@ -138,14 +139,16 @@ c
             write(6,*)
             write(6,*)
          endif
-         if (.not. geom_print(geom)) 
-     $        call errquit('gradients: geom_print ?',0)
          write(6,1) charge, 'rhf'
  1       format(/
      $        '  charge          = ', f6.2/
      $        '  wavefunction    = ', a/)
-         if (.not. bas_print(basis)) 
-     $        call errquit('gradients: bas_print ?',0)
+         if (print_debug) then
+           if (.not. geom_print(geom)) 
+     $         call errquit('gradients: geom_print ?',0)
+           if (.not. bas_print(basis)) 
+     $         call errquit('gradients: bas_print ?',0)
+         endif
          call util_flush(6)
       endif
 c
