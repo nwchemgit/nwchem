@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.20 1996-10-22 08:42:30 d3g681 Exp $
+c  $Id: moints_2x.F,v 1.21 1996-10-23 20:38:50 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -249,6 +249,7 @@ c
                    lbfhi = int_mb(k_rbfmap+jz-1)
                    lblen = lbfhi - lbflo + 1
 
+                   tz = tcgtime()
                    call moints_gblk( basis, ish, jsh,
      $                               kshlo, kshhi, lshlo, lshhi,
      $                               int_mb(k_shmap),int_mb(k_rbfmap),
@@ -258,7 +259,9 @@ c
      $                               ibflo, ibfhi, jbflo, jbfhi,
      $                               kbflo, kbfhi, lbflo, lbfhi,
      $                               dbl_mb(k_ssbb) )
-
+                   tint = tint + tcgtime() - tz
+                   flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
+                   tz = tcgtime()
                    if (lgr.ne.kgr) then
                      call moints_blktr( ilen, jlen, kblen, lblen,
      $                                  dbl_mb(k_ssbb),
@@ -278,16 +281,20 @@ c
      $                                 dbl_mb(k_ssbb), dbl_mb(k_xmo),
      $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )
                    endif
+                   t1idx = t1idx + tcgtime() - tz
                  enddo
                enddo
                if (ocoul) then
+                 tz = tcgtime()
                  call moints_trf2J( nbf, occ_start, mo1_lo, mo1_hi,
      $                              ibflo, ibfhi, jbflo, jbfhi,
      $                              dbl_mb(k_ssni), dbl_mb(k_hlp),
      $                              dbl_mb(k_ssbb), dbl_mb(k_xmo),
      $                              g_coul )
+                 t2jidx = t2jidx + tcgtime() - tz
                endif
                if (oexch) then
+                 tz = tcgtime()
                  if (ohalf) then
                    call moints2x_trf2K( nbf, occ_start,
      $                                  mo1_lo, mo1_hi,
@@ -297,6 +304,7 @@ c
      $                                  dbl_mb(k_hlp), dbl_mb(k_hlp),
      $                                  dbl_mb(k_hlp2),
      $                                  dbl_mb(k_mo), g_exch )
+                   t2kidx = t2kidx + tcgtime() - tz
                  else
                    call moints2xv_trf23K( nbf, occ_start,
      $                                  mo1_lo, mo1_hi, nmo2,
@@ -306,6 +314,7 @@ c
      $                                  dbl_mb(k_hlp), dbl_mb(k_hlp),
      $                                  dbl_mb(k_mo), dbl_mb(k_xmo),
      $                                  g_exch )
+                   t3kidx = t3kidx + tcgtime() - tz
                  endif
                endif
 
