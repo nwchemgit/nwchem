@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.49 1999-11-22 23:11:38 d3j191 Exp $
+c $Id: md_main.F,v 1.50 1999-12-14 17:31:10 d3j191 Exp $
 c
       implicit none
 c
@@ -58,6 +58,8 @@ c
 c
 c     atomic forces and potential energies
 c
+      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -171,6 +173,8 @@ c
 c
 c     atomic forces and potential energies
 c
+      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -253,6 +257,8 @@ c
 c
 c     atomic forces and potential energies
 c
+      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -349,6 +355,8 @@ c
 c
 c     atomic forces and potential energies
 c
+      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -519,6 +527,8 @@ c
 c
 c     atomic forces and potential energies
 c
+      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -651,6 +661,8 @@ c
 c
 c     atomic forces and potential energies
 c
+      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -792,9 +804,11 @@ c
       logical frequency
       external frequency
 c
-      logical lxw,lvw,lxs,lvs
-c
       lfirst=.true.
+      lxw=.false.
+      lvw=.false.
+      lxs=.false.
+      lvs=.false.
 c
 c     equilibration
 c
@@ -830,7 +844,7 @@ c
       lxs=frequency(mdstep,nfscoo)
       lvs=frequency(mdstep,nfsvel)
 c
-      if(lxw.or.lvw.or.lxs.or.lvs) then
+      if(me.eq.0.and.idacq.eq.mdacq.and.(lxw.or.lvw.or.lxs.or.lvs)) then
       call sp_wrttrj(lfncoo,lxw,lvw,lxs,lvs,
      + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
@@ -897,6 +911,11 @@ c
       call ga_brdcst(mrg_d32,kdacq,ma_sizeof(mt_int,1,mt_byte),0)
       endif
 c
+      lxw=.false.
+      lvw=.false.
+      lxs=.false.
+      lvs=.false.
+c
 c     equilibration
 c
       do 2 iequi=kequi+1,mequi
@@ -962,8 +981,8 @@ c
       logical frequency
       external frequency
 c
-      external timer_wall,timer_wall_average
-      real*8 timer_wall,timer_wall_average
+      external timer_wall,timer_wall_average,timer_wall_minimum
+      real*8 timer_wall,timer_wall_average,timer_wall_minimum
 c
       real*8 dxmax,wallt
 c
@@ -997,17 +1016,17 @@ c
       call md_fold(int_mb(i_iw),int_mb(i_is),
      + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm))
 c
-c     subtract center of mass coordinates from reference coordinates
-c
-      call md_addref(.false.,dbl_mb(i_xwm),dbl_mb(i_xwcr),
-     + dbl_mb(i_xsm),dbl_mb(i_xscr),dbl_mb(i_dsr))
-c
       if(.not.lqmd) then
 c
 c     dynamic load balancing
 c
       if(itload.eq.0) then
+      if(me.eq.0) then
+      call sp_balanc(stime,timer_wall_minimum(4),wallt,
+     + frequency(mdstep,nfsync))
+      else
       call sp_balanc(stime,timer_wall(4),wallt,frequency(mdstep,nfsync))
+      endif
       else
       call sp_balanc(stime,timer_wall_average(4),wallt,
      + frequency(mdstep,nfsync))
@@ -1024,7 +1043,28 @@ c
 c
       endif
 c
+c     center of mass coordinates
+c
+      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
+     + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
+     + dbl_mb(i_xs),dbl_mb(i_xsm))
+c
+c     subtract center of mass coordinates from reference coordinates
+c
+      call md_addref(.false.,dbl_mb(i_xwm),dbl_mb(i_xwcr),
+     + dbl_mb(i_xsm),dbl_mb(i_xscr),dbl_mb(i_dsr))
+c
 c     atomic forces and potential energies
+c
+      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+c
+      if(me.eq.0.and.(lxw.or.lvw.or.lxs.or.lvs)) then
+      call sp_wrttrj(lfncoo,lxw,lvw,lxs,lvs,
+     + stime,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+      endif
 c
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
@@ -1115,7 +1155,7 @@ c
 c
       integer i
 c
-      return
+c      return
       if(ladd) then
       dwr=zero
       do 1 i=1,nwmloc
@@ -1212,7 +1252,7 @@ c
 c
       return
       end
-      subroutine md_forces(iwl,isl,xw,xwm,xs,fw,fs)
+      subroutine md_finit(iwl,isl,xw,xwm,xs,fw,fs)
 c
       implicit none
 c
@@ -1248,6 +1288,27 @@ c
       call sp_putix(me,iwl,xw,nwmloc,isl,xs,nsaloc)
 c
       call ga_sync()
+c
+      call timer_start(10)
+      call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
+     + isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),dbl_mb(i_ess))
+      call timer_stop(10)
+c
+      return
+      end
+      subroutine md_forces(iwl,isl,xw,xwm,xs,fw,fs)
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      integer iwl(mwm,miw2),isl(msa,mis2)
+      real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
+      real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
+c
+      integer i,j,k
 c
       call md_fclass(iwl,isl,xw,xwm,xs,fw,fs)
 c
@@ -1349,11 +1410,6 @@ c
 c
       integer ibbl,lhandl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer nbbl
-c
-      call timer_start(10)
-      call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
-     + isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),dbl_mb(i_ess))
-      call timer_stop(10)
 c
       if(ipme.gt.0) then
       if(lpert2) then

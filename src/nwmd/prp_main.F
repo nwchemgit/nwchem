@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.25 1999-11-17 00:53:16 d3j191 Exp $
+c $Id: prp_main.F,v 1.26 1999-12-14 17:31:10 d3j191 Exp $
 c
       implicit none
 c
@@ -222,9 +222,9 @@ c
       p(38)=exp(-p(36)/(rgas*temp))
       p(39)=exp(-p(37)/(rgas*temp))
 c
-      dwr=p(69)/dble(nwm)
-      p(69)=dwr/dble(6)
-      p(70)=1.0d3*dwr/stime
+      dwr=p(69)/dble(6*nwm)
+      p(69)=dwr
+      p(70)=1.0d-6*dwr/stime
 c
       epot=p(26) 
       epots=zero
