@@ -31,7 +31,7 @@ c
       integer mdstep
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme,epot
       real*8 eq,el,ep,ek,et,ewp
-      real*8 tempw,temps,stime,esk(msf),ewk
+      real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits
 c
       integer i,j,k,it
@@ -81,7 +81,7 @@ c     if using cafe get properties from it
 c
       if(lcafe) then
       call cf_proper(volume,temp,tempw,temps,pres,tmpscl,tmsscl,prsscl,
-     + ewk,nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits)
+     + ewk,nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,ep2,ep3)
       endif
 c
 c     if using space get properties from it
@@ -133,6 +133,8 @@ c
       p(25)=el
       p(26)=ep
       p(32)=p(32)+ep
+      p(36)=ep2
+      p(37)=ep3
       if(me.eq.0) p(40)=dfree
       p(54)=eww(6,1)+eww(8,1)
       p(55)=eww(5,1)

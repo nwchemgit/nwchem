@@ -1,7 +1,7 @@
       subroutine prp_start(nserie,ntyp,lfn,fil,iout,iprp,igib,
      + nf1,nf2,nf3,
      + lcf,lsp,ltwn,lpol,lpme,
-     + nwm,msfi,nsfi,mpei,mdacq,mrn)
+     + nwm,msfi,nsfi,mpei,mdacq,mrn,iset,isetp1,isetp2)
 c
       implicit none
 c
@@ -11,11 +11,12 @@ c
 c
       integer nserie,ntyp,lfn,iout,iprp,igib
       integer nwm,msfi,nsfi,mpei,nf1,nf2,nf3
-      integer mdacq,mrn
+      integer mdacq,mrn,iset,isetp1,isetp2
       logical lcf,lsp,ltwn,lpol,lpme
       character*255 fil
 c
       integer i,j,it
+      logical lpert2,lpert3
 c
       me=ga_nodeid()
       np=ga_nnodes()
@@ -35,6 +36,9 @@ c
       nfstat=nf2
       nfprop=nf3
       mrun=mrn
+c
+      lpert2=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.2.or.isetp2.eq.2))
+      lpert3=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.3.or.isetp2.eq.3))
 c
       do 1 i=1,250
       lp(i)=.false.
@@ -104,7 +108,9 @@ c
       pronam( 34)='pV total                                    kJ/mol'
       pronam( 35)='Enthalpy                                    kJ/mol'
       pronam( 36)='Energy perturbation 1                       kJ/mol'
+      lp(36)=lpert2
       pronam( 37)='Energy perturbation 2                       kJ/mol'
+      lp(37)=lpert3
       pronam( 38)='Free energy perturbation 1                  kJ/mol'
       pronam( 39)='Free energy perturbation 2                  kJ/mol'
       pronam( 40)='Derivative free energy wrt lambda           kJ/mol'

@@ -39,7 +39,7 @@ c
      + iewald,morder,ngx,ngy,ngz,nodpme,pmetol,
      + tstep,tlwsha,mshitw,mshits,
      + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
-     + 0,temp,tempw,temps,compr,ntype)
+     + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2)
 c
 c     print topology information
 c     --------------------------
@@ -51,7 +51,7 @@ c
       call prp_start(nserie,ntype,lfnrst,filrst,lfnout,lfnprp,
      + lfngib,nfoutp,nfstat,nfprop,
      + .true.,.true.,ltwin,ipolt.ne.0,
-     + iewald.ne.0,nwm,msf,nsf,mpe,mdacq,mrun)
+     + iewald.ne.0,nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
