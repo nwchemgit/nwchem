@@ -1,6 +1,6 @@
       subroutine esp_input(irtdb)
 c
-c $Id: esp_input.F,v 1.10 1999-05-27 18:21:19 d3j191 Exp $
+c $Id: esp_input.F,v 1.11 1999-06-23 16:36:38 d3j191 Exp $
 c
       implicit none
 c
@@ -259,6 +259,7 @@ c
      + call errquit('esp_input: constrain error',0)
       if(j.lt.i.or.l.lt.k.or.j-i.ne.l-k)
      + call errquit('esp_input: constrain error',0)
+      nconst=nconst-1
       do 42 m=0,j-i
       nconst=nconst+1
       ncon=ncon+1
