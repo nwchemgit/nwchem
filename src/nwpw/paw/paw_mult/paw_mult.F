@@ -1,8 +1,13 @@
 *
-* $Id: paw_mult.F,v 1.19 2003-03-04 00:04:04 marat Exp $
+* $Id: paw_mult.F,v 1.20 2003-03-05 20:35:04 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.19  2003/03/04 00:04:04  marat
+* added printouts for atomic potenitials
+* for debug purposes
+* MV
+*
 * Revision 1.18  2003/02/27 02:19:25  bylaska
 * The electron gradient has been added.
 * The eigenvalues are not yet agreeing with the F90 code....EJB
@@ -668,7 +673,8 @@ c      end if
         do m=-l,l
           do mi=-li,li
           do mj=-lj,lj
-          if ( m.eq.(mi-mj)) then
+          if ( m.eq.(mj-mi)) then
+
              i_mtr = i_mtr0-1+i+(j-1)*nb+l*nb2
              i_cp  = i_cp0-1+(njlm+lj+mj+1)+
      >                (nilm+li+mi)*paw_proj_nbasis(ia)
