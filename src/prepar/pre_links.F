@@ -2,7 +2,7 @@
      + xatm,catm,latm,matm,lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,nlnkf)
 c
-c $Id: pre_links.F,v 1.18 2003-07-24 04:36:56 d3j191 Exp $
+c $Id: pre_links.F,v 1.19 2003-10-03 18:48:12 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -36,6 +36,7 @@ c
 c
       integer i,j,iu,k,l,m,nlnko,nlnkp
       integer link1,link2,link3,mol
+      logical lwarn
 c
       if(util_print('topology',print_debug)) then
       write(lfnout,2000)
@@ -325,11 +326,20 @@ c
 c     adjust molecule number based on explicit links
 c     ----------------------------------------------
 c
+      lwarn=.false.
       do 18 i=1,nlnk
       if(lseq(4,llnk(1,i)).ne.lseq(4,llnk(2,i))) then
+      if(.not.lwarn) then
+      write(lfnout,87)
+   87 format(/,' Warning',//,
+     + ' Explicit links were found that merge two molecules.',/,
+     + ' This is usually indicative of a problem with the coordinates',
+     + /,' or an incorrectly edited sequence file.',//)
+      lwarn=.true.
+      endif
       write(lfnout,88) i,llnk(1,i),llnk(2,i),
      + lseq(4,llnk(1,i)),lseq(4,llnk(2,i))
-   88 format('ADJUST LINK ',5i7)
+   88 format(' Molecule-molecule link ',5i7)
       j=lseq(4,llnk(2,i))
       do 19 k=1,nseq
       if(lseq(4,k).eq.j) then
