@@ -1,0 +1,10 @@
+! 
+! $Id: paw_ovlp.fh,v 1.1 2002-08-13 22:01:10 bylaska Exp $
+! 
+
+!     **** paw_ovlp.fh common blocks ****
+      integer    coeff(2),tcoeff(2)     ! overlap coefficientss 
+      integer    indx2(2),sign(2)
+      integer    total_nbasis,neall
+      common / paw_proj / coeff,tcoeff,indx2,sign,total_nbasis,neall
+

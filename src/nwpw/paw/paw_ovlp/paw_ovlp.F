@@ -1,0 +1,179 @@
+*
+* $Id: paw_ovlp.F,v 1.1 2002-08-13 22:01:10 bylaska Exp $
+*
+
+!**************************************************
+!
+!	Name: paw_ovlp_init
+!
+!	Purpose: initializes the paw overlap coefficients
+!
+!	Created:	8/07/2002
+!**************************************************
+      subroutine paw_ovlp_init()
+      implicit none
+
+#include "mafdecls.fh"
+#include "paw_ovlp.fh" 
+  
+*     **** local variables ****
+      logical value
+      integer ii,ia,nlm,nlmii,n,m,mabs
+      integer nbasis,i2,i1,isgn,nion,neall
+
+*     **** external functions ****
+      integer  paw_proj_nbasis,paw_proj_m,psi_ne
+      integer  ion_nion,ion_natm,ion_nkatm,ion_katm
+      external paw_proj_nbasis,paw_proj_m,psi_ne
+      external ion_nion,ion_natm,ion_nkatm,ion_katm
+
+      total_nbasis = 0
+      do ia=1,ion_nkatm()
+         total_nbasis = total_nbasis 
+     >                + paw_proj_nbasis(ia)*ion_natm(ia)
+      end do
+      neall = (psi_ne(1) + psi_ne(2))
+      value =           MA_alloc_get(mt_dcpl,(total_nbasis*neall),
+     >                               'coeff',coeff(2),coeff(1))
+      value = value.and.MA_alloc_get(mt_dcpl,(total_nbasis*neall),
+     >                               'tcoeff',tcoeff(2),tcoeff(1))
+      value = value.and.MA_alloc_get(mt_int,(total_nbasis*neall),
+     >                               'indx2',indx2(2),indx2(1))
+      value = value.and.MA_alloc_get(mt_int,(total_nbasis*neall),
+     >                               'sign',sign(2),sign(1))
+      if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
+
+
+
+      !*** set unsrcramble arrays ***
+      nlmii = 0
+      do ii=1,nion
+         ia = ion_katm(ii)
+         nbasis = paw_proj_nbasis(ia)
+         do nlm=1,nbasis
+            nlmii = nlmii + 1
+            m = paw_proj_m(nlm,ia)
+            mabs = abs(m)
+            if (mod(mabs,2).eq.0) then
+              isgn = 1
+            else
+              isgn = -1
+            end if
+            do n=1,neall
+              i1 = (nlmii-1)*neall + (n-1)
+              i2 = i1 - 2*m*neall
+              int_mb(indx2(1)+i1) = i2     ! conjugate array
+              int_mb(sign(1) +i1) = isgn   ! sign array
+            end do
+         end do 
+      end do    
+
+      return
+      end
+
+!**************************************************
+!
+!	Name: paw_ovlp_end
+!
+!	Purpose: removes space used by the paw overlap coefficients
+!
+!	Created:	8/07/2002
+!**************************************************
+      subroutine paw_ovlp_end()
+      implicit none
+      
+#include "mafdecls.fh"
+#include "paw_ovlp.fh"
+
+      !*** local variables ***
+      logical value
+      
+      value =           MA_free_heap(coeff(2))
+      value = value.and.MA_free_heap(tcoeff(2))
+      value = value.and.MA_free_heap(indx2(2))
+      value = value.and.MA_free_heap(sign(2))
+      if (.not.value) call errquit('paw_ovlp_end: dealloc heap',0)
+      return
+      end
+
+
+**************************************************
+!
+!	Name: paw_ovlp_set
+!
+!	Purpose: sets the paw overlap coefficients
+!
+!	Created:	8/07/2002
+!**************************************************
+      subroutine paw_ovlp_set(psi)
+      implicit none
+      complex*16 psi(*)
+      
+#include "mafdecls.fh"
+#include "paw_ovlp.fh"
+
+      !*** local variables ***
+      logical value
+      integer ii,ia,nbasis,nlm,nlmii,neall,npack1
+      integer nion,prj,i1,i2,n
+      integer indx_psi,indx_prj,indx_coeff
+      integer exi(2),tmp(2)
+
+      !*** external functions ****
+      integer  paw_proj_i_prj_atom,paw_proj_nbasis
+      integer  ion_nion,ion_katm,psi_ne
+      external paw_proj_i_prj_atom,paw_proj_nbasis
+      external ion_nion,ion_katm,psi_ne 
+
+      call Pack_npack(1,npack1)
+      neall = psi_ne(1)+psi_ne(2)
+
+      !*** allocate temporary space ***
+      value =           MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
+      value = value.and.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
+      if (.not.value) call errquit('paw_ovlp_set: push stack',0)
+
+      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion) ***
+      nlmii = 0
+      nion  = ion_nion()
+      do ii=1,nion
+        ia = ion_katm(ii)
+        call strfac_pack(1,ii,dcpl_mb(exi(1)))
+        nbasis = paw_proj_nbasis(ia)
+        prj = paw_proj_i_prj_atom(ia)
+        do nlm=1,nbasis
+           nlmii = nlmii + 1
+           indx_prj = (nlm-1)*npack1
+           call Pack_cc_Mul(1,
+     >                      dcpl_mb(exi(1)),
+     >                      dcpl_mb(prj+indx_prj),
+     >                      dcpl_mb(tmp(1)))
+           do n=1,neall
+             indx_psi   = (n-1)*npack1    + 1
+             indx_coeff = (nlmii-1)*neall + n
+             call Pack_cc_izdot(1,
+     >                         dcpl_mb(tmp(1)),
+     >                         psi(indx_psi),
+     >                         dcpl_mb(tcoeff(1)+indx_coeff))
+           end do
+        end do
+      end do 
+
+
+      !*** unsrcramble to get true overlap coefficients ***
+      do i1=1,total_nbasis*neall
+         i2 = int_mb(indx2(1)+i1-1)
+         dcpl_mb(coeff(1)+i1) 
+     >     = 0.5d0*( dcpl_mb(tcoeff(1)+i1)
+     >             + int_mb(sign(1)+i1)
+     >              *dconjg(dcpl_mb(tcoeff(1)+i2)))
+      end do     
+
+      value =           MA_pop_stack(tmp(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not.value) call errquit('paw_ovlp_set: pop stack',1)
+      
+
+      return
+      end
+ 
