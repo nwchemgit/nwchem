@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.11 2002-01-12 02:26:16 bylaska Exp $
+* $Id: C3dB-new.F,v 1.12 2002-01-14 21:18:59 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -2051,7 +2051,7 @@ c     integer i2_start(NFFT3+1)
       integer i
 
       do i=1,nx(nb)*ny(nb)*nq(nb)
-         B(i) = B(i) + alpha* B(i)
+         B(i) = B(i) + alpha* A(i)
       end do
 
       return
