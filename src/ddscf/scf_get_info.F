@@ -201,15 +201,15 @@ c
      $                 ocosmo,ga_nodeid()
          endif
          if(ocosmo) then
-            odiis=.true.
-            if(.not. rtdb_put(rtdb,'scf:diis', MT_LOG, 1, odiis))
-     $         call errquit('scf_init: rtdb_put of diis failed',0)
-            if (.not.rtdb_get(rtdb, 'scf:diis',MT_LOG, 1, odiis))
-     $          odiis = .false.
-            if(odbug) then
-               write(*,*) 'force -diis- because of cosmo',
-     $                    ga_nodeid()
-            endif
+c           odiis=.true.
+c           if(.not. rtdb_put(rtdb,'scf:diis', MT_LOG, 1, odiis))
+c    $         call errquit('scf_init: rtdb_put of diis failed',0)
+c           if (.not.rtdb_get(rtdb,'scf:diis', MT_LOG, 1, odiis))
+c    $          odiis = .false.
+c           if(odbug) then
+c              write(*,*) 'force -diis- because of cosmo',
+c    $                    ga_nodeid()
+c           endif
          else
             if(odbug) then
                write(*,*) '-cosmo- ... found but .false. ',
@@ -287,7 +287,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.48 2000-05-25 06:59:39 mdupuis Exp $
+C$Id: scf_get_info.F,v 1.49 2000-08-22 23:26:07 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

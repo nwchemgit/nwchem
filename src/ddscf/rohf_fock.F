@@ -1,9 +1,9 @@
       subroutine rohf_fock(rtdb, geom, basis, nclosed, nopen, nmo,
      $     tol2e, g_vecs,
      $     eone, etwo, g_fcv, g_fpv,
-     $     g_fcp, oskel)
+     $     g_fcp, oskel, iter)
 *
-* $Id: rohf_fock.F,v 1.14 2000-05-25 06:59:39 mdupuis Exp $
+* $Id: rohf_fock.F,v 1.15 2000-08-22 23:26:06 mdupuis Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -28,6 +28,7 @@ c
       integer g_fpv             ! [output] Open-virtual Fock matrix
       integer g_fcp             ! [output] Closed-open Fock matrix
       logical oskel             ! [input] use skeleton symmetry
+      integer iter              ! [input] iteration number
 c     
 c     Local variables
 c     
@@ -50,9 +51,13 @@ c
 c
       integer g_cos1e
       dimension g_cos1e(3)
+      double precision ecosmo
       logical ocosmo
       logical odbug
       logical osome
+c
+      integer iter
+      integer itype_wfn
 c
       data jfactor / 1.0d0, 1.0d0, 0.0d0/
       data kfactor /-0.5d0, 0.0d0,-0.5d0/
@@ -117,7 +122,44 @@ c
             endif
          endif
       endif
-c     
+c
+c     ----- cosmo charges and energy contribution -----
+c
+      odbug=.false.
+      odbug=odbug.and.ga_nodeid().eq.0
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+         if(odbug) then
+            write(6,*) '-cosmo- ... found in rohf_fock',
+     $                 ocosmo,ga_nodeid()
+            call util_flush(6)
+         endif
+         if(ocosmo) then
+            if(odbug) then
+               osome=.true.
+            else
+               osome=.false.
+            endif
+            osome=osome.and.ga_nodeid().eq.0
+c
+            itype_wfn=1
+            call cosmo_charges(rtdb,basis,geom,ecosmo,iter,osome,
+     $                         itype_wfn,g_vecs)
+c
+            osome=.false.
+         else
+            if(odbug) then
+               write(6,*) '-cosmo- ... found but .false.',
+     $                    ga_nodeid()
+            endif
+         endif
+      else
+         if(odbug) then
+            write(6,*) '-cosmo- not found in rohf_fock',
+     $                 ga_nodeid()
+         endif
+      endif
+      call ga_sync()
+c
 c     One-electron integrals and energies
 c     
       call ga_zero(g_hcore)
@@ -128,6 +170,7 @@ c
 c     ----- cosmo potential -----
 c
       odbug=.false.
+      odbug=odbug.and.ga_nodeid().eq.0
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
          if(ocosmo) then
 c
@@ -136,11 +179,10 @@ c
             else
                osome=.false.
             endif
-            odbug=odbug.and.ga_nodeid().eq.0
             osome=osome.and.ga_nodeid().eq.0
 c
             g_cos1e(1)  = ga_create_atom_blocked(geom, basis,
-     $                                       'rohf_diis_solve:cos1e')
+     $                                       'rohf_fock:cos1e')
             if(odbug) then
                write(6,*) 'rohf_fock ... g-cos1e'
                call ga_zero(g_cos1e(1))
@@ -161,7 +203,7 @@ c
             endif
 c
             if (.not. ga_destroy(g_cos1e)) call errquit
-     $         ('rohf_diis_solve: ga_destroy cos1e', 0)
+     $         ('rohf_fock: ga_destroy cos1e', 0)
          endif
       endif
       call ga_sync()

@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.16 2000-05-25 21:56:35 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.17 2000-08-22 23:26:07 mdupuis Exp $
 c     
 c     Invalidate data
 c     
@@ -19,7 +19,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.16 2000-05-25 21:56:35 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.17 2000-08-22 23:26:07 mdupuis Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -63,7 +63,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.16 2000-05-25 21:56:35 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.17 2000-08-22 23:26:07 mdupuis Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -94,7 +94,7 @@ c
 #include "global.fh"
 #include "rtdb.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.16 2000-05-25 21:56:35 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.17 2000-08-22 23:26:07 mdupuis Exp $
 c
       integer rtdb
 
@@ -121,7 +121,7 @@ c
       call rohf_fock(rtdb, geom, basis,
      $     nclosed, nopen, nmo, tol2e, g_vecs,
      $     eone, etwo,
-     $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp, oskel )
+     $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp, oskel, iter )
 c
 *      call rohf_fock2grad( nmo, nclosed, nopen,
 *     $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
@@ -145,10 +145,12 @@ c
 c     ----- cosmo energy term ... -----
 c
       odbug=.false.
+      odbug=odbug.and.ga_nodeid().eq.0
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
          if(odbug) then
-            write(6,*) '-cosmo- ... found in rohf_diis_solve',
-     $                 ocosmo,ga_nodeid()
+            write(6,*) '-cosmo- ... found in rohf_energy',
+     $                  ocosmo,ga_nodeid()
+            write(6,33) energy, eone, etwo, enrep
          endif
          if(ocosmo) then
             if (.not. rtdb_get(rtdb,'cosmo:energy',mt_dbl,1,ecosmo))
@@ -166,12 +168,12 @@ c
          else
             if(odbug) then
                write(6,*) '-cosmo- ... found but .false.',
-     $                    ga_nodeid()
+     $                     ga_nodeid()
             endif
          endif
       else
          if(odbug) then
-            write(6,*) '-cosmo- not found in rohf_diis_solve',
+            write(6,*) '-cosmo- not found in rohf_energy',
      $                 ga_nodeid()
          endif
       endif
@@ -183,7 +185,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.16 2000-05-25 21:56:35 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.17 2000-08-22 23:26:07 mdupuis Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -227,7 +229,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.16 2000-05-25 21:56:35 mdupuis Exp $
+c     $Id: rohf_wrap.F,v 1.17 2000-08-22 23:26:07 mdupuis Exp $
 c
       integer g_x
       double precision solveshift

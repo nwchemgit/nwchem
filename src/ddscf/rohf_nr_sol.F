@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.24 1999-07-20 01:39:02 edo Exp $
+c     $Id: rohf_nr_sol.F,v 1.25 2000-08-22 23:26:07 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -43,7 +43,7 @@ c
       logical ovariable
 c
       double precision tol2e_save ! Used with variable integral tolerance
-      double precision djunk
+*     double precision djunk
       double precision eprec_tol
       double precision tlastwrite,ttest  ! time last wrote the MO vectors
       double precision time_iter_start
@@ -54,7 +54,18 @@ c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       external rohf_hessv, rohf_hessv_precond
-c     
+c
+c     cosmo code
+c
+      logical odbug
+      logical osome
+      logical ocosmo
+c
+      logical ogas_phase
+      logical osol_phase
+      double precision egas
+      double precision esol
+c
       if (ga_nodeid().eq.0) call util_flush(6)
 c
 c     Determine if using variable precision.  Turn it off if
@@ -116,6 +127,47 @@ c
          call util_flush(6)
       endif
 c
+c     ----- check cosmo ... if cosmo ... -----
+c           pass 1 ... gas_phase
+c           pass 2 ... sol_phase
+c
+      odbug=.false.
+      odbug=odbug.and.ga_nodeid().eq.0
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+         if(odbug) then
+            write(6,*) '-cosmo- ... found in rohf_nr_solve',
+     $                 ocosmo,ga_nodeid()
+         endif
+c
+         if(ocosmo) then
+            ogas_phase=.true.
+            osol_phase=.true.
+            if(odbug) then
+               write(6,*) '-cosmo- ... found , do gas & sol',
+     $                    ocosmo,ga_nodeid()
+            endif
+            if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
+     $         call errquit('rohf_nr_solve: rtdb_put failed',0)
+         else
+            ogas_phase=.true.
+            osol_phase=.false.
+            if(odbug) then
+               write(6,*) '-cosmo- ... found , do gas only',
+     $                    ocosmo,ga_nodeid()
+            endif
+         endif
+      else
+         if(odbug) then
+            write(6,*) '-cosmo- not found in rohf_nr_solve'
+         endif
+         ogas_phase=.true.
+         osol_phase=.false.
+      endif
+      call util_flush(6)
+      call ga_sync()
+c
+c     ----- -nr- options ... -----
+c
       ododiag = .true.
       odisable_nr = .false.
 c
@@ -139,6 +191,35 @@ c
       mode = 'startup'
       converged = .false.
 c
+   9  continue
+      odbug=.false.
+      odbug=odbug.and.ga_nodeid().eq.0
+      if(ogas_phase.and.osol_phase) then
+         osome=ga_nodeid().eq.0
+         if(osome) then
+            write(6,909)
+         endif
+         if(odbug) then
+            write(6,*) 'mode = ',mode
+         endif
+      elseif(.not.ogas_phase.and..not.osol_phase) then
+         iter     = 0
+         energy   = 0.0d0
+         eone     = 0.0d0
+         etwo     = 0.0d0
+         mode     = 'startup'
+         converged=.false.
+         osome=ga_nodeid().eq.0
+         if(osome) then
+            write(6,910)
+         endif
+         if(odbug) then
+            write(6,*) 'mode = ',mode
+         endif
+      endif
+ 909  format(2x,'   gas_phase')
+ 910  format(2x,'   sol_phase')
+c
  10   if (.not. converged) then
 c
 c     If running disk resident, and especially if semi-direct
@@ -146,9 +227,25 @@ c     then variable accuracy hinders things
 c
          if (oreadfile) tol2e = tol2e_save
 c
+         if(odbug) then
+            if(ga_nodeid().eq.0) then
+               write(6,*) 'before calling ga_pcg_minim ...'
+               write(6,*) 'mode = ',mode
+               write(6,*) 'iter, energy = ',iter,energy
+            endif
+         endif
+c
          call ga_pcg_minim(crohf_vlen, iter, energy, g_grad, g_work,
      $        g_search, step, ls_tol, ls_max, eprec, oconjugacy, 
      $        oprint_conv, oprint_ls, iwork, dwork, mode)
+c
+         if(odbug) then
+            if(ga_nodeid().eq.0) then
+               write(6,*) 'after  calling ga_pcg_minim ...'
+               write(6,*) 'mode = ',mode
+               write(6,*) 'iter, energy = ',iter,energy
+            endif
+         endif
 c     
          if (mode .eq. 'energy+gradient') then
 c     
@@ -156,9 +253,31 @@ c     Compute the energy and gradient at step*search direction
 c     
 *            write(6,*) ' TOL2E ', tol2e
 *            call util_flush(6)
+c
+            if(odbug) then
+               if(ga_nodeid().eq.0) then
+                  write(6,*) 'before calling rohf_step_energy ...'
+                  write(6,*) 'mode = ',mode
+                  write(6,*) 'iter, energy = ',iter,energy
+                  write(6,*) 'iter, eone   = ',iter,eone  
+                  write(6,*) 'iter, etwo   = ',iter,etwo
+                  write(6,*) 'iter, enrep  = ',iter,enrep 
+               endif
+            endif
             call rohf_step_energy(rtdb, step, g_search,
      $           eone, etwo, enrep, energy, g_grad)
             gnorm = sqrt(ga_ddot(g_grad, g_grad))
+c
+            if(odbug) then
+               if(ga_nodeid().eq.0) then
+                  write(6,*) 'after  calling rohf_step_energy ...'
+                  write(6,*) 'mode = ',mode
+                  write(6,*) 'iter, energy = ',iter,energy
+                  write(6,*) 'iter, eone   = ',iter,eone  
+                  write(6,*) 'iter, etwo   = ',iter,etwo
+                  write(6,*) 'iter, enrep  = ',iter,enrep 
+               endif
+            endif
 c
             call ecce_print1('total energy', mt_dbl, energy, 1)
             call ecce_print1('orbital gradient norm', mt_dbl, gnorm, 1)
@@ -244,6 +363,38 @@ c
 c     End SCF minimisation
 c     
       if (ga_nodeid().eq.0) call util_flush(6)
+c
+c     ----- if sol_phase=.T. go back and do solution phase -----
+c
+      odbug=.false.
+      odbug=odbug.and.ga_nodeid().eq.0
+      if(ogas_phase.and.osol_phase) then
+         converged =.false.
+         egas      =energy
+         ogas_phase=.false.
+         osol_phase=.false.
+         if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.true.))
+     $       call errquit('rohf_nr_solve: rtdb_put failed',0)
+         if(odbug) then
+            write(6,*) 'gas_phase done, do sol-phase now ...'
+         endif
+         call ga_sync()
+         go to 9
+      elseif(.not.ogas_phase.and..not.osol_phase) then
+         esol      =energy
+         if(ga_nodeid().eq.0) then
+            write(6,915)
+            write(6,912) egas
+            write(6,913) esol
+            write(6,914) (egas-esol),(egas-esol)*627.509451d+00
+ 912     format('                 gas_phase energy = ',f20.10)
+ 913     format('                 sol_phase energy = ',f20.10)
+ 914     format(' (electrostatic) solvation energy = ',f20.10,
+     $          ' (',f8.2,' kcal/mol)'                       )
+ 915     format(' ')
+         endif
+      endif
+      call ga_sync()
 c     
 c     *ALWAYS* return canonical MOs ... don't do aufbau
 c     
