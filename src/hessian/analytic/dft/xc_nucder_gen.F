@@ -1,7 +1,7 @@
       subroutine xc_hessian(geom,rtdb, nbf,basis,
      ,     g_dens, nactive,oactive,  hess, scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.9 2000-08-25 21:16:35 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.10 2000-10-20 16:10:25 bjohnson Exp $
 c
 c     Wrapper routine for XC hessian without fitting
 c
@@ -30,7 +30,7 @@ c
       subroutine xc_cpks_rhs(geom,rtdb,nbf,basis,
      ,     g_dens, nactive, oactive, g_rhs,scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.9 2000-08-25 21:16:35 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.10 2000-10-20 16:10:25 bjohnson Exp $
 c
 c     Wrapper routine for XC CPKS RHS without fitting
 c
@@ -60,7 +60,7 @@ c
      ,     g_dens, nactive, oactive,  hess, g_rhs,
      &                        calc_type)
 c
-c     $Id: xc_nucder_gen.F,v 1.9 2000-08-25 21:16:35 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.10 2000-10-20 16:10:25 bjohnson Exp $
 c
 c     General routine for XC hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -83,7 +83,7 @@ c
       integer nactive           ! [input] number of active atoms
       logical oactive(nactive)  ! [input] key to active atoms
       double precision hess(*)  ! [output] XC hessian matrix
-      integer g_rhs(ipol*3,*)   ! [output] XC CPKS RHS matrices
+      integer g_rhs(3,nactive,ipol) ! [output] XC CPKS RHS matrices
       integer calc_type         ! [input] calculation type
                                 !   1 = XC gradient (*** not ready yet ***)
                                 !   2 = XC hessian
@@ -98,7 +98,7 @@ c
      &        l_cetobfr, k_cetobfr, l_rdens_atom, k_rdens_atom, i, j, i1
 c !!! BGJ test
 c
-      integer l_ti_hess, k_ti_hess, g_ti(6)
+      integer l_ti_hess, k_ti_hess, g_ti(3)
 c
       if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
      &     grid_on_file))then
@@ -176,14 +176,22 @@ c        Re-expand GA handles for RHS
 c
          i1 = nactive
          do i = natoms, 1, -1
+#if 0
             if (oactive(i)) then
                if (i1 .lt. i) then
                   do j = 1, ipol*3
                      g_rhs(j,i) = g_rhs(j,i1)
                   enddo
+               else
+                  call errquit('Fix collapse/expand in xc_nucder_gen',0)
                endif
                i1 = i1 - 1
             endif
+#else
+            if (.not.oactive(i)) then
+               call errquit('Fix collapse/expand in xc_nucder_gen',0)
+            endif
+#endif
          enddo
       endif
 c
@@ -205,33 +213,41 @@ c
 c
          else if (do_cpks_r) then
 c
+            do i1 = 1, ipol
             do i = 1, natoms
                if (oactive(i)) then
-                  do j = 1, ipol*3
-                     write(*,*)'*** xc cpks rhs matrix',j,i
-                     call ga_print(g_rhs(j,i))
+                  do j = 1, 3
+                     write(*,*)'*** xc cpks rhs matrix',j,i,i1
+                     call ga_print(g_rhs(j,i,i1))
                   enddo
                endif
+            enddo
             enddo
 c
 c     TI check
 c
-            do i = 1, ipol*3
+            do i = 1, 3
               if (.not. ga_duplicate(g_dens(1), g_ti(i), 'RHS TI'))
      &          call errquit('xc_deriv_gen: could not create temp GA',0)
-              call ga_zero(g_ti(i))
+            enddo
+            do i1 = 1, ipol
+            do j = 1, 3
+              call ga_zero(g_ti(j))
             enddo
             do i = 1, natoms
                if (oactive(i)) then
-                  do j = 1, ipol*3
-                      call ga_add(1d0, g_rhs(j,i), 1d0, g_ti(j),
+                  do j = 1, 3
+                      call ga_add(1d0, g_rhs(j,i,i1), 1d0, g_ti(j),
      &                            g_ti(j))
                   enddo
                endif
             enddo
-            do j = 1, ipol*3
-               write(*,*)'*** TI check',j
+            do j = 1, 3
+               write(*,*)'*** TI check',j, i1
                call ga_print(g_ti(j))
+            enddo
+            enddo
+            do j = 1, 3
                if (.not. ga_destroy(g_ti(j)))
      &         call errquit('xc_deriv_gen: could not destroy temp GA',0)
             enddo
