@@ -1,7 +1,7 @@
       Subroutine xc_perdew91(tol_rho,fac,
      *     rho,delrho,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.12 1996-06-17 16:17:05 og845 Exp $
+C     $Id: xc_perdew91.F,v 1.13 1996-09-19 19:16:22 d3h449 Exp $
       Implicit none
 
       double precision TOLL,EXPTOL
@@ -224,7 +224,6 @@ c
       else
 
 c       ======> SPIN-UNRESTRICTED <======
-
         do 20 n = 1,nq
           rhoval = rho(1,n)
           if(rhoval.le.tol_rho) goto 20
@@ -239,10 +238,10 @@ c       ======> SPIN-UNRESTRICTED <======
      +         delrho(1,2,n)*delrho(1,2,n)+
      +         delrho(2,2,n)*delrho(2,2,n)+
      +         delrho(1,3,n)*delrho(1,3,n)+
-     +         delrho(2,3,n)*delrho(2,3,n)+
+     +         delrho(2,3,n)*delrho(2,3,n)+(
      x         delrho(1,1,n)*delrho(2,1,n)+
      +         delrho(1,2,n)*delrho(2,2,n)+
-     +         delrho(1,3,n)*delrho(2,3,n)
+     +         delrho(1,3,n)*delrho(2,3,n))*2.d0
           dsqgamma=max(dsqrt(gammaval),tol_rho)
           drho=rho(2,n)-rho(3,n)
           zeta=drho*arho
@@ -316,7 +315,6 @@ C          call xc_vwn(1.d0,rhoval,dp81drho,1,1,egas,1.d0,.false.)
           else
             Ec = Ec + (func*rhoval)*qwght(n)*fac
           endif
-
 c
 c         df/drho = func + rhoval*dfunc/drho
 c
@@ -395,7 +393,6 @@ c
           endif
 
    20   continue
-
       end if
       return
       end

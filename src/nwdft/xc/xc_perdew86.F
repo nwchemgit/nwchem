@@ -1,7 +1,7 @@
       Subroutine xc_perdew86(fac,rho,delrho,Amat,Cmat,
      *     nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew86.F,v 1.6 1996-05-04 21:08:35 og845 Exp $
+C     $Id: xc_perdew86.F,v 1.7 1996-09-19 19:16:21 d3h449 Exp $
       implicit none
 
       double precision fac ! [input]
@@ -138,10 +138,10 @@ c       ======> SPIN-UNRESTRICTED <======
      +         delrho(1,3,n)*delrho(1,3,n)+
      2         delrho(2,1,n)*delrho(2,1,n)+
      +         delrho(2,2,n)*delrho(2,2,n)+
-     +         delrho(2,3,n)*delrho(2,3,n)+
+     +         delrho(2,3,n)*delrho(2,3,n)+(
      x         delrho(1,1,n)*delrho(2,1,n)+
      +         delrho(1,2,n)*delrho(2,2,n)+
-     +         delrho(1,3,n)*delrho(2,3,n)
+     +         delrho(1,3,n)*delrho(2,3,n))*2.d0
           dsqgamma=sqrt(gammaval)
           zeta=(rho(2,n)-rho(3,n))*arho
           add=1.d0/dzeta(zeta)
