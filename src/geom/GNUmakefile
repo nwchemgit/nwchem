@@ -4,7 +4,7 @@
      OBJ = geom.o geom_input.o geom_3d.o
  HEADERS = geom.fh geomP.fh
 
- USES_BLAS = geom.F
+ USES_BLAS = geom.F geom_input.F
 
 include ../config/makefile.h
 include ../config/makelib.h
