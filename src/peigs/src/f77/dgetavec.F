@@ -87,7 +87,8 @@ c
        
       DO I = B1, BN-1
          DPLUS( I ) = ( D( I ) + T( I ) ) - DELTA
-         LPLUS( I ) = LD( I ) / DPLUS( I )
+c         LPLUS( I ) = LD( I ) / DPLUS( I )
+         LPLUS( I ) = LD( I ) /(DPLUS( I ) + DLAMCHU)
          T ( I+1 ) = ( T( I )-DELTA ) * LPLUS( I ) * L( I ) - LAMBDA
       END DO
       DPLUS( BN ) = ( D( BN ) + T( BN ) ) - DELTA
@@ -102,14 +103,14 @@ c
        
          DO I = B1, BN-1
             DPLUS( I ) = ( D( I ) + T( I ) ) - DELTA
-            LPLUS( I ) = LD( I ) / DPLUS( I )
+            LPLUS( I ) = LD( I ) /(DPLUS( I ) + DLAMCHU)
 *      
 *  Need to check the next few lines
 *      
             IF(LPLUS( I ).EQ.0 .AND. ONE/(T( I )-DELTA).EQ.ZERO ) THEN
                T ( I+1 ) = L( I ) * LD( I ) - LAMBDA
             ELSE IF((T(I)-DELTA).EQ.ZERO .AND. ONE/LPLUS(I).EQ.0 ) THEN
-               T ( I+1 ) = -ONE / DPLUS( I )
+               T ( I+1 ) = -ONE / (DPLUS( I )+ DLAMCHU)
             ELSE
                T ( I+1 ) = ( T( I )-DELTA )*LPLUS( I )*L( I ) - LAMBDA
             END IF
@@ -772,7 +773,7 @@ c     DO I = B1, BN
 c     ZTZ = ZTZ + Z( I ) * Z( I )
 c     END DO
 c      
-      ztz = DNRM2( bn-b1+1, z(b1), 1)
+      ztz = DNRM2( bn-b1+1, z(b1), 1) + DLAMCHU
 c      
       RETURN
 101   format (E22.14)
