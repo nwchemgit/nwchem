@@ -48,7 +48,7 @@ c
 c
 c     start the property API
 c
-      call prp_start(nserie,lfnrst,filrst,lfnout,lfnprp,
+      call prp_start(nserie,ntype,lfnrst,filrst,lfnout,lfnprp,
      + nfoutp,nfstat,nfprop,
      + .true.,.true.,ltwin,ipolt.ne.0,
      + iewald.ne.0,nwm,msf,nsf,mpe)
@@ -1030,11 +1030,15 @@ c
 c
       ltwin=rlong.gt.rshort
 c
-c     open trajectory file
+c     open recording file
 c
       if(me.eq.0) then
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
       open(unit=lfncoo,file=filcoo(1:index(filcoo,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+      if(nfprop.gt.0) then
+      open(unit=lfnprp,file=filprp(1:index(filprp,' ')-1),
      + form='formatted',status='unknown')
       endif
       endif

@@ -274,8 +274,16 @@ c
       endif
 c
       if(frequency(mdstep,nfprop)) then
-      write(lfnprp,3000) (p(ixp(i)),i=1,nprop)
- 3000 format(4e12.5)
+      if(.not.lfhdr) then
+      call swatch(pdate,ptime)
+      write(lfnprp,3000) nprop,pdate,ptime
+ 3000 format(i7,1x,2a10)
+      write(lfnprp,3001) (pronam(ixp(i)),i=1,nprop)
+ 3001 format(a50)
+      lfhdr=.true.
+      endif
+      write(lfnprp,3002) (p(ixp(i)),i=1,nprop)
+ 3002 format(4e12.5)
       endif
 c
       return

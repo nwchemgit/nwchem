@@ -9,8 +9,8 @@ c
       common/prp_dim/me,np,lfnout,lfnprp,nsf,msf,mpe,nfoutp,nfstat,
      + nfprop,maxp
 c
-      logical lcafe,lspac,ltwin,lhdr
-      common/prp_log/lcafe,lspac,ltwin,lhdr
+      logical lcafe,lspac,ltwin,lhdr,lfhdr
+      common/prp_log/lcafe,lspac,ltwin,lhdr,lfhdr
 c
       character*50 pronam(250)
       common/prp_txt/pronam

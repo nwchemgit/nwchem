@@ -1,4 +1,4 @@
-      subroutine prp_start(nserie,lfn,fil,iout,iprp,nf1,nf2,nf3,
+      subroutine prp_start(nserie,ntype,lfn,fil,iout,iprp,nf1,nf2,nf3,
      + lcf,lsp,ltwn,lpol,lpme,
      + nwm,msfi,nsfi,mpei)
 c
@@ -7,7 +7,7 @@ c
 #include "prp_common.fh"
 #include "global.fh"
 c
-      integer nserie,lfn,iout,iprp,nwm,msfi,nsfi,mpei,nf1,nf2,nf3
+      integer nserie,ntype,lfn,iout,iprp,nwm,msfi,nsfi,mpei,nf1,nf2,nf3
       logical lcf,lsp,ltwn,lpol,lpme
       character*255 fil
 c
@@ -33,7 +33,9 @@ c
     1 continue
 c
       pronam(  1)='Step                                              '
+      lp(1)=ntype.gt.1
       pronam(  2)='Time                                            ps'
+      lp(2)=ntype.gt.1
       pronam(  3)='Number solvent-solvent interactions SR            '
       lp(3)=nwm.gt.0
       pronam(  4)='Number solvent-solvent interactions LR            '
@@ -263,6 +265,7 @@ c
       t2sumt=zero
 c
       lhdr=.false.
+      lfhdr=.false.
 c
       if(nserie.gt.0) call prp_rdrest(lfn,fil)
 c
