@@ -2,9 +2,9 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
-     + lfnmat)
+     + lfnmat,lfnmrg,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.66 2001-08-06 20:26:22 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.67 2001-08-06 23:40:27 d3j191 Exp $
 c
       implicit none
 c
@@ -27,9 +27,9 @@ c
       external pre_rot
 c
       integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd,lfnmat
-      integer lfnslv,model,mdold,lfnxyz,lfnqqq,lfnpov
+      integer lfnslv,model,mdold,lfnxyz,lfnqqq,lfnpov,lfnmrg
       character*255 filtop,filpdb,filrst,filtmp,filcmd,filnam,filslv
-      character*255 filxyz,filqqq,filpov
+      character*255 filxyz,filqqq,filpov,filmrg
       character*10 slvmdl
       character*3 slvnam
       character*80 source,card,card2,cfix
@@ -674,10 +674,15 @@ c
      + int_mb(i_wat),dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
      + iropt,irrand,nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),rdist,
-     + nskip,iskip,int_mb(i_lang)))
+     + nskip,iskip,int_mb(i_lang),lfnmrg,filmrg,slvnam))
      +  call errquit('pre_wrtpdb failed',9999)
       if(.not.ma_pop_stack(l_lang))
      + call errquit('ma_pop_stack failed for lang',9999)
+      filmrg=' '
+      endif
+c
+      if(card(1:6).eq.'merge ') then
+      filmrg=card(7:80)
       endif
 c
 c     write pov file

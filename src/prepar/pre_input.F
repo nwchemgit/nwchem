@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.81 2001-08-06 20:26:22 d3j191 Exp $
+c $Id: pre_input.F,v 1.82 2001-08-06 23:40:27 d3j191 Exp $
 c
       implicit none
 c
@@ -1410,6 +1410,18 @@ c
       numcmd=numcmd+1
       goto 1
       endif
+c
+c     merge pdb file
+c     --------------
+c
+      if(inp_compare(.false.,'merge',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: merge',9999)
+      write(68,6869) item(1:index(item,' ')-1)
+ 6869 format('merge ',a)
+      numcmd=numcmd+1
+      goto 1
+      endif
+c
 c
       write(6,1000) item
  1000 format('pre_input: unknown field ',a)

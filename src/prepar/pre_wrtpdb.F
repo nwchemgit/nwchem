@@ -3,9 +3,9 @@
      + csa,isat,isgm,imol,ifra,xs,vs,msa,nsa,
      + cwa,iwat,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam,iropt,irrand,nxrep,nyrep,nzrep,drep,
-     + msb,nsb,idsb,rdist,nskip,iskip,lang)
+     + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,filmrg)
 c
-c $Id: pre_wrtpdb.F,v 1.28 2001-08-06 20:26:23 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.29 2001-08-06 23:40:27 d3j191 Exp $
 c
       implicit none
 c
@@ -14,10 +14,12 @@ c
 c
       character*2 pre_atnam
       real*8 pre_atsiz
-      external pre_atnam,pre_atsiz
+      logical pre_merge
+      external pre_atnam,pre_atsiz,pre_merge
 c
       integer lfnout,lfnpdb,iopt,msa,nsa,mwm,nwm,mwa,nwa,mat,mwmc,nwmc
-      character*255 filpdb
+      integer lfnmrg
+      character*255 filpdb,filmrg
       integer num(mat),isat(msa),isgm(msa),imol(msa),ifra(msa),iwat(mwa)
       character*16 cwa(mwa),csa(msa)
       character*3 slvnam
@@ -73,6 +75,13 @@ c
      + 'TITLE    3',/,
      + 'REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996',/,
      + 'CRYST1',3f9.3,3f7.2)
+c
+      print*,'filmrg=',filmrg
+      if(filmrg(1:1).ne.' ') then
+      if(.not.pre_merge(lfnmrg,filmrg,lfnout,lfnpdb,slvnam))
+     + call errquit('Error in pre_merge',0)
+      endif
+c
       nums=0
       do 11 k=1,nsb
       i=idsb(1,k)
@@ -132,6 +141,11 @@ c
       write(lfnpdb,1000) 1.0d1*dble(nxrep)*drep(1),
      + 1.0d1*dble(nyrep)*drep(2),1.0d1*dble(nzrep)*drep(3),
      + 90.0,90.0,90.0
+c
+      if(filmrg(1:1).ne.' ') then
+      if(.not.pre_merge(lfnmrg,filmrg,lfnout,lfnpdb,slvnam))
+     + call errquit('Error in pre_merge',0)
+      endif
 c
       if(iropt.le.1) then
       ilang=0
