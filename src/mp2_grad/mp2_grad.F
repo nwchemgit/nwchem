@@ -14,11 +14,14 @@
       character*255 title
       character*255 movecs_in
       logical status,converged
+      logical eval_e2,eval_grad
       status=rtdb_parallel(.true.)
       if(.not.context_push('mp2_grad'))
      $     call errquit('mp2_grad: context push failed',0)
       call util_print_push
       call util_print_rtdb_load(rtdb,'mp2_grad')
+      eval_e2=.true.
+      eval_grad=.false.
       status=rtdb_get(rtdb,'scf:converged',mt_log,1,converged)
       if(.not.(status .and. converged)) call errquit
      $     ('mp2_grad: no converged scf wavefunction available',0)
@@ -61,7 +64,7 @@
       call int_init(rtdb,1,basis)
       call int_normalize(basis)
       call schwarz_init(geom,basis)
-      call mp2_energy(rtdb,geom,basis,movecs_in)
+      call mp2_energy(rtdb,geom,basis,movecs_in,eval_e2,eval_grad)
       call schwarz_tidy()
       if(.not.((bas_destroy(basis)).and.(geom_destroy(geom))))
      &    call errquit

@@ -1,4 +1,4 @@
-      subroutine mp2_energy(rtdb,geom,basis,movecs)
+      subroutine mp2_energy(rtdb,geom,basis,movecs,eval_e2,eval_grad)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -43,6 +43,7 @@ c
       external ga_create_atom_blocked
       logical movecs_read,movecs_read_header
       external movecs_read,movecs_read_header
+      logical eval_e2,eval_grad
 c     character*(*) movecs
       character*255 movecs
       character*255 title_vecs,basis_vecs
@@ -192,15 +193,18 @@ c
       tol2e=1d-12
 c     
       e2=0.0d0
-      if(scftype.eq.'RHF')
-     $     call mp2_grad_rhf(g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
-     $     int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
-     $     num_oa_sym,num_va_sym,
+      if(scftype.eq.'RHF')then
+         call mp2_grad_rhf(g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
+     $        int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
+     $        num_oa_sym,num_va_sym,dbl_mb(k_eval_a),basis,geom,tol2e,
+     $        e2,nbf,eval_e2,eval_grad)
+      endif
+c
 c...  now make the t's for the UHF case
 c     
 c...  first time through, form <aa||aa> and <ab||ab>
 c...  second time form <bb||bb> and <ba||ba>
-     $     dbl_mb(k_eval_a),basis,geom,tol2e,e2,nbf,scftype)
+c
       if(scftype.eq.'UHF')then
          call mp2_grad_uhf(g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
      $        int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
@@ -209,7 +213,7 @@ c...  second time form <bb||bb> and <ba||ba>
      $        int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
      $        num_ob_sym,num_vb_sym,
      $        dbl_mb(k_eval_a),dbl_mb(k_eval_b),
-     $        basis,geom,tol2e,e2,nbf,scftype)
+     $        basis,geom,tol2e,e2,nbf,eval_e2,eval_grad)
          call mp2_grad_uhf(g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
      $        int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
      $        num_ob_sym,num_vb_sym,
@@ -217,7 +221,7 @@ c...  second time form <bb||bb> and <ba||ba>
      $        int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
      $        num_oa_sym,num_va_sym,
      $        dbl_mb(k_eval_b),dbl_mb(k_eval_a),
-     $        basis,geom,tol2e,e2,nbf,scftype)
+     $        basis,geom,tol2e,e2,nbf,eval_e2,eval_grad)
       endif
       if(ga_nodeid().eq.0)write(6,*) 'MP2 Correction = ', e2
 c     
