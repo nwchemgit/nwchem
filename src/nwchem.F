@@ -129,8 +129,7 @@ c
 c     
 c     raktest
 c     
- 20      continue
-*     call raktest(rtdb)
+ 20      call raktest(rtdb)
          goto 1000
 c     
 c     rtdbprint
