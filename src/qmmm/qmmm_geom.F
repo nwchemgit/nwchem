@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.27 2004-10-21 20:21:42 marat Exp $
+c $Id: qmmm_geom.F,v 1.28 2004-10-21 23:03:05 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -77,10 +77,14 @@ c     --------------------------
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
  
-c      if(qmmm_master()) then
-c        if(.not.geom_print(igeom))
-c     +      call errquit('qmmm: Failed to print geometry',0)
-c      end if
+      if(qmmm_master()) then
+        write(6,'(//)')
+        call util_print_centered(6,
+     >   "Initial QMMM geometry (qm region only)",
+     >              36, .true.)
+        if(.not.geom_print_xyz(igeom,6))
+     +      call errquit('qmmm: Failed to print geometry',0)
+      end if
 
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
@@ -97,8 +101,13 @@ c     ------------------------
 c
       if(link_ecp.eq."auto") then
         if(qmmm_halogen_link()) then
-          if(qmmm_master()) 
-     >      write(*,*) "Setting up ecp basis set on psedo-carbon links"
+          if(qmmm_master()) then
+            write(6,'(//)')
+            call util_print_centered(6,
+     >            "Setting up ecp basis set on psedo-carbon links",
+     >            36, .true.)
+            write(6,'(//)')
+          end if
           basis_name = "qmmm_zhang_6-31Gs_ecp"
           nb = inp_strlen(basis_name)
           basis_string='ecp; F_L library "'//basis_name(1:nb)//'"; end'
@@ -336,19 +345,20 @@ c    --------------------------------------
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
 
-      if(.not.geom_print_xyzq(igeom,67))
-     +    call errquit('qmmm: Failed to print geometry',0)
-
-      if(.not.geom_print_pdb(igeom,23))
+      if(ga_nodeid().eq.0) then
+        call util_print_centered(6,"QMMM geometry with Bq charges",
+     >              36, .true.)
+        if(.not.geom_print_pdb(igeom,6))
      +    call errquit('qmmm: Failed to print pdb geometry',0)
+      end if
 
 c     print geometry
 c     -------------
-      if(ga_nodeid().eq.0) then
-      call util_print_centered(6,"QM/MM geometry", 36, .true.)
-      if(.not.geom_print(igeom))
-     +    call errquit('qmmm: Failed to print geometry',0)
-      end if
+c      if(ga_nodeid().eq.0) then
+c      call util_print_centered(6,"QM/MM geometry", 36, .true.)
+c      if(.not.geom_print(igeom))
+c     +    call errquit('qmmm: Failed to print geometry',0)
+c      end if
 
 
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
