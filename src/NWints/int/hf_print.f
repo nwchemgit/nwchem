@@ -1,5 +1,5 @@
       subroutine hf_print(msg,xyz,prims,coefs,npa,nca,la)
-c $Id: hf_print.f,v 1.2 1998-05-05 21:49:05 d3e129 Exp $
+c $Id: hf_print.f,v 1.3 1998-10-29 23:31:49 d3e129 Exp $
       implicit none
 c
       character*(*) msg    ! info to print 
@@ -23,10 +23,10 @@ c
       write(6,10000)
 c
       write(6,10001)xyz
-      write(6,'(a,i2,a,i2,a,i2,a)')
-     &       ' <type:',la,'>  <npa:',npa,'>  <nca:',nca,'>'
+      write(6,'(a,i12,a,i12,a,i12,a)')
+     &       ' <type:',la,'>  <npx:',npa,'>  <ncx:',nca,'>'
       write(6,*)' exponents | coefficients '
-      do 00100 i=1,npa
+      do 00100 i=1,(min(npa,100))
         write(6,10002)i,prims(i),' | ',(coefs(i,j),j=1,nca)
 00100 continue
 c
@@ -34,7 +34,7 @@ c
 c
 10000 format(80('='))
 10001 format(' <x:',1pd12.4,'>  <y:',1pd12.4,'>  <z:',1pd12.4,'>')
-10002 format(1x,i2,1pd14.6,a,1pd14.6,1pd14.6,1pd14.6,1pd14.6,
+10002 format(1x,i3,1pd14.6,a,1pd14.6,1pd14.6,1pd14.6,1pd14.6,
      &       1pd14.6,1pd14.6,1pd14.6,1pd14.6,1pd14.6,1pd14.6)
       end
       subroutine hf_print_set(value)
