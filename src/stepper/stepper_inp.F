@@ -1,10 +1,11 @@
       subroutine stepper_input(rtdb)
-C $Id: stepper_inp.F,v 1.2 1997-02-25 19:41:42 d3e129 Exp $
+C $Id: stepper_inp.F,v 1.3 1997-02-25 23:24:22 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "tcgmsg.fh"
+#include "stdio.fh"
 c::passed
       integer rtdb ! run-time-data-base handle
 c
@@ -175,20 +176,23 @@ c
      &      call errquit
      &      ('stepper_input: error parsing rconvg value',911)
       else if(inp_compare(FF,'setmass',stpr_token)) then
-        osetmass = FT
-        if (.not.MA_Push_Get
-     &      (MT_INT,nat,'setmass integer scratch',him,kim))
-     &      call errquit
-     &      ('stepper_input: ma error on setmass int',911)
-        if (.not.MA_Push_Get
-     &      (MT_DBL,nat,'setmass double  scratch',hm,km))
-     &      call errquit
-     &      ('stepper_input: ma error on setmass dble',911)
-        call stpr_parse_setmass(nat,int_mb(kim),dbl_mb(km))
-*
-* write to rtdb and free scratch
-*
-        call stpr_setmass_srtdb(nat,rtdb,int_mb(kim),dbl_mb(km))
+        write(luout,*)' SETMASS is no longer supported ' 
+        write(luout,*)' use the mass directive in the GEOMETRY object'
+        call errquit('stepper_input: obsolete directive ',911)
+*needs a fix via geom mass interface:rak:        osetmass = FT
+*needs a fix via geom mass interface:rak:        if (.not.MA_Push_Get
+*needs a fix via geom mass interface:rak:     &      (MT_INT,nat,'setmass integer scratch',him,kim))
+*needs a fix via geom mass interface:rak:     &      call errquit
+*needs a fix via geom mass interface:rak:     &      ('stepper_input: ma error on setmass int',911)
+*needs a fix via geom mass interface:rak:        if (.not.MA_Push_Get
+*needs a fix via geom mass interface:rak:     &      (MT_DBL,nat,'setmass double  scratch',hm,km))
+*needs a fix via geom mass interface:rak:     &      call errquit
+*needs a fix via geom mass interface:rak:     &      ('stepper_input: ma error on setmass dble',911)
+*needs a fix via geom mass interface:rak:        call stpr_parse_setmass(nat,int_mb(kim),dbl_mb(km))
+*needs a fix via geom mass interface:rak:*
+*needs a fix via geom mass interface:rak:* write to rtdb and free scratch
+*needs a fix via geom mass interface:rak:*
+*needs a fix via geom mass interface:rak:        call stpr_setmass_srtdb(nat,rtdb,int_mb(kim),dbl_mb(km))
         if(.not.MA_Pop_Stack(hm))
      &      call errquit
      &      ('stepper_input: error freeing double setmass',911)
@@ -217,60 +221,60 @@ c
 c
       return
       end
-      subroutine stpr_parse_setmass(nat,imass,mass)
-      implicit none
-#include "mafdecls.fh"
-#include "inp.fh"
-c
-c routine to read stepper mass information from input
-c      
-c
-c::passed      
-      integer nat, imass(nat)
-      double precision mass(nat)
-c::local      
-      integer icount, where
-      integer idum
-      double precision xdum
-      logical result
-      character*255 stpr_token
-c
-      icount = 0
-      result = .true.
- 1    continue
-      if (result) then
-        if(.not.(inp_cur_field() .lt. inp_n_field())) then
-          if(.not.inp_read())
-     &        call errquit
-     &        ('stpr_parse_setmass: error reading next line',911)          
-        endif
-        where = inp_cur_field()
-        result = inp_i(idum)
-        result = inp_i(imass(icount))
-
-        result = result .and. inp_f(xdum)
-        if (.not.result) then
-          call inp_set_field(where)
-          result = inp_a(stpr_token)
-          if(inp_compare(.false.,'endsetmass',stpr_token))then
-            goto 2
-          else
-            call errquit
-     &          ('stpr_parse_setmass: mass input pair not contiguous',
-     &          911)
-          endif
-        endif
-        icount = icount + 1
-        imass(icount) = idum
-        mass(icount)  = xdum
-        goto 1
-      else
-        call errquit('stpr_parse_setmass: error parsing masses ',911)
-      endif
-c
- 2    continue
-c
-      end
+*needs a fix via geom mass interface:rak:      subroutine stpr_parse_setmass(nat,imass,mass)
+*needs a fix via geom mass interface:rak:      implicit none
+*needs a fix via geom mass interface:rak:#include "mafdecls.fh"
+*needs a fix via geom mass interface:rak:#include "inp.fh"
+*needs a fix via geom mass interface:rak:c
+*needs a fix via geom mass interface:rak:c routine to read stepper mass information from input
+*needs a fix via geom mass interface:rak:c      
+*needs a fix via geom mass interface:rak:c
+*needs a fix via geom mass interface:rak:c::passed      
+*needs a fix via geom mass interface:rak:      integer nat, imass(nat)
+*needs a fix via geom mass interface:rak:      double precision mass(nat)
+*needs a fix via geom mass interface:rak:c::local      
+*needs a fix via geom mass interface:rak:      integer icount, where
+*needs a fix via geom mass interface:rak:      integer idum
+*needs a fix via geom mass interface:rak:      double precision xdum
+*needs a fix via geom mass interface:rak:      logical result
+*needs a fix via geom mass interface:rak:      character*255 stpr_token
+*needs a fix via geom mass interface:rak:c
+*needs a fix via geom mass interface:rak:      icount = 0
+*needs a fix via geom mass interface:rak:      result = .true.
+*needs a fix via geom mass interface:rak: 1    continue
+*needs a fix via geom mass interface:rak:      if (result) then
+*needs a fix via geom mass interface:rak:        if(.not.(inp_cur_field() .lt. inp_n_field())) then
+*needs a fix via geom mass interface:rak:          if(.not.inp_read())
+*needs a fix via geom mass interface:rak:     &        call errquit
+*needs a fix via geom mass interface:rak:     &        ('stpr_parse_setmass: error reading next line',911)          
+*needs a fix via geom mass interface:rak:        endif
+*needs a fix via geom mass interface:rak:        where = inp_cur_field()
+*needs a fix via geom mass interface:rak:        result = inp_i(idum)
+*needs a fix via geom mass interface:rak:        result = inp_i(imass(icount))
+*needs a fix via geom mass interface:rak:
+*needs a fix via geom mass interface:rak:        result = result .and. inp_f(xdum)
+*needs a fix via geom mass interface:rak:        if (.not.result) then
+*needs a fix via geom mass interface:rak:          call inp_set_field(where)
+*needs a fix via geom mass interface:rak:          result = inp_a(stpr_token)
+*needs a fix via geom mass interface:rak:          if(inp_compare(.false.,'endsetmass',stpr_token))then
+*needs a fix via geom mass interface:rak:            goto 2
+*needs a fix via geom mass interface:rak:          else
+*needs a fix via geom mass interface:rak:            call errquit
+*needs a fix via geom mass interface:rak:     &          ('stpr_parse_setmass: mass input pair not contiguous',
+*needs a fix via geom mass interface:rak:     &          911)
+*needs a fix via geom mass interface:rak:          endif
+*needs a fix via geom mass interface:rak:        endif
+*needs a fix via geom mass interface:rak:        icount = icount + 1
+*needs a fix via geom mass interface:rak:        imass(icount) = idum
+*needs a fix via geom mass interface:rak:        mass(icount)  = xdum
+*needs a fix via geom mass interface:rak:        goto 1
+*needs a fix via geom mass interface:rak:      else
+*needs a fix via geom mass interface:rak:        call errquit('stpr_parse_setmass: error parsing masses ',911)
+*needs a fix via geom mass interface:rak:      endif
+*needs a fix via geom mass interface:rak:c
+*needs a fix via geom mass interface:rak: 2    continue
+*needs a fix via geom mass interface:rak:c
+*needs a fix via geom mass interface:rak:      end
       integer function stpr_get_nat(rtdb)
       implicit none
 #include "mafdecls.fh"
