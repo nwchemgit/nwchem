@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.27 1994-09-25 08:05:48 d3e129 Exp $
+c $Id: basis.F,v 1.28 1994-09-28 14:24:23 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -532,6 +532,7 @@ c
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
 #include "inp.fh"
+#include "global.fh"
 c
 c function declarations
 c
@@ -622,7 +623,6 @@ c..... add diagnostics later
         return
       endif
 c
-c
       status = geom_ncent(geom, nat)
       if (nat.eq.0.or..not.status) then
         write(6,*)' bas_rtdb_load: ERROR '
@@ -638,18 +638,18 @@ c
       do 00100 i=1,nat
         foundit = .false.
         do 00101 j = 1,infbs_head(HEAD_NTAGS,basis)
-*          if(inp_compare(.true.,tags(i,geom),bs_tags(j,basis))) then
           if(tags(i,geom) .eq. bs_tags(j,basis)) then
             ibs_ce2uce(i,basis) = j
             foundit = .true.
             goto 00102
           endif
 00101   continue
-        if (.not.foundit) then
-          write(6,*)' geom tag was not found in basis tag list rtdb'
-          write(6,*)' geom tag searched for ',tags(i,geom)
-          write(6,*)' basis tag list was from basis ',bs_name(basis)
-        endif
+c$$$        if (.not.foundit .and. ga_nodeid().eq.0) then
+c$$$           write(6,10) tags(i,geom)(1:inp_strlen(tags(i,geom))),
+c$$$     $          bs_name(basis)(1:inp_strlen(bs_name(basis)))
+c$$$ 10        format(/'WARNING: geometry tag ',a,' not found in basis ',a/)
+c$$$           call util_flush(6)
+c$$$        endif
 00102   continue
 00100 continue
 c
@@ -657,51 +657,66 @@ c build total # of contractions and center -> contraction range map
 c      
       ncont_tot_gb(basis)  = 0
       do 00200 i=1,nat
-        idum_cont    = infbs_tags(TAG_NCONT,ibs_ce2uce(i,basis),basis)
-        ibs_ce2cnr(1,i,basis) = ncont_tot_gb(basis) + 1
-        ibs_ce2cnr(2,i,basis) = ncont_tot_gb(basis) + idum_cont
-        ncont_tot_gb(basis)   = idum_cont + ncont_tot_gb(basis)
+         if (ibs_ce2uce(i,basis).gt.0) then
+            idum_cont = infbs_tags(TAG_NCONT,ibs_ce2uce(i,basis),basis)
+            ibs_ce2cnr(1,i,basis) = ncont_tot_gb(basis) + 1
+            ibs_ce2cnr(2,i,basis) = ncont_tot_gb(basis) + idum_cont
+            ncont_tot_gb(basis)   = idum_cont + ncont_tot_gb(basis)
+         else
+            if (ga_nodeid() .eq. 0) then
+               write(6,10) tags(i,geom)(1:inp_strlen(tags(i,geom))),
+     $              bs_name(basis)(1:inp_strlen(bs_name(basis)))
+ 10            format(/'WARNING: geometry tag ',a,
+     $              ' not found in basis ',a/)
+               call util_flush(6)
+            endif
+            ibs_ce2cnr(1,i,basis) = 0 ! No functions on this center
+            ibs_ce2cnr(2,i,basis) = -1
+         endif
 00200 continue
 c      
 c build contraction -> center map
 c
       do 00300 i=1,nat
-        jstart = ibs_ce2cnr(1,i,basis)
-        jend   = ibs_ce2cnr(2,i,basis)
-        do 00400 j=jstart,jend
-          ibs_cn2ce(j,basis) = i
-00400   continue
+         if (ibs_ce2uce(i,basis).gt.0) then
+            jstart = ibs_ce2cnr(1,i,basis)
+            jend   = ibs_ce2cnr(2,i,basis)
+            do 00400 j=jstart,jend
+               ibs_cn2ce(j,basis) = i
+00400       continue
+         endif
 00300 continue
 c
 c build contraction -> unique contraction map
 c
       do 00500 i=1,nat
-        idum_at = ibs_ce2uce(i,basis)
-        jstart = ibs_ce2cnr(1,i,basis)
-        jend   = ibs_ce2cnr(2,i,basis)
-        jsize  = jend - jstart + 1
-        kstart = infbs_tags(TAG_FCONT,idum_at,basis)
-        kend   = infbs_tags(TAG_LCONT,idum_at,basis)
-        ksize  = kend - kstart + 1
-        lsize  = infbs_tags(TAG_NCONT,idum_at,basis)
-        if (jsize.eq.ksize.and.ksize.eq.lsize) then
-          icount = 0
-          do 00600 j=jstart,jend
-            ibs_cn2ucn(j,basis) = kstart + icount
-            icount = icount + 1
-00600     continue
-        else
-          write(6,*)' bas_rtdb_load: ERROR '
-          write(6,*)' contraction range size <-> unique contraction ',
-     &           'range size mismatch'
-          write(6,*)'        contraction range (',jstart,':',jend,')'
-          write(6,*)' unique contraction range (',kstart,':',kend,')'
-          write(6,*)'                   contraction size: ',jsize
-          write(6,*)' calculated unique contraction size: ',ksize
-          write(6,*)'     lookup unique contraction size: ',lsize
-          bas_rtdb_load = .false.
-          return
-        endif
+         jstart = ibs_ce2cnr(1,i,basis)
+         jend   = ibs_ce2cnr(2,i,basis)
+         jsize  = jend - jstart + 1
+         if (jsize .gt. 0) then
+            idum_at = ibs_ce2uce(i,basis)
+            kstart = infbs_tags(TAG_FCONT,idum_at,basis)
+            kend   = infbs_tags(TAG_LCONT,idum_at,basis)
+            ksize  = kend - kstart + 1
+            lsize  = infbs_tags(TAG_NCONT,idum_at,basis)
+            if (jsize.eq.ksize.and.ksize.eq.lsize) then
+               icount = 0
+               do 00600 j=jstart,jend
+                  ibs_cn2ucn(j,basis) = kstart + icount
+                  icount = icount + 1
+00600          continue
+            else
+               write(6,*)' bas_rtdb_load: ERROR '
+               write(6,*)' contraction range size mismatch'
+               write(6,*)'        cont. range (',jstart,':',jend,')'
+               write(6,*)' unique cont. range (',kstart,':',kend,')'
+               write(6,*)'        cont. size: ',jsize
+               write(6,*)' calculated unique cont. size: ',ksize
+               write(6,*)'     lookup unique cont. size: ',lsize
+               bas_rtdb_load = .false.
+               return
+            endif
+         endif
 00500 continue
 c
 c build nprim_tot_gb, nbf_tot_gb, and 
@@ -1256,8 +1271,13 @@ c
 c
       status = .true.
       status = status .and. bas_ce2cnr(basis, icent, cnlo, cnhi)
-      status = status .and. bas_cn2bfr(basis, cnlo, ibflo, tmp)
-      status = status .and. bas_cn2bfr(basis, cnhi, tmp, ibfhi)
+      if (cnhi .gt. 0) then
+         status = status .and. bas_cn2bfr(basis, cnlo, ibflo, tmp)
+         status = status .and. bas_cn2bfr(basis, cnhi, tmp, ibfhi)
+      else
+         ibflo = 0
+         ibfhi = -1
+      endif
 c
       bas_ce2bfr = status
 c
