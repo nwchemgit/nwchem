@@ -17,7 +17,7 @@ c     $id: msgids.fh,v 1.25 1996/02/07 00:37:11 vg038 exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
-      integer msg_mxelt
+      integer msg_mxelt, Msg_NormF
       integer msg_ichki, msg_ichkd
       integer msg_atscf
       integer msg_dfit, msg_dfitb
@@ -595,3 +595,5 @@ c
       parameter(mrg_d60=msg_ftn_base-366) ! arg_param1
       parameter(mrg_d61=msg_ftn_base-367) ! arg_ininoe
       parameter(mrg_d99=msg_ftn_base-405) ! arg_rdstrt
+C
+      parameter (Msg_NormF = msg_ftn_base -  406) ! GA_NormF
