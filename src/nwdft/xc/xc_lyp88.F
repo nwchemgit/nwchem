@@ -7,7 +7,7 @@
      &                       qwght, ldew, func)
 #endif
 c
-C$Id: xc_lyp88.F,v 1.17 2001-05-11 02:12:17 edo Exp $
+C$Id: xc_lyp88.F,v 1.18 2001-06-22 20:26:25 edo Exp $
 c
       implicit none 
 c
@@ -101,15 +101,16 @@ c
             rho2 = 1d0/rrho2
             rhoa2 = rhoa*rhoa
             rhoab = rhoa2
-            rhoa53 = rhoa**F53
-            rhoa83 = rhoa*rhoa53
+            rhoa53 = abs(rhoa)**F53*sign(1d0,rhoa)
+            rhoa83 = abs(rhoa)**F83*sign(1d0,rhoa)
 #ifdef SECOND_DERIV
             rrho3 = rrho*rrho2
             rhoa113 = rhoa*rhoa83
 #endif
 c
             h2 = d*rrho**F13
-            d1h2 = -F13*h2*rrho
+!            d1h2 = -F13*h2*rrho
+            d1h2 = -F13*h2*rrho*sign(1d0,rrho)
 #ifdef SECOND_DERIV
             d2h2 = -F43*d1h2*rrho
 #endif
@@ -126,7 +127,8 @@ c
             d2h1 = -(2d0*h1*d1h1*d1h2 + h1*h1*d2h2)
 #endif
 c
-            om = exp(-h3)*h1*rrho**F113
+!            om = exp(-h3)*h1*rrho**F113
+            om = exp(-h3)*h1*abs(rrho)**F113
             t = d1h3+h1*d1h2+F113*rrho
             d1om = -om*t
 #ifdef SECOND_DERIV
