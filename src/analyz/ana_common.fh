@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.31 2000-08-15 23:12:30 d3j191 Exp $
+c $Id: ana_common.fh,v 1.32 2000-08-16 20:22:13 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -65,4 +65,5 @@ c
       common/ana_log/lxw,lvw,lsx,lsv,lsel,lana,lrms,lsonly,ltop,ldcd
 c
       character*16 wnam(100)
-      common/ana_chr/wnam
+      character*10 datum,tijd
+      common/ana_chr/wnam,datum,tijd
