@@ -377,11 +377,12 @@ c$$$  call schwarz_init(geom,basis)
 c$$$  call schwarz_tidy()
 c$$$  call intd_terminate()
 c     
-c     
+c    
          call ga_dgop(1,dbl_mb(k_grad),3*natoms,'+')
          if(ga_nodeid().eq.0)then
             write (luout,1000) (dbl_mb(k_grad+i),i=0,3*natoms-1)
  1000       format (1000(3(F14.8,1X)/))
+            status=rtdb_parallel(.false.)
             if(.not.rtdb_ma_get(rtdb,'mp2:scf+separable gradient',
      $           junk1,junk2,l_grad2))
      $           call errquit('could not get gradient from rtdb',1)
@@ -390,6 +391,11 @@ c
             write(6,*) 'total force is '
             write (luout,1000) (-dbl_mb(k_grad+i)+dbl_mb(k_grad2+i),
      $           i=0,3*natoms-1)
+            if(.not.rtdb_put(rtdb,'semi_dir_mp2:gradient',mt_dbl,
+     $           3*natoms,dbl_mb(k_grad)))
+     $           call errquit(
+     $           'semi_dir_mp2: failed storing gradient in rtdb',0)
+            status=rtdb_parallel(.true.)
             if(.not.ma_free_heap(l_grad2))call errquit('ma frc2',0)
          endif
          if(.not.ga_destroy(g_rhs))call errquit(
