@@ -1,5 +1,5 @@
 c
-c $Id: nucdd_calc.F,v 1.1 1999-05-06 17:29:35 windus Exp $
+c $Id: nucdd_calc.F,v 1.2 1999-12-30 22:56:43 windus Exp $
 c
       subroutine nucdd_calc(c,zan,nat,dde)
 c
@@ -56,6 +56,11 @@ c
         dde(1,jat,2,jat)=dde(1,jat,2,jat)+dum1
         dde(2,jat,1,jat)=dde(2,jat,1,jat)+dum1
 c
+        if (iat.ne.jat) then
+          dde(1,jat,2,iat)=dde(1,jat,2,iat)-dum1
+          dde(2,jat,1,iat)=dde(2,jat,1,iat)-dum1
+        endif     
+c
         dum1=(three*(c(1,iat)-c(1,jat))*(c(3,iat)-c(3,jat)))*dum
         dde(1,iat,3,iat)=dde(1,iat,3,iat)+dum1
         dde(3,iat,1,iat)=dde(3,iat,1,iat)+dum1
@@ -64,6 +69,11 @@ c
         dde(1,jat,3,jat)=dde(1,jat,3,jat)+dum1
         dde(3,jat,1,jat)=dde(3,jat,1,jat)+dum1
 c
+        if (iat.ne.jat) then
+          dde(1,jat,3,iat)=dde(1,jat,3,iat)-dum1
+          dde(3,jat,1,iat)=dde(3,jat,1,iat)-dum1
+        endif     
+c
         dum1=(three*(c(2,iat)-c(2,jat))*(c(3,iat)-c(3,jat)))*dum
         dde(2,iat,3,iat)=dde(2,iat,3,iat)+dum1
         dde(3,iat,2,iat)=dde(3,iat,2,iat)+dum1
@@ -71,6 +81,11 @@ c
         dde(3,iat,2,jat)=dde(3,iat,2,jat)-dum1
         dde(2,jat,3,jat)=dde(2,jat,3,jat)+dum1
         dde(3,jat,2,jat)=dde(3,jat,2,jat)+dum1
+c
+        if (iat.ne.jat) then
+          dde(2,jat,3,iat)=dde(2,jat,3,iat)-dum1
+          dde(3,jat,2,iat)=dde(3,jat,2,iat)-dum1
+        endif     
 c
   140 continue
 c
