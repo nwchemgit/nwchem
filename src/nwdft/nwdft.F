@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.43 2000-01-25 20:21:03 mg201 Exp $
+C$Id: nwdft.F,v 1.44 2000-03-22 03:01:26 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -140,13 +140,6 @@ c
 c     Check if any spherical basis has been requested ... if so, abort in
 c     a friendly fashion
 c    
-c      if (bas_is_spherical(AO_bas_han))
-c     &   call errquit('nwdft: No current support for spherical bases',0)
-c      if (CDFIT)then
-c         if (bas_is_spherical(CD_bas_han))
-c     &      call errquit
-c     &      ('nwdft: No current support for spherical bases',0)
-c      endif
       if (XCFIT)then
          if (bas_is_spherical(XC_bas_han))
      &      call errquit
@@ -176,10 +169,6 @@ c
 c     Go here if already converged
 c
  1101 continue
-c
-c     cleanup any grid parameters
-c
-      call grid_cleanup(rtdb)
 c     
 c     destroy BS handles and geom object
 c
