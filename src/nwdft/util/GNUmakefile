@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.47 1997-02-13 01:07:41 d3g681 Exp $
+#$Id: GNUmakefile,v 1.48 1997-02-17 18:00:22 d3g681 Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
 ifneq ($(TARGET),SGITFP)
 ifeq ($(TARGET),CRAY-T3D)
@@ -81,8 +81,8 @@ $(LIBRARY_PATH)(ga_inv_seq.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/
 $(LIBRARY_PATH)(ga_chol_seq.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ga_chol.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(dft_tstamp.o):	$(INCDIR)/stdio.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(dft_mpole.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(bas_ncnmax.o):	$(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(dft_mpole.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(dft_header.o):	$(INCDIR)/stdio.fh 
 $(LIBRARY_PATH)(dft_eval_hss.o):	$(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(dft_eval_grd.o):	$(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(bas_ncnmax.o):	$(INCDIR)/bas.fh 
