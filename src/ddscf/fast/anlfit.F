@@ -2,7 +2,7 @@
 *      end
       double precision function anl_fit(n, l, x)
 *
-* $Id: anlfit.F,v 1.8 1999-07-29 00:53:56 d3e129 Exp $
+* $Id: anlfit.F,v 1.9 1999-10-19 22:54:44 windus Exp $
 *
       implicit none
 #include "canlfit.fh"
@@ -410,8 +410,12 @@ c
       endif
       
       fnl = fm_slow_but_accurate((n+l)/2,x*x)
-      anl = (0.5d0*(x**(n-l))*dble(n+l+1)*fnl + 
-     $      0.5d0*dble(n-l)*ik) / dble(l+l+1)
+      if (n.eq.l) then
+        anl = (0.5d0*dble(n+l+1)*fnl) / dble(l+l+1)
+      else
+        anl = (0.5d0*(x**(n-l))*dble(n+l+1)*fnl + 
+     $         0.5d0*dble(n-l)*ik) / dble(l+l+1)
+      endif
 c
 **      call fmvector(1,1,x*x,fm)
 **      anl = 0.5d0*3.0d0*fm(2)
