@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.13 1995-02-03 18:23:26 d3h449 Exp $
+#$Id: GNUmakefile,v 1.14 1995-06-02 04:41:56 gg502 Exp $
 
 include ../config/makefile.h
 
@@ -60,13 +60,13 @@ OBJ_OPTIMIZE = dlabrd.o   dlarfb.o   dlasv2.o   dormlq.o \
                dgelqf.o   dlange.o   dlascl.o   dorgqr.o   dsptrf.o \
                dgeqr2.o   dlansp.o   dlaset.o   dorm2r.o   dsptrs.o \
                dgeqrf.o   dlapy2.o   dlasr.o    dormbr.o   ilaenv.o \
-               dgesvd.o   dlarf.o    dlassq.o   dorml2.o \
+               dgesvd.o   dlarf.o    dlassq.o   dorml2.o   lsamen.o \
                dgesv.o    dgetrs.o   dgetrf.o   dlaswp.o \
                dgetf2.o \
                dlagtf.o   dlagts.o   dlarnv.o   dlaruv.o   dpotrf.o \
                dpotri.o   dtrtri.o   dlauum.o   dlauu2.o   dpotf2.o
 else
-OBJ_OPTIMIZE = sgesvd.o   slarf.o    slassq.o   sorml2.o \
+OBJ_OPTIMIZE = sgesvd.o   slarf.o    slassq.o   sorml2.o   lsamen.o \
                ilaenv.o   slabrd.o   slarfb.o   slasv2.o   sormlq.o \
                sbdsqr.o   slacon.o   slarfg.o   sorg2r.o   sormqr.o \
                sgebd2.o   slacpy.o   slarft.o   sorgbr.o   sspcon.o \
@@ -83,7 +83,7 @@ OBJ_OPTIMIZE = sgesvd.o   slarf.o    slassq.o   sorml2.o \
 endif
 
 ifeq ($(TARGET),CRAY-T3D)
-OBJ_OPTIMIZE = slagtf.o   slagts.o   
+OBJ_OPTIMIZE = slagtf.o   slagts.o   lsamen.o
 endif
 
 
