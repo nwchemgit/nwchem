@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.52 2000-05-08 20:26:51 d3j191 Exp $
+c $Id: cf_main.F,v 1.53 2000-05-12 17:29:27 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -140,11 +140,8 @@ c
       real*8 xs(msa,3),xsm(msm,3),gsm(msm,4)
       integer isat(msa),isml(msa)
 c
-      if(.not.ma_verify_allocator_stuff()) stop '00'
       call cf_comw(xw,xwm,1,numw)
-      if(.not.ma_verify_allocator_stuff()) stop '01'
       call cf_coms(isat,isml,xs,xsm,gsm,1,nums)
-      if(.not.ma_verify_allocator_stuff()) stop '02'
 c
       return
       end
