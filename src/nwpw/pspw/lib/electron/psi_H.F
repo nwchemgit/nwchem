@@ -1,5 +1,5 @@
 *
-* $Id: psi_H.F,v 1.13 2004-11-06 02:21:37 bylaska Exp $
+* $Id: psi_H.F,v 1.14 2004-11-08 01:32:49 bylaska Exp $
 *
 
 *     *************************************
@@ -83,7 +83,7 @@ c     complex*16 vpsi(nfft3d)
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
      
-      if (dosic) then
+      if ((dosic).or.(dohfx)) then
          value = value.and.
      >           MA_push_get(mt_dbl,(ne(1)+ne(2))*n2ft3d,
      >                        'Hpsi_r',Hpsi_r(2),Hpsi_r(1))
@@ -122,7 +122,7 @@ c     complex*16 vpsi(nfft3d)
 *     *******************************************************
 *     **** HF exchange corrections- Hpsi_r = Vhfx*psi_r ****
 *     *******************************************************
-      if (dosic) then
+      if (dohfx) then
          call pspw_potential_HFX(ispin,psi_r,dbl_mb(Hpsi_r(1)))
       end if
 
@@ -160,7 +160,7 @@ c     complex*16 vpsi(nfft3d)
      >                       psi_r(1+(n-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
 
-            if (dosic)
+            if ((dosic).or.(dohfx))
      >        call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
      >                         dbl_mb(Hpsi_r(1)+(n-1)*n2ft3d),
      >                         dcpl_mb(vpsi(1)))
@@ -179,7 +179,7 @@ c     complex*16 vpsi(nfft3d)
       call nwpw_timing_start(12)
 
       value = .true.
-      if (dosic) 
+      if ((dosic).or.(dohfx)) 
      >  value = value.and.MA_pop_stack(Hpsi_r(2))
       value = value.and.MA_pop_stack(vpsi(2))
       value = value.and.MA_pop_stack(vall(2))
@@ -202,33 +202,36 @@ c     complex*16 vpsi(nfft3d)
 *
 *  where vall = iFFT[Vl+Vc] + Vfield
 *
-*   Entry - ispin,ne            - spin and number of electron in each spin
+*   Entry - ispin,ne            - spin and number of electrons in each spin
+*           ms,n                - spin and electron number 
 *           psi_k,psi_r         - orbitals in k-space and r-space
 *           vall                  - local +external fields+coulomb in r-space
 *           xcp                 - xc potential in r-space
 *   Exit - Hpsi_k - gradient in k-space
 *
       subroutine psi_Horb(ispin,ne,
+     >                 ms,n,
      >                 psi_k,psi_r,
      >                 vall,
      >                 Hpsi_k)
       implicit none
-#include "errquit.fh"
       integer    ispin,ne(2)
+      integer    ms,n
       complex*16 psi_k(*)
       real*8     psi_r(*)
       real*8     vall(*)      
       complex*16 Hpsi_k(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
-      integer ms,n,n1(2),n2(2)
+      integer nne(2)
       integer nx,ny,nz
       real*8  scal1,fion(3,1)
 
 *     **** tempory space ****
-      integer nfft3d,n2ft3d,npack1
+      integer nfft3d,n2ft3d,npack1,index1,index1r
       integer vpsi(2)
       logical value
 
@@ -256,22 +259,29 @@ c     complex*16 vpsi(nfft3d)
       call nwpw_timing_end(12)
       
 
+      if (ms.eq.1) then
+        nne(1) = 1
+        nne(2) = 0
+      else
+        nne(1) = 0
+        nne(2) = 1
+      end if
+*
       scal1 = 1.0d0/dble(nx*ny*nz)
-      n1(1) = 1
-      n2(1) = ne(1)
-      n1(2) = ne(1) + 1
-      n2(2) = ne(1) + ne(2)
+      index1  = 1+(n-1)*npack1
+      index1r = 1+(n-1)*n2ft3d
 
 
 *     ************************************************
 *     **** add kinetic energy - Hpsi_k = Ke*psi_k ****
 *     ************************************************
-      call ke(ispin,ne,psi_k,Hpsi_k)
+      call ke(ispin,nne,psi_k(index1),Hpsi_k(index1))
 
 *     *********************************************************
 *     **** add non-local psp - Hpsi_k = Hpsi_k + Vnl*psi_k ****
 *     *********************************************************
-      call v_nonlocal(ispin,ne,psi_k,Hpsi_k,.false.,fion)
+      call v_nonlocal(ispin,nne,psi_k(index1),Hpsi_k(index1),
+     >                .false.,fion)
 
 *     ***************************
 *     **** SIC corrections?? ****
@@ -280,33 +290,38 @@ c     if (pspw_SIC().and.pspw_SIC_relaxed()) then
 c        call pspw_potential_SIC(ispin,psi_r,Hpsi_k)
 c     end if
 
+*     **********************
+*     **** HFX energy   ****
+*     **********************
+      if (pspw_HFX().and.pspw_HFX_relaxed()) then
+         call pspw_potential_HFX_orb(ispin,ne,ms,n,psi_r,Hpsi_k)
+      end if
+
 
 *     **************************************************
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*psi_r] **** 
 *     **************************************************        
-      do ms=1,ispin
-         do n=n1(ms),n2(ms)
 
-*           **** vpsi_r = (vall_r)*psi_r ****
-            call D3dB_rr_Mul(1,vall(1+(ms-1)*n2ft3d),
-     >                       psi_r(1+(n-1)*n2ft3d),
-     >                       dcpl_mb(vpsi(1)))
+*     **** vpsi_r = (vall_r)*psi_r ****
+      call D3dB_rr_Mul(1,vall(1+(ms-1)*n2ft3d),
+     >                   psi_r(index1r),
+     >                   dcpl_mb(vpsi(1)))
 
-*           **** put vpsi_r in k-space ****
-            call D3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
-            call Pack_c_pack(1,dcpl_mb(vpsi(1)))
+*     **** put vpsi_r in k-space ****
+      call D3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+      call Pack_c_pack(1,dcpl_mb(vpsi(1)))
 
-*           **** add to Hpsi_k ****
-            call Pack_cc_daxpy(1,(-scal1),
-     >                           dcpl_mb(vpsi(1)),
-     >                           Hpsi_k(1+(n-1)*npack1))
-         end do
-      end do
+*     **** add to Hpsi_k ****
+      call Pack_cc_daxpy(1,(-scal1),
+     >                   dcpl_mb(vpsi(1)),
+     >                   Hpsi_k(index1))
+
 
       call nwpw_timing_start(12)
       value = MA_pop_stack(vpsi(2))
       if (.not.value) 
      >  call errquit('psi_Horb: popping stack',1, MA_ERR)
       call nwpw_timing_end(12)
+
       return
       end

@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.49 2004-11-06 02:21:36 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.50 2004-11-08 01:32:48 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -258,7 +258,7 @@ c#include "rtdb.fh"
            write(luout,1501) E(25),E(25)/neall
          end if
          if (pspw_HFX())  then
-           write(luout,1502) E(26),E(26)/neall
+           write(luout,1502) E(27),E(27)/neall
          end if
 
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
@@ -406,7 +406,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
      >        ' (',E15.5,'/electron)')
  1501 FORMAT( ' K.S. SIC-exc-corr energy :',E19.10,
      >        ' (',E15.5,'/electron)')
- 1502 FORMAT( ' K.S. HF exchange energy  :',E19.10,
+ 1502 FORMAT( ' K.S. HFX energy     :',E19.10,
      >        ' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))

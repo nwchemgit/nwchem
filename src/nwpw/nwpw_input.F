@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.22 2004-04-22 17:46:42 bylaska Exp $
+c $Id: nwpw_input.F,v 1.23 2004-11-08 01:32:35 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -461,6 +461,8 @@ c
      >   .and.rtdb_cput(rtdb,'band:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
      >   .and.rtdb_cput(rtdb,'cpsd:exchange_correlation',
+     >                    1,exchange_correlation(1:ind))
+     >   .and.rtdb_cput(rtdb,'cpmd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
       if (.not.value)
      >  call errquit(

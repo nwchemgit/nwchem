@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.34 2004-11-06 02:21:37 bylaska Exp $
+* $Id: cpsdv5.F,v 1.35 2004-11-08 01:32:48 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -56,7 +56,7 @@
     
 
 *     ***** energy variables ****
-      real*8  E(20)
+      real*8  E(30)
 
 *     real*8  eig(2*nemax)
 *     real*8  hml(2*nemax*nemax)
@@ -388,6 +388,8 @@
          ELSE IF (control_gga().eq.1) THEN
             write(6,1131) 
      >      'PBE96 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.2) THEN
+            write(6,1131) 'Hartree-Fock'
          ELSE
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)
@@ -719,7 +721,7 @@ c    >              dbl_mb(lmd(1)),ierr)
            write(6,1501) E(19),E(19)/n2(ispin)
          end if
          if (pspw_HFX().and.pspw_HFX_relaxed())  then
-           write(6,1502) 2.0d0*E(20),2.0d0*E(20)/n2(ispin)
+           write(6,1502) E(21),E(21)/n2(ispin)
          end if
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(6,1498) virial
@@ -992,7 +994,7 @@ c    >              dbl_mb(lmd(1)),ierr)
      >        ' (',E15.5,'/electron)')
  1501 FORMAT( ' K.S. SIC-exc-corr energy :',E19.10,
      >        ' (',E15.5,'/electron)')
- 1502 FORMAT( ' K.S. HF exchange energy  :',E19.10,
+ 1502 FORMAT( ' K.S. HFX energy     :',E19.10,
      >        ' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))

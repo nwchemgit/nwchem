@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.54 2004-05-13 15:48:31 bylaska Exp $
+* $Id: control.F,v 1.55 2004-11-08 01:32:48 bylaska Exp $
 *
 
 *     ***********************************
@@ -60,10 +60,23 @@
       value = value.and.
      >        rtdb_cget(rtdb,'cpsd:exchange_correlation',
      >                  1,exchange_correlation)
-      if (exchange_correlation.eq.'vosko') then
+
+      if (exchange_correlation.eq.'off') then
+         gga = -1
+      else if (exchange_correlation.eq.'vosko') then
          gga = 0
-      else
+      else if (exchange_correlation.eq.'lda') then
+         gga = 0
+      else if (exchange_correlation.eq.'pbe96') then
          gga = 1
+      else if (exchange_correlation.eq.'hf') then
+         gga = 2
+         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+      else if (exchange_correlation.eq.'hartree-fock') then
+         gga = 2
+         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+      else
+         gga = 0
       end if
 
       value = value.and.
@@ -221,10 +234,23 @@ c
       value = value.and.
      >        rtdb_cget(rtdb,'cgsd:exchange_correlation',
      >                  1,exchange_correlation)
-      if (exchange_correlation.eq.'vosko') then
+
+      if (exchange_correlation.eq.'off') then
+         gga = -1
+      else if (exchange_correlation.eq.'vosko') then
          gga = 0
-      else
+      else if (exchange_correlation.eq.'lda') then
+         gga = 0
+      else if (exchange_correlation.eq.'pbe96') then
          gga = 1
+      else if (exchange_correlation.eq.'hf') then
+         gga = 2
+         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+      else if (exchange_correlation.eq.'hartree-fock') then
+         gga = 2
+         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+      else
+         gga = 0
       end if
 
 *     **** set Kohn-Sham scf parameters ***

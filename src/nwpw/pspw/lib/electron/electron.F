@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.32 2004-03-08 22:51:26 bylaska Exp $
+* $Id: electron.F,v 1.33 2004-11-08 01:32:49 bylaska Exp $
 *
 
 
@@ -82,6 +82,9 @@
      >                     'xce',xce(2),xce(1))
       if (.not. value) 
      >  call errquit('electron_init: out of heap memory',0, MA_ERR)
+      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xcp(1)),1)
+      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xce(1)),1)
+
 
       return
       end
@@ -262,9 +265,11 @@ c      end
 
 *     **** external functions *****
       logical  pspw_SIC,pspw_SIC_relaxed
+      logical  pspw_HFX,pspw_HFX_relaxed
       integer  control_version
       real*8   lattice_omega,coulomb_e,electron_ehartree2
       external pspw_SIC,pspw_SIC_relaxed
+      external pspw_HFX,pspw_HFX_relaxed
       external control_version
       external lattice_omega,coulomb_e,electron_ehartree2
       
@@ -338,6 +343,16 @@ c      end
      >                        exsic,
      >                        pxsic)
          total_energy = total_energy + ehsic + exsic - phsic - pxsic
+      end if
+      end if
+
+*     **** HFX energy ****
+      if (pspw_HFX()) then
+      if (pspw_HFX_relaxed()) then
+         call pspw_energy_HFX(ispin,dbl_mb(psi_r(1)),
+     >                        ehfx,
+     >                        phfx)
+         total_energy = total_energy + ehfx - phfx
       end if
       end if
 
@@ -630,6 +645,34 @@ c      end
       exsic0 = exsic
       phsic0 = phsic
       pxsic0 = pxsic
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	    electron_HFX_energies	*
+*     *					*
+*     ***********************************
+      
+      subroutine electron_HFX_energies(ehfx0,phfx0)
+      implicit none
+      real*8 ehfx0,phfx0
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+      logical  pspw_HFX_relaxed
+      external pspw_HFX_relaxed
+      
+      if (.not.pspw_HFX_relaxed()) then
+         call pspw_energy_HFX(ispin,dbl_mb(psi_r(1)),
+     >                        ehfx,
+     >                        phfx)
+         phfx = 0.0d0
+      end if
+
+      ehfx0 = ehfx
+      phfx0 = phfx
       return
       end
 
@@ -1149,36 +1192,33 @@ c    >                     hmlt(shift+1))
 
 
 *     **** local variables ****
-      integer nne(2)
+      integer ms
 
 *     **** external functions ****
       integer  control_version
       external control_version
 
-
      
       if (n.le.ne(1)) then
-        nne(1) = 1
-        nne(2) = 0
+        ms=1
       else
-        nne(1) = 0
-        nne(2) = 1
+        ms=2
       end if 
 
 *     ******************
 *     **** get Hpsi ****
 *     ******************
       if (control_version().eq.3)
-     >  call psi_Horb(ispin,nne,psi_k(1+(n-1)*npack1),
-     >             dbl_mb(psi_r(1)+(n-1)*2*nfft3d),
+     >  call psi_Horb(ispin,ne,ms,n,psi_k,
+     >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
-     >             dcpl_mb(Hpsi_k(1)+(n-1)*npack1))
+     >             dcpl_mb(Hpsi_k(1)))
 
       if (control_version().eq.4)
-     >  call psi_Horbv4(ispin,nne,psi_k(1+(n-1)*npack1),
-     >             dbl_mb(psi_r(1)+(n-1)*2*nfft3d),
+     >  call psi_Horbv4(ispin,ne,ms,n,psi_k,
+     >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
-     >             dcpl_mb(Hpsi_k(1)+(n-1)*npack1))
+     >             dcpl_mb(Hpsi_k(1)))
 
       call Pack_c_SMul(1,(-1.0d0),
      >                 dcpl_mb(Hpsi_k(1)+(n-1)*npack1),
@@ -1236,13 +1276,13 @@ c    >                     hmlt(shift+1))
 
 *     **** get Hpsi ****
       if (control_version().eq.3)
-     >  call psi_Horb(ispin,nne,orb,
+     >  call psi_Horb(ispin,nne,ms,1,orb,
      >             dbl_mb(tmp_r(1)),
      >             dbl_mb(vall(1)),
      >             Horb)
 
       if (control_version().eq.4)
-     >  call psi_Horbv4(ispin,nne,orb,
+     >  call psi_Horbv4(ispin,nne,ms,1,orb,
      >             dbl_mb(tmp_r(1)),
      >             dbl_mb(vall(1)),
      >             Horb)
@@ -1657,7 +1697,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
 *     ***** local variables ****
       logical value
-      integer n2ft3d
+      integer n2ft3d,gga
       integer tmp1(2)
 
 *     **** external functions ****
@@ -1666,6 +1706,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
      
       n2ft3d = 2*nfft3d
+      gga = control_gga()
 
       if (control_version().eq.3) then
          call coulomb_v(dng,dcpl_mb(vc(1)))
@@ -1686,7 +1727,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
      &       MA_ERR)
       end if
 
-      if (control_gga().eq.0) then
+      if (gga.eq.0) then
          value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
          if (.not. value) call errquit(
      >     'electron_gen_scf_potentials: out of stack memory',0, MA_ERR)
@@ -1699,7 +1740,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
      >     'electron_gen_scf_potentials: error popping stack memory',0,
      &       MA_ERR)
 
-      else
+      else if (gga.eq.1) then
         call v_bwexc(n2ft3d,ispin,dnall,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(xce(1)))

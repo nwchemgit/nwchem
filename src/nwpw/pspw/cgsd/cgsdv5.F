@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.51 2004-11-06 02:21:36 bylaska Exp $
+* $Id: cgsdv5.F,v 1.52 2004-11-08 01:32:48 bylaska Exp $
 *
 
 ***********************************************************************
@@ -252,11 +252,11 @@ c     value = psi_initialize()
       call pspw_qmmm_init(rtdb)
       call pspw_charge_init(rtdb)
 
-*     **** initialize SIC ****
+*     **** initialize SIC and HFX ****
       ne(1) = psi_ne(1)
       ne(2) = psi_ne(2)
       call pspw_init_SIC(rtdb,ne)
-      call pspw_init_HFX(rtdb,ne)
+      call pspw_init_HFX(rtdb,psi_ispin(),ne)
 
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
@@ -283,11 +283,15 @@ c     value = psi_initialize()
          write(6,1121) control_boundry(),control_version()
          if (psi_ispin().eq.1) write(6,1130) "restricted"
          if (psi_ispin().eq.2) write(6,1130) "unrestricted"
-         IF (control_gga().eq.0) THEN
-            write(6,1131) 'Vosko et al parameterization'
+         IF (control_gga().eq.-1) THEN
+            write(6,1131) 'off'
+         ELSE IF (control_gga().eq.0) THEN
+            write(6,1131) 'LDA (Vosko et al) parameterization'
          ELSE IF (control_gga().eq.1) THEN
             write(6,1131) 
      >      'PBE96 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.2) THEN
+            write(6,1131) 'Hartree-Fock'
          ELSE
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)

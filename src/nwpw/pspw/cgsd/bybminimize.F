@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.15 2004-05-06 08:07:54 edo Exp $                       
+c     $Id: bybminimize.F,v 1.16 2004-11-08 01:32:48 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -48,6 +48,7 @@ c
       integer n2ft3d
       real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
+      real*8 ehfx,phfx
       
 
 
@@ -98,9 +99,9 @@ c
       external pspw_qmmm_Energy_cav
 
 *     ***** pspw_charge external functions ****
-      logical  pspw_charge_found,control_precondition
+      logical  pspw_charge_found,control_precondition,pspw_HFX
       real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
-      external pspw_charge_found,control_precondition
+      external pspw_charge_found,control_precondition,pspw_HFX
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
       real*8   psi_1_noupdate_energy,psi_eigenvalue
@@ -390,6 +391,12 @@ c
          E(1)   = E(1) + E(20) + E(21)
       end if
 
+*     **** HFX terms ****
+      if (pspw_HFX()) then
+         call electron_HFX_energies(ehfx,phfx)
+         E(26) = ehfx
+         E(27) = phfx
+      end if
 
       return
       end

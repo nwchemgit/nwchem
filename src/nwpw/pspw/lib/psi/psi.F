@@ -1,9 +1,23 @@
 *
-* $Id: psi.F,v 1.54 2004-03-08 22:51:27 bylaska Exp $
+* $Id: psi.F,v 1.55 2004-11-08 01:32:49 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.54  2004/03/08 22:51:27  bylaska
+* Fractional occupation working in pspw with minimizer 4, steepest descent, and Car-Parrinello.
+*
+* Bug fix in velocity initialization in liquid and solid-state Car-Parrinello simulations...incell3 instead of incell2 was used in newton step.
+*
+* Added restart capabilites to thermostat masses...Qe and Qr and eke0 are now propagated to
+* restart Car-Parrinello simulations.
+*
+* SIC input modifications.
+*
+* Wannier orbital output modifications.
+*
+* ....EJB
+*
 * Revision 1.53  2004/03/02 00:10:22  bylaska
 * ....EJB
 *
@@ -3635,9 +3649,9 @@ c    >                            dcpl_mb(dng1(1)))
       !write(*,*) "exc:",exc,pxc
       !write(*,*) "D:",stress(1,1)
 
-*     **** GGA part ****
+*     **** PBE96 GGA part ****
 *     **** not finished  -unrestricted not done ****
-      if (control_gga().ne.0) then
+      if (control_gga().eq.1) then
        call v_bwexc_euv(2*nfft3d,ispin,dbl_mb(rho1(1)),tstress)
        do v=1,3
        do u=1,3

@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize2.F,v 1.8 2004-03-09 21:25:57 bylaska Exp $                       
+c     $Id: cgminimize2.F,v 1.9 2004-11-08 01:32:48 bylaska Exp $                       
 c
 
 *  **************************************************************
@@ -42,7 +42,7 @@ c
       integer neall,npack1
       real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       real*8 e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
-      real*8 ehsic,exsic,phsic,pxsic      
+      real*8 ehsic,exsic,phsic,pxsic,ehfx,phfx
 
 
 *     **** external functions ****
@@ -100,8 +100,8 @@ c
       external pspw_charge_found
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
-      logical  control_precondition,pspw_SIC
-      external control_precondition,pspw_SIC
+      logical  control_precondition,pspw_SIC,pspw_HFX
+      external control_precondition,pspw_SIC,pspw_HFX
      
   
       call Pack_npack(1,npack1)
@@ -311,6 +311,13 @@ c
          E(23) = exsic
          E(24) = phsic
          E(25) = pxsic
+      end if
+
+*     **** HFX terms ****
+      if (pspw_HFX()) then
+         call electron_HFX_energies(ehfx,phfx)        
+         E(26) = ehfx
+         E(27) = phfx
       end if
 
       value = MA_free_heap(G1(2))

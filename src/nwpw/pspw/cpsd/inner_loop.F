@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop.F,v 1.15 2004-11-06 02:21:37 bylaska Exp $
+* $Id: inner_loop.F,v 1.16 2004-11-08 01:32:48 bylaska Exp $
 *
 
 *  ************************************************************
@@ -51,7 +51,7 @@
       integer index,indext,gga
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
-      real*8  ehsic,phsic,exsic,pxsic,ehfx
+      real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
       real*8  deltamm
       real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
 
@@ -621,9 +621,13 @@ c     if (ispin.eq.1) elocal = 2.0d0*elocal
 
 *     **** HFX corrections ****
       if (pspw_HFX()) then
-         call pspw_energy_HFX(ispin,psi_r,ehfx)
-         E(1) = E(1) - ehfx
+         call pspw_energy_HFX(ispin,psi_r,ehfx,phfx)
+         E(1) = E(1) + ehfx
          E(20) = ehfx
+         if (pspw_HFX_relaxed()) then
+            E(1)  = E(1) - phfx 
+            E(21) = phfx
+         end if
       end if
 
 

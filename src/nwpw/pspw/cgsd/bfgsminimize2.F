@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize2.F,v 1.3 2004-11-06 02:21:36 bylaska Exp $                       
+c     $Id: bfgsminimize2.F,v 1.4 2004-11-08 01:32:48 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -47,7 +47,7 @@ c
       integer neall,npack1
       real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
-      real*8 ehsic,exsic,phsic,pxsic
+      real*8 ehsic,exsic,phsic,pxsic,ehfx,phfx
 
 
 
@@ -301,8 +301,6 @@ c     call dng_2to1()
          E(1)   = E(1) + E(20) + E(21)
       end if
 
-
-
 *     **** SIC corrections ****
       if (pspw_SIC()) then
          call electron_SIC_energies(ehsic,phsic,exsic,pxsic)
@@ -312,9 +310,13 @@ c     call dng_2to1()
          E(25) = pxsic
       end if
 
-*     **** HFX corrections ****
+*     **** HFX terms ****
       if (pspw_HFX()) then
+         call electron_HFX_energies(ehfx,phfx)
+         E(26) = ehfx
+         E(27) = phfx
       end if
+
 
 
       return

@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.18 2004-05-24 13:47:08 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.19 2004-11-08 01:32:48 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -46,9 +46,8 @@ c
       logical value
       integer neall,npack1
       real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
-      real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
-
-
+      real*8 e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
+      real*8 ehfx,phfx
 
 
 
@@ -108,13 +107,13 @@ c
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
 
-
       real*8   control_time_step,control_fake_mass
       external control_time_step,control_fake_mass
       integer  control_lmbfgs_size
       external control_lmbfgs_size
-      logical  control_precondition
-      external control_precondition
+      logical  control_precondition,pspw_HFX
+      external control_precondition,pspw_HFX
+
 
       dt = control_time_step()
 c     dte = dt/dsqrt(control_fake_mass())
@@ -337,6 +336,13 @@ c     call dng_2to1()
          E(20)  = pspw_charge_Energy_ion()
          E(21)  = pspw_charge_Energy_charge()
          E(1)   = E(1) + E(20) + E(21)
+      end if
+
+*     **** HFX terms ****
+      if (pspw_HFX()) then
+         call electron_HFX_energies(ehfx,phfx)
+         E(26) = ehfx
+         E(27) = phfx
       end if
 
       return
