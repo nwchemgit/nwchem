@@ -134,7 +134,7 @@ c
      $        num_i_perseg,max_ma,max_ga,max_file,task)
          if(oprint_mem) then
             write(6,22) npasses, max_ma, max_ga, max_file
- 22         format(1x,i4,' pass:      '
+ 22         format(1x,i4,' pass:      ',
      $        '     ',i10,'            ',i10,
      $        '            ',i10)
             call util_flush(6)
