@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.51 1997-02-27 20:10:49 mdupuis Exp $
+C     $Id: geom_input.F,v 1.52 1997-02-27 21:39:26 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -1052,11 +1052,21 @@ c
       end
       logical function geom_zmt_put_zmat(zmat,nzmat)          
       implicit none
-#include "geomP.fh"
 c     
+      integer      mxzmat
+      integer      mxatom
+      integer      mxcart
+      integer      mxcoor
+      parameter    (mxatom=500)
+      parameter    (mxcart=3*mxatom)
+      parameter    (mxzmat=1500)
+      parameter    (mxcoor=1500)
+c                   mxcoor=max(mxcart,mxzmat)
       integer nzmat
       integer i
-      double precision zmat(*)
+      double precision  zmt_zmat
+      common/hnd_zmtsav/zmt_zmat(mxcoor)
+      double precision      zmat(*)
 c
       do i = 1, nzmat
          zmt_zmat(i) = zmat(i)
@@ -1067,11 +1077,21 @@ c
       end
       logical function geom_zmt_get_zmat(zmat,nzmat)         
       implicit none
-#include "geomP.fh"
 c     
+      integer      mxzmat
+      integer      mxatom
+      integer      mxcart
+      integer      mxcoor
+      parameter    (mxatom=500)
+      parameter    (mxcart=3*mxatom)
+      parameter    (mxzmat=1500)
+      parameter    (mxcoor=1500)
+c                   mxcoor=max(mxcart,mxzmat)
       integer nzmat
       integer i
-      double precision zmat(*)
+      double precision  zmt_zmat
+      common/hnd_zmtsav/zmt_zmat(mxcoor)
+      double precision      zmat(*)
 c
       do i = 1, nzmat
          zmat(i) = zmt_zmat(i)
@@ -1095,6 +1115,15 @@ c
       integer ga_zmt_zsym
       common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
 c
+      integer      mxzmat
+      integer      mxatom
+      integer      mxcart
+      integer      mxcoor
+      parameter    (mxatom=500)
+      parameter    (mxcart=3*mxatom)
+      parameter    (mxzmat=1500)
+      parameter    (mxcoor=1500)
+c                   mxcoor=max(mxcart,mxzmat)
       integer nzvar
       integer ncart
       integer mcart
@@ -1110,12 +1139,12 @@ c
          write(iw,*) ' _put_bmat '
          call hnd_prsq(bmat,nzvar,ncart,mcart)
       endif
-      if(mcart.gt.max_cart) then
-         write(iw,*) ' in geom_zmt_put_bmat, mcart.gt.max_cart. stop '
+      if(mcart.gt.mxcart) then
+         write(iw,*) ' in geom_zmt_put_bmat, mcart.gt.mxcart. stop '
          call errquit('geom_input: mcart too big',0)
       endif
-      if(nzvar.gt.max_zmat) then
-         write(iw,*) ' in geom_zmt_put_bmat, nzvar.gt.max_zmat. stop '
+      if(nzvar.gt.mxzmat) then
+         write(iw,*) ' in geom_zmt_put_bmat, nzvar.gt.mxzmat. stop '
          call errquit('geom_input: nzvar too big',0)
       endif
 c
@@ -1139,6 +1168,15 @@ c
       integer ga_zmt_zsym
       common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
 c     
+      integer      mxzmat
+      integer      mxatom
+      integer      mxcart
+      integer      mxcoor
+      parameter    (mxatom=500)
+      parameter    (mxcart=3*mxatom)
+      parameter    (mxzmat=1500)
+      parameter    (mxcoor=1500)
+c                   mxcoor=max(mxcart,mxzmat)
       integer nzvar
       integer ncart
       integer mcart
@@ -1150,12 +1188,12 @@ c
 c
       dbug=.false.
 c
-      if(mcart.gt.max_cart) then
-         write(iw,*) ' in geom_zmt_get_bmat, mcart.gt.max_cart. stop '
+      if(mcart.gt.mxcart) then
+         write(iw,*) ' in geom_zmt_get_bmat, mcart.gt.mxcart. stop '
          call errquit('geom_input: mcart too big',0)
       endif
-      if(nzvar.gt.max_zmat) then
-         write(iw,*) ' in geom_zmt_get_bmat, nzvar.gt.max_zmat. stop '
+      if(nzvar.gt.mxzmat) then
+         write(iw,*) ' in geom_zmt_get_bmat, nzvar.gt.mxzmat. stop '
          call errquit('geom_input: nzvar too big',0)
       endif
 c
@@ -1184,6 +1222,15 @@ c
       integer ga_zmt_zsym
       common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
 c
+      integer      mxzmat
+      integer      mxatom
+      integer      mxcart
+      integer      mxcoor
+      parameter    (mxatom=500)
+      parameter    (mxcart=3*mxatom)
+      parameter    (mxzmat=1500)
+      parameter    (mxcoor=1500)
+c                   mxcoor=max(mxcart,mxzmat)
       integer nzvar
       integer mzvar
       integer ir
@@ -1199,12 +1246,12 @@ c
          call hnd_prsq(zsym,nzvar,nzvar,mzvar)
       endif
 c
-      if(mzvar.gt.max_zmat) then
-         write(iw,*) ' in geom_zmt_put_zsym, mzvar.gt.max_zmat. stop '
+      if(mzvar.gt.mxzmat) then
+         write(iw,*) ' in geom_zmt_put_zsym, mzvar.gt.mxzmat. stop '
          call errquit('geom_input: mzvar too big',0)
       endif
-      if(nzvar.gt.max_zmat) then
-         write(iw,*) ' in geom_zmt_put_zsym, nzvar.gt.max_zmat. stop '
+      if(nzvar.gt.mxzmat) then
+         write(iw,*) ' in geom_zmt_put_zsym, nzvar.gt.mxzmat. stop '
          call errquit('geom_input: nzvar too big',0)
       endif
 c
@@ -1228,6 +1275,15 @@ c
       integer ga_zmt_zsym
       common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
 c     
+      integer      mxzmat
+      integer      mxatom
+      integer      mxcart
+      integer      mxcoor
+      parameter    (mxatom=500)
+      parameter    (mxcart=3*mxatom)
+      parameter    (mxzmat=1500)
+      parameter    (mxcoor=1500)
+c                   mxcoor=max(mxcart,mxzmat)
       integer nzvar
       integer mzvar
       integer ir
@@ -1238,12 +1294,12 @@ c
 c
       dbug=.false.
 c
-      if(mzvar.gt.max_zmat) then
-         write(iw,*) ' in geom_zmt_put_zsym, mzvar.gt.max_zmat. stop '
+      if(mzvar.gt.mxzmat) then
+         write(iw,*) ' in geom_zmt_put_zsym, mzvar.gt.mxzmat. stop '
          call errquit('geom_input: mzvar too big',0)
       endif
-      if(nzvar.gt.max_zmat) then
-         write(iw,*) ' in geom_zmt_put_zsym, nzvar.gt.max_zmat. stop '
+      if(nzvar.gt.mxzmat) then
+         write(iw,*) ' in geom_zmt_put_zsym, nzvar.gt.mxzmat. stop '
          call errquit('geom_input: nzvar too big',0)
       endif
 c
@@ -1272,6 +1328,15 @@ c
       integer ga_zmt_zsym
       common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
 c     
+      integer      mxzmat
+      integer      mxatom
+      integer      mxcart
+      integer      mxcoor
+      parameter    (mxatom=500)
+      parameter    (mxcart=3*mxatom)
+      parameter    (mxzmat=1500)
+      parameter    (mxcoor=1500)
+c                   mxcoor=max(mxcart,mxzmat)
       integer nzvar
       integer ncart
       integer mcart
@@ -1288,12 +1353,12 @@ c
          call hnd_prsq(binv,nzvar,ncart,mcart)
       endif
 c
-      if(mcart.gt.max_cart) then
-         write(iw,*) ' in geom_zmt_put_binv, mcart.gt.max_cart. stop '
+      if(mcart.gt.mxcart) then
+         write(iw,*) ' in geom_zmt_put_binv, mcart.gt.mxcart. stop '
          call errquit('geom_input: mcart too big',0)
       endif
-      if(nzvar.gt.max_zmat) then
-         write(iw,*) ' in geom_zmt_put_binv, nzvar.gt.max_zmat. stop '
+      if(nzvar.gt.mxzmat) then
+         write(iw,*) ' in geom_zmt_put_binv, nzvar.gt.mxzmat. stop '
          call errquit('geom_input: nzvar too big',0)
       endif
 c
@@ -1317,6 +1382,15 @@ c
       integer ga_zmt_zsym
       common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
 c     
+      integer      mxzmat
+      integer      mxatom
+      integer      mxcart
+      integer      mxcoor
+      parameter    (mxatom=500)
+      parameter    (mxcart=3*mxatom)
+      parameter    (mxzmat=1500)
+      parameter    (mxcoor=1500)
+c                   mxcoor=max(mxcart,mxzmat)
       integer nzvar
       integer ncart
       integer mcart
@@ -1328,12 +1402,12 @@ c
 c
       dbug=.false.
 c
-      if(mcart.gt.max_cart) then
-         write(iw,*) ' in geom_zmt_put_binv, mcart.gt.max_cart. stop '
+      if(mcart.gt.mxcart) then
+         write(iw,*) ' in geom_zmt_put_binv, mcart.gt.mxcart. stop '
          call errquit('geom_input: mcart too big',0)
       endif
-      if(nzvar.gt.max_zmat) then
-         write(iw,*) ' in geom_zmt_put_binv, nzvar.gt.max_zmat. stop '
+      if(nzvar.gt.mxzmat) then
+         write(iw,*) ' in geom_zmt_put_binv, nzvar.gt.mxzmat. stop '
          call errquit('geom_input: nzvar too big',0)
       endif
 c

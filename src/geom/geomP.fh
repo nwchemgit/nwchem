@@ -102,16 +102,13 @@ c     elements(1:nelements) = names of elements
 c     
       integer max_geom, max_cent, max_geom_rtdb, nelements,
      $                   max_sym_ops
-      integer  max_izmat,max_zmat,max_atom,max_cart
+      integer  max_izmat
 c
       parameter (max_sym_ops   = 192)
       parameter (max_geom      =   2)
       parameter (max_geom_rtdb = 100)
       parameter (nelements     = 103)
       parameter (max_cent      = 500)
-      parameter (max_atom      =  max_cent)
-      parameter (max_cart      =3*max_atom)
-      parameter (max_zmat      =1500)
       parameter (max_izmat     =6000)
 c
       logical active, operiodic, oefield, include_bqbq, oecpcent
@@ -123,8 +120,7 @@ c
      $     lattice_vectors, lattice_angles, amatrix, amatrix_inv,
      $     volume_direct, metric_matrix, recip_lat_vectors, 
      $     recip_lat_angles, sym_ops, angstrom_to_au,
-     $     geom_mass,bmatrix,
-     $     zmt_zmat
+     $     geom_mass,bmatrix
       common/cgeometry/
      $     coords(3,max_cent,max_geom),
      $     charge(max_cent,max_geom),
@@ -144,7 +140,6 @@ c
      $     metric_matrix(3,3,max_geom),
      $     volume_direct(max_geom),
      $     angstrom_to_au,
-     $     zmt_zmat(max_zmat),
      $     ncenter(max_geom),
      $     active(max_geom),
      $     lenn(max_geom),
