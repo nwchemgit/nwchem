@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.18 1997-03-25 20:16:36 mdupuis Exp $
+C$Id: opt_drv.F,v 1.19 1997-04-06 20:57:58 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -637,7 +637,7 @@ c
             write(iw,9998) e
          endif
       else
-        write(iw,*) 'scf_optimize: scf failed'
+         call errquit('optimize: energy failed', 0)
       endif
 c
       return
@@ -684,7 +684,7 @@ c
             write(iw,9998) (eg(i),i=1,ncart)
          endif
       else
-         write(iw,*) 'scf_optimize: gradients failed'
+         call errquit('optimize: gradient failed', 0)
       endif
 c
       return
