@@ -2,7 +2,7 @@
      + xatm,catm,latm,matm,lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,nlnkf)
 c
-c $Id: pre_links.F,v 1.19 2003-10-03 18:48:12 d3j191 Exp $
+c $Id: pre_links.F,v 1.20 2003-10-17 21:31:52 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -117,12 +117,12 @@ c
       do 101 j=1,nshort
       lseq(4,i+1)=lseq(4,i)
       if(latm(5,ishort(j)).eq.0.or.latm(5,ishort(j)).gt.1) then
-      latm(5,ishort(j))=2
+      latm(5,ishort(j))=4
       else
       call errquit('inconsistent links',9999)
       endif
       if(latm(5,jshort(j)).eq.0.or.latm(5,jshort(j)).gt.1) then
-      latm(5,jshort(j))=1
+      latm(5,jshort(j))=3
       else
       call errquit('inconsistent links',9999)
       endif
@@ -138,9 +138,12 @@ c
       clnk(2,nlnk)=catm(2,jshort(j))(1:4)
       if(util_print('sequence',print_high)) then
       write(lfnout,1003) nlnk,
-     +  llnk(1,nlnk),clnk(1,nlnk),llnk(2,nlnk),clnk(2,nlnk),
-     + ishort(j),jshort(j),rshort(j)
- 1003 format(' Chain link   ',2i5,':',a4,i5,':',a4,3x,2i7,f12.6)
+     + lseq(1,i),cseq(1,i),catm(2,ishort(j))(1:4),
+     + lseq(1,i+1),cseq(1,i+1),catm(2,jshort(j))(1:4),
+     + ishort(j),jshort(j),rshort(j),
+     + latm(5,ishort(j)),latm(5,jshort(j))
+ 1003 format(' Chain link   ',i5,i5,a5,':',a6,5x,i5,a5,':',a6,
+     + 3x,2i7,f12.6,2i5)
       endif
       endif
   101 continue
