@@ -1,6 +1,6 @@
       subroutine dk_input(rtdb)
 *
-* $Id: dk_input.F,v 1.9 1999-12-17 00:54:14 bert Exp $
+* $Id: dk_input.F,v 1.10 2001-07-20 22:22:55 bert Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -41,6 +41,20 @@ c
             dk_type = 2
          elseif (inp_compare(.false.,'dkfull',test)) then
             dk_type = 3
+         elseif (inp_compare(.false.,'dk1',test)) then
+            dk_type = 1
+         elseif (inp_compare(.false.,'dk1full',test)) then
+            dk_type = 1
+         elseif (inp_compare(.false.,'dk2',test)) then
+            dk_type = 2
+         elseif (inp_compare(.false.,'dk2full',test)) then
+            dk_type = 3
+         elseif (inp_compare(.false.,'dk3',test)) then
+            dk_type = 4
+         elseif (inp_compare(.false.,'dk3full',test)) then
+            dk_type = 5
+         elseif (inp_compare(.false.,'resc',test)) then
+            dk_type = 0
          else
             call errquit('dk_input: unknown directive',0)
          endif
@@ -63,11 +77,28 @@ c
   22        format(/'Integrals for the no-pair equation with ',
      $             'external-field projection operators'/
      $             'will be computed (Douglas-Kroll-Hess).'/)
-         else  
+         elseif (dk_type .eq. 3) then
             write(luout,23)
   23        format(/'Integrals for the no-pair equation with ',
      $             'external-field projection operators'/,
      $             'including cross-product terms will be computed.'/)
+         elseif (dk_type .eq. 4) then
+            write(luout,24)
+  24        format(/'Integrals for the no-pair equation with '/
+     $             'Douglas-Kroll Hamiltonian ',
+     $             'correct to third order in the external potential'/
+     $             'will be computed (3rd-order Douglas-Kroll).'/)
+         elseif (dk_type .eq. 5) then
+            write(luout,25)
+  25        format(/'Integrals for the no-pair equation with '/
+     $             'Douglas-Kroll Hamiltonian ',
+     $             'correct to third order in the external potential'/
+     $             'including cross-product terms will be computed.'/)
+         elseif (dk_type .eq. 0) then
+            write(luout,200)
+ 200        format(/'Integrals for the relativistic scheme by ',
+     $             'eliminating small-components of the Dirac equation'/
+     $             'will be computed (RESC).'/)
          endif
       endif
 c
