@@ -1,4 +1,4 @@
-c     $Id: cgsd_oep_eigenvalues.F,v 1.1 2003-07-19 20:47:55 bylaska Exp $                       
+c     $Id: cgsd_oep_eigenvalues.F,v 1.2 2003-07-19 20:49:57 bylaska Exp $                       
 
 *     ********************************
 *     *		  	  	     *
@@ -117,7 +117,7 @@ c#include "rtdb.fh"
       end if
 
       return
- 1301 FORMAT(//'== OEP Orbital Calculation =='/)
+ 1301 FORMAT(//'== Perturbative OEP Orbital Calculation =='/)
  1500 FORMAT(/' virtual orbital energies:')
  1501 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
