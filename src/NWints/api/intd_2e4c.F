@@ -1,10 +1,11 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.11 1997-06-06 21:07:36 pg481 Exp $
+c $Id: intd_2e4c.F,v 1.12 1997-07-11 23:46:42 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
 c 
+#include "stdio.fh"
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -124,8 +125,8 @@ c
       used_nw = .false.
       nint = int_nint_cart(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
       if (nint*3*4.gt.leri) then
-        write(6,*) 'nint*3*4 = ',nint*3*4
-        write(6,*) 'leri     = ',leri
+        write(luout,*) 'nint*3*4 = ',nint*3*4
+        write(luout,*) 'leri     = ',leri
         call errquit('intd_2e4c: nint>leri error',911)
       endif
 c
@@ -142,7 +143,8 @@ c
       ab_geom = ibs_geom(bra)
       cd_geom = ibs_geom(ket)
       if (ab_geom.ne.cd_geom) then
-        write(6,*)'intd_2e4c.F: two different geometries for',
+        write(luout,*)
+     &      'intd_2e4c.F: two different geometries for',
      &         ' derivatives?'
         call errquit('intd_2e4c: geom error ',911)
       endif
@@ -189,70 +191,83 @@ c... new logic
 c
 ckw--------
 ckw
-      momentum=iabs(itype)+iabs(jtype)+iabs(ktype)+iabs(ltype)
-      status_txs = cando_txs(brain,ish,jsh).and.cando_txs(ketin,ksh,lsh)
-      if( momentum.lt.4) status_txs =.false.
-      if (lgen.gt.1.or.kgen.gt.1.or.jgen.gt.1.or.igen.gt.1)
-     $     status_txs = .true.
-      status_nw  = cando_nw(brain,ish,jsh).and.cando_nw(ketin,ksh,lsh) 
+      momentum=abs(itype)+abs(jtype)+abs(ktype)+abs(ltype)
+      status_txs =.true.
+      if( momentum.lt.4) then 
+        status_txs =.false.
+      endif
+      status_txs = status_txs .and.
+     &    cando_txs(brain,ish,jsh).and.cando_txs(ketin,ksh,lsh)
+      status_nw  =
+     &    cando_nw(brain,ish,jsh).and.cando_nw(ketin,ksh,lsh) 
+      if (lgen.gt.1.or.kgen.gt.1.or.jgen.gt.1.or.igen.gt.1) then
+        status_txs = status_txs .and. .true.
+        status_nw = .false.
+      endif
 c
       if (status_txs) then
-         call dfill(3,0.0d00,roff,1)
-         q4 = 1.0d00
-         txs_i = ish
-         txs_j = jsh
-         txs_k = ksh
-         txs_l = lsh
-         num_quart=1
-         dum_log=.false.
+        call dfill(3,0.0d00,roff,1)
+        q4 = 1.0d00
+        txs_i = ish
+        txs_j = jsh
+        txs_k = ksh
+        txs_l = lsh
+        num_quart=1
+        dum_log=.false.
 c
-         call texas_hf2_m(
-     &        brain,txs_i,txs_j,
-     &        ketin,txs_k,txs_l,num_quart,
-     &        q4,.false.,
+        call texas_hf2_m(
+     &      brain,txs_i,txs_j,
+     &      ketin,txs_k,txs_l,num_quart,
+     &      q4,.false.,
 c...............................use roff set false
-     &        roff,roff,roff,roff,.false.,
-     &        eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
+     &      roff,roff,roff,roff,.false.,
+     &      eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
 c...............gen labs .. more_integrals
-     &        nint, .false., dum_log, scr, lscr, 0.0d0,'der1_int')
-         if (nint .eq. 0) then
-            nintzero = int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
-            nintzero = nintzero*12
-            call dfill(nintzero, 0.0d0, eri, 1)
-         endif
+     &      nint, .false., dum_log, scr, lscr, 0.0d0,'der1_int')
+        if (nint .eq. 0) then
+          nintzero = int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
+          nintzero = nintzero*12
+          call dfill(nintzero, 0.0d0, eri, 1)
+        endif
 c
-         if (nint*12.gt.lscr) call errquit
-     $        ('intd_2e4c: lscr is too small for texas derivatives',
-     $        911)
-         scr_ptr = lscr - nint*12 - 1 
-         call dcopy((nint*12),eri,1,scr(scr_ptr),1)
-         call intd_texas_grad_switch(nint,eri,scr(scr_ptr))
-         call intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
+        if (nint*12.gt.lscr) call errquit
+     $      ('intd_2e4c: lscr is too small for texas derivatives',
+     $      911)
+        scr_ptr = lscr - nint*12 - 1 
+        call dcopy((nint*12),eri,1,scr(scr_ptr),1)
+        call intd_texas_grad_switch(nint,eri,scr(scr_ptr))
+        call intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
 c
       else if (status_nw) then
 ckw--------
-         call hf2d(
-     &       coords(1,iatom,ab_geom),dbl_mb(mb_exndcf(iexp,bra)),
-     &       dbl_mb(mb_exndcf(icf,bra)),inp,igen,itype,iatom,
+        call hf2d(
+     &      coords(1,iatom,ab_geom),dbl_mb(mb_exndcf(iexp,bra)),
+     &      dbl_mb(mb_exndcf(icf,bra)),inp,igen,itype,iatom,
 c
-     &       coords(1,jatom,ab_geom),dbl_mb(mb_exndcf(jexp,bra)),
-     &       dbl_mb(mb_exndcf(jcf,bra)),jnp,jgen,jtype,jatom,
+     &      coords(1,jatom,ab_geom),dbl_mb(mb_exndcf(jexp,bra)),
+     &      dbl_mb(mb_exndcf(jcf,bra)),jnp,jgen,jtype,jatom,
 c
-     &       coords(1,katom,cd_geom),dbl_mb(mb_exndcf(kexp,ket)),
-     &       dbl_mb(mb_exndcf(kcf,ket)),knp,kgen,ktype,katom,
+     &      coords(1,katom,cd_geom),dbl_mb(mb_exndcf(kexp,ket)),
+     &      dbl_mb(mb_exndcf(kcf,ket)),knp,kgen,ktype,katom,
 c
-     &       coords(1,latom,cd_geom),dbl_mb(mb_exndcf(lexp,ket)),
-     &       dbl_mb(mb_exndcf(lcf,ket)),lnp,lgen,ltype,latom,
+     &      coords(1,latom,cd_geom),dbl_mb(mb_exndcf(lexp,ket)),
+     &      dbl_mb(mb_exndcf(lcf,ket)),lnp,lgen,ltype,latom,
 c
-     &       eri,nint,.false.,.false.,.false.,.false.,
-     &       scr,lscr)
-         used_nw = .true.
+     &      eri,nint,.false.,.false.,.false.,.false.,
+     &      scr,lscr)
+        used_nw = .true.
 c
-         call intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
+        call intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
 c
-         if (used_nw) call intd_2ec2s(eri,nint,scr,lscr,
-     &       itype,jtype,ktype,ltype,igen,jgen,kgen,lgen,
-     &       bas_spherical(bra),bas_spherical(ket),idatom)
+        if (used_nw) call intd_2ec2s(eri,nint,scr,lscr,
+     &      itype,jtype,ktype,ltype,igen,jgen,kgen,lgen,
+     &      bas_spherical(bra),bas_spherical(ket),idatom)
+      else
+        write(luout,*)'intd_2e4c: could not use either texas or nwchem'
+        write(luout,*)'           integral derivatives'
+        write(luout,*)' Please notify nwchem-support@emsl.pnl.gov with'
+        write(luout,*)'        the input deck and output available'
+        call errquit('intd_2e4c: fatal error',911)     
       endif
 c
       end
@@ -399,6 +414,7 @@ c     as a block of 4.
       subroutine intd_c2s_mv
      &    (int_buf,nint_x,nint_s,nblocks,scr,lscr,ctine)
       implicit none
+#include "stdio.fh"
 c::passed
       integer lscr
       integer nint_x
@@ -412,9 +428,9 @@ c::local
       integer offset_x, offset_s
 #if defined(VECTOR_MODE)
       if (nint_x*nblocks.gt.lscr) then
-        write(6,*)' calling routine: ',ctine
+        write(luout,*)' calling routine: ',ctine
         call errquit
-     &    ('intd_c2s_mv: lscr to small by ',((nint_x*nblocks)-lscr))
+     &      ('intd_c2s_mv: lscr to small by ',((nint_x*nblocks)-lscr))
       endif
       call dcopy((nint_x*nblocks),int_buf,1,scr,1)
       call dfill((nint_x*nblocks),0.0d00,int_buf,1)
