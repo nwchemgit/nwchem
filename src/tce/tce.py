@@ -1,6 +1,6 @@
 # Tensor Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: tce.py,v 1.10 2002-12-01 21:37:34 sohirata Exp $
+# $Id: tce.py,v 1.11 2002-12-11 20:07:25 sohirata Exp $
 
 import string
 import types
@@ -563,13 +563,20 @@ class Factor:
          for n in range(len(self.coefficients)):
             if (abs(self.coefficients[n]) != abs(coefficient)):
                raise RuntimeError, "unrealistic factor"
-         fraction = abs(int(1.0/coefficient))
-         if (1.0/float(fraction) != abs(coefficient)):
-            print " !!! WARNING !!! inaccurate arithmatic"
-         if (fraction == 1):
-            frac = ""
+         if (abs(coefficient) < 1.0):
+            fraction = abs(int(1.0/coefficient))
+            if (1.0/float(fraction) != abs(coefficient)):
+               print " !!! WARNING !!! inaccurate arithmatic"
+            if (fraction == 1):
+               frac = ""
+            else:
+               frac = string.join(["\\frac{1}{",str(fraction),"}"],"")
          else:
-            frac = string.join(["\\frac{1}{",str(fraction),"}"],"")
+            fraction = abs(int(coefficient))
+            if (fraction == 1):
+               frac = ""
+            else:
+               frac = str(fraction)
          if (coefficient >= 0.0):
             show = string.join(["+",frac])
          elif (coefficient < 0.0):
@@ -577,27 +584,27 @@ class Factor:
          if (len(self.coefficients) > 1):
             show = string.join([show,"\\left("],"")
             for n in range(len(self.coefficients)):
-               if (self.coefficients[n]/coefficient > 0.0):
-                  show = string.join([show,"+"],"")
-               else:
-                  show = string.join([show,"-"],"")
                if (self.permutations[n]):
+                  if (self.coefficients[n]/coefficient > 0.0):
+                     show = string.join([show,"+"],"")
+                  else:
+                     show = string.join([show,"-"],"")
                   show = string.join([show,"P^{"])
-                  for nindex in range(len(self.permutations[n])/2,3*len(self.permutations[n])/4):
-                     index = self.permutations[n][nindex]
-                     show = string.join([show,index.tex()])
-                  for nindex in range(len(self.permutations[n])/4,len(self.permutations[n])/2):
-                     index = self.permutations[n][nindex]
-                     show = string.join([show,index.tex()])
-                  show = string.join([show,"}_{"])
-                  for nindex in range(len(self.permutations[n])/4):
-                     index = self.permutations[n][nindex]
-                     show = string.join([show,index.tex()])
-                  for nindex in range(3*len(self.permutations[n])/4,len(self.permutations[n])):
-                     index = self.permutations[n][nindex]
-                     show = string.join([show,index.tex()])
-                  show = string.join([show,"}"])
+                  super = ""
+                  sub = ""
+                  for nindex in range(len(self.permutations[n])/2):
+                     indexa = self.permutations[n][nindex]
+                     indexb = self.permutations[n][nindex+len(self.permutations[n])/2]
+                     if (indexa.type == 'hole'):
+                        super = string.join([super,indexa.tex()])
+                        sub = string.join([sub,indexb.tex()])
+                     elif (indexa.type == 'particle'):
+                        super = string.join([super,indexb.tex()])
+                        sub = string.join([sub,indexa.tex()])
+                  show = string.join([show,super,"}_{",sub,"}"],"")
                else:
+                  if (self.coefficients[n]/coefficient < 0.0):
+                     show = string.join([show,"-"],"")
                   show = string.join([show,"1"],"")
             show = string.join([show,"\\right)"])
       else:
@@ -841,7 +848,7 @@ class Tensor:
    def show(self):
       """Returns a human-friendly string of the content"""
       show = self.type
-      if (self.type == "i"):
+      if ((self.type == "i") or (self.type == "j")):
          show = string.join([show, repr(self.label)],"")
       if (self.conjugate):
          show = string.join([show, "+"],"")
@@ -853,9 +860,18 @@ class Tensor:
  
    def tex(self):
       """Returns a LaTeX string of the content"""
-      intermediatelist = ["chi","xi","kappa","eta","zeta"]
+      intermediatelist = ["chi","xi","kappa","eta","zeta","gamma","theta","lambda","pi","sigma"]
+      persistentintermediatelist = ["Gamma","Theta","Lambda","Xi","Pi","Sigma","Upsilon","Omega"]
       if (self.type == "i"):
-         show = string.join(["\\",intermediatelist[self.label]],"")
+         if (self.label < 10):
+            show = string.join(["\\",intermediatelist[self.label]],"")
+         else:
+            show = string.join(["\\",intermediatelist[0],"_{",repr(self.label),"}"],"")
+      elif (self.type == "j"):
+         if (self.label < 8):
+            show = string.join(["\\",persistentintermediatelist[self.label]],"")
+         else:
+            show = string.join(["\\",persistentintermediatelist[0],"_{",repr(self.label),"}"],"")
       else:
          show = self.type
       show = string.join([show, "^{"])
@@ -2489,8 +2505,6 @@ class ElementaryTensorContraction:
          if (minimum == "empty"):
             raise RuntimeError, "unable to canonicalize"
          indexesintheneworder.append(minimum)
-#     print "ORIGINAL"
-#     print self.show()
 
       for nindex in range(len(self.tensors[0].indexes)):
          index = self.tensors[0].indexes[nindex]
@@ -2511,8 +2525,6 @@ class ElementaryTensorContraction:
                if (index.isidenticalto(indexesintheoriginalorder[n])):
                   self.tensors[2].indexes[nindex] = copy.deepcopy(indexesintheneworder[n])
          self.factor.multiply(self.tensors[2].sortindexes())
-#     print "NEW"
-#     print self.show()
       for npermutation in range(len(self.factor.permutations)):
          permutation = self.factor.permutations[npermutation]
          newpermutationorigin = []
@@ -2558,8 +2570,187 @@ class ElementaryTensorContraction:
       if (len(self.tensors) == 3):
          self.factor = self.factor.canonicalize(newsupertwo)
          self.factor = self.factor.canonicalize(newsubtwo)
-#     print "NEW CANONICALIZED"
-#     print self.show()
+
+   def isthesameas(self,another,globaltargetindexes,verbose=0):
+      """Returns a ratio when the two contractions are essentially the same (returns 0 otherwise)"""
+      if (verbose):
+         print " ... comparing"
+         print self
+         print another
+      self.canonicalize(globaltargetindexes)
+      another.canonicalize(globaltargetindexes)
+      if ((len(self.tensors) == 2) or (len(another.tensors) == 2)):
+         return 0
+      if ((self.tensors[1].type == "i") or (self.tensors[2].type == "i")):
+         return 0
+      if ((another.tensors[1].type == "i") or (another.tensors[2].type == "i")):
+         return 0
+      if (self.tensors[1].type != another.tensors[1].type):
+         return 0
+      if (self.tensors[2].type != another.tensors[2].type):
+         return 0
+      if (len(self.tensors[1].indexes) != len(another.tensors[1].indexes)):
+         return 0
+      if (len(self.tensors[2].indexes) != len(another.tensors[2].indexes)):
+         return 0
+      if (len(self.summation.indexes) != len(another.summation.indexes)):
+         return 0
+      ratio = self.factor.isthesameas(another.factor)
+      if (ratio == 0):
+         return 0
+      reserved = []
+      for tensor in self.tensors:
+         for index in tensor.indexes:
+            label = index.label
+            if (label not in reserved):
+               reserved.append(label)
+      for tensor in another.tensors:
+         for index in tensor.indexes:
+            label = index.label
+            if (label not in reserved):
+               reserved.append(label)
+      newlabel = 0
+      for label in reserved:
+         if (label > newlabel):
+            newlabel = label
+      selfcopy = copy.deepcopy(self)
+      anothercopy = copy.deepcopy(another)
+      for ntensor in range(len(self.tensors)):
+         tensor = self.tensors[ntensor]
+         for nindex in range(len(tensor.indexes)):
+            selfindex = self.tensors[ntensor].indexes[nindex]
+            anotherindex = another.tensors[ntensor].indexes[nindex]
+            if (selfindex.type != anotherindex.type):
+               return 0
+            if (selfindex.label != anotherindex.label):
+               newlabel = newlabel + 1
+               selfcopy.relabels(selfindex.label,newlabel)
+               anothercopy.relabels(anotherindex.label,newlabel)
+      for nindex in range(len(selfcopy.tensors[1].indexes)/2):
+         for mindex in range(len(selfcopy.tensors[1].indexes)/2):
+            if (mindex > nindex):
+               if (selfcopy.tensors[1].indexes[nindex].isgreaterthan(selfcopy.tensors[1].indexes[mindex])):
+                  swap = copy.deepcopy(selfcopy.tensors[1].indexes[nindex])
+                  selfcopy.tensors[1].indexes[nindex] = copy.deepcopy(selfcopy.tensors[1].indexes[mindex])
+                  selfcopy.tensors[1].indexes[mindex] = copy.deepcopy(swap)
+                  selfcopy.factor.multiply(-1.0)
+      for nindex in range(len(selfcopy.tensors[1].indexes)/2,len(selfcopy.tensors[1].indexes)):
+         for mindex in range(len(selfcopy.tensors[1].indexes)/2,len(selfcopy.tensors[1].indexes)):
+            if (mindex > nindex):
+               if (selfcopy.tensors[1].indexes[nindex].isgreaterthan(selfcopy.tensors[1].indexes[mindex])):
+                  swap = copy.deepcopy(selfcopy.tensors[1].indexes[nindex])
+                  selfcopy.tensors[1].indexes[nindex] = copy.deepcopy(selfcopy.tensors[1].indexes[mindex])
+                  selfcopy.tensors[1].indexes[mindex] = copy.deepcopy(swap)
+                  selfcopy.factor.multiply(-1.0)
+      for nindex in range(len(selfcopy.tensors[2].indexes)/2):
+         for mindex in range(len(selfcopy.tensors[2].indexes)/2):
+            if (mindex > nindex):
+               if (selfcopy.tensors[2].indexes[nindex].isgreaterthan(selfcopy.tensors[2].indexes[mindex])):
+                  swap = copy.deepcopy(selfcopy.tensors[2].indexes[nindex])
+                  selfcopy.tensors[2].indexes[nindex] = copy.deepcopy(selfcopy.tensors[2].indexes[mindex])
+                  selfcopy.tensors[2].indexes[mindex] = copy.deepcopy(swap)
+                  selfcopy.factor.multiply(-1.0)
+      for nindex in range(len(selfcopy.tensors[2].indexes)/2,len(selfcopy.tensors[2].indexes)):
+         for mindex in range(len(selfcopy.tensors[2].indexes)/2,len(selfcopy.tensors[2].indexes)):
+            if (mindex > nindex):
+               if (selfcopy.tensors[2].indexes[nindex].isgreaterthan(selfcopy.tensors[2].indexes[mindex])):
+                  swap = copy.deepcopy(selfcopy.tensors[2].indexes[nindex])
+                  selfcopy.tensors[2].indexes[nindex] = copy.deepcopy(selfcopy.tensors[2].indexes[mindex])
+                  selfcopy.tensors[2].indexes[mindex] = copy.deepcopy(swap)
+                  selfcopy.factor.multiply(-1.0)
+      for nindex in range(len(anothercopy.tensors[1].indexes)/2):
+         for mindex in range(len(anothercopy.tensors[1].indexes)/2):
+            if (mindex > nindex):
+               if (anothercopy.tensors[1].indexes[nindex].isgreaterthan(anothercopy.tensors[1].indexes[mindex])):
+                  swap = copy.deepcopy(anothercopy.tensors[1].indexes[nindex])
+                  anothercopy.tensors[1].indexes[nindex] = copy.deepcopy(anothercopy.tensors[1].indexes[mindex])
+                  anothercopy.tensors[1].indexes[mindex] = copy.deepcopy(swap)
+                  anothercopy.factor.multiply(-1.0)
+      for nindex in range(len(anothercopy.tensors[1].indexes)/2,len(anothercopy.tensors[1].indexes)):
+         for mindex in range(len(anothercopy.tensors[1].indexes)/2,len(anothercopy.tensors[1].indexes)):
+            if (mindex > nindex):
+               if (anothercopy.tensors[1].indexes[nindex].isgreaterthan(anothercopy.tensors[1].indexes[mindex])):
+                  swap = copy.deepcopy(anothercopy.tensors[1].indexes[nindex])
+                  anothercopy.tensors[1].indexes[nindex] = copy.deepcopy(anothercopy.tensors[1].indexes[mindex])
+                  anothercopy.tensors[1].indexes[mindex] = copy.deepcopy(swap)
+                  anothercopy.factor.multiply(-1.0)
+      for nindex in range(len(anothercopy.tensors[2].indexes)/2):
+         for mindex in range(len(anothercopy.tensors[2].indexes)/2):
+            if (mindex > nindex):
+               if (anothercopy.tensors[2].indexes[nindex].isgreaterthan(anothercopy.tensors[2].indexes[mindex])):
+                  swap = copy.deepcopy(anothercopy.tensors[2].indexes[nindex])
+                  anothercopy.tensors[2].indexes[nindex] = copy.deepcopy(anothercopy.tensors[2].indexes[mindex])
+                  anothercopy.tensors[2].indexes[mindex] = copy.deepcopy(swap)
+                  anothercopy.factor.multiply(-1.0)
+      for nindex in range(len(anothercopy.tensors[2].indexes)/2,len(anothercopy.tensors[2].indexes)):
+         for mindex in range(len(anothercopy.tensors[2].indexes)/2,len(anothercopy.tensors[2].indexes)):
+            if (mindex > nindex):
+               if (anothercopy.tensors[2].indexes[nindex].isgreaterthan(anothercopy.tensors[2].indexes[mindex])):
+                  swap = copy.deepcopy(anothercopy.tensors[2].indexes[nindex])
+                  anothercopy.tensors[2].indexes[nindex] = copy.deepcopy(anothercopy.tensors[2].indexes[mindex])
+                  anothercopy.tensors[2].indexes[mindex] = copy.deepcopy(swap)
+                  anothercopy.factor.multiply(-1.0)
+      reserved = []
+      for tensor in selfcopy.tensors:
+         for index in tensor.indexes:
+            label = index.label
+            if (label not in reserved):
+               reserved.append(label)
+      for tensor in anothercopy.tensors:
+         for index in tensor.indexes:
+            label = index.label
+            if (label not in reserved):
+               reserved.append(label)
+      newlabel = 0
+      for label in reserved:
+         if (label > newlabel):
+            newlabel = label
+      for ntensor in range(len(selfcopy.tensors)):
+         tensor = selfcopy.tensors[ntensor]
+         for nindex in range(len(tensor.indexes)):
+            selfindex = selfcopy.tensors[ntensor].indexes[nindex]
+            anotherindex = anothercopy.tensors[ntensor].indexes[nindex]
+            if (selfindex.type != anotherindex.type):
+               return 0
+            if (selfindex.label != anotherindex.label):
+               newlabel = newlabel + 1
+               selfcopy.relabels(selfindex.label,newlabel)
+               anothercopy.relabels(anotherindex.label,newlabel)
+      for nindex in range(len(selfcopy.summation.indexes)):
+         for mindex in range(len(selfcopy.summation.indexes)):
+            if (mindex > nindex):
+               if (selfcopy.summation.indexes[nindex].isgreaterthan(selfcopy.summation.indexes[mindex])):
+                  swap = copy.deepcopy(selfcopy.summation.indexes[nindex])
+                  selfcopy.summation.indexes[nindex] = copy.deepcopy(selfcopy.summation.indexes[mindex])
+                  selfcopy.summation.indexes[mindex] = copy.deepcopy(swap)
+      for nindex in range(len(anothercopy.summation.indexes)):
+         for mindex in range(len(anothercopy.summation.indexes)):
+            if (mindex > nindex):
+               if (anothercopy.summation.indexes[nindex].isgreaterthan(anothercopy.summation.indexes[mindex])):
+                  swap = copy.deepcopy(anothercopy.summation.indexes[nindex])
+                  anothercopy.summation.indexes[nindex] = copy.deepcopy(anothercopy.summation.indexes[mindex])
+                  anothercopy.summation.indexes[mindex] = copy.deepcopy(swap)
+      if (verbose):
+         print " ... after canonicalization and relabeling"
+         print selfcopy
+         print anothercopy
+      for ntensor in range(len(selfcopy.tensors)):
+         tensor = selfcopy.tensors[ntensor]
+         for nindex in range(len(tensor.indexes)):
+            selfindex = selfcopy.tensors[ntensor].indexes[nindex]
+            anotherindex = anothercopy.tensors[ntensor].indexes[nindex]
+            if (selfindex.label != anotherindex.label):
+               return 0
+      for nindex in range(len(selfcopy.summation.indexes)):
+         selfindex = selfcopy.summation.indexes[nindex]
+         anotherindex = anothercopy.summation.indexes[nindex]
+         if (selfindex.type != anotherindex.type):
+            return 0
+         if (selfindex.label != anotherindex.label):
+            return 0
+      if (verbose):
+         print " ... essentially the same"
+      return selfcopy.factor.isthesameas(anothercopy.factor)
 
    def fortran77(self,globaltargetindexes,subroutinename="NONAME"):
       """Suggests an implementation in Fortran77 for an elementary tensor contraction C = A * B"""
@@ -2911,11 +3102,11 @@ class ElementaryTensorContraction:
       errquit = errquit + 1
 
       # mapping to a permutation symmetry unique block
-      if (self.tensors[1].type == "i"):
+      if ((self.tensors[1].type == "i") or (self.tensors[1].type == "j")):
          superpermutations = restrictedpermutationwithparity(superlocalone,supercommonone,[])
       else:
          superpermutations = restrictedpermutationwithparity(superglobalone,superlocalone,supercommonone)
-      if (self.tensors[1].type == "i"):
+      if ((self.tensors[1].type == "i") or (self.tensors[1].type == "j")):
          subpermutations = restrictedpermutationwithparity(sublocalone,subcommonone,[])
       else:
          subpermutations = restrictedpermutationwithparity(subglobalone,sublocalone,subcommonone)
@@ -2925,7 +3116,7 @@ class ElementaryTensorContraction:
       ifblock = 0
       for superpermutation in superpermutations:
          superline = ""
-         if (self.tensors[1].type == "i"):
+         if ((self.tensors[1].type == "i") or (self.tensors[1].type == "j")):
             if (superpermutation[1] == "empty"):
                superpermutedindexes = superglobalone + sortindexes(superlocalone + supercommonone)
                superfactor = 1
@@ -2945,7 +3136,7 @@ class ElementaryTensorContraction:
             for nindex in range(len(superpermutedindexes)-1):
                indexa = superpermutedindexes[nindex]
                indexb = superpermutedindexes[nindex+1]
-               if ((self.tensors[1].type == "i") and (indexa.isin(superglobalone) or indexb.isin(superglobalone))):
+               if (((self.tensors[1].type == "i") or (self.tensors[1].type == "j")) and (indexa.isin(superglobalone) or indexb.isin(superglobalone))):
                   continue
                if (indexa.isin(superglobalone) and indexb.isin(superglobalone)):
                   continue
@@ -2963,7 +3154,7 @@ class ElementaryTensorContraction:
                   superline = string.join([superline,"IF ((",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
          for subpermutation in subpermutations:
             subline = superline
-            if (self.tensors[1].type == "i"):
+            if ((self.tensors[1].type == "i") or (self.tensors[1].type == "j")):
                if (subpermutation[1] == "empty"):
                   subpermutedindexes = subglobalone + sortindexes(sublocalone + subcommonone)
                   subfactor = 1
@@ -2983,7 +3174,7 @@ class ElementaryTensorContraction:
                for nindex in range(len(subpermutedindexes)-1):
                   indexa = subpermutedindexes[nindex]
                   indexb = subpermutedindexes[nindex+1]
-                  if ((self.tensors[1].type == "i") and (indexa.isin(subglobalone) or indexb.isin(subglobalone))):
+                  if (((self.tensors[1].type == "i") or (self.tensors[1].type == "j")) and (indexa.isin(subglobalone) or indexb.isin(subglobalone))):
                      continue
                   if (indexa.isin(subglobalone) and indexb.isin(subglobalone)):
                      continue
@@ -3119,11 +3310,11 @@ class ElementaryTensorContraction:
          errquit = errquit + 1
    
          # mapping to a permutation symmetry unique block
-         if (self.tensors[2].type == "i"):
+         if ((self.tensors[2].type == "i") or (self.tensors[2].type == "j")):
             superpermutations = restrictedpermutationwithparity(superlocaltwo,supercommontwo,[])
          else:
             superpermutations = restrictedpermutationwithparity(superglobaltwo,superlocaltwo,supercommontwo)
-         if (self.tensors[2].type == "i"):
+         if ((self.tensors[2].type == "i") or (self.tensors[2].type == "j")):
             subpermutations = restrictedpermutationwithparity(sublocaltwo,subcommontwo,[])
          else:
             subpermutations = restrictedpermutationwithparity(subglobaltwo,sublocaltwo,subcommontwo)
@@ -3133,7 +3324,7 @@ class ElementaryTensorContraction:
          ifblock = 0
          for superpermutation in superpermutations:
             superline = ""
-            if (self.tensors[2].type == "i"):
+            if ((self.tensors[2].type == "i") or (self.tensors[2].type == "j")):
                if (superpermutation[1] == "empty"):
                   superpermutedindexes = superglobaltwo + sortindexes(superlocaltwo + supercommontwo)
                   superfactor = 1
@@ -3153,7 +3344,7 @@ class ElementaryTensorContraction:
                for nindex in range(len(superpermutedindexes)-1):
                   indexa = superpermutedindexes[nindex]
                   indexb = superpermutedindexes[nindex+1]
-                  if ((self.tensors[2].type == "i") and (indexa.isin(superglobaltwo) or indexb.isin(superglobaltwo))):
+                  if (((self.tensors[2].type == "i") or (self.tensors[2].type == "j")) and (indexa.isin(superglobaltwo) or indexb.isin(superglobaltwo))):
                      continue
                   if (indexa.isin(superglobaltwo) and indexb.isin(superglobaltwo)):
                      continue
@@ -3171,7 +3362,7 @@ class ElementaryTensorContraction:
                      superline = string.join([superline,"IF ((",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
             for subpermutation in subpermutations:
                subline = superline
-               if (self.tensors[2].type == "i"):
+               if ((self.tensors[2].type == "i") or (self.tensors[2].type == "j")):
                   if (subpermutation[1] == "empty"):
                      subpermutedindexes = subglobaltwo + sortindexes(sublocaltwo + subcommontwo)
                      subfactor = 1
@@ -3191,7 +3382,7 @@ class ElementaryTensorContraction:
                   for nindex in range(len(subpermutedindexes)-1):
                      indexa = subpermutedindexes[nindex]
                      indexb = subpermutedindexes[nindex+1]
-                     if ((self.tensors[2].type == "i") and (indexa.isin(subglobaltwo) or indexb.isin(subglobaltwo))):
+                     if (((self.tensors[2].type == "i") or (self.tensors[2].type == "j")) and (indexa.isin(subglobaltwo) or indexb.isin(subglobaltwo))):
                         continue
                      if (indexa.isin(subglobaltwo) and indexb.isin(subglobaltwo)):
                         continue
@@ -3589,11 +3780,12 @@ class ElementaryTensorContraction:
 
 class OperationTree:
  
-   def __init__(self,contraction=NoOperation(),common=[],children=[]):
+   def __init__(self,contraction=NoOperation(),common=[],children=[],sisters=[]):
       """Creates a tree of contraction operations"""
       self.contraction = contraction
       self.common = common
       self.children = children
+      self.sisters = sisters
 
    def isoperation(self):
       """Returns true if the operation has a valid contraction"""
@@ -3609,8 +3801,11 @@ class OperationTree:
    def show(self,ntab=0,verbose=1):
       """Returns the contents as a list of strings"""
       show = []
+      if (self.sisters):
+         for sister in self.sisters:
+            show.append(string.join(["    "*ntab,sister.show(verbose)],""))
       if (self.contraction.isoperation()):
-         show.append(string.join(["    "*ntab,self.contraction.show(verbose)],""))
+         show.append(string.join(["    "*(ntab-1),self.contraction.show(verbose)],""))
       for child in self.children:
          if (child.isoperation()):
             show = show + child.show(ntab+1,verbose)
@@ -3622,6 +3817,9 @@ class OperationTree:
       show.append("\\begin{eqnarray}")
       if (self.contraction.isoperation()):
          show.append(string.join(["&&\\hspace{",repr(ntab-1),"cm}",self.contraction.tex(verbose),"\\nonumber\\\\"],""))
+      if (self.sisters):
+         for sister in self.sisters:
+            show.append(string.join(["&&\\hspace{",repr(ntab),"cm}",sister.tex(verbose),"\\nonumber\\\\"],""))
       for child in self.children:
          if (child.isoperation()):
             show = show + child.texa(ntab+1,verbose)
@@ -3635,6 +3833,9 @@ class OperationTree:
       show = []
       if (self.contraction.isoperation()):
          show.append(string.join(["&&\\hspace{",repr(ntab-1),"cm}",self.contraction.tex(verbose),"\\nonumber\\\\"],""))
+      if (self.sisters):
+         for sister in self.sisters:
+            show.append(string.join(["&&\\hspace{",repr(ntab),"cm}",sister.tex(verbose),"\\nonumber\\\\"],""))
       for child in self.children:
          if (child.isoperation()):
             show = show + child.texa(ntab+1,verbose)
@@ -3644,7 +3845,7 @@ class OperationTree:
       """Returns the non-redundant list of the names of tensors appearing in the tree"""
       if (self.contraction.isoperation()):
          for tensor in self.contraction.tensors:
-            if (tensor.type == 'i'):
+            if ((tensor.type == 'i') or (tensor.type == 'j')):
                tensorname = tensor.type + repr(tensor.label)
             else:
                tensorname = tensor.type + repr(len(tensor.indexes)/2)
@@ -3911,6 +4112,8 @@ class OperationTree:
    def fullyfactorize(self,verbose=0,iteration=0,generation=1,reserved=[],globaltargetindexes=[]):
       """Performs factorize() recursively until fully factorized"""
       if ((iteration == 0) and (generation == 1)):
+         if (self.sisters):
+            raise RuntimeError, "factorize before reuseintermediate"
          reserved = []
          globaltargetindexes = []
          for targetindex in self.children[0].contraction.tensors[0].indexes:
@@ -3947,6 +4150,7 @@ class OperationTree:
       if (self.contraction.isoperation()):
          if (len(self.contraction.tensors) > 2):
             cost = cost + 1
+      cost = cost + len(self.sisters)
       for child in self.children:
          cost = child.operationcost(cost)
       return cost
@@ -3965,6 +4169,116 @@ class OperationTree:
       for nchild in range(len(self.children)):
          self.children[nchild].canonicalizea(globaltargetindexes)
 
+   def reuseintermediates(self):
+      """Eliminates redundant intermediates from the tree"""
+
+      print " ... commencing common subexpression elimination"
+
+      if (self.children[0].contraction.isoperation()):
+         globaltargetindexes = copy.deepcopy(self.children[0].contraction.tensors[0].indexes)
+      else:
+         return "The tree top must be an addition"
+
+      intermediatesreused = self.collectuniqueintermediates()
+      print " ... %d new intermediates are created" % (len(intermediatesreused))
+
+      numberofreuse = self.renameintermediates(intermediatesreused,globaltargetindexes)
+      print " ... %d reusable intermediates are found" % (numberofreuse)
+
+      self.sisters = self.sisters + intermediatesreused
+
+      print " ... final contraction cost %d" % (self.operationcost())
+
+      # sort sisters
+      for isister in range(len(self.sisters)):
+         for jsister in range(len(self.sisters)):
+            if ((isister > jsister) and (self.sisters[isister].tensors[0].label < self.sisters[jsister].tensors[0].label)):
+               swap = copy.deepcopy(self.sisters[isister])
+               self.sisters[isister] = copy.deepcopy(self.sisters[jsister])
+               self.sisters[jsister] = copy.deepcopy(swap)
+
+      return self
+
+   def renameintermediates(self,intermediatesreused,globaltargetindexes):
+      """Recursively relabels intermediates that are to be reused"""
+      numberofreuse = 0
+      for nchild in range(len(self.children)):
+         child = self.children[nchild]
+         if (child.contraction.isoperation()):
+            if (len(child.contraction.tensors) == 3):
+               if ((child.contraction.tensors[1].type != "i") and (child.contraction.tensors[2].type != "i")):
+                  for nintermediate in range(len(intermediatesreused)):
+                     intermediate = intermediatesreused[nintermediate]
+                     ratio = intermediate.isthesameas(child.contraction,globaltargetindexes)
+                     if (ratio != 0):
+                        numberofreuse = numberofreuse + 1
+                        if (intermediate.tensors[0].type != "j"):
+                           found = 0
+                           newlabel = 0
+                           while (not found):
+                              newlabel = newlabel + 1
+                              alreadyused = 0
+                              for anotherintermediate in intermediatesreused:
+                                 if ((anotherintermediate.tensors[0].type == "j") and (anotherintermediate.tensors[0].label == newlabel)):
+                                    alreadyused = 1
+                              if (not alreadyused):
+                                 found = 1
+                           intermediatesreused[nintermediate].tensors[0].type = "j"
+                           intermediatesreused[nintermediate].tensors[0].label = newlabel
+                        del self.children[nchild].contraction.tensors[2]
+                        self.children[nchild].contraction.summation = []
+                        self.children[nchild].contraction.tensors[1] = copy.deepcopy(child.contraction.tensors[0])
+                        self.children[nchild].contraction.tensors[1].type = "j"
+                        self.children[nchild].contraction.tensors[1].label = intermediatesreused[nintermediate].tensors[0].label
+                        self.children[nchild].contraction.factor = Factor([ratio],[[]])
+                        break
+         numberofreuse = numberofreuse + self.children[nchild].renameintermediates(intermediatesreused,globaltargetindexes)
+      return numberofreuse
+
+   def collectintermediates(self):
+      """Collects intermediates from the tree edges"""
+      listofcontractions = []
+      for child in self.children:
+         if (child.contraction.isoperation()):
+            if (len(child.contraction.tensors) == 3):
+               if ((child.contraction.tensors[1].type != "i") and (child.contraction.tensors[2].type != "i")):
+                  listofcontractions.append(copy.deepcopy(child.contraction))
+         listofcontractions = listofcontractions + child.collectintermediates()
+      return listofcontractions 
+
+   def collectuniqueintermediates(self):
+      """Collects unique and reusable intermediates from the tree edges"""
+
+      if (self.children[0].contraction.isoperation()):
+         globaltargetindexes = copy.deepcopy(self.children[0].contraction.tensors[0].indexes)
+      else:
+         return "The tree top must be an addition"
+
+      listofcontractions = self.collectintermediates()
+
+      intermediatesreused = []
+      for icontraction in range(len(listofcontractions)):
+         reused = 0
+         for jcontraction in range(len(listofcontractions)):
+            if ((jcontraction > icontraction) and (not reused)):
+               ratio = listofcontractions[icontraction].isthesameas(listofcontractions[jcontraction],globaltargetindexes)
+               if (ratio != 0):
+                  intermediatesreused.append(listofcontractions[icontraction])
+                  reused = 1
+
+      intermediatesunique = []
+      for icontraction in range(len(intermediatesreused)):
+         unique = 1
+         for jcontraction in range(len(intermediatesreused)):
+            if (jcontraction > icontraction):
+               ratio = intermediatesreused[icontraction].isthesameas(intermediatesreused[jcontraction],globaltargetindexes)
+               if (ratio != 0):
+                  unique = 0
+         if (unique):
+            intermediatesunique.append(intermediatesreused[icontraction])
+
+      return intermediatesunique
+
    def fortran77(self,filename="NONAME"):
       """Suggests an implementation in Fortran77 for the whole operation tree"""
 
@@ -3978,6 +4292,7 @@ class OperationTree:
       selfcopy.contraction = copy.deepcopy(self.contraction)
       selfcopy.common = copy.deepcopy(self.common)
       selfcopy.children = copy.deepcopy(self.children)
+      selfcopy.sisters = copy.deepcopy(self.sisters)
 
       # target indexes
       if (selfcopy.children[0].contraction.isoperation()):
@@ -3989,7 +4304,7 @@ class OperationTree:
 
       # header
       for newline in self.show(0,0):
-         newline = string.join(["!",newline[4:]],"")
+         newline = string.join(["!",newline],"")
          newcode.add("headers",newline)
       newline = "IMPLICIT NONE"
       newcode.add("headers",newline)
@@ -4030,6 +4345,7 @@ class OperationTree:
 #     if (globaltargetindexes):
 #        newlistofcodes.add(antisymmetrizer)
 
+      newlistofcodes.list[0].sortarguments()
       return newlistofcodes
 
    def fortran77a(self,subroutinename,globaltargetindexes,callees):
@@ -4038,7 +4354,7 @@ class OperationTree:
       newcode = Code("Fortran77",subroutinename)
 
       # check if we need to proceed
-      if (not self.children):
+      if ((not self.children) and (not self.sisters)):
          return newcode
       else:
          empty = 1
@@ -4048,6 +4364,83 @@ class OperationTree:
          if (empty):
             return newcode
 
+      # loop over sisters
+      if (self.sisters):
+         counter = 0
+         for sister in self.sisters:
+            counter = counter + 1
+            name = string.join([subroutinename,"__",repr(counter)],"")
+ 
+            # Tensor 1
+            superglobalzero = []
+            subglobalzero = []
+            superlocalzero = []
+            sublocalzero = []
+            for nindex in range(len(sister.tensors[0].indexes)/2):
+               index = sister.tensors[0].indexes[nindex]
+               if (index.isin(globaltargetindexes)):
+                  superglobalzero.append(index)
+               else:
+                  superlocalzero.append(index)
+            for nindex in range(len(sister.tensors[0].indexes)/2, \
+                                len(sister.tensors[0].indexes)):
+               index = sister.tensors[0].indexes[nindex]
+               if (index.isin(globaltargetindexes)):
+                  subglobalzero.append(index)
+               else:
+                  sublocalzero.append(index)
+
+            d_c = string.join(["d_j",repr(sister.tensors[0].label)],"")
+            newcode.add("integers",d_c)
+            l_c_offset = string.join(["l_j",repr(sister.tensors[0].label),"_offset"],"")
+            k_c_offset = string.join(["k_j",repr(sister.tensors[0].label),"_offset"],"")
+            size_c = string.join(["size_j",repr(sister.tensors[0].label)],"")
+            newcode.add("integers",k_c_offset)
+            newcode.add("integers",l_c_offset)
+            newcode.add("integers",size_c)
+ 
+            # generate the contraction callee
+            callee = sister.fortran77(globaltargetindexes,name)
+            callees.add(callee)
+
+            # Tensor 2
+            d_a = string.join(["d_",sister.tensors[1].type,repr(len(sister.tensors[1].indexes)/2)],"") 
+            newcode.add("integers",d_a)
+            newcode.add("arguments",d_a)
+            k_a_offset = string.join(["k_",sister.tensors[1].type,\
+                         repr(len(sister.tensors[1].indexes)/2),"_offset"],"")
+            newcode.add("integers",k_a_offset)
+            newcode.add("arguments",k_a_offset)
+
+            # Tensor 3
+            d_b = string.join(["d_",sister.tensors[2].type,repr(len(sister.tensors[2].indexes)/2)],"") 
+            newcode.add("integers",d_b)
+            newcode.add("arguments",d_b)
+            k_b_offset = string.join(["k_",sister.tensors[2].type,\
+                         repr(len(sister.tensors[2].indexes)/2),"_offset"],"")
+            newcode.add("integers",k_b_offset)
+            newcode.add("arguments",k_b_offset)
+
+            # dump the caller
+            newline = string.join(["CALL OFFSET_",name,"(",d_c,",",l_c_offset,",",k_c_offset,",",size_c,")"],"")
+            newcode.statements.insert(0,newline)
+            newchar = "filename"
+            newcode.add("characters",newchar)
+            filename = string.join([name,"_j",repr(sister.tensors[0].label)],"")
+            newline = string.join(["CALL TCE_FILENAME('",filename,"',filename)"],"")
+            newcode.statements.insert(0,newline)
+            newline = string.join(["CALL CREATEFILE(filename,",d_c,",",size_c,")"],"")
+            newcode.statements.insert(0,newline)
+            callee = sister.tensors[0].fortran77y(globaltargetindexes,name)
+            callees.add(callee)
+            argument = string.join([d_a,",",k_a_offset],"")
+            argument = string.join([argument,",",d_b,",",k_b_offset],"")
+            argument = string.join([argument,",",d_c,",",k_c_offset],"")
+            newline = string.join(["CALL ",name,"(",argument,")"],"")
+            newcode.statements.insert(0,newline)
+            newline = string.join(["CALL RECONCILEFILE(",d_c,",",size_c,")"],"")
+            newcode.statements.insert(0,newline)
+ 
       # get a filename for intermediate storage
       d_c = string.join(["d_i",repr(self.children[0].contraction.tensors[0].label)],"")
       newcode.add("integers",d_c)
@@ -4106,6 +4499,13 @@ class OperationTree:
                k_a_offset = string.join(["k_i",repr(child.contraction.tensors[1].label),"_offset"],"")
                l_a_offset = string.join(["l_i",repr(child.contraction.tensors[1].label),"_offset"],"")
                newcode.add("integers",k_a_offset)
+            elif (child.contraction.tensors[1].type == "j"):
+               d_a = string.join(["d_j",repr(child.contraction.tensors[1].label)],"") 
+               size_a = string.join(["size_j",repr(child.contraction.tensors[1].label)],"") 
+               newcode.add("integers",d_a)
+               k_a_offset = string.join(["k_j",repr(child.contraction.tensors[1].label),"_offset"],"")
+               l_a_offset = string.join(["l_j",repr(child.contraction.tensors[1].label),"_offset"],"")
+               newcode.add("integers",k_a_offset)
             else:
                d_a = string.join(["d_",child.contraction.tensors[1].type,repr(len(child.contraction.tensors[1].indexes)/2)],"") 
                newcode.add("integers",d_a)
@@ -4121,6 +4521,13 @@ class OperationTree:
                   newcode.add("integers",d_b)
                   k_b_offset = string.join(["k_i",repr(child.contraction.tensors[2].label),"_offset"],"")
                   l_b_offset = string.join(["l_i",repr(child.contraction.tensors[2].label),"_offset"],"")
+                  newcode.add("integers",k_b_offset)
+               elif (child.contraction.tensors[2].type == "j"):
+                  d_b = string.join(["d_j",repr(child.contraction.tensors[2].label)],"") 
+                  size_b = string.join(["size_j",repr(child.contraction.tensors[2].label)],"") 
+                  newcode.add("integers",d_b)
+                  k_b_offset = string.join(["k_j",repr(child.contraction.tensors[2].label),"_offset"],"")
+                  l_b_offset = string.join(["l_j",repr(child.contraction.tensors[2].label),"_offset"],"")
                   newcode.add("integers",k_b_offset)
                else:
                   d_b = string.join(["d_",child.contraction.tensors[2].type,repr(len(child.contraction.tensors[2].indexes)/2)],"") 
@@ -4141,7 +4548,7 @@ class OperationTree:
                newcode.statements.insert(0,newline)
                newchar = "filename"
                newcode.add("characters",newchar)
-               filename = string.join([name,"_i",repr(child.contraction.tensors[1].label)],"")
+               filename = string.join([name,"_i",repr(child.contraction.tensors[0].label)],"")
                newline = string.join(["CALL TCE_FILENAME('",filename,"',filename)"],"")
                newcode.statements.insert(0,newline)
                newline = string.join(["CALL CREATEFILE(filename,",d_c,",",size_c,")"],"")
@@ -4174,6 +4581,20 @@ class OperationTree:
                   newcode.statements.insert(0,newline)
                   newline = string.join(["IF (.not.MA_POP_STACK(",l_b_offset,")) CALL ERRQUIT('",subroutinename,"',-1)"],"")
                   newcode.statements.insert(0,newline)
+
+      if (self.sisters):
+         counter = 0
+         for isister in range(len(self.sisters)-1,-1,-1):
+            sister = self.sisters[isister]
+            counter = counter + 1
+            d_c = string.join(["d_j",repr(sister.tensors[0].label)],"")
+            l_c_offset = string.join(["l_j",repr(sister.tensors[0].label),"_offset"],"")
+            k_c_offset = string.join(["k_j",repr(sister.tensors[0].label),"_offset"],"")
+            name = string.join([subroutinename,"_r_",repr(counter)],"")
+            newline = string.join(["CALL DELETEFILE(",d_c,")"],"")
+            newcode.statements.insert(0,newline)
+            newline = string.join(["IF (.not.MA_POP_STACK(",l_c_offset,")) CALL ERRQUIT('",subroutinename,"',-1)"],"")
+            newcode.statements.insert(0,newline)
  
       newcode.reverse()
       return newcode
@@ -5660,7 +6081,7 @@ class Code:
          return "Unknown language"
 
       # Standard headers
-      newline = "!$Id: tce.py,v 1.10 2002-12-01 21:37:34 sohirata Exp $"
+      newline = "!$Id: tce.py,v 1.11 2002-12-11 20:07:25 sohirata Exp $"
       self.headers.append(newline)
       newline = "!This is a " + self.language + " program generated by Tensor Contraction Engine v.1.0"
       self.headers.append(newline)
