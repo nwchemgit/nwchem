@@ -5,7 +5,7 @@ c     Look for lines ending in E that should probably be a D for
 c     double precision.  The stuff on the following line is often
 c     gibberish.
 c
-c$$$c $Id: rt123.F,v 1.4 2000-10-23 23:37:43 windus Exp $
+c$$$c $Id: rt123.F,v 1.5 2001-03-06 19:34:03 bjohnson Exp $
 c$$$C MAR 29 91 PP PUT IN SAFEGURDS AGAINST INFINITE LOOP - IT MAY HAPPEN
 c$$$C   IN DNODE
 c$$$C MAR 26 91 PP FIXED SUBROUTINE FM ACCORDING TO KRZYSZTOF'S INSTRUCTIONS
@@ -1146,6 +1146,9 @@ c$$$C
 c$$$      END
       SUBROUTINE FT0
       IMPLICIT REAL*8(A-H,O-Z)
+#ifdef BETTIS
+#include "bettis.fh"
+#endif
       COMMON /RYS/ T,RYSR(10),RYSW(10),XX,F0,F1,F2,F3,F4,F5,NROOTS
       K=INT(T)+1
       IF (K.GE.30) GO TO 10
@@ -1153,9 +1156,23 @@ c$$$      END
      1,180,180,180,190,190,190,190,190,210,210,210,210,210), K
  10   F1=0.5D0/(T*DSQRT(T))
       F0=T*(F1+F1)
+#ifdef BETTIS
+      if (bettis_screened_operator_enabled()) then
+c         write(*,*)'  ***Scaling by',bettis_Ks(),' in FT0'
+         F1 = F1 * bettis_Ks()
+         F0 = F0 * bettis_Ks()
+      endif
+#endif
       RETURN
    20 F0=E1
       F1=E2
+#ifdef BETTIS
+      if (bettis_screened_operator_enabled()) then
+c         write(*,*)'  ***Scaling by',bettis_Ks(),' in FT0'
+         F1 = F1 * bettis_Ks()
+         F0 = F0 * bettis_Ks()
+      endif
+#endif
       RETURN
  30   E1=+6.43087831936D0/(T+1.08661386687D1+1.27504794351D1/(T+1.698645
      175747D1+2.64713617864D2/(T-1.36070368227D1)))
@@ -1492,6 +1509,9 @@ c$$$      END
 c     this subroutine returns the incomplete gamma function fm(x)
 c     in t.  x must be non-negative, m is a non-negative integer
       implicit real*8 (a-h,o-z)
+#ifdef BETTIS
+#include "bettis.fh"
+#endif
       dimension f(0:*)
       common /fmtable/fx(5,600),gx(5,600)
 c
@@ -1504,6 +1524,9 @@ c       write(*,*) 'Fm(x) called with negative argument, x=',x
         do 100 i=0,m
           f(i)=twopi/(2*i+1)
  100    continue
+#ifdef BETTIS
+        goto 999
+#endif
         return
       else if (x.gt.30.0d0) then
         f(0)=one/sqrt(x)
@@ -1511,6 +1534,9 @@ c       write(*,*) 'Fm(x) called with negative argument, x=',x
         do 300 i=1,m
            f(i)=f(i-1)*rx*(i-half)
  300    continue
+#ifdef BETTIS
+        goto 999
+#endif
         return
       else
         if (m.le.1) then
@@ -1544,6 +1570,16 @@ c      m between 6 and 9
             if(j.gt.0) go to 200
         end if
       end if
+#ifdef BETTIS
+ 999  continue
+      if (bettis_screened_operator_enabled()) then
+c         write(*,*)'  ***Scaling by',bettis_Ks(),' in fm'
+         do i = 0,m
+            f(i) = f(i) * bettis_Ks()
+         enddo
+      endif
+#endif
+      return
       end
       subroutine ft05 (t,f0,f1,f2,f3,f4,f5)
       implicit real*8 (a-h,o-z)
@@ -1665,9 +1701,17 @@ c150  format(1x,f6.3,2x,4f15.9)
 c
       subroutine fm0(x,m,f)
       implicit real*8 (a-h,o-z)
+#ifdef BETTIS
+#include "bettis.fh"
+#endif
       dimension f(0:*)
       data twopi,half,zero,one,two/1.128379167096d0,0.5d0,0.0d0,
      & 1.0d0,2.0d0/
+#ifdef BETTIS
+      if (bettis_screened_operator_enabled()) then
+         call errquit('Screened operator on in fm0',0)
+      endif
+#endif
       if (x.le.zero) then
 c       write(*,*) 'Fm(x) called with negative argument, x=',x
         do 100 i=0,m
