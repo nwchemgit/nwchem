@@ -78,22 +78,22 @@ the DFT module are:
                [hl_tol <real hl_tol default 0.1>]]
 
 
-  GRID [(coarse||medium||fine||xfine) default medium] \
+  GRID [(xcoarse||coarse||medium||fine||xfine) default medium] \
        [(gausleg <integer radpts default 50> 
                  <integer nagrid default 10>) ||\ 
         (lebedev <integer radpts default 50> 
                  <integer iangquad default 4>)] \ 
-       [store_wght] [nquad_task <integer nquad_task default 1>] \
        [delley||becke] \
        [rm <real rm default 2.0>]
         
 
-  TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-15>] \
+  TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-10>] \
               [accAOfunc <integer accAOfunc default 20>] \
-              [accCoul <integer accCoul default 15>] \
-              [accQrad <integer accQrad default 40>] \
+              [accCDfunc <integer accAOfunc default 20>] \
               [accXCfunc <integer accXCfunc default 20>] \
-              [radius <real radius default 16.0>]]
+              [accCoul <integer accCoul default 10>] \
+              [accQrad <integer accQrad default 12>] \
+              [radius <real radius default 25.0>]]
 
 
   DECOMP
@@ -107,6 +107,7 @@ the DFT module are:
   NOIO
   PRINT||NOPRINT
 \end{verbatim}
+%       [store_wght] [nquad_task <integer nquad_task default 1>] \
 
 The following 
 sections describe these keywords and
@@ -364,9 +365,14 @@ These options can be invoked by specifying any of the following input lines,
 The keyword \verb+beckehandh+ specifies that the exchange-correlation energy will be
 computed as 
 \begin{eqnarray*}
-E_{X} \ = \ \frac{1}{2} E^{\rm HF}_X + \frac{1}{2} E^{\rm
+E_{XC} \ \approx \ \frac{1}{2} E^{\rm HF}_X + \frac{1}{2} E^{\rm
   Slater}_{X} + \frac{1}{2} E^{\rm PW91LDA}_{C}
 \end{eqnarray*}
+We know this is NOT the correct Becke perscribed implementation which
+requires the XC potential in the energy expression.  But this is what
+is currently implemented as an approximation to it.
+
+
 
 The keyword \verb+acm+ specifies that the exchange-correlation energy
 is computed as
@@ -547,7 +553,7 @@ procedures deemed undesirable with the obvious keywords,
 \section{{\tt GRID} --- Numerical Integration of the Exchange-Correlation Potential}
 
 \begin{verbatim}
-  GRID [(coarse||medium||fine||xfine) default medium] \
+  GRID [(xcoarse||coarse||medium||fine||xfine) default medium] \
        [(gausleg <integer radpts default 50> 
                  <integer nagrid default 10>) ||\ 
         (lebedev <integer radpts default 50> 
@@ -593,16 +599,16 @@ using the converged SCF density with atoms having radial shells
 ranging from 35-235 (at fixed 48/96 angular quadratures) and angular
 quadratures of 12/24-48/96 (at fixed 235 radial shells).  The error of
 the numerical integration was determined by comparison to a ``best''
-or most accurate calculation in which a grid of 235 radial points 48 theta and 96 phi angular
-points on each atom was used.  This corresponds to approximately 1 million
-points per atom.  The following tables were empirically determined to
-give the desired target accuracy for DFT total energies.  These tables
-show the number of radial and angular shells which the DFT
-module will use for for a given atom depending on the row it is in
-(in the periodic table) and the desired accuracy.  Note, differing
-atom types in a given molecular system will most likely have differing
-associated numerical grids.  The intent is to generate the desired
-energy accuracy.
+or most accurate calculation in which a grid of 235 radial points 48
+theta and 96 phi angular points on each atom was used.  This
+corresponds to approximately 1 million points per atom.  The following
+tables were empirically determined to give the desired target accuracy
+for DFT total energies.  These tables show the number of radial and
+angular shells which the DFT module will use for for a given atom
+depending on the row it is in (in the periodic table) and the desired
+accuracy.  Note, differing atom types in a given molecular system will
+most likely have differing associated numerical grids.  The intent is
+to generate the desired energy accuracy.
 
 \begin{center}
 \begin{table}[htb]
@@ -733,16 +739,17 @@ implemented in the numerical integration of the XC terms; Delley and Becke.
 \section{{\tt TOLERANCES} --- Screening tolerances}
 
 \begin{verbatim}
-  TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-15>] \
+  TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-10>] \
               [accAOfunc <integer accAOfunc default 20>] \
-              [accCoul <integer accCoul default 15>] \
-              [accQrad <integer accQrad default 40>] \
+              [accCDfunc <integer accAOfunc default 20>] \
               [accXCfunc <integer accXCfunc default 20>] \
-              [radius <real radius default 16.0>]]
+              [accCoul <integer accCoul default 10>] \
+              [accQrad <integer accQrad default 12>] \
+              [radius <real radius default 25.0>]]
 \end{verbatim}
-
-{\bf JEFF: tight needs explanation}
-
+%
+%{\bf JEFF: tight needs explanation}
+%
 The user has the option of controlling screening for the tolerances in
 the integral evaluations for the DFT module.  In most applications,
 the default values will be adequate for the calculation, but different
@@ -775,21 +782,31 @@ The input to define a screening tolerance for evaluation of the
 charge-density (CD) Gaussian fitting functions is specified with the
 keyword \verb+accCoul+, as follows,
 \begin{verbatim}
-  TOLERANCES accCoul <integer accCoul default 15>
+  TOLERANCES accCDfunc <integer accXCfunc default 20>
 \end{verbatim}
 A  charge-density (CD) fitting function with exponent $\zeta$
 and radial factor $e^{-\zeta\cdot r_i^2}$ is evaluated  at a 
-point $r_i$ only if $\zeta\cdot r_i^2$ is greater than ${\tt accCoul}$.
-In addition, the input
-parameter {\tt accCoul} is also used to define the tolerance  in Schwarz 
+point $r_i$ only if $\zeta\cdot r_i^2$ is greater than ${\tt
+  accCoul}$.
+
+
+
+The input
+parameter {\tt accCoul} is used to define the tolerance in Schwarz 
 screening for the Coulomb integrals.  Only integrals with estimated
 values greater than $10^{(-{\tt accCoul})}$ are evaluated.
+
+\begin{verbatim}
+  TOLERANCES accCoul <integer accCoul default 10>
+\end{verbatim}
+
+
 
 The user also has the option of specifying the radial quadrature 
 grid cut-off for the DFT calculation, using the keyword
 \verb+accQrad+.  The input line for this option is as follows,
 \begin{verbatim}
-  TOLERANCES accQrad <integer accQrad default 40>
+  TOLERANCES accQrad <integer accQrad default 12>
 \end{verbatim}
 
 The value entered for \verb+accQrad+ is the cutoff distance, in bohr, for grid
@@ -799,7 +816,7 @@ points around a given center or atom.  Grid points that lie more than
 Screening away needless computation of the XC functional (on the grid)
 due to negligible density is also possible with the use of,
 \begin{verbatim}
-  TOLERANCES tol_rho <real tol_rho default 1e-15>
+  TOLERANCES tol_rho <real tol_rho default 1e-10>
 \end{verbatim}
 XC functional computation is bypassed if the corresponding density
 elements are less than \verb+tol_rho+.
@@ -807,9 +824,23 @@ elements are less than \verb+tol_rho+.
 A screening parameter, \verb+radius+, used in the screening of the
 Becke or Delley spatial weights is also available as,
 \begin{verbatim}
-  TOLERANCES radius <real radius default 16.0>
+  TOLERANCES radius <real radius default 25.0>
 \end{verbatim}
 where radius is the cutoff value in bohr.
+
+The tolerances as discussed previously are insured at convergence.
+More sleazy tolerances are invoked early in the iterative process
+which can speed things up a bit.  This can also be problematic at
+times because it introduces a discontinuity in the convergence
+process.  To avoid use of initial sleazy tolerances the user can
+invoke the \verb+tight+ option:
+
+\begin{verbatim}
+  TOLERANCES tight 
+\end{verbatim}
+
+This option sets all tolerances to their
+default/user specified values at the very first iteration.
 
 
 \section{{\tt DIRECT} and {\tt NOIO} --- Hardware Resource Control}
