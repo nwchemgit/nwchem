@@ -1,5 +1,5 @@
 *
-* $Id: control.fh,v 1.13 2003-03-19 20:30:06 bylaska Exp $
+* $Id: control.fh,v 1.14 2003-04-22 20:51:08 bylaska Exp $
 *
 
 *     **** control common block ****
@@ -10,6 +10,8 @@ c     parameter (MAXPSP=50)
       character*30 input_wavefunction_filename
       character*30 output_v_wavefunction_filename
       character*30 input_v_wavefunction_filename
+      character*30 output_ewavefunction_filename
+      character*30 input_ewavefunction_filename
 c     character*20 pspnames(MAXPSP)
       character*30 xyz_filename
       character*12 boundry
@@ -38,6 +40,8 @@ c     character*20 pspnames(MAXPSP)
      >                         input_wavefunction_filename,
      >                         output_v_wavefunction_filename,
      >                         input_v_wavefunction_filename,
+     >                         output_ewavefunction_filename,
+     >                         input_ewavefunction_filename,
      >                         xyz_filename,
      >                         boundry
       common / control_blktime / cpu1_time,cpu2_time,

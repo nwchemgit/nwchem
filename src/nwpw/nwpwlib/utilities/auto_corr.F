@@ -1,5 +1,5 @@
 c
-c     $Id: auto_corr.F,v 1.3 2002-05-08 23:50:26 bylaska Exp $
+c     $Id: auto_corr.F,v 1.4 2003-04-22 20:51:08 bylaska Exp $
 c
 
 *     *********************************
@@ -182,18 +182,29 @@ c
 *     ************************************************
       call dcffti(nframes,dcpl_mb(tfft(1)))
       call dcfftf(nframes,dcpl_mb(vt(1)),dcpl_mb(tfft(1)))
-      x = 1.0d0/dble(nframes)
-      x = x*x
-      dcpl_mb(vk(1)) = x*dconjg(dcpl_mb(vt(1)))
-     >                  *dcpl_mb(vt(1))
-      dcpl_mb(vk(1)+nframes/2) = x*dconjg(dcpl_mb(vt(1)+nframes/2))
-     >                            *dcpl_mb(vt(1)+nframes/2)
+      !x = 1.0d0/dble(nframes)
+      dcpl_mb(vk(1)) = dconjg(dcpl_mb(vt(1)))
+     >                *dcpl_mb(vt(1))
+      dcpl_mb(vk(1)+nframes/2) = dconjg(dcpl_mb(vt(1)+nframes/2))
+     >                          *dcpl_mb(vt(1)+nframes/2)
       do k=1,(nframes/2)-1
-        dcpl_mb(vk(1)+k) = x*dconjg(dcpl_mb(vt(1)+k))
+        dcpl_mb(vk(1)+k) =   dconjg(dcpl_mb(vt(1)+k))
      >                      *dcpl_mb(vt(1)+k)
-     >                   + x*dconjg(dcpl_mb(vt(1)+nframes-k))
+     >                   +   dconjg(dcpl_mb(vt(1)+nframes-k))
      >                      *dcpl_mb(vt(1)+nframes-k)
       end do
+
+      !*** scale the power spectrum ***
+      x = 0.0d0
+      do k=0,nframes/2
+        x = x + dble(dcpl_mb(vk(1)+k))
+      end do
+      if (x.gt.1.0d-12) then
+         x = 1.0d0/x 
+      else 
+         x = 1.0d0
+      end if
+      call dscal(4*nframes,x,dcpl_mb(vk(1)),1)
 
       open(unit=19,file=full_filename2,form='formatted')
       do k=0,nframes/2
@@ -203,8 +214,8 @@ c
          else
             freq=0.0d0
          endif
-         write(19,*) freq, dble(dcpl_mb(vk(1)+k-1)),
-     >                    dimag(dcpl_mb(vk(1)+k-1))
+         write(19,*) freq, dble(dcpl_mb(vk(1)+k)),
+     >                    dimag(dcpl_mb(vk(1)+k))
       end do
       close(unit=19)
 

@@ -1,5 +1,5 @@
 *
-* $Id: psi_filefind.F,v 1.1 2001-12-14 20:02:46 bylaska Exp $
+* $Id: psi_filefind.F,v 1.2 2003-04-22 20:51:08 bylaska Exp $
 *
 
 *     ***********************************
@@ -49,6 +49,57 @@
       end if
 
       psi_filefind = found
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *       epsi_filefind              *
+*     *                                 *
+*     ***********************************
+
+      logical function epsi_filefind()
+      implicit none
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+*     *** local variables ***
+      integer MASTER,taskid
+      parameter(MASTER=0)
+
+      logical found
+      integer idum,msglen
+      character*30 filename
+      character*255 full_filename
+
+*     **** external functions ****
+      character*30 control_input_epsi
+      external     control_input_epsi
+
+
+      call Parallel_taskid(taskid)
+      if (taskid.eq.MASTER) then
+         filename = control_input_epsi()
+         call util_file_name_noprefix(filename,.false.,
+     >                             .false.,
+     >                       full_filename)
+         inquire(file=full_filename,exist=found)
+
+         idum = 0
+         if (found) idum = 1
+      end if
+      msglen = 1
+      call BRDCST(9+MSGINT,idum,mitob(msglen),MASTER)
+
+      if (idum.eq.1) then
+         found = .true.
+      else
+         found = .false.
+      end if
+
+      epsi_filefind = found
       return
       end
 

@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.38 2003-03-19 20:30:06 bylaska Exp $
+* $Id: control.F,v 1.39 2003-04-22 20:51:08 bylaska Exp $
 *
 
 *     ***********************************
@@ -201,6 +201,12 @@ c
       if (input_wavefunction_filename.eq.'atomic')then
          input_wavefunction_filename = output_wavefunction_filename
       end if
+      value = value.and.
+     >        rtdb_cget(rtdb,'cgsd:input_ewavefunction_filename',
+     >                  1,input_ewavefunction_filename)
+      value = value.and.
+     >        rtdb_cget(rtdb,'cgsd:output_ewavefunction_filename',
+     >                  1,output_ewavefunction_filename)
 
       value = value.and.
      >        rtdb_cget(rtdb,'cgsd:exchange_correlation',
@@ -320,6 +326,8 @@ c
       if (input_wavefunction_filename.eq.'atomic')then
          input_wavefunction_filename = output_wavefunction_filename
       end if
+
+
       value = value.and.
      >        rtdb_cget(rtdb,'band:exchange_correlation',
      >                  1,exchange_correlation)
@@ -1020,6 +1028,20 @@ c      end
       return 
       end
 
+*     ***********************************
+*     *					*
+*     *		control_output_epsi	*
+*     *					*
+*     ***********************************
+      character*30 function control_output_epsi()
+      implicit none
+
+#include "control.fh"
+
+      control_output_epsi = output_ewavefunction_filename
+      return 
+      end
+
 
 *     ***********************************
 *     *					*
@@ -1032,6 +1054,20 @@ c      end
 #include "control.fh"
 
       control_input_psi = input_wavefunction_filename
+      return 
+      end
+
+*     ***********************************
+*     *					*
+*     *		control_input_epsi	*
+*     *					*
+*     ***********************************
+      character*30 function control_input_epsi()
+      implicit none
+
+#include "control.fh"
+
+      control_input_epsi = input_ewavefunction_filename
       return 
       end
 
@@ -1547,9 +1583,9 @@ c      end
       end
 
 *     *****************************
-*     *                	 		  *
-*     *    	control_minimizer     *
-*     *                 	 	  *
+*     *                	 	  *
+*     *    	control_minimizer *
+*     *                 	  *
 *     *****************************
       integer function control_minimizer()
       implicit none
@@ -1570,6 +1606,9 @@ c      end
       control_minimizer = minimizer
       return
       end
+
+
+
 
 *     *****************************
 *     *                	          *
@@ -1797,5 +1836,32 @@ c      end
 #include "control.fh"
 
       control_gram_schmidt=gram_schmidt
+      return
+      end
+
+*     *****************************
+*     *                	 	  *
+*     *    control_excited_ne     *
+*     *                 	  *
+*     *****************************
+      integer function control_excited_ne(ii)
+      implicit none
+      integer ii
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer ne(2)
+
+      if (.not.rtdb_get(rtdb,'nwpw:excited_ne',mt_int,2,ne)) then
+         ne(1) = 0
+         ne(2) = 0
+      end if
+
+      control_excited_ne = ne(ii)
       return
       end
