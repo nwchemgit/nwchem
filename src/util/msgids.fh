@@ -172,8 +172,19 @@ C
      $   msg_cc_t1a, msg_cc_t1b
       Integer msg_ccden_1, msg_ccden_2, msg_ccden_3, msg_ccden_4 
 c
-      integer msg_qmmm_node, msg_qmmm_nat1, msg_qmmm_nat2,
-     &    msg_qmmm_solute, msg_qmmm_solvent
+      integer msg_qmmm_sepatset
+      integer msg_qmmm_node    
+      integer msg_qmmm_nat1    
+      integer msg_qmmm_nat2    
+      integer msg_qmmm_offset  
+      integer msg_qmmm_numin   
+      integer msg_qmmm_numout  
+      integer msg_qmmm_node2   
+      integer msg_qmmm_geom    
+      integer msg_qmmm_chg     
+      integer msg_qmmm_atn     
+      integer msg_qmmm_numin2  
+      integer msg_qmmm_numout2 
 c
       integer mrp_000
       integer mrp_d01
@@ -461,12 +472,10 @@ c
       parameter (msg_cc_term6  = msg_ftn_base - 218) ! ccsd
       parameter (msg_cc_t1a    = msg_ftn_base - 219) ! ccsd
       parameter (msg_cc_t1b    = msg_ftn_base - 220) ! ccsd
-c
-      parameter (msg_qmmm_node    = msg_ftn_base - 221) ! nwargos/qmmm
-      parameter (msg_qmmm_nat1    = msg_ftn_base - 222) ! nwargos/qmmm
-      parameter (msg_qmmm_nat2    = msg_ftn_base - 223) ! nwargos/qmmm
-      parameter (msg_qmmm_solute  = msg_ftn_base - 224) ! nwargos/qmmm
-      parameter (msg_qmmm_solvent = msg_ftn_base - 225) ! nwargos/qmmm
+      parameter (msg_ccden_1   = msg_ftn_base - 221) ! ccsd density
+      parameter (msg_ccden_2   = msg_ftn_base - 222) ! ccsd density
+      parameter (msg_ccden_3   = msg_ftn_base - 223) ! ccsd density
+      parameter (msg_ccden_4   = msg_ftn_base - 224) ! ccsd density
 c
 c     pme
 c
@@ -485,8 +494,18 @@ c
       parameter(mrp_i06=msg_ftn_base-245) ! pme_init
       parameter(mrp_i07=msg_ftn_base-246) ! pme_init
       parameter(mrp_999=msg_ftn_base-259) ! pme
-C
-      parameter (msg_ccden_1   = msg_ftn_base - 260) ! ccsd density
-      parameter (msg_ccden_2   = msg_ftn_base - 261) ! ccsd density
-      parameter (msg_ccden_3   = msg_ftn_base - 262) ! ccsd density
-      parameter (msg_ccden_4   = msg_ftn_base - 263) ! ccsd density
+c
+      parameter (msg_qmmm_sepatset = msg_ftn_base - 260) ! nwargos/qmmm *b
+      parameter (msg_qmmm_node     = msg_ftn_base - 261) ! nwargos/qmmm *b
+      parameter (msg_qmmm_nat1     = msg_ftn_base - 262) ! nwargos/qmmm *ig
+      parameter (msg_qmmm_nat2     = msg_ftn_base - 263) ! nwargos/qmmm *ig
+      parameter (msg_qmmm_offset   = msg_ftn_base - 264) ! nwargos/qmmm *ig
+      parameter (msg_qmmm_numin    = msg_ftn_base - 265) ! nwargos/qmmm *ig
+      parameter (msg_qmmm_numout   = msg_ftn_base - 266) ! nwargos/qmmm *ig
+      parameter (msg_qmmm_node2    = msg_ftn_base - 267) ! nwargos/qmmm *b
+      parameter (msg_qmmm_geom     = msg_ftn_base - 268) ! nwargos/qmmm *dg
+      parameter (msg_qmmm_chg      = msg_ftn_base - 269) ! nwargos/qmmm *dg
+      parameter (msg_qmmm_atn      = msg_ftn_base - 270) ! nwargos/qmmm *ig
+      parameter (msg_qmmm_numin2   = msg_ftn_base - 271) ! nwargos/qmmm *ig
+      parameter (msg_qmmm_numout2  = msg_ftn_base - 272) ! nwargos/qmmm *ig
+*
