@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c
-c$Id: grid_rtrunc.F,v 1.33 2000-04-22 01:05:45 edo Exp $
+c$Id: grid_rtrunc.F,v 1.34 2000-05-26 05:05:38 edo Exp $
 c
       implicit none
 c      
@@ -423,7 +423,7 @@ c
       call int_init(rtdb, 1, AO_bas_han) 
       g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
       call ga_zero(g_s)
-      call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
+      call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',oskel)
       if (oskel)call sym_symmetrize(geom, AO_bas_han, .false., g_s)
       call int_terminate
 c
