@@ -3,6 +3,7 @@
 #include "mafdecls.h"
 #include "global.fh"
 #include "tcgmsg.fh"
+#include "msgids.fh"
       integer g_a ! input matrix
       integer g_s ! output matrix
       integer l_a_in, i_a_in ! ma handle and pointer
@@ -86,8 +87,7 @@ c****   deallocate local storage
 c****
         status = ma_pop_stack(l_a_in)
       endif 
-      ga_chol_msg = 32760 - 17 
-      call ga_brdcst(ga_chol_msg, info, mitob(1), 0)
+      call ga_brdcst(Msg_ga_chol, info, mitob(1), 0)
       call ga_sync()
       return 
 c     

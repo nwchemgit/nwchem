@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.7 1994-11-07 02:52:37 og845 Exp $
+# $Id: GNUmakefile,v 1.8 1994-11-11 22:18:48 og845 Exp $
 
       OBJ_OPTIMIZE = \
 	dzero.o		\
@@ -10,14 +10,14 @@
 	ijcanon.o	\
 	invio.o		\
 	pertbl.o	\
-	sca_lab_mat.o	sca_lab_can.o		scatter.o	\
+	sca_lab_mat.o	scatter.o	\
 	second.o	\
 	tmpfiles.o	\
 	tstamp.o	\
 	int_eval_gbsets.o \
 	bas_ncontr_cn_max.o		ga_chol_seq.o	\
-	ga_inv_seq.o \
-	int_2e3c_can.o	nbf_to_mbf.o
+	ga_inv_seq.o 	\
+	int_2e3c_can.o	nbf_to_mbf.o 
 
      LIBRARY = libnwdft.a
 
@@ -29,4 +29,6 @@ include ../../config/makelib.h
 ifeq ($(TARGET),SGITFP)
 bas_ncoef_cn_max.o:	bas_ncoef_cn_max.F
 	f77   $(FOPTIONS) $(INCLUDES) $(DEFINES)  -c bas_ncoef_cn_max.F -o bas_ncoef_cn_max.o
+nbf_to_mbf.o:	nbf_to_mbf.F
+	f77   $(FOPTIONS) $(INCLUDES) $(DEFINES)  -c nbf_to_mbf.F -o nbf_to_mbf.o
 endif
