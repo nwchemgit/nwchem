@@ -1,41 +1,24 @@
 #
-# $Id: nwchem.nw,v 1.8 1999-11-14 02:59:21 d3g681 Exp $
+# $Id: nwchem.nw,v 1.9 1999-11-15 19:05:01 d3g681 Exp $
 #
 
-title; Water in 6-31g basis set
+title; Water in cc-pvdz basis set
 
 start h2o
 
-geometry units au
-  O      0.00000000    0.00000000    0.00000000
-  H      0.00000000    1.93042809   -1.10715266
-  H      0.00000000   -1.43042809   -1.60715266
+geometry autosym
+  O    0.0    0.0    -0.02
+  H   -0.74   0.0    -0.76
+  H    0.74   0.0    -0.76
 end
 
-basis nosegment noprint
+basis
   H library cc-pvdz
   O library cc-pvdz
 end
 
-basis "test mo basis" nosegment noprint
-  O s
-          322.037000    0.059239
-           48.430800    0.351500
-           10.420600    0.707658
-  O sp
-            7.402940   -0.404453   0.244586
-            1.576200    1.221560   0.853955
-  O sp
-            0.373684    1.000000   1.000000
-  H  s
-            5.447178    0.156285
-            0.824547    0.904691
-  H  s
-            0.183192    1.000000
-end
-
 scf; print low; end
 
-task mp2 optimize
+task scf optimize
 
 
