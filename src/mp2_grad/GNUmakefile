@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.14 1996-10-16 19:49:37 d3g681 Exp $
+#$Id: GNUmakefile,v 1.15 1996-10-18 00:41:59 mg141 Exp $
 
         OBJ = mp2_make_trhf.o \
 	      mp2_make_tuhf.o \
@@ -13,7 +13,8 @@
 	      mp2_make_tot_dens.o \
 	      mp2_make_tot_wdens.o \
 	      mp2_make_dip_mom.o \
-              mp2_pstat.o mp2_read_tiajb.o 
+              mp2_pstat.o mp2_read_tiajb.o \
+	      mp2_memory.o
 
 OBJ_OPTIMIZE = mp2_back_transform.o
 
