@@ -2,7 +2,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.7 1998-10-17 19:28:33 d3e129 Exp $
+c$Id: xc_hcth.F,v 1.8 1998-10-21 18:56:55 og845 Exp $
 c
       Implicit none
 c
@@ -43,8 +43,10 @@ c to hcth
 c
       if(ipol.eq.1) then
         do n=1,nq
-          rhoa=0.5d0*rho(n,1)
-          if(rhoa.gt.tol_rho) then
+          if(rho(n,1).gt.tol_rho) then 
+            rhoa=0.d0
+            rhoa=0.5d0*rho(n,1)
+            rhob=0.d0
             rhob=rhoa
             za=0.d0
             gammaval=0.25d0*(delrho(n,1,1)*delrho(n,1,1) +
@@ -52,9 +54,9 @@ c
      &           delrho(n,3,1)*delrho(n,3,1))
             if(gammaval.gt.tol_rho)  za=sqrt(gammaval)
             zb=za
-            call hcth(dfdra, dfdza, dfdrb, dfdzb, rhoa, rhob, 
-     &           za, zb, .false., hE_x, hE_c, tol_rho,ipol,
-     &           funcname)
+            call hcth(ipol,funcname,
+     &           dfdra, dfdza, dfdrb, dfdzb, rhoa, rhob, 
+     &           za, zb, hE_x, hE_c, tol_rho)
             if(ldew) func(n)=func(n)+(hE_c+hE_x)*fac
             Ec=Ec+hE_c*qwght(n)*fac
             Ex=Ex+hE_x*qwght(n)*fac
@@ -80,9 +82,9 @@ c
      &           delrho(n,2,2)*delrho(n,2,2) +
      &           delrho(n,3,2)*delrho(n,3,2) 
             if(gammaval.gt.tol_rho) zb=sqrt(gammaval)
-            call hcth(dfdra, dfdza, dfdrb, dfdzb, rhoa, rhob, 
-     &           za, zb, .false., hE_x, hE_c, tol_rho,ipol,
-     ,           funcname)
+            call hcth(ipol,funcname,
+     &           dfdra, dfdza, dfdrb, dfdzb, rhoa, rhob, 
+     &           za, zb, hE_x, hE_c, tol_rho)
             if(ldew) func(n)=func(n)+(hE_c+hE_x)*fac
             Ec=Ec+hE_c*qwght(n)*fac
             Ex=Ex+hE_x*qwght(n)*fac
@@ -102,9 +104,10 @@ c
       return
       end
 
-      SUBROUTINE hcth(dfdra, dfdza, dfdrb, dfdzb, 
-     1                  rhoa, rhob, za, zb, energy, hE_x, hE_c, 
-     2     tol_rho,ipol,functional)
+      SUBROUTINE hcth(ipol,functional,
+     *     dfdra, dfdza, dfdrb, dfdzb, 
+     1     rhoa, rhob, za, zb, hE_x, hE_c, 
+     2     tol_rho)
 
 c    subroutine supplied by Fred Hamprecht fah@igc.phys.chem.ethz.ch
 C    SUPPLIED TO THE ROUTINE:
@@ -165,15 +168,13 @@ Cfah The "Becke V" paper is:
 Cfah Becke A. D.  Density-functional thermochemistry. V.
 Cfah Systematic optimization of exchange-correlation functionals, 
 Cfah J. Chem. Phys., 1997, 107, 8554-8560
-
-
-      LOGICAL energy
-C               B97         B97-1          HCTH        HCTH-A
-C m max          2,            2,            4,           4,
+c
+c     variables passed to hcderiv
+c
       integer numfunc,nofunc,max_pow_u
       parameter(numfunc=4)
-      double precision sol((limpow+1)*3), F((limpow+1)*3,5), 
-     &          FF((limpow+1)*3,5,5),
+      double precision sol((limpow+1)*3), F((limpow+1)*3,4), 
+C     &          FF((limpow+1)*3,5,4),
      &          F_xc((limpow+1)*3)
 
 Cfah sol -- contains the coefficients of the terms in F_xc
@@ -211,6 +212,8 @@ Cfah below.
       integer maxpow(numfunc)
       data maxpow  /     2,     2,    4,      4/
       data funcnam/'b970','b971','hcth','hcta'/
+C               B97         B97-1          HCTH        HCTH-A
+C m max          2,            2,            4,           4,
 Cc X s,0
       data (coeffs(1,n),n=1,4)/
      /     +0.80940d+00,+0.789518d+00,+0.109320d+01,+0.109878d+01/
@@ -298,159 +301,58 @@ c      sol(12) =     0.808564D+01
 c      sol(13) =     0.449357D+01
 c      sol(14) =     0.155396D+01
 c      sol(15) =    -0.447857D+01
+      
+      CALL hcderiv(max_pow_u,ipol,
+     &     F,
+CFF,
+     &     F_xc,
+     &     rhoa,rhob,za,zb,
+     &     sol,tol_rho)
 
-      IF (energy) THEN
-        CALL hcderiv(F,FF,
-     &             F_xc,
-     &             .FALSE.,
-Cfah this logical indicates whether or not the
-Cfah derivatives are required
-     &             rhoa,rhob,za,zb,
-     &             limpow,    max_pow_u, 
-     &             sol,tol_rho)
- 
-
-      ELSE
-
-        CALL hcderiv(F,FF,
-     &             F_xc,
-     &             .TRUE.,
-Cfah this logical indicates whether or not the
-Cfah derivatives are required 
-     &             rhoa,rhob,za,zb,
-     &              limpow,   max_pow_u,
-     &             sol,tol_rho)
-
-        if(ipol.eq.2) then
+      if(ipol.eq.2) then
+        DO n = 1, (max_pow_u+1)*3 
+          dfdra = dfdra + F(n,1) 
+          dfdrb = dfdrb + F(n,2) 
+          if(za.gt.tol_rho) dfdza = dfdza + F(n,3) / za
+          if(zb.gt.tol_rho) dfdzb = dfdzb + F(n,4) / zb  
+        ENDDO
+      else
+        DO n = 1, (max_pow_u+1)*3 
+          dfdra = dfdra + F(n,1) 
+        enddo
+        if(za.gt.tol_rho) then
           DO n = 1, (max_pow_u+1)*3 
-            dfdra = dfdra + F(n,1) 
-            dfdrb = dfdrb + F(n,2) 
-            if(za.gt.tol_rho) dfdza = dfdza + F(n,3) / za
-            if(zb.gt.tol_rho) dfdzb = dfdzb + F(n,4) / zb  
-          ENDDO
-        else
-          DO n = 1, (max_pow_u+1)*3 
-            dfdra = dfdra + F(n,1) 
+            dfdza = dfdza + F(n,3) / za
           enddo
-          if(za.gt.tol_rho) then
-            DO n = 1, (max_pow_u+1)*3 
-              dfdza = dfdza + F(n,3) / za
-            enddo
-          endif
         endif
+      endif
 Cfah big thanks to NCH: cadpac requires df/(za * dza), NOT 
 Cfah                                    df/dza 
-      ENDIF
-        DO n = 0, max_pow_u 
-          hE_x = hE_x + F_xc (n*3 + 1) 
-          hE_c = hE_c + F_xc (n*3 + 2) + F_xc (n*3 + 3)
-        ENDDO
+      DO n = 0, max_pow_u 
+        hE_x = hE_x + F_xc (n*3 + 1) 
+        hE_c = hE_c + F_xc (n*3 + 2) + F_xc (n*3 + 3)
+      ENDDO
       RETURN
       END
-Cfah------------------------------------------------------------ 
-Cfah the functions below were generated by Mathematica and were not 
-Cfah intended to be human-readable. 
-C     double precision FUNCTION d2F_xs_by_drhos_drhos(
-C    (     n, c_xs, rhos, zs)
-C     IMPLICIT none
-C     double precision c_xs(1),rhos,zs,pi
-C     PARAMETER (PI=3.1415926535898D0)
-C     integer n
-Cfah  this does the second derivative as specified by the name of the
-Cfah  function.
-C     d2F_xs_by_drhos_drhos = -((c_xs(1)*(2.D0/Pi)**
-C    -       (1.D0/3.D0)*
-C    -      ((0.004D0*zs**2.D0)/
-C    -         (rhos**
-C    -            (8.D0/3.D0)
-C    -            + 0.004D0*zs**2.D0))**n
-C    -       *((1.D0 - 10.D0*n + 16.D0*n**2.D0)*
-C    -         rhos**
-C    -          (16.D0/3.D0) +
-C    -        2*0.004D0*(1.D0 - 13.D0*n)*
-C    -         rhos**
-C    -          (8.D0/3.D0)*
-C    -         zs**2 +
-C    -        0.004D0**2*zs**4))/
-C    -    (3**(2.D0/3.D0)*
-C    -      rhos**
-C    -       (2.D0/3.D0)*
-C    -      (rhos**
-C    -          (8.D0/3.D0) +
-C    -         0.004D0*zs**2)**2))
-C     END
-C
-C     double precision FUNCTION d2F_xs_by_drhos_dzs(
-C    (     n, c_xs, rhos, zs)
-C     IMPLICIT none
-C     double precision c_xs(1),rhos,zs,pi
-C     PARAMETER (PI=3.1415926535898D0)
-C     integer n
-Cfah  this does the second derivative as specified by the name of the
-Cfah  function.
-C     d2F_xs_by_drhos_dzs = (2.D0*c_xs(1)*n*
-C    -    (6.D0/Pi)**
-C    -     (1.D0/3.D0)*
-C    -    rhos**3.D0*
-C    -    ((-1.D0 + 2.D0*n)*
-C    -       rhos**(8.D0/3.D0)
-C    -        - 3.D0*0.004D0*zs**2.D0)*
-C    -    ((0.004D0*zs**2.D0)/
-C    -       (rhos**
-C    -          (8.D0/3.D0) +
-C    -         0.004D0*zs**2.D0))**n)/
-C    -  (zs*(rhos**
-C    -        (8.D0/3.D0) +
-C    -       0.004D0*zs**2.D0)**2.D0)
-C     END
-C
-C     double precision FUNCTION d2F_xs_by_dzs_dzs(
-C    (     n, c_xs, rhos, zs)
-C     implicit none
-C     double precision c_xs(1),rhos,zs,pi
-C     PARAMETER (PI=3.1415926535898D0)
-C     integer n
-Cfah  this does the second derivative as specified by the name of the
-Cfah  function.
-C     d2F_xs_by_dzs_dzs = (-3.D0*c_xs(1)*n*
-C    -    (3.D0/Pi)**
-C    -     (1.D0/3.D0)*
-C    -    rhos**4.D0*
-C    -    ((-1.D0 + 2.D0*n)*
-C    -       rhos**(8.D0/3.D0)
-C    -        - 3.D0*0.004D0*zs**2.D0)*
-C    -    ((0.004D0*zs**2.D0)/
-C    -       (rhos**
-C    -          (8.D0/3.D0) +
-C    -         0.004D0*zs**2.D0))**n)/
-C    -  (2.D0**(2.D0/3.D0)*
-C    -    zs**2.D0*
-C    -    (rhos**
-C    -        (8.D0/3.D0) +
-C    -       0.004D0*zs**2.D0)**2.D0)
-C     END
-C
-Cfah------------------------------------------------------------ 
-
-      SUBROUTINE hcderiv(F,FF,
-     &             F_xc,
-     &             derivestuff,
-Cfah this logical indicates whether or not the 
-Cfah derivatives are required (important for cadpac use only)
+      SUBROUTINE hcderiv(max_pow_u,ipol,
+     &     F,
+CFF, 
+     &     F_xc,
      &             rhoa,rhob,za,zb,
-     &             limpow,    max_pow_u,
-     &             sol,tol_rho,ipol)
+     &             sol,tol_rho)
 
 c    subroutine supplied by Fred Hamprecht fah@igc.phys.chem.ethz.ch
-      IMPLICIT NONE
-
-      INTEGER max_pow_u,limpow
+      implicit none
+      INTEGER max_pow_u,ipol
+      integer limpow
+      parameter (limpow=4)
       double precision f_xc((limpow + 1)*3)
-      double precision f((limpow+1)*3,4), ff((limpow+1)*3,5,4)
+      double precision f((limpow+1)*3,4)
+C, ff((limpow+1)*3,5,4)
       double precision rhoa, rhob, za, zb,tol_rho
-      integer ipol! [input]
 
-      LOGICAL derivestuff 
+Cfah  COMMON/special/h_atom
+Cfah  LOGICAL h_atom
       DOUBLE PRECISION sol((limpow+1)*3)
     
       
@@ -465,11 +367,11 @@ Cfah runs over the particular partial derivatives of each term.
 Cfah More explicitly: these are the partial functional derivatives of 
 Cfah F_??? with respect to rhoa, rhob, za and zb. 
 
-C     DOUBLE PRECISION d2F_xa(4,4)
-C     DOUBLE PRECISION d2F_xb(4,4)
-C     DOUBLE PRECISION d2F_caa(4,4)
-C     DOUBLE PRECISION d2F_cbb(4,4)
-C     DOUBLE PRECISION d2F_cab(4,4)
+c      DOUBLE PRECISION d2F_xa(4,4)
+c      DOUBLE PRECISION d2F_xb(4,4)
+c      DOUBLE PRECISION d2F_caa(4,4)
+c      DOUBLE PRECISION d2F_cbb(4,4)
+c      DOUBLE PRECISION d2F_cab(4,4)
 
 Cfah these are the first derivatives of the different transformed variables 
 Cfah u with respect to rhoa, rhob, za and zb. These different derivatives 
@@ -482,13 +384,14 @@ Cfah arrays.
       DOUBLE PRECISION s_a2, s_b2, s_avg2, u_caa, u_cbb, u_cab
       DOUBLE PRECISION du_caa_by_drhoa, du_caa_by_dza, du_cbb_by_drhob 
       DOUBLE PRECISION du_cbb_by_dzb, du_cab_by_drhoa, du_cab_by_drhob 
-      DOUBLE PRECISION du_cab_by_dza, du_cab_by_dzb, du_caa_by_drhoa_dza 
-      DOUBLE PRECISION du_caa_by_dza_dza, du_cbb_by_dzb_dzb
-      DOUBLE PRECISION du_cbb_by_drhob_dzb, du_cab_by_drhoa_dza 
-      DOUBLE PRECISION du_cab_by_drhoa_dzb, du_cab_by_drhob_dza 
-      DOUBLE PRECISION du_cab_by_drhob_dzb, du_cab_by_dza_dza, 
-     ,du_cab_by_dza_dzb 
-      DOUBLE PRECISION du_cab_by_dzb_dzb 
+      DOUBLE PRECISION du_cab_by_dza, du_cab_by_dzb
+C, du_caa_by_drhoa_dza 
+C      DOUBLE PRECISION du_caa_by_dza_dza, du_cbb_by_dzb_dzb
+C      DOUBLE PRECISION du_cbb_by_drhob_dzb, du_cab_by_drhoa_dza 
+C      DOUBLE PRECISION du_cab_by_drhoa_dzb, du_cab_by_drhob_dza 
+C      DOUBLE PRECISION du_cab_by_drhob_dzb, du_cab_by_dza_dza, 
+C     ,du_cab_by_dza_dzb 
+C      DOUBLE PRECISION du_cab_by_dzb_dzb 
       DOUBLE PRECISION rsa, rsa12, rsa32, rsa21, rsb, 
      ,rsb12, rsb32, rsb21 
       DOUBLE PRECISION rsab, rsab12, rsab32, rsab21 
@@ -505,11 +408,9 @@ Cfah arrays.
      & de_caa_by_drhoa, de_cbb_by_drhob, de_cab_by_drhoa, 
      & de_cab_by_drhob,
      & c_naa, c_nbb, c_nab
-      double precision rhoa83,rhob83,ucaan,ucaan1,ucabn,ucabn1,
-     , ddprodu
-      INTEGER i, j, k, n
-C     DOUBLE PRECISION d2F_xs_by_drhos_dzs, d2F_xs_by_dzs_dzs
-      DOUBLE PRECISION F_xs,dF_xs_by_drhos, dF_xs_by_dzs
+      DOUBLE PRECISION F_xs ! this is a function which is called. 
+      DOUBLE PRECISION dF_xs_by_drhos, dF_xs_by_dzs
+      INTEGER i, j,  n
       integer n1
       double precision x1,x2,x3,x4
       double precision e_crs1
@@ -562,7 +463,7 @@ c     usage
 c     e_crsa1 = e_crs1(rsa12,rsa,rsa32,rsa21)
 c
       e_crs1(x1,x2,x3,x4) = -0.03108999999999999d0*
-     *  log(1.d0 + 32.16468317787069d0/
+     *  dlog(1.d0 + 32.16468317787069d0/
      /     (14.1189d0*x1+6.1977d0*x2 + 3.3662d0*x3 +
      +     0.6251699999999999d0*x4))*(1.d0 + 0.20548d0*x2)
       drsbydrh(x1) = -((1.d0/x1)**(4.D0/3.D0)/
@@ -574,9 +475,9 @@ c     usage decrsdrs(rsa,rsa12,rsa21,rsa32)
      +     3.3662d0*x4)**2d0*(1.d0 + 32.16468317787069d0/
      -     (6.1977d0*x1+14.1189d0*x2+0.6251699999999999d0*x3+
      +     3.3662d0*x4))) - 0.006388373199999999d0*
-     -   log(1.d0 + 32.16468317787069d0/(6.1977d0*x1 + 14.1189d0*x2 + 
+     -   dlog(1.d0 + 32.16468317787069d0/(6.1977d0*x1 + 14.1189d0*x2 + 
      -        0.6251699999999999d0*x3 + 3.3662d0*x4)) 
-C
+c
       DO j = 1, 4
         DO n = 1, (max_pow_u+1)*3
           F(n,j) = 0.D0
@@ -588,16 +489,16 @@ Cfah  as number of the coefficient.
         dF_caa(j) = 0.D0
         dF_cbb(j) = 0.D0
         dF_cab(j) = 0.D0
-        DO k = 1, 4
-          DO n = 1, (max_pow_u+1)*3
-            FF(n,j,k) = 0.D0
-          ENDDO
-C         d2F_xa(j,k) = 0.D0
-C         d2F_xb(j,k) = 0.D0
-C         d2F_caa(j,k) = 0.D0
-C         d2F_cbb(j,k) = 0.D0
-C         d2F_cab(j,k) = 0.D0
-        ENDDO
+C        DO k = 1, 4
+C          DO n = 1, (max_pow_u+1)*3
+C            FF(n,j,k) = 0.D0
+C          ENDDO
+C          d2F_xa(j,k) = 0.D0
+C          d2F_xb(j,k) = 0.D0
+C          d2F_caa(j,k) = 0.D0
+C          d2F_cbb(j,k) = 0.D0
+C          d2F_cab(j,k) = 0.D0
+C        ENDDO
       ENDDO
       DO j = 1, (max_pow_u+1)*3
         F_xc(j) = 0.D0
@@ -608,166 +509,13 @@ Cfah --------------------------------------------------------------
 Cfah call the expensive correlation parts here just once, and store their
 Cfah values in a temporary variable. Then compute the actual F_c derivatives
 Cfah with the various powers of u.  
-      
-      rho = rhoa + rhob
-      rhoa83=rhoa**(8.D0/3.D0)
-      rhob83=rhob**(8.D0/3.D0)
-c
-c     closed shell case
-c
-      if(ipol.eq.1) then
-      s_a2=0.d0
-      if(za.gt.tol_rho) s_a2 = za*za/rhoa83
-
-      u_caa = 0.2D0*s_a2/(1.D0+0.2D0*s_a2) 
-      s_avg2 = s_a2
-      u_cab = 0.006D0*s_avg2/(1.d0+0.006D0*s_avg2)
-
-      rsa = ((3.d0/Pi)**(1.D0/3.D0)*
-     -    (1.d0/rhoa)**(1.D0/3.D0))/
-     -  2**(2.D0/3.D0)
-      rsa12 = rsa**(1.D0/2.D0)
-      rsa32 = rsa**(3.D0/2.D0)
-      rsa21 = rsa*rsa
-      rsb=rsa
-      rsab = ((3.d0/Pi)**(1.D0/3.D0)*
-     *     (1.d0/rho)**(1.D0/3.D0))/2**(2.D0/3.D0)
-      rsab12 = rsab**(1.D0/2.D0)
-      rsab32 = rsab**(3.D0/2.D0)
-      rsab21 = rsab*rsab
-      
-C     
-C     pw91 LDA Ecorr
-C
-      e_crsa1 = e_crs1(rsa12,rsa,rsa32,rsa21)
-      e_crsab1 = e_crs1(rsab12,rsab,rsab32,rsab21)
-      e_crsab0 = -0.062182d0*dlog(1.d0+16.0818243221511d0/
-     /     (7.595699999999999d0*rsab12+3.5876d0*rsab +
-     +     1.6382d0*rsab32+0.49294d0*rsab21))*
-     *     (1.d0 + 0.2137d0*rsab)
-
-      a_crsab = 0.03377399999999999d0*dlog(1.d0+29.60857464321667d0/
-     -     (10.35699999999999d0*rsab12 + 3.623099999999999d0*rsab +
-     -     0.88026d0*rsab32 + 0.49671d0*rsab21))*
-     -     (1.d0 + 0.11125d0*rsab)
-
-      e_caa = rhoa*e_crsa1
-      e_cab = rho*(e_crsab0 - e_crsa1)
-
-Cfah derive all this stuff only if we need it, not if only F_c itself 
-Cfah is required. 
-      IF (derivestuff) THEN  
-
-      du_caa_by_dza = 1.d0/(0.2D0*za*za + rhoa83)**2
-      du_caa_by_drhoa = (-1.6D0*za*za*rhoa**(5.D0/3.D0))*
-     *du_caa_by_dza/3.d0
-      du_caa_by_dza = (0.4D0*za*rhoa83)*du_caa_by_dza
-      du_cab_by_dza = 1.d0/2.d0*rhoa83*(0.006D0*za*za+rhoa83)**2
-      du_cab_by_drhoa=(-0.096D0*za*za*rhoa**(5.D0/3.D0)*rhoa83*rhoa83)*
-     *     du_cab_by_dza/3.d0
-      du_cab_by_dza = (0.024D0*za*rhoa83*rhoa83*rhoa83)*du_cab_by_dza
-
-      drsa_by_drhoa  = drsbydrh(rhoa)
-      drsab_by_drhoa = 16.d0**(1.d0/3.d0)*drsa_by_drhoa
-
-      de_crsa1_by_drsa = decrsdrs(rsa,rsa12,rsa21,rsa32)
-      de_crsab1_by_drsab = decrsdrs(rsab,rsab12,rsab21,rsab32)
-      ddprodu =3.623099999999999d0*rsab+10.35699999999999d0*rsab12+
-     +     0.49671d0*rsab21+0.88026d0*rsab32
-      da_crsab_by_drsab = (-(1.d0 + 0.11125d0*rsab)*
-     -     (3.623099999999999d0+5.178499999999999d0/rsab12 + 
-     -     0.99342d0*rsab+1.32039d0*rsab12))/
-     /     (ddprodu*(ddprodu+29.60857464321667d0)) +
-     +     0.003757357499999999d0*dlog(1.d0+29.60857464321667/ddprodu)
-
-      ddprodu=3.5876d0*rsab + 7.595699999999999d0*rsab12 + 
-     -        0.49294d0*rsab21 + 1.6382d0*rsab32
-      de_crsab0_by_drsab = ((1.d0 + 0.2137d0*rsab)*
-     -     (3.5876d0 + 3.797849999999999d0/rsab12 + 
-     -       0.98588d0*rsab + 2.4573d0*rsab12))/
-     /   (ddprodu*(ddprodu + 16.0818243221511d0)) - 
-     -  0.01328829339999999d0*dlog(1.d0+16.0818243221511d0/ddprodu)
-
-
-
-Cfah this is with application of the chain rule; I keep it that general
-Cfah because this way, I only have to define one "G". 
-      de_caa_by_drhoa = e_crsa1 + rhoa*de_crsa1_by_drsa*drsa_by_drhoa 
-
-      de_cab_by_drhoa = -e_crsa1 + e_crsab0 -
-     -  rhoa*de_crsa1_by_drsa*drsa_by_drhoa + 
-     +  rho*(de_crsab0_by_drsab*drsab_by_drhoa )
-
-
-      ENDIF ! if (derivestuff) 
-
-
-Cfah Here starts the big outer loop over the powers u 
-      ucaan=u_caa
-      ucaan1=0.d0
-      ucabn=u_cab
-      ucabn1=0.d0
-      DO n = 0, max_pow_u 
-        c_naa = sol((n*3) + 2)
-        c_nab = sol((n*3) + 3) 
-
-Cfah construction of the F_xc itself
-Cfah -------------------------------
-Cfah test for zero densities (as in beta part of H atom):
-        IF (rhoa.GT.tol_rho) THEN
-          F_xc(n*3+1) = F_xs (n, sol((n*3) + 1), rho, za)
-          F_xc(n*3+2) = e_caa*ucaan*c_naa*2.d0
-          F_xc(n*3+3) = e_cab*ucabn*c_nab
-Cfah    First Derivatives
-Cfah ---------------------
-
-          if(za.gt.tol_rho) then
-            dF_xa(1) = dF_xs_by_drhos (n, sol((n*3) + 1), rhoa, za) 
-            dF_xa(3) = dF_xs_by_dzs (n, sol((n*3) + 1), rhoa, za)
-          endif
-          
-          dF_caa(1) = c_naa*ucaan*de_caa_by_drhoa +  
-     +         c_naa*n*e_caa*ucaan1*du_caa_by_drhoa
-          dF_caa(3) = c_naa*n*e_caa*ucaan1* du_caa_by_dza
-          
-          dF_cab(1) = c_nab*ucabn*de_cab_by_drhoa+
-     +         c_nab*n*e_cab*ucabn1*du_cab_by_drhoa
-          dF_cab(3) = c_nab*n*e_cab*ucabn1*du_cab_by_dza
-      endif
-
-
-
-Cfah Sum up all the partial derivatives with respect to the same function
-Cfah of terms containing different powers of u with the help of the big outer 
-Cfah loop: 
-
-Cfah have the partial derivative 
-
-          DO i = 1, 3,2
-            F(n*3+1,i) = 2.d0*dF_xa(i)
-            F(n*3+2,i) = 2.d0*dF_caa(i)
-            F(n*3+3,i) = dF_cab(i) 
-            F(n*3+1,i+1) = F(n*3+1,i)
-            F(n*3+2,i+1) = F(n*3+2,i) 
-            F(n*3+3,i+1) = F(n*3+3,i)
-          enddo
-          ucaan=ucaan*u_caa
-          ucaan1=ucaan/u_caa
-          ucabn=ucabn*u_cab
-          ucabn1=ucabn/u_cab
-        enddo
-      else
-c
-c       open shell case
-c
-
 
       rho = rhoa + rhob
 
       s_a2=0.d0
-      if(za.gt.tol_rho) s_a2 = za*za/rhoa83
+      if(za.gt.tol_rho) s_a2 = za**2.D0 / rhoa**(8.D0/3.D0)
       s_b2=0.d0
-      if(zb.gt.tol_rho) s_b2 = zb*zb/rhob83
+      if(zb.gt.tol_rho) s_b2 = zb**2.D0 / rhob**(8.D0/3.D0)
       s_avg2 = 0.5D0*(s_a2 + s_b2)
 
       u_caa = 0.2D0*s_a2/(1.D0+0.2D0*s_a2) 
@@ -776,84 +524,97 @@ c
 
       rsa = ((3.d0/Pi)**(1.D0/3.D0)*
      -    (1.d0/rhoa)**(1.D0/3.D0))/
-     -  2.d0**(2.D0/3.D0)
+     -  2**(2.D0/3.D0)
       rsa12 = rsa**(1.D0/2.D0)
       rsa32 = rsa**(3.D0/2.D0)
-      rsa21 = rsa*rsa
+      rsa21 = rsa**2.D0
 
       rsb = ((3.d0/Pi)**(1.D0/3.D0)*
      -    (1.d0/rhob)**(1.D0/3.D0))/
-     -  2.d0**(2.D0/3.D0)
+     -  2**(2.D0/3.D0)
       rsb12 = rsb**(1.D0/2.D0)
       rsb32 = rsb**(3.D0/2.D0)
-      rsb21 = rsb*rsb
+      rsb21 = rsb**2.D0
 
       rsab = ((3.d0/Pi)**(1.D0/3.D0)*
      -    (1.d0/rho)**(1.D0/3.D0))/
-     -  2.d0**(2.D0/3.D0)
+     -  2**(2.D0/3.D0)
       rsab12 = rsab**(1.D0/2.D0)
       rsab32 = rsab**(3.D0/2.D0)
-      rsab21 = rsab*rsab
+      rsab21 = rsab**2.D0
 
       zeta = (rhoa-rhob)/rho
 
-      fzeta = (-2.d0 + (1.d0 - zeta)**(4.D0/3.D0) +
-     -    (1.d0 + zeta)**(4.D0/3.D0))/(-2.d0 + 2*2**(1.D0/3.D0))
-C
+      fzeta = (-2.d0 + (1.d0 - zeta)**
+     -     (4.D0/3.D0) +
+     -    (1.d0 + zeta)**(4.D0/3.D0))/
+     -  (-2.d0 + 2.d0*2.d0**(1.D0/3.D0))
+
+C     
 C     pw91 LDA Ecorr
 C
       e_crsa1 = e_crs1(rsa12,rsa,rsa32,rsa21)
       e_crsb1 = e_crs1(rsb12,rsb,rsb32,rsb21)
       e_crsab1 = e_crs1(rsab12,rsab,rsab32,rsab21)
+      e_crsab0 = -0.062182d0*dlog(1.d0 +
+     -    16.0818243221511d0/
+     -     (7.595699999999999d0*rsab12 +
+     -       3.5876d0*rsab +
+     -       1.6382d0*rsab32 +
+     -       0.49294d0*rsab21))*
+     -  (1.d0 + 0.2137d0*rsab)
 
-      e_crsab0 = -0.062182d0*dlog(1.d0 +16.0818243221511d0/
-     /     (7.595699999999999d0*rsab12 +3.5876d0*rsab +
-     +     1.6382d0*rsab32+0.49294d0*rsab21))*(1.d0 + 0.2137d0*rsab)
-
-      a_crsab = 0.03377399999999999d0*dlog(1.d0 + 29.60857464321667/
-     /     (10.35699999999999d0*rsab12+3.623099999999999d0*rsab +
-     -     0.88026d0*rsab32+0.49671d0*rsab21))*(1.d0+0.11125d0*rsab)
+      a_crsab = 0.03377399999999999d0*
+     -  dlog(1.d0 + 29.60857464321667/
+     -     (10.35699999999999d0*rsab12 +
+     -       3.623099999999999d0*rsab +
+     -       0.88026d0*rsab32 +
+     -       0.49671d0*rsab21))*
+     -  (1.d0 + 0.11125d0*rsab)
 
       e_crsabzeta = e_crsab0+a_crsab*fzeta*(1.d0-zeta**4)/1.709921D0+
      -  (e_crsab1-e_crsab0)*fzeta*zeta**4
-  
-Cfah       print*, 'deriv2', e_crsab0, a_crsab, fzeta, zeta, e_crsab1
 
       e_caa = rhoa*e_crsa1
       e_cbb = rhob*e_crsb1
       e_cab = rho*e_crsabzeta - rhoa*e_crsa1 - rhob*e_crsb1
 
-Cfah       print*, 'deriv1:',rho, e_crsabzeta, e_crsa1, e_crsb1, rhoa, rhob
+      du_caa_by_drhoa = (-1.6D0*za*za*rhoa**(5.D0/3.D0))/
+     -  (3.*(0.2D0*za*za + 
+     -       rhoa**(8.D0/3.D0))**2)
+      du_caa_by_dza = (2*0.2D0*za*rhoa**(8.D0/3.D0))/
+     -  (0.2D0*za*za + rhoa**(8.D0/3.D0))**2
 
+      du_cbb_by_drhob = (-1.6D0*zb**2*rhob**(5.D0/3.D0))/
+     -  (3.d0*(0.2D0*zb**2 + 
+     -       rhob**(8.D0/3.D0))**2)
+      du_cbb_by_dzb = (2*0.2D0*zb*rhob**(8.D0/3.D0))/
+     -  (0.2D0*zb**2 + rhob**(8.D0/3.D0))**2
 
-Cfah derive all this stuff only if we need it, not if only F_c itself 
-Cfah is required. 
-      IF (derivestuff) THEN  
-
-      du_caa_by_dza = 1.d0/(0.2D0*za*za + rhoa83)**2
-      du_caa_by_drhoa=(-1.6D0*za*za*rhoa**(5.D0/3.D0))*
-     *     du_caa_by_dza/3.d0
-      du_caa_by_dza = (0.4D0*za*rhoa83)*du_caa_by_dza
-      du_cbb_by_dzb = 1.d0/(0.2D0*zb*zb + rhob83)**2
-      du_cbb_by_drhob=(-1.6D0*zb*zb*rhob**(5.D0/3.D0))*
-     *     du_cbb_by_dzb/3.d0
-      du_cbb_by_dzb = (0.4D0*zb*rhob83)*du_cbb_by_dzb
-
-
-      du_cab_by_drhoa=(-0.096D0*za*za*rhoa**(5.D0/3.D0)*
-     *     rhob83*rhob83)/
-     -     (3.d0*(0.006D0*zb*zb*rhoa83+0.006D0*za*za*rhob83 + 
-     -     2.d0*rhoa83*rhob83)**2)
-      du_cab_by_drhob=(-0.096D0*zb*zb*rhob**(5.D0/3.D0)*
-     *     rhoa83*rhoa83)/
-     -     (3.d0*(0.006D0*za**2*rhob83+0.006D0*zb*zb*rhoa83 + 
-     -     2.d0*rhob83*rhoa83)**2)
-      du_cab_by_dza = (0.024D0*za*rhoa83*rhob83*rhob83)/
-     -  (0.006D0*zb*zb*rhoa83+0.006D0*za*za*rhob83 + 
-     -     2.d0*rhoa83*rhob83)**2
-      du_cab_by_dzb = (0.024D0*zb*rhoa83*rhob83*rhob83)/
-     /     (0.006D0*zb*zb*rhoa83+0.006D0*za*za*rhob83 +
-     -     2.d0*rhoa83*rhob83)**2
+      du_cab_by_drhoa = (-16*0.006D0*za*za*rhoa**(5.D0/3.D0)*
+     -    rhob**(16.D0/3.D0))/
+     -  (3.d0*(0.006D0*zb**2*rhoa**(8.D0/3.D0) + 
+     -       0.006D0*za*za*rhob**(8.D0/3.D0) + 
+     -       2.d0*rhoa**(8.D0/3.D0)*
+     -        rhob**(8.D0/3.D0))**2) 
+      du_cab_by_drhob = (-16*0.006D0*zb**2*rhob**(5.D0/3.D0)*
+     -    rhoa**(16.D0/3.D0))/
+     -  (3.d0*(0.006D0*za*za*rhob**(8.D0/3.D0) + 
+     -       0.006D0*zb**2*rhoa**(8.D0/3.D0) + 
+     -       2.d0*rhob**(8.D0/3.D0)*
+     -        rhoa**(8.D0/3.D0))**2) 
+      du_cab_by_dza = (4*0.006D0*za*rhoa**(8.D0/3.D0)*
+     -    rhob**(16.D0/3.D0))/
+     -  (0.006D0*zb**2*rhoa**(8.D0/3.D0) + 
+     -     0.006D0*za*za*rhob**(8.D0/3.D0) + 
+     -     2.d0*rhoa**(8.D0/3.D0)*
+     -      rhob**(8.D0/3.D0))**2
+      du_cab_by_dzb = (4*0.006D0*zb*rhoa**(16.D0/3.D0)*
+     -    rhob**(8.D0/3.D0))/
+     -  (0.006D0*zb**2*rhoa**(8.D0/3.D0) + 
+     -     0.006D0*za*za*rhob**(8.D0/3.D0) + 
+     -     2.d0*rhoa**(8.D0/3.D0)*
+     -      rhob**(8.D0/3.D0))**2
 
 Cfah Second derivatives are not required by cadpac. 
 Cfah   du_caa_by_drhoa_dza = (16*0.2D0*za*rhoa**(5.D0/3.D0)*
@@ -936,22 +697,19 @@ Cfah -     0.006D0*za**2*rhob**(8.D0/3.D0) +
 Cfah -     2*rhoa**(8.D0/3.D0)*
 Cfah -      rhob**(8.D0/3.D0))**3 
 
-      drsa_by_drhoa  = drsbydrh(rhoa)
-      drsb_by_drhob  = drsbydrh(rhob)
-      drsab_by_drhoa = drsbydrh(rho)
+      drsa_by_drhoa = drsbydrh(rhoa)
+      drsb_by_drhob = drsbydrh(rhob)
+      drsab_by_drhoa = drsbydrh(rho) 
       drsab_by_drhob = drsab_by_drhoa 
 
       dzeta_by_drhoa = 2.d0*rhob/rho**2
       dzeta_by_drhob = -2.d0*rhoa/rho**2
 
-      dfzeta_by_dzeta = ((-4d0*(1.d0 - zeta)**(1.D0/3.D0))/
-     -     3.d0 + (4d0*(1.d0 + zeta)**
+      dfzeta_by_dzeta = ((-4.d0*(1.d0 - zeta)**(1.D0/3.D0))/
+     -     3.d0 + (4.d0*(1.d0 + zeta)**
      -        (1.D0/3.D0))/3.)/
      -  (-2.d0 + 2d0*2**(1.D0/3.D0))
 
-      de_crsa1_by_drsa = decrsdrs(rsa,rsa12,rsa21,rsa32)
-      de_crsab1_by_drsab = decrsdrs(rsab,rsab12,rsab21,rsab32)
-      de_crsb1_by_drsb =  decrsdrs(rsb,rsb12,rsb21,rsb32)
 
       da_crsab_by_drsab = (-1.d0*(1.d0 + 0.11125d0*rsab)*
      -     (3.623099999999999d0 + 
@@ -982,21 +740,10 @@ Cfah -      rhob**(8.D0/3.D0))**3
      -   dlog(1.d0 + 16.0818243221511d0/
      -      (3.5876*rsab + 7.595699999999999d0*rsab12 + 
      -        0.49294d0*rsab21 + 1.6382d0*rsab32))
+      de_crsa1_by_drsa = decrsdrs(rsa,rsa12,rsa21,rsa32)
+      de_crsab1_by_drsab = decrsdrs(rsab,rsab12,rsab21,rsab32)
+      de_crsb1_by_drsb =  decrsdrs(rsb,rsb12,rsb21,rsb32)
 
-      de_crsab1_by_drsab = (1.*(1.d0 + 0.20548d0*rsab)*
-     -     (6.1977 + 7.05945d0/Sqrt(rsab) + 
-     -       1.25034d0*rsab + 5.0493d0*rsab12))/
-     -   ((6.1977*rsab + 14.1189d0*rsab12 + 
-     -        0.6251699999999999d0*rsab21 + 3.3662d0*rsab32)
-     -       **2*(1.d0 + 32.16468317787069d0/
-     -        (6.1977*rsab + 14.1189*rsab12 + 
-     -          0.6251699999999999d0*rsab21 + 
-     -          3.3662d0*rsab32))) - 
-     -  0.006388373199999999d0*
-     -   dlog(1.d0 + 32.16468317787069d0/
-     -      (6.1977d0*rsab + 14.1189d0*rsab12 + 
-     -        0.6251699999999999d0*rsab21 + 3.3662*rsab32)
-     -     )
 
       de_crsabzeta_by_drsab = 1.124999956683108D0*(1.d0 - zeta**4)*
      -   (-2.d0 + (1.d0 - zeta)**(4.D0/3.D0) + 
@@ -1043,11 +790,9 @@ Cfah because this way, I only have to define one "G".
      -  de_crsabzeta_by_dzeta*
      -  dzeta_by_drhob)
 
-      ENDIF ! if (derivestuff) 
 
 
 Cfah Here starts the big outer loop over the powers u 
-
       DO n = 0, max_pow_u 
         c_naa = sol((n*3) + 2)
         c_nbb = c_naa
@@ -1057,16 +802,17 @@ Cfah construction of the F_xc itself
 Cfah -------------------------------
         IF (rhoa.GT.tol_rho) THEN
           F_xc(n*3+1) = F_xs (n, sol((n*3) + 1), rhoa, za)
-          F_xc(n*3+2) = e_caa*u_caa**n*c_naa
+          if(abs(u_caa).gt.0.d0)F_xc(n*3+2) = e_caa*u_caa**n*c_naa
         ENDIF
 
         IF (rhob.GT.tol_rho) THEN
           F_xc(n*3+1) = F_xc(n*3+1)+F_xs(n, sol((n*3) + 1), rhob, zb)
-          F_xc(n*3+2) = F_xc(n*3+2)+e_cbb*u_cbb**n*c_nbb
+          if(abs(u_cbb).gt.0.d0)
+     .         F_xc(n*3+2) = F_xc(n*3+2)+e_cbb*u_cbb**n*c_nbb
         ENDIF
 
         IF (rhoa.GT.tol_rho .AND. rhob.GT.tol_rho) THEN
-          F_xc(n*3+3) = e_cab*u_cab**n*c_nab
+          if(abs(u_cab).gt.0.d0)F_xc(n*3+3) = e_cab*u_cab**n*c_nab
         ENDIF
 
 Cfah       print*, 'in deriv:', e_cab, u_cab, c_nab
@@ -1081,46 +827,37 @@ Cfah ---------------------
      *        dF_xa(3) = dF_xs_by_dzs (n, sol((n*3) + 1), rhoa, za)
         dF_xa(4) = 0 
 
-        dF_xb(1) = 0 
-        if(zb.gt.tol_rho) 
-     *        dF_xb(2) = dF_xs_by_drhos (n, sol((n*3) + 1), rhob, zb)
-        dF_xb(3) = 0 
-        if(zb.gt.tol_rho) 
-     *        dF_xb(4) = dF_xs_by_dzs (n, sol((n*3) + 1), rhob, zb)
+        if(zb.gt.tol_rho) then
+             dF_xb(2) = dF_xs_by_drhos (n, sol((n*3) + 1), rhob, zb)
+             dF_xb(4) = dF_xs_by_dzs (n, sol((n*3) + 1), rhob, zb)
+           endif
 
-        dF_caa(1) = c_naa*u_caa**n*de_caa_by_drhoa +  
-     -   c_naa*n*e_caa*u_caa**(-1 + n)*
-     -   du_caa_by_drhoa
-        dF_caa(2) = 0.D0
-        dF_caa(3) = c_naa*n*e_caa*u_caa**(-1 + n)*
-     -  du_caa_by_dza
-        dF_caa(4) = 0.D0
+        if(abs(u_caa).gt.0.d0) then
+          dF_caa(1) = c_naa*u_caa**n*
+     *       de_caa_by_drhoa+c_naa*n*e_caa*u_caa**(-1+n)*
+     *       du_caa_by_drhoa
+          dF_caa(3) = c_naa*n*e_caa*u_caa**(-1+n)*du_caa_by_dza
+        endif
 
-        dF_cbb(1) = 0.D0
-        dF_cbb(2) = c_nbb*u_cbb**n*de_cbb_by_drhob + 
-     -   c_nbb*n*e_cbb*u_cbb**(-1 + n)*
-     -   du_cbb_by_drhob
-        dF_cbb(3) = 0.D0
-        dF_cbb(4) = c_nbb*n*e_cbb*u_cbb**(-1 + n)*
-     -  du_cbb_by_dzb
+        if(abs(u_cbb).gt.0.d0) then
+          dF_cbb(2) = c_nbb*u_cbb**n*de_cbb_by_drhob + 
+     -   c_nbb*n*e_cbb*u_cbb**(-1 + n)*du_cbb_by_drhob
+          dF_cbb(4) = c_nbb*n*e_cbb*u_cbb**(-1+n)*du_cbb_by_dzb
+        endif
 
 
-        dF_cab(1) = c_nab*u_cab**n*
-     -   de_cab_by_drhoa + 
-     -   c_nab*n*e_cab*
-     -   u_cab**(-1 + n)*
-     -   du_cab_by_drhoa 
-        dF_cab(2) = c_nab*u_cab**n*
-     -   de_cab_by_drhob +
-     -   c_nab*n*e_cab*
-     -   u_cab**(-1 + n)*
-     -   du_cab_by_drhob
-        dF_cab(3) = c_nab*n*e_cab*
-     -  u_cab**(-1 + n)*
-     -  du_cab_by_dza
-        dF_cab(4) = c_nab*n*e_cab*
-     -  u_cab**(-1 + n)*
-     -  du_cab_by_dzb
+        if(abs(u_cab).gt.0.d0) then
+          dF_cab(1) = c_nab*u_cab**n*
+     *         de_cab_by_drhoa+c_nab*n*e_cab*u_cab**(-1+n)*
+     *         du_cab_by_drhoa 
+          dF_cab(2) = c_nab*u_cab**n*
+     -         de_cab_by_drhob+c_nab*n*e_cab*u_cab**(-1+n)*
+     -         du_cab_by_drhob
+          dF_cab(3) = c_nab*n*e_cab*
+     -         u_cab**(-1+n)*du_cab_by_dza
+          dF_cab(4) = c_nab*n*e_cab*
+     -         u_cab**(-1+n)*du_cab_by_dzb
+        endif
 
 Cfah Second Derivatives
 Cfah ------------------
@@ -1329,7 +1066,6 @@ Cfah      FF(n*3+3,5,i) = 0
 Cfah    ENDDO
 
       ENDDO
-      endif
 
       RETURN
 
