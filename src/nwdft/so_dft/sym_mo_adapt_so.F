@@ -1,5 +1,5 @@
       subroutine sym_movecs_adapt_so(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt_so.F,v 1.2 2000-04-18 00:59:37 edo Exp $
+C$Id: sym_mo_adapt_so.F,v 1.3 2000-10-06 21:07:55 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -458,7 +458,7 @@ c
             if((i-1)/2 .eq. (j-1)/2)then 
                fact = real(real(ufact))
             else 
-               fact = -imag(ufact)
+               fact = -dimag(ufact)
                if((i-1)/2 .eq. 1)fact = -fact 
             endif
 c            fact = 0  
