@@ -11,16 +11,18 @@
      &                       hess,  xyz,iscr,nscr,
      &                       expo, ccoef, Bmat, Fmat, 
      &                       Pmat, rq, rdens_atom,  cetobfr, 
-     ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
+     ,     ibf_ao,bas_cent_info,bas_cset_info,docset,
+     ,     bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadv0b.F,v 1.14 2000-05-01 20:28:47 edo Exp $
+c$Id: grid_quadv0b.F,v 1.15 2000-09-21 15:23:53 bjohnson Exp $
 c
       implicit none
 #include "cgridfile.fh"
 #include "stdio.fh"
 #include "cdft.fh"
+#include "bas.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
@@ -28,8 +30,10 @@ c
 #include "grid_sic.fh"
       integer  nqpts    ! [in] no. grid points  to be processed
       integer  ictr_buf ! [in] ctr of grid
+      integer bas_cent_info(3,natoms),bas_cset_info(6,*)
+      logical docset(*)
       double precision acc_AO_gauss, rad, dummy(1),rho0
-      integer nbf_ao_mxnbf_ce2, mbf_ao, npol
+      integer nbf_ao_mxnbf_ce2, mbf_ao, npol, ncontrset
       integer lchi_ao, ichi_ao, ldelchi_ao, idelchi_ao
       integer ldmat,idmat,i, grid_nbfm
       double precision dabsmax,wmax
@@ -56,12 +60,17 @@ c
          call ifill(mbf_ao, 0, ibf_ao, 1)
          mbf_ao=grid_nbfm(AO_bas_han,  natoms, 
      &        ictr_buf,rad,xyz,qxyz,nqpts,
-     &        ibf_ao,  iniz, ifin, expo, 
+     &        ibf_ao, docset, iniz, ifin, expo, 
      &        minexp,ldiff,acc_ao_gauss)
          if (mbf_ao.eq.0) return
       else
          iniz(1)=1
          ifin(1)=nbf_ao
+         if (.not.bas_numcont(AO_bas_han, ncontrset))
+     &        call errquit('Exiting in grid_quadv0b',0)
+         do i=1,ncontrset
+            docset(i)=.true.
+         enddo
          do i=1,nbf_ao
             ibf_ao(i)=i
          enddo

@@ -9,7 +9,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadv0a.F,v 1.23 2000-08-25 20:29:06 edo Exp $
+c$Id: grid_quadv0a.F,v 1.24 2000-09-21 15:23:53 bjohnson Exp $
 c
       implicit none
 c
@@ -17,6 +17,7 @@ c
 #include "stdio.fh"
 #include "cdft.fh"
 #include "mafdecls.fh"
+#include "bas.fh"
 #include "global.fh"
 #include "util.fh"
 #include "grid_quad.fh"
@@ -26,7 +27,11 @@ c
       
       integer iqsh
       integer nqpts, ictr_buf
-      integer ncube,istep,ntot_cube
+      integer ncube,istep,ntot_cube,ncontrset
+      integer lbas_cent_info, ibas_cent_info,
+     &        lbas_cset_info, ibas_cset_info,
+     &        ldocset, idocset
+
       logical grid_file_rewind
       external grid_file_rewind
       logical xc_chkgrad
@@ -41,7 +46,23 @@ c     rewind grid pts file
 c
       if (.not. grid_file_rewind())
      $   call errquit('grid_quadv0a: rewinding gridpts?', 0)
-C
+c
+c     Allocate and create info for new basis function evaluator
+c
+      if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
+     &     lbas_cent_info, ibas_cent_info))
+     &     call errquit('grid_quadv0a: cannot allocate bas_cent_info',0)
+      if (.not.bas_numcont(AO_bas_han, ncontrset))
+     &     call errquit('Exiting in grid_quadv0a',0)
+      if (.not.MA_Push_Get(mt_int, 6*ncontrset, 'bas_cset_info',
+     &     lbas_cset_info, ibas_cset_info))
+     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0)
+      if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
+     &     ldocset, idocset))
+     &     call errquit('grid_quadv0a: cannot allocate docset',0)
+      call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
+     &     int_mb(ibas_cset_info), natoms)
+c
       ntot_cube=0
       do 200 iqsh = 1, n_rec_in_file
 c
@@ -68,7 +89,8 @@ c
      &                       hess,  xyz,iscr,nscr,
      &                       expo, ccoef, Bmat, Fmat, 
      &                       Pmat, rq, rdens_atom,  cetobfr, 
-     ,           ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
+     ,           ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
+     ,           log_mb(idocset),bp,rscr,rchi_atom,rdelchi_atom,
      ,           Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,           nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
             ntot_cube=ntot_cube+1
@@ -76,6 +98,13 @@ c
       enddo
  200  continue
  100  continue
+c
+      if (.not.MA_Pop_Stack(ldocset))
+     &     call errquit('grid_quadv0a: pop stack failed.',3)
+      if (.not.MA_Pop_Stack(lbas_cset_info))
+     &     call errquit('grid_quadv0a: pop stack failed.',2)
+      if (.not.MA_Pop_Stack(lbas_cent_info))
+     &     call errquit('grid_quadv0a: pop stack failed.',1)
 c
       call ga_sync
       return
