@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.18 1997-03-05 07:34:16 d3h449 Exp $
+c     $Id: dft_input.F,v 1.19 1997-03-07 00:14:42 d3e129 Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -23,13 +23,13 @@ c
       parameter (num_dirs = 21)
       character*12 dirs(num_dirs)
       character*255 test
+      integer idecomp, mult, iterations, ipol, noio,
+     &        idirect, nfock, ifield, imull
+      logical pseudo, direct, lmaxov, incore
       data dirs /'convergence', 'decomp', 'dft', 'direct', 'ecp', 
      $           'grid', 'vectors', 'incore', 'iterations', 'max_ovl', 
      $           'mulliken', 'mult', 'noio', 'noprint', 'odft', 
      $           'print', 'tolerances', 'xc', 'sym', 'adapt', 'end'/
-      integer idecomp, mult, iterations, ipol, noio,
-     &        idirect, nfock, ifield, imull
-      logical pseudo, direct, lmaxov, incore
 c
 c     Any DFT input causes calculation to be marked as not converged
 c
