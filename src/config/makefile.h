@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.83 1994-12-09 20:37:05 gg502 Exp $
+# $Id: makefile.h,v 1.84 1994-12-21 02:08:39 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -222,7 +222,7 @@ ifeq ($(TARGET),KSR)
 
     DEFINES = -DKSR -DPARALLEL_DIAG -DLongInteger
 
-#     LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
+#    LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
      LIBPATH += -L/home2/d3g270/peigs1.1 -L/home/d3g681/TCGMSG_DISTRIB
        CORE_LIBS = -lglobal -lutil -lpeigs \
               -lksrlapk -lksrblas -llapack2 -lblas2  -ltcgmsg -para -lrpc
