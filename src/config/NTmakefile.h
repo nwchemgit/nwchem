@@ -5,7 +5,7 @@
 ##############################################################################
 
 #
-#	$Id: NTmakefile.h,v 1.3 2000-07-27 15:50:25 bjohnson Exp $
+#	$Id: NTmakefile.h,v 1.4 2000-08-02 01:15:51 bjohnson Exp $
 #
 
 #
@@ -53,22 +53,14 @@ AR = lib -nologo
 ARFLAGS = /out:$(LIBRARY_PATH)
 
 CC = cl -nologo
-#COPT =   -Zi
-COPT =   -Z7
-#COPT =  -G5 -O2
-CFLAGS = -W3 $(COPT) $(DEFINES) $(INCLUDES) -Fo"$(OBJDIR)/" -c
+#COPT =   -Z7
+COPT =  -G5 -O2
+CFLAGS = -W3 $(COPT) $(INCLUDES) $(DEFINES) -Fo"$(OBJDIR)/" -c
 
 FC = fl32 -nologo
-#FOPT = -Zi
-FOPT = -G5 -Ox
-#FFLAGS = $(FOPT) -Fo"$(OBJDIR)/" -c
-
-#FFLAGS=/check:all /debug:full /nooptimize /extend_source:132 $(INCLUDES) $(DEFINES) /traceback /warn:argument_checking /warn:nofileopt /warn:nouncalled /pdbfile:"$(OBJDIR)/" /object:"$(OBJDIR)/" /fpp:"/c /m" /nodefine /nokeep -c
-
-FFLAGS=/check:none /Z7 /nooptimize /extend_source:132 $(INCLUDES) $(DEFINES) /traceback /warn:argument_checking /warn:nofileopt /warn:nouncalled /object:"$(OBJDIR)/" /fpp:"/c /m" /nodefine /nokeep -c
-
-#CPP   = $(CC) -EP
-#CPPFLAGS = $(INCLUDES) $(DEFINES)
+#FOPT = /Z7 /nooptimize
+FOPT = /G5 /Ox
+FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES) /extend_source:132 /check:none /traceback /fpscomp=nogeneral /warn:argument_checking /warn:nofileopt /warn:nouncalled /object:"$(OBJDIR)/" /fpp:"/c /m" /nodefine /nokeep -c
 
 .SUFFIXES:
 .SUFFIXES:      .obj .s .F .c
@@ -76,15 +68,5 @@ FFLAGS=/check:none /Z7 /nooptimize /extend_source:132 $(INCLUDES) $(DEFINES) /tr
 .c{$(OBJDIR)}.obj:
 	$(CC) $(CFLAGS) $<
 
-!IF 0
-.F{$(OBJDIR)}.obj:
-	$(CPP) $(CPPFLAGS) $< > $*.for
-	$(FC) $(FFLAGS) $*.for
-	@del $*.for
-!ELSE
 .F{$(OBJDIR)}.obj:
 	$(FC) $(FFLAGS) $<
-!ENDIF
-
-#.F.for:
-#        $(CPP) $(CPPFLAGS) $< > $*.for
