@@ -14,8 +14,6 @@
    4   1  0.270000E+00
  <end>
  <solver> pauli                     <end>
- <correlation>  vosko                      <end>
- <exchange>     dirac                      <end>
  <pseudopotential> troullier-martins         <end>
  <rcut>
    0  2.292000

@@ -1,5 +1,5 @@
 *
-* $Id: psi_read.F,v 1.4 2002-01-25 17:15:06 bylaska Exp $
+* $Id: psi_read.F,v 1.5 2002-07-05 21:19:47 bylaska Exp $
 *
 
 #define TCGMSG
@@ -118,6 +118,12 @@ c     **** send header to all nodes ****
       if ( (nfft(1).ne.control_ngrid(1)) .or.
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
+        if (taskid.eq.MASTER) then
+        write(*,*) "nfft :",nfft
+        write(*,*) "ngrid:",control_ngrid(1),
+     >                      control_ngrid(2),
+     >                      control_ngrid(3)
+        end if
         call errquit('Error reading wavefunctions - bad grid', 2)
       end if
 

@@ -10,8 +10,6 @@
    3   0  0.200000E+01
    3   1  0.400000E+01
  <end>
- <solver> pauli                     <end>
- <correlation>  vosko                      <end>
- <exchange>     dirac                      <end>
- <pseudopotential> hamann                    <end>
+ <solver> pauli           <end>
+ <pseudopotential> hamann <end>
 
