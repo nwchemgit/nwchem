@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.97 1999-05-31 23:23:56 d3g681 Exp $
+C     $Id: geom_input.F,v 1.98 1999-06-02 05:49:55 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -614,6 +614,7 @@ c
       implicit double precision (a-h,o-z)
 #include "geomP.fh"
       integer geom
+      logical oprint
 c
       call hnd_autoz_input(
      $     zmt_ijbond(1,1,geom),
