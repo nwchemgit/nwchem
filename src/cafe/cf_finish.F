@@ -1,5 +1,5 @@
       subroutine cf_finish()
-c $Id: cf_finish.F,v 1.11 2000-07-13 19:08:19 d3j191 Exp $
+c $Id: cf_finish.F,v 1.12 2000-08-16 21:12:18 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -8,6 +8,8 @@ c
       integer id
 c
 c     deallocate memory
+c
+      if(ipme.gt.0) call pme_finish()
 c
       if(numpmf.gt.0) then
       if(.not.ma_pop_stack(l_ypmf))
@@ -30,8 +32,6 @@ c
       if(.not.ma_pop_stack(l_idrs))
      + call errquit('Failed to deallocate idrs',0)
       endif
-c
-      if(ipme.gt.0) call pme_finish()
 c
       call cf_free()
 c
