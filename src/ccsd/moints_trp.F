@@ -31,7 +31,7 @@ c
       end
       
 
-c  $Id: moints_trp.F,v 2.11 1999-06-16 00:10:12 d3e129 Exp $
+c  $Id: moints_trp.F,v 2.12 1999-07-29 01:01:56 d3g681 Exp $
 c
 c
 c     No-one knows what this stuff is doing ... are the next comments correct?
@@ -133,7 +133,7 @@ c
      $      call errquit('moints_trp: cannot ga_create tmp',0)
           if (ga_nodeid() .eq. 0) call ga_put(g_tmp,1,nbf,1,nbf,cmo,nbf)
 	  call ga_sync
-          call sym_movecs_adapt( basis, 1d-8, g_tmp,
+          call sym_movecs_adapt( basis, 1d-6, g_tmp,
      $                            int_mb(k_sym), nmixed )
           call ga_get(g_tmp,1,nbf,1,nbf,cmo,nbf)
           if (.not.ga_destroy(g_tmp))
