@@ -1,6 +1,8 @@
 
-# $Id: GNUmakefile,v 1.77 1999-08-20 18:59:57 d3e129 Exp $
-
+# $Id: GNUmakefile,v 1.78 2000-05-05 23:23:54 edo Exp $
+TARGET = $(NWCHEM_TARGET)
+include ./tools/armci/config/makecoms.h  
+include ./tools/armci/config/makemp.h  
 include config/makefile.h
 
   SUBDIRS =  $(NWSUBDIRS)

@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.318 2000-05-02 20:55:04 nwchem Exp $
+# $Id: makefile.h,v 1.319 2000-05-05 23:23:54 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -129,8 +129,10 @@ endif
 # The core libraries are usually rather platform-dependent and are
 # specified below.  Use of MPI requires substituting the tcgmsg-mpi
 # wrapper for the normal tcgmsg library.
-# MPLIB - represents the name of mpi library
-MPILIB = -lmpi
+# MPILIB - represents the name of mpi library (with -l)
+# MPI_LIB - represents the path to the mpi library
+#MPILIB =  -lmpich
+#MPI_LIB= /usr/local/lib
 
 #JN: under the new structure, tools should be listed first as
 # their header files are needed for dependency analysis of
@@ -322,7 +324,6 @@ endif
 # but is slow and impairs debug ... use -O1 for speed and debugability.
 # -fast now turns on -depend so must turn it off
      FDEBUG = -g -O1 -nodepend
-   LIBPATH += -L/usr/ucblib
     DEFINES = -DSOLARIS  -DNOAIO
 
 # -DPARALLEL_DIAG
@@ -330,7 +331,71 @@ endif
   LDOPTIONS = -xildoff
        CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -lsunperf -lmvec -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
-      EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl 
+      EXTRA_LIBS = -ldl 
+ifeq ($(BUILDING_PYTHON),python)
+# needed if python was compiled with gcc (common)
+      EXTRA_LIBS += -L/msrc/apps/gcc-2.8.1/lib/gcc-lib/sparc-sun-solaris2.6/2.8.1/ -lgcc
+# needed here if using a python version with tk/tcl extensions (common)
+      EXTRA_LIBS += -L/msrc/apps/lib -ltk8.0 -ltcl8.0 
+# needed here if using a python version built with BLT extensions
+#     EXTRA_LIBS += -L/msrc/apps/lib -lBLT
+# Both tk/tcl and BLT need X11 (common)
+      EXTRA_LIBS += -lX11
+
+ifdef LARGE_FILES
+  LDOPTIONS  += $(shell getconf LFS_LDFLAGS)
+  EXTRA_LIBS += $(shell getconf LFS_LIBS)
+  DEFINES    += -DLARGE_FILES
+endif
+
+
+endif
+
+#end of solaris
+endif
+
+ifeq ($(TARGET),SOLARIS64)
+#
+# Sun running Solaris 64-bit
+#
+      SHELL := $(NICE) /bin/sh
+    CORE_SUBDIRS_EXTRA = blas lapack
+	CPP = /usr/ccs/lib/cpp
+         CC = cc
+   COPTIONS = -xarch=v9 -dalign
+  COPTIMIZE = -O
+#  COPTIMIZE = -fast # -fast makes the linker lose the symbols
+     RANLIB = echo
+  MAKEFLAGS = -j 2 --no-print-directory
+    INSTALL = echo $@ is built
+# -fast introduces many options that must be applied to all files
+# -stackvar puts locals on the stack which seems a good thing
+#     but may need to increase the stacksize at runtime using limit
+# -xs allows debugging without .o files
+   FOPTIONS = -Nl199 -fast -dalign -stackvar\
+ -xarch=v9 -dalign  -xtypemap=real:64,double:64,integer:64
+# -fsimple=2 enables more rearranging of floating point expressions
+# -depend enables more loop restructuring ... now implicit in -fast?
+# -xvector requires -mvec library
+  FOPTIMIZE = -xmaxopt=5 -O5 -fsimple=2 -depend 
+# -O5 and -fast break in hf1mke3, xmaxopt need to get CPRAGMA directive
+# in source
+#-xtarget=native
+# 
+# Under Solaris -g no longer disables optimization ... -O2 seems solid
+# but is slow and impairs debug ... use -O1 for speed and debugability.
+# -fast now turns on -depend so must turn it off
+     FDEBUG = -g -O1 -nodepend
+    DEFINES = -DSOLARIS  -DNOAIO -DSOLARIS64 -DEXT_INT -DPARALLEL_DIAG
+
+  LDOPTIONS = -xs -xildoff
+  LINK.f = f77 $(LDFLAGS) $(FOPTIONS)
+       CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -llapack -lblas 
+#-lrtdb
+# sunperf library breaks ... probably uses integer*4
+# First four needed for parallel stuff, last for linking with profiling
+      EXTRA_LIBS =  -ldl 
+#      EXTRA_LIBS =  -ldl  -lutil
 ifeq ($(BUILDING_PYTHON),python)
 # needed if python was compiled with gcc (common)
       EXTRA_LIBS += -L/msrc/apps/gcc-2.8.1/lib/gcc-lib/sparc-sun-solaris2.6/2.8.1/ -lgcc
@@ -1149,8 +1214,8 @@ ifeq ($(TARGET),DECOSF)
 # Replaced -DLongInteger with -DEXT_INT for consistency with GA, DRA, PEIGS ...
 
     CORE_SUBDIRS_EXTRA = blas lapack
-                  NICE = nice
-                SHELL := $(NICE) /bin/sh
+#                  NICE = nice
+#                SHELL := $(NICE) /bin/sh
                     FC = f77
                     AR = ar
                 RANLIB = echo
@@ -1163,18 +1228,19 @@ ifeq ($(TARGET),DECOSF)
 # braindead alpha undflows inside texas (c6h6 6-31g)
 
 # assume noaccuracy_sensitive was breaking the code in recent versions (EA)
-              FOPTIONS = -i8 -align dcommons -math_library fast -fpe2 -check nounderflow -check nopower -check nooverflow  -warn argument_checking
+              FOPTIONS = -i8 -align dcommons -math_library fast -fpe2 -check nounderflow -check nopower -check nooverflow  -warn argument_checking -warn unused -automatic
 
-              COPTIONS = 
-              LDOPTIONS = -O
-             FOPTIMIZE =  -O5  -tune host -arch host
-             FVECTORIZE = -fast -O5 -tune ev6 -arch ev6
+             COPTIONS = 
+             LDOPTIONS = -O
+             LINK.f = f77 $(LDFLAGS)
+             FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
+             FVECTORIZE = -fast -O5 -tune host -arch host
              COPTIMIZE = -O
 
                DEFINES = -DDECOSF -DEXT_INT -DPARALLEL_DIAG
              CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs   -llapack -lblas 
 #             CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -llapack -lf77blas  -latlas
-            EXTRA_LIBS = -laio -lpthreads 
+            EXTRA_LIBS = -laio 
 ifeq ($(BUILDING_PYTHON),python)
       EXTRA_LIBS += -lX11
 
@@ -1398,15 +1464,24 @@ endif
 #  some of the definitions below will be 'lost'                   #
 ###################################################################
 # MPI version requires tcgmsg-mpi library
-ifdef USE_MPI
-   ifdef MPI_LIB
-       LIBPATH += -L$(MPI_LIB)
-   endif
-   CORE_LIBS += -ltcgmsg-mpi $(MPILIB)
-else
-    CORE_LIBS += -ltcgmsg
-endif
 
+ifdef USE_MPI 
+ifndef LIBMPI 
+  LIBMPI = -lmpi 
+endif 
+ifdef MPI_LIB 
+      CORE_LIBS += -L$(MPI_LIB) 
+endif 
+  CORE_LIBS += -ltcgmsg-mpi $(LIBMPI) 
+else 
+  CORE_LIBS += -ltcgmsg 
+endif 
+# lower level libs used by communication libraries 
+
+ifdef COMM_LIBS 
+ CORE_LIBS += $(COMM_LIBS) 
+endif 
+ 
 #the new GA uses ARMCI library
 ifndef OLD_GA
       CORE_LIBS += -larmci
