@@ -1,6 +1,6 @@
       subroutine ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,
      &                      g_nht2,cmo,scra,scrb,offsh)
-C     $Id: ccsd_t2pm.F,v 2.14 1999-06-16 00:10:12 d3e129 Exp $
+C     $Id: ccsd_t2pm.F,v 2.15 2002-12-24 00:51:30 edo Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
      &        offsh(nsh,nsh)
@@ -411,9 +411,7 @@ c
 c // end parallel task
 c
       enddo
-      call ga_sync
       next=nxtval(-nodes)
-      call ga_sync
 c sync before 3 and 4 index transformation
       call ccsd_idx34(basis,cmo,scra,scrb,nsh,ncor,nocc,nact,nbf,
      &                g_x,g_c)
