@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.11 2000-01-06 00:43:02 edo Exp $
+c$Id: grid_setrad.F,v 1.12 2000-01-07 19:27:06 edo Exp $
 c
       implicit none
 c      
@@ -17,58 +17,34 @@ c
       double precision eps
       parameter (eps = 1.d-20)
       logical oprint, oprint_grid
-      logical tol_reset, mul_reset
+      logical tol_reset, mul_reset,llind
 c
       integer i, itype, ir, nr, irsh
       double precision r, r_max
 c
-      integer lexpo, iexpo, insh, lnsh
+      integer lexpo, iexpo
 c
-      integer n1,ninf,ndivide,mxnrad,znint
+      integer n1,ninf,ndivide,mxnrad,znint,me,
+     .     k_2l,l_2l,k_2ex,l_2ex
       double precision braggmult
       double precision midpoint,range_max,range_mk
       double precision lindh_acc
+      me=ga_nodeid()
 c
 c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
       oprint_grid = util_print('griddebug', print_debug)
-c
-c     check radial cutoffs
-c
-      if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
-     &   call errquit('grid_setrad: cannot allocate expo',0)
-      if (.not.MA_Push_Get(MT_Dbl,nshells_ao,'nsh',lnsh,insh))
-     &   call errquit('grid_setrad: cannot allocate nsh',0)
       if (.not. rtdb_get(rtdb, 'dft:tol_reset', mt_log, 1,
      &   tol_reset))then
          tol_reset = .false.
       endif
-      if (.not. rtdb_get(rtdb, 'dft:mul_reset', mt_log, 1,
-     &   mul_reset))then
-         mul_reset = .false.
-      endif
-      if(tol_reset)call rad_trunc(rtdb, dbl_mb(iexpo), dbl_mb(insh), 
-     &     tol_reset, mul_reset,range_max)
-      if (.not.ma_pop_stack(lnsh))
-     &   call errquit('grid_setrad: cannot pop stack',0)
-      if (.not.ma_pop_stack(lexpo))
-     &   call errquit('grid_setrad: cannot pop stack',0)
-
-      if (.not. rtdb_get(rtdb, 'dft:lindh_acc', mt_dbl, 
-     ,     1, lindh_acc)) lindh_acc=1d-10
-c
-c     Define the Euler-Maclaurin radial quadrature points and weights.
-c
-      if (.not. rtdb_get(rtdb,'dft:braggmult', mt_dbl, 1, braggmult)) 
-     *     braggmult=2d0
-      if (.not. rtdb_cget(rtdb,'dft:radgrid', 1,radgrid)) 
-     *     radgrid='eumac'
-      if (.not. rtdb_get(rtdb,'dft:ndivide', mt_int, 1, ndivide)) 
-     *     ndivide=11
 c
 c     define radial grid type
 c
+      if (.not. rtdb_cget(rtdb,'dft:radgrid', 1,radgrid)) 
+     *     radgrid='eumac'
+      llind=.false.
       if(radgrid.eq.'eumac') then
          wradgrid=1
       elseif(radgrid.eq.'murakn') then
@@ -80,12 +56,45 @@ c
       elseif(radgrid.eq.'gcinterv') then
          wradgrid=5
       elseif(radgrid.eq.'rlindh') then
+         llind=.true.
          tol_reset=.true.
          wradgrid=6
       else
          write(0,*) ' radgrid eq ',radgrid
          call errquit('grid_setrad: unknown radial grid type', 0)
       endif
+c
+c     check radial cutoffs
+c
+      if(llind) then
+         if (.not.MA_Push_Get(mt_int,ntypes,'l+l',l_2l,k_2l))
+     &        call errquit('grid_setrad: cannot allocate 2l',0)
+         if (.not.MA_Push_Get(MT_Dbl,ntypes,'l+l',l_2ex,k_2ex))
+     &        call errquit('grid_setrad: cannot allocate 2e',0)
+      else
+         k_2l=0
+         k_2ex=0
+      endif
+
+      if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
+     &   call errquit('grid_setrad: cannot allocate expo',0)
+
+      if(tol_reset) call grid_rtrunc(rtdb, dbl_mb(iexpo), 
+     .     llind,dbl_mb(k_2ex),int_mb(k_2l),
+     &     tol_reset, range_max)
+
+      if (.not.ma_pop_stack(lexpo))
+     &   call errquit('grid_setrad: cannot pop stack expo',1)
+
+      if (.not. rtdb_get(rtdb, 'dft:lindh_acc', mt_dbl, 
+     ,     1, lindh_acc)) lindh_acc=1d-10
+c
+c     Define the Euler-Maclaurin radial quadrature points and weights.
+c
+      if (.not. rtdb_get(rtdb,'dft:braggmult', mt_dbl, 1, braggmult)) 
+     *     braggmult=2d0
+      if (.not. rtdb_get(rtdb,'dft:ndivide', mt_int, 1, ndivide)) 
+     *     ndivide=11
          
 
       do 100 itype = 1, ntypes
@@ -113,9 +122,10 @@ c
             call grid_roland(
      ,              rpts(1,itype),rwghts(1,itype),nrad(itype),
      ,              ityp2ctr(itype),dbl_mb(iexpo),
+     .              dbl_mb(k_2ex+itype-1),int_mb(k_2l+itype-1),
      ,              mxrad,rad_cutoff(1,itype),lindh_acc)
             if (.not.ma_pop_stack(lexpo))
-     &           call errquit('grid_setrad: cannot pop stack',0)
+     &           call errquit('grid_setrad: cannot pop stack',2)
 
             elseif(wradgrid.eq.3) then
             call xc_tarad(int(znuc_atom_type(itype)), 
@@ -198,6 +208,13 @@ c     ,          midpoint)
             endif
          endif
   100 continue
+
+      if(llind) then
+         if (.not.ma_pop_stack(l_2ex))
+     &        call errquit('grid_setrad: cannot pop stack',3)
+         if (.not.ma_pop_stack(l_2l))
+     &        call errquit('grid_setrad: cannot pop stack',4)
+      endif
 c
 c     we could have redefined max no rad pts
 c
