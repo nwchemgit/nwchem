@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.4 1999-04-05 22:54:01 d3j191 Exp $
+c $Id: util_md.F,v 1.5 1999-04-13 15:55:48 d3j191 Exp $
 c
       implicit none
 c
@@ -535,7 +535,7 @@ c
       integer mtime
       parameter(mtime=250)
       integer ncall(250)
-      real*8 ttime(250),ctime(250)
+      real*8 ttime(250,2),ctime(250,2)
       common/tim/ncall,ttime,ctime
 c
       integer i
@@ -545,28 +545,82 @@ c
       if(itime.eq.0) then
       do 1 i=1,mtime
       ncall(i)=0
-      ctime(i)=0.0d0
-      ttime(i)=0.0d0
+      ctime(i,1)=0.0d0
+      ttime(i,1)=0.0d0
     1 continue
       elseif(itime.le.0.or.itime.gt.mtime) then
       call errquit('Timer index out of range',0)
       elseif(iopt.eq.-2) then
       ncall(itime)=0
-      ctime(itime)=0.0d0
-      ttime(itime)=0.0d0
+      ctime(itime,1)=0.0d0
+      ttime(itime,1)=0.0d0
+      ctime(itime,2)=0.0d0
+      ttime(itime,2)=0.0d0
       elseif(iopt.eq.-1) then
       ncall(itime)=0
-      ctime(itime)=-cputim
-      ttime(itime)=-elaps
+      ctime(itime,1)=-cputim
+      ttime(itime,1)=-elaps
+      ctime(itime,2)=-cputim
+      ttime(itime,2)=-elaps
       elseif(iopt.eq.0) then
-      ctime(itime)=ctime(itime)-cputim
-      ttime(itime)=ttime(itime)-elaps
+      ctime(itime,1)=ctime(itime,1)-cputim
+      ttime(itime,1)=ttime(itime,1)-elaps
+      ctime(itime,2)=-cputim
+      ttime(itime,2)=-elaps
       elseif(iopt.eq.1) then
       ncall(itime)=ncall(itime)+1
-      ctime(itime)=ctime(itime)+cputim
-      ttime(itime)=ttime(itime)+elaps
+      ctime(itime,1)=ctime(itime,1)+cputim
+      ttime(itime,1)=ttime(itime,1)+elaps
+      ctime(itime,2)=ctime(itime,2)+cputim
+      ttime(itime,2)=ttime(itime,2)+elaps
       else
       call errquit('Unimplemented timer option',0)
+      endif
+c
+      return
+      end
+      real*8 function timer_cpu(itime)
+c
+      implicit none
+c
+      integer itime
+c
+      integer mtime
+      parameter(mtime=250)
+      integer ncall(250)
+      real*8 ttime(250,2),ctime(250,2)
+      common/tim/ncall,ttime,ctime
+c
+      if(itime.le.0.or.itime.gt.mtime)
+     + call errquit('Illegal timer index',0)
+c
+      if(ncall(itime).le.0) then
+      timer_cpu=0.0d0
+      else
+      timer_cpu=ctime(itime,2)
+      endif
+c
+      return
+      end
+      real*8 function timer_wall(itime)
+c
+      implicit none
+c
+      integer itime
+c
+      integer mtime
+      parameter(mtime=250)
+      integer ncall(250)
+      real*8 ttime(250,2),ctime(250,2)
+      common/tim/ncall,ttime,ctime
+c
+      if(itime.le.0.or.itime.gt.mtime)
+     + call errquit('Illegal timer index',0)
+c
+      if(ncall(itime).le.0) then
+      timer_wall=0.0d0
+      else
+      timer_wall=ttime(itime,2)
       endif
 c
       return
@@ -578,7 +632,7 @@ c
       integer mtime
       parameter(mtime=250)
       integer ncall(250)
-      real*8 ttime(250),ctime(250)
+      real*8 ttime(250,2),ctime(250,2)
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
@@ -597,7 +651,7 @@ c
       integer mtime
       parameter(mtime=250)
       integer ncall(250)
-      real*8 ttime(250),ctime(250)
+      real*8 ttime(250,2),ctime(250,2)
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
@@ -606,7 +660,7 @@ c
       if(ncall(itime).le.0) then
       timer_cpu_average=0.0d0
       else
-      timer_cpu_average=ctime(itime)/dble(ncall(itime))
+      timer_cpu_average=ctime(itime,1)/dble(ncall(itime))
       endif
 c
       return
@@ -620,7 +674,7 @@ c
       integer mtime
       parameter(mtime=250)
       integer ncall(250)
-      real*8 ttime(250),ctime(250)
+      real*8 ttime(250,2),ctime(250,2)
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
@@ -629,7 +683,53 @@ c
       if(ncall(itime).le.0) then
       timer_wall_average=0.0d0
       else
-      timer_wall_average=ttime(itime)/dble(ncall(itime))
+      timer_wall_average=ttime(itime,1)/dble(ncall(itime))
+      endif
+c
+      return
+      end
+      real*8 function timer_cpu_total(itime)
+c
+      implicit none
+c
+      integer itime
+c
+      integer mtime
+      parameter(mtime=250)
+      integer ncall(250)
+      real*8 ttime(250,2),ctime(250,2)
+      common/tim/ncall,ttime,ctime
+c
+      if(itime.le.0.or.itime.gt.mtime)
+     + call errquit('Illegal timer index',0)
+c
+      if(ncall(itime).le.0) then
+      timer_cpu_total=0.0d0
+      else
+      timer_cpu_total=ctime(itime,1)
+      endif
+c
+      return
+      end
+      real*8 function timer_wall_total(itime)
+c
+      implicit none
+c
+      integer itime
+c
+      integer mtime
+      parameter(mtime=250)
+      integer ncall(250)
+      real*8 ttime(250,2),ctime(250,2)
+      common/tim/ncall,ttime,ctime
+c
+      if(itime.le.0.or.itime.gt.mtime)
+     + call errquit('Illegal timer index',0)
+c
+      if(ncall(itime).le.0) then
+      timer_wall_total=0.0d0
+      else
+      timer_wall_total=ttime(itime,1)
       endif
 c
       return
