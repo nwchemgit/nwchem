@@ -2,7 +2,7 @@
      &                      l_degen, i_degen, noc)
       implicit none
 c     
-c     $Id: xc_sicutil.F,v 1.2 2000-04-21 21:00:30 jolguin Exp $
+c     $Id: xc_sicutil.F,v 1.3 2000-04-25 09:25:47 jolguin Exp $
 c     
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -43,12 +43,12 @@ c
       end if
       return
       end
-      subroutine xc_sicdeg(l_degen, i_degen, evals, noc)
+      subroutine xc_sicdeg(i_degen, evals, noc)
       implicit none
 #include "mafdecls.fh"
 #include "cdft.fh"
 c
-      integer l_degen,i_degen(2), evals(2)
+      integer i_degen(2), evals(2)
       integer noc(*) ! [in]
 c
       integer isp, j
