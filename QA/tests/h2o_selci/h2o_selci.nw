@@ -1,3 +1,4 @@
+# $Id: h2o_selci.nw,v 1.3 2003-04-16 20:23:20 edo Exp $
 echo
 
 # Selected CI with perturbation correction (1 frozen core) geometry
@@ -14,9 +15,9 @@ echo
 
 # There is no print control in the CI so you'll get LOTS of output
 
-start h2o_selci
+start h2o_selcis
 
-title; Water CI+PT geometry optimization
+title  "Water CI+PT geometry optimization"
 
 geometry
  symmetry c2v
@@ -32,7 +33,6 @@ basis 6-31g* nosegment noprint
 end
 
 scf; thresh 1e-6; end
-stepper; print low; trust 0.5; end
 
 # First form initial CI reference space starting from all
 # single excitations from the SCF and then perturbation selecting
@@ -46,7 +46,7 @@ set selci:mode select
 set "selci:selection thresholds" 0.0001 0.0001 0.0001
 set selci:nroot 3
 
-title; case c2: energy with selected CI module
+title  "case c2: energy with selected CI module"
 task selci
 
 # Now optimize using the CI+PT energy of the second root
@@ -58,5 +58,5 @@ set selci:update  .false.
 set "selci:moints:force" true
 scf; print low; lock; end
 
-title; case c3: optimization with selected CI+PT energy
+title  "case c3: optimization with selected CI+PT energy"
 task selci optimize      # This will be with numerical derivatives
