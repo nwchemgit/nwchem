@@ -5,7 +5,7 @@
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbci,nbiasi,
      + nodpme,nipmf)
 c
-c $Id: prp_init.F,v 1.60 2003-07-17 19:39:20 d3j191 Exp $
+c $Id: prp_init.F,v 1.61 2003-07-23 16:29:54 d3j191 Exp $
 c
       implicit none
 c
@@ -527,7 +527,7 @@ c
       pronam(it)='Prof: PME Charge Grid Communication              s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: PME Charge Grid Wait                       s'
+      pronam(it)='Prof: PME Charge Grid Retrieval                  s'
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: PME Reverse 3D-pFFT                        s'
@@ -543,12 +543,6 @@ c
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: PME Synchronization                        s'
-      lp(it)=.true.
-      it=it+1
-      pronam(it)='Prof: PME Node Synchronization                   s'
-      lp(it)=.true.
-      it=it+1
-      pronam(it)='Prof: PME Flag                                   s'
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: Local Coordinates Retrieval                s'
@@ -576,6 +570,12 @@ c
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: PME Forces Communication                   s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Node Synchronization                       s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: PME Flag                                   s'
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: Synchronization                            s'
@@ -606,6 +606,12 @@ c
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: SPACE Update                               s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Property Evaluation                        s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Property Recording                         s'
       lp(it)=.true.
       endif
 c

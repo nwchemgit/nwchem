@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.91 2003-07-17 19:39:20 d3j191 Exp $
+c $Id: prp_main.F,v 1.92 2003-07-23 16:29:54 d3j191 Exp $
 c
       implicit none
 c
@@ -334,7 +334,7 @@ c
       endif
 c
       if(iprof.eq.1) then
-      do 56 i=1,53
+      do 56 i=1,55
       it=it+1
       p(it)=timer_wall_total(i+9)
    56 continue
@@ -695,7 +695,7 @@ c
 c
 #include "prp_common.fh"
 c
-      real*8 rlambd,dlambd,dfr(mda),dfrm(mda),dtmp
+      real*8 rlambd,dlambd,dfr(mda),dfrm(mda)
       real*8 taver,ep2ave,ep3ave,ebias,dfbias,ep2avm,ep3avm
       integer i,ndec
 c
