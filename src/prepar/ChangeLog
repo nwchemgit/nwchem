@@ -61,3 +61,4 @@ Jul 14 1998	 Add routine to determine if a segment is amino acid (pre_protein)
 	         Fix bug in bonded list overwrite in pre_mkfrg
 		 More diagnostic messages added
 		 Fix file name bug in explicit write rst command
+Jul 15 1998	 Remove persistency new_top new_seq and new_rst

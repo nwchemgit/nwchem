@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.13 1998-07-09 20:20:57 d3j191 Exp $
+c $Id: pre_input.F,v 1.14 1998-07-15 20:38:44 d3j191 Exp $
 c
       implicit none
 c
@@ -601,18 +601,12 @@ c
      + call errquit('pre_input: rtdb_put failed',0)
       endif
 c
-      if(newtop.ne.0) then
       if(.not.rtdb_put(irtdb,'prep:newtop',mt_int,1,newtop))
      + call errquit('pre_input: rtdb_put failed',0)
-      endif
-      if(newseq.ne.0) then
       if(.not.rtdb_put(irtdb,'prep:newseq',mt_int,1,newseq))
      + call errquit('pre_input: rtdb_put failed',0)
-      endif
-      if(newrst.ne.0) then
       if(.not.rtdb_put(irtdb,'prep:newrst',mt_int,1,newrst))
      + call errquit('pre_input: rtdb_put failed',0)
-      endif
 c
       if(mgrid.gt.0) then
       if(.not.rtdb_put(irtdb,'prep:mgrid',mt_int,1,mgrid))
