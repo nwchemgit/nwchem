@@ -1,4 +1,4 @@
-% $Id: prog.tex,v 1.5 1996-10-23 05:56:52 d3g681 Exp $
+% $Id: prog.tex,v 1.6 1997-05-04 18:54:22 d3g681 Exp $
 \documentstyle[fullpage,12pt]{article}
 \setlength{\parskip}{6pt}
 
@@ -581,7 +581,7 @@ Not much more than the following is required.  E.g.,
 Or, e.g.,
 \begin{verbatim}
       subroutine sym_symmetrize(geom, basis, odensity, g_a)
-C$Id: prog.tex,v 1.5 1996-10-23 05:56:52 d3g681 Exp $
+C$Id: prog.tex,v 1.6 1997-05-04 18:54:22 d3g681 Exp $
       implicit none
       integer geom, basis  ! [input] Handles
       integer g_a          ! [input] Handle to input/output GA
@@ -1000,7 +1000,7 @@ Initialization:
 \begin{itemize}
 \item {\tt MA\_init(datatype, nominal\_stack, nominal\_heap)}
 \item {\tt MA\_sizeof(datatype1, nelem1, datatype2)}
-\item {\tt MA\_sizeof\_overhead()}
+\item {\tt MA\_sizeof\_overhead(datatype)}
 \end{itemize}
 
 Allocation:
@@ -3295,17 +3295,18 @@ allocated system resources (e.g., system V shared memory).
 
 \subsubsection{{\tt util\_char\_ga\_brdcst}}
 \begin{verbatim}
-  subroutine util_char_ga_brdcst(type, string)
+  subroutine util_char_ga_brdcst(type, string, originator)
   integer type            [input]
   character*(*) string    [input/output]
+  integer originator      [input]
 \end{verbatim}
 The standard broadcast routine {\tt ga\_brdcst} does not work portably
 with Fortran character strings for which this routine should be used
-instead.  The string is broadcast from process 0 to all other
+instead.  The string is broadcast from process \verb+originator+ to all other
 processes.  Type is the standard message type or tag. All processes
 should execute the same call and there is an implied weak
 synchronization (i.e., no process can complete this statement until at
-least process 0 has reached it).
+least process \verb+originator+ has reached it).
 
 \subsubsection{{\tt fcsnd} and {\tt fcrcv}}
 \begin{verbatim}
