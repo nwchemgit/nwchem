@@ -1,5 +1,5 @@
 *
-* $Id: psi_get_ne.F,v 1.1 2001-12-14 20:02:46 bylaska Exp $
+* $Id: psi_get_ne.F,v 1.2 2002-01-25 17:29:31 bylaska Exp $
 *
 
 #define TCGMSG
@@ -99,7 +99,7 @@ c     **** send header to all nodes ****
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
          if (taskid.eq.MASTER) then
-            write(6,*) "Error reading psi"
+            write(6,*) "Error reading psi - bad grid"
          end if
       end if
 
@@ -113,7 +113,8 @@ c     **** send header to all nodes ****
      >     (unita(2,3).ne.control_unita(2,3)) .or.
      >     (unita(3,3).ne.control_unita(3,3)) ) then
          if (taskid.eq.MASTER) then
-            write(6,*) "Error reading psi"
+          write(6,*) "Error reading psi - bad unitcell"
+          write(6,*) " - Ignored if nwpw:psi_nolattice is set to true"
          end if
 
       end if
