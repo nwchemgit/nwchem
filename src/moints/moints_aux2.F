@@ -2,7 +2,7 @@
      $     lshlo, lshhi, schw_ij, tol2e,
      $     max2e, eri, mem2, iscr, ilen,
      $     jlen, kblo, kbhi, lblo, lbhi, ssbb, osym )
-C     $Id: moints_aux2.F,v 1.3 1995-10-17 08:54:21 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.4 1995-10-17 16:59:33 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -499,3 +499,23 @@ c
 c
       end
       
+
+
+
+
+
+      subroutine upper2square( n, a, b )
+      integer n
+      double precision a(n,n)
+      double precision b(n,n)
+      integer i,j
+
+      do i=1,n
+        do j=1,i-1
+          b(j,i) = a(j,i)
+          b(i,j) = a(j,i)
+        enddo
+      enddo
+      return
+      end
+
