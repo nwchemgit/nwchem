@@ -1,7 +1,7 @@
       subroutine tddft_memory(rtdb,nroots,maxvecs,maxiter,
      1  ipol,nbf_ao,nocc,nmo,nfc,nfv,nov,tda,algorithm)
 c
-c $Id: tddft_memory.F,v 1.7 2003-10-17 22:58:29 carlfahl Exp $
+c $Id: tddft_memory.F,v 1.8 2004-11-10 01:45:18 edo Exp $
 c
 c Itemize all the outstanding memory usage and determine
 c how many trial and product vectors we can handle with the
@@ -39,6 +39,8 @@ c
 c
       integer i,j,k
       double precision n,m
+      integer mxtrialf
+      parameter(mxtrialf=10)
       logical nodezero
 c
       nodezero=(ga_nodeid().eq.0)
@@ -101,10 +103,10 @@ c
       if (algorithm.eq.0) then
 c peak MA usage
         n=0.0d0
-        n=n+dfloat(2*(nroots*30)**2)
-        if (.not.tda) n=n+dfloat(2*(nroots*30)**2)
-        n=n+dfloat(3*(nroots*30)**2)
-        n=n+dfloat(10*(nroots*30))
+        n=n+dfloat(2*(nroots*mxtrialf)**2)
+        if (.not.tda) n=n+dfloat(2*(nroots*mxtrialf)**2)
+        n=n+dfloat(3*(nroots*mxtrialf)**2)
+        n=n+dfloat(10*(nroots*mxtrialf))
 c peak GA usage except for g_trials and g_products and NGA
         m=0.0d0
         m=m+dfloat(nbf_ao*nbf_ao*ipol)
@@ -125,13 +127,13 @@ c peak GA usage except for g_trials and g_products and NGA
           j=j*(3+1)
         endif
 c algorithm decision
-        if (m.gt.dfloat(j*(nroots*30)
+        if (m.gt.dfloat(j*(nroots*mxtrialf)
      1           +((2*nbf_ao*ipol)**2)*(2*nroots))) then
           algorithm = 1
           if (nodezero.and.util_print('memory information',
      1      print_default))
      2      write(LuOut,9140) 'Incore multiple tensor contraction' 
-        else if (m.gt.dfloat(j*(nroots*30)
+        else if (m.gt.dfloat(j*(nroots*mxtrialf)
      1           +((2*nbf_ao*ipol)**2))) then
           algorithm = 2
           if (nodezero.and.util_print('memory information',
@@ -164,13 +166,13 @@ c
 c
 c (A+B) (A-B) and their eigenvector matrices
 c
-      n=n+dfloat(2*(nroots*30)**2)
-      if (.not.tda) n=n+dfloat(2*(nroots*30)**2)
+      n=n+dfloat(2*(nroots*mxtrialf)**2)
+      if (.not.tda) n=n+dfloat(2*(nroots*mxtrialf)**2)
 c
 c Work arrays in tddft_diagon
 c
-      n=n+dfloat(3*(nroots*30)**2)
-      n=n+dfloat(10*(nroots*30))
+      n=n+dfloat(3*(nroots*mxtrialf)**2)
+      n=n+dfloat(10*(nroots*mxtrialf))
 c
 c Memory buffer (10 MB) for DRA
 c
@@ -218,7 +220,8 @@ c
 c Check GA and MA remaining space at this point
 c
       if (n.gt.ma_dble) call errquit
-     1  ('tddft_memory: MA space too small',int(ma_dble), MA_ERR)
+     1  ('tddft_memory: MA space too small',
+     . int(n-ma_dble), MA_ERR)
       if (ga_uses_ma()) then
         ga_dble=ga_dble-m-n
       else
