@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd,tau, kske,Mmat)
 c
-c     $Id: xc_eval_fnl.F,v 1.47 2003-10-21 23:50:22 pollack Exp $
+c     $Id: xc_eval_fnl.F,v 1.48 2003-12-18 21:54:40 pollack Exp $
 c
       implicit none
 c
@@ -403,6 +403,39 @@ c
             call xc_cpkzb99_d2()
          endif
       endif
+
+c   TPSS  meta GGA
+      if (abs(xfac(21)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xtpss03(tol_rho, xfac(21), lxfac(21), nlxfac(21), 
+     &           rho, delrho, Amat, Cmat, nq, ipol, 
+     &           Ex, qwght,ldew,func,tau,Mmat)
+         else
+            call xc_xtpss03_d2()
+         endif
+      endif
+
+
+
+c     
+c     TPSS03-COR is special in that the GGA part is
+c     defined to be  PBE COR GGA  and also is dependent on
+c     the E(LDA) ... 
+c     the decision has been made to use the PW91-LDA as the
+c     LDA-correlation.  at present, this LDA  cannot be
+c     set by the user
+c     
+      if (abs(cfac(27)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_ctpss03(tol_rho, cfac(27), lcfac(27), nlcfac(27),  
+     &           rho, delrho,  nq, ipol, 
+     &           Ec, qwght,  tau,Amat,Cmat,Mmat)
+
+         else
+            call xc_ctpss03_d2()
+         endif
+      endif
+
 
 
 
