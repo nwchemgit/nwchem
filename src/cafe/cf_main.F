@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.118 2001-12-11 17:41:54 d3j191 Exp $
+c $Id: cf_main.F,v 1.119 2001-12-11 18:51:27 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1435,8 +1435,10 @@ c
 c
       integer i,j,k,l,m
       real*8 wm,wmtot
+      logical skip
 c
       epmf=zero
+      skip=.true.
 c
       chg(1)=zero
 c
@@ -1447,12 +1449,14 @@ c
       xpmf(j,3,i)=zero
       wpmf(j,i)=zero
     2 continue
+      if(ipmf(i,1).eq.-1) goto 1
       m=0
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
       if(ipmf(i,1).eq.2) m=3
       if(ipmf(i,1).eq.3) m=4
       if(ipmf(i,1).eq.4) m=4
       if(m.eq.0) call errquit('Error in pmf xx',ipmf(i,1))
+      skip=.false.
       do 3 j=1,m
       wmtot=0.0d0
       do 4 k=1,ipmf(i,j+1)
@@ -1467,23 +1471,20 @@ c
       endif
     5 continue
     4 continue
-c      wpmf(j,i)=one/wmtot
-c      xpmf(j,1,i)=xpmf(j,1,i)/dble(ipmf(i,j+1))
-c      xpmf(j,2,i)=xpmf(j,2,i)/dble(ipmf(i,j+1))
-c      xpmf(j,3,i)=xpmf(j,3,i)/dble(ipmf(i,j+1))
-c      xpmf(j,1,i)=xpmf(j,1,i)/wmtot
-c      xpmf(j,2,i)=xpmf(j,2,i)/wmtot
-c      xpmf(j,3,i)=xpmf(j,3,i)/wmtot
     3 continue
     1 continue
+c
+      if(skip) return
 c
       call ga_dgop(mcf_59,wpmf,4*numpmf,'+')
       call ga_dgop(mcf_73,xpmf,12*numpmf,'+')
 c
       do 6 i=1,numpmf
+      if(ipmf(i,1).eq.-1) goto 6
 c
       m=0
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
+      if(m.eq.2.and.lpmfc) goto 6
       if(ipmf(i,1).eq.2) m=3
       if(ipmf(i,1).eq.3) m=4
       if(ipmf(i,1).eq.4) m=4

@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.15 2001-12-11 17:41:54 d3j191 Exp $
+c $Id: cf_shake.F,v 1.16 2001-12-11 18:51:27 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -56,7 +56,7 @@ c
 c
       cf_shakep=.true.
 c
-      if(lpmf.and.lpmfc) then
+      if(lpmf) then
       call cf_shkp(nums,xs,ys,igan,isat,int_mb(i_ipmf),int_mb(i_jpmf),
      + dbl_mb(i_rpmf),dbl_mb(i_xpmf),dbl_mb(i_ypmf),dbl_mb(i_mas))
       nitall=niters-1
@@ -85,10 +85,15 @@ c
       integer ip(3),it(2),ign(4),iml(4),idt(4),ich(4)
 c
       integer i,j,k,l,m
+      logical skip
 c
       epmf=zero
+      skip=.true.
 c
       do 1 i=1,numpmf
+      if(ipmf(i,1).eq.-1.or.(lpmfc.and.(ipmf(i,1).eq.1.or.
+     + ipmf(i,1).eq.5.or.ipmf(i,1).eq.6))) then
+      skip=.false.
       do 2 j=1,4
       xpmf(j,1,i)=zero
       xpmf(j,2,i)=zero
@@ -99,6 +104,7 @@ c
       ypmf(j,3,i)=zero
     2 continue
       m=0
+      if(ipmf(i,1).eq.-1) m=2
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
       if(ipmf(i,1).eq.2) m=3
       if(ipmf(i,1).eq.3) m=4
@@ -134,14 +140,17 @@ c
    15 continue
    14 continue
     3 continue
+      endif
     1 continue
+c
+      if(skip) return
 c
       call ga_dgop(mcf_59,xpmf,16*numpmf,'+')
       call ga_dgop(mcf_63,ypmf,12*numpmf,'+')
 c
       do 6 i=1,numpmf
 c
-      if(ipmf(i,1).eq.1) then
+      if(ipmf(i,1).eq.-1.or.(lpmfc.and.ipmf(i,1).eq.1)) then
       do 7 j=1,2
       w(j)=xpmf(j,4,i)
       ign(j)=j
@@ -159,6 +168,7 @@ c
       call cf_shks(1,it,1,3,ip,rpmf,rv,2,4,ign,iml,idt,
      + xpmf(1,1,i),ypmf(1,1,i),w)
       m=0
+      if(ipmf(i,1).eq.-1) m=2
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
       if(ipmf(i,1).eq.2) m=3
       if(ipmf(i,1).eq.3) m=4

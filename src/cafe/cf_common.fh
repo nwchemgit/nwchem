@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.30 2001-11-15 04:31:00 d3j191 Exp $
+c $Id: cf_common.fh,v 1.31 2001-12-11 18:51:27 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -115,7 +115,7 @@ c
       real*8 edrs,field,fvect(3),ffreq,totchg
       real*8 virial,scaleq,ubias
       integer llww,lsww,llsw,lssw,llss,lsss
-      logical llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lanal
+      logical llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lpmfcc,lanal
       logical ithint,ith(24),ipert2,ipert3,ip2(24),ip3(24)
       common/cf_box/box,boxh,vlat,vlati,rshrt,rlong,rrest,rqmmm,rshrt2,
      + rlong2,rrest2,rqmmm2,deriv,ep2,ep3,dfrdf,ewwl,zw,rffww,ewwr,drdf,
@@ -131,7 +131,7 @@ c
      + ngx,ngy,ngz,ngmax,ipolt,niterw,niters,mshitw,mshits,noshak,
      + itscal,ipscal,ipopt,islow,mdalgo,ntest,numpmf,npmfa,npgdec,
      + llww,lsww,llsw,lssw,llss,lsss,
-     + llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lanal,
+     + llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lpmfcc,lanal,
      + ithint,ith,ipert2,ipert3,ip2,ip3
       character*10 ffield
       character*16 wnam(100)
