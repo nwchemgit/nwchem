@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.322 2000-05-10 17:41:38 edo Exp $
+# $Id: makefile.h,v 1.323 2000-05-10 21:22:06 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -982,6 +982,36 @@ endif
 #ifdef USE_ESSL
 #       CORE_LIBS += -lessl
 #endif
+
+  EXPLICITF = TRUE
+  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+#
+endif
+ifeq ($(TARGET),IBM64)
+# 
+# IBM AIX 64-bit
+# tested on ecs1 May 10 2000 AIX 4.3.3.10
+# does not run on AIX  4.3.2.1 (skunkworks)
+#
+
+    CORE_SUBDIRS_EXTRA = lapack blas
+         FC = xlf
+         CC = xlc
+    ARFLAGS = -X 64 urs 
+     RANLIB = echo
+  MAKEFLAGS = -j 3 --no-print-directory
+    INSTALL = @echo $@ is built
+        CPP = /usr/lib/cpp -P
+
+   FOPTIONS = -qEXTNAME -qnosave -qalign=4k -q64 -qintsize=8 
+   COPTIONS = -q64
+  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000  -qarch=auto -qtune=auto
+  COPTIMIZE = -O -qmaxmem=8192
+
+    DEFINES = -DIBM -DAIX -DEXTNAME -DEXT_INT
+       LIBPATH += -L/usr/lib -L/lib 
+
+       CORE_LIBS = -lpario -lglobal -lma -lutil -lpeigs  -llapack -lblas
 
   EXPLICITF = TRUE
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
