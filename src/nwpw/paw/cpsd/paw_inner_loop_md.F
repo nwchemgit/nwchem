@@ -1,8 +1,13 @@
 *
-* $Id: paw_inner_loop_md.F,v 1.6 2005-01-25 22:32:04 bylaska Exp $
+* $Id: paw_inner_loop_md.F,v 1.7 2005-01-31 03:28:37 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.6  2005/01/25 22:32:04  bylaska
+* Various bug fixes for release, containing band-DOS and input fixes.
+* Also, center of rotation constrained added to pspw-cpmd and paw-cpmd (not in release).
+* ...EJB
+*
 * Revision 1.5  2004/11/08 23:37:41  bylaska
 * Bug fix in pspw_hfx found by M. Hackler.
 * PBE0 has been implemented.
@@ -249,6 +254,7 @@
       fmass = control_fake_mass()
       dte   = dt*dt/fmass
       if (.not. verlet) dte=0.5d0*dte
+      h = 1.0d0/(2.0d0*dt)
 
       scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
@@ -578,13 +584,14 @@
           if (verlet) then
              eke = 0.0d0
              do i=1,n2(ispin)
-                call Pack_cc_idot(1,psi2(1,i),psi0(1,i),sum)
+                call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
+                call Pack_cc_daxpy(1,h,psi2(1,i),psi0(1,i))
+                call Pack_cc_idot(1,psi0(1,i),psi0(1,i),sum)
                 eke = eke+sum
              end do
              if (np.gt.1) call D3dB_SumAll(eke)
-             eke = (ne(1)+ne(2) - eke)
+             eke = eke*fmass
              if (ispin.eq.1) eke = 2.0d0*eke
-             eke = 0.5d0*(fmass/(dt*dt))*eke
              eki = ion_ke()
              call Nose_Verlet_Step(eke,eki)
           else
@@ -729,17 +736,19 @@
 
 
 *     **** velocity an kinetic energy of psi ****
-      h = 1.0d0/(2.0d0*dt)
-      eke = 0.0d0
-      do i=1,n2(ispin)
-         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
-         call Pack_cc_daxpy(1,h,psi2(1,i),psi0(1,i))
-         call Pack_cc_idot(1,psi0(1,i),psi0(1,i),sum)
-         eke = eke+sum
-      end do
-      if (np.gt.1) call D3dB_SumAll(eke)
-      eke = eke*fmass
-      if (ispin.eq.1) eke = 2.0d0*eke
+      if (.not.nose) then
+c        h = 1.0d0/(2.0d0*dt)
+         eke = 0.0d0
+         do i=1,n2(ispin)
+            call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
+            call Pack_cc_daxpy(1,h,psi2(1,i),psi0(1,i))
+            call Pack_cc_idot(1,psi0(1,i),psi0(1,i),sum)
+            eke = eke+sum
+         end do
+         if (np.gt.1) call D3dB_SumAll(eke)
+         eke = eke*fmass
+         if (ispin.eq.1) eke = 2.0d0*eke
+      end if
 
 
 *     *** fill in total energy array ***
