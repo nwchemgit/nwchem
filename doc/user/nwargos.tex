@@ -851,13 +851,24 @@ value given will also be used for {\bf tlwsha}. The default tolerance
 is 0.001~nm for both.
 \end{itemize}
 \subsection{Long range interaction corrections}
-No method of long range interaction treatment is implemented in the
-current release. For development only:
+Long range electrostatic interactions are implemented using the
+particle mesh Ewald technique.
 \begin{itemize}
 \item
 \begin{verbatim}
-[ewald]
+[ewald [grid <i ngx> [<i ngy> [<i ngz>]]]]
 \end{verbatim}
+where $ngx$, $ngy$ and $ngz$ are the number of grid points per dimension.
+\end{itemize}
+\subsection{Fixing coordinates}
+The solvent or solute part of a system may be fixed or unfixed using
+the follwing keywords. Fixing part of the system will propagate to
+simulations using restart files written.
+\begin{itemize}
+\item
+[fix \{solvent | solute\}]
+\item
+[unfix \{solvent | solute\}]
 \end{itemize}
 \subsection{Autocorrelation function}
 For the evaluation of the statistical error of multiconfiguration
@@ -952,13 +963,36 @@ center of the simulation volume. This translation is implemented
 such that it has no effect on any aspect of the simulation. The
 default is 0.
 \item
+Periodic removal of center of mass motion is specified by the
+following keyword.
+\begin{verbatim}
+[update [motion <i nfslow>]]
+\end{verbatim}
+where {\bf nfslow} is the frequency in molecular dynamics steps in
+which the center of mass motion is removed.
+\item
 Updating the radial distribution functions
 \begin{verbatim}
 [update [rdf <i nfrdf>]]
 \end{verbatim}
 where {\bf nfrdf} is the frequency in molecular dynamics steps in 
 which contributions to the radial distribution functions are
-evaluated. The default is 1, i.e. at every step.
+evaluated. The default is 0. If radial distribution function are to be
+calculated, a {\bf rdi} files needs to be available in which the
+contributions are specified as follows.
+\begin{center}
+\begin{tabular}{lll}
+\hline\hline
+Card & Format & Description \\ \hline
+I-1  & i & Type, 1=solvent-solvent, 2=solvent-solute,
+3-solute-solute\\
+I-2  & i & Number of the rdf for this contribution\\
+I-3  & i & First atom number \\
+I-4  & i & Second atom number \\ 
+\hline
+\end{tabular}
+\end{center}
+hiero
 \end{itemize}
 Update directives may be combined to a single directive.
 \subsection{Recording}
@@ -967,13 +1001,15 @@ The following keywords control recording data to file.
 \item
 The restart file, file extension {\bf rst}
 \begin{verbatim}
-[record [restart <i nfrest>]]
+[record [rest <i nfrest> [keep]]]
 \end{verbatim}
 where {\bf nfrest} is the frequency in molecular dynamics steps
 of writing information to this file. For multiconfiguration
 thermodynamic integration simulations the frequency is in
 steps in $\lambda$. The default is not to record. The restart
-file is used to start or restart simulations.
+file is used to start or restart simulations. The keyword {\bf keep}
+causes all restart files written to be kept on disk, rather than
+be overwritten, 
 \item
 The coordinate trajectory file, file extension {\bf coo}
 \begin{verbatim}
@@ -1063,8 +1099,8 @@ is resizing boxes on a node, and {\bf pairs} redistributes the
 box-box interactions over nodes.
 \item
 The distribution of the available nodes over the three Cartesian
-dimensions is performed automatically such that, npx*npy*npz=np
-and npx<=npy<=npz, where npx, npy and npz are the nodes in the
+dimensions is performed automatically such that, $npx*npy*npz=np$
+and $npx<=npy<=npz$, where $npx$, $npy$ and $npz$ are the nodes in the
 x, y and z dimension respectively, and np is the number of nodes
 allocated for the calculation. Where more than one combination
 of npx, npy and npz are possible, the combination is chosen with
@@ -1073,6 +1109,20 @@ the following optional input option is provided.
 \begin{verbatim}
 [nodes <i npx> <i npy> <i npz>]
 \end{verbatim}
+\item
+The molecular system is decomposed into boxes, that form the smallest
+unit for communication of atomic data between nodes. The size of the
+boxes is automatically set to the short-range cutoff radius. If
+long-range cutoff radii  are used the box size is set to half the
+long-range cutoff radius is it is larger than the short-range cutoff.
+The number of boxes per dimension can also be set explicitly, using
+the following keyword.
+\begin{verbatim}
+[boxes <i nbx> <i nby> <i nbz>]
+\end{verbatim}
+If the number of boxes in a dimension is less than the number of
+processors in that dimension, the number of boxes is set to the number
+of processors.
 \item
 In rare events the amount of memory set aside per node is insufficient
 leading to aborts because {\bf mwm} or {\bf msa} is too small. Jobs
