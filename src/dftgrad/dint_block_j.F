@@ -5,7 +5,7 @@ c     Makes contribution to J force from block of derivative integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.4 1998-09-25 11:50:13 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.5 1998-09-29 20:30:02 bjohnson Exp $
 c
       implicit none
 c
@@ -21,7 +21,6 @@ c
       integer ip1, ip2, ip3, ip4
       double precision dE, den2
 c
-c      write(*,*)'*** dint_block_jfrc called'
       do i = 1, 4
          if (idatom(i).ge.1) then
             do icart = 1, 3
@@ -30,13 +29,10 @@ c      write(*,*)'*** dint_block_jfrc called'
                   do ip2 = if2, il2
                      do ip3 = if3, il3
                         do ip4 = if4, il4
-c
                            den2 = 0.5D0 *
      &                            (d_ija(ip1,ip2) * d_kla(ip3,ip4))
-c
                            dE = dE
      &                        + den2 * dint(ip4,ip3,ip2,ip1,icart,i)
-c
                         enddo
                      enddo
                   enddo
@@ -63,7 +59,7 @@ c     derivative integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.4 1998-09-25 11:50:13 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.5 1998-09-29 20:30:02 bjohnson Exp $
 c
       implicit none
 c
@@ -71,10 +67,8 @@ c
       integer if1, il1, if2, il2, if3, il3, if4, il4
       logical diagb, diagk, ijij
       integer g_dj(3, *)
-c !!! Is dimensioning right? !!!
       double precision dfij(if2:il2, if1:il1)
       double precision dfkl(if4:il4, if3:il3)
-c !!! Is dimensioning right? !!!
       double precision d_ija(ldim,ldim), d_kla(ldim,ldim)
       double precision dint(if4:il4, if3:il3, if2:il2, if1:il1, 3, 4)
       double precision q4
@@ -83,8 +77,6 @@ c
       integer i, icart
       integer ip1, ip2, ip3, ip4
       double precision scaleb, scalek, g
-c
-c      write(*,*)'*** dint_block_jdmat called'
 c
 c     Set up bra and ket scale factors; 2's for permutational symmetry,
 c     and 1/2's to fix diagonal J matrix blocks because we fill out
@@ -117,9 +109,6 @@ c
                   do ip2 = if2, il2
                      do ip3 = if3, il3
                         do ip4 = if4, il4
-c                           if (i.eq.1.and.icart.eq.1) then
-c                              write(*,*)'(ij|kl)',ip1,ip2,ip3,ip4,ijij
-c                           endif
                            g = dint(ip4,ip3,ip2,ip1,icart,i)
                            dfij(ip2,ip1) = dfij(ip2,ip1)
      &                         + g * d_kla(ip3-if3+1,ip4-if4+1) * scalek
@@ -140,9 +129,9 @@ c     below is ever changed to update more than one matrix at once,
 c     a temporary array will have to be provided.
 c
                call fock_upd_blk(1, g_dj(icart,idatom(i)), if2, il2,
-     $              if1, il1, 1.d0, dfij, 0.d0)
+     &              if1, il1, 1.d0, dfij, 0.d0)
                call fock_upd_blk(1, g_dj(icart,idatom(i)), if4, il4,
-     $              if3, il3, 1.d0, dfkl, 0.d0)
+     &              if3, il3, 1.d0, dfkl, 0.d0)
             enddo
          endif
       enddo
@@ -160,7 +149,7 @@ c     integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.4 1998-09-25 11:50:13 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.5 1998-09-29 20:30:02 bjohnson Exp $
 c
       implicit none
 c
@@ -172,53 +161,141 @@ c
       double precision d2int(78, if4:il4, if3:il3, if2:il2, if1:il1)
       integer idatom(4)
 c
-      integer i, icart, j, jcart, indi, indj, indij
+      integer i, icart, j, jcart, indi, indj, indab, indij
       integer ip1, ip2, ip3, ip4
       double precision d2E, den2
+      double precision h(3,4,3,4)
+c !!! Start BGJ temp test !!!
+      double precision ti(3,4,3,4)
+      character abcd(4), xyz(3)
+      abcd(1) = 'A'
+      abcd(2) = 'B'
+      abcd(3) = 'C'
+      abcd(4) = 'D'
+      xyz(1) = 'x'
+      xyz(2) = 'y'
+      xyz(3) = 'z'
+c !!! End BGJ temp test !!!
 c
-      write(*,*)'*** d2int_block_jhess called'
+c      write(*,*)'*** d2int_block_jhess called: idatom',idatom
+      call dfill(144, 0.0d0, h, 1)
+      indab = 0
       do i = 1, 4
-         if (idatom(i).ge.1) then
-            do icart = 1, 3
-               indi = 3*(i-1) + icart
-               do j = 1, i
-                  if (idatom(j).ge.1) then
-                     do 100 jcart = 1, 3
-                        indj = 3*(j-1) + jcart
-                        if (indj .gt. indi) goto 100
-                        indij = indi*(indi-1)/2 + indj
-                        d2E = 0.D0
-                        do ip1 = if1, il1
-                           do ip2 = if2, il2
-                              do ip3 = if3, il3
-                                 do ip4 = if4, il4
-c
-                                    den2 = 0.5D0 * (d_ija(ip1,ip2)
-     &                                           *  d_kla(ip3,ip4))
-c
-                                    d2E = d2E + den2 *
-     &                                   d2int(indij,ip4,ip3,ip2,ip1)
-c
-                                 enddo
+         do j = i, 4
+            if (idatom(j).ge.1 .and. idatom(i).ge.1) then
+               indij = indab
+               do icart = 1, 3
+                  indi = 3*(i-1) + icart
+                  do 100 jcart = 1, 3
+                     indj = 3*(j-1) + jcart
+                     if (indj .lt. indi) goto 100
+                     indij = indij + 1
+                     d2E = 0.D0
+                     do ip1 = if1, il1
+                        do ip2 = if2, il2
+                           do ip3 = if3, il3
+                              do ip4 = if4, il4
+                                 den2 = 0.5D0 * (d_ija(ip1,ip2)
+     &                                        *  d_kla(ip3,ip4))
+                                 d2E = d2E + den2 *
+     &                                 d2int(indij,ip4,ip3,ip2,ip1)
+c       write(*,*) abcd(i), xyz(icart), abcd(j), xyz(jcart), indij,
+c     &                                d2int(indij,ip4,ip3,ip2,ip1)
                               enddo
                            enddo
                         enddo
-c
-                        hess(icart,idatom(i),jcart,idatom(j)) =
-     &                  hess(icart,idatom(i),jcart,idatom(j)) 
-     &                       + d2E * scale
-                        if (idatom(i) .ne. idatom(j)) then
-                           hess(jcart,idatom(j),icart,idatom(i)) =
-     &                     hess(jcart,idatom(j),icart,idatom(i)) 
-     &                          + d2E * scale
-                        endif
-c
- 100                 continue
+                     enddo
+                     h(icart,i,jcart,j) = h(icart,i,jcart,j)
+     &                    + d2E * scale
+ 100              continue
+               enddo
+            endif
+            if (i.ne.j) then
+               indab = indab + 9
+            else
+               indab = indab + 6
+            endif
+         enddo
+      enddo
+#if 0
+c     Check TI of integral 2nd derivatives
+      do ip1 = if1, il1
+        do ip2 = if2, il2
+          do ip3 = if3, il3
+            do ip4 = if4, il4
+              call dfill(144, 0.0d0, ti, 1)
+              indab = 0
+              do i = 1, 4
+                do j = i, 4
+                  if (idatom(j).ge.1 .and. idatom(i).ge.1) then
+                    indij = indab
+                    do icart = 1, 3
+                      indi = 3*(i-1) + icart
+                      do 200 jcart = 1, 3
+                        indj = 3*(j-1) + jcart
+                        if (indj .lt. indi) goto 200
+                        indij = indij + 1
+c       write(*,*) abcd(i), xyz(icart), abcd(j), xyz(jcart), indij,
+c     &                                d2int(indij,ip4,ip3,ip2,ip1)
+                        ti(icart,i,jcart,j)=d2int(indij,ip4,ip3,ip2,ip1)
+                        ti(jcart,j,icart,i)=d2int(indij,ip4,ip3,ip2,ip1)
+  200                 continue
+                    enddo
                   endif
-               enddo 
+                  if (i.ne.j) then
+                    indab = indab + 9
+                  else
+                    indab = indab + 6
+                  endif
+                enddo
+              enddo
+              write(*,*)'*** 2nd deriv TI check for',ip1,ip2,ip3,ip4
+              call hessti(ti,4)
             enddo
-         endif
-      enddo 
+          enddo
+        enddo
+      enddo
+#endif
+c
+c     Scatter the hessian contribution just formed to a full square
+c
+      do i = 1, 4
+         do j = i, 4
+            if (idatom(j).ge.1 .and. idatom(i).ge.1) then
+               if (i.eq.j) then
+                  do icart = 1, 2
+                     do jcart = icart+1, 3
+                        h(jcart,j,icart,i) = h(icart,i,jcart,j)
+                     enddo
+                  enddo
+               else
+                  do icart = 1, 3
+                     do jcart = 1, 3
+                        h(jcart,j,icart,i) = h(icart,i,jcart,j)
+                     enddo
+                  enddo
+               endif
+            endif
+         enddo
+      enddo
+c
+c     Increment the hessian
+c
+      do i = 1, 4
+         do j = 1, 4
+            if (idatom(j).ge.1 .and. idatom(i).ge.1) then
+               do icart = 1, 3
+                  do jcart = 1, 3
+                     hess(icart,idatom(i),jcart,idatom(j)) =
+     &               hess(icart,idatom(i),jcart,idatom(j)) +
+     &                   h(icart,i,jcart,j)
+                  enddo
+               enddo
+            endif
+         enddo
+      enddo
+c      write(*,*)'*** TI check for hessian block'
+c      call hessti(h,4)
 c
       return
       end
