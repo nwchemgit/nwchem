@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.73 1997-07-17 22:21:55 d3e129 Exp $
+c $Id: raktest.F,v 1.74 1997-11-15 00:44:52 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -1219,7 +1219,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
       integer rtdb
-      logical  stpr_walk
+      integer stpr_walk
       external stpr_walk
 c
       integer geom
@@ -1559,7 +1559,7 @@ c free memory
       call ga_sync()
       call ga_sync()
       call ga_sync()
-      if (stpr_walk(rtdb)) then
+      if (stpr_walk(rtdb).eq.1) then
         write(6,*)' walk converged'
       else
         write(6,*)' walk NOT converged'

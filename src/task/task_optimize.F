@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.11 1997-07-30 02:08:21 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.12 1997-11-15 00:45:58 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -36,8 +36,8 @@ c
 c     
       character*20 theory
 c     
-      logical  task_gradient, stpr_walk, drv_opt, nwargos
-      external task_gradient, stpr_walk, drv_opt, nwargos
+      logical  task_gradient, stpr_walk_task, drv_opt, nwargos
+      external task_gradient, stpr_walk_task, drv_opt, nwargos
 c     
       call ecce_print_module_entry('task optimize')
 c     
@@ -87,16 +87,17 @@ c
      &           call errquit('stpr_store_rtdb: rtdb_put failed',911)
             if (.not.rtdb_put(rtdb,'stepper:omin',MT_LOG,1,omin))
      &           call errquit('stpr_store_rtdb: rtdb_put failed',911)
-            call stpr_walk_reset()
- 10         if (task_gradient(rtdb)) then
-               if (.not. stpr_walk(rtdb)) goto 10 ! Take next step
-               status = .true.  ! Finished
-            else if (ga_nodeid().eq.0) then
-               write(luout,*)' task_optimize: energy+gradients failed ',
-     $              ' ... optimization incomplete'
-               call util_flush(6)
-               status = .false.
-            endif
+            status = stpr_walk_task(rtdb)
+*rak:            call stpr_walk_reset()
+*rak: 10         if (task_gradient(rtdb)) then
+*rak:               if (.not. stpr_walk(rtdb)) goto 10 ! Take next step
+*rak:               status = .true.  ! Finished
+*rak:            else if (ga_nodeid().eq.0) then
+*rak:               write(luout,*)' task_optimize: energy+gradients failed ',
+*rak:     $              ' ... optimization incomplete'
+*rak:               call util_flush(6)
+*rak:               status = .false.
+*rak:            endif
          endif
       endif
 c     
@@ -119,7 +120,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.11 1997-07-30 02:08:21 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.12 1997-11-15 00:45:58 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -159,8 +160,8 @@ c
 c     
       character*20 theory
 c     
-      logical  task_gradient, stpr_walk, drv_opt, nwargos
-      external task_gradient, stpr_walk, drv_opt, nwargos
+      logical  task_gradient, stpr_walk_task, drv_opt, nwargos
+      external task_gradient, stpr_walk_task, drv_opt, nwargos
 c     
       call ecce_print_module_entry('task saddle')
 c     
@@ -210,16 +211,17 @@ c
      &           call errquit('stpr_store_rtdb: rtdb_put failed',911)
             if (.not.rtdb_put(rtdb,'stepper:omin',MT_LOG,1,omin))
      &           call errquit('stpr_store_rtdb: rtdb_put failed',911)
-            call stpr_walk_reset()
- 10         if (task_gradient(rtdb)) then
-               if (.not. stpr_walk(rtdb)) goto 10 ! Take next step
-               status = .true.  ! Finished
-            else if (ga_nodeid().eq.0) then
-               write(luout,*)' task_saddle: energy+gradients failed ',
-     $              ' ... optimization incomplete'
-               call util_flush(6)
-               status = .false.
-            endif
+            status = stpr_walk_task(rtdb)
+*rak:            call stpr_walk_reset()
+*rak: 10         if (task_gradient(rtdb)) then
+*rak:               if (.not. stpr_walk(rtdb)) goto 10 ! Take next step
+*rak:               status = .true.  ! Finished
+*rak:            else if (ga_nodeid().eq.0) then
+*rak:               write(luout,*)' task_saddle: energy+gradients failed ',
+*rak:     $              ' ... optimization incomplete'
+*rak:               call util_flush(6)
+*rak:               status = .false.
+*rak:            endif
          endif
       endif
 c     

@@ -1,5 +1,5 @@
-      logical function stpr_walk(rtdb)
-c     $Id: stpr_walk.F,v 1.27 1997-07-30 02:08:15 d3g681 Exp $
+      integer function stpr_walk(rtdb)
+c     $Id: stpr_walk.F,v 1.28 1997-11-15 00:45:56 d3e129 Exp $
       implicit none
 c     
 #include "mafdecls.fh"
@@ -35,9 +35,10 @@ c
       integer i_timewalk
       logical o_timewalk, okeepgeom
       logical status
+      logical lstpr_walk
       double precision convgg, convge
 #include "cstprfiles.fh"
-      integer first_call, step_number
+      integer first_call, step_number, astep_number
       data first_call /0/
 c     
       call util_print_push
@@ -64,7 +65,7 @@ c
          call pstat_on(i_timewalk)
       endif
 c     
-      stpr_walk = .false.
+      lstpr_walk = .false.
 c....................................set broadcast off
       status = rtdb_parallel(.false.) 
 c     
@@ -144,7 +145,7 @@ c
      &        needed,
      &        dbl_mb(k_grad),
      &        dbl_mb(k_coord),
-     &        energy,nat,convge,convgg,stpr_walk,
+     &        energy,nat,convge,convgg,lstpr_walk,
      &        rtdb,step_number)
 c.....set coordinates
          if (.not. geom_cart_set(geom,nat,
@@ -154,7 +155,8 @@ c.....set coordinates
      &        call errquit
      &        ('stpr_walk: geom_cart_set failed ?',911)
 C        output to ECCE
-         call ecce_print1 ('iteration', mt_int, step_number, 1)
+         astep_number = abs(step_number)
+         call ecce_print1 ('iteration', mt_int, astep_number, 1)
          call ecce_print2 ('geometry', mt_dbl, dbl_mb(k_coord), 3,3,nat)
 c
 c     optionally delete the old geometry (done by default)
@@ -218,18 +220,19 @@ c...  clean up
      &        call errquit('stpr_walk: ma_pop_stack h_core failed',911)
 c     
          int_val = 0 
-         if (stpr_walk) int_val = 1
+         if (lstpr_walk) int_val = 1
          if(step_number.le.0) then
             write(6,*)' maximum number of geometry optimization ',
-     &           'iterations exceeded:  graceful shutdown will occur'
+     &           'iterations exceeded:  restartable shutdown will occur'
             int_val = -1
          endif
       endif
 c     
       call ga_brdcst(Msg_Stpr_Walk+MSGINT, int_val, mitob(1), 0) ! Propagate walker status
 c     
-      stpr_walk = .false.
-      if (int_val.ne.0) stpr_walk = .true.
+      lstpr_walk = .false.
+      if (int_val.gt.0) lstpr_walk = .true.
+      stpr_walk = int_val
 c     
 c.... restore parallel access to rtdb
       status = rtdb_parallel(.true.) 
@@ -243,7 +246,12 @@ c
      &        call errquit('stpr_walk: pstat_free failed?',911)
       endif
 c     
-      call ecce_print_module_exit ('stepper','ok')
+      
+      if (stpr_walk.lt.0) then
+        call ecce_print_module_exit ('stepper','ok but maxiter reached')
+      else
+        call ecce_print_module_exit ('stepper','ok')
+      endif
       call util_print_pop
       call ga_sync()
 c     
@@ -283,4 +291,53 @@ c
       endif
 c
       end
-
+      logical function stpr_walk_task(rtdb)
+      implicit none
+#include "util.fh"
+#include "stdio.fh"
+#include "global.fh"
+      integer rtdb
+*
+      double precision gradw_time
+      integer grad_time
+      logical grad_status
+      logical me_write
+      integer value_stpr_walk
+      integer stpr_walk
+      external stpr_walk
+      logical task_gradient
+      external task_gradient
+*
+      stpr_walk_task = .false.
+      call stpr_walk_reset()
+*
+      me_write = ga_nodeid().eq.0
+00010 continue
+      gradw_time = (-1.0d00) * util_wallsec()
+      grad_status = task_gradient(rtdb)
+      gradw_time = (gradw_time + util_wallsec())*1.2d00 ! add 20 percent
+      grad_time = int(gradw_time)
+      if (.not. grad_status) then
+        if (me_write) then
+          write(luout,*)' stpr_walk_task: energy+gradient failed',
+     &              ' ... optimization incomplete'
+          call util_flush(luout)
+        endif
+      endif
+      value_stpr_walk = stpr_walk(rtdb)
+      if (value_stpr_walk .eq. 0) then
+        if (util_test_time_remaining(rtdb,grad_time)) then
+          goto 00010
+        else
+          stpr_walk_task = .false.
+          if (me_write) then
+            write(luout,*)
+     &          ' remaining time is not long enough for next step'
+            call util_flush(luout)
+          endif
+        endif
+      else if (value_stpr_walk.eq.1) then
+        stpr_walk_task = .true.
+      endif
+*
+      end
