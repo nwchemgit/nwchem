@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.1 1999-11-13 01:29:12 bjohnson Exp $	
+#	$Id: MakeFile,v 1.2 2000-04-13 20:47:36 mg201 Exp $	
 #
 
 !MESSAGE *** Unresolved issues in this nmake file ***
@@ -57,6 +57,7 @@ OBJ_ENERGY =   $(OBJDIR)\ecp_3j_prod.obj \
                $(OBJDIR)\ecp_local2.obj \
                $(OBJDIR)\ecp_locint1.obj \
                $(OBJDIR)\ecp_local.obj \
+               $(OBJDIR)\ecp_skipint.obj \
                $(OBJDIR)\ecp_ind_var.obj
 
 OBJ_OPTIMIZE = $(OBJ_ENERGY) \

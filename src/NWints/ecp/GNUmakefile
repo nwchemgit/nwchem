@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.22 1999-07-29 01:03:35 d3e129 Exp $
+# $Id: GNUmakefile,v 1.23 2000-04-13 20:47:35 mg201 Exp $
 # 
 
 HEADERS   = ecp_nwc.fh
@@ -59,6 +59,7 @@ OBJ_ENERGY = \
       ecp_local2.o   \
       ecp_locint1.o  \
       ecp_local.o    \
+      ecp_skipint.o  \
       ecp_ind_var.o  
 
 OBJ  = ecp_sph_tens.o 
@@ -93,6 +94,7 @@ USES_BLAS = ecp_bess_pow.f \
       ecp_t1_Q1pow.F \
       ecp_t2_p0pow.F \
       ecp_t2_p1pow.F \
+      ecp_skipint.o  \
       int_ecp.F      
 
 LIBRARY = libnwints.a
