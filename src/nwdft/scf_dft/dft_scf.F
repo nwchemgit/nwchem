@@ -1,8 +1,8 @@
       logical function dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
-     &                         g_svecs, isvals, g_xcinv)
+     &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.145 2000-03-30 03:06:45 edo Exp $
+c     $Id: dft_scf.F,v 1.146 2000-03-31 01:33:21 edo Exp $
 c     
       implicit none
 c
@@ -35,6 +35,7 @@ c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
 c
+      integer g_s ! [in]
       logical oprint, grid_on_file
       double precision Exc(2), rms(2), derr(2), n3c_dbl_r, availm_r
       integer noc(2), nmo(2), icall(2)
@@ -42,10 +43,7 @@ c
       integer avail, availm
       integer iwhat_max
       integer l_3cwhat, k_3cwhat, l_3cERI, k_3cERI
-      integer dft_n3cint, n_semi_bufs, fd
-      external dft_n3cint
-      double precision dft_n3cdbl
-      external dft_n3cdbl
+      integer n_semi_bufs, fd
 cc    Jorge Garza/Begin
 c
 c     Variables used to obtain the exact exchange-correlation potential
@@ -68,7 +66,7 @@ cc    Jorge Garza/End
       integer l_occ, k_occ
       integer i, j
       integer me, nproc
-      integer g_tmp, g_fockt, g_s, g_wght, g_xyz,g_nq
+      integer g_tmp, g_fockt,  g_wght, g_xyz,g_nq
       integer nheap, nstack
       integer ispin, idone
       integer nexc
@@ -136,7 +134,9 @@ c
       character*7 vecs_or_dens
       character*255 basis_name, basis_trans
       integer nopen, nclosed, g_denso(2),k_tmp,l_tmp,nstdis,
-     .     mult_loc,l_gdiis,k_gdiis
+     .     mult_loc,l_gdiis,k_gdiis,reuse,g_sf
+      logical dft_mem3c
+      external dft_mem3c
 c !!! BGJ
       logical cphf_poliz, do_poliz
       external cphf_poliz
@@ -144,6 +144,7 @@ c !!! BGJ
 c
       call ecce_print_module_entry('dft')
       dft_scf = .false.
+      reuse=0
       lmaxov_sv = lmaxov
       oprint = util_print('information', print_low)
       oprint_info = util_print('common', print_debug)
@@ -322,132 +323,19 @@ c
 #endif
 c
       if (CDFIT)then
-c     
-c        Determine how big a buffer can be allocated to 3-center
-c        2e- integrals.
-c     
-c        - amount needed for all incore:
-c     
-         n3c_dbl_r = dft_n3cdbl(AO_bas_han,CD_bas_han,itol_max)
-         n3c_int = dft_n3cint(AO_bas_han,CD_bas_han,itol_max)
-c     
-c        find - (minimum)amount local available memory on all nodes
-c     
-cedo         call ga_sync
-         avail = MA_inquire_avail(mt_dbl)
-         call ga_igop(msg_min_stack_avail, avail, 1, 'min')
-c     
-c        estimate and subtract off amount needed for DIIS
-c
-         availm = avail - ((nfock+4)*nbf_ao*nbf_ao)/nproc
-c
-c        estimate and subtract off amount needed for XC numerical integration
-c        in xc_quadv0
-c
-         availm = availm - (natoms*(natoms+1)/2 + 13*natoms + 
-     &                      nqmax*(7*ipol +  npol + natoms + 
-     &                             nbf_ao_mxnbf_ce + 4) + 
-     &                      nbf_ao_mxcont + nbf_ao_mxprim + 
-     &                      2*nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce)
-c
-c        estimate and subtract off amount needed for XC numerical integration
-c        in xc_quadv0_a
-c     
-         max_component = (nbf_ao_mxang+1)*(nbf_ao_mxang+2)/2 
-         if (nbf_ao_mxang .eq. 0)then
-            max_elem_ang_scr = max_component * 3
-         elseif (nbf_ao_mxang .le. 3)then
-            max_elem_ang_scr = max_component * 9
-         else ! general case
-            max_elem_ang_scr = max_component * 28
-         endif 
-c
-         nscr = 3*nqmax*nbf_ao_mxcont + 
-     &          max(3*nqmax*nbf_ao_mxprim,nqmax*max_elem_ang_scr) + 1
-c
-c        The big chunk is the memory needed for new_eval_gbsets 
-c        which is roughly 4*nqmax*nbf_ao.  This is reduced by
-c        screening (and chunking up the angular grid) and is 
-c        computed at the end of xc_setquad to be 4*max_pr_mbfnq.
-c
-         availm = availm - (nqmax*(natoms + 3*nbf_ao_mxnbf_ce + 1) +
-     &                      4*max_pr_mbfnq + 
-     &                      nbf_ao + nscr)
-c
-c        Subtract off a few extra bits
-c
-         availm = availm - 100000
-c
-         if(availm.lt.0)then
-           availm = 0
-         endif
-         availm_r = dble(availm)
-         availm_r = min(availm_r,n3c_dbl_r)
-         if (availm_r.lt.n3c_dbl_r)then
-c
-c           cannot all be done incore so let's restrict memory use to a
-c           max of 6 MW for semi-direct (I/O)
-c
-            availm_r = min(availm_r,6d+6)
-         endif
-         n3c_dbl = nint(availm_r)
-         if (me.eq.0 .and. oprint_parm)
-     &      write(LuOut,3228)avail, availm, n3c_dbl
-c     
-c        Loops are parallelized over the products of AO shells
-c        (check for zero ... must be at least 1).
-c     
-         icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
-         icount = max(icount,1)
-         if (nproc.eq.1)icount = 1
-c     
-         nao2_max = nbf_ao_mxnbf_cn**2
-c
-c        compute size of largest block of integrals computed
-c
-         batch_max = nao2_max*nbf_cd*icount
-c     
-         if ((n3c_dbl.lt.batch_max).or.direct)then
-            incore = .false.
-            n3c_dbl = 1
-            n3c_int = 1
-         endif
-         if (availm_r.lt.n3c_dbl_r)then
-c
-c           cannot all be done incore, compute number of buffers 
-c           required if semi-direct (I/O)
-c
-            n_semi_bufs = nint(n3c_dbl_r/availm_r) + 1
-         else
-            n_semi_bufs = 0
-         endif
-         if (.not.MA_Push_Get
-     &      (MT_Dbl,n3c_dbl,'3c ERI space',l_3cERI,k_3cERI))
-     &      call errquit('dft_scf: push_get failed', 12)
-c     
-         if (.not.MA_Push_Get
-     &      (MT_int,n3c_int,'3c what space',l_3cwhat,k_3cwhat))
-     &      call errquit('dft_scf:push_get failed', 13)
-c     
-         if (incore)then
-            if (me.eq.0 .and. oprint_3c2e)
-     &         write(LuOut,3229)n3c_dbl*1.d-6
-c            if(me.eq.0) call MA_summarize_allocated_blocks()
-      if (.not.ma_verify_allocator_stuff()) call
-     * errquit('scf: bad ',1111)
+         if(dft_mem3c(
+     I     itol_max,natoms,npol,oprint_parm,oprint_3c2e,
+     O     n3c_int,n3c_dbl,n_semi_bufs,
+     O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)) then
             call dft_3cincor(rtdb, n_batch, n3c_int, int_mb(k_3cwhat), 
      &                       dbl_mb(k_3cERI), n3c_dbl, iwhat_max, 
      &                       n_semi_bufs, fd, int_mb(icntoce), 
      &                       int_mb(icntobfr), int_mb(icetobfr), natoms)
+            incore=.true.
          else
             if (me.eq.0 .and. oprint_3c2e)write(LuOut,3230)
          endif
       endif
- 3228 format(10x,'Minimum dble words available (all nodes) is: ',i15,
-     &     /,10x,'         This is reduced (for later use) to: ',i15,
-     &     /,10x,'                   Suggested buffer size is: ',i15)
- 3229 format(/,10x,f6.3,' MW buffer allocated for incore 3-center '
-     &     /,10x,'2e- integral storage on stack. ')
  3230 format(/,10x,'Incore memory use for 3-center 2e- integrals is ',
      &     'turned off. ')
 #if defined(DFT_TIMER)
@@ -563,6 +451,8 @@ c     Force sleazy SCF into "direct" mode.
 c
       call fock_force_direct(rtdb)
 c
+!        vecs_or_dens='vectors'
+!	ldmix=.true.
 	vecs_or_dens='density'
 	ldmix=.false.
 C	if(ssmear.gt.1.d-9.and.movecs_in.ne.'atomic'.and.
@@ -637,19 +527,7 @@ c
          endif
       endif
 
-C         if(.not.MA_verify_allocator_stuff())
-C     $     call errquit('dft_scf: VVV', 1)
          endif
-C	elseif(movecs_in.eq.'atomic') then
-C           if(ipol.eq.2) then
-C              ffac=noc(2)/dble(noc(1)+noc(2))
-C              if(me.eq.0) write(LuOut,*) ' ffac ',ffac
-C            call ga_copy(g_dens(1),g_dens(2))
-C            call ga_dscal(g_dens(2),ffac)
-C              ffac=noc(1)/dble(noc(1)+noc(2))
-C            call ga_dscal(g_dens(1),ffac)
-C            endif
-C       endif
 c
 c     Tidy up SCF
 c
@@ -698,9 +576,6 @@ c
 c     Call to Mulliken Pop Ananlysis for initial density
 c     
       if (mulliken)then
-         g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
-         call ga_zero(g_s)
-         call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
          if (me.eq.0)call dft_header
      &      (' Total Density - Mulliken Population Analysis')
          call mull_pop(geom,ao_bas_han,g_dens(1),g_s,'total')
@@ -718,9 +593,6 @@ c
             call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
             call ga_dscal(g_dens(2),0.5d0)
          endif
-c         call gadest(g_s)
-         if (.not. ga_destroy(g_s)) call errquit
-     &      ('dft_scf: could not destroy g_s', 0)
       endif
 c Jorge Garza/Begin
       if (test_sic.ne.0) then
@@ -1040,56 +912,36 @@ c
          call dft_second(tp3)
 #endif
 c
-         g_scr = ga_create_atom_blocked(geom, AO_bas_han, 'ga scr')
-c     
-c        Put s-1/2 in g_scr.
-c     
-         call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
-     &                   g_tmp, 2)
-c     
-c        Transform Fock matrix.
-c     
-         call ga_dgemm('T', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
-     &                 g_scr, g_fock, zero, g_tmp)
-         call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
-     &                 g_tmp, g_scr, zero, g_fock)
-c     
 c        Level shifting is implemented here (similarity 
 c        transformation before standard eigensolver).  Note,
 c        levelshifting is appropriate once a transformation
 c        is available which makes the resulting Fock matrix 
 c        diagonally dominant, e.g., in an approximate MO basis.  
-c        Also note, there are many matrix multiplies with S^+-1/2 
-c        which are redundant if one is sure that the former basis
-c        is orthonormal.
 c     
          if (levelshifting)then
-c     
-c           Build a matrix which is diagonal in the "MO" rep,
-c           back-transform, and shift the current Fock matrix
-c     
-c           Use S^+1/2 * old movecs (as a transform).
-c     
-            call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
-     &                      g_tmp, 3)
+c
+c     product movecs * S
+c
             call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
-     &                    g_scr, g_movecs(ispin), zero, g_tmp)
+     &           g_s, g_movecs(ispin), zero, g_tmp)
             call ga_copy(g_tmp,  g_movecs(ispin))
-c     
-c           Build diagonal matrix.
+c      
+c           Build upper diagonal matrix. in MO basis
 c     
             call ga_zero(g_tmp)
             do j = noc(ispin)+1+me, nbf_ao, nproc
                call ga_put(g_tmp, j, j, j, j, rlshift, 1)
             enddo
 c     
-c           Transform this into "AO" basis and add to current 
-c           Fock matrix
+c           Transform back into "AO" basis and add to Fock matrix
 c     
+            g_scr = ga_create_atom_blocked(geom,AO_bas_han,'gscr')
             call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
      &                    g_movecs(ispin), g_tmp, zero, g_scr)
             call ga_dgemm('N', 'T', nbf_ao, nbf_ao, nbf_ao, one, 
      &                    g_scr, g_movecs(ispin), one, g_fock)
+            if (.not. ga_destroy(g_scr)) call errquit
+     &           ('dft_scf: could not destroy g_scr', 0)
          else
             rlshift = 0.0
          endif
@@ -1109,9 +961,15 @@ c
             if (oprint_time)
      &           call dft_tstamp(' calling diag ')
 #if defined(PARALLEL_DIAG)
-         call ga_diag_std(g_fock, g_tmp, Dbl_MB(k_eval(ispin)))
+            if(reuse.eq.0) then
+               g_sf = ga_create_atom_blocked(geom,AO_bas_han,'gsf')
+               call ga_copy(g_s,g_sf)
+            endif
+         call ga_diag_reuse(reuse,
+     .           g_fock, g_s, g_tmp, Dbl_MB(k_eval(ispin)))
+         reuse=reuse+1
 #else 
-         call ga_diag_std_seq(g_fock, g_tmp, Dbl_MB(k_eval(ispin)))
+         call ga_diag_seq(g_fock, g_s,g_tmp, Dbl_MB(k_eval(ispin)))
 #endif
             if (oprint_time)
      &           call dft_tstamp(' called diag ')
@@ -1126,53 +984,37 @@ c
            lumo=100.0d0
          endif
 c     
-c        If levelshifting then tidy up.
-c     
-         if (levelshifting)then
-c     
-c           Put S^-1/2 back in g_scr (use g_fock as temp scr).
-c     
-            call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
-     &                      g_fock, 2)
-c     
-c           Put old-movecs back.
-c     
-            call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
-     &                    g_scr, g_movecs(ispin), zero, g_fock)
-            call ga_copy(g_fock, g_movecs(ispin))
-         endif
-c     
-c        Back-transform eigenvectors with S^-1/2.
-c     
-         call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
-     &                 g_scr, g_tmp, zero, g_fock)
-         if (.not. ga_destroy(g_scr)) call errquit
-     &      ('dft_scf: could not destroy g_scr', 0)
-c     
 c        Keep orbital ordering according to principle
 c        of maximum overlap with previous iteration.
 c     
          if (lmaxov)then
-            if (me.eq.0 .and. oprint_conv_details)
-     &         write(LuOut,3224)homo, lumo
-            call dft_mxovl(ao_bas_han, dbl_mb(k_eval(ispin)),
-     &                     g_fock, g_movecs(ispin), g_tmp)
-
-            homo = -1.0d8
-            lumo =  1.0d8
-            if(noc(ispin).gt.0) then
-              do i = 1, noc(ispin)
-                 homo = max(homo,(Dbl_MB(k_eval(ispin)+i-1)))
-              enddo
-              do i = noc(ispin)+1, nbf
-                 lumo = min(lumo,(Dbl_MB(k_eval(ispin)+i-1)))
-              enddo
+            if (levelshifting)then
+               g_scr = ga_create_atom_blocked(geom,AO_bas_han,'gscr')
+c
+c     get S-1
+c
+               call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
+     &              g_fock, 4)
+c     
+c           Put old-movecs back.   C = S-1 * C'
+c     
+               call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
+     &              g_scr, g_movecs(ispin), zero, g_fock)
+               call ga_copy(g_fock, g_movecs(ispin))
+               if (.not. ga_destroy(g_scr)) call errquit
+     &              ('dft_scf: could not destroy g_scr', 2)
             endif
-            if (me.eq.0 .and. oprint_conv_details)
-     &         write(LuOut,3224)homo, lumo
-         endif
- 3224    format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2)
-         call ga_copy(g_fock, g_movecs(ispin))
+
+            call dft_mxovl(ao_bas_han, dbl_mb(k_eval(ispin)),
+     &           g_tmp, g_movecs(ispin), g_s, g_fock,
+     ,           noc,ispin,oprint_conv_details,
+     ,           homo,lumo)
+        endif
+c
+c     put new movecs
+c
+        call ga_copy(g_tmp, g_movecs(ispin))
+
 c        
 c        determine homo-lumo gap 
 c
@@ -1714,9 +1556,6 @@ c
 c     call to Mulliken Pop Ananlysis
 c     
       if (mulliken)then
-         g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
-         call ga_zero(g_s)
-         call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
          if (me.eq.0)
      &      call dft_header
      &      (' Total Density - Mulliken Population Analysis')
@@ -1732,8 +1571,6 @@ c
             call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
             call ga_dscal(g_dens(2),0.5d0)
          endif
-         if (.not. ga_destroy(g_s)) call errquit
-     &      ('dft_scf: could not destroy g_s', 0)
       endif
 c     
 c     end infinite loop for SCF iterations
@@ -1887,6 +1724,10 @@ c
      &   ('dft_scf: could not destroy g_s12p', 0)
       if (.not. ga_destroy(g_s12m)) call errquit
      &   ('dft_scf: could not destroy g_s12m', 0)
+      endif
+      if(reuse.ne.0) then
+      if (.not. ga_destroy(g_sf)) call errquit
+     &   ('dft_scf: could not destroy g_sf', 0)
       endif
 c
       call fock_2e_tidy(rtdb)

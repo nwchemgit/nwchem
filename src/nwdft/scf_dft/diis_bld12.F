@@ -33,8 +33,9 @@ c     S eigenvectors.
 c     iwhich = 1; build S
 c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
+c     iwhich = 4; build S**(-1)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.14 2000-03-30 03:06:45 edo Exp $
+C$Id: diis_bld12.F,v 1.15 2000-03-31 01:33:21 edo Exp $
 c
       implicit none
 c
@@ -65,69 +66,32 @@ c
 c
       call ga_copy(iga_svecs, iga_stmp)
 c      
-      if (iwhich.eq.1)then
 c     
-c        Build S.
+c        Build f(S)
 c     
-         call ga_zero(iga_stmp)
-         do i = me+1, nbf_ao, nproc
-            aaz = svals(i)
-            if (aaz.ge.toll_s)  then
-               call get_col(iga_svecs, nbf_ao, i, DBL_MB(itmpm))
-               call dscal(nbf_ao, aaz, DBL_MB(itmpm), 1)
-               call put_col(iga_stmp, nbf_ao, i, DBL_MB(itmpm))
-            else
-c               write(LuOut,*)' Small eig of S in build of S',
-c     &           i, aaz, toll_s
-               call get_col(iga_svecs, nbf_ao, i, DBL_MB(itmpm))
-               call put_col(iga_stmp, nbf_ao, i, DBL_MB(itmpm))
-            endif
-         enddo
-c
-      elseif (iwhich.eq.2)then
-c     
-c        Build S**(-1/2).
-c     
-         call ga_zero(iga_stmp)
-         do i = me+1, nbf_ao, nproc
-            aaz = svals(i)
-            if (aaz.ge.toll_s)  then
+      call ga_zero(iga_stmp)
+      do i = me+1, nbf_ao, nproc
+         aaz = svals(i)
+         if (aaz.ge.toll_s)  then
+            call get_col(iga_svecs, nbf_ao, i, DBL_MB(itmpm))
+            if(iwhich.eq.2) then
                aaz = 1.d0/sqrt(aaz)
-               call get_col(iga_svecs, nbf_ao, i, DBL_MB(itmpm))
-               call dscal(nbf_ao, aaz, DBL_MB(itmpm), 1)
-               call put_col(iga_stmp, nbf_ao, i, DBL_MB(itmpm))
-            else
-c               write(LuOut,*)' Small eig of S in build of S^-1/2',
-c     &           i, aaz, toll_s
-               call get_col(iga_svecs, nbf_ao, i, DBL_MB(itmpm))
-               call put_col(iga_stmp, nbf_ao, i, DBL_MB(itmpm))
-            endif
-         enddo
-c
-      elseif (iwhich.eq.3)then
-c     
-c        Build S**(1/2).
-c     
-         call ga_zero(iga_stmp)
-         do i = me+1, nbf_ao, nproc
-            aaz = svals(i)
-            if (aaz.ge.toll_s)  then
+            elseif(iwhich.eq.3) then
                aaz = dsqrt(aaz)
-               call get_col(iga_svecs, nbf_ao, i, DBL_MB(itmpm))
-               call dscal(nbf_ao, aaz, DBL_MB(itmpm), 1)
-               call put_col(iga_stmp, nbf_ao, i, DBL_MB(itmpm))
-            else
-c               write(LuOut,*)' Small eig of S in build of S^1/2',
-c     &           i, aaz, toll_s
-               call get_col(iga_svecs, nbf_ao, i, DBL_MB(itmpm))
-               call put_col(iga_stmp, nbf_ao, i, DBL_MB(itmpm))
+            elseif(iwhich.eq.4) then
+               aaz=1d0/aaz
             endif
-         enddo
-      endif
-c
+            call dscal(nbf_ao, aaz, DBL_MB(itmpm), 1)
+            call put_col(iga_stmp, nbf_ao, i, DBL_MB(itmpm))
+         else
+c     write(LuOut,*)' Small eig of S in build of S^-1/2',
+c     &           i, aaz, toll_s
+            call get_col(iga_svecs, nbf_ao, i, DBL_MB(itmpm))
+            call put_col(iga_stmp, nbf_ao, i, DBL_MB(itmpm))
+         endif
+      enddo
       LResult = MA_Pop_Stack(ltmpm)
 c
-      call ga_sync
 c
       call ga_dgemm('N', 'T', nbf_ao, nbf_ao, nbf_ao, 1.d0, 
      &              iga_stmp, iga_svecs, 0.d0, iga_sout)
@@ -144,7 +108,7 @@ c     iw = 1; build S
 c     iw = 2; build S**(-1/2)
 c     iw = 3; build S**(+1/2)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.14 2000-03-30 03:06:45 edo Exp $
+C$Id: diis_bld12.F,v 1.15 2000-03-31 01:33:21 edo Exp $
 c
       implicit none
 c

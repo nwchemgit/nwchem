@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.34 2000-03-30 03:06:45 edo Exp $
+c     $Id: dft_main0d.F,v 1.35 2000-03-31 01:33:21 edo Exp $
 c     
       implicit none
 c
@@ -379,32 +379,30 @@ cnos         call ga_copy(g_s12m,g_evecs(1))
 c     
 c     Begin iteration sequence with S**(-1/2) in g_evecs arrays
 c     
-         g_tmp = g_s
+      g_tmp = ga_create_atom_blocked(geom, AO_bas_han, 'temp')
          call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_evecs(1), 
      &        g_tmp,  2)
+         if (.not. ga_destroy(g_tmp)) call errquit
+     &      ('dft_main0d: could not destroy g_tmp', 0)
       endif
       if (ipol.gt.1) call ga_copy(g_evecs(1), g_evecs(2))
 c     
-      if (CDFIT)then
-         if (.not. ga_destroy(g_s)) call errquit
-     &      ('dft_main0d: could not destroy g_s', 0)
-      endif
       if (oprint_time)
      &     call dft_tstamp(' Before call to DFT_SCF. ')
 c
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2'
       dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
      &                     iter, g_dens, g_evecs, g_vxc, g_fock, 
-     &                     g_svecs, isvals, g_xcinv)
+     &                     g_svecs, isvals, g_xcinv, g_s)
 c     
 c     Clean up memory usage.
 c     
       if (.not.ma_pop_stack(lsvals))
      &     call errquit('dft_main0d: cannot pop stack', 0)
-      if (.not.CDFIT)then
+cnos      if (.not.CDFIT)then
          if (.not. ga_destroy(g_s)) call errquit
      &      ('dft_main0d: could not destroy g_s', 0)
-      endif
+cnos      endif
       if (me.eq.0) then
          if (CDFIT.and.IOLGC) then
             call dft_invio('CD', idum, 1, 'KILL', lmiss)
