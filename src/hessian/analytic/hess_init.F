@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.23 2001-12-15 01:24:39 windus Exp $
+C $Id: hess_init.F,v 1.24 2001-12-19 22:41:56 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -71,6 +71,13 @@ c
             if (.not. bas_destroy(cd_basis))
      &           call errquit('rdinput:not able to destroy CD_bas:',86)
          endif
+c
+c  Get theory type
+c
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('hess_init: theory not specified',555)
+      if (theory.eq.'hyb') theory = 'dft'
+      if (theory.eq.'scf') theory = 'hf'
 c
 c  initialize the second derivative integrals
 c  making sure that the schwarz stuff is initialized
@@ -247,5 +254,80 @@ c    &    ('hess_init: Failed to initialize DRA interface',555)
      &    DRA_RW,nbf,nbf,fx_dra_handle).ne.0) call errquit
      &   ('hess_init: Failed to create fx DRA',555)
 
+      return
+      end
+c
+c
+      subroutine hess_energyinit(rtdb)
+      implicit none
+#include "geom.fh"
+#include "hess_info.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+c
+c  This routine does a few checks to make sure that the energy will
+c  be calculated without symmetry and with reasonable thresholds so
+c  the rest of the Hessian calculation will work properly.  Note that
+c  these values should be reset after the calculation is done.
+c
+       integer rtdb
+       integer geomnew
+       double precision uthresh, ithresh
+c
+c  Get theory type
+c
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('hess_energyinit: theory not specified',555)
+      if (theory.eq.'hyb') theory = 'dft'
+c
+c  Check to see if the current geometry has symmetry.  If so, create
+c  a new geometry without symmetry and put onto the rtdb.  When symmetry
+c  is implemented into the code, this can go away.
+c
+      if (.not. geom_create(geomold, 'geometry'))
+     *  call errquit('hess_init: geom_create problem', 555)
+      if (.not. geom_rtdb_load(rtdb, geomold, 'geometry'))
+     *  call errquit('hess_init: no geometry ', 555)
+      if (.not. geom_makec1(geomold, geomnew))
+     $  call errquit('hess_init: failure to decrease symmetry',555)
+      if (.not.geom_rtdb_store(rtdb,geomnew,'geometry'))
+     &      call errquit(' hess_init: geom_rtdb_store failed',555)
+      if (.not.geom_destroy(geomnew))
+     &      call errquit(' hess_init: geom_destroy failed',555)
+c
+c  Need to check to make sure that the convergence tolerances for
+c  the wavefunction are OK.  Use the user defined one if available,
+c  otherwise check to make sure that the threshold gets set to a
+c  "reasonable" value.
+c
+      if (rtdb_get(rtdb, 'hessian:thresh', MT_DBL,1, ithresh)) then
+        if (theory.eq.'scf') then
+          if (.not. rtdb_get(rtdb, 'scf:thresh', MT_DBL, 1, tthresh))
+     $       tthresh = 1.0d-4
+          if (.not. rtdb_put(rtdb, 'scf:thresh', MT_DBL, 1, ithresh))
+     $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
+        else
+          if (.not. rtdb_get(rtdb, 'dft:g_conv', MT_DBL, 1, tthresh))
+     $       tthresh = 5.0d-4
+          if (.not. rtdb_put(rtdb, 'dft:g_conv', MT_DBL, 1, ithresh))
+     $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
+        endif
+      else
+        ithresh = 1.0d-6
+        if (theory.eq.'scf') then
+          if (.not. rtdb_get(rtdb, 'scf:thresh', MT_DBL, 1, tthresh))
+     $       tthresh = 1.0d-4
+          if (tthresh.lt.ithresh) ithresh = tthresh
+          if (.not. rtdb_put(rtdb, 'scf:thresh', MT_DBL, 1, ithresh))
+     $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
+        else
+          if (.not. rtdb_get(rtdb, 'dft:g_conv', MT_DBL, 1, tthresh))
+     $       tthresh = 5.0d-4
+          if (tthresh.lt.ithresh) ithresh = tthresh
+          if (.not. rtdb_put(rtdb, 'dft:g_conv', MT_DBL, 1, ithresh))
+     $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
+        endif
+      endif
+c
       return
       end

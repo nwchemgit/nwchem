@@ -1,5 +1,5 @@
 C
-C $Id: hess_tidy.F,v 1.7 2001-10-02 21:52:34 windus Exp $
+C $Id: hess_tidy.F,v 1.8 2001-12-19 22:41:56 windus Exp $
 C
       subroutine hess_tidy()
 c
@@ -52,3 +52,32 @@ c
 c
       return
       end
+c
+c
+      subroutine hess_energytidy(rtdb)
+      implicit none
+#include "geom.fh"
+#include "hess_info.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+c
+c  This routine sets the rtdb up the way it was before entering the
+c  Hessian code.
+c
+      integer rtdb
+c
+      if (.not.geom_rtdb_store(rtdb,geomold,'geometry'))
+     $  call errquit('hess_energytidy: geom_rtdb_store failed',555)
+      if (.not.geom_destroy(geomold))
+     $  call errquit('hess_energytidy: geom_destroy failed',555)
+      if (theory.eq.'scf') then
+         if (.not. rtdb_put(rtdb, 'scf:thresh', MT_DBL, 1, tthresh))
+     $     call errquit('hess_energytidy: rtdb_put failed',tthresh)
+      else
+         if (.not. rtdb_put(rtdb, 'dft:g_conv', MT_DBL, 1, tthresh))
+     $     call errquit('hess_energytidy: rtdb_put failed',tthresh)
+      endif
+c
+      return
+      end
+

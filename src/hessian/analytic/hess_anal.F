@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.11 2001-11-21 02:06:24 edo Exp $
+C $Id: hess_anal.F,v 1.12 2001-12-19 22:41:56 windus Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -78,6 +78,11 @@ c
         call pstat_on(ps_total)
       endif
 c
+c  Initial some variables for the energy calculation if they are
+c  not sufficient for the Hessian calculation.
+c
+      call hess_energyinit(rtdb)
+c
 c  Check to make sure that the energy and wavefunction are calculated
 c
       if(.not.task_energy(rtdb)) call errquit 
@@ -86,9 +91,6 @@ c
 c
 c     initialize hessian variables
 c
-      if (.not.bgj_get_scf_method(theory)) call errquit
-     *  ('hess_anal: failure to get theory type', 555)
-      if (theory.eq.'hyb') theory = 'dft'
       if (oprint) write(LuOut,*) 'HESS: before the hess_init call'
       call hess_init(rtdb)
 c
@@ -132,6 +134,12 @@ c  clean up any hessian specific stuff
 c
       if (oprint) write(LuOut,*) 'HESS: before the hess_tidy call'
       call hess_tidy()
+c
+c  clean up the changes we made because of the energy calculation
+c
+      if (oprint) write(LuOut,*) 
+     $  'HESS: before the hess_energy_tidy call'
+      call hess_energytidy(rtdb)
 c
       if (ohessprof) then
         call pstat_off(ps_total)

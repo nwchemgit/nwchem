@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.110 2001-04-07 05:31:20 edo Exp $
+C$Id: geom.F,v 1.111 2001-12-19 22:41:55 windus Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -5136,3 +5136,42 @@ c
      $     call errquit('uhf_analyze: pop failed', 0)
       return
       end
+c
+      logical function geom_makec1(geom1, geom2)
+      implicit none
+#include "nwc_const.fh"
+c
+c  Creates a new geometry which is like the old one, but has C1 symmetry
+c
+      integer geom1   ! [in] Geometry potentially with symmetry
+      integer geom2   ! [out] New geometry without symmetry
+      integer ncenter          ! no. of centers
+      character*16 tags(nw_max_atom)
+      double precision coords(3,nw_max_atom)
+      double precision charge(nw_max_atom), mass(nw_max_atom)
+c
+      logical geom_create, geom_set_user_units 
+      logical geom_cart_get, geom_cart_set
+      logical geom_masses_get, geom_masses_set
+      external geom_create, geom_set_user_units 
+      external geom_cart_get, geom_cart_set
+      external geom_masses_get, geom_masses_set
+c
+      geom_makec1 = .false.
+c
+      if (.not.geom_create(geom2,'geometrytemp'))
+     &  call errquit('geom_makec1: geom_create failed',555)
+      if (.not.geom_set_user_units(geom2,'a.u.'))
+     &      call errquit('geom_makec1: geom_set_user_units failed',555)
+      if (.not.geom_cart_get(geom1,ncenter,tags,coords,charge))
+     &  call errquit('geom_makec1: failed to get geom1',555)
+      if (.not.geom_cart_set(geom2,ncenter,tags,coords,charge))
+     &      call errquit('geom_makec1: geom_cart_set failed',555)
+      if (.not.geom_masses_get(geom1,ncenter,mass))
+     &      call errquit('geom_makec1:geom_masses_get failed',555)
+      if (.not.geom_masses_set(geom2,ncenter,mass))
+     &      call errquit('geom_makec1:geom_masses_set failed',555)
+c
+      geom_makec1 = .true.
+      return
+      end  
