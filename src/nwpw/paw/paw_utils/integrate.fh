@@ -1,6 +1,9 @@
 c
-c $Id: integrate.fh,v 1.2 2003-01-31 02:01:13 bylaska Exp $
+c $Id: integrate.fh,v 1.3 2003-02-19 01:11:22 marat Exp $
 c
 
       real*8   def_integr
       external def_integr
+
+      complex*16   c_def_integr
+      external     c_def_integr

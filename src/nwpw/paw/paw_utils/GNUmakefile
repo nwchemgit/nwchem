@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.8 2003-02-17 05:01:44 marat Exp $
+# $Id: GNUmakefile,v 1.9 2003-02-19 01:11:22 marat Exp $
 #
 
 
@@ -11,7 +11,7 @@
 
       LIBRARY =	libpaw.a
 
-   USES_BLAS = 
+   USES_BLAS = integrate.F
 
   LIB_INCLUDES = -I../include/
 
