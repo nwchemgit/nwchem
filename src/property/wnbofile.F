@@ -30,7 +30,7 @@ c>>>  that gennbo already exists and has been ported to a number of
 c>>>  platforms.
 c
 *
-* $Id: wnbofile.F,v 1.14 2003-10-17 22:57:58 carlfahl Exp $
+* $Id: wnbofile.F,v 1.15 2003-12-06 01:36:29 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -202,7 +202,7 @@ c
 
         do iat = 1,nat
 
-          ix = 3*(iat-1) + icoord -1
+          ix = 3*(iat-1) + icoord 
           iy = ix+1
           iz = iy+1
           index = itags+(iat-1)*16
