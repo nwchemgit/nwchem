@@ -1,0 +1,82 @@
+% describe TCGMSG here (also mention the option for MPI)
+
+TCGMSG\footnote{R.J. Harrison, Int. J. Quantum Chem., Vol. 40, Issue 337,
+1991.  The toolkit is in the public domain and is distributed with the
+Global Arrays package.}
+is a toolkit for writing portable parallel programs using
+a message passing model.  It is relatively simple, having limited
+functionality that includes point-to-point communication, global
+operations, and a simple load-balancing facility, and was designed with
+chemical applications in mind.  This simplicity contributes to the
+robustness of TCGMSG and its expemlary portability, and also to
+its high performance for a wide range of problem sizes.
+
+The model used by TCGMSG operates as if it is sending a block until the message
+is explicitly received, and the messages from a particular process can be 
+received only in the order sent.  Processes should be thought of as being
+connected with ordered
+synchronous channels, even though messages are actually sent without any
+synchronization between sender and receiver, so far as buffering permits.  
+The amount of buffering is
+greatly dependent on the mechanism used by the particular platform, so it
+is best not to count on this feature.
+Detailed information that includes
+documentation of the programming interface is available on-line as part
+of the EMSL webpage, at
+
+\begin{verbatim}
+       http://www.emsl.pnl.gov:2080/docs/parsoft/tcgmsg/
+\end{verbatim}
+
+A more general tool for message passing is MPI, which includes concepts
+such as process groups, communication contexts, and virtual topologies.
+Process groups can be used to specify that only certain processes are
+involved in a particular task, or to allow separate groups of processes
+to work on different tasks.  Communication context provides an additional
+criterion for message selection, enhancing internal communication
+flexibility without incurring conflicts with other modules.  MPI has been
+implemented in NWChem as an alternative to TCGMSG, and the code
+can be compiled with this option specified.  However, it  
+is not an undertaking for the faint of heart and it is highly advisable to
+contact \verb+nwchem-support@emsl.pnl.gov+ before trying this option.
+
+The TCGMSG-MPI library is distributed with the Global Arrays package.
+This library is an implementation of the TCGMSG message passing inteface on top
+of MPI and system-specific resources.  Using this library, it is 
+possible to use both MPI and TCGMSG interfaces in the same application.
+TCGMSG offers a much smaller set of operations than MPI, but these include
+some unique capabilties, such as
+
+\begin{itemize}
+\item {\tt nxtval} - a shared memory counter with atomic updates, often used in
+dynamic load balancing operations
+\item {\tt plcopy} - function to copy content of a sequential file to all processes
+\item {\tt mitoh}, {\tt mdtoh}, etc. - portable Fortran equivalents of the C {\tt sideol} operator
+\end{itemize}
+
+The {\tt nxtval} operation is implemented in TCGMSG-MPI in different ways, depending
+on the platform.
+
+\begin{itemize}
+\item SGI Origin-X - shared memory and mutexes or semaphores
+\item IBM SP 
+\begin{itemize}
+\item under MPL - interrupt receive
+\item under LAPI communication library -- atomic read-modify-write
+\item under thread-safe MPI -- atomic read-modify-write
+\end{itemize}
+\item Intel NX - interrupt receive, with signal-based implementation 
+of the MPI library
+\item Cray T3D/E -- SHMEM library
+\item Fujistu VX/VPP -- MPlib
+\item server implementation using dedicated MPI process
+\end{itemize}
+
+Detailed information that includes
+documentation of the programming interface is available on-line as part
+of the EMSL webpage, at
+
+\begin{verbatim}
+       http://www.emsl.pnl.gov:2080/docs/parsoft/tcgmsg-mpi/
+\end{verbatim}
+
