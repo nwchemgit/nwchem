@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.28 1995-02-02 23:18:43 d3g681 Exp $
+#$Id: GNUmakefile,v 1.29 1995-04-19 00:43:31 rg240 Exp $
 
         OBJ = atwtest.o \
               brdcst_vec.o \
@@ -30,7 +30,6 @@ LIB_DEFINES =  -DDEBUG_PRINT
 # Possible #defines
 #
 #              -DDEBUG_PRINT          /* Debug printing routines */
-#              -DMOINTS_STATS         /* Include statistics gathering */
 #	       -DNOCOMMS              /* Turn off ALL communication calls */
 #              -DBLOCK_TRANSF         /* Use block-transfer for comms calls */
 #

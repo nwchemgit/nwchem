@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.26 1995-02-02 23:18:44 d3g681 Exp $
+C$Id: mointdriver.F,v 1.27 1995-04-19 00:43:32 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -9,6 +9,7 @@ C$Id: mointdriver.F,v 1.26 1995-02-02 23:18:44 d3g681 Exp $
 #include "rtdb.fh"
 #include "schwarz.fh"
 #include "context.fh"
+#include "util.fh"
 c
 c
 c
@@ -32,7 +33,7 @@ c
        integer g_coul, g_exch, g_epair
        integer i,j,ij
        integer ii
-       logical oexch,ocoul,oprint,status,ohalf
+       logical oexch,ocoul,oprint,status,ohalf,omemprint
        double precision emp2, e2pair
        double precision tpass
        character*7 algo
@@ -41,9 +42,8 @@ c
 c
        data g_coul,g_exch/-1,-1/
        data oexch,ocoul/.true.,.true./
-       data oprint/.true./
        data ohalf/.false./
-       data algo/'twofold'/
+       data algo/'sixfold'/
        data charge/0.d0/
 c
 c
@@ -60,6 +60,16 @@ c
        external moints_occrange
 c
 c
+c
+c
+c Print settings
+c
+       call util_print_push()
+       call util_print_rtdb_load(rtdb,'mointdriver')
+       oprint = util_print('information',print_default)
+       omemprint = util_print('memory',print_high)
+c
+c Memory settings
 c
        status = ma_set_hard_fail(.true.)
        status = ma_set_auto_verify(.true.)
@@ -105,7 +115,7 @@ c
        if (.not.rtdb_cget(rtdb,'moints:input vectors',1,movecs_in))
      $      then
          if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_in))
-     $        movecs_in = 'movecs'
+     $        call util_file_prefix('movecs',movecs_in)
        endif
 c
 c Read in MO coefficients
@@ -157,7 +167,8 @@ c Maximum number of operator matrices we can allocate
 c
        nocct = (nocc_correl*(nocc_correl+1))/2
        if ((ocoul).and.(oexch)) nocct = 2*nocct
-       max_noper = moints_numoper( basis, algo, nbf, nocc, nmo2, blen)
+       max_noper = moints_numoper( basis, algo, nbf,
+     $                             nocc, nmo2, blen, omemprint )
 C       MAX_NOPER = 10
        if (max_noper.gt.nocct) then
          noper =  (nocc_correl*(nocc_correl+1))/2
@@ -191,7 +202,7 @@ c
 c
 c Print info
 c
-       if (ga_nodeid().eq.0) then
+       if ((ga_nodeid().eq.0).and.(oprint)) then
          write(6,*)
          write(6,*)
          call util_print_centered(6,'Four-Index Transformation',
@@ -207,7 +218,13 @@ c
      $        10x,'Subscript MO index range:',8x,i3,1x,'-',i3,/,
      $        10x,'MO coefficients read from:',2x,a25,/,
      $        10x,'Number of operator matrices in core:',i5)
-         call util_flush(6)
+         if (algo.eq.'sixfold') then
+           write(6,975) 
+ 975       format(10x,'Sixfold algorithm used')
+         else
+           write(6,976) 
+ 976       format(10x,'Twofold algorithm used')
+         endif
          if (ohalf) then
            write(6,957) 
  957       format(10x,'Half-transformed integrals produced')
@@ -215,6 +232,8 @@ c
            write(6,958)
  958       format(10x,'Half-transformed integrals not produced')
          endif
+         write(6,*)
+         call util_flush(6)
        endif
 c
 c Clear 4-index statistics
@@ -224,7 +243,6 @@ c
 c
 c Loop over segments of occupied orbitals
 c
-       if (ga_nodeid().eq.0) write(6,*)
        npass = 0
        oseg_hi = occ_lo - 1
  22    continue
@@ -255,18 +273,22 @@ c
 c
 c
        tpass = tcgtime() - tpass
-       if (ga_nodeid().eq.0) write(6,772) npass, oseg_lo, oseg_hi, tpass
+       if ((ga_nodeid().eq.0).and.
+     $     (util_print('progress reports',print_default)))
+     $     write(6,772) npass, oseg_lo, oseg_hi, tpass
  772   format(5x,'Pass:',i5,5x,'Index range:',i5,2x,'-',i5,
      $        5x,'Time:',f10.2)
        if (oseg_hi.lt.occ_hi) goto 22
 c
 c End multipass loop
 c
-       call moints_stats_print(algo)
+       if (util_print('statistics',print_high))
+     $   call moints_stats_print(algo)
 c
 c Evaluate mp2 correction from pair energies
 c
-       if ((oexch).and.ga_nodeid().eq.0) then
+       if ((oexch).and.(ga_nodeid().eq.0).
+     $    and.(util_print('mp2',print_default))) then
          npairs = (nocc_correl*(nocc_correl+1))/2
          status = ma_push_get(MT_DBL, npairs, 'Pair energies',
      $                        l_epair, k_epair)
@@ -283,11 +305,13 @@ c
          enddo
 c
 c Print out pair energies
-c 
-c$$$         write(6,997)
-c$$$ 997     format(//,15x,'Pair Energies',/)
-c$$$         write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
-c$$$ 998     format(8f10.5)
+c
+         if (util_print('pair energies',print_debug)) then
+           write(6,997)
+ 997       format(//,15x,'Pair Energies',/)
+           write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
+ 998       format(8f10.5)
+         endif
 c
 c Print out total correlation correction
 c

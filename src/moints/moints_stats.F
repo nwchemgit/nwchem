@@ -1,9 +1,8 @@
        subroutine moints_stats_print( algo )
-C$Id: moints_stats.F,v 1.3 1995-02-02 23:18:50 d3g681 Exp $
+C$Id: moints_stats.F,v 1.4 1995-04-19 00:43:36 rg240 Exp $
        implicit none
 #include "global.fh"
        character*(*) algo
-#ifdef MOINTS_STATS
 #include "moints_stats.fh"       
        integer NSTATS
        integer MSG_MOINTS_STATS
@@ -142,7 +141,6 @@ C$Id: moints_stats.F,v 1.3 1995-02-02 23:18:50 d3g681 Exp $
        endif
        if (ga_nodeid().eq.0) call util_flush(6)
 
-#endif /* MOINTS_STATS */
        return
        end
 
@@ -150,8 +148,6 @@ C$Id: moints_stats.F,v 1.3 1995-02-02 23:18:50 d3g681 Exp $
 
        subroutine moints_stats_clear()
        implicit none
-#include "global.fh"
-#ifdef MOINTS_STATS
 #include "moints_stats.fh"
 c
        mi_npass = 0.d0
@@ -182,7 +178,6 @@ c
        mi_ntasksJ = 0.d0
        mi_ntasksK = 0.d0
 
-#endif /* MOINTS_STATS */
        return
        end
 

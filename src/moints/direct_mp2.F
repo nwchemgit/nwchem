@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.7 1995-03-31 01:42:13 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.8 1995-04-19 00:43:30 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -8,6 +8,7 @@ C$Id: direct_mp2.F,v 1.7 1995-03-31 01:42:13 d3g681 Exp $
 #include "geom.fh"
 #include "rtdb.fh"
 #include "context.fh"
+#include "util.fh"
 c
 c
 c
@@ -30,7 +31,7 @@ c
        integer noper, oseg_lo, oseg_hi, npass, blen, nocct
        integer g_coul, g_exch, g_epair
        integer i, j, ij, ii
-       logical oprint,status
+       logical oprint, status, omemprint
        double precision emp2, e2pair
        double precision tpass, ttotal, scf_energy
        character*7 algo
@@ -38,7 +39,6 @@ c
 c
 c
        data g_coul,g_exch/-1,-1/
-       data oprint/.true./
        data algo/'twofold'/
        data charge/0.d0/
 c
@@ -61,6 +61,13 @@ c
      $      call errquit('direct_mp2: context_push failed',0)
        ttotal = tcgtime()
        status = rtdb_parallel(.true.) ! Broadcast reads to all processes
+c
+c Print settings
+c
+       call util_print_push()
+       call util_print_rtdb_load(rtdb,'mp2')
+       oprint = util_print('information',print_default)
+       omemprint = util_print('memory',print_high)
 c
 c Memory settings
 c
@@ -87,11 +94,13 @@ c
      $      call errquit('direct_mp2: cannot get basis info',0)
        if (.not. bas_numcont(basis,nsh))
      $      call errquit('direct_mp2: cannot get basis info',0)
+       if (.not. rtdb_get(rtdb, 'scf:energy', MT_DBL, 1, scf_energy))
+     $      scf_energy = 0.0d0
 c
 c Reconcile number of electrons and occupied/virtual orbitals
 c
        nelec = int(nuclear_charge - charge)
-       status = MA_push_get(MT_DBL, nbf, 'MO occ', l_occ, k_occ)
+       status = ma_push_get(MT_DBL, nbf, 'MO occ', l_occ, k_occ)
        call dfill(nbf, 0.0d0, dbl_mb(k_occ), 1)
        if (.not. rtdb_get(rtdb, 'scfoccupation', MT_DBL, nbf,
      $      dbl_mb(k_occ))) then
@@ -170,7 +179,8 @@ c
 c Maximum number of operator matrices we can allocate
 c
        nocct = (nocc_correl*(nocc_correl+1))/2
-       noper = moints_numoper( basis, algo, nbf, nocc, nmo2, blen)
+       noper = moints_numoper( basis, algo, nbf, nocc,
+     $                         nmo2, blen, omemprint )
        if (noper.gt.nocct) noper = nocct
 c
 c Allocate operator matrix
@@ -189,7 +199,7 @@ c
 c
 c Print info
 c
-       if (ga_nodeid().eq.0) then
+       if ((ga_nodeid().eq.0).and.oprint) then
          write(6,*)
          write(6,*)
          call util_print_centered(6,'Direct MP2', 30, .true. )
@@ -240,22 +250,28 @@ c
        call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nvir,
      $                     g_exch, dbl_mb(k_evals), g_epair )
 c
-c
+c Print progress of this pass
 c
        tpass = tcgtime() - tpass
-       if (ga_nodeid().eq.0) write(6,772) npass, oseg_lo, oseg_hi, tpass
+       if ((ga_nodeid().eq.0).and.
+     $     (util_print('progress reports',print_default)))
+     $     write(6,772) npass, oseg_lo, oseg_hi, tpass
  772   format(5x,'Pass:',i5,5x,'Index range:',i5,2x,'-',i5,
      $        5x,'Time:',f10.2)
-       if (oseg_hi.lt.occ_hi) goto 22
+c
+c
 c
 c End multipass loop
 c
-       call moints_stats_print(algo)
+       if (oseg_hi.lt.occ_hi) goto 22
 c
-c Evaluate mp2 correction from pair energies
+c Print statistics
 c
-       if (.not. rtdb_get(rtdb, 'scf:energy', MT_DBL, 1, scf_energy))
-     $      scf_energy = 0.0d0
+       if (util_print('statistics',print_high))
+     $      call moints_stats_print(algo)
+c
+c Gather pair energies and evaluate mp2 correction
+c
        if (ga_nodeid().eq.0) then
          npairs = (nocc_correl*(nocc_correl+1))/2
          status = ma_push_get(MT_DBL, npairs, 'Pair energies',
@@ -271,23 +287,27 @@ c
              ii = ii + 1
            enddo
          enddo
-c$$$         write(6,997)
-c$$$ 997     format(//,15x,'MP2 Pair Energies',/)
-c$$$         write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
-c$$$ 998     format(8f10.5)
 c
-         write(6,999) scf_energy, emp2, scf_energy+emp2
- 999     format(//,15x,43('-'),
-     $          /,15x,'SCF energy         ',f24.12,
-     $          /,15x,'Correlation energy ',f24.12,
-     $          /,15x,'Total MP2 energy   ',f24.12,
-     $          /,15x,43('-'),/)
+c Print total and pair energies
+c
+         if (util_print('pair energies',print_debug)) then
+           write(6,997)
+ 997       format(//,15x,'MP2 Pair Energies',/)
+           write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
+ 998       format(8f10.5)
+         endif
+         if (oprint) write(6,999) scf_energy, emp2, scf_energy+emp2
+ 999     format(//,10x,43('-'),
+     $          /,10x,'SCF energy         ',f24.12,
+     $          /,10x,'Correlation energy ',f24.12,
+     $          /,10x,'Total MP2 energy   ',f24.12,
+     $          /,10x,43('-'),/)
          status = ma_pop_stack(l_epair)
        endif
        call ga_sync()
        ttotal = tcgtime() - ttotal
-       if (ga_nodeid().eq.0) write(6,823) ttotal
- 823   format('Total MP2 time:',5x,f10.2)
+       if ((ga_nodeid().eq.0).and.(oprint)) write(6,823) ttotal
+ 823   format(/,10x,'Total MP2 time:',5x,f10.2)
 c
 c Cleanup
 c
@@ -299,6 +319,10 @@ c
        if (.not.status) call errquit('direct_mp2: cannot pop stack?',0)
        status = ga_destroy(g_vecs)
        status = geom_destroy(geom)
+c
+c Pop context
+c
+       call util_print_pop()
        if (.not. context_pop('direct_mp2'))
      $     call errquit('context_pop failed',0)
 c

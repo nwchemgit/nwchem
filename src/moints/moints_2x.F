@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.2 1995-01-31 19:07:18 rg240 Exp $
+c  $Id: moints_2x.F,v 1.3 1995-04-19 00:43:33 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -77,9 +77,10 @@ c
        integer tottask
        logical status
        logical oprint
-#ifdef MOINTS_STATS
+c
+c
 #include "moints_stats.fh"
-#endif
+c
 c
 c
 c
@@ -348,10 +349,6 @@ c
 #endif
 
 c
-c
-c
-#ifdef MOINTS_STATS
-c
 c Timings and Statistics bookkeeping
 c
        flop1 = flop1*1.d-6
@@ -378,7 +375,7 @@ c
        mi_ntasksJ = mi_ntasksJ + tottask
        mi_ntasksK = 1.d0
        mi_mintaskK = 0.d0
-#endif
+
 
        return
        end
