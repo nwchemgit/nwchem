@@ -117,6 +117,8 @@ c
       integer msg_mcscf_etrace
       integer msg_mcscf_actenergy
       integer msg_mcscf_chkhess
+      integer msg_gapss_vcoul
+      integer msg_gapss_ltp
       
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
@@ -322,3 +324,5 @@ c
       parameter (msg_mcscf_etrace      = msg_ftn_base - 185 )
       parameter (msg_mcscf_actenergy   = msg_ftn_base - 186 )
       parameter (msg_mcscf_chkhess     = msg_ftn_base - 187 )
+      parameter (msg_gapss_vcoul     = msg_ftn_base - 188 )  ! gapss: gap_vcoul
+      parameter (msg_gapss_ltp     = msg_ftn_base - 189 )    ! gapss: gap_vcoul
