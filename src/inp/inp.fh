@@ -1,9 +1,10 @@
       logical inp_i, inp_f, inp_a, inp_read, inp_line, inp_match, 
      $     inp_search, inp_compare, inp_eof, inp_a_trunc,
-     $   inp_irange, inp_ilist, inp_strtok, inp_read_physical_line
-C$Id: inp.fh,v 1.6 1998-06-14 20:01:57 d3g681 Exp $
+     $   inp_irange, inp_ilist, inp_strtok, inp_read_physical_line,
+     $   inp_contains
+C$Id: inp.fh,v 1.7 2001-12-05 21:28:09 bert Exp $
       integer inp_n_field, inp_cur_field, inp_strlen
       external inp_i, inp_f, inp_a, inp_n_field, inp_cur_field,
      $     inp_match, inp_read, inp_search, inp_compare, inp_strlen,
      $     inp_line, inp_eof, inp_a_trunc, inp_irange, inp_ilist,
-     $     inp_strtok, inp_read_physical_line
+     $     inp_strtok, inp_read_physical_line, inp_contains

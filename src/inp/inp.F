@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.39 2000-10-25 22:50:11 windus Exp $
+C$Id: inp.F,v 1.40 2001-12-05 21:27:53 bert Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -705,6 +705,51 @@ c
          endif
       enddo
 c     
+      end
+      logical function inp_contains(ocase, a, b,ipos)
+c
+c  check if string a is contained in b. return starting
+c  location of string a in b.
+c
+      implicit none
+      logical ocase
+      character*(*) a, b
+      integer la, lb, i, j, ipos
+      character*1 atest, btest
+      integer inp_strlen
+      external inp_strlen
+c
+      ipos = -1
+      inp_contains = .false.
+      la = inp_strlen(a)
+      lb = inp_strlen(b)
+      if (la .gt. lb) then   
+         return
+      else if (ocase) then
+         do i = 1, lb - la + 1
+            inp_contains = a(1:la) .eq. b(i:i+la)
+            if (inp_contains) then
+               ipos = i
+               return
+            endif
+         enddo
+         return
+      else
+         do j = 0, lb - la 
+            do i = 1, la
+               atest = a(i:i)
+               btest = b(j+i:j+i)
+               call inp_lcase(atest)
+               call inp_lcase(btest)
+               if (atest.ne.btest) goto 00011
+            enddo
+            inp_contains = .true.
+            return
+00011    continue
+         enddo
+         return
+      endif
+c
       end
       subroutine inp_prev_field()
       implicit none
