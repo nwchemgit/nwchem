@@ -155,6 +155,7 @@ c
       integer mrg_i29
       integer mrg_i30
       integer mrg_i31
+      integer mrg_i32
       integer mrg_i50
 c
       integer mre_000
@@ -593,6 +594,7 @@ c
       parameter(mrg_i29=msg_ftn_base-340) ! arg_rdstrt
       parameter(mrg_i30=msg_ftn_base-341) ! arg_param1
       parameter(mrg_i31=msg_ftn_base-342) ! arg_knodes
+      parameter(mrg_i32=msg_ftn_base-343) ! arg_knodes
       parameter(mrg_i50=msg_ftn_base-361) ! arg_wrstrt
 c
       parameter(mrg_d56=msg_ftn_base-362) ! arg_rdstrt
