@@ -1,5 +1,5 @@
       subroutine input_parse(rtdb)
-C     $Id: input_parse.F,v 1.15 1995-03-12 18:26:07 d3g681 Exp $
+C     $Id: input_parse.F,v 1.16 1995-03-27 19:53:10 rg240 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -150,7 +150,7 @@ c     Print and noprint
 c     
  2000    continue
  2100    continue
-         call util_print_input(rtdb,'')
+         call util_print_input(rtdb,' ')
          goto 10
 c     
       endif
