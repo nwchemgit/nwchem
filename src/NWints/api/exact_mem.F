@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.13 1994-10-18 06:11:00 d3e129 Exp $
+c $Id: exact_mem.F,v 1.14 1994-10-20 23:27:58 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -78,12 +78,21 @@ c
 00400   continue
 00300 continue
 c
+c... sanity checks for lable routines       
+c
+      mem_2e4c  = max(mem_2e4c,  isz_2e4c)
+      mem_2e3c  = max(mem_2e3c,  isz_2e3c)
+      mem_2e2c  = max(mem_2e4c,  isz_2e2c)
+      mem_1e    = max(mem_1e,    isz_1e)
+      mem_1e_h1 = max(mem_1e_h1, (2*isz_1e))
+      mem_3ov   = max(mem_3ov,   isz_3ov)
 c.. debug write statements
-*rak:      write(6,*)' mem_2e4c =',mem_2e4c
-*rak:      write(6,*)' mem_2e3c =',mem_2e3c
-*rak:      write(6,*)' mem_2e2c =',mem_2e2c
-*rak:      write(6,*)' mem_1e   =',mem_1e
-*rak:      write(6,*)' mem_3ov  =',mem_3ov
+*rak:      write(6,*) ' mem_2e4c =',mem_2e4c 
+*rak:      write(6,*) ' mem_2e3c =',mem_2e3c 
+*rak:      write(6,*) ' mem_2e2c =',mem_2e2c 
+*rak:      write(6,*) ' mem_1e   =',mem_1e   
+*rak:      write(6,*) ' mem_1e_h1=',mem_1e_h1
+*rak:      write(6,*) ' mem_3ov  =',mem_3ov  
 *rak:      write(6,*)' '
 *rak:      write(6,*)' isz_2e4c =',isz_2e4c
 *rak:      write(6,*)' isz_2e3c =',isz_2e3c
@@ -358,7 +367,6 @@ c
 c
       maxg = max_nbf_bra*max_nbf_bra
       maxg = maxg*max_nbf_ket*max_nbf_ket
-      
 c
 *      write(6,'(a,i10)')'emem_2e4c: memsize =',memsize
 *      write(6,'(a,i10)')'emem_2e4c: maxg    =',maxg
