@@ -3,7 +3,7 @@ C NAME
 C     mk_fit_xf -- Form fitting basis transformation
 C
 C REVISION
-C     $Id: mk_fit_xf.F,v 1.1 1995-05-22 23:37:28 vg038 Exp $
+C     $Id: mk_fit_xf.F,v 1.2 1995-06-20 20:11:29 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function Mk_Fit_Xf(Approx, Split, Basis, MinEval, G_V)
@@ -50,7 +50,6 @@ C INCLUDE FILES
 #include "numerical_constants.fh"
 #include "stdio.fh"
 #include "bas.fh"
-#include "rimp2_timers.fh"
 #include "inp.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C CONSTANTS
@@ -112,10 +111,8 @@ C
 C
 C        The GA_Zero is SIMD, so it should sync us all
 C
-         Call PStat_On( PS_V_Gen)
          Call Int_2c_GA( Basis, Basis, G_V, 'overlap', FP_One)
          Call GA_Sync
-         Call PStat_Off( PS_V_Gen)
 C
 C        Form S^-1
 C
@@ -132,11 +129,8 @@ C
 C
 C        The GA_Zero is SIMD, so it should sync us all
 C
-         Call PStat_On( PS_V_Gen)
          Call Int_2c_GA( Basis, Basis, G_V, 'eri', FP_One)
-C
          Call GA_Sync
-         Call PStat_Off( PS_V_Gen)
 C
 C        Multiply everyone together
 C
@@ -178,11 +172,8 @@ C
 C
 C        The GA_Zero is SIMD, so it should sync us all
 C
-         Call PStat_On( PS_V_Gen)
          Call Int_2c_GA( Basis, Basis, G_V, 'overlap', FP_One)
-C
          Call GA_Sync
-         Call PStat_Off( PS_V_Gen)
 C
       ElseIf (Type .eq. 3) then
 C
@@ -203,19 +194,14 @@ C
 C
 C        The GA_Zero is SIMD, so it should sync us all
 C
-         Call PStat_On( PS_V_Gen)
          Call Int_2c_GA( Basis, Basis, G_V, 'eri', FP_One)
-C
          Call GA_Sync
-         Call PStat_Off( PS_V_Gen)
       EndIf
 C
 C     ****************************************
 C     * Compute M^{1/2}, M^{-1/2}, or M^{-1} *
 C     ****************************************
 C     As appropriate to the approximation and "split" requested
-C
-      Call PStat_On( PS_VmHalf)
 C
       If (DoSplit .AND. Type .eq. 1) then
          Call GA_MatPow( G_V, FP_Half, MinEval)
@@ -224,9 +210,6 @@ C
       ElseIf ( .NOT. DoSplit .AND. (Type .eq. 2 .OR. Type .eq. 3) ) then
          Call GA_MatPow( G_V, -FP_One, MinEval)
       EndIf
-C
-      Call PStat_Off( PS_VmHalf)
-c$$$      CALL GA_PRINT( G_V)
 C
       Mk_Fit_Xf = .TRUE.
 C

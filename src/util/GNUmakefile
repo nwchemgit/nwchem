@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.40 1995-05-29 19:29:02 d3g681 Exp $
+# $Id: GNUmakefile,v 1.41 1995-06-20 20:11:24 gg502 Exp $
 
 include ../config/makefile.h
 
@@ -34,7 +34,7 @@ endif
               $(EXTRA_OBJ) 
     LIBRARY = libutil.a
     HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh \
-              printlevels.fh rimp2_timers.fh
+              printlevels.fh
 
     USES_BLAS = util.fh ga_iter_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F
