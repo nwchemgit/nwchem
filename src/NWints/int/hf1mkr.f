@@ -1,7 +1,7 @@
       Subroutine hf1mkr(Axyz,Bxyz,Cxyz,zan,ncenters,
      &                  alpha,Pxyz,RS,PC,ff,R,
      &                  R0,R0C,IJK,NPP,Lp,Lp3,CENTER)
-c $Id: hf1mkr.f,v 1.2 1994-04-04 20:30:57 d3e129 Exp $
+c $Id: hf1mkr.f,v 1.3 1994-05-27 16:01:08 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -53,8 +53,9 @@ c            a + b       \  a + b      /
 c
 c******************************************************************************
 
-      do 100 mp = 1,NPP*Lp3
-       R0(mp,1) = 0.D0
+      do 100 mp = 1,NPP
+        do 100 j = 1,Lp3
+          R0(mp,j) = 0.D0
   100 continue
 
       do 110 mp = 1,NPP
