@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.132 1995-12-01 16:57:57 d3g681 Exp $
+# $Id: makefile.h,v 1.133 1995-12-01 18:40:19 rg240 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -382,8 +382,8 @@ FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-so=1,-o=1
 
  COPTIMIZE = -O
 
-    DEFINES = -DSGITFP -DSGI -DLongInteger
-  CORE_LIBS = -lguess -lutil -lglobal -ltcgmsg -llapack -lblas
+    DEFINES = -DSGI -DSGITFP -DLongInteger
+  CORE_LIBS = -lglobal -ltcgmsg -llapack -lblas
 endif
 
 
@@ -539,9 +539,9 @@ ifeq ($(TARGET),DECOSF)
                INSTALL = @echo nwchem is built
              MAKEFLAGS = -j 1 --no-print-directory
 
-              FOPTIONS = -i8
+              FOPTIONS = -i8 -assume noaccuracy_sensitive -align dcommons -math_library fast
               COPTIONS = 
-             FOPTIMIZE = -O
+             FOPTIMIZE = -O 
              COPTIMIZE = -O
 
                DEFINES = -DDECOSF -DLongInteger
@@ -586,10 +586,10 @@ endif
 ###################################################################
 
 ifdef OPTIMIZE
-    FFLAGS = $(FOPTIONS) $(FOPTIMIZE) 
+    FFLAGS = $(FOPTIONS) $(FOPTIMIZE)
     CFLAGS =  $(COPTIONS) $(COPTIMIZE)
 else
-    FFLAGS = $(FDEBUG) $(FOPTIONS) 
+    FFLAGS = $(FDEBUG) $(FOPTIONS)
     CFLAGS = $(CDEBUG) $(COPTIONS) 
 endif
   INCLUDES = -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
