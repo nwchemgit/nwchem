@@ -1,5 +1,5 @@
 *
-* $Id: silvestrelli_minimize.F,v 1.4 2004-03-08 22:51:28 bylaska Exp $
+* $Id: silvestrelli_minimize.F,v 1.5 2004-04-08 00:23:45 bylaska Exp $
 *
 
 
@@ -32,7 +32,7 @@
       integer At(2),Att(2)
       integer expplusA(2),expminusA(2),expminusAtotal(2)
 
-      real*8     timestep,maxgrad,omega
+      real*8     timestep,maxgrad,omega,omega1,crit
       real*8     wx,wy,wz
 
       complex*16 one,zero,scal
@@ -72,8 +72,13 @@
       maxgrad  = 9999.0d0
       timestep =    3.0d-2
       iter = 0
+      crit   = 9999.0d0
+      omega1 = 0.0d0
+      
 
-      do while((maxgrad .GT. 1.0d-08).and.(iter.lt.MAXITER))
+      do while( (iter.lt.10)    .or.
+     >          (crit.gt.1.0d-7).or.
+     >          ((maxgrad .GT. 1.0d-08).and.(iter.lt.MAXITER)))
 
          iter=iter+1
 
@@ -177,7 +182,7 @@
          maxgrad=0.d0
          do i=1,n
          do j=1,n
-           wx = dble(A(i,j))**2 + dimag(A(i,j))
+           wx = dble(A(i,j))**2 + dimag(A(i,j))**2
            wx = dsqrt(wx)
            if(wx .GT. maxgrad) maxgrad=wx
          end do
@@ -191,18 +196,21 @@
             omega = omega + (wx+wy+wz)
          end do
 
+         crit = dabs(omega-omega1)/omega
+         omega1 = omega
+
          !if (oprint) then
-         !write(6,*) iter, omega, maxgrad
+         !write(6,*) iter, omega, maxgrad,crit
          !end if
       end do ! end do while
 
       if (oprint) then
         write(6,1000)
-        write(6,1001) iter, omega, maxgrad
+        write(6,1001) iter, omega, maxgrad,crit
  1000 FORMAT(//' fixed step steepest descent iteration results:')
  1001 FORMAT(5x,'iterations performed=',I12,
      >       /5x,'               omega=' F12.6,
-     >       /5x,'               error=',E12.3)
+     >       /5x,'               errors=',2E12.3)
 
       end if
 
