@@ -1,5 +1,5 @@
       subroutine input_set(rtdb)
-C$Id: input_set.F,v 1.7 1995-04-18 17:31:46 gg502 Exp $
+C$Id: input_set.F,v 1.8 1996-02-08 08:45:51 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -171,7 +171,7 @@ c
       if (.not. inp_a(test)) call errquit
      $     ('input_unset: name missing',0)
       if (.not. rtdb_delete(rtdb,test)) then
-         write(6,*) ' warning: ',test(1:inp_strlen(test)),
+         write(6,*) ' unset: warning: ',test(1:inp_strlen(test)),
      $        ' is not in the database '
       endif
 c
