@@ -1,5 +1,5 @@
 #
-# $Id: nwparse.pl,v 1.4 1997-06-23 21:45:21 d3e129 Exp $
+# $Id: nwparse.pl,v 1.5 1997-06-24 22:43:16 d3e129 Exp $
 #
 #
 #
@@ -128,10 +128,7 @@ foreach $filename (@FILES_TO_PARSE) {
 	}
 	next if /^\s*$/;
 	if (/failed/i || /warning/i) {
-	    if (! $quiet){
-		print $_;
-	    }
-	    print FILE_OUTPUT $_;
+	    print $_;
 	}
 	if (/^ Frequency/ || /^ P.Frequency/){
 	    if ($debug) {print "\ndebug: $_";}
