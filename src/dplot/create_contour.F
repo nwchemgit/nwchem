@@ -3,7 +3,7 @@
      &                          Grid,Values,g_Vls,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.16 2002-03-04 18:54:21 edo Exp $
+* $Id: create_contour.F,v 1.17 2002-12-30 21:01:11 edo Exp $
 *
       Implicit None
 *
@@ -52,8 +52,17 @@
      .     k_rdat,l_rdat,lcntoce, icntoce, 
      .     lcntobfr, icntobfr,
      .     iscr,lscr,nscr,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2
+            integer lbas_cent_info, ibas_cent_info,
+     &        lbas_cset_info, ibas_cset_info,
+     &        ldocset, idocset,ncontrset,i,
+     .     l_ldiff,k_ldiff,l_minexp,k_minexp,k_ptcg,l_ptcg,
+     .     ictr_buf
+            
+
 cedo      double precision rdens_atom(natom*natom)
       Logical LResult,DeBug,GRAD
+      external grid_nbfm
+      integer grid_nbfm
 *
 ************************************************************************
 *
@@ -123,8 +132,6 @@ cedo      double precision rdens_atom(natom*natom)
       LResult = MA_Push_Get(MT_Dbl,      nAtom,'rq0',l_rq0,k_rq0)
       Call ErrMem(LResult,'C_C: Failed to allocate rq0',0)
 *
-      Call QDist(Dbl_mb(k_rq0),Dbl_mb(k_rq),Grid(1,iOffG),Dbl_mb(k_xyz),
-     &           nGrPP,nAtom)
 *
 *---- Include only basis functions that are "non-zero" for at least one 
 *     grid point (use nBF_to_mBF from the NWDFT module)
@@ -154,27 +161,78 @@ cedo      double precision rdens_atom(natom*natom)
 *
       Call dfill(nbf_ao_mxprim,0.0d0,Dbl_mb(k_Expo),1)
       Call dfill(nCoef_Max,0.0d0,Dbl_mb(k_Coef),1)
-      Acc_AO_Gauss = 1.d20
-      If (What.eq.'VIEW') Acc_AO_Gauss = 1.d20
+      do ictr_buf=1,natom
+      Acc_AO_Gauss = 14d0
+!      If (What.eq.'VIEW') Acc_AO_Gauss = 14d0
       mBF = nBF
+      if (.not.bas_numcont(AO_bas_han, ncontrset))
+     &     call errquit('Exiting in grid_quadv0a',0)
+      if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
+     &     ldocset, idocset))
+     &     call errquit('grid_quadv0a: cannot allocate docset',
+     .     ncontrset)
+#ifdef OLD
+       do i=1,ncontrset
+            log_mb(idocset+i-1)=.true.
+         enddo
       Call oldnBF_to_mBF(AO_Bas_Han,dbl_mb(k_rq0),
      &                mBF,nAtom,
      &                Int_mb(k_iniz),Int_mb(k_ifin),
      .     int_mb(k_ibf),
      &                Dbl_mb(k_Expo),nbf_ao_mxprim,Acc_AO_Gauss)
-      If (What.eq.'VIEW' . and . nBF.ne.mBF)
-     &   Call ErrQuit('Create_Contour: nBF.ne.mBF for VIEW',mbf)
+#else
+      if(natom.gt.1) then
+      if (.not.MA_Push_Get(mt_int, natom, 'ldiff',
+     &     l_ldiff, k_ldiff))
+     &     call errquit('grid_quadv0a: cannot allocate ldiff',0)
+      if (.not.MA_Push_Get(mt_dbl, natom, 'minexp',
+     &     l_minexp, k_minexp))
+     &     call errquit('grid_quadv0a: cannot allocate minexp',0)
+      if (.not.MA_Push_Get(mt_log, natom, 'cptcg',
+     &     l_ptcg, k_ptcg))
+     &     call errquit('grid_quadv0a: cannot allocate minexp',0)
+      do i=1,natom
+         int_mb(k_ldiff+i-1)=5
+         dbl_mb(k_minexp+i-1)=1d+3
+         log_mb(k_ptcg+i-1)=.false.
+      enddo
+         call ifill(mbf, 0, int_mb(k_ibf), 1)
+         mbf=grid_nbfm(AO_bas_han,  natom, 
+     &        ictr_buf,1d9,
+!     &        ictr_buf,rad,
+     ,   Dbl_mb(k_xyz),Grid(1,iOffG),ngrpp,
+!     ,   Grid(1,iOffG),Dbl_mb(k_xyz),ngrpp,
+     &        int_mb(k_ibf), log_mb(idocset),  
+     .        int_mb(k_iniz), int_mb(k_ifin), dbl_mb(k_expo), 
+     &        dbl_mb(k_minexp),int_mb(k_ldiff),
+     .        acc_ao_gauss,log_mb(k_ptcg))
+      if (.not.ma_chop_stack(l_ldiff))
+     &   call errquit('cre_cont: cannot pop stack',11)
+         if (mbf.eq.0) return
+      else
+         int_mb(k_iniz)=1
+         int_mb(k_ifin)=nbf
+        do i=1,ncontrset
+            log_mb(idocset+i-1)=.true.
+         enddo
+         do i=1,nbf
+            int_mb(k_ibf+i-1)=i
+         enddo
+      endif
+#endif
+!      If (What.eq.'VIEW' . and . nBF.ne.mBF)
+!     &   Call ErrQuit('Create_Contour: nBF.ne.mBF for VIEW',mbf)
       If (DeBug . and . iProc.eq.0) Write(LuOut,*)' mBF        = ',mBF
 *
 *---- Compute values of the basis functions and the grid points (use
 *     Int_Eval_GBSets from the NWDFT module)
 *
-      lth1 = nGrPP*mBF
+      lth1 = nGrPP*nBF
       If (lth1.eq.0) lth1 = 1
       lth2 = 1
       If (GRAD) lth2 = nGrPP*mBF*3
       If (lth2.eq.0) lth2 = 1
-      lth3 = mBF
+      lth3 = nBF
       If (lth3.eq.0) lth3 = 1
       LResult = MA_Push_Get(MT_Dbl,lth1,'Scr1',l_Scr1,k_Scr1)
       Call ErrMem(LResult,'C_C: Failed to allocate Scr1',lth1)
@@ -206,16 +264,32 @@ cedo      double precision rdens_atom(natom*natom)
       LResult = MA_Push_Get(MT_Dbl,nScr4,'Scr4',l_Scr4,k_Scr4)
       Call ErrMem(LResult,'C_C: Failed to allocate Scr4',0)
 *
-      Call New_Eval_GBSets(AO_Bas_Han,GRAD,.false.,
-     &                     Dbl_mb(k_Scr1),Dbl_mb(k_Scr2),
-     &                     Dbl_mb(k_Hess),Int_mb(k_ibf),
-     &                     0,Dbl_mb(k_rq0),Dbl_mb(k_rq),
-     &                     Grid(1,iOffG),Dbl_mb(k_xyz),
-     &                     nGrPP,nGrPP,mBF,nAtom,
-     &                     Dbl_mb(k_Scr4),nScr4,
-     &                     Dbl_mb(k_Expo),nbf_ao_mxprim,
-     &                     Dbl_mb(k_Coef),nCoef_Max,
-     &                     Int_mb(k_iniz),Int_mb(k_ifin))
+      if (.not.MA_Push_Get(mt_int, 3*natom, 'bas_cent_info',
+     &     lbas_cent_info, ibas_cent_info))
+     &     call errquit('grid_quadv0a: cannot allocate bas_cent_info',0)
+      if (.not.MA_Push_Get(mt_int, 6*ncontrset, 'bas_cset_info',
+     &     lbas_cset_info, ibas_cset_info))
+     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0)
+      call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
+     &     int_mb(ibas_cset_info), natom)
+!      call qdist(rchi_atom, rq, qxyz, xyz, nqpts, natoms)
+      Call QDist(Dbl_mb(k_rq0),Dbl_mb(k_rq),Grid(1,iOffG),Dbl_mb(k_xyz),
+     &           nGrPP,nAtom)
+      call xc_eval_basis(ao_bas_han, 0, dbl_mb(k_scr1),
+     &     dbl_mb(k_scr2), dbl_mb(k_scr3), dbl_mb(k_hess),
+     ,     Dbl_mb(k_rq), Grid(1,iOffG),Dbl_mb(k_xyz),
+     ,      ngrpp, natom, int_mb(k_iniz), log_mb(idocset), 
+     .     int_mb(ibas_cent_info), int_mb(ibas_cset_info))
+!      Call New_Eval_GBSets(AO_Bas_Han,GRAD,.false.,
+!     &                     Dbl_mb(k_Scr1),Dbl_mb(k_Scr2),
+!     &                     Dbl_mb(k_Hess),Int_mb(k_ibf),
+!     &                     0,Dbl_mb(k_rq0),Dbl_mb(k_rq),
+!     &                     Grid(1,iOffG),Dbl_mb(k_xyz),
+!     &                     nGrPP,nGrPP,mBF,nAtom,
+!     &                     Dbl_mb(k_Scr4),nScr4,
+!     &                     Dbl_mb(k_Expo),nbf_ao_mxprim,
+!     &                     Dbl_mb(k_Coef),nCoef_Max,
+!     &                     Int_mb(k_iniz),Int_mb(k_ifin))
 
 *---- Matrix Scr1(nGrid,nBF) contains HOPEFULY!!! the values of each
 *     basis function at a given set of points. The value of the density
@@ -304,6 +378,9 @@ c
 !     .           int_mb(k_iniz),int_mb(k_ifin),
 !     ,           dbl_mb(irchi_atom),dbl_mb(k_rdat))
 *
+!         write(0,*) ' scr ',dbl_mb(k_scr1)
+!         write(0,*) ' ibf ',dbl_mb(k_ibf)
+!         write(0,*) ' iniz ',dbl_mb(k_ifin)
 
          call xc_rhogen(TOLL,AO_Bas_Han,g_Dns,
      &                  nbf_ao_mxnbf_ce,nAtom,1,nGrPP,nBF,mBF,
@@ -331,13 +408,19 @@ c
       End If
 *
 *---- Deallocate Scratch memory
-      if(.not.ma_free_heap(l_tags)) call errquit(' cc: heap',0)
+      if(.not.MA_chop_Stack(ldocset))
+     .  Call errquit('C_C: Failed to deallocate docset',0)
+      enddo ! on ictr_buf
       if(.not.MA_chop_Stack(l_xyz))
      .  Call errquit('C_C: Failed to deallocate xyz',0)
 *
 *---- Put values into the global array and synchronize
       Call GA_Put(g_Vls,iOffG,iOffG+nGrPP-1,1,1,Values(iOffG),nGrPP)
  9999 Continue
+      if(.not.ma_free_heap(l_tags)) then
+         call Ma_summarize_allocated_blocks()
+         call errquit(' cc: heap',0)
+      endif
       Call GA_Sync
 *
 *---- Normal termination
@@ -397,7 +480,7 @@ c
       Subroutine oldnbf_to_mbf(basis_hand, rq0, mbf, mcenters, 
      &                      iniz, ifin, ibf, zprim, nzprim, acc_gauss)
 c
-C$Id: create_contour.F,v 1.16 2002-03-04 18:54:21 edo Exp $
+C$Id: create_contour.F,v 1.17 2002-12-30 21:01:11 edo Exp $
 c
       implicit none
 c      
