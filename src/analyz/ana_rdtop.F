@@ -71,7 +71,11 @@ c
       write(44,2004) sname,aname
  2004 format(2a5,i6)
     7 continue
-      nat=2*(nbw+nhw+ndw+now)
+      do 19 i=1,nbw
+      read(lfntop,'(2i7)') ibndw(i,1),ibndw(i,2)
+      read(lfntop,1000) cdummy
+   19 continue
+      nat=2*(nhw+ndw+now)
       do 5 i=1,nat
       read(lfntop,1000) cdummy
     5 continue
@@ -192,6 +196,7 @@ c
     4 continue
       read(lfntop,1003) naw,nbw,nhw,ndw,now,ntw,nnw
  1003 format(5i7,2i10)
+      mwb=nbw
       read(lfntop,1003) nas,nbs
       msb=nbs
       do 7 i=1,naw

@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.60 2002-07-20 19:17:38 d3j191 Exp $
+c $Id: ana_input.F,v 1.61 2002-07-21 16:16:29 d3j191 Exp $
 c
       implicit none
 c
@@ -682,11 +682,10 @@ c
       write(lfncmd,1066) rmin,rmax
  1066 format('hbdist ',2f12.6)
       if(inp_a(item)) goto 6644
-      elseif(inp_compare(.false.,'donorangle',item)) then
+      elseif(inp_compare(.false.,'donorangle',item).or.
+     + inp_compare(.false.,'angle',item)) then
       if(.not.inp_f(rmin)) call errquit('Error in hbond',0)
-      if(.not.inp_f(rmax)) then
-      rmax=3.1416d0
-      endif
+      if(.not.inp_f(rmax)) rmax=3.1416d0
       write(lfncmd,1067) rmin,rmax
  1067 format('hbdang ',2f12.6)
       if(inp_a(item)) goto 6644

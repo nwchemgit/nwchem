@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.82 2002-07-20 19:17:38 d3j191 Exp $
+c $Id: ana_task.F,v 1.83 2002-07-21 16:16:29 d3j191 Exp $
 c
       implicit none
 c
@@ -962,7 +962,7 @@ c
 c     hydrogen bond analysis
 c
       if(lhbond) then
-      call ana_hbond(dbl_mb(i_xdat),int_mb(i_hbnd))
+      call ana_hbond(dbl_mb(i_xdat),dbl_mb(i_wdat),int_mb(i_hbnd))
       endif
 c
       if(ngroup.gt.0) then

@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.55 2002-07-20 19:17:38 d3j191 Exp $
+c $Id: ana_common.fh,v 1.56 2002-07-21 16:16:25 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -81,9 +81,9 @@ c
      + i_sbnd,l_sbnd
 c
       integer nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel,npov,nwsel,
-     + nwrit,indx,msgm,nsgm,msb
+     + nwrit,indx,msgm,nsgm,msb,mwb
       common/ana_dim/nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel,npov,
-     + nwsel,nwrit,indx,msgm,nsgm,msb
+     + nwsel,nwrit,indx,msgm,nsgm,msb,mwb
 c
       logical lxw,lvw,lfw,lpw,lsx,lsv,lfs,lps,lsel,lana,lrms,lsonly,
      + ltop,ldcd,lrama,lesd,lloc,lsels,lhbond
@@ -99,7 +99,8 @@ c
       common/ana_val/wval
 c
       integer ndef,ldef(mxdef),idef(mxdef,mxnum),
-     + ngroups,igroups(maxgrp,6),ngroup,igroup(maxgrp,4)
+     + ngroups,igroups(maxgrp,6),ngroup,igroup(maxgrp,4),
+     + ihbndw(100),ibndw(100,2)
       real*8 rgroups(maxgrp,2),rgroup(maxgrp,2)
       integer nhis,lhis,ihis(mlhis,mhis),idhis(mhis,3)
       integer nord,idord(mord,4),iord(mord,2)
@@ -107,7 +108,7 @@ c
       real*8 rhis,dhis
       common/ana_def/rord,rgroups,rgroup,rhis,dhis,
      + ndef,ldef,idef,ngroups,igroups,ngroup,igroup,
-     + nhis,lhis,ihis,idhis,
+     + ihbndw,ibndw,nhis,lhis,ihis,idhis,
      + nord,idord,iord
 c
       integer nrot,irot(100)
