@@ -1,16 +1,24 @@
       Subroutine diis_driver(ispin,ipol,icall,
      &     MXhist,nbf,geom,AO_bas_han,
-     &     iga_fock,iga_dens,iga_tmp,iga_svecs,iga_diis,isvals)
+     &     g_fock,g_dens,g_tmp,g_svecs,g_diis,isvals)
 
-C$Id: diis_driver.F,v 1.2 1995-10-17 08:54:59 d3g681 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
-
-      Logical LResult
-
+C$Id: diis_driver.F,v 1.3 1995-12-20 03:38:45 og845 Exp $
+      implicit none
+      
+      integer ispin
+      integer ipol
+      integer MXhist
+      integer nbf
+      integer g_fock
+      integer g_dens
+      integer g_tmp
+      integer g_svecs
+      integer g_diis
+      integer isvals
       Integer nhist(2), icall(2)
       integer geom,AO_bas_han
-
+      
+      integer lpulay,npulay,ipulay
       Save lpulay,npulay,ipulay,nhist
 
 #include "mafdecls.fh"
@@ -20,10 +28,17 @@ C$Id: diis_driver.F,v 1.2 1995-10-17 08:54:59 d3g681 Exp $
 #if defined(DFT_TIMER)
 #include "timer.fh"
 #endif
+c
+      logical LResult
+      integer g_tmp2,g_tmp3,me,nproc,iw,lenp
+      integer lfwght,ifwght,lrow,irow,lcol,icol
+      double precision one,zero
+      parameter (one = 1.d0,zero = 0.d0)
+
 c     
 c     Use the DIIS scheme to accelerate convergence.
 c     
-c*******************************************************************************
+c*****************************************************************************
       if( icall(ispin).lt.0 )then
         LResult = MA_Free_Heap(lpulay)
         return
@@ -36,8 +51,6 @@ c
       call t_stat(10,-1)
 #endif
 c
-      one = 1.d0
-      zero = 0.d0
 c
 c     Allocate scratch space.
 c
@@ -59,38 +72,38 @@ c
 c     Construct a temporary global array.
 c       
       call gacrea(geom,AO_bas_han,
-     &     nbf,nbf,'ga temp2',iga_tmp2,'atom')
+     &     nbf,nbf,'ga temp2',g_tmp2,'atom')
 c
 C     Mat mult Fock * s-1/2
 c
       iw=2
-      call diis_builds12(isvals,iga_svecs,iga_tmp,iga_tmp2,nbf,iw)
+      call diis_builds12(isvals,g_svecs,g_tmp,g_tmp2,nbf,iw)
       call ga_dgemm('N','N',nbf,nbf,nbf,
-     *     one,iga_fock,iga_tmp,zero,iga_tmp2)
+     *     one,g_fock,g_tmp,zero,g_tmp2)
 c
 C     Mat mult S+1/2*P (transp)
 c
       call gacrea(geom,AO_bas_han,
-     &     nbf,nbf,'ga temp3',iga_tmp3,'atom')
+     &     nbf,nbf,'ga temp3',g_tmp3,'atom')
       iw=3
-      call diis_builds12(isvals,iga_svecs,iga_tmp,iga_tmp3,nbf,iw)
+      call diis_builds12(isvals,g_svecs,g_tmp,g_tmp3,nbf,iw)
       call ga_dgemm('N','T',nbf,nbf,nbf,
-     *     one,iga_tmp,iga_dens,zero,iga_tmp3)
+     *     one,g_tmp,g_dens,zero,g_tmp3)
 c
 C     Mat mult (S+*P(transp))(transp)*(F*S-)
 c
       call ga_dgemm('N','N',nbf,nbf,nbf,
-     *     one,iga_tmp3,iga_tmp2,zero,iga_tmp)
+     *     one,g_tmp3,g_tmp2,zero,g_tmp)
 c
 c     Destroy temp globals.
 c
-      call gadest(iga_tmp2)
-      call gadest(iga_tmp3)
+      call gadest(g_tmp2)
+      call gadest(g_tmp3)
 
       LResult = MA_Push_Get(MT_Dbl,nbf,'row',lrow,irow)
       LResult = MA_Push_Get(MT_Dbl,nbf,'column',lcol,icol)
 
-      call diis_refvec(nbf,iga_tmp,dbl_mb(irow),DBL_MB(icol))
+      call diis_refvec(nbf,g_tmp,dbl_mb(irow),DBL_MB(icol))
 
       LResult = MA_Pop_Stack(lcol)
       LResult = MA_Pop_Stack(lrow)
@@ -108,7 +121,7 @@ c     Compute Pulays B matrix.
 c
       call diis_core(Dbl_MB(ipulay),MXhist,nhist,
      &     icall,nbf,ispin,ipol,
-     &     iga_diis,iga_tmp)
+     &     g_diis,g_tmp)
       lenp = (mxhist+1)*(mxhist+2)/2
 c
 #if defined(DFT_TIMER)
@@ -134,7 +147,7 @@ c     Compute an extrapolated Hamiltonian using the weights.
 c
       call diis_hamwgt(Dbl_MB(ifwght),MXhist,nhist,nbf,icall,
      &     ispin,ipol,
-     &     iga_fock,iga_diis,iga_tmp)
+     &     g_fock,g_diis,g_tmp)
 c
 #if defined(DFT_TIMER)
       call dft_second(tp2)
@@ -161,75 +174,3 @@ c
 c
       return
       end
-C      SUBROUTINE MATOUT(A,NR,NC,M)                                      
-C      IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)                           
-CC                                                                       
-CC     Rectangular array output.                                         
-CC     input:                                                            
-CC       A    Array to be written to for006.                             
-CC       NR   The row order of A.                                        
-CC       NC   The column order of A.                                     
-CC       M    The row dimension of A in the calling routine.             
-CC                                                                       
-C      DIMENSION A(M,NC)                                                 
-C      CHARACTER*15 LINE(5)                                              
-C      DATA LINE /5*' _____________ '/                                   
-C      MAXCOL=0                                                          
-C      NSETS=(NC-1)/5+1                                                  
-C      DO 100 NS=1,NSETS                                                 
-C        MINCOL=MAXCOL                                                   
-C        IF (NS.EQ.NSETS) THEN                                           
-C          NUMCOL=NC-MINCOL                                              
-C        ELSE                                                            
-C          NUMCOL=5                                                      
-C        END IF                                                          
-C        MAXCOL=MINCOL+NUMCOL                                            
-C        MINCOL=MINCOL+1                                                 
-C        WRITE (6,1000) (I,I=MINCOL,MAXCOL)                              
-C        WRITE (6,1010) (LINE(I),I=1,NUMCOL)                             
-C        DO 90 I=1,NR                                                    
-C          WRITE (6,1020) I,(A(I,J),J=MINCOL,MAXCOL)                     
-C   90   CONTINUE                                                        
-C  100 CONTINUE                                                          
-C      WRITE (6,1030)                                                    
-C 1000 FORMAT (/,5X,5(6X,I3,6X))                                         
-C 1010 FORMAT (5X,5A15)                                                  
-C 1020 FORMAT (1X,I3,1X,5(E14.7,1X))                                     
-C 1030 FORMAT (/)                                                        
-C      RETURN                                                            
-C      END                                                               
-C      SUBROUTINE TPRNTD(A,NR)                                           
-C      IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)                           
-C      CHARACTER*15 LINE(5)                                              
-CC                                                                       
-CC     This routine writes a triangular packed real array, A,            
-CC     of order NR to for006.                                            
-CC                                                                       
-C      DIMENSION A(NR*(NR+1)/2)                                          
-C      DATA LINE /5*' _____________ '/                                   
-C      ISYM2(I,J)=I*(I-1)/2+J                                            
-C      MAXCOL=0                                                          
-C      NSETS=(NR-1)/5+1                                                  
-C      DO 100 NS=1,NSETS                                                 
-C        MINCOL=MAXCOL                                                   
-C        IF (NS.EQ.NSETS) THEN                                           
-C          NUMCOL=NR-MINCOL                                              
-C        ELSE                                                            
-C          NUMCOL=5                                                      
-C        END IF                                                          
-C        MAXCOL=MINCOL+NUMCOL                                            
-C        MINCOL=MINCOL+1                                                 
-C        WRITE(6,1000)(I,I=MINCOL,MAXCOL)                                
-C        WRITE(6,1010)(LINE(I),I=1,NUMCOL)                               
-C        DO 90 I=MINCOL,NR                                               
-C          MXCOL = MIN0(MAXCOL,I)                                        
-C          WRITE (6,1020) I,(A(ISYM2(I,J)),J=MINCOL,MXCOL)               
-C   90   CONTINUE                                                        
-C  100 CONTINUE                                                          
-C      WRITE (6,1030)                                                    
-C 1000 FORMAT (/,5X,5(6X,I3,6X))                                         
-C 1010 FORMAT (5X,5A15)                                                  
-C 1020 FORMAT (1X,I3,1X,5(D14.7,1X))                                     
-C 1030 FORMAT (/)                                                        
-C      RETURN                                                            
-C      END                                                               
