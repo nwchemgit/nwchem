@@ -54,7 +54,10 @@ c
 c
       endif
 c
-      call errquit('Atom not found in ana_index',0)
+      write(atom,'(a,a,a)') 'Atom ',card(1:index(card,' ')-1),
+     + ' could not be found' 
+c
+      call errquit(atom,0)
 c
       return
       end
