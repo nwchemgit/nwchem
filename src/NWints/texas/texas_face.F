@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.11 1996-01-19 07:31:09 d3g681 Exp $
+c $Id: texas_face.F,v 1.12 1996-01-22 18:32:21 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -55,7 +55,7 @@ c-print info :
       write(8,*) 'been executed ',lpareal,'(out of ',lpartot,') times '
       write(8,*)'------------------------------------------------------'
       write(8,*)'Total number of contracted shell quartets ',ntotal
-      write(8,*)'has been reduced by molecular symmetry to ',noijkl
+cpnl  write(8,*)'has been reduced by molecular symmetry to ',noijkl
       write(8,*)'has been reduced by special request    to ',nospec
       write(8,*)'and due to the screening procedure to     ',nopres
       write(8,*)'- - - - - - - - - - - - - - - - - - - - - - - - - - - '
@@ -98,6 +98,23 @@ c
       call timepr(timblok2+timblok4)
 c
 c------------------------------pnl time--------------------------
+c
+c----------------------------------------------------------------
+c Check out memory status as r and and reserved in the TXS-BL() :
+c
+      call memstat(nreque_bl,nmark_bl,maxmem_bl,memtot_bl)
+c
+      write(8,*)'-----------------------------------------------'
+      write(8,*)'           LEAVING TEXAS-INTEGRAL PROGRAM'
+      write(8,*)'           Statistics of memory in blscr :'
+      write(8,*)'                                               '
+      write(8,*)' number of allocations =',nreque_bl
+      write(8,*)' number of marks       =',nmark_bl
+      write(8,*)' maximum memory overall=',maxmem_bl,' (high water)'
+      write(8,*)' total memory available=',memtot_bl
+      write(8,*)'-----------------------------------------------'
+c
+c------------------------------------
 c------------------------------pnl performance ------------------
 c
           call txs_for_pnl( dbl_mb(k_txs_prep2) )
@@ -150,9 +167,9 @@ c---------------
       subroutine rob_harr(nasize,isbl_call,nbl2)
       dimension nasize(*),isbl_call(*)
 c
-      write(8,*) '===================================================='
-      write(8,*) ' super-block  texas_size  pnl_calls average_pnl_size'
-      write(8,*) '----------------------------------------------------'
+c     write(8,*) '===================================================='
+c     write(8,*) ' super-block  texas_size  pnl_calls average_pnl_size'
+c     write(8,*) '----------------------------------------------------'
 c
       nbl4=nbl2*(nbl2+1)/2
 c
@@ -171,7 +188,7 @@ c
 c
          nsbl_pnl=nsbl_pnl+isbl_called
 c
-         write(8,66) isbl,isbl_txs,isbl_called, isbl_pnl
+ccccc    write(8,66) isbl,isbl_txs,isbl_called, isbl_pnl
    10 continue
 c
 c average values :
@@ -185,7 +202,7 @@ c
 c
    66 format(i7,5x,3(i7,5x))
 c
-      write(8,*) '===================================================='
+c     write(8,*) '===================================================='
       write(8,*) '=========== average size of super-block ============'
       write(8,*) '                                                    '
       write(8,*) '--- texas ------------- pnl ------------- pnl2 -----'
@@ -340,13 +357,13 @@ c
       mem_2e3c = max(mem_2e3c,l_blsize)
       mem_2e2c = max(mem_2e2c,l_blsize)
 c
-c------------------------------------
+c--------------------------------------------------
 c ONLY for TESTS : calculate two-electron integrals  
 c---
-ccccc  call test_calc2(nshells, l_blsize)
+**       call test_calc2(nshells, l_blsize)
 c---
-c End of tests . (program will be stoped in test_calc2) 
-c------------------------------------
+c End of tests; program wiil be stopped in test_calc2.
+c--------------------------------------------------
 *rak:      write(6,*)'i h_txs_basnuc ',h_txs_basnuc
 *rak:      write(6,*)'i h_txs_mapp1  ',h_txs_mapp1
 *rak:      write(6,*)'i h_txs_mapp2  ',h_txs_mapp2
@@ -771,7 +788,11 @@ c
 c
       l_blsize=maxme1 + maxme2 + maxmem_bl
 c
-      write(8,*)' maximum size of bl_scr=',l_blsize  
+      write(8,*)'-----------------------------------------------'
+      write(8,*)' maximum est. in bloc2 =',maxme1   
+      write(8,*)' maximum in txs_setup  =',maxme2   
+      write(8,*)' maximum in txs_arrag  =',maxmem_bl 
+      write(8,*)' maximum size of BL_SCR=',l_blsize  
       write(8,*)'-----------------------------------------------'
 c
 c maxme1 known from prepint2 execution (common /memmax/ )
@@ -1220,9 +1241,9 @@ c
 c maxme2 - max. memory needed in texas_setup :
 c          5*nquartets_pnl + 2*nbl2 + 2 *nbl4
 c------------------------------------------------
-c assumption : nquarts_pnl <= 250 000          
+c assumption : nquarts_pnl <= 100 000          
 c
-      data nquarts /250 000/
+      data nquarts /100 000/
 c------------------------------------------------
       nbl4=nbl2*(nbl2+1)/2
 c

@@ -1,4 +1,4 @@
-c $Id: memoha.f,v 1.1 1995-10-30 20:57:42 d3e129 Exp $
+c $Id: memoha.f,v 1.2 1996-01-22 18:32:13 d3g681 Exp $
 c====================================================================
 c kw Feb. 18,1994
 c there is the new subroutine memo5 (memory handling for pairs)
@@ -666,9 +666,13 @@ c
 c------------------------------------------
       end
 c================================================================
-      subroutine memo5c(nbls,mmax1,npij,npkl,nfha,nfumax)
+CPNL  subroutine memo5c(nbls,mmax1,nfha,nfumax)
+      subroutine memo5c(nbls_txs,nbls_pnl,mmax1,nfha,nfumax)
       common /cpu/ intsize,iacc,icache,memreal
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
+c------------------------------------------
+c nbls_txs   - txs_size of a block
+c nbls_pnl   - pnl_size of a Super-block
 c------------------------------------------
 c Memory handling 
 c
@@ -695,8 +699,10 @@ c
 c------------------------------------------
 c reserve memory for quartets ijkl
 c------------------------------------------
-      nblsi=nbls
-      if(intsize.ne.1) nblsi=nbls/intsize+1
+cccc  nblsi=nbls
+cccc  if(intsize.ne.1) nblsi=nbls/intsize+1
+      nblsi=nbls_txs
+      if(intsize.ne.1) nblsi=nbls_txs/intsize+1
 c------------------------------------------
       call getmem(nblsi,indxp)   !                    3
 c------------------------------------------
@@ -705,10 +711,13 @@ c
       call getmem(nblsi,idx2)    ! for indxkj         5
       call getmem(nblsi,indx)    ! for index          6
 c
+c FOR pnl replace nbls (txs) by nblspec (pnl) size :
+c
+      nbls=nbls_pnl
+ctxs  nbls=nbls_txs
+c
       call getmem(nbls,irppq)    ! for rppq(nbls)     7    
-cNOT  call getmem(nbls,irho)     ! for rho(nbls)      8   
       call getmem(nbls,irr1)     ! for rr1(nbls)      9  
-c       
 c
       call getmem(nbls,irhoapb)  ! for rhoapb(nbls)   10
       call getmem(nbls,irhocpd)  ! for rhocpd(nbls)   11
