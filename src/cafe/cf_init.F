@@ -6,7 +6,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal)
-c $Id: cf_init.F,v 1.31 1999-11-27 02:37:10 d3j191 Exp $
+c $Id: cf_init.F,v 1.32 1999-12-14 06:06:12 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -779,7 +779,7 @@ c
 c
       call cf_pcopy(idp,ip,p,5,mhp(id),int_mb(i_iang(id)),
      + dbl_mb(i_ang(id)),mht(id),
-     + ip2(6+(id-1)*12),ip3(6+(id-1)*12),ith(6+(id-1)*12))
+     + ip2(8+(id-1)*12),ip3(8+(id-1)*12),ith(8+(id-1)*12))
 c
       return
       end
@@ -799,7 +799,7 @@ c
 c
       call cf_pcopy(idp,ip,p,6,mdp(id),int_mb(i_idih(id)),
      + dbl_mb(i_dih(id)),mdt(id),
-     + ip2(6+(id-1)*12),ip3(6+(id-1)*12),ith(6+(id-1)*12))
+     + ip2(9+(id-1)*12),ip3(9+(id-1)*12),ith(9+(id-1)*12))
 c
       return
       end
@@ -819,7 +819,7 @@ c
 c
       call cf_pcopy(idp,ip,p,6,mip(id),int_mb(i_iimp(id)),
      + dbl_mb(i_imp(id)),mit(id),
-     + ip2(6+(id-1)*12),ip3(6+(id-1)*12),ith(6+(id-1)*12))
+     + ip2(10+(id-1)*12),ip3(10+(id-1)*12),ith(10+(id-1)*12))
 c
       return
       end
