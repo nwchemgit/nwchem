@@ -1,7 +1,8 @@
       logical inp_i, inp_f, inp_a, inp_read, inp_line, inp_match, 
-     $     inp_search, inp_compare, inp_eof, inp_a_trunc
-C$Id: inp.fh,v 1.2 1995-02-02 23:15:05 d3g681 Exp $
+     $     inp_search, inp_compare, inp_eof, inp_a_trunc,
+     $   inp_irange
+C$Id: inp.fh,v 1.3 1995-04-17 21:32:49 gg502 Exp $
       integer inp_n_field, inp_cur_field, inp_strlen
       external inp_i, inp_f, inp_a, inp_n_field, inp_cur_field,
      $     inp_match, inp_read, inp_search, inp_compare, inp_strlen,
-     $     inp_line, inp_eof, inp_a_trunc
+     $     inp_line, inp_eof, inp_a_trunc, inp_irange

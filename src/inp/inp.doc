@@ -54,6 +54,21 @@
      changed unless an integer is successfully read (so that any
      default value already present in i is not corrupted).
 
+  logical function inp_irange(integer first, integer last, integer stride)
+
+     Attempt to read the next field as a Fortran90-style triplet
+     specifying a range with optional stride.  Upon success return
+     .TRUE. and advance to the next field.  Otherwise, return .FALSE.,
+     save internal error message, and do not change the current field.
+     The input arguments are not changed unless an integer range is
+     successfully read.
+
+     The syntax is <first>[:<last>[:<stride>]], where all terms are
+     integers.  The default <stride> is 1.  A simple integer is,
+     in essence, a degenerate triplet, and will be read correctly by
+     this routine.  The result will be as if the input had been
+     "<first>:<first>:1".
+
 
   logical function inp_f(double precision d)
 

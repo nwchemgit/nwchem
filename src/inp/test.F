@@ -1,9 +1,9 @@
       program test
-C$Id: test.F,v 1.2 1995-02-02 23:15:07 d3g681 Exp $
+C$Id: test.F,v 1.3 1995-04-17 21:32:52 gg502 Exp $
       implicit none
 #include "inp.fh"
       character*30 aval
-      integer i, ival, line
+      integer i, ival, ival2, ival3, line
       double precision dval
 c
       line = 0
@@ -15,6 +15,9 @@ c
             if (inp_i(ival)) then
                write(6,1) line, i, ival
  1             format(' line=',i2,', field=',i2,', integer=',i8)
+            Elseif (inp_irange(ival, ival2, ival3)) then
+               write(6,5) line, i, ival, ival2, ival3
+ 5             format(' line=',i2,', field=',i2,', integers=',3i8)
             else if (inp_f(dval)) then
                write(6,2) line, i, dval
  2             format(' line=',i2,', field=',i2,', double=',1pd9.2)
