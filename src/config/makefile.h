@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.495 2005-01-06 01:41:46 edo Exp $
+# $Id: makefile.h,v 1.496 2005-01-28 20:23:07 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1106,6 +1106,18 @@ ifeq ($(TARGET),MACX)
 # MacOSX 
 #
 # 
+  ifndef USE_MPI
+  mpimacx:
+	@echo You must define USE_MPI=y to compile
+	@echo nwchem on MAC OS X.
+	@echo Please type
+	@echo 
+	@echo " make  USE_MPI=y"
+	@echo "  or "
+	@echo " make  FC=xlf USE_MPI=y"
+	@echo 
+	@exit 1
+  endif
 
 ifdef USE_VECLIB
     CORE_SUBDIRS_EXTRA =  blas
