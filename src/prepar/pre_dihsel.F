@@ -1,0 +1,42 @@
+      logical function pre_dihsel(ffield,catm,matm,natm,
+     + ldih,mdih,ndih)
+c
+      implicit none
+c
+      integer pre_atnum
+      external pre_atnum
+c
+      integer matm,natm,mdih,ndih
+      integer ldih(4,mdih)
+      character*6 catm(2,matm)
+      character*80 ffield
+c
+      integer i,j,nd
+c
+      if(ffield(1:6).eq.'gromos') then
+c
+      nd=ndih
+      ndih=0
+      do 1 i=1,nd
+      do 2 j=1,ndih
+      if(ldih(2,i).eq.ldih(2,j).and.ldih(3,i).eq.ldih(3,j)) then
+      if(pre_atnum(catm(1,ldih(1,i)))+pre_atnum(catm(1,ldih(4,i))).lt.
+     + pre_atnum(catm(1,ldih(1,j)))+pre_atnum(catm(1,ldih(4,j)))) then
+      ldih(2,i)=ldih(2,j)
+      ldih(4,i)=ldih(4,j)
+      endif
+      goto 1
+      endif
+    2 continue
+      ndih=ndih+1
+      ldih(1,ndih)=ldih(1,i)
+      ldih(2,ndih)=ldih(2,i)
+      ldih(3,ndih)=ldih(3,i)
+      ldih(4,ndih)=ldih(4,i)
+    1 continue
+      endif
+c
+      pre_dihsel=.true.
+c
+      return
+      end

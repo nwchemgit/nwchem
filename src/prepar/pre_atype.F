@@ -1,0 +1,434 @@
+      logical function pre_atype(lfntyp,filtyp,
+     + latm,catm,matm,lbnd,mbnd,nbnd,
+     + jlo,ilo,ihi,jhi,ltyp,mtyp,lring,aring,mring,nring5,nring6)
+c
+      implicit none
+c
+c     in  : lfntyp            = atom types file number
+c           filtyp            = atom types file name
+c           latm(2,matm)      = atomic number
+c                3            = number of bonds
+c                4            = center type
+c           catm(1,matm)      = atom name
+c                2            = atom name (corrected)
+c           matm              = dimension atom list
+c           natm              = length atom list
+c           lbnd(1:2,mbnd)    = bond indices
+c           mbnd              = dimension bond list
+c           nbnd              = length bond list
+c           lring(1:6,mring)  = ring indices
+c           aring(mring)      = logical true if aromatic ring
+c
+c     out : catm(3,matm)      = atom type
+c           ltyp(1,mtyp)      = saturation
+c                2            = aliphatic ring
+c                3            = aromatic ring
+c                4            = number of hydrogen neigbors
+c                5            = number of neighbors
+c                5+i          = index of i-th neighbor
+c
+      integer lfntyp
+      character*80 filtyp
+      integer matm,mtyp
+      integer latm(5,matm)
+      character*6 catm(3,matm)
+      integer mbnd,nbnd
+      integer lbnd(2,mbnd)
+      integer ltyp(15,jlo:jlo+mtyp-1)
+      integer mring,nring5,nring6
+      integer lring(6,mring)
+      logical aring(mring)
+      integer jlo,ilo,ihi,jhi
+c
+      integer i,j,k,kk,l,ll,m,ntype
+      character*4 atype(100)
+      integer itype(20,100)
+      character*100 card
+      integer iatnum,nhydr,nonh
+      logical skipa(5),skipt(5),skipaa(5),skiptt(5)
+c
+c     setup typ array with latm data
+c     ------------------------------
+c
+      do 1 i=jlo,jhi
+      ltyp(1,i)=latm(2,i)
+      ltyp(2,i)=0
+      ltyp(3,i)=0
+      ltyp(4,i)=0
+      ltyp(5,i)=0
+    1 continue
+c
+c     find index for each neighbor
+c     ----------------------------
+c
+      do 2 i=1,nbnd
+      if(lbnd(1,i).ge.jlo.and.lbnd(1,i).le.jhi) then
+      ltyp(5,lbnd(1,i))=ltyp(5,lbnd(1,i))+1
+      ltyp(5+ltyp(5,lbnd(1,i)),lbnd(1,i))=lbnd(2,i)
+      if(latm(2,lbnd(2,i)).eq.1) ltyp(4,lbnd(1,i))=ltyp(4,lbnd(1,i))+1
+      endif
+      if(lbnd(2,i).ge.jlo.and.lbnd(2,i).le.jhi) then
+      ltyp(5,lbnd(2,i))=ltyp(5,lbnd(2,i))+1
+      ltyp(5+ltyp(5,lbnd(2,i)),lbnd(2,i))=lbnd(1,i)
+      if(latm(2,lbnd(1,i)).eq.1) ltyp(4,lbnd(2,i))=ltyp(4,lbnd(2,i))+1
+      endif
+    2 continue
+c
+c     order each neighbor list
+c     ------------------------
+c
+      do 3 i=jlo,jhi
+      do 4 j=1,ltyp(5,i)-1
+      do 5 k=j+1,ltyp(5,i)
+      if(ltyp(5+j,i).gt.ltyp(5+k,i)) then
+      l=ltyp(5+j,i)
+      ltyp(5+j,i)=ltyp(5+k,i)
+      ltyp(5+k,i)=l
+      endif
+    5 continue
+    4 continue
+    3 continue
+c
+c     saturation
+c     ----------
+c
+c     C sp2     : 3
+c     C in C=O  : 2
+c     N sp2     : 3
+c     O in =O   : 2
+c
+      do 6 i=jlo,jhi
+      if(latm(2,i).eq.6.and.ltyp(5,i).eq.3) then
+      ltyp(1,i)=3
+      do 7 j=1,ltyp(5,i)
+      if(latm(2,ltyp(5+j,i)).eq.8.and.ltyp(5,ltyp(5+j,i)).eq.1) then
+      ltyp(1,i)=2
+      endif
+    7 continue
+      endif
+      if(latm(2,i).eq.7.and.ltyp(5,i).eq.3) then
+      ltyp(1,i)=3
+      endif
+      if(latm(2,i).eq.8.and.ltyp(5,i).eq.1) then
+      ltyp(1,i)=2
+      endif
+    6 continue
+c
+c     C=C in aromatic 6-ring with 2 sp2 N : 2
+c
+      do 8 i=nring5+1,nring6
+      if(aring(i)) then
+      k=0
+      do 9 j=1,6
+      if(latm(2,i).eq.7) k=k+1
+    9 continue
+      if(k.eq.2) then
+      do 10 j=1,nbnd
+      k=0
+      do 11 l=1,6
+      if(latm(2,lring(l,i)).eq.6) then
+      if(lbnd(1,j).eq.lring(l,i).or.lbnd(2,j).eq.lring(l,i)) k=k+1
+      endif
+   11 continue
+      if(k.eq.2) then
+      ltyp(1,lbnd(1,j))=2
+      ltyp(1,lbnd(2,j))=2
+      goto 8
+      endif
+   10 continue
+      endif
+      endif
+    8 continue
+c
+c     ring types
+c     ----------
+c
+      do 12 i=1,nring5
+      do 13 j=1,5
+      if(aring(i)) then
+      ltyp(3,lring(j,i))=ltyp(3,lring(j,i))+5
+      else
+      ltyp(2,lring(j,i))=ltyp(2,lring(j,i))+5
+      endif
+   13 continue
+   12 continue
+      do 14 i=nring5+1,nring6
+      do 15 j=1,6
+      if(aring(i)) then
+      ltyp(3,lring(j,i))=ltyp(3,lring(j,i))+6
+      else
+      ltyp(2,lring(j,i))=ltyp(2,lring(j,i))+6
+      endif
+   15 continue
+   14 continue
+c
+c     read the atom type data
+c     -----------------------
+c
+      l=index(filtyp,' ')-1
+      open(unit=lfntyp,file=filtyp(1:l),status='old',form='formatted',
+     + err=9999)
+      ntype=0
+   16 continue
+      read(lfntyp,1000,end=17,err=9999) card
+ 1000 format(a)
+      if(card(1:1).eq.'#') goto 16
+      ntype=ntype+1
+      read(card,1001) atype(ntype),(itype(i,ntype),i=1,20)
+ 1001 format(a4,i4,4i3,3(i4,i3,3i4))
+      goto 16
+   17 continue
+      close(unit=lfntyp)
+c
+c     determine the atom types
+c     ------------------------
+c
+c      write(*,'(a4,5i5)') (catm(2,i),(ltyp(j,i),j=1,5),i=ilo,ihi)
+c
+      do 18 i=ilo,ihi
+c      write(*,'(a,a4,5i5)') 'Atom ',catm(2,i),(ltyp(j,i),j=1,5)
+      if(latm(2,i).gt.0) then
+      do 19 j=1,ntype
+      iatnum=itype(1,j)
+      nonh=0
+      do 20 k=1,4
+      if(iatnum.ge.1000)  then
+      nonh=nonh+1
+      iatnum=iatnum-1000
+      endif
+   20 continue
+      nhydr=0
+      do 21 k=1,4
+      if(iatnum.ge.200)  then
+      nhydr=nhydr+1
+      iatnum=iatnum-100
+      endif
+   21 continue
+c
+c     itype(1,*) match atom number
+c           2    match explicit saturation
+c           3    match aliphatic ring
+c           4    match aromatic ring
+c           5    match explicit number of neighbors
+c
+      if(iatnum.eq.latm(2,i).and.
+     + (nhydr.eq.0.or.(nhydr.eq.5.and.ltyp(4,j).eq.ltyp(5,j)).or.
+     +   nhydr.eq.ltyp(4,j)).and.
+     + (itype(2,j).eq.0.or.itype(2,j).eq.ltyp(1,i)).and.
+     + (itype(3,j).eq.0.or.
+     +   (itype(3,j).eq.1.and.ltyp(2,i).gt.0).or.
+     +   (itype(3,j).eq.13.and.(ltyp(2,i).eq.11.or.ltyp(2,i).eq.12)).or.
+     +   (itype(3,j).eq.ltyp(2,i))).and.
+     + (itype(4,j).eq.0.or.
+     +   (itype(4,j).eq.1.and.ltyp(3,i).gt.0).or.
+     +   (itype(4,j).eq.13.and.(ltyp(3,i).eq.11.or.ltyp(3,i).eq.12)).or.
+     +   (itype(4,j).eq.ltyp(3,i))).and.
+     + (itype(5,j).eq.0.or.itype(5,j).eq.ltyp(5,i))) then
+c      write(*,'(a,a4)') 'Type ',atype(j)(1:4)
+c
+c     initialize skip vectors for neighbor atoms : skipa(1:neighbors)
+c     ----------------------- for atom type cond : skipt(1:3)
+c
+      do 22 k=1,5
+      skipa(k)=.false.
+   22 continue
+      do 23 l=1,3
+      skipt(l)=.false.
+      if(itype(1+l*5,j).eq.0.and.itype(2+l*5,j).eq.0) skipt(l)=.true.
+   23 continue
+c
+c     loop over neighbor conditions for the current atom type : l (1:3)
+c     -------------------------------------------------------
+c
+      do 24 l=1,3
+      if(.not.skipt(l)) then
+c      write(*,'(5x,a,i5)') 'neighbor condition ',itype(1+l*5,j)
+c
+c     loop over neighbor atoms for the current atom : k (1:neighbors)
+c     ---------------------------------------------
+c
+      do 25 k=1,ltyp(5,i)
+      if(.not.skipa(k).and..not.skipt(l)) then
+c      write(*,'(5x,a,i5)') 'neighbor atom      ',latm(2,ltyp(5+k,i))
+      iatnum=itype(1+l*5,j)
+      nonh=0
+      do 26 m=1,4
+      if(iatnum.ge.1000)  then
+      nonh=nonh+1
+      iatnum=iatnum-1000
+      endif
+   26 continue
+      nhydr=0
+      do 27 m=1,4
+      if(iatnum.eq.200)  then
+      nhydr=nhydr+1
+      iatnum=iatnum-200
+      endif
+      if(iatnum.ge.200)  then
+      nhydr=nhydr+1
+      iatnum=iatnum-100
+      endif
+   27 continue
+c
+c     check atomic number of neighbor k
+c     ---------------------------------
+c
+      if(iatnum.gt.0.and.iatnum.ne.latm(2,ltyp(5+k,i))) goto 25
+c
+c     check bonded hydrogens to neighbor k
+c     ------------------------------------
+c
+      if(nhydr.gt.0) then
+      if(nhydr.eq.5) then
+      if(ltyp(4,ltyp(5+k,i)).gt.0) goto 25
+      else
+      if(nhydr.ne.ltyp(4,ltyp(5+k,i))) goto 25
+      endif
+      endif
+c
+c     check bonded nonh-hydrogens to neighbor k
+c     -----------------------------------------
+c
+      if(nonh.gt.0) then
+      if(nonh.ne.ltyp(5,ltyp(5+k,i))-ltyp(4,ltyp(5+k,i))) goto 25
+      endif
+c
+c     check number of neighbors
+c     -------------------------
+c
+      if(itype(2+l*5,j).gt.0.and.
+     + itype(2+l*5,j).ne.ltyp(5,ltyp(5+k,i))) goto 25
+c
+c      write(*,'(5x,a,2i5)') 'neighbor accepted ',
+c     + itype(1+l*5,j),latm(2,ltyp(5+k,i))
+c
+c     set skip vectors
+c     ----------------
+c
+      do 28 kk=1,ltyp(5,ltyp(5+k,i))
+      skipaa(kk)=ltyp(5+kk,ltyp(5+k,i)).eq.i
+   28 continue
+      do 29 ll=1,3
+      skiptt(ll)=itype(2+l*5+ll,j).eq.0
+   29 continue
+c
+c     loop over the neighbor of neighbor conditions
+c     ---------------------------------------------
+c
+      do 30 ll=1,3
+      if(.not.skiptt(ll)) then
+c      write(*,'(10x,a,i5)') 'neighbor condition ',itype(2+l*5+ll,j)
+c
+c     loop over neighbor of neighbor atoms
+c     ------------------------------------
+c
+      do 31 kk=1,ltyp(5,ltyp(5+k,i))
+      if(.not.skipaa(kk).and..not.skiptt(ll)) then
+c      write(*,'(10x,a,i5)') 'neighbor atom      ',
+c     + latm(2,ltyp(5+kk,ltyp(5+k,i)))
+c
+      iatnum=itype(2+l*5+ll,j)
+      nonh=0
+      do 32 m=1,4
+      if(iatnum.ge.1000)  then
+      nonh=nonh+1
+      iatnum=iatnum-1000
+      endif
+   32 continue
+      nhydr=0
+      do 33 m=1,4
+      if(iatnum.eq.200) then
+      nhydr=nhydr+1
+      iatnum=iatnum-200
+      endif
+      if(iatnum.ge.200)  then
+      nhydr=nhydr+1
+      iatnum=iatnum-100
+      endif
+   33 continue
+c      write(*,'(30x,a,3i5)') 'condition ia nn nh ',iatnum,nonh,nhydr
+c      write(*,'(30x,a,3i5)') 'found     ia nn nh ',
+c     + latm(2,ltyp(5+kk,ltyp(5+k,i))),
+c     + ltyp(5,ltyp(5+k,ltyp(5+k,i)))-ltyp(4,ltyp(5+k,ltyp(5+k,i))),
+c     + ltyp(4,ltyp(5+kk,ltyp(5+k,i)))
+c
+c     check atomic number of neighbor of neighbor k
+c     ---------------------------------------------
+c
+      if(iatnum.gt.0.and.iatnum.ne.latm(2,ltyp(5+kk,ltyp(5+k,i))))
+     +  goto 31
+c
+c     check bonded hydrogens to neighbor k
+c     ------------------------------------
+c
+      if(nhydr.gt.0) then
+      if(nhydr.eq.5) then
+      if(ltyp(4,ltyp(5+kk,ltyp(5+k,i))).gt.0) goto 31
+      else
+      if(nhydr.ne.ltyp(4,ltyp(5+kk,ltyp(5+k,i)))) goto 31
+      endif
+      endif
+c
+c     check bonded nonh-hydrogens to neighbor k
+c     -----------------------------------------
+c
+      if(nonh.gt.0) then
+      if(nonh.ne.ltyp(5,ltyp(5+k,ltyp(5+k,i)))-
+     + ltyp(4,ltyp(5+k,ltyp(5+k,i)))) goto 31
+      endif
+c      write(*,'(10x,a,4i5)') 'neighbor accepted ',itype(2+l*5+ll,j),
+c     + latm(2,ltyp(5+kk,ltyp(5+k,i))),kk,ll
+c
+c     neighbor of neighbor condition satisfied
+c     ----------------------------------------
+c
+      skipaa(kk)=.true.
+      skiptt(ll)=.true.
+      endif
+   31 continue
+      endif
+   30 continue
+c
+c     test if all neighbor of neighbor conditions are satisfied
+c     ---------------------------------------------------------
+c
+      do 34 ll=1,3
+      if(.not.skiptt(ll)) goto 25
+   34 continue
+c      write(*,'(20x,a)') 'neighbors of neighbor accepted'
+c
+c     neighbor condition satisfied
+c     ----------------------------
+c
+      skipa(k)=.true.
+      skipt(l)=.true.
+      endif
+   25 continue
+      endif
+   24 continue
+c
+c     test if all neighbor conditions are satisfied
+c     ---------------------------------------------
+c
+      do 35 l=1,3
+      if(.not.skipt(l)) goto 19
+   35 continue
+c      write(*,'(30x,a)') 'neighbor accepted'
+c
+      catm(3,i)(1:4)=atype(j)
+c
+      endif
+   19 continue
+      endif
+   18 continue
+c
+c      do 100 i=jlo,jhi
+c      write(*,'(16i5)') i,(ltyp(j,i),j=1,15)
+c  100 continue
+c
+      pre_atype=.true.
+      return
+c
+ 9999 pre_atype=.false.
+      return
+      end
