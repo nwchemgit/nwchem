@@ -1,14 +1,18 @@
 
-        OBJ = detci_aux.o \
-	      detci_dens.o \
-	      detci_dvddiag.o \
-	      detci_intface.o \
-	      detci_sigma.o \
-	      detci_spin.o
+          OBJ = detci_aux.o \
+	      	detci_dens.o \
+	      	detci_dvddiag.o \
+	      	detci_intface.o \
+	      	detci_sigma.o \
+		detci_spin.o
 
-    LIBRARY = libmcscf.a
+      LIBRARY = libmcscf.a
 
-  USES_BLAS = 
+    USES_BLAS = detci_aux.F \
+	        detci_dvddiag.F \
+		detci_intface.F \
+		detci_sigma.F \
+		detci_spin.F
 
 
 

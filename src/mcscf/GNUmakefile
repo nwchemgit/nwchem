@@ -28,7 +28,17 @@
 
       LIBRARY =	libmcscf.a
 
-   USES_BLAS  =	mcscf_act_fock.F
+   USES_BLAS  =	mcscf.F \
+		mcscf_aux.F \
+		mcscf_dbg.F \
+		mcscf_dens2mo.F \
+		mcscf_etrace.F \
+		mcscf_fock.F \
+		mcscf_gfock2grad.F \
+		mcscf_hessv_2e_mo.F \
+		mcscf_orb.F \
+		mcscf_precond.F
+
 
   LIB_INCLUDES = -I../ddscf -I./detci
 
