@@ -293,7 +293,7 @@ c
       parameter (mrg_d18=msg_ftn_base-148) ! arg_stdesc
       parameter (mrg_d19=msg_ftn_base-149) ! arg_congra
       parameter (mrg_d21=msg_ftn_base-151) ! arg_collct
-      parameter (mrg_d22=msg_ftn_base-152) ! arg_collct
+      parameter (mrg_d22=msg_ftn_base-152) ! arg_output
       parameter (mrg_d23=msg_ftn_base-153) ! arg_collct
       parameter (mrg_d24=msg_ftn_base-154) ! arg_collct
       parameter (mrg_d25=msg_ftn_base-155) ! arg_collct
