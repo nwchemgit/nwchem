@@ -70,6 +70,8 @@ c
       integer g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b
       integer g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b
       double precision grad(3,*)
+      character*20 fstype
+      integer max_ga,max_file,max_ma,avail_ga,avail_ma,avail_file
 c     
 c...  for texas blocking in moints_semi
 c     
@@ -92,9 +94,62 @@ c
      $     zir,zclass,chars))
      $     call errquit('mp2_grad: no char table',0)
 c     
-      num_i_perseg=noa_hi
-      if(num_i_perseg.lt.1)call errquit
-     $     ('mp2_grad: segmentation for multipassing incorrect',1)
+      call util_file_name('khlf',.true.,.true.,fnamek)
+      if(eaf_stat(fnamek,avail_file,fstype).ne.0)
+     $     call errquit('mp2_grad:could not get availkb',1)
+      avail_file=avail_file*128
+      avail_ma = MA_inquire_avail(mt_dbl)
+      if (ga_uses_ma() .and. ga_memory_limited()) 
+     $     avail_ma = avail_ma - ga_memory_avail()
+      if(ga_memory_limited())then
+         avail_ga=ga_memory_avail()
+      else
+         avail_ga=0
+      endif
+      if(ga_nodeid().eq.0)then
+         write(6,*) 'avail_ma',avail_ma
+         write(6,*) 'avail_ga',avail_ga
+         write(6,*) 'avail_file',avail_file
+      endif
+      do num_i_perseg=noa_hi-noa_lo+1,1,-1
+         call mp2_memory(basis,rtdb,tol2e,nbf,noa,nva,nob,nvb,
+     $        num_i_perseg,max_ma,max_ga,max_file,task)
+         if(ga_nodeid().eq.0)then
+            write(6,*) 'num_i_perseg',num_i_perseg
+            write(6,*) 'max_ma',max_ma
+            write(6,*) 'max_ga',max_ga
+            write(6,*) 'max_file',max_file
+         endif
+         if(ga_uses_ma().and..not.ga_memory_limited())then
+            if(max_ma+max_ga.le.avail_ma.and.max_file.le.
+     $           avail_file)then
+               if(ga_nodeid().eq.0)then
+                  write(6,*) 
+     $    'max_ma+max_ga.le.avail_ma.and.max_file.le.avail_file'
+               endif
+               goto 999
+            endif
+         elseif(ga_memory_limited())then
+            if(max_ma.le.avail_ma.and.max_file.le.avail_file.
+     $           and.max_ga.le.avail_ga)then
+               if(ga_nodeid().eq.0)then
+                  write(6,*) 
+     $            'max_ma.le.avail_ma.and.max_file.le.avail_file.'
+                  write(6,*)
+     $            'and.max_ga.le.avail_ga'     
+               endif
+               goto 999
+            endif
+         elseif(max_ma.le.avail_ma.and.max_file.le.avail_file)then
+            if(ga_nodeid().eq.0)then
+               write(6,*)
+     $              'max_ma.le.avail_ma.and.max_file.le.avail_file'
+            endif
+            goto 999
+         endif
+      enddo
+      call errquit('mp2_grad:insufficient resources',1)
+ 999  continue
       npass=0
       npasses = (noa_hi - noa_lo - 1)/num_i_perseg + 1
       if (npasses .gt. 100) call errquit
@@ -203,6 +258,10 @@ c
      $           tunita,tunitb,eval_a, eval_b,
      $           g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b)
             call pstat_off(ps_wijab)
+            if(.not.ma_pop_stack(l_t_eps_b))
+     $           call errquit('could not pop stack',1)
+            if(.not.ma_pop_stack(l_t_eps_a))
+     $           call errquit('could not pop stack',1)
 c
 c...  Form the terms in the Lagrangian which are not Fock builds:
 c     
@@ -243,8 +302,9 @@ c
      $           g_lai_a,g_lai_b,g_wai_a,g_wai_b,kunit)
             call pstat_off(ps_lai)
 c
-            if(.not. ma_chop_stack(l_vvvo))
-     $           call errquit('mp2_grad_doit: failed chopping vvvo',0)
+            if(.not. ma_chop_stack(l_t_a_in))
+     $           call errquit(
+     $           'mp2_grad_doit: failed chopping t_a_in',0)
 c     
             call waclose(kunit,ierr)
             if(ierr.ne.0)call errquit

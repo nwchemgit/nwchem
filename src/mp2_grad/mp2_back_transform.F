@@ -64,7 +64,7 @@ c
       call schwarz_init(geom,basis)
 
       call mp2_backt_info(basis, tol2e, .false., nshpair, nshpairlocal,
-     $     nbfpair, nbfpairlocal, junk, junk, junk, junk, junk)
+     $     nbfpair, nbfpairlocal, shmax, junk, junk, junk, junk, junk)
       if (.not. ma_push_get(mt_int, nshpair*2, 'mp2: shpairs',
      $     l_shpairs, k_shpairs)) call errquit
      $     ('mp2: insufficient memory : shpairs ', 2*nshpair)
@@ -81,16 +81,13 @@ c
      $     l_shdim, k_shdim)) call errquit
      $     ('mp2: insufficient memory : shdim ', nsh)
       call mp2_backt_info(basis, tol2e, .true., nshpair, nshpairlocal,
-     $     nbfpair, nbfpairlocal, int_mb(k_shdim), int_mb(k_shlo),
+     $     nbfpair, nbfpairlocal, shmax,
+     $     int_mb(k_shdim), int_mb(k_shlo),
      $     int_mb(k_shpairs), int_mb(k_shpairslocal), int_mb(k_map))
 c
 c     Allocate remaining memory and open file to hold the 
 c     3-parts transformed density matrix.
 c
-      shmax = 0
-      do i = 1, nsh
-         shmax = max(shmax,int_mb(k_shdim+i-1))
-      end do
       tdim = max(nbf*nbf, nbf*shmax*shmax)
 c         
       if (.not. ma_push_get(mt_dbl, tdim, 'mp2: backt t',
@@ -382,7 +379,7 @@ c
      $     tol2e,
      $     omakearrays,
      $     nshpair, nshpairlocal, 
-     $     nbfpair, nbfpairlocal,
+     $     nbfpair, nbfpairlocal, shmax,
      $     shdim, shlo, shpairs, shpairslocal, map)
       implicit none
 #include "bas.fh"
@@ -394,6 +391,7 @@ c
       logical omakearrays       ! [input] if true then make the arrays
       integer nshpair           ! [output] no. of non-zero shell pairs
       integer nshpairlocal      ! [output] no. of local shell pairs
+      integer shmax             ! [output] Max AO shell dimension
       integer nbfpair           ! [output] sum of all non-zero pair dims
       integer nbfpairlocal      ! [output] sum of local non-zero pair dims
       integer shdim(*)          ! [output] dimension of each shell
@@ -427,6 +425,7 @@ c
 c
       me = ga_nodeid()
       nproc = ga_nnodes()
+      shmax = 0
 c
       if (omakearrays) then
 c
@@ -461,6 +460,7 @@ c
       do u = 1, nsh
          if (.not. bas_cn2bfr(basis, u, lo, hi))
      $        call errquit('mp2_backt_info: bas range failed', u)
+         shmax = max(shmax,hi-lo+1)
          if (omakearrays) then
             shdim(u) = hi - lo + 1
             shlo(u) = lo
