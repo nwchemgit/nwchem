@@ -1,10 +1,10 @@
 #!/bin/csh
 #
-# $Id: doqmtests.mpi,v 1.1 2004-04-20 23:18:38 edo Exp $
+# $Id: doqmtests.mpi,v 1.2 2004-04-28 00:53:43 edo Exp $
 #
 #---   small tests
 ./runtests.mpi.unix procs $1 auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
-./runtests.mpi.unix procs $1 rimp2_ne sadsmall scf_feco5 small_intchk tagcheck testtab
+./runtests.mpi.unix procs $1 rimp2_ne  scf_feco5 small_intchk tagcheck testtab
 ./runtests.mpi.unix procs $1 h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
 ./runtests.mpi.unix procs $1 cosmo_trichloroethene esp esp_uhf dft_bsse
 ./runtests.mpi.unix procs $1 dplot neda_nbo  dft_meta
@@ -16,7 +16,6 @@ echo 'The oh2 test is testing the perl parsing script and SHOULD fail'
 ./runtests.mpi.unix procs $1 oh2
 #---   medium tests
 ./runtests.mpi.unix procs $1 dft_feco5 
-./runtests.mpi.unix procs $1 dft_ozone 
 ./runtests.mpi.unix procs $1 dft_siosi3
 ./runtests.mpi.unix procs $1 dft_x
 ./runtests.mpi.unix procs $1 dft_mpw1k dft_li2freq
@@ -27,10 +26,12 @@ echo 'The intermediate energy values for the numerical gradient '
 echo 'test may cause some differences.'
 echo 'Please check the final gradient values for correctness.'
 ./runtests.mpi.unix procs $1 grad_ozone
+./runtests.mpi.unix procs $1 dft_ozone 
 ./runtests.mpi.unix procs $1 hess_c6h6
 ./runtests.mpi.unix procs $1 intchk
 echo 'The intermediate values for this test may cause some differences.'
 echo 'Please check the final values for the last optimized structure.'
+./runtests.mpi.unix procs $1 sadsmall
 #./runtests.mpi.unix procs $1 sadbig
 ./runtests.mpi.unix procs $1 br2_dk
 ./runtests.mpi.unix procs $1 uo2_sodft
@@ -41,9 +42,13 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $1 pspw_md
 ./runtests.mpi.unix procs $1 paw
 ./runtests.mpi.unix procs $1 pspw_polarizability
+./runtests.mpi.unix procs $1 band
 ./runtests.mpi.unix procs $1 tddft_h2o
 ./runtests.mpi.unix procs $1 tddft_n2+
 ./runtests.mpi.unix procs $1 tce_h2o
+./runtests.mpi.unix procs $1 tce_h2o_dipole
+./runtests.mpi.unix procs $1 tce_h2o_eomcc
+./runtests.mpi.unix procs $1 tce_uhf_uccsd
 ./runtests.mpi.unix procs $1 oniom1
 ./runtests.mpi.unix procs $1 c60_ecp
 #---   long  may not run on workstations
