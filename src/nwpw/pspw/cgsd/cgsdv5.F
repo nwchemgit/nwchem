@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.2 2001-10-10 20:53:57 bylaska Exp $
+* $Id: cgsdv5.F,v 1.3 2001-10-17 23:48:13 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -71,14 +71,14 @@
 
 
 *     **** external functions ****
-      real*8      psp_zv,psp_amass,psp_rc,ewald_rcut
+      real*8      psp_zv,psp_rc,ewald_rcut
       real*8      ewald_mandelung
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg
       integer     ewald_ncut,ewald_nshl3d,psp_npsp
       integer     psp_lmmax,psp_lmax,psp_locp
       character*2 psp_atom
-      external    psp_zv,psp_amass,psp_rc,ewald_rcut
+      external    psp_zv,psp_rc,ewald_rcut
       external    ewald_mandelung
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg
@@ -253,7 +253,7 @@ c         ENDIF
          END IF
          write(6,1140)
          do ia = 1,psp_npsp()
-           write(6,1150) ia,psp_atom(ia),psp_amass(ia)/1822.89d0,
+           write(6,1150) ia,psp_atom(ia),
      >                    psp_zv(ia),psp_lmax(ia)
            write(6,1152) psp_lmax(ia)
            write(6,1153) psp_locp(ia)
@@ -474,8 +474,7 @@ c     end if
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')
- 1150 FORMAT(5X,I2,': ',A2,'  mass no.:',F6.1,'   core charge:',F4.0,
-     &       '  lmax=',I1)
+ 1150 FORMAT(5X,I2,': ',A2,'  core charge:',F4.1,'  lmax=',I1)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
  1152 FORMAT(12X,' highest angular component      : ',i2)
  1153 FORMAT(12X,' local potential used           : ',i2)

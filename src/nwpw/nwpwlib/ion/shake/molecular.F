@@ -6,7 +6,7 @@
 *     ***************************
       subroutine molecular_init(rtdb)
 *
-* $Id: molecular.F,v 1.1 2001-08-30 17:56:11 bylaska Exp $
+* $Id: molecular.F,v 1.2 2001-10-17 23:48:11 bylaska Exp $
 *
       implicit none 
       integer   rtdb
@@ -77,10 +77,8 @@
       double precision blist(20),mass(20)
 
 *     **** external functions ****
-      integer          ion_katm
-      double precision psp_amass
-      external         ion_katm
-      external         psp_amass
+      double precision ion_amass
+      external         ion_amass
 
       if (value) then     
 
@@ -91,7 +89,7 @@
 
 *           **** set mass variable ****
             do a=1,na
-                mass(a) = psp_amass(ion_katm(indxa(a)))
+                mass(a) = ion_amass(indxa(a))
             end do
 
 *           **** set bond length constraints ****

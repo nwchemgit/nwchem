@@ -1,3 +1,6 @@
+*
+* $Id: control.F,v 1.2 2001-10-17 23:48:10 bylaska Exp $
+*
 
 *     ***********************************
 *     *					*
@@ -5,9 +8,6 @@
 *     *					*
 *     ***********************************
       logical function control_read(code_in,rtdb)
-*
-* $Id: control.F,v 1.1 2001-08-30 18:31:37 bylaska Exp $
-*
       implicit none 
       integer code_in
       integer rtdb

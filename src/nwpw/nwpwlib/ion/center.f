@@ -1,5 +1,5 @@
 *
-* $Id: center.f,v 1.1 2001-08-30 17:56:10 bylaska Exp $
+* $Id: center.f,v 1.2 2001-10-17 23:48:11 bylaska Exp $
 *
 
       subroutine center_geom(cx,cy,cz)
@@ -43,10 +43,10 @@
       real*8 am
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm
-      real*8   psp_amass,ion_rion
-      external ion_nion,ion_katm
-      external psp_amass,ion_rion
+      integer  ion_nion
+      real*8   ion_amass,ion_rion
+      external ion_nion
+      external ion_amass,ion_rion
 
       nion = ion_nion()
       gx=0.0d0
@@ -54,10 +54,10 @@
       gz=0.0d0
       am=0.0d0
       do i=1,nion
-        gx=gx+psp_amass(ion_katm(i))*ion_rion(1,i)
-        gy=gy+psp_amass(ion_katm(i))*ion_rion(2,i)
-        gz=gz+psp_amass(ion_katm(i))*ion_rion(3,i)
-        am=am+psp_amass(ion_katm(i))
+        gx=gx+ion_amass(i)*ion_rion(1,i)
+        gy=gy+ion_amass(i)*ion_rion(2,i)
+        gz=gz+ion_amass(i)*ion_rion(3,i)
+        am=am+ion_amass(i)
       end do
       gx=gx/am
       gy=gy/am
@@ -109,10 +109,10 @@
       real*8 am
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm
-      real*8   psp_amass,ion_vion
-      external ion_nion,ion_katm
-      external psp_amass,ion_vion
+      integer  ion_nion
+      real*8   ion_amass,ion_vion
+      external ion_nion
+      external ion_amass,ion_vion
 
       nion = ion_nion()
       gx=0.0d0
@@ -120,10 +120,10 @@
       gz=0.0d0
       am=0.0d0
       do i=1,nion
-        gx=gx+psp_amass(ion_katm(i))*ion_vion(1,i)
-        gy=gy+psp_amass(ion_katm(i))*ion_vion(2,i)
-        gz=gz+psp_amass(ion_katm(i))*ion_vion(3,i)
-        am=am+psp_amass(ion_katm(i))
+        gx=gx+ion_amass(i)*ion_vion(1,i)
+        gy=gy+ion_amass(i)*ion_vion(2,i)
+        gz=gz+ion_amass(i)*ion_vion(3,i)
+        am=am+ion_amass(i)
       end do
       gx=gx/am
       gy=gy/am
@@ -146,12 +146,12 @@
 *     **** external functions ****
       logical  Waterpsp_found
       integer  Waterpsp_nwater
-      integer  ion_nion,ion_katm
-      real*8   psp_amass
+      integer  ion_nion
+      real*8   ion_amass
       external Waterpsp_found
       external Waterpsp_nwater
-      external ion_nion,ion_katm
-      external psp_amass
+      external ion_nion
+      external ion_amass
 
       nion = ion_nion()
       gx=0.0d0
@@ -159,10 +159,10 @@
       gz=0.0d0
       am=0.0d0
       do i=1,nion
-        gx=gx+psp_amass(ion_katm(i))*F(1,i)
-        gy=gy+psp_amass(ion_katm(i))*F(2,i)
-        gz=gz+psp_amass(ion_katm(i))*F(3,i)
-        am=am+psp_amass(ion_katm(i))
+        gx=gx+ion_amass(i)*F(1,i)
+        gy=gy+ion_amass(i)*F(2,i)
+        gz=gz+ion_amass(i)*F(3,i)
+        am=am+ion_amass(i)
       end do
       if (Waterpsp_found()) then
          do i=1,Waterpsp_nwater()

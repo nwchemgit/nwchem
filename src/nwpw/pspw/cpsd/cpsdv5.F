@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.2 2001-09-29 00:28:06 bylaska Exp $
+* $Id: cpsdv5.F,v 1.3 2001-10-17 23:48:14 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -104,14 +104,14 @@
 
 
 *     **** external functions ****
-      real*8      psp_zv,psp_amass,psp_rc,ewald_rcut
+      real*8      psp_zv,psp_rc,ewald_rcut,ion_amass
       real*8      ewald_mandelung
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg
       integer     ewald_ncut,ewald_nshl3d,psp_npsp
       integer     psp_lmmax,psp_lmax,psp_locp
       character*2 psp_atom
-      external    psp_zv,psp_amass,psp_rc,ewald_rcut
+      external    psp_zv,psp_rc,ewald_rcut,ion_amass
       external    ewald_mandelung
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg
@@ -335,7 +335,7 @@
          call pspw_print_SIC(6)
          write(6,1140)
          do ia = 1,psp_npsp()
-           write(6,1150) ia,psp_atom(ia),psp_amass(ia)/1822.89d0,
+           write(6,1150) ia,psp_atom(ia),
      >                    psp_zv(ia),psp_lmax(ia)
            write(6,1152) psp_lmax(ia)
            write(6,1153) psp_locp(ia)
@@ -350,9 +350,11 @@
          write(6,1180)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
-           write(6,1191) I,psp_atom(ion_katm(I)),(ion_rion(K,I),K=1,3)
+           write(6,1191) I,psp_atom(ion_katm(I)),(ion_rion(K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0
            else
-           write(6,1190) I,psp_atom(ion_katm(I)),(ion_rion(K,I),K=1,3)
+           write(6,1190) I,psp_atom(ion_katm(I)),(ion_rion(K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0
            end if
          end do
          write(6,1200) cx,cy,cz
@@ -552,9 +554,11 @@
          write(6,1420)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
-           write(6,1191) I,psp_atom(ion_katm(I)),(ion_rion(k,i),K=1,3)
+           write(6,1191) I,psp_atom(ion_katm(I)),(ion_rion(k,i),K=1,3),
+     >                   ion_amass(I)/1822.89d0
            else
-           write(6,1190) I,psp_atom(ion_katm(I)),(ion_rion(k,i),K=1,3)
+           write(6,1190) I,psp_atom(ion_katm(I)),(ion_rion(k,i),K=1,3),
+     >                   ion_amass(I)/1822.89d0
            end if
          end do
          write(6,1200) cx,cy,cz
@@ -733,8 +737,7 @@
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')
- 1150 FORMAT(5X,I2,': ',A2,'  mass no.:',F6.1,'   core charge:',F4.0,
-     &       '  lmax=',I1)
+ 1150 FORMAT(5X,I2,': ',A2,'  core charge:',F4.1,'  lmax=',I1)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
  1152 FORMAT(12X,' highest angular component      : ',i2)
  1153 FORMAT(12X,' local potential used           : ',i2)
@@ -745,8 +748,9 @@
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' initial position of ions:')
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' )')
- 1191 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - fixed')
+ 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
+ 1191 FORMAT(5X, I4, A3  ,' (',3F11.5,
+     >       ' ) - atomic mass= ',F6.3,' - fixed')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)

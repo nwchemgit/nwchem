@@ -20,7 +20,7 @@
      >                      hml,lmd,
      >                      Hpsi,psi_r)
 *
-* $Id: inner_loop_md.F,v 1.1 2001-08-30 00:25:12 edo Exp $
+* $Id: inner_loop_md.F,v 1.2 2001-10-17 23:48:14 bylaska Exp $
 *
       implicit none
       logical    verlet
@@ -76,11 +76,11 @@ c     real*8     fion(3,natmx)
       integer  ion_nion,control_gga
       real*8   ion_ke,ion_ion_e,Waterpsp_ke
       real*8   control_time_step,control_fake_mass,ion_dti
-      real*8   lattice_omega,coulomb_e,ewald_e,psp_amass
+      real*8   lattice_omega,coulomb_e,ewald_e
       external ion_nion,control_gga
       external ion_ke,ion_ion_e,Waterpsp_ke
       external control_time_step,control_fake_mass,ion_dti
-      external lattice_omega,coulomb_e,ewald_e,psp_amass
+      external lattice_omega,coulomb_e,ewald_e
       logical  psp_semicore
       external psp_semicore
       integer  control_version

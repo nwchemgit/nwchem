@@ -19,7 +19,7 @@
      >                      hml,lmd,
      >                      psi_r,Hpsi)
 *
-* $Id: inner_loop.F,v 1.3 2001-10-01 16:57:02 bylaska Exp $
+* $Id: inner_loop.F,v 1.4 2001-10-17 23:48:14 bylaska Exp $
 *
       implicit none
       integer    ispin,ne(2)
@@ -76,12 +76,12 @@ c     real*8     fion(3,natmx)
       logical  pspw_SIC,pspw_SIC_relaxed
       integer  ion_nion,control_gga
       real*8   control_time_step,control_fake_mass,ion_dti
-      real*8   lattice_omega,coulomb_e,ewald_e,psp_amass
+      real*8   lattice_omega,coulomb_e,ewald_e
       external control_move,psp_semicore,Waterpsp_found
       external pspw_SIC,pspw_SIC_relaxed
       external ion_nion,control_gga
       external control_time_step,control_fake_mass,ion_dti
-      external lattice_omega,coulomb_e,ewald_e,psp_amass
+      external lattice_omega,coulomb_e,ewald_e
       integer  control_version
       external control_version
       real*8   ion_ion_e

@@ -11,7 +11,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 7)
+      parameter (num_dirs = 8)
  
       character*30 dirs(num_dirs)
       character*255 test
@@ -22,6 +22,7 @@ c
      >            'lj_ion_parameters:',
      >            'lj_water_parameters:',
      >            'sr_basis:',
+     >            'polarization_parameters:',
      >            'end'/
 c
       logical value
@@ -105,7 +106,7 @@ c
      >  'water_pseudopotential_input: unknown directive', 0)
 
 
-      goto ( 100, 200, 300, 400, 500, 600,
+      goto ( 100, 200, 300, 400, 500, 600, 700,
      >      9999) ind
       call errquit(
      >      'cell_optimize_input: unimplemented directive', ind)
@@ -176,6 +177,19 @@ c
       dbl_mb(tmp_g(1)    +num_basis) = si
       num_basis = num_basis+1
      
+      goto 10
+
+c
+c  Polarization parameters
+c
+ 700  value = inp_f(alpha)
+      value = value.and.inp_f(Rp)
+      value = value.and.inp_f(Rpe)
+
+      if (.not. value)
+     >  call errquit(
+     > 'water_pseudopotential_input:failed polarization_parameters:',0)
+
       goto 10
 
 *     ***** water_pseudopotential parameters to rtdb ****

@@ -6,18 +6,14 @@
 *     ***************************
       subroutine ion_end()
 *
-* $Id: ion.F,v 1.1 2001-08-30 17:56:11 bylaska Exp $
+* $Id: ion.F,v 1.2 2001-10-17 23:48:11 bylaska Exp $
 *
       implicit none
 
 #include "mafdecls.fh"
 
-*     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer     dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
+***** ion common block ****
+#include "ion.fh"
 
       logical value
 
@@ -46,11 +42,7 @@
 #include "geom.fh"
 
 *     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer     dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
+#include "ion.fh"
 
       integer geom
       common / ION2/ geom
@@ -166,12 +158,8 @@
 #include "geom.fh"
 
 
-*     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer	  dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
+***** ion common block ****
+#include "ion.fh"
 
       integer geom
       common / ION2/ geom
@@ -187,7 +175,7 @@
 
 *     *** local variables ***
       integer     i,j,geom1,geom2,geom3,nion1,nion2,nion3
-      integer rt(2),tt(2),qt(2)
+      integer rt(2),tt(2),qt(2),mt(2)
       double precision q,dt,vgx,vgy,vgz,rxyz(3)
       character*16     t
       logical value,found
@@ -201,11 +189,11 @@
       external    psp_atom
       external    psp_npsp,control_code
       
-      logical          control_frac_coord
-      double precision control_time_step,psp_amass
+      logical          control_frac_coord,parsecarrot
+      double precision control_time_step,ion_amass
       double precision control_rti
-      external         control_frac_coord
-      external         control_time_step,psp_amass
+      external         control_frac_coord,parsecarrot
+      external         control_time_step,ion_amass
       external         control_rti
 
       call Parallel_taskid(taskid)
@@ -228,6 +216,8 @@
       value = value.and.
      >        MA_push_get(mt_dbl, (nion1),   'qt',qt(2),qt(1))
       value = value.and.
+     >        MA_push_get(mt_dbl, (nion1),   'mt',mt(2),mt(1))
+      value = value.and.
      >        MA_push_get(mt_byte,(16*nion1),'tt',tt(2),tt(1))
       if (.not. value) call errquit('out of stack memory',0)
 
@@ -235,13 +225,7 @@
       nion3 = 0
       do i=1,nion1
          value = geom_cent_get(geom1,i,t,rxyz,q)
-         found = .false.
-         do j=1,nkatm
-            if (t(1:2) .eq. psp_atom(j)) then
-                found = .true.
-            end if
-         end do
-         if (found) then 
+         if (.not.parsecarrot(t)) then 
             nion2 = nion2 + 1
          else
             nion3 = nion3 + 1
@@ -255,11 +239,16 @@
      >        geom_cart_set(geom2,nion2,byte_mb(tt(1)),
      >                                  dbl_mb(rt(1)),
      >                                  dbl_mb(qt(1)))
-      if (nion3.gt.0) 
-     > value = value.and.
-     >         geom_cart_set(geom3,nion3,byte_mb(tt(1)+16*nion2),
+      value = value.and.geom_masses_get(geom1,nion1,dbl_mb(mt(1)))
+      value = value.and.geom_masses_set(geom2,nion2,dbl_mb(mt(1)))
+
+      if (nion3.gt.0) then
+        value = value.and.
+     >          geom_cart_set(geom3,nion3,byte_mb(tt(1)+16*nion2),
      >                                   dbl_mb(rt(1) + 3*nion2),
      >                                   dbl_mb(qt(1) +   nion2))
+        value = value.and.geom_masses_set(geom3,nion3,dbl_mb(mt(1)))
+      end if
 
       call dcopy(nion1,0.0d0,0,dbl_mb(rt(1)),1)
       value = value.and.geom_vel_get(geom1,dbl_mb(rt(1)))
@@ -279,6 +268,7 @@
       value = value.and.geom_destroy(geom1)
       if (.not. value) call errquit('geometry->pspwgeometry write',0)
       value = MA_pop_stack(tt(2))
+      value = value.and.MA_pop_stack(mt(2))
       value = value.and.MA_pop_stack(qt(2))
       value = value.and.MA_pop_stack(rt(2))
       if (.not. value) call errquit('popping stack',0)
@@ -358,8 +348,7 @@
 *     **** define dti ****
       dt = control_time_step()
       do i=1,nion
-         j = int_mb(katm(1)+i-1)
-         dbl_mb(dti(1)+i-1) = dt*dt/(psp_amass(j))
+         dbl_mb(dti(1)+i-1) = dt*dt/(ion_amass(i))
       end do
 
 c     value = geom_destroy(geom)
@@ -375,18 +364,16 @@ c     call ion_shift()
          call center_v_mass(vgx,vgy,vgz)
          mass=0.0d0
          do i=1,nion
-            j = int_mb(katm(1)+i-1)
-            mass=mass + psp_amass(j)
+            mass=mass + ion_amass(i)
          end do
          ekg = 0.5d0*mass*(vgx**2+vgy**2+vgz**2)
 
          eki0 = 0.0d0
          do i=1,nion
-            j = int_mb(katm(1)+i-1)
             dbl_mb(r0(1)+(i-1)+0) = dbl_mb(r0(1)+(i-1)+0)-vgx
             dbl_mb(r0(1)+(i-1)+1) = dbl_mb(r0(1)+(i-1)+1)-vgy
             dbl_mb(r0(1)+(i-1)+2) = dbl_mb(r0(1)+(i-1)+2)-vgz
-            eki0 = eki0 + psp_amass(j)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
+            eki0 = eki0 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
      >                                 + dbl_mb(r0(1)+(i-1)*3 + 1)**2
      >                                 + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
          end do
@@ -396,8 +383,7 @@ c     call ion_shift()
          call dscal((3*nion),control_rti(),dbl_mb(r0(1)),1)
          eki1 = 0.0d0
          do i=1,nion
-            j = int_mb(katm(1)+i-1)
-            eki1 = eki1 + psp_amass(j)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
+            eki1 = eki1 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
      >                                 + dbl_mb(r0(1)+(i-1)*3 + 1)**2
      >                                 + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
          end do
@@ -407,6 +393,76 @@ c     call ion_shift()
 
 
       ion_init = value
+      return
+      end
+
+*     ***************************
+*     *							*
+*     *	     parsecarrot		*
+*     *							*
+*     ***************************
+      logical function parsecarrot(string)
+      implicit none
+      character*16 string
+
+      logical qmmm 
+
+      qmmm = .false.
+      if (index(string,'^').gt.0) qmmm = .true.
+
+      parsecarrot = qmmm
+      return
+      end
+
+*     ***************************
+*     *							*
+*     *	     ion_aname			*
+*     *							*
+*     ***************************
+      character*16 function ion_aname(i)
+      implicit none
+      integer i
+
+#include "stdio.fh"
+#include "geom.fh"
+
+      integer geom
+      common / ION2/ geom
+
+*     **** local variables ****
+      character*16 t
+      real*8 rxy(3),q
+
+      if (.not. geom_cent_get(geom,i,t,rxy,q))
+     >        call errquit(' ion_aname  failed ',i)
+      
+      ion_aname = t
+      return
+      end
+
+*     ***************************
+*     *							*
+*     *	     ion_amass			*
+*     *							*
+*     ***************************
+      real*8 function ion_amass(i)
+      implicit none
+      integer i
+
+#include "stdio.fh"
+#include "geom.fh"
+
+
+      integer geom
+      common / ION2/ geom
+
+*     **** local variables ****
+      real*8 mass
+
+      if(.not.geom_mass_get(geom,i,mass))
+     >  call errquit(' geom_mass_get  failed ',i)
+
+      ion_amass = mass*1822.89d0
       return
       end
 
@@ -455,12 +511,8 @@ c     call ion_shift()
       double precision function ion_Temperature()
       implicit none
 
-*     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer	  dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
+***** ion common block ****
+#include "ion.fh"
 
 *     **** ion3 common block ****
       integer          ke_count
@@ -495,12 +547,8 @@ c     call ion_shift()
       double precision function ion_com_Temperature()
       implicit none
 
-*     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer	  dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
+***** ion common block ****
+#include "ion.fh"
 
 *     **** ion3 common block ****
       integer          ke_count
@@ -557,13 +605,8 @@ c     call ion_shift()
       integer function ion_nion()
       implicit none
 
-*     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer     dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
-
+***** ion common block ****
+#include "ion.fh"
 
       ion_nion = nion
       return
@@ -582,13 +625,8 @@ c     call ion_shift()
 
 #include "mafdecls.fh"
 
-*     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer     dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
-
+***** ion common block ****
+#include "ion.fh"
 
       ion_katm = int_mb(katm(1)+i-1)
       return
@@ -606,13 +644,8 @@ c     call ion_shift()
 
 #include "mafdecls.fh"
 
-*     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer     dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
-
+***** ion common block ****
+#include "ion.fh"
 
       ion_natm = int_mb(natm(1)+i-1)
       return
@@ -630,12 +663,8 @@ c     call ion_shift()
 
 #include "mafdecls.fh"
 
-*     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer     dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
+***** ion common block ****
+#include "ion.fh"
 
 
       ion_dti = dsqrt(dbl_mb(dti(1)+i-1))
@@ -656,12 +685,8 @@ c     call ion_shift()
 
 #include "mafdecls.fh"
 
-*     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer     dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
+***** ion common block ****
+#include "ion.fh"
 
 
       ion_rion = dbl_mb(r1(1)+(i-1) + (j-1)*3)
@@ -680,14 +705,8 @@ c     call ion_shift()
 
 #include "mafdecls.fh"
 
-*     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer     dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
-
-
+***** ion common block ****
+#include "ion.fh"
 
       ion_vion = dbl_mb(r0(1)+(i-1) + (j-1)*3)
       return
@@ -706,12 +725,8 @@ c     call ion_shift()
 
 #include "mafdecls.fh"
 
-*     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer     dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
+***** ion common block ****
+#include "ion.fh"
 
 *     **** local variables ****
       integer i
@@ -748,12 +763,8 @@ c     call ion_shift()
 
 #include "mafdecls.fh"
 
-*     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer     dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
+***** ion common block ****
+#include "ion.fh"
 
       integer          ke_count
       double precision ekg,eki0,eki1
@@ -762,13 +773,13 @@ c     call ion_shift()
      >               ke_total,kg_total,ke_count
 
 *     **** local variables ****
-      integer i,j
+      integer i
       double precision scale,dt,h
       double precision vgx,vgy,vgz
 
 *     *** external functions ****
-      double precision control_time_step,psp_amass
-      external         control_time_step,psp_amass
+      double precision control_time_step,ion_amass
+      external         control_time_step,ion_amass
 
       dt = control_time_step()
       h = 1.0d0/(2.0d0*dt)
@@ -809,8 +820,7 @@ c     call ion_shift()
 *     **** determine current kinetic energy and add to running average ****
       eki1 = 0.0d0
       do i=1,nion
-         j = int_mb(katm(1)+i-1)
-         eki1 = eki1 + psp_amass(j)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
+         eki1 = eki1 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
      >                              + dbl_mb(r0(1)+(i-1)*3 + 1)**2
      >                              + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
       end do
@@ -838,12 +848,8 @@ c     call ion_shift()
 
 #include "mafdecls.fh"
 
-*     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer     dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
+***** ion common block ****
+#include "ion.fh"
 
       integer          ke_count
       double precision ekg,eki0,eki1
@@ -853,13 +859,13 @@ c     call ion_shift()
       
 
 *     **** local variables ****
-      integer i,j
+      integer i
       double precision scale,dt
       double precision vgx,vgy,vgz
 
 *     *** external functions ****
-      double precision control_time_step,psp_amass
-      external         control_time_step,psp_amass
+      double precision control_time_step,ion_amass
+      external         control_time_step,ion_amass
 
       dt = control_time_step()
       do i=1,nion
@@ -888,8 +894,7 @@ c     call ion_shift()
 *     **** determine current kinetic energy and add to running average ***
       eki1 = 0.0d0
       do i=1,nion
-         j = int_mb(katm(1)+i-1)
-         eki1 = eki1 + psp_amass(j)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
+         eki1 = eki1 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
      >                              + dbl_mb(r0(1)+(i-1)*3 + 1)**2
      >                              + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
       end do
@@ -916,12 +921,8 @@ c     call ion_shift()
 
 #include "mafdecls.fh"
 
-*     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer     dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
+***** ion common block ****
+#include "ion.fh"
 
       integer          ke_count
       double precision ekg,eki0,eki1
@@ -930,13 +931,13 @@ c     call ion_shift()
      >               ke_total,kg_total,ke_count
 
 *     **** local variables ****
-      integer i,j
+      integer i
       double precision scale,dt,h
       double precision vgx,vgy,vgz,smr
 
 *     *** external functions ****
-      double precision control_time_step,psp_amass
-      external         control_time_step,psp_amass
+      double precision control_time_step,ion_amass
+      external         control_time_step,ion_amass
 
       dt = control_time_step()
       h = 1.0d0/(2.0d0*dt)
@@ -978,8 +979,7 @@ c     call ion_shift()
 *     **** determine current kinetic energy and add to running average ****
       eki1 = 0.0d0
       do i=1,nion
-         j = int_mb(katm(1)+i-1)
-         eki1 = eki1 + psp_amass(j)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
+         eki1 = eki1 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
      >                              + dbl_mb(r0(1)+(i-1)*3 + 1)**2
      >                              + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
       end do
@@ -1007,13 +1007,8 @@ c     call ion_shift()
 
 #include "mafdecls.fh"
 
-*     **** ion common block ****
-      integer     nion,nkatm
-      integer     r2(2),r1(2),r0(2)
-      integer     katm(2),natm(2)
-      integer     dti(2)
-      common / ION / r2,r1,r0,katm,natm,nion,nkatm,dti
-
+***** ion common block ****
+#include "ion.fh"
 
 
       call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r0(1)),1)

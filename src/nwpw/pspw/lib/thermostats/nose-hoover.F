@@ -33,15 +33,15 @@
       real*8   control_Nose_Te
       real*8   control_Nose_Pr
       real*8   control_Nose_Tr
-      real*8   psp_amass
-      integer  ion_nion,ion_katm
+      real*8   ion_amass
+      integer  ion_nion
       external control_fake_mass
       external control_Nose_Pe
       external control_Nose_Te
       external control_Nose_Pr
       external control_Nose_Tr
-      external psp_amass
-      external ion_nion,ion_katm
+      external ion_amass
+      external ion_nion
 
 *     ************************************
 *     **** initialize the thermostats ****
@@ -68,7 +68,7 @@
 
       am = 0.0d0
       do i=1,ion_nion()
-         am = am + psp_amass(ion_katm(i))
+         am = am + ion_amass(i)
       end do
 
 *     **** Set Ee0 ****
