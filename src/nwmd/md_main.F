@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.94 2000-07-14 19:54:03 d3j191 Exp $
+c $Id: md_main.F,v 1.95 2000-08-15 18:00:38 d3j191 Exp $
 c
       implicit none
 c
@@ -1480,9 +1480,18 @@ c
       real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
       real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
 c
+c     initialize timers
+c
       call md_timer_init()
 c
-c     initialize cf
+c     initialize flags
+c
+      if(ipme.gt.0) then
+      call pme_flag(0,0,me)
+      call pme_flag(1,0,me)
+      endif
+c
+c     initialize cafe
 c
       call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
      + dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_esa))
@@ -2070,7 +2079,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.94 2000-07-14 19:54:03 d3j191 Exp $
+c $Id: md_main.F,v 1.95 2000-08-15 18:00:38 d3j191 Exp $
 c
       implicit none
 c
