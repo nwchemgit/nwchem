@@ -1,5 +1,5 @@
 %
-% $Id: integral_api.tex,v 1.7 1998-10-01 05:15:37 windus Exp $
+% $Id: integral_api.tex,v 1.8 2002-04-11 15:05:56 windus Exp $
 %
 % 
 %-----------------------------------------------------------------%  
@@ -18,15 +18,7 @@
 %                                                                 % 
 %-----------------------------------------------------------------%  
 % 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%% NOTE: the chapter title is replaced by a section, and 'section'
-%%%%%       headings are replaced by 'subsection', per new organization
-%%%%%       of manual using template; must be changed in Ricky's source, if
-%%%%%       this approach is adopted permanently.  (JMC)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Integral Application Programmer's Interface} 
-\label{sec:intapi}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Integral Application Programmer's Interface} 
 The integral (INT) Application Programmer's Interface (API) is the 
 interface to the base integral technology available in the NWChem 
 application software.  The INT-API interfaces currently three integral 
@@ -37,7 +29,7 @@ limited to the requisite functionality of NWChem.  Further
 functionality will be added over time as requirements are determined, 
 prioritized and implemented.   
  
-\subsection{Overview} 
+\section{Overview} 
 The integral code operates as a single threaded suite and all 
 parallelization is achieved at the level of the routines that call the 
 API or above.  The API requires a collective initialization phase to 
@@ -68,7 +60,7 @@ The INT-API has the following kinds of routines:
  
 Details of the API spcification are in appendix \ref{appendix_intapi}. 
  
-\subsection{Adding a new base integral code to the NWChem INT-API} 
+\section{Adding a new base integral code to the NWChem INT-API} 
  
 This is a straightforward but non-trivial task.  Requirements include 
 a set of APIs for the base integral code to marry it to the NWChem 
