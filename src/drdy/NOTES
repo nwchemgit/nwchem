@@ -1,0 +1,180 @@
+rphwrt and sort have really stupid file 30 access patterns.
+too many opens. 
+
+drdynwchem* (task_drdy)
+   |
+   |-slaves- drdy_synch*
+   |
+   |-Input_for_drdy*
+   |           |
+   |           |-read_drdy_rtdb*
+   |           |      |
+   |           |      |-rline*
+   |           |      |-rgener*
+   |           |      |     |
+   |           |      |     |-ratoms*
+   |           |      |
+   |           |      |-rstat*
+   |           |      |    |
+   |           |      |    |rgeom*
+   |           |      |    |rgsad*
+   |           |      |
+   |           |      |-rpath*
+   |           |
+   |           |-trans*
+   |           |-center*
+   |           |-rotx*
+   |
+   |-potset_nwchem* (checks for basis info and drdy:theory)
+   |-rphwrt(0) (writes fu30)
+   |-sort (reads fu30)
+   |   |
+   |   |-restor
+   |   |
+   | 
+   |-react 
+   |    |
+   |    |-pot2
+   |    |-react2
+   |
+   |-saddle
+   |    |
+   |    |-pot2
+   |    |-rphwrt(5)
+   |
+   |-rphwrt(6)
+   |-setpth
+   |    |
+   |    |-diagf
+   |    |   |
+   |    |   |-rsp
+   |    |  
+   |    |-pmlqsp
+   |    |   |
+   |    |   |-pot2
+   |    |   |-pot2
+   |    |   |-mxlneq
+   |    |  
+   |-path
+   |    |
+   |    |-path2
+   |    |    |
+   |    |    |-euler
+   |    |    |-pmlqa
+   |    |    |-pmclqa
+   |    |    |-pmcube
+   |    |
+   |    |-pot1
+   |    |-pot2
+   |    |-rphwrt(7)
+   |    |-path2
+   |    |-path2
+   |    |-pot1
+   |    |-pot2
+   |    |-rphwrt(7)
+   |    |-path2
+   |    |-euler
+   |    |-pmlqa
+   |    |-pot1
+   |    |-pot2
+   |    |-rphwrt(7)
+   |    |-path2
+   |    |-
+   |    |
+   |-sort
+
+
+
+
+vectors_input: scf dft prop mp2 mcscf
+
+
+
+input stuff
+*general
+ [title
+  titleline]
+ [restart]  ! problem
+ [atoms
+    lexical atom index [atomic number|atomic symbol] [mass]
+  end]
+
+*react1|*react2|*prod1|*prod2|*start
+  geom
+    lexical atom index  x-coord y-coord z-coord
+  end
+  species [atomic|lints|linrp|nonlints|nonlinrp]
+
+*path
+ scalemass real_number
+ sstep real_number
+ ssave real_number
+ slp real_number
+ slm real_number
+ saddle
+ nosaddle
+ sign [reactan|product]
+ integra [euler|lqa|clqa|cube]
+
+sample input deck
+h3tr1.dat
+*GENERAL
+  TITLE
+    Test run: H+H2 reaction, Euler integration, no restart
+
+  ATOMS
+    1  H
+    2  H
+    3  H
+  END
+
+*REACT1
+   GEOM
+     1   0.0   0.0   0.0
+     2   0.0   0.0   1.3886144
+   END 
+
+   SPECIES LINRP
+
+*REACT2
+
+   GEOM
+    3    0.0   0.0    190.3612132
+   END
+
+   SPECIES  ATOMIC
+
+*PROD2
+
+  GEOM
+   1  0.0   0.0 190.3612132
+  END
+
+  SPECIES  ATOMIC
+
+*PROD1
+  GEOM
+   2    0.0   0.0   1.3886144
+   3    0.0   0.0   0.0
+  END
+
+  SPECIES  LINRP
+
+*START
+  GEOM
+   1    0.0   0.0  -1.76531973
+   2    0.0   0.0   0.0
+   3    0.0   0.0   1.76531973
+  END
+
+  SPECIES  LINTS
+
+*PATH
+   SSTEP  0.01 
+   SSAVE  0.05 
+   SLP    0.50 
+   SLM   -0.50
+   SCALEMASS    0.6718993
+
+   INTEGRA EULER
+   

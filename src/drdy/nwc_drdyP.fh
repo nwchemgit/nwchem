@@ -1,0 +1,19 @@
+      Integer me_drdy, my_rtdb
+      Common /c_drdy_nwchem/ me_drdy, my_rtdb
+      Integer DRDY_CODE_ENERGY
+      Integer DRDY_CODE_GRADIENT
+      Integer DRDY_CODE_HESSIAN
+      Integer DRDY_CODE_DONE
+      Parameter (DRDY_CODE_ENERGY    = 565)
+      Parameter (DRDY_CODE_GRADIENT  = 566)
+      Parameter (DRDY_CODE_HESSIAN   = 567)
+      Parameter (DRDY_CODE_DONE      = 911)
+      Integer master
+      Parameter (master = 0)
+*
+      Integer natomz
+      Parameter (natomz = 8) ! same as in drdyP.fh
+      Double Precision atomic_charge, copy_charge
+      Character*16     atomic_labels, copy_labels
+      Common /c_nwc_chrg/atomic_charge(natomz), copy_charge(natomz)
+      Common /c_nwc_labs/atomic_labels(natomz), copy_labels(natomz)
