@@ -1,0 +1,130 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:28:52 bjohnson Exp $	
+#
+
+!MESSAGE *** Unresolved issues in this nmake file ***
+
+OBJ_OPTIMIZE = $(OBJDIR)\int_hf1sp.obj \
+               $(OBJDIR)\int_l2e4c.obj \
+               $(OBJDIR)\intb_init4c.obj \
+               $(OBJDIR)\intb_2e4c.obj \
+               $(OBJDIR)\int_2e4c.obj
+
+OBJ =          $(OBJDIR)\cando_sp.obj \
+               $(OBJDIR)\exact_mem.obj \
+               $(OBJDIR)\exactd_mem.obj \
+               $(OBJDIR)\int_1cg.obj \
+               $(OBJDIR)\int_1e3ov.obj \
+               $(OBJDIR)\int_1eall.obj \
+               $(OBJDIR)\int_1eh1.obj \
+               $(OBJDIR)\int_1eke.obj \
+               $(OBJDIR)\int_1eov.obj \
+               $(OBJDIR)\int_1epe.obj \
+               $(OBJDIR)\int_2e2c.obj \
+               $(OBJDIR)\int_2e3c.obj \
+               $(OBJDIR)\int_acc.obj \
+               $(OBJDIR)\int_canon.obj \
+               $(OBJDIR)\int_chk_init.obj \
+               $(OBJDIR)\int_chk_sh.obj \
+               $(OBJDIR)\int_func_c.obj \
+               $(OBJDIR)\int_init.obj \
+               $(OBJDIR)\int_l1e3ov.obj \
+               $(OBJDIR)\int_l1eall.obj \
+               $(OBJDIR)\int_l1eh1.obj \
+               $(OBJDIR)\int_l1eke.obj \
+               $(OBJDIR)\int_l1eov.obj \
+               $(OBJDIR)\int_l1epe.obj \
+               $(OBJDIR)\int_l2e2c.obj \
+               $(OBJDIR)\int_l2e3c.obj \
+               $(OBJDIR)\int_lgen1e.obj \
+               $(OBJDIR)\int_mem.obj \
+               $(OBJDIR)\int_mpolel.obj \
+               $(OBJDIR)\int_mpole.obj \
+               $(OBJDIR)\int_nint.obj \
+               $(OBJDIR)\int_pgen1e.obj \
+               $(OBJDIR)\int_projpole.obj \
+               $(OBJDIR)\int_term.obj \
+               $(OBJDIR)\intd_1eh1.obj \
+               $(OBJDIR)\intd_1eov.obj \
+               $(OBJDIR)\intd_1eke.obj \
+               $(OBJDIR)\intd_2e2c.obj \
+               $(OBJDIR)\intd_2e3c.obj \
+               $(OBJDIR)\intd_2e4c.obj \
+               $(OBJDIR)\intd_init.obj \
+               $(OBJDIR)\intd_1e3ov.obj \
+               $(OBJDIR)\intbd_init4c.obj \
+               $(OBJDIR)\intbd_2e4c.obj \
+               $(OBJDIR)\intd_mpolel.obj \
+               $(OBJDIR)\intdd_1eh1.obj \
+               $(OBJDIR)\intdd_1eov.obj \
+               $(OBJDIR)\intdd_2e2c.obj \
+               $(OBJDIR)\intdd_2e4c.obj \
+               $(OBJDIR)\intdd_2e3c.obj \
+               $(OBJDIR)\intdd_init.obj \
+               $(OBJDIR)\intp_1eke.obj \
+               $(OBJDIR)\intp_1eov.obj \
+               $(OBJDIR)\intp_1epe.obj \
+               $(OBJDIR)\intp_2e2c.obj \
+               $(OBJDIR)\intp_2e3c.obj \
+               $(OBJDIR)\intp_mpole.obj \
+               $(OBJDIR)\intp_1e1cpe.obj \
+               $(OBJDIR)\intp_2e3ct.obj \
+               $(OBJDIR)\intp_mpolel.obj \
+               $(OBJDIR)\intp_txyz.obj \
+               $(OBJDIR)\intpd_1e1cpe.obj \
+               $(OBJDIR)\intpd_1eke.obj \
+               $(OBJDIR)\intpd_1eov.obj \
+               $(OBJDIR)\intpd_1epe.obj \
+               $(OBJDIR)\intpd_2e2c.obj \
+               $(OBJDIR)\intpd_2e3c.obj \
+               $(OBJDIR)\intpd_2e3ct.obj \
+               $(OBJDIR)\intpd_mpolel.obj \
+               $(OBJDIR)\intso_1e.obj
+
+HEADERS =      int_tim.fh \
+               apiP.fh \
+               int_nbf.fh
+
+LIBRARY = nwints.lib
+# !!! Need to fix this
+LIB_DEFINES = -DUSE_TEXAS
+
+!INCLUDE ..\..\config\NTmakefile.h
+!INCLUDE ..\..\config\NTmakelib.h
+
+!IF 0
+
+ifeq ($(USE_TEXAS),YEP)
+      LIB_DEFINES = -DUSE_TEXAS
+endif
+
+justo:	$(OBJ)	$(OBJ_OPTIMIZE)
+	@echo "just objects made"
+noo:
+	rm -f $(OBJ) $(OBJ_OPTIMIZE)
+
+txs:
+	@touch cando_sp.F int_2e2c.F int_2e3c.F
+	$(MAKE) "USE_TEXAS=YEP"
+
+doc:
+	rm -f integral_api.tex
+	$(BINDIR)/seetex integral_api.th integral_api.tex
+	rm -f int_api_spec.tex
+	$(BINDIR)/seetex int_api_spec.th int_api_spec_init.th        int_api_spec.tex
+	$(BINDIR)/seetex int_init.F intd_init.F int_term.F int_acc.F int_api_spec.tex
+	$(BINDIR)/seetex int_api_spec_mem.th                         int_api_spec.tex
+	$(BINDIR)/seetex int_mem.F                                   int_api_spec.tex
+	$(BINDIR)/seetex int_api_spec_ints.th                        int_api_spec.tex
+	$(BINDIR)/seetex int_1cg.F   int_1e3ov.F int_l1e3ov.F int_1eall.F int_l1eall.F  int_pgen1e.F int_api_spec.tex
+	$(BINDIR)/seetex int_1eh1.F  int_l1eh1.F int_1eke.F   int_l1eke.F int_1eov.F    int_l1eov.F  int_api_spec.tex
+	$(BINDIR)/seetex int_1epe.F  int_l1epe.F int_lgen1e.F int_2e2c.F  int_l2e2c.F                int_api_spec.tex
+	$(BINDIR)/seetex int_l2e3c.F int_2e3c.F  int_2e4c.F   int_l2e4c.F intb_init4c.F intb_2e4c.F  int_api_spec.tex
+	$(BINDIR)/seetex int_api_spec_prop.th                        int_api_spec.tex
+	$(BINDIR)/seetex int_mpole.F int_projpole.F                  int_api_spec.tex
+	$(BINDIR)/seetex int_api_spec_misc.th                        int_api_spec.tex
+	$(BINDIR)/seetex exact_mem.F exactd_mem.F int_canon.F int_chk_init.F int_chk_sh.F            int_api_spec.tex
+	$(BINDIR)/seetex int_func_c.F int_hf1sp.F int_nint.F                                         int_api_spec.tex
+	cp integral_api.tex int_api_spec.tex ${TOPDIR}/doc/prog
+
+!ENDIF

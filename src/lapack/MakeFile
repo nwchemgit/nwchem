@@ -1,0 +1,10 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:35:15 bjohnson Exp $	
+#
+
+SUBDIRS = double
+
+LIBRARY = lapack.lib
+
+!INCLUDE ..\config\NTmakefile.h
+!INCLUDE ..\config\NTmakelib.h

@@ -1,0 +1,82 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:29:12 bjohnson Exp $	
+#
+
+!MESSAGE *** Unresolved issues in this nmake file ***
+
+OBJ_GRAD =     $(OBJDIR)\ecp_gradient.obj \
+               $(OBJDIR)\ecp_grad_a.obj \
+               $(OBJDIR)\ecp_grad_b.obj
+
+OBJ_HESS =     $(OBJDIR)\ecp_hessian.obj
+
+OBJ_ENERGY =   $(OBJDIR)\ecp_3j_prod.obj \
+               $(OBJDIR)\ecp_angint.obj \
+               $(OBJDIR)\ecp_angrad.obj \
+               $(OBJDIR)\ecp_bess_asy.obj \
+               $(OBJDIR)\ecp_bess_pow.obj \
+               $(OBJDIR)\ecp_bessel.obj \
+               $(OBJDIR)\ecp_c2slower.obj \
+               $(OBJDIR)\ecp_c2snorm.obj \
+               $(OBJDIR)\ecp_c2srecur.obj \
+               $(OBJDIR)\ecp_cart_xpd.obj \
+               $(OBJDIR)\ecp_contract.obj \
+               $(OBJDIR)\ecp_cstrans.obj \
+               $(OBJDIR)\ecp_down_m.obj \
+               $(OBJDIR)\ecp_gaussq.obj \
+               $(OBJDIR)\ecp_init_c2s.obj \
+               $(OBJDIR)\ecp_init_con.obj \
+               $(OBJDIR)\ecp_int0.obj \
+               $(OBJDIR)\ecp_int1.obj \
+               $(OBJDIR)\ecp_int2.obj \
+               $(OBJDIR)\ecp_integral.obj \
+               $(OBJDIR)\ecp_matpi.obj \
+               $(OBJDIR)\ecp_matpr.obj \
+               $(OBJDIR)\ecp_radint0.obj \
+               $(OBJDIR)\ecp_radint1.obj \
+               $(OBJDIR)\ecp_radint2.obj \
+               $(OBJDIR)\ecp_s2ccoef.obj \
+               $(OBJDIR)\ecp_s2cnorm.obj \
+               $(OBJDIR)\ecp_so_ang.obj \
+               $(OBJDIR)\ecp_t1_Q0asy.obj \
+               $(OBJDIR)\ecp_t1_Q0int.obj \
+               $(OBJDIR)\ecp_t1_Q0pow.obj \
+               $(OBJDIR)\ecp_t1_Q1asy.obj \
+               $(OBJDIR)\ecp_t1_Q1int.obj \
+               $(OBJDIR)\ecp_t1_Q1pow.obj \
+               $(OBJDIR)\ecp_t1_Q2int.obj \
+               $(OBJDIR)\ecp_t2_ghq.obj \
+               $(OBJDIR)\ecp_t2_init0.obj \
+               $(OBJDIR)\ecp_t2_init1.obj \
+               $(OBJDIR)\ecp_t2_init2.obj \
+               $(OBJDIR)\ecp_t2_p0pow.obj \
+               $(OBJDIR)\ecp_t2_p1pow.obj \
+               $(OBJDIR)\ecp_up_k.obj \
+               $(OBJDIR)\ecp_local0.obj \
+               $(OBJDIR)\ecp_local1.obj \
+               $(OBJDIR)\ecp_local2.obj \
+               $(OBJDIR)\ecp_locint1.obj \
+               $(OBJDIR)\ecp_local.obj \
+               $(OBJDIR)\ecp_ind_var.obj
+
+OBJ_OPTIMIZE = $(OBJ_ENERGY) \
+               $(OBJ_GRAD)
+
+OBJ =          $(OBJDIR)\ecp_sph_tens.obj \
+               $(OBJDIR)\int_ecp.obj
+
+HEADERS =      ecp_nwc.fh
+
+LIBRARY = nwints.lib
+
+LIB_TARGETS = test_drive
+
+!INCLUDE ..\..\config\NTmakefile.h
+!INCLUDE ..\..\config\NTmakelib.h
+
+!IF 0
+
+test_drive:	test_drive.o 
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ test_drive.o $(LIBS)
+
+!ENDIF

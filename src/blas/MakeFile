@@ -1,0 +1,58 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:30:21 bjohnson Exp $	
+#
+
+!MESSAGE *** Unresolved issues in this nmake file ***
+
+VPATH = double
+
+OBJ_OPTIMIZE = $(OBJDIR)\dasum.obj \
+               $(OBJDIR)\daxpy.obj \
+               $(OBJDIR)\dcopy.obj \
+               $(OBJDIR)\ddot.obj \
+               $(OBJDIR)\dgemm.obj \
+               $(OBJDIR)\dgemv.obj \
+               $(OBJDIR)\dger.obj \
+               $(OBJDIR)\dnrm2.obj \
+               $(OBJDIR)\drot.obj \
+               $(OBJDIR)\dscal.obj \
+               $(OBJDIR)\dspmv.obj \
+               $(OBJDIR)\dspr.obj \
+               $(OBJDIR)\dswap.obj \
+               $(OBJDIR)\dsymm.obj \
+               $(OBJDIR)\dsymv.obj \
+               $(OBJDIR)\dsyr2.obj \
+               $(OBJDIR)\dsyr2k.obj \
+               $(OBJDIR)\dsyrk.obj \
+               $(OBJDIR)\dtrmm.obj \
+               $(OBJDIR)\dtrmv.obj \
+               $(OBJDIR)\dtrsm.obj \
+               $(OBJDIR)\dtrsv.obj \
+               $(OBJDIR)\dznrm2.obj \
+               $(OBJDIR)\idamax.obj \
+               $(OBJDIR)\lsame.obj \
+               $(OBJDIR)\zaxpy.obj \
+               $(OBJDIR)\dcabs1.obj \
+               $(OBJDIR)\zcopy.obj \
+               $(OBJDIR)\zdotc.obj \
+               $(OBJDIR)\zdscal.obj \
+               $(OBJDIR)\zgemm.obj \
+               $(OBJDIR)\zgemv.obj \
+               $(OBJDIR)\zgerc.obj \
+               $(OBJDIR)\zhemm.obj \
+               $(OBJDIR)\zhemv.obj \
+               $(OBJDIR)\zher2.obj \
+               $(OBJDIR)\zher2k.obj \
+               $(OBJDIR)\zherk.obj \
+               $(OBJDIR)\zscal.obj \
+               $(OBJDIR)\zswap.obj \
+               $(OBJDIR)\ztrmm.obj \
+               $(OBJDIR)\ztrmv.obj \
+               $(OBJDIR)\ztrsm.obj \
+               $(OBJDIR)\ztrsv.obj \
+               $(OBJDIR)\xerbla.obj
+
+LIBRARY = blas.lib
+
+!INCLUDE ..\config\NTmakefile.h
+!INCLUDE ..\config\NTmakelib.h

@@ -1,0 +1,33 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:38:04 bjohnson Exp $	
+#
+
+OBJ_OPTIMIZE = $(OBJDIR)\mp2_back_transform.obj \
+               $(OBJDIR)\mp2_read_tiajb.obj \
+               $(OBJDIR)\mp2_pijab_uhf.obj \
+               $(OBJDIR)\mp2_wijab_uhf.obj \
+               $(OBJDIR)\mp2_lai_uhf.obj \
+               $(OBJDIR)\mp2_lai_fock_uhf.obj \
+               $(OBJDIR)\mp2_memory.obj \
+               $(OBJDIR)\mp2_make_tuhf.obj
+
+OBJ =          $(OBJDIR)\mp2_grad.obj \
+               $(OBJDIR)\mp2_energy.obj \
+               $(OBJDIR)\mp2_grad_doit.obj \
+               $(OBJDIR)\mp2_make_cphf_rhs.obj \
+               $(OBJDIR)\mp2_make_tot_dens.obj \
+               $(OBJDIR)\mp2_make_tot_wdens.obj \
+               $(OBJDIR)\mp2_make_dip_mom.obj \
+               $(OBJDIR)\mp2_pstat.obj \
+               $(OBJDIR)\mp2_input.obj \
+               $(OBJDIR)\mp2_make_piy.obj \
+               $(OBJDIR)\mp2_make_nos.obj
+
+LIBRARY = mp2.lib
+LIB_DEFINES = -DDEBUG_PRINT
+# Possible #defines
+#
+#              -DDEBUG_PRINT          /* Debug printing routines */
+
+!INCLUDE ..\config\NTmakefile.h
+!INCLUDE ..\config\NTmakelib.h

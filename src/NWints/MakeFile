@@ -1,0 +1,52 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:29:48 bjohnson Exp $	
+#
+
+!MESSAGE *** Unresolved issues in this nmake file ***
+
+SUBDIRS = api int auxil ints_sp deriv texas ecp hondo
+
+OBJ =          $(OBJDIR)\int_input.obj
+
+HEADERS =      api\int_tim.fh \
+               api\apiP.fh \
+               seint\se_defs.fh \
+               api\int_nbf.fh \
+               auxil\spcartP.fh \
+               hondo\hnd_whermt.fh \
+               hondo\hnd_rys.fh \
+               hondo\hnd_tol.fh
+
+LIBRARY = nwints.lib
+
+!INCLUDE ..\config\NTmakefile.h
+!INCLUDE ..\config\NTmakelib.h
+
+!IF 0
+
+  USE_TEXAS = YEP
+export USE_TEXAS
+
+semi:
+	cp seint/se_defs.fh $(INCDIR)
+	(cd seint; $(MAKE) )
+txs:
+	@touch api/cando_sp.F texas/texas_stubs.F api/int_2e2c.F api/int_2e3c.F
+	$(MAKE) "USE_TEXAS=YEP"
+fix:
+	@(cd texas; $(MAKE) "USE_TEXAS=YEP" removeobj)
+	@touch api/cando_sp.F texas/*.F texas/*.f
+	$(MAKE)
+nolib:
+	rm -i $(LIBRARY_PATH)
+
+tasks tasks.ps:	tasks.tex
+	latex tasks
+	latex tasks
+	dvips tasks -o
+	rm -f tasks.aux tasks.dvi tasks.log
+
+view tasks.v:	tasks.ps
+	ghostview tasks.ps
+
+!ENDIF

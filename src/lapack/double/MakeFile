@@ -1,0 +1,113 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:35:11 bjohnson Exp $	
+#
+
+OBJ_OPTIMIZE = $(OBJDIR)\dbdsqr.obj \
+               $(OBJDIR)\dgebd2.obj \
+               $(OBJDIR)\dgebrd.obj \
+               $(OBJDIR)\dgelq2.obj \
+               $(OBJDIR)\dgelqf.obj \
+               $(OBJDIR)\dgeqr2.obj \
+               $(OBJDIR)\dgeqrf.obj \
+               $(OBJDIR)\dgesv.obj \
+               $(OBJDIR)\dgesvd.obj \
+               $(OBJDIR)\dgetf2.obj \
+               $(OBJDIR)\dgetrf.obj \
+               $(OBJDIR)\dgetrs.obj \
+               $(OBJDIR)\dlabrd.obj \
+               $(OBJDIR)\dlacon.obj \
+               $(OBJDIR)\dlacpy.obj \
+               $(OBJDIR)\dladiv.obj \
+               $(OBJDIR)\dlae2.obj \
+               $(OBJDIR)\dlaev2.obj \
+               $(OBJDIR)\dlagtf.obj \
+               $(OBJDIR)\dlagts.obj \
+               $(OBJDIR)\dlamch.obj \
+               $(OBJDIR)\dlange.obj \
+               $(OBJDIR)\dlansp.obj \
+               $(OBJDIR)\dtrti2.obj \
+               $(OBJDIR)\dlanst.obj \
+               $(OBJDIR)\dlansy.obj \
+               $(OBJDIR)\dlapy2.obj \
+               $(OBJDIR)\dlapy3.obj \
+               $(OBJDIR)\dlarf.obj \
+               $(OBJDIR)\dlarfb.obj \
+               $(OBJDIR)\dlarfg.obj \
+               $(OBJDIR)\dlarft.obj \
+               $(OBJDIR)\dlarnv.obj \
+               $(OBJDIR)\dlartg.obj \
+               $(OBJDIR)\dlaruv.obj \
+               $(OBJDIR)\dlas2.obj \
+               $(OBJDIR)\dlascl.obj \
+               $(OBJDIR)\dlaset.obj \
+               $(OBJDIR)\dlasr.obj \
+               $(OBJDIR)\dlasrt.obj \
+               $(OBJDIR)\dlassq.obj \
+               $(OBJDIR)\dlasv2.obj \
+               $(OBJDIR)\dlaswp.obj \
+               $(OBJDIR)\dlatrd.obj \
+               $(OBJDIR)\dlauu2.obj \
+               $(OBJDIR)\dlauum.obj \
+               $(OBJDIR)\dorg2l.obj \
+               $(OBJDIR)\dorg2r.obj \
+               $(OBJDIR)\dorgbr.obj \
+               $(OBJDIR)\dorgl2.obj \
+               $(OBJDIR)\dorglq.obj \
+               $(OBJDIR)\dorgql.obj \
+               $(OBJDIR)\dorgqr.obj \
+               $(OBJDIR)\dorgtr.obj \
+               $(OBJDIR)\dorm2r.obj \
+               $(OBJDIR)\dormbr.obj \
+               $(OBJDIR)\dorml2.obj \
+               $(OBJDIR)\dormlq.obj \
+               $(OBJDIR)\dormqr.obj \
+               $(OBJDIR)\dpotf2.obj \
+               $(OBJDIR)\dpotrf.obj \
+               $(OBJDIR)\dpotri.obj \
+               $(OBJDIR)\dspcon.obj \
+               $(OBJDIR)\dsprfs.obj \
+               $(OBJDIR)\dspsvx.obj \
+               $(OBJDIR)\dsptrf.obj \
+               $(OBJDIR)\dsptrs.obj \
+               $(OBJDIR)\dsteqr.obj \
+               $(OBJDIR)\dsterf.obj \
+               $(OBJDIR)\dsyev.obj \
+               $(OBJDIR)\dsygs2.obj \
+               $(OBJDIR)\dsygst.obj \
+               $(OBJDIR)\dsygv.obj \
+               $(OBJDIR)\dsytd2.obj \
+               $(OBJDIR)\dsytrd.obj \
+               $(OBJDIR)\dtrtri.obj \
+               $(OBJDIR)\ilaenv.obj \
+               $(OBJDIR)\lsamen.obj \
+               $(OBJDIR)\zheev.obj \
+               $(OBJDIR)\zhegs2.obj \
+               $(OBJDIR)\zhegst.obj \
+               $(OBJDIR)\zhegv.obj \
+               $(OBJDIR)\zhetd2.obj \
+               $(OBJDIR)\zhetrd.obj \
+               $(OBJDIR)\zlacgv.obj \
+               $(OBJDIR)\zladiv.obj \
+               $(OBJDIR)\zlanhe.obj \
+               $(OBJDIR)\zlarf.obj \
+               $(OBJDIR)\zlarfb.obj \
+               $(OBJDIR)\zlarfg.obj \
+               $(OBJDIR)\zlarft.obj \
+               $(OBJDIR)\zlascl.obj \
+               $(OBJDIR)\zlaset.obj \
+               $(OBJDIR)\zlasr.obj \
+               $(OBJDIR)\zlassq.obj \
+               $(OBJDIR)\zlatrd.obj \
+               $(OBJDIR)\zpotf2.obj \
+               $(OBJDIR)\zpotrf.obj \
+               $(OBJDIR)\zsteqr.obj \
+               $(OBJDIR)\zung2l.obj \
+               $(OBJDIR)\zung2r.obj \
+               $(OBJDIR)\zungql.obj \
+               $(OBJDIR)\zungqr.obj \
+               $(OBJDIR)\zungtr.obj
+
+LIBRARY = lapack.lib
+
+!INCLUDE ..\..\config\NTmakefile.h
+!INCLUDE ..\..\config\NTmakelib.h

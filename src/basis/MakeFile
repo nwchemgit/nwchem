@@ -1,0 +1,51 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:25:43 bjohnson Exp $	
+#
+
+!MESSAGE *** Unresolved issues in this nmake file ***
+
+OBJ =          $(OBJDIR)\bas_input.obj \
+               $(OBJDIR)\bas_contrib.obj \
+               $(OBJDIR)\bas_checksum.obj \
+               $(OBJDIR)\basis.obj \
+               $(OBJDIR)\basisP.obj \
+               $(OBJDIR)\bas_blas.obj \
+               $(OBJDIR)\bas_blasP.obj \
+               $(OBJDIR)\bas_vec_info.obj
+
+HEADERS =      bas.fh \
+               basP.fh \
+               bas_staticP.fh \
+               basdeclsP.fh \
+               geobasmapP.fh \
+               bas_exndcf.fh \
+               bas_exndcf_dec.fh \
+               bas_exndcf_sfn.fh \
+               bas_ibs.fh \
+               bas_ibs_dec.fh \
+               bas_ibs_sfn.fh
+
+LIBRARY = util.lib
+!IFDEF NWCHEM_BASIS_LIBRARY_PATH
+LIB_DEFINES = -DBASIS_LIBRARY="'$(NWCHEM_BASIS_LIBRARY_PATH)'"
+!ELSE
+LIB_DEFINES = -DBASIS_LIBRARY="'$(SRCDIR)\basis\library'"
+!ENDIF
+
+LIB_TARGETS = testbasis $(OBJDIR)\testbasis.obj libcheck
+TESTLIBS = -lutil
+
+!INCLUDE ..\config\NTmakefile.h
+!INCLUDE ..\config\NTmakelib.h
+
+!IF 0
+
+libcheck:	libcheck.o
+	$(FC) $(FFLAGS) -o $@ libcheck.o  $(LDFLAGS) $(LIBS) $(TESTLIBS)
+testbasis:	testbasis.o
+	$(FC) $(FFLAGS) -o $@ testbasis.o  $(LDFLAGS) $(LIBS) $(TESTLIBS)
+
+basP.fh:	bas_staticP.fh
+	@touch basP.fh
+
+!ENDIF

@@ -1,0 +1,51 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:31:22 bjohnson Exp $	
+#
+
+!MESSAGE *** Unresolved issues in this nmake file ***
+
+OBJ_OPTIMIZE = $(OBJDIR)\dcfftb.obj \
+               $(OBJDIR)\dcfftf.obj \
+               $(OBJDIR)\dcffti.obj \
+               $(OBJDIR)\dcftb1.obj \
+               $(OBJDIR)\dcftf1.obj \
+               $(OBJDIR)\dcfti1.obj \
+               $(OBJDIR)\dpssb.obj \
+               $(OBJDIR)\dpssb2.obj \
+               $(OBJDIR)\dpssb3.obj \
+               $(OBJDIR)\dpssb4.obj \
+               $(OBJDIR)\dpssb5.obj \
+               $(OBJDIR)\dpssf.obj \
+               $(OBJDIR)\dpssf2.obj \
+               $(OBJDIR)\dpssf3.obj \
+               $(OBJDIR)\dpssf4.obj \
+               $(OBJDIR)\dpssf5.obj \
+               $(OBJDIR)\drfftb.obj \
+               $(OBJDIR)\drfftf.obj \
+               $(OBJDIR)\drffti.obj \
+               $(OBJDIR)\drftb1.obj \
+               $(OBJDIR)\drftf1.obj \
+               $(OBJDIR)\drfti1.obj \
+               $(OBJDIR)\dradb2.obj \
+               $(OBJDIR)\dradb3.obj \
+               $(OBJDIR)\dradb4.obj \
+               $(OBJDIR)\dradb5.obj \
+               $(OBJDIR)\dradbg.obj \
+               $(OBJDIR)\dradf2.obj \
+               $(OBJDIR)\dradf3.obj \
+               $(OBJDIR)\dradf4.obj \
+               $(OBJDIR)\dradf5.obj \
+               $(OBJDIR)\dradfg.obj
+
+LIBRARY = pfft.lib
+IO_STYLE = FILE_IO
+LIB_DEFINES = -D$(IO_STYLE) -DIBM $(GENDEFS)
+
+!INCLUDE ..\..\..\config\NTmakefile.h
+!INCLUDE ..\..\..\config\NTmakelib.h
+
+!IF 0
+
+#CPP		= /usr/lib/cpp -P -C -D${COMM_PKG} -D${IO_STYLE} -DIBM ${GENDEFS}
+
+!ENDIF

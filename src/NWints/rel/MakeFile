@@ -1,0 +1,24 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:29:32 bjohnson Exp $	
+#
+
+OBJ_ENERGY =   $(OBJDIR)\rel_onel.obj \
+               $(OBJDIR)\rel_pot.obj \
+               $(OBJDIR)\rel_pot2.obj \
+               $(OBJDIR)\rel_LLSS.obj \
+               $(OBJDIR)\rel_SSLL.obj \
+               $(OBJDIR)\rel_SSSS.obj \
+               $(OBJDIR)\rel_init_con.obj
+
+!IFDEF NWCHEM_DEBUG
+OBJ = $(OBJ_ENERGY)
+!ELSE
+OBJ_OPTIMIZE = $(OBJ_ENERGY)
+!ENDIF
+
+HEADERS =      rel_consts.fh
+
+LIBRARY = nwints.lib
+
+!INCLUDE ..\..\config\NTmakefile.h
+!INCLUDE ..\..\config\NTmakelib.h

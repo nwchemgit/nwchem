@@ -1,0 +1,57 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:29:41 bjohnson Exp $	
+#
+
+!MESSAGE *** Unresolved issues in this nmake file ***
+
+USE_TEXAS = YEP
+
+!IF "$(USE_TEXAS)" == "YEP"
+LIB_DEFINES = -DUSE_TEXAS
+OBJ_OPTIMIZE = $(OBJDIR)\texas_face.obj \
+               $(OBJDIR)\texas_hf.obj \
+               $(OBJDIR)\big_service.obj \
+               $(OBJDIR)\getmem.obj \
+               $(OBJDIR)\amshift.obj \
+               $(OBJDIR)\assemblx.obj \
+               $(OBJDIR)\spec_block.obj \
+               $(OBJDIR)\cshneg.obj \
+               $(OBJDIR)\d_datlog.obj \
+               $(OBJDIR)\spec_calcint.obj \
+               $(OBJDIR)\spec_destiny.obj \
+               $(OBJDIR)\memoha.obj \
+               $(OBJDIR)\precalc2.obj \
+               $(OBJDIR)\prepint.obj \
+               $(OBJDIR)\lab_reorder.obj \
+               $(OBJDIR)\rt123.obj \
+               $(OBJDIR)\shells.obj \
+               $(OBJDIR)\time.obj \
+               $(OBJDIR)\trobsa.obj \
+               $(OBJDIR)\zeroint.obj \
+               $(OBJDIR)\missing.obj \
+               $(OBJDIR)\texas_stubs.obj \
+               $(OBJDIR)\uniq_pairs.obj \
+               $(OBJDIR)\transfor.obj \
+               $(OBJDIR)\gencon.obj \
+               $(OBJDIR)\derivat.obj \
+               $(OBJDIR)\convert.obj \
+               $(OBJDIR)\test_calc2.obj
+!ELSE
+OBJ =          $(OBJDIR)\texas_stubs.obj
+!ENDIF
+
+LIBRARY = nwints.lib
+
+!INCLUDE ..\..\config\NTmakefile.h
+!INCLUDE ..\..\config\NTmakelib.h
+
+!IF 0
+
+txs:
+	@touch texas_stubs.F
+	$(MAKE) "USE_TEXAS=YEP"
+
+removeobj:
+	ar d  $(LIBRARY_PATH) $(OBJ) $(OBJ_OPTIMIZE)
+
+!ENDIF

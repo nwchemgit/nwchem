@@ -1,0 +1,31 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:35:02 bjohnson Exp $	
+#
+
+!MESSAGE *** Unresolved issues in this nmake file ***
+
+OBJ_OPTIMIZE = $(OBJDIR)\inp.obj \
+               $(OBJDIR)\inp_irange.obj \
+               $(OBJDIR)\inp_ilist.obj
+
+OBJ =          $(OBJDIR)\c_inp.obj \
+               $(OBJDIR)\hnd_rdfree.obj
+
+HEADERS =      inp.fh
+
+LIBRARY = util.lib
+
+LIB_TARGETS = $(OBJDIR)\test.obj test $(OBJDIR)\hnd_rdfree.obj hnd_rdfree
+
+!INCLUDE ..\config\NTmakefile.h
+!INCLUDE ..\config\NTmakelib.h
+
+!IF 0
+
+test:	test.o
+	$(FC) $(FFLAGS) -o $@ $^ $(LIBS)
+
+hnd_rdfree:	hnd_rdfree.o
+	$(LINK.f) -o $@ $^ $(LIBS) $(LIBS)
+
+!ENDIF

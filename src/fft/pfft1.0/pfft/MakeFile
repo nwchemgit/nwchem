@@ -1,0 +1,44 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:31:27 bjohnson Exp $	
+#
+
+!MESSAGE *** Unresolved issues in this nmake file ***
+
+OBJ_OPTIMIZE = $(OBJDIR)\blktrn.obj \
+               $(OBJDIR)\drain.obj \
+               $(OBJDIR)\fillup.obj \
+               $(OBJDIR)\mapfil.obj \
+               $(OBJDIR)\mapchk.obj \
+               $(OBJDIR)\prlst2.obj \
+               $(OBJDIR)\xstop.obj \
+               $(OBJDIR)\pairup.obj \
+               $(OBJDIR)\gexit.obj \
+               $(OBJDIR)\igdiff.obj \
+               $(OBJDIR)\lstcnt.obj \
+               $(OBJDIR)\lstind.obj \
+               $(OBJDIR)\pfft.obj \
+               $(OBJDIR)\pfft3d.obj \
+               $(OBJDIR)\prfft3.obj \
+               $(OBJDIR)\prfft.obj \
+               $(OBJDIR)\prffti.obj \
+               $(OBJDIR)\chk3d.obj \
+               $(OBJDIR)\mfftc1.obj \
+               $(OBJDIR)\mfftr1.obj \
+               $(OBJDIR)\mcfftr.obj \
+               $(OBJDIR)\mrfftr.obj \
+               $(OBJDIR)\pfft1i.obj \
+               $(OBJDIR)\pfft1.obj \
+               $(OBJDIR)\wrkspc2.obj
+
+LIBRARY = pfft.lib
+IO_STYLE = FILE_IO
+LIB_DEFINES = -D$(IO_STYLE) -DIBM $(GENDEFS) -DTCGMSG -DFFTPACK
+
+!INCLUDE ..\..\..\config\NTmakefile.h
+!INCLUDE ..\..\..\config\NTmakelib.h
+
+!IF 0
+
+#CPP		= /usr/lib/cpp -P -C -D${COMM_PKG} -D${IO_STYLE} -DIBM ${GENDEFS}
+
+!ENDIF
