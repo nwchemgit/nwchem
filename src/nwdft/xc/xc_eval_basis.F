@@ -2,7 +2,7 @@
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
      &     bas_cent_info, bas_cset_info)
 c
-c     $Id: xc_eval_basis.F,v 1.9 2003-02-05 01:56:19 edo Exp $
+c     $Id: xc_eval_basis.F,v 1.10 2003-02-08 01:34:34 edo Exp $
 c
 c     Evaluate basis functions and their derivatives on a grid
 c
@@ -319,7 +319,7 @@ c
       integer nq, maxd, nprimo, ncontr
       integer nd
       double precision crad(0:maxd,nq), r2(nq),
-     *     zprim(nprimo), ccoef(nprimo,ncontr),t0
+     *     zprim(nprimo), ccoef(nprimo,ncontr)
 c
       integer n, iprimo
       double precision zeta, t(0:3), tmp
@@ -2329,12 +2329,11 @@ c
      *     nprimo, ncontr)
       implicit none
       integer nq, nprimo, ncontr
-      integer nd
       double precision crad(nq), r2(nq),
      *     zprim(nprimo), ccoef(nprimo,ncontr),t0
 c
       integer n, iprimo
-      double precision zeta, t(0:3), tmp
+      double precision zeta
 c
 c
 c     Store results for first primitive directly and then sum the rest
