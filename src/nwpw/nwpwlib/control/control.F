@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.24 2002-06-25 19:51:24 bylaska Exp $
+* $Id: control.F,v 1.25 2002-07-03 19:00:39 bylaska Exp $
 *
 
 *     ***********************************
@@ -89,11 +89,6 @@
       value = value.and.
      >        rtdb_get(rtdb,'cpsd:ispin',mt_int,1,ispin)
 
-c     do i=1,npsp
-c       id = 'cpsd:psp'//CHAR(i)
-c       value = value.and.
-c    >          rtdb_cget(rtdb,id,1,pspnames(i))
-c     end do
 
 *     **** cpmd code: stuff ****
       else if (code.eq.2) then
@@ -297,6 +292,58 @@ c     end do
       value = value.and.
      >        rtdb_get(rtdb,'band:ispin',mt_int,1,ispin)
 
+
+*     **** paw_sd: stuff ****
+      else if (code.eq.6) then
+      value = value.and.
+     >        rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)
+      value = value.and.
+     >        rtdb_cget(rtdb,'cgsd:input_wavefunction_filename',
+     >                  1,input_wavefunction_filename)
+      value = value.and.
+     >        rtdb_cget(rtdb,'cgsd:output_wavefunction_filename',
+     >                  1,output_wavefunction_filename)
+      value = value.and.
+     >        rtdb_cget(rtdb,'cgsd:exchange_correlation',
+     >                  1,exchange_correlation)
+      if (exchange_correlation.eq.'vosko') then
+         gga = 0
+      else
+         gga = 1
+      end if
+      move = .false.
+      value = value.and.
+     >        rtdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp)
+      value = value.and.
+     >        rtdb_get(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass)
+      value = value.and.
+     >        rtdb_get(rtdb,'cgsd:time_step',mt_dbl,1,time_step)
+      value = value.and.
+     >        rtdb_get(rtdb,'cgsd:loop',mt_int,2,loop)
+      value = value.and.
+     >        rtdb_get(rtdb,'cgsd:tolerances',mt_dbl,3,tolerances)
+      scaling(1) = 0.0d0
+      scaling(2) = 0.0d0
+      value = value.and.
+     >        rtdb_get(rtdb,'cgsd:ecut',mt_dbl,1,ecut)
+      value = value.and.
+     >        rtdb_get(rtdb,'cgsd:wcut',mt_dbl,1,wcut)
+
+      value = value.and.
+     >        rtdb_get(rtdb,'cgsd:rcut',mt_dbl,1,rcut)
+      value = value.and.
+     >        rtdb_get(rtdb,'cgsd:ncut',mt_int,1,ncut)
+      value = value.and.
+     >        rtdb_get(rtdb,'cgsd:mult',mt_int,1,multiplicity)
+      value = value.and.
+     >        rtdb_get(rtdb,'cgsd:ispin',mt_int,1,ispin)
+
+
+*     **** paw_cp: stuff ****
+      else if (code.eq.7) then
+
+*     **** paw: stuff ****
+      else if (code.eq.8) then
 
 *     **** unknown code type ****
 
@@ -1455,9 +1502,9 @@ c      end
       end
 
 *     *****************************
-*     *                	 		  *
+*     *                	          *		 
 *     *   control_pspparameters   *
-*     *                 	 	  *
+*     *                 	  *
 *     *****************************
       subroutine control_pspparameters(atom,lmax,locp,rlocal)
       implicit none

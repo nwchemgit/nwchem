@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.7 2002-01-17 01:24:51 bylaska Exp $
+c $Id: nwpw_input.F,v 1.8 2002-07-03 19:00:38 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -473,6 +473,7 @@ c
  3600 call nwpw_vectors_input(rtdb,'pspw')
 
       goto 10
+
 
 
 ************************************************************************

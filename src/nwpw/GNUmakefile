@@ -1,7 +1,7 @@
 #
-# $Id: GNUmakefile,v 1.8 2001-11-29 16:51:14 bylaska Exp $
+# $Id: GNUmakefile,v 1.9 2002-07-03 19:00:38 bylaska Exp $
 #
-      SUBDIRS = pspw band nwpwlib libraryps
+      SUBDIRS = pspw paw band nwpwlib libraryps
 
           OBJ = nwpw_input.o \
                 nwpw_default.o \
