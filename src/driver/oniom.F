@@ -32,8 +32,10 @@ c     task can currently be energy or gradient
 c     
       logical oprint, ignore, status, oprint_head
       character*256 title
-      character*32 high_theory, low_theory, medium_theory, gname, bname
+      character*32 high_theory, low_theory, medium_theory, 
+     $     gname, bname, ename
       character*32 high_basis, low_basis, medium_basis
+      character*32 high_ecp, low_ecp, medium_ecp
 c
       character*256 v_low_real, v_low_model, v_high_model,
      $     v_medium_model, v_medium_inter, v_low_inter
@@ -44,12 +46,12 @@ c
       integer maxbonds
       parameter (maxbonds = 50)
       integer model_bonds(2,maxbonds), model_nbonds
-      double precision model_p(maxbonds)
+      double precision model_p(maxbonds), model_charge
       character*32 model_tags(maxbonds)
       integer inter_bonds(2,maxbonds), inter_nbonds
-      double precision inter_p(maxbonds)
+      double precision inter_p(maxbonds), inter_charge
       character*32 inter_tags(maxbonds)
-      double precision p
+      double precision p, real_charge
 c     
 c     For manipulating the geometry
 c     
@@ -108,7 +110,7 @@ c
      $           ('oniom: saving actlist failed',0)
             if (.not. ma_free_heap(l_actlist)) call errquit
      $           ('oniom: free of actlist?',0)
-         endif
+         end if
       else
          ignore = rtdb_delete(rtdb,'oniom:actlist')
       end if
@@ -128,6 +130,13 @@ c
      $     medium_basis = high_basis
       if (.not. rtdb_cget(rtdb, 'oniom:low:basis', 1, low_basis))
      $     low_basis = medium_basis
+c
+      if (.not. rtdb_cget(rtdb, 'oniom:high:ecp', 1, high_ecp))
+     $     high_ecp = ' '
+      if (.not. rtdb_cget(rtdb, 'oniom:medium:ecp', 1, medium_ecp))
+     $     medium_ecp = ' ' 
+      if (.not. rtdb_cget(rtdb, 'oniom:low:ecp', 1, low_ecp))
+     $     low_ecp = ' '
 c     
       if (.not. rtdb_cget(rtdb, 'oniom:v_low_real', 1, 
      $     v_low_real)) 
@@ -159,6 +168,10 @@ c
      $     model_nat)) call errquit('oniom: model_nat?',0)
       if (.not. rtdb_get(rtdb, 'oniom:inter:nat', mt_int, 1,
      $     inter_nat)) inter_nat = 0
+      if (.not. rtdb_get(rtdb, 'oniom:model:charge', mt_dbl, 1, 
+     $        model_charge)) call errquit('oniom:model charge',0)
+      if (.not. rtdb_get(rtdb, 'oniom:inter:charge', mt_dbl, 1, 
+     $        inter_charge)) call errquit('oniom:inter charge',0)
 c     
       model_nbonds = 0
       if (rtdb_get(rtdb,'oniom:model:nbonds',mt_int,1,model_nbonds))then
@@ -171,7 +184,7 @@ c
          if (.not. rtdb_cget(rtdb,'oniom:model:tags', 
      $           model_nbonds, model_tags)) call errquit
      $        ('oniom: failed to read model-real bonds tags?',0)
-      endif
+      end if
 c     
       inter_nbonds = 0
       if (rtdb_get(rtdb,'oniom:inter:nbonds',mt_int,1,inter_nbonds))then
@@ -184,7 +197,18 @@ c
          if (.not. rtdb_cget(rtdb,'oniom:inter:tags', 
      $           inter_nbonds, inter_tags)) call errquit
      $        ('oniom: failed to read model-real bonds tags?',0)
-      endif
+      end if
+c     
+c     Save user indirections for the basis set and geometry
+c     
+      if (.not. rtdb_cget(rtdb,'geometry',1,gname)) gname = ' '
+      if (.not. rtdb_cget(rtdb,'ao basis',1,bname)) bname = ' '
+      if (.not. rtdb_cget(rtdb,'ecp basis',1,ename)) ename = ' '
+      if (.not. rtdb_get(rtdb, 'charge', mt_dbl, 1, real_charge))
+     $     real_charge = 0.0d0
+c
+      if (model_charge .eq. -999.0) model_charge = real_charge
+      if (inter_charge .eq. -999.0) inter_charge = real_charge
 c
       nlayer = 2
       if (inter_nat .gt. 0) nlayer = 3
@@ -199,19 +223,42 @@ c
             call util_print_centered(6, title, 40, .false.)
             write(6,*)
             write(6,*)
-         endif
+         end if
 c     
          write(6,10)
  10      format(7x,'Theory',/,7x,'------')
-         write(6,1) '   high', high_theory(1:inp_strlen(high_theory)), 
-     $        high_basis(1:inp_strlen(high_basis))
-         if (medium_theory .ne. ' ') 
-     $        write(6,1) ' medium',
-     $        medium_theory(1:inp_strlen(medium_theory)), 
-     $        medium_basis(1:inp_strlen(medium_basis))
-         write(6,1) '    low', low_theory(1:inp_strlen(low_theory)), 
-     $        low_basis(1:inp_strlen(low_basis))
- 1       format(6x,a7,4x,a,2x,'"',a,'"')
+         if (high_ecp .eq. ' ') then
+            write(6,1) '   high', 
+     $           high_theory(1:inp_strlen(high_theory)), 
+     $           high_basis(1:inp_strlen(high_basis))
+         else
+            write(6,1) '   high', 
+     $           high_theory(1:inp_strlen(high_theory)), 
+     $           high_basis(1:inp_strlen(high_basis)),
+     $           high_ecp(1:inp_strlen(high_ecp))
+         end if
+         if (medium_theory .ne. ' ') then
+            if (medium_ecp .eq. ' ') then
+               write(6,1) ' medium', 
+     $              medium_theory(1:inp_strlen(medium_theory)), 
+     $              medium_basis(1:inp_strlen(medium_basis))
+            else
+               write(6,1) ' medium', 
+     $              medium_theory(1:inp_strlen(medium_theory)), 
+     $              medium_basis(1:inp_strlen(medium_basis)),
+     $              medium_ecp(1:inp_strlen(medium_ecp))
+            end if
+         end if
+         if (low_ecp .eq. ' ') then
+            write(6,1) '    low', low_theory(1:inp_strlen(low_theory)), 
+     $           low_basis(1:inp_strlen(low_basis))
+         else
+            write(6,1) '    low', low_theory(1:inp_strlen(low_theory)), 
+     $           low_basis(1:inp_strlen(low_basis)),
+     $           low_ecp(1:inp_strlen(low_ecp))
+         end if
+ 1       format(6x,a7,2x,'theory=',a,2x,'basis="',a,'"',:,2x,
+     $        'ecp="',a,'"')
 c
          write(6,*)
          write(6,15)
@@ -234,37 +281,34 @@ c
      $           v_low_real(1:inp_strlen(v_low_real))
             write(6,21) 'Low-inter', 
      $           v_low_inter(1:inp_strlen(v_low_inter))
-         endif
+         end if
  21      format(8x,a12,2x,a)
 c     
          write(6,*)
          write(6,20)
  20      format(5x,'Geometry',/,5x,'--------')
-         write(6,2) '   real', real_nat
-         if (inter_nat .gt. 0) write(6,2) '  inter', inter_nat
+         write(6,2) '   real', real_nat, real_charge
+         if (inter_nat .gt. 0) write(6,2) '  inter', inter_nat, 
+     $        inter_charge
          if (inter_nbonds .gt. 0) then
-            write(6,*) '            Bonds between intermediate and real'
+            write(6,*) '                 ',
+     $           'Bonds between intermediate and real'
             write(6,3) (inter_bonds(1,i),inter_bonds(2,i),inter_p(i),
      $           inter_tags(i)(1:inp_strlen(inter_tags(i))),
      $           i=1,inter_nbonds)
-         endif
-         write(6,2) '  model', model_nat
+         end if
+         write(6,2) '  model', model_nat, model_charge
          if (model_nbonds .gt. 0) then
             write(6,*) '            Bonds between model and',
      $           ' real/intermediate'
             write(6,3) (model_bonds(1,i),model_bonds(2,i),model_p(i),
      $           model_tags(i)(1:inp_strlen(model_tags(i))), 
      $           i=1,model_nbonds)
-         endif
- 2       format(6x,a7,2x,i4,' atoms')
- 3       format(12x,2i4,f6.2,2x,'"',a,'"')
+         end if
+ 2       format(6x,a7,2x,i4,' atoms with charge',f8.4)
+ 3       format(20x,2i4,f6.2,2x,'"',a,'"')
          call util_flush(6)
-      endif
-c     
-c     Save user indirections for the basis set and geometry
-c     
-      if (.not. rtdb_cget(rtdb,'geometry',1,gname)) gname = ' '
-      if (.not. rtdb_cget(rtdb,'ao basis',1,bname)) bname = ' '
+      end if
 c     
 c     Make the model geometry resetting the symmetry & autoz info
 c     
@@ -311,7 +355,7 @@ c
      $     util_print('geometry',print_default)) then
          if (.not. geom_print(geom)) 
      $        call errquit('oniom: geom print?',0)
-      endif
+      end if
       if (.not. geom_destroy(geom))
      $     call errquit('oniom: destroying geometry',0)
 c     
@@ -356,10 +400,10 @@ c
      $        util_print('geometry',print_default)) then
             if (.not. geom_print(geom)) 
      $           call errquit('oniom: geom print?',0)
-         endif
+         end if
          if (.not. geom_destroy(geom))
      $        call errquit('oniom: destroying geometry',0)
-      endif
+      end if
 c     
 c     Two-layer model
 c     E(High,Real) = E(High,Model) + E(Low,Real) - E(Low,Model)
@@ -388,8 +432,7 @@ c     Low + Real
 c     
       if (oprint_head)
      $     call util_print_centered(6, 'ONIOM LOW+REAL', 20, .true.)
-      if (.not. rtdb_cput(rtdb, 'ao basis', 1, low_basis)) 
-     $     call errquit('oniom: setting low basis?',0)
+      call oniom_param(rtdb, ' ', low_basis, low_ecp, real_charge)
       call oniom_manage_mos(rtdb,low_theory,v_low_real)
       if (task .eq. 'energy') then
          status = task_energy_doit(rtdb, low_theory, e_low_real)
@@ -397,7 +440,7 @@ c
          call oniom_munge_actlist(rtdb,real_nat,0,dummy)
          status = task_gradient_doit(rtdb, low_theory, e_low_real, 
      $        g_low_real)
-      endif
+      end if
       if (.not. status) 
      $     call errquit('oniom: low theory + real geometry failed',0)
 c     
@@ -405,11 +448,9 @@ c     Low + Model
 c     
       if (oprint_head)
      $     call util_print_centered(6, 'ONIOM LOW+MODEL', 20, .true.)
-      if (.not. rtdb_cput(rtdb, 'ao basis', 1, low_basis)) 
-     $     call errquit('oniom: setting low basis?',0)
+      call oniom_param(rtdb, 'oniom model',low_basis, low_ecp,
+     $     model_charge)
       call oniom_manage_mos(rtdb,low_theory,v_low_model)
-      if (.not. rtdb_cput(rtdb,'geometry',1,'oniom model'))
-     $     call errquit('oniom failed setting model geometry',0)
       if (task .eq. 'energy') then
          status = task_energy_doit(rtdb, low_theory, e_low_model)
       else
@@ -417,7 +458,7 @@ c
      $        model_nbonds,model_bonds)
          status = task_gradient_doit(rtdb, low_theory, e_low_model, 
      $        g_low_model)
-      endif
+      end if
       if (.not. status) 
      $     call errquit('oniom:low theory + model geometry failed',0)
 c     
@@ -425,10 +466,8 @@ c     High + Model
 c     
       if (oprint_head)
      $     call util_print_centered(6, 'ONIOM HIGH+MODEL', 20, .true.)
-      if (.not. rtdb_cput(rtdb, 'ao basis', 1, high_basis)) 
-     $     call errquit('oniom: setting high basis?',0)
-      if (.not. rtdb_cput(rtdb,'geometry',1,'oniom model'))
-     $     call errquit('oniom failed setting model geometry',0)
+      call oniom_param(rtdb, 'oniom model', 
+     $     high_basis, high_ecp, model_charge)
       call oniom_manage_mos(rtdb,high_theory, v_high_model)
       if (task .eq. 'energy') then
          status = task_energy_doit(rtdb, high_theory, e_high_model)
@@ -437,7 +476,7 @@ c
      $        model_nbonds,model_bonds)
          status = task_gradient_doit(rtdb, high_theory, e_high_model, 
      $        g_high_model)
-      endif
+      end if
       if (.not. status) 
      $     call errquit('oniom: high theory + model geometry failed',0)
 c
@@ -447,10 +486,8 @@ c     Low + Inter
 c     
          if (oprint_head)
      $        call util_print_centered(6, 'ONIOM LOW+INTER', 20, .true.)
-         if (.not. rtdb_cput(rtdb, 'ao basis', 1, low_basis)) 
-     $        call errquit('oniom: setting low basis?',0)
-         if (.not. rtdb_cput(rtdb,'geometry',1,'oniom inter'))
-     $        call errquit('oniom failed setting intermed geometry',0)
+         call oniom_param(rtdb, 'oniom inter', 
+     $        low_basis, low_ecp, inter_charge)
          call oniom_manage_mos(rtdb, low_theory, v_low_inter)
          if (task .eq. 'energy') then
             status = task_energy_doit(rtdb, low_theory, e_low_inter)
@@ -459,7 +496,7 @@ c
      $           inter_nbonds,inter_bonds)
             status = task_gradient_doit(rtdb, low_theory, e_low_inter, 
      $           g_low_inter)
-         endif
+         end if
          if (.not. status) 
      $        call errquit('oniom:low theory + model geometry failed',0)
 c     
@@ -467,10 +504,8 @@ c     Medium + Inter
 c     
          if (oprint_head) call util_print_centered
      $        (6, 'ONIOM MEDIUM+INTER', 20, .true.)
-         if (.not. rtdb_cput(rtdb, 'ao basis', 1, medium_basis)) 
-     $        call errquit('oniom: setting medium basis?',0)
-         if (.not. rtdb_cput(rtdb,'geometry',1,'oniom inter'))
-     $        call errquit('oniom failed setting intermed geometry',0)
+         call oniom_param(rtdb, 'oniom inter', 
+     $        medium_basis, medium_ecp, inter_charge)
          call oniom_manage_mos(rtdb,medium_theory,v_medium_inter)
          if (task .eq. 'energy') then
             status = task_energy_doit(rtdb,medium_theory,e_medium_inter)
@@ -479,7 +514,7 @@ c
      $           inter_nbonds,inter_bonds)
             status = task_gradient_doit(rtdb, medium_theory, 
      $           e_medium_inter, g_medium_inter)
-         endif
+         end if
          if (.not. status) 
      $        call errquit('oniom: medium theory + '//
      $        'inter geometry failed',0)
@@ -488,10 +523,8 @@ c     Medium + Model
 c     
          if (oprint_head) call util_print_centered
      $        (6, 'ONIOM MEDIUM+MODEL', 20, .true.)
-         if (.not. rtdb_cput(rtdb, 'ao basis', 1, medium_basis)) 
-     $        call errquit('oniom: setting medium basis?',0)
-         if (.not. rtdb_cput(rtdb,'geometry',1,'oniom model'))
-     $        call errquit('oniom failed setting modelmed geometry',0)
+         call oniom_param(rtdb, 'oniom model',
+     $        medium_basis, medium_ecp, model_charge)
          call oniom_manage_mos(rtdb,medium_theory,v_medium_model)
          if (task .eq. 'energy') then
             status = task_energy_doit(rtdb,medium_theory,e_medium_model)
@@ -500,11 +533,11 @@ c
      $           model_nbonds,model_bonds)
             status = task_gradient_doit(rtdb, medium_theory, 
      $           e_medium_model, g_medium_model)
-         endif
+         end if
          if (.not. status) 
      $        call errquit('oniom: medium theory + '//
      $        'model geometry failed',0)
-      endif
+      end if
 c     
 c     Assemble the ONIOM energy and gradient
 c     
@@ -577,7 +610,7 @@ c
                   g(k,j) = g(k,j) + gdummy*p
                end do
             end do
-         endif
+         end if
 c
 c     Enforce active atom constraints on the gradient and also restore
 c     the full list of active atoms from the copy made earlier.
@@ -611,14 +644,24 @@ c     or geometry.
 c     
       ignore = rtdb_delete(rtdb, 'geometry')
       ignore = rtdb_delete(rtdb, 'ao basis')
+      ignore = rtdb_delete(rtdb, 'ecp basis')
+      ignore = rtdb_delete(rtdb, 'charge')
       if (gname .ne. ' ') then 
          if (.not. rtdb_cput(rtdb,'geometry',1,gname)) 
      $        call errquit('oniom:failed resetting user geom name',0)
-      endif
+      end if
       if (bname .ne. ' ') then 
          if (.not. rtdb_cput(rtdb,'ao basis',1,bname)) call errquit
      $        ('oniom:failed resetting user basis name',0)
-      endif
+      end if
+      if (ename .ne. ' ') then 
+         if (.not. rtdb_cput(rtdb,'ecp basis',1,bname)) call errquit
+     $        ('oniom:failed resetting user ecp name',0)
+      end if
+      if (real_charge .ne. -999.0d0) then
+         if (.not. rtdb_put(rtdb, 'charge', mt_dbl, 1, real_charge))
+     $        call errquit('oniom: resetting real charge?', 0)
+      end if
 c
 c     Don't leave MO vectors info lying around in the database.
 c
@@ -656,7 +699,7 @@ c
      $           8x, '-   LOW + INTER ', f20.12,/,
      $           8x, '   ------------ ',/,
      $           8x, '=        ONIOM3 ', f20.12,/)
-         endif
+         end if
          if (task .eq. 'gradient') then
             write(6,1000) 'ONIOM',
      $           'x','y','z','x','y','z'
@@ -671,7 +714,7 @@ c
  2000       format(1X,I3,1X,A4,2(1X,3(1X,F10.6)))
          end if
          call util_flush(6)
-      endif
+      end if
 c     
       if (.not. rtdb_cput(rtdb, 'task:theory', 1, 'oniom'))
      $     call errquit('oniom: re-setting theory?',0)
@@ -690,22 +733,22 @@ c
 c     
       integer rtdb
 c     
-      logical ignore, status
+      logical status
       character*32 test
       integer maxbonds
       parameter (maxbonds = 50)
 c
       integer model_bonds(2,maxbonds), model_nbonds, model_nat
-      double precision model_p(maxbonds)
+      double precision model_p(maxbonds), model_charge
       character*32 model_tags(maxbonds)
 c
       integer inter_bonds(2,maxbonds), inter_nbonds, inter_nat
-      double precision inter_p(50)
+      double precision inter_p(50), inter_charge
       character*32 inter_tags(maxbonds)
 c
-      character*32 high_theory, high_basis
-      character*32 medium_theory, medium_basis
-      character*32 low_theory, low_basis
+      character*32 high_theory, high_basis, high_ecp
+      character*32 medium_theory, medium_basis, medium_ecp
+      character*32 low_theory, low_basis, low_ecp
       integer bond, junk, i, j
 c
       character*256 v_low_real, v_low_model, v_high_model,
@@ -717,14 +760,19 @@ c
 c
       high_theory = ' '
       high_basis = ' '
+      high_ecp = ' '
       medium_theory = ' '
       medium_basis = ' '
+      medium_ecp = ' ' 
       low_theory = ' '
       low_basis = ' '
+      low_ecp = ' '
       model_nat = 0
       model_nbonds = 0
+      model_charge = -999.0     ! Used to indicate no charge
       inter_nat = 0
       inter_nbonds = 0
+      inter_charge = -999.0
 c
       v_low_real = ' '
       v_low_model = ' '
@@ -742,27 +790,15 @@ c
 c
       if (inp_compare(.false.,'high',test)) then
 c
-c     high theory [basis]
-c
-         if (.not. inp_a(high_theory)) 
-     $        call errquit('oniom_input: high theory [basis]',0)
-         ignore = inp_a(high_basis)
+         call oniom_theory_input(high_theory,high_basis,high_ecp)
 c     
       else if (inp_compare(.false.,'medium',test)) then
 c
-c     medium theory [basis]
-c
-         if (.not. inp_a(medium_theory)) 
-     $        call errquit('oniom_input: medium theory [basis]',0)
-         ignore = inp_a(medium_basis)
+         call oniom_theory_input(medium_theory,medium_basis,medium_ecp)
 c     
       else if (inp_compare(.false.,'low',test)) then
 c
-c     low theory [basis]
-c
-         if (.not. inp_a(low_theory)) 
-     $        call errquit('oniom_input: low theory [basis]',0)
-         ignore = inp_a(low_basis)
+         call oniom_theory_input(low_theory,low_basis,low_ecp)
 c     
       else if (inp_compare(.false.,'print', test) .or.
      $        inp_compare(.false.,'noprint', test)) then
@@ -770,10 +806,18 @@ c
 c     
       else if (inp_compare(.false.,'model',test)) then
 c
-c     model natom [i1 j1 p1 [tag1] ...]
+c     model natom [charge q] [i1 j1 p1 [tag1] ...] 
 c
          if (.not. inp_i(model_nat))
      $        call errquit('oniom_input:model natoms [i1 j1 p1 ...]',0)
+         if (inp_a(test)) then
+            if (inp_compare(.false.,'charge',test)) then
+               if (.not. inp_f(model_charge)) call errquit
+     $              ('oniom_input: reading charge', 0)
+            else
+               call inp_prev_field()
+            end if
+         end if
          model_nbonds = 0
          do bond = 1, maxbonds
             if (.not. inp_i(model_bonds(1,bond))) goto 501
@@ -787,13 +831,13 @@ c
                   call inp_prev_field()
                else if (.not. inp_a(model_tags(bond))) then
                   call errquit('oniom_input: reading tag for bond',bond)
-               endif
-            endif
+               end if
+            end if
             if (.not. geom_tag_to_element(model_tags(bond), symbol, 
      $           element, atn)) then
                if (symbol.ne.'bq') call errquit
      $              ('oniom_input: tag must be bq* or element*',0)
-            endif
+            end if
             model_nbonds = model_nbonds + 1
          end do
  501     continue
@@ -803,6 +847,14 @@ c     inter natom [i1 j1 p1 [tag1] ...]
 c
          if (.not. inp_i(inter_nat))
      $        call errquit('oniom_input:inter natoms [i1 j1 p1 ...]',0)
+         if (inp_a(test)) then
+            if (inp_compare(.false.,'charge',test)) then
+               if (.not. inp_f(inter_charge)) call errquit
+     $              ('oniom_input: reading charge', 0)
+            else
+               call inp_prev_field()
+            end if
+         end if
          inter_nbonds = 0
          do bond = 1, maxbonds
             if (.not. inp_i(inter_bonds(1,bond))) goto 503
@@ -816,13 +868,13 @@ c
                   call inp_prev_field()
                else if (.not. inp_a(inter_tags(bond))) then
                   call errquit('oniom_input: reading tag for bond',bond)
-               endif
-            endif
+               end if
+            end if
             if (.not. geom_tag_to_element(inter_tags(bond), symbol, 
      $           element, atn)) then
                if (symbol.ne.'bq') call errquit
      $              ('oniom_input: tag must be bq* or element*',0)
-            endif
+            end if
             inter_nbonds = inter_nbonds + 1
          end do
  503     continue
@@ -849,7 +901,7 @@ c
      $              ('oniom_input: error reading low_inter vectors', 0)
             else
                call errquit('oniom_input:unknown keyword for vectors',0)
-            endif
+            end if
             goto 111
          end if
       else if (.not. inp_compare(.false.,'end',test)) then
@@ -895,18 +947,29 @@ c
       status = rtdb_cput(rtdb, 'oniom:high:theory', 1, high_theory)
       status = rtdb_cput(rtdb, 'oniom:low:theory', 1, low_theory)
      $     .and. status
-      if (high_basis .ne. ' ') 
-     $     status = rtdb_cput(rtdb, 'oniom:high:basis', 1, high_basis)
-     $     .and. status
-      if (low_basis .ne. ' ') 
-     $     status = rtdb_cput(rtdb, 'oniom:low:basis', 1, low_basis)
-     $     .and. status
       if (medium_theory .ne. ' ') 
      $     status = rtdb_cput(rtdb, 'oniom:medium:theory', 1, 
      $     medium_theory) .and. status
+c
+      if (high_basis .ne. ' ') 
+     $     status = rtdb_cput(rtdb, 'oniom:high:basis', 1, high_basis)
+     $     .and. status
       if (medium_basis .ne. ' ') 
      $     status = rtdb_cput(rtdb, 'oniom:medium:basis', 1, 
      $     medium_basis).and. status
+      if (low_basis .ne. ' ') 
+     $     status = rtdb_cput(rtdb, 'oniom:low:basis', 1, low_basis)
+     $     .and. status
+c
+      if (high_ecp .ne. ' ') 
+     $     status = rtdb_cput(rtdb, 'oniom:high:ecp', 1, high_ecp)
+     $     .and. status
+      if (medium_ecp .ne. ' ') 
+     $     status = rtdb_cput(rtdb, 'oniom:medium:ecp', 1, 
+     $     medium_ecp).and. status
+      if (low_ecp .ne. ' ') 
+     $     status = rtdb_cput(rtdb, 'oniom:low:ecp', 1, low_ecp)
+     $     .and. status
 c
       if (v_low_real .ne. ' ') status = status .and. 
      $     rtdb_cput(rtdb, 'oniom:v_low_real', 1, v_low_real)
@@ -923,6 +986,8 @@ c
 c
       status = rtdb_put(rtdb, 'oniom:model:nat', mt_int, 1, model_nat)
      $     .and. status
+      status = rtdb_put(rtdb, 'oniom:model:charge', mt_dbl, 1, 
+     $     model_charge) .and. status
       if (model_nbonds .gt. 0) then
          status = rtdb_put(rtdb, 'oniom:model:nbonds', mt_int, 1, 
      $        model_nbonds) .and. status
@@ -937,6 +1002,8 @@ c
       if (inter_nat .gt. 0) then
          status = rtdb_put(rtdb, 'oniom:inter:nat', mt_int, 1, 
      $        inter_nat) .and. status
+         status = rtdb_put(rtdb, 'oniom:inter:charge', mt_dbl, 1, 
+     $        inter_charge) .and. status
          if (inter_nbonds .gt. 0) then
             status = rtdb_put(rtdb, 'oniom:inter:nbonds', mt_int, 1, 
      $           inter_nbonds) .and. status
@@ -947,7 +1014,7 @@ c
             status = rtdb_cput(rtdb,'oniom:inter:tags', 
      $           inter_nbonds, inter_tags) .and. status
          end if
-      endif
+      end if
 c
       if (.not. status) call errquit
      $     ('oniom_input: error putting data into RTDB',0)
@@ -1000,7 +1067,7 @@ c
          else if (inp_compare(.false.,'selci',theory)) then
             keyin  = 'mcscf:input vectors'
             keyout = 'mcscf:output vectors'
-         endif
+         end if
          inquire(file=movecs,exist=oexists)
 c
          ignore = rtdb_parallel(.false.)
@@ -1016,7 +1083,7 @@ c
          if (.not. rtdb_cput(rtdb,keyout,1,movecs)) call errquit
      $        ('oniom_manage_mos: failed settting output vectors',0)
          ignore = rtdb_parallel(.true.)
-      endif
+      end if
 c
       call ga_sync()
 c
@@ -1081,4 +1148,62 @@ c
       if (.not. ma_free_heap(l_actlist)) call errquit
      $     ('oniom: free of actlist?',0)
 c
+      end
+      subroutine oniom_theory_input(theory,basname,ecpname)
+      implicit none
+      character*(*) theory, basname, ecpname ! [output]
+#include "inp.fh"
+c
+c     (high||medium||low) theory [basisname] [ecp ecpname]
+c
+c     Read oniom theory input ... defaults assumed set outside
+c
+      character*128 test
+c
+      if (.not. inp_a(theory)) call errquit
+     $     ('oniom_input: failed reading theory',0)
+c
+ 10   if (.not. inp_a(test)) return
+      if (inp_compare(.false.,'ecp',test)) then
+         if (.not. inp_a(ecpname)) call errquit
+     $        ('oniom_input: failed reading ecpname',0)
+      else
+         basname = test
+      end if
+      goto 10
+c
+      end
+      subroutine oniom_param(rtdb, geom, basis, ecp, charge)
+      implicit none
+      integer rtdb
+      character*(*) geom, basis, ecp
+      double precision charge
+#include "rtdb.fh"
+#include "mafdecls.fh"
+c
+      logical ignore
+c
+      if (charge .ne. -999.0d0) then
+         if (.not. rtdb_put(rtdb,'charge',mt_dbl,1,charge))
+     $        call errquit('oniom:setting charge?',0)
+      end if
+      if (geom .ne. ' ') then
+         if (.not. rtdb_cput(rtdb,'geometry',1,geom))
+     $        call errquit('oniom: setting geometry?',0)
+      end if
+c
+      if (basis .ne. ' ') then
+         if (.not. rtdb_cput(rtdb, 'ao basis', 1, basis)) 
+     $        call errquit('oniom: setting basis?',0)
+      end if
+c
+      if (ecp .ne. ' ') then
+         write(6,*) ' SETTING ECP ', ecp
+         if (.not. rtdb_cput(rtdb, 'ecp basis', 1, ecp)) 
+     $        call errquit('oniom: setting ecp?',0)
+      else
+         write(6,*) ' UNSETTING ECP'
+         ignore = rtdb_delete(rtdb,'ecp basis')
+      end if
+c     
       end
