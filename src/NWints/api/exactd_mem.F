@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.38 2003-10-17 22:53:41 carlfahl Exp $
+c $Id: exactd_mem.F,v 1.39 2005-04-05 19:32:58 marat Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -153,6 +153,12 @@ c:tex-\end{verbatim}
 c::functions
       integer int_unint 
       external int_unint
+c::external bq functions (mv)
+      logical geom_extbq_on
+      external geom_extbq_on
+      integer  geom_extbq_ncenter
+      external  geom_extbq_ncenter
+
 c::passed
 c:tex-\begin{verbatim}
       integer brain   ! [input] bra basis set handle
@@ -189,6 +195,13 @@ c
       endif
 c
       nat = ncenter(bra_geom)
+c
+c     add number of external bq's if any (MV)
+c     --------------------------------------
+      if(geom_extbq_on()) then
+        nat = nat + geom_extbq_ncenter() 
+      end if
+c
 c
       do 00100 ibc = 1, bra_ucont
         bra_fact = 1
