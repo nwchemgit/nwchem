@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.17 2000-08-25 17:04:12 windus Exp $
+C $Id: hess_cphf.F,v 1.18 2000-08-25 22:47:01 edo Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -263,6 +263,10 @@ c
       call flush(6)
       call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
 c
+c Do final summation of the hessian to get result
+c
+      call ga_dgop(msg_hess_exy,dbl_mb(k_exy),n3xyz2,'+') 
+c
 c  Get rid of some memory
 c
       if (.not.ma_pop_stack(l_evals)) call errquit
@@ -489,15 +493,13 @@ c
      $    ('cannot destroy g_sol ',555)
       enddo
 c
-c Do final summation of the hessian to get result
-c
-      call ga_dgop(msg_hess_exy,dbl_mb(k_exy),n3xyz2,'+') 
-c
 c Print intermediate result
 c
-      write(6,*) 'Hessian after CPHF contribution'
-      call flush(6)
-      call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+      if(ga_nodeid().eq.0) then
+         write(6,*) 'Hessian after CPHF contribution'
+         call flush(6)
+         call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+      endif
 c
 c Get rid of some extra memory
 c
