@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.72 2000-08-30 04:17:18 d3j191 Exp $
+c $Id: cf_main.F,v 1.73 2000-08-30 06:24:04 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -953,7 +953,6 @@ c
       do 1 j=1,3
       if(mdalgo.eq.1) then
       do 2 i=1,nums
-      vst(i,j)=vs(i,j)
       vs(i,j)=(xs(i,j)-ys(i,j))*tstepi
       vst(i,j)=half*(vs(i,j)+vst(i,j))
       esk(isfrc(i))=esk(isfrc(i))+
