@@ -1,6 +1,6 @@
       subroutine uccsdt_eterm(qO,qV)
 c
-c$Id: eterm.F,v 1.7 2002-10-10 01:09:39 bert Exp $
+c$Id: eterm.F,v 1.8 2003-10-25 00:51:20 marat Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -66,7 +66,7 @@ c
             symn = ieor(symf,symnf)
             symi = symn
             if (.not. ma_push_get(mt_dbl,no_sym(symn,1),'n array',
-     &          l_n,k_n)) call errquit('eterm: n alloc failed',0)
+     &          l_n,k_n)) call errquit('eterm: n alloc failed',0,0)
             do a = v_sym(1,syma,1), v_sym(2,syma,1)
                t_ilo = 1
                t_ihi = ov_len(symnf,1,1)
@@ -104,7 +104,7 @@ c
             symn = ieor(symf,symnf)
             symi = symn
             if (.not. ma_push_get(mt_dbl,no_sym(symn,1),'n array',
-     &          l_n,k_n)) call errquit('eterm: n alloc failed',0)
+     &          l_n,k_n)) call errquit('eterm: n alloc failed',0,0)
             do a = v_sym(1,syma,1), v_sym(2,syma,1)
                t_ilo = 1
                t_ihi = ov_len(symnf,2,2)
@@ -142,7 +142,7 @@ c
             symn = ieor(symf,symnf)
             symi = symn
             if (.not. ma_push_get(mt_dbl,no_sym(symn,1),'n array',
-     &          l_n,k_n)) call errquit('eterm: n alloc failed',0)
+     &          l_n,k_n)) call errquit('eterm: n alloc failed',0,0)
             do a = v_sym(1,syma,1), v_sym(2,syma,1)
                t_ilo = ov_off(a,symnf,1,1)+1
                t_ihi = t_jlo + no_sym(symi,1)
@@ -171,7 +171,7 @@ c              -matmul(g_t2_mena_mix,qV(symn,2)) into R(E4) ab   #(3)
      &          errquit('eterm: n dealloc failed',0)
 c
             if (.not. ma_push_get(mt_dbl,no_sym(symn,2),'n array',
-     &          l_n,k_n)) call errquit('eterm: n alloc failed',0)
+     &          l_n,k_n)) call errquit('eterm: n alloc failed',0,0)
             do a = v_sym(1,syma,2), v_sym(2,syma,2)
                t_ilo = 1
                t_ihi = ov_len(symnf,1,1)
@@ -206,18 +206,18 @@ c              matmul(g_t2_mena_mix,qV(symn,5)) into R(E3) ab   #(4)
       do symf = 0, nir-1
          do inum = 1, 2
             if (.not. ga_destroy(fO(inum,symf)))
-     &          call errquit('eterm: fO dealloc failed',inum)
+     &          call errquit('eterm: fO dealloc failed',inum,0)
             if (.not. ga_destroy(fV(inum,symf)))
-     &          call errquit('eterm: fV dealloc failed',inum)
+     &          call errquit('eterm: fV dealloc failed',inum,0)
          end do
          do inum = 1, 8
             if (qO(symf,inum) .gt. -1) then
                 if (.not. ga_destroy(qO(inum,symf)))
-     &             call errquit('eterm: qQ dealloc failed',inum)
+     &             call errquit('eterm: qQ dealloc failed',inum,0)
             end if
             if (qV(symf,inum) .gt. -1) then
                 if (.not. ga_destroy(qV(inum,symf)))
-     &             call errquit('eterm: qV dealloc failed',inum)
+     &             call errquit('eterm: qV dealloc failed',inum,0)
             end if
          end do
       end do
@@ -311,25 +311,25 @@ c
 c
 c     Clean up dead GA's
 c
-      if (.not. ga_destroy(g_a_dens)) call errquit('eterm: destroy',1)
-      if (.not. ga_destroy(g_b_dens)) call errquit('eterm: destroy',2)
-      if (.not. ga_destroy(g_a_exch)) call errquit('eterm: destroy',3)
-      if (.not. ga_destroy(g_b_exch)) call errquit('eterm: destroy',4)
-      if (.not. ga_destroy(g_a_coul)) call errquit('eterm: destroy',5)
-      if (.not. ga_destroy(g_b_coul)) call errquit('eterm: destroy',6)
+      if (.not. ga_destroy(g_a_dens)) call errquit('eterm: destroy',1,0)
+      if (.not. ga_destroy(g_b_dens)) call errquit('eterm: destroy',2,0)
+      if (.not. ga_destroy(g_a_exch)) call errquit('eterm: destroy',3,0)
+      if (.not. ga_destroy(g_b_exch)) call errquit('eterm: destroy',4,0)
+      if (.not. ga_destroy(g_a_coul)) call errquit('eterm: destroy',5,0)
+      if (.not. ga_destroy(g_b_coul)) call errquit('eterm: destroy',6,0)
 c
 c     Transform AO Fock matrices to MO Fock matrices 
 c
       dim_Fa = no(1) + nv(1)
       dim_Fb = no(2) + nv(2)
       if (.not. ga_create(MT_DBL,dim_Fa,dim_Fa,'g_F_MO 1',0,0,
-     &    g_F_MO(1))) call errquit('eterm: g_F_MO 1 alloc failed',0)
+     &    g_F_MO(1))) call errquit('eterm: g_F_MO 1 alloc failed',0,0)
       if (.not. ga_create(MT_DBL,dim_Fb,dim_Fb,'g_F_MO 2',0,0,
-     &    g_F_MO(2))) call errquit('eterm: g_F_MO 2 alloc failed',0)
+     &    g_F_MO(2))) call errquit('eterm: g_F_MO 2 alloc failed',0,0)
       call two_index_transf(g_Fa,g_part(1),g_hole(1),g_a_dens,g_F_MO(1))
       call two_index_transf(g_Fb,g_part(2),g_hole(2),g_a_dens,g_F_MO(2))
-      if (.not. ga_destroy(g_Fa)) call errquit('eterm: destroy Fa',0)
-      if (.not. ga_destroy(g_Fb)) call errquit('eterm: destroy Fb',0)
+      if (.not. ga_destroy(g_Fa)) call errquit('eterm: destroy Fa',0,0)
+      if (.not. ga_destroy(g_Fb)) call errquit('eterm: destroy Fb',0,0)
 c
 c     Store the pieces in the right places in fO and fV
 c
@@ -356,8 +356,8 @@ c
 c
 c     Do some final cleanup
 c
-      if (.not. ga_destroy(g_F_MO(1))) call errquit('eterm: Mdestroy',1)
-      if (.not. ga_destroy(g_F_MO(2))) call errquit('eterm: Mdestroy',2)
+      if (.not. ga_destroy(g_F_MO(1))) call errquit('eterm: Mdestroy',1,0)
+      if (.not. ga_destroy(g_F_MO(2))) call errquit('eterm: Mdestroy',2,0)
 c
       return
 c

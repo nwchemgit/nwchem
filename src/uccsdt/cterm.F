@@ -1,6 +1,6 @@
       subroutine uccsdt_cterm(urange,vrange,qO_handles,qV_handles)
 c
-c$Id: cterm.F,v 1.8 2002-10-30 01:33:35 bert Exp $
+c$Id: cterm.F,v 1.9 2003-10-25 00:51:20 marat Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -141,7 +141,7 @@ c     Q2 from Z2
 c     <if||un> += Z2 i=u=f=n=alpha (integral list 9 modified) = I(nf,iu)
 c
          if (.not. ga_create(MT_DBL,dimnf,dimiu_a,'z2',0,0,g_z2) 
-     &      call errquit('cterm: alloc z2 failed',0)
+     &      call errquit('cterm: alloc z2 failed',0,0)
          call ga_dgemm('t','n',dimnf,dimiu_a,dimjv_b,1.0d0,
      &                 g_t2_jbnf_mix,list(symiu,2),0.0d0,g_z2)
          call make_qO(qO_handles(0,2),g_z2,symnf,1,1)
@@ -152,7 +152,7 @@ c     Z3(iu,nf) = <ij||ub> * T(jb,nf)  i=u=j=b=beta  (integral list 4)
 c     R(me,nf)  = T(iu,me)*[<fi|nu> + 0.5*Z3(iu,nf)]     (integral list 11)
 c
          if (.not. ga_create(MT_DBL,dimnf,dimiu_b,'z3',0,0,g_z3) 
-     &       call errquit('cterm: alloc z3 failed',0)
+     &       call errquit('cterm: alloc z3 failed',0,0)
          call ga_dgemm('t','n',dimnf,dimiu_b,dimjv_b,1.0d0,
      &      g_t2_jbnf_mix,list(symiu,4),0.0d0,g_z3)
          if (.not. ga_destroy(g_t2_jbnf_mix)) call 
@@ -177,7 +177,7 @@ c     <if||un> += Z2(iu,nf) (modified Z2)
 c
          call get_T(g_t2_jbnf_pure,symnf,1,1,1,1,urange)
          if (.not. ga_create(MT_DBL,dimnf,dimiu_a,'z1',0,0,g_z1,
-     &      call errquit('cterm: alloc z1 failed',0)
+     &      call errquit('cterm: alloc z1 failed',0,0)
          call ga_dgemm('t','n',dimnf,dimiu_a,dimjb_a,1.0d0,
      &      g_t2_jbnf_pure,list(symiu,1),0.0d0,g_z1)
          call make_qO(qO_handles(0,1),g_z1,symnf,1,1)
@@ -216,7 +216,7 @@ c
 c     Here b could be v and T(jv,nf)
 c     Z5(iu,nf) = <ij|ub>*T(jb,nf) i=u=beta j=b=alpha (integral list 3)
          if (.not. ga_create(MT_DBL,dimnf,dimiu_b,'z5',0,0,
-     &       g_z5) call errquit('cterm: alloc z5 failed',0)
+     &       g_z5) call errquit('cterm: alloc z5 failed',0,0)
          call ga_dgemm('t','n',dimnf,dimiu_a,dimjv_b,1.0d0,
      &                 g_t2_jbnf_mix,list(symiu,3),0.0d0,g_z5)
          call make_qO(qO_handles(0,5),g_z5,symnf,2,2)
@@ -227,13 +227,13 @@ c     <if||un> += Z5(iu,nf) (modified list 12)
      &       errquit('cterm: dealloc list 12 failed',0)
 c     Z6(iu,nf) = <ij||ub> * T(jb,nf)  i=u=j=b=alpha  (integral list 1)
          if (.not. ga_create(MT_DBL,dimnf,dimiu_a,'z6',0,0,g_z6)
-     &       call errquit('cterm: alloc z6 failed',0)
+     &       call errquit('cterm: alloc z6 failed',0,0)
          call ga_dgemm('t','n',dimnf,dimiu_a,dimjv_a,1.0d0,
      &      g_t2_jbnf_mix,list(symiu,1),0.0d0,g_z6)
          if (.not. ga_destroy(g_t2_jbnf_mix)) call
      &       errquit('cterm: dealloc g_t2_jbnf_mix failed',0)
          if (.not. ga_create(MT_DBL,dimnf,dimiu_a,'z7',0,0,g_z7)
-     &       call errquit('cterm: alloc z7 failed',0)
+     &       call errquit('cterm: alloc z7 failed',0,0)
 c     copy z6 to z7 for use in mixed spin
          call ga_copy(g_z6,g_z7)
          call ga_scale(g_z6,0.5d0)
@@ -250,7 +250,7 @@ c        get T(me,iu,symiu/symme)
 c     Z4(iu,nf) = <ij||ub>*T(jb,nf) i=j=u=b=n=f=beta (integral list 4)
          call get_T(g_t2_jbnf_pure,symnf,1,1,1,1,urange)
          if (.not. ga_create(MT_DBL,dimnf,dimiu_a,'z4',0,0,g_z4,
-     &       call errquit('cterm: alloc z4 failed',0)
+     &       call errquit('cterm: alloc z4 failed',0,0)
          call ga_dgemm('t','n',dimnf,dimiu_a,dimjb_a,1.0d0,
      &      g_t2_jbnf_pure,list(symiu,4),0.0d0,g_z4)
          call make_qO(qO_handles(0,4),g_z4,symnf,2,2)
@@ -491,7 +491,7 @@ c
          len_u = urange(2,symu)-urange(1,symu)+1
          len_f = v_sym(2,symf,spinf)-v_sym(1,symf,spinf)+1
          if (.not. ma_push_get(mt_dbl,len_f,'uf block',l_uf,
-     &         k_uf)) call errquit('cterm: uf block alloc failed',0)
+     &         k_uf)) call errquit('cterm: uf block alloc failed',0,0)
          do u = urange(1,symu), urange(2,symu)
             call ga_get(c_hole(spinf),urange(1,symu),urange(2,symu),
      &               v_sym(1,symf,spinf),v_sym(2,symf,spinf),
@@ -545,9 +545,9 @@ c
          len_u = urange(2,symu)-urange(1,symu)+1
          len_f = v_sym(2,symf,spinf)-v_sym(1,symf,spinf)+1
          if (.not. ma_push_get(mt_dbl,len_i*len_i,'im block',l_im,
-     &         k_im)) call errquit('cterm: im block alloc failed',0)
+     &         k_im)) call errquit('cterm: im block alloc failed',0,0)
          if (.not. ma_push_get(mt_dbl,len_f,'uf block',l_uf,
-     &         k_uf)) call errquit('cterm: uf block alloc failed',0)
+     &         k_uf)) call errquit('cterm: uf block alloc failed',0,0)
          do u = urange(1,symu), urange(2,symu)
             call ga_get(c_hole(spinf),urange(1,symu),urange(2,symu),
      &               v_sym(1,symf,spinf),v_sym(2,symf,spinf),
@@ -599,11 +599,11 @@ c
             dimn = no_sym(symn,sa)
             dimv = bf_per_ir(symf)
             if (.not. ma_push_get(mt_dbl,dimn*dimv,'nv block',l_nv,
-     &         k_nv)) call errquit('cterm: nv block alloc failed',0)
+     &         k_nv)) call errquit('cterm: nv block alloc failed',0,0)
             if (.not. ma_push_get(mt_dbl,dimn*dimf,'nf block',l_nf,
-     &         k_nf)) call errquit('cterm: nf block alloc failed',0)
+     &         k_nf)) call errquit('cterm: nf block alloc failed',0,0)
             if (.not. ma_push_get(mt_dbl,dimv*dimf,'vf block',l_vf,
-     &         k_vf)) call errquit('cterm: vf block alloc failed',0)
+     &         k_vf)) call errquit('cterm: vf block alloc failed',0,0)
             nvlo = oso_off(bf_per_ir_cum(symf)+1,sym,1) + 1
             nvhi = vlo + dimn*dimv
             vlo = bf_per_ir_cum(symf)+1

@@ -132,7 +132,7 @@ c     Transformed MO coefficients
 c
       if (.not. ma_push_get(mt_dbl, nbf*no(spinl), 'c',
      $ l_c, k_c)) 
-     $ call errquit('ma? nbf*no',nbf*no(spinl))
+     $ call errquit('ma? nbf*no',nbf*no(spinl),0)
       call ga_get(g_part(spinl),1,nbf,1,no(spinl),
      $ dbl_mb(k_c),nbf)
 c
@@ -176,10 +176,10 @@ csh
 csh
              if (.not. ma_push_get(mt_dbl, lenuv, 'buf',
      $        l_buf, k_buf)) 
-     $       call errquit('ma? lenuv',lenuv)
+     $       call errquit('ma? lenuv',lenuv,0)
              if (.not. ma_push_get(mt_dbl, lenul, 'tmp',
      $        l_tmp, k_tmp)) 
-     $        call errquit('ma? lenul',lenul)
+     $        call errquit('ma? lenul',lenul,0)
 c
 c     (uv) -> (ul) for l (occupied) & v (SO) of same irrep 
 c
@@ -202,9 +202,9 @@ csh
      $        symloff(syml,symul)+1,symloff(syml,symul)+lenul,
      $        ij,ij,dbl_mb(k_tmp),lenu)
              if (.not. ma_pop_stack(l_tmp))
-     $        call errquit('ma_pop?',l_tmp)
+     $        call errquit('ma_pop?',l_tmp,0)
              if (.not. ma_pop_stack(l_buf))
-     $        call errquit('ma_pop?',l_buf)
+     $        call errquit('ma_pop?',l_buf,0)
             end if
            end do
           end if
@@ -222,10 +222,10 @@ c     Perform quarter transformation from tmp(u,l,i,j) to t(k,l,i,j)
 c     t(i,k,symk,j,l,syml,symjl)
 c
       if (.not. ma_pop_stack(l_c))
-     $ call errquit('ma_pop?',l_c)
+     $ call errquit('ma_pop?',l_c,0)
       if (.not. ma_push_get(mt_dbl, nbf*no(spink), 'c',
      $ l_c, k_c)) 
-     $ call errquit('ma? nbf*no',nbf*no(spink))
+     $ call errquit('ma? nbf*no',nbf*no(spink),0)
       call ga_get(g_part(spink),1,nbf,1,no(spink),
      $ dbl_mb(k_c),nbf)
       do symjl = 0,7
@@ -280,10 +280,10 @@ c     I think the comments are not accurate
              if (lenu.gt.0) then
               if (.not. ma_push_get(mt_dbl, leniu, 'buf',
      $         l_buf, k_buf)) 
-     $         call errquit('ma? leniu',leniu)
+     $         call errquit('ma? leniu',leniu,0)
               if (.not. ma_push_get(mt_dbl, lenik, 'tmp',
      $         l_tmp, k_tmp)) 
-     $         call errquit('ma? lenik',lenik)
+     $         call errquit('ma? lenik',lenik,0)
 c
 c     (iu) -> (ik) for k (occupied) & u (SO) of same irrep 
 c
@@ -317,9 +317,9 @@ csh
      $         dbl_mb(k_tmp),leni)
               ik = ik + lenik
               if (.not. ma_pop_stack(l_tmp))
-     $         call errquit('ma_pop?',l_tmp)
+     $         call errquit('ma_pop?',l_tmp,0)
               if (.not. ma_pop_stack(l_buf))
-     $         call errquit('ma_pop?',l_buf)
+     $         call errquit('ma_pop?',l_buf,0)
              end if
             end do
            end if
@@ -335,13 +335,13 @@ csh      if (.not. uccsdt_ampfile_write_t2(d_x,
 csh  $    spini, spink, spinj, spinl, symik, 
 csh  $    llo, lhi, g_x))
 csh  $    call errquit('write_t2 failed',0)
-         if (.not. ga_destroy(g_x)) call errquit('GA 999',0)
+         if (.not. ga_destroy(g_x)) call errquit('GA 999',0,0)
         end if
        end do
       end do
-      if (.not. ga_destroy(g_tmp)) call errquit('GA 999',0)
+      if (.not. ga_destroy(g_tmp)) call errquit('GA 999',0,0)
       if (.not. ma_pop_stack(l_c))
-     $ call errquit('ma_pop?',l_c)
+     $ call errquit('ma_pop?',l_c,0)
 c
       return
       end

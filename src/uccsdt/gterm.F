@@ -69,7 +69,7 @@ c     Transformed MO coefficients
 c
       if (.not. ma_push_get(mt_dbl, nbf*no(spini), 'c',
      $ l_c, k_c)) 
-     $ call errquit('ma? nbf*no',nbf*no(spini))
+     $ call errquit('ma? nbf*no',nbf*no(spini),0)
       call ga_get(g_part(spini),1,nbf,1,no(spini),
      $ dbl_mb(k_c),nbf)
       if (odebug) call ma_print(dbl_mb(k_c),nbf,no(spini),'MO C(P)')
@@ -99,10 +99,10 @@ c
            if (lenuv.gt.0) then
             if (.not. ma_push_get(mt_dbl, lenuv, 'buf',
      $       l_buf, k_buf)) 
-     $      call errquit('ma? lenuv',lenuv)
+     $      call errquit('ma? lenuv',lenuv,0)
             if (.not. ma_push_get(mt_dbl, lenu, 'tmp',
      $       l_tmp, k_tmp)) 
-     $      call errquit('ma? lenu',lenu)
+     $      call errquit('ma? lenu',lenu,0)
             call ga_get(g_omega,1,lenuv,ij,ij,dbl_mb(k_buf),lenu)
 c
 c     (uv) -> (u) 
@@ -120,9 +120,9 @@ c
      $       ioff(i,symi)+1,ioff(i,symi)+lenu,
      $       1,1,dbl_mb(k_tmp),lenu,1.0d0)
             if (.not. ma_pop_stack(l_tmp))
-     $       call errquit('ma_pop?',l_tmp)
+     $       call errquit('ma_pop?',l_tmp,0)
             if (.not. ma_pop_stack(l_buf))
-     $       call errquit('ma_pop?',l_buf)
+     $       call errquit('ma_pop?',l_buf,0)
            end if
           end if
          end do
@@ -133,10 +133,10 @@ c
 c     Sequential transform (ui) -> (ai)
 c
       if (.not. ma_pop_stack(l_c))
-     $ call errquit('ma_pop?',l_c)
+     $ call errquit('ma_pop?',l_c,0)
       if (.not. ma_push_get(mt_dbl, nbf*nv(spina), 'c',
      $ l_c, k_c)) 
-     $ call errquit('ma? nbf*nv',nbf*nv(spina))
+     $ call errquit('ma? nbf*nv',nbf*nv(spina),0)
       call ga_get(g_part(spina),1,nbf,no(spina)+1,nmo,
      $ dbl_mb(k_c),nbf)
       do symi = 0,7
@@ -151,10 +151,10 @@ c
        if ((lenai.gt.0).and.(lenui.gt.0)) then
         if (.not. ma_push_get(mt_dbl, lenai, 'buf',
      $   l_buf, k_buf)) 
-     $   call errquit('ma? lenai',lenai)
+     $   call errquit('ma? lenai',lenai,0)
         if (.not. ma_push_get(mt_dbl, lenui, 'tmp',
      $   l_tmp, k_tmp)) 
-     $   call errquit('ma? lenui',lenui)
+     $   call errquit('ma? lenui',lenui,0)
         call ga_get(g_g,
      $   ioff(i,symi)+1,ioff(i,symi)+lenui,
      $   1,1,dbl_mb(k_tmp),lenu)
@@ -170,19 +170,19 @@ c
      $   symioff(symi)+1,symioff(symi)+lenai,
      $   1,1,dbl_mb(k_buf),lena)
         if (.not. ma_pop_stack(l_tmp))
-     $   call errquit('ma_pop?',l_tmp)
+     $   call errquit('ma_pop?',l_tmp,0)
         if (.not. ma_pop_stack(l_buf))
-     $   call errquit('ma_pop?',l_buf)
+     $   call errquit('ma_pop?',l_buf,0)
        end if
       end do
       if (.not. ma_pop_stack(l_c))
-     $ call errquit('ma_pop?',l_c)
+     $ call errquit('ma_pop?',l_c,0)
 c
 c     Write one symmetry block of G to disk
 c
 csh   if (.not. uccsdt_ampfile_add_t1(d_g, spini, g_g))
 csh  $ call errquit('write_t1 failed',0)
-      if (.not. ga_destroy(g_g)) call errquit('GA 999',0)
+      if (.not. ga_destroy(g_g)) call errquit('GA 999',0,0)
       if (odebug) call ga_print(g_g_big)
 c
       return
