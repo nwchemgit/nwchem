@@ -1,5 +1,5 @@
 /*
- $Id: ecce_print.c,v 1.10 1997-10-31 20:45:31 d3e129 Exp $
+ $Id: ecce_print.c,v 1.11 1998-08-14 22:36:09 d3e129 Exp $
  */
 
 #include <stdio.h>
@@ -12,6 +12,9 @@
 #include "ecce_print.h"
 #include "macommon.h"
 
+#define FORTRAN_TRUE  ((logical) 1)
+#define FORTRAN_FALSE ((logical) 0)
+
 Integer MA_sizeof(Integer, Integer, Integer);
 
 /* These two routines defined in rtdb_seq.c */
@@ -23,6 +26,7 @@ static int ecce_print_enabled;	/* If true then print */
 static FILE *ecce_file;		/* ECCE output file  */
 
 static char module_stack[4096];
+
 
 static void module_stack_push(const char *module)
 /*
@@ -271,6 +275,17 @@ void ecce_print_file_close(void)
     ecce_print_enabled = 0;
 }
 
+void ecce_print_echo_string(const char *mystring)
+/*
+Echo the contents of string into the ECCE file
+ */
+{
+    int len ;
+    
+    if (!ecce_print_enabled) return;
+    (void)fprintf(ecce_file,"%s\n",mystring);
+    (void)fflush(ecce_file);    
+}
 void ecce_print_echo_input(const char *filename)
 /*
   Echo the contents of the named file into the ECCE file
@@ -279,7 +294,12 @@ void ecce_print_echo_input(const char *filename)
     char buf[256];
     int nread;
 
-    FILE *file = fopen(filename, "r");
+
+    FILE *file;
+
+    if (!ecce_print_enabled) return;
+
+    file = fopen(filename, "r");
 
     if (!file) {
 	fprintf(stderr,"!! ecce_echo_input: failed to open %s\n", filename);
@@ -329,6 +349,8 @@ static int fortchar_to_string(const char *f, int flen, char *buf,
 #define ecce_print_module_entry_ ECCE_PRINT_MODULE_ENTRY
 #define ecce_print_module_exit_  ECCE_PRINT_MODULE_EXIT
 #define ecce_print_echo_input_   ECCE_PRINT_ECHO_INPUT
+#define ecce_print_echo_string_  ECCE_PRINT_ECHO_INPUT
+#define is_ecce_print_on_        IS_ECCE_PRINT_ON
 #endif
 
 #if defined(CRAY) || defined(CRAY_T3D)
@@ -538,3 +560,35 @@ void ecce_print1_char_(const char *key, const char *data, Integer *dim1,
     fflush(ecce_file);
 }
 
+#if defined(CRAY) || defined(CRAY_T3D)
+void ecce_print_echo_string_(_fcd f) 
+{
+    const char *filename = _fcdtocp(f);
+    int flen = _fcdlen(f);
+#else
+void ecce_print_echo_string_(const char *filename, int flen)
+{
+#endif
+    char buf[1024];
+
+    if (!fortchar_to_string(filename, flen, buf, sizeof(buf))) {
+	fprintf(stderr,"!! ecce_print_echo_string: name too long? (%d %d)\n",
+		flen, sizeof(buf));
+	return;
+    }
+
+    ecce_print_echo_string(buf);
+}
+
+logical is_ecce_print_on(void)
+{
+  if (ecce_print_enabled)
+    return FORTRAN_TRUE;
+  else
+    return FORTRAN_FALSE;
+}
+logical is_ecce_print_on_(void)
+{
+    logical retcode = is_ecce_print_on();
+    return retcode;
+}
