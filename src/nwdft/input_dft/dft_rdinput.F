@@ -1,7 +1,7 @@
       Subroutine dft_rdinput( rtdb, geom, AO_bas_han, CD_bas_han,
      &                    XC_bas_han, iconst, nconst )
 
-C$Id: dft_rdinput.F,v 1.1 1995-04-27 03:16:09 og845 Exp $
+C$Id: dft_rdinput.F,v 1.2 1995-04-29 10:01:22 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -327,34 +327,13 @@ c     should be eliminated at least for these Gaussian basis set parameters.)
 
 c     Check the user supplied input for any inconsistencies.
 
-        iconst( 2) = ncenters
-        iconst( 3) = nshells
-C	prims not defined!
-C        iconst( 4) = nprims
-        iconst( 5) = nbf
-        call dft_inpana(rtdb,Dbl_MB(icharge),Dbl_MB(icoord),iconst,
-     &       nconst,ncenters)
+        call dft_inpana(geom,rtdb,Dbl_MB(icharge),Dbl_MB(icoord),
+     &       iconst,nconst,ncenters)
       if( iproc.eq.0 )then
 c
 c       inpana could have modified ipol
 c
         ipol=iconst(11)
-        iconst( 6) = nbf*(nbf+1)/2
-        iconst( 7) = nbf*nbf
-        iconst(19) = nshells_xc
-C	prims not defined!
-C        iconst(20) = nprims_xc
-        iconst(21) = nbf_xc
-        iconst(22) = nbf_xc*(nbf_xc+1)/2
-        iconst(23) = nbf_xc*nbf_xc
-        iconst(24) = nshells_cd
-C	prims not defined!
-C        iconst(25) = nprims_cd
-        iconst(26) = nbf_cd
-        iconst(27) = nbf_cd*(nbf_cd+1)/2
-        iconst(28) = nbf_cd*nbf_cd
-        
-        iconst(30) = ntypes
 
 c
 c       Write the scf header to output.

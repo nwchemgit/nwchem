@@ -4,17 +4,19 @@ c     inpana (input analysis)
 c     Analyze input to deduce nature of system, and set key flags.
 c
 c***********************************************************************
-      subroutine dft_inpana(rtdb,zan,c,iconst,nconst,nat)
-C$Id: dft_inpana.F,v 1.1 1995-04-27 03:16:08 og845 Exp $
+      subroutine dft_inpana(geom,rtdb,zan,c,iconst,nconst,nat)
+C$Id: dft_inpana.F,v 1.2 1995-04-29 10:01:21 og845 Exp $
       implicit real*8 (a-h,o-z)
       logical even
       dimension zan(nat), c(3,nat), iconst(nconst)
       integer noc(2)
       Integer rtdb    !  runtime database handle
+      integer geom
 #include "stdio.fh"
 #include <rtdb.fh>     ! for rtdb_get
 #include <mafdecls.h>  ! for mt_int
 #include "global.fh"
+#include "geom.fh"
 c
       me=ga_nodeid()
 
@@ -23,17 +25,10 @@ c
 c-->  Read parameters from checkpoint file.
 c**** these should be changed to rtdb gets
 c
-      nbf     = iconst(5)
       ipol    = iconst(11)
       ichg    = iconst(12)
       mult    = iconst(13)
-      igcon   = iconst(18)
 
-c      if ( ipol.eq.2 .and. igcon.gt.0) then
-c        igcon = -1
-c        write (LuOut,*) "INPANA: found density convergence turned on"
-c        write (LuOut,*) "This fails for open-shell; removing flag"
-c      endif 
 c
 c-->  Scan for ghost atoms.
 c
@@ -48,12 +43,10 @@ c
 c
 c-->  Determine number of electrons in system.
 c
-      izantot = 0
-      do 1000 i=1,nat
-         izantot = izantot + int(zan(i))
-1000  continue
+      if (.not. geom_nuc_charge(geom, anucl_charg))
+     $     call errquit('scf: geom_nuc_charge failed', 0)
 c
-      nel = izantot - ichg
+      nel = int(anucl_charg) - ichg
 c
 c-->  Check to see if calculation type is allowed.
 c
@@ -107,10 +100,6 @@ c****
 
       if (.not. rtdb_put(rtdb, 'dft:ipol', MT_INT, 1, ipol ))
      $     call errquit('inpana: dft:ipol put failed', 0)
-c
-c-->  At later date insert geometry analysis here using c(3,nat).
-c
-c      call geom(c,nat)
 c
 c-->  Write new data to checkpoint file.
 c
