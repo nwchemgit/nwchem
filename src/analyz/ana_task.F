@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.72 2001-07-17 23:23:46 d3j191 Exp $
+c $Id: ana_task.F,v 1.73 2001-08-23 20:06:11 d3j191 Exp $
 c
       implicit none
 c
@@ -278,7 +278,7 @@ c
       if(card(1:6).eq.'selecs') then
       if(.not.lsels) then
       call ana_all(int_mb(i_ssel),0,dbl_mb(i_swt))
-      lsel=.true.
+      lsels=.true.
       endif
       call ana_select(card,byte_mb(i_snam),int_mb(i_ssel),dbl_mb(i_swt),
      + dbl_mb(i_xref))
@@ -661,8 +661,8 @@ c
       nread=nread+1
       if(nread.lt.idpdb) goto 222
       if(lsuper) call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
-     + num,msa,dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_xrms),nsa,msa,
-     + .true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+     + num,msa,dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
+     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
       if(fmt.eq.'pdb') then
       call ana_wrtpdb(lfncop,filcop,byte_mb(i_snam),int_mb(i_isel),
      + dbl_mb(i_xdat),int_mb(i_wsel),dbl_mb(i_wdat),.false.,.not.lsonly,
@@ -782,8 +782,8 @@ c
       if(nread.lt.ifrfr) goto 3
       if(nframe.eq.(nframe/ifrsk)*ifrsk.and.lsx) then
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
-     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_xrms),nsa,msa,.true.,
-     + rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
+     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
       call ana_wtfram(lfnsup,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
      + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),dbl_mb(i_val),
      + int_mb(i_wsel),int_mb(i_ndxw))
@@ -875,8 +875,8 @@ c
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
 c
       if(lsuper) call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
-     + num,msa,dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_xrms),nsa,msa,
-     + .true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+     + num,msa,dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
+     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
 c
 c     evaluate bond lenghts
 c
@@ -928,10 +928,10 @@ c
       if(lrms) then
       if(np.gt.1) then
       call ana_rmsdev(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,
-     + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms))
+     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms))
       else
       call ana_rmsdev(dbl_mb(i_xdat),int_mb(i_idat),nsa,
-     + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms))
+     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms))
       endif
       endif
 c
@@ -1060,8 +1060,8 @@ c
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       if(lsaver) then
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
-     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_xrms),nsa,msa,.true.,
-     + rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
+     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
       endif
 c
       call ana_xaver(dbl_mb(i_xdat+ifr-1),dbl_mb(i_xadat+ifr-1),
@@ -1128,8 +1128,8 @@ c
       if(nread.lt.ifrfr) goto 5
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
-     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_xrms),nsa,msa,.true.,
-     + rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
+     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
 c
       if(np.gt.1) call ana_update(dbl_mb(i_xdat),msa,ifr,ifr+num-1)
 c
@@ -1236,8 +1236,8 @@ c
       if(nread.lt.ifrfr) goto 6
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
-     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_xrms),nsa,msa,.true.,
-     + rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
+     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
 c
       if(np.gt.1) call ana_update(dbl_mb(i_xdat),msa,ifr,ifr+num-1)
 c

@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.34 2001-07-06 04:18:30 d3j191 Exp $
+c $Id: util_md.F,v 1.35 2001-08-23 20:05:47 d3j191 Exp $
 c
       implicit none
 c
@@ -65,7 +65,7 @@ c
     2 continue
       return
       end
-      subroutine super(x,ix,nx,mx,y,w,sdev,ny,my,mod,rms0,rms1,
+      subroutine super(x,ix,nx,mx,y,w,ws,sdev,ny,my,mod,rms0,rms1,
      + xw,mw,nw,ma,na)
 c
 c     superimpose x(1:n,1:3) onto y(1:n,1:3)
@@ -80,14 +80,15 @@ c
 c
       integer nx,mx,ny,my,mw,nw,ma,na
       integer ix(mx)
-      real*8 x(mx,3),y(my,3),w(my),sdev(my),xw(mw,ma,3),rms0,rms1
+      real*8 x(mx,3),y(my,3),w(my),ws(my),sdev(my),xw(mw,ma,3),rms0,rms1
       logical mod
 c
       integer i,j,k,l,nr
-      real*8 u(3,3),c(4,4),q(4),b(4),v(4,4),wnorm
+      real*8 u(3,3),c(4,4),q(4),b(4),v(4,4),wnorm,wnorms
       real*8 xt(3),yt(3),sd
 c
       wnorm=zero
+      wnorms=zero
       do 1 j=1,3
       xt(j)=zero
       yt(j)=zero
@@ -100,6 +101,7 @@ c
       call ga_dgop(mag_d08,xt,3,'+')
       do 4 k=1,ny
       wnorm=wnorm+w(k)
+      wnorms=wnorms+ws(k)
       do 5 j=1,3
       yt(j)=yt(j)+w(k)*y(k,j)
     5 continue
@@ -110,11 +112,11 @@ c
       xt(j)=xt(j)/wnorm
       yt(j)=yt(j)/wnorm
       do 7 k=1,nx
-      rms0=rms0+w(ix(k))*(x(k,j)-xt(j)-y(ix(k),j)+yt(j))**2
+      rms0=rms0+ws(ix(k))*(x(k,j)-xt(j)-y(ix(k),j)+yt(j))**2
     7 continue
     6 continue
       call ga_dgop(mag_d09,rms0,1,'+')
-      rms0=sqrt(rms0/wnorm)
+      rms0=sqrt(rms0/wnorms)
 c
       do 8 i=1,3
       do 9 j=1,3
@@ -177,10 +179,10 @@ c
       sd=sd+(q(j)-y(ix(k),j)+yt(j))**2
    18 continue
       sdev(ix(k))=sdev(ix(k))+sd
-      rms1=rms1+w(ix(k))*sd
+      rms1=rms1+ws(ix(k))*sd
    14 continue
       call ga_dgop(mag_d11,rms1,1,'+')
-      rms1=sqrt(rms1/wnorm)
+      rms1=sqrt(rms1/wnorms)
 c
       if(mod.and.nw.gt.0) then
       do 19 l=1,nw

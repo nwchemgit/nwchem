@@ -1,5 +1,5 @@
-      subroutine ana_rmsdev(x,ix,nx,xref,wt,xrms)
-c $Id: ana_rmsdev.F,v 1.7 2000-08-03 00:27:02 d3j191 Exp $
+      subroutine ana_rmsdev(x,ix,nx,xref,wt,wts,xrms)
+c $Id: ana_rmsdev.F,v 1.8 2001-08-23 20:06:11 d3j191 Exp $
       implicit none
 c
 #include "ana_params.fh"
@@ -10,11 +10,11 @@ c
 c
       integer nx
       integer ix(nx)
-      real*8 x(msa,3),xref(nsa,3),wt(nsa),xrms(nsa)
+      real*8 x(msa,3),xref(nsa,3),wt(nsa),wts(nsa),xrms(nsa)
 c
       real*8 rms0,rms1
 c
-      call super(x,ix,nx,msa,xref,wt,xrms,nsa,nsa,.false.,rms0,rms1,
+      call super(x,ix,nx,msa,xref,wt,wts,xrms,nsa,nsa,.false.,rms0,rms1,
      + dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
 c
       if(me.eq.0) then
