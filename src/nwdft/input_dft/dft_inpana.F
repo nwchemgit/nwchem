@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.26 1997-06-11 18:16:47 d3h449 Exp $
+c     $Id: dft_inpana.F,v 1.27 1997-07-01 17:51:27 d3e129 Exp $
 c
 c*********************************************************************
 c     
@@ -79,8 +79,12 @@ c
 c        check consistency of no. elec and multiplicity
 c     
          even=mod((nel+mult-1),2).eq.0
-         if (.not.even) call errquit(
-     &        ' no. of electrons and multiplicity not compatible',nel)
+         if (.not.even) then
+           write(6,*)' number of electrons :',numel
+           write(6,*)' multiplicity        :',mult
+           call errquit(
+     &         ' no. of electrons and multiplicity not compatible',nel)
+         endif
          noc(2) = (nel - mult + 1)/2
          noc(1) = nel - noc(2)
          noc1  = noc(1) + noc(2)
