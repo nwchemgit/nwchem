@@ -28,6 +28,8 @@
 *     **** external functions ****
       integer  ion_nionall
       external ion_nionall
+      logical  control_zero_forces
+      external control_zero_forces
 
 *     *** initialize the  number of constraints ****
       count = 0
@@ -35,8 +37,27 @@
 *     **** get the nions, including charges and qmmm ****
       nion = ion_nionall()
 
-*     **** constraints have been imposed 
-      if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type,
+*     ************************************************
+*     **** all ions constraints have been imposed ****
+*     ************************************************
+      if (control_zero_forces()) then
+        nconstraints = nion
+
+*       ***** allocate constraint list, ion_number, from heap ****
+        if (.not. MA_alloc_get(mt_int,nconstraints,
+     >     'ion_number',ion_number(2),ion_number(1)))
+     >      call errquit('out of heap memory',0, MA_ERR)
+
+*       ***** set the constraints ****
+        do i=1,nion
+           count = count+1
+           int_mb(ion_number(1)+count-1) = i
+        end do
+
+*     ********************************************************
+*     **** geometry:actlist constraints have been imposed ****
+*     ********************************************************
+      else if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type,
      >        nactive_atoms, h_actlist)) then
 
          if (.not.MA_get_index(h_actlist,l_actlist)) 

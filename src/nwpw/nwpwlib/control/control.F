@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.53 2004-05-05 19:33:50 bylaska Exp $
+* $Id: control.F,v 1.54 2004-05-13 15:48:31 bylaska Exp $
 *
 
 *     ***********************************
@@ -2224,6 +2224,31 @@ c      end
       end
 
 
+
+*     *****************************
+*     *                           *
+*     *   control_zero_forces     *
+*     *                           *
+*     *****************************
+      logical function control_zero_forces()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .false.
+      if (.not.rtdb_get(rtdb,'nwpw:zero_forces',mt_log,1,value))
+     >   value = .false.
+
+      control_zero_forces = value
+      return
+      end
 
 
 

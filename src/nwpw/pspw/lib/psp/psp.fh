@@ -1,8 +1,8 @@
 *
-* $Id: psp.fh,v 1.2 2003-12-02 19:17:10 bylaska Exp $
+* $Id: psp.fh,v 1.3 2004-05-13 15:48:32 bylaska Exp $
 *
 
-*     **** common blocks ****
+*     **** common block  for psp ****
       integer    prjtmp(2)
       integer    vl(2)
       integer    vnl(2)
@@ -22,3 +22,9 @@
      >                     lmmax,lmax,locp,nmax,
      >                     nprj,n_projector,l_projector,m_projector,
      >                     psp_type,npsp,atom,comment
+
+*     **** common block for psp stress ****
+      integer    dvl(2)
+      integer    dvnl(2)
+      common / psp2_block / dvl,dvnl
+

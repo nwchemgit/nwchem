@@ -1,5 +1,5 @@
 *
-* $Id: psp_stress.F,v 1.9 2003-10-31 23:02:20 bylaska Exp $
+* $Id: psp_stress.F,v 1.10 2004-05-13 15:48:32 bylaska Exp $
 *
 
 
@@ -13,18 +13,10 @@
 
       subroutine psp_stress_init()      
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
-
-*     **** common blocks ****
-      integer    dvl(2)
-      integer    dvnl(2)
-      integer    npsp
-
-      integer lmmax_max,lmax_max
-      parameter (lmax_max=4,lmmax_max=16)
-      common / psp2_block / dvl,dvnl,npsp
+#include "psp.fh"
+#include "errquit.fh"
 
       integer npack1,npack0
       logical value
@@ -36,19 +28,19 @@
 
       call Pack_npack(1,npack1)
       call Pack_npack(0,npack0)
-      npsp = ion_nkatm()
 
       value = MA_alloc_get(mt_dbl,(npsp*npack0),
      >                    'dvl',dvl(2),dvl(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(3*lmmax_max*npsp*npack1),
+     >        MA_alloc_get(mt_dbl,(3*nmax_max*lmmax_max*npsp*npack1),
      >                    'dvnl',dvnl(2),dvnl(1))
 
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
-      call dcopy(npsp*npack0,          0.0d0,0,dbl_mb(dvl(1)), 1)
-      call dcopy(3*lmmax_max*npsp*npack1,0.0d0,0,dbl_mb(dvnl(1)),1)
-
+      call dcopy(npsp*npack0,0.0d0,0,dbl_mb(dvl(1)),1)
+      call dcopy(3*nmax_max*lmmax_max*npsp*npack1,
+     >           0.0d0,0,
+     >           dbl_mb(dvnl(1)),1)
       return
       end
 
@@ -63,20 +55,19 @@
       subroutine psp_stress_end()      
       implicit none
 
+#include "errquit.fh"
 #include "mafdecls.fh"
+#include "psp.fh"
 
-
-*     **** common blocks ****
-      integer    dvl(2)
-      integer    dvnl(2)
-      integer    npsp
-      common / psp2_block / dvl,dvnl,npsp
 
       logical value
 
-      value = MA_free_heap(dvl(2))
-      value = MA_free_heap(dvnl(2))
+      value =           MA_free_heap(dvl(2))
+      value = value.and.MA_free_heap(dvnl(2))
 
+      if (.not.value) 
+     > call errquit('psp_stress_end:freeing heap',0, MA_ERR)
+ 
       return
       end
 
@@ -89,19 +80,18 @@
 
       subroutine v_local_euv(dng,euv)
       implicit none
-#include "errquit.fh"
       complex*16 dng(*)
       real*8     euv(3,3)
 
 #include "mafdecls.fh"
-
-
+#include "psp.fh"
+#include "errquit.fh"
 
 *     *** local variables ***
       integer nfft3d,npack0
       integer ii,ia,u,v,s
       integer exi(2),tmp1(2),tmp2(2)
-      integer G(2,3),vl(2)
+      integer G(2,3),vll(2)
       logical value
       real*8 elocal,ftmp(3)
       real*8 hm(3,3),Bus(3,3)
@@ -111,11 +101,6 @@
       integer vc_indx,vc_hndl
       common / vc_block / vc_indx,vc_hndl
 
-*     **** common blocks ****
-      integer    dvl(2)
-      integer    dvnl(2)
-      integer    npsp
-      common / psp2_block / dvl,dvnl,npsp
 
 *     **** external functions ****
       integer  G_indx,ion_nion,ion_katm
@@ -140,11 +125,11 @@
       end do
 
 *     **** average Kohn-Sham v_local energy ****
-      value = MA_push_get(mt_dcpl,npack0,'vl',vl(2),vl(1))
+      value = MA_push_get(mt_dcpl,npack0,'vll',vll(2),vll(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      call v_local(dcpl_mb(vl(1)),.false.,dng,ftmp)
-      call Pack_cc_dot(0,dng,dcpl_mb(vl(1)),elocal)
-      value = MA_pop_stack(vl(2))
+      call v_local(dcpl_mb(vll(1)),.false.,dng,ftmp)
+      call Pack_cc_dot(0,dng,dcpl_mb(vll(1)),elocal)
+      value = MA_pop_stack(vll(2))
       if (.not. value) call errquit('error poping stack memory',0,
      &       MA_ERR)
 
@@ -176,8 +161,9 @@
         ia=ion_katm(ii)
 
 *       **** structure factor and local pseudopotential ****
-        call strfac(ii,dcpl_mb(exi(1)))
-        call Pack_c_pack(0,dcpl_mb(exi(1)))
+        !call strfac(ii,dcpl_mb(exi(1)))
+        !call Pack_c_pack(0,dcpl_mb(exi(1)))
+        call strfac_pack(0,ii,dcpl_mb(exi(1)))
         
 *       **** tmp2(G) = Real[ dconjg(dng(G))*exi(G) ] ****
         call Pack_cct_conjgMul(0,dng,
@@ -247,54 +233,34 @@
 
       subroutine v_nonlocal_euv_2(ispin,ne,psi1,euv)
       implicit none
-#include "errquit.fh"
       integer    ispin,ne(2)
       complex*16 psi1(*)
       real*8 euv(3,3)
 
 #include "mafdecls.fh"
-
-*     **** common blocks ****
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
-
-
-*     **** common blocks ****
-      integer    dvl(2)
-      integer    dvnl(2)
-      integer    npsp2
-      common / psp2_block / dvl,dvnl,npsp2
+#include "psp.fh"
+#include "errquit.fh"
 
 
 *     *** local variables ***
-      integer nfft3d,npack1
-      integer i,ii,ia,l,nn
+      integer nfft3d,npack1,shift,shift2
+      integer nproj,l_prj
+      integer i,ii,ia,k,l,nn
       integer s,u,v
-      real*8  omega,Bus(3,3),hm(3,3),c_l
+      real*8  omega,Bus(3,3),hm(3,3)
       real*8  pi,scal
-      integer exi(2),vtmp(2),tmp1(2),sw1(2),sw2(2)
+      integer exi(2),vtmp(2),tmp1(2),sw1(2),sw2(2),sw3(2)
       integer G(2,3)
-      logical value
+      logical value,sd_function
 
 *     **** external functions ****
-      logical  is_sORd
       integer  ion_nion,ion_katm,G_indx
       real*8   lattice_omega,lattice_unitg
-      external is_sORd
       external ion_nion,ion_katm,G_indx
       external lattice_omega,lattice_unitg
 
       call nwpw_timing_start(6)
+      
       
 *     **** allocate local memory ****
       nn = ne(1)+ne(2)
@@ -313,11 +279,17 @@
       value = value.and.
      >        MA_push_get(mt_dbl, nfft3d,'Gz',G(2,3),G(1,3))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn,'sw1',sw1(2),sw1(1))
+     >        MA_push_get(mt_dbl,nn*nmax_max*lmmax_max,
+     >                    'sw1',sw1(2),sw1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,9*nn,'sw2',sw2(2),sw2(1))
+     >        MA_push_get(mt_dbl,nn*nmax_max*lmmax_max,
+     >                    'sw2',sw2(2),sw2(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,9*nn,
+     >                    'sw3',sw3(2),sw3(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
+      
 *     **** define Gx,Gy and Gz in packed space ****
       call D3dB_t_Copy(1,dbl_mb(G_indx(1)),dbl_mb(G(1,1)))
       call D3dB_t_Copy(1,dbl_mb(G_indx(2)),dbl_mb(G(1,2)))
@@ -328,108 +300,149 @@
 
       omega = lattice_omega()
 
+      
 *     ***********************
 *     **** calculate Bus ****
 *     ***********************
       call dcopy(9,0.0d0,0,Bus,1)
       do ii=1,ion_nion()
         ia=ion_katm(ii)
+        nproj=int_mb(nprj(1)+ia-1)
 
+      
+        if (nproj.gt.0) then
 *       **** structure factor and local pseudopotential ****
-        call strfac(ii,dcpl_mb(exi(1)))
-        call Pack_c_pack(1,dcpl_mb(exi(1)))
+        !call strfac(ii,dcpl_mb(exi(1)))
+        !call Pack_c_pack(1,dcpl_mb(exi(1)))
+        call strfac_pack(1,ii,dcpl_mb(exi(1)))
 
-        do l=1,int_mb(lmmax(1)+ia-1)
+  
+*       *********************************************
+*       **** calculate F^(lm)_I = <psi|vnl(nlm)> ****
+*       *********************************************
+        do l=1,nproj
 
-*          ****************************
-*          **** calculate F^(lm)_I ****
-*          ****************************
+           shift = vnl(1)+(l-1)*npack1+(ia-1)*npack1*nmax_max*lmmax_max
+           l_prj = int_mb(l_projector(1)+(l-1)
+     >                                  + (ia-1)*(nmax_max*lmmax_max))
+           !sd_function = .not.and(l_prj,1)
+           k = and(l_prj,1)
+           sd_function = (k.eq.0)
 
+      
 *          *** current function is s or d ****
-           if (is_sORd(l,int_mb(lmax(1)+ia-1),
-     >                   int_mb(locp(1)+ia-1))
-     >        ) then
-              call Pack_tc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
-     >                           +(ia-1)*npack1*lmmax_max),
+           if (sd_function) then
+              call Pack_tc_Mul(1,dbl_mb(shift),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(vtmp(1)))
-
 *          *** current function is p or f ****
            else
-              call Pack_itc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
-     >                           +(ia-1)*npack1*lmmax_max),
+              call Pack_itc_Mul(1,dbl_mb(shift),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(vtmp(1)))
            end if
-           call Pack_cc_ndot(1,nn,
+           call Pack_cc_indot(1,nn,
      >                      psi1,
      >                      dcpl_mb(vtmp(1)),
-     >                      dbl_mb(sw1(1)))
+     >                      dbl_mb(sw1(1)+(l-1)*nn))
 
-*          **********************************
-*          **** calculate dF^(lm)_I/dhus ****
-*          **********************************
+        end do !** l**
+        call D3dB_Vector_Sumall((nn*nproj),dbl_mb(sw1(1)))
+
+
+      
+*       **** sw2 = Gijl*sw1 ******
+        call Multiply_Gijl_sw1(nn,
+     >                         nproj,
+     >                         int_mb(nmax(1)+ia-1),
+     >                         int_mb(lmax(1)+ia-1),
+     >                         int_mb(n_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(l_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(m_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         dbl_mb(Gijl(1)
+     >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
+     >                         dbl_mb(sw1(1)),
+     >                         dbl_mb(sw2(1)))
+      
+        if (ispin.eq.1) call dscal(nn*nproj,2.0d0,dbl_mb(sw2(1)),1)
+      
+ 
+
+*       **********************************
+*       **** calculate dF^(lm)_I/dhus ****
+*       **********************************
+
+        do l=1,nproj
+            l_prj = int_mb(l_projector(1)
+     >                    + (l-1)
+     >                    + (ia-1)*(nmax_max*lmmax_max))
+           k = and(l_prj,1)
+           sd_function = (k.eq.0)
+      
+
+
            do s=1,3
            do u=1,3
-              call Pack_tt_Mul(1,dbl_mb(dvnl(1)
-     >                                +(s-1)*npack1
-     >                                +(l-1)*3*npack1
-     >                                +(ia-1)*3*npack1*lmmax_max),
+              shift2 = dvnl(1) + (s-1)*npack1
+     >                         + (l-1)*3*npack1
+     >                         +(ia-1)*3*npack1*lmmax_max*nmax_max
+              call Pack_tt_Mul(1,dbl_mb(shift2),
      >                         dbl_mb(G(1,u)),
      >                         dbl_mb(tmp1(1)))
 
 *             *** current function is s or d ****
-              if (is_sORd(l,int_mb(lmax(1)+ia-1),
-     >                   int_mb(locp(1)+ia-1))
-     >        ) then
+              if (sd_function) then
                 call Pack_tc_Mul(1,dbl_mb(tmp1(1)),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(vtmp(1)))
-
 *             *** current function is p or f ****
               else
                  call Pack_itc_Mul(1,dbl_mb(tmp1(1)),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(vtmp(1)))
               end if
-
               call Pack_cc_ndot(1,nn,
      >                        psi1,
      >                        dcpl_mb(vtmp(1)),
-     >                        dbl_mb(sw2(1)+(u-1)*nn
+     >                        dbl_mb(sw3(1)+(u-1)*nn
      >                                     +(s-1)*nn*3))
           end do
           end do
 
-          c_l =(1.0d0/dbl_mb(vnlnrm(1)+(l-1)+(ia-1)*lmmax_max))
-          if (ispin.eq.1) c_l = 2.0d0*c_l
           do i=1,nn
             do s=1,3
             do u=1,3
 
              Bus(u,s) = Bus(u,s) 
      >         - 2.0d0/(omega)
-     >          * dbl_mb(sw1(1)+(i-1))
-     >          * c_l
-     >          * dbl_mb(sw2(1)+(i-1)
+     >          * dbl_mb(sw2(1)+(i-1)+(l-1)*nn)
+     >          * dbl_mb(sw3(1)+(i-1)
      >                         +(u-1)*nn
      >                         +(s-1)*nn*3)
             end do
             end do
           end do
 
-        end do
-      end do
+        end do !** l **
 
-      value = MA_pop_stack(sw2(2))
-      value = MA_pop_stack(sw1(2))
-      value = MA_pop_stack(G(2,3))
-      value = MA_pop_stack(G(2,2))
-      value = MA_pop_stack(G(2,1))
-      value = MA_pop_stack(tmp1(2))
-      value = MA_pop_stack(vtmp(2))
-      value = MA_pop_stack(exi(2))
+        end if
+      end do !** ii **
 
+      value =           MA_pop_stack(sw3(2))
+      value = value.and.MA_pop_stack(sw2(2))
+      value = value.and.MA_pop_stack(sw1(2))
+      value = value.and.MA_pop_stack(G(2,3))
+      value = value.and.MA_pop_stack(G(2,2))
+      value = value.and.MA_pop_stack(G(2,1))
+      value = value.and.MA_pop_stack(tmp1(2))
+      value = value.and.MA_pop_stack(vtmp(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     >  call errquit('v_nonlocal_euv_2:error poping stack',0,
+     &       MA_ERR)
 
 
 *     *** define hm ****
@@ -581,20 +594,11 @@ c       close(11)
 
       subroutine psp_stress_readall()
       implicit none
-#include "errquit.fh"
-      
+
+#include "errquit.fh"      
 #include "mafdecls.fh"
+#include "psp.fh"
 
-
-
-*     **** psp common block ****
-      integer    dvl(2)
-      integer    dvnl(2)
-      integer    npsp
-   
-      integer lmmax_max,lmax_max
-      parameter (lmax_max=4,lmmax_max=16)
-      common / psp2_block / dvl,dvnl,npsp
 
 *     **** semicore common block ****
       integer ncore(2),rcore(2)
@@ -606,7 +610,7 @@ c       close(11)
       integer ngp(3)
       real*8  unita(3,3)
       integer version,nfft3d,npack1,npack0
-      integer ia,l,lmmax
+      integer ia,l,nproj
       character*12 boundry
       integer tmp(2),tmp2(2),ierr
       logical value,found,correct_box
@@ -651,7 +655,8 @@ c       close(11)
          element = ion_atom(ia)
          l = index(element,' ') - 1
          fname = element(1:l)//'.vpp2'
-         lmmax = psp_lmmax(ia)
+         !nproj = psp_lmmax(ia)
+         nproj=int_mb(nprj(1)+ia-1)
     
 
 *        **** not finished ****
@@ -663,8 +668,9 @@ c       close(11)
      >                  ngp,unita,
      >                  npack0,
      >                  dbl_mb(dvl(1) + (ia-1)*npack0),
-     >                  npack1,lmmax,
-     >                  dbl_mb(dvnl(1) + (ia-1)*3*npack1*lmmax_max),
+     >                  npack1,nproj,
+     >                  dbl_mb(dvnl(1) 
+     >                        +(ia-1)*3*npack1*nmax_max*lmmax_max),
      >                  log_mb(semicore(1)+ia),
      >                  dbl_mb(ncore(1) + npack0 + (ia-1)*5*npack0),
      >                  dbl_mb(tmp(1)),dbl_mb(tmp2(1)),
