@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.263 1998-08-17 22:50:41 d3g270 Exp $
+# $Id: makefile.h,v 1.264 1998-08-17 23:07:57 d3g270 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -992,7 +992,7 @@ ifdef USE_ESSL
 ifeq ($(NWCHEM_TARGET_CPU),P2SC)
  CORE_LIBS += -lpesslp2_t -lblacsp2_t -lesslp2_r
 else
- CORE_LIBS += -lpesslsmp -lblacssmp -lxlsmp -lesslsmp
+ CORE_LIBS += -lpessl -lblacs -lessl
 endif
 
 #	      -brename:.daxpy_,.daxpy \
