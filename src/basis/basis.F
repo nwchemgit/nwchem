@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.66 1997-04-19 18:50:42 d3g681 Exp $
+c $Id: basis.F,v 1.67 1997-04-23 18:09:08 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -634,7 +634,7 @@ c add p now
      &       bs_name(usebas), bs_tags(1,usebas), 
      &       infbs_head(1,usebas), infbs_tags(1,1,usebas),
      &       infbs_cont(1,1,usebas),
-     &      dbl_mb(mb_exndcf(1,usebas)),3,9,30,' ')
+     &      dbl_mb(mb_exndcf(1,usebas)),3,9,30,'3-21g',' ')
 c
       write(6,*)' inside 321g load '
       write(6,*)' inside 321g load '
