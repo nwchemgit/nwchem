@@ -1,5 +1,5 @@
        subroutine moints_stats_print( algo )
-C$Id: moints_stats.F,v 1.6 1997-08-08 07:15:34 rg240 Exp $
+C$Id: moints_stats.F,v 1.7 1997-10-14 17:31:53 rg240 Exp $
        implicit none
 #include "msgids.fh"
 #include "global.fh"
@@ -11,7 +11,7 @@ C$Id: moints_stats.F,v 1.6 1997-08-08 07:15:34 rg240 Exp $
        integer i,npass,num_nodes,nflop
        double precision taskavg, synchavg
        double precision aggtasks, aggsynch
-       integer nsynchs, ntasks
+       integer nsynchs, ntasks, nsynch0
 
        num_nodes = ga_nnodes()
        call dfill( NSTATS, 0.d0, mv, 1 )
@@ -63,9 +63,10 @@ C$Id: moints_stats.F,v 1.6 1997-08-08 07:15:34 rg240 Exp $
        taskavg = aggtasks/ntasks
        synchavg = aggsynch/nsynchs
        nflop = mi_flop1
+       nsynch0 = mi_nsynchs
        
        if (algo.eq.'semi') then
-         if (ga_nodeid().eq.0) write(6,337) npass, ntasks,
+         if (ga_nodeid().eq.0) write(6,337) npass, ntasks, nsynch0,
      $                mi_flop1, mv(13), amv(13),
      $                mi_tint, mv(3), amv(3),
      $                mi_t1, mv(4), amv(4),
@@ -79,6 +80,7 @@ C$Id: moints_stats.F,v 1.6 1997-08-08 07:15:34 rg240 Exp $
      $          /,20x,23('-'),
      $          /,5x,'Number of passes:',14x,i10,
      $          /,5x,'Number of tasks:',15x,i10,
+     $          /,5x,'Number of synchs:',14x,i10,
      $          /,5x,60('-'),
      $          /,30x,'Node 0',6x,'Aggregate',6x,'Average',
      $          /,5x,60('-'),
