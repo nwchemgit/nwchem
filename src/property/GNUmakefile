@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.17 2000-07-21 22:42:14 edo Exp $
+# $Id: GNUmakefile,v 1.18 2000-08-08 23:51:58 bjohnson Exp $
 #
 
 
@@ -7,7 +7,7 @@
 
    LIBRARY = libproperty.a
    LIB_DEFINES = 
-   LIB_INCLUDES = -I../include -I../nwdft/include
+   LIB_INCLUDES = -I../nwdft/include
 
 USES_BLAS = wnbofile.F gia3.F
 
