@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.51 2000-05-08 20:16:41 d3j191 Exp $
+c $Id: cf_main.F,v 1.52 2000-05-08 20:26:51 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2108,8 +2108,7 @@ c
       do 12 i=1,nums
       if(iand(isdt(i),lfixed).ne.lfixed) then
       ndof(2)=ndof(2)+1
-      if(cf_numcon(int_mb(i_ibnd(2)),mbt(2),isgan(i)).eq.0)
-     + ndof(3)=ndof(3)+1
+      ndof(3)=ndof(3)+cf_numcon(int_mb(i_ibnd(2)),mbt(2),isgan(i))
       endif
    12 continue
 c
