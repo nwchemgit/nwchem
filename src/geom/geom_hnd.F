@@ -1,4 +1,4 @@
-       SUBROUTINE HND_ICOORD(GEOM)
+      SUBROUTINE HND_ICOORD(GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "util.fh"
 c
@@ -2739,7 +2739,7 @@ c
       DBUG =.FALSE.
       OUT  =.FALSE.
       OUT  =OUT.OR.DBUG
-      SOME =.TRUE.
+      SOME =.FALSE.
       SOME =SOME.OR.OUT
       IF(SOME .and. oprint) THEN
          WRITE(IW,8888)
@@ -3998,8 +3998,8 @@ C
          WRITE(IW,9999)
       ENDIF
 c     
-      max_tor_per_bond = 1      ! Minimize torsions
-***      max_tor_per_bond = 100
+*      max_tor_per_bond = 2      ! Minimize torsions...also see if below
+      max_tor_per_bond = 100    ! Allow all torsions
 C     
 C     ----- TORSIONS -----
 C     
@@ -4048,7 +4048,7 @@ C
                            IF(LAT.NE.JAT) THEN
                               if ( iat.ne.jat .and. ! RJH from (h2o)5 test
      $                             iat.ne.kat .and. 
-     $                             iat.ne.lat .and. ! Was .gt. before maxtor
+     $                             iat.gt.lat .and. ! Must be .ne. if restrict ntor_for_ij
      $                             jat.ne.kat .and.
      $                             jat.ne.lat .and.
      $                             kat.ne.lat) then

@@ -63,6 +63,21 @@ c
       zmt_source(geom) = source
 c
       end
+      logical function geom_zmt_get_nzvar(geom,nzvar)
+      implicit none
+#include "geomP.fh"
+c
+      integer geom
+      integer nzvar            
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_zmt_get_nzvar = geom_check_handle(geom, 'geom_zm_get_nzvar')
+      if (.not. geom_zmt_get_nzvar) return
+c
+      nzvar = zmt_nzvar(geom)
+c
+      end
       logical function geom_zmt_get_nizmat(geom,nizmat)
       implicit none
 #include "geomP.fh"
@@ -77,8 +92,6 @@ c
 c
       nizmat = zmt_nizmat(geom)
 c
-      geom_zmt_get_nizmat=.true.
-      return
       end
       logical function geom_zmt_get_izmat(geom,
      1                                    izmat,nizmat)         
@@ -100,8 +113,6 @@ c
          izmat(i) = zmt_izmat(i,geom)
       end do
 c
-      geom_zmt_get_izmat=.true.
-      return
       end
       logical function geom_zmt_get_izfrz(geom,
      1                                    izfrz,nzfrz)
@@ -123,8 +134,6 @@ c
          izfrz(i) = zmt_izfrz(i,geom)
       enddo
 c
-      geom_zmt_get_izfrz=.true.
-      return
       end
       logical function geom_zmt_get_nzfrz(geom,nzfrz)
       implicit none
@@ -140,6 +149,4 @@ c
 c
       nzfrz = zmt_nzfrz(geom)
 c
-      geom_zmt_get_nzfrz=.true.
-      return
       end
