@@ -1,4 +1,4 @@
-c $Id: int_1estv.F,v 1.6 2000-05-23 05:49:17 mdupuis Exp $
+c $Id: int_1estv.F,v 1.7 2001-01-10 21:03:11 edo Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1estv}
@@ -598,9 +598,9 @@ c
 c
 c     ----- current cosmo restriction ... -----
 c
-      if(i_geom.ne.1.or.j_geom.ne.1) then
-         write(luout,*) 'i_geom and/or j_geom is not .eq. 0 . stop.'
-         call errquit('int_1eefc: i_geom and/or j_geom must be =0',0)  
+      if(i_geom.ne.j_geom) then
+         write(luout,*) 'i_geom andr j_geom is noteq'
+         call errquit('int_1eefc: i_geom and j_geom must be the same',0)  
       endif
 
       ohnd_ok = cando_hnd_1e(i_basis,ish,0)
