@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.134 2005-04-01 02:30:12 marat Exp $
+C$Id: geom.F,v 1.135 2005-04-01 02:34:20 marat Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2296,6 +2296,8 @@ c
       external bq_add_nuc_rep_energy
       logical geom_check_handle
       external geom_check_handle
+      logical geom_extbq_on
+      external geom_extbq_on
 c
 c     return the effective nuclear repulsion energy etc.
 c
@@ -2303,8 +2305,10 @@ c
       if (.not. geom_nuc_rep_energy) return
       energy = erep(geom)
 c
+      if(geom_extbq_on()) then
       if(.not. bq_add_nuc_rep_energy(geom,energy))
      >   call errquit("failed bq_add_nuc_rep_energy",0,GEOM_ERR)
+      end if
 c
       end
       logical function geom_nuc_charge(geom, total_charge)
