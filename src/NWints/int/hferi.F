@@ -1,7 +1,7 @@
       Subroutine hferi(Ep,Eq,R0,IJK,ERI,E3,sum,MPP,MPQ,
      &                 NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,MXD,
      &                 canAB,canCD,canPQ)
-c $Id: hferi.F,v 1.2 2003-10-23 19:52:15 edo Exp $
+c $Id: hferi.F,v 1.3 2003-10-25 00:04:38 edo Exp $
 
       Implicit none
 #include "sh_order.fh"
@@ -11,7 +11,8 @@ c $Id: hferi.F,v 1.2 2003-10-23 19:52:15 edo Exp $
       integer iq,jq,nn,ia,ja,ka,mb_limit
       integer ij,mb,ib,jb,kb,ip,jp,kp,mp,ir,jr,lq,nq
       integer kr,nr,mq,mc,ic,jc,kc,md_limit,kl,md,id,jd,kd
-      integer lb2,lc2,kq,ma,nc
+      integer lb2,lc2,kq,ma,nc,la6,lb6,lc6,ld6
+      integer nq1,iq1,iqfin,iqlast
       Logical canAB,canCD,canPQ
 
 c--> Hermite Linear Expansion Coefficients
@@ -84,6 +85,10 @@ c Define the number of shell components on each center.
       Lb2 = ((Lb+1)*(Lb+2))/2
       Lc2 = ((Lc+1)*(Lc+2))/2
       Ld2 = ((Ld+1)*(Ld+2))/2
+      la6=(la*(la+1)*(la+2))/6
+      lb6=(lb*(lb+1)*(lb+2))/6
+      lc6=(lc*(lc+1)*(lc+2))/6
+      ld6=(ld*(ld+1)*(ld+2))/6
       md_limit = Ld2
        
 c Initialize the block of ERIs.
@@ -103,7 +108,7 @@ c Loop over the components of the "A" and "B" shells.
       nn = 0
       do ma = 1,((La+1)*(La+2))/2
 
-       nc =  (la*(la+1)*(la+2))/6 + ma
+       nc =  la6 + ma
        ia = Ixyz(1,nc)
        ja = Ixyz(2,nc)
        ka = Ixyz(3,nc)
@@ -121,7 +126,7 @@ c Loop over the components of the "A" and "B" shells.
            ij=ij+1
 
 
-       nc =  (lb*(lb+1)*(lb+2))/6 + mb
+       nc =  lb6 + mb
        ib = Ixyz(1,nc)
        jb = Ixyz(2,nc)
        kb = Ixyz(3,nc)
@@ -130,22 +135,22 @@ c Sum across (Ip,Jp,Kp) for each value of (Iq,Jq,Kq).
           call dcopy(mpq*nqmx,0d0,0,sum,1)
 
           do Ip = 0,Ia+Ib
-            do Jp = 0,Ja+Jb
-               do Kp = 0,Ka+Kb
-                  if(MPP.eq.1) then
-                     E3(1) = Ep(1,1,0,Ip,Ia,Ib)*
-     &                    Ep(2,1,0,Jp,Ja,Jb)*
-     &                    Ep(3,1,0,Kp,Ka,Kb)
-          else
-
+             do Jp = 0,Ja+Jb
+                do Kp = 0,Ka+Kb
+                   if(MPP.eq.1) then
+                      E3(1) = Ep(1,1,0,Ip,Ia,Ib)*
+     &                     Ep(2,1,0,Jp,Ja,Jb)*
+     &                     Ep(3,1,0,Kp,Ka,Kb)
+                   else
+                      
 c Define the product of the Hermite expansions coefficients for 
 c overlap distribution "P".
-                do mp = 1,MPP
-                  E3(mp) = Ep(1,mp,0,Ip,Ia,Ib)*
-     &                Ep(2,mp,0,Jp,Ja,Jb)*
-     &                  Ep(3,mp,0,Kp,Ka,Kb)
-                end do
-          endif
+                      do mp = 1,MPP
+                         E3(mp) = Ep(1,mp,0,Ip,Ia,Ib)*
+     &                        Ep(2,mp,0,Jp,Ja,Jb)*
+     &                        Ep(3,mp,0,Kp,Ka,Kb)
+                      end do
+                   endif
 
                 do Iq = 0,Lqmax
                    Ir = Ip + Iq
@@ -203,7 +208,7 @@ c Loop over the components of the "C" and "D" shells.
 
           do mc = 1,Lc2
 
-             nc =  (lc*(lc+1)*(lc+2))/6 + mc
+             nc =  lc6 + mc
              ic = Ixyz(1,nc)
              jc = Ixyz(2,nc)
              kc = Ixyz(3,nc)
@@ -223,7 +228,7 @@ c Loop over the components of the "C" and "D" shells.
                  if( kl.gt.ij ) go to 480
               end if
 
-             nc =  (ld*(ld+1)*(ld+2))/6 + md
+             nc =  ld6 + md
              id = Ixyz(1,nc)
              jd = Ixyz(2,nc)
              kd = Ixyz(3,nc)
@@ -231,41 +236,61 @@ c Loop over the components of the "C" and "D" shells.
               nn = nn + 1
 
 c Sum across (Iq,Jq,Kq).
-              erinn=0d0
-              if(mpq.eq.1) then
-                 do Iq = 0,Ic+Id
-                    zot1=0d0
-                    do Jq = 0,Jc+Jd
-                       zot2=0d0
-                       do Kq = 0,Kc+Kd
-                          zot2 = zot2+Eq(3,1,0,Kq,Kc,Kd)*
-     *                         sum(1,IJK(Iq,Jq,Kq))
-                       end do
-                       zot1=zot1+ 
-     &                      Eq(2,1,0,Jq,Jc,Jd)*zot2
-                    end do
-                    erinn=erinn+Eq(1,1,0,Iq,Ic,Id)*zot1
-                 end do
-              else
-              do mq = 1,MPQ
-                 do Iq = 0,Ic+Id
-                    zot1=0d0
-                    do Jq = 0,Jc+Jd
-                       zot2=0d0
-                       do Kq = 0,Kc+Kd
-                          
-
 c Define the product of the Hermite expansion coefficients for 
 c overlap distribution "Q" and calculate eri
-                          zot2 = zot2+Eq(3,mq,0,Kq,Kc,Kd)*
-     *                         sum(mq,IJK(Iq,Jq,Kq))
+              erinn=0d0
+                
+              if(MPQ.eq.1) then
+                 do Iq = 0,Ic+Id
+                    do Jq = 0,Jc+Jd
+                       do Kq = 0,Kc+Kd
+                          nq = IJK(Iq,Jq,Kq)
+                          ERInn = ERInn + 
+     &                         Eq(1,1,0,Iq,Ic,Id)*
+     &                         Eq(2,1,0,Jq,Jc,Jd)*
+     &                         Eq(3,1,0,Kq,Kc,Kd)*sum(1,nq)
+                       enddo
+                    enddo
+                 enddo
+              else
+                 iqfin=0
+                 iqlast=ic+id
+                 if(iqlast.gt.0) then
+                    iqfin=-1
+                    if(and(iqlast,1).eq.0) then
+                       iqfin=ic+id
+                       iqlast=iqlast-2
+                    endif
+                    do Iq = 0,iqlast,2
+                       iq1=iq+1
+                       do Jq = 0,Jc+Jd
+                          do Kq = 0,Kc+Kd
+                             nq = IJK(Iq,Jq,Kq)
+                             nq1 = IJK(Iq1,Jq,Kq)
+                             do mq = 1,MPQ
+                                ERInn = ERInn + 
+     &                               (Eq(1,mq,0,Iq,Ic,Id)*sum(mq,nq)+
+     &                               Eq(1,mq,0,Iq1,Ic,Id)*sum(mq,nq1))*
+     &                               Eq(2,mq,0,Jq,Jc,Jd)*
+     &                               Eq(3,mq,0,Kq,Kc,Kd)
+                             end do
+                          end do
+                       enddo
+                    enddo
+                 endif
+                 if(iqfin.ne.-1) then
+                    do Jq = 0,Jc+Jd
+                       do Kq = 0,Kc+Kd
+                          nq = IJK(Iqfin,Jq,Kq)
+                          do mq = 1,MPQ
+                             ERInn = ERInn + 
+     &                            Eq(1,mq,0,Iqfin,Ic,Id)*
+     &                            Eq(2,mq,0,Jq,Jc,Jd)*
+     &                            Eq(3,mq,0,Kq,Kc,Kd)*sum(mq,nq)
+                          end do
                        end do
-                       zot1=zot1+ 
-     &                      Eq(2,mq,0,Jq,Jc,Jd)*zot2
-                    end do
-                    erinn=erinn+Eq(1,mq,0,Iq,Ic,Id)*zot1
-                 end do
-              End do
+                    enddo
+                 endif
               endif
               eri(nn)=erinn
 
