@@ -1,9 +1,9 @@
 
-# $Id: GNUmakefile,v 1.30 1996-03-18 23:47:37 vg422 Exp $
+# $Id: GNUmakefile,v 1.31 1996-03-20 00:11:12 d3e129 Exp $
 
     HEADERS = api/int_tim.fh api/apiP.fh seint/se_defs.fh
     LIBRARY = libnwints.a
-    SUBDIRS = api int aux ints_sp deriv texas seint
+    SUBDIRS = api int aux ints_sp deriv texas
 
     USE_TEXAS = NOPE
 
@@ -12,6 +12,9 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 
+semi:
+	cp seint/se_defs.fh $(INCDIR)
+	(cd seint; $(MAKE) )
 txs:
 	@touch api/cando_sp.F texas/texas_stubs.F api/int_2e2c.F api/int_2e3c.F
 	$(MAKE) "USE_TEXAS=YEP"
