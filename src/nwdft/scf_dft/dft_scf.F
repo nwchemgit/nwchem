@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.239 2004-02-17 17:42:34 edo Exp $
+c     $Id: dft_scf.F,v 1.240 2004-04-03 00:23:45 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -1511,7 +1511,6 @@ c
       write(*,*)' MXtheta = ', MXtheta
       write(*,*)' MXphi = ', MXphi
       write(*,*)' IAC_MAX = ', IAC_MAX
-      write(*,*)' MAX_CHUNK = ', MAX_CHUNK
       write(*,*)' nqshells = ', nqshells
       write(*,*)' iqrot = ', iqrot
       write(*,*)' ntypes = ', ntypes
