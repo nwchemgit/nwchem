@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.19 2002-06-25 19:51:25 bylaska Exp $
+* $Id: cpsdv5.F,v 1.20 2003-02-05 03:19:23 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -610,7 +610,7 @@
             write(6,1706) E(15)
          end if
 
-*        **** write out <psi|H|psi> matrix ****
+*        **** write out diagonal <psi|H|psi> matrix ****
          if (pspw_SIC()) then
            n = ne(1)
            nn = n*n
@@ -618,12 +618,9 @@
            do ms=1,ispin
            do i=n1(ms),n2(ms)
              ii = i-n1(ms)
-             do j=n1(ms),n2(ms)
-               jj = j-n1(ms)
-               index = (ii+1) + jj*n +(ms-1)*nn
-               write(6,1341) ms,ii+1,jj+1,
+             index = (ii+1) + ii*n +(ms-1)*nn
+             write(6,1341) ms,ii+1,ii+1,
      >                       dbl_mb(hml(1)+index-1)
-             end do
            end do
            end do
 
@@ -815,7 +812,7 @@
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
- 1331 FORMAT(/' Hamiltonian matrix')
+ 1331 FORMAT(/' Diagonal Elements of Hamiltonian matrix')
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
  1341 FORMAT(I3,2I3,' H=',E16.6)
  1350 FORMAT(/' orthonormality')
