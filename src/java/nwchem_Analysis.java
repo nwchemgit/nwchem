@@ -18,7 +18,6 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 
     Graph anaPlot = new Graph();
 
-
     JLabel systemLabel = new JLabel();
     JButton doneButton = new JButton("done");
     JButton clearButton = new JButton("clear");

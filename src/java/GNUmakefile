@@ -1,12 +1,12 @@
 #
-# $Id: GNUmakefile,v 1.11 2000-05-10 00:11:53 d3j191 Exp $
+# $Id: GNUmakefile,v 1.12 2000-05-11 15:20:11 d3j191 Exp $
 #
 
 OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \
 	nwchem_Task.class nwchem_Job.class nwchem_MD.class \
 	nwchem_MD_energy.class nwchem_MD_optimize.class \
 	nwchem_MD_dynamics.class nwchem_MD_thermo.class \
-        nwchem_Free.class nwchem_Analysis.class\
+        nwchem_Free.class nwchem_Analysis.class nwchem_RMS.class\
 	nwchem_Synch.class nwchem_Input.class nwchem_Times.class\
 	nwchem_MD_control.class nwchem_Property.class nwchem_Rasmol.class\
         nwchem_NWChem.class nwchem_Socket.class\
@@ -14,7 +14,7 @@ OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \
         nwchem_Prepare.class \
 	IntegerField.class DoubleField.class Graph.class
 
-CLASS_PATH = .:$(PTOLEMY):$(SWING)
+CLASS_PATH = .:$(PTPLOT):$(SWING)
 
 .SUFFIXES:	.f .o .java .class
 
