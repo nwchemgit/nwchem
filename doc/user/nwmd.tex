@@ -819,6 +819,24 @@ of properties that are calculated during the simulation.
 For molecular dynamics simulation
 this frequency is in time steps, for multi-configuration thermodynamic
 integration in $\lambda$-steps.
+
+\item
+\begin{verbatim}
+print energy [<integer nfener>]
+\end{verbatim}
+specifies the frequency \verb+nfener+ of printing solute bonded energies
+the output file for energy/import calculations. 
+The default for \verb+nfener+ is 0. 
+
+\item
+\begin{verbatim}
+print energy [<integer nfforce>]
+\end{verbatim}
+specifies the frequency \verb+nfforc+ of printing solute forces
+the output file for energy/import calculations. 
+The default for \verb+nfforc+ is 0. 
+
+
 \end{description}
 
 \section{Periodic updates}

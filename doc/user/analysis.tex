@@ -190,20 +190,21 @@ The current selection can be saved to, or read from a file using the
 \par
 
 Some analysis are performed on groups of atoms. These groups of atoms
-are define by
+are defined by
 
 \begin{verbatim}
 define <integer igroup> [<real rsel>] [<integer isel> [<integer jsel>]] \\
  [solvent] { <string atom> }
 \end{verbatim}
 
-The atom string in this definitions takes the form
+The string atom in this definitions takes the form
 
 \begin{verbatim}
 [<integer segment>:]<string atomname>
 \end{verbatim}
 
-In the atomname a question mark may be used as a wildcard character.
+In the atomname a question mark may be used as a wildcard character. Multiple
+define directive can be used to define a single set of atoms.
 
 \section{Coordinate analysis}
 
@@ -269,7 +270,10 @@ coordinates and written to the specified file. If no filename is
 given, the analysis is applied to the specified trajectory and 
 performed as part of the \verb+scan+ directive.
 Implemented analyses defined by 
-\verb+<string function> [<real value1> [<real value2>]]+ include
+\verb+<string function> [<real value1> [<real value2>]]+ include\\
+\\
+\verb+distance+ to calculate the distance between the centers of geometry of the 
+two specified groups of atoms, and\\
 \verb+distances+ to calculate all atomic distances between atoms
 in the specified groups that lie between $value1$ and $value2$.
 
