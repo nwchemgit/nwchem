@@ -1,5 +1,5 @@
 *
-* $Id: strfac.F,v 1.5 2002-06-06 00:15:21 bylaska Exp $
+* $Id: strfac.F,v 1.6 2002-06-07 14:16:59 bylaska Exp $
 *
 
 *     ***********************************
@@ -68,11 +68,9 @@
             end do
          end if
         end do
-        write(*,*) "strfac_init 1, nb:",nb
         call Pack_i_pack(nb,int_mb(i_indx(1,nb)))
         call Pack_i_pack(nb,int_mb(j_indx(1,nb)))
         call Pack_i_pack(nb,int_mb(k_indx(1,nb)))
-        write(*,*) "strfac_init 2, nb:",nb
       end do
 
       return
