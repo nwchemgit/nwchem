@@ -3,7 +3,7 @@
      + csa,isat,isgm,xs,vs,msa,nsa,cwa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam)
 c
-c $Id: pre_wrtpdb.F,v 1.8 1998-09-23 19:32:05 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.9 1999-09-21 22:55:08 d3j191 Exp $
 c
       implicit none
 c
@@ -54,8 +54,8 @@ c
  1002 format('TER')
 c
       numslv=iopt
-      if(iopt.lt.0) numslv=nwm
-      if(iopt.gt.nwm) numslv=nwm
+      if(iopt.lt.0) numslv=nwmc
+      if(iopt.gt.nwm+nwmc) numslv=nwm+nwmc
 c
       if(numslv.gt.0) then
       nats=nsa

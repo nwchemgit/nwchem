@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.34 1999-09-21 22:01:41 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.35 1999-09-21 22:55:08 d3j191 Exp $
 c
       implicit none
 c
@@ -508,10 +508,10 @@ c
       if(card(1:6).eq.'wr_pdb') then
       if(card(8:13).eq.'solute') then
       filnam=card(15:80)
-      iopt=0
+      iopt=nwmc
       else
       filnam=card(8:80)
-      iopt=nwm
+      iopt=nwm+nwmc
       endif
       length=index(filnam,' ')-1
       if(length.eq.0) filnam=filpdb
