@@ -8,7 +8,7 @@ COBJ  = clustrfix.o \
 	clustrxx4.o \
 	pstein4.o \
 	pstein5.o \
-	peigs_dlasq1.o \
+	peigs_dlasq2a.o \
 	b_ortho.o \
          chol_bcst.o \
          choleski9.o \
@@ -67,7 +67,6 @@ COBJ  = clustrfix.o \
          pdiff.o \
          pgexit.o \
          reducemap.o\
-	 pstebz9.o \
 	pstebz10.o \
 	 inv_it4.o \
 	 inv_it5.o \
@@ -85,6 +84,7 @@ COBJ  = clustrfix.o \
 
 
 all:		$(COBJ)
+		$(peigs_AR) $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libpeigs.a *.o
 
 .EXPORT_ALL_VARIABLES:
 

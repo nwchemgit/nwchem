@@ -698,7 +698,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
 */
 
      psgn = 1.;
-     psigma = -(shift);
+     psigma = -(fabs(shift));
      
      for ( i = 0; i < msize; i++ )
        eval[i] = eval[i] - psgn*psigma; 
