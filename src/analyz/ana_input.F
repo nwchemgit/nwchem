@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.45 2001-02-22 18:36:10 d3j191 Exp $
+c $Id: ana_input.F,v 1.46 2001-03-30 00:31:53 d3j191 Exp $
 c
       implicit none
 c
@@ -435,7 +435,8 @@ c
 c     define bonds
 c     ------------
 c
-      if(inp_compare(.false.,'bond',item)) then
+      if(inp_compare(.false.,'bond',item).or.
+     + inp_compare(.false.,'distance',item)) then
       if(.not.inp_i(ibond)) call errquit('Error in bond',0)
       if(.not.inp_a(atomi)) call errquit('Error in bond',0)
       if(.not.inp_a(atomj)) call errquit('Error in bond',0)
