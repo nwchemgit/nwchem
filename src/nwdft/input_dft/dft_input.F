@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.19 1997-03-07 00:14:42 d3e129 Exp $
+c     $Id: dft_input.F,v 1.20 1999-02-13 00:40:21 edo Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -77,6 +77,10 @@ c
       idirect = 1
       if (.not. rtdb_put(rtdb, 'dft:idirect', mt_int, 1, idirect))
      &   call errquit('dft_input: rtdb_put failed', 400)
+         if (.not. rtdb_put(rtdb,'int2e:filesize', mt_int, 1, -1))
+     $        call errquit('dft_input: failed to store filesize',0)
+         if (.not. rtdb_put(rtdb,'int2e:memsize', mt_int, 1, -1))
+     $        call errquit('dft_input: failed to store filesize',0)
 c
       goto 10
 c
