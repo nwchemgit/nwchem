@@ -1,6 +1,13 @@
-!$Id: paw_xc_data.fh,v 1.4 2003-02-18 01:57:31 marat Exp $
+!$Id: paw_xc_data.fh,v 1.5 2003-02-19 01:02:04 marat Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.4  2003/02/18 01:57:31  marat
+!generated atomic exc energies.
+!there is a difference between paw and nwchem
+!due different results from vosko exch-corr routine
+!
+!MV
+!
 !Revision 1.3  2003/02/17 22:03:36  marat
 !almost done
 !MV
@@ -14,7 +21,6 @@
 !MV
 !
 
-      integer paw_xc_wrk_size
       integer paw_xc_ispin
       integer paw_xc_lmax
       integer paw_xc_nphi
@@ -26,26 +32,37 @@
       integer paw_xc_w_theta(4)
       integer paw_xc_e(4)
       integer i_paw_vxc(4)
+      integer i_paw_xc_matr(4)
+      integer i_paw_xc_pot(4)
       integer paw_vxc_u_ae(4)
       integer paw_vxc_d_ae(4)
       integer paw_vxc_u_ps(4)
       integer paw_vxc_d_ps(4)
 
+      integer paw_xc_pot_u(4)
+      integer paw_xc_pot_d(4)
+      integer paw_xc_matr_u(4)
+      integer paw_xc_matr_d(4)
+
       common /paw_exc_data/   paw_xc_ispin,
      >                        paw_xc_lmax,
-     >                        paw_xc_wrk_size,
      >                        paw_xc_nphi,
      >                        paw_xc_ntheta,
      >                        paw_xc_e,
      >                        i_paw_vxc,
-     >                        paw_vxc_u_ae,
-     >                        paw_vxc_d_ae,
-     >                        paw_vxc_u_ps,
-     >                        paw_vxc_d_ps,
+     >                        i_paw_xc_matr,
+     >                        i_paw_xc_pot,
      >                        paw_xc_angle_phi,
      >                        paw_xc_cos_theta,
      >                        paw_xc_ylm,
      >                        paw_xc_w_phi,
-     >                        paw_xc_w_theta
-
+     >                        paw_xc_w_theta,
+     >                        paw_vxc_u_ae,
+     >                        paw_vxc_d_ae,
+     >                        paw_vxc_u_ps,
+     >                        paw_vxc_d_ps,
+     >                        paw_xc_pot_u,
+     >                        paw_xc_pot_d,
+     >                        paw_xc_matr_u,
+     >                        paw_xc_matr_d
 

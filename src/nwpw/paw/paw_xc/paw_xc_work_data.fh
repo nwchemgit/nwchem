@@ -1,6 +1,10 @@
-!$Id: paw_xc_work_data.fh,v 1.1 2003-02-17 22:03:36 marat Exp $
+!$Id: paw_xc_work_data.fh,v 1.2 2003-02-19 01:02:04 marat Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.1  2003/02/17 22:03:36  marat
+!almost done
+!MV
+!
 
       integer paw_xc_work_size
       integer rho_ae(4)
@@ -10,6 +14,8 @@
       integer exc_ae(4)
       integer exc_ps(4)
       integer xc_temp(4)
+      integer xc_c_temp(4)
+      integer xc_c_temp1(4)
 
       common /paw_xc_work_data/ paw_xc_work_size,
      >                          rho_ae,  
@@ -18,4 +24,6 @@
      >                          vxc_ps,
      >                          exc_ae,
      >                          exc_ps,
+     >                          xc_c_temp,
+     >                          xc_c_temp1,
      >                          xc_temp
