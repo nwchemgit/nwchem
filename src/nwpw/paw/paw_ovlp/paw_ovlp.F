@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.23 2003-02-10 23:08:30 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.24 2003-02-10 23:24:44 marat Exp $
 *
 
 !**************************************************
@@ -18,17 +18,22 @@
 #include "paw_ovlp_data.fh" 
 #include "paw_geom.fh" 
 #include "paw_ma.fh" 
+#include "paw_basis.fh" 
   
 *     **** local variables ****
       logical value
       integer ii,ia,nlm,nlmii,n,m,mabs
       integer nbasis,i2,i1,isgn,nion
       integer paw_ovlp_w_size
+      integer paw_ovlp_w_d_size
       integer neall
+      integer in,li,lj,mi,mj,i,j
 
 *     **** external functions ****
       integer  psi_ne
       external psi_ne
+
+      nion = ion_nion()
 
 c     !*** calculate total number of (n,l,m) projectors  ***
       total_nbasis = 0
@@ -48,7 +53,24 @@ c     !*** calculate the size and indexing for weight coefficients  ***
      >                + paw_proj_nbasis(ia)**2*ion_natm(ia)
       end do
 
-
+c     !*** calculate the size for diagonal weight coefficients  ***
+      paw_ovlp_w_d_size = 0
+      do in=1,nion
+        ia = ion_katm(in)
+        nbasis = paw_basis_nbasis(ia)
+       do i=1,nbasis
+          li = paw_basis_orb_l(i,ia)
+          do mi=-li,li
+            do j=1,nbasis
+              lj = paw_basis_orb_l(j,ia)
+                do mj=-lj,lj
+                if (mi==mj) paw_ovlp_w_d_size = paw_ovlp_w_d_size + 1
+                end do
+             end do
+           end do   
+        end do
+      end do
+ 
 c     !*** allocate storage for paw_ovlp arrays*** 
 c     !-- total number of electron states
       neall = (psi_ne(1) + psi_ne(2))
@@ -63,8 +85,11 @@ c     !-- total number of electron states
       value = value.and.MA_alloc_get(mt_int,(total_nbasis*neall),
      >                               'sgn',sgn(2),sgn(1))
 
-      value = value.and.my_alloc(mt_dcpl,(total_nbasis**2),
+      value = value.and.my_alloc(mt_dcpl,paw_ovlp_w_size,
      >                           "paw_ovlp_w",paw_ovlp_w)
+
+      value = value.and.my_alloc(mt_dcpl,paw_ovlp_w_d_size,
+     >                           "paw_ovlp_w_d",paw_ovlp_w_d)
       if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
 
 
@@ -75,7 +100,6 @@ c    !
 c    !
 
 c     !*** set sign array (isgn) and location of -m elements(indx2)
-      nion = ion_nion()
       nlmii = 0
       do ii=1,nion
 c        !-- the atom kind is ia --
@@ -274,7 +298,7 @@ c      write(*,*)
 #include "paw_proj.fh"
 #include "paw_basis.fh"
 
-      integer i_nbasis,ii
+      integer i_nbasis,ii,ii1
       integer in,nlm,nlm1,ia,n
       integer neall,nbasis
       integer indx_coeff,indx_coeff1
@@ -312,17 +336,41 @@ c           write(*,*) "paw_ovlp:w",w_tmp
         end do
         i_nbasis = i_nbasis + nbasis
       end do
-
+      
+c     *** calculate diagonal weights mi=mj***     
+      ii1 = 0
+      ii = 0
+      do in=1,ion_nion()
+        ia = ion_katm(in)
+        nbasis = paw_basis_nbasis(ia)
+        do i=1,nbasis
+          li = paw_basis_orb_l(i,ia)
+          do mi=-li,li
+            do j=1,nbasis
+              lj = paw_basis_orb_l(j,ia)
+                do mj=-lj,lj
+                if(mi==mj) then
+                  dcpl_mb(paw_ovlp_w_d(1)+ii1)= 
+     >            dcpl_mb(paw_ovlp_w(1)+ii)
+                  ii1 = ii1 + 1
+                end if
+                ii =ii +1
+                end do
+             end do
+           end do   
+         end do
+      end do
+ 
       write(*,*) " paw weights"
       ii = 0
       do in=1,ion_nion()
         ia = ion_katm(in)
         nbasis = paw_basis_nbasis(ia)
         do i=1,nbasis
-          li = paw_basis_orb_l(i)
+          li = paw_basis_orb_l(i,ia)
           do mi=-li,li
             do j=1,nbasis
-              lj = paw_basis_orb_l(j)
+              lj = paw_basis_orb_l(j,ia)
                 do mj=-lj,lj
                   write(*,*) i,mi,j,mj,in
                   write(*,*) dcpl_mb(paw_ovlp_w(1)+ii)
