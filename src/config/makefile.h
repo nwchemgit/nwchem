@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.213 1997-02-27 17:02:14 d3j191 Exp $
+# $Id: makefile.h,v 1.214 1997-02-27 18:04:44 d3h325 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -834,8 +834,8 @@ endif
 ifeq ($(TARGET),LINUX)
 #
 # Linux running on an x86 using f77 on f2c
+# to use g77 instead f77/f2c, define USE_G77 environment variable
 #
-
        NICE = nice
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
@@ -844,7 +844,15 @@ ifeq ($(TARGET),LINUX)
   MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
 
+# JN: with g77 we do not need explicit preprocessing
+ifdef USE_G77
+  FOPTIONS  = -fno-second-underscore
+         FC = g77
+else
    FOPTIONS = -Nc40 -Nn1604
+  EXPLICITF = TRUE
+endif
+
    COPTIONS = -Wall -m486
   FOPTIMIZE = -g -O2
   COPTIMIZE = -g -O2
@@ -857,7 +865,6 @@ ifeq ($(TARGET),LINUX)
  EXTRA_LIBS = -lf2c -lm
 
         CPP = gcc -E -nostdinc -undef -P
-  EXPLICITF = TRUE
    FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
 			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
 			/bin/rm -f /tmp/$$$$.c) || exit 1
