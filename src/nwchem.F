@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.107 1998-03-14 01:47:22 d3g681 Exp $
+c     $Id: nwchem.F,v 1.108 1998-07-13 23:51:53 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -324,7 +324,7 @@ c
       write(6,*)
       write(6,*)
       call util_print_centered(6,
-     $     'Northwest Computational Chemistry Package (NWChem) 3.2',
+     $     'Northwest Computational Chemistry Package (NWChem) 3.2.1',
      $     40, .true.)
       write(6,*)
       write(6,*)
