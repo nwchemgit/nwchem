@@ -1,6 +1,6 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.4 1999-06-14 22:58:51 d3h449 Exp $
+c$Id: grid_gen_pts.F,v 1.5 1999-06-15 00:35:44 d3h449 Exp $
 c
       implicit none
 c      
@@ -16,7 +16,7 @@ c
 #include "sym.fh"
 c
       integer rtdb
-      logical leb
+      logical leb, grid_on_file
       integer lcoord, icoord, lcharge, icharge, ltags, itags
       integer mxnrad, nqlen, lqs, iqs
       integer laqbuf, iaqbuf
@@ -67,13 +67,19 @@ c
      &                     'ang quad pts buffer', laqbuf, iaqbuf))
      &   call errquit('grid_gen: cannot allocate quad pt buffer', 0)
 c
-      call grid_tasks(rtdb, Dbl_MB(icoord), int_mb(iqs), nqlen,
-     &                dbl_mb(iaqbuf), ang_quad_buf_size)
+      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
+     &   grid_on_file))then
+         grid_on_file = .false.
+      endif
+      if (grid_on_file)then
+         call grid_tasks(rtdb, Dbl_MB(icoord), int_mb(iqs), nqlen,
+     &                   dbl_mb(iaqbuf), ang_quad_buf_size)
 c
-c     try to balance the number of tasks on each node
+c        try to balance the number of tasks on each node
 c
-      call grid_file_balance()
+         call grid_file_balance()
 c
+      endif
       if (.not. MA_Pop_Stack(laqbuf))
      &   call errquit('grid_gen_pts: pop stack failed.',0)
       if (.not. MA_Pop_Stack(lqs))
