@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: nqenw,v 1.3 1998-08-04 18:35:10 d3g681 Exp $
+# $Id: nqenw,v 1.4 1998-08-07 08:34:45 d3e129 Exp $
 #
 
 onintr interrupted
@@ -326,9 +326,9 @@ chmod +x \$BIG/nwchem
 ############################################################################
 
 ja 
-echo "Start date:`date`"
+echo "Start date:\`date\`"
 time mpprun -n $NPROC ./nwchem $THEINPUT
-echo " End  date:`date`"
+echo " End  date:\`date\`"
 ja -cst
 
 ############################################################################
