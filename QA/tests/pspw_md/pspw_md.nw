@@ -136,23 +136,13 @@ PSPW
       formatted_filename: Si.vpp
       input_wavefunction_filename:  sic2.00.elc
       output_wavefunction_filename: sic2.00.elc
-      loop: 10 100
+      loop: 25 100
       Mulliken
+      tolerances: 1.0d-12 1.0d-9 1.0d-4
    END
 END
 task cg_pspw energy
 task pspw steepest_descent
-
-PSPW
-   CONJUGATE_GRADIENT
-      cell_name: small
-      formatted_filename: C.vpp
-      formatted_filename: Si.vpp
-      input_wavefunction_filename:  sic2.01.elc
-      output_wavefunction_filename: sic2.01.elc
-      loop: 25 100
-   END
-END
 
 
 #******* Generate a initial wavefunction based on planewaves ****
