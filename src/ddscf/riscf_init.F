@@ -1,6 +1,6 @@
       logical function riscf_init (rtdb, geom, ao_basis, ri_basis, 
      $        tol2e)
-C$Id: riscf_init.F,v 1.5 1996-02-07 00:41:26 vg038 Exp $
+C$Id: riscf_init.F,v 1.6 1996-02-07 23:43:23 vg038 Exp $
 
 C     calculate three center ERIs, transform them with V**(-1/2)
 C     (V-approximation: V(i,j)=(i|j))
@@ -59,6 +59,9 @@ C  get memory from integral API
 C     calculate V**(-1/2) with Daves routine
       MinEval = 1.D-8
       if (oscfps) call pstat_on(ps_vhalf)
+      if ( ga_nodeid().eq.0 ) then
+        call util_print_centered (LUOUT,'creating V**-1/2', 30, .false.)
+      endif
       status = Mk_Fit_Xf('V', 'Y', ri_basis, MinEval, g_Vsqrt)
       if (oscfps) call pstat_off(ps_vhalf)
       if (.not. status) call errquit ('error creating V**-1/2',110)
@@ -106,8 +109,10 @@ C     disk-based method requested?
  100  continue  ! jump back here after error message
       if ( odisk ) then
 #ifdef RISCF_USE_DA
-        call util_print_centered (LUOUT,'using disk based algorithm', 
-     $       30, .false.)
+        if ( ga_nodeid().eq.0 ) then
+          call util_print_centered (LUOUT,'using disk based algorithm', 
+     $         30, .false.)
+        endif
 C       transformed 3-center integrals on disk
         istat = da_init ( 10, 1.D10, 1.D10, 1.D7 ) 
 C         (max_arrays, max_array_size, total_disk_space, max_memory)
@@ -142,6 +147,11 @@ C       switch to in-core and jump back
       endif
       write (LUOUT,*)
 
+      if ( ga_nodeid().eq.0 ) then
+        call util_print_centered (LUOUT,'calculating 3-center integrals'
+     $       , 30, .false.)
+      endif
+
       if (oscfps) call pstat_on(ps_transform)
       call riscf_trans_int (g_three, ao_basis, nsh, nbf, nsqhalf,
      $     bfsquare,
@@ -150,6 +160,11 @@ C       switch to in-core and jump back
      $     dbl_mb(k_V_row), dbl_mb(k_T_tmp), dbl_mb(k_buf), lbuf, 
      $     dbl_mb(k_scr), lscr, odisk)
       if (oscfps) call pstat_off(ps_transform)
+
+      if ( ga_nodeid().eq.0 ) then
+        call util_print_centered (LUOUT,'3-center integrals done'
+     $       , 30, .false.)
+      endif
 
       status = riscf_put_3c_ints (ao_basis, ri_basis, g_three, g_indx, 
      $     npair, odisk)
