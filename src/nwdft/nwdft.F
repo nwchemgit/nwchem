@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.26 1996-10-05 00:52:00 d3h449 Exp $
+C$Id: nwdft.F,v 1.27 1996-10-07 20:03:54 d3e129 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -76,7 +76,6 @@ c
 c--> determine system type (molecule, polymer,surface,crystal)
 c    if no system type exists in db --> default = molecular case     
 c
-x
       if(.not. geom_systype_get(geom,itype))
      &    itype = 0
 c
