@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.35 1995-03-31 01:38:43 d3g681 Exp $
+c $Id: raktest.F,v 1.36 1995-04-24 07:59:05 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -878,6 +878,8 @@ c
 00100 continue
 c
 10000 format(1x,1pd20.10)
+c
+      close(unit=lu,status='keep')
 c
       end
       subroutine fd_upd_hess(hess,gradm,gradp,s_delta,delta,nat,
