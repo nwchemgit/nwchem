@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.16 2003-10-19 00:52:07 sohirata Exp $
+c $Id: tce_input.F,v 1.17 2004-02-01 22:08:58 sohirata Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -24,6 +24,7 @@ c        [TARGETSYM <character targetsym default 'none'>]
 c        [SYMMETRY]
 c        [DIPOLE]
 c        [TILESIZE <no default (automatically adjusted)>]
+c        [FRAGMENT <default -1 (off)>]
 c     END
 c
 c     TASK TCE ENERGY
@@ -45,6 +46,7 @@ c        [TARGETSYM <character targetsym default 'none'>]
 c        [SYMMETRY]
 c        [DIPOLE]
 c        [TILESIZE <no default (automatically adjusted)>]
+c        [FRAGMENT <default -1 (off)>]
 c     END
 c
 c     TASK UCCSDT ENERGY
@@ -70,6 +72,7 @@ c
       integer nroots
       integer target
       integer tilesize
+      integer fragment
       character*4 targetsym
       logical symmetry
       logical left
@@ -166,6 +169,13 @@ c     DIPOLE (dipole moments & dipole transition moments)
 c
       left=.false.
       if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+c
+c     FRAGMENT (fragment MO calculations)
+c
+      fragment=-1
+      if (.not.rtdb_put(rtdb,'tce:fragment',mt_int,1,fragment))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
 c
@@ -518,6 +528,18 @@ c
         if (.not.inp_i(tilesize))
      1    call errquit('tce_input: no tilesize given',0,INPUT_ERR)
         if (.not.rtdb_put(rtdb,'tce:tilesize',mt_int,1,tilesize))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+c     FRAGMENT (if excited state calc, give an atom in an excited fragment)
+c
+      else if (inp_compare(.false.,test,'fragment')) then
+        if (.not.inp_i(fragment)) then
+          write(LuOut,*) 'tce_input: fragment value not found; ',
+     1      'default value of 0 will be used'
+          fragment=0
+        endif
+        if (.not.rtdb_put(rtdb,'tce:fragment',mt_int,1,fragment))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c

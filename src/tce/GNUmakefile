@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.23 2003-10-19 00:52:03 sohirata Exp $
+#$Id: GNUmakefile,v 1.24 2004-02-01 22:08:57 sohirata Exp $
 #
 # CCSDTQ, CCSDTQ_LAMBDA, EOM-CCSDTQ will not be compiled by default.
 # To include these, setenv CCSDTQ yes; make realclean; make.
@@ -26,7 +26,7 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_y1_offset.o tce_y2_offset.o tce_y3_offset.o tce_y4_offset.o \
       tce_jacobi_x1.o tce_jacobi_x2.o tce_jacobi_x3.o tce_jacobi_x4.o \
       tce_jacobi_y1.o tce_jacobi_y2.o tce_jacobi_y3.o tce_jacobi_y4.o \
-      parT_t3_fuse.o tce_mbpt2.o tce_energy.o
+      parT_t3_fuse.o tce_mbpt2.o tce_energy.o tce_energy_fragment.o
 
 LIB_INCLUDES = -I./include
 
