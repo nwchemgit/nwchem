@@ -1,4 +1,4 @@
-C $Id: rel_pvp.F,v 1.2 1999-10-26 23:12:05 mg201 Exp $
+C $Id: rel_pvp.F,v 1.3 2000-01-03 21:42:13 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_pvp}
 c:tex-This routine generates the pV.p integrals needed for various
@@ -123,7 +123,7 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
       n_all_b = n_cart_b*n_cont_b
       n_ab = n_cart_ab*n_cont_ab
       if (lpvp .lt. n_ab .and. .not.DryRun) call errquit (
-     &      'Integral buffer length too small in rel_onel',99)
+     &      'Integral buffer length too small in rel_pvp',99)
       if (debug_addresses) then
         write (LuOut,*) 'n_cart_a',n_cart_a
         write (LuOut,*) 'n_cart_b',n_cart_b
@@ -181,7 +181,7 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
       memscr = lscr-i_scr+1
       if (.not.DryRun) then
         if (memscr .lt. 0) call errquit (
-     &      'Insufficient scratch memory in rel_onel',99)
+     &      'Insufficient scratch memory in rel_pvp',99)
         k = i_xca-1
         do j = 1,n_cont_a
           do i = 1,n_prim_A
