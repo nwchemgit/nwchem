@@ -104,10 +104,12 @@ c
             icount = icount + 1
             if (.not. omyjob) then
                do jat = iat, natoms
-                  if (tags(iat) .eq. tag) odone(jat) = .true.
+                  if (tags(jat) .eq. tag) odone(jat) = .true.
                enddo
                goto 1010
             endif
+c
+            write(6,*) me,' doing ', iat, ' ', tag
 c
 c...  gather  shell / symmetry info
 c
@@ -271,6 +273,9 @@ c
  1010    continue               ! Jump here if not this node's task
       enddo
 c
+      call ga_sync()
+c
+      call dgop(11, toteng, 1, '+')
       if (ga_nodeid().eq.0) then
          call util_print_centered(6,
      $        'Superposition of Atomic Density Guess', 20, .true.)
