@@ -1,11 +1,12 @@
       subroutine grad2(d_ij,d_kl,d_ik,d_jl,d_il,d_jk,frc,g_dens,ldim,
-     $                 basis,nproc,nat, scr, lscr, buf, lbuf )
+     $                 basis,nproc,nat, scr, lscr, buf, lbuf, tol2e )
 
       implicit real*8 (a-h,o-z)
 
 #include "mafdecls.h"
 #include "global.fh"
 #include "bas.fh"
+#include "schwarz.fh"
 
       integer g_dens, basis
 
@@ -22,9 +23,12 @@
       do 95, iat3 = nat, 1, -1
         do 90, iat1 = iat3, 1, -1
           do 85, iat2 = iat1, 1, -1
-            ihi4 = iat3
-            if ( iat1.eq.iat3 ) ihi4 = iat2
+            if (schwarz_atom(iat1,iat2)*schwarz_max() .ge. tol2e) then
+              ihi4 = iat3
+              if ( iat1.eq.iat3 ) ihi4 = iat2
               do 80, iat4 = ihi4, 1, -1
+                if ( schwarz_atom(iat,jat) * schwarz_atom(kat,lat) 
+     $               .ge. tol2e ) then
 
               ijatom = ijatom + 1
 C             if (mod(ijatom, nproc) .eq. iproc) then
@@ -143,8 +147,10 @@ C                       endif
                 next = nxtval(nproc)
               endif
 
- 80          continue
- 83         continue
+                  endif
+ 80             continue
+ 83           continue
+            endif
  85       continue
  90     continue
  95   continue
