@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.39 2001-08-03 19:48:36 d3j191 Exp $
+c $Id: md_input.F,v 1.40 2001-08-03 20:35:35 d3j191 Exp $
 c
       implicit none
 c
@@ -683,7 +683,6 @@ c
       ifirst=0
       ilast=0
       else
-      print*,item
       ifirst=-1
       if(inp_compare(.false.,'within',item)) then
       if(.not.inp_f(rfix)) call errquit('md_input : error fix',13)
