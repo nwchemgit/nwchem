@@ -3,12 +3,12 @@
      &                 g_xyz, g_nq, wght_GA, rho_n, irdens_atom,
      &                 icntoce, icntobfr, icetobfr, natoms)
 c     
-c     $Id: fukui.F,v 1.6 2000-02-28 16:28:49 jolguin Exp $
+c     $Id: fukui.F,v 1.7 2000-02-28 20:11:47 d3j191 Exp $
 c     
       implicit none
       integer g_dens_HOMO(2), g_dens_LUMO(2), g_orb, g_dens_ss, ik,
-     &        g_movecs(2), isp, k_eval(2), g_s, geom, nbf_ao,
-     &        ipol, AO_bas_han, me, l_temp_vec, i_temp_vec,
+     &        g_movecs(2), isp, k_eval(2), g_s,
+     &        me, l_temp_vec, i_temp_vec,
      &        g_dens(2), noc_aux_1, noc_aux_2, noc_test
       integer irdens_atom, icntoce, icntobfr, icetobfr
 c
@@ -48,7 +48,7 @@ c
       integer noc(2)
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
-      logical oprint_fukui, oskel
+      logical oprint_fukui
       me = ga_nodeid()
       oprint_fukui = util_print('Fukui information', print_high)
       g_orb = ga_create_atom_blocked(geom, AO_bas_han, 'ga_orb')
@@ -499,7 +499,7 @@ c
 
       Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s, string)
 
-C$Id: fukui.F,v 1.6 2000-02-28 16:28:49 jolguin Exp $
+C$Id: fukui.F,v 1.7 2000-02-28 20:11:47 d3j191 Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -659,7 +659,7 @@ c
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: fukui.F,v 1.6 2000-02-28 16:28:49 jolguin Exp $
+C$Id: fukui.F,v 1.7 2000-02-28 20:11:47 d3j191 Exp $
 c
       implicit none
 c      
