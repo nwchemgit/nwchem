@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.25 1996-07-26 17:03:21 pg481 Exp $
+c $Id: texas_face.F,v 1.26 1996-07-27 01:38:52 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -596,14 +596,14 @@ c
 c---------------------------------------------------------------
 c
        if( cart_2_sphe ) then
-           write(6,*)' Basis Set no =',bas,' is Spherical Harmonics'
+*           write(6,*)' Basis Set no =',bas,' is Spherical Harmonics'
            if( spcart_init(ityp_max,.true.,.false.)) then
-              write(6,*)' transformation matrix initialized'
+*              write(6,*)' transformation matrix initialized'
            else
               call errquit('Cart_Sphe.-init: failed ?', 911)
            endif
        else
-           write(6,*)' Basis Set no =',bas,' is Cartesian '
+*           write(6,*)' Basis Set no =',bas,' is Cartesian '
        endif
 c------------------------------------
 c
