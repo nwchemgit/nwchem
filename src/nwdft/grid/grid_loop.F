@@ -11,7 +11,8 @@
      ,                    ibf_ao,bp,rchi_atom,rdelchi_atom,
      ,                    Ex, Ec, amat,cmat,g_vxc,
      ,                    Amat2, Cmat2,
-     ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,                    nmat, do_scf, do_cpks_l, do_cpks_r,
+     ,                    do_nmrks_r, tmat,
      ,                    l3d,triplet,
      &                    tau, kske,Mmat,
      ,     iqat,
@@ -41,7 +42,7 @@
       logical grad,kske
       integer iniz(*),ifin(*),nscr,iscr(*),ibf_ao(*),
      ,     g_vxc(*),nmat
-      logical do_scf, do_cpks_l, do_cpks_r,
+      logical do_scf, do_cpks_l, do_cpks_r, do_nmrks_r,
      ,      l3d,triplet
       double precision rho(*),delrho(*),hess(*),
      ,     qwght(*),qxyz(3,*),xyz(3,*),
@@ -184,7 +185,8 @@ c
      ,                    ibf_ao,bp,rchi_atom,rdelchi_atom,
      ,                    Ex, Ec, amat,cmat,g_vxc,
      ,                    Amat2, Cmat2,
-     ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,                    nmat, do_scf, do_cpks_l, do_cpks_r,
+     ,                    do_nmrks_r, tmat,
      ,                    l3d,triplet,
      &                    tau, kske,Mmat)
                     endif
@@ -209,7 +211,8 @@ c
      &                 Pmat, rq, rdens_atom, cetobfr, 
      ,                 ibf_ao,rchi_atom,rdelchi_atom,
      ,                 Ex, Ec, amat,cmat,g_vxc, amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,l3d,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,
+     ,     do_nmrks_r, tmat,l3d,
      ,     triplet,
      &      tau, kske,Mmat )
                   endif

@@ -10,10 +10,10 @@
      ,     ibf_ao,bp,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      .     l3d,triplet, tau,Mmat)
 c
-c$Id: grid_quadvw.F,v 1.42 2004-05-12 19:37:19 edo Exp $
+c$Id: grid_quadvw.F,v 1.43 2004-12-16 18:39:22 bert Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -84,7 +84,8 @@ c
      ,                    ibf_ao,bp,rchi_atom,rdelchi_atom,
      ,                    Ex, Ec, amat,cmat,g_vxc,
      ,                    Amat2, Cmat2,
-     ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,                    nmat, do_scf, do_cpks_l, do_cpks_r,
+     ,                    do_nmrks_r, tmat,
      ,                    l3d,triplet,
      &                    tau, kske,Mmat,
      ,     iqat,

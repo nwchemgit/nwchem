@@ -14,11 +14,11 @@
      ,     ibf_ao,bas_cent_info,bas_cset_info,iscratch,docset,
      ,     rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,do_nmrks_r,tmat,
      ,     l3d,triplet,
      .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.41 2004-02-06 20:42:12 edo Exp $
+c$Id: grid_quadv0b.F,v 1.42 2004-12-16 18:39:22 bert Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -56,6 +56,7 @@ c !!! temp !!! ***
       double precision acc_xc_gauss
       logical l3d
       logical triplet, kske
+      integer lemat,iemat,lfmat,ifmat
 
       double precision tau(*), Mmat(*)
 C
@@ -136,7 +137,7 @@ c
       if(nqpts.eq.0) goto 2010
 
       wmax= dabsmax(nqpts,qwght)
-      if(do_scf) then
+      if(do_scf.or.do_nmrks_r) then
          if (odftps) call pstat_on(ps_xcrho)
             call xc_rhogen(tol_rho, AO_bas_han, g_dens,
      &           nbf_ao_mxnbf_ce, natoms, ipol, nqpts, nbf_ao,
@@ -251,6 +252,28 @@ c
      &           rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr,kske,Mmat)
          if (odftps) call pstat_off(ps_tabcd)
+         else if (do_nmrks_r) then
+            if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts,
+     &           'iEmat', lEmat,iEmat))
+     &           call errquit('grid_quadv0b: cannot allocate iEmat',0,
+     &          MA_ERR)
+            if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
+     &           'iFmat', lFmat,iFmat))
+     &           call errquit('grid_quadv0b: cannot allocate iFmat',0,
+     &          MA_ERR)
+            call xc_tabcd_giao_nmr_rhs(tol_rho, Fmat, Pmat, Amat, Bmat,
+     &           Cmat, Dbl_MB(iDmat), Dbl_MB(iEmat), Dbl_MB(iFmat),
+     &           qxyz,xyz,
+     &           Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), ipol, nqpts,
+     &           mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD,
+     &           AO_bas_han,
+     &           natoms, iniz, ifin, g_vxc, ibf_ao,
+     &           rchi_atom, rdelchi_atom,
+     &           rdens_atom, cetobfr,kske,Mmat)
+            if (.not.ma_pop_stack(lFmat))
+     &         call errquit('grid_quadv0b: cannot pop stack', 1, MA_ERR)
+            if (.not.ma_pop_stack(lEmat))
+     &         call errquit('grid_quadv0b: cannot pop stack', 1, MA_ERR)
          else if (do_cpks_l) then
 #ifdef QUADV0_REVERT
             call xc_tabcd(l3d,tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
@@ -305,7 +328,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.41 2004-02-06 20:42:12 edo Exp $
+C$Id: grid_quadv0b.F,v 1.42 2004-12-16 18:39:22 bert Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -445,7 +468,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.41 2004-02-06 20:42:12 edo Exp $
+C$Id: grid_quadv0b.F,v 1.42 2004-12-16 18:39:22 bert Exp $
 c
       implicit none
 #include "errquit.fh"

@@ -7,10 +7,10 @@
      ,     ibf_ao,rqbuf,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,     l3d,triplet,tau,Mmat)
 c
-c$Id: grid_quadv0a.F,v 1.39 2004-03-19 03:25:15 edo Exp $
+c$Id: grid_quadv0a.F,v 1.40 2004-12-16 18:39:22 bert Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -131,7 +131,7 @@ c
      .           int_mb(i_iscratch),
      ,           log_mb(idocset),rchi_atom,rdelchi_atom,
      ,           Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
-     ,           nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,           nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,           l3d,triplet,
      .           int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
      .           log_mb(idocsetx),

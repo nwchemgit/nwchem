@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.42 2004-03-19 03:25:15 edo Exp $
+C$Id: grid_quadv0.F,v 1.43 2004-12-16 18:39:22 bert Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -33,6 +33,7 @@ c                               !         only used for lhs cpks
 c                               !   1 = XC matrices for SCF
 c                               !   2 = XC matrices for CPKS LHS
 c                               !   3 = XC matrices for CPKS RHS
+c                               !   4 = XC matrices for GIAO NMR RHS
       logical l3d               ! true if 3d GA is used
       logical triplet           ! true if triplet excitation energy calc
 c
@@ -69,7 +70,7 @@ c
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2
       integer len_rho, len_delrho, len_Amat2, len_Cmat2
       integer len_tau, len_mmat
-      logical do_scf, do_cpks_l, do_cpks_r
+      logical do_scf, do_cpks_l, do_cpks_r, do_nmrks_r
       integer max_elem_ang_scr, max_component
       integer nexpo,nibf
       double precision rho_int, ex, ec,dummy(3),job_grid_acc,rho_err
@@ -100,7 +101,9 @@ c
       do_scf = calc_type .eq. 1
       do_cpks_l = calc_type .eq. 2
       do_cpks_r = calc_type .eq. 3
-      if (.not. (do_scf .or. do_cpks_l .or. do_cpks_r)) then
+      do_nmrks_r = calc_type .eq. 4
+      if (.not. (do_scf .or. do_cpks_l .or. do_cpks_r .or. 
+     &    do_nmrks_r)) then
          call errquit('grid_quadv0_gen: illegal calculation type',1,
      &       INPUT_ERR)
       endif
@@ -108,7 +111,7 @@ c
          len_tau = 1
          len_mmat = 1
 
-      if (do_scf) then
+      if (do_scf .or. do_nmrks_r) then
          len_rho = npol*n_per_rec
          len_delrho = 3*ipol*n_per_rec
          if(kske) len_tau = 3*ipol*n_per_rec
@@ -150,6 +153,7 @@ c
      &   call errquit('grid_den: cannot pop stack',0, MA_ERR)
 c
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
+      if (do_nmrks_r) nbf_ao_mxnbf_ce2=nbf_ao_mxnbf_ce2*3
 c
 c     Divide the multi-center integrand into a set of single center integrands.
 c
@@ -319,7 +323,7 @@ c
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r, tmat,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,        l3d,triplet,
      ,        dbl_mb(itau), dbl_mb(immat) )
       else
@@ -354,7 +358,7 @@ c
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,           l3d,triplet,
      ,         dbl_mb(itau), dbl_mb(immat))
          if (.not. MA_chop_Stack(lqs))
