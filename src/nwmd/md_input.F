@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.19 2000-05-19 16:56:31 d3j191 Exp $
+c $Id: md_input.F,v 1.20 2000-05-19 17:23:58 d3j191 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
       integer mwmreq,msareq,itest,nodpme,lbpair,ireset,npmf,nopack
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
       integer itload,ihess,latom,icomm,maxpro,nfanal,iport,iguide
-      integer mbbreq,nfwcoo,nfwvel
+      integer mbbreq,nfwcoo,nfwvel,ioload
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -151,6 +151,7 @@ c
       nftime=0
       nfdrss=0
       itload=0
+      ioload=0
       ihess=0
       latom=0
       icomm=0
@@ -1092,8 +1093,16 @@ c
       itload=2
       goto 700
       endif
-      if(inp_compare(.false.,'average',item)) then
+      if(inp_compare(.false.,'combination',item)) then
       itload=3
+      goto 700
+      endif
+      if(inp_compare(.false.,'iotime',item)) then
+      ioload=1
+      goto 700
+      endif
+      if(inp_compare(.false.,'experimental',item)) then
+      ioload=2
       goto 700
       endif
       if(inp_compare(.false.,'size',item)) then

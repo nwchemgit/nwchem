@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.86 2000-05-19 16:56:32 d3j191 Exp $
+c $Id: md_main.F,v 1.87 2000-05-19 17:23:59 d3j191 Exp $
 c
       implicit none
 c
@@ -1199,13 +1199,25 @@ c
       syntim=timer_wall_average(4)
       if(me.eq.0) syntim=timer_wall_minimum(4)
       endif
-      if(me.eq.0.and.(nfcoor.gt.nfpair.and.nfcoor.lt.np)) then
+c
+      if(me.eq.0.and.ioload.eq.1) then
       if(corrio.ge.syntim) then
       syntim=zero
       else
       syntim=syntim-corrio
       endif
       endif
+c
+      if(me.eq.0.and.ioload.eq.2) then
+      if(corrio.ge.syntim.and.
+     + ((nfcoor.gt.nfpair.and.nfcoor.gt.np).or.
+     +  (nfcoor.eq.0.and.nfscoo.gt.nfpair.and.nfscoo.gt.np))) then
+      syntim=zero
+      else
+      syntim=syntim-corrio
+      endif
+      endif
+c
       call sp_balanc(stime,syntim,wallt,frequency(mdstep,nfsync))
       call timer_reset(4)
 c
@@ -2044,7 +2056,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.86 2000-05-19 16:56:32 d3j191 Exp $
+c $Id: md_main.F,v 1.87 2000-05-19 17:23:59 d3j191 Exp $
 c
       implicit none
 c
