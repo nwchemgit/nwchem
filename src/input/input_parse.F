@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.69 2002-01-19 04:52:32 zzhang Exp $
+C     $Id: input_parse.F,v 1.70 2002-01-19 07:03:18 windus Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -97,6 +97,8 @@ c
                call md_input(rtdb)
             else if (inp_compare(.false.,test,'esp')) then
                call esp_input(rtdb)
+            else if (inp_compare(.false.,test,'et')) then
+               call et_input(rtdb)
             else if (inp_compare(.false.,test,'analysis')) then
                call ana_input(rtdb)
             else if (inp_compare(.false.,test,'analyze')) then
@@ -133,7 +135,9 @@ c
             else if (inp_compare(.false.,test,'gapss')) then
                call gap_parse(rtdb)
             else if (inp_compare(.false.,test,'pspw')) then
-               call pspw_input(rtdb)
+               call nwpw_input(rtdb)
+            else if (inp_compare(.false.,test,'nwpw')) then
+               call nwpw_input(rtdb)
             else if (inp_compare(.false.,test,'pause')) then
 	       call util_sleep(60)
             else if (inp_compare(.false.,test,'qmmm')) then
@@ -149,8 +153,6 @@ c
                call freq_vib_input(rtdb)
             else if (inp_compare(.false.,test,'hessian')) then
                call hess_input(rtdb)
-            else if (inp_compare(.false.,test,'cckohn')) then
-c               call cckohn_input(rtdb)
 c
 c     INSERT NEW ELSE IF CLAUSES ABOVE HERE
 c
