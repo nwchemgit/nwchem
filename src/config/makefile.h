@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.456 2004-04-27 18:47:34 edo Exp $
+# $Id: makefile.h,v 1.457 2004-04-28 00:02:19 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1524,11 +1524,13 @@ endif
 # crosscompilation on a x86 with RHEL WS3
 # make FC=pathf90 _FC=pathf90 _CPU=x86_64
         FOPTIONS   += -cpp -Wp,-P
-        FOPTIONS   += -fno-second-underscore -align64
-        FOPTIMIZE   =  -O3   
-        DEFINES  +=   -DCHKUNDFLW
+        FOPTIONS   += -fno-second-underscore -fixedform 
+        FOPTIONS   += -align64 
+        FOPTIMIZE   = -O3 -LNO:opt=0
+        FVECTORIZE  = -O3 -OPT:Ofast -fno-math-errno
+        DEFINES  += -DCHKUNDFLW
         FDEBUG = -g -O0
-        DEFINES  +=   -DPGLINUX
+        DEFINES  += -DPGLINUX
         LDOPTIONS = -Wl,--warn-once   -Wl,--relax
 #        LDOPTIONS += -static
       endif
