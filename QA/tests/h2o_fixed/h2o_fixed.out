@@ -32,7 +32,7 @@ task dft gradient
 
 unset geometry:actlist
 constraints
-  fix pos 1:2
+  fix atom 1:2
 end
 task dft gradient
 
@@ -42,18 +42,18 @@ task dft gradient
 
 set geometry:actlist  1
 constraints
-  fix pos 1:2
+  fix atom 1:2
 end
 task dft gradient
 
 #we can also play with namespaces
 
 constraints one
-fix pos 1
+fix atom 1
 end
 
 constraints two
-fix pos 2
+fix atom 2
 end
 
 set constraints one
@@ -148,16 +148,16 @@ task dft gradient
 
     hostname      = colibry
     program       = /home/marat/codes/4-15/bin/LINUX/nwchem
-    date          = Wed Apr 21 12:07:06 2004
+    date          = Wed Apr 21 16:31:28 2004
 
-    compiled      = Wed Apr 21 11:55:12 PDT 2004
+    compiled      = Wed Apr 21 16:22:27 PDT 2004
     source        = /home/marat/codes/4-15
     nwchem branch = Development
     input         = h2o_fixed.nw
     prefix        = h2o.
     data base     = ./h2o.db
     status        = startup
-    nproc         =    1
+    nproc         =    4
     time left     =     -1s
 
 
@@ -165,9 +165,9 @@ task dft gradient
            Memory information
            ------------------
 
-    heap      =    5898234 doubles =     45.0 Mbytes
+    heap      =     655354 doubles =      5.0 Mbytes
     stack     =    3014643 doubles =     23.0 Mbytes
-    global    =    8912900 doubles =     68.0 Mbytes (within heap+stack)
+    global    =    5242880 doubles =     40.0 Mbytes (distinct from heap & stack)
     total     =    8912877 doubles =     68.0 Mbytes
     verify    = yes
     hardfail  = no 
@@ -370,45 +370,48 @@ task dft gradient
  HOMO         =      -0.791680
  LUMO         =       0.165836
 
-   Time prior to 1st pass:      0.1
+   Time prior to 1st pass:      0.2
 
  #quartets = 1.540E+03 #integrals = 1.424E+04 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 156413
+ Max. records in memory =      2        Max. records in file   =  39074
  No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
 
 
  Grid_pts file          = ./h2o.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     23        Max. recs in file   =    834139
+ Max. records in memory =      7        Max. recs in file   =    208385
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):        5.47             5471338
+           Heap Space remaining (MW):        0.44              436906
           Stack Space remaining (MW):        3.01             3014424
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -73.9245092034 -9.21E+01  5.03E-02  1.26E+00     0.8
- d= 0,ls=0.0,diis     2    -73.9147623294  9.75E-03  2.76E-02  1.18E+00     1.0
- d= 0,ls=0.0,diis     3    -74.0031174680 -8.84E-02  2.74E-03  1.38E-02     1.3
- d= 0,ls=0.0,diis     4    -74.0042400324 -1.12E-03  1.91E-04  5.27E-05     1.6
- d= 0,ls=0.0,diis     5    -74.0042445515 -4.52E-06  1.16E-05  3.08E-07     1.8
- d= 0,ls=0.0,diis     6    -74.0042445734 -2.19E-08  1.36E-06  2.93E-09     2.1
+ d= 0,ls=0.0,diis     1    -73.9245092069 -9.21E+01  5.03E-02  1.26E+00     0.4
+ d= 0,ls=0.0,diis     2    -73.9147622767  9.75E-03  2.76E-02  1.18E+00     0.5
+ d= 0,ls=0.0,diis     3    -74.0031174679 -8.84E-02  2.74E-03  1.38E-02     0.6
+ d= 0,ls=0.0,diis     4    -74.0042400324 -1.12E-03  1.91E-04  5.27E-05     0.6
+ d= 0,ls=0.0,diis     5    -74.0042445515 -4.52E-06  1.16E-05  3.08E-07     0.7
+ d= 0,ls=0.0,diis     6    -74.0042445734 -2.19E-08  1.36E-06  2.93E-09     0.8
 
 
-         Total DFT energy =    -74.004244573370
-      One electron energy =   -135.564703354348
-           Coulomb energy =     52.878507167467
-    Exchange-Corr. energy =     -9.506191196804
+         Total DFT energy =    -74.004244573371
+      One electron energy =   -135.564703355852
+           Coulomb energy =     52.878507169186
+    Exchange-Corr. energy =     -9.506191197019
  Nuclear repulsion energy =     18.188142810314
 
- Numeric. integr. density =      9.999999720728
+ Numeric. integr. density =      9.999999720737
 
-     Total iterative time =      2.0s
+     Total iterative time =      0.6s
 
 
 
@@ -419,17 +422,17 @@ task dft gradient
               MO Center=  7.6E-02, -6.1E-02, -2.3E-01, r^2= 3.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     2      0.412399  1 O  s                 16      0.300220  2 H  s          
-    18      0.265042  3 H  s                  1     -0.240917  1 O  s          
-     5     -0.238270  1 O  pz         
+     2     -0.412399  1 O  s                 16     -0.300220  2 H  s          
+    18     -0.265042  3 H  s                  1      0.240917  1 O  s          
+     5      0.238270  1 O  pz         
 
  Vector    3  Occ=2.000000E+00  E=-6.982976E-01
               MO Center=  2.9E-02, -6.4E-02, -9.0E-02, r^2= 4.1E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4     -0.612397  1 O  py                16     -0.309904  2 H  s          
-    18      0.302223  3 H  s                 17     -0.184061  2 H  s          
-     5      0.180073  1 O  pz                19      0.175818  3 H  s          
+     4      0.612397  1 O  py                16      0.309904  2 H  s          
+    18     -0.302223  3 H  s                 17      0.184061  2 H  s          
+     5     -0.180073  1 O  pz                19     -0.175818  3 H  s          
 
  Vector    4  Occ=2.000000E+00  E=-3.589877E-01
               MO Center= -7.9E-02,  8.1E-02,  2.4E-01, r^2= 4.6E-01
@@ -443,8 +446,8 @@ task dft gradient
               MO Center=  9.8E-03, -9.7E-03, -2.9E-02, r^2= 5.5E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.644380  1 O  px                 7      0.439338  1 O  px         
-     5      0.220125  1 O  pz                 9      0.150081  1 O  pz         
+     3     -0.644380  1 O  px                 7     -0.439338  1 O  px         
+     5     -0.220125  1 O  pz                 9     -0.150081  1 O  pz         
 
  Vector    6  Occ=0.000000E+00  E= 1.269991E-01
               MO Center=  2.0E-01, -2.5E-01, -5.9E-01, r^2= 2.4E+00
@@ -564,7 +567,7 @@ task dft gradient
      2   0 0 2     -3.933314     -2.233068     -2.233068      0.532822
 
 
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
 
 
@@ -589,12 +592,12 @@ task dft gradient
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.08   |
+                 |  CPU   |       0.00   |       0.01   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.09   |
+                 |  WALL  |       0.00   |       0.01   |
                  ----------------------------------------
 
- Task  times  cpu:        2.6s     wall:        2.8s
+ Task  times  cpu:        1.1s     wall:        3.8s
 
 
                                 NWChem Input Module
@@ -605,7 +608,9 @@ task dft gradient
                          -------------------------
  General Information
  -------------------
- fixed atoms           1 2
+ fixed atoms                  :   1     2
+
+
  no springs found
                                  NWChem DFT Module
                                  -----------------
@@ -614,7 +619,7 @@ task dft gradient
 
   The DFT is already converged 
 
-         Total DFT energy =    -74.004244573370
+         Total DFT energy =    -74.004244573371
 
 
 
@@ -639,20 +644,23 @@ task dft gradient
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.09   |
+                 |  CPU   |       0.00   |       0.01   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.09   |
+                 |  WALL  |       0.01   |       0.04   |
                  ----------------------------------------
                          NWChem Constraints Module
                          -------------------------
  Summary
  -------
-  Total energy with constraints        : -74.0042446
-  Energy contribution from constraints :  0.
-  Total energy without constraints  : -74.0042446
-  -----------------------------------
+ fixed atoms                  :   1     2
 
- Task  times  cpu:        0.5s     wall:        0.5s
+
+ Total energy with constraints        :     -74.004245
+ Energy contribution from constraints :       0.000000
+ Total energy without constraints     :     -74.004245
+ --------------------------------------
+
+ Task  times  cpu:        0.4s     wall:        0.8s
 
 
                                 NWChem Input Module
@@ -675,7 +683,9 @@ task dft gradient
                          -------------------------
  General Information
  -------------------
- fixed atoms           2
+ fixed atoms                  :   2
+
+
  no springs found
                                  NWChem DFT Module
                                  -----------------
@@ -684,7 +694,7 @@ task dft gradient
 
   The DFT is already converged 
 
-         Total DFT energy =    -74.004244573370
+         Total DFT energy =    -74.004244573371
 
 
 
@@ -709,20 +719,23 @@ task dft gradient
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.11   |
+                 |  CPU   |       0.00   |       0.03   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.11   |
+                 |  WALL  |       0.01   |       0.06   |
                  ----------------------------------------
                          NWChem Constraints Module
                          -------------------------
  Summary
  -------
-  Total energy with constraints        : -74.0042446
-  Energy contribution from constraints :  0.
-  Total energy without constraints  : -74.0042446
-  -----------------------------------
+ fixed atoms                  :   2
 
- Task  times  cpu:        0.6s     wall:        0.6s
+
+ Total energy with constraints        :     -74.004245
+ Energy contribution from constraints :       0.000000
+ Total energy without constraints     :     -74.004245
+ --------------------------------------
+
+ Task  times  cpu:        0.4s     wall:        0.8s
 
 
                                 NWChem Input Module
@@ -733,7 +746,9 @@ task dft gradient
                          -------------------------
  General Information
  -------------------
- fixed atoms           1
+ fixed atoms                  :   1
+
+
  no springs found
                                  NWChem DFT Module
                                  -----------------
@@ -742,7 +757,7 @@ task dft gradient
 
   The DFT is already converged 
 
-         Total DFT energy =    -74.004244573370
+         Total DFT energy =    -74.004244573371
 
 
 
@@ -767,20 +782,23 @@ task dft gradient
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.01   |       0.11   |
+                 |  CPU   |       0.00   |       0.02   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.11   |
+                 |  WALL  |       0.00   |       0.03   |
                  ----------------------------------------
                          NWChem Constraints Module
                          -------------------------
  Summary
  -------
-  Total energy with constraints        : -74.0042446
-  Energy contribution from constraints :  0.
-  Total energy without constraints  : -74.0042446
-  -----------------------------------
+ fixed atoms                  :   1
 
- Task  times  cpu:        0.6s     wall:        0.6s
+
+ Total energy with constraints        :     -74.004245
+ Energy contribution from constraints :       0.000000
+ Total energy without constraints     :     -74.004245
+ --------------------------------------
+
+ Task  times  cpu:        0.4s     wall:        0.9s
 
 
                                 NWChem Input Module
@@ -791,7 +809,9 @@ task dft gradient
                          -------------------------
  General Information
  -------------------
- fixed atoms           2
+ fixed atoms                  :   2
+
+
  no springs found
                                  NWChem DFT Module
                                  -----------------
@@ -800,7 +820,7 @@ task dft gradient
 
   The DFT is already converged 
 
-         Total DFT energy =    -74.004244573370
+         Total DFT energy =    -74.004244573371
 
 
 
@@ -825,32 +845,29 @@ task dft gradient
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.11   |
+                 |  CPU   |       0.00   |       0.03   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.11   |
+                 |  WALL  |       0.01   |       0.04   |
                  ----------------------------------------
                          NWChem Constraints Module
                          -------------------------
  Summary
  -------
-  Total energy with constraints        : -74.0042446
-  Energy contribution from constraints :  0.
-  Total energy without constraints  : -74.0042446
-  -----------------------------------
+ fixed atoms                  :   2
 
- Task  times  cpu:        0.6s     wall:        0.6s
+
+ Total energy with constraints        :     -74.004245
+ Energy contribution from constraints :       0.000000
+ Total energy without constraints     :     -74.004245
+ --------------------------------------
+
+ Task  times  cpu:        0.3s     wall:        0.8s
 
 
                                 NWChem Input Module
                                 -------------------
 
 
-                         NWChem Constraints Module
-                         -------------------------
- General Information
- -------------------
- no fixed atoms found
- no springs found
                                  NWChem DFT Module
                                  -----------------
 
@@ -858,7 +875,7 @@ task dft gradient
 
   The DFT is already converged 
 
-         Total DFT energy =    -74.004244573370
+         Total DFT energy =    -74.004244573371
 
 
 
@@ -883,20 +900,12 @@ task dft gradient
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.11   |
+                 |  CPU   |       0.01   |       0.02   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.11   |
+                 |  WALL  |       0.03   |       0.04   |
                  ----------------------------------------
-                         NWChem Constraints Module
-                         -------------------------
- Summary
- -------
-  Total energy with constraints        : -74.0042446
-  Energy contribution from constraints :  0.
-  Total energy without constraints  : -74.0042446
-  -----------------------------------
 
- Task  times  cpu:        0.6s     wall:        0.6s
+ Task  times  cpu:        0.4s     wall:        0.7s
 
 
                                 NWChem Input Module
@@ -913,11 +922,11 @@ task dft gradient
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  165      165     2.31e+04 1750     4145        6        0        0     
-number of processes/call 1.00e+00 1.00e+00 1.00e+00 1.00e+00 0.00e+00
-bytes total:             4.39e+06 3.86e+05 1.53e+06 2.40e+02 0.00e+00 0.00e+00
-bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 106856 bytes
+calls:  165      165     5336      716     1115        6        0        0     
+number of processes/call 1.37e+00 1.46e+00 1.20e+00 4.00e+00 0.00e+00
+bytes total:             1.48e+06 2.33e+05 5.76e+05 2.40e+02 0.00e+00 0.00e+00
+bytes remote:            4.37e+05 5.29e+04 2.16e+05 1.44e+02 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 62840 bytes
 
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -927,11 +936,11 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        54	        44
+	maximum number of blocks	        24	        44
 	current total bytes		         0	         0
-	maximum total bytes		   3432444	  18335452
-	maximum total K-bytes		      3433	     18336
-	maximum total M-bytes		         4	        19
+	maximum total bytes		   1747060	  18335452
+	maximum total K-bytes		      1748	     18336
+	maximum total M-bytes		         2	        19
 
 
 
@@ -971,4 +980,4 @@ MA usage statistics:
 
 
 
- Total times  cpu:        5.5s     wall:        5.7s
+ Total times  cpu:        2.8s     wall:        8.0s

@@ -27,7 +27,7 @@ task dft gradient
 
 unset geometry:actlist
 constraints 
-  fix pos 1:2
+  fix atom 1:2
 end
 task dft gradient
 
@@ -37,18 +37,18 @@ task dft gradient
 
 set geometry:actlist  1
 constraints 
-  fix pos 1:2
+  fix atom 1:2
 end
 task dft gradient
 
 #we can also play with namespaces
 
 constraints one
-fix pos 1
+fix atom 1
 end
 
 constraints two
-fix pos 2
+fix atom 2
 end
 
 set constraints one
