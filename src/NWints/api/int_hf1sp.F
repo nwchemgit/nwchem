@@ -1,4 +1,4 @@
-c $Id: int_hf1sp.F,v 1.16 1999-07-14 00:28:39 d3e129 Exp $
+c $Id: int_hf1sp.F,v 1.17 1999-10-26 22:24:37 mg201 Exp $
 *
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_hf1sp}
@@ -12,7 +12,7 @@ c:tex-\begin{verbatim}
       subroutine int_hf1sp(
      &       xyzi,expi,coefi, i_nprim, i_ngen, Li, ictri,
      &       xyzj,expj,coefj, j_nprim, j_ngen, Lj, ictrj,
-     &       xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
+     &       xyz,zan,exinv,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &       dryrun,scr,lscr,msg)
 c:tex-\end{verbatim}
       implicit none
@@ -42,6 +42,7 @@ c:tex-\begin{verbatim}
       double precision coefj(j_nprim,j_ngen)  ! [input] j coeffs
       double precision xyz(3,nat)  ! [input] all atom positions
       double precision zan(nat)  ! [input] charges on all atoms
+      double precision exinv(nat)   ! [input] inverse nuclear exponents
       double precision scr(lscr)  ! [scratch] scratch buffers
       double precision S(lstv)  ! [output] overlap integrals
       double precision T(lstv)  ! [output] kinetic energy integrals
@@ -63,7 +64,7 @@ c
         call int_hf1sp_ecp(
      &         xyzi,expi,coefi,i_nprim,i_ngen,Li,ictri,
      &         xyzj,expj,coefj,j_nprim,j_ngen,Lj,ictrj,
-     &         xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
+     &         xyz,zan,exinv,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &         dryrun,scr,lscr,msg)
 c
       elseif (Li.eq.-1.and.Lj.eq.-1) then
@@ -72,7 +73,7 @@ c________________________________ (S|S)
         call int_hf1sp_ecp(
      &         xyzi,expi,coefi,i_nprim,1,0,ictri,
      &         xyzj,expj,coefj,j_nprim,1,0,ictrj,
-     &         xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
+     &         xyz,zan,exinv,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &         dryrun,scr,lscr,msg)
 c________________________________ (S|P)
         offset = 1
@@ -83,7 +84,7 @@ c________________________________ (S|P)
      &         xyzj,
      &         expj,coefj(1,2),
      &         j_nprim,1,1,ictrj,
-     &         xyz,zan,nat,
+     &         xyz,zan,exinv,nat,
      &         S(offset+1),T(offset+1),V(offset+1),
      &         (lstv-offset)
      &         ,doS,doT,doV,canAB,
@@ -97,7 +98,7 @@ c________________________________ (P|S)
      &         xyzj,
      &         expj,coefj(1,1),
      &         j_nprim,1,0,ictrj,
-     &         xyz,zan,nat,
+     &         xyz,zan,exinv,nat,
      &         S(offset+1),T(offset+1),V(offset+1),
      &         (lstv-offset)
      &         ,doS,doT,doV,canAB,
@@ -111,7 +112,7 @@ c________________________________ (P|P)
      &         xyzj,
      &         expj,coefj(1,2),
      &         j_nprim,1,1,ictrj,
-     &         xyz,zan,nat,
+     &         xyz,zan,exinv,nat,
      &         S(offset+1),T(offset+1),V(offset+1),
      &         (lstv-offset)
      &         ,doS,doT,doV,canAB,
@@ -126,7 +127,7 @@ c________________________________ (S|X)
         call int_hf1sp_ecp(
      &         xyzi,expi,coefi,i_nprim,1,0,ictri,
      &         xyzj,expj,coefj,j_nprim,j_ngen,Lj,ictrj,
-     &         xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
+     &         xyz,zan,exinv,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &         dryrun,scr,lscr,msg)
 c________________________________ (P|X)
         offset = 1*(Lj+1)*(Lj+2)/2*j_ngen
@@ -136,7 +137,7 @@ c________________________________ (P|X)
      &         i_nprim,1,1,ictri,
      &         xyzj,
      &         expj,coefj,j_nprim,j_ngen,Lj,ictrj,
-     &         xyz,zan,nat,
+     &         xyz,zan,exinv,nat,
      &         S(offset+1),T(offset+1),V(offset+1),
      &         (lstv-offset)
      &         ,doS,doT,doV,canAB,
@@ -147,7 +148,7 @@ c________________________________ (X|S)
         call int_hf1sp_ecp(
      &         xyzi,expi,coefi,i_nprim,i_ngen,Li,ictri,
      &         xyzj,expj,coefj,j_nprim,1,0,ictrj,
-     &         xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
+     &         xyz,zan,exinv,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &         dryrun,scr,lscr,msg)
 c________________________________ (X|P)
         offset = 1*(Li+1)*(Li+2)/2*i_ngen
@@ -157,7 +158,7 @@ c________________________________ (X|P)
      &         xyzj,
      &         expj,coefj(1,2),
      &         j_nprim,1,1,ictrj,
-     &         xyz,zan,nat,
+     &         xyz,zan,exinv,nat,
      &         S(offset+1),T(offset+1),V(offset+1),
      &         (lstv-offset)
      &         ,doS,doT,doV,canAB,
@@ -211,7 +212,7 @@ c:tex-\begin{verbatim}
       subroutine int_hf1sp_ecp(
      &       xyzi,expi,coefi, i_nprim, i_ngen, Li, ictri,
      &       xyzj,expj,coefj, j_nprim, j_ngen, Lj, ictrj,
-     &       xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
+     &       xyz,zan,exinv,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &       dryrun,scr,lscr,msg)
 c:tex-\end{verbatim}
       implicit none
@@ -241,6 +242,7 @@ c:tex-\begin{verbatim}
       double precision coefj(j_nprim,j_ngen)  ! [input] j coeffs
       double precision xyz(3,nat)  ! [input] all atom positions
       double precision zan(nat)  ! [input] charges on all atoms
+      double precision exinv(nat)   ! [input] inverse nuclear exponents
       double precision scr(lscr)  ! [scratch] scratch buffers
       double precision S(lstv)  ! [output] overlap integrals
       double precision T(lstv)  ! [output] kinetic energy integrals
@@ -259,7 +261,7 @@ c::local
       call hf1(
      &      xyzi,expi,coefi,i_nprim,i_ngen,Li,
      &      xyzj,expj,coefj,j_nprim,j_ngen,Lj,
-     &      xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
+     &      xyz,zan,exinv,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &      dryrun,scr,lscr)
 *
       if (any_ecp.and.doV) then
