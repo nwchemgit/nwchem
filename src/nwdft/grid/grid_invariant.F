@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.17 2002-12-18 01:06:49 edo Exp $
+c$Id: grid_invariant.F,v 1.18 2002-12-18 01:13:34 edo Exp $
 c
       implicit none
 c      
@@ -11,7 +11,7 @@ c
 #include "cdft.fh"
 #include "geom.fh"
 c
-      logical oprint, oprint_grid
+      logical oprint
       integer lcoord, icoord, lcharge, icharge, ltags, itags
       double precision matalr(3,3),c(3,3)
       integer numgr3,n
@@ -109,7 +109,7 @@ c
 c
 c     debug writes
 c
-      if (ga_nodeid().eq.0.and.oprint_grid)then
+      if (ga_nodeid().eq.0.and.oprint)then
          write(LuOut,*)' qrot: '
          call output(qrot, 1, 3, 1, 3, 3, 3, 1)
       endif
@@ -117,7 +117,7 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.17 2002-12-18 01:06:49 edo Exp $
+c$Id: grid_invariant.F,v 1.18 2002-12-18 01:13:34 edo Exp $
 c
       implicit none
 c
