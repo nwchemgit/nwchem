@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.30 2002-04-08 18:51:52 windus Exp $
+c     $Id: xc_eval_fnl.F,v 1.31 2002-08-07 23:17:31 edo Exp $
 c
       implicit none
 c
@@ -326,6 +326,17 @@ c
       if (abs(cfac(22)).gt.eps)then
          call xc_optc(rho, delrho, 
      &                      Amat, Cmat, nq, Ec, qwght,ldew,func)
+      endif
+      if (abs(xfac(18)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_lb94(tol_rho, xfac(18), lxfac(18), nlxfac(18),
+     &           rho, delrho, Amat, Cmat, nq, ipol, 
+     &           Ex, qwght,ldew,func)
+         else
+            call xc_lb94_d2(tol_rho,xfac(18),lxfac(18),nlxfac(18), 
+     &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
+     &           Ex, qwght,ldew,func)
+         endif
       endif
 c     
 c     Combine with quadrature weights

@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.223 2002-04-19 16:26:17 edo Exp $
+c     $Id: dft_scf.F,v 1.224 2002-08-07 23:17:30 edo Exp $
 c     
       implicit none
 c
@@ -421,11 +421,11 @@ c
 c
 c     get info for int2e_ and set sleazy tolerance
 c     
-      tol2e_sleazy = 1.d-3
+      tol2e_sleazy = 1.d-4
       call scf_get_fock_param(rtdb, tol2e_sleazy)
-c
-c     Force sleazy SCF into "direct" mode.
-c
+!c
+!c     Force sleazy SCF into "direct" mode.
+!c
       call fock_force_direct(rtdb)
 c
       call dft_guessin(movecs_in,ldmix,ncanorg,fon,
@@ -533,6 +533,7 @@ c
 c     Restore SCF parameters
 c
       call scf_get_fock_param(rtdb, tol2e)
+      
 c     
 c     If open shell put the total density matrix in g_dens(1)
 c
