@@ -5,7 +5,8 @@
      &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
      &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
      &                         rq0, hh, 
-     .     ibf_ao,curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,bp,
+     .     ibf_ao,bas_cent_info,bas_cset_info,docset,
+     .     curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,bp,
      .     drhonuc,ddelrhonuc,d2scr,iscr,nscr,rscr,
      ,     force, hess, g_rhs, do_force,
      ,     nbf_ao_mxnbf_ce2,
@@ -14,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr)
 c      
-c     $Id: dftg_gridv0b.F,v 1.10 2000-08-25 20:05:11 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.11 2000-09-21 15:32:50 bjohnson Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -60,6 +61,8 @@ c
       integer iandex(natoms)
       integer iniz(natoms), ifin(natoms)
       integer ibf_ao(nbf_ao),curatoms(natoms)
+      integer bas_cent_info(3,natoms),bas_cset_info(6,*)
+      logical docset(*)
       double precision rchi_atom(natoms),rdelchi_atom(3,natoms)
       double precision ppp(*),ff(*),zzz(*)
       double precision ccoef(ncoef_max), expo(NXprim)
@@ -111,7 +114,7 @@ c
             call ifill(mbf_ao, 0, ibf_ao, 1)
             mbf_ao=grid_nbfm( AO_bas_han,  natoms, 
      &           ictr_buf,rad,xyz,qxyz,nqpts,
-     &           ibf_ao, iniz, ifin, expo, 
+     &           ibf_ao, docset, iniz, ifin, expo, 
      .           minexp,ldiff, acc_AO_gauss)
             if (mbf_ao .eq. 0) return
             

@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.11 2000-09-20 14:08:06 bjohnson Exp $
+c     $Id: dftg_gridv0a.F,v 1.12 2000-09-21 15:32:49 bjohnson Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -83,12 +83,15 @@ c
       integer iqsh
       integer me
       integer  nbf_max
-      integer nbf_ao_mxnbf_ce2
+      integer nbf_ao_mxnbf_ce2, ncontrset
       double precision acc_AO_gauss 
       double precision Ex, Ec, rho_int,rad
       integer nqpts_per_buf, nqpts, ictr_buf
       integer lrqbuf, irqbuf,
      .     grid_nbfm,ncube,istep,ntot_cube
+      integer lbas_cent_info, ibas_cent_info,
+     &        lbas_cset_info, ibas_cset_info,
+     &        ldocset, idocset
       logical grid_file_rewind,grid_file_read
       external grid_file_rewind,grid_nbfm,grid_file_read
 c
@@ -142,6 +145,21 @@ c
       endif
 c      write(6,*)'*** dftg_quadv0a: hesschi der3chi',hesschi,der3chi
 c
+c     Allocate and create info for new basis function evaluator
+c
+      if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
+     &     lbas_cent_info, ibas_cent_info))
+     &     call errquit('grid_quadv0a: cannot allocate bas_cent_info',0)
+      if (.not.bas_numcont(AO_bas_han, ncontrset))
+     &     call errquit('Exiting in grid_quadv0a',0)
+      if (.not.MA_Push_Get(mt_int, 6*ncontrset, 'bas_cset_info',
+     &     lbas_cset_info, ibas_cset_info))
+     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0)
+      if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
+     &     ldocset, idocset))
+     &     call errquit('grid_quadv0a: cannot allocate docset',0)
+      call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
+     &     int_mb(ibas_cset_info), natoms)
 c     
 c     rewind grid pts file
 c
@@ -178,8 +196,9 @@ c
      &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
      &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
      &                         rq0, hh, 
-     .     ibf_ao,curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,bp,
-     .        drhonuc,ddelrhonuc,d2scr,iscr,nscr,rscr,
+     .     ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
+     .     log_mb(idocset),curatoms,rchi_atom,rdelchi_atom,ppp,
+     .     ff,zzz,bp,drhonuc,ddelrhonuc,d2scr,iscr,nscr,rscr,
      ,     force, hess, g_rhs, do_force,
      ,     nbf_ao_mxnbf_ce2,
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
@@ -192,6 +211,13 @@ c
  2001 continue
       if (.not.ma_pop_stack(lrqbuf))
      &     call errquit('dftg_quadv0a: cannot pop stack', 0)
-      return 
-c     
+c
+      if (.not.MA_Pop_Stack(ldocset))
+     &     call errquit('dftg_quadv0a: pop stack failed.',3)
+      if (.not.MA_Pop_Stack(lbas_cset_info))
+     &     call errquit('dftg_quadv0a: pop stack failed.',2)
+      if (.not.MA_Pop_Stack(lbas_cent_info))
+     &     call errquit('dftg_quadv0a: pop stack failed.',1)
+c
+      return
       end
