@@ -1063,7 +1063,7 @@ c
             xyzlnb(i,mlnba)=zero
          enddo
       enddo
-      cvr_scaling=1.0d+00
+      cvr_scaling=1.2d+00
       max_tor_per_bond = 100
 c     
 c     ----- read imposed bonds, angles, torsions -----    

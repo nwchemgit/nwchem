@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.107 1999-06-12 15:28:17 d3g681 Exp $
+C     $Id: geom_input.F,v 1.108 1999-06-12 18:37:52 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -616,7 +616,7 @@ c
 c
       double precision cvr_scaling
       double precision cvr_factor
-      parameter (cvr_factor=1.0d+00)
+      parameter (cvr_factor=1.2d+00)
       character*30 field
       integer ijbond(2,*), max_zcoord
       integer ijkang(3,*)
