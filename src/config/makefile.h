@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.389 2002-12-04 18:11:14 edo Exp $
+# $Id: makefile.h,v 1.390 2003-01-03 22:58:53 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1225,7 +1225,7 @@ ifeq ($(LINUXCPU),x86)
     MAKEFLAGS += FC=pgf77
   endif
   ifeq ($(FC),ifc)
-    FOPTIONS   =  -align  -132  -mp1 -w -g -vec_report3
+    FOPTIONS   =  -align    -mp1 -w -g -vec_report3
     FOPTIMIZE = -O3 -prefetch  -unroll 
     ifeq ($(_CPU),i586)
       FOPTIMIZE +=  -tpp5 -xi # this are for PentiumII
@@ -1274,7 +1274,8 @@ ifeq ($(LINUXCPU),x86)
    EXTRA_LIBS += -lm
   else
     ifeq ($(FC),ifc)
-      EXTRA_LIBS += -ml -Vaxlib  
+      EXTRA_LIBS +=  -Vaxlib  
+#      EXTRA_LIBS +=  -static
     else
       EXTRA_LIBS += -lm
       ifndef EGCS
@@ -1343,7 +1344,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
 
       ifeq ($(FC),efc)
         ITANIUMNO = $(shell   cat /proc/cpuinfo | egrep family | head -1  2>&1 | awk ' /Itanium 2/ { print "-tpp2"; exit };/Itanium/ { print "-tpp1"}')
-        FOPTIONS   =   -auto -align  -132   -w  -ftz  $(ITANIUMNO)
+        FOPTIONS   =   -auto -align  -w  -ftz  $(ITANIUMNO)
 #        FOPTIONS   =  -auto   -132   -w  -ftz  -tpp2
         FDEBUG = -g -O2
         DEFINES  +=   -DIFCLINUX
