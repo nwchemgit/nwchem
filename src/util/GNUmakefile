@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.28 1995-01-10 18:58:00 og845 Exp $
+# $Id: GNUmakefile,v 1.29 1995-01-26 05:24:52 rg240 Exp $
 
 include ../config/makefile.h
 
@@ -20,7 +20,7 @@ OBJ_OPTIMIZE=  ga_matpow.o
         OBJ = output.o errquit.o ffflush.o \
               print_center.o util_flush.o \
               util_hostname.o util_date.o \
-	      nxtseg.o ga_orthog.o \
+	      ga_orthog.o \
               ga_iter_orthog.o ga_iter_lsolve.o ga_iter_diag.o \
               ga_maxelt.o ga_pcg_minimize.o line_search.o \
               ga_orthog_vec.o ga_ran_fill.o ga_mix.o \
