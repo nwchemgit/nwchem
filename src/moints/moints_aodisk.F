@@ -1,3 +1,4 @@
+
 c
 c  Set of routines to cache AO integrals for the 4-index
 c  module using exclusive-access local disk storage.
@@ -832,6 +833,7 @@ c
       integer blkinfo(MOINTS_NBLKINFO)
       integer iminus, magic_cookie, magic_cookie2
       logical iscont, ojustfit, ohdrwrite, ojust1blk
+      integer labint
       double precision sprstol
       data issparse/1/
       data iminus/-1/
@@ -863,7 +865,7 @@ c
       blkinfo(13) = lblo
       blkinfo(14) = lbhi
       ohdrwrite = .false.
-
+c
 c
 C      WRITE(6,910) BLKINFO(4),  BLKINFO(5),  BLKINFO(7),  
 C     $             BLKINFO(8),  BLKINFO(9),  BLKINFO(10), 
@@ -875,9 +877,10 @@ c
       klen = kbhi - kblo + 1
       ilen = ihi - ilo + 1
       jlen = jhi - jlo + 1
-      swordlen = ma_sizeof(MT_DBL,1,MT_BYTE) + 2        !  double word + 2 byte label = 10
+      swordlen = ma_sizeof(MT_DBL,1,MT_BYTE) + 2        ! double word + 2 byte label = 10
       magic_cookie = onbitmask(17)
       magic_cookie2 = onbitmask(21)
+      labint = ma_sizeof(MT_INT,1,MT_BYTE)/2            ! labels per integer word, 2 bytes per label
 c
 c  Minimium header length must be remaining on IO record
 c  Otherwise flush IO record
@@ -915,9 +918,11 @@ c
 c  Count non-zeros -- compute space requirements 
 c
           rleft = reclen - rp + 1
+
           nnz = dnonzero_cnt((llen*klen),sprstol,ssbb(lblo,kblo,j,i))
-          nir = nnz/2 + mod(nnz,2)
-          bblen = ma_sizeof(MT_INT,(2*klen+nir),MT_DBL) + nnz
+          nir = nnz/labint + mod(nnz,labint)
+          bblen = ma_sizeof(MT_INT,(2*klen),MT_DBL) +
+     $            ma_sizeof(MT_INT,nir,MT_DBL) + nnz
 c
 c  Compression statistics
 c
@@ -958,21 +963,20 @@ c
           irp  = rp
           irrp = irp  + ma_sizeof(MT_INT,(2*klen),MT_DBL)
           drp  = irrp + ma_sizeof(MT_INT,nir,MT_DBL)
-
           call moints_sparse2d_pack( llen, klen, ssbb(lblo,kblo,j,i),
-     $                               sprstol, iorec(irp), nir1, 
+     $                               sprstol, labint, iorec(irp), nir1, 
      $                               iorec(irrp), iorec(drp), nnz1 )
           rp = drp + nnz1
-
           if ((nnz1.ne.nnz).or.(nir1.ne.nir))
      $      call errquit('moints_aodisk_sprs2iorec: internal error 2',0)
 
         enddo
       enddo
-
       if (rp.gt.(reclen+1))
      $  call errquit('moints_aodisk_sprs2iorec: internal error 1',0)
-C      CALL MOINTS_AODISK_IJPRINT( ILEN, JLEN, INT_MB(K_IJ) )
+c
+c  Bookkeeping for some odd cases
+c
       ojustfit = (rp.eq.(reclen+1))                     ! special case
       if (ojustfit) then
         rp = 0
@@ -1200,6 +1204,7 @@ c
       double precision iorec(*)
       double precision ssbb(lblo:lbhi,kblo:kbhi,jlo:jhi,ilo:ihi)
 c
+      integer labint
       integer i, j, ijp, nnz, bit16, ilen, jlen, klen, llen
       integer maxiirlen, iirlen, nir, dp
       integer l_iv, k_iv, k_irv
@@ -1217,18 +1222,18 @@ c
       if (.not. ma_push_get(MT_INT, maxiirlen, 'i io pack ',l_iv, k_iv))
      $  call errquit('moints_aodisk_sprs2dense_a: no memory',0)
       k_irv = k_iv + 2*klen
-
+      labint = ma_sizeof(MT_INT,1,MT_BYTE)/2
 
       do i=ilo,ihi
         do j=jlo,jhi
           ijp = iand(rshift(ijmap(j,i),16),bit16)
           nnz = iand(ijmap(j,i),bit16)
           if (nnz.gt.(klen*llen)) then
-            call dumpiorec( reclen, iorec )
+            call moints_aodisk_dumpiorec( reclen, iorec )
             call errquit('moints_sprs2dense_a: internal error 3',0)
           endif
           if (ijp.gt.0) then
-            nir = nnz/2 + mod(nnz,2)
+            nir = nnz/labint + mod(nnz,labint)
             iirlen = 2*klen + nir
             if (iirlen.gt.maxiirlen) then
               stop 1190
@@ -1271,19 +1276,17 @@ c    IR[]:     2 4 5 8...   2 4 9
 c
 c
 c
-#ifdef INTEGER64
-
-#else
-      subroutine moints_sparse2d_pack( m, n, x, tol, colp, nir, 
-     $                                ir, v, nnz )
+#ifdef HAVE_FORTRAN_INTEGER2
+      subroutine moints_sparse2d_pack( m, n, x, tol, labint, 
+     $                                 colp, nir, ir, v, nnz )
       implicit none
       integer m                              ! [input]  rows
       integer n                              ! [input]  columns
       double precision x(m,n)                ! [input]  dense 2D
       double precision tol                   ! [input]  tolerance
+      integer labint                         ! [input]  2byte labels per integer word
       integer colp(2,n)                      ! [output] column ptr hi,lo
       integer nir                            ! [output] row index length
-#ifdef HAVE_FORTRAN_INTEGER2
       integer*2 ir(*)                        ! [output] row index 16-bit packed
       double precision v(*)                  ! [output] packed values
       integer nnz                            ! [output] number non-zeroes
@@ -1306,9 +1309,55 @@ c
         if (colp(1,s).gt.nnz) colp(1,s) = 0
         colp(2,s) = nnz 
       enddo
-      nir = nnz/2 + mod(nnz,2)
+      nir = nnz/labint + mod(nnz,labint)
 
+      return
+      end
+
+
+
+
+
+      subroutine moints_sparse2d_unpack( m, n, colp, nnz, ir, v, x )
+      implicit none
+      integer m                              ! [input]  rows
+      integer n                              ! [input]  columns
+      integer colp(2,n)                      ! [input]  column ptr hi,lo
+      integer nnz                            ! [input]  number non-zeroes
+      double precision v(nnz)                ! [input]  packed values
+      double precision x(m,n)                ! [output] dense 2D
+      integer*2 ir(*)                        ! [input]  row index 16-bit packed
+      integer s, rp
+
+      do s=1,n
+        if (colp(1,s).gt.0) then
+          do rp=colp(1,s),colp(2,s)
+            x(ir(rp),s) = v(rp)
+          enddo
+        endif
+      enddo
+      return
+      end
+
+
+
+c
+c   ----------------------------------------------
+c    Alternative code without integer*2 data type 
+c         (not working for 64-bit ints)
+c   ----------------------------------------------
+c
 #else
+      subroutine moints_sparse2d_pack( m, n, x, tol, labint, colp, 
+     $                                 nir, ir, v, nnz )
+      implicit none
+      integer m                              ! [input]  rows
+      integer n                              ! [input]  columns
+      double precision x(m,n)                ! [input]  dense 2D
+      double precision tol                   ! [input]  tolerance
+      integer labint                         ! [input]  2byte labels per integer word
+      integer colp(2,n)                      ! [output] column ptr hi,lo
+      integer nir                            ! [output] row index length
       integer ir(*)                          ! [output] row index 16-bit packed
       double precision v(*)                  ! [output] packed values
       integer nnz                            ! [output] number non-zeroes
@@ -1347,7 +1396,6 @@ c
         nir = nir + 1
         ir(nir) = pack
       endif
-#endif
       return
       end
 
@@ -1364,19 +1412,6 @@ c
       double precision v(nnz)                ! [input]  packed values
       double precision x(m,n)                ! [output] dense 2D
 
-#ifdef HAVE_FORTRAN_INTEGER2
-      integer*2 ir(*)                        ! [input]  row index 16-bit packed
-      integer s, rp
-
-      do s=1,n
-        if (colp(1,s).gt.0) then
-          do rp=colp(1,s),colp(2,s)
-            x(ir(rp),s) = v(rp)
-          enddo
-        endif
-      enddo
-
-#else
       integer ir(*)                          ! [input]  row index 16-bit packed
       integer s, t, rp, rrp, parity
       integer bit16
@@ -1394,7 +1429,6 @@ c
           enddo
         endif
       enddo
-#endif
       return
       end
 
@@ -1700,7 +1734,6 @@ c
       return
       end
 
-c
 c  
 c End NEW_AODISK section
 c
