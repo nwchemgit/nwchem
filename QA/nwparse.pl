@@ -1,5 +1,5 @@
 #
-# $Id: nwparse.pl,v 1.13 2000-11-27 17:41:03 windus Exp $
+# $Id: nwparse.pl,v 1.14 2002-03-22 01:56:55 sohirata Exp $
 #
 #
 # perl script to parse nwchem output files
@@ -267,6 +267,26 @@ foreach $filename (@FILES_TO_PARSE) {
 		}
 		printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 	    }
+	}
+	if (/Excitation energy/) {
+	    if ($debug) {print "\ndebug: $_";}
+	    @line_tokens = split(' ');
+	    $num_line_tokens = @line_tokens;
+	    if ($debug) {
+	        print "debug:line_tokens: @line_tokens \n";
+	        print "debug:number     : $num_line_tokens \n";
+    	    }
+	    for($itok = 0;$itok < ($num_line_tokens-1); $itok++){
+	        if (! $quiet) {
+    	    	    printf "%s ", @line_tokens[$itok];
+	        }
+	        printf FILE_OUTPUT "%s ", @line_tokens[$itok];
+	    }
+#                                                   *** Assumes $itok was incremented above
+	    if (! $quiet) {
+	        printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+	    }
+	    printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 	}
 	if ($gradient_block == 2) {
 	    if ($debug) {print "debug:g3: $_";}	
