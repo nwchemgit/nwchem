@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.1 1994-06-14 21:54:34 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.2 1994-06-16 22:44:52 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO, NOcc, NVir,
@@ -82,11 +82,11 @@ C
       Parameter (LuInt = 10)
 C
 C LOCAL VARIBLES
-      Integer I, J, ISpin, JSpin, G_I, G_J
+      Integer I, J, ISpin, JSpin, G_I, G_J, JHi
       Integer A, B, Alo, Ahi, Blo, BHi, G_A, G_B, H_B, LDB, AB
       Integer Proc
       Double Precision DenIJ, Den, Fact, EPair
-      Logical Status
+      Logical Status, PermSym
       Integer Junk
 C
 C     ************************
@@ -233,7 +233,17 @@ C
                   EndIf
                EndIf
 C
-               Do J = 1, NOcc(JSpin)
+C              Use permutational symmetry if possible
+C
+               If ( ISpin .eq. JSpin) then
+                  JHi = I
+                  PermSym = .TRUE.
+               Else
+                  JHi = NOcc(JSpin)
+                  PermSym = .FALSE.
+               EndIf
+C
+               Do J = 1, JHi
 C
 C                 Form half of the denominator
 C
@@ -390,8 +400,13 @@ C                 contributions by spin case because that breakdown is
 C                 sometimes interesting to people. 
 C
                   EPair = GA_DDot( G_A, G_B)
-                  Contrib( ISpin, JSpin)
-     $               = Contrib( ISpin, JSpin) + EPair
+                  If ( PermSym .AND. I .ne. J) then
+                     Contrib( ISpin, JSpin)
+     $                  = Contrib( ISpin, JSpin) + FP_Two * EPair
+                  Else
+                     Contrib( ISpin, JSpin)
+     $                  = Contrib( ISpin, JSpin) + EPair
+                  EndIf
 C
                   If ( Proc .eq. 0 )
      $               Write (LuOut, 9000) I, J, ISpin, JSpin, EPair
