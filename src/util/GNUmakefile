@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.152 2002-10-18 01:39:03 edo Exp $
+# $Id: GNUmakefile,v 1.153 2002-10-30 22:02:12 edo Exp $
 
 include ../config/makefile.h
 
@@ -196,7 +196,8 @@ ifeq ($(TARGET),SGITFP)
 DEFINES += -DNOSOCKLEN
 endif
 ifdef LSF
-DEFINES += -DLSF
+  WHICHBJOBS  += $(shell which bjobs)
+  DEFINES += -DLSF
   LIB_ALSO_BUILD = $(BINDIR)/jobtime_lsf $(BINDIR)/jobtime_lsf.pl
 endif
 
@@ -250,6 +251,12 @@ endif
 ifdef LSF
 $(BINDIR)/jobtime_lsf:	jobtime_lsf
 	/bin/cp $^ $@
+
+jobtime_lsf.pl:	
+	/bin/rm -f jobtime_lsf.pl
+	cat toplsf.pl > jobtime_lsf.pl
+	echo "$$"bjobs=\"$(WHICHBJOBS)\"\;  >> jobtime_lsf.pl
+	cat botlsf.pl >> jobtime_lsf.pl
 
 $(BINDIR)/jobtime_lsf.pl:	jobtime_lsf.pl
 	/bin/cp $^ $@
