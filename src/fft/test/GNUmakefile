@@ -34,8 +34,8 @@
 PROCTYPE  = TCGPROCS
 #PROCTYPE = MPIPROCS
 
-#FFTTYPE   = EMSLFFT
-FFTTYPE  = ESSLFFT
+FFTTYPE   = EMSLFFT
+#FFTTYPE  = ESSLFFT
 #-------------------------------------------
 
 ifeq ($(PROCTYPE),TCGPROCS)
@@ -66,6 +66,9 @@ ifeq ($(NWCHEM_TARGET),SP1)
 else
   LIB_INC = -I$(NWCHEM_TOP)/src/include 
   LIBDIRS = -L$(NWCHEM_TOP)/lib/$(TARGET)
+  ifeq ($(FFTTYPE),EMSLFFT)
+     DO_ESSL = NO
+  endif
 endif
 
 
