@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.208 1997-02-26 16:46:19 d3e129 Exp $
+# $Id: makefile.h,v 1.209 1997-02-26 16:51:31 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -937,6 +937,7 @@ ifdef EXPLICITF
 # Needed on machines where FCC does not preprocess .F files
 # with CPP to get .f files
 #
+# These rules apply to make-ing of files in specfic directories
 .SUFFIXES:	
 .SUFFIXES:	.o .s .F .f .c
 
@@ -955,7 +956,9 @@ endif
 # 
 # More explicit rules to avoid infinite recursion, to get dependencies, and
 # for efficiency.  CRAY does not like -o with -c.
-
+#
+# These rules apply to make-ing of files in with respect to library files
+# both these rules and the rules above are needed.
 (%.o):	%.F
 ifdef EXPLICITF
 	@echo Converting $< '->' $*.f
