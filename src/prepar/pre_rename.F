@@ -2,7 +2,7 @@
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
      + llnk,clnk,mlnk,nlnk,icyren)
 c
-c $Id: pre_rename.F,v 1.8 1999-06-16 23:57:00 d3j191 Exp $
+c $Id: pre_rename.F,v 1.9 1999-06-17 15:15:45 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -67,8 +67,9 @@ c
      + ctest.eq.'C '.or.ctest.eq.'C_'.or.
      + ctest.eq.'G '.or.ctest.eq.'G_')
      + cseq(2,latm(1,i))=dorr//cseq(2,latm(1,i))(1:4)
-      if(ctest.eq.'T '.or.ctest.eq.'T_'.or.
-     + ctest.eq.'U '.or.ctest.eq.'U_')
+      if(ctest.eq.'T '.or.ctest.eq.'T_')
+     + cseq(2,latm(1,i))='D'//cseq(2,latm(1,i))(1:4)
+      if(ctest.eq.'U '.or.ctest.eq.'U_')
      + cseq(2,latm(1,i))='R'//cseq(2,latm(1,i))(1:4)
 c
     2 continue
