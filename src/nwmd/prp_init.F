@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr)
 c
-c $Id: prp_init.F,v 1.35 2001-02-09 17:50:32 d3j191 Exp $
+c $Id: prp_init.F,v 1.36 2001-02-12 21:50:36 d3j191 Exp $
 c
       implicit none
 c
@@ -317,13 +317,16 @@ c
       endif
 c
       if(iprof.eq.1) then
-      if(it+17.gt.maxpro)
+      if(it+19.gt.maxpro)
      + call errquit('Increase dimension maxpro',0)
       it=it+1
       pronam(it)='Prof: replicated data interactions               s'
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: pme charge grid calculation                s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: pme charge grid communication              s'
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: pme subset synchronization 1               s'
@@ -366,6 +369,9 @@ c
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: pme forces calculation                     s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: pme forces communication                   s'
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: synchronization                            s'

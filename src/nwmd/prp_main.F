@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.56 2001-02-09 17:50:32 d3j191 Exp $
+c $Id: prp_main.F,v 1.57 2001-02-12 21:50:36 d3j191 Exp $
 c
       implicit none
 c
@@ -236,6 +236,8 @@ c
       it=it+1
       p(it)=timer_wall_total(11)
       it=it+1
+      p(it)=timer_wall_total(27)
+      it=it+1
       p(it)=timer_wall_total(12)
       it=it+1
       p(it)=timer_wall_total(13)
@@ -263,6 +265,8 @@ c
       p(it)=timer_wall_total(24)
       it=it+1
       p(it)=timer_wall_total(25)
+      it=it+1
+      p(it)=timer_wall_total(28)
       it=it+1
       p(it)=timer_wall(2)
       endif

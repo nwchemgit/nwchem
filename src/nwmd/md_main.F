@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.104 2001-02-09 17:50:31 d3j191 Exp $
+c $Id: md_main.F,v 1.105 2001-02-12 21:50:36 d3j191 Exp $
 c
       implicit none
 c
@@ -2064,7 +2064,7 @@ c
 c
       integer i
 c
-      do 1 i=10,25
+      do 1 i=10,30
       call timer_reset(i)
     1 continue
 c
@@ -2142,7 +2142,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.104 2001-02-09 17:50:31 d3j191 Exp $
+c $Id: md_main.F,v 1.105 2001-02-12 21:50:36 d3j191 Exp $
 c
       implicit none
 c
