@@ -505,6 +505,10 @@ c     ----- fill appropriate arrays for HONDO integrals -----
    
          call hnd_nw_hnd
 
+c     ----- fill the common block of hnd_molabl
+
+         call hnd_atlabl(rtdb,geom,basis)
+       
 c     ----- calculate 1e 2nd derivatives -----
 
          total_wall = -util_wallsec()
@@ -4956,12 +4960,15 @@ C
       SUBROUTINE HND_HSSPRT(FC,NC)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       CHARACTER*4 CLAB
+      character*8 anam,bflab
+      character*2 bnam
       PARAMETER (NUMMX=3072)
       PARAMETER (MXATOM=500)
       common/hnd_iofile/ir,iw,ip
 C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
-C     COMMON/HND_MOLLAB/ANAM(128),BNAM(128),BFLAB(NUMMX)
+      COMMON/HND_BASNUM/NUM
+      COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM),BFLAB(NUMMX)
       DIMENSION FC(NC,1),CLAB(3)
       DATA CLAB /'   X','   Y','   Z'/
 C
@@ -4973,9 +4980,7 @@ C
       WRITE(IW,9999)
       WRITE(IW,9998) (N,N=MIN,MAX)
       WRITE(IW,9999)
-c%%
-C     WRITE(IW,9997) (ANAM(N),BNAM(N),N=MIN,MAX)
-c%%
+      WRITE(IW,9997) (ANAM(N),BNAM(N),N=MIN,MAX)
       WRITE(IW,9999)
       WRITE(IW,9996) ((CLAB(M),M=1,3),N=MIN,MAX)
       WRITE(IW,9999)
@@ -4983,10 +4988,8 @@ c%%
       J1=3*MAX
       DO 30 IAT=1,NAT
       I0=3*(IAT-1)
-c%%
-C     WRITE(IW,9995) IAT,ANAM(IAT),BNAM(IAT),CLAB(1),
-C    1               (FC(I0+1,J),J=J0,J1)
-c%%
+      WRITE(IW,9995) IAT,ANAM(IAT),BNAM(IAT),CLAB(1),
+     1               (FC(I0+1,J),J=J0,J1)
       WRITE(IW,9994) CLAB(2),(FC(I0+2,J),J=J0,J1)
       WRITE(IW,9994) CLAB(3),(FC(I0+3,J),J=J0,J1)
    30 CONTINUE
@@ -4999,7 +5002,7 @@ c%%
  9995 FORMAT(I3,3X,A8,A2,A4,12F9.4)
  9994 FORMAT(16X,A4,12F9.4)
  9993 FORMAT(10X,49(1H-),
-     1     /,10X,'CARTESIAN FORCE CONSTANT MATRIX (HARTREE/BOHR**2)',
+     1     /,10X,'Cartesian force constant matrix (hartree/bohr**2)',
      2     /,10X,49(1H-))
       END
 
@@ -15639,7 +15642,7 @@ C
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs)
 
-c$Id: rhf_hessian.F,v 1.5 1997-02-13 01:20:56 d3g681 Exp $
+c$Id: rhf_hessian.F,v 1.6 1997-02-13 03:57:19 bmeng Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -16049,7 +16052,7 @@ c
 #include "cfock.fh"
 c#include "pstat.fh"
       integer  rtdb,geom,basis
-      integer  g_fc
+c*      integer  g_fc
       integer  g_aodf(3*mxatom), g_modf(3*mxatom)
       integer  g_aods(3*mxatom), g_mods(3*mxatom)
       integer  g_dsta(3*mxatom), g_tmpta(3*mxatom)
@@ -16079,7 +16082,7 @@ c*    double precision  occ,evals
       external file_write_ga,file_read_ga
 c*    character*(nw_max_path_len) cphf_sol
       character*256 cphf_sol
-      character*256 fname
+c*      character*256 fname
       integer  g_ya, g_ya_tr
 c
       character*8 errmsg
@@ -16779,23 +16782,25 @@ c     ----- for info only, print gradient -----
 
 c     ----- symmetrixe -fcm- -----
 
-      if (ga_nodeid().eq.0) call hnd_cpfcm(x(i00),nat)
+c     if (ga_nodeid().eq.0) call hnd_cpfcm(x(i00),nat)
+      if (ga_nodeid().eq.0) call hnd_hssprt(x(i00),nat)
 
-c     ------ create ga block for force constant matrix -----
-
-      if(.not.ga_create(mt_dbl,nc,nc,'fcm',nc,nc,
-     $     g_fc))call errquit('cphf: ga_create failed',0)
-      call ga_zero(g_fc)
-
-c     ----- copy fc from local memory to global array -----
-
-      if (ga_nodeid().eq.0) then
-          call ga_put(g_fc,1,nc,1,nc,x(i00),nc)
-      endif
-c
-      call util_file_name('scf_hess',.true.,.true.,fname)
-      if (.not.file_write_ga(fname,g_fc))
-     $   call errquit('rhf_hess: could not write scf_hess',1)
+c$$$c     ------ create ga block for force constant matrix -----
+c$$$
+c$$$      if(.not.ga_create(mt_dbl,nc,nc,'fcm',nc,nc,
+c$$$     $     g_fc))call errquit('cphf: ga_create failed',0)
+c$$$      call ga_zero(g_fc)
+c$$$
+c$$$c     ----- copy fc from local memory to global array -----
+c$$$
+c$$$      if (ga_nodeid().eq.0) then
+c$$$          call ga_put(g_fc,1,nc,1,nc,x(i00),nc)
+c$$$      endif
+c$$$c
+c$$$      call util_file_name('hess',.false.,.false.,fname)
+c$$$      if (.not.file_write_ga(fname,g_fc))
+c$$$     $   call errquit('rhf_hess: could not write scf_hess',1)
+      call rhf_hessian_2file(nc,x(i00))
 
 c     ----- fake dipole derivative -----
 
@@ -16914,9 +16919,9 @@ C
       RETURN
  9998 FORMAT(/,' ---  Hessian --- ')
  9997 FORMAT(/)
- 9996 FORMAT(5X,'atom',9(6X,I2,4X))
+ 9996 FORMAT(5X,'Atom',9(6X,I2,4X))
  9995 FORMAT(5X,A4,9F12.7)
- 9994 FORMAT(5X,'atom',3(19X,I2,15X))
+ 9994 FORMAT(5X,'Atom',3(19X,I2,15X))
  9993 FORMAT(5X,'    ',9(6X,A4,2X))
       END
 C
@@ -16946,9 +16951,9 @@ C
       IF(MAX.LT.NAT) GO TO 10
 C
       RETURN
- 9999 FORMAT(/,' --- gradient --- ')
+ 9999 FORMAT(/,' --- Gradient --- ')
  9997 FORMAT(/)
- 9996 FORMAT(5X,'atom',9(6X,I2,4X))
+ 9996 FORMAT(5X,'Atom',9(6X,I2,4X))
  9995 FORMAT(5X,A4,9F12.7)
       END
 C
@@ -17078,3 +17083,47 @@ C
  9328 FORMAT(/,' VEC =',I5,/,1X,10(1H-))
  9348 FORMAT(5(I5,1X,A8,F11.5))
       END
+      subroutine rhf_hessian_2file(n,hess)
+      implicit none
+#include "global.fh"
+c:: writes file in vib_vib format using vib_vib filename default
+c:: Note the default filename is set in task_freq
+c:: filenames must be made identical.
+c
+c format of file is ascii lower triangular elements only.
+c
+c::passed
+      integer n ! [input] the rank of the hessian (3*number of atoms)
+      double precision hess (n,n) ! [input] the matrix
+c::local
+      integer h_unit
+      parameter (h_unit=47)
+      character*255 fname
+      integer i,j
+      if (ga_nodeid().eq.0) then
+c     
+c::   -- open default file
+         call util_file_name('hess',.false.,.false.,fname)
+         open(unit=h_unit,file=fname,form='formatted',status='unknown',
+     $        err=99990,access='sequential')
+         close(unit=h_unit,status='delete')
+         open(unit=h_unit,file=fname,form='formatted',status='new',
+     $        err=99991,access='sequential')
+c::   -- compiler parinoia      (rak)
+         rewind h_unit
+c::   -- write information
+         do i = 1,n
+            do j = 1,i
+               write(h_unit,10000) hess(i,j)
+            enddo
+         enddo
+         close(unit=h_unit,status='keep')
+      endif
+      call ga_sync()
+      return
+10000 format(f30.15)
+99990 write(6,*)' could not open <',fname,'> as unknown file'
+      call errquit('hnd_cphf: fatal error', 911)
+99991 write(6,*)' could not open <',fname,'> as new file'
+      call errquit('hnd_cphf: fatal error', 911)
+      end
