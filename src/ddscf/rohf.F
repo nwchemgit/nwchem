@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.16 1997-02-07 21:56:15 d3g681 Exp $
+C$Id: rohf.F,v 1.17 1997-02-13 01:14:15 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -29,7 +29,7 @@ c
       double precision enrep    ! Effective nuclear repulsion energy
       double precision rohf_time
 C
-      Integer NAtoms, NShells
+*      Integer NAtoms, NShells
 c
       logical rohf_nr_solve
       logical rohf_diis_solve

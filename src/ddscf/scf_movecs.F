@@ -27,13 +27,14 @@ c
       endif
 c
       end
-      subroutine scf_movecs_write
+      subroutine scf_movecs_write(rtdb)
       implicit none
 #include "crohf.fh"
 #include "mafdecls.fh"
 #include "cscf.fh"
       logical movecs_write
       external movecs_write
+      integer rtdb              ! [input]
 c
       integer nset, nmo2(2)
 c
@@ -45,7 +46,8 @@ c
          nset = 1
       endif
 c
-      if (.not. movecs_write(movecs_out, title, trans,
+      if (.not. movecs_write(rtdb, basis, movecs_out, 
+     $     'scf', title, 
      $     nbf, nset, nmo2,
      $     dbl_mb(k_occ), nbf, dbl_mb(k_eval),
      $     nbf, g_movecs)) call errquit

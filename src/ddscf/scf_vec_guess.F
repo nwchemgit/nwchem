@@ -1,5 +1,5 @@
       subroutine scf_vectors_guess(rtdb)
-C     $Id: scf_vec_guess.F,v 1.9 1996-08-19 15:18:13 d3g681 Exp $
+C     $Id: scf_vec_guess.F,v 1.10 1997-02-13 01:14:19 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -24,6 +24,7 @@ c
       integer nbf_vecs, nsets, nmo_vecs(2)
       logical status
       double precision tolguess
+      character*20 file_scftype
 c
 c     externals
 c
@@ -124,7 +125,7 @@ c     Attempt to read vectors from file movecs_in and see if
 c     they make sense
 c
          status = movecs_read_header(movecs_in, title_vecs, bas_vecs,
-     $        nbf_vecs, nsets, nmo_vecs, 2)
+     $        file_scftype, nbf_vecs, nsets, nmo_vecs, 2)
          if (status) then
 c     
 c     Check that:
@@ -275,7 +276,7 @@ c
 c
 c     Save vectors to disk
 c
-      call scf_movecs_write
+      call scf_movecs_write(rtdb)
 c     
 c     Overwrite the input movecs option with where the final movecs
 c     will end up so that a restart automatically picks them up

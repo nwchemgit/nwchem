@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
-     $     nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.25 1996-12-23 12:50:27 d3g681 Exp $
+     $     scftype, nbf, nsets, nmo, ldnmo)
+C$Id: vectors.F,v 1.26 1997-02-13 01:14:21 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -14,6 +14,7 @@ c
       character*(*) filename    ! File to read header from
       character*(*) title       ! Returns title of job that created vectors
       character*(*) basis_name  ! Returns name of basis set
+      character*(*) scftype     ! Returns the SCF type of the vectors
       integer nbf               ! Returns no. of functions in basis
       integer nsets             ! Returns no. of functions in each set
       integer ldnmo             ! Inputs size of nmo
@@ -24,12 +25,16 @@ c
       integer lentit
       integer lenbas
       integer ok, i
+      character*20 scftype20
 c
       if (oscfps) call pstat_on(ps_vecio)
       ok = 0
       if (ga_nodeid() .eq. 0) then
          open(unitno, status='old', form='unformatted', file=filename,
      $        err=1000)
+         read(unitno, err=1001, end=2001) ! SKIP convergence info
+         read(unitno, err=1001, end=2001) scftype20
+         scftype = scftype20
          read(unitno, err=1001, end=2001) lentit
          if (len(title) .lt. lentit) call errquit
      $        ('movecs_read_header: title too short', lentit)
@@ -130,6 +135,8 @@ c
 c
 c     Skip over uninteresting bits of the header
 c
+         read(unitno, err=1001, end=1001) ! convergence info
+         read(unitno, err=1001, end=1001) ! scftype
          read(unitno, err=1001, end=1001) ! lentit
          read(unitno, err=1001, end=1001) ! title
          read(unitno, err=1001, end=1001) ! lenbas
@@ -227,12 +234,13 @@ c
       character*255 title, basis
       integer minchunk              ! for data distirbution in ga
       parameter (minchunk = -1)     ! let ga determine even distrib.
+      character*20 scftype
 c
       logical movecs_read_header, movecs_read
       external movecs_read_header, movecs_read
 c     
-      if ( .not. movecs_read_header(filename, title, basis, nbf,
-     $   nsets, nmo, ldnmo) ) call errquit(
+      if ( .not. movecs_read_header(filename, title, basis,
+     $     scftype, nbf, nsets, nmo, ldnmo) ) call errquit(
      $   'movecs_gather: failed to read movecs file', 1)
 c
 c     allocate memory to be used while reading info
@@ -276,7 +284,8 @@ c
       movecs_gather = .true.
 c
       end
-      logical function movecs_write(filename, title, basis_name, 
+      logical function movecs_write(rtdb, basis, filename, 
+     $     scftype, title,
      $     nbf, nsets, nmo, occ, ldocc, evals, ldevals, g_vecs)
       implicit none
 #include "mafdecls.fh"
@@ -287,19 +296,24 @@ c
 #include "msgids.fh"
 #include "cscfps.fh"
 #include "util.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "rtdb.fh"
 c
 c     Temporary routine
 c
-      character*(*) filename    ! File to write to
-      character*(*) title       ! Title of job that created vectors
-      character*(*) basis_name  ! Name of basis set
-      integer nbf               ! No. of functions in basis
-      integer nsets             ! No. of sets of vectors
-      integer nmo(nsets)        ! No. of vectors in each set
-      integer ldocc
-      integer ldevals
-      double precision occ(ldocc, nsets) ! Occupation numbers of each set
-      double precision evals(ldevals, nsets) ! Eigenvalues for each set
+      integer rtdb              ! [input] RTDB handle (-1 if not accessible)
+      integer basis             ! [input] Basis handle(-1 if not accessible)
+      character*(*) filename    ! [input] File to write to
+      character*(*) scftype     ! [input] Type of SCF (dft, scf, mcscf)
+      character*(*) title       ! [input] Title of job that created vectors
+      integer nbf               ! [input] No. of functions in basis
+      integer nsets             ! [input] No. of sets of vectors
+      integer nmo(nsets)        ! [input] No. of vectors in each set
+      integer ldocc             ! [input]
+      integer ldevals           ! [input]
+      double precision occ(ldocc, nsets) ! [input] Occupation numbers 
+      double precision evals(ldevals, nsets) ! [input] Eigenvalues
       integer g_vecs(nsets)     ! Global array with eigen-vectors
 c
       integer unitno            ! Unit no. for writing
@@ -308,9 +322,40 @@ c
       integer lenbas
       integer l_vecs, k_vecs
       integer ok, iset, i, j
+      integer geom, ma_type, nelem
+      character*26 date
+      character*32 geomsum, basissum, key
+      character*20 scftype20    ! DECL MUST match movecs_converged routine
+      character*128 basis_name, trans_name
 c
       if (oscfps) call pstat_on(ps_vecio)
       call ga_sync()
+c
+c     Generate info to go into convergence and restart line
+c
+      if (basis.ne.-1 .and. rtdb.ne.-1) then
+         if (.not. bas_checksum(basis, basissum))
+     $        call errquit('movecs_write: bad basis',0)
+         if (.not. bas_geom(basis, geom))
+     $        call errquit('movecs_write: bad basis',0)
+         if (.not. geom_checksum(geom, geomsum))
+     $        call errquit('movecs_write: bad geometry',0)
+         if (.not. bas_name(basis, basis_name, trans_name))
+     $        call errquit('movecs_write: bad basis',0)
+         if (trans_name .ne. ' ') basis_name = trans_name
+c         
+         key = ' '
+         write(key,'(a,'':converged'')') scftype(1:inp_strlen(scftype))
+         if (.not. rtdb_get_info(rtdb, key, ma_type, nelem, date))
+     $        date = ' '
+      else
+         basissum = ' '
+         geomsum  = ' '
+         date     = ' '
+      endif
+      scftype20 = scftype
+c
+c
       ok = 0
       if (ga_nodeid() .eq. 0) then
          if (nsets .gt. 2) then
@@ -320,8 +365,13 @@ c
          open(unitno, status='unknown', form='unformatted',
      $        file=filename, err=1000)
 c
+c     Information about convergence
+c
+         write(unitno, err=1001) basissum, geomsum, scftype20, date
+c
 c     Check that read routines are both consistent with this
 c
+         write(unitno, err=1001) scftype20
          lentit = max(1,inp_strlen(title)) ! 0 length record confuses f2c
          write(unitno, err=1001) lentit
          write(unitno, err=1001) title(1:lentit)
@@ -564,17 +614,6 @@ c
       goto 10
 c
       end
-
-
-
-
-
-
-
-
-
-
-
       logical function file_read_ga(fname, g_a)
       implicit none
 #include "global.fh"
@@ -658,3 +697,97 @@ c
       goto 10
 c
       end
+      logical function movecs_converged(rtdb, basis, scftype, filename)
+      implicit none
+#include "global.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "tcgmsg.fh"
+      integer rtdb              ! [input]
+      integer basis             ! [input]
+      character*(*) scftype     ! [input] Current SCF type
+      character*(*) filename    ! [input] MOvecs filename
+c
+c     Return true/false if the MO vectors in the file correspond
+c     to converged vectors of the current SCF type with the
+c     current set of options.
+c
+c     1) The movecs file contains basis checksum, geometry checksum,
+c     .  scftype, date on convergence flag in the database at the
+c     .  time the vectors were written.
+c
+c     2) The database contains a convergence flag that is deleted
+c     .  whenever any input is changed or options automatically 
+c     .  changed.
+c
+c     The calculation is converged if all of the following are true
+c     
+c     a) convergence flag is present in the database and the date 
+c     .  matches the date in the movecs file
+c     b) scftypes match
+c     c) basis and geometry checksums match
+c
+      character*20 filescftype  ! MUST MATCH WRITE ROUTINE DECL
+      character*32 filebasissum, filegeomsum, basissum, geomsum
+      logical oconverged
+      character*40 key
+      character*26 date, filedate
+      integer geom, ma_type, nelem
+      integer unitno            ! Unit no. for reading
+      parameter (unitno = 67)   ! These need to be managed !!!
+      logical status, oldmode
+c
+      status = .false.
+c
+      oldmode =  rtdb_parallel(.false.)
+      if (ga_nodeid() .eq. 0) then
+         open(unitno, status='old', form='unformatted',
+     $        file=filename, err=1000)
+         read(unitno, end=1001, err=1001)
+     $        filebasissum, filegeomsum, filescftype, filedate
+         close(unitno, err=1002)
+c     
+c     a)
+c     
+         key = ' '
+         write(key,'(a,'':converged'')') scftype(1:inp_strlen(scftype))
+         if (.not. rtdb_get(rtdb, key, mt_log, 1, oconverged)) goto 10
+         if (.not. oconverged) goto 10
+         if (.not. rtdb_get_info(rtdb, key, ma_type, nelem, date))
+     $        call errquit('movecs_converged: rtdb corrupt?',0)
+         if (date .ne. filedate) goto 10
+c     
+c     b) 
+c     
+         if (.not. inp_compare(.false., scftype, filescftype)) goto 10
+c     
+c     c) 
+c     
+         if (.not. bas_geom(basis, geom)) 
+     $        call errquit('movecs_converged: bad basis',0)
+         if (.not. bas_checksum(basis, basissum))
+     $        call errquit('movecs_converged: bad basis',0)
+         if (.not. geom_checksum(geom, geomsum))
+     $        call errquit('movecs_converged: bad geometry',0)
+         if (basissum.ne.filebasissum .or. geomsum.ne.filegeomsum) 
+     $        goto 10
+c     
+c     Cool ... it's converged!
+c
+         status = .true.
+      endif
+c
+ 10   oldmode =  rtdb_parallel(oldmode)
+      call ga_brdcst(1311, status, mitob(1), 0)
+      movecs_converged = status
+      return
+c
+ 1000 call errquit('movecs_converged: error opening file',0)
+ 1001 call errquit('movecs_converged: error reading file',0)
+ 1002 call errquit('movecs_converged: error closing file',0)
+c
+      end
+      

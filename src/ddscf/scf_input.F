@@ -1,5 +1,5 @@
       subroutine scf_input(rtdb)
-C $Id: scf_input.F,v 1.6 1996-10-04 21:48:22 d3g681 Exp $
+C $Id: scf_input.F,v 1.7 1997-02-13 01:14:18 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -26,7 +26,7 @@ c
      $     'diis', 'diisbas', 'sym', 'adapt', 'lagrangian', 'lock',
      $     'direct', 'semidirect', 'end'/
 c
-c     For now, any SCF input results in it being marked non-converged
+c     Any SCF input results in it being marked non-converged
 c
       status = rtdb_delete(rtdb,'scf:converged')
 c

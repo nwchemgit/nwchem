@@ -1,5 +1,5 @@
       subroutine movecs_project(rtdb, geom, basis, g_vecs)
-C$Id: movecs_proj.F,v 1.3 1996-07-02 19:25:05 d3g681 Exp $
+C$Id: movecs_proj.F,v 1.4 1997-02-13 01:14:15 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -38,6 +38,7 @@ c
       double precision temp
       character*80 old_basis_name, old_filename, old_title
       character*80 project(2), basis_name_from_file
+      character*20 old_scftype
       logical oprint, oprint_info
 
       double precision drand
@@ -73,7 +74,8 @@ c
      $     call errquit('movecs_project: no old basis?', 0)
       call int_normalize(old_basis)
       if (.not. movecs_read_header(old_filename, old_title,
-     $     basis_name_from_file, file_nbf, old_nsets, old_nmo, 1)) 
+     $     basis_name_from_file, old_scftype, 
+     $     file_nbf, old_nsets, old_nmo, 1)) 
      $     call errquit
      $     ('movecs_project: failed to read old header', 0)
 c

@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.46 1997-02-07 21:56:17 d3g681 Exp $
+C$Id: scf.F,v 1.47 1997-02-13 01:14:17 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -24,10 +24,11 @@ c
       logical oprint
       character*255 name, ri_trans
 c
+      character*20 crapola
       integer nbf_per_ir(20)
       integer natoms, Nff
-      logical rohf, uhf, riscf_init
-      external rohf, uhf, riscf_init
+      logical rohf, uhf, riscf_init, movecs_converged
+      external rohf, uhf, riscf_init, movecs_converged
 c     logical cphf_poliz
 c     external cphf_poliz
 c
@@ -139,6 +140,24 @@ c
 c
       call int_normalize(basis)
 c
+c     If input and output movecs are same then might be converged MOs
+c
+      if (movecs_in .eq. movecs_out) then
+         crapola = 'scf'
+         converged = movecs_converged(rtdb, basis, crapola, movecs_in)
+         if (converged) then
+            if (.not. rtdb_get(rtdb, 'scf:energy', mt_dbl, 1, energy))
+     $           call errquit('scf: failed getting converged energy',0)
+            if (ga_nodeid().eq.0 .and. oprint) then
+               write(6,1101) energy
+ 1101          format(/'  The SCF is already converged '//,
+     $              '         Total SCF energy =', f20.12/)
+               call util_flush(6)
+            endif
+            goto 3131
+         endif
+      endif
+c
 c     initialize for RI and calculate 3c integrals if necessary
 c
       if (nriscf.gt.0) then
@@ -207,6 +226,12 @@ c
      $     call errquit
      $     ('scf: failed to store converged in rtdb', 0)
 c
+c     Must store the final MOs AFTER writing the convergence flag
+c     since the time it is put into the RTDB is used to verify
+c     that the two correspond.
+c
+      call scf_movecs_write(rtdb)
+c
       if (scftype .eq. 'UHF') then
          call movecs_ecce(nbf, nmo, 1, nmo, dbl_mb(k_eval),
      $        dbl_mb(k_occ), int_mb(k_irs), 
@@ -228,17 +253,12 @@ c
 c
 c     SCF is done ... tidy up memory etc.
 c
-      call scf_tidy(rtdb)
       if (nriscf.ne.0) then
         call riscf_tidy ( geom, basis, riscf_basis )
       endif
+ 3131 call scf_tidy(rtdb)
 c
       call scf_pstat_print
-c
-c     Compute the polarizability if requested
-c
-*      if (util_print('polarizability', print_never) .or. 
-*     $     util_print('polar', print_never)) scf = cphf_poliz(rtdb)
 c
 c     Nothing else for now ... return convergence status
 c

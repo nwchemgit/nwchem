@@ -60,12 +60,7 @@ c
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('scf_init: basis info',0)
 c
-c   DIIS toggle
-c
-      if (.not.rtdb_get(rtdb, 'scf:diis',MT_LOG, 1, odiis))
-     $   odiis = .false.
-c
-c     is RI approximation to be used?
+c     Is RI approximation to be used? If so get fitting basis set.
 c
       if (rtdb_get(rtdb, 'scf:ri', MT_INT, 1, nriscf)) then
         if (.not. bas_create(riscf_basis, 'riscf basis'))
@@ -76,10 +71,8 @@ c
         nriscf = 0
         riscf_basis = 0
       endif
-
 c
-c     Figure input/output MO vectors ... all this should be
-c     context sensitive but that design is incomplete.
+c     Figure input/output MO vectors
 c     
       if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
      $     movecs_in = 'atomic'
@@ -148,6 +141,12 @@ c
       nalpha = nclosed + nopen
       nbeta  = nclosed
 c
+c   DIIS toggle
+c
+      if (.not.rtdb_get(rtdb, 'scf:diis',MT_LOG, 1, odiis))
+     $   odiis = .false.
+
+c
 c     For now set NMO = NBF, however this may change later when the 
 c     linear dependency analysis is done just before the starting guess
 c
@@ -209,7 +208,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.34 1996-10-16 19:42:12 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.35 1997-02-13 01:14:18 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

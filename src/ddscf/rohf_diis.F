@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.2 1996-07-02 19:25:05 d3g681 Exp $
+C     $Id: rohf_diis.F,v 1.3 1997-02-13 01:14:16 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -167,7 +167,7 @@ c     *ALWAYS* return canonical MOs ... don't do aufbau
 c     
       call rohf_canon(.false., .false.)
       call movecs_fix_phase(g_movecs)
-      call scf_movecs_write
+      call scf_movecs_write(rtdb)
       if (olagr) call rohf_lagr()
 c     
 c     Free globals
