@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.80 1996-07-09 17:54:40 d3g681 Exp $
+c     $Id: nwchem.F,v 1.81 1996-07-09 22:32:44 vg038 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -359,7 +359,7 @@ C
 c     
 c     gradients (scf has to be done first)
 c     
- 60      call scf_gradient(rtdb)
+ 60      status = scf_gradient(rtdb)
          goto 1000
 c     
 c     optscf ... scf optimization
@@ -413,7 +413,8 @@ c
 c     
 c     Miles test 
 c     
- 160     status=cphf(rtdb)
+ 160     continue
+C        status=cphf(rtdb)
          goto 1000
 c     
 c     CCSD
