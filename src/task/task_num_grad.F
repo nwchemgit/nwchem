@@ -1,6 +1,6 @@
       logical function task_num_grad(rtdb)
 *
-* $Id: task_num_grad.F,v 1.15 1997-04-11 18:33:11 d3g681 Exp $
+* $Id: task_num_grad.F,v 1.16 1997-04-23 01:28:47 d3g681 Exp $
 *
       implicit none
 #include "geom.fh"
@@ -367,7 +367,7 @@ c
          call sym_grad_symmetrize(geom, vectors(1,i))
       enddo
 c
-      if (nactive .ne. natoms) then
+      if (nactive .eq. natoms) then
 c     
 c     Construct vectors corresponding to translations and rotations
 c
