@@ -1,6 +1,6 @@
       subroutine grid_buckinit(rtdb)
 c
-c$Id: grid_bucket.F,v 1.15 2000-05-03 22:45:09 edo Exp $
+c$Id: grid_bucket.F,v 1.16 2000-05-05 15:49:01 edo Exp $
 c
       implicit none
 c     
@@ -40,7 +40,7 @@ c
 c     get ncubes
 c
       ncubesmx=1
-      if(ga_nodeid().eq.0) write(LuOut,222) 
+      if(ga_nodeid().eq.0.and.oprint) write(LuOut,222) 
  222  format(/,
      &     1x,' atom type   l_cube   no. cubes   segmts   rad   sub'/
      &     1x,'----------- -------- ----------- -------- ----- -----')
