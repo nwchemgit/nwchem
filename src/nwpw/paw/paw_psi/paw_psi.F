@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi.F,v 1.6 2003-10-23 01:35:35 bylaska Exp $
+* $Id: paw_psi.F,v 1.7 2003-10-24 18:45:59 bylaska Exp $
 *
 
 
@@ -140,7 +140,6 @@
       
 
       do ms=1,ispin
-
         IF(ne(ms).le.0) go to 640
 
 
