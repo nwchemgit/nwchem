@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.14 1997-05-14 20:08:34 d3g681 Exp $
+* $Id: task_gradient.F,v 1.15 1997-05-28 21:53:27 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -130,7 +130,7 @@ c
          key = ' '
          write(key,'(a,'':dipole'')') prefix(1:inp_strlen(prefix))
          if (rtdb_get(rtdb, key, mt_dbl, 3, dipole)) then
-           if (.not. rtdb_put(rtdb, 'task:dipole', mt_dbl, 1, dipole))
+           if (.not. rtdb_put(rtdb, 'task:dipole', mt_dbl, 3, dipole))
      $        call errquit('task_gradient: failed storing dipole',0)
 	 endif
 c
