@@ -1,5 +1,5 @@
 *
-* $Id: cgridfile.fh,v 1.21 2000-10-19 01:26:31 edo Exp $
+* $Id: cgridfile.fh,v 1.22 2002-02-15 00:44:19 edo Exp $
 *
 c
 c     Internal common for grid routines
@@ -12,6 +12,7 @@ c
       double precision fd                ! CHEMIO fd
       double precision buf2     ! Compressed buffer for IO only - ASYNC
       integer n_in_rec          ! No. of entries in buffer
+      integer n_in_rec_tot      ! Total no. of entries 
       integer next_value        ! Next value to be read/inserted
       integer n_rec_in_file     ! No. of records in file
       integer cur_rec           ! Current record no. (1, 2, ...)
@@ -35,8 +36,6 @@ c
       integer aioreq            ! EAF handle to AIO request
 c
 c
-      integer posinfo           ! Used to record current position
-c
       integer n_in_buf          ! n_in_rec info for this buf
       integer pad               ! Padding for 32 bit machines
 c
@@ -46,6 +45,7 @@ c
       integer ntot_sub ! cumulative nsubb
       integer cur_cub ! current cube
       logical grid_written
+      logical largenode ! set by user
       logical oreopen ! true in only grad calculations (see dftg_getxc)
 c
 c
@@ -87,7 +87,7 @@ c     integer
      $     l_cache, k_cache,
      $     max_file_rec, max_cache_rec, cur_cub,nsubb,ntot_sub,
      .     gr_unit,
-     $     posinfo(16),
+     $     n_in_rec_tot,
 c     logicals
      .     grid_written,
      $     otrace,
@@ -97,7 +97,8 @@ c     logicals
      $     oasyncio,
      $     oiopending,
      $     aioreq,
-     $     oreopen
+     $     oreopen,
+     $     largenode
 c     doubles
 c     .     radsub
 c

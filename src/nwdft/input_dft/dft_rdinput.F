@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.95 2002-01-16 01:29:55 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.96 2002-02-15 00:44:22 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -267,14 +267,6 @@ c
          if (.not. rtdb_put(rtdb, 'dft:iXCacc',
      &      mt_int, 1, iXCacc))
      &      call errquit('dft_rdinput: rtdb_put failed', 125)
-      endif
-c
-      if (.not. rtdb_get(rtdb, 'dft:irqmax', mt_int, 1,
-     &   irqmax))then
-         irqmax=12
-         if (.not. rtdb_put(rtdb, 'dft:irqmax',
-     &      mt_int, 1, irqmax))
-     &      call errquit('dft_rdinput: rtdb_put failed', 126)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:itol2e', mt_int, 1,
@@ -812,7 +804,7 @@ c     for each type, place the nuclear charge in znuc array and put default
 c     radial cutoff in rad_cutoff
 c
       do itype = 1, ntypes
-         rad_cutoff(1,itype) = irqmax
+cedo         rad_cutoff(1,itype) = irqmax
          rad_cutoff(2,itype) = -99
          do icenter = 1, ncenters
             if (iatype(icenter) .eq. itype)then

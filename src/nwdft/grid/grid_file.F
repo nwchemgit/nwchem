@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.47 2002-01-22 21:26:35 edo Exp $
+* $Id: grid_file.F,v 1.48 2002-02-15 00:44:19 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -395,8 +395,9 @@ c
                goto 10          ! Dirty ... go back and try again
             end if
          end if
-         call dcopy(rec_len_in_dbl, buf, 1, 
-     $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1)
+         call util_memcpy(
+     $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), buf,
+     .        rec_len_in_dbl*8)
 c     
 c     dump cache to disk
 c
@@ -499,9 +500,9 @@ c
 c
 c     Record is cached in memory
 c
-         call dcopy(rec_len_in_dbl, 
-     $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1,
-     $        buf, 1)
+         call util_memcpy(buf,
+     $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 
+     $        rec_len_in_dbl*8)
       else
 c
 c     Record is on disk
@@ -532,7 +533,7 @@ c
                call errquit('grid_buf_read:eaf_wait failed',cur_rec)
             endif
             oiopending = .false.
-            call dcopy(rec_len_in_dbl, buf2, 1, buf, 1)
+            call util_memcpy(buf,buf2,rec_len_in_dbl*8)
          endif
 c         
          if (oasyncio .and. ((cur_rec+1).le.n_rec_in_file)) then
@@ -583,7 +584,7 @@ c
 c     Total dbls to copy is 4*(n_per_rec + 1)
 c
       ncopy = 4*(n_per_rec + 1)
-      call dcopy(ncopy, buf, 1, values, 1)
+      call util_memcpy(values,buf, ncopy*8)
       cur_rec_ctr = nint(values(1,1))
       n_in_rec = nint(values(2,1))
       cur_rec_rad = values(3,1)
@@ -609,7 +610,7 @@ c
 c     Total dbls to copy is 4*(n_per_rec + 1)
 c
       ncopy = 4*(n_per_rec + 1)
-      call dcopy(ncopy, values, 1, buf, 1)
+      call util_memcpy(buf, values,   ncopy*8)
 c
       end
       subroutine grid_packing_info
@@ -875,7 +876,7 @@ c
 c     Total dbls to copy is 4*(n_per_rec)
 c
       ncopy = 4*(n_per_rec)
-      call dcopy(ncopy, values(1,2), 1, aqbuf(1,1), 1)
+      call util_memcpy(aqbuf(1,1), values(1,2),   ncopy*8)
       nctr = cur_rec_ctr
       nqpts = n_in_rec - 1
       rad =cur_rec_rad

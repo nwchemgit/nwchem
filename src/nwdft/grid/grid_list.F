@@ -1,6 +1,6 @@
       Subroutine grid_list(rtdb, qsh, nqlen,nq_tot)
 c
-c$Id: grid_list.F,v 1.13 2000-06-08 02:06:28 edo Exp $
+c$Id: grid_list.F,v 1.14 2002-02-15 00:44:19 edo Exp $
 c
       implicit none
 c      
@@ -28,7 +28,7 @@ c
       integer iti, ictr, irsh,
      &        iang, iang_mx, iqsh, nr, nserie, izat, ir,
      &        me, nq_ctr_tot
-      double precision R_MAX, r, r1, r2, r3, 
+      double precision r, r1, r2, r3, 
      &                 r4, RR, q1
       integer xc_leb_nrd2acc
       external xc_leb_nrd2acc
@@ -46,7 +46,6 @@ c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
       oprint_grid = util_print('griddebug', print_debug)
-      R_MAX = dble(irqmax)
 c
 c     check for no pruning; no_prune
 c

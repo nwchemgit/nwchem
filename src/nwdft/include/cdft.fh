@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.54 2001-03-05 22:52:40 edo Exp $
+C$Id: cdft.fh,v 1.55 2002-02-15 00:44:22 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -26,7 +26,7 @@ c
      &     nlxfac, xccomb, levelshift, damp, diis, direct, oskel, 
      &     oadapt, lssw, lkeeps,trunc_neigh
       integer
-     &     iAOacc, iCDacc, iXCacc, irqmax, itol2e, imull, iangquad, 
+     &     iAOacc, iCDacc, iXCacc, itol2e, imull, iangquad, 
      &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
      &     ncyds, idirect, noio, ndamp, idecomp, nagrid, nquad_task,
      &     nrinc, nrmax, geom, ncenters, nbf, nradpts, nang_leb_pts, 
@@ -65,7 +65,7 @@ c
 c
 c     Integers
 c
-     &     iAOacc, iCDacc, iXCacc, irqmax, itol2e, imull, iangquad, 
+     &     iAOacc, iCDacc, iXCacc,  itol2e, imull, iangquad, 
      &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
      &     ncyds, idirect, noio, ndamp, idecomp, nagrid, nquad_task,
      &     nrinc, nrmax, geom, ncenters, nbf, nradpts, nang_leb_pts, 
@@ -115,7 +115,7 @@ c
      &     max_mbf, max_pr_mbfnq, max_pr_mbf, max_pr_nq, nq_chunk,
      &     rad_cutoff,task_list,n_tot_tasks,red_iqsh,
      &     nradin, nangin, 
-     &     accqrin,ngridin,wradgrid
+     &     ngridin,wradgrid
 c
       integer MX_l_ang, IAC_MAX, MAX_CHUNK
 c
@@ -159,7 +159,7 @@ c
      & rad_cutoff(2,dft_max_cent),task_list(2,MXqshells),n_tot_tasks,
      & red_iqsh(MXqshells,MAX_CHUNK),
      & nradin(dft_ntags_bsmx), nangin(dft_ntags_bsmx), 
-     & accqrin(dft_ntags_bsmx),grtagin(dft_ntags_bsmx),ngridin,
+     & grtagin(dft_ntags_bsmx),ngridin,
      . l_nxyz,k_nxyz,ityp2ctr(dft_ntags_bsmx),wradgrid,
      .     ncubes_type(nw_max_atom),ncubesmx,ldiff(dft_max_cent),
 c

@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.57 2001-12-23 01:44:22 edo Exp $
+c     $Id: dft_inpana.F,v 1.58 2002-02-15 00:44:22 edo Exp $
 c
 c*********************************************************************
 c     
@@ -578,7 +578,6 @@ c
             call util_print_centered
      &         (LuOut,'Screening Tolerance Information',20,.true.)
             t1 = 10.d0**(-itol2e)
-            r1 = dble(irqmax)
 c            write(LuOut,9372)tol_rho, iaoacc, icdacc, ixcacc, t1,  
 c     &                    r1, radius
             write(LuOut,9372)tol_rho, iaoacc, icdacc, ixcacc, t1,  
@@ -591,7 +590,7 @@ c
  3231 format(10x,'Convergence aids based upon iterative change in ',/,
      &       10x,'total energy or number of iterations. ',/,
      &       10x,'Levelshifting, if invoked, occurs when the ',/,
-     &       10x,'HOMO/LUMO gap drops below (HL_TOL): ',d8.2,/,
+     &       10x,'HOMO/LUMO gap drops below (HL_TOL): ',1Pd8.2,/,
      &       10x,'DIIS, if invoked, will attempt to extrapolate ',/,
      &       10x,'using up to (NFOCK): ',i2,' stored Fock matrices.',/)
  3232 format(10x,
@@ -610,9 +609,9 @@ c
  4005 format(10x,'Grid pruning is: ',a3)
  9020 format(10x,'SCF calculation type: DFT')
  9030 format(10x,'Maximum number of iterations: ',I3)
- 9035 format(10x,'Convergence on energy requested: ',d8.2)
- 9040 format(10x,'Convergence on density requested: ',d8.2)
- 9045 format(10x,'Convergence on gradient requested: ',d8.2)
+ 9035 format(10x,'Convergence on energy requested: ',1Pd8.2)
+ 9040 format(10x,'Convergence on density requested: ',1Pd8.2)
+ 9045 format(10x,'Convergence on gradient requested: ',1Pd8.2)
  9050 format(10x,'Wavefunction type:  closed shell.')
  9055 format(10x,'Wavefunction type:  spin polarized.')
  9056 format(10x,'Use of symmetry is: ',a3,
@@ -646,18 +645,10 @@ c 9139 format(10x,'Spatial weights used: Delley. ')
      &       10x,'  Beta electrons :',2x,i4,/,
      &       10x,'Charge           :',2x,i4,/,
      &       10x,'Spin multiplicity:',2x,i4)
-c 9372 format(10x,'Density screening/tol_rho: ',d8.2,/,
-c     &       10x,'AO Gaussian exp screening on grid/accAOfunc: ',i3,/,
-c     &       10x,'CD Gaussian exp screening on grid/accCDfunc: ',i3,/,
-c     &       10x,'XC Gaussian exp screening on grid/accXCfunc: ',i3,/,
-c     &       10x,'Schwarz screening/accCoul: ',d8.2,/,
-c     &       10x,'Max radial quadrature (shell size)/accQrad(au): '
-c     &          ,d8.2,/,
-c     &       10x,'Spatial weight screening/radius(au): ',d8.2,/)
- 9372 format(10x,'Density screening/tol_rho: ',d8.2,/,
+ 9372 format(10x,'Density screening/tol_rho: ',1Pd8.2,/,
      &       10x,'AO Gaussian exp screening on grid/accAOfunc: ',i3,/,
      &       10x,'CD Gaussian exp screening on grid/accCDfunc: ',i3,/,
      &       10x,'XC Gaussian exp screening on grid/accXCfunc: ',i3,/,
-     &       10x,'Schwarz screening/accCoul: ',d8.2,/,
-     &       10x,'Spatial weight screening/radius(au): ',d8.2,/)
+     &       10x,'Schwarz screening/accCoul: ',1Pd8.2,/,
+     &       10x,'Spatial weight screening/radius(au): ',1Pd8.2,/)
       end

@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.25 2001-11-21 01:57:04 edo Exp $
+C$Id: grid_quadv0.F,v 1.26 2002-02-15 00:44:19 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -87,6 +87,8 @@ c
       npol = (ipol*(ipol+1))/2
       if (.not. rtdb_get(rtdb, 'dft:oldway', mt_log, 1, oldway))
      &     oldway=.false.
+      if (.not.rtdb_get(rtdb,'dft:largenode', mt_log, 1, largenode))
+     &     largenode=.false.
 c
 c     Open grid pts file
 c     

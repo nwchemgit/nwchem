@@ -37,7 +37,6 @@ c
       character*10 dirs(num_dirs)
       character*16 test,element
       logical lbecke
-      integer accqrad
       data dirs / 'delley', 'becke', 'gausleg', 'lebedev', 'xcoarse', 
      &            'coarse', 'medium', 'fine', 'xfine', 'user', 
 C     .            'euler','mura','treutler','lindh',
@@ -330,14 +329,12 @@ c
      &      call errquit('grid_inp: rtdb_put failed', 1000)
          if(.not.rtdb_put(rtdb,'dft:nangin',mt_int,ngridin,nangin))
      &      call errquit('grid_inp: rtdb_put failed', 1000)
-         if(.not.rtdb_put(rtdb,'dft:accqrin',mt_int,ngridin,accqrin))
-     &      call errquit('grid_inp: rtdb_put failed', 1000)
       endif
       return
 c     
 10000 continue
 c
-c     see if we have tag + rad + ang + accqrad
+c     see if we have tag + rad + ang 
 c
 c            if (.not. inp_a(tag)) goto 1688
       if (.not. geom_tag_to_element(test, symbol, element, atn))
@@ -356,11 +353,6 @@ c
          write(LuOut,*)' grid_inp: iangquad value not found. '
       else
          nangin(ngridin)=iangquad
-      endif
-      if (.not. inp_i(accqrad)) then
-         write(LuOut,*)' grid_inp: iangquad value not found. '
-      else
-         accqrin(ngridin)=accqrad
       endif
       goto 10
  1688       write(LuOut,10001)

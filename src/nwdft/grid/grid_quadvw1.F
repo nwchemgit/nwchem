@@ -16,7 +16,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf,l3d)
 c
-c$Id: grid_quadvw1.F,v 1.10 2001-12-14 19:33:50 edo Exp $
+c$Id: grid_quadvw1.F,v 1.11 2002-02-15 00:44:19 edo Exp $
 c
       implicit none
 #define USE_BP
@@ -114,7 +114,8 @@ c
 c     now pack this aqbuf into the write buffer 
 c     (write and update task counter as needed)
 c     
-         call grid_file_write(nq, ictr, 
+         if(.not.largenode)
+     .        call grid_file_write(nq, ictr, 
      ,        rad_write, aqbuf,  ncu)
          
       endif

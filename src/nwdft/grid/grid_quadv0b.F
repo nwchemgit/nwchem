@@ -17,7 +17,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf,l3d)
 c
-c$Id: grid_quadv0b.F,v 1.28 2002-01-17 02:40:58 edo Exp $
+c$Id: grid_quadv0b.F,v 1.29 2002-02-15 00:44:19 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -203,11 +203,13 @@ c
                iscf_delrho = 1
             endif
       if(do_cpks_l.and.ipol.eq.2)then
-         call dfill(nqpts, 0.d0, rho(iscf_rho+2*nqpts), 1)
+c     copy beta to 3
          call dcopy(nqpts, rho(iscf_rho+nqpts), 1, 
      &        rho(iscf_rho+2*nqpts), 1)
+c     copy alpha to 2
          call dcopy(nqpts, rho(iscf_rho), 1, 
      &        rho(iscf_rho+nqpts), 1)
+c     add beta to 1 to get alpha+beta
          call daxpy(nqpts, 1.d0, rho(iscf_rho+2*nqpts), 1,
      &        rho(iscf_rho), 1)
       endif     

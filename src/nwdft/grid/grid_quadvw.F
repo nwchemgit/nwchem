@@ -13,7 +13,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf,
      .     l3d)
 c
-c$Id: grid_quadvw.F,v 1.29 2001-12-14 19:33:50 edo Exp $
+c$Id: grid_quadvw.F,v 1.30 2002-02-15 00:44:19 edo Exp $
 c
       implicit none
 #define USE_BP
@@ -228,6 +228,7 @@ c     Write last buffer of grid pts and close file
 c
       nq = 1
       n_tot_tasks = 0 ! sets nctr to 0; writes last buf and returns #tasks
+      if(largenode) return
       call grid_file_write(nq, n_tot_tasks, rad, aqbuf,0)
       grid_written=.true.
 c

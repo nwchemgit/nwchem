@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.30 2001-12-14 19:33:50 edo Exp $
+c$Id: grid_acc_def.F,v 1.31 2002-02-15 00:44:19 edo Exp $
 c
       implicit none
 c      
@@ -297,8 +297,6 @@ c
      &        call errquit('grid_inp: rtdb_get failed', 1000)
          if(.not.rtdb_get(rtdb,'dft:nangin',mt_int,ngridin,nangin))
      &        call errquit('grid_inp: rtdb_get failed', 1000)
-         if(.not.rtdb_get(rtdb,'dft:accqrin',mt_int,ngridin,accqrin))
-     &        call errquit('grid_inp: rtdb_get failed', 1000)
       endif
       if (.not. inp_match(num_gridtypes, .false., gridtype, gridtypes, 
      &   grid_acc_index))then
@@ -464,7 +462,7 @@ c
 c
                if(lgridin) then
                  nrad(itype) = nradin(igridin)
-                  rad_cutoff(1,itype)=accqrin(igridin)
+cedo                  rad_cutoff(1,itype)=accqrin(igridin)
                   nang(itype) = nangin(igridin)
                if(leb) then
                   iangquad=max(iangquad,nangin(igridin))
