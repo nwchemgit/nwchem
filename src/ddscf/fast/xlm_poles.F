@@ -1049,7 +1049,7 @@ c
       double precision x, y, z
       integer lmax, lq
       double precision q(-lq:lq,0:lmax)
-      integer lbig, l, m, mmp, mp, mmpa, lp, llp, mpa, lo, hi, swap
+      integer lbig, l, m, mmp, mp, mmpa, lp, llp, mpa, lo, hi
       double precision sump, summ, bfac
 c
 c     given a set of unnormalized multipoles about the origin in q

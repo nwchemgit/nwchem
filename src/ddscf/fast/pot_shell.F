@@ -1,3 +1,7 @@
+      block data block_pottimes
+#include "pottimes.fh"
+      data otime /.false./
+      end
       subroutine potential_from_shell_pair(basis, ish, jsh,
      $     den, ld, tol, d, dinv, lmaxd, npts, xyz, pot, fact)
       implicit none
@@ -40,15 +44,14 @@ c     ZEROED BY THE CALLING ROUTINE IF DESIRED.
 c
       integer maxprim           ! Max. no. primitives in a contraction
       parameter (maxprim=25)
-      integer lmax, lmax2, lencart, lenprod, maxn
-      parameter (lmax = 4)      ! Max. angular momentum of shell
+      integer lmax, lmax2, lencart, lenprod
+      parameter (lmax = 5)      ! Max. angular momentum of shell
       parameter (lmax2 = 2*lmax)
-      parameter (lencart = ((lmax2+1)*(lmax2+2))/2)
-      parameter (lenprod = ((lmax2+1)*(lmax2+2)*(lmax2+3))/6)
-      parameter (maxn = 1024)   ! Max. grid dimension
+      parameter (lencart = ((lmax+1)*(lmax+2))/2)
+      parameter (lenprod = ((lmax+1)*(lmax+2)*(lmax+3))/6)
 c
       integer maxl              ! Max order of multipole
-      parameter (maxl = 10)
+      parameter (maxl = 2*lmax2)
       double precision mpoles(-maxl:maxl,0:maxl)
       double precision    tmp(-maxl:maxl,0:maxl)
       double precision     qn(-maxl:maxl,0:maxl)
@@ -56,11 +59,10 @@ c
       integer num_not_done, k_not_done, l_not_done
 c
       double precision q(-lmax2:lmax2,0:lmax2)
-      double precision df(1:lmax2+1)
       double precision work(lenprod**2), ndens(lenprod**2),
      $     dens(lencart**2)
-      double precision expi_min, expi(maxprim), coeffi(maxprim)
-      double precision expj_min, expj(maxprim), coeffj(maxprim)
+      double precision expi(maxprim), coeffi(maxprim)
+      double precision expj(maxprim), coeffj(maxprim)
       double precision a, b, c, center(3), value
 c
       integer itype,inprim,ingen,numi,ibflo,ibfhi,i,iprim,iat
@@ -70,16 +72,13 @@ c
       logical iosph, josph
       double precision ri(3), rj(3), x, y, z, alpha, prefac, sqrta, ar,
      $     dmax, radial, factor, sum, ppot, r, rsq, charge, ralpha,
-     $     distance, radius2_sq, radius4_sq
+     $     radius2_sq, radius4_sq
       double precision qm2, qm1, q0, qp1, qp2, start
-      double precision anls((lmax2+2)*(lmax2+3)/4), a00, a11, scale,
-     $     dd, dd2, dd3, rar, radius, radius_sq, range, rootpi, pi, tolp
+      double precision anls((lmax2+2)*(lmax2+3)/4), a00, a11, 
+     $     dd, dd2, dd3, rar, radius, radius_sq, pi
       character*16 tag
-      double precision anl_fit, double_factorial, xlm_potential_test,
-     $     fastj_gaussian_range
-      external anl_fit, double_factorial, xlm_potential_test,
-     $     fastj_gaussian_range
-c
+      double precision anl_fit, fastj_gaussian_range
+      external anl_fit, double_factorial, fastj_gaussian_range
 c
       if (npts .le. 0) return
       if (.not. ma_push_get(mt_int, npts, 'pot_shell', 
@@ -88,10 +87,6 @@ c
       if (otime) start = util_cpusec()
 c
       pi = 4.0d0*atan(1.0d0)
-      rootpi = sqrt(pi)
-      do i = 1, lmax2+1
-         df(i) = double_factorial(i)
-      enddo
 c
 c     Get info on the shells
 c
@@ -155,195 +150,59 @@ c
          call errquit('fastJ: I am confused about spherical',0)
       end if
 c
+c     Scale the density by fact and find maximum value
+c
       dmax = 0.0d0
       ind = 1
       do j = 1, numj
          do i = 1, numi
+            dens(ind) = dens(ind)*fact
             dmax = max(dmax,abs(dens(ind)))
             ind = ind + 1
          end do
       end do
 c
-*      write(6,*) ' ISH, JSH ', ish, jsh
-*      write(6,*) ' THE INPUT DENSITY '
-*      call doutput(dens, 1, numi, 1, numj, numi, numj, 1)
-c
-c     Compute the multipoles, center and radius of convergence
-c
-c     First determine the center as being the GPT center of 
-c     the most diffuse exponents. 
-c
-      expj_min = 1d300
-      expi_min = 1d300
-      do jprim = 1, jnprim
-         expj_min = min(expj_min, expj(jprim))
-      end do
-      do iprim = 1, inprim
-         expi_min = min(expi_min, expi(iprim))
-      end do
-      call gaussian_product(
-     $     expi_min, ri(1), ri(2), ri(3),
-     $     expj_min, rj(1), rj(2), rj(3),
-     $     alpha, center(1), center(2), center(3), prefac)
-c
       if (otime) then
          time_init = time_init + util_cpusec()-start
          start = util_cpusec()
       endif
-c            
-c     Don't compute too high an order mpole.  Check for precision later.
 c
-c     THIS NEEDS TO BE MADE TOL DEPENDENT.
+      call pot_shell_pair_multipoles(
+     $     dens,
+     $     itype, inprim, ingen, expi, coeffi, ri, numi,
+     $     jtype, jnprim, jngen, expj, coeffj, rj, numj,
+     $     dinv, lmaxd,
+     $     tol, 
+     $     qn, tmp,
+     $     mpoles, maxl, center, radius, luse, luse2, luse4)
 c
-      luse = min(maxl, max(4,2*(ijtype+1)))
-c
-      call xlm_norm(luse, qn, maxl)
-      do l = 0, luse
-         do m = -l,l
-            qn(m,l) = 1.0d0/(qn(m,l)*qn(m,l))
-         enddo
-      enddo
-c
-      call dfill((2*maxl+1)*(luse+1), 0.0d0, mpoles, 1)
-      radius = 0.0d0
-c
-c     Next, form mpoles for primitives and update the radius.
-c
-      do jprim = 1, jnprim
-         do iprim = 1, inprim
-            call gaussian_product(
-     $           expi(iprim), ri(1), ri(2), ri(3),
-     $           expj(jprim), rj(1), rj(2), rj(3),
-     $           alpha, a, b, c, prefac)
-c
-            prefac = prefac*coeffi(iprim)*coeffj(jprim)*fact
-
-c
-c     Screen with the same test as used below.
-c
-            if (abs(prefac*dmax*4d0*pi/alpha) .gt. tol*1d-2) then 
-               prefac = prefac*rootpi/(4.0d0*alpha*sqrt(alpha))
-c
-c     Translate density to product center and reform as spherical
-c
-               if (ijtype .eq. 0) then
-                  ndens(1) = dens(1)
-               else
-                  call cart_dens_trans_prod_sph(
-     $                 itype, ri(1), ri(2), ri(3), 
-     $                 jtype, rj(1), rj(2), rj(3), 
-     $                 a, b, c, work, dinv, lmaxd, 
-     $                 dens, ndens)
-               end if
-c
-c     Form multipoles at the GPT center (a,b,c) for this shell
-c
-               call dfill((2*maxl+1)*(luse+1), 0.0d0, tmp, 1)
-               nlm = 0
-               scale = prefac
-               do n = 0, ijtype
-                  radial = scale
-                  do l = n, 0, -2
-                     factor = radial*df(n+l+1)
-                     do m = -l, l
-                        nlm = nlm + 1
-                        tmp(m,l) = tmp(m,l)+ndens(nlm)*factor
-                     end do
-                     radial = radial * (2.0d0*alpha)
-                  end do
-                  scale = scale / (2.0d0*alpha)
-               end do
-               do l = 0, ijtype
-                  do m = -l, l
-                     tmp(m,l) = tmp(m,l)*qn(m,l)
-                  enddo
-               enddo
-c
-c     Translate to the desired center and add on to the total
-c
-               x = center(1)-a
-               y = center(2)-b
-               z = center(3)-c
-               distance = sqrt(x*x + y*y + z*z)
-c
-               if (distance .gt. 1d-12) then 
-                  if (ijtype .eq. 0) then
-                     q0 = tmp(0,0)
-                     call xlm(luse, -x, -y, -z, tmp, maxl)
-                     do l = 0, luse
-                        do m = -l, l
-                           mpoles(m,l) = mpoles(m,l) + tmp(m,l)*q0
-                        end do
-                     end do
-                  else
-                     call xlm_translate2(luse, x, y, z, tmp, maxl)
-                     do l = 0, luse
-                        do m = -l, l
-                           mpoles(m,l) = mpoles(m,l) + tmp(m,l)
-                        end do
-                     end do
-                  endif
-               else
-                  do l = 0, ijtype
-                     do m = -l, l
-                        mpoles(m,l) = mpoles(m,l) + tmp(m,l)
-                     end do
-                  end do
-               end if
-c
-c     Finally, adjust the radius of convergence to include this function
-c
-               tolp =  min(tol*1d-4/abs(dmax*prefac),1d-6)
-               range = fastj_gaussian_range(ijtype, alpha, tolp) 
-               range = range + distance
-               radius = max(radius,range)
-c
-            end if
-         end do
-      end do
-c
-      if (radius .eq. 0.0d0) goto 99999 ! No significant terms
+      if (radius .eq. 0.0d0) goto 99999
       radius_sq = radius*radius
+      radius2_sq = 4.0d0*radius_sq
+      radius4_sq = 16.0d0*radius_sq
 c
-c     Adjust the maximum angular momentum so that we barely obtain 
-c     the desired precision beyond radius.
+c     Apply field terms to the potential to simply potential eval
 c
-      call xlm_thresh(luse, mpoles, maxl, tol, radius, leff)
-**      leff = max(leff,ijtype)
-      luse = leff
+      if (luse .ge. 0) then
+         call xlm_norm(luse, qn, maxl)
+         factor = 4.0d0*pi
+         do l = 0, luse
+            do m = -l, l
+               mpoles(m,l) = mpoles(m,l)*factor*qn(m,l)*qn(m,l) / 
+     $              dble(2*l+1)
+            enddo
+            factor = -factor
+         end do
+      end if
 c
-c     For greater distances attempt to reduce luse
-c
-      if (luse .gt. 2) then
-         call xlm_thresh(luse, mpoles, maxl, tol, 2d0*radius, luse2)
-         call xlm_thresh(luse, mpoles, maxl, tol, 4d0*radius, luse4)
-         radius2_sq = 4.0d0*radius_sq
-         radius4_sq = 16.0d0*radius_sq
-**         write(6,*) ish, jsh, luse, luse2, luse4, radius
-      endif
-c
-*      write(6,*) ish, jsh, ' LUSE ', luse, radius
-c
-c     Put all of the field terms on the multipole
-c
-      factor = 4.0d0*pi
-      do l = 0, luse
-         do m = -l, l
-            mpoles(m,l) = mpoles(m,l)*factor/(qn(m,l)*dble(2*l+1))
-         enddo
-         factor = -factor
-      enddo
-      
       if (otime) then
          time_make_poles = time_make_poles + util_cpusec() - start
          start = util_cpusec()
       endif
-
 c
 c     Now that we have the multipoles make a first pass thru
 c     the points doing as many as possible with the MPOLE expansion.
 c
-
       num_not_done = 0
       if (luse .eq. 0) then
          do ipt = 1, npts
@@ -480,7 +339,7 @@ c
      $           expj(jprim), rj(1), rj(2), rj(3),
      $           alpha, a, b, c, prefac)
 c
-            prefac = prefac*coeffi(iprim)*coeffj(jprim)*fact*
+            prefac = prefac*coeffi(iprim)*coeffj(jprim)*
      $           4.0d0*pi / alpha
 c
 c     Screen
@@ -673,6 +532,243 @@ c
             end do
          end do
       end if
+c
+      end
+
+      subroutine pot_shell_pair_multipoles(
+     $     dens,
+     $     itype, inprim, ingen, expi, coeffi, ri, numi,
+     $     jtype, jnprim, jngen, expj, coeffj, rj, numj,
+     $     dinv, lmaxd,
+     $     tol, 
+     $     qn, tmp,
+     $     mpoles, maxl, center, radius, luse, luse2, luse4)
+      implicit none
+c
+c     Given a block of the density matrix over a pair of CARTESIAN
+c     shells and a detailed description of those shells, return
+c
+c     .   mpoles() = multipole moments about center WITHOUT field terms
+c     .   center() = natural center of the shell pair
+c     .   radius   = radius beyond which mpole expansion is valid
+c     .   luse/2/4 = order of mpole required to obtain desired precision
+c     .              at distances of 1*, 2* and 4*radius.
+c     .              These may be -1, indicating potential<tol
+c
+c     If radius is returned as 0.0d0 then the is no significant overlap
+c     between the shells and the entire pair may be neglected.
+c     
+c     If spherical basis functions are used, the density matrix block
+c     must first be transformed using dens_cart_to_sph().
+c
+c     Input shell parameters (numi/j = dimension of cartesian shells)
+c
+      integer itype, inprim, ingen, numi
+      integer jtype, jnprim, jngen, numj
+      double precision expi(inprim), coeffi(inprim), ri(3)
+      double precision expj(jnprim), coeffj(jnprim), rj(3)
+c
+      double precision dens(numi,numj) ! Cartesian density block
+      integer lmaxd
+      double precision dinv(*)  ! [input] dinv from xlm_coeff_inv
+      double precision tol      ! [input] required accuracy
+      integer maxl
+      double precision qn(-maxl:maxl,0:maxl),tmp(-maxl:maxl,0:maxl) ! [scratch]
+      double precision mpoles(-maxl:maxl,0:maxl) ! [output] mpoles about center
+      double precision center(3) ! [output] natural center
+      double precision radius   ! [output] Radius beyond which mpole valid
+      integer luse, luse2, luse4 ! [output] Order of mpole for r=radius*{1,2,4}
+c
+c     Local variables
+c
+      integer lmax, lmax2, lenprod
+      parameter (lmax = 5)      ! Max. angular momentum of shell
+      parameter (lmax2 = 2*lmax)
+      parameter (lenprod = ((lmax+1)*(lmax+2)*(lmax+3))/6)
+      double precision df(lmax2+1)
+      double precision work(lenprod**2), ndens(lenprod**2) 
+c
+      integer ijtype
+      integer i, j, iprim, jprim
+      integer l, m, n, nlm, leff
+      double precision expj_min, expi_min, a, b, c, alpha, prefac, dmax
+      double precision factor, tolp, range, pi, rootpi, scale, x, y, z
+      double precision distance, q0, radial
+c
+c     Externals
+c
+      double precision double_factorial, fastj_gaussian_range
+      external double_factorial, fastj_gaussian_range
+c
+c     Sanity checks
+c
+      if (itype.gt.lmax .or. jtype.gt.lmax) call errquit
+     $     ('pot_shell_pair_multipole: lmax?',itype*1000+jtype)
+      if (ingen.ne.1 .or. jngen.ne.1) call errquit
+     $     ('p_s_p_m: no generally conracted functions ', 0)
+c     
+      ijtype = itype + jtype
+      pi = 4.0d0*atan(1.0d0)
+      rootpi = sqrt(pi)
+      do i = 1, 2*ijtype + 1
+         df(i) = double_factorial(i)
+      enddo
+c
+      dmax = 0.0d0
+      do j = 1, numj
+         do i = 1, numi
+            dmax = max(dmax,abs(dens(i,j)))
+         end do
+      end do
+c
+*      write(6,*) ' INPUT DENSITY ', numi, numj
+*      call output(dens, 1, numi, 1, numj, numi, numj, 1)
+c
+c     Compute the multipoles, center and radius of convergence
+c
+c     First determine the center as being the GPT center of 
+c     the most diffuse exponents. 
+c
+      expj_min = 1d300
+      expi_min = 1d300
+      do jprim = 1, jnprim
+         expj_min = min(expj_min, expj(jprim))
+      end do
+      do iprim = 1, inprim
+         expi_min = min(expi_min, expi(iprim))
+      end do
+      call gaussian_product(
+     $     expi_min, ri(1), ri(2), ri(3),
+     $     expj_min, rj(1), rj(2), rj(3),
+     $     alpha, center(1), center(2), center(3), prefac)
+c
+c     Don't compute too high an order mpole.  Check for precision later.
+c
+c     THIS NEEDS TO BE MADE TOL DEPENDENT.
+c
+      leff = min(maxl, max(4,2*(ijtype+1)))
+c
+      call xlm_norm(leff, qn, maxl)
+      do l = 0, leff
+         do m = -l,l
+            qn(m,l) = 1.0d0/(qn(m,l)*qn(m,l))
+         enddo
+      enddo
+c
+      call dfill((2*maxl+1)*(leff+1), 0.0d0, mpoles, 1)
+      radius = 0.0d0
+c
+c     Next, form mpoles for primitives and update the radius.
+c
+      do jprim = 1, jnprim
+         do iprim = 1, inprim
+            call gaussian_product(
+     $           expi(iprim), ri(1), ri(2), ri(3),
+     $           expj(jprim), rj(1), rj(2), rj(3),
+     $           alpha, a, b, c, prefac)
+c
+            prefac = prefac*coeffi(iprim)*coeffj(jprim)
+c
+c     Screen with the same test as used below.
+c
+            if (abs(prefac*dmax*4d0*pi/alpha) .gt. tol*1d-2) then 
+               prefac = prefac*rootpi/(4.0d0*alpha*sqrt(alpha))
+c
+c     Translate density to product center and reform as spherical
+c
+               if (ijtype .eq. 0) then
+                  ndens(1) = dens(1,1)
+               else
+                  call cart_dens_trans_prod_sph(
+     $                 itype, ri(1), ri(2), ri(3), 
+     $                 jtype, rj(1), rj(2), rj(3), 
+     $                 a, b, c, work, dinv, lmaxd, 
+     $                 dens, ndens)
+               end if
+c
+c     Form multipoles at the GPT center (a,b,c) for this shell
+c
+               do l = 0, leff
+                  do m = -l, l
+                     tmp(m,l) = 0.0d0
+                  end do
+               end do
+               nlm = 0
+               scale = prefac
+               do n = 0, ijtype
+                  radial = scale
+                  do l = n, 0, -2
+                     factor = radial*df(n+l+1)
+                     do m = -l, l
+                        nlm = nlm + 1
+                        tmp(m,l) = tmp(m,l)+ndens(nlm)*factor
+                     end do
+                     radial = radial * (2.0d0*alpha)
+                  end do
+                  scale = scale / (2.0d0*alpha)
+               end do
+               do l = 0, ijtype
+                  do m = -l, l
+                     tmp(m,l) = tmp(m,l)*qn(m,l)
+                  enddo
+               enddo
+c
+c     Translate to the desired center and add on to the total
+c
+               x = center(1)-a
+               y = center(2)-b
+               z = center(3)-c
+               distance = sqrt(x*x + y*y + z*z)
+c
+               if (distance .gt. 1d-12) then 
+                  if (ijtype .eq. 0) then
+                     q0 = tmp(0,0)
+                     call xlm(leff, -x, -y, -z, tmp, maxl)
+                     do l = 0, leff
+                        do m = -l, l
+                           mpoles(m,l) = mpoles(m,l) + tmp(m,l)*q0
+                        end do
+                     end do
+                  else
+                     call xlm_translate2(leff, x, y, z, tmp, maxl)
+                     do l = 0, leff
+                        do m = -l, l
+                           mpoles(m,l) = mpoles(m,l) + tmp(m,l)
+                        end do
+                     end do
+                  endif
+               else
+                  do l = 0, ijtype
+                     do m = -l, l
+                        mpoles(m,l) = mpoles(m,l) + tmp(m,l)
+                     end do
+                  end do
+               end if
+c
+c     Finally, adjust the radius of convergence to include this function
+c
+               tolp =  min(tol*1d-4/abs(dmax*prefac),1d-6)
+               range = fastj_gaussian_range(ijtype, alpha, tolp) 
+               range = range + distance
+               radius = max(radius,range)
+c
+            end if
+         end do
+      end do
+c
+      if (radius .eq. 0.0d0) then
+         luse = -1
+         luse2 = -1
+         luse4 = -1
+      else
+c
+c     Adjust the maximum angular momentum so that we barely obtain 
+c     the desired precision beyond radius, radius*2 and radius*4
+c
+         call xlm_thresh(leff, mpoles, maxl, tol, radius, luse)
+         call xlm_thresh(luse, mpoles, maxl, tol, radius*2d0, luse2)
+         call xlm_thresh(luse, mpoles, maxl, tol, radius*4d0, luse4)
+      endif
 c
       end
 

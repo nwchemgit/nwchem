@@ -66,7 +66,7 @@ c
 c
 c
       if (.not. ma_push_get(mt_dbl, nbf**2, 'fjdsden', l_dens, k_dens))
-     $     call errquit('fastj: ds: ma ', nbf*nbf, 0)
+     $     call errquit('fastj: ds: ma ', nbf*nbf)
 c
       if (ga_nodeid() .eq. 0)
      $     call ga_get(g_dens, 1, nbf, 1, nbf, dbl_mb(k_dens), nbf)

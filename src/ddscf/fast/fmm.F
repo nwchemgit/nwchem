@@ -837,67 +837,67 @@ c
       end do
 c
       end
-      subroutine fmm_multipole_to_local_rot(lmax, 
-     $     xn, yn, zn, pn, lp, x, y, z, q, lq)
-      implicit none
-#include "xlm.fh"
-c     
-      integer lmax, lq, lp
-      double precision xn, yn, zn, x, y, z
-      double precision q(-lq:lq,0:lmax), pn(-lp:lp,0:lp)
-c
-      double precision theta, phi, r, pi
-      double precision qq(-maxl:maxl,0:maxl)
-      integer l, m
-c
-c     Determine the rotation angle
-c
-      pi = 4.0d0*atan(1.0d0)
-      call fmm_xyz_to_phi_theta(xn-x,yn-y,zn-z,phi,theta)
-*      write(6,*) ' doing it ', xn, yn, zn, x, y, z, 
-*     $     theta*180.0d0/pi, phi*180.0d0/pi
-c      
-c     Rotate the source multipoles
-c
-      do l = 0, lmax
-         do m = -l, l
-            qq(m,l) = 2.0d0*q(m,l) * (b(m,l)*c(m,l))
-         enddo
-         qq(0,l) = qq(0,l) * 0.5d0
-      enddo
-c
-*      write(6,*) ' before phi ', phi
-*      call xlm_print(lmax,q,lq)
-      call xlm_apply_z_rotation(lmax,phi,qq,maxl)
-*      write(6,*) ' after phi ', phi
-*      call xlm_print(lmax,q,lq)
-      call xlm_apply_y_rotation(lmax,theta,qq,maxl)
-c
-      do l = 0, lmax
-         do m = -l, l
-            qq(m,l) = 0.5d0*qq(m,l) / (b(m,l)*c(m,l))
-         enddo
-         qq(0,l) = qq(0,l) * 2.0d0
-      enddo
-c
-c     Translate 0,0,r
-c
-      r = sqrt((xn-x)**2 + (yn-y)**2 + (zn-z)**2)
-      call xlm_multipole_to_local_z(lmax, 
-     $     r, pn, lp, qq, maxl)
-*      call xlm_multipole_to_local(lmax, 
-*     $     0.0d0, 0.0d0, r, pn, lp, 0.0d0, 0.0d0, 0.0d0, qq, maxl)
-c
-c     Rotate the potentials back
-c     
-*      write(6,*) ' before -phi ', -phi
-*      call xlm_print(lmax,pn,lp)
-      call xlm_apply_y_rotation(lmax,-theta,pn,lp)
-*      write(6,*) ' after -phi ', -phi
-*      call xlm_print(lmax,pn,lp)
-      call xlm_apply_z_rotation(lmax,-phi,pn,lp)
-c
-      end
+c$$$      subroutine fmm_multipole_to_local_rot(lmax, 
+c$$$     $     xn, yn, zn, pn, lp, x, y, z, q, lq)
+c$$$      implicit none
+c$$$#include "xlm.fh"
+c$$$c     
+c$$$      integer lmax, lq, lp
+c$$$      double precision xn, yn, zn, x, y, z
+c$$$      double precision q(-lq:lq,0:lmax), pn(-lp:lp,0:lp)
+c$$$c
+c$$$      double precision theta, phi, r, pi
+c$$$      double precision qq(-maxl:maxl,0:maxl)
+c$$$      integer l, m
+c$$$c
+c$$$c     Determine the rotation angle
+c$$$c
+c$$$      pi = 4.0d0*atan(1.0d0)
+c$$$      call fmm_xyz_to_phi_theta(xn-x,yn-y,zn-z,phi,theta)
+c$$$*      write(6,*) ' doing it ', xn, yn, zn, x, y, z, 
+c$$$*     $     theta*180.0d0/pi, phi*180.0d0/pi
+c$$$c      
+c$$$c     Rotate the source multipoles
+c$$$c
+c$$$      do l = 0, lmax
+c$$$         do m = -l, l
+c$$$            qq(m,l) = 2.0d0*q(m,l) * (b(m,l)*c(m,l))
+c$$$         enddo
+c$$$         qq(0,l) = qq(0,l) * 0.5d0
+c$$$      enddo
+c$$$c
+c$$$*      write(6,*) ' before phi ', phi
+c$$$*      call xlm_print(lmax,q,lq)
+c$$$      call xlm_apply_z_rotation(lmax,phi,qq,maxl)
+c$$$*      write(6,*) ' after phi ', phi
+c$$$*      call xlm_print(lmax,q,lq)
+c$$$      call xlm_apply_y_rotation(lmax,theta,qq,maxl)
+c$$$c
+c$$$      do l = 0, lmax
+c$$$         do m = -l, l
+c$$$            qq(m,l) = 0.5d0*qq(m,l) / (b(m,l)*c(m,l))
+c$$$         enddo
+c$$$         qq(0,l) = qq(0,l) * 2.0d0
+c$$$      enddo
+c$$$c
+c$$$c     Translate 0,0,r
+c$$$c
+c$$$      r = sqrt((xn-x)**2 + (yn-y)**2 + (zn-z)**2)
+c$$$      call xlm_multipole_to_local_z(lmax, 
+c$$$     $     r, pn, lp, qq, maxl)
+c$$$*      call xlm_multipole_to_local(lmax, 
+c$$$*     $     0.0d0, 0.0d0, r, pn, lp, 0.0d0, 0.0d0, 0.0d0, qq, maxl)
+c$$$c
+c$$$c     Rotate the potentials back
+c$$$c     
+c$$$*      write(6,*) ' before -phi ', -phi
+c$$$*      call xlm_print(lmax,pn,lp)
+c$$$      call xlm_apply_y_rotation(lmax,-theta,pn,lp)
+c$$$*      write(6,*) ' after -phi ', -phi
+c$$$*      call xlm_print(lmax,pn,lp)
+c$$$      call xlm_apply_z_rotation(lmax,-phi,pn,lp)
+c$$$c
+c$$$      end
 
 
 
