@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.100 1997-06-20 14:22:26 d3g681 Exp $
+c     $Id: nwchem.F,v 1.101 1997-10-12 14:15:05 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997           *
 *         Pacific Northwest National Laboratory, * 
@@ -92,7 +92,7 @@ c
 #endif
 #ifdef CRAY_T3D
 #ifdef __F90__
-      call set_d_stream(0)         ! disable memory to cache streaming
+**      call set_d_stream(0)         ! disable memory to cache streaming
       call disable_ieee_interrupt(IEEE_NTPT_ALL)
 #endif
 #endif
