@@ -6,7 +6,7 @@
 #
 # 3/19/98
 #
-# $Id: write_frames.pl,v 1.2 1998-03-24 00:36:27 d3e129 Exp $
+# $Id: write_frames.pl,v 1.3 1998-04-29 23:52:31 d3e129 Exp $
 #
 # remove nwchem banner stuff 3/23/98
 #
@@ -79,6 +79,7 @@ if (!(open(FSEARCH,"$document.search"))){
     die "write_frames.pl: could not open $document.search for reading\n";
 }
 print FHTMLSEARCH "<HTML>\n<HEAD>\n<TITLE> $title Search Window</TITLE>\n";
+print FHTMLSEARCH "<BASE TARGET=\"main\">\n";
 print FHTMLSEARCH "</HEAD>\n";
 print FHTMLSEARCH "$bodystring";
 while (<FSEARCH>){
