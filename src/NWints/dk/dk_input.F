@@ -1,6 +1,6 @@
       subroutine dk_input(rtdb)
 *
-* $Id: dk_input.F,v 1.7 1999-12-16 01:14:18 bert Exp $
+* $Id: dk_input.F,v 1.8 1999-12-16 23:45:57 bert Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -26,7 +26,6 @@ c
       integer dk_type
 c
 c     Read input data beyond douglas-kroll; store in rtdb.
-c     Check for a previous DK calculation and if the type was set there.
 c     
   10  if (inp_a(test)) then
          if (inp_compare(.false., 'off', test)) then
@@ -45,9 +44,7 @@ c
          goto 10
       endif
 c
-c     If we are going to do Douglas-Kroll, write out a line informing user,
-c     at least if we have something changing in this block (could be a blank 
-c     block)
+c     If we are going to do Douglas-Kroll, write out a line informing user.
 c
       if ((ga_nodeid() .eq. 0) .and .dk_run .and. 
      $     util_print('douglas-kroll', print_low)) then
