@@ -11,13 +11,14 @@ COBJ  = bortho_f.o \
         pdspevx_f.o \
         pdspgv_f.o \
         pdspgvx_f.o \
-        pdsptri_f.o \
         resid_f.o \
         residual_f.o \
         sonenorm_f.o \
         tresid_f.o\
 	choleski_f.o\
 	inverse_f.o
+
+#        pdsptri_f.o \
 
 all:		$(COBJ)
 
