@@ -1,6 +1,6 @@
 c**********************************************************************
 c     subroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.25 1999-07-14 00:28:59 d3e129 Exp $
+c $Id: rhf_hessian.F,v 1.26 1999-07-27 17:45:39 d3e129 Exp $
 c**********************************************************************
       subroutine hnd_der_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
@@ -710,7 +710,9 @@ c
 c
 c     ----- memory pointers -----
 c
-      if(.not.ma_push_get(mt_dbl,need ,'mem init',i_init,init)) then
+      if(.not.ma_push_get(mt_dbl,need ,
+     &    'mem init:rhf_hessian:hnd_dder1_init1:1'
+     &    ,i_init,init)) then
          write(iw,*)'The totoal number of basis functions=', num 
          write(iw,*)'The stack memory for dder_1e =', need 
          call errquit('hnd_dder1_init, malloc of init  failed',911)
@@ -7383,7 +7385,9 @@ c     ----- memory block to store 1-e results fc + df -----
       needc = nc*nc +nc*l2
       need  = need + needc
 c
-      if(.not.ma_push_get(mt_dbl,need,'mem init2',i_init2,init2)) then
+      if(.not.ma_push_get(mt_dbl,need,
+     &    'mem init:rhf_hessian:hnd_dder2_init:2',
+     &    i_init2,init2)) then
          write(iw,*)'The total number of basis functions =',num
          write(iw,*)'The stack memory for dder_2e =',need
          call errquit('hnd_dder2_init, malloc of init2  failed',911)
@@ -17399,7 +17403,9 @@ c
 
 c     ----- memory block and pointers -----
 
-      if(.not.ma_push_get(mt_dbl,need , 'mem init',i_init,init))
+      if(.not.ma_push_get(mt_dbl,need ,
+     &    'mem init:rhf_hessian:hnd_cphf_init:3',
+     &    i_init,init))
      & call errquit('hnd_cphf_init, malloc of init  failed',911)
 
 c     ----- zero out the elements of the block -----
@@ -18518,7 +18524,9 @@ c
 c
 c     allocate memory block
 c
-      if(.not.ma_push_get(mt_dbl,need , 'mem init',i_init,init))
+      if(.not.ma_push_get(mt_dbl,need ,
+     &    'mem init:rhf_hessian:hnd_get_dens:4',
+     &    i_init,init))
      & call errquit('hnd_get_dens, malloc of init  failed',911)
 c
       i00=init
@@ -18620,7 +18628,9 @@ c
 c
 c     allocate memory block
 c
-      if(.not.ma_push_get(mt_dbl,need , 'mem init',i_init,init))
+      if(.not.ma_push_get(mt_dbl,need ,
+     &    'mem init:rhf_hessian:hnd_get_wdens:5',
+     &    i_init,init))
      & call errquit('hnd_get_wdens, malloc of init  failed',911)
 c
       i00=init
