@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.31 1998-07-13 22:51:42 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.32 1998-08-01 02:13:53 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -678,11 +678,14 @@ c
 c
 c     Allow two goes at reducing memory before fail completely
 c
+c     Ooops ... cannot reduced the texas scratch memory.  Only
+c     try reducing the ERI and LAB memory
+c
       ntries = 1                ! No. of tries at allocating memory
  12   if (ntries.eq.1) then
          continue
       else if (ntries.le.3) then
-         lenscr = lenscr/2
+****         lenscr = lenscr/2
          leneri = leneri/2
          lenlab = 4*leneri
       else
