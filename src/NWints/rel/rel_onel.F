@@ -1,4 +1,4 @@
-C $Id: rel_onel.F,v 1.4 1999-04-20 17:39:19 mg201 Exp $
+C $Id: rel_onel.F,v 1.5 1999-04-20 18:15:15 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_onel}
 c:tex-This routine generates the modified one-electron integrals for
@@ -249,7 +249,7 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
       call int_hf1sp(
      &    Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,ictr_A,
      &    Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,ictr_B,
-     &    Cxyz,zan,nat,S,T,scr(i_pp),lstv,doS,doT,doV,canAB,
+     &    Cxyz,zan,nat,S,T,scr(i_pp),n_intpp,doS,doT,doV,canAB,
      &    DryRun,scr(i_scr),memscr,msg)
       if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
 *
@@ -259,7 +259,7 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
         call int_hf1sp(
      &      Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,ictr_A,
      &      Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,ictr_B,
-     &      Cxyz,zan,nat,S,T,scr(i_pm),lstv,doS,doT,doV,canAB,
+     &      Cxyz,zan,nat,S,T,scr(i_pm),n_intpm,doS,doT,doV,canAB,
      &      DryRun,scr(i_scr),memscr,msg)
         if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
       end if
@@ -270,7 +270,7 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
         call int_hf1sp(
      &      Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,ictr_A,
      &      Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,ictr_B,
-     &      Cxyz,zan,nat,S,T,scr(i_mp),lstv,doS,doT,doV,canAB,
+     &      Cxyz,zan,nat,S,T,scr(i_mp),n_intmp,doS,doT,doV,canAB,
      &      DryRun,scr(i_scr),memscr,msg)
         if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
 *     
@@ -280,7 +280,7 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
           call int_hf1sp(
      &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,ictr_A,
      &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,ictr_B,
-     &        Cxyz,zan,nat,S,T,scr(i_mm),lstv,doS,doT,doV,canAB,
+     &        Cxyz,zan,nat,S,T,scr(i_mm),n_intmm,doS,doT,doV,canAB,
      &        DryRun,scr(i_scr),memscr,msg)
           if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
         end if
