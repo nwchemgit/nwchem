@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.17 1999-06-09 23:47:19 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.18 1999-06-28 15:56:41 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -35,8 +35,8 @@ c
 c     
       character*20 theory
 c     
-      logical  task_gradient, stpr_walk_task, drv_opt, nwargos,nwmd
-      external task_gradient, stpr_walk_task, drv_opt, nwargos,nwmd
+      logical  task_gradient, stpr_walk_task, driver, nwargos,nwmd
+      external task_gradient, stpr_walk_task, driver, nwargos,nwmd
 c     
       call ecce_print_module_entry('task optimize')
 c     
@@ -49,7 +49,7 @@ c
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
      $     call errquit('task_optimize: failed to invalidate status',0)
 c     
-      if (ga_nodeid().eq.0 .and. 
+      if (ga_nodeid().eq.0 .and. (.not. ousedriver) .and.
      $     util_print('task_optimize', print_low)) then
          write(6,*)
          write(6,*)
@@ -77,7 +77,9 @@ c
          status = .false.
       else
          if (ousedriver) then
-            status = drv_opt(rtdb)
+            if (.not. rtdb_put(rtdb,'driver:modsad',mt_int, 1, 0))
+     $           call errquit('task_optimize: rtdb?',0)
+            status = driver(rtdb)
          else
             ts   = .false.
             omin = .true.
@@ -120,7 +122,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.17 1999-06-09 23:47:19 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.18 1999-06-28 15:56:41 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -160,8 +162,8 @@ c
 c     
       character*20 theory
 c     
-      logical  task_gradient, stpr_walk_task, drv_opt, nwargos
-      external task_gradient, stpr_walk_task, drv_opt, nwargos
+      logical  task_gradient, stpr_walk_task, driver, nwargos
+      external task_gradient, stpr_walk_task, driver, nwargos
 c     
       call ecce_print_module_entry('task saddle')
 c     
@@ -203,7 +205,7 @@ c
             modsad = 1
             if (.not. rtdb_put(rtdb,'driver:modsad',mt_int,1,modsad))
      $           call errquit('task_saddle: rtdb corrupt?', 0)
-            status = drv_opt(rtdb)
+            status = driver(rtdb)
          else
             ts   = .true.
             omin = .false.
@@ -246,7 +248,7 @@ c
 c     
       end
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.17 1999-06-09 23:47:19 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.18 1999-06-28 15:56:41 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
