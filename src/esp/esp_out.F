@@ -1,6 +1,6 @@
       subroutine esp_out(tag,x,qf,g,v)
 c
-c $Id: esp_out.F,v 1.5 1998-04-21 21:45:17 d3j191 Exp $
+c $Id: esp_out.F,v 1.6 1998-04-22 22:26:35 d3e129 Exp $
 c
       implicit none
 c
@@ -18,7 +18,7 @@ c
       integer i,j,k
       character*16 tag
       character*80 name
-      real*8 coord(3),charge
+      real*8 coord(3)
 c
       if(me.ne.0) return
 c
