@@ -1,5 +1,5 @@
       logical function stpr_walk(rtdb)
-c $Id: stpr_walk.F,v 1.3 1994-07-29 22:40:01 d3e129 Exp $
+c $Id: stpr_walk.F,v 1.4 1994-08-06 09:18:12 d3e129 Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -83,7 +83,7 @@ c
 *     &      call errquit('stpr_walk: geom_print ?',911)      
 *        call util_flush(6)
         if (.not. geom_ncent(geom,nat))
-     &      call errquit('stpr_walk: geom_ncent??',911)
+     &      call errquit('stpr_walk: geom_ncent?',911)
 c
         call stpr_cneed(needed,nat) ! determine core needed
         needed = (needed + 1023)*1024/1024 ! nearest 1024 block
