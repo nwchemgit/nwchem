@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.85 2002-07-17 14:25:20 d3j191 Exp $
+c $Id: prp_main.F,v 1.86 2002-08-12 15:06:35 d3j191 Exp $
 c
       implicit none
 c
@@ -19,6 +19,10 @@ c
       real*8 stime,esk(msf),uqmd,uqmmm
 c
       if(me.eq.0) call prp_stat(mdstep,stime,eww,esw,ess,esk,epme(iset))
+c
+      if(frequency(mdstep,npener)) then
+      call cf_print_energy(lfnout)
+      endif
 c
       if(frequency(mdstep,nfprop)) call prp_record()
 c
