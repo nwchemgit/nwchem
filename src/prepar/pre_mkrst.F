@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model)
 c
-c $Id: pre_mkrst.F,v 1.29 1999-03-29 23:56:04 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.30 1999-05-12 18:39:22 d3j191 Exp $
 c
       implicit none
 c
@@ -18,8 +18,8 @@ c
       external pre_pdbsiz,pre_solvat,pre_boxsiz,pre_misfit,pre_wrtpdb
       logical pre_rdrst,pre_disres,pre_fix,pre_rstsiz,pre_wtrst
       external pre_rdrst,pre_disres,pre_fix,pre_rstsiz,pre_wtrst
-      logical util_nwchemrc_get
-      external util_nwchemrc_get
+      logical util_nwchemrc_get,pre_rrst,pre_rstsz
+      external util_nwchemrc_get,pre_rrst,pre_rstsz
 c
       integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd
       integer lfnslv,model,mdold
@@ -434,8 +434,13 @@ c
       filnam=card(8:80)
       length=index(filnam,' ')-1
       if(length.eq.0) filnam=filrst
+      if(mdold.gt.0) then
+      if(.not.pre_rstsz(lfnrst,filnam,nnwm,nnwa,nnsa,nnwmc))
+     + call errquit('pre_rstsiz failed',9999)
+      else
       if(.not.pre_rstsiz(lfnrst,filnam,nnwm,nnwa,nnsa,nnwmc))
      + call errquit('pre_rstsiz failed',9999)
+      endif
       if(nnwm.gt.mwm) then
       if(lsolva) then
       if(.not.ma_free_heap(l_xw))
@@ -477,12 +482,21 @@ c
       if(.not.ma_alloc_get(mt_int,mwmc,'wcmr',l_wcmr,i_wcmr))
      + call errquit('ma_alloc_get failed for wcmr',9999)
       lcryst=.true.
+      if(mdold.gt.0) then
+      if(.not.pre_rrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
+     + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
+     + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
+     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
+     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
+     + call errquit('pre_rdrst failed',9999)
+      else
       if(.not.pre_rdrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
      + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
      + call errquit('pre_rdrst failed',9999)
+      endif
       endif
 c
 c     write pdb file
