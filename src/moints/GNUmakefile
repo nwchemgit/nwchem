@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.59 1997-02-17 20:52:08 d3g681 Exp $
+#$Id: GNUmakefile,v 1.60 1997-03-23 23:06:18 d3g681 Exp $
 
         OBJ = atwtest.o \
 	      direct_mp2.o \
@@ -12,6 +12,9 @@
 	      moints_stats.o \
               moints_full.o \
               sifs.o
+
+#              twopdm_backt.o 
+
 
 ifneq ($(TARGET),CRAY-T3D)
         OBJ += crayio.o

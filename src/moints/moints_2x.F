@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.21 1996-10-23 20:38:50 rg240 Exp $
+c  $Id: moints_2x.F,v 1.22 1997-03-23 23:06:19 d3g681 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -26,7 +26,7 @@ c
      $                            g_movecs,
      $                            g_coul, ocoul,
      $                            g_exch, oexch,
-     $                            blen, oblk )
+     $                            blen, oblk)
        implicit none
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -76,14 +76,14 @@ c
        integer mem2, max2e
        integer num_nodes, ploop, next, itmp
        integer nmixed
-       double precision tol2e, scale, schw_ij
+       double precision tol2e, scale, schw_ij, integ_acc
        double precision tz, thalf, tint, t1idx, t2kidx, t3kidx, t4kidx
        double precision t34jidx, ttotal, t2jidx, tsynch
        double precision ttask, ttaskmax, ttaskmin, ttaskagg
        double precision flop1, q2
        integer tottask
        integer geom
-       logical status, oprint, osym, st
+       logical status, osym, st
        logical odoit
 c
 #include "moints_stats.fh"
@@ -91,12 +91,12 @@ c
        integer moints_numgr, gr_len
        external moints_numgr, gr_len
 c
-c  These are options that should be set
-c  by input deck
+c     Set accuracy of integrals from required precision
+c     ... this should come via the argument list but that can wait
 c
-       data tol2e/1.d-12/
-       data oprint/.true./
-c
+       tol2e = 1d-9             ! No database !!!!
+       integ_acc = min(1d-9, max(0.01d0*tol2e,1d-17))
+       call int_acc_set(integ_acc)
 c
 c  General basis info
 c
@@ -113,7 +113,8 @@ c
 c     
 c  Symmetry adapt the MOs and renumber irreps to start at zero
 c     
-       osym = (ousesym.and.(sym_number_ops(geom).gt.0))
+       osym = (ousesym.and.(sym_number_ops(geom).gt.0)) .and.
+     $      sym_abelian_group(geom)
        if (osym) then
           if (.not. ma_push_get(MT_INT, nbf, 'movec syms',l_sym, k_sym))
      $         call errquit('moints_2x: no memory for syms?',0)

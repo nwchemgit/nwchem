@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.30 1997-02-13 01:21:11 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.31 1997-03-23 23:06:17 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -139,44 +139,48 @@ c
        endif
 C       if (nact.le.0) return
 c
-c Find MO vector filename in the database.
+c     Look for MP2 specific MO vectors.  If not there use previous SCF.  
+c     If not there use default.
 c
-       if (.not.rtdb_cget(rtdb,'moints:input vectors',1,movecs_in))
+       if (.not.rtdb_cget(rtdb,'mp2:input vectors',1,movecs_in))
      $      then
-         if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_in))
-     $        call util_file_name('movecs',.false.,.false.,movecs_in)
+          if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_in))
+     $         call util_file_name('movecs',.false.,.false.,movecs_in)
        endif
 c
-c Read in MO coefficients
+c     Read in MO coefficients and apply swaps as appropriate.
 c
        g_vecs = ga_create_atom_blocked(geom,basis,'Molecular orbital')
        if (.not. movecs_read_header(movecs_in, title_vecs,
      $    basis_vecs, scftype_vecs, nbf_vecs, nsets, nmo, 2))
      $    call errquit('direct_mp2: cannot read MO vectors header',0)
-       if (nbf.ne.nbf_vecs)
-     $    call errquit(
+       if (nbf.ne.nbf_vecs)  call errquit(
      $    'direct_mp2: number of basis fun does not match input',0)
        status = MA_push_get(MT_DBL, nbf, 'Evals', l_evals, k_evals)
        if (.not. movecs_read(movecs_in, 1, dbl_mb(k_occ),
      $                       dbl_mb(k_evals), g_vecs)) call
      $      errquit('direct_mp2: cannot read MO vectors',0)
+       call movecs_swap(rtdb, 'mp2', 'RHF', g_vecs, dbl_mb(k_occ), 
+     $      dbl_mb(k_evals))
 c
-c Get frozen core & virtual offsets
+c Get frozen core and virtual offset
 c
-       if (.not.rtdb_get(rtdb, 'direct_mp2:occ_frozen', MT_INT, 1,
+       if (rtdb_get(rtdb,'mp2:frozen core:freeze by atoms',mt_log, 1, 
+     $              status)) then
+	  if (.not. geom_num_core(geom,occ_frozen)) 
+     $          call errquit('direct_mp2: geom_num_core?',0)
+       else if (rtdb_get(rtdb, 'mp2:frozen core', MT_INT, 1,
      $                   occ_frozen)) then
-         if (.not.rtdb_get(rtdb, 'fourindex:occ_frozen', MT_INT, 1,
-     $                     occ_frozen)) occ_frozen = 0
+       else
+         occ_frozen = 0
        endif
-       if (.not.rtdb_get(rtdb, 'direct_mp2:vir_frozen', MT_INT, 1,
-     $                   vir_frozen)) then
-         if (.not.rtdb_get(rtdb, 'fourindex:vir_frozen', MT_INT, 1,
-     $                     vir_frozen)) vir_frozen = 0
-       endif
+       if (.not.rtdb_get(rtdb, 'mp2:frozen virtual', MT_INT, 1,
+     $                   vir_frozen)) vir_frozen = 0
 c
 c Symmetry toggle
 c
-       osym = (sym_number_ops(geom) .gt. 0) 
+       osym = (sym_number_ops(geom) .gt. 0) .and. 
+     $      sym_abelian_group(geom)
 c
 c Set index ranges
 c
@@ -193,7 +197,7 @@ c
      $                   1,blen)) blen = 16
        blen = max(blen,maxbfsh)
        if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,
-     $                   1,oblk)) oblk = .false.
+     $                   1,oblk)) oblk = .true.
 c
 c Initialise integrals and screening
 c
