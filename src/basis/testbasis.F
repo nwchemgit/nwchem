@@ -1,5 +1,5 @@
       program testbasis
-c $Id: testbasis.F,v 1.8 1994-05-23 20:42:30 d3e129 Exp $
+c $Id: testbasis.F,v 1.9 1994-06-01 19:03:38 d3g681 Exp $
       implicit none
 c
 #include "bas.fh"
@@ -36,7 +36,7 @@ c
      $     -9., 0.0/
 c
       if (.not. ma_init(MT_DBL, -1, -1)) stop 99
-      status = rtdb_par_open('shit.rtdb','unknown', rtdb)
+      status = rtdb_open('shit.rtdb','unknown', rtdb)
 c
       write(6,*)' rtdb handle ', rtdb
       status = bas_321g_load(rtdb)

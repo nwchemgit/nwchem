@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.17 1994-05-23 20:42:28 d3e129 Exp $
+c $Id: basis.F,v 1.18 1994-06-01 19:03:36 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -594,27 +594,27 @@ c
 c
       tmp(lentmp:) = ':bs_tags'
       rtdb_status = rtdb_status .and.
-     &       rtdb_par_cget(rtdb, tmp, ntags_bsmx, bs_tags(1,basis))
+     &       rtdb_cget(rtdb, tmp, ntags_bsmx, bs_tags(1,basis))
 c
       tmp(lentmp:) = ':exps and coeffs'
       rtdb_status = rtdb_status .and.
-     &       rtdb_par_get(
+     &       rtdb_get(
      &       rtdb, tmp, mt_dbl, mxbs_exndcf, exndcf(1,basis))
 c
       tmp(lentmp:) = ':header'
       rtdb_status = rtdb_status .and.
-     &       rtdb_par_get(
+     &       rtdb_get(
      &       rtdb, tmp, mt_int, ndbs_head, infbs_head(1,basis))
 c
       tmp(lentmp:) = ':tags info'
       rtdb_status = rtdb_status .and.
-     &       rtdb_par_get(
+     &       rtdb_get(
      &       rtdb, tmp, mt_int,
      &       ndbs_tags*ntags_bsmx, infbs_tags(1,1,basis))
 c
       tmp(lentmp:) = ':contraction info'
       rtdb_status = rtdb_status .and.
-     &       rtdb_par_get(
+     &       rtdb_get(
      &       rtdb, tmp, mt_int,
      &       ndbs_ucont*nucont_bsmx, infbs_cont(1,1,basis))
 c
@@ -832,21 +832,21 @@ c
       status = .true.
       status = status.and.bas_rtdb_add(rtdb,name)
       tmp(lentmp:) = ':bs_tags'
-      status = status .and. rtdb_par_cput(rtdb,tmp,ntagsin,tagsin)
+      status = status .and. rtdb_cput(rtdb,tmp,ntagsin,tagsin)
       
       tmp(lentmp:) = ':exps and coeffs'
-      status = status .and. rtdb_par_put(rtdb,tmp,mt_dbl,nexcf,excfin)
+      status = status .and. rtdb_put(rtdb,tmp,mt_dbl,nexcf,excfin)
 
       tmp(lentmp:) = ':header'
       status = status .and.
-     &       rtdb_par_put(rtdb,tmp,mt_int,ndbs_head,head_array)
+     &       rtdb_put(rtdb,tmp,mt_int,ndbs_head,head_array)
 
       tmp(lentmp:) = ':tags info'
-      status = status .and. rtdb_par_put(
+      status = status .and. rtdb_put(
      &       rtdb,tmp,mt_int,(ndbs_tags*ntagsin), tags_array)
 
       tmp(lentmp:) = ':contraction info'
-      status = status .and. rtdb_par_put(
+      status = status .and. rtdb_put(
      &       rtdb,tmp,mt_int,(ndbs_ucont*nucontin),ucont_array)
 c
 c read the basis now get check status of read operations
@@ -1061,10 +1061,10 @@ c::passed
       integer rtdb ! [input] run time data base handle
 c
       bas_rtdb_out  =
-     &     rtdb_par_put(rtdb, 'basis:nbasis',
+     &     rtdb_put(rtdb, 'basis:nbasis',
      &       MT_INT, 1, nbasis_rtdb)
      &     .and.
-     &     rtdb_par_cput(rtdb, 'basis:names', nbasis_rtdb,
+     &     rtdb_cput(rtdb, 'basis:names', nbasis_rtdb,
      &       bs_names_rtdb)
       if (.not. bas_rtdb_out) 
      &     write(6,*) ' bas_rtdb_out: rtdb is corrupt '
@@ -1158,9 +1158,9 @@ c
       integer bas
       bas_rtdb_in = .false.
       nbasis_rtdb = 0
-      if (rtdb_par_get(rtdb, 'basis:nbasis', MT_INT, 1, nbasis_rtdb))
+      if (rtdb_get(rtdb, 'basis:nbasis', MT_INT, 1, nbasis_rtdb))
      $     then
-        if (.not. rtdb_par_cget(rtdb,'basis:names', nbasis_rtdb_mx,
+        if (.not. rtdb_cget(rtdb,'basis:names', nbasis_rtdb_mx,
      $        bs_names_rtdb)) then
           write(6,*) 'bas_rtdb_in: rtdb corrupt'
         else
