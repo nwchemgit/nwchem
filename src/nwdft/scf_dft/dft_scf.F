@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.102 1998-03-12 03:34:57 d3g681 Exp $
+c     $Id: dft_scf.F,v 1.103 1998-08-20 23:52:22 d3e129 Exp $
 c     
       implicit none
 c
@@ -964,7 +964,7 @@ c
      &        ' Heap Space remaining (MW):  ',dble(nheap)*1.D-06,nheap
          write(LuOut,'(10x,a,f10.2,i20)')
      &        'Stack Space remaining (MW):  ',dble(nstack)*1.D-06,nstack
-         call flush(LuOut)
+         call util_flush(LuOut)
          write(LuOut,1)
       endif
  21   format(/,10x,' Memory utilization after 1st SCF pass: ')

@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb, ratom)
 c
-c     $Id: dft_inpana.F,v 1.37 1997-12-08 23:48:39 d3h449 Exp $
+c     $Id: dft_inpana.F,v 1.38 1998-08-20 23:52:17 d3e129 Exp $
 c
 c*********************************************************************
 c     
@@ -328,6 +328,7 @@ c
             if (g_conv.gt.0)then
                write(LuOut,9045)g_conv
             endif
+            call util_flush(LuOut)
          endif
          if (oprint_xc)then     
             write(LuOut,*)
@@ -408,6 +409,7 @@ c
                write(LuOut,*)
      &            ' Sum of components do not equal unity or 0. '
             endif
+            call util_flush(LuOut)
          endif
          if (oprint_grid)then     
             write(LuOut,*)
@@ -460,6 +462,7 @@ c
             if (nq_chunk.ne.0)then
                write(LuOut,9145)nq_chunk
             endif
+            call util_flush(LuOut)
          endif
          if (oprint_convergence)then     
             write(LuOut,*)
@@ -503,7 +506,7 @@ c
                write(strng6,'(d10.2)')diisoff
             endif
             write(LuOut,3233)strng1,strng2,strng3,strng4,strng5,strng6
-            call flush(LuOut)
+            call util_flush(LuOut)
          endif
          if (oprint_tolerances)then     
             write(LuOut,*)
@@ -513,6 +516,7 @@ c
             r1 = dble(irqmax)
             write(LuOut,9372)tol_rho, iaoacc, icdacc, ixcacc, t1,  
      &                    r1, radius
+            call util_flush(LuOut)
          endif
       endif
 c

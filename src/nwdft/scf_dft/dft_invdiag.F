@@ -1,6 +1,6 @@
       Subroutine dft_invdiag(geom, basis, g_A, g_cdinv, n)
 
-C$Id: dft_invdiag.F,v 1.8 1997-04-21 23:43:04 d3h449 Exp $
+C$Id: dft_invdiag.F,v 1.9 1998-08-20 23:52:18 d3e129 Exp $
       implicit none
 c      
       integer geom,basis
@@ -43,7 +43,7 @@ C     check on eigenvalues
       do i=0,n-1
         if(abs(DBl_MB(iev+i)).lt.toll) then
           if(me.eq.0) write(LuOut,*) ' GAFACT - singular eigenvalue',i
-          call flush(LuOut)
+          call util_flush(LuOut)
           DBl_MB(iev+i)=0.d0
         else
           DBl_MB(iev+i)=1.d0/DBl_MB(iev+i)

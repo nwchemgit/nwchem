@@ -1,5 +1,5 @@
       subroutine dft_tstamp (name)
-C$Id: dft_tstamp.F,v 1.7 1996-07-26 16:34:40 d3g681 Exp $
+C$Id: dft_tstamp.F,v 1.8 1998-08-20 23:52:25 d3e129 Exp $
       implicit none
 
 
@@ -36,7 +36,7 @@ c$$$#endif
 c$$$#endif
       if( ga_nodeid().eq.0 )then
         write (LuOut,100) name,isdate,istime
-        call flush(LuOut)
+        call util_flush(LuOut)
       endif
       call ga_sync
   100 format (/,/,1x,'    <<<<<<   ',a25,'   >>>>>>',/,

@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.36 1998-08-19 17:26:46 d3h449 Exp $
+C$Id: nwdft.F,v 1.37 1998-08-20 23:52:12 d3e129 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -178,7 +178,7 @@ c
 c
 c--> Flush ouput buffer.
 c
-      if(iproc.eq.0) call flush(LuOut)
+      if(iproc.eq.0) call util_flush(LuOut)
 
       call util_print_pop
 c
