@@ -1,12 +1,13 @@
       integer maxbases, dim, riscf_info, nbases
-C$Id: riscf.fh,v 1.1 1995-05-22 22:28:24 vg038 Exp $
+C$Id: riscf.fh,v 1.2 1996-02-07 00:41:24 vg038 Exp $
       parameter (maxbases = 16)
-      parameter (dim = 5*maxbases)
+      parameter (dim = 6*maxbases)
 C
 C     riscf_info(1,ind) = mobasis
 C     riscf_info(2,ind) = fitbasis
 C     riscf_info(3,ind) = ga with the integrals in it
 C     riscf_info(4,ind) = memory handle to index array
 C     riscf_info(5,ind) = # of non-zero (ij)-pairs
-      common /c_ri_info/riscf_info(5,maxbases), nbases
+C     riscf_info(6,ind) = 0 for in-core (#3 is a ga), 1 for disk (#3 is a da)
+      common /c_ri_info/riscf_info(6,maxbases), nbases
 

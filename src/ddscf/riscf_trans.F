@@ -1,19 +1,25 @@
       subroutine riscf_trans_int (g_three, ao_basis, nsh, nbf, nsqhalf,
-     $     bfsquare, ri_basis, nsh_F, Nff, max_bf_ri, g_Vsqrt, 
-     $     tol2e, g_indx, V_row, T_tmp, buf, lbuf, scr, lscr)
+     $     bfsquare, npair, ri_basis, nsh_F, Nff, max_bf_ri, g_Vsqrt, 
+     $     tol2e, g_indx, V_row, T_tmp, buf, lbuf, scr, lscr, odisk)
 
-C$Id: riscf_trans.F,v 1.2 1995-12-29 02:04:15 vg038 Exp $
+C$Id: riscf_trans.F,v 1.3 1996-02-07 00:41:32 vg038 Exp $
       implicit none
 
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "tcgmsg.fh"
+#ifdef RISCF_USE_DA
+#include "da.fh"
+#endif
 
       integer g_three, ao_basis, ri_basis, g_Vsqrt, g_indx, s, sfirst, 
-     $     slast, bfsquare, nsh, nbf, nsh_F, Nff, max_bf_ri, lbuf, lscr
+     $     slast, bfsquare, nsh, nbf, nsh_F, Nff, max_bf_ri, lbuf, lscr,
+     $     npair
 
       double precision tol2e, V_row, T_tmp, buf, scr
+
+      logical odisk
 
       dimension V_row (Nff, max_bf_ri)
       dimension T_tmp (Nff, bfsquare)
@@ -21,7 +27,7 @@ C$Id: riscf_trans.F,v 1.2 1995-12-29 02:04:15 vg038 Exp $
       dimension scr (lscr)
 
       integer icount, i, j, ifirst, ilast, jfirst, jlast, nfi, nfj, nfs, 
-     $     ij, nij, next, indx, nproc, ic, is, nsqhalf
+     $     ij, nij, next, indx, nproc, ic, is, nsqhalf, ndone, g_tmp
 
       logical status, IeqJ
 
@@ -30,7 +36,16 @@ C$Id: riscf_trans.F,v 1.2 1995-12-29 02:04:15 vg038 Exp $
 
       nproc = ga_nnodes()
 
+      if ( odisk ) then
+C       first collect them in a temporary global array
+        status = ga_create (MT_DBL, nproc*max_bf_ri*max_bf_ri, Nff, 
+     $       '3c tmp', Nff, 1, g_tmp)
+        if (.not. status ) call errquit ('couldn''t create 3c tmp ga',
+     $       110)
+      endif
+
       icount = -1
+      ndone = 0
       next = nxtval(nproc)
       do i=1, nsh
         do j=1, i
@@ -62,7 +77,7 @@ C$Id: riscf_trans.F,v 1.2 1995-12-29 02:04:15 vg038 Exp $
 
 C             transform three center integrals
               ic = 0
-              do s=1, Nsh_f
+              do s=1, nsh_F
                 status = bas_cn2bfr(ri_basis, s, sfirst, slast)
                 call ga_get (g_Vsqrt, 1, Nff, sfirst, slast, V_row, Nff)
                 nfs = slast - sfirst + 1
@@ -73,16 +88,37 @@ C             transform three center integrals
                   enddo
                 enddo
               enddo ! s
-              call ga_put (g_three, indx, indx+nij-1,  1, Nff, scr, nij)
-              
+              if ( odisk ) then
+#ifdef RISCF_USE_DA
+                call riscf_put_da ( g_three, scr, indx, nij, Nff, npair, 
+     $               ndone, g_tmp )
+#endif
+              else
+                call ga_put (g_three, indx, indx+nij-1,  1, Nff, scr, 
+     $               nij)
+              endif
               next = nxtval(nproc)
             endif ! next
           endif ! sparsity
         enddo   ! j
       enddo     ! i
 
+#ifdef RISCF_USE_DA
+      if ( odisk ) then
+C       riscf_put_da is collective
+C       nodes that already exited the loop have to take part
+        if ( ndone .ne. npair ) then
+          call riscf_put_da ( g_three, scr, indx, 0, Nff, npair, 
+     $         ndone, g_tmp )
+        endif
+        status = ga_destroy ( g_tmp )
+      endif
+#endif
+
       next = nxtval(-nproc)
 
+CDEBUG
+C     call riscf_da_print ( g_three )
       return
       end
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC

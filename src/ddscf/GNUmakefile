@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.62 1996-02-01 00:41:18 rg240 Exp $
+# $Id: GNUmakefile,v 1.63 1996-02-07 00:41:23 vg038 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -37,7 +37,8 @@
 	riscf_dovecs.o \
         uhf.o                   fock_2e_rep.o \
         print_integ.o \
-        rohf_lagr.o             rohf_diis.o 
+	riscf_square.o 		riscf_io.o \
+        rohf_lagr.o 		rohf_diis.o 
 
 
  OBJ_OPTIMIZE =	\
@@ -50,7 +51,6 @@
 		schwarz_atom.o \
 		comp4_ext.o \
 		schwarz_sh.o \
-                riscf_square.o \
                 int2e_file.o 
 
       LIBRARY =	libddscf.a
@@ -68,6 +68,9 @@ HEADERS = schwarz.fh cscfps.fh cfock.fh
 
 include ../config/makefile.h
 include ../config/makelib.h
+
+#activate disk array use of RI-SCF
+#  DEFINES += -DRISCF_USE_DA
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 $(LIBRARY_PATH)(ao_fock_2e.o):	 $(INCDIR)/util.fh ./schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscfps.fh ./cfock.fh $(INCDIR)/bas.fh 

@@ -26,7 +26,7 @@ c
       character*255 name
       integer len_occ
       external cscfdata ! For T3D linker
-c     
+c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
 c
@@ -193,7 +193,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.23 1996-01-25 01:13:50 rg240 Exp $
+C$Id: scf_get_info.F,v 1.24 1996-02-07 00:41:35 vg038 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

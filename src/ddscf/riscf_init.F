@@ -1,6 +1,6 @@
       logical function riscf_init (rtdb, geom, ao_basis, ri_basis, 
      $        tol2e)
-C$Id: riscf_init.F,v 1.4 1995-12-29 02:04:13 vg038 Exp $
+C$Id: riscf_init.F,v 1.5 1996-02-07 00:41:26 vg038 Exp $
 
 C     calculate three center ERIs, transform them with V**(-1/2)
 C     (V-approximation: V(i,j)=(i|j))
@@ -10,25 +10,31 @@ C     geom:      geometry handle [input]
 C     ao_basis:  basis set handle (AO) [input]
 C     ri_basis:  basis set handle (fit) [input]
 C     tol2e:     integral threshold [input]
-C     g_three:   global array handle for transformed three-center ERIs [output]
 C 
       implicit none
 
+#include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "schwarz.fh"
 #include "pstat.fh"
 #include "cscfps.fh"
+#include "stdio.fh"
+#ifdef RISCF_USE_DA
+#include "da.fh"
+#endif
 
-      integer rtdb, geom, ao_basis, ri_basis, g_three, g_Vsqrt, g_indx,
+      integer rtdb, geom, ao_basis, ri_basis, g_Vsqrt, g_indx,
      $        bases(2), bfsquare
       double precision tol2e, MinEval
-      logical status, riscf_put_3c_ints, Mk_Fit_Xf
+      logical status, odisk, riscf_put_3c_ints, Mk_Fit_Xf
 
       integer k_T_tmp, l_T_tmp, k_V_row, l_V_row, nsh, nsh_F, npair, 
      $     nsqhalf, nbf, Nff, lbuf, l_buf, k_buf, l_scr, k_scr, lscr,
-     $     max_bf_ao, max_bf_ri
+     $     max_bf_ao, max_bf_ri, g_three, istat
+C     g_three is either GA or DA handle for transformed integrals
+C     (depending on odisk)
 
 C     get basis set information
       status = bas_numbf (ao_basis, nbf)
@@ -92,28 +98,61 @@ C     does this work for integer arrays?
       call ga_zero (g_indx)
       call riscf_make_index (g_indx, npair,nsh,nsqhalf,tol2e,ao_basis)
       if (oscfps) call pstat_off(ps_index)
-      
-C     transformed 3-center integrals
-      status = ga_create (MT_DBL, npair, Nff, '3c-eri', npair, 1, 
-     $                    g_three )
-*     status = ga_create (MT_DBL, npair, Nff, '3c-eri', 1, npair, 
-*    $                    g_three )
-      if (.not.status) 
-     $     call errquit ('RI-SCF: can''t create global 3c-ERIs',110)
+
+C     disk-based method requested?
+      status = rtdb_get(rtdb, 'scf:ri_disk',MT_LOG, 1, odisk)
+      if ( .not. status ) odisk = .false.
+
+ 100  continue  ! jump back here after error message
+      if ( odisk ) then
+#ifdef RISCF_USE_DA
+        call util_print_centered (LUOUT,'using disk based algorithm', 
+     $       30, .false.)
+C       transformed 3-center integrals on disk
+        istat = da_init ( 10, 1.D10, 1.D10, 1.D7 ) 
+C         (max_arrays, max_array_size, total_disk_space, max_memory)
+        if ( istat .ne. 0 ) 
+     $       call errquit ('RI-SCF: error initializing CHEMIO', istat )
+
+        istat = da_create ( MT_DBL, npair, Nff, '3c-eri', '3c-eri', 
+     $       DA_RW, 1, npair, g_three )
+        if ( istat .ne. 0 ) 
+     $       call errquit ('RI-SCF: can''t create global 3c-ERIs',istat)
+#else
+        if ( ga_nodeid().eq.0 ) then
+          write (LUOUT,*)
+          call util_print_centered ( LUOUT, 'DISK ARRAYS NOT AVAILABLE', 
+     $         30, .true. )
+          call util_print_centered ( LUOUT, 'attempting in-core method', 
+     $         30, .false. )
+          write (LUOUT,*)
+        endif
+C       switch to in-core and jump back
+        odisk = .false.
+        goto 100
+#endif
+      else      ! in-core
+        if ( ga_nodeid().eq.0 ) then
+          call util_print_centered (LUOUT,'using in-core algorithm', 
+     $         30, .false.)
+        endif
+        status = ga_create ( MT_DBL, npair, Nff, '3c-eri', npair, 1, 
+     $                      g_three )
+        call ga_zero (g_three)
+      endif
+      write (LUOUT,*)
 
       if (oscfps) call pstat_on(ps_transform)
-      call ga_zero (g_three)
-
       call riscf_trans_int (g_three, ao_basis, nsh, nbf, nsqhalf,
      $     bfsquare,
-     $     ri_basis, nsh_F, Nff, max_bf_ri, g_Vsqrt, tol2e, 
+     $     npair, ri_basis, nsh_F, Nff, max_bf_ri, g_Vsqrt, tol2e, 
      $     g_indx, 
      $     dbl_mb(k_V_row), dbl_mb(k_T_tmp), dbl_mb(k_buf), lbuf, 
-     $     dbl_mb(k_scr), lscr)
+     $     dbl_mb(k_scr), lscr, odisk)
       if (oscfps) call pstat_off(ps_transform)
 
       status = riscf_put_3c_ints (ao_basis, ri_basis, g_three, g_indx, 
-     $     npair)
+     $     npair, odisk)
       if (.not.status) 
      $     call errquit ('RI-SCF: can''t put 3c-ERIS in list',110)
 
@@ -142,15 +181,21 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       subroutine riscf_make_index (g_indx, npair, nsh, nsqhalf, tol2e,
      $     ao_basis)
 
-      implicit double precision (a-h,o-z)
-      integer g_indx, nsh, ao_basis
-      logical status
+      implicit none
+
 #include "tcgmsg.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "schwarz.fh"
 #include "bas.fh"
 #include "msgids.fh"
+
+      integer g_indx, npair, nsh, nsqhalf, ao_basis
+      double precision tol2e
+
+      integer i, j, ifirst, ilast, jfirst, jlast, nfi, nfj, icount, 
+     $     isum, idum, me, nproc, k_indx, l_indx, len
+      logical status
 
       me = nodeid()
       nproc = nnodes()

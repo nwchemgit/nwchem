@@ -1,5 +1,5 @@
       block data riscf_three_eri_list
-C$Id: riscf_list.F,v 1.5 1995-12-29 02:04:14 vg038 Exp $
+C$Id: riscf_list.F,v 1.6 1996-02-07 00:41:28 vg038 Exp $
       implicit none
 #include "riscf.fh"
       data riscf_info / dim*0 /
@@ -7,7 +7,7 @@ C$Id: riscf_list.F,v 1.5 1995-12-29 02:04:14 vg038 Exp $
       end
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       logical function riscf_put_3c_ints (ao_basis, ri_basis, handle, 
-     $     index, npair)
+     $     index, npair, odisk)
 C     put another set of 3-center ERIs into list
 
 C     parameters:
@@ -15,13 +15,16 @@ C     ao_basis, ri_basis: basis set handles [input]
 C     handle:             ERI handle (GA)   [input]
 C     index:            index handle (GA)   [input]
 C     npair:   # of non-zero (ij)-pairs     [input]
+C     odisk: disk array (I/O based method) or global array (in-core) [output]
 
       implicit none
 
 #include "riscf.fh"
 
       integer ao_basis, ri_basis, handle, npair, index, i
+      logical odisk
       external riscf_three_eri_list ! For T3D linker
+
 C     is it already there?
       do i = 1, maxbases
         if (riscf_info(1,i).eq.ao_basis) then
@@ -39,6 +42,11 @@ C           nothing to do
           riscf_info(3,i) = handle
           riscf_info(4,i) = index
           riscf_info(5,i) = npair
+          if ( odisk ) then
+            riscf_info(6,i) = 1
+          else
+            riscf_info(6,i) = 0
+          endif
           nbases = nbases + 1
           goto 30
         endif
@@ -55,7 +63,7 @@ C     looks like we did not find a free slot
       end
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       logical function riscf_get_3c_ints (ao_basis, ri_basis, handle, 
-     $     index, npair)
+     $     index, npair, odisk)
 C     find handle to three_center ERIs for a pair of basis sets
 
 C     parameters:
@@ -63,12 +71,14 @@ C     ao_basis, ri_basis: basis set handles [input]
 C     handle:             ERI handle (GA)   [output]
 C     index:            index handle (GA)   [output]
 C     npair:   # of non-zero (ij)-pairs     [output]
+C     odisk: disk array (I/O based method) or global array (in-core) [output]
 
-      implicit double precision (a-h,o-z)
+      implicit none
 
 #include "riscf.fh"
 
-      integer ao_basis, ri_basis, handle
+      integer ao_basis, ri_basis, handle, index, npair, i
+      logical odisk
 
 C     search entry
       do i = 1, maxbases
@@ -77,6 +87,7 @@ C     search entry
             handle = riscf_info(3,i)
             index = riscf_info(4,i)
             npair = riscf_info(5,i)
+            odisk = ( riscf_info(6,i) .gt. 0 )
             riscf_get_3c_ints = .TRUE.
             return
           endif
@@ -94,11 +105,14 @@ C     parameter:
 C     handle >= 0: array to be deleted
 C             < 0: delete all
 
-      implicit double precision (a-h,o-z)
+      implicit none
 
 #include "riscf.fh"
+#ifdef RISCF_USE_DA
+#include "da.fh"
+#endif
 
-      integer handle
+      integer handle, i
       logical status, ga_destroy
       logical riscf_del_index
       external riscf_del_index
@@ -107,7 +121,13 @@ C             < 0: delete all
 C       search entry
         do i = 1, maxbases
           if (riscf_info(3,i).eq.handle .and. riscf_info(1,i).gt.0) then
-            riscf_del_3c_ints = ga_destroy (handle)
+            if ( riscf_info(6,i) .eq. 0 ) then
+              riscf_del_3c_ints = ga_destroy (handle)
+            else
+#ifdef RISCF_USE_DA
+              riscf_del_3c_ints = ( da_delete(handle) .eq. 0 )
+#endif
+            endif
             riscf_info(1,i) = 0
             riscf_info(2,i) = 0
             riscf_info(3,i) = 0
@@ -124,6 +144,13 @@ C       we did not find it
       else
         do i = 1, maxbases
           if (riscf_info(1,i).gt.0) then
+            if ( riscf_info(6,i) .eq. 0 ) then
+              riscf_del_3c_ints = ga_destroy (riscf_info(3,i))
+            else
+#ifdef RISCF_USE_DA
+              riscf_del_3c_ints = ( da_delete (riscf_info(3,i)) .eq. 0 )
+#endif
+            endif
             status = ga_destroy (riscf_info(3,i))
             if (.not.status) write(6,*)
      $           'riscf_del_3c_in: could not destroy array'
@@ -147,13 +174,13 @@ C     parameter:
 C     handle >= 0: array to be deleted
 C             < 0: delete all
 
-      implicit double precision (a-h,o-z)
+      implicit none
 
 #include "mafdecls.fh"
 #include "global.fh"
 #include "riscf.fh"
 
-      integer handle
+      integer handle, i, ic
 C     how often does it occur?
       ic = 0
 

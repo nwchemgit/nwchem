@@ -1,6 +1,6 @@
       subroutine riscf_fock_2e(geom1, ao_basis, ri_basis, nfock,
      $     fcoul, fexch, tol2e1, oskeleton, g_dens, g_fock)
-C$Id: riscf_fock.F,v 1.4 1995-12-29 22:10:56 vg038 Exp $
+C$Id: riscf_fock.F,v 1.5 1996-02-07 00:41:25 vg038 Exp $
 C     calculate the coulomb and exchange contribution to the Fock matrix 
 C     from the density matrix and the transformed three-center ERIs
 
@@ -10,16 +10,19 @@ C     from the density matrix and the transformed three-center ERIs
 #include "global.fh"
 #include "bas.fh"
 #include "tcgmsg.fh"
-#include "msgids.fh"
 #include "pstat.fh"
 #include "cscfps.fh"
 #include "cscf.fh"
 #include "cfock.fh"
+#ifdef RISCF_USE_DA
+#include "da.fh"
+#endif
 
       integer ao_basis, ri_basis, g_dens, g_fock, g_three, g_indx, 
      $     g_sthree, g_T, g_tr, t, riscf_nr_nu, geom1, g_x1, g_x2, nfock
-      logical status, ocoul, oexch, oskeleton, riscf_get_3c_ints, 
-     $     riscf_init
+C     g_three can be GA or DA handle !!!
+
+      logical status, ocoul, oexch, oskeleton, riscf_get_3c_ints
       double precision fcoul, fexch, tol2e1
 
       dimension g_dens(nfock), g_fock(nfock), fcoul(nfock), fexch(nfock)
@@ -27,11 +30,18 @@ C     from the density matrix and the transformed three-center ERIs
       integer nbf, Nff, nsh, lsq, lhalf, npair, n_t, nt, nocc, in, il,
      $     l_indx, k_indx, l_three, k_three, l_sthree, k_sthree,
      $     ifirst, ifirst1, ifirst2, ilast, ilast1, ilast2, ifk, mxbf, 
-     $     mxints, nloop, nrest, nproc, nt_dim
+     $     mxints, nloop, nrest, nproc, nt_dim, req0, req, ic, 
+     $     g_three_io, first_t, last_t, num_t, istat, iarray, iarray2,
+     $     g_three_sq
+
+      dimension g_three_io(2)
 
       double precision mone, zero, one, sq2, W, factor
 
+      logical odisk
+
       parameter (zero=0.0D0, one=1.0D0, mone=-1.D0)
+      parameter (req0=5051818) !birthday of Karl Marx
 
       sq2 = sqrt(2.D0)
       if (oskeleton) then
@@ -51,13 +61,13 @@ C     get basis set information
 
 C     get 3center integrals and indices
       status = riscf_get_3c_ints (ao_basis, ri_basis, g_three, g_indx, 
-     $                npair)
+     $                npair, odisk)
       if (.not. status) then
         call errquit ('RISCF not initialized', 110)
-*       status = riscf_init (rtdb, geom, ao_basis, ri_basis, tol2e)
-*       status = riscf_get_3c_ints (ao_basis, ri_basis, g_three, g_indx,
-*    $                npair)
       endif
+
+C     in case of in-core method pass the integral array to riscf_square
+      g_three_sq = g_three
 
 C     get number of expansion functions to be processed at the same time
       if ( scftype .eq. 'ROHF' .or. scftype .eq. 'RHF') then
@@ -115,6 +125,27 @@ C       last (partial) loop not covered by Nff / n_t
 
       nt = n_t ! # t values to be processed in one loop
 
+      last_t = min ( nt, Nff )
+
+      if ( odisk ) then
+#ifdef RISCF_USE_DA
+C       global arrays to store part of three-center integrals read from da
+C       two of them to read asynchronously
+        status = ga_create (MT_DBL, npair, n_t,'3c-eri #1', 1, nbf, 
+     $       g_three_io(1) )
+        status = ga_create (MT_DBL, npair, n_t,'3c-eri #2', 1, nbf, 
+     $       g_three_io(2) )
+
+C       and read the first block
+        if (oscfps) call pstat_on(ps_riscf_read)
+        istat = da_read_section (.false., g_three_io(1), 
+     $                  1, npair, 1, last_t,
+     $       g_three,   1, npair, 1, last_t, req0 )
+        if (oscfps) call pstat_off(ps_riscf_read)
+#endif
+      endif
+
+      ic = 0
       do il = 1, nloop
         if ( il.eq.nloop ) nt = nrest
         nt_dim = nt * nbf
@@ -123,16 +154,41 @@ C       multiple fock matrices
           ocoul = (fcoul(ifk).ne.0.D0)
           oexch = (fexch(ifk).ne.0.D0)
 
-C         create full square matrix of 3center ERIs for this t range
+C         create full square matrices of 3center ERIs for this t range
           if (oscfps) call pstat_on(ps_extract)
-c         
+
           t = (il-1)*n_t
-          do in = 1, nt
-            t = t+1
-            call riscf_square (ao_basis, g_three, g_sthree,
-     $           dbl_mb(k_three), dbl_mb(k_sthree), g_indx, 
-     $           int_mb(k_indx), t, in, nbf, nsh, mxbf, nproc)
-          enddo
+          iarray = mod(ic,2) + 1
+
+          if ( odisk ) then
+#ifdef RISCF_USE_DA
+C           initialize next read
+            if ( il .ne. nloop ) then
+              first_t = t+1
+              last_t = min ( il*nt, Nff )
+              num_t = last_t - first_t + 1
+              ic = ic + 1
+              iarray2 = mod(ic,2) + 1
+              if (oscfps) call pstat_on(ps_riscf_read)
+              istat = da_read_section (.false., 
+     $             g_three_io(iarray2), 1, npair, 1, num_t,
+     $             g_three,  1,  npair,     first_t, last_t, 
+     $             req )
+              if (oscfps) call pstat_off(ps_riscf_read)
+            endif
+
+C           finish this read
+            if (oscfps) call pstat_on(ps_riscf_read)
+            istat = da_wait ( req-1 )
+            if (oscfps) call pstat_off(ps_riscf_read)
+
+            g_three_sq = g_three_io(iarray)
+#endif
+          endif
+
+          call riscf_square (ao_basis, g_three_sq, g_sthree,
+     $         dbl_mb(k_three), dbl_mb(k_sthree), g_indx, 
+     $         int_mb(k_indx), t, nt, nbf, nsh, mxbf, nproc, odisk)
 
           if (oscfps) call pstat_off(ps_extract)
           if (oexch) then
@@ -168,7 +224,7 @@ C             K := K + X x X(T)
      $             g_x2, 1, nt*nocc, 1, nbf,
      $             g_fock(ifk), 1, nbf, 1, nbf)
 
-           else !not dovecs => use density
+            else !not dovecs => use density
 
 C             T := three x D
               call ga_matmul_patch ('N','N', one, zero,
@@ -218,9 +274,9 @@ C             J_ij = J_ij + (m|ij) * W
      $                  g_fock(ifk),     1,   nbf, 1, nbf)
             enddo
             if (oscfps) call pstat_off(ps_coulomb)
-          endif
-        enddo
-      enddo
+          endif ! exchange
+        enddo   ! nfock
+      enddo     ! nloop
 
 C     free the temporary arrays
       status = ma_free_heap ( l_sthree )
@@ -234,6 +290,12 @@ C     free the temporary arrays
         status = ga_destroy ( g_T )
       endif
       status = ga_destroy ( g_sthree )
+#ifdef RISCF_USE_DA
+      if ( odisk ) then
+        status = ga_destroy ( g_three_io(2) )
+        status = ga_destroy ( g_three_io(1) )
+      endif
+#endif
 
       return
       end
@@ -241,11 +303,13 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       integer function riscf_nr_nu ( nbf, nocc )
 C     calculate number of expansion functions to be processed in one ga_dgemm
 C     from the available memory
-C     at the moment a dummy (hoping for better memory control routines)
-#include "mafdecls.fh"
+      implicit none
+#include "msgids.fh"
 #include "global.fh"
 
-      integer total
+      integer nbf, nocc
+
+      integer total, localmem, nvec, ndens
 
       localmem = ga_memory_avail()
       if ( localmem .lt. 0 ) then
