@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.153 2002-11-14 18:04:45 d3j191 Exp $
+c $Id: md_main.F,v 1.154 2002-11-14 18:18:52 d3j191 Exp $
 c
       implicit none
 c
@@ -1498,6 +1498,35 @@ c
       endif
 c
       wallt=timer_wall(3)
+c
+c     dynamic load balancing data
+c
+      if(itload.eq.0) then
+      wallt=timer_wall(3)
+      syntim=timer_wall(4)
+      elseif(itload.eq.1) then
+      wallt=timer_wall_minimum(3)
+      syntim=timer_wall_minimum(4)
+      elseif(itload.eq.2) then
+      wallt=timer_wall_average(3)
+      syntim=timer_wall_average(4)
+      else
+      wallt=timer_wall_average(3)
+      syntim=timer_wall_average(4)
+      if(me.eq.0) then
+      wallt=timer_wall_minimum(3)
+      syntim=timer_wall_minimum(4)
+      endif
+      endif
+c
+      if(me.eq.0.and.ioload.eq.1) then
+      if(corrio.ge.syntim) then
+      syntim=zero
+      else
+      syntim=syntim-corrio
+      endif
+      endif
+c
       call timer_start(3)
 c
 c     reassign velocities
@@ -1533,34 +1562,6 @@ c
       if(.not.lqmd) then
 c
       call timer_start(12)
-c
-c     dynamic load balancing
-c
-      if(itload.eq.0) then
-      wallt=timer_wall(3)
-      syntim=timer_wall(4)
-      elseif(itload.eq.1) then
-      wallt=timer_wall_minimum(3)
-      syntim=timer_wall_minimum(4)
-      elseif(itload.eq.2) then
-      wallt=timer_wall_average(3)
-      syntim=timer_wall_average(4)
-      else
-      wallt=timer_wall_average(3)
-      syntim=timer_wall_average(4)
-      if(me.eq.0) then
-      wallt=timer_wall_minimum(3)
-      syntim=timer_wall_minimum(4)
-      endif
-      endif
-c
-      if(me.eq.0.and.ioload.eq.1) then
-      if(corrio.ge.syntim) then
-      syntim=zero
-      else
-      syntim=syntim-corrio
-      endif
-      endif
 c
       if(me.eq.0.and.ioload.eq.2) then
       if(corrio.ge.syntim.and.
@@ -2535,7 +2536,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.153 2002-11-14 18:04:45 d3j191 Exp $
+c $Id: md_main.F,v 1.154 2002-11-14 18:18:52 d3j191 Exp $
 c
       implicit none
 c
