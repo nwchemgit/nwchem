@@ -3,7 +3,7 @@ C NAME
 C     GA_MatPow -- Form V^{-1/2}
 C
 C REVISION
-C     $Id: ga_matpow.F,v 1.5 1997-02-17 22:18:07 gg502 Exp $
+C     $Id: ga_matpow.F,v 1.6 1997-02-18 18:20:32 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine GA_MatPow(G_V, Pow, MinEval)
@@ -55,7 +55,7 @@ C LOCAL VARIABLES
       Integer H_Eval, Eval_Idx
       Integer D, DiagLo, DiagHi
       Integer G_EV, G_Tmp
-      Integer I, G_Junk, VType, Rows, Cols, ILo, IHi, JLo, JHi
+      Integer I, J, G_Junk, VType, Rows, Cols, ILo, IHi, JLo, JHi
       Double precision Elem
       Integer Junk
 C
@@ -145,8 +145,14 @@ C
       If ( Util_Print('ga_matpow eigenvalues', Print_Debug)
      $   .OR. Util_Print('ga_matpow details', Print_Debug) ) then
          If ( GA_NodeID() .eq. 0 ) then
-            Call DGeWr(1, Rows, Dbl_MB(Eval_Idx), 1, 0, 0, LuOut,
-     $         'GA_MatPow Eigenvalues', 80, 'E15.6', Junk)
+            Call Util_Print_Centered(LuOut, 'GA_MatPow Eigenvalues', 40,
+     $           .TRUE.)
+            Do I = 1, Rows, 4
+               Write (LuOut, '(1X, I5, 4(1X, E15.6) )') I,
+     $            (Dbl_MB(Eval_Idx + J - 1), J=I,Min(I+3, Rows) )
+            EndDo
+c$$$            Call DGeWr(1, Rows, Dbl_MB(Eval_Idx), 1, 0, 0, LuOut,
+c$$$     $         'GA_MatPow Eigenvalues', 80, 'E15.6', Junk)
          EndIf
          Call GA_Sync
       EndIf
