@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.31 1995-02-02 23:12:40 d3g681 Exp $
+C$Id: geom.F,v 1.32 1995-02-07 00:10:40 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -331,6 +331,9 @@ c
       tmp(k:) = ':tags'
       status = status .and. 
      $     rtdb_cget(rtdb, tmp, max_cent, tags(1,geom))
+      tmp(k:) = ':include_bqbq'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_log, 1, include_bqbq(geom))
 c
 c--> get symmetry operators, number of operators and operator/atom
 c    map from rtdb
@@ -411,6 +414,12 @@ c     interaction with external fields
 c
       double precision e, r
       integer i, j
+      character*2 symi, symj
+      character*16 eli, elj
+      integer atni, atnj
+      logical j_is_atom, i_is_atom
+      logical geom_tag_to_element
+      external geom_tag_to_element
 c
       e = 0.0d0
       ndipole(1,geom) = 0.0d0
@@ -420,16 +429,25 @@ c
 c     compute nuclear dipole moment and usual nuclear repulsion energy
 c
       do i = 1,ncenter(geom)
-         do j = 1, 3
-            ndipole(j,geom) = ndipole(j,geom) +
-     $           charge(i,geom)*coords(j,i,geom)
-         end do
+         i_is_atom = geom_tag_to_element(tags(i,geom), 
+     $        symi, eli, atni)
+         if (include_bqbq(geom) .or. i_is_atom) then
+            do j = 1, 3
+               ndipole(j,geom) = ndipole(j,geom) +
+     $              charge(i,geom)*coords(j,i,geom)
+            end do
+         endif
          do j = i+1, ncenter(geom)
-            r = dsqrt(
-     $           (coords(1,i,geom)-coords(1,j,geom))**2 + 
-     $           (coords(2,i,geom)-coords(2,j,geom))**2 + 
-     $           (coords(3,i,geom)-coords(3,j,geom))**2)
-            e = e + charge(i,geom)*charge(j,geom)/r
+            j_is_atom = geom_tag_to_element(tags(j,geom),
+     $           symj, elj, atnj)
+            if (include_bqbq(geom) .or. (i_is_atom.and.j_is_atom)) then
+
+               r = dsqrt(
+     $              (coords(1,i,geom)-coords(1,j,geom))**2 + 
+     $              (coords(2,i,geom)-coords(2,j,geom))**2 + 
+     $              (coords(3,i,geom)-coords(3,j,geom))**2)
+               e = e + charge(i,geom)*charge(j,geom)/r
+            endif
          end do
       end do
 c
@@ -442,6 +460,31 @@ c
       if (isystype(geom) .eq. 3) then
          call geom_3d(geom)
       endif
+c
+      end
+      logical function geom_include_bqbq(geom)
+      implicit none
+#include "geomP.fh"
+      integer geom
+      logical geom_check_handle
+      external geom_check_handle
+c
+      if (.not. geom_check_handle(geom, 'geom_include_bqbq'))
+     $     call errquit('geom_include_bqbq: bad handle',0)
+      geom_include_bqbq = include_bqbq(geom)
+c
+      end
+      logical function geom_set_bqbq(geom, value)
+      implicit none
+#include "geomP.fh"
+      logical value
+      integer geom
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_set_bqbq = geom_check_handle(geom, 'geom_set_bqbq')
+      if (.not. geom_set_bqbq) return
+      include_bqbq(geom) = value
 c
       end
       logical function geom_rtdb_store(rtdb, geom, name)
@@ -536,6 +579,9 @@ c
       tmp(k:) = ':tags'
       status = status .and. 
      $     rtdb_cput(rtdb, tmp, ncenter(geom), tags(1,geom))
+      tmp(k:) = ':include_bqbq'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_log, 1, include_bqbq(geom))
 c
 c--> put symmetry operators, number of operators and operator/atom
 c    map out to rtdb
@@ -677,6 +723,7 @@ c
       group_name(geom) = 'C1'
       sym_num_ops(geom) = 0
       user_units(geom) = 'a.u.'
+      include_bqbq(geom) = .false.
 c
       do i = 1, 3
         lattice_vectors(i,geom) = 0
@@ -981,6 +1028,8 @@ c
       write(6,*)
       write(6,2) user_units(geom)(1:inp_strlen(user_units(geom)))
  2    format(' Units of output coordinates              ', a)
+      if (include_bqbq(geom))
+     $     write(6,*) ' Include Bq-Bq interactions'
       if (isystype(geom) .eq. 3) then
          write(6,21) 
      $        volume_direct(geom),

@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C$Id: geom_input.F,v 1.16 1995-02-02 23:12:45 d3g681 Exp $
+C$Id: geom_input.F,v 1.17 1995-02-07 00:10:49 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -15,6 +15,7 @@ c
       integer nata              ! num. of unique atoms 
       logical status            ! scratch for return codes
       logical oprint
+      logical include_bqbq
       logical oprint_sym
       integer max_center        ! parameter for local array dimension
       double precision scale    ! For unit conversion
@@ -46,7 +47,7 @@ c
       if (.not. inp_compare(.false., 'geometry', field))
      $     call errquit('geom_input: not geometry input', 0)
 c     
-c     geometry [<name>] [units <units>] [print] [noprint]
+c     geometry [<name>] [units <units>] [print] [noprint] [bqbq]
 c
 c     subdirectives
 c
@@ -62,9 +63,12 @@ c
       oprint = .false.
       osymmetry = .true.
       oprint_sym = .false.
+      include_bqbq = .false.
 c
  10   if (inp_a(field)) then
-         if (inp_compare(.false.,'print', field)) then
+         if (inp_compare(.false.,'bqbq',field)) then
+            include_bqbq = .true.
+         else if (inp_compare(.false.,'print', field)) then
             oprint = .true.
 c
 c     If the next field is a recognizable format for standard
@@ -104,6 +108,7 @@ c
       if (name .eq. ' ') name = 'geometry'
       if (.not. geom_create(geom, name)) call errquit
      $     ('geom_input: geom_create failed !', 0)
+      if (include_bqbq) status = geom_set_bqbq(.true.)
 c
       if (units(1:2) .eq. 'au' .or. units(1:2) .eq. 'bo' .or.
      $     units(1:2) .eq. 'at') then

@@ -1,7 +1,7 @@
       subroutine grad1 ( H, lbuf, scr, lscr, dens, wdens, frc, 
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
      $                   max_at_bf, rtdb )
-c$Id: grad1.F,v 1.7 1995-02-03 01:01:51 vg038 Exp $
+c$Id: grad1.F,v 1.8 1995-02-07 00:11:13 d3g681 Exp $
 
       implicit real*8 (a-h,o-z)
 
@@ -25,8 +25,11 @@ c$Id: grad1.F,v 1.7 1995-02-03 01:01:51 vg038 Exp $
 
       iproc = nodeid()
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
-      pointforce = rtdb_get(rtdb,'gradients:point', MT_LOG, 1,point) 
-      pointforce = (pointforce .and. point)
+
+*      pointforce = rtdb_get(rtdb,'gradients:point', MT_LOG, 1,point) 
+*      pointforce = (pointforce .and. point)
+
+      pointforce = geom_include_bqbq(geom)
 
       call hf_print_set(1)
 

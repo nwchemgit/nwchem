@@ -29,6 +29,7 @@ c     pseudopotential ... not yet
 c     efield(1:3,1:max_geom) = external electric field applied to this system
 c     oefield = true if efield is on
 c     angstrom_to_au = scale factor between angstom and atomic units
+c     include_bqbq(geom) = include bqbq interactions for this molecule
 c
 c--> symmetry information
 c
@@ -95,13 +96,13 @@ c     elements(1:nelements) = names of elements
 c     
       integer max_geom, max_cent, max_geom_rtdb, nelements,
      $     max_sym_ops
-C$Id: geomP.fh,v 1.7 1995-02-02 23:12:42 d3g681 Exp $
+C$Id: geomP.fh,v 1.8 1995-02-07 00:10:46 d3g681 Exp $
       parameter (max_sym_ops = 192)
       parameter (max_geom=2, max_geom_rtdb = 100)
       parameter (max_cent=500)
       parameter (nelements = 103)
 c
-      logical active, operiodic, oefield
+      logical active, operiodic, oefield, include_bqbq
       integer ngeom_rtdb, ncenter, lenn, lent, lenr, group_number,
      $     ncenter_unique, isystype, setting_number, unique_cent,
      $     sym_num_ops,sym_center_map_handle,
@@ -142,6 +143,7 @@ c
      $     sym_num_ops(max_geom),
      $     sym_center_map_handle(max_geom),
      $     sym_center_map_index(max_geom),
+     $     include_bqbq(max_geom),
      $     ngeom_rtdb
 c
       character*256 names, names_rtdb, trans
