@@ -102,12 +102,12 @@ Integer inv_it5( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, lld, 
   iwork1 = iwork;
   lplus = work;
 
-  dplus = lplus +lsiz;
-  uminus = dplus + lsiz;
-  dminus = uminus + lsiz;
-  t = dminus + lsiz;
-  p = t + lsiz;
-  gamma = p + lsiz;
+  dplus = &lplus[lsiz];
+  uminus = &lplus[2*lsiz];
+  dminus = &lplus[3*lsiz];
+  t = &lplus[4*lsiz];
+  p = &lplus[5* lsiz];
+  gamma = &lplus[6*lsiz];
   
     ibad = 0;
 

@@ -42,10 +42,12 @@
 TIMINGG test_timing;
 #endif
 
-#define max(a,b) ((a) > (b) ? (a) : (b))
 #define min(a,b) ((a) < (b) ? (a) : (b))
+#define max(a,b) ((a) > (b) ? (a) : (b))
+#define ffabs(a) ((a) > (0.) ? (a) : (-a))
 
-DoublePrecision psigma, psgn;
+
+DoublePrecision psigma, psgn, peigs_shift, peigs_scale;
 
 void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 	       meigval, vecZ, mapZ, eval, iscratch, iscsize,
@@ -305,7 +307,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     extern DoublePrecision dnrm2_();
 
     extern Integer  tred2();
-    extern void     pstebz_(), pstein32(), mxm25(), sfnorm();
+    extern void     pstebz_(), mxm25(), sfnorm(), pstein4(), pstein5(), pscale_(), ga_sync_();
 
 /*
  *  ---------------------------------------------------------------
@@ -677,46 +679,25 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    printf(" in pdspevx tred2 me = %d \n", mxmynd_());
 #endif
 
-      tred2( &msize, vecA, mapA, vecQ, mapQ, dd, ee, i_scrat, d_scrat);
+   tred2( &msize, vecA, mapA, vecQ, mapQ, dd, ee, i_scrat, d_scrat);
 
 #ifdef DEBUG7
    printf(" in pdspevx out tred2 me = %d \n", mxmynd_());
 #endif
-
-
+   
+   
 #ifdef TIMING
-      mxsync_();
-      t2 = mxclock_();
-      test_timing.householder = t2 - t1;
+   mxsync_();
+   t2 = mxclock_();
+   test_timing.householder = t2 - t1;
 #endif
-      
-      /*
-      if( mapA[0] ==me ) {
-        isize = msize - 1;
-        vec[0] = sqrt((DoublePrecision) 2.e0 ) * dnrm2_( &isize, &ee[1], &IONE );
-        vec[1] = dnrm2_( &msize, dd, &IONE );
-        fnormT = dnrm2_( &ITWO, vec, &IONE );
-        ulp = DLAMCHE * DLAMCHB ;
-	
-        if( fabs( fnormA - fnormT ) > ( fnormA * ulp * (DoublePrecision) 1000.e0 ))
-	  fprintf(stderr, " me = %d Warning fnormA = %26.16e fnormT = %26.16e \n",
-		  me, fnormA, fnormT );
-      }
-      */
+   
     }
     
     mapZ_0 = *mapZ;
     
     mdiff1_( n, mapZ, n, mapA, i_scrat, &num_procs ); 
     
-    /*
-    if( num_procs > 0 ){
-      i_scrat[num_procs] = mapA[0];
-      num_procs++;
-      bbcast00( (char *) dd, msize*sizeof(DoublePrecision), 1, mapA[0], num_procs, i_scrat);
-      bbcast00( (char *) ee, msize*sizeof(DoublePrecision), 2, mapA[0], num_procs, i_scrat);
-    }
-    */
     
     /*
      * Compute eigenvalues.
@@ -731,22 +712,44 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    printf(" in pdspevx pstebz10 me = %d \n", mxmynd_());
 #endif
       
-   /*      if (nproc < 24 ) {
-    */
+   peigs_shift = 0.0e0;
+   peigs_scale = 0.0e0;
+	ee[0] = 0.0e0;
+   
+#ifdef PSCALE
+   pscale_( irange, &msize, lb, ub, ilb, iub, abstol,
+	      dd, ee, dplus, lplus,
+	      mapZ, &neigval, &nsplit, eval, iblock, isplit,
+	      d_scrat, i_scrat, &linfo);
+#endif
+   
    pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol,
 	      dd, ee, dplus, lplus,
 	      mapZ, &neigval, &nsplit, eval, iblock, isplit,
-	      d_scrat, i_scrat, info);
-   /*
-     }
-     else {
+	      d_scrat, i_scrat, &linfo);
+
+   if ( linfo != 0 ) {
      pstebz9_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee,
-     dplus, lplus, mapZ, &neigval, &nsplit, eval, iblock, isplit,
-     d_scrat, i_scrat, info);
+	       dplus, lplus, mapZ, &neigval, &nsplit, eval, iblock, isplit,
+	       d_scrat, i_scrat, info);
      
+     if ( *info != 0 ) {
+       for ( iii = 0 ; iii < msize; iii++ )
+	 d_scrat[iii] = dd[iii];
+       for (iii = 0; iii < msize; iii++)
+	 d_scrat[iii+msize] = ee[iii];
+       dsterf_(&msize, d_scrat, &d_scrat[msize+1], &linfo);
+       for ( iii = 0; iii < msize; iii++ )
+	 eval[iii] = dd[iii];
+       if ( linfo != 0 ) {
+	 printf(" error in peigs...dsterf me = %d \n", me);
+	 printf(" error in peigs...fails all eval solver me = %d \n", me);
+	 exit(-1);
+       }
      }
-     */
-   
+   }
+     
+     
    
 #ifdef DEBUG7
    printf(" out pdspevx pstebz10 me = %d \n", mxmynd_());
@@ -847,8 +850,14 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 #endif
       
       /*
-	mgs looks cluster
-	*/
+	 mgs looks cluster
+	 */
+      
+      
+      ga_sync_();
+      /*
+      mxsync_();
+      */
       
       /*
 	loose cluster
@@ -861,7 +870,12 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       pstein4 ( &msize, dd, ee, dplus, lplus, ld, lld,
 		&neigval, eval, iblock, &nsplit, isplit,
 		mapZ, vecZ, d_scrat,i_scrat, iptr, info);
-
+      
+      /*
+      mxsync_();
+      */
+      ga_sync_();
+      
 #ifdef DEBUG7
       printf(" me = %d just after pstein4 %d \n", me, *info );
       fflush(stderr);
@@ -874,11 +888,11 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       }
       
     }
-      
+    
 #ifdef TIMING
-      mxsync_();
-      t2 = mxclock_();
-      test_timing.pstein = t2 - t1;
+    mxsync_();
+    t2 = mxclock_();
+    test_timing.pstein = t2 - t1;
 #endif
     
     
@@ -946,42 +960,39 @@ END:
     
     for ( iii = 0; iii < neigval; iii++){
       eval[iii] += psgn*psigma;
-      /*      
-too much printing
-
-printf("me = %d eval %d %g \n", me, iii, eval[iii]);
-
-*/
     }
     
-    sorteig( &msize, &neigval, vecZ, mapZ, eval, iscratch, scratch );
+    sorteig(&msize, &neigval, vecZ, mapZ, eval, iscratch, scratch);
     
-    /*
-      if ( me == 0 )
-      fprintf(stderr, "me = %d Exiting pdspevx \n", me );
-      */
+#ifdef PSCALE
+    dummy = peigs_scale;
+    for ( iii=0; iii < neigval; iii++ )
+      eval[iii] = peigs_shift + eval[iii]*dummy;
+#endif
+    
     
 #ifdef DEBUG7
     fprintf(stderr, "me = %d Exiting pdspevx \n", me );
 #endif
+    
 #ifdef TIMING
-	t2 = mxclock_();
-	test_timing.pdspevx = t2 - tt1;
-  if (me == 0 ){
-    fprintf(stderr, " n = %d nprocs = %d \n", msize, nproc);
-    fprintf(stderr, " pdspevx = %f \n", test_timing.pdspevx);
-    fprintf(stderr, " choleski = %f \n", test_timing.choleski);
-    fprintf(stderr, " inverse = %f \n", test_timing.inverse);
-    fprintf(stderr, " conjug = %f \n", test_timing.conjug);
-    fprintf(stderr, " householder = %f \n", test_timing.householder);
-    fprintf(stderr, " mxm5x = %f \n", test_timing.mxm5x);
-    fprintf(stderr, " mxm25 = %f \n", test_timing.mxm25);
-    fprintf(stderr, " pstein = %f \n", test_timing.pstein);
-    fprintf(stderr, " pstebz = %f \n", test_timing.pstebz);
-  }
+    t2 = mxclock_();
+    test_timing.pdspevx = t2 - tt1;
+    if (me == 0 ){
+      fprintf(stderr, " n = %d nprocs = %d \n", msize, nproc);
+      fprintf(stderr, " pdspevx = %f \n", test_timing.pdspevx);
+      fprintf(stderr, " choleski = %f \n", test_timing.choleski);
+      fprintf(stderr, " inverse = %f \n", test_timing.inverse);
+      fprintf(stderr, " conjug = %f \n", test_timing.conjug);
+      fprintf(stderr, " householder = %f \n", test_timing.householder);
+      fprintf(stderr, " mxm5x = %f \n", test_timing.mxm5x);
+      fprintf(stderr, " mxm25 = %f \n", test_timing.mxm25);
+      fprintf(stderr, " pstein = %f \n", test_timing.pstein);
+      fprintf(stderr, " pstebz = %f \n", test_timing.pstebz);
+    }
 #endif
     return;
-}
+  }
 
 
 

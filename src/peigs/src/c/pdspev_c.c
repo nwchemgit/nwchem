@@ -231,8 +231,8 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
   
   strcpy( msg,  "Error in pdspev." );
   
-#ifdef DEBUG1
-   fprintf(stderr, "me = %d In pdspev \n", me );
+#ifdef DEBUG
+   printf("me = %d In pdspev \n", me );
 #endif
 
  /*

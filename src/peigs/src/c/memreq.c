@@ -558,9 +558,9 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
   
   ppd_tmp = max(  ppd_tmp, ptr_pdspevx );
 
-  *isize    =  i_tmp + nextra + 2*msize;
-  *rsize    =  d_tmp + nextra + 20*msize;
-  *ptr_size =  ppd_tmp + nextra + 2*msize;
+  *isize    =  i_tmp + nextra + 10*msize;
+  *rsize    =  d_tmp + nextra + 30*msize;
+  *ptr_size =  ppd_tmp + nextra + 10*msize;
   
   return;
 }

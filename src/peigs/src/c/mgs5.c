@@ -223,9 +223,8 @@ if ( fabs(t) > DLAMCHE )
         continue;
 
       nleft[i] -= mvecs;
-
-      if ( me_indx == i ) {
       
+      if ( me_indx == i ) {
         for ( jndx = kk; jndx < kk + mvecs; jndx++ ){
  	  dptr = &colF[jndx][bb];
  	  t = dnrm2_( &vec_len, dptr, &IONE );
@@ -234,26 +233,32 @@ if ( fabs(t) > DLAMCHE )
 	  for ( indx = jndx + 1; indx < kk + mvecs; indx++ ){
 	    dptr1 = &colF[indx][bb];
 	    t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
-if ( fabs(t) > DLAMCHE )
-	    daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
+	    if ( fabs(t) > DLAMCHE )
+	      daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
 	  }
         }
-
+	
         /* load up buffer */
-      
+	
    	dptr = in_buffer;
 	for ( indx = kk; indx < kk + mvecs; indx++ ){
 	  dcopy_( &vec_len, &colF[indx][bb], &IONE, dptr, &IONE);
 	  dptr += vec_len;
         }
-
+	
         kk += mvecs;
       }
-
+      
       rsize = mvecs * vec_len * sizeof(DoublePrecision);
-
+      
       bbcast00( (char *) in_buffer, rsize, 11113,  proclist[i],
-                nproc-1, proclist+1 );    
+		nproc-1, proclist+1 );    
+      
+      /*      
+	      bbcast00( (char *) in_buffer, rsize, 11113,  proclist[i],
+	      nproc-1, proclist );
+	      */
+      
       
       /*
        * the buffer contains incoming orthonormal vectors
@@ -272,21 +277,6 @@ if ( fabs(t) > DLAMCHE )
       }
     }
   }
-  
-#ifdef DEBUG2
-  i = *nvecsZ-1;
-  for( iii = 0; iii < *n; iii++)
-    if( mapF[iii] == me ) {
-      i++;
-      for( j = *b1; j <= *bn; j++)
-       fprintf(stderr, " mgs1b me = %d vecZ[%d][%d] = %g \n",
-                     me, iii, j, colF[i][j]);
-    }
-  fprintf(stderr, " \n" );
-#endif
-#ifdef DEBUG1
-   fprintf(stderr, " me = %d exiting mgs \n", me );
-#endif
   
   return;
 }

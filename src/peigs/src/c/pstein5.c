@@ -471,11 +471,11 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   }
   
   bbcast00((char *) d_scrat, 1, 11112, sync_proc, nn_proc, proclist);
-
+  
   /*
    * Compute eigenvectors
    */
-
+  
 #ifdef DEBUG
   printf(" in pstein5 me = %d \n", me);
 #endif
@@ -486,6 +486,9 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
 			&numclstr, mapZ,
 			mapvZ, vecZ, &imin, &nacluster, icsplit, i_scrat, d_scrat);
   
+
+
+
   /*
     reshift eigenvalues back to original
     */
@@ -503,12 +506,12 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
     ibad = -(msize+10);
   
   dbad = (DoublePrecision) ibad;
-
+  
   gmax00( (char *) &dbad, 1, 1, 1, proclist[0], nn_proc, proclist, dwork );
-
+  
   ibad = (Integer) dbad;
   ibad = -ibad;
-
+  
   if( ibad == msize+10 )
      ibad = 0;
 
@@ -520,7 +523,7 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
    *info = ibad;
 
 #ifdef DEBUG
-  printf(" in pstein4 me = %d \n", me);
+  printf(" in pstein5 me = %d \n", me);
 #endif
 
   for ( ii = 0; ii < nproc ; ii++ )

@@ -116,7 +116,7 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
   Integer itime;
   Integer send_num, send_cl, send_to,
           recv_num, recv_cl, recv_from,
-          myindx, itype, nvecs, isize, ival, first, ibad, itmp;
+          myindx, ime,itype, nvecs, isize, ival, first, ibad, itmp;
   
   DoublePrecision stpcrt, onenrm, eps;
   DoublePrecision tmp, *dscrat, *first_buf;
@@ -222,6 +222,8 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
 
   send_num = 0; 
   recv_num = 0;
+  send_to = -1;
+  recv_from = -1;
   if( naproc > 1 ) {
     for (clustr_ptr= 0;  clustr_ptr < cl_num ; clustr_ptr++) {
 
@@ -325,6 +327,13 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
       j = iscratch[j];
     }
 
+	ime = -1;
+	for ( i =c1; i <= cn; i++) {
+	ime ++;
+	if ( mapZ[c1] == me )
+	break;
+	}
+
     if( iscratch[j] != -1 ) {
       fprintf( stderr, " me = %d Internal Error in PEIGS clustrinv. \n", me );
       fprintf( stderr, " me = %d Swapping of initial cluster data \n", me);
@@ -334,7 +343,7 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
     }
 
     if( send_num == 0 ) {
-      itype = 999999;
+      itype = 9;
 
       c1     = schedule[4*recv_cl];
       csiz   = schedule[4*recv_cl+1] - c1 + 1;
@@ -468,11 +477,11 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
      * across more than one processor.
      */
     
-    if( clustr_ptr == 0 && send_num > 0 ) {
+      if( clustr_ptr == 0 && send_num > 0 ) {
       
-      itype = 999999;
+      itype = 9;
       
-      if( recv_num > 0  &&  (( myindx % 2 ) == 0 ) ) { 
+      if( recv_num > 0  &&  (( ime % 2 ) == 0 ) ) { 
 	xc1     = schedule[4*recv_cl];
 	xcsiz   = schedule[4*recv_cl+1] - xc1 + 1;
 	
@@ -510,7 +519,7 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
       
       ival = mxwrit_( dscrat, &isize, &send_to, &itype );
       
-      if( recv_num > 0  &&  (( myindx % 2 ) != 0 ) ) { 
+      if( recv_num > 0  &&  (( ime % 2 ) != 0 ) ) { 
         xc1     = schedule[4*recv_cl];
         xcsiz   = schedule[4*recv_cl+1] - xc1 + 1;
 	
@@ -529,8 +538,9 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
         ival = mxread_( first_buf, &isize, &recv_from, &itype );
       }
     }
+
 #ifdef DEBUG1
-    fprintf(stderr, " clustrxx3 me = %d after send/rec \n", me );
+      fprintf(stderr, " clustrxx3 me = %d after send/rec \n", me );
 #endif
     
   }

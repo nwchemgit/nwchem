@@ -2,7 +2,8 @@ include ../../../config/makefile.h
 include ../../DEFS
 #
 
-COBJ  = clustrxx5.o \
+COBJ  = pscale.o \
+	clustrxx5.o \
 	clustrxx4.o \
 	pstein4.o \
 	pstein5.o \
