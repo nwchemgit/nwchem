@@ -6,7 +6,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam)
 c
-c $Id: pre_wrttop.F,v 1.36 2001-10-23 20:46:29 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.37 2002-01-24 22:25:56 d3j191 Exp $
 c
       implicit none
 c
@@ -144,7 +144,7 @@ c
 c
       call swatch(topdat,toptim)
 c
-      write(lfntop,1000) filtop(1:length),4.01,
+      write(lfntop,1000) filtop(1:length),4.1,
      + topdat,toptim,ffield(1:10)
  1000 format('TOPOLOGY FILE ',a,/,
      + 'GENERATED AUTOMICALLY BY NWCHEM PREPARE MODULE',//,
