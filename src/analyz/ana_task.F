@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.39 2000-08-17 22:24:13 d3j191 Exp $
+c $Id: ana_task.F,v 1.40 2000-08-23 17:04:12 d3j191 Exp $
 c
       implicit none
 c
@@ -381,6 +381,7 @@ c
       write(*,'(/,3(a,i10))') ' Selected frames ',ifrfr,' to ',ifrto,
      + ' by',ifrsk
       endif
+      timoff=0.0d0
       goto 1
       endif
 c

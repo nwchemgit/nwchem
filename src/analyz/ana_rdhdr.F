@@ -1,6 +1,6 @@
       subroutine ana_rdhdr(sgmnam)
 c
-c $Id: ana_rdhdr.F,v 1.11 2000-05-24 20:48:43 d3j191 Exp $
+c $Id: ana_rdhdr.F,v 1.12 2000-08-23 17:04:12 d3j191 Exp $
 c
       implicit none
 c
@@ -30,6 +30,7 @@ c
      + status='old',err=9999)
       write(*,3333) fname(1:index(fname,' ')-1)
  3333 format(/,' Opening trj file ',a)
+      rewind(lfntrj)
     1 continue
       read(lfntrj,1000,err=9999,end=9999) card
  1000 format(a)
