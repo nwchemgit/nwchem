@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.69 1997-02-17 20:52:42 d3g681 Exp $
+# $Id: GNUmakefile,v 1.70 1997-03-24 02:00:37 gg502 Exp $
 
 include ../config/makefile.h
 
@@ -70,6 +70,7 @@ endif
               util_speak.o util_rtdb_speak.o util_file_copy.o \
               util_file_unlink.o util_system.o util_sleep.o \
               util_rtdb_state.o ecce_print.o \
+	      dgewr.o atoi.o indint.o \
               $(EXTRA_OBJ) 
 
     LIBRARY = libutil.a
