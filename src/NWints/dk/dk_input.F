@@ -1,6 +1,6 @@
       subroutine dk_input(rtdb)
 *
-* $Id: dk_input.F,v 1.2 1999-11-19 19:57:29 bert Exp $
+* $Id: dk_input.F,v 1.3 1999-11-19 21:29:17 bert Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -45,7 +45,8 @@ c
 c
 c     If we are going to do Douglas-Kroll, write out a line informing user
 c
-      if ((ga_nodeid() .eq. 0) .and .dk_run) then
+      if ((ga_nodeid() .eq. 0) .and .dk_run .and. 
+     $     util_print('douglas-kroll', print_low)) then
          write(luout,20)
   20     format(/12x, 'Douglas-Kroll integrals are switched on !'/)
          if (dk_type .eq. 1) then
