@@ -1,5 +1,5 @@
       SUBROUTINE GVBMP3
-c $Id: time.f,v 1.4 1996-05-14 17:53:52 d3g681 Exp $
+c $Id: time.f,v 1.5 1996-07-09 01:19:00 rg240 Exp $
 C     EMPTY
       END
 C
@@ -12,6 +12,7 @@ c     REAL*8 T
 *
 *     rjh ... no point timing if not printing
 *
+      t = 0.d0
       if (iprint .le. 0) return
 *
 C      DIMENSION ITIME(4) 
