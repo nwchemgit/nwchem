@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.25 1996-02-27 00:28:12 d3e129 Exp $
+#$Id: GNUmakefile,v 1.26 1996-05-14 18:02:34 d3g681 Exp $
 
  LIBRARY = libutil.a
 
@@ -19,23 +19,23 @@ $(LIBRARY_PATH)(get_inp_file.o):	get_inp_file.F
 endif
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(ccsd_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(dft_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas_staticP.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(dplot_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(get_inp_file.o):	 $(INCDIR)/inp.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(grad_inp.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(input_echo.o):	 $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(input_mem.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(input_parse.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(input_set.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(input_start.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(input_title.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(mcscf_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(md_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 
-$(LIBRARY_PATH)(memory_def.o):	 $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(memory_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 
-$(LIBRARY_PATH)(plnwv_input.o):	 $(INCDIR)/types.f2c.h $(INCDIR)/rtdb.h $(INCDIR)/macommon.h 
-$(LIBRARY_PATH)(scf_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(stepper_inp.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh 
-$(LIBRARY_PATH)(task_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(vectors_inp.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 
+$(LIBRARY_PATH)(plnwv_input.o):	$(INCDIR)/types.f2c.h $(INCDIR)/rtdb.h $(INCDIR)/macommon.h 
+$(LIBRARY_PATH)(input_parse.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(dplot_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(task_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(input_set.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(memory_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 
+$(LIBRARY_PATH)(scf_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(md_input.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 
+$(LIBRARY_PATH)(mcscf_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(get_inp_file.o):	$(INCDIR)/inp.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(input_title.o):	$(INCDIR)/rtdb.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(grad_inp.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(vectors_inp.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 
+$(LIBRARY_PATH)(dft_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas_staticP.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(stepper_inp.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh 
+$(LIBRARY_PATH)(input_echo.o):	$(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(memory_def.o):	$(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(input_mem.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(input_start.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(ccsd_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
