@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.21 1999-11-19 01:11:15 bert Exp $
+C$Id: int_1e_ga.F,v 1.22 1999-11-19 01:13:15 bert Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -316,10 +316,8 @@ c
                   call ga_acc(g, ilo, ihi, jlo, jhi, dbl_mb(k_buf),
      $                 idim, q2)
                end if
-               ijshell = ijshell + 1
-            else if (odoit) then
-               ijshell = ijshell + 1
             endif
+            ijshell = ijshell + 1
          end do
       end do
 c     
