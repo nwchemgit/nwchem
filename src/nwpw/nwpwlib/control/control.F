@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.21 2002-04-29 16:04:10 bylaska Exp $
+* $Id: control.F,v 1.22 2002-05-08 23:50:25 bylaska Exp $
 *
 
 *     ***********************************
@@ -321,17 +321,22 @@ c     end do
       value = value.and.
      >        rtdb_cget(rtdb,rtdb_boundry,1,boundry)
 
-*     **** check unita for defaults ****
       call check_unita_for_default(rtdb,unita)
 
+*     **** set out of time variables ****
+      est_step_time   = -1
+      est_finish_time = -1
+      call current_second(cpu1_time)
+      
       control_read = value
       return
       end
 
+
 *     ***********************************
-*     *									*
-*     *		check_unita_for_default		*
-*     *									*
+*     *					*
+*     *    check_unita_for_default	*
+*     *					*
 *     ***********************************
       subroutine check_unita_for_default(rtdb,unita)
       implicit none
@@ -402,6 +407,69 @@ c     end do
 #include "control.fh"
 
       control_move = move
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *	     control_out_of_time 	*
+*     *					*
+*     ***********************************
+
+*  This function is used to estimate if there is
+* enough time to perform another iteration.  The
+* routine control_read intializes this routine.  To
+* determine if there is enough time left to do another
+* iteration this routine uses estimates for the amount
+* of time to finish the simulation (est_finish_time) and 
+* the amount of time to perform another iteration step 
+* (est_step_time).  Where
+*
+* est_finish_time = 2*(time elapsed from call to control_read
+*                      to the first call to control_out_of_time)
+*
+* est_step_time = (time elapsed between successive calls to 
+*                  control_out_of_time)
+*
+*  Uses: control_blktime common block located in control.fh
+*        util_test_time_remaining
+*  created: 5-8-2002
+
+      logical function control_out_of_time()
+      implicit none 
+
+#include "control.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+*     **** local variables ****
+      logical value
+      integer required_time
+
+*     **** external functions ****
+      logical  util_test_time_remaining
+      external util_test_time_remaining
+
+      call current_second(cpu2_time)
+
+*     **** This is the first time this routine has been called ****
+      if (est_finish_time.eq.-1) then 
+         est_finish_time = 2*int(cpu2_time-cpu1_time) ! crude estimate
+         value           = .false.
+
+*     **** This routine has been called two or more times ****
+      else 
+         est_step_time = int(cpu2_time-cpu1_time)+1 ! no statistical info used
+         required_time = est_step_time + est_finish_time
+         value = .not.util_test_time_remaining(rtdb,required_time)
+      end if
+         
+      cpu1_time = cpu2_time
+
+      control_out_of_time = value
       return
       end
 
@@ -935,9 +1003,9 @@ c      end
 
 
 *     ************************
-*     *                		 *
+*     *                	     *
 *     *     control_Nose     *
-*     *                 	 *
+*     *                      *
 *     ************************
       logical function control_Nose()
       implicit none
@@ -954,9 +1022,9 @@ c      end
 
 
 *     ****************************
-*     *                	 		 *
+*     *                	 	 *
 *     *     control_Nose_Pe      *
-*     *                 	 	 *
+*     *                 	 *
 *     ****************************
       real*8 function control_Nose_Pe()
       implicit none
@@ -992,9 +1060,9 @@ c      end
 
 
 *     ****************************
-*     *                	 		 *
+*     *                	 	 *
 *     *     control_Nose_Pr      *
-*     *                 	 	 *
+*     *                 	 *
 *     ****************************
       real*8 function control_Nose_Pr()
       implicit none
@@ -1011,9 +1079,9 @@ c      end
 
 
 *     ****************************
-*     *                	 		 *
+*     *                	 	 *
 *     *     control_Nose_Tr      *
-*     *                 	 	 *
+*     *                 	 *
 *     ****************************
       real*8 function control_Nose_Tr()
       implicit none
@@ -1030,9 +1098,9 @@ c      end
 
 
 *     ****************************
-*     *                	 		 *
+*     *                	 	 *
 *     *     control_Mulliken     *
-*     *                 	 	 *
+*     *                 	 *
 *     ****************************
       logical function control_Mulliken()
       implicit none
@@ -1072,9 +1140,9 @@ c      end
 
 
 *     *****************************
-*     *                	 		  *
+*     *                	 	  *
 *     * control_allow_translation *
-*     *                 	 	  *
+*     *                 	  *
 *     *****************************
       logical function control_allow_translation()
       implicit none
@@ -1109,9 +1177,9 @@ c      end
       end
 
 *     ****************************
-*     *                	 		 *
+*     *                	 	 *
 *     *  control_num_kvectors    *
-*     *                 	 	 *
+*     *                 	 *
 *     ****************************
       integer function control_num_kvectors()
       implicit none
@@ -1144,9 +1212,9 @@ c      end
       end
 
 *     ****************************
-*     *                	 		 *
+*     *                	 	 *
 *     *      control_ksvector	 *
-*     *                 	 	 *
+*     *                 	 *
 *     ****************************
       subroutine control_ksvector(i,ks)
       implicit none
@@ -1205,9 +1273,9 @@ c      end
       end
 
 *     ****************************
-*     *                	 		 *
+*     *                	 	 *
 *     *      control_kvector	 *
-*     *                 	 	 *
+*     *                 	 *
 *     ****************************
       subroutine control_kvector(i,kv)
       implicit none
@@ -1237,9 +1305,9 @@ c      end
       end
 
 *     *****************************
-*     *                	 		  *
+*     *                	 	  *
 *     *    control_TotalCharge	  *
-*     *                 	 	  *
+*     *                 	  *
 *     *****************************
       real*8 function control_TotalCharge()
       implicit none
@@ -1264,9 +1332,9 @@ c      end
 
 
 *     *****************************
-*     *                	 		  *
-*     *    	   control_rtdb		  *
-*     *                 	 	  *
+*     *                	 	  *
+*     *       control_rtdb	  *
+*     *                 	  *
 *     *****************************
       integer function control_rtdb()
       implicit none

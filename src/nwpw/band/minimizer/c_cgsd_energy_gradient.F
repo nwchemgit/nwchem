@@ -1,14 +1,17 @@
-c     $Id: c_cgsd_energy_gradient.F,v 1.1 2002-01-20 23:49:22 bylaska Exp $                       
+c
+c     $Id: c_cgsd_energy_gradient.F,v 1.2 2002-05-08 23:50:25 bylaska Exp $         c
 
 *     *******************************
-*     *								*
-*     *	  c_cgsd_energy_gradient	*
-*     *								*
+*     *				    *
+*     *	  c_cgsd_energy_gradient    *
+*     *				    *
 *     *******************************
 
       subroutine c_cgsd_energy_gradient(G1)
       implicit none
       real*8 G1(3,*)
+
+#include "stdio.fh"
 
       logical allow_translation
       integer MASTER
@@ -59,23 +62,23 @@ c      if (cpsp_semicore(0)) call c_electron_semicoreforce(G1)
 
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
-        write(6,1300)
-        write(6,1301)
-        write(6,1302)
-        write(6,1304)
-        if (.not.allow_translation) write(6,1400) fmx,fmy,fmz
-        write(6,1304)
-        write(6,1410)
-        write(6,1420)
-        write(6,1190)(i,ion_aname(I),
+        write(luout,1300)
+        write(luout,1301)
+        write(luout,1302)
+        write(luout,1304)
+        if (.not.allow_translation) write(luout,1400) fmx,fmy,fmz
+        write(luout,1304)
+        write(luout,1410)
+        write(luout,1420)
+        write(luout,1190)(i,ion_aname(I),
      >                  (ion_rion(K,I),K=1,3),I=1,ion_nion())
-        write(6,1421)
-        write(6,1190)(i,ion_aname(I),
+        write(luout,1421)
+        write(luout,1190)(i,ion_aname(I),
      >                  (G1(K,I),K=1,3),I=1,ion_nion())
 
-        write(6,1210) fmx2,fmy2,fmz2  
-        write(6,1425)
-        write(6,1426) dsqrt(GG)
+        write(luout,1210) fmx2,fmy2,fmz2  
+        write(luout,1425)
+        write(luout,1426) dsqrt(GG)
       end if
 
 c     call dscal(3*nion,(-1.0d0),G1,1)

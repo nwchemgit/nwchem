@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.6 2002-02-16 01:02:01 bylaska Exp $
+* $Id: geodesic.F,v 1.7 2002-05-08 23:50:27 bylaska Exp $
 *
 
 *     ***********************************
@@ -106,22 +106,6 @@
       integer S(2)
       common / geodesic_block / U,Vt,S
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-*    10 - geodesic_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times 
-
-
 *     **** local variables ****
       logical value
       integer npack1,nemax
@@ -136,7 +120,7 @@ c      integer ierr
       external psi_ispin,psi_ne
       external electron_eorbit
 
-      call current_second(tim1)
+      call nwpw_timing_start(10)
       call Pack_npack(1,npack1)
       nemax = psi_ne(1) + psi_ne(2)
 
@@ -245,8 +229,7 @@ c         end do
       if (.not. value) 
      > call errquit('error popping stack memory',0)
 
-      call current_second(tim2)
-      times(10) = times(10) + (tim2-tim1)
+      call nwpw_timing_end(10)
 
       return
       end
@@ -358,23 +341,6 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
       integer S(2)
       common / geodesic_block / U,Vt,S
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-*    10 - geodesic_time
-
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times 
-
-
 *     **** local variables ****
       logical    value
       integer    npack1,nemax
@@ -391,7 +357,7 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
       integer  psi_ispin,psi_ne
       external psi_ispin,psi_ne
 
-      call current_second(tim1)
+      call nwpw_timing_start(10)
       zero = 0.0d0
       one  = 1.0d0
       call Pack_npack(1,npack1)
@@ -482,8 +448,7 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
       if (.not. value) 
      > call errquit('error popping stack memory',0)
 
-      call current_second(tim2)
-      times(10) = times(10) + (tim2-tim1)
+      call nwpw_timing_end(10)
 
       return
       end
@@ -511,21 +476,6 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
       integer S(2)
       common / geodesic_block / U,Vt,S
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-*    10 - geodesic_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times 
-
 *     **** local variables ****
       logical    value
       integer    npack1,nemax
@@ -538,7 +488,7 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
       integer  psi_ispin,psi_ne
       external psi_ispin,psi_ne
 
-      call current_second(tim1)
+      call nwpw_timing_start(10)
       zero = 0.0d0
       one  = 1.0d0
 
@@ -618,8 +568,8 @@ c     >              Ynew(1+(k-1+shift1)*nfft3d))
       if (.not. value) 
      > call errquit('error popping stack memory',0)
 
-      call current_second(tim2)
-      times(10) = times(10) + (tim2-tim1)
+      call nwpw_timing_end(10)
+
       return
       end
 
@@ -647,20 +597,6 @@ c     >              Ynew(1+(k-1+shift1)*nfft3d))
       integer S(2)
       common / geodesic_block / U,Vt,S
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-*    10 - geodesic_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times 
 
 *     **** local variables ****
       logical    value
@@ -674,7 +610,7 @@ c     >              Ynew(1+(k-1+shift1)*nfft3d))
       integer  psi_ispin,psi_ne
       external psi_ispin,psi_ne
 
-      call current_second(tim1)
+      call nwpw_timing_start(10)
       zero = 0.0d0
       one  = 1.0d0
 
@@ -758,8 +694,7 @@ c     >             tG(1+(k-1+shift1)*nfft3d))
       if (.not. value) 
      > call errquit('error popping stack memory',0)
 
-      call current_second(tim2)
-      times(10) = times(10) - (tim2-tim1)
+      call nwpw_timing_end(10)
 
       return
       end

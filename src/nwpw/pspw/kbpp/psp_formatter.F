@@ -1,13 +1,14 @@
+c
+c $Id: psp_formatter.F,v 1.6 2002-05-08 23:50:27 bylaska Exp $
+c
+
 *     ***************************************
-*     *										*
-*     *			psp_formatter				*
-*     *										*
+*     *	  				    *
+*     *		   psp_formatter	    *
+*     *					    *
 *     ***************************************
 
       logical function psp_formatter(rtdb)
-c
-c $Id: psp_formatter.F,v 1.5 2002-01-14 21:06:27 bylaska Exp $
-c
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

@@ -1,5 +1,5 @@
 c
-c     $Id: pair_dist.F,v 1.2 2001-10-26 20:13:25 edo Exp $
+c     $Id: pair_dist.F,v 1.3 2002-05-08 23:50:26 bylaska Exp $
 c
 *     *********************************
 *     *                               *
@@ -8,7 +8,7 @@ c
 *     *********************************
       subroutine pair_dist(filename)
       implicit none
-      character*255 filename
+      character*(*) filename
 
 #include "mafdecls.fh"
 
@@ -22,9 +22,9 @@ c     *** parameters ***
 *     **** local variables ****
       logical value
       integer MAXBIN
-      integer i,j,bin,natoms,t,nframes
+      integer i,j,bin,natoms,natoms1,t,nframes
       integer rx(2),ry(2),rz(2),hst(2)
-      real*8  time1,time2,volume
+      real*8  time1,time2,volume,volume1
       real*8  x,y,z,r,gr,v1,v2,v3
       real*8 RLOWER,RUPPER,NIDEAL,CONST    
       real*8 grs,grm2,grm1,grp1,grp2
@@ -51,9 +51,10 @@ c     *** parameters ***
       write(*,*) '===== Calculating pair distribution function ===='
       write(*,*)
 
+*     *** get the number of frames from MOTION ***
+      call MOTION_nframes(filename,nframes,natoms,volume)
 
       open(unit=19,file=filename,form='formatted')
-      read(19,*) nframes,natoms,volume
 
 
       MAXBIN = INT(0.5d0*(volume**(0.33333333d0))/DELR)
@@ -79,16 +80,16 @@ c     *** parameters ***
       do t=1,nframes
         
          time2    = time1
-         read(19,*) time1
-         do i=1,natoms
+         read(19,*) time1,natoms1,volume1
+         do i=1,natoms1
             read(19,*) x,y,z,v1,v2,v3
             dbl_mb(rx(1)+(i-1)) = x
             dbl_mb(ry(1)+(i-1)) = y
             dbl_mb(rz(1)+(i-1)) = z          
          end do
 
-         do i=1,natoms-1
-         do j=i+1,natoms
+         do i=1,natoms1-1
+         do j=i+1,natoms1
            x = dbl_mb(rx(1)+(i-1)) - dbl_mb(rx(1)+(j-1))
            y = dbl_mb(ry(1)+(i-1)) - dbl_mb(ry(1)+(j-1))
            z = dbl_mb(rz(1)+(i-1)) - dbl_mb(rz(1)+(j-1))

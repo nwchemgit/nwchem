@@ -1,11 +1,11 @@
 c
-c $Id: psp_generator_input.F,v 1.15 2002-04-29 16:04:11 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.16 2002-05-08 23:50:25 bylaska Exp $
 c
 
 *     ***************************************
-*     *										*
-*     *          psp_generator_input    	*
-*     *										*
+*     *					    *
+*     *          psp_generator_input        *
+*     *	  				    *
 *     ***************************************
       subroutine psp_generator_input(rtdb)
       implicit none
@@ -425,9 +425,9 @@ c
       end
 
 *     ***************************************
-*     *										*
-*     *          psp_generator_auto     	*
-*     *										*
+*     *					    *
+*     *          psp_generator_auto         *
+*     *					    *
 *     ***************************************
       subroutine psp_generator_auto(atom,lmax,locp,rlocal)
       implicit none

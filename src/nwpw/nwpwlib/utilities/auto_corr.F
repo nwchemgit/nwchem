@@ -1,12 +1,24 @@
-c     $Id: auto_corr.F,v 1.2 2001-10-26 20:13:24 edo Exp $
+c
+c     $Id: auto_corr.F,v 1.3 2002-05-08 23:50:26 bylaska Exp $
+c
+
 *     *********************************
 *     *                               *
 *     *   velocity_autocorrelation    *
 *     *                               *
 *     *********************************
+*
+*   This routine calculated the velocity auto correlation
+* using the MOTION file.  
+*
+*  - This routine needs to be rewritten so that it
+*    doesn't use so much memory
+*
+*  Updated: 5-8-2002
+
       subroutine velocity_autocorrelation(filename)
       implicit none
-      character*255 filename
+      character*(*) filename
 
 #include "mafdecls.fh"
 
@@ -19,11 +31,11 @@ c     $Id: auto_corr.F,v 1.2 2001-10-26 20:13:24 edo Exp $
 
 *     **** local variables ****
       logical value
-      integer i,k,natoms,nframes
+      integer i,k,natoms,natoms1,nframes
       integer vx(2),vy(2),vz(2)
       integer vt(2),vk(2)
       integer tfft(2)
-      real*8  time1,time2,t,freq,dt,volume
+      real*8  time1,time2,t,freq,dt,volume,volume1
       real*8  tmax
       real*8  x,y,z
       real*8  v1,v2,v3
@@ -51,9 +63,9 @@ c     $Id: auto_corr.F,v 1.2 2001-10-26 20:13:24 edo Exp $
       write(*,*)
       write(*,*) '===== Calculating velocity auto correlation ===='
       write(*,*)    
-     
+      call MOTION_nframes(filename,nframes,natoms,volume)
+
       open(unit=19,file=filename,form='formatted')
-      read(19,*) nframes,natoms,volume
 
       value = MA_push_get(mt_dcpl,2*natoms*nframes,'vx',vx(2),vx(1))
       value = value.and.
@@ -67,21 +79,34 @@ c     $Id: auto_corr.F,v 1.2 2001-10-26 20:13:24 edo Exp $
        value = value.and.
      >        MA_push_get(mt_dcpl,(8*nframes+15),'tfft',tfft(2),tfft(1))
       
-      if (.not. value) 
-     >    call errquit('cpmd_properties: out of stack memory',0)
+*     **** try to exit in a nice way ****
+      if (.not. value) then
+        write(*,*) 'cpmd_properties: out of stack memory'
+        write(*,*) ' + velocity autocorrelation not performed'
+
+        value = MA_pop_stack(tfft(2))
+        value = MA_pop_stack(vk(2))
+        value = MA_pop_stack(vt(2))
+        value = MA_pop_stack(vz(2))
+        value = MA_pop_stack(vy(2))
+        value = MA_pop_stack(vx(2))
+
+        return
+      end if
    
+
       call dcopy(4*natoms*nframes,0.0d0,0,dcpl_mb(vx(1)),1)
       call dcopy(4*natoms*nframes,0.0d0,0,dcpl_mb(vy(1)),1)
       call dcopy(4*natoms*nframes,0.0d0,0,dcpl_mb(vz(1)),1)
       call dcopy(4*nframes,       0.0d0,0,dcpl_mb(vt(1)),1)
       call dcopy(4*nframes,        0.0d0,0,dcpl_mb(vk(1)),1)
      
-
+      time1   = 0.0d0
       time2   = 0.0d0
       do k=1,nframes
         
          time1    = time2
-         read(19,*) time2
+         read(19,*) time2,natoms1,volume1
          do i=1,natoms
             read(19,*) x,y,z,v1,v2,v3
             dcpl_mb(vx(1)+(k-1) + (i-1)*2*nframes) = v1

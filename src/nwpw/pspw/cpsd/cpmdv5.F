@@ -1,3 +1,7 @@
+*
+* $Id: cpmdv5.F,v 1.17 2002-05-08 23:50:27 bylaska Exp $
+*
+
 ***********************************************************************
 *                      cpmdv5-mpi  (MPI code)                         *
 *                                                                     *
@@ -12,9 +16,6 @@
 ***********************************************************************
 
       logical function cpmdv5(rtdb)
-*
-* $Id: cpmdv5.F,v 1.16 2002-02-27 22:00:46 bylaska Exp $
-*
       implicit none
       integer rtdb
 
@@ -150,6 +151,8 @@
       real*8   nwpw_timing
       external nwpw_timing
 
+      logical  control_out_of_time
+      external control_out_of_time
 
 
 
@@ -584,6 +587,12 @@
 *        **** write OMOTION data ****
          if (mulliken) call Orb_Write(dcpl_mb(psi1(1)))
 
+*        **** exit early ****
+         if (control_out_of_time()) then
+            if (taskid.eq.MASTER) 
+     >       write(6,*) ' *** out of time. iteration terminated'
+            go to 2
+         end if
       if (icount.lt.it_out) go to 1
       if (taskid.eq.MASTER) 
      > write(6,*) '*** arived at the Maximum iiteration.   terminated.'

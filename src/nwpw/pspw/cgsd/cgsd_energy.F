@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.24 2002-05-04 19:28:30 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.25 2002-05-08 23:50:26 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -7,6 +7,7 @@ c     $Id: cgsd_energy.F,v 1.24 2002-05-04 19:28:30 bylaska Exp $
 
       real*8 function cgsd_energy(newpsi)
       implicit none
+
 #include "stdio.fh"
 
       logical newpsi
@@ -28,12 +29,14 @@ c     $Id: cgsd_energy.F,v 1.24 2002-05-04 19:28:30 bylaska Exp $
 
 *     **** external functions ****
       logical     psp_semicore,pspw_qmmm_found,pspw_charge_found
+      logical     control_out_of_time
       character*2 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
       integer     ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
       real*8      control_tole,control_tolc
       real*8      ion_rion,psi_eigenvalue,ion_amass
       external psp_semicore,pspw_qmmm_found,pspw_charge_found
+      external control_out_of_time
       external ion_aname
       external control_it_in, control_it_out,control_minimizer
       external ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
@@ -110,7 +113,7 @@ c     $Id: cgsd_energy.F,v 1.24 2002-05-04 19:28:30 bylaska Exp $
          if (deltae.gt.0.0d0) then
             if (taskid.eq.MASTER) 
      >       write(luout,*) 
-     >       ' *** Energy going up. iteration terminated'
+     >       ' *** energy going up. iteration terminated'
             go to 3
          end if
          deltae = dabs(deltae)
@@ -119,6 +122,11 @@ c     $Id: cgsd_energy.F,v 1.24 2002-05-04 19:28:30 bylaska Exp $
             if (taskid.eq.MASTER) 
      >       write(luout,*) ' *** tolerance ok. iteration terminated'
             go to 3
+         end if
+         if (control_out_of_time()) then
+            if (taskid.eq.MASTER) 
+     >       write(luout,*) ' *** out of time. iteration terminated'
+           go to 3
          end if
       if (icount.lt.it_out) go to 2
       if (taskid.eq.MASTER) 

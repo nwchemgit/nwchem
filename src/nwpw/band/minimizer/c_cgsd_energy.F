@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.6 2002-05-03 19:44:02 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.7 2002-05-08 23:50:25 bylaska Exp $                       
 *
 
 *     ***************************
@@ -11,6 +11,10 @@
       real*8 function c_cgsd_energy(newpsi)
       implicit none
       logical newpsi
+
+#include "stdio.fh"
+
+
       integer MASTER
       parameter (MASTER=0)
 
@@ -26,13 +30,13 @@
       real*8  E(20)
 
 *     **** external functions ****
-      logical     cpsp_semicore
+      logical     cpsp_semicore,control_out_of_time
       character*2 ion_aname
       integer     control_it_in, control_it_out
       integer     ion_nion,ion_katm,cpsi_ne,cpsi_ispin
       real*8      control_tole,control_tolc
       real*8      ion_rion,cpsi_eigenvalue,ion_amass
-      external cpsp_semicore
+      external cpsp_semicore,control_out_of_time
       external ion_aname
       external control_it_in, control_it_out
       external ion_nion,ion_katm,cpsi_ne,cpsi_ispin
@@ -56,12 +60,12 @@ c      call cphafac_k()
 
 *     :::::::::::  begin electron iteration  :::::::::::::::::::::::
       if (taskid.eq.MASTER) then
-         write(6,1300)
-         write(6,1301)
-         write(6,1302)
-         write(6,1304)
-         write(6,1305)
-         call util_flush(6)
+         write(luout,1300)
+         write(luout,1301)
+         write(luout,1302)
+         write(luout,1304)
+         write(luout,1305)
+         call util_flush(luout)
       end if
 
       stalled = .false.
@@ -73,7 +77,7 @@ c      call cphafac_k()
       tolc   = control_tolc()
       E(1)=0.0d0
       if (taskid.eq.MASTER) call nwpw_message(2)
-      if (taskid.eq.MASTER) call util_flush(6)
+      if (taskid.eq.MASTER) call util_flush(luout)
       if (newpsi) call c_sdminimize(5)
    2  continue
          icount = icount + 1
@@ -90,19 +94,27 @@ c      call cphafac_k()
          end if
 
          if (taskid.eq.MASTER) then 
-           write(6,1310) icount*it_in,E(1),deltae,deltac
-           call util_flush(6)
+           write(luout,1310) icount*it_in,E(1),deltae,deltac
+           call util_flush(luout)
          end if
          if (deltae.gt.0.0d0) then
             if (taskid.eq.MASTER) 
-     >       write(6,*) ' *** Energy going up.  iteration terminated.'
+     >       write(luout,*) 
+     >       ' *** energy going up. iteration terminated.'
             go to 3
          end if
          deltae = dabs(deltae)
          if ((deltae.lt.tole).and.
      >       (deltac.lt.tolc)) then
             if (taskid.eq.MASTER) 
-     >       write(6,*) ' *** tolerance ok.     iteration terminated.'
+     >       write(luout,*) 
+     >       ' *** tolerance ok.    iteration terminated.'
+            go to 3
+         end if
+         if (control_out_of_time()) then
+            if (taskid.eq.MASTER) 
+     >       write(luout,*) 
+     >       ' *** out of time.     iteration terminated.'
             go to 3
          end if
       if (icount.lt.it_out) go to 2
@@ -130,37 +142,37 @@ c      call cphafac_k()
 **:::::::::::::::::   report summary of results  :::::::::::::::::::::::
       if (taskid.eq.MASTER) then
          neall = (cpsi_ne(1)+cpsi_ne(2))
-         write(6,1304)
-         write(6,1410)
-         write(6,1420)
-         write(6,1190)(i,ion_aname(I),
-     >                 (ion_rion(K,I),K=1,3),
-     >                 ion_amass(i)/1822.89d0,
-     >                I=1,ion_nion())
-         write(6,1200) CX,CY,CZ
-         write(6,1210) GX,GY,GZ
+         write(luout,1304)
+         write(luout,1410)
+        
+c         write(luout,1420)                 ! do not write out ion in epilogue
+c         write(luout,1190)(i,ion_aname(I),
+c     >                 (ion_rion(K,I),K=1,3),
+c     >                 ion_amass(i)/1822.89d0,
+c     >                I=1,ion_nion())
+c         write(luout,1200) CX,CY,CZ
+c         write(luout,1210) GX,GY,GZ
 
+         write(luout,*)
+         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
+         write(luout,1430) E(1),E(1)/ion_nion()
+         write(luout,1440) E(2),E(2)/neall
+         write(luout,1450) E(3),E(3)/neall
+         write(luout,1460) E(4),E(4)/neall
+         write(luout,1470) E(5),E(5)/ion_nion()
 
-         write(6,*)
-         write(6,1320) en(1),en(cpsi_ispin()),' (real space)'
-         write(6,1430) E(1),E(1)/ion_nion()
-         write(6,1440) E(2),E(2)/neall
-         write(6,1450) E(3),E(3)/neall
-         write(6,1460) E(4),E(4)/neall
-         write(6,1470) E(5),E(5)/ion_nion()
-
-         write(6,1480) E(6),E(6)/neall
-         write(6,1490) E(7),E(7)/neall
-         write(6,1495) E(8),E(8)/neall
-         write(6,1496) E(9),E(9)/neall
-         write(6,1497) E(10),E(10)/neall
+         write(luout,1480) E(6),E(6)/neall
+         write(luout,1490) E(7),E(7)/neall
+         write(luout,1495) E(8),E(8)/neall
+         write(luout,1496) E(9),E(9)/neall
+         write(luout,1497) E(10),E(10)/neall
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
-         write(6,1498) virial
+         write(luout,1498) virial
 
          NN=cpsi_ne(1)-cpsi_ne(2)
          EV=27.2116
          do nb=1,brillioun_nbrillioun()
-           write(6,1508) nb,
+           write(luout,1508) nb,
      >                   brillioun_weight(nb),
      >                   brillioun_ks(1,nb),
      >                   brillioun_ks(2,nb),
@@ -168,13 +180,13 @@ c      call cphafac_k()
      >                   brillioun_k(1,nb),
      >                   brillioun_k(2,nb),
      >                   brillioun_k(3,nb)
-           write(6,1500)
+           write(luout,1500)
            do i=0,NN-1
-             write(6,1510) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
+             write(luout,1510) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
      >                     cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV
            end do
            do i=0,cpsi_ne(2)-1
-             write(6,1510)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
+             write(luout,1510)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
      >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN)*EV,
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i),
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV

@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.20 2002-05-03 19:44:02 bylaska Exp $
+* $Id: band_minimizer.F,v 1.21 2002-05-08 23:50:24 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -19,6 +19,7 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 
 
       
@@ -129,19 +130,19 @@
 
 *     ***** print out header ****
       if (taskid.eq.MASTER) then
-         write(6,1000)
-         write(6,1010)
-         write(6,1020)
-         write(6,1010)
-         write(6,1031)
-         write(6,1040)
-         write(6,1010)
-         write(6,1041)
-         write(6,1043)
-         write(6,1010)
-         write(6,1000)
+         write(luout,1000)
+         write(luout,1010)
+         write(luout,1020)
+         write(luout,1010)
+         write(luout,1031)
+         write(luout,1040)
+         write(luout,1010)
+         write(luout,1041)
+         write(luout,1043)
+         write(luout,1010)
+         write(luout,1000)
          call nwpw_message(1)
-         write(6,1110)
+         write(luout,1110)
       end if
       
       value = control_read(5,rtdb)
@@ -234,87 +235,87 @@
 *                |**************************|
 
       if (taskid.eq.MASTER) then
-         write(6,1111) np
-         write(6,1115)
-         write(6,1121) control_boundry(),control_version()
+         write(luout,1111) np
+         write(luout,1115)
+         write(luout,1121) control_boundry(),control_version()
          IF (control_gga().eq.0) THEN
-            write(6,1131) 'Vosko et al parameterization'
+            write(luout,1131) 'Vosko et al parameterization'
          ELSE IF (control_gga().eq.1) THEN
-            write(6,1131)
+            write(luout,1131)
      >      'PBE96 (White and Bird) parameterization'
          ELSE
-            write(6,1131) 'unknown parameterization'
+            write(luout,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0)
          END IF
-         write(6,1140)
+         write(luout,1140)
          do ia = 1,cpsp_npsp()
-           write(6,1150) ia,cpsp_atom(ia),
+           write(luout,1150) ia,cpsp_atom(ia),
      >                    cpsp_zv(ia),cpsp_lmax(ia)
-           write(6,1152) cpsp_lmax(ia)
-           write(6,1153) cpsp_locp(ia)
-           write(6,1154) cpsp_lmmax(ia)
+           write(luout,1152) cpsp_lmax(ia)
+           write(luout,1153) cpsp_locp(ia)
+           write(luout,1154) cpsp_lmmax(ia)
            if (cpsp_semicore(ia))
-     >         write(6,1155) cpsp_rcore(ia),cpsp_ncore(ia)
-           write(6,1151) (cpsp_rc(i,ia),i=0,cpsp_lmax(ia))
+     >         write(luout,1155) cpsp_rcore(ia),cpsp_ncore(ia)
+           write(luout,1151) (cpsp_rc(i,ia),i=0,cpsp_lmax(ia))
          end do
 
-         write(6,1180)
-         write(6,1190) (I,ion_aname(I),
+         write(luout,1180)
+         write(luout,1190) (I,ion_aname(I),
      >                  (ion_rion(K,I),K=1,3),
      >                  ion_amass(I)/1822.89d0,
      >                 I=1,ion_nion())
-         write(6,1200) cx,cy,cz
-         write(6,1210) gx,gy,gz
-         write(6,1220) cpsi_ne(1),cpsi_ne(cpsi_ispin()),
+         write(luout,1200) cx,cy,cz
+         write(luout,1210) gx,gy,gz
+         write(luout,1220) cpsi_ne(1),cpsi_ne(cpsi_ispin()),
      >                 ' (fourier space)'
 
 
-         write(6,1230)
-         write(6,1241) lattice_unita(1,1),
+         write(luout,1230)
+         write(luout,1241) lattice_unita(1,1),
      >                 lattice_unita(2,1),
      >                 lattice_unita(3,1)
-         write(6,1242) lattice_unita(1,2),
+         write(luout,1242) lattice_unita(1,2),
      >                 lattice_unita(2,2),
      >                 lattice_unita(3,2)
-         write(6,1243) lattice_unita(1,3),
+         write(luout,1243) lattice_unita(1,3),
      >                 lattice_unita(2,3),
      >                 lattice_unita(3,3)
-         write(6,1244) lattice_unitg(1,1),
+         write(luout,1244) lattice_unitg(1,1),
      >                 lattice_unitg(2,1),
      >                 lattice_unitg(3,1)
-         write(6,1245) lattice_unitg(1,2),
+         write(luout,1245) lattice_unitg(1,2),
      >                 lattice_unitg(2,2),
      >                 lattice_unitg(3,2)
-         write(6,1246) lattice_unitg(1,3),
+         write(luout,1246) lattice_unitg(1,3),
      >                 lattice_unitg(2,3),
      >                 lattice_unitg(3,3)
-         write(6,1231) lattice_omega()
-         write(6,1260) c_ewald_rcut(),c_ewald_ncut()
-         write(6,1261) c_ewald_mandelung()
+         write(luout,1231) lattice_omega()
+         write(luout,1260) c_ewald_rcut(),c_ewald_ncut()
+         write(luout,1261) c_ewald_mandelung()
 
          ia = brillioun_nbrillioun()
-         write(6,1255)
-         write(6,1256) ia
+         write(luout,1255)
+         write(luout,1256) ia
          do i=1,ia
-           write(6,1257) brillioun_weight(i),
+           write(luout,1257) brillioun_weight(i),
      >        brillioun_ks(1,i),brillioun_ks(2,i),brillioun_ks(3,i),
      >        brillioun_k(1,i), brillioun_k(2,i), brillioun_k(3,i)
          end do
 
-         write(6,1249)
-         write(6,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
+         write(luout,1249)
+         write(luout,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
      >                 Cram_nwave_all(0),Cram_nwave(0)
          do i=1,ia
-           write(6,1251) i,lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
+          write(luout,1251) i,lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
      >                 Cram_nwave_all(i),Cram_nwave(i)
          end do
 
 
-         write(6,1270)
-         write(6,1280) control_time_step(),control_fake_mass()
-         write(6,1290) control_tole(),control_tolc()
-         write(6,1300)
-         call util_flush(6)
+         write(luout,1270)
+         write(luout,1280) control_time_step(),control_fake_mass()
+         write(luout,1290) control_tole(),control_tolc()
+         write(luout,1300)
+         call util_flush(luout)
       end if
 
 
@@ -332,7 +333,7 @@
       EV= c_cgsd_energy(newpsi)
 
 *     **** extra energy output for QA test ****
-      if (taskid.eq.MASTER) write(6,1600) EV
+      if (taskid.eq.MASTER) write(luout,1600) EV
 
 
 *     **** calculate the spin contamination ****
@@ -417,39 +418,48 @@
          T3=CPU4-CPU3
          T4=CPU4-CPU1
          AV=T2/dble(c_electron_count())
-         write(6,*)
-         write(6,*) '-----------------'
-         write(6,*) 'cputime in seconds'
-         write(6,*) 'prologue    : ',T1
-         write(6,*) 'main loop   : ',T2
-         write(6,*) 'epilogue    : ',T3
-         write(6,*) 'total       : ',T4
-         write(6,*) 'cputime/step: ',AV,
+         write(luout,*)
+         write(luout,*) '-----------------'
+         write(luout,*) 'cputime in seconds'
+         write(luout,*) 'prologue    : ',T1
+         write(luout,*) 'main loop   : ',T2
+         write(luout,*) 'epilogue    : ',T3
+         write(luout,*) 'total       : ',T4
+         write(luout,*) 'cputime/step: ',AV,
      >              '   (',c_electron_count(),' evalulations, ', 
      >                     linesearch_count(),' line searches)'
 
-         write(6,*)
-         write(6,*) '-------------------------------'
-         write(6,*) 'Time spent doing:'
-         write(6,*) '  FFTs                       : ', nwpw_timing(1),
+         write(luout,*)
+         write(luout,*) '-------------------------------'
+         write(luout,*) 'Time spent doing:'
+         write(luout,*) '  FFTs                       : ', 
+     >                          nwpw_timing(1),
      >                          nwpw_timing(1)/dble(c_electron_count())
-         write(6,*) '  dot products               : ', nwpw_timing(2),
+         write(luout,*) '  dot products               : ', 
+     >                          nwpw_timing(2),
      >                          nwpw_timing(2)/dble(c_electron_count())
-         write(6,*) '  geodesic                   : ', nwpw_timing(10),
+         write(luout,*) '  geodesic                   : ', 
+     >                          nwpw_timing(10),
      >                          nwpw_timing(10)/dble(c_electron_count())
-         write(6,*) '  exchange correlation       : ', nwpw_timing(4),
+         write(luout,*) '  exchange correlation       : ', 
+     >                          nwpw_timing(4),
      >                          nwpw_timing(4)/dble(c_electron_count())
-         write(6,*) '  local pseudopotentials     : ', nwpw_timing(5),
+         write(luout,*) '  local pseudopotentials     : ', 
+     >                          nwpw_timing(5),
      >                          nwpw_timing(5)/dble(c_electron_count())
-         write(6,*) '  non-local pseudopotentials : ', nwpw_timing(6),
+         write(luout,*) '  non-local pseudopotentials : ', 
+     >                          nwpw_timing(6),
      >                          nwpw_timing(6)/dble(c_electron_count())
-         write(6,*) '  hartree potentials         : ', nwpw_timing(7),
+         write(luout,*) '  hartree potentials         : ', 
+     >                          nwpw_timing(7),
      >                          nwpw_timing(7)/dble(c_electron_count())
-         write(6,*) '  structure factors          : ', nwpw_timing(8),
+         write(luout,*) '  structure factors          : ', 
+     >                          nwpw_timing(8),
      >                          nwpw_timing(8)/dble(c_electron_count())
-         write(6,*) '  masking and packing        : ', nwpw_timing(9),
+         write(luout,*) '  masking and packing        : ', 
+     >                          nwpw_timing(9),
      >                          nwpw_timing(9)/dble(c_electron_count())
-         write(6,*)
+         write(luout,*)
          CALL nwpw_MESSAGE(4)
       end if 
 
