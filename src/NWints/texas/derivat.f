@@ -1,4 +1,4 @@
-* $Id: derivat.f,v 1.6 2002-10-01 00:10:07 edo Exp $
+* $Id: derivat.f,v 1.7 2005-02-23 00:58:23 edo Exp $
 c===================================================================
 c This file contains all dintegral derivatives routines :
 c for nmr/giao integral derivatives
@@ -1336,6 +1336,7 @@ c
      *                      ngcd,nbls,buf2,lnijr,lnklr,lnij,lnkl,
      *                      nqij,nqkl,
      *                      nder_aa,der2)
+!DIR$ NOINLINE
               call block_bb(icart,jcart,
      *                      ngcd,nbls,buf2,lnijr,lnklr,lnij,lnkl,
      *                      nqij,nqkl,
@@ -1367,6 +1368,7 @@ c
      *                      ngcd,nbls,buf2,lnijr,lnklr,lnij,lnkl,
      *                      nqij,nqkl,
      *                      nder_ac,der2)
+!DIR$ INLINE
               call block_bc(icart,jcart,
      *                      ngcd,nbls,buf2,lnijr,lnklr,lnij,lnkl,
      *                      nqij,nqkl,
