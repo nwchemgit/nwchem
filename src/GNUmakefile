@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.23 1995-02-07 20:50:45 d3e129 Exp $
+# $Id: GNUmakefile,v 1.24 1995-06-29 16:21:39 d3g681 Exp $
 
 include config/makefile.h
 
@@ -70,8 +70,8 @@ sngl_to_dbl dbl_to_sngl:
 #
 
 directories:
-	test -d $(LIBDIR) || $(MKDIR) $(LIBDIR)
-	test -d $(BINDIR) || $(MKDIR) $(BINDIR)
+	test -d $(LIBDIR) || $(MKDIR) -p $(LIBDIR)
+	test -d $(BINDIR) || $(MKDIR) -p $(BINDIR)
 
 # This target will change config/nwchem_config.h include file which
 # controls what we're going to build.
