@@ -12,12 +12,12 @@
      &                       expo, ccoef, Bmat, Fmat, 
      &                       Pmat, rq, rdens_atom,  cetobfr, 
      ,     ibf_ao,bas_cent_info,bas_cset_info,docset,
-     ,     bp,rscr,rchi_atom,rdelchi_atom,
+     ,     rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf)
 c
-c$Id: grid_quadv0b.F,v 1.18 2001-03-08 03:01:24 edo Exp $
+c$Id: grid_quadv0b.F,v 1.19 2001-05-05 05:20:15 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -139,7 +139,7 @@ c
             call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
      ,           rho,delrho,grad,ibf_ao, iniz, ifin,
      ,           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
-     ,           bp, rscr, rchi_atom, rdelchi_atom,
+     ,           rchi_atom, rdelchi_atom,
      ,           rdens_atom,
      ,           Fmat, Pmat, Bmat,
      ,           dbl_mb(i_vect1),dbl_mb(idelrho_sig))
@@ -149,7 +149,6 @@ c
      &           mbf_ao, ldelley, GRAD, Fmat, Pmat, Bmat, 
      &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
      &           ibf_ao, iniz, ifin, rho, delrho, 
-     &        bp, rscr, 
      &           rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr,wmax)
          endif
@@ -160,7 +159,6 @@ c
      &           mbf_ao, ldelley, GRAD, Fmat, Pmat, Bmat, 
      &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
      &           ibf_ao, iniz, ifin, rho, delrho, 
-     &        bp, rscr, 
      &           rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr,1d0)
 #else
@@ -169,7 +167,7 @@ c
      .           nbf_ao, mbf_ao, GRAD, Fmat, Pmat, Bmat, 
      &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
      &           ibf_ao, iniz, ifin, rho, delrho, 
-     &           rscr, rchi_atom, 
+     &           rchi_atom, 
      .           rdelchi_atom, rdens_atom, cetobfr,wmax)
 #endif
             else if (do_cpks_r) then

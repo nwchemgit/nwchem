@@ -3,7 +3,7 @@
      &                          Grid,Values,g_Vls,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.13 2001-04-12 01:34:01 edo Exp $
+* $Id: create_contour.F,v 1.14 2001-05-05 05:20:43 edo Exp $
 *
       Implicit None
 *
@@ -43,11 +43,11 @@
       Double Precision TOLL
       Integer max_at_bf, ilo, ihi, max_at_bf2, lthB, lthZ, nelem, lthDel
       Integer l_FMat,k_FMat,l_PMat,k_PMat,l_BMat,k_BMat,
-     &        l_DelRho,k_DelRho,l_gamma,k_gamma,l_bp,k_bp,
+     &        l_DelRho,k_DelRho,l_gamma,k_gamma,
      &        l_MOVec,k_MOVec
 *---- Other variables
       Integer j,iOff,iProc,nProc,nGrPP,lthPP,iOffG,
-     .     k_ibf,l_ibf,lrscr, irscr,lrchi_atom, irchi_atom,
+     .     k_ibf,l_ibf,lrchi_atom, irchi_atom,
      .       lrdelchi_atom, irdelchi_atom,k_cetobfr,l_cetofbr,
      .     k_rdat,l_rdat,lcntoce, icntoce, 
      .     lcntobfr, icntobfr,
@@ -263,9 +263,6 @@ cedo      double precision rdens_atom(natom*natom)
          if(GRAD) nelem=nGrPP
          LResult = MA_Push_Get(MT_Dbl,nelem,'gamma',l_gamma,k_gamma)
          Call ErrMem(LResult,'C_C: Failed to allocate Gamma',0)
-         LResult = MA_Push_Get(MT_dbl,nGrPP*nAtom,'bp',l_bp,k_bp)
-         Call ErrMem(LResult,'C_C: Failed to allocate bp',0)
-         Call DFill(nGrPP*nAtom,0.d0,Dbl_mb(k_bp),1)
          LResult = MA_Push_Get(MT_int,2*nAtom,'cet',l_cetofbr,
      .        k_cetobfr)
          Call ErrMem(LResult,'C_C: Failed to allocate cetof',0)
@@ -303,14 +300,12 @@ c
             call util_rmsatbf(ngrpp, natom,
      .           int_mb(k_iniz),int_mb(k_ifin),
      ,           dbl_mb(k_scr1),dbl_mb(irchi_atom))
+*
 !            call dplot_nobq(natom,byte_mb(k_tags),
 !     .           int_mb(k_iniz),int_mb(k_ifin),
 !     ,           dbl_mb(irchi_atom),dbl_mb(k_rdat))
             if(.not.ma_free_heap(l_tags)) call errquit(' cc: heap',0)
 *
-            if (.not.MA_Push_Get(MT_Dbl,ngrpp,'rscr',
-     &         lrscr,irscr))call errquit
-     &         ('cre_cont: cannot allocate rscr',0)
 
          call xc_rhogen(TOLL,AO_Bas_Han,g_Dns,
      &                  nbf_ao_mxnbf_ce,nAtom,1,nGrPP,nBF,mBF,
@@ -320,7 +315,6 @@ c
      &                  Dbl_mb(k_Scr1),Dbl_mb(k_Scr2),Int_mb(k_ibf),
      &                  Int_mb(k_iniz),Int_mb(k_ifin),
      &                  Values(iOffG),Dbl_mb(k_DelRho),
-     &                  Dbl_mb(k_bp),dbl_mb(irscr), 
      &              dbl_mb(irchi_atom), dbl_mb(irdelchi_atom),
      &              dbl_mb(k_rdat), int_mb(k_cetobfr),1d0)
 *------- Deallocate Scratch memory needed by xc_rhogen
@@ -428,7 +422,7 @@ c
       Subroutine oldnbf_to_mbf(basis_hand, rq0, mbf, mcenters, 
      &                      iniz, ifin, ibf, zprim, nzprim, acc_gauss)
 c
-C$Id: create_contour.F,v 1.13 2001-04-12 01:34:01 edo Exp $
+C$Id: create_contour.F,v 1.14 2001-05-05 05:20:43 edo Exp $
 c
       implicit none
 c      

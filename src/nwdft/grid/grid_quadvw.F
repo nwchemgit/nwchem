@@ -7,12 +7,12 @@
      &                       hess, qwght, qxyz, xyz,iscr,nscr,
      &                       expo, ccoef, Bmat, Fmat, 
      &                       Pmat, rq,  rdens_atom, cetobfr, 
-     ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
+     ,     ibf_ao,bp,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf)
 c
-c$Id: grid_quadvw.F,v 1.24 2001-02-22 19:08:04 edo Exp $
+c$Id: grid_quadvw.F,v 1.25 2001-05-05 05:20:15 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -178,7 +178,7 @@ c
      &                    hess, qwght, qxyz, xyz,iscr,nscr,
      &                    expo, ccoef, Bmat, Fmat, 
      &                    Pmat, rq,  rdens_atom, cetobfr, 
-     ,                    ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
+     ,                    ibf_ao,bp,rchi_atom,rdelchi_atom,
      ,                    Ex, Ec, amat,cmat,g_vxc,
      ,                    Amat2, Cmat2,
      ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
@@ -199,7 +199,7 @@ c
      &                 hess,  xyz,iscr,nscr,
      &                 expo, ccoef, Bmat, Fmat, 
      &                 Pmat, rq, rdens_atom, cetobfr, 
-     ,                 ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
+     ,                 ibf_ao,rchi_atom,rdelchi_atom,
      ,                 Ex, Ec, amat,cmat,g_vxc, amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf)
                   ncubenz=ncubenz+1

@@ -5,13 +5,13 @@
      &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
      &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
      &                         rq0, hh,  
-     .     ibf_ao,curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,bp,
-     .     drhonuc,ddelrhonuc,d2scr,iscr,nscr,rscr,
+     .     ibf_ao,curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
+     .     drhonuc,ddelrhonuc,d2scr,iscr,nscr,
      ,     force, hess, g_rhs, do_force,
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.16 2001-03-24 01:31:48 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.17 2001-05-05 05:20:31 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -63,9 +63,8 @@ c
       double precision ccoef(ncoef_max), expo(NXprim)
       double precision rq(n_per_rec,natoms)
       double precision rq0(natoms)
-      double precision bp(*)
       double precision drhonuc(*),ddelrhonuc(*),d2scr(*),
-     ,     iscr(*),rscr(*)
+     ,     iscr(*)
       integer nscr ! [in]
 c     external
 c
@@ -205,7 +204,7 @@ c
      &                         rq0, hh, 
      .     ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
      .     log_mb(idocset),curatoms,rchi_atom,rdelchi_atom,ppp,
-     .     ff,zzz,bp,drhonuc,ddelrhonuc,d2scr,iscr,nscr,rscr,
+     .     ff,zzz,drhonuc,ddelrhonuc,d2scr,iscr,nscr,
      ,     force, hess, g_rhs, do_force,
      ,     nbf_ao_mxnbf_ce2,
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,

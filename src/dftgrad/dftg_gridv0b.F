@@ -6,8 +6,8 @@
      &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
      &                         rq0, hh, 
      .     ibf_ao,bas_cent_info,bas_cset_info,docset,
-     .     curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,bp,
-     .     drhonuc,ddelrhonuc,d2scr,iscr,nscr,rscr,
+     .     curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
+     .     drhonuc,ddelrhonuc,d2scr,iscr,nscr,
      ,     force, hess, g_rhs, do_force,
      ,     nbf_ao_mxnbf_ce2,
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr,donewbf)
 c      
-c     $Id: dftg_gridv0b.F,v 1.15 2001-03-08 19:27:45 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.16 2001-05-05 05:20:31 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -70,10 +70,8 @@ c
       double precision ccoef(ncoef_max), expo(NXprim)
       double precision rq(n_per_rec,natoms)
       double precision rq0(natoms)
-      double precision bp(*)
       double precision drhonuc(*),ddelrhonuc(*),d2scr(*),iscr(*)
       integer nscr ! [in]
-      double precision rscr(*)
 c     
 c     external
 c
@@ -214,7 +212,6 @@ c
      &              ldelley, grad, Fmat, Pmat, Bmat,
      &              dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
      &              ibf_ao, iniz, ifin, rho, delrho,
-     &              bp, rscr,
      &              rchi_atom, rdelchi_atom,
      &              rdens_atom, cetobfr,wmax)
 c
@@ -235,7 +232,7 @@ c                  write(*,*)'calling xc_rhogen_nucder'
      &                 dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
      &                 dbl_mb(iheschi_ao), ibf_ao, iniz, ifin,
      &                 drhonuc, ddelrhonuc,
-     &                 rscr, rchi_atom,
+     &                 rchi_atom,
      &                 rdelchi_atom, rdens_atom, cetobfr,1d0)
 #endif
                endif

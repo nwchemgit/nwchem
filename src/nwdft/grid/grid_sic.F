@@ -1,7 +1,7 @@
       logical function grid_sicinit(nqpts,
      ,    l_vect1,i_vect1, ldelrho_sig,idelrho_sig)
 c
-C$Id: grid_sic.F,v 1.2 2000-05-01 21:32:48 edo Exp $
+C$Id: grid_sic.F,v 1.3 2001-05-05 05:20:15 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -62,7 +62,7 @@ c
       end
       subroutine grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
      ,     rho,delrho,grad,ibf_ao, iniz, ifin,
-     ,     chi_ao, delchi_ao, bp, rscr, rchi_atom, rdelchi_atom,
+     ,     chi_ao, delchi_ao,   rchi_atom, rdelchi_atom,
      ,     rdens_atom,
      ,     Fmat, Pmat, Bmat,
      ,     vect1,delrho_sig)
@@ -75,7 +75,6 @@ c
       double precision Fmat(*), Pmat(*), Bmat(*)
       double precision rho(*),delrho(*) ! [in]
       double precision chi_ao(*), delchi_ao(*),
-     ,     bp(*), rscr(*),
      ,     rchi_atom(*), rdelchi_atom(*),rdens_atom(*)
       integer iniz(*),ifin(*),ibf_ao(*)
       double precision vect1(*),delrho_sig(*)
@@ -90,7 +89,6 @@ c
      &        mbf_ao, .false., GRAD, Fmat, Pmat, Bmat,
      &        chi_ao, delchi_ao,
      &        ibf_ao, iniz, ifin, rho, delrho,
-     &        bp, rscr,
      &        rchi_atom, rdelchi_atom,
      &        rdens_atom, cetobfr,wmax)
 !      endif

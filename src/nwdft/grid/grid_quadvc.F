@@ -8,11 +8,11 @@
      &     hess,  xyz,iscr,nscr,
      &     expo, ccoef, Bmat, Fmat, 
      &     Pmat, rq, rdens_atom, cetobfr, 
-     ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
+     ,     ibf_ao,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf)
-C$Id: grid_quadvc.F,v 1.10 2000-10-17 21:21:05 edo Exp $
+C$Id: grid_quadvc.F,v 1.11 2001-05-05 05:20:15 edo Exp $
       implicit none
 #include "cdft.fh"
 #include "mafdecls.fh"
@@ -83,7 +83,7 @@ c
      &        expo, ccoef, Bmat, Fmat, 
      &        Pmat, rq,  rdens_atom, cetobfr, 
      ,        ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
-     '        log_mb(idocset),bp,rscr,rchi_atom,rdelchi_atom,
+     '        log_mb(idocset),rchi_atom,rdelchi_atom,
      ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,        donewbf)

@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.21 2001-03-24 01:31:27 edo Exp $
+C$Id: grid_quadv0.F,v 1.22 2001-05-05 05:20:15 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(4)
@@ -59,7 +59,7 @@ c
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
      &        nscr, lscr, iscr,lamat,iamat,icmat,lcmat,
      ,     noc(2),nelec
-      integer libf_ao,iibf_ao,irqbuf,lrqbuf,lbp,ibp,lrscr,irscr,
+      integer libf_ao,iibf_ao,irqbuf,lrqbuf,lbp,ibp,
      .     irchi_atom,irdelchi_atom,lrchi_atom,lrdelchi_atom
       integer iqs,lqs,nqlen,mxnrad,nq_list,
      , laqbuf, iaqbuf,lRij,iRij,ndbl,l_qat,k_qat,irqlen
@@ -233,9 +233,6 @@ c
       if (.not.MA_Push_get(MT_dbl, 4*buffer_size+4, 
      &                     'quad pts buffer', lrqbuf, irqbuf))
      &   call errquit('grid_gen: cannot allocate quad pt buffer', 3)
-      if (.not.MA_Push_Get(mt_dbl,n_per_rec,
-     ,     'rho scr',lrscr,irscr))
-     &     call errquit('grid_quadv0a: cannot allocate rho scr',5)
 
       if (.not.MA_Push_Get(MT_Dbl,nctrs,'rchi_atom',
      &     lrchi_atom,irchi_atom))
@@ -291,8 +288,7 @@ c
      &        dbl_mb(iBmat), dbl_mb(iFmat), 
      &        dbl_mb(iPmat), dbl_mb(irq), 
      &        dbl_mb(irdens_atom), int_mb(icetobfr),
-     ,        int_mb(iibf_ao),dbl_mb(irqbuf),dbl_mb(ibp),
-     ,        dbl_mb(irscr),
+     ,        int_mb(iibf_ao),dbl_mb(irqbuf),
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
@@ -330,7 +326,6 @@ c
      &        dbl_mb(iPmat), dbl_mb(irq), 
      &        dbl_mb(irdens_atom), int_mb(icetobfr),
      ,        int_mb(iibf_ao),dbl_mb(ibp),
-     ,        dbl_mb(irscr),
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
@@ -349,7 +344,6 @@ c
      &        dbl_mb(iPmat), dbl_mb(irq), 
      &        dbl_mb(irdens_atom), int_mb(icetobfr),
      ,        int_mb(iibf_ao),dbl_mb(ibp),
-     ,        dbl_mb(irscr),
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),

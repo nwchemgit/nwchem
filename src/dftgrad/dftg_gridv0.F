@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.7 2000-08-25 20:05:11 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.8 2001-05-05 05:20:31 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.7 2000-08-25 20:05:11 edo Exp $
+c $Id: dftg_gridv0.F,v 1.8 2001-05-05 05:20:31 edo Exp $
 c     
       implicit none      
 c
@@ -87,12 +87,12 @@ c
      &        ltags, itags
       logical do_force, do_hess, do_cpks_r
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2, len_Bmat, len_Dmat
-      integer lzzz,  izzz, lff, iff, lppp, ippp,k_bp,l_bp
+      integer lzzz,  izzz, lff, iff, lppp, ippp
       integer libf_ao, iibf_ao,k_curatoms,l_curatoms
       integer lrchi_atom, irchi_atom,
      &        lrdelchi_atom, irdelchi_atom
       integer  l_drhonuc, k_drhonuc,l_ddelrhonuc, k_ddelrhonuc,
-     ,     l_d2scr, k_d2scr,lscr,iscr,lrscr,irscr
+     ,     l_d2scr, k_d2scr,lscr,iscr
       integer nscr,icrad,iprad,iang
       integer llmax, MXcont, max_elem_ang_scr,nxang
       integer nbf_ao_mxnbf_ce
@@ -294,9 +294,6 @@ c !!! BGJ - probably don't need to allocate some of this if .not.do_force
       if (.not.MA_push_get(MT_INT, natoms, 'curatoms',
      &     l_curatoms, k_curatoms)) call
      &     errquit('dftg_gridv0: cant allocate curatoms',1)
-      if (.not.MA_push_get(MT_INT, natoms*n_per_rec, 'bp',
-     &     l_bp, k_bp)) call
-     &     errquit('dftg_gridv0: cant allocate bp',1)
       if (do_hess .or. do_cpks_r) then
 c     
 c     Set up space for derivatives of density wrt significant nuclei
@@ -395,9 +392,6 @@ c
       if (.not.MA_Push_Get(mt_dbl, nscr, 'scrCD', lscr, iscr))
      &     call errquit
      &     (' exiting in dftg_gridv0: insuff stack',12)
-      if (.not.MA_Push_Get(mt_dbl,n_per_rec,'rho scr',
-     &     lrscr,irscr))call errquit
-     &     ('dftg_gridv0: cannot allocate rho scr',13)
       
 c
       call dftg_gridv0a(iga_dens,ldew,
@@ -414,9 +408,9 @@ c
      &                   dbl_mb(irq), dbl_mb(irq0), dbl_mb(ihh),
      ,     int_mb(iibf_ao),int_mb(k_curatoms),
      ,     dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),dbl_mb(ippp),
-     ,     dbl_mb(iff),dbl_mb(izzz),dbl_mb(k_bp),
+     ,     dbl_mb(iff),dbl_mb(izzz),
      .     dbl_mb(k_drhonuc),dbl_mb(k_ddelrhonuc),dbl_mb(k_d2scr),
-     .     dbl_mb(iscr),nscr,dbl_mb(irscr),
+     .     dbl_mb(iscr),nscr,
      &                   force, hess, g_rhs, do_force, do_hess,
      &                   do_cpks_r, natoms, oactive, nactive,
      &                   rdens_atom,  cetobfr)
