@@ -1,53 +1,33 @@
 c
-c $Id: qmmm_geom.F,v 1.1 2004-06-15 18:17:34 marat Exp $
+c $Id: qmmm_geom.F,v 1.2 2004-07-21 01:29:47 marat Exp $
 c
 c
-      subroutine qmmm_create_geom(irtdb)
+      subroutine qmmm_create_qm_geom(irtdb)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "geom.fh"
+#include "rtdb.fh"
 #include "qmmm.fh"
       integer irtdb
 c     local variables
       integer i
-      integer ntot
       integer nqm
-      integer nbqs
-      integer nbqw
       integer igeom
       integer i_c
-      integer i_q
       integer i_t
       integer i_m
       integer i_ind
       integer i_num
-      integer i_cbq,h_cbq
-      integer i_qbq,h_qbq
-      integer i_cbqw,h_cbqw
-      integer i_qbqw,h_qbqw
-      integer i_qf,h_qf
-      integer i_c_all, h_c_all
-      integer i_q_all, h_q_all
-      integer i_t_all, h_t_all
-      character*16 myname
-      character*4 bqtag
+      integer i_q
+      integer i_qf
 
-c****************************************************
-c     Stage 1 get cart info for quantum atoms
-c     Stage 2 get cart info for solute point charges
-c     Stage 3 get cart info for solvent point charges
-c     Stage 4 combine all three into geometry object
-c***************************************************
-
-c     -----------------------------------------
-c     Stage 1: collecting info on quantum atoms
-c     -----------------------------------------
-      nqm   = qmmm_get_nat()
+      nqm   = qmmm_get_nqm()
       i_ind = qmmm_get_i_ai()
       i_num = qmmm_get_i_num()
       i_c   = qmmm_get_i_c()
       i_q   = qmmm_get_i_q()
+      i_qf  = qmmm_get_i_qf()
       i_t   = qmmm_get_i_t()
       i_m   = qmmm_get_i_m()
 
@@ -60,116 +40,17 @@ c     -----------------------------------------
      >                 dbl_mb(i_q),
      >                 dbl_mb(i_m))
 
-      myname="test.pdb"
-      call qmmm_print_pdb(nqm,myname,dbl_mb(i_c),
-     >        dbl_mb(i_q),byte_mb(i_t))
-
-c     ------------------------------------------------
-c     Stage 2: collecting info on solute point charges
-c     ------------------------------------------------
-
-c      call mm_create_bq_geom(rtdb)
-       call mm_get_tot_nbqs(nbqs)
-       write(*,*) "tot_nbq=",nbqs
-      if(.not.ma_push_get(mt_dbl,3*nbqs,'cbq',h_cbq,i_cbq))
-     + call errquit('qmmm: Failed to allocate memory for cbq',3*nbqs,
-     &       MA_ERR)
-      if(.not.ma_push_get(mt_dbl,nbqs,'qbq',h_qbq,i_qbq))
-     + call errquit('qmmm: Failed to allocate memory for qbq',nbqs,
-     &       MA_ERR)
-      
-
-      call mm_get_geom_bqs(nbqs,dbl_mb(i_cbq),dbl_mb(i_qbq))
-      write(*,*) "after mm_get_geom_bqs"
-      myname = "test-bq.pdb"
-      bqtag="Bq"
-      call qmmm_print_bq_pdb(nbqs,myname,dbl_mb(i_cbq),
-     >      dbl_mb(i_qbq),bqtag)
-
-
-      if(.not.ma_pop_stack(h_qbq))
-     & call errquit('qmmm: Failed to deallocate stack',nbqs,
-     &       MA_ERR)
-
-      if(.not.ma_pop_stack(h_cbq))
-     & call errquit('qmmm: Failed to deallocate stack',nbqs,
-     &       MA_ERR)
-
-c     -------------------------------------------------
-c     Stage 3: collecting info on solvent point charges
-c     -------------------------------------------------
-       call mm_get_tot_nbqw(nbqw)
-       write(*,*) "tot_nbqw=",nbqw
-      if(.not.ma_push_get(mt_dbl,3*nbqw,'cbqw',h_cbqw,i_cbqw))
-     + call errquit('qmmm: Failed to allocate memory for cbqw',3*nbqw,
-     &       MA_ERR)
-      if(.not.ma_push_get(mt_dbl,nbqw,'qbq',h_qbqw,i_qbqw))
-     + call errquit('qmmm: Failed to allocate memory for qbq',nbqw,
-     &       MA_ERR)
-      
-
-      write(*,*) "before mm_get_geom_bqw"
-      call mm_get_geom_bqw(nbqw,dbl_mb(i_cbqw),dbl_mb(i_qbqw))
-      write(*,*) "after mm_get_geom_bqw"
-      myname = "test-bqw.pdb"
-      bqtag="Bqw"
-      call qmmm_print_bq_pdb(nbqw,myname,dbl_mb(i_cbqw),
-     >      dbl_mb(i_qbqw),bqtag)
-
-      if(.not.ma_pop_stack(h_qbqw))
-     & call errquit('qmmm: Failed to deallocate stack',nbqs,
-     &       MA_ERR)
-
-      if(.not.ma_pop_stack(h_cbqw))
-     & call errquit('qmmm: Failed to deallocate stack',nbqs,
-     &       MA_ERR)
-
-c
-c     Stage 4 creating geometry
-c     ------------------------
-c      ntot = nqm+nbqs+nbqw
-c      if(.not.ma_push_get(mt_dbl,3*nbqw,'c_all',h_c_all,i_c_all))
-c     + call errquit('qmmm: Failed to allocate memory for c_all',
-c     + 3*ntot, MA_ERR)
-c      if(.not.ma_push_get(mt_dbl,nbqw,'q_all',h_q_all,i_q_all))
-c     + call errquit('qmmm: Failed to allocate memory for q_all',ntot,
-c     &       MA_ERR)
-c
-c       do i=1,ntot
-c
-c
-c       end do
-c
-c
-c      if(.not.ma_pop_stack(h_c_all))
-c     & call errquit('qmmm: Failed to deallocate stack',nbqs,
-c     &       MA_ERR)
-c
-c      if(.not.ma_pop_stack(h_q_all))
-c     & call errquit('qmmm: Failed to deallocate stack',nbqs,
-c     &       MA_ERR)
-
-
-   
-      if(.not.geom_create(igeom,'geometry'))
-     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
-
-      if(.not.ma_push_get(mt_dbl,nqm,'qf',h_qf,i_qf))
-     + call errquit('qmmm: Failed to allocate memory for qf',3*nqm,
-     &       MA_ERR)
-
       do i=1,nqm
        dbl_mb(i_qf+i-1)=dble(int_mb(i_num+i-1))
       end do
- 
+
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
       if(.not.geom_cart_set(igeom,nqm,byte_mb(i_t),
      + dbl_mb(i_c),dbl_mb(i_qf)))
      + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
 
-      if(.not.ma_pop_stack(h_qf))
-     & call errquit('qmmm: Failed to deallocate stack',nqm,
-     &       MA_ERR)
- 
       if(.not.geom_masses_set(igeom,nqm,dbl_mb(i_m)))
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
@@ -180,7 +61,228 @@ c     &       MA_ERR)
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 
-  
+      end
+     
+      subroutine qmmm_create_bq_geom(irtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+      integer irtdb
+c     local variables
+      integer i
+      integer nqm
+      integer nbq
+      integer ntot
+
+      integer igeom
+      integer i_c
+      integer i_t
+      integer i_m
+      integer i_ind
+      integer i_num
+      integer i_qf
+      integer i_cbq
+      integer i_qbq
+      integer i_q_all,h_q_all
+      integer i_c_all,h_c_all
+      integer i_t_all,h_t_all
+      integer i_m_all,h_m_all
+      double precision charge
+ 
+      call qmmm_load_bq()
+
+      nqm   = qmmm_get_nqm()
+      nbq   = qmmm_get_nbqs()
+
+      ntot = nbq + nqm
+      call qmmm_set_ntot(ntot)
+
+      i_ind = qmmm_get_i_ai()
+      i_num = qmmm_get_i_num()
+      i_c   = qmmm_get_i_c()
+      i_qf  = qmmm_get_i_qf()
+      i_t   = qmmm_get_i_t()
+      i_m   = qmmm_get_i_m()
+
+      i_cbq = qmmm_get_i_cbqs()
+      i_qbq = qmmm_get_i_qbqs()
+
+
+c    --------------------------------------
+c    get qm coordinates out of geometry
+c    --------------------------------------
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not.geom_rtdb_store(irtdb,igeom,'qm_geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not. geom_cart_coords_get(igeom,dbl_mb(i_c))) 
+     >    call errquit("qmmm:geom_cart_coords_get",0,0)
+
+       if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+
+      if(.not.geom_rtdb_delete(irtdb,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+c    --------------------------------------
+c    create combined qm bq geometry
+c    --------------------------------------
+      if(.not.ma_push_get(mt_dbl,3*ntot,'c_all',h_c_all,i_c_all))
+     + call errquit('qmmm: Failed to allocate memory for c_all',
+     + 3*ntot, MA_ERR)
+      if(.not.ma_push_get(mt_dbl,ntot,'q_all',h_q_all,i_q_all))
+     + call errquit('qmmm: Failed to allocate memory for q_all',ntot,
+     &       MA_ERR)
+      if(.not.ma_push_get(mt_dbl,ntot,'m_all',h_m_all,i_m_all))
+     + call errquit('qmmm: Failed to allocate memory for q_all',ntot,
+     &       MA_ERR)
+      if(.not.ma_push_get(mt_byte,16*ntot,'t_all',h_t_all,i_t_all))
+     + call errquit('qmmm: Failed to allocate memory for q_all',ntot,
+     &       MA_ERR)
+
+      call qmmm_comb_geom(ntot,
+     >                         dbl_mb(i_c_all),
+     >                         dbl_mb(i_q_all),
+     >                         byte_mb(i_t_all),
+     >                         dbl_mb(i_m_all),
+     >                         nqm,
+     >                         dbl_mb(i_c),
+     >                         dbl_mb(i_qf),
+     >                         byte_mb(i_t),
+     >                         dbl_mb(i_m),
+     >                         nbq,
+     >                         dbl_mb(i_cbq),
+     >                         dbl_mb(i_qbq))
+
+
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not.geom_cart_set(igeom,ntot,byte_mb(i_t_all),
+     + dbl_mb(i_c_all),dbl_mb(i_q_all)))
+     + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
+
+      if(.not.geom_masses_set(igeom,nqm,dbl_mb(i_m_all)))
+     + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
+      call geom_compute_values(igeom)
+
+      if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
+     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
+
+       if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+
+      if(.not.ma_pop_stack(h_t_all))
+     & call errquit('qmmm: Failed to deallocate stack',ntot,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_m_all))
+     & call errquit('qmmm: Failed to deallocate stack',ntot,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_q_all))
+     & call errquit('qmmm: Failed to deallocate stack',ntot,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_c_all))
+     & call errquit('qmmm: Failed to deallocate stack',ntot,
+     &       MA_ERR)
+
+
+c     -----------------------------
+c     set total charge
+c     -----------------------------
+      charge =  qmmm_get_qcharge()
+      do i=1,nbq
+       charge = charge + dbl_mb(i_qbq+i-1)
+      end do
+      if(.not.rtdb_put(irtdb,'charge',mt_dbl,1,charge)) then
+          call errquit('qmmm: Failed to set charge',0,
+     &       RTDB_ERR)
+      end if
+
+      end
+
+      subroutine qmmm_restore_qm_geom(irtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+      integer irtdb
+c     local variables
+      integer i
+      integer ntot
+      integer nqm
+      integer nbqs
+      integer igeom
+      integer i_c
+      integer i_c_all, h_c_all
+
+c
+c     allocate temporary memory
+c     ------------------------
+      nqm  = qmmm_get_nqm()
+      nbqs = qmmm_get_nbqs()
+      ntot = nbqs+nqm
+      i_c   = qmmm_get_i_c()
+
+      if(.not.ma_push_get(mt_dbl,3*ntot,'c_all',h_c_all,i_c_all))
+     + call errquit('qmmm: Failed to allocate memory for c_all',
+     + 3*ntot, MA_ERR)
+      write(*,*) "ntot",ntot
+
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not.geom_rtdb_load(irtdb,igeom,"geometry"))
+     >    call errquit("qmmm:load geometry",0,0)
+
+      if(.not. geom_cart_coords_get(igeom,dbl_mb(i_c_all))) 
+     >    call errquit("qmmm:geom_cart_coords_get",0,0)
+
+      if(.not.geom_destroy(igeom))
+     >    call errquit("qmmm:load geometry",0,0)
+
+      if(.not.geom_rtdb_delete(irtdb,"geometry"))
+     >    call errquit("qmmm:delete geometry",0,0)
+
+      write(*,*) "nqm",nqm,i_c
+      do i=1,3*nqm
+       dbl_mb(i_c+i-1)= dbl_mb(i_c_all+i-1)
+      end do
+
+      if(.not.ma_pop_stack(h_c_all))
+     & call errquit('qmmm: Failed to deallocate stack',nbqs,
+     &       MA_ERR)
+
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not.geom_rtdb_load(irtdb,igeom,"qm_geometry"))
+     >    call errquit("qmmm:load geometry",0,0)
+
+      if(.not. geom_cart_coords_set(igeom,dbl_mb(i_c))) 
+     >    call errquit("qmmm:geom_cart_coords_set",0,0)
+
+      if(.not.geom_rtdb_store(irtdb,igeom,"geometry"))
+     >    call errquit("qmmm:load geometry",0,0)
+
+
+      if(.not.geom_destroy(igeom))
+     >    call errquit("qmmm:load geometry",0,0)
+
+      call qmmm_set_ntot(nqm)
+
       end
 
       subroutine qmmm_print_pdb(nt,myname,c,q,t)
@@ -258,4 +360,49 @@ c     &       MA_ERR)
 
 
       end
+
+      subroutine qmmm_comb_geom(ntot,c_all,q_all,t_all,m_all,
+     >                          nqm,c,q,t,m,
+     >                          nbq,cbq,qbq)
+
+      integer ntot
+      double precision c_all(3,ntot)
+      double precision q_all(ntot)
+      character*16 t_all(ntot)
+      double precision m_all(ntot)
+      integer nqm
+      double precision c(3,nqm)
+      double precision q(nqm)
+      character*16 t(nqm)
+      double precision m(nqm)
+      integer nbq
+      double precision cbq(3,nbq)
+      double precision qbq(nbq)
+
+c     local variables
+c     ---------------
+      integer i
+
+c
+c     coordinates 
+c     ----------
+      do i=1,nqm
+        c_all(1,i) = c(1,i)  
+        c_all(2,i) = c(2,i)  
+        c_all(3,i) = c(3,i)  
+        q_all(i) = q(i)  
+        t_all(i) = t(i)  
+        m_all(i) = m(i)  
+      end do
+      do i=1,nbq
+        c_all(1,nqm+i)=cbq(1,i)
+        c_all(2,nqm+i)=cbq(2,i)
+        c_all(3,nqm+i)=cbq(3,i)
+        q_all(nqm+i)=qbq(i)
+        t_all(nqm+i)="Bq"
+        m_all(nqm+i)=0.0d0
+      end do
+
+      end
+
 

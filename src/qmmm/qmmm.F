@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.5 2004-06-15 18:17:34 marat Exp $
+c $Id: qmmm.F,v 1.6 2004-07-21 01:29:47 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -17,6 +17,7 @@ c
 c
       integer nqm
       integer i_ind
+      double precision aqcharge
 
       qmmm_init = .true.
 
@@ -38,10 +39,18 @@ c     ----------------------------------------
       i_ind = qmmm_get_i_ai()
       call mm_get_ind(nqm,int_mb(i_ind))
 
-c     create qm geometry
-c     ------------------
-      call qmmm_create_geom(irtdb)
-    
+c     create initial qm geometry
+c     --------------------------
+      call qmmm_create_qm_geom(irtdb)
+
+c     save charge of the quantum system
+c     later it will be augmented with bq charges
+c     ------------------------------------------
+      if(.not.rtdb_get(irtdb,'charge',mt_dbl,1,aqcharge)) then
+        aqcharge = 0.0d0    
+      end if
+      call qmmm_set_qcharge(aqcharge)
+
       return
       end
 c
@@ -80,14 +89,12 @@ c     local variables
       double precision energy
       double precision mm_energy
       double precision eatoms
-      integer tot_nbq
 c     external functions
       logical  task_energy_doit
       external task_energy_doit
-      logical  qmmm_init
-      external qmmm_init
-      logical  qmmm_end
-      external qmmm_end
+
+
+      call qmmm_create_bq_geom(rtdb)
 
       qmmm_energy = .false.
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
@@ -96,10 +103,11 @@ c     external functions
 c     QM energy calculation
 c     --------------------
       status = task_energy_doit(rtdb,theory,energy)
-
+      
       if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed storing energy', 0, RTDB_ERR)
 
+      call qmmm_restore_qm_geom(rtdb)
  
 c     update QM coordinates for MM module
 c     very important!!!
@@ -109,6 +117,8 @@ c     ----------------------------------
 c     single point MM calculation
 c     ----------------------------------
        call mm_task_sp()
+
+      write(*,*) "qmmm_energy 3"
 
 c     combine QM and MM energies
 c     -------------------------
@@ -121,8 +131,6 @@ c     -------------------------
       mm_energy = mm_energy/cau2kj + 0.5d0*eatoms
       write(*,*) "qmmm energy",energy,mm_energy,energy+mm_energy,eatoms
       energy = energy + mm_energy
-
-      write(*,*) "qmmm energy",energy,mm_energy
 
       if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
@@ -152,10 +160,14 @@ c
       character*255 theory
       double precision energy
       double precision mm_energy
-      integer i_g 
+      integer i_g,h_g 
+      integer i_gmm,h_gmm 
+      integer i_ai
       double precision eatoms
-      integer nat
+      integer nqm
+      integer ntot
 c
+
       status = .true.
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
@@ -163,21 +175,43 @@ c
 c
 c    first do quantum part
 c    --------------------
-      nat = qmmm_get_nat()
-      i_g = qmmm_get_i_g()
-      status = task_gradient_doit(rtdb,theory,energy,dbl_mb(i_g))
-      if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
-     $     call errquit('qmmm: failed storing energy', 0, RTDB_ERR)
-      if (.not. rtdb_put(rtdb,'qmmm:gradient',mt_dbl,3*nat,dbl_mb(i_g)))
-     $        call errquit('oniom: failed storing gradient', 0,
-     &       RTDB_ERR)
+      call qmmm_create_bq_geom(rtdb)
+
+      nqm  = qmmm_get_nqm()
+      ntot = qmmm_get_ntot()
+
+      if(.not.ma_alloc_get(MT_DBL, 3*ntot, 'qmmm grad array',
+     &      h_g, i_g) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      3*ntot, MA_ERR)
+      call dfill(3*ntot,0,dbl_mb(i_g),1)
+
+      if(.not.ma_alloc_get(MT_DBL, 3*nqm, 'qmmm mm grad array',
+     &      h_gmm, i_gmm) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      nqm, MA_ERR)
+      call dfill(3*nqm,0,dbl_mb(i_gmm),1)
  
+
+      status = task_gradient_doit(rtdb,theory,energy,dbl_mb(i_g))
+
 c
 c     now do mm part
 c     ----------------------------------
       call qmmm_update_mm_coord(rtdb)
       call mm_task_sp()
-      call qmmm_update_qm_forces(rtdb)
+      i_ai = qmmm_get_i_ai()
+
+      call dfill(3*nqm,0,dbl_mb(i_gmm),1)
+
+      call mm_get_force(nqm,
+     &                   int_mb(i_ai),
+     &                   dbl_mb(i_gmm))
+
+      call daxpy(3*nqm,cau2nm/cau2kj,dbl_mb(i_gmm),1,dbl_mb(i_g),1)
+
+      if(.not.rtdb_put(rtdb,'qmmm:gradient',mt_dbl,3*nqm,dbl_mb(i_g)))
+     + call errquit('qmmm: rtdb_out gradient failed',0, RTDB_ERR)
 
       if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,mm_energy))
      $     call errquit('qmmm: failed getting  md energy', 0, RTDB_ERR)
@@ -193,6 +227,15 @@ c     ----------------------------------
       if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
 
+      call qmmm_restore_qm_geom(rtdb)
+
+      if(.not.ma_free_heap(h_gmm))
+     & call errquit('qmmm g: Failed to deallocate heap',nqm,
+     &       MA_ERR)
+      if(.not.ma_free_heap(h_g))
+     & call errquit('qmmm g: Failed to deallocate heap',nqm,
+     &       MA_ERR)
+ 
       qmmm_gradient=status
 
       end
@@ -248,29 +291,21 @@ c
 #include "qmmm.fh"
       integer irtdb
 c     local variables
-      integer nt
+      integer i
+      integer nqm
       integer igeom
       integer i_ai
       integer i_c
+      integer ntot
+      integer i_c_all
+      integer h_c_all
 
-      nt   = qmmm_get_nat()
+      nqm  = qmmm_get_nqm()
       i_ai = qmmm_get_i_ai()
       i_c = qmmm_get_i_c()
 
 
-      if(.not.geom_create(igeom,'geometry'))
-     & call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
-
-      if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
-     & call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
-
-      if(.not.geom_cart_coords_get(igeom, dbl_mb(i_c)))
-     & call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
-
-      if(.not.geom_destroy(igeom))
-     & call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
-
-      call mm_set_geom(nt,
+      call mm_set_geom(nqm,
      &                   int_mb(i_ai),
      &                   dbl_mb(i_c))
 
@@ -291,7 +326,7 @@ c     local variables
       integer i_gmm
       integer i_g
 
-      nt   = qmmm_get_nat()
+      nt   = qmmm_get_nqm()
       i_ai = qmmm_get_i_ai()
       i_g = qmmm_get_i_g()
       i_gmm = qmmm_get_i_gmm()
@@ -354,7 +389,7 @@ c
 cc     -----------------------------------------
 cc     Stage 1: collecting info on quantum atoms
 cc     -----------------------------------------
-c      nqm   = qmmm_get_nat()
+c      nqm   = qmmm_get_nqm()
 c      i_ind = qmmm_get_i_ai()
 c      i_num = qmmm_get_i_num()
 c      i_c   = qmmm_get_i_c()

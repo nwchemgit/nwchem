@@ -1,27 +1,45 @@
 c
-c $Id: qmmm_data.fh,v 1.3 2004-03-12 23:37:05 marat Exp $
+c $Id: qmmm_data.fh,v 1.4 2004-07-21 01:29:47 marat Exp $
 c
-      integer tot_nqm
+      integer ntot
+      integer nqm
       integer i_ai,h_ai
       integer i_c,h_c
       integer i_q,h_q
+      integer i_qf,h_qf
       integer i_m,h_m
       integer i_t,h_t
       integer i_atn,h_atn
       integer i_num,h_num
       integer i_g,h_g
       integer i_gmm,h_gmm
+      double precision qcharge
 
+      integer nbqs
+      integer nbqw
+      integer i_cbqs,h_cbqs
+      integer i_cbqw,h_cbqw
+      integer i_qbqs,h_qbqs
+      integer i_qbqw,h_qbqw
 
-      common/qmmm_data/tot_nqm,
+      common/qmmm_data/nqm,
+     &                 ntot,
+     &                 nbqs,
+     &                 nbqw,
      &                 i_ai,h_ai,
      &                 i_atn,h_atn,
      &                 i_c,h_c,
+     &                 i_cbqs,h_cbqs,
+     &                 i_cbqw,h_cbqw,
      &                 i_m,h_m,
      &                 i_t,h_t,
      &                 i_q,h_q,
+     &                 i_qf,h_qf,
+     &                 i_qbqw,h_qbqw,
+     &                 i_qbqs,h_qbqs,
      &                 i_num,h_num,
      &                 i_g,h_g,
-     &                 i_gmm,h_gmm
+     &                 i_gmm,h_gmm,
+     &                 qcharge
 
 

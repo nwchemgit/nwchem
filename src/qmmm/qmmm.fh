@@ -1,23 +1,39 @@
 c
-c $Id: qmmm.fh,v 1.1 2004-03-12 23:37:05 marat Exp $
+c $Id: qmmm.fh,v 1.2 2004-07-21 01:29:47 marat Exp $
 c
-      integer qmmm_get_nat
+      integer qmmm_get_ntot
+      integer qmmm_get_nbqw
+      integer qmmm_get_nbqs
+      integer qmmm_get_nqm
       integer qmmm_get_i_ai
       integer qmmm_get_i_c
+      integer qmmm_get_i_cbqs
+      integer qmmm_get_i_cbqw
       integer qmmm_get_i_t
       integer qmmm_get_i_q
+      integer qmmm_get_i_qf
       integer qmmm_get_i_m
       integer qmmm_get_i_g
       integer qmmm_get_i_gmm
       integer qmmm_get_i_num
+      integer qmmm_get_i_qbqs
+      double precision qmmm_get_qcharge
 
-      external qmmm_get_nat
+      external qmmm_get_nqm
       external qmmm_get_i_ai
       external qmmm_get_i_c
       external qmmm_get_i_t
       external qmmm_get_i_q
+      external qmmm_get_i_qf
       external qmmm_get_i_m
       external qmmm_get_i_g
       external qmmm_get_i_gmm
       external qmmm_get_i_num
-
+      external qmmm_get_qcharge
+      external qmmm_get_ntot
+      external qmmm_get_nbqw
+      external qmmm_get_nbqs
+      external qmmm_get_i_cbqs
+      external qmmm_get_i_qbqs
+      external qmmm_get_i_cbqw
+ 

@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.3 2004-03-12 23:37:05 marat Exp $
+c $Id: mm_interface.F,v 1.4 2004-07-21 01:29:47 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -190,9 +190,13 @@ c
 c
       nbq=0
       do i=1,nsa
-c        write(*,*) "isdt(i),lqsoft",isdt(i),lqsoft,isz(i)
-        if(iand(isdt(i),lqsoft).ne.0) isz(i)=0
+         write(*,*) "isdt(i),iand(isdt(i),lquant),isz(i)",
+     >     isdt(i),iand(isdt(i),lquant),isz(i)
+c        if(iand(isdt(i),lqsoft).ne.0) isz(i)=0
+        if(iand(isdt(i),lquant).eq.0 .and. 
+     >    iand(isdt(i),lqlink).eq.0) then
         if(isz(i).gt.0) nbq=nbq+1
+        end if
       end do
 
       end
@@ -225,12 +229,14 @@ c     local variables
       integer psz
       integer psq
       integer pxs
+      integer psdt
 
       call mm_get_msa(msa)
       call mm_get_nsaloc(nsa)
       call mm_get_psz(psz)
       call mm_get_pxs(pxs)
       call mm_get_psq(psq)
+      call mm_get_psdt(psdt)
 
       np=ga_nnodes()
 
@@ -265,6 +271,7 @@ c     -----------------------------
      &                   msa,
      &                   nsa,
      &                   ioq,
+     &                   int_mb(psdt),
      &                   int_mb(psz),
      &                   int_mb(psq),
      &                   dbl_mb(pxs),
@@ -293,6 +300,7 @@ c     -----------------------------
      &                   msa,
      &                   nsa,
      &                   ioff,
+     &                   isdt,
      &                   isz,
      &                   isq,
      &                   xs,
@@ -313,6 +321,7 @@ c     -----------------------------
 
       integer nt,msa,nsa
       integer ioff
+      integer isdt(msa)
       integer isz(msa)
       integer isq(msa)
       double precision xs(msa,3)
@@ -327,7 +336,8 @@ c     local variables
 
       ioq = ioff
       do i=1,nsa
-      if(isz(i).ne.0) then
+      if(isz(i).ne.0 .and. iand(isdt(i),lquant).eq.0 .and.
+     >   iand(isdt(i),lqlink).eq.0) then
          ioq=ioq+1
          c(1,ioq)=xs(i,1)*cnm2au
          c(2,ioq)=xs(i,2)*cnm2au
@@ -809,7 +819,7 @@ c
       logical isquant
 
 
-      nt   = qmmm_get_nat()
+      nt   = qmmm_get_nqm()
       i_ai = qmmm_get_i_ai()
 c      i_g = qmmm_get_i_g()
 
