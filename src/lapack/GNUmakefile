@@ -1,8 +1,9 @@
-#$Id: GNUmakefile,v 1.26 1996-11-06 18:07:01 rg240 Exp $
+#$Id: GNUmakefile,v 1.27 1996-12-10 23:43:45 d3h325 Exp $
 
 include ../config/makefile.h
 
        LIBRARY = liblapack.a
+       PRECISION = double
 
 #
 # Determine if single or double precision is required
@@ -16,44 +17,8 @@ endif
 ifeq ($(TARGET),CRAY-T3E)
        PRECISION = single
 endif
-ifeq ($(TARGET),SUN)
-       PRECISION = double
-endif
-ifeq ($(TARGET),SOLARIS)
-       PRECISION = double
-endif
-ifeq ($(TARGET),SGITFP)
-       PRECISION = double
-endif
-ifeq ($(TARGET),SGI)
-       PRECISION = double
-endif
-ifeq ($(TARGET),IBM)
-       PRECISION = double
-endif
-ifeq ($(TARGET),SP1)
-       PRECISION = double
-endif
 ifeq ($(TARGET),KSR)
        PRECISION = double
-endif
-ifeq ($(TARGET),CRAY-T3D)
-       PRECISION = single
-endif
-ifeq ($(TARGET),PARAGON)
-       PRECISION = double
-endif
-ifeq ($(TARGET),DELTA)
-       PRECISION = double
-endif
-ifeq ($(TARGET),IPSC)
-       PRECISION = double
-endif
-ifeq ($(TARGET),DECOSF)
-       PRECISION = double
-endif
-ifeq ($(TARGET),LINUX)
-	PRECISION = double
 endif
 
 ifndef PRECISION
