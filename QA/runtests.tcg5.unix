@@ -1,0 +1,321 @@
+#!/bin/csh  -f
+# 
+# THIS assumes ./tests/
+#
+# UNIX workstation parallel and sequential execution of test jobs
+
+# Usage:
+#       runtest.mpi.unix [procs nproc] testdir1 [testdir2 ...]
+#
+# Return 0 if all jobs complete successfully and outputs compare OK
+#          with the correct output
+# Return 1 otherwise.
+#
+
+# Gets executable from environment variable NWCHEM_EXECUTABLE or
+# uses the daily NWChem release build
+# Gets nwparse.pl from enironement varialle NWPARSE or looks in your 
+# nwchem tree for $NWCHEM_TOP/QA/nwparse.pl
+
+# A test is specified by the path to the directory containing
+# the test inputs and outputs.  The input file is assumed to
+# begin with the same name as the directory.  
+#
+# E.g., if the test is specified as ./small/o3grad then
+# - the input file will be ./small/o3grad/o3grad.nw
+# - the verified output will be ./small/o3grad/o3grad.out
+
+# A subdirectory of the current directory named scratchdir is deleted
+# and remade for each calculation, and deleted at job end.
+
+# A subdirectory of the current directory name testoutputs is made
+# if necessary and all outputs are routed there.  Existing outputs
+# are overwritten.  The name of the output file is formed by replacing
+# the trailing .nw with .out.  In this directory is also put the
+# output of nwparse for the verified and the test outputs.
+
+set NWCHEM_PROJ_PATH = /msrc/proj/nwchem/bind
+
+if ($#argv == 0) then
+   goto USAGE
+endif
+@ NPROC = 0
+@ argv_set_nproc = 0
+@ get_nproc = 0
+set args_2_use = removeme
+foreach argument ($argv)  
+    if ($get_nproc) then
+        @ NPROC = $argument
+        @ argv_set_nproc++
+        @ get_nproc = 0
+    else if ($argument == "procs") then
+        @ get_nproc = 1       
+    else
+        set args_2_use = ($args_2_use $argument)
+    endif
+end   
+#
+# now remove first dummy argument from args_2_use
+set args_2_use = ($args_2_use[2-])
+
+
+set CURDIR = $cwd
+
+# Figure out where the executable is.
+
+if ($?NWCHEM_EXECUTABLE) then
+  set NWCHEM = $NWCHEM_EXECUTABLE
+else
+  set NWCHEM = $NWCHEM_PROJ_PATH/nwchem
+endif
+
+#if (! -x $NWCHEM) then
+#  echo cannot execute $NWCHEM
+#  exit 1
+#endif
+
+# Figure out where the nwparse.pl script is.
+
+if (! $?NWPARSE) then
+  if (-f nwparse.pl) then
+    set NWPARSE = $CURDIR/nwparse.pl
+  else if ($?NWCHEM_TOP) then
+    set NWPARSE = $NWCHEM_TOP/QA/nwparse.pl
+  else
+    echo Cannot find nwparse.pl.  Set NWPARSE or NWCHEM_TOP appropriately.
+    exit 1
+  endif
+endif
+
+# Run the tests one at a time
+
+set SCRATCHDIR  = $CURDIR/scratchdir
+set TESTOUTPUTS = $CURDIR/testoutputs
+
+if (! -d $TESTOUTPUTS) then
+  mkdir $TESTOUTPUTS
+  if ($status) then
+    echo cannot make directory $TESTOUTPUTS
+    exit 1
+  endif
+endif
+
+set overall_status = 0
+
+foreach TEST ($args_2_use)
+
+  cd $CURDIR
+  set TEST = tests/$TEST
+  set TESTDIR = $TEST
+  set STUB    = `basename $TEST`
+#
+# if $TEST is not a directory try use as root of filenames
+#
+  if(! -d $TEST) then
+    set TESTDIR = `echo $TEST | sed 's+/[^/]*$++'`
+  endif
+#
+# if $TESTDIR not directory skip
+#
+  if(! -d $TESTDIR) then
+    echo could not find job in $TEST
+    echo ignoring this failure
+    continue
+  endif
+
+  echo " "
+  echo " Running $TESTDIR/$STUB "
+  echo " "
+
+# Clean the scratch directory and copy the input and verified output
+# files to the scratch and test output directories
+
+  echo "     cleaning scratch"
+
+  /bin/rm -rf $SCRATCHDIR
+  mkdir $SCRATCHDIR
+  if ($status) then
+    echo failed to make $SCRATCHDIR
+    exit 1
+  endif
+
+  echo "     copying input and verified output files"
+
+  set OUTPUTFILE   = $STUB.out
+  set INPUTFILE    = $STUB.nw
+
+#
+# MD input files
+#
+  set TESTFILE     = $STUB.tst
+  set RESTARTFILE  = $STUB.rst
+  set RDFINPUTFILE = $STUB.rdi
+  set MRINPUTFILE  = $STUB.mri
+  set TOPOLOGYFILE = (`echo $STUB.top | sed 's/_.*\././'`)
+  set PDBFILE      = (`echo $STUB.pdb | sed 's/_.*\././'`)
+#
+# ESP file
+#
+  set ESPFILE      = $STUB.q
+#
+  set md_test_run = 0
+#
+  set esp_test_run = 0
+  if( -f $TESTDIR/$ESPFILE) then
+    set esp_test_run = 1
+  endif
+#
+  
+  if (! -f $TESTDIR/$INPUTFILE) then
+    echo cannot access $TESTDIR/$INPUTFILE
+    set overall_status = 1
+    continue
+  endif
+
+  cp $TESTDIR/$INPUTFILE $SCRATCHDIR
+  if (-f $TESTOUTPUTS/$STUB.ok.out) /bin/rm -f $TESTOUTPUTS/$STUB.ok.out
+  if($md_test_run) then
+  if(-f $TESTDIR/$OUTPUTFILE) cp $TESTDIR/$OUTPUTFILE $TESTOUTPUTS/$STUB.ok.out
+  else
+  cp $TESTDIR/$OUTPUTFILE $TESTOUTPUTS/$STUB.ok.out
+  endif
+
+#
+# copy the ESP file
+#
+  if($esp_test_run) then
+    cp $TESTDIR/$ESPFILE $TESTOUTPUTS/$STUB.ok.q
+  endif
+
+#
+
+# Run the calculation in the scratch directory
+
+  cd $SCRATCHDIR
+
+  if (-f $TESTOUTPUTS/$STUB.out) /bin/rm -f $TESTOUTPUTS/$STUB.out
+
+  echo "     running nwchem ($NWCHEM)"
+
+  set x="%Uu %Ss %E %P (%Xt+%Dds+%Kavg+%Mmax)k %Ii+%Oo %Fpf %Wswaps"
+  set time=(1 "$x")
+
+  echo -n "     "
+
+#
+# MD creates it own $STUB.out
+#
+#
+    if ($NPROC) then
+#echo "launching"
+#echo "nwchem exex is" $NWCHEM
+        cp $INPUTFILE nwchem.nw
+        $NWCHEM -np $NPROC >& $TESTOUTPUTS/$OUTPUTFILE
+       @ runstatus = $status
+    else
+      $NWCHEM  >& $TESTOUTPUTS/$OUTPUTFILE
+       @ runstatus = $status
+    endif
+#
+#
+
+  if ($runstatus) then
+    echo "     NWChem execution failed"
+    set overall_status = 1
+    continue
+  endif
+
+  set time=(60 "$x")
+
+  cd $TESTOUTPUTS
+
+# Now verify the output
+
+    echo -n "     verifying output ... "
+
+    perl $NWPARSE $STUB.out >& /dev/null
+    if ($status) then
+      echo nwparse.pl failed on test output $STUB.out
+      set overall_status = 1
+      continue
+    endif 
+    perl $NWPARSE $STUB.ok.out >& /dev/null
+    if ($status) then
+      echo nwparse.pl failed on verified output $STUB.ok.out
+      set overall_status = 1
+      continue
+    endif
+
+    diff -w $STUB.ok.out.nwparse $STUB.out.nwparse >& /dev/null
+    @ diff1status = $status
+#
+#
+
+  if ($diff1status) then
+    echo "failed"
+    set overall_status = 1
+    continue 
+  else
+#
+# diff MD test files
+#
+    if(!($md_test_run)&& !($esp_test_run)) then   # Now verify the output
+      echo "OK" 
+    else if($esp_test_run) then
+
+    cp $SCRATCHDIR/$ESPFILE $TESTOUTPUTS/.
+#    echo "doing ls -l " $STUB.ok.q $STUB.q
+#    echo `ls -l $STUB.ok.q $STUB.q`
+       diff -w $STUB.ok.q $STUB.q >& /dev/null
+       if($status) then
+         echo "ESP comparison failed"
+         set overall_status = 1
+         continue 
+       else
+         echo "ESP charges match"
+       endif
+    else
+      echo -n "     verifying test ....... "
+#
+      if(-f $STUB.tst) then
+       diff -w $STUB.ok.tst $STUB.tst >& /dev/null
+       if($status) then
+         echo "failed"
+         set overall_status = 1
+         continue 
+       else
+         echo "completed"
+       endif
+      else
+       echo "skipped"
+       echo -n "     verifying topology ... "
+       set ttt = (`diff -w $STUB.ok.tst $TOPOLOGYFILE | wc -l`)
+       if($ttt == 4) then
+        echo "completed "
+       else
+        echo "failed"
+        set overall_status = 1
+        continue 
+       endif
+      endif
+    endif
+  endif
+end
+
+cd $CURDIR
+/bin/rm -rf $SCRATCHDIR
+  
+echo " "
+if ($overall_status) then
+  echo Failed
+else
+  echo OK
+endif
+
+exit $overall_status
+
+
+USAGE:
+  echo "runtest.unix [-procs nproc] testdir1 [testdir2 ...]"
+  echo " -procs nproc sets the number of processors to use"
+  exit 0

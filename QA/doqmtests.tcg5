@@ -1,0 +1,73 @@
+#!/bin/csh -f
+#
+# $Id: doqmtests.tcg5,v 1.1 2004-05-21 15:38:29 edo Exp $
+#
+#---   small tests
+set np = 1
+if ($1 !="") then
+set np = $1
+endif
+./runtests.tcg5.unix procs $np auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
+./runtests.tcg5.unix procs $np rimp2_ne  scf_feco5 small_intchk tagcheck testtab
+./runtests.tcg5.unix procs $np h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
+./runtests.tcg5.unix procs $np cosmo_trichloroethene esp esp_uhf dft_bsse
+./runtests.tcg5.unix procs $np dplot neda_nbo  dft_meta
+./runtests.tcg5.unix procs $np et_zn_dimer vectors_rotate sad_ch3hf
+
+#---   small tests that should fail!
+echo ' '
+echo 'The oh2 test is testing the perl parsing script and SHOULD fail'
+./runtests.tcg5.unix procs $np oh2
+#---   medium tests
+./runtests.tcg5.unix procs $np dft_feco5 
+./runtests.tcg5.unix procs $np dft_siosi3
+./runtests.tcg5.unix procs $np dft_x
+./runtests.tcg5.unix procs $np dft_mpw1k dft_li2freq
+echo 'The intermediate values for this test may cause some differences.'
+echo 'Please check the final values for the last optimized structure.'
+./runtests.tcg5.unix procs $np dielsalder
+echo 'The intermediate energy values for the numerical gradient '
+echo 'test may cause some differences.'
+echo 'Please check the final gradient values for correctness.'
+./runtests.tcg5.unix procs $np grad_ozone
+./runtests.tcg5.unix procs $np dft_ozone 
+./runtests.tcg5.unix procs $np hess_c6h6
+./runtests.tcg5.unix procs $np intchk
+echo 'The intermediate values for this test may cause some differences.'
+echo 'Please check the final values for the last optimized structure.'
+./runtests.tcg5.unix procs $np sadsmall
+#./runtests.tcg5.unix procs $np sadbig
+./runtests.tcg5.unix procs $np br2_dk
+./runtests.tcg5.unix procs $np uo2_sodft
+./runtests.tcg5.unix procs $np uo2_sodft_grad
+./runtests.tcg5.unix procs $np si2cl6_gc
+./runtests.tcg5.unix procs $np pspw
+./runtests.tcg5.unix procs $np pspw_SiC
+./runtests.tcg5.unix procs $np pspw_md
+./runtests.tcg5.unix procs $np paw
+./runtests.tcg5.unix procs $np pspw_polarizability
+./runtests.tcg5.unix procs $np pspw_stress
+./runtests.tcg5.unix procs $np band
+./runtests.tcg5.unix procs $np tddft_h2o
+./runtests.tcg5.unix procs $np tddft_n2+
+./runtests.tcg5.unix procs $np tddft_ac_co
+./runtests.tcg5.unix procs $np tce_h2o
+./runtests.tcg5.unix procs $np tce_h2o_dipole
+./runtests.tcg5.unix procs $np tce_h2o_eomcc
+./runtests.tcg5.unix procs $np tce_uhf_uccsd
+./runtests.tcg5.unix procs $np tce_rohf_uccsd
+./runtests.tcg5.unix procs $np oniom1
+./runtests.tcg5.unix procs $np c60_ecp
+#---   long  may not run on workstations
+./runtests.tcg5.unix procs $np aump2 
+./runtests.tcg5.unix procs $np n2_ccsd 
+./runtests.tcg5.unix procs $np uoverlap
+./runtests.tcg5.unix procs $np grad_nh3_trimer 
+./runtests.tcg5.unix procs $np hess_nh3
+./runtests.tcg5.unix procs $np hess_nh3_dimer
+./runtests.tcg5.unix procs $np mp2_si2h6
+./runtests.tcg5.unix procs $np pbo_nesc1e
+./runtests.tcg5.unix procs $np bf_cis
+./runtests.tcg5.unix procs $np oniom3
+./runtests.tcg5.unix procs $np cytosine_ccsd
+./runtests.tcg5.unix procs $np h2o_selci
