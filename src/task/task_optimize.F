@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.24 2001-05-09 17:55:35 d3j191 Exp $
+c     $Id: task_optimize.F,v 1.25 2002-11-20 21:18:07 bylaska Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -120,7 +120,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.24 2001-05-09 17:55:35 d3j191 Exp $
+c     $Id: task_optimize.F,v 1.25 2002-11-20 21:18:07 bylaska Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -245,7 +245,7 @@ c
 c     
       end
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.24 2001-05-09 17:55:35 d3j191 Exp $
+c     $Id: task_optimize.F,v 1.25 2002-11-20 21:18:07 bylaska Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -327,4 +327,41 @@ c$$$      endif
 c$$$c
 c$$$      task_lst = status
 c$$$c
+      end
+
+
+      logical function task_neb(rtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "util.fh"
+      integer rtdb
+c
+c     Calculate the minimum energy pathway between to ionic configurations
+c
+c     Since this routine can be directly invoked by application modules
+c     no input is processed in this routine.
+c
+c
+c     RTDB output parameters
+c     ----------------------
+c     task:energy (real)   - final energy from optimization
+c     task:gradient (real) - final gradient from optimization
+c     task:status (real)   - T/F on success/failure
+c     task:cputime
+c     task:walltime
+c     geometry             - final geometry from optimization
+c
+      logical status
+
+*     **** external functions ****
+      logical  neb
+      external neb
+
+      status = neb(rtdb)
+      task_neb = status
+      return
       end

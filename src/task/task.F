@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.50 2002-07-09 13:16:48 bylaska Exp $
+* $Id: task.F,v 1.51 2002-11-20 21:18:07 bylaska Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -36,7 +36,8 @@ c
       logical property, dplot, gapss, task_shell, moints_full
       logical analyz,esp,prepar,nwmd, kgdtest, jvltest, jvltest2
       logical task_energy, task_gradient, task_optimize, task_freq
-      logical task_hessian, task_saddle, task_lst,task_dynamics
+      logical task_hessian, task_saddle, task_lst, task_neb
+      logical task_dynamics
       logical task_qmmm, task_python, task_nbo,task_thermo
       logical task_version, task_vscf
 c     logical task_pspw,task_paw  ! no paw until conversion to f77 done
@@ -49,8 +50,9 @@ c
       external property, dplot, gapss, task_shell, moints_full
       external analyz,esp,prepar,nwmd
       external task_energy, task_gradient, task_optimize, task_freq
-      external task_hessian, task_saddle, task_lst,task_dynamics
-      external task_version, task_python, task_nbo,task_thermo
+      external task_hessian, task_saddle, task_lst, task_neb
+      external task_dynamics
+      external task_version, task_python, task_nbo, task_thermo
       external kgdtest, task_vscf
 c     external task_pspw,task_paw ! no paw until conversion to f77 done
       external task_pspw
@@ -186,6 +188,8 @@ c
          status = task_optimize(rtdb)
       else if (inp_compare(.false., 'saddle', operation)) then
          status = task_saddle(rtdb)
+      else if(inp_compare(.false.,'neb',operation)) then
+         status=task_neb(rtdb)
       else if (inp_compare(.false., 'lst', operation)) then
          status = task_lst(rtdb)
       else if (inp_compare(.false., 'et', operation)) then
