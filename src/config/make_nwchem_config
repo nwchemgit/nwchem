@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.14 1995-03-04 16:18:59 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.15 1995-05-17 16:35:12 mg650 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -65,6 +65,7 @@ MODULES := $(patsubst dftgrad,dftgrad gradients ddscf nwdft,$(MODULES) )
 MODULES := $(patsubst gradients,gradients ddscf,$(MODULES) )
 
 
+MODULES := $(patsubst ccsd,ccsd moints ddscf,$(MODULES) )
 MODULES := $(patsubst moints,moints NWints,$(MODULES) )
 MODULES := $(patsubst cphf,cphf ddscf,$(MODULES) )
 MODULES := $(patsubst scfaux,scfaux ddscf,$(MODULES) )
@@ -93,6 +94,7 @@ MOD_LIBS := $(patsubst ddscf,-lddscf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dftgrad,-ldftgrad,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst develop,-ltest,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst gradients,-lgradients,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst ccsd,-lccsd,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst moints,-lmoints,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwdft,-lnwdft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst rimp2,-lrimp2,$(MOD_LIBS) )
@@ -114,6 +116,7 @@ STUBROUTINES := $(patsubst ddscf,scf scf_input vectors_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dftgrad,dft_grad_top grad_dft dft_optimize,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst develop,rjhtest raktest debtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gradients,scf_gradient,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst ccsd,ccsd,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst moints,atwtest direct_mp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwdft,nwdft dft_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rimp2,rimp2,$(STUBROUTINES) )
