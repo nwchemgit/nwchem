@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.36 2001-12-28 18:30:08 windus Exp $
+C $Id: hess_cphf.F,v 1.37 2001-12-28 18:45:36 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -398,6 +398,8 @@ c       endif
      $  ('cannot destroy g_tmp ',555)
       if (.not.ga_destroy(g_tmp2)) call errquit
      $  ('cannot destroy g_tmp2 ',555)
+      if (.not.ga_destroy(g_wax)) call errquit
+     $  ('cannot destroy g_wax ',555)
       if (.not.ga_destroy(g_sol)) call errquit
      $  ('cannot destroy g_sol ',555)
 c
