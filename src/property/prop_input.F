@@ -1,6 +1,6 @@
       subroutine prop_input(rtdb)
 *
-* $Id: prop_input.F,v 1.7 1999-12-09 17:15:40 windus Exp $
+* $Id: prop_input.F,v 1.8 1999-12-10 17:36:08 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -183,8 +183,6 @@ c
            else
              call errquit ('prop_input: not a valid center type',555)
            endif
-           write(6,*) 'center is ',center
-           write(6,*) 'point is ',point(1), point(2), point(3)
          else
             call errquit ('prop_input: no center information',555)
          endif
