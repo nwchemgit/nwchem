@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.36 2004-01-16 23:15:03 sohirata Exp $
+* $Id: util_legal.F,v 1.37 2004-02-07 02:14:48 nwchem Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,                  *
 *              2000, 2001, 2002, 2003                                *
@@ -285,7 +285,7 @@ c
      &    /,/)
 c    ***PAW references***
 10109 format(1x,i5,'.',1x,
-     + ' M. Valiev, E. J. Bylaska, A. Gramda, and J. H. Weare,'
+     + ' M. Valiev, E. J. Bylaska, A. Gramada, and J. H. Weare,'
      + /,8x,' Reviews in Modern Quantum Chemistry, pages 1684-1734',
      + /,8x,' (World Scientific, Singapore, 2002).'
      &    /,/)
