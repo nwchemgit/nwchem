@@ -1,5 +1,5 @@
       logical function stpr_walk(rtdb)
-c $Id: stpr_walk.F,v 1.5 1994-09-08 03:20:45 d3e129 Exp $
+c $Id: stpr_walk.F,v 1.6 1994-09-25 07:51:53 d3e129 Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -30,9 +30,19 @@ c
       integer h_core, k_core    ! MA handle/index of scratch array for stepper
       integer h_chg, k_chg      ! MA handle/index of charge array
       integer int_val           ! value to propigate status (stpr_walk value)
+      integer new_geom
+      character*40 new_geom_name ! new geometry name for next step
+      character*2 tmpname
       character*16 stpr_tags(max_cent) ! local tags array
       logical status
       double precision convgg, convge
+      integer first_call, step_number
+      data first_call /0/
+c
+      if (first_call.eq.0) then
+        first_call = 1
+        
+      endif
 c
       stpr_walk = .false.
 c.................................... set broadcast off
@@ -83,9 +93,9 @@ c
         if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      &      call errquit('stpr_walk: no geometry ', 911)
 c
-*        if (.not. geom_print(geom))
-*     &      call errquit('stpr_walk: geom_print ?',911)      
-*        call util_flush(6)
+*rak:        write(6,*)' after load in stpr_walk'
+*rak:        if (.not.geom_print(geom)) stop 'tmp error'
+c
         if (.not. geom_ncent(geom,nat))
      &      call errquit('stpr_walk: geom_ncent?',911)
 c
@@ -135,26 +145,55 @@ c
      &      dbl_mb(k_grad),
      &      dbl_mb(k_coord),
      &      energy,nat,convge,convgg,stpr_walk,
-     &      rtdb)
+     &      rtdb,step_number)
 c
+c..... copy geom on rtdb with new name
+c
+        write(tmpname,'(i2)')abs(step_number)
+        new_geom_name='geometry step'//tmpname
+        if (.not.geom_create_rtdb_copy
+     &      (rtdb,geom,'geometry',new_geom,new_geom_name,.true.))
+     &      call errquit
+     &      ('stpr_walk: geom_create_rtdb_copy failed',911)
+*rak:        write(6,*)' after geom_create_rtdb_copy stpr_walk'
+*rak:        if (.not.geom_print(geom)) stop 'tmp error'
+*rak:        if (.not.geom_print(new_geom)) stop 'tmp error'
 c..... set coordinates
-        if (.not. geom_cart_set(geom,nat,
+        if (.not. geom_cart_set(new_geom,nat,
      &      stpr_tags,
      &      dbl_mb(k_coord),
      &      dbl_mb(k_chg)))
      &      call errquit
      &        ('stpr_walk: geom_cart_set failed ?',911)
 c
-c..... update rtdb with new coordinates        
+*rak:        write(6,*)' after geom_cart_set stpr_walk'
+*rak:        if (.not.geom_print(geom)) stop 'tmp error'
+*rak:        if (.not.geom_print(new_geom)) stop 'tmp error'
 c
-*        if (.not. geom_print(geom))
-*     &      call errquit('stpr_walk: geom_print ?',911)
-        if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
+        if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
+     &      call errquit
+     &        ('stpr_walk: rtdb_cput failed ?',911)
+        if (.not.geom_rtdb_store(rtdb,new_geom,new_geom_name))
      &      call errquit
      &      ('stpr_walk: geom_rtdb_store failed ?',911)
 c
+*rak:        if(.not.rtdb_print(rtdb,.true.)) stop 'tmp error'
+c
+*rak---- old copy over geometry - start
+*rak:c
+*rak:c..... update rtdb with new coordinates        
+*rak:c
+*rak:*        if (.not. geom_print(geom))
+*rak:*     &      call errquit('stpr_walk: geom_print ?',911)
+*rak:        if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
+*rak:     &      call errquit
+*rak:     &      ('stpr_walk: geom_rtdb_store failed ?',911)
+*rak:c
+*rak---- old copy over geometry - end
 c... clean up
         if (.not.geom_destroy(geom))
+     &      call errquit('stpr_walk: geom_destroy failed?',911)
+        if (.not.geom_destroy(new_geom))
      &      call errquit('stpr_walk: geom_destroy failed?',911)
         if (.not.MA_Pop_Stack(h_chg))
      &      call errquit('stpr_walk: ma_pop_stack h_chg failed',911)
@@ -171,13 +210,19 @@ c... remove stepper context
 c
         int_val = 0 
         if (stpr_walk) int_val = 1
+        if(step_number.le.0) then
+          write(6,*)' maximum number of geometry optimization ',
+     &        'iterations exceded:  graceful shutdown will occur'
+          int_val = -1
+        endif
       endif
       call ga_brdcst(Msg_Stpr_Walk+MSGINT, int_val, mitob(1), 0) ! Propagate walker status
+c
       stpr_walk = .false.
-      if (int_val.eq.1) stpr_walk = .true.
+      if (int_val.ne.0) stpr_walk = .true.
 c
 c.... restore parallel access to rtdb
-        status = rtdb_parallel(.true.) 
+      status = rtdb_parallel(.true.) 
 c      
       call ga_sync()
 c

@@ -2,12 +2,12 @@
      &       HESS, GRAD, COORD, CHARGE, SELECT, ATMASS,
      &       AMS, G, C, ETOT, TRUST, ENERGY, CONVGE,
      &       CONVGG, NATD, NMODE,
-     &       TRACK, BCKSTP, RPATH , rtdb)
+     &       TRACK, BCKSTP, RPATH , rtdb, step_number)
 c
-c $Id: stpr_face.F,v 1.2 1994-07-29 22:39:59 d3e129 Exp $
+c $Id: stpr_face.F,v 1.3 1994-09-25 07:51:47 d3e129 Exp $
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
-      integer rtdb, him, kim
+      integer rtdb, him, kim, step_number, maxiter
       LOGICAL BCKSTP, TRACK, RPATH
       LOGICAL SECO, SWSEC, SWFIR
       LOGICAL SETM
@@ -51,10 +51,10 @@ C
       osetmass = .false.
       call stpr_set_defaults(OMIN,TS,STD,TROT,TRTR,MWC,SECO,SWFIR,
      &    SWSEC,RSTD,TRUSTC,TRUSTM,TRUST,NMODE,TRACK,RPATH,RCONVG,
-     &    SETM,convgg,convge)
+     &    SETM,convgg,convge,maxiter)
       call stpr_load_rtdb(rtdb,omin,ts,std,trot,trtr,mwc,seco, swfir,
      &    swsec,track,rpath,setm,oselect,osetmass,nmode,rconvg,rstd,
-     &    trustc, trustm, trust, convgg, convge)
+     &    trustc, trustm, trust, convgg, convge, maxiter)
 c
       if (oselect) then
         call stpr_select_grtdb(natom,rtdb,select)
@@ -286,6 +286,8 @@ C
 C     IWCTR = step counter.
 C
       IWCTR = IWCTR + 1
+      step_number = iwctr
+      if (step_number.ge.maxiter) step_number = -step_number
 C
 C     ICALC = order of derivatives.
 C
@@ -356,12 +358,12 @@ C
       END
       subroutine stpr_set_defaults(OMIN,TS,STD,TROT,TRTR,MWC,SECO,
      &    SWFIR,SWSEC,RSTD,TRUSTC,TRUSTM,TRUST,NMODE,TRACK,RPATH,
-     &    RCONVG,SETM,CONVGG,CONVGE)
+     &    RCONVG,SETM,CONVGG,CONVGE,maxiter)
 c
       implicit none
       logical omin, ts, std, trot, trtr, mwc, seco, swfir, swsec
       logical track, rpath, setm
-      integer nmode
+      integer nmode, maxiter
       double precision rconvg, rstd, trustc, trustm, trust
       double precision convgg, convge
 c
@@ -379,6 +381,7 @@ c
       SETM = .TRUE.
 c
       NMODE = 0
+      maxiter = 20
 c
       RCONVG = 1.0D-02
       RSTD   = 5.0D-02
@@ -459,7 +462,7 @@ c
       subroutine stpr_store_rtdb(rtdb,omin,ts,std,trot,trtr,mwc,seco,
      &    swfir,
      &    swsec,track,rpath,setm,oselect,osetmass,nmode,rconvg, rstd,
-     &    trustc, trustm, trust, convgg, convge)
+     &    trustc, trustm, trust, convgg, convge, maxiter)
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -469,11 +472,11 @@ c::passed
       logical omin,  ts,   std,     trot,  trtr
       logical mwc,   seco, swfir,   swsec, track
       logical rpath, setm, oselect, osetmass
-      integer nmode
+      integer nmode, maxiter
       double precision rconvg, rstd, trustc, trustm, trust
       double precision convgg, convge
 c::local
-      integer hlog,klog,    hdbl,kdbl
+      integer hlog,klog,    hdbl,kdbl,  hint, kint
 c
 c allocate memory
 c.. logs array 
@@ -481,6 +484,9 @@ c.. logs array
      &    call errquit
      &    ('stpr_store_rtdb: push for logs failed?',911)
 c.. one one int no allocate now
+      if(.not.MA_Push_get(MT_INT,ns_int,'stepper ints',hint,kint))
+     &    call errquit
+     &    ('stpr_store_rtdb: push for ints failed?',911)
       if(.not.MA_Push_get(MT_DBL,ns_dbl,'stepper dbls',hdbl,kdbl))
      &    call errquit
      &    ('stpr_store_rtdb: push for dbls failed?',911)
@@ -500,6 +506,9 @@ c
       log_mb((klog + 12)) = oselect
       log_mb((klog + 13)) = osetmass
 c
+      int_mb(kint)    = nmode
+      int_mb(kint+1)   = maxiter
+c
       dbl_mb( kdbl) = rconvg
       dbl_mb((kdbl +  1)) = rstd
       dbl_mb((kdbl +  2)) = trustc
@@ -514,7 +523,7 @@ c
      &    ('stpr_store_rtdb: rtdb_put failed',911)
 c
       if (.not.rtdb_put
-     &    (rtdb,'stepper:integervals',MT_INT,ns_int,nmode))
+     &    (rtdb,'stepper:integervals',MT_INT,ns_int,int_mb(kint)))
      &    call errquit
      &    ('stpr_store_rtdb: rtdb_put failed',911)
 c
@@ -527,6 +536,10 @@ c
      &    call errquit
      &    ('stpr_store_rtdb: error freeing hdbl',911)
 c
+      if(.not.MA_Pop_Stack(hint))
+     &    call errquit
+     &    ('stpr_store_rtdb: error freeing hint',911)
+c
       if(.not.MA_Pop_Stack(hlog))
      &    call errquit
      &    ('stpr_store_rtdb: error freeing hlog',911)
@@ -537,7 +550,7 @@ c
       subroutine stpr_load_rtdb(rtdb,omin,ts,std,trot,trtr,mwc,seco,
      &    swfir,
      &    swsec,track,rpath,setm,oselect,osetmass,nmode,rconvg, rstd,
-     &    trustc, trustm, trust, convgg, convge)
+     &    trustc, trustm, trust, convgg, convge, maxiter)
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -547,12 +560,13 @@ c::passed
       logical omin,  ts,   std,     trot,  trtr
       logical mwc,   seco, swfir,   swsec, track
       logical rpath, setm, oselect, osetmass
-      integer nmode
+      integer nmode, maxiter
       double precision rconvg, rstd, trustc, trustm, trust
       double precision convgg, convge
 c::local
       logical status
       integer hlog,klog,    hdbl,kdbl
+      integer hint, kint
       integer my_ma_type, my_len
 c
 *      if(rtdb_print(rtdb,.true.))write(6,*)'load 1'
@@ -571,11 +585,19 @@ c
      &    call errquit('stpr_load_rtdb: ma_get_index fail',911)
 *      if(rtdb_print(rtdb,.true.))write(6,*)'load 2'
 c
-c... currently only one integer input
-      if (.not.rtdb_get
-     &    (rtdb,'stepper:integervals',MT_INT,ns_int,nmode))
+c... currently only two integer input nmode/maxiter
+      if(.not.rtdb_ma_get
+     &    (rtdb,'stepper:integervals',my_ma_type,my_len,hint))
      &    call errquit
-     &    ('stpr_load_rtdb: rtdb_get failed',911)
+     &    ('stpr_load_rtdb:rtdb_ma_get failed',911)
+      if (.not.MA_get_index(hint,kint))
+     &    call errquit('stpr_load_rtdb: ma_get_index fail',911)
+c
+      if(.not.((my_ma_type.eq.MT_INT).and.(my_len.eq.ns_int)))then
+        write(6,*)' read type .ne. expected type ',my_ma_type,MT_INT
+        write(6,*)' read length .ne. expected    ',my_len,ns_int
+        call errquit('stpr_load_rtdb: rtdb_ma_get fail',911)
+      endif
 c
 *      if(rtdb_print(rtdb,.true.))write(6,*)'load 3'
       if (.not.rtdb_ma_get
@@ -606,6 +628,9 @@ c
       oselect  = log_mb((klog + 12)) 
       osetmass = log_mb((klog + 13)) 
 c
+      nmode   = int_mb(kint)
+      maxiter = int_mb(kint+1)
+c
       rconvg = dbl_mb( kdbl) 
       rstd   = dbl_mb((kdbl +  1)) 
       trustc = dbl_mb((kdbl +  2)) 
@@ -619,6 +644,10 @@ c.... free heap memory
      &      call errquit
      &      ('stpr_load_rtdb: error freeing hdbl',911)
 c
+        if(.not.MA_free_heap(hint))
+     &      call errquit
+     &      ('stpr_load_rtdb: error freeing hint',911)
+c
         if(.not.MA_free_heap(hlog))
      &      call errquit
      &      ('stpr_load_rtdb: error freeing hlog',911)
@@ -626,4 +655,13 @@ c
 00001 continue
 c
       end
-
+      block data stpr_data
+      implicit none
+      COMMON / CFACE / IWCTR,NATOM,ICALC
+      integer iwctr, natom, icalc
+c
+      data iwctr /0/
+      data natom /0/
+      data icalc /0/
+c
+      end
