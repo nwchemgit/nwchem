@@ -3,7 +3,7 @@
      &                       g_tmp, g_svecs, isvals, diis, nodiis,
      .     g_diis,keeps,g_s12m,g_s12p)
 c
-C$Id: diis_driver.F,v 1.21 2000-11-14 19:06:53 edo Exp $
+C$Id: diis_driver.F,v 1.22 2000-11-14 20:26:09 edo Exp $
 c
       implicit none
 c      
@@ -216,8 +216,8 @@ c
 c
 c     Compute an extrapolated Hamiltonian using the weights.
 c
-      call diis_hamwgt(Dbl_MB(ifwght), MXhist, nhist, nbf,icall, 
-     &                 ipol,  g_focks, g_diis, g_tmp)
+      call diis_hamwgt(Dbl_MB(ifwght), MXhist, nhist, icall, 
+     &                 ipol,  g_focks, g_diis)
 c
 #if defined(DFT_TIMER)
       call dft_second(tp2)
