@@ -8,3 +8,15 @@ Li	1 	0.787553	-1.892612	0.286060
 		1.079306	-0.005895
 			 	0.000019
 <end>
+
+
+Comment: Used for generating atomic orbitals
+<atom>
+Li
+3.0 7.0 1 1 
+1  0      2.0
+2  0      1.0
+<end>
+<solver>          pauli         <end>
+<pseudopotential> hamann        <end>
+
