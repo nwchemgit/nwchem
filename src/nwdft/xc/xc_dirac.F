@@ -1,7 +1,19 @@
+c
+c     Modified to handle second derivatives while reusing code
+c
+c     BGJ - 8/97
+c
+#ifndef SECOND_DERIV
       Subroutine xc_dirac(tol_rho, fac, lfac, nlfac, rho, Amat, nq, 
      &                    ipol, Ex, qwght, ldew, func)
+#else
+c     For locations of 2nd derivatives of functionals in array
+#include "dft2drv.fh"
+      Subroutine xc_dirac_d2(tol_rho, fac, lfac, nlfac, rho, Amat,
+     &                       Amat2, nq, ipol, Ex, qwght, ldew, func)
+#endif
 c
-C$Id: xc_dirac.F,v 1.8 1997-12-08 23:48:50 d3h449 Exp $
+C$Id: xc_dirac.F,v 1.9 1998-09-09 13:32:35 bjohnson Exp $
 c
       Implicit none
 c
@@ -18,9 +30,16 @@ c     Quadrature Weights
 c
       double precision qwght(nq)
 c
-c     Partial Derivatives of the Exchange Energy Functional
+c     Partial First Derivatives of the Exchange Energy Functional
 c
       double precision Amat(nq,ipol)
+c
+#ifdef SECOND_DERIV
+c
+c     Partial Second Derivatives of the Exchange Energy Functional
+c
+      double precision Amat2(nq,*)
+#endif
 c
 c     Compute the partial derivatives of the exchange functional of Dirac.
 c
@@ -45,15 +64,24 @@ c
 c
 c        ======> SPIN-RESTRICTED <======
 c
+#ifdef SECOND_DERIV
+c         write(6,*)'xc_dirac called: restricted'
+#endif
          do 10 n = 1, nq
             if (abs(rho(n,1)).gt.tol_rho)then
                rho13 = rho(n,1)**one_third
                Amat(n,1) = Amat(n,1) + rho13
+#ifdef SECOND_DERIV
+               Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + rho13/rho(n,1)
+#endif
                Exp = Exp + rho(n,1)*rho13*qwght(n)
                if(ldew)func(n) = func(n) + rho(n,1)*rho13*fac*P2
             endif
    10    continue
          call dscal(nq, P1*fac, Amat(1,1), 1)
+#ifdef SECOND_DERIV
+         call dscal(nq, 2.0d0*one_third*P1*fac, Amat2(1,D2_RA_RA), 1)
+#endif
 c
          Ex = Ex + P2*Exp*fac
 c
@@ -61,6 +89,9 @@ c
 c
 c        ======> SPIN-UNRESTRICTED <======
 c
+#ifdef SECOND_DERIV
+c         write(6,*)'xc_dirac called: unrestricted'
+#endif
          do 20 n = 1,nq
             if (abs(rho(n,1)).gt.tol_rho)then
                if (rho(n,2).lt.0.d0.or.rho(n,3).lt.0.d0)then
@@ -72,6 +103,15 @@ c
                rho33=rho(n,3)**one_third
                Amat(n,1) = Amat(n,1) + P3*rho32*fac
                Amat(n,2) = Amat(n,2) + P3*rho33*fac
+#ifdef SECOND_DERIV
+               Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
+     &                           + one_third*P3*rho32/rho(n,2)*fac
+c              Guard against case of no beta electrons, e.g. H atom
+               if (rho(n,3).gt.tol_rho) then
+                  Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
+     &                              + one_third*P3*rho33/rho(n,3)*fac
+               endif
+#endif
                if (ldew)func(n) = func(n) + ( rho32*rho(n,2) + 
      &                                        rho33*rho(n,3)   )*P4*fac
                Exp = Exp + (rho32*rho(n,2)+rho33*rho(n,3))*qwght(n)
@@ -87,3 +127,10 @@ c      write(6,*)'from xc_dirac ; p4, exp, fac, Ex: ',
 c     &                           p4, exp, fac, Ex
       return
       end
+#ifndef SECOND_DERIV
+#define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "xc_dirac.F"
+#endif

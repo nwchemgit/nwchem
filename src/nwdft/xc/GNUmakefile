@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.44 1997-07-21 20:23:24 d3h449 Exp $
+# $Id: GNUmakefile,v 1.45 1998-09-09 13:32:34 bjohnson Exp $
 ifeq ($(TARGET),SGITFP)
 	OBJ = xc_getv.o xc_quadv0.o xc_quadv0_a.o xc_quadv1.o xc_fitv.o xc_get2oi.o qpts.o gat_mat.o	xc_beckew.o setACmat.o xc_neighb.o 
 	OBJ_OPTIMIZE = xc_tabcd.o  xc_rhogen.o\
@@ -8,7 +8,8 @@ ifeq ($(TARGET),SGITFP)
 	scat_mat.o	 \
 	qpts.o		gausquad.o			   \
 	a_dist.o	qdist.o		 xc_delleyw.o xc_lebedev.o \
-        xc_vwn_1_rpa.o xc_vwn_1.o xc_vwn_2.o xc_vwn_3.o xc_vwn_4.o
+        xc_vwn_1_rpa.o xc_vwn_1.o xc_vwn_2.o xc_vwn_3.o xc_vwn_4.o \
+	xc_eval_fnl.o
 else
 #      OBJ = xc_getv.o  xc_quadv1.o  qpts.o  xc_quadv0.o xc_quadv0_a.o xc_perdew91.o 
 #
@@ -58,7 +59,8 @@ else
 	xc_vwn_2.o \
 	xc_vwn_3.o \
 	xc_vwn_4.o \
-	xc_vwn_5.o
+	xc_vwn_5.o \
+	xc_eval_fnl.o
 
 endif
 
