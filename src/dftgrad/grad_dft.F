@@ -11,7 +11,7 @@ c
       status = nwdft(rtdb)
       if (status) status = grad_dft(rtdb)
       dft_energy_gradient = status
-      call grid_cleanup(rtdb,.false.)
+      call grid_cleanup(rtdb,.true.)
 c
       end
       logical function sodft_energy_gradient(rtdb)
@@ -32,7 +32,7 @@ c
       end
       logical function grad_dft(rtdb)
 *
-* $Id: grad_dft.F,v 1.30 2000-11-04 03:20:38 d3g681 Exp $
+* $Id: grad_dft.F,v 1.31 2001-03-26 20:06:42 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
