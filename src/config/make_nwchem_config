@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.9 1995-02-23 22:12:16 mg141 Exp $
+# $Id: make_nwchem_config,v 1.10 1995-02-24 18:02:57 mg141 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -66,8 +66,8 @@ MODULES := $(patsubst gradients,gradients ddscf,$(MODULES) )
 
 
 MODULES := $(patsubst moints,moints NWints,$(MODULES) )
-MODULES := $(patsubst cphf,cphf scf,$(MODULES) )
-MODULES := $(patsubst scf,scf ddscf,$(MODULES) )
+MODULES := $(patsubst cphf,cphf scfaux,$(MODULES) )
+MODULES := $(patsubst scfaux,scfaux ddscf,$(MODULES) )
 
 MODULES := $(patsubst riscf,riscf rimp2 ddscf NWints,$(MODULES) )
 MODULES := $(patsubst rimp2,rimp2 ddscf NWints,$(MODULES) )
@@ -101,7 +101,7 @@ MOD_LIBS := $(patsubst stepper,-lstepper,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst symmetry,-lutil,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst ideaz,-lideaz,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cphf,-lcphf,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst scf,-lscf,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst scfaux,-lscfaux,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
 #-----------------------------------------------------------------------------
