@@ -254,6 +254,7 @@ foreach TEST ($args_2_use)
     echo -n "     verifying nwout ... "
 # verify $STUB.nwout here for QMD & QM/MM
     echo "skipped"
+set diff1status=0
   else
 
 # Now verify the output
