@@ -1,0 +1,113 @@
+# Performs an SO-DFT calculation on SiF with fractional
+# occupation (averaging the Pi-1/2 and Pi-3/2 components
+# to avoid breaking symmetry) and then computes the 
+# energy of the 4 possible occupations to compute the
+# spin-orbit splitting between the states.
+
+echo
+start sif
+
+geometry noautosym
+Si     0.00000      0.00000     0.00000
+ F     0.00000      0.00000     1.60000 
+end
+
+basis
+ Si S
+       22.06      -0.0005215     0.0
+        1.193     -0.2790447     0.0
+        0.2591     0.6456130     0.0
+        0.09187    0.5357844  1.000000
+ Si P 
+        7.274     -0.0061400     0.0
+        2.379     -0.0186267     0.0
+        0.2856     0.5211362     0.0
+        0.08528    0.5838112  1.000000
+ Si D
+        0.2828     1.000000
+  F S 
+       52.19      -0.0098975   0.0251065 
+        9.339     -0.1322598   0.1166727 
+        1.182      0.5946524  -1.6094271 
+        0.3626     0.5135746   1.5421965 
+  F P 
+       22.73       0.0450985  -0.0613020 
+        4.986      0.2393203  -0.4574854 
+        1.347      0.5011082  -0.5044298 
+        0.3472     0.4638647   0.9719851 
+  F D
+        1.692      1.000000
+end
+
+ecp
+Si nelec 10 
+ Si ul 
+  1   39.9699       -6.586753
+  2   13.2076      -19.623865
+  2    4.5321       -6.728598
+  2    1.6211       -0.675872
+ Si s
+  0    2.5644        3.112884
+  1    3.8803        6.763541
+  2    2.4527      -88.331095
+  2    2.1139      146.372750
+  2    1.8689      -54.564427
+ Si p 
+  0   10.3133        5.070758
+  1    5.5664        2.852504
+  2    3.7740      138.228630
+  2    2.9773     -224.598413
+  2    2.4800      116.561664
+F nelec 2
+  F ul
+  1  132.4967       -1.526734
+  2   44.5166       -6.723024
+  2   12.9487       -0.929649
+  F s 
+  0    2.8146        2.245349
+  1    5.6122        1.002179
+  2    3.1077      -19.302589
+  2    2.8835       12.685306
+end
+
+so
+ Si p
+  0   10.3133        0.007340
+  1    5.5664       -0.104824
+  2    3.7740        2.218828
+  2    2.9773       -3.926380
+  2    2.4800        1.903224
+ Si D 
+  1   39.9699        0.038934
+  2   13.2076        0.034233
+  2    4.5321       -0.040496
+  2    1.6211       -0.020697
+
+# In the pre-release 4.0 version there is still a bug with
+# SO operators on more than one center.
+#  F p 
+#  1  132.4967        0.109998
+#  2   44.5166       -0.013496
+#  2   12.9487        0.026102
+end
+
+# user fractional occupation numbers (FON) averaging one electron
+# between four orbitals.  
+set sodft:fon .true.
+set sodft:nel_fon 1 
+set sodft:nmo_fon 4 
+
+# Also, optionally, once the FON calculation has converged, compute
+# the energy of these occupations.
+set sodft:no_det  4
+set sodft:occupancy 1 0 0 0   0 1 0 0  0 0 1 0   0 0 0 1 
+
+dft  
+  mult 2
+  odft   
+  grid fine
+  iterations 100  
+  mulliken
+end
+
+task sodft  
