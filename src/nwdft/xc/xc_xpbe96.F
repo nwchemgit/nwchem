@@ -2,7 +2,7 @@
      &                     Amat, Cmat, nq, ipol, Ex, qwght,
      &                     ldew,func)     
 c
-c$Id: xc_xpbe96.F,v 1.2 1998-03-24 22:46:32 d3h449 Exp $
+c$Id: xc_xpbe96.F,v 1.3 1999-01-04 19:13:46 edo Exp $
 c
       implicit none
 c      
@@ -56,12 +56,12 @@ c***************************************************************************
       integer n
       double precision cd13a, cd43a, gna,  sa,  ca,
      &                 pa, gnb, sb, cb,  pb, cd13b, 
-     &                 cd43b, gaa, g, gbb, gamma,
+     &                 cd43b, g,  gamma,
      &     cd13,cd43, exlda, vxlda
 c
       fx(x)=uk-uk/(1.d0+ul*x*x)
       fxp(x)=2.d0*x*um/(1.d0+ul*x*x)**2
-      tp3=0.5/((3.d0*pi*pi)**(1.d0/3.d0))
+      tp3=0.5d0/((3.d0*pi*pi)**(1.d0/3.d0))
       p2t=-0.75d0*(3.d0/pi)**(1.d0/3.d0)
 c
       if (ipol.eq.1 )then
