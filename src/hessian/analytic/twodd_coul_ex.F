@@ -14,7 +14,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi, jfac, kfac)
-c     $Id: twodd_coul_ex.F,v 1.4 2000-07-26 23:34:29 windus Exp $
+c     $Id: twodd_coul_ex.F,v 1.5 2000-08-07 17:30:28 windus Exp $
 c
 c  This routine was essentially stolen from gradients/grad2.F.  I will work
 c  to make these routines one after I get things working.
@@ -103,8 +103,8 @@ C-------------------------local variables-----------------------------
 *      integer numq
       double precision smax, sij, sijkl, block_eff, p, val
 *     double precision integ_acc
-      double precision half, fourth, third
-      data half, fourth,third /0.5d+00,0.25d+00,0.3333333333d+00/
+      double precision half
+      data half /0.5d+00/
       
       integer ibflo_prev, jbflo_prev, kbflo_prev ! for caching
       
@@ -279,8 +279,6 @@ c     Make the twopdm just for the current shell block.  Note that
 c     pdm2d will have holes with junk in it for quartets we did not
 c     compute ... cannot zero this since it will be too expensive.
 c     
-       write(6,*) 'before the grad_make_twopdm call'
-       call flush(6)
                                  call grad_make_twopdm(
      $                                omp2,ouhf,orohf,omcscf,
      $                                d_ij,  d_kl,  d_ik,  
@@ -299,8 +297,6 @@ c
      $                                iilo, jjlo, kklo, lllo,
      $                                iihi, jjhi, kkhi, llhi,
      $                                pdm2d, psum, jfac, kfac, ogso)
-       write(6,*) 'after the grad_make_twopdm call'
-       call flush(6)
 c     
 c     Final screening including magnitude of the density
 c     
@@ -319,13 +315,7 @@ c
  100                    end do  ! next jjsh
                      end do
 
-*                     numq = numq + nq
 
-c     
-                     write(6,*) 'nq is ',nq
-                     write(6,*) 'before call to integrals: eri is'
-                     write(6,*) eri(1),eri(2),eri(3), eri(4)
-      write(6,*) ' leri is ',leri
                      if (.not. intbdd_init4c(
      $                    basis, list(1,1), list(1,2),
      $                    basis, list(1,3), list(1,4),
@@ -341,10 +331,6 @@ c
      $                    labels(1,3), labels(1,4), 
      $                    eri, leri, nint, lscr, scr)
 c     
-      write(6,*) ' leri is ',leri
-      write(6,*) ' nint ', nint, omore
-      call flush(6)
-c     
                      ibuf = 1
                      if (nint .gt. 0) then
                         do integ = 1, nint
@@ -352,33 +338,37 @@ c
                            j = labels(integ,2)
                            k = labels(integ,3)
                            l = labels(integ,4)
-      write(6,*) ' b ' ,i,j,k,l
+c     write(6,*) ' b ' ,i,j,k,l
                            atoms(1) = bftoat(i)
                            atoms(2) = bftoat(j)
                            atoms(3) = bftoat(k)
                            atoms(4) = bftoat(l)
-      write(6,*) ' a ' ,atoms
+c     write(6,*) ' a ' ,atoms
                            i = rbfmap(i) - ibflo + 1
                            j = rbfmap(j) - jbflo + 1
                            k = rbfmap(k) - kbflo + 1
                            l = rbfmap(l) - lbflo + 1
-      write(6,*) ' c ', i,j,k,l
+c     write(6,*) ' c ', i,j,k,l
                            p = pdm2d(l,k,j,i)
-      write(6,*) ' p ', p
+c     write(6,*) ' p ', p
                            do iiat1 = 1, 4
                            iat1 = atoms(iiat1)
                            do iiat2 = iiat1, 4
                               iat2 = atoms(iiat2)
+                           if ((iiat1.eq.iiat2).or.
+     $                       (iat1.ne.iat2)) then
                            do icart2 = 1, 3
                               itemp = 1
                               if (iiat2.eq.iiat1) itemp = icart2
+c                             if (iat2.eq.iat1) itemp = icart2
                               do icart1 = itemp, 3
                               val = p*eri(ibuf)
-c                             if (iat1.eq.iat2) val = val * fourth
-      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
-      write(6,*) 'val is ',val
-      write(6,*) 'icart1,iat1,icart2,iat2 ',icart1,iat1,icart2,iat2
-      call flush(6)
+                              if ((iat1.eq.iat2).and.
+     $                          (icart1.eq.icart2)) val = val * half
+c     write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
+c     write(6,*) 'val is ',val
+c     write(6,*) 'icart1,iat1,icart2,iat2 ',icart1,iat1,icart2,iat2
+c     call flush(6)
                               Hxy(icart1,iat1,icart2,iat2) =  
      $                             Hxy(icart1,iat1,icart2,iat2) + 
      $                             val
@@ -388,9 +378,36 @@ c                             if (iat1.eq.iat2) val = val * fourth
                               ibuf = ibuf + 1
                               end do
                            end do
+                           else
+                             val = p*eri(ibuf)*2.0d+00
+                             Hxy(1,iat1,1,iat1) = Hxy(1,iat1,1,iat1)
+     $                         + val
+                             val = p*(eri(ibuf+1) + eri(ibuf+3))
+                             Hxy(1,iat1,2,iat1) = Hxy(1,iat1,2,iat1)
+     $                         + val
+                             Hxy(2,iat1,1,iat1) = Hxy(2,iat1,1,iat1)
+     $                         + val
+                             val = p*(eri(ibuf+2) + eri(ibuf+6))
+                             Hxy(1,iat1,3,iat1) = Hxy(1,iat1,3,iat1)
+     $                         + val
+                             Hxy(3,iat1,1,iat1) = Hxy(3,iat1,1,iat1)
+     $                         + val
+                             val = p*eri(ibuf+4)*2.0d+00
+                             Hxy(2,iat1,2,iat1) = Hxy(2,iat1,2,iat1)
+     $                         + val
+                             val = p*(eri(ibuf+5) + eri(ibuf+7))
+                             Hxy(2,iat1,3,iat1) = Hxy(2,iat1,3,iat1)
+     $                         + val
+                             Hxy(3,iat1,2,iat1) = Hxy(3,iat1,2,iat1)
+     $                         + val
+                             val = p *eri(ibuf+8)*2.0d+00
+                             Hxy(3,iat1,3,iat1) = Hxy(3,iat1,3,iat1)
+     $                         + val
+                             ibuf = ibuf + 9
+                           endif
                            end do
                            end do
-                        end do
+                        end do    ! 1 to nint
                      end if
                      if (omore) goto 10
 c     
@@ -408,8 +425,6 @@ c
 c
       next = nxtask(-nproc,task_size)
       call ga_sync()
-c     
-*      write(6,*) ' numq ', numq
 c     
       return
       end
