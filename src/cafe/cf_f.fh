@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.56 2003-10-13 20:44:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
 c
       implicit none
 c
@@ -759,7 +759,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.56 2003-10-13 20:44:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
 c
       implicit none
 c
@@ -1889,7 +1889,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.56 2003-10-13 20:44:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
 c
       implicit none
 c
@@ -2221,6 +2221,7 @@ c
    25 continue
       endif
       else
+      if(ipme.eq.0.or.isolvo.ne.0) then
       do 26 iax=1,nax
       f(iax)=zero
       rwx(iax,1)=xi(iax,1)-xj(iax,1)
@@ -2251,6 +2252,40 @@ c
       f(iax)=f(iax)-two*q*rffss
       endif
    26 continue
+      else
+      do 126 iax=1,nax
+      f(iax)=zero
+      rwx(iax,1)=xi(iax,1)-xj(iax,1)
+      rwx(iax,2)=xi(iax,2)-xj(iax,2)
+      rwx(iax,3)=xi(iax,3)-xj(iax,3)
+      rwi2(iax)=one/(rwx(iax,1)**2+rwx(iax,2)**2+rwx(iax,3)**2)
+      if(isrx(iax).eq.999) then
+      rwi2(iax)=zero
+      isrx(iax)=0
+      endif
+      if(isrx(iax).gt.0) then
+      rwi2(iax)=one/(one/rwi2(iax)+shift0(1))
+      elseif(isrx(iax).lt.0) then
+      rwi2(iax)=one/(one/rwi2(iax)+shift1(1))
+      endif
+      rwi1(iax)=sqrt(rwi2(iax))
+      isa=isal(iax)
+      jsa=jsal(iax)
+      if(jfal(iax).ne.isf) then
+      q=qsa2(isa)*qsa2(jsa)
+      else
+      q=qsa3(isa)*qsa3(jsa)
+      endif
+      ferfc=erfc(ealpha/rwi1(iax))
+      fderfc=ealpha*derfc(ealpha/rwi1(iax))
+      rw(iax)=ferfc*facu(iax)*q*rwi1(iax)
+      f(iax)=f(iax)+q*rwi2(iax)*(ferfc*rwi1(iax)-fderfc)
+      if(ireact.ne.0) then
+      rw(iax)=rw(iax)+facu(iax)*q*rffss/rwi2(iax)
+      f(iax)=f(iax)-two*q*rffss
+      endif
+  126 continue
+      endif
       endif
 c
 c     accumulate electrostatic energies per solute molecule
@@ -3186,7 +3221,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.56 2003-10-13 20:44:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3496,7 +3531,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.56 2003-10-13 20:44:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3783,7 +3818,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.56 2003-10-13 20:44:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -4127,7 +4162,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.56 2003-10-13 20:44:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -4454,7 +4489,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,isgm,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa,lseq)
 c
-c $Id: cf_f.fh,v 1.56 2003-10-13 20:44:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4817,7 +4852,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.56 2003-10-13 20:44:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.57 2003-10-22 16:13:26 d3j191 Exp $
 c
       implicit none
 c
