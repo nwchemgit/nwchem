@@ -1,0 +1,32 @@
+start bf_cis
+
+echo
+
+# See Stanton, Gauss, Ishikawa, and Head-Gordon, J.Chem.Phys. 103 (1995) 4160.
+
+title "CIS/6-31G* BF Optimization"
+
+geometry
+B 0.0 0.0 0.0
+F 0.0 0.0 1.2
+end
+
+basis
+B library 6-31G*
+F library 6-31G*
+end
+
+dft
+xc HFexch 1.0
+end
+
+tddft
+tda
+nroots 3
+notriplet
+target 1
+end
+
+task tddft optimize
+
+task tddft frequencies
