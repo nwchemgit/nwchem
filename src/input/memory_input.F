@@ -1,6 +1,6 @@
       subroutine memory_input(rtdb, ostore, stack_size, heap_size, 
-     $     overify)
-C$Id: memory_input.F,v 1.5 1995-02-02 23:15:25 d3g681 Exp $
+     $     global_size, total_size, overify)
+C$Id: memory_input.F,v 1.6 1995-03-23 00:58:34 gg502 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -10,42 +10,44 @@ C$Id: memory_input.F,v 1.5 1995-02-02 23:15:25 d3g681 Exp $
       logical ostore            ! [input]
       integer stack_size        ! [output]
       integer heap_size         ! [output]
+      integer global_size       ! [output]
+      integer total_size        ! [output]
       logical overify           ! [output]
 c
       character*8 user_units, ctest
-      double precision user_stack, user_heap
-      integer mem(2)            ! Used to stuff data into the rtdb
+      double precision user_stack, user_heap, user_global, user_total
+      character*1 stack_Src, heap_Src, global_Src, total_Src
+      integer mem(3)            ! Used to stuff data into the rtdb
       integer nunits
       integer ind
-      integer default
       character*255 name        ! Used to store info in the rtdb
       parameter (nunits = 7)
       character*8 units(nunits)
       data units /'double', 'real', 'integer', 'byte', 'kb', 'mb', 'mw'/
-#ifdef DELTA
-      data default /917504/
-#else
-      data default /2097152/
-#endif
 c
 c     Parse memory directive
 c
-c     memory [[heap] <heap_size>] [stack <stack_size>] [<units>] [verify|noverify]
+c     memory [[total] <total_size>] [stack <stack_size>] 
+c            [heap <heap_size>] [global <global_size>]
+c            [<units>] [verify|noverify]
 c
 c     input units default to doubles
 c
 c     Return required sizes in units of double precision words
 c     or default if not specified in the input
 c
-c     Delta default = 7  Mbytes =   917,504 doubles
-c     Other default = 16 Mbytes = 2,097,152 doubles
-c
 c     If (ostore) store the values in the rtdb using the current context
 c     (so that in the near future each module can control its own memory)
 c
-      user_stack = 0.0
-      user_heap  = 0.0
-      user_units = 'double'
+      user_stack  =  0.0
+      user_heap   =  0.0
+      user_global =  0.0
+      user_total  =  0.0
+      user_units  = 'double'
+      stack_Src    = 'N'
+      heap_Src     = 'N'
+      global_Src   = 'N'
+      total_Src    = 'N'
 c
 c     Check input line is vaguely sensible
 c
@@ -63,75 +65,101 @@ c
             overify = .false.
          else if (inp_compare(.false.,'heap', ctest)) then
             if (.not. inp_f(user_heap)) goto 1000
+            heap_Src = 'U'
          else if (inp_compare(.false.,'stack', ctest)) then
             if (.not. inp_f(user_stack)) goto 1000
+            Stack_Src = 'U'
+         else if (inp_compare(.false.,'global', ctest)) then
+            if (.not. inp_f(user_global)) goto 1000
+            Global_Src = 'U'
+         else if (inp_compare(.false.,'total', ctest)) then
+            if (.not. inp_f(user_total)) goto 1000
+            Total_Src = 'U'
          else if (inp_match(nunits, .false., ctest, units, ind)) then
             user_units = units(ind)
          else
             call inp_prev_field
-            if (.not. inp_f(user_heap)) goto 1000
+            if (.not. inp_f(user_total)) goto 1000
+            Total_Src = 'U'
          endif
          goto 10
       endif
-c
-c     debug
-c
-*      write(6,*) ' heap ', user_heap, ' stack ', user_stack,' ',
-*     $     user_units, ', verify ', overify
+C
+C     User inputs must be non-negative
+C
+      If ( User_Stack .lt. 0 .OR. User_Heap .lt. 0
+     $   .OR. User_Global .lt. 0 .OR. User_Total .lt. 0) Call ErrQuit(
+     $   'Memory_Input: Memory limits must be non-negative', 0)
+c$$$c
+c$$$c     debug
+c$$$c
+c$$$      write(0,*) ' total ', user_total, ' heap ', user_heap, ' stack ',
+c$$$     $     user_stack, ' global ', user_global, ' ',
+c$$$     $     user_units, ' verify ', overify
 c
 c     Convert user units to doubles/reals
 c
       if (user_units.eq.units(1) .or. user_units.eq.units(2)) then
-         heap_size = user_heap
-         stack_size= user_stack
+         heap_size   = user_heap
+         stack_size  = user_stack
+         global_size = user_global
+         total_size  = user_total
       else if (user_units .eq. units(3)) then
-         heap_size = ma_sizeof(mt_int, int(user_heap), mt_dbl)
-         stack_size= ma_sizeof(mt_int, int(user_stack), mt_dbl)
+         heap_size   = ma_sizeof(mt_int, int(user_heap),   mt_dbl)
+         stack_size  = ma_sizeof(mt_int, int(user_stack),  mt_dbl)
+         global_size = ma_sizeof(mt_int, int(user_global), mt_dbl)
+         total_size  = ma_sizeof(mt_int, int(user_total),  mt_dbl)
       else if (user_units .eq. units(4)) then
-         heap_size = ma_sizeof(mt_byte, int(user_heap), mt_dbl)
-         stack_size= ma_sizeof(mt_byte, int(user_stack), mt_dbl)
+         heap_size   = ma_sizeof(mt_byte, int(user_heap),   mt_dbl)
+         stack_size  = ma_sizeof(mt_byte, int(user_stack),  mt_dbl)
+         global_size = ma_sizeof(mt_byte, int(user_global), mt_dbl)
+         total_size  = ma_sizeof(mt_byte, int(user_total),  mt_dbl)
       else if (user_units .eq. units(5)) then
-         heap_size = ma_sizeof(mt_byte, 1024*int(user_heap), mt_dbl)
-         stack_size= ma_sizeof(mt_byte, 1024*int(user_stack), mt_dbl)
+         heap_size   = ma_sizeof(mt_byte, 1024*int(user_heap),   mt_dbl)
+         stack_size  = ma_sizeof(mt_byte, 1024*int(user_stack),  mt_dbl)
+         global_size = ma_sizeof(mt_byte, 1024*int(user_global), mt_dbl)
+         total_size  = ma_sizeof(mt_byte, 1024*int(user_total),  mt_dbl)
       else if (user_units .eq. units(6)) then
-         heap_size = ma_sizeof(mt_byte,1024*1024*int(user_heap), mt_dbl)
-         stack_size= ma_sizeof(mt_byte,1024*1024*int(user_stack),mt_dbl)
+         heap_size   = ma_sizeof(mt_byte, 1024*1024*int(user_heap),
+     $      mt_dbl)
+         stack_size  = ma_sizeof(mt_byte, 1024*1024*int(user_stack),
+     $      mt_dbl)
+         global_size = ma_sizeof(mt_byte, 1024*1024*int(user_global),
+     $      mt_dbl)
+         total_size  = ma_sizeof(mt_byte, 1024*1024*int(user_total),
+     $      mt_dbl)
       else if (user_units .eq. units(7)) then
-         heap_size = 1024*1024*user_heap
-         stack_size= 1024*1024*user_stack
+         heap_size   = 1024*1024*user_heap
+         stack_size  = 1024*1024*user_stack
+         global_size = 1024*1024*user_global
+         total_size  = 1024*1024*user_total
       endif
-c
-c     Make sure that defaults OK even if units were changed
-c
-      if (heap_size .le. 0) heap_size = -1
-      if (stack_size .le. 0) stack_size = -1
-      if (heap_size.eq.-1 .and. stack_size.eq.-1) then
-         heap_size = default / 2
-         stack_size= heap_size
-      endif
-#ifdef DELTA
-c
-c     The RTDB will not function if it cannot malloc some memory
-c     and 7MB is the upper limit of available user memory
-c
-      if ((heap_size+stack_size).gt.default) call errquit
-     $     ('memory_input: delta memory maximum is 7 Mb', 
-     $     heap_size+stack_size)
-#endif
+C
+C     Take what the user has entered and turn it into a complete
+C     memory specification.  
+C
+      Call Memory_Defaults(Total_Size, Total_Src, Heap_Size, Heap_Src,
+     $   Stack_Size, Stack_Src, Global_Size, Global_Src)
+C
+c$$$      write(0,*) ' total ', total_size, ' heap ', heap_size, ' stack ',
+c$$$     $     stack_size, ' global ', global_size, ' doubles ',
+c$$$     $     ' verify ', overify
 c
 c     Store data to the rtdb
 c
       if (ostore) then
          mem(1) = heap_size
          mem(2) = stack_size
+         mem(3) = global_size
          if (.not. context_prefix('memory',name))
      $        call errquit('memory_input: context buffer too small',0)
-         if (.not. rtdb_put(rtdb, name, mt_int, 2, mem))
+         if (.not. rtdb_put(rtdb, name, mt_int, 3, mem))
      $        call errquit('memory_input: rtdb_put failed', 0)
       endif
       return
 c
- 1000 call errquit('input_mem_size: memory [[heap] <heap_size>] '//
-     $     '[stack <stack_size>] [<units>] [verify|noverify]', 0)
+ 1000 call errquit('input_mem_size: memory [[total] <total_size>] '//
+     $   '[heap <heap_size>] [stack <stack_size>] '//
+     $   '[global <global_size>] [<units>] [verify|noverify]', 0)
 c
       end

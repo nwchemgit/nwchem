@@ -9,13 +9,14 @@
       integer rtdb
       integer stack
       integer heap
+      integer global
       logical status
       logical overify
 #ifdef PARALLEL_DIAG
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.48 1995-03-12 00:31:15 gg502 Exp $
+c     $Id: nwchem.F,v 1.49 1995-03-23 00:58:12 gg502 Exp $
 c
       character*255 input_filename
 c
@@ -51,18 +52,34 @@ c     Look for memory directive in the input ... must eventually
 c     open the rtdb first so that can get memory directive out of that
 c     if it is not in the input
 c
-      call input_mem_size(stack, heap, overify)
+C     The user's input model has well-defined categories of memory,
+C     each of which has a specific size.  How we use these limits
+C     depends on the platform we're running on.
+C
+      call input_mem_size(stack, heap, global, overify)
 c
-c     Initialize local memory allocator
-c
-      if (.not. ma_init(mt_dbl, stack, heap))
-     $     call errquit('nwchem: ma_init failed', -1)
+c     Initialize local memory allocator & global array tools
+C
+C     GA allocations come out of MA space, so lump them together
+C     and let MA impose the limits on GA sizes instead of actually
+C     using the global limit.
+C
+      If ( GA_Uses_MA() ) then
+         if (.not. ma_init(mt_dbl, stack, heap+global))
+     $      call errquit('nwchem: ma_init failed', -1)
+         Call GA_Initialize
+C
+C     GA allocations are separate from MA, so the separate limit
+C     must be enforced.  Note GA only understands bytes.
+C
+      Else
+         if (.not. ma_init(mt_dbl, stack, heap))
+     $      call errquit('nwchem: ma_init failed', -1)
+         Call GA_Initialize_Ltd(MA_SizeOf(MT_Dbl, Global, MT_Byte) )
+      EndIf
+C
       status = ma_set_auto_verify(overify)
       status = ma_set_hard_fail(.true.)
-c
-c     Intialize global memory allocator
-c
-      call ga_initialize()
 c
 c     Initialize pstat
 c
@@ -350,9 +367,10 @@ c
 #if defined(CRAY)
       integer ilen,ierror
 #endif
-      integer heap, stack, total, nproc
+      integer heap, stack, global, global_b, total, nproc
       logical status
       character*3 cstatus
+      Character*40 GStatus
 c
       if (ga_nodeid() .ne. 0) return
 c
@@ -366,7 +384,7 @@ c
       write(6,*)
       write(6,*)
       call util_print_centered(6,
-     $      'Environmental and Molecular Sciences Laboratory',
+     $      'Environmental Molecular Sciences Laboratory',
      $     40, .false.)
       call util_print_centered(6,'Pacific Northwest Laboratory',
      $     40, .false.)
@@ -386,9 +404,6 @@ c
 #endif
       call util_hostname(hostname)
       call util_date(date)
-      total = ma_inquire_avail(mt_dbl)
-      heap  = ma_inquire_heap(mt_dbl)
-      stack = ma_inquire_stack(mt_dbl)
       nproc = ga_nnodes()
 c
       compiled = COMPILATION_DATE
@@ -421,15 +436,46 @@ c
          cstatus = 'no '
       endif
       status = ma_set_auto_verify(status)
+C
+C     Memory size information.  Note:  Subtleties of MA & friends
+C     will likely result in actual heap and stack sizes _slightly_ 
+C     larger than requested at initialization, and other slight
+C     "inconsistencies".  It has to do with the overhead associated
+C     with an allocation.
+C
+      heap  = ma_inquire_heap(MT_Dbl)
+      stack = ma_inquire_stack(MT_Dbl)
+C
+C     If GA can't determine a limit on the available memory, it
+C     will return a negative number, which MA_SizeOf doesn't
+C     appreciate.  This should not happen in NWChem, but we might
+C     as well play it safe.
+C
+      global_b = ga_memory_avail()
+      If ( Global_B .ge. 0) then
+         global = MA_SizeOf(MT_Byte, global_b, MT_Dbl)
+      Else
+         global = 0
+      EndIf
+C
+      Total = Heap + Stack
+      If ( .NOT. GA_Uses_MA() ) Total = Total + Global
+C
+      If ( GA_Uses_MA() ) then
+         GStatus = '(allocated from within heap+stack)'
+      Else
+         GStatus = '(allocated separately from heap & stack)'
+      EndIf
 c
       call util_print_centered(6, 'Memory information', 20, .true.)
 c
-      write(6,3) heap, stack, total, cstatus
+      write(6,3) heap, stack, global, GStatus, total, cstatus
  3    format(/
-     $     '    heap     = ', i8,' doubles'/
-     $     '    stack    = ', i8,' doubles'/
-     $     '    avail    = ', i8,' doubles'/
-     $     '    verify   = ',a3//)
+     $     '    heap   = ', i10,' doubles'/
+     $     '    stack  = ', i10,' doubles'/
+     $     '    global = ', i10,' doubles ', A/
+     $     '    total  = ', i10,' doubles'/
+     $     '    verify = ',a3//)
 c
       call util_flush(6)
 c

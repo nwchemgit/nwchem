@@ -13,7 +13,7 @@ C
 C     We'll go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Integer MSG_Ftn_Base
-C$Id: msgids.fh,v 1.9 1995-02-02 18:09:42 d3g681 Exp $
+C$Id: msgids.fh,v 1.10 1995-03-23 00:59:09 gg502 Exp $
       Parameter (MSG_Ftn_Base = 25000)
 C
       Integer Msg_PrSum
@@ -39,7 +39,7 @@ C
       Integer Msg_t_min,Msg_t_max
       integer msg_orthog_1, msg_orthog_2
       Integer Msg_3c_index
-
+      Integer Msg_GblMem
 C-----------------------------------------------------------------------
       Parameter (Msg_PrSum = MSG_Ftn_Base -  1) ! Sum_Pairs
 C
@@ -137,3 +137,5 @@ C
       parameter (msg_orthog_2  = msg_ftn_base - 72)  ! util: ga_orthog 2nd dgop
 C
       Parameter (Msg_3c_index = MSG_Ftn_Base - 73)  ! RI-SCF make_index brdcst
+C
+      Parameter (Msg_GblMem = MSG_Ftn_Base - 74)  ! input_mem_size
