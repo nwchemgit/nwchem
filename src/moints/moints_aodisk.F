@@ -114,7 +114,7 @@ c
           endif
           recnum = recnum + 1
         enddo
-        MOAO_CUMUL = MOAO_CUMUL + DABSSUM( SSBBLEN, SSBB )
+C        MOAO_CUMUL = MOAO_CUMUL + DABSSUM( SSBBLEN, SSBB )
       endif
       return
       end
@@ -147,9 +147,9 @@ c
 c
       logical sparse                    ! for the moment only sparse case
       data sparse/.true./
-      INTEGER SSBBLEN
-      DOUBLE PRECISION DABSSUM
-      EXTERNAL DABSSUM
+C      INTEGER SSBBLEN
+C      DOUBLE PRECISION DABSSUM
+C      EXTERNAL DABSSUM
 c
       moints_gblk_todisk = .false.
       if (moao_ipass.lt.0) return
@@ -166,8 +166,8 @@ c
           call errquit('moints_gblk_todisk: dense read not ready',0)
         endif
         moints_gblk_todisk = .true.
-        SSBBLEN = (IHI-ILO+1)*(JHI-JLO+1)*(KBHI-KBLO+1)*(LBHI-LBLO+1)
-        MOAO_CUMUL = MOAO_CUMUL + DABSSUM( SSBBLEN, SSBB )
+C        SSBBLEN = (IHI-ILO+1)*(JHI-JLO+1)*(KBHI-KBLO+1)*(LBHI-LBLO+1)
+C        MOAO_CUMUL = MOAO_CUMUL + DABSSUM( SSBBLEN, SSBB )
       endif
       return
       end
@@ -178,10 +178,74 @@ c
 
 
 c
-c  Initialize disk caching for both saving and retrieving
-c  Open file, allocate buffer space and read in first record
+c  This must be called by application
+c  Enable disk caching
+c  Check for existing file and open file
 c
-      logical function moints_aodisk_init( )
+      logical function moints_aodisk_init( odisk, oreuse )
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "mointsmoaodef.fh"
+#include "cmointsmoao.fh"
+      logical odisk                          ! [input] toggle caching
+      logical oreuse                         ! [input] toggle reuse of existing file
+c
+      logical fexist
+      integer stat
+c
+c  first time through --- enable caching TO disk
+c  otherwise must be caching FROM disk
+c
+      moints_aodisk_init = .false.
+      if (.not.(odisk)) then
+        moao_ipass = -1
+        moints_aodisk_init = .true.
+        return
+      endif
+      if (moao_ipass.lt.0) moao_ipass = 0
+c
+c  if AO file exists AND reuse enabled then set ipass > 0
+c      
+      if (moao_fname.eq.'') then
+        call util_file_name( 'moao', .true., .true., moao_fname )
+      endif
+      inquire(file=moao_fname, exist=fexist)
+      if (oreuse) then
+        stat = (fexist)
+        call ga_igop( 481, stat, 1, '*')
+        if (stat.eq.1) then
+          moao_ipass = 1
+          if (ga_nodeid().eq.0) write(6,331)
+ 331      format(10x,'Existing AO integral file will be reused')
+        endif
+      endif
+c
+c  open AO integral disk cache
+c
+      if (moao_lun.lt.0) then
+        open(unit=MOINTS_AOUNIT, file=moao_fname, status='unknown',
+     $       form='unformatted',iostat=stat)
+        if (stat.ne.0) call errquit(
+     $                'moints_aodisk_init: cannot open ao file',0)
+        moao_lun = MOINTS_AOUNIT
+      endif
+      moints_aodisk_init = .true.
+      return
+      end
+
+
+
+
+
+
+
+c
+c  This is called internally by moints
+c  Initialize disk caching for both saving and retrieving
+c  Allocate buffer space and read in first record
+c
+      logical function moints_aodisk_prep( )
       implicit none
 #include "mafdecls.fh"
 #include "mointsmoaodef.fh"
@@ -189,42 +253,30 @@ c
       integer stat
       integer blkinfo(MOINTS_NBLKINFO)
 
-      moints_aodisk_init = .false.
-c
-c  first time through --- enable caching TO disk
-c  otherwise must be caching FROM disk
-c
-      if (moao_ipass.lt.0) moao_ipass = 0
+      moints_aodisk_prep = .false.
+      if (moao_ipass.lt.0) then
+        moints_aodisk_prep = .true.
+        return
+      endif
 c
 c  allocate io buffers
 c
       if (moao_lbuf.lt.0) then
         if (.not.ma_alloc_get(MT_DBL, MOINTS_IOBUFLEN, 'moints iobuf',
      $                        moao_lbuf, moao_kbuf)) call errquit(
-     $       'moints_aodisk_init: cannot allocate io buffer',0)
-        moao_buflen   = MOINTS_IOBUFLEN                                     ! buffer length (double words)
+     $       'moints_aodisk_prep: cannot allocate io buffer',0)
+        moao_buflen   = MOINTS_IOBUFLEN                                     ! bufflen (double words)
         moao_spreclen = moao_buflen/(ma_sizeof(MT_INT,4,MT_DBL)+1)
-        moao_kvalrec  = moao_kbuf                                           ! values at start of buffer
-        moao_klabrec  = moao_kbuf + moao_spreclen                           ! pointer to labels, start after values
+        moao_kvalrec  = moao_kbuf                                           ! values
+        moao_klabrec  = moao_kbuf + moao_spreclen                           ! labels after values
       endif
 c
-c  open unit
+c  rewind AO integral cache unit
 c
-      if (moao_lun.lt.0) then
-        if (moao_fname.eq.'') then
-          call util_file_name( 'moao', .true., .true., moao_fname )
-        endif
-        open(unit=MOINTS_AOUNIT, file=moao_fname, status='unknown',
-     $       form='unformatted',iostat=stat)
-        if (stat.ne.0) call errquit(
-     $                   'moints_aodisk_init: cannot open ao file',0)
-        
-        moao_lun = MOINTS_AOUNIT
-      endif
       rewind(moao_lun, iostat=stat)
       moao_eof = .false.
       if (stat.ne.0) call errquit(
-     $  'moints_aodisk_init: failed to rewind unit',0)
+     $  'moints_aodisk_prep: failed to rewind unit',0)
 c
 c  if READ mode -- retrieve first record
 c
@@ -244,7 +296,7 @@ c$$$     $           '    Blkid=',I5)
           moao_ipass = 0                ! this is peculiar but not an error, just reset
         endif
       endif
-      moints_aodisk_init = .true.
+      moints_aodisk_prep = .true.
       MOAO_CUMUL = 0.d0
       MOAO_NREC = 0
       return
@@ -253,27 +305,19 @@ c$$$     $           '    Blkid=',I5)
 
 
 
-
 c
-c  Cleanup IO stuff
-c  Here we have to deallocate the io buffer and close the
-c  unit since this could be the last time round.....
-c  ...,that is, we keep NO state information except moao_ipass
+c  Called internally by moints between passes
+c  Free IO buffer and increment pass count
+c  Keep NO state information except moao_ipass and moao_lun
 c  between passes.
 c
-      subroutine moints_aodisk_close()
+      subroutine moints_aodisk_tidy()
       implicit none
 #include "mafdecls.fh"
 #include "mointsmoaodef.fh"
 #include "cmointsmoao.fh"
-      integer stat
 
-      if (moao_lun.gt.0) then
-        close(moao_lun, iostat=stat)
-        if (stat.ne.0) call errquit(
-     $    'moints_closeaodisk: cannot close unit',0)
-        moao_lun = -1
-      endif
+      if (moao_ipass.lt.0) return
       if (moao_lbuf.ge.0) then
         if (.not.ma_free_heap(moao_lbuf)) call errquit(
      $    'moints_closeaodisk: cannot free io buffer',0)
@@ -282,7 +326,7 @@ c
       moao_ipass = moao_ipass + 1
 
 c$$$      WRITE(6,991) MOAO_IPASS, MOAO_CUMUL, MOAO_NREC
-c$$$ 991  format(' Closing AO integral file pass=',i3,/,
+c$$$ 991  format(' File pass=',i3,/,
 c$$$     $       ' Cumulative value:',f20.6,
 c$$$     $       ' Records read:',i5)
       
@@ -290,23 +334,37 @@ c$$$     $       ' Records read:',i5)
       end
 
 
+
+
 c
-c  Reset or disable disk caching
-c  Regenerate integrals next time around
+c  Called by application
+c  Close I/O unit with option to save
+c  Reset ipass count
 c
-      subroutine moints_aodisk_reset( onoff )
+      subroutine moints_aodisk_close( osave ) 
       implicit none
-      logical onoff
+#include "mafdecls.fh"
+#include "mointsmoaodef.fh"
 #include "cmointsmoao.fh"
-      
-      if (onoff) then
-        moao_ipass = 0
-      else
-        call moints_aodisk_close()
-        moao_ipass = -1
+      logical osave
+c
+      integer stat
+
+      moao_ipass = 0
+      if (moao_lun.gt.0) then
+        if (osave) then
+          close(unit=moao_lun, iostat=stat, status='keep')
+        else
+          close(unit=moao_lun, iostat=stat, status='delete')
+        endif
+        if (stat.ne.0) call errquit(
+     $    'moints_closeaodisk: cannot close unit',0)
+        moao_lun = -1
       endif
+      
       return
       end
+
 
 
 
