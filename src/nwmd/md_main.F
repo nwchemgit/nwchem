@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.62 2000-02-18 04:52:19 d3j191 Exp $
+c $Id: md_main.F,v 1.63 2000-02-23 18:52:55 d3j191 Exp $
 c
       implicit none
 c
@@ -1162,7 +1162,8 @@ c
 c     center solute in box
 c
       if(frequency(mdstep,nfcntr)) then
-      call cf_center(dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),nsaloc)
+      call cf_center(dbl_mb(i_xw),nwmloc,int_mb(i_is+(lsfrc-1)*msa),
+     + dbl_mb(i_xs),nsaloc,idscb,nscb)
       endif
 c
 c     remove overall translational motion

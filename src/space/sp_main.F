@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.45 2000-02-18 06:01:03 d3j191 Exp $
+c $Id: sp_main.F,v 1.46 2000-02-23 18:53:51 d3j191 Exp $
 c
       implicit none
 c
@@ -36,8 +36,6 @@ c
      + call errquit('Failed to deallocate memory for qlst',0)
       call sp_putix(me,iwl,xw,numwm,isl,xs,numsa)
       endif
-c
-      if(lpack) call sp_pack_init(isl,numsa,iwl,numwm)
 c
       return
       end

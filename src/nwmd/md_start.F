@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.47 2000-02-18 17:18:02 d3j191 Exp $
+c $Id: md_start.F,v 1.48 2000-02-23 18:52:56 d3j191 Exp $
 c
       implicit none
 c
@@ -153,6 +153,12 @@ c
       call cf_fix(ifix,iunfix,int_mb(i_iw+(lwdyn-1)*mwm),nwmloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),nsaloc)
       call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
+c
+c     initialize packing
+c     ------------------
+c
+      if(lpack)
+     + call sp_pack_init(int_mb(i_is),nsaloc,int_mb(i_iw),nwmloc)
 c
 c     spacial decomposition
 c     ---------------------
@@ -773,9 +779,9 @@ c     + call errquit('md_rtdbin: rtdb_get failed',72)
      + call errquit('md_rtdbin: rtdb_get failed',75)
       if(.not.rtdb_get(irtdb,'md:nscb',mt_int,1,nscb))
      + call errquit('md_rtdbin: rtdb_get failed',76)
-c      if(nscb.gt.msf) nscb=msf
-c      if(.not.rtdb_get(irtdb,'md:idscb',mt_int,nscb,idscb))
-c     + call errquit('md_rtdbin: rtdb_get failed',77)
+      if(nscb.gt.10) call errquit('Increase dimension of idscb',0)
+      if(.not.rtdb_get(irtdb,'md:idscb',mt_int,nscb,idscb))
+     + call errquit('md_rtdbin: rtdb_get failed',77)
       if(.not.rtdb_get(irtdb,'md:ireact',mt_int,1,ireact))
      + call errquit('md_rtdbin: rtdb_get failed',78)
       if(.not.rtdb_get(irtdb,'md:memlim',mt_int,1,memlim))

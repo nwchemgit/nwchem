@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.24 2000-01-21 17:31:56 d3j191 Exp $
+c $Id: md_common.fh,v 1.25 2000-02-23 18:52:55 d3j191 Exp $
 c
 c     parameters
 c
@@ -138,7 +138,7 @@ c
      + nfefld,maxpro,icomm,latom,ihess,itload,nfdrss,nftime,itime,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
      + lwtype,ndistr,lbpair,noshak,iunfix,ifix,isdit,icgit,npmf,
-     + irun,iequi,idacq,iguide,nopack,
+     + irun,iequi,idacq,iguide,nopack,idscb(10),
      + inp_ptr
       common/md_inp/ptol,rshort,rlong,stime,tstep,elam,ddacq,edacq,
      + fdacq,weight,facapp,dgscl,dgref,ddgscl,ssshft,dx0sd,dxmsd,
@@ -166,7 +166,7 @@ c
      + nfefld,maxpro,icomm,latom,ihess,itload,nfdrss,nftime,itime,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
      + lwtype,ndistr,lbpair,noshak,iunfix,ifix,isdit,icgit,npmf,
-     + irun,iequi,idacq,iguide,nopack,
+     + irun,iequi,idacq,iguide,nopack,idscb,
      + inp_ptr
 c
       logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
