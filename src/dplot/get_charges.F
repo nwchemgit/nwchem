@@ -3,7 +3,7 @@
      &                       XYZ,Charge,Tags,AMt,BMt,Dst,
      &                       STD,Tot_Charge)
 *
-* $Id: get_charges.F,v 1.4 1997-11-04 10:10:38 d3e129 Exp $
+* $Id: get_charges.F,v 1.5 1999-11-10 03:47:09 edo Exp $
 *
       Implicit None
 *
@@ -273,5 +273,6 @@
       if (.not. MA_Pop_Stack(l_buf))
      &   Call ErrQuit('Pot_At_Pos: pop failed', 0)
 *     
+      call int_terminate
       Return
       End
