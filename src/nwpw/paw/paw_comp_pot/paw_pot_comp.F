@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_comp.F,v 1.8 2003-02-25 02:34:13 bylaska Exp $
+c $Id: paw_pot_comp.F,v 1.9 2003-02-27 01:34:06 bylaska Exp $
 c
 
 !**************************************************
@@ -107,11 +107,11 @@ c     !*** calculate the size and indexing ***
       integer i_cp,i_cp0
       integer nilm,njlm
       integer i_qlm,i_qlm0
-      complex tmp_comp_pot
+      complex*16 tmp_comp_pot
 
 *       *** initializing to zero ***
         do i=1,paw_pot_comp(3)
-           dcpl_mb(paw_pot_comp(1)+i-1) = dcmplx(0,0)
+           dcpl_mb(paw_pot_comp(1)+i-1) = dcmplx(0.0d0,0.0d0)
         end do
 
       do in=1,ion_nion()
@@ -193,3 +193,15 @@ c      end do
 
       return
       end 
+
+
+      subroutine paw_comp_pot_ptr(ptr)
+      implicit none
+      integer ptr
+
+#include "paw_pot_comp_data.fh"
+
+      ptr = paw_pot_comp(1)
+      return
+      end
+
