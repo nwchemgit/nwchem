@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.31 1999-12-10 17:35:01 windus Exp $
+C$Id: rohf.F,v 1.32 2000-05-06 05:48:10 mdupuis Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -39,6 +39,10 @@ c
       logical rohf_diis_solve
       external ga_create_atom_blocked, rohf_nr_solve
       external rohf_diis_solve
+c
+c     cosmo flag
+c
+      logical ocosmo
 c
       oprint = util_print('information',print_low)
 c

@@ -30,6 +30,9 @@ c
       integer len_occ
       external cscfdata ! For T3D linker
 c
+      logical ocosmo
+      logical odbug
+c
       logical hf_job
       character*30 tag
 c
@@ -188,6 +191,18 @@ c   DIIS toggle
 c
       if (.not.rtdb_get(rtdb, 'scf:diis',MT_LOG, 1, odiis))
      $   odiis = .false.
+c
+c   check COSMO solvent ... if .true. then force diis
+c
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+         if(ocosmo) then
+            odiis=.true.
+            odbug=.true.
+            if(odbug) then
+               write(*,*) 'force -diis- because of cosmo'
+            endif
+         endif
+      endif
 
 c
 c     For now set NMO = NBF, however this may change later when the 
@@ -253,7 +268,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.45 1998-09-09 13:07:06 bjohnson Exp $
+C$Id: scf_get_info.F,v 1.46 2000-05-06 05:48:11 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
