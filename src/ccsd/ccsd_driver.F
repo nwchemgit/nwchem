@@ -295,7 +295,7 @@ c
 c
 c End multipass loop
 c
-       call moints_stats_print(algo)
+C       call moints_stats_print(algo)
 c
 c Evaluate mp2 correction from pair energies
 c
