@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.10 2001-10-02 21:52:34 windus Exp $
+c $Id: shell_fock_build.F,v 1.11 2001-11-09 23:10:19 windus Exp $
 c
       subroutine shell_fock_build(basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock)
@@ -42,7 +42,7 @@ c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
-      write(6,*) 'inside of shell_fock_build'
+c     write(6,*) 'inside of shell_fock_build'
 c
 c Get the dimensions of g_fock and eventually g_dens.
 c
@@ -664,8 +664,8 @@ c
       integer atoms(4),nfockder,xyz
       double precision g
 c
-      write(6,*) 'inside new_fock_doit_der'
-      write(6,*) 'ndens, nfock ',ndens,nfock
+c     write(6,*) 'inside new_fock_doit_der'
+c     write(6,*) 'ndens, nfock ',ndens,nfock
       nbuf = 1
       do integ = 1, nint
 c        if (abs(g) .gt. tol2e) then
@@ -673,17 +673,17 @@ c        if (abs(g) .gt. tol2e) then
             j = labels(integ,2)
             k = labels(integ,3)
             l = labels(integ,4)
-      write(6,*) ' b ' ,i,j,k,l
+c     write(6,*) ' b ' ,i,j,k,l
             atoms(1) = bftoat(i)
             atoms(2) = bftoat(j)
             atoms(3) = bftoat(k)
             atoms(4) = bftoat(l)
-      write(6,*) ' a ' ,atoms
+c     write(6,*) ' a ' ,atoms
             i = rbfmap(i) - ibflo + 1
             j = rbfmap(j) - jbflo + 1
             k = rbfmap(k) - kbflo + 1
             l = rbfmap(l) - lbflo + 1
-      write(6,*) ' c ', i,j,k,l
+c     write(6,*) ' c ', i,j,k,l
             do iiat = 1, 4
               iat = atoms(iiat)
               nfockder = (iat-1)*3 + 1
@@ -702,9 +702,9 @@ c
               do v = 1, ndens
               nbuf = nstart
               do xyz=nfockder+(nfock*(v-1)),nfockder+2+(nfock*(v-1))
-      write(6,*) 'contributing to fockder ',xyz
+c     write(6,*) 'contributing to fockder ',xyz
                g = eri(nbuf)
-         write(6,*) 'integral is ',g, nbuf
+c        write(6,*) 'integral is ',g, nbuf
 c     write(6,*) 'densities are kl, ij, jl, jk, ik, il,i,j,k,l ',
 c    *  i,j,k,l,
 c    *  d_kl(v,k,l),d_ij(v,i,j),d_jl(v,j,l),d_jk(v,j,k),

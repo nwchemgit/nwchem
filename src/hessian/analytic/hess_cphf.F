@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.29 2001-11-07 21:29:04 windus Exp $
+C $Id: hess_cphf.F,v 1.30 2001-11-09 23:10:19 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -36,10 +36,10 @@ c
       data pt5,one,two         /0.5d+00, 1.0d+00, 2.0d+00/
       data four, eight         /4.0d+00, 8.0d+00/
 c
-      logical  cphf, file_write_ga, file_read_ga, movecs_read
+      logical  cphf2, file_write_ga, file_read_ga, movecs_read
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
-      external cphf, file_write_ga, file_read_ga, movecs_read
+      external cphf2, file_write_ga, file_read_ga, movecs_read
 c
       hf_job = theory .eq. 'hf'
 c
@@ -404,7 +404,7 @@ c
 c
 c Actually run the CPHF on all rhs
 c
-      if (.not.cphf(rtdb)) call errquit
+      if (.not.cphf2(rtdb)) call errquit
      $  ('hess_cphf: failure in cphf for index ',ind)
       if(.not.file_read_ga(cphf_sol,g_tmp)) call errquit
      $  ('hess_cphf:could not read cphf_rhs',ind)
