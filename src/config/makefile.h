@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.440 2004-01-03 20:28:47 edo Exp $
+# $Id: makefile.h,v 1.441 2004-01-14 21:08:50 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1210,7 +1210,7 @@ endif
 endif
 
 
-ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
+ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
 #
 #
 # Linux or Cygwin under Windows running on an x86 using g77
@@ -1272,8 +1272,10 @@ ifeq ($(LINUXCPU),x86)
         COPTIONS   = -Wall -march=i686 -malign-double 
       endif
     else
+    ifneq ($(_CPU),x86)
       COPTIONS   +=  -march=$(_CPU)
       FOPTIONS   +=  -march=$(_CPU)
+    endif
     endif
     ifeq ($(_CPU),k7)
        FOPTIONS   = -fno-second-underscore  
@@ -1287,7 +1289,7 @@ ifeq ($(LINUXCPU),x86)
        endif
     endif
   FOPTIONS   += -fno-second-underscore   
-  FOPTIONS   += -fno-f90 
+  FOPTIONS   += -fno-f90  -ffixed-line-length-72 -ffixed-form
   FOPTIMIZE  +=  -O2  -malign-double -finline-functions 
   COPTIONS   += -Wall  -malign-double 
   COPTIMIZE  += -g -O2
