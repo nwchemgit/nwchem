@@ -1,6 +1,6 @@
       logical function pre_hybrid(xatm,latm,matm,natm)
 c
-c $Id: pre_hybrid.F,v 1.5 2000-02-20 16:05:14 d3j191 Exp $
+c $Id: pre_hybrid.F,v 1.6 2000-02-22 20:38:27 d3j191 Exp $
 c
 c     in  : xatm(3,matm) = atomic coordinates
 c         : latm(2,matm) = atomic numbers
@@ -133,6 +133,13 @@ c
     4 continue
       endif
 c
+c     for following checks:
+c 
+c     latm(2,i) : atomic number of atom i
+c     latm(3,i) : hybridization of atom i: number of neighboring atoms
+c     nn        : number of non-hydrogen neighbors of atom i
+c     nl(1:nn)  : id's of atoms nn non-hydrogen neighbors of atom i
+c
 c     c attached to peptide c should be methyl group
 c
       if(latm(2,i).eq.6.and.nn.eq.3) then
@@ -148,6 +155,14 @@ c
     5 continue
       if(l.eq.3.and.m.ne.0) latm(3,nl(m))=4
       endif
+c
+c     c between saturated atoms must be saturated
+c
+      if(latm(2,i).eq.6.and.nn.eq.2) then
+      if(latm(2,nl(1)).eq.6.and.latm(3,nl(1)).eq.4.and.
+     + latm(2,nl(2)).eq.6.and.latm(3,nl(2)).eq.4) latm(3,i)=4
+      endif
+c
     3 continue
 c
       pre_hybrid=.true.
