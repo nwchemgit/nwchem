@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.343 2000-11-14 19:03:38 edo Exp $
+# $Id: makefile.h,v 1.344 2000-11-15 20:57:54 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -265,7 +265,10 @@ ifeq ($(TARGET),SOLARIS)
          FC = f77
 
 # Don't need this if using the SUN performance library
-#CORE_SUBDIRS_EXTRA = blas lapack 
+#  need for BLASOPT business because of lapack and other possible missing entries
+ifdef BLASOPT
+CORE_SUBDIRS_EXTRA = blas lapack 
+endif
 
 # Note that WS6 does not optimize robustly and if using this you must 
 #   - put "-nodpend -xvector=no" on FOPTIONS after -fast
@@ -289,8 +292,11 @@ endif
     DEFINES = -DSOLARIS  -DNOAIO  -DPARALLEL_DIAG
   LDOPTIONS = -xildoff
   LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
+ifndef BLASOPT
   CORE_LIBS +=  -xlic_lib=sunperf -lmvec
-#-llapack -$(BLASOPT) -lblas
+else
+  CORE_LIBS +=  -llapack -$(BLASOPT) -lblas  
+endif
 
       EXTRA_LIBS = -ldl 
 
@@ -735,13 +741,7 @@ ifeq ($(TARGET),HPUX64)
   CC = cc
   FC = f90
   LDOPTIONS = -Wl,+vallcompatwarnings  
-<<<<<<< makefile.h
-  LINK.f = mpif90   $(LDFLAGS) $(FOPTIONS)
-  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -llapack -lblas -lm
-=======
-  LINK.f = f90   $(LDFLAGS) $(FOPTIONS)
   CORE_LIBS +=  -llapack $(BLASOPT) -lblas -lm
->>>>>>> 1.342
   CDEBUG =
   FDEBUG = -g
   FOPTIONS =  +ppu +i8 +DA2.0W +U77  
@@ -1162,7 +1162,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
   EXTRA_LIBS = 
   FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
   FVECTORIZE = -fast -O5 -tune host -arch host
-  CORE_LIBS = -llapack $(BLASOPT) -lblas
+  CORE_LIBS += -llapack $(BLASOPT) -lblas
 endif
 
 ifeq ($(TARGET),FUJITSU_VPP)
