@@ -1,6 +1,6 @@
       subroutine schwarz_init(geom, basis)
       implicit none
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "bas.fh"
 #include "cschwarz.fh"
 #include "schwarz.fh"

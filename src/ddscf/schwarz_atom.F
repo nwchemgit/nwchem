@@ -1,7 +1,7 @@
       double precision function schwarz_atom(iat, jat)
       implicit none
 #include "cschwarz.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
       integer iat, jat
       double precision value
       integer itri, i, j

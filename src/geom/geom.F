@@ -79,7 +79,7 @@ c
       implicit none
 #include "geomP.fh"
 #include "rtdb.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "inp.fh"
 c     
       integer rtdb              ! [input]
@@ -108,7 +108,7 @@ c
       implicit none
 #include "geomP.fh"
 #include "rtdb.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "inp.fh"
 c     
       integer rtdb              ! [input]
@@ -127,7 +127,7 @@ c
       implicit none
 #include "geomP.fh"
 #include "rtdb.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "inp.fh"
 c     
       integer rtdb              ! [input]
@@ -207,7 +207,7 @@ c
 #include "rtdb.fh"
 #include "geomP.fh"
 #include "context.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "inp.fh"
 #include "util.fh"
 
@@ -329,7 +329,7 @@ c
       implicit none
 #include "geomP.fh"
 #include "rtdb.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "util.fh"
 #include "context.fh"
 #include "tcgmsg.fh"
@@ -411,7 +411,7 @@ c
       implicit none
 #include "geomP.fh"
 #include "rtdb.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "inp.fh"
 c
       integer rtdb              ! [input]

@@ -1,7 +1,7 @@
       subroutine rhf_fock_2e(geom, basis, g_dens, g_fock, tol2e,
      &       ocoul, oexch)
       implicit none
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "geom.fh"

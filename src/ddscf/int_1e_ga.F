@@ -1,6 +1,6 @@
       subroutine int_1e_ga(ibas, jbas, g, integ_type)
       implicit none
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "inp.fh"
 #include "bas.fh"

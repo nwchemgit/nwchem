@@ -48,7 +48,8 @@ c     symbols(1:nelements) = symbols for elements
 c     elements(1:nelements) = names of elements
 c     
       integer max_geom, max_cent, max_geom_rtdb, nelements
-      parameter (max_geom=2, max_cent=1000, max_geom_rtdb = 100)
+      parameter (max_geom=2, max_geom_rtdb = 100)
+      parameter (max_cent=1000)
       parameter (nelements = 103)
 c
       logical active, operiodic, oefield
