@@ -33,9 +33,9 @@ These are examined in the following subsections.
 \subsubsection*{{\tt NAME}}
 The default \verb+name+ for a geometry object is \verb+geometry+, and
 most modules in the code look for a geometry with this name.  The user
-can direct a module to a different geometry by assigning the string
-\verb+geomery+ to \verb+name+ using the \verb+SET+ directive (see the
-example in Section \ref{sec:set}).
+can direct a module to a geometry with a different name by assigning
+the string \verb+geomery+ to \verb+name+ using the \verb+SET+
+directive (see the example in Section \ref{sec:set}).
 
 \subsubsection*{{\tt UNITS}}
 The default units for the geometry input unit is {\AA}ngstr\"{o}m
@@ -44,7 +44,8 @@ internally.  However, the geometric coordinates can also be supplied
 in atomic units, nanometers and picometers by specifying the
 appropriate value for the \verb+UNITS+ keyword.  (Note: The default
 conversion factor used in the code to convert from {\AA}ngstr\"{o}m to
-Bohr is $1.8897265$.)
+Bohr is $1.8897265$.  A facility to change this conversion factor will
+be provided in the near future.)
 
 Possible values for the \verb+UNITS+ keyword are (only the first two
 characters need be specified)
@@ -103,7 +104,7 @@ in the body of the geometry directive are used in subsequent geometry
 optimizations.  If \verb+AUTOZ+ is specified then the user's input is
 used {\em only} to define the starting geometry and NWChem will
 automatically generate a set of internal coordinates suitable for
-geometry optimization.  See the Section \ref{sec:zcoord} for how to
+geometry optimization.  See Section \ref{sec:zcoord} for how to
 force the definition of specific internal variables in combination
 with automatically generated variables.
 
@@ -142,24 +143,25 @@ The string \verb+tag+ is the name of the atom or center and its case
 and is interpreted as follows
 \begin{itemize}
 \item If it begins with either the symbol or name of an element
-      (ignoring case) then it is thought to be an atom of that type
-      and the default charge is the atomic number adjusted for the
-      presence of ECPs (see \ref{sec:ecp}).  Additional characters can
-      be used to distinguish between atoms of the same element. E.g.,
-      the tags \verb+oxygen+, \verb+O+, \verb+o34+, \verb+olonepair+,
-      and \verb+Oxygen-ether+, will all be interpreted as being oxygen
-      atoms.  Atoms {\em must} have basis functions associated with
-      them (Section \ref{sec:basis}). 
-    \item If the tag begins with either \verb+BQ+ or \verb+X+
-      (ignoring case) then it is treated as a dummy center with
-      default zero charge. Dummy centers may optionally have basis
-      functions or non-zero charge.  Note, that in order to recogonize
-      the xenon atom (Xe) it is not possible to input a dummy atom 
-      beginning with the characters \verb+XE+ --- an attempt to do
-      this will generate a xenon atom.
-    \item {\em If the tag begins with characters that cannot be
-        matched against an atom or \verb+BQ+ or \verb+X+ then a fatal
-        error is generated.}
+  (ignoring case) then it is thought to be an atom of that type
+  and the default charge is the atomic number adjusted for the
+  presence of ECPs (see \ref{sec:ecp}).  Additional characters can
+  be used to distinguish between atoms of the same element. E.g.,
+  the tags \verb+oxygen+, \verb+O+, \verb+o34+, \verb+olonepair+,
+  and \verb+Oxygen-ether+, will all be interpreted as being oxygen
+  atoms.  Atoms {\em must} have basis functions associated with
+  them (Section \ref{sec:basis}). 
+\item If the tag begins with either \verb+BQ+ or \verb+X+
+  (ignoring case) then it is treated as a dummy center with
+  default zero charge. Dummy centers may optionally have basis
+  functions or non-zero charge.  Note, that in order to recogonize
+  the xenon atom (Xe) it is not possible to input a dummy atom 
+  beginning with the characters \verb+XE+ --- an attempt to do
+  this will generate a xenon atom.  See Section \ref{sec:sample2} for
+  a sample input using dummy centers with charges.
+\item {\em If the tag begins with characters that cannot be
+    matched against an atom or \verb+BQ+ or \verb+X+ then a fatal
+    error is generated.}
 \end{itemize}
 
 It is {\em important} to be aware of the following points
@@ -176,9 +178,9 @@ and any net total charge of the system (Section \ref{sec:charge}) are
 used to determine the number of electrons.
 \end{itemize}
 
-The Cartesian coordinates of the atom in the molecule are specified as real
-numbers following the string \verb+tag+.  The user also has the option
-of specifying the charge of the atom (or center) and its mass.
+The Cartesian coordinates of the atom in the molecule are specified as
+real numbers following the tag.  The user also has the option of
+specifying the charge of the atom (or center) and its mass.
 
 The default charge for an atom is its atomic number, adjusted for the
 presence of ECPs (see Section \ref{sec:ecp}).  In order to specify a
@@ -213,12 +215,12 @@ coordinates (bond lengths, bond angles and dihedral angles).  The
 Z-matrix input for a center consists of pairs numbers that define
 connectivity indices and a bond length and bond or torsion angless.
 Cartesian coordinate input consists of three real numbers defining the
-x,y,z coordinates of the atom.  {\em Within the Z-matrix input bond
-  lengths and cartesian coordinates must presently be specified in
-  {\AA}ngstr{\"o}ms, regardless of the entry specified for
-  \verb+units+.} Angles are specified in degrees.
+x,y,z coordinates of the atom.  
 
-%
+Within the Z-matrix input bond lengths and cartesian coordinates must
+be input in the used specified units.  Angles are specified in
+degrees.
+
 % When  two  numerical  values,  separated by a comma, are given for some
 % variables, they are considered as the initial and final values for the
 % definition of a Linearized Synchronous Transit pathway.  The
@@ -236,7 +238,8 @@ Bond lengths, bond angles and dihedral angles (denoted below as {\tt
   R}, {\tt alpha}, {\tt beta} respectively) may be specified either as
 numerical values or as symbolic strings which are subsequently
 defined.  The same sybmolic string may be used several times.  Any
-mixture of numeric data and symbols may be given. 
+mixture of numeric data and symbols may be given. Bond angles
+($\alpha$) must be in the range $0 < \alpha < 180$.
 
 The Z-matrix input is specified sequentially as follows
 \begin{verbatim}
@@ -249,13 +252,15 @@ The Z-matrix input is specified sequentially as follows
 
 We examine this in more detail.  In the following, the tag or number
 of the center being currently defined is labelled as \verb+C+ (``C''
-for current).  Figures \ref{fig:zmat1}, \ref{fig:zmat2} and
-\ref{fig:zmat3} display the relationship between the input data 
-and the definition of centers and angles.
+for current).  The above discussion on the interpretation of tags
+(Section \ref{sec:cart}) also applies to centers defined in Z-matrix
+input.  Figures \ref{fig:zmat1}, \ref{fig:zmat2} and \ref{fig:zmat3}
+display the relationship between the input data and the definition of
+centers and angles.
 
 \begin{figure}[htbp]
 \centering
-\psfig{figure=zmat1.eps}
+\psfig{figure=zmat1.eps,angle=270,width=6in}
 
 \caption{\label{fig:zmat1} Relationship between the centers, bond angle
 and dihedral angle in Z-matrix input.}
@@ -263,7 +268,7 @@ and dihedral angle in Z-matrix input.}
 
 \begin{figure}[htbp]
 \centering
-\psfig{figure=zmat2.eps}
+\psfig{figure=zmat2.eps,angle=270,width=6in}
 
 \caption{\label{fig:zmat2} Relationship between the centers and two
   bond angles in Z-matrix input with optional parameter specified as $+1$.}
@@ -271,7 +276,7 @@ and dihedral angle in Z-matrix input.}
 
 \begin{figure}[htbp]
 \centering
-\psfig{figure=zmat3.eps}
+\psfig{figure=zmat3.eps,angle=270,width=6in}
 
 \caption{\label{fig:zmat3} Relationship between the centers and two
   bond angles in Z-matrix input with optional parameter specified as $-1$.}
@@ -459,3 +464,46 @@ specified using number of the centers.
   \verb+l+ must not be colinear.  The two bends are constructed to be
   within and perpendicular to the plane containing the atoms.
 \end{itemize}   
+
+\subsection{Freezing atoms in geometry optimizations}
+\label{sec:activeatoms}
+
+Currently the only mechanism for freezing coordinates during a
+geometry optimization is to freeze the Cartesian coordinates of a list
+of centers.  This is useful for such purposes as optimizing a molecule
+absorbed on the surface of a cluster with fixed geometry.  Only the
+gradients associated with the active atoms are computed and this can
+result in a big computational saving.  Gradients associated with
+frozen atoms are forced to zero (note that this destroys certain
+translational and rotational invariance properties).
+
+The \verb+SET+ directive (Section \ref{sec:set}) must be used as
+follows
+\begin{verbatim}
+  set geometry:actlist <integer list_of_center_number>
+\end{verbatim}
+This defines the centers in the list as being active --- all other
+centers will have zero force assigned to them and will remain frozen
+at their starting coordinates during a geometry optimization.
+
+For instance, the following directive specifies that atom numbers 1,
+5, 6, 7, 8, and 15 are active and all other atoms are frozen:
+\begin{verbatim}
+  set geometry:actlist 1 5:8 15
+\end{verbatim}
+or equivalently
+\begin{verbatim}
+  set geometry:actlist 1 5 6 7 8 15
+\end{verbatim}
+
+
+To revert to the default behaviour of all atoms active we
+must explicitly delete this entry from the database (since
+the database is persistent Section \ref{sec:persist}) as follows
+\begin{verbatim}
+  unset geometry:actlist
+\end{verbatim}
+
+
+
+

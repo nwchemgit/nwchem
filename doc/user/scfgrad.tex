@@ -1,15 +1,4 @@
-\subsection{Hartree-Fock or SCF Gradients}
-
-\Large
-***This should be part of the SCF section (Section 8, in the current
-numbering; it doesn't belong all on its own as a separate Section 9),
- since
-it appears to be part of the SCF module input.****
-\normalsize
-
-The input for this directive allows the user to define some important
-characteristics of the Hartree-Fock gradients for the SCF, UHF and ROHF
-calculations.  The form of the directive is as follows;
+\label{sec:scfgrad}
 
 \begin{verbatim}
   GRADIENTS 
@@ -20,6 +9,12 @@ calculations.  The form of the directive is as follows;
 \end{verbatim}
 
 %  This input controls the Hartree-Fock (SCF, UHF and ROHF) gradients.  
+
+The input for this directive allows the user to define 
+characteristics of the Hartree-Fock gradients for the SCF, UHF and ROHF
+calculations.  The form of the directive is as follows;
+
+
 
 The directive contains two keywords, \verb+chkpt+ and \verb+restart+,
 that are related to the creation of the gradients.  The keyword \verb+chkpt+
@@ -79,26 +74,4 @@ via print control.  These are as follows;
         'timing'   \>             default \> 
 \end{tabbing}
 
-\subsection{frozen atoms}
-\label{sec:activeatoms}
-
-\Large
-***This section belongs somewhere near where you explain about atoms
-and centers and frozen atoms; somewhere in the section on Geometry,
-or maybe Basis sets, I suspect.  It definitely does not belong here,
-all on its lonesome.***
-\normalsize
-
-Currently the only mechanism for freezing atoms is to enter a list of
-active atoms via the \verb+SET+ directive.
-
-\begin{verbatim}
-  set geometry:actlist integer <at1> <at2> <at3> ...
-\end{verbatim}
-defines atoms number \verb+<at1>+ \ldots as 'active', and only forces
-on those are calculated. All other atoms remain frozen at their
-starting coordinates during a geometry optimization.
-% I have no idea how this works with symmetry.
-% But in the new release there will be frozen atoms and variables
-% anyway.
 
