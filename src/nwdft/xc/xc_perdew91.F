@@ -1,7 +1,8 @@
       Subroutine xc_perdew91(tol_rho, cfac, lcfac, nlcfac, rho, delrho, 
-     &                       Amat, Cmat, nq, ipol, Ec, qwght)
+     &                       Amat, Cmat, nq, ipol, Ec, qwght, 
+     ,     ldew, ffunc)
 c
-c     $Id: xc_perdew91.F,v 1.21 1997-03-28 18:45:50 d3h449 Exp $
+c     $Id: xc_perdew91.F,v 1.22 1998-10-07 23:20:29 og845 Exp $
 c
       Implicit none
 c
@@ -17,7 +18,8 @@ c
       double precision eps
       double precision cfac(15)
       logical lcfac(15), nlcfac(15)
-      logical lfac, nlfac, lfacl, nlfacl
+      logical lfac, nlfac, lfacl, nlfacl,ldew
+      double precision ffunc(*)  ! value of the functional [output]
       double precision fac, facl
       integer lnq
       double precision lqwght
@@ -240,9 +242,11 @@ c
 c
             if (lfac)then
                Ec = Ec + egas*qwght(n)*fac
+               if(ldew) ffunc(n)=ffunc(n)+egas*fac
             endif
             if (nlfac)then
                Ec = Ec + (func*rhoval)*qwght(n)*fac
+               if(ldew) ffunc(n)=ffunc(n)+(func*rhoval)*fac
             endif
 c
 c           df/drho = func + rhoval*dfunc/drho
@@ -441,9 +445,11 @@ c
 c
             if (lfac)then
                Ec = Ec + egas*qwght(n)*fac
+               if(ldew) ffunc(n)=ffunc(n)+egas*fac
             endif
             if (nlfac)then
                Ec = Ec + (func*rhoval)*qwght(n)*fac
+               if(ldew) ffunc(n)=ffunc(n)+(func*rhoval)*fac
             endif
 c
 c           df/drho = func + rhoval*dfunc/drho

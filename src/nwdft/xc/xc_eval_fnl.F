@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.2 1998-09-15 15:54:58 bjohnson Exp $
+c     $Id: xc_eval_fnl.F,v 1.3 1998-10-07 23:20:27 og845 Exp $
 c
       implicit none
 c
@@ -54,11 +54,11 @@ c
          if (.not. do_2nd) then
             call xc_becke88(tol_rho, xfac(3), lxfac(3), nlxfac(3), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
-     &           Ex, qwght)
+     &           Ex, qwght,ldew,func)
          else
             call xc_becke88_d2(tol_rho, xfac(3), lxfac(3), nlxfac(3), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
-     &           Ex, qwght)
+     &           Ex, qwght,ldew,func)
          endif
       endif
 c     
@@ -128,7 +128,7 @@ c
          if (.not. do_2nd) then
             call xc_pw91lda(tol_rho, cfac(6), lcfac(6), nlcfac(6), 
      &           rho, Amat, nq, ipol, Ec, 
-     &           qwght)
+     &           qwght, ldew, func)
          else
             call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
          endif
@@ -138,7 +138,7 @@ c
          if (.not. do_2nd) then
             call xc_lyp88(tol_rho, cfac(2), lcfac(2), nlcfac(2), 
      &           rho, delrho, Amat, Cmat, nq, ipol, Ec, 
-     &           qwght)
+     &           qwght, ldew, func)
          else
             call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
          endif
@@ -147,7 +147,7 @@ c
       if (abs(cfac(3)).gt.eps)then
          if (.not. do_2nd) then
             call xc_p81(tol_rho, cfac(3), lcfac(3), nlcfac(3), rho, 
-     &           Amat, nq, ipol, Ec, qwght)
+     &           Amat, nq, ipol, Ec, qwght, ldew, func)
          else
             call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
          endif
@@ -157,7 +157,7 @@ c
          if (.not. do_2nd) then
             call xc_perdew86(tol_rho, cfac(4), lcfac(4), nlcfac(4), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
-     &           Ec, qwght)
+     &           Ec, qwght, ldew, func)
          else
             call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
          endif
@@ -170,7 +170,7 @@ c
          if (.not. do_2nd) then
             call xc_perdew91(tol_rho, cfac, lcfac, nlcfac, rho, 
      &           delrho, Amat, Cmat, nq, ipol, 
-     &           Ec, qwght)
+     &           Ec, qwght, ldew, func)
          else
             call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
          endif

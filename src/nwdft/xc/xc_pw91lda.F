@@ -1,5 +1,5 @@
       subroutine xc_pw91lda(tol_rho, fac, lfac, nlfac, rho, Amat, nq, 
-     &                      ipol, Ec, qwght)
+     &                      ipol, Ec, qwght, ldew, func)
 c
 c     uniform-gas correlation of Perdew and Wang 1991
 c
@@ -10,13 +10,14 @@ c
 c     output: correlation contribution (alfc) to the spin stiffness
 c
 *
-* $Id: xc_pw91lda.F,v 1.8 1997-11-01 00:10:03 d3e129 Exp $
+* $Id: xc_pw91lda.F,v 1.9 1998-10-07 23:20:29 og845 Exp $
 *
       implicit none
       double precision fac ! [input]
       integer nq, ipol      ! [input]
       double precision Ec  ! [input/output]
-      logical lfac, nlfac
+      logical lfac, nlfac, ldew
+      double precision func(*)  ! value of the functional [output]
       double precision rho(nq,ipol*(ipol+1)/2) ! Charge Density 
       double precision qwght(nq)!Quadrature Weights
       double precision Amat(nq,ipol)!Sampling Matrices for XC V & E
@@ -58,7 +59,8 @@ c
             else
                epw91 = eu
             endif
-            ec = ec + epw91*qwght(n)*rhoval*fac
+            ec = ec + (epw91*rhoval*fac)*qwght(n)
+            if(ldew) func(n) =func(n)+(epw91*rhoval*fac)
 c
 c           energy done. now the potential:
 c

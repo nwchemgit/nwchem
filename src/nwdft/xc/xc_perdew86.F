@@ -1,14 +1,16 @@
       Subroutine xc_perdew86(tol_rho, fac, lfac, nlfac, rho, delrho, 
-     &                       Amat, Cmat, nq, ipol, Ec, qwght)
+     &                       Amat, Cmat, nq, ipol, Ec, qwght,
+     ,     ldew, ffunc)
 c
-c$Id: xc_perdew86.F,v 1.14 1997-04-02 17:55:07 d3h449 Exp $
+c$Id: xc_perdew86.F,v 1.15 1998-10-07 23:20:28 og845 Exp $
 c
       implicit none
 c
       double precision tol_rho, fac ! [input]
       integer nq, ipol              ! [input]
       double precision Ec           ! [input/output]
-      logical lfac, nlfac
+      logical lfac, nlfac, ldew
+      double precision ffunc(*)  ! value of the functional [output]
 c
 c     Charge Density 
 c
@@ -108,6 +110,7 @@ c
                Cmat(n,3,1) = Cmat(n,3,1) + g*delrho(n,3,1)
             endif
             Ec = Ec + func*qwght(n)*fac
+            if (ldew) ffunc(n)=ffunc(n)+func*fac
    10    continue
       else
 c
@@ -182,20 +185,22 @@ c
      &                                     gab*delrho(n,3,1)
             endif
             Ec = Ec + func*qwght(n)*fac
+            if (ldew) ffunc(n)=ffunc(n)+func*fac
    20    continue
       endif
       return
       end
 
       Subroutine xc_p81(tol_rho, fac, lfac, nlfac, rho, Amat, nq, ipol, 
-     &                  Ec, qwght)
+     &                  Ec, qwght, ldew, func)
 c
 c     Ceperley Alder LDA from Perdew Zunger PRB 23, 5048 (1981)
 c
       implicit none
 c
       integer nq, ipol
-      logical lfac, nlfac
+      logical lfac, nlfac, ldew
+      double precision func(*)  ! value of the functional [output]
       double precision Ec, fac
 c
 c     Charge Density 
@@ -250,6 +255,7 @@ c
                   vU = eU*(1.d0+SEV6*B1U*drs+FOUR3*B2U*rs)*adU
                endif
                Ec = Ec+eU*qwght(n)*rhoval*fac
+               if (ldew) func(n) = func(n) +eU*rhoval*fac
                Amat(n,1) = Amat(n,1) + vU*fac
             endif
          enddo
@@ -283,6 +289,8 @@ c
                AAadd = vU + fz*(vP-vU) 
                ePOL = (eP-eU)*fzzprime(zeta)
                Ec = Ec+(eU+fz*(eP-eU))*qwght(n)*rhoval*fac
+               if (ldew) func(n) = func(n) +
+     *              (eU+fz*(eP-eU))*rhoval*fac
                Amat(n,1) = Amat(n,1) + (AAadd + (1.d0-zeta)*ePOL)*fac
                Amat(n,2) = Amat(n,2) + (AAadd - (1.d0+zeta)*ePOL)*fac
             endif

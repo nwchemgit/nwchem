@@ -1,7 +1,7 @@
       Subroutine xc_lyp88(tol_rho, fac, lfac, nlfac, rho, delrho, 
-     &                    Amat, Cmat, nq, ipol, Ec, qwght)
+     &                    Amat, Cmat, nq, ipol, Ec, qwght, ldew, func)
 c
-C$Id: xc_lyp88.F,v 1.8 1997-12-16 23:57:35 d3h449 Exp $
+C$Id: xc_lyp88.F,v 1.9 1998-10-07 23:20:28 og845 Exp $
 c
       implicit none 
 c
@@ -9,7 +9,9 @@ c
       integer nq
       integer ipol
       double precision Ec
-      logical lfac, nlfac
+      logical lfac, nlfac, ldew
+      double precision func(*)  ! value of the functional [output]
+
 c
 c     Charge Density & Its Cube Root
 c
@@ -137,7 +139,8 @@ c
             Cmat(n,1,1) = Cmat(n,1,1) + gaa*delrho(n,1,1)
             Cmat(n,2,1) = Cmat(n,2,1) + gaa*delrho(n,2,1)
             Cmat(n,3,1) = Cmat(n,3,1) + gaa*delrho(n,3,1)
-            Ec = Ec + Elyp*qwght(n)*fac
+            Ec = Ec + (Elyp*fac)*qwght(n)
+            if (ldew) func(n) =func(n) + (Elyp*fac)
    10    continue
       else
 c
@@ -240,7 +243,8 @@ c
      &                                  gab*delrho(n,3,2)
             Cmat(n,3,2) = Cmat(n,3,2) + gbb*delrho(n,3,2) + 
      &                                  gab*delrho(n,3,1)
-            Ec = Ec + Elyp*qwght(n)*fac
+            Ec = Ec + (Elyp*fac)*qwght(n)
+            if (ldew) func(n) =func(n) + (Elyp*fac)
    20    continue
       endif
 c

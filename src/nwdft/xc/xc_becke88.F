@@ -1,20 +1,21 @@
 #ifndef SECOND_DERIV
       Subroutine xc_becke88(tol_rho, fac, lfac, nlfac, rho, delrho, 
-     &                      Amat, Cmat, nq, ipol, Ex, qwght)     
+     &                      Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)     
 #else
 #include "dft2drv.fh"
       Subroutine xc_becke88_d2(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                         Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
-     &                         qwght)     
+     &                         qwght,ldew,func)     
 #endif
 c
-C$Id: xc_becke88.F,v 1.11 1998-09-15 15:51:02 bjohnson Exp $
+C$Id: xc_becke88.F,v 1.12 1998-10-07 23:20:26 og845 Exp $
 c
       implicit none
 c      
       double precision fac, Ex
       integer nq, ipol
-      logical lfac, nlfac
+      logical lfac, nlfac,ldew
+      double precision func(*)  ! value of the functional [output]
 c
 c     Charge Density & Its Cube Root
 c
@@ -111,10 +112,12 @@ c
 c
             if (lfac)then
                Ex = Ex + TWO*CD43a*P2LDA*qwght(n)*fac
+               if(ldew)func(n) = func(n) + TWO*CD43a*P2LDA*fac
             endif
 c
             if (nlfac)then
                Ex = Ex + TWO*CD43a*Ca*qwght(n)*fac
+               if(ldew)func(n) = func(n) + TWO*CD43a*Ca*fac
             endif
 c
             if (Gna.gt.tol_rho)  then
@@ -191,10 +194,14 @@ c
 c
             if (lfac)then
                Ex = Ex + P2LDA*(CD43a + CD43b)*qwght(n)*fac
+               if (ldew)func(n) = func(n) +  
+     *              P2LDA*(CD43a + CD43b)*fac
             endif
 c
             if (nlfac)then
                Ex = Ex + (CD43a*Ca + CD43b*Cb)*qwght(n)*fac
+               if (ldew)func(n) = func(n) +  
+     *              (CD43a*Ca + CD43b*Cb)*fac
             endif
 cwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 c            write(6,*)' ex, cd13a, cd43a, cd13b, cd43b, ca, cb: ',
