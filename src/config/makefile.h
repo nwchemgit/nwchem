@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.445 2004-02-07 05:27:37 edo Exp $
+# $Id: makefile.h,v 1.446 2004-02-11 02:27:35 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1675,22 +1675,24 @@ ifeq ($(TARGET),cray-sv2)
 #
 
          FC = ftn
-#      CPP = /lib/cpp -P -C
      RANLIB = echo
   MAKEFLAGS = 
     INSTALL = @echo $@ is built
-                        
-    DEFINES =  -DEXT_INT  -DUSE_POSIXF #add x1 specific define? -D__crayx1
+    DEFINES =  -DEXT_INT  -DUSE_POSIXF  -DUSE_FFIO
      CORE_SUBDIRS_EXTRA = blas lapack
 
-    FOPTIONS =  -F -s integer64
-#  FOPTIMIZE =  -O vector3,msgs,negmsgs -rm 
-  FOPTIMIZE =  -O vector3
-  COPTIMIZE = -O -h inline2 
+   FOPTIONS =  -F -s integer64
+   ifdef USE_SSP
+      FOPTIONS += -O ssp
+      COPTIONS += -h ssp
+   endif
+   FOPTIMIZE = -O scalar3,aggress,unroll2,vector3
+      FDEBUG = -O scalar1,vector1
+   COPTIMIZE = -O -h inline2  -h aggress
 
 
-#       EXTRA_LIBS = -lsci64 -llapack  -lblas  # need make dbl_to_sngl for this
-       EXTRA_LIBS =  -llapack  -lblas 
+       EXTRA_LIBS = -lsci64 -llapack  -lblas  # need make dbl_to_sngl for this
+#       EXTRA_LIBS =  -llapack  -lblas 
 
 #      EXPLICITF     = TRUE
       FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f

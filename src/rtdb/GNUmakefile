@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.22 2004-01-19 23:16:41 edo Exp $
+# $Id: GNUmakefile,v 1.23 2004-02-11 02:27:36 edo Exp $
 
 include ../config/makefile.h
 
@@ -34,9 +34,6 @@ else
      LIB_DEFINES = -DUSE_DB
          SUBDIRS = db
 # END_WIN32_IGNORE
-endif
-ifeq ($(TARGET),cray-sv2)
-     LIB_DEFINES += -DDB_INMEM
 endif
 
 include ../config/makelib.h

@@ -1,5 +1,5 @@
 /*
- $Id: hdbm.c,v 1.7 1999-11-13 03:07:53 bjohnson Exp $
+ $Id: hdbm.c,v 1.8 2004-02-11 02:27:36 edo Exp $
  */
 
 #include <stdlib.h>
@@ -11,18 +11,15 @@
 #endif
 #include "hdbm.h"
 
-/* Not defined on the SUN */
 
-#ifdef SUN
-extern int printf(const char *, ...);
-extern int fprintf(FILE *, const char *, ...);
-extern void rewind(FILE *);
-extern int fclose(FILE *);
-extern int fflush(FILE *);
-extern size_t fread(void *, size_t, size_t, FILE *);
-extern size_t fwrite(const void *, size_t, size_t, FILE *);
-extern int fseek(FILE *,long int, int);
+/*
+ *	On Cray replace the STDIO based IO with Cray's
+ *	Flexable File IO (FFIO).
+ */
+#ifdef USE_FFIO
+#include "stdiof2ffio.h"
 #endif
+
 
 static unsigned int hash(const void *, int);
 
@@ -143,9 +140,13 @@ static int hdbm_fseek(FILE *stream,
 		      long int offset,
 		      int whence)
 {
+    int result;
+
     io_stats.seeks++;
     
-    return fseek(stream, offset, whence);
+    result = fseek(stream, offset, whence);
+if ( result < 0 ) perror("hdbm_fseek");
+    return ( result );
 }
 
 int hdbm_check(hdbm db)
@@ -395,6 +396,7 @@ int hdbm_open(const char *name, int use_file, hdbm *db)
   */
 {
     int i;
+    int retval;
     
     *db = -1;			/* Invalid value */
 
@@ -442,11 +444,13 @@ int hdbm_open(const char *name, int use_file, hdbm *db)
     if (use_file) {
 	if (!(hash_tables[i].file = fopen(name, "r+b")))
 	    if (!(hash_tables[i].file = fopen(name, "w+b"))) {
-		(void) fprintf(stderr, "hdbm_open: open of %s failed\n", name);
+perror(name);
+		(void) fprintf(stderr, "hdbm_open: open of %s failed %x\n", name,hash_tables[i].file);
 		return 0;
 	    }
-	if (hdbm_fseek(hash_tables[i].file, 0L, SEEK_END)) {
-	    (void) fprintf(stderr, "hdbm_open: fseek on %s failed\n", name);
+	retval = hdbm_fseek(hash_tables[i].file, 0L, SEEK_END);
+        if ( retval ) {
+	    (void) fprintf(stderr, "hdbm_open: fseek on %s failed(%d)\n", name,retval);
 	    return 0;
 	}
 	
@@ -577,7 +581,6 @@ int hdbm_close(hdbm db)
 		       "hdbm_close: invalid db handle passed %d\n", db);
 	return 0;
     }
-    
     if (hash_tables[db].file) {
 	hdbm_free(hash_tables[db].ffl, MAX_FILE_FREE_LIST*sizeof(fflentry));
 
@@ -585,7 +588,6 @@ int hdbm_close(hdbm db)
 	hash_tables[db].file = (FILE *) 0; /* So that delete called from clear
 					      only destroys incore data*/
     }
-    
     hdbm_clear(db);
     hdbm_free(hash_tables[db].table, NBINS*sizeof(entry *));
     hdbm_free(hash_tables[db].nentry, NBINS*sizeof(int));
@@ -1225,7 +1227,11 @@ int hdbm_file_flush(hdbm db)
   }
     
     if (hash_tables[db].file) {
+#ifdef USE_FFIO
+	if (stdiof_fflush(hash_tables[db].file)) {
+#else
 	if (fflush(hash_tables[db].file)) {
+#endif
 	    (void) fprintf(stderr,"hdbm_file_flush: failed to flush %s\n",
 			   hash_tables[db].name);
 	    (void) fflush(stderr);
