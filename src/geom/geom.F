@@ -372,7 +372,7 @@ c
      $     rtdb_get(rtdb, tmp, mt_int, 1, sym_num_ops(geom))
       tmp(k:) = ':operators'
       status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_dbl, max_sym_ops*3*4,
+     $     rtdb_get(rtdb, tmp, mt_dbl, sym_num_ops(geom)*3*4,
      $     sym_ops(1,1,geom))
       tmp(k:) = ':map_atoms'
       status = status .and. 
@@ -559,7 +559,7 @@ c
      $     rtdb_put(rtdb, tmp, mt_int, 1, sym_num_ops(geom))
       tmp(k:) = ':operators'
       status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_dbl, max_sym_ops*3*4,
+     $     rtdb_put(rtdb, tmp, mt_dbl, sym_num_ops(geom)*3*4,
      $     sym_ops(1,1,geom))
       tmp(k:) = ':map_atoms'
       status = status .and. 
