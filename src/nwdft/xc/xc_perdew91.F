@@ -1,7 +1,7 @@
       Subroutine xc_perdew91(tol_rho,fac,
      *     rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.8 1995-11-01 20:07:13 og845 Exp $
+C     $Id: xc_perdew91.F,v 1.9 1995-11-27 06:19:10 og845 Exp $
       Implicit none
 
       double precision TOLL,EXPTOL
@@ -132,7 +132,7 @@ C         call for LDA bit
 C
           call xc_p81(1.d0,rhoval,dp81drho,1,1,egas,1.d0)
 
-          degasda=arho*(dp81drho(1) - egas)
+          degasda=arho*(dp81drho(1) - egas*arho)
           
           akf=TPP*rho13
           aks=sqrt(4.d0*akf/pi)
@@ -188,7 +188,7 @@ c
      *         2.d0*dexpo2*(
      *         dtdrhoa/t + dksdrho/aks - dkfdrho/akf))
 
-          dAdrhoa = A/(expo1-ONE)*
+          dAdrhoa = A/(expo1-ONE)*expo1*
      *         twoab2*degasda
           dH0drhoa = 
      =         bb*aden1*A1p2At2*(
@@ -260,8 +260,8 @@ C         call for LDA bit
 C
           call xc_p81(1.d0,rho(1,n),dp81drho,1,2,egas,1.d0)
 
-          degasda=arho*(dp81drho(1) - egas)
-          degasdb=arho*(dp81drho(2) - egas)
+          degasda=arho*(dp81drho(1) - egas*arho)
+          degasdb=arho*(dp81drho(2) - egas*arho)
 
           g=max(tol_rho,gzeta(zeta))
           g2=g*g
@@ -325,10 +325,10 @@ c
      *         2.d0*dexpo2*(2.d0*dgzetadbg +
      *         dtdrhob/t + dksdrho/aks - dkfdrho/akf))
 
-          dAdrhoa = A/(expo1-ONE)*
+          dAdrhoa = A/(expo1-ONE)*expo1*
      *         twoab2/g3*(-THREE*dgzetadag + degasda)
 
-          dAdrhob = A/(expo1-ONE)*
+          dAdrhob = A/(expo1-ONE)*expo1*
      *         twoab2/g3*(-THREE*dgzetadbg + degasdb)
 
           dH0drhoa = Three*H0*dgzetadag +
