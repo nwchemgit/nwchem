@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.20 2000-07-06 20:23:06 d3j191 Exp $
+c $Id: util_md.F,v 1.21 2000-07-06 20:29:57 d3j191 Exp $
 c
       implicit none
 c
@@ -333,15 +333,15 @@ c
       write(lfn,2001) 'MediumGoldenrod',0.917647,0.917647,0.678431
       write(lfn,2001) 'MediumOrchid',0.576471,0.439216,0.858824
       write(lfn,2001) 'MediumSeaGreen',0.258824,0.435294,0.258824
-      write(lfn,2001) 'MediumSlateBlue',0.498039,1.0
-      write(lfn,2001) 'MediumSpringGreen',0.498039,1.0 
+      write(lfn,2001) 'MediumSlateBlue',0.498039,1.0,0.0
+      write(lfn,2001) 'MediumSpringGreen',0.498039,1.0,0.0
       write(lfn,2001) 'MediumTurquoise',0.439216,0.858824,0.858824
       write(lfn,2001) 'MediumVioletRed',0.858824,0.439216,0.576471
       write(lfn,2001) 'MidnightBlue',0.184314,0.184314,0.309804
       write(lfn,2001) 'Navy',0.137255,0.137255,0.556863
       write(lfn,2001) 'NavyBlue',0.137255,0.137255,0.556863
       write(lfn,2001) 'Orange',1,0.5,0.0
-      write(lfn,2001) 'OrangeRed',1.0,0.498039
+      write(lfn,2001) 'OrangeRed',1.0,0.498039,0.0
       write(lfn,2001) 'Orchid',0.858824,0.439216,0.858824
       write(lfn,2001) 'PaleGreen',0.560784,0.737255,0.560784
       write(lfn,2001) 'Pink',0.737255,0.560784,0.560784
