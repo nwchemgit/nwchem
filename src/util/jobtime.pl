@@ -53,7 +53,7 @@ sub datetosec {
 
     $dayinyear = $precdays{$month} + $daynum;
     
-    if (($dayinyear ge 59) and (($year % 4) gt 0)) {$dayinyear += 1};
+    if (($dayinyear >= 59) && (($year % 4) > 0)) {$dayinyear += 1};
     
     $secinyear = $sec + 60*($min + 60*($hour + 24*($dayssince1997 + $dayinyear)));
     
