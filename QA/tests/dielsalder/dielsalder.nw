@@ -1,0 +1,58 @@
+start
+
+title
+parent diels-alder - constrained geometry optimization + saddle search
+
+# tests constrained optimization, saddle search,
+# use of constraints with symmetry
+
+# norbornene = -269.369082   r = 1.56877
+
+geometry autosym  # Equil nonbornene geometry
+  C   -0.56970319    -1.24200248     0.66145412
+  C   -0.56970319    -1.24200248    -0.66145412
+  C    0.30163937    -0.07585222     1.13282212
+  C    0.30163937    -0.07585222    -1.13282212
+  C    1.36288212    -0.05150460     0.00000000
+  C   -0.51211483     1.21947833     0.78501047
+  C   -0.51211483     1.21947833    -0.78501047
+  H    0.66051824    -0.12617315    -2.14778696
+  H    0.66051824    -0.12617315     2.14778696
+  H    1.96152178     0.85159285     0.00000000
+  H   -1.51147362     1.18303369    -1.19517710
+  H   -1.51147362     1.18303369     1.19517710
+  H   -1.13480012    -1.87777806    -1.31030500
+  H   -1.13480012    -1.87777806     1.31030500
+  H    1.99285293    -0.93012745     0.00000000
+  H   -0.01020068     2.09823148     1.17132500
+  H   -0.01020068     2.09823148    -1.17132500
+end
+
+basis 
+  c library 3-21g
+  h library 3-21g
+end
+
+scf; print low; thresh 1e-6; end
+
+geometry adjust  # move to guess geometry & apply constraints
+  zcoord
+    bond 6 3 2.2 r constant
+    bond 7 4 2.2 r constant
+  end
+end
+
+#pause
+task scf optimize  # relax with constraints
+
+geometry adjust  # release constraints
+  zcoord
+    bond 6 3 2.2 r
+    bond 7 4 2.2 r
+  end
+end
+
+task scf saddle  # go for the TS
+
+
+
