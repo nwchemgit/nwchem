@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.56 1997-12-12 17:46:19 d3h449 Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.57 1998-10-17 00:42:05 og845 Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -502,12 +502,15 @@ c
       xname(1)='           Hartree-Fock (Exact) Exchange'
       xname(2)='              Slater Exchange Functional'
       xname(3)='          Becke 1988 Exchange Functional'
+      xname(4)='          HCTH  Exchange-Corr Functional'
 c
 c     Exchange-Correlation combination functional name defaults.
 c
       xcname(1)='Adiabatic Connection Method XC Potential'
       xcname(2)='               B3LYP Method XC Potential'
       xcname(3)=' Becke half-and-half Method XC Potential'
+      xcname(4)='          Becke 1997 Method XC Potential'
+      xcname(5)='        Becke 1997-1 Method XC Potential'
 c     
 c     place character XC parameters in rtdb
 c     
@@ -668,9 +671,12 @@ c     This switch controls whether the grid is
 c     rotationally invariant. For now, it is hard-wired to 
 c     1 (rotationally invariant).
 c     
-      iqrot = 1
-      if (.not. rtdb_put(rtdb, 'dft:iqrot', mt_int, 1, iqrot))
-     &   call errquit('dft_input: rtdb_put failed', 117)
+      if (.not. rtdb_get(rtdb, 'dft:iqrot', mt_int, 1, iqrot))
+     &   then
+        iqrot = 1
+        if (.not. rtdb_put(rtdb, 'dft:iqrot', mt_int, 1, iqrot))
+     &       call errquit('dft_input: rtdb_put failed', 117)
+      endif
 c
 c     generate number of atom types and atom type array iatype(icenter) 
 c

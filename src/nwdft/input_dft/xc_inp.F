@@ -30,9 +30,12 @@ c     vwn_3
 c     vwn_4
 c     vwn_5
 c     vwn_1_rpa
+c     hcth
+c     becke97
+c     becke97-1
 c     
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs = 17)
+      parameter (num_dirs = 20)
       character*10 dirs(num_dirs)
       character*255 test
 c
@@ -49,7 +52,7 @@ c
       data dirs /'acm', 'b3lyp', 'beckehandh', 'HFexch', 'becke88',  
      &           'lyp', 'perdew81', 'perdew86', 'perdew91', 'pw91lda', 
      &           'slater', 'vwn_1', 'vwn_2', 'vwn_3', 'vwn_4', 'vwn_5',
-     &           'vwn_1_rpa'/
+     &           'vwn_1_rpa','hcth','becke97','becke97-1'/
 c
 c     Only these few arrays are initialized (not defaults).
 c
@@ -75,7 +78,8 @@ c
       endif
 c
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 
-     &      1200, 1300, 1400, 1500, 1600, 1700, 1999) ind
+     &      1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
+     ,     1999) ind
       call errquit('xc_inp: unimplemented directive', ind)
 c     
 c     acm; adiabatic connection method
@@ -212,7 +216,19 @@ c
       endif
       if (.not. inp_f(xfac(3))) then
          xfac(3) = 1.0d0
-      endif            
+      endif
+       goto 10
+c     
+c     HCTH for exchange & correlation
+c     
+ 1800  continue
+c
+c        assume total wanted
+c        
+         lxfac(4) = .true.
+         nlxfac(4) = .true.
+         xfac(4) = 1.0d0
+C       endif            
 c
       goto 10
 c     
@@ -586,6 +602,40 @@ c
 c
       goto 10
 c     
+c     
+c     becke97; Becke 1997 Hybrid functional
+c            AD Becke JCP 107, 8554 (1997)
+c            c*Ex(HF) + Exc
+c            
+c            c=0.1943
+c             
+ 1900 xccomb(4) = .true.
+        xfac(1) = 0.1943d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+        xfac(5) = 1.d0
+       lxfac(5) = .true.
+      nlxfac(5) = .true.
+      goto 10
+c     
+c     
+c     becke97; Becke 1997 Hybrid functional
+c            AD Becke JCP 107, 8554 (1997)
+c     parameters re-fitted by
+c     Hamprecht et al, JCP 109, 6264 (1998)
+c            c*Ex(HF) + Exc
+c            
+c            c=0.2100
+c             
+ 2000 xccomb(5) = .true.
+        xfac(1) = 0.2100d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+        xfac(6) = 1.d0
+       lxfac(6) = .true.
+      nlxfac(6) = .true.
+c
+      goto 10
  1999 continue
 c
 c     Check nonlocal functionals: perdew86 and perdew91 to
@@ -677,8 +727,11 @@ c
      &       /,' [vwn_3 local rval], ',
      &       /,' [vwn_4 local rval], ',
      &       /,' [vwn_5 local rval], ',
-     &       /,' [vwn_1_rpa local rval]] ')
+     &       /,' [vwn_1_rpa local rval]] ',
+     &       /,' [hcth] ',
+     &       /,' [becke97] ',
+     &       /,' [becke97-1] ')
       call util_flush(6)
-      call errquit('grid_input: invalid format', 0)
+      call errquit('xc_input: invalid format', 0)
 c     
       end

@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.3 1998-10-07 23:20:27 og845 Exp $
+c     $Id: xc_eval_fnl.F,v 1.4 1998-10-17 00:39:38 og845 Exp $
 c
       implicit none
 c
@@ -38,7 +38,7 @@ c
 c
 c     warning!! xc_dirac has to be called before all the other
 c     XC routines
-c
+c     
       if (abs(xfac(2)).gt.eps)then
          if (.not. do_2nd) then
             call xc_dirac(tol_rho, xfac(2), lxfac(2), nlxfac(2), rho, 
@@ -59,6 +59,42 @@ c
             call xc_becke88_d2(tol_rho, xfac(3), lxfac(3), nlxfac(3), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ex, qwght,ldew,func)
+         endif
+      endif
+C
+C     hcth both X and C functional
+C
+      if (abs(xfac(4)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_hcth(tol_rho, xfac(4), lxfac(4), nlxfac(4), rho, 
+     &           delrho, Amat, Cmat, nq, ipol, Ex, Ec, qwght, 
+     &           ldew, func,'hcth')
+         else
+            call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
+         endif
+      endif
+C
+C     becke97 both X and C functional
+C
+      if (abs(xfac(5)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_hcth(tol_rho, xfac(5), lxfac(5), nlxfac(5), rho, 
+     &           delrho, Amat, Cmat, nq, ipol, Ex, Ec, qwght, 
+     &           ldew, func,'b970')
+         else
+            call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
+         endif
+      endif
+C
+C     becke97-1 both X and C functional
+C
+      if (abs(xfac(6)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_hcth(tol_rho, xfac(6), lxfac(6), nlxfac(6), rho, 
+     &           delrho, Amat, Cmat, nq, ipol, Ex, Ec, qwght, 
+     &           ldew, func,'b971')
+         else
+            call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
          endif
       endif
 c     
