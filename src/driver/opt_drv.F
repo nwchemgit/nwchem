@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.27 1997-05-14 01:18:00 d3g681 Exp $
+C$Id: opt_drv.F,v 1.28 1997-05-22 00:08:55 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -109,7 +109,7 @@ c
          iatfrz(i)=0
       enddo
 c
-      if (.not. rtdb_get(rtdb,'driver:cvgopt',mt_int,1,nptopt))
+      if (.not. rtdb_get(rtdb,'driver:cvgopt',mt_dbl,1,cvgopt))
      $     cvgopt=8.0d-04
       if (.not. rtdb_get(rtdb,'driver:nptopt',mt_int,1,nptopt))
      $     nptopt=20
