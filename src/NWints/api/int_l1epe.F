@@ -1,14 +1,17 @@
-c $Id: int_l1epe.F,v 1.6 1996-10-11 10:10:16 d3e129 Exp $
+c $Id: int_l1epe.F,v 1.7 1997-05-29 23:43:02 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
-c:tex-\subsubsection{int\_l1epe}
+c:tex-\subsection{int\_l1epe}
 c:tex-This routine computes the 1 electron potential integrals, ($V$):
-c:tex-\[
-c:tex-V = ({\mu}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1} 
-c:tex-\]
-c:tex-If an ecp is defined then the integral contributions are summed 
+c:tex-If an ECP is defined then the ECP integral contributions are summed 
 c:tex-directly into the V integrals.  Integrals are computed with labels 
 c:tex-and ``zero'' integrals removed.  
+c:tex-
+c:tex-\begin{eqnarray*}
+c:tex-V & = & ({\mu}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}) \\
+c:tex-  & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac
+c:tex-{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1} 
+c:tex-\end{eqnarray*}
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}

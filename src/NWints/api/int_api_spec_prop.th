@@ -1,0 +1,6 @@
+*:tex-begin
+\section{INT-API: Property Integral Routines}
+These routines compute and return property integrals based on shell pairs.
+%
+
+*:tex-end

@@ -1,12 +1,13 @@
-c $Id: int_l2e3c.F,v 1.11 1996-10-07 16:50:38 d3e129 Exp $
+c $Id: int_l2e3c.F,v 1.12 1997-05-29 23:43:04 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
-c:tex-\subsubsection{int\_l2e3c}
+c:tex-\subsection{int\_l2e3c}
 c:tex-this routine computes the 3 center 2 electron integrals
 c:tex-with labels and ``zero'' integrals removed: 
-c:tex-\[
-c:tex-({\mu}|{\nu}{\lamda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2}g_{\lamda}(X_{\lamda},r_{2})dr_{1}dr_{2}
-c:tex-\]
+c:tex-\begin{eqnarray*}
+c:tex-({\mu}|{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{1}{r_{12}}
+c:tex-g_{\nu}(X_{\nu},r_{2}g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
+c:tex-\end{eqnarray*}
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -45,7 +46,7 @@ c:tex-\begin{verbatim}
       integer ilab(leri) ! [output] i bas fun labels array
       integer jlab(leri) ! [output] j bas fun labels array
       integer klab(leri) ! [output] k bas fun labels array
-      double precision eri(leri) ! [output] 2c2e integrals
+      double precision eri(leri) ! [output] 2e3c integrals
       logical canket ! [input] canonicalize ket bas. fun. label pairs
 c:tex-\end{verbatim}
 c::local

@@ -1,20 +1,24 @@
-c $Id: int_projpole.F,v 1.7 1996-10-11 10:10:20 d3e129 Exp $
+c $Id: int_projpole.F,v 1.8 1997-05-29 23:43:07 d3e129 Exp $
 *
 c:tex-% This is part of the standard API routines
+c:tex-\subsection{int\_projpole}
 c:tex-This routine computes projected multipole integrals up to level 
-c:tex-lmax (0->lmax):\\
-c:tex-The general form is <pole|shell>
+c:tex-lmax (0$\rightarrow$lmax):\\
+c:tex-The general form is $<$pole$|$shell$>$
 c:tex- 
-c:tex-Integrals are returned in <pole|shell> blocks one block for each 
-c:tex-L value 0->lmax. For example, a multipole, L = 1 and a d shell 
+c:tex-Integrals are returned in $<$pole$|$shell$>$ blocks one block for each 
+c:tex-L value 0$\rightarrow$lmax. 
+c:tex-
+c:tex-For example, a multipole, L = 1 and a d shell 
 c:tex-would yield (1+3)*6 = 24 integrals.
 c:tex-
 c:tex-The order would be:\\
-c:tex-$<0|xx>, <0|xy>, <0|xz>, <0|yy>, \ldots <0|zz>$ first six.\\
-c:tex-$<x|xx>, <x|xy>, <x|xz>, <x|yy>, \ldots <x|zz>$ second six.\\
-c:tex-$<y|xx>, <y|xy>, <y|xz>, <y|yy>, \ldots <y|zz>$ third six. \\
-c:tex-$<z|xx>, <z|xy>, <z|xz>, <z|yy>, \ldtos <z|zz>$ fourth six.
-c:tex-
+c:tex-\begin{tabular}{ccccccc}
+c:tex-$<0|xx>$ & $<0|xy>$ & $<0|xz>$ & $<0|yy>$ & $\ldots$ & $<0|zz>$ & first six\\
+c:tex-$<x|xx>$ & $<x|xy>$ & $<x|xz>$ & $<x|yy>$ & $\ldots$ & $<x|zz>$ & second six\\
+c:tex-$<y|xx>$ & $<y|xy>$ & $<y|xz>$ & $<y|yy>$ & $\ldots$ & $<y|zz>$ & third six \\
+c:tex-$<z|xx>$ & $<z|xy>$ & $<z|xz>$ & $<z|yy>$ & $\ldots$ & $<z|zz>$ & fourth six
+c:tex-\end{tabular}
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -42,11 +46,13 @@ c::passed
 c:tex-\begin{verbatim}
       integer i_basis             ! [input] basis set handle for ish
       integer ish                 ! [input] i shell/contraction
-      integer lmax                ! [input] maximum lvalue for multipole integrals in this batch
+      integer lmax                ! [input] maximum lvalue for 
+c . . . . . . . . . . . . . . . . !      multipole ints in this batch
       double precision centerl(3) ! [input] coordinates of multipole
       integer lscr                ! [input] length of scratch array
       double precision scr(lscr)  ! [input] scratch array
-      integer lmpint              ! [input/output] length of multipole integrals array
+      integer lmpint              ! [input/output] length of 
+c . . . . . . . . . . . . . . . . !       multipole integrals array
       double precision MP(lmpint) ! [output] multipole integrals
 c:tex-\end{verbatim}
 c::local      

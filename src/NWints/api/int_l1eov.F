@@ -1,12 +1,14 @@
-c $Id: int_l1eov.F,v 1.5 1996-10-07 16:50:36 d3e129 Exp $
+c $Id: int_l1eov.F,v 1.6 1997-05-29 23:43:02 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
-c:tex-\subsubsection{int\_l1eov}
+c:tex-\subsection{int\_l1eov}
 c:tex-This routine computes the 1 electron overlap integrals ($S$)
 c:tex-with labels and ``zero'' integrals removed:
-c:tex-\[
-c:tex-S = ({\mu}|{\nu}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1}
-c:tex-\]
+c:tex-
+c:tex-\begin{eqnarray*}
+c:tex-S & = & ({\mu}|{\nu}) \\
+c:tex-  & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1}
+c:tex-\end{eqnarray*}
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}

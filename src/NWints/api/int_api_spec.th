@@ -1,5 +1,6 @@
 *:tex-begin
 *:tex-cvsid
+%
 %-----------------------------------------------------------------% 
 %                                                                 %
 %                                                                 %
@@ -10,8 +11,12 @@
 %  the standard repository. If you have questions or problems     %
 %  contact Ricky Kendall at ra_kendall@pnl.gov or (509)375-2602   %
 %                                                                 %
+%  To make the ``current version'' of these files:                %
+%  1) cd ${NWCHEM_TOP}/src/NWints/api                             %
+%  2) make doc                                                    %
 %                                                                 %
 %-----------------------------------------------------------------% 
+%
 \chapter{Integral Application Programmer's Interface}
 \label{appendix_intapi}
 This appendix describes the interface to all routines for the NWChem

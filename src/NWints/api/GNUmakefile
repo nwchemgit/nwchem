@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.56 1997-05-29 00:36:11 d3e129 Exp $
+# $Id: GNUmakefile,v 1.57 1997-05-29 23:43:09 d3e129 Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -46,23 +46,30 @@ txs:
 	@touch cando_sp.F int_2e2c.F int_2e3c.F
 	$(MAKE) "USE_TEXAS=YEP"
 
+#
+# This is a convenience target that will make the TAGS file for current 
+# checked out source tree.  This is only useful if you know something 
+# about emacs.  Note: find, grep and etags must be in your path.
+#
+tags_file:
+	find . \( -name "*.[cfFh]" -o -name "*.fh" \) -print | grep -v "\./include" | etags -
 doc:
 	rm -f integral_api.tex
 	$(BINDIR)/seetex integral_api.th integral_api.tex
 	rm -f int_api_spec.tex
-	$(BINDIR)/seetex int_api_spec.th int_api_spec_init.th  int_api_spec.tex
-	$(BINDIR)/seetex int_init.F intd_init.F int_term.F        int_api_spec.tex
-	$(BINDIR)/seetex int_acc.F                                int_api_spec.tex
-	$(BINDIR)/seetex int_api_spec_mem.th                   int_api_spec.tex
-	$(BINDIR)/seetex int_mem.F                                int_api_spec.tex
-	$(BINDIR)/seetex int_api_spec_ints.th                  int_api_spec.tex
-	$(BINDIR)/seetex int_1cg.F int_1e3ov.F int_l1e3ov.F int_1eall.F        int_api_spec.tex
-	$(BINDIR)/seetex int_1eh1.F int_1eke.F int_1eov.F         int_api_spec.tex
-	$(BINDIR)/seetex int_1epe.F int_2e2c.F int_2e3c.F         int_api_spec.tex
-	$(BINDIR)/seetex int_2e4c.F                               int_api_spec.tex
-	$(BINDIR)/seetex int_api_spec_misc.th                  int_api_spec.tex
-	$(BINDIR)/seetex exact_mem.F exactd_mem.F int_canon.F     int_api_spec.tex
-	$(BINDIR)/seetex int_chk_init.F int_chk_sh.F int_func_c.F int_api_spec.tex
-	$(BINDIR)/seetex int_hf1sp.F int_api_spec.tex
+	$(BINDIR)/seetex int_api_spec.th int_api_spec_init.th        int_api_spec.tex
+	$(BINDIR)/seetex int_init.F intd_init.F int_term.F int_acc.F int_api_spec.tex
+	$(BINDIR)/seetex int_api_spec_mem.th                         int_api_spec.tex
+	$(BINDIR)/seetex int_mem.F                                   int_api_spec.tex
+	$(BINDIR)/seetex int_api_spec_ints.th                        int_api_spec.tex
+	$(BINDIR)/seetex int_1cg.F   int_1e3ov.F int_l1e3ov.F int_1eall.F int_l1eall.F  int_pgen1e.F int_api_spec.tex
+	$(BINDIR)/seetex int_1eh1.F  int_l1eh1.F int_1eke.F   int_l1eke.F int_1eov.F    int_l1eov.F  int_api_spec.tex
+	$(BINDIR)/seetex int_1epe.F  int_l1epe.F int_lgen1e.F int_2e2c.F  int_l2e2c.F                int_api_spec.tex
+	$(BINDIR)/seetex int_l2e3c.F int_2e3c.F  int_2e4c.F   int_l2e4c.F intb_init4c.F intb_2e4c.F  int_api_spec.tex
+	$(BINDIR)/seetex int_api_spec_prop.th                        int_api_spec.tex
+	$(BINDIR)/seetex int_mpole.F int_projpole.F                  int_api_spec.tex
+	$(BINDIR)/seetex int_api_spec_misc.th                        int_api_spec.tex
+	$(BINDIR)/seetex exact_mem.F exactd_mem.F int_canon.F int_chk_init.F int_chk_sh.F            int_api_spec.tex
+	$(BINDIR)/seetex int_func_c.F int_hf1sp.F int_nint.F                                         int_api_spec.tex
 	cp integral_api.tex int_api_spec.tex ${NWCHEM_TOP}/doc/prog
 

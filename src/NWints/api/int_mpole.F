@@ -1,19 +1,22 @@
-c $Id: int_mpole.F,v 1.10 1997-05-03 19:41:00 d3e129 Exp $
+c $Id: int_mpole.F,v 1.11 1997-05-29 23:43:06 d3e129 Exp $
 *
 c:tex-% This is part of the API Standard Integral routines
-c:tex-\subsubsection{int\_mpole}
+c:tex-\subsection{int\_mpole}
 c:tex-This routine returns multipole integrals up to the level $lmax$
 c:tex-
 c:tex- The general form is $< shell | pole | shell >$. 
 c:tex- Integrals are returned in shell blocks of $<ish|L|jsh>$ $L$=0 to $lmax$
 c:tex- one block for each $L$ value.  
-c:tex- for example $ish$ = p and $L$ = 1 and $jsh$ = p you would get 
+c:tex-
+c:tex- For example $ish$ = p and $L$ = 1 and $jsh$ = p you would get 
 c:tex- (3*1*3)+(3*3*3)=36 integrals.
 c:tex- The order would be:\\
-c:tex-  $<x|x>, <x|y>, <x|z>, <y|x> \ldots <z|z>$ (first nine) \\
-c:tex-  $<x|x|x>, <x|x|y>, <x|x|z>, <x|y|x>, <x|y|y> \dots <x|z|z>$ (second nine)\\
-c:tex-  $<y|x|x>, <y|x|y>, <y|x|z>, <y|y|x>, <y|y|y> ... <y|z|z>$ (third nine)\\
-c:tex-  $<z|x|x>, <z|x|y>, <z|x|z>, <z|y|x>, <z|y|y> ... <z|z|z>$ (fourth nine).
+c:tex-\begin{tabular}{cccccccc}
+c:tex-  $<x|x>$   & $<x|y>$   & $<x|z>$   & $<y|x>$   & $<y|y>$  & $\ldots$ & $<z|z>$   & (first nine) \\
+c:tex-  $<x|x|x>$ & $<x|x|y>$ & $<x|x|z>$ & $<x|y|x>$ & $<x|y|y>$ & $\ldots$ & $<x|z|z>$ & (second nine)\\
+c:tex-  $<y|x|x>$ & $<y|x|y>$ & $<y|x|z>$ & $<y|y|x>$ & $<y|y|y>$ & $\ldots$ & $<y|z|z>$ & (third nine)\\
+c:tex-  $<z|x|x>$ & $<z|x|y>$ & $<z|x|z>$ & $<z|y|x>$ & $<z|y|y>$ & $\ldots$ & $<z|z|z>$ & (fourth nine)
+c:tex-\end{tabular}
 c:tex-
 c:tex-The integral for each L value computed is:
 c:tex-\begin{eqnarray*}
@@ -21,7 +24,7 @@ c:tex-({\mu}{\hat{L}}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X,r_{1})\hat{L
 c:tex-\end{eqnarray*}
 c:tex-
 c:tex-
-c:tex- See the int_order code inside $\ldots$/NWints/int for specific order of a 
+c:tex- See the int\_order code inside $\ldots$/NWints/int for specific order of a 
 c:tex- set of shells and dipole order. 
 c:tex-
 c:tex-{\it Syntax:}
@@ -50,11 +53,12 @@ c:tex-\begin{verbatim}
       integer ish                 ! [input] i shell/contraction
       integer j_basis             ! [input] basis set handle for jsh
       integer jsh                 ! [input] j shell/contraction
-      integer lmax                ! [input] maximum lvalue for multipole integrals in this batch
+      integer lmax                ! [input] maximum lvalue for 
+c . . . . . . . . . . . . . . . . !   multipole integrals in this batch
       double precision centerl(3) ! [input] coordinates of multipole
       integer lscr                ! [input] length of scratch array
       double precision scr(lscr)  ! [input] scratch array
-      integer lmpint              ! [input] length of multipole integrals array
+      integer lmpint              ! [input] length of multipole ints
       double precision MP(lmpint) ! [output] multipole integrals
 c:tex-\end{verbatim}
 c::local      

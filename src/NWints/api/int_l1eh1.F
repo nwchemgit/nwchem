@@ -1,19 +1,21 @@
-c $Id: int_l1eh1.F,v 1.5 1996-10-07 16:50:33 d3e129 Exp $
+c $Id: int_l1eh1.F,v 1.6 1997-05-29 23:43:01 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
-c:tex-\subsubsection{int\_l1eh1}
+c:tex-\subsection{int\_l1eh1}
 c:tex-This routine computes the 1 electron hamiltonian, ($H1$)
 c:tex-with labels and ``zero'' integrals removed. 
-c:tex-\[
-c:tex-H1 = T + V      
-c:tex-\]
-c:tex-\[
-c:tex-T = ({\mu}|\frac{-1}{2}\nabla^{2}|{\nu}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{-1}{2}\nabla^{2}(r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1}
-c:tex-\]
-c:tex-\[
-c:tex-V = ({\mu}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1} 
-c:tex-\]
-c:tex-If an ecp is defined then the integral contributions are summed 
+c:tex-
+c:tex-\begin{eqnarray*}
+c:tex-H1 & = & T + V      \\
+c:tex-T  & = & ({\mu}|\frac{-1}{2}\nabla^{2}|{\nu}) \\
+c:tex-   & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{-1}{2}
+c:tex-\nabla^{2}(r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1} \\
+c:tex-V  & = & ({\mu}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}) \\
+c:tex-   & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\sum_{\alpha}\frac
+c:tex-{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}g_{\nu}(X_{\nu},r_{1})dr_{1} 
+c:tex-\end{eqnarray*}
+c:tex-
+c:tex-If an ECP is defined then the ECP integral contributions are summed 
 c:tex-directly into the $H1$ integrals.  
 c:tex-
 c:tex-{\it Syntax:}
@@ -41,11 +43,11 @@ c:tex-\begin{verbatim}
       integer lscr    ! [input] length of scratch array
       double precision zerotol   ! [input] zero threshold 
       double precision scr(lscr) ! [scratch] scratch array
-      integer lh1                ! [input] length of one electron buffer.
+      integer lh1                ! [input] length of 1e buffers.
       integer numgen             ! [output] number of H1 integrals
       integer ilab(lh1)          ! [output] i bas fun labels array
       integer jlab(lh1)          ! [output] j bas fun labels array
-      double precision H1(lh1)   ! [output] one electron hamiltonian integrals
+      double precision H1(lh1)   ! [output] 1e H1 integrals
 c:tex-\end{verbatim}
 c::local
       integer ibas, jbas, icount, i, j

@@ -1,8 +1,47 @@
+*     $Id: intb_2e4c.F,v 1.17 1997-05-29 23:43:08 d3e129 Exp $
+c:tex-
+c:tex-\subsection{intb\_2e4c}
+c:tex-This logical function returns the integrals and labels based on the
+c:tex-input of a group of shell quartets (a block).  This function cannot be
+c:tex-called without a call to intb\_init4c using the same block information.
+c:tex-``zero'' integrals are removed.
+c:tex-
+c:tex-\begin{eqnarray*}
+c:tex-({\mu}{\rho}|{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2}g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
+c:tex-\end{eqnarray*}
+c:tex-
+c:tex-{\it Return Values:}
+c:tex-\begin{tabular}{|c|p{60mm}|} \hline
+c:tex- .true.  & more integrals from this block another call to intb\_2e4c required \\ \hline
+c:tex- .false. & all integrals from this block computed\\ \hline
+c:tex-\end{tabular}
+c:tex-
+c:tex-The following code excerpt describes the proper use of the blocking
+c:tex-API routines.\\
+c:tex-{\it Pseudo Code:}
+c:tex-\begin{verbatim}
+c:tex-
+c:tex-* begin atom/shell loops
+c:tex-
+c:tex-      call collect_group_of_shells()
+c:tex-      okay = intb_init4c($\cdots$) ! with group of shells info     
+c:tex-      if (.not.okay) stop ' error setting up blocking interface '
+c:tex-00001 continue
+c:tex-      more = intb_2e4c($\cdots$) ! with group of shells info
+c:tex-      call use_integrals_in_some_way()
+c:tex-      if (more) goto 00001
+c:tex-
+c:tex-* end atom/shell loops
+c:tex-
+c:tex-\end{verbatim}
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       logical function intb_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      $     num_q, q4, use_q4, zerotol, canonicalize,
      $     ilab, jlab, klab, llab, eri,
      $     l_erilab, nint, lscr, scr)
-*     $Id: intb_2e4c.F,v 1.16 1997-02-20 09:13:36 d3e129 Exp $
+c:tex-\end{verbatim}
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
@@ -14,27 +53,29 @@ c::   functions
       logical intb_nw_2e4c
       external intb_nw_2e4c
 c::   passed
-      integer brain             ! [input]  basis set handle for bra functions
-      integer ketin             ! [input]  basis set handle for ket functions
+c:tex-\begin{verbatim}
+      integer brain             ! [input]  basis handle for bra 
+      integer ketin             ! [input]  basis handle for ket 
       integer num_q             ! [input]  number of quartets input
       integer icl(num_q)        ! [input]  i-contraction quartet labels
       integer jcl(num_q)        ! [input]  j-contraction quartet labels
       integer kcl(num_q)        ! [input]  k-contraction quartet labels
       integer lcl(num_q)        ! [input]  l-contraction quartet labels
-      logical use_q4            ! [input]  logical stating whether to use q4
-      double precision q4(num_q) ! [input] symmetry prefactors for integrals
+      logical use_q4            ! [input]  logical for use of q4
+      double precision q4(num_q) ! [input] symmetry prefactors for ints
 *     
-      integer l_erilab          ! [input]  length of eri and integral label arrays
-      integer ilab(l_erilab)    ! [output] integral labels for ``i'' gaussian
-      integer jlab(l_erilab)    ! [output] integral labels for ``j'' gaussian
-      integer klab(l_erilab)    ! [output] integral labels for ``k'' gaussian
-      integer llab(l_erilab)    ! [output] integral labels for ``l'' gaussian
-      integer nint              ! [output] number of integrals stored in output arrays
+      integer l_erilab          ! [input]  length of eri and label arrays
+      integer ilab(l_erilab)    ! [output] integral labels for ``i'' 
+      integer jlab(l_erilab)    ! [output] integral labels for ``j'' 
+      integer klab(l_erilab)    ! [output] integral labels for ``k'' 
+      integer llab(l_erilab)    ! [output] integral labels for ``l'' 
+      integer nint              ! [output] number of integrals returned
       double precision eri(l_erilab) ! [output] integral values
       integer lscr              ! [input] length of scratch array
       double precision scr(lscr) ! [input] scratch array
       double precision zerotol  ! [input] zero integral threshold
-      logical canonicalize      ! [input] Canonicalize integral labels on exit??
+      logical canonicalize      ! [input] Canonicalize integral labels?
+c:tex-\end{verbatim}
 c::   local
       double precision roff(3)
 c     
@@ -95,11 +136,31 @@ c
       intb_2e4c = more_ints_txs
 c     
       end
+c:tex-
+c:tex-\subsection{intb\_nw\_2e4c}
+c:tex-This logical function returns the integrals and labels based on the
+c:tex-input of a group of shell quartets (a block).  This interfaces to
+c:tex-the NWChem McMurchie-Davidson code.  This routine should {\it never}
+c:tex-be called directly by an application module!!
+c:tex-``zero'' integrals are removed.
+c:tex-
+c:tex-\begin{eqnarray*}
+c:tex-({\mu}{\rho}|{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2}g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
+c:tex-\end{eqnarray*}
+c:tex-
+c:tex-{\it Return Values:}
+c:tex-\begin{tabular}{|c|p{60mm}|} \hline
+c:tex- .true.  & more integrals from this block another call to intb\_2e4c required \\ \hline
+c:tex- .false. & all integrals from this block computed\\ \hline
+c:tex-\end{tabular}
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       logical function intb_nw_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      $     num_q, q4, use_q4, zerotol, canonicalize,
      $     ilab, jlab, klab, llab, eri,
      $     l_erilab, nint, lscr, scr)
-*     $Id: intb_2e4c.F,v 1.16 1997-02-20 09:13:36 d3e129 Exp $
+c:tex-\end{verbatim}
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
@@ -109,27 +170,29 @@ c
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::   passed
-      integer brain             ! [input]  basis set handle for bra functions
-      integer ketin             ! [input]  basis set handle for ket functions
+c:tex-\begin{verbatim}
+      integer brain             ! [input]  basis set handle for bra 
+      integer ketin             ! [input]  basis set handle for ket 
       integer num_q             ! [input]  number of quartets input
       integer icl(num_q)        ! [input]  i-contraction quartet labels
       integer jcl(num_q)        ! [input]  j-contraction quartet labels
       integer kcl(num_q)        ! [input]  k-contraction quartet labels
       integer lcl(num_q)        ! [input]  l-contraction quartet labels
-      logical use_q4            ! [input]  logical stating whether to use q4
-      double precision q4(num_q) ! [input] symmetry prefactors for integrals
+      logical use_q4            ! [input]  logical for use of q4
+      double precision q4(num_q) ! [input] symmetry prefactors for ints
 *     
-      integer l_erilab          ! [input]  length of eri and integral label arrays
-      integer ilab(l_erilab)    ! [output] integral labels for ``i'' gaussian
-      integer jlab(l_erilab)    ! [output] integral labels for ``j'' gaussian
-      integer klab(l_erilab)    ! [output] integral labels for ``k'' gaussian
-      integer llab(l_erilab)    ! [output] integral labels for ``l'' gaussian
-      integer nint              ! [output] number of integrals stored in output arrays
+      integer l_erilab          ! [input]  length of eri and label arrays
+      integer ilab(l_erilab)    ! [output] integral labels for ``i'' 
+      integer jlab(l_erilab)    ! [output] integral labels for ``j'' 
+      integer klab(l_erilab)    ! [output] integral labels for ``k'' 
+      integer llab(l_erilab)    ! [output] integral labels for ``l'' 
+      integer nint              ! [output] number of integrals returned
       double precision eri(l_erilab) ! [output] integral values
       integer lscr              ! [input] length of scratch array
       double precision scr(lscr) ! [input] scratch array
       double precision zerotol  ! [input] zero integral threshold
-      logical canonicalize      ! [input] Canonicalize integral labels on exit??
+      logical canonicalize      ! [input] Canonicalize integral labels?
+c:tex-\end{verbatim}
 c::   local
       integer bra, ket
       integer ip_int, leri_left

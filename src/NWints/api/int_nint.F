@@ -1,11 +1,13 @@
-c $Id: int_nint.F,v 1.4 1996-10-11 10:10:19 d3e129 Exp $
+c $Id: int_nint.F,v 1.5 1997-05-29 23:43:06 d3e129 Exp $
 *
 c:tex-% this is an internal API routine
-c:tex-\subsubsection{int\_nint}
+c:tex-\subsection{int\_nint}
 c:tex-This routine computes the number of integrals for a given 
 c:tex-shell/contraction grouping; if an input shell is zero then 
 c:tex-the routine ignores this shell.  This routine will work 
 c:tex-for both cartesian and spherical basis sets.
+c:tex-This routine should never be called by an NWChem 
+c:tex-application module.
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -75,12 +77,14 @@ c..lcnt/lsh
       endif
       end
 c:tex-% this is an internal API routine
-c:tex-\subsubsection{int\_unint}
+c:tex-\subsection{int\_unint}
 c:tex-This routine computes the number of integrals for a given 
 c:tex-shell/contraction grouping; if an input shell is zero then 
 c:tex-the routine ignores this shell.  The input shell must be a 
 c:tex-unique shell in the sense of the basis set API.  This 
 c:tex-routine will work for both cartesian and spherical basis sets.
+c:tex-This routine should never be called by an NWChem 
+c:tex-application module.
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -143,13 +147,15 @@ c..lcnt/lsh
       endif
       end
 c:tex-% this is an internal API routine
-c:tex-\subsubsection{int\_nint\_cart}
+c:tex-\subsection{int\_nint\_cart}
 c:tex-This routine computes the number of integrals for a given 
 c:tex-shell/contraction grouping; if an input shell is zero then 
 c:tex-the routine ignores this shell.  This 
 c:tex-routine will work for both cartesian and spherical basis 
 c:tex-sets, but {\it returns the cartesian size} (this is how the 
 c:tex-integrals are computed!).
+c:tex-This routine should never be called by an NWChem 
+c:tex-application module.
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -221,7 +227,7 @@ c..lcnt/lsh
       endif
       end
 c:tex-% this is an internal API routine
-c:tex-\subsubsection{int\_unint\_cart}
+c:tex-\subsection{int\_unint\_cart}
 c:tex-This routine computes the number of integrals for a given 
 c:tex-shell/contraction grouping; if an input shell is zero then 
 c:tex-the routine ignores this shell.  The input shell must be a 
@@ -229,6 +235,8 @@ c:tex-unique shell in the sense of the basis set API.  This
 c:tex-routine will work for both cartesian and spherical basis 
 c:tex-sets, but {\it returns the cartesian size} (this is how the 
 c:tex-integrals are computed!).
+c:tex-This routine should never be called by an NWChem 
+c:tex-application module.
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}

@@ -1,6 +1,7 @@
-c $Id: int_lgen1e.F,v 1.12 1996-10-11 23:20:21 d3j191 Exp $
+c $Id: int_lgen1e.F,v 1.13 1997-05-29 23:43:05 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines
+c:tex-\subsection{int\_l1gen1e}
 c:tex-This routine generates labels for general 2 index one 
 c:tex-electron integrals.  This is mostly unused since the other 
 c:tex-integral type specific label routines are now used.  This 
@@ -26,6 +27,7 @@ c::function
       logical int_chk_sh
       external int_chk_sh
 c::passed
+c:tex-\begin{verbatim}
       integer i_basis ! [input] bra basis set handle
       integer ish     ! [input] bra shell lexical index
       integer j_basis ! [input] ket basis set handle
@@ -34,10 +36,11 @@ c::passed
       integer l1e       ! [input] length of buffers for integrals
       integer ilab(l1e) ! [output] i bas func labels array
       integer jlab(l1e) ! [output] j bas func labels array
-      double precision Gen1e(l1e) ! [input/output] 1 electron integrals
+      double precision Gen1e(l1e) ! [input/output] 1e integrals
       integer lscr ! [input] length of scratch array
       double precision scr(lscr) ! [scratch] array
-      integer numgen ! [output] number of integrals saved and returned
+      integer numgen ! [output] number of integrals 
+c . . . . . . . . . .!           saved and returned
 c:tex-\end{verbatim}
 c::local
       integer ibas, jbas, icount, i, j

@@ -1,12 +1,14 @@
-c $Id: int_l1eke.F,v 1.7 1996-10-08 22:44:29 d3e129 Exp $
+c $Id: int_l1eke.F,v 1.8 1997-05-29 23:43:01 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
-c:tex-\subsubsection{int\_l1eke}
+c:tex-\subsection{int\_l1eke}
 c:tex-This routine computes the 1 electron kinetic energy integrals, ($T$).
 c:tex-with labels and ``zero'' integrals removed:
-c:tex-\[
-c:tex-T = ({\mu}|\frac{-1}{2}\nabla^{2}|{\nu}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{-1}{2}\nabla^{2}(r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1}
-c:tex-\]
+c:tex-
+c:tex-\begin{eqnarray*}
+c:tex-T & = & ({\mu}|\frac{-1}{2}\nabla^{2}|{\nu}) \\
+c:tex-  & = & \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{-1}{2}\nabla^{2}(r_{1})g_{\nu}(X_{\nu},r_{1})dr_{1}
+c:tex-\end{eqnarray*}
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -33,11 +35,11 @@ c:tex-\begin{verbatim}
       integer lscr    ! [input] length of scratch array
       double precision scr(lscr) ! [scratch] scratch array
       double precision zerotol   ! [input] zero threshold
-      integer lke                ! [input] length of one electron buffers
+      integer lke                ! [input] length of 1e buffers
       integer numgen             ! [output] number of Ke integrals
       integer ilab(lke)          ! [output] i bas fun labels array
       integer jlab(lke)          ! [output] j bas fun labels array
-      double precision Ke(lke)   ! [output] kinetic energy integral buffer
+      double precision Ke(lke)   ! [output] kinetic energy integrals
 c:tex-\end{verbatim}
 c::local
       integer ibas, jbas, icount, i, j

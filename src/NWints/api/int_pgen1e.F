@@ -1,7 +1,10 @@
-c $Id: int_pgen1e.F,v 1.7 1996-10-11 10:10:19 d3e129 Exp $
+c $Id: int_pgen1e.F,v 1.8 1997-05-29 23:43:07 d3e129 Exp $
 *
 c:tex-% This is part of the standard API
+c:tex-\subsection{int\_pgen1e}
 c:tex-This routine prints a generic one electron block of integrals.
+c:tex-This requires the labels be generated and input to this routine.
+c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine int_pgen1e(msg, i_basis, ish, j_basis, jsh, 

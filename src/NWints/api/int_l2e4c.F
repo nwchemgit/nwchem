@@ -1,12 +1,13 @@
-c $Id: int_l2e4c.F,v 1.18 1996-10-11 10:10:17 d3e129 Exp $
+c $Id: int_l2e4c.F,v 1.19 1997-05-29 23:43:05 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
-c:tex-\subsubsection{int\_l2e4c}
+c:tex-\subsection{int\_l2e4c}
 c:tex-this routine computes the 4 center (traditional) 2 electron integrals
 c:tex-with labels and ``zero'' integrals removed: 
-c:tex-\[
-c:tex-({\mu}{\rho}|{\nu}{\lamda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2}g_{\lamda}(X_{\lamda},r_{2})dr_{1}dr_{2}
-c:tex-\]
+c:tex-
+c:tex-\begin{eqnarray*}
+c:tex-({\mu}{\rho}|{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2}g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
+c:tex-\end{eqnarray*}
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -49,7 +50,7 @@ c:tex-\begin{verbatim}
       integer jlab(leri) ! [output] j bas fun label array 
       integer klab(leri) ! [output] k bas fun label array 
       integer llab(leri) ! [output] l bas fun label array 
-      double precision eri(leri) ! [output] 2c2e integrals
+      double precision eri(leri) ! [output] 2e4c integrals
       logical canonicalize ! [input] canonicalize labels
 c:tex-\end{verbatim}
 c::local

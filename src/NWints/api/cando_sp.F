@@ -1,8 +1,8 @@
-c $Id: cando_sp.F,v 1.25 1997-02-20 23:17:22 d3e129 Exp $
+c $Id: cando_sp.F,v 1.26 1997-05-29 23:43:00 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{cando\_sp}
+c:tex-\subsection{cando\_sp}
 c:tex-This routine returns ``.true.'' to the calling integral API 
 c:tex-routine if the two electron integrals over ISH and JSH can be 
 c:tex-computed using the sp-rotated axis code.
@@ -77,7 +77,7 @@ c
 *_old_code:      end
 ***********************************************************************
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{cando\_nw}
+c:tex-\subsection{cando\_nw}
 c:tex-This routine returns ``.true.'' to the calling integral API 
 c:tex-routine if the two electron integrals over ISH and JSH can be 
 c:tex-computed using the McMurchie-Davidson code.
@@ -150,7 +150,7 @@ c
       end
 ***********************************************************************
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{cando\_sp\_u}
+c:tex-\subsection{cando\_sp\_u}
 c:tex-This routine returns ``.true.'' to the calling integral API 
 c:tex-routine if the two electron integrals over unique shells ISH 
 c:tex-and JSH can be computed using the sp-rotated axis code.
@@ -222,7 +222,7 @@ c
       end
 ***********************************************************************
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{cando\_txs}
+c:tex-\subsection{cando\_txs}
 c:tex-This routine returns ``.true.'' to the calling integral API 
 c:tex-routine if the two electron integrals over ISH and JSH can be 
 c:tex-computed using the texas integral code.
@@ -289,7 +289,7 @@ c check for spherical false until spherical debuged in texas
       end
 ***********************************************************************
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{cando\_nw_\1e}
+c:tex-\subsection{cando\_nw_\1e}
 c:tex-This routine returns ``.true.'' to the calling integral API 
 c:tex-routine if the one electron integrals over ISH and JSH can be 
 c:tex-computed using the McMurchie-Davidson code.
@@ -348,7 +348,7 @@ c
       end
 ***********************************************************************
 c:tex-% part of API application interface
-c:tex-\subsubsection{int\_app\_set\_no\_texas}
+c:tex-\subsection{int\_app\_set\_no\_texas}
 c:tex-This routine stores any current user setting for the texas 
 c:tex-integral code and then sets the cando_txs flag on the RTDB to
 c:tex-false.  This is for applications that have problems using the
@@ -379,7 +379,7 @@ c
       end
 ***********************************************************************
 c:tex-% part of API application interface
-c:tex-\subsubsection{int\_app\_unset\_no\_texas}
+c:tex-\subsection{int\_app\_unset\_no\_texas}
 c:tex-This routine resets the current user setting for the texas 
 c:tex-integral code and that was stored by int\_app\_set\_no\_texas by 
 c:tex-setting the cando_txs flag on the RTDB to the state prior to 

@@ -1,12 +1,12 @@
-c $Id: int_l2e2c.F,v 1.9 1996-10-11 10:10:17 d3e129 Exp $
+c $Id: int_l2e2c.F,v 1.10 1997-05-29 23:43:04 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
-c:tex-\subsubsection{int\_2e2c}
+c:tex-\subsection{int\_2e2c}
 c:tex-this routine computes the 2 center 2 electron integrals
 c:tex-with labels and ``zero'' integrals removed: 
-c:tex-\[
+c:tex-\begin{eqnarray*}
 c:tex-({\mu}|{\nu}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2})dr_{1}dr_{2}
-c:tex-\]
+c:tex-\end{eqnarray*}
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -43,7 +43,7 @@ c:tex-\begin{verbatim}
       integer nint  ! [output] num of ints computed
       integer ilab(leri) ! [output] i bas func label array
       integer jlab(leri) ! [output] j bas func label array
-      double precision eri(leri) ! [output] 2c2e integrals
+      double precision eri(leri) ! [output] 2e2c integrals
 c:tex-\end{verbatim}
 c::local
       logical shells_ok
