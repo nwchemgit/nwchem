@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.32 1996-11-02 02:59:11 d3g681 Exp $
+C     $Id: input_parse.F,v 1.33 1997-02-06 18:56:23 mdupuis Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -65,8 +65,8 @@ c
                call input_title(rtdb)
             else if (inp_compare(.false.,test,'stepper')) then
                call stepper_input(rtdb)
-            else if (inp_compare(.false.,test,'opt')) then
-               call optdrv_input(rtdb)
+            else if (inp_compare(.false.,test,'driver')) then
+               call driver_input(rtdb)
             else if (inp_compare(.false.,test,'charge')) then
                call input_charge(rtdb)
             else if (inp_compare(.false.,test,'dft')) then

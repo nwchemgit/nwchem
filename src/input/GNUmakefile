@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.34 1996-10-23 05:48:48 d3g681 Exp $
+#$Id: GNUmakefile,v 1.35 1997-02-06 18:56:24 mdupuis Exp $
 
 # Put into task library so that it occurs at the front of the link path
 
@@ -21,11 +21,11 @@ $(LIBRARY_PATH)(get_inp_file.o):	get_inp_file.F
 endif
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+$(LIBRARY_PATH)(get_inp_file.o):	$(INCDIR)/inp.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(input_parse.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(speech_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(input_set.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
 $(LIBRARY_PATH)(memory_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 
 $(LIBRARY_PATH)(memory_def.o):	$(INCDIR)/inp.fh 
 $(LIBRARY_PATH)(input_title.o):	$(INCDIR)/rtdb.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(input_set.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(input_parse.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(input_mem.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(get_inp_file.o):	$(INCDIR)/inp.fh $(INCDIR)/global.fh 
