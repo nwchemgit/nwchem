@@ -52,8 +52,8 @@ Basis Sets:
   o Basis set library has been updated to include all new basis sets at the EMSL
     Gaussian Basis Set Order Form page of David Feller 
     (http://www.emsl.pnl.gov:2080/forms/basisform.html)
-  o Relativistic contractions of the cc-pvnz, n = 2--5, basis sets for the DmD 
-    approximations.
+  o Relativistic contractions of the cc-pvnz, n = 2--5, basis sets for the Douglas-Kroll
+    and DmD approximations.
 
 Geometry: 
 
