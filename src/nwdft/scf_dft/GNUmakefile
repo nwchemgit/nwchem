@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.6 1994-12-29 06:39:05 og845 Exp $
+# $Id: GNUmakefile,v 1.7 1994-12-31 01:22:05 og845 Exp $
 
       OBJ = mull_pop.o dft.o 
       OBJ_OPTIMIZE = \
@@ -11,6 +11,7 @@
 	scfdriver.o
 
      LIBRARY = libnwdft.a
+   LIB_DEFINES = -DDFT_TIMER
 
    USES_BLAS = gasbld.F bsolve.F
 
