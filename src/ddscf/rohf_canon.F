@@ -1,5 +1,5 @@
       subroutine rohf_canon(oaufbau, oprint)
-C$Id: rohf_canon.F,v 1.9 2003-10-17 22:54:33 carlfahl Exp $
+C$Id: rohf_canon.F,v 1.10 2004-01-11 18:01:23 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -132,9 +132,40 @@ c
       integer g_fock, g_u, ilo, ihi, irs(*)
       double precision evals(*)
 c
-      integer map(10000)        ! Should be dynamically allocated
-      double precision work(10000) 
-      double precision tmp(10000) 
+      integer k_map,l_map
+      integer k_work,l_work,k_tmp,l_tmp
+      integer sizew
+c
+c     map dim ihi-ilo+1
+c
+!     sizew=ihi-ilo+1
+      sizew=ihi
+      if (.not.ma_push_get(MT_int,sizew,'map',l_map,k_map))
+     &   call errquit('rohf_can: cannot allocate map',0, MA_ERR)
+      if (.not.ma_push_get(MT_Dbl,sizew,'work',l_work,k_work))
+     &   call errquit('rohf_can: cannot allocate work',0, MA_ERR)
+      if (.not.ma_push_get(MT_Dbl,sizew,'tmp',l_tmp,k_tmp))
+     &   call errquit('rohf_can: cannot allocate tmp',0, MA_ERR)
+      call rohf_canon_sub0(g_fock, g_u, evals, ilo, ihi,
+     $     irs, int_mb(k_map),
+     ,     dbl_mb(k_work), dbl_mb(k_tmp))
+      if (.not.ma_chop_stack(l_map))
+     &   call errquit('rohf_can: cannot pop stack',1, MA_ERR)
+      return
+      end
+c     
+      subroutine rohf_canon_sub0(g_fock, g_u, evals, ilo, ihi,
+     $     irs, map, work, tmp)
+      implicit none
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+      integer g_fock, g_u, ilo, ihi, irs(*)
+      double precision evals(*)
+c
+      integer map(*)        ! Should be dynamically allocated
+      double precision work(*) 
+      double precision tmp(*) 
 c
       integer n, i, j, nirs, irrep
       integer g_v
@@ -144,7 +175,7 @@ c
       do i = ilo, ihi
          nirs = max(irs(i),nirs)
       enddo
-c
+c     
       do irrep = 1, nirs
          n = 0
          do i = ilo, ihi
