@@ -1,6 +1,6 @@
       subroutine ana_tag(card,sgmnam,x)
 c
-c $Id: ana_tag.F,v 1.6 2000-07-13 23:49:39 edo Exp $
+c $Id: ana_tag.F,v 1.7 2000-08-17 22:14:00 d3j191 Exp $
 c
       implicit none
 c
@@ -48,7 +48,7 @@ c
      + i7,' through ',i7,' and atoms within ',f12.6, ' nm')
       if(cs(1:1).eq.'_') cs(1:1)=' '
       do 3 i=1,nsa
-      print*,sgmnam(i)
+cx      print*,sgmnam(i)
       read(sgmnam(i),'(5x,a5,i6)') ct,it
       do 4 j=1,5
       if(cs(j:j).eq.'?') ct(j:j)='?'
@@ -70,11 +70,9 @@ c
 c
 c     broadcast to all nodes
 c
-#if !defined(WIN32)
       if(np.gt.1) then
       call ga_brdcst(mag_d06,byte_mb(i_tag),48*nsa,0)
       endif
-#endif
 c
       return
 c
