@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.47 2002-07-23 21:36:18 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.48 2002-07-23 21:38:54 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
       character*16 sgmnam(msa)
 c
       character*10 today,now
-      integer i,j,k
+      integer i,j,k,l
       character*2 elemnt
 c
       character*1 cdummy
@@ -440,7 +440,7 @@ c
    14 continue
       endif
    13 continue
-      do 15 j=1,nsb
+      do 15 l=1,nwb
       read(44,6004) ib,jb
       write(*,'(2i7)') ib,jb
       do 16 i=1,nwm
