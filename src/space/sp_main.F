@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.88 2004-01-31 16:52:33 d3j191 Exp $
+c $Id: sp_main.F,v 1.89 2004-01-31 18:44:42 d3j191 Exp $
 c
       implicit none
 c
@@ -1119,6 +1119,8 @@ c
       call sp_gaputixv(me,iwl,int_mb(i_packw),xw,xwcr,vw,nwmloc,
      + isl,int_mb(i_pack),xs,vs,nsaloc,int_mb(i_ipl))
 c
+      call sp_lbbl_indices()
+c
       numwm=nwmloc
       numsa=nsaloc
 c
@@ -2100,6 +2102,8 @@ c
       integer handle_ps,handle_pw,handle_psp,handle_pwp
       character*80 string
 c
+cx      call sp_lbbl_ind(lbbl,ipl,jpl)
+c
       jcproc=-1
       jccell=-1
       iccell=-1
@@ -2108,6 +2112,7 @@ c
       nndexw=indexw
       nndexs=indexs
       do 1 ibbl=1,nbbl
+c
       handle_iw=0
       handle_is=0
       handle_w=0
@@ -2116,84 +2121,35 @@ c
       handle_ps=0
       handle_pwp=0
       handle_psp=0
+c
       jproc=lbbl(ibbl,1)
       jcell=lbbl(ibbl,2)
       icell=lbbl(ibbl,3)
 c
       if(iccell.ne.icell) then
-      indx=0
-      do 2 i=1,ipl(1,1)
-      if(ipl(30+i,1).eq.icell) indx=30+i
-    2 continue
-      if(indx.eq.0) then
-      write(*,1000) me,(ipl(30+i,1),i=1,ipl(1,1))
- 1000 format(/,'Cells on proc',i5,':',t20,20i5,/,(t20,20i5))
-      write(string,1001) icell,me
- 1001 format('SP0001: Could not find icell',i5,' on proc',i5)
-      call md_abort(string,0)
-      endif
       iccell=icell
       endif
-      lbbl(ibbl, 7)=ipl(indx,2)
-      lbbl(ibbl, 8)=ipl(indx,3)
-      lbbl(ibbl, 9)=ipl(indx,4)
-      lbbl(ibbl,10)=ipl(indx,5)
 c
       if(jproc.eq.me) then
 c
       if(jccell.ne.jcell) then
-      jndx=0
-      do 3 i=1,ipl(1,1)
-      if(ipl(30+i,1).eq.jcell) jndx=30+i
-    3 continue
-      if(jndx.eq.0) then
-      write(*,1000) me,(ipl(30+i,1),i=1,ipl(1,1))
-      write(string,1002) jcell,me
- 1002 format('SP0001: Could not find jcell',i5,' on proc',i5)
-      call md_abort(string,0)
-      endif
       jccell=jcell
       endif
-      lbbl(ibbl,11)=ipl(jndx,2)
-      lbbl(ibbl,12)=ipl(jndx,3)
-      lbbl(ibbl,13)=ipl(jndx,4)
-      lbbl(ibbl,14)=ipl(jndx,5)
 c
       else
 c
       if(jproc.ne.jcproc) then
-      call ga_distribution(ga_ip,jproc,il,ih,jl,jh)
-      call ga_get(ga_ip,il,ih,jl,jh,jpl,mbox)
       jcproc=jproc
       endif
 c
       if(jcell.ne.jccell) then
       indexw=nndexw
       indexs=nndexs
-      jndx=0
-      do 4 i=1,jpl(1,1)
-      if(jpl(30+i,1).eq.jcell) jndx=30+i
-    4 continue
-      if(jndx.eq.0) then
-      if(idebug.gt.0) then
-      write(lfndbg,1003) jcell,jproc
- 1003 format('Could not find cell',i5,' on proc',i5,' in sp_lbbl')
-      write(lfndbg,1004) jproc,(jpl(30+i,1),i=1,jpl(1,1))
- 1004 format('Cell list obtained from proc',i5,' is',/,(20i5))
-      call util_flush(lfndbg)
-      endif
 c
-      write(*,1005) jproc,(jpl(30+i,1),i=1,jpl(1,1))
- 1005 format(/,'Cells on proc',i5,':',t20,20i5,/,(t20,20i5))
-      write(string,1006) jcell,jproc
- 1006 format('SP0002: Could not find remote jcell',i5,' on proc',i5)
-      call md_abort(string,me)
-      endif
-c
-      jwfr=jpl(jndx,2)
-      jwto=jpl(jndx,3)
-      jsfr=jpl(jndx,4)
-      jsto=jpl(jndx,5)
+      jwfr=lbbl(ibbl,11)
+      jwto=lbbl(ibbl,12)
+      jsfr=lbbl(ibbl,13)
+      jsto=lbbl(ibbl,14)
 c
       if(jwfr.gt.0) then
       nwnon=jwto-jwfr+1
@@ -2216,10 +2172,9 @@ c
       if(lfree) call ga_nbget(ga_w,il+jwfr-1,il+jwto-1,
      + jl+18*mwa+3,jl+30*mwa+2,pwp(indexw,1,1,1,1),mwm,handle_pwp)
       endif
-c      jwfr=nwmloc+1
-c      jwto=nwmloc+1+jpl(ndx,3)-jpl(ndx,2)
       nndexw=indexw+nwnon
       endif
+c
       if(jsfr.gt.0) then
       nsnon=jsto-jsfr+1
       if(indexs+nsnon.gt.msa)
@@ -2241,18 +2196,12 @@ c      jwto=nwmloc+1+jpl(ndx,3)-jpl(ndx,2)
       if(lfree) call ga_nbget(ga_s,il+jsfr-1,il+jsto-1,jl+15,jl+20,
      + psp(indexs,1,1,1),msa,handle_psp)
       endif
-c      jsfr=nsaloc+1
-c      jsto=nsaloc+1+jpl(ndx,5)-jpl(ndx,4)
       nndexs=indexs+nsnon
       endif
-cc
 c
       endif
+c
       jccell=jcell
-      lbbl(ibbl,11)=jpl(jndx,2)
-      lbbl(ibbl,12)=jpl(jndx,3)
-      lbbl(ibbl,13)=jpl(jndx,4)
-      lbbl(ibbl,14)=jpl(jndx,5)
 c
       endif
 c
@@ -2424,6 +2373,127 @@ c
       endif
       if(handle_fsl.ne.0) then
       call ga_nbwait(handle_fsl)
+      endif
+c
+    1 continue
+c
+      return
+      end
+      subroutine sp_lbbl_indices()
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+c
+      call sp_lbbl_ind(int_mb(i_bb),int_mb(i_ipl),int_mb(i_jpl))
+c
+      return
+      end
+      subroutine sp_lbbl_ind(lbbl,ipl,jpl)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+c
+      integer lbbl(mbbl,mbb2),ipl(mbox,mip2),jpl(mbox,mip2)
+c
+      integer ibbl,jproc,jcell,icell,jcproc,jccell,iccell
+      integer i,indx,jndx,il,ih,jl,jh
+      character*80 string
+c
+      jcproc=-1
+      jccell=-1
+      iccell=-1
+c
+      do 1 ibbl=1,nbbl
+c
+      jproc=lbbl(ibbl,1)
+      jcell=lbbl(ibbl,2)
+      icell=lbbl(ibbl,3)
+c
+c     get indices for icell on the local node
+c
+      if(iccell.ne.icell) then
+      indx=0
+      do 2 i=1,ipl(1,1)
+      if(ipl(30+i,1).eq.icell) indx=30+i
+    2 continue
+      if(indx.eq.0) then
+      write(*,1000) me,(ipl(30+i,1),i=1,ipl(1,1))
+ 1000 format(/,'Cells on proc',i5,':',t20,20i5,/,(t20,20i5))
+      write(string,1001) icell,me
+ 1001 format('SP0001: Could not find icell',i5,' on proc',i5)
+      call md_abort(string,0)
+      endif
+      iccell=icell
+      endif
+      lbbl(ibbl, 7)=ipl(indx,2)
+      lbbl(ibbl, 8)=ipl(indx,3)
+      lbbl(ibbl, 9)=ipl(indx,4)
+      lbbl(ibbl,10)=ipl(indx,5)
+c
+c     get indices for jcell if on the local node
+c
+      if(jproc.eq.me) then
+c
+      if(jccell.ne.jcell) then
+      jndx=0
+      do 3 i=1,ipl(1,1)
+      if(ipl(30+i,1).eq.jcell) jndx=30+i
+    3 continue
+      if(jndx.eq.0) then
+      write(*,1000) me,(ipl(30+i,1),i=1,ipl(1,1))
+      write(string,1002) jcell,me
+ 1002 format('SP0001: Could not find jcell',i5,' on proc',i5)
+      call md_abort(string,0)
+      endif
+      jccell=jcell
+      endif
+      lbbl(ibbl,11)=ipl(jndx,2)
+      lbbl(ibbl,12)=ipl(jndx,3)
+      lbbl(ibbl,13)=ipl(jndx,4)
+      lbbl(ibbl,14)=ipl(jndx,5)
+c
+c     get indices for jcell if on the remote node
+c
+      else
+c
+      if(jproc.ne.jcproc) then
+      call ga_distribution(ga_ip,jproc,il,ih,jl,jh)
+      call ga_get(ga_ip,il,ih,jl,jh,jpl,mbox)
+      jcproc=jproc
+      endif
+c
+      if(jcell.ne.jccell) then
+      jndx=0
+      do 4 i=1,jpl(1,1)
+      if(jpl(30+i,1).eq.jcell) jndx=30+i
+    4 continue
+      if(jndx.eq.0) then
+      if(idebug.gt.0) then
+      write(lfndbg,1003) jcell,jproc
+ 1003 format('Could not find cell',i5,' on proc',i5,' in sp_lbbl')
+      write(lfndbg,1004) jproc,(jpl(30+i,1),i=1,jpl(1,1))
+ 1004 format('Cell list obtained from proc',i5,' is',/,(20i5))
+      call util_flush(lfndbg)
+      endif
+c
+      write(*,1005) jproc,(jpl(30+i,1),i=1,jpl(1,1))
+ 1005 format(/,'Cells on proc',i5,':',t20,20i5,/,(t20,20i5))
+      write(string,1006) jcell,jproc
+ 1006 format('SP0002: Could not find remote jcell',i5,' on proc',i5)
+      call md_abort(string,me)
+      endif
+c
+      endif
+c
+      lbbl(ibbl,11)=jpl(jndx,2)
+      lbbl(ibbl,12)=jpl(jndx,3)
+      lbbl(ibbl,13)=jpl(jndx,4)
+      lbbl(ibbl,14)=jpl(jndx,5)
+c
       endif
 c
     1 continue
