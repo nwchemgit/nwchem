@@ -25,11 +25,21 @@ c
 #include "errquit.fh"
 #include "qmmm_bq_data.fh"
 #include "qmmm.fh"
+#include "qmmm_utils.fh"
 #include "qmmm_params.fh"
 #include "global.fh"
       logical link
       integer i,k
+      integer i_lb
+      integer i_mbq,h_mbq
+      integer nlink
+      integer il
+      character*32 pname
 
+      pname = "qmmm_bq_data_load"
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "in",pname
       link = .true.
 
       call qmmm_bq_data_dealloc()
@@ -65,9 +75,43 @@ c      if(bq_exclude.eq.qmmm_all_atoms) return
           end do
         end if
       end if
+c
+c     number of link atoms
+c     -------------------
+      nlink = qmmm_get_nlink()
+
+      if(nlink.gt.0 .and.
+     >   bq_exclude.eq.qmmm_linkbond) then
+c
+c       mapping from global to local index for link atoms
+c       -------------------------------------------------
+        if(.not.ma_push_get(mt_int,nlink,'mbq',h_mbq,i_mbq))
+     +   call errquit( pname//'Failed to allocate memory for mbq',
+     +   nlink, MA_ERR)
+cc
+c        get pointer to index of link pairs
+c        ----------------------------------
+         i_lb = qmmm_get_i_lb()
+c
+c        map to a local index for bq atoms
+c        ---------------------------------
+         if(.not.qmmm_map(nbqs,int_mb(i_ibq),
+     >                    nlink,int_mb(i_lb+nlink),
+     >                    int_mb(i_mbq)))  
+     >        call errquit( pname//'Failed to map bq atoms',0,0)
+
+c
+         do i=1,nlink
+           il=int_mb(i_mbq+i-1)
+           dbl_mb(i_qbq+il-1) = 0.0d0     
+         end do
+        if(.not.ma_pop_stack(h_mbq))
+     +   call errquit( pname//'Failed to deallocate memory for mbq',
+     +   nlink, MA_ERR)
+      end if
 
       if(qmmm_print_debug()) 
-     >       write(*,*) "finshed setting up bq charges"
+     >       write(*,*) "finished setting up solute bq charges"
 c
 c     append solvent bq coord and charges from MM
 c     -------------------------------------------    
@@ -78,6 +122,9 @@ c     -------------------------------------------
      >                       dbl_mb(i_qbq+nbqs))
       end if
 
+      if(qmmm_print_debug()) 
+     >       write(*,*) "finished setting up solvent bq charges"
+
       if(qmmm_print_debug()) then
         call util_print_centered(6,"Bq information",
      >              36, .true.)
@@ -87,6 +134,9 @@ c     -------------------------------------------
      >              (dbl_mb(i_cbq+3*(i-1)+k-1),k=1,3)
         end do
       end if
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "out",pname
     
       end
 
