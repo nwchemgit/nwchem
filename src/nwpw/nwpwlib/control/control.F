@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.27 2002-09-19 20:32:47 bylaska Exp $
+* $Id: control.F,v 1.28 2002-09-21 05:56:46 bylaska Exp $
 *
 
 *     ***********************************
@@ -1595,7 +1595,7 @@ c      end
       logical value
       real*8  scaling(2)
 
-      value = rtdb_get(rtdb,'cpmd:SA_decay',mt_dbl,2,scaling) 
+      value = rtdb_get(rtdb,'cpmd:sa_decay',mt_dbl,2,scaling) 
       
       control_SA=value
       return
@@ -1621,7 +1621,7 @@ c      end
       logical value
       real*8  scaling(2)
 
-      if (.not.rtdb_get(rtdb,'cpmd:SA_decay',mt_dbl,2,scaling)) then
+      if (.not.rtdb_get(rtdb,'cpmd:sa_decay',mt_dbl,2,scaling)) then
         scaling(1) = 1.0d0 
         scaling(2) = 1.0d0 
       end if
