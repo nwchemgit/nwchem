@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.44 2003-03-11 00:55:29 marat Exp $
+* $Id: paw_ovlp.F,v 1.45 2003-03-13 23:41:22 marat Exp $
 *
 
 !**************************************************
@@ -679,6 +679,28 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       return
       end 
 
+**************************************************
+!
+!	Name: 
+!
+!	Purpose: 
+!
+!	Created:	2/10/2002
+!**************************************************
+      subroutine paw_ovlp_i_w_ptr(ptr)
+      implicit none
+      integer ptr(4)
+
+#include "paw_ovlp_data.fh"
+
+      integer i
+
+      do i=1,4
+      ptr(i) = i_paw_ovlp_w(i)
+      end do
+      return
+      end 
+
 
 
 **************************************************
@@ -790,3 +812,63 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       return
       end 
 
+**************************************************
+!
+!	Name: paw_ovlp_weigths_write
+!
+!	Purpose: dumps the overlap weight coefficients
+!
+!	Created:	8/07/2002
+!**************************************************
+      subroutine paw_ovlp_weights_write(nu)
+      
+      implicit none
+      integer nu
+
+#include "mafdecls.fh"
+#include "paw_geom.fh"
+#include "paw_ovlp_data.fh"
+#include "paw_proj.fh"
+#include "paw_basis.fh"
+
+      integer ii
+      integer in,ia
+      integer nbasis
+      integer i,j,mi,mj,li,lj
+      integer i_w0,i_w
+      integer nilm,njlm
+      
+
+      ii = 0
+      nilm = 0
+      njlm = 0
+      do in=1,ion_nion()
+        ia = ion_katm(in)
+        i_w0 = int_mb(i_paw_ovlp_w(1) + in - 1)
+        nbasis = paw_basis_nbasis(ia)
+        nilm = 0
+        do i=1,nbasis
+          li = paw_basis_orb_l(i,ia)
+          do mi=-li,li
+            njlm = 0
+            do j=1,nbasis
+              lj = paw_basis_orb_l(j,ia)
+                do mj=-lj,lj
+                  i_w   = i_w0-1+(njlm+lj+mj+1)+
+     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
+
+                  write(nu,*) i,mi,j,mj,in
+                  write(nu,*)dcpl_mb(paw_ovlp_w(1)+ii)
+                
+                  ii =ii +1
+                end do
+                njlm=njlm + 2*lj+1
+             end do
+           end do   
+           nilm = nilm + 2*li+1
+         end do
+      end do
+    
+      return
+      end
+c
