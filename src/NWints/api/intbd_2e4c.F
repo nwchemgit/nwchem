@@ -1,4 +1,4 @@
-c $Id: intbd_2e4c.F,v 1.7 1998-08-04 16:12:27 d3g681 Exp $
+c $Id: intbd_2e4c.F,v 1.8 1998-08-07 21:15:41 d3e129 Exp $
 *
       logical function intbd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,
@@ -176,18 +176,27 @@ c
         write(6,*)' l bf size is ',(lhi-llo+1)
         call errquit('intbd_nw_2e4c: fatal error',911)
       endif
+*      call intd_2e4c(
+*     &    brain,icl(i_q),jcl(i_q),
+*     &    ketin,kcl(i_q),lcl(i_q),
+*     &    newlscr,scr(i_scr_ptr),
+*     &    numint,scr,idatom)
+* use memory copy instead of first part of scratch.  Otherwise scratch is 
+* way to big to do derivativeswith sphericals
+*
       call intd_2e4c(
      &    brain,icl(i_q),jcl(i_q),
      &    ketin,kcl(i_q),lcl(i_q),
-     &    newlscr,scr(i_scr_ptr),
-     &    numint,scr,idatom)
+     &    lscr,scr,
+     &    numint,eri,idatom)
+      call dcopy (numint,eri,1,scr,1)
       if (nint_s.gt.numint) then
         write(luout,*)' spherical/real size larger than cartesean size'
         write(luout,*)' nint_s = ',nint_s
         write(luout,*)' numint = ',numint
         call errquit('intbd_nw_2e4c: fatal error ',911)
       endif
-* scr has integrals in nwchem order (nint_s,3,4)      
+* scr has integral derivatives in nwchem order (nint_s,3,4)      
       nint = 0
       call intbd_nw_label_copy(scr,eri,nint_s,nint,idatom,
      &    ilo,ihi,jlo,jhi,klo,khi,llo,lhi,
