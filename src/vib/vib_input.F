@@ -1,7 +1,7 @@
       subroutine freq_vib_input(rtdb)
       implicit none
 *
-* $Id: vib_input.F,v 1.1 2000-08-22 19:07:49 d3e129 Exp $
+* $Id: vib_input.F,v 1.2 2001-10-06 01:06:37 edo Exp $
 *
 c
 c  {freq||vib}
@@ -73,6 +73,7 @@ c
             call inp_outrec()
             goto 01001
           endif
+          goto 00010
         else if (inp_compare(.false.,test,'reuse')) then
           o_reuse = .true.
           if (inp_a(test)) then
