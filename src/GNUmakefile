@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.46 1997-01-17 01:40:13 d3e129 Exp $
+# $Id: GNUmakefile,v 1.47 1997-01-17 01:45:13 d3e129 Exp $
 
 include config/makefile.h
 
@@ -29,8 +29,9 @@ endif
 # This to link only and avoid tedious subdir makes
 #
 
-link nwchem_link:    nwchem.o stubs.o
+link nwchem_link:    
 	@/bin/rm -f nwchem.o stubs.o
+	$(MAKE) nwchem.o stubs.o
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f $(BINDIR)/nwchem
 endif
@@ -40,8 +41,9 @@ endif
 #
 # This for linking version with profiling
 #
-prof profile:    nwchem.o stubs.o
+prof profile:    
 	@/bin/rm -f nwchem.o stubs.o
+	$(MAKE) nwchem.o stubs.o
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f nwchem_prof
 endif
