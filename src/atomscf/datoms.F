@@ -2,9 +2,53 @@
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
      $     odens, eatom)
-C     $Id: datoms.F,v 1.20 1997-10-31 19:49:14 d3e129 Exp $
+C     $Id: datoms.F,v 1.21 1999-02-19 00:17:24 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
+#include "geom.fh"
+      integer geom, basis
+      logical odens             ! If true make the global density
+      double precision eatom    ! Return sum of atomic energies
+c     
+*rak: wrapper routine now.  doatoms_do does the actual work
+c     
+      integer nbb               ! No. of primtives used to dimension arrays
+      integer g_dens
+      real *8 hatom(*)
+      real *8 pcap(*), qcap(*), fc(*), fo(*), s(*), u(*), t(*)
+      real *8 h(*), dc(*), dos(*), dt(*), dold(*), ss(*)
+      real *8 cvec(*), copn(*), smin(nbb,*), qmin(nbb,*),transf(*),cc(*)
+      logical oprin, oprint_ener
+c
+      logical status_ma
+      integer nat_dim
+      integer h_odone, k_odone
+      integer h_tags,  k_tags
+c
+      if (.not. geom_ncent(geom, nat_dim)) call errquit
+     $     ('guess atom dens: geom_ncent failed', geom)
+      if (.not. ma_push_get
+     &    (MT_LOG,nat_dim,'atomscf:doatomd:odone',h_odone,k_odone))
+     &    call errquit('ma get atomscf:doatomd:odone failed',911)
+      if (.not. ma_push_get
+     &    (MT_BYTE,16*nat_dim,'atomscf:doatomd:tags',h_tags,k_tags))
+     &    call errquit('ma get atomscf:doatomd:tags failed',911)
+
+      call datoms_do(geom, basis, hatom, g_dens, oprin,
+     &     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
+     &     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
+     &     odens, eatom, byte_mb(k_tags), log_mb(k_odone), nat_dim)
+      status_ma = .true.
+      status_ma = status_ma .and. ma_pop_stack(h_tags)
+      status_ma = status_ma .and. ma_pop_stack(h_odone)
+      if (.not.status_ma) call errquit
+     &    ('doatoms: fatal error popping tags/odone stack',911)
+      end
+      subroutine datoms_do(geom, basis, hatom, g_dens, oprin,
+     +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
+     +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
+     $     odens, eatom, tags, odone, nat_dim)
+      implicit none
 #include "global.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -30,12 +74,9 @@ c
       logical oprin, oprint_ener
       integer iwrite
 c     
-c     These should be dynamically allocated
-c     
-      integer mxnat
-      parameter (mxnat = 500)
-      logical odone(mxnat)
-      character*16 tags(mxnat)
+      integer nat_dim
+      logical odone(nat_dim)
+      character*16 tags(nat_dim)
 c     
       double precision charge, coords(3)
       character*16 tag, element
@@ -79,7 +120,7 @@ c     centers that do not seem to be ataoms as done already.
 c     
       if (.not. geom_ncent(geom, natoms)) call errquit
      $     ('guess atom dens: geom_ncent failed', geom)
-      if (natoms .gt. mxnat) call errquit
+      if (natoms .gt. nat_dim) call errquit
      $     ('guess atom dens: mxnat too small ', natoms)
 c
       do iat = 1 , natoms
@@ -177,8 +218,6 @@ c
 c
       eatom = toteng
 c
-*ZIJING      call basis_map(geom,basis)
-c     
       return
  6010 format(' Sum of atomic energies: ',f20.8)
       end
