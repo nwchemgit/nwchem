@@ -1,7 +1,7 @@
       subroutine dft_genspm(lmax,iga_dens,basis,
      &     natoms,centerl,Pmat,max_at_bf,
      &     charge,dipole)
-C$Id: dft_genspm.F,v 1.2 1995-05-04 04:59:26 og845 Exp $
+C$Id: dft_genspm.F,v 1.3 1995-05-04 05:12:19 og845 Exp $
       implicit none
 #include <mafdecls.h>
 #include <tcgmsg.fh>
@@ -15,8 +15,8 @@ C$Id: dft_genspm.F,v 1.2 1995-05-04 04:59:26 og845 Exp $
 
       integer natoms
       integer iga_dens,basis,lmax
-      double precision Pmat(max_at_bf*max_at_bf)
       integer max_at_bf
+      double precision Pmat(max_at_bf*max_at_bf)
 
       double precision charge(natoms)
       double precision dipole(3,natoms)
