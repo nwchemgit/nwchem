@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.30 2001-11-16 22:52:27 bylaska Exp $
+* $Id: task_gradient.F,v 1.31 2002-01-15 19:36:59 bylaska Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -106,7 +106,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.30 2001-11-16 22:52:27 bylaska Exp $
+* $Id: task_gradient.F,v 1.31 2002-01-15 19:36:59 bylaska Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -226,7 +226,7 @@ c
       else if (theory .eq. 'ccsd+t(ccsd)') then
          prefix = 'ccsd'
          status = task_num_grad(rtdb) ! Only numerical
-      else if (theory .eq. 'cg_pspw') then
+      else if (theory.eq.'pspw') then
          status = pspw_gradient(rtdb)
       else if (theory .eq. 'band') then
          status = band_gradient(rtdb)

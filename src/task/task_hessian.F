@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.15 2001-11-16 22:52:27 bylaska Exp $
+* $Id: task_hessian.F,v 1.16 2002-01-15 19:37:00 bylaska Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -100,9 +100,8 @@ c define default delta value
 c
         default_delta = 0.001d00  ! should it be 0.0025 
         if (inp_compare(.false.,theory,'dft')) default_delta = 0.01d00
-        if (inp_compare(.false.,theory,'cg_pspw')) 
-     &       default_delta = 0.01d00
-        if (inp_compare(.false.,theory,'band')) 
+        if (inp_compare(.false.,theory,'pspw')   .or.
+     &      inp_compare(.false.,theory,'band'))
      &       default_delta = 0.01d00
 c     
 c     check for change of finite difference delta

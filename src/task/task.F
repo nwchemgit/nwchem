@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.47 2001-11-19 22:15:57 d3k958 Exp $
+* $Id: task.F,v 1.48 2002-01-15 19:36:59 bylaska Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -174,10 +174,7 @@ c
          goto 99999
       endif
 c
-c     *** task_pspw handles pspw specific "operations" ***
- 100  if (inp_compare(.false.,'pspw',theory)) then
-        status = task_pspw(rtdb)
-      else if (inp_compare(.false., 'energy', operation)) then
+ 100  if (inp_compare(.false., 'energy', operation)) then
          status = task_energy(rtdb)
       else if (inp_compare(.false., 'gradient', operation)) then
          status = task_gradient(rtdb)
@@ -199,6 +196,13 @@ c     *** task_pspw handles pspw specific "operations" ***
          status=task_thermo(rtdb)
       else if(inp_compare(.false.,'vscf',operation)) then
          status=task_vscf(rtdb)
+c
+c     **** check for theories that have specific operations ****
+c
+c     *** task_pspw handles pspw specific "operations" ***
+      else if (inp_compare(.false.,'pspw',theory)) then
+        status = task_pspw(rtdb)
+
       else
          call errquit('task: unknown generic operation',0)
       endif

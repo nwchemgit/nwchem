@@ -68,7 +68,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.27 2001-11-16 22:52:27 bylaska Exp $
+* $Id: task_energy.F,v 1.28 2002-01-15 19:36:59 bylaska Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -156,7 +156,7 @@ cedo         prefix = 'mp2'
          if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'energy'))
      $        call errquit('task_energy: rtdb_put failed',0)
          status = semi_dir_mp2(rtdb)
-      else if (theory .eq. 'cg_pspw') then
+      else if (theory .eq. 'pspw') then
          status = pspw_energy(rtdb)
       else if (theory .eq. 'band') then
          status = band_energy(rtdb)
