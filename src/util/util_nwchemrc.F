@@ -14,7 +14,11 @@
 c
       implicit none
 c
-* $Id: util_nwchemrc.F,v 1.3 1998-04-24 07:32:48 d3e129 Exp $
+c $Id: util_nwchemrc.F,v 1.4 1998-05-18 21:28:07 d3j191 Exp $
+c
+c Eventually these routines should use the inp modules
+c Currently these are (key,value) but later may have to be extended
+c to array of values, etc.. 
 c
       character*(*) key,value
 c
@@ -26,7 +30,7 @@ c
 c
       lenkey=index(key,' ')-1
       if(lenkey.le.0) goto 9999
-      call getenv('HOME',home)
+      call util_getenv('HOME',home)
       nwchrc=home(1:index(home,' ')-1)//'/.nwchemrc '
       open(unit=69,file=nwchrc(1:index(nwchrc,' ')-1),form='formatted',
      + status='old',err=9999)
@@ -60,7 +64,7 @@ c
 c
       lenkey=index(key,' ')-1
       if(lenkey.le.0) goto 9999
-      call getenv('HOME',home)
+      call util_getenv('HOME',home)
       nwchrc=home(1:index(home,' ')-1)//'/.nwchemrc '
       open(unit=69,file=nwchrc(1:index(nwchrc,' ')-1),form='formatted',
      + status='old',err=9999)
