@@ -3,7 +3,7 @@
      2  d_trials,apbvec,apbval,ambvec,g_movecs,evl,singlet,triplet,
      4  target,targetsym,mult,algorithm,l_irs,k_irs)
 c
-c $Id: tddft_analysis.F,v 1.15 2003-01-19 06:51:25 sohirata Exp $
+c $Id: tddft_analysis.F,v 1.16 2003-05-19 20:19:40 sohirata Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -323,6 +323,8 @@ c ... frozen cores are irrelevant
           write(LuOut,9180) s2
           call util_flush(LuOut)
         endif
+        na=dfloat(nocc(1)-nfc(1))
+        nb=dfloat(nocc(2)-nfc(2))
       endif
 c
 c --------------
@@ -504,8 +506,9 @@ c same beta excitation bra
               endif
             enddo
           enddo
-          if (nodezero.and.util_print('excited state',print_default))
-     1      write(LuOut,9180) s2
+          if (nodezero.and.util_print('excited state',print_default)
+     1      .and.(nfc(1).eq.nfc(2)))
+     2      write(LuOut,9180) s2
         endif
 c
 c --------------------------------------------------
