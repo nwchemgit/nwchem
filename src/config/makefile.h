@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.332 2000-06-14 00:39:21 edo Exp $
+# $Id: makefile.h,v 1.333 2000-06-17 00:43:22 bert Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -711,7 +711,9 @@ ifeq ($(TARGET),SGITFP)
     INSTALL = @echo nwchem is built
   MAKEFLAGS = -j 4 --no-print-directory
 
-  FOPTIONS = -d8 -i8 -mips4 -align64 -64 -r8 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
+# RJH ... moved -OPT... to the FOPTIMIZE macro since it's an optimization!
+# (that breaks things).
+  FOPTIONS = -d8 -i8 -mips4 -align64 -64 -r8 -G 0 
   COPTIONS = -fullwarn -mips4 -64
 
 #optimization flags for R8000 (IP21)
@@ -742,8 +744,10 @@ ifeq ($(NWCHEM_TARGET_CPU),R8000)
  FOPTIMIZE = $(FOPTIMIZE_8K)
  FVECTORIZE = $(FVECTORIZE_8K)
 endif
+  FOPTIMIZE += -OPT:roundoff=3:IEEE_arithmetic=3
+  FVECTORIZE += -OPT:roundoff=3:IEEE_arithmetic=3
 
-    DEFINES = -DSGI -DSGITFP -DEXT_INT -DPARALLEL_DIAG
+  DEFINES = -DSGI -DSGITFP -DEXT_INT -DPARALLEL_DIAG
   CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas
 endif
 
@@ -800,7 +804,9 @@ ifeq ($(TARGET),SGI_N32)
   MAKEFLAGS = -j 4 --no-print-directory
     DEFINES = -DSGI  -DSGI_N32
 
-  FOPTIONS = -n32 -mips4 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
+# RJH ... moved -OPT... to the FOPTIMIZE macro since it's an optimization!
+# (that breaks things).
+  FOPTIONS = -n32 -mips4 -G 0 
   COPTIONS = -n32 -mips4 -fullwarn
 
 #optimization flags for R8000 (IP21)
@@ -822,6 +828,9 @@ ifeq ($(NWCHEM_TARGET_CPU),R8000)
  FOPTIMIZE = $(FOPTIMIZE_8K)
  FVECTORIZE = $(FVECTORIZE_8K)
 endif
+  FOPTIMIZE += -OPT:roundoff=3:IEEE_arithmetic=3
+  FVECTORIZE += -OPT:roundoff=3:IEEE_arithmetic=3
+
 ifeq ($(BUILDING_PYTHON),python)
 # needed if python was compiled with gcc (common)
       EXTRA_LIBS += -L/msrc/apps/gcc-2.8.1/lib/gcc-lib/mips-sgi-irix6.5/2.8.1 -lgcc
@@ -1398,9 +1407,8 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
   FC         = fort
   CC         = ccc      
   LINK.f = fort $(LDFLAGS)
-  DEFINES   +=   -DEXT_INT -DLINUX -DLINUX64 -DPARALLEL_DIAG
-  FOPTIONS   = -i8 -assume no2underscore -align dcommons -fpe3 -check nooverflow -assume accuracy_sensitive -check nopower -check nounderflow -noautomatic 
-#-automatic breaks in the autoz routines
+  DEFINES   +=   -DEXT_INT -DLINUX -DLINUX64
+  FOPTIONS   = -i8 -assume no2underscore -align dcommons -fpe3 -check nooverflow -assume accuracy_sensitive -check nopower -check nounderflow -automatic 
   EXTRA_LIBS = 
   FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
   FVECTORIZE = -fast -O5 -tune host -arch host
