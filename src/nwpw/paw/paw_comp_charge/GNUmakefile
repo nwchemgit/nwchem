@@ -1,16 +1,16 @@
 #
-# $Id: GNUmakefile,v 1.1 2003-01-29 23:36:54 marat Exp $
+# $Id: GNUmakefile,v 1.2 2003-01-30 21:12:33 bylaska Exp $
 #
 
           OBJ =  paw_comp_charge.o
-          HEADERS =  paw_comp_charge_data.fh
+          HEADERS = 
 
 
       LIBRARY =	libpaw.a
 
    USES_BLAS = 
 
-  LIB_INCLUDES = -I../include/
+  LIB_INCLUDES =
 
   LIB_DEFINES = 
 
