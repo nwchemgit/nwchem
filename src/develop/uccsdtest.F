@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.20 2000-05-30 06:36:56 d3g681 Exp $
+*     $Id: uccsdtest.F,v 1.21 2000-09-13 18:15:56 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -6191,7 +6191,7 @@ c
       double precision ddot
       external ddot
 c
-      if (m .lt. 1) call errquit('m???', m)
+      if (m .lt. 1) call errquit('m?', m)
       if (m .gt. maxm) call errquit('maxm', m)
 c
       call dcopy(n, df(1,m), 1, delta, 1)
@@ -6218,7 +6218,7 @@ c$$$      write(6,*) ' REDUCED B'
 c$$$      call doutput(b, 1, m-1, 1, 1, m-1, 1, 1)
 c
       call dgesv(m-1, 1, a, maxm, ipiv, b, maxm, info)
-      if (info .ne. 0) call errquit(' info ???  ', 0)
+      if (info .ne. 0) call errquit(' info ?  ', 0)
       call dcopy(m-1, b, 1, c, 1)
 c$$$      write(6,*) ' REDUCED C'
 c$$$      call doutput(b, 1, m-1, 1, 1, m-1, 1, 1)
