@@ -27,20 +27,21 @@ c     damp/nodamping
 c     diis/nodiis/nfock
 c     lshift/nolevelshifting
 c     hl_tol
+c     rabuck
 c     
       integer num_dirs, ind, mlen
-      parameter (num_dirs = 21)
+      parameter (num_dirs = 22)
       character*15 dirs(num_dirs)
       character*255 test
       double precision e_conv, d_conv, g_conv, dampon, dampoff, diison,
      &                 diisoff, levlon, levloff, rlshift, hl_tol
-      integer ncydp, ncyds, ncysh, ndamp, nfock
+      integer ncydp, ncyds, ncysh, ndamp, nfock,n_rabuck
       logical damp, nodamping, levelshift, nolevelshifting, diis, nodiis
       data dirs /'energy', 'density', 'gradient', 'dampon', 'dampoff',
      &           'diison', 'diisoff', 'levlon', 'levloff', 'ncydp',
      &           'ncyds', 'ncysh', 'damp', 'nodamping', 'diis',
      &           'nodiis', 'lshift', 'nolevelshifting', 'hl_tol',
-     .       'fast','stable'/
+     .       'fast','stable','rabuck'/
 c     
       mlen = inp_strlen(module)
 c     
@@ -55,7 +56,7 @@ c
 c
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 
      &      1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 
-     .      2000, 2010,
+     .      2000, 2010,2020,
      &      1999) ind
       call errquit('conv_inp: unimplemented directive', ind)
 c     
@@ -346,6 +347,21 @@ c
       hl_tol = 0.01d0
       if (.not. rtdb_put(rtdb, 'dft:hl_tol', mt_dbl, 1, hl_tol))
      &   call errquit('conv_inp: rtdb_put failed', 2010)
+c
+      goto 10
+c     
+c     Rabuck convergence method by annealed smearing
+c                      
+ 2020 continue
+      if (.not. inp_i(n_rabuck)) then
+         write(LuOut,*)' conv_inp: energy convergence value not found;',
+     &             ' defaulting to 1d-6 Hartree.'
+         n_rabuck = 25
+      endif
+      if (.not. rtdb_put(rtdb, 'dft:smear_sigma', mt_dbl, 1, 1d-3))
+     &   call errquit('conv_inp: rtdb_put failed', 2021)
+      if (rtdb_put(rtdb, 'dft:n_rabuck', mt_int, 1, n_rabuck))
+     &   call errquit('conv_inp: rtdb_put failed', 2022)
 c
       goto 10
  1999 continue
