@@ -1,3 +1,7 @@
+/*
+ $Id: hdbm.c,v 1.5 1997-10-31 23:51:44 d3e129 Exp $
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <memory.h>

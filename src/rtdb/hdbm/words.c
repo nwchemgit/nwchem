@@ -1,3 +1,7 @@
+/*
+ $Id: words.c,v 1.2 1997-10-31 23:51:46 d3e129 Exp $
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <memory.h>
