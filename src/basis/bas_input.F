@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.32 1997-05-03 18:44:38 d3e129 Exp $
+c $Id: bas_input.F,v 1.33 1997-06-26 18:33:47 mdupuis Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -217,8 +217,8 @@ c
 c
 10000 write(6,10001)
 10001 format(' basis|ecp [<name>] [library <standard set>] \\',/,
-     $    '       [file <filename>] [spherical|cartesian] [segment]\\'
-     &    '       [print|noprint] [ecp name_of_ecp]')
+     $    '      [file <filename>] [spherical|cartesian] [segment]\\',
+     &    '      [print|noprint] [ecp name_of_ecp]')
       call errquit('bas_input: invalid format for basis directive', 0)
 c
       end
