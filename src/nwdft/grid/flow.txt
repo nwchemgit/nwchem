@@ -1,0 +1,33 @@
+nwdft/grid
+===========
+grid_quadv0->grid_quadvw->grid_init->grid_list
+                        ->grid_loop->grid_sympts0
+                                .. // loop
+                                .  -> grid_quadvw1->grid_finpts
+                                .                 ->grid_quadvc->grid_quadv0b
+                                .                 ->grid_file_write
+                                .  -> grid_quadvc
+                                .. end loop
+                                   -> grid_sympts2
+                                   -> grid_buckend
+                                   -> grid_file_write
+           ->grid_quadv0a->grid_file_rewind
+                          .. loop
+                          . ->grid_repack
+                          . ->grid_quadv0b
+                          .. end loop
+
+dftgrad
+=======
+dftg_getxc->grid_reopen
+          ->dftg_gridv0->dftg_gridv0a->grid_file_rewind
+                                     .. loop
+                                     . ->grid_repack
+                                     . ->dftg_gridv0b
+                                     .. end loop
+                       ->dftg_griddo->grid_init->grid_list
+                                    ->grid_loop->grid_sympts0                  
+					       .. // loop                         
+					       .  -> dftg_loop->grid_finpts    
+					       .              ->dftg_gridv0b
+					       .. end loop               
