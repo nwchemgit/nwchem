@@ -1,10 +1,10 @@
-#$Id: GNUmakefile,v 1.41 2000-06-08 21:53:54 bert Exp $
+#$Id: GNUmakefile,v 1.42 2000-10-24 02:39:11 d3j191 Exp $
 include ../config/makefile.h
 
        LIBRARY = libutil.a
        HEADERS = bas.fh basP.fh bas_staticP.fh basdeclsP.fh geobasmapP.fh  \
                  bas_exndcf.fh bas_exndcf_dec.fh bas_exndcf_sfn.fh \
-                 bas_ibs.fh bas_ibs_dec.fh bas_ibs_sfn.fh 
+                 bas_ibs.fh bas_ibs_dec.fh bas_ibs_sfn.fh ../NWints/rel/rel_nwc.fh
            OBJ = bas_input.o bas_contrib.o bas_checksum.o basis.o basisP.o bas_blas.o bas_blasP.o bas_vec_info.o
 
 ifeq ($(TARGET),CRAY-T3D)

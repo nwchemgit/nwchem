@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.34 2000-07-27 16:29:05 bjohnson Exp $
+#$Id: GNUmakefile,v 1.35 2000-10-24 02:38:51 d3j191 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
@@ -6,7 +6,7 @@ LIBRARY = libutil.a
 USES_BLAS = sym_bs_irrep.F sym_g_sym.F    sym_geom_prj.F sym_mo_adapt.F sym_op_clsfy.F \
             sym_op_mtab.F  sym_put_geom.F dosymops.F
 
-HEADERS = sym.fh
+HEADERS = sym.fh ../NWints/auxil/spcartP.fh
 
 OBJ_OPTIMIZE = sym_sh_pair.o sym_sym.o \
                sym_mo_ap_op.o sym_bas_op.o
