@@ -13,7 +13,7 @@ C
 C     We'll go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Integer MSG_Ftn_Base
-C$Id: msgids.fh,v 1.15 1995-06-28 04:44:41 og845 Exp $
+C$Id: msgids.fh,v 1.16 1995-10-24 18:54:28 rg240 Exp $
       Parameter (MSG_Ftn_Base = 25000)
 C
       Integer Msg_PrSum
@@ -163,3 +163,7 @@ C
 
       Parameter (Msg_Mull1    = MSG_Ftn_Base - 84)  ! DFT: Mulliken pop
       Parameter (Msg_Mull2    = MSG_Ftn_Base - 85)  ! DFT: MUlliken pop
+c
+c
+      Parameter (Msg_Act_Energy     = MSG_Ftn_Base - 86)  ! MCSCF: Active energy sum
+
