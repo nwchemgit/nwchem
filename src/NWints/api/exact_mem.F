@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.44 2000-04-24 20:07:02 mg201 Exp $
+c $Id: exact_mem.F,v 1.45 2000-07-18 14:53:13 windus Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -1422,6 +1422,7 @@ c:tex-
       memb_2e4c  = 0   ! scr memory size for blocked 4 center integrals
       init_int   = 0   ! integral initialization flag
       init_intd  = 0   ! derivative initialization flag
+      init_intdd = 0   ! 2nd derivative initialization flag
 c
       end
 c:tex-% Part of the API internal routines.
