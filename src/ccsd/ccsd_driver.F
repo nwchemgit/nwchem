@@ -1,5 +1,6 @@
+
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in )
-C     $Id: ccsd_driver.F,v 2.15 1997-05-01 18:10:54 d3g681 Exp $
+C     $Id: ccsd_driver.F,v 2.16 1997-05-15 22:15:40 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -155,11 +156,11 @@ c
        occ_hi = nocc
        nocc_correl = occ_hi - occ_lo + 1
        vir_lo = nocc + 1
-       vir_hi = nbf - vir_frozen
+       vir_hi = nmo - vir_frozen
        nvir_correl = vir_hi - vir_lo + 1
-       nvir = nbf - nocc
+       nvir = nmo - nocc
        nmo_lo = occ_frozen + 1
-       nmo_hi = nbf - vir_frozen
+       nmo_hi = nmo - vir_frozen
        nmo2 = nmo_hi - nmo_lo + 1
        noper = occ_hi - occ_lo + 1
 c
@@ -188,7 +189,7 @@ c Maximum number of operator matrices we can allocate
 c
        nocct = (nocc_correl*(nocc_correl+1))/2
        if ((ocoul).and.(oexch)) nocct = 2*nocct
-       max_noper = moints_numoper( basis, algo, nbf, nocc, nmo2,
+       max_noper = moints_numoper( basis, algo, nmo, nocc, nmo2,
      $                             blen, .false.)
 C       MAX_NOPER = 10
 capr change gt to ge
@@ -309,9 +310,11 @@ c Evaluate and store pair energies
 c
 capr insert oexch
        if (oexch)then
-        call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nvir,
-     $       nmo2, nbf, g_exch, dbl_mb(k_evals), g_epair )
+        call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, 
+     $                      nmo_lo, nmo_hi, vir_lo, vir_hi,
+     $                      g_exch, dbl_mb(k_evals), g_epair )
        endif
+
 c
 c
 c

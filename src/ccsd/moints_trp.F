@@ -1,8 +1,9 @@
+
 c
 c
 c
 c
-c  $Id: moints_trp.F,v 2.4 1997-04-14 06:35:06 gg502 Exp $
+c  $Id: moints_trp.F,v 2.5 1997-05-15 22:15:42 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -56,14 +57,13 @@ c
 c Local variables
 c
        integer geom, nmo1, nmo2, nbf, nsh, maxbfsh
-       integer bsize, ngrp
+       integer bsize, ngrp, kgr, lgr
        integer l_gmap, k_gmap
        integer ish0, jsh0, ish, jsh, ilen, jlen
        integer ibflo,ibfhi,jbflo,jbfhi,kbflo,kbfhi,lbflo,lbfhi
        integer kshlo, kshhi, lshlo, lshhi
        integer kblen, lblen
-       integer kb, lb
-       integer l_ssbb, k_ssbb, l_ssbbt, k_ssbbt
+       integer l_ssbb, k_ssbb, l_ssbbt, k_ssbbt, l_xmo, k_xmo
        integer l_hlp, k_hlp, l_ssni,k_ssni
        integer l_hlp2, k_hlp2
        integer l_eri, k_eri, l_iscr,k_iscr
@@ -71,17 +71,18 @@ c
        integer l_glo, k_glo, l_ghi, k_ghi
        integer n_ssbb, n_ssbb1, n_ssni, n_ssai, n_hlp, n_hlp2, n_ijni
        integer mem2, max2e
-       integer num_nodes, ploop, next, nmixed, i
+       integer num_nodes, ploop, next, nmixed, i, iz, jz, kz
        integer l_sym, k_sym
        integer g_tmp                       
        double precision tol2e, scale, schw_ij, q2
-       logical status, osym, odoit
+       logical status, osym, odoit, oblk, st
 c
        integer moints_numgr, gr_len
        external moints_numgr, gr_len
 c
        double precision half
        data half/0.5d00/
+       data oblk/.true./    ! toggle whether to use Texas blocking or shell quartet AO ints
 c
 c
 c These are options that should be set
@@ -151,12 +152,20 @@ c
      $                      int_mb(k_shmap),
      $                      int_mb(k_bfmap), int_mb(k_rbfmap) )
 c
-c  ----- Old stuff
+c  Copy of MO coefficients with reordered rows
 c
+       status = ma_push_get(MT_DBL,(nbf*nbf),'reorder mos',
+     $                      l_xmo, k_xmo)
+#ifdef OLD_AOBLOCK
        ngrp = moints_numgr( basis, blen )
        status = ma_push_get(MT_INT,(ngrp*4),'shell group map',
      $                      l_gmap, k_gmap)
        call moints_grmap( basis, blen, ngrp, int_mb(k_gmap))
+       call dcopy((nbf*nbf), cmo, 1, dbl_mb(k_xmo), 1)
+#else
+       call row_exch( nbf, nbf, int_mb(k_rbfmap), cmo,
+     $                       dbl_mb(k_xmo) )
+#endif       
 c
 c  Temporary partially-transformed arrays
 c     
@@ -202,12 +211,13 @@ c
              if (next.eq.ploop) then
                n_ijni = ilen*jlen*nbf*nmo1
                call dfill(n_ijni,0.d0,dbl_mb(k_ssni),1)
-               do kb=1,ngrp
-                 call gr_sh_idx(ngrp,int_mb(k_gmap),kb,kshlo,kshhi)
-                 kblen = gr_len(ngrp,int_mb(k_gmap),kb,kbflo,kbfhi)
-                 do lb=1,kb
-                   call gr_sh_idx(ngrp,int_mb(k_gmap),lb,lshlo,lshhi)
-                   lblen = gr_len(ngrp,int_mb(k_gmap),lb,lbflo,lbfhi)
+#ifdef OLD_AOBLOCK
+               do kgr=1,ngrp
+                 call gr_sh_idx(ngrp,int_mb(k_gmap),kgr,kshlo,kshhi)
+                 kblen = gr_len(ngrp,int_mb(k_gmap),kgr,kbflo,kbfhi)
+                 do lgr=1,kgr
+                   call gr_sh_idx(ngrp,int_mb(k_gmap),lgr,lshlo,lshhi)
+                   lblen = gr_len(ngrp,int_mb(k_gmap),lgr,lbflo,lbfhi)
                    call moints_gblk_old( basis, ish, jsh, kshlo, kshhi,
      $                               lshlo, lshhi, schw_ij, tol2e,
      $                               max2e, dbl_mb(k_eri),
@@ -215,23 +225,50 @@ c
      $                               ibflo, ibfhi, jbflo, jbfhi,
      $                               kbflo, kbfhi, lbflo, lbfhi,
      $                               dbl_mb(k_ssbb), osym, .false. )
-                   if (lb.ne.kb) then
+#else
+               do kgr=1,ngrp
+                 kshlo = int_mb(k_glo+kgr-1)
+                 kshhi = int_mb(k_ghi+kgr-1)
+                 st = bas_cn2bfr(basis,int_mb(k_shmap+kshlo-1),iz,kz)
+                 st = bas_cn2bfr(basis,int_mb(k_shmap+kshhi-1),kz,jz)
+                 kbflo = int_mb(k_rbfmap+iz-1)
+                 kbfhi = int_mb(k_rbfmap+jz-1)
+                 kblen = kbfhi - kbflo + 1
+                 do lgr=1,kgr
+                   lshlo = int_mb(k_glo+lgr-1)
+                   lshhi = int_mb(k_ghi+lgr-1)
+                   st = bas_cn2bfr(basis,int_mb(k_shmap+lshlo-1),iz,kz)
+                   st = bas_cn2bfr(basis,int_mb(k_shmap+lshhi-1),kz,jz)
+                   lbflo = int_mb(k_rbfmap+iz-1)
+                   lbfhi = int_mb(k_rbfmap+jz-1)
+                   lblen = lbfhi - lbflo + 1
+                   call moints_gblk( basis, ish, jsh,
+     $                               kshlo, kshhi, lshlo, lshhi,
+     $                               int_mb(k_shmap),int_mb(k_rbfmap),
+     $                               schw_ij, tol2e, osym, oblk,
+     $                               max2e, dbl_mb(k_eri),
+     $                               mem2, dbl_mb(k_iscr),
+     $                               ibflo, ibfhi, jbflo, jbfhi,
+     $                               kbflo, kbfhi, lbflo, lbfhi,
+     $                               dbl_mb(k_ssbb) )
+
+#endif
+                   if (lgr.ne.kgr) then
                      call moints_blktr( ilen, jlen, kblen, lblen,
      $                                  dbl_mb(k_ssbb),
      $                                  dbl_mb(k_ssbbt))
-                     call moints_trf1( nbf, mo1_lo, mo1_hi,
+                     call moints_trf1( nbf, 1, nbf, mo1_lo, mo1_hi,
      $                                 ilen, jlen, kbflo, kbfhi,
      $                                 lbflo, lbfhi, 1.d0,
      $                                 dbl_mb(k_ssbb),
-     $                                 dbl_mb(k_ssbbt), cmo,
+     $                                 dbl_mb(k_ssbbt), dbl_mb(k_xmo),
      $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )
-
                    else
-                     call moints_trf1( nbf, mo1_lo, mo1_hi,
+                     call moints_trf1( nbf, 1, nbf, mo1_lo, mo1_hi,
      $                                 ilen, jlen, kbflo, kbfhi,
      $                                 lbflo, lbfhi, half,
      $                                 dbl_mb(k_ssbb),
-     $                                 dbl_mb(k_ssbb), cmo,
+     $                                 dbl_mb(k_ssbb), dbl_mb(k_xmo),
      $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )
                    endif
                  enddo
@@ -243,14 +280,15 @@ c
      $                               jbflo, jbfhi, scale,
      $                               dbl_mb(k_ssni),dbl_mb(k_hlp2),
      $                               dbl_mb(k_hlp), dbl_mb(k_hlp),
-     $                               cmo, g_exch, ncor, nocc)
+     $                               dbl_mb(k_xmo), cmo, 
+     $                               g_exch, ncor, nocc)
                endif
                if (ocoul) then
 CRK              call mo_trp_trf2J( nbf, occ_start, mo2_lo, mo2_hi,
                  call mo_trp_trf2J( nbf, occ_start, mo1_lo, mo1_hi,
      $                              ibflo, ibfhi, jbflo, jbfhi,
      $                              dbl_mb(k_ssni), dbl_mb(k_hlp),
-     $                              dbl_mb(k_ssbb), cmo,
+     $                              dbl_mb(k_ssbb), dbl_mb(k_xmo),
      $                              g_coul, ncor, nocc)
                endif
                next = nxtval(num_nodes)
@@ -273,8 +311,12 @@ c
      $     call errquit('moints: failed to pop', l_ssbbt)
        if (.not. ma_pop_stack(l_ssbb))
      $     call errquit('moints: failed to pop', l_ssbb)
+#ifdef OLD_AOBLOCK
        if (.not. ma_pop_stack(l_gmap))
      $     call errquit('moints: failed to pop', l_gmap)
+#endif
+       if (.not. ma_pop_stack(l_xmo))
+     $     call errquit('moints: failed to pop', l_xmo)
        if (.not. ma_pop_stack(l_rbfmap))
      $     call errquit('moints: failed to pop', l_rbfmap)
        if (.not. ma_pop_stack(l_bfmap))
@@ -329,10 +371,11 @@ c
 
 
 
+
        subroutine mo_trp_trf23K( nbf, ostart, olo, ohi, nvir,
-     $                              vlo, vhi, ilo, ihi, jlo, jhi,
-     $                              scale, ssni, ssv, h1, h2, c,
-     $                              g_exch, ncor, nocc )
+     $                           vlo, vhi, ilo, ihi, jlo, jhi,
+     $                           scale, ssni, ssv, h1, h2, xc, c,
+     $                           g_exch, ncor, nocc )
        implicit none
        integer nbf, ostart, ohi, olo, nvir, vlo, vhi
        integer ilo, ihi, jlo, jhi
@@ -340,7 +383,7 @@ c
        double precision ssni(nbf,jlo:jhi,ilo:ihi,olo:ohi)
        double precision ssv(nvir,jlo:jhi,ilo:ihi)
        double precision h1(nvir,ilo:ihi), h2(nvir,jlo:jhi)
-       double precision c(nbf,nbf)
+       double precision xc(nbf,nbf), c(nbf,nbf)
        integer g_exch,ncor,nocc
 
 c
@@ -361,7 +404,7 @@ c
 
        do a=olo,ohi
          call dgemm('t', 'n', nvir, ssij, nbf, 1.d0,
-     $               c(1,vlo), nbf, ssni(1,jlo,ilo,a),
+     $               xc(1,vlo), nbf, ssni(1,jlo,ilo,a),
      $               nbf, 0.d0, ssv, nvir )
          do b=ostart,ostart+nocc-1
 capr         do b=ostart,a
@@ -613,5 +656,3 @@ CRK       write(6,*)'tmp',tmp(i,j)
 
       return
       end
-
-

@@ -1,10 +1,13 @@
-#     $Id: GNUmakefile,v 2.9 1997-04-14 06:35:06 gg502 Exp $
+#     $Id: GNUmakefile,v 2.10 1997-05-15 22:15:41 rg240 Exp $
 
  OBJ = 		ccden_driver.o \
 		ccden_interm2.o \
 		ccden_1pdm.o \
 		ccsd_trpdrv.o \
+		ccsd_driver.o \
+		ccsd_sortmo.o \
 		geaxpy.o \
+		moints_trp.o \
 		ccden_interm4.o
 
  OBJ_OPTIMIZE = aoccsd2.o \
@@ -14,7 +17,6 @@
 		ccsd_itf.o \
 		ccsd.o \
 		ccsd_aux.o \
-		ccsd_driver.o \
 		ccsd_fsig1.o \
 		ccsd_fsig2.o \
 		ccsd_get_param.o \
@@ -24,10 +26,8 @@
 		ccsd_mkt2.o \
 		ccsd_pampt2.o \
 		ccsd_pdiis.o \
-		ccsd_sortmo.o \
 		ccsd_rdtrpo.o \
 		ccsd_tengy.o \
-		moints_trp.o \
 		qstat.o \
 		cputime.o \
 		rddcom.o \
@@ -48,10 +48,10 @@
   USES_BLAS = ccden_1pdm.F  ccden_interm2.F ccsd_fsig1.F ccsd_fsig2.F ccsd_itm.F \
               ccsd_pampt2.F ccsd_pampt3.F   ccsd_pdiis.F ccsd_t2pm.F  ccsd_trpdrv.F \
               ccsd_tzinta.F ccsd_tzintb.F   ccsd_zsig1.F ccsd_zsig2.F ccsd_zvecs.F \
-              geaxpy.f moints_trp.F
+              geaxpy.f moints_trp.F ccsd_sortmo.F
 
 
-LIB_DEFINES = 
+LIB_DEFINES =
 
 #
 #
