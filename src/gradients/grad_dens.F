@@ -2,7 +2,7 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs, omp2, pdm2, coeff,lsmear)
 
-c     $Id: grad_dens.F,v 1.10 1999-06-16 00:59:56 edo Exp $
+c     $Id: grad_dens.F,v 1.11 2000-02-29 19:21:10 windus Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -95,7 +95,7 @@ c
      (          'grad_dens: cannot destroy eigendiag',11)
            if (.not. ga_create(mt_dbl, nocc, nocc,'eigen_diag', 
      ,          1, nocc, g_eigen_diag)) 
-     ,          call errquit('gradients: ga diags?',nocca*nocca)
+     ,          call errquit('gradients: ga diags?',nocc*nocc)
            call ga_zero(g_eigen_diag)
         endif
         nclosed=nocc
