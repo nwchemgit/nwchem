@@ -103,9 +103,7 @@ C      write (6,*) 'na,nb,ns,nl',na,nb,ns,nl
 *   Evaluate Q^1_{mm} functions. Note that the function for m_max is
 *   not required for the recursion.
 *
-C      write (6,*) 'm_min,m_max',m_min,m_max
       do m = m_min,max(m_max-1,m_min)
-        write (6,*) 'm =',m
         if (ns .gt. 0) call ecp_t2_ghq (1,m,m,ns,12,temp(js,1),
      &      temp(js,2),temp(js,3),temp(js,6),temp(js,4),temp(js,5),tol)
         if (nl .gt. 0) call ecp_t2_ghq (1,m,m,nl,6,temp(jl,1),
