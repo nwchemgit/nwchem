@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.224 2002-08-07 23:17:30 edo Exp $
+c     $Id: dft_scf.F,v 1.225 2002-10-23 22:50:55 sohirata Exp $
 c     
       implicit none
 c
@@ -1163,6 +1163,14 @@ c
      &   call errquit('dft_scf: failed to store energy in rtdb', 0)
       if (.not. rtdb_put(rtdb, 'dft:converged', MT_LOG, 1, converged))
      &   call errquit('dft_scf: failed to store converged in rtdb', 0)
+      if (.not. rtdb_put(rtdb, 'dft:alpha irreps', MT_INT, nbf_ao, 
+     &   int_mb(k_ir)))
+     &   call errquit('dft_scf: failed to MO irreps in rtdb', 0)
+      if (ipol.eq.2) then
+      if (.not. rtdb_put(rtdb, 'dft:beta irreps', MT_INT, nbf_ao, 
+     &   int_mb(k_ir+nbf_ao)))
+     &   call errquit('dft_scf: failed to MO irreps in rtdb', 0)
+      endif
 c
 c     output energies and eigenvectors to disk
 c     
