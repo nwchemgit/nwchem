@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.30 2001-06-21 18:44:59 zzhang Exp $
+* $Id: cphf_solve.F,v 1.31 2001-06-28 03:19:10 zzhang Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -50,9 +50,9 @@ c
 c
       logical hf_job
       integer nroot, leval, ieval, iroot
-      logical cphf_tddft
-c      cphf_tddft = .true. 
-      cphf_tddft = .false. 
+      logical cphf_tddft, cphf_triplet
+      cphf_tddft = .true. 
+      cphf_triplet = .false. ! true for triplet, false for singlet
 c
       hf_job = .not. bgj_have_xc()      
 c
@@ -218,7 +218,10 @@ c !!! BGJ
      $     call errquit('cphf_solve: rtdb_put of calc_type failed',0)
       if(.not. rtdb_put(rtdb,'cphf_solve:cphf_tddft',
      &     MT_log,1,cphf_tddft))
-     $     call errquit('cphf_solve: rtdb_put of calc_type failed',0)
+     $     call errquit('cphf_solve: rtdb_put of cphf_tddft failed',0)
+      if(.not. rtdb_put(rtdb,'cphf_solve:cphf_triplet',
+     &     MT_log,1,cphf_triplet))
+     $     call errquit('cphf_solve: rtdb_put of cphf_triplet failed',0)
       if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .true.))
      $     call errquit('cphf_solve: rtdb_put of j_derfit failed',0)
 c !!! BGJ
@@ -240,6 +243,10 @@ c !!! BGJ
      $           tddft_precond, uhf_hessv, oprint_solve, 0.d0, 
      $           g_evecs, dbl_mb(ieval), precond_acc, precond_iter))
      $           call errquit('cphf did not converge',precond_iter)
+            if(.not.ma_pop_stack(leval))
+     &           call errquit("can not pop leval?", 0)
+            if(.not.ga_destroy(g_evecs))call errquit
+     &           ("ga_iter_diag: can not destroy g_evecs", 0)
          else
             if(.not.ga_iter_lsolve(vlen, max_precond_iter,
      $           max_precond_sub, precond_tol, 
@@ -265,6 +272,10 @@ c !!! BGJ
      $           tddft_precond, rohf_hessv, oprint_solve, 0.d0, 
      $           g_evecs, dbl_mb(ieval), precond_acc, precond_iter))
      $           call errquit('cphf did not converge',precond_iter)
+            if(.not.ma_pop_stack(leval))
+     &           call errquit("can not pop leval?", 0)
+            if(.not.ga_destroy(g_evecs))call errquit
+     &           ("ga_iter_diag: can not destroy g_evecs", 0)
          else
             if(.not.ga_iter_lsolve(vlen, max_precond_iter,
      $           max_precond_sub, precond_tol, 
@@ -317,6 +328,7 @@ c
       else if(scftype .eq. 'RHF' .or. scftype.eq.'ROHF') then
          call rohf_tidy
       endif
+      if(cphf_tddft)call hess_tidy()
       call scf_tidy(rtdb)
 c
       return
@@ -354,16 +366,17 @@ c
       call dfill(vlen, 0.0d0, dbl_mb(k_init), 1)
       if(scftype .eq. 'UHF')then
          nvira=nmo-nalpha
+c         ioff = nvira*(nalpha-2)
          ioff = nvira*(nalpha-1)
          if(flag .eq. 1)then
             dbl_mb(k_init+ ioff) = 1.0d0 ! homo to lumo
             dbl_mb(k_init + ioff + nvira*nalpha) = -1.0d0 ! beta
          else if (flag.eq.2) then
-            dbl_mb(k_init+ ioff + nvira*nalpha ) = -1.0d0
+            dbl_mb(k_init+ ioff + nvira*nalpha ) = 1.0d0
          else if (flag.eq.3) then
             dbl_mb(k_init+ ioff + 1) = 1.0d0
          else if (flag.eq.4) then
-            dbl_mb(k_init+ ioff + nvira*nalpha +1) = -1.0d0
+            dbl_mb(k_init+ ioff + nvira*nalpha +1) = 1.0d0
          endif
       else if(scftype .eq. 'RHF') then
          ioff = (nmo-nclosed)*(nclosed-1)
