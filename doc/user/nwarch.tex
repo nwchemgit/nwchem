@@ -68,10 +68,9 @@ Objects are built in the database by storing associated data as
 multiple entries using an internally consistent naming convention.
 This data is exclusively managed by the subroutines (or methods) that
 are associated with the object.  Currently, the code has two main
-objects; basis sets and geometries.  Sections \ref{sec:geom}, 
-\ref{sec:basis}, and
-\ref{sec:ecp} present a complete discussion of the input to describe
-these objects.  
+objects; basis sets and geometries.  Sections \ref{sec:geom} and
+\ref{sec:basis}present a complete discussion of the input to describe
+these objects.
 
 As an illustration of what comprises a geometry object, the following
 table contains a partial listing of the NWChem output of a water molecule
@@ -100,12 +99,6 @@ considering alternative geometries
 for the water molecule, for example, an input file could be constructed with 
 all of the geometries of interest by storing them in the 
 database under different names.  
-
-% The {\tt
-%   GEOMETRY} directive (Section \ref{sec:geom}) permits geometries to
-% be named (the default name is \verb+geometry+).  For example, the
-% input directive to define a geometry object in the database with the
-% name \verb+"test water geometry"+ can be specified as follows;
 
 The run-time database contents for the file \verb+h2o.db+ listed 
 above were generated from the user-specified input directive,
@@ -145,12 +138,6 @@ directive is as follows;
 NWChem will automatically check for such indirections when loading
 geometries.  The basis set object functions in an identical fashion,
 using the default name \verb+"ao basis"+.
-
-% , and it is intended that all
-% future such objects will do so.  (Note: the naming conventions and
-% internal mechanisms for associating data with specific modules or
-% tasks is expected to change in the future, but the directive for
-% specifying names should remain the same.)
 
 \section{Persistence of data and restart}
 \label{sec:persist}

@@ -199,11 +199,6 @@ scf
   print low
 end
 
-stepper
-  trust 0.5
-  convgg 0.01
-end
-
 set "ao basis" "starting basis"
 
 task scf optimize
@@ -216,10 +211,6 @@ scf
 end
 
 set "mp2_grad:print" low
-
-stepper
-  convgg 1d-6
-end
 
 task mp2 optimize
 
@@ -265,14 +256,6 @@ available for open-shell systems currently (see Section
 reduce the output from the SCF module to a minimum during the geometry
 optimization.
 
-For this calculation, the gradient convergence threshold for the
-geometry optimization module {\tt STEPPER} is set to the
-relaxed value of $10^{-2}$, rather than the default $10^{-4}$.  This is
-acceptable because the initial optimization only serves to provide a
-starting guess.  Increasing the trust radius (using the \verb+TRUST+
-directive) beyond the default of $0.1$ makes the optimization more
-efficient (though less robust in hard to converge cases).
-
 The final step in setting up the input for the SCF calculation is to
 specify that the \verb+"starting basis"+ should be used.  This is
 accomplished by means of the \verb+SET+ directive, which specifies that 
@@ -312,19 +295,8 @@ guess vectors are reset to be the atomic guess, since the STO3G
 vectors are not appropriate (see Section \ref{sec:vectors} for
 details on the different possible starting guesses).
 
-The convergence threshold for the geometry optimization module is reset 
-to  $10^{-6}$ for the second task, a value which is smaller than 
-the default of $10^{-4}$.  The default is appropriate for determination of the
-optimized geometry and minimum energy, but a higher accuracy is
-required in this task, for use in the subsequent computation of the 
-frequencies.  The second {\tt TASK} directive invokes an MP2 
-optimization, instead of the SCF optimization.
-
-% There is currently no input block for the MP2 gradients, so parameters
-% for this module have to be set in the database via the {\tt set}
-% directive. Currently only print options are recognized, and in this
-% example, the \verb+SET+ directive is used to reduce the amount of
-% output a reasonable minimum.
+The second {\tt TASK} directive invokes an MP2 optimization, instead
+of the SCF optimization.
 
 Once the MP2 optimization is completed, the geometry obtained in the
 calculation is used to perform a frequency calculation.  This task is
@@ -402,6 +374,8 @@ other.
 The following notation and syntax conventions are used in the generic 
 descriptions of the NWChem input in the following sections.
 
+\sloppy
+
 \begin{itemize}
 \item a directive name always appears in all-capitals, in computer-type 
 face; (e.g.; \verb+GEOMETRY+, \verb+BASIS+, \verb+SCF+).  Note that 
@@ -437,6 +411,8 @@ characters following \verb+#+ (up to the physical end of the line) are ignored.
 \item \verb+...+ is used to indicate indefinite continuation of a list
 \end{itemize}
 
+\fussy
+
 An input parameter is identified in the description of the directive
 by prefacing the item with the name of the type of data expected;
 i.e.,
@@ -446,12 +422,12 @@ i.e.,
 \item \verb+integer+ --  integer value(s) for a variable or an array
 \item \verb+logical+ --  true/false logical variable
 \item \verb+real   +  -- real floating point value(s) for a variable or 
-\item \verb+double + -- double-precision
+\item \verb+double + -- synonymous with real
 an array
 \end{itemize}
 
 If an input item is not prefaced by one of these type names,
-it is assumed to be of type 'string'.
+it is assumed to be of type ``string''.
  
 The directive \verb+VECTORS+ (Section \ref{sec:vectors}) is presented here
 as an example of an NWChem input directive.  The general form of the

@@ -59,6 +59,7 @@ keywords in each of the three main parts.
 % These are examined in the following sections.
 
 \section{Main keywords on the {\tt GEOMETRY} directive}
+\label{sec:geomkeys}
 
 This section presents the options that can be specified using the keywords 
 and optional input on the main line of the {\tt GEOMETRY} directive.
@@ -248,19 +249,20 @@ usage and definitions of the values specified for the variable \verb+<tag>+
 to describe the centers in a system;
 \begin{itemize}
 \item If the tag begins with characters that cannot be
-    matched against an atom, and those characters are not \verb+BQ+ 
-    or \verb+X+, then a fatal
-    error is generated.
-\item The tag of a center is used in the \verb+BASIS+ directive (Section
-\ref{sec:basis}) to associate functions with centers.  
+  matched against an atom, and those characters are not \verb+BQ+ 
+  or \verb+X+, then a fatal
+  error is generated.
+\item The tag of a center is used in the \verb+BASIS+ (Section
+  \ref{sec:basis}) and \verb+ECP+ (Section \ref{sec:ecp}) directives
+  to associate functions with centers.
 \item All centers with the same tag will have the same basis
-functions.
+  functions.
 \item When automatic symmetry detection is functional, only centers
-with the same tag will be candidates for testing for symmetry
-equivalence.
+  with the same tag will be candidates for testing for symmetry
+  equivalence.
 \item The user specified charges (of all centers, atomic and dummy)
-and any net total charge of the system (Section \ref{sec:charge}) are
-used to determine the number of electrons.
+  and any net total charge of the system (Section \ref{sec:charge}) are
+  used to determine the number of electrons.
 \end{itemize}
 
 The Cartesian coordinates of the atom in the molecule are specified as
@@ -528,9 +530,9 @@ geometry
      CF2   1.3669 
      CF3   1.3669
    constants
-     HCH1  10428 
-     HCH2  10474 
-     HCH3  1047 
+     HCH1  104.28 
+     HCH2  104.74 
+     HCH3  104.7 
      CCF1  112.0713 
      CCF2  112.0341 
      CCF3  112.0340 
@@ -562,40 +564,28 @@ internal coordinates.  These are arranged as follows:
 \section{{\tt ZCOORD} --- Forcing internal coordinates}
 \label{sec:zcoord}
 
-Specifying the keyword \verb+AUTOZ+ on the first line of the \verb+GEOMETRY+
-directive forces automatic generation of internal
-coordinates for use in geometry optimizations.  Connectivity
-is inferred by comparing inter-atomic distances with van de Waals
-radii, and under some circumstances it may be necessary to augment the
+Specifying the keyword \verb+AUTOZ+ on the first line of the
+\verb+GEOMETRY+ directive forces automatic generation of internal
+coordinates for use in geometry optimizations.  Connectivity is
+inferred by comparing inter-atomic distances with van de Waals radii,
+and under some circumstances it may be necessary to augment the
 automatically generated list of internal coordinates.  This is
-accomplished by including the optional directive {\tt ZCOORD} within the geometry
-directive.  The general form of the \verb+ZCOORD+ directive is as follows,
+accomplished by including the optional directive {\tt ZCOORD} within
+the geometry directive.  The general form of the \verb+ZCOORD+
+directive is as follows,
 \begin{verbatim}
-         [ZCOORD
-              <ij_flag> <list_of_z-coordinate_variables>
-               ...
-          END]
+  ZCOORD
+     [ijbond  <integer i> <integer j>]
+     [ijkang  <integer i> <integer j> <integer k>]
+     [ijklto  <integer i> <integer j> <integer k> <integer l>]
+     [ijklop  <integer i> <integer j> <integer k> <integer l>]
+     [ijklnb  <integer i> <integer j> <integer k> <integer l>]
+  END
 \end{verbatim}
 
-% The centers \verb+i+, \verb+j+, \verb+k+ and \verb+l+ below {\em must} be
-% specified using number of the centers.
-The specific input that must be supplied for the \verb+i+, \verb+j+, \verb+k+, and
-\verb+l+ is described below.  The centers 
-\verb+i+, \verb+j+, \verb+k+ and \verb+l+ are numbered automatically in the
-order they are supplied on the input for the \verb+ZMATRIX+ directive.  The
-user must adhere to this convention when suppliying the \verb+ZCOORD+
-directive input described here.  The bond length and angles for the centers
-are defined as follows;
-
-\begin{verbatim}
-   ZCOORD
-     ijbond  i j
-     ijkang  i j k
-     ijklto  i j k l
-     ijklop  i j k l
-     ijklnb  i j k l
-   END
-\end{verbatim}
+The centers \verb+i+, \verb+j+, \verb+k+ and \verb+l+ {\em must}
+be specified using the number of the centers as supplied in the input
+for the \verb+ZMATRIX+ directive.  
 
 \begin{itemize}
 \item {\tt ijbond} --- a bond between the two centers.

@@ -1,34 +1,38 @@
 \label{sec:driver}
 
-The DRIVER module is one of two drivers to perform a geometry
-optimization function on the molecule defined by input using the
-\verb+GEOMETRY+ directive (see Section \ref{sec:geom}).  Geometry
-optimization is either an energy minimization or a transition state
-optimization. DRIVER is selected by default out of the two available
-modules to perform geometry optimization.  Selection of the other
-optimization driver STEPPER may be made through the use of a SET
-directive : ( SET OPT:DRIVER F ) .  Optional input for this module is
-specified within the compound directive,
+The DRIVER module is one of two drivers (see Section \ref{sec:stepper}
+for documentation on STEPPER) to perform a geometry optimization
+function on the molecule defined by input using the \verb+GEOMETRY+
+directive (see Section \ref{sec:geom}).  Geometry optimization is
+either an energy minimization or a transition state optimization.
+The algorithm programmed in DRIVER is a quasi-newton optimization
+with line searches and approximate energy hessian updates.
 
+DRIVER is selected by default out of the two available modules to
+perform geometry optimization.  In order to force use of DRIVER (e.g.,
+because a previous optimization used STEPPER) provide a DRIVER input
+block (below) --- even an empty block will force use of DRIVER.
+
+Optional input for this module is specified within the compound
+directive,
 \begin{verbatim}
   DRIVER 
     ...
   END
 \end{verbatim}
 
-The algorithm programmed in DRIVER is a quasi-newton optimization
-with line searches and approximate energy hessian updates.
-
 Input specified for the DRIVER module may appear anywhere in the input
-file.  In the current version of NWChem, DRIVER uses  geometries that
-are defined via Cartesian coordinates or internal coordinates. The
-latter may be user-defined with the ZMT input or may be automatically
-defined as a result of the AUTOZ option.  The initial guess nuclear
-Hessian is the identity matrix and there is an ASCII interface file to
-input a Hessian from another code.  The automatic generation of finite
-difference Hessians will be available soon. When internal coordinates
-are selected an appropriate initial hessian matrix is automatically
-created to match the internal coordinate definition.
+file preceding the \verb+TASK+ directive performing the optimization.
+In the current version of NWChem, DRIVER uses geometries that are
+defined via Cartesian coordinates or internal coordinates. The latter
+may be user-defined with the Z-matrix input (Section
+\ref{sec:Z-matrix}) or may be automatically generated using the
+\verb+AUTOZ+ option (Section \ref{sec:geomkeys}).  The initial guess
+nuclear Hessian is the identity matrix and there is an ASCII interface
+file to input a Hessian from another code.  The automatic generation
+of finite difference Hessians will be available soon. When internal
+coordinates are selected an appropriate initial hessian matrix is
+automatically created to match the internal coordinate definition.
 
 Execution of the DRIVER module calculation is invoked with a
 \verb+TASK+ directive (see Section \ref{sec:task}).
@@ -37,28 +41,36 @@ No input is required for DRIVER.  If no input is present the default
 actions are to minimize the energy as a function of the geometry with a
 maximum of 20 stepper iterations.
 
+\section{{\tt NTPOPT} --- Maximum number of steps}
+
 \begin{verbatim}
   NTPOPT  <integer nptopt  default 20>
 \end{verbatim}
 
-The value specified for the integer \verb+ntpopt+ defines the maximum 
+The value specified for the integer \verb+<ntpopt>+ defines the maximum 
 number of geometry optimization steps.  
+
+\section{{\tt CVGOPT} --- Convergence criterion}
 
 \begin{verbatim}
   CVGOPT  <real cvgopt  default 0.0008>
 \end{verbatim}
  
-The value specified for the real \verb+cvgopt+ defines the convergence
+The value specified for the real \verb+<cvgopt>+ defines the convergence
 threshold of the optimization algorithm. The convergence criterion is
 the largest component of the energy gradient for the coordinates used
 in the optimization ( cartesian or internal coordinates ).
+
+\section{{\tt LINOPT} --- Linear search}
 
 \begin{verbatim}
   LINOPT  <integer linopt  default 10>
 \end{verbatim}
 
-The value specified for the integer \verb+linopt+ defines the maximum 
+The value specified for the integer \verb+<linopt>+ defines the maximum 
 number of energy points during any linear search. 
+
+\section{{\tt INHESS} and {\tt MODUPD} --- Hessian update algorithm}
 
 \begin{verbatim}
   INHESS  <integer inhess  default 0>
@@ -68,18 +80,22 @@ number of energy points during any linear search.
   MODUPD  <integer modupt  default 1>
 \end{verbatim}
 
-The value specified for the integer \verb+modupd+ defines the hessian 
-update algorithm, Fletcher-Powell update ( modupd 0 ) or
-Broyden-Fletcher-Goldfar-Shanno update ( modupd 1 )
+The value specified for the integer \verb+<modupd>+ defines the hessian 
+update algorithm, Fletcher-Powell update (\verb+<modupd> = 0+) or
+Broyden-Fletcher-Goldfar-Shanno update (\verb+<modupd> =  1+)
+
+\section{{\tt MODSAD} --- Optimization mode}
 
 \begin{verbatim}
   MODSAD  <integer modsad  default 0>
 \end{verbatim}
 
 The value specified for the integer \verb+modsad+ defines the type   
-of optimization to be performed, an energy minimization ( modsad 0 )
-or a transition state optimization ( modsad 1 ).
+of optimization to be performed, an energy minimization
+(\verb+<modsad> = 0+)
+or a transition state optimization (\verb+<modsad> = 1+).
 
+\section{{\tt MODDIR} --- Normal mode selection}
 
 \begin{verbatim}
   MODDIR  <integer moddir  default 1>

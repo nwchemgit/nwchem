@@ -17,30 +17,18 @@ The formal scaling of the DFT computation can be reduced by choosing
 to use auxiliary gaussian basis sets to fit the charge density (CD) and/or 
 fit the exchange-correlation (XC) potential.
 
-The DFT module is invoked in NWChem 
-by specifying the keyword \verb+dft+ as a TASK directive, e.g.,
-
-\begin{verbatim}
-  TASK DFT
-\end{verbatim}
-
-The keyword \verb+dft+ tells the code that this is a compound directive
-potentially containing input for the DFT module.  Additional subdirectives
-may be specified by the user to define a particular
-problem.  The \verb+dft+ input will be processed until the
-\verb+END+ directive is encountered.  
-
+DFT input is provided using the compound \verb+DFT+ directive
 \begin{verbatim}
   DFT
     ...
   END
 \end{verbatim}
 
-The actual DFT calculation will
-be performed when the input module encounters the \verb+TASK+ directive.
-Refer to the \verb+TASK+ directive description in
-Section \ref{sec:task} for a complete list of operations that can be
-specified in the DFT module.  
+The actual DFT calculation will be performed when the input module
+encounters the \verb+TASK+ directive (Section \ref{sec:task}).  
+\begin{verbatim}
+  TASK DFT
+\end{verbatim}
 
 Once a user has specified a geometry and a Kohn-Sham orbital basis set
 the DFT module can be invoked with no input directives (defaults 
@@ -643,7 +631,7 @@ would be interpreted as 80 radial points, 20 theta points, and 40
 phi points per center (or 64000 points per center before pruning).
 
 A second quadrature available for the numerical integration is an
-Euler-MacLaurin scheme for the radial components and a Lebedev
+Euler-Mac\-Laurin scheme for the radial components and a Lebedev
 scheme for the angular components\footnote{The subroutine 
 for the Lebedev grid was supplied by M.~Caus\`a of the University of
 Torino.}.  Within this numerical integration procedure various levels 

@@ -318,10 +318,14 @@ those centers.  Two parameters must be set as follows:
   set atomscf:z      <real list_of_charges>
 \end{verbatim}
 
-The arrary of strings \verb+atomscf:tags_z+ should be set to the list
-of tags and array \verb+atomscf:z+ should be set to the list of tags.
-All atoms that have the same tag as one specified in this list will be
-assigned the corresponding charge.
+\sloppy
+
+The array of strings \verb+atomscf:tags_z+ should be set to the list
+of tags, and the array \verb+atomscf:z+ should be set to the list of
+charges.  All atoms that have the same tag as one specified in this
+list will be assigned the corresponding charge.
+
+\fussy
 
 For example, the following specifies that all oxygen atoms with tag
 \verb+O+ be assigned a charge of \verb+-1+ and all iron atoms with tag
@@ -412,7 +416,7 @@ V-approximation of Alml\"{o}f and Vahtras) is automatically invoked if
 a basis set named \verb+"riscf basis"+ is present in the database.
 This basis will be used as the fitting basis.  The RI-SCF method
 provides most computational speedup with least loss of accuracy when
-applied to relatively small molecules in larage basis sets.
+applied to relatively small molecules in large basis sets.
 Calculations on large molecules in modest basis sets will not realize
 a significant performance gain from RISCF.
 
@@ -610,12 +614,13 @@ If integrals are stored with a threshold of greater than $10^{-10}$,
 then the integrals themselves are stored in a 32-bit fixed-point
 format (with special treatment for large values to retain precision).
 If integrals are stored with a threshold that is less than $10^{-10}$,
-howwever, the values are stored in 64-bit floating-point format.  If a
+however, the values are stored in 64-bit floating-point format.  If a
 replicated-data calculation is being run, then 8 bits are used for
 each basis function label, unless there are more than 256 functions,
 in which case 16 bits are used.  If distributed-data is being used,
 then the labels are always packed to 8-bits (the distributed blocks
-always being less than 256).
+always being less than 256 and labels are relative to the start of the
+block).
 
 Thus, the number ($W$) of 64-bit words required to store $N$
 integrals, may be computed as
@@ -681,10 +686,10 @@ This information may be used to optimize subsequent calculations.
 
 {\em Note to users:} It is desired that the SCF program converge
 reliably with the default options for a wide variety of molecules.  In
-addition it should be guaranteed to converge sufficient iterations for
-any system.  Please report significant convergence problems to
-\verb+nwchem+-\verb+support@+\-\verb+emsl.pnl.gov+, including the
-input file. 
+addition, it should be guaranteed to converge sufficient with
+iterations for any system.  Please report significant convergence
+problems to \verb+nwchem+-\verb+support@+\-\verb+emsl.pnl.gov+,
+including the input file.
 
 % An understanding of the output of the SCF program and the options
 % controlling convergence requires some knowledge of the convergence
