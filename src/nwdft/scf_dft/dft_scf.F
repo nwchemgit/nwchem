@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.226 2002-10-30 21:38:12 edo Exp $
+c     $Id: dft_scf.F,v 1.227 2002-12-18 02:41:27 edo Exp $
 c     
       implicit none
 c
@@ -135,7 +135,7 @@ c
 c
 c     slow switching of annealing
 c
-      double precision smear_in,ss,dft_rabuck
+      double precision smear_in,ss,dft_rabuck,pstrace
       integer n_dep
       integer n_rabuck
       logical rabuck_act,spinset
@@ -455,6 +455,12 @@ c
      &        ssmear,tdots,iter,.false.,
      .        fon, nel_fon,nmo_fon,
      .        spinset.or.n_rabuck.ne.0)
+
+         if(oprint_info) then
+            pstrace=ga_ddot(g_dens,g_s)
+            if(ga_nodeid().eq.0) write(luout,*) ' pstrace ',pstrace
+         endif
+
 c
 c  Jorge Garza/Begin/Exact_pot
 c
@@ -505,7 +511,11 @@ c
 c     set initial coulomb acc
 c
 c      write(LuOut,*)' movecs_guess = ',movecs_guess
-      if (movecs_guess.eq.'restart')ltight=.true.
+      if (movecs_guess.eq.'restart') then
+         ltight=.true.
+         homo_lumo_gap=dbl_mb(k_eval(1)+noc(1)) -
+     -        dbl_mb(k_eval(1)+noc(1)-1)
+      endif
 c     
 c     May not want levelshifting initially until sure that the
 c     transformed Fock matrix will be diagonally dominant, or
@@ -801,6 +811,10 @@ c
      &     ssmear,tdots,iter,.true.,
      .        fon, nel_fon,nmo_fon,
      .        spinset.or.n_rabuck.ne.0)                                         
+      if(oprint_info) then
+         pstrace=ga_ddot(g_dens,g_s)
+         if(ga_nodeid().eq.0) write(luout,*) ' pstrace ',pstrace
+      endif
 
       if (oprint_time)
      &     call dft_tstamp(' called densm ')

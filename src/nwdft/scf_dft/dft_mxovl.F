@@ -2,7 +2,7 @@
      ,     g_evecs, g_oevecs, g_s,g_tmp,
      ,     noc,oprint,homo,lumo)
 
-C$Id: dft_mxovl.F,v 1.11 2001-10-09 02:04:34 edo Exp $
+C$Id: dft_mxovl.F,v 1.12 2002-12-18 02:41:27 edo Exp $
       Implicit none
 #include "bas.fh"
 #include "cdft.fh"
@@ -114,8 +114,9 @@ c
          enddo
       endif
       if (me.eq.0 .and. oprint)
-     &     write(LuOut,3224)homo, lumo
- 3224    format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2)
+     &     write(LuOut,3225)homo, lumo
+ 3224 format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2)
+ 3225 format(4x,' MXOVL HOMO = ',f6.2,' LUMO = ',f6.2)
       
       return
       end
