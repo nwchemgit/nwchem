@@ -1,5 +1,88 @@
+      logical function sym_atom(geom, iat, q1)
+      implicit none
+      integer geom              ! Geometry handle [input]
+      integer iat               ! Atom index [input]
+      double precision q1       ! Constituency number [output]
+c
+c     Return true if (iatom) is the lexically highest atom
+c     symmetry equivalent atoms. If true also return the
+c     constituency factor q1 (= no. of symmetry equivalent atoms)
+c
+c     As an optimization inline sym_center_map ... the only reason
+c     geomP.fh and mafdecls.fh are included here ... the interface
+c     is compatible with that of the actual routine.
+c
+#include "geomP.fh"
+#include "mafdecls.fh"
+      integer iat_new
+      integer nops, op
+      integer n                 ! Counts no. of equivalent pairs
+      integer sym_number_ops, sym_center_map_inline
+      external sym_number_ops
+#include "itri.fh"
+      sym_center_map_inline(geom,iat,op) = int_mb(op - 1 + 
+     $     sym_center_map_index(geom) + (iat-1)*sym_num_ops(geom))
+c
+      q1 = 0.0d0
+      sym_atom = .false.
+c
+c     Loop thru operations in the group and map to new pairs
+c
+      nops = sym_number_ops(geom)
+      n = 1                     ! Identity always counts
+      do op = 1, nops
+c
+c     Map centers
+c
+         iat_new = sym_center_map_inline(geom, iat, op)
+c
+c     Compare index
+c
+         if (iat .lt. iat_new) then
+            return
+         else if (iat .eq. iat_new) then
+            n = n + 1
+         endif
+      end do
+c
+      q1 = dfloat(nops + 1) / dfloat(n)
+      sym_atom = .true.
+c
+      end
+      logical function sym_shell(basis, ishell, q1)
+C$Id: sym_sh_pair.F,v 1.3 1997-03-04 01:12:35 d3g681 Exp $
+      implicit none
+#include "bas.fh"
+#include "geom.fh"      
+#include "global.fh"
+      integer basis             ! Basis set handle [input]
+      integer ishell            ! Shell index [input]
+      double precision q1       ! Constituency number [output]
+c
+c     Return true if (ishell) is the lexically highest shell
+c     of symmetry equivalent shells. If true, also return the
+c     constituency factor q1 (= no. of symmetry equivalent shells).
+c
+      integer ice
+      integer geom
+      logical sym_atom
+      external sym_atom
+c
+      sym_shell = .false.
+c
+c     Get geometry handle, centers where shells are located and
+c     number of group operations
+c
+      if (.not. bas_geom(basis, geom)) call errquit
+     $     ('sym_shell: bas_geom?', 0)
+      if (.not. bas_cn2ce(basis, ishell, ice)) call errquit
+     $     ('sym_shell_pair: bas_cn2ce', ishell)
+c
+      sym_shell = sym_atom(geom, ice, q1)
+c
+      end
       logical function sym_shell_pair(basis, ishell, jshell, q2)
-C$Id: sym_sh_pair.F,v 1.2 1996-01-10 16:00:52 d3g681 Exp $
+C$Id: sym_sh_pair.F,v 1.3 1997-03-04 01:12:35 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"      
