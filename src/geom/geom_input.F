@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.64 1997-07-02 17:05:34 mdupuis Exp $
+C     $Id: geom_input.F,v 1.65 1997-07-02 20:21:25 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -3166,10 +3166,8 @@ C
          CALL ERRQUIT('GEOM_ZMT_OPN_FIL?',911)
       ENDIF
       STATUS=RTDB_PARALLEL(.FALSE.)
-c--   IF( GA_NODEID().EQ.0) THEN
-         IF(.NOT.GEOM_ZMT_PUT_ZSYM(DBL_MB(I10),NZVAR,NDIM))
+      IF(.NOT.GEOM_ZMT_PUT_ZSYM(DBL_MB(I10),NZVAR,NDIM))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZIND FAILED',0)
-c--   ENDIF
       CALL GA_SYNC
       STATUS=RTDB_PARALLEL(.TRUE.)
 C
@@ -3502,12 +3500,10 @@ C
 C     ----- STORE FOR -NWCHEM- -----
 C
       STATUS=RTDB_PARALLEL(.FALSE.)
-c--   IF( GA_NODEID().EQ.0) THEN
-         IF(.NOT.GEOM_ZMT_PUT_ZMAT(GEOM,ZMAT,NZVAR))
+      IF(.NOT.GEOM_ZMT_PUT_ZMAT(GEOM,ZMAT,NZVAR))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZMAT FAILED',0)
-         IF(.NOT.GEOM_ZMT_PUT_BMAT(B   ,NCART,NZVAR,NCART))
+      IF(.NOT.GEOM_ZMT_PUT_BMAT(B   ,NCART,NZVAR,NCART))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_BMAT FAILED',0)
-c--   ENDIF
       CALL GA_SYNC()
       STATUS=RTDB_PARALLEL(.TRUE.)
 C
