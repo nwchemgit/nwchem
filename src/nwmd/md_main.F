@@ -43,6 +43,25 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
+      lpair=.true.
+      llong=ltwin
+c
+c     center of mass coordinates
+c
+      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
+     + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
+     + dbl_mb(i_xs),dbl_mb(i_xsm))
+c
+c     initialize cf
+c
+      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
+     + dbl_mb(i_esw),dbl_mb(i_ess))
+c
+c     atomic forces and potential energies
+c
+      call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+c
       return
       end
       subroutine md_em()
@@ -452,12 +471,6 @@ c
       call md_shake(dbl_mb(i_xw),dbl_mb(i_yw),int_mb(i_iw),
      + dbl_mb(i_xs),dbl_mb(i_ys),int_mb(i_is),dxmax)
 c
-c     center of mass coordinates
-c
-      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
-     + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
-     + dbl_mb(i_xs),dbl_mb(i_xsm))
-c
 c     coordinate scaling
 c
       call cf_final(dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_yw),
@@ -466,7 +479,13 @@ c
      + dbl_mb(i_vst),int_mb(i_is+(lsatt-1)*msa),
      + int_mb(i_is+(lsmol-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
      + int_mb(i_is+(lsfrc-1)*msa),dbl_mb(i_zs),
-     + dbl_mb(i_esk),nsaloc,box,pres,temp,tempw,temps)
+     + dbl_mb(i_esk),nsaloc,box,vlat,pres,temp,tempw,temps)
+c
+c     center of mass coordinates
+c
+      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
+     + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
+     + dbl_mb(i_xs),dbl_mb(i_xsm))
 c
 c     velocity scaling to preset temperature
 c

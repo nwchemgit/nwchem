@@ -46,7 +46,7 @@ c
       call prp_start(nserie,ntype,lfnrst,filrst,lfnout,lfnprp,
      + lfngib,nfoutp,nfstat,nfprop,
      + .true.,.true.,ltwin,ipolt.ne.0,
-     + iewald.ne.0,nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2)
+     + iewald.ne.0,nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -118,7 +118,7 @@ c     calculate mass factors
 c     ----------------------
 c
       call cf_weight(nwmloc,nsaloc,int_mb(i_is+(lsatt-1)*msa),
-     + int_mb(i_is+(lsmol-1)*msa))
+     + int_mb(i_is+(lsmol-1)*msa),wbox)
 c
 c     calculate centers of mass
 c     -------------------------
@@ -131,6 +131,8 @@ c     print decomposition information
 c     -------------------------------
 c
       call sp_print(lfnout)
+c
+      call prp_setup(wbox)
 c
       return
       end
@@ -1006,7 +1008,7 @@ c
 c
 c     only 3D-periodic boundary systems can be at constant pressure
 c
-      if(npbtyp.ne.1) ipscal=0
+c      if(npbtyp.ne.1) ipscal=0
 c
       lstate=rtdb_parallel(.true.)
 c

@@ -118,6 +118,7 @@ c
       if(me.eq.0) then
       p(12)=volume
       p(14)=pres
+      p(13)=1.6605655d0*wbox/volume
       p(15)=prsscl
       p(16)=temp
       p(17)=tempw
@@ -422,8 +423,8 @@ c
      + ' Free Energy Free Energy Free Energy  Sampling',/,18x,
      + '     Average       Error       Drift',
      + ' Accumulated       Error       Drift     Ratio',/,18x,
-     + '      kJ/mol      kJ/mol      kJ/mol',
-     + '      kJ/mol      kJ/mol      kJ/mol',/)
+     + '      kJ/mol      kJ/mol   kJ/mol ps',
+     + '      kJ/mol      kJ/mol   kJ/mol ps',/)
       else
       write(lfnout,1001) pdate,ptime
  1001 format(/' MULTISTEP THERMODYNAMIC PERTURBATION',
@@ -457,8 +458,8 @@ c
       errti=errti+(dcerr*dlambd)**2
       drftti=drftti+ddrft*dlambd
 c
-      write(lfnout,1002) i,rlambd,nderiv,dfree,dcerr,ddrft,
-     + freeti,sqrt(errti),drftti,ratio
+      write(lfnout,1002) i,rlambd,nderiv,dfree,dcerr,ddrft/tstep,
+     + freeti,sqrt(errti),drftti/tstep,ratio
  1002 format(i4,f7.3,i7,2(f12.3,2f12.6),f10.5)
 c
       else

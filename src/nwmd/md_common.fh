@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.8 1999-05-04 19:36:10 d3j191 Exp $
+c $Id: md_common.fh,v 1.9 1999-05-06 23:14:08 d3j191 Exp $
 c
 c     parameters
 c
@@ -170,9 +170,9 @@ c
      + msf,nsf
 c
       real*8 temps,tempw,temp,pres,epme,eww(mpe,2),zw(3,2),fmax,fnorm,
-     + vlat(3,3),vlati(3,3),box(3),rlambd,dlambd
+     + vlat(3,3),vlati(3,3),box(3),rlambd,dlambd,wbox
       common/md_pro/temps,tempw,temp,pres,epme,eww,zw,fmax,fnorm,
-     + vlat,vlati,box,rlambd,dlambd
+     + vlat,vlati,box,rlambd,dlambd,wbox
 c
       integer i_esk,l_esk,i_ess,l_ess,i_esw,l_esw,i_rtos,l_rtos,
      + i_iw,l_iw,i_is,l_is,i_xw,l_xw,i_xs,l_xs,i_fw,l_fw,i_fs,l_fs,

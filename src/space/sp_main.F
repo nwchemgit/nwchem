@@ -54,10 +54,15 @@ c
      + int_mb(i_ipl))
 c
       do 1 j=1,3
+      box(j)=vlat(j,j)
+      boxh(j)=half*box(j)
       do 2 i=1,3
       vlat(i,j)=vlatt(i,j)
+      vlati(i,j)=vlatt(i,j)
     2 continue
     1 continue
+c
+      call matinv(vlati,3,3)
 c
       if(me.eq.node) then
       nwmloc=numwm

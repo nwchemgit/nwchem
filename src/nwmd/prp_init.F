@@ -1,7 +1,7 @@
       subroutine prp_start(nserie,ntyp,lfn,fil,iout,iprp,igib,
      + nf1,nf2,nf3,
      + lcf,lsp,ltwn,lpol,lpme,
-     + nwm,msfi,nsfi,mpei,mdacq,mrn,iset,isetp1,isetp2)
+     + nwm,msfi,nsfi,mpei,mdacq,mrn,iset,isetp1,isetp2,tstp)
 c
       implicit none
 c
@@ -13,6 +13,7 @@ c
       integer nwm,msfi,nsfi,mpei,nf1,nf2,nf3
       integer mdacq,mrn,iset,isetp1,isetp2
       logical lcf,lsp,ltwn,lpol,lpme
+      real*8 tstp
       character*255 fil
 c
       integer i,j,it
@@ -36,6 +37,8 @@ c
       nfstat=nf2
       nfprop=nf3
       mrun=mrn
+c
+      tstep=tstp
 c
       lpert2=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.2.or.isetp2.eq.2))
       lpert3=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.3.or.isetp2.eq.3))
@@ -394,6 +397,18 @@ c
       if(.not.ma_pop_stack(l_dfr))
      + call errquit('Failed to deallocate dfr',me)
       endif
+c
+      return
+      end
+      subroutine prp_setup(wbx)
+c
+      implicit none
+c
+#include "prp_common.fh"
+c
+      real*8 wbx
+c
+      wbox=wbx
 c
       return
       end

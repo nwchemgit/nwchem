@@ -28,10 +28,11 @@ c
       real*8 pslop(250),pslopt(250)
       real*8 tsum,t2sum,tsumt,t2sumt
       real*8 dfree,deriv(24)
+      real*8 tstep,wbox
       integer ntype,nprop,isprop,ixp(250),nsum,nsumt,nderiv
       logical lp(250)
       common/prp_pro/p,psum,psumt,p2sum,p2sumt,pslop,pslopt,
-     + tsum,t2sum,tsumt,t2sumt,
+     + tsum,t2sum,tsumt,t2sumt,tstep,wbox,
      + dfree,deriv,
      + ixp,ntype,nprop,isprop,nsum,nsumt,nderiv,
      + lp

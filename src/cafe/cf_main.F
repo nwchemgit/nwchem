@@ -1,4 +1,4 @@
-      subroutine cf_weight(numw,nums,isat,isml)
+      subroutine cf_weight(numw,nums,isat,isml,wbx)
 c
       implicit none
 c
@@ -6,9 +6,12 @@ c
 #include "mafdecls.fh"
 c
       integer numw,nums,isat(msa),isml(msa)
+      real*8 wbx
 c
       call cf_wbox(numw,nums,int_mb(i_iwa),isat,isml,
      + dbl_mb(i_wsm),dbl_mb(i_mas))
+c
+      wbx=wbox
 c
       return
       end
@@ -595,7 +598,7 @@ c
       end
       subroutine cf_final(xw,xwm,yw,vw,vwt,numw,
      + xs,xsm,ys,vs,vst,isat,ismol,isdyn,isfrc,zs,esk,nums,
-     + bx,prs,tmp,tmpw,tmps)
+     + bx,vl,prs,tmp,tmpw,tmps)
 c
       implicit none
 c
@@ -608,35 +611,38 @@ c
       real*8 xw(mwm,3,mwa),xwm(mwm,3),yw(mwm,3,mwa)
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa)
       real*8 xs(msa,3),xsm(msm,3),ys(msa,3),vs(msa,3),vst(msa,3)
-      real*8 zs(msf,3,2),bx(3),prs,tmp,tmpw,tmps,esk(msf)
+      real*8 zs(msf,3,2),bx(3),prs,tmp,tmpw,tmps,esk(msf),vl(3,3)
       integer isat(msa),ismol(msa),isdyn(msa),isfrc(msa)
       integer numw,nums
 c
       integer i,j,k
       real*8 z,prssc3,rdata(4),xwcd,xscd,eskin
 c
+      call cf_vw(xw,yw,vw,vwt,numw,int_mb(i_iwa),dbl_mb(i_mas))
+      call cf_vs(xs,ys,vs,vst,esk,nums,isat,ismol,isfrc,dbl_mb(i_mas))
+c
       if(ltwin) then
-      do 8 i=1,3
+      do 1 i=1,3
       zw(i,1)=zw(i,1)+zw(i,2)
-    8 continue
-      do 9 i=1,nsf
-      do 10 j=1,3
+    1 continue
+      do 2 i=1,nsf
+      do 3 j=1,3
       zs(i,j,1)=zs(i,j,1)+zs(i,j,2)
-   10 continue
-    9 continue
+    3 continue
+    2 continue
       ep2(1)=ep2(1)+ep2(2)
       ep3(1)=ep3(1)+ep3(2)
       if(ntype.eq.3) then
-      do 11 i=1,24
+      do 4 i=1,24
       deriv(i,1)=deriv(i,1)+deriv(i,2)
-   11 continue
+    4 continue
       endif
       endif
 c
       z=zw(1,1)+zw(2,1)+zw(3,1)
-      do 1 i=1,nsf
+      do 5 i=1,nsf
       z=z+zs(i,1,1)+zs(i,2,1)+zs(i,3,1)
-    1 continue
+    5 continue
 c
       call ga_dgop(mcf_38,z,1,'+')
 c
@@ -669,39 +675,43 @@ c
       pscale=rdata(4)
       endif
 c
+      do 6 i=1,3
+      do 7 j=1,3
+      vlat(i,j)=pscale*vlat(i,j)
+    7 continue
+    6 continue
+c
       call cf_volume()
 c
       pscalm=pscale-one
 c
       if(numw.gt.0) then
-      do 2 j=1,3
-      do 3 i=1,numw
+      do 8 j=1,3
+      do 9 i=1,numw
       xwcd=pscalm*xwm(i,j)
       xwm(i,j)=xwm(i,j)+xwcd
-      do 4 k=1,nwa
+      do 10 k=1,nwa
       xw(i,j,k)=xw(i,j,k)+xwcd
-    4 continue
-    3 continue
-    2 continue
+   10 continue
+    9 continue
+    8 continue
       endif
 c
       if(nums.gt.0) then
-      do 5 j=1,3
-      do 6 k=1,nsm
+      do 11 j=1,3
+      do 12 k=1,nsm
       xscd=pscalm*xsm(k,j)
       xsm(k,j)=xsm(k,j)+xscd
-      do 7 i=1,nums
+      do 13 i=1,nums
       if(ismol(i).eq.k.and.
      + iand(isdyn(i),mfixed).ne.lfixed) xs(i,j)=xs(i,j)+xscd
-    7 continue
-    6 continue
-    5 continue
+   13 continue
+   12 continue
+   11 continue
       endif
 c
       endif
 c
-      call cf_vw(xw,yw,vw,vwt,numw,int_mb(i_iwa),dbl_mb(i_mas))
-      call cf_vs(xs,ys,vs,vst,esk,nums,isat,ismol,isfrc,dbl_mb(i_mas))
 c
       if(np.gt.1) then
       call ga_dgop(mcf_40,ewk,1,'+')
@@ -710,9 +720,9 @@ c
       endif
 c
       eskin=zero
-      do 123 i=1,nsf
+      do 14 i=1,nsf
       eskin=eskin+esk(i)
-  123 continue
+   14 continue
 c
       tempw=factmw*ewk
       temps=factms*eskin
@@ -722,6 +732,14 @@ c
       tmp=temp
       tmpw=tempw
       temps=temps
+c
+      do 15 i=1,3
+      bx(i)=box(i)
+      boxh(i)=half*box(i)
+      do 16 j=1,3
+      vl(i,j)=vlat(i,j)
+   16 continue
+   15 continue
 c
       return
       end
