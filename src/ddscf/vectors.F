@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.37 2001-12-28 20:28:05 d3k958 Exp $
+C$Id: vectors.F,v 1.38 2001-12-28 20:48:44 edo Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -362,6 +362,14 @@ c
 c
 c
       ok = 0
+c
+c Write scf energy at the end of the movecs file. If energy
+c is not in rtdb, it's given a value of zero.
+c
+      write(key,'(a,'':energy'')') scftype(1:inp_strlen(scftype))
+      if (.not. rtdb_get(rtdb, key, mt_dbl, 1, energy)) then
+        energy=0.0d0
+      endif
       if (ga_nodeid() .eq. 0) then
          if (nsets .gt. 2) then
             write(6,*) ' movecs_write: nsets > 2 ', nsets
@@ -403,10 +411,6 @@ c
 c Write scf energy at the end of the movecs file. If energy
 c is not in rtdb, it's given a value of zero.
 c
-         write(key,'(a,'':energy'')') scftype(1:inp_strlen(scftype))
-         if (.not. rtdb_get(rtdb, key, mt_dbl, 1, energy)) then
-           energy=0.0d0
-         endif
          write(unitno, err=1001) energy
 c         
          close(unitno,err=1002)
