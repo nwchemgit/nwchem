@@ -3,7 +3,7 @@ C NAME
 C     Corr_Mk_Ref -- Create reference for correlated calculation
 C
 C REVISION
-C     $Id: corr_mk_ref.F,v 1.8 2000-11-23 01:39:06 edo Exp $
+C     $Id: corr_mk_ref.F,v 1.9 2000-11-24 05:25:03 edo Exp $
 C
 C SYNOPSIS
       Logical Function Corr_Mk_Ref(RTDB, Mod, Geom, Basis, DoSCF, 
@@ -441,11 +441,11 @@ C
      $        G_Vec(SpinMap(Spin)), 1, NAO, Lo, Hi,
      $        G_RefVec(Spin),       1, NAO, 1,  RefNMO(Spin) )
 C
-         Call scopy(RefNMO(Spin),
+         Call dcopy(RefNMO(Spin),
      $        Dbl_MB(I_Occ    + NAO*(SpinMap(Spin)-1) + Lo - 1), 1,
      $        Dbl_MB(I_RefOcc + NAO*(Spin-1)),                   1)
 C
-         Call scopy(RefNMO(Spin),
+         Call dcopy(RefNMO(Spin),
      $        Dbl_MB(I_EVal    + NAO*(SpinMap(Spin)-1) + Lo - 1), 1,
      $        Dbl_MB(I_RefEVal + NAO*(Spin-1)),                   1)
       EndDo
