@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.29 1996-09-27 22:47:03 d3g681 Exp $
+c $Id: texas_face.F,v 1.30 1996-10-22 08:19:24 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -957,7 +957,8 @@ c this above should not be used
 c assume 8Kb cache - change it for best efficiency
       icache=1024
 c assume 32 M memory
-      memreal=8 388 608
+*     memreal=8 388 608  ! RJH ... shurley not, ed.
+      memreal=4 194 304
 c these variables can be changed
 c------------------------------------
 c All two-electron integrals program options

@@ -32,7 +32,7 @@ c Check out how many atoms of the same type the
 c molecule contains and decide which blocking
 c procedure will be used :
 c
-      if(iroute.eq.0) call whichblk(dbl_mb(inuc),na,iroute)
+      if(iroute.eq.0) call whichblk(dbl_mb(inuc),na,inx,ncs,iroute)
 c 
 c output iroute (=1 or =2) ( stored in the common /route/
 c
@@ -2405,17 +2405,19 @@ c
 c
       end
 c======================================================================
-      subroutine whichblk(datnuc,natoms,iroute)
+      subroutine whichblk(datnuc,natoms,inx,ncs,iroute)
       implicit real*8 (a-h,o-z)
       dimension datnuc(5,*)
       dimension n(0:104)        ! rjh
+      integer inx(12,*)
+      integer ncs
 c     
 c     RJH. I think that this routine attempts to decide if texas
 c     93 would be faster than 95.  It breaks if the charge
 c     on a dummy center is less than one or greater than 104.
 c     
 c     For now extend n() to start from 0 and ignore atoms with 
-c     negative or >104 charge since the probably won't have 
+c     negative or >104 charge since they probably won't have 
 c     any basis functions on them.
 c     
       iroute=1
@@ -2447,7 +2449,22 @@ c
          if(n(iel).gt.0) ntypes=ntypes+1
  30   continue
 c     
-      if( (natoms/ntypes) .ge.2 ) iroute=2
+      if( (natoms/ntypes) .ge.2 ) then
+*         write(6,*) ' TEXAS 95 because of many similar atoms'
+         iroute=2
+      endif
+c
+c     If there are G or higher functions force the use of texas 93
+c     since it will use much less memory
+c
+      maxtype = 0
+      do ics = 1, ncs
+         maxtype = max(maxtype,inx(12,ics))
+      enddo
+      if (maxtype .ge. 8) then
+*         write(6,*) ' TEXAS 93 because of high angular momentum'
+         iroute = 1
+      endif
 c     
       end
 c======================================================================
