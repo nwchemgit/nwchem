@@ -1,5 +1,5 @@
 c
-c $Id: cgsd_input.F,v 1.8 2002-01-15 19:43:41 bylaska Exp $
+c $Id: cgsd_input.F,v 1.9 2003-02-12 02:17:41 bylaska Exp $
 c
       subroutine cgsd_input(rtdb)
       implicit none
@@ -111,7 +111,7 @@ c
      >     call errquit(
      >          'cgsd_input: failed to read input_wavefunction', 0)
       ind = index(input_wavefunction_filename,' ') - 1
-      value = rtdb_cput(rtdb,'cgsd:input_wavefunction_filename',
+      value = rtdb_cput(rtdb,'pspw:input vectors',
      >                    1,input_wavefunction_filename(1:ind))
 
 *     *********************************
@@ -131,7 +131,7 @@ c
      >     call errquit(
      >          'cgsd_input: failed to read output_wavefunction', 0)
       ind = index(output_wavefunction_filename,' ') - 1
-      value = rtdb_cput(rtdb,'cgsd:output_wavefunction_filename',
+      value = rtdb_cput(rtdb,'pspw:output vectors',
      >                    1,output_wavefunction_filename(1:ind))
       if (.not.value) 
      >  call errquit('cgsd_input: failed to write output vectors',0)
