@@ -11,7 +11,7 @@ md
  isobar 1.025e5 trelax 0.4
  pme grid 64 order 4 nodes 16
  load pairs 10 size 0.75
- record coord 0 rest 0 prop 0 sync 1 scoor 0 times 1
+ record rest 0 prop 0 sync 1 scoor 1 times 1
  update pairs 1
  boxes 6 6 6
  test 10
