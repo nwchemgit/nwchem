@@ -40,6 +40,7 @@ c
        logical oprinfo, oprhigh
        logical ohalf
        logical ocisolve
+       logical oblk
        integer ciiterlo, ciiterhi                         ! Iteration range for CI solution
 c
        integer ga_create_atom_blocked
@@ -48,7 +49,7 @@ c
        external ga_create_JKblocked
 c
        data ohalf/.true./
-       data blen/16/
+       data blen/25/
 c
 c
 c
@@ -233,13 +234,17 @@ c
        noper = (nact*(nact+1))/2
        g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb Oper')
        g_exch = ga_create_JKblocked(noper,nbf,nbf,'X Oper')
+       if (.not.rtdb_get(rtdb,'mcscf:aoblock',MT_LOG,1,oblk)) then
+         if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,1,oblk))
+     $      oblk = .false.
+       endif
 c
 c   Initial 4-Index Tranformation
 c
        call moints_build_2x( basis, ohalf, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .true., blen )
+     $                       g_exch, .true., blen, oblk )
 c
 c   Core energy
 c
@@ -391,7 +396,7 @@ c
        call moints_build_2x( basis, ohalf, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .true., blen )
+     $                       g_exch, .true., blen, oblk )
        call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
      $                   g_coul, g_exch, g_hcore )
        ocivecprint = util_print('converged civec',print_default)
@@ -436,7 +441,7 @@ c
          call moints_build_2x( basis, ohalf, oskel,
      $                         mo_lo, mo_lo, mo_hi, 1, nbf,
      $                         g_movecs, g_coul, .true.,
-     $                         g_exch, .true., blen )
+     $                         g_exch, .true., blen, oblk )
          call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
      $                     g_coul, g_exch, g_hcore )
          ocivecprint = util_print('civec',print_debug)

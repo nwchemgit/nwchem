@@ -193,6 +193,26 @@ c$$$
       return
       end
 
+
+
+      subroutine mcscf_trprint(n,x)
+      implicit none
+      integer n
+      double precision x(*)
+      integer i, ii, j, itop
+
+      do i=1,n
+        ii = (i*(i-1))/2
+        itop = min(10,i)
+        write(6,922) (x(ii+j),j=1,itop)
+ 922    format(10f12.6)
+      enddo
+      return
+      end
+
+
+
+
       
 
 
@@ -245,6 +265,7 @@ c
        double precision tol2e, gnorm, xx
        logical oskel
        logical ohalf
+       logical oblk
 c
 c---------------------
 c  Debugging variables
@@ -390,13 +411,17 @@ c
        noper = (nact*(nact+1))/2
        g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb Oper')
        g_exch = ga_create_JKblocked(noper,nbf,nbf,'X Oper')
+       if (.not.rtdb_get(rtdb,'mcscf:aoblock',MT_LOG,1,oblk)) then
+         if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,1,oblk))
+     $      oblk = .false.
+       endif
 c
 c   Initial 4-Index Tranformation
 c
        call moints_build_2x( basis, ohalf, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .true., blen )
+     $                       g_exch, .true., blen, oblk )
 c
 c   Initial core energy
 c
@@ -433,47 +458,47 @@ c
 c  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
 c     
-       call mcscf_naturalorb( nbf, nclosed, nact, dbl_mb(k_dm1),
-     $                        dbl_mb(k_occ), evals, g_movecs )
+c$$$       call mcscf_naturalorb( nbf, nclosed, nact, dbl_mb(k_dm1),
+c$$$     $                        dbl_mb(k_occ), evals, g_movecs )
 c
 c  Print natural orbitals
 c
-       write(6,880)
- 880   format(///,10x,'Natural Orbitals and Occupation')
-       if (.not.ma_push_get(MT_DBL, (nbf*(nclosed+nact)), 'tmp',
-     $                     l_tmp, k_tmp))
-     $      call errquit('mcscf: cannot allocate local MO',0)
-       call ga_get(g_movecs, 1, nbf, 1, (nclosed+nact),
-     $                       dbl_mb(k_tmp), nbf)
-       chi = 0
- 33    clo = chi + 1
-       chi = min((clo + 7),(nact+nclosed))
-       write(6,*)
-       write(6,881) (dbl_mb(k_occ+i-1),i=clo,chi)
- 881   format(8f12.6)
-       write(6,*)
-       do i=1,nbf
-         write(6,881) (dbl_mb(k_tmp+(j-1)*nbf+i-1),j=clo,chi)
-       enddo
-       if (chi.ne.(nact+nclosed)) goto 33
-       if (.not.ma_pop_stack(l_tmp))
-     $      call errquit('mcscf: cannot pop local MO',0)
+c$$$       write(6,880)
+c$$$ 880   format(///,10x,'Natural Orbitals and Occupation')
+c$$$       if (.not.ma_push_get(MT_DBL, (nbf*(nclosed+nact)), 'tmp',
+c$$$     $                     l_tmp, k_tmp))
+c$$$     $      call errquit('mcscf: cannot allocate local MO',0)
+c$$$       call ga_get(g_movecs, 1, nbf, 1, (nclosed+nact),
+c$$$     $                       dbl_mb(k_tmp), nbf)
+c$$$       chi = 0
+c$$$ 33    clo = chi + 1
+c$$$       chi = min((clo + 7),(nact+nclosed))
+c$$$       write(6,*)
+c$$$       write(6,881) (dbl_mb(k_occ+i-1),i=clo,chi)
+c$$$ 881   format(8f12.6)
+c$$$       write(6,*)
+c$$$       do i=1,nbf
+c$$$         write(6,881) (dbl_mb(k_tmp+(j-1)*nbf+i-1),j=clo,chi)
+c$$$       enddo
+c$$$       if (chi.ne.(nact+nclosed)) goto 33
+c$$$       if (.not.ma_pop_stack(l_tmp))
+c$$$     $      call errquit('mcscf: cannot pop local MO',0)
 c
 c  Resolve CI for Natural Orbitals
 c
-       write(6,228) 
- 228   format(/,'Resolving CI for natural orbitals',/)
-       call moints_build_2x( basis, ohalf, oskel,
-     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
-     $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .true., blen )
-       call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
-     $                   g_coul, g_exch, g_ifock )
-       call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $                     nsym, int_mb(k_sym), e0, evals,
-     $                     g_ifock, g_coul, 
-     $                     citol, .false., .false., .false.,
-     $                     dbl_mb(k_dm1), dbl_mb(k_dm2), eci )
+c$$$       write(6,228) 
+c$$$ 228   format(/,'Resolving CI for natural orbitals',/)
+c$$$       call moints_build_2x( basis, ohalf, oskel,
+c$$$     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
+c$$$     $                       g_movecs, g_coul, .true.,
+c$$$     $                       g_exch, .true., blen, oblk )
+c$$$       call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
+c$$$     $                   g_coul, g_exch, g_ifock )
+c$$$       call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
+c$$$     $                     nsym, int_mb(k_sym), e0, evals,
+c$$$     $                     g_ifock, g_coul, 
+c$$$     $                     citol, .false., .false., .false.,
+c$$$     $                     dbl_mb(k_dm1), dbl_mb(k_dm2), eci )
 c
 c  Print 1-pdm and 2-pdm
 c 
@@ -501,7 +526,6 @@ c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
 c   Check energy trace
 c     
-       PRINT*,'Check Etrace'
        call mcscf_etrace( geom, basis, nbf, nclosed, nact,
      $                    .true., oskel, tol2e, dbl_mb(k_dm1),
      $                    dbl_mb(k_dm2), g_movecs, g_coul,
@@ -537,7 +561,7 @@ c
        call moints_build_2x( basis, ohalf, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .true., blen )
+     $                       g_exch, .true., blen, oblk )
 c
 c
        call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
@@ -609,6 +633,7 @@ c$$$         call ga_copy( g_grad, g_grad2 )
 c$$$         call ga_copy( g_grad2, g_x)
 c$$$         call ga_zero(g_u)
 c$$$         call theta2u( nbf, nclosed+nact, nclosed+nact+1, phi, g_u )
+
          
 c$$$         PRINT*,'Unitrary transformation'
 c$$$         CALL GA_GET(G_U,1,NBF,1,NBF,CRAP,NBF)
@@ -667,7 +692,7 @@ c$$$     $                  0.d0, g_newgfock )
 c$$$         call moints_build_2x( basis, ohalf, oskel,
 c$$$     $                         mo_lo, mo_lo, mo_hi, 1, nbf,
 c$$$     $                         g_newgfock, g_coul2, .true.,
-c$$$     $                         g_exch2, .true., blen )
+c$$$     $                         g_exch2, .true., blen, oblk )
 c$$$         call mcscf_fock( geom, basis, nbf, nclosed, nact,
 c$$$     $                    oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2),
 c$$$     $                    g_newgfock, g_coul2, eone, etwo, e0,
@@ -1019,7 +1044,7 @@ c
        call moints_build_6x( basis, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .true., 16 )
+     $                       g_exch, .true., 16, .false. )
        open(unit=88,file='JKints',status='unknown',form='unformatted')
        do i=1,noper
          call ga_get(g_coul,1,nn,i,i,tmp,1)

@@ -1,5 +1,5 @@
 c
-c  $Id: mcscf_orb.F,v 1.20 1996-07-03 23:54:46 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.21 1996-07-15 18:49:49 rg240 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -78,6 +78,7 @@ c
        logical odelta_core
        logical oinfoprint, olsrchprint, ociprint
        logical ocivecprint, oprcndprint
+       logical oblk
        double precision micro_citol, citol
        double precision lshift, bshift
        double precision e0, eci
@@ -90,7 +91,7 @@ c
 c
        data lshift/1.0d0/
        data mone/-1.d0/
-       data blen/16/
+       data blen/25/
        data nflip/0/
        data ohalf/.true./
        data ocoul/.true./
@@ -121,6 +122,10 @@ c
        molo = nclosed + 1
        mohi = nclosed + nact
        nsym = sym_number_ops(geom)+1
+       if (.not.rtdb_get(rtdb,'mcscf:aoblock',MT_LOG,1,oblk)) then
+         if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,1,oblk))
+     $      oblk = .false.
+       endif
 c
 c  Allocate MO matrices
 c
@@ -311,7 +316,7 @@ c
            call moints_build_2x( basis, ohalf, oskel,
      $                           molo, molo, mohi, 1, nbf,
      $                           g_newvecs, g_coul, ocoul,
-     $                           g_exch, oexch, blen )
+     $                           g_exch, oexch, blen, oblk )
            if (omcscfprof) call pstat_off(ps_4index)
            if (ocirelax) then
              call mcscf_fcore( basis, nbf, nclosed, nact, g_newvecs,
@@ -421,7 +426,7 @@ c
          call moints_build_2x( basis, ohalf, oskel,
      $                         molo, molo, mohi, 1, nbf,
      $                         g_movecs, g_coul, .true.,
-     $                         g_exch, .true., blen )
+     $                         g_exch, .true., blen, oblk )
          if (omcscfprof) call pstat_off(ps_4index)
        endif
 c
