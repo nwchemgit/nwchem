@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.48 2002-04-03 17:31:24 windus Exp $
+$Id: INSTALL,v 1.49 2002-12-23 19:34:25 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -388,7 +388,7 @@ BUILDING WITH MPI:
         setenv MPI_LOC /usr/local #location of mpich
         setenv MPI_LIB $MPI_LOC/lib
         setenv MPI_INCLUDE $MPI_LOC/include
-        setenv LIBMPI -lmpich
+        setenv LIBMPI "-lmpich -lpmpich"
      MPIPro: 
         setenv LIBMPI "-lmpipro -lpthread"
      LAM version 6.5 
