@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.107 1999-07-14 00:29:13 d3e129 Exp $
+# $Id: GNUmakefile,v 1.108 1999-08-06 21:35:36 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -82,7 +82,6 @@ endif
                  util_jacobi.o
 
   SUBDIRS = md5
-  LIB_INCLUDES = -I../ddscf
 
         OBJ = output.o errquit.o ffflush.o \
               print_center.o util_flush.o \

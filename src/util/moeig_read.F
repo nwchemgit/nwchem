@@ -1,5 +1,5 @@
 c
-c $Id: moeig_read.F,v 1.1 1999-05-06 17:29:36 windus Exp $
+c $Id: moeig_read.F,v 1.2 1999-08-06 21:35:36 d3g681 Exp $
 c
 c This routine was essentially stolen from movecs_read, but only read
 c the eigenvalues.
@@ -11,7 +11,6 @@ c
 #include "msgtypesf.h"
 #include "mafdecls.fh"
 #include "msgids.fh"
-#include "cscfps.fh"
 #include "inp.fh"
 #include "util.fh"
 c
@@ -26,7 +25,6 @@ c
       integer unitno
       parameter (unitno = 67)
 c
-      if (oscfps) call pstat_on(ps_vecio)
       call ga_sync()
       ok = 0
       if (ga_nodeid() .eq. 0) then
@@ -77,7 +75,6 @@ c
  22      format(/' Read molecular orbitals from ',a/)
          call util_flush(6)
       endif
-      if (oscfps) call pstat_off(ps_vecio)
       return
 c
  1000 write(6,*) ' moeig_read: failed to open ',
