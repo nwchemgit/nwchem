@@ -3,7 +3,7 @@ C NAME
 C     CCSD_MkTau_GA -- Form Tau = T2 + T1T1 in a GA
 C
 C REVISION
-C     $Id: ccsd_mktau_ga.F,v 2.2 1997-10-18 20:14:36 d3g681 Exp $
+C     $Id: ccsd_mktau_ga.F,v 2.3 1999-03-08 23:17:32 d3e129 Exp $
 C
 C SYNOPSIS
       Subroutine CCSD_MkTau_GA(NOcc, NVir, T1, LDT1, g_T2, g_Tau)
@@ -48,7 +48,7 @@ C
 C
 C        Form t(i,a) * t(j,b)
 C
-            Call DGEMM('T', 'N', NVir, NVir, 1,
+            Call dgemm('T', 'N', NVir, NVir, 1,
      $           1.0d0, T1(I, 1), LDT1, T1(J, 1), LDT1,
      $           0.0d0, Dbl_MB(i_Scr1), NVir)
             Call GA_Acc(g_Tau, (I-1)*NVir+1, I*NVir,

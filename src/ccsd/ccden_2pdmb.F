@@ -3,7 +3,7 @@ C NAME
 C     CCDen_2PDMccoo -- Form coupled cluster 2-particle density matrix
 C
 C REVISION
-C     $Id: ccden_2pdmb.F,v 2.1 1997-06-05 17:46:26 gg502 Exp $
+C     $Id: ccden_2pdmb.F,v 2.2 1999-03-08 23:17:32 d3e129 Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_2PDMvvoo(NOcc, NVir, T1, LDT1, Z1, LDZ1, 
@@ -67,7 +67,7 @@ C
 C
 C        Form Z(i,a) * t(j,b)
 C
-            Call DGEMM('T', 'N', NVir, NVir, 1,
+            Call dgemm('T', 'N', NVir, NVir, 1,
      $           1.0d0, Z1(I, 1), LDZ1, T1(J, 1), LDT1,
      $           0.0d0, Dbl_MB(i_Scr1), NVir)
             Call GA_Acc(g_G, (I-1)*NVir+1, I*NVir,
@@ -124,14 +124,14 @@ C
 C
 C              Form t(l,a) * t(i,d)
 C
-               Call DGEMM('T', 'N', NVir, NVir, 1,
+               Call dgemm('T', 'N', NVir, NVir, 1,
      $              1.0d0, T1(L, 1), LDT1, T1(I, 1), LDT1,
      $              0.0d0, Dbl_MB(i_Scr2), NVir)
 C
 C              Contract [t(l,a)t(i,d)] with Z(l,j,b,d) and plunk it into
 C              G(i,j,a,b).  This patch of G should be "local".
 C
-               Call DGEMM('N', 'T', NVir, NVir, NVir,
+               Call dgemm('N', 'T', NVir, NVir, NVir,
      $              1.0d0, Dbl_MB(i_Scr2), NVir, Dbl_MB(i_Scr1), NVir,
      $              0.0d0, Dbl_MB(i_Scr3), NVir)
 C
