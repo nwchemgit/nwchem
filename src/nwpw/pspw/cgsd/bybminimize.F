@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.6 2003-06-29 16:01:21 bylaska Exp $                       
+c     $Id: bybminimize.F,v 1.7 2003-07-01 15:01:07 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -36,11 +36,11 @@ c
       real*8     sum0,sum1,sum3,scale,tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
       real*8     Enew,Eold,alpha
-      common / cgsd_block / Enew,Eold,alpha
+      !common / cgsd_block / Enew,Eold,alpha
 
-      integer it,it_in,i,ispin
+      integer it,it_in,i,ispin,bfgscount,icount
 
-      logical value,precondition,done
+      logical value,precondition,done,stalled
       integer n2ft3d
       real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
@@ -197,7 +197,7 @@ c        call psi_2to1()
      >                 deltav)
         !call nwpw_kain(dbl_mb(vall_in(1)),dbl_mb(vall_out(1)))
 
-      else if (dabs(deltae).lt.1.0d-1) then
+      else if (dabs(deltae).lt.1.0d-2) then
          call electron_gen_vall()
          call electron_get_vall(dbl_mb(vall_in(1))) 
          call dcopy(ispin*n2ft3d,
@@ -219,13 +219,42 @@ c        call psi_2to1()
          if (deltae.gt.0.0d0) alpha = 0.5d0*alpha
 
       else
- 10      call sdminimize(25)
-         Eold   = Enew
-         Enew   = psi_1energy()
-         deltae = (Enew-Eold)/25.0d0
-         if ((dabs(deltae).gt.(1.0d-4)).or.
-     >      (deltae.gt.0.0d0))  go to 10
+         icount = 0
+         bfgscount = 0
+         stalled = .false.
+  20     continue
+            icount = icount + 1
+            if (stalled) then
+              call sdminimize(10)
+              bfgscount = 0
+            end if
+            deltae_old = deltae
+            bfgscount = bfgscount + 1
+            call cgminimize(E,deltae,deltac,bfgscount)
+            if (taskid.eq.MASTER) then 
+              write(luout,'(A,I3,A)') 
+     >         "     - ",
+     >         control_it_in(),
+     >         " conjugate gradient minimizer iterations performed"
+             call util_flush(luout)
+            end if
+   
+            if ((dabs(deltae).gt.dabs(deltae_old)).or.
+     >          (dabs(deltae).gt.1.0d-2)          .or.
+     >          (deltae.gt.0.0d0)) then
+               stalled = .true.
+            else
+               stalled = .false.
+            end if
+            deltae = dabs(deltae)
+            if ((deltae.lt.(1.0d-4)).and.
+     >          (deltac.lt.(1.0d-4))) then
+               go to 30
+            end if
+         if (icount.lt.10) go to 20
 
+  30     Eold   = Enew
+         Enew   = psi_1energy()
          call electron_gen_vall()
          call electron_get_vall(dbl_mb(vall_out(1))) 
          alpha = control_ks_alpha()
