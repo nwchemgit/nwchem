@@ -1,11 +1,12 @@
 #
-# $Id: GNUmakefile,v 1.4 2002-02-11 19:28:25 edo Exp $
+# $Id: GNUmakefile,v 1.5 2003-10-20 16:47:02 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
-            pspw_Grsm_list.o \
-			pspw_lmbfgs.o \
-			pspw_diis.o
+		pspw_Grsm_list.o \
+		pspw_lmbfgs.o \
+		pspw_lmbfgs3.o \
+		pspw_diis.o
 
 
 
