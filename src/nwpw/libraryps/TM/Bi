@@ -1,0 +1,39 @@
+Comment: Bi pseudopotential parameters
+Comment: Fitted 12-27-04 by E.J. Bylaska
+Comment: Parameters somewhat based on Khein and Allens' TM database
+Comment: Relativistic TM, quadratic semicore
+
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+<atom>
+Bi
+83.0 208.98 13 3
+1 0   2.0
+2 0   2.0
+2 1   6.0
+3 0   2.0
+3 1   6.0
+3 2  10.0
+4 0   2.0
+4 1   6.0
+4 2   10.0
+4 3   14.0
+5 0   2.0
+5 1   6.0
+5 2   10.0
+6 0   2.00
+6 1   2.00
+6 2   1.00
+<end>
+<solver> pauli                     <end>
+<pseudopotential>    troullier-martins <end>
+<rcut>
+   0    1.8333467
+   1    2.2959493
+   2    3.5560522
+<end>
+<semicore> 2.00 <end>
+<semicore_type> quadratic <end>
+
+

@@ -1,0 +1,38 @@
+Comment: Os pseudopotential parameters
+Comment: Fitted 12-27-04 by E.J. Bylaska
+Comment: Parameters somewhat based on Khein and Allens' TM database
+Comment: Relativistic TM, quadratic semicore
+
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+<atom>
+Os
+76.0 190.2  12 3
+1 0   2.0
+2 0   2.0
+2 1   6.0
+3 0   2.0
+3 1   6.0
+3 2  10.0
+4 0   2.0
+4 1   6.0
+4 2   10.0
+4 3   14.0
+5 0   2.0
+5 1   6.0
+5 2   3.98
+6 0   2.00
+6 1   0.02 
+<end>
+<solver> pauli                     <end>
+<pseudopotential>    troullier-martins <end>
+<rcut>
+   0  2.2406189
+   1  2.9869588
+   2  2.0787172
+<end>
+<semicore> 1.50 <end>
+<semicore_type> quadratic <end>
+
+

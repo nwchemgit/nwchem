@@ -1,0 +1,38 @@
+Comment: Hf pseudopotential parameters
+Comment: Fitted 12-27-04 by E.J. Bylaska
+Comment: Parameters somewhat based on Khein and Allens' TM database
+Comment: Relativistic TM, quadratic semicore
+
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+<atom>
+Hf
+72.0 178.49 12 3
+1 0   2.0
+2 0   2.0
+2 1   6.0
+3 0   2.0
+3 1   6.0
+3 2  10.0
+4 0   2.0
+4 1   6.0
+4 2   10.0
+4 3   14.0
+5 0   2.0
+5 1   6.0
+5 2   1.77
+6 0   2.00
+6 1   0.23 
+<end>
+<solver> pauli                     <end>
+<pseudopotential>    troullier-martins <end>
+<rcut>
+   0    2.6467193
+   1    3.2733809
+   2    2.4863606
+<end>
+<semicore> 2.16 <end>
+<semicore_type> quadratic <end>
+
+

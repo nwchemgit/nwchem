@@ -1,0 +1,40 @@
+Comment: Fr pseudopotential parameters
+Comment: Fitted 12-27-04 by E.J. Bylaska
+Comment: Parameters somewhat based on Khein and Allens' TM database
+Comment: Relativistic TM, quadratic semicore
+
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+<atom>
+Fr
+87.0 223.00 14 3
+1 0   2.0
+2 0   2.0
+2 1   6.0
+3 0   2.0
+3 1   6.0
+3 2  10.0
+4 0   2.0
+4 1   6.0
+4 2   10.0
+4 3   14.0
+5 0   2.0
+5 1   6.0
+5 2   10.0
+6 0   2.00
+6 1   4.80
+6 2   1.19
+7 0   0.01
+<end>
+<solver> pauli                     <end>
+<pseudopotential>    troullier-martins <end>
+<rcut>
+   0    3.8926282
+   1    2.7775844
+   2    3.4784392
+<end>
+<semicore> 1.88 <end>
+<semicore_type> quadratic <end>
+
+
