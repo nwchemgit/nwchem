@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.14 2002-12-10 01:37:26 bylaska Exp $
+* $Id: pspw_sic.F,v 1.15 2003-02-04 03:40:36 bylaska Exp $
 *
 
 *     *************************
@@ -59,6 +59,10 @@
      >                      'pspw:SIC_xc_parameter',
      >                       mt_dbl,1,xc_parameter))
      >       xc_parameter = 1.0d0
+         if (.not. rtdb_get(rtdb,
+     >                      'pspw:SIC_h_parameter',
+     >                       mt_dbl,1,h_parameter))
+     >       h_parameter = 1.0d0
  
 
 
@@ -154,14 +158,28 @@
         if (solver_type.eq.1) then
           write(unit,*) "      - SIC screened coulomb solver"
            if (rcut.ge.0.0d0)
-     >     write(unit,'(A,E8.3)') "       - SIC screening radius: ",rcut
+     >     write(unit,'(A,E8.3)') 
+     >     "       - SIC screening radius(pspw:SIC_screening_radius):",
+     >     rcut
            if (rcut.ge.0.0d0)
-     >     write(unit,'(A,E8.3)') "       - SIC screening power:  ",pp
+     >     write(unit,'(A,E8.3)') 
+     >     "       - SIC screening power (pspw:SIC_screening_power) :",
+     >     pp
            
         else
           write(unit,*) "      - SIC free-space coulomb solver"
         end if
+        if (h_parameter.ne.1.0d0)
+     >  write(unit,'(A,E8.3)')   
+     >   "       - SIC h_parameter (pspw:SIC_h_parameter) :", 
+     >   h_parameter
+        if (xc_parameter.ne.1.0d0)
+     >  write(unit,'(A,E8.3)')   
+     >   "       - SIC xc_parameter(pspw:SIC_xc_parameter):",
+     >   xc_parameter
+
         write(unit,*)
+
       end if
 
       return
@@ -283,6 +301,7 @@
              call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
 
 
+
 *          ***** free-space coulomb solver ****
            else
 c             if (ispin.eq.1) 
@@ -299,9 +318,16 @@ c     >                            dbl_mb(dn(1)))
               if (ispin.eq.1) eh = eh + eh
               ph = 2.0d0*eh
            end if
+
+*          **** apply the h_parameter ****
+           eh = eh*h_parameter
+           ph = ph*h_parameter
+           call D3dB_r_SMul(1,h_parameter,
+     >                      dbl_mb(tmp1(1)),
+     >                      dbl_mb(tmp1(1)))
+
            eh_sic = eh_sic - eh
            ph_sic = ph_sic - ph
-
 
 *          **** generate (Vcoul+Vxc)*psi_r ***
            call D3dB_rr_Sum(1,dbl_mb(tmp1(1)),
@@ -439,6 +465,7 @@ c     >                            dbl_mb(dn(1)))
 
 *            **** get Ecoul energy ****
              eh = coulomb_screened_e(dbl_mb(dn(1)))
+             eh = eh*h_parameter
              if (ispin.eq.1) eh = eh + eh
              ph = 2.0d0*eh
 
@@ -448,6 +475,7 @@ c     >                            dbl_mb(dn(1)))
 
               call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(tmp1(1)),eh)
               eh = 0.5d0*eh*dv
+              eh = eh*h_parameter
               if (ispin.eq.1) eh = eh + eh
               ph = 2.0d0*eh
            end if
