@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.86 1997-08-27 23:50:21 gutowski Exp $
+c     $Id: dft_scf.F,v 1.87 1997-09-04 17:43:46 gutowski Exp $
 c     
       implicit none
 c
@@ -809,9 +809,8 @@ c
                  lumo = min(lumo,(Dbl_MB(k_eval(ispin)+i-1)))
               enddo
             endif
-         else
-            call ga_copy(g_fock, g_movecs(ispin))
          endif
+         call ga_copy(g_fock, g_movecs(ispin))
 c        
 c        determine homo-lumo gap 
 c
