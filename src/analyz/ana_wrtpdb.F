@@ -1,7 +1,7 @@
       subroutine ana_wrtpdb(lfnpdb,filpdb,sgmnam,isel,xs,
      + iwsel,xw,logs,logw,ndxw)
 c
-c $Id: ana_wrtpdb.F,v 1.4 2000-07-31 22:51:51 d3j191 Exp $
+c $Id: ana_wrtpdb.F,v 1.5 2001-03-23 18:37:05 d3j191 Exp $
 c
       implicit none
 c
@@ -25,13 +25,14 @@ c
 c
       rewind(lfnpdb)
 c
-      write(lfnpdb,1000)
+      write(lfnpdb,1000) (1.0d1*box(i),i=1,3),90.0,90.0,90.0
  1000 format(
      + 'HEADER',/,
      + 'TITLE     ',/,
      + 'TITLE    2',/,
      + 'TITLE    3',/,
-     + 'REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996')
+     + 'REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996',/,
+     + 'CRYST1',3f9.3,3f7.2)
 c
       if(logs) then
       do 1 i=1,nsa
