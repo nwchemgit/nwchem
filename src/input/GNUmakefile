@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.47 2000-08-02 01:25:17 bjohnson Exp $
+#$Id: GNUmakefile,v 1.48 2002-02-01 00:31:14 windus Exp $
 
 # Put into task library so that it occurs at the front of the link path
 
@@ -21,9 +21,10 @@ HOSTNAME := $(shell hostname)
 HOSTSUFFIX := $(shell hostname | sed -e 's/et....//' | sed -e 's/^\.//')
 
 ifeq ($(HOSTNAME),mcurie)
+# 170 MB              = 22282240
 # 180 MB              = 23592960
 # 200 MB on NERSC T3E = 26214400
-  LIB_DEFINES += -DDFLT_TOT_MEM=23592960
+  LIB_DEFINES += -DDFLT_TOT_MEM=22282240
 endif
 
 ifeq ($(HOSTSUFFIX),nwmpp1.emsl.pnl.gov)
