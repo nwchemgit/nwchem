@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.148 2002-07-30 05:07:30 edo Exp $
+# $Id: GNUmakefile,v 1.149 2002-08-02 22:09:45 edo Exp $
 
 include ../config/makefile.h
 
@@ -118,7 +118,7 @@ ifeq ($(TARGET),FUJITSU_VPP)
                  -Wp,-DINTEGER_1=byte
 endif
 
-       BLAS = dfill.o ifill.o rsg.o mabyte_fill.o 
+       BLAS = dfill.o ifill.o  mabyte_fill.o 
 
    LIB_TARGETS = testsolve testecce
 
@@ -194,20 +194,6 @@ ifeq ($(TARGET),SGITFP)
 endif
 
 include ../config/makelib.h
-
-#On SGI need IEEE for rsg
-ifeq ($(TARGET),SGITFP)
-rsg.o:	rsg.f
-	$(FC) $(FOPTIONS) -O3 -c rsg.f
-$(LIBRARY_PATH)(rsg.o):	rsg.o
-	ar r $@ $^
-endif
-ifeq ($(TARGET),SGI_N32)
-rsg.o:	rsg.f
-	$(FC) $(FOPTIONS) -O3 -c rsg.f
-$(LIBRARY_PATH)(rsg.o):	rsg.o
-	ar r $@ $^
-endif
 
 
 util_version.F:	util_v_stub.F
