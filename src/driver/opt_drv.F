@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.40 1998-03-04 23:18:42 mdupuis Exp $
+C$Id: opt_drv.F,v 1.41 1998-03-11 01:33:39 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -272,9 +272,14 @@ c
       endif
 c
 c
-c     ----- fresh start : initialize hessian matrix -----
+c     ----- initialize hessian matrix -----
 c
       call hnd_opt_hss_init(rtdb,geom)
+      if(zcoord) then
+         if(inhess.eq.1) then
+            call hnd_opt_tfhx(rtdb,geom)
+         endif
+      endif
 c
 c     ----- set up ----  
 c
@@ -307,6 +312,8 @@ c
          x(i)=c(i)
       enddo
 c
+c     ----- energy -----
+c
          time_start=util_wallsec()
       call hnd_opt_energy(rtdb,geom)
          time_end  =util_wallsec()
@@ -316,6 +323,8 @@ c
          endif
 c
       func=e
+c
+c     ----- gradient -----
 c
          time_start=util_wallsec()
       call hnd_opt_gradient(rtdb,geom)
@@ -887,6 +896,114 @@ c
  9999 format(' in opt_gradient, eg = ')
  9998 format(3f12.6)
       end
+      subroutine hnd_opt_tfhx(rtdb,geom)
+      implicit double precision (a-h,o-z)
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "rtdb.fh"
+#include "global.fh"
+      integer  rtdb
+      integer  geom
+      logical  gradients
+      external gradients
+      logical  driver_opt_put_hess
+      external driver_opt_put_hess
+      logical  driver_opt_get_hess
+      external driver_opt_get_hess
+      logical  geom_zmt_get_binv
+      logical  geom_hnd_tfhx
+      logical  dbug
+      integer mxatom, mxcart, mxzmat, mxcoor
+      parameter (mxatom=500)
+      parameter (mxcart=3*mxatom)
+      parameter (mxzmat=1500)
+      parameter (mxcoor=1500)
+      integer ir, iw
+      common/hnd_iofile/ir,iw
+c
+      integer nzmat, nzvar, nvar
+      common/hnd_zmtpar/nzmat,nzvar,nvar
+c
+      logical zcoord
+      integer ncoord, mcoord
+      common/hnd_optvar/zcoord,ncoord,mcoord
+c
+      double precision c, zan
+      integer nat
+      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+c
+      integer ibi, i_ibi, i, ncart
+      double precision zero
+      data zero /0.0d+00/
+c
+c
+      dbug=.false.
+c
+c     ----- get -b- and -bi- -----
+c
+      call hnd_bandbi(geom,nat,c)
+c
+c     ----- transform -hx- to -hs- -----
+c
+      ncart=3*nat
+      memsiz=ncart*nzvar
+      memsiz=memsiz+mcoord*mcoord
+      memsiz=memsiz+mcoord*mcoord
+      if (.not. ma_push_get(MT_DBL,memsiz,'mem tfhx',i_ibi,ibi))
+     $     call errquit('hnd_opt_tfhx: ma', memsiz )
+      ihx=ibi+ncart*nzvar
+      ihs=ihx+mcoord*mcoord
+c
+c     ----- only for node 0 -----
+c
+      if(ga_nodeid().eq.0) then
+c
+         do i=1,ncart*nzvar
+            dbl_mb(i+ibi-1)=zero
+         enddo
+         if (.not. geom_zmt_get_binv(dbl_mb(ibi),ncart,nzvar,ncart))
+     $        call errquit('hnd_opt_tfhx: get_binv', ncart*nzvar)
+         if(dbug) then
+            write(iw,*) '-binv-'
+            call hnd_prsq(dbl_mb(ibi),nzvar,ncart,ncart)
+         endif
+         do i=1,mcoord*mcoord
+            dbl_mb(i+ihx-1)=zero
+         enddo
+         if (.not. driver_opt_get_hess(dbl_mb(ihx),mcoord,mcoord))
+     $        call errquit('hnd_opt_tfhx: get_hess failed', 911 )
+         if(dbug) then
+            write(iw,*) '-hx-'
+            call hnd_prsq(dbl_mb(ihx),ncart,ncart,mcoord)
+         endif
+c
+c     ----- now transform -----
+c
+         do i=1,mcoord*mcoord
+            dbl_mb(i+ihs-1)=zero
+         enddo
+      if (.not. geom_hnd_tfhx(dbl_mb(ihs),dbl_mb(ihx),dbl_mb(ibi),
+     $     nvar,ncart,ncart,mcoord))
+     $     call errquit('hnd_opt_tfhx: hnd_tfhx failed', 911)
+         if(dbug) then
+            write(iw,*) '-hs-'
+            call hnd_prsq(dbl_mb(ihs),nvar,nvar,mcoord)
+         endif
+c
+c     ----- write out transformed hessian -----
+c
+         if (.not. driver_opt_put_hess(dbl_mb(ihs),mcoord,mcoord))
+     $        call errquit('hnd_opt_tfhx: put_hess failed', 911 )
+c
+      endif
+      call ga_sync
+c
+      if (.not. ma_pop_stack(i_ibi))
+     $     call errquit('hnd_opt_tfhx: ma pop', memsiz )
+c
+      return
+      end
       subroutine hnd_opt_tfgx(rtdb,geom)
       implicit none
 #include "mafdecls.fh"
@@ -1187,7 +1304,6 @@ c
       parameter (mxzmat=1500)     
       parameter (mxcoor=1500)
 c
-c
       integer ir, iw
       common/hnd_iofile/ir,iw
 c
@@ -1215,7 +1331,7 @@ c
       endif
 c
       if (.not. geom_ncent(geom,nat))
-     &       call errquit('hnd_opt: geom_ncent?',911)
+     1       call errquit('hnd_opt: geom_ncent?',911)
       if (dbug)  then
           write(iw,*)'   in hnd_opt_hss_init, nat =',nat
       endif
@@ -1233,8 +1349,8 @@ c
       need=need+ndimq
       need=need+abs(nzmat)
       if (.not.
-     &   MA_Push_Get(mt_dbl,need       ,'mem first',h_first ,k_first ))
-     &   call errquit('hnd_opt_hss_init: malloc of first  failed?',911)
+     1   MA_Push_Get(mt_dbl,need       ,'mem first',h_first ,k_first ))
+     2   call errquit('hnd_opt_hss_init: malloc of first  failed?',911)
       k_hss  =k_first
       k_hssx =k_hss  +ndim *ndim 
       k_hssq =k_hssx +ndimx*ndimx
@@ -1264,8 +1380,8 @@ c
 c     ----- get cartesian coordinates -----  
 c
       if(.not.
-     &   geom_cart_get(geom,nat,atom_tags,c,zan))
-     &   call errquit('hnd_opt_hss_init: geom_cart_get failed?',911)
+     1   geom_cart_get(geom,nat,atom_tags,c,zan))
+     2   call errquit('hnd_opt_hss_init: geom_cart_get failed?',911)
       if(dbug) then
          write(iw,*) 'in hnd_opt_hss_init , z and c = '
          write(iw,9996) (zan(iat),(c(ixyz,iat),ixyz=1,3),iat=1,nat)
@@ -1287,13 +1403,13 @@ c
          endif
          call hnd_bandbi(geom,nat,c)
          if(.not.geom_zmt_get_zsym(dbl_mb(k_zsym),nzvar,ndim ))                 
-     &      call errquit('hnd_opt_hss_init:zmt_get_zsym failed?',911)
+     1      call errquit('hnd_opt_hss_init:zmt_get_zsym failed?',911)
          if(.not.geom_zmt_get_zmat(geom, dbl_mb(k_zmat),nzvar))                 
-     &      call errquit('hnd_opt_hss_init:zmt_get_zmat failed?',911)
+     1      call errquit('hnd_opt_hss_init:zmt_get_zmat failed?',911)
          if(.not.geom_zmt_get_nizmat(geom,nzmat))                 
-     &      call errquit('hnd_opt_hss_init:zmt_get_nizmat failed?',911)
+     1      call errquit('hnd_opt_hss_init:zmt_get_nizmat failed?',911)
          if(.not.geom_zmt_get_izmat(geom, dbl_mb(k_izmat),nzmat))                 
-     &      call errquit('hnd_opt_hss_init:zmt_get_izmat failed?',911)
+     1      call errquit('hnd_opt_hss_init:zmt_get_izmat failed?',911)
       endif
 c
 c     ----- initial guess hessian ( cartesian or internal ) -----
@@ -1310,11 +1426,11 @@ c
          write(iw,*) ' k_last    = ',k_last
       endif
       call hnd_opt_hss_init_x(dbl_mb(k_hss  ),ndim ,
-     &                        dbl_mb(k_hssx ),ndimx,
-     &                        dbl_mb(k_hssq ),ndimq,          
-     &                        dbl_mb(k_zsym ),
-     &                        dbl_mb(k_zmat ),
-     &                        dbl_mb(k_izmat))
+     1                        dbl_mb(k_hssx ),ndimx,
+     2                        dbl_mb(k_hssq ),ndimq,          
+     3                        dbl_mb(k_zsym ),
+     4                        dbl_mb(k_zmat ),
+     5                        dbl_mb(k_izmat))
       if(dbug) then
          write(iw,9997) k_first,k_last
          write(iw,*) ' k_first   = ',k_first
@@ -1330,7 +1446,7 @@ c
 c     ----- release memory -----
 c
       if (.not.MA_Pop_Stack(h_first))
-     &   call errquit('hnd_opt_hss_init: ma_pop_stack k_first   ?',911)
+     1   call errquit('hnd_opt_hss_init: ma_pop_stack k_first   ?',911)
 c
       if(dbug) then
          write(iw,9998)
@@ -1340,6 +1456,49 @@ c
  9998 format('   end of hnd_opt_hss_init ')
  9997 format('       in hnd_opt_hss_init , k_first, k_last = ',2i10)
  9996 format(' z = ',f6.2,' c = ',3f15.8)
+      end
+      subroutine hnd_opt_hss_read(hess,n)
+      implicit none
+#include "global.fh"
+c:: reads file in vib_vib format using vib_vib filename default
+c:: Note the default filename is set in task_freq
+c:: filenames must be made identical.
+c
+c format of file is ascii lower triangular elements only.
+c
+c::passed
+      integer n ! [input] the rank of the hessian (3*number of atoms)
+      double precision hess (n,n) ! [input] the matrix
+c::local
+      integer h_unit
+      parameter (h_unit=47)
+      character*255 fname
+      integer i,j
+      if (ga_nodeid().eq.0) then
+c     
+c::   -- open default file
+         call util_file_name('hess',.false.,.false.,fname)
+         open(unit=h_unit,file=fname,form='formatted',status='unknown',
+     $        err=99990,access='sequential')
+c
+         rewind h_unit
+c::   -- read  information
+         do i = 1,n
+            do j = 1,i
+               read(h_unit,10000,err=99992,end=99992) hess(i,j)
+            enddo
+         enddo
+         close(unit=h_unit,status='keep')
+      endif
+      call ga_sync()
+      return
+10000 format(f30.15)
+99990 write(6,*)' could not open <',fname,'> as unknown file'
+      call errquit('hnd_opt_hss_read: fatal error', 911)
+99991 write(6,*)' could not open <',fname,'> as new file'
+      call errquit('hnd_opt_hss_read: fatal error', 911)
+99992 write(6,*)' error in reading <',fname,'> as hessian file'
+      call errquit('hnd_opt_hss_read: fatal error', 911)
       end
       SUBROUTINE HND_OPT_HSS_INIT_X(
      1           HSS,NCOOR,HSSX,NCART,HSSQ,NINT,ZSYM,
@@ -1356,21 +1515,25 @@ C      ----- IF -INHESS- EQUALS 1, INPUT THE HESSIAN MATRIX -----
 C                 OTHERWISE MAKE UP INITIAL GUESS
 C              IN CARTESIAN OR INTERNAL COORDINATES
 C
-c      LOGICAL   DRIVER_OPT_GET_HESS
 C
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (MXZMAT=1500)
       PARAMETER (MXCOOR=1500)
+      LOGICAL  DRIVER_OPT_GET_HESS
+      EXTERNAL DRIVER_OPT_GET_HESS
+      LOGICAL  DRIVER_OPT_PUT_HESS
+      EXTERNAL DRIVER_OPT_PUT_HESS
+      LOGICAL       STATUS
+      LOGICAL       DBUG
+      LOGICAL       OUT
+      LOGICAL       SOME
+      LOGICAL       OLD_HESSIAN
       CHARACTER*255 OPT_HESS_FIL
       CHARACTER*8   ERRMSG
-      logical DRIVER_OPT_PUT_HESS
-      external DRIVER_OPT_PUT_HESS
-      LOGICAL DBUG
-      LOGICAL OUT
-      LOGICAL SOME
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OPTFIL/OPT_HESS_FIL
+      COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       DIMENSION HSS (NCOOR,*)
@@ -1388,10 +1551,32 @@ C
       OUT =OUT.OR.DBUG
       SOME=.FALSE.
       SOME=SOME.OR.OUT    
-C
       IF(OUT) THEN
          WRITE(IW,9999) NAT,NCART,NZVAR,NVAR,NINT,NCOOR,NZMAT
       ENDIF
+C
+C     ----- CHECK IF THERE IS ALREADY A HESSIAN ON DISK -----
+C
+      OLD_HESSIAN=.FALSE.
+      IF(INHESS.EQ.0) THEN
+         IF(GA_NODEID().EQ.0) THEN
+            OLD_HESSIAN=DRIVER_OPT_GET_HESS(HSS,NCOOR,NCOOR)
+            IF(OLD_HESSIAN) THEN
+               WRITE(IW,9993)
+               IF(SOME) THEN
+                  CALL HND_PRSQ(HSS,NCOOR,NCOOR,NCOOR)
+               ENDIF
+            ELSE
+               WRITE(IW,9992)
+            ENDIF
+         ENDIF
+         CALL GA_SYNC()
+      ENDIF
+C
+C     ----- GENERATE A GUESS ... BUT DO NOT NECESSARILY USE IT -----
+C     ----- IF drv.hess EXISTS, AND -INHESS- = 0               -----
+C     ----- THEN THAT WILL BE THE ONE USED                     -----
+C
       DO J=1,NCOOR
          DO I=1,NCOOR
             HSS(I,J)=ZERO
@@ -1402,71 +1587,115 @@ C
          IF(OUT) THEN
             WRITE(IW,9999) NAT,NCART,NZVAR,NVAR,NINT,NCOOR,NZMAT
          ENDIF
-         IF(OUT) THEN
-            WRITE(IW,9996)
-            CALL HND_PRSQ(ZSYM,NZVAR,NZVAR,NCOOR)
-         ENDIF
+         IF(INHESS.EQ.1) THEN
+C
+C     ----- READ CARTESIAN HESSIAN FROM FILE AND TRANSFORM -----
+C
+            DO J=1,NCART
+               DO I=1,NCART
+                  HSSX(I,J)=ZERO
+               ENDDO
+            ENDDO
+            CALL HND_OPT_HSS_READ(HSSX,NCART)
+            DO I=1,NCART
+               DO J=1,I
+                  HSS(I,J)=HSSX(I,J)
+                  HSS(J,I)=HSSX(I,J)
+               ENDDO
+            ENDDO
+            IF(SOME) THEN
+               WRITE(IW,9997)
+               CALL HND_PRSQ(HSS,NCART,NCART,NCOOR)
+            ENDIF
+C
+C     ----- TRANSFORMATION TO INTERNAL COORDINATES IS DONE LATER -----
+C
+         ELSE
 C
 C     ----- INTERNALLY GENERATED (DIAGONAL) INITIAL HESSIAN -----
 C
-         CALL HND_OPT_HSS_INIT_ZMT(HSSQ,NINT,ZMAT,IZMAT,OUT)
+            CALL HND_OPT_HSS_INIT_ZMT(HSSQ,NINT,ZMAT,IZMAT,OUT)
 C
 C     ----- TRANSFORM TO SYMMETRY INTERNAL COORDINATES -----
 C
-         IF(OUT) THEN
-            WRITE(IW,9996)
-            CALL HND_PRSQ(ZSYM,NZVAR,NZVAR,NCOOR)
-         ENDIF
-         IF(SOME) THEN
-            WRITE(IW,9995)
-            CALL HND_PRSQ(HSSQ,NZVAR,NZVAR,NINT)
-         ENDIF
-         DO J=1,NZVAR
-            DO I=1,NZVAR 
-               DUM=ZERO
-               DO K=1,NZVAR
-                  DUM=DUM+ZSYM(K,I)*HSSQ(K,K)*ZSYM(K,J)
-               ENDDO
-               HSS(I,J)=DUM
-            ENDDO
-         ENDDO
-         IF(SOME) THEN
             IF(OUT) THEN
-               WRITE(IW,9994)
+               WRITE(IW,9996)
+               CALL HND_PRSQ(ZSYM,NZVAR,NZVAR,NCOOR)
             ENDIF
-            WRITE(IW,9998)
-            CALL HND_PRSQ(HSS,NZVAR,NZVAR,NCOOR)
+            IF(SOME) THEN
+               WRITE(IW,9995)
+               CALL HND_PRSQ(HSSQ,NZVAR,NZVAR,NINT)
+            ENDIF
+            DO J=1,NZVAR
+               DO I=1,NZVAR 
+                  DUM=ZERO
+                  DO K=1,NZVAR
+                     DUM=DUM+ZSYM(K,I)*HSSQ(K,K)*ZSYM(K,J)
+                  ENDDO
+                  HSS(I,J)=DUM
+               ENDDO
+            ENDDO
+            IF(SOME) THEN
+               IF(OUT) THEN
+                  WRITE(IW,9994)
+               ENDIF
+               WRITE(IW,9998)
+               CALL HND_PRSQ(HSS,NZVAR,NZVAR,NCOOR)
+            ENDIF
          ENDIF
       ELSE
+         IF(INHESS.EQ.0) THEN
 C
 C     ----- CARTESIAN HESSIAN SET TO 0.5 * UNIT MATRIX -----
 C
-         DO J=1,NCART 
-            DO I=1,NCART 
-               HSSX(I,J)=ZERO
+            DO J=1,NCART 
+               DO I=1,NCART 
+                  HSSX(I,J)=ZERO
+               ENDDO
+               HSSX(J,J)=HDIAGX
             ENDDO
-            HSSX(J,J)=HDIAGX
-         ENDDO
-         DO J=1,NCART 
+            DO J=1,NCART 
+               DO I=1,NCART
+                  HSS(I,J)=HSSX(I,J) 
+               ENDDO
+            ENDDO
+            IF(SOME) THEN
+               WRITE(IW,9997)
+               CALL HND_PRSQ(HSS,NCART,NCART,NCOOR)
+            ENDIF
+         ELSE
+C
+C     ----- READ CARTESIAN HESSIAN FROM FILE -----
+C
+            DO J=1,NCART
+               DO I=1,NCART
+                  HSSX(I,J)=ZERO
+               ENDDO
+            ENDDO
+            CALL HND_OPT_HSS_READ(HSSX,NCART)
             DO I=1,NCART
-               HSS(I,J)=HSSX(I,J) 
+               DO J=1,I
+                  HSS(I,J)=HSSX(I,J)
+                  HSS(J,I)=HSSX(I,J)
+               ENDDO
             ENDDO
-         ENDDO
-         IF(SOME) THEN
-            WRITE(IW,9997)
-            CALL HND_PRSQ(HSS,NCART,NCART,NCOOR)
+            IF(SOME) THEN
+               WRITE(IW,9997)
+               CALL HND_PRSQ(HSS,NCART,NCART,NCOOR)
+            ENDIF
          ENDIF
       ENDIF
 C
-C     ----- SAVE INITIAL HESSIAN -----
+C     ----- SAVE INITIAL HESSIAN IF THERE IS NOT ONE ALREADY -----
+C           IF THERE IS ONE, KEEP IT, DO NOT OVERWRITE IT
 C
-      IF( GA_NODEID().EQ.0) THEN
-*         STATUS=DRIVER_OPT_OPN_HESS()
-*         IF(.NOT.STATUS) THEN
-*            CALL ERRQUIT('HSS_INIT_X:OPN_HESS?',911)
-*         ENDIF
-         if (.not. DRIVER_OPT_PUT_HESS(HSS,NCOOR,NCOOR))
-     $     call errquit(' hnd_init_hss: put hess failed',ncoor*ncoor)
+      IF(GA_NODEID().EQ.0) THEN
+         IF(.NOT.OLD_HESSIAN) THEN
+            STATUS=DRIVER_OPT_PUT_HESS(HSS,NCOOR,NCOOR)
+            IF(.NOT.STATUS) THEN 
+               CALL ERRQUIT(' HND_INIT_HSS: PUT_HESS FAILED',911)        
+            ENDIF
+         ENDIF
       ENDIF
       CALL GA_SYNC()
 C
@@ -1480,6 +1709,9 @@ C
  9996 FORMAT(/,' -ZSYM- ')
  9995 FORMAT(/,' -HSSQ- BEFORE SYMMETRIZATION ')
  9994 FORMAT(/,' -HSSQ- AFTER  SYMMETRIZATION ')
+ 9993 FORMAT(/,' hessian found on  -drv.hess- will be used')
+ 9992 FORMAT(/,' hessian internally generated or read from',
+     1         ' external file will be used.')
       END
       SUBROUTINE HND_OPT_HSS_INIT_ZMT(HSSQ,NINT,ZMAT,IZMAT,SOME)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
@@ -1911,7 +2143,8 @@ c      integer ip
       character*255 opt_hess_fil
       data ift /31/
 c
-      call util_file_name('driver',.false.,.false.,opt_hess_fil)
+      call util_file_name('drv.hess',
+     1     .false.,.false.,opt_hess_fil)
       open(unit=ift, file=opt_hess_fil, form='unformatted',
      1     access='sequential', status='unknown', err=911)
       dbug=util_print('hess_fil', print_debug)
@@ -1957,13 +2190,14 @@ c      integer ip
       character*255 opt_hess_fil
       data ift /31/
 c
-      call util_file_name('driver',.false.,.false.,opt_hess_fil)
+      call util_file_name('drv.hess',
+     1     .false.,.false.,opt_hess_fil)
       open(unit=ift, file=opt_hess_fil, form='unformatted',
      1     access='sequential', status='unknown', err=911)
       dbug=util_print('hess_fil', print_debug)
 c
       rewind ift
-      read(ift) hess
+      read(ift,end=910,err=910) hess
 c
       close(ift,status='keep')
 c
@@ -1975,7 +2209,16 @@ c
       driver_opt_get_hess=.true.
       return
 c
+c     ----- unable to complete the read ---
+c
+ 910  close(ift,status='keep')
+      driver_opt_get_hess=.false.
+      return 
+c
+c     ----- unable to open ; stop ... -----
+c
  911  call errquit('driver_opt_get_hess: open failed',0)
+      return
 c
       end
       subroutine hnd_opt_search_dir(rtdb)
@@ -2661,6 +2904,63 @@ c
       enddo
 c
       return
+      end
+      logical function geom_hnd_tfhx(hs,hx,bi,ns,nx,mx,mh)
+      implicit double precision (a-h,o-z)
+      logical out
+      logical dbug
+      common/hnd_iofile/ir,iw
+      dimension hs(mh,*),hx(mh,*),bi(mx,*)
+      data zero   /0.0d+00/
+      data tenm08 /1.0d-08/
+c
+      dbug=.false.
+      out =.false.
+      if(dbug) then
+         write(iw,*) ' in -tfhx- bi = '
+         call hnd_prsq(bi,ns,nx,nx)
+         write(iw,*) ' in -tfhx- hs = '
+         call hnd_prsq(hx,nx,nx,mh)
+      endif
+c
+      do k=1,nx
+         do j=1,ns
+            dum=zero
+            do i=1,nx
+               dum=dum+hx(k,i)*bi(i,j)
+            enddo
+            hs(k,j)=dum
+         enddo
+      enddo
+      do j=1,mh
+         do i=1,mh
+            hx(i,j)=hs(i,j)
+         enddo
+      enddo
+      do k=1,ns
+         do i=1,ns
+            dum=zero
+            do j=1,nx
+               dum=dum+bi(j,i)*hx(j,k)
+            enddo
+            hs(i,k)=dum
+         enddo
+      enddo
+c
+      if(out) then
+         write(iw,*) ' in -tfhx- hs = '
+         call hnd_prsq(hs,ns,ns,mh)
+      endif
+c
+      do j=1,ns
+         do i=1,ns
+            if(abs(hs(i,j)).lt.tenm08) hs(i,j)=zero
+         enddo
+      enddo
+c
+      geom_hnd_tfhx=.true.
+      return
+ 9999 format(i5,f15.10)
       end
       logical function geom_hnd_tfgx(gs,gx,bi,ns,nx,mx)
       implicit double precision (a-h,o-z)
