@@ -1,6 +1,6 @@
 \label{sec:selci}
 
-The selected CI module is tightly integrated into NWChem but as yet no
+The selected CI module is integrated into NWChem but as yet no
 input module has been written.  The input thus consists of setting the
 appropriate variables in the database.
 
@@ -53,7 +53,7 @@ symmetry with the following input
     H library aug-cc-pvdz; O library aug-cc-pvdz
   end
   task scf
-  scf; tol2e 1d-8; thresh 1d-8; end
+  scf; thresh 1d-8; end
 \end{verbatim}
 
 The following input restarts from the SCF to perform a sequence of
@@ -61,8 +61,8 @@ selected CI calculations with the specified tolerances, starting with
 the SCF reference.
 \begin{verbatim}
   restart h2o
-  set fourindex:occ_frozen integer 1
-  set "selci:selection thresholds" real \
+  set fourindex:occ_frozen 1
+  set "selci:selection thresholds" \
       0.001 0.001 0.0001 0.0001 0.00001 0.00001 0.000001
   task selci
 \end{verbatim}
@@ -166,7 +166,7 @@ number of doubly occupied orbitals, \verb+nd+, is inferred from
 strung together and inserted into the database as a single integer
 array with name \verb+"selci:conf"+.  For example, the input
 \begin{verbatim}
-  set "selci:conf" integer \
+  set "selci:conf" \
     0                1  2  3  4 \
     0                1  2  3 27 \
     0                1  3  4 19 \
@@ -202,17 +202,17 @@ specify complete active spaces with up to ten electrons.
 
 The number of sets is specified as follows,
 \begin{verbatim}
-  set selci:ngen integer 4
+  set selci:ngen 4
 \end{verbatim}
 which indicates that there will be four sets.  Each set is then
 specified as a separate integer array
 \begin{verbatim}
-  set "selci:refgen  1" integer 5 4    6 4   5 3   6 3  
-  set "selci:refgen  2" integer 5 4    6 4   5 3   6 3  
-  set "selci:refgen  3" integer 5 4    6 4   5 3   6 3  
-  set "selci:refgen  4" integer 5 4    6 4   5 3   6 3  
+  set "selci:refgen  1" 5 4    6 4   5 3   6 3  
+  set "selci:refgen  2" 5 4    6 4   5 3   6 3  
+  set "selci:refgen  3" 5 4    6 4   5 3   6 3  
+  set "selci:refgen  4" 5 4    6 4   5 3   6 3  
 \end{verbatim}
-In the absence of friendly input note that the names
+In the absence of friendly, input note that the names
 \verb+"selci:refgen n"+ must be formatted with n in \verb+I2+
 format. Each set specifies a list of creation-annihilation operator
 pairs (in that order).  So for instance, in the above example each set
@@ -244,7 +244,7 @@ By default no excitation is applied to the reference configurations.
 If, for instance, you wanted to generate a single excitation CI space
 from the current configuration list, specify
 \begin{verbatim}
-set selci:exci integer 1
+set selci:exci 1
 \end{verbatim}
 Any excitation level may be applied, but since the list of
 configurations is explicitly generated, as is the CI Hamiltonian
@@ -257,7 +257,7 @@ By default, only one root is generated in the CI diagonalization or
 perturbation selection.  The following requests that 2 roots be
 generated
 \begin{verbatim}
-  set selci:nroot integer 2
+  set selci:nroot 2
 \end{verbatim}
 There is no imposed upper limit.  If many roots are required, then, to
 minimize root skipping problems, it helps to perform an initial
@@ -272,7 +272,7 @@ $10^{-6}$ which provides similar accuracy in the perturbation
 corrections to the energy, and much higher accuracy in the CI
 eigenvalues.  This may be adjusted with
 \begin{verbatim}
- set "selci:diag tol" real 1d-3
+ set "selci:diag tol" 1d-3
 \end{verbatim}
 the example setting much lower precision, appropriate for the
 approximate diagonalization discussed in the preceding section.
@@ -286,7 +286,7 @@ the CI expansion with configurations that make an energy lowering to
 any root greater than $T$.  The list of selection thresholds is
 specified as follows
 \begin{verbatim}
-  set "selci:selection thresholds" real \
+  set "selci:selection thresholds" \
       0.001 0.001 0.0001 0.0001 0.00001 0.00001 0.000001
 \end{verbatim}
 

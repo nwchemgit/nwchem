@@ -3,8 +3,7 @@
 The NWChem coupled cluster energy module is primarily the work of
 Alistair Rendell and Rika Kobayashi, with contributions from David
 Bernholdt, and is derived from the Titan parallel coupled cluster
-program.  The gradients program is the work of Kobayashi and
-Bernholdt, with contributions from Harrison.
+program.
 
 The coupled cluster code can perform calculations with full iterative
 treatment of single and double excitations and non-iterative inclusion
@@ -132,7 +131,8 @@ Currently available methods are
 excitations
 \item \verb=CCSD+T(CCSD)= -- The fourth order triples contribution computed with
 converged singles and doubles amplitudes
-\item \verb=CCSD(T)= -- {\bf ?????????????}
+\item \verb=CCSD(T)= -- The linearized triples approximation due to
+  Raghavachari.
 \end{itemize}
 
 The calculation is invoked using the the \verb+TASK+ directive, so to
@@ -163,8 +163,8 @@ control the calculation of particular terms in the program.  These are
 actually effect anything) which can be set from the input deck.  See
 the code for details of how the arrays are interpreted.  
 
-Printing of this data at run-time is controlled by the \verb+''term
-debugging switches''+ print option.  The values are checked against
+Printing of this data at run-time is controlled by the \verb+"term
+debugging switches"+ print option.  The values are checked against
 the defaults at run-time and a warning is printed to draw attention to
 the fact that the calculation does not correspond precisely to the
 requested method.
