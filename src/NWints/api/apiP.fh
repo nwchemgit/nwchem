@@ -1,5 +1,5 @@
 c
-c $Id: apiP.fh,v 1.15 1999-11-02 22:22:01 bert Exp $
+c $Id: apiP.fh,v 1.16 1999-11-11 00:38:53 bert Exp $
 c
 c common block that holds memory information
 c
@@ -71,6 +71,6 @@ c form_type: 1. Free-Particle projection operators
 c            2. External potential projection operators without pxVp integrals
 c            3. Full spin-free Douglas-Kroll
 c
-      logical doug_kroll ! Do we do Douglas-Kroll or not?
-      integer form_type  ! Type of Douglas-Kroll, see above.
-      common /DK_ints/doug_kroll, form_type
+      logical doug_kroll    ! Do we do Douglas-Kroll or not?
+      integer dk_form_type  ! Type of Douglas-Kroll, see above.
+      common /DK_ints/doug_kroll, dk_form_type
