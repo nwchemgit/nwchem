@@ -1,5 +1,5 @@
       subroutine moints_full(rtdb)
-C     $Id: moints_full.F,v 1.2 1996-01-31 23:34:04 d3g681 Exp $
+C     $Id: moints_full.F,v 1.3 1996-02-01 01:33:55 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -518,7 +518,7 @@ c
 c
       end
       subroutine moints_vecs_sym_sort(g_vecs, nbf, lo, hi,
-     $     irs, map, nsym, work, nsym, sym_lo, sym_hi)
+     $     irs, map, work, nsym, sym_lo, sym_hi)
       implicit none
 #include "global.fh"
       integer g_vecs            ! [input] GA handle to vectors
