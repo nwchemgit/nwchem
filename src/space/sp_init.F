@@ -6,7 +6,7 @@
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd)
 c
 c
-c $Id: sp_init.F,v 1.38 1999-10-08 18:29:34 d3j191 Exp $
+c $Id: sp_init.F,v 1.39 1999-10-25 17:43:39 d3j191 Exp $
 c
       implicit none
 c
@@ -655,7 +655,7 @@ c
       xwcr(new,j)=brw(i,j)
   124 continue
       iwl(new,lwbox)=ibw(i,1)
-      iwl(new,lwdyn)=ibw(i,2)
+      iwl(new,lwdyn)=5*ibw(i,2)
       endif
    11 continue
 c
@@ -769,7 +769,7 @@ c
       isl(new,lsct2)=ibs(k,8)
       isl(new,lsct3)=ibs(k,9)
       isl(new,lssss)=ibs(k,10)
-      isl(new,lsdyn)=ibs(k,11)
+      isl(new,lsdyn)=5*ibs(k,11)
       xs(new,1)=bxs(k,1)
       xs(new,2)=bxs(k,2)
       xs(new,3)=bxs(k,3)
@@ -1678,8 +1678,7 @@ c
       write(lfnrst,1006) ((bxw(i,j,k),j=1,3),(zero,j=1,3),k=1,nwa)
       endif
  1006 format(2x,6f13.8)
-      idyn=iand(ibw(i),mdynam)
-      if(idyn.ne.0) idyn=1
+      idyn=iand(ibw(i),3)
       write(lfnrst,1007) idyn,(brw(i,k),k=1,3)
  1007 format(i1,1x,3f13.8)
     5 continue
@@ -1717,8 +1716,7 @@ c
       endif
     7 continue
       do 9 i=1,nums
-      idyn=iand(ibs(i),mdynam)
-      if(idyn.ne.0) idyn=1
+      idyn=iand(ibs(i),3)
       if(lveloc) then
       write(lfnrst,1008) idyn,(bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
       else
