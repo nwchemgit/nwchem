@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.14 1997-03-10 23:05:21 mdupuis Exp $
+C$Id: opt_drv.F,v 1.15 1997-03-11 22:48:24 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -162,7 +162,7 @@ c
          call geom_zmt_icoord
          ncart =3*nat
          ncoord=nvar                  
-         mcoord=nzvar
+         mcoord=max(ncart,nzvar)
       else
          nzmat =0
          nzvar =0
@@ -696,15 +696,34 @@ c     ----- transform -gx- to -gs- -----
 c
       ncart=3*nat
       status=ma_push_get(MT_DBL,ncart*nzvar,'mem bi',i_ibi,ibi)
+      if(dbug) then
+         write(iw,*) 'in opt_tfgx'
+         write(iw,*) '-gx-'
+         call hnd_prsq(g,1,ncart,ncart)
+      endif
       status=geom_zmt_get_binv(dbl_mb(ibi),ncart,nzvar,ncart)
+      if(dbug) then
+         write(iw,*) '-binv-'
+         call hnd_prsq(dbl_mb(ibi),nzvar,ncart,ncart)
+      endif
       status=geom_hnd_tfgx(gs,g,dbl_mb(ibi),nvar,ncart,ncart)
+      if(dbug) then
+         write(iw,*) '-gs-'
+         call hnd_prsq(gs,1,nvar,ncart)
+      endif
       status=ma_pop_stack(i_ibi)
       do i=1,nvar
          g(i)=gs(i)
       enddo
-      do i=nvar+1,ncart
-         g(i)=zero
-      enddo
+      if(ncart.gt.nvar) then
+         do i=nvar+1,ncart
+            g(i)=zero
+         enddo
+      endif
+      if(dbug) then
+         write(iw,*) '-gs-'
+         call hnd_prsq(g,1,ncart,ncart)
+      endif
 c
       return
       end
@@ -717,7 +736,6 @@ c
       logical  gradients
       external gradients
       logical  geom_zmt_get_binv
-      logical  geom_zmt_get_zsym
       logical  geom_hnd_tfds
       logical  status
       logical  dbug
@@ -868,7 +886,6 @@ c
       integer h_hssx , k_hssx    ! MA handle/index 
       integer h_hssq , k_hssq    ! MA handle/index 
       integer h_binv , k_binv    ! MA handle/index 
-      integer h_zsym , k_zsym    ! MA handle/index 
       integer h_t    , k_t       ! MA handle/index 
       integer h_zmat , k_zmat    ! MA handle/index 
       integer h_izmat, k_izmat   ! MA handle/index 
@@ -880,7 +897,6 @@ c
 c
       logical geom_zmt_get_binv
       logical geom_zmt_get_zmat
-      logical geom_zmt_get_zsym
       logical geom_zmt_get_izmat
       logical dbug
       logical out 
@@ -1482,7 +1498,7 @@ c
       data errmsg   /'program ','stop in ','opn_hess'/
       data ift      /31/
 c
-      dbug=.true. 
+      dbug=.false.
 c
       call util_file_name('driver',.false.,.false.,opt_hess_fil)
       open(unit=ift,file=opt_hess_fil,form='unformatted',
@@ -1524,7 +1540,7 @@ c
       data errmsg   /'program ','stop in ','cls_hess'/
       data ift      /31/
 c
-      dbug=.true.
+      dbug=.false.
 c
       close(unit=ift,status='keep',err=911)
       if(dbug) then
@@ -1630,7 +1646,7 @@ c
       logical    status
       logical    driver_opt_get_hess
       logical    driver_opt_put_hess
-      logical    geom_zmt_get_zsym
+      logical    geom_zmt_get_zind
 c
       parameter (mxatom=500)
       parameter (mxcart=3*mxatom)
@@ -1665,11 +1681,11 @@ c
       ndimi=ncoord
       ndim =mcoord           
       if(baker) then
-         ndim1=ndimi+1
+         ndim1=ndim +1
       else
-         ndim1=ndimi
+         ndim1=ndim 
       endif
-      if(dbug) then
+      if(out) then
          write(iw,*) 'in search_dir,',
      1   ' ndimx,ndimq,ndimi,ndim,ndim1 = ', 
      2     ndimx,ndimq,ndimi,ndim,ndim1
@@ -1727,7 +1743,7 @@ c
          endif
          status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
-            status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
+            status=geom_zmt_get_zind(x(j20),ndimq,ndim)
             call ga_brdcst(61+msgdbl,x(j20),mdtob(ndim*ndim),0)
          else
             call ga_brdcst(61+msgdbl,x(j20),mdtob(ndim*ndim),0)
@@ -1735,7 +1751,7 @@ c
          call ga_sync()
          status=rtdb_parallel(.true.) 
          if(dbug) then
-            write(iw,*) 'in -search_dir- , zsym = '                 
+            write(iw,*) 'in -search_dir- , zind = '                 
             call hnd_prsq(x(j20),ndimq,ndimq,ndim)
          endif
          call hnd_tfhs(x(j10),x(j20),x(j30),ndimq,ndimq,ndim)
@@ -1794,7 +1810,7 @@ c
          endif
          status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
-            status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
+            status=geom_zmt_get_zind(x(j20),ndimq,ndim)
             call ga_brdcst(81+msgdbl,x(j20),mdtob(ndim*ndim),0)
          else
             call ga_brdcst(81+msgdbl,x(j20),mdtob(ndim*ndim),0)
@@ -1876,7 +1892,7 @@ C
       DATA TENM1  /1.0D-01/
 C
       DBUG=.FALSE.
-      OUT =.TRUE. 
+      OUT =.FALSE.
       OUT =OUT.OR.DBUG
       IF(OUT) THEN
          WRITE(IW,9999) NVAR,NDIM
@@ -2792,7 +2808,7 @@ C
       LOGICAL STATUS
       LOGICAL DRIVER_OPT_PUT_HESS
       LOGICAL DRIVER_OPT_GET_HESS
-      LOGICAL GEOM_ZMT_GET_ZSYM
+      LOGICAL GEOM_ZMT_GET_ZIND
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
 C
@@ -2849,7 +2865,7 @@ c
          status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
             status=driver_opt_get_hess(x(j10),ndimq,ndim) 
-            status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
+            status=geom_zmt_get_zind(x(j20),ndimq,ndim)
             call ga_brdcst(101+msgdbl,x(j10),mdtob(ndim*ndim),0)
             call ga_brdcst(102+msgdbl,x(j20),mdtob(ndim*ndim),0)
          else
@@ -2862,7 +2878,7 @@ c
          if(dbug) then
             write(iw,*) 'in hss_update, current hessian = '
             call hnd_prsq(x(j10),ndimq,ndimq,ndim)
-            write(iw,*) 'in hss_update, zsym = '
+            write(iw,*) 'in hss_update, zind = '
             call hnd_prsq(x(j20),ndimq,ndimq,ndim)
          endif
          call hnd_tfhs(x(j10),x(j20),x(j30),ndimq,ndimq,ndim)
@@ -2922,7 +2938,7 @@ c
          enddo
          status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
-            status=geom_zmt_get_zsym(x(j20),ndimq,ndimq,ndim)
+            status=geom_zmt_get_zind(x(j20),ndimq,ndim)
             call ga_brdcst(121+msgdbl,x(j20),mdtob(ndim),0)
          else
             call ga_brdcst(121+msgdbl,x(j20),mdtob(ndim),0)
