@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.8 2000-09-01 00:53:40 bjohnson Exp $	
+#	$Id: MakeFile,v 1.9 2000-10-12 22:07:16 d3g681 Exp $	
 #
 
 !MESSAGE *** Unresolved issues in this nmake file ***
@@ -26,7 +26,8 @@ OBJ_OPTIMIZE = $(OBJDIR)\ga_matpow.obj \
                $(OBJDIR)\ga_orthog.obj \
                $(OBJDIR)\idamin.obj \
                $(OBJDIR)\util_jacobi.obj \
-               $(OBJDIR)\stpr_sjacobi.obj
+               $(OBJDIR)\stpr_sjacobi.obj \
+               $(OBJDIR)\util_memcpy.obj
 
 OBJ =          $(OBJDIR)\output.obj \
                $(OBJDIR)\errquit.obj \
