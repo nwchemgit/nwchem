@@ -1,58 +1,70 @@
 #!/bin/csh
 #
-# $Id: nqetests,v 1.1 1999-07-22 07:54:12 d3e129 Exp $
+# $Id: nqetests,v 1.2 1999-07-22 08:40:04 d3e129 Exp $
 #
 #---   small tests
 cd ~/nwchem/QA/tests/auh2o
-nwdebug auh2o.nw -accnt mp15 -procs 2 -time 3600
+nwdebug auh2o.nw -queue debug -accnt mp15 -procs 2 -time 1999
 cd ~/nwchem/QA/tests/auh2o
-nwdebug auh2o.nw -accnt mp15 -procs 4 -time 3600
+nwdebug auh2o.nw -queue debug -accnt mp15 -procs 4 -time 1999
 cd ~/nwchem/QA/tests/autosym
-nwdebug autosym.nw -accnt mp15 -procs 2 -time 3600
+nwdebug autosym.nw -queue debug -accnt mp15 -procs 2 -time 1999
+nwdebug autosym.nw -queue debug -accnt mp15 -procs 4 -time 1999
 cd ~/nwchem/QA/tests/dft_he2+
-nwdebug dft_he2+.nw -accnt mp15 -procs 2 -time 3600
+nwdebug dft_he2+.nw -queue debug -accnt mp15 -procs 4 -time 1900
+nwdebug dft_he2+.nw -queue debug -accnt mp15 -procs 16 -time 1900
 cd ~/nwchem/QA/tests/h2mp2
-nwdebug h2mp2.nw -accnt mp15 -procs 2 -time 3600
+nwdebug h2mp2.nw -queue debug -accnt mp15 -procs 2 -time 1999
 cd ~/nwchem/QA/tests/h2o
-nwdebug h2o.nw -accnt mp15 -procs 2 -time 3600
+nwdebug h2o.nw -queue debug -accnt mp15 -procs 2 -time 1999
 cd ~/nwchem/QA/tests/hess_h2o
-nwdebug hess_h2o.nw -accnt mp15 -procs 2 -time 3600
+nwdebug hess_h2o.nw -queue debug -accnt mp15 -procs 3 -time 1999
 cd ~/nwchem/QA/tests/prop_h2o
-nwdebug prop_h2o.nw -accnt mp15 -procs 2 -time 3600
+nwdebug prop_h2o.nw -queue debug -accnt mp15 -procs 2 -time 1999
 cd ~/nwchem/QA/tests/pyqa
-nwdebug pyqa.nw -accnt mp15 -procs 2 -time 3600
+nwdebug pyqa.nw -queue debug -accnt mp15 -procs 2 -time 1999
 cd ~/nwchem/QA/tests/rimp2_ne
-nwdebug rimp2_ne.nw -accnt mp15 -procs 2 -time 3600
+nwdebug rimp2_ne.nw -queue debug -accnt mp15 -procs 2 -time 1999
 cd ~/nwchem/QA/tests/sadsmall
-nwdebug sadsmall.nw -accnt mp15 -procs 2 -time 3600
+nwdebug sadsmall.nw -queue debug -accnt mp15 -procs 2 -time 1999
 cd ~/nwchem/QA/tests/scf_feco5
-nwdebug scf_feco5.nw -accnt mp15 -procs 2 -time 3600
+nwdebug scf_feco5.nw -queue debug -accnt mp15 -procs 4 -time 1999
 cd ~/nwchem/QA/tests/small_intchk
-nwdebug small_intchk.nw -accnt mp15 -procs 2 -time 3600
+nwdebug small_intchk.nw -queue debug -accnt mp15 -procs 4 -time 1999
 cd ~/nwchem/QA/tests/tagcheck
-nwdebug tagcheck.nw -accnt mp15 -procs 2 -time 3600
+nwdebug tagcheck.nw -queue debug -accnt mp15 -procs 2 -time 1999
 cd ~/nwchem/QA/tests/testtab
-nwdebug testtab.nw -accnt mp15 -procs 2 -time 3600
+nwdebug testtab.nw -queue debug -accnt mp15 -procs 2 -time 1999
 #---   small tests that should fail!
 cd ~/nwchem/QA/tests/oh2
-nwdebug oh2.nw -accnt mp15 -procs 2 -time 3600
+nwdebug oh2.nw -queue debug -accnt mp15 -procs 2 -time 1999
 #---   medium tests
 cd ~/nwchem/QA/tests/dft_feco5 
-nwdebug dft_feco5 .nw -accnt mp15 -procs 16 -time 3600
-exit 0
-runtests.unix dft_ozone 
-runtests.unix dft_siosi3
-runtests.unix dielsalder
-runtests.unix grad_ozone
-runtests.unix hess_c6h6
-runtests.unix intchk
-runtests.unix sadbig
-runtests.unix 
-runtests.unix 
+nwdebug dft_feco5.nw -accnt mp15 -procs 16 -time 3600
+cd ~/nwchem/QA/tests/dft_ozone
+nwdebug dft_ozone.nw -accnt mp15 -procs 2 -time 3600 
+cd ~/nwchem/QA/tests/dft_siosi3
+nwdebug dft_siosi3.nw -accnt mp15 -procs 8 -time 3600
+cd ~/nwchem/QA/tests/dielsalder
+nwdebug dielsalder.nw -accnt mp15 -procs 4 -time 3600
+cd ~/nwchem/QA/tests/grad_ozone
+nwdebug grad_ozone.nw -accnt mp15 -procs 3 -time 3600
+cd ~/nwchem/QA/tests/hess_c6h6
+nwdebug hess_c6h6.nw -accnt mp15 -procs 7 -time 3600
+cd ~/nwchem/QA/tests/intchk
+nwdebug intchk.nw -accnt mp15 -procs 5 -time 7200
+cd ~/nwchem/QA/tests/sadbig
+nwdebug sadbig.nw -accnt mp15 -procs 6 -time 3600
 #---   long  may not run on workstations
-runtests.unix aump2 
-runtests.unix grad_nh3_trimer 
-runtests.unix hess_nh3
-runtests.unix hess_nh3_dimer
-runtests.unix mp2_si2h6
-runtests.unix uoverlap
+cd ~/nwchem/QA/tests/aump2 
+nwdebug aump2 .nw -accnt mp15 -procs 64 -time 3600
+cd ~/nwchem/QA/tests/grad_nh3_trimer 
+nwdebug grad_nh3_trimer .nw -accnt mp15 -procs 128 -time 3600
+cd ~/nwchem/QA/tests/hess_nh3
+nwdebug hess_nh3.nw -accnt mp15 -procs 72 -time 7200
+cd ~/nwchem/QA/tests/hess_nh3_dimer
+nwdebug hess_nh3_dimer.nw -accnt mp15 -procs 256 -time 14900
+cd ~/nwchem/QA/tests/mp2_si2h6
+nwdebug mp2_si2h6.nw -accnt mp15 -procs 128 -time 7200
+cd ~/nwchem/QA/tests/uoverlap
+nwdebug uoverlap.nw -accnt mp15 -procs 33 -time 3600
