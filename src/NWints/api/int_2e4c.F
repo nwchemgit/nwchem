@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.15 1995-10-30 20:53:34 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.16 1995-10-31 09:22:58 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -49,6 +49,8 @@ c.txs
       double precision roff(3)
       integer nint
       logical dum_log
+      logical status_sp, status_nw, status_txs
+      integer texas_ang_limit
 c
 #if defined(PERF_NORMAL)
       logical shells_ok
@@ -107,7 +109,30 @@ c
       if(o_int_time.and.(int_time_level.ge.1))
      &   call pstat_on(intt_arr(intt_hf2))
 #endif
-      if (cando_sp(brain,ish,jsh).and.cando_sp(ketin,ksh,lsh)) then
+c... stat sp
+      status_sp = cando_sp(brain,ish,jsh).and.cando_sp(ketin,ksh,lsh)
+
+c... stat texas
+      texas_ang_limit = 2
+      ucont   = ibs_cn2ucn(ish,bra)
+      La      = infbs_cont(CONT_TYPE ,ucont,bra)
+      ucont   = ibs_cn2ucn(jsh,bra)
+      Lb      = infbs_cont(CONT_TYPE ,ucont,bra)
+      ucont   = ibs_cn2ucn(ksh,ket)
+      Lc      = infbs_cont(CONT_TYPE ,ucont,ket)
+      ucont   = ibs_cn2ucn(lsh,ket)
+      Ld      = infbs_cont(CONT_TYPE ,ucont,ket)
+      status_txs = cando_txs(brain,ish,jsh).and.cando_txs(ketin,ksh,lsh)
+      status_txs = status_txs .and. brain.eq.ketin
+      status_txs = status_txs .and.
+     &    ( (La.gt.texas_ang_limit).or.
+     &      (Lb.gt.texas_ang_limit).or.
+     &      (Lc.gt.texas_ang_limit).or.
+     &      (Ld.gt.texas_ang_limit)  )
+
+c... stat nw
+      status_nw  = cando_nw(brain,ish,jsh).and.cando_nw(ketin,ksh,lsh)
+      if (status_sp) then
 c
         call genr70(
      &         brain,ish,coords(1,a_cent,bra),
@@ -116,8 +141,7 @@ c
      &               lsh,coords(1,d_cent,ket),
      &         eri)
 c        
-      elseif(cando_txs(brain,ish,jsh).and.cando_txs(ketin,ksh,lsh))
-     &      then
+      elseif(status_txs)  then
         num_quart = 1
         dummy_lab(1) = 0
         dummy_lab(2) = 0
@@ -125,14 +149,14 @@ c
         roff(2) = 0.0d00
         roff(3) = 0.0d00
         dum_log = .false.
-        call texas_hf2_m(ish,jsh,ksh,lsh,num_quart,
+        call texas_hf2_m(brain,ish,jsh,ketin,ksh,lsh,num_quart,
 c............................... use roff set false
      &      roff,roff,roff,roff,.false.,
      &      eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
 c............... gen labs .. more_integrals
      &      nint, .false., dum_log, scr, lscr)
 
-      elseif(cando_nw(brain,ish,jsh).and.cando_nw(ketin,ksh,lsh)) then
+      elseif(status_nw) then
 c
         ucont   = ibs_cn2ucn(ish,bra)
         La      = infbs_cont(CONT_TYPE ,ucont,bra)
