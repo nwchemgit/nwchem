@@ -273,7 +273,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     char            msg[ 35 ];
     char            msg2[ 256]; 
 
-    Integer         **iptr, num_procs, *proclist, *clustr_info;
+    Integer         **iptr, num_procs, *proclist, *clustr_info, jjj;
     
     DoublePrecision vec[2], fnormA, fnormT, ulp;
     DoublePrecision *d_scrat, *ld, *lld, dummy, dummy1,
@@ -341,92 +341,92 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 
     FILE *file;
     char filename[40];
-
     me    = mxmynd_();
     nproc = mxnprc_();
     strcpy( msg,  "Error in pdspevx." );
     sprintf( filename, "pdspevx.%d", me);
     
-/*
-    setdbg_(&peigs_DEBUG);
-*/
-
-    
-   /*
-    *     Test the input parameters.
+    /*
+      setdbg_(&peigs_DEBUG);
     */
-
-   linfo = 0;
-
-   if ( ivector == NULL )
+    
+    
+    /*
+     *     Test the input parameters.
+     */
+    
+    linfo = 0;
+    
+    if ( ivector == NULL )
       linfo = -1;
-   else if ( irange == NULL )
+    else if ( irange == NULL )
       linfo = -2;
-   else if ( n == NULL )
-     linfo = -3;
-   else if ( vecA == NULL )
-     linfo = -4;
-   else if ( mapA == NULL )
-     linfo = -5;
-   else if ( lb == NULL )
-     linfo = -6;
-   else if ( ub == NULL )
-     linfo = -7;
-   else if ( ilb == NULL )
+    else if ( n == NULL )
+      linfo = -3;
+    else if ( vecA == NULL )
+      linfo = -4;
+    else if ( mapA == NULL )
+      linfo = -5;
+    else if ( lb == NULL )
+      linfo = -6;
+    else if ( ub == NULL )
+      linfo = -7;
+    else if ( ilb == NULL )
       linfo = -8;
-   else if ( iub == NULL )
+    else if ( iub == NULL )
       linfo = -9;
-   else if ( abstol == NULL )
+    else if ( abstol == NULL )
       linfo = -10;
-   else if ( meigval == NULL )
+    else if ( meigval == NULL )
       linfo = -11;
-   else if ( vecZ == NULL )
+    else if ( vecZ == NULL )
       linfo = -12;
-   else if ( mapZ == NULL )
+    else if ( mapZ == NULL )
       linfo = -13;
-   else if ( eval == NULL )
+    else if ( eval == NULL )
       linfo = -14;
-   else if ( iscratch == NULL )
+    else if ( iscratch == NULL )
       linfo = -15;
-   else if ( iscsize == NULL )
+    else if ( iscsize == NULL )
       linfo = -16;
-   else if ( dblptr == NULL )
+    else if ( dblptr == NULL )
       linfo = -17;
-   else if ( ibuffsize == NULL )
+    else if ( ibuffsize == NULL )
       linfo = -18;
-   else if ( scratch == NULL )
+    else if ( scratch == NULL )
       linfo = -19;
-   else if ( ssize == NULL )
+    else if ( ssize == NULL )
       linfo = -20;
-   else if ( info == NULL )
+    else if ( info == NULL )
       linfo = -21;
-
-   if ( linfo != 0 ) {
-     if ( info != NULL )
+    
+    if ( linfo != 0 ) {
+      if ( info != NULL )
         *info = linfo;
-
-     fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n",
-              msg, me, -linfo );
-     xstop_( &linfo );
-     return;
-   }
-
+      
+      fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n",
+	       msg, me, -linfo );
+      xstop_( &linfo );
+      return;
+    }
+    
     msize   = *n;
-   *info    = 0;
-   *meigval = 0;
-
+    *info    = 0;
+    *meigval = 0;
+    
 
    /*
     *  Quick return if possible.
     */
 
-   if ( *n == 0 )
+    if ( *n == 0 )
       return;
 
-   /*
-    *  Continue error checking.
-    */
-
+    
+    /*
+     *  Continue error checking.
+     */
+    
    if ( *ivector < 0  || *ivector > 1 )
       *info = -1;
    else if ( *irange < 1  || *irange > 3 )
@@ -528,7 +528,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     /*
      *  Reduce mapA and mapZ to a single sorted list of processors.
      */
-    
+   
 #ifdef DEBUG7
     printf(" in pdspevx me = %d \n", mxmynd_());
    fflush(stdout);
@@ -565,18 +565,18 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      */
     
     maxinfo = 0;
-
+    
     isize   = msize * sizeof( Integer );
     strcpy(msg2, "mapA ");
     pdiff( &isize, (char *) mapA, proclist, &nn_proc, i_scrat, msg, msg2, &linfo );
     
-
+    
     maxinfo = max( maxinfo, linfo );
     
     strcpy(msg2, "mapZ ");
     pdiff( &isize, (char *) mapZ, proclist, &nn_proc, i_scrat, msg, msg2, &linfo );
-
-
+    
+    
     maxinfo = max( maxinfo, linfo );
 
 
@@ -675,20 +675,20 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
         vecQ[indx] = dptr;
 	dptr += msize;
     }
-
+    
     /*
      * Reduce A to tridiagonal form.
      */
-
+    
     
     
     if (nvecsA + nvecsQ > 0) {
       fnormA = 0.0;
       /*
-	 if( nvecsA > 0 ){
-	 sfnorm( &msize, vecA, mapA, &fnormA, i_scrat, d_scrat, &linfo);
-	 }
-	 */
+	if( nvecsA > 0 ){
+	sfnorm( &msize, vecA, mapA, &fnormA, i_scrat, d_scrat, &linfo);
+	}
+      */
       
 #ifdef TIMING
       tt1 = t1 = mxclock_();
@@ -714,42 +714,41 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    anrm = 0.0;
    k = 0;
    /*
-   for ( iii = 0; iii < msize; iii++){
+     for ( iii = 0; iii < msize; iii++){
      if ( mapA[iii] == me ) {
-       for ( ii = 0; ii < msize-iii; ii++)
-	 anrm = max(fabs(vecA[k][ii]), anrm);
-       k++;
-       }
-       }
-   
-   syncco[0] = anrm;
-   gmax00( (char *) &syncco[0], 1, 5, 10, proclist[0], nn_proc, proclist, d_scrat);
-   anrm = syncco[0];
-
+     for ( ii = 0; ii < msize-iii; ii++)
+     anrm = max(fabs(vecA[k][ii]), anrm);
+     k++;
+     }
+     }
+     
+     syncco[0] = anrm;
+     gmax00( (char *) &syncco[0], 1, 5, 10, proclist[0], nn_proc, proclist, d_scrat);
+     anrm = syncco[0];
+     
    */
-
+   
    iscale = 0;
-
+   
    /*
-   sigma = 0.;
-   if (( anrm > 0.0 ) && ( anrm < rmin)) {
+     sigma = 0.;
+     if (( anrm > 0.0 ) && ( anrm < rmin)) {
      iscale = 1;
      sigma = rmin/anrm;
-   }
-   else
+     }
+     else
      if ( anrm > rmax ) {
-       iscale = 1;
-       sigma = rmax/anrm;
+     iscale = 1;
+     sigma = rmax/anrm;
      }
    */
-
+   
    /*
-   printf("********* after me = %d iscale %d sigma %g anrm %g rmax %g  \n", me, iscale, sigma, anrm, rmax);
-   fflush(stdout);
+     printf("********* after me = %d iscale %d sigma %g anrm %g rmax %g  \n", me, iscale, sigma, anrm, rmax);
+     fflush(stdout);
    */
    
    if ( iscale == 1 && sigma > 0.0 ){
-     printf(" me= %d sigma = %f \n", me, sigma);
      k = 0;
      for ( iii = 0; iii < msize; iii++){
        if ( mapA[iii] == me ) {
@@ -759,22 +758,39 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
        }
      }
    }
-   
+
+   /*
+     k = 0;
+     for ( iii = 0; iii < *n; iii++ )
+     if ( mapA[iii] == me ){
+     for ( j = 0; j < msize - iii; j++ )
+     printf(" %d %d %g \n", iii, j, vecA[k][j]);
+     k++;
+     }
+   */
    
    tred2( &msize, vecA, mapA, vecQ, mapQ, dd, ee, i_scrat, d_scrat);
 
    /*
-   if ( me == 0 ) {
+     for ( iii = 0; iii < *n; iii++ )
+     printf(" d[%d] = %g \n", iii, dd[iii]);
+     for ( iii = 0; iii < *n; iii++ )
+     printf(" e[%d] = %g \n", iii, ee[iii]);
+   */
+  
+
+   /*
+     if ( me == 0 ) {
      file = fopen(filename, "a+");
      fprintf(file, "info = %d \n", linfo);
      fprintf(file, "%d \n", msize);
      for ( iii = 0; iii < msize; iii++)
-
-
-      fprintf(file, "%d %20.16f %20.16f \n", iii, dd[iii], ee[iii]);
+     
+     
+     fprintf(file, "%d %20.16f %20.16f \n", iii, dd[iii], ee[iii]);
      fflush(file);
      fclose(file);
-   }
+     }
    */
 
 #ifdef DEBUG7
@@ -806,8 +822,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       t1 = mxclock_();
 #endif
 #ifdef DEBUG7
-   printf(" in pdspevx pstebz10 me = %d \n", mxmynd_());
-   fflush(stdout);
+      printf(" in pdspevx pstebz10 me = %d \n", mxmynd_());
+      fflush(stdout);
 #endif
       
       peigs_shift = 0.0e0;
@@ -817,7 +833,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 #ifdef PSCALE
       pscale_( irange, &msize, lb, ub, ilb, iub, abstol,
 	       dd, ee, dplus, lplus,
-		 mapZ, &neigval, &nsplit, eval, iblock, isplit,
+	       mapZ, &neigval, &nsplit, eval, iblock, isplit,
 	       d_scrat, i_scrat, &linfo);
       
       syncco[0] = 0.0e0;
@@ -826,18 +842,47 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       
       psgn = 1.0;
       psigma = 0.0;
+      for(indx = 0;indx < msize;indx++)
+	lplus[indx] = 0.0e0;
+      for(indx = 0;indx < msize;indx++)
+	dplus[indx] = 0.0e0;
 
+      /*
+	for ( iii = 0; iii < *n; iii++ )
+	printf(" after lplus d[%d] = %g \n", iii, dd[iii]);
+	for ( iii = 0; iii < *n; iii++ )
+	printf(" e[%d] = %g \n", iii, ee[iii]);
+      */
+
+	
       pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol,
 		 dd, ee, dplus, lplus, mapZ, &neigval, 
 		 &nsplit, eval, iblock, isplit,
 		 d_scrat, i_scrat, &linfo);
 
       /*
+	for ( iii = 0; iii < msize; iii++)
+	printf(" me = %d iii %d lplus %g dplus %g \n", me, iii, lplus[iii], dplus[iii]);
+      */
+      
+      
+      if ( msize == 1 ) {
+	if ( mapZ[0] == me ) {
+	  vecZ[0][0] = 1;
+	}
+	*info == 0;
+	return;
+      }
+      
+	  
+	
+      
+      /*
 	if ( me==0) {
 	for ( iii = 0; iii < msize; iii++)
 	printf(" me = %d iii %d pstebz %f \n", me, iii, eval[iii]);
 	}
-	*/
+      */
       
       syncco[0] = 0.0e0;
       gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
@@ -884,8 +929,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      ld[indx] = dummy;
      lld[indx] = dummy*dummy1;
    }
-   
-   
+
    if( *info != 0 ) {
      fprintf(stderr, " %s me = %d pstebz_ returned info = %d \n", msg, me, *info );
      *info = 1;
@@ -948,26 +992,26 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     printf(" me = %d just before pstein5 %d \n", me, *info );
     fflush(stdout);
 #endif
-      
+    
       /*
 	tight cluster
-	*/
-      
-      
-      /*
-	fprintf(stderr, "me = %d pdspevx 11 \n", me );
-	fflush(stderr);
-	*/
+      */
+    
+    
+    /*
+      fprintf(stderr, "me = %d pdspevx 11 \n", me );
+      fflush(stderr);
+    */
+
+    
     
     syncco[0] = 0.0e0;
-    
     gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
-    
-    pstein5 ( &msize, dd, ee, dplus, lplus, ld, lld,
-	      &neigval, eval, iblock, &nsplit, isplit,
-	      mapZ, vecZ, clustr_info, d_scrat,i_scrat, iptr, info);
-    
-    
+
+    pstein5( &msize, dd, ee, dplus, lplus, ld, lld,
+	     &neigval, eval, iblock, &nsplit, isplit,
+	     mapZ, vecZ, clustr_info, d_scrat,i_scrat, iptr, info);
+
     syncco[0] = 0.0e0;
     gsum00( (char *) syncco, 1, 5, 11, mapA[0], nn_proc, proclist, d_scrat);
     
@@ -993,7 +1037,6 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 		&mapZ[0], vecZ, clustr_info, d_scrat,
 		i_scrat, iptr, &linfo);
 
-      
 /*
       for ( iii = 0; iii < 4*msize; iii++)
       fprintf(file, " me = %d pstein4 clustr_info %d %d \n", me, iii, clustr_info[iii]);
@@ -1079,30 +1122,25 @@ END:
       eval[iii] += psgn*psigma;
     }
     
-    /*
-      for ( iii = 0; iii < msize; iii++)
-      printf(" me = %d iii %d realeig %f \n", me, iii, eval[iii]);
-      */
-    
     sorteig(&msize, &neigval, vecZ, mapZ, eval, i_scrat, d_scrat);
-
+    
     syncco[0] = 0.0e0;
     gsum00( (char *) syncco, 1, 5, 117, mapA[0], nn_proc, proclist, d_scrat);
-
-
+    
+    
 #ifdef PSCALE
     dummy = peigs_scale;
     for ( iii=0; iii < neigval; iii++ )
       eval[iii] = peigs_shift + eval[iii]*dummy;
 #endif
     
-
-/*
-    if ( me == 0 ){
-    printf( "me = %d Exiting pdspevx \n", me );
-    fflush(stdout);
-    }
-*/
+    
+    /*
+      if ( me == 0 ){
+      printf( "me = %d Exiting pdspevx \n", me );
+      fflush(stdout);
+      }
+    */
     
 #ifdef TIMING
     t2 = mxclock_();
@@ -1138,15 +1176,34 @@ END:
 */
 
     if ( iscale == 1 ){
-      sigma = 1.0/sigma;
-      for ( iii = 0; iii < msize; iii++){
-	if ( mapA[iii] == me ) {
-	  isize = msize - iii;
-	  dscal_(&isize, &sigma, eval, IONE );
-	  k++;
+      if ( sigma != 0 ){
+	sigma = 1.0/sigma;
+	for ( iii = 0; iii < msize; iii++){
+	  if ( mapA[iii] == me ) {
+	    isize = msize - iii;
+	    dscal_(&isize, &sigma, eval, IONE );
+	    k++;
+	  }
 	}
       }
     }
+
+#ifdef DEBUG99
+    k = 0;    
+    for ( iii = 0; iii < neigval; iii++){
+      if ( mapZ[iii] == me ){
+	for ( jjj = 0; jjj < msize; jjj++)
+	  printf(" me = %d vec [%d][%d]= %g \n", me, k, jjj, vecZ[k][jjj]);
+	k++;
+      }
+    }
+
+
+    for ( iii = 0; iii < *n; iii++ )
+      printf(" end pdspevx d[%d] = %g \n", iii, dd[iii]);
+    for ( iii = 0; iii < *n; iii++ )
+      printf(" e[%d] = %g \n", iii, ee[iii]);
+#endif
     
     return;
   }

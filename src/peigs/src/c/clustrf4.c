@@ -377,7 +377,7 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
       
       if ( jblk > 1 )  {            /* jblk > 1 */
 	sep = ffabs(xj - xjm);
-	if ( sep >= MAX(ffabs(xj),ffabs(xjm))* (DoublePrecision) 1.e-3*onenrm) {
+	if ( sep >= 5.*MAX(ffabs(xj),ffabs(xjm))* (DoublePrecision) 1.e-3*onenrm) {
 	  if ( clustr_check(clustrptr, j-1, imin, imax) == 1 ) {
 	    *(c_ptr++) = clustrptr;
 	    *(c_ptr++) = j-1;

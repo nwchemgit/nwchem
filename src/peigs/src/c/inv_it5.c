@@ -96,8 +96,8 @@ Integer inv_it5( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, lld, 
   
   /*
     iwork1 = (Integer *) malloc( 16* lsiz *sizeof(Integer));
-     lplus = (DoublePrecision *) malloc( 16*lsiz *sizeof(DoublePrecision));
-     */
+    lplus = (DoublePrecision *) malloc( 16*lsiz *sizeof(DoublePrecision));
+  */
   
   iwork1 = iwork;
   lplus = work;
@@ -123,9 +123,6 @@ Integer inv_it5( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, lld, 
     if ( map[ i_1 ] == me ) {
       mapvec[k] = i_1;
       xj = eval[i_1];
-      /*
-      printf(" invit5 me = %d csiz = %d j = %d xj = %f c1 = %d cn = %d b1 %d bn %d  ztz = %f \n", me, csiz, j, xj, *c1, *cn, bb1, bbn, ztz);
-      */
       dgetavec_( &j, &xj, &delta, n, &bb1, &bbn, e, d, ld, lld, lplus,
 		 dplus, uminus, dminus, t, p, gamma,
 		 vector[k], &kk, &ztz, &zbegin1, &zend, &j, iwork1 );

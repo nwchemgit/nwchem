@@ -177,15 +177,14 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
 
   me    = mxmynd_();
   nproc = mxnprc_();
-  
   strcpy( msg,  "Error in pstein5." );
   
   
 #ifdef DEBUG1
-   fprintf(stderr, "me = %d In pstein \n", me );
+  fprintf(stderr, "me = %d In pstein \n", me );
 #endif
-
-   /*
+  
+  /*
     *     Test the input parameters.
     */
   
@@ -197,37 +196,47 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
     linfo = -2;
   else if ( ee == NULL )
     linfo = -3;
-  else if ( meigval == NULL )
+  else if ( dplus == NULL )
     linfo = -4;
-  else if ( eval == NULL )
+  else if ( lplus == NULL )
     linfo = -5;
-  else if ( iblock == NULL )
+  else if ( ld == NULL )
     linfo = -6;
-  else if ( nsplit == NULL )
+  else if ( lld == NULL )
     linfo = -7;
-  else if ( isplit == NULL )
+  else if ( meigval == NULL )
     linfo = -8;
-  else if ( mapZ == NULL )
+  else if ( eval == NULL )
     linfo = -9;
-  else if ( vecZ == NULL )
+  else if ( iblock == NULL )
     linfo = -10;
-  else if ( ddwork == NULL )
+  else if ( nsplit == NULL )
     linfo = -11;
-  else if ( iiwork == NULL )
+  else if ( isplit == NULL )
     linfo = -12;
-  else if ( ppiwork == NULL )
+  else if ( mapZ == NULL )
     linfo = -13;
-  else if ( info == NULL )
+  else if ( vecZ == NULL )
     linfo = -14;
+  else if ( clustr_info == NULL )
+    linfo = -15;
+  else if ( ddwork == NULL )
+    linfo = -16;
+  else if ( iiwork == NULL )
+    linfo = -17;
+  else if ( ppiwork == NULL )
+    linfo = -18;
+  else if ( info == NULL )
+    linfo = -19;
   
   if ( linfo != 0 ) {
-      if ( info != NULL )
+    if ( info != NULL )
         *info = linfo;
-      
-      fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n",
-               msg, me, -linfo );
-      xstop_( &linfo );
-      return;
+    printf( " %s me = %d argument %d is a pointer to NULL. \n",
+	    msg, me, -linfo );
+    fflush(stdout);
+    xstop_( &linfo );
+    return;
   }
   
   msize = *n;
@@ -247,55 +256,54 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   if ( *n < 0 )
     *info = -1;
   else if ( *meigval < 0  ||  *meigval > *n )
-    *info = -4;
-  else if ( iblock[ 0 ] < 1  ||  iblock[ *meigval - 1 ] > *nsplit )
-    *info = -6;
-  else if ( *nsplit < 1  || *nsplit > *n )
-    *info = -7;
-  else if ( isplit[ 0 ] < 1  ||  isplit[ *nsplit - 1 ] != *n )
     *info = -8;
+  else if ( iblock[ 0 ] < 1  ||  iblock[ *meigval - 1 ] > *nsplit )
+    *info = -10;
+  else if ( *nsplit < 1  || *nsplit > *n )
+    *info = -11;
+  else if ( isplit[ 0 ] < 1  ||  isplit[ *nsplit - 1 ] != *n )
+    *info = -12;
   
   if ( *info == 0 )
     for ( k = 1; k < *meigval; k++ )
       if ( iblock[ k ] == iblock[ k - 1 ]  &&  eval[ k ] < eval[ k - 1 ] )
-	*info = -5;
+	*info = -10;
   
   if ( *info == 0 )
     for ( k = 1; k < *meigval; k++ )
       if ( iblock[ k ] < iblock[ k - 1 ] )
-	*info = -6;
+	*info = -10;
   
   if ( *info == 0 )
     for ( k = 1; k < *nsplit; k++ )
       if ( isplit[ k ] <= isplit[ k - 1 ] )
-	*info = -8;
+	*info = -12;
   
   if ( *info == 0 )
     for ( k = 0; k < *meigval; k++ )
       if ( mapZ[ k ] < 0  ||  mapZ[ k ] > nproc - 1 )
-	*info = -9;
+	*info = -13;
   
   if ( *info == 0 ) {
-      /*
-       * Count the number of columns of Z owned by this processor.
-       * Must own something.
-       */
-      
-      nvecsZ = count_list( me, mapZ, meigval );
-      if ( nvecsZ <= 0 )
-	return;
-
-      for ( k = 0; k < nvecsZ; k++ )
-        if ( vecZ[ k ] == NULL )
-	  *info = -10;
+    /*
+     * Count the number of columns of Z owned by this processor.
+     * Must own something.
+     */
+    
+    nvecsZ = count_list( me, mapZ, meigval );
+    if ( nvecsZ <= 0 )
+      return;
+    for ( k = 0; k < nvecsZ; k++ )
+      if ( vecZ[ k ] == NULL )
+	*info = -14;
   }
   
   if( *info != 0 ) {
-     linfo = *info;
-     fprintf( stderr, " %s me = %d argument %d has an illegal value. \n",
-              msg, me, -linfo);
-     xstop_( info );
-     return;
+    linfo = *info;
+    printf( " %s me = %d argument %d has an illegal value. \n",
+	    msg, me, -linfo);
+    xstop_( info );
+    return;
   }
   
   /*

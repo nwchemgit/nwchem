@@ -195,7 +195,7 @@ void ortho( n, m, colZ, mapZ, ibuffptr, iwork, work, ort, info)
     Z1 is a copy of Z
     
     Z1 <- Z^t . Z1;
-    */
+  */
   
   mxm25 ( m, &ll, colZ, mapZ, m, vecZ1, mapZ, vecZ1, iscrat, scrat);
   

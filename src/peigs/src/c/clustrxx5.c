@@ -152,19 +152,19 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
 #ifdef DEBUG5
 
   if( me == mapZ[0] ){
-    fprintf(stderr, " nacluster = %d \n", *nacluster );
+    printf(" nacluster = %d \n", *nacluster );
     cn = -1;
     for( j = 0; j < *nacluster; j++ ) {
       c1 = cn + 1;
       cn = icsplit[j];
-       if( cn > c1 ) 
-        fprintf( stderr, " cluster[%d] = %d to %d  owned by %d to %d \n",
-                 j,c1,cn, mapZ[c1], mapZ[cn] );
+      if( cn > c1 ) 
+        printf( " cluster[%d] = %d to %d  owned by %d to %d \n",
+		j,c1,cn, mapZ[c1], mapZ[cn] );
     }
     for( j = 0; j < *n; j++ )
-      fprintf( stderr, " eval[%d] = %g \n", j, eval[j]);
+      printf( " eval[%d] = %g \n", j, eval[j]);
     for( j = 0; j < *n; j++ )
-      fprintf( stderr, " d[%d] = %g e[%d] = %g \n", j, d[j], j, e[j] );
+      printf( " d[%d] = %g e[%d] = %g \n", j, d[j], j, e[j] );
   }
   mxsync_();
   exit(-1);
@@ -196,7 +196,6 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
     */
   
   blksiz = 1;
-
   for (i = 0; i < 4; ++i)
     iseed[i] = 1;
   
@@ -237,7 +236,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
       cn = *(cl_ptr++);
       bb1 = *(cl_ptr++);
       bn = *(cl_ptr++);
-
+      
       if( cn > c1 ) {
         if( mapZ[c1] == me ) {
           for (j = c1+1; j <= cn; j++ ){
@@ -359,7 +358,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
 
       c1     = schedule[4*recv_cl];
       csiz   = schedule[4*recv_cl+1] - c1 + 1;
-
+      
       blksiz = schedule[4*recv_cl+3] - schedule[4*recv_cl+2] + 1;
 
       nvecs  = count_list( recv_from, &mapZ[c1], &csiz);
@@ -439,21 +438,18 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
 	  i = indx + Zvec;
 	  /*
 	    mapvecZ[ i ] = j;
-	    */
+	  */
 	  
 	  /*
 	     Initialize vector to zero.
 	     */
 	  
-	  fil_dbl_lst (*n, vecZ[i], 0.0e0);
-	  /*
-	     for ( jjj = 0; jjj < bb1; jjj++ )
-	     vecZ[i][jjj] = 0.0;
-	     */
+	  for ( jjj = 0; jjj < bb1; jjj++ )
+	    vecZ[i][jjj] = 0.0;
 	  
 	  /*
 	    fill with random entries
-	    */
+	  */
 	  
 	  dlarnv_(&three, iseed, &blksiz, &vecZ[i][bb1]);
 	  indx++;
@@ -481,16 +477,16 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
     else {
       /*
 	fine cluster
-	*/
+      */
       itime = 2;
       /*
 	printf(" fine clustr csiz = %d  c1 = %d cn = %d \n", csiz, c1, cn );
-	*/
+      */
       
       for ( j = 0; j < INV_TIME; j++ ) {
 	/*
 	  itmp = inv_it4( &j, n, &c1, &cn, &bb1, &bn, &Zvec, mapZ, mapvecZ, vecZ, dplus, lplus, ld, lld, eval, &eps, &stpcrt, &onenrm, iscratch, dscrat);
-	  */
+	*/
 	
 #ifdef DEBUG
 	printf(" inv_it3 me = %d before inv_it3 \n", me );

@@ -189,6 +189,15 @@ void tresid( n, m, d, e, colZ, mapZ, eval, iwork, work, res, info)
   }
   
   gmax00( (char *) &derror, 1, 5, 16, proclist[0], nprocs, proclist, scrat);
+
+  printf(" derror = %g normA %g ulp %g \n", derror, normA, ulp);
+  printf(" derror = %g normA %g ulp %g \n", derror, normA, ulp);
+  /*
+  for ( j = 0; j < *n; j++ )
+    printf(" d[%d] = %g \n", j, d[j]);
+  for ( j = 0; j < *n; j++ )
+    printf(" e[%d] = %g \n", j, e[j]);
+  */
   
   *res = derror / normA / ulp;
   

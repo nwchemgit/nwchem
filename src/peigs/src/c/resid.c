@@ -218,40 +218,37 @@ void resid( n, colA, mapA, m, colZ, mapZ, eval, ibuffptr, iwork, work, res, info
   }
 
   gmax00( (char *) &derror, 1, 5, 16, proclist[0], nprocs, proclist, scrat);
-  
   sonenrm( &ll, colA, mapA, &normA, iscrat, scrat, info);
-  
   if( normA == 0.0e0 ) normA = 1.0e0;
-
+  
   /*
    * Make sure all processors in mapZ know normA.
    */
-
+  
   mdiff1_( m, mapZ, n, mapA, iscrat, &nprocs ); 
-
+  
   if( nprocs > 0 ){
-      iscrat[nprocs] = mapA[0];
-      nprocs++;
-      bbcast00( (char *) &normA, sizeof(DoublePrecision), 2, mapA[0], nprocs, iscrat );
+    iscrat[nprocs] = mapA[0];
+    nprocs++;
+    bbcast00( (char *) &normA, sizeof(DoublePrecision), 2, mapA[0], nprocs, iscrat );
   }
-    
+  
   if( nvecsZ > 0 ){
-
     ulp = DLAMCHE * DLAMCHB ;
-
     *res = derror / normA / ulp;
   }
   
   /*
    * Make sure all processors in mapA and mapZ know res.
    */
-
+  
   mdiff1_( n, mapA, m, mapZ, iscrat, &nprocs ); 
-
+  
   if( nprocs > 0 ){
-      iscrat[nprocs] = mapZ[0];
-      nprocs++;
-      bbcast00( (char *) res, sizeof(DoublePrecision), 3, mapZ[0], nprocs, iscrat );
+    iscrat[nprocs] = mapZ[0];
+    nprocs++;
+    bbcast00( (char *) res, sizeof(DoublePrecision), 3, mapZ[0], nprocs, iscrat );
   }
   return;
 }
+

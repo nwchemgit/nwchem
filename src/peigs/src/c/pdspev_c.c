@@ -460,23 +460,38 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
   
   
   /*
+    lll = 0;
+    for ( k = 0; k < *n; k++ ) {
+    if ( mapZ[k] == me ) {
+    for ( jjj = 0; jjj < *n; jjj++ )
+    vecZ[lll][jjj] = 0.0e0;
+    lll++;
+    }
+    }
+  */
+  
+  pdspevx( &ivector, &irange, n, vecA, mapA, &lb, &ub, &ilb, &iub, &abstol,
+	   &meigval, vecZ, mapZ, eval, iscratch, iscsize,
+	   dblptr, ibuffsize, scratch, ssize, info);
+  
+#ifdef DEBUG99
+  printf("me = %d Exiting pdspev \n", me );
+
   lll = 0;
   for ( k = 0; k < *n; k++ ) {
     if ( mapZ[k] == me ) {
       for ( jjj = 0; jjj < *n; jjj++ )
-	vecZ[lll][jjj] = 0.0e0;
+	printf(" %d  %d %g \n", lll, jjj, vecZ[lll][jjj]);
       lll++;
     }
   }
-  */
-  
-   pdspevx( &ivector, &irange, n, vecA, mapA, &lb, &ub, &ilb, &iub, &abstol,
-	    &meigval, vecZ, mapZ, eval, iscratch, iscsize,
-	    dblptr, ibuffsize, scratch, ssize, info);
-   
-#ifdef DEBUG1
-   fprintf(stderr, "me = %d Exiting pdspev \n", me );
+
+  for ( jjj = 0; jjj < *n; jjj++ )
+    printf(" eval %d %g \n", jjj, eval[jjj]);
+
 #endif
+  
+  
 
     return;
 }

@@ -569,9 +569,9 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
   i = ( i + sizeof(DoublePrecision) ) % sizeof(DoublePrecision) ;
   *rsize += + i + 40*msize;
 
-  *ptr_size =  ppd_tmp + nextra + 8*msize + 10*msize;
-  i = *ptr_size;
-  *ptr_size += *ptr_size + 20*msize;
+  *ptr_size =  ppd_tmp + nextra + 8*msize + 20*msize;
+  i = *ptr_size + 5*msize;
+  *ptr_size += *ptr_size + 20*msize ;
 
   
   return;

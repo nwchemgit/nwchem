@@ -220,7 +220,7 @@ void b_ortho ( n, colB, mapB, m, colZ, mapZ, ibuffptr, iwork, work, ort, info)
   vecZ2 = vecZ1 + nvecsZ;
   for ( i = 0; i < nvecsZ; i++ ) {
     vecZ2[i] = ptr;
-    fil_dbl_lst( *m, ptr, 0.0e0);
+    fil_dbl_lst( *m, ptr, 0.0);
     ptr += *m;
   }
   
