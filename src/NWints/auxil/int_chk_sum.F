@@ -1,4 +1,4 @@
-c $Id: int_chk_sum.F,v 1.23 2003-10-17 22:53:46 carlfahl Exp $
+c $Id: int_chk_sum.F,v 1.24 2004-05-17 22:55:07 edo Exp $
 *
 *rak:      subroutine int_chk_sum(rtdb,basisin,print_ints)
 *rak:      implicit none
@@ -402,6 +402,7 @@ c
 10001 format(90('-'))
 10002 format(5(1pd15.8,3x))
       end      
+!$HP$ OPTIMIZE OFF
       subroutine stsum1(num,numtot,Gen,ilab,jlab,stats,
      &    printem,print69,tag69)
       implicit none
@@ -668,6 +669,7 @@ c
 c
 00100 continue
       end
+!$HP$ OPTIMIZE ON
 *rak:      subroutine stsum2_2c(num,numtot,Eri,ilab,jlab,
 *rak:     &       stats,printem,print69)
 *rak:      implicit none
