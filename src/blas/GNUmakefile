@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.12 1995-02-03 18:21:22 d3h449 Exp $
+#$Id: GNUmakefile,v 1.13 1995-06-28 17:10:26 rg240 Exp $
 
 include ../config/makefile.h
 
@@ -32,6 +32,9 @@ ifeq ($(TARGET),CRAY-T3D)
        PRECISION = single
 endif
 ifeq ($(TARGET),DELTA)
+       PRECISION = double
+endif
+ifeq ($(TARGET),DECOSF)
        PRECISION = double
 endif
 

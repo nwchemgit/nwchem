@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.15 1995-06-15 21:17:25 gg502 Exp $
+#$Id: GNUmakefile,v 1.16 1995-06-28 17:09:53 rg240 Exp $
 
 include ../config/makefile.h
 
@@ -41,6 +41,9 @@ ifeq ($(TARGET),DELTA)
        PRECISION = double
 endif
 ifeq ($(TARGET),IPSC)
+       PRECISION = double
+endif
+ifeq ($(TARGET),DECOSF)
        PRECISION = double
 endif
 
