@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.57 1996-07-26 16:43:40 d3g681 Exp $
+# $Id: GNUmakefile,v 1.58 1996-08-06 05:40:04 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -26,6 +26,10 @@ endif
 
 ifeq ($(TARGET),KSR)
   EXTRA_OBJ = ksr_cputime.o
+endif
+
+ifeq ($(TARGET),DECOSF)
+  EXTRA_OBJ = dec_fpe.o
 endif
 
        BLAS = dfill.o ifill.o rsg.o
@@ -59,7 +63,7 @@ endif
               icopy.o util_legal.o \
               util_file_name.o \
               util_speak.o util_rtdb_speak.o util_file_copy.o \
-              util_file_unlink.o \
+              util_file_unlink.o util_system.o \
               $(EXTRA_OBJ) 
 
     LIBRARY = libutil.a
@@ -97,9 +101,9 @@ testsolve:      testsolve.o $(LIBRARY_PATH)
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(input_echo.o):	$(INCDIR)/inp.fh 
 $(LIBRARY_PATH)(util_file_name.o):	./util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh ./msgids.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh ./cfileprefix.fh 
 $(LIBRARY_PATH)(util_rtdb_speak.o):	./util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(input_echo.o):	$(INCDIR)/inp.fh 
 $(LIBRARY_PATH)(ga_it_lsolve.o):	./util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(util_print.o):	$(INCDIR)/rtdb.fh ./printlevels.fh ./printcommon.fh $(INCDIR)/inp.fh 
 $(LIBRARY_PATH)(util_legal.o):	./stdio.fh 
