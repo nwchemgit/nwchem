@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.43 2004-09-14 17:16:28 marat Exp $
+C$Id: geom.fh,v 1.44 2005-04-01 02:30:12 marat Exp $
       logical geom_disable_zmatrix
       logical geom_check_cent
       logical geom_rtdb_load
@@ -202,3 +202,15 @@ c
       external geom_makec1
       external geom_isbq
       external geom_freeze
+c 
+c     external bqs
+c
+      external  geom_extbq_on
+      logical   geom_extbq_on
+      external  geom_extbq_ncenter
+      integer   geom_extbq_ncenter
+      external  geom_extbq_charge
+      integer   geom_extbq_charge
+      external  geom_extbq_coord
+      integer   geom_extbq_coord
+

@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.133 2004-11-29 15:58:50 bylaska Exp $
+C$Id: geom.F,v 1.134 2005-04-01 02:30:12 marat Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2289,8 +2289,11 @@ c
       logical function geom_nuc_rep_energy(geom, energy)
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "errquit.fh"
       integer geom              ! [input]
       double precision energy   ! [output]
+      logical bq_add_nuc_rep_energy
+      external bq_add_nuc_rep_energy
       logical geom_check_handle
       external geom_check_handle
 c
@@ -2299,6 +2302,9 @@ c
       geom_nuc_rep_energy = geom_check_handle(geom, 'geom_nuc_rep_e')
       if (.not. geom_nuc_rep_energy) return
       energy = erep(geom)
+c
+      if(.not. bq_add_nuc_rep_energy(geom,energy))
+     >   call errquit("failed bq_add_nuc_rep_energy",0,GEOM_ERR)
 c
       end
       logical function geom_nuc_charge(geom, total_charge)
@@ -5735,3 +5741,76 @@ c
       geom_makec1 = .true.
       return
       end  
+
+      function geom_extbq_on()
+      implicit none
+#include "bq.fh"
+      logical geom_extbq_on
+      geom_extbq_on = bq_on() 
+      return
+      end
+
+      function geom_extbq_ncenter()
+      implicit none
+#include "bq.fh"
+#include "errquit.fh"
+      integer  geom_extbq_ncenter
+c
+      integer bq_handle
+      integer bq_ncent
+      character*32 pname
+
+      pname = "geom_extbq_ncenter"
+
+      if(.not.bq_get_active(bq_handle))
+     >   call errquit(pname//'no active bq handle',0,0) 
+      if(.not.bq_ncenter(bq_handle,bq_ncent))
+     >   call errquit(pname//':no bq centers',0,0)
+       
+       geom_extbq_ncenter = bq_ncent
+
+      return
+      end
+
+      function geom_extbq_charge()
+      implicit none
+#include "bq.fh"
+#include "errquit.fh"
+      integer  geom_extbq_charge
+c
+      integer bq_handle
+      integer i_qbq
+      character*32 pname
+
+      pname = "geom_extbq_charge"
+
+      if(.not.bq_get_active(bq_handle))
+     >   call errquit(pname//':no active bq handle',0,0) 
+      if(.not.bq_index_charge(bq_handle,i_qbq))
+     >   call errquit(pname//':no bq coords',0,0)
+
+      geom_extbq_charge = i_qbq
+      return
+      end
+
+      function geom_extbq_coord()
+      implicit none
+#include "bq.fh"
+#include "errquit.fh"
+      integer  geom_extbq_coord
+c
+      integer bq_handle
+      integer i_cbq
+      character*32 pname
+
+      pname = "geom_extbq_coord"
+
+      if(.not.bq_get_active(bq_handle))
+     >   call errquit(pname//':no active bq handle',0,0) 
+      if(.not.bq_index_coord(bq_handle,i_cbq))
+     >   call errquit(pname//':no bq coords',0,0)
+
+      geom_extbq_coord = i_cbq
+      return
+      end
+
