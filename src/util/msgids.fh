@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.112 1999-05-10 22:40:28 edo Exp $
+c     $Id: msgids.fh,v 1.113 1999-05-12 15:24:21 d3j191 Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
@@ -249,6 +249,45 @@ c
       integer mcf_48
       integer mcf_49
       integer mcf_50
+      integer mcf_51
+      integer mcf_52
+      integer mcf_53
+      integer mcf_54
+      integer mcf_55
+      integer mcf_56
+      integer mcf_57
+      integer mcf_58
+      integer mcf_59
+      integer mcf_60
+      integer mcf_61
+      integer mcf_62
+      integer mcf_63
+      integer mcf_64
+      integer mcf_65
+      integer mcf_66
+      integer mcf_67
+      integer mcf_68
+      integer mcf_69
+      integer mcf_70
+      integer mcf_71
+      integer mcf_72
+      integer mcf_73
+      integer mcf_74
+      integer mcf_75
+      integer mcf_76
+      integer mcf_77
+      integer mcf_78
+      integer mcf_79
+      integer mcf_80
+      integer mcf_81
+      integer mcf_82
+      integer mcf_83
+      integer mcf_84
+      integer mcf_85
+      integer mcf_86
+      integer mcf_87
+      integer mcf_88
+      integer mcf_89
 c
       integer msp_00
       integer msp_01
@@ -838,6 +877,46 @@ c
 c
       parameter(dft_mxmbf=msg_ftn_base-601)
       parameter(dft_mxmbfnq=msg_ftn_base-602)
+c
+      parameter(mcf_51=msg_ftn_base-611)
+      parameter(mcf_52=msg_ftn_base-612)
+      parameter(mcf_53=msg_ftn_base-613)
+      parameter(mcf_54=msg_ftn_base-614)
+      parameter(mcf_55=msg_ftn_base-615)
+      parameter(mcf_56=msg_ftn_base-616)
+      parameter(mcf_57=msg_ftn_base-617)
+      parameter(mcf_58=msg_ftn_base-618)
+      parameter(mcf_59=msg_ftn_base-619)
+      parameter(mcf_60=msg_ftn_base-620)
+      parameter(mcf_61=msg_ftn_base-621)
+      parameter(mcf_62=msg_ftn_base-622)
+      parameter(mcf_63=msg_ftn_base-623)
+      parameter(mcf_64=msg_ftn_base-624)
+      parameter(mcf_65=msg_ftn_base-625)
+      parameter(mcf_66=msg_ftn_base-626)
+      parameter(mcf_67=msg_ftn_base-627)
+      parameter(mcf_68=msg_ftn_base-628)
+      parameter(mcf_69=msg_ftn_base-629)
+      parameter(mcf_70=msg_ftn_base-600)
+      parameter(mcf_71=msg_ftn_base-631)
+      parameter(mcf_72=msg_ftn_base-632)
+      parameter(mcf_73=msg_ftn_base-633)
+      parameter(mcf_74=msg_ftn_base-634)
+      parameter(mcf_75=msg_ftn_base-635)
+      parameter(mcf_76=msg_ftn_base-636)
+      parameter(mcf_77=msg_ftn_base-637)
+      parameter(mcf_78=msg_ftn_base-638)
+      parameter(mcf_79=msg_ftn_base-639)
+      parameter(mcf_80=msg_ftn_base-640)
+      parameter(mcf_81=msg_ftn_base-641)
+      parameter(mcf_82=msg_ftn_base-642)
+      parameter(mcf_83=msg_ftn_base-643)
+      parameter(mcf_84=msg_ftn_base-644)
+      parameter(mcf_85=msg_ftn_base-645)
+      parameter(mcf_86=msg_ftn_base-646)
+      parameter(mcf_87=msg_ftn_base-647)
+      parameter(mcf_88=msg_ftn_base-648)
+      parameter(mcf_89=msg_ftn_base-649)
 c
       parameter(msp_00=msg_ftn_base-650)
       parameter(msp_01=msg_ftn_base-651)
