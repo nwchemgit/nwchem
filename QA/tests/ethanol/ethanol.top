@@ -2,7 +2,9 @@ TOPOLOGY FILE ethanol.top
 GENERATED AUTOMICALLY BY NWCHEM PREPARE MODULE
 
     3.30000098/12/29  14:09:39  amber     
-    7    0.833333    1.000000    0.000000    0    9
+    0.833333    1.000000    0.000000    0
+    7
+    9
 CT       12.010000CT       12.010000CT       12.010000    6    6    6
 HC        1.008000HC        1.008000HC        1.008000    1    1    1
 H1        1.008000H1        1.008000H1        1.008000    1    1    1
