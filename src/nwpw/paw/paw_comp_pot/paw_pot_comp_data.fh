@@ -1,0 +1,7 @@
+c
+c $Id: paw_pot_comp_data.fh,v 1.1 2003-02-15 00:24:29 marat Exp $
+c
+      integer paw_pot_comp(4)
+      integer i_paw_pot_comp(4)
+
+      common /paw_pot_comp/ paw_pot_comp,i_paw_pot_comp

@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_comp_pot.F,v 1.1 2003-02-14 19:55:07 marat Exp $
+* $Id: paw_matrix_comp_pot.F,v 1.2 2003-02-15 00:24:29 marat Exp $
 *
 
 !**************************************************
@@ -161,6 +161,7 @@
       ok = ma_push_get(mt_dbl,ic,"tmp_array1",l_f1,i_f1)
       ok = ma_push_get(mt_dbl,ic,"tmp_array2",l_f2,i_f2)
 
+      write(*,*) "compmatrix"
       do la=0,mult_l
     
         call find_gaussian_rspace_array(la,sigma,ic,r,
@@ -186,6 +187,7 @@
 
           matrix(i,j,la+1) = tmp
           matrix(j,i,la+1) = tmp
+          write(*,*)i,j,la+1,tmp
         end do
         end do
 
@@ -193,8 +195,7 @@
 
 
       ok = ma_chop_stack(l_f1)
-!  write(*,*) "comp_pot matrix"
-!  write(*,*) matrix
+      write(*,*) matrix
 
       return
       end !subroutine find_comp_pot_matrix
@@ -205,8 +206,8 @@
       integer  l
       integer  nr
       double precision sigma_tmp
-      double precision r_tmp(1:nr)
-      double precision gl(1:nr)
+      double precision r_tmp(*)
+      double precision gl(*)
 
 #include "paw_params.fh"
 
@@ -222,13 +223,15 @@
 
       !*** this fixes possible underflow error ***
       do ii=1,nr
-        gl(nr) = 0.0d0
+        gl(ii) = 0.0d0
       end do
+
 
       do ii=1,nr
         if (dabs(r_tmp(ii)) .lt. 8.0d0*sigma_tmp)
      >    gl(ii) = c*r_tmp(ii)**l*exp(-(r_tmp(ii)/sigma_tmp)**2)
       end do
+
 
       return
       end 

@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.1 2003-02-14 19:55:07 marat Exp $
+# $Id: GNUmakefile,v 1.2 2003-02-15 00:24:29 marat Exp $
 #
 
-          OBJ = paw_matrix_comp_pot.o 
+          OBJ = paw_matrix_comp_pot.o paw_pot_comp.o
           
 
 
