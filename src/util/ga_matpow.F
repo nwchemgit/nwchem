@@ -3,7 +3,7 @@ C NAME
 C     GA_MatPow -- Form V^{-1/2}
 C
 C REVISION
-C     $Id: ga_matpow.F,v 1.2 1995-10-17 08:56:31 d3g681 Exp $
+C     $Id: ga_matpow.F,v 1.3 1996-04-18 16:35:32 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine GA_MatPow(G_V, Pow, MinEval)
@@ -28,6 +28,10 @@ C     NOT guaranteed that the same handle will be returned -- if it is
 C     most efficient, the original V may be destroyed and a new GA created
 C     to hold the result.
 C
+C     This routine responds to the print directive "ga_matpow details",
+C     which is at the Print_Debug level by default.  The print control
+C     context is that of the caller.
+C
 C MEMORY USE
 C     Uses a GA the size of V, and a local array the size of the number
 C     of rows of V.  The eigensolver requires additional memory.
@@ -40,6 +44,7 @@ C INCLUDE FILES
 #include "mafdecls.fh"
 #include "numerical_constants.fh"
 #include "stdio.fh"
+#include "util.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C CONSTANTS
       Integer MinChunk
@@ -64,6 +69,14 @@ C
      $   .AND. Pow .ne. -FP_One) Call ErrQuit(
      $   'GA_MatPow: Don''t know how to deal with this exponent',
      $   Int( 100 * Pow ) )
+C
+      If ( Util_Print('ga_matpow details', Print_Debug) ) then
+         If ( GA_NodeID() .eq. 0 )
+     $        Call Util_Print_Centered(LuOut, 'GA_MatPow Input', 40,
+     $        .TRUE.)
+         Call GA_Sync
+         Call GA_Print( G_V )
+      EndIf
 C
 C     *********************************
 C     * Get basic info about input GA *
@@ -127,10 +140,16 @@ C
 #endif
 #endif /* defined(USE_GEN_DIAG) */
 C
-c$$$      If ( GA_NodeID() .eq. 0)
-c$$$     $   Call DGeWr(1, Rows, Dbl_MB(Eval_Idx), 1, 0, 0, LuOut,
-c$$$     $   'GA_MatPow eigenvalues', 80, 'E15.6', Junk)
-c$$$      Call GA_Print(G_EV)
+      If ( Util_Print('ga_matpow details', Print_Debug) ) then
+         If ( GA_NodeID() .eq. 0 ) then
+            Call DGeWr(1, Rows, Dbl_MB(Eval_Idx), 1, 0, 0, LuOut,
+     $           'GA_MatPow Eigenvalues', 80, 'E15.6', Junk)
+            Call Util_Print_Centered(LuOut, 'GA_MatPow Vectors', 40,
+     $           .TRUE.)
+         EndIf
+         Call GA_Sync
+         Call GA_Print( G_EV )
+      EndIf
 C
 C     **************************************************
 C     * Filter out potentially problematic eigenvalues *
@@ -142,10 +161,20 @@ C
       Call GA_Distribution( G_V, GA_NodeID(), Ilo, Ihi,
      $   Jlo, Jhi)
 C
-C     If our panel includes some of the matrix diagonal, this will
-C     be true.
+C     Consider the diagonal of a matrix.  It divides the upper triangle,
+C     where I (row) < J (column) from the lower triangle, where I > J.
 C
-      Have_Diag = ( IHi-JLo ) * ( ILo-JHi ) .lt. 0
+C     If IHi-JLo > 0 the lower-left corner of the patch is below the diagonal.
+C     If ILo-JHi < 0 the upper-right corner of the patch is above the diagonal.
+C     If the diagonal passes through the patch, these two corners must
+C     be on opposite sides of the diagonal, so the two differences must be
+C     of opposite sign, or their product must be negative.
+C
+C     If the diagonal hits precisely on the ll or ur corner, the
+C     corresponding difference will be zero, and the product will
+C     be zero.  This we must also catch.
+C
+      Have_Diag = ( IHi-JLo ) * ( ILo-JHi ) .le. 0
 C
       DiagLo = Max( ILo, JLo )
       DiagHi = Min( IHi, JHi )
@@ -178,10 +207,6 @@ C
          EndDo
       EndIf
 C
-c$$$      If ( GA_NodeID() .eq. 0)
-c$$$     $   Call DGeWr(1, Rows, Dbl_MB(Eval_Idx), 1, 0, 0, LuOut,
-c$$$     $   'V eigenvalues^{-1/2}', 80, 'E15.6', Junk)
-C
 C     Turn V into a diagonal matrix by copying in our bit of the
 C     diagonal.
 C
@@ -194,8 +219,14 @@ C
          EndDo
       EndIf
       Call GA_Sync
-c$$$      Write (LuOut, *) 'Diagonal matrix '
-c$$$      Call GA_Print(G_V)
+C
+      If ( Util_Print('ga_matpow details', Print_Debug) ) then
+         If ( GA_NodeID() .eq. 0 )
+     $        Call Util_Print_Centered(LuOut, 'GA_MatPow Diagonal', 40,
+     $           .TRUE.)
+         Call GA_Sync
+         Call GA_Print( G_V )
+      EndIf
 C
 C     Now we are done with the local eigenvalue array
 C
@@ -227,9 +258,14 @@ C
 C
       If ( .NOT. Status )
      $   Call ErrQuit('GA_MatPow: Unable to free global arrays', 0)
-c$$$C
-c$$$      Write (Luout, *) 'V^{-1/2} MATRIX'
-c$$$      CALL GA_PRINT( G_V)
+C
+      If ( Util_Print('ga_matpow details', Print_Debug) ) then
+         If ( GA_NodeID() .eq. 0 )
+     $        Call Util_Print_Centered(LuOut, 'GA_MatPow Output', 40,
+     $           .TRUE.)
+         Call GA_Sync
+         Call GA_Print( G_V )
+      EndIf
 C
       Return
       End
