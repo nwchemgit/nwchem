@@ -1,0 +1,847 @@
+c*****************************************************************************
+      subroutine wnbofile(rtdb)
+c*****************************************************************************
+c
+c>>>  Purpose of routine:
+c
+c>>>  This subroutine reads information from the runtime database
+c>>>  and prints it out to a file, name=nbo_fname, which is used
+c>>>  as input to the standalone version of the natural bond orbital
+c>>>  (NBO) analysis program, gennbo.
+c
+c>>>  Dependencies/Effects:
+c
+c     The rtdb is read only and not modified.
+c     No common blocks are created.
+c     A file, (lfn=25, name=nbo_fname), is created.
+c     All variables except for rtdb are local.
+c
+c>>>  Commentary:
+c
+c>>>  Eventually, it may be desirable to have the NBO analysis executed
+c>>>  as a subroutine of NWchem rather than as a separate stand alone
+c>>>  program.  To do this one will have to make a subroutine similar
+c>>>  to the one here, but instead of writing the data to an input file
+c>>>  it will need to be passed to NBO interface subroutines,  (see the
+c>>>  NBO programmers manual for details).  The current strategy was
+c>>>  chosen to reduce the binary size of NWchem (the size of the NBO 
+c>>>  executable is not negligible), and to take advantage of the fact
+c>>>  that gennbo already exists and has been ported to a number of 
+c>>>  platforms.
+c
+      implicit none
+#include "bas.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+      integer rtdb
+c
+c>>>  handles
+c
+
+      integer lbasis, lchg, lcoef,lcoord, leval, lexp, lgeom, lind1, 
+     $     lind2, locc, lprim, lptr, lscr, lscr2, ltags, ltri, ltype
+      integer g_bo(2), g_fock(2), g_movecs(2),  g_over, g_scr
+c
+c>>>  indices
+c
+      integer ichg, icoef, icoord, ieval, iexp, iind1, iind2, iocc,
+     $     iprim, iptr, iscr, itags, itype
+c
+c>>>  basis set objects
+c
+      integer atn, charge, maxL, mult, nat, nbf, ncont, ngeno, nmo, 
+     $     nprim, sphcart, type
+      character*2   sym, elem
+      character*255 name, title, trans
+c
+c>>>  things related to the NBO input file
+c
+      integer lfn
+      character*255 nbo_fname
+c
+c>>>  MO vector and calculation-type objects
+c
+      character*4   spintype
+      character*255 bas_vecs, movecs_in, title_vecs
+      integer  lenocc, nbf_vecs, nset, nmo_vecs(2)
+
+c
+c>>>  Functions
+c
+      logical  movecs_read, restricted, movecs_read_header
+      integer  inp_strlen, ga_create_atom_blocked
+
+      external inp_strlen, ga_create_atom_blocked, movecs_read, 
+     $     movecs_read_header
+
+c
+c>>>  miscellaneous variables
+c
+      character*5 cname(5)
+      integer i, iat, icol, icont, ilo, ihi, index, irow, ix, iy ,iz, j,
+     $     jrow, l, len
+      logical sshell, pshell, dshell, fshell, gshell
+      data cname / 'CS = ', 'CP = ', 'CD = ', 'CF = ', 'CG = ' /
+
+      lfn = 25
+
+      if(ga_nodeid().eq.0) then
+        call util_file_prefix('gen', nbo_fname)
+        open(lfn,file=nbo_fname,status='unknown')
+        len = inp_strlen(nbo_fname)
+        write(LUout,9250) nbo_fname(1:len)
+      endif 
+c
+c>>>  load geometry and symmetry info
+c
+      if (.not. geom_create(lgeom, 'geometry'))
+     $     call errquit('wnbofile: geom_create?', 0)
+      if (.not. geom_rtdb_load(rtdb, lgeom, 'geometry'))
+     $     call errquit('wnbofile: no geometry ', 0)
+c     
+c>>>  load the basis set and get info about it
+c
+      if (.not. bas_create(lbasis, 'mo basis'))
+     $     call errquit('prop: bas_create?', 0)
+      if (.not. bas_rtdb_load(rtdb, lgeom, lbasis, 'ao basis')) then
+         if (.not. bas_rtdb_load(rtdb, lgeom, lbasis, 'mo basis'))
+     $        call errquit('wnbofile: no mo or ao basis set', 0)
+      end if
+      if (.not. bas_name(lbasis, name, trans))
+     $     call errquit('wnbofile: bas_name?', 0)
+c
+c>>>  Create ga_array for movecs.
+c
+      if ( .not. bas_numbf(lbasis,nbf) )
+     $     call errquit('wnbofile: bas_numbf failed', 1)
+c
+c>>>  For now simply set nmo = nbf.
+c
+      nmo = nbf
+c     
+c>>>    Get information on molecular orbital vectors.
+c       
+      call util_file_prefix('movecs', movecs_in)
+      if(.not.movecs_read_header(movecs_in, title_vecs, bas_vecs,
+     $     nbf_vecs, nset, nmo_vecs, 2))
+     $     call errquit('wnbofile:  failed on movecs_read_header,0')
+
+      if(nset.eq.1)then
+        restricted=.true.
+        spintype = '    '
+      else 
+        restricted=.false.
+        spintype = 'OPEN' 
+      endif 
+
+      if (restricted) then
+        if (.not. ga_create(MT_DBL, nbf, nmo, 'wnbofile: MOs',
+     $       1, 1, g_movecs(1))) call errquit('wnbofile: MOs', 0)
+      else
+        if (.not. ga_create(MT_DBL, nbf, nmo, 'wnbofile: alpha MOs',
+     $       1, 1, g_movecs(1))) call errquit('wnbofile: alpha MOs', 0)
+        if (.not. ga_create(MT_DBL, nbf, nmo, 'wnbofile: beta MOs',
+     $       1, 1, g_movecs(2))) call errquit('wnbofile: beta MOs', 0)
+      endif
+c
+c>>>  Extract title, geometry, nuclear charges, and label info.
+c
+      if (.not. geom_ncent(lgeom, nat))
+     $     call errquit('wnbofile: geom_ncent failed',1)      
+      if(.not. rtdb_cget(rtdb, 'title', 1, title)) title = ' '
+      if(.not.Ma_Push_Get(MT_Dbl, nat*3, 'coordinates', lcoord, icoord))
+     $     call errquit('wnbofile: push_get failed',2)
+      if(.not.Ma_Push_Get(MT_Dbl, nat, 'charges', lchg, ichg))
+     $     call errquit('wnbofile: push_get failed',3)
+      if(.not.Ma_Push_Get(MT_Byte, nat*16, 'center tags', ltags, itags))
+     $     call errquit('wnbofile: push_get failed',4)
+      if(.not.geom_cart_get(lgeom, nat, Byte_MB(itags), Dbl_MB(icoord), 
+     $     Dbl_MB(ichg)))
+     $     call errquit('wnbofile: geom_cart_get failed',5)
+c       
+c>>>  Begin $GENNBO and $NBO keylist data.
+c
+      if( ga_nodeid().eq.0)then
+        write(lfn,9000) nat, nbf, spintype
+ 9000   format('$GENNBO  UPPER  BODM  BOHR  NATOMS=',i5,
+     $         '  NBAS=',i5,2x,a4,'  $END')
+c
+        write(lfn,'(a)')'$NBO     $END'
+      endif
+c
+c>>>  End $GENNBO and $NBO keylist data.
+c
+c>>>  Begin $COORD keylist.
+c
+      if( ga_nodeid().eq.0)then
+        write(lfn,9100)title(1:80)
+ 9100   format('$COORD',/,a)
+
+        do iat = 1,nat
+
+          ix = 3*(iat-1) + icoord -1
+          iy = ix+1
+          iz = iy+1
+          index = itags+iat-1
+
+          if(.not.geom_tag_to_element(Byte_MB(index),sym,elem,atn))
+     $         call errquit('wnbofile: geom_tag_cent failed',1)
+
+          charge = Dbl_MB(ichg+iat-1)
+          write(lfn,9150)atn, charge, Dbl_MB(ix), Dbl_MB(iy), Dbl_MB(iz)
+
+        enddo 
+
+ 9150   format(i3,2x,i3,2x,3f20.10)
+        write(lfn,9200)
+      endif
+c
+c>>>  End $COORD keylist.
+c
+c>>>  Begin $BASIS keylist.
+c
+
+      if(.not.bas_numcont(lbasis,ncont))
+     $     call errquit('wnbofile: bas_numcont failed',0)
+
+      if(.not.MA_Push_Get(MT_INT,ncont,'prim/shell',lprim,iprim))
+     $     call errquit('wnbofile: lprim memory alloc. failed',0)
+
+      if(.not.MA_Push_Get(MT_INT,ncont+1,'contraction pointer',lptr,
+     $     iptr))
+     $     call errquit('wnbofile: lptr memory alloc. failed',0)
+
+      if(.not.MA_Push_Get(MT_INT,ncont,'contraction type',ltype,
+     $     itype))
+     $     call errquit('wnbofile: ltype memory alloc. failed',0)
+
+      if(ga_nodeid().eq.0)then
+        write(lfn,'(a)')'$BASIS'
+        if(.not.MA_Alloc_Get(MT_Int,nbf,'scratch',lscr,iscr))
+     $       call errquit('wnbofile: lscr memory alloc. failed',0)
+        do i = 1, nmo
+          if(.not.bas_bf2ce(lbasis,i,int_mb(iscr+i-1)))
+     $         call errquit('wnbofile: bas_bf2ce failed',0)
+        enddo 
+
+        write(lfn,'(1x,a)')'CENTER = '
+        write(lfn,'(5x,10i6)') (int_mb(iscr+i-1),i=1,nbf)
+        
+        i = 0
+        nprim = 0
+
+
+        int_mb(iptr) = 1
+        maxL = 0
+        do icont = 1,ncont
+          if(.not.bas_continfo(lbasis,icont,type,int_mb(iprim+icont-1),
+     $         ngeno,sphcart))
+     $         call errquit('wnbofile: bas_continfo failed',0)
+          INT_mb(itype+icont-1) = type
+          maxL = max(maxL,type)
+          nprim = nprim + int_mb(iprim+icont-1)
+          int_mb(iptr+icont) = 
+     $         int_mb(iptr+icont-1) + int_mb(iprim+icont-1)
+          index = iscr+i
+          if(type.eq.-2)then
+c
+c>>>        spd shell
+c
+            int_mb(index)   = 1
+            int_mb(index+1) = 101
+            int_mb(index+2) = 102
+            int_mb(index+3) = 103
+
+            if( sphcart.eq.0)then
+              int_mb(index+4) = 201
+              int_mb(index+5) = 202
+              int_mb(index+6) = 203
+              int_mb(index+7) = 204
+              int_mb(index+8) = 205
+              int_mb(index+9) = 206
+              i = i+10
+            elseif(sphcart.eq.1)then
+              int_mb(index+4) = 251
+              int_mb(index+5) = 252
+              int_mb(index+6) = 253
+              int_mb(index+7) = 254
+              int_mb(index+8) = 255
+              i = i+9
+            endif 
+
+          elseif(type.eq.-1) then
+c
+c>>>        sp shell
+c
+            int_mb(index)   = 1
+            int_mb(index+1) = 101
+            int_mb(index+2) = 102
+            int_mb(index+3) = 103
+            i = i+4
+
+          elseif(type.eq.0) then
+c
+c>>>        s shell
+c
+            int_mb(index)   = 1
+            i = i+1
+
+          elseif(type.eq.1) then
+c
+c>>>        p shell
+c
+            do j = 0,2
+              int_mb(index+j) = 101+j
+            enddo 
+            i = i+3
+
+          elseif(type.eq.2) then
+c
+c>>>        d shell
+c
+            if( sphcart.eq.0)then
+              do j = 0,5
+                int_mb(index+j) = 201+j
+              enddo 
+              i = i+6
+            elseif(sphcart.eq.1)then
+
+              do j = 0,4
+                int_mb(index+j) = 251+j
+              enddo 
+              i = i+5
+
+            endif 
+
+          elseif(type.eq.3) then
+c
+c>>>        f shell
+c
+            if(sphcart.eq.0)then
+              do j = 0,9
+                int_mb(index+j) = 301+j
+              enddo 
+              i = i+10
+            elseif(sphcart.eq.1)then
+
+              do j = 0,6
+                int_mb(index+j) = 351+j
+              enddo 
+              i = i+7
+
+            endif 
+
+          elseif(type.eq.4) then
+c
+c>>>        g shell
+c
+            if(sphcart.eq.0)then
+              do j = 0,14
+                int_mb(index+j) = 401+j
+              enddo 
+              i = i+15
+            elseif(sphcart.eq.1)then
+              call errquit('wnbofile: spherical harmonics for
+     $             g type basis not implemented',0)
+            endif 
+
+          elseif(type.gt.4) then
+            call errquit('wnbofile: angular momentum of basis
+     $           exceeds NBO maximum',0)
+          endif 
+          
+        enddo 
+c
+        write(lfn,'(2x,a)')'LABEL = '
+        write(lfn,'(5x,10i6)') (int_mb(iscr+i-1),i=1,nbf)
+        write(lfn,9200)
+
+        if (.not. ma_free_heap(lscr))
+     $       call errquit('wnbofile: lscr free heap failed',0)
+      endif
+
+c
+c>>>  End $BASIS keylist.
+c
+c
+c>>> Begin $CONTRACT keylist.
+c
+      if (ga_nodeid().eq.0) then
+        if(.not.MA_Alloc_Get(MT_dbl,nprim,'exponents',lexp,iexp))
+     $       call errquit('wnbofile: lexp memory alloc. failed',0)
+        if(.not.MA_Alloc_Get(MT_dbl,nprim,'coefs',lcoef,icoef))
+     $       call errquit('wnbofile: lcoef memory alloc failed',0)
+
+        index = 0
+        do icont = 1,ncont
+          if(.not.bas_get_exponent(lbasis,icont,dbl_mb(iexp+index)))
+     $         call errquit('wnbofile: failed bas_get_exp',0)
+          if(.not.bas_get_coeff(lbasis,icont,dbl_mb(icoef+index)))
+     $         call errquit('wnbofile: failed bas_get_coeff',0)
+          index = index + int_mb(iprim+icont-1)
+        enddo 
+
+
+        write(lfn,'(a)') '$CONTRACT'
+        write(lfn,'(1x,a10,i5)') 'NSHELLS = ', ncont
+        write(lfn,'(1x,a10,i5)') '   NEXP = ', nprim
+        write(lfn,'(1x,a10)') '  NPRIM = '
+        write(lfn,'(5x,10i6)') (int_mb(iprim+i-1),i=1,ncont)
+        write(lfn,'(1x,a10)') '   NPTR = '
+        write(lfn,'(5x,10i6)') (int_mb(iptr+i-1),i=1,ncont)
+        write(lfn,'(1x,a10)') '    EXP = '
+        write(lfn,'(5x,4f20.10)') (dbl_mb(iexp+i-1),i=1,nprim)
+
+        do l = 0,maxL
+          write(lfn,'(5x,a)') cname(l+1)
+c
+c>>>      Reuse array space pointed to by iexp to print out
+c>>>      s, p, d, f and g coefficients.
+c
+          call dfill(nprim,0.0d0,dbl_mb(iexp),1)
+          index = 0
+          do icont = 1,ncont
+            
+            type=int_mb(itype+icont-1)
+
+            sshell = (l.eq.0).and.(type.le.0)
+            pshell = (l.eq.1).and.((type.eq.1).or.(type.le.-1))
+            dshell = (l.eq.2).and.((type.eq.2).or.(type.le.-2))
+            fshell = (l.eq.3).and.(type.eq.3)
+            gshell = (l.eq.4).and.(type.eq.4)
+
+            ilo = int_mb(iptr+icont-1)
+            ihi = int_mb(iptr+icont)-1
+c
+c>>>        S-type coefficients.
+c
+            if(sshell)then
+              do i = ilo,ihi
+                dbl_mb(iexp+i-1)=dbl_mb(icoef+i-1)
+              enddo 
+            endif 
+c
+c>>>        P-type coefficients.
+c
+            if(pshell)then
+              do i = ilo,ihi
+                dbl_mb(iexp+i-1)=dbl_mb(icoef+i-1)
+              enddo 
+            endif 
+c
+c>>>        D-type coefficients.
+c
+            if(dshell)then
+              do i = ilo,ihi
+                dbl_mb(iexp+i-1)=dbl_mb(icoef+i-1)
+              enddo 
+            endif 
+c
+c>>>        F-type coefficients.
+c
+            if(fshell)then
+              do i = ilo,ihi
+                dbl_mb(iexp+i-1)=dbl_mb(icoef+i-1)
+              enddo 
+            endif 
+c
+c>>>        G-type coefficients.
+c
+            if(gshell)then
+              do i = ilo,ihi
+                dbl_mb(iexp+i-1)=dbl_mb(icoef+i-1)
+              enddo 
+            endif 
+
+          enddo 
+          
+          write(lfn,'(5x,4f20.10)') (dbl_mb(iexp+i-1),i=1,nprim)
+        enddo 
+
+        write(lfn,9200)
+
+        if (.not. ma_free_heap(lcoef))
+     $       call errquit('wnbofile: lcoef free heap failed',0)
+
+        if (.not. ma_free_heap(lexp))
+     $       call errquit('wnbofile: lexp free heap failed',0)
+      endif 
+c
+c>>> End $CONTRACT keylist.
+c
+c>>>  Read in molecular orbital vectors and occupation numbers.
+c
+      lenocc = nset*nmo
+      if (.not. ma_push_get(mt_dbl, lenocc, 'wnbofile: mo evals',
+     $     leval, ieval)) call errquit
+     $     ('wnbofile: insufficient memory?', lenocc)
+
+      if (.not. ma_push_get(mt_dbl, lenocc, 'wnbofile: mo occ',
+     $     locc, iocc)) call errquit
+     $     ('wnbofile: mo occ insufficient memory?', lenocc)
+
+      if (.not. movecs_read(movecs_in, 1, dbl_mb(iocc), dbl_mb(ieval),
+     $     g_movecs))
+     $     call errquit('scf_movecs_read failed',0)
+
+      if(.not.restricted)then
+        if (.not. movecs_read(movecs_in, 2,
+     $       dbl_mb(iocc+nbf), dbl_mb(ieval+nbf),
+     $       g_movecs(2))) then
+          call ga_copy(g_movecs(1), g_movecs(2))
+          call dcopy(nbf,dbl_mb(iocc),1,dbl_mb(iocc+nbf),1)
+          call dcopy(nbf,dbl_mb(ieval),1,dbl_mb(ieval+nbf),1)
+        endif
+      endif
+c
+c>>>    Begin $LCAOMO keylist.
+c       
+      if( ga_nodeid().eq.0)then
+        if(.not.MA_Alloc_Get(MT_Dbl,nbf,'scratch',lscr,iscr))
+     $       call errquit('wnbofile: lscr memory alloc. failed',0)
+
+        write(lfn,'(a)')'$LCAOMO'
+
+        do icol = 1,nbf
+          call ga_get(g_movecs(1),1,nmo,icol,icol,Dbl_MB(iscr),1)
+          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,nbf-1)
+        enddo 
+
+
+        if(.not. restricted) then
+          do icol = 1,nbf
+            call ga_get(g_movecs(2),1,nmo,icol,icol,Dbl_MB(iscr),1)
+            write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,nbf-1)
+          enddo
+        endif
+
+        write(lfn,9200)
+        if (.not. ma_free_heap(lscr))
+     $       call errquit('wnbofile: lscr free heap failed',0)
+      endif
+c
+c>>>  End LCAOMO keylist.
+c
+c
+c>>>  Create bond order matrix from movecs array for density keylist.
+c
+c                     nmo   noc       t
+c       rho(r,r') = N*SUM   SUM   C  C   chi(r) chi(r')
+c                      jk    i     ji ik
+c
+c                                      /  noc     t  \
+c       bond order matrix, gamma   =  | N*SUM C  C    |
+c                               ij     \   i   ji ik /
+c
+      if( restricted) then
+        if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: bond order', 
+     $     1, 1, g_bo(1))) call errquit('wnbofile: g_bo(1)', 0)
+      else 
+
+        if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: a bond order', 
+     $     1, 1, g_bo(1))) call errquit('wnbofile: g_bo(1)', 0)
+        if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: b bond order', 
+     $     1, 1, g_bo(2))) call errquit('wnbofile: g_bo(2)', 0)
+
+      endif 
+c
+c>>>  Create the density matrix in the MO representation, 
+c>>>  a square matrix with orbital occupation 
+c>>>  numbers on the diagonals and 0 elsewhere.  Store the matrix
+c>>>  temporarily in the matrix reserved for the bond order matrix.
+c
+
+      if(.not.MA_push_get(MT_INT, nmo, 'indices 1', lind1, iind1))
+     $     call errquit('wnbofile: lind1',0)
+      if(.not.MA_push_get(MT_INT, nmo, 'indices 2', lind2, iind2))
+     $     call errquit('wnbofile: lind2',0)
+
+      if (ga_nodeid().eq.0)then
+
+        do i=1, nmo
+          int_mb( iind1+i-1 ) = i
+          int_mb( iind2+i-1 ) = i
+        enddo
+
+        call ga_scatter ( g_bo(1), dbl_mb(iocc), int_mb(iind1),
+     $       int_mb(iind2), nmo )
+
+      endif
+
+      if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: scratch', 
+     $     1, 1, g_scr)) call errquit('wnbofile: scratch', 0)
+c                                                t
+c>>>  Form the product (Movecs)(Gamma_mo)(Movecs)  = Bond order matrix.
+c
+      call ga_dgemm('n', 'n', nmo, nmo, nmo, 1.0d0, g_movecs(1), 
+     $     g_bo(1), 0.0d0, g_scr)
+      call ga_dgemm('n', 't', nmo, nmo, nmo, 1.0d0, g_scr, 
+     $     g_movecs(1), 0.0d0, g_bo(1))
+
+      if(.not. restricted) then
+
+        if (ga_nodeid().eq.0)then
+
+          do i=1, nmo
+            int_mb( iind1+i-1 ) = i
+            int_mb( iind2+i-1 ) = i
+          enddo
+
+          call ga_scatter ( g_bo(2), dbl_mb(iocc+nmo), int_mb(iind1),
+     $         int_mb(iind2), nmo )
+
+        endif
+
+        call ga_dgemm('n', 'n', nmo, nmo, nmo, 1.0d0, g_movecs(2), 
+     $       g_bo(2), 0.0d0, g_scr)
+        call ga_dgemm('n', 't', nmo, nmo, nmo, 1.0d0, g_scr, 
+     $       g_movecs(2), 0.0d0, g_bo(2))
+      endif 
+c
+c>>>  Begin $DENSITY keylist.
+c
+      if( ga_nodeid().eq.0)then
+        if(.not.MA_Alloc_Get(MT_Dbl,nbf,'scratch',lscr,iscr))
+     $       call errquit('wnbofile: lscr memory alloc. failed',0)
+
+        write(lfn,'(a)')'$DENSITY'
+c
+c>>>  Write out lower triangular section of alpha density matrix.
+c
+
+        do icol = 1,nbf
+          call ga_get(g_bo(1),1,nmo,icol,icol,Dbl_MB(iscr),1)
+          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
+        enddo 
+
+
+        if(.not. restricted) then
+          do icol = 1,nbf
+            call ga_get(g_bo(2),1,nmo,icol,icol,Dbl_MB(iscr),1)
+            write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
+          enddo
+        endif
+
+        write(lfn,9200)
+        if (.not. ma_free_heap(lscr))
+     $       call errquit('wnbofile: lscr free heap failed',0)
+      endif
+c
+c>>>  End $DENSITY keylist.
+c
+c
+c>>>  Create overlap matrix.
+c
+      call int_init(rtdb,1,lbasis)
+      call int_normalize(lbasis)
+      g_over  = ga_create_atom_blocked(lgeom, lbasis,'Overlap')
+c
+      call ga_zero(g_over)
+      call int_1e_ga(lbasis, lbasis, g_over, 'overlap', .false.)
+c
+c>>>  Begin $OVERLAP keylist.
+c
+      if( ga_nodeid().eq.0)then
+        if(.not.MA_Alloc_Get(MT_Dbl,nbf,'scratch',lscr,iscr))
+     $       call errquit('wnbofile: lscr memory alloc. failed',0)
+
+        write(lfn,'(a)')'$OVERLAP'
+c
+c>>>  Write out lower triangular section of overlap matrix.
+c
+        do icol = 1,nbf
+          call ga_get(g_over,1,nmo,icol,icol,Dbl_MB(iscr),1)
+          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
+        enddo 
+
+        write(lfn,9200)
+        if (.not. ma_free_heap(lscr))
+     $       call errquit('wnbofile: lscr free heap failed',0)
+
+      endif 
+c
+c>>>  End $OVERLAP keylist.
+c
+c
+c>>>  Create Fock matrix in AO basis.
+c
+      if(restricted) then
+        if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: Fock matrix', 
+     $     1, 1, g_fock(1))) call errquit('wnbofile: g_fock(1)', 0)
+      else 
+
+        if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: alpha Fock', 
+     $     1, 1, g_fock(1))) call errquit('wnbofile: g_fock(1)', 0)
+        if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: beta Fock', 
+     $     1, 1, g_fock(2))) call errquit('wnbofile: g_fock(2)', 0)
+
+      endif 
+c
+c>>>  Create Fock matrix in MO representation, 
+c>>>  a square matrix with oribital energies
+c>>>  on the diagonals and 0 elsewhere.
+c
+      if (ga_nodeid().eq.0)then
+
+        do i=1, nmo
+          int_mb( iind1+i-1 ) = i
+          int_mb( iind2+i-1 ) = i
+        enddo
+
+        call ga_scatter ( g_fock(1), dbl_mb(ieval), int_mb(iind1),
+     $       int_mb(iind2), nmo )
+
+      endif
+c
+c>>>  Create Fock Matrix in AO representation.
+c                                   t
+c>>>  Fock_ao = S*Movecs*Fock_mo*Movecs *S
+c
+      call ga_dgemm('n', 't', nmo, nmo, nmo, 1.0d0, g_fock(1), 
+     $       g_movecs(1), 0.0d0, g_scr)
+      call ga_dgemm('n', 'n', nmo, nmo, nmo, 1.0d0, g_movecs(1), 
+     $       g_scr, 0.0d0, g_fock(1))
+      call ga_dgemm('n', 'n', nmo, nmo, nmo, 1.0d0, g_fock(1), 
+     $       g_over, 0.0d0, g_scr)
+      call ga_dgemm('n', 'n', nmo, nmo, nmo, 1.0d0, g_over, 
+     $       g_scr, 0.0d0, g_fock(1))
+
+      if(.not. restricted) then
+        
+        if (ga_nodeid().eq.0)then
+
+          do i=1, nmo
+            int_mb( iind1+i-1 ) = i
+            int_mb( iind2+i-1 ) = i
+          enddo
+
+          call ga_scatter ( g_fock(2), dbl_mb(ieval+nmo), int_mb(iind1),
+     $         int_mb(iind2), nmo )
+
+        endif
+
+        call ga_dgemm('n', 't', nmo, nmo, nmo, 1.0d0, g_fock(2), 
+     $       g_movecs(2), 0.0d0, g_scr)
+        call ga_dgemm('n', 'n', nmo, nmo, nmo, 1.0d0, g_movecs(2), 
+     $       g_scr, 0.0d0, g_fock(2))
+        call ga_dgemm('n', 'n', nmo, nmo, nmo, 1.0d0, g_fock(2), 
+     $       g_over, 0.0d0, g_scr)
+        call ga_dgemm('n', 'n', nmo, nmo, nmo, 1.0d0, g_over, 
+     $       g_scr, 0.0d0, g_fock(2))
+
+      endif 
+c
+c>>>  Begin $FOCK keylist.
+c
+      if( ga_nodeid().eq.0)then
+        if(.not.MA_Alloc_Get(MT_Dbl,nbf,'scratch',lscr,iscr))
+     $       call errquit('wnbofile: lscr memory alloc. failed',0)
+
+        write(lfn,'(a)')'$FOCK'
+c
+c>>>  Write out lower triangular section of AO Fock matrix.
+c
+        do icol = 1,nbf
+          call ga_get(g_fock(1),1,nmo,icol,icol,Dbl_MB(iscr),1)
+          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
+        enddo 
+
+        if(.not. restricted) then
+          do icol = 1,nbf
+            call ga_get(g_fock(2),1,nmo,icol,icol,Dbl_MB(iscr),1)
+            write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
+          enddo
+        endif
+
+        write(lfn,9200)
+        if (.not. ma_free_heap(lscr))
+     $       call errquit('wnbofile: lscr free heap failed',0)
+      endif
+
+c
+c>>>  End $FOCK keylist.
+c
+c
+c>>>  Print this out for debugging purposes.
+c
+      close(lfn)
+
+c
+c>>>  Free handles and destroy arrays.
+c
+      if (restricted) then
+        if (.not. ga_destroy(g_scr)) 
+     $       call errquit('wnbofile: destroy g_scr',0)
+        if (.not. ga_destroy(g_movecs(1))) 
+     $       call errquit('wnbofile: destroy g_movecs',0)
+        if (.not. ga_destroy(g_bo(1))) 
+     $       call errquit('wnbofile: destroy g_bo',0)
+        if (.not. ga_destroy(g_over)) 
+     $     call errquit('wnbofile: destroy g_over',0)
+        if (.not. ga_destroy(g_fock(1))) 
+     $       call errquit('wnbofile: destroy g_fock',0)
+      else
+        if (.not. ga_destroy(g_scr)) 
+     $       call errquit('wnbofile: destroy g_scr',0)
+        if (.not. ga_destroy(g_movecs(2)))
+     $       call errquit('wnbofile: destroy beta MOs', 0)
+        if (.not. ga_destroy(g_movecs(1)))
+     $       call errquit('wnbofile: destroy alpha MOs', 0)
+        if (.not. ga_destroy(g_over)) 
+     $     call errquit('wnbofile: destroy g_over',0)
+        if (.not. ga_destroy(g_bo(2)))
+     $       call errquit('wnbofile: destroy beta BO matrix', 0)
+        if (.not. ga_destroy(g_bo(1)))
+     $       call errquit('wnbofile: destroy alpha BO matrix', 0)
+        if (.not. ga_destroy(g_fock(1))) 
+     $       call errquit('wnbofile: destroy g_fock',0)
+        if (.not. ga_destroy(g_fock(2))) 
+     $       call errquit('wnbofile: destroy g_fock',0)
+      endif
+
+      if (.not. ma_pop_stack(lind2))
+     $     call errquit('wnbofile: lind2 pop stack failed',0)
+
+      if (.not. ma_pop_stack(lind1))
+     $     call errquit('wnbofile: lind1 pop stack failed',0)
+
+      if (.not. ma_pop_stack(locc))
+     $     call errquit('wnbofile: locc pop stack failed',0)
+
+      if (.not. ma_pop_stack(leval))
+     $     call errquit('wnbofile: leval pop stack failed',0)
+
+      if (.not. ma_pop_stack(ltype))
+     $     call errquit('wnbofile: ltype pop stack failed',0)
+
+      if (.not. ma_pop_stack(lptr))
+     $     call errquit('wnbofile: lptr pop stack failed',0)
+
+      if (.not. ma_pop_stack(lprim))
+     $     call errquit('wnbofile: lprim pop stack failed',0)
+
+      if (.not. ma_pop_stack(ltags))
+     $     call errquit('wnbofile: ltags pop stack failed',0)
+
+      if (.not. ma_pop_stack(lchg))
+     $     call errquit('wnbofile: lchg pop stack failed',0)
+
+      if (.not. ma_pop_stack(lcoord))
+     $     call errquit('wnbofile: lcoord pop stack failed',0)
+
+
+      if (.not. bas_destroy(lbasis)) call errquit
+     $     ('wnbofile: basis destroy failed',0)
+
+      if (.not. geom_destroy(lgeom)) call errquit
+     $     ('wnbofile: geom destroy failed', 0)
+
+      call ga_sync()
+
+ 9200 format('$END')
+ 9250 format(/,1x,'Input for gennbo program written to file ',a,'.')
+      return       
+      end
