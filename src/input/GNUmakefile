@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.44 1999-06-23 16:30:25 mdupuis Exp $
+#$Id: GNUmakefile,v 1.45 2000-02-24 22:26:42 windus Exp $
 
 # Put into task library so that it occurs at the front of the link path
 
@@ -25,8 +25,8 @@ ifeq ($(HOSTNAME),mcurie)
 endif
 
 ifeq ($(HOSTSUFFIX),nwmpp1.emsl.pnl.gov)
-# 450 MB on EMSL IBMSP
-  LIB_DEFINES += -DDFLT_TOT_MEM=58982400
+# 384 MB on EMSL IBMSP
+  LIB_DEFINES += -DDFLT_TOT_MEM=50331648
 endif
 
 
