@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.29 2001-01-10 21:53:50 windus Exp $
+* $Id: task_gradient.F,v 1.30 2001-11-16 22:52:27 bylaska Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -106,7 +106,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.29 2001-01-10 21:53:50 windus Exp $
+* $Id: task_gradient.F,v 1.30 2001-11-16 22:52:27 bylaska Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -148,8 +148,8 @@ c     the numerical derivative routine.
 c
       logical  scf, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       external scf, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
-      logical semi_dir_mp2, rimp2g, pspw_gradient
-      external semi_dir_mp2, rimp2g, pspw_gradient
+      logical semi_dir_mp2, rimp2g, pspw_gradient,band_gradient
+      external semi_dir_mp2, rimp2g, pspw_gradient,band_gradient
       logical dft_energy_gradient, sodft_energy_gradient
       external dft_energy_gradient, sodft_energy_gradient
 c
@@ -228,6 +228,8 @@ c
          status = task_num_grad(rtdb) ! Only numerical
       else if (theory .eq. 'cg_pspw') then
          status = pspw_gradient(rtdb)
+      else if (theory .eq. 'band') then
+         status = band_gradient(rtdb)
       else if (theory .eq. 'qmmm') then
          if (ga_nodeid().eq.0) then
            write(6,*)'task_gradient: qmmm should never be the theory '

@@ -68,7 +68,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.26 2001-05-09 17:51:06 d3j191 Exp $
+* $Id: task_energy.F,v 1.27 2001-11-16 22:52:27 bylaska Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -100,8 +100,8 @@ c     Also returns status through the function value
 c
       logical  scf, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       external scf, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
-      logical semi_dir_mp2, rimp2g,nwmd,pspw_energy
-      external semi_dir_mp2, rimp2g,nwmd,pspw_energy
+      logical semi_dir_mp2, rimp2g,nwmd,pspw_energy,band_energy
+      external semi_dir_mp2, rimp2g,nwmd,pspw_energy,band_energy
       logical dft_energy, sodft_energy
       external dft_energy, sodft_energy
 c
@@ -158,6 +158,8 @@ cedo         prefix = 'mp2'
          status = semi_dir_mp2(rtdb)
       else if (theory .eq. 'cg_pspw') then
          status = pspw_energy(rtdb)
+      else if (theory .eq. 'band') then
+         status = band_energy(rtdb)
       else if (theory .eq. 'md') then
          status = nwmd(rtdb)
       else if (theory .eq. 'qmmm') then
