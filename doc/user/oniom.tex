@@ -26,6 +26,14 @@ ONIOM calculations with either solvation models or classical force
 fields.  Nor is it yet possible to compute properties except as
 derivatives of the total energy.  
 
+Using the terminology of Morokuma et al., the full molecular geometry
+including all atoms is referred to as the ``real'' geometry and it is
+treated using a ``low''-level of theory.  A subset of these atoms
+(referred to as the ``model'' geometry) are treated using both the
+``low''-level and a ``high''-level of theory.  A three-layer model
+also introduces an ``intermediate'' model geometry and a ``medium''
+level of theory.
+
 The two-layer model requires a high and low level of theory and a
 real and model molecular geometry.  The energy at the high-level of
 theory for the real geometry is estimated as
