@@ -1,6 +1,6 @@
       subroutine ga_local_mdot(n, nva, nvb, c, ldc, g_a, g_b)
 *
-* $Id: ga_local_mdot.F,v 1.3 1999-11-13 03:16:05 bjohnson Exp $
+* $Id: ga_local_mdot.F,v 1.4 2000-10-26 19:21:44 edo Exp $
 *
       implicit none
 #include "global.fh"
@@ -34,20 +34,8 @@ c
 c
          call ga_access(g_a, ailo, aihi, ajlo, ajhi, aind, ald)
          call ga_access(g_b, bilo, bihi, bjlo, bjhi, bind, bld)
-         kdim = aihi - ailo + 1
-         do j = 1, nvb
-            do i = 1, nva
-               aoff = aind + (i-1)*ald - 1
-               boff = bind + (j-1)*bld - 1
-               ij   = (j-1)*nva + i
-               if (ij.gt.2500) call errquit('Robert is lazy',0)
-               sum = 0.0d0
-               do k = 1, kdim
-                  sum = sum + dbl_mb(aoff+k)*dbl_mb(boff+k)
-               enddo
-               work(ij) = sum
-            enddo
-         enddo
+         call ga_lmdotb(work,dbl_mb(aind),dbl_mb(bind),
+     ,        aihi,ailo,ald,nva,nvb,bld)
          call ga_release(g_a, ailo, aihi, ajlo, ajhi)
          call ga_release(g_b, bilo, bihi, bjlo, bjhi)
       else
@@ -66,4 +54,29 @@ c
       enddo
 c
 c
+      end
+      subroutine ga_lmdotb(work,a,b,aihi,ailo,ald,nva,nvb,bld)
+      implicit none
+#include "mafdecls.fh"
+      double precision a(*),b(*),work(*)
+      integer ailo,aihi,ald,nva,nvb,bld
+c     
+      integer i,j,k,aoff,boff,ij,kdim
+      double precision sum
+c
+      kdim = aihi - ailo + 1
+      do j = 1, nvb
+         do i = 1, nva
+            aoff = (i-1)*ald 
+            boff = (j-1)*bld
+            ij   = (j-1)*nva + i
+            if (ij.gt.2500) call errquit('Robert is lazy',0)
+            sum = 0.0d0
+            do k = 1, kdim
+               sum = sum + a(aoff+k)*b(boff+k)
+            enddo
+            work(ij) = sum
+         enddo
+      enddo
+      return
       end

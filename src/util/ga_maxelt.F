@@ -1,41 +1,53 @@
-       subroutine ga_maxelt(g_a, value)
-C$Id: ga_maxelt.F,v 1.7 1995-02-02 18:09:31 d3g681 Exp $
-       implicit none
+      subroutine ga_maxelt(g_a, value)
+C     $Id: ga_maxelt.F,v 1.8 2000-10-26 19:21:44 edo Exp $
+      implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "msgids.fh"
-       integer g_a
-       double precision value
-c
+      integer g_a
+      double precision value
+c     
 c     Determine the absolute value of the element with largest 
 c     absolute magnitude
-c
-       integer ilo, ihi, jlo, jhi, idim, jdim, ld
-       integer j, ind, ind_max
-       integer idamax
-       external idamax
-c
+c     
+      integer ilo, ihi, jlo, jhi
+      integer ga_maxelt_doit
+      external ga_maxelt_doit
+c     
 c     Each process first determines max of data local to it
-c
-       call ga_sync()
-       value = 0.d0
-       call ga_distribution(g_a, ga_nodeid(), ilo, ihi, jlo, jhi)
-       if (ihi.gt.0 .and. ihi.ge.ilo) then
-          idim = ihi - ilo + 1
-          jdim = jhi - jlo + 1
-          call ga_access(g_a, ilo, ihi, jlo, jhi, ind, ld)
-          do j = 0, jdim-1
-             ind_max = idamax(idim, dbl_mb(ind), 1) + ind - 1
-             value = max(value, abs(dbl_mb(ind_max)))
-             ind = ind + ld
-          enddo
-          call ga_release(g_a, ilo, ihi, jlo, jhi)
-       endif
-c
+c     
+      call ga_sync()
+      call ga_distribution(g_a, ga_nodeid(), ilo, ihi, jlo, jhi)
+      value = 0.0d0    ! for nodes with no data
+      if (ihi.gt.0 .and. ihi.ge.ilo) then
+         call ga_access_callback_release(
+     $        g_a, ilo, ihi, jlo, jhi,ga_maxelt_doit, value, 
+     $        0, 0, 0, 0, 0,0)
+      endif
+c     
 c     Finally a global max via message passing
+c     
+      call ga_sync()
+      call ga_dgop(Msg_MxElt, value, 1, 'absmax')
+      call ga_sync()
+c     
+      end
+      integer function ga_maxelt_doit(
+     $     g_a, ilo, ihi, jlo, jhi, a, ld, value, 
+     $     idum2, idum3, idum4, idum5, idum6)
+      implicit none
+      integer g_a, ilo, ihi, jlo, jhi, ld, 
+     $     idum2, idum3, idum4, idum5, idum6
+      double precision a(ilo:ilo+ld-1,jlo:jhi), value
+      integer i, j
 c
-       call ga_sync()
-       call ga_dgop(Msg_MxElt, value, 1, 'absmax')
-       call ga_sync()
+      value = 0.0d0
+      do j = jlo, jhi
+         do i = ilo, ihi
+            value = max(abs(a(i,j)),value)
+         end do
+      end do
 c
-       end
+      ga_maxelt_doit = 0    ! no update necessary
+c
+      end
