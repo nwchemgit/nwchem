@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.18 1995-06-28 17:19:56 rg240 Exp $
+C$Id: inp.F,v 1.19 1995-11-07 09:19:34 apsmith Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -744,4 +744,28 @@ c
          fdata(i) = fsave(i)
       enddo
 c
+      end
+
+      subroutine inp_cline(z, len, success)
+      implicit none
+#include "inpP.fh"
+      character*(*) z
+      logical success
+      integer len, flen
+c     
+c     set the variable z to be as much of the current input line
+c     that it can hold
+c     
+      flen = max_width
+      if (jump .gt. 0) then
+         call c_cnvt(len, flen, z, ia)
+         success = .true.
+         ierrpos = -1
+         errmsg = ' '
+      else
+         errmsg = 'no input line available'
+         ierrpos = -1
+         success = .false.
+      endif
+      return
       end
