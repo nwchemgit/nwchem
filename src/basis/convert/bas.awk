@@ -25,7 +25,8 @@ BEGIN {element = "nosuchatom"; what="basis"; firstone=1;}
           printf("\n");}
         }
 
-/^[ \t]*[0-9.]+[ \t]+[-+0-9.]+[ \t]*/ {if ($2 != 0.0) print; next;}
+    #   /^[ \t]*[0-9.]+[ \t]+[-+0-9.]+[ \t]*/ {if ($2 != 0.0) print; next;}
+/^[ \t]*[0-9.]+[ \t]+[-+0-9.]+[ \t]*/ {print; next;}
 
         {printf("  ");print;}
 
