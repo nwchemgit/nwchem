@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.139 2000-10-31 22:40:28 windus Exp $
+# $Id: make_nwchem_config,v 1.140 2000-11-04 03:19:45 d3g681 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -218,15 +218,15 @@ STUBROUTINES := $(patsubst mp2_grad,mp2_grad mp2_input semi_dir_mp2,$(STUBROUTIN
 STUBROUTINES := $(patsubst NWints,int_input task_check_sum sym_bas_op,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst atomscf,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ddscf,scf scf_input vectors_input rel_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst dftgrad,dft_grad_top grad_dft,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst dftgrad,dft_grad_top dft_energy_gradient sodft_energy_gradient grad_dft,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst develop,uccsdtest rjhtest jantest jvltest jvltest2 raktest kgdtest debtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst drdy,drdy_input task_drdy,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst gradients,grad_force scf_gradient gradients_input grad_active_atoms stpr_sjacobi,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst gradients,grad_force scf_gradient mcscf_gradient gradients_input grad_active_atoms stpr_sjacobi,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst hessian, scf_hessian xc_init_index xc_exit_index hessti xc_hessian xc_cpks_rhs xc_rhogen_nucder xc_d2expl xc_cpks_coeff xc_tabcd_cpks_lhs xc_tabcd_cpks_rhs xc_rhogen_pert,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ccsd,ccsd ccsd_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mcscf,mcscf mcscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst moints,atwtest direct_mp2 moints_full,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst nwdft,nwdft dft_fitcd grid_cleanup dft_fitvc grid_quadv0_gen dft_input xc_quadv0_gen,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst nwdft,nwdft dft_fitcd grid_cleanup dft_fitvc grid_quadv0_gen dft_input xc_quadv0_gen dft_energy sodft_energy,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gapss,gapss gap_parse,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rimp2,rimp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rimp2_grad,rimp2g,$(STUBROUTINES) )
@@ -237,7 +237,7 @@ STUBROUTINES := $(patsubst ideaz,mdmain ideaz_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst cphf,cphf cphf_poliz mjdtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst scfaux,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vib,vib_vib freq_vib_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst driver,driver drv_lst drv_opt driver_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst driver,driver oniom_energy oniom_gradient oniom_input drv_lst drv_opt driver_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst plane_wave,plnwv plnwv_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst prepar,prepar pre_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst analyz,analyz ana_input,$(STUBROUTINES) )
