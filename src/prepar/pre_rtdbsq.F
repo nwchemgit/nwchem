@@ -1,7 +1,7 @@
-      logical function pre_rtdbsq(irtdb,igeom,lfnout,
+      logical function pre_rtdbsq(irtdb,igeom,lfnout,sysnam,
      + lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm)
 c
-c $Id: pre_rtdbsq.F,v 1.5 1998-08-24 17:28:15 d3j191 Exp $
+c $Id: pre_rtdbsq.F,v 1.6 1999-06-17 17:20:40 d3j191 Exp $
 c
 c     function to read sequence from the rtdb
 c
@@ -30,6 +30,7 @@ c
       integer lseq(4,mseq),latm(5,matm)
       character*6 catm(3,matm)
       character*5 cseq(2,mseq)
+      character*80 sysnam
       real*8 xatm(3,matm)
       real*8 c(3),q
       character*16 tag
@@ -59,7 +60,12 @@ c
       catm(2,i)='      '
       catm(3,i)='      '
     1 continue
-      cseq(1,1)='s00  '
+      print*,'sysnam=',sysnam(1:5)
+      print*,'sysnam=',sysnam(1:5)
+      print*,'sysnam=',sysnam(1:5)
+      print*,'sysnam=',sysnam(1:5)
+      print*,'sysnam=',sysnam(1:5)
+      cseq(1,1)=sysnam(1:5)
       cseq(2,1)='     '
       lseq(1,1)=1
       lseq(2,1)=0

@@ -1,9 +1,9 @@
-      logical function pre_mkseq(irtdb,lfnout,source,ffield,
+      logical function pre_mkseq(irtdb,lfnout,source,ffield,sysnam,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk)
 c
-c $Id: pre_mkseq.F,v 1.25 1999-06-16 23:37:46 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.26 1999-06-17 17:20:39 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -46,6 +46,7 @@ c
       character*255 filpdb,filpar,filseq,filtmp,filmod
       character*255 dir_s,dir_x,dir_u,dir_t
       character*80 ffield
+      character*80 sysnam
       character*3 slvnam
       character*80 source
       character*10 slvmdl
@@ -166,7 +167,7 @@ c
  2000 format(' PDB geometry',t40,a,/)
       endif
       else
-      if(.not.pre_rtdbsq(irtdb,igeom,lfnout,
+      if(.not.pre_rtdbsq(irtdb,igeom,lfnout,sysnam,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_xatm),matm,natm))
      + call errquit('pre_rtdbsq failed',9999)

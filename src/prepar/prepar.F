@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.25 1999-03-15 21:25:39 d3j191 Exp $
+c $Id: prepar.F,v 1.26 1999-06-17 17:20:40 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -209,7 +209,7 @@ c
 c     generate sequence & segments from coordinates
 c     ---------------------------------------------
 c
-      if(.not.pre_mkseq(irtdb,lfnout,source,ffield,
+      if(.not.pre_mkseq(irtdb,lfnout,source,ffield,sysnam,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk))
