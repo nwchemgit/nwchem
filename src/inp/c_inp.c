@@ -1,15 +1,15 @@
 /*
- $Id: c_inp.c,v 1.6 1999-11-13 02:22:25 bjohnson Exp $
+ $Id: c_inp.c,v 1.7 2003-08-13 16:45:43 edo Exp $
  */
 
-#ifdef CRAY
+#if defined(CRAY) &&  !defined(__crayx1)
 #include <fortran.h>
 #endif
 #include "typesf2c.h"
 /* routine to convert a fortran string to a C string: */
 /* Fortran callable version of f2cstring in global directory */
 
-#if defined(CRAY) || defined(USE_FCD)
+#if (defined(CRAY) || defined(USE_FCD))  &&  !defined(__crayx1) 
 void FATR C_CNVT(clen, flen, cfcd, ffcd)
 Integer *clen, *flen;
 _fcd cfcd;
