@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.487 2004-10-19 21:54:17 edo Exp $
+# $Id: makefile.h,v 1.488 2004-10-20 18:12:56 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1546,7 +1546,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
         COPTIMIZE =  -O3 -hlo   -mP2OPT_hlo_level=2  
       endif
       ifeq ($(CC),gcc)
-        COPTIONS   =   -O3 -fno-unroll-loops -fno-strength-reduce -ffast-math
+        COPTIONS   =   -O3 -funroll-loops -ffast-math
       endif
 
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
