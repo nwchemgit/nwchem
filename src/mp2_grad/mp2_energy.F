@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.44 1998-07-13 23:42:39 d3g681 Exp $
+* $Id: mp2_energy.F,v 1.45 1998-07-15 20:34:00 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -80,7 +80,7 @@ c
       logical file_write_ga,file_read_ga
       external file_write_ga,file_read_ga
       character*(nw_max_path_len) cphf_sol
-      integer natoms, l_grad, k_grad
+      integer natoms, l_grad, k_grad, g_tmpa, g_tmpb
 c     
       if (.not.rtdb_get(rtdb, 'mp2:skeleton',MT_LOG, 1, oskel))
      $     oskel = sym_number_ops(geom) .gt. 0
@@ -532,9 +532,13 @@ c
             endif
          endif
          call pstat_on(ps_laifock)
+         call mp2_lai_fock_uhf_prepar(
+     $        g_p_ab_a,g_p_ab_b,g_p_ij_a,g_p_ij_b,
+     $        noa,nob,nva,nvb,g_tmpa, g_tmpb,nmo)
          call mp2_lai_fock_uhf(geom,basis,
-     $        g_p_ab_a,g_p_ab_b,g_p_ij_a,g_p_ij_b,g_vecs_a,g_vecs_b,
+     $        g_tmpa,g_tmpb,g_vecs_a,g_vecs_b,
      $        noa,nob,nva,nvb,g_lai_a,g_lai_b,rtdb,tol2e_fock)
+         call mp2_lai_fock_uhf_tidy(g_tmpa, g_tmpb)
          call pstat_off(ps_laifock)
 c
          if (omatrix) then
