@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.29 2002-04-30 16:46:29 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.30 2002-05-07 20:04:41 d3j191 Exp $
 c
       implicit none
 c
@@ -51,8 +51,12 @@ c
  1022 format(12x,f12.6,/,24x,f12.6)
       endif
       read(lfntrj,1000) card
-      if(card(5:5).eq.'F'.or.card(5:5).eq.'T') then
+      if(card(8:8).eq.'F'.or.card(8:8).eq.'T') then
       read(card,1006) lxw,lvw,lfw,lpw,lsx,lsv,lfs,lps,inwm,inwa,nsa
+      elseif(card(6:6).eq.'F'.or.card(6:6).eq.'T') then
+      read(card,1007) lxw,lvw,lfw,lsx,lsv,lfs,inwm,inwa,nsa
+      lpw=.false.
+      lps=.false.
       else
       read(card,1003) lxw,lvw,lsx,lsv,inwm,inwa,nsa
       lfw=.false.
@@ -70,6 +74,7 @@ c
       endif
  1003 format(4l1,3i10,2l1)
  1006 format(8l1,3i10)
+ 1007 format(6l1,3i10)
       if(nsa.gt.msa) call errquit('Error in trj 1',0)
       if((lxw.or.lvw).and.nwm.gt.0) then
       do 2 i=1,nwm
