@@ -1,0 +1,1415 @@
+#ifndef ADRIANS_CRAP
+
+c
+c solve the SCF equations, returning the full MO vectors,
+c the final fock and density matrices, and eigen values
+
+      call rhf_solve(rtdb, basis, g_vecs, g_fock, g_dens,
+     $     dbl_mb(k_evals), energy, eone, etwo, enrep)
+      subroutine rhf_solve(rtdb, basis, g_vecs, g_fock, g_dens,
+     $     evals, energy, eone, etwo, enrep)
+      implicit none
+#include "mafdecls.h"
+#include "global.h"
+#include "rtdb_fort.h"
+#include "schwarz.h"
+#include "tcgmsg.h"
+c
+c     arguments
+c
+      integer rtdb, basis, g_vecs, g_fock, g_dens
+      double precision evals(*)
+      double precision eone, etwo, enrep, energy
+c
+c     locals
+c
+      integer iter, maxiter
+      integer natoms, nshell, nbf, nprim, maxprim,
+     $     max_l, max_sh_bf, max_at_bf, nocc
+c
+      integer g_hcore           ! T+V
+      integer g_over            ! S
+      integer g_old_dens        ! Density from previous cycle
+      double precision tol2e    ! Requested integral selection threshold
+      double precision tol2e_tmp !Temporary integral selection threshold
+      double precision damp     ! Density damping factor
+      double precision eold     ! Energy from previous cycle
+      double precision deltae   ! Change in energy
+      double precision deltad   ! Change in density
+      double precision scf_conv ! Energy convergence threshold
+      double precision t1e, t2e, tdiag, tmxm, start, ttotal,
+     $     tdadd, tddot, tzero, tcopy, tinit, unknown
+      double precision crap
+      logical odebug            ! Flag to print debug info
+      logical oprscreen         ! Flag to print integral screening info
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
+c
+      data odebug/.false./
+      data oprscreen/.true./
+      data t1e, t2e, tdiag, tmxm, ttotal, tdadd, tddot, tzero, tcopy
+     $     /9*0.0d0/
+c
+      ttotal = tcgtime()
+      start = tcgtime()
+      call intinit(rtdb, basis)
+c
+      if (.not. rtdb_par_get(rtdb, 'nuclear repulsion',
+     $     MT_DBL, 1, enrep))
+     $     call errquit('rhf_solve: enrep missing', 0)
+      if (.not. rtdb_par_get(rtdb, 'no. of doubly occupied',
+     $     MT_INT, 1, nocc))
+     $     call errquit('rhf_solve: nocc missing !!', 0)
+      if (.not. rtdb_par_get(rtdb, 'damping factor',
+     $     MT_DBL, 1, damp)) damp = 0.5d0
+      if (.not. rtdb_par_get(rtdb, 'no. of iterations',
+     $     MT_INT, 1, maxiter)) maxiter = 4
+      if (.not. rtdb_par_get(rtdb, '2e integral accuracy',
+     $     MT_DBL, 1,tol2e)) tol2e = 1.0d-7
+      if (.not. rtdb_par_get(rtdb, 'scf convergence',
+     $     MT_DBL, 1, scf_conv)) scf_conv = 1.0d-9
+      call gto_info(basis, natoms, nshell, nbf, nprim, maxprim,
+     $     max_l, max_sh_bf, max_at_bf)
+c
+      g_hcore = ga_create_atom_blocked(basis, 'T+V')
+      g_over  = ga_create_atom_blocked(basis, 'Overlap')
+      g_old_dens = ga_create_atom_blocked(basis, 'Old AO density')
+c
+c$$$      if (.not. ga_create(MT_DBL, nbf, nbf, 'T+V', 20, 20, g_hcore))
+c$$$     $     call errquit('rhf_solve: failed to allocate T+V', nbf)
+c$$$      if (.not. ga_create(MT_DBL, nbf, nbf, 'Overlap', 20, 20 ,g_over))
+c$$$     $     call errquit('rhf_solve: failed to allocate S', nbf)
+c$$$      if (.not. ga_create(MT_DBL, nbf, nbf, 'Old density', 20, 20, 
+c$$$     $     g_old_dens))
+c$$$     $     call errquit('rhf_solve: failed to allocate S', nbf)
+c
+c     Initialize schwarz inequality screening info
+c
+      call schwarz_init(basis)
+      call count_integs(basis, natoms, tol2e)
+c
+      if (nodeid().eq.0) write(6,3) scf_conv, damp, maxiter
+ 3    format(/
+     $     '       Energy convergence = ',1pd9.2/
+     $     '   Density damping factor = ',f5.2/
+     $     '       Maximum iterations = ',i5)
+      tinit = tcgtime() - start
+c
+c     Initial guess is a zero density matrix = hcore
+c
+      start = tcgtime()
+      eold = 0.0d0
+      call ga_zero(g_dens)
+      call ga_zero(g_old_dens)
+c
+      tzero = tzero + tcgtime() - start
+c
+      if (nodeid().eq.0) write(6,1)
+ 1    format(//
+     $     '  iter         energy            energy (2e)   ',
+     $     '   delta E    delta D '/
+     $     ' ------  ------------------  ------------------',
+     $     '  ---------  ---------')
+c
+      tol2e_tmp = tol2e*100.0d0
+c
+      do iter = 1, maxiter
+c         
+         if (iter .gt. 2) tol2e_tmp = tol2e
+c
+         start = tcgtime()
+         call ga_zero(g_fock)
+         tzero = tzero + tcgtime() - start
+         start = tcgtime()
+         call fock_1e(rtdb, basis, g_dens, g_hcore, g_over)
+         t1e = t1e + tcgtime() - start
+c
+#ifdef GA_TRACE
+         if (iter .eq. 2) then
+            call trace_init(20000)
+            call ga_sync
+            call trace_stime
+            call trace_etime
+            call trace_genrec(0, 0, 0, 0, 0, 0)
+         endif
+#endif
+         start = tcgtime()
+         if (iter .gt. 1) then
+              call twoint_init(.false.,1)
+     $        call fock_2e(rtdb, basis, g_dens, g_fock, tol2e_tmp)
+         endif
+         t2e = t2e + tcgtime() - start
+c
+#ifdef GA_TRACE
+         if (iter .eq. 2) call trace_end(ga_nodeid())
+#endif
+c
+         if (odebug) then
+            call ga_print(g_over)
+            call ga_print(g_dens)
+            call ga_print(g_hcore)
+            call ga_print(g_fock)
+            call ga_sync()
+         endif
+c
+         start = tcgtime()
+         eone = ga_ddot(g_hcore, g_dens)
+         etwo = 0.5d0*ga_ddot(g_fock, g_dens)
+         tddot = tddot + tcgtime() - start
+c
+         energy = eone + etwo + enrep
+         deltae = energy - eold
+         eold = energy
+c     
+         start = tcgtime()
+         call ga_dadd(1.0d0, g_hcore, 1.0d0, g_fock, g_fock)
+         tdadd = tdadd + tcgtime() - start
+c
+c     Check for convergence ... jumping here makes most return
+c     values consistent (evecs->dens->fock->energy, but note
+c     that do not return exact eigenvecs/vals of fock matrix)
+c
+         if (iter.gt.1 .and. abs(deltae) .lt. scf_conv) goto 100
+c
+         start = tcgtime()
+*         call ga_diag_seq(g_fock, g_over, g_vecs, evals)
+         call ga_diag(g_fock, g_over, g_vecs, evals)
+         tdiag = tdiag + tcgtime() - start
+c
+         if (odebug) then
+            if (ga_nodeid() .eq. 0) then
+               write(6,*) nodeid(), ' Eigen values '
+               call output(evals, 1, nbf, 1, 1, nbf, 1, 1)
+            endif
+            call ga_print(g_vecs)
+         endif
+c     
+c     Make new density and damp if requested
+c     
+         if (iter .gt. 5) damp = 0.0d0
+         start = tcgtime()
+         call ga_dgemm('n', 't', nbf, nbf, nocc, 2.0d0, g_vecs,
+     $        g_vecs, 0.0d0, g_dens)
+         tmxm = tmxm + tcgtime() - start
+c
+         start = tcgtime()
+         call ga_dadd(-1.0d0, g_old_dens, 1.0d0, g_dens, g_over)
+         tdadd = tdadd + tcgtime() - start
+c
+         start = tcgtime()
+         deltad = dsqrt(ga_ddot(g_over,g_over)/dfloat(nbf*nbf))
+         tddot = tddot + tcgtime() - start
+         start = tcgtime()
+         if (iter .gt. 1 .and. damp .gt. 0.0d0)
+     $        call ga_dadd(damp, g_old_dens, 1.0d0-damp, g_dens, g_dens)
+         tdadd = tdadd + tcgtime() - start
+         start = tcgtime()
+         call ga_copy(g_dens, g_old_dens)
+         tcopy = tcopy + tcgtime() - start
+c
+c     Print out results
+c
+         if (nodeid().eq.0) then
+            write(6,2) iter, energy, etwo, deltae, deltad
+ 2          format(1x, i4, 4x, f18.10, 2x, f18.10, 2(2x, d9.2))
+            call ffflush(6)
+         endif
+c
+      enddo
+c
+      if (nodeid().eq.0) write(6,4) 
+ 4    format(/' RHF Failed to converge in maximum iterations '/)
+      iter = maxiter
+ 100  continue
+c
+*      call dave(g_over, g_dens, g_vecs, g_fock)
+c
+      if (oprscreen) call schwarz_print(natoms, nshell)
+c
+c
+c     Delete local/global temporaries
+c
+      call schwarz_tidy()
+c
+      if (.not. ga_destroy(g_over)) 
+     $     call errquit('rhf_solve: failed to destroy overlap', g_over)
+      if (.not. ga_destroy(g_hcore)) 
+     $     call errquit('rhf_solve: failed to destroy T+V', g_hcore)
+      if (.not. ga_destroy(g_old_dens)) 
+     $     call errquit('rhf_solve: failed to destroy oldd', g_old_dens)
+c
+c     Print timing summary
+c
+      ttotal = tcgtime() - ttotal
+      unknown = ttotal - t1e - t2e - tdiag - tmxm - tdadd - tzero - 
+     $        tcopy - tinit
+      if (nodeid() .eq. 0) then
+         write(6,5) nnodes(),t1e, t2e, tdiag, tmxm, tdadd, tzero, 
+     $        tcopy, tinit, ttotal, unknown
+ 5       format(/
+     $        ' nnodes ', i3/
+     $        ' 1e     ', f10.2/
+     $        ' 2e     ', f10.2/
+     $        ' diag   ', f10.2/
+     $        ' mxm    ', f10.2/
+     $        ' dadd   ', f10.2/
+     $        ' zero   ', f10.2/
+     $        ' copy   ', f10.2/
+     $        ' init   ', f10.2/
+     $        ' total  ', f10.2/
+     $        ' other  ', f10.2/)
+      endif
+c
+      end
+c     subroutine ga_print(g_a)
+c     integer g_a
+c
+c     end
+
+
+
+
+
+      subroutine fudge(g_a, nocc, nbf)
+      implicit none
+#include "mafdecls.h"
+#include "global.h"
+#include "tcgmsg.h"
+c
+      integer g_a, nocc, nbf, i
+c
+      double precision a(10000)
+c
+      if (nodeid().eq.0) then
+         call dfill(nbf, 0.0d0, a, 1)
+         do i = nocc+1, nbf
+            call ga_put(g_a, 1, nbf, i, i, a, 1)
+         enddo
+      endif
+c
+      call ga_sync()
+c
+      end
+
+
+
+
+#endif /* ADRIANS_CRAP */
+
+
+
+
+
+
+
+
+       subroutine HEREOK(string)
+       implicit none
+#include "global.h"               
+       character*(*) string
+
+       if (ga_nodeid().eq.0) then
+         write(6,901) string
+ 901     format(5x,'<< Passed:',a,' >>')
+         call flush_output()
+       endif
+       call ga_sync()
+       return
+       end
+
+
+       
+      subroutine print_integs(rtdb, basis)
+      implicit none
+#include "gto.h"
+      integer rtdb
+      integer basis
+      integer ncenter
+      integer icent, jcent, kcent, lcent
+      integer ish, jsh, ksh, lsh
+      integer ishlo, ishhi, jshlo, jshhi, kshlo, kshhi, lshlo, lshhi
+      integer i, j, k, l, ijkl
+      integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
+      double precision eri(256)
+      integer natoms, nshell, nbf, nprim, maxprim,
+     $     max_l, max_sh_bf, max_at_bf, maxd
+      double precision scratch(100000)
+c
+c
+c     Partially redundant four-fold loop thru centers
+c
+      call gto_info(basis, natoms, nshell, nbf, nprim, maxprim,
+     $     max_l, max_sh_bf, max_at_bf)
+      ncenter = natoms
+c
+      do icent = 1, ncenter
+         do jcent = 1, icent
+            do kcent = 1, icent
+               do lcent = 1, kcent
+c
+c     Figure out coords and contractions of each center
+c
+c                  
+                  call gto_at_to_sh(basis, icent, ishlo, ishhi)
+                  call gto_at_to_sh(basis, jcent, jshlo, jshhi)
+                  call gto_at_to_sh(basis, kcent, kshlo, kshhi)
+                  call gto_at_to_sh(basis, lcent, lshlo, lshhi)
+c
+c     Partially redundant four-fold loop thru contractions
+c
+                  do ish = ishlo, ishhi
+                     do jsh = jshlo, jshhi
+                        do ksh = kshlo, kshhi
+                           do lsh = lshlo, lshhi
+c
+c     Now compute the SP integrals over these shells
+c
+                              call twoint_basic(565, ish, jsh, ksh, lsh,
+     $                             eri, scratch, 100000)
+c
+c     Print the integrals out
+c 
+                              call gto_sh_to_bf(basis, ish, ilo, ihi)
+                              call gto_sh_to_bf(basis, jsh, jlo, jhi)
+                              call gto_sh_to_bf(basis, ksh, klo, khi)
+                              call gto_sh_to_bf(basis, lsh, llo, lhi)
+c
+                              ijkl = 0
+                              do i = ilo, ihi
+                                 do j = jlo, jhi
+                                    do k = klo, khi
+                                       do l = llo, lhi
+                                          ijkl = ijkl + 1
+                                          if (abs(eri(ijkl)) .gt. 1e-6)
+     $                                         write(6,1) i,j,k,l,
+     $                                         eri(ijkl)
+                                       enddo
+                                    enddo
+                                 enddo
+                              enddo
+                           enddo
+                        enddo
+                     enddo
+                  enddo
+               enddo
+            enddo
+         enddo
+      enddo
+c
+ 1    format(4i6,f20.9)
+      stop
+c
+      end
+
+      subroutine fock_1e_a(rtdb, basis, g_fock )
+      implicit none
+#include "mafdecls.h"
+#include "global.h"
+#include "tcgmsg.h"
+c
+c     arguments
+c
+      integer rtdb, basis, g_fock
+c
+c     local variables
+c
+      integer nshell, ishell, jshell, iproc, nproc, nint, 
+     $     mem1, mem2, max1e, max2e
+      integer natoms, nbf, nprim, maxprim, max_l, max_sh_bf, max_at_bf
+      integer ijshell, ilo, ihi, jlo, jhi, idim, jdim, integs, i, j
+c
+      integer l_buf, l_ovl, l_ke, l_pe, l_ii, l_jj, l_scr
+      integer k_buf, k_ovl, k_ke, k_pe, k_ii, k_jj, k_scr
+      logical status
+c
+c     Global array g_fock = Potential + Kinetic energy
+c
+c     this routine could be made to do zero communication and only
+c     compute the integrals once (rather than twice)
+c
+      call ga_zero(g_fock)
+c
+c     Get info about the basis set
+c
+      call gto_info(basis, natoms, nshell, nbf, nprim, maxprim,
+     $     max_l, max_sh_bf, max_at_bf)
+c
+      iproc = nodeid()
+#ifdef DATA_SERVER
+      nproc = nnodes()/2
+#else
+      nproc = nnodes()
+#endif
+c
+c     allocate necessary local temporary arrays on the stack
+c
+c     l_buf ... buffer to hold shell block of fock matrix
+c     l_ovl ... buffer for overlap
+c     l_ke  ... buffer for kinetic energy integrals
+c     l_pe  ... buffer for potential energy integrals
+c     l_ii  ... buffer for labels
+c     l_jj  ... buffer for labels
+c     l_scr ... workspace for integral routines
+c
+c     k_* are the offsets corrsponding to the l_* handles
+c
+c
+c     old intmem call ... to change soon to support multiple basis sets
+c
+      call intmem(565, mem1, mem2, max1e, max2e)
+c
+      status = MA_push_get(MT_DBL, max1e, 'fock_1e: buf', l_buf, k_buf)
+      status = MA_push_get(MT_DBL, max1e, 'fock_1e: ovl', l_ovl, k_ovl)
+      status = MA_push_get(MT_DBL, max1e, 'fock_1e: ke ', l_ke,  k_ke)
+      status = MA_push_get(MT_DBL, max1e, 'fock_1e: pe ', l_pe,  k_pe)
+      status = MA_push_get(MT_INT, max1e, 'fock_1e: ii ', l_ii,  k_ii)
+      status = MA_push_get(MT_INT, max1e, 'fock_1e: jj ', l_jj,  k_jj)
+      status = MA_push_get(MT_DBL, mem1,  'fock_1e: scr', l_scr, k_scr)
+c
+      ijshell = 0
+      do ishell = 1, nshell
+         call gto_sh_to_bf(basis, ishell, ilo, ihi)
+         idim = ihi - ilo + 1
+         do jshell = 1, ishell
+            if (mod(ijshell, nproc) .eq. iproc) then
+               call gto_sh_to_bf(basis, jshell, jlo, jhi)
+               jdim = jhi - jlo + 1
+c
+               call oneint(565, ishell, jshell, dbl_mb(k_ovl), 
+     $              dbl_mb(k_ke), dbl_mb(k_pe),
+     $              int_mb(k_ii), int_mb(k_jj), nint, 
+     $              dbl_mb(k_scr), mem1)
+c
+               if (nint .gt. 0) then
+c
+c     first insert as (j,i)
+c
+                  call dfill(idim*jdim, 0.0d0, dbl_mb(k_buf), 1)
+                  do integs = 0, nint-1
+                     i = int_mb(k_ii+integs) - ilo
+                     j = int_mb(k_jj+integs) - jlo
+*debug
+*                     write(6,7) i, j, dbl_mb(k_ke+integs),
+*     $                     dbl_mb(k_pe+integs)
+* 7                   format(1x,2i5,2d16.8)
+*debug
+                     dbl_mb(k_buf + i*jdim + j) =
+     $                    dbl_mb(k_ke+integs) + dbl_mb(k_pe+integs)
+                     if (ishell.eq.jshell) then
+                        dbl_mb(k_buf + j*jdim + i) =
+     $                       dbl_mb(k_ke+integs) + dbl_mb(k_pe+integs)
+                     endif
+                  enddo
+                  call ga_put(g_fock, jlo, jhi, ilo, ihi,
+     $                 dbl_mb(k_buf), jdim)
+c
+c     now insert as (i,j)
+c
+                  if (ishell .ne. jshell) then
+                     call dfill(idim*jdim, 0.0d0, dbl_mb(k_buf), 1)
+                     do integs = 0, nint-1
+                        i = int_mb(k_ii+integs) - ilo
+                        j = int_mb(k_jj+integs) - jlo
+                        dbl_mb(k_buf + j*idim + i) =
+     $                       dbl_mb(k_ke+integs) + dbl_mb(k_pe+integs)
+                     enddo
+                     call ga_put(g_fock, ilo, ihi, jlo, jhi, 
+     $                    dbl_mb(k_buf), idim)
+                  endif
+               endif
+            endif
+            ijshell = ijshell + 1
+         enddo
+      enddo
+c
+c     chop stack at first item allocated
+c
+      status = MA_pop_stack(l_scr)
+      status = MA_pop_stack(l_jj)
+      status = MA_pop_stack(l_ii)
+      status = MA_pop_stack(l_pe)
+      status = MA_pop_stack(l_ke)
+      status = MA_pop_stack(l_ovl)
+      status = MA_pop_stack(l_buf)
+c
+      call ga_sync()
+c
+      end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifdef HCORE_GUESS
+       subroutine guess_mos(rtdb,basis,nbf,g_hcore,g_over,g_mocf,ev)
+       implicit none
+#include "mafdecls.h"
+#include "global.h"
+#include "rtdb_fort.h"
+       
+       integer rtdb,basis,nbf
+       integer g_hcore,g_over,g_mocf
+       double precision ev(nbf)
+       integer i
+       integer nodeid
+
+C       integer lmotape
+C       double precision v(500)
+C       logical hasmotape
+C       data lmotape/45/
+c
+c Diagonalise the one-electron Fock matrix for guess-MO's
+c If a MO dump tape exist then we use that for starting MO's
+c
+C       if (nodeid().eq.0) inquire(file='modump',exist=hasmotape)
+C       if (hasmotape) then
+C         if (nodeid().eq.0) then
+C           open(unit=lmotape,file='modump',status='old',
+C     $          form='unformatted')
+C           read(lmotape) (v(i),i=1,nbf*nbf)
+C           close(lmotape)
+C           call ga_put(g_mocf,1,nbf,1,nbf,v,nbf)
+C           write(6,901)
+ 901       format(//,1x,'Starting MOs read from dump tape')
+C         endif
+C       else
+         call ga_zero(g_mocf)
+         call fock_1e(rtdb,basis,g_mocf,g_hcore,g_over)
+         if (ga_nodeid().eq.0) then
+           print*,'guess_mos: fock_1e OK'
+           call flush_output
+         endif
+#if defined(KSR) || defined(IPSC)
+         call ga_diag(g_hcore,g_over,g_mocf,ev)
+#else
+         call ga_diag_seq(g_hcore,g_over,g_mocf,ev)
+#endif
+         if (nodeid().eq.0) then
+           write(6,900)
+ 900       format(//,1x,'One electron core guess MOs')
+           call flush_output
+	 endif
+C       endif
+       if (nodeid().eq.0) write(6,902)
+ 902   format(1x,'--------------------------------',//)
+
+       return
+       end
+#endif
+
+
+
+
+
+
+
+      subroutine alloc_rhf_globals(basis, g_vecs, g_fock, g_dens)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+      integer basis, g_vecs, g_fock, g_dens
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
+c
+      g_vecs = ga_create_atom_blocked(basis, 'Molecular orbitals')
+      g_fock = ga_create_atom_blocked(basis, 'AO fock')
+      g_dens = ga_create_atom_blocked(basis, 'AO density')
+c      
+c$$$      if (.not. ga_create(MT_DBL, nbf, nbf, 'MOs',
+c$$$     $     20, 20, g_vecs))
+c$$$     $     call errquit('rhf: failed to allocate mo vectors', nbf)
+c$$$      if (.not. ga_create(MT_DBL, nbf, nbf, 'AO fock',
+c$$$     $     20, 20 , g_fock))
+c$$$     $     call errquit('rhf: failed to allocate fock matrix', nbf)
+c$$$      if (.not. ga_create(MT_DBL, nbf, nbf, 'AO Density',
+c$$$     $     20, 20, g_dens))
+c$$$     $     call errquit('rhf: failed to allocate density matrix', nbf)
+c
+      end
+      subroutine delete_rhf_globals(g_vecs, g_fock, g_dens, g_over,
+     $     g_hcore)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+      integer g_vecs, g_fock, g_dens, g_over, g_hcore
+c     
+      if (.not. ga_destroy(g_vecs))
+     $     call errquit('rhf: failed to destroy MOs', g_vecs)
+      if (.not. ga_destroy(g_fock)) 
+     $     call errquit('rhf: failed to destroy fock', g_fock)
+      if (.not. ga_destroy(g_dens)) 
+     $     call errquit('rhf: failed to destroy density', g_dens)
+c
+      end
+      subroutine count_integs(basis, natoms, tol2e)
+      implicit none
+#include "schwarz.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+c
+c     Estimate the no. of integrals greater than tol2e
+c     that arise from selecting atomic quartets at 
+c     a variety of levels of threshold.
+c
+      integer i, iat, jat, kat, lat, natoms, lathi, db, basis
+      integer next, ijk
+      double precision d, tol2e
+      double precision bins(0:9)
+      integer task_chunks
+      parameter (task_chunks = 3)
+      integer map, atom_count
+      external atom_count
+      intrinsic min, max, nint, log10
+      map(d) = min(max(0,nint(-log10(d))),9)
+c
+      do i = 0, 9
+         bins(i) = 0.0d0
+      enddo
+c
+
+      ijk = 0
+      next = nxtask(ga_nnodes(), task_chunks)
+      do kat = natoms, 1, -1
+         do iat = natoms, kat, -1
+            do jat = iat, 1, -1
+               if (schwarz_atom(iat,jat)*schwarz_max() .ge. tol2e) then
+                  if (ijk .eq. next) then
+                     lathi= kat
+                     if (iat .eq. kat) lathi = jat
+                     do lat = 1, lathi
+                        d = schwarz_atom(iat,jat)*schwarz_atom(kat,lat)
+                        if (d .ge. tol2e) then
+                           db = map(d)
+                           bins(db) = bins(db) +
+     $                          atom_count(basis, iat, jat, kat, lat,
+     $                          tol2e)
+                        endif
+                     enddo
+                     next = nxtask(ga_nnodes(), task_chunks)
+                  endif
+                  ijk = ijk + 1
+               endif
+            enddo
+         enddo
+      enddo
+      next = nxtask(-ga_nnodes(), task_chunks)
+c
+      PRINT*,'LOOP OK'
+      CALL FLUSH_OUTPUT
+      call dgop(2121, bins, 10, '+')
+c
+      if (ga_nodeid() .eq. 0) write(6,1) (10.0d0**(-i), bins(i), i=0,9)
+ 1    format(
+     $     ' Upper bound to no. of integrals by atomic screening '/
+     $     ' --------------------------------------------------- '//
+     $     3(' ', 4(1pd8.1, 1pd8.1, 3x)/)/)
+c
+      end
+      integer function atom_count(basis, iat, jat, kat, lat, tol2e)
+      implicit none
+#include "schwarz.fh"
+c
+c     Count the approximate no. of non-zero integrals for this
+c     atomic quartet
+c     
+      integer basis, iat, jat, kat, lat
+      double precision tol2e
+      integer ish, jsh, ksh, lsh
+      integer ishlo, ishhi, jshlo, jshhi, kshlo, kshhi, lshlo, lshhi
+      integer ish_bflo, ish_bfhi, jsh_bflo, jsh_bfhi,
+     $     ksh_bflo, ksh_bfhi, lsh_bflo, lsh_bfhi
+      integer i, j, k, l, sum, jshtop, kshtop, lshtop
+      logical oij, okl, oikjl
+      integer shell_count
+      external shell_count
+c     
+      oij = iat .eq. jat
+      okl = kat .eq. lat
+      oikjl = iat.eq.kat .and. jat.eq.lat
+c     
+c     figure out shell and function ranges for each atom
+c     
+      call gto_at_to_sh(basis, iat, ishlo, ishhi)
+      call gto_at_to_sh(basis, jat, jshlo, jshhi)
+      call gto_at_to_sh(basis, kat, kshlo, kshhi)
+      call gto_at_to_sh(basis, lat, lshlo, lshhi)
+c     
+c     loop over shells on each atom
+c     
+      sum = 0
+c     
+      do ish = ishlo, ishhi
+         call gto_sh_to_bf(basis, ish, ish_bflo, ish_bfhi)
+         jshtop = jshhi
+         if (oij) jshtop = ish
+         do jsh = jshlo, jshtop
+            if (schwarz_shell(ish,jsh)*schwarz_max().ge.tol2e) then
+               call gto_sh_to_bf(basis, jsh, jsh_bflo, jsh_bfhi)
+               kshtop = kshhi
+               if (oikjl) kshtop = ish
+               do ksh = kshlo, kshtop
+                  call gto_sh_to_bf(basis, ksh, ksh_bflo, ksh_bfhi)
+                  lshtop = lshhi
+                  if (okl) lshtop = ksh
+                  if (oikjl .and. ksh.eq.ish) lshtop = jsh
+                  do lsh = lshlo, lshtop
+                     if (schwarz_shell(ish,jsh)*schwarz_shell(ksh,lsh)
+     $                    .ge. tol2e) then
+                        call gto_sh_to_bf(basis, lsh, lsh_bflo,
+     $                       lsh_bfhi)
+                        sum = sum + shell_count(ish, jsh, ksh, lsh,
+     $                       ish_bflo, ish_bfhi, jsh_bflo, jsh_bfhi,
+     $                       ksh_bflo, ksh_bfhi, lsh_bflo, lsh_bfhi)
+                     endif
+                  enddo
+               enddo
+            endif
+         enddo
+      enddo
+c     
+      atom_count = sum
+c     
+      end
+      integer function shell_count(ish, jsh, ksh, lsh,
+     $     ish_bflo, ish_bfhi, jsh_bflo, jsh_bfhi,
+     $     ksh_bflo, ksh_bfhi, lsh_bflo, lsh_bfhi)
+      implicit none
+c
+      integer ish, jsh, ksh, lsh, i, j, k, jtop, ktop, ltop,
+     $     ish_bflo, ish_bfhi, jsh_bflo, jsh_bfhi,
+     $     ksh_bflo, ksh_bfhi, lsh_bflo, lsh_bfhi, sum
+      logical oij, okl, oikjl
+c
+      oij = ish .eq. jsh
+      okl = ksh .eq. lsh
+      oikjl = (ish .eq. ksh) .and. (jsh .eq. lsh)
+c
+      sum = 0
+c
+      do i = ish_bflo, ish_bfhi
+         jtop = jsh_bfhi
+         if (oij) jtop = i
+         do j = jsh_bflo, jtop
+            ktop = ksh_bfhi
+            if (oikjl) ktop = i
+            do k = ksh_bflo, ktop
+               ltop = lsh_bfhi
+               if (okl) ltop = k
+               if (oikjl .and. k.eq.i) ltop = j
+               sum = sum + ltop - lsh_bflo + 1
+            enddo
+
+         enddo
+      enddo
+      shell_count = sum
+c
+      end
+      subroutine fock_2e(rtdb, basis, g_dens, g_fock, tol2e)
+      implicit none
+#include "mafdecls.h"
+#include "global.h"
+#include "gto.h"
+#include "schwarz.h"
+c
+c     arguments
+c
+      integer rtdb, basis, g_dens, g_fock
+      double precision tol2e
+c
+c     local variables
+c
+      integer natoms, nshell, nbf, nprim, maxprim,
+     $     max_l, max_sh_bf, max_at_bf, maxd
+      integer l_dij, l_dik, l_dil, l_djk, l_djl, l_dkl
+      integer l_fij, l_fik, l_fil, l_fjk, l_fjl, l_fkl
+      integer k_dij, k_dik, k_dil, k_djk, k_djl, k_dkl
+      integer k_fij, k_fik, k_fil, k_fjk, k_fjl, k_fkl
+      logical status
+#ifdef ADRIANS_CRAP
+      external nodeid
+      integer nodeid
+#endif
+c
+c     allocate necessary local temporary arrays on the stack
+c
+c     l_scr ... workspace for integral routines
+c     l_d** ... ** block of density matrix
+c     l_f** ... ** block of fock matrix
+c
+c     k_* are the offsets corrsponding to the l_* handles
+c
+c     Get info about the basis set and allocate 
+c
+      call context_push('fock_2e')
+      call gto_info(basis, natoms, nshell, nbf, nprim, maxprim,
+     $     max_l, max_sh_bf, max_at_bf)
+      maxd = max_at_bf**2
+c
+      status = ma_push_get(MT_DBL, maxd, 'dij', l_dij, k_dij)
+      status = ma_push_get(MT_DBL, maxd, 'dik', l_dik, k_dik)
+      status = ma_push_get(MT_DBL, maxd, 'dil', l_dil, k_dil)
+      status = ma_push_get(MT_DBL, maxd, 'djk', l_djk, k_djk)
+      status = ma_push_get(MT_DBL, maxd, 'djl', l_djl, k_djl)
+      status = ma_push_get(MT_DBL, maxd, 'dkl', l_dkl, k_dkl)
+      status = ma_push_get(MT_DBL, maxd, 'fij', l_fij, k_fij)
+      status = ma_push_get(MT_DBL, maxd, 'fik', l_fik, k_fik)
+      status = ma_push_get(MT_DBL, maxd, 'fil', l_fil, k_fil)
+      status = ma_push_get(MT_DBL, maxd, 'fjk', l_fjk, k_fjk)
+      status = ma_push_get(MT_DBL, maxd, 'fjl', l_fjl, k_fjl)
+      status = ma_push_get(MT_DBL, maxd, 'fkl', l_fkl, k_fkl)
+      if (.not. status) call errquit('fock_2e: d/f** failed', maxd)
+c
+c     Zero screening statistics
+c
+      call ifill(nscreen, 0, iscreen, 1)
+
+c
+
+      call fock_2e_a(rtdb, basis, g_dens, g_fock, 
+     $     dbl_mb(k_dij), dbl_mb(k_dik), dbl_mb(k_dil), 
+     $     dbl_mb(k_djk), dbl_mb(k_djl), dbl_mb(k_dkl), 
+     $     dbl_mb(k_fij), dbl_mb(k_fik), dbl_mb(k_fil), 
+     $     dbl_mb(k_fjk), dbl_mb(k_fjl), dbl_mb(k_fkl), maxd,
+     $     tol2e)
+c     call ga_print(g_fock)
+c
+      status = ma_pop_stack(l_fkl)
+      status = ma_pop_stack(l_fjl)
+      status = ma_pop_stack(l_fjk)
+      status = ma_pop_stack(l_fil)
+      status = ma_pop_stack(l_fik)
+      status = ma_pop_stack(l_fij)
+      status = ma_pop_stack(l_dkl)
+      status = ma_pop_stack(l_djl)
+      status = ma_pop_stack(l_djk)
+      status = ma_pop_stack(l_dil)
+      status = ma_pop_stack(l_dik)
+      status = ma_pop_stack(l_dij)
+c
+      call ga_sync()
+c
+c     fock_2e_a stuffs contributions into both the lower and upper
+c     triangles ... need to symmetrize and multiply by 2
+c
+      call ga_symmetrize(g_fock)
+      call ga_dscal(g_fock, 2.0d0)
+c
+      call context_pop
+      end
+
+
+      subroutine fock_2e_a(rtdb, basis, g_dens, g_fock,
+     $     dij, dik, dil, djk, djl, dkl,
+     $     fij, fik, fil, fjk, fjl, fkl, maxd, tol2e)
+      implicit none
+#include "tcgmsg.h"
+#include "global.h"
+#include "schwarz.h"
+c     
+      integer rtdb, basis, g_dens, g_fock, maxd
+      double precision
+     $     dij(maxd),dik(maxd),dil(maxd),djk(maxd),djl(maxd),dkl(maxd),
+     $     fij(maxd),fik(maxd),fil(maxd),fjk(maxd),fjl(maxd),fkl(maxd),
+     $     tol2e
+c     
+      integer natoms, nshell, nbf, nprim, maxprim,
+     $     max_l, max_sh_bf, max_at_bf, iproc, nproc, ijk, next,
+     $     iat, jat, kat, lat, latlo, lathi, idim, jdim, kdim, ldim
+      integer i_prev, j_prev, k_prev
+      integer task_chunks
+      parameter (task_chunks = 1)
+      double precision denmax
+      double precision dabsmax
+      external dabsmax
+c     
+c     Get more info about the basis set
+c     
+      call context_push('fock_2e_a')
+      call gto_info(basis, natoms, nshell, nbf, nprim, maxprim,
+     $     max_l, max_sh_bf, max_at_bf)
+c     
+      iproc = ga_nodeid()
+      nproc = ga_nnodes()
+      
+c*debug
+c$$$      if (iproc .gt. 0) then
+c$$$         call ga_sync()
+c$$$         return
+c$$$      else
+c$$$         nproc = 1
+c$$$         write(6,*) ' natoms ', natoms
+c$$$      endif
+c*debug
+
+c
+      i_prev = -1
+      j_prev = -1
+      k_prev = -1
+      call dfill(maxd, 0.0d0, fij, 1)
+      call dfill(maxd, 0.0d0, fik, 1)
+      call dfill(maxd, 0.0d0, fil, 1)
+      call dfill(maxd, 0.0d0, fjk, 1)
+      call dfill(maxd, 0.0d0, fjl, 1)
+      call dfill(maxd, 0.0d0, fkl, 1)
+c     
+      ijk = 0
+      next = nxtask(nproc, task_chunks)
+c
+c     Loop thru atomic triplets (i,j,k) in approximate order 
+c     of decreasing task size
+c
+      do kat = natoms, 1, -1
+         do iat = natoms, kat, -1
+            do jat = iat, 1, -1
+               if (schwarz_atom(iat,jat)*schwarz_max() .ge. tol2e) then
+                  lathi = kat
+                  if (iat .eq. kat) lathi = jat
+                  do latlo = 1, lathi, 5
+                  if (ijk .eq. next) then
+*                     do lat = lathi, 1, -1
+                     do lat = min(lathi,latlo+4), latlo, -1
+                        if (schwarz_atom(iat,jat)*schwarz_atom(kat,lat)
+     $                       .ge. tol2e) then
+                           iscreen(3) = iscreen(3) + 1
+c     
+c     Attempt to exploit caching of ij, ik, jk blocks
+c     
+c     Get blocks of D/F for coulomb interaction
+c     
+                           if (i_prev.ne.iat .or. j_prev.ne.jat) then
+                              if (i_prev.ne.-1)
+     $                             call upd_atom_block(g_fock, basis,
+     $                             i_prev, j_prev, fij)
+                              call get_atom_block(g_dens, basis,
+     $                             iat, jat, dij, idim, jdim)	
+                              call dfill(idim*jdim, 0.0d0, fij, 1)
+                           endif
+                           call get_atom_block(g_dens, basis,
+     $                          kat, lat, dkl, kdim, ldim)
+                           call dfill(kdim*ldim, 0.0d0, fkl, 1)
+c     
+c     Get blocks of D/F for exchange interaction
+c     
+                           if (i_prev.ne.iat .or. k_prev.ne.kat) then
+                              if (i_prev.ne.-1)
+     $                             call upd_atom_block(g_fock, basis,
+     $                             i_prev, k_prev, fik)
+                              call get_atom_block(g_dens, basis,
+     $                             iat, kat, dik, idim, kdim)
+                              call dfill(idim*kdim, 0.0d0, fik, 1)
+                           endif
+                           if (j_prev.ne.jat .or. k_prev.ne.kat) then
+                              if (j_prev .ne. -1)
+     $                             call upd_atom_block(g_fock, basis,
+     $                             j_prev, k_prev, fjk)
+                              call get_atom_block(g_dens, basis,
+     $                             jat, kat, djk, jdim, kdim)
+                              call dfill(jdim*kdim, 0.0d0, fjk, 1)
+                           endif
+                           call get_atom_block(g_dens, basis, iat, lat,
+     $                          dil, idim, ldim)
+                           call dfill(idim*ldim, 0.0d0, fil, 1)
+                           call get_atom_block(g_dens, basis, jat, lat,
+     $                          djl, jdim, ldim)
+                           call dfill(jdim*ldim, 0.0d0, fjl, 1)
+c
+                           i_prev = iat
+                           j_prev = jat
+                           k_prev = kat
+c
+                           denmax = max(
+     $                          dabsmax(idim*jdim, dij),
+     $                          dabsmax(idim*kdim, dik),
+     $                          dabsmax(idim*ldim, dil),
+     $                          dabsmax(jdim*kdim, djk),
+     $                          dabsmax(jdim*ldim, djl),
+     $                          dabsmax(kdim*ldim, dkl))
+                           denmax = denmax * schwarz_atom(iat,jat) *
+     $                          schwarz_atom(kat,lat)
+                           if (denmax .ge. tol2e) then
+c
+                              call fock_2e_b(rtdb, basis,
+     $                             iat, jat, kat, lat, 
+     $                             idim, jdim, kdim, ldim,
+     $                             dij, dik, dil, djk, djl, dkl,
+     $                             fij, fik, fil, fjk, fjl, fkl, tol2e)
+c     
+c     Update F blocks
+c     
+                              call upd_atom_block(g_fock, basis, iat,
+     $                             lat, fil)
+                              call upd_atom_block(g_fock, basis, jat,
+     $                             lat, fjl)
+                              call upd_atom_block(g_fock, basis, kat,
+     $                             lat, fkl)
+                           endif
+                        else
+                           iscreen(2) = iscreen(2) + 1
+                        endif
+                     enddo
+                     next = nxtask(nproc, task_chunks)
+                  endif
+                  ijk = ijk + 1
+                  enddo
+               else
+                  if (kat .eq. 1) iscreen(1) = iscreen(1) + 1
+               endif
+            enddo
+         enddo
+      enddo
+c
+      if (i_prev.ne.-1) then
+         call upd_atom_block(g_fock, basis, i_prev, j_prev, fij)
+         call upd_atom_block(g_fock, basis, j_prev, k_prev, fjk)
+         call upd_atom_block(g_fock, basis, i_prev, k_prev, fik)
+      endif
+c     
+      next = nxtask(-nproc, task_chunks)
+      call ga_sync()
+c
+      call context_pop
+      end
+
+
+      subroutine fock_2e_b(rtdb, basis,
+     $     iat, jat, kat, lat, 
+     $     idim, jdim, kdim, ldim,
+     $     dij, dik, dil, djk, djl, dkl, 
+     $     fij, fik, fil, fjk, fjl, fkl, tol2e)
+      implicit none
+#include "mafdecls.h"
+#include "schwarz.h"
+c     
+      integer rtdb, basis
+      integer iat, jat, kat, lat, idim, jdim, kdim, ldim
+      double precision  
+     $     dij(idim,jdim), dik(idim,kdim), dil(idim,ldim), 
+     $     djk(jdim,kdim), djl(jdim,ldim), dkl(kdim,ldim), 
+     $     fij(idim,jdim), fik(idim,kdim), fil(idim,ldim), 
+     $     fjk(jdim,kdim), fjl(jdim,ldim), fkl(kdim,ldim),
+     $     tol2e
+c     
+      logical oij, okl, oikjl, status
+      integer ishlo, ishhi, jshlo, jshhi, kshlo, kshhi, lshlo, lshhi
+      integer ish, jsh, ksh, lsh, mem1, mem2, max1e, max2e
+      integer ibflo, ibfhi, jbflo, jbfhi, kbflo, kbfhi, lbflo, lbfhi
+      integer ish_bflo, ish_bfhi, jsh_bflo, jsh_bfhi,
+     $     ksh_bflo, ksh_bfhi, lsh_bflo, lsh_bfhi
+      integer jshtop, kshtop, lshtop
+      integer l_g, l_scr, k_g, k_scr
+c     
+c     iat, jat, kat, lat externally loop in canonical order over
+c     atoms.  Compute the appropriate canonical contributions
+c     to the fock matrix
+c     
+c     scratch space needed for 2-electron routines
+c     
+c     l_scr ... integral scratch space
+c     l_g   ... buffer for eris
+c     
+      call context_push('fock_2e_b')
+      call intmem(565, mem1, mem2, max1e, max2e)
+      status = ma_push_get(MT_DBL, max2e, 'fock_2e: buf', l_g, k_g)
+      status = ma_push_get(MT_DBL, mem2, 'fock_2e: scr', l_scr, k_scr)
+c     
+      oij = iat .eq. jat
+      okl = kat .eq. lat
+      oikjl = iat.eq.kat .and. jat.eq.lat
+c     
+c     figure out shell and function ranges for each atom
+c     
+      call gto_at_to_sh(basis, iat, ishlo, ishhi)
+      call gto_at_to_sh(basis, jat, jshlo, jshhi)
+      call gto_at_to_sh(basis, kat, kshlo, kshhi)
+      call gto_at_to_sh(basis, lat, lshlo, lshhi)
+      call gto_at_to_bf(basis, iat, ibflo, ibfhi)
+      call gto_at_to_bf(basis, jat, jbflo, jbfhi)
+      call gto_at_to_bf(basis, kat, kbflo, kbfhi)
+      call gto_at_to_bf(basis, lat, lbflo, lbfhi)
+c     
+c     loop over shells on each atom
+c     
+      do ish = ishlo, ishhi
+         call gto_sh_to_bf(basis, ish, ish_bflo, ish_bfhi)
+         jshtop = jshhi
+         if (oij) jshtop = ish
+         do jsh = jshlo, jshtop
+            if (schwarz_shell(ish,jsh)*schwarz_max().ge.tol2e) then
+               call gto_sh_to_bf(basis, jsh, jsh_bflo, jsh_bfhi)
+               kshtop = kshhi
+               if (oikjl) kshtop = ish
+               do ksh = kshlo, kshtop
+                  call gto_sh_to_bf(basis, ksh, ksh_bflo, ksh_bfhi)
+                  lshtop = lshhi
+                  if (okl) lshtop = ksh
+                  if (oikjl .and. ksh.eq.ish) lshtop = jsh
+                  do lsh = lshlo, lshtop
+                     if (schwarz_shell(ish,jsh)*schwarz_shell(ksh,lsh)
+     $                    .ge. tol2e) then
+                        call gto_sh_to_bf(basis, lsh, lsh_bflo,
+     $                       lsh_bfhi)
+c     
+c     compute the shell block of integrals and add into the
+c     fock matrix blocks
+c     
+                        call twoint_basic(565, ish, jsh, ksh, lsh,
+     $                       dbl_mb(k_g), dbl_mb(k_scr), mem2)
+c     
+                        call fock_2e_c(ish, jsh, ksh, lsh,
+     $                       dij, dik, dil, djk, djl, dkl, 
+     $                       fij, fik, fil, fjk, fjl, fkl,
+     $                       ibflo, jbflo, kbflo, lbflo,
+     $                       ibfhi, jbfhi, kbfhi, lbfhi, 
+     $                       dbl_mb(k_g),
+     $                       ish_bflo, ish_bfhi, jsh_bflo, jsh_bfhi,
+     $                       ksh_bflo, ksh_bfhi, lsh_bflo, lsh_bfhi,
+     $                       tol2e)
+c     
+                        iscreen(5) = iscreen(5) + 1
+                     else
+                        iscreen(4) = iscreen(4) + 1
+                     endif
+                  enddo
+               enddo
+            endif
+         enddo
+      enddo
+c     
+      status = ma_pop_stack(l_scr)
+      status = ma_pop_stack(l_g)
+c
+      call context_pop
+      end
+
+
+
+      subroutine fock_2e_c(ish, jsh, ksh, lsh,
+     $     dij, dik, dil, djk, djl, dkl, 
+     $     fij, fik, fil, fjk, fjl, fkl,
+     $     ibflo, jbflo, kbflo, lbflo,
+     $     ibfhi, jbfhi, kbfhi, lbfhi,
+     $     eri,
+     $     ish_bflo, ish_bfhi, jsh_bflo, jsh_bfhi,
+     $     ksh_bflo, ksh_bfhi, lsh_bflo, lsh_bfhi,
+     $     tol2e)
+      implicit none
+c
+      integer ish, jsh, ksh, lsh, ibflo, ibfhi, jbflo, jbfhi, 
+     $     kbflo, kbfhi, lbflo, lbfhi, i, j, k, l, jtop, ktop, ltop,
+     $     ish_bflo, ish_bfhi, jsh_bflo, jsh_bfhi,
+     $     ksh_bflo, ksh_bfhi, lsh_bflo, lsh_bfhi
+      double precision  
+     $     dij(ibflo:ibfhi,jbflo:jbfhi), dik(ibflo:ibfhi,kbflo:kbfhi), 
+     $     dil(ibflo:ibfhi,lbflo:lbfhi), djk(jbflo:jbfhi,kbflo:kbfhi), 
+     $     djl(jbflo:jbfhi,lbflo:lbfhi), dkl(kbflo:kbfhi,lbflo:lbfhi), 
+     $     fij(ibflo:ibfhi,jbflo:jbfhi), fik(ibflo:ibfhi,kbflo:kbfhi), 
+     $     fil(ibflo:ibfhi,lbflo:lbfhi), fjk(jbflo:jbfhi,kbflo:kbfhi), 
+     $     fjl(jbflo:jbfhi,lbflo:lbfhi), fkl(kbflo:kbfhi,lbflo:lbfhi),
+     $     eri(lsh_bflo:lsh_bfhi,ksh_bflo:ksh_bfhi,
+     $         jsh_bflo:jsh_bfhi,ish_bflo:ish_bfhi),
+     $     tol2e
+      logical oij, okl, oikjl
+      double precision g, gtwo, ghalf
+      integer itri
+      itri(i,j) = (i*(i-1))/2 + j
+c
+c     add integrals into atomic fock matrix blocks ... symmetrization
+c     will be needed later
+c
+C      PRINT*,'In Fock_2e_c   ',ish,jsh,ksh,lsh
+C      CALL FLUSH_OUTPUT
+
+C      call context_push('fock_2e_c')
+      oij = ish .eq. jsh
+      okl = ksh .eq. lsh
+      oikjl = (ish .eq. ksh) .and. (jsh .eq. lsh)
+c
+c     Scale diagonal blocks of the integrals a la DB
+c
+      if (oij) then
+         do i = ish_bflo, ish_bfhi
+            ktop = ksh_bfhi
+            if (oikjl) ktop = i
+            do k = ksh_bflo, ktop
+               ltop = lsh_bfhi
+               if (okl) ltop = k
+               do l = lsh_bflo, ltop
+                  eri(l, k, i, i) = eri(l, k, i, i)*0.5d0
+               enddo
+            enddo
+         enddo
+      endif
+      if (okl) then
+         do i = ish_bflo, ish_bfhi
+            jtop = jsh_bfhi
+            if (oij) jtop = i
+            do j = jsh_bflo, jtop
+               ktop = ksh_bfhi
+               if (oikjl) ktop = i
+               do k = ksh_bflo, ktop
+                  eri(k, k, j, i) = eri(k, k, j, i)*0.5d0
+               enddo
+            enddo
+         enddo
+      endif
+      if (oikjl) then
+         do i = ish_bflo, ish_bfhi
+            jtop = jsh_bfhi
+            if (oij) jtop = i
+            do j = jsh_bflo, jtop
+               eri(j, i, j, i) = eri(j, i, j, i)*0.5d0
+            enddo
+         enddo
+      endif
+c
+c     Add into the fock matrix
+c
+      do i = ish_bflo, ish_bfhi
+         jtop = jsh_bfhi
+         if (oij) jtop = i
+         do j = jsh_bflo, jtop
+            ktop = ksh_bfhi
+            if (oikjl) ktop = i
+            do k = ksh_bflo, ktop
+               ltop = lsh_bfhi
+               if (okl) ltop = k
+               if (oikjl .and. k.eq.i) ltop = j
+               do l = lsh_bflo, ltop
+                  g = eri(l,k,j,i)
+*debug
+*                  write(6,1) i, j, k, l, g
+* 1                format(1x,4i5,d16.8)
+*debug
+                  if (abs(g) .ge. tol2e) then
+c
+c     contributions as coulomb integral
+c     
+                     gtwo = g + g
+                     fij(i,j) = fij(i,j) + gtwo * dkl(k,l)
+                     fkl(k,l) = fkl(k,l) + gtwo * dij(i,j)
+c
+c     contributions as exchange integral
+c     
+                     ghalf = 0.5d0 * g
+                     fik(i,k) = fik(i,k) - ghalf * djl(j,l)
+                     fil(i,l) = fil(i,l) - ghalf * djk(j,k)
+                     fjl(j,l) = fjl(j,l) - ghalf * dik(i,k)
+                     fjk(j,k) = fjk(j,k) - ghalf * dil(i,l)
+c
+                  endif
+               enddo
+            enddo
+         enddo
+      enddo
+c
+C      PRINT*,'End Fock_2e_c   ',ish,jsh,ksh,lsh
+C      CALL FLUSH_OUTPUT
+C      call context_pop
+      end
+      double precision function dabsmax(n, a)
+      implicit none
+c
+      integer n, i
+      double precision a(n)
+c
+      dabsmax = 0.0d0
+      do i = 1, n
+         dabsmax = max(dabsmax, abs(a(i)))
+      enddo
+c
+      end
+
+      
+
+       logical function conjvec_io(control,nocc,nvir,g_c,g_g)
+       implicit none
+#include "mafdecls.h"
+#include "global.fh"
+       integer File_Exist_Msg_Type,Integer_Size
+       parameter(File_Exist_Msg_Type=23)
+#ifdef KSR
+       parameter(Integer_Size=8)
+#else
+       parameter(Integer_Size=4)
+#endif
+
+       integer control,nvir,nocc,g_c,g_g
+       integer i,j,luconj,l_a,k_a,file_ok
+       logical status
+       data luconj/78/
+
+       conjvec_io = .false.
+       return
+       end
+       logical function movecs_io(control,nbf,g_mocf)
+       implicit none
+#include "mafdecls.h"
+#include "global.fh"
+       integer File_Exist_Msg_Type,Integer_Size
+       parameter(File_Exist_Msg_Type=23)
+#ifdef KSR
+       parameter(Integer_Size=8)
+#else
+       parameter(Integer_Size=4)
+#endif
+
+       integer control,nbf,g_mocf
+       integer i,j,lumo,l_a,k_a,file_ok
+       logical status
+       data lumo/77/
+
+c
+c If reading, check if movec file exists, return false if it doesn't exist
+c
+       if (control.eq.0) then
+         file_ok = -1
+         if (ga_nodeid().eq.0) then
+           inquire(file='movecs',exist=status)
+           if (status) then
+             file_ok = 1
+           else
+             file_ok = 0
+           endif
+         endif
+         call ga_brdcst(File_Exist_Msg_Type,file_ok,Integer_Size,0)
+         if (file_ok.le.0) then
+           movecs_io = .false.
+           return
+         endif
+         if (ga_nodeid().eq.0) write(6,903)
+ 903     format(/,'---- Using MO dump file for starting guess ----',/)
+       endif
+
+c
+c Only process 0 does the I/O
+c
+       if (ga_nodeid().eq.0) then
+         status = ma_push_get(MT_DBL,nbf,'temp vec',l_a,k_a)
+         open(unit=lumo,file='movecs',status='unknown',
+     $        form='unformatted')
+         do i=1,nbf
+           if (control.eq.1) then
+             call ga_get(g_mocf,1,nbf,i,i,dbl_mb(k_a),nbf)
+             write(lumo) (dbl_mb(k_a+j-1),j=1,nbf)
+           else
+             read(lumo) (dbl_mb(k_a+j-1),j=1,nbf)
+             call ga_put(g_mocf,1,nbf,i,i,dbl_mb(k_a),nbf)
+           endif
+         enddo
+         close(lumo)
+         status = ma_pop_stack(l_a)
+       endif
+       movecs_io = .true.
+       call ga_sync()
+       return
+       end

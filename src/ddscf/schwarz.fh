@@ -1,0 +1,14 @@
+c
+c     common to collect stats about integral screening
+c
+c     iscreen(1) counts rejects in outer ij atom loop
+c     iscreen(2) counts rejects in inner ijkl atom loop
+c     iscreen(3) counts accepts in inner ijkl atom loop
+c     iscreen(4) counts rejects in inner ijkl shell loop
+c     iscreen(5) counts accepts in inner ijkl shell loop
+c
+      integer iscreen, nscreen
+      parameter (nscreen=5)
+      common/cscreen/iscreen(nscreen)
+      double precision schwarz_max, schwarz_atom, schwarz_shell
+      external schwarz_max, schwarz_atom, schwarz_shell

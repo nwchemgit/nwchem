@@ -1,0 +1,9 @@
+      double precision sch_max  ! Maximum value of any entry
+      integer nb_per_i          ! No. of bytes per integer
+      integer l_csh, k_csh      ! MA handle & index to shell array
+      integer l_cat, k_cat      ! MA handle & index to atom array
+c
+      double precision dsqrt, dabs
+      intrinsic dsqrt, dabs
+c
+      common /cschwarz/ sch_max, nb_per_i, l_csh, k_csh, l_cat, k_cat
