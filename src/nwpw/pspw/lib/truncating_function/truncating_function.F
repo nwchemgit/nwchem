@@ -1,5 +1,5 @@
 c
-c $Id: truncating_function.F,v 1.2 2002-03-03 21:17:00 bylaska Exp $
+c $Id: truncating_function.F,v 1.3 2002-03-03 22:50:23 bylaska Exp $
 c
 
 ***********************************************************
@@ -33,21 +33,30 @@ c
       integer MASTER,taskid
       parameter (MASTER=0)
 
-      integer npack0,nfft3d,G(3)
-      integer i,ii,ia
-      real*8  gg,rr
-      logical value
-      integer tmp1(2)
+      logical value,found
+      integer npack0,nfft3d,G(3),nfft(3)
+      integer i,ii,ia,l
+      real*8  gg,rr,rcut_in,pp_in
+      real*8  unita(3,3)
+      integer tmp1(2),tmp2(2)
+      character*4  element
+      character*20 fname
+      character*255 full_filename
+
+
+
 
 *     **** external functions ****
+      logical      nwpw_filefind
       character*2 ion_atom
-      integer  G_indx,ion_nkatm,ion_atn
-      real*8   Truncating_Function_transform
+      integer  G_indx,ion_nkatm,ion_atn,control_ngrid
+      real*8   Truncating_Function_transform,control_unita
+      external nwpw_filefind
       external ion_atom
-      external G_indx,ion_nkatm,ion_atn
-      external Truncating_Function_transform
+      external G_indx,ion_nkatm,ion_atn,control_ngrid
+      external Truncating_Function_transform,control_unita
 
-*
+
 *     ----- van der waals radii in angstroms -Needs to be updated   -----
 *
       real*8 vander(106)
@@ -95,8 +104,10 @@ c
      >  call errquit('Truncating_Function_init: out of heap memory',0)
 
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) 
-     >   call errquit('Truncating_Function_init: pushing stack',1)
+     >  call errquit('Truncating_Function_init: pushing stack',2)
 
 *     ***** Generate Fourier transform of Truncating Functions *****
       do ia=1,nt
@@ -107,21 +118,112 @@ c
         end if
  1163   FORMAT(5X,A2,' radii = ',E11.3,' (', E11.3,' van der Waal)')
 
-        do i = 1,nfft3d
-          gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+*       **** define formatted psp name ****
+        element = '    '
+        element = ion_atom(ia)
+        l = index(element,' ') - 1
+        fname = element(1:l)//'.trnc'
+
+        found = .false.
+
+        if (nwpw_filefind(fname)) then
+
+*         ****************************************************
+*         **** read Truncating function from  binary file ****
+*         ****************************************************
+          if (taskid.eq.MASTER) then
+            call util_file_name_noprefix(fname,.false.,
+     >                                .false.,
+     >                          full_filename)
+            l = index(full_filename,' ') - 1
+            call openfile(5,full_filename,l,'r',l)
+            call iread(5,nfft,3)
+            call dread(5,unita,9)
+            call dread(5,rcut_in,1)
+            call dread(5,pp_in,1)
+          end if
+          call D3dB_t_read(1,5,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)))
+
+*         *** close fname binary file ***
+          if (taskid.eq.MASTER) then
+             call closefile(5)
+          end if
+
+          found = .true.
+          if ((nfft(1).ne.control_ngrid(1)) .or.
+     >        (nfft(2).ne.control_ngrid(2)) .or.
+     >        (nfft(3).ne.control_ngrid(3)) .or.
+     >        (unita(1,1).ne.control_unita(1,1)) .or.
+     >        (unita(2,1).ne.control_unita(2,1)) .or.
+     >        (unita(3,1).ne.control_unita(3,1)) .or.
+     >        (unita(1,2).ne.control_unita(1,2)) .or.
+     >        (unita(2,2).ne.control_unita(2,2)) .or.
+     >        (unita(3,2).ne.control_unita(3,2)) .or.
+     >        (unita(1,3).ne.control_unita(1,3)) .or.
+     >        (unita(2,3).ne.control_unita(2,3)) .or.
+     >        (unita(3,3).ne.control_unita(3,3)) .or.
+     >        (rcut_in.ne.rcut).or.
+     >        (pp_in.ne.pp)) found = .false.
+           
+        end if
+
+        if (.not.found) then
+          do i = 1,nfft3d
+            gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
      >          + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
      >          + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
-          dbl_mb(tmp1(1)+i-1) = 
+            dbl_mb(tmp1(1)+i-1) = 
      >       Truncating_Function_transform(gg,rr,pp)
-        end do
+          end do
+
+*         **************************************************
+*         **** save Truncating function in  binary file ****
+*         **************************************************
+          if (taskid.eq.MASTER) then
+            call util_file_name_noprefix(fname,.false.,
+     >                                .false.,
+     >                          full_filename)
+            l = index(full_filename,' ') - 1
+            nfft(1) = control_ngrid(1)
+            nfft(2) = control_ngrid(2)
+            nfft(3) = control_ngrid(3)
+
+            unita(1,1) = control_unita(1,1)
+            unita(2,1) = control_unita(2,1)
+            unita(3,1) = control_unita(3,1)
+            unita(1,2) = control_unita(1,2)
+            unita(2,2) = control_unita(2,2)
+            unita(3,2) = control_unita(3,2)
+            unita(1,3) = control_unita(1,3)
+            unita(2,3) = control_unita(2,3)
+            unita(3,3) = control_unita(3,3)
+
+            call openfile(6,full_filename,l,'w',l)
+            call iwrite(6,nfft,3)
+            call dwrite(6,unita,9)
+            call dwrite(6,rcut,1)
+            call dwrite(6,pp,1)
+          end if
+          call D3dB_t_write(1,6,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)))
+
+*         *** close fname binary file ***
+          if (taskid.eq.MASTER) then
+             call closefile(6)
+          end if
+
+        end if
+
+*       ***** pack Truncation function for use ****
         call Pack_t_pack(0,dbl_mb(tmp1(1)))
         call Pack_t_Copy(0,dbl_mb(tmp1(1)),
      >                     dbl_mb(Trnc(1)+(ia-1)*npack0))
+
       end do
 
-      value = MA_pop_stack(tmp1(2))
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
       if (.not. value) 
-     >   call errquit('Truncating_Function_init: popping stack',3)
+     >  call errquit('Truncating_Function_init: popping stack',3)
 
       return
       end

@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.8 2002-01-09 00:20:32 bylaska Exp $
+* $Id: D3dB-new.F,v 1.9 2002-03-03 22:50:22 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -2096,6 +2096,111 @@ c     integer i2_start(NFFT3+1)
 #endif
       return
       end
+
+
+      subroutine D3dB_t_Write(nb,iunit,A,tmp)
+      implicit none 
+      integer nb
+      integer iunit
+      real*8 A(*)
+      real*8 tmp(*)
+
+      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
+      common	/ D3dB / nq,nx,ny,nz
+
+#ifdef MPI
+      include 'mpif.h'
+      integer mpierr
+      integer msgtype
+#endif
+#ifdef TCGMSG
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+      integer rcv_len,rcv_proc
+#endif
+      
+*     *** local variables ***
+      integer MASTER,taskid
+      parameter(MASTER=0)
+      integer p_from, p_here,q
+      integer k,index
+      integer dest,source,status,msglen
+      integer dum,dum_msglen
+
+      call Parallel_taskid(taskid)
+
+*     **** master node reads from file and distributes ****
+      if (taskid.eq.MASTER) then
+         do k=1,nz(nb)
+
+            call D3dB_ktoqp(nb,k,q,p_from)
+
+            if (p_from.eq.MASTER) then
+
+               index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
+               call dcopy((nx(nb)/2+1)*ny(nb),A(index),1,tmp,1)
+
+            else
+
+               msglen  = (nx(nb)/2+1)*ny(nb)
+               status  = msglen
+               source  = p_from
+#ifdef MPI
+               msgtype = 33
+               call MPI_RECV(tmp,msglen,MPI_DOUBLE_PRECISION,
+     >                       source,msgtype,MPI_COMM_WORLD,
+     >                       status,mpierr)
+#endif
+#ifdef TCGMSG
+               dum = 99
+               dum_msglen = 1
+               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
+               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
+     >                       source,rcv_proc,1)
+#endif
+            end if
+
+            call dwrite(iunit,tmp,(nx(nb)/2+1)*ny(nb)) 
+         end do
+
+*     **** not master node ****
+      else
+         do k=1,nz(nb)
+         
+            call D3dB_ktoqp(nb,k,q,p_here)
+            if (p_here.eq.taskid) then
+
+               index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
+               call dcopy((nx(nb)/2+1)*ny(nb),A(index),1,tmp,1)
+
+
+               msglen  = (nx(nb)/2+1)*ny(nb)
+               dest    = MASTER
+#ifdef MPI
+               msgtype = 33
+               call MPI_SEND(tmp,msglen,MPI_DOUBLE_PRECISION,
+     >                       dest,msgtype,MPI_COMM_WORLD,mpierr)
+#endif
+#ifdef TCGMSG
+               dum_msglen = 1
+               call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
+     >                       dest,rcv_proc,1)
+               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
+#endif
+            end if
+
+         end do
+      end if
+
+*     **** wait ****
+      call ga_sync()
+#ifdef MPI
+      call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
+#endif
+
+      return
+      end
+
 
 *     ***********************************
 *     *									*
