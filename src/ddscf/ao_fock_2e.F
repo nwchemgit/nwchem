@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $                    tol2e, oskel, vg_dens, vg_fock )
 c
-c$Id: ao_fock_2e.F,v 1.4 1995-11-06 22:38:28 gg502 Exp $
+c$Id: ao_fock_2e.F,v 1.5 1995-11-27 02:13:59 d3g681 Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -37,6 +37,7 @@ c
       integer k_dij, k_dik, k_dli, k_djk, k_dlj, k_dlk
       integer k_fij, k_fik, k_fli, k_fjk, k_flj, k_flk
       integer l_atmp, k_atmp
+      integer l_block, k_block, nblock, maxblock
       logical status
 c     
 c     allocate necessary local temporary arrays on the stack
@@ -56,18 +57,18 @@ c
 c     Halve exchange factor to conform to internal definition
 c
       call dscal(nfock, 0.5d0, kfac, 1)
-c     
-c     Determine maximum no. of basis functions on any atom
-c     
+c
+c     Determine appropriate task chunking and max no. of bf in a
+c     block of the density/fock matrix
+c
       if (.not. geom_ncent(geom, natoms)) call errquit
      $     ('ao_fock_2e: geom_ncent failed', 0)
-      max_at_bf = 0
-      do iatom = 1, natoms
-         if (.not. bas_ce2bfr(basis, iatom, ilo, ihi))
-     $        call errquit('ao_fock_2e: bas_ce2bfr failed', iatom)
-         max_at_bf = max(max_at_bf, ihi-ilo+1)
-      end do
-      ablklen = max_at_bf**2
+      if (.not. ma_push_get(MT_INT, 2*natoms, 'fock2e:block',
+     $     l_block, k_block))call errquit('fock_2e: ma failed',2*natoms)
+      call fock_2e_block_atoms(basis, oskel, tol2e,
+     $     int_mb(k_block), nblock, maxblock)
+c
+      ablklen = maxblock**2
       maxd = nfock*ablklen
 c     
       status = .true.
@@ -98,10 +99,6 @@ c
       status = status .and. ma_push_get(MT_DBL, ablklen, 'atmp',
      $     l_atmp, k_atmp)
       if (.not. status) call errquit('fock_2e: d/f** failed', maxd)
-c$$$c     
-c$$$c     Zero screening statistics
-c$$$c     
-c$$$      call ifill(nscreen, 0, iscreen, 1)
 c     
       if (oreadfile) then
          call fock_2e_from_file( geom, basis, nfock, ablklen,
@@ -110,29 +107,31 @@ c
      $        dbl_mb(k_djk), dbl_mb(k_dlj), dbl_mb(k_dlk), 
      $        dbl_mb(k_fij), dbl_mb(k_fik), dbl_mb(k_fli), 
      $        dbl_mb(k_fjk), dbl_mb(k_flj), dbl_mb(k_flk),
-     $        dbl_mb(k_atmp), vg_dens, vg_fock )
+     $        dbl_mb(k_atmp), vg_dens, vg_fock,
+     $        int_mb(k_block), nblock)
       else
-C
-C        Tell the screening statistics we're starting another Fock build
-C
+c
+c        tell the screening statistics we're starting another fock build
+c
          iscreen(6) = iscreen(6) + 1
-C
+c
          call fock_2e_a( geom, basis, nfock, ablklen,
      $        jfac, kfac, tol2e, oskel,
      $        dbl_mb(k_dij), dbl_mb(k_dik), dbl_mb(k_dli), 
      $        dbl_mb(k_djk), dbl_mb(k_dlj), dbl_mb(k_dlk), 
      $        dbl_mb(k_fij), dbl_mb(k_fik), dbl_mb(k_fli), 
      $        dbl_mb(k_fjk), dbl_mb(k_flj), dbl_mb(k_flk),
-     $        dbl_mb(k_atmp), vg_dens, vg_fock )
-C
-C        Print the integral screening statistics for this Fock build
-C        Schwarz_print must be called by all nodes.
-C
+     $        dbl_mb(k_atmp), vg_dens, vg_fock,
+     $        int_mb(k_block), nblock)
+c
+c        print the integral screening statistics for this fock build
+c        schwarz_print must be called by all nodes.
+c
          if (util_print('screening statistics', print_debug)) then
-            if ( .NOT. bas_numcont(basis, nshb) ) Call ErrQuit(
+            if ( .not. bas_numcont(basis, nshb) ) call errquit(
      $         'ao_fock_2e: problem with call to bas_numcont', basis)
             call schwarz_print(natoms, nshb)
-         Endif
+         endif
 C
       endif
 c     
@@ -150,6 +149,7 @@ c
       status = status .and. ma_pop_stack(l_dli)
       status = status .and. ma_pop_stack(l_dik)
       status = status .and. ma_pop_stack(l_dij)
+      status = status .and. ma_pop_stack(l_block)
       if (.not. status) call errquit('fock_2e: ma_pop?', 0)
 c     
       call ga_sync()

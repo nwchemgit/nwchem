@@ -182,7 +182,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.15 1995-11-16 17:19:43 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.16 1995-11-27 02:14:18 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -246,15 +246,13 @@ c
       logical int2e_file_open
       external int2e_file_open
 c
-      task_chunks = -1
-c
-      if (rtdb_get(rtdb, 'scf:task_chunks',
+      if (rtdb_get(rtdb, 'scf:task_bf',
      $     MT_INT, 1, chunktmp)) then
-         task_chunks = chunktmp         
+         task_bf = chunktmp
          if (ga_nodeid().eq.0 .and.
      $        util_print('information',print_default)) then
-            write(6,2) task_chunks
- 2          format(/'Setting fock-build task_chunks to', i4)
+            write(6,2) task_bf
+ 2          format(/'Setting fock-build task_bf to', i4)
             call util_flush(6)
          endif
       endif

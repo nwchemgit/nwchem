@@ -1,9 +1,11 @@
-      subroutine fock_2e_b( basis, nfock, tol2e, q4_atom,
+      subroutine fock_2e_b( basis, nfock, sijkl, tol2e, q4,
      $     iat, jat, kat, lat, 
+     $     ilo, jlo, klo, llo,
+     $     ihi, jhi, khi, lhi,
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_b.F,v 1.6 1995-11-19 19:28:36 d3g681 Exp $
+c     $Id: fock_2e_b.F,v 1.7 1995-11-27 02:14:03 d3g681 Exp $
 c
 c     Called by fock_2e_task once density matrix blocks have 
 c     been fetched.
@@ -16,12 +18,14 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     
       integer basis
       integer nfock
       double precision tol2e
-      double precision q4_atom
+      double precision sijkl
+      double precision q4
       integer iat, jat, kat, lat
+      integer ilo, jlo, klo, llo ! Range for which have density/fock
+      integer ihi, jhi, khi, lhi
       double precision dij(nfock,*), dik(nfock,*)
       double precision dli(nfock,*), djk(nfock,*)
       double precision dlj(nfock,*), dlk(nfock,*)
@@ -32,18 +36,18 @@ c
       logical oij, okl, oikjl, status
       integer ish, jsh, ksh, lsh, mem2, max2e
       integer ishlo, ishhi, jshlo, jshhi, kshlo, kshhi, lshlo, lshhi
-      integer iatbflo, iatbfhi, jatbflo, jatbfhi
-      integer katbflo, katbfhi, latbflo, latbfhi
+      integer ibflo, jbflo, kbflo, lbflo, ibfhi, jbfhi, kbfhi, lbfhi
       integer ishbflo, ishbfhi, jshbflo, jshbfhi
       integer kshbflo, kshbfhi, lshbflo, lshbfhi
       integer jshtop, kshtop, lshtop
       integer l_g, l_scr, k_g, k_scr
       integer l_i, l_j, l_k, l_l
       integer k_i, k_j, k_k, k_l
-      double precision sij, smax, q4_shell
+c
+      double precision sij, smax, denmax, dtol2e
       integer neri
-      logical int2e_file_write, int2e_set_bf_range
-      external int2e_file_write, int2e_set_bf_range
+      logical int2e_file_write
+      external int2e_file_write
 c     
 c     iat, jat, kat, lat externally loop in canonical order over
 c     atoms.  Compute the appropriate canonical contributions
@@ -55,7 +59,38 @@ c     l_scr ... integral scratch space
 c     l_g   ... buffer for eris
 c     l_i, j, k, l ... integral labels
 c     
-      if (oscfps) call pstat_on(ps_fock_add)
+c     Shell and function ranges for each atom
+c     
+      status = .true.
+      status = status .and. bas_ce2cnr(basis, iat, ishlo, ishhi)
+      status = status .and. bas_ce2cnr(basis, jat, jshlo, jshhi)
+      status = status .and. bas_ce2cnr(basis, kat, kshlo, kshhi)
+      status = status .and. bas_ce2cnr(basis, lat, lshlo, lshhi)
+      if (.not. owritefile) then
+         status = status .and. bas_ce2bfr(basis, iat, ibflo, ibfhi)
+         status = status .and. bas_ce2bfr(basis, jat, jbflo, jbfhi)
+         status = status .and. bas_ce2bfr(basis, kat, kbflo, kbfhi)
+         status = status .and. bas_ce2bfr(basis, lat, lbflo, lbfhi)
+      endif
+      if (.not. status) call errquit
+     $     ('fock_2e_b: bas_ce to cnr/bfr failed', 0)
+c
+      if (owritefile) then
+         dtol2e = tol2e
+      else
+c     
+c     Density screening
+c
+         call fock_density_screen(nfock,
+     $        ilo, jlo, klo, llo, ihi, jhi, khi, lhi,
+     $        ibflo, jbflo, kbflo, lbflo, ibfhi, jbfhi, kbfhi, lbfhi,
+     $        dij, dik, dli, djk, dlj, dlk, denmax)
+         if (sijkl*denmax .lt. tol2e) return
+         dtol2e = tol2e
+      endif
+c
+      iscreen(3) = iscreen(3) + 1
+c
       call int_mem_2e4c(max2e, mem2)
       mem2 = max(mem2,max2e)
       status = .true.
@@ -71,99 +106,49 @@ c
      $     ma_push_get(MT_INT, max2e, 'fock_2e: buf', l_l, k_l)
       status = status .and.
      $     ma_push_get(MT_DBL, mem2, 'fock_2e: scr', l_scr, k_scr)
-      if (.not. status) call errquit('rhf_fock_2e_b: not enuf memory',0)
+      if (.not. status) call errquit('fock_2e_b: not enuf memory',0)
 c     
 c     Permutation symmetry boolean
 c     
       oij = iat .eq. jat
       okl = kat .eq. lat
       oikjl = iat.eq.kat .and. jat.eq.lat
-c     
-c     Shell and function ranges for each atom
-c     
-      status = .true.
-      status = status .and. bas_ce2cnr(basis, iat, ishlo, ishhi)
-      status = status .and. bas_ce2cnr(basis, jat, jshlo, jshhi)
-      status = status .and. bas_ce2cnr(basis, kat, kshlo, kshhi)
-      status = status .and. bas_ce2cnr(basis, lat, lshlo, lshhi)
-      status = status .and. bas_ce2bfr(basis, iat, iatbflo, iatbfhi)
-      status = status .and. bas_ce2bfr(basis, jat, jatbflo, jatbfhi)
-      status = status .and. bas_ce2bfr(basis, kat, katbflo, katbfhi)
-      status = status .and. bas_ce2bfr(basis, lat, latbflo, latbfhi)
-      if (.not. status) call errquit
-     $     ('rhf_fock_2e_b: bas_ce to cnr/bfr failed', 0)
 c
-      if (owritefile) then
-         if (.not. int2e_set_bf_range(
-     $        iatbflo, iatbfhi, jatbflo, jatbfhi,
-     $        katbflo, katbfhi, latbflo, latbfhi))
-     $        call errquit('should not ahppen', 0)
-      end if
-c     
 c     loop over shells on each atom
 c     
       smax = schwarz_max()
       do ish = ishlo, ishhi
          if (.not. bas_cn2bfr(basis, ish, ishbflo, ishbfhi))
-     $        call errquit('rhf_fock_2e_b: bas_cn2bfr', ish)
+     $        call errquit('fock_2e_b: bas_cn2bfr', ish)
          jshtop = jshhi
          if (oij) jshtop = ish
          do jsh = jshlo, jshtop
             sij = schwarz_shell(ish,jsh)
-            if (sij*smax.ge.tol2e) then
+            if (sij*smax.ge.dtol2e) then
                if (.not. bas_cn2bfr(basis, jsh, jshbflo, jshbfhi))
-     $              call errquit('rhf_fock_2e_b: bas_cn2bfr', jsh)
+     $              call errquit('fock_2e_b: bas_cn2bfr', jsh)
                kshtop = kshhi
                if (oikjl) kshtop = ish
                do ksh = kshlo, kshtop
                   if (.not. bas_cn2bfr(basis, ksh, kshbflo, kshbfhi))
-     $                 call errquit('rhf_fock_2e_b: bas_cn2bfr', ksh)
+     $                 call errquit('fock_2e_b: bas_cn2bfr', ksh)
                   lshtop = lshhi
                   if (okl) lshtop = ksh
                   if (oikjl .and. ksh.eq.ish) lshtop = jsh
                   do lsh = lshlo, lshtop
                      if (sij*schwarz_shell(ksh,lsh)
-     $                    .ge. tol2e) then
+     $                    .ge. dtol2e) then
                         if (.not. bas_cn2bfr(basis, lsh,
      $                       lshbflo, lshbfhi)) call errquit
-     $                       ('rhf_fock_2e_b: bas_cn2bfr', lsh)
-                        q4_shell = q4_atom
-#ifdef NOLABELS
-c     
-c     Compute the shell block of integrals
-c     
-                        call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
-     $                       mem2, dbl_mb(k_scr), max2e, dbl_mb(k_g))
-c     
-c     Prescale ERIs
-c     
-                        call fock_eri_scale( ishbflo, ishbfhi,
-     $                       jshbflo, jshbfhi,
-     $                       kshbflo, kshbfhi,
-     $                       lshbflo, lshbfhi,
-     $                       dbl_mb(k_g) )
-c
-    
-c     Add shell-block ERI into Fock components
-c     
-                        call fock_2e_c( nfock, tol2e, q4_shell,
-     $                       dbl_mb(k_g),
-     $                       ishbflo, ishbfhi, jshbflo, jshbfhi,
-     $                       kshbflo, kshbfhi, lshbflo, lshbfhi,
-     $                       iatbflo, iatbfhi, jatbflo, jatbfhi,
-     $                       katbflo, katbfhi, latbflo, latbfhi,
-     $                       dij, dik, dli, djk, dlj, dlk,
-     $                       fij, fik, fli, fjk, flj, flk )
-#else
+     $                       ('fock_2e_b: bas_cn2bfr', lsh)
 c
 c     New code with labels
-c
 c     
 c     Compute the shell block of integrals with labels
 c     
                         call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
      $                       mem2, dbl_mb(k_scr), max2e, dbl_mb(k_g))
-                        call fock_2e_shell_to_labels(tol2e,
+                        call fock_2e_shell_to_labels(dtol2e,
      $                       ishbflo, ishbfhi, jshbflo, jshbfhi,
      $                       kshbflo, kshbfhi, lshbflo, lshbfhi,
      $                       int_mb(k_i), int_mb(k_j),
@@ -172,7 +157,7 @@ c
 c     
 c     Prescale ERIs
 c     
-                        call fock_eri_label_scale(neri, q4_shell,
+                        call fock_eri_label_scale(neri, q4,
      $                       int_mb(k_i), int_mb(k_j),
      $                       int_mb(k_k), int_mb(k_l), dbl_mb(k_g))
 c
@@ -191,15 +176,14 @@ c
 c     
 c     Add shell-block ERI into Fock components
 c     
-                        call fock_2e_label( nfock, tol2e,
+                        call fock_2e_label( nfock, dtol2e,
      $                       neri,
      $                       int_mb(k_i), int_mb(k_j),
      $                       int_mb(k_k), int_mb(k_l), dbl_mb(k_g),
-     $                       iatbflo, iatbfhi, jatbflo, jatbfhi,
-     $                       katbflo, katbfhi, latbflo, latbfhi,
+     $                       ilo, ihi, jlo, jhi,
+     $                       klo, khi, llo, lhi,
      $                       dij, dik, dli, djk, dlj, dlk,
      $                       fij, fik, fli, fjk, flj, flk )
-#endif
 
                         iscreen(5) = iscreen(5) + 1
                      else
@@ -218,8 +202,6 @@ c
       status = status .and. ma_pop_stack(l_i)
       status = status .and. ma_pop_stack(l_g)
       if (.not. status) call errquit
-     $     ('rhf_fock_2e_b: pop stack failed?', 0)
+     $     ('fock_2e_b: pop stack failed?', 0)
 c     
-      if (oscfps) call pstat_off(ps_fock_add)
-c
       end

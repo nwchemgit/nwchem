@@ -32,11 +32,15 @@ c
       integer nbf, nvir, nfock
       double precision two, one, zero, mone
       parameter (two=2.0d0, one=1.0d0, zero=0.0d0, mone=-1.0d0)
+      double precision sym_tol  ! Threshold for detecting symmetry breaking
+      parameter (sym_tol = 1d-8)
       double precision jfactor(nset),kfactor(nset)
       integer iv_dens(nset),iv_fock(nset)
 c     
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
+      logical oforcesym
+      data oforcesym /.false./
 c
       data jfactor / 1.0d0, 1.0d0, 0.0d0/
       data kfactor /-0.5d0, 0.0d0,-0.5d0/
@@ -74,15 +78,18 @@ c
 c
 c     Debug ... verify that the density is symmetric
 c
-      if (oskel) then
+      if (oforcesym .and. oskel) then
          call ga_copy(g_cdens, g_hcore)
          if (oscfps) call pstat_on(ps_sym_sym)
          call sym_symmetrize(geom, basis, .true., g_cdens)
          if (oscfps) call pstat_off(ps_sym_sym)
          call ga_dadd(one, g_hcore, mone, g_cdens, g_hcore)
          call ga_maxelt(g_hcore, errmax)
-         if (errmax .gt. 1d-10) call errquit
-     $        ('rohf_fock: closed density is not totally symmetric',0)
+         if (errmax .gt. sym_tol) then
+            write(6,*) ' Symmetry error ', errmax
+            call  errquit
+     $           ('rohf_fock:closed density is not totally symmetric',0)
+         endif
          if (nopen .gt. 0) then
             call ga_copy(g_odens, g_hcore)
             if (oscfps) call pstat_on(ps_sym_sym)
@@ -90,8 +97,11 @@ c
             if (oscfps) call pstat_off(ps_sym_sym)
             call ga_dadd(one, g_hcore, mone, g_odens, g_hcore)
             call ga_maxelt(g_hcore, errmax)
-            if (errmax .gt. 1d-10) call errquit
-     $           ('rohf_fock: open density is not totally symmetric',0)
+            if (errmax .gt. sym_tol) then
+               write(6,*) ' Symmetry error ', errmax
+               call errquit
+     $              ('rohf_fock:open density not totally symmetric',0)
+            endif
          endif
       endif
 c     
