@@ -304,8 +304,8 @@ routines to generate an internal fatal error if any memory operation
 fails.  The default is \verb+nohardfail+, which allows the code to
 continue past any memory operation failure, and perhaps generate a
 more meaningful error message before terminating the calculation.
-This can be useful when poorly coded applications do not check the
-return status of memory management routines.
+Forcing a hard-fail can be useful when poorly coded applications do
+not check the return status of memory management routines.
 
 When assigning the specific memory allocations using the keywords
 \verb+stack+, \verb+heap+, and \verb+global+ in the \verb+MEMORY+
@@ -335,12 +335,9 @@ requests to succeed where a stricter memory model would cause the
 directive to fail.  These implementation characteristics must be kept
 in mind when reading program output that relates to memory usage.
 
-Current standard defaults for various platforms are listed in Table
-\ref{tbl:default-memory-limits}.  On machines for which individual
-processors are commonly used in single user mode (e.g., IBM SP-X,
-Linux laptops, CRAY-T3D, Intel Paragon, KSR), the defaults reflect
-the maximum memory available to applications with common hardware
-configurations.
+Standard defaults for various platforms are listed in Table
+\ref{tbl:default-memory-limits}, though these are commonly 
+overriden during installation at many sites.
 
 %RJH: Table reference needs fixing.  Should be Table 5.1, not 5.3.--fmr
 
@@ -354,16 +351,15 @@ configurations.
 \hline\hline
 Platform        & Total Memory Limit (MBytes) \\
 \hline
-CRAY-T3D        & 40 \\
-DECOSF          & 48 \\
+CRAY-T3E        & 83 \\
+DECOSF          & 90 \\
 IBM RS/6000     & 56 \\
 IBM SP-X        & 90 \\
 Intel Paragon   & 16 \\
-KSR             & 20 \\
-Linux           & 16 \\
-SGI             & 48 \\
-SGI Power Challenge  & 48 \\
-Sun             & 48 \\
+Linux           & 64 \\
+SGI             & 90 \\
+SGI Power Challenge  & 90 \\
+Sun             & 90 \\
 \hline\hline
 \end{tabular}
 
@@ -731,8 +727,6 @@ available in NWChem:
 \item \verb+saddle+ --- Conduct a search for a transition state (or saddle point) 
   using either Driver (Section \ref{sec:driver}, the default) or
   Stepper (Section \ref{sec:stepper}).
-\item \verb+lst+ --- calculate energies on a LST path defined by means of
-a z-matrix input.
 \item \verb+frequencies+ or \verb+freq+ --- Compute second derivatives 
 and print out an analysis of molecular vibrations.
 \item \verb+dynamics+ --- Compute molecular dynamics using nwARGOS.

@@ -41,11 +41,11 @@ directive,
     BSCALE <real BSCALE default 1.0>
     ASCALE <real ASCALE default 0.25>
     TSCALE <real TSCALE default 0.1>
-    HSCALE <REAL HSCALE default 1.0>
+    HSCALE <real HSCALE default 1.0>
    
     PRINT ...
 
-    XYZ [<string xyz default $fileprefix>]
+    XYZ [<string xyz default $file_prefix$>]
     NOXYZ
 
   END
@@ -63,10 +63,11 @@ directive,
     XRMS <real value>
 \end{verbatim}
 
- In version 3.3 Gaussian-style convergence criteria have been
-adopted.  The defaults may be, or the directives \verb+LOOSE+,
-\verb+DEFAULT+, or \verb+TIGHT+ specified to use standard values, or
-the individual criteria adjusted.  All criteria are in atomic units.
+ In version 3.3 Gaussian-style convergence criteria have been adopted.
+The defaults may be used, or the directives \verb+LOOSE+,
+\verb+DEFAULT+, or \verb+TIGHT+ specified to use standard sets of
+values, or the individual criteria adjusted.  All criteria are in
+atomic units.
 \verb+GMAX+ and \verb+GRMS+ control the maximum and root mean square
 gradient in the coordinates being used (Z-matrix, redundant internals,
 or Cartesian).  \verb+XMAX+ and \verb+XRMS+ control the maximum and
@@ -108,7 +109,8 @@ A fixed trust radius (\verb+trust+) is used to control the step during
 minimizations, and is also used for modes being minimized during
 saddle-point searches.  It defaults to 0.3 for minimizations and 0.1
 for saddle-point searches.  The parameter \verb+sadstp+ is the trust
-radius used for the mode being maximized during a saddle-point search.
+radius used for the mode being maximized during a saddle-point search
+and defaults to 0.1.
 
 \section{Maximum number of steps}
 
@@ -116,7 +118,7 @@ radius used for the mode being maximized during a saddle-point search.
     MAXITER <integer maxiter default 20>
 \end{verbatim}
 
-By default at most 20 geometry optimization steps will be taken
+By default at most 20 geometry optimization steps will be taken,
 but this may be modified with this directive.
 
 \section{Discard restart information}
@@ -125,7 +127,7 @@ but this may be modified with this directive.
 \end{verbatim}
 
 By default Driver reuses Hessian information from a previous
-optimization and to facilitate a restart also stores which mode is
+optimization, and, to facilitate a restart also stores which mode is
 being followed for a saddle-point search.  This option deletes all
 restart data.
 

@@ -9,8 +9,9 @@ energy surfaces, computing properties in a variety of basis sets,
 optimizing the energy w.r.t. parameters in the basis set, computing
 polarizabilities with finite field, and simple molecular dynamics.
 
-Visit the Python web-site \verb+http://www.python.org+ for a full manual
-and lots of useful code and resources.  
+Look in the NWChem \verb+contrib+ directory for useful scripts and
+examples.  Visit the Python web-site \verb+http://www.python.org+ for
+a full manual and lots of useful code and resources.
 
 \section{How to input and run a Python program inside NWChem}
 
@@ -198,6 +199,9 @@ Python program.
 Note that execution in parallel may produce unwanted output since
 all process execute the print statement inside the Python program.
 
+Look in the NWChem \verb+contrib+ directory for a routine that makes
+the above task easier.
+
 \subsection{Scanning a basis exponent revisited.}
 \label{sec:scan2}
 
@@ -272,6 +276,9 @@ This scans the bond length in ethene from 1.2 to 1.44 in steps
 of 0.2 computing the energy at each geometry.  Since it is using 
 $D_{2h}$ symmetry the program actually uses a variable (\verb+x+) that is
 half the bond length.
+
+Look in the NWChem \verb+contrib+ directory for a routine that makes
+the above task easier.
 
 \subsection{Scan using the BSSE counterpoise corrected energy}
 
@@ -471,7 +478,7 @@ NWChem by forcing an SCF calculation on $He_2$ to fail due to
 insufficient iterations.
 
 If an NWChem command fails it will raise the exception
-\verb+"NWChemError+ (case sensitive) unless the error was fatal.
+\verb+"NWChemError"+ (case sensitive) unless the error was fatal.
 If the exception is not caught, then it will cause the entire Python
 program to terminate with an error.  This Python program catches the
 exception, prints out the message, and then continues as if all was
@@ -493,6 +500,7 @@ or some other operation.
 
 The following Python procedure retrieves the coordinates in the
 same units as initially input for a geometry of a given name.
+Its full source is included in the NWChem \verb+contrib+ directory.
 \begin{verbatim}
   def geom_get_coords(name):
     try:
@@ -631,11 +639,6 @@ It could also be the \verb+END+ directive that terminates the
 \verb+PYTHON+ compound directive --- since Python also has an
 \verb+end+ statement then to avoid confusion the \verb+END+ directive
 for NWChem {\em must} be at the start of the line.
-
-\item The last (or only) line of your input to \verb+input_parse()+
-seems to be ignored --- An entire line of input must be provided,
-including the end of line.  Try terminating the string with
-\verb+'\n'+.
 
 \item Your program hangs or deadlocks --- most likely you have a piece
 of code that is restricted to executing on a subset of the processors

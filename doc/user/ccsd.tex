@@ -10,6 +10,12 @@ treatment of single and double excitations and non-iterative inclusion
 of triple excitation effects.  It is presently limited to closed-shell
 (RHF) references.
 
+{\em Note that symmetry is not used within most of the CCSD(T) code.}
+This can have a profound impact on performance since the speed-up from
+symmetry is roughly the square of the number of irreducible
+representations.  In the absence of symmetry, the performance of this
+code is competitive with other programs.
+
 The operation of the coupled cluster code is controlled by the input
 block
 \begin{verbatim}

@@ -1,7 +1,7 @@
 \label{sec:pspw}
 
 A pseudopotential plane-wave (PSPW) module, which can perform Car-Parrinello
-simulations, is being implemented into the NWChem program package.  
+simulations, has been implemented into the NWChem program package.  
 This module complements the capabilities of NWChem by including code 
 which allows for the calculation of density functional theory total energies 
 and forces with the technology based on plane-wave basis sets and 
@@ -47,14 +47,13 @@ The format for the TASK PSPW directive is the TASK directive followed by the
 PSPW string, and after that an $<$operation$>$ string is required.  The 
 TASK PSPW directive for PSPW calculations is of the following form:
 \begin{verbatim}
-TASK PSPW [steepest_descent           ||
+TASK PSPW (steepest_descent           ||
            Car-Parrinello             ||
            psp_formatter              ||
            wavefunction_initializer   ||
            v_wavefunction_initializer ||
            wavefunction_expander      ||
-           psp_generator              ||
-           (no default)]
+           psp_generator)
 \end{verbatim}
 Currently available tasks are listed.  Note that unlike most 
 NWChem modules, the PSPW module does not contain an energy operation.  

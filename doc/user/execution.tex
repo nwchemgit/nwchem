@@ -89,45 +89,16 @@ Thus, if your file systems are physically distributed (e.g., most
 workstation clusters) you must ensure that process zero can correctly
 resolve the paths for the input and database files.
 
-{\em N.B.} : If only one cluster is specified (one line in the
-process-group file) then all processes execute NWChem.  If multiple
-clusters are specified (multiple lines in the process-group file)
-then one process out of each cluster is devoted to sharing
-global-arrays between clusters, and therefore one more process than
-desired the number of application processes should be specified in
-each cluster.
+{\em N.B.}  In releases of NWChem prior to 3.3 additional processes
+had to be created on workstation clusters to support remote access to
+shared memory.  This is no longer the case.  The TCGMSG process group
+file now just needs to refer to processes running NWChem.
 
 \section{Parallel execution on MPPs}
 
 All of these machines require use of different commands in order to
 gain exclusive access to computational resources.
 
-\section{Kendall Square Research}
-
-\begin{verbatim}
-  allocate_cells <n> parallel nwchem <input_file>
-\end{verbatim}
-
-The KSR command \verb+allocate_cells+ is used to acquire exclusive use
-of a set of processors.  It takes the number of processors \verb+n+ and
-the command as arguments.  The TCGMSG parallel command is described
-above (section \ref{sec:procgrp}).  Note that when running the SCF
-code optimal performance is obtained by allocating one more processor
-to the processor set than required by your \verb+"nwchem.p"+
-file\footnote{This is because dynamic load balanced is supported by
-the process executing the command parallel which needs a dedicated
-processor to do this efficiently.}.  For instance, if your
-process-group file \verb+"nwchem32.p"+ read
-\begin{verbatim}
-  d3g681 circus 31 /usr/local/bin/nwchem /tmp/rjh
-\end{verbatim}
-then you might use the following command
-\begin{verbatim}
-  allocate_cells 32 parallel nwchem32 big_molecule.nw
-\end{verbatim}
-
-A useful tool for monitoring usage of the KSR is xringinfo.  See the
-manual page for details.
 
 \section{IBM SP}
 
@@ -149,6 +120,11 @@ running NWChem (or setting them using POE command line options).
 \item \verb+setenv MP_CSS_INTERRUPT yes+ --- enable interrupts when a 
   message arrives (the default is to poll which significantly slows
   down global array accesses).
+\end{itemize}
+In addition, if the IBM is running PSSP version 3.1, or later
+\begin{itemize}
+\item \verb+setenv MP_MSG_API lapi+, or 
+\item \verb+setenv MP_MSG_API mpi,lapi+ (if using both GA and MPI) 
 \end{itemize}
 
 For batch execution, we recommend use of the \verb+llnw+ command which
@@ -187,75 +163,53 @@ accessible to all processes.  Put the above into a file (e.g.,
 It will run a 7 processor, 1 hour job in the queue \verb+small+.  It
 should be apparent how to change these values.
 
-Unfortunately, this simple job becomes very inefficient when running
-on many nodes (taking up to 15 minutes to commence execution) because
-POE saturates networked file systems when copying the executable to
-all of the nodes.  There is a script \verb+llnw+ that may be invoked
-either as a one line command or with interactive prompting that
-automates job creation and submission, and, by efficient copying of the
-executable, reduces startup time to about 1 minute.
-
 Note that on many IBM SPs, including that at EMSL, the local scratch
 disks are wiped clean at the beginning of each job and therefore
 persistent files should be stored elsewhere.  PIOFS is recommended for
-files larger than 1--2 MB.
+files larger than a few MB.
 
-\section{Intel Paragon}
 
-\begin{verbatim}
-  nwchem -sz <n> <input_file>
-\end{verbatim}
-
-or if pexec is used (e.g., at ORNL)
+\section{Cray T3E}
 
 \begin{verbatim}
-  pexec nwchem <input_file> -sz <n>
+  mpprun -n n nwchem <input_file>
 \end{verbatim}
 
 where \verb+n+ is the number of processors and \verb+input_file+ is the
 name of your input file.
 
+\section{Linux}
 
-\section{Intel Touchstone Delta}
-
-\begin{verbatim}
-  mexec -t"(<rows>,<cols>)" -f "nwchem <input_file>"
-\end{verbatim}
-
-where \verb+rows+ and \verb+cols+ specify the dimensions of the
-processor mesh and \verb+input_file+ is the name of your input file.
-For example, to run using all 512 nodes on the Delta
-\begin{verbatim}
-  mexec -t"(16,32)" -f "nwchem big_molecule.nw"
-\end{verbatim}
-
-\section{Cray T3D}
-
-\begin{verbatim}
-  nwchem  <input_file> -npes <n>
-\end{verbatim}
-
-where \verb+n+ is the number of processors and \verb+input_file+ is the
-name of your input file.
-
-When compiling NWChem on the Cray T3D, you need to setup the
-environmental variable {\tt TARGET} for the correct cross-compilation
-of C routines by typing
-\begin{verbatim}
-  setenv TARGET CRAY-T3D
-\end{verbatim}
+If running in parallel across multiple machines you should consider
+applying this patch to your kernel to boost the performance of TCP/IP
+\begin{itemize}
+\item \verb+http://www.icase.edu/coral/LinuxTCP.html+
+\end{itemize}
 
 \section{Tested Platforms and O/S versions}
 
 \begin{itemize}
-\item KSR-2 
-\item Intel Delta 
-\item Intel Paragon 
-\item IBM SP1 and SP2, AIX 3.2 and 4.1.
-\item Cray T3D
-\item SGI R8000
-\item SGI R4000
-\item IBM RS6000, AIX 3.2 and 4.1.
+\item IBM SP with P2SC nodes,  AIX 4.2.1, and PSSP 2.3
+\item IBM SP with silver nodes (SMP nodes with two 604e processors),
+AIX 4.3.2, and PSSP 3.1.
+\item IBM RS6000 workstation, AIX 3.2 and 4.1.
+\item Cray T3E, 2.0.4.61 UNICOSMK
+\item SGI R8000/10000, IRIX 6.2, 6.5
+\item SGI R4000, IRIX 5.3
 \item SUN workstations, SunOS 4.1.3 and Solaris 5.5
-\item x86 computers running Linux 1.2.13 works
+\item Compaq DEC alpha workstion (600 MHz EV6), Digital UNIX V4.0E
+Rev. 1091, DEC C V5.8-009, Digital Fortran V5.2
+\item Linux. Since there are at least 8 popular distributions of the
+Linux operating system and numerous others in existence, including
+downloading everything and building your own Linux OS, it is
+impossible to test all possible versions of Linux with NWChem. NWChem
+Release 3.3 has been tested on Slackware 3.4, 3.5, 4.0, RedHat 5.1,
+5.2, and 6.0, Mandrake based on RedHat 6.0, and RedHat 6.0 for the
+Power PC Macintosh.  These all use the EGCS compilers at different
+levels.  Those distributed from Slackware are somewhat different than
+those distributed from RedHat but the code is configured to run on all
+of them.  The Linux Alpha version 5.2 from Red Hat fails to compile
+the code as well as the beta release of the Digital Fortran compiler
+for Linux based Alpha systems.
+
 \end{itemize}

@@ -7,7 +7,7 @@ correction to the Hartree-Fock energy (MP2).  They vary in capability,
 the size of system that can be treated and use of other approximations
 \begin{itemize}
 \item Semi-direct --- this is recommended for most large applications
-  (up to about 1500 basis functions), especially on the IBM SP and
+  (up to about 2800 basis functions), especially on the IBM SP and
   other machines with significant disk I/O capability.  Partially
   transformed integrals are stored on disk, multi-passing as necessary.
   RHF and UHF references may be treated including computation of
@@ -17,7 +17,7 @@ the size of system that can be treated and use of other approximations
       task mp2
 \end{verbatim}
 \item Fully-direct --- this is of utility if only limited I/O
-  resources are available (up to about 1500 functions).  Only RHF
+  resources are available (up to about 2800 functions).  Only RHF
   references and energies are available. This is selected by
   specifying \verb+direct_mp2+ on the task directive, e.g.
 \begin{verbatim}
@@ -27,7 +27,7 @@ the size of system that can be treated and use of other approximations
   this uses the RI approximation and is therefore only exact in the
   limit of a complete fitting basis.  However, with some care, high
   accuracy may be obtained with relatively modest fitting basis sets.
-  An RIMP2 calculation can cost over 10 times less than the
+  An RIMP2 calculation can cost over 40 times less than the
   corresponding exact MP2 calculation.  RHF and UHF references with
   only energies are available.  This is selected by specifying
   \verb+rimp2+ on the task directive, e.g.,
@@ -432,15 +432,18 @@ automatically reset to an appropriate value.
 \section{One-electron properties and natural orbitals}
 
 If an MP2 energy gradient is computed, all contributions are available
-to form the MP2 linear response density.  This is the density that
+to form the MP2 linear-response density.  This is the density that
 when contracted with any spin-free, one-electron operator yields the
-associated property.  Only dipole moments are printed by the MP2
-gradient code, but natural orbitals are produced and stored in the
-permanent directory with a file extension of \verb+".mp2nos"+.  These
-may be fed into the property package (see Section \ref{sec:property})
-to compute more general properties.  Note that the MP2 linear response
-density matrix is not necessarily positive definite so it is not
-unusual to see a few {\em small} negative natural orbital occupation
-numbers.
+associated property defined as the derivative of the energy.  Thus,
+the reported MP2 dipole moment is the derivative of the energy
+w.r.t. an external magnetic field and is {\em not} the expectation
+value of the operator over the wavefunction.  Only dipole moments are
+printed by the MP2 gradient code, but natural orbitals are produced
+and stored in the permanent directory with a file extension of
+\verb+".mp2nos"+.  These may be fed into the property package (see
+Section \ref{sec:property}) to compute more general properties.  Note
+that the MP2 linear response density matrix is not necessarily
+positive definite so it is not unusual to see a few small negative
+natural orbital occupation numbers.
 
 

@@ -13,12 +13,11 @@ literature and implementations, i.e., an $n_{lk} = 0$ implies
 $r^{-2}$.  The current implementation allows $n_{lk}$ values
 of only 0, 1, or 2. 
 
-At the time of writing, the EMSL basis library did not provide a
-standard set of ECPs.  Basis sets using these functions must be
-specified explicitly by user input in the \verb+ECP+ directive.  This
-directive has essentially the same form as the standard \verb+BASIS+
-directive, except for essential differences required for ECPs.  The
-form of the input for the \verb+ECP+ directive is as follows:
+Basis sets using these functions must be specified explicitly by user
+input in the \verb+ECP+ directive.  This directive has essentially the
+same form as the standard \verb+BASIS+ directive, except for essential
+differences required for ECPs.  The form of the input for the
+\verb+ECP+ directive is as follows:
 
 %        [spherical || cartesian default cartesian]
 %        [segment || nosegment default segment] 
@@ -26,6 +25,9 @@ form of the input for the \verb+ECP+ directive is as follows:
 \begin{verbatim}
   ECP [<string name default "ecp basis">] \
         [print || noprint default print]
+
+     <string tag> library [<string tag_in_lib>] \
+                  <string standard_set> [file <filename>]
 
      <string tag> [nelec] <integer number_of_electrons_replaced>
  
@@ -55,6 +57,19 @@ sets, with the default name being \verb+"ecp basis"+.  It should be
 clear from the above discussion on geometries and database entries how
 indirection is supported.  All directives that are in common with the
 standard Gaussian basis set input have the same function and syntax.
+
+These are the names of the sets of ECPs available in the standard
+library (their coverage is described in Appendix \ref{sec:knownbasis}).
+\begin{itemize}
+\item \verb,"Hay-Wadt MB (n+1) ECP",
+\item \verb,"Hay-Wadt VDZ (n+1) ECP",
+\item \verb+"LANL2DZ ECP"+
+\item \verb+"SBKJC VDZ ECP"+
+\item \verb+"Stuttgart RLC ECP"+
+\item \verb+"Stuttgart RSC ECP"+
+\item \verb+"CRENBL ECP"+
+\item \verb+"CRENBS ECP"+
+\end{itemize}
 
 The keyword \verb+nelec+ allows the user to specify the number of core
 electrons replaced by the ECP.  Additional input lines define the

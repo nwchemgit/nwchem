@@ -14,10 +14,6 @@ SCF module:
   END
 \end{verbatim}
 
-Each of the additional directives are either simple (e.g.,
-``SINGLET'') or compound (e.g., ``VECTOR'').
-
-
 \section{Wavefunction type}
 
 A spin-restricted, closed shell RHF calculation is performed by
@@ -135,7 +131,7 @@ also specify \verb+SYM OFF+ (Section \ref{sec:sym}).
 \label{sec:tol2e}
 
 \begin{verbatim}
-  TOL2E <real tol2e default min(10^-7 , 0.001*$thresh$)>
+  TOL2E <real tol2e default min(10^-7 , 0.01*$thresh$)>
 \end{verbatim}
 
 The variable \verb+tol2e+ is used in determining the integral
@@ -150,15 +146,13 @@ instead the required precision in the wavefunction, using the
 \verb+THRESH+ directive (Section \ref{sec:thresh}). The default
 threshold is the minimum of $10^{-7}$ and 0.01 times the requested
 convergence threshold for the SCF calculation (Section
-\ref{sec:thresh}).  This is suitable for nearly all purposes, though a
-more relaxed value of $10^{-6}$ might accelerate exploratory
-calculations where accuracy is not a high priority.
+\ref{sec:thresh}).  
 
 The input to specify the threshold explicitly within the \verb+SCF+
 directive is, for example:
 
 \begin{verbatim}
-  tol2e 1e-6
+  tol2e 1e-9
 \end{verbatim}
 
 For very diffuse basis sets, or for high-accuracy calculations it
@@ -191,10 +185,7 @@ source of the input molecular orbital vectors as any of the following:
 \begin{itemize}
 \item \verb+ATOMIC+ --- eigenvectors of a Fock-like matrix formed from
   a superposition of the atomic densities (the default guess).  See
-  Sections \ref{sec:atomscf} and \ref{sec:tolguess}.  The atomic initial 
-  guess currently does not work correctly in the presence of ECPs.  
-  Independently converging fragments, Section \ref{sec:fragguess}, with 
-  ECPs can save a lot of resources.
+  Sections \ref{sec:atomscf} and \ref{sec:tolguess}.  
 \item \verb+HCORE+ --- eigenvectors of the bare-nucleus Hamiltonian or
   the one-electron Hamiltonian.
 \item \verb+filename+ --- the name of a file containing the MO vectors
@@ -331,9 +322,6 @@ instances:
   occupation.  This can often be readily accomplished with a
   calculation on the fragment using dummy charges to model a ligand
   field.
-\item The atomic initial guess currently does not work correctly in
-  the presence of ECPs.  Independently converging fragments with ECPs 
-  can save a lot of resources.
 \item The molecular occupation predicted by the atomic initial guess
   is often wrong for systems with heavy metals which may have
   partially occupied orbitals with lower energy than some doubly
@@ -649,8 +637,9 @@ those centers.  Two parameters must be set as follows:
 
 The array of strings \verb+atomscf:tags_z+ should be set to the list
 of tags, and the array \verb+atomscf:z+ should be set to the list of
-charges.  All atoms that have a tag specified in the list of tags will
-be assigned the corresponding charge from the list of charges.
+charges which must be real numbers (not integers).  All atoms that
+have a tag specified in the list of tags will be assigned the
+corresponding charge from the list of charges.
 
 \fussy
 
@@ -658,7 +647,7 @@ For example, the following specifies that all oxygen atoms with tag
 \verb+O+ be assigned a charge of \verb+-1+ and all iron atoms with tag
 \verb+Fe+ be assigned a charge of \verb=+2=
 \begin{verbatim}
-  set atomscf:z        -1  2
+  set atomscf:z        -1  2.0
   set atomscf:tags_z    O  Fe
 \end{verbatim}
 
@@ -677,13 +666,14 @@ the database with the \verb+UNSET+ directive (Section
 \section{Accuracy of initial guess}
 \label{sec:tolguess}
 
-The initial Fock-matrix construction from the atomic guess is
-performed to a very low precision.  In charged, or diffuse basis sets,
-this precision may not be sufficient and could result in incorrect
-ordering of the initial orbitals.  The accuracy may be increased with
-the following directive which should be inserted in the top-level of
-input (i.e., outside of the SCF input block) and before the {\tt TASK}
-directive.  
+For SCF, the initial Fock-matrix construction from the atomic guess is
+now (staring from version 3.3) performed to a default precision of
+1e-7.  However, other wavefunctions, notably DFT, use a lower
+precision.  In charged, or diffuse basis sets, this precision may not
+be sufficient and could result in incorrect ordering of the initial
+orbitals.  The accuracy may be increased with the following directive
+which should be inserted in the top-level of input (i.e., outside of
+the SCF input block) and before the {\tt TASK} directive.
 \begin{verbatim}
   set tolguess 1e-7
 \end{verbatim}
@@ -1108,12 +1098,7 @@ converge slowly, resulting in an excessive number of micro-iterations.
 This makes the SCF expensive in terms of computation time, and it is
 possible to exceed the maximum number of iterations without achieving
 the accuracy required for quadratic convergence --- which causes more
-macro-iterations to be performed.  A negative eigenvalue in the
-Hessian will usually also cause slow convergence of the
-micro-iterations (since negative eigenvalues are usually small), and
-will also cause components of the line-search direction to point
-uphill --- which again slows convergence of the macro-iterations and
-causes more steps to be taken in the line search.
+macro-iterations to be performed. 
 
 Two main options are available when a problem will not converge:
 Newton-Raphson can be disabled temporarily or permanently (see Section
