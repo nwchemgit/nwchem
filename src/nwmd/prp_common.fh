@@ -1,0 +1,7 @@
+c
+      integer nsf,msf,mpe
+c
+      common/prp_dim/nsf,msf,mpe
+c
+      logical ltwin
+      common/prp_log/ltwin

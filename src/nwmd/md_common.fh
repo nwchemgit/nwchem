@@ -1,0 +1,659 @@
+c
+c $Id: md_common.fh,v 1.1 1999-03-15 21:22:23 d3j191 Exp $
+c
+c     parameters
+c
+      real*8 versio,small,tiny,zero,ten27,tenm27,p000001,p000002,
+     + p001,p01,p05,tenth,fourth,pthree,pfour,half,one,two,
+     + three,four,five,six,eight,nine,ten,twelve,forten,hundrd,one80,
+     + rgas,avoga,epsfac,exefac,electr,elect2,rd1fac
+c
+      integer mip2,miw2,mis2,mbb2,mlo,mpr
+c
+      parameter(versio=1.0d+00)
+      parameter(mip2=7)
+      parameter(miw2=5)
+      parameter(mis2=14)
+      parameter(mbb2=16)
+c      parameter(msf=25)
+      parameter(mpr=2048)
+      parameter(mlo=55)
+      parameter(small=1.0d-12)
+      parameter(tiny=1.0d-14)
+      parameter(zero=0.0d+00)
+      parameter(ten27=1.0d+27)
+      parameter(tenm27=1.0d-27)
+      parameter(p000001=1.0d-06)
+      parameter(p000002=2.0d-06)
+      parameter(p001=1.0d-03)
+      parameter(p01=1.0d-02)
+      parameter(p05=5.0d-02)
+      parameter(tenth=1.0d-01)
+      parameter(fourth=02.5d-01)
+      parameter(pthree=3.0d-01)
+      parameter(pfour=4.0d-01)
+      parameter(half=5.0d-01)
+      parameter(one=1.0d+00)
+      parameter(two=2.0d+00)
+      parameter(three=3.0d+00)
+      parameter(four=4.0d+00)
+      parameter(five=5.0d+00)
+      parameter(six=6.0d+00)
+      parameter(eight=8.0d+00)
+      parameter(nine=9.0d+00)
+      parameter(ten=1.0d+01)
+      parameter(twelve=1.2d+01)
+      parameter(forten=1.4d+01)
+      parameter(hundrd=1.0d+02)
+      parameter(one80=1.80d+02)
+      parameter(rgas=8.31441d-03)
+      parameter(avoga=6.022045d-07)
+      parameter(epsfac=1.389354428d+02)
+      parameter(exefac=6.944560955d-10)
+      parameter(electr=1.6021892d-28)
+      parameter(elect2=2.567010233d+04)
+      parameter(rd1fac=6.999568966d-06)
+c
+c     conversion factors
+c
+c     cau2kj : from hartree to kJ/mol
+c     cau2nm : from bohr to nm
+c     cau2N  : from hartree/bohr to N
+c     cnm2au : from nm to bohr
+c
+      real*8 cau2kj,cau2nm,cau2N
+      real*8 cnm2au
+c
+      parameter(cau2kj=2.625499962d+03)
+      parameter(cau2nm=5.29177249d-02)
+      parameter(cau2N=4.961475508d+04)
+      parameter(cnm2au=1.88972598786d+01)
+c
+c     parameters identifying function of array iwl
+c
+c     lwgmn  : solvent global molecule number
+c     lwbox  : solvent box number
+c     lwnod  : solvent node number
+c     lwdyn  : solvent dynamics type
+c
+      integer lwgmn,lwbox,lwnod,lwdyn
+c
+      parameter(lwgmn=1)
+      parameter(lwbox=2)
+      parameter(lwnod=3)
+      parameter(lwdyn=4)
+c
+c     parameters identifying function of array isl
+c
+c     lsgan  : solute global atom number
+c     lsbox  : solute box number
+c     lsnod  : solute node number
+c     lsatt  : solute atom type
+c     lsfrc  : solute molecule fraction
+c     lsmol  : solute molecule number
+c     lssgm  : solute segment number
+c     lsgrp  : solute charge group number
+c     lspgr  : solute polarization group number
+c     lsdyn  : solute dynamics type
+c     lssss  : solute separation shifted scaling
+c     lsssf  : solute separation shifted scaling forward
+c     lsssr  : solute separation shifted scaling reverse
+c
+      integer lsgan,lsbox,lsnod,lsatt,lsmol,lssgm,lsgrp
+      integer lspgr,lsdyn,lsfrc,lssss,lsct1,lsct2,lsct3
+c
+      parameter(lsgan=1)
+      parameter(lsbox=2)
+      parameter(lsnod=3)
+      parameter(lsatt=4)
+      parameter(lsmol=5)
+      parameter(lssgm=6)
+      parameter(lsgrp=7)
+      parameter(lspgr=8)
+      parameter(lsdyn=9)
+      parameter(lsfrc=10)
+      parameter(lssss=11)
+      parameter(lsct1=12)
+      parameter(lsct2=13)
+      parameter(lsct3=14)
+c
+c     bit settings to determine dynamics type
+c
+c     bit  0&1 : 0&0: dynamical    1&0: restrained  \ permanent
+c                0&1: fixed        1&1: fixed CM    / assignment
+c
+c     bit  2&3 : 0&0: dynamical    1&0: restrained  \ used
+c                0&1: fixed        1&1: fixed CM    / assignment
+c
+c     bit  4   :   0: classical      1: quantum
+c
+c     bit  5   :   0: non-link       1: link atom
+c
+c     bit  6   :   0: non-zone       1: zone atom
+c
+c     masks to extract dynamics type
+c
+c     mperma   : mask on bits 0&1
+c
+c     mdynam   : mask on bits 2&3
+c     mrestr   : mask on bits 2&3
+c     mfixed   : mask on bits 2&3
+c     mfixcm   : mask on bits 2&3
+c
+c     ldynam   : dynamical atom
+c     lrestr   : restrained atom
+c     lfixed   : fixed atom 
+c     lfixcm   : fixed CM
+c
+      integer mperma
+      integer mdynam,mrestr,mfixed,mfixcm
+      integer ldynam,lrestr,lfixed,lfixcm
+c
+      parameter(mperma=3)
+c
+      parameter(mdynam=12)
+      parameter(mrestr=12)
+      parameter(mfixed=12)
+      parameter(mfixcm=12)
+c
+      parameter(ldynam=0)
+      parameter(lrestr=4)
+      parameter(lfixed=8)
+      parameter(lfixcm=12)
+c
+      integer lquant,lqlink,lqzone
+c
+      parameter(lquant=16)
+      parameter(lqlink=32)
+      parameter(lqzone=64)
+c
+c     index for bonded interaction type identification
+c
+c     type ixxxxx is true for i-th interaction when iand(isXs(i),ixxxx).ne.0 
+c
+c     icnstr : constraint                       (bonds only: iwbs & isbs)
+c     ijrest : 3J coupling constant restraint   (solute dihedrals only: isds)
+c
+      integer icnstr,ijrest
+      parameter(icnstr=1)
+      parameter(ijrest=2)
+c
+c     trajectory format parameters
+c
+      integer iECCE, iARGOS
+      parameter(iECCE=1)
+      parameter(iARGOS=2)
+c
+c     dimension for timing arrays ncall() and tcall()
+c
+      integer mtimes
+      parameter(mtimes=250)
+c
+c     diagnostic times array parameters
+c
+      integer diagOff,nUsedDiag
+      parameter(diagOff=140)
+      parameter(nUsedDiag=20)
+      integer irsto,irsdo,itrto,itrdo,iget1,iget2,iget3,iget4,
+     +        iacc1,iadd1,iadd2,iadd3,itstp,iexpc,irstr,ipair,
+     +        itrav,inbf,ibndf,ittot
+      parameter(ittot=140)
+      parameter(itstp=141)
+      parameter(irsto=142)
+      parameter(irsdo=143)
+      parameter(irstr=144)
+      parameter(itrto=145)
+      parameter(itrdo=146)
+      parameter(iget1=147)
+      parameter(iget2=148)
+      parameter(iget3=149)
+      parameter(iget4=150)
+      parameter(iacc1=151)
+      parameter(iadd1=152)
+      parameter(iadd2=153)
+      parameter(iadd3=154)
+      parameter(iexpc=155)
+      parameter(ipair=156)
+      parameter(itrav=157)
+      parameter(inbf=158)
+      parameter(ibndf=159)
+      integer tStart,tStop
+      parameter(tStart=0)
+      parameter(tStop=1)
+c
+c     solvent and solute type id
+c
+      integer ltypew,ltypes
+      parameter(ltypew=1)
+      parameter(ltypes=2)
+c
+c     maximum number of processor for particle mesh Ewald runs
+c
+      integer mxnpme
+      parameter(mxnpme=500)
+c
+      integer mpe
+      parameter(mpe=10)
+c
+c      nwa_mpp : node and global array related variables
+c      -------------------------------------------------
+c
+      integer me,np,npx,npy,npz,mex,mey,mez,nbx,nby,nbz,
+     + ga_ip,ga_iw,ga_w,ga_is,ga_s,ga_it,ga_rt,ga_rc,ga_sl,ga_flg,
+     + ga_qzw,ga_qzs,ga_hw,ga_hs,
+     + l_g,l_c
+      common/nwa_mpp/me,np,npx,npy,npz,mex,mey,mez,nbx,nby,nbz,
+     + ga_ip,ga_iw,ga_w,ga_is,ga_s,ga_it,ga_rt,ga_rc,ga_sl,ga_flg,
+     + ga_qzw,ga_qzs,ga_hw,ga_hs,
+     + l_g,l_c
+c
+      integer i_iw,l_iw,i_is,l_is,i_xwcr,l_xwcr,i_xwm,l_xwm,
+     + i_xw,l_xw,i_xs,l_xs,i_vw,l_vw,i_vs,l_vs,i_rtos,l_rtos,
+     + i_fw,l_fw,i_fs,l_fs,i_yw,l_yw,i_ys,l_ys,i_eww,l_eww,i_esw,l_esw,
+     + i_ess,l_ess,i_zs,l_zs,i_xsm,l_xsm,i_iwz,l_iwz,i_isz,l_isz,
+     + i_vwt,l_vwt,i_vst,l_vst,i_xscr,l_xscr
+      common/new_ptr/i_iw,l_iw,i_is,l_is,i_xwcr,l_xwcr,i_xwm,l_xwm,
+     + i_xw,l_xw,i_xs,l_xs,i_vw,l_vw,i_vs,l_vs,i_rtos,l_rtos,
+     + i_fw,l_fw,i_fs,l_fs,i_yw,l_yw,i_ys,l_ys,i_eww,l_eww,i_esw,l_esw,
+     + i_ess,l_ess,i_zs,l_zs,i_xsm,l_xsm,i_iwz,l_iwz,i_isz,l_isz,
+     + i_vwt,l_vwt,i_vst,l_vst,i_xscr,l_xscr
+c
+      logical lpair,llong,ltwin
+      common/nwa_log/lpair,llong,ltwin
+c
+      real*8 eww(mpe,2)
+      common/nwa_pro/eww
+c
+c     nwa_rtdb : run time database handle
+c     -----------------------------------
+c
+      integer irtdb
+      common/nwa_rtdb/irtdb
+c
+c     nwa_tit : titles, dates and times
+c     ---------------------------------
+c
+      character*5 clam
+      character*10 datein,timein,wnam
+      character*10 today,now,dattop,datrst,datinp,timtop,timrst,timinp
+      character*15 tdgstr
+      character*80 tittop,titrst,titinp,messg
+      common/nwa_tit/
+     + tittop(3),titrst(3),titinp(3),dattop,datrst,datinp,timtop,timrst,
+     + timinp,today,now,datein,timein,messg,wnam,clam,
+     + tdgstr(diagOff:diagOff+nUsedDiag-1)
+c
+c     nwa_nam : filenames
+c     -------------------
+c
+      character*80 filnam,fdarg,fdlog,fsum
+      character*70 filday,filinp,filrst,filtop,filcoo,filprp,filfld,
+     + filvel,filgib,filppd,filsco,filsvl,filhis,filhbo,filsfl,
+     + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,
+     + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
+     + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst
+      common/nwa_nam/
+     + filnam,filday,filinp,filrst,filtop,filcoo,filprp,filfld,
+     + filvel,filgib,filppd,filsco,filsvl,filhis,filhbo,filsfl,
+     + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,
+     + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
+     + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
+     + fdarg,fdlog,fsum
+c
+c     nwa_lfn : logical file numbers and filename lengths
+c     ---------------------------------------------------
+c
+      integer
+     + lfninp,lfnout,lfntop,lfnrst,lfncoo,lfnprp,lfnvel,lfngib,lfnsur,
+     + lfnrdf,lfnppd,lfnsco,lfnsvl,lfndip,lfndef,lfnemt,lfnfld,lfnsfl,
+     + lfnqrs,lfnqco,lfnqpr,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,
+     + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
+     + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
+     + lfntim,lfnsyn,lfnrdi,lfntst,
+     + ibl,iun,ldarg,ldlog,lfsum,lfout6
+      common/nwa_lfn/
+     + lfninp,lfnout,lfntop,lfnrst,lfncoo,lfnprp,lfnvel,lfngib,lfnsur,
+     + lfnrdf,lfnppd,lfnsco,lfnsvl,lfndip,lfndef,lfnemt,lfnfld,lfnsfl,
+     + lfnqrs,lfnqco,lfnqpr,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,
+     + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
+     + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
+     + lfntim,lfnsyn,lfnrdi,lfntst,
+     + ibl,iun,ldarg,ldlog,lfsum,lfout6
+c
+c     nwa_pnm : property descriptions
+c     -------------------------------
+c
+      character*50 ffield,pronam
+      character*4 fftnam
+      common/nwa_pnm/ffield,pronam(mpr),fftnam(2)
+c
+c     nwa_prl : property tags
+c     ----------------------- 
+c
+      integer lprtag(mpr),lprndx(mpr)
+      common/nwa_prl/lprtag,lprndx
+c
+c     nwa_inp : variables from rtdbin and rdinp
+c     -----------------------------------------
+c
+c     all variables in this block are initialized before the first
+c     broadcast in memor1 and not changed later
+c
+      real*8 ptol,tstep,elam,vertop,verrst,pmetol,
+     + ddacq,edacq,fdacq,weight,facapp,dgscl,dgref,ddgscl,ssshft,dx0sd,
+     + dxmsd,dxsdmx,dx0cg,dxmcg,dxcgmx,tlwsha,tlssha,rrdf,rdip,rkirk,
+     + prsext,prsrlx,compr,tmpext,tmprlx,tmsrlx,tgauss,factld,sil,
+     + hbdis1,hbdis2,hbang1,hbang2,verinp,delta,rlong,rshort,field,
+     + rcrest,dielec,forest,q14fac,releps,bshift,shift0,shift1,rsrest,
+     + rwrest,rsslab,rwslab,scffac,stime,drdf,ptimes,ptimet,os,o2s,ot,
+     + o2t,rlam,free,dfree,freerr,dfrerr,freew,freewr,dfrewr,dfreew,
+     + frdrft,pres,ekc,temps,xfield,xfvect,xffreq,rqmmm,rqmmm2,ealpha,
+     + prest,ekct,vlat,vlati,frgaus,rbox,disrlx,drsscl,tempw
+      integer nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,npxpct,
+     + npatom,ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mequi,
+     + mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,macfl,ixcl,iapprx,mrun,
+     + mropt,ldacq,mdopt,msplit,mintyp,nem,nfem,nemcrt,nfqrs,msdit,
+     + mcgit,ncgcy,mshitw,mshits,ifss,lwtype,lstype,
+     + nfoutp,nfstat,nfrest,nffree,nfcoor,nfscoo,nfanal,mfanal,
+     + nfprop,nfvelo,nfsvel,nfpold,nrwrec,nfindu,nfsind,keepr,iewald,
+     + nfcntr,nfslow,nfshkw,nfshks,nfrdf,nfdip,nfkirk,nkirk,mfsync,
+     + nfhbo,ngl,nfsync,ngr,ngc,ngrww,ngrsw,ngrss,ndip,numhis,numdis,
+     + lnghis,lngdis,nfacfa,nfauto,nfconv,issscl,ipscal,itscal,ivrsav,
+     + ivreas,ivropt,iseed,nprint,ibinar,icbw,icbs,irr,idipol,ireact,
+     + iwarn,irlow,idebug,iumbr,igmass,lowmcr,noone,nwarn,nform,nqs,
+     + ignore,mdo,mwork,mxpera,mtpera,madbox,iquant,mdalgo,ifield,
+     + iforw,nfgaus,npdist,nfpair,nflong,nffet,iformt,loadb,npbtyp,ndrs,
+     + nwm,nwa,nsf,nsa,nwr,nsr,nat,nwb,nwh,nwd,nwo,nwt,nwn,ifix,noshak,
+     + nsb,nsh,nsd,nso,nst,nsx,nsp,nsm,nwapol,nsapol,mss,msg,npww,npsw,
+     + npss,never,iint,nbperw,niperw,krun,kequi,kdacq,numrdf,itrack,
+     + mfoutp,mfstat,mfrest,mffree,mfcoor,mfscoo,mfprop,mfindu,mfrdf,
+     + mfvelo,mfsvel,mfcntr,mfslow,mfpold,mfumbr,lenhis,lendis,mfem,
+     + ncolls,ncollt,lambda,nwrr,nsrr,nscb,npxi,npyi,npzi,mfgaus,mfhbo,
+     + mfdip,mfkirk,nbxi,nbyi,nbzi,isetp1,isetp2,iunfix,ngx,ngy,ngz,
+     + ngmax,nfefld,nfsfld,memlim,iqmmm,morder,isolvo,imfft,mwmreq,
+     + msareq,nwcrst,itest,nodpme,lcomgr,nbxtyp,npmf,npmfi,lsffix,
+     + lbpair,npprev,ireset,ndistr,ndaver,idevel,itime(mtimes),nftime,
+     + mftime,nfdrss,itload,ihess,mmulti,nmulti,latom,nqt,icomm,maxpro,
+     + izii
+      common/nwa_inp/ptol,tstep,elam,
+     + ddacq,edacq,fdacq,weight,facapp,dgscl,dgref,ddgscl,ssshft,dx0sd,
+     + dxmsd,dxsdmx,dx0cg,dxmcg,dxcgmx,tlwsha,tlssha,rrdf,rdip,rkirk,
+     + prsext,prsrlx,compr,tmpext,tmprlx,tmsrlx,tgauss,factld,sil,
+     + hbdis1,hbdis2,hbang1,hbang2,verinp,delta,rlong,rshort,field,
+     + rcrest,dielec,forest,q14fac,releps,bshift,shift0(6),shift1(6),
+     + rsrest,rwrest,rsslab,rwslab,scffac,stime,drdf,vertop,verrst,
+     + ptimes,ptimet,os,o2s,ot,o2t,rlam,free,dfree,freerr,dfrerr,freew,
+     + freewr,dfrewr,dfreew,frdrft,pres,ekc,temps(3),xfield,xfvect(3),
+     + xffreq,rqmmm,rqmmm2,ealpha,pmetol,prest(3,3),ekct(3,3),vlat(3,3),
+     + vlati(3,3),frgaus,rbox,disrlx,drsscl,tempw,
+     + nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,npatom,npxpct,
+     + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mequi,mdacq,
+     + npgdrv,npgdec,iffdrv,isaltb,maxlam,macfl,ixcl,iapprx,mrun,mropt,
+     + ldacq,mdopt,msplit,mintyp,nem,nfem,nemcrt,nfqrs,msdit,mcgit,
+     + ncgcy,mshitw,mshits,ifss,lwtype,lstype,
+     + nfoutp,nfstat,nfrest,nffree,nfcoor,nfscoo,nfprop,nfanal,mfanal,
+     + nfvelo,nfsvel,nfpold,nrwrec,nfindu,nfsind,keepr,iewald,ifix,
+     + nfcntr,nfslow,nfshkw,nfshks,nfrdf,nfdip,nfkirk,nkirk,nfhbo,ngl,
+     + nfsync,ngr,ngc,ngrww,ngrsw,ngrss,ndip,numhis,numdis,lnghis,
+     + lngdis,nfacfa,nfauto,nfconv,issscl,ipscal,itscal,ivrsav,mfsync,
+     + ivreas,ivropt,iseed,nprint,ibinar,icbw,icbs,irr,idipol,ireact,
+     + iwarn,irlow,idebug,iumbr,igmass,lowmcr,noone,nwarn,nform,nqs,
+     + ignore,mdo,mwork,mxpera,mtpera,madbox,iquant,mdalgo,ifield,
+     + iforw,nfgaus,npdist,nfpair,nflong,nffet,iformt,loadb,npbtyp,ndrs,
+     + nwm,nwa,nsf,nsa,nwr,nsr,nat,nwb,nwh,nwd,nwo,nwt,nwn,noshak,
+     + nsb,nsh,nsd,nso,nst,nsx,nsp,nsm,nwapol,nsapol,mss,msg,npww,npsw,
+     + npss,never,iint,nbperw,niperw,krun,kequi,kdacq,numrdf,itrack,
+     + mfoutp,mfstat,mfrest,mffree,mfcoor,mfscoo,mfprop,mfindu,mfrdf,
+     + mfvelo,mfsvel,mfcntr,mfslow,mfpold,mfumbr,lenhis,lendis,mfem,
+     + ncolls,ncollt,lambda,nwrr,nsrr,nscb,npxi,npyi,npzi,mfgaus,mfhbo,
+     + mfdip,mfkirk,nbxi,nbyi,nbzi,isetp1,isetp2,iunfix,ngx,ngy,ngz,
+     + ngmax,nfefld,nfsfld,memlim,iqmmm,morder,imfft,isolvo,mwmreq,
+     + msareq,nwcrst,itest,nodpme,lcomgr,nbxtyp,npmf,npmfi,lsffix,
+     + lbpair,npprev,ireset,ndistr,ndaver,idevel,itime,nftime,mftime,
+     + nfdrss,itload,ihess,mmulti,nmulti,latom,nqt,icomm,maxpro,izii
+c
+c     nwa_dim : dimensions of dynamically assigned arrays
+c     ---------------------------------------------------
+c
+      integer izdr,memory,memloc,mavail,mempty,memchr,mbox,maxbox,
+     + mat,mwm,mwa,mwb,mwh,mwd,mwo,mwt,mwn,msa,msb,msh,msd,mso,msp,
+     + mwr,msr,mst,msx,mxx,mpn,mgc,mgl,mgr,maxw,maxhis,maxdis,mda,
+     + nprop,nprx,mxwork,lenwrk,mxpair,mgx,mgy,mgz,mqt,msm,msf,izdi
+      common/nwa_dim/izdr,memory,memloc,mavail,mempty,memchr,mbox,
+     + maxbox,mat,mwm,mwa,mwb,mwh,mwd,mwo,mwt,mwn,msa,msb,msh,msd,
+     + mso,msp,mwr,msr,mst,msx,mxx,mpn,mgc,mgl,mgr,maxw,maxhis,
+     + maxdis,mda,nprop,nprx,mxwork,lenwrk,mxpair,mgx,mgy,mgz,mqt,
+     + msm,msf,izdi
+c
+c     nwa_ptr : pointers to memory broadcasted from node 0
+c     ----------------------------------------------------
+c
+      integer izgr,igownr,igboxs,igboxr,iglbbl,ignan,igfndx,
+     + igipl,igjpl,igdlb,igbbl,igiwl,igisl,igrtmp,igitmp,igatnm,igwma,
+     + igvdw,igca6,igcb6,igca12,igcb12,igiass,igwwa,igwwai,igwwaf,igwsm,
+     + igwatm,igqwa,igpwa,igpwai,igidwa,igiwbs,igidwb,igjdwb,igcdwb,
+     + igddwb,iguwb,igidwh,igjdwh,igkdwh,igcdwh,igddwh,iguwh,igidwd,
+     + igjdwd,igkdwd,igldwd,igmdwd,igcdwd,igddwd,igedwd,iguwd,igidwo,
+     + igjdwo,igkdwo,igldwo,igcdwo,igddwo,iguwo,igidwt,igjdwt,igidwn,
+     + igjdwn,igxw,igyw,igvw,igvwt,igswt,igiw,igrtos,igpw,igpwp,
+     + igfw,igxwc,igywc,igvwc,igxwcr,igwwx,igwwp,igwwin,igiwhb,iglist,
+     + iguwms,iguwmw,igpcgw,iglgtw,igswqa,igswla,igswra,igssqa,igssla,
+     + igssra,igqsa,iglgts,igxs,igys,igvs,igfs,igxsm,igvst,igwsa,igwsai,
+     + igwsaf,igdgs,igdgst,igpsa,igps,igpsp,igpsai,igidsp,igswx,
+     + igswp,igswin,igssx,igssp,igssin,iglstx,iglsxx,igdsac,iglsgn,
+     + igxsgn,igishb,igsndx,igpcgs,igisbs,igidsb,igjdsb,igcdsb,igysm,
+     + igddsb,igusb,igdsbm,igusbm,igrdsb,igishs,igidsh,igjdsh,icanam,
+     + igkdsh,igcdsh,igddsh,igush,igdshm,igushm,igrdsh,igisds,icsnam,
+     + igidsd,igjdsd,igkdsd,igldsd,igmdsd,igcdsd,igddsd,igedsd,igusd,
+     + igdsdm,igusdm,igrdsd,igidnt,igldnt,igisos,igidso,igjdso,igxscr,
+     + igkdso,igldso,igmdso,igcdso,igddso,iguso,igdsom,igusom,igrdso,
+     + igidst,igjdst,igidsx,igjdsx,igsst,igsunr,igsrst,igidwr,igxwr,
+     + igidsr,igxsr,igp,igpsm,igp2s,igpis,igpt,igp2t,igpit,igrarr,
+     + igracf,igiagc,igjagc,igigrc,igngt,igngrc,igngrt,igrdf,igrcn,
+     + igahis,ignhis,igidis,igjdis,igrdis,igdhis,igddip,igdkrk,igvsm,
+     + igmap1,igmap2,iggrd1,iggrd2,igbarr,igbmod,igthet,igdthe,igkfr,
+     + igkto,igknod,iglnod,iggcnt,igpmf,iglpmf,igxpmf,igslab,igidrs,
+     + igddrs,igrdrs,igxdrs,ignodp,igjtmp,igktmp,ighw,ighs,igimul,
+     + igjmul,igrmul,igfmul,igchg,izgi
+      common/nwa_ptr/izgr,igownr,igboxs,igboxr,iglbbl,ignan,igfndx,
+     + igipl,igjpl,igdlb,igbbl,igiwl,igisl,igrtmp,igitmp,igatnm,igwma,
+     + igvdw,igca6,igcb6,igca12,igcb12,igiass,igwwa,igwwai,igwwaf,igwsm,
+     + igwatm,igqwa,igpwa,igpwai,igidwa,igiwbs,igidwb,igjdwb,igcdwb,
+     + igddwb,iguwb,igidwh,igjdwh,igkdwh,igcdwh,igddwh,iguwh,igidwd,
+     + igjdwd,igkdwd,igldwd,igmdwd,igcdwd,igddwd,igedwd,iguwd,igidwo,
+     + igjdwo,igkdwo,igldwo,igcdwo,igddwo,iguwo,igidwt,igjdwt,igidwn,
+     + igjdwn,igxw,igyw,igvw,igvwt,igswt,igiw,igrtos,igpw,igpwp,
+     + igfw,igxwc,igywc,igvwc,igxwcr,igwwx,igwwp,igwwin,igiwhb,iglist,
+     + iguwms,iguwmw,igpcgw,iglgtw,igswqa,igswla,igswra,igssqa,igssla,
+     + igssra,igqsa,iglgts,igxs,igys,igvs,igfs,igxsm,igvst,igwsa,igwsai,
+     + igwsaf,igdgs,igdgst,igpsa,igps,igpsp,igpsai,igidsp,igswx,
+     + igswp,igswin,igssx,igssp,igssin,iglstx,iglsxx,igdsac,iglsgn,
+     + igxsgn,igishb,igsndx,igpcgs,igisbs,igidsb,igjdsb,igcdsb,igddsb,
+     + igusb,igdsbm,igusbm,igrdsb,igishs,igidsh,igjdsh,igkdsh,igcdsh,
+     + igddsh,igush,igdshm,igushm,igrdsh,igisds,igysm,icanam,icsnam,
+     + igidsd,igjdsd,igkdsd,igldsd,igmdsd,igcdsd,igddsd,igedsd,igusd,
+     + igdsdm,igusdm,igrdsd,igidnt,igldnt,igisos,igidso,igjdso,igxscr,
+     + igkdso,igldso,igmdso,igcdso,igddso,iguso,igdsom,igusom,igrdso,
+     + igidst,igjdst,igidsx,igjdsx,igsst,igsunr,igsrst,igidwr,igxwr,
+     + igidsr,igxsr,igp,igpsm,igp2s,igpis,igpt,igp2t,igpit,igrarr,
+     + igracf,igiagc,igjagc,igigrc,igngt,igngrc,igngrt,igrdf,igrcn,
+     + igahis,ignhis,igidis,igjdis,igrdis,igdhis,igddip,igdkrk,igvsm,
+     + igmap1,igmap2,iggrd1,iggrd2,igbarr,igbmod,igthet,igdthe,igkfr,
+     + igkto,igknod,iglnod,iggcnt,igpmf,iglpmf,igxpmf,igslab,igidrs,
+     + igddrs,igrdrs,igxdrs,ignodp,igjtmp,igktmp,ighw,ighs,igimul,
+     + igjmul,igrmul,igfmul,igchg,izgi
+c
+c     nwa_lpt : pointers to memory assigned by each node
+c     --------------------------------------------------
+c
+      integer igfacu,igrwx,igrwc,igrw,igrwi1,igrwi2,igrwi6,igf,
+     + igh,igxi,igxj,igfi,igfj,igpi,igpj,igisal,igjsal,igisrx,igu,
+     + igjmal,igjfal,igpair,igwndx,igwork
+      common/nwa_lpt/igfacu,igrwx,igrwc,igrw,igrwi1,igrwi2,igrwi6,igf,
+     + igh,igxi,igxj,igfi,igfj,igpi,igpj,igisal,igjsal,igisrx,igu,
+     + igjmal,igjfal,igpair,igwndx,igwork
+c
+c     nwa_buf : pointers and dimensions for the buffer arrays
+c     -------------------------------------------------------
+c
+      integer igbuff,igbuf2,mibuf,mwbuf,msbuf,msbuf2
+      common/nwa_buf/igbuff,igbuf2,mibuf,mwbuf,msbuf,msbuf2
+c
+c     nwa_gap : global array pointers
+c     -------------------------------
+c
+      integer gl_xw,gh_xw,gl_xwm,gh_xwm,gl_fw,gh_fw,gl_vw,gh_vw,
+     + gl_xwcr,gh_xwcr,gl_pw,gm_pw,gh_pw,gl_pwp,gl_gw,gh_gw,gl_gs,gh_gs,
+     + gm_pwp,gh_pwp,gl_xs,gh_xs,gl_vs,gh_vs,gl_xscr,gh_xscr,gl_qsa,
+     + gh_qsa,gl_psa,gh_psa,gl_fs,gh_fs,gl_ps,gm_ps,gh_ps,
+     + gl_psp,gm_psp,gh_psp
+      common/nwa_gap/gl_xw,gh_xw,gl_xwm,gh_xwm,gl_fw,gh_fw,gl_vw,gh_vw,
+     + gl_xwcr,gh_xwcr,gl_pw,gm_pw,gh_pw,gl_pwp,gl_gw,gh_gw,gl_gs,gh_gs,
+     + gm_pwp,gh_pwp,gl_xs,gh_xs,gl_vs,gh_vs,gl_xscr,gh_xscr,gl_qsa,
+     + gh_qsa,gl_psa,gh_psa,gl_fs,gh_fs,gl_ps,gm_ps,gh_ps,
+     + gl_psp,gm_psp,gh_psp
+c
+c     nwa_par : parameters determined in setup phase
+c     ----------------------------------------------
+c
+      real*8 tstepi,approx,rshrt2,rlong2,
+     + qfac,facpsc,factmp,third,pi,twopi,rcrst2,qfaci,fcctmp,fcstmp,
+     + fcwtmp,rndfw,rndfs,rlngmx,rshtmx,bxminx,bxminy,bxminz,rnmoli,
+     + rnwm,rnwmi,wwm,wwmf,wbm
+      integer icptr,igptr,nwc,nsc,nmol,ndegfr,npmfc
+      logical lpbc0,lpbc
+      common/nwa_par/tstepi,rshrt2,rlong2,approx(15),
+     + qfac,facpsc,factmp,third,pi,twopi,rcrst2,qfaci,fcctmp,fcstmp,
+     + fcwtmp,rndfw,rndfs,rlngmx,rshtmx,bxminx,bxminy,bxminz,rnmoli,
+     + rnwm,rnwmi,wwm,wwmf,wbm,
+     + icptr,igptr,nwc,nsc,nmol,ndegfr,npmfc,lpbc0,lpbc
+c
+c     nwa_prp : general simulation related variables
+c     ----------------------------------------------
+c
+      real*8 box,boxh,prsscl,tmpscl,tmsscl,urlow,
+     + temp,esddif,ecgdif,edif,espi,espt,tnewtn,zw,zwt,z,zt,xbc,
+     + rffww,rffsw,rffss,ewwr,ewwa,probab,boltzm,utemps,ewb,ewh,ewd,ewo,
+     + ewl,ewq,ewa,ewwl,ewwq,elong,ekscw,ekscs,eksc,ewdc,eckt,eckr,
+     + eckts,eckrs,ewk,ewt,tek,tekv,ttemp,rek,rekv,rtemp,ewp,eq,el,ep,
+     + ek,et,dnsity,volume,ddyn,dscl,dwr,rdfvol,dipmom,displc,fnorm,
+     + eumbr,gumbr,difcow,volavg,tmpavg,fr1avg,fr2avg,dipavg,diwavg,
+     + bolavg,epsilo,ewkc,warg,eqmmm,dqmmm,epme,enestr,recip,vpme,vpmeb,
+     + epmec,epmecw,epmecs,fmax,edrs
+      integer mdstep,idacq,ndacq,nrdacq,iequi,nequi,nrequi,irun,nrrun,
+     + ifstep,ifrun,nlout,ipairi,itravi,lpww,lpsw,lpss,mwwl,mswl,mssl,
+     + niterw,niters,nbbl,mbbl,nwwl,nwwls,nswl,nswls,nssl,nssls,ntravl,
+     + neighb,nbbdif,nwmloc,nsaloc,nswi1,nswi2,nwwlen,nswlen,nsslen,
+     + mwroom,msroom,lupdat,itprop,nbbloc
+      common/nwa_prp/box(3),boxh(3),prsscl,tmpscl,tmsscl,urlow,zt(3,3),
+     + temp,esddif,ecgdif,edif,espi,espt,tnewtn,zw(3,2),zwt,z,
+     + xbc(3),rffww,rffsw,rffss,ewwr(2),ewwa(2),probab,boltzm,utemps,
+     + ewb,ewh,ewd,ewo,ewl,ewq,ewa,ewwl(2),ewwq(2),elong(3),ekscw,ekscs,
+     + eksc,ewdc(6),eckt,eckr,eckts,eckrs,ewk,ewt,tek,tekv,ttemp,rek,
+     + rekv,rtemp,ewp,eq,el,ep,ek,et,dnsity,volume,ddyn,dscl,dwr,
+     + rdfvol,dipmom,displc,fnorm,eumbr,gumbr,difcow,volavg,tmpavg,
+     + fr1avg,fr2avg,dipavg,diwavg,bolavg,epsilo,ewkc,warg,eqmmm,dqmmm,
+     + epme,enestr,recip(3,3),vpme(6),vpmeb(6),epmec,epmecw,epmecs,fmax,
+     + edrs,
+     + mdstep,idacq,ndacq,nrdacq,iequi,nequi,nrequi,irun,nrrun,
+     + ifstep,ifrun,nlout,ipairi,itravi,lpww,lpsw,lpss,mwwl,mswl,mssl,
+     + niterw,niters,nbbl,mbbl,nwwl,nwwls,nswl,nswls,nssl,nssls,ntravl,
+     + neighb(27,2),nbbdif,nwmloc,nsaloc,nswi1,nswi2,nwwlen(2),
+     + nswlen(2),nsslen(2),mwroom,msroom,lupdat,itprop,nbbloc
+c
+c     nwa_msm : property arrays for solute fractions
+c     ----------------------------------------------
+c
+c      real*8 esb,esh,esd,eso,esl,esq,esa,eswl,eswq,eswa,esk,esp,est,esx,
+c     + dsr,eskc,espol,difcos,psind,psprm,zst,pstot,eswr,esdc,wsmi,wsmf,
+c     + essr,essl,essq,essa,zs,cdac,traag,gmi,gmi1,wsf,eselfs
+c      integer idscb,igends
+c      common/nwa_cmsm/esb(msf),esh(msf),esd(msf),eso(msf),esl(msf),
+c     + esq(msf),esa(msf),eswl(msf,2),eswq(msf,2),eswa(msf,2),esk(msf),
+c     + esp(msf),est(msf),esx(msf),eskc(msf),espol(msf),difcos(msf),
+c     + psind(msf),psprm(msf),zst(msf),pstot(msf),eswr(msf,2),
+c     + esdc(msf,6),dsr(msf),wsmi(msf),wsmf(msf),essr(msf,msf,2),
+c     + essl(msf,msf,2),essq(msf,msf,2),essa(msf,msf,2),zs(msf,3,2),
+c     + cdac(15),traag(msf),gmi(msf),gmi1(msf),wsf(msf),eselfs(msf),
+c     + idscb(msf),igends
+c
+c     nwa_gib : free energy related variables
+c     ---------------------------------------
+c
+      real*8 deriv,derivs,frds,
+     + dfrees,dfrfac,drfrew,dffrew,sfree,sfreer,sfreew,sfrewr,fprobs,
+     + glam,gdrift,acfalp,rlam1,rlam2,dlam,dp1sum,dp12sm,dp2sum,dp22sm,
+     + frep1s,frep2s,freep1,freep2,ep1,ep2,umpert
+      integer ipert1,ipert2,ithint,ip1,ip2,ith
+      common/nwa_gib/deriv(24,4),derivs(24),frds(24),
+     + dfrees,dfrfac,drfrew,dffrew,sfree,sfreer,sfreew,sfrewr,fprobs,
+     + glam,gdrift,acfalp,rlam1,rlam2,dlam,dp1sum,dp12sm,dp2sum,dp22sm,
+     + frep1s,frep2s,freep1,freep2,ep1(4),ep2(4),umpert(3),
+     + ipert1,ipert2,ithint,ip1(18),ip2(18),ith(24)
+c
+c     nwa_emi : energy minimization related variables
+c     -----------------------------------------------
+c
+      integer isdit,icgit,iem,nemit
+      common/nwa_emi/isdit,icgit,iem,nemit
+c
+c     nwa_qmd : quantum MD simulation and QMMM related variables
+c     ----------------------------------------------------------
+c
+      real*8 uqmmol ! total qm energy
+      real*8 uqmatm ! sum of atomic energies of separated atoms 
+      logical oqmmm ! is this qmmm ? T/F
+      logical osepatset ! did user define a separated atom energy ? T/F
+      common/nwa_qmd/uqmmol,uqmatm
+      common/nwa_qmmm_l/oqmmm,osepatset
+c
+c     nwa_pol : polarization related variables
+c     ----------------------------------------
+c
+      real*8 poldmx
+      integer npolit
+      common/nwa_pol/poldmx,npolit
+c
+c     nwa_fft : Fourier transform related variables
+c     ---------------------------------------------
+c
+      integer lfftok,icntxt
+      common/nwa_fft/lfftok,icntxt
+c
+c     nwa_pme : particle mesh ewald related variables
+c     -----------------------------------------------
+c
+      real*8 eself,eselfw
+      integer lpmewr,lpmewi,ngzloc,lslab,maxxx,minxx,maxyy,minyy,ipnode
+      common/nwa_pme/eself,eselfw,
+     + lpmewr,lpmewi,ngzloc,lslab(216),maxxx,minxx,maxyy,minyy,ipnode
+c
+c     nwa_new : variables related to new functionalities
+c     --------------------------------------------------
+c
+      real*8 pwtot,gfactr,gfact2,umbene,upssum
+      integer nsu,nsbu,nshu,nsdu,nsou,movo,irest,nsarst,nsaunr,isrest,
+     + iwrest,ipopt,nor,ifrrst,irstt,nogaus,nfem0,ichirl,iropt,ibound,
+     + nacfl,kapprx,klarge,mxdacq,iuser1,iuser2,idock,
+     + lscndx,notime,mfsind,iabort
+      common/nwa_new/pwtot,gfactr,gfact2,umbene(3),upssum(3),nsu(4),
+     + nsbu(8),nshu(4),nsdu(4),nsou(4),
+     + movo,irest,nsarst,nsaunr,isrest,iwrest,ipopt,nor,ifrrst,
+     + irstt,nogaus,nfem0,ichirl,iropt,ibound,nacfl,kapprx(15),
+     + klarge,mxdacq,iuser1(80),iuser2(80),idock,lscndx(0:7),notime,
+     + mfsind,iabort
+c
+c     nwa_ldb : load balancing related variables
+c     --------------------------------------------------
+c
+      real*8 tsyncp,tldpme,tlspme,tlsfor,tldfor
+      integer nldup,ntload
+      common/nwa_ldb/tsyncp,tldpme,tlspme,tlsfor,tldfor,nldup,ntload
+c
+c     nwa_dia : timing and diagnostics related variables
+c     --------------------------------------------------
+c
+      real*8 timstr,cpustr,timtsk,cputsk,dtstep,ccall,tcall
+      integer ncall,lgtsrt,kcall
+      common/nwa_dia/timstr,cpustr,timtsk,cputsk,dtstep,ccall(mtimes),
+     + tcall(mtimes),ncall(mtimes),lgtsrt(2),kcall(mtimes)
