@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.58 2001-08-15 21:55:57 d3j191 Exp $
+c $Id: sp_main.F,v 1.59 2001-11-02 16:04:11 d3j191 Exp $
 c
       implicit none
 c
@@ -1178,6 +1178,16 @@ c
       if(nwmloc.gt.0) then
       do 21 iwm=1,nwmloc
       if(iwl(iwm,lwnod).eq.me) nwstay=iwm
+c
+c     testcode
+c
+      if(idebug.eq.35) then
+      if(iwl(iwm,lwnod).ne.me) write(lfndbg,'(a,3i5)')
+     +  'Travel w fnd ',me,iwl(iwm,lwnod),iwl(iwm,lwgmn)
+      endif
+c
+c     end test code
+c
    21 continue
       endif
 c
@@ -1306,6 +1316,16 @@ c
       if(iwl(iwm,lwnod).eq.jnode) then
       if(iwfr.eq.0) iwfr=iwm
       iwto=iwm
+c
+c     testcode
+c
+      if(idebug.eq.35) then
+      if(iwl(iwm,lwnod).ne.me) write(lfndbg,'(a,3i5)')
+     +  'Travel w snd ',me,iwl(iwm,lwnod),iwl(iwm,lwgmn)
+      endif
+c
+c     end test code
+c
       endif
    71 continue
 c
@@ -1437,6 +1457,16 @@ c
       call ga_get(ga_w,il,ih,jlw+6*mwa+3,jlw+9*mwa+2,
      + gw(nwstay+1,1,1),mwm)
       endif
+c
+c     testcode
+c
+      if(idebug.eq.35) then
+      write(lfndbg,'(a,3i5)')
+     +  ('Travel w rcv ',me,jnode,iwl(nwstay+k,lwgmn),k=1,nwnew)
+      endif
+c
+c     end test code
+c
 c
 c     update number of local solvent molecules
 c
