@@ -1,0 +1,119 @@
+      logical function task_energy(rtdb)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+      integer rtdb
+c
+c     Generic NWChem interface to compute the energy.  Currently
+c     only the QM components are supported.
+c
+c     RTDB input parameters
+c     ---------------------
+c     task:theory (string) - name of (QM) level of theory to use
+c     
+c     RTDB output parameters
+c     ----------------------
+c     task:energy (real)   - total energy
+c     task:status (logical)- T/F for success/failure
+c     task:cputime (real)  - cpu time to execute the task
+c     task:walltime (real) - wall time to execute the task
+c
+c     Also returns status through the function value
+c
+      logical  scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
+      external scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
+c
+      logical status
+      double precision energy, cpu, wall
+      character*80 theory, key, prefix
+c
+      task_energy = .false.
+c
+      cpu  = util_cpusec()
+      wall = util_wallsec()
+c
+c     Right now only have a QM component
+c
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('task:energy: theory not specified',0)
+c
+c     Set output parameters as if failed
+c
+      status = rtdb_delete(rtdb, 'task:energy')
+      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
+     $     call errquit('task_energy: failed to invalidate status',0)
+c
+c     Actually do the deed
+c
+      prefix = theory           ! Most common scenario
+      if (theory .eq. 'scf') then
+         status = scf(rtdb)
+      else if (theory .eq. 'dft') then
+         status = nwdft(rtdb)
+      else if (theory .eq. 'rimp2') then
+         status = rimp2(rtdb)
+      else if (theory .eq. 'oimp2') then
+         status = oimp2(rtdb)
+      else if (theory .eq. 'direct_mp2') then
+         prefix = 'mp2'
+         status = direct_mp2(rtdb)
+      else if (theory .eq. 'ccsd') then
+         status = ccsd(rtdb)
+      else if (theory .eq. 'mcscf') then
+         status = mcscf(rtdb)
+      else if (theory .eq. 'selci') then
+         status = selci(rtdb)
+      else
+         call errquit('task_energy: unknown theory',0)
+      endif
+c
+      cpu  = util_cpusec() - cpu
+      wall = util_wallsec() - wall
+c
+      if (status) then
+         key = ' '
+         write(key,'(a,'':energy'')') prefix(1:inp_strlen(prefix))
+         if (.not. rtdb_get(rtdb, key, mt_dbl, 1, energy))
+     $        call errquit('task_energy: no energy in rtdb?',0)
+         if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
+     $        call errquit('task_energy: failed storing energy',0)
+         if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
+     $        call errquit('task_energy: failed storing cputime',0)
+         if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
+     $        call errquit('task_energy: failed storing walltime',0)
+         if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .true.))
+     $        call errquit('task_energy: failed to set status',0)
+      endif
+c
+      task_energy = status
+c
+      end
+      subroutine rtdb_clean(rtdb, prefix)
+      implicit none
+#include "rtdb.fh"
+#include "inp.fh"
+      integer rtdb
+      character*(*) prefix
+c     
+c     Delete all entries in the database beginning with prefix
+c
+      integer lp
+      logical status
+      character*255 name
+c
+      lp = inp_strlen(prefix)
+c
+      status = rtdb_first(rtdb, name)
+ 10   if (status) then
+         if (inp_compare(.true.,prefix(1:lp),name(1:lp))) then
+            if (.not. rtdb_delete(rtdb,name)) call errquit
+     $           ('rtdb_clean: failed deleting existing entry',0)
+         endif
+         status = rtdb_next(rtdb, name)
+         goto 10
+      endif
+c     
+      end
+
