@@ -1,5 +1,5 @@
       subroutine int_terminate()
-c $Id: int_term.F,v 1.4 1996-08-21 19:53:08 d3g681 Exp $
+c $Id: int_term.F,v 1.5 1996-10-01 18:46:04 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 #include "candoP.fh"
@@ -20,6 +20,10 @@ c
       endif
       if (.not.spcart_terminate()) then
         call errquit('int_terminate: spcart_terminate failed',0)
+      endif
+      if (any_ecp) then
+        call int_ecp_terminate()
+        ecp_bsh = 0
       endif
       end
       subroutine sp_terminate()

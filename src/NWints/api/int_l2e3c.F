@@ -1,7 +1,7 @@
       subroutine int_l2e3c(brain, ish, ketin, jsh, ksh,
      &       zerotol, canket, leri, eri, nint, ilab, jlab, klab,
      &       lscr, scr)
-c $Id: int_l2e3c.F,v 1.9 1996-07-18 23:58:13 d3e129 Exp $
+c $Id: int_l2e3c.F,v 1.10 1996-10-01 18:46:03 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -60,7 +60,7 @@ c
       ket = ketin + BASIS_HANDLE_OFFSET
 c
 c
-c compute eri's (instead of copy) in front of scr()
+c compute eri (instead of copy) in front of scr()
 c
       numint = int_nint_cart(brain,ish,ketin,jsh,ketin,ksh,0,0)
       newlscr = lscr - numint

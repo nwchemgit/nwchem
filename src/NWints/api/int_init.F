@@ -1,5 +1,5 @@
       subroutine int_init(rtdb, nbas, bases)
-c $Id: int_init.F,v 1.26 1996-07-18 23:57:54 d3e129 Exp $
+c $Id: int_init.F,v 1.27 1996-10-01 18:46:02 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -14,6 +14,8 @@ c
 c::functions
       logical spcart_init
       external spcart_init
+      logical int_ecp_init
+      external int_ecp_init
 c::passed
       integer rtdb        ! run time data base handle
       integer nbas        ! number of basis sets to be used
@@ -48,6 +50,7 @@ c
         write(6,*)' int_init already called '
         call util_flush(6)
       endif
+     
 c
 c initialize type-> nbf maps
 c
@@ -152,6 +155,24 @@ c
 * no txs u=t d=f -> t.and.!f -> t -> e = f
       if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
         call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min)
+      endif
+c
+c See if any basis has an attached ECP
+c
+      any_ecp = .false.
+      ecp_bsh = 0
+      do ibas = 1,nbas
+        if (bas_get_ecp_handle(bases(ibas),ecp_bsh)) then
+          any_ecp = .true.
+          goto 00001
+        endif
+      enddo
+00001 continue
+      if (any_ecp) then
+        if (.not.ecp_check_handle(ecp_bsh,'int_init')) call errquit
+     &        ('int_init: ecp handle is invalid fatal error',911)
+        if (.not.int_ecp_init(ecp_bsh)) call errquit
+     &        ('int_init: int_ecp_init failed ',911)
       endif
       init_int = 1
       end

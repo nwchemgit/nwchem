@@ -1,7 +1,7 @@
       subroutine int_l2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       zerotol, canonicalize, leri, eri, nint, ilab, jlab, klab,
      &       llab, lscr, scr)
-c $Id: int_l2e4c.F,v 1.16 1996-09-19 01:03:51 d3g681 Exp $
+c $Id: int_l2e4c.F,v 1.17 1996-10-01 18:46:03 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -165,7 +165,7 @@ c
       else
         
 c
-c compute eri's (instead of copy) in front of scr()
+c compute eri (instead of copy) in front of scr()
 c
 c
 c  check if spherical

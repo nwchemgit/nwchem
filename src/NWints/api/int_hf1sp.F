@@ -3,13 +3,15 @@
      &       xyzj,expj,coefj, j_nprim, j_ngen, Lj,
      &       xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &       dryrun,scr,lscr,msg)
-c $Id: int_hf1sp.F,v 1.6 1996-01-23 21:56:53 d3e129 Exp $
+c $Id: int_hf1sp.F,v 1.7 1996-10-01 18:46:02 d3e129 Exp $
       implicit none
+#include "apiP.fh"
 #include "stdio.fh"
+#include "int_nbf.fh"
 c::passed
       integer i_nprim, i_ngen, Li
       integer j_nprim, j_ngen, Lj
-      integer nat,lscr,lstv
+      integer nat, lscr, lstv, nintV
       double precision xyzi(3),expi(i_nprim),coefi(i_nprim,i_ngen)
       double precision xyzj(3),expj(j_nprim),coefj(j_nprim,j_ngen)
       double precision xyz(3,nat),zan(nat),scr(lscr)
@@ -28,7 +30,6 @@ c
      &         xyzj,expj,coefj,j_nprim,j_ngen,Lj,
      &         xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &         dryrun,scr,lscr)
-        return
 c
       elseif (Li.eq.-1.and.Lj.eq.-1) then
 c.............................................................. (SP|SP)
@@ -96,7 +97,6 @@ c________________________________ (P|P)
 *debug_print:          write(6,*)'sp|sp new way potential'
 *debug_print:          write(6,'(1x,i5,f20.10)')(iii,V(iii),iii=1,16)
 *debug_print:        endif
-        return
       elseif (Li.eq.-1) then
 c.............................................................. (SP|X)
 c________________________________ (S|X)
@@ -118,7 +118,6 @@ c________________________________ (P|X)
      &         (lstv-offset)
      &         ,doS,doT,doV,canAB,
      &         dryrun,scr,lscr)
-        return
       elseif (Lj.eq.-1) then
 c.............................................................. (X|SP)
 c________________________________ (X|S)
@@ -182,10 +181,23 @@ c * (s|s), (s|x), (s|y), (s|z)
 *debug_print:          write(6,*)'sp|sp new way potential'
 *debug_print:          write(6,'(1x,i5,f20.10)')(iii,V(iii),iii=1,16)
 *debug_print:        endif
-        return
+      else
+        write(luout,*)'int_hf1sp called by ',msg
+        call errquit('int_hf1sp: unknown case finished',911)
       endif
-      write(luout,*)'int_hf1sp called by ',msg
-      call errquit('int_hf1sp: unknown case finished',911)
+c
+      if (any_ecp.and.doV) then
+        nintV = int_nbf_x(Li)*int_nbf_x(Lj)
+        offset = nintV + 1
+*       write(6,*)' lscr to ecp_hf1:',(lscr-nintV)
+        call int_ecp_hf1(
+     &      xyzi,expi,coefi,i_nprim,i_ngen,Li,
+     &      xyzj,expj,coefj,j_nprim,j_ngen,Lj,
+     &      scr,nintV,scr(offset),(lscr-nintV),
+     &      dryrun)
+*... sum ecp into V block
+        call daxpy(nintV, 1.0d00, scr,1,V,1)
+      endif
 c
       end
       subroutine int_1psp(block,num_blocks)

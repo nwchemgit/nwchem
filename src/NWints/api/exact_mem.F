@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.22 1996-07-18 23:57:27 d3e129 Exp $
+c $Id: exact_mem.F,v 1.23 1996-10-01 18:46:01 d3e129 Exp $
 c
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -60,6 +60,8 @@ c.... 1e
           isz_1e = max(isz_1e, lsz_1e)
 00200   continue
 00100 continue
+c
+      mem_1e = 2*mem_1e
 c     
 c.. need extra memory for H1 call externalized by int_mem_h1
 c
