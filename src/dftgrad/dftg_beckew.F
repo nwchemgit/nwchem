@@ -2,7 +2,7 @@
      &                       zeta, dzeta, d_p, ictr, bcenters, nq,
      &                       iandex)
 c
-C     $Id: dftg_beckew.F,v 1.7 1999-02-14 04:45:19 d3g681 Exp $
+C     $Id: dftg_beckew.F,v 1.8 1999-11-16 03:26:54 edo Exp $
 c
       implicit none
 c
@@ -241,17 +241,23 @@ c
       do B = 1, bcenters
          if (B.ne.ictr_reduc)then
             do n = 1, nq
+         if(p(n,ictr_reduc).gt.1d-16) then
                d_qwght(1,n,B)= (d_p(1,n,B) -
      &           dzeta(1,n,B)*p(n,ictr_reduc)/zeta(n))*qwght(n)/zeta(n)
                d_qwght(2,n,B)= (d_p(2,n,B) -
      &           dzeta(2,n,B)*p(n,ictr_reduc)/zeta(n))*qwght(n)/zeta(n)
                d_qwght(3,n,B)= (d_p(3,n,B) -
      &           dzeta(3,n,B)*p(n,ictr_reduc)/zeta(n))*qwght(n)/zeta(n)
+         endif
             enddo
          endif
       enddo
       do n = 1, nq
-         qwght(n) = (p(n,ictr_reduc)*qwght(n))/zeta(n)
+         if(p(n,ictr_reduc).gt.1d-16) then
+            qwght(n) = (p(n,ictr_reduc)*qwght(n))/zeta(n)
+         else
+            qwght(n)=0d0
+         endif
       enddo
       return
       end
