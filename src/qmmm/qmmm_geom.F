@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.30 2004-10-27 21:48:16 marat Exp $
+c $Id: qmmm_geom.F,v 1.31 2004-11-05 20:21:24 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -30,6 +30,7 @@ c     local variables
       external qmmm_geom_heavy_neighbor
       integer tmp(2)
       integer nb
+      integer k
 
       nqm   = qmmm_get_nqm()
       nlink = qmmm_get_nlink()
@@ -64,6 +65,18 @@ c     --------------------------
      >                      dbl_mb(i_c),
      >                      dbl_mb(i_m))
 
+      end if
+
+      if(qmmm_print_debug()) then
+        call util_print_centered(6,"QM system information",
+     >              36, .true.)
+        write(*,'(/,A,T20,A,T30,A,/)') "global index",
+     >                                 "name","coordinates(au)"
+        do i=1,nqm
+         write(*,'(I5,T20,A,T30,3F12.6)') int_mb(i_ind+i-1),
+     >              byte_mb(i_t+16*(i-1)),
+     >              (dbl_mb(i_c+3*(i-1)+k-1),k=1,3)
+        end do
       end if
 
       if(.not.geom_create(igeom,'geometry'))
