@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.60 2000-05-23 21:59:10 d3g681 Exp $
+c $Id: int_init.F,v 1.61 2000-05-27 19:34:11 mg201 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -23,6 +23,7 @@ c:tex-\end{verbatim}
 #include "int_nbf.fh"
 #include "util.fh"
 #include "rel_nwc.fh"
+#include "stdio.fh"
 c
 c This routine is a wrapper around the original int_init which is now
 c called int_init_org. The reason for this extension is related to the
@@ -59,9 +60,9 @@ c
       end if
       if (ouseracc .and. ga_nodeid().eq.0 .and. 
      $     util_print('information',print_default)) then
-         write(6,606) val_int_acc_std, val_int_acc_high
+         write(LuOut,606) val_int_acc_std, val_int_acc_high
  606     format(/'int_init: setting std/high accuracies to',1p,2d9.1)
-         call util_flush(6)
+         call util_flush(LuOut)
       end if
 c
 c   Dyall-modified Dirac equation
