@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.62 1997-04-09 00:03:12 d3e129 Exp $
+c $Id: basis.F,v 1.63 1997-04-10 23:07:20 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -779,12 +779,12 @@ c::-local
       bas_summary_print = .true.
 *
 10000 format(' Summary of "',a,'" -> "',a,'"',a/
-     $    ' -------------------------------------------------',
+     $    ' ---------------------------------------------',
      &    '---------------------------------'/
      $    '       Tag                 Description            ',
-     &    'Shells    Functions and Types'/
+     &    'Shells   Functions and Types'/
      $    ' ---------------- ------------------------------  ',
-     &    '------  -------------------------')
+     &    '------  ---------------------')
 10001 format(1x,a16,1x,a30,2x,i4,5x,i4,3x,a)
 *
       end
