@@ -97,6 +97,15 @@
 
        end
 
+       subroutine mm_get_psg(psg)
+         implicit none
+#include "md_common.fh"
+         integer psg
+         
+         psg = i_is+(lsgrp-1)*msa
+
+       end
+
        subroutine mm_get_psat(psat)
          implicit none
 #include "md_common.fh"
@@ -336,3 +345,22 @@ c        local variables
          mm_solute_charge= cf_charge(int_mb(i_is+(lsct1-1)*msa+i-1))
          
        end
+
+       subroutine mm_print_psl_psz()
+         implicit none
+#include "md_common.fh"
+#include "mafdecls.fh"
+         integer ns,psz,psl
+         integer i
+         
+         call  mm_get_psz(psz)
+         call  mm_get_psl(psl)
+         call mm_get_nsaloc(ns)
+         
+         do i=1,ns
+c           write(*,*) int_mb(psl+i-1),
+c     >                int_mb(psz+i-1)
+         end do
+
+       end
+
