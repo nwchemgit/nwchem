@@ -424,8 +424,8 @@ sub-block.
                                and Erzherhoff GGA functional.
         \item Nose-Hoover: - optional subblock which if specified
                          causes the simulation to perform Nose-Hoover dynamics.
-                         If this subblock is not specified causes the 
-                         simulation to perform constant energy dyanmics.
+                         If this subblock is not specified the 
+                         simulation performs constant energy dyanmics.
                          See section \ref{sec:pspw_nose} for a description of the parameters.
                          \begin{itemize}
                              \item $<$Period\_electron$>$ $\equiv$ $P_{electron}$ 
@@ -566,8 +566,8 @@ sub-block.
 		to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
 	\item $<$wavefunction\_name$>$ - name that will point
               to a wavefunction file.
-	\item (RESTRICTED$||$UNRESTRICTED) - keyword specifying the whether
-              the calculation is restricted or unrestricted.
+	\item RESTRICTED - keyword specifying that the calculation is restricted.
+        \item UNRESTRICTED - keyword specifying that the calculation is unrestricted.
 	\item $<$up\_filling$>$ - number of restricted molecular orbitals if
               RESTRICTED and number of spin-up molecular orbitals if 
               UNRESTRICTED.
@@ -618,8 +618,8 @@ sub-block.
 		to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
 	\item $<$wavefunction\_name$>$ - name that will point
               to a velocity wavefunction file.
-	\item (RESTRICTED$||$UNRESTRICTED) - keyword specifying the whether
-              the calculation is restricted or unrestricted.
+	\item RESTRICTED - keyword specifying that the calculation is restricted.
+	\item UNRESTRICTED - keyword specifying that the calculation is unrestricted.
 	\item $<$up\_filling$>$ - number of restricted velocity molecular 
 	      orbitals if RESTRICTED and number of spin-up velocity molecular 
               orbitals if UNRESTRICTED.
@@ -721,6 +721,7 @@ PSPW
    end
 ... 
 END
+\end{verbatim}
 The following list describes the input for the PSP\_GENERATOR
 sub-block.
 \begin{itemize}
@@ -736,11 +737,6 @@ sub-block.
 \end{itemize}
 
 
-
-\end{verbatim}
-
-
-
 \section{PSPW RTDB Entries and DataFiles}
 \label{sec:pspw_data}
 Input to the PSPW module is contained in both the RTDB and datafiles.
@@ -753,13 +749,11 @@ run a program to generate.
 
 \subsection{Ion Positions}
 The positions of the ions are stored in the default geometry structure
-in the RTDB and must be specified in cartesian 
-coordinates using the GEOMETRY directive.
+in the RTDB and must be specified  using the GEOMETRY directive.
 
 \subsection{Ion Velocities}
 The velocities of the ions are stored in the default geometry structure
-in the RTDB, and must be specified in cartesian 
-coordinates using the GEOMETRY directive.
+in the RTDB, and must be specified using the GEOMETRY directive.
 
 \subsection{Simulation Cell}
 \label{sec:pspw_cell}
@@ -1539,7 +1533,7 @@ the average fictacious kinetic energy
 E_{e0} = 4 k_B T \frac{\mu}{M} \sum_i <\psi_i|-\frac{1}{2} \nabla^2 |\psi_i>
 \end{eqnarray}
 where $\mu$ is the fictacious electronic mass, $M$ is average mass of one atom,
-and $sum_i <\psi_i|-\frac{1}{2} \nabla^2 |\psi_i>$ is the kinetic energy of the
+and $\sum_i <\psi_i|-\frac{1}{2} \nabla^2 |\psi_i>$ is the kinetic energy of the
 electrons.
 
 Bl\"{o}chl and Parrinello suggested that the choice of mass parameters, 
@@ -1547,10 +1541,10 @@ $Q_e$, and $Q_R$ should be made such that the period of oscillating thermostats
 should be chosen larger than the typical time scale for the dynamical events of 
 interest but shorter than the simulation time.  
 \begin{eqnarray}
-P_R &=& 2\pi \sqrt{\frac{Q_R}{4E_{R0}}}\\
-P_e &=& 2\pi \sqrt{\frac{Q_e}{4E_{e0}}}
+P_{ion} &=& 2\pi \sqrt{\frac{Q_R}{4E_{R0}}}\\
+P_{electron} &=& 2\pi \sqrt{\frac{Q_e}{4E_{e0}}}
 \end{eqnarray}
-where $P_R$ and $P_e$ are the periods of oscillation for the ionic and ficatious
+where $P_{ion}$ and $P_{electron}$ are the periods of oscillation for the ionic and ficatious
 electronic thermostats.  
 
 
