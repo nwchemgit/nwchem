@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: doqmtests.tcg5,v 1.3 2004-12-17 01:54:45 bert Exp $
+# $Id: doqmtests.tcg5,v 1.4 2005-01-24 23:42:46 edo Exp $
 #
 #---   small tests
 set np = 1
@@ -8,7 +8,7 @@ if ($1 !="") then
 set np = $1
 endif
 ./runtests.tcg5.unix procs $np auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
-./runtests.tcg5.unix procs $np rimp2_ne  scf_feco5 small_intchk tagcheck testtab
+./runtests.tcg5.unix procs $np geom_zmatrix rimp2_ne  scf_feco5 small_intchk tagcheck testtab
 ./runtests.tcg5.unix procs $np h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
 ./runtests.tcg5.unix procs $np cosmo_trichloroethene esp esp_uhf dft_bsse
 ./runtests.tcg5.unix procs $np dplot dft_meta prop_uhf_h2o
@@ -50,14 +50,21 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.tcg5.unix procs $np band
 ./runtests.tcg5.unix procs $np tddft_h2o
 ./runtests.tcg5.unix procs $np tddft_n2+
-./runtests.tcg5.unix procs $np tddft_ac_co
 ./runtests.tcg5.unix procs $np tce_h2o
 ./runtests.tcg5.unix procs $np tce_h2o_dipole
 ./runtests.tcg5.unix procs $np tce_h2o_eomcc
 ./runtests.tcg5.unix procs $np tce_uhf_uccsd
-./runtests.tcg5.unix procs $np tce_rohf_uccsd
 ./runtests.tcg5.unix procs $np oniom1
 ./runtests.tcg5.unix procs $np c60_ecp
+
+# qmmm tests
+./runtests.tcg5.unix procs $np asa_qmmm
+./runtests.tcg5.unix procs $np ethane_qmmm
+
+# newproperty tests
+./runtests.tcg5.unix procs $np prop_ch3f prop_uhf_ch3f
+
+
 #---   long  may not run on workstations
 ./runtests.tcg5.unix procs $np aump2 
 ./runtests.tcg5.unix procs $np n2_ccsd 
