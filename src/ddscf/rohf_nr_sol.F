@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.25 2000-08-22 23:26:07 mdupuis Exp $
+c     $Id: rohf_nr_sol.F,v 1.26 2000-11-22 23:00:10 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -162,8 +162,8 @@ c
          endif
          ogas_phase=.true.
          osol_phase=.false.
+         call util_flush(6)
       endif
-      call util_flush(6)
       call ga_sync()
 c
 c     ----- -nr- options ... -----
