@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.10 2004-12-21 02:05:05 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.11 2005-01-07 19:31:31 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -466,7 +466,9 @@ c     local variables
       integer il,iq,ih
       integer i_mqm,h_mqm
       integer i_mbq,h_mbq
+      integer k1
       double precision l_qh,l_ql
+      double precision rhq(3)
       double precision rh(3)
       double precision rq(3)
       double precision rl(3)
@@ -577,6 +579,7 @@ c     ------------------------------
            rq(k)  = dbl_mb(i_c+(iq-1)*3+k-1)
            rl(k)  = dbl_mb(i_cl+(il-1)*3+k-1)
            rlq(k) = rl(k)-rq(k)
+           rhq(k) = rq(k)-rh(k)
         end do
         l_qh=qmmm_geom_distance(rh,rq)
         l_ql=qmmm_geom_distance(rl,rq)
@@ -584,11 +587,17 @@ c     ------------------------------
         a = l_qh/l_ql
         b = fh_rql*l_qh/l_ql**3
         do k=1,3
-          fl(k) = fh(k)*a + rlq(k)*b
+          fl(k) = fh(k)*a - rlq(k)*b
           gbq(k,ib) = gbq(k,ib) + fl(k)
         end do
-        write(*,*) "forces on link bond",iq,ih
-        write(*,*) (fl(k),k=1,3)
+c        write(*,*) "debug coord link",(rl(k1),k1=1,3)
+c        write(*,*) "debug coord hydr",(rh(k1),k1=1,3)
+c        write(*,*) "debug force hydr",(fh(k1),k1=1,3)
+c        write(*,*) "forces on link bond",iq,ih
+c        write(*,*) (fl(k),k=1,3)
+c        write(*,*) "debug l_qh",l_qh
+c        write(*,*) "debug angle",ddot(3,rhq,1,rlq,1)/(l_ql*l_qh)
+        
       end do
 
       if(.not.ma_pop_stack(h_mbq))

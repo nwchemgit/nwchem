@@ -307,7 +307,7 @@ c        local variables
          call mm_get_psz(psz)
 
          mm_bqzone = iand(int_mb(psdt+i-1),lquant).eq.0
-         mm_bqzone = mm_bqzone .and. iand(int_mb(psdt+i-1),lqlink).eq.0
+c         mm_bqzone = mm_bqzone .and. iand(int_mb(psdt+i-1),lqlink).eq.0
          mm_bqzone = mm_bqzone .and. int_mb(psz+i-1).gt.0
          
        end

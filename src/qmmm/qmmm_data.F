@@ -88,7 +88,6 @@ c
       master = ga_nodeid().eq.0
       fixlinks = .false.
 
-      bqzone = 6.0
       eatoms = 0.0d0
       linkatm=qmmm_halogen
       bq_exclude=qmmm_no_atoms
@@ -115,9 +114,14 @@ c     initialize rtdb parameters
        end if
       end if
 
+c
+c     default value for bqzone from md
+      if(.not.rtdb_get(irtdb,'md:rqmmm',mt_dbl,1,bqzone))
+     + call errquit(pname//'failed to get bqzone from mm',0)
+c
       tag = "qmmm:bqzone"
-      if (.not.rtdb_get(irtdb,tag,mt_dbl,1,bqzone)) then
-        if (.not.rtdb_put(irtdb,tag,mt_dbl,1,bqzone)) 
+      if (rtdb_get(irtdb,tag,mt_dbl,1,bqzone)) then
+        if (.not.rtdb_put(irtdb,'md:rqmmm',mt_dbl,1,bqzone)) 
      >      call errquit(pname//'failed to store '//tag,0,
      >       RTDB_ERR)
       end if
@@ -134,18 +138,6 @@ c     initialize rtdb parameters
        end if
       if(master)
      > write(6,21) "fixed link bonds",tag,fixlinks
-
-      tag = "qmmm:bq_dynamical"
-      if (.not.rtdb_get(irtdb,tag,mt_log,1,flag)) then
-        flag = .true.
-        if (.not.rtdb_put(irtdb,tag,mt_log,1,flag)) 
-     >      call errquit(pname//'failed to store fixlinks',0,
-     >       RTDB_ERR)
-
-       end if
-       bq_dynamical = flag
-      if(master)
-     > write(6,21) "dynamical bq update",tag,flag
 
 
       tag ="qmmm:bq_exclude" 
@@ -231,9 +223,11 @@ c
         if (optimization.eq.'all') then
            fixqm = .false.
            interface = "mm"
+           bq_dynamical=.true.
         else if (optimization.eq.'mm') then
            fixqm = .true.
            interface = "mm"
+           bq_dynamical=.true.
         else if (optimization.eq.'qm') then
            fixqm = .false.
            interface = "qm"
@@ -242,12 +236,15 @@ c
         if (optimization.eq.'all') then
            fixqm = .false.
            interface = "mm"
+           bq_dynamical=.true.
         else if (optimization.eq.'mm') then
            fixqm = .true.
            interface = "mm"
+           bq_dynamical=.true.
         else if (optimization.eq.'qm') then
            fixqm = .false.
            interface = "qm"
+           bq_dynamical=.false.
         endif
       else if (inp_compare(.false., 'saddle', operation)) then
         fixqm = .false.
@@ -255,8 +252,6 @@ c
       else if (inp_compare(.false.,'dynamics',operation)) then
         interface = "mm"
       end if
-
-c      if(interface.eq."qm") bq_dynamical = .false.
 
       tag ="qmmm:fixqm" 
       if (.not.rtdb_put(irtdb,tag,mt_log,1,fixqm)) 
@@ -274,6 +269,17 @@ c      if(interface.eq."qm") bq_dynamical = .false.
       end if
       if (master) 
      >  write(6,22) "interface api",tag,interface
+
+      tag = "qmmm:bq_dynamical"
+      if (.not.rtdb_get(irtdb,tag,mt_log,1,bq_dynamical)) then
+        if (.not.rtdb_put(irtdb,tag,mt_log,1,bq_dynamical)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+
+      end if
+      if(master)
+     > write(6,21) "dynamical bq update",tag,bq_dynamical
+
 
       if (master) 
      >  write(6,23) 

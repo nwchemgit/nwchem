@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.39 2004-12-21 02:15:21 marat Exp $
+c $Id: qmmm.F,v 1.40 2005-01-07 19:31:31 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -19,7 +19,7 @@ c
       logical checkgrad
       character*32 pname
 c
-      call qmmm_print_header(irtdb)
+      call qmmm_print_header()
 c
       pname = "qmmm_init"
 

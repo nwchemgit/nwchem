@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.40 2004-12-21 23:00:45 marat Exp $
+c $Id: mm_interface.F,v 1.41 2005-01-07 19:31:31 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -288,7 +288,8 @@ c
 
       if(bq_exclude.eq.qmmm_all_atoms) then
         do i=1,nsaloc
-          call mm_clear_bqzone(i)
+          if(.not.mm_link(i))
+     >   call mm_clear_bqzone(i)
         end do
         do i=1,nwmloc
           call mm_clear_bqwzone(i)
@@ -1569,7 +1570,7 @@ c     mm local variables
             do j=1,nt
               if(int_mb(psl+i-1).eq.ai(j)) then
                  do k=1,3
-                   dbl_mb(pxs+(i-1)+(k-1)*msa)=c(k,j)*cau2nm
+                   dbl_mb(pxs+(i-1)+(k-1)*msa)=c(k,j)/cnm2au
                  end do
               end if
             end do
@@ -1813,7 +1814,10 @@ c     local variables:
       if(qmmm_print_debug()) then
         write(*,*) pname,"number of link atoms",nl0
       end if
-      if(nl0.eq.0) return
+      if(nl0.eq.0)  then
+        nl=nl0
+        return
+      end if
 
       call mm_get_tot_nqm(nqm)
       if(.not.ma_push_get(mt_int,nqm,'tmp qind',h_qind,i_qind))
@@ -1915,7 +1919,10 @@ c     local variables:
       if(qmmm_print_debug()) then
         write(*,*) pname,"number of link atoms",nl0
       end if
-      if(nl0.eq.0) return
+      if(nl0.eq.0) then
+         nps = 0
+         return
+      end if
 
       call mm_get_tot_nqm(nqm)
       if(.not.ma_push_get(mt_int,nqm,'tmp qind',h_qind,i_qind))

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.46 2004-12-28 00:35:49 marat Exp $
+c $Id: qmmm_geom.F,v 1.47 2005-01-07 19:31:31 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -395,7 +395,7 @@ c     -----------------------
       if(nbq.eq.0) then
       if(qmmm_print_debug())
      > write(*,*) "qmmm: no bq charges were found"
-        return
+c        return
       end if
 
       i_ind = qmmm_get_i_ai()

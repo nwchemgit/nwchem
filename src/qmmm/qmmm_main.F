@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.26 2005-01-06 23:55:46 edo Exp $
+c $Id: qmmm_main.F,v 1.27 2005-01-07 19:31:31 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -189,9 +189,10 @@ c     ----------------------------------------
       if(qmmm_print_debug())
      > write(*,*) "qnorm",norm
 c
-      if(.not.rtdb_put(inrtdb,'qmmm:gradient',mt_dbl,
-     >                 3*nqm,dbl_mb(i_gqm)))
-     >   call errquit(pname//'rtdb_put gradient failed',0, RTDB_ERR)
+      call qmmm_push_qm_grad_qm(inrtdb,3*nqm,dbl_mb(i_gqm))
+c      if(.not.rtdb_put(inrtdb,'qmmm:gradient',mt_dbl,
+c     >                 3*nqm,dbl_mb(i_gqm)))
+c     >   call errquit(pname//'rtdb_put gradient failed',0, RTDB_ERR)
 
 c
 c     add quantum contributions on bq region
