@@ -1,0 +1,228 @@
+      SubRoutine DPlot_Input(rtdb)
+      Implicit none
+*
+************************************************************************
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+************************************************************************
+*
+      Integer rtdb
+      Integer ind,indUnits,indWhat,indSpin,indWhere,i,j
+      Integer Lth,iLth,jLth,Lth_Tit
+      Integer No_Of_Spacings(3),ValueI
+      Integer nOrb,iOrb,k_Orb,l_Orb
+      Double Precision Ext_From_To(3,2),ValueR
+*
+      Integer   Num_Dirs,Num_Units,Num_What,Num_Spin,Num_Where
+      Parameter (Num_Dirs  = 8)
+      Parameter (Num_Units = 3)
+      Parameter (Num_What  = 2)
+      Parameter (Num_Spin  = 4)
+      Parameter (Num_Where = 3)
+*
+      Character*255 test, Title
+      Character*8   Dirs(Num_Dirs),Allowed_Units(Num_Units),
+     &              Allowed_What(Num_What),Allowed_Spin(Num_Spin),
+     &              Allowed_Where(Num_Where)
+      Character*8   Units,What,Spin,Where
+      Character*80  File_Vec,File_Vec2,File_Out
+*
+      Logical status
+*
+      Data Dirs / 'LimitXYZ','Vectors','Output','Title','Orbitals',
+     &            'Spin','Where','End' /
+      Data Allowed_Units / 'angstrom','au','bohr' /
+      Data Allowed_What  / 'density','view' /
+      Data Allowed_Spin  / 'total','spindens','alpha','beta' /
+      Data Allowed_Where / 'grid','nuclei','g+n' /
+*
+************************************************************************
+*
+      Call Context_Push('dplot_input')
+*
+*---- Set up defaults
+      Units     = 'angstrom'
+      What      = 'density'
+      Spin      = 'total'
+      Where     = 'grid'
+      File_Vec  = 'movecs'
+      File_Vec2 = ' '
+      File_Out  = 'dplot'
+      Title     = 'Unknown Title'
+      Lth_Tit   = 13
+      nOrb=999999
+      Do i = 1, 3
+         No_Of_Spacings(i) = 0
+         Do j = 1, 2
+            Ext_From_To(i,j) = 0.0d0
+         End Do
+      End Do
+*
+*---- Read the keyword
+   10 Continue
+      If (.not.inp_read())
+     &   Call ErrQuit('DPlot_Input: inp_read failed',0)
+      If (.not.inp_a(test))
+     &   Call ErrQuit('DPlot_Input: failed to read keyword',0)
+*
+      If (.not.inp_match(Num_Dirs,.false.,test,Dirs,ind))
+     &   Call ErrQuit('DPlot_Input: unknown directive',0)
+      GoTo (100, 200, 300, 400, 500, 600, 700, 9999) ind
+      Call ErrQuit('DPlot_Input: unimplemented directive',ind)
+*
+*---- Read the information about the limits of the grid
+  100 Continue
+      If (inp_a(test)) Then
+         If (.not. inp_compare(.false.,test,'units'))
+     &      Call ErrQuit('DPlot_Input: LimitXYZ [units <units>]',0)
+         If (.not.inp_a(Units))
+     &      Call ErrQuit('DPlot_Input: LimitXYZ [units <units>]',0)
+         If (.not. inp_match(Num_Units,.false.,Units,Allowed_Units,
+     &      indUnits)) Call ErrQuit('DPlot_Input: unknown units',0)
+      End If
+      Do i = 1, 3
+         If (.not. inp_read())
+     &      Call ErrQuit('DPlot_Input: inp_read failed',0)
+         If (.not. inp_f(ValueR))
+     &      Call ErrQuit('DPlot_Input: failed to read limits',0)
+         Ext_From_To(i,1) = ValueR
+         If (.not. inp_f(ValueR))
+     &      Call ErrQuit('DPlot_Input: failed to read limits',0)
+         Ext_From_To(i,2) = ValueR
+         If (.not. inp_i(ValueI))
+     &      Call ErrQuit('DPlot_Input: failed to read spacings',0)
+         No_Of_Spacings(i) = ValueI
+      End Do
+      GoTo 10
+*
+*---- Read the information about the source of the MO vectors
+  200 Continue
+      If (.not.inp_a(File_Vec))
+     &   Call ErrQuit('DPlot_Input: Vectors <file1> [<file2>]',0)
+      If (inp_a(test)) Then
+         Lth = Inp_StrLen(test)
+         File_Vec2(1:Lth) = test(1:Lth)
+      End If
+      GoTo 10
+*
+*---- Read the name of the output file
+  300 Continue
+      If (.not.inp_a(File_Out))
+     &   Call ErrQuit('DPlot_Input: Output <file>',0)
+      GoTo 10
+*
+*---- Read the title of the output file
+  400 Continue
+      test = ' '
+      Title = ' '
+      If (.not. inp_read())
+     &   Call ErrQuit('DPlot_Input: inp_read failed',0)
+      If (.not.Inp_Line(test))
+     &   Call ErrQuit('DPlot_Input: Title; <title>',0)
+      Lth = Inp_StrLen(test)
+  401 Continue
+      Do jLth = 1, Lth
+         If (test(jLth:jLth).ne.' ') GoTo 402
+      End Do
+      Call ErrQuit('DPlot_Input: Title; <title>',0)
+  402 Continue
+      Lth_Tit = Lth - jLth + 1
+      Title(1:Lth_Tit) = test(jLth:Lth)
+      GoTo 10
+*
+*---- Read the orbital info
+  500 Continue
+      If (inp_a(test)) Then
+         If (.not. inp_match(Num_What,.false.,test,Allowed_What,
+     &      indWhat)) Call ErrQuit('DPlot_Input: unknown option',0)
+         Lth = Inp_StrLen(test)
+         What = ' '
+         What(1:Lth) = test(1:Lth)
+      End If
+      If (.not. inp_read())
+     &   Call ErrQuit('DPlot_Input: inp_read failed',0)
+      If (.not.inp_i(nOrb))
+     &   Call ErrQuit('DPlot_Input: Orbitals; <# orbs.>; <Orb1 ...>',0)
+      If (nOrb.gt.0) Then
+         If (nOrb.ne.999999) Then
+            If (.not. inp_read())
+     &         Call ErrQuit('DPlot_Input: inp_read failed',0)
+            If (.not.MA_Push_Get(MT_Int,nOrb,'Orb',l_Orb,k_Orb))
+     &         Call ErrQuit('DPlot_Input: failed to allocate Orb',0)
+            Do iOrb = 1, nOrb
+               If (.not. inp_i(ValueI))
+     &            Call ErrQuit('DPlot_Input: failed to read orb. no.',
+     &                         iOrb)
+               Int_mb(k_Orb - 1 + iOrb) = ValueI
+            End Do
+         End If
+      Else
+         Call ErrQuit('DPlot_Input: Sorry, nOrb <= 0',0)
+      End If
+      GoTo 10
+*
+*---- Read the spin info
+  600 Continue
+      If (.not.inp_a(Spin))
+     &   Call ErrQuit('DPlot_Input: Spin <Spin>',0)
+      If (.not. inp_match(Num_Spin,.false.,Spin,Allowed_Spin,indSpin))
+     &   Call ErrQuit('DPlot_Input: unknown spin',0)
+      GoTo 10
+*
+*---- Read the where info
+  700 Continue
+      If (.not.inp_a(Where))
+     &   Call ErrQuit('DPlot_Input: Where <Where>',0)
+      If (.not. inp_match(Num_Where,.false.,Where,Allowed_Where,
+     &   indWhere)) Call ErrQuit('DPlot_Input: unknown where',0)
+      GoTo 10
+*
+ 9999 Continue
+*
+*---- Write limits to the rtdb
+      Call Inp_UCase(Units)
+      If (.not.rtdb_cput(rtdb,'dplot:Units',1,Units))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - Units',0)
+      If (.not.rtdb_put(rtdb,'dplot:Ext_From_To',mt_dbl,6,Ext_From_To))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - Ext_From_To',0)
+      If (.not.rtdb_put(rtdb,'dplot:No_Of_Spacings',mt_int,
+     &   3,No_Of_Spacings))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - No_Of_Spacings',0)
+*---- Write the name of the vector file to rtdb
+      If (.not.rtdb_cput(rtdb,'dplot:File_Vec',1,File_Vec))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Vec',0)
+      If (.not.rtdb_cput(rtdb,'dplot:File_Vec2',1,File_Vec2))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Vec2',0)
+*---- Write the name of the output file to rtdb
+      If (.not.rtdb_cput(rtdb,'dplot:File_Out',1,File_Out))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Out',0)
+*---- Write the title of the output file to rtdb
+      If (.not.rtdb_cput(rtdb,'dplot:Title',1,Title(1:Lth_Tit)))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - Title',0)
+*---- Write the orbital info
+      Call Inp_UCase(What)
+      If (.not.rtdb_cput(rtdb,'dplot:What',1,What))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - What',0)
+      If (.not.rtdb_put(rtdb,'dplot:nOrb',mt_int,1,nOrb))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - nOrb',0)
+      If (nOrb.ne.999999) Then
+         If (.not.rtdb_put(rtdb,'dplot:OrbNo',mt_int,
+     &      nOrb,Int_mb(k_Orb)))
+     &      Call ErrQuit('DPlot_Input: rtdb_put failed - nOrb',0)
+         If (.not.MA_Pop_Stack(l_Orb))
+     &      Call ErrQuit('DPlot_Input: failed to deallocate Orb',0)
+      End If
+*---- Write the spin info
+      Call Inp_UCase(Spin)
+      If (.not.rtdb_cput(rtdb,'dplot:Spin',1,Spin))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - Spin',0)
+*---- Write 'where' info
+      Call Inp_UCase(Where)
+      If (.not.rtdb_cput(rtdb,'dplot:Where',1,Where))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - Where',0)
+*
+      Call Context_Pop('dplot_input')
+*     
+      End
+
