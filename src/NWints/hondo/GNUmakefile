@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.11 2002-01-19 04:05:49 zzhang Exp $
+# $Id: GNUmakefile,v 1.12 2002-10-25 16:06:25 edo Exp $
 
 include ../../config/makefile.h
 
@@ -40,4 +40,8 @@ include ../../config/makefile.h
 
      USES_BLAS = hnd_stvint.F hnd_stvintd.F hnd_stvintdd.F
 include ../../config/makelib.h
+  ifeq ($(FC),efc)
+            FOPTIONS += -save
+#          FOPTIMIZE += -O0
+  endif
 
