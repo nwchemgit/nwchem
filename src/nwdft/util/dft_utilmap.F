@@ -1,7 +1,7 @@
       subroutine build_maps(basis, cntoce, cntobfr, cetobfr, natoms, 
      &                      nshells)
 *
-* $Id: dft_utilmap.F,v 1.8 2002-01-14 20:37:32 edo Exp $
+* $Id: dft_utilmap.F,v 1.9 2002-02-21 21:29:56 edo Exp $
 *
       implicit none
       integer basis, natoms, nshells
@@ -43,7 +43,7 @@ c
       integer g_a(n_a)                  ! Original GA handle(s) [input]
       double precision r(nr,nr,n_a)     ! Reduced matrix [output]
       integer mxmap                     ! max size of map vector
-      double precision scr(mxmap,mxmap) ! scratch
+      double precision scr(mxmap,*) ! scratch
       character*(*) op                  ! Reduction operation
 c     
 c     R(i,j) <= R(i,j) op A(map(1,i):map(2,i),map(1,j):map(2,j))
@@ -53,14 +53,19 @@ c
       integer ir, jr, i, j, k, ielems, jelems
       double precision sum
       integer me,nproc,itask
+      double precision util_matops
+      external util_matops
       integer ityp, ndim, dims(3)
+      integer lo(3),hi(3),ld(2),ld12
+      logical l3d
 c     
       call nga_inquire(g_a, ityp, ndim, dims)
+      l3d=.false.
       if(ndim.gt.2) then
 #ifdef DEBUG
          write(6,*) ' matreduce: ndim gt 2!, =',ndim
 #endif
-         return
+         l3d=.true.
       endif
       me=ga_nodeid()
       nproc=ga_nnodes()
@@ -76,34 +81,28 @@ cedo            do ir = 1, nr
             do ir = 1, jr
                itask=itask+1
                if(mod(itask,nproc).eq.me) then
-                  sum = 0.0d0
                   ielems = map(2,ir) - map(1,ir) + 1
                   jelems = map(2,jr) - map(1,jr) + 1
                   if (ielems.gt.0 .and. jelems.gt.0) then
-                     call ga_get(g_a(k), map(1,ir), map(2,ir), 
-     .                    map(1,jr), map(2,jr), scr, mxmap)
-                     if (op .eq. 'abssum') then
-                        do j = 1, jelems
-                           do i = 1, ielems
-                              sum = sum + abs(scr(i,j))
-                           end do
-                        end do
-                     else if (op .eq. 'absmax') then
-                        do j = 1, jelems
-                           do i = 1, ielems
-                              sum = max(sum, abs(scr(i,j)))
-                           end do
-                        end do
-                     else if (op .eq. 'rms') then
-                        do j = 1, jelems
-                           do i = 1, ielems
-                              sum = sum + scr(i,j)*scr(i,j)
-                           end do
-                        enddo
-                        sum = sqrt(sum)
+                     if(l3d) then
+                        ielems=ielems*dims(1)
+                        lo(1)=1
+                        hi(1)=dims(1)
+                        lo(2)=map(1,ir)
+                        hi(2)=map(2,ir)
+                        lo(3)=map(1,jr)
+                        hi(3)=map(2,jr)
+                        ld(1)=dims(1)
+                        ld(2)=mxmap
+                        call nga_get(g_a(k), lo,hi,
+     .                       scr, ld)
+                        ld12=ld(1)*ld(2)
                      else
-                        call errquit('util_ga_mat_red: unknown op',0)
-                     end if
+                        call ga_get(g_a(k), map(1,ir), map(2,ir), 
+     .                       map(1,jr), map(2,jr), scr, mxmap)
+                        ld12=mxmap
+                     endif
+                     sum=util_matops(op,ielems,jelems,scr,ld12)
                      r(ir,jr,k) = max(r(ir,jr,k),sum)
 c     
 c     copy upper triangle of r(ij) to upper triangle
@@ -122,6 +121,41 @@ c
 c      write(6,*) ' length ',nr*nr*n_a
       call ga_dgop(msg_gop_rdens,r,nr*nr*n_a, '+')
 c     
+      end
+      double precision function util_matops(op,ielems,jelems,scr,ld)
+      implicit none
+      character*(*) op
+      integer ielems,jelems
+      integer ld
+      double precision scr(ld,*)
+c
+      integer i,j
+      double precision sum
+      sum=0d0
+      if (op .eq. 'abssum') then
+         do j = 1, jelems
+            do i = 1, ielems
+               sum = sum + abs(scr(i,j))
+            end do
+         end do
+      else if (op .eq. 'absmax') then
+         do j = 1, jelems
+            do i = 1, ielems
+               sum = max(sum, abs(scr(i,j)))
+            end do
+         end do
+      else if (op .eq. 'rms') then
+         do j = 1, jelems
+            do i = 1, ielems
+               sum = sum + scr(i,j)*scr(i,j)
+            end do
+         enddo
+         sum = sqrt(sum)
+      else
+         call errquit('util_ga_mat_red: unknown op',0)
+      end if
+      util_matops=sum
+      return
       end
       subroutine util_irreg_mat_reduce(n_row, n_col, nr_row, nr_col, 
      &                                 row_map, col_map, a, r, op)

@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.26 2002-02-15 00:44:19 edo Exp $
+C$Id: grid_quadv0.F,v 1.27 2002-02-21 21:29:55 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -205,7 +205,7 @@ c
       if (.not.MA_Push_Get(MT_Dbl,ipol*nctrs*nctrs,'rdens_atom',
      &   lrdens_atom,irdens_atom))
      &   call errquit('grid_den: cannot allocate rdens_atom',0)
-      nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
+      nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce*(nmat+1)
       if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &   call errquit('grid_den: cannot allocate scr',0)
       call util_ga_mat_reduce(nbf_ao, nctrs, int_mb(icetobfr), g_dens, 
