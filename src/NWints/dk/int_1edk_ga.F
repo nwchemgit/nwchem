@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, kskel)
-c $Id: int_1edk_ga.F,v 1.16 1999-12-08 17:54:27 bert Exp $
+c $Id: int_1edk_ga.F,v 1.17 1999-12-08 17:57:56 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -69,7 +69,6 @@ c
       double precision c2    ! Speed of light c (in au) squared 
 c
 c     dk_clight = 137.0360000d0         ! Speed of light by Bernd Hess
-      c2 = dk_clight * dk_clight
 c
 c     At this point we set oskel to false. We cannot use oskel because of the
 c     transformations we have to do with the full integral matrices.
@@ -84,6 +83,8 @@ c
      $    MT_LOG,1,dk_even_bas)) dk_even_bas = .false.
       if (.not. rtdb_get(bgj_get_rtdb_handle(),'doug_kroll:etratio',
      $    MT_DBL,1,dk_ratio)) dk_ratio = 2.0d0
+      if (.not. rtdb_get(bgj_get_rtdb_handle(),'doug_kroll:clight',
+     $    MT_DBL,1,dk_clight)) dk_clight = 137.0359895d0
 c
 c     Create an uncontracted basis from basis_in
 c
@@ -152,6 +153,8 @@ c
 c
 c     Construct vector E from eigenvalues: E = Sqrt(p^2 c^2 + c^4)
 c                                            = c*Sqrt(p^2 + c^2)
+c
+      c2 = dk_clight * dk_clight
 c
       if (.not. ma_push_get(MT_DBL,nbf,'Evector',Em_a,EIm_a))
      $     call errquit('int_1edk_ga: ma_push_get failed Evector',0)
