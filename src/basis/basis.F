@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.39 1996-02-05 23:19:36 d3e129 Exp $
+c $Id: basis.F,v 1.40 1996-05-14 17:54:28 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1677,6 +1677,43 @@ c
       center = sf_ibs_cn2ce(cont,basis)
 c
       return
+      end
+*......................................................................
+      logical function bas_cn2uce(basisin,cont,ucenter)
+      implicit none
+c
+c returns the UNIQUE center for a given mapped contraction
+c
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin   ! [input] basis set handle
+      integer cont      ! [input] mapped contraction index
+      integer ucenter    ! [output] center index
+c::local
+      integer basis
+#include "bas_ibs_sfn.fh"
+c
+      bas_cn2uce = bas_check_handle(basisin,'bas_cn2uce')
+      if(.not.bas_cn2uce) return
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+      bas_cn2uce = cont.ge.0 .and. cont.le.ncont_tot_gb(basis)
+      if (.not.bas_cn2uce) then
+        write(6,*)' bas_cn2uce: invalid contraction information '
+        write(6,*)' contraction range is 0:',ncont_tot_gb(basis)
+        write(6,*)' input contraction was: ',cont
+        return
+      endif
+c
+      ucenter = sf_ibs_cn2ce(cont,basis)
+      ucenter = sf_ibs_ce2uce(ucenter,basis)
+c
       end
 *......................................................................
       logical function bas_cn2bfr(basisin,cont,ifirst,ilast)
