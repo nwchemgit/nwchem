@@ -5,10 +5,10 @@
      &     iga_fock,iga_diis,iga_svecs,isvals,
      &     iga_cdinv,iga_xcinv,iga_2ceri)
 
-C$Id: dft_scf.F,v 1.1 1995-04-27 03:16:20 og845 Exp $
+C$Id: dft_scf.F,v 1.2 1995-05-03 19:26:49 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
-      Logical LResult,CDFIT,IOLGC,mulliken,do_gradients
+      Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
       logical converged,XCFIT,wght_GA
       parameter(itol_min=5,iAOacc_min=15)
       
@@ -353,6 +353,24 @@ C
         call int_1e_ga(AO_bas_han,AO_bas_han,
      &       iga_fock,'potential',.false.)
         Ecore = ga_ddot(iga_dens(1),iga_fock)
+
+
+c
+c       perform SPM analysis
+c
+        LSPM=.true.
+      if (.not. rtdb_get(rtdb, 'dft:SPM', mt_int, 1, lmax))
+     &     LSPM=.false.
+        
+
+
+      if(LSPM) then
+
+
+        call dft_getspm(geom,lmax,iga_dens,AO_bas_han)
+
+      endif
+
 
 #if defined(DFT_TIMER)
         call dft_second(tp3)
@@ -826,7 +844,6 @@ c     ended up so that a restart automatically picks them up
 c     
       if (.not. rtdb_cput(rtdb, 'dft:input vectors', 1, movecs_out))
      $     call errquit('dft:rtdb_cput failed dft:input vectors',0)
-
 c-----------------------------------------------------------------------
 
       return
