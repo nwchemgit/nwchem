@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2002-01-14 21:06:28 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2002-05-07 18:33:05 edo Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -13,7 +13,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = coulomb.F coulomb2.F
+    USES_BLAS = coulomb.F coulomb2.F coulomb_screened.F
 
   LIB_DEFINES = 
 
