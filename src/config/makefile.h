@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.494 2004-12-30 23:27:12 edo Exp $
+# $Id: makefile.h,v 1.495 2005-01-06 01:41:46 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1643,7 +1643,7 @@ endif # end of ia32 bit
           FOPTIONS  +=  -Wno-globals  
           FOPTIMIZE  +=  -funroll-all-loops
         endif
-        FDEBUG = -Os -g
+        FDEBUG = -O0 -g
       endif
       COPTIONS   =   -O3 -funroll-loops -ffast-math  
       ifdef USE_GCC34
