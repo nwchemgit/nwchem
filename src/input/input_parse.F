@@ -11,14 +11,15 @@ c     to provide sensible defaults for anything that is missing.
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      logical status
-      parameter (num_dirs = 13)
+      logical status, echo
+      parameter (num_dirs = 15)
       character*8 dirs(num_dirs)
       character*255 test
       data dirs /
      $     'memory',   'rtdb',     'geometry', 'basis',    'scf',
      $     'task',     'time',     'set'     , 'enter',    'stop',
-     $     'title',    'start',    'restart'/
+     $     'title',    'start',    'restart' , 'stepper',  'echo'/
+      data echo /.false./
 c
 c     Only process 0 is involved here
 c
@@ -47,7 +48,7 @@ c
 c
          call inp_prev_field
          goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
-     $        1100, 1200, 1300) ind
+     $        1100, 1200, 1300, 1400, 1500) ind
          call errquit('input_parse: unimplemented directive', ind)
 c
 c     Memory ... already handled by input_mem_size() but will soon
@@ -110,8 +111,19 @@ c     Restart ... already digested by input_start_opt
 c
  1300    goto 10
 c
+c stepper input
+c
+ 1400    call stepper_input(rtdb)
+         goto 10
+c
+ 1500    echo = .true.
+         goto 10
       endif
 99999 continue
+c
+c echo input deck if requested
+c
+      call input_echo(5,6)
 c
 c     All input is exhausted.  Now apply defaults for everything that
 c     is missing from the input if is a startup calculation
@@ -130,6 +142,7 @@ c
       subroutine input_time
       end
       subroutine input_defaults
+      implicit none
       end
       subroutine input_verify
       end
