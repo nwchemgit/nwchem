@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.93 1999-02-01 18:01:06 d3h449 Exp $
+# $Id: make_nwchem_config,v 1.94 1999-03-15 21:15:07 d3j191 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -17,8 +17,8 @@
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf prepar \
-        nwargos esp hessian plane_wave selci dplot mp2_grad nwaprep oimp2 \
-        property gapss fft rimp2_grad nbo python analyz
+        nwargos esp hessian plane_wave selci dplot mp2_grad oimp2 \
+        property gapss fft rimp2_grad nbo python analyz nwmd cafe space
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -28,7 +28,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lgapss -lesp -lddscf -lguess -lhessian \
                     -lvib -lutil -lrimp2g -lrimp2 -lproperty -lnwints -lideaz \
-		    -lprepar -lnwaprep -lnwargos \
+		    -lprepar -lnwargos -lnwmd -lcafe -lspace -lanalyze\
                     -lpfft -ldplot -loimp2 -lnbo -lpython
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
@@ -66,11 +66,11 @@ EXP_all = $(filter-out nbo python develop gapss oimp2 ideaz scfaux plane_wave ri
 EXP_alldev = develop $(EXP_all)
 EXP_qm  = NWints atomscf ddscf gradients moints hessian nwdft rimp2 \
           stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp
-EXP_ver2 = nwaprep prepar nwargos gradients mp2_grad dftgrad stepper vib mcscf \
+EXP_ver2 = prepar nwargos gradients mp2_grad dftgrad stepper vib mcscf \
            driver analyz
 #plane_wave ... broken? RJH
-EXP_argos = nwaprep prepar nwargos analyz
-EXP_md  = ideaz
+EXP_argos = prepar nwargos analyz
+EXP_md  = prepar nwmd analyz
 EXP_qmmd = gradients ideaz
 
 # Check each expansion
@@ -130,6 +130,8 @@ MODULES := $(patsubst nwdft,nwdft ddscf NWints,$(MODULES) )
 MODULES := $(patsubst nwargos,nwargos fft ddscf,$(MODULES) )
 MODULES := $(patsubst esp,esp NWints dplot,$(MODULES) )
 
+MODULES := $(patsubst nwmd,nwmd cafe space fft ddscf,$(MODULES) )
+
 MODULES := $(patsubst develop,develop ddscf,$(MODULES) )
 
 MODULES := $(patsubst dplot,dplot nwdft ddscf,$(MODULES) )
@@ -177,11 +179,13 @@ MOD_LIBS := $(patsubst cphf,-lcphf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst scfaux,-lscfaux,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst vib,-lvib,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst plane_wave,-lplnwv,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst nwaprep,-lnwaprep,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst prepar,-lprepar,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwargos,-lnwargos,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst esp,-lesp,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst analyz,-lnwargos,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst cafe,-lcafe,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst space,-lspace,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst nwmd,-lnwmd,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst analyz,-lanalyze,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dplot,-ldplot,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst property,-lproperty,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nbo,-lnbo,$(MOD_LIBS) )
@@ -213,7 +217,7 @@ STUBROUTINES := $(patsubst rimp2_grad,rimp2g,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst oimp2,oimp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst stepper,stpr_walk stpr_walk_task stpr_walk_reset stepper_input stpr_gen_hess_at stpr_gen_hess_atc,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst symmetry,,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst ideaz,mdmain md_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst ideaz,mdmain ideaz_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst cphf,cphf cphf_poliz mjdtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst scfaux,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vib,vib_vib,$(STUBROUTINES) )
@@ -223,6 +227,7 @@ STUBROUTINES := $(patsubst prepar,prepar pre_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst analyz,analyz ana_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwargos,nwargos arg_input qmmm_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst esp,esp esp_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst nwmd,nwmd md_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dplot,dplot dplot_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst property,property prop_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nbo,task_nbo nbo_input,$(STUBROUTINES) )
