@@ -1,15 +1,16 @@
       Subroutine xc_hcth(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
-     &                    ldew,func)     
+     &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.5 1998-10-16 00:35:50 og845 Exp $
+c$Id: xc_hcth.F,v 1.6 1998-10-17 00:38:43 og845 Exp $
 c
       Implicit none
 c
-      logical ldew
-      logical lfac, nlfac
-      double precision func(*)
-      double precision fac
+      logical ldew ! [input]
+      logical lfac, nlfac ! [input]
+      double precision func(*) ![input/output]
+      double precision fac ![input]
+      character*4 funcname ! functional name [input]
 c
       integer ipol  ! no. of spin states [input]
       integer nq    ! no. of quadrature pts [input]
@@ -53,7 +54,7 @@ c
             zb=za
             call hcth(dfdra, dfdza, dfdrb, dfdzb, rhoa, rhob, 
      &           za, zb, .false., hE_x, hE_c, tol_rho,ipol,
-     &           'hcth')
+     &           funcname)
             if(ldew) func(n)=func(n)+(hE_c+hE_x)*fac
             Ec=Ec+hE_c*qwght(n)*fac
             Ex=Ex+hE_x*qwght(n)*fac
@@ -81,7 +82,7 @@ c
             if(gammaval.gt.tol_rho) zb=sqrt(gammaval)
             call hcth(dfdra, dfdza, dfdrb, dfdzb, rhoa, rhob, 
      &           za, zb, .false., hE_x, hE_c, tol_rho,ipol,
-     ,           'hcth')
+     ,           funcname)
             if(ldew) func(n)=func(n)+(hE_c+hE_x)*fac
             Ec=Ec+hE_c*qwght(n)*fac
             Ex=Ex+hE_x*qwght(n)*fac
