@@ -1,11 +1,11 @@
 c
 c     Driver routines which call generalized dftg_grad2 (dftg_grad2_gen)
 c     to create derivative J matrices and J hessian without fitting, or
-c     dfth_cdfit for J hessian with fitting
+c     dftg_cdfit_gen for fitted J quantities
 c
 c     BGJ - 9/98
 c
-c     $Id: j_nucder_gen.F,v 1.5 1999-02-19 02:37:57 bjohnson Exp $
+c     $Id: j_nucder_gen.F,v 1.6 1999-05-08 13:48:36 bjohnson Exp $
 c
       subroutine j_hessian(g_dens, oactive, nactive, hess)
 c
@@ -44,13 +44,14 @@ c
       subroutine j_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
      &                       calc_type)
 c
-c     $Id: j_nucder_gen.F,v 1.5 1999-02-19 02:37:57 bjohnson Exp $
+c     $Id: j_nucder_gen.F,v 1.6 1999-05-08 13:48:36 bjohnson Exp $
 c
 c     General routine for J hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
 c
       implicit none
 c
+#include "rtdb.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
 #include "cdft.fh"
@@ -78,13 +79,15 @@ c
       integer rtdb
       integer natoms
       integer l_d_ija, k_d_ija, l_d_kla, k_d_kla, ldim1, ldim2,
-     &        l_scr, k_scr, lscr, l_buf, k_buf, lbuf, l_s34, k_s34
+     &        l_db, k_db, l_scr, k_scr, lscr, l_buf, k_buf, lbuf,
+     &        l_s34, k_s34
       integer i, nproc
       double precision tol2e
       integer g_t
 c !!! Start BGJ temp test code
       integer l_ti_hess, k_ti_hess, g_ti(3)
       integer j
+      integer l_ti_db, k_ti_db
 c !!! End BGJ temp test code
 c
       if (bgj_print() .gt. 0)
@@ -104,10 +107,6 @@ c
       if (do_hess) then
          call dfill(9*natoms*natoms, 0.0d0, hess, 1)
       else if (do_cpks_r) then
-         if (CDFIT) then
-            write(*,*) __FILE__
-            call errquit('do_cpks_r case not ready for fitted J',0)
-         endif
          do i = 1, natoms
             if (oactive(i)) then
                call ga_zero(g_rhs(1,i))
@@ -115,9 +114,17 @@ c
                call ga_zero(g_rhs(3,i))
             endif
          enddo
+         if (CDFIT) then
+c
+c           Need additional space for fit required in CPKS RHS
+c
+            if (.not. MA_push_get(MT_DBL, nbf_cd*3*natoms, 'db',
+     &           l_db, k_db))
+     &           call errquit('j_nucder_gen: could not alloc db',0)
+         endif
       endif
 c
-c     Set up temporary arrays needed by dftg_grad2_gen / dfth_cdfit
+c     Set up temporary arrays needed by dftg_grad2_gen / dftg_cdfit_gen
 c
       call j_nucder_alloc(l_d_ija, k_d_ija, l_d_kla, k_d_kla,
      &                    ldim1, ldim2, l_scr, k_scr, lscr, l_buf,
@@ -128,16 +135,41 @@ c
       if (CDFIT) then
 c
 c     The d_ija and d_kla arrays are used for the vec and PPP args
-c     of dfth_cdfit (allocation is set up properly in j_nucder_alloc)
+c     of dftg_cdfit_gen (allocation is set up properly in j_nucder_alloc)
 c     The s34 array is used for the fitting coefficients in the
 c     fitted case (allocation is set up properly in j_nucder_alloc)
 c
-         call dfth_cdfit(rtdb, geom, AO_bas_han, CD_bas_han,
-     &                   nbf_ao, nbf_cd, natoms, tol2e, dbl_mb(k_scr),
-     &                   lscr, dbl_mb(k_buf), lbuf, dbl_mb(k_d_kla),
-     &                   dbl_mb(k_d_ija), ldim1, ldim2,
-     &                   g_dens, hess, dbl_mb(k_s34), oskel)
-c 
+         if (bgj_print().gt.0) write(*,*)
+     &      __FILE__,': what about oactive for fitted J?'
+         call dftg_cdfit_gen(rtdb, geom, AO_bas_han, CD_bas_han,
+     &                       nbf_ao, nbf_cd, natoms, tol2e,
+     &                       dbl_mb(k_scr), lscr, dbl_mb(k_buf), lbuf,
+     &                       dbl_mb(k_d_kla), dbl_mb(k_d_ija), ldim1,
+     &                       ldim2, g_dens, 0d0, hess, g_rhs,
+     &                       dbl_mb(k_db), dbl_mb(k_s34), oskel,
+     &                       calc_type)
+         if (do_cpks_r) then
+            do i = 1, natoms
+               if (oactive(i)) then
+                  do j = 1, 3
+                     write(*,*)'*** j cpks rhs matrix 1st part',j,i
+                     call ga_print(g_rhs(j,i))
+                  enddo
+               endif
+            enddo
+c            write(*,*)'DB:'
+c            call output(dbl_mb(k_db),1,nbf_cd,1,3*natoms,nbf_cd,
+c     &           3*natoms,1)
+            if (.not. MA_push_get(MT_DBL, nbf_cd*3*natoms, 'ti_db',
+     &           l_ti_db, k_ti_db))
+     &           call errquit('j_nucder_gen: could not alloc ti_db',1)
+            call dcopy(nbf_cd*3*natoms, dbl_mb(k_db), 1,
+     &           dbl_mb(k_ti_db), 1)
+            call colti(dbl_mb(k_ti_db),nbf_cd,natoms)
+            if (.not. MA_pop_stack(l_ti_db))
+     &           call errquit('j_nucder_gen: could not pop ti_hess',1)
+         endif
+c
       else
 c
          nproc = ga_nnodes()
@@ -168,6 +200,7 @@ c
                do j = 1, 3
                   call ga_transpose(g_rhs(j,i), g_t)
                   call ga_add(1.0d0, g_rhs(j,i), 1.0d0, g_t, g_rhs(j,i))
+c!!!                  call ga_zero(g_rhs(j,i))
                enddo
             endif
          enddo
@@ -175,6 +208,27 @@ c
          if (.not. ga_destroy(g_t))
      &       call errquit('j_deriv_gen: could not destroy temp GA',0)
 c
+      endif
+c
+      if (do_cpks_r .and. CDFIT) then
+         if (.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .true.))
+     &        call errquit('j_nucder_gen: rtdb_put of j_derfit failed',
+     &        1)
+         call fock_j_fit_gen(3*natoms, g_dens, g_rhs, dbl_mb(k_db),
+     &        .true., .false.)
+         if (.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
+     &        call errquit('j_nucder_gen: rtdb_put of j_derfit failed',
+     &        2)
+         if (.not. MA_pop_stack(l_db))
+     &        call errquit('j_nucder_gen: could not pop db',0)
+         do i = 1, natoms
+            if (oactive(i)) then
+               do j = 1, 3
+                  write(*,*)'*** j cpks rhs matrix after 2nd part',j,i
+                  call ga_print(g_rhs(j,i))
+               enddo
+            endif
+         enddo
       endif
 c
 c !!! BGJ test !!!
@@ -342,3 +396,25 @@ c
 c
       return
       end
+c!!! BGJ test !!!
+      subroutine colti(a, ldim, natoms)
+c
+c     Tests column TI of rectangular matrix by summing columns
+c
+      implicit none
+c
+      integer ldim, natoms
+      double precision a(ldim,3,natoms)
+      integer i, j
+      do j = 2, natoms
+         do i = 1, ldim
+            a(i,1,1) = a(i,1,1) + a(i,1,j)
+            a(i,2,1) = a(i,2,1) + a(i,2,j)
+            a(i,3,1) = a(i,3,1) + a(i,3,j)
+         enddo
+      enddo
+      write(*,*)'*** Column TI check'
+      call output(a, 1, ldim, 1, 3, ldim, 3, 1)
+      return
+      end
+c!!! BGJ test !!!
