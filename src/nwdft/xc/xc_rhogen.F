@@ -4,7 +4,7 @@
      &                     rho, delrho, rhoat, scr, rchi_atom,
      &                     rdelchi_atom, rdens_atom, cetobfr)
 c
-c$Id: xc_rhogen.F,v 1.15 1997-12-11 08:07:27 d3e129 Exp $
+c$Id: xc_rhogen.F,v 1.16 1998-07-14 18:42:58 d3h449 Exp $
 c
       implicit none
 c
@@ -103,7 +103,12 @@ c
 c           screening parameters
 c
             FUNC_MAXJ = max(rchi_atom(jat),rdelchi_atom(jat))
-            P_MAXIJ = max(rdens_atom(iat,jat,1),rdens_atom(iat,jat,2))
+            if (ipol.eq.1)then
+               P_MAXIJ = rdens_atom(iat,jat,1)
+            else
+               P_MAXIJ = max(rdens_atom(iat,jat,1),
+     &                       rdens_atom(iat,jat,2))
+            endif
             if (FUNC_MAXI*FUNC_MAXJ*P_MAXIJ.lt.tol_rho) goto 215
             tol_rho_tmp = tol_rho/(FUNC_MAXI*FUNC_MAXJ)
 c
