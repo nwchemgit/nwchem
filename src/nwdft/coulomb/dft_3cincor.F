@@ -2,7 +2,7 @@
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd, 
      &                       cntoce, cntobfr, cetobfr, natoms)
 c 
-C$Id: dft_3cincor.F,v 1.12 1997-11-26 17:26:55 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.13 1998-12-22 02:04:58 edo Exp $
 c
       implicit none
 c    
@@ -179,8 +179,9 @@ c
 c
                 if ( .not. bas_cn2bfr( cd_bas_han,ishp,ifirstp,ilastp))
      &              call errquit('exiting in fitvcoul.',5)
+
                 nshbf_cd=ilastp-ifirstp+1
-c                  
+
                 nintegrals=nshbf_cd*nao2
 c                 
 c               compute the 3 center 2e- integrals between this given pair 
@@ -199,12 +200,14 @@ c
                       call int_2e3c(cd_bas_han,ishp,ao_bas_han,ishc,
      &                ishd,nscr,dbl_mb(iscr),nintegrals,i3c_ERI(ndone))
                       call dscal(nintegrals, q1, i3c_ERI(ndone), 1)
+                    else
+                      call dzero(i3c_ERI(ndone),Nintegrals)
                    endif
                 else
                    call int_2e3c(cd_bas_han,ishp,ao_bas_han,ishc,
      &             ishd,nscr,dbl_mb(iscr),nintegrals,i3c_ERI(ndone))
                 endif                   
-c
+
                 ndone=ndone+nintegrals
 c
  220          continue
@@ -421,7 +424,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: dft_3cincor.F,v 1.12 1997-11-26 17:26:55 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.13 1998-12-22 02:04:58 edo Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
