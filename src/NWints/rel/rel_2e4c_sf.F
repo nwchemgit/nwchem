@@ -1,4 +1,4 @@
-C $Id: rel_2e4c_sf.F,v 1.3 2000-05-27 18:09:31 mg201 Exp $
+C $Id: rel_2e4c_sf.F,v 1.4 2000-06-01 20:03:38 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_2e4c\_sf}
 c:tex-Wrapper routine for evaluation of the two-electron four-center
@@ -74,6 +74,7 @@ c:tex-\end{verbatim}
 c:tex-
 c:tex-{\it Subroutines called:} hf2, rel_LLSS, rel_SSLL, rel_SSSS
 *
+      integer ibug_local ! local debug parameter
       integer iscr      ! address of free space in scr
       integer nscr      ! length of free space in scr
       integer neri      ! number of integrals
@@ -90,6 +91,7 @@ c:tex-{\it Subroutines called:} hf2, rel_LLSS, rel_SSLL, rel_SSSS
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
       debug_arrays = mod(ibug,10)/2 .eq. 1
+      ibug_local = ibug/10
       if (debug_gen) write (LuOut,*) 'Entering rel_2e4c_sf'
 *
       max_mem = 0
@@ -98,12 +100,22 @@ c:tex-{\it Subroutines called:} hf2, rel_LLSS, rel_SSLL, rel_SSSS
       nallCD = n_cont_C*(l_C+1)*(l_C+2)/2
       nallCD = nallCD*n_cont_D*(l_D+1)*(l_D+2)/2
       neri = nallAB*nallCD
+      if (debug_addresses) then
+        write (LuOut,*) l_A,ictr_A,n_prim_A,n_cont_A
+        write (LuOut,*) l_B,ictr_B,n_prim_B,n_cont_B
+        write (LuOut,*) l_C,ictr_C,n_prim_C,n_cont_C
+        write (LuOut,*) l_D,ictr_D,n_prim_D,n_cont_D
+      end if
       if ((neri .gt. leri) .and. (.not.DryRun)) call errquit 
      &    ('rel_2e4c_sf: eri buffer too small ',99)
 *
 *   Do the LLLL integrals
 *
       nscr = lscr
+      if (debug_gen) then
+        write (LuOut,*) 'Calling hf2'
+        call util_flush(LuOut)
+      end if
       call hf2(
      &    Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,
      &    Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,
@@ -121,13 +133,17 @@ c:tex-{\it Subroutines called:} hf2, rel_LLSS, rel_SSLL, rel_SSSS
       if (SS_one_cent) do_CD = do_CD .and. (ictr_C .eq. ictr_D)
       if (do_CD) then
         nscr = lscr-neri
+        if (debug_gen) then
+          write (LuOut,*) 'Calling rel_LLSS'
+          call util_flush(LuOut)
+        end if
         call rel_LLSS (
      &      Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,
      &      Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,
      &      Cxyz,zeta_C,coefS_C,n_prim_C,n_cont_C,l_C,
      &      Dxyz,zeta_D,coefS_D,n_prim_D,n_cont_D,l_D,
      &      scr,neri,canAB,canCD,canPQ,
-     &      DryRun,scr(iscr),nscr,ibug/10,1)
+     &      DryRun,scr(iscr),nscr,ibug_local,1)
         if (DryRun) then
           max_mem = max(max_mem, nscr+neri)
         else
@@ -143,13 +159,17 @@ c:tex-{\it Subroutines called:} hf2, rel_LLSS, rel_SSLL, rel_SSSS
       if (SS_one_cent) do_AB = do_AB .and. (ictr_A .eq. ictr_B)
       if (do_AB) then
         nscr = lscr-neri
+        if (debug_gen) then
+          write (LuOut,*) 'Calling rel_SSLL'
+          call util_flush(LuOut)
+        end if
         call rel_SSLL (
      &      Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,
      &      Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,
      &      Cxyz,zeta_C,coefL_C,n_prim_C,n_cont_C,l_C,
      &      Dxyz,zeta_D,coefL_D,n_prim_D,n_cont_D,l_D,
      &      scr,neri,canAB,canCD,canPQ,
-     &      DryRun,scr(iscr),nscr,ibug/10,1)
+     &      DryRun,scr(iscr),nscr,ibug_local,1)
         if (DryRun) then
           max_mem = max(max_mem, nscr+neri)
         else
@@ -163,13 +183,17 @@ c:tex-{\it Subroutines called:} hf2, rel_LLSS, rel_SSLL, rel_SSSS
 *
       if (do_AB .and. do_CD .and. do_SSSS) then
         nscr = lscr-neri
+        if (debug_gen) then
+          write (LuOut,*) 'Calling rel_SSSS'
+          call util_flush(LuOut)
+        end if
         call rel_SSSS (
      &      Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,
      &      Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,
      &      Cxyz,zeta_C,coefS_C,n_prim_C,n_cont_C,l_C,
      &      Dxyz,zeta_D,coefS_D,n_prim_D,n_cont_D,l_D,
      &      scr,neri,canAB,canCD,canPQ,
-     &      DryRun,scr(iscr),nscr,ibug/10,1,1)
+     &      DryRun,scr(iscr),nscr,ibug_local,1,1)
         if (DryRun) then
           max_mem = max(max_mem, nscr+neri)
         else
@@ -180,6 +204,7 @@ c:tex-{\it Subroutines called:} hf2, rel_LLSS, rel_SSLL, rel_SSSS
       end if
 *
       if (DryRun) lscr = max_mem+neri
+      if (debug_gen) write (LuOut,*) 'Exiting rel_2e4c_sf'
 *
       return
       end

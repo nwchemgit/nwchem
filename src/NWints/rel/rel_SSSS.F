@@ -1,4 +1,4 @@
-C $Id: rel_SSSS.F,v 1.7 2000-05-27 17:57:55 mg201 Exp $
+C $Id: rel_SSSS.F,v 1.8 2000-06-01 20:02:05 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_SSSS}
 c:tex-This routine generates the SSSS-type two-electron integrals for
@@ -110,6 +110,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
       debug_arrays = mod(ibug,10)/2 .eq. 1
+      if (debug_gen) write (LuOut,*) 'Entering rel_SSSS'
       max_mem = 0
 *
       if ((ntypAB .ne. 1) .and. (ntypAB .ne. 3) .and. (ntypAB .ne. 4))
@@ -158,7 +159,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       n_intmm = n_cartm_a*n_cartm_b*n_cont_ab*n_cd
       i_xca = 1
       i_xcb = i_xca+NPA*NCA
-      i_pp = max(i_xca+n_abcd,i_xcb+NPB*NCB)
+      i_pp = i_xcb+NPB*NCB
       i_pm = i_pp+n_intpp
       i_mp = i_pm+n_intpm
       i_mm = i_mp+n_intmp
@@ -202,6 +203,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *
 *         Calculate integrals for l_A+1, l_B+1
 *
+      if (debug_gen) write (LuOut,*) 'calling rel_LLSS ++'
       call rel_LLSS (
      &    Axyz,zeta_A,scr(i_xca),NPA,NCA,l_A+1,
      &    Bxyz,zeta_B,scr(i_xcb),NPB,NCB,l_B+1,
@@ -215,6 +217,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *
       if (l_A .gt. 0) then
         memscr = lscr-i_scr+1
+        if (debug_gen) write (LuOut,*) 'calling rel_LLSS +-'
         call rel_LLSS (
      &      Axyz,zeta_A,coef_A,NPA,NCA,l_A-1,
      &      Bxyz,zeta_B,scr(i_xcb),NPB,NCB,l_B+1,
@@ -229,6 +232,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *
       if (l_B .gt. 0) then
         memscr = lscr-i_scr+1
+        if (debug_gen) write (LuOut,*) 'calling rel_LLSS -+'
         call rel_LLSS (
      &      Axyz,zeta_A,scr(i_xca),NPA,NCA,l_A+1,
      &      Bxyz,zeta_B,coef_B,NPB,NCB,l_B-1,
@@ -242,6 +246,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *
         if (l_A .gt. 0) then
           memscr = lscr-i_scr+1
+          if (debug_gen) write (LuOut,*) 'calling rel_LLSS --'
           call rel_LLSS (
      &        Axyz,zeta_A,coef_A,NPA,NCA,l_A-1,
      &        Bxyz,zeta_B,coef_B,NPB,NCB,l_B-1,
@@ -256,6 +261,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *     Call routine to generate the integrals.
 *
       memscr = lscr-i_scr+1
+      if (debug_gen) write (LuOut,*) 'calling rel_pot2'
       call rel_pot2 (scr(i_pp),scr(i_pm),scr(i_mp),scr(i_mm),
      &    rel_ints,n_ints,ntypAB,n_cd,
      &    l_A,n_cartp_a,n_cart_a,n_cartm_a,NCA*ntypCD,
@@ -265,6 +271,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
         max_mem = max(max_mem,i_scr+memscr-1)
         lscr = max_mem
       end if
+      if (debug_gen) write (LuOut,*) 'Exiting rel_SSSS'
 *
       return
       end
