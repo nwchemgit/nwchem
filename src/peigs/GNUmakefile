@@ -5,7 +5,7 @@ include ./DEFS
 
 #peigs.lib:; $(MAKE) -f makefile.peigs lib
 
-peigs_stamp:	$(TOPDIR)/lib/$(NWCHEM_TARGET)/libpeigs.a
+peigs_stamp:	$(LIBDIR)/$(LIBRARY)
 	($(MAKE) -f makefile.peigs lib ) || exit 1
 	touch peigs_stamp
 
@@ -19,7 +19,7 @@ clean:
 	rm -f peigs_stamp include_stamp
 realclean:	clean
 	$(MAKE) -f makefile.peigs realclean
-	rm -f $(TOPDIR)/lib/$(NWCHEM_TARGET)/libpeigs.a
+	rm -f $(LIBDIR)/$(LIBRARY)
 	rm -f peigs_stamp include_stamp
 
 
