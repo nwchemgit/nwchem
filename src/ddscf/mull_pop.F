@@ -1,6 +1,6 @@
       Subroutine mull_pop( geom, basis, iga_dens,iga_s, string)
 
-C$Id: mull_pop.F,v 1.14 1998-10-14 23:43:12 windus Exp $
+C$Id: mull_pop.F,v 1.15 2002-04-08 22:43:55 d3k958 Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -86,13 +86,14 @@ c
 #include "msgids.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
+#include "util.fh"
       integer basis
       integer natoms,nshells
       integer iga_PS             ! product   GA handle
       integer ifirst,ilast,nbf_at,max_at_bf2
       integer ish1,ish2,ish,nn,iat,mu
       integer me,nproc, geom
-      double precision psmu, coord(3), qnuc
+      double precision psmu, coord(3), qnuc, pop
       double precision qatom(natoms),qshell(nshells),PSmat(max_at_bf2)
       character*2 symbol
       character*16 tag
@@ -101,9 +102,12 @@ c
       character*(*) string
       integer lbuf
       integer atn
+      integer nbf, k_tags, l_tags, g_nbf, i, m, offset, nbf_acc, g_pop
+      logical oprint
 c     
       me=ga_nodeid()
       nproc=ga_nnodes()
+      oprint = util_print('Mulliken AO', print_high)
       
       call dfill(natoms,0.D0,qatom,1)
       call dfill(nshells,0.D0,qshell,1)
@@ -111,11 +115,39 @@ c
       if (.not. bas_geom(basis, geom)) call errquit
      $     ('mull_pop: bas_geom failed',basis)
 
+       if (.not.bas_numbf(basis,nbf))
+     $     call errquit('bas_numbf failed',0) 
+
+      if(.not.ga_create(mt_int,nbf,1,'atom nbf',0,0,g_nbf))
+     $        call errquit('mull_pop ga_create failed', 0)
+      call ga_zero(g_nbf)
+ 
+      if(.not.ga_create(mt_dbl,nbf,natoms,'ao pop',0,0,g_pop))
+     $        call errquit('mull_pop ga_create failed', 0)
+      call ga_zero(g_pop)
+ 
+      if (.not. ma_push_get(mt_byte,nbf*16,'bf tags',l_tags,k_tags))
+     $    call errquit(' exiting in mull_pop: insuff stack',3)
+
+      call bas_vec_info(basis, byte_mb(k_tags))
+
+ 3    format(1x,(i5,2x,f12.6,4x,16a1,4x))
+ 4    format(3x,a4,4x,a10,2x,a13)
+      if (me.eq.0 .and. oprint) then
+        write(6,*)
+        write(6,4)'Bfn.','Population','Atom+Function'
+        write(6,*)'  ---------------------------------'
+      endif
+
+      call ga_sync()
+
       do iat=me+1,natoms,nproc
         if (.not.bas_ce2cnr(basis,iat,ish1,ish2))
      &       call errquit(' exiting in mull_pop',4)
         call get_atom_block(iga_PS, basis,
      $       iat, iat, PSmat, nbf_at, nbf_at)
+        call ga_put(g_nbf,iat,iat,1,1,nbf_at,1)
+
         mu=0
         do ish=ish1,ish2
           if (.not. bas_cn2bfr(basis,ish,ifirst,ilast))
@@ -123,12 +155,39 @@ c
           do nn=ifirst,ilast
             mu=mu+1
             psmu=PSmat((mu-1)*nbf_at+mu)
+            
+            call ga_put(g_pop,mu,mu,iat,iat,psmu,1)
+ 
             qshell(ish)=qshell(ish)+psmu
           enddo
           qatom(iat)=qatom(iat)+qshell(ish)
         enddo
       enddo
-      call ga_sync
+
+      call ga_sync()
+     
+      if (me.eq.0 .and. oprint) then
+      offset = 0
+      do iat = 1,natoms
+        call ga_get (g_nbf,iat,iat,1,1,nbf_at,1)
+        do i = 1,nbf_at
+          call ga_get(g_pop,i,i,iat,iat,pop,1)
+          write(6,3) i+offset,pop,
+     &     (byte_mb(k_tags+(i-1+offset)*16+m),m=0,15)
+        enddo
+          offset = offset + nbf_at
+       enddo
+       endif
+
+      if(.not.ga_destroy(g_pop))
+     $        call errquit('mull_pop ga_destroy failed', 0)
+
+      if(.not.ga_destroy(g_nbf))
+     $        call errquit('mull_pop ga_destroy failed', 0)
+
+      if(.not.MA_Pop_Stack(l_tags))
+     &     call errquit(' exiting in mull_pop',32)
+
       call ga_dgop(Msg_Mull1,qatom,natoms,'+')
       call ga_dgop(Msg_Mull2,qshell,nshells,'+')
       if(me.eq.0) then
