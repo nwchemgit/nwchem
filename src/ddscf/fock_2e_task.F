@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.17 1996-01-31 02:24:27 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.18 1996-02-13 17:08:21 d3g681 Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -209,7 +209,7 @@ c
       integer klinfo(2,max_pair_t), nt_kl
 c
       integer max_q, max_at, max_p
-      parameter (max_q = 5001, max_at=20) ! For debug only
+      parameter (max_q = 10001, max_at=20) ! For debug only
       integer ijkl(max_q,4)
       double precision q4(max_q), q4_at(max_at,max_at,max_at,max_at)
       double precision denmax(max_at,max_at,max_at,max_at)
@@ -277,7 +277,6 @@ c
       max_p = dble(max_q*ncent)/dble(ncent_unique)
       if (oikjl) max_p = max_p*2
       max_p = sqrt(dble(max_p))
-*      max_p = 109
 c      
       call fock_pairs(basis, max_p, oij, iatlo, iathi, jatlo, jathi, 
      $     tol2e, ijlist, sij, ijinfo, nt_ij)
@@ -288,9 +287,9 @@ c     Loop over pairs of pairs (have i>=j and k>=l already)
 c
       nq = 0
       do ijt = 1,nt_ij
-         write(6,*) ' nij ', ijinfo(2,ijt)-ijinfo(1,ijt)+1
+*         write(6,*) ' nij ', ijinfo(2,ijt)-ijinfo(1,ijt)+1
          do klt = 1, nt_kl
-            write(6,*) '      nkl ', klinfo(2,klt)-klinfo(1,klt)+1
+*            write(6,*) '      nkl ', klinfo(2,klt)-klinfo(1,klt)+1
             do ij = ijinfo(1,ijt),ijinfo(2,ijt)
                ish = ijlist(1,ij)
                jsh = ijlist(2,ij)
@@ -333,7 +332,7 @@ c     symmetry test
                   endif
 c     sparsity test
                   sijkl = sij(ij)*skl(kl)
-                  if (sijkl .lt. tol2e) goto 300 ! Next kl
+                  if (sijkl .lt. den_tol) goto 300 ! Next kl
 c     density screening
                   if (.not. owritefile) then
                      sijkl=sijkl*denmax(iat,jat,kat,lat)
@@ -347,7 +346,7 @@ c     do it!
      $                    ilo, jlo, klo, llo, ihi, jhi,khi,lhi,
      $                    dij, dik, dli, djk, dlj, dlk,
      $                    fij, fik, fli, fjk, flj, flk,
-     $                    tol2e, nq, ijkl(1,1),ijkl(1,2),
+     $                    den_tol, nq, ijkl(1,1),ijkl(1,2),
      $                    ijkl(1,3),ijkl(1,4), q4)
                      nq = 0
                   endif
@@ -363,7 +362,7 @@ c     do it!
      $           ilo, jlo, klo, llo, ihi, jhi,khi,lhi,
      $           dij, dik, dli, djk, dlj, dlk,
      $           fij, fik, fli, fjk, flj, flk,
-     $           tol2e, nq, ijkl(1,1),ijkl(1,2),
+     $           den_tol, nq, ijkl(1,1),ijkl(1,2),
      $           ijkl(1,3),ijkl(1,4), q4)
             nq = 0
          enddo
@@ -471,7 +470,7 @@ c
       n_in_b = (ijinfo(2,1)-ijinfo(1,1)+1)
       do ijt = 2, old_nt
          n_in_b = n_in_b + (ijinfo(2,ijt)-ijinfo(1,ijt)+1)
-         write(6,*) ijt, n_in_b, max_p
+*         write(6,*) ijt, n_in_b, max_p
          if (n_in_b .le. max_p) then
             ijinfo(2,nt_ij) = ijinfo(2,ijt)
 *            write(6,*) ' setting end   ', nt_ij, ijt
@@ -493,8 +492,8 @@ c
          sij(ij) = schwarz_shell(i,j)
       enddo
 c
-      do ijt = 1, nt_ij
-         write(6,*) ' ij type ', ijt, ijinfo(1,ijt),ijinfo(2,ijt)
+*      do ijt = 1, nt_ij
+*         write(6,*) ' ij type ', ijt, ijinfo(1,ijt),ijinfo(2,ijt)
 c$$$         do ij = ijinfo(1,ijt),ijinfo(2,ijt)
 c$$$            i = ijlist(1,ij)
 c$$$            j = ijlist(2,ij)
@@ -511,7 +510,7 @@ c$$$               write(6,11) ij,j,i,jtype,itype,jnprim,inprim,jngen,ingen
 c$$$            endif
 c$$$ 11         format(1x,i6,2x,2i3,2x,2i3,2x,2i3,2x,2i3)
 c$$$         enddo
-      enddo
+*      enddo
 c
       end
 c
