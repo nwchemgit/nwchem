@@ -3,7 +3,7 @@ c     Computes explicit nuclear 2nd derivatives of the XC energy
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_d2expl.F,v 1.10 2002-02-23 03:54:09 edo Exp $
+c     $Id: xc_d2expl.F,v 1.11 2002-03-22 02:31:01 sohirata Exp $
 c
       Subroutine xc_d2expl(tol_rho, scr, Amat, Amat2, Acof2, Cmat,
      &     Cmat2, Ccof2, F, Pmat, ff, s, chi, delchi, heschi, d3chi,
@@ -139,7 +139,7 @@ c
             call dcopy(nq*ipol*9,ddelrho(1,1,1,1,iatcur),1,Ccof2,1)
          endif
          call xc_cpks_coeff(Acof2,Ccof2,Amat2,Cmat2,Cmat,delrho,3,ipol,
-     &        nq,GRAD)
+     &        nq,GRAD,.false.)
 c
          do 20 jat = 1, iat
             jatcur = curatoms(jat)
