@@ -1,4 +1,4 @@
-c $Id: int_1e3ov.F,v 1.11 1997-05-29 00:35:58 d3e129 Exp $
+c $Id: int_1e3ov.F,v 1.12 1998-03-06 23:07:21 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1e3ov}
@@ -10,6 +10,7 @@ c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine int_1e3ov (i_basis, ish, j_basis, jsh, k_basis, ksh,
      &       lscr, scr, lov3, OV3)
+c
 c:tex-\end{verbatim}
       implicit none
 #include "basP.fh"
