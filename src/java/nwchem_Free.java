@@ -77,12 +77,12 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 			 GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	    gibPlot.init();
 	    gibPlot.resize(500,300);
-	    gibPlot.setTitle("Free Energy");
+	    gibPlot.setTitle("Free Energy vs Lambda");
 	    gibPlot.setXLabel("Lambda");
 	    gibPlot.setMarksStyle("dots",2);
 	    cnvPlot.init();
 	    cnvPlot.resize(500,300);
-	    cnvPlot.setTitle("Free Energy");
+	    cnvPlot.setTitle("Free Energy Convergence");
 	    cnvPlot.setXLabel("Time");
 	    validate();
 	} catch(Exception e) {e.printStackTrace();};
@@ -97,6 +97,7 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 	    boolean first=true;
             int j,ndata;
             double lam;
+            double freem=0.0;
 	    double cnv[] = new double[10000];
             int mdata=10000;
             int numdat=0;
@@ -142,6 +143,7 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 		};
 		dfree=dfree/nderiv;
 		free=free+dfree*dlambda;
+                freem=(deriv[0]+deriv[12])*dlambda/nderiv;
 		lambda=lambda+dlambda;
 		gibPlot.addData(0,lambda,free,!first,false);
 		card=br.readLine();
@@ -152,7 +154,7 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 		dfbias=Double.valueOf(card.substring(60,80)).doubleValue();
 		freeb=freeb+dfbias*dlambda;
 		gibPlot.addData(2,lambda,freeb,!first,false);
-		freep=freep+0.00831151*tmp*(Math.log(ep2)-Math.log(ep3));
+		freep=freep+0.00831151*tmp*(Math.log(ep2)-Math.log(ep3))+freem;
 		gibPlot.addData(1,lambda,freep,!first,false);
 		if(ndec>0) {for(int i=0; i<5*nsa; i=i+4){ card=br.readLine(); };};
 	    };

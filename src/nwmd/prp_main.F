@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.72 2002-05-01 19:05:58 d3j191 Exp $
+c $Id: prp_main.F,v 1.73 2002-05-01 20:15:35 d3j191 Exp $
 c
       implicit none
 c
@@ -678,7 +678,7 @@ c
       integer i,j,k,number,ndec
       real*8 rlambd,dlambd,ddrft,dsterr,dcerr,ratio
       real*8 freeti,errti,drftti,taver,ep2ave,ep3ave,ebias,dfbias
-      real*8 epr,epf,etp,slambd,rnum,fterm(24),gbias,freeb
+      real*8 epr,epf,etp,slambd,rnum,fterm(24),gbias,freeb,freem
 c
       gbias=zero
 c
@@ -721,15 +721,16 @@ c
      + t110,2a10,//,
      + ' Run Lambda   Size',
      + '     Reverse     Forward    Ensemble Lambda Accumulated ',
-     + 'Correction    Corrected',/,18x,
+     + '       Bias        Mass   Corrected',/,18x,
      + '      kJ/mol      kJ/mol      kJ/mol             kJ/mol ',
-     + '    kJ/mol       kJ/mol',/)
+     + '     kJ/mol      kJ/mol      kJ/mol',/)
       endif
 c
       rewind(lfngib)
 c
       freeti=zero
       freeb=zero
+      freem=zero
       errti=zero
       drftti=zero
       etp=zero
@@ -766,6 +767,8 @@ c
       fterm(j)=fterm(j)+rnum*deriv(j)
     4 continue
 c
+      freem=freem+rnum*(deriv(1)+deriv(13))
+c
       if(k.eq.1) then
       call error(.true.,.true.,1000,dfr,nda,
      + dfree,ddrft,dsterr,dcerr,ratio)
@@ -790,8 +793,8 @@ c
       epf=-rgas*taver*log(ep3ave)
       etp=etp-epr+epf
       write(lfnout,1007) i,rlambd,number,epr,epf,epf-epr,slambd,etp,
-     + -gbias,etp-gbias
- 1007 format(i4,f7.3,i7,3f12.3,f7.3,3f12.3)
+     + -gbias,freem,etp-gbias+freem
+ 1007 format(i4,f7.3,i7,3f12.3,f7.3,4f12.3)
       endif
 c
     3 continue
