@@ -52,8 +52,9 @@ Basis Sets:
   o Basis set library has been updated to include all new basis sets at the EMSL
     Gaussian Basis Set Order Form page of David Feller 
     (http://www.emsl.pnl.gov:2080/forms/basisform.html)
-  o Relativistic contractions of the cc-pvnz, n = 2--5, basis sets for the Douglas-Kroll
-    and DmD approximations.
+  o Relativistic contractions of the cc-pvnz, n = 2--5, basis sets for the 
+    Douglas-Kroll and DmD approximations.
+  o Dyall double-zeta basis sets for the 4p, 5p and 6p elements added
 
 Geometry: 
 
@@ -107,6 +108,8 @@ Integral changes:
   o Douglas-Kroll(-Hess) integral routines have been added.
   o Relativistic one- and two-electron integral routines for the DmD approach 
     have been added.
+  o General contraction and multipassing have been implemented for the
+    Mc-Murchie-Davidson 2e integrals.
 
 Tests, manuals and misc script changes: 
 
