@@ -5,7 +5,7 @@
      $     g_fock,g_svecs,isvals,
      $     g_cdinv,g_xcinv,g_2ceri)
 c     
-C     $Id: dft_scf.F,v 1.58 1997-02-17 17:59:35 d3g681 Exp $
+C     $Id: dft_scf.F,v 1.59 1997-02-18 01:29:55 d3h449 Exp $
 c     
       implicit none
       integer rtdb              ! [input]
@@ -46,7 +46,7 @@ c
       external dft_n3cdbl
       Integer l_eval
       integer k_eval(2)
-      Character*(nw_max_path_len) movecs_out,movecs_in
+      Double Precision rmoments(3) ! dipole
       integer lmax              ! CMM
       integer finest            ! CMM
       integer natoms,nTotEl
@@ -88,7 +88,6 @@ c
      $     oprint_info,oprint_tol,oprint_final_vecs,
      $     oprint_energy_step, oprint_intermediate_fock
       integer itol_min,iAOacc_min
-      double precision scfcon
       double precision zero,onem,one
       parameter(zero=0.d0,one=1.d0,onem=-one)
       parameter(itol_min=6,iAOacc_min=15)
@@ -304,7 +303,6 @@ C
 c     
 c     SCF energy convergence criterion. 
 c     
-      scfcon = 10.D0**(-iscfcon)
       call gacrea(geom,ao_bas_han,
      $     nbf_ao,nbf_ao,'ga temp',g_tmp,'atom')
       if(ipol.gt.1) then
@@ -450,15 +448,7 @@ c
       call dft_init_guess(rtdb, g_dens, g_movecs, g_fock)
       iter = 1
 c     
-c     Figure input/output MO vectors 
-c     
-      if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
-     $     call util_file_name('movecs', .false.,.false.,movecs_in)
-      if (.not. rtdb_cget(rtdb, 'dft:output vectors', 1, movecs_out))
-     $     movecs_out = ' '
-      if (movecs_out.eq.' ') then
-         movecs_out = movecs_in
-      endif
+c     Figure input/output MO vectors (done prev in dft_init_guess)
 c     
 c     See if we are already converged
 c     
@@ -940,8 +930,8 @@ c     Check for SCF convergence.
 c     
       call ga_sync
       if(.not.last_time)call dft_scfcvg(rms,
-     $     Etold,Etnew,Enuc,
-     $     scfcon,ipol,igcon,iter,itrscf,idone,converged,rtdb)
+     $     Etold,Etnew,Enuc,e_conv,d_conv,g_conv,
+     $     ipol,iter,iterations,idone,converged,rtdb)
       if(delta.lt.1.d-4) then
 c     
 c     Set coulomb acc to max (e.g., input parameter).
@@ -1024,7 +1014,7 @@ c
       endif
 c     
       if( idone.eq.0.or.
-     $     (iswitc.lt.2.and.iter.lt.itrscf)) go to 1000 ! begin new iteration
+     $     (iswitc.lt.2.and.iter.lt.iterations)) go to 1000 ! begin new iteration
       if(idone.eq.1.and.(.not.last_time_vecs))then
          last_time_vecs = .true.
          last_time = .true.
@@ -1362,12 +1352,9 @@ c
       write(*,*)' itol2e = ', itol2e
       write(*,*)' imull = ', imull
       write(*,*)' iangquad = ', iangquad
-      write(*,*)' itrscf = ', itrscf
-      write(*,*)' iscfcon = ', iscfcon
-      write(*,*)' iguess = ', iguess
+      write(*,*)' iterations = ', iterations
       write(*,*)' mult = ', mult
       write(*,*)' ipol = ', ipol
-      write(*,*)' igcon = ', igcon
       write(*,*)' nfock = ', nfock
       write(*,*)' ncydp = ', ncydp
       write(*,*)' ncysh = ', ncysh

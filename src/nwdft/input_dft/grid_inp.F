@@ -31,7 +31,7 @@ c
       character*10 dirs(num_dirs), gridtype
       character*255 test
       logical ldelley, lbecke, store_wght
-      integer iangquad, nquad_task
+      integer iangquad, nquad_task, nagrid, nradpts
       double precision rm
       data dirs / 'delley', 'becke', 'gausleg', 'lebedev', 'coarse', 
      &            'medium', 'fine', 'xfine', 'user', 'store_wght', 
@@ -125,6 +125,20 @@ c
   900 gridtype='user'
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
      &   call errquit('grid_inp: rtdb_put failed', 900) 
+      if (.not. inp_i(nagrid)) then
+         write(6,*)' grid_inp: nagrid value not found; ',
+     &             ' defaulting to 8 '
+         nagrid = 8
+      endif
+      if (.not. rtdb_put(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
+     &   call errquit('grid_inp: rtdb_put failed', 900)
+      if (.not. inp_i(nradpts)) then
+         write(6,*)' grid_inp: nradpts value not found; ',
+     &             ' defaulting to 40 '
+         nradpts = 40
+      endif
+      if (.not. rtdb_put(rtdb, 'dft:nradpts', mt_int, 1, nradpts))
+     &   call errquit('grid_inp: rtdb_put failed', 900)
 c
       goto 10
 c     
@@ -166,8 +180,9 @@ c
 c     
 10000 write(6,10001)
 10001 format(/,' grid [[delley], [becke], [gausleg], [lebedev ival], ',
-     &       /,' [coarse], [medium], [fine], [xfine], [user], ',
-     &       /,' [store_wght], [nquad_task ival], [rm rval] ')
+     &       /,' [coarse], [medium], [fine], [xfine], ',
+     &       /,' [user ival ival], [store_wght], [nquad_task ival], ',
+     &       /,' [rm rval] ')
       call util_flush(6)
       call errquit('grid_input: invalid format', 0)
 c     

@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.27 1997-02-17 07:12:30 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.28 1997-02-18 01:27:33 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -11,6 +11,7 @@ c
 c      
       integer rtdb                               ! [input] database handle
 c
+#include "inp.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -29,13 +30,17 @@ c
       integer nshells_cd,nshells_xc,nshells
       integer lcoord,icoord,lcharge,icharge,ltags,itags,
      &     lznuc,iznuc,lratom,iratom,lrot,irot
-      integer iline, n
+      integer iline, n, nradpts
       integer three, six, fifteen
       Parameter ( three=3, six=6, fifteen=15 )
       character*40 blank_40c
       Logical lnewtype
       Logical int_normalize
       Logical int_norm_2c
+      integer num_gridtypes, ind 
+      parameter (num_gridtypes = 5)
+      character*15 gridtypes(num_gridtypes)
+      data gridtypes /'coarse', 'medium', 'fine', 'xfine', 'user'/
 c     
       External int_normalize
       External int_norm_2c
@@ -143,28 +148,12 @@ c
      &      call errquit('dft_input: rtdb_put failed', 8)
       endif
 c     
-      if (.not. rtdb_get(rtdb, 'dft:itrscf', mt_int, 1,
-     &   itrscf))then
-         itrscf=30
-         if (.not. rtdb_put(rtdb, 'dft:itrscf',
-     &      mt_int, 1, itrscf))
+      if (.not. rtdb_get(rtdb, 'dft:iterations', mt_int, 1,
+     &   iterations))then
+         iterations=30
+         if (.not. rtdb_put(rtdb, 'dft:iterations',
+     &      mt_int, 1, iterations))
      &      call errquit('dft_input: rtdb_put failed', 101) 
-      endif
-c
-      if (.not. rtdb_get(rtdb, 'dft:iscfcon', mt_int, 1,
-     &   iscfcon))then
-         iscfcon=6
-         if (.not. rtdb_put(rtdb, 'dft:iscfcon',
-     &      mt_int, 1, iscfcon))
-     &      call errquit('dft_input: rtdb_put failed', 102)
-      endif
-c
-      if (.not. rtdb_get(rtdb, 'dft:iguess', mt_int, 1,
-     &   iguess))then
-         iguess=0
-         if (.not. rtdb_put(rtdb, 'dft:iguess',
-     &      mt_int, 1, iguess))
-     &      call errquit('dft_input: rtdb_put failed', 103)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:mult', mt_int, 1,
@@ -183,11 +172,21 @@ c
      &      call errquit('dft_input: rtdb_put failed', 105)
       endif
 c
-      if (.not. rtdb_get(rtdb, 'dft:igcon', mt_int, 1,
-     &   igcon))then
-         igcon=4
-         if (.not. rtdb_put(rtdb, 'dft:igcon',
-     &      mt_int, 1, igcon))
+      if (.not. rtdb_get(rtdb, 'dft:e_conv', mt_dbl, 1, e_conv))then
+         e_conv=1.d-6
+         if (.not. rtdb_put(rtdb, 'dft:e_conv', mt_dbl, 1, e_conv))
+     &      call errquit('dft_input: rtdb_put failed', 102)
+      endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:d_conv', mt_dbl, 1, d_conv))then
+         d_conv=1.d-4
+         if (.not. rtdb_put(rtdb, 'dft:d_conv', mt_dbl, 1, d_conv))
+     &      call errquit('dft_input: rtdb_put failed', 106)
+      endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:g_conv', mt_dbl, 1, g_conv))then
+         g_conv=1.d-3
+         if (.not. rtdb_put(rtdb, 'dft:g_conv', mt_dbl, 1, g_conv))
      &      call errquit('dft_input: rtdb_put failed', 106)
       endif
 c
@@ -378,7 +377,7 @@ c
       if (.not. rtdb_get(rtdb, 'dft:ncysh', mt_int, 1,
      &   ncysh))then
          if(levelshift)then
-           ncysh = itrscf
+           ncysh = iterations
          else
            ncysh = 0
          endif
@@ -390,7 +389,7 @@ c
       if (.not. rtdb_get(rtdb, 'dft:ncyds', mt_int, 1,
      &   ncyds))then
          if(diis)then
-           ncyds = itrscf
+           ncyds = iterations
          else
            ncyds = 0
          endif
@@ -423,34 +422,70 @@ c
      &      call errquit('dft_input: rtdb_put failed', 215)
       endif
 c
-      if (.not. rtdb_cget(rtdb, 'dft:gridtype', 1,
-     &   gridtype))then
+c     get/set gridtype; set nagrid and nrad
+c
+      if (.not. rtdb_cget(rtdb, 'dft:gridtype', 1, gridtype))then
 c     
 c        set default grid to  'MEDIUM'
 c     
          gridtype='medium'
-         if (.not. rtdb_cput(rtdb, 'dft:gridtype', 
-     &      1, gridtype))
-     &      call errquit('dft_input: rtdb_put failed', 301) 
       endif
+      if (.not. inp_match(num_gridtypes, .false., gridtype, gridtypes, 
+     &   ind)) then
+         write(6,*)' Unknown gridtype; defaulting to medium grid'
+         gridtype='medium'
+         ind = 2
+      endif
+      goto (10, 20, 30, 40, 50, 99) ind
+      call errquit('dft_rdinput: unknown gridtype', ind)
+   10 continue
 c
-      if (.not. rtdb_get(rtdb, 'dft:nagrid',
-     &   mt_int, 1, nagrid))then
-         nagrid = 8
-         if (.not. rtdb_put(rtdb, 'dft:nagrid',
-     &      mt_int, 1, nagrid))
-     &      call errquit('dft_input: rtdb_put failed', 116)
-      endif
+c     coarse grid;
 c
-      if (.not. rtdb_get(rtdb,'dft:nrad',
-     &   mt_int, dft_ntags_bsmx, nrad))then
-         do n = 1,dft_ntags_bsmx
-           nrad(n) = 40
-         enddo 
-         if (.not. rtdb_put(rtdb,'dft:nrad',
-     &      mt_int, dft_ntags_bsmx, nrad))
-     &      call errquit('dft_input: rtdb_put failed', 115)
-      endif
+      nagrid = 6
+      nradpts = 30
+      goto 99
+   20 continue
+c
+c     medium grid;
+c
+      nagrid = 8
+      nradpts = 40
+      goto 99
+   30 continue
+c
+c     fine grid;
+c
+      nagrid = 10
+      nradpts = 60
+      goto 99
+   40 continue
+c
+c     xfine grid;
+c
+      nagrid = 24
+      nradpts = 64
+      goto 99
+   50 continue
+c
+c     user grid;
+c
+      if (.not. rtdb_get(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
+     &   nagrid = 8
+      if (.not. rtdb_get(rtdb,'dft:nradpts', mt_int, 1, nradpts))
+     &   nradpts = 40
+   99 continue
+      do n = 1, dft_ntags_bsmx
+         nrad(n) = nradpts
+      enddo 
+      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
+     &   call errquit('dft_input: rtdb_put failed', 301) 
+c
+      if (.not. rtdb_put(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
+     &   call errquit('dft_input: rtdb_put failed', 116)
+c
+      if (.not. rtdb_put(rtdb,'dft:nrad', mt_int, dft_ntags_bsmx, nrad))
+     &   call errquit('dft_input: rtdb_put failed', 115)
 c
 c     Get/set/put XC info.
 c

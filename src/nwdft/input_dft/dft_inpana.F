@@ -5,7 +5,7 @@ c     Analyze input to deduce nature of system, and set key flags.
 c     
 c*********************************************************************
       subroutine dft_inpana(rtdb)
-C     $Id: dft_inpana.F,v 1.18 1997-02-13 01:07:34 d3g681 Exp $
+C     $Id: dft_inpana.F,v 1.19 1997-02-18 01:27:30 d3h449 Exp $
       implicit none
       logical even, cksetd
       integer noc(2)
@@ -134,14 +134,14 @@ c
             elseif(ipol.eq.2)then
                write(LuOut,9055)
             endif
-            write(LuOut,9030)itrscf
+            write(LuOut,9030)iterations
             if(idirect.eq.1)write(LuOut,9110)
             if(nbf_xc.gt.0)write(LuOut,9120)
             if(nbf_cd.gt.0)write(LuOut,9130)
             write(LuOut,9135)gridtype
-            write(LuOut,9035)iscfcon
-            if(igcon.gt.0)then
-               write(LuOut,9040)igcon
+            write(LuOut,9035)e_conv
+            if(d_conv.gt.0)then
+               write(LuOut,9040)d_conv
             endif
 c     
 c     Write out XC info. Combo info first, than X components,
@@ -223,9 +223,9 @@ c     Three types of convergence speedup schemes:
 c     1) based on number of cycles performed,
 c     ncydp = 3
 c     ndamp = 40
-c     ncysh = itrscf
+c     ncysh = iterations
 c     rlshift = 0.5
-c     ncyds = itrscf        
+c     ncyds = iterations        
 c     2) based on differences of total energy being less than some threshold,
 c     dampon = 1.d8
 c     dampoff = 1.0d-1
@@ -238,17 +238,17 @@ c     3) DIIS plus levelshifting if homo-lumo gap is small (default)
 c     nodamping = .true.
 c     ncydp = 0
 c     ndamp = 0
-c     ncysh = itrscf
+c     ncysh = iterations
 c     rlshift = 0.5
-c     ncyds = itrscf        
+c     ncyds = iterations        
 c     
       return
  9000 format(//,5x,31('-'),/,5x,
      &     'Parameters for SCF calculation.',/,5x,31('-'),/)
  9020 format(10x,'SCF calculation type: DFT',/)
  9030 format(10x,'Maximum number of iterations = ',I3,/)
- 9035 format(10x,'Convergence on energy requested = 10**(-',i2,')',/)
- 9040 format(10x,'Convergence on density requested = 10**(-',i2,')',/)
+ 9035 format(10x,'Convergence on energy requested = ',d8.2,/)
+ 9040 format(10x,'Convergence on density requested = ',d8.2,/)
  9050 format(10x,'Wavefunction type:  closed shell.',/)
  9055 format(10x,'Wavefunction type:  spin polarized.',/)
  9110 format(10x,'This is a Direct SCF calculation.',/)

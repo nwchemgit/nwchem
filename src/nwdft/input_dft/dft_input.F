@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.16 1997-02-17 17:58:32 d3g681 Exp $
+c     $Id: dft_input.F,v 1.17 1997-02-18 01:27:31 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -24,23 +24,12 @@ c
       character*12 dirs(num_dirs)
       character*255 test
       data dirs /'convergence', 'decomp', 'dft', 'direct', 'ecp', 
-     $           'grid', 'guess', 'incore', 'itrscf', 'max_ovl', 
+     $           'grid', 'vectors', 'incore', 'iterations', 'max_ovl', 
      $           'mulliken', 'mult', 'noio', 'noprint', 'odft', 
      $           'print', 'tolerances', 'xc', 'end'/
-c      integer nopt,  nopt_quad, nopt_munit, nopt_grid,
-c     &     nopt_system
-c      parameter (nopt=57,  nopt_quad=2, nopt_munit=6,
-c     &     nopt_grid=5, nopt_system=4)
-      integer  n,
-     &     idecomp, mult, 
-     &     itrscf, ipol, noio,
-     &     iguess,
-     &     idirect, nfock, ifield,
-     &     imull
-      integer nfield, iline
-      logical pseudo
-      logical direct
-      logical lmaxov, incore
+      integer idecomp, mult, iterations, ipol, noio,
+     &        idirect, nfock, ifield, imull
+      logical pseudo, direct, lmaxov, incore
 c
 c     Any DFT input causes calculation to be marked as not converged
 c
@@ -53,8 +42,6 @@ c
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      $     call errquit('dft_input: unknown directive', 0)
 c     
-*      write(6,*)' test = ',test     
-*      write(6,*)' ind = ',ind     
       goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
      $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
      $     1900, 9999) ind
@@ -105,25 +92,9 @@ c
 c
       goto 10
 c             
-c     guess; next keyword gives type of initial guess
+c     vectors; get input vectors, output vectors, initial guess, etc.
 c             
-  700 if (inp_a(test)) then
-         if (inp_compare(.false., 'atomic', test)) then
-            iguess = 0
-         elseif (inp_compare(.false., 'hcore', test)) then
-            iguess = 1
-         else 
-            write(6,*)' dft_input: guess option not',
-     &                ' recognized'
-         endif 
-      else 
-         write (6,*)' dft_input:  WARNING:',
-     &              ' guess option not found;',
-     &              ' defaulting to 0'
-         iguess = 0
-      endif 
-      if (.not. rtdb_put(rtdb, 'dft:iguess', mt_int, 1, iguess))
-     &   call errquit('dft_input: rtdb_put failed', 700)
+  700 call vectors_input(rtdb,'dft')
 c
       goto 10
 c
@@ -135,14 +106,14 @@ c
 c
       goto 10
 c
-c     itrscf;
+c     iterations;
 c             
-  900 if (.not. inp_i(itrscf)) then
-         write(6,*)' dft_input: itrscf value not found;',
+  900 if (.not. inp_i(iterations)) then
+         write(6,*)' dft_input: iterations value not found;',
      &             ' defaulting to 30'
-         itrscf = 30
+         iterations = 30
       endif 
-      if (.not. rtdb_put(rtdb, 'dft:itrscf', mt_int, 1, itrscf))
+      if (.not. rtdb_put(rtdb, 'dft:iterations', mt_int, 1, iterations))
      &   call errquit('dft_input: rtdb_put failed', 900) 
 c
       goto 10
