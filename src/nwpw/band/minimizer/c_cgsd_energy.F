@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.3 2002-01-11 18:26:00 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.4 2002-02-13 00:51:58 edo Exp $                       
 *
 
 *     ***************************
@@ -221,7 +221,7 @@ c      call cphafac_k()
  1497 FORMAT( ' K.S. V_xc energy    :',E19.10,' (',E15.5,'/electron)')
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1500 FORMAT(/' orbital energies:')
- 1508 FORMAT(/' Brillion zone point: ',i2,
+ 1508 FORMAT(/' Brillouin zone point: ',i2,
      >       /'    weight=',f10.6,
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
      >       /'          =<',3f8.3,'>')
