@@ -8,6 +8,7 @@
 #include "util.fh"
 #include "inp.fh"
 #include "bgj_common.fh"
+#include "stdio.fh"
       integer rtdb
       integer stack
       integer heap
@@ -21,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.126 2000-01-05 00:25:28 windus Exp $
+c     $Id: nwchem.F,v 1.127 2000-04-10 10:15:41 hvd Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -99,7 +100,7 @@ c     Get the name of the input file from the command line
 c
          call get_input_filename(input_filename)
 c
-         open(5, file=input_filename, status='old', form='formatted',
+         open(LuIn, file=input_filename, status='old', form='formatted',
      $        err=10000)
          goto 10001
 10000    call errquit('nwchem: failed to open the input file', 0)
@@ -107,7 +108,7 @@ c
 c
       else
 #if !(defined(KSR) || defined(IBM))
-         close(5)
+         close(LuIn)
 #endif
       endif
 c
@@ -270,7 +271,7 @@ c
      $        call ga_summarize(0)
          if (util_print('ga stats', print_default)) then
             call ga_print_stats()
-            write(6,*)
+            write(LuOut,*)
          endif
          if (util_print('ma summary', print_default))
      $        call ma_summarize_allocated_blocks()
@@ -288,9 +289,9 @@ c
       total_cpu  = total_cpu  + util_cpusec()
       if (ga_nodeid() .eq. 0) then
         if (util_print('total time', print_low)) then
-          write(6,1) total_cpu, total_wall
+          write(LuOut,1) total_cpu, total_wall
  1        format(/' Total times  cpu:',f11.1,'s     wall:',f11.1,'s')
-          call util_flush(6)
+          call util_flush(LuOut)
         endif
       endif
       call ecce_print1('all tasks cpu time',mt_dbl,total_cpu,1)
@@ -319,6 +320,7 @@ c
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "util.fh"
+#include "stdio.fh"
 c
 c     Print a banner at the top of the output to identify the origin
 c     of the code along with hostname, no. of processors, date, ...
@@ -342,30 +344,30 @@ c
 c
       if (ga_nodeid() .ne.0) goto 10101
 c
-      call util_print_centered(6,
+      call util_print_centered(LuOut,
      $     '                                                          ',
      $     40, .true.)
-      write(6,*)
-      write(6,*)
-      call util_print_centered(6,
+      write(LuOut,*)
+      write(LuOut,*)
+      call util_print_centered(LuOut,
      $     'Northwest Computational Chemistry Package (NWChem) 3.3.1',
      $     40, .true.)
-      write(6,*)
-      write(6,*)
-      call util_print_centered(6,
+      write(LuOut,*)
+      write(LuOut,*)
+      call util_print_centered(LuOut,
      $      'Environmental Molecular Sciences Laboratory',
      $     40, .false.)
-      call util_print_centered(6,
+      call util_print_centered(LuOut,
      $     'Pacific Northwest National Laboratory',
      $     40, .false.)
-      call util_print_centered(6,'Richland, WA 99352',
+      call util_print_centered(LuOut,'Richland, WA 99352',
      $     40, .false.)
-      write(6,*)
-      call util_print_centered(6,
+      write(LuOut,*)
+      call util_print_centered(LuOut,
      $     '                                                          ',
      $     40, .true.)
-      write(6,*)
-      write(6,*)
+      write(LuOut,*)
+      write(LuOut,*)
       call util_legal()
 c
 #if defined(CRAY)
@@ -403,8 +405,8 @@ C
          Call Util_GetEnv('LOADL_JOB_NAME', batchid)
       EndIf
 C
-      call util_print_centered(6, 'Job information', 17, .true.)
-      write(6,2) 
+      call util_print_centered(LuOut, 'Job information', 17, .true.)
+      write(LuOut,2) 
      $     hostname(1:inp_strlen(hostname)),
      $     executable(1:inp_strlen(executable)),
      $     date(1:inp_strlen(date)),
@@ -419,9 +421,9 @@ C
      $     util_batch_job_time_remaining()
 C
       If ( Inp_StrLen(BatchID) .gt. 0) then
-         Write(6,22) BatchID(:Inp_StrLen(BatchID))
+         Write(LuOut,22) BatchID(:Inp_StrLen(BatchID))
       Else
-         Write(6,'(//)') 
+         Write(LuOut,'(//)') 
       EndIf
 C
  2    format(/
@@ -489,9 +491,9 @@ C
          GStatus = '(distinct from heap & stack)'
       EndIf
 c
-      call util_print_centered(6, 'Memory information', 19, .true.)
+      call util_print_centered(LuOut, 'Memory information', 19, .true.)
 c
-*old:      write(6,3) heap, stack, global, GStatus, total, cstatus,
+*old:      write(LuOut,3) heap, stack, global, GStatus, total, cstatus,
 *old:     $     fstatus
 *old: 3    format(/
 *old:     $     '    heap      = ', i10,' doubles'/
@@ -500,7 +502,7 @@ c
 *old:     $     '    total     = ', i10,' doubles'/
 *old:     $     '    verify    = ', a3/
 *old:     $     '    hardfail  = ', a3//)
-      write(6,3)
+      write(LuOut,3)
      &    heap,((dble(heap)*8.0d-06)),
      &    stack,((dble(stack)*8.0d-06)),
      &    global,((dble(global)*8.0d-06)),
@@ -517,13 +519,14 @@ c
      $     '    verify    = ', a3,/,
      $     '    hardfail  = ', a3,//)
 c
-      call util_print_centered(6, 'Directory information', 20, .true.)
-      write(6,*)
+      call util_print_centered(LuOut, 
+     &     'Directory information', 20, .true.)
+      write(LuOut,*)
 c
 c     Below here back to parallel execution
 c
 10101 call util_file_print_dirs()
-      write(6,*)
+      write(LuOut,*)
 c
       end
       subroutine nw_print_restart_info(rtdb)
@@ -532,6 +535,7 @@ c
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
       integer rtdb
 c
 c     Summarize the status of a restart calculation
@@ -542,10 +546,6 @@ c
 c
       if (ga_nodeid() .eq. 0) then
          mode = rtdb_parallel(.false.)
-*         write(6,*)
-*         call util_print_centered(6, 'Summary of restart information',
-*     $        40, .true.)
-*         write(6,*)
          if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &        task_qmmm = .false.
 c      
@@ -569,9 +569,9 @@ c
          endif
 c
          if (theory.ne.' ' .or. operation.ne.' ' .or. task_qmmm) then
-            call util_print_centered(6,'Previous task information',
+            call util_print_centered(LuOut,'Previous task information',
      $           22, .true.)
-            write(6,1) theory, operation, status, task_qmmm, ignore
+            write(LuOut,1) theory, operation, status, task_qmmm, ignore
  1          format(/,
      $           '    Theory    = ', a,/,
      $           '    Operation = ', a,/,
@@ -581,7 +581,7 @@ c
          endif
          call geom_print_known_geoms(rtdb)
          call bas_print_known_bases(rtdb)
-         call util_flush(6)
+         call util_flush(LuOut)
          mode = rtdb_parallel(mode)
       endif
 c
