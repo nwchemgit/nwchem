@@ -1,5 +1,5 @@
       subroutine atcond(zn,ncsh,nosh,nccup,ajmn,nsym,znps) 
-* $Id: atcond.F,v 1.7 1999-05-20 23:34:32 d3e129 Exp $
+* $Id: atcond.F,v 1.8 1999-05-21 22:27:26 d3e129 Exp $
       implicit none
 c.......................................................................
 c
@@ -47,7 +47,7 @@ c
      &    0,2,4,10,12,18,22,28,30,36,40,46,48,54,60,62,68,72,78,80,
      &    86,92,94,100,104,110/
       data iecp/
-     &    1,1,1,1 ,1 ,1 ,2 ,1 ,1 ,1 ,2 ,1 ,2 ,3 ,1 ,1 ,1 ,2 ,1 ,2 ,
+     &    1,1,1,1 ,1 ,1 ,2 ,1 ,1 ,1 ,2 ,1 ,2 ,3 ,2 ,1 ,1 ,2 ,1 ,2 ,
      &    3 ,1 ,1 ,1  ,2  ,1  /
 c
 c...  End ECP-Data
@@ -112,14 +112,6 @@ c.......................................................................
         ncsh(4) = ncsh(4) - ncsh(4)/2
         ksym = 3
       end if
-c.......................................................................
-c  Check for known cases that do not work
-c
-c..... case 1 Au with ncore of 60 electrons guess=>ihw=1 but use ihw=2
-      if (nz.eq.79.and.ncore.eq.60.and.ihw.eq.1)ihw=2
-      if (nz.eq.78.and.ncore.eq.60.and.ihw.eq.1)ihw=2
-      if (nz.eq.92.and.ncore.eq.60.and.ihw.eq.1)ihw=2
-c
 c.......................................................................
 c
 c ... now consider pseudopotentials ...
