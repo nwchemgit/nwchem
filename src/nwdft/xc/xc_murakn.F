@@ -1,6 +1,6 @@
       Subroutine xc_murakn(r,w,nr,range,lreset)
 
-C$Id: xc_murakn.F,v 1.9 2000-02-02 02:37:40 edo Exp $
+C$Id: xc_murakn.F,v 1.10 2000-02-16 22:59:56 edo Exp $
       implicit none
 
       double precision r(*) ! grid pts coord [output]
@@ -31,9 +31,8 @@ c Transformation from 0<r<infty to 0<x<1 according to
 c ME Mura and PJ Knowles, J Chem Phys 104, 9848 (1996)
 c
 c***************************************************************************
-      nr = nr+1
       if(lreset) then
-         alpha=-range/log(1d0-(nr/(1d0+nr))**3)
+         alpha=-range/log(1d0-((1d0+nr)/(2d0+nr))**3)
       else
 c
 c     huub recipe
@@ -42,11 +41,11 @@ c
 c         alpha=5d0
 c         if(znumber.lt.37) alpha=alphad(znumber)
       endif
-      fmn = rm/dble(nr)
+      fmn = rm/(1d0+nr)
 
-      do 10 i = 1,nr-1
+      do 10 i = 1,nr
 
-       qi = dble(i)/dble(nr)
+       qi = dble(i)/(nr+1d0)
        ri = -alpha*log(1.D0 - qi**rm)
        wi = fmn*alpha*(ri*ri)/(1.D0 - qi**rm)*qi**(rm-1.d0)
 
@@ -54,6 +53,5 @@ c         if(znumber.lt.37) alpha=alphad(znumber)
        w(i) = wi
 
    10 continue
-      nr = nr-1
 
       end
