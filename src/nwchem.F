@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.127 2000-04-10 10:15:41 hvd Exp $
+c     $Id: nwchem.F,v 1.128 2000-05-25 20:54:17 edo Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -370,11 +370,7 @@ c
       write(LuOut,*)
       call util_legal()
 c
-#if defined(CRAY)
-      call pxfgetarg(0,executable,ilen,ierror)
-#else
-      call getarg(0,executable)
-#endif
+      call util_getarg(0,executable)
       call util_hostname(hostname)
       call util_date(date)
       nproc = ga_nnodes()

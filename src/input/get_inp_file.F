@@ -1,5 +1,5 @@
       subroutine get_input_filename(input_filename)
-C     $Id: get_inp_file.F,v 1.7 2000-05-16 20:43:02 edo Exp $
+C     $Id: get_inp_file.F,v 1.8 2000-05-25 20:53:40 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -13,35 +13,31 @@ c
 c     If the file cannot be accessed append .nw
 c     
       character*255 test
+      integer arg,nargs
 #if defined(CRAY)
       integer ilen,ierror
 #endif
 #if defined(EXT_INT) && !defined(HPUX64)
-      integer*4 arg, nargs,firstarg,iargc
+      integer*4 iargc
 #else
-      integer arg, nargs,firstarg,iargc
+      integer iargc
 #endif
       integer l
       external iargc
-#if defined(HPUX64)
-C
-C    this hack allows to get the f77 external getarg out of libU77
-C    insted of the f90 intrinsic
-C
-      external getarg
-#endif
 c     
       nargs = iargc()
       do arg = 1, nargs
-#if defined(CRAY)
-         call pxfgetarg(arg,test,ilen,ierror)
-#else 
-         call getarg(arg, test)
-#endif
+         call util_getarg(arg,test)
          if (arg .eq. 1) input_filename = test
          write(LuOut,1) arg, test(1:inp_strlen(test))
+c
+c     hack to get nwchem.nw to be read with mpi
+c
+         if(inp_strlen(test).eq.0.and.arg.eq.1) 
+     .        input_filename(1:1)='-'
  1       format(' argument',i3,' = ',a)
       enddo
+ 2    continue
       if (nargs .ge. 1) then
          if (input_filename(1:1) .eq. '-') 
      $        input_filename = 'nwchem.nw'
