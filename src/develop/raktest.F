@@ -7,9 +7,66 @@ c      call rjhtest(rtdb)
       write(6,*)' rjh test done '
       write(6,*) ' rak test'
       call dointsum(rtdb,'geometry', 'mo basis')
+      call derivtest(rtdb,'geometry', 'mo basis')
 c
       end
       subroutine dointsum(rtdb,geom_name, basis_name)
+      implicit none
+#include "geom.fh"
+#include "bas.fh"
+#include "mafdecls.fh"
+c
+      integer rtdb
+      integer basis, geom
+      character*(*) geom_name, basis_name
+c
+      logical int_normalize
+      double precision ddot
+      external int_normalize
+      external ddot
+c
+      call hf_print_set(0)
+c
+      write(6,*)' rtdb      :',rtdb
+      write(6,*)' geom_name : <',geom_name,'>'
+      write(6,*)' basis_name: <',basis_name,'>'
+c
+      if (.not. geom_create(geom, geom_name))
+     $     call errquit('dointsum: geom_create failed?', 0)
+      if (.not. geom_rtdb_load(rtdb, geom, geom_name))
+     $     call errquit('dointsum: geom_load failed', 0)
+      if (.not. geom_print(geom))
+     $     call errquit('dointsum: geom_print failed', 0)
+      if (.not. bas_create(basis, basis_name))
+     $     call errquit('dointsum: basis create failed', 0)
+      if (.not. bas_rtdb_load(rtdb, geom, basis, basis_name))
+     $      call errquit('dointsum: basis load failed', 0)
+      if (.not. bas_print(basis))
+     $      call errquit('dointsum: basis print failed', 0)
+      if (.not. gbs_map_print(basis))
+     $     call errquit('dointsum: gbs_map_print failed', 0)
+c
+c normalize basis set
+c
+      if (.not.int_normalize(basis))
+     &       call errquit('dointsum: basis norm. failed', 0)
+      write(6,*)' after normalization'
+      if (.not. bas_print(basis))
+     $      call errquit('dointsum: basis print failed', 0)
+c
+c      write(6,*)' with integrals  printed '
+c      call int_chk_sum(basis,.true.)
+      write(6,*)' without integrals  printed '
+      call int_chk_sum(basis,.false.)
+c
+      if (.not.(
+     &       (bas_destroy(basis)).and.(geom_destroy(geom))
+     &       ))
+     &       call errquit('rak:error destroying gbs pair',0)
+      call MA_summarize_allocated_blocks()
+c
+      end
+      subroutine derivtest(rtdb,geom_name, basis_name)
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -467,13 +524,12 @@ c
 c        write(6,*)' hfd1: <1> nscr:',nscr
         call hf1d(
      &   coords(1,ictra,geom),exndcf(ipa,basis),
-     &                      exndcf(ica,basis),npa,nca,la,
+     &                      exndcf(ica,basis),npa,nca,la,ictra,
      &   coords(1,ictrb,geom),exndcf(ipb,basis),
-     &                      exndcf(icb,basis),npb,ncb,lb,
+     &                      exndcf(icb,basis),npb,ncb,lb,ictrb,
      &   coords(1,1,geom),charge(1,geom),ncenters,
-     &                      ictra,ictrb,
      &          W0(i_Sa),W0(i_Ta),W0(i_Va),nint,
-     &          .TRUE.,.TRUE.,.TRUE.,canAB,W0(iscr),nscr)
+     &          .TRUE.,.TRUE.,.TRUE.,canAB,.false.,W0(iscr),nscr)
         
                      itime = 0
 
@@ -843,17 +899,16 @@ c
      &             coords(1,iatom,geom),
      &             exndcf(iexp,basis),
      &             exndcf(icf,basis),
-     &             inp,igen,itype,
+     &             inp,igen,itype,iatom,
 c
      &             coords(1,jatom,geom),
      &             exndcf(jexp,basis),
      &             exndcf(jcf,basis),
-     &             jnp,jgen,jtype,
+     &             jnp,jgen,jtype,jatom,
 c
      &             coords(1,1,geom),charge(1,geom),nat,
-     &             iatom,jatom,
      &             scr,scr,scr,nint,
-     &             FT,FF,FF,FF,scr(iscr),(nscr-used))
+     &             FT,FF,FF,FF,FF,scr(iscr),(nscr-used))
             icount = 0
             ids = (iatom-1)*3+1
             ide = ids + 2
@@ -1229,17 +1284,16 @@ c
      &             coords(1,iatom,geom),
      &             exndcf(iexp,basis),
      &             exndcf(icf,basis),
-     &             inp,igen,itype,
+     &             inp,igen,itype,iatom,
 c
      &             coords(1,jatom,geom),
      &             exndcf(jexp,basis),
      &             exndcf(jcf,basis),
-     &             jnp,jgen,jtype,
+     &             jnp,jgen,jtype,jatom,
 c
      &             coords(1,1,geom),charge(1,geom),nat,
-     &             iatom,jatom,
      &             scr,scr,scr,nint,
-     &             FF,FT,FF,FF,scr(iscr),(nscr-used))
+     &             FF,FT,FF,FF,FF,scr(iscr),(nscr-used))
             icount = 0
             ids = (iatom-1)*3+1
             ide = ids + 2
@@ -1518,17 +1572,16 @@ c
      &           coords(1,iatom,geom),
      &           exndcf(iexp,basis),
      &           exndcf(icf,basis),
-     &           inp,igen,itype,
+     &           inp,igen,itype,iatom,
 c
      &           coords(1,jatom,geom),
      &           exndcf(jexp,basis),
      &           exndcf(jcf,basis),
-     &           jnp,jgen,jtype,
+     &           jnp,jgen,jtype,jatom,
 c
      &           coords(1,1,geom),charge(1,geom),nat,
-     &           iatom,jatom,
      &           scr,scr,scr,nint,
-     &           FF,FF,FT,FF,scr(iscr),(nscr-used))
+     &           FF,FF,FT,FF,FF,scr(iscr),(nscr-used))
           icount = 0
           id = 0
           do 00300 datom = 1,nat
@@ -1861,7 +1914,8 @@ c
      &                 coords(1,latom,geom),exndcf(lexp,basis),
      &                 exndcf(lcf,basis),lnp,lgen,ltype,latom,
 c
-     &                 gbuf,nint,.false.,.false.,.false.,scr,nscr)
+     &                 gbuf,nint,.false.,.false.,.false.,.false.,
+     &                 scr,nscr)
 c 
                 call logic_atom(idatom,iatom,jatom,katom,latom)
 c do sums
