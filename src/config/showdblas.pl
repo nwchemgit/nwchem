@@ -1,5 +1,5 @@
 #
-# $Id: showdblas.pl,v 1.2 1997-03-17 21:01:15 d3e129 Exp $
+# $Id: showdblas.pl,v 1.3 1999-05-20 21:10:18 d3e129 Exp $
 #
 # perl script searches for "double" values of the blas and lapack 
 # routines reporting only those files that have a recognized routine.
@@ -68,7 +68,7 @@ foreach $file (@ARGV){
 	      $itok = 0;
 	      while ($itok < $num_tokens)
 	      {
-		  if (/[\W{1}]$tokens[$itok][\W{1}]/i) {
+		  if (/(\W{1})$tokens[$itok](\W{1})/i) {
 		      $found++;
 		      if ($debug) {print "token: $tokens[$itok]\n";}
 		      print "$file: $_";

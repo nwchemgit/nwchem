@@ -1,5 +1,5 @@
 #
-# $Id: hassblas.pl,v 1.2 1997-03-17 21:00:59 d3e129 Exp $
+# $Id: hassblas.pl,v 1.3 1999-05-20 21:05:33 d3e129 Exp $
 #
 # perl script searches for "single" values of the 
 # blas and lapack routines reporting only those that have a recognized
@@ -68,7 +68,7 @@ foreach $file (@ARGV){
 	      $itok = 0;
 	      while ($itok < $num_tokens && (!($found)))
 	      {
-		  if (/[\W{1}]$tokens[$itok][\W{1}]/i) {
+		  if (/(\W{1})$tokens[$itok](\W{1})/i) {
 		      $found++;
 		      last FOUNDIT;
 		  }
