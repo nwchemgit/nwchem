@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.42 2003-01-30 01:16:57 bert Exp $
+C$Id: rohf.F,v 1.43 2003-02-06 22:07:19 edo Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -43,6 +43,7 @@ c
       external rohf_diis_solve
 c
       oprint = util_print('information',print_low)
+      odbug  = util_print('rohf debug',print_high)
 c
 c     Initialize the ROHF data structures and allocate memory
 c
