@@ -3,7 +3,7 @@
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp,
      + lseq,cseq,mseq,nseq)
 c
-c $Id: pre_check.F,v 1.16 2003-07-23 02:38:46 d3j191 Exp $
+c $Id: pre_check.F,v 1.17 2003-07-31 04:09:31 d3j191 Exp $
 c
       implicit none
 c
@@ -122,9 +122,9 @@ c
      + catm(1+j,lang(1,i)),catm(1+j,lang(2,i)),catm(1+j,lang(3,i)),
      + catm(1,lang(1,i)),catm(1,lang(2,i)),catm(1,lang(3,i)),
      + cseq(latm(5,lang(1,i))),lseq(1,latm(5,lang(1,i))),
-     + lang(1,i),lang(2,i),lang(3,i),i
+     + lang(1,i),lang(2,i),lang(3,i),i,j,k
  1003 format(' Parameters could not be found for angle type    ',
-     + a6,'-',a6,'-',a6,' (',a6,'-',a6,'-',a6,')',a6,i6,3i7,i7)
+     + a6,'-',a6,'-',a6,' (',a6,'-',a6,'-',a6,')',a6,i6,3i7,i7,2i3)
       endif
       pre_check=.false. 
     5 continue

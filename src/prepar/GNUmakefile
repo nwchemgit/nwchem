@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.34 2003-07-23 02:38:45 d3j191 Exp $
+# $Id: GNUmakefile,v 1.35 2003-07-31 04:09:31 d3j191 Exp $
 #
 
 OBJ_OPTIMIZE=prepar.o\
@@ -39,6 +39,7 @@ OBJ_OPTIMIZE=prepar.o\
              pre_impctr.o\
              pre_input.o\
              pre_links.o\
+             pre_master.o\
              pre_merge.o\
              pre_misfit.o\
              pre_mkfrg.o\

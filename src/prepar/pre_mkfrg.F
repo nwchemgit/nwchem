@@ -5,7 +5,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_mkfrg.F,v 1.40 2003-07-23 02:38:46 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.41 2003-07-31 04:09:31 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -278,8 +278,8 @@ c
      + '#')
       length=index(csgm(i),' ')-1
       if(length.le.0) length=5
-      write(iunit,2002) csgm(i)(1:length),nato
- 2002 format('$',a,/,i5)
+      write(iunit,2002) csgm(i)(1:length),nato,1,1
+ 2002 format('$',a,/,3i5)
       if(util_print('sequence',print_medium)) then
       write(lfnout,3002) csgm(i)(1:length)
  3002 format(/,' Fragment ',t40,a,//,
@@ -298,8 +298,8 @@ c
       qsum=qsum+qato(j)
       endif
       write(iunit,2003) j,cato(2,j),cato(3,j),
-     + lato(5,j),lato(4,j),1,1,qato(j),0.0
- 2003 format(i5,a4,2x,a6,4i5,2f12.6)
+     + 1,1,lato(5,j),lato(4,j),1,qato(j),0.0,0
+ 2003 format(i5,a4,2x,a6,5i5,2f12.6)
       if(cato(3,j)(1:1).eq.' ') found=.false.
       endif
     6 continue

@@ -1,7 +1,7 @@
       logical function pre_frgsiz(lfnfrg,filfrg,lfnout,
-     + natm,nbnd,nzmat)
+     + natm,nbnd,nzmat,nparms,ipardef)
 c
-c $Id: pre_frgsiz.F,v 1.8 2001-10-23 23:01:20 d3j191 Exp $
+c $Id: pre_frgsiz.F,v 1.9 2003-07-31 04:09:31 d3j191 Exp $
 c
 c     function to read dimensions from a frg file
 c
@@ -21,6 +21,8 @@ c
 c
       character*80 card
       integer i,icon(16),length
+c
+      integer nparms,ipardef
 c
       natm=0
       nbnd=0
@@ -48,8 +50,8 @@ c
 c
       if(card(1:1).eq.'#'.or.card(1:1).eq.'$') goto 1
 c
-      read(card,1001) natm
- 1001 format(i5)
+      read(card,1001) natm,nparms,ipardef
+ 1001 format(3i5)
 c
       do 2 i=1,natm
       read(lfnfrg,1000,end=9999,err=9999) card

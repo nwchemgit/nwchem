@@ -1,7 +1,7 @@
-      logical function pre_dihsel(catm,matm,natm,
+      logical function pre_dihsel(catm,nparms,nparmsp,matm,natm,
      + ldih,mdih,ndih)
 c
-c $Id: pre_dihsel.F,v 1.3 2003-07-23 02:38:46 d3j191 Exp $
+c $Id: pre_dihsel.F,v 1.4 2003-07-31 04:09:31 d3j191 Exp $
 c
       implicit none
 c
@@ -10,9 +10,9 @@ c
       integer pre_atnum
       external pre_atnum
 c
-      integer matm,natm,mdih,ndih
+      integer matm,natm,mdih,ndih,nparms,nparmsp
       integer ldih(4,mdih)
-      character*6 catm(2,matm)
+      character*6 catm(nparmsp,matm)
 c
       integer i,j,nd
 c

@@ -1,4 +1,4 @@
-c $Id: pre_common.fh,v 1.1 2003-07-23 02:38:46 d3j191 Exp $
+c $Id: pre_common.fh,v 1.2 2003-07-31 04:09:31 d3j191 Exp $
 c
 c     general parameters
 c
@@ -34,10 +34,15 @@ c     dirpar(i)   : name of i-th parameter directory
 c     filpar(i,j) : name of j-th parameter file in i-th directory
 c
       integer ndirpar,nfilpar(mdirpar)
-      character*80 ffield
-      character*255 dirpar(mdirpar),filpar(mdirpar,mfilpar)
 c
       common/pre_dim/ndirpar,nfilpar
 c
-      common/pre_chr/ffield,dirpar,filpar
+      character*80 ffield
+      character*255 dirpar(mdirpar),filpar(mdirpar,mfilpar)
+      character*255 filmst
 c
+      common/pre_chr/ffield,dirpar,filpar,filmst
+c
+      integer lfnmst
+      common/pre_lfn/lfnmst
+

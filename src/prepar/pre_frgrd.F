@@ -1,7 +1,7 @@
-      logical function pre_frgrd(lfnfrg,filfrg,lfnout,
+      logical function pre_frgrd(lfnfrg,filfrg,lfnout,nparms,nparmsp,
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,izmat,zmat,mzmat,nzmat)
 c
-c $Id: pre_frgrd.F,v 1.6 2000-09-15 22:21:53 d3j191 Exp $
+c $Id: pre_frgrd.F,v 1.7 2003-07-31 04:09:31 d3j191 Exp $
 c
 c     function to read dimensions from a frg file
 c
@@ -17,9 +17,10 @@ c
 #include "util.fh"
 c
       integer lfnfrg,lfnout,matm,natm,mbnd,nbnd,mzmat,nzmat
-      integer latm(5,matm),lbnd(2,mbnd),izmat(mzmat,4)
-      character*6 catm(2,matm)
-      real*8 qatm(2,matm),zmat(mzmat,3)
+      integer nparms,nparmsp
+      integer latm(6,matm),lbnd(2,mbnd),izmat(mzmat,4)
+      character*6 catm(nparmsp,matm)
+      real*8 qatm(nparms,2,matm),zmat(mzmat,3)
       character*255 filfrg
 c
       character*80 card
@@ -55,8 +56,16 @@ c
 c
       do 2 i=1,natm
       read(lfnfrg,1002,end=9999,err=9999) catm(1,i),catm(2,i),
-     + (latm(j,i),j=1,4),qatm(1,i),qatm(2,i)
- 1002 format(5x,2a6,4i5,2f12.6)
+     + latm(3,i),latm(4,i),latm(1,i),latm(2,i),latm(6,i),
+     + qatm(1,1,i),qatm(1,2,i)
+ 1002 format(5x,2a6,5i5,2f12.6)
+      if(nparms.gt.1) then
+      do 22 j=2,nparms
+      read(lfnfrg,1202,end=9999,err=9999)
+     + catm(j+1,i),qatm(j,1,i),qatm(j,2,i)
+ 1202 format(11x,a6,25x,2f12.6)
+   22 continue
+      endif
     2 continue
 c
     3 continue

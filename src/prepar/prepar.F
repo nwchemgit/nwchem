@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.50 2003-07-23 02:38:47 d3j191 Exp $
+c $Id: prepar.F,v 1.51 2003-07-31 04:09:31 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -111,6 +111,7 @@ c
       lfnmrg=29
       lfnhdb=30
       lfnhop=31
+      lfnmst=32
 c
 c     node 0 only please
 c     ------------------

@@ -1,20 +1,20 @@
-      logical function pre_wrtsgm(lfnout,lfnsgm,filsgm,
+      logical function pre_wrtsgm(lfnout,lfnsgm,filsgm,nparms,nparmsp,
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,lang,mang,nang,
-     + ldih,mdih,ndih,limp,mimp,nimp,izmat,zmat,mzmat,nzmat)
+     + ldih,mdih,ndih,limp,mimp,nimp,izmat,zmat,mzmat,nzmat,ipardef)
 c
-c $Id: pre_wrtsgm.F,v 1.13 2003-07-23 02:38:47 d3j191 Exp $
+c $Id: pre_wrtsgm.F,v 1.14 2003-07-31 04:09:31 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 #include "pre_common.fh"
 c
-      integer lfnout,lfnsgm
+      integer lfnout,lfnsgm,nparms,nparmsp,ipardef
       integer matm,natm,mbnd,nbnd,mang,nang,mdih,ndih,mimp,nimp
-      integer latm(5,matm),lbnd(2,mbnd),lang(3,mang),ldih(4,mdih)
+      integer latm(6,matm),lbnd(2,mbnd),lang(3,mang),ldih(4,mdih)
       integer limp(4,mimp)
-      character*6 catm(2,matm)
-      real*8 qatm(2,matm)
+      character*6 catm(nparmsp,matm)
+      real*8 qatm(nparms,2,matm)
       integer mzmat,nzmat
       integer izmat(mzmat,4)
       real*8 zmat(mzmat,3)
@@ -33,18 +33,20 @@ c
       write(lfnsgm,2001) 4.6
  2001 format(f12.6)
 c
-      write(lfnsgm,2002) natm,nbnd,nang,ndih,nimp,nzmat,1
- 2002 format(7i5)
+      write(lfnsgm,2002) natm,nbnd,nang,ndih,nimp,nzmat,nparms,ipardef
+ 2002 format(8i5)
 c
-      write(lfnsgm,2003) 0.0
+      write(lfnsgm,2003) (0.0,j=1,nparms)
  2003 format(f12.6)
 c
       do 1 i=1,natm
       write(lfnsgm,2004) i,catm(1,i),latm(3,i),
-     + latm(4,i),latm(1,i),latm(2,i)
- 2004 format(i5,a6,4i5)
-      write(lfnsgm,2005) catm(2,i),qatm(1,i),qatm(2,i)
+     + latm(4,i),latm(1,i),latm(2,i),latm(6,i)
+ 2004 format(i5,a6,5i5)
+      do 201 j=1,nparms
+      write(lfnsgm,2005) catm(1+j,i),qatm(j,1,i),qatm(j,2,i)
  2005 format(5x,a6,2f12.6)
+  201 continue
     1 continue
 c
       do 2 i=1,nbnd
@@ -57,15 +59,19 @@ c
       do 3 i=1,nang
       write(lfnsgm,2008) i,(lang(j,i),j=1,3),0,0
  2008 format(6i5)
+      do 203 j=1,nparms
       write(lfnsgm,2009) 0.0d0,0.0d0
  2009 format(f10.6,e12.5)
+  203 continue
     3 continue
 c
       do 4 i=1,ndih
       write(lfnsgm,2010) i,(ldih(j,i),j=1,4),0,0
  2010 format(7i5)
+      do 204 j=1,nparms
       write(lfnsgm,2011) 0,0.0d0,0.0d0
  2011 format(i3,f10.6,e12.5)
+  204 continue
     4 continue
 c
       do 5 i=1,nimp
@@ -73,11 +79,15 @@ c
       write(lfnsgm,2012) i,limp(2,i),limp(3,i),limp(1,i),limp(4,i),
      + 0,0
  2012 format(7i5)
+      do 205 j=1,nparms
       write(lfnsgm,2013) 0,0.0d0,0.0d0
  2013 format(i3,f10.6,e12.5)
+  205 continue
       else
       write(lfnsgm,2012) i,(limp(j,i),j=1,4),0,0
+      do 305 j=1,nparms
       write(lfnsgm,2013) 0,0.0d0,0.0d0
+  305 continue
       endif
     5 continue
 c

@@ -1,6 +1,6 @@
       logical function pre_mksgm(lfnout,lfnfrg,filfrg,lfnsgm,filsgm)
 c
-c $Id: pre_mksgm.F,v 1.13 2003-07-23 02:38:46 d3j191 Exp $
+c $Id: pre_mksgm.F,v 1.14 2003-07-31 04:09:31 d3j191 Exp $
 c
 c     function to make segment file
 c
@@ -15,9 +15,9 @@ c
 #include "pre_common.fh"
 c
       logical pre_frgsiz,pre_frgrd,pre_ang,pre_dih,pre_imp
-      logical pre_dihsel,pre_dihimp,pre_wrtsgm
+      logical pre_dihsel,pre_dihimp,pre_wrtsgm,pre_master
       external pre_frgsiz,pre_frgrd,pre_ang,pre_dih,pre_imp
-      external pre_dihsel,pre_dihimp,pre_wrtsgm
+      external pre_dihsel,pre_dihimp,pre_wrtsgm,pre_master
 c
       integer lfnout,lfnfrg,lfnsgm
       character*255 filfrg,filsgm
@@ -30,6 +30,8 @@ c
       integer l_bnd,i_bnd,l_ang,i_ang,l_dih,i_dih,l_imp,i_imp
       integer i_izmat,l_izmat,i_zmat,l_zmat
 c
+      integer nparms,ipardef
+c
       length=index(filsgm,' ')-1
 c
       if(util_print('where',print_debug)) then
@@ -37,7 +39,13 @@ c
  2000 format(//,'SEGMENT FILE ',a)
       endif
 c
-      if(.not.pre_frgsiz(lfnfrg,filfrg,lfnout,natm,nbnd,nzmat))
+      if(pre_master(lfnfrg,filfrg,lfnout)) then
+      write(lfnout,2020) filmst(1:index(filmst,' ')-1)
+ 2020 format('MASTER FILE ',a)
+      endif
+c
+      if(.not.pre_frgsiz(lfnfrg,filfrg,lfnout,natm,nbnd,nzmat,
+     + nparms,ipardef))
      + call errquit('pre_frgsiz failed',9999)
 c
 c     allocate memory for bonds, angles, torsions and impropers
@@ -63,19 +71,20 @@ c                  3       :
 c                  4       :
 c                  5       :
 c
-      if(.not.ma_push_get(mt_int,5*matm,'latm',l_latm,i_latm))
+      if(.not.ma_push_get(mt_int,6*matm,'latm',l_latm,i_latm))
      + call errquit('mksgm: Memory allocation failed for latm',9999)
 c
 c     char*6  catm(1,matm) : atom name
 c                  2       : atom type
 c
-      if(.not.ma_push_get(mt_byte,12*matm,'catm',l_catm,i_catm))
+      if(.not.ma_push_get(mt_byte,6*(nparms+1)*matm,'catm',
+     + l_catm,i_catm))
      + call errquit('mksgm: Memory allocation failed for catm',9999)
 c
 c     real*8 qatm(1,matm) : partial atomic charges
 c                 2       : polarizabilities
 c
-      if(.not.ma_push_get(mt_dbl,2*matm,'qatm',l_qatm,i_qatm))
+      if(.not.ma_push_get(mt_dbl,2*nparms*matm,'qatm',l_qatm,i_qatm))
      + call errquit('mksgm: Memory allocation failed for qatm',9999)
 c
 c     integer lbnd(1:2,mbnd) : bond indices
@@ -108,7 +117,7 @@ c
 c     read atom list and bond list from fragment file
 c     -----------------------------------------------
 c
-      if(.not.pre_frgrd(lfnfrg,filfrg,lfnout,
+      if(.not.pre_frgrd(lfnfrg,filfrg,lfnout,nparms,nparms+1,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_bnd),mbnd,nbnd,int_mb(i_izmat),
      + dbl_mb(i_zmat),mzmat,nzmat))
@@ -129,21 +138,21 @@ c
 c     make the improper list
 c     ----------------------
 c
-      if(.not.pre_imp(ffield,int_mb(i_latm),matm,natm,
+      if(.not.pre_imp(int_mb(i_latm),matm,natm,
      + int_mb(i_bnd),mbnd,nbnd,int_mb(i_imp),mimp,nimp))
      + call errquit('mksgm: pre_imp failed',9999)
 c
 c     select dihedrals
 c     ----------------
 c
-      if(.not.pre_dihsel(ffield,byte_mb(i_catm),matm,natm,
+      if(.not.pre_dihsel(byte_mb(i_catm),nparms,nparms+1,matm,natm,
      + int_mb(i_dih),mdih,ndih))
      + call errquit('mksgm: pre_dihsel failed',9999)
 c
 c     switch propers to impropers
 c     ---------------------------
 c
-      if(.not.pre_dihimp(ffield,int_mb(i_latm),matm,natm,
+      if(.not.pre_dihimp(int_mb(i_latm),matm,natm,
      + int_mb(i_ang),mang,nang,
      + int_mb(i_dih),mdih,ndih,int_mb(i_imp),mimp,nimp))
      + call errquit('mksgm: pre_dihsel failed',9999)
@@ -151,11 +160,11 @@ c
 c     write segment file
 c     ------------------
 c
-      if(.not.pre_wrtsgm(lfnout,lfnsgm,filsgm,
+      if(.not.pre_wrtsgm(lfnout,lfnsgm,filsgm,nparms,nparms+1,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_bnd),mbnd,nbnd,int_mb(i_ang),mang,nang,
      + int_mb(i_dih),mdih,ndih,int_mb(i_imp),mimp,nimp,
-     + int_mb(i_izmat),dbl_mb(i_zmat),mzmat,nzmat))
+     + int_mb(i_izmat),dbl_mb(i_zmat),mzmat,nzmat,ipardef))
      + call errquit('mksgm: pre_wrtsgm failed',9999)
 c
 c     deallocate memory
