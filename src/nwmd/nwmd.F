@@ -1,6 +1,6 @@
       logical function nwmd(irtdb0)
 c
-c $Id: nwmd.F,v 1.2 1999-04-05 22:54:17 d3j191 Exp $
+c $Id: nwmd.F,v 1.3 1999-05-26 05:37:58 d3j191 Exp $
 c
       implicit none
 c
@@ -31,3 +31,6 @@ c
 c
       return
       end
+
+
+

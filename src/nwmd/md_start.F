@@ -34,7 +34,8 @@ c
      + iewald,morder,ngx,ngy,ngz,nodpme,pmetol,
      + tstep,tlwsha,mshitw,mshits,
      + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
-     + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,issscl,delta)
+     + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
+     + issscl,delta)
 c
 c     print topology information
 c     --------------------------
@@ -1088,6 +1089,56 @@ c
  1003 format(/,' Force field parameter set ',i4)
       endif
 c
+      if(nserie.eq.0) then
+      write(lfnout,1026)
+ 1026 format(/,' Initial simulation',/)
+      elseif(nserie.eq.1) then
+      write(lfnout,1027)
+ 1027 format(/,' Restart simulation',/)
+      else
+      write(lfnout,1028)
+ 1028 format(/,' Continuation simulation',/)
+      endif
+c
+      if(ntype.eq.3) then
+      if(mropt.eq.0) then
+      write(lfnout,1032)
+ 1032 format(' Multiple run initial simulation')
+      elseif(mropt.eq.1) then
+      write(lfnout,1033)
+ 1033 format(' Multiple run simulation with initial conditions')
+      else
+      write(lfnout,1034)
+ 1034 format(' Multiple run extension simulation')
+      endif
+      write(lfnout,1025) mrun
+ 1025 format(' Number of runs ',i7)
+      endif
+      if(ntype.ge.2) then
+      write(lfnout,1024) mequi,mdacq
+ 1024 format(' Number of equilibration steps ',i7,/
+     + ' Number of data gathering steps',i7) 
+      endif
+c
+      if(ntype.eq.3.and.issscl.gt.0) then
+      write(lfnout,1029) ssshft
+ 1029 format(/,' Separation shifted scaling, delta ',f12.6,' nm**2') 
+      endif
+c
+      if(iewald.gt.0) then
+      write(lfnout,1030) morder,ngx,ngy,ngz,nodpme,pmetol
+ 1030 format(/,' Particle-mesh Ewald, spline to order ',i5,/,
+     + ' Grid size ',i5,'x',i5,'x',i5,/,
+     + ' Number of processors for p-FFT ',i5,/,
+     + ' Tolerance at cutoff ',1pe12.5)
+      endif
+c
+      if(ipolt.eq.1) then
+      write(lfnout,1031) mpolit,ptol
+ 1031 format(/,' Polarization model, maximum iterations ',i5,/,
+     + ' Tolerance ',1pe12.5)
+      endif
+c
       if(rshort.le.rlong) then
       write(lfnout,1004) rshort
  1004 format(/,' Cutoff radius ',f12.6, ' nm')
@@ -1104,7 +1155,8 @@ c
       endif
       if(itscal.gt.0) then
       write(lfnout,1021) tmpext,tmprlx,tmsrlx
- 1021 format(' Isothermal ensemble external temperature ',f12.6,' K',/,
+ 1021 format(/,' Isothermal ensemble external temperature ',
+     + f12.6,' K',/,
      + ' Temperature relaxation time solvent ',f12.6,' ps',/,
      + ' Temperature relaxation time solute  ',f12.6,' ps')
       endif
