@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.5 2000-05-30 14:47:29 windus Exp $
+# $Id: GNUmakefile,v 1.6 2000-05-31 00:15:27 edo Exp $
 
 SUBDIRS = dft 
 
@@ -14,6 +14,7 @@ OBJ_OPTIMIZE =  hess_anal.o \
                 twodd_coul_ex.o \
                 hess_cphf.o \
                 hess_pxfy.o \
+                hess_sxsy.o \
                 sx_dra.o \
                 hess_tidy.o
 
