@@ -1,0 +1,32 @@
+#- 
+#- This test data exposed the now fixed MP2 gradients bug ... 
+#- 
+start disilane
+title; disilane, Si2H6
+
+geometry autoz
+  symmetry group d3d
+  Si          0.0         0.0               1.181424
+  H           0.990312   -0.990312          1.694694
+end
+
+basis spherical
+  H  library aug-cc-pvtz
+  Si library aug-cc-pvtz
+end
+
+mp2
+  freeze atomic; print high
+end
+
+task mp2 gradient
+
+set tng:delta 0.03
+set tng:fivept t
+
+mp2; print none; end
+
+task mp2 gradient numerical
+
+
+
