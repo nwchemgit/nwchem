@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.16 2000-08-02 23:01:31 d3g681 Exp $
+ $Id: nwchem_wrap.c,v 1.17 2000-08-26 00:37:57 d3g681 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -21,7 +21,7 @@ static PyObject *NwchemError;
 
 static Integer rtdb_handle;            /* handle to the rtdb */
 
-#if defined(CRAY) || defined(CRAY_T3E)
+#if defined(CRAY) || defined(CRAY_T3E) || defined(WIN32)
 #define task_energy_ TASK_ENERGY
 #define task_gradient_ TASK_GRADIENT
 #define task_optimize_ TASK_OPTIMIZE
@@ -29,9 +29,9 @@ static Integer rtdb_handle;            /* handle to the rtdb */
 
 extern int nw_inp_from_string(int, const char *);
 
-extern Integer task_energy_(const Integer *);
-extern Integer task_gradient_(const Integer *);
-extern Integer task_optimize_(const Integer *);
+extern Integer FATR task_energy_(const Integer *);
+extern Integer FATR task_gradient_(const Integer *);
+extern Integer FATR task_optimize_(const Integer *);
 
 static PyObject *nwwrap_integers(int n, Integer a[])
 {
