@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.14 1998-07-15 20:38:44 d3j191 Exp $
+c $Id: pre_input.F,v 1.15 1998-07-15 22:03:48 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,7 @@ c
       character*11 cfix
       real*8 rfix
 c
-      logical ltouch,lrdcoo,lslvnt
+      logical ltouch,lrdcoo,lslvnt,needwt
 c
 c      if(ga_nodeid().eq.0) then
 c      if(util_print('prepare',print_medium)) then
@@ -66,6 +66,7 @@ c
       ltouch=.false.
       lrdcoo=.false.
       lslvnt=.false.
+      needwt=.false.
 c
       if(.not.rtdb_cget(irtdb,'file_prefix',1,commnd))
      + call errquit('rtdb_cget failed on file_prefix',9999)
@@ -425,7 +426,7 @@ c
       endif
 c
 c     solvate
-c     ------
+c     -------
 c
       if(inp_compare(.false.,'solvate',item)) then
       if(.not.ltouch) write(68,6804) touch
@@ -436,7 +437,7 @@ c
       lrdcoo=.true.
       if(.not.lslvnt) write(68,7805)
  7805 format('solvnt ')
-      lrdcoo=.true.
+      lslvnt=.true.
       if(.not.inp_a(item)) then
       write(68,6805) xpndw
  6805 format('period ',/,'solvat cube ',/,
@@ -477,8 +478,7 @@ c
       endif
       endif
       endif
-      write(68,7808)
- 7808 format('wr_rst')
+      needwt=.true.
       numcmd=numcmd+1
       goto 2
       endif
@@ -513,6 +513,7 @@ c
  6808 format('wr_rst ',a)
       endif
       endif
+      needwt=.false.
       numcmd=numcmd+1
       goto 2
       endif
@@ -529,10 +530,12 @@ c
       if(.not.inp_a(item)) call errquit('pre_input: read',9999)
       write(68,6809) item(1:index(item,' ')-1)
  6809 format('rd_pdb ',a)
+      lrdcoo=.true.
       elseif(inp_compare(.false.,'rst',item)) then
       if(.not.inp_a(item)) call errquit('pre_input: read',9999)
       write(68,6810) item(1:index(item,' ')-1)
  6810 format('rd_rst ',a)
+      lrdcoo=.true.
       endif
       endif
       numcmd=numcmd+1
@@ -546,6 +549,12 @@ c
       write(6,1000) item
  1000 format('pre_input: unknown field ',a)
       call errquit('pre_input: error reading input file',0)
+      endif
+c
+      if(needwt) then
+      write(68,7808)
+ 7808 format('wr_rst')
+      numcmd=numcmd+1
       endif
 c
       len=index(dir_s,' ')-1

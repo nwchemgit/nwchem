@@ -63,3 +63,5 @@ Jul 14 1998	 Add routine to determine if a segment is amino acid (pre_protein)
 		 Fix file name bug in explicit write rst command
 Jul 15 1998	 Remove persistency new_top new_seq and new_rst
 		 Resize solvent arrays when needed to read rst file
+		 Allow coordinate read before solvation
+		 Avoid write of ccordinates if explicit command given

@@ -2,7 +2,7 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
-c $Id: pre_mkrst.F,v 1.16 1998-07-15 21:18:10 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.17 1998-07-15 22:03:48 d3j191 Exp $
 c
       implicit none
 c
@@ -331,10 +331,8 @@ c
 c     get restart file name for the solvent
 c     -------------------------------------
 c
-      print*,slvmdl
       if(.not.util_nwchemrc_get(slvmdl,filslv))
      + call errquit('util_nwchemrc_get failed on slvmdl',9999)
-      print*,filslv
       if(util_print('coordinates',print_high)) then
       write(lfnout,1008) filslv(1:index(filslv,' ')-1)
  1008 format(' Solvent',t40,a,/)
