@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.103 1999-06-28 16:07:53 d3g681 Exp $
+# $Id: GNUmakefile,v 1.104 1999-07-01 09:30:39 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -41,6 +41,10 @@ endif
 
 ifeq ($(TARGET),LINUX)
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o
+#
+# If you want to turn traps on for LINUX uncomment this line. That is it.
+#  EXTRA_OBJ += linux_gnu_trap.o
+#
 endif
 
 ifeq ($(TARGET),PGLINUX)
