@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.5 2004-07-23 20:39:40 bert Exp $
+* $Id: cosmo.F,v 1.6 2004-07-29 16:27:15 windus Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -302,7 +302,6 @@ c
       if(.not.ma_pop_stack(l_costag))
      & call errquit('cosmo_initialize,ma_pop_stack of l_tag failed',911)
 c
-      do_cosmo = .true.
       dielec   =78.4d+00
       iscren   =0
       ifscrn   =2
