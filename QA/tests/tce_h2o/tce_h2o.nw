@@ -1,10 +1,22 @@
 #
-# Test for CC codes in TCE module
-# Reference data obtained by a determinantal CC code are
+# Test for CC, CI, MBPT codes in the TCE module
+# Reference data obtained by an independent determinantal CC, CI, MBPT code are
+#
+# LCCD   -0.0505753360
+# LCCSD  -0.0508915694
 # CCD    -0.0498521356
 # CCSD   -0.0501273286
 # CCSDT  -0.0502322580
 # CCSDTQ -0.0502556616
+# QCISD  -0.0501452655
+# CISD   -0.0495138383
+# CISDT  -0.0496160908
+# CISDTQ -0.0502556615
+# MBPT2  -0.0358672469
+# MBPT3  -0.0098015863
+# MBPT4  -0.0030104405
+#
+# in units of hartree.
 #
 start tce_h2o
 
@@ -28,6 +40,18 @@ tolerances acccoul 100
 end
 
 tce
+lccd
+end
+
+task tce energy
+
+tce
+lccsd
+end
+
+task tce energy
+
+tce
 ccd
 end
 
@@ -47,6 +71,48 @@ task tce energy
 
 tce
 ccsdtq
+end
+
+task tce energy
+
+tce
+qcisd
+end
+
+task tce energy
+
+tce
+cisd
+end
+
+task tce energy
+
+tce
+cisdt
+end
+
+task tce energy
+
+tce
+cisdtq
+end
+
+task tce energy
+
+tce
+mbpt2
+end
+
+task tce energy
+
+tce
+mbpt3
+end
+
+task tce energy
+
+tce
+mbpt4
 end
 
 task tce energy
