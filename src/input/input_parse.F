@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.39 1997-11-15 01:05:03 d3e129 Exp $
+C     $Id: input_parse.F,v 1.40 1998-04-14 18:16:24 d3j191 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -73,6 +73,8 @@ c
                call input_charge(rtdb)
             else if (inp_compare(.false.,test,'dft')) then
                call dft_input(rtdb)
+            else if (inp_compare(.false.,test,'prepare')) then
+               call pre_input(rtdb)
             else if (inp_compare(.false.,test,'md')) then
                call arg_input(rtdb)
             else if (inp_compare(.false.,test,'esp')) then
