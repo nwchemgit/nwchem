@@ -1,0 +1,150 @@
+\section{Coupled Cluster Calculations}
+\label{sec:ccsd}
+
+\subsection{Background and Capabilities}
+
+The NWChem coupled cluster module is primarily the work of Alistair
+Rendell and Rika Kobayashi, and is derived from the Titan parallel
+coupled cluster program.
+
+The coupled cluster code can perform calculations with full iterative
+treatment of single and double excitations and non-iterative inclusion
+of triple excitation effects.  It is presently limited to closed-shell
+(RHF) references.  It is {\em not} presently possible to freeze core or
+virtual orbitals.
+
+\subsection{Control Directives}
+
+The operation of the coupled cluster code is controlled by the input
+block
+\begin{verbatim}
+  CCSD
+    ...
+  END
+\end{verbatim}
+Note that the keyword \verb+CCSD+ is used for the input block
+regardless of the actual level of theory desired (specified with the
+\verb+TASK+ directive).  The following directives are recognized
+within the \verb+CCSD+ group.
+
+\subsubsection{MAXITER}
+
+The maximum number of iterations is set to 20 by default.  This should
+be quite enough for most calculations, although particularly
+troublesome cases may require an increase.
+
+\begin{verbatim}
+  MAXITER  <integer maxiter default 20>
+\end{verbatim}
+
+\subsubsection{THRESH}
+
+Controls the convergence threshold for the iterative part of the
+calculation.  Both the RMS error in the amplitudes {\em and} the
+change in energy must be less than $10^{-{\tt thresh}}$.
+
+\begin{verbatim}
+  THRESH  <integer thresh default 8>
+\end{verbatim}
+
+\subsubsection{DIISBAS}
+
+Specifies the maximum size of the subspace used in DIIS convergence
+acceleration.  Note that DIIS requires the amplitudes and errors be
+stored for each iteration in the subspace.  Obviously this can
+significantly increase memory requirements, and could force the user
+to reduce \verb+DIISBAS+ for large calculations.
+
+{\em Measures to alleviate this problem, including more compact
+storage of the quantities involved, and the possibility of disk
+storage are being considered, but have not yet been implemented.}
+
+\begin{verbatim}
+  DIISBAS  <integer diisbas default 5>
+\end{verbatim}
+
+\subsubsection{IPRT}
+
+This directive controls the level of output from the code, mostly to
+facilitate debugging and the like.  The larger the value, the more
+output printed.  From looking at the source code, the interesting
+values seem to be \verb+IPRT+ $>$ 5, 10, and 50.
+
+\begin{verbatim}
+  IPRT  <integer IPRT default 0>
+\end{verbatim}
+
+\subsubsection{PRINT and NOPRINT}
+
+The coupled cluster module supports the standard NWChem print control
+keywords, although very little in the code is actually hooked into
+this mechanism yet.
+
+\begin{tabular}{lll}
+\hline\hline
+Item                    & Print Level   & Description \\
+\hline
+``reference''             & high          & Details about reference wavefunction\\
+``guess pair energies'' & debug & Pair energies of MP2 initial guess\\
+``byproduct energies'' & default & Energies calculated as by-products
+of the requested method \\
+``term debugging switches'' & debug & Switches controlling evaluation
+of individual terms \\
+\hline\hline
+\end{tabular}
+
+
+\subsection{Methods (Tasks) Recognized}
+
+Currently available methods are
+\begin{itemize}
+\item \verb+CCSD+ -- Full iterative inclusion of single and double
+excitations
+\item \verb=CCSD+T(CCSD)= -- The fourth order triples contribution computed with
+converged singles and doubles amplitudes
+\item \verb=CCSD(T)= -- uh...
+\end{itemize}
+
+The calculation is invoked using the the \verb+TASK+ directive, so to
+perform a CCSD+T(CCSD) calculation, for example, the input file should
+include the directive
+\begin{verbatim}
+  TASK CCSD+T(CCSD)
+\end{verbatim}
+
+Lower-level results which come as by-products of the requested
+calculation are generally also printed in the output file and stored
+on the run-time database, but the method specified in the \verb+TASK+
+directive is considered the primary result.
+
+\subsection{Debugging and Development Aids}
+
+The information in this section is intended for use by experts (both
+with the methodology and with the code), primarily for debugging and
+development work.  Messing with stuff in listed in this section will
+probably make your calculation quantitatively {\em\bf wrong}\/!
+Consider yourself warned!
+
+\subsubsection{Switching On and Off Terms}
+
+The \verb+/DEBUG/+ common block contains a number of arrays which
+control the calculation of particular terms in the program.  These are
+15-element integer arrays (although from the code only a few elements
+actually effect anything) which can be set from the input deck.  See
+the code for details of how the arrays are interpreted.  
+
+Printing of this data at run-time is controlled by the \verb+''term
+debugging switches''+ print option.  The values are checked against
+the defaults at run-time and a warning is printed to draw attention to
+the fact that the calculation does not correspond precisely to the
+requested method.
+
+\begin{verbatim}
+  DOA  <integer array default 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2>
+  DOB  <integer array default 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2>
+  DOG  <integer array default 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1>
+  DOH  <integer array default 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1>
+  DOJK <integer array default 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2>
+  DOS  <integer array default 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1>
+  DOD  <integer array default 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1>
+\end{verbatim}
