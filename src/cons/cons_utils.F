@@ -1,4 +1,4 @@
-c $Id: cons_utils.F,v 1.13 2004-04-21 06:31:00 marat Exp $
+c $Id: cons_utils.F,v 1.14 2004-04-21 19:43:25 marat Exp $
       function cons_print()
       implicit none
 #include "global.fh"
@@ -71,7 +71,7 @@ c
       
       end
 
-      subroutine cons_add_spring(namespace,i,j,k,r,rtdb)
+      subroutine cons_add_spring(namespace,id1,id2,k,r,rtdb)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -80,18 +80,19 @@ c
 #include "util.fh"
 c     
       character*(*) namespace
-      integer i,j
+      integer id1,id2
       double precision k
       double precision r
       integer rtdb
 c
       logical status
+      integer i
       integer nhb0
       integer nhb
       integer h_tmp_id,i_tmp_id 
       integer h_tmp_k,i_tmp_k 
       integer h_tmp_r,i_tmp_r 
-      integer i0,j0
+      integer id01,id02
       double precision k0
       double precision r0
       character(255) tag_id
@@ -144,11 +145,11 @@ c
        
       status = .true.
       do i=1,nhb0
-       i0 = int_mb(i_tmp_id+2*(i-1))
-       j0 = int_mb(i_tmp_id+2*(i-1)+1)
+       id01 = int_mb(i_tmp_id+2*(i-1))
+       id02 = int_mb(i_tmp_id+2*(i-1)+1)
        k0 = dbl_mb(i_tmp_k+i-1)
        r0 = dbl_mb(i_tmp_r+i-1)
-       if(i0.eq.i .and. j0.eq.j) then
+       if(id01.eq.id1 .and. id02.eq.id2) then
          write(*,*) "cons_add_spring: replacing existing spring"
          dbl_mb(i_tmp_k+i-1)=k
          dbl_mb(i_tmp_r+i-1)=r
@@ -157,13 +158,15 @@ c
       end do
         
       if(status) then
-       int_mb(i_tmp_id + 2*nhb0)     = i
-       int_mb(i_tmp_id + 2*nhb0 + 1) = j
+       int_mb(i_tmp_id + 2*nhb0)     = id1
+       int_mb(i_tmp_id + 2*nhb0 + 1) = id2
        dbl_mb(i_tmp_k + nhb0)=k
        dbl_mb(i_tmp_r + nhb0)=r
       else
        nhb=nhb0
       end if
+
+
 
        status = rtdb_put(rtdb,tag_n,mt_int,1,nhb)
        status = status . and. rtdb_put(rtdb,tag_id,
@@ -762,6 +765,27 @@ c
         cons_hbonds=.true.
       end if
 
+      return
+      end
+c
+      function cons_active(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+c     
+      logical cons_active
+      character*(*) namespace
+      integer rtdb
+c
+      character(255) tag
+
+      call cons_tag(namespace,tag)
+
+      if(.not.rtdb_get(rtdb,tag,mt_log,1,cons_active)) then
+        cons_active=.false.
+      end if
+     
       return
       end
 

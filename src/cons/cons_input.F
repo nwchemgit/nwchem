@@ -1,4 +1,4 @@
-c $Id: cons_input.F,v 1.10 2004-04-21 06:31:00 marat Exp $
+c $Id: cons_input.F,v 1.11 2004-04-21 19:43:25 marat Exp $
       subroutine cons_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -116,7 +116,7 @@ c     ----------------------------
          if (inp_compare(.false.,'pos', test)) then
            status = inp_ilist(max_fp,int_mb(i_tmp_id),nfp)
            if(status) then
-             call cons_unfix_atoms(nfp,int_mb(i_tmp_id),rtdb)
+             call cons_unfix_atoms(namespace,nfp,int_mb(i_tmp_id),rtdb)
            else
              call errquit('cons_input: failed unfixed atom input', 0,
      >        0)

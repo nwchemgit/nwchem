@@ -128,7 +128,7 @@ c     ---------------------------------------------------
          call banner(6,"for potential problems.               ","*" ,
      >             .false.,.true.,.true. )
           end if
-          call cons_unfix_atoms(nact,int_mb(i_act),rtdb)
+          call cons_unfix_atoms(namespace,nact,int_mb(i_act),rtdb)
         else
           do i=1,nat
             int_mb(i_tmp_id+i-1)=i
@@ -757,6 +757,9 @@ c
 c
       call cons_load_geom(rtdb)
       call cons_get_namespace(namespace)
+      if(cons_fixed_atoms(namespace,rtdb)) then
+        call cons_info_fixed_atoms(rtdb) 
+      end if
 c
       call cons_get_hbond_nhb(nhb)
       

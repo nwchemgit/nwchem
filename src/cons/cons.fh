@@ -37,3 +37,7 @@
        logical cons_hbonds
        external cons_hbonds
 
+
+       logical cons_fixed_atoms
+       external cons_fixed_atoms
+
