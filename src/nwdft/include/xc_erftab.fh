@@ -1,5 +1,5 @@
 *
-* $Id: xc_erftab.fh,v 1.9 2000-06-09 01:53:43 edo Exp $
+* $Id: xc_erftab.fh,v 1.10 2002-07-31 01:38:04 edo Exp $
 *
       double precision ass_erf1,ass_erf2,ass_ssf
       double precision alpha_erf1,alpha_erf2,eps
@@ -26,7 +26,7 @@ c
 #endif
       taux(x)=1d0/(1d0+0.5d0*abs(x))
       erfcc(x)=taux(x)*
-     .     exp(-abs(x)*abs(x)-1.26551223d0+taux(x)*
+     .     exp(-x*x-1.26551223d0+taux(x)*
      *     (1.00002368d0+taux(x)*(.37409196d0+
      *     taux(x)*(.09678418d0+taux(x)*
      *     (-.18628806d0+taux(x)*(.27886807d0+
