@@ -1,5 +1,5 @@
 c
-c$Id: xc_ft97.F,v 1.5 2003-02-16 00:43:15 edo Exp $
+c$Id: xc_ft97.F,v 1.6 2005-01-12 01:50:28 edo Exp $
 c
       Subroutine xc_ft97(tol_rho, xfac, lxfac, nlxfac,
      .      cfac, lcfac, nlcfac,
@@ -154,7 +154,7 @@ c
       rhob13 = rhoa13
       gamb   = gama
       call FT97_ECFUN(rhoa,rhob,rhoa13,rhob13,gama,gamb,
-     +                fc,dfdrac,dfdrb,dfdgaac,dfdgbb)
+     +                fc,dfdrac,dfdrb,dfdgaac,dfdgbb,tol_rho)
       call FT97_EXFUN(rhoa,rhob,rhoa13,rhob13,
      +                gama,gamb,fx,.false.,.false.,tol_rho)
       call FT97_EXGRAD(rhoa,rhoa13,gama,dfdrax,dfdgaax,.false.)
@@ -218,7 +218,7 @@ c
       rhob13=0d0
       if(rb.gt.tol_rho**2) rhob13 = rb**r13
       call FT97_ECFUN(ra,rb,rhoa13,rhob13,gaa,gbb,
-     +                fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
+     +                fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc,tol_rho)
       call FT97_EXFUN(ra,rb,rhoa13,rhob13,
      +           gaa,gbb,fx,.true.,.false.,tol_rho)
       if(ra.gt.tol_rho**2) 
@@ -346,7 +346,7 @@ C       EB   : Derivative of exchange energy with respect to BETA.
 c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       SUBROUTINE FT97_ECFUN (RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EC,V1,V2,
-     1                       V3,V4)
+     1                       V3,V4,tol_rho)
 C     *
 C     VALUE OF THE CORRELATION xc_ft97 (EC) AND ITS DERIVATIVES
 C     (V1,V2,V3,V4) WITH REGARD TO THE DENSITY AT A GIVEN POINT
@@ -379,7 +379,7 @@ C     *
       V4     = 0.D0
       CALL FT97_VCOUR (RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EAA,EBB,EAB,EBA,
      1            DEAADR,DEBBDR,DEABDR,DEBADR,
-     2            DEAADG,DEBBDG,DEABDG,DEBADG)
+     2            DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
 C     EC IS THE CONTRIBUTION TO THE CORRELATION ENERGY AT (X,Y,Z).
 C     EC IS DEFINED IN EQUATION (4) OF THE REFERENCE.
 C     Add parallel-spin contribution to the energy.
@@ -402,7 +402,7 @@ c-----------------------------------------------------------------------
       SUBROUTINE FT97_VCOUR (RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
      1                       EAA,EBB,EAB,EBA,
      2                       DEAADR,DEBBDR,DEABDR,DEBADR,
-     3                       DEAADG,DEBBDG,DEABDG,DEBADG)
+     3                       DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
 C     *
 C     COMPUTATION OF TERMS IN THE CORRELATION xc_ft97.
 C     *
@@ -424,7 +424,8 @@ C     DEDRAA - d(Ec)/d(rho.alpha)
 C     DEDGAA - d(Ec)/d(grad(rho.alpha)^2)
 C     *
       IMPLICIT double precision (A-H,O-Z)
-      double precision KSSP0,KSS0,MUAB,MUBA,MUBB,MUAA
+      double precision KSSP0,KSS0,MUAB,MUBA,MUBB,MUAA,
+     *     KSSPBIG,big,kss0big
 C     NOTATION FOR CONSTANTS.
 C     C0 = (1-ln2)/(2*Pi**2), see eq.(9)
 C     C1 = 2*C0/3           , see eq.(13,(28),(33)
@@ -450,10 +451,13 @@ C     R        : Density parameter Rs (Wigner radius), see eq.(8).
 C     KSSP0    : See eq.(39) for k(sigma,sigma').
       KSSP0(R) = 1.291551074D0 - 0.349064173D0*(1.D0-
      .           EXP(-0.083275880D0*R**0.8D0))
+      parameter(ksspbig=1.291551074D0 - 0.349064173D0,big=1d4)
 C     KSS0     : See eq.(40) for k(sigma,sigma).
       KSS0(R)  = 1.200801774D0 + 0.859614445D0*(1.D0-
      .           EXP(-1.089338848*SQRT(R)))-
      .           0.812904345D0*(1.D0-EXP(-0.655638823D0*R**0.4D0))
+      parameter(KSS0BIG  = 1.200801774D0 + 0.859614445D0-
+     -           0.812904345D0)
 C
 C     FSSP     : See eq.(45) for F(sigma,sigma').
       FSSP(R,GR) = (1.D0+A1*GR+(A2*GR)**2)*
@@ -491,7 +495,7 @@ C     DFFDMU    : Derivative of FF with respect to the argument T.
 C
 C *** RSA - Rs(alpha), GA - grad(Rs(alpha))
 C
-      IF(RHOA.GT.1.D-22) THEN
+      IF(RHOA.GT.tol_rho) THEN
 C         Wigner radius Rs(alpha), eq.(8)
           RSA = C2/RHOA13
           CFT = C3/(RHOA*RHOA13)
@@ -504,7 +508,15 @@ C         MUBA = C1*RSA/(KSSP0(RSA)*FSSP(RSA,GA2))**2
           ECMUC0 = 0.D0
           DEBADR = 0.D0
           DEBADG = 0.D0
-          DENOM  = (KSSP0(RSA)*FSSP(RSA,GA2))**2
+          if((ga2*a2)**2.gt.big) then
+             DENOM  = 0d0
+          else
+             if(rsa.gt.big) then
+                DENOM  = (KSSPBIG*FSSP(RSA,GA2))**2
+             else
+                DENOM  = (KSSP0(RSA)*FSSP(RSA,GA2))**2
+             endif
+          endif
           IF(C1*RSA .LE. DENOM*CUTOFF) THEN
              MUBA = C1*RSA/DENOM
              EEI = FT97_EXPEI(-MUBA)
@@ -529,7 +541,15 @@ C        MUAA = C1*RSA/(KSS0(RSA)*FSS(RSA,GA2))**2
          ECMUC0 = 0.D0
          DEAADR = 0.D0
          DEAADG = 0.D0
-         DENOM  = (KSS0(RSA)*FSS(RSA,GA2))**2
+         if((ga2*a2)**2.gt.big) then
+            DENOM  = 0d0
+         else
+            if(rsa.gt.big) then
+              DENOM  = (KSS0big*FSS(RSA,GA2))**2
+           else
+              DENOM  = (KSS0(RSA)*FSS(RSA,GA2))**2
+           endif
+        endif
          IF(C1*RSA .LE. DENOM*CUTOFF) THEN
             MUAA = C1*RSA/DENOM
             EEI  = FT97_EXPEI(-MUAA)
@@ -555,7 +575,7 @@ C           d(Ec)/d(Nabla(rho)^2) = -Cft^2*(mu*dEcdmu*Fa)*Wss
          DEBADG = 0.D0
       ENDIF
 C *** RSB - Rs(beta), GB - grad(Rs(beta))
-      IF(RHOB.GT.1.D-22) THEN
+      IF(RHOB.GT.tol_rho) THEN
 C        Wigner radius Rs(beta), eq.(8)
          RSB = C2/RHOB13
          CFT = C3/(RHOB*RHOB13)
@@ -569,6 +589,15 @@ C        MUAB = C1*RSB/(KSSP0(RSB)*FSSP(RSB,GB2))**2
          DEABDR = 0.D0
          DEABDG = 0.D0
          DENOM  = (KSSP0(RSB)*FSSP(RSB,GB2))**2
+         if((gb2*a2)**2.gt.big) then
+            DENOM  = 0d0
+         else
+            if(rsb.gt.big) then
+               DENOM  = (KSSPBIG*FSSP(RSB,GB2))**2
+            else
+               DENOM  = (KSSP0(RSB)*FSSP(RSB,GB2))**2
+            endif
+         endif
          IF(C1*RSB .LE. DENOM*CUTOFF) THEN
             MUAB = C1*RSB/DENOM
             EEI  = FT97_EXPEI(-MUAB)
@@ -593,7 +622,15 @@ C        MUBB = C1*RSB/(KSS0(RSB)*FSS(RSB,GB2))**2
          ECMUC0 = 0.D0
          DEBBDR = 0.D0
          DEBBDG = 0.D0
-         DENOM  = (KSS0(RSB)*FSS(RSB,GB2))**2
+         if((gb2*a2)**2.gt.big) then
+            DENOM  = 0d0
+         else
+            if(rsb.gt.big) then
+               DENOM  = (KSS0big*FSS(RSB,GB2))**2
+            else
+               DENOM  = (KSS0(RSB)*FSS(RSB,GB2))**2
+            endif
+         endif
          IF(C1*RSB .LE. DENOM*CUTOFF) THEN
             MUBB = C1*RSB/DENOM
             EEI  = FT97_EXPEI(-MUBB)

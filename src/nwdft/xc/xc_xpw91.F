@@ -12,7 +12,7 @@ c
      &                       qwght,ldew,func)
 #endif
 c
-c$Id: xc_xpw91.F,v 1.8 2002-10-01 00:01:22 edo Exp $
+c$Id: xc_xpw91.F,v 1.9 2005-01-12 01:50:28 edo Exp $
 c
       implicit none
 c
@@ -120,8 +120,12 @@ c
 #endif
             t = 1d0 + P19645*s*as
             d1t = P19645*(as+s*d1as)
-            expfac = -P1508*dexp(-P100*s2)
-            d1expfac = expfac*(-2d0*P100*s)
+            expfac = 0d0
+            d1expfac = 0d0
+            if(s2.lt.1) then
+               expfac = -P1508*dexp(-P100*s2)
+               d1expfac = expfac*(-2d0*P100*s)
+            endif
             Fn = t + (P2743+expfac)*s2
             d1Fn = d1t + (P2743+expfac)*(2d0*s) + d1expfac*s2
             Fd = t + P004*s2*s2
@@ -206,8 +210,12 @@ c
             d1as = P77956*darcsinh(P77956*s)
             t = 1d0 + P19645*s*as
             d1t = P19645*(as+s*d1as)
-            expfac = -P1508*dexp(-P100*s2)
-            d1expfac = expfac*(-2d0*P100*s)
+            expfac = 0d0
+            d1expfac = 0d0
+            if(s2.lt.1) then
+               expfac = -P1508*dexp(-P100*s2)
+               d1expfac = expfac*(-2d0*P100*s)
+            endif
             Fn = t + (P2743+expfac)*s2
             d1Fn = d1t + (P2743+expfac)*(2d0*s) + d1expfac*s2
             Fd = t + P004*s2*s2
@@ -291,8 +299,12 @@ c
 #ifdef SECOND_DERIV
             d2t = P19645*(2d0*d1as+s*d2as)
 #endif
-            expfac = -P1508*dexp(-P100*s2)
-            d1expfac = expfac*(-2d0*P100*s)
+            expfac = 0d0
+            d1expfac = 0d0
+            if(s2.lt.1) then
+               expfac = -P1508*dexp(-P100*s2)
+               d1expfac = expfac*(-2d0*P100*s)
+            endif
 #ifdef SECOND_DERIV
             d2expfac = expfac*(-2d0*P100+(2d0*P100*s)**2)
 #endif

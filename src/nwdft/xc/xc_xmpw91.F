@@ -7,7 +7,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_xmpw91.F,v 1.6 2003-02-25 00:46:44 edo Exp $
+C$Id: xc_xmpw91.F,v 1.7 2005-01-12 01:50:28 edo Exp $
 c
       implicit none
 c
@@ -158,7 +158,7 @@ c
      &     ldew)
 #endif
 c
-C$Id: xc_xmpw91.F,v 1.6 2003-02-25 00:46:44 edo Exp $
+C$Id: xc_xmpw91.F,v 1.7 2005-01-12 01:50:28 edo Exp $
 c
       implicit none
 c
@@ -183,9 +183,9 @@ c     Becke & Perdew  Parameters
 c
       double precision DPOW
       double precision BETA, tol_rho, AX, pi,
-     &     CPW91,BETAPW91
+     &     CPW91,BETAPW91,big
 
-      Parameter (CPW91=1.6455D0)
+      Parameter (CPW91=1.6455D0,big=1d4)
 
 #ifdef SECOND_DERIV
 c
@@ -233,7 +233,8 @@ c
          xa = sqrt(gamma)/rho43
          x2a=xa*xa
          ten6xd=Xa**DPOW*1.d-6
-         expo=exp(-CPW91*x2a)
+         expo=0d0
+         if(CPW91*x2a.lt.big) expo=exp(-CPW91*x2a)
          bbx2=(BETA-BETAPW91)*x2a
          Ha = sinhm1(Xa)
          denom = 1.d0/(1.d0 + 6d0*(beta*xa)*ha-ten6xd/ax)
