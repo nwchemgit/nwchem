@@ -1,6 +1,6 @@
       Subroutine grid_list(rtdb, qsh, nqlen,nq_tot)
 c
-c$Id: grid_list.F,v 1.9 2000-03-08 23:38:04 edo Exp $
+c$Id: grid_list.F,v 1.10 2000-03-27 19:15:31 edo Exp $
 c
       implicit none
 c      
@@ -15,7 +15,9 @@ c
 #include "geom.fh"
 #include "sym.fh"
 c
-      integer rtdb, qsh, nqlen
+      integer rtdb, qsh
+      integer nqlen ! [in]
+      integer nq_tot ! [out]
       dimension qsh(3,nqlen)
       double precision ktheta
       Parameter (ktheta = 5.d0)
@@ -25,7 +27,7 @@ c
       double precision asg1(4,3)
       integer iti, ictr, irsh,
      &        iang, iang_mx, iqsh, nr, nserie, izat, ir,
-     &        me, nq_ctr_tot, nq_tot
+     &        me, nq_ctr_tot
       double precision R_MAX, r, r1, r2, r3, 
      &                 r4, RR, q1
       integer xc_leb_nrd2acc

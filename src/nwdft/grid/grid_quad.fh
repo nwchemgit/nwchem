@@ -1,0 +1,28 @@
+      integer rtdb
+      logical grad ! [in]
+      integer g_dens(2),g_vxc(4)
+      integer ncoef_max
+      integer nqtot ! [in/out] total no of grid pts (to ge igop'ed)
+      integer natoms
+      double precision Ex, Ec
+      double precision Amat(n_per_rec,ipol),Cmat(n_per_rec,ipol)
+      integer cntobfr(2,nshells_ao), 
+     &        cetobfr(2,natoms)
+      double precision rdens_atom(ipol*natoms*natoms)
+      double precision rho(n_per_rec), delrho(3,n_per_rec), hess(1), 
+     &                 Bmat(nbf_ao_mxnbf_ce*n_per_rec)
+      integer ibf_ao(nbf_ao)
+      double precision Pmat(nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce), 
+     &                 Fmat(nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce)
+      double precision qwght(n_per_rec), qxyz(3,n_per_rec)
+      double precision xyz(3,natoms)
+c     bp and with different dimensions
+c     grid_setsp      : nqmax    ,natoms
+c     rest of routine : n_per_rec, natoms
+      double precision bp(n_per_rec,natoms),rscr(n_per_rec)
+      double precision rchi_atom(natoms),rdelchi_atom(3,natoms)
+      integer iniz(natoms), ifin(natoms)
+      double precision ccoef(ncoef_max), expo(nbf_ao_mxprim)
+      double precision rq(n_per_rec, natoms)
+      integer max_elem_ang_scr, max_component
+      double precision  rho_int

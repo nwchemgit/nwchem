@@ -1,9 +1,9 @@
       Subroutine grid_setquad(rtdb)
 c
-c$Id: grid_setquad.F,v 1.8 2000-03-21 23:11:59 edo Exp $
+c$Id: grid_setquad.F,v 1.9 2000-03-27 19:15:32 edo Exp $
 c
       implicit none
-      logical oprint, grid_on_file,ogrdebug
+      logical oprint, ogrdebug
 c      
 #include "rtdb.fh"
 #include "cdft.fh"
@@ -56,16 +56,6 @@ c     Update any req'd data in rtdb
 c
       call grid_update_rtdb(rtdb)
       if(ogrdebug) write(6,*) ' me ',ga_nodeid(),'  done uprt'
-c
-c     Setup reduced matrices (eval gaussian on grid pts and reduce to 
-c     atom centers) - only if points are on file system
-c
-      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
-     &   grid_on_file))then
-         grid_on_file = .false.
-      endif
-cedo rchi stuff moved in grid_quadv
-      if(grid_on_file) call grid_rchi0
 c
 c     Memory management (as before)
 c

@@ -1,6 +1,6 @@
       subroutine grid_buckinit()
 c
-c$Id: grid_bucket.F,v 1.8 2000-03-20 21:11:48 edo Exp $
+c$Id: grid_bucket.F,v 1.9 2000-03-27 19:15:31 edo Exp $
 c
       implicit none
 c     
@@ -28,7 +28,7 @@ c
      ,        .false.,dum,lcube(i))
          ncubesmx=max(ncubesmx,ncubes_type(i))
       enddo
-!      write(6,*) ' NCUBES ',ncubesmx
+      write(6,*) ' NCUBES ',ncubesmx
       if (.not.MA_alloc_Get(MT_int,ntypes*ncubesmx,'howmany cubes',
      ,     l_nxyz,k_nxyz))
      ,     call errquit('grid_buckinit: cannot allocate nxyz',0)

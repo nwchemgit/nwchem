@@ -1,5 +1,5 @@
 *
-* $Id: cgridfile.fh,v 1.14 2000-03-22 00:12:06 edo Exp $
+* $Id: cgridfile.fh,v 1.15 2000-03-27 19:15:31 edo Exp $
 *
 c
 c     Internal common for grid routines
@@ -42,6 +42,7 @@ c
       integer nsubb ! number of sub-buffer (with a given rad)
       integer ntot_sub ! cumulative nsubb
       integer cur_cub ! current cube
+      logical grid_written
 c
 c
 #ifdef CRAY_T3D
@@ -53,7 +54,7 @@ cedo      512 should be OK for blas business
       parameter (buffer_size = 3072)
 #endif
 #if defined(LINUX) || defined (WIN32) 
-      parameter (buffer_size = 2048)
+      parameter (buffer_size = 1024)
 #endif
 c      parameter (buffer_size = 100)
       integer mxsub
@@ -84,6 +85,8 @@ c
      $     file_opened,
      $     l_cache, k_cache,
      $     max_file_rec, max_cache_rec, cur_cub,nsubb,ntot_sub,
+c     logicals
+     .     grid_written,
 c     doubles
      $     fd,
      $     oasyncio,

@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.16 2000-03-21 23:11:58 edo Exp $
+* $Id: grid_file.F,v 1.17 2000-03-27 19:15:31 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -627,6 +627,7 @@ c
       save ptr_cube
 c
       grid_file_write = .true.
+      grid_written=.true.
 c
       if (otrace) then
          write(6,*) ' grid_file write: nqpts,nctr,n_in_rec,next_value', 
@@ -642,7 +643,7 @@ c     Check to see if buffer needs dumping before adding more pts.
 c
       if ((nctr .eq. 0) .or. 
      &    (nctr. ne. cur_rec_ctr)) then
-!        write(0,*)  '0write rec ',n_per_rec
+!         write(6,*) '0bufw',n_in_rec
          grid_file_write = grid_buf_write(.false.)
          cur_rec_ctr = nctr
          if (nctr.eq.0)nctr =  n_rec_in_file
@@ -652,7 +653,7 @@ c
       cur_rec_rad = max(rad,cur_rec_rad)
 c     This copy can be made a lot more efficient
       if (n_in_rec .ge. n_per_rec-1) then
-!         write(0,*)  '1write rec ',n_per_rec
+!         write(6,*) '1bufw',n_in_rec
          grid_file_write = grid_buf_write(.false.)
          if (.not. grid_file_write) return
       endif
@@ -668,7 +669,7 @@ c     This copy can be made a lot more efficient
 c after 1st shell contribution to cube
          do ind = 1, nqpts
             if (n_in_rec .eq. n_per_rec) then
-!               write(0,*)  '2write rec ',n_per_rec
+!               write(6,*) '2bufw',n_in_rec,ind
                grid_file_write = grid_buf_write(.false.)
                if (.not. grid_file_write) return
                nsubb=1
@@ -697,6 +698,7 @@ cedo     .              aqbuf(4,ind)
          values(4,n_in_rec)   = aqbuf(4,ind)
 c
       end do
+!      write(0,*) ' endw nr',n_in_rec,' nq ',nqpts,' nsubb ',nsubb
 c
       end
       logical function grid_file_read(maxqpts, nqpts, nctr,rad,aqbuf,

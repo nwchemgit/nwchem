@@ -1,6 +1,6 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.14 2000-03-22 03:01:41 edo Exp $
+c$Id: grid_gen_pts.F,v 1.15 2000-03-27 19:15:31 edo Exp $
 c
       implicit none
 c      
@@ -17,7 +17,7 @@ c
       integer mxnrad, nqlen, lqs, iqs
       integer laqbuf, iaqbuf
       integer ang_quad_buf_size, nq_tot
-      logical grid_file_balance,grid_getnsubb
+      logical grid_file_balance,grid_getnsubb,oldgrid
       external  grid_file_balance,grid_getnsubb
 c
 c     Need coordinates of all atoms.     
@@ -40,17 +40,27 @@ c
      &                        Dbl_MB(icoord), Dbl_MB(icharge)))
      &     call errquit('grid_gen_pts: geom_cart_get failed',74)
 
+      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
+     &   grid_on_file))then
+         grid_on_file = .false.
+      endif
+      if (.not. rtdb_get(rtdb, 'dft:oldgrid', mt_log, 1,
+     &   oldgrid))then
+         grid_on_file = .false.
+      endif
 c
 c     A list of pruned (or unpruned) r, theta and phi is generated here.
 c
       if (.not. rtdb_get(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
      &   call errquit('grid_gen: rtdb_get failed', 119)
 c
+      if(.not.grid_on_file.or.oldgrid) then
       nqlen = ncenters*mxnrad
       if (.not.MA_Push_get(MT_int,4*nqlen,'shell list',
      &                     lqs,iqs))
      &   call errquit('grid_gen: cannot allocate shell list',0)
       call grid_list(rtdb, int_mb(iqs), nqlen, nq_tot)
+      endif
 c
 c     The points (rotationally invariant if desired) are generated and written to disk
 c     with fixed number of points (buffer size).
@@ -59,11 +69,7 @@ c     buffer size needed to hold largest angular quadrature is nqmax
 c
       ang_quad_buf_size = nqmax
 c
-      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
-     &   grid_on_file))then
-         grid_on_file = .false.
-      endif
-      if (grid_on_file)then
+      if (grid_on_file.and.oldgrid)then
          if (.not.MA_Push_get(MT_dbl, 4*ang_quad_buf_size,
      &        'ang quad pts buffer', laqbuf, iaqbuf))
      &        call errquit('grid_gen: cant allocate quad pt', 0)
@@ -75,26 +81,34 @@ c
 c
 c        try to balance the number of tasks on each node
 c
-         if(grid_file_balance())then
-            if (.not.MA_Push_get(MT_dbl, 4*buffer_size,
-     &           'ang quad pts buffer', laqbuf, iaqbuf))
-     &           call errquit('grid_gen: cant allocate quad pt', 0)
-c     need to recompute nsubb
-            if(.not.grid_getnsubb(dbl_mb(iaqbuf)))
-     &           call errquit('grid_gen_pts: gnsub failed.',1)
-         if (.not. MA_Pop_Stack(laqbuf))
-     &        call errquit('grid_gen_pts: pop stack failed.',0)
-         endif
-         call ga_sync()
+cedo         if(grid_file_balance())then
+cedo            if (.not.MA_Push_get(MT_dbl, 4*buffer_size,
+cedo     &           'ang quad pts buffer', laqbuf, iaqbuf))
+cedo     &           call errquit('grid_gen: cant allocate quad pt', 0)
+cedoc     need to recompute nsubb
+cedo            if(.not.grid_getnsubb(dbl_mb(iaqbuf)))
+cedo     &           call errquit('grid_gen_pts: gnsub failed.',1)
+cedo         if (.not. MA_Pop_Stack(laqbuf))
+cedo     &        call errquit('grid_gen_pts: pop stack failed.',0)
+cedo         endif
+cedo         call ga_sync()
 c
       endif
+      if(.not.grid_on_file.or.oldgrid) then
       if (.not. MA_Pop_Stack(lqs))
      &   call errquit('grid_gen_pts: pop stack failed.',0)
+      endif
       if (.not. MA_Pop_Stack(ltags))
      &   call errquit('grid_gen_pts: pop stack failed.',0)
       if (.not. MA_Pop_Stack(lcharge))
      &   call errquit('grid_gen_pts: pop stack failed.',0)
       if (.not. MA_Pop_Stack(lcoord))
      &   call errquit('grid_gen_pts: pop stack failed.',0)
+c
+c     Setup reduced matrices (eval gaussian on grid pts and reduce to 
+c     atom centers) - only if points are on file system
+c
+cedo rchi stuff moved in grid_quadv
+      if(grid_on_file.and.oldgrid) call grid_rchi0
       return
       end

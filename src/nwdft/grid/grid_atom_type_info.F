@@ -1,6 +1,6 @@
       Subroutine grid_atom_type_info
 c
-c$Id: grid_atom_type_info.F,v 1.5 2000-02-02 02:37:30 edo Exp $
+c$Id: grid_atom_type_info.F,v 1.6 2000-03-27 19:15:31 edo Exp $
 c
       implicit none
 c      
@@ -74,14 +74,14 @@ c
 c     allocate space for atomic coordinates and charges
 c
       if (.not. Ma_Push_Get(MT_Dbl,ncenters*3,'coordinates',lcoord,
-     &   icoord))call errquit('grid_atom_type_info: failed to alloc 
-     &   coordinates',0)
+     &   icoord))call errquit(
+     .     'grid_atom_type_info: failed to alloc coordinates',0)
       if (.not. Ma_Push_Get(MT_Dbl,ncenters,'charges',lcharge,
-     &   icharge))call errquit('grid_atom_type_info: failed to alloc 
-     &   charges',0)
+     &   icharge))call errquit(
+     '     'grid_atom_type_info: failed to alloc charges',0)
       if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
-     &   ltags, itags))call errquit('grid_atom_type_info: failed to 
-     &   alloc center tags',0)
+     &   ltags, itags))call errquit(
+     .     'grid_atom_type_info: failed to alloc center tags',0)
 c
 c     Get ncenter tags, coordinates, and charges from the geometry object.
 c     

@@ -1,6 +1,6 @@
       Subroutine grid_cleanup(rtdb)
 c
-c$Id: grid_cleanup.F,v 1.1 1999-06-15 17:10:53 d3h449 Exp $
+c$Id: grid_cleanup.F,v 1.2 2000-03-27 19:15:31 edo Exp $
 c
       implicit none
 c      
@@ -19,10 +19,10 @@ c
 c
          call grid_file_close(.true.)
 c
-         if (.not.MA_Free_Heap(lrchi))
-     &      call errquit('grid_cleanup: cannot free heap?',0)
-         if (.not.MA_Free_Heap(lrdelchi))
-     &      call errquit('grid_cleanup: cannot free heap?',0)
+!         if (.not.MA_Free_Heap(lrchi))
+!     &      call errquit('grid_cleanup: cannot free heap?',0)
+!         if (.not.MA_Free_Heap(lrdelchi))
+!     &      call errquit('grid_cleanup: cannot free heap?',0)
 c
       endif
       return

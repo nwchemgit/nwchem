@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.24 2000-03-23 03:04:09 edo Exp $
+# $Id: GNUmakefile,v 1.25 2000-03-27 19:15:30 edo Exp $
 
       OBJ_OPTIMIZE= \
         grid_balance.o \
@@ -8,8 +8,14 @@
 	grid_signf.o \
 	grid_rchi_2.o \
 	grid_quadv0a.o \
+	grid_quadv0b.o \
+	grid_quadvw.o \
+	grid_quadvc.o \
 	grid_nbfm.o \
-        grid_qpts.o 
+        grid_qpts.o \
+        grid_bucket.o \
+	grid_utils.o  \
+        grid_file.o 
       OBJ= \
 	grid_checks.o \
 	grid_daul.o \
@@ -26,16 +32,12 @@
         grid_update_rtdb.o \
         grid_tasks.o \
         grid_gen_pts.o \
-        grid_file.o \
         grid_setspac.o \
 	grid_neighb.o \
-	grid_sym.o \
 	grid_cleanup.o \
 	grid_quadv0.o \
         grid_gaussq.o \
-        grid_roland.o \
-        grid_bucket.o \
-	grid_utils.o
+        grid_roland.o 
 
      LIBRARY = libnwdft.a
 
@@ -44,7 +46,7 @@
 
 LIB_INCLUDES = -I../include
 
-   USES_BLAS = grid_invariant.F grid_beckew.F grid_file.F grid_setspac.F grid_quadv0a.F
+   USES_BLAS = grid_invariant.F grid_beckew.F grid_file.F grid_setspac.F grid_quadv0a.F grid_quadv0b.F
 
 
 

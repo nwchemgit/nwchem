@@ -1,12 +1,13 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc)
 c
-C$Id: grid_quadv0.F,v 1.6 2000-03-23 03:04:11 edo Exp $
+C$Id: grid_quadv0.F,v 1.7 2000-03-27 19:15:31 edo Exp $
 c
       implicit none
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(4)
-      Logical oprint
+      Logical oprint,grad,xc_chkgrad
+      external xc_chkgrad
       double precision Exc(2)
 c
 #include "cgridfile.fh"
@@ -21,12 +22,12 @@ c
 #include "rtdb.fh"
 c
       double precision rho_n
-      integer me, nproc, icount, nxyz, nctrs, 
+      integer me, nproc, nxyz, nctrs, 
      &        nbf_ao_mxnbf_ce2, nqtot, 
      &        ncoef_max,
      &        npol
       integer lxyz, ixyz, lcharge, icharge, 
-     &        lqxyz, iqxyz, lqwght, iqwght, lrq0, irq0, 
+     &        lqxyz, iqxyz, lqwght, iqwght, 
      &        lniz, iniz, lexpo, iexpo, lcoef, icoef, lFmat, iFmat, 
      &        lPmat, iPmat, lrho, irho, ldelrho, idelrho, lBmat, iBmat, 
      &        lhess, ihess, lrq, irq, 
@@ -36,6 +37,10 @@ c
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
      &        nscr, lscr, iscr,lamat,iamat,icmat,lcmat,
      ,     noc(2),nelec
+      integer libf_ao,iibf_ao,irqbuf,lrqbuf,lbp,ibp,lrscr,irscr,
+     .     irchi_atom,irdelchi_atom,lrchi_atom,lrdelchi_atom
+      integer iqs,lqs,nqlen,mxnrad,nq_list,
+     , laqbuf, iaqbuf,lRij,iRij,ndbl,l_qat,k_qat,irqlen
       double precision rho_int, ex, ec,dummy(3),job_grid_acc,rho_err
       equivalence (dummy(1),Ex), (dummy(2),Ec), (dummy(3),rho_int)
 #ifdef SOLARIS
@@ -46,8 +51,7 @@ c
       me = ga_nodeid()
       nproc = ga_nnodes()
       oprint = util_print('quadrature', print_high)
-c
-      icount=1
+      grad=xc_chkgrad(xfac,cfac)
 c
       npol = (ipol*(ipol+1))/2
 c
@@ -79,6 +83,12 @@ c     Divide the multi-center integrand into a set of single center integrands.
 c
       nqtot = 0
       rho_int = 0.D0
+      if(.not.grid_written) then
+c
+c     Open grid pts file
+c     
+         call grid_packing_info
+      endif
       len_rho = npol*n_per_rec
       len_delrho = 3*ipol*n_per_rec
 c
@@ -88,12 +98,6 @@ c
       if (.not.MA_Push_get(mt_dbl,n_per_rec,'qwght',lqwght,iqwght))
      &   call errquit('grid_den: cannot allocate qwght',0)
       call dfill(n_per_rec, 0.0d0, dbl_mb(iqwght), 1)
-      if (.not.MA_Push_get(mt_dbl,nctrs,'rq0',lrq0,irq0))
-     &   call errquit('grid_den: cannot allocate rq0',0)
-      call dfill(nctrs, 0.0d0, dbl_mb(irq0), 1)
-      if (.not.MA_Push_get(mt_dbl,nctrs*n_per_rec,'rq',lrq,irq))
-     &   call errquit('grid_den: cannot allocate rq',0)
-      call dfill(nctrs*n_per_rec, 0.0d0, dbl_mb(irq), 1)
       if (.not.MA_Push_get(MT_int,nctrs,'atom list',lniz,iniz))
      &   call errquit('grid_den: cannot allocate atom list',0)
       call ifill(nctrs, 0.0d0, int_mb(iniz), 1)
@@ -128,21 +132,22 @@ c
      &   call errquit('grid_den: cannot allocate hesdum',0)
 c
 c     Assume this numerical density routine can be called from anywhere.
-c
 c     -compute mapping vectors
 c 
-      if (.not.ma_push_get
-     &   (mt_int,nshells_ao,'cntoce map',lcntoce,icntoce))
-     &   call errquit('grid_den:push_get failed', 13)
       if (.not.ma_push_get
      &   (mt_int,nshells_ao*2,'cntoce map',lcntobfr,icntobfr))
      &   call errquit('grid_den:push_get failed', 13)
       if (.not.ma_push_get
      &   (mt_int,nctrs*2,'cntoce map',lcetobfr,icetobfr))
      &   call errquit('grid_den:push_get failed', 13)
+      if (.not.ma_push_get
+     &   (mt_int,nshells_ao,'cntoce map',lcntoce,icntoce))
+     &   call errquit('grid_den:push_get failed', 13)
 c     
       call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
      &                int_mb(icetobfr), nctrs, nshells_ao)
+      if (.not.ma_pop_stack(lcntoce))
+     &   call errquit('grid_den: cannot pop stack',1)
 c
 c     -compute reduced total density matrices over atoms
 c
@@ -166,20 +171,91 @@ c
      .     mt_dbl,3*n_per_rec*ipol,'Cmat',lcmat,icmat))
      &   call errquit('xc_quadv0: cannot allocate Cmat',0)
       call dfill(3*ipol*n_per_rec, 0.0d0, dbl_mb(iCmat), 1)
+c
+c     allocate scratch array for grid compression
+c
+      if (.not.MA_Push_Get(mt_int, nbf_ao, 'ibf_ao', libf_ao,
+     &     iibf_ao))
+     &     call errquit('grid_quadv0a: cannot allocate ibf_ao',2)
+      if (.not.MA_Push_get(MT_dbl, 4*buffer_size+4, 
+     &                     'quad pts buffer', lrqbuf, irqbuf))
+     &   call errquit('grid_gen: cannot allocate quad pt buffer', 3)
+      if (.not.MA_Push_Get(mt_dbl,n_per_rec,
+     ,     'rho scr',lrscr,irscr))
+     &     call errquit('grid_quadv0a: cannot allocate rho scr',5)
+
+      if (.not.MA_Push_Get(MT_Dbl,nctrs,'rchi_atom',
+     &     lrchi_atom,irchi_atom))
+     &     call errquit('dft_scf: cannot allocate rchi_atom',0)
+      if(grad) then
+      if (.not.MA_Push_Get(MT_Dbl,nctrs,'rdelchi_atom',
+     &     lrdelchi_atom,irdelchi_atom))call errquit
+     &        ('dft_scf: cannot allocate rdelchi_atom',0)
+      endif
+      irqlen=nctrs*n_per_rec
+      if(.not.grid_written) irqlen=max(irqlen,nctrs*nqmax)
+      if (.not.MA_Push_get(mt_dbl,irqlen,'rq',lrq,irq))
+     &   call errquit('grid_den: cannot allocate rq',0)
+      call dfill(irqlen, 0.0d0, dbl_mb(irq), 1)
+      if (.not.MA_Push_Get(mt_dbl,irqlen,'bp',lbp,ibp))
+     &     call errquit('grid_quadv0a: cannot allocate bp',4)
+
       Ex=0d0
       Ec=0d0
       call ga_sync()
-      call grid_quadv0a(rtdb, g_dens, ncoef_max, nctrs, rho_int, nqtot, 
-     &                int_mb(iniz), int_mb(ifin), 
-     &                dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ihess), 
-     &                dbl_mb(iqwght), dbl_mb(iqxyz), dbl_mb(ixyz), 
-     &                dbl_mb(iexpo), dbl_mb(icoef), 
-     &                dbl_mb(iBmat), dbl_mb(iFmat), 
-     &                dbl_mb(iPmat), dbl_mb(irq), dbl_mb(irq0), 
-     &                dbl_mb(irdens_atom), int_mb(icntoce),
-     &                int_mb(icntobfr), int_mb(icetobfr),
-     ,     ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc)
+      if(grid_written) then
+         call grid_quadv0a(rtdb,g_dens,ncoef_max,nctrs,rho_int,nqtot, 
+     &        int_mb(iniz), int_mb(ifin), 
+     &        dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ihess), 
+     &        dbl_mb(iqwght), dbl_mb(iqxyz), dbl_mb(ixyz), 
+     &        dbl_mb(iexpo), dbl_mb(icoef), 
+     &        dbl_mb(iBmat), dbl_mb(iFmat), 
+     &        dbl_mb(iPmat), dbl_mb(irq), 
+     &        dbl_mb(irdens_atom), 
+     &        int_mb(icntobfr), int_mb(icetobfr),
+     ,        int_mb(iibf_ao),dbl_mb(irqbuf),dbl_mb(ibp),
+     ,        dbl_mb(irscr),
+     ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
+     ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc)
+      else
+         if (.not. rtdb_get(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
+     &        call errquit('gridv0: rtdb_get failed', 119)
+         nqlen = ncenters*mxnrad
+         if (.not.MA_Push_get(MT_int,4*nqlen,'shell list',
+     &        lqs,iqs))
+     &        call errquit('gridv0: cannot allocate shell list',0)
 c
+c     get list of grid pts
+c     
+         call grid_list(rtdb, int_mb(iqs), nqlen, nq_list)
+         if (.not.MA_Push_get(MT_dbl, 4*nqmax,
+     &        'ang quad pts buffer', laqbuf, iaqbuf))
+     &        call errquit('gridv0: cant allocate quad pt', 0)
+         ndbl = (ncenters*(ncenters+1))/2
+         if (.not.MA_Push_Get(MT_Dbl,ndbl,'Rij',lRij,iRij))
+     &        call errquit('grid_v0: cannot allocate Rij',0)
+         if (.not.MA_Push_get(mt_int,nqshells,'qshat',l_qat,k_qat))
+     &        call errquit('gridv0: cannot allocate qat',5)
+         call grid_quadvw(rtdb,
+     ,     int_mb(iqs),nq_list,dbl_mb(iaqbuf),
+     ,        dbl_mb(irij),int_mb(k_qat),
+     ,     g_dens,ncoef_max,nctrs,rho_int,nqtot, 
+     &        int_mb(iniz), int_mb(ifin), 
+     &        dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ihess), 
+     &        dbl_mb(iqwght), dbl_mb(iqxyz), dbl_mb(ixyz), 
+     &        dbl_mb(iexpo), dbl_mb(icoef), 
+     &        dbl_mb(iBmat), dbl_mb(iFmat), 
+     &        dbl_mb(iPmat), dbl_mb(irq), 
+     &        dbl_mb(irdens_atom), 
+     &        int_mb(icntobfr), int_mb(icetobfr),
+     ,        int_mb(iibf_ao),dbl_mb(ibp),
+     ,        dbl_mb(irscr),
+     ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
+     ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc)
+         if (.not. MA_chop_Stack(lqs))
+     &        call errquit('gridv0: pop stack failed.',1)
+      endif
+c     
       if (.not.ma_chop_stack(lqxyz))
      &   call errquit('grid_den: cannot pop stack',0)
       call ga_sync()
