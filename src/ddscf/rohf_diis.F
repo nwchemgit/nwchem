@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.7 2000-05-16 23:55:45 mdupuis Exp $
+C     $Id: rohf_diis.F,v 1.8 2000-05-18 21:29:57 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -53,7 +53,6 @@ c
       logical odbug
       logical ocosmo
       logical osome
-      logical omode
       double precision ecosmo
 c     
       vlen = crohf_vlen
@@ -132,20 +131,16 @@ c
 c
 c     ----- cosmo charges and energy contribution -----
 c
-        if(ga_nodeid().eq.0) then
-           omode=rtdb_parallel(.false.)
-           if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-              if(ocosmo) then
-                 odbug=.false.
-                 if(odbug) then
-                    osome=.true.
-                 else
-                    osome=.false.
-                 endif
-                 call cosmo_charges(rtdb,basis,ecosmo,iter,osome)
+        if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+           if(ocosmo) then
+              odbug=.false.
+              if(odbug) then
+                 osome=.true.
+              else
+                 osome=.false.
               endif
+              call cosmo_charges(rtdb,basis,ecosmo,iter,osome)
            endif
-           omode=rtdb_parallel(.true.)
         endif
         call ga_sync()
 c
