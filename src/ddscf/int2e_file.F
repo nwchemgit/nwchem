@@ -70,7 +70,8 @@ c
 c     work out dynamic ranges and scaling for integral compression
 c
       precision = precision_arg
-      ocompress = precision .gt. 1d-10
+      ocompress = precision .gt. 1d-9 ! Was 1d-10 but not accurate enuf
+*      ocompress = .false.
 *      write(6,*) ' precision, ocompress ', precision, ocompress
 c
       if (ocompress) then
