@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.32 2003-02-17 01:07:53 bylaska Exp $
+* $Id: paw_sd.F,v 1.33 2003-02-17 05:59:05 marat Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -211,7 +211,6 @@
       write(*,*) "generating PAW basis - debug"
       value = MA_set_auto_verify(.true.)
       call init_paw_basis()
-      call init_paw_density()
       call init_paw_kin_matrix()
       call init_paw_ion_matrix()
       call init_paw_vloc_matrix()
@@ -225,6 +224,8 @@
       call init_paw_pot_hartree()
       call init_paw_pot_comp()
       call paw_mult_init()
+      call init_paw_density(0)
+      call init_paw_xc(0)
 
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
@@ -567,7 +568,6 @@
       call ion_end()
      
       call dealloc_paw_basis_data()
-      call paw_density_end()
       call paw_proj_end()
       call paw_ovlp_end()
       call paw_comp_charge_end()
@@ -582,6 +582,8 @@
       call end_paw_comp_charge_matrix()
       call end_paw_pot_comp()
       call end_paw_pot_hartree()
+      call paw_density_end()
+      call paw_xc_end()
 
 
       value = MA_free_heap(psir(2))
