@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.25 2001-11-28 01:13:20 windus Exp $
+C $Id: twodd_cont.F,v 1.26 2001-12-12 00:53:56 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -213,7 +213,7 @@ c
       enddo
 c
       call shell_fock_build (basis, 1, ndens, jfac, kfac,
-     *   tol2e, g_dens2, g_rhs)
+     *   tol2e, g_dens2, g_rhs,.true.)
 c will eventually bring back - log_mb(k_act))
       if (otwoprint) then
          if(ga_nodeid().eq.0) then
@@ -450,6 +450,8 @@ c
         if (.not. ga_destroy(g_dens(i))) call errquit
      *     ('twodd_cont: failed to free g_dens()', ndens)
       end do
+      if (.not. ga_destroy(g_dens2)) call errquit
+     *   ('twodd_cont: failed to free g_dens2', ndens)
 c
 c  Need to get rid of extra memory
 c

@@ -1,8 +1,8 @@
 c
-c $Id: shell_fock_build.F,v 1.12 2001-11-28 01:13:20 windus Exp $
+c $Id: shell_fock_build.F,v 1.13 2001-12-12 00:53:56 windus Exp $
 c
       subroutine shell_fock_build(basis, nder, ndens,
-     $     jfac, kfac, tol2e, g_dens, g_fock)
+     $     jfac, kfac, tol2e, g_dens, g_fock, osym)
 c
 C Took oactive out for the time being, but will probably need to
 c bring it back - tlw
@@ -37,6 +37,7 @@ c
       integer maxblen           ! maximum value for blen = max no. bf in group
       integer maxsh             ! maximum no. of shells in a group
       integer maxq              ! max quartets in a request
+      logical osym
       parameter (maxblen=36, maxsh=10)
       parameter (maxq=maxsh**4)
       integer ga_create_atom_blocked
@@ -174,7 +175,7 @@ c     enddo
       call nga_reorder(g_fock, .true., int_mb(k_bfmap),
      $     .true., int_mb(k_bfmap))
 c
-       call nga_symmetrize(g_fock)
+       if (osym) call nga_symmetrize(g_fock)
 c
 c  Clean up memory allocated in this routine
 c

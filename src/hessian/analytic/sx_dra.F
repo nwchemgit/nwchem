@@ -1,5 +1,5 @@
 c
-c $Id: sx_dra.F,v 1.3 2001-10-03 23:49:52 windus Exp $
+c $Id: sx_dra.F,v 1.4 2001-12-12 00:53:56 windus Exp $
 c
 c  This file holds the DRA write and read routines for the Sx matrices
 c
@@ -93,14 +93,15 @@ c
         status = dra_read_section(.false.,g_temp,1,nsize,1,nsize,
      &              dra_handle,nsize*(ind-1)+1,nsize*ind,1,nsize,
      &              request)
-        call nga_copy_patch('N', g_temp, lob, hib, g_sx, loa, hia)
-        if (status.ne.0) call errquit
-     &     ('sx_read: problem with read for index ',ind)
 c
 c Make sure that the write is finished
 c
         if (dra_wait(request).ne.0) call errquit
      &     ('sx_read: dra_wait failed for index',ind)
+c
+        call nga_copy_patch('N', g_temp, lob, hib, g_sx, loa, hia)
+        if (status.ne.0) call errquit
+     &     ('sx_read: problem with read for index ',ind)
       enddo
 c
       if (.not. ga_destroy(g_temp))

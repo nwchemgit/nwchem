@@ -3,7 +3,7 @@
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_hessv2.F,v 1.1 2001-11-28 01:11:57 windus Exp $
+c     $Id: rohf_hessv2.F,v 1.2 2001-12-12 00:54:32 windus Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -45,7 +45,7 @@ c
      $     pflg,
      $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hessv2.F,v 1.1 2001-11-28 01:11:57 windus Exp $
+C     $Id: rohf_hessv2.F,v 1.2 2001-12-12 00:54:32 windus Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -112,7 +112,7 @@ c
       end
       subroutine rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_hessv2.F,v 1.1 2001-11-28 01:11:57 windus Exp $
+C     $Id: rohf_hessv2.F,v 1.2 2001-12-12 00:54:32 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -340,7 +340,7 @@ c
       call flush(6)
 c
       call shell_fock_build( basis, 0, nfock, jfac, kfac,
-     $     tol2e, g_dens, g_fock)
+     $     tol2e, g_dens, g_fock,.true.)
       write(6,*) 'after the shell_fock_build'
       call flush(6)
 c     

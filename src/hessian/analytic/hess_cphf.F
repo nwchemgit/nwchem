@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.30 2001-11-09 23:10:19 windus Exp $
+C $Id: hess_cphf.F,v 1.31 2001-12-12 00:53:55 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -60,61 +60,6 @@ c
        nocc(2) = nbeta
       endif
 c
-c     This is temporary until I can get the code working with multiple
-c     dimensional GAs: copy g_rhs into g_rhs_x which is an array of two-
-c     dimensional GAs.
-c
-      alo(2) = 1
-      ahi(2) = nbf
-      alo(3) = 1
-      ahi(3) = nbf
-      blo(1) = 1
-      bhi(1) = nbf
-      blo(2) = 1
-      bhi(2) = nbf
-      j = 0
-      do i = 1, ncent
-         j = j + 1
-         alo(1) = j
-         ahi(1) = j
-         g_rhs_x(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test a x')
-         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
-         j = j + 1
-         alo(1) = j
-         ahi(1) = j
-         g_rhs_x(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test a y')
-         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
-         j = j + 1
-         alo(1) = j
-         ahi(1) = j
-         g_rhs_x(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test a z')
-         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
-      enddo
-      if (ndens.eq.2) then
-      do i = 1, ncent
-         j = j + 1
-         alo(1) = j
-         ahi(1) = j
-         g_rhs_x(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test b x')
-         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
-         j = j + 1
-         alo(1) = j
-         ahi(1) = j
-         g_rhs_x(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test b y')
-         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
-         j = j + 1
-         alo(1) = j
-         ahi(1) = j
-         g_rhs_x(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test b z')
-         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
-      enddo
-      endif
 c     ----- define parameters -----
  
       nc   = n3xyz
@@ -207,47 +152,34 @@ c
 c  Transform the current AO based Fock derivatives to the MO basis,
 c  scale by four, and populate g_aa and g_wax 
 c
-      call hess_aotomo(g_rhs_x, g_vecs, g_modx,
+      call hess_aotomo2(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, num)
-      ind = 0
-      do ndns = 1, ndens
-       do in = 1, nc
-        ind = ind + 1
-        call ga_dscal(g_rhs_x(ind),four)
-       enddo
-      enddo
-      call hess_getaawax(g_rhs_x, g_aa, g_wax, nocc, nvirt,
+      call ga_dscal(g_rhs,four)
+      call hess_getaawax2(g_rhs, g_aa, g_wax, nocc, nvirt,
      $          ndens, n3xyz, num, ocphfprint)
 c
 c We are now done with the Fock derivatives.
 c Will reuse g_rhs for the ds/dx term.
 c Transform ds/dx term into MO basis and scale by -0.5.
 c
-      call sx_read_orig(g_rhs_x,nc,num,sx_dra_handle)
+      call sx_read(g_rhs,nc,num,sx_dra_handle)
 c
       if (oprint) write(LuOut,*) 'HESS: Ta contribution to Wax'
-      call hess_aotomo(g_rhs_x, g_vecs, g_modx,
+      call hess_aotomo2(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, num)
-      ind = 0
-      do ndns = 1, ndens
-       do in =1,nc
-         ind = ind + 1
-         call ga_dscal(g_rhs_x(ind),-pt5)
-         if (ocphfprint) then
-           if(ga_nodeid().eq.0)write(LuOut,*)
-           if(ga_nodeid().eq.0)write(LuOut,*) 'Ta after scaling',ind
-           call ga_print(g_rhs_x(ind))
-         endif
-       enddo
-      enddo
+      call ga_dscal(g_rhs,-pt5)
+      if (ocphfprint) then
+        if(ga_nodeid().eq.0)write(LuOut,*)
+        if(ga_nodeid().eq.0)write(LuOut,*) 'Ta after scaling'
+        call ga_print(g_rhs)
+      endif
 c
 c get contribution to wax
 c
-      call hess_tuwax(g_rhs_x, g_wax, dbl_mb(k_evals), nocc, nvirt,
+      call hess_tuwax2(g_rhs, g_wax, dbl_mb(k_evals), nocc, nvirt,
      $          ocphfprint, ndens, n3xyz, num)
-c
 c
 c Do wxy = wxy + 8*sum(i)sum(j)[(ei+ej)*Ta((i-1*nocc)+j,x))*Ta((i-1*nocc)+j,y)]
 c This is the hondo equivalent of cpwab1 [ Ta is part of g_rhs, e is 
@@ -256,9 +188,10 @@ c
       if (oprint) write(LuOut,*) 'HESS: Ta contribution to Hessian'
       do ndns = 1, ndens
 c      write(6,*) 'nocc and ncent before hess_sxsy ',nocc(ndns),ncent
-      call hess_sxsy(dbl_mb(k_exy),dbl_mb(k_evals),g_rhs_x,
+       call hess_sxsy2(dbl_mb(k_exy),dbl_mb(k_evals),g_rhs,
      &    log_mb(k_act),ncent,nocc(ndns),hf_job)
       enddo
+c
 c
 c Do final summation of the hessian to get result
 c
@@ -286,12 +219,75 @@ c
       if (.not. rtdb_get(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)) 
      $  tol2e = 1.0d-9
 c
-      call hess_moootoao(g_rhs_x, g_vecs, g_modx,
+      call hess_moootoao2(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, num)
+c
+c     This is temporary until I can get the code working with multiple
+c     dimensional GAs: copy g_rhs into g_rhs_x which is an array of two-
+c     dimensional GAs.
+c
+      alo(2) = 1
+      ahi(2) = nbf
+      alo(3) = 1
+      ahi(3) = nbf
+      blo(1) = 1
+      bhi(1) = nbf
+      blo(2) = 1
+      bhi(2) = nbf
+      j = 0
+      do i = 1, ncent
+         j = j + 1
+         alo(1) = j
+         ahi(1) = j
+         g_rhs_x(j) = ga_create_atom_blocked
+     &        (geom, basis, 'CPKS RHS test a x')
+         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
+         j = j + 1
+         alo(1) = j
+         ahi(1) = j
+         g_rhs_x(j) = ga_create_atom_blocked
+     &        (geom, basis, 'CPKS RHS test a y')
+         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
+         j = j + 1
+         alo(1) = j
+         ahi(1) = j
+         g_rhs_x(j) = ga_create_atom_blocked
+     &        (geom, basis, 'CPKS RHS test a z')
+         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
+      enddo
+      if (ndens.eq.2) then
+      do i = 1, ncent
+         j = j + 1
+         alo(1) = j
+         ahi(1) = j
+         g_rhs_x(j) = ga_create_atom_blocked
+     &        (geom, basis, 'CPKS RHS test b x')
+         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
+         j = j + 1
+         alo(1) = j
+         ahi(1) = j
+         g_rhs_x(j) = ga_create_atom_blocked
+     &        (geom, basis, 'CPKS RHS test b y')
+         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
+         j = j + 1
+         alo(1) = j
+         ahi(1) = j
+         g_rhs_x(j) = ga_create_atom_blocked
+     &        (geom, basis, 'CPKS RHS test b z')
+         call nga_copy_patch('N',g_rhs,alo,ahi,g_rhs_x(j),blo,bhi)
+      enddo
+      endif
+c
+c     call hess_moootoao(g_rhs_x, g_vecs, g_modx,
+c    $          oprint, ocphfprint,
+c    $          nocc, nvirt, ndens, n3xyz, num)
       call hess_modfock(g_rhs_x, g_vecs, g_modx, ndens, n3xyz,
      $                  tol2e, rtdb, geom, basis, jfac, kfac,
      $                  num, ocphfprint)
+      call hess_aotomo(g_rhs_x, g_vecs, g_modx,
+     $          oprint, ocphfprint,
+     $          nocc, nvirt, ndens, n3xyz, num)
 c
 c Now form the Wax and Aa contributions
 c
@@ -534,6 +530,67 @@ c
       return
       end
 c
+      subroutine hess_aotomo2(g_rhs_x, g_vecs, g_modx,
+     $          oprint, ocphf,
+     $          nocc, nvirt, ndens, n3xyz, num)
+c
+      implicit none
+c
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+c
+      logical oprint, ocphf
+      integer ndens, n3xyz, num, nocc(ndens), nvirt(ndens)
+      integer g_rhs_x, g_vecs(ndens)
+      integer g_modx, ind, ndns, in
+      integer alo(2), ahi(2), blo(3), bhi(3)
+c
+c  Transform the current AO based Fock derivatives to the MO basis
+c
+      if (oprint) write(LuOut,*) 'HESS: setting up Wax and AA'
+      if (ocphf) then
+        if(ga_nodeid().eq.0) 
+     $        write(LuOut,*) 'RHS before MO transformation', ind
+        call ga_print(g_rhs_x)
+      endif
+c
+      alo(1) = 1
+      ahi(1) = num
+      alo(2) = 1
+      ahi(2) = num  ! g_vecs and g_modx dimensions
+      blo(2) = 1
+      bhi(2) = num
+      blo(3) = 1
+      bhi(3) = num
+      ind = 0
+      do ndns = 1, ndens
+        do in = 1, n3xyz
+          ind = ind + 1
+          blo(1) = ind
+          bhi(1) = ind
+          call ga_zero(g_modx)
+          call nga_matmul_patch ('t','n', 1.D0, 0.D0,
+     $                           g_vecs(ndns), alo, ahi,
+     $                           g_rhs_x     , blo, bhi,
+     $                           g_modx      , alo, ahi)
+          call nga_matmul_patch ('n','n', 1.D0, 0.D0,
+     $                           g_modx      , alo, ahi,
+     $                           g_vecs(ndns), alo, ahi,
+     $                           g_rhs_x     , blo, bhi)
+c
+        enddo
+      enddo
+c
+      if (ocphf) then
+        if(ga_nodeid().eq.0) write(LuOut,*) 
+     $        'Transformed RHS after symmetrization',ind
+        call ga_print(g_rhs_x)
+      endif
+c
+      return
+      end
+c
       subroutine hess_moootoao(g_rhs_x, g_vecs, g_modx,
      $          oprint, ocphf,
      $          nocc, nvirt, ndens, n3xyz, num)
@@ -582,6 +639,78 @@ c
       return
       end
 c
+      subroutine hess_moootoao2(g_rhs_x, g_vecs, g_modx,
+     $          oprint, ocphf,
+     $          nocc, nvirt, ndens, n3xyz, num)
+c
+      implicit none
+c
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+c
+      logical oprint, ocphf
+      integer ndens, n3xyz, num, nocc(ndens), nvirt(ndens)
+      integer g_rhs_x, g_vecs(ndens)
+      integer g_modx, ind, ndns, in
+      integer alo1(2), ahi1(2), blo1(3), bhi1(3)
+      integer alo2(2), ahi2(2), blo2(3), bhi2(3)
+c
+      if(ga_nodeid().eq.0) 
+     $    write(LuOut,*) 'RHS before AO transformation'
+      call ga_print(g_rhs_x)
+c
+c  Set up some arrays
+c
+      alo1(1) = 1
+      ahi1(1) = num
+      alo1(2) = 1
+      alo2(1) = 1
+      alo2(2) = 1
+      ahi2(2) = num
+      blo1(2) = 1
+      blo1(3) = 1
+      blo2(2) = 1
+      bhi2(2) = num
+      blo2(3) = 1
+      bhi2(3) = num
+c
+c  Transform the current MO based matrices to the AO basis
+c
+      ind = 0
+      do ndns = 1, ndens
+       ahi1(2) = nocc(ndns)
+       ahi2(1) = nocc(ndns)
+       bhi1(2) = nocc(ndns)
+       bhi1(3) = nocc(ndns)
+       do in =1,n3xyz
+        ind = ind + 1
+        blo1(1) = ind
+        bhi1(1) = ind
+        blo2(1) = ind
+        bhi2(1) = ind
+        call ga_zero(g_modx)
+        call nga_matmul_patch ('n','n', 1.D0, 0.D0,
+     $                g_vecs(ndns), alo1, ahi1,
+     $                g_rhs_x     , blo1, bhi1,
+     $                g_modx      , alo1, ahi1)
+        call nga_matmul_patch ('n','t', 1.D0, 0.D0,
+     $                g_modx      , alo1, ahi1,
+     $                g_vecs(ndns), alo2, ahi2,
+     $                g_rhs_x     , blo2, bhi2)
+c
+       enddo
+      enddo
+c
+      if (ocphf) then
+        if(ga_nodeid().eq.0) write(LuOut,*) 
+     $        'Transformed RHS '
+        call ga_print(g_rhs_x)
+      endif
+c
+      return
+      end
+c
       subroutine hess_getaawax(g_rhs_x, g_aa, g_wax, nocc, nvirt,
      $          ndens, n3xyz, num, ocphf)
 c
@@ -616,6 +745,65 @@ c
       return
       end
 c
+      subroutine hess_getaawax2(g_rhs_x, g_aa, g_wax, nocc, nvirt,
+     $          ndens, n3xyz, num, ocphf)
+c
+      implicit none
+c
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+c
+      logical ocphf
+      integer ndens, n3xyz, nocc(ndens), nvirt(ndens), num
+      integer g_rhs_x, g_aa(200), g_wax(200)
+      integer ind, ndns, in
+      integer alo1(3), ahi1(3), alo2(3), ahi2(3)
+      integer blo(2), bhi(2), clo(2), chi(2)
+c
+      write(6,*) 'num and ndens ',num,ndens
+      call flush(6)
+      ind = 0
+      do ndns = 1, ndens
+       write(6,*) 'nocc and nvirt ',nocc(ndns),nvirt(ndns)
+       alo1(2) = 1
+       ahi1(2) = nocc(ndns)
+       alo1(3) = nocc(ndns) + 1
+       ahi1(3) = num
+       blo(1)  = 1
+       bhi(1)  = nocc(ndns)
+       blo(2)  = 1
+       bhi(2)  = nvirt(ndns)
+       alo2(2) = 1
+       ahi2(2) = nocc(ndns)
+       alo2(3) = 1
+       ahi2(3) = nocc(ndns)
+       clo(1)  = 1
+       chi(1)  = nocc(ndns)
+       clo(2)  = 1
+       chi(2)  = nocc(ndns)
+       do in =1,n3xyz
+        ind = ind + 1
+        alo1(1) = ind
+        ahi1(1) = ind
+        alo2(1) = ind
+        ahi2(1) = ind
+        call nga_copy_patch('N',g_rhs_x,alo1, ahi1,
+     $     g_wax(ind),blo, bhi)
+        call nga_copy_patch('N',g_rhs_x,alo2, ahi2,
+     $     g_aa(ind), clo, chi)
+        if (ocphf) then
+          if(ga_nodeid().eq.0) write(LuOut,*) 'g_wax(ind) ',ind
+          call ga_print(g_wax(ind))
+          if(ga_nodeid().eq.0) write(LuOut,*) 'g_aa(ind) ',ind
+          call ga_print(g_aa(ind))
+        endif
+       enddo
+      enddo
+c
+      return
+      end
+c
       subroutine hess_tuwax(g_rhs_x, g_wax, evals, nocc, nvirt,
      $          ocphfprint, ndens, n3xyz, num)
 c
@@ -633,7 +821,6 @@ c
       double precision one, eight
       data one, eight /1.0d+00, 8.0d+00/
 c
-      write(6,*) 'in tuwax: ndens,n3xyz,nocc(1)',ndens,n3xyz,nocc(1)
       ind = 0
       do ndns = 1, ndens
        do in =1,n3xyz
@@ -642,6 +829,57 @@ c
            call ga_add_patch(one,g_wax(ind),i,i,1,nvirt(ndns),
      $       eight*evals((ndns-1)*num+i),g_rhs_x(ind),i,i,
      $       nocc(ndns)+1, num,g_wax(ind),i,i,1,nvirt(ndns))
+         enddo
+         if (ocphfprint) then
+           if(ga_nodeid().eq.0)write(LuOut,*) 
+     $           'g_wax after T addition',ind
+           call ga_print(g_wax(ind))
+         endif
+c
+       enddo
+      enddo
+c
+      return
+      end
+c
+      subroutine hess_tuwax2(g_rhs_x, g_wax, evals, nocc, nvirt,
+     $          ocphfprint, ndens, n3xyz, num)
+c
+      implicit none
+c
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+c
+      logical ocphfprint
+      integer ndens, n3xyz, nocc(ndens), nvirt(ndens), num
+      integer g_rhs_x, g_wax(200)
+      integer ind, ndns, in, i
+      integer alo(3), ahi(3), blo(2), bhi(2)
+      double precision evals(*)
+      double precision one, eight
+      data one, eight /1.0d+00, 8.0d+00/
+c
+      ind = 0
+      do ndns = 1, ndens
+       alo(3) = nocc(ndns) + 1
+       ahi(3) = num
+       blo(2) = 1
+       bhi(2) = nvirt(ndns)
+       do in =1,n3xyz
+         ind = ind + 1
+         alo(1) = ind
+         ahi(1) = ind
+         write(6,*) 'g_rhs_x, gwax(ind)',g_rhs_x,g_wax(ind),ind
+         call flush(6)
+         do i = 1, nocc(ndns)
+           alo(2) = i
+           ahi(2) = i
+           blo(1) = i
+           bhi(1) = i
+           call nga_add_patch(one,g_wax(ind),blo,bhi,
+     $       eight*evals((ndns-1)*num+i),g_rhs_x,alo,ahi,
+     $       g_wax(ind),blo,bhi)
          enddo
          if (ocphfprint) then
            if(ga_nodeid().eq.0)write(LuOut,*) 
@@ -761,25 +999,25 @@ c    $       sym_symmetrize(geom,basis,.false.,g_rhs_x(ind))
         endif
         call ga_zero(g_modx) ! prepare for transformation
 
-        write(LuOut,*) 'before first ga_matmul_patch'
-        call ga_matmul_patch ('t','n', 1.D0, 0.D0,
-     $                         g_vecs(1),    1, num,    1, num,
-     $                         g_rhs_x(ind),   1, num,    1, num,
-     $                         g_modx,       1, num,    1, num )
- 
-        write(LuOut,*) 'before second ga_matmul_patch'
-        call ga_matmul_patch ('n','n', 1.D0, 0.D0,
-     $                         g_modx,       1, num,    1, num,
-     $                         g_vecs(1),    1, num,    1, num,
-     $                         g_rhs_x(ind),   1, num,    1, num ) 
+c       write(LuOut,*) 'before first ga_matmul_patch'
+c       call ga_matmul_patch ('t','n', 1.D0, 0.D0,
+c    $                         g_vecs(1),    1, num,    1, num,
+c    $                         g_rhs_x(ind),   1, num,    1, num,
+c    $                         g_modx,       1, num,    1, num )
+c
+c       write(LuOut,*) 'before second ga_matmul_patch'
+c       call ga_matmul_patch ('n','n', 1.D0, 0.D0,
+c    $                         g_modx,       1, num,    1, num,
+c    $                         g_vecs(1),    1, num,    1, num,
+c    $                         g_rhs_x(ind),   1, num,    1, num ) 
         else
           call ga_zero(g_rhs_x(ind))
         endif
-        if (ocphfprint) then
-           if(ga_nodeid().eq.0)
-     $   write(LuOut,*) 'after transformation back to MO basis',ind
-          call ga_print(g_rhs_x(ind))
-        endif
+c       if (ocphfprint) then
+c          if(ga_nodeid().eq.0)
+c    $   write(LuOut,*) 'after transformation back to MO basis',ind
+c         call ga_print(g_rhs_x(ind))
+c       endif
       enddo
       enddo
 c
@@ -811,27 +1049,28 @@ c be dependent on the jfac and kfac in hess_info.fh.
 c
       call ga_maxelt(g_rhs_x,dmax)
 c     if (dmax.gt.tol2e) then  ! the value of tol2e may not be the best here
-      nfock = 1
-c     jfact =  8.0d+00*jfac(ndns)
-c     kfact = -4.0d+00*kfac(ndns)
-      jfact =  8.0d+00*jfac(1)
-      kfact = -4.0d+00*kfac(1)
+      do ndns = 1, ndens
+        jfac(ndns) =  8.0d+00*jfac(ndns)
+        kfac(ndns) = -4.0d+00*kfac(ndns)
+      enddo
 
       call ga_copy(g_rhs_x,g_tmp)  ! copy Ta to g_tmp
       call ga_zero(g_rhs_x)   ! zeroed to get the "new" fock matrices
 
       if (ocphfprint) then
         if(ga_nodeid().eq.0) then
-          write(LuOut,*) 'Before the fock_2e call for ind ',ind
-          write(LuOut,*) 'nfock, jfact, kfact ',nfock, jfact, kfact
+          write(LuOut,*) 'nfock ',nfock
           write(LuOut,*) 'density like matrix before fock_2e'
         endif
         call ga_print(g_tmp)
       endif
+c
       call int_init(rtdb,1,basis)
       call schwarz_init(geom,basis)
       call scf_get_fock_param(rtdb,tol2e) ! need to change for DFT?
+c
 c     Activate XC contribution to OO derivative Fock matrix
+c
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
      $     call errquit('hess_cphf: rtdb_put of xc_active failed',0)
       if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 2))
@@ -839,8 +1078,8 @@ c     Activate XC contribution to OO derivative Fock matrix
       if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
      $     call errquit('hess_cphf: rtdb_put of j_derfit failed',0)
 c
-      call fock_2e(geom,basis,nfock,jfact,kfact,tol2e,.false.,
-     &            g_tmp,g_rhs_x, .false.)
+      call shell_fock_build(basis,0,ndens,jfac,kfac,tol2e,
+     &            g_tmp,g_rhs_x)
 c
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
      $     call errquit('hess_cphf: rtdb_put of xc_active failed',1)
@@ -874,6 +1113,15 @@ c
      $                         g_rhs_x,   1, num,    1, num ) 
       enddo
       enddo
+
+c
+c Put jfac and kfac back to what they were before entering the routine
+c
+      do ndns = 1, ndens
+        jfac(ndns) = jfac(ndns)/8.0d+00
+        kfac(ndns) = kfac(ndns)/-4.0d+00
+      enddo
+
       if (ocphfprint) then
         if(ga_nodeid().eq.0)
      $    write(LuOut,*) 'after transformation back to MO basis',ind
