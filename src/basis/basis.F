@@ -762,11 +762,17 @@ c
       nprim_tot_gb(basis) = infbs_cont(CONT_NPRIM,iu_cont,basis)
       do 00700 i = 2,ncont_tot_gb(basis)
         iu_cont = ibs_cn2ucn(i,basis)
-
+c
         nbf     = infbs_cont(CONT_TYPE,iu_cont,basis)
-        nbf     = (nbf+1)*(nbf+2)/2
-        nbf     = nbf*infbs_cont(CONT_NGEN,iu_cont,basis)
-
+        if (nbf .eq. -1) then
+           nbf = 4
+        else if (nbf .ge. 0) then
+           nbf     = (nbf+1)*(nbf+2)/2
+           nbf     = nbf*infbs_cont(CONT_NGEN,iu_cont,basis)
+        else
+           call errquit('bas_rtdb_load: bad cont type', nbf)
+        endif
+c
         ibs_cn2bfr(1,i,basis) = ibs_cn2bfr(2,(i-1),basis) + 1
         ibs_cn2bfr(2,i,basis) = ibs_cn2bfr(1,i,basis) + nbf - 1
 
@@ -784,7 +790,6 @@ c
 00800 continue
       return
       end
-c
       logical function bas_rtdb_store(rtdb, name, basisin)
       implicit none
 #include "basdeclsP.fh"
