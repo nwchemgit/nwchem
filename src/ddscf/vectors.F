@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.36 2001-06-29 01:52:41 d3g681 Exp $
+C$Id: vectors.F,v 1.37 2001-12-28 20:28:05 d3k958 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -331,6 +331,7 @@ c
       character*32 geomsum, basissum, key
       character*20 scftype20    ! DECL MUST match movecs_converged routine
       character*128 basis_name, trans_name
+      double precision energy
 c
       if (oscfps) call pstat_on(ps_vecio)
       call ga_sync()
@@ -398,6 +399,16 @@ c
          enddo
          if (.not. ma_pop_stack(l_vecs))
      $        call errquit('movecs_write: ma pop failed', l_vecs)
+c
+c Write scf energy at the end of the movecs file. If energy
+c is not in rtdb, it's given a value of zero.
+c
+         write(key,'(a,'':energy'')') scftype(1:inp_strlen(scftype))
+         if (.not. rtdb_get(rtdb, key, mt_dbl, 1, energy)) then
+           energy=0.0d0
+         endif
+         write(unitno, err=1001) energy
+c         
          close(unitno,err=1002)
          ok = 1
       endif
