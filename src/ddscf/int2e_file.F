@@ -34,6 +34,7 @@ c
 c     Initialize common
 c
       file_opened = .false.
+      nlarge = 0
       cur_rec = 1
       n_rec_in_file = 1
       rec_len_in_dbl = buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
@@ -109,9 +110,12 @@ c
 #include "cint2efile.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
 c
       if (file_opened) close(unitno)
 c
+      call ga_igop(msg_int2e_stat1, n_rec_in_file, 1, '+')
+      call ga_igop(msg_int2e_stat2, nlarge, 1, '+')
       if (oinfo) then
          write(6,1) n_rec_in_file, nlarge
  1       format(/
