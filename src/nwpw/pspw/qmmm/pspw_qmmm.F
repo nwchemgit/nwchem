@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.14 2002-02-27 02:15:59 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.15 2002-02-28 00:56:26 bylaska Exp $
 c
 
 ***********************************************************
@@ -74,12 +74,12 @@ c
 *     **** don't do anything if there are no MM atoms ****
       if (nion.gt.0) then
 
-*        ***** Boundary condition check ****
-         if (control_version().ne.4) then
-          value = geom_destroy(geom)
-          call errquit(
-     >    'Aperiodic boundary conditions must be used with QM/MM',0)
-         end if
+c*        ***** Boundary condition check ****
+c         if (control_version().ne.4) then
+c          value = geom_destroy(geom)
+c          call errquit(
+c     >    'Aperiodic boundary conditions must be used with QM/MM',0)
+c         end if
 
 
 *        ***** Allocate pspw_qmmm geometries, velocities, and masses *****
