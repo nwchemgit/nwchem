@@ -1,7 +1,7 @@
 c
 c  Solve orbital MCSCF equations using PCG/NR
 c
-c  $Id: mcscf_orb.F,v 1.11 1996-04-03 00:14:58 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.12 1996-04-03 02:06:43 rg240 Exp $
 c
        subroutine mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed,
      $                           nact, oskel, orbsym, dm1, dm2,
@@ -70,6 +70,7 @@ c
        data ostepci/.false./
        data blen/16/
        data ohalf/.true./
+       data ocoul/.true./
 c
 c
 c
@@ -324,7 +325,7 @@ c
 
 
        subroutine lsrch_proj( g_grad, g_srch, gs0, alpha1, alpha0 )
-C$Id: mcscf_orb.F,v 1.11 1996-04-03 00:14:58 rg240 Exp $
+C$Id: mcscf_orb.F,v 1.12 1996-04-03 02:06:43 rg240 Exp $
        implicit none
 #include "global.fh"
        integer g_grad, g_srch
