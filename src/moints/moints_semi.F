@@ -100,7 +100,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.25 1996-08-14 19:50:11 rg240 Exp $
+c  $Id: moints_semi.F,v 1.26 1996-10-20 17:56:08 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -463,7 +463,7 @@ c
        external gr_len
 c
        if(ocoul)call ga_zero(g_jbuf)
-       if(ocoul)call ga_zero(g_kbuf)
+       if(oexch)call ga_zero(g_kbuf)
        num_nodes = ga_nnodes()
        nmo1 = oseghi - oseglo + 1
        nmo2 = vhi - vlo + 1
@@ -473,8 +473,8 @@ c$$$ 221   FORMAT('ME:',I5,5X,' V-RANGE:',2I3,5X,' O-RANGE:',2I3)
 c
 c  Local MO coefficients
 c
-       status = ma_push_get(MT_DBL,(nbf*nbf),'movecs cols',l_mo,k_mo)
-       call ga_get(g_movecs,1,nbf,1,nbf,dbl_mb(k_mo),nbf)
+       status = ma_push_get(MT_DBL,(nbf*vhi),'movecs cols',l_mo,k_mo)
+       call ga_get(g_movecs,1,nbf,1,vhi,dbl_mb(k_mo),nbf)
 c
 c  Integrals allocation
 c
