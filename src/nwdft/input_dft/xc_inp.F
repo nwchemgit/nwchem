@@ -33,9 +33,11 @@ c     vwn_1_rpa
 c     hcth
 c     becke97
 c     becke97-1
+c     cpbe96
+c     xpbe96
 c     
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs = 20)
+      parameter (num_dirs = 22)
       character*10 dirs(num_dirs)
       character*255 test
 c
@@ -52,7 +54,8 @@ c
       data dirs /'acm', 'b3lyp', 'beckehandh', 'HFexch', 'becke88',  
      &           'lyp', 'perdew81', 'perdew86', 'perdew91', 'pw91lda', 
      &           'slater', 'vwn_1', 'vwn_2', 'vwn_3', 'vwn_4', 'vwn_5',
-     &           'vwn_1_rpa','hcth','becke97','becke97-1'/
+     &           'vwn_1_rpa','hcth','becke97','becke97-1',
+     &           'cpbe96','xpbe96'/
 c
 c     Only these few arrays are initialized (not defaults).
 c
@@ -79,7 +82,7 @@ c
 c
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 
      &      1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
-     ,     1999) ind
+     ,      2100,2200, 1999) ind
       call errquit('xc_inp: unimplemented directive', ind)
 c     
 c     acm; adiabatic connection method
@@ -636,6 +639,70 @@ c
       nlxfac(6) = .true.
 c
       goto 10
+c     
+c     cpbe96 Perdew-Burke-Ernzerhof functional for correlation
+c             
+ 2100 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(6,*)' cpbe96 is a nonlocal functional;',
+     &                ' "local" descriptor is ignored. '                   
+c
+c           This is also done by default inside xc_pbe96.F
+c           when lcfac(12) is .true.
+c
+            lcfac(12) = .false.
+         elseif (inp_compare(.false.,'nonlocal', test)) then
+            nlcfac(12) = .true.
+         else
+c
+c           assume total wanted (but total here = nonlocal)
+c
+            lcfac(12) = .false.
+            nlcfac(12) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lcfac(12) = .false.
+         nlcfac(12) = .true.
+      endif
+      if (.not. inp_f(cfac(12))) then
+         cfac(12) = 1.0d0
+      endif            
+c
+      goto 10
+c     
+c     xpbe96; Perdew-Burke-Ernzerhof functional for exchange
+c     
+ 2200 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(6,*)' xpbe96 "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(6,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            nlxfac(7) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(7) = .true.
+            nlxfac(7) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(7) = .true.
+         nlxfac(7) = .true.
+      endif
+      if (.not. inp_f(xfac(7))) then
+         xfac(7) = 1.0d0
+      endif
+       goto 10
  1999 continue
 c
 c     Check nonlocal functionals: perdew86 and perdew91 to
@@ -643,7 +710,7 @@ c     see if user has specified and accompanying local
 c     functional.  If not, set appropriately.
 c
       ck_local = .false.
-      if(nlcfac(4).or.nlcfac(5))then
+      if(nlcfac(4).or.nlcfac(5).or.nlcfac(12))then
         do n = 1, 15
            if(lcfac(n))ck_local = .true.
         enddo
@@ -667,6 +734,15 @@ c           when lcfac(5) is .true.
 c
             lcfac(6) = .true.
             cfac(6) = 1.0d0
+          elseif(nlcfac(12))then
+            write(6,*)' pbe96 is a nonlocal functional;',
+     &                ' adding pw91lda local functional. '
+c
+c           This is also done by default inside xc_perdew91.F
+c           when lcfac(5) is .true.
+c
+            lcfac(12) = .true.
+            cfac(12) = 1.0d0
           endif
         endif
       endif
