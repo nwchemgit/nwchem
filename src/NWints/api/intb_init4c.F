@@ -1,6 +1,6 @@
       logical function intb_init4c(brain, icl, jcl, ketin, kcl, lcl,
      &    num_q, q4, use_q4, lscr, scr, l_erilab, block_eff)
-c $Id: intb_init4c.F,v 1.6 1996-10-04 18:18:05 d3g681 Exp $  
+c $Id: intb_init4c.F,v 1.7 1996-10-08 04:56:00 d3g681 Exp $  
       implicit none
 *
 c
@@ -60,8 +60,9 @@ c     equal to 3.  These shells are put onto the end of the list and
 c     then evaluated first using the existing NW blocking interface.
 c
 #if (defined(SUN) || defined(SOLARIS))
-c     scalar machines
-      nprimtest = 1
+c     scalar machines ... older SUNS use 1 ... ultra-2 wants 3
+*      nprimtest = 1
+      nprimtest = 3
 #else 
 c     pipelined/vector machines
       nprimtest = 3
