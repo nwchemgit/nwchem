@@ -1,0 +1,25 @@
+#!/bin/csh 
+#
+# confirms file(s) that have blas calls removing ga calls in grep
+#
+
+if ($#argv == 0) then
+   echo "Usage: has_blas file_1 [file_2 file_3 ...]"
+   exit 1
+endif
+set blas = (      daxpy ddot  dscal  dcopy  dnrm2 idamax dasum drot)
+set blas = ($blas drotg dswap  dmach  dgemm dgemv  dgesv dspmv)
+set blas = ($blas dger  dgesvd dspsvx dgetrs dgetrf dpotri dpotrf)
+set blas = ($blas dlaset dlamch dsyev dsygv)
+
+foreach file ($argv)
+foreach tag ($blas) 
+	grep -i $tag $file | grep -v -i ga_ddot | grep -v -i ga_dgemm | grep -v -i ga_dasum | grep -v -i ga_dscal >& /dev/null
+        if (! $status) then
+# found it
+	   echo $file
+           goto nextfile
+        endif
+end
+nextfile:
+end
