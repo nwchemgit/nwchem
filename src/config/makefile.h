@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.190 1997-01-13 19:01:21 d3e129 Exp $
+# $Id: makefile.h,v 1.191 1997-01-14 00:16:04 twclark Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -66,10 +66,10 @@ endif
 # wrapper for the normal tcgmsg library.
 
 ifdef USE_MPI
-NW_CORE_SUBDIRS = include basis geom global inp input chemio \
+NW_CORE_SUBDIRS = include basis fft peigs geom global inp input chemio \
 	ma pstat rtdb tcgmsg-mpi task symmetry util $(CORE_SUBDIRS_EXTRA)
 else
-NW_CORE_SUBDIRS = include basis geom global inp input chemio \
+NW_CORE_SUBDIRS = include basis fft peigs geom global inp input chemio \
 	ma pstat rtdb tcgmsg task symmetry util $(CORE_SUBDIRS_EXTRA)
 endif
 
@@ -543,7 +543,7 @@ FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
  COPTIMIZE = -O
 
     DEFINES = -DSGI -DSGITFP -DEXT_INT -DHAVE_LOC
-  CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
+  CORE_LIBS = -lutil -lpeigs -lchemio -lglobal -llapack -lblas
 endif
 
 
