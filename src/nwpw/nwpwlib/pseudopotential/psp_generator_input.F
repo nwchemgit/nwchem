@@ -5,7 +5,7 @@
 *     ***************************************
       subroutine psp_generator_input(rtdb)
 c
-c $Id: psp_generator_input.F,v 1.12 2002-02-13 20:02:06 edo Exp $
+c $Id: psp_generator_input.F,v 1.13 2002-03-02 02:08:50 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -17,7 +17,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 15)
+      parameter (num_dirs = 29)
       integer NMAX              ! maximum wavfunctions
       parameter (NMAX = 100)
  
@@ -66,6 +66,20 @@ c
      >            'vanderbilt_local:',
      >            'vanderbilt_states:',
      >            'semicore_radius:',
+     >            'element',
+     >            'charge',
+     >            'mass_number',
+     >            'pseudopotential_type',
+     >            'atomic_filling',
+     >            'cutoff',
+     >            'maximum_angular_momentum',
+     >            'pseudopotential_filename',
+     >            'solver_type',
+     >            'correlation_type',
+     >            'exchange_type',
+     >            'vanderbilt_local',
+     >            'vanderbilt_states',
+     >            'semicore_radius',
      >            'end'/
 
 
@@ -102,6 +116,8 @@ c
 
 
       goto ( 100,  200, 300, 400, 500, 600, 700,800,900,
+     >       1000,1100,1200,1300,1400,
+     >       100,  200, 300, 400, 500, 600, 700,800,900,
      >       1000,1100,1200,1300,1400,
      >      9999) ind
       call errquit(
