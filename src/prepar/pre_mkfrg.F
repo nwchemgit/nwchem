@@ -6,7 +6,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.23 1999-12-16 23:55:45 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.24 2000-01-24 23:16:52 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -90,10 +90,10 @@ c
       if(lsgm(2,i).eq.0) then
       ilist=0
 c
-      if(util_print('where',print_debug)) then
+c      if(util_print('where',print_debug)) then
       write(lfnout,2005) csgm(i)
- 2005 format(/,'Creating fragment for residue ',a5)
-      endif
+ 2005 format(/,' Creating fragment for residue ',a5,/)
+c      endif
 c
 c     determine index first segment of this type in sequence list
 c     -----------------------------------------------------------
