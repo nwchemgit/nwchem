@@ -2,7 +2,7 @@
      $     lshlo, lshhi, schw_ij, tol2e,
      $     max2e, eri, mem2, iscr, ilen,
      $     jlen, kblo, kbhi, lblo, lbhi, ssbb, osym )
-C     $Id: moints_aux2.F,v 1.8 1995-10-27 23:25:23 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.9 1995-11-01 18:13:19 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -34,17 +34,17 @@ c
             if (odoit .and. osym) then
                odoit = odoit.and.
      $         sym_shell_quartet(basis, ish, jsh, ksh, lsh, q4)
-*               write(6,1) ish, jsh, ksh, lsh, odoit, q4
-* 1             format(1x,4i5,2x,l,2x,f6.2)
+C$$$               WRITE(6,1) ISH, JSH, KSH, LSH, ODOIT, Q4
+C$$$ 1             FORMAT(1X,4I5,2X,L,2X,F6.2)
             endif
             if (odoit) then
                status = bas_cn2bfr(basis,lsh,lbflo,lbfhi)
                llen = lbfhi - lbflo + 1
                call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
      $                       mem2, iscr, max2e, eri )
-c     
-*               call print_shell_block(basis,eri, ish, jsh, ksh, lsh)
-c     
+C$$$C     
+C$$$*               CALL PRINT_SHELL_BLOCK(BASIS,ERI, ISH, JSH, KSH, LSH)
+C$$$C     
                call eri2blk( ilen, jlen, klen, llen, eri,
      $              ssbb(lbflo,kbflo,1,1), lblen, kblen, q4 )
             endif
@@ -345,7 +345,8 @@ c
       integer ieor
       intrinsic ieor
 c
-C      write(6,*) ' moints_sym_zero ', i, j
+C$$$      WRITE(6,*) (SYMS(P),P=1,NBF)
+C$$$      WRITE(6,*) ' MOINTS_SYM_ZERO ', I, J
 c
       symij = ieor(syms(i),syms(j))
       do p = vlo, vhi

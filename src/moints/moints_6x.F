@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.8 1995-10-27 23:25:18 rg240 Exp $
+c  $Id: moints_6x.F,v 1.9 1995-11-01 18:13:17 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -27,7 +27,7 @@ c -----------------
 c
 c
 c
-       subroutine moints_build_6x(basis, osym,
+       subroutine moints_build_6x(basis, ousesym,
      $                            occ_start, mo1_lo, mo1_hi,
      $                            mo2_lo, mo2_hi,
      $                            g_movecs,
@@ -40,13 +40,14 @@ c
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "util.fh"
+#include "sym.fh"
 #include "schwarz.fh"
 #include "msgids.fh"
 c
 c Arguments
 c
        integer basis                          ! Basis handle
-       logical osym                           ! Symmetry toggle
+       logical ousesym                        ! Symmetry toggle
        integer occ_start                      ! Offset from frozen core
        integer mo1_lo, mo1_hi                 ! 1st Pair Index range
        integer mo2_lo, mo2_hi                 ! 2nd Pair Index range
@@ -58,7 +59,7 @@ c
 c
 c Local variables
 c
-       integer nmo1, nmo2, nbf, nsh, maxbfsh
+       integer geom, nmo1, nmo2, nbf, nsh, maxbfsh
        integer nblk, bsize, blocksize
        integer l_gmap, k_gmap
        integer ish0, jsh0, ish, jsh, ilen, jlen
@@ -80,11 +81,9 @@ c
        double precision t34kidx, t34jidx, thalf0, ttotal, tsynch
        double precision ttask, ttaskmaxJ, ttaskminJ, ttaskaggJ
        double precision ttaskmaxK, ttaskminK, ttaskaggK
-       double precision flop1, flop2k, flop2j
+       double precision flop1, flop2k, flop2j, q2
        integer tottaskJ, tottaskK
-       logical status
-       logical oprint
-       logical osym
+       logical status, oprint, osym, odoit
 #include "moints_stats.fh"
 c
 c
@@ -102,6 +101,8 @@ c  General basis info
 c
        ttotal = tcgtime()
        num_nodes = ga_nnodes()
+       if (.not. bas_geom(basis, geom)) call errquit
+     $      ('moints: cannot get geometry', 0)
        status = bas_numbf(basis,nbf)
        status = status.and.bas_numcont(basis,nsh)
        status = status.and.bas_nbf_cn_max(basis,maxbfsh)
@@ -111,7 +112,9 @@ c
 c     
 c     Symmetry adapt the MOs and renumber irreps to start at zero
 c     
+       osym = (ousesym.and.(sym_number_ops(geom).gt.0))
        if (osym) then
+          PRINT*,' SYMMETRY USED'
           if (.not. ma_push_get(MT_INT, nbf, 'movec syms',l_sym, k_sym))
      $         call errquit('moints_6x: no memory for syms?',0)
           call sym_movecs_adapt(basis, 1d-8, g_movecs, int_mb(k_sym),
@@ -284,7 +287,11 @@ c
              schw_ij = schwarz_shell(ish,jsh)
              scale = 1.d0
              if (ish.eq.jsh) scale = scale*0.5d0
-             if (schw_ij*schwarz_max().ge.tol2e) then
+             odoit = schw_ij*schwarz_max().ge.tol2e
+             if (odoit .and. osym) then
+               odoit = sym_shell_pair(basis, ish, jsh, q2)
+             endif
+             if (odoit) then
                if (next.eq.ploop) then
                  ttask = tcgtime()
                  tottaskJ = tottaskJ + 1

@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.12 1995-10-27 23:25:12 rg240 Exp $
+c  $Id: moints_2x.F,v 1.13 1995-11-01 18:13:16 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -20,7 +20,7 @@ c
 c
 c
 c
-       subroutine moints_build_2x(basis, ohalf, osym,
+       subroutine moints_build_2x(basis, ohalf, ousesym,
      $                            occ_start, mo1_lo, mo1_hi,
      $                            mo2_lo, mo2_hi,
      $                            g_movecs,
@@ -41,7 +41,7 @@ c  Arguments
 c
        integer basis                          ! Basis handle
        logical ohalf                          ! Toggle alternative algorithm for half-ints intermediates
-       logical osym                           ! Symmetry toggle
+       logical ousesym                        ! Use symmetry if present
        integer occ_start                      ! Offset from frozen core
        integer mo1_lo, mo1_hi                 ! 1st Pair Index range
        integer mo2_lo, mo2_hi                 ! 2nd Pair Index range
@@ -79,7 +79,7 @@ c
        double precision flop1, q2
        integer tottask
        integer geom
-       logical status, oprint
+       logical status, oprint, osym
        logical odoit
 c
 #include "moints_stats.fh"
@@ -109,6 +109,7 @@ c
 c     
 c  Symmetry adapt the MOs and renumber irreps to start at zero
 c     
+       osym = (ousesym.and.(sym_number_ops(geom).gt.0))
        if (osym) then
           if (.not. ma_push_get(MT_INT, nbf, 'movec syms',l_sym, k_sym))
      $         call errquit('moints_2x: no memory for syms?',0)
