@@ -25,7 +25,6 @@ c
       logical geom_check_handle
       external geom_check_handle
 c
-      integer i
       geom_zmt_get_source = geom_check_handle(geom, 'geom_zmt_source')
       if (.not. geom_zmt_get_source) return
 c
@@ -144,59 +143,3 @@ c
       geom_zmt_get_nzfrz=.true.
       return
       end
-c
-c     UGLY CRAP BELOW HERE !!!!!!!!!!!!!!!!!!!!!!!
-c           
-      logical function geom_zmt_get_zmat(geom,zmat,nzmat)         
-      implicit none
-c     
-      integer      mxzmat
-      integer      mxatom
-      integer      mxcart
-      integer      mxcoor
-      parameter    (mxatom=500)
-      parameter    (mxcart=3*mxatom)
-      parameter    (mxzmat=1500)
-      parameter    (mxcoor=1500)
-c                   mxcoor=max(mxcart,mxzmat)
-      integer geom
-      integer nzmat
-      integer i
-      double precision  zmt_zmat
-      common/hnd_zmtsav/zmt_zmat(mxcoor)
-      double precision      zmat(*)
-c
-      do i = 1, nzmat
-         zmat(i) = zmt_zmat(i)
-      end do
-c
-      geom_zmt_get_zmat=.true.
-      return
-      end
-      logical function geom_zmt_put_zmat(geom,zmat,nzmat)          
-      implicit none
-c     
-      integer      mxzmat
-      integer      mxatom
-      integer      mxcart
-      integer      mxcoor
-      parameter    (mxatom=500)
-      parameter    (mxcart=3*mxatom)
-      parameter    (mxzmat=1500)
-      parameter    (mxcoor=1500)
-c                   mxcoor=max(mxcart,mxzmat)
-      integer geom
-      integer nzmat
-      integer i
-      double precision  zmt_zmat
-      common/hnd_zmtsav/zmt_zmat(mxcoor)
-      double precision      zmat(*)
-c
-      do i = 1, nzmat
-         zmt_zmat(i) = zmat(i)
-      end do
-c
-      geom_zmt_put_zmat=.true.
-      return
-      end
-      

@@ -1,10 +1,8 @@
-      SUBROUTINE HND_ICOORD(GEOM)
+       SUBROUTINE HND_ICOORD(GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "util.fh"
 c
-      logical status
       integer geom
-      logical  geom_zmt_opn_fil
 C
 C     ---                 CONSTRUCT -Z- MATRIX                     ---
 C     ---             CALCULATE ATOM-ATOM DISTANCES                ---
@@ -61,10 +59,6 @@ C
 C     -----    THERE IS A -Z- MATRIX    -----
 C     ----- CALCULATE -B- AND -B**(-1)- -----
 C
-         STATUS=GEOM_ZMT_OPN_FIL(.TRUE.,.TRUE.,.FALSE.,.FALSE.)
-         IF(.NOT.STATUS) THEN
-            CALL ERRQUIT('GEOM_ZMT_OPN_FIL?',911)
-         ENDIF
          CALL HND_BANDBI(GEOM,NAT,C)
 ****         CALL HND_ZMTPRT(GEOM)  ! RJH - no need to print every time
       ELSEIF(IFZMAT.NE.0.AND.NZMAT.EQ.0) THEN
@@ -76,10 +70,6 @@ C
          CALL HND_ZMTMAK(ZDONE,geom,
      $        util_print('zmat','print_default'))
          IF(ZDONE) THEN
-            STATUS=GEOM_ZMT_OPN_FIL(.TRUE.,.TRUE.,.FALSE.,.FALSE.)
-            IF(.NOT.STATUS) THEN
-               CALL ERRQUIT('GEOM_ZMT_OPN_FIL?',911)
-            ENDIF
             CALL HND_BANDBI(GEOM,NAT,C)
 ****  CALL HND_ZMTPRT(GEOM)
          ELSE
@@ -577,14 +567,9 @@ C
       SUBROUTINE HND_ZMTLIN(NZVAR,MXNIJS,IJS,SIJ)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "mafdecls.fh"
-#include "tcgmsg.fh"
 #include "global.fh"
 #include "rtdb.fh"
 c
-      logical status
-      logical geom_zmt_put_zsym
-      logical geom_zmt_opn_fil
-C
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (  LBUF=9  )
@@ -839,15 +824,7 @@ C
 C     ----- SAVE SYMMETRY MATRIX -----
 C           -S-       AT  -92-
 C
-      STATUS=GEOM_ZMT_OPN_FIL(.FALSE.,.FALSE.,.TRUE.,.TRUE.)
-      IF(.NOT.STATUS) THEN
-         CALL ERRQUIT('GEOM_ZMT_OPN_FIL?',911)
-      ENDIF
-      STATUS=RTDB_PARALLEL(.FALSE.)
-      IF(.NOT.GEOM_ZMT_PUT_ZSYM(DBL_MB(I10),NZVAR,NDIM))
-     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZIND FAILED',0)
-      CALL GA_SYNC
-      STATUS=RTDB_PARALLEL(.TRUE.)
+      call geom_hnd_put_data('zsym',dbl_mb(i10),ndim*ndim)
 C
 C     ----- RELEASE MEMORY POINTERS -----
 C
@@ -869,7 +846,6 @@ C
       SUBROUTINE HND_BANDBI(GEOM,NAT,C)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "mafdecls.fh"
-#include "tcgmsg.fh"
 #include "global.fh"
 #include "geom.fh"
       INTEGER GEOM
@@ -1011,7 +987,6 @@ C
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
-      logical status
       integer geom
 C
 C     ----- CONSTRUCT THE B MATRIX -----
@@ -1021,8 +996,6 @@ C
       LOGICAL     OUT
       LOGICAL     GEOM_ZMT_GET_IZMAT
       LOGICAL     GEOM_ZMT_GET_NIZMAT
-      LOGICAL     GEOM_ZMT_PUT_ZMAT 
-      LOGICAL     GEOM_ZMT_PUT_BMAT 
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OUTPUT/NPRINT
@@ -1054,20 +1027,10 @@ C          -IZMAT- AT -96-
 C
       NDUM=3*NA
 C
-      STATUS=RTDB_PARALLEL(.FALSE.)
-      IF( GA_NODEID().EQ.0) THEN
-         IF(.NOT.GEOM_ZMT_GET_NIZMAT(GEOM,NZMAT))
-     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_NIZMAT FAILED',0)
-         IF(.NOT.GEOM_ZMT_GET_IZMAT(GEOM,IZMAT,NZMAT))
-     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_IZMAT FAILED',0)
-         CALL GA_BRDCST(20,NZMAT,MITOB(1     ),0)
-         CALL GA_BRDCST(21,IZMAT,MITOB(NZMAT ),0)
-      ELSE 
-         CALL GA_BRDCST(20,NZMAT,MITOB(1     ),0)
-         CALL GA_BRDCST(21,IZMAT,MITOB(NZMAT ),0)
-      ENDIF
-      CALL GA_SYNC()
-      STATUS=RTDB_PARALLEL(.TRUE.)
+      IF(.NOT.GEOM_ZMT_GET_NIZMAT(GEOM,NZMAT))
+     1     CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_NIZMAT FAILED',0)
+      IF(.NOT.GEOM_ZMT_GET_IZMAT(GEOM,IZMAT,NZMAT))
+     1     CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_IZMAT FAILED',0)
 C
       IF(OUT) THEN
          WRITE(IW,9997) 
@@ -1173,13 +1136,8 @@ C
 C
 C     ----- STORE FOR -NWCHEM- -----
 C
-      STATUS=RTDB_PARALLEL(.FALSE.)
-      IF(.NOT.GEOM_ZMT_PUT_ZMAT(GEOM,ZMAT,NZVAR))
-     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZMAT FAILED',0)
-      IF(.NOT.GEOM_ZMT_PUT_BMAT(B   ,NCART,NZVAR,NCART))
-     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_BMAT FAILED',0)
-      CALL GA_SYNC()
-      STATUS=RTDB_PARALLEL(.TRUE.)
+      call geom_hnd_put_data('zmat',zmat,nzvar)
+      call geom_hnd_put_data('bmat',b,ncart*nzvar)
 C
       RETURN
  9999 FORMAT(' IN -BMAT- IZVAR,IADD,ITYPE,NZMAT,NZVAR,NCART = ',
@@ -1211,11 +1169,6 @@ C
       LOGICAL     NATURL
       LOGICAL     SYMTRC
       LOGICAL     INDEP
-      LOGICAL     GEOM_ZMT_PUT_BINV 
-      LOGICAL     GEOM_ZMT_GET_BMAT
-      LOGICAL     GEOM_ZMT_PUT_ZIND
-      LOGICAL     GEOM_ZMT_PUT_ZSYM
-      LOGICAL     GEOM_ZMT_GET_ZSYM
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OUTPUT/NPRINT
@@ -1262,8 +1215,7 @@ C     ----- READ -B- MATRIX FOR NATURAL INTERNAL   COORDINATES -----
 C     -----  AND -S- MATRIX FOR                                -----
 C     -----  TRANSFORMATION  TO SYMMETRIC INTERNAL COORDINATES -----
 C
-      IF(.NOT.GEOM_ZMT_GET_BMAT(B   ,NCART,NZVAR,NCART))
-     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_BMAT FAILED',0)
+      call geom_hnd_get_data('bmat',b,ncart*nzvar)
       IF(OUT) THEN
          WRITE(IW,9995)
          IF(DBUG) THEN
@@ -1275,8 +1227,7 @@ C     -----   TRANSFORM -B- TO BASIS OF    -----
 C     ----- SYMMETRIC INTERNAL COORDINATES -----
 C
       IF(SYMTRC.OR.INDEP) THEN
-         IF(.NOT.GEOM_ZMT_GET_ZSYM(S,NZVAR,NDIM))            
-     1      CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_ZSYM FAILED',0)
+         call geom_hnd_get_data('zsym',s,ndim*ndim)
          DO I=1,NCART
             DO J=1,NZVAR
                DUM=ZERO
@@ -1404,16 +1355,14 @@ C
             ENDDO
             S(J,J)=ONE
          ENDDO
-         IF(.NOT.GEOM_ZMT_PUT_ZIND(S,NZVAR,NDIM))            
-     1      CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZIND FAILED',0)
+         call geom_hnd_put_data('zind',s,ndim*ndim)
       ENDIF
 C
 C     ----- IF WORKING BASIS IS (NON-REDUNDANT+REDUNDANT) -----
 C     -----         TRANSFORM -B- TO THAT BASIS           -----
 C
       IF(INDEP) THEN
-         IF(.NOT.GEOM_ZMT_GET_ZSYM(S,NZVAR,NDIM))            
-     1      CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_ZSYM FAILED',0)
+         call geom_hnd_get_data('zsym',s,ndim*ndim)
          DO I=1,NZVAR
             DO J=1,NZVAR
                DUM=ZERO
@@ -1426,8 +1375,7 @@ C
                S(I,J)=T(J)
             ENDDO
          ENDDO
-         IF(.NOT.GEOM_ZMT_PUT_ZSYM(S,NZVAR,NDIM))            
-     1      CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZSYM FAILED',0)
+         call geom_hnd_put_data('zsym',s,ndim*ndim)
          IF(OUT) THEN
             WRITE(IW,9980)
             IF(DBUG) THEN
@@ -1548,8 +1496,7 @@ C
 C
 C     ----- STORE FOR -NWCHEM- -----
 C
-      IF(.NOT.GEOM_ZMT_PUT_BINV(BINV,NCART,NZVAR,NCART))
-     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_BINV FAILED',0)
+      call geom_hnd_put_data('binv',binv,nzvar*ncart)
 C
 C     -----        DEBUG CHECK OF INVERSE             -----
 C     -----         H = Bi * B = K * K(T)             -----
@@ -1623,7 +1570,6 @@ C
       SUBROUTINE HND_BANDZ(GEOM,NAT,C,Z)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "mafdecls.fh"
-#include "tcgmsg.fh"
 #include "global.fh"
 #include "geom.fh"
 C
@@ -1852,18 +1798,15 @@ C
       SUBROUTINE HND_ZMTPRT(GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "mafdecls.fh"
-#include "tcgmsg.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 C
 C     ----- PRINT THE CURRENT Z MATRIX -----
 C
-      LOGICAL STATUS
       INTEGER GEOM
       LOGICAL GEOM_ZMT_GET_IZMAT
       LOGICAL GEOM_ZMT_GET_NIZMAT
-      LOGICAL GEOM_ZMT_GET_ZMAT
       LOGICAL DBUG
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
@@ -1891,22 +1834,11 @@ C     LAST = I30 - 1
 C
 C     ----- GET IZMAT AND ZMAT FROM DIRECT ACCESS -----
 C
-      STATUS=RTDB_PARALLEL(.FALSE.)
-      IF( GA_NODEID().EQ.0) THEN 
-         IF(.NOT.GEOM_ZMT_GET_NIZMAT(GEOM,NZMAT))
-     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_NIZMAT FAILED',0)
-         IF(.NOT.GEOM_ZMT_GET_IZMAT(GEOM,DBL_MB(I20),NZMAT))
-     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_IZMAT FAILED',0)
-         IF(.NOT.GEOM_ZMT_GET_ZMAT(GEOM,DBL_MB(I10),NZVAR))
-     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_ZMAT FAILED',0)
-         CALL GA_BRDCST(22,DBL_MB(I20),MDTOB(NZMAT),0)
-         CALL GA_BRDCST(23,DBL_MB(I10),MDTOB(NZVAR),0)
-      ELSE
-         CALL GA_BRDCST(22,DBL_MB(I20),MDTOB(NZMAT),0)
-         CALL GA_BRDCST(23,DBL_MB(I10),MDTOB(NZVAR),0)
-      ENDIF
-      CALL GA_SYNC()
-      STATUS=RTDB_PARALLEL(.TRUE.)
+      IF(.NOT.GEOM_ZMT_GET_NIZMAT(GEOM,NZMAT))
+     1     CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_NIZMAT FAILED',0)
+      IF(.NOT.GEOM_ZMT_GET_IZMAT(GEOM,DBL_MB(I20),NZMAT))
+     1     CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_IZMAT FAILED',0)
+      call geom_hnd_get_data('zmat',dbl_mb(i10),nzvar)
 C
 C     ----- PRINT THE Z MATRIX -----
 C
@@ -1930,7 +1862,6 @@ C
       SUBROUTINE HND_ZMTPRG(GRAD)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "mafdecls.fh"
-#include "tcgmsg.fh"
 #include "global.fh"
 C
 C     ----- PRINT THE CURRENT Z MATRIX AND ITs GRADIENT -----
@@ -6195,3 +6126,71 @@ c
       end
 
          
+      subroutine geom_hnd_put_data(name, a, n)
+      implicit none
+#include "global.fh"
+#include "util.fh"
+c
+      character*(*) name
+      integer n
+      double precision a(n)
+c
+c     Put the data of given name and dimension from a()
+c     into the appropriate file.
+c
+      character*255 filename
+      logical odebug
+c
+      odebug = util_print('geom_hnd',print_never)
+      if (ga_nodeid() .eq. 0) then
+         call util_file_name(name,.true.,.false.,filename)
+         open(32, file=filename, form='unformatted', 
+     $        status='unknown', err=100)
+         call swrite(32, a, n)
+         close(32)
+         if (odebug) then
+            write(6,*) ' WROTE ', name, n
+            call doutput(a,1,n,1,1,n,1,1)
+         endif
+      endif
+c
+      return
+c
+ 100  write(6,*) ' name = ', name
+      call errquit('geom_hnd_put_data: open failed',0)
+c
+      end
+      subroutine geom_hnd_get_data(name, a, n)
+      implicit none
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "util.fh"
+c
+      character*(*) name
+      integer n
+      double precision a(n)
+c
+c     Get the data of given name and dimension into a()
+c     from the appropriate file.
+c
+      character*255 filename
+      logical odebug
+c
+      odebug = util_print('geom_hnd',print_never)
+      if (ga_nodeid() .eq. 0) then
+         call util_file_name(name,.true.,.false.,filename)
+         open(32, file=filename, form='unformatted', 
+     $        status='old', err=100)
+         if (odebug) write(6,*) ' READ  ', name, n
+         call sread(32, a, n)
+         close(32)
+         if (odebug) call doutput(a,1,n,1,1,n,1,1)
+      endif
+      call ga_brdcst(32, a, mdtob(n), 0)
+c
+      return
+c
+ 100  write(6,*) ' name = ', name
+      call errquit('geom_hnd_get_data: open failed',0)
+c
+      end

@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.63 1999-05-27 17:50:08 d3g681 Exp $
+C$Id: opt_drv.F,v 1.64 1999-05-28 21:21:16 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -66,7 +66,6 @@ c
       logical       some
       logical       out
       logical       dbug
-      logical       status
       logical       cvged
       logical       zcoord
       logical       rstart
@@ -684,7 +683,6 @@ c
          enddo
          if(.not.frozen) then
             if(abs(g(i)).gt.gmax) gmax=abs(g(i))
-**            write(6,*) i, abs(g(i)), gmax
             gnorm=gnorm+g(i)*g(i)
          endif
       enddo
@@ -846,7 +844,6 @@ c
       external driver_opt_put_hess
       logical  driver_opt_get_hess
       external driver_opt_get_hess
-      logical  geom_zmt_get_binv
       logical  geom_hnd_tfhx
       logical  dbug
       integer mxatom, mxcart, mxzmat, mxcoor
@@ -897,8 +894,7 @@ c
          do i=1,ncart*nzvar
             dbl_mb(i+ibi-1)=zero
          enddo
-         if (.not. geom_zmt_get_binv(dbl_mb(ibi),ncart,nzvar,ncart))
-     $        call errquit('hnd_opt_tfhx: get_binv', ncart*nzvar)
+         call geom_hnd_get_data('binv', dbl_mb(ibi), ncart*nzvar)
          if(dbug) then
             write(iw,*) '-binv-'
             call hnd_prsq(dbl_mb(ibi),nzvar,ncart,ncart)
@@ -948,7 +944,6 @@ c
       integer  geom
       logical  gradients
       external gradients
-      logical  geom_zmt_get_binv
       logical  geom_hnd_tfgx
       logical  dbug
       integer mxatom, mxcart, mxzmat, mxcoor
@@ -1001,8 +996,7 @@ c
          write(iw,*) '-gx-'
          call hnd_prsq(g,1,ncart,ncart)
       endif
-      if (.not. geom_zmt_get_binv(dbl_mb(ibi),ncart,nzvar,ncart))
-     $     call errquit('hnd_opt_tfgx: get_binv', ncart*nzvar)
+      call geom_hnd_get_data('binv',dbl_mb(ibi),ncart*nzvar)
       if(dbug) then
          write(iw,*) '-binv-'
          call hnd_prsq(dbl_mb(ibi),nzvar,ncart,ncart)
@@ -1076,7 +1070,6 @@ c
       integer  geom
       logical  gradients
       external gradients
-      logical  geom_zmt_get_binv
       logical  geom_hnd_tfds
       logical  dbug
       logical  iterate
@@ -1128,8 +1121,7 @@ c
 c
          if (.not. ma_push_get(MT_DBL,ncart*nzvar,'mem bi',i_ibi,ibi))
      $        call errquit('hnd_opt_tfds: ma', ncart*nzvar)
-         if (.not. geom_zmt_get_binv(dbl_mb(ibi),ncart,nzvar,ncart))
-     $        call errquit('hnd_opt_tfds: binv', ncart*nzvar)
+         call geom_hnd_get_data('binv',dbl_mb(ibi),ncart*nzvar)
          if (.not. geom_hnd_tfds(d,dx,dbl_mb(ibi),nvar,ncart,ncart))
      $        call errquit('hnd_opt_tfds: tfds', ncart*nzvar)
          if (.not. ma_pop_stack(i_ibi))
@@ -1162,7 +1154,6 @@ c
       integer  geom 
       logical  gradients
       external gradients
-      logical  geom_zmt_get_bmat
       logical  geom_hnd_tfdx
       logical  dbug
 c
@@ -1205,8 +1196,7 @@ c
       enddo
       if (.not. ma_push_get(MT_DBL,ncart*nzvar,'mem b ',i_ib,ib))
      $     call errquit('hnd_opt_tfdx: ma ', ncart*nzvar)
-      if (.not. geom_zmt_get_bmat(dbl_mb(ib),ncart,nzvar,ncart))
-     $     call errquit('hnd_opt_tfdx: tfdx ', ncart*nzvar)
+      call geom_hnd_get_data('bmat',dbl_mb(ib),ncart*nzvar)
       if (.not. geom_hnd_tfdx(d,dx,dbl_mb(ib),nvar,ncart,ncart))
      $     call errquit('hnd_opt_tfdx: tfdx ', ncart*nzvar)
       if (.not. ma_pop_stack(i_ib))
@@ -1255,12 +1245,8 @@ c      logical converged          ! energy convergence flag
 c
       integer h_first, k_first   ! MA handle/index of first mem location
 c
-      logical geom_zmt_get_zmat
-      logical geom_zmt_get_zsym
       logical geom_zmt_get_izmat
       logical geom_zmt_get_nizmat
-      external geom_zmt_get_zmat
-      external geom_zmt_get_zsym
       external geom_zmt_get_izmat
       external geom_zmt_get_nizmat
       logical dbug
@@ -1380,10 +1366,8 @@ c
             write(iw,*) ' k_last    = ',k_last
          endif
          call hnd_bandbi(geom,nat,c)
-         if(.not.geom_zmt_get_zsym(dbl_mb(k_zsym),nzvar,ndim ))                 
-     1      call errquit('hnd_opt_hss_init:zmt_get_zsym failed?',911)
-         if(.not.geom_zmt_get_zmat(geom, dbl_mb(k_zmat),nzvar))                 
-     1      call errquit('hnd_opt_hss_init:zmt_get_zmat failed?',911)
+         call geom_hnd_get_data('zsym',dbl_mb(k_zsym),ndim*ndim)
+         call geom_hnd_get_data('zmat',dbl_mb(k_zmat),nzvar)
          if(.not.geom_zmt_get_nizmat(geom,nzmat))                 
      1      call errquit('hnd_opt_hss_init:zmt_get_nizmat failed?',911)
          if(.not.geom_zmt_get_izmat(geom, dbl_mb(k_izmat),nzmat))                 
@@ -2171,7 +2155,6 @@ c
       logical    status
       logical    driver_opt_get_hess
       logical    driver_opt_put_hess
-      logical    geom_zmt_get_zind
 c
       integer mxatom, mxcart, mxzmat, mxcoor
       parameter (mxatom=500)
@@ -2288,10 +2271,7 @@ c
             write(iw,*) 'in -search_dir- , int.coord. hessian = '
             call hnd_prsq(x(j10),ndimq,ndimq,ndim)
          endif
-         if( ga_nodeid().eq.0) then
-            status=geom_zmt_get_zind(x(j20),ndimq,ndim)
-         endif
-         call ga_brdcst(61+msgdbl,x(j20),mdtob(ndim*ndim),0)
+         call geom_hnd_get_data('zind',x(j20),ndim*ndim)
 
          if(dbug) then
             write(iw,*) 'in -search_dir- , zind = '                 
@@ -2352,10 +2332,7 @@ c
          if(dbug) then
             call hnd_prsq(x(j10),ndimq,ndimq,ndim)
          endif
-         if( ga_nodeid().eq.0) then
-            status=geom_zmt_get_zind(x(j20),ndimq,ndim)
-         endif
-         call ga_brdcst(81+msgdbl,x(j20),mdtob(ndim*ndim),0)
+         call geom_hnd_get_data('zind',x(j20),ndim*ndim)
 c
          call hnd_tfhsi(x(j10),x(j20),x(j30),ndimq,ndimq,ndim)
 c
@@ -3718,9 +3695,6 @@ C
       PARAMETER (MXZMAT=1500)
       PARAMETER (MXCOOR=1500)
 C
-      logical geom_zmt_get_zmat
-      external geom_zmt_get_zmat
-C
       INTEGER RTDB
       INTEGER GEOM
       LOGICAL STATUS
@@ -3792,10 +3766,7 @@ C
       ENDDO
 **      write(6,*) ' HERE DUM ', dum
 c$$$      GS0=DUM
-      if (.not.geom_zmt_get_zmat(geom,s,nzvar))
-     &    call errquit(
-     &    'hnd_opt_search_lin_int: geom_zmt_get_zmat failed',
-     &    911)
+      call geom_hnd_get_data('zmat',s,nzvar)
 c
            NLPTS  = 1
        ALP(NLPTS) = ZERO
@@ -4108,7 +4079,6 @@ c
       INTEGER RTDB
       LOGICAL DRIVER_OPT_PUT_HESS
       LOGICAL DRIVER_OPT_GET_HESS
-      LOGICAL GEOM_ZMT_GET_ZIND
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
 C
@@ -4163,14 +4133,12 @@ c
 c     ----- get current hessian matrix -----
 c
       if(zcoord) then
+         call geom_hnd_get_data('zind',x(j20),ndim*ndim)
          if( ga_nodeid().eq.0) then
             if (.not. driver_opt_get_hess(x(j10),ndim,ndim))
      $           call errquit('hnd_opt_hss_update: get_hess',ndim *ndim)
-            if (.not. geom_zmt_get_zind(x(j20),ndimq,ndim))
-     $           call errquit('hnd_opt_hss_update: get_zind',ndimq*ndim)
          endif
          call ga_brdcst(101+msgdbl,x(j10),mdtob(ndim*ndim),0)
-         call ga_brdcst(102+msgdbl,x(j20),mdtob(ndim*ndim),0)
 c
          if(dbug) then
             write(iw,*) 'in hss_update, current hessian = '
@@ -4224,11 +4192,7 @@ c
                x(i+ndim*(j-1)+j10-1)=x(i+ndimi*(j-1)+i10-1)
             enddo
          enddo
-         if( ga_nodeid().eq.0) then
-            if (.not. geom_zmt_get_zind(x(j20),ndimq,ndim))
-     $           call errquit('hnd_opt_hss_update: get_zind',ndimq*ndim)
-         endif
-         call ga_brdcst(121+msgdbl,x(j20),mdtob(ndim),0)
+         call geom_hnd_get_data('zind',x(j20),ndim*ndim)
 c
          call hnd_tfhsi(x(j10),x(j20),x(j30),ndimq,ndimq,ndim)
 c
