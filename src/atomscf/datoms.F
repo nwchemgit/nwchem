@@ -2,11 +2,12 @@
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
      $     odens, eatom)
-C     $Id: datoms.F,v 1.24 2003-10-17 22:54:15 carlfahl Exp $
+C     $Id: datoms.F,v 1.25 2004-12-01 01:13:46 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
+#include "stdio.fh"
       integer geom, basis
       logical odens             ! If true make the global density
       double precision eatom    ! Return sum of atomic energies
@@ -58,6 +59,7 @@ c
 #include "geom.fh"
 #include "cguess.fh"
 #include "msgids.fh"
+#include "stdio.fh"
       integer geom, basis
       logical odens             ! If true make the global density
       double precision eatom    ! Return sum of atomic energies
@@ -76,7 +78,6 @@ c
       real *8 h(*), dc(*), dos(*), dt(*), dold(*), ss(*)
       real *8 cvec(*), copn(*), smin(nbb,*), qmin(nbb,*),transf(*),cc(*)
       logical oprin, oprint_ener
-      integer iwrite
 c     
       integer nat_dim
       logical odone(nat_dim)
@@ -103,8 +104,6 @@ c
       parameter (maxtyp = 6)
 c
       logical ospherical
-c     
-      data iwrite/6/
 c     
       toteng = 0.0d0
 c     
@@ -160,7 +159,7 @@ c
             call atscf_bas_gather(geom, basis, iat, ic, iiloc,
      $           isymax, hatom, znps, element, tag, ospherical)
 c     
-            call atomd(oprin,iwrite,znps,ic,isymax,hatom,
+            call atomd(oprin,luout,znps,ic,isymax,hatom,
      +           pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +           cvec, copn, smin, qmin, transf, cc, nbb,
      +           element, tag)
@@ -212,8 +211,8 @@ c
 c     
       call ga_dgop(Msg_AtSCF, toteng, 1, '+')
       if (ga_nodeid().eq.0 .and. oprint_ener) then
-         write (iwrite,6010) toteng
-         call util_flush(iwrite)
+         write (luout,6010) toteng
+         call util_flush(luout)
       endif
 c
       eatom = toteng

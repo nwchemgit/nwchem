@@ -1,6 +1,6 @@
       subroutine rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf, nmo,
      $     tol2e, g_dens, g_mocf, oskel, evals )
-C     $Id: rhf_dens_mo.F,v 1.14 2004-11-24 23:03:18 edo Exp $
+C     $Id: rhf_dens_mo.F,v 1.15 2004-12-01 01:16:14 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -11,6 +11,7 @@ C     $Id: rhf_dens_mo.F,v 1.14 2004-11-24 23:03:18 edo Exp $
 #include "rtdb.fh"
 #include "cscfps.fh"
 #include "util.fh"
+#include "stdio.fh"
       integer rtdb, geom, basis, nbf, nmo, nelec
       double precision tol2e    ! [input] selection threshold for 2e integs
       integer g_dens            ! [input] AO density in GA
@@ -64,9 +65,9 @@ c
       if (abs(dens_norm) .gt. 1.0d-2 .and.
      $     abs(dens_norm-dble(nelec)).gt.1.0d-6) then
          if (ga_nodeid() .eq. 0 .and. oprint) then
-            write(6,17) dens_norm, nelec
+            write(luout,17) dens_norm, nelec
  17         format(/' Renormalizing density from ',f10.2,' to ',i6)
-            call util_flush(6)
+            call util_flush(luout)
          endif
          dens_norm = dble(nelec)/dens_norm
          call ga_dscal(g_dens, dens_norm)
@@ -117,8 +118,8 @@ c
       call ga_copy(g_mocf, g_tmp) ! Save the orthonormal basis
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rhf_d_m: u',
      $     32, 32, g_u)) call errquit('rhf_d_m: u',0, GA_ERR)
-*      write(6,*) ' g_mofock ', g_mofock
-*      write(6,*) ' g_u ', g_u
+*      write(luout,*) ' g_mofock ', g_mofock
+*      write(luout,*) ' g_u ', g_u
 *      call ga_summarize(0)
 c     
       if (oscfps) call pstat_on(ps_diag)
@@ -144,12 +145,13 @@ c
 c     
       nocc = (nelec+1)/2
       if (ga_nodeid().eq.0 .and. oprint) then
-         write(6,*)
-         call util_print_centered(6, 'Non-variational initial energy',
+         write(luout,*)
+         call util_print_centered(luout,
+     $        'Non-variational initial energy',
      $        20, .true.)
-         write(6,901) escf, eone, etwo, evals(nocc)
-         if (nmo.ne.nocc)  write(6,9011) evals(nocc+1)
-         write(6,*)
+         write(luout,901) escf, eone, etwo, evals(nocc)
+         if (nmo.ne.nocc)  write(luout,9011) evals(nocc+1)
+         write(luout,*)
  901     format(/
      $        ' Total energy = ',f14.6/
      $        ' 1-e energy   = ',f14.6/
@@ -159,7 +161,7 @@ c
 c
          if ( oskel .and. nmo.ne.nocc .and. 
      $        (abs(evals(nocc)-evals(nocc+1)) .lt. 1e-3)) then
-            write(6,902) 
+            write(luout,902) 
  902        format(/,1x,70('!'),/,
      $           ' Warning - the HOMO and LUMO are degenerate and you',
      $           ' are using symmetry.',/,
@@ -170,7 +172,7 @@ c
      $           ' off symmetry.',/,1x,70('!'),/)
          endif
 c     
-         call util_flush(6)
+         call util_flush(luout)
       endif
 c     
       end
