@@ -1,8 +1,8 @@
-# $Id: GNUmakefile,v 1.88 2004-01-15 19:03:59 edo Exp $
+# $Id: GNUmakefile,v 1.89 2004-01-19 23:36:45 edo Exp $
 
-	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o 	xc_eval_basis.o  
+	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o
 
-	OBJ_OPTIMIZE = \
+	OBJ_OPTIMIZE = xc_eval_basis.o  \
 	a_dist.o \
 	eumac.o \
 	qdist.o \
