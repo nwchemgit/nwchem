@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.26 1997-07-25 17:59:23 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.27 1997-10-15 16:22:20 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -334,7 +334,7 @@ c
       end do
       if (owritefile) denmax = max(denmax,10.0d0)
 c
-      dentolmax = 1d-3
+*******      dentolmax = 1d-3
       dentol = min(dentolmax,tol2e/denmax) ! Threshold to screen integs only
 c
 c     If this is the first call for a potential semi-direct calculation 
@@ -506,6 +506,7 @@ c     density screening
      $                       rdens(ish,jsh),rdens(ksh,lsh),
      $                       rdens(ish,ksh),rdens(ish,lsh), 
      $                       rdens(jsh,ksh),rdens(jsh,lsh))
+                        dijkl = max(dijkl,dijkl*dijkl)
                         if (qq4*sijkl*dijkl .lt. tol2e) goto 200 ! Next kl
                      end if
 c     save it for later
