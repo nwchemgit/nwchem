@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.14 2005-02-10 05:53:32 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.15 2005-02-15 00:50:52 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -73,6 +73,8 @@ c
       integer ntot
       logical ignore_mm
       logical ignore_qm
+      character*30 operation
+      logical do_actlist
 
       call util_print_push() 
       call util_print_rtdb_load(rtdb, 'qmmm')
@@ -92,6 +94,14 @@ c
       status = .true.
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
+
+      if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
+     $     operation = 'energy'
+
+      do_actlist = .false.
+      if (operation.eq.'hessian' .or.
+     >    operation.eq.'frequencies' .or.
+     >    operation.eq.'freq') do_actlist=.true.
 
        if (.not.rtdb_get(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
      $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)
@@ -132,8 +142,9 @@ c     h_g will hold QM gradient for the full system
      &      3*ntot, MA_ERR)
       call dfill(3*ntot,0,dbl_mb(i_g),1)
 c
-      call qmmm_load_fixed_atoms(rtdb)
-c      call qmmm_create_fixed_atoms(rtdb)
+      if(do_actlist) 
+     >  call qmmm_load_fixed_atoms(rtdb)
+
 
 c     calculate gradients from qm
       status = task_gradient_doit(rtdb,theory,qm_energy,dbl_mb(i_g))
@@ -185,7 +196,8 @@ c
       call util_print_pop()
       call mm_write_restart()
 
-      call qmmm_unload_fixed_atoms(rtdb)
+      if(do_actlist) 
+     >  call qmmm_unload_fixed_atoms(rtdb)
 
       end
 
