@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.20 1997-04-10 02:03:28 d3g681 Exp $
+C$Id: rohf.F,v 1.21 1997-04-23 01:11:18 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -107,15 +107,23 @@ C
       endif
 c
       if (ga_nodeid() .eq. 0) then
+         nprint = min(nclosed+nopen+10,nmo)
          if (util_print('final evals', print_default)) then
             call util_print_centered(6,'Final eigenvalues',20,.true.)
-	    nprint = min(nclosed+nopen+10,nmo)
             call output(dbl_mb(k_eval),
      $           1, nprint,
      $           1, 1, nmo, 1, 1)
             call ecce_print1('orbital energies', mt_dbl, 
      $           dbl_mb(k_eval), nmo)
             call util_flush(6)
+         endif
+c
+         if (util_print('final vectors analysis', print_default)) then
+            call movecs_print_anal(basis, max(1,nclosed-10),
+     $           nprint, 0.15d0, g_movecs, 
+     $           'ROHF Molecular Orbital Analysis', 
+     $           .true., dbl_mb(k_eval), oadapt, int_mb(k_irs),
+     $           .true., dbl_mb(k_occ))
          endif
 c
          if (util_print('final vectors', print_debug)) then

@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.38 1997-04-16 16:52:29 d3g681 Exp $
+C$Id: uhf.F,v 1.39 1997-04-23 01:11:19 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -94,32 +94,10 @@ C
          call schwarz_print(natoms, nshells)
       Endif
 C
-      if (ga_nodeid() .eq. 0) then
-         if (util_print('final evals', print_default)) then
-            call util_print_centered(6,'Final alpha eigenvalues',
-     $           20,.true.)
-            call output(dbl_mb(k_eval),
-     $           1, min(nalpha+10,nmo),
-     $           1, 1, nmo, 1, 1)
-            write(6,*)
-            call util_print_centered(6,'Final beta eigenvalues',
-     $           20,.true.)
-            call output(dbl_mb(k_eval+nbf),
-     $           1, min(nalpha+10,nmo),
-     $           1, 1, nmo, 1, 1)
-            call util_flush(6)
-         end if
-         if (util_print('final vectors', print_debug)) then
-            write(6,*)
-            call util_print_centered(6,'Final MO vectors',40,.true.)
-            write(6,*)
-            call util_flush(6)
-         end if
-      end if
+      nprint = min(nalpha+10,nmo)
+      if (util_print('all vector symmetries', print_high))
+     $     nprint = nmo
       if (oadapt) then
-         nprint = min(nalpha+10,nmo)
-         if (util_print('all vector symmetries', print_high))
-     $        nprint = nmo
          oprint_sym = util_print('final vector symmetries',
      $        print_default)
          call scf_movecs_sym_adapt(basis, g_movecs, oprint_sym,
@@ -127,6 +105,36 @@ C
          call scf_movecs_sym_adapt(basis, g_movecs(2), oprint_sym,
      $        nprint, '- beta', .true., int_mb(k_irs+nmo))
       endif
+      if (ga_nodeid() .eq. 0) then
+         if (util_print('final evals', print_default)) then
+            call util_print_centered(6,'Final alpha eigenvalues',
+     $           20,.true.)
+            call output(dbl_mb(k_eval), 1, nprint, 1, 1, nmo, 1, 1)
+            write(6,*)
+            call util_print_centered(6,'Final beta eigenvalues',
+     $           20,.true.)
+            call output(dbl_mb(k_eval+nbf), 1, nprint, 1, 1, nmo, 1, 1)
+            call util_flush(6)
+         end if
+         if (util_print('final vectors analysis', print_default)) then
+            call movecs_print_anal(basis, max(1,nbeta-10),
+     $           nprint, 0.15d0, g_movecs, 
+     $           'UHF Alpha Molecular Orbital Analysis', 
+     $           .true., dbl_mb(k_eval), oadapt, int_mb(k_irs),
+     $           .true., dbl_mb(k_occ))
+            call movecs_print_anal(basis, max(1,nbeta-10),
+     $           nprint, 0.15d0, g_movecs(2), 
+     $           'UHF Beta Molecular Orbital Analysis', 
+     $           .true., dbl_mb(k_eval+nbf), oadapt, int_mb(k_irs+nmo),
+     $           .true., dbl_mb(k_occ+nbf))
+         endif
+         if (util_print('final vectors', print_debug)) then
+            write(6,*)
+            call util_print_centered(6,'Final MO vectors',40,.true.)
+            write(6,*)
+            call util_flush(6)
+         end if
+      end if
       if (util_print('final vectors', print_debug)) then
          call ga_print(g_movecs)
          call ga_print(g_movecs(2))
@@ -179,7 +187,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.38 1997-04-16 16:52:29 d3g681 Exp $
+C     $Id: uhf.F,v 1.39 1997-04-23 01:11:19 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -466,7 +474,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.38 1997-04-16 16:52:29 d3g681 Exp $
+C$Id: uhf.F,v 1.39 1997-04-23 01:11:19 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -557,7 +565,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.38 1997-04-16 16:52:29 d3g681 Exp $
+c     $Id: uhf.F,v 1.39 1997-04-23 01:11:19 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1043,7 +1051,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.38 1997-04-16 16:52:29 d3g681 Exp $
+C$Id: uhf.F,v 1.39 1997-04-23 01:11:19 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

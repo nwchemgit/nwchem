@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.96 1997-04-18 21:54:05 d3e129 Exp $
+# $Id: GNUmakefile,v 1.97 1997-04-23 01:11:16 d3g681 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -37,7 +37,7 @@
 	riscf_dovecs.o \
         uhf.o                   uhf_hessv.o fock_2e_rep.o \
         print_integ.o \
-	riscf_square.o 		riscf_io.o \
+	riscf_square.o 		riscf_io.o movecs_pr_anal.o \
         rohf_lagr.o 		rohf_diis.o \
 	rhf_fock.o              multipole.o ga_mat_to_vec.o
 

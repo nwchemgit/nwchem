@@ -1,6 +1,6 @@
       Subroutine mull_pop( geom, basis, iga_dens,iga_s)
 
-C$Id: mull_pop.F,v 1.9 1997-04-18 00:15:46 d3g681 Exp $
+C$Id: mull_pop.F,v 1.10 1997-04-23 01:11:18 d3g681 Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -136,7 +136,9 @@ c
           if (.not. geom_cent_get(geom, iat, tag, coord, qnuc)) 
      $         call errquit('mull_pop: geom_cent_tag failed',0)
 c
-          qatom(iat) = qnuc - qatom(iat)
+*     cannot subtract effective nuclear charge here since don't 
+*     know if we are doing the total or a partial density
+*          qatom(iat) = qnuc - qatom(iat)
 c
           if (.not. geom_tag_to_element(tag, symbol, element, atn))
      $         symbol = 'X'
