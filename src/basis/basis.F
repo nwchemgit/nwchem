@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.95 1999-12-30 21:58:17 mg201 Exp $
+c $Id: basis.F,v 1.96 2000-01-12 22:10:19 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1278,6 +1278,8 @@ c
 c read the basis now get check status of read operations
 c
       if (.not.rtdb_status) then
+         if (.not. ma_free_heap(exndcf(H_exndcf,basis)))
+     $        call errquit('bas_rtdb_load: ma free failed?',0)
 c
 c     rjh ... can be quiet now since the application should
 c     whine if it really did need the basis set
@@ -2348,9 +2350,9 @@ c
          else
             if (nbasis_rtdb .gt. 0) write(6,3)
  3          format(
-     $           2x,5x,2x,'Name',28x,2x,'Natoms',2x,
+     $           1x,4x,2x,'Name',28x,2x,'Natoms',2x,
      $           'Last Modified',/,
-     $           2x,5x,2x,32('-'),2x,6('-'),2x,24('-'))
+     $           1x,5x,2x,32('-'),2x,6('-'),2x,24('-'))
             do basis = 1, nbasis_rtdb
                key = ' '
                write(key,'(''basis:'',a,'':header'')')
@@ -2371,7 +2373,7 @@ c
                endif
                name32 = bs_names_rtdb(basis)(1:len_bs_rtdb(basis))
                write(6,4) basis, name32, natom, date
- 4             format(2x,i5,2x,a32,2x,i6,2x,a26)
+ 4             format(1x,i4,2x,a32,2x,i6,2x,a26)
             end do
             if (nbasis_rtdb .gt. 0) then
                if (.not. rtdb_cget(rtdb,'ao basis',1,key)) 
