@@ -1,5 +1,5 @@
 /*
- $Id: mapdif.c,v 1.2 1999-07-28 00:39:26 d3e129 Exp $
+ $Id: mapdif.c,v 1.3 2004-10-20 18:05:34 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -44,6 +44,7 @@
   */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "globalp.c.h"
 
@@ -78,7 +79,6 @@ void mapdif_( n, mapA, mapB, iscratch, ndiff )
   extern Integer      mxnprc_();
   extern Integer      mxmynd_();
   extern Integer      reduce_list2();
-  extern Integer      memcmp();
   extern Integer      qqsort();
   
   nproc = mxnprc_();
