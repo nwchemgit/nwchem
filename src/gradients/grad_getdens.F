@@ -3,10 +3,14 @@
      $     d_ij2, d_kl2, d_ik2, d_jl2, d_il2, d_jk2, 
      $     d_ij3, d_kl3, d_ik3, d_jl3, d_il3, d_jk3, 
      $     d_ij4, d_kl4, d_ik4, d_jl4, d_il4, d_jk4, 
+     $     d_ik5, d_jl5, d_il5, d_jk5,
+     $     d_ik6, d_jl6, d_il6, d_jk6, 
+     $     d_ik7, d_jl7, d_il7, d_jk7, 
+     $     d_ik8, d_jl8, d_il8, d_jk8, 
      $     blen,
      $     ilo, ihi, jlo, jhi, klo, khi, llo, lhi,
      $     ilo_prev, jlo_prev, klo_prev,
-     $     g_dens)
+     $     g_dens,exso)
 c
 c     Wrapper for all of the grad_get_dens routines.  Note that
 c     some of the arrays passed into here are not allocated
@@ -23,9 +27,13 @@ c
      $     d_ij(*),  d_kl(*),  d_ik(*),  d_jl(*),  d_il(*),  d_jk(*),
      $     d_ij2(*), d_kl2(*), d_ik2(*), d_jl2(*), d_il2(*), d_jk2(*), 
      $     d_ij3(*), d_kl3(*), d_ik3(*), d_jl3(*), d_il3(*), d_jk3(*), 
-     $     d_ij4(*), d_kl4(*), d_ik4(*), d_jl4(*), d_il4(*), d_jk4(*)
+     $     d_ij4(*), d_kl4(*), d_ik4(*), d_jl4(*), d_il4(*), d_jk4(*),
+     $     d_ik5(*), d_jl5(*), d_il5(*), d_jk5(*),
+     $     d_ik6(*), d_jl6(*), d_il6(*), d_jk6(*), 
+     $     d_ik7(*), d_jl7(*), d_il7(*), d_jk7(*), 
+     $     d_ik8(*), d_jl8(*), d_il8(*), d_jk8(*)
 c
-      logical ogetij, ogetik, ogetjk
+      logical ogetij, ogetik, ogetjk, exso
 c
 c     Reuse data we already have ... l is inner loop so cannot save this.
 c
@@ -40,9 +48,26 @@ c
 c
       if (.not. omp2) then
          if (ouhf) then
-            call grad_get_dens_uhf(d_ij, d_kl, d_ik, 
+            if(.not.exso)
+     $           call grad_get_dens_uhf(d_ij, d_kl, d_ik, 
      $           d_jl, d_il, d_jk,
      $           d_ik2, d_jl2, d_il2, d_jk2, blen, 
+     $           ilo, ihi, jlo, jhi, 
+     $           klo, khi, llo, lhi,
+     $           ogetij, ogetik, ogetjk,
+     $           g_dens)
+            if(exso)
+     $           call grad_get_dens_exso(
+     &           d_ij, d_kl, 
+     &           d_ik,  d_jl,  d_il,  d_jk,
+     $           d_ik2, d_jl2, d_il2, d_jk2, 
+     &           d_ik3, d_jl3, d_il3, d_jk3, 
+     &           d_ik4, d_jl4, d_il4, d_jk4,
+     &           d_ik5, d_jl5, d_il5, d_jk5, 
+     &           d_ik6, d_jl6, d_il6, d_jk6,
+     &           d_ik7, d_jl7, d_il7, d_jk7, 
+     &           d_ik8, d_jl8, d_il8, d_jk8,
+     &           blen, 
      $           ilo, ihi, jlo, jhi, 
      $           klo, khi, llo, lhi,
      $           ogetij, ogetik, ogetjk,
@@ -100,7 +125,7 @@ c
      $           ilo, ihi, jlo, jhi, klo, khi, llo, lhi,
      $           ogetij, ogetik, ogetjk,
      $           g_dens)
-c$Id: grad_getdens.F,v 1.4 1997-06-24 15:56:23 d3g681 Exp $
+c$Id: grad_getdens.F,v 1.5 2000-05-24 22:29:10 zzhang Exp $
 C
 C     get blocks from density matrix and make sure no block is
 C     transferred twice
@@ -471,6 +496,219 @@ C     j,k
          else
             call ga_get (g_dens(1), jlo, jhi, klo, khi, d_jk, blen)
          endif
+
+         if (eij) then
+            call grad_copy (d_ik2, d_jk2, li, lk, blen)
+         else if (ekl) then
+            call grad_copy (d_jl2, d_jk2, lj, ll, blen)
+         else if (eik .and. ejl) then
+            call grad_transp (d_il2, d_jk2, li, ll, blen)
+         else
+            call ga_get (g_dens(2), jlo, jhi, klo, khi, d_jk2, blen)
+         endif
+      endif
+c
+      end
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      subroutine grad_get_dens_exso(d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
+     $           d_ik2, d_jl2, d_il2, d_jk2, 
+     $           d_ik3, d_jl3, d_il3, d_jk3, 
+     $           d_ik4, d_jl4, d_il4, d_jk4, 
+     $           d_ik5, d_jl5, d_il5, d_jk5, 
+     $           d_ik6, d_jl6, d_il6, d_jk6, 
+     $           d_ik7, d_jl7, d_il7, d_jk7, 
+     $           d_ik8, d_jl8, d_il8, d_jk8, 
+     &           blen,
+     $           ilo, ihi, jlo, jhi, klo, khi, llo, lhi,
+     $           ogetij, ogetik, ogetjk,
+     $           g_dens)
+C
+C     get blocks from density matrix and make sure no block is
+C     transferred twice
+C
+      implicit none
+
+#include "global.fh"
+
+      integer g_dens, blen, 
+     $     ilo, ihi, jlo, jhi, klo, khi, llo, lhi,
+     $     li, lj, lk, ll
+      logical ogetij, ogetik, ogetjk
+
+      double precision d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
+     $     d_ik2, d_jl2, d_il2, d_jk2,
+     $     d_ik3, d_jl3, d_il3, d_jk3,
+     $     d_ik4, d_jl4, d_il4, d_jk4,
+     $     d_ik5, d_jl5, d_il5, d_jk5,
+     $     d_ik6, d_jl6, d_il6, d_jk6,
+     $     d_ik7, d_jl7, d_il7, d_jk7,
+     $     d_ik8, d_jl8, d_il8, d_jk8
+
+      dimension d_ij(blen,blen),d_kl(blen,blen),d_ik(blen,blen),
+     $          d_jl(blen,blen),d_il(blen,blen),d_jk(blen,blen),
+     $          d_ik2(blen,blen),d_jl2(blen,blen),d_il2(blen,blen),
+     $          d_jk2(blen,blen),
+     $          d_ik3(blen,blen),d_jl3(blen,blen),d_il3(blen,blen),
+     $          d_jk3(blen,blen),
+     $          d_ik4(blen,blen),d_jl4(blen,blen),d_il4(blen,blen),
+     $          d_jk4(blen,blen),
+     $          d_ik5(blen,blen),d_jl5(blen,blen),d_il5(blen,blen),
+     $          d_jk5(blen,blen),
+     $          d_ik6(blen,blen),d_jl6(blen,blen),d_il6(blen,blen),
+     $          d_jk6(blen,blen),
+     $          d_ik7(blen,blen),d_jl7(blen,blen),d_il7(blen,blen),
+     $          d_jk7(blen,blen),
+     $          d_ik8(blen,blen),d_jl8(blen,blen),d_il8(blen,blen),
+     $          d_jk8(blen,blen)
+      dimension g_dens(8)
+
+      logical eij, ejk, ekl, eil, eik, ejl
+
+      eij = (ilo.eq.jlo)
+      ejk = (jlo.eq.klo)
+      ekl = (klo.eq.llo)
+      eil = (ilo.eq.llo)
+      eik = (ilo.eq.klo)
+      ejl = (jlo.eq.llo)
+
+      li = ihi - ilo + 1
+      lj = jhi - jlo + 1
+      lk = khi - klo + 1
+      ll = lhi - llo + 1
+
+C     i,j
+      if (ogetij)call ga_get(g_dens(1), ilo, ihi, jlo, jhi, d_ij, blen)
+
+C     k,l
+      if (eik.and.ejl) then
+        call grad_copy (d_ij, d_kl, li, lj, blen)
+      else if (eil.and.ejk) then
+        call grad_transp (d_ij, d_kl, li, lj, blen)
+      else
+        call ga_get (g_dens(1), klo, khi, llo, lhi, d_kl, blen)
+      endif
+
+C     i,k
+      if (ogetik) then
+c     dens(1) and dens(2)
+         if (ejk) then
+            call grad_copy (d_ij, d_ik, li, lj, blen)
+         else if (eil) then
+            call grad_transp (d_kl, d_ik, lk, ll, blen)
+         else
+            call ga_get (g_dens(1), ilo, ihi, klo, khi, d_ik, blen)
+         endif
+         call ga_get (g_dens(2), ilo, ihi, klo, khi, d_ik2, blen)
+c     dens(3) and dens(4)
+         call ga_get (g_dens(3), ilo, ihi, klo, khi, d_ik3, blen)
+         call ga_get (g_dens(4), ilo, ihi, klo, khi, d_ik4, blen)
+c     dens(5) and dens(6)
+         call ga_get (g_dens(5), ilo, ihi, klo, khi, d_ik5, blen)
+         call ga_get (g_dens(6), ilo, ihi, klo, khi, d_ik6, blen)
+c     dens(7) and dens(8)
+         call ga_get (g_dens(7), ilo, ihi, klo, khi, d_ik7, blen)
+         call ga_get (g_dens(8), ilo, ihi, klo, khi, d_ik8, blen)
+      endif
+
+C     j,l
+c     dens(1) and dens(2)
+      if (ejk) then
+         call grad_copy (d_kl, d_jl, lk, ll, blen)
+      else if (eij.and.ejl) then
+         call grad_copy (d_ij, d_jl, li, lj, blen)
+      else if (eil) then
+         call grad_transp (d_ij, d_jl, li, lj, blen)
+      else if (eij.and.ekl) then
+         call grad_copy (d_ik, d_jl, li, lk, blen)
+      else if (ejk.and.eil) then
+         call grad_transp (d_ik, d_jl, li, lk, blen)
+      else
+         call ga_get (g_dens(1), jlo, jhi, llo, lhi, d_jl, blen)
+      endif
+
+      if (eij .and. ekl) then
+        call grad_copy (d_ik2, d_jl2, li, lk, blen)
+      else if (eil .and. ejk) then
+        call grad_transp (d_ik2, d_jl2, li, lk, blen)
+      else
+        call ga_get (g_dens(2), jlo, jhi, llo, lhi, d_jl2, blen)
+      endif
+c
+c     dens(3) and dens(4)
+c
+      call ga_get (g_dens(3), jlo, jhi, llo, lhi, d_jl3, blen)
+      call ga_get (g_dens(4), jlo, jhi, llo, lhi, d_jl4, blen)
+c
+c     dens(5) and dens(6)
+c
+      call ga_get (g_dens(5), jlo, jhi, llo, lhi, d_jl5, blen)
+      call ga_get (g_dens(6), jlo, jhi, llo, lhi, d_jl6, blen)
+c
+c     dens(7) and dens(8)
+c
+      call ga_get (g_dens(7), jlo, jhi, llo, lhi, d_jl7, blen)
+      call ga_get (g_dens(8), jlo, jhi, llo, lhi, d_jl8, blen)
+
+
+C     i,l
+c
+c     dens(1) and dens(2)
+c
+      if (ejl) then
+        call grad_copy (d_ij, d_il, li, lj, blen)
+      else if (eik) then
+        call grad_copy (d_kl, d_il, lk, ll, blen)
+      else if (eij) then
+        call grad_copy (d_jl, d_il, lj, ll, blen)
+      else if (ekl) then
+        call grad_copy (d_ik, d_il, li, lk, blen)
+      else
+        call ga_get (g_dens(1), ilo, ihi, llo, lhi, d_il, blen)
+      endif
+
+      if (ekl) then
+        call grad_copy (d_ik2, d_il2, li, lk, blen)
+      else if (eij) then
+        call grad_copy (d_jl2, d_il2, lj, ll, blen)
+      else
+        call ga_get (g_dens(2), ilo, ihi, llo, lhi, d_il2, blen)
+      endif
+c
+c     dens(3) and dnes(4)
+c
+      call ga_get (g_dens(3), ilo, ihi, llo, lhi, d_il3, blen)
+      call ga_get (g_dens(4), ilo, ihi, llo, lhi, d_il4, blen)
+c
+c     dens(5) and dnes(6)
+c     
+      call ga_get (g_dens(5), ilo, ihi, llo, lhi, d_il5, blen)
+      call ga_get (g_dens(6), ilo, ihi, llo, lhi, d_il6, blen)
+c     
+c     dens(7) and dnes(8)
+c     
+      call ga_get (g_dens(7), ilo, ihi, llo, lhi, d_il7, blen)
+      call ga_get (g_dens(8), ilo, ihi, llo, lhi, d_il8, blen)
+
+C     j,k
+      if (ogetjk) then
+c
+c     dens(1) and dens(2)
+c
+         if (ekl) then
+            call grad_copy (d_jl, d_jk, lj, ll, blen)
+         else if (eij) then
+            call grad_copy (d_ik, d_jk, li, lk, blen)
+         else if (eik) then
+            call grad_transp (d_ij, d_jk, li, lj, blen)
+         else if (ejl) then
+            call grad_transp (d_kl, d_jk, lk, ll, blen)
+         else if (eij.and.ekl) then
+            call grad_copy (d_il, d_jk, li, ll, blen)
+         else if (ejl.and.eik) then
+            call grad_transp (d_il, d_jk, li, ll, blen)
+         else
+            call ga_get (g_dens(1), jlo, jhi, klo, khi, d_jk, blen)
+         endif
 c
          if (eij) then
             call grad_copy (d_ik2, d_jk2, li, lk, blen)
@@ -481,6 +719,21 @@ c
          else
             call ga_get (g_dens(2), jlo, jhi, klo, khi, d_jk2, blen)
          endif
+c
+c     dens(3) and dens(4)
+c
+            call ga_get (g_dens(3), jlo, jhi, klo, khi, d_jk3, blen)
+            call ga_get (g_dens(4), jlo, jhi, klo, khi, d_jk4, blen)
+c
+c     dens(5) and dens(6)
+c
+            call ga_get (g_dens(5), jlo, jhi, klo, khi, d_jk5, blen)
+            call ga_get (g_dens(6), jlo, jhi, klo, khi, d_jk6, blen)
+c
+c     dens(7) and dens(8)
+c
+            call ga_get (g_dens(7), jlo, jhi, klo, khi, d_jk7, blen)
+            call ga_get (g_dens(8), jlo, jhi, klo, khi, d_jk8, blen)
       endif
 c
       end
