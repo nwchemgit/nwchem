@@ -1,5 +1,5 @@
 /*
- $Id: inv_it3.c,v 1.6 1999-11-04 22:41:36 d3g270 Exp $
+ $Id: inv_it3.c,v 1.7 2000-02-22 20:32:40 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -54,7 +54,7 @@ Integer inv_it( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps,
 
 #include "clustr_inv.h"
 
-#define    ITS   1
+#define    ITS   3
 #define    MAXITR 100
 extern DoublePrecision psigma, psgn;
 
