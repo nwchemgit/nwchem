@@ -1,7 +1,7 @@
       Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd) 
 c 
-C$Id: dft_3cincor.F,v 1.25 2000-05-30 19:31:58 edo Exp $
+C$Id: dft_3cincor.F,v 1.26 2000-10-26 19:34:15 edo Exp $
 c
       implicit none
 c    
@@ -47,7 +47,6 @@ c
 c
       double precision THRESHOLD, ERI_est, ratio
       double precision q1
-c      write(0,*) ' in 3CINCO',itol2e
 c
       THRESHOLD=10.d0**(-itol2e)
       oprint_semi_file = util_print('semi-direct info', print_high)
