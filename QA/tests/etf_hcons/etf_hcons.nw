@@ -1,0 +1,43 @@
+echo
+start
+
+basis
+  * library 3-21g
+end
+
+dft
+print low
+iterations 1000
+end
+
+
+geometry nocenter noautosym noautoz
+  C        0.93300        0.53200       -1.40700
+  H        1.44900        0.44900       -2.39500
+  O        0.72500        1.63600       -0.86500
+  O        0.62500       -0.68400       -0.97500
+  C       -0.55900       -1.18100        0.76400
+  H        0.27700       -1.76000        1.09400
+  H       -1.22500       -1.68400        0.09700
+  C       -0.93000       -0.02000        1.41700
+  H       -0.22400        0.89500        0.83300
+  H       -1.95400        0.30300        1.32900
+  H       -0.44300        0.20900        2.35000
+end
+
+constraints
+fix atom 1:11
+unfix atom 9
+spring bond 3 9 5.0 2.54
+end
+
+driver
+print low
+clear
+maxiter 40
+xyz etf
+end
+
+task dft optimize
+
+
