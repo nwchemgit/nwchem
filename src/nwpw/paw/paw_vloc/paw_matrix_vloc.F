@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_vloc.F,v 1.1 2003-02-11 20:46:11 marat Exp $
+* $Id: paw_matrix_vloc.F,v 1.2 2003-02-25 02:38:37 bylaska Exp $
 *
 
 !**************************************************
@@ -139,7 +139,7 @@
         power_f = 2*orb_l(i) + 2
         do j=1,i
           if(orb_l(i).eq.orb_l(j)) then
-            write(*,*) "g_tmp vloc"
+            
             do ii=1,ic
             dbl_mb(i_f+ii-1) =  phi_ps(ii,i)
      >                             *phi_ps(ii,j)
