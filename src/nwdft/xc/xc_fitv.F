@@ -2,7 +2,7 @@
      &                   Tmat,nTrows,nTcols,
      &                   idirect,g_vxc,g_xcinv,IOLGC)
 
-C$Id: xc_fitv.F,v 1.5 1995-12-19 20:19:39 og845 Exp $
+C$Id: xc_fitv.F,v 1.6 1996-04-04 00:02:51 og845 Exp $
       implicit none
       
 c****
@@ -84,8 +84,6 @@ c
      ,     isha,ifirsta,ilasta,nshbfa,nscr2
       integer Nint,npint,mag,Max_scr,nxc
       double precision fact
-      integer nextval
-      external nextval
 c******************************************************************************
 #if defined(DFT_TIMER)
       call ga_sync
