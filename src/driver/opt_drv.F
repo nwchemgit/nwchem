@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.42 1998-03-18 21:25:51 mdupuis Exp $
+C$Id: opt_drv.F,v 1.43 1998-03-19 18:03:17 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -371,7 +371,6 @@ c
      &            'hnd_opt_drv: geom_print_angles failed',911)
             endif
          endif
-         call ga_sync()
          if (.not.geom_destroy(geom))
      &      call errquit('hnd_opt: geom_destroy?', 911)
          hnd_optx=.true.
@@ -407,7 +406,6 @@ c
          endif
          if (.not.geom_destroy(geom))
      &      call errquit('hnd_opt: geom_destroy?', 911)
-         call ga_sync()
          hnd_optx=.false.
          return
       endif
@@ -445,7 +443,6 @@ c
          endif
          if (.not.geom_destroy(geom))
      &      call errquit('hnd_opt: geom_destroy?', 911)
-         call ga_sync()
          hnd_optx=.true.
          return
       endif
@@ -1000,7 +997,7 @@ c
      $        call errquit('hnd_opt_tfhx: put_hess failed', 911 )
 c
       endif
-      call ga_sync()
+      call ga_sync
 c
       if (.not. ma_pop_stack(i_ibi))
      $     call errquit('hnd_opt_tfhx: ma pop', memsiz )
@@ -2134,10 +2131,11 @@ c      logical status
 c
       integer nint 
       integer mint
-      integer i
-      integer j
+c      integer i
+c      integer j
       integer ir
       integer iw
+c      integer ip
       integer ift
       logical dbug
       common/hnd_iofile/ir,iw
@@ -2157,7 +2155,7 @@ c
       endif
 c
       rewind ift
-      write(ift) ((hess(i,j),i=1,nint),j=1,nint)
+      write(ift) hess
 c
       close(ift,status='keep')
 c
@@ -2180,10 +2178,11 @@ c      logical status
 c    
       integer nint
       integer mint
-      integer i
-      integer j
+c      integer i
+c      integer j
       integer ir
       integer iw
+c      integer ip
       integer ift
       logical dbug
       common/hnd_iofile/ir,iw
@@ -2198,7 +2197,7 @@ c
       dbug=util_print('hess_fil', print_debug)
 c
       rewind ift
-      read(ift,end=910,err=910) ((hess(i,j),i=1,nint),j=1,nint)
+      read(ift,end=910,err=910) hess
 c
       close(ift,status='keep')
 c
@@ -2301,7 +2300,7 @@ c
 c
       need=      ndim1* ndim1
       need=need+ ndim1* ndim1
-      need=need+max(6,(ndim1*(ndim1+1))/2)
+      need=need+(ndim1*(ndim1+1))/2
       need=need+ ndim1
       need=need+ ndim1
       need=need+ ndim1
@@ -2321,7 +2320,7 @@ c
       i10=ifirst 
       i20=i10+ ndim1* ndim1
       i30=i20+ ndim1* ndim1
-      i40=i30+max(6,(ndim1*(ndim1+1))/2)
+      i40=i30+(ndim1*(ndim1+1))/2
       i50=i40+ ndim1
       i60=i50+ ndim1
       i70=i60+ ndim1
@@ -2374,7 +2373,6 @@ c
             write(iw,*) 'in -search_dir- , cartesian hessian = '
             call hnd_prsq(x(i10),ndimx,ndimx,ndim1)
          endif
-         call hnd_opt_eckart(x(i10),x(i20),x(i30),x(i40),ndim1)
       endif
 c
 c     --- search direction (quasi-newton or augmented hessian) ---
@@ -2444,170 +2442,6 @@ c
 c
       if(dbug) then
          write(iw,*) '   end of hnd_opt_search_dir '
-      endif
-c
-      return
-      end
-      subroutine hnd_opt_eckart(hess,proj,tr,t,ndim)
-      implicit double precision (a-h,o-z)
-      parameter (zero=0.0d+00)
-      parameter ( one=1.0d+00)
-      parameter (mxatom=500)
-      logical   dbug
-      common/hnd_iofile/ir,iw
-      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
-      dimension hess(ndim,*)
-      dimension proj(ndim,*)
-      dimension   tr(ndim,*)
-      dimension    t(*)
-      dimension    g(3)
-c
-      dbug=.false.
-c
-      ncart=3*nat
-c
-      if(dbug) then
-         write(iw,*) 'in -hnd-opt-eckart- ....'
-         write(iw,*) 'un-projected hessian'
-         call hnd_prsq(hess,ncart,ncart,ndim)
-      endif
-c
-      do jxyz=1,6
-         do ixyz=1,ncart
-            tr(ixyz,jxyz)=zero
-         enddo
-      enddo
-c
-c     ----- center of mass -----
-c
-      do ixyz=1,3
-         dum=zero
-         do iat=1,nat
-            dum=dum+c(ixyz,iat)
-         enddo
-         g(ixyz)=dum/dble(nat)
-      enddo
-c
-c     ----- define translations -----
-c
-      do jxyz=1,3
-         do iat=1,nat
-            ixyz=jxyz+3*(iat-1)
-            tr(ixyz,jxyz)=one
-         enddo
-      enddo
-c
-c     ----- define rotations -----
-c 
-      do jxyz=4,6
-         if(jxyz.eq.4) then
-            do iat=1,nat
-               ixyz=3*(iat-1)
-               tr(2+ixyz,jxyz)=-c(3,iat)+g(3)
-               tr(3+ixyz,jxyz)= c(2,iat)-g(2)
-            enddo
-         elseif(jxyz.eq.5) then
-            do iat=1,nat
-               ixyz=3*(iat-1)
-               tr(1+ixyz,jxyz)= c(3,iat)-g(3)
-               tr(3+ixyz,jxyz)=-c(1,iat)+g(1)
-            enddo
-         elseif(jxyz.eq.6) then
-            do iat=1,nat
-               ixyz=3*(iat-1)
-               tr(1+ixyz,jxyz)=-c(2,iat)+g(2)
-               tr(2+ixyz,jxyz)= c(1,iat)-g(1)
-            enddo
-         endif
-      enddo
-      if(dbug) then
-         write(iw,*) 'translations and rotations vectors'
-         call hnd_prsq(tr,6,ncart,ndim)
-      endif
-c
-c     ----- orthonormalize -----
-c
-      nxyz=0
-      do jxyz=1,6
-         dum=dnrm2(ncart,tr(1,jxyz),1)
-         if(abs(dum).gt.tol) then
-            nxyz=nxyz+1
-            dum=one/dum
-            call dscal(ncart,dum,tr(1,jxyz),1)
-            if(jxyz.lt.6) then
-               do kxyz=jxyz+1,6
-                  dum= -ddot(ncart,    tr(1,jxyz),1,tr(1,kxyz),1)
-                  call daxpy(ncart,dum,tr(1,jxyz),1,tr(1,kxyz),1)
-               enddo
-            endif
-         else
-            do ixyz=1,ncart
-               tr(ixyz,jxyz)=zero
-            enddo
-         endif
-      enddo
-      if(dbug) then
-         write(iw,*) 'translations and rotations vectors'
-         call hnd_prsq(tr,6,ncart,ndim)
-      endif
-      if(dbug.and.nxyz.ne.6) then
-         write(iw,*) '# of transl.+rot. found',nxyz
-      endif
-c
-c     ----- eckart projector ----
-c
-      do jxyz=1,ncart
-         do ixyz=1,ncart
-            proj(ixyz,jxyz)=zero
-         enddo
-         proj(jxyz,jxyz)=one
-         do ixyz=1,ncart
-            dum=zero
-            do kxyz=1,6
-               dum=dum+tr(ixyz,kxyz)*tr(jxyz,kxyz)
-            enddo
-            proj(ixyz,jxyz)=proj(ixyz,jxyz)-dum
-         enddo
-      enddo
-      if(dbug) then
-         write(iw,*) 'eckart projector'
-         call hnd_prsq(proj,ncart,ncart,ndim)
-      endif
-c
-c     ----- project hessian -----
-c
-      if(dbug) then
-         write(iw,*) 'un-projected hessian'
-         call hnd_prsq(hess,ncart,ncart,ndim)
-      endif
-c
-      do ixyz=1,ncart
-         do jxyz=1,ncart
-            dum=zero
-            do kxyz=1,ncart
-               dum=dum+hess(ixyz,kxyz)*proj(kxyz,jxyz)
-            enddo
-            t(jxyz)=dum
-         enddo
-         do jxyz=1,ncart
-            hess(ixyz,jxyz)=t(jxyz)
-         enddo
-      enddo
-      do jxyz=1,ncart
-         do ixyz=1,ncart
-            dum=zero
-            do kxyz=1,ncart
-               dum=dum+proj(ixyz,kxyz)*hess(kxyz,jxyz)
-            enddo
-            t(ixyz)=dum
-         enddo
-         do ixyz=1,ncart
-            hess(ixyz,jxyz)=t(ixyz)
-         enddo
-      enddo
-      if(dbug) then
-         write(iw,*) '   projected hessian'
-         call hnd_prsq(hess,ncart,ncart,ndim)
       endif
 c
       return
@@ -2754,7 +2588,6 @@ C
       DATA DAMP2  /2.0D+00/
       DATA HUNDRD /1.0D+02/
       DATA TENM1  /1.0D-01/
-      DATA TENM8  /1.0D-08/
 C
       DBUG=.FALSE.
       OUT =.FALSE.
@@ -2831,13 +2664,7 @@ C                      OR TRANSLATIONAL MODES.
 C
       NEGEIG=0
       DO I=1,NVAR
-         IF(ABS(HESEIG(I)).LT.TENM8) THEN
-            HESEIG(I)=ZERO
-            HESEDM(I)=ZERO
-            DO J=1,NVAR
-               HESVEC(J,I)=ZERO
-            ENDDO
-         ELSEIF(ABS(HESEIG(I)).LT.TINY) THEN
+         IF(ABS(HESEIG(I)).LT.TINY) THEN
             HESEIG(I)=SMALL
             HESEDM(I)=SMALL
          ELSE 
