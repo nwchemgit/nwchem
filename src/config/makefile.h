@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.237 1997-06-21 18:35:20 d3g681 Exp $
+# $Id: makefile.h,v 1.238 1997-07-30 02:04:35 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -271,7 +271,7 @@ ifeq ($(TARGET),SOLARIS)
    COPTIONS = 
   COPTIMIZE = -fast
      RANLIB = echo
-  MAKEFLAGS = -j 1 --no-print-directory
+  MAKEFLAGS = -j 2 --no-print-directory
     INSTALL = echo $@ is built
 # -fast introduces many options that must be applied to all files
 # -stackvar puts locals on the stack which seems a good thing
@@ -717,7 +717,7 @@ ifeq ($(TARGET),IBM)
          FC = xlf
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 1 --no-print-directory
+  MAKEFLAGS = -j 2 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
