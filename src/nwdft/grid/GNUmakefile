@@ -1,7 +1,16 @@
-# $Id: GNUmakefile,v 1.23 2000-03-20 21:11:48 edo Exp $
+# $Id: GNUmakefile,v 1.24 2000-03-23 03:04:09 edo Exp $
 
       OBJ_OPTIMIZE= \
+        grid_balance.o \
+        grid_sphere.o \
+	grid_ssw.o \
+        grid_beckew.o \
+	grid_signf.o \
+	grid_rchi_2.o \
+	grid_quadv0a.o \
 	grid_nbfm.o \
+        grid_qpts.o 
+      OBJ= \
 	grid_checks.o \
 	grid_daul.o \
 	grid_rtrunc.o \
@@ -16,27 +25,16 @@
         grid_memory.o \
         grid_update_rtdb.o \
         grid_tasks.o \
-        grid_qpts.o \
         grid_gen_pts.o \
         grid_file.o \
         grid_setspac.o \
-        grid_beckew.o \
-	grid_den.o \
-	grid_den_2.o \
-	grid_rchi.o \
-	grid_rchi_2.o \
 	grid_neighb.o \
-	grid_signf.o \
-	grid_ssw.o \
 	grid_sym.o \
 	grid_cleanup.o \
 	grid_quadv0.o \
-	grid_quadv0a.o \
-        grid_balance.o \
         grid_gaussq.o \
         grid_roland.o \
         grid_bucket.o \
-        grid_sphere.o \
 	grid_utils.o
 
      LIBRARY = libnwdft.a
@@ -46,7 +44,7 @@
 
 LIB_INCLUDES = -I../include
 
-   USES_BLAS = grid_invariant.F grid_beckew.F grid_den_2.F grid_file.F grid_setspac.F grid_quadv0a.F
+   USES_BLAS = grid_invariant.F grid_beckew.F grid_file.F grid_setspac.F grid_quadv0a.F
 
 
 

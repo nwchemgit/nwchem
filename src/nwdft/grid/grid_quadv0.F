@@ -1,6 +1,6 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc)
 c
-C$Id: grid_quadv0.F,v 1.5 2000-03-22 03:01:42 edo Exp $
+C$Id: grid_quadv0.F,v 1.6 2000-03-23 03:04:11 edo Exp $
 c
       implicit none
 c
@@ -168,6 +168,7 @@ c
       call dfill(3*ipol*n_per_rec, 0.0d0, dbl_mb(iCmat), 1)
       Ex=0d0
       Ec=0d0
+      call ga_sync()
       call grid_quadv0a(rtdb, g_dens, ncoef_max, nctrs, rho_int, nqtot, 
      &                int_mb(iniz), int_mb(ifin), 
      &                dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ihess), 
@@ -181,6 +182,7 @@ c
 c
       if (.not.ma_chop_stack(lqxyz))
      &   call errquit('grid_den: cannot pop stack',0)
+      call ga_sync()
 c
       call ga_igop(Msg_nqtot,nqtot,1,'+')
       call ga_dgop(Msg_Excrho,dummy,3,'+')
