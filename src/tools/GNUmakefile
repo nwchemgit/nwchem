@@ -75,9 +75,6 @@ lib/$(TARGET):
 include: 
 	$(MKDIR) -p $@
 
-$(STAMP): clean 
-	echo "" > $(STAMP)
-
 include_stamp: tools
 
 clean:
@@ -88,6 +85,11 @@ ifdef USE_ARMCI
 endif
 
 realclean: clean
+
+
+$(STAMP): 
+	$(MAKE) clean
+	echo "" > $(STAMP)
 
 .PHONY: cleanF
 cleanF:
