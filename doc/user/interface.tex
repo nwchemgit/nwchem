@@ -1,4 +1,4 @@
-% $Id: interface.tex,v 1.7 2001-04-17 18:01:03 windus Exp $
+% $Id: interface.tex,v 1.8 2001-04-24 20:41:52 windus Exp $
 \label{sec:interface}
 
 NWChem has interfaces to several different packages which are listed below.
@@ -115,7 +115,7 @@ Notes about the code:
 Input.  The code has been written to parallel, as much as possible,
 the \verb+POLYRATE+ code.  
 
-Output.  There one default output file for each \verb+DIRDYVTST+ run - .file30.
+Output.  There is one default output file for each \verb+DIRDYVTST+ run - .file30.
 
 Integrators.  Currently the Euler and three Page-McIver (PM) methods 
 are implemented.  The PM methods are the local quadratic approximation 
@@ -231,7 +231,7 @@ The GENERAL section has the following format:
 
   Descriptions
   
-    TITLE is a keyword that allows user to input a description of
+    TITLE is a keyword that allows the user to input a description of
               the calculation.  In this version, the user can only have a 
               single-line description.
 
@@ -254,9 +254,10 @@ The GENERAL section has the following format:
 \end{verbatim}
 
     SINGLEPOINT is a keyword that specifies that a single
-	      point calculation is to be performed at the optimized 
-	      geometries.  The type of single point calculation is 
-	      specified in the \verb+sptheory+ line.
+	      point calculation is to be performed at the reactants,
+              products and saddle point geometries.  The type of 
+              single point calculation is specified in the \verb+sptheory+ 
+              line.
 
     SAVEFILE is a keyword that specifies that NWChem files
 	      are to be saved. Allowed values of variable input to
@@ -278,7 +279,8 @@ These sections have the following format:
 
   REACT1 and REACT2 are input for each of the reactants and PROD1 and PROD2
   are input for each of the products.  REACT1 and PROD1 are required.  START
-  is the input for the transition state if one exists.
+  is the input for the transition state if one exists, or starting point to
+  follow downhill the MEP.
 
   Descriptions
 
