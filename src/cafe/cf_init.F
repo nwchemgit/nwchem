@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq)
-c $Id: cf_init.F,v 1.50 2000-06-02 02:50:28 d3j191 Exp $
+c $Id: cf_init.F,v 1.51 2000-06-02 15:37:50 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -147,6 +147,12 @@ c
 c
       q14fac=0.833333d0
       facpsc=compr*tstep/prsrlx
+c
+      field=fldi
+      fvect(1)=fvec(1)
+      fvect(2)=fvec(2)
+      fvect(3)=fvec(3)
+      ffreq=ffrq
 c
       pi=four*atan(one)
       twopi=two*pi
