@@ -8,7 +8,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_lb94.F,v 1.2 2002-08-15 02:37:38 edo Exp $
+C$Id: xc_lb94.F,v 1.3 2002-08-16 00:31:35 edo Exp $
 c
       implicit none
 c      
@@ -161,23 +161,33 @@ c
             gamma = delrho(n,1,1)*delrho(n,1,1) +
      &              delrho(n,2,1)*delrho(n,2,1) +
      &              delrho(n,3,1)*delrho(n,3,1)
-            if (dsqrt(gamma).gt.tol_rho)then
+            if (abs(gamma).gt.tolsq)then
                x = sqrt(gamma) / rho43
+               gdenom = 3d0*BETA*x*arcsinh(x)
+               g = -BETA*x*x / gdenom
+               dgdenom = 3d0*BETA*(arcsinh(x) + x*darcsinh(x))
+               dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
             else
                x = 0d0
+               x = 0d0
+               g=0d0
+               gdenom=0d0
+               dgdenom = 0d0
+               dg = 0d0
             endif
 c
-            gdenom = 3d0*BETA*x*arcsinh(x)
-            g = -BETA*x*x / gdenom
-            dgdenom = 3d0*BETA*(arcsinh(x) + x*darcsinh(x))
-            dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
 c
-            if (lfac) then
-cedo LDA bit done externally
-c               Ex = Ex + rho43*C*qwght(n)*fac
-c               if (ldew)func(n) = func(n) + rho43*C*fac
-c               Amat(n,1) = Amat(n,1) + (4d0/3d0)*rho13*C*fac
+#if !defined(SECOND_DERIV)
+            if(getcross.and.delta.ne.0d0) then
+               if(delta.gt.(-g*rho13)) then
+                  nqcross = 1 
+               else
+                  nqcross=0
+                  
+               endif
+               return
             endif
+#endif
 c
             if (nlfac) then
                Ex = Ex + rho43*g*qwght(n)*fac
@@ -221,23 +231,21 @@ c
             gamma = delrho(n,1,2)*delrho(n,1,2) +
      &              delrho(n,2,2)*delrho(n,2,2) +
      &              delrho(n,3,2)*delrho(n,3,2)
-            if (dsqrt(gamma).gt.tol_rho)then
+            if (abs(gamma).gt.tolsq)then
                x = sqrt(gamma) / rho43
+               gdenom =  3d0*BETA*x*arcsinh(x)
+               g = -BETA*x*x / gdenom
+               dgdenom = 3d0*BETA*(arcsinh(x) + x*darcsinh(x))
+               dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
             else
                x = 0d0
+               g=0d0
+               gdenom=0d0
+               dgdenom = 0d0
+               dg = 0d0
             endif
 c
-            gdenom =  3d0*BETA*x*arcsinh(x)
-            g = -BETA*x*x / gdenom
-            dgdenom = 3d0*BETA*(arcsinh(x) + x*darcsinh(x))
-            dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
 c
-            if (lfac) then
-cedo LDA bit done externally
-c               Ex = Ex + rho43*C*qwght(n)*fac
-c               if (ldew)func(n) = func(n) + rho43*C*fac
-c               Amat(n,2) = Amat(n,2) + (4d0/3d0)*rho13*C*fac
-            endif
 c
             if (nlfac) then
                Ex = Ex + rho43*g*qwght(n)*fac

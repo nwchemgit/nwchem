@@ -5,7 +5,7 @@ c     BGJ - 8/98
 c
 #ifndef SECOND_DERIV
       Subroutine xc_dirac(tol_rho, fac, lfac, nlfac, rho, Amat, nq, 
-     &                    ipol, Ex, qwght, ldew, func,ac,delta)
+     &                    ipol, Ex, qwght, ldew, func)
 #else
 c     For locations of 2nd derivatives of functionals in array
 #include "dft2drv.fh"
@@ -13,7 +13,7 @@ c     For locations of 2nd derivatives of functionals in array
      &                       Amat2, nq, ipol, Ex, qwght, ldew, func)
 #endif
 c
-C$Id: xc_dirac.F,v 1.17 2002-08-15 02:37:38 edo Exp $
+C$Id: xc_dirac.F,v 1.18 2002-08-16 00:31:35 edo Exp $
 c
       Implicit none
 c
@@ -41,9 +41,6 @@ c
 c     Partial Second Derivatives of the Exchange Energy Functional
 c
       double precision Amat2(nq,*)
-#else
-      logical ac
-      double precision delta
 #endif
 c
 c     Compute the partial derivatives of the exchange functional of Dirac.
@@ -86,12 +83,6 @@ c         write(LuOut,*)'xc_dirac called: restricted'
          call dscal(nq, P1*fac, Amat(1,1), 1)
 #ifdef SECOND_DERIV
          call dscal(nq, 2.0d0*one_third*P1*fac, Amat2(1,D2_RA_RA), 1)
-#else
-         if(ac) then
-            do n=1,nq
-               Amat(n,1)=amat(n,1)-delta
-            enddo
-         endif
 #endif
 c
          Ex = Ex + P2*Exp*fac
