@@ -1,8 +1,8 @@
-# $Id: GNUmakefile,v 1.2 1994-11-04 04:23:55 og845 Exp $
+# $Id: GNUmakefile,v 1.3 1994-11-11 22:24:38 og845 Exp $
 
       OBJ_OPTIMIZE = \
 	a_dist.o			   becke.o	\
-	becke88.o			   denrow.o	\
+	becke88.o			   \
 	dirac.o				   eumac.o	\
 	fitvxc.o			   gaget2oi.o	\
 	gausquad.o			   getvxc.o	\
