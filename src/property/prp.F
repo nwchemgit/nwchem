@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.18 1997-06-24 20:12:26 mdupuis Exp $
+* $Id: prp.F,v 1.19 1997-06-24 22:21:34 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -2762,12 +2762,12 @@ C
 #include "rtdb.fh"
 #include "global.fh"
 #include "mafdecls.fh"
-      integer  rtdb, basis, geom
-      logical  status
-      integer  g_s
-      integer  g_dens(3)
-      integer  ga_create_atom_blocked
-      external ga_create_atom_blocked
+      integer   rtdb, basis, geom
+      logical   status
+      integer   g_s
+      integer   g_dens(3)
+      integer   ga_create_atom_blocked
+      external  ga_create_atom_blocked
       PARAMETER (MXIODA=255)
       PARAMETER (MXBFN=3072)
       PARAMETER (MXATOM=500)
@@ -2818,19 +2818,6 @@ C
 *     REWIND IR
 *     READ(IR,MLK,END=10,ERR=10)
 *  10 CONTINUE
-
-c
-c     get na and nb. note: move to a interface prog.
-c
-      if (.not. rtdb_get(rtdb, 'scf:nopen',   MT_INT, 1, nopen  ))
-     $     nopen = 0
-      if (.not. rtdb_get(rtdb, 'scf:nclosed', MT_INT, 1, nclosed))
-     $     call errquit ('hnd_elddec: nopen > nelec ', nopen)
-
-      na = nclosed + nopen
-      nb = nopen
-      NORB  = nclosed + nopen
-      MOFLG = 1
 C
       L1= NUM
       L2=(NUM*(NUM+1))/2
@@ -2884,34 +2871,12 @@ C
       I95=I94+NAT
 C     ----- MEMORY BLOCK FOR DA IN NWCHEM  FORMAT -----
       I96=I95+L3
-C     ----- MOMORY BLOCK FOR DA IN HONDO   FORMAT-----
+C     ----- MEMORY BLOCK FOR DA IN HONDO   FORMAT-----
       I97=I96+L3
-C     ----- MOMORY BLOCK FOR S  IN NWCHEM  FORMAT-----
+C     ----- MEMORY BLOCK FOR S  IN NWCHEM  FORMAT-----
       I98=I97+L3
-C     ----- MOMORY BLOCK FOR S  IN HONDO   FORMAT-----
+C     ----- MEMORY BLOCK FOR S  IN HONDO   FORMAT-----
       I99=I98+L3
-C
-
-c     ----- calculate density matrix -----
-
-      call hnd_prp_get_dens(rtdb,basis,geom,
-     1                      x(i40),x(i50),x(i60),x(i70),
-     2                      scftyp)
-
-
-c     ----- get density matrix from ga to local memory ----- 
-
-         call ga_get(g_dens(1),1,num,1,num,x(i95),num)
-
-c     ----- transform DA from nwchem to hnd format -----
- 
-         call hnd_nwhnd_tran(x(i95),x(i96),num)
-
-c     ----- destroy g_dens(i) -----
-
-         do i=1, 3
-           status = ga_destroy ( g_dens(i) )
-         enddo
 C
       DO IAT=1,NAT
          ZNUC(IAT)=NUC(IAT)
@@ -2922,14 +2887,9 @@ C
       CALL HND_ATMBFN
 C
 C     -----         READ IN OVERLAP MATRIX              -----
-C     ----- TRANSFORM TO SPHERICAL HARMONICS IF NEEDED  -----
 C
-C     -SPH- AT X(I00)
 C     -  S- AT X(I10)
 C
-c     ----- set ispher=-1 (no sp. har. basis)., jan. 30, 97 -----
-c
-      ispher = -1
 c
 c     ----- get overlap matrix at x(i97) from nwchem -----
 c
@@ -2946,121 +2906,54 @@ c     ----- transform S from nwchem to hnd format -----
  
       call hnd_nwhnd_tran_s(x(i97),x(i98),num)
 
-c*    call hnd_sprtr(x(i98),num)
-
-c     ----- destroy ga handle of overlay matrix -----
+c     ----- destroy ga handle of overlap matrix -----
       status = ga_destroy ( g_s )
 c    
-      IF(ISPHER.GE.0) THEN
-
-C*       CALL HND_SPHSET
-C*       CALL HND_SPHPRT
-C
-         IFINV=1
-C*       IFTSP=0
-C*       CALL HND_SPHMAT(X(I00),L1,IFINV,IFTSP)
-c
 c     ----- transform S from square to triangular format -----
 c
-         ij = 0
-         do i = 1,num
-            do j = 1,i
-               ij = ij + 1
-               x(i40 +ij-1) = x(i98 + (j-1)*(num)+(i-1))
-            enddo
+      ij = 0
+      do i = 1,num
+         do j = 1,i
+            ij = ij + 1
+            x(i10 +ij-1) = x(i98 + (j-1)*(num)+(i-1))
          enddo
-c%%
-C*       CALL HND_DAREAD(IDAF,IODA,X(I40)
-C*       CALL HND_TFTR(X(I10),X(I40),X(I00),X(I50),IA,L1,L1,L1)
-c%%
-      ELSE
-c
-c     ----- transform S from square to triangular format -----
-c
-         ij = 0
-         do i = 1,num
-            do j = 1,i
-               ij = ij + 1
-               x(i10 +ij-1) = x(i98 + (j-1)*(num)+(i-1))
-            enddo
-         enddo
-
-C        CALL HND_DAREAD(IDAF,IODA,X(I10),L2,12)
-      ENDIF
+      enddo
+C     CALL HND_DAREAD(IDAF,IODA,X(I10),L2,12)
       IF(OUT.and.ga_nodeid().eq.0) THEN
          WRITE(IW,9989)
          CALL HND_PRTR(X(I10),L1)
       ENDIF
 C
 C     ----- CALCULATE POPULATION FOR INDIVIDUAL ORBITALS -----
-C     ----- TRANSFORM TO SPHERICAL HARMONICS IF NEEDED   -----
 C
-C     -SPH**(-1)- AT X(I00)
 C            -S - AT X(I10)
 C
-      IF(ISPHER.GE.0) THEN
-         IFINV=-1
-         IFTSP= 0
-
-C*       CALL HND_SPHMAT(X(I00),L1,IFINV,IFTSP)
-
-      ENDIF
-
-      CALL HND_ORBPOP(rtdb,geom,basis,X(I10),X(I40),X(I42),
-     1            IA,NORB,L1,L1,MOFLG,X(I00))
+c--   CALL HND_ORBPOP(rtdb,geom,basis,
+c--  1                X(I10),X(I40),X(I42),
+c--  2                IA,NORB,L1,L1,MOFLG,X(I00))
 
 C
       IF(RUNTYP.EQ.PROP) GO TO 1000
 C
 C     -----            READ DENSITY MATRICES           -----
-C     ----- TRANSFORM TO SPHERICAL HARMONICS IF NEEDED -----
 C
-C     -SPH**(-1)(T)- AT X(I00)
 C               -DA- AT X(I40)
 C               -DB- AT X(I41)
 C
-      IF(ISPHER.GE.0) THEN
-         IFINV=-1
-         IFTSP= 1
-
-C*       CALL HND_SPHMAT(X(I00),L1,IFINV,IFTSP)
-C*       CALL hnd_prpDEN(X(I41),X(I52),L2)
-C     
-C     ----- DENSITY MATRIX FOR X(I41)=DA,X(I52)=DB(0?) -----
-
-
-c     ----- transform DA from square to triangular format -----
-
-         ij = 0
-         do i = 1,num
-            do j = 1,i
-               ij = ij + 1
-               x(i41 +ij-1) = x(i96 + (j-1)*(num)+(i-1))
-            enddo
-         enddo
-
-C*       CALL HND_TFTR(X(I40),X(I41),X(I00),X(I50),IA,L1,L1,L1)
-C
-c%%% the UHF case is not considered at the moment !!!
-         IF((WFNTYP.EQ.SCF.AND.SCFTYP.EQ.UHF).OR.
-     1      (WFNTYP.EQ.MP2.AND.SCFTYP.EQ.UHF)    ) THEN
-C*          CALL HND_TFTR(X(I41),X(I52),X(I00),X(I50),IA,L1,L1,L1)
-         ENDIF
-      ELSE
-
 C*       CALL hnd_prpDEN(X(I40),X(I41),L2)
 
-c     ----- transform DA from square to triangular format -----
+c     ----- calculate density matrix -----
 
-         ij = 0
-         do i = 1,num
-            do j = 1,i
-               ij = ij + 1
-               x(i40 +ij-1) = x(i96 + (j-1)*(num)+(i-1))
-            enddo
-         enddo
-
-      ENDIF
+      call hnd_prp_get_dens(rtdb,basis,geom,
+     1                      x(i40),x(i41),x(i95),x(i96),
+     2                      scftyp)
+      if(scftyp.eq.uhf) then
+         wfntyp=scf
+      endif
+      if(out) then
+         write(6,*) 'wfntyp = ',wfntyp
+         write(6,*) 'scftyp = ',scftyp
+      endif
 C
       IPASS=1
       IDEN=I40
@@ -3079,26 +2972,16 @@ C
   200 if (ga_nodeid().eq.0) WRITE(IW,9999) ELEC
       IF(OUT.and.ga_nodeid().eq.0) THEN
          WRITE(IW,9988)
-
-C        CALL HND_PRTRL(X(IDEN),L1)
          CALL HND_PRTR (X(IDEN),L1)
-
       ENDIF
 C
 C     ----- CALCULATE TOTAL GROSS POPULATION IN AO'S ----
 C
       CALL HND_GROSSC(X(IDEN),X(IGOC),IA,L1)
-      IF(ISPHER.LT.0) THEN
-       if (ga_nodeid().eq.0) then
+      if (ga_nodeid().eq.0) then
          WRITE(IW,9998)
          WRITE(IW,9997) (I, BFLAB(I),X(I-1+IGOC),I=1,L1)
-       endif
-      ELSE
-       if (ga_nodeid().eq.0) then
-         WRITE(IW,9990)
-         WRITE(IW,9997) (I,SPHLAB(I),X(I-1+IGOC),I=1,L1)
-       endif
-      ENDIF
+      endif
 C
       if (ga_nodeid().eq.0) WRITE(IW,9996)
 C
@@ -3145,17 +3028,10 @@ C
       DO I=1,NAT
          X(I-1+I60)=X(I-1+I60)-X(I-1+I61)
       ENDDO
-      IF(ISPHER.LT.0) THEN
-       if (ga_nodeid().eq.0) then
+      if (ga_nodeid().eq.0) then
          WRITE(IW,9994)
          WRITE(IW,9997) (I, BFLAB(I),X(I-1+I50),I=1,NUM)
-       endif
-      ELSE
-       if (ga_nodeid().eq.0) then
-         WRITE(IW,9987)
-         WRITE(IW,9997) (I,SPHLAB(I),X(I-1+I50),I=1,NUM)
-       endif
-      ENDIF
+      endif
       if (ga_nodeid().eq.0) then
           WRITE(IW,9993)
           WRITE(IW,9992) (I,ANAM(I),BNAM(I),ZNUC(I),ZAN(I),
@@ -3193,20 +3069,15 @@ c     ----- transform S from square to triangular format -----
             x(i10 +ij-1) = x(i98 + (j-1)*(num)+(i-1))
          enddo
       enddo
-
-c     ----- transform DA from square to triangular format -----
-
-      ij = 0
-      do i = 1,num
-         do j = 1,i
-            ij = ij + 1
-            x(i40 +ij-1) = x(i96 + (j-1)*(num)+(i-1))
-         enddo
-      enddo
 C
 C*    CALL hnd_prpDEN(X(I40),X(I41),L2)
+
+c     ----- calculate density matrix -----
+
+      call hnd_prp_get_dens(rtdb,basis,geom,
+     1                      x(i40),x(i41),x(i95),x(i96),
+     2                      scftyp)
 C
-c%% open shell is not considered at the present.
       IF((WFNTYP.EQ.SCF.AND.SCFTYP.EQ.UHF).OR.
      1   (WFNTYP.EQ.MP2.AND.SCFTYP.EQ.UHF)    ) THEN
          DO I=1,L2
