@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.79 2000-05-15 16:19:17 edo Exp $
+# $Id: GNUmakefile,v 1.80 2002-01-19 03:57:57 zzhang Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -32,7 +32,7 @@ endif
           intpd_1epe.o   intpd_2e2c.o   intpd_2e3c.o \
           intpd_2e3ct.o  intpd_mpolel.o \
 	  intso_1e.o     intd_1eso.o \
-          int_1epvpe.o   int_1epxvpe.o
+          int_1epvpe.o   int_1epxvpe.o  int_vstat1e.o 
 
 
     OBJ_OLD = cando_sp.o     exact_mem.o    exactd_mem.o \
