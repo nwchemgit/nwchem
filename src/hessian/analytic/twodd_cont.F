@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.14 2000-08-25 20:36:43 windus Exp $
+C $Id: twodd_cont.F,v 1.15 2000-08-31 05:33:03 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -63,6 +63,60 @@ c
       logical omp2
 c
       double precision tol2e
+      double precision one, mone
+      parameter ( mone = -1.D0 )
+      parameter ( one  =  1.D0 )
+c
+c  First let's do the DFT part.
+c  For now we send in seperate memory, k_hess_xc and g_rhs_xc, to make sure
+c  that the xc contributions are coming out O.K.  Eventually, the xc routines
+c  will need to modified to add their contribution to k_exy and g_rhs and
+c  not zero out the matrices when they enter the routines.
+c  I will add the results into the actual "permanent" storage for now so
+c  the rest of the code will work properly.
+c
+      if (theory.eq.'dft') then
+        if (bgj_print() .gt. 0)
+     *    write(6,*)'*** In twodd_cont: calling xc_hessian'
+        call xc_hessian(geom,rtdb,nbf,basis,
+     ,       g_dens, nactive, log_mb(k_act), 
+     *     dbl_mb(k_hess_xc),scftype)
+      write(6,*) 'The Hessian dft contribution'
+      call hnd_hssout(dbl_mb(k_hess_xc),ncent*3,ncent*3,ncent*3)
+      call flush(6)
+        if (bgj_print() .gt. 0)
+     *     write(6,*)'*** In twodd_cont: calling xc_cpks_rhs'
+        call xc_cpks_rhs(geom,rtdb,nbf,basis,
+     ,       g_dens,  nactive, log_mb(k_act),g_rhs_xc,scftype)
+        if (ocdfit) call j_cpks_rhs(g_dens, log_mb(k_act), nactive,
+     *     g_rhs_xc)
+      write(6,*) 'The g_rhs dft contribution'
+      call flush(6)
+      do i = 1, ndens*n3xyz
+        call ga_print(g_rhs_xc(i))
+      enddo
+c
+c  The next statements are only temporarily in until we are confident the
+c  dft code is giving the correct contributions.
+c
+        do i = 1,ndens*n3xyz
+          call ga_add(1.0d+00,g_rhs_xc(i),1.0d+00,g_rhs(i),g_rhs(i))
+        enddo
+        call daxpy(n3xyz2,1.0d+00,dbl_mb(k_hess_xc),1,
+     *    dbl_mb(k_exy),1)
+      endif
+c
+c Print out the hessian before adding anything else
+c
+      write(6,*) 'The Hessian after the dft contribution'
+      call flush(6)
+      call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+      call flush(6)
+      write(6,*) 'The g_rhs after the dft contribution'
+      call flush(6)
+      do i = 1, ndens*n3xyz
+        call ga_print(g_rhs(i))
+      enddo
 c
 c  Coulomb and exact exchange second derivative contributions to hessian
 c  Need to do a lot of setup for this.
@@ -175,6 +229,19 @@ c
       call ga_print(g_fock)
 c
       blen = min(nbf,maxblen,6*max_sh_bf) ! d(6)*6=36, 6**4=1296 quartets
+c
+c Need to put the density in the D- and D+ formalism required for
+c 2pdm formalism in twodd_coul_ex.  g_wdens is used as temporary space.
+c
+      if (scftype .eq. 'UHF') then
+        call ga_dadd (one, g_dens(1), mone, g_dens(2), g_wdens)
+        call ga_dadd (one, g_dens(1), one,  g_dens(2), g_dens(1))
+        call ga_copy (g_wdens, g_dens(2))
+        call ga_symmetrize(g_dens(1))  ! Need this?
+        call ga_symmetrize(g_dens(2))
+      endif
+      if (.not. ga_destroy(g_wdens))
+     *  call errquit('twodd_cont: failed to free g_wdens',555)
 c
 c Set up memory needs
 c
@@ -377,68 +444,17 @@ c
       if (.not.ga_destroy(g_fock))
      *  call errquit('twodd_cont: Could not destroy g_fock',555)
 c
-c  IMPORTANT!  IMPORTANT!
-c  Need to add a reorder back to atomic so that Benny's code will work!!!
+c  Get rid of the g_dens arrays since they are no longer needed.
 c
       do i = 1, ndens
-         call ga_reorder(g_dens(i), .true., int_mb(k_bfmap),
-     $        .true., int_mb(k_bfmap))
+        if (.not. ga_destroy(g_dens(i))) call errquit
+     *     ('twodd_cont: failed to free g_dens()', ndens)
       end do
 c
 c  Need to get rid of extra memory
 c
       if (.not. ma_chop_stack(lh_ij))
      $  call errquit('twodd_cont: failed chopping MA stack',555)
-c
-c  For now we send in seperate memory, k_hess_xc and g_rhs_xc, to make sure
-c  that the xc contributions are coming out O.K.  Eventually, the xc routines
-c  will need to modified to add their contribution to k_exy and g_rhs and
-c  not zero out the matrices when they enter the routines.
-c  I will copy the results into the actual "permanent" storage for now so
-c  the rest of the code will work properly.
-c
-      if (theory.eq.'dft') then
-        if (bgj_print() .gt. 0)
-     *    write(6,*)'*** In twodd_cont: calling xc_hessian'
-        call xc_hessian(geom,rtdb,nbf,basis,
-     ,       g_dens, nactive, log_mb(k_act), 
-     *     dbl_mb(k_hess_xc),scftype)
-      write(6,*) 'The Hessian dft contribution'
-      call hnd_hssout(dbl_mb(k_hess_xc),ncent*3,ncent*3,ncent*3)
-      call flush(6)
-        if (bgj_print() .gt. 0)
-     *     write(6,*)'*** In twodd_cont: calling xc_cpks_rhs'
-        call xc_cpks_rhs(geom,rtdb,nbf,basis,
-     ,       g_dens,  nactive, log_mb(k_act),g_rhs_xc,scftype)
-        if (ocdfit) call j_cpks_rhs(g_dens, log_mb(k_act), nactive,
-     *     g_rhs_xc)
-      write(6,*) 'The g_rhs dft contribution'
-      call flush(6)
-      do i = 1, ndens*n3xyz
-        call ga_print(g_rhs_xc(i))
-      enddo
-c
-c  The next statements are only temporarily in until we are confident the
-c  dft code is giving the correct contributions.
-c
-        do i = 1,ndens*n3xyz
-          call ga_add(1.0d+00,g_rhs_xc(i),1.0d+00,g_rhs(i),g_rhs(i))
-        enddo
-        call daxpy(n3xyz2,1.0d+00,dbl_mb(k_hess_xc),1,
-     *    dbl_mb(k_exy),1)
-      endif
-c
-c Print out the hessian before adding anything else
-c
-      write(6,*) 'The Hessian after the dft contribution'
-      call flush(6)
-      call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
-      call flush(6)
-      write(6,*) 'The g_rhs after the dft contribution'
-      call flush(6)
-      do i = 1, ndens*n3xyz
-        call ga_print(g_rhs(i))
-      enddo
 
 c
 c call terminate since cphf will call it's own integral initialization

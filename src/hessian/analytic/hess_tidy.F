@@ -1,5 +1,5 @@
 C
-C $Id: hess_tidy.F,v 1.5 2000-08-08 20:46:06 windus Exp $
+C $Id: hess_tidy.F,v 1.6 2000-08-31 05:33:03 windus Exp $
 C
       subroutine hess_tidy()
 c
@@ -34,18 +34,8 @@ c
       if (.not.ma_pop_stack(l_exy))
      *   call errquit('hess_tidy: cannot deallocate Exy',555)
 c
-c  Release the density and global fock derivative matrices (Qs or RHS).
+c  Release the global fock derivative matrices (Qs or RHS).
 c
-      if (scftype .eq. 'UHF') then
-        if (.not. ga_destroy(g_dens(1))) call errquit
-     *     ('hess_tidy: failed to free g_dens(1)', 555)
-        if (.not. ga_destroy(g_dens(2))) call errquit
-     *     ('hess_tidy: failed to free g_dens(2)', 555)
-      else
-        if (.not. ga_destroy(g_dens(1))) call errquit
-     *     ('hess_tidy: failed to free g_dens(1)', 555)
-      endif
-
       do j = 1, ndens*n3xyz
         if (.not.ga_destroy(g_rhs_xc(j))) 
      *    call errquit('hess_tidy: problem destroying g_rhs_xc',1)

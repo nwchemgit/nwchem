@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.13 2000-08-24 17:33:54 windus Exp $
+C $Id: onedd_cont.F,v 1.14 2000-08-31 05:33:03 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -18,7 +18,6 @@ c
       integer rtdb  ! [input] RTDB handle
 c
       integer i
-      integer g_wdens
       integer g_eigen_diag
       integer max1e, max2e, mscratch_1e, mscratch_2e
       integer l_buf, k_buf, l_scr, k_scr
@@ -141,14 +140,12 @@ c     call sym_hess_symmetrize(geom,dbl_mb(k_exy))
       call flush(6)
       call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
 c
-c Get rid of the weighted density and the other temporary arrays
+c Get rid of several temporary arrays
 c
       if (.not. ma_pop_stack(l_wdens)) 
      *  call errquit('onedd_cont: failed to pop l_wdens',555)
       if (.not. ma_pop_stack(l_dens)) 
      *  call errquit('onedd_cont: failed to pop l_dens',555)
-      if (.not. ga_destroy(g_wdens)) 
-     *  call errquit('onedd_cont: failed to free g_wdens',555)
 c
 c Now handle the Hx and Sx terms for the rhs
 c First handle Sx term

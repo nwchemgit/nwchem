@@ -14,7 +14,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi, jfac, kfac)
-c     $Id: twodd_coul_ex.F,v 1.7 2000-08-23 00:54:17 windus Exp $
+c     $Id: twodd_coul_ex.F,v 1.8 2000-08-31 05:33:03 windus Exp $
 c
 c  This routine was essentially stolen from gradients/grad2.F.  I will work
 c  to make these routines one after I get things working.
@@ -135,6 +135,7 @@ c     MCSCF is the same as RHF except for the 2pdm piece
       ouhf  = (scftype .eq. 'UHF')
       orohf = (scftype .eq. 'ROHF')
       ogso = .false.    ! this is for SO contribution for gradient, not hessian
+      if (ouhf) write(6,*) 'This  is a UHF job'
 
       task_size = nshblocks*(nshblocks+1)/2
       task_size = task_size*(task_size+1)/2
@@ -243,23 +244,34 @@ c
 c     Check on sparsity, symmetry, active list, single center
 c     
                                  sijkl = sij*schwarz_shell(ksh,lsh)
+               write(6,*) 'sijkl, q4max and tol2e',sijkl,q4max,tol2e
+               call flush(6)
 c     
                                  if (sijkl*q4max .lt. tol2e) goto 200 ! next llsh
                                  scale = 1.0d0
+               write(6,*) 'before the oskel test'
+               call flush(6)
                                  if (oskel) then
                                     if (.not. sym_atom_quartet(geom,
      $                                   atoms(1), atoms(2), atoms(3), 
      $                                   atoms(4), scale)) goto 200
                                  endif
+               write(6,*) 'before the oactive test'
+               call flush(6)
                                  if (.not. (
      $                                oactive(atoms(1)) .or.
      $                                oactive(atoms(2)) .or.
      $                                oactive(atoms(3)) .or.
      $                                oactive(atoms(4)))) goto 200
+               write(6,*) 'before the atoms test ',atoms(1),
+     $           atoms(2),atoms(3),atoms(4)
+               call flush(6)
                                  if (
      $                                atoms(1).eq.atoms(2) .and.
      $                                atoms(2).eq.atoms(3) .and.
      $                                atoms(3).eq.atoms(4)) goto 200
+               write(6,*) 'after the atoms test'
+               call flush(6)
 c     
 c     Scale according to permutation symmetry of the shell labels
 c     
@@ -297,6 +309,8 @@ c
 c     Final screening including magnitude of the density
 c     
                                  sijkl = sijkl*psum*scale
+        write(6,*) 'sijkl,psum,scale ',sijkl,psum,scale
+        call flush(6)
                                  if (sijkl .gt. tol2e) then
                                     nq = nq + 1
                                     q4(nq) = scale
@@ -319,6 +333,9 @@ c
      $                    block_eff)) call errquit
      $                    ('twodd_coul_ex:txs init?',nq)
 c     
+       write(6,*) 'basis, lists,nq,q4,tol2e,leri,lscr ',
+     $  basis, list(1,1),list(1,2),list(1,3),list(1,4),
+     $  nq,q4(1),tol2e,leri,lscr 
  10                  omore = intbdd_2e4c(
      $                    basis, list(1,1), list(1,2),
      $                    basis, list(1,3), list(1,4),
@@ -327,6 +344,9 @@ c
      $                    labels(1,3), labels(1,4), 
      $                    eri, leri, nint, lscr, scr)
 c     
+c
+      write(6,*) ' nint ', nint, omore
+c 
                      ibuf = 1
                      if (nint .gt. 0) then
                         do integ = 1, nint
