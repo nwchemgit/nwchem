@@ -1,5 +1,5 @@
       logical function stpr_walk(rtdb)
-c $Id: stpr_walk.F,v 1.9 1994-11-08 07:13:24 d3e129 Exp $
+c $Id: stpr_walk.F,v 1.10 1994-12-10 16:25:34 d3e129 Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -11,6 +11,7 @@ c
 #include "rtdb.fh"
 #include "context.fh"
 #include "msgids.fh"
+#include "pstat.fh"
 c
       integer rtdb    ! [input] run-time-data-base handle
 c
@@ -30,10 +31,11 @@ c
       integer h_core, k_core    ! MA handle/index of scratch array for stepper
       integer h_chg, k_chg      ! MA handle/index of charge array
       integer int_val           ! value to propigate status (stpr_walk value)
-*      integer new_geom
       character*40 new_geom_name ! new geometry name for next step
       character*4 tmpname
       character*16 stpr_tags(max_cent) ! local tags array
+      integer i_timewalk
+      logical o_timewalk
       logical status
       double precision convgg, convge
       integer first_call, step_number
@@ -42,6 +44,19 @@ c
       if (first_call.eq.0) then
         first_call = 1
         
+      endif
+c
+#if defined(KSR)||defined(SUN)||defined(__PARAGON__)
+      o_timewalk = .true.
+#else
+      o_timewalk = .false.
+#endif
+c
+      if (o_timewalk) then
+        if (.not.(pstat_allocate
+     &      ('stepper time',Pstat_Qstat,0,0,i_timewalk)))
+     &      call errquit('stpr_walk: pstat allocate failed',911)
+        call pstat_on(i_timewalk)
       endif
 c
       stpr_walk = .false.
@@ -158,7 +173,7 @@ c..... copy geom on rtdb with new name
 c
         write(tmpname,'(i4)')abs(step_number)
 c                      123456789012345678
-        new_geom_name='geometry step '//tmpname
+        new_geom_name='g-'//tmpname//'-step'
         if (.not.geom_rtdb_store(rtdb,geom,new_geom_name))
      &      call errquit
      &      ('stpr_walk: geom_rtdb_store (of copy) failed',911)
@@ -213,6 +228,15 @@ c
 c
 c.... restore parallel access to rtdb
       status = rtdb_parallel(.true.) 
+c
+      if (o_timewalk) then
+        call pstat_off(i_timewalk)
+        call pstat_print_handles(i_timewalk,1)
+        write(6,*)' '
+        o_timewalk = .false.
+        if (.not.pstat_free(i_timewalk))
+     &      call errquit('stpr_walk: pstat_free failed?',911)
+      endif
 c      
       call ga_sync()
 c
