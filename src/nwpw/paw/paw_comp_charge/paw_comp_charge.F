@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.20 2003-02-21 02:31:14 bylaska Exp $
+* $Id: paw_comp_charge.F,v 1.21 2003-02-25 02:35:21 bylaska Exp $
 *
 
 
@@ -173,20 +173,20 @@ c       !*** set values for l=0 m=0 elements ***
         end do !na
         
  
-        write(*,*) "paw_comp_charge_coeff"
-        do na=1,tot_natom
-          i_qlm0 = int_mb(i_paw_qlm(1) + na - 1)
-          ia = ion_katm(na)
-          mult_l = paw_basis_mult_l(ia)
-          nlmi = 0
-          do l=0,mult_l  
-          do m=-l,l
-            i_qlm = i_qlm0-1+nlmi+l+m+1
-            write(*,*) nlmi+l+m+1,na,dcpl_mb(paw_qlm(1) + i_qlm) 
-          end do
-          nlmi = nlmi + 2*l+1
-          end do
-         end do 
+c       write(*,*) "paw_comp_charge_coeff"
+c       do na=1,tot_natom
+c         i_qlm0 = int_mb(i_paw_qlm(1) + na - 1)
+c         ia = ion_katm(na)
+c         mult_l = paw_basis_mult_l(ia)
+c         nlmi = 0
+c         do l=0,mult_l  
+c         do m=-l,l
+c           i_qlm = i_qlm0-1+nlmi+l+m+1
+c           write(*,*) nlmi+l+m+1,na,dcpl_mb(paw_qlm(1) + i_qlm) 
+c         end do
+c         nlmi = nlmi + 2*l+1
+c         end do
+c        end do 
 
       return
       end !subroutine
