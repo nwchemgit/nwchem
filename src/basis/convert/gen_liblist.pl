@@ -1,7 +1,7 @@
 #!/bin/env perl
 # -*-Perl-*-
 #
-# $Id: gen_liblist.pl,v 1.2 1998-08-11 20:20:27 d3e129 Exp $
+# $Id: gen_liblist.pl,v 1.3 1998-08-14 23:02:42 d3e129 Exp $
 #
 # get the basis family names and atom list from an nwchem formatted library
 #
@@ -136,31 +136,45 @@ foreach $libraryfile (@ARGV) {
     unlink($temp_file) or die " could not unlink: $temp_file\n";
     $listfile = ">" . $libraryfile . ".list";
     $famfile  = ">" . $libraryfile . ".fam";
+    $texfile  = ">" . $libraryfile . ".tex";
     open (LISTFILE, $listfile) || die "fatal error: Could not open file: $listfile\n";
     open (FAMFILE, $famfile) || die "fatal error: Could not open file: $famfile\n";
+    open (TEXFILE, $texfile) || die "fatal error: Could not open file: $texfile\n";
     $fams = @families;
     for ($i=0;$i<$fams;$i++) {
 	$atsp = $famatcnt[$i];
 	$ats  = $atsp + 1;
 	print LISTFILE "\n\n";
 	print LISTFILE "$families[$i] (number of atoms $atsp)\n";
+	$texline = "\\item " . "$families[$i] (number of atoms $atsp)" . "  \\newline"  ;
+	$texline =~ s/Basis Set /Basis Set \\verb\#/;
+	$texline =~ s/\(/\# \(/ ;
+        $texline =~ s/ \#/\#/;
+        $texline =~ s/ \#/\#/;
+        $texline =~ s/ \#/\#/;
+	print TEXFILE  "$texline \n";
 	print FAMFILE "$families[$i] (number of atoms $atsp)\n";
 	$count = 0;
 	for ($j=0;$j<$ats;$j++) {
 	    print LISTFILE " $atoms{$families[$i]}[$j]";
+	    print TEXFILE " $atoms{$families[$i]}[$j]";
 	    $count++;
 	    if ($count > 25){
 		$count=1;
 		print LISTFILE "\n";
+		print TEXFILE "\n";
 	    }
 	}
 	print LISTFILE "\n";
+	print TEXFILE "\n\n\n";
     }
     close(LISTFILE);
     close(FAMFILE);
+    close(TEXFILE);
     $listfile = $libraryfile . ".list";
     $famfile  = $libraryfile . ".fam";
-    print "files generated: $listfile $famfile\n"
+    $texfile  = $libraryfile . ".tex";
+    print "files generated: $listfile $famfile $texfile \n"
 }
 
 sub Usage
