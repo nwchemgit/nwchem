@@ -9,7 +9,7 @@
      + limp,rimp,mimp,nimp,lmat,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
 c
-c $Id: pre_mklist.F,v 1.14 1998-09-11 20:47:35 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.15 1998-09-15 00:01:27 d3j191 Exp $
 c
       implicit none
 c
@@ -26,7 +26,7 @@ c
       integer lseq(4,mseq),lmat(10,mseq)
       character*10 cseq(mseq)
       integer mlnk,nlnk
-      integer llnk(2,mlnk)
+      integer llnk(3,mlnk)
       character*4 clnk(2,mlnk)
       integer matm,natm
       integer latm(8,matm)
@@ -48,7 +48,7 @@ c
       real*8 wcorr(3)
 c
       integer i,j,k,l,link1,link2,isgm,jsgm,nb,na,nd,ni,nn,iatm,ia(10)
-      integer no,ndi,ltemp,igrp,ipgrp,nia(3)
+      integer no,ndi,ltemp,igrp,ipgrp,nia(3),ib,jb
       real*8 rtemp
       character*255 filsgm
 c
@@ -130,18 +130,44 @@ c
       do 11 j=lseq(3,jsgm),lseq(3,jsgm+1)-1
       if(catm(1,j)(1:4).eq.clnk(2,i)) link2=j
    11 continue
+c
+c     skip automatic chain links
+c
+      if(link1.eq.2.and.link2.eq.1.and.isgm.eq.jsgm-1) goto 8
+c
       if(link1.eq.0.or.link2.eq.0)
      + call errquit('error 2 in pre_mklist',9999)
-      if(latm(3,link1).eq.0) then
-      write(lfnout,1000) llnk(1,i),clnk(1,i),latm(3,link1),
-     + llnk(2,i),clnk(2,i),latm(3,link2)
-      call errquit('error 3 in pre_mklist',9999)
-      endif
-      if(latm(3,link2).eq.0) then
+      if(latm(3,link1).eq.0.or.latm(3,link2).eq.0) then
+      if(llnk(3,i).eq.0) then
       write(lfnout,1000) llnk(1,i),clnk(1,i),latm(3,link1),
      + llnk(2,i),clnk(2,i),latm(3,link2)
  1000 format(' Link ',i5,':',a4,'(',i1,') - ',i5,':',a4,'(',i1,')')
+      call errquit('error 3 in pre_mklist',9999)
+      else
+      ib=0
+      jb=0
+      do 60 j=1,natm
+      if(latm(5,j).eq.llnk(1,i).and.catm(1,j)(1:4).eq.clnk(1,i)) ib=j
+      if(latm(5,j).eq.llnk(2,i).and.catm(1,j)(1:4).eq.clnk(2,i)) jb=j
+cx      write(*,666) latm(5,j),llnk(1,i),llnk(2,i),catm(1,i)(1:4),
+cx     + clnk(1,i),clnk(2,i),ib,jb
+cx  666 format(3i5,3(1x,a4),2i5)
+   60 continue
+      if(ib.gt.0.and.jb.gt.0) then
+      nbnd=nbnd+1
+      lbnd(1,nbnd)=ib
+      lbnd(2,nbnd)=jb
+      lbnd(3,nbnd)=0
+      lbnd(4,nbnd)=0
+      write(lfnout,1001) llnk(1,i),clnk(1,i),latm(3,link1),
+     + llnk(2,i),clnk(2,i),latm(3,link2),ib,jb
+ 1001 format(' Warning: forced link ',
+     + i5,':',a4,'(',i1,') - ',i5,':',a4,'(',i1,') : ',i5,'-',i5)
+      goto 8
+      else
       call errquit('error 4 in pre_mklist',9999)
+      endif
+      endif
       endif
       lmat(latm(3,link1),isgm)=link2
       lmat(latm(3,link2),jsgm)=link1

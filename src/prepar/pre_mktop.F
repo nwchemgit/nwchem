@@ -2,7 +2,7 @@
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t)
 c
-c $Id: pre_mktop.F,v 1.12 1998-08-28 16:07:44 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.13 1998-09-15 00:01:28 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -109,10 +109,12 @@ c     -----------------------------
 c
 c     integer llnk(1,mlnk) : link segment 1
 c                  2       : link segment 2
+c                  3       : link type : 0: normal
+c                                        1: forced
 c     char*4  clnk(1,mlnk) : link segment 1 atom name
 c                  2       : link segment 2 atom name
 c
-      if(.not.ma_push_get(mt_int,2*mlnk,'llnk',l_llnk,i_llnk))
+      if(.not.ma_push_get(mt_int,3*mlnk,'llnk',l_llnk,i_llnk))
      + call errquit('Memory allocation failed for llnk',9999)
       if(.not.ma_push_get(mt_byte,8*mlnk,'clnk',l_clnk,i_clnk))
      + call errquit('Memory allocation failed for clnk',9999)

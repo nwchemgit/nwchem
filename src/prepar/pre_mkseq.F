@@ -1,9 +1,9 @@
       logical function pre_mkseq(irtdb,lfnout,source,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
-     + qscale,altloc,chain)
+     + qscale,altloc,chain,icyren)
 c
-c $Id: pre_mkseq.F,v 1.19 1998-09-11 20:47:35 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.20 1998-09-15 00:01:28 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -34,7 +34,7 @@ c
       external pre_mkfrg,pre_namiup,pre_links,pre_wrtseq
 c
       integer matm,mseq,mssb,msgm,mbnd,mang,mdih,mimp,mlnk
-      integer natm,nseq,nssb,nsgm,nlnk,maxscf
+      integer natm,nseq,nssb,nsgm,nlnk,maxscf,icyren
       integer l_lseq,i_lseq,l_cseq,i_cseq
       integer l_lsgm,i_lsgm,l_csgm,i_csgm
       integer l_lssb,i_lssb,l_llnk,i_llnk,l_clnk,i_clnk
@@ -79,7 +79,7 @@ c     set dimensions
 c     --------------
 c
       matm=natm
-      mseq=nseq+1
+      mseq=nseq+2
       mssb=nssb
       mlnk=nlnk+5*nseq
 c
@@ -226,7 +226,8 @@ c     -------------------------------------
 c
       if(.not.pre_rename(lfnout,ffield,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
-     + int_mb(i_latm),byte_mb(i_catm),matm,natm))
+     + int_mb(i_latm),byte_mb(i_catm),matm,natm,int_mb(i_llnk),
+     + byte_mb(i_clnk),mlnk,nlnk,icyren))
      + call errquit('pre_rename failed',9999)
 c
 c     write atom names to temporary file

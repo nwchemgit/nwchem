@@ -2,7 +2,7 @@
      + dir_s,dir_x,dir_u,dir_t,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_term.F,v 1.7 1998-07-14 15:47:30 d3j191 Exp $
+c $Id: pre_term.F,v 1.8 1998-09-15 00:01:30 d3j191 Exp $
 c
 c     function to determine the terminal segments
 c
@@ -14,7 +14,7 @@ c
       external pre_sgmfil,pre_atmscn
 c
       integer lfnout,lfnsgm,mseq,nseq,mlnk,nlnk
-      integer lseq(4,mseq),llnk(2,mlnk)
+      integer lseq(4,mseq),llnk(3,mlnk)
       character*10 cseq(mseq)
       character*4 clnk(2,mlnk)
       character*255 dir_s,dir_x,dir_u,dir_t
@@ -48,13 +48,13 @@ c
      + call errquit('pre_atmscn failed',9999)
 c
       if(link.eq.1) then
-      if(lseq(2,isgm).ge.0)  call errquit('multiple links',9999)
+cx      if(lseq(2,isgm).ge.0)  call errquit('multiple links',9999)
       if(lseq(2,isgm).eq.-1) lseq(2,isgm)=0
       if(lseq(2,isgm).eq.-2) lseq(2,isgm)=1
       endif
       if(link.eq.2) then
-      if(lseq(2,isgm).eq.-1) call errquit('multiple links',9999)
-      if(lseq(2,isgm).eq.0)  call errquit('multiple links',9999)
+cx      if(lseq(2,isgm).eq.-1) call errquit('multiple links',9999)
+cx      if(lseq(2,isgm).eq.0)  call errquit('multiple links',9999)
       if(lseq(2,isgm).eq.-2) lseq(2,isgm)=-1
       if(lseq(2,isgm).gt.0) lseq(2,isgm)=0
       endif
@@ -67,13 +67,13 @@ c
      + call errquit('pre_atmscn failed',9999)
 c
       if(link.eq.1) then
-      if(lseq(2,jsgm).ge.0)  call errquit('multiple links',9999)
+cx      if(lseq(2,jsgm).ge.0)  call errquit('multiple links',9999)
       if(lseq(2,jsgm).eq.-1) lseq(2,jsgm)=0
       if(lseq(2,jsgm).eq.-2) lseq(2,jsgm)=1
       endif
       if(link.eq.2) then
-      if(lseq(2,jsgm).eq.-1) call errquit('multiple links',9999)
-      if(lseq(2,jsgm).eq.0)  call errquit('multiple links',9999)
+cx      if(lseq(2,jsgm).eq.-1) call errquit('multiple links',9999)
+cx      if(lseq(2,jsgm).eq.0)  call errquit('multiple links',9999)
       if(lseq(2,jsgm).eq.-2) lseq(2,jsgm)=-1
       if(lseq(2,jsgm).gt.0) lseq(2,jsgm)=0
       endif

@@ -2,7 +2,7 @@
      + lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_links.F,v 1.7 1998-09-11 15:14:39 d3j191 Exp $
+c $Id: pre_links.F,v 1.8 1998-09-15 00:01:27 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -88,17 +88,17 @@ c
       else
       call errquit('inconsistent links',9999)
       endif
-c      if(.not.pre_protein(ffield,cseq(1,i)).or.
-c     + .not.pre_protein(ffield,cseq(1,i+1))) then
-c      nlnk=nlnk+1
-c      if(nlnk.gt.mlnk) call errquit('increase mlnk',9999)
-c      llnk(1,nlnk)=i
-c      llnk(2,nlnk)=i+1
-c      llnk(3,nlnk)=ishort
-c      llnk(4,nlnk)=jshort
-c      clnk(1,nlnk)=catm(2,ishort)(1:4)
-c      clnk(2,nlnk)=catm(2,jshort)(1:4)
-c      endif
+      if(.not.pre_protein(ffield,cseq(1,i)).or.
+     + .not.pre_protein(ffield,cseq(1,i+1))) then
+      nlnk=nlnk+1
+      if(nlnk.gt.mlnk) call errquit('increase mlnk',9999)
+      llnk(1,nlnk)=i
+      llnk(2,nlnk)=i+1
+      llnk(3,nlnk)=ishort
+      llnk(4,nlnk)=jshort
+      clnk(1,nlnk)=catm(2,ishort)(1:4)
+      clnk(2,nlnk)=catm(2,jshort)(1:4)
+      endif
       endif
     1 continue
 c
@@ -120,6 +120,8 @@ c
       llnk(4,nlnk)=jshort
       clnk(1,nlnk)=catm(2,ishort)(1:4)
       clnk(2,nlnk)=catm(2,jshort)(1:4)
+cx      write(*,'(5i5,2a4)')
+cx     +  nlnk,i,j,ishort,jshort,clnk(1,nlnk),clnk(2,nlnk)
       l=lseq(4,j)
       do 10 k=1,nseq
       if(lseq(4,k).eq.l) lseq(4,k)=lseq(4,i)

@@ -85,3 +85,7 @@ Sep 11 1998	 Fix bugs in crystalwater coordinate from pdb
 		 Allow choice of alternate location and chain id
 		 Disallow bonds to Na, Mg, K and Ca
 		 Default HIS to HID for amber when reading PDB without hydrogens
+Sep 14 1998	 Option to limit CYS -> CYX to SS-bridges
+		 Fix in chain links
+		 Option to enforce link through LINK in sequence file
+		 Bug fix in segments length for last segment frg's

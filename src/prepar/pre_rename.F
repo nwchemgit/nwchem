@@ -1,7 +1,8 @@
       logical function pre_rename(lfnout,ffield,
-     + lseq,cseq,mseq,nseq,latm,catm,matm,natm)
+     + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
+     + llnk,clnk,mlnk,nlnk,icyren)
 c
-c $Id: pre_rename.F,v 1.5 1998-09-11 20:47:37 d3j191 Exp $
+c $Id: pre_rename.F,v 1.6 1998-09-15 00:01:29 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -11,10 +12,12 @@ c
 c
       integer lfnout
       character*80 ffield
-      integer mseq,nseq,matm,natm
+      integer mseq,nseq,matm,natm,mlnk,nlnk,icyren
       integer lseq(4,mseq),latm(5,matm)
       character*5 cseq(2,mseq)
       character*6 catm(3,matm)
+      integer llnk(4,mlnk)
+      character*4 clnk(2,mlnk)
 c
       integer i,j,k,l
 c
@@ -32,8 +35,24 @@ c
      + cseq(2,latm(1,i))(1:3)='HIP'
       if(cseq(2,latm(1,i))(1:3).eq.'HIE'.and.catm(2,i).eq.' HD1  ')
      + cseq(2,latm(1,i))(1:3)='HIP'
+      if(icyren.eq.0) then
       if(cseq(2,latm(1,i))(1:3).eq.'CYS'.and.catm(2,i).eq.' SG   '.and.
      + latm(5,i).eq.3) cseq(2,latm(1,i))(1:3)='CYX'
+      else
+      if(cseq(2,latm(1,i))(1:3).eq.'CYS'.and.catm(2,i).eq.' SG   ') then
+      if(latm(5,i).ge.3) then
+      if((cseq(2,llnk(1,latm(5,i)-2))(1:3).eq.'CYS'.or.
+     + cseq(2,llnk(1,latm(5,i)-2))(1:3).eq.'CYX').and.
+     + (cseq(2,llnk(1,latm(5,i)-2))(1:3).eq.'CYS'.or.
+     + cseq(2,llnk(1,latm(5,i)-2))(1:3).eq.'CYX').and.
+     + catm(2,llnk(3,latm(5,i)-2)).eq.' SG   '.and.
+     + catm(2,llnk(4,latm(5,i)-2)).eq.' SG   ') then
+      cseq(2,latm(1,i))(1:3)='CYX'
+      endif
+      endif
+      endif
+      endif
+c
     2 continue
       do 3 i=1,nseq
       if(cseq(2,i)(1:3).eq.'HIS') cseq(2,i)(1:3)='HID'
@@ -50,8 +69,23 @@ c
      + cseq(2,latm(1,i))(1:3)='HSP'
       if(cseq(2,latm(1,i))(1:3).eq.'HSE'.and.catm(2,i).eq.' HD1  ')
      + cseq(2,latm(1,i))(1:3)='HSP'
+      if(icyren.eq.0) then
       if(cseq(2,latm(1,i))(1:3).eq.'CYS'.and.catm(2,i).eq.' SG   '.and.
      + latm(5,i).eq.3) cseq(2,latm(1,i))(1:3)='CYX'
+      else
+      if(cseq(2,latm(1,i))(1:3).eq.'CYS'.and.catm(2,i).eq.' SG   ') then
+      if(latm(5,i).ge.3) then
+      if((cseq(2,llnk(1,latm(5,i)-2))(1:3).eq.'CYS'.or.
+     + cseq(2,llnk(1,latm(5,i)-2))(1:3).eq.'CYX').and.
+     + (cseq(2,llnk(1,latm(5,i)-2))(1:3).eq.'CYS'.or.
+     + cseq(2,llnk(1,latm(5,i)-2))(1:3).eq.'CYX').and.
+     + catm(2,llnk(3,latm(5,i)-2)).eq.' SG   '.and.
+     + catm(2,llnk(4,latm(5,i)-2)).eq.' SG   ') then
+      cseq(2,latm(1,i))(1:3)='CYX'
+      endif
+      endif
+      endif
+      endif
     4 continue
       endif
 c

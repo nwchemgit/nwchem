@@ -2,7 +2,7 @@
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,lang,mang,nang,
      + ldih,mdih,ndih,limp,mimp,nimp)
 c
-c $Id: pre_wrtsgm.F,v 1.8 1998-06-08 23:29:40 d3j191 Exp $
+c $Id: pre_wrtsgm.F,v 1.9 1998-09-15 00:01:31 d3j191 Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ c
       do 1 i=1,natm
       write(lfnsgm,2002) i,catm(1,i),(catm(2,i),j=1,3),latm(3,i),
      + latm(4,i),latm(1,i),latm(2,i),(qatm(1,i),qatm(2,i),j=1,3)
- 2002 format(i5,a6,3a6,4i5,/,3(2f12.6))
+ 2002 format(i5,a6,3a6,4i4,/,3(2f12.6))
     1 continue
 c
       do 2 i=1,nbnd

@@ -1,7 +1,7 @@
       logical function pre_rdseq(lfnout,lfnseq,filseq,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_rdseq.F,v 1.10 1998-06-24 20:06:38 d3j191 Exp $
+c $Id: pre_rdseq.F,v 1.11 1998-09-15 00:01:29 d3j191 Exp $
 c
 c     function to read the sequence file
 c
@@ -13,7 +13,7 @@ c
 #include "util.fh"
 c
       integer lfnout,lfnseq,mseq,nseq,mlnk,nlnk
-      integer lseq(4,mseq),llnk(2,mlnk)
+      integer lseq(4,mseq),llnk(3,mlnk)
       character*10 cseq(mseq)
       character*4 clnk(2,mlnk)
       character*255 filseq
@@ -56,6 +56,14 @@ c
       if(ilnk.gt.mlnk) call errquit('increase dimension mlnk',9999)
       read(card,1002,err=9999) (llnk(j,ilnk),clnk(j,ilnk),j=1,2)
  1002 format(5x,i5,a4,i5,a4)
+      llnk(3,ilnk)=0
+      goto 1
+      endif
+      if(card(1:4).eq.'LINK') then
+      ilnk=ilnk+1
+      if(ilnk.gt.mlnk) call errquit('increase dimension mlnk',9999)
+      read(card,1002,err=9999) (llnk(j,ilnk),clnk(j,ilnk),j=1,2)
+      llnk(3,ilnk)=1
       goto 1
       endif
       if(card(1:8).eq.'molecule') then

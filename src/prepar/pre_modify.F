@@ -1,7 +1,7 @@
       logical function pre_modify(lfnout,lfnmod,filmod,latm,catm,qatm,
      + matm,natm)
 c
-c     $Id: pre_modify.F,v 1.1 1998-06-11 18:51:53 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.2 1998-09-15 00:01:28 d3j191 Exp $
 c
       implicit none
 c
@@ -49,6 +49,11 @@ c
       aname(1:ndy-1)=target(1:ndy-1)
       endif
       if(aname(1:1).eq.'_') aname(1:1)=' '
+      if(aname(2:2).eq.'_') aname(2:2)=' '
+      if(aname(3:3).eq.'_') aname(3:3)=' '
+      if(aname(4:4).eq.'_') aname(4:4)=' '
+      if(aname(5:5).eq.'_') aname(5:5)=' '
+      if(aname(6:6).eq.'_') aname(6:6)=' '
 c
       read(card(19:19),'(i1)') mset
 c

@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.18 1998-09-11 20:47:34 d3j191 Exp $
+c $Id: pre_input.F,v 1.19 1998-09-15 00:01:27 d3j191 Exp $
 c
       implicit none
 c
@@ -20,7 +20,7 @@ c
       integer newtop,newseq,newrst,icount
 c
       integer len,numcmd,nummod,mgrid,mnoe,inoe(2),maxscf,num,mset
-      integer isgm
+      integer isgm,icyren
       real*8 touch,xpndw,rgrid,edge,edges(3),dnoe(5),qscale,charge
       real*8 polar
       character*4  cnoe(2)
@@ -63,6 +63,7 @@ c
       maxscf=0
       qscale=-1.2d0
       icount=0
+      icyren=0
 c
       touch=0.25
       xpndw=0.20
@@ -249,6 +250,14 @@ c
       if(inp_compare(.false.,'grid',item)) then
       if(.not.inp_i(mgrid)) call errquit('pre_input: grid',9999)
       if(.not.inp_f(rgrid)) call errquit('pre_input: grid',9999)
+      goto 2
+      endif
+c
+c     rename commands
+c     ---------------
+c
+      if(inp_compare(.false.,'sscyx',item)) then
+      icyren=1
       goto 2
       endif
 c
@@ -653,6 +662,8 @@ c
       if(.not.rtdb_put(irtdb,'prep:newrst',mt_int,1,newrst))
      + call errquit('pre_input: rtdb_put failed',0)
 c
+      if(.not.rtdb_put(irtdb,'prep:icyren',mt_int,1,icyren))
+     + call errquit('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:icount',mt_int,1,icount))
      + call errquit('pre_input: rtdb_put failed',0)
       if(mgrid.gt.0) then

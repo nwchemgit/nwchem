@@ -2,7 +2,7 @@
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,altloc,chain)
 c
-c $Id: pre_pdbseq.F,v 1.11 1998-09-11 20:47:36 d3j191 Exp $
+c $Id: pre_pdbseq.F,v 1.12 1998-09-15 00:01:29 d3j191 Exp $
 c
 c     function to read sequence from a pdb formatted file
 c
@@ -147,17 +147,19 @@ c
       isgm=i
       iseq=iseq+1
       nchain=nchain+1
-      if(iseq.gt.mseq) then
+      if(iseq.ge.mseq) then
       write(lfnout,2009)
  2009 format('PDB ERROR : insufficient memory available')
       goto 9999
       endif
       lseq(1,iseq)=isgm
       cseq(1,iseq)(1:3)=card(18:20)
+      lseq(3,iseq)=0
 c      if(nchain.eq.1) cseq(1,iseq)(4:5)='_N'
       endif
       iatm=iatm+1
       if(lseq(3,iseq).eq.0) lseq(3,iseq)=iatm
+      lseq(3,iseq+1)=iatm+1
       latm(1,iatm)=iseq
       catm(1,iatm)(1:4)=card(13:16)
       read(card(31:54),'(3f8.3)') (xatm(j,iatm),j=1,3)
@@ -168,6 +170,10 @@ c
 c     HETATM
 c
       if(card(1:6).eq.'HETATM') then
+      if(card(17:17).ne.' '.and.
+     + card(17:17).ne.altloc.and.altloc.ne.'*') goto 1
+      if(card(22:22).ne.' '.and.
+     + card(22:22).ne.chain.and.chain.ne.'*') goto 1
       if(mdl.eq.model) then
       read(card(23:26),1004) i
  1004 format(i4)
@@ -176,17 +182,19 @@ c
       isgm=i
       iseq=iseq+1
       nchain=nchain+1
-      if(iseq.gt.mseq) then
+      if(iseq.ge.mseq) then
       write(lfnout,2010)
  2010 format('PDB ERROR : insufficient memory available')
       goto 9999
       endif
       lseq(1,iseq)=isgm
       cseq(1,iseq)(1:3)=card(18:20)
+      lseq(3,iseq)=0
 c      if(nchain.eq.1) cseq(1,iseq)(4:5)='_N'
       endif
       iatm=iatm+1
       if(lseq(3,iseq).eq.0) lseq(3,iseq)=iatm
+      lseq(3,iseq+1)=iatm+1
       latm(1,iatm)=i
       catm(1,iatm)(1:4)=card(13:16)
       read(card(31:54),'(3f8.3)') (xatm(j,iatm),j=1,3)
@@ -255,7 +263,7 @@ c
 c
 c     since mseq>nseq lseq(3,nseq+1) can hold natm+1
 c
-      lseq(3,nseq+1)=natm+1
+      lseq(3,nseq+2)=natm+1
 c
       do 23 i=1,natm
       xatm(1,i)=1.0d-01*xatm(1,i)
