@@ -10,30 +10,26 @@ c
       integer n
       double precision vector(n,n)
       integer i,j,k
-      double precision a,b
+      double precision a
 
-      do i=1,n
+      do i=1,n-1
+        a=0.0d0
+        do k=1,n
+          a=a+vector(k,i)*vector(k,i)
+        enddo
+        if (a.eq.0.0d0) call errquit
+     1    ('tddft_schmidt: unable to normalize',0)
+        do k=1,n
+          vector(k,i)=vector(k,i)/dsqrt(a)
+        enddo
         do j=i+1,n
           a=0.0d0
           do k=1,n
             a=a+vector(k,i)*vector(k,j)
           enddo
-          b=0.0d0
           do k=1,n
-            b=b+vector(k,i)*vector(k,i)
+            vector(k,j)=vector(k,j)-a*vector(k,i)
           enddo
-          do k=1,n
-            vector(k,j)=vector(k,j)-a/b*vector(k,i)
-          enddo
-        enddo
-      enddo
-      do i=1,n
-        b=0.0d0
-        do k=1,n
-          b=b+vector(k,i)*vector(k,i)
-        enddo
-        do k=1,n
-          vector(k,i)=vector(k,i)/dsqrt(b)
         enddo
       enddo
       return
