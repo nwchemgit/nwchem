@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.29 1998-12-08 18:47:10 bernhold Exp $
+* $Id: task.F,v 1.30 1998-12-14 20:24:02 jhvan Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -32,7 +32,7 @@ c
 c
       logical  rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       logical  nwargos, property, dplot, gapss, task_shell, moints_full
-      logical  esp, prepar, kgdtest, jvltest
+      logical  esp, prepar, kgdtest, jvltest, jvltest2
       logical  task_energy, task_gradient, task_optimize, task_freq
       logical  task_hessian, task_saddle, task_lst
       logical  task_qmmm, task_python, task_nbo
@@ -91,6 +91,8 @@ c
             status = rjhtest(rtdb)
          else if (inp_compare(.false.,'jvltest', theory)) then
             status = jvltest(rtdb)
+         else if (inp_compare(.false.,'marga', theory)) then
+            status = jvltest2(rtdb)
          else if (inp_compare(.false.,'python', theory)) then
             status = task_python(rtdb)
          else if (inp_compare(.false.,'raktest', theory)) then
