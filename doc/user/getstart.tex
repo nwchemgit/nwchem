@@ -425,7 +425,6 @@ i.e.,
 \item \verb+logical+ --  true/false logical variable
 \item \verb+real   +  -- real floating point value(s) for a variable or 
 \item \verb+double + -- synonymous with real
-an array
 \end{itemize}
 
 If an input item is not prefaced by one of these type names,
@@ -487,9 +486,9 @@ parameter, the default is to write the vectors back into either the user
 specified MO vectors input file or, if this is not available, the file
 \verb+$file_prefix$.movecs+.
 
-A particular example of the VECTOR directive is shown below.  It specifies
-both the \verb+input+ and \verb+output+ keywords, but does not use the 
-\verb+swap+ option.
+A particular example of the \verb+VECTORS+ directive is shown below.
+It specifies both the \verb+input+ and \verb+output+ keywords, but
+does not use the \verb+swap+ option.
 \begin{verbatim}
   vectors input project "small basis" small_basis.movecs \
           output large_basis.movecs
