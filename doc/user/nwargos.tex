@@ -1076,12 +1076,15 @@ the constant volume ensemble, using pair interaction potentials.
 \begin{itemize}
 \item
 \begin{verbatim}
-  pme [grid <integer ng>] [alpha <real ealpha>] [order <integer morder>]
+  pme [grid <integer ng>] [alpha <real ealpha>] \
+      [order <integer morder>] [fft <integer imfft>] 
 \end{verbatim}
-where $ng$ is the number of grid points per dimension, $ealpha$ is
-the Ewald coefficient in nm$^{-1}$, with a default of 4.0, and
-$morder$ is order of the Cardinal B-spline interpolation which must
-be an even number and at least 4 (default value).
+where \verb+ng+ is the number of grid points per dimension, 
+\verb+ealpha+ is the Ewald coefficient in nm$^{-1}$, with a default 
+of 4.0, and \verb+morder+ is order of the Cardinal B-spline
+interpolation which must be an even number and at least 4 (default
+value). A platform specific 3D fast Fourier transform is used if
+\verb+imfft+ is set to 2.
 \end{itemize}
 
 \section{Fixing coordinates}
@@ -1393,6 +1396,20 @@ where \verb+<madbox>+ is the number of additional boxes that are allocated
 on each node. The default for \verb+<madbox>+ is 6. In some cases \verb+<madbox>+
 can be reduced to 4 if memory usage is a concern. Values of 2 or less
 will almost certainly result in memory shortage.
+\item
+The maximum number of solvent molecules on a single node can be set with
+\begin{verbatim}
+ mwm <integer mwmreq>
+\end{verbatim}
+where \verb+mwmreq+ is the maximum number of solvent molecules per
+node, unless the value given is less than the computed number.
+\item
+The maximum number of solute atoms on a single node can be set with
+\begin{verbatim}
+ msa <integer msareq>
+\end{verbatim}
+where \verb+mwmreq+ is the maximum number of solute atoms per
+node, unless the value given is less than the computed number.
 \item
 To limit the allocated amount of memory used by the molecular dynamics
 module,
