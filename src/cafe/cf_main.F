@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.68 2000-07-14 19:54:15 d3j191 Exp $
+c $Id: cf_main.F,v 1.69 2000-07-14 23:15:35 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2777,7 +2777,6 @@ c
 c
       do 1 i=1,nsb
       if(ibnd(i,3).eq.0) then
-      write(*,'(2i5,f12.6)') ibnd(i,1),ibnd(i,2),rbnd(i,2)
       esa(ibnd(i,1),2)=esa(ibnd(i,1),2)+half*rbnd(i,2)
       esa(ibnd(i,2),2)=esa(ibnd(i,2),2)+half*rbnd(i,2)
       endif
