@@ -1,6 +1,9 @@
 *
-* $Id: paw_cpmd.F,v 1.14 2005-01-31 16:38:45 bylaska Exp $
+* $Id: paw_cpmd.F,v 1.15 2005-01-31 23:15:16 bylaska Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.14  2005/01/31 16:38:45  bylaska
+* ...EJB
+*
 * Revision 1.13  2005/01/31 03:58:32  bylaska
 * aperiodic bug fixes in PAW-CPMD ... EJB
 *
@@ -256,7 +259,7 @@
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
-      call dcopy(20,0.0d0,0,E,1)
+      call dcopy(30,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****
@@ -1003,6 +1006,7 @@ c    >              dbl_mb(lmd(1)),ierr)
 
       end do
 
+*     *** rotate current psi ***
       call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi2(1)),1)
       do ms=1,ispin
          do j=n1(ms),n2(ms)
@@ -1017,6 +1021,27 @@ c    >              dbl_mb(lmd(1)),ierr)
             end do
          end do
       end do
+
+
+*     *** rotate current v_psi ***
+      call dcopy(2*npack1*nemax,dcpl_mb(psi0(1)),1,
+     >                          dcpl_mb(psi1(1)),1)
+      call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi0(1)),1)
+      do ms=1,ispin
+         do j=n1(ms),n2(ms)
+            jj = j-n1(ms)
+            do i=n1(ms),n2(ms)
+               ii = i-n1(ms)
+               indx = (ii+1) + jj*n + (ms-1)*nn
+
+               call Pack_cc_daxpy(1,dbl_mb(hml(1)+indx-1),
+     >                            dcpl_mb(psi1(1)+(i-1)*npack1),
+     >                            dcpl_mb(psi0(1)+(j-1)*npack1))
+            end do
+         end do
+      end do
+
+
 
 
 
