@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.28 1995-12-01 16:57:59 d3g681 Exp $
+# $Id: makelib.h,v 1.29 1995-12-13 01:34:43 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -104,6 +104,7 @@ else
  OPT_TARGET = 
 endif
 
+
  LIBOBJ := $(patsubst %,$(LIBRARY_PATH)(%),$(OBJ))
 $(LIBRARY_PATH):       dummy include_stamp $(LIBOBJ) $(OPT_TARGET)
 	@$(MAKE) update_archive
@@ -126,17 +127,24 @@ endif
 
 # This puts any floating object files into the library and then
 # deletes them. The .notthere is just in case there are no objects
-# to be made in a top level directory.
+# to be made in a top level directory.  The locking is necessary
+# because concurrent makes in different directories may attempt
+# to update the same archive.  The locking mechanism works on a
+# coarse grain like this but is too slow for finer grain locking
+
+    LOCKFILE := $(LIBRARY_PATH:.a=.lock)
 
 .phony:	update_archive
 update_archive:	
 	@( list=`for file in $(OBJECTS) .notthere; do if [ -f $$file ] ; then echo $$file; fi ; done`; \
 	  if [ "$$list" ] ; then \
+		$(CNFDIR)/lockfile -steal $(LOCKFILE) || exit 1 ; \
 		echo $(AR) $(ARFLAGS) $(LIBRARY_PATH) $$list ; \
 		     $(AR) $(ARFLAGS) $(LIBRARY_PATH) $$list 2>&1 | \
 				grep -v truncated ; \
 		/bin/rm -f $$list ; \
 		echo ranlib $(LIBRARY_PATH) ; $(RANLIB) $(LIBRARY_PATH) ; \
+		/bin/rm -f $(LOCKFILE) ; \
 	  fi; )
 
 #

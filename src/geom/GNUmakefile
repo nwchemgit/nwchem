@@ -1,7 +1,7 @@
-#$Id: GNUmakefile,v 1.13 1995-11-27 02:15:05 d3g681 Exp $
+#$Id: GNUmakefile,v 1.14 1995-12-13 01:35:07 d3g681 Exp $
 
  LIBRARY = libutil.a
-     OBJ = geom.o geom_input.o geom_3d.o geom_num_core.o
+     OBJ = geom.o geom_input.o geom_3d.o geom_numcore.o
  HEADERS = geom.fh geomP.fh
 
  USES_BLAS = geom.F geom_input.F
@@ -14,4 +14,4 @@ include ../config/makelib.h
 $(LIBRARY_PATH)(geom.o):	 $(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh ./geomP.fh $(INCDIR)/context.fh 
 $(LIBRARY_PATH)(geom_3d.o):	 $(INCDIR)/inp.fh ./geomP.fh ./geom.fh 
 $(LIBRARY_PATH)(geom_input.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/inp.fh ./geomP.fh ./geom.fh 
-$(LIBRARY_PATH)(geom_num_core.o):	 ./geomP.fh 
+$(LIBRARY_PATH)(geom_numcore.o):	 ./geomP.fh 

@@ -1,6 +1,6 @@
-# $Id: GNUmakefile,v 1.28 1995-11-28 20:43:33 gg502 Exp $
+# $Id: GNUmakefile,v 1.29 1995-12-13 01:36:23 d3g681 Exp $
 ifeq ($(TARGET),SGITFP)
-	OBJ = xc_getv.o xc_quadv0.o xc_quadv0_a.o xc_quadv1.o xc_fitv.o xc_get2oi.o qpts.o gat_mat.o	xc_beckew.o setACmat.o xc_neighb_list.o
+	OBJ = xc_getv.o xc_quadv0.o xc_quadv0_a.o xc_quadv1.o xc_fitv.o xc_get2oi.o qpts.o gat_mat.o	xc_beckew.o setACmat.o xc_neighb.o
 	OBJ_OPTIMIZE = xc_tabcd.o  xc_rhogen.o\
 	xc_becke88.o	xc_perdew86.o xc_perdew91.o \
 	xc_dirac.o	xc_vwn.o	xc_lyp88.o			\
@@ -13,7 +13,7 @@ else
 
 
       OBJ_OPTIMIZE = xc_rhogen.o	   	\
-	a_dist.o	  xc_beckew.o 	 xc_neighb_list.o\
+	a_dist.o	  xc_beckew.o 	 xc_neighb.o\
 	xc_perdew86.o	 xc_dirac.o	\
 	xc_becke88.o 	xc_lyp88.o	xc_vwn.o \
 	eumac.o	\
@@ -43,7 +43,7 @@ $(LIBRARY_PATH)(xc_fitv.o):	 ../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/m
 $(LIBRARY_PATH)(xc_get2oi.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(xc_getv.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(xc_lebedev.o):	 $(INCDIR)/stdio.fh ../include/quad.fh 
-$(LIBRARY_PATH)(xc_neighb_list.o):	 ../include/quad.fh 
+$(LIBRARY_PATH)(xc_neighb.o):	 ../include/quad.fh 
 $(LIBRARY_PATH)(xc_quadv0.o):	 ../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh ../include/quad.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(xc_quadv0_a.o):	 ../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh ../include/quad.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(xc_quadv1.o):	 ../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh ../include/quad.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.31 1995-11-27 02:11:20 d3g681 Exp $
+# $Id: GNUmakefile,v 1.32 1995-12-13 01:34:02 d3g681 Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -16,7 +16,7 @@ endif
           int_l1epe.o    int_l2e2c.o    int_l2e3c.o \
           int_l2e4c.o    int_lgen1e.o   int_mem.o \
           int_mpole.o    int_nint.o     int_pgen1e.o \
-          int_projpole.o int_terminate.o \
+          int_projpole.o int_term.o \
           intd_1eh1.o    intd_1eov.o    intd_2e2c.o \
           intd_2e3c.o    intd_2e4c.o    intd_init.o \
           intp_1eke.o    intp_1eov.o    intp_1epe.o \
@@ -71,7 +71,7 @@ $(LIBRARY_PATH)(int_mpole.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCD
 $(LIBRARY_PATH)(int_nint.o):	 $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(int_pgen1e.o):	 $(INCDIR)/geobasmapP.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(int_projpole.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh ./apiP.fh 
-$(LIBRARY_PATH)(int_terminate.o):	 $(INCDIR)/mafdecls.fh ./apispP.fh ./apiP.fh 
+$(LIBRARY_PATH)(int_term.o):	 $(INCDIR)/mafdecls.fh ./apispP.fh ./apiP.fh 
 $(LIBRARY_PATH)(intb_2e4c.o):	 $(INCDIR)/stdio.fh ./numb_qP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(intb_init4c.o):	 ./numb_qP.fh 
 $(LIBRARY_PATH)(intd_1eh1.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 

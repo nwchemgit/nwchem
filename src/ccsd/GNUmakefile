@@ -3,11 +3,11 @@
 		ccsd.o \
 		ccsd_aux.o \
 		ccsd_driver.o \
-		ccsd_directbf.o \
+		ccsd_dbf.o \
 		ccsd_fsig1.o \
 		ccsd_fsig2.o \
                 ccsd_fsig1ao.o \
-		ccsd_get_param.o \
+		ccsd_parm.o \
 		ccsd_intmeda.o \
 		ccsd_intmedb.o \
 		ccsd_iterdrv.o \
@@ -21,7 +21,7 @@
 		ccsd_rdtrpo.o \
 		ccsd_tengy.o \
 		ccsd_trpdrv.o \
-		moints_trfidx.o \
+		mo_trfidx.o \
 		moints_trp.o \
 		qstat.o \
 		cputime.o \
@@ -30,7 +30,7 @@
     LIBRARY = libccsd.a
 
   USES_BLAS = \
-	      ccsd_directbf.F \
+	      ccsd_dbf.F \
 	      ccsd_fsig1.f \
 	      ccsd_fsig1ao.F \
 	      ccsd_fsig2ao.F \
@@ -59,11 +59,11 @@ include ../config/makelib.h
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 $(LIBRARY_PATH)(aoccsd.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(ccsd.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(ccsd_directbf.o):	 $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(ccsd_dbf.o):	 $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(ccsd_driver.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(ccsd_get_param.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ccsd_mkcinv.o):	 $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(ccsd_mktask.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(ccsd_pampt.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(ccsd_parm.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(moints_trp.o):	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh $(INCDIR)/schwarz.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(rddcom.o):	 $(INCDIR)/global.fh 

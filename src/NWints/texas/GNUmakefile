@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.14 1995-12-01 16:57:46 d3g681 Exp $
+# $Id: GNUmakefile,v 1.15 1995-12-13 01:34:18 d3g681 Exp $
  
 ifeq ($(USE_TEXAS),YEP)
       LIB_DEFINES = -DUSE_TEXAS
@@ -8,7 +8,7 @@ ifeq ($(USE_TEXAS),YEP)
                  getmem.o\
                  amshift.o\
                  assemblx.o\
-            spec_blocking.o\
+            spec_block.o\
             spec_calcint.o\
                  cshneg.o\
                d_datlog.o\
@@ -17,7 +17,7 @@ ifeq ($(USE_TEXAS),YEP)
                  pak.o\
                  precalc2.o\
                  prepint.o\
-           label_reorder.o\
+           lab_reorder.o\
                  rt123.o\
                  shells.o\
                  time.o\

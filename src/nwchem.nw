@@ -4,7 +4,7 @@ start h2o
 
 memory 24 mb
 
-print low
+#print low
 
 geometry
   O      0.00000000    0.00000000    0.00000000
@@ -12,12 +12,12 @@ geometry
   H      0.00000000   -1.43042809   -1.60715266
 end
 
-basis segment
+basis segment noprint
   H library sto-3g file ../src/basis/library
   O library sto-3g file ../src/basis/library
 end
 
-basis "test mo basis" nosegment
+basis "test mo basis" nosegment noprint
   O s
           322.037000    0.059239
            48.430800    0.351500
@@ -38,7 +38,7 @@ task scf
 
 scf
   maxiter 20
-#  print none
+#  print int2edebug
 end
 
 #gradient
