@@ -1,5 +1,5 @@
 *
-* $Id: mxsubs.F,v 1.13 2000-08-11 18:36:23 bjohnson Exp $
+* $Id: mxsubs.F,v 1.14 2003-06-15 00:42:51 edo Exp $
 *
 *======================================================================
 *
@@ -604,7 +604,8 @@ c.      call mxsync ()
       ENDIF
 #endif
 #ifdef TCGMSG
-	call pend
+cedo	call pend
+        call ga_error(' peigs error: mxpend',0)
 #endif
 #ifdef ALOG
       call alogfg (ipid, AE_CLOSE, 0, sdata, 0)
@@ -699,7 +700,8 @@ c	external clock
 	call close0(1)
 #endif
 #ifdef TCGMSG
-	call pend()
+cedo	call pend()
+      call ga_error(' peigs error: mxend',0)
 #endif
 	return
 	end	
