@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.54 2000-04-19 16:53:34 d3j191 Exp $
+c $Id: md_start.F,v 1.55 2000-04-20 16:27:24 d3j191 Exp $
 c
       implicit none
 c
@@ -1265,7 +1265,7 @@ c
      + ' Temperature relaxation time solvent ',f12.6,' ps',/,
      + ' Temperature relaxation time solute  ',f12.6,' ps')
       endif
-      if(ipscal.gt.0) then
+      if(ipscal.ne.0) then
       write(lfnout,1023) prsext,prsrlx,compr
  1023 format(' Isobaric ensemble external pressure ',1pe12.5,' Pa',/,
      + ' Pressure relaxation time ',0pf12.6,' ps',/,

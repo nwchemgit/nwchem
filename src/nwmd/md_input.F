@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.14 2000-04-20 15:33:30 d3j191 Exp $
+c $Id: md_input.F,v 1.15 2000-04-20 16:27:24 d3j191 Exp $
 c
       implicit none
 c
@@ -486,6 +486,10 @@ c
       endif
       if(inp_compare(.false.,'anisotropic',item)) then
       ipscal=2
+      goto 250
+      endif
+      if(inp_compare(.false.,'noz',item)) then
+      ipscal=-iabs(ipscal)
       goto 250
       endif
       goto 3
