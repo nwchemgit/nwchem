@@ -20,12 +20,12 @@ ifeq ($(VPATH),double)
          OBJ =  ddot.o    dnrm2.o    dspr.o    idamax.o \
                 dasum.o   dgemm.o    drot.o    dswap.o    lsame.o \
                 daxpy.o   dgemv.o    dscal.o   dtrmm.o    xerbla.o \
-                dcopy.o   dger.o     dspmv.o   dtrmv.o
+                dcopy.o   dger.o     dspmv.o   dtrmv.o    dtrsm.o
 else
          OBJ =  sdot.o    snrm2.o    sspr.o    isamax.o \
                 sasum.o   sgemm.o    srot.o    sswap.o    lsame.o \
                 saxpy.o   sgemv.o    sscal.o   strmm.o    xerbla.o \
-                scopy.o   sger.o     sspmv.o   strmv.o
+                scopy.o   sger.o     sspmv.o   strmv.o    strsm.o
 endif
 
 
