@@ -8,9 +8,25 @@
       integer heap
       logical status
 c
+      character*255 input_filename
+c
 c     Create parallel processes and initialize IPC layer
 c
       call pbeginf()
+c
+c     Get the name of the input file from the command line
+c
+      call get_input_filename(input_filename)
+c
+c     Only process 0 opens the input file
+c
+      if (ga_nodeid() .eq. 0) then
+         open(5, file=input_filename, status='old', form='formatted',
+     $        err=10000)
+      else
+         close(5)
+      endif
+
 c
 c     Look for memory directive in the input ... must eventually
 c     open the rtdb first so that can get memory directive out of that
@@ -38,7 +54,7 @@ c
 c
 c     Close the RTDB
 c
-      if (.not. rtdb_par_close(rtdb, 'keep'))
+      if (.not. rtdb_close(rtdb, 'keep'))
      $     call errquit('nwchem: rtdb_close failed', rtdb)
 c
 c     Tidy up the global memory
@@ -51,6 +67,9 @@ c
 c
 c     Done
 c
+      return
+c
+10000 call errquit('nwchem: failed to open the input file', 0)
       end
       subroutine start(rtdb)
       implicit none
@@ -68,20 +87,17 @@ c
 c
 c     Actually open the database and insert the file_prefix
 c
+c     Note that only process 0 has the database name ... that's OK.
+c
       if (startup) then
-         if (.not. rtdb_par_open(rtdb_name, 'empty', rtdb))
+         if (.not. rtdb_open(rtdb_name, 'empty', rtdb))
      $        call errquit('start: rtdb_open empty failed ', 0)
       else
-         if (.not. rtdb_par_open(rtdb_name, 'old', rtdb))
+         if (.not. rtdb_open(rtdb_name, 'old', rtdb))
      $        call errquit('start: rtdb_open old failed ', 0)
       endif
       if (.not. rtdb_cput(rtdb, 'file_prefix', 1, file_prefix))
      $     call errquit('start: rtdb_put of file_prefix failed', 0)
-c      
-c     Make sure input is all ready to go
-c
-      rewind 5
-      call inp_init(5,6)
 c
 c     Parse input data and shove into the database
 c
@@ -109,7 +125,7 @@ c
       data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf',
      $   'debtest'/
 c     
-      if (.not. rtdb_par_cget(rtdb, 'task', 1, task_name)) then
+      if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
 c
 c     Default action ... do nothing
 c
