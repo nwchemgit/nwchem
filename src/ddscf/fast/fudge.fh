@@ -1,0 +1,15 @@
+c
+c     Convenient to have this lying around, but not elegant
+c
+      integer lmax2, lencart, lenprod
+      parameter (lmax2 = 2*5)   ! Twice max angular momentum - h functions
+      parameter (lencart = ((lmax2+1)*(lmax2+2))/2)
+      parameter (lenprod = ((lmax2+1)*(lmax2+2)*(lmax2+3))/6)
+      double precision d, dinv 
+c
+      integer nq, ncall
+c
+      common/fastjdsfudge/
+     $     d(lencart,-lmax2:lmax2,0:lmax2),
+     $     dinv(lenprod, -lmax2:lmax2,0:lmax2),
+     $     nq, ncall
