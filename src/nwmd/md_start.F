@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.155 2003-11-18 23:26:00 d3j191 Exp $
+c $Id: md_start.F,v 1.156 2003-12-03 04:59:59 d3j191 Exp $
 c
       implicit none
 c
@@ -60,6 +60,7 @@ c
 c
       msm=max(1,nsm)
       msf=max(1,nsf)
+      mst=max(msm,nseq)
 c
 c     start the property API
 c     ----------------------
@@ -111,7 +112,7 @@ c
      + call md_abort('Failed to allocate memory for xwcr',0)
       if(.not.ma_push_get(mt_dbl,3*msm,'xsm',l_xsm,i_xsm))
      + call md_abort('Failed to allocate memory for xsm',0)
-      if(.not.ma_push_get(mt_dbl,3*msm,'tsm',l_tsm,i_tsm))
+      if(.not.ma_push_get(mt_dbl,4*mst,'tsm',l_tsm,i_tsm))
      + call md_abort('Failed to allocate memory for tsm',0)
       if(.not.ma_push_get(mt_dbl,3*msm,'xsm',l_xsmp,i_xsmp))
      + call md_abort('Failed to allocate memory for xsmp',0)

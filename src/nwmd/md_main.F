@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.179 2003-11-18 23:25:59 d3j191 Exp $
+c $Id: md_main.F,v 1.180 2003-12-03 04:59:59 d3j191 Exp $
 c
       implicit none
 c
@@ -1979,7 +1979,8 @@ c
       if(ncoll.gt.0) then
       call timer_start(12)
       call cf_collapse(ncoll,fcoll,nsaloc,nwmloc,isl(1,lsmol),
-     + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_tsm),dbl_mb(i_fs),
+     + isl(1,lssgm),
+     + dbl_mb(i_xs),dbl_mb(i_xsm),mst,dbl_mb(i_tsm),dbl_mb(i_fs),
      + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_fw))
       call timer_stop(12)
       endif
@@ -2653,7 +2654,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.179 2003-11-18 23:25:59 d3j191 Exp $
+c $Id: md_main.F,v 1.180 2003-12-03 04:59:59 d3j191 Exp $
 c
       implicit none
 c

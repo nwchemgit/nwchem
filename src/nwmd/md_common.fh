@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.79 2003-11-25 16:40:07 d3j191 Exp $
+c $Id: md_common.fh,v 1.80 2003-12-03 04:59:59 d3j191 Exp $
 c
 c     parameters
 c
@@ -188,9 +188,9 @@ c
      + lprpmf,lpme,lhop,lstop
 c
       integer mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,msf,nsf,
-     + mseq,nseq
+     + mseq,nseq,mst
       common/md_dim/mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,
-     + msf,nsf,mseq,nseq
+     + msf,nsf,mseq,nseq,mst
 c
       real*8 temps,tempw,temp,pres,volume,epme(3),eww(mpe,2),eskin,
      + zw(3,3,2),fmax,fnorm,dwr,costio,corrio,

@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.99 2003-11-25 16:40:07 d3j191 Exp $
+c $Id: prp_main.F,v 1.100 2003-12-03 04:59:59 d3j191 Exp $
 c
       implicit none
 c
@@ -406,8 +406,8 @@ cxxxxx      call ga_dgop(mrg_d43,epme,3,'+')
       if(npener.gt.0) call ga_dgop(mrg_d47,esa,2*nsa,'+')
       endif
 c
-      if(p(84).ne.0.0d0) then
-      p(84)=(p(84)-p(83))/p(84)
+      if(p(85).ne.0.0d0) then
+      p(85)=(p(85)-p(84))/p(83)
       endif
 c
       if(temp.eq.zero.or.me.ne.0) then

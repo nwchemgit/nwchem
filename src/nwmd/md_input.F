@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.78 2003-10-27 19:06:56 d3j191 Exp $
+c $Id: md_input.F,v 1.79 2003-12-03 04:59:59 d3j191 Exp $
 c
       implicit none
 c
@@ -32,7 +32,7 @@ c
       integer itload,ihess,latom,icomm,nfanal,iport,iguide,icentr
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
       integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ,npforc
-      integer iprop,iprpmf,nfhop,ipbtyp,iradgy,idifco,nfnewf
+      integer iprop,iprpmf,nfhop,ipbtyp,iradgy,idifco,nfnewf,ncolt
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -190,6 +190,7 @@ c      iunfix=0
       nopack=0
       istart=0
       ncoll=0
+      ncolt=0
       ipbtyp=1
       iradgy=0
       idifco=0
@@ -706,17 +707,23 @@ c
 c     collapse
 c
       if(inp_compare(.false.,'collapse',item)) then
+      ncolt=0
       ncoll=3
       fcoll=1.0d+01
   278 continue
       if(.not.inp_f(fcoll)) then
       if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'segment',item)) then
+      ncolt=3
+      ncoll=6
+      goto 278
+      endif
       if(inp_compare(.false.,'z',item)) then
-      ncoll=1
+      ncoll=ncolt+1
       goto 278
       endif
       if(inp_compare(.false.,'xy',item)) then
-      ncoll=2
+      ncoll=ncolt+2
       goto 278
       endif
       endif
