@@ -1,5 +1,5 @@
       subroutine atcond(zn,ncsh,nosh,nccup,ajmn,nsym,znps) 
-* $Id: atcond.F,v 1.5 1999-01-20 00:02:00 d3e129 Exp $
+* $Id: atcond.F,v 1.6 1999-01-21 02:07:35 d3e129 Exp $
       implicit none
 c.......................................................................
 c
@@ -16,13 +16,14 @@ c.......................................................................
       double precision znps
       double precision ajmn(*)
       integer nsym
-      integer ncsh(*), nccup(*), nosh(*)
+      integer ncsh(4), nccup(4), nosh(4)
 c
 c... local
 c
       integer maxbas, ind
       integer i, j, k, nz, nzps, idiff, ihw, nlast, ksym
       integer nshell, nelec, isymm
+      integer ncore
       double precision t, f
 c
 c...  Begin ECP-data
@@ -65,6 +66,7 @@ c.......................................................................
       nz = zn + 0.1d0
       nzps = znps + 0.1d0
       idiff = nz - nzps
+      ncore = idiff
       ihw = 0
       if (idiff.ne.0) then
 c
@@ -110,6 +112,13 @@ c.......................................................................
         ncsh(4) = ncsh(4) - ncsh(4)/2
         ksym = 3
       end if
+c.......................................................................
+c  Check for known cases that do not work
+c
+c..... case 1 Au with ncore of 60 electrons guess=>ihw=1 but use ihw=2
+      if (nz.eq.79.and.ncore.eq.60.and.ihw.eq.1)ihw=2
+c
+c.......................................................................
 c
 c ... now consider pseudopotentials ...
 c ... decrease ncsh according to nelcor (nzps)
