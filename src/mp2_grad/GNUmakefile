@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.23 1997-02-17 20:52:10 d3g681 Exp $
+#$Id: GNUmakefile,v 1.24 1997-03-04 17:37:41 d3e129 Exp $
 
         OBJ = mp2_make_tuhf.o \
 	      mp2_grad.o \
@@ -19,7 +19,8 @@ OBJ_OPTIMIZE = mp2_back_transform.o
 
 USES_BLAS = mp2_energy.F mp2_lai_uhf.F \
             mp2_make_tuhf.F mp2_pijab_uhf.F \
-            mp2_wai_uhf.F mp2_wijab_uhf.F mp2_back_transform.F
+            mp2_wai_uhf.F mp2_wijab_uhf.F mp2_back_transform.F \
+            mp2_read_tiajb.F
 
     LIBRARY = libmp2.a
 
