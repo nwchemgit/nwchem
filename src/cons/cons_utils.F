@@ -1,4 +1,4 @@
-c $Id: cons_utils.F,v 1.6 2004-04-02 02:36:16 marat Exp $
+c $Id: cons_utils.F,v 1.7 2004-04-02 22:04:12 marat Exp $
       subroutine cons_add_spring(namespace,i,j,k,r,rtdb)
       implicit none
 #include "errquit.fh"
@@ -27,12 +27,10 @@ c
       character(255) tag_r
       character(255) tag_k
 
-      call cons_set_namespace(namespace)
-
-      call cons_hbond_id_tag(tag_id)
-      call cons_hbond_n_tag(tag_n)
-      call cons_hbond_k_tag(tag_k)
-      call cons_hbond_r_tag(tag_r)
+      call cons_hbond_id_tag(namespace,tag_id)
+      call cons_hbond_n_tag(namespace,tag_n)
+      call cons_hbond_k_tag(namespace,tag_k)
+      call cons_hbond_r_tag(namespace,tag_r)
 
       
       if(.not.rtdb_get(rtdb,tag_n,mt_int,1,nhb0)) then
@@ -118,6 +116,29 @@ c
 
       end
 
+      subroutine cons_add_namespace(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+c     
+      character*(*) namespace
+      integer rtdb
+c
+      logical ignore
+      character(255) tag
+      
+      call cons_namespace_tag(namespace,tag)
+
+      if(rtdb_get(rtdb,tag,mt_log,1,ignore)) return
+
+      if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
+     >      call errquit('cons_add_namespace', 0,
+     >        RTDB_ERR)
+      
+      end
+
       subroutine cons_add_fixed_atoms(namespace,nat,id,rtdb)
       implicit none
 #include "errquit.fh"
@@ -139,10 +160,9 @@ c
       character(255) tag_id
       character(255) tag_n
 
-      call cons_set_namespace(namespace)
 
-      call cons_fxd_atoms_id_tag(tag_id)
-      call cons_fxd_atoms_n_tag(tag_n)
+      call cons_fxd_atoms_id_tag(namespace,tag_id)
+      call cons_fxd_atoms_n_tag(namespace,tag_n)
 
       call cons_sort_i(nat,id)
       if(.not.rtdb_get(rtdb,tag_n,mt_int,1,n0)) then
@@ -217,9 +237,8 @@ c
       character(255) tag_id
       character(255) tag_n
 
-      call cons_set_namespace(namespace)
-      call cons_fxd_atoms_id_tag(tag_id)
-      call cons_fxd_atoms_n_tag(tag_n)
+      call cons_fxd_atoms_id_tag(namespace,tag_id)
+      call cons_fxd_atoms_n_tag(namespace,tag_n)
 
       
       if(.not.rtdb_get(rtdb,tag_n,mt_int,1,n0)) then
@@ -297,9 +316,11 @@ c
 
       character(255) tag_id
       character(255) tag_n
+      character(255) namespace
 
-      call cons_fxd_atoms_id_tag(tag_id)
-      call cons_fxd_atoms_n_tag(tag_n)
+      call cons_get_namespace(namespace)
+      call cons_fxd_atoms_id_tag(namespace,tag_id)
+      call cons_fxd_atoms_n_tag(namespace,tag_n)
 
       
       do i=1,nat
@@ -358,9 +379,11 @@ c
 
       character(255) tag_id
       character(255) tag_n
+      character(255) namespace
 
-      call cons_fxd_atoms_id_tag(tag_id)
-      call cons_fxd_atoms_n_tag(tag_n)
+      call cons_get_namespace(namespace)
+      call cons_fxd_atoms_id_tag(namespace,tag_id)
+      call cons_fxd_atoms_n_tag(namespace,tag_n)
       
       if(.not.rtdb_get(rtdb,tag_n,mt_int,1,n)) then
          n = 0
@@ -409,11 +432,13 @@ c
       character(255) tag_n
       character(255) tag_k
       character(255) tag_r
+      character(255) namespace
 
-      call cons_hbond_id_tag(tag_id)
-      call cons_hbond_n_tag(tag_n)
-      call cons_hbond_k_tag(tag_k)
-      call cons_hbond_r_tag(tag_r)
+      call cons_get_namespace(namespace)
+      call cons_hbond_id_tag(namespace,tag_id)
+      call cons_hbond_n_tag(namespace,tag_n)
+      call cons_hbond_k_tag(namespace,tag_k)
+      call cons_hbond_r_tag(namespace,tag_r)
 
       
       if(.not.rtdb_get(rtdb,tag_n,mt_int,1,nhb)) then
@@ -526,7 +551,7 @@ c     local variables:
 
       end
 c
-      subroutine cons_fxd_atoms_id_tag(tag)
+      subroutine cons_fxd_atoms_id_tag(cons_name,tag)
       implicit none
 #include "util.fh"
 #include "inp.fh"
@@ -535,15 +560,13 @@ c
 c
       integer n
       character(255) cons_name
-c
-      call cons_get_namespace(cons_name)
 c
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":fxd_atom_id"
 
       end
 
-      subroutine cons_fxd_atoms_n_tag(tag)
+      subroutine cons_fxd_atoms_n_tag(cons_name,tag)
       implicit none
 #include "util.fh"
 #include "inp.fh"
@@ -553,13 +576,12 @@ c
       integer n
       character(255) cons_name
 c
-      call cons_get_namespace(cons_name)
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":fxd_atom_n"
 
       end
-
-      subroutine cons_hbond_id_tag(tag)
+c
+      subroutine cons_namespace_tag(cons_name,tag)
       implicit none
 #include "util.fh"
 #include "inp.fh"
@@ -569,13 +591,27 @@ c
       integer n
       character(255) cons_name
 c
-      call cons_get_namespace(cons_name)
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)
+
+      end
+
+      subroutine cons_hbond_id_tag(cons_name,tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character(255) cons_name
+c
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":hbond_id"
 
       end
 
-      subroutine cons_hbond_n_tag(tag)
+      subroutine cons_hbond_n_tag(cons_name,tag)
       implicit none
 #include "util.fh"
 #include "inp.fh"
@@ -585,13 +621,12 @@ c
       integer n
       character(255) cons_name
 c
-      call cons_get_namespace(cons_name)
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":hbond_n"
 
       end
 
-      subroutine cons_hbond_r_tag(tag)
+      subroutine cons_hbond_r_tag(cons_name,tag)
       implicit none
 #include "util.fh"
 #include "inp.fh"
@@ -601,13 +636,12 @@ c
       integer n
       character(255) cons_name
 c
-      call cons_get_namespace(cons_name)
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":hbond_r"
 
       end
 
-      subroutine cons_hbond_k_tag(tag)
+      subroutine cons_hbond_k_tag(cons_name,tag)
       implicit none
 #include "util.fh"
 #include "inp.fh"
@@ -617,9 +651,53 @@ c
       integer n
       character(255) cons_name
 c
-      call cons_get_namespace(cons_name)
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":hbond_k"
 
       end
+
+      function cons_fixed_atoms(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "cons_data.fh"
+c     
+      logical cons_fixed_atoms
+      character*(*) namespace
+      integer rtdb
+c
+      integer nfa
+      character(255) tag_n
+
+      call cons_fxd_atoms_n_tag(namespace,tag_n)
+
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,nfa)) nfa=0
      
+      if(nfa.eq.0) then
+        cons_fixed_atoms=.false.
+      else
+        cons_fixed_atoms=.true.
+      end if
+
+      return
+      end
+
+      function cons_namespace(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "cons_data.fh"
+c     
+      logical cons_namespace
+      character*(*) namespace
+      integer rtdb
+c
+      logical ignore
+      character(255) tag
+
+      call cons_namespace_tag(namespace,tag)
+      cons_namespace=rtdb_get(rtdb,tag,mt_log,1,ignore)
+      return
+      end

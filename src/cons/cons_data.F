@@ -1,4 +1,4 @@
-c $Id: cons_data.F,v 1.1 2004-04-02 02:36:16 marat Exp $
+c $Id: cons_data.F,v 1.2 2004-04-02 22:04:12 marat Exp $
       subroutine cons_set_namespace(namespace)
       implicit none
 #include "errquit.fh"
@@ -44,14 +44,6 @@ c      cons_get_i_c = i_c
 #include "cons_data.fh"
       integer a_h_c
       h_c=a_h_c
-      return
-      end
-
-      subroutine cons_set_i_c(a_i_c)
-      implicit none
-#include "cons_data.fh"
-      integer a_i_c
-      i_c=a_i_c
       return
       end
 

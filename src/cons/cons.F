@@ -1,632 +1,4 @@
 c $I#d: cons.F,v 1.1 2004/01/28 01:30:59 marat Exp $
-      subroutine cons_load_geom(rtdb)
-      implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "geom.fh"
-#include "cons.fh"
-      integer rtdb
-c
-      integer i_c,h_c
-      integer i
-      integer geom
-      integer nat
-      logical status
-c
-c     load geometry 
-c     -------------
-      write(*,*) " loading geometry"
-      if (.not. geom_create(geom, 'geometry'))
-     &     call errquit('cons_init: geom_create?',70, GEOM_ERR)
-      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &     call errquit('cons_init: no geometry ',72, RTDB_ERR)
-c
-c     get cart coordinates
-c     --------------------
-      status=geom_ncent(geom,nat)
-      if(.not.status) 
-     & call errquit('cons_init: geom_create?',70, GEOM_ERR)
-      if ( .not. ma_alloc_get( MT_DBL, nat*3, 'cons coord',
-     &      h_c, i_c) ) call errquit(
-     &      'input_set: unable to allocate cons coord',
-     &      nat*3, MA_ERR)
-      status=geom_cart_coords_get(geom, dbl_mb(i_c))
-      if(.not.status) 
-     & call errquit('cons_init: geom_create?',70, GEOM_ERR)
- 
-      status=geom_destroy(geom)
-      if(.not.status) 
-     & call errquit('cons_init: geom_destroy?',70, GEOM_ERR)
-      call cons_set_h_c(h_c)
-      call cons_set_i_c(i_c)
-
-      return
-      end
-c
-      subroutine cons_unload_geom()
-      implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "cons.fh"
-
-      integer h_c
-      write(*,*) " unloading geometry"
-      h_c = cons_get_h_c()
-      if ( .not. ma_free_heap(h_c)) call errquit(
-     &      'input_set: unable to deallocate cons coord',
-     &      0, MA_ERR)
-
-      return
-      end
-
-      subroutine cons_unload_hbonds()
-      implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "cons.fh"
-      integer nhb,h_rhb,h_khb,h_ijhb
-
-      h_ijhb = cons_get_h_hbond_id()
-      h_khb  = cons_get_h_hbond_k()
-      h_rhb  = cons_get_h_hbond_r()
-c
-c     unload harmonic constraints
-c
-      call cons_get_hbond_nhb(nhb)
-      if(nhb.gt.0) then
-      if (.not. ma_free_heap(h_rhb) ) call errquit(
-     &    'cons_bond_input: unable to free h_rhb',
-     &    0, MA_ERR)
-      if (.not. ma_free_heap(h_khb) ) call errquit(
-     &    'cons_bond_input: unable to free h_khb',
-     &    0, MA_ERR)
-      if (.not. ma_free_heap(h_ijhb) ) call errquit(
-     &    'cons_bond_input: unable to free h_ijhb',
-     &    0, MA_ERR)
-      end if
-      end
-
-      subroutine cons_load_constraints(namespace,rtdb)
-      implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "geom.fh"
-      integer rtdb
-      character*(*) namespace
-      
-      call cons_set_namespace(namespace)
-
-      end
-
-c      subroutine cons_load_hbonds1(namespace,rtdb)
-c      implicit none
-c#include "errquit.fh"
-c#include "mafdecls.fh"
-c#include "rtdb.fh"
-c#include "util.fh"
-c#include "geom.fh"
-cc     
-c      character*(*) namespace
-c      integer rtdb
-cc
-c      logical status
-c      integer nhb
-c      character(255) tag_id
-c      character(255) tag_n
-c      character(255) tag_r
-c      character(255) tag_k
-cc
-c      call cons_hbond_id_tag(tag_id)
-cc
-cc     check for prior constraints
-cc     ---------------------------
-c      status=rtdb_get(rtdb,tag_n,mt_int,1,nhb)
-c      if(status .and. nhb.ne.0)  
-c        call unload_hbonds()
-c      end if
-c      call cons_set_namespace(namespace)
-cc
-c      call cons_hbond_id_tag(tag_id)
-c      call cons_hbond_n_tag(tag_n)
-c      call cons_hbond_k_tag(tag_k)
-c      call cons_hbond_r_tag(tag_r)
-cc
-cc     load new constraints
-cc     -------------------------
-c      status=rtdb_get(rtdb,tag_n,mt_int,1,nhb)
-c      if(.not.status .or. nhb.eq.0) call errquit(
-c     >   'unable to load harm bonds from'//namespace,
-c     >    nhb, MA_ERR)
-c      else
-c        status = rtdb_ma_get(rtdb,tag_id,
-c     >     ma_type,ma_size,h_ijhb) 
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get cons:hbond_n',
-c     >      nhb, RTDB_ERR)
-c        status = ma_get_index(h_ijhb,i_ijhb)
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get ijhb',
-c     >      nhb, RTDB_ERR)
-c        status = rtdb_ma_get(rtdb,tag_k,
-c     >     ma_type,ma_size,h_khb) 
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get h_khb',
-c     >      nhb, RTDB_ERR)
-c        status = ma_get_index(h_khb,i_khb)
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get i_khb',
-c     >      nhb, RTDB_ERR)
-c        status = rtdb_ma_get(rtdb,tag_r,
-c     >     ma_type,ma_size,h_rhb) 
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get h_rhb',
-c     >      nhb, RTDB_ERR)
-c        status = ma_get_index(h_rhb,i_rhb)
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get i_irhb',
-c     >      nhb, RTDB_ERR)
-c      end if
-c      end
-
-      subroutine cons_load_hbonds(nhb,rtdb)
-      implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "geom.fh"
-c     
-      integer nhb
-      integer rtdb
-c
-      logical status
-      integer i_rhb,i_khb,i_ijhb
-      integer h_rhb,h_khb,h_ijhb
-      character(255) tag_id
-      character(255) tag_n
-      character(255) tag_r
-      character(255) tag_k
-
-      call cons_hbond_id_tag(tag_id)
-      call cons_hbond_n_tag(tag_n)
-      call cons_hbond_k_tag(tag_k)
-      call cons_hbond_r_tag(tag_r)
-
-
-c
-c     load harmonic constraints
-c
-      write(*,*) "tag_n=",tag_n
-      status=rtdb_get(rtdb,tag_n,mt_int,1,nhb)
-      if(.not.status .or. nhb.eq.0) call errquit(
-     >     'input_set: unable to get prior harm bonds',
-     >      nhb, MA_ERR)
-      write(*,*) "tag_n=",tag_n
- 
-      if ( .not. ma_alloc_get( MT_INT, 2*nhb, 'h_ijhb',
-     &      h_ijhb, i_ijhb) ) call errquit(
-     &      'input_set: unable to allocate cons scratch space',
-     &      2*nhb, MA_ERR)
-      if ( .not. ma_alloc_get( MT_DBL, nhb, 'h_khb',
-     &      h_khb, i_khb) ) call errquit(
-     &      'input_set: unable to allocate cons scratch space',
-     &      nhb, MA_ERR)
-      if ( .not. ma_alloc_get( MT_DBL, nhb, 'h_rhb',
-     &      h_rhb, i_rhb) ) call errquit(
-     &      'input_set: unable to allocate cons scratch space',
-     &      nhb, MA_ERR)
-
-        status = rtdb_get(rtdb,tag_id,
-     >     mt_int,2*nhb,int_mb(i_ijhb)) 
-        status = status . and. rtdb_get(rtdb,tag_k,
-     >     mt_dbl,nhb,dbl_mb(i_khb)) 
-        status = status . and. rtdb_get(rtdb,tag_r,
-     >     mt_dbl,nhb,dbl_mb(i_rhb)) 
-        if(.not.status) call errquit(
-     >     'input_set: unable to get prior harm bonds',
-     >      nhb, MA_ERR)
-       
-       call cons_set_hbond_nhb(nhb)
-       call cons_set_h_hbond_id(h_ijhb)
-       call cons_set_h_hbond_k(h_khb)
-       call cons_set_h_hbond_r(h_rhb)
-
-c      if(rtdb_get(rtdb,tag_n,mt_int,1,nhb)) then
-c        status = rtdb_ma_get(rtdb,"cons:hbond_ij",
-c     >     ma_type,ma_size,h_ijhb) 
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get cons:hbond_n',
-c     >      nhb, RTDB_ERR)
-c        status = ma_get_index(h_ijhb,i_ijhb)
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get ijhb',
-c     >      nhb, RTDB_ERR)
-c        status = rtdb_ma_get(rtdb,tag_k,
-c     >     ma_type,ma_size,h_khb) 
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get h_khb',
-c     >      nhb, RTDB_ERR)
-c        status = ma_get_index(h_khb,i_khb)
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get i_khb',
-c     >      nhb, RTDB_ERR)
-c        status = rtdb_ma_get(rtdb,tag_r,
-c     >     ma_type,ma_size,h_rhb) 
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get h_rhb',
-c     >      nhb, RTDB_ERR)
-c        status = ma_get_index(h_rhb,i_rhb)
-c        if(.not.status) call errquit(
-c     >     'cons_init: unable to get i_irhb',
-c     >      nhb, RTDB_ERR)
-c      end if
-      end
-c
-      subroutine cons_load_fixed_atoms(nfp,rtdb)
-      implicit none
-#include "errquit.fh"
-#include "rtdb.fh"
-#include "mafdecls.fh"
-#include "cons_data.fh"
-c     
-      integer nfp
-      integer rtdb
-c
-      logical status
-c
-c     load fixed atoms
-c
-      status = rtdb_get(rtdb,"cons:fpos_i",
-     >     mt_int,nfp,int_mb(i_fpos)) 
-        if(.not.status) call errquit(
-     >     'input_set: unable to get prior fixed atoms',
-     >      nfp, MA_ERR)
-      end
-c
-      subroutine cons_delete_hbonds(rtdb)
-      implicit none
-#include "errquit.fh"
-#include "rtdb.fh"
-c     
-      integer rtdb
-c
-      logical status
-      character(255) tag_id
-      character(255) tag_n
-      character(255) tag_r
-      character(255) tag_k
-
-      call cons_hbond_id_tag(tag_id)
-      call cons_hbond_n_tag(tag_n)
-      call cons_hbond_k_tag(tag_k)
-      call cons_hbond_r_tag(tag_r)
-
-      status =              rtdb_delete(rtdb,tag_n)
-      status = status .and. rtdb_delete(rtdb,tag_id)
-      status = status .and. rtdb_delete(rtdb,tag_k)
-      status = status .and. rtdb_delete(rtdb,tag_r)
-      if(.not.status) call errquit(
-     >     'input_set: unable to delete prior harm bonds',
-     >      0, MA_ERR)
-      end
-c
-      subroutine cons_delete_fixed_atoms(rtdb)
-      implicit none
-#include "errquit.fh"
-#include "rtdb.fh"
-c     
-      integer rtdb
-c
-      logical status
-      status = rtdb_delete(rtdb,"cons:fpos_i")
-      if(.not.status) call errquit(
-     >     'input_set: unable to delete prior fixed atoms',
-     >      0, MA_ERR)
-      end
-c
-      subroutine cons_add_egrad(rtdb,energy,gx)
-      implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "global.fh"
-c     
-      integer rtdb
-      double precision energy
-      double precision gx(*)
-      logical status
-      integer nhb
-      character(255) tag_n
-c
-      if(.not. rtdb_get(rtdb, 'cons:active', mt_log, 1, status)) then
-        return
-      else if (.not.status) then
-        return
-      end if
-c
-      call cons_load_geom(rtdb)
-c
-      call cons_hbond_n_tag(tag_n)
-      if(rtdb_get(rtdb,tag_n,mt_int,1,nhb)) then
-        if(nhb .gt. 0 ) then
-           call cons_add_hbond_egrad(rtdb,energy,gx)
-        end if
-      end if
-c
-      call cons_unload_geom()
-c
-      return
-      end
-c
-      subroutine cons_add_energy(rtdb,energy)
-      implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-c     
-      integer rtdb
-      double precision energy
-      logical status
-      integer nhb
-      character(255) tag_n
-c
-      if(.not. rtdb_get(rtdb, 'cons:active', mt_log, 1, status)) then
-        return
-      else if (.not.status) then
-        return
-      end if
-      call util_print_centered(6,
-     >     "NWChem Constraints Module",
-     >     36,.true.)
-c
-      call cons_load_geom(rtdb)
-c
-      call cons_hbond_n_tag(tag_n)
-      if(rtdb_get(rtdb,tag_n,mt_int,1,nhb)) then
-        write(*,*) "cons_add_energy",nhb
-        if(nhb .gt. 0 ) then
-           call cons_add_hbond_energy(rtdb,energy)
-        end if
-      end if
-c
-      call cons_unload_geom()
-      return
-      end
-c
-      subroutine cons_add_hbond_energy(rtdb,energy)
-      implicit none
-#include "errquit.fh"
-#include "global.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "cons.fh"
-c     
-      integer rtdb
-      double precision energy
-      logical status
-      logical oprint
-      integer i
-      integer inb
-      integer iat,jat
-      double precision r
-      double precision ciat(3),cjat(3)
-      double precision r0,k
-      double precision e,enb,enb1
-      integer i_c,i_rhb,i_khb,i_ijhb
-      integer nhb
-c
-      call util_print_push()
-      call util_print_rtdb_load(rtdb,'cons')
-      oprint = util_print('energy', print_default)
-      oprint =oprint .and. (ga_nodeid().eq.0)
-c
-      call cons_load_hbonds(nhb,rtdb)
-c
-      i_c    = cons_get_i_c()
-      i_ijhb = cons_get_i_hbond_id()
-      i_khb  = cons_get_i_hbond_k()
-      i_rhb  = cons_get_i_hbond_r()
-
-      write(*,*) "cons_add_hbond_energy",(dbl_mb(i_c+i-1),i=1,9)
-
-      write(*,*)"cons_add_hbond_energy"
-      e=0.0d0
-      do inb=1,nhb
-       iat=int_mb(i_ijhb+2*(inb-1))
-       jat=int_mb(i_ijhb+2*(inb-1)+1)
-       r0 =dbl_mb(i_rhb+inb-1)
-       k  =dbl_mb(i_khb+inb-1)
-
-       call cons_spring_energy(k,r0,
-     >         dbl_mb(i_c+(iat-1)*3),
-     >         dbl_mb(i_c+(jat-1)*3),
-     >         r,
-     >         enb)
-
-c       if(oprint) then
-        write(6,*)"adding spring # ",inb
-        write(6,*)"  spring parameters (i,j,k,r0):",iat,jat,k,r0
-        write(6,*)"  spring length and energy    :",r,enb
-c       end if
-       e=e+enb
-      end do
-      if(rtdb_get(rtdb, 'cons:simulate', mt_log, 1, status)) then
-        write(*,*) "cons energy simulation"
-        energy=e
-      else 
-        energy = energy + e
-      end if
-c
-      call cons_unload_hbonds(rtdb)
-      call util_print_pop()
-      return
-      end
-c
-      subroutine cons_add_hbond_egrad(rtdb,energy,gx)
-      implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "cons.fh"
-c     
-      integer rtdb
-      double precision gx(*)
-      double precision energy
-c     local variables
-c     ---------------
-      logical status
-      logical oprint
-      logical pdefault
-      integer i
-      integer inb,nhb
-      integer iat,jat
-      double precision r
-      double precision ciat(3),cjat(3)
-      double precision r0,k
-      double precision e,f(3)
-      integer i_c,i_rhb,i_khb,i_ijhb
-c
-      call util_print_push()
-      call util_print_rtdb_load(rtdb,'cons')
-      oprint = util_print('energy', print_default)
-      oprint =oprint .and. (ga_nodeid().eq.0)
-cc
-      call cons_load_hbonds(nhb,rtdb)
-c
-      i_c    = cons_get_i_c()
-      i_ijhb = cons_get_i_hbond_id()
-      i_khb  = cons_get_i_hbond_k()
-      i_rhb  = cons_get_i_hbond_r()
-
-c
-      e=0.0d0
-      do inb=1,nhb
-       iat=int_mb(i_ijhb+2*(inb-1))
-       jat=int_mb(i_ijhb+2*(inb-1)+1)
-       r0 =dbl_mb(i_rhb+inb-1)
-       k  =dbl_mb(i_khb+inb-1)
-c
-       call cons_spring_force(k,r0,
-     >           dbl_mb(i_c+(iat-1)*3),
-     >           dbl_mb(i_c+(jat-1)*3),
-     >           r,e,f)
-
-       if(oprint) then
-        write(6,*)"adding spring # ",inb
-        write(6,*)"  spring parameters (i,j,k,r0):",iat,jat,k,r0
-        write(6,*)"  spring length and energy    :",r,e
-        write(6,*)"  spring forces               :",(f(i),i=1,3)
-       end if
-
-      if(rtdb_get(rtdb, 'cons:simulate', mt_log, 1, status)) then
-       do i=1,3
-         gx((iat-1)*3+i)=f(i)
-         gx((jat-1)*3+i)=-f(i)
-       end do
-       energy = e
-      else 
-       do i=1,3
-         gx((iat-1)*3+i)=gx((iat-1)*3+i)+f(i)
-         gx((jat-1)*3+i)=gx((jat-1)*3+i)-f(i)
-       end do
-       energy = energy+e
-      end if
-
-      end do
-      call cons_unload_hbonds(rtdb)
-      call util_print_pop()
-
-      return
-      end  
-c
-      subroutine cons_print_summary(rtdb)
-      implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "cons.fh"
-c     
-      integer rtdb
-      double precision energy
-c     local variables
-c     ---------------
-      logical status
-      logical master
-      integer i
-      integer inb,nhb
-      integer iat,jat
-      double precision r
-      double precision ciat(3),cjat(3)
-      double precision r0,k
-      integer i_c,i_rhb,i_khb,i_ijhb
-      double precision etot,e,f(3)
-c
-      master= ga_nodeid().eq.0
-      if(master) then
-        call cons_print_header()
-        call util_print_centered(6,
-     >     "Summary",
-     >     1,.true.)
-
-      end if
-
-c
-      call cons_load_geom(rtdb)
-      call cons_load_hbonds(nhb,rtdb)
-c
-      i_c    = cons_get_i_c()
-      i_ijhb = cons_get_i_hbond_id()
-      i_khb  = cons_get_i_hbond_k()
-      i_rhb  = cons_get_i_hbond_r()
-c
-      etot=0.0d0
-      do inb=1,nhb
-       iat=int_mb(i_ijhb+2*(inb-1))
-       jat=int_mb(i_ijhb+2*(inb-1)+1)
-       r0 =dbl_mb(i_rhb+inb-1)
-       k  =dbl_mb(i_khb+inb-1)
-c
-       call cons_spring_force(k,r0,
-     >           dbl_mb(i_c+(iat-1)*3),
-     >           dbl_mb(i_c+(jat-1)*3),
-     >           r,e,f)
-
-       if(master) then
-        write(6,*)"  spring #                    : ",inb
-        write(6,*)"  spring parameters (i,j,k,r0):",iat,jat,k,r0
-        write(6,*)"  spring length               :",r
-        write(6,*)"  spring energy               :",e
-        write(6,*)"  spring forces               :",(f(i),i=1,3)
-        write(6,*)"  "
-       end if
-       etot=etot+e
-      end do
-
-      if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, energy))
-     $        call errquit('driver: could not get energy',0, RTDB_ERR)
-
-
-      write(6,*)" Total energy with constraints        :",energy
-      write(6,*)" Energy contribution from constraints :",etot
-      write(6,*)" Total energy without constraints  :",energy-etot
-      write(6,*)" -----------------------------------"
-      call cons_unload_hbonds(rtdb)
-      call cons_unload_geom()
-
-      return
-      end  
-c
       subroutine cons_init(rtdb)
       implicit none
 #include "errquit.fh"
@@ -634,7 +6,8 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "geom.fh"
-#include "cons_data.fh"
+#include "cons_params.fh"
+#include "cons.fh"
       integer rtdb
 c
       logical old_style
@@ -651,12 +24,20 @@ c
       integer h_tmp_act,i_tmp_act
       character(255) tag_id
       character(255) tag_n
-c      character tag_id*(*) 
-c      parameter (tag_id = 'cons:fxd_at_id') 
-c      character tag_n*(*) 
-c      parameter (tag_n = 'cons:fxd_at_n') 
+      character(255) namespace
+c
+      if(.not. rtdb_cget(rtdb,"constraints" , 1, namespace)) then
+         namespace=cons_default
+      end if
+      call cons_set_namespace(namespace)
 
-
+      if(.not.cons_namespace(namespace,rtdb)) then
+        status = rtdb_put(rtdb, 'cons:active', mt_log, 1, .false.)
+        if(.not.status)
+     &  call errquit('cons_init',0,RTDB_ERR) 
+        write(*,*) "cons_init:no namespace found"//namespace
+        return
+      end if
 c
 c     load geometry 
 c     -------------
@@ -719,8 +100,8 @@ c     --------------------
           do i=1,nat
             int_mb(i_tmp_id+i-1)=i
           end do
-          call cons_add_fixed_atoms(nat,int_mb(i_tmp_id),rtdb)
-          call cons_unfix_atoms(nact,int_mb(i_act),rtdb)
+          call cons_add_fixed_atoms(namespace,nat,int_mb(i_tmp_id),rtdb)
+          call cons_unfix_atoms(namespace,nact,int_mb(i_act),rtdb)
         end if
         if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
      &    'cons_init: unable to free h_tmp_id',
@@ -736,6 +117,586 @@ c     --------------------
 
       return
       end
+c
+      subroutine cons_load_geom(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "geom.fh"
+#include "cons.fh"
+      integer rtdb
+c
+      integer i_c,h_c
+      integer i
+      integer geom
+      integer nat
+      logical status
+c
+c     load geometry 
+c     -------------
+      write(*,*) " loading geometry"
+      if (.not. geom_create(geom, 'geometry'))
+     &     call errquit('cons_load_geom',0, GEOM_ERR)
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     &     call errquit('cons_load_geom',0, RTDB_ERR)
+c
+c     get cart coordinates
+c     --------------------
+      status=geom_ncent(geom,nat)
+      if(.not.status) 
+     & call errquit('cons_init: geom_create?',70, GEOM_ERR)
+      if ( .not. ma_alloc_get( MT_DBL, nat*3, 'cons coord',
+     &      h_c, i_c) ) call errquit(
+     &      'cons_load_geom: unable to allocate cons coord',
+     &      nat*3, MA_ERR)
+      status=geom_cart_coords_get(geom, dbl_mb(i_c))
+      if(.not.status) 
+     & call errquit('cons_init: geom_create?',70, GEOM_ERR)
+ 
+      status=geom_destroy(geom)
+      if(.not.status) 
+     & call errquit('cons_init: geom_destroy?',70, GEOM_ERR)
+      call cons_set_h_c(h_c)
+c      call cons_set_i_c(i_c)
+
+      return
+      end
+c
+      subroutine cons_unload_geom()
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "cons.fh"
+
+      integer h_c
+      write(*,*) " unloading geometry"
+      h_c = cons_get_h_c()
+      if ( .not. ma_free_heap(h_c)) call errquit(
+     &      'input_set: unable to deallocate cons coord',
+     &      0, MA_ERR)
+
+      return
+      end
+
+      subroutine cons_unload_hbonds()
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "cons.fh"
+      integer nhb,h_rhb,h_khb,h_ijhb
+
+      h_ijhb = cons_get_h_hbond_id()
+      h_khb  = cons_get_h_hbond_k()
+      h_rhb  = cons_get_h_hbond_r()
+c
+c     unload harmonic constraints if any
+c
+      call cons_get_hbond_nhb(nhb)
+      if(nhb.gt.0) then
+      if (.not. ma_free_heap(h_rhb) ) call errquit(
+     &    'cons_bond_input: unable to free h_rhb',
+     &    0, MA_ERR)
+      if (.not. ma_free_heap(h_khb) ) call errquit(
+     &    'cons_bond_input: unable to free h_khb',
+     &    0, MA_ERR)
+      if (.not. ma_free_heap(h_ijhb) ) call errquit(
+     &    'cons_bond_input: unable to free h_ijhb',
+     &    0, MA_ERR)
+      call cons_set_hbond_nhb(0)
+      end if
+      end
+
+      subroutine cons_load_constraints(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "geom.fh"
+      integer rtdb
+      character*(*) namespace
+      
+      call cons_set_namespace(namespace)
+
+      end
+c
+      subroutine cons_load_hbonds(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "geom.fh"
+c     
+      character*(*) namespace
+      integer rtdb
+c
+      logical status
+      integer nhb
+      integer i_rhb,i_khb,i_ijhb
+      integer h_rhb,h_khb,h_ijhb
+      character(255) tag_id
+      character(255) tag_n
+      character(255) tag_r
+      character(255) tag_k
+c
+      call cons_unload_hbonds()
+c
+      call cons_hbond_id_tag(namespace,tag_id)
+      call cons_hbond_n_tag(namespace,tag_n)
+      call cons_hbond_k_tag(namespace,tag_k)
+      call cons_hbond_r_tag(namespace,tag_r)
+c
+c     load harmonic constraints
+c
+      write(*,*) 'cons_load_hbonds:namespace',namespace
+      status=rtdb_get(rtdb,tag_n,mt_int,1,nhb)
+      if(.not.status .or. nhb.eq.0) call errquit(
+     >     'cons_load_hbonds: unable to get number of harm bonds:',
+     >      nhb, MA_ERR)
+ 
+      if ( .not. ma_alloc_get( MT_INT, 2*nhb, tag_id,
+     &      h_ijhb, i_ijhb) ) call errquit(
+     &      'cons_load_hbonds: unable to allocate cons scratch space',
+     &      2*nhb, MA_ERR)
+      if ( .not. ma_alloc_get( MT_DBL, nhb, tag_k,
+     &      h_khb, i_khb) ) call errquit(
+     &      'cons_load_hbonds: unable to allocate cons scratch space',
+     &      nhb, MA_ERR)
+      if ( .not. ma_alloc_get( MT_DBL, nhb, tag_r,
+     &      h_rhb, i_rhb) ) call errquit(
+     &      'cons_load_hbonds: unable to allocate cons scratch space',
+     &      nhb, MA_ERR)
+
+        status = rtdb_get(rtdb,tag_id,
+     >     mt_int,2*nhb,int_mb(i_ijhb)) 
+        status = status . and. rtdb_get(rtdb,tag_k,
+     >     mt_dbl,nhb,dbl_mb(i_khb)) 
+        status = status . and. rtdb_get(rtdb,tag_r,
+     >     mt_dbl,nhb,dbl_mb(i_rhb)) 
+        if(.not.status) call errquit(
+     >     'cons_load_hbonds: unable to get ma index for harm bonds',
+     >      nhb, MA_ERR)
+       
+       call cons_set_hbond_nhb(nhb)
+       call cons_set_h_hbond_id(h_ijhb)
+       call cons_set_h_hbond_k(h_khb)
+       call cons_set_h_hbond_r(h_rhb)
+
+c      if(rtdb_get(rtdb,tag_n,mt_int,1,nhb)) then
+c        status = rtdb_ma_get(rtdb,"cons:hbond_ij",
+c     >     ma_type,ma_size,h_ijhb) 
+c        if(.not.status) call errquit(
+c     >     'cons_init: unable to get cons:hbond_n',
+c     >      nhb, RTDB_ERR)
+c        status = ma_get_index(h_ijhb,i_ijhb)
+c        if(.not.status) call errquit(
+c     >     'cons_init: unable to get ijhb',
+c     >      nhb, RTDB_ERR)
+c        status = rtdb_ma_get(rtdb,tag_k,
+c     >     ma_type,ma_size,h_khb) 
+c        if(.not.status) call errquit(
+c     >     'cons_init: unable to get h_khb',
+c     >      nhb, RTDB_ERR)
+c        status = ma_get_index(h_khb,i_khb)
+c        if(.not.status) call errquit(
+c     >     'cons_init: unable to get i_khb',
+c     >      nhb, RTDB_ERR)
+c        status = rtdb_ma_get(rtdb,tag_r,
+c     >     ma_type,ma_size,h_rhb) 
+c        if(.not.status) call errquit(
+c     >     'cons_init: unable to get h_rhb',
+c     >      nhb, RTDB_ERR)
+c        status = ma_get_index(h_rhb,i_rhb)
+c        if(.not.status) call errquit(
+c     >     'cons_init: unable to get i_irhb',
+c     >      nhb, RTDB_ERR)
+c      end if
+      end
+c
+      subroutine cons_load_fixed_atoms(namespace,nfa,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "cons_data.fh"
+c     
+      character*(*) namespace
+      integer nfa
+      integer rtdb
+c
+      logical status
+      character(255) tag_id
+      character(255) tag_n
+      integer h_tmp_id,i_tmp_id 
+c
+      call cons_fxd_atoms_id_tag(namespace,tag_id)
+      call cons_fxd_atoms_n_tag(namespace,tag_n)
+c
+c     load fixed atoms
+c
+      status = rtdb_get(rtdb,tag_n,
+     >     mt_int,1,nfa) 
+        if(.not.status) call errquit(
+     >     'input_set: unable to get prior fixed atoms',
+     >      nfa, MA_ERR)
+
+      if ( .not. ma_push_get( MT_INT, nfa, 'h_tmp_id',
+     &      h_tmp_id, i_tmp_id) ) call errquit(
+     &      'cons_add_fixed_atoms: unable to allocate scratch space',
+     &      nfa, MA_ERR)
+
+      end
+c
+      subroutine cons_delete_hbonds(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+c     
+      character*(*) namespace
+      integer rtdb
+c
+      logical status
+      character(255) tag_id
+      character(255) tag_n
+      character(255) tag_r
+      character(255) tag_k
+
+      call cons_hbond_id_tag(namespace,tag_id)
+      call cons_hbond_n_tag(namespace,tag_n)
+      call cons_hbond_k_tag(namespace,tag_k)
+      call cons_hbond_r_tag(namespace,tag_r)
+
+      status =              rtdb_delete(rtdb,tag_n)
+      status = status .and. rtdb_delete(rtdb,tag_id)
+      status = status .and. rtdb_delete(rtdb,tag_k)
+      status = status .and. rtdb_delete(rtdb,tag_r)
+      if(.not.status) call errquit(
+     >     'input_set: unable to delete prior harm bonds',
+     >      0, MA_ERR)
+      end
+c
+      subroutine cons_delete_fixed_atoms(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+c     
+      integer rtdb
+c
+      logical status
+      status = rtdb_delete(rtdb,"cons:fpos_i")
+      if(.not.status) call errquit(
+     >     'input_set: unable to delete prior fixed atoms',
+     >      0, MA_ERR)
+      end
+c
+      subroutine cons_add_egrad(rtdb,energy,gx)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c     
+      integer rtdb
+      double precision energy
+      double precision gx(*)
+      logical status
+      integer nhb
+      character(255) tag_n
+      character(255) namespace
+c
+      if(.not. rtdb_get(rtdb, 'cons:active', mt_log, 1, status)) then
+        return
+      else if (.not.status) then
+        return
+      end if
+c
+      call cons_load_geom(rtdb)
+      call cons_get_namespace(namespace)
+      write(*,*) "cons_add_egrad:namespace=",namespace
+      call cons_load_hbonds(namespace,rtdb)
+      call cons_get_hbond_nhb(nhb)
+      if(nhb .gt. 0 ) then
+         call cons_add_hbond_egrad(rtdb,energy,gx)
+      end if
+c
+      call cons_unload_geom()
+c
+      return
+      end
+c
+      subroutine cons_add_energy(rtdb,energy)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+c     
+      integer rtdb
+      double precision energy
+      logical status
+      integer nhb
+      character(255) tag_n
+      character(255) namespace
+c
+      if(.not. rtdb_get(rtdb, 'cons:active', mt_log, 1, status)) then
+        return
+      else if (.not.status) then
+        return
+      end if
+      call util_print_centered(6,
+     >     "NWChem Constraints Module",
+     >     36,.true.)
+c
+      call cons_load_geom(rtdb)
+      call cons_get_namespace(namespace)
+      write(*,*) "cons_add_energy:namespace=",namespace
+      call cons_load_hbonds(namespace,rtdb)
+      call cons_get_hbond_nhb(nhb)
+      if(nhb .gt. 0 ) then
+           call cons_add_hbond_energy(rtdb,energy)
+      end if
+c
+      call cons_unload_geom()
+      return
+      end
+c
+      subroutine cons_add_hbond_energy(rtdb,energy)
+      implicit none
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "cons.fh"
+c     
+      integer rtdb
+      double precision energy
+      logical status
+      logical oprint
+      integer i
+      integer inb
+      integer iat,jat
+      double precision r
+      double precision ciat(3),cjat(3)
+      double precision r0,k
+      double precision e,enb,enb1
+      integer i_c,i_rhb,i_khb,i_ijhb
+      integer nhb
+c
+      call util_print_push()
+      call util_print_rtdb_load(rtdb,'cons')
+      oprint = util_print('energy', print_default)
+      oprint =oprint .and. (ga_nodeid().eq.0)
+c
+      call cons_get_hbond_nhb(nhb)
+      i_c    = cons_get_i_c()
+      i_ijhb = cons_get_i_hbond_id()
+      i_khb  = cons_get_i_hbond_k()
+      i_rhb  = cons_get_i_hbond_r()
+
+      write(*,*) "cons_add_hbond_energy",(dbl_mb(i_c+i-1),i=1,9)
+
+      write(*,*)"cons_add_hbond_energy"
+      e=0.0d0
+      do inb=1,nhb
+       iat=int_mb(i_ijhb+2*(inb-1))
+       jat=int_mb(i_ijhb+2*(inb-1)+1)
+       r0 =dbl_mb(i_rhb+inb-1)
+       k  =dbl_mb(i_khb+inb-1)
+
+       call cons_spring_energy(k,r0,
+     >         dbl_mb(i_c+(iat-1)*3),
+     >         dbl_mb(i_c+(jat-1)*3),
+     >         r,
+     >         enb)
+
+c       if(oprint) then
+        write(6,*)"adding spring # ",inb
+        write(6,*)"  spring parameters (i,j,k,r0):",iat,jat,k,r0
+        write(6,*)"  spring length and energy    :",r,enb
+c       end if
+       e=e+enb
+      end do
+      if(rtdb_get(rtdb, 'cons:simulate', mt_log, 1, status)) then
+        write(*,*) "cons energy simulation"
+        energy=e
+      else 
+        energy = energy + e
+      end if
+c
+      call util_print_pop()
+      return
+      end
+c
+      subroutine cons_add_hbond_egrad(rtdb,energy,gx)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "cons.fh"
+c     
+      integer rtdb
+      double precision gx(*)
+      double precision energy
+c     local variables
+c     ---------------
+      logical status
+      logical oprint
+      logical pdefault
+      integer i
+      integer inb,nhb
+      integer iat,jat
+      double precision r
+      double precision ciat(3),cjat(3)
+      double precision r0,k
+      double precision e,f(3)
+      integer i_c,i_rhb,i_khb,i_ijhb
+c
+      call util_print_push()
+      call util_print_rtdb_load(rtdb,'cons')
+      oprint = util_print('energy', print_default)
+      oprint =oprint .and. (ga_nodeid().eq.0)
+c
+      call cons_get_hbond_nhb(nhb)
+      i_c    = cons_get_i_c()
+      i_ijhb = cons_get_i_hbond_id()
+      i_khb  = cons_get_i_hbond_k()
+      i_rhb  = cons_get_i_hbond_r()
+
+c
+      e=0.0d0
+      do inb=1,nhb
+       iat=int_mb(i_ijhb+2*(inb-1))
+       jat=int_mb(i_ijhb+2*(inb-1)+1)
+       r0 =dbl_mb(i_rhb+inb-1)
+       k  =dbl_mb(i_khb+inb-1)
+c
+       call cons_spring_force(k,r0,
+     >           dbl_mb(i_c+(iat-1)*3),
+     >           dbl_mb(i_c+(jat-1)*3),
+     >           r,e,f)
+
+       if(oprint) then
+        write(6,*)"adding spring # ",inb
+        write(6,*)"  spring parameters (i,j,k,r0):",iat,jat,k,r0
+        write(6,*)"  spring length and energy    :",r,e
+        write(6,*)"  spring forces               :",(f(i),i=1,3)
+       end if
+
+      if(rtdb_get(rtdb, 'cons:simulate', mt_log, 1, status)) then
+       do i=1,3
+         gx((iat-1)*3+i)=f(i)
+         gx((jat-1)*3+i)=-f(i)
+       end do
+       energy = e
+      else 
+       do i=1,3
+         gx((iat-1)*3+i)=gx((iat-1)*3+i)+f(i)
+         gx((jat-1)*3+i)=gx((jat-1)*3+i)-f(i)
+       end do
+       energy = energy+e
+      end if
+
+      end do
+      call util_print_pop()
+
+      return
+      end  
+c
+      subroutine cons_print_summary(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "cons.fh"
+c     
+      integer rtdb
+      double precision energy
+c     local variables
+c     ---------------
+      logical status
+      logical master
+      integer i
+      integer inb,nhb
+      integer iat,jat
+      double precision r
+      double precision ciat(3),cjat(3)
+      double precision r0,k
+      integer i_c,i_rhb,i_khb,i_ijhb
+      double precision etot,e,f(3)
+      character(255) namespace
+c
+      if(.not. rtdb_get(rtdb, 'cons:active', mt_log, 1, status)) then
+        return
+      else if (.not.status) then
+        return
+      end if
+
+      master= ga_nodeid().eq.0
+      if(master) then
+        call cons_print_header()
+        call util_print_centered(6,
+     >     "Summary",
+     >     1,.true.)
+
+      end if
+
+c
+      call cons_load_geom(rtdb)
+      call cons_get_namespace(namespace)
+      write(*,*)"cons_print_summary:namespace",namespace
+      call cons_load_hbonds(namespace,rtdb)
+c
+      call cons_get_hbond_nhb(nhb)
+      i_c    = cons_get_i_c()
+      i_ijhb = cons_get_i_hbond_id()
+      i_khb  = cons_get_i_hbond_k()
+      i_rhb  = cons_get_i_hbond_r()
+c
+      etot=0.0d0
+      do inb=1,nhb
+       iat=int_mb(i_ijhb+2*(inb-1))
+       jat=int_mb(i_ijhb+2*(inb-1)+1)
+       r0 =dbl_mb(i_rhb+inb-1)
+       k  =dbl_mb(i_khb+inb-1)
+c
+       call cons_spring_force(k,r0,
+     >           dbl_mb(i_c+(iat-1)*3),
+     >           dbl_mb(i_c+(jat-1)*3),
+     >           r,e,f)
+
+       if(master) then
+        write(6,*)"  spring #                    : ",inb
+        write(6,*)"  spring parameters (i,j,k,r0):",iat,jat,k,r0
+        write(6,*)"  spring length               :",r
+        write(6,*)"  spring energy               :",e
+        write(6,*)"  spring forces               :",(f(i),i=1,3)
+        write(6,*)"  "
+       end if
+       etot=etot+e
+      end do
+
+      if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, energy))
+     $        call errquit('driver: could not get energy',0, RTDB_ERR)
+
+
+      write(6,*)" Total energy with constraints        :",energy
+      write(6,*)" Energy contribution from constraints :",etot
+      write(6,*)" Total energy without constraints  :",energy-etot
+      write(6,*)" -----------------------------------"
+      call cons_unload_hbonds(rtdb)
+      call cons_unload_geom()
+
+      return
+      end  
 c
       subroutine cons_spring_force(k,r0,r1,r2,r,energy,f)
       implicit none

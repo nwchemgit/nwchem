@@ -1,4 +1,4 @@
-c $Id: cons_input.F,v 1.6 2004-04-02 02:36:16 marat Exp $
+c $Id: cons_input.F,v 1.7 2004-04-02 22:04:12 marat Exp $
       subroutine cons_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -37,6 +37,17 @@ c
      &      'cons_input: failed cons scratch space for fixed atoms',
      &      max_fp, MA_ERR)
 
+      if(inp_n_field().eq.2) then
+       call inp_set_field(1)
+       if (.not. inp_a(test)) then
+         call errquit('cons_input: inp_read failed',0,0)
+       else
+         namespace=test
+         write(*,*) "cons_input:namespace",namespace
+         call cons_add_namespace(namespace,rtdb)
+       end if
+      end if 
+      
  100  if (.not. inp_read()) 
      >      call errquit('cons_input: inp_read failed',0,0)
 c
